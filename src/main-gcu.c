@@ -736,7 +736,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 	move(y, x);
 
 	/* Clear to end of line */
-	if (x + n >= 80)
+	if (x + n >= screen_x)
 	{
 		clrtoeol();
 	}
@@ -929,7 +929,7 @@ errr init_gcu(int argc, char *argv[])
 	/*** Now prepare the term ***/
 
 	/* Initialize the term */
-	term_init(t, 80, screen_y, 256);
+	term_init(t, screen_x, screen_y, 256);
 
 	/* Avoid the bottom right corner */
 	t->icky_corner = TRUE;

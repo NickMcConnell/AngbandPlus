@@ -929,17 +929,19 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
+			/* Hack - 'show' effected region only with
+			 * the first detect */
 			msg_print("You begin to feel more enlightened...");
 			msg_print(NULL);
 			wiz_lite(TRUE);
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_traps(FALSE);
-			(void)detect_doors(FALSE);
-			(void)detect_stairs(FALSE);
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-			(void)detect_objects_normal();
+			(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
+			(void)detect_doors(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_treasure(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_objects_gold(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_objects_normal(DETECT_RAD_DEFAULT, FALSE);
 			identify_pack();
 			self_knowledge();
 			ident = TRUE;
@@ -967,6 +969,25 @@ void do_cmd_quaff_potion(void)
 			}
 			break;
 		}
+
+		case SV_POTION_VAMPIRE:
+		{
+		  if (mp_ptr->spell_book == TV_PRAYER_BOOK){
+		    msg_print("You reject the unholy serum.");
+       		    take_hit(damroll(10, 6), "dark forces");
+		    break;
+		  }
+		  if (mp_ptr->spell_book == TV_DRUID_BOOK) {
+		    msg_print("You reject the unholy serum.");
+       		    take_hit(damroll(10, 6), "unnatural forces");
+		    break;
+		  }
+		  msg_print("You are infused with dark power.");
+		  take_hit(damroll(3, 6), "shapeshifting stress");
+		  shapechange(SHAPE_VAMPIRE);
+		  break;
+		}
+
 	}
 
 
@@ -1201,7 +1222,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_BRANDING:
 		{
 			ident = TRUE;
-			(void)brand_missile(FALSE);
+			(void)brand_missile(0, 0);
 			break;
 		}
 
@@ -1294,33 +1315,37 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_DETECT_GOLD:
 		{
-			if (detect_treasure()) ident = TRUE;
-			if (detect_objects_gold()) ident = TRUE;
+			/* Hack - 'show' effected region only with
+			 * the first detect */
+			if (detect_treasure(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
+			if (detect_objects_gold(DETECT_RAD_DEFAULT, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) ident = TRUE;
+			if (detect_objects_normal(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
-			if (detect_traps(FALSE)) ident = TRUE;
+			if (detect_traps(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_DOOR:
 		{
-			if (detect_doors(FALSE)) ident = TRUE;
-			if (detect_stairs(FALSE)) ident = TRUE;
+			/* Hack - 'show' effected region only with
+			 * the first detect */
+			if (detect_doors(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) ident = TRUE;
+			if (detect_monsters_invis(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
@@ -1368,7 +1393,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
-			/* Use up scroll only if warding_glyph is created. -LM- */
+			/* Use up scroll only if warding_glyph is created. */
 			if (!warding_glyph()) used_up = FALSE;
 			ident = TRUE;
 			break;
@@ -1647,7 +1672,7 @@ void do_cmd_use_staff(void)
 				msg_print("The staff glitters with unearthly light.");
 			}
 
-			/* Starbursts everywhere. -LM- */
+			/* Starbursts everywhere. */
 			do_starlight(rand_int(8) + 7, 12, FALSE);
 
 			/* Hard not to identify. */
@@ -1670,39 +1695,43 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DETECT_GOLD:
 		{
-			if (detect_treasure()) ident = TRUE;
-			if (detect_objects_gold()) ident = TRUE;
+			/* Hack - 'show' effected region only with
+			 * the first detect */
+			if (detect_treasure(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
+			if (detect_objects_gold(DETECT_RAD_DEFAULT, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) ident = TRUE;
+			if (detect_objects_normal(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_TRAP:
 		{
-			if (detect_traps(TRUE)) ident = TRUE;
+			if (detect_traps(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_DOOR:
 		{
-			if (detect_doors(TRUE)) ident = TRUE;
-			if (detect_stairs(TRUE)) ident = TRUE;
+			/* Hack - 'show' effected region only with
+			 * the first detect */
+			if (detect_doors(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT, FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) ident = TRUE;
+			if (detect_monsters_invis(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_EVIL:
 		{
-			if (detect_monsters_evil()) ident = TRUE;
+			if (detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
@@ -1795,13 +1824,6 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_GENOCIDE:
-		{
-			(void)genocide();
-			ident = TRUE;
-			break;
-		}
-
 		case SV_STAFF_EARTHQUAKES:
 		{
 			earthquake(py, px, 10, FALSE);
@@ -1818,7 +1840,7 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DETECTION:
 		{
-			detect_all();
+			detect_all(DETECT_RAD_DEFAULT, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1828,7 +1850,7 @@ void do_cmd_use_staff(void)
 			
 			msg_print("Mighty magics rend your enemies!");
 			fire_sphere(GF_MANA, 0,
-		          randint(75) + 125, 5, 20);
+		               randint(75) + 125, 5, 20);
 			if (p_ptr->pclass != CLASS_MAGE)
 			{
 				(void)take_hit(20, "unleashing magics too mighty to control");
@@ -1841,7 +1863,7 @@ void do_cmd_use_staff(void)
 		{
 			msg_print("Light bright beyond enduring dazzles your foes!");
 			fire_sphere(GF_LITE, 0,
-		          randint(67) + 100, 5, 20);
+		               randint(67) + 100, 5, 20);
 			ident = TRUE;
 			break;
 		}
@@ -1977,7 +1999,7 @@ void do_cmd_use_staff(void)
 
 
 
-	/* Make it possible to fully identify staffs through use. -LM- */
+	/* Make it possible to fully identify staffs through use. */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
 		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 25 : 35) == 0))
@@ -2410,7 +2432,7 @@ void do_cmd_aim_wand(void)
 	}
 
 
-	/* Make it possible to fully identify wands through use. -LM- */
+	/* Make it possible to fully identify wands through use. */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
 		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 30 : 40) == 0))
@@ -2480,8 +2502,8 @@ void do_cmd_zap_rod(void)
 		 (o_ptr->sval == SV_ROD_DELVING) ||
 		 !object_aware_p(o_ptr))
 	{
-		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return;
+		 /* Get a direction, allow cancel */
+		 if (!get_aim_dir(&dir)) return;
 	}
 
 
@@ -2537,7 +2559,7 @@ void do_cmd_zap_rod(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	/* Increase the timeout by the rod kind's pval. -LM- */
+	/* Increase the timeout by the rod kind's pval. */
 	o_ptr->timeout += k_ptr->pval;
 
 	/* Analyze the rod */
@@ -2545,14 +2567,16 @@ void do_cmd_zap_rod(void)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
-			if (detect_traps(FALSE)) ident = TRUE;
+			if (detect_traps(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DETECT_DOOR:
 		{
-			if (detect_doors(FALSE)) ident = TRUE;
-			if (detect_stairs(FALSE)) ident = TRUE;
+			/* Hack - 'show' effected region only with
+			 * the first detect */
+			if (detect_doors(DETECT_RAD_DEFAULT, TRUE)) ident = TRUE;
+			if (detect_stairs(DETECT_RAD_DEFAULT, FALSE)) ident = TRUE;
 			break;
 		}
 
@@ -2869,7 +2893,7 @@ void do_cmd_zap_rod(void)
 	}
 
 
-	/* Make it possible to fully identify rods through use. -LM- */
+	/* Make it possible to fully identify rods through use. */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
 		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 45 : 65) == 0))
@@ -3037,7 +3061,7 @@ void do_cmd_activate(void)
 	chance = chance - (((2 * lev / 3) > 75) ? 75 : 2 * lev / 3);
 
 
-	/* Give everyone a (slight) chance, more for ordinary rings, amulets. -LM- */
+	/* Give everyone a (slight) chance, more for ordinary rings, amulets. */
 	if ((chance < USE_DEVICE))
 	{
 		if ((!(o_ptr->name1)) && ((o_ptr->tval == TV_RING) || 
@@ -3069,7 +3093,7 @@ void do_cmd_activate(void)
 
 
 	/* Activate the artifact */
-	msg_print("You activate it...");
+	message(MSG_ZAP, 0, "You activate it...");
 
 	/* Sound */
 	sound(SOUND_ZAP);
@@ -3093,11 +3117,13 @@ void do_cmd_activate(void)
 		}
 		case ACT_THRAIN:
 		{
+			/* Hack - 'show' effected region only with
+			 * the first detect */
 			msg_print("The stone glows a deep green...");
 			wiz_lite(FALSE);
-			(void)detect_traps(FALSE);
-			(void)detect_doors(FALSE);
-			(void)detect_stairs(FALSE);
+			(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
+			(void)detect_doors(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 			o_ptr->timeout = rand_int(120) + 120;
 			break;
 		}
@@ -3232,23 +3258,39 @@ void do_cmd_activate(void)
 
 		case ACT_RAZORBACK:
 		{
-			msg_print("Your armor is surrounded by lightning...");
-			for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become Dragonking of Storms.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       msg_print("You are surrounded by lightning...");
+			       for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3, FALSE);
+			}
 			o_ptr->timeout = 1000;
 			break;
 		}
 		case ACT_BLADETURNER:
 		{
-			msg_print("Your armor glows many colours...");
-			(void)hp_player(30);
-			(void)set_afraid(0);
-			(void)set_shero(p_ptr->hero + randint(50) + 50);
-			(void)set_blessed(p_ptr->blessed + randint(50) + 50);
-			(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
-			(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
-			(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
-			(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
-			(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become an Avatar of Dragonkind.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       msg_print("Your scales glow many colours...");
+			       (void)hp_player(30);
+			       (void)set_afraid(0);
+			       (void)set_shero(p_ptr->hero + randint(50) + 50);
+			       (void)set_blessed(p_ptr->blessed + randint(50) + 50);
+			       (void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
+			       (void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
+			       (void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
+			       (void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
+			       (void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+			}
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -3272,7 +3314,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your armor glows deep blue...");
 			(void)genocide();
-			o_ptr->timeout = 500;
+			o_ptr->timeout = 1500;
 			break;
 		}
 		case ACT_CASPANION:
@@ -3326,7 +3368,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your helm glows bright white...");
 			msg_print("An image forms in your mind...");
-			detect_all();
+			detect_all(DETECT_RAD_DEFAULT, TRUE);
 			o_ptr->timeout = rand_int(55) + 55;
 			break;
 		}
@@ -3554,7 +3596,7 @@ void do_cmd_activate(void)
 		{
 			msg_print("Your axe lets out a long, shrill note...");
 			(void)mass_genocide();
-			o_ptr->timeout = 1000;
+			o_ptr->timeout = 1500;
 			break;
 		}
 		case ACT_LOTHARANG:
@@ -3657,14 +3699,14 @@ void do_cmd_activate(void)
 		case ACT_CUBRAGOL:
 		{
 			msg_print("Your crossbow glows deep red...");
-			(void)brand_bolts();
+			(void)brand_missile(TV_BOLT, EGO_FLAME);
 			o_ptr->timeout = 999;
 			break;
 		}
 		case ACT_BUCKLAND:
 		{
 			msg_print("Your sling glows with power...");
-			(void)brand_missile(FALSE);
+			(void)brand_missile(TV_SHOT, 0);
 			o_ptr->timeout = 1500;
 			break;
 		}
@@ -4130,7 +4172,7 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_BRAND_MISSILE:
 		{
 			msg_print("Your missile launcher glows with power...");
-			(void)brand_missile(FALSE);
+			(void)brand_missile(0, 0);
 			o_ptr->timeout = 1750;
 			break;
 		}
@@ -4140,10 +4182,10 @@ void do_cmd_activate(void)
 			missile_name = "missile";
 			if ((o_ptr->sval == SV_LIGHT_XBOW) || 
 				(o_ptr->sval == SV_HEAVY_XBOW))
-					missile_name = "bolt";
+				missile_name = "bolt";
 			if ((o_ptr->sval == SV_LONG_BOW) || 
 				(o_ptr->sval == SV_LONG_BOW))
-					missile_name = "arrow";
+				missile_name = "arrow";
 			if (o_ptr->sval == SV_SLING) missile_name = "shot";
 
 			msg_format("The %s you have ready to hand gleams with deadly power.", missile_name);
@@ -4154,21 +4196,21 @@ void do_cmd_activate(void)
 		case ACT_RANDOM_DETECT_MONSTERS:
 		{
 			msg_print("You search for monsters.");
-			(void)detect_monsters_normal();
+			(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
 			o_ptr->timeout = 4 + randint(4);
 			break;
 		}
 		case ACT_RANDOM_DETECT_EVIL:
 		{
 			msg_print("You hunt for evil creatures...");
-			(void)detect_monsters_evil();
+			(void)detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE);
 			o_ptr->timeout = 4 + randint(4);
 			break;
 		}
 		case ACT_RANDOM_DETECT_ALL:
 		{
 			msg_print("You sense the dungeon around you.");
-			detect_all();
+			detect_all(DETECT_RAD_DEFAULT, TRUE);
 			o_ptr->timeout = 30 + randint(30);
 			break;
 		}
@@ -4181,10 +4223,12 @@ void do_cmd_activate(void)
 		}
 		case ACT_RANDOM_DETECT_D_S_T:
 		{
+			/* Hack - 'show' effected region only with
+			 * the first detect */
 			msg_print("The secrets of traps and doors are revealed.");
-			(void)detect_traps(FALSE);
-			(void)detect_doors(FALSE);
-			(void)detect_stairs(FALSE);
+			(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
+			(void)detect_doors(DETECT_RAD_DEFAULT, FALSE);
+			(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 			o_ptr->timeout = 10 + randint(10);
 			break;
 		}
@@ -4277,130 +4321,234 @@ void do_cmd_activate(void)
 		/* Activations for dragon scale mails. */
 		case ACT_DRAGON_BLACK:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe acid.");
-			fire_ball(GF_ACID, dir, 150, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small acidic dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe acid.");
+			       fire_ball(GF_ACID, dir, 150, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_BLUE:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe lightning.");
-			fire_ball(GF_ELEC, dir, 130, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+                        {
+			       msg_print("You become a small storm dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe lightning.");
+			       fire_ball(GF_ELEC, dir, 130, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_WHITE:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe frost.");
-			fire_ball(GF_COLD, dir, 140, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small icy dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe frost.");
+			       fire_ball(GF_COLD, dir, 140, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_RED:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe fire.");
-			fire_ball(GF_FIRE, dir, 160, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small fire dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe fire.");
+			       fire_ball(GF_FIRE, dir, 160, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_GREEN:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe poison gas.");
-			fire_ball(GF_POIS, dir, 150, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small poisonous dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe poison gas.");
+			       fire_ball(GF_POIS, dir, 150, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_MULTIHUED:
 		{
-			if (!get_aim_dir(&dir)) return;
-			chance = rand_int(5);
-			msg_format("You breathe %s.",
-			           ((chance == 1) ? "lightning" :
-			            ((chance == 2) ? "frost" :
-			             ((chance == 3) ? "acid" :
-			              ((chance == 4) ? "poison gas" : "fire")))));
-			fire_ball(((chance == 1) ? GF_ELEC :
-			           ((chance == 2) ? GF_COLD :
-			            ((chance == 3) ? GF_ACID :
-			             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-			          dir, 190, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small but powerful dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       chance = rand_int(5);
+			       msg_format("You breathe %s.",
+				      ((chance == 1) ? "lightning" :
+				      ((chance == 2) ? "frost" :
+				      ((chance == 3) ? "acid" :
+				      ((chance == 4) ? "poison gas" : "fire")))));
+			       fire_ball(((chance == 1) ? GF_ELEC :
+				      ((chance == 2) ? GF_COLD :
+				      ((chance == 3) ? GF_ACID :
+				      ((chance == 4) ? GF_POIS : GF_FIRE)))),
+				      dir, 190, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(350) + 350;
 			break;
 		}
 		case ACT_DRAGON_SHINING:
 		{
-			if (!get_aim_dir(&dir)) return;
-			chance = rand_int(2);
-			msg_format("You breathe %s.",
-			           ((chance == 0 ? "light" : "darkness")));
-			fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 
-				160, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small glowing dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+		        {
+			       if (!get_aim_dir(&dir)) return;
+			       chance = rand_int(2);
+			       msg_format("You breathe %s.",
+				      ((chance == 0 ? "light" : "darkness")));
+			       fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 
+				      160, 2, FALSE);
+			}			
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_LAW:
 		{
-			if (!get_aim_dir(&dir)) return;
-			chance = rand_int(2);
-			msg_format("You breathe %s.",
-			           ((chance == 1 ? "sound" : "shards")));
-			fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
-				dir, 190, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small dragon of Order.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       chance = rand_int(2);
+			       msg_format("You breathe %s.",
+				      ((chance == 1 ? "sound" : "shards")));
+			       fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
+				      dir, 190, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_BRONZE:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe confusion.");
-			fire_ball(GF_CONFUSION, dir, 130, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small mystifying dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe confusion.");
+			       fire_ball(GF_CONFUSION, dir, 130, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_GOLD:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe sound.");
-			fire_ball(GF_SOUND, dir, 130, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small dragon with a deafening roar.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe sound.");
+			       fire_ball(GF_SOUND, dir, 130, 2, FALSE);
+			}			
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_CHAOS:
 		{
-			if (!get_aim_dir(&dir)) return;
-			chance = rand_int(2);
-			msg_format("You breathe %s.",
-			           ((chance == 1 ? "chaos" : "disenchantment")));
-			fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-			          dir, 180, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small dragon of Chaos.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       chance = rand_int(2);
+			       msg_format("You breathe %s.",
+				      ((chance == 1 ? "chaos" : "disenchantment")));
+			       fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
+				      dir, 180, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_BALANCE:
 		{
-			if (!get_aim_dir(&dir)) return;
-			chance = rand_int(4);
-			msg_format("You breathe %s.",
-			           ((chance == 1) ? "chaos" :
-			            ((chance == 2) ? "disenchantment" :
-			             ((chance == 3) ? "sound" : "shards"))));
-			fire_ball(((chance == 1) ? GF_CHAOS :
-			           ((chance == 2) ? GF_DISENCHANT :
-			            ((chance == 3) ? GF_SOUND : GF_SHARD))),
-			          dir, 210, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small dragon of Balance.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       chance = rand_int(4);
+			       msg_format("You breathe %s.",
+				      ((chance == 1) ? "chaos" :
+				      ((chance == 2) ? "disenchantment" :
+				      ((chance == 3) ? "sound" : "shards"))));
+			       fire_ball(((chance == 1) ? GF_CHAOS :
+				      ((chance == 2) ? GF_DISENCHANT :
+				      ((chance == 3) ? GF_SOUND : GF_SHARD))),
+				      dir, 210, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
 		case ACT_DRAGON_POWER:
 		{
-			if (!get_aim_dir(&dir)) return;
-			msg_print("You breathe the elements.");
-			fire_ball(GF_MISSILE, dir, 240, 2, FALSE);
+		        if ((p_ptr->schange) != SHAPE_WYRM)
+			{
+			       msg_print("You become a small but wonderous dragon.");
+			       shapechange(SHAPE_WYRM);
+			}
+			else
+			{
+			       if (!get_aim_dir(&dir)) return;
+			       msg_print("You breathe the elements.");
+			       fire_ball(GF_MISSILE, dir, 240, 2, FALSE);
+			}
 			o_ptr->timeout = rand_int(300) + 300;
 			break;
 		}
@@ -4448,6 +4596,14 @@ void do_cmd_activate(void)
 			break;
 		}
 
+		case ACT_AMULET_LION:
+		{
+			msg_print("You become a feirce Lion.");
+		        shapechange(SHAPE_LION);
+			o_ptr->timeout = 200;
+			break;
+		}
+
 
 		/* Activations for ego-items. */
 		case ACT_BALROG_WHIP:
@@ -4473,14 +4629,14 @@ void do_cmd_activate(void)
 
 
 	/* Give the player a chance to learn more about the effects of 
-	 * non-artifact dragon scale mails. -LM-
+	 * non-artifact dragon scale mails.
 	 */
 	if (((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_RING)) && 
 		(k_info[o_ptr->k_idx].known_effect == FALSE) && 
 		!artifact_p(o_ptr) && strlen(obj_special_info[0][o_ptr->sval]) && 
 		(rand_int(25) == 0))
 	{
-		char o_name[80];
+		char o_name[120];
 
 		object_desc(o_name, o_ptr, TRUE, 0);
 

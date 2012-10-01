@@ -455,13 +455,13 @@ void wipe_o_list(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || p_ptr->preserve)
+		if (!character_dungeon || adult_preserve)
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 			{
 				/* Mega-Hack -- Preserve the artifact */
-				a_info[o_ptr->name1].cur_num = 0;
+				a_info[o_ptr->name1].creat_stat = 0;
 			}
 		}
 
@@ -489,7 +489,7 @@ void wipe_o_list(void)
 		}
 
 		/* Wipe the object */
-		WIPE(o_ptr, object_type);
+		(void)WIPE(o_ptr, object_type);
 	}
 
 	/* Reset "o_max" */
@@ -968,7 +968,7 @@ static s32b object_value_real(object_type *o_ptr)
 			if (!o_ptr->pval) break;
 
 			/* Give credit for stat bonuses.  Formula slightly reworked
-			 * to make +6 STR items as valuable as they should be. -LM-
+			 * to make +6 STR items as valuable as they should be.
 			 */
 			if (f1 & (TR1_STR)) value += (((o_ptr->pval + 1) * (o_ptr->pval + 1)) * 40L);
 			if (f1 & (TR1_INT)) value += (((o_ptr->pval + 1) * (o_ptr->pval + 1)) * 40L);
@@ -977,7 +977,7 @@ static s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_CON)) value += (((o_ptr->pval + 1) * (o_ptr->pval + 1)) * 40L);
 			if (f1 & (TR1_CHR)) value += (((o_ptr->pval + 1) * (o_ptr->pval + 1)) * 40L);
 
-			/* Give credit for magic items bonus. -LM- */
+			/* Give credit for magic items bonus. */
 			if (f1 & (TR1_MAGIC_MASTERY)) value += (o_ptr->pval * 600L);
 
 			/* Give credit for stealth and searching */
@@ -990,18 +990,18 @@ static s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_TUNNEL))
 			{
 				/* Give credit for tunneling bonus above that which a 	
-				 * digger possesses intrinsically. -LM-
+				 * digger possesses intrinsically.
 				 */
 				if ((o_ptr->tval != TV_DIGGING) || 
 					(o_ptr->pval > k_ptr->pval)) 
 				value += (o_ptr->pval * 50L);
 			}
 
-			/* Give credit for perfect balance. -LM- */
+			/* Give credit for perfect balance. */
 			if (f1 & (TR1_PERFECT_BALANCE)) value += o_ptr->dd * 200L;
 
 			/* Give credit for speed bonus.  Formula changed to avoid
-			 * excessively valuable low-speed items. -LM-
+			 * excessively valuable low-speed items.
 			 */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * o_ptr->pval * 5000L);
 
@@ -1017,7 +1017,7 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_WAND:
 		{
 			/* Pay extra for charges, depending on standard number of 
-			 * charges.  Handle new-style wands correctly. -LM-
+			 * charges.  Handle new-style wands correctly.
 			 */
 			value += (value * o_ptr->pval / o_ptr->number / (k_ptr->pval * 2));
 
@@ -1027,7 +1027,7 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_STAFF:
 		{
 			/* Pay extra for charges, depending on standard number of 
-			 * charges.  -LM-
+			 * charges. 
 			 */
 			value += (value * o_ptr->pval / (k_ptr->pval * 2));
 
@@ -1072,7 +1072,7 @@ static s32b object_value_real(object_type *o_ptr)
 			if ((o_ptr->to_h != k_ptr->to_h) || (o_ptr->to_h < -12) || 
 				(o_ptr->to_h > 0)) value += (o_ptr->to_h * 100L);
 
-			/* Standard debit or credit for to_d and to_a bonuses. -LM- */
+			/* Standard debit or credit for to_d and to_a bonuses. */
 			value += ((o_ptr->to_d + o_ptr->to_a) * 100L);
 
 			/* Done */
@@ -1148,7 +1148,7 @@ static s32b object_value_real(object_type *o_ptr)
 			break;
 		}
 
-		/* Who wants an empty chest?  -LM- */
+		/* Who wants an empty chest?  */
 		case TV_CHEST:
 		{
 			if (o_ptr->pval == 0) return (0L);
@@ -1353,7 +1353,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		/* Rods */
 		case TV_ROD:
 		{
-			/* Asssume okay. -LM- */
+			/* Asssume okay. */
 			break;
 		}
 
@@ -1396,7 +1396,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) 
 			{
 				/* Hack - Allow pseudo and fully-IDed ammo without 
-				 * plusses to stack together. -LM-
+				 * plusses to stack together.
 				 */
 				if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || 
 					(o_ptr->tval == TV_SHOT))
@@ -1487,6 +1487,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 /*
  * Allow one item to "absorb" another, assuming they are similar
+ *
+ * Handle new wands/rods -LM-
  */
 void object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
@@ -1514,14 +1516,14 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- save largest discount XXX XXX XXX */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
 
-	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
+	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. */
 	if (o_ptr->tval == TV_ROD)
 	{
 		o_ptr->pval += j_ptr->pval;
 		o_ptr->timeout += j_ptr->timeout;
 	}
 
-	/* Hack -- if wands are stacking, combine the charges. -LM- */
+	/* Hack -- if wands are stacking, combine the charges. */
 	if (o_ptr->tval == TV_WAND)
 	{
 		o_ptr->pval += j_ptr->pval;
@@ -1560,7 +1562,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
 	/* Wipe the structure */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 }
 
 
@@ -1582,7 +1584,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -1707,7 +1709,7 @@ static s16b m_bonus(int max, int level)
  */
 static void object_mention(object_type *o_ptr)
 {
-	char o_name[80];
+	char o_name[120];
 
 	/* Describe */
 	object_desc_store(o_name, o_ptr, FALSE, 0);
@@ -1767,7 +1769,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		if (!a_ptr->name) continue;
 
 		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
+		if (a_ptr->creat_stat==1) continue;
 
 		/* Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > p_ptr->depth)
@@ -1838,7 +1840,7 @@ static bool make_artifact(object_type *o_ptr)
 		if (!a_ptr->name) continue;
 
 		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
+		if (a_ptr->creat_stat==1) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -2162,7 +2164,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_ARROW:
 		case TV_SHOT:
 		{
-			/* First, a little hack to keep certain values sane. -LM- */
+			/* First, a little hack to keep certain values sane. */
 			/* If at least good, */
 			if (power > 0)
 			{
@@ -2291,7 +2293,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 {
 	int toac1, toac2;
 
-	/* Boots and handgear aren't as important to total AC. -LM- */
+	/* Boots and handgear aren't as important to total AC. */
 	if ((o_ptr->tval == TV_BOOTS) || (o_ptr->tval == TV_GLOVES))
 	{
 		toac1 = randint(3) + m_bonus(4, level);
@@ -3131,12 +3133,22 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulets of Escaping. -LM- */
+				/* Amulets of Escaping. */
 				case SV_AMULET_ESCAPING:
 				{
 					/* Assign an activation. */
 					o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 					o_ptr->xtra2 = ACT_AMULET_ESCAPING;
+
+					break;
+				}
+
+				/* Amulets of the Lion. -BR- */
+				case SV_AMULET_LION:
+				{
+					/* Assign an activation. */
+					o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+					o_ptr->xtra2 = ACT_AMULET_LION;
 
 					break;
 				}
@@ -3157,7 +3169,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulet of magical item mastery. -LM- */
+				/* Amulet of magical item mastery. */
 				case SV_AMULET_MAGIC_MASTERY:
 				{
 					o_ptr->pval = 1 + m_bonus(4, level);
@@ -3218,7 +3230,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		case TV_STAFF:
 		{
 			/* The wand or staff gets a number of initial charges equal 
-			 * to between 1/2 (+1) and the full object kind's pval. -LM-
+			 * to between 1/2 (+1) and the full object kind's pval.
 			 */
 			o_ptr->pval = k_ptr->pval / 2 + randint((k_ptr->pval + 1) / 2);
 			break;
@@ -3226,7 +3238,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 		case TV_ROD:
 		{
-			/* Transfer the pval. -LM- */
+			/* Transfer the pval. */
 			o_ptr->pval = k_ptr->pval;
 			break;
 		}
@@ -3284,6 +3296,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  * a chance that an artifact will be created.  This is true even if both the
  * "good" and "great" arguments are false.  As a total hack, if "great" is
  * true, then the item gets 3 extra "attempts" to become an artifact.
+ *
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
@@ -3356,7 +3369,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 		/* Hack -- Mark the artifact as "created" */
-		a_ptr->cur_num = 1;
+		a_ptr->creat_stat = 1;
 
 		/* Extract the other fields */
 		o_ptr->pval = a_ptr->pval;
@@ -3374,7 +3387,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Hack -- extract the "cursed" flag */
 		if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
-		/* Transfer the activation information. -LM- */
+		/* Transfer the activation information. */
 		if (a_ptr->activation)
 		{
 			o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
@@ -3469,7 +3482,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		case TV_DRAG_ARMOR:
 		{
-			/* Assign an activation. -LM- */
+			/* Assign an activation. */
 			o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 
 			switch (o_ptr->sval)
@@ -3622,7 +3635,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 				break;
 			}
 
-			/* Dwarven armour is strong and light. -LM- */
+			/* Dwarven armour is strong and light. */
 			case EGO_DWARVEN:
 			{
 				o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
@@ -3633,7 +3646,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		}
 
 		/* Ego-item throwing weapons may sometimes be perfectly 
-		 * balanced, unless they have some other extra power. -LM-
+		 * balanced, unless they have some other extra power.
 		 */
 		if ((f1 & (TR1_THROWING)) && (randint(3) == 1) && 
 			(o_ptr->xtra1 == 0))
@@ -3649,7 +3662,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Hack -- acquire "cursed" flag */
 		if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
-		/* Apply extra bonuses or penalties. -LM- */
+		/* Apply extra bonuses or penalties. */
 		if ((e_ptr->max_to_h > 0) && (e_ptr->max_to_h < 129)) 
 			o_ptr->to_h += randint(e_ptr->max_to_h);
 		else if (e_ptr->max_to_h > 128)
@@ -3672,7 +3685,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 		/* Hack -- Frequently neaten missile to_h and to_d, for improved 
-		 * stacking qualities. -LM-
+		 * stacking qualities.
 		 */
 		{
 			if ((o_ptr->to_h % 2 == 1) && (randint(4) != 1)) o_ptr->to_h++;
@@ -3742,7 +3755,7 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Weapons -- Good unless damaged.  Diggers are no longer good. -LM- */
+		/* Weapons -- Good unless damaged.  Diggers are no longer good. */
 		case TV_BOW:
 		case TV_SWORD:
 		case TV_HAFTED:
@@ -3753,7 +3766,7 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Ammo -- Shots/Arrows/Bolts are good. -LM- */
+		/* Ammo -- Shots/Arrows/Bolts are good. */
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
@@ -3771,7 +3784,7 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed and of Telepathy are good, as are any with a high enough value. -LM-
+		/* Rings -- Rings of Speed and of Telepathy are good, as are any with a high enough value.
 		 */
 		case TV_RING:
 		{
@@ -3784,27 +3797,28 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Amulets -- Amulets of the Magi and of Escaping are good, as are 
-		 * any with a high enough value. -LM-
+		/* Amulets -- Amulets of the Magi, of Escaping and of the Lion are 
+		 * good, as are any with a high enough value.
 		 */
 		case TV_AMULET:
 		{
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_ESCAPING) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_LION) return (TRUE);
 
 			if (k_ptr->cost >= 500 + p_ptr->depth * 90) return (TRUE);
 
 			return (FALSE);
 		}
 
-		/* Chests are always good. -LM- */
+		/* Chests are always good. */
 		case TV_CHEST:
 		{
 			return (TRUE);
 		}
 
 		/* Wands of Dragon Fire, Cold, and Breath, and of Annihilation
-		 * are good, as are any with a high enough value. -LM-
+		 * are good, as are any with a high enough value.
 		 */
 		case TV_WAND:
 		{
@@ -3819,7 +3833,7 @@ static bool kind_is_good(int k_idx)
 		}
 
 		/* Staffs of Power, Holiness, Mana Storm, and Starburst are good, 
-		 * as are any with a high enough value. -LM-
+		 * as are any with a high enough value.
 		 */
 		case TV_STAFF:
 		{
@@ -3835,7 +3849,7 @@ static bool kind_is_good(int k_idx)
 
 		/* Rods of ID, Curing, Restoration, Speed, Healing, Lighting
 		 * Strike, Northwinds, Dragonfire, and Glaurung's Blood are all
-		 * good, as are any with a high enough value. -LM-
+		 * good, as are any with a high enough value.
 		 */
 		case TV_ROD:
 		{
@@ -3854,7 +3868,7 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/*  Any potion or scroll that costs a certain amount or more must be good. -LM- */
+		/*  Any potion or scroll that costs a certain amount or more must be good. */
 		case TV_POTION:
 		case TV_SCROLL:
 		{
@@ -3876,10 +3890,13 @@ static bool kind_is_good(int k_idx)
  * This routine uses "object_level" for the "generation level".
  *
  * We assume that the given object has been "wiped".
+ *
+ * Reject some poor items -LM-
  */
 bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 {
 	int prob, base;
+	bool sq_flag = FALSE;
 
 	object_kind *k_ptr;
 
@@ -3893,7 +3910,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 
 	/* If an object is rejected because it is sufficiently low-level and 
-	 * cheap to be of little possible interest, try again.  -LM-
+	 * cheap to be of little possible interest, try again.
 	 */ 
 	try_again:
 	;
@@ -3917,7 +3934,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		}
 
 		/* Objects with a particular tval.  Only activate if there is a 
-		 * valid tval to restrict to. -LM- */
+		 * valid tval to restrict to. */
 		if (exact_kind && required_tval)
 		{
 			/* Activate restriction */
@@ -3938,21 +3955,21 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 
 		/* Usually (67% chance) forbid very low-level objects that are 
-		 * intrinsically worthless. -LM-
+		 * intrinsically worthless.
 		 */
 		if ((k_ptr->level < object_level / 4) && 
 			(k_ptr->cost < 1) && 
 			(randint(3) != 1)) goto try_again;
 
 		/* Sometimes (33% chance) forbid very low-level objects that aren't 
-		 * worth very much. -LM-
+		 * worth very much.
 		 */
 		else if ((k_ptr->level < object_level / 4) && 
 			(k_ptr->cost < object_level - 20) && 
 			(randint(3) == 1)) goto try_again;
 
 		/* Hack -- If a chest is specifically asked for, almost always 
-		 * winnow out any not sufficiently high-level. -LM-
+		 * winnow out any not sufficiently high-level.
 		 */
 		if (required_tval == TV_CHEST)
 		{
@@ -3964,7 +3981,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		}
 
 		/* Clear any special object restriction, and prepare the standard 
-		 * object allocation table. -LM-
+		 * object allocation table.
 		 */
 		if (get_obj_num_hook)
 		{
@@ -3974,6 +3991,13 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 			/* Prepare allocation table */
 			get_obj_num_prep();
 		}
+
+		/* Squelch it? */
+		/* Extra Paranoia about squelch non-'squelch on creation'
+		 * type items.  -BR-
+		 */
+		if ((k_info[k_idx].tval < 16) || (k_info[k_idx].tval > 38)) 
+		  sq_flag = (k_info[k_idx].squelch & k_info[k_idx].aware);
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
@@ -4006,6 +4030,11 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		{
 			if ((k_ptr->sval == SV_DART) && (!j_ptr->name1) && 
 				(randint(2) == 1)) j_ptr->number = damroll(2, 2);
+			break;
+		}
+		default:
+		{
+			break;
 		}
 	}
 
@@ -4020,8 +4049,8 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		if (cheat_peek) object_mention(j_ptr);
 	}
 
-	/* Success */
-	return (TRUE);
+	/* Do not squelch artifacts */
+	return((sq_flag && !j_ptr->name1)? FALSE : TRUE);
 }
 
 
@@ -4185,7 +4214,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	char o_name[120];
 
 	bool flag = FALSE;
 
@@ -4280,7 +4309,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 			/* Calculate goodness of location, given distance from source of 
 			 * drop and number of objects.  Hack - If the player is dropping 
-			 * the item, encourage it to pile with up to 19 other items. -LM-
+			 * the item, encourage it to pile with up to 19 other items.
 			 */
 			if (cave_m_idx[y][x] < 0)
 			{
@@ -4371,7 +4400,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
 
 		/* Hack -- Preserve artifacts */
-		a_info[j_ptr->name1].cur_num = 0;
+		a_info[j_ptr->name1].creat_stat = 0;
 
 		/* Failure */
 		return;
@@ -4408,10 +4437,8 @@ void acquirement(int y1, int x1, int num, bool great)
 		object_wipe(i_ptr);
 
 		/* Make a good (or great) object (if possible) */
-		if (!make_object(i_ptr, TRUE, great, FALSE)) continue;
-
-		/* Drop the object */
-		drop_near(i_ptr, -1, y1, x1);
+		if (make_object(i_ptr, TRUE, great, FALSE))
+		  drop_near(i_ptr, -1, y1, x1);
 	}
 }
 
@@ -4443,7 +4470,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
 		if (!floor_carry(y, x, i_ptr))
 		{
 			/* Hack -- Preserve artifacts */
-			a_info[i_ptr->name1].cur_num = 0;
+			a_info[i_ptr->name1].creat_stat = 0;
 		}
 	}
 }
@@ -4639,7 +4666,97 @@ void place_trap(int y, int x)
 	cave_set_feat(y, x, FEAT_INVIS);
 }
 
+/*
+ * Place a secret door at the given location
+ */
+void place_secret_door(int y, int x)
+{
+	/* Create secret door */
+	cave_set_feat(y, x, FEAT_SECRET);
+}
 
+
+/*
+ * Place an unlocked door at the given location
+ */
+void place_unlocked_door(int y, int x)
+{
+	/* Create secret door */
+	cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+}
+
+
+/*
+ * Place a random type of closed door at the given location.
+ */
+void place_closed_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(400);
+
+	/* Closed doors (300/400) */
+	if (tmp < 300)
+	{
+		/* Create closed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+	}
+
+	/* Locked doors (99/400) */
+	else if (tmp < 399)
+	{
+		/* Create locked door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+	}
+
+	/* Stuck doors (1/400) */
+	else
+	{
+		/* Create jammed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
+	}
+}
+
+
+/*
+ * Place a random type of door at the given location.
+ */
+void place_random_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(1000);
+
+	/* Open doors (300/1000) */
+	if (tmp < 300)
+	{
+		/* Create open door */
+		cave_set_feat(y, x, FEAT_OPEN);
+	}
+
+	/* Broken doors (100/1000) */
+	else if (tmp < 400)
+	{
+		/* Create broken door */
+		cave_set_feat(y, x, FEAT_BROKEN);
+	}
+
+	/* Secret doors (200/1000) */
+	else if (tmp < 600)
+	{
+		/* Create secret door */
+		cave_set_feat(y, x, FEAT_SECRET);
+	}
+
+	/* Closed, locked, or stuck doors (400/1000) */
+	else
+	{
+		/* Create closed door */
+		place_closed_door(y, x);
+	}
+}
 
 /*
  * Describe the charges on an item in the inventory.
@@ -4677,7 +4794,7 @@ void inven_item_describe(int item)
 {
 	object_type *o_ptr = &inventory[item];
 
-	char o_name[80];
+	char o_name[120];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -4757,7 +4874,7 @@ void inven_item_optimize(int item)
 		}
 
 		/* Hack -- wipe hole */
-		WIPE(&inventory[i], object_type);
+		(void)WIPE(&inventory[i], object_type);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
@@ -4824,7 +4941,7 @@ void floor_item_describe(int item)
 {
 	object_type *o_ptr = &o_list[item];
 
-	char o_name[80];
+	char o_name[120];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -5099,7 +5216,7 @@ s16b inven_takeoff(int item, int amt)
 
 	cptr act;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Get the item to take off */
@@ -5179,7 +5296,7 @@ void inven_drop(int item, int amt)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Access original object */
@@ -5420,7 +5537,7 @@ void display_koff(int k_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Erase the window */

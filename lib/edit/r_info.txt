@@ -6,7 +6,6 @@
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/r_info.raw" file.
 
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
@@ -53,7 +52,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol
@@ -1656,7 +1655,7 @@ F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | EVIL
 S:1_IN_4 | 
-S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
+S:HEAL | BLINK | TELE_TO | SLOW | CONF | S_KIN |
 S:S_MONSTER
 D:He's just like daddy!  He knows mighty spells, but fortunately he is a 
 D:yeek.
@@ -2338,7 +2337,7 @@ N:191:Magic mushroom patch
 G:,:B
 I:130:1d1:40:10:0
 W:15:3:0:10
-F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | FRIENDS | 
+F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW |
 F:STUPID | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
@@ -2670,7 +2669,7 @@ D:betraying his friends.
 
 N:216:Intermittent Software Bug
 G:I:r
-I:120:1d4:20:1:0
+I:110:1d4:20:1:0
 W:19:12:0:16
 B:BITE:HURT:1d3
 F:MULTIPLY | 
@@ -3964,7 +3963,7 @@ F:SMART | INVISIBLE | BASH_DOOR |
 F:EVIL | DEMON | IM_FIRE
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
-S:CONF | SCARE
+S:CONF | SCARE | S_KIN
 D:An intensely irritating git of a monster.
 
 N:308:Basilisk
@@ -4621,24 +4620,21 @@ S:1_IN_6 |
 S:BO_FIRE
 D:It is a towering inferno of flames.
 
-N:350:Fallen Angel
-G:A:G
-I:120:45d7:30:35:255
-W:42:6:0:700
-B:HIT:HURT:4d3
-B:HIT:HURT:3d8
-B:HIT:HURT:4d3
-B:HIT:HURT:3d8
+N:350:Beholder
+G:e:U
+I:120:8d100:30:25:10
+W:42:4:0:900
+B:GAZE:EXP_20
+B:GAZE:PARALYZE
+B:GAZE:LOSE_INT:2d6
+B:GAZE:UN_POWER:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | FLYING | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
-S:S_MONSTERS
-D:Cast out from heaven, this still-radiant being wanders a strange, 
-D:unfriendly earth, doing good or evil as its uncertain inclinations prompt.
+F:BASH_DOOR | 
+F:EVIL | IM_POIS | FLYING | NO_CONF | NO_SLEEP
+S:1_IN_2 | 
+S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
+S:CAUSE_3 | BO_ACID | BO_FIRE | BO_COLD
+D:A disembodied eye, surrounded by twelve smaller eyes on stalks.
 
 N:351:Water elemental
 G:E:s
@@ -6479,7 +6475,6 @@ S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
 D:A huge draconic form.  All the colors of the rainbow ripple down its 
 D:massive frame.  Few live to see another.
 
-
 N:463:Ethereal dragon
 G:D:o
 I:120:14d100:25:45:30
@@ -6557,7 +6552,7 @@ S:BO_ACID | BA_ACID
 D:A towering stone elemental stands before you.  The walls and ceiling are 
 D:reduced to rubble as Quaker advances.
 
-N:467:Lesser Balrog
+N:467:Balor
 G:U:R
 I:120:12d100:20:25:80
 W:54:3:0:8000
@@ -6573,7 +6568,7 @@ S:1_IN_4 |
 S:BLIND | CONF | 
 S:BR_FIRE | 
 S:S_DEMON
-D:It is a massive humanoid demon wreathed in flames.
+D:It is a massive humanoid demon, wreathed in flames.
 
 N:468:Ariel, Queen of Air
 G:E:B
@@ -6863,7 +6858,7 @@ D:A lord of all that is natural, skilled in the mystic ways.  He is a master
 D:of martial arts and is at one with nature, able to summon help from the 
 D:wild if need be.
 
-N:483:Muar, the Balrog
+N:483:The Balrog of Moria
 G:U:o
 I:120:17d100:20:40:80
 W:60:3:0:30000
@@ -7044,7 +7039,7 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | 
-S:S_UNDEAD
+S:S_UNDEAD | S_KIN
 D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost 
 D:for a life of everlasting torment.
 
@@ -7068,7 +7063,7 @@ D:He is one of the few true masters of the art, being extremely skillful in
 D:all forms of unarmed combat and able to control the world's natural creatures 
 D:with disdainful ease.
 
-N:494:Khamul the Easterling
+N:494:Khamul, the Black Easterling
 G:W:D
 I:120:19d100:40:40:10
 W:63:3:0:50000
@@ -7084,8 +7079,8 @@ F:EVIL | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS |
 F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
-S:BA_FIRE | BA_COLD | BA_NETH | 
-S:S_UNDEAD
+S:BA_FIRE | BA_COLD | BA_NETH |
+S:S_UNDEAD | S_KIN
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
 D:combat awesome and his form twisted by evil cunning.
 
@@ -7286,7 +7281,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | FLYING | REGENERATE |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
-S:BRAIN_SMASH | BA_NETH
+S:BRAIN_SMASH | BA_NETH | S_KIN
 D:Chief messenger between Sauron and Morgoth, she is surely the most deadly 
 D:of her vampire race.  At first she is charming to meet, but her wings and 
 D:eyes give away her true form.
@@ -7365,49 +7360,46 @@ S:S_MONSTER | TPORT | TELE_TO
 D:A dark elf, mighty in Gondolin, and betrayer of that hidden city to 
 D:Morgoth's wrath.
 
-
-N:510:Azriel, Angel of Death
-G:A:D
+N:510:Krotus, the Dark Lord
+G:U:D
 I:130:32d100:40:70:10
 W:67:10:0:30000
 B:TOUCH:EXP_80
-B:HIT:BLIND:10d5
-B:HIT:HURT:10d10
+B:HIT:FIRE:10d10
+B:HIT:FIRE:10d10
 B:HIT:HURT:10d10
 F:UNIQUE | MALE | SPEAKING | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
 F:SMART | TAKE_ITEM | OPEN_DOOR | FLYING | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-S:1_IN_2 | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | DEMON
+S:1_IN_2 |
 S:TELE_TO | BLIND | 
-S:BO_MANA | BO_NETH | BA_NETH | 
+S:BO_MANA | BO_NETH | BA_NETH |
 S:BR_NETH
-D:Azriel commands awesome power, his visage holy enough to shrivel your 
-D:soul.  You shriek with disbelief as his mastery of death draws you to your 
-D:grave.  It is truly beyond all but the mightiest of warriors to stand 
-D:against him and live.
+D:This mighty Balrog commands awesome power, his visage grave enough
+D:to shrivel your soul.  You shriek with disbelief as his mastery of
+D:death draws you to your grave.  It is truly beyond all but the
+D:mightiest of warriors to stand against him and live.
 
-N:511:Ancalagon the Black
-G:D:D
+N:511:The Defiler
+G:K:D
 I:120:38d100:20:60:70
 W:68:3:0:30000
 B:CLAW:ACID:5d12
 B:CLAW:ACID:6d12
 B:CLAW:HURT:8d12
 B:BITE:HURT:10d14
-F:UNIQUE | MALE | SPEAKING | SMART | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:UNIQUE |
+F:FORCE_SLEEP | FORCE_MAXHP | KILL_WALL |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | FLYING | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_ACID | IM_FIRE | 
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:EVIL | IM_ACID | IM_FIRE | IM_POIS | ANIMAL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_2 | 
-S:BLIND | CONF | SCARE | 
-S:BR_ACID | 
-S:S_DRAGON | S_HI_DRAGON
-D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
-D:of Glaurung can match him.
+S:1_IN_3 |
+S:BR_ACID | BR_POIS | S_KIN
+D:A hulking creature with massive pincers.  The Defiler oozes acidic 
+D:venom as it smashes the living rock to reach you.
 
 N:512:Nightwalker
 G:W:D
@@ -7432,26 +7424,23 @@ D:leaving you defenseless against its evil wrath.  It can smell your fear,
 D:and you in turn smell the awful stench of death as this ghastly figure 
 D:strides towards you menacingly.
 
-N:513:Gabriel, the Messenger
-G:A:w
-I:130:37d100:40:72:10
+N:513:Errata the Mage
+G:p:w
+I:130:25d100:40:72:10
 W:69:10:0:35000
-B:HIT:UN_BONUS:6d8
-B:HIT:ELEC:4d6
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-F:UNIQUE | MALE | SPEAKING | 
+B:HIT:HURT:10d5
+B:HIT:HURT:10d5
+F:UNIQUE | FEMALE | SPEAKING | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | FLYING | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:IM_FIRE | IM_ELEC | NO_CONF
 S:1_IN_2 | 
-S:TELE_TO | BLIND | BO_MANA | BR_ELEC
-S:S_ANGEL
-D:Commanding a legion of angels, Gabriel will destroy you for your sins.  He 
-D:will crush you like the pitiful insignificant being he sees you to be.  
-D:Your very soul will be taken into judgement by his supreme authority as he 
-D:cleanses the world of evil.
+S:TPORT | BO_MANA | BLINK | BA_ACID | BA_LITE |
+S:DRAIN_MANA | TELE_AWAY 
+D:Errata is a bold and mighty mage.  Her power and guile are
+D:legendary.  Her's is the right to face the Morgoth in single combat
+D:and she will not let you stand in her way.  Defend yourself! 
 
 N:514:Saruman of Many Colours
 G:p:v
@@ -7633,8 +7622,8 @@ F:EVIL | UNDEAD | IM_COLD |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
-S:BA_DARK | BA_NETH | 
-S:S_WRAITH | S_HI_UNDEAD
+S:BA_DARK | BA_NETH |
+S:S_WRAITH | S_HI_UNDEAD | S_KIN
 D:This huge affront to existence twists and tears at the fabric of space.  A 
 D:master of mighty magic, Tselakus hungers for your tender flesh.  Darkness 
 D:itself recoils from the touch of Tselakus as he leaves a trail of death 
@@ -7642,8 +7631,8 @@ D:and destruction.  Tselakus is a being of sneering contempt, laughing at
 D:your pitiful efforts to defy him.  Mighty claws rend reality as he 
 D:annihilates all in his path to your soul!
 
-N:523:Tiamat, Celestial Dragon of Evil
-G:D:v
+N:523:Ancalagon the Black
+G:D:D
 I:130:50d100:40:70:100
 W:80:4:0:45000
 B:CLAW:HURT:7d12
@@ -7651,7 +7640,7 @@ B:CLAW:HURT:7d12
 B:CLAW:HURT:7d12
 B:BITE:HURT:10d14
 F:ATTR_MULTI | 
-F:UNIQUE | FEMALE | SPEAKING | 
+F:UNIQUE | MALE | SPEAKING | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
@@ -7662,8 +7651,8 @@ S:1_IN_2 |
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
 S:S_HI_DRAGON
-D:Usually found guarding the first plane of Hell, Tiamat is a formidable 
-D:opponent, her five heads breathing death to all who stand against her.
+D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
+D:of Glaurung can match him.
 
 N:524:Black reaver
 G:L:D
@@ -7695,7 +7684,8 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | 
-S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD |
+S:S_HI_DRAGON | S_HI_DEMON
 D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
 
 N:526:Greater draconic quylthulg
@@ -7776,7 +7766,7 @@ F:EVIL | IM_POIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD
+S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -7794,7 +7784,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | KILL_BODY | 
 F:ANIMAL | EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
+S:1_IN_3 |
 S:HEAL | BLIND | SLOW | CONF | SCARE | DARKNESS | BA_DARK | 
 S:BR_POIS | BR_DARK | 
 S:S_SPIDER
@@ -7861,7 +7851,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | 
 S:BRAIN_SMASH | 
-S:S_HI_UNDEAD | S_HI_DRAGON
+S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON
 D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor 
 D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
 D:colour then the next, it knows only it must bring help to protect itself.
@@ -7878,14 +7868,14 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:BLINK | 
-S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
+S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | 
 S:S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
-S:S_HI_UNDEAD | S_HI_DRAGON
+S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
 D:This disgusting creature squeals and snorts as it writhes on the floor.  
 D:It pulsates with evil.  Its intent is to overwhelm you with monster after 
 D:monster, until it can greedily dine on your remains.
 
-N:535:Murazor, the Witch-King of Angmar
+N:535:The Witch-King of Angmar
 G:W:D
 I:130:30d100:90:48:10
 W:87:3:0:42000
@@ -7901,8 +7891,8 @@ F:EVIL | UNDEAD |
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
-S:BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:BO_MANA | BA_NETH |
+S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
 D:The Chief of the Ringwraiths.  A fell being of devastating power.  His 
 D:spells are lethal and his combat blows crushingly hard.  He moves at 
 D:speed, and commands legions of evil to do his bidding.  It is said that he 
@@ -7923,7 +7913,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR | FLYING |
 F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC
+S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | S_HI_DEMON
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
 D:as he decides your fate.
 
@@ -8004,8 +7994,8 @@ F:EVIL | DEMON | IM_FIRE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BLIND | CONF | 
-S:BR_FIRE | 
-S:S_DEMON | S_HI_UNDEAD
+S:BR_FIRE |
+S:S_DEMON | S_HI_UNDEAD | S_HI_DEMON
 D:A massive form cloaked in flame.  Lungorthin stares balefully at you with 
 D:eyes that smoulder red.  The dungeon floor where he stands is scorched by 
 D:the heat of his body.
@@ -8049,7 +8039,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP |
 S:1_IN_3 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_FIRE | 
-S:S_MONSTERS | S_DEMON | S_HI_UNDEAD
+S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_KIN
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:risen from the grave to continue his foul plots and schemes.
 
@@ -8111,8 +8101,8 @@ F:EVIL | DEMON |
 F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
-S:BR_FIRE | 
-S:S_DEMON | S_HI_UNDEAD
+S:BR_FIRE |
+S:S_HI_DEMON | S_HI_UNDEAD
 D:Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned 
 D:for slaying Ecthelion the Warder of the Gates and he has never been 
 D:defeated in combat.  With his whip of flame and awesome fiery breath he 
@@ -8140,8 +8130,8 @@ S:1_IN_2 |
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET | 
 S:BO_ICEE | BO_MANA | BO_PLAS | 
-S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
-S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON
+S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK |
+S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON
 D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
 D:destroy your soul.  He has many servants, and rarely fights without them.
@@ -8167,9 +8157,10 @@ F:REGENERATE |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
-S:BRAIN_SMASH | 
+S:BRAIN_SMASH |
 S:BA_MANA | BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON
+S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON |
+S:S_HI_DEMON
 D:He is the Master of the Pits of Angband.  His figure is like a black 
 D:mountain crowned with Lightning.  He rages with everlasting anger, his 
 D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 

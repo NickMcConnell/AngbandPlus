@@ -54,8 +54,10 @@ long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];	/* global, hence init to 0 */
 long ltotal[S_WORD+1][S_WORD+1];		/* global, hence init to 0 */
 
 /* Temporary space for names, while reading and randomizing them. */
-static char *names[MAX_A_IDX];
-
+/* Hack - can handle up to 500 artifacts.  If z-info can not push
+ * higher.
+ */
+static char *names[500];
 
 /* Definitions of most artifact flags. */
 

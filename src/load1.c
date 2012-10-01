@@ -1081,7 +1081,7 @@ static errr rd_item_old(object_type *o_ptr)
 
 
 	/* Hack -- wipe */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 
 	/* Old kind index */
 	rd_s16b(&old_k_idx);
@@ -1469,20 +1469,20 @@ static errr rd_item_old(object_type *o_ptr)
  */
 static void rd_lore_old(int r_idx)
 {
-	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 	/* Forget old flags */
 	strip_bytes(16);
 
 	/* Read kills and deaths */
-	rd_s16b(&r_ptr->r_pkills);
-	rd_s16b(&r_ptr->r_deaths);
+	rd_s16b(&l_ptr->pkills);
+	rd_s16b(&l_ptr->deaths);
 
 	/* Forget old info */
 	strip_bytes(10);
 
 	/* Guess at "sights" */
-	r_ptr->r_sights = MAX(r_ptr->r_pkills, r_ptr->r_deaths);
+	l_ptr->sights = MAX(l_ptr->pkills, l_ptr->deaths);
 }
 
 
@@ -1704,7 +1704,7 @@ static void rd_artifacts_old(void)
 		}
 
 		/* Process the flag */
-		if (tmp32u) a_info[a_idx].cur_num = 1;
+		if (tmp32u) a_info[a_idx].creat_stat = 1;
 	}
 }
 
@@ -1872,7 +1872,7 @@ static void rd_messages_old(void)
 		rd_string(buf, 128);
 
 		/* Save (most of) the messages */
-		if (buf[0] && (i <= last_msg)) message_add(buf);
+		if (buf[0] && (i <= last_msg)) message_add(buf, MSG_GENERIC);
 	}
 }
 
@@ -2373,7 +2373,7 @@ static errr rd_dungeon_old(void)
 		n_ptr = &monster_type_body;
 
 		/* Hack -- wipe */
-		WIPE(n_ptr, monster_type);
+		(void)WIPE(n_ptr, monster_type);
 
 		/* Read the current hitpoints */
 		rd_s16b(&n_ptr->hp);
@@ -2710,6 +2710,7 @@ static errr rd_savefile_old_aux(void)
 	while (1)
 	{
 		monster_race *r_ptr;
+		monster_lore *l_ptr;
 
 		/* Read some info, check for sentinal */
 		rd_u16b(&tmp16u);
@@ -2724,6 +2725,7 @@ static errr rd_savefile_old_aux(void)
 
 		/* Access the monster */
 		r_ptr = &r_info[tmp16u];
+		l_ptr = &l_list[tmp16u];
 
 		/* Extract the monster lore */
 		rd_lore_old(tmp16u);
@@ -2732,7 +2734,7 @@ static errr rd_savefile_old_aux(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Hack -- Note living uniques */
-			if (r_ptr->max_num != 0) r_ptr->r_pkills = 0;
+			if (r_ptr->max_num != 0) l_ptr->pkills = 0;
 		}
 	}
 	note("Loaded Monster Memory");
@@ -2755,7 +2757,7 @@ static errr rd_savefile_old_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
+	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
 	/* Initialize the magic */
@@ -2862,10 +2864,10 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Hack -- reset morgoth */
-	r_info[MAX_R_IDX-2].r_pkills = 0;
+	l_list[MAX_R_IDX-2].pkills = 0;
 
 	/* Hack -- reset sauron */
-	r_info[MAX_R_IDX-3].r_pkills = 0;
+	l_list[MAX_R_IDX-3].pkills = 0;
 
 
 	/* Add first quest */
@@ -2882,7 +2884,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Hack -- maximize mode */
-	if (arg_crappy) p_ptr->maximize = TRUE;
+	if (arg_crappy) adult_maximize = TRUE;
 
 
 	/* Assume success */

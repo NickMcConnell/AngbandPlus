@@ -880,7 +880,7 @@ static errr Infowin_prepare(Window xid)
 static errr Infowin_init_real(Window xid)
 {
 	/* Wipe it clean */
-	WIPE(Infowin, infowin);
+	(void)WIPE(Infowin, infowin);
 
 	/* Start out non-nukable */
 	Infowin->nuke = 0;
@@ -911,7 +911,7 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 
 
 	/* Wipe it clean */
-	WIPE(Infowin, infowin);
+	(void)WIPE(Infowin, infowin);
 
 
 	/*** Error Check XXX ***/
@@ -1298,7 +1298,7 @@ static errr Infoclr_init_1(GC gc)
 	infoclr *iclr = Infoclr;
 
 	/* Wipe the iclr clean */
-	WIPE(iclr, infoclr);
+	(void)WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1393,7 +1393,7 @@ static errr Infoclr_init_data(Pixell fg, Pixell bg, int op, int stip)
 	/*** Initialize ***/
 
 	/* Wipe the iclr clean */
-	WIPE(iclr, infoclr);
+	(void)WIPE(iclr, infoclr);
 
 	/* Assign the GC */
 	iclr->gc = gc;
@@ -1511,7 +1511,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 static errr Infofnt_init_real(XFontStruct *info)
 {
 	/* Wipe the thing */
-	WIPE(Infofnt, infofnt);
+	(void)WIPE(Infofnt, infofnt);
 
 	/* No nuking */
 	Infofnt->nuke = 0;
@@ -1549,7 +1549,7 @@ static errr Infofnt_init_data(cptr name)
 	/*** Init the font ***/
 
 	/* Wipe the thing */
-	WIPE(Infofnt, infofnt);
+	(void)WIPE(Infofnt, infofnt);
 
 	/* Attempt to prepare it */
 	if (Infofnt_prepare(info))

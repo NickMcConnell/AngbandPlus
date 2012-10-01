@@ -1,6 +1,6 @@
 
              ****************************************************
-             **   Oangband 0.4.0   ***   The Pits of Angband   **
+             **   Oangband 0.5.0   ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -10,35 +10,43 @@
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
 
-               Angband  2.8.3: Copyright (c) 1997 Ben Harrison
-               Oangband 0.4.0: Copyright (c) 1999 Leon Marrick
+                   Angband 2.7.0 - 2.8.5 by Ben Harrison
+                     Angband 2.9.1 by Robert Ruehlmann
 
-      Send comments, bug reports, and patches to "leon2m@sprintmail.com".
+         Oangband 0.1.0-0.4.0: Copyright (c) 1998-1999 Leon Marrick
+
+               Oangband 0.5.0: Copyright (c) 2000 Bahman Rabii
+
+    Send comments, bug reports, and patches to "bahman@topped-with-meat.com".
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
-       The Oangband home page is "http://home.sprintmail.com/~leon2m/".
-
+         The Oangband home page is "http://www.consume.org/Oangband".
+                           '?' for online help.
 
 === General Info ===
 
-This is the readme file for Oangband 0.4.0 (April 18, 1999)
+This is the readme file for Oangband 0.5.0 (October 3, 2000)
 
-     Oangband is a variant of Angband, created to experiment with changes in 
-melee algorithms, spells, items, monsters, a substantial reduction in both HPs 
-and damage, and whatever else might both catch Leon Marrick's fancy and be 
-practicable for him to code.  Appropriately, it is called Opinion-Angband, or 
-Oangband for short.
+     Oangband is a variant of Angband, created to experiment with
+changes in melee algorithms, spells, items, monsters, a substantial
+reduction in both HPs and damage, and whatever else might both catch
+Leon Marrick's fancy and be practicable for him to code.
+Appropriately, it is called Opinion-Angband, or Oangband for short.
 
-     On-line help exists for all significant changes made, so make certain you 
-have a look through at least some of the new help documents available through 
-the "?" command.  In addition, the file containing the complete list of 
-changes from version 0.3.2 to 0.4.0 can be found in the lib/files directory.
+     On-line help exists for all significant changes made, so make
+certain you have a look through at least some of the new help
+documents available through the "?" command.  In addition, the file
+containing the complete list of changes from version 0.4.1 to 0.5.0
+can be found in the lib/files directory.
 
-     Oangband is based on Angband 2.8.3.  I hope you will join me in a paean of 
-praise to Ben Harrison, whose excellent code has made so many variants of 
-Angband possible.
+     Oangband is based on Angband 2.8.3.  I hope you will join me in a
+paean of praise to Ben Harrison, whose excellent code has made so many
+variants of Angband possible.
 
-     Expect another full version (more than bug-fixes) in the fall of 1999.
+     Oangband 0.5.0 adapts a large amount of code from Angband
+2.8.5-2.9.1
+
+     Expect another full version (more than bug-fixes) in the first
+half of 2001.
 
 
-Yours,
-Leon Marrick
+Bahman Rabii

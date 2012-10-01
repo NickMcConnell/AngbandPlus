@@ -6,7 +6,6 @@
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
@@ -25,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by

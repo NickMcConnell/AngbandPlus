@@ -9,13 +9,17 @@
  * are included in all such copies.
  */
 
+/* This version of Oangband, particularly main.c, main-x11.c,
+ * main-win.c, main-gcu.c, and main-ibm.c have been modified by Tom
+ * Morton's 'BigScreen' patch, allowing terminals larger than 24x80.  
+ */
+
 #include "angband.h"
 
 
 /*
  * Some machines have a "main()" function in their "main-xxx.c" file,
- * all the others use this file for their "main()" function.
- */
+ * all the others use this file for their "main()" function.  */
 
 
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
@@ -391,7 +395,8 @@ int main(int argc, char *argv[])
 			case 'Y':
 			case 'y':
 			{
-				screen_y = atoi(&argv[i][2]);
+                                /* -TM- */
+			        screen_y = atoi(&argv[i][2]);
 				if (screen_y <= 0) screen_y = 50;
 				break;
 			}
@@ -399,6 +404,7 @@ int main(int argc, char *argv[])
 			case 'X':
 			case 'x':
 			{
+                                /* -TM- */
 				screen_x = atoi(&argv[i][2]);
 				if (screen_x <= 80) screen_x = 80;
 				break;
@@ -463,7 +469,9 @@ int main(int argc, char *argv[])
 				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
+                                /* -TM- */
 				puts("  -xnn     Request nn width screen. Defaults to 80.");
+                                /* -TM- */
 				puts("  -ynn     Request nn line screen. Normally 25.");
 				puts("           This option defaults to 50 lines.");
 				puts("  -s<num>  Show <num> high scores");
@@ -656,6 +664,7 @@ int main(int argc, char *argv[])
 	if (!done) quit("Unable to prepare any 'display module'!");
 
 	/* Calculate screen geometry */
+	/* -TM- */
 	SCREEN_HGT = screen_y - 2;
 	SCREEN_WID = screen_x - (COL_MAP + 1);
 

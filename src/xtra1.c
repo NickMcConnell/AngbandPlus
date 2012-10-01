@@ -270,6 +270,9 @@ static void prt_shape(void)
 		case SHAPE_VAMPIRE:
 			shapedesc = "Vampire   ";
 			break;
+		case SHAPE_WYRM:
+			shapedesc = "Wyrm      ";
+			break;
 		default:
 			shapedesc = "          ";
 			break;
@@ -280,7 +283,7 @@ static void prt_shape(void)
 		ROW_SHAPE, COL_SHAPE);
 	else if (mp_ptr->spell_book == TV_NECRO_BOOK) c_put_str(TERM_VIOLET, shapedesc, 
 		ROW_SHAPE, COL_SHAPE);
-	else c_put_str(TERM_WHITE, shapedesc, ROW_SHAPE, COL_SHAPE);
+	else c_put_str(TERM_RED, shapedesc, ROW_SHAPE, COL_SHAPE);
 
 }
 
@@ -810,10 +813,10 @@ static void health_redraw(void)
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
-		/* Black Breath -LM- */
+		/* Black Breath */
 		if (m_ptr->black_breath) attr = TERM_L_DARK;
 
-		/* Stasis -LM- */
+		/* Stasis */
 		if (m_ptr->stasis) attr = TERM_GREEN;
 
 
@@ -1115,7 +1118,7 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+        prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -1140,7 +1143,7 @@ static void prt_frame_basic(void)
 	/* Gold */
 	prt_gold();
 
-	/* Shape, if not normal. -LM- */
+	/* Shape, if not normal. */
 	prt_shape();
 
 	/* Current depth */
@@ -1348,8 +1351,10 @@ static void fix_message(void)
 		/* Dump messages */
 		for (i = 0; i < h; i++)
 		{
+		        byte color = message_color((s16b)i);
+
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, color, message_str(i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1522,7 +1527,7 @@ static void calc_spells(void)
 	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
 	               levels / 2);
 
-	/* Boundary control. -LM- */
+	/* Boundary control. */
 	if (num_allowed > mp_ptr->spell_number) num_allowed = mp_ptr->spell_number;
 
 
@@ -1762,6 +1767,8 @@ static void calc_spells(void)
  * by a shapeshift.
  *
  * This function induces status messages.
+ *
+ * New treatment of encumberance by LM
  */
 static void calc_mana(void)
 {
@@ -1803,7 +1810,7 @@ static void calc_mana(void)
 	if (msp) msp++;
 
 
-	/* Only mage and Necromancer-type spellcasters are affected by gloves. -LM- */
+	/* Only mage and Necromancer-type spellcasters are affected by gloves. */
 	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) || 
 		(mp_ptr->spell_book == TV_NECRO_BOOK))
 	{
@@ -1819,7 +1826,7 @@ static void calc_mana(void)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Normal gloves hurt mage or necro-type spells.  Now, only 
-		 * Free Action or magic mastery stops this effect. -LM-
+		 * Free Action or magic mastery stops this effect.
 		 */
 		if (o_ptr->k_idx &&
 		    !(f3 & (TR3_FREE_ACT)) && !(f1 & (TR1_MAGIC_MASTERY)))
@@ -1848,7 +1855,7 @@ static void calc_mana(void)
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
 
-	/* Heavy armor penalizes mana by a percentage.  -LM- */
+	/* Heavy armor penalizes mana by a percentage. */
 	if (((cur_wgt - max_wgt) / 10) > 0)
 	{
 		/* Encumbered */
@@ -1899,14 +1906,11 @@ static void calc_mana(void)
 		}
 	}
 
-	/* Any non-humaniod shape penalizes mana. -LM- */
+	/* Any non-humaniod shape penalizes mana. */
 	if (p_ptr->schange)
 	{
-		/* Chop mana in half.  Note that this is quite generous
-		 * compared to shapeshifting implementations in other
-		 * Angband variants. -LM- 
-		 */
-		msp = msp / 2;
+		/* Chop mana to 2/3. */
+		msp = 2 * msp / 3;
 	}
 
 
@@ -2050,7 +2054,7 @@ static void calc_torch(void)
 	}
 
 	/* Priests and Paladins get a bonus to light radius at level 35 and
-	 * 45, respectively.  -LM-
+	 * 45, respectively.
 	 */
 	if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->lev > 34))
 		p_ptr->cur_lite += 1;
@@ -2130,7 +2134,7 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 			/* Priest penalty for non-blessed edged weapons. */
 			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) && ((!p_ptr->bless_blade)))
 			{
-				add_skill -= 4 + p_ptr->lev / 3;
+				add_skill -= 10 + p_ptr->lev / 2;
 
 				/* Icky weapon */
 				p_ptr->icky_wield = TRUE;
@@ -2173,7 +2177,7 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 			if (((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) 
 				&& ((!p_ptr->bless_blade)))
 			{
-				add_skill -= 4 + p_ptr->lev / 3;
+				add_skill -= 10 + p_ptr->lev / 2;
 
 				/* Icky weapon */
 				p_ptr->icky_wield = TRUE;
@@ -2225,7 +2229,9 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 		}
 	}
 
-		/* Now, special racial abilities and limitations are considered.  Most modifiers are relatively small, to keep options open to the player. */
+		/* Now, special racial abilities and limitations are 
+		 * considered.  Most modifiers are relatively small, to 
+		 * keep options open to the player. */
 	switch (prace)
 	{
 		/* Humans are rather fond of swords.  */
@@ -2260,7 +2266,10 @@ sint add_special_melee_skill (byte pclass, byte prace, s16b weight, object_type 
 	return (add_skill);
 }
 
-/* Calculate all class and race-based bonuses and penalties to missile Skill -LM- */
+/* Calculate all class and race-based bonuses and 
+ * penalties to missile Skill 
+ */
+
 sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_type *o_ptr)
 {
 	int add_skill = 0;
@@ -2278,7 +2287,8 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			break;
 		}
 
-		/* Rangers have a high missile skill, but they are not supposed to be great with xbows and slings. */
+		/* Rangers have a high missile skill, but they are 
+		 * not supposed to be great with xbows and slings. */
 		case CLASS_RANGER:
 		{
 			if (p_ptr->ammo_tval == TV_SHOT)
@@ -2301,12 +2311,14 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			}
 		}
 	}
-		/* Now, special racial abilities and limitations are considered.  The 
-		 * choice of race can be of some significance.
+		/* Now, special racial abilities and limitations 
+		 * are considered.  The choice of race can be of 
+		 * some significance.
 		 */
 	switch (prace)
 	{
-		/* Other races may do better overall, but humans aren't bad with xbows. */
+		/* Other races may do better overall, but humans aren't 
+		 * bad with xbows. */
 		case RACE_HUMAN:
 		{
 			if (p_ptr->ammo_tval == TV_BOLT)
@@ -2316,7 +2328,9 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			break;
 		}
 		
-		/* Hobbits are good with slings.  Since they already have a high missile skill, this extra bonus is kept small. */
+		/* Hobbits are good with slings.  Since they already 
+		 * have a high missile skill, this extra bonus 
+		 * is kept small. */
 		case RACE_HOBBIT:
 		{
 			if (p_ptr->ammo_tval == TV_SHOT)
@@ -2325,7 +2339,8 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			}
 			break;
 		}
-		/* Dwarves tend to be on the receiving end of arrows, and don't like bows. */ 
+		/* Dwarves tend to be on the receiving end of arrows, 
+		 * and don't like bows. */ 
 		case RACE_DWARF:
 		{
 			if (p_ptr->ammo_tval == TV_ARROW)
@@ -2334,7 +2349,8 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 			}
 			break;
 		}
-		/* Elves and bows just go together.  High-elves already have a high enough missile skill. */
+		/* Elves and bows just go together.  High-elves already 
+		 * have a high enough missile skill. */
 		case RACE_HALF_ELF:
 		case RACE_ELF:
 		{
@@ -2347,7 +2363,10 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 	}
 	return (add_skill);
 }
-/* Applies vital statistic changes from a shapeshift to the player. -LM- */
+
+/* Applies vital statistic changes from a shapeshift 
+ * to the player.
+*/
 static void shape_change_stat(void)
 {
 	switch (p_ptr->schange)
@@ -2372,7 +2391,6 @@ static void shape_change_stat(void)
 		{
 			p_ptr->stat_add[A_CON] += 2;
 			p_ptr->stat_add[A_INT] -= 2;
-			p_ptr->stat_add[A_WIS] -= 2;
 			p_ptr->stat_add[A_CHR] -= 2;
 			break;
 		}
@@ -2381,12 +2399,15 @@ static void shape_change_stat(void)
 			p_ptr->stat_add[A_STR] -= 2;
 			p_ptr->stat_add[A_DEX] += 2;
 			p_ptr->stat_add[A_CON] -= 1;
+			p_ptr->stat_add[A_WIS] -= 2;
 			break;
 		}
 		case SHAPE_LION:
 		{
 			p_ptr->stat_add[A_STR] += 3;
 			p_ptr->stat_add[A_CHR] -= 4;
+			p_ptr->stat_add[A_WIS] -= 2;
+			p_ptr->stat_add[A_INT] -= 2;
 			break;
 		}
 		case SHAPE_ENT:
@@ -2410,6 +2431,7 @@ static void shape_change_stat(void)
 		{
 			p_ptr->stat_add[A_STR] += 2;
 			p_ptr->stat_add[A_CHR] -= 5;
+			p_ptr->stat_add[A_INT] -= 2;
 			break;
 		}
 		case SHAPE_VAMPIRE:
@@ -2418,6 +2440,16 @@ static void shape_change_stat(void)
 			p_ptr->stat_add[A_CON] += 1;
 			p_ptr->stat_add[A_INT] += 2;
 			p_ptr->stat_add[A_CHR] -= 3;
+			break;
+		}
+		case SHAPE_WYRM:
+		{
+			p_ptr->stat_add[A_STR] += 2;
+			p_ptr->stat_add[A_CON] += 1;
+			p_ptr->stat_add[A_WIS] += 1;
+			p_ptr->stat_add[A_INT] += 1;
+			p_ptr->stat_add[A_DEX] -= 1;
+			p_ptr->stat_add[A_CHR] -= 1;
 			break;
 		}
 	}
@@ -2431,6 +2463,7 @@ static void shape_change_stat(void)
  */
 static void shape_change_main(void)
 {
+	object_type *o_ptr;
 	switch (p_ptr->schange)
 	{
 		case SHAPE_NORMAL:
@@ -2447,6 +2480,8 @@ static void shape_change_main(void)
 			p_ptr->to_d -= 25;
 			p_ptr->dis_to_d -= 25;
 			p_ptr->skill_dev /= 4;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_FERRET:
@@ -2459,6 +2494,8 @@ static void shape_change_main(void)
 			p_ptr->skill_fos += 10;
 			p_ptr->skill_srh += 10;
 			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_HOUND:
@@ -2466,6 +2503,8 @@ static void shape_change_main(void)
 			p_ptr->see_infra += 3;
 			p_ptr->telepathy = TRUE;
 			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_GAZELLE:
@@ -2476,6 +2515,8 @@ static void shape_change_main(void)
 			p_ptr->dis_to_d -= 5;
 			p_ptr->pspeed += 6;
 			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_LION:
@@ -2490,15 +2531,14 @@ static void shape_change_main(void)
 			p_ptr->dis_to_d += 15;
 			p_ptr->pspeed += 1;
 			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_ENT:
 		{
-			p_ptr->oppose_cold = TRUE;
-			p_ptr->oppose_acid = TRUE;
-			p_ptr->resist_elec = TRUE;
+			p_ptr->resist_cold = TRUE;
 			p_ptr->immune_fire = FALSE;
-			p_ptr->oppose_fire = FALSE;
 			p_ptr->resist_fire = FALSE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->resist_fear = TRUE;
@@ -2508,6 +2548,8 @@ static void shape_change_main(void)
 			p_ptr->to_d += 10;
 			p_ptr->dis_to_d += 10;
 			p_ptr->skill_dig += 8;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_BAT:
@@ -2521,6 +2563,8 @@ static void shape_change_main(void)
 			p_ptr->dis_to_d -= 15;
 			p_ptr->pspeed += 5;
 			p_ptr->skill_dev /= 4;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;
 		}
 		case SHAPE_WEREWOLF:
@@ -2535,6 +2579,8 @@ static void shape_change_main(void)
 			p_ptr->to_d += 20;
 			p_ptr->dis_to_d += 20;
 			p_ptr->skill_dev /= 2;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
 			break;	
 		}
 		case SHAPE_VAMPIRE:
@@ -2549,12 +2595,52 @@ static void shape_change_main(void)
 			p_ptr->regenerate = TRUE;
 			p_ptr->to_a += 5;
 			p_ptr->dis_to_a += 5;
-			p_ptr->to_a += 5;
-			p_ptr->dis_to_a += 5;
+			p_ptr->to_h += 5;
+			p_ptr->dis_to_h += 5;
 			p_ptr->to_d += 5;
 			p_ptr->dis_to_d += 5;
 			p_ptr->skill_stl += 1;
 			p_ptr->skill_dev += 6;
+			p_ptr->skill_thb -= 10;
+			p_ptr->skill_tht -= 10;
+			break;
+		}
+		case SHAPE_WYRM:
+		{
+		        o_ptr = &inventory[INVEN_BODY];
+		        p_ptr->to_a += 10;
+			p_ptr->dis_to_a += 10;
+			p_ptr->to_d += 5;
+			p_ptr->dis_to_d += 5;
+			p_ptr->skill_stl -= 3;
+			p_ptr->skill_dev += 4;
+			p_ptr->skill_thb -= 30;
+			p_ptr->skill_tht -= 30;
+			if (o_ptr->tval == TV_DRAG_ARMOR){
+			       /* Apply an extra bonus power depending on the type
+				* of DSM when in WYRM form */
+			       if (o_ptr->sval == SV_DRAGON_BLACK) 
+				 p_ptr->immune_acid = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_BLUE) 
+				 p_ptr->immune_elec = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_WHITE) 
+				 p_ptr->immune_cold = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_RED) 
+				 p_ptr->immune_fire = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_GREEN) 
+				 p_ptr->regenerate = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_SHINING) 
+				 p_ptr->see_inv = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_LAW) 
+				 p_ptr->hold_life = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_BRONZE) 
+				 p_ptr->free_act = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_GOLD) 
+				 p_ptr->free_act = TRUE;
+			       else if (o_ptr->sval == SV_DRAGON_CHAOS) 
+				 p_ptr->hold_life = TRUE;
+			       /* Multihued, Balance and Power don't need any help */
+			}
 			break;
 		}
 	}
@@ -2641,7 +2727,7 @@ static void calc_bonuses(void)
 
 
 	/* Hack - If the player's usage of his shield changes, we must
-	 * recalculate various things. -LM-
+	 * recalculate various things.
 	 */
 	calc_again:
 
@@ -2749,27 +2835,63 @@ static void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) p_ptr->resist_lite = TRUE;
+	/*** Analyze player ***/
 
-	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) p_ptr->free_act = TRUE;
+	/* Extract the player flags */
+	player_flags(&f1, &f2, &f3, FALSE);
 
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) p_ptr->resist_blind = TRUE;
+	/* Good flags */
+	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
+	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
+	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
+	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
+	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) p_ptr->resist_dark = TRUE;
+	/* Weird flags */
+	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
-	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL) p_ptr->sustain_str = TRUE;
+	/* Bad flags */
+	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
+	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
+	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+	if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
 
-	/* Dunadan */
-	if (p_ptr->prace == RACE_DUNADAN) p_ptr->sustain_con = TRUE;
+	/* Immunity flags */
+	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
+	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
+	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
+	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
 
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
-	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
+	/* Resistance flags */
+	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
+	if (f2 & (TR2_RES_ELEC)) p_ptr->resist_elec = TRUE;
+	if (f2 & (TR2_RES_FIRE)) p_ptr->resist_fire = TRUE;
+	if (f2 & (TR2_RES_COLD)) p_ptr->resist_cold = TRUE;
+	if (f2 & (TR2_RES_POIS)) p_ptr->resist_pois = TRUE;
+	if (f2 & (TR2_RES_FEAR)) p_ptr->resist_fear = TRUE;
+	if (f2 & (TR2_RES_LITE)) p_ptr->resist_lite = TRUE;
+	if (f2 & (TR2_RES_DARK)) p_ptr->resist_dark = TRUE;
+	if (f2 & (TR2_RES_BLIND)) p_ptr->resist_blind = TRUE;
+	if (f2 & (TR2_RES_CONFU)) p_ptr->resist_confu = TRUE;
+	if (f2 & (TR2_RES_SOUND)) p_ptr->resist_sound = TRUE;
+	if (f2 & (TR2_RES_SHARD)) p_ptr->resist_shard = TRUE;
+	if (f2 & (TR2_RES_NEXUS)) p_ptr->resist_nexus = TRUE;
+	if (f2 & (TR2_RES_NETHR)) p_ptr->resist_nethr = TRUE;
+	if (f2 & (TR2_RES_CHAOS)) p_ptr->resist_chaos = TRUE;
+	if (f2 & (TR2_RES_DISEN)) p_ptr->resist_disen = TRUE;
+
+	/* Sustain flags */
+	if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
+	if (f2 & (TR2_SUST_INT)) p_ptr->sustain_int = TRUE;
+	if (f2 & (TR2_SUST_WIS)) p_ptr->sustain_wis = TRUE;
+	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
+	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
+	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+	/* Special Stuff, not found in p_info.txt */
 
 	/* Ent */
 	if (p_ptr->prace == RACE_ENT) 
@@ -2791,15 +2913,6 @@ static void calc_bonuses(void)
 		if (p_ptr->lev > 40) p_ptr->stat_add[A_CON]++;
 		if (p_ptr->lev > 45) p_ptr->stat_add[A_CON]++;
 	}
-
-
-	/* Warrior */
-	if (p_ptr->pclass == CLASS_WARRIOR)
-	{
-		if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
-		if (p_ptr->lev >= 45) p_ptr->regenerate = TRUE;
-	}
-
 
 	/*** Analyze equipment ***/
 
@@ -2945,7 +3058,7 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-	/* Hack -- clear a few flags for certain races. -LM- */
+	/* Hack -- clear a few flags for certain races. */
 
 	/* The Shadow Fairy's saving grace */
 	if ((p_ptr->prace == RACE_S_FAIRY) && (p_ptr->aggravate)) 
@@ -2954,7 +3067,7 @@ static void calc_bonuses(void)
 		p_ptr->aggravate = FALSE;
 	}
 
-	/* Nothing, but nothing, can make an Ent lightfooted. -LM- */
+	/* Nothing, but nothing, can make an Ent lightfooted. */
 	if (p_ptr->prace == RACE_ENT) p_ptr->ffall = FALSE;
 
 
@@ -2973,7 +3086,7 @@ static void calc_bonuses(void)
 		add = p_ptr->stat_add[i];
 
 		/* Maximize mode */
-		if (p_ptr->maximize)
+		if (adult_maximize)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
@@ -3024,7 +3137,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Heightened magical defenses.  Halves the difference between saving 
-	 * throw and 100.  -LM- */
+	 * throw and 100.  */
 	if (p_ptr->magicdef)
 	{
 		p_ptr->to_a += 25;
@@ -3046,7 +3159,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary shield.  Added an exception for Necromancers to keep
-	 * them in line. -LM-
+	 * them in line.
 	 */
 	if ((p_ptr->shield) && (p_ptr->pclass == CLASS_NECRO))
 	{
@@ -3059,7 +3172,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 50;
 	}
 
-	/* Temporary "Hero".  Now also increases Deadliness. -LM- */
+	/* Temporary "Hero".  Now also increases Deadliness. */
 	if (p_ptr->hero)
 	{
 		p_ptr->to_h += 10;
@@ -3068,7 +3181,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d += 5;
 	}
 
-	/* Temporary "Berserk".  Now also increases Deadliness. -LM- */
+	/* Temporary "Berserk".  Now also increases Deadliness. */
 	if (p_ptr->shero)
 	{
 		p_ptr->to_h += 5;
@@ -3078,7 +3191,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
 
-		/* but berserkers make *lousy* archers. -LM- */
+		/* but berserkers make *lousy* archers. */
 		p_ptr->skill_thb -= 20;
 		p_ptr->skill_tht -= 20;
 	}
@@ -3101,7 +3214,7 @@ static void calc_bonuses(void)
 		p_ptr->see_inv = TRUE;
 	}
 
-	/* Temporary infravision boost.  More useful now. -LM- */
+	/* Temporary infravision boost.  More useful now. */
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra = p_ptr->see_infra + 3;
@@ -3134,6 +3247,9 @@ static void calc_bonuses(void)
 	/* Searching slows the player down */
 	if (p_ptr->searching) p_ptr->pspeed -= 10;
 
+        /* Sanity check on extreme speeds */
+        if (p_ptr->pspeed < 0) p_ptr->pspeed = 0;
+        if (p_ptr->pspeed > 199) p_ptr->pspeed = 199;
 
 	/*** Apply modifier bonuses ***/
 
@@ -3260,7 +3376,7 @@ static void calc_bonuses(void)
 		p_ptr->num_fire = 1;
 		p_ptr->num_fire = 1;
 
-		/* Launcher multiplier is now simply their damage dice. -LM- */
+		/* Launcher multiplier is now simply their damage dice. */
 		p_ptr->ammo_mult = o_ptr->dd;
 
 
@@ -3323,7 +3439,7 @@ static void calc_bonuses(void)
 				if (p_ptr->lev > 39) p_ptr->num_fire++;
 			}
 
-			/* Hack -- Rangers are also decent with slings and xbows. -LM- */
+			/* Hack -- Rangers are also decent with slings and xbows. */
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
@@ -3338,7 +3454,7 @@ static void calc_bonuses(void)
 			}
 
 
-			/* Hack -- Warriors can handle most missile weapons effectively. -LM- */
+			/* Hack -- Warriors can handle most missile weapons effectively. */
 			if ((p_ptr->pclass == CLASS_WARRIOR) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
@@ -3353,7 +3469,7 @@ static void calc_bonuses(void)
 			}
 
 
-			/* Hack -- Rogues are great with slings. -LM- */
+			/* Hack -- Rogues are great with slings. */
 			if ((p_ptr->pclass == CLASS_ROGUE) &&
 			    (p_ptr->ammo_tval == TV_SHOT))
 			{
@@ -3368,14 +3484,14 @@ static void calc_bonuses(void)
 			}
 
 			/* See formula "do_cmd_fire" in "cmd2.c" for Assassin bonus
-			 * to Deadliness. -LM- */
+			 * to Deadliness. */
 		}
 
 		/* Require at least one shot */
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
 
-	/* Add all class and race-specific adjustments to missile Skill. -LM- */
+	/* Add all class and race-specific adjustments to missile Skill. */
 	p_ptr->skill_thb += add_special_missile_skill (p_ptr->pclass, p_ptr->prace, o_ptr->weight, o_ptr);
 
 
@@ -3400,7 +3516,7 @@ static void calc_bonuses(void)
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
 
-		/* The player gets to swing a heavy weapon only once. -LM- */
+		/* The player gets to swing a heavy weapon only once. */
 		p_ptr->num_blow = 1;
 	}
 
@@ -3441,11 +3557,11 @@ static void calc_bonuses(void)
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
 
-	/* Everyone gets two blows if not wielding a weapon. -LM- */
+	/* Everyone gets two blows if not wielding a weapon. */
 	else if (!o_ptr->k_idx) p_ptr->num_blow = 2;
 
 
-	/* Add all other class and race-specific adjustments to melee Skill. -LM- */
+	/* Add all other class and race-specific adjustments to melee Skill. */
 	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, p_ptr->prace, 
 		o_ptr->weight, o_ptr);
 
@@ -3478,7 +3594,7 @@ static void calc_bonuses(void)
 		/* Notice changes */
 		if (p_ptr->stat_ind[i] != old_stat_ind[i])
 		{
-			/* Change in STR may affect how shields are used.  -LM- */
+			/* Change in STR may affect how shields are used. */
 			if ((i == A_STR) && (inventory[INVEN_ARM].k_idx))
 			{
 				/* Access the wield slot */
@@ -3632,7 +3748,7 @@ static void calc_bonuses(void)
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
 	}
 
-	/* Take note when player moves his shield on and off his back. -LM- */
+	/* Take note when player moves his shield on and off his back. */
 	if (p_ptr->old_shield_on_back != p_ptr->shield_on_back)
 	{
 		/* Messages */
@@ -3813,7 +3929,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_MISC))
 	{
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+                prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 	}
 

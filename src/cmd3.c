@@ -38,7 +38,7 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-	/* Insert the total burden and character capacity into a string. -LM- */
+	/* Insert the total burden and character capacity into a string. */
 	if (use_metric) sprintf(string, 
 		"(Inventory) burden %d.%d kg (%d%% of capacity). Command: ",
 		make_metric(p_ptr->total_weight) / 10, 
@@ -100,7 +100,7 @@ void do_cmd_equip(void)
 	item_tester_full = FALSE;
 
 
-	/* Insert the total burden and character capacity into a string. -LM- */
+	/* Insert the total burden and character capacity into a string. */
 	if (use_metric) sprintf(string, 
 		"(Equipment) burden %d.%d kg (%d%% of capacity). Command: ",
 		make_metric(p_ptr->total_weight) / 10, 
@@ -169,13 +169,13 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
-	if (DRUID_SCHANGE)
+	if (SCHANGE)
 	{
 		msg_print("You cannot wield new equipment while shapechanged.");
 		msg_print("Use the ']' command to return to your normal form.");
@@ -379,7 +379,7 @@ void do_cmd_takeoff(void)
 
 	cptr q, s;
 
-	if (DRUID_SCHANGE)
+	if (SCHANGE)
 	{
 		msg_print("You cannot take off equipment while shapechanged.");
 		msg_print("Use the ']' command to return to your normal form.");
@@ -419,7 +419,7 @@ void do_cmd_takeoff(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-	/* Ensure that the shield hand is used, if a shield is available. -LM- */
+	/* Ensure that the shield hand is used, if a shield is available. */
 	if (wield_slot(o_ptr) == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
 
 	/* Take off the item */
@@ -442,7 +442,7 @@ void do_cmd_drop(void)
 	/* Get an item */
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
-	if (DRUID_SCHANGE)
+	if (SCHANGE)
 	{
 		if (!get_item(&item, q, s, (USE_INVEN))) return;
 	}
@@ -479,7 +479,7 @@ void do_cmd_drop(void)
 		return;
 	}
 
-	/* Ensure that the shield hand is used, if a shield is available. -LM- */
+	/* Ensure that the shield hand is used, if a shield is available. */
 	if (item == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
 
 	/* Take a partial turn */
@@ -502,7 +502,7 @@ void do_cmd_destroy(void)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	char out_val[160];
 
@@ -634,7 +634,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
 
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	char info_text[512];
 	char *object_kind_info;
@@ -844,7 +844,7 @@ void do_cmd_inscribe(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	char tmp[81];
 
@@ -909,9 +909,12 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 	/* Flasks of oil are okay */
 	if (o_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN)) return (TRUE);
+	/* Non-empty lanterns are okay */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN) &&
+                (o_ptr->pval > 0))
+	{
+	        return (TRUE);
+	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -971,8 +974,21 @@ static void do_cmd_refill_lamp(void)
 		msg_print("Your lamp is full.");
 	}
 
+        /* Use fuel from a lantern */
+        if (o_ptr->sval == SV_LITE_LANTERN)
+	{
+	        /* No more fuel */
+	        o_ptr->pval = 0;
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN);
+	}
+
 	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -1000,7 +1016,7 @@ static bool item_tester_refill_torch(object_type *o_ptr)
 {
 	/* Torches are okay */
 	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+	        (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1381,7 +1397,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1397,8 +1413,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = r_info[w1].r_pkills;
-		z2 = r_info[w2].r_pkills;
+		z1 = l_list[w1].pkills;
+		z2 = l_list[w2].pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -1410,8 +1426,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = r_info[w1].r_tkills;
-		z2 = r_info[w2].r_tkills;
+		z1 = l_list[w1].tkills;
+		z2 = l_list[w2].tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -1456,7 +1472,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1586,9 +1602,10 @@ void do_cmd_query_symbol(void)
 	for (n = 0, i = 1; i < MAX_R_IDX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
+		if (!cheat_know && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1918,7 +1935,7 @@ void py_steal(int y, int x)
 		aggravate_monsters(1, FALSE);
 	}
 
-	/* Rogue "Hit and Run" attack. -LM- */
+	/* Rogue "Hit and Run" attack. */
 	if (p_ptr->special_attack & (ATTACK_FLEE))
 	{
 		/* Cancel the fleeing spell */

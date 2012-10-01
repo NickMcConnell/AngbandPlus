@@ -28,7 +28,7 @@ static int monster_critical(int dice, int sides, int dam)
 	/* Must do at least 90% of perfect */
 	if (dam < total * 19 / 20) return (0);
 
-	/* Randomize. -LM- */
+	/* Randomize. */
 	if (rand_int(3) == 0) return (0);
 
 	/* Weak blows rarely work */
@@ -136,7 +136,7 @@ static void make_request(int m_idx)
 	int offer_price = 0;
 
 	char m_name[80];
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Get the monster name (or "it") */
@@ -280,12 +280,16 @@ static void make_request(int m_idx)
 
 /*
  * Attack the player via physical attacks.
+ *
+ * Support for new features -LM-
  */
 bool make_attack_normal(int m_idx, int y, int x)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int ap_cnt;
 
@@ -299,7 +303,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	char m_name[80];
 
@@ -325,19 +329,19 @@ bool make_attack_normal(int m_idx, int y, int x)
 	monster_desc(ddesc, m_ptr, 0x88);
 
 
-	/* Players in rubble can take advantage of cover. -LM- */
+	/* Players in rubble can take advantage of cover. */
 	if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
 		terrain_bonus = ac / 8 + 5;
 	}
-	/* Players in trees can take advantage of cover, especially rangers and druids. -LM- */
+	/* Players in trees can take advantage of cover, especially rangers and druids. */
 	if (cave_feat[y][x] == FEAT_TREE)
 	{
 		if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID))
 			terrain_bonus = ac / 8 + 10;
 		else terrain_bonus = ac / 10 + 2;
 	}
-	/* Players in water are vulnerable. -LM- */
+	/* Players in water are vulnerable. */
 	if (cave_feat[y][x] == FEAT_WATER)
 	{
 		terrain_bonus = -(ac / 3);
@@ -378,7 +382,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 
 
 
-		/* Extract the attack "power".  Elemental attacks upgraded. -LM- */
+		/* Extract the attack "power".  Elemental attacks upgraded. */
 		switch (effect)
 		{
 			case RBE_HURT: 		power = 60; break;
@@ -428,7 +432,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
 				/* Message */
@@ -625,7 +629,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 			obvious = TRUE;
 
 			/* Roll out the damage.  Having resistances no longer reduces
-			 * elemental attacks quite so much. -LM- 
+			 * elemental attacks quite so much. 
 			*/
 			damage = damroll(d_dice, d_side);
 
@@ -657,7 +661,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* Poison is no longer fully cumulative. -LM- */
+				/* Poison is no longer fully cumulative. */
 				case RBE_POISON:
 				{
 					/* Take damage */
@@ -708,7 +712,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* now drains rods too. -LM- */
+				/* now drains rods too. */
 				case RBE_UN_POWER:
 				{
 					/* Take damage */
@@ -743,7 +747,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 								(o_ptr->tval == TV_WAND)) &&
 								(o_ptr->pval)) tmp = 1;
 
-							/* case of (at least partially) charged rods. -LM- */
+							/* case of (at least partially) charged rods. */
 							if ((o_ptr->tval == TV_ROD) &&
 								(o_ptr->timeout < o_ptr->pval)) tmp = 1;
 
@@ -758,12 +762,12 @@ bool make_attack_normal(int m_idx, int y, int x)
 								/* Heal */
 								j = 5 + rlev / 10;
 
-								/* Handle new-style wands correctly. -LM- */
+								/* Handle new-style wands correctly. */
 								if (o_ptr->tval == TV_WAND)
 								{
 									m_ptr->hp += j * o_ptr->pval;
 								}
-								/* Handle new-style rods correctly. -LM- */
+								/* Handle new-style rods correctly. */
 								else if (o_ptr->tval == TV_ROD)
 								{
 									m_ptr->hp += j * (o_ptr->pval - o_ptr->timeout) / 30;
@@ -787,7 +791,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 									(o_ptr->tval == TV_WAND)) 
 									o_ptr->pval = 0;
 
-								/* New-style rods. -LM- */
+								/* New-style rods. */
 								if (o_ptr->tval == TV_ROD) 
 									o_ptr->timeout = o_ptr->pval;
 
@@ -814,7 +818,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Confused monsters cannot steal successfully. -LM-*/
+					/* Confused monsters cannot steal successfully.*/
 					if (m_ptr->confused) break;
 
 					/* Obvious */
@@ -875,7 +879,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Confused monsters cannot steal successfully. -LM-*/
+					/* Confused monsters cannot steal successfully.*/
 					if (m_ptr->confused) break;
 
 					/* Saving throw (unless paralyzed) based on dex and 
@@ -1043,7 +1047,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Message */
 					msg_print("You are covered in acid!");
 
-					/* Some guaranteed damage. -LM- */
+					/* Some guaranteed damage. */
 					take_hit(damage / 3 + 1, ddesc);
 
 					/* Special damage, reduced greatly by resists. */
@@ -1063,7 +1067,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Some guaranteed damage. -LM- */
+					/* Some guaranteed damage. */
 					take_hit(damage / 3 + 1, ddesc);
 
 					/* Special damage, reduced greatly by resists. */
@@ -1083,7 +1087,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Message */
 					msg_print("You are enveloped in flames!");
 
-					/* Some guaranteed damage. -LM- */
+					/* Some guaranteed damage. */
 					take_hit(damage / 3 + 1, ddesc);
 
 					/* Special damage, reduced greatly by resists. */
@@ -1103,7 +1107,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Some guaranteed damage. -LM- */
+					/* Some guaranteed damage. */
 					take_hit(damage / 3 + 1, ddesc);
 
 					/* Special damage, reduced greatly by resists. */
@@ -1115,7 +1119,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* Blindness is no longer fully cumulative. -LM- */
+				/* Blindness is no longer fully cumulative. */
 				case RBE_BLIND:
 				{
 					/* Take damage */
@@ -1146,7 +1150,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* Confusion is no longer fully cumulative. -LM- */
+				/* Confusion is no longer fully cumulative. */
 				case RBE_CONFUSE:
 				{
 					/* Take damage */
@@ -1177,7 +1181,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* Fear is no longer fully cumulative. -LM- */
+				/* Fear is no longer fully cumulative. */
 				case RBE_TERRIFY:
 				{
 					/* Take damage */
@@ -1218,7 +1222,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
-				/* Paralyzation is no longer fully cumulative. -LM- */
+				/* Paralyzation is no longer fully cumulative. */
 				case RBE_PARALYZE:
 				{
 					/* Hack -- Prevent perma-paralysis via damage */
@@ -1584,12 +1588,12 @@ bool make_attack_normal(int m_idx, int y, int x)
 		if (visible)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
+			if (obvious || damage || (l_ptr->blows[ap_cnt] > 10))
 			{
 				/* Count attacks of this type */
-				if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
+				if (l_ptr->blows[ap_cnt] < MAX_UCHAR)
 				{
-					r_ptr->r_blows[ap_cnt]++;
+					l_ptr->blows[ap_cnt]++;
 				}
 			}
 		}
@@ -1605,9 +1609,9 @@ bool make_attack_normal(int m_idx, int y, int x)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
 	{
-		r_ptr->r_deaths++;
+		l_ptr->deaths++;
 	}
 
 	/* Assume we attacked */

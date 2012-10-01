@@ -180,7 +180,7 @@ warned that immunity does not extend to your backpack; the stuff you are
 carrying in inventory can still be destroyed on rare occasions.
 
 Immunity to Acid:
-     You take no damage from acid.  Worn items will not be effected by acid.  
+     You take no damage from acid.  Worn items will not be affected by acid.  
 Staffs, missiles, weapons, armour, and scrolls in your backpack become highly 
 resistant to destruction.
 

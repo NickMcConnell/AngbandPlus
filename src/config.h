@@ -1,3 +1,4 @@
+
 /* File: config.h */
 
 /* Compilation options.
@@ -328,6 +329,12 @@
 
 
 /*
+ * OPTION: Check the modification time of *_info.raw files
+ */
+#define CHECK_MODIFICATION_TIME
+
+
+/*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
  * They let monsters make more "intelligent" choices about attacks
  * (including spell attacks) based on their observations of the
@@ -349,10 +356,16 @@
  * the player's recent locations.  This code has been removed from
  * the current version because it is being rewritten by Billy, and
  * until it is ready, it will not work.  Do not define this option.
+ *
  */
 /* #define WDT_TRACK_OPTIONS */
 
 
+/*
+ * OPTION: Use monster AI to pick moves and spells.  Leave it on;
+ * currently not supported with this option off. 
+ */
+#define MONSTER_AI
 
 /*
  * OPTION: Allow the use of "sound" in various places.

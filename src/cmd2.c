@@ -44,7 +44,7 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of up staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
@@ -109,7 +109,7 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of down staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
 	/* Create a way back */
 	p_ptr->create_up_stair = TRUE;
@@ -458,7 +458,7 @@ static byte get_choice(void)
 static void chest_death(bool scatter, int y, int x, s16b o_idx)
 {
 	int number, i;
-
+	bool obj_success=FALSE;
 	object_type *o_ptr;
 
 	object_type *i_ptr;
@@ -467,7 +467,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 	/* Access chest */
 	o_ptr = &o_list[o_idx];
 
-	/* Determine how much to drop. -LM- */
+	/* Determine how much to drop. */
 	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number = 4 + randint(3);
 	else number = 2 + randint(3);
 
@@ -480,7 +480,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval);
 
-	/* Select an item type that the chest will disperse. -LM- */
+	/* Select an item type that the chest will disperse. */
 	required_tval = get_choice();
 
 	/* Drop some objects (non-chests) */
@@ -518,18 +518,18 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			{
 				if (randint(200) < object_level)
 				{
-					if (!make_object(i_ptr, TRUE, TRUE, TRUE)) continue;
+					obj_success=make_object(i_ptr, TRUE, TRUE, TRUE);
 					break;
 				}
 
 				else if (randint(40) < object_level)
 				{
-					if (!make_object(i_ptr, TRUE, FALSE, TRUE)) continue;
+					obj_success=make_object(i_ptr, TRUE, FALSE, TRUE);
 					break;
 				}
 				else
 				{
-					if (!make_object(i_ptr, FALSE, FALSE, TRUE)) continue;
+					obj_success=make_object(i_ptr, FALSE, FALSE, TRUE);
 					break;
 				}
 			}
@@ -541,12 +541,11 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			{
 				if (randint(80) < object_level)
 				{
-					if (!make_object(i_ptr, TRUE, FALSE, TRUE)) continue;
+				  obj_success=make_object(i_ptr, TRUE, FALSE, TRUE);
 				}
-
 				else
 				{
-				 if (!make_object(i_ptr, FALSE, FALSE, TRUE)) continue;
+				  obj_success=make_object(i_ptr, FALSE, FALSE, TRUE);
 				}
 
 				break;
@@ -562,12 +561,12 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			{
 				if (randint(100) < (object_level - 10) / 2)
 				{
-					if (!make_object(i_ptr, TRUE, FALSE, TRUE)) continue;
+					obj_success=make_object(i_ptr, TRUE, FALSE, TRUE);
 				}
 
 				else
 				{
-					if (!make_object(i_ptr, FALSE, FALSE, TRUE)) continue;
+					obj_success=make_object(i_ptr, FALSE, FALSE, TRUE);
 				}
 
 				break;
@@ -575,7 +574,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 
 			default:
 			{
-				if (!make_object(i_ptr, FALSE, FALSE, TRUE)) continue;
+				obj_success=make_object(i_ptr, FALSE, FALSE, TRUE);
 				break;
 			}
 		}
@@ -593,17 +592,20 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 				if (!cave_empty_bold(y, x)) continue;
 
 				/* Place the object there. */
-				drop_near(i_ptr, -1, y, x);
+				if (obj_success)
+				  drop_near(i_ptr, -1, y, x);
 
 				/* Done. */
 				break;
 			}
 		}
 		/* Normally, drop object near the chest. */
-		else drop_near(i_ptr, -1, y, x);
+		else 
+		  if (obj_success)
+		    drop_near(i_ptr, -1, y, x);
 	}
 
-	/* Clear this global variable, to avoid messing up object generation. -LM- */
+	/* Clear this global variable, to avoid messing up object generation. */
 	required_tval = 0;
 
 	/* Reset the object level */
@@ -853,7 +855,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (p_ptr->blind || no_lite()) i = i / 10;
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
-		/* Difficulty rating.  Tweaked to compensate for higher pvals. -LM- */
+		/* Difficulty rating.  Tweaked to compensate for higher pvals. */
 		j = i - 2 * o_ptr->pval / 3;
 
 		/* Always have a small chance of success */
@@ -872,8 +874,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		{
 			/* We may continue repeating */
 			more = TRUE;
-			if (flush_failure) flush();
-			msg_print("You failed to pick the lock.");
+			if (flush_failure) flush();	
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
 
@@ -1095,7 +1097,7 @@ static bool do_cmd_open_test(int y, int x)
 	      (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 	{
 		/* Message */
-		msg_print("You see nothing there to open.");
+		message(MSG_NOTHING_TO_OPEN, 0, "You see nothing there to open.");
 
 		/* Nope */
 		return (FALSE);
@@ -1154,7 +1156,7 @@ static bool do_cmd_open_aux(int y, int x)
 		if (rand_int(100) < j)
 		{
 			/* Message */
-			msg_print("You have picked the lock.");
+			message(MSG_OPENDOOR, 0, "You have picked the lock.");
 
 			/* Open the door */
 			cave_set_feat(y, x, FEAT_OPEN);
@@ -1176,7 +1178,7 @@ static bool do_cmd_open_aux(int y, int x)
 			if (flush_failure) flush();
 
 			/* Message */
-			msg_print("You failed to pick the lock.");
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 
 			/* We may keep trying */
 			more = TRUE;
@@ -2069,7 +2071,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Message */
 	msg_print("You smash into the door!");
 
-	/* Make a lot of noise. -LM- */
+	/* Make a lot of noise. */
 	add_wakeup_chance = 9000;
 
 	/* Hack -- Bash power based on strength */
@@ -2089,7 +2091,7 @@ static bool do_cmd_bash_aux(int y, int x)
 	if (rand_int(100) < temp)
 	{
 		/* Message */
-		msg_print("The door crashes open!");
+		message(MSG_OPENDOOR, 0, "The door crashes open!");
 
 		/* Break down the door */
 		if (rand_int(100) < 50)
@@ -2305,13 +2307,13 @@ void do_cmd_alter(void)
 	}
 
 	/* If a rogue, and the target square is a naked floor, set a trap if 
-	 * one does not already exist on the level.  If one does, notify
+	 * too many do not exist on the level.  If there are too many, notify
 	 * the player. -LM-
 	 */
 	else if ((p_ptr->pclass == CLASS_ROGUE) && (cave_naked_bold(y, x)))
 	{
 		if (num_trap_on_level == 0) py_set_trap(y, x);
-		else msg_print("You must disarm your existing trap to free up your equipment.");
+		else msg_print("You must disarm an existing trap to free up your equipment.");
 		did_nothing = FALSE;
 	}
 
@@ -2456,7 +2458,7 @@ void do_cmd_spike(void)
 	if (!do_cmd_spike_test(y, x)) return;
 
 
-	/* Take a partial turn.  Now jamming is more useful. -LM- */
+	/* Take a partial turn.  Now jamming is more useful. */
 	p_ptr->energy_use = 40;
 
 	/* Confuse direction */
@@ -2518,11 +2520,11 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Assume no monster. */
 	monster_type *m_ptr = 0;
 
-	/* Access the monster, if any is present. -LM- */
+	/* Access the monster, if any is present. */
 	if (cave_m_idx[y][x] != 0) m_ptr = &m_list[cave_m_idx[y][x]];
 
 	/* If a monster can be seen, it can be attacked normally.  Code in cmd1.c 
-	 * controls whether a player can actually move to the destination grid. -LM-
+	 * controls whether a player can actually move to the destination grid.
 	 */
 	if ((m_ptr) && (m_ptr->ml)) return (TRUE);
 

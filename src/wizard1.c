@@ -471,7 +471,7 @@ static flag_desc pval_flags1_desc[] =
 };
 
 /*
- * Missile weapon attributes. -LM-
+ * Missile weapon attributes.
  */
 static flag_desc launcher_flags_desc[] = 
 {
@@ -962,7 +962,7 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 	
-	/* Oangband requires that activations be transferred to the object. -LM- */
+	/* Oangband requires that activations be transferred to the object. */
 	if (a_ptr->activation)
 	{
 		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
@@ -1312,8 +1312,6 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
-
 	char buf[1024];
 
 	char nam[80];
@@ -1324,6 +1322,8 @@ static void spoil_mon_desc(cptr fname)
 	char hp[80];
 	char exp[80];
 
+	u16b *who;
+	u16b why = 2;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -1353,6 +1353,9 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
+	/* Allocate the "who" array */
+	C_MAKE(who, MAX_R_IDX, u16b);
+
 	/* Scan the monsters */
 	for (i = 1; i < MAX_R_IDX; i++)
 	{
@@ -1362,6 +1365,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->name) who[n++] = i;
 	}
 
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan again */
 	for (i = 0; i < n; i++)
@@ -1429,6 +1438,8 @@ static void spoil_mon_desc(cptr fname)
 	/* End it */
 	fprintf(fff, "\n");
 
+	/* Free the "who" array */
+	C_KILL(who, MAX_R_IDX, u16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -1848,16 +1859,16 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX7))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX8))            vp[vn++] = "do something";
+		if (flags6 & (RF6_BA_LITE))            vp[vn++] = "invoke starbursts";
+		if (flags6 & (RF6_S_KIN))            vp[vn++] = "summon simmilar creatures";
+		if (flags6 & (RF6_S_HI_DEMON))            vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_XXX9))           vp[vn++] = "do something";
-		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
+		if (flags6 & (RF6_XXX10))           vp[vn++] = "do something";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";

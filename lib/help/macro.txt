@@ -167,7 +167,7 @@ must do so, remember that you are only cheating yourself.
 
         The "Interact with colors" command allows you to change the actual
 internal values used to display various colors.  This command may or may
-not have any effect on your machine.  Advanced machines may allow you to
+not have any affect on your machine.  Advanced machines may allow you to
 change the actual RGB values used to represent each of the 16 colors used
 by Angband, and perhaps even allow you to define new colors which are not
 currently used by Angband.

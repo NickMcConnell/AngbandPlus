@@ -29,6 +29,8 @@ void delete_monster_idx(int i)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s16b this_o_idx, next_o_idx = 0;
 
 
@@ -59,9 +61,9 @@ void delete_monster_idx(int i)
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
-		r_ptr->r_sights = 0;
-		r_ptr->r_pkills = 1;
-		r_ptr->r_tkills = 0;
+		l_ptr->sights = 0;
+		l_ptr->pkills = 1;
+		l_ptr->tkills = 0;
 		bones_selector = 0;
 		ghost_has_spoken = FALSE;
 
@@ -88,7 +90,7 @@ void delete_monster_idx(int i)
 
 
 	/* Wipe the Monster */
-	WIPE(m_ptr, monster_type);
+	(void)WIPE(m_ptr, monster_type);
 
 	/* Count monsters */
 	m_cnt--;
@@ -163,7 +165,7 @@ static void compact_monsters_aux(int i1, int i2)
 	COPY(&m_list[i2], &m_list[i1], monster_type);
 
 	/* Hack -- wipe hole */
-	WIPE(&m_list[i1], monster_type);
+	(void)WIPE(&m_list[i1], monster_type);
 }
 
 
@@ -271,15 +273,17 @@ void wipe_m_list(void)
 
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Total Hack -- Clear player ghost information. -LM- */
+		/* Total Hack -- Clear player ghost information. */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
-			r_ptr->r_sights = 0;
-			r_ptr->r_pkills = 1;
-			r_ptr->r_tkills = 0;
+			l_ptr->sights = 0;
+			l_ptr->pkills = 1;
+			l_ptr->tkills = 0;
 			bones_selector = 0;
 			ghost_has_spoken = FALSE;
 		}
@@ -291,7 +295,7 @@ void wipe_m_list(void)
 		cave_m_idx[m_ptr->fy][m_ptr->fx] = 0;
 
 		/* Wipe the Monster */
-		WIPE(m_ptr, monster_type);
+		(void)WIPE(m_ptr, monster_type);
 	}
 
 	/* Reset "m_max" */
@@ -481,8 +485,7 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-		    (r_ptr->cur_num >= r_ptr->max_num))
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			continue;
 		}
@@ -711,7 +714,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	/* Handle all other visible monster requests */
 	else
 	{
-		/* It could be a Player Ghost. -LM- */
+		/* It could be a Player Ghost. */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
 			/* Clear the descriptor. */
@@ -780,13 +783,13 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 void lore_do_probe(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Hack -- Memorize some flags */
-	r_ptr->r_flags1 = r_ptr->flags1;
-	r_ptr->r_flags2 = r_ptr->flags2;
-	r_ptr->r_flags3 = r_ptr->flags3;
+	l_ptr->flags1 = r_ptr->flags1;
+	l_ptr->flags2 = r_ptr->flags2;
+	l_ptr->flags3 = r_ptr->flags3;
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -813,17 +816,17 @@ void lore_do_probe(int m_idx)
 void lore_treasure(int m_idx, int num_item, int num_gold)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Note the number of things dropped */
-	if (num_item > r_ptr->r_drop_item) r_ptr->r_drop_item = num_item;
-	if (num_gold > r_ptr->r_drop_gold) r_ptr->r_drop_gold = num_gold;
+	if (num_item > l_ptr->drop_item) l_ptr->drop_item = num_item;
+	if (num_gold > l_ptr->drop_gold) l_ptr->drop_gold = num_gold;
 
 	/* Hack -- memorize the good/great/chest flags */
-	if (r_ptr->flags1 & (RF1_DROP_GOOD)) r_ptr->r_flags1 |= (RF1_DROP_GOOD);
-	if (r_ptr->flags1 & (RF1_DROP_GREAT)) r_ptr->r_flags1 |= (RF1_DROP_GREAT);
-	if (r_ptr->flags1 & (RF1_DROP_CHEST)) r_ptr->r_flags1 |= (RF1_DROP_CHEST);
+	if (r_ptr->flags1 & (RF1_DROP_GOOD)) l_ptr->flags1 |= (RF1_DROP_GOOD);
+	if (r_ptr->flags1 & (RF1_DROP_GREAT)) l_ptr->flags1 |= (RF1_DROP_GREAT);
+	if (r_ptr->flags1 & (RF1_DROP_CHEST)) l_ptr->flags1 |= (RF1_DROP_CHEST);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -900,6 +903,8 @@ void update_mon(int m_idx, bool full)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	int d;
 
 	/* Current location */
@@ -955,7 +960,7 @@ void update_mon(int m_idx, bool full)
 			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
 			{
 				/* Memorize flags */
-				r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
+				l_ptr->flags2 |= (RF2_EMPTY_MIND);
 			}
 
 			/* Weird mind, occasional telepathy */
@@ -968,11 +973,11 @@ void update_mon(int m_idx, bool full)
 					flag = TRUE;
 
 					/* Memorize flags */
-					r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
+					l_ptr->flags2 |= (RF2_WEIRD_MIND);
 
 					/* Hack -- Memorize mental flags */
-					if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-					if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
 				}
 			}
 
@@ -983,8 +988,8 @@ void update_mon(int m_idx, bool full)
 				flag = TRUE;
 
 				/* Hack -- Memorize mental flags */
-				if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-				if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->flags2 |= (RF2_SMART);
+				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->flags2 |= (RF2_STUPID);
 			}
 		}
 
@@ -1041,8 +1046,8 @@ void update_mon(int m_idx, bool full)
 			if (flag)
 			{
 				/* Memorize flags */
-				if (do_invisible) r_ptr->r_flags2 |= (RF2_INVISIBLE);
-				if (do_cold_blood) r_ptr->r_flags2 |= (RF2_COLD_BLOOD);
+				if (do_invisible) l_ptr->flags2 |= (RF2_INVISIBLE);
+				if (do_cold_blood) l_ptr->flags2 |= (RF2_COLD_BLOOD);
 			}
 		}
 	}
@@ -1064,7 +1069,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Hack -- Count "fresh" sightings */
-			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
+			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
 
 			/* Disturb on appearance */
 			if (disturb_move) disturb(1, 0);
@@ -1419,7 +1424,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
 
-	/* Require passable terrain, with no other creature or player. -LM-  */
+	/* Require passable terrain, with no other creature or player. */
 	if (!cave_passable_bold(y, x)) return (FALSE);
 	if (cave_m_idx[y][x] != 0) return (FALSE);
 
@@ -1433,12 +1438,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	r_ptr = &r_info[r_idx];
 
 
-	/* Hack -- Demons & creatures who breathe fire cannot appear on water. -LM- */
+	/* Hack -- Demons & creatures who breathe fire cannot appear on water. */
 	if ((cave_feat[y][x] == FEAT_WATER) && 
 		((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) 
 		return (FALSE);
 
-	/* Hack -- Only creatures resistant to fire may appear on lava. -LM- */
+	/* Hack -- Only creatures resistant to fire may appear on lava. */
 	if ((cave_feat[y][x] == FEAT_LAVA) && (!(r_ptr->flags3 & (RF3_IM_FIRE)))) 
 		return (FALSE);
 
@@ -1505,7 +1510,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		if (cheat_hear)
 		{
-			/* Hack -- Player ghost hasn't been named yet. -LM- */
+			/* Hack -- Player ghost hasn't been named yet. */
 			if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) 
 				msg_print("Unique (Player Ghost).");
 
@@ -1519,7 +1524,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	n_ptr = &monster_type_body;
 
 	/* Clean out the monster */
-	WIPE(n_ptr, monster_type);
+	(void)WIPE(n_ptr, monster_type);
 
 
 	/* Save the race */
@@ -1527,7 +1532,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* If the monster is a player ghost, perform various manipulations on it, 
-	 * and forbid ghost creation if something goes wrong. -LM-
+	 * and forbid ghost creation if something goes wrong.
 	 */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
@@ -1550,6 +1555,19 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
 	}
+
+
+	/* Initialize WDT variables */
+#ifdef WDT_TRACK_OPTIONS
+	n_ptr->ty=0;		
+	n_ptr->tx=0;			
+	n_ptr->t_dur=0;		
+	n_ptr->t_bit=0;	
+#endif	
+
+	/* Initialize mana (unused so far) */
+	n_ptr->mana=0;              
+	n_ptr->max_mana=0;         
 
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
@@ -1899,7 +1917,7 @@ static bool summon_specific_okay(int r_idx)
 	int i, effect;
 
 
-	/* Player ghosts cannot be summoned. -LM- */
+	/* Player ghosts cannot be summoned. */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return(FALSE);
 
 	/* Hack -- no specific type specified */
@@ -1908,6 +1926,20 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
+
+		case SUMMON_KIN:
+		{
+			okay = ((r_ptr->d_char == summon_kin_type) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_HI_DEMON:
+		{
+			okay = (r_ptr->d_char == 'U');
+			break;
+		}
+
 		case SUMMON_ANT:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
@@ -1925,13 +1957,6 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HOUND:
 		{
 			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_ANGEL:
-		{
-			okay = ((r_ptr->d_char == 'A') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -2067,7 +2092,7 @@ bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);
 
-		/* Require passable terrain, with no other creature or player. -LM-  */
+		/* Require passable terrain, with no other creature or player.  */
 		if (!cave_passable_bold(y, x)) continue;
 		if (cave_m_idx[y][x] != 0) continue;
 
@@ -2280,10 +2305,6 @@ void update_smart_learn(int m_idx, int what)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-
-	/* Not allowed to learn */
-	if (!smart_learn) return;
 
 	/* Too stupid to learn anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;

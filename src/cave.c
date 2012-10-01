@@ -596,6 +596,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	bool image = p_ptr->image;
 
+	int floor_num = 0;
+
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
@@ -785,26 +787,42 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
-			/* Hack -- object hallucination */
-			if (image)
-			{
-				int i = image_object();
-				a = PICT_A(i);
-				c = PICT_C(i);
-			}
+		  /* Hack -- object hallucination */
+                        if (image)
+                        {
+                                int i = image_object();
 
-			/* Normal */
-			else
-			{
-				/* Normal char */
-				c = object_char(o_ptr);
+                                a = PICT_A(i);
+                                c = PICT_C(i);
 
-				/* Normal attr */
-				a = object_attr(o_ptr);
-			}
+                                break;
+                        }
 
-			/* Done */
-			break;
+                        /* Normal attr */
+                        a = object_attr(o_ptr);
+
+                        /* Normal char */
+                        c = object_char(o_ptr);
+
+                        /* First marked object */
+                        if (!show_piles) break;
+
+                        /* Special stack symbol */
+                        if (++floor_num > 1)
+                        {
+                                object_kind *k_ptr;
+
+                                /* Get the "pile" feature */
+                                k_ptr = &k_info[0];
+
+                                /* Normal attr */
+                                a = k_ptr->x_attr;
+
+                                /* Normal char */
+                                c = k_ptr->x_char;
+
+                                break;
+                        }
 		}
 	}
 
@@ -2909,10 +2927,6 @@ void update_flow(void)
 	byte flow_y[FLOW_MAX];
 	byte flow_x[FLOW_MAX];
 
-	/* Hack -- disabled */
-	if (!flow_by_sound) return;
-
-
 	/*** Cycle the flow ***/
 
 	/* Cycle the flow */
@@ -3022,7 +3036,7 @@ void map_area(int y, int x, bool extended)
 	int i, y1, y2, x1, x2;
 
 
-	/* Map around a location, if given. -LM- */
+	/* Map around a location, if given. */
 	if ((y) && (x))
 	{
 		y1 = y - (SCREEN_HGT / 2) - (extended ? 5 : 0) - randint(5);
@@ -3124,7 +3138,7 @@ void wiz_lite(bool wizard)
 		/* Skip held objects */
 		if (o_ptr->held_m_idx) continue;
 
-		/* Skip objects in vaults, if not a wizard. -LM- */
+		/* Skip objects in vaults, if not a wizard. */
 		if ((wizard == FALSE) && 
 			(cave_info[o_ptr->iy][o_ptr->ix] & (CAVE_ICKY))) continue;
 
@@ -3151,7 +3165,7 @@ void wiz_lite(bool wizard)
 					/* Perma-lite the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
-					/* Skip non-wall vault features if not a wizard. -LM-*/
+					/* Skip non-wall vault features if not a wizard. */
 					if ((wizard == FALSE) && 
 						(cave_info[yy][xx] & (CAVE_ICKY)) && 
 						(cave_feat[yy][xx] < FEAT_SECRET) && 
@@ -3345,7 +3359,7 @@ void cave_set_feat(int y, int x, int feat)
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
-	/* Handle "wall/door" grids.  Trees are also considered walls. -LM- */
+	/* Handle "wall/door" grids.  Trees are also considered walls. */
 	if (((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_SHOP_HEAD)) || (feat == FEAT_TREE))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
@@ -3667,7 +3681,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 	y = GRID_Y(grid_g[grid_n-1]);
 	x = GRID_X(grid_g[grid_n-1]);
 
-	/* May not end in a wall, unless a tree or rubble grid. -LM- */
+	/* May not end in a wall, unless a tree or rubble grid. */
 	if (!cave_passable_bold(y, x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
@@ -3807,7 +3821,7 @@ void disturb(int stop_search, int unused_flag)
 		p_ptr->running = 0;
 
 		/* Recenter the panel when running stops */
-		if (center_player && !center_running) verify_panel();
+		if (center_player && !center_running && p_ptr->depth) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

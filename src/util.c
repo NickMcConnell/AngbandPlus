@@ -788,8 +788,50 @@ errr fd_close(int fd)
 }
 
 
-#endif /* ACORN */
+#ifdef CHECK_MODIFICATION_TIME
+# ifdef MACINTOSH
+#  include <stat.h>
+# else
+#  include <sys/types.h>
+#  include <sys/stat.h>
+# endif /* MACINTOSH */
 
+
+errr check_modification_date(int fd, cptr template_file)
+{
+        char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+	        /* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+	       /* Error */
+	       return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+	       /* Reprocess text file */
+	       return (-1);
+	}
+
+	return (0);
+}
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+#endif /* ACORN */
 
 
 
@@ -1722,7 +1764,7 @@ void bell(cptr reason)
 	Term_fresh();
 
 	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason) message_add(reason);
+	if (character_generated && reason) message_add(reason, MSG_BELL);
 
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
@@ -1901,6 +1943,31 @@ cptr message_str(s16b age)
 	return (s);
 }
 
+/*
+ * Recall the "type" of a saved message
+ */
+u16b message_type(s16b age)
+{
+        s16b x;
+
+	/* Forgotten messages have no special color */
+	if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+
+	/* Get the "logical" index */
+	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+
+	/* Return the message type */
+	return (message__type[x]);
+}
+
+/*
+ * Recall the "color" of a saved message
+ */
+byte message_color(s16b age)
+{
+        return message__color[message_type(age)];
+}
+
 
 
 /*
@@ -1917,7 +1984,7 @@ cptr message_str(s16b age)
  * We attempt to minimize the use of "string compare" operations in this
  * function, because they are expensive when used in mass quantities.
  */
-void message_add(cptr str)
+void message_add(cptr str, u16b type)
 {
 	int n, k, i, x, o;
 
@@ -1937,7 +2004,6 @@ void message_add(cptr str)
 
 	/* Hack -- Ignore "long" messages */
 	if (n >= MESSAGE_BUF / 4) return;
-
 
 	/*** Step 2 -- Attempt to optimize ***/
 
@@ -1972,7 +2038,7 @@ void message_add(cptr str)
 		/* Do not optimize over large distances */
 		if (q >= MESSAGE_BUF / 4) continue;
 
-		/* Access the old string */
+		/* Get the old string */
 		old = &message__buf[o];
 
 		/* Inline 'streq(str, old)' */
@@ -1997,10 +2063,12 @@ void message_add(cptr str)
 		/* Assign the starting address */
 		message__ptr[x] = message__ptr[i];
 
+		/* Store the message type */
+		message__type[x] = type;
+
 		/* Success */
 		return;
 	}
-
 
 	/*** Step 3 -- Ensure space before end of buffer ***/
 
@@ -2033,7 +2101,6 @@ void message_add(cptr str)
 		/* Start over */
 		message__head = 0;
 	}
-
 
 	/*** Step 4 -- Ensure space for actual characters ***/
 
@@ -2080,7 +2147,6 @@ void message_add(cptr str)
 		if (++message__last == MESSAGE_MAX) message__last = 0;
 	}
 
-
 	/*** Step 6 -- Insert the message text ***/
 
 	/* Assign the starting address */
@@ -2093,8 +2159,10 @@ void message_add(cptr str)
 
 	/* Advance the "head" pointer */
 	message__head += (n + 1);
-}
 
+	/* Store the message type */
+	message__type[x] = type;
+}
 
 /*
  * Initialize the "message" package
@@ -2104,6 +2172,10 @@ errr message_init(void)
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
+	C_MAKE(message__type, MESSAGE_MAX, u16b);
+
+        /* Init the message colors to white */
+        (void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
@@ -2221,17 +2293,13 @@ static void msg_flush(int x)
  * Hack -- Note that "msg_print(NULL)" will clear the top line even if no
  * messages are pending.
  */
-void msg_print(cptr msg)
+static void msg_print_aux(u16b type, cptr msg)
 {
 	static int p = 0;
-
 	int n;
-
 	char *t;
-
 	char buf[1024];
-
-	int lim = screen_x - 8;
+	byte color = TERM_WHITE;
 
 
 	/* Hack -- Reset */
@@ -2241,7 +2309,7 @@ void msg_print(cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (p && (!msg || ((p + n) > lim)))
+	if (p && (!msg || ((p + n) > 72)))
 	{
 		/* Flush */
 		msg_flush(p);
@@ -2261,9 +2329,23 @@ void msg_print(cptr msg)
 	if (n > 1000) return;
 
 
-	/* Memorize the message */
-	if (character_generated) message_add(msg);
+	/* Memorize the message (if legal) */
+	if (character_generated && !(p_ptr->is_dead))
+		message_add(msg, type);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE);
+
+#if 0
+	/* Handle "auto_more" */
+	{
+		/* Force window update */
+		window_stuff();
+
+		/* Done */
+		return;
+	}
+#endif
 
 	/* Copy it */
 	strcpy(buf, msg);
@@ -2271,18 +2353,25 @@ void msg_print(cptr msg)
 	/* Analyze the buffer */
 	t = buf;
 
+	/* Get the color of the message (if legal) */
+	if (message__color)
+		color = message__color[type];
+
+	/* HACK -- no "black" messages */
+	if (color == TERM_DARK) color = TERM_WHITE;
+
 	/* Split message */
-	while (n > lim)
+	while (n > 72)
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = lim;
+		split = 72;
 
 		/* Find the "best" split point */
-		for (check = 40; check < lim; check++)
+		for (check = 40; check < 72; check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2295,13 +2384,10 @@ void msg_print(cptr msg)
 		t[split] = '\0';
 
 		/* Display part of the message */
-		Term_putstr(0, 0, split, TERM_WHITE, t);
+		Term_putstr(0, 0, split, color, t);
 
 		/* Flush it */
 		msg_flush(split + 1);
-
-		/* Memorize the piece */
-		/* if (character_generated) message_add(t); */
 
 		/* Restore the split character */
 		t[split] = oops;
@@ -2313,15 +2399,8 @@ void msg_print(cptr msg)
 		t += split; n -= split;
 	}
 
-
 	/* Display the tail of the message */
-	Term_putstr(p, 0, n, TERM_WHITE, t);
-
-	/* Memorize the tail */
-	/* if (character_generated) message_add(t); */
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE);
+	Term_putstr(p, 0, n, color, t);
 
 	/* Remember the message */
 	msg_flag = TRUE;
@@ -2331,6 +2410,15 @@ void msg_print(cptr msg)
 
 	/* Optional refresh */
 	if (fresh_after) Term_fresh();
+}
+
+
+/*
+ * Print a message in the default color (white)
+ */
+void msg_print(cptr msg)
+{
+	msg_print_aux(MSG_GENERIC, msg);
 }
 
 
@@ -2353,10 +2441,45 @@ void msg_format(cptr fmt, ...)
 	va_end(vp);
 
 	/* Display */
-	msg_print(buf);
+	msg_print_aux(MSG_GENERIC, buf);
 }
 
 
+/*
+ * Display a message and play the associated sound.
+ *
+ * The "extra" parameter is currently unused.
+ */
+void message(u16b message_type, s16b extra, cptr message)
+{
+	sound(message_type);
+
+	msg_print_aux(message_type, message);
+}
+
+/*
+ * Display a formatted message and play the associated sound.
+ *
+ * The "extra" parameter is currently unused.
+ */
+void message_format(u16b message_type, s16b extra, cptr fmt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, fmt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, fmt, vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	/* Display */
+	message(message_type, extra, buf);
+}
 
 /*
  * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"

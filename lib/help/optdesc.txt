@@ -70,8 +70,9 @@ Repeat obvious commands    [always_repeat]
      the help file "cmddesc.txt"), unless an explicit repeat count was 
      given.
 
-Show dungeon level in feet    [depth_in_feet]
-     Display dungeon depths in "feet" instead of "levels".
+Show dungeon level in feet (or meters)    [depth_in_feet]
+     Display dungeon depths in "feet" ("meters" if the "Use metric (SI) 
+     measurements" option is used) instead of "levels".
 
 Merge inscriptions when stacking    [stack_force_notes]
      Force otherwise identical objects to merge, even if one has an empty
@@ -142,9 +143,7 @@ Disturb whenever viewable monster moves    [disturb_near]
 
 Disturb whenever map panel changes    [disturb_panel]
      This option causes you to be disturbed by the screen scrolling, as it 
-     does when your character gets close to the edge of the screen.  This 
-     allows you to cast various detection spells before venturing too 
-     boldly into unknown territory.
+     does when your character gets close to the edge of the screen.
 
 Disturb whenever player state changes    [disturb_state]
      This option causes you to be disturbed whenever the player state changes, 
@@ -195,15 +194,16 @@ Auto-scum for good levels    [auto_scum]
      is based on the dungeon level, so the deeper you go, the better the
      level will be.  A lot of people consider this option to be cheating.
 
-Open doors automatically    [easy_open]
-     Open doors automatically if you move into them, or if only one logical 
-     choice is available when you issue the open command.  From Tim Baker's Easy 
-     Patch.
+Open and close doors automatically    [easy_open]
+     Open doors automatically if you move into them.  Opens and closes doors
+     automatically if only one logical choice is available when you issue 
+     the open command.  From Tim Baker's Easy Patch.
 
-Open doors automatically    [easy_open]
+Disarm traps automatically    [easy_disarm]
      Disarm traps automatically if you move into them, or if only one logical 
      choice is available when you issue the disarm command.  From Tim Baker's 
-     Easy Patch.
+     Easy Patch.  Note that this option will not cause a Rogue to undo a
+     monster trap.
 
 Expand the power of the look command    [expand_look]
      Expand the "look" command to allow the user to "look" at grids which
@@ -310,7 +310,7 @@ Flush output before every command    [fresh_before]
      resting, running, or repeating commands, since the output is always
      flushed when the game is waiting for a keypress from the user.
 
-Flush output after certain things    [fresh_after]
+Flush output after various things    [fresh_after]
      This option forces the game to flush all output after not only every
      player command, but also after every round of processing monsters and
      objects, and after every message, which will maximize your information,
@@ -332,7 +332,7 @@ Use special colors for torch-lit grids    [view_yellow_lite]
      "view_granite_lite" is on, walls will be colored in the same way.  Turning 
      this option off will slightly increase the speed of the game.
 
-Use special colors for 'viewable' grids    [view_bright_lite]
+Use special colors for field of view    [view_bright_lite]
      If the option "view_special_lite" is also on, those floor grids that the 
      player can see directly are drawn in white, and all other known grids are 
      drawn in dark gray.  If the option "view_granite_lite" is on, walls will 
@@ -363,8 +363,15 @@ Keep player centered while running (slow)    [center_running]
     running. Otherwise, the screen is recentered on the player when running
     is finished. This option has no effect if center_player is off.
 
+Show stacks using special attr/char    [show_piles]
+    Causes piles of object to be displayed as a generic symbol rather than
+    looking like the "top" object.
 
-=== Cheating Options ===
+=== Option Set 5 -- Birth Options ===
+
+These options are described in the help files for character creation.
+
+=== Option Set 5 -- Cheat Options ===
 
 Peek into object creation    [cheat_peek]
      Cheaters never win.  But they can peek at object creation.
@@ -438,6 +445,34 @@ Display borg messages
 Display borg status
      This window flag is currently used only by the Borg.
 
+=== Item squleching menus ===
+
+Item squelching (from the Autosquelch patch by David Blackston) allows you
+define certain items that you know do not interest you.  These items are
+deleted automatically.  They are not replaced by new items.  Autosquelch in
+no way affects the frequency of other items.  Autosquelch makes use of only 
+information you have access to in game, and does not provide any degree of 
+"free" identification.
+
+Oangband support two types of autosquelching for two different classes of
+object.
+
+The main autosquelch screen allows you to select item types through menus.
+Items set to be squelched will be deleted if that class of object is known 
+to you.  For example, if you choose to squelch "Amulets of DOOM", they will
+be generated normally until you have identified your first such amulet.
+After that they will be deleted.  No indication is given that an item was 
+squelched.  This is refered to as "squelch-on-generate" and is usable in 
+Oangband for items other than weapons, armor, and ammunition.
+
+The secondary autosquelch menu allows you to set miminum "quality" 
+threshholds for various categories of armor, weaponry and ammunition.  For 
+any given category, you may choose to squelch no items (N), only cursed 
+items (C), cursed and average items (V), all but ego items and artifacts (G), 
+or all but artifacts (A).  These items will be generated normally.  Any items 
+identified as squlechable will be immediately removed from the game.  This 
+will be indicated in the player messages.  This refered to as 
+"squelch-on-identify".
 
 === Miscellaneous Options ===
 

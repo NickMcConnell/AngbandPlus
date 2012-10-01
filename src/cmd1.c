@@ -63,8 +63,8 @@ void search(void)
 					/* Message */
 					msg_print("You have found a secret door.");
 
-					/* Pick a door XXX XXX XXX */
-					cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+					/* Pick a door */
+					place_closed_door(y, x);
 
 					/* Disturb */
 					disturb(0, 0);
@@ -142,7 +142,7 @@ static void py_pickup_aux(int o_idx)
 {
 	int slot;
 	
-	char o_name[80];
+	char o_name[120];
 	object_type *o_ptr;
 
 
@@ -202,7 +202,7 @@ byte py_pickup(int pickup)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	char o_name[120];
 	object_type *o_ptr;
 
 	/* Objects picked up.  Used to determine time cost of command. */
@@ -1478,7 +1478,7 @@ void move_player(int dir, int do_pickup)
 	else
 	{
 		/* It takes some dexterity, or failing that, strength, to get out of 
-		 * pits. -LM-
+		 * pits.
 		 */
 		if (cave_feat[p_ptr->py][p_ptr->px] == (FEAT_TRAP_HEAD + 0x01))
 		{
@@ -1502,9 +1502,12 @@ void move_player(int dir, int do_pickup)
 
 
 		/* Option to disarm a visible trap. -TNB- */
+		/* Hack - Rogues can walk over their own trap - BR */
 		if ((easy_disarm) && 
 			(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+			(cave_feat[y][x] <= FEAT_TRAP_TAIL) &&
+		        (cave_feat[y][x] != FEAT_TRAP_ROGUE))
+
 		{
 			/* Optional auto-repeat. */
 			if (always_repeat && (p_ptr->command_arg <= 0))
@@ -1529,7 +1532,7 @@ void move_player(int dir, int do_pickup)
 				/* Closed door */
 				if (cave_feat[y][x] < FEAT_SECRET)
 				{
-					msg_print("You feel a door blocking your way.");
+				        message(MSG_HITWALL, 0, "You feel a door blocking your way.");
 					cave_info[y][x] |= (CAVE_MARK);
 					lite_spot(y, x);
 				}
@@ -1537,7 +1540,7 @@ void move_player(int dir, int do_pickup)
 				/* Wall (or secret door) */
 				else
 				{
-					msg_print("You feel a wall blocking your way.");
+          				message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
 					cave_info[y][x] |= (CAVE_MARK);
 					lite_spot(y, x);
 				}
@@ -1564,13 +1567,13 @@ void move_player(int dir, int do_pickup)
 					}
 
 					/* Otherwise, a message. */
-					msg_print("There is a door blocking your way.");
+				        message(MSG_HITWALL, 0, "There is a door blocking your way.");
 				}
 
 				/* Wall (or secret door) */
 				else
 				{
-					msg_print("There is a wall blocking your way.");
+				        message(MSG_HITWALL, 0, "There is a wall blocking your way.");
 				}
 			}
 
@@ -1584,7 +1587,7 @@ void move_player(int dir, int do_pickup)
 			/* Sound XXX XXX XXX */
 			/* sound(SOUND_WALK); */
 
-			/*** Handle traversable terrain. -LM- ***/
+			/*** Handle traversable terrain.  ***/
 			switch(cave_feat[y][x])
 			{
 				case FEAT_RUBBLE:
@@ -1595,7 +1598,7 @@ void move_player(int dir, int do_pickup)
 					{
 						player_is_crossing = dir;
 
-						/* Automate 2nd movement command, if not disturbed. */
+				                /* Automate 2nd movement command, if not disturbed. */
 						p_ptr->command_cmd = 59;
 						p_ptr->command_rep = 1;
 						p_ptr->command_dir = dir;
@@ -2182,7 +2185,7 @@ static bool run_test(void)
 				case FEAT_MAGMA_H:
 				case FEAT_QUARTZ_H:
 
-				/* Special passable terrain. -LM- */
+				/* Special passable terrain. */
 				case FEAT_LAVA:
 				case FEAT_WATER:
 				case FEAT_TREE:

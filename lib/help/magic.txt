@@ -35,7 +35,7 @@ between two and four.
 === Spell Projection Types ===
 
      The names of spells and magical devices sometimes give you information 
-about what areas they effect, and what shapes they take.
+about what areas they affect, and what shapes they take.
 
      "Bolt", "Missile":
           Fires a magical bolt in a direction or at your chosen target.  Such 
@@ -58,25 +58,25 @@ about what areas they effect, and what shapes they take.
      location.  Otherwise, they travel in the direction you choose, and explode 
      as soon they hit a monster or wall, or reach their maximum range.  These 
      spells only do full damage to the single grid at the center of the 
-     explosion, but can effect monsters that can't see you.
+     explosion, but can affect monsters that can't see you.
 
      "Orb", "Sphere"
-          Orbs are ball spells that do full damage to every grid they effect, 
+          Orbs are ball spells that do full damage to every grid they affect, 
      and usually have small explosions.
 
           Some ball spells center on you.  Such spells do full damage to all 
      adjacent squares.
 
      "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
-          A fair number of spells effect all monsters in line of sight (no 
+          A fair number of spells affect all monsters in line of sight (no 
           walls, rubble, or trees between you and them, up to a range of 20).
 
 
 === The Four Realms of Magic ===
 
 Sorcery:
-          Although they have lost magical invulnerability, and will find geno-
-     cide and dungeon destruction spells expensive, mages can learn to recover 
+          Although they have lost magical invulnerability and genocide, and 
+     will find dungeon destruction spells expensive, mages can learn to recover 
      mana very quickly, and move about the dungeon better than anyone else - it 
      is rumoured that precise control of teleportation is not impossible for 
      them.  In addition, mages can recharge the magical items they need to help 
@@ -132,45 +132,59 @@ Necromancy:
 
 === Shapeshifts ===
 
-Listing of shapeshifts and their effects.  All shapeshifts chop mana in half.  
-Various effects can be checked by using the 'C'haracter screen, then typing 'h'
-twice.  Shapeshifts may be canceled by typing ']'.
+Listing of shapeshifts and their effects.  All shapeshifts chop mana
+in to 2/3 of normal.  All shapeshifts reduce shooting and throwing
+skills, in most cases to abysmal levels.  Various effects can be
+checked by using the 'C'haracter screen, then typing 'h' twice.
+Shapeshifts may be canceled by typing ']'.
 
 Druid:
-     Mouse-has superb stealth and very poor combat and magical device skills.
-     Ferret-high DEX, searching, regeneration, and a little extra speed, but 
+      Mouse-has superb stealth and very poor combat and magical device skills.
+      Ferret-high DEX, searching, regeneration, and a little extra speed, but 
              serious penalties to Deadliness and magical device skills.
-     Hound-So high is this creature's ability to smell, hear, and see the world
+      Hound-So high is this creature's ability to smell, hear, and see the world
              around it that they are represented by telepathy.  Poor magical 
-             device skill.  Penalty to Wisdom.
-      Gazelle-Increase in speed, DEX, and Skill, but penalties to STR, Dead-
+             device skill.
+      Gazelle-Increase in speed, DEX, and Skill, but penalties to STR, WIS, Dead-
              liness, and magical device skills.
       Lion-Bonuses to STR, combat skills, armour class, resist fear and 
-             regeneration, and a small bonus to speed, but penalties to CHR and 
-             magical device skill.
-      Ent-Bonuses to most stats, resist most elements and poison, see invisible, 
-             free action, plus to Deadliness and tunnelling, but loses any 
-             feather fall and any protection from fire whatsoever.
+             regeneration, and a small bonus to speed, but penalties to 
+             CHR/INT/WIS and magical device skill.
+      Elder Ent-Bonuses to most stats, resist cold and poison, see
+             invisible, free action, plus to Deadliness and tunnelling, but 
+             loses any feather fall and any permanent protection from fire.
+             Temporary ofrms of fire resistance (spells and potions) are still 
+             useable.
 
 Necromancer:
      Bat-Cannot be blinded, large bonus to infravision, feather fall, speed 
             bonus, but penalties to magical device skill, combat skills, and 
             various stats.
      Werewolf-Bonuses to infravision, STR, regeneration, and is a fighting 
-            machine, but penalties to CHR, magical devices, and aggravates 
+            machine, but penalties to INT, CHR, magical devices, and aggravates 
             nearby monsters.
      Vampire-Bonuses to various stats, resist cold, hold life, see invisible, 
             regenerate, fights and uses magical devices well, and is stealthy, 
             but is never resistant to light, never double-resistant to fire, 
             has a penalty to CHR, and never has a light radius of more than two.
+	    The bows/throws skill penalty is much smaller than for other
+            shapeshifts.
 
+Item based shapeshifts:
+     Lion-As with the Druid spell.
+     Vampire-Like the Necromancer spell.  It is not advisable to try to turn a
+            pious or nature-loving character into a Vampire.
+     Wyrm-This form is a humman-sized Dragon.  Bonuses to most stats, AC, dead-
+            liness and magic device skill.  Penalties to stealth, DEX and CHR.
+            Depending on the item that caused the shapeshift, there may be an
+            additional bonus power.
 
 === Warrior special ability:  Pseudo-probing ===
 
 Command to use: 'm'.
 Command to show ability information: 'b'; 'P' in the roguelike keyset.
 
-     Warriors know more about how a given weapon will effect a given monster 
+     Warriors know more about how a given weapon will affect a given monster 
 than any other class.  Starting at level 35, they can probe a monster to reveal 
 approximate hitpoints, race, and the basic resistances.  The ability costs 
 nothing, takes a full turn to use, and learns about a single monster.  The 

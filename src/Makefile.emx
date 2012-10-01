@@ -22,8 +22,8 @@
 #		  Needs 4OS2.
 #
 
-VERSION         = 283v3
-EXPORT          = angband-$(VERSION).os2.zip
+VERSION         = 050
+EXPORT          = oangband-$(VERSION).os2.zip
 
 CC		= gcc
 AR		= ar
@@ -39,10 +39,10 @@ LFLAGS		= -lvideo
 
 default: all depends :-)
 
-install: ..\angband.exe ..\aclient.exe ..\startwnd.cmd
+install: ..\oangband.exe ..\aclient.exe ..\startwnd.cmd
 
 clean:
-	-+@ del angband.exe
+	-+@ del oangband.exe
 	-+@ del aclient.exe
 	-+@ del depends
 	-+@ del _state.mk
@@ -66,19 +66,19 @@ OBJS = \
 	melee1.o melee2.o save.o files.o attack.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	store.o birth.o load1.o load2.o \
-	wizard1.o wizard2.o randart.o \
+	wizard1.o wizard2.o randart.o squelch.o \
 	generate.o dungeon.o init1.o init2.o
 
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c
 
-all .PHONY: angband.exe aclient.exe 
+all .PHONY: oangband.exe aclient.exe 
 	+@echo. 
 	+@echo Now type 
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) install'
 	+@echo. 
-	+@echo to install Angband in the parent directory, and/or
+	+@echo to install OAngband in the parent directory, and/or
 	+@echo. 
 	+@echo       '$(MAKECMD) $(MFLAGS) $(MAKEFILE) clean'
 	+@echo. 
@@ -87,7 +87,7 @@ all .PHONY: angband.exe aclient.exe
 	+@echo working executables.
 	+@echo. 
 
-EXPFILES = angband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
+EXPFILES = oangband.exe;aclient.exe;patches.txt;readme;startwnd.cmd
 
 ..\exp\$(EXPORT) .PHONY .IGNORE: install patches
 # Needs 4OS2!
@@ -144,9 +144,9 @@ depends .IGNORE: $(OBJS)
 	+ echo. > depends
 	+ for %a in (*.d) type %a >> depends
 
-..\angband.exe: angband.exe
-	+ copy angband.exe ..
-	emxbind -s ..\angband.exe
+..\oangband.exe: oangband.exe
+	+ copy oangband.exe ..
+	emxbind -s ..\oangband.exe
 
 ..\aclient.exe: aclient.exe
 	+ copy aclient.exe ..
@@ -161,7 +161,7 @@ ECF=>> ..\startwnd.cmd
 	$(EC) call RxFuncAdd 'SysLoadFuncs', 'RexxUtil', 'SysLoadFuncs'	$(ECF)
 	$(EC) call SysLoadFuncs						$(ECF)
 	$(EC).								$(ECF)
-	$(EC) /* This file starts up Angband and up to seven other views. The */	$(ECF)
+	$(EC) /* This file starts up OAngband and up to seven other views. The */	$(ECF)
 	$(EC) /* optional number behind the name sets the number of lines for */	$(ECF)
 	$(EC) /* that screen.  Choose contents for each via the game options. */	$(ECF)
 	$(EC).								$(ECF)
@@ -177,14 +177,14 @@ ECF=>> ..\startwnd.cmd
 	$(EC) '@start /b /win /n aclient Term-7'			$(ECF)
 	$(EC) */							$(ECF)
 	$(EC) call SysSleep(2)						$(ECF)
-	$(EC) '@angband 'ARG(1)						$(ECF)
+	$(EC) '@oangband 'ARG(1)					$(ECF)
 	$(EC) exit							$(ECF)
 
-angband.exe: angband.a main.o main-emx.o main-epm.o
-	$(CC) -o angband.exe main.o main-emx.o angband.a $(LFLAGS) 
+oangband.exe: angband.a main.o main-emx.o main-epm.o
+	$(CC) -o oangband.exe main.o main-emx.o angband.a $(LFLAGS) 
 
-angband.a: $(OBJS)
-	$(AR) r angband.a $(OBJS)
+oangband.a: $(OBJS)
+	$(AR) r oangband.a $(OBJS)
 
 aclient.exe: main-emx.c
 	$(NICE) $(CC) $(CFLAGS) -Wall -D__EMX__CLIENT__ -o aclient.exe main-emx.c -lvideo

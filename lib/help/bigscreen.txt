@@ -1,0 +1,43 @@
+
+====================== Using a Larger Display (Bigscreen) ======================
+
+This version of Oangband supports Tom Morton's bigscreen patch, which
+allows you to have a terminal larger than 80x24.  This allows you to
+see more of the dungeon map.  The minimum terminal size is 80 columns
+(x, width) by 24 rows (y, height).
+
+In Oangband, the Bigscreen patch does not provide any in game
+advantages.  It is purely an interface improvement and is recommended.
+
+To change the terminal size...
+
+On MS Windows:
+Change the NumCols and NumRows entries in the ANGBAND.INI file.
+NumCols must be greater or equal to 80. NumRows must be greater or
+equal to 24.
+
+On a LINUX/UNIX system using x-windows:
+Pass "-y<number of rows>" and "-x<number of cols>" options on the command 
+line.  If that does not work, try also including "-mx11" on the command
+line.  If that still does not work, Oangband has not been compiled with
+proper support for the bigscreen patch.
+
+On a LINUX/UNIX system using curses:
+Pass "-y<number of rows>" and "-x<number of cols>" options on the command 
+line.  If that does not work, try also including "-mgcu" on the command
+line.  If that still does not work, Oangband has not been compiled with
+proper support for the bigscreen patch.
+Note: You must make sure that they curses screen you are using is of at
+least the specified dimensions.
+
+On DOS:
+Pass "-y<number of rows>" and "-x<number of cols>" options on the command 
+line.  If that does not work, try also including "-mibm" on the command
+line.  If that still does not work, Oangband has not been compiled with
+proper support for the bigscreen patch.
+
+On other systems.
+Bigscreen is not supported.
+
+Tim Baker and Bahman Rabii
+

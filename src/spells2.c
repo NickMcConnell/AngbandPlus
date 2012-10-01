@@ -162,7 +162,7 @@ bool warding_glyph(void)
 	/* Create a glyph */
 	cave_set_feat(py, px, FEAT_GLYPH);
 
-	/* Increment the glyph count. -LM- */
+	/* Increment the glyph count. */
 	num_glyph_on_level++;
 
 	/* Warning. */
@@ -352,6 +352,21 @@ static int enchant_table[16] =
 
 
 /*
+ * Hack -- Removes curse from an object.
+ */
+static void uncurse_object(object_type *o_ptr)
+{
+	/* Uncurse it */
+	o_ptr->ident &= ~(IDENT_CURSED);
+
+	/* The object has been "sensed" */
+	o_ptr->ident |= (IDENT_SENSE);
+
+	o_ptr->feel = FEEL_UNCURSED;
+}
+
+
+/*
  * Removes curses from items in inventory
  *
  * Note that Items which are "Perma-Cursed" (The One Ring,
@@ -387,14 +402,8 @@ static int remove_curse_aux(int all)
 		/* Perma-Cursed Items can NEVER be uncursed */
 		if (f3 & (TR3_PERMA_CURSE)) continue;
 
-		/* Uncurse it */
-		o_ptr->ident &= ~(IDENT_CURSED);
-
-		/* Hack -- Assume felt */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Take note */
-		o_ptr->feel = FEEL_UNCURSED;
+		/* Uncurse the object */
+		uncurse_object(o_ptr);
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -456,11 +465,11 @@ bool restore_level(void)
 
 
 /*
- * Stop doing a druid shapechange.  From Sangband.
+ * Stop doing a shapechange.  From Sangband.
  */
 void do_cmd_unchange(void)
 {
-	if (!DRUID_SCHANGE)
+	if (!SCHANGE)
 	{
 		msg_print("You aren't in another form right now.");
 		return;
@@ -471,6 +480,16 @@ void do_cmd_unchange(void)
 
 	/* Return to normal form */
 	shapechange(SHAPE_NORMAL);
+
+	/* Hack - refund mana (2/3 mana when shapeshifted). */
+	if (p_ptr->csp > 0)
+	{
+		p_ptr->msp *= 3;
+		p_ptr->msp /= 2;
+		p_ptr->csp *= 3;
+		p_ptr->csp /= 2;
+		if (p_ptr->csp > p_ptr->msp) p_ptr->csp = p_ptr->msp;
+	}
 
 	/* Recalculate mana. */
 	p_ptr->update |= (PU_MANA);
@@ -531,52 +550,273 @@ bool lose_all_info(void)
 }
 
 
+/*
+ * Set "p_ptr->word_recall", notice observable changes
+ */
+bool set_recall(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->word_recall)
+		{
+			msg_print("The air about you becomes charged...");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->word_recall)
+		{
+			msg_print("A tension leaves the air around you...");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->word_recall = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 
 /*
- * Detect all traps on current panel (or a bit more)
+ * Hack - displays areas effected by detection spells.
+ *
  */
-bool detect_traps(bool extended)
+static void animate_detect(int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int x, y;
+
+	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+
+	/* Hack - Needs to last a bit longer to be visible */
+	msec *= 6;
+
+	/* Scan the maximal area of detection */
+	for (y = py - rad; y <= py + rad; y++)
+	{
+	       for (x = px - rad; x <= px + rad; x++)
+	       {
+
+		      /* Ignore "illegal" locations */
+		      if (!in_bounds(y, x)) continue;
+
+		      /* Enforce a "circular" area */
+		      if (distance(py, px, y, x) > rad) continue;
+
+		      /* Only show the region that the player can see */
+		      if (panel_contains(y, x))
+		      {
+			     /* Hack -- Visual effects -- Display a yellow star */
+			     print_rel('*', TERM_YELLOW, y, x);
+		      }
+		      
+	       }
+	}
+
+	/* Flush the image of detected region */
+	if (fresh_before) Term_fresh();
+
+	/* Delay (efficiently) */
+	Term_xtra(TERM_XTRA_DELAY, msec);	           		      
+
+	/* Now erase the effect */
+	       for (y = py - rad; y <= py + rad; y++)
+	       {
+		      for (x = px - rad; x <= px + rad; x++)
+		      {
+
+			     /* Ignore "illegal" locations */
+			     if (!in_bounds(y, x)) continue;
+
+			     /* Enforce a "circular" area */
+			     if (distance(py, px, y, x) > rad) continue;
+
+			     /* Hack -- Erase only if needed */
+			     if (panel_contains(y, x))
+			     {
+				    lite_spot(y, x);
+			     }
+		      }
+	       }
+
+	/* Hack -- center the cursor */
+	move_cursor_relative(py, px);
+	
+	/* Flush screen back to normal */
+	if (fresh_before) Term_fresh();
+	
+	
+}
+
+/*
+ * Detect all traps within range 
+ */
+bool detect_traps(int range, bool show)
 {
 	int y, x;
 
 	bool detect = FALSE;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-	/* Scan the current panel */
-	for (y = p_ptr->wy - (extended ? randint(3) : 0); 
-		y < p_ptr->wy + SCREEN_HGT + (extended ? randint(3) : 0); y++)
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
+
+	/* Scan the map */
+	for (y = 0; y<DUNGEON_HGT; y++)
 	{
-		for (x = p_ptr->wx - (extended ? randint(6) : 0); 
-			x < p_ptr->wx + SCREEN_WID + (extended ? randint(6) : 0); x++)
-		{
-			/* Detect invisible traps */
-			if (cave_feat[y][x] == FEAT_INVIS)
-			{
-				/* Pick a trap */
-				pick_trap(y, x);
-			}
+	       for (x = 0; x<DUNGEON_WID; x++)
+	       {
 
-			/* Detect traps */
-			if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			    (cave_feat[y][x] <= FEAT_TRAP_TAIL))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+	              /* check range */
+		      if (distance(py, px, y, x) <= range)
+		      {
+		              /* Detect invisible traps */
+			      if (cave_feat[y][x] == FEAT_INVIS)
+			      {
+			             /* Pick a trap */
+				     pick_trap(y, x);
+			      }
 
-				/* Redraw */
-				lite_spot(y, x);
+			      /* Detect traps */
+			      if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+				     (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+			      {
+				     /* Hack -- Memorize */
+				     cave_info[y][x] |= (CAVE_MARK);
 
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
+				     /* Redraw */
+				     lite_spot(y, x);
+
+				     /* increment number found */
+				     num++;
+
+				     /* increment number found offscreen */
+				     if (!panel_contains(y, x)) num_off++;
+
+			      }
+		      }
+	       }
 	}
 
-	/* Describe */
-	if (detect)
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of traps!");
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i trap%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i trap%s.", num, ((num > 1) ? "" : "s"));
+	}
+
+	
+
+	/* Result */
+	return (detect);
+}
+
+
+
+/*
+ * Detect all doors within range 
+ */
+bool detect_doors(int range, bool show)
+{
+	int y, x;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	bool detect = FALSE;
+
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */\
+	if (show) animate_detect(range);
+
+	/* Scan the map */
+        for (y = 0; y<DUNGEON_HGT; y++)
+	{
+	       for (x = 0; x<DUNGEON_WID; x++)
+	       {
+
+		      /* check range */
+		      if (distance(py, px, y, x) <= range)
+		      {
+			     /* Detect secret doors */
+			     if (cave_feat[y][x] == FEAT_SECRET)
+			     {
+				    /* Pick a door */
+			            place_closed_door(y, x);
+			     }
+			
+			     /* Detect doors */
+			     if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
+				  (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
+				 ((cave_feat[y][x] == FEAT_OPEN) ||
+				  (cave_feat[y][x] == FEAT_BROKEN)))
+			     {
+				    /* Hack -- Memorize */
+				    cave_info[y][x] |= (CAVE_MARK);
+
+				    /* Redraw */
+				    lite_spot(y, x);
+
+				    /* increment number found */
+				    num++;
+
+				    /* increment number found offscreen */
+				    if (!panel_contains(y, x)) num_off++;
+
+			     }
+		      }
+	       }
+	}
+
+	/* Found some */
+	if (num > 0)
+	{
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i door%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i door%s.", num, ((num > 1) ? "s" : ""));
 	}
 
 	/* Result */
@@ -586,145 +826,140 @@ bool detect_traps(bool extended)
 
 
 /*
- * Detect all doors on current panel (or a bit more)
+ * Detect all stairs within range 
  */
-bool detect_doors(bool extended)
+bool detect_stairs(int range, bool show)
 {
 	int y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int num=0;
+	int num_off=0;
+
 	bool detect = FALSE;
 
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
-	/* Scan the panel */
-	for (y = p_ptr->wy - (extended ? randint(3) : 0); 
-		y < p_ptr->wy + SCREEN_HGT + (extended ? randint(3) : 0); y++)
+	/* Scan the map */
+        for (y = 0; y<DUNGEON_HGT; y++)
 	{
-		for (x = p_ptr->wx - (extended ? randint(6) : 0); 
-			x < p_ptr->wx + SCREEN_WID + (extended ? randint(6) : 0); x++)
-		{
-			/* Detect secret doors */
-			if (cave_feat[y][x] == FEAT_SECRET)
-			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-			}
+	       for (x = 0; x<DUNGEON_WID; x++)
+	       {
 
-			/* Detect doors */
-			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
-			    ((cave_feat[y][x] == FEAT_OPEN) ||
-			     (cave_feat[y][x] == FEAT_BROKEN)))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+		      /* check range */
+                      if (distance(py, px, y, x) <= range)
+		      {
+			     /* Detect stairs */
+			     if ((cave_feat[y][x] == FEAT_LESS) ||
+				 (cave_feat[y][x] == FEAT_MORE))
+			     {
+				    /* Hack -- Memorize */
+			            cave_info[y][x] |= (CAVE_MARK);
 
-				/* Redraw */
-				lite_spot(y, x);
+				    /* Redraw */
+				    lite_spot(y, x);
 
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
+       	   			    /* increment number found */
+				    num++;
+
+				    /* increment number found offscreen */
+				    if (!panel_contains(y, x)) num_off++;
+
+			     }
+		      }
+	       }
 	}
 
-	/* Describe */
-	if (detect)
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of doors!");
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i stairway%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i stairway%s.", num, ((num > 1) ? "s" : ""));
 	}
 
+	/* Result */
+	return (detect);
 	/* Result */
 	return (detect);
 }
 
 
 /*
- * Detect all stairs on current panel (or a bit more)
+ * Detect any treasure within range
  */
-bool detect_stairs(bool extended)
+bool detect_treasure(int range, bool show)
 {
 	int y, x;
 
-	bool detect = FALSE;
-
-
-	/* Scan the panel */
-	for (y = p_ptr->wy - (extended ? randint(3) : 0); 
-		y < p_ptr->wy + SCREEN_HGT + (extended ? randint(3) : 0); y++)
-	{
-		for (x = p_ptr->wx - (extended ? randint(6) : 0); 
-			x < p_ptr->wx + SCREEN_WID + (extended ? randint(6) : 0); x++)
-		{
-			/* Detect stairs */
-			if ((cave_feat[y][x] == FEAT_LESS) ||
-			    (cave_feat[y][x] == FEAT_MORE))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of stairs!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect any treasure on the current panel
- */
-bool detect_treasure(void)
-{
-	int y, x;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
 	bool detect = FALSE;
 
+	int num=0;
+	int num_off=0;
 
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
+
+	/* Scan the map */
+        for (y = 0; y<DUNGEON_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Notice embedded gold */
-			if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
-			    (cave_feat[y][x] == FEAT_QUARTZ_H))
-			{
-				/* Expose the gold */
-				cave_feat[y][x] += 0x02;
+	       for (x = 0; x<DUNGEON_WID; x++)
+	       {
+
+	                /* check range */
+	                if (distance(py, px, y, x) <= range)
+                        {
+			       /* Notice embedded gold */
+			       if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
+				   (cave_feat[y][x] == FEAT_QUARTZ_H))
+			       {
+				      /* Expose the gold */
+				      cave_feat[y][x] += 0x02;
+			       }
+
+			       /* Magma/Quartz + Known Gold */
+			       if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
+				   (cave_feat[y][x] == FEAT_QUARTZ_K))
+			       {
+				      /* Hack -- Memorize */
+				      cave_info[y][x] |= (CAVE_MARK);
+
+				      /* Redraw */
+				      lite_spot(y, x);
+
+				      /* increment number found */
+				      num++;
+
+				      /* increment number found offscreen */
+				      if (!panel_contains(y, x)) num_off++;
+
+			       }
 			}
-
-			/* Magma/Quartz + Known Gold */
-			if ((cave_feat[y][x] == FEAT_MAGMA_K) ||
-			    (cave_feat[y][x] == FEAT_QUARTZ_K))
-			{
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Detect */
-				detect = TRUE;
-			}
-		}
+	       }
 	}
-
-	/* Describe */
-	if (detect)
+	
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of buried treasure!");
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i burried treasure%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i burried treasure%s.", num, ((num > 1) ? "s" : ""));
 	}
 
 	/* Result */
@@ -734,14 +969,22 @@ bool detect_treasure(void)
 
 
 /*
- * Detect all "gold" objects on the current panel
+ * Detect all "gold" objects within range
  */
-bool detect_objects_gold(void)
+bool detect_objects_gold(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int num=0;
+	int num_off=0;
+
 	bool detect = FALSE;
 
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -758,8 +1001,8 @@ bool detect_objects_gold(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect "gold" objects */
 		if (o_ptr->tval == TV_GOLD)
@@ -770,31 +1013,51 @@ bool detect_objects_gold(void)
 			/* Redraw */
 			lite_spot(y, x);
 
-			/* Detect */
-			detect = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (detect)
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of treasure!");
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i treasure%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i treasure%s.", num, ((num > 1) ? "s" : ""));
 	}
 
 	/* Result */
 	return (detect);
+
 }
 
 
 /*
- * Detect all "normal" objects on the current panel
+ * Detect all "normal" objects within range
  */
-bool detect_objects_normal(void)
+bool detect_objects_normal(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int num=0;
+	int num_off=0;
+
 	bool detect = FALSE;
 
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -811,8 +1074,8 @@ bool detect_objects_normal(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
@@ -823,15 +1086,26 @@ bool detect_objects_normal(void)
 			/* Redraw */
 			lite_spot(y, x);
 
-			/* Detect */
-			detect = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (detect)
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of objects!");
+
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i object%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i object%s.", num, ((num > 1) ? "s" : ""));
 	}
 
 	/* Result */
@@ -840,7 +1114,7 @@ bool detect_objects_normal(void)
 
 
 /*
- * Detect all "magic" objects on the current panel.
+ * Detect all "magic" objects within range.
  *
  * This will light up all spaces with "magic" items, including artifacts,
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
@@ -848,12 +1122,20 @@ bool detect_objects_normal(void)
  *
  * It can probably be argued that this function is now too powerful.
  */
-bool detect_objects_magic(void)
+bool detect_objects_magic(int range, bool show)
 {
 	int i, y, x, tv;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	bool detect = FALSE;
 
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
@@ -870,8 +1152,8 @@ bool detect_objects_magic(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Examine the tval */
 		tv = o_ptr->tval;
@@ -891,31 +1173,50 @@ bool detect_objects_magic(void)
 			/* Redraw */
 			lite_spot(y, x);
 
-			/* Detect */
-			detect = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (detect)
+	/* Found some */
+	if (num > 0)
 	{
-		msg_print("You sense the presence of magic objects!");
-	}
 
+	       /* Obvious */
+	       detect = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i magic object%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i magic object%s.", num, ((num > 1) ? "s" : ""));
+	}
+	
 	/* Return result */
 	return (detect);
 }
 
 
 /*
- * Detect all "normal" monsters on the current panel
+ * Detect all "normal" monsters within range
  */
-bool detect_monsters_normal(void)
+bool detect_monsters_normal(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	bool flag = FALSE;
 
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -930,8 +1231,8 @@ bool detect_monsters_normal(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect all non-invisible monsters */
 		if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
@@ -945,38 +1246,57 @@ bool detect_monsters_normal(void)
 			/* Update the monster */
 			update_mon(i, FALSE);
 
-			/* Detect */
-			flag = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (flag)
+	/* Found some */
+	if (num > 0)
 	{
-		/* Describe result */
-		msg_print("You sense the presence of monsters!");
-	}
 
+	       /* Obvious */
+	       flag = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i monster%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i monster%s.", num, ((num > 1) ? "s" : ""));
+	}
+	
 	/* Result */
 	return (flag);
 }
 
 
 /*
- * Detect all "invisible" monsters on current panel
+ * Detect all "invisible" monsters within range
  */
-bool detect_monsters_invis(void)
+bool detect_monsters_invis(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	bool flag = FALSE;
 
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -985,14 +1305,14 @@ bool detect_monsters_invis(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
 			/* Take note that they are invisible */
-			r_ptr->r_flags2 |= (RF2_INVISIBLE);
+			l_ptr->flags2 |= (RF2_INVISIBLE);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1010,18 +1330,28 @@ bool detect_monsters_invis(void)
 			/* Update the monster */
 			update_mon(i, FALSE);
 
-			/* Detect */
-			flag = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (flag)
+	/* Found some */
+	if (num > 0)
 	{
-		/* Describe result */
-		msg_print("You sense the presence of invisible creatures!");
-	}
 
+	       /* Obvious */
+	       flag = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i invisible creature%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i invisible creature%s.", num, ((num > 1) ? "s" : ""));
+	}
+	
 	/* Result */
 	return (flag);
 }
@@ -1029,20 +1359,29 @@ bool detect_monsters_invis(void)
 
 
 /*
- * Detect all "evil" monsters on current panel
+ * Detect all "evil" monsters within range
  */
-bool detect_monsters_evil(void)
+bool detect_monsters_evil(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	bool flag = FALSE;
 
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1051,14 +1390,14 @@ bool detect_monsters_evil(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (RF3_EVIL))
 		{
 			/* Take note that they are evil */
-			r_ptr->r_flags3 |= (RF3_EVIL);
+			l_ptr->flags3 |= (RF3_EVIL);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1076,33 +1415,52 @@ bool detect_monsters_evil(void)
 			/* Update the monster */
 			update_mon(i, FALSE);
 
-			/* Detect */
-			flag = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
+
 		}
 	}
 
-	/* Describe */
-	if (flag)
+	/* Found some */
+	if (num > 0)
 	{
-		/* Describe result */
-		msg_print("You sense the presence of evil creatures!");
+
+	       /* Obvious */
+	       flag = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i evil creature%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i evil creature%s.", num, ((num > 1) ? "s" : ""));
 	}
 
 	/* Result */
 	return (flag);
+
+	
 }
 
 
 /*
- * Detect all "living" monsters on the current panel.  XXX - Angels are 
- * not considered living, but demons are.
+ * Detect all "living" monsters within range.
  */
-bool detect_monsters_living(void)
+bool detect_monsters_living(int range, bool show)
 {
 	int i, y, x;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	bool flag = FALSE;
 
+	int num=0;
+	int num_off=0;
+
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1117,11 +1475,11 @@ bool detect_monsters_living(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		/* check range */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Hack -- Detect all living monsters. */
-		if ((!strchr("AEgv", r_ptr->d_char)) && 
+		if ((!strchr("Egv", r_ptr->d_char)) && 
 			(!(r_ptr->flags3 & (RF3_UNDEAD))))
 		{
 			/* Optimize -- Repair flags */
@@ -1133,18 +1491,27 @@ bool detect_monsters_living(void)
 			/* Update the monster */
 			update_mon(i, FALSE);
 
-			/* Detect */
-			flag = TRUE;
+			/* increment number found */
+			num++;
+
+			/* increment number found offscreen */
+			if (!panel_contains(y, x)) num_off++;
 		}
 	}
 
-	/* Describe */
-	if (flag)
+	/* Found some */
+	if (num > 0)
 	{
-		/* Describe result */
-		msg_print("You sense the presence of living creatures!");
-	}
 
+	       /* Obvious */
+	       flag = TRUE;
+	       
+	       /* Print success message */
+	       if (num_off > 0) msg_format("You detect %i living creature%s (%i offscreen).",
+					   num, ((num > 1) ? "s" : ""), num_off);
+	       else msg_format("You detect %i living creature%s.", num, ((num > 1) ? "s" : ""));
+	}
+	
 	/* Result */
 	return (flag);
 }
@@ -1154,19 +1521,25 @@ bool detect_monsters_living(void)
 /*
  * Detect everything
  */
-bool detect_all(void)
+bool detect_all(int range, bool show)
 {
 	bool detect = FALSE;
 
+	/* Hack - flash the effected region on the current panel */
+	if (show) animate_detect(range);
+
 	/* Detect everything */
-	if (detect_traps(FALSE)) detect = TRUE;
-	if (detect_doors(FALSE)) detect = TRUE;
-	if (detect_stairs(FALSE)) detect = TRUE;
-	if (detect_treasure()) detect = TRUE;
-	if (detect_objects_gold()) detect = TRUE;
-	if (detect_objects_normal()) detect = TRUE;
-	if (detect_monsters_invis()) detect = TRUE;
-	if (detect_monsters_normal()) detect = TRUE;
+	/* Do not 'show' the affected region for each
+	 * detect individually 
+	 */
+	if (detect_traps(range, FALSE)) detect = TRUE;
+	if (detect_doors(range, FALSE)) detect = TRUE;
+	if (detect_stairs(range, FALSE)) detect = TRUE;
+	if (detect_treasure(range, FALSE)) detect = TRUE;
+	if (detect_objects_gold(range, FALSE)) detect = TRUE;
+	if (detect_objects_normal(range, FALSE)) detect = TRUE;
+	if (detect_monsters_invis(range, FALSE)) detect = TRUE;
+	if (detect_monsters_normal(range, FALSE)) detect = TRUE;
 
 	/* Result */
 	return (detect);
@@ -1239,6 +1612,25 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 
 
 /*
+ * Hook to specify "ammunition"
+ */
+static bool item_tester_hook_ammo(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/*
  * Hook to specify "armour"
  */
 static bool item_tester_hook_armour(object_type *o_ptr)
@@ -1262,6 +1654,22 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	return (FALSE);
 }
 
+static bool item_tester_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+static bool item_tester_unknown_star(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
+}
 
 
 /*
@@ -1317,10 +1725,14 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			else if (o_ptr->to_h > 15) chance = 1000;
 			else chance = enchant_table[o_ptr->to_h];
 
+			/* Attempt to enchant */
+
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
-				o_ptr->to_h++;
 				res = TRUE;
+
+				/* Enchant */
+				o_ptr->to_h++;
 
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
@@ -1328,9 +1740,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~(IDENT_CURSED);
-					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->feel = FEEL_UNCURSED;
+
+					/* Uncurse the object */
+					uncurse_object(o_ptr);
 				}
 			}
 		}
@@ -1344,8 +1756,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
-				o_ptr->to_d++;
 				res = TRUE;
+
+				/* Enchant */
+				o_ptr->to_d++;
 
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
@@ -1353,9 +1767,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~(IDENT_CURSED);
-					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->feel = FEEL_UNCURSED;
+
+					/* Uncurse the object */
+					uncurse_object(o_ptr);
 				}
 			}
 		}
@@ -1369,8 +1783,10 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
-				o_ptr->to_a++;
 				res = TRUE;
+
+				/* Enchant */
+				o_ptr->to_a++;
 
 				/* only when you get it above -1 -CFT */
 				if (cursed_p(o_ptr) &&
@@ -1378,9 +1794,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
-					o_ptr->ident &= ~(IDENT_CURSED);
-					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->feel = FEEL_UNCURSED;
+
+					/* Uncurse the object */
+					uncurse_object(o_ptr);
 				}
 			}
 		}
@@ -1416,7 +1832,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	cptr q, s;
 
@@ -1472,142 +1888,127 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	return (TRUE);
 }
 
-
 /*
- * Enchant some bolts
+ * Enchant some missiles and give them an elemental brand
+ *
+ * Combines the old brand_bolts and brand_missiles routines.
+ *
+ * ammo_type is the tval of the relevant ammunition.  
+ * If set to 0, any ammunition is enchantable.
+ *
+ * Brand type is the EGO flag for the relevant type element.
+ * If set to 0, a non-poison brand is picked randomly.
+ *
  */
-bool brand_bolts(void)
+bool brand_missile(int ammo_type, int brand_type)
 {
-	int i;
+	int item, choice;
+	object_type *o_ptr;
+	cptr q, s;
+	bool status;
 
-	/* Use the first acceptable bolts */
-	for (i = 0; i < INVEN_PACK; i++)
+	/* Restrict choices
+	 * Hack - check for restricted choice */
+	if ((ammo_type >= TV_SHOT) && (ammo_type <= TV_BOLT)) 
+	        item_tester_tval = ammo_type;
+
+	/* Otherwise any ammo will do */
+	else item_tester_hook = item_tester_hook_ammo;
+
+	/* Get an item */
+	q = "Enchant which ammunition? ";
+	s = "You have no ammunition to brand.";
+	status =get_item(&item, q, s, (USE_INVEN | USE_FLOOR));
+
+	/* Hack - if failed, return, but only after resetting the ammo hack */
+	if (!status) return (FALSE);
+
+	if (item >= 0)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &inventory[item];
+	}
 
-		/* Skip non-bolts */
-		if (o_ptr->tval != TV_BOLT) continue;
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
-		/* Skip artifacts and ego-items */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr)) continue;
+	/*
+	 * Don't enchant artifacts, ego-items, cursed or broken items
+	 */
+	if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
+	    cursed_p(o_ptr) || broken_p(o_ptr))
+	{
+		/* Flush */
+		if (flush_failure) flush();
 
-		/* Skip cursed/broken items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-		/* Message */
-		msg_print("Your bolts are covered in a fiery aura!");
-
-		/* Ego-item */
-		o_ptr->name2 = EGO_FLAME;
-
-		/* Enchant */
-		enchant(o_ptr, rand_int(5) + 5, ENCH_TOHIT | ENCH_TODAM);
-
-		/* Prevent money-making. -LM- */
-		o_ptr->discount = 80;
+		/* Fail */
+		msg_print("The ammunition enchantment failed.");
 
 		/* Notice */
 		return (TRUE);
 	}
 
-	/* Flush */
-	if (flush_failure) flush();
+	/* Type of brand may be restricted */
+	if (brand_type) choice = brand_type;
 
-	/* Fail */
-	msg_print("The fiery enchantment failed.");
+	/* Otherwise choose randomly
+	 * Hack - Never get poison brand randomly */
+	else choice = rand_int(4) + EGO_ACIDIC;
 
-	/* Notice */
-	return (TRUE);
-}
-
-
-
-/*
- * Enchant some missiles (a more general version of brand_bolts) -LM-
- */
-bool brand_missile(bool spell)
-{
-	int choice;
-	int i;
-
-	/* Use the first acceptable missiles */
-	for (i = 0; i < INVEN_PACK; i++)
+	switch (choice)
 	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-missiles. */
-		if ((o_ptr->tval != TV_SHOT) && (o_ptr->tval != TV_ARROW) &&
-			 (o_ptr->tval != TV_BOLT)) continue;
-
-		/* Skip artifacts and ego-items */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr)) continue;
-
-		/* Skip cursed/broken items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-
-		/* Nobody but Assassins can poison missiles. */
-		if ((p_ptr->pclass == CLASS_ASSASSIN) && (spell)) choice = 5;
-		else choice = randint(4);
-
-		switch (choice)
+	        case EGO_FLAME:
 		{
-			case 1:
-			{
-				/* Print message and fire brand missiles. */
-				msg_print("Your missiles are covered in a fiery aura!");
-				o_ptr->name2 = EGO_FLAME;
-				break;
-			}
-
-			case 2:
-			{
-				/* Print message and frost brand missiles. */
-				msg_print("Your missiles are covered in a frosty sheath!");
-				o_ptr->name2 = EGO_FROST;
-				break;
-			}
-
-			case 3:
-			{
-				/* Print message and acid brand missiles. */
-				msg_print("Your missiles sizzle with acid!");
-				o_ptr->name2 = EGO_ACIDIC;
-				break;
-			}
-
-			case 4:
-			{
-				/* Print message and electric brand missiles. */
-				msg_print("Your missiles are covered in sparks!");
-				o_ptr->name2 = EGO_ELECT;
-				break;
-			}
-
-			default:
-			{
-				/* Print message and poison brand missiles. */
-				msg_print("Your missiles drip with deadly poison!");
-				o_ptr->name2 = EGO_POISON;
-				break;
-			}
-
+		/* Print message and fire brand missiles. */
+		msg_print("Your missiles are covered in a fiery aura!");
+		break;
 		}
-		/* Enchant */
-		enchant(o_ptr, rand_int(4) + 3, ENCH_TOHIT | ENCH_TODAM);
 
-		/* Prevent money-making. */
-		o_ptr->discount = 80;
+	        case EGO_FROST:
+		{
+		/* Print message and frost brand missiles. */
+		msg_print("Your missiles are covered in a frosty sheath!");
+		break;
+		}
 
-		/* Notice */
-		return (TRUE);
+	        case EGO_ACIDIC:
+		{
+		/* Print message and acid brand missiles. */
+		msg_print("Your missiles sizzle with acid!");
+		break;
+		}
+
+	        case EGO_ELECT:
+		{
+		/* Print message and electric brand missiles. */
+		msg_print("Your missiles are covered in sparks!");
+		break;
+		}
+
+	        case EGO_POISON:
+		{
+		/* Print message and poison brand missiles. */
+		msg_print("Your missiles drip with deadly poison!");
+		break;
+		}
+
+	        default:
+		{
+		        /* Oops */
+		        return (FALSE);
+		}
 	}
 
-	/* Flush */
-	if (flush_failure) flush();
+	/* Brand */
+	o_ptr->name2 = choice;
 
-	/* Fail */
-	msg_print("The branding failed.");
+	/* Enchant */
+	enchant(o_ptr, rand_int(4) + 3, ENCH_TOHIT | ENCH_TODAM);
+
+	/* Prevent money-making. */
+	o_ptr->discount = 80;
 
 	/* Notice */
 	return (TRUE);
@@ -1662,8 +2063,6 @@ void set_ele_attack(u32b attack_type, int duration)
 			        ((attack_type == ATTACK_COLD) ? "chill to the bone!" : 
 			         ((attack_type == ATTACK_POIS) ? "poison your enemies!" : 
 					"do nothing special."))))));
-
-		p_ptr->redraw |= PR_STATUS;
 	}
 }
 
@@ -1675,7 +2074,7 @@ bool curse_armor(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Curse the body armor */
@@ -1739,7 +2138,7 @@ bool curse_weapon(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Curse the weapon */
@@ -1807,13 +2206,16 @@ bool curse_weapon(void)
 bool ident_spell(void)
 {
 	int item;
-
+	int squelch=0;
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	cptr q, s;
 
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown;
 
 	/* Get an item */
 	q = "Identify which item? ";
@@ -1837,6 +2239,11 @@ bool ident_spell(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
+
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -1855,16 +2262,24 @@ bool ident_spell(void)
 		msg_format("%^s: %s (%c).",
 		           describe_use(item), o_name, index_to_label(item));
 	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.",
-		           o_name);
-	}
+ 	else if (item >= 0)
+ 	{
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+ 	}
+ 	else
+ 	{
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
+ 	}
+ 
+	/* Now squelch it if needed */
+	do_squelch_item(squelch, item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -1880,14 +2295,17 @@ bool ident_spell(void)
 bool identify_fully(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	cptr q, s;
 
+	/* Only un-*id*'ed items */
+	item_tester_hook = item_tester_unknown_star;
 
 	/* Get an item.  */
 	q = "*Identify* which item? ";
@@ -1916,8 +2334,11 @@ bool identify_fully(void)
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
 
-	/* If the object is flavored, also make all items of that type, except for variable rings and amulets, fully known. -LM- */
+	/* If the object is flavored, also make all items of that type, except for variable rings and amulets, fully known. */
 	if (k_ptr->flavor)
 	{
 		if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && 
@@ -1950,26 +2371,31 @@ bool identify_fully(void)
 		msg_format("%^s: %s (%c).",
 		           describe_use(item), o_name, index_to_label(item));
 	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.",
-		           o_name);
-	}
+ 	else if (item >= 0)
+ 	{
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+ 	}
+ 	else
+ 	{
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
+ 	}
 
-	/* Describe it fully */
-	do_cmd_observe(o_ptr, FALSE);
+	if (squelch==1) {
+	  do_squelch_item(squelch, item, o_ptr);
+	} else {
+	  do_cmd_observe(o_ptr, FALSE);
+	}
 
 	/* Success */
 	return (TRUE);
 }
-
-
-
 
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
@@ -1994,9 +2420,11 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  * Recharge a wand/staff/rod from the pack or on the floor.
  * This function has been rewritten in Oangband. -LM-
  *
- * Mage -- Recharge I --> recharge(90)
+ * Mage -- Recharge I --> recharge(85)
  * Mage -- Recharge II --> recharge(150)
  * Mage -- Recharge III --> recharge(220)
+ *
+ * Druid -- Infusion --> recharge(125)
  *
  * Priest or Necromancer -- Recharge --> recharge(140)
  *
@@ -2022,7 +2450,7 @@ bool recharge(int power)
 	byte fail_type = 1;
 
 	cptr q, s;
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Only accept legal items */
@@ -2130,6 +2558,9 @@ bool recharge(int power)
 			/* Recharge the wand or staff. */
 			o_ptr->pval += recharge_amount;
 
+			/* Hack - Artifacts have a maximum # of charges. */
+			if (artifact_p(o_ptr) && (o_ptr->pval > k_ptr->pval)) 
+				o_ptr->pval = k_ptr->pval;
 
 			/* Hack -- we no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
@@ -2334,25 +2765,36 @@ void tap_magical_energy(void)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Extract the object's energy and get its generic name. */
-	if ((o_ptr->tval == TV_ROD) && (!o_ptr->timeout)) 
+	if (o_ptr->tval == TV_ROD) 
 	{
-		/* Rods have little usable energy, for obvious balance reasons... */
-		energy = (5 + lev) * 3;
+	        /* Rods have little usable energy, for obvious balance reasons... */
+	        energy = (lev * o_ptr->number * 2)/3;
+
+		/* No tapping rods with instant recharge */
+		if (!(o_ptr->pval)) energy = 0;
+
+		/* Modify Based on charged-ness */ 
+		if (o_ptr->pval)
+		  energy = (energy * (o_ptr->pval-o_ptr->timeout))/ o_ptr->pval;
 		item_name = "rod";
 	}
-	if ((o_ptr->tval == TV_STAFF) && (o_ptr->pval))
+	if (o_ptr->tval == TV_STAFF)
 	{
 		energy = (5 + lev) * o_ptr->pval;
+
 		item_name = "staff";
 	}
-	if ((o_ptr->tval == TV_WAND) && (o_ptr->pval))
+	if (o_ptr->tval == TV_WAND)
 	{
 		energy = (5 + lev) * 3 * o_ptr->pval / 2;
+
 		item_name = "wand";
 	}
 
 	/* Turn energy into mana. */
-	if (!energy)
+
+	/* Require a resonable amount of energy */
+	if (energy < 36)
 	{
 		/* Notify of failure. */
 		msg_format("That %s had no useable energy", item_name);
@@ -2849,7 +3291,7 @@ void aggravate_monsters(int who, bool the_entire_level)
 		/* Skip aggravating monster (or player) */
 		if (i == who) continue;
 
-		/* Wake up and hasten all monsters. No additional messages. -LM- */
+		/* Wake up and hasten all monsters. No additional messages. */
 		if (the_entire_level)
 		{
 			/* Wake up */
@@ -2930,6 +3372,9 @@ bool genocide(void)
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
+	       	/* Ignore monsters in icky squares */
+	       	if ((cave_info[m_ptr->fy][m_ptr->fx] & CAVE_ICKY) == CAVE_ICKY) continue;
+
 		/* Delete the monster */
 		delete_monster_idx(i);
 
@@ -2968,6 +3413,9 @@ bool mass_genocide(void)
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
+
+	       	/* Ignore monsters in icky squares */
+	       	if ((cave_info[m_ptr->fy][m_ptr->fx] & CAVE_ICKY) == CAVE_ICKY) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -3070,9 +3518,12 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 			/* Stay in the circle of death */
 			if (k > r) continue;
+			
+			/* Ignore icky squares */
+			if ((cave_info[y][x] & CAVE_ICKY) == CAVE_ICKY) continue;
 
 			/* Lose room and vault */
-			cave_info[y][x] &= ~(CAVE_ROOM | CAVE_ICKY);
+			cave_info[y][x] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -3101,7 +3552,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 				/* Delete objects */
 				delete_object(y, x);
 
-				/* Decrement the trap or glyph count. -LM- */
+				/* Decrement the trap or glyph count. */
 				if (cave_feat[y][x] == FEAT_TRAP_HEAD + 0x0F)
 					num_trap_on_level--;
 				else if (cave_feat[y][x] == FEAT_GLYPH)
@@ -3227,7 +3678,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 			if (distance(cy, cx, yy, xx) > r) continue;
 
 			/* Lose room and vault */
-			cave_info[yy][xx] &= ~(CAVE_ROOM | CAVE_ICKY);
+			cave_info[yy][xx] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[yy][xx] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -3465,7 +3916,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 				/* Delete objects */
 				delete_object(yy, xx);
 
-				/* Hack -- Increment the trap or glyph count. -LM- */
+				/* Hack -- Increment the trap or glyph count. */
 				if (cave_feat[y][x] == FEAT_TRAP_HEAD + 0x0F)
 					num_trap_on_level--;
 				else if (cave_feat[y][x] == FEAT_GLYPH)
@@ -3517,7 +3968,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 					else feat = FEAT_MAGMA;
 				}
 
-				/* Rubble. -LM- */
+				/* Rubble. */
 				else if (t < 120)
 				{
 					/* Create rubble */
@@ -3949,11 +4400,10 @@ bool fire_cloud(int typ, int dir, int dam, int rad)
 	return (project(-1, rad, ty, tx, dam, typ, flg, 0, 0));
 }
 
-
 /*
  * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
  * player, or outside source, that starts out at an arbitrary location, and 
- * leaving no trail from the "caster" to the target.  This function is 
+ * that leaves no trail from the "caster" to the target.  This function is 
  * especially useful for bombardments and similar. -LM-
  *
  * Option to hurt the player.

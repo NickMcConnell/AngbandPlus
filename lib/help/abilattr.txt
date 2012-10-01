@@ -10,7 +10,7 @@ adventures.  It also tells you how to keep track of all this information.
 === Character Attributes Shown on the Left Side of the Main Window ===
 
      Experience:
-         Experience effects almost everything else about your character.  As he 
+         Experience affects almost everything else about your character.  As he 
          kills monsters, casts spells and prays prayers for the first time, 
          learns about an object kind by using it, disarms traps, and unlocks 
          doors (listed in descending order of importance), he gains experience.  
@@ -139,14 +139,14 @@ may be adjusted by high or low stats, and some increase with experience level.
           Melee (hand to hand) combat depends on this skill.  A character with 
           a low fighting skill cannot hope to either hit monsters often or do 
           much damage if he does.  This skill increases with the level of the 
-          character. The only stat that effects it is Dexterity.
+          character. The only stat that affects it is Dexterity.
 
      Shooting Ability:
           Using ranged missile weapons and throwing objects are both included in 
           this skill.  The higher your character's shooting ability, the more 
           frequently he will hit his target and the more damage he will do when 
           he does.  This skill increases with the level of the character.  The 
-          only stat that effects it is Dexterity.
+          only stat that affects it is Dexterity.
 
      Saving Throws:
           A Saving Throw is the ability of a character to resist the effects of 

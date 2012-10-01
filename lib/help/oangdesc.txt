@@ -2,11 +2,12 @@
                         Welcome to Opinion Angband!
 
      Opinion Angband, or Oangband for short, is one of the many variants of 
-Angband.  It was created to accomplish exactly two things:  Teach L.M. C
-programming, and turn a new conception of non-magical combat into a game you
-can enjoy.  As you will shortly discover, however, Oangband has developed a 
-life of its own.  A selection of features includes:
+Angband.  It was created to accomplish exactly two things:  To be an exercise 
+in C programming, and to turn a new conception of non-magical combat
+into a game you can enjoy.  As you will shortly discover, however,
+Oangband has developed a life of its own.  
 
+     A selection of features includes:
 
 -The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
 approach to game balance in general.  
@@ -45,6 +46,12 @@ themed levels.
 -One-slot wand and rod stacking, arc spells, themed random artifacts, and 
 player ghosts that challenge you to mortal combat.
 
+-Shapeshifting is introduced as a major new element of the game.
+
+-Nearly total removal of genocide-type spells.
+
+-A heavily reworked monster list.
+
 -New just about everything.  Whether it be Wands of Storms, the Dark Elven 
 Smith Eol, Shields of Night and Day, Athelas, new vaults, rods of Northwinds, 
 Large Jeweled Chests, or activatable rings, Oangband has novelty enough for 
@@ -52,12 +59,11 @@ anyone.
 
 -And Angband-compatible savefiles.
 
-
 If you feel the need for more detail, I'd suggest just perusing the help 
-files.  If you like, you will find a .diff file In the "lib/info" folder that 
-lists (most) of the changes between Oangband 0.3.2 and 0.4.0, in more detail 
-than you really want to know.  A complete listing of Oangband .diffs files can 
-be found at the Oangband development site.
+files.  If you like, you will find a diff.txt file In the "lib/info" folder 
+that lists (most) of the changes between Oangband 0.3.2 and 0.4.0, in more 
+detail than you really want to know.  A complete listing of Oangband diff.txt 
+files can be found at the Oangband development site.
 
 
 === The Jaded Angband Player's Guide to Oangband ===
@@ -71,8 +77,32 @@ be found at the Oangband development site.
 -Don't go into autopilot and sell every damage-dealing wand, staff, or rod you 
  see.
 -Useful utility magics aren't only found in spellbooks and rods.
+-Don't expect to deal with vaults just using Genocide and Destruction.
+-Don't expect to trap or trick Morgoth easily.
+-Beware of uniques you don't know from Angband; even some you do know
+ (like Ancalagon) may be different
 -And never, never, never, think this game is fair.  It's not.
 
 
-Leon Marrick, maintainer of Oangband version 0.4.0
+Bahman Rabii and Leon Marrick
 
+=== Oangband Copyright Information ===
+=== See also angdesc.txt for Angband Copyright Information ===
+
+Oangband Version 0.4  : 4/18/99  Leon Marrick
+
+Oangband Version 0.5  : 4/18/99  Bahman Rabii
+
+Copyright (c) 2000      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
+                        Ben Harrison, James E. Wilson, Robert A. Koeneke
+
+This software may be copied and distributed for educational, research,
+and not for profit purposes provided that this copyright and statement
+are included in all such copies.  Other copyrights may also apply.
+
+All changes made by Bahman Rabii are also available under the GNU
+GENERAL PUBLIC LICENSE.  Note that this doesn't influence the current
+distribution, since parts of the source are still only available under
+the old Moria/Angband/Oangband license.  Until all parts of Angband
+are distributed under the GPL the only valid license remains the
+original Moria/Angband license.

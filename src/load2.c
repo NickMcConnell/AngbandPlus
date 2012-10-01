@@ -686,6 +686,10 @@ static byte convert_ego_item[128] =
  *
  * Oangband 0.3.6 changed the object and artifact indexes, so old items 
  * must be converted to new. -LM-
+ *
+ * Change extra might to non-pval form if needed -LM-
+ *
+ * Deal with themed level, gylphs/traps count, player ghosts -LM-
  */
 static void rd_item(object_type *o_ptr)
 {
@@ -888,11 +892,11 @@ static void rd_item(object_type *o_ptr)
 		return;
 	}
 
-	/* Convert launchers with +2 or more to might, if not artifacts. -LM- */
+	/* Convert launchers with +2 or more to might, if not artifacts. */
 	if ((o_ptr->name2 == EGO_EXTRA_MIGHT1) && (o_ptr->pval > 1) && 
 		(!(o_ptr->name1))) o_ptr->name2 = EGO_EXTRA_MIGHT2;
 
-	/* Ensure that old-style rods and wands obtain appropriate pvals. -LM- */
+	/* Ensure that old-style rods and wands obtain appropriate pvals. */
 	if (o_older_than(0, 3, 0))
 	{
 		if (o_ptr->tval == TV_ROD) o_ptr->pval = k_ptr->pval * o_ptr->number;
@@ -1119,7 +1123,7 @@ static void rd_item(object_type *o_ptr)
 		}
 	}
 
-	/* Hack -- keep some old fields.  Moved from ego-item area. -LM- */
+	/* Hack -- keep some old fields.  Moved from ego-item area. */
 	if ((o_ptr->ds < old_ds) && (o_ptr->dd == old_dd))
 	{
 		/* Keep old enhanced damage dice. */
@@ -1159,7 +1163,7 @@ static void rd_item(object_type *o_ptr)
 			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 		}
 
-		/* If artifact index includes an activation, assign it. -LM- */
+		/* If artifact index includes an activation, assign it. */
 		if (a_ptr->activation)
 		{
 			o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
@@ -1214,6 +1218,7 @@ static void rd_item(object_type *o_ptr)
 static void rd_monster(monster_type *m_ptr)
 {
 	byte tmp8u;
+	s16b tmp16u;
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
@@ -1233,6 +1238,23 @@ static void rd_monster(monster_type *m_ptr)
 	/* Oangband 0.3.3 added monster stasis. */
 	if (o_older_than(0, 3, 3)) rd_byte(&tmp8u);
 	else rd_byte(&m_ptr->stasis);
+
+	/* Oangband 0.5.0 saves 'smart learn' flags and
+	 * Black Breath state.
+	 */
+	if (!o_older_than(0, 5, 0)) rd_byte(&m_ptr->black_breath);
+	if (!o_older_than(0, 5, 0)) rd_s32b(&m_ptr->smart);
+
+	/* Oangband 0.5.0 saves some more data not yet in use */
+	if (!o_older_than(0, 5, 0)){
+	  rd_byte(&tmp8u);
+	  rd_byte(&tmp8u);
+	  rd_byte(&tmp8u);
+	  rd_byte(&tmp8u);
+	  rd_s16b(&tmp16u);
+	  rd_s16b(&tmp16u);
+	}
+
 }
 
 
@@ -1247,6 +1269,7 @@ static void rd_lore(int r_idx)
 	byte tmp8u;
 
 	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 
 	/* Pre-2.7.7 */
@@ -1256,29 +1279,29 @@ static void rd_lore(int r_idx)
 		strip_bytes(20);
 
 		/* Kills during this life */
-		rd_s16b(&r_ptr->r_pkills);
+		rd_s16b(&l_ptr->pkills);
 
 		/* Strip something */
 		strip_bytes(2);
 
 		/* Count observations of attacks */
-		rd_byte(&r_ptr->r_blows[0]);
-		rd_byte(&r_ptr->r_blows[1]);
-		rd_byte(&r_ptr->r_blows[2]);
-		rd_byte(&r_ptr->r_blows[3]);
+		rd_byte(&l_ptr->blows[0]);
+		rd_byte(&l_ptr->blows[1]);
+		rd_byte(&l_ptr->blows[2]);
+		rd_byte(&l_ptr->blows[3]);
 
 		/* Count some other stuff */
-		rd_byte(&r_ptr->r_wake);
-		rd_byte(&r_ptr->r_ignore);
+		rd_byte(&l_ptr->wake);
+		rd_byte(&l_ptr->ignore);
 
 		/* Strip something */
 		strip_bytes(2);
 
 		/* Count kills by player */
-		rd_s16b(&r_ptr->r_tkills);
+		rd_s16b(&l_ptr->tkills);
 
 		/* Count deaths of player */
-		rd_s16b(&r_ptr->r_deaths);
+		rd_s16b(&l_ptr->deaths);
 
 		/* Read the "Racial" monster limit per level */
 		rd_byte(&r_ptr->max_num);
@@ -1287,47 +1310,47 @@ static void rd_lore(int r_idx)
 		strip_bytes(1);
 
 		/* Hack -- guess at "sights" */
-		r_ptr->r_sights = MAX(r_ptr->r_tkills, r_ptr->r_deaths);
+		l_ptr->sights = MAX(l_ptr->tkills, l_ptr->deaths);
 	}
 
 	/* Current */
 	else
 	{
 		/* Count sights/deaths/kills */
-		rd_s16b(&r_ptr->r_sights);
-		rd_s16b(&r_ptr->r_deaths);
-		rd_s16b(&r_ptr->r_pkills);
-		rd_s16b(&r_ptr->r_tkills);
+		rd_s16b(&l_ptr->sights);
+		rd_s16b(&l_ptr->deaths);
+		rd_s16b(&l_ptr->pkills);
+		rd_s16b(&l_ptr->tkills);
 
 		/* Count wakes and ignores */
-		rd_byte(&r_ptr->r_wake);
-		rd_byte(&r_ptr->r_ignore);
+		rd_byte(&l_ptr->wake);
+		rd_byte(&l_ptr->ignore);
 
 		/* Extra stuff */
-		rd_byte(&r_ptr->r_xtra1);
-		rd_byte(&r_ptr->r_xtra2);
+		rd_byte(&l_ptr->xtra1);
+		rd_byte(&l_ptr->xtra2);
 
 		/* Count drops */
-		rd_byte(&r_ptr->r_drop_gold);
-		rd_byte(&r_ptr->r_drop_item);
+		rd_byte(&l_ptr->drop_gold);
+		rd_byte(&l_ptr->drop_item);
 
 		/* Count spells */
-		rd_byte(&r_ptr->r_cast_inate);
-		rd_byte(&r_ptr->r_cast_spell);
+		rd_byte(&l_ptr->cast_inate);
+		rd_byte(&l_ptr->cast_spell);
 
 		/* Count blows of each type */
-		rd_byte(&r_ptr->r_blows[0]);
-		rd_byte(&r_ptr->r_blows[1]);
-		rd_byte(&r_ptr->r_blows[2]);
-		rd_byte(&r_ptr->r_blows[3]);
+		rd_byte(&l_ptr->blows[0]);
+		rd_byte(&l_ptr->blows[1]);
+		rd_byte(&l_ptr->blows[2]);
+		rd_byte(&l_ptr->blows[3]);
 
 		/* Memorize flags */
-		rd_u32b(&r_ptr->r_flags1);
-		rd_u32b(&r_ptr->r_flags2);
-		rd_u32b(&r_ptr->r_flags3);
-		rd_u32b(&r_ptr->r_flags4);
-		rd_u32b(&r_ptr->r_flags5);
-		rd_u32b(&r_ptr->r_flags6);
+		rd_u32b(&l_ptr->flags1);
+		rd_u32b(&l_ptr->flags2);
+		rd_u32b(&l_ptr->flags3);
+		rd_u32b(&l_ptr->flags4);
+		rd_u32b(&l_ptr->flags5);
+		rd_u32b(&l_ptr->flags6);
 
 
 		/* Read the "Racial" monster limit per level */
@@ -1340,12 +1363,12 @@ static void rd_lore(int r_idx)
 	}
 
 	/* Repair the lore flags */
-	r_ptr->r_flags1 &= r_ptr->flags1;
-	r_ptr->r_flags2 &= r_ptr->flags2;
-	r_ptr->r_flags3 &= r_ptr->flags3;
-	r_ptr->r_flags4 &= r_ptr->flags4;
-	r_ptr->r_flags5 &= r_ptr->flags5;
-	r_ptr->r_flags6 &= r_ptr->flags6;
+	l_ptr->flags1 &= r_ptr->flags1;
+	l_ptr->flags2 &= r_ptr->flags2;
+	l_ptr->flags3 &= r_ptr->flags3;
+	l_ptr->flags4 &= r_ptr->flags4;
+	l_ptr->flags5 &= r_ptr->flags5;
+	l_ptr->flags6 &= r_ptr->flags6;
 }
 
 
@@ -1464,9 +1487,11 @@ static void rd_options(void)
 	u32b mask[8];
 
 
+
 	/*** Oops ***/
 
 	/* Ignore old options.  Reduced from 16 to 13 in Oangband. */
+	/* Reduction accounts for autosave options */
 	strip_bytes(13);
 
 
@@ -1486,18 +1511,7 @@ static void rd_options(void)
 	rd_byte(&b);
 	op_ptr->hitpoint_warn = b;
 
-
-	/*** Cheating options ***/
-
-	rd_u16b(&c);
-
-	if (c & 0x0002) p_ptr->wizard = TRUE;
-
-	/* Extract the cheating flags */
-	for (i = 0; i < CHEAT_MAX; ++i)
-	{
-		p_ptr->cheat[i] = (c & (0x0100 << i)) ? TRUE : FALSE;
-	}
+	rd_u16b(&c); /* Old Cheating options.  Cheaters get a freebe when they convert. */
 
 	/* Pre-2.8.0 savefiles are done */
 	if (older_than(2, 8, 0)) return;
@@ -1520,6 +1534,7 @@ static void rd_options(void)
 		/* Process real entries */
 		if (option_text[i])
 		{
+
 			/* Process saved entries */
 			if (mask[os] & (1L << ob))
 			{
@@ -1529,7 +1544,6 @@ static void rd_options(void)
 					/* Set */
 					op_ptr->opt[i] = TRUE;
 				}
-
 				/* Clear flag */
 				else
 				{
@@ -1571,6 +1585,7 @@ static void rd_options(void)
 			}
 		}
 	}
+
 }
 
 
@@ -1817,35 +1832,43 @@ static errr rd_extra(void)
 	rd_byte((byte *) &p_ptr->black_breath);	/* Status of Black Breath. */
 
 	rd_byte(&p_ptr->searching);
-	rd_byte(&p_ptr->maximize);
-	rd_byte(&p_ptr->preserve);
 
-	/* Current shapechange. */
+
+	/* If using an old Angband or a version of O based on an old Angband,
+	 * use the old maximize and preserve bytes.
+	 */
+
+        rd_byte(&tmp8u);
+	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
+        rd_byte(&tmp8u);
+        if (older_than(2, 8, 5)) adult_preserve = tmp8u;
+
+	/* Current shapechange. Note: this byte is related to random artifacts
+	 * in some versions of Standard Angband */
 	rd_byte(&p_ptr->schange);
 
 	/* The number of the bone file (if any) that player ghosts should use to 
-	 * reacquire a name, sex, class, and race. -LM-
+	 * reacquire a name, sex, class, and race.
 	 */
 	rd_byte(&bones_selector);
 
-	/* Find out how many thefts have already occured on this level. -LM- */
+	/* Find out how many thefts have already occured on this level. */
 	rd_byte(&number_of_thefts_on_level);
 
-	/* Read number of monster traps on level. -LM- */
+	/* Read number of monster traps on level. */
 	rd_byte(&num_trap_on_level);
 
-	/* Read number of glyphs on level. -LM- */
+	/* Read number of glyphs on level. */
 	rd_byte(&num_glyph_on_level);
 
-	/* Is the level themed and, if so, which theme is it? -LM- */
+	/* Is the level themed and, if so, which theme is it? */
 	rd_byte(&p_ptr->themed_level);
 
-	/* What themed levels have already appeared? -LM- */
+	/* What themed levels have already appeared? */
 	rd_u32b(&p_ptr->themed_level_appeared);
 
-
-	/* Future use */
-	for (i = 0; i < 39; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
+	for (i = 0; i < 15; i++) rd_byte(&tmp8u);
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -1875,7 +1898,6 @@ static errr rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
-
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
@@ -2018,7 +2040,7 @@ static void rd_messages(void)
 	int i;
 	char buf[128];
 
-	s16b num;
+	s16b num, tmp16u;
 
 	/* Total */
 	rd_s16b(&num);
@@ -2029,8 +2051,15 @@ static void rd_messages(void)
 		/* Read the message */
 		rd_string(buf, 128);
 
+		/* Read the message type */
+		if (!older_than(2, 9, 1))
+			rd_u16b(&tmp16u);
+		else
+			tmp16u = MSG_GENERIC;
+
 		/* Save the message */
-		message_add(buf);
+		message_add(buf, tmp16u);
+
 	}
 }
 
@@ -2076,7 +2105,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	byte tmp8u;
 	u16b start;
 	u16b limit;
-
 
 	/* Read the dungeon */
 	for (y = x = 0; y < DUNGEON_HGT; )
@@ -2627,7 +2655,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		n_ptr = &monster_type_body;
 
 		/* Clear the monster */
-		WIPE(n_ptr, monster_type);
+		(void)WIPE(n_ptr, monster_type);
 
 		/* Read the monster */
 		rd_monster(n_ptr);
@@ -2646,8 +2674,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			return (162);
 		}
 	}
-
-
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
@@ -2874,7 +2900,7 @@ static errr rd_dungeon(void)
 		n_ptr = &monster_type_body;
 
 		/* Clear the monster */
-		WIPE(n_ptr, monster_type);
+		(void)WIPE(n_ptr, monster_type);
 
 		/* Read the monster */
 		rd_monster(n_ptr);
@@ -2885,7 +2911,7 @@ static errr rd_dungeon(void)
 		/* Access the actual race */
 		r_ptr = &r_info[r_idx];
 
-		/* If a player ghost, some special features need to be added. -LM- */
+		/* If a player ghost, some special features need to be added. */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
 			prepare_ghost(n_ptr->r_idx, n_ptr, TRUE);
@@ -3008,7 +3034,6 @@ static errr rd_savefile_new_aux(void)
 	rd_options();
 	if (arg_fiddle) note("Loaded Option Flags");
 
-
 	/* Then the "messages" */
 	rd_messages();
 	if (arg_fiddle) note("Loaded Messages");
@@ -3025,38 +3050,41 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
+
 	/* Read the available records */
 	for (i = 0; i < tmp16u; i++)
 	{
 		monster_race *r_ptr;
+		monster_lore *l_ptr;
 
 		/* Read the lore */
 		rd_lore(i);
 
 		/* Access that monster */
 		r_ptr = &r_info[i];
+		l_ptr = &l_list[i];
 
 		/* XXX XXX Hack -- repair old savefiles */
 		if (older_than(2, 7, 6))
 		{
 			/* Assume no kills */
-			r_ptr->r_pkills = 0;
+			l_ptr->pkills = 0;
 
 			/* Hack -- no previous lives */
 			if (sf_lives == 0)
 			{
 				/* All kills by this life */
-				r_ptr->r_pkills = r_ptr->r_tkills;
+				l_ptr->pkills = l_ptr->tkills;
 			}
 
 			/* Hack -- handle uniques */
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				/* Assume no kills */
-				r_ptr->r_pkills = 0;
+				l_ptr->pkills = 0;
 
 				/* Handle dead uniques */
-				if (r_ptr->max_num == 0) r_ptr->r_pkills = 1;
+				if (r_ptr->max_num == 0) l_ptr->pkills = 1;
 			}
 		}
 	}
@@ -3100,6 +3128,7 @@ static errr rd_savefile_new_aux(void)
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 		k_ptr->known_effect = (tmp8u & 0x04) ? TRUE: FALSE;
+		k_ptr->squelch = (tmp8u & 0x08) ? TRUE: FALSE;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -3154,7 +3183,7 @@ static errr rd_savefile_new_aux(void)
 		for (i = 0; i < total_artifacts; i++)
 		{
 			rd_byte(&tmp8u);
-			a_info[conv_arti[i]].cur_num = tmp8u;
+			a_info[conv_arti[i]].creat_stat = tmp8u;
 			rd_byte(&tmp8u);
 			rd_byte(&tmp8u);
 			rd_byte(&tmp8u);
@@ -3185,8 +3214,8 @@ static errr rd_savefile_new_aux(void)
 			{
 				rd_byte(&tmp8u);
 				if (o_older_than(0,3,6)) 
-					a_info[conv_arti[i]].cur_num = tmp8u;
-				else a_info[i].cur_num = tmp8u;
+					a_info[conv_arti[i]].creat_stat = tmp8u;
+				else a_info[i].creat_stat = tmp8u;
 				rd_byte(&tmp8u);
 				rd_byte(&tmp8u);
 				rd_byte(&tmp8u);
@@ -3244,7 +3273,7 @@ static errr rd_savefile_new_aux(void)
 				rd_byte(&tmp8u);
 				a_info[j].rarity = tmp8u;
 				rd_byte(&tmp8u);
-				a_info[j].cur_num = tmp8u;
+				a_info[j].creat_stat = tmp8u;
 				rd_byte(&tmp8u);
 				a_info[j].activation = tmp8u;
 
@@ -3295,14 +3324,14 @@ static errr rd_savefile_new_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
+	rp_ptr = &p_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];
 
 	/* Now that the player information is known, we can generate a set 
-	 * of random artifacts, if needed. -LM-
+	 * of random artifacts, if needed.
 	 */
 	if (need_random_artifacts)
 	{
@@ -3376,13 +3405,14 @@ static errr rd_savefile_new_aux(void)
 #endif
 
 
-	/* Hack -- no old-style ghosts. -LM- */
+	/* Hack -- no old-style ghosts. */
 	if (older_than(2, 8, 3)) r_info[548].max_num = 0;
 
 
 	/* Success */
 	return (0);
-}
+
+ }
 
 
 /*

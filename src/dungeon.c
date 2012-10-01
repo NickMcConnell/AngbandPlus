@@ -115,7 +115,7 @@ static void sense_inventory(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[120];
 
 	/*** Check for "sensing" ***/
 
@@ -227,6 +227,7 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool okay = FALSE;
+		int squelch = 0;
 
 		o_ptr = &inventory[i];
 
@@ -277,6 +278,11 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (feel == FEEL_NONE) continue;
 
+		/* Squelch it? */
+		if (i<INVEN_WIELD) {
+		  squelch = squelch_itemp(o_ptr, feel, 0);
+		}
+
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
@@ -294,17 +300,23 @@ static void sense_inventory(void)
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
-			           feel_text[feel]);
+			           feel_text[feel],
+				   ((squelch==1) ? "(Squelched)" :
+				    ((squelch==-1) ? "(Squelch Failed)" : "")));
 		}
 
 		/* We have "felt" it */
 		o_ptr->ident |= (IDENT_SENSE);
 
+
 		/* Inscribe it textually */
 		o_ptr->feel = feel;
+
+		/* Squelch it if necessary */
+		do_squelch_item(squelch, i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -432,7 +444,7 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Monsters suffering from the Black Breath cannot regenerate. -LM- */
+		/* Monsters suffering from the Black Breath cannot regenerate. */
 		if (m_ptr->black_breath)
 		{
 			continue;
@@ -468,7 +480,7 @@ static void regen_monsters(void)
  */
 static void recharged_notice(object_type *o_ptr)
 {
-	char o_name[80];
+	char o_name[120];
 
 	cptr s;
 
@@ -514,6 +526,7 @@ static void process_world(void)
 	object_type *o_ptr;
 	object_kind *k_ptr;
 
+	bool was_ghost=FALSE;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -634,7 +647,7 @@ static void process_world(void)
 				/* pick a store randomly. */
 				n = rand_int(MAX_STORES);
 
-				/* Shuffle the store, if not the home. -LM-*/
+				/* Shuffle the store, if not the home. */
 				if (n != STORE_HOME) store_shuffle(n);
 			}
 
@@ -647,12 +660,19 @@ static void process_world(void)
 
 	/*** Process the monsters ***/
 
+	/* Hack - see if there is already a player ghost on the level */
+	if (bones_selector) was_ghost=TRUE;
+
 	/* Check for creature generation, except on themed levels */
 	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && (!p_ptr->themed_level))
 	{
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 	}
+
+	/* Hack - if there is a ghost now, and there was not before, 
+	 * give a challenge */
+	if ((bones_selector) && (!(was_ghost))) ghost_challenge();
 
 	/* Hack -- Check for creature regeneration */
 	if (!(turn % 100)) regen_monsters();
@@ -704,7 +724,7 @@ static void process_world(void)
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
 
-			/* Half-trolls eat a lot.  -LM- */
+			/* Half-trolls eat a lot.  */
 			if (p_ptr->prace == RACE_HALF_TROLL) i += 5;
 
 			/* Regeneration takes more food */
@@ -947,8 +967,8 @@ static void process_world(void)
 		(void)set_shield(p_ptr->shield - 1);
 	}
 
-	/* Oppose Acid.  Ents always oppose acid. -LM- */
-	if ((p_ptr->oppose_acid) && (p_ptr->schange != SHAPE_ENT))
+	/* Oppose Acid. */
+	if (p_ptr->oppose_acid)
 	{
 		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
 	}
@@ -962,16 +982,9 @@ static void process_world(void)
 	/* Oppose Fire */
 	if (p_ptr->oppose_fire)
 	{
-		/* Ents and vampires never oppose fire. -LM- */
-		if ((p_ptr->schange == SHAPE_ENT) || 
-			(p_ptr->schange == SHAPE_VAMPIRE)) p_ptr->oppose_fire = 0;
+		/* Vampires never oppose fire. */
+		if (p_ptr->schange == SHAPE_VAMPIRE) p_ptr->oppose_fire = 0;
 		else (void)set_oppose_fire(p_ptr->oppose_fire - 1);
-	}
-
-	/* Oppose Cold. Ents always oppose cold. -LM- */
-	if ((p_ptr->oppose_cold) && (p_ptr->schange != SHAPE_ENT))
-	{
-		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	}
 
 	/* Oppose Poison */
@@ -2047,46 +2060,44 @@ static void process_player_aux(void)
 	/* Tracking a monster */
 	if (p_ptr->monster_race_idx)
 	{
-		monster_race *r_ptr;
-
-		/* Acquire monster race */
-		r_ptr = &r_info[p_ptr->monster_race_idx];
+	  /* Get the monster lore */
+	  monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
 
 		/* Check for change of any kind */
 		if ((old_monster_race_idx != p_ptr->monster_race_idx) ||
-		    (old_r_flags1 != r_ptr->r_flags1) ||
-		    (old_r_flags2 != r_ptr->r_flags2) ||
-		    (old_r_flags3 != r_ptr->r_flags3) ||
-		    (old_r_flags4 != r_ptr->r_flags4) ||
-		    (old_r_flags5 != r_ptr->r_flags5) ||
-		    (old_r_flags6 != r_ptr->r_flags6) ||
-		    (old_r_blows0 != r_ptr->r_blows[0]) ||
-		    (old_r_blows1 != r_ptr->r_blows[1]) ||
-		    (old_r_blows2 != r_ptr->r_blows[2]) ||
-		    (old_r_blows3 != r_ptr->r_blows[3]) ||
-		    (old_r_cast_inate != r_ptr->r_cast_inate) ||
-		    (old_r_cast_spell != r_ptr->r_cast_spell))
+		    (old_r_flags1 != l_ptr->flags1) ||
+		    (old_r_flags2 != l_ptr->flags2) ||
+		    (old_r_flags3 != l_ptr->flags3) ||
+		    (old_r_flags4 != l_ptr->flags4) ||
+		    (old_r_flags5 != l_ptr->flags5) ||
+		    (old_r_flags6 != l_ptr->flags6) ||
+		    (old_r_blows0 != l_ptr->blows[0]) ||
+		    (old_r_blows1 != l_ptr->blows[1]) ||
+		    (old_r_blows2 != l_ptr->blows[2]) ||
+		    (old_r_blows3 != l_ptr->blows[3]) ||
+		    (old_r_cast_inate != l_ptr->cast_inate) ||
+		    (old_r_cast_spell != l_ptr->cast_spell))
 		{
 			/* Memorize old race */
 			old_monster_race_idx = p_ptr->monster_race_idx;
 
 			/* Memorize flags */
-			old_r_flags1 = r_ptr->r_flags1;
-			old_r_flags2 = r_ptr->r_flags2;
-			old_r_flags3 = r_ptr->r_flags3;
-			old_r_flags4 = r_ptr->r_flags4;
-			old_r_flags5 = r_ptr->r_flags5;
-			old_r_flags6 = r_ptr->r_flags6;
+			old_r_flags1 = l_ptr->flags1;
+			old_r_flags2 = l_ptr->flags2;
+			old_r_flags3 = l_ptr->flags3;
+			old_r_flags4 = l_ptr->flags4;
+			old_r_flags5 = l_ptr->flags5;
+			old_r_flags6 = l_ptr->flags6;
 
 			/* Memorize blows */
-			old_r_blows0 = r_ptr->r_blows[0];
-			old_r_blows1 = r_ptr->r_blows[1];
-			old_r_blows2 = r_ptr->r_blows[2];
-			old_r_blows3 = r_ptr->r_blows[3];
+			old_r_blows0 = l_ptr->blows[0];
+			old_r_blows1 = l_ptr->blows[1];
+			old_r_blows2 = l_ptr->blows[2];
+			old_r_blows3 = l_ptr->blows[3];
 
 			/* Memorize castings */
-			old_r_cast_inate = r_ptr->r_cast_inate;
-			old_r_cast_spell = r_ptr->r_cast_spell;
+			old_r_cast_inate = l_ptr->cast_inate;
+			old_r_cast_spell = l_ptr->cast_spell;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_MONSTER);
@@ -2116,19 +2127,12 @@ static void process_player_aux(void)
  * even if not disabled, it will never check during "special" resting
  * (codes -1 and -2), and it will only check during every 16th player
  * turn of "normal" resting.
+ *
+ * This function is no longer responsible for adding player energy.
  */
 static void process_player(void)
 {
 	int i;
-
-	/*** Apply energy ***/
-
-	/* Give the player some energy */
-	p_ptr->energy += extract_energy[p_ptr->pspeed];
-
-	/* No turn yet */
-	if (p_ptr->energy < 100) return;
-
 
 	/*** Check for interupts ***/
 
@@ -2199,8 +2203,8 @@ static void process_player(void)
 
 	/*** Handle actual user input ***/
 
-	/* Repeat until out of energy */
-	while (p_ptr->energy >= 100)
+	/* Repeat until energy is reduced */
+	do
 	{
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
@@ -2226,7 +2230,7 @@ static void process_player(void)
 		{
 			int item = INVEN_PACK;
 
-			char o_name[80];
+			char o_name[120];
 
 			object_type *o_ptr;
 
@@ -2473,11 +2477,8 @@ static void process_player(void)
 				m_ptr->mflag &= ~(MFLAG_SHOW);
 			}
 		}
-
-
-		/* Handle "leaving" */
-		if (p_ptr->leaving) break;
 	}
+	while (!p_ptr->energy_use && !p_ptr->leaving);
 }
 
 
@@ -2487,9 +2488,19 @@ static void process_player(void)
  *
  * This function will not exit until the level is completed,
  * the user dies, or the game is terminated.
+ *
+ * This function is modified in Oangband 0.5.0 to process 
+ * monsters with energy greater than the player, then the 
+ * player, then remaining monsters.  100 or more energy is still 
+ * also required.
+ * This function now applies energy to players and monsters.
+ * Patch by FM.
  */
 static void dungeon(void)
 {
+	monster_type *m_ptr;
+	int i;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -2700,8 +2711,35 @@ static void dungeon(void)
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
 
-		/* Process the player */
-		process_player();
+		/*** Apply energy ***/
+
+		/* Give the player some energy */
+		p_ptr->energy += extract_energy[p_ptr->pspeed];
+
+		/* Give energy to all monsters */
+		for (i = m_max - 1; i >= 1; i--)
+		{
+
+			/* Access the monster */
+			m_ptr = &m_list[i];
+
+			/* Ignore "dead" monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* Give this monster some energy */
+			m_ptr->energy += extract_energy[m_ptr->mspeed];
+		}
+
+
+		/* Can the player move? */
+		while (p_ptr->energy >= 100 && !p_ptr->leaving)
+		{
+			/* process monster with even more energy first */
+			process_monsters(p_ptr->energy + 1);
+
+			/* Process the player */
+			process_player();
+		}
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2724,11 +2762,11 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-		/* Process all of the monsters */
-		process_monsters();
+		/* Process all remaining monsters */
+		process_monsters(100);
 
 		/* Every ten game turns, clear any modifications to the chance that 
-		 * a monster will be disturbed. -LM- */
+		 * a monster will be disturbed. */
 		if (!(turn % 10)) add_wakeup_chance = 0;
 
 		/* Notice stuff */
@@ -2794,7 +2832,7 @@ static void process_some_user_pref_files(void)
 	(void)process_pref_file("user.prf");
 
 	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title);
+	sprintf(buf, "%s.prf", p_name + rp_ptr->name);
 
 	/* Process that file */
 	process_pref_file(buf);
@@ -2929,6 +2967,7 @@ void play_game(bool new_game)
 
 		/* Read the default options */
 		process_pref_file("birth.prf");
+
 	}
 
 	/* Normal machine (process player name) */
@@ -2973,15 +3012,12 @@ void play_game(bool new_game)
 	/* Window stuff */
 	window_stuff();
 
-
 	/* Process some user pref files */
 	process_some_user_pref_files();
-
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
-
 
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
@@ -2989,7 +3025,6 @@ void play_game(bool new_game)
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
-
 
 	/* Character is now "complete" */
 	character_generated = TRUE;

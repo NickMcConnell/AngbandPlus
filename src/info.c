@@ -325,13 +325,13 @@ cptr obj_special_info[6][50] =
 cptr spell_tips[255] = 
 {
 	"Fires a bolt of mana.",	/* 0 - Magic Missile */
-	"Detects monsters on the current screen that are not invisible.",
+	"Detects nearby monsters that are not invisible.",
 	"Random minor displacement.",
 	"Permanently lights up the area lit by your light source or a room.",
 	"Reduces the amount of poison in your system.",
 	"Reduces cuts and heals you a little.",
-	"Detects treasure and gold seams on the current panel.",
-	"Detects objects on the current panel.",
+	"Detects nearby treasure and gold seams.",
+	"Detects nearby objects.",
 	"Fires a ball of poison.",
 	"Attempts to confuse one monster.",
 	"Fires a bolt or beam of lightning.",	/* 10 - Lightning Bolt */
@@ -355,8 +355,8 @@ cptr spell_tips[255] =
 	"Teleports a line of opponents away.",
 	"Temporarily hasten yourself.",
 	"Fires a ball of fire.",		/* 30 - Fire Ball */
+	"Puts target creatures in Stasis.  They are completely paralyzed and invulnerable.",
 	"Destroys almost all objects nearby, deletes ordinary monsters, and banishes uniques from the level.",
-	"Deletes all monsters of the symbol you choose from the level.",
 	"Temporary opposition to fire.  Cumulative with equipment resistances.",
 	"Temporary opposition to cold.  Cumulative with equipment resistances.",
 	"Temporary opposition to acid.  Cumulative with equipment resistances.",
@@ -367,11 +367,11 @@ cptr spell_tips[255] =
 	"Immediately takes you to the next level up or down.",	/* 40 - Teleport Level */
 	"Recalls you to the town, or as deep in the dungeon as you have ever gone.",
 	"Controlled minor displacement.  Hint:  use the 'p' option when you enter targeting mode.",
-	"Detects all evil monsters, even invisible ones.",
-	"Detects enchanted objects on the current panel.",
+	"Detects all nearby evil monsters, even invisible ones.",
+	"Detects nearby enchanted objects.",
 	"Shakes the nearby dungeon, randomly swapping walls and floors.",
+	"Very powerful attempt to confuse, slow, and then sleep all monsters.",
 	"Fires a ball of light centered on you.",
-	"Deletes nearby monsters except uniques.",
 	"Recovers mana much more rapidly than normal resting.  Put this spell in a keymap for best results.",
 	"Temporarily increases armour class by 50.",
 	"Powerful recharging spell.",		/* 50 - Recharge Item III */
@@ -388,13 +388,13 @@ cptr spell_tips[255] =
 	"",
 	"",
 	"",
-	"Detects all evil monsters, even invisible ones.",
+	"Detects all nearby evil monsters, even invisible ones.",
 	"Reduces cuts and heals you a little.",
 	"Short-duration bonus to fighting ability and armour class.",
 	"Removes any fear you currently feel.",
 	"Permanently lights up the area lit by your light source or a room.",
-	"Detects all traps on the current panel.",
-	"Detects all doors and stairs on the current panel.", /* 70 - Detect Doors/Stairs */
+	"Detects all nearby traps.",
+	"Detects all nearby doors and stairs.", /* 70 - Detect Doors/Stairs */
 	"Reduces the amount of poison in your system.",
 	"Reduces cuts and heals you a moderate amount.",
 	"Attempts to frighten one monster.",
@@ -425,11 +425,11 @@ cptr spell_tips[255] =
 	"Immediately takes you to the next level up or down.",
 	"Recalls you to the town, or as deep in the dungeon as you have ever gone.",
 	"Regenerates the dungeon level.",	/* 100 - Alter Reality */
-	"Detects monsters on the current screen that are not invisible.",
-	"Detects all monsters, traps, doors, stairs, gold seams, and objects on the current panel.",
+	"Detects nearby monsters that are not invisible.",
+	"Detects all nearby monsters, traps, doors, stairs, gold seams, and objects.",
 	"Learns about a monster's attributes and resistances.",
 	"Standard identification of an object.",
-	"Permanently light up the entire dungeon level, except for vaults, and detect everything on the current panel.",
+	"Permanently light up the entire dungeon level, except for vaults, and detect everything nearby.",
 	"Teleports away all evil monsters in line of sight.",
 	"An extremely strong healing spell.  Removes cuts and stuns.",
 	"Full *identification* of any object.",
@@ -452,7 +452,7 @@ cptr spell_tips[255] =
 	"",
 	"",
 	"",
-	"Detects all living monsters, even invisible ones.",
+	"Detects all nearby living monsters, even invisible ones.",
 	"Permanently lights up the area lit by your light source or a room.",
 	"Fully feeds you.",	/* 130 - foraging */
 	"Minor random displacement.",
@@ -465,7 +465,7 @@ cptr spell_tips[255] =
 	"Fires a bolt or beam of frost.",
 	"Attempts to put a monster to sleep.",
 	"Attempts to frighten a monster.",	/* 140 - frighten creature */
-	"Detects traps, doors, and stairs.",
+	"Detects nearby traps, doors, and stairs.",
 	"Kills all weak monsters in line of sight; spell has no effect on stronger creatures.",
 	"Fires a bolt or beam of fire.",
 	"Temporary heroism.",
@@ -476,7 +476,7 @@ cptr spell_tips[255] =
 	"Temporary opposition to poison.  Cumulative with equipment resistances.",
 	"Shakes the nearby dungeon, randomly swapping walls and floors.",	/* 150 - earthquake */
 	"Temporary opposition to fire and cold.  Cumulative with equipment resistances.",
-	"Detects all monsters, traps, doors, stairs, gold seams, and objects on the current panel.",
+	"Detects all nearby monsters, traps, doors, stairs, gold seams, and objects.",
 	"Recovers from wounds, poison and physical damage far more rapidly than normal resting.  This is a good spell to assign to a keymap.",
 	"Temporary opposition to acid and electricity.  Cumulative with equipment resistances.",
 	"Hurts a monster, then attempts to slow and confuse it.",
@@ -490,10 +490,10 @@ cptr spell_tips[255] =
 	"Turns you into a hound always aware of its surroundings.",
 	"Turns you into a speedy gazelle.",
 	"Turns you into a dauntless lion.",
-	"Detects all evil monsters, even invisible ones.",
+	"Detects all nearby evil monsters, even invisible ones.",
 	"Attempts (strongly) to frighten all monsters in line of sight.",
 	"Maps the local area.",
-	"Detects all monsters, traps, doors, and stairs on the current panel, and grants temporary see invisible.",
+	"Detects all nearby monsters, traps, doors, and stairs, and grants temporary see invisible.",
 	"Healing, plus removal of all cuts and poison.",	/* 170 - herbal healing */
 	"Fires a very large cold ball.",
 	"Hurls water outwards from yourself in all directions.",
@@ -507,8 +507,8 @@ cptr spell_tips[255] =
 	"Restores all your stats.",	/* 180 - song of renewal */
 	"Fires a bolt or beam of time.",
 	"Temporarily hastens you.",
-	"Deletes all monsters of the symbol you choose from the level.",
-	"Turns you into a wise and powerful Ent.   Beware of fire!",
+	"Recharges a magical item.",
+	"Turns you into a wise and powerful Elder Ent.   Use potions or spells to protect yourself from fire!",
 	"Restores your experience.",
 	"Dispels evil monsters, heals you, blesses you, and removes fear, poisoning, stunning, and cuts.  You get results when you ask aid of Yavanna.",
 	"Low-level probing spell that lets you learn about racial type and basic resistances.",
@@ -517,7 +517,7 @@ cptr spell_tips[255] =
 	"",	/* 190 - (none) */
 	"",
 	"Fires a mana bolt.",
-	"Detects all evil monsters, even invisible ones.",
+	"Detects all nearby evil monsters, even invisible ones.",
 	"Increases the range at which you can see warm-blooded creatures by 3.",
 	"Removes ordinary curses.",
 	"Attempts to slow a monster.",
@@ -534,11 +534,11 @@ cptr spell_tips[255] =
 	"Attacks all evil creatures in line of sight.",
 	"Grants temporary see invisible.",
 	"Random minor displacement.",
-	"Detects all traps on the current panel.",	/* 210 - detect traps */
-	"Detects all doors and stairs on the current panel.",
+	"Detects all nearby traps.",	/* 210 - detect traps */
+	"Detects all nearby doors.",
 	"Attempts to put all monsters in line of sight to sleep.",
 	"Attempts to slow all monsters in line of sight.",
-	"Detects magical objects on the current panel.",
+	"Detects nearby magical objects.",
 	"Fires a bolt or beam of life-draining magic.",
 	"Temporary opposition to poison.  Cumulative with equipment resistances.",
 	"Attacks all demons in line of sight.",
@@ -558,7 +558,7 @@ cptr spell_tips[255] =
 	"Temporary increase to armour class and fighting ability.",
 	"Teleports away all evil monsters in line of sight.",
 	"Increases armour class by 35 temporarily.",
-	"Detects all monsters on the current panel.",
+	"Detects all nearby monsters.",
 	"Fires a nether bolt.",
 	"Fires a life-draining orb.",
 	"Attacks all living creatures in line of sight.",
@@ -572,8 +572,8 @@ cptr spell_tips[255] =
 	"Destroys almost all objects nearby, deletes ordinary monsters, and banishes uniques from the level.",
 	"Teleports a line of monsters away.",
 	"Attacks all undead in line of sight.",
-	"Deletes nearby monsters except uniques.",
-	"Fires a very large darkness ball.",
+	"Places all undead in a powerful Statis.",
+	"Fires a large darkness ball.",
 	"Grants temporary telepathy.",	/* 250 - timed ESP */
 	"Renders you almost imperceptible to sleeping monsters and those not normally found deeper than twice your depth.  You become fully visible as soon as you inflict any damage on or steal from a monster.",
 	"Hastens you and drives you into a berserk rage.",
@@ -857,7 +857,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 				else
 				{
 					modstr = object_adj(o_ptr->tval, o_ptr->sval);
-					baseinfo = format("A parchment scroll %s titled \"#\"", buf);
+					baseinfo = format("A parchment scroll %s It is titled \"#\".", buf);
 				}
 
 				break;
@@ -1117,11 +1117,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_RAZORBACK:
 		{
-			return "star ball (150) every 1000 turns";
+			return "Assume Dragonform; Activation in Dragonform: star ball (150) every 1000 turns";
 		}
 		case ACT_BLADETURNER:
 		{
-			return "heroism, bless, and resistance every 400 turns";
+			return "Assume Dragonform; Activation in Dragonform: heroism, bless, and resistance every 400 turns";
 		}
 		case ACT_SOULKEEPER:
 		{
@@ -1313,7 +1313,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_BUCKLAND:
 		{
-			return "elemental branding of any missile every 1500 turns";
+			return "elemental branding of shots every 1500 turns";
 		}
 
 
@@ -1581,55 +1581,55 @@ cptr item_activation(object_type *o_ptr)
 
 		case ACT_DRAGON_BLUE:
 		{
-			return "breathe lightning (130) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe lightning (130) every 350+d350 turns";
 		}
 		case ACT_DRAGON_WHITE:
 		{
-			return "breathe frost (140) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe frost (140) every 350+d350 turns";
 		}
 		case ACT_DRAGON_BLACK:
 		{
-			return "breathe acid (150) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe acid (150) every 350+d350 turns";
 		}
 		case ACT_DRAGON_GREEN:
 		{
-			return "breathe poison gas (150) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe poison gas (150) every 350+d350 turns";
 		}
 		case ACT_DRAGON_RED:
 		{
-			return "breathe fire (160) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe fire (160) every 350+d350 turns";
 		}
 		case ACT_DRAGON_MULTIHUED:
 		{
-			return "breathe an element or poison (190) every 350+d350 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe an element or poison (190) every 350+d350 turns";
 		}
 		case ACT_DRAGON_BRONZE:
 		{
-			return "breathe confusion (130) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe confusion (130) every 300+d300 turns";
 		}
 		case ACT_DRAGON_GOLD:
 		{
-			return "breathe sound (130) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe sound (130) every 300+d300 turns";
 		}
 		case ACT_DRAGON_CHAOS:
 		{
-			return "breathe chaos/disenchant (180) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe chaos/disenchant (180) every 300+d300 turns";
 		}
 		case ACT_DRAGON_LAW:
 		{
-			return "breathe sound/shards (190) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe sound/shards (190) every 300+d300 turns";
 		}
 		case ACT_DRAGON_BALANCE:
 		{
-			return "breathe balance (210) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe balance (210) every 300+d300 turns";
 		}
 		case ACT_DRAGON_SHINING:
 		{
-			return "breathe light/darkness (160) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe light/darkness (160) every 300+d300 turns";
 		}
 		case ACT_DRAGON_POWER:
 		{
-			return "breathe the elements (240) every 300+d300 turns";
+			return "Assume Dragonform; Activation in Dragonform: breathe the elements (240) every 300+d300 turns";
 		}
 
 		case ACT_RING_ACID:
@@ -2343,7 +2343,11 @@ void identify_fully_aux(object_type *o_ptr)
 			{
 				if ((j == 3) && (f3 & (TR3_PERMA_CURSE))) list_ok = TRUE;
 				if ((j == 4) && (f3 & (TR3_HEAVY_CURSE))) list_ok = TRUE;
-				if ((j == 5) && (f3 & (TR3_LIGHT_CURSE))) list_ok = TRUE;
+				/* Hack - some items (ammunition) can be 
+				 * 'cursed' but have no particular flags
+				 */
+				if ((j == 5) && ((f3 & (TR3_LIGHT_CURSE)) 
+				       || (attr_listed == 0))) list_ok = TRUE;
 			}
 
 			if (!list_ok) continue;
@@ -2508,9 +2512,12 @@ void self_knowledge(void)
 			break;
 		case SHAPE_WEREWOLF:
 			info[i++] = "You are wearing the body of a werewolf.";
-			break;
+			break;	
 		case SHAPE_VAMPIRE:
 			info[i++] = "You are wearing the body of a vampire.";
+			break;
+		case SHAPE_WYRM:
+			info[i++] = "You are wearing the body of a small dragon.";
 			break;
 	}
 
@@ -3071,8 +3078,8 @@ void spell_info(char *p, int spell_index)
 		case 26: sprintf(p, " dam %d, rad 2", 30 + plev); break;
 		case 29: sprintf(p, " dur %d+d20", plev); break;
 		case 30: sprintf(p, " dam %d, rad 2", 55 + plev); break;
-		case 31: strcpy(p, " rad 15"); break;
-		case 32: strcpy(p, " hurt 1d4 per kill"); break;
+		case 31: sprintf(p, " radius %d", 2); break;
+		case 32: strcpy(p, " rad 15"); break;
 		case 33: sprintf(p, " dur %d+d%d", plev, plev); break;
 		case 34: sprintf(p, " dur %d+d%d", plev, plev); break;
 		case 35: sprintf(p, " dur %d+d%d", plev, plev); break;
@@ -3080,7 +3087,7 @@ void spell_info(char *p, int spell_index)
 		case 37: strcpy(p, " dur 20+d20"); break;
 		case 42: strcpy(p, " range 25"); break;
 		case 45: strcpy(p, " radius 10"); break;
-		case 46: sprintf(p, " dam %d, rad %d", 5 * plev / 2, plev / 12); break;
+		case 47: sprintf(p, " dam %d, rad %d", 5 * plev / 2, plev / 12); break;
 		case 48: sprintf(p, " recover %d", 1 + plev / 12); break;
 		case 49: strcpy(p, " dur 30+d20"); break;
 		case 51: sprintf(p, " dur %d+d30", 10+plev); break;
@@ -3200,7 +3207,6 @@ void spell_info(char *p, int spell_index)
 		case 243: strcpy(p, " dur 10+d20"); break;
 		case 245: strcpy(p, " radius 15"); break;
 		case 247: sprintf(p, " dam %d+d50", plev * 3); break;
-		case 248: strcpy(p, " hurt 1d3/kill"); break;
 		case 249: sprintf(p, " dam %d, rad %d", 11 * plev / 2, plev/7); break;
 		case 250: sprintf(p, " dur 30+d40"); break;
 		case 251: sprintf(p, " dur 40"); break;

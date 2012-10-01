@@ -1011,7 +1011,7 @@ errr init_dos(void)
 	for (i = 0; i < num_windows; i++)
 	{
 		td = &data[i];
-		WIPE(td, term_data);
+		(void)WIPE(td, term_data);
 
 		/* Section name */
 		sprintf(section, "Term-%d", i);

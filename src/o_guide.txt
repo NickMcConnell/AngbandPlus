@@ -1,5 +1,8 @@
-Valid for Oangband 0.4.0
+Valid for Oangband 0.5.0
 
+ANGBAND.ICO, ANGBAND.RC, readdib.c, readdib.h
+** Windows specific files.  Delete or ignore if not using a windows
+   system.
 
 attack.c
 /* All player non-magical attack code.  Hit chance, critical hits when 
@@ -168,6 +171,11 @@ spells2.c
  * spells.  Spells that effect an area or LOS, lighten & darken rooms and 
  * areas, casting ball, projection, beam, and bolt spells.  Some miscel-
  * lanious non-damage spell functions.
+
+squelch.c
+/* Item squelching support.  Setting squelch parameters for both squelch 
+ * on generate and squelch on identify.  Handling squelching menus.
+ * Determining if items should be squelched.  Actually squelching items.
 
 store.c
 /* Store comments, racial penalties, what an item will cost, store 

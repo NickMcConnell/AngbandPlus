@@ -548,6 +548,25 @@ errr process_pref_file_aux(char *buf)
 		}
 	}
 
+	/* Process "M:<type>:<attr>" -- colors for message-types */
+	else if (buf[0] == 'M')
+	{
+		if (tokenize(buf+2, 2, zz) == 2)
+		{
+			u16b type = (u16b)strtol(zz[0], NULL, 0);
+			byte color = color_char_to_attr(zz[1][0]);
+
+			/* Ignore illegal types */
+			if (type >= MSG_MAX) return (1);
+
+			/* Store the color */
+			message__color[type] = color;
+
+			/* Success */
+			return (0);
+		}
+	}
+
 	/* Failure */
 	return (1);
 }
@@ -724,7 +743,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-				v = rp_ptr->title;
+			  v = p_name + rp_ptr->name;
 			}
 
 			/* Class */
@@ -1169,9 +1188,6 @@ static void display_player_middle(void)
 	else
 		prt_num("Deadliness (%)   ", -deadliness_conversion[-show_m_todam], 15, 1, TERM_L_BLUE);
 
-
-
-
 	/* Dump the shooting bonuses to hit/dam */
 
 	o_ptr = &inventory[INVEN_BOW];
@@ -1180,7 +1196,6 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_a_tohit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) show_a_todam += o_ptr->to_d;
 
-
 	put_str("       (Shooting)    ", 12, 53);
 	prt_num("Shots/Round      ", p_ptr->num_fire, 13, 53, TERM_L_BLUE);
 	prt_num("+ to Skill       ", show_a_tohit, 14, 53, TERM_L_BLUE);
@@ -1188,10 +1203,6 @@ static void display_player_middle(void)
 		prt_num("Deadliness (%)   ", deadliness_conversion[show_a_todam], 15, 53, TERM_L_BLUE);
 	else
 		prt_num("Deadliness (%)   ", -deadliness_conversion[-show_a_todam], 15, 53, TERM_L_BLUE);
-
-
-
-
 
 	/* Dump the base and bonus armor class */
 	put_str("Base AC/+ To AC", 15, 27);
@@ -1203,14 +1214,6 @@ static void display_player_middle(void)
 
 	sprintf(tmp, "%3d", p_ptr->dis_to_a);
 	c_put_str(TERM_L_BLUE, tmp, 15, 47);
-
-
-
-
-
-
-
-
 
 	prt_num("Level            ", (int)p_ptr->lev, 9, 27, TERM_L_GREEN);
 
@@ -1443,118 +1446,116 @@ static void display_player_various(void)
 
 /*
  * Obtain the "flags" for the player as if he was an item.  Currently includes 
- * race, class, and shapechange. -LM-
+ * race, class, and shapechange (optionally). -LM-
+ *
+ * Mega - Hack
+ * 'shape' should be set on when calling this function for display purposes, 
+ * but off when actually applying 'intrinsic flags' in xtra1.c.
+ *
+ * Shapeshift flags are displayed like race/class flags, but actually 
+ * applied differently.
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+
+void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 {
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) (*f2) |= (TR2_RES_LITE);
+        /* Add racial flags */
+        (*f1) |= rp_ptr->flags1;
+        (*f2) |= rp_ptr->flags2;
+        (*f3) |= rp_ptr->flags3;
 
-	/* Gnome */
-	if (p_ptr->prace == RACE_GNOME) (*f3) |= (TR3_FREE_ACT);
-
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) (*f2) |= (TR2_RES_BLIND);
-
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) (*f2) |= (TR2_RES_DARK);
-
-	/* Half-Troll */
-	if (p_ptr->prace == RACE_HALF_TROLL) (*f2) |= (TR2_SUST_STR);
-
-	/* Dunadan */
-	if (p_ptr->prace == RACE_DUNADAN) (*f2) |= (TR2_SUST_CON);
-
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
-	if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
-
-	/* Warrior. -LM- */
+	/* Warrior. */
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 		if (p_ptr->lev >= 40) (*f3) |= (TR3_REGEN);
 	}
 
-
-	/* Shapechange, if any. -LM- */
-	switch (p_ptr->schange)
+	if (shape)
 	{
-		case SHAPE_NORMAL:
+
+	        /* Shapechange, if any. */
+	        switch (p_ptr->schange)
 		{
-			break;
-		}
-		case SHAPE_MOUSE:
-		{
-			(*f1) |= (TR1_STEALTH);
-			(*f1) |= (TR1_INFRA);
-			break;
-		}
-		case SHAPE_FERRET:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f3) |= (TR3_REGEN);
-			(*f1) |= (TR1_SPEED);
-			(*f1) |= (TR1_SEARCH);
-			break;
-		}
-		case SHAPE_HOUND:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f3) |= (TR3_TELEPATHY);
-			break;
-		}
-		case SHAPE_GAZELLE:
-		{
-			(*f1) |= (TR1_SPEED);
-			break;
-		}
-		case SHAPE_LION:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f2) |= (TR2_RES_FEAR);
-			(*f3) |= (TR3_REGEN);
-			(*f1) |= (TR1_SPEED);
-			break;
-		}
-		case SHAPE_ENT:
-		{
-			(*f2) |= (TR2_RES_ACID);
-			(*f2) |= (TR2_RES_COLD);
-			(*f2) |= (TR2_RES_POIS);
-			(*f1) |= (TR2_RES_FEAR);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f3) |= (TR3_FREE_ACT);
-			(*f1) |= (TR1_TUNNEL);
-			break;
-		}
-		case SHAPE_BAT:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f2) |= (TR2_RES_BLIND);
-			(*f3) |= (TR3_FEATHER);
-			(*f1) |= (TR1_SPEED);
-			break;
-		}
-		case SHAPE_WEREWOLF:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f3) |= (TR3_REGEN);
-			(*f3) |= (TR3_AGGRAVATE);
+		        case SHAPE_NORMAL:
+			{
+			        break;
+			}
+		        case SHAPE_MOUSE:
+		        {
+			        (*f1) |= (TR1_STEALTH);
+				(*f1) |= (TR1_INFRA);
+				break;
+			}
+		        case SHAPE_FERRET:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f3) |= (TR3_REGEN);
+				(*f1) |= (TR1_SPEED);
+				(*f1) |= (TR1_SEARCH);
+				break;
+			}
+		        case SHAPE_HOUND:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f3) |= (TR3_TELEPATHY);
+				break;
+			}
+		        case SHAPE_GAZELLE:
+			{
+			        (*f1) |= (TR1_SPEED);
+				break;
+			}
+		        case SHAPE_LION:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f2) |= (TR2_RES_FEAR);
+				(*f3) |= (TR3_REGEN);
+				(*f1) |= (TR1_SPEED);
+				break;
+			}
+		        case SHAPE_ENT:
+			{
+			        (*f2) |= (TR2_RES_COLD);
+				(*f2) |= (TR2_RES_POIS);
+				(*f1) |= (TR2_RES_FEAR);
+				(*f3) |= (TR3_SEE_INVIS);
+				(*f3) |= (TR3_FREE_ACT);
+				(*f1) |= (TR1_TUNNEL);
+				break;
+			}
+		        case SHAPE_BAT:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f2) |= (TR2_RES_BLIND);
+				(*f3) |= (TR3_FEATHER);
+				(*f1) |= (TR1_SPEED);
+				break;
+			}
+		        case SHAPE_WEREWOLF:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f3) |= (TR3_REGEN);
+				(*f3) |= (TR3_AGGRAVATE);
 			break;	
-		}
-		case SHAPE_VAMPIRE:
-		{
-			(*f1) |= (TR1_INFRA);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f3) |= (TR3_HOLD_LIFE);
-			(*f2) |= (TR2_RES_COLD);
-			(*f3) |= (TR3_REGEN);
-			(*f1) |= (TR1_STEALTH);
+			}
+		        case SHAPE_VAMPIRE:
+			{
+			        (*f1) |= (TR1_INFRA);
+				(*f3) |= (TR3_SEE_INVIS);
+				(*f3) |= (TR3_HOLD_LIFE);
+				(*f2) |= (TR2_RES_COLD);
+				(*f3) |= (TR3_REGEN);
+				(*f1) |= (TR1_STEALTH);
 			break;
+			}
+		        case SHAPE_WYRM:
+			{
+			        (*f1) |= (TR1_STEALTH);
+			break;
+			}
 		}
 	}
 }
@@ -1736,7 +1737,7 @@ static void display_player_flag_info(void)
 				/* Check flags */
 				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
 
-				/* Hack -- "Might" covers both might1 and might2. -LM- */
+				/* Hack -- "Might" covers both might1 and might2. */
 				if ((y == 6) && (x == 3))
 				{
 					if (f[set] & TR1_MIGHT2) 
@@ -1747,7 +1748,7 @@ static void display_player_flag_info(void)
 			}
 
 			/* Player flags */
-			player_flags(&f[1], &f[2], &f[3]);
+			player_flags(&f[1], &f[2], &f[3], TRUE);
 
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
@@ -1781,7 +1782,8 @@ static void display_player_misc_info(void)
 
 	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 8);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 8);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 8);
+	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
+
 	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
 
 	/* Display extras */
@@ -1926,7 +1928,7 @@ static void display_player_stat_info(void)
 			/* Sustain */
 			if (f2 & 1<<stat)
 			{
-				/* Dark green, "s" if no stat bonus. -LM- */
+				/* Dark green, "s" if no stat bonus. */
 				a = TERM_GREEN;
 				if (c == '.') c = 's';
 			}
@@ -1940,7 +1942,7 @@ static void display_player_stat_info(void)
     }
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, TRUE);
 
 	/* Check stats */
 	for (stat=0; stat<6; stat++)
@@ -1998,7 +2000,7 @@ void display_player(int mode)
 		c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 11);
 		c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 11);
 
-		c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 11);
+		c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 11);
 		c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 11);
 
 		/* Age, Height, Weight, Social */
@@ -2127,12 +2129,11 @@ errr file_character(cptr name, bool full)
 
 	FILE *fff = NULL;
 
-	store_type *st_ptr = &store[7];
+	store_type *st_ptr = &store[STORE_HOME];
 
-	char o_name[80];
+	char o_name[120];
 
 	char buf[1024];
-
 
 	/* Drop priv's */
 	safe_setuid_drop();
@@ -2201,6 +2202,7 @@ errr file_character(cptr name, bool full)
 			buf[x] = c;
 		}
 
+
 		/* Terminate */
 		buf[x] = '\0';
 
@@ -2234,6 +2236,18 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
+        /* If dead, dump last messages -- Prfnoff */
+        if (p_ptr->is_dead)
+	{
+	        i = message_num();
+		if (i > 15) i = 15;
+		fprintf(fff, "  [Last Messages]\n\n");
+		while (i-- > 0)
+		{
+		        fprintf(fff, "> %s\n", message_str((s16b)i));
+		}
+		fprintf(fff, "\n\n");
+	}
 
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
@@ -2252,6 +2266,8 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
+	        if (!inventory[i].k_idx) break;
+
 		object_desc(o_name, &inventory[i], TRUE, 3);
 		fprintf(fff, "%c%s %s\n",
 		        index_to_label(i), paren, o_name);
@@ -2259,24 +2275,38 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "\n\n");
 
 
-	/* Dump the Home (page 1) */
-	fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-	for (i = 0; i < 12; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
+        /* Dump the Home -- if anything there */
+        if (st_ptr->stock_num)
+        {
+	  /* Header */
+                fprintf(fff, "  [Home Inventory]\n\n");
 
-	/* Dump the Home (page 2) */
-	fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-	for (i = 12; i < 24; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
+                /* Dump all available items */
+                for (i = 0; i < st_ptr->stock_num; i++)
+                {
+                        object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+                        fprintf(fff, "%c) %s\n", I2A(i), o_name);
 
+                }
+
+                /* Add an empty line */
+                fprintf(fff, "\n\n");
+        }
+
+        /* Dump options */
+        fprintf(fff, "  [Birth and Cheat Options]\n\n");
+
+        /* Dump options */
+        for (i = OPT_adult_start; i < OPT_score_end; i++)
+        {
+                if (option_desc[i])
+                {
+                        fprintf(fff, "%-49s: %s (%s)\n",
+                                option_desc[i],
+                                op_ptr->opt[i] ? "yes" : "no ",
+                                option_text[i]);
+                }
+        }
 
 	/* Close it */
 	my_fclose(fff);
@@ -2289,7 +2319,22 @@ errr file_character(cptr name, bool full)
 	return (0);
 }
 
+/*
+ * Make a string lower case.
+ */
+static void string_lower(char *buf)
+{
+       cptr buf_ptr;
 
+       /* No string */
+       if (!buf) return;
+
+       /* Lower the string */
+       for (buf_ptr = buf; *buf_ptr != 0; buf_ptr++)
+       {
+	      buf[buf_ptr - buf] = tolower(*buf_ptr);
+       }
+}
 
 /*
  * Recursive file perusal.
@@ -2319,6 +2364,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* This screen has sub-screens */
 	bool menu = FALSE;
 
+        /* Case sensitive search */
+        bool case_sensitive = FALSE;
+
 	/* Current help file */
 	FILE *fff = NULL;
 
@@ -2339,6 +2387,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	/* General buffer */
 	char buf[1024];
+
+        /* Lower case version of the buffer, for searching */
+        char lc_buf[1024];
 
 	/* Sub-menu information */
 	char hook[10][32];
@@ -2496,8 +2547,15 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Count the "real" lines */
 			next++;
 
-			/* Hack -- keep searching */
-			if (find && !i && !strstr(buf, find)) continue;
+                        /* Make a copy of the current line for searching */
+                        strcpy(lc_buf, buf);
+
+                        /* Make the line lower case */
+                        if (!case_sensitive)
+			  string_lower(lc_buf);
+
+                        /* Hack -- keep searching */
+                        if (find && !i && !strstr(lc_buf, find)) continue;
 
 			/* Hack -- stop searching */
 			find = NULL;
@@ -2508,7 +2566,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Hilite "shower" */
 			if (shower[0])
 			{
-				cptr str = buf;
+				cptr str = lc_buf;
 
 				/* Display matches */
 				while ((str = strstr(str, shower)) != NULL)
@@ -2516,7 +2574,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-buf, i+2, len, TERM_YELLOW, shower);
+					Term_putstr(str-lc_buf, i+2, len, TERM_YELLOW, &buf[str-lc_buf]);
 
 					/* Advance */
 					str += len;
@@ -2570,12 +2628,23 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Hack -- return to last screen on escape */
 		if (k == ESCAPE) break;
 
+
+                /* Toggle case sensitive on/off */
+                if (k == '!')
+		  {
+		    case_sensitive = !case_sensitive;
+		  }
+
 		/* Hack -- try showing */
 		if (k == '=')
 		{
 			/* Get "shower" */
 			prt("Show: ", screen_y-1, 0);
 			(void)askfor_aux(shower, 80);
+
+                        /* Make the "shower" lowercase */
+                        if (!case_sensitive)
+			        string_lower(shower);
 		}
 
 		/* Hack -- try finding */
@@ -2589,6 +2658,10 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				find = finder;
 				back = line;
 				line = line + 1;
+
+                                /* Make the "finder" lowercase */
+                                if (!case_sensitive)
+				        string_lower(finder);
 
 				/* Show it */
 				strcpy(shower, finder);
@@ -2883,7 +2956,7 @@ void do_cmd_suicide(void)
  */
 void do_cmd_save_game(bool autosave)
 {
-	/* Disturb the player, unless autosaving. -LM- */
+	/* Disturb the player, unless autosaving. */
 	if (!autosave) disturb(1, 0);
 
 	/* Clear messages */
@@ -3079,70 +3152,76 @@ static void make_bones(void)
 			/* Clear screen */
 			Term_clear();
 
-			/* Ask the player if he wants to add a personalized string. */
-			prt("Information about your character has been saved in a bones file.", 15, 7);
-
-			prt("Would you like to give ", 16, 3);
-
-			if (p_ptr->psex == SEX_MALE) prt("his ", 16, 26);
-			else if (p_ptr->psex == SEX_FEMALE) prt("her ", 16, 26);
-			else prt("the ", 16, 23);
-
-			prt("ghost a special message or description? (y/n)", 16, 30);
-
-
-			answer = inkey();
-
-			/* Clear last line */
-			clear_from(15);
-			clear_from(16);
-
-			/* Determine what the personalized string will be used for.	*/
-			if ((answer == 'Y') || (answer == 'y'))
+			while(1)
 			{
-				prt("Will you add something for your ghost to say, or add", 15, 13);
-				prt("to the monster description? ((M)essage/(D)escription)", 16, 13);
+			       /* Ask the player if he wants to 
+				* add a personalized string. 
+				*/
+			       prt("Information about your character has been saved in a bones file.", 15, 7);
 
-				while(1)
-				{
-					answer = inkey();
+			       prt("Would you like to give ", 16, 3);
 
-					clear_from(15);
-					clear_from(16);
+			       if (p_ptr->psex == SEX_MALE) prt("his ", 16, 26);
+			       else if (p_ptr->psex == SEX_FEMALE) prt("her ", 16, 26);
+			       else prt("the ", 16, 23);
 
-					if ((answer == 'M') || (answer == 'm'))
-					{
-						choice = 1;
-						break;
-					}
-					else if ((answer == 'D') || (answer == 'd'))
-					{
-						choice = 2;
-						break;
-					}
-					else if (answer == ESCAPE)
-					{
-						choice = 0;
-						break;
-					}
-					else 
-					{
-						prt("Please press 'm' to include a message, 'd' to include", 15, 13);
-						prt("a description, or the Escape key to cancel.", 16, 18);
-					}
-				}
+			       prt("ghost a special message or description? (y/n)", 16, 30);
+
+			       answer = inkey();
+
+			       /* Clear last line */
+			       clear_from(15);
+			       clear_from(16);
+
+			       /* Determine what the personalized string will be used for.	*/
+			       if ((answer == 'Y') || (answer == 'y'))
+			       {
+				      prt("Will you add something for your ghost to say, or add", 15, 13);
+				      prt("to the monster description? ((M)essage/(D)escription)", 16, 13);
+
+				      while(1)
+				      {
+					     answer = inkey();
+
+					     clear_from(15);
+					     clear_from(16);
+
+					     if ((answer == 'M') || (answer == 'm'))
+					     {
+					            choice = 1;
+						    break;
+					     }
+					     else if ((answer == 'D') || (answer == 'd'))
+					     {
+					            choice = 2;
+						    break;
+					     }
+					     else if (answer == ESCAPE)
+					     {
+					            choice = 0;
+						    break;
+					     }
+					     else 
+					     {
+					            prt("Please press 'm' to include a message, 'd' to include", 15, 13);
+					     prt("a description, or the Escape key to cancel.", 16, 18);
+					     }
+				      }
+			       }
+			       else if ((answer == 'N') || (answer == 'n') || (answer == ESCAPE)) 
+			       {
+				      choice = 0;
+				      break;
+			       }
 			}
-			else choice = 0;
-
 
 			/* If requested, get the personalized string, and write it and 
 			 * info on how it should be used in the bones file.  Otherwise, 
 			 * indicate the absence of such a string.
 			 */
 			if (choice) fprintf(fp, "%d:%s\n", 
-				choice, get_personalized_string(choice));
+			       choice, get_personalized_string(choice));
 			else fprintf(fp, "0: \n");
-
 
 			/* Close and save the Bones file */
 			my_fclose(fp);
@@ -3167,6 +3246,11 @@ static void center_string(char *buf, cptr str)
 	/* Mega-Hack */
 	sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
+
+/*
+ * Hack - save the time of death
+ */
+static time_t death_time = (time_t)0;
 
 
 /*
@@ -3270,165 +3354,192 @@ static void print_tomb(void)
 
 
 /*
+ * Hack - Know inventory and home items upon death
+ */
+static void death_knowledge(void)
+{
+       int i;
+
+       object_type *o_ptr;
+
+       store_type *st_ptr = &store[STORE_HOME];
+
+
+       /* Hack -- Know everything in the inven/equip */
+       for (i = 0; i < INVEN_TOTAL; i++)
+       {
+	      o_ptr = &inventory[i];
+
+	      /* Skip non-objects */
+	      if (!o_ptr->k_idx) continue;
+
+	      /* Aware and Known */
+	      object_aware(o_ptr);
+	      object_known(o_ptr);
+
+	      /* Fully known */
+	      o_ptr->ident |= (IDENT_MENTAL);
+       }
+
+       /* Hack -- Know everything in the home */
+       for (i = 0; i < st_ptr->stock_num; i++)
+       {
+	      o_ptr = &st_ptr->stock[i];
+
+	      /* Skip non-objects */
+	      if (!o_ptr->k_idx) continue;
+
+	      /* Aware and Known */
+	      object_aware(o_ptr);
+	      object_known(o_ptr);
+
+	      /* Fully known */
+	      o_ptr->ident |= (IDENT_MENTAL);
+       }
+
+       /* Hack -- Recalculate bonuses */
+       p_ptr->update |= (PU_BONUS);
+
+       /* Handle stuff */
+       handle_stuff();
+}
+
+/*
  * Display some character info
  */
 static void show_info(void)
 {
-	int i, j, k;
+       int i, j, k;
 
-	object_type *o_ptr;
+       object_type *o_ptr;
 
-	store_type *st_ptr = &store[STORE_HOME];
-
-
-	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-	}
-
-	/* Hack -- Know everything in the home */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-	}
-
-	/* Hack -- Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Flush all input keys */
-	flush();
-
-	/* Flush messages */
-	msg_print(NULL);
+       store_type *st_ptr = &store[STORE_HOME];
 
 
-	/* Describe options */
-	prt("You may now dump a character record to one or more files.", screen_y - 3, 0);
-	prt("Then, hit RETURN to see the character, or ESC to abort.", screen_y - 2, 0);
+       /* Display player */
+       display_player(0);
 
-	/* Dump character records as requested */
-	while (TRUE)
-	{
-		char out_val[160];
+       /* Prompt for inventory */
+       prt("Hit any key to see more information (ESC to abort): ", 23, 0);
+       
+       /* Allow abort at this point */
+       if (inkey() == ESCAPE) return;
 
-		/* Prompt */
-		put_str("Filename: ", screen_y - 1, 0);
+       /* Show equipment and inventory */
 
-		/* Default */
-		strcpy(out_val, "");
+       /* Equipment -- if any */
+       if (p_ptr->equip_cnt)
+       {
+	      Term_clear();
+	      item_tester_full = TRUE;
+	      show_equip();
+	      prt("You are using: -more-", 0, 0);
+	      if (inkey() == ESCAPE) return;
+       }
 
-		/* Ask for filename (or abort) */
-		if (!askfor_aux(out_val, 60)) return;
-
-		/* Return means "show on screen" */
-		if (!out_val[0]) break;
-
-		/* Save screen */
-		Term_save();
-
-		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
-
-		/* Load screen */
-		Term_load();
-	}
-
-
-	/* Display player */
-	display_player(0);
-
-	/* Prompt for inventory */
-	prt("Hit any key to see more information (ESC to abort): ", screen_y - 1, 0);
-
-	/* Allow abort at this point */
-	if (inkey() == ESCAPE) return;
-
-
-	/* Show equipment and inventory */
-
-	/* Equipment -- if any */
-	if (p_ptr->equip_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_equip();
-		prt("You are using: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
-
-	/* Inventory -- if any */
-	if (p_ptr->inven_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_inven();
-		prt("You are carrying: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
+       /* Inventory -- if any */
+       if (p_ptr->inven_cnt)
+       {
+	      Term_clear();
+	      item_tester_full = TRUE;
+	      show_inven();
+	      prt("You are carrying: -more-", 0, 0);
+	      if (inkey() == ESCAPE) return;
+       }
 
 
 
-	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
-		{
-			/* Clear screen */
-			Term_clear();
+       /* Home -- if anything there */
+       if (st_ptr->stock_num)
+       {
+	      /* Display contents of the home */
+	      for (k = 0, i = 0; i < st_ptr->stock_num; k++)
+	      {
+		     /* Clear screen */
+		     Term_clear();
 
-			/* Show 12 items */
-			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
-			{
-				byte attr;
+		     /* Show 12 items */
+		     for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
+		     {
+		            byte attr;
 
-				char o_name[80];
-				char tmp_val[80];
+			    char o_name[80];
+			    char tmp_val[80];
+			    
+			    /* Get the object */
+			    o_ptr = &st_ptr->stock[i];
 
-				/* Acquire item */
-				o_ptr = &st_ptr->stock[i];
+			    /* Print header, clear line */
+			    sprintf(tmp_val, "%c) ", I2A(j));
+			    prt(tmp_val, j+2, 4);
 
-				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
-				prt(tmp_val, j+2, 4);
+			    /* Get the object description */
+			    object_desc(o_name, o_ptr, TRUE, 3);
 
-				/* Acquire object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+			    /* Get the inventory color */
+			    attr = tval_to_attr[o_ptr->tval & 0x7F];
 
-				/* Acquire inventory color */
-				attr = tval_to_attr[o_ptr->tval & 0x7F];
+			    /* Display the object */
+			    c_put_str(attr, o_name, j+2, 7);
+		     }
 
-				/* Display the object */
-				c_put_str(attr, o_name, j+2, 7);
-			}
+		     /* Caption */
+		     prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 
-			/* Caption */
-			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
-
-			/* Wait for it */
-			if (inkey() == ESCAPE) return;
-		}
-	}
+		     /* Wait for it */
+		     if (inkey() == ESCAPE) return;
+	      }
+       }
 }
 
+
+
+/*
+ * Special version of 'do_cmd_examine'
+ */
+static void death_examine(void)
+{
+       int item;
+
+       object_type *o_ptr;
+
+       char o_name[80];
+
+       cptr q, s;
+
+
+       /* Start out in "display" mode */
+       p_ptr->command_see = TRUE;
+
+       /* Get an item */
+       q = "Examine which item? ";
+       s = "You have nothing to examine.";
+       if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+
+       /* Get the item (in the pack) */
+       if (item >= 0)
+       {
+	      o_ptr = &inventory[item];
+       }
+
+       /* Get the item (on the floor) */
+       else
+       {
+	      o_ptr = &o_list[0 - item];
+       }
+
+       /* Fully known */
+       o_ptr->ident |= (IDENT_MENTAL);
+
+       /* Description */
+       object_desc(o_name, o_ptr, TRUE, 3);
+       
+       /* Describe */
+       msg_format("Examining %s...", o_name);
+
+       /* Describe it fully */
+       do_cmd_observe(o_ptr, FALSE);
+}
 
 
 
@@ -3601,7 +3712,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 	high_score the_score;
 
 	char out_val[256];
-	char tmp_val[160];
+       	char tmp_val[160];
 
 	int per_screen = (screen_y - 4) / 4;
 
@@ -3696,10 +3807,18 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
+			/* Clean up standard encoded form of "when" */
+			if ((*when == '@') && strlen(when) == 9)
+			{
+				sprintf(tmp_val, "%.4s-%.2s-%.2s",
+				        when + 1, when + 5, when + 7);
+				when = tmp_val;
+			}
+
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
 			        place, the_score.pts, the_score.who,
-			        race_info[pr].title, class_info[pc].title,
+                                p_name + p_info[pr].name, class_info[pc].title,
 			        clev);
 
 			/* Append a "maximum level" */
@@ -3780,6 +3899,152 @@ void display_scores(int from, int to)
 }
 
 
+/*
+ * Hack - save index of player's high score
+ */
+static int score_idx = -1;
+
+
+
+/*
+ * Enters a players name on a hi-score table, if "legal".
+ *
+ * Assumes "signals_ignore_tstp()" has been called.
+ */
+static errr enter_score(void)
+{
+       int j;
+
+       high_score the_score;
+
+
+       /* No score file */
+       if (highscore_fd < 0)
+       {
+	      return (0);
+       }
+
+#ifndef SCORE_WIZARDS
+
+       /* Wizard-mode pre-empts scoring */
+       if (p_ptr->noscore & 0x000F)
+       {
+	      msg_print("Score not registered for wizards.");
+	      msg_print(NULL);
+	      score_idx = -1;
+	      return (0);
+       }
+
+#endif
+
+#ifndef SCORE_BORGS
+
+       /* Borg-mode pre-empts scoring */
+       if (p_ptr->noscore & 0x00F0)
+       {
+	      msg_print("Score not registered for borgs.");
+	      msg_print(NULL);
+	      score_idx = -1;
+	      return (0);
+       }
+#endif
+
+#ifndef SCORE_CHEATERS
+
+       /* Cheaters are not scored */
+       for (j = OPT_cheat_start; j < OPT_cheat_end+1; ++j)
+       {
+	      if (!op_ptr->opt[j]) continue;
+
+	      msg_print("Score not registered for cheaters.");
+	      msg_print(NULL);
+	      score_idx = -1;
+	      return (0);
+       }
+
+#endif
+
+       /* Hack -- Interupted */
+       if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
+       {
+	      msg_print("Score not registered due to interruption.");
+	      msg_print(NULL);
+	      score_idx = -1;
+	      return (0);
+       }
+
+       /* Hack -- Quitter */
+       if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+       {
+	      msg_print("Score not registered due to quitting.");
+	      msg_print(NULL);
+	      score_idx = -1;
+	      return (0);
+       }
+
+
+       /* Clear the record */
+       (void)WIPE(&the_score, high_score);
+  
+       /* Save the version */
+       sprintf(the_score.what, "%u.%u.%u",
+	      VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+
+       /* Calculate and save the points */
+       sprintf(the_score.pts, "%9lu", (long)total_points());
+       the_score.pts[9] = '\0';
+       
+       /* Save the current gold */
+       sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+       the_score.gold[9] = '\0';
+
+       /* Save the current turn */
+       sprintf(the_score.turns, "%9lu", (long)turn);
+       the_score.turns[9] = '\0';
+
+#ifdef HIGHSCORE_DATE_HACK
+       /* Save the date in a hacked up form (9 chars) */
+       sprintf(the_score.day, "%-.6s %-.2s",
+	       ctime(&death_time) + 4, ctime(&death_time) + 22);
+#else
+       /* Save the date in standard encoded form (9 chars) */
+       strftime(the_score.day, 10, "@%Y%m%d", localtime(&death_time));
+#endif
+
+       /* Save the player name (15 chars) */
+       sprintf(the_score.who, "%-.15s", op_ptr->full_name);
+
+       /* Save the player info XXX XXX XXX */
+       sprintf(the_score.uid, "%7u", player_uid);
+       sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
+       sprintf(the_score.p_r, "%2d", p_ptr->prace);
+       sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+
+       /* Save the level and such */
+       sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
+       sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+       sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
+       sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+
+       /* Save the cause of death (31 chars) */
+       sprintf(the_score.how, "%-.31s", p_ptr->died_from);
+
+
+       /* Lock (for writing) the highscore file, or fail */
+       if (fd_lock(highscore_fd, F_WRLCK)) return (1);
+
+       /* Add a new entry to the score list, see where it went */
+       score_idx = highscore_add(&the_score);
+
+       /* Unlock the highscore file, or fail */
+       if (fd_lock(highscore_fd, F_UNLCK)) return (1);
+
+
+       /* Success */
+       return (0);
+}
+
+
 
 /*
  * Enters a players name on a hi-score table, if "legal", and in any
@@ -3787,151 +4052,44 @@ void display_scores(int from, int to)
  *
  * Assumes "signals_ignore_tstp()" has been called.
  */
-static errr top_twenty(void)
+static void top_twenty(void)
 {
-	int j;
+        /* Clear screen */
+        Term_clear();
 
-	high_score the_score;
+        /* No score file */
+        if (highscore_fd < 0)
+        {
+	       msg_print("Score file unavailable.");
+	       msg_print(NULL);
+	       return;
+        }
 
-	time_t ct = time((time_t*)0);
-
-
-	/* Clear screen */
-	Term_clear();
-
-	/* No score file */
-	if (highscore_fd < 0)
+        /* Player's score unavailable */
+        if (score_idx == -1)
 	{
-		msg_print("Score file unavailable.");
-		msg_print(NULL);
-		return (0);
+	       display_scores_aux(0, 10, -1, NULL);
+	       return;
 	}
 
-#ifndef SCORE_WIZARDS
-	/* Wizard-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x000F)
+        /* Hack -- Display the top fifteen scores */
+        else if (score_idx < 10)
 	{
-		msg_print("Score not registered for wizards.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
-	}
-#endif
-
-#ifndef SCORE_BORGS
-	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00F0)
-	{
-		msg_print("Score not registered for borgs.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
-	}
-#endif
-
-#ifndef SCORE_CHEATERS
-	/* Cheaters are not scored */
-	if (p_ptr->noscore & 0xFF00)
-	{
-		msg_print("Score not registered for cheaters.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
-	}
-#endif
-
-	/* Interupted */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
-	{
-		msg_print("Score not registered due to interruption.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
+	       display_scores_aux(0, 15, score_idx, NULL);
 	}
 
-	/* Quitter */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+        /* Display the scores surrounding the player */
+        else
 	{
-		msg_print("Score not registered due to quitting.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
+	       display_scores_aux(0, 5, score_idx, NULL);
+	       display_scores_aux(score_idx - 2, score_idx + 7, score_idx, NULL);
 	}
 
 
-	/* Clear the record */
-	WIPE(&the_score, high_score);
-
-	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-	        O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
-
-	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points());
-	the_score.pts[9] = '\0';
-
-	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
-	the_score.gold[9] = '\0';
-
-	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
-	the_score.turns[9] = '\0';
-
-#ifdef HIGHSCORE_DATE_HACK
-	/* Save the date in a hacked up form (9 chars) */
-	sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
-#else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
-#endif
-
-	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
-
-	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-
-	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
-
-	/* Save the cause of death (31 chars) */
-	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
-
-
-	/* Lock (for writing) the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
-
-	/* Add a new entry to the score list, see where it went */
-	j = highscore_add(&the_score);
-
-	/* Unlock the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
-
-
-	/* Hack -- Display the top fifteen scores */
-	if (j < 10)
-	{
-		display_scores_aux(0, 15, j, NULL);
-	}
-
-	/* Display the scores surrounding the player */
-	else
-	{
-		display_scores_aux(0, 5, j, NULL);
-		display_scores_aux(j - 2, j + 7, j, NULL);
-	}
-
-
-	/* Success */
-	return (0);
+        /* Success */
+        return;
 }
+
 
 
 /*
@@ -4066,6 +4224,141 @@ static void kingly(void)
 	pause_line(23);
 }
 
+/*
+ * Handle character death
+ */
+static void close_game_aux(void)
+{
+  int ch;
+
+  cptr p;
+
+  /* Flush all input keys */
+  flush();
+
+  /* Dump bones file */
+  make_bones();
+
+  /* Prompt */
+  p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, or ESC]";
+
+  /* Handle retirement */
+  if (p_ptr->total_winner) kingly();
+
+  /* Get time of death */
+  (void)time(&death_time);
+
+  /* You are dead */
+  print_tomb();
+
+  /* Hack - Know everything upon death */
+  death_knowledge();
+
+  /* Enter player in high score list */
+  enter_score();
+
+  /* Flush all input keys */
+  flush();
+
+  /* Flush messages */
+  msg_print(NULL);
+
+  /* Forever */
+  while (1)
+    {
+      /* Describe options */
+      Term_putstr(2, 23, -1, TERM_WHITE, p);
+
+      /* Query */
+      ch = inkey();
+
+      /* Exit */
+      if (ch == ESCAPE)
+	{
+	  if (get_check("Do you want to quit? ")) break;
+	}
+
+      /* File dump */
+      else if (ch == 'f')
+	{
+	  char ftmp[80];
+
+	  sprintf(ftmp, "%s.txt", op_ptr->base_name);
+
+	  if (get_string("File name: ", ftmp, 80))
+	    {
+	      if (ftmp[0] && (ftmp[0] != ' '))
+		{
+		  errr err;
+
+		  /* Save screen */
+		  screen_save();
+
+		  /* Dump a character file */
+		  err = file_character(ftmp, FALSE);
+
+		  /* Load screen */
+		  screen_load();
+
+		  /* Check result */
+		  if (err)
+		    {
+		      msg_print("Character dump failed!");
+		    }
+                                        else
+					  {
+					    msg_print("Character dump successful.");
+					  }
+
+		  /* Flush messages */
+		  msg_print(NULL);
+		}
+	    }
+	}
+
+      /* Show more info */
+      else if (ch == 'i')
+	{
+	  /* Save screen */
+	  screen_save();
+
+	  /* Show the character */
+	  show_info();
+
+	  /* Load screen */
+	  screen_load();
+	}
+
+      /* Show top scores */
+      else if (ch == 't')
+	{
+	  /* Save screen */
+	  screen_save();
+
+	  /* Show the scores */
+	  top_twenty();
+
+
+	  /* Load screen */
+	  screen_load();
+	}
+
+      /* Examine an item */
+      else if (ch == 'x')
+	{
+	  death_examine();
+	}
+    }
+
+
+  /* Save dead player */
+  if (!save_player())
+    {
+      msg_print("death save failed!");
+      msg_print(NULL);
+    }
+
+}
 
 /*
  * Close up the current game (player may or may not be dead)
@@ -4110,23 +4403,8 @@ void close_game(void)
 	/* Handle death */
 	if (p_ptr->is_dead)
 	{
-		/* Handle retirement */
-		if (p_ptr->total_winner) kingly();
-
-		/* You are dead */
-		print_tomb();
-
-		/* Show more info */
-		show_info();
-
-		/* Save memories (and mark savefile as "dead") */
-		if (!save_player()) msg_print("death save failed!");
-
-		/* Dump bones file */
-		make_bones();
-
-		/* Handle score, show Top scores */
-		top_twenty();
+	  /* Auxiliary routine */
+	  close_game_aux();
 	}
 
 	/* Still alive */

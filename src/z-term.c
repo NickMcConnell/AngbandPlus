@@ -2218,7 +2218,7 @@ errr term_init(term *t, int w, int h, int k)
 
 
 	/* Wipe it */
-	WIPE(t, term);
+	(void)WIPE(t, term);
 
 
 	/* Prepare the input queue */

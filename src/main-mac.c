@@ -1873,7 +1873,7 @@ static void term_data_hack(term_data *td)
 	GetFNum("\pmonaco", &fid);
 
 	/* Wipe it */
-	WIPE(td, term_data);
+	(void)WIPE(td, term_data);
 
 	/* No color */
 	td->last = -1;

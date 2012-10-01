@@ -1791,7 +1791,7 @@ bool set_food(int v)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
-	/* Disturb, except if going from full to normal. -LM- */
+	/* Disturb, except if going from full to normal. */
 	if ((disturb_state) && (new_aux != 3)) disturb(0, 0);
 
 	/* Recalculate bonuses */
@@ -1806,57 +1806,6 @@ bool set_food(int v)
 	/* Result */
 	return (TRUE);
 }
-
-
-/*
- * Set "p_ptr->word_recall", notice observable changes
- */
-bool set_recall(int v)
-{
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	/* Open */
-	if (v)
-	{
-		if (!p_ptr->word_recall)
-		{
-			msg_print("The air about you becomes charged...");
-			notice = TRUE;
-		}
-	}
-
-	/* Shut */
-	else
-	{
-		if (p_ptr->word_recall)
-		{
-			msg_print("A tension leaves the air around you...");
-			notice = TRUE;
-		}
-	}
-
-	/* Use the value */
-	p_ptr->word_recall = v;
-
-	/* Nothing to notice */
-	if (!notice) return (FALSE);
-
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
-
-	/* Redraw status */
-	p_ptr->redraw |= PR_STATUS;
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Result */
-	return (TRUE);
-}
-
 
 /*
  * Set "p_ptr->word_recall", notice observable changes
@@ -1946,7 +1895,7 @@ void check_experience(void)
 		sound(SOUND_LEVEL);
 
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2157,7 +2106,7 @@ void monster_death(int m_idx)
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
 
-	/* Hack -- nothing's more annoying than a chest that doesn't appear. -LM- */
+	/* Hack -- nothing's more annoying than a chest that doesn't appear. */
 	if ((r_ptr->flags1 & (RF1_DROP_CHEST)) && (r_ptr->flags1 & (RF1_DROP_90))) number = 1;
 
 	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
@@ -2180,39 +2129,45 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make Gold.  Reduced to 30% chance instead of 50%. -LM- */
+		/* Make Gold.  Reduced to 30% chance instead of 50%. */
 		if (do_gold && (!do_item || (rand_int(100) < 30)))
 		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+		  /* Make some gold */
+		  if (make_gold(i_ptr)) {
+		    /* Assume seen XXX XXX XXX */
+		    dump_gold++;
+		    /* Drop it in the dungeon */
+		    drop_near(i_ptr, -1, y, x);
 
-			/* Assume seen XXX XXX XXX */
-			dump_gold++;
+		  }
 		}
-
-		/* Make chest. -LM- */
+		/* Make chest. */
 		else if (r_ptr->flags1 & (RF1_DROP_CHEST))
-		{
-			required_tval = TV_CHEST;
-			(void)make_object(i_ptr, FALSE, FALSE, TRUE);
-			required_tval = 0;
-
-			/* Assume seen XXX XXX XXX */
-			dump_item++;
-		}
-
+		  {
+		    required_tval = TV_CHEST;
+		    if (make_object(i_ptr, FALSE, FALSE, TRUE)) {
+		      /* Assume seen XXX XXX XXX */
+		      dump_item++;
+		      /* Drop it in the dungeon */
+		      drop_near(i_ptr, -1, y, x);
+		    }
+		    required_tval = 0;
+		    
+		  }
+		
 		/* Make Object */
 		else
-		{
-			/* Make an object */
-			if (!make_object(i_ptr, good, great, FALSE)) continue;
+		  {
+		    /* Make an object */
+		    if (make_object(i_ptr, good, great, FALSE)) {
+		      /* Assume seen XXX XXX XXX */
+		      dump_item++;
+		      /* Drop it in the dungeon */
+		      drop_near(i_ptr, -1, y, x);
+		    }
+		  }
+		
 
-			/* Assume seen XXX XXX XXX */
-			dump_item++;
-		}
-
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
 	}
 
 	/* Reset the object level */
@@ -2325,12 +2280,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s32b div, new_exp, new_exp_frac;
 
 	char	path[1024];
 
 
-	/* Monsters in stasis are invulnerable. -LM- */
+	/* Hack - Monsters in stasis are invulnerable. */
 	if (m_ptr->stasis) return (FALSE);
 
 	/* Redraw (later) if needed */
@@ -2339,14 +2296,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-	/* Hack - Cancel any special player stealth magics. -LM- */
+	/* Hack - Cancel any special player stealth magics. */
 	if (p_ptr->superstealth)
 	{
 		set_superstealth(0);
 	}
 
 	/* Complex message. Moved from melee and archery, now allows spell and 
-       * magical items damage to be debugged by wizards.  -LM-
+         * magical items damage to be debugged by wizards.  -LM-
 	 */
 	if (p_ptr->wizard)
 	{
@@ -2367,19 +2324,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Make a sound */
 		sound(SOUND_KILL);
 
-		/* Increase the noise level slightly. -LM- */
+		/* Increase the noise level slightly. */
 		if (add_wakeup_chance <= 8000) add_wakeup_chance += 500;
 
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			msg_format("%^s%s", m_name, note);
+		        message_format(MSG_KILL, p_ptr->lev, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			msg_format("You have killed %s.", m_name);
+		        message_format(MSG_KILL, p_ptr->lev, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2388,13 +2345,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			msg_format("You have destroyed %s.", m_name);
+		        message_format(MSG_KILL, p_ptr->lev, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			msg_format("You have slain %s.", m_name);
+		        message_format(MSG_KILL, p_ptr->lev, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
@@ -2425,10 +2382,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num--;
 
 		/* When the player kills a player ghost, the bones file that 
-		 * it used is (often) deleted. -LM-
+		 * it used is (often) deleted.
 		 */
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
@@ -2444,10 +2401,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
 			/* Count kills in all lives */
-			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
+			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -2592,6 +2549,9 @@ void verify_panel(void)
 		if (i < 0) i = 0;
 		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
 		
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = (DUNGEON_HGT - SCREEN_HGT)/2;
+	
 		/* New panel row */
 		if (p_ptr->wy != i)
 		{
@@ -2605,6 +2565,9 @@ void verify_panel(void)
 		i = px - SCREEN_WID / 2;
 		if (i < 0) i = 0;
 		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+	
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = (DUNGEON_WID-SCREEN_WID)/2;
 	
 		/* New panel col */
 		if (p_ptr->wx != i)
@@ -3275,7 +3238,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	char out_val[160];
 
-	int floor_list[23], floor_num;
+	int floor_list[24], floor_num;
 
 
 	/* Repeat forever */
@@ -3414,7 +3377,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Scan all objects being carried */
 				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 				{
-					char o_name[80];
+					char o_name[120];
 
 					object_type *o_ptr;
 
@@ -3452,8 +3415,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		}
 
 
-		/* Scan all objects in the grid */
-		if (scan_floor(floor_list, &floor_num, y, x, 0x02))
+		/* Scan for floor objects */
+		floor_num = scan_floor(floor_list, 24, y, x, 0x02);
+
+		/* Actual pile */
+		if (floor_num > 1)
 		{                               
 			/* Not boring */
 			boring = FALSE;
@@ -3462,7 +3428,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			{
 				if (floor_num == 1)
 				{
-					char o_name[80];
+					char o_name[120];
 
 					object_type *o_ptr;
 
@@ -3503,7 +3469,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					screen_save();
 
 					/* Display */
-					show_floor(y, x);
+					show_floor(floor_list, floor_num);
 
 					/* Prompt */
 					prt("Hit any key to continue", 0, 0);
@@ -3540,7 +3506,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Describe it */
 			if (o_ptr->marked)
 			{
-				char o_name[80];
+				char o_name[120];
 
 				/* Not boring */
 				boring = FALSE;
@@ -3599,7 +3565,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
-			/* Hack -- special treatment for certain terrain features. -LM- */
+			/* Hack -- special treatment for certain terrain features. */
 			if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || (feat == FEAT_TREE))
 			{
 				s3 = "";

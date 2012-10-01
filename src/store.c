@@ -274,7 +274,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	if ((value <= 0) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7a[rand_int(MAX_COMMENT_7A)]);
+		message(MSG_STORE1, 0, comment_7a[rand_int(MAX_COMMENT_7A)]);
 
 		/* Sound */
 		sound(SOUND_STORE1);
@@ -284,7 +284,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value < guess) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7b[rand_int(MAX_COMMENT_7B)]);
+		message(MSG_STORE2, 0, comment_7b[rand_int(MAX_COMMENT_7B)]);
 
 		/* Sound */
 		sound(SOUND_STORE2);
@@ -294,7 +294,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value > guess) && (value < (4 * guess)) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7c[rand_int(MAX_COMMENT_7C)]);
+		message(MSG_STORE3, 0, comment_7c[rand_int(MAX_COMMENT_7C)]);
 
 		/* Sound */
 		sound(SOUND_STORE3);
@@ -304,7 +304,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value > guess) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7d[rand_int(MAX_COMMENT_7D)]);
+		message(MSG_STORE4, 0, comment_7d[rand_int(MAX_COMMENT_7D)]);
 
 		/* Sound */
 		sound(SOUND_STORE4);
@@ -340,63 +340,6 @@ static store_type *st_ptr = NULL;
  */
 static owner_type *ot_ptr = NULL;
 
-
-
-
-
-
-/*
- * Buying and selling adjustments for race combinations, as a percent of 
- * normal price.
- * Entry[owner][player] gives the basic "cost inflation".
- */
-static byte rgold_adj[MAX_RACES][MAX_RACES] =
-{
-	/*Hum, HfE, Elf, Hob, Gno, Dwa, HfO, HfT, Dun, HiE, Mai, SFa, Ent*/
-
-	/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 105, 110, 115},
-
-	/* Half-Elf */
-	{ 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 105, 115, 105},
-
-	/* Elf */
-	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100, 105, 115, 100},
-
-	/* Hobbit */
-	{ 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 105, 110, 105},
-
-	/* Gnome */
-	{ 110, 110, 110, 105,  95, 110, 115, 125, 115, 110, 105, 110, 105},
-
-	/* Dwarf */
-	{ 105, 115, 130, 105, 105,  95, 120, 125, 105, 130, 105, 120, 125},
-
-	/* Half-Orc */
-	{ 115, 120, 125, 115, 115, 120, 90, 105, 115, 125, 115, 115, 130},
-
-	/* Half-Troll */
-	{ 125, 120, 115, 110, 110, 120, 105, 85, 125, 115, 115, 115, 115},
-
-	/* Dunedain  */
-	{ 100, 105, 105, 110, 110, 110, 120, 125, 100, 105, 105, 100, 115},
-
-	/* High_Elf */
-	{ 110, 105, 100, 105, 110, 130, 125, 130, 110, 100, 105, 100, 100},
-
-	/* Maia */
-	{ 105, 105, 105, 105, 105, 105, 110, 110, 105, 105, 100, 105, 105},
-
-	/* Shadow Fairy */
-	{ 110, 115, 115, 115, 110, 120, 115, 120, 110, 125, 105,  95, 110},
-
-	/* Ent */
-	{ 115, 105, 100, 105, 105, 125, 130, 120, 115, 100, 105, 110, 100}
-};
-
-
-
-
 /*
  * Determine the price of an object (qty one) in a store.  Altered in 
  * Oangband.
@@ -424,7 +367,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 
 	/* Compute the racial factor */
-	racial_factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
+        racial_factor = g_info[(ot_ptr->owner_race * MAX_P_IDX) + p_ptr->prace];
 
 	/* Add in the charisma factor */
 	charisma_factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -603,7 +546,7 @@ static void mass_produce(object_type *o_ptr)
 
 
 	/* Pick a discount.  Despite the changes in the formulas, average discount 
-	 * frequency hasn't changed much. -LM- */
+	 * frequency hasn't changed much. */
 	if (cost < 5)
 	{
 		discount = 0;
@@ -733,13 +676,13 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Combine quantity, lose excess items */
 	o_ptr->number = (total > 99) ? 99 : total;
 
-	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) together. -LM- */
+	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) together.  */
 	if (o_ptr->tval == TV_ROD)
 	{
 		o_ptr->pval += j_ptr->pval;
 	}
 
-	/* Hack -- if wands are stacking, combine the charges. -LM- */
+	/* Hack -- if wands are stacking, combine the charges. */
 	if (o_ptr->tval == TV_WAND)
 	{
 		o_ptr->pval += j_ptr->pval;
@@ -887,7 +830,7 @@ static bool store_will_buy(object_type *o_ptr)
 				break;
 
 				/* Hack -- The temple will buy known blessed swords and 
-				 * polearms. -LM-
+				 * polearms.
 				 */
 				case TV_SWORD:
 				case TV_POLEARM:
@@ -1272,7 +1215,7 @@ static void store_delete(void)
 		if ((st_ptr->stock[what].tval != TV_BOLT) && (st_ptr->stock[what].tval != TV_ARROW) && (st_ptr->stock[what].tval != TV_SHOT)) num = 1;
 	}
 
-	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. -LM- */
+	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. */
 	if ((st_ptr->stock[what].tval == TV_ROD) || (st_ptr->stock[what].tval == TV_WAND))
 	{
 		st_ptr->stock[what].pval -= num * st_ptr->stock[what].pval / st_ptr->stock[what].number;
@@ -1314,7 +1257,7 @@ static void store_create(void)
 		if (store_num == 6)
 		{
 			/* Pick a level for object/magic.  Now depends partly 
-			 * on player level. -LM-
+			 * on player level.
 			 */
 			level = 5 + p_ptr->lev / 2 + rand_int(30);
 
@@ -1357,7 +1300,7 @@ static void store_create(void)
 		/* Mega-Hack -- no chests in stores */
 		if (i_ptr->tval == TV_CHEST) continue;
 
-		/* Mega-Hack -- No early Longbows. -LM- */
+		/* Mega-Hack -- No early Longbows. */
 		if ((i_ptr->tval == TV_BOW) && (i_ptr->sval == SV_LONG_BOW) &&
 			(p_ptr->lev < 10)) continue;
 
@@ -1461,7 +1404,7 @@ static void display_entry(int item)
 	object_type *o_ptr;
 	s32b x;
 
-	char o_name[80];
+	char o_name[120];
 	char out_val[160];
 
 	int maxwid = 75;
@@ -1667,12 +1610,13 @@ static void display_store(void)
 	/* Normal stores */
 	else
 	{
-		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
-		cptr owner_name = (ot_ptr->owner_name);
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+
+	        cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
+		cptr owner_name = &(b_name[ot_ptr->owner_name]);
+                cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
 
 		/* Put the owner name and race */
-		sprintf(buf, "%s (%s)", owner_name, race_name);
+      		sprintf(buf, "%s (%s)", owner_name, race_name);
 		put_str(buf, 3, 10);
 
 		/* Show the max price in the store (above prices) */
@@ -1690,6 +1634,7 @@ static void display_store(void)
 
 		/* Label the asking price (in stores) */
 		put_str("Price", 5, 71);
+
 	}
 
 	/* Display the current gold */
@@ -1714,7 +1659,7 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	char buf[160];
 
-	char o_name[80];
+	char o_name[120];
 
 	char out_val[160];
 
@@ -2462,7 +2407,7 @@ static void store_purchase(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[120];
 
 	char out_val[160];
 
@@ -2511,7 +2456,7 @@ static void store_purchase(void)
 	object_copy(i_ptr, o_ptr);
 
 	/* Hack -- If a rod or wand, allocate total maximum timeouts or charges 
-	 * between those purchased and left on the shelf. -LM-
+	 * between those purchased and left on the shelf.
 	 */
 	reduce_charges(i_ptr, i_ptr->number - amt);
 
@@ -2622,7 +2567,7 @@ static void store_purchase(void)
 				{
 					int i;
 
-					/* Shuffle.  Made retiring more likely.  -LM- */
+					/* Shuffle.  Made retiring more likely. */
 					if (rand_int(STORE_SHUFFLE) < 5)
 					{
 						/* Message */
@@ -2752,7 +2697,7 @@ static void store_sell(void)
 
 	cptr q, s;
 
-	char o_name[80];
+	char o_name[120];
 
 
 	/* Home */
@@ -2768,7 +2713,7 @@ static void store_sell(void)
 		item_tester_hook = store_will_buy;
 	}
 
-	/* Start off in equipment mode. -LM- */
+	/* Start off in equipment mode. */
 	p_ptr->command_wrk = (USE_INVEN);
 
 	/* Get an item */
@@ -2814,7 +2759,7 @@ static void store_sell(void)
 	i_ptr->number = amt;
 
 	/* Hack -- If a rod or wand, allocate total maximum
-	 * timeouts or charges to those being sold. -LM-
+	 * timeouts or charges to those being sold.
 	 */
 	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 	{
@@ -2896,7 +2841,7 @@ static void store_sell(void)
 			i_ptr->number = amt;
 
 			/* Hack -- If a rod or wand, let the shopkeeper know just 
-			 * how many charges he really paid for. -LM-
+			 * how many charges he really paid for.
 			 */
 			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 			{
@@ -2918,7 +2863,7 @@ static void store_sell(void)
 
 
 			/* Hack -- Allocate charges between those wands or rods sold 
-			 * and retained, unless all are being sold. -LM-
+			 * and retained, unless all are being sold.
 			 */
 			distribute_charges(o_ptr, i_ptr, amt);
 
@@ -3376,7 +3321,6 @@ void do_cmd_store(void)
 
 	int tmp_chr;
 
-
 	/* Verify a store */
 	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
 	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
@@ -3419,8 +3363,7 @@ void do_cmd_store(void)
 
 	/* Save the store and owner pointers */
 	st_ptr = &store[store_num];
-	ot_ptr = &owners[store_num][st_ptr->owner];
-
+        ot_ptr = &b_info[(store_num * MAX_B_IDX) + st_ptr->owner];
 
 	/* Start at the beginning */
 	store_top = 0;
@@ -3511,7 +3454,7 @@ void do_cmd_store(void)
 				object_type *i_ptr;
 				object_type object_type_body;
 
-				char o_name[80];
+				char o_name[120];
 
 
 				/* Give a message */
@@ -3624,12 +3567,11 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
 	{
-		st_ptr->owner = rand_int(MAX_OWNERS);
+		st_ptr->owner = rand_int(MAX_B_IDX);
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
-
+        ot_ptr = &b_info[(store_num * MAX_B_IDX) + st_ptr->owner];
 
 	/* Reset the owner data */
 	st_ptr->insult_cur = 0;
@@ -3677,7 +3619,8 @@ void store_maint(int which)
 	st_ptr = &store[store_num];
 
 	/* Activate the owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+        ot_ptr = &b_info[(store_num * MAX_B_IDX) + st_ptr->owner];
+
 
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
@@ -3760,10 +3703,10 @@ void store_init(int which)
 
 
 	/* Pick an owner */
-	st_ptr->owner = rand_int(MAX_OWNERS);
+	st_ptr->owner = rand_int(MAX_B_IDX);
 
 	/* Activate the new owner */
-	ot_ptr = &owners[store_num][st_ptr->owner];
+        ot_ptr = &b_info[(store_num * MAX_B_IDX) + st_ptr->owner];
 
 
 	/* Initialize the store */

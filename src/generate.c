@@ -108,7 +108,7 @@
  */
 #define DUN_ROOMS			50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL		200	/* (Level + 3)/chance of unusual room */
-#define DUN_INTERESTING  	22	/* 1/chance of interesting room (type 7) -LM- */
+#define DUN_INTERESTING  	22	/* 1/chance of interesting room (type 7) */
 #define DUN_DEST			30	/* 1/chance of having a destroyed level */
 #define EMPTY_LEVEL_CHANCE 	16  	/* 1/chance of being 'empty'.  From Zangband. */
 #define LIGHT_EMPTY  		4  	/* 3/# chance of arena level being lit, max. */
@@ -449,72 +449,6 @@ static void place_random_stairs(int y, int x)
 	}
 }
 
-
-/*
- * Place a secret door at the given location
- */
-static void place_secret_door(int y, int x)
-{
-	/* Create secret door */
-	cave_set_feat(y, x, FEAT_SECRET);
-}
-
-
-/*
- * Place a random type of door at the given location
- */
-static void place_random_door(int y, int x)
-{
-	int tmp;
-
-	/* Choose an object */
-	tmp = rand_int(1000);
-
-	/* Open doors (300/1000) */
-	if (tmp < 300)
-	{
-		/* Create open door */
-		cave_set_feat(y, x, FEAT_OPEN);
-	}
-
-	/* Broken doors (100/1000) */
-	else if (tmp < 400)
-	{
-		/* Create broken door */
-		cave_set_feat(y, x, FEAT_BROKEN);
-	}
-
-	/* Secret doors (200/1000) */
-	else if (tmp < 600)
-	{
-		/* Create secret door */
-		cave_set_feat(y, x, FEAT_SECRET);
-	}
-
-	/* Closed doors (300/1000) */
-	else if (tmp < 900)
-	{
-		/* Create closed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
-	}
-
-	/* Locked doors (99/1000) */
-	else if (tmp < 999)
-	{
-		/* Create locked door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
-	}
-
-	/* Stuck doors (1/1000) */
-	else
-	{
-		/* Create jammed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
-	}
-}
-
-
-
 /*
  * Places some staircases near walls
  */
@@ -773,7 +707,7 @@ void destroy_level(bool new_level)
 						cave_set_feat(y, x, FEAT_MAGMA);
 					}
 
-					/* Rubble. -LM- */
+					/* Rubble. */
 					else if (t < 130)
 					{
 						/* Create rubble */
@@ -1076,6 +1010,8 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 
 /*
  * Type 1 -- normal rectangular rooms
+ *
+ * Possibility of many special features by LM
  */
 static void build_type1(int y0, int x0)
 {
@@ -1106,7 +1042,7 @@ static void build_type1(int y0, int x0)
 	/* 98% of the time, generate inner floors */
 	if (randint(50) != 1) generate_fill(y1, x1, y2, x2, FEAT_FLOOR);
 
-	/* Upon occasion, the ceiling has collapsed. -LM- */
+	/* Upon occasion, the ceiling has collapsed. */
 	else if (randint(3) == 1)
 	{
 		for (y = y1; y <= y2; y++)
@@ -1154,10 +1090,10 @@ static void build_type1(int y0, int x0)
 		}
 	}
 
-	/* Or a lake now fills the room. -LM- */
+	/* Or a lake now fills the room. */
 	else if (randint(5) > 3) generate_fill(y1, x1, y2, x2, FEAT_WATER);
 
-	/* Or trees grow under magical light. -LM- */
+	/* Or trees grow under magical light. */
 	else
 	{
 		/* From light and earth... */
@@ -1833,7 +1769,7 @@ static bool vault_aux_dragon(int r_idx)
 	/* Hack -- Require "d" or "D" monsters */
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
 
-	/* Hack -- Require correct "breath attack", if any is given. -LM- */
+	/* Hack -- Require correct "breath attack", if any is given. */
 	if (vault_aux_dragon_mask4)
 	{
 		if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
@@ -1883,7 +1819,7 @@ static bool vault_aux_moria(int r_idx)
 }
 
 /*
- * Hack - select beings of the four basic elements. -LM-
+ * Hack - select beings of the four basic elements.
  */
 static bool vault_aux_elemental(int r_idx)
 {
@@ -2274,7 +2210,7 @@ static void build_type6(int y0, int x0)
 	}
 
 	/* Dragon pit. Dragons are at least as tough as demons, so they now 
-	 * appear as deep. -LM-
+	 * appear as deep.
 	 */
 	else if (rand_int(3) != 0)
 	{
@@ -2361,7 +2297,7 @@ static void build_type6(int y0, int x0)
 				break;
 			}
 
-			/* Dragons of all types. -LM- */
+			/* Dragons of all types. */
 			default:
 			{
 				/* Message */
@@ -2381,7 +2317,7 @@ static void build_type6(int y0, int x0)
 	}
 
 	/* Demon pit.  Appears at the same level as dragon pits do, one-half as 
-	 * often. -LM-
+	 * often.
 	 */
 	else
 	{
@@ -2654,6 +2590,8 @@ static void get_tl_mon_restrictions(void)
 
 /*
  * Hack -- fill in "vault" rooms and themed levels
+ *
+ * More 'features' and other support added by LM
  */
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool light, bool icky)
 {
@@ -2668,7 +2606,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 	get_mon_num_hook_temp = NULL;
 
 	/* Themed levels usually require monster restrictions that take effect 
-	 * if no other restrictions are currently in force. -LM-
+	 * if no other restrictions are currently in force.
 	 */
 	if (p_ptr->themed_level)
 	{
@@ -2702,7 +2640,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 			/* Lay down a floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
 
-			/* Part of a vault.  Can be lit.  May be "icky". -LM- */
+			/* Part of a vault.  Can be lit.  May be "icky". */
 			if (icky) cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
 			else cave_info[y][x] |= (CAVE_ROOM);
 			if (light) cave_info[y][x] |= (CAVE_GLOW);
@@ -2731,7 +2669,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					cave_set_feat(y, x, FEAT_PERM_INNER);
 					break;
 				}
-				/* Treasure seam, in either magma or quartz. -LM- */
+				/* Treasure seam, in either magma or quartz. */
 				case '*':
 				{
 					if (randint(2) == 1) 
@@ -2739,25 +2677,25 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					else cave_set_feat(y, x, FEAT_QUARTZ_K);
 					break;
 				}
-				/* Lava. -LM- */
+				/* Lava. */
 				case '@':
 				{
 					cave_set_feat(y, x, FEAT_LAVA);
 					break;
 				}
-				/* Water. -LM- */
+				/* Water. */
 				case 'x':
 				{
 					cave_set_feat(y, x, FEAT_WATER);
 					break;
 				}
-				/* Tree. -LM- */
+				/* Tree. */
 				case ';':
 				{
 					cave_set_feat(y, x, FEAT_TREE);
 					break;
 				}
-				/* Rubble. -LM- */
+				/* Rubble. */
 				case ':':
 				{
 					cave_set_feat(y, x, FEAT_RUBBLE);
@@ -2834,7 +2772,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 			if (*t == ' ') continue;
 
 			/* All alphabetic characters, other than 'X' and 'x', 
-			 * signify monster races. -LM-
+			 * signify monster races.
 			 */
 			if (isalpha(*t) && (*t != 'x') && (*t != 'X'))
 			{
@@ -2856,7 +2794,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 			/* Otherwise, analyze the symbol */
 			else switch (*t)
 			{
-				/* An ordinary monster, object (sometimes good), or trap. -LM- */
+				/* An ordinary monster, object (sometimes good), or trap. */
 				case '1':
 				{
 					if (rand_int(3) == 0)
@@ -2879,7 +2817,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					}
 					break;
 				}
-				/* Slightly out of depth monster. -LM- */
+				/* Slightly out of depth monster. */
 				case '2':
 				{
 					monster_level = p_ptr->depth + 3;
@@ -2887,7 +2825,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					monster_level = p_ptr->depth;
 					break;
 				}
-				/* Slightly out of depth object. -LM- */
+				/* Slightly out of depth object. */
 				case '3':
 				{
 					object_level = p_ptr->depth + 3;
@@ -2912,7 +2850,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					}
 					break;
 				}
-				/* Out of depth object. -LM- */
+				/* Out of depth object. */
 				case '5':
 				{
 					object_level = p_ptr->depth + 7;
@@ -2920,7 +2858,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					object_level = p_ptr->depth;
 					break;
 				}
-				/* Out of depth monster. -LM- */
+				/* Out of depth monster. */
 				case '6':
 				{
 					monster_level = p_ptr->depth + 7;
@@ -2928,7 +2866,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					monster_level = p_ptr->depth;
 					break;
 				}
-				/* Very out of depth object. -LM- */
+				/* Very out of depth object. */
 				case '7':
 				{
 					object_level = p_ptr->depth + 15;
@@ -2936,7 +2874,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					object_level = p_ptr->depth;
 					break;
 				}
-				/* Very out of depth monster. -LM- */
+				/* Very out of depth monster. */
 				case '8':
 				{
 					monster_level = p_ptr->depth + 20;
@@ -2968,7 +2906,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 					break;
 				}
 
-				/* A chest. -LM- */
+				/* A chest. */
 				case '~':
 				{
 					required_tval = TV_CHEST;
@@ -2981,13 +2919,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Treasure. -LM- */
+				/* Treasure. */
 				case '$':
 				{
 					place_gold(y, x);
 					break;
 				}
-				/* Armour. -LM- */
+				/* Armour. */
 				case ']':
 				{
 					object_level = p_ptr->depth + 3;
@@ -3012,7 +2950,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Weapon. -LM- */
+				/* Weapon. */
 				case '|':
 				{
 					object_level = p_ptr->depth + 3;
@@ -3030,7 +2968,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Ring. -LM- */
+				/* Ring. */
 				case '=':
 				{
 					required_tval = TV_RING;
@@ -3045,7 +2983,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Amulet. -LM- */
+				/* Amulet. */
 				case '"':
 				{
 					required_tval = TV_AMULET;
@@ -3060,7 +2998,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Potion. -LM- */
+				/* Potion. */
 				case '!':
 				{
 					required_tval = TV_POTION;
@@ -3075,7 +3013,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Scroll. -LM- */
+				/* Scroll. */
 				case '?':
 				{
 					required_tval = TV_SCROLL;
@@ -3090,7 +3028,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Staff. -LM- */
+				/* Staff. */
 				case '_':
 				{
 					required_tval = TV_STAFF;
@@ -3105,7 +3043,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Wand or rod. -LM- */
+				/* Wand or rod. */
 				case '-':
 				{
 					if (rand_int(100) < 50) required_tval = TV_WAND;
@@ -3121,7 +3059,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 					break;
 				}
-				/* Food or mushroom. -LM- */
+				/* Food or mushroom. */
 				case ',':
 				{
 					required_tval = TV_FOOD;
@@ -3138,17 +3076,17 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 		}
 	}
 
-	/* Clear any default monster restrictions. -LM- */
+	/* Clear any default monster restrictions. */
 	get_mon_num_hook_temp = NULL;
 
-	/* Clear any current monster restrictions. -LM- */
+	/* Clear any current monster restrictions. */
 	if (get_mon_num_hook)
 	{
 		get_mon_num_hook = NULL;
 		get_mon_num_prep();
 	}
 
-	/* Ensure that the player is always placed in a themed level. -LM- */
+	/* Ensure that the player is always placed in a themed level. */
 	if ((p_ptr->themed_level) && (!placed))
 	{
 		new_player_spot();
@@ -3159,6 +3097,8 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
 
 /*
  * Type 7 -- interesting rooms. -LM- (see "v_info.txt")
+ *
+ * Depth check LM
  */
 static void build_type7(int y0, int x0)
 {
@@ -3174,7 +3114,7 @@ static void build_type7(int y0, int x0)
 		/* Access the vault */
 		v_ptr = &v_info[i];
 
-		/* Accept each interesting room that is acceptable for this depth. -LM- */
+		/* Accept each interesting room that is acceptable for this depth. */
 		if ((v_ptr->typ == 7) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth))
 		{
@@ -3195,7 +3135,7 @@ static void build_type7(int y0, int x0)
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
-		/* Accept the first interesting room that is acceptable for this depth. -LM- */
+		/* Accept the first interesting room that is acceptable for this depth. */
 		if ((v_ptr->typ == 7) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
@@ -3226,7 +3166,7 @@ static void build_type8(int y0, int x0)
 		/* Access the vault */
 		v_ptr = &v_info[i];
 
-		/* Accept each lesser vault that is acceptable for this depth. -LM- */
+		/* Accept each lesser vault that is acceptable for this depth. */
 		if ((v_ptr->typ == 8) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth))
 		{
@@ -3247,7 +3187,7 @@ static void build_type8(int y0, int x0)
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
-		/* Accept the first lesser vault that is acceptable for this depth. -LM- */
+		/* Accept the first lesser vault that is acceptable for this depth. */
 		if ((v_ptr->typ == 8) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
@@ -3273,6 +3213,8 @@ static void build_type8(int y0, int x0)
 
 /*
  * Type 9 -- greater vaults (see "v_info.txt")
+ *
+ * Depth check LM
  */
 static void build_type9(int y0, int x0)
 {
@@ -3288,7 +3230,7 @@ static void build_type9(int y0, int x0)
 		/* Access the vault */
 		v_ptr = &v_info[i];
 
-		/* Accept each greater vault that is acceptable for this depth. -LM- */
+		/* Accept each greater vault that is acceptable for this depth. */
 		if ((v_ptr->typ == 9) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth))
 		{
@@ -3309,7 +3251,7 @@ static void build_type9(int y0, int x0)
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
 
-		/* Accept the first greater vault that is acceptable for this depth. -LM- */
+		/* Accept the first greater vault that is acceptable for this depth. */
 		if ((v_ptr->typ == 9) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
@@ -3863,7 +3805,7 @@ static void cave_gen(void)
 	empty_level = FALSE;
 
 
-	/* It is possible for levels to be themed. -LM- */
+	/* It is possible for levels to be themed. */
 	if ((rand_int(THEMED_LEVEL_CHANCE) == 0) && (p_ptr->depth >= 20) &&
  		((turn - old_turn) >= 1000) && build_themed_level())
 	{
@@ -3962,13 +3904,16 @@ static void cave_gen(void)
 			k = rand_int(100);
 
 			/* Attempt a very unusual room. */
+			/* Big Smelly Hack - no vaults on quest levels */
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth + 3)
 			{
+			        
+
 				/* Type 8 -- Greater vault (25%) */
-				if ((k < 25) && room_build(by, bx, 9)) continue;
+				if (!(is_quest(p_ptr->depth)) && (k < 25) && room_build(by, bx, 9)) continue;
 
 				/* Type 7 -- Lesser vault (30%) */
-				if ((k < 55) && room_build(by, bx, 8)) continue;
+				if (!(is_quest(p_ptr->depth)) && (k < 55) && room_build(by, bx, 8)) continue;
 
 				/* Type 6 -- Monster pit (12%) */
 				if ((k < 67) && room_build(by, bx, 6)) continue;
@@ -3987,7 +3932,7 @@ static void cave_gen(void)
 			if ((k < 100) && room_build(by, bx, 2)) continue;
 		}
 
-		/* Attempt an interesting room. -LM- */
+		/* Attempt an interesting room. */
 		if (randint(DUN_INTERESTING) == 1)
 		{
 			if (room_build(by, bx, 7)) continue;
@@ -4116,6 +4061,36 @@ static void cave_gen(void)
 	for (i = i + k; i > 0; i--)
 	{
 		(void)alloc_monster(0, TRUE);
+	}
+
+	/* Ensure quest monsters */
+	if (is_quest(p_ptr->depth))
+	{
+		/* Ensure quest monsters */
+		for (i = 1; i < MAX_R_IDX; i++)
+		{
+			monster_race *r_ptr = &r_info[i];
+
+			/* Ensure quest monsters */
+			if ((r_ptr->flags1 & (RF1_QUESTOR)) &&
+			    (r_ptr->level == p_ptr->depth) &&
+			    (r_ptr->cur_num <= 0))
+			{
+				int y, x;
+
+				/* Pick a location */
+				while (1)
+				{
+					y = rand_int(DUNGEON_HGT);
+					x = rand_int(DUNGEON_WID);
+
+					if (cave_naked_bold(y, x)) break;
+				}
+
+				/* Place the questor */
+				place_monster_aux(y, x, i, TRUE, TRUE);
+			}
+		}
 	}
 
 
@@ -4286,7 +4261,7 @@ static void town_gen_hack(void)
 			rooms[k] = rooms[--n];
 		}
 	}
-	/* Hack -- Build the 9th store.  Taken from Zangband -LM- */
+	/* Hack -- Build the 9th store.  Taken from Zangband */
 	build_store(rooms[0], rand_int(2), 4);
 
 	/* Place the stairs */
@@ -4430,7 +4405,7 @@ void generate_cave(void)
 	character_dungeon = FALSE;
 
 
-	/* Assume level is not themed. -LM- */
+	/* Assume level is not themed. */
 	p_ptr->themed_level = 0;
 
 	/* Generate */
@@ -4521,7 +4496,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag && !adult_preserve) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
@@ -4604,7 +4579,7 @@ void generate_cave(void)
 	/* Remember when this level was "created" */
 	old_turn = turn;
 
-	/* Reset the number of traps, glyphs, and thefts on the level. -LM- */
+	/* Reset the number of traps, glyphs, and thefts on the level. */
 	num_trap_on_level = 0;
 	num_glyph_on_level = 0;
 	number_of_thefts_on_level = 0;

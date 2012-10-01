@@ -162,7 +162,7 @@ static void do_cmd_wiz_change_aux(void)
 
 
 	/* Query the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
 		sprintf(ppp, "%s (3-118): ", stat_names[i]);
@@ -200,9 +200,29 @@ static void do_cmd_wiz_change_aux(void)
 	/* Save */
 	p_ptr->au = tmp_long;
 
-
 	/* Default */
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
+
+	/* Query */
+	if (!get_string("Max Experience: ", tmp_val, 9)) return;
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Verify */
+	if (tmp_long < 0) tmp_long = 0L;
+
+	/* Save */
+	p_ptr->max_exp = tmp_long;
+
+	/* Set experience to new maximum. */
+	p_ptr->exp = p_ptr->max_exp;
+
+	/* Update */
+	check_experience();
+
+	/* Default */
+	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
 	if (!get_string("Experience: ", tmp_val, 9)) return;
@@ -214,13 +234,11 @@ static void do_cmd_wiz_change_aux(void)
 	if (tmp_long < 0) tmp_long = 0L;
 
 	/* Save */
-	p_ptr->max_exp = tmp_long;
-
-	/* Set experience to new maximum. -LM- */
-	p_ptr->exp = p_ptr->max_exp;
+	p_ptr->exp = tmp_long;
 
 	/* Update */
 	check_experience();
+
 }
 
 
@@ -356,59 +374,63 @@ static void wiz_display_item(object_type *o_ptr)
 
 
 /*
- * A structure to hold a tval and its description
+ * A structure to hold a tval, its description and its possibility 
+<  * for becoming an artifact.
  */
 typedef struct tval_desc
 {
 	int tval;
 	cptr desc;
+ 	bool can_be_artifact;
+
 } tval_desc;
 
 /*
- * A list of tvals and their textual names
+ * A list of tvals, their textual names, and possibility for becoming an
+ * artifact.
  */
 static tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Light"                },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
-	{ TV_DRUID_BOOK,        "Druid Stone"          },
-	{ TV_NECRO_BOOK,        "Necromantic Tome"     },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ TV_GOLD,              "treasure"             },
-	{ 0,                    NULL                   }
+ 	{ TV_SWORD,             "Sword",               TRUE  },
+ 	{ TV_POLEARM,           "Polearm",             TRUE  },
+ 	{ TV_HAFTED,            "Hafted Weapon",       TRUE  },
+ 	{ TV_BOW,               "Missile Weapon",      TRUE  },
+ 	{ TV_ARROW,             "Arrows",              FALSE },
+ 	{ TV_BOLT,              "Bolts",               FALSE },
+ 	{ TV_SHOT,              "Shots",               FALSE },
+ 	{ TV_SHIELD,            "Shield",              TRUE  },
+ 	{ TV_CROWN,             "Crown",               TRUE  },
+ 	{ TV_HELM,              "Helm",                TRUE  },
+ 	{ TV_GLOVES,            "Gloves",              TRUE  },
+ 	{ TV_BOOTS,             "Boots",               TRUE  },
+ 	{ TV_CLOAK,             "Cloak",               TRUE  },
+ 	{ TV_DRAG_ARMOR,        "Dragon Scale Mail",   TRUE  },
+ 	{ TV_HARD_ARMOR,        "Hard Armor",          TRUE  },
+ 	{ TV_SOFT_ARMOR,        "Soft Armor",          TRUE  },
+ 	{ TV_RING,              "Ring",                TRUE  },
+ 	{ TV_AMULET,            "Amulet",              TRUE  },
+ 	{ TV_LITE,              "Light",               TRUE  },
+ 	{ TV_POTION,            "Potion",              FALSE },
+ 	{ TV_SCROLL,            "Scroll",              FALSE },
+ 	{ TV_WAND,              "Wand",                TRUE  },
+ 	{ TV_STAFF,             "Staff",               TRUE  },
+ 	{ TV_ROD,               "Rod",                 TRUE  },
+ 	{ TV_PRAYER_BOOK,       "Priest Book",         FALSE },
+ 	{ TV_MAGIC_BOOK,        "Magic Book",          FALSE },
+ 	{ TV_DRUID_BOOK,        "Druid Stone",         FALSE },
+ 	{ TV_NECRO_BOOK,        "Necromantic Tome",    FALSE },
+ 	{ TV_SPIKE,             "Spikes",              FALSE },
+ 	{ TV_DIGGING,           "Digger",              FALSE },
+ 	{ TV_CHEST,             "Chest",               FALSE },
+ 	{ TV_FOOD,              "Food",                FALSE },
+ 	{ TV_FLASK,             "Flask",               FALSE },
+ 	{ TV_GOLD,              "treasure",            FALSE },
+ 	{ 0,                    NULL,                  FALSE }
 };
 
 
 /*
- * Strip an "object name" into a buffer
+ * Strip an object or artifact name into a buffer
  */
 static void strip_name(char *buf, int k_idx)
 {
@@ -432,22 +454,63 @@ static void strip_name(char *buf, int k_idx)
 	*t = '\0';
 }
 
+/*
+ * Build an "artifact name" and transfer it into a buffer.
+ */
+static void get_art_name(char *buf, int a_idx)
+{
+	int i;
+	object_type	localObject;
+	object_type *o_ptr;
+	artifact_type *a_ptr = &a_info[a_idx];
+
+
+	/* Get local object */
+	o_ptr = &localObject;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Acquire the "kind" index */
+	i = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!i) return;
+
+	/* Create the base object */
+	object_prep(o_ptr, i);
+
+	/* Mark it as an artifact */
+	o_ptr->name1 = a_idx;
+
+	/* Make it known to us */
+	o_ptr->ident |= IDENT_KNOWN;
+
+	/* Create the artifact description */
+	object_desc(buf, o_ptr, FALSE, FALSE);
+}
+
 
 /*
  * Hack -- title for each column
  *
  * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
  */
+
 static char head[3] =
 { 'a', 'A', '0' };
 
 
 /*
- * Acquire an object kind for creation (or zero)
+ * Acquire an object or artifact for creation by selecting first a tval 
+ * and then a specific object or artifact from successive menus.
  *
- * List up to 50 choices in three columns
+ * Can list up to 57 choices in three columns.
  */
-static int wiz_create_itemtype(void)
+static int wiz_create_itemtype(bool artifact)
 {
 	int i, num, max_num;
 	int col, row;
@@ -464,30 +527,57 @@ static int wiz_create_itemtype(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
+	/* List all tval indexes and descriptions */
+	for (num = i = 0; (i < 57) && tvals[i].tval; i++)
 	{
+		/* Don't show tvals with no artifacts. */
+		if (artifact && !(tvals[i].can_be_artifact)) continue;
+
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
+
 		ch = head[num/20] + (num%20);
-		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		prt(format("[%c] %s", ch, tvals[i].desc), row, col);
+
+		/* Increment number of items in list. */
+		num++;
 	}
 
 	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com("Get what type of object? ", &ch)) return (0);
+	if (artifact)
+	{
+		if (!get_com("Get what type of artifact? ", &ch)) return (0);
+	}
+	else
+	{
+		if (!get_com("Get what type of object? ", &ch)) return (0);
+	}
 
 	/* Analyze choice */
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
 
-	/* Bail out if choice is illegal */
+	/* Bail out if choice is not within the bounds of the list */
 	if ((num < 0) || (num >= max_num))return (0);
 
+	/* Adjust and verify choice of artifact tval. */
+	if (artifact)
+	{
+		/* Scan the tval list up to the chosen tval. */
+		for (i = 0; i <= num; i++)
+		{
+			/* Slide past all object types with no artifacts. */
+			if (!(tvals[i].can_be_artifact)) num++;
+		}
+
+		/* Paranoia - Verify legality. */
+		if (!(tvals[num].can_be_artifact)) return (0);
+	}
 
 	/* Base object type chosen, fill in tval */
 	tval = tvals[num].tval;
@@ -499,44 +589,86 @@ static int wiz_create_itemtype(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+	/* If choosing an artifact... */
+	if (artifact)
 	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Analyze matching items */
-		if (k_ptr->tval == tval)
+		/* ...We have to search the whole  artifact list. */
+		for (num = 0, i = 1; (num < 60) && (i < MAX_A_IDX); i++)
 		{
-			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			artifact_type *a_ptr = &a_info[i];
 
-			/* Prepare it */
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			/* Analyze matching items */
+			if (a_ptr->tval == tval)
+			{
+				/* Prepare it */
+				row = 2 + (num % 20);
+				col = 30 * (num / 20);
+				ch = head[num/20] + (num%20);
 
-			/* Acquire the "name" of object "i" */
-			strip_name(buf, i);
+				/* Acquire the "name" of artifact with index "i" */
+				get_art_name(buf, i);
 
-			/* Print it */
-			prt(format("[%c] %s", ch, buf), row, col);
+				/* Print it */
+				prt(format("[%c] %s", ch, buf), row, col);
 
-			/* Remember the object index */
-			choice[num++] = i;
+				/* Remember the artifact index */
+				choice[num++] = i;
+			}
 		}
+	}
+
+	/* If choosing an object... */
+	else
+	{
+	  
+	  /* We have to search the whole itemlist. */
+	  for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+	    {
+	      object_kind *k_ptr = &k_info[i];
+	      
+	      /* Analyze matching items */
+	      if (k_ptr->tval == tval)
+		{
+		          /* Hack -- Skip instant artifacts */
+		          if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+			  /* Prepare it */
+			  row = 2 + (num % 20);
+			  col = 30 * (num / 20);
+			  ch = head[num/20] + (num%20);
+
+			  /* Acquire the "name" of object "i" */
+			  strip_name(buf, i);
+
+			  /* Print it */
+			  prt(format("[%c] %s", ch, buf), row, col);
+
+			  /* Remember the object index */
+			  choice[num++] = i;
+		}
+	    }
 	}
 
 	/* We need to know the maximal possible remembered object_index */
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+	if (artifact)
+	{
+		if (!get_com(format("Which artifact %s? ", tval_desc), &ch)) 
+			return (0);
+	}
+	else
+	{
+		if (!get_com(format("What kind of %s? ", tval_desc), &ch)) 
+			return (0);
+	}
 
 	/* Analyze choice */
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 15)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -700,7 +832,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_stat = 0;
 
 
 	/* Interact */
@@ -783,7 +915,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
+			if (artifact_p(i_ptr)) a_info[i_ptr->name1].creat_stat = 0;
 
 
 			/* Test for the same tval and sval. */
@@ -831,7 +963,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_stat = 1;
 }
 
 
@@ -848,7 +980,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr)) return;
 
-	/* Store old quantity. -LM- */
+	/* Store old quantity. */
 	tmp_qnt = o_ptr->number;
 
 	/* Default */
@@ -867,7 +999,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
 
-		/* Hack -- rod pvals must change if the number in the stack does. -LM-*/
+		/* Hack -- Rod total timeouts increase with stack size. */
 		if (o_ptr->tval == TV_ROD) o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
@@ -954,7 +1086,7 @@ static void do_cmd_wiz_play(void)
 			wiz_statistics(i_ptr);
 		}
 
-		if (ch == 'r' || ch == 'r')
+		if (ch == 'r' || ch == 'R')
 		{
 			wiz_reroll_item(i_ptr);
 		}
@@ -1026,7 +1158,7 @@ static void wiz_create_item(void)
 	screen_save();
 
 	/* Get object base type */
-	k_idx = wiz_create_itemtype();
+	k_idx = wiz_create_itemtype(FALSE);
 
 	/* Load screen */
 	screen_load();
@@ -1048,7 +1180,7 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Hack -- Since treasure objects are not effected by apply_magic, 
-	 * they need special processing. -LM-
+	 * they need special processing.
 	 */
 	if (i_ptr->tval == TV_GOLD) 
 	{
@@ -1282,28 +1414,31 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 }
 
 /*
- * Create the artifact with the specified index. -LM-
- * This function's code is taken from make_artifact_special, apply_magic, and 
- * create_named_monster.
- * 
+ * Create an artifact
  */
-static void do_cmd_wiz_artifact(int required_index)
+static void wiz_create_artifact(void)
 {
 	object_type object_type_body;
-
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int k_idx = 0;
-	int a_idx = required_index;
-
-	artifact_type *a_ptr = &a_info[required_index];
-
 	object_type *o_ptr;
+	int a_idx;
+	int o_idx;
+	artifact_type *a_ptr;
 
-	/* Sanity check. */
-	if (!a_idx) return;
-	if (a_idx >= MAX_A_IDX) return;
+
+	/* Save screen */
+	screen_save();
+
+	/* Get artifact index */
+	a_idx = wiz_create_itemtype(TRUE);
+
+	/* Load screen */
+	screen_load();
+
+	/* Get the artifact info */
+	a_ptr = &a_info[a_idx];
+
+	/* Ignore "empty" artifacts */
+	if (!a_ptr->name) return;
 
 	/* Get local object */
 	o_ptr = &object_type_body;
@@ -1311,35 +1446,16 @@ static void do_cmd_wiz_artifact(int required_index)
 	/* Wipe the object */
 	object_wipe(o_ptr);
 
-	/* Skip "empty" artifacts */
-	if (!a_ptr->name)
-	{
-		msg_print("no artifact for that index.");
-		return;
-	}
+	/* Acquire the "kind" index */
+	o_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 
-	
+	/* Create the base object */
+	object_prep(o_ptr, o_idx);
 
-	/* Find the base object */
-	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+	/* Mark the object as an artifact. */
+	o_ptr->name1 = a_idx;
 
-	/* Assign the template */
-	object_prep(o_ptr, k_idx);
-
-
-	/* Mega-Hack -- mark the item as an artifact */
-	o_ptr->name1 = required_index;
-
-
-	/* Hack -- analyze artifacts */
-	/**a_ptr = &a_info[o_ptr->name1];*/
-
-
-	/* Maga hack -- Do not mark the artifact as "created" */
-	a_ptr->cur_num = 0;
-
-
-	/* Extract the other fields */
+	/* Extract the fields */
 	o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
@@ -1349,13 +1465,12 @@ static void do_cmd_wiz_artifact(int required_index)
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
 
-	/* Transfer the activation information. -LM- */
+	/* Transfer the activation information. */
 	if (a_ptr->activation)
 	{
 		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 		o_ptr->xtra2 = a_ptr->activation;
 	}
-
 
 	/* Hack -- extract the "broken" flag */
 	if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -1364,10 +1479,11 @@ static void do_cmd_wiz_artifact(int required_index)
 	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 
 	/* Drop the artifact from heaven */
-	drop_near(o_ptr, -1, py, px);
+	drop_near(o_ptr, -1, p_ptr->py, p_ptr->px);
 
+	/* All done */
+	msg_print("Allocated.");
 }
-
 
 
 /*
@@ -1591,10 +1707,17 @@ void do_cmd_debug(void)
 			break;
 		}
 
+		/* Create any artifact */
+		case 'C':
+		{
+			wiz_create_artifact();
+			break;
+		}
+
 		/* Detect everything */
 		case 'd':
 		{
-			detect_all();
+			detect_all(DETECT_RAD_MAP, FALSE);
 			break;
 		}
 
@@ -1686,14 +1809,6 @@ void do_cmd_debug(void)
 		case 'q':
 		{
 			do_cmd_wiz_query();
-			break;
-		}
-
-
-		/* Create specified artifact. -LM- */
-		case 'r':
-		{
-			do_cmd_wiz_artifact(p_ptr->command_arg);
 			break;
 		}
 

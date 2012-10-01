@@ -59,6 +59,7 @@ static void pseudo_probe(void)
 	int m_idx = p_ptr->target_who;
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int approx_hp;
 
@@ -85,31 +86,31 @@ static void pseudo_probe(void)
 
 		/* Learn some flags.  Chance of omissions. */
 		if ((r_ptr->flags3 & (RF3_ANIMAL)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_ANIMAL);
+			l_ptr->flags3 |= (RF3_ANIMAL);
 		if ((r_ptr->flags3 & (RF3_EVIL)) && (rand_int(10) != 1))
-			r_ptr->r_flags3 |= (RF3_EVIL);
+			l_ptr->flags3 |= (RF3_EVIL);
 		if ((r_ptr->flags3 & (RF3_UNDEAD)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_UNDEAD);
+			l_ptr->flags3 |= (RF3_UNDEAD);
 		if ((r_ptr->flags3 & (RF3_DEMON)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_DEMON);
+			l_ptr->flags3 |= (RF3_DEMON);
 		if ((r_ptr->flags3 & (RF3_ORC)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_ORC);
+			l_ptr->flags3 |= (RF3_ORC);
 		if ((r_ptr->flags3 & (RF3_TROLL)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_TROLL);
+			l_ptr->flags3 |= (RF3_TROLL);
 		if ((r_ptr->flags3 & (RF3_GIANT)) && (rand_int(10) != 1))
-			r_ptr->r_flags3 |= (RF3_GIANT);
+			l_ptr->flags3 |= (RF3_GIANT);
 		if ((r_ptr->flags3 & (RF3_DRAGON)) && (rand_int(20) != 1))
-			r_ptr->r_flags3 |= (RF3_DRAGON);
+			l_ptr->flags3 |= (RF3_DRAGON);
 		if ((r_ptr->flags3 & (RF3_IM_ACID)) && (rand_int(5) != 1))
-			r_ptr->r_flags3 |= (RF3_IM_ACID);
+			l_ptr->flags3 |= (RF3_IM_ACID);
 		if ((r_ptr->flags3 & (RF3_IM_ELEC)) && (rand_int(5) != 1))
-			r_ptr->r_flags3 |= (RF3_IM_ELEC);
+			l_ptr->flags3 |= (RF3_IM_ELEC);
 		if ((r_ptr->flags3 & (RF3_IM_FIRE)) && (rand_int(5) != 1))
-			r_ptr->r_flags3 |= (RF3_IM_FIRE);
+			l_ptr->flags3 |= (RF3_IM_FIRE);
 		if ((r_ptr->flags3 & (RF3_IM_COLD)) && (rand_int(5) != 1))
-			r_ptr->r_flags3 |= (RF3_IM_COLD);
+			l_ptr->flags3 |= (RF3_IM_COLD);
 		if ((r_ptr->flags3 & (RF3_IM_POIS)) && (rand_int(5) != 1))
-			r_ptr->r_flags3 |= (RF3_IM_POIS);
+			l_ptr->flags3 |= (RF3_IM_POIS);
 
 		/* Confirm success. */
 		msg_print("You feel you know more about this monster...");
@@ -154,7 +155,7 @@ void shapechange(s16b shape)
 			shapedesc = "lion";
 			break;
 		case SHAPE_ENT:
-			shapedesc = "Ent";
+			shapedesc = "elder ent";
 			break;
 		case SHAPE_BAT:
 			shapedesc = "bat";
@@ -164,6 +165,9 @@ void shapechange(s16b shape)
 			break;
 		case SHAPE_VAMPIRE:
 			shapedesc = "vampire";
+			break;
+		case SHAPE_WYRM:
+			shapedesc = "wyrm";
 			break;
 		default:
 			msg_print("You return to your normal form.");
@@ -201,8 +205,8 @@ static void choose_ele_attack(void)
 
 	num = (p_ptr->lev - 20) / 7;
 
-				  c_prt(TERM_RED,    "        a) Fire Brand", 2, 14);
-
+	c_prt(TERM_RED,    "        a) Fire Brand", 2, 14);
+				  
 	if (num >= 2) c_prt(TERM_L_WHITE,"        b) Cold Brand", 3, 14);
 	else prt("", 3, 14);
 
@@ -307,7 +311,7 @@ static void rebalance_weapon(void)
 	u32b f1, f2, f3;
 
 	object_type *o_ptr;
-	char o_name[80];
+	char o_name[120];
 
 	/* Select the wielded melee weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -889,7 +893,7 @@ void do_cmd_study(void)
 	s_ptr = &mp_ptr->info[spell];
 
 	/* Mention the result */
-	msg_format("You have learned the %s of %s.",
+	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
 	           p, spell_names[s_ptr->index]);
 
 	/* Sound */
@@ -1126,7 +1130,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 1:	/* Detect Monsters */
 			{
-				(void)detect_monsters_normal();
+				(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 2:	/* Phase Door */
@@ -1152,13 +1156,15 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 6:	/* Rogue Spell: Detect Treasure */
 			{
-				(void)detect_treasure();
-				(void)detect_objects_gold();
+			        /* Hack - 'show' effected region only with
+				 * the first detect */
+				(void)detect_treasure(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_objects_gold(DETECT_RAD_DEFAULT, FALSE);
 				break;
 			}
 			case 7:	/* Rogue Spell:  Detect Objects */
 			{
-				(void)detect_objects_normal();
+				(void)detect_objects_normal(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 8:	/* Stinking Cloud */
@@ -1299,14 +1305,15 @@ void do_cmd_cast_or_pray(void)
 				fire_ball(GF_FIRE, dir, 55 + plev, 2, FALSE);
 				break;
 			}
-			case 31:	/* Word of Destruction */
+			case 31:	/* Hold Monsters */
 			{
-				destroy_area(py, px, 15, TRUE);
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_HOLD, dir, 0, 2, FALSE);
 				break;
 			}
-			case 32:	/* Genocide */
+			case 32:	/* Word of Destruction */
 			{
-				(void)genocide();
+				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 			case 33:	/* Resist Fire */
@@ -1382,12 +1389,12 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 43:	/* Detect Evil */
 			{
-				(void)detect_monsters_evil();
+				(void)detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 44:	/* Detect Enchantment */
 			{
-				(void)detect_objects_magic();
+				(void)detect_objects_magic(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 45:	/* Earthquake */
@@ -1395,15 +1402,17 @@ void do_cmd_cast_or_pray(void)
 				earthquake(py, px, 10, FALSE);
 				break;
 			}
-			case 46:	/* Starburst */
+			case 46:	/* Beguiling */
+			{
+				(void)slow_monsters(5 * plev / 3);
+				(void)confu_monsters(5 * plev / 3);
+				(void)sleep_monsters(5 * plev / 3);
+				break;
+			}
+			case 47:	/* Starburst */
 			{
 				fire_sphere(GF_LITE, 0,
 				          5 * plev / 2, plev / 12, 20);
-				break;
-			}
-			case 47:	/* Mass Genocide */
-			{
-				(void)mass_genocide();
 				break;
 			}
 			case 48:	/* Clear Mind */
@@ -1517,7 +1526,7 @@ void do_cmd_cast_or_pray(void)
 
 			case 64: /* Detect Evil */
 			{
-				(void)detect_monsters_evil();
+				(void)detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 65: /* Cure Light Wounds */
@@ -1550,13 +1559,15 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 69: /* Find Traps */
 			{
-				(void)detect_traps(FALSE);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 70: /* Detect Doors/Stairs */
 			{
-				(void)detect_doors(FALSE);
-				(void)detect_stairs(FALSE);
+			        /* Hack - 'show' effected region only with
+				 * the first detect */
+				(void)detect_doors(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 				break;
 			}
 			case 71: /* Slow Poison */
@@ -1779,12 +1790,12 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 101: /* Detect Monsters */
 			{
-				(void)detect_monsters_normal();
+				(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 102: /* Detection */
 			{
-				(void)detect_all();
+				(void)detect_all(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 103: /* Probing */
@@ -1964,7 +1975,7 @@ void do_cmd_cast_or_pray(void)
 
 			case 128: /* detect life */
 			{
-				(void)detect_monsters_living();
+				(void)detect_monsters_living(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 129:  /* call light */
@@ -2038,9 +2049,9 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 141:  /* detect trap/doors */
 			{
-				(void)detect_traps(FALSE);
-				(void)detect_doors(FALSE);
-				(void)detect_stairs(FALSE);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_doors(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_stairs(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 142:  /* cease small life */
@@ -2112,7 +2123,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 152:  /* detect all */
 			{
-				(void)detect_all();
+				(void)detect_all(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 153:  /* natural vitality */
@@ -2195,7 +2206,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 166:  /* detect evil */
 			{
-				(void)detect_monsters_evil();
+				(void)detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 167:  /* song of frightening */
@@ -2210,11 +2221,13 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 169:  /* sight beyond sight */
 			{
-				(void)detect_monsters_normal();
-				(void)detect_monsters_invis();
-				(void)detect_traps(FALSE);
-				(void)detect_doors(FALSE);
-				(void)detect_stairs(FALSE);
+			        /* Hack - 'show' effected region only with
+				 * the first detect */
+				(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_monsters_invis(DETECT_RAD_DEFAULT, FALSE);
+				(void)detect_traps(DETECT_RAD_DEFAULT, FALSE);
+				(void)detect_doors(DETECT_RAD_DEFAULT, FALSE);
+				(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 				if (!p_ptr->tim_invis)
 				{
 					(void)set_tim_invis(p_ptr->tim_invis + 
@@ -2339,9 +2352,9 @@ void do_cmd_cast_or_pray(void)
 				}
 				break;
 			}
-			case 183:  /* genocide */
+			case 183:  /* infusion */
 			{
-				(void)genocide();
+				(void)recharge(125);
 				break;
 			}
 			case 184:  /* become ent */
@@ -2384,7 +2397,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 193: /* detect evil */
 			{
-				(void)detect_monsters_evil();
+				(void)detect_monsters_evil(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 194: /* enhanced infravision */
@@ -2490,14 +2503,15 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 210: /* detect traps */
 			{
-				(void)detect_traps(FALSE);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 211: /* detect doors/stairs */
 			{
-
-				(void)detect_doors(FALSE);
-				(void)detect_stairs(FALSE);
+			        /* Hack - 'show' effected region only with
+				 * the first detect */
+				(void)detect_doors(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_stairs(DETECT_RAD_DEFAULT, FALSE);
 				break;
 			}
 			case 212: /* sleep monsters */
@@ -2512,7 +2526,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 214: /* detect magic */
 			{
-				(void)detect_objects_magic();
+				(void)detect_objects_magic(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
 			case 215: /* death bolt */
@@ -2520,7 +2534,7 @@ void do_cmd_cast_or_pray(void)
 				take_hit(damroll(1, 6), "the dark arts");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_SPIRIT, dir,
-				                  damroll(2 + plev / 3, 8));
+				       damroll(2 + plev / 3, 8));
 				break;
 			}
 			case 216: /* resist poison */
@@ -2543,7 +2557,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_MANA, dir,
-				                  damroll(1 + plev / 2, 8));
+				       damroll(1 + plev / 2, 8));
 				break;
 			}
 			case 220: /* genocide */
@@ -2591,7 +2605,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 227: /* poison ammo - for assassins only */
 			{
-				(void)brand_missile(TRUE);
+				(void)brand_missile(0, EGO_POISON);
 				break;
 			}
 			case 228: /* resist acid and cold */
@@ -2635,15 +2649,17 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 234: /* detect all monsters */
 			{
-				(void)detect_monsters_normal();
-				(void)detect_monsters_invis();
+			        /* Hack - 'show' effected region only with
+				 * the first detect */
+				(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_monsters_invis(DETECT_RAD_DEFAULT, FALSE);
 				break;
 			}
 			case 235: /* strike at life */
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_NETHER, dir,
-				                  damroll(3 * plev / 5, 11));
+				       damroll(3 * plev / 5, 11));
 				break;
 			}
 			case 236: /* orb of death */
@@ -2662,7 +2678,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_SPIRIT, dir,
-				                  damroll(plev / 3, 11));
+				       damroll(plev / 3, 11));
 				(void)hp_player(3 * plev);
 				(void)set_food(p_ptr->food + 1000);
 				break;
@@ -2723,9 +2739,9 @@ void do_cmd_cast_or_pray(void)
 				(void)dispel_undead(plev * 3 + randint(50));
 				break;
 			}
-			case 248: /* mass genocide */
+			case 248: /* bind undead */
 			{
-				(void)mass_genocide();
+				(void)hold_undead();
 				break;
 			}
 			case 249: /* darkness storm */
@@ -2782,8 +2798,8 @@ void do_cmd_cast_or_pray(void)
 
 		/* A spell was cast or a prayer prayed */
 		if (!((spell < 32) ?
-		      (p_ptr->spell_worked1 & (1L << spell)) :
-		      (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		       (p_ptr->spell_worked1 & (1L << spell)) :
+		       (p_ptr->spell_worked2 & (1L << (spell - 32)))))
 		{
 			int e = s_ptr->sexp;
 
@@ -2842,7 +2858,7 @@ void do_cmd_cast_or_pray(void)
 		}
 	}
 
-	/* Alter shape, if necessary. -LM- */
+	/* Alter shape, if necessary. */
 	if (shape) shapechange(shape);
 
 

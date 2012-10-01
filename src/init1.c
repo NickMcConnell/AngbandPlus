@@ -52,14 +52,6 @@ extern s16b error_idx;
 extern s16b error_line;
 
 
-/*
- * Hack -- size of the "fake" arrays
- */
-extern u16b fake_name_size;
-extern u16b fake_text_size;
-
-
-
 /*** Helper arrays for parsing ascii template files ***/
 
 /*
@@ -180,8 +172,8 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"SPEAKING", /* From Zangband.  Was XXX1X2 -LM- */
-	"PLAYER_GHOST",	/* Was XXX2X2 -LM- */
+	"SPEAKING", /* From Zangband.  Was XXX1X2 */
+	"PLAYER_GHOST",	/* Was XXX2X2 */
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -202,7 +194,7 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"FLYING",	/* Was BRAIN_1 -LM- */
+	"FLYING",	/* Was BRAIN_1 */
 	"BRAIN_2",
 	"BRAIN_3",
 	"BRAIN_4",
@@ -349,16 +341,16 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
-	"XXX7X6",
-	"XXX8X6",
+	"BA_LITE",
+	"S_KIN",
+	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
 	"S_ANT",
 	"S_SPIDER",
 	"S_HOUND",
 	"XXX9X6",
-	"S_ANGEL",
+	"XXX10X6",
 	"S_DEMON",
 	"S_UNDEAD",
 	"S_DRAGON",
@@ -491,7 +483,7 @@ static cptr k_info_flags3[] =
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
  */
-static int color_char_to_attr(char c)
+int color_char_to_attr(char c)
 {
 	switch (c)
 	{
@@ -618,7 +610,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			v_ptr = &v_info[i];
 
 			/* Hack -- Verify space */
-			if (v_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (v_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!v_ptr->name) v_ptr->name = ++v_head->name_size;
@@ -644,7 +636,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (v_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (v_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!v_ptr->text) v_ptr->text = ++v_head->text_size;
@@ -787,7 +779,7 @@ errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
 			t_ptr = &t_info[i];
 
 			/* Hack -- Verify space */
-			if (t_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (t_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!t_ptr->name) t_ptr->name = ++t_head->name_size;
@@ -833,7 +825,7 @@ errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (t_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (t_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!t_ptr->text) t_ptr->text = ++t_head->text_size;
@@ -967,7 +959,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			f_ptr = &f_info[i];
 
 			/* Hack -- Verify space */
-			if (f_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (f_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!f_ptr->name) f_ptr->name = ++f_head->name_size;
@@ -998,7 +990,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (f_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (f_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!f_ptr->text) f_ptr->text = ++f_head->text_size;
@@ -1220,7 +1212,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr = &k_info[i];
 
 			/* Hack -- Verify space */
-			if (k_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (k_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!k_ptr->name) k_ptr->name = ++k_head->name_size;
@@ -1246,7 +1238,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (k_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (k_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!k_ptr->text) k_ptr->text = ++k_head->text_size;
@@ -1566,7 +1558,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr = &a_info[i];
 
 			/* Hack -- Verify space */
-			if (a_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (a_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!a_ptr->name) a_ptr->name = ++a_head->name_size;
@@ -1598,7 +1590,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (a_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (a_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!a_ptr->text) a_ptr->text = ++a_head->text_size;
@@ -1859,7 +1851,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			e_ptr = &e_info[i];
 
 			/* Hack -- Verify space */
-			if (e_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (e_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!e_ptr->name) e_ptr->name = ++e_head->name_size;
@@ -1885,7 +1877,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (e_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (e_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!e_ptr->text) e_ptr->text = ++e_head->text_size;
@@ -1946,7 +1938,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
 				&th, &td, &ta, &pv)) return (1);
 
-			/* Process various values to allow penalties. -LM- */
+			/* Process various values to allow penalties. */
 
 			if ((th < 0) && (th > -128)) e_ptr->max_to_h = 128 + ABS(th);
 			else if (th < 129) e_ptr->max_to_h = th;
@@ -2205,7 +2197,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr = &r_info[i];
 
 			/* Hack -- Verify space */
-			if (r_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+			if (r_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE) return (7);
 
 			/* Advance and Save the name index */
 			if (!r_ptr->name) r_ptr->name = ++r_head->name_size;
@@ -2231,7 +2223,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (r_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (r_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) return (7);
 
 			/* Advance and Save the text index */
 			if (!r_ptr->text) r_ptr->text = ++r_head->text_size;
@@ -2298,17 +2290,17 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
-			int lev, rar, pad;
+        		int lev, rar, mana;
 			long exp;
 
 			/* Scan for the values */
 			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-			                &lev, &rar, &pad, &exp)) return (1);
+			                &lev, &rar, &mana, &exp)) return (1);
 
 			/* Save the values */
 			r_ptr->level = lev;
 			r_ptr->rarity = rar;
-			r_ptr->extra = pad;
+			r_ptr->mana = mana;
 			r_ptr->mexp = exp;
 
 			/* Next... */
@@ -2459,6 +2451,859 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
+/*
+ * Grab one flag in a player_race from a textual string
+ */
+static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
+{
+       int i;
+
+       /* Check flags1 */
+       for (i = 0; i < 32; i++)
+       {
+	      if (streq(what, k_info_flags1[i]))
+	      {
+		     pr_ptr->flags1 |= (1L << i);
+		     return (0);
+	      }
+       }
+
+       /* Check flags2 */
+       for (i = 0; i < 32; i++)
+       {
+	      if (streq(what, k_info_flags2[i]))
+	      {
+		     pr_ptr->flags2 |= (1L << i);
+		     return (0);
+	      }
+       }
+
+       /* Check flags3 */
+       for (i = 0; i < 32; i++)
+       {
+	      if (streq(what, k_info_flags3[i]))
+	      {
+		     pr_ptr->flags3 |= (1L << i);
+		     return (0);
+	      }
+       }
+       
+       /* Oops */
+       msg_format("Unknown player flag '%s'.", what);
+       
+       /* Error */
+       return (PARSE_ERROR_GENERIC);
+}
+
+
+
+/*
+ * Initialize the "p_info" array, by parsing an ascii "template" file
+ */
+errr init_p_info_txt(FILE *fp, char *buf)
+{
+       int i, j;
+
+       char *s, *t;
+
+       /* Not ready yet */
+       bool okay = FALSE;
+
+       /* Current entry */
+       player_race *pr_ptr = NULL;
+       
+
+       /* Just before the first record */
+       error_idx = -1;
+  
+       /* Just before the first line */
+       error_line = -1;
+
+
+       /* Parse */
+       while (0 == my_fgets(fp, buf, 1024))
+       {
+	      /* Advance the line number */
+	      error_line++;
+
+	      /* Skip comments and blank lines */
+	      if (!buf[0] || (buf[0] == '#')) continue;
+	      
+	      /* Verify correct "colon" format */
+	      if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+	      /* Hack -- Process 'V' for "Version" */
+	      if (buf[0] == 'V')
+	      {
+		     int v1, v2, v3;
+
+		     /* Scan for the values */
+		     if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			 (v1 != p_head->v_major) ||
+			 (v2 != p_head->v_minor) ||
+			 (v3 != p_head->v_patch))
+		     {
+		            return (PARSE_ERROR_OBSOLETE_FILE);
+		     }
+
+		     /* Okay to proceed */
+		     okay = TRUE;
+		     
+		     /* Continue */
+		     continue;
+	      }
+
+	      /* No version yet */
+	      if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	      /* Process 'N' for "New/Number/Name" */
+	      if (buf[0] == 'N')
+	      {
+		     /* Find the colon before the name */
+		     s = strchr(buf+2, ':');
+
+		     /* Verify that colon */
+		     if (!s) return (PARSE_ERROR_GENERIC);
+		     
+		     /* Nuke the colon, advance to the name */
+		     *s++ = '\0';
+	  
+		     /* Paranoia -- require a name */
+		     if (!*s) return (PARSE_ERROR_GENERIC);
+		     
+		     /* Get the index */
+		     i = atoi(buf+2);
+
+		     /* Verify information */
+		     if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		     /* Verify information */
+		     if (i >= p_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+		     /* Save the index */
+		     error_idx = i;
+
+		     /* Point at the "info" */
+		     pr_ptr = &p_info[i];
+
+		     /* Hack -- Verify space */
+		     if (p_head->name_size + strlen(s) + 8 > FAKE_NAME_SIZE)
+		            return (PARSE_ERROR_OUT_OF_MEMORY);
+
+		     /* Advance and Save the name index */
+		     if (!pr_ptr->name) pr_ptr->name = ++p_head->name_size;
+		     
+		     /* Append chars to the name */
+		     strcpy(p_name + p_head->name_size, s);
+		     
+		     /* Advance the index */
+		     p_head->name_size += strlen(s);
+	  
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* There better be a current pr_ptr */
+	      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+
+	      /* Process 'S' for "Stats" (one line only) */
+	      if (buf[0] == 'S')
+	      {
+		     int adj;
+
+		     /* Start the string */
+		     s = buf+1;
+
+		     /* For each stat */
+		     for (j = 0; j < A_MAX; j++)
+		     {
+                            /* Find the colon before the subindex */
+		            s = strchr(s, ':');
+
+			    /* Verify that colon */
+			    if (!s) return (PARSE_ERROR_GENERIC);
+
+			    /* Nuke the colon, advance to the subindex */
+			    *s++ = '\0';
+
+			    /* Get the value */
+			    adj = atoi(s);
+
+                            /* Save the value */
+			    pr_ptr->r_adj[j] = adj;
+
+			    /* Next... */
+			    continue;
+		     }
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Process 'R' for "Racial Skills" (one line only) */
+	      if (buf[0] == 'R')
+	      {
+		     int dis, dev, sav, stl, srh, fos, thn, thb;
+
+		     /* Scan for the values */
+		     if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+				     &dis, &dev, &sav, &stl,
+				     &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     pr_ptr->r_dis = dis;
+		     pr_ptr->r_dev = dev;
+		     pr_ptr->r_sav = sav;
+		     pr_ptr->r_stl = stl;
+		     pr_ptr->r_srh = srh;
+		     pr_ptr->r_fos = fos;
+		     pr_ptr->r_thn = thn;
+		     pr_ptr->r_thb = thb;
+
+		     /* Next... */
+		     continue;
+	      }
+
+
+	      /* Process 'M' for "Racial Skills Extra Modifier" (one line only) */
+	      if (buf[0] == 'M')
+	      {
+		     int xdis, xdev, xsav, xstl, xsrh, xfos, xthn, xthb;
+
+		     /* Scan for the values */
+		     if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+				     &xdis, &xdev, &xsav, &xstl,
+				     &xsrh, &xfos, &xthn, &xthb)) return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     pr_ptr->rx_dis = xdis;
+		     pr_ptr->rx_dev = xdev;
+		     pr_ptr->rx_sav = xsav;
+		     pr_ptr->rx_stl = xstl;
+		     pr_ptr->rx_srh = xsrh;
+		     pr_ptr->rx_fos = xfos;
+		     pr_ptr->rx_thn = xthn;
+		     pr_ptr->rx_thb = xthb;
+
+		     /* Next... */
+		     continue;
+	      }
+
+
+	      /* Process 'X' for "Extra Info" (one line only) */
+	      if (buf[0] == 'X')
+	      {
+		     int mhp, exp, infra;
+
+		     /* Scan for the values */
+		     if (3 != sscanf(buf+2, "%d:%d:%d",
+				     &mhp, &exp, &infra)) return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     pr_ptr->r_mhp = mhp;
+		     pr_ptr->r_exp = exp;
+		     pr_ptr->infra = infra;
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'I' for "info" and such */
+	      if (buf[0] == 'I')
+	      {
+		     int hist, b_age, m_age;
+
+		     /* Scan for the values */
+		     if (3 != sscanf(buf+2, "%d:%d:%d",
+				     &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
+
+		     pr_ptr->hist = hist;
+		     pr_ptr->b_age = b_age;
+		     pr_ptr->m_age = m_age;
+		     
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'I' for "info" and such */
+	      if (buf[0] == 'I')
+	      {
+		     int hist, b_age, m_age;
+
+		     /* Scan for the values */
+		     if (3 != sscanf(buf+2, "%d:%d:%d",
+				     &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
+
+		     pr_ptr->hist = hist;
+		     pr_ptr->b_age = b_age;
+		     pr_ptr->m_age = m_age;
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'H' for "Height" */
+	      if (buf[0] == 'H')
+	      {
+		     int m_b_ht, m_m_ht, f_b_ht, f_m_ht;
+
+		     /* Scan for the values */
+		     if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+				     &m_b_ht, &m_m_ht, &f_b_ht, &f_m_ht)) return (PARSE_ERROR_GENERIC);
+
+		     pr_ptr->m_b_ht = m_b_ht;
+		     pr_ptr->m_m_ht = m_m_ht;
+		     pr_ptr->f_b_ht = f_b_ht;
+		     pr_ptr->f_m_ht = f_m_ht;
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'W' for "Weight" */
+	      if (buf[0] == 'W')
+	      {
+		     int m_b_wt, m_m_wt, f_b_wt, f_m_wt;
+
+		     /* Scan for the values */
+		     if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+				     &m_b_wt, &m_m_wt, &f_b_wt, &f_m_wt)) return (PARSE_ERROR_GENERIC);
+
+		     pr_ptr->m_b_wt = m_b_wt;
+		     pr_ptr->m_m_wt = m_m_wt;
+		     pr_ptr->f_b_wt = f_b_wt;
+		     pr_ptr->f_m_wt = f_m_wt;
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'F' for flags */
+	      if (buf[0] == 'F')
+	      {
+		     /* Parse every entry textually */
+		     for (s = buf + 2; *s; )
+		     {
+                            /* Find the end of this entry */
+		            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			    /* Nuke and skip any dividers */
+			    if (*t)
+			    {
+				   *t++ = '\0';
+				   while ((*t == ' ') || (*t == '|')) t++;
+			    }
+
+			    /* Parse this entry */
+			    if (0 != grab_one_racial_flag(pr_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			    /* Start the next entry */
+			    s = t;
+		     }
+		     
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* Hack -- Process 'C' for class choices */
+	      if (buf[0] == 'C')
+	      {
+		     /* Parse every entry textually */
+		     for (s = buf + 2; *s; )
+		     {
+                            /* Find the end of this entry */
+		            for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			    /* Nuke and skip any dividers */
+			    if (*t)
+			    {
+			           *t++ = '\0';
+				   while ((*t == ' ') || (*t == '|')) t++;
+			    }
+			    
+			    /* Hack - Parse this entry */
+			    pr_ptr->choice |= (1 << atoi(s));
+
+			    /* Start the next entry */
+			    s = t;
+		     }
+
+		     /* Next... */
+		     continue;
+	      }
+	      
+
+	      /* Oops */
+	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+       }
+
+
+       /* Complete the "name" and "text" sizes */
+       ++p_head->name_size;
+       ++p_head->text_size;
+
+
+       /* No version yet */
+       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+       /* Success */
+       return (0);
+}
+
+
+
+
+
+
+/*
+ * Initialize the "h_info" array, by parsing an ascii "template" file
+ */
+errr init_h_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	hist_type *h_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Prepare the "fake" stuff */
+	h_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != h_head->v_major) ||
+			    (v2 != h_head->v_minor) ||
+			    (v3 != h_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number" */
+		if (buf[0] == 'N')
+		{
+			int prv, nxt, prc, soc;
+
+			/* Hack - get the index */
+			i = error_idx + 1;
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+			if (i >= h_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			h_ptr = &h_info[i];
+
+			/* Scan for the values */
+			if (4 != sscanf(buf, "N:%d:%d:%d:%d",
+			                &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			h_ptr->chart = prv;
+			h_ptr->next = nxt;
+			h_ptr->roll = prc;
+			h_ptr->bonus = soc;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current h_ptr */
+		if (!h_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Get the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (h_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the text index */
+			if (!h_ptr->text) h_ptr->text = ++h_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(h_text + h_head->text_size, s);
+
+			/* Advance the index */
+			h_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+
+	/* Complete the "text" size */
+	++h_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "b_info" array, by parsing an ascii "template" file
+ */
+errr init_b_info_txt(FILE *fp, char *buf)
+{
+       int i, j;
+
+       char *s, *t;
+
+       /* Not ready yet */
+       bool okay = FALSE;
+
+       /* Current entry */
+       owner_type *ot_ptr = NULL;
+
+
+       /* Just before the first record */
+       error_idx = -1;
+
+       /* Just before the first line */
+       error_line = -1;
+       
+
+       /* Prepare the "fake" stuff */
+       b_head->name_size = 0;
+  
+       /* Parse */
+       while (0 == my_fgets(fp, buf, 1024))
+       {
+	      /* Advance the line number */
+	      error_line++;
+
+	      /* Skip comments and blank lines */
+	      if (!buf[0] || (buf[0] == '#')) continue;
+
+	      /* Verify correct "colon" format */
+	      if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+	      /* Hack -- Process 'V' for "Version" */
+	      if (buf[0] == 'V')
+	      {
+		     int v1, v2, v3;
+
+		     /* Scan for the values */
+		     if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			 (v1 != b_head->v_major) ||
+			 (v2 != b_head->v_minor) ||
+			 (v3 != b_head->v_patch))
+		     {
+		            return (PARSE_ERROR_OBSOLETE_FILE);
+		     }
+
+		     /* Okay to proceed */
+		     okay = TRUE;
+		     
+		     /* Continue */
+		     continue;
+	      }
+
+	      /* No version yet */
+	      if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	      /* Process 'N' for "New/Number/Name" */
+	      if (buf[0] == 'N')
+	      {
+		     /* Find the colon before the subindex */
+		     s = strchr(buf+2, ':');
+
+		     /* Verify that colon */
+		     if (!s) return (PARSE_ERROR_GENERIC);
+
+		     /* Nuke the colon, advance to the subindex */
+		     *s++ = '\0';
+
+		     /* Get the index */
+		     i = atoi(buf+2);
+
+		     /* Find the colon before the name */
+		     t = strchr(s, ':');
+
+		     /* Verify that colon */
+		     if (!t) return (PARSE_ERROR_GENERIC);
+
+		     /* Nuke the colon, advance to the name */
+		     *t++ = '\0';
+
+		     /* Paranoia -- require a name */
+		     if (!*t) return (PARSE_ERROR_GENERIC);
+		     
+		     /* Get the subindex */
+		     j = atoi(s);
+
+		     /* Verify information */
+		     if (j >= MAX_B_IDX) return (PARSE_ERROR_OBSOLETE_FILE);
+
+		     /* Get the *real* index */
+		     i = (i * MAX_B_IDX) + j;
+
+		     /* Verify information */
+		     if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		     /* Verify information */
+		     if (i >= b_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+		     /* Save the index */
+		     error_idx = i;
+
+		     /* Point at the "info" */
+		     ot_ptr = &b_info[i];
+
+		     /* Hack -- Verify space */
+		     if (b_head->name_size + strlen(t) + 8 > FAKE_NAME_SIZE)
+		            return (PARSE_ERROR_OUT_OF_MEMORY);
+
+		     /* Advance and Save the name index */
+		     if (!ot_ptr->owner_name) ot_ptr->owner_name = ++b_head->name_size;
+		     
+		     /* Append chars to the name */
+		     strcpy(b_name + b_head->name_size, t);
+
+		     /* Advance the index */
+		     b_head->name_size += strlen(t);
+
+		     /* Next... */
+		     continue;
+	      }
+
+	      /* There better be a current ot_ptr */
+	      if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+	      /* Process 'I' for "Info" (one line only) */
+	      if (buf[0] == 'I')
+	      {
+		     int idx, gld, max, min, hgl, tol;
+
+		     /* Scan for the values */
+		     if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				     &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+
+		     /* Save the values */
+		     ot_ptr->owner_race = idx;
+		     ot_ptr->max_cost = gld;
+		     ot_ptr->max_inflate = max;
+		     ot_ptr->min_inflate = min;
+		     ot_ptr->haggle_per = hgl;
+		     ot_ptr->insult_max = tol;
+		     
+		     /* Next... */
+		     continue;
+	      }
+
+
+	      /* Oops */
+	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+       }
+
+
+       /* Complete the "name" and "text" sizes */
+       ++b_head->name_size;
+
+
+       /* No version yet */
+       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+       /* Success */
+       return (0);
+}
+
+/*
+ * Initialize the "g_info" array, by parsing an ascii "template" file
+ */
+errr init_g_info_txt(FILE *fp, char *buf)
+{
+       int i, j;
+
+       char *s;
+
+       /* Not ready yet */
+       bool okay = FALSE;
+
+       /* Current entry */
+       byte *g_ptr;
+
+
+       /* Just before the first record */
+       error_idx = -1;
+
+       /* Just before the first line */
+       error_line = -1;
+
+
+       /* Prepare the "fake" stuff */
+       g_head->text_size = 0;
+
+       /* Parse */
+       while (0 == my_fgets(fp, buf, 1024))
+       {
+	      /* Advance the line number */
+	      error_line++;
+
+	      /* Skip comments and blank lines */
+	      if (!buf[0] || (buf[0] == '#')) continue;
+
+	      /* Verify correct "colon" format */
+	      if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+	      /* Hack -- Process 'V' for "Version" */
+	      if (buf[0] == 'V')
+	      {
+		     int v1, v2, v3;
+
+		     /* Scan for the values */
+		     if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+			 (v1 != g_head->v_major) ||
+			 (v2 != g_head->v_minor) ||
+			 (v3 != g_head->v_patch))
+		     {
+			    return (PARSE_ERROR_OBSOLETE_FILE);
+		     }
+
+		     /* Okay to proceed */
+		     okay = TRUE;
+		     
+		     /* Continue */
+		     continue;
+	      }
+
+	      /* No version yet */
+	      if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	      /* Process 'A' for "Adjustments" */
+	      if (buf[0] == 'A')
+	      {
+		       int adj;
+
+		       /* Start the string */
+		       s = buf+1;
+
+		       /* Initialize the counter to max races */
+		       j = MAX_P_IDX;
+
+		       /* Repeat */
+		       while (j-- > 0)
+		       {
+                              /* Hack - get the index */
+			      i = error_idx + 1;
+
+			      /* Verify information */
+			      if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			      /* Verify information */
+			      if (i >= g_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			      /* Save the index */
+			      error_idx = i;
+
+			      /* Point at the "info" */
+			      g_ptr = &g_info[i];
+
+			      /* Find the colon before the subindex */
+			      s = strchr(s, ':');
+
+			      /* Verify that colon */
+			      if (!s) return (PARSE_ERROR_GENERIC);
+
+			      /* Nuke the colon, advance to the subindex */
+			      *s++ = '\0';
+
+			      /* Get the value */
+			      adj = atoi(s);
+
+			      /* Save the value */
+			      *g_ptr = adj;
+
+			      /* Next... */
+			      continue;
+		       }
+
+		       /* Next... */
+		       continue;
+	      }
+
+
+	      /* Oops */
+	      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+       }
+
+
+       /* Complete the "text" size */
+       ++g_head->text_size;
+
+
+       /* No version yet */
+       if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+       /* Success */
+       return (0);
+}
 
 #else	/* ALLOW_TEMPLATES */
 

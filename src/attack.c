@@ -62,13 +62,13 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 	if (randint(i + 200) <= i)
 	{
 		/* Encourage the player to throw weapons at sleeping 
-		 * monsters. -LM-
+		 * monsters.
 		 */
 		if (sleeping_bonus)
 		{ 
 			if ((p_ptr->pclass == CLASS_ASSASSIN) && (thrown_weapon))
-				msg_print("Assassin Strike!");
-			else msg_print("You rudely awaken the monster!");
+			        message(MSG_HIT, 0, "Assassin Strike.");
+			else message(MSG_HIT, 0, "You rudely awaken the monster.");
 		}
 
 		/* Determine level of critical hit */
@@ -85,12 +85,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-					msg_format("The %s strikes %s.", o_name, m_name);
+	 			        message_format(MSG_HIT, 0, "The %s strikes %s.", o_name, m_name);
 				}
 			mult_a_crit = 15;
 		}
@@ -99,12 +99,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-					msg_format("The %s penetrates %s.", o_name, m_name);
+	 			        message_format(MSG_HIT, 0, "The %s penetrates %s.", o_name, m_name);
 				}
 			mult_a_crit = 21;
 		}
@@ -113,12 +113,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-					msg_format("The %s drives into %s!", o_name, m_name);
+	 			        message_format(MSG_HIT, 0, "The %s drives into %s.", o_name, m_name);
 				}
 			mult_a_crit = 28;
 		}
@@ -127,12 +127,12 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 				if (!visible)
 				{
 				/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+	 			        message_format(MSG_HIT, 0, "The %s finds a mark.", o_name);
 				}
 				else
 				{
 				/* Visible monster */
-					msg_format("The %s transpierces %s!", o_name, m_name);
+	 			        message_format(MSG_HIT, 0, "The %s transpierces %s.", o_name, m_name);
 				}
 			mult_a_crit = 35;
 		}
@@ -141,7 +141,7 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 	else
 	{
 		mult_a_crit = 10; 
-		msg_format("The %s hits %s.", o_name, m_name);
+		message_format(MSG_HIT, 0, "The %s hits %s.", o_name, m_name);
 	}
 
 	return (mult_a_crit);
@@ -164,11 +164,11 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 	if (randint(i + 200) <= i)
 	{
 		/* Encourage the player to make sneak attacks on 
-		 * sleeping monsters. -LM-
+		 * sleeping monsters.
 		 */
 		if ((sleeping_bonus) && ((p_ptr->pclass == CLASS_ROGUE) || 
-			(p_ptr->pclass == CLASS_ASSASSIN))) 
-			msg_print("You ruthlessly sneak attack!");
+			(p_ptr->pclass == CLASS_ASSASSIN)))
+                        message(MSG_HIT, 0, "You ruthlessly sneak attack!");
 
 
 		/* Hack - Weapons that normally do little damage benefit most from 
@@ -191,48 +191,48 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 		if (k < 100)
 		{
 			mult_m_crit *= 15;
-			msg_format("You strike %s.", m_name);
+			message_format(MSG_HIT, 0, "You strike %s.", m_name);
 		}
 		else if (k < 160)
 		{
 			mult_m_crit *= 17;
 
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				msg_format("You hack at %s.", m_name);
+			        message_format(MSG_HIT, 0, "You hack at %s.", m_name);
 			else
-				msg_format("You bash %s.", m_name);
+				message_format(MSG_HIT, 0, "You bash %s.", m_name);
 		}
 		else if (k < 210)
 		{
 			mult_m_crit *= 20;
 
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				msg_format("You slash %s.", m_name);
+				message_format(MSG_HIT, 0, "You slash %s.", m_name);
 			else
-				msg_format("You pound %s.", m_name);
+				message_format(MSG_HIT, 0, "You pound %s.", m_name);
 		}
 		else if (k < 250)
 		{
 			mult_m_crit *= 23;
 
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				msg_format("You score %s!", m_name);
+				message_format(MSG_HIT, 0, "You score %s.", m_name);
 			else
-				msg_format("You batter %s!", m_name);
+				message_format(MSG_HIT, 0, "You batter %s.", m_name);
 		}
 		else if (k < 280)
 		{
 			mult_m_crit *= 27;
 
 			if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))
-				msg_format("You gouge %s!", m_name);
+				message_format(MSG_HIT, 0, "You gouge %s.", m_name);
 			else
-				msg_format("You bludgeon %s!", m_name);
+			       message_format(MSG_HIT, 0, "You bludgeon %s.", m_name);
 		}
 		else 
   		{
 			mult_m_crit *= 32;
-			msg_format("You *smite* %s!", m_name);
+			message_format(MSG_HIT, 0, "You *smite* %s.", m_name);
 		}
 
 
@@ -248,7 +248,7 @@ static sint critical_melee(int chance, int sleeping_bonus, char m_name[], object
 	else
 	{
 		mult_m_crit = 10; 
-		msg_format("You hit %s.", m_name);
+		message_format(MSG_HIT, 0, "You hit %s.", m_name);
 	}
 
 	return (mult_m_crit);
@@ -273,6 +273,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 	int mult_ego = 10;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Assume temporary elemental brand is OK to use. */
 	bool allow_t_brand = TRUE;
@@ -284,7 +285,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 
 
 	/* Hack -- paladins cannot take advantage of temporary elemental brands 
-	 * to rescue their lousy shooting skill. -LM-
+	 * to rescue their lousy shooting skill.
 	 */
 	if ((shooting) && (p_ptr->pclass == CLASS_PALADIN)) allow_t_brand = FALSE;
 
@@ -312,7 +313,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
+					l_ptr->flags3 |= (RF3_ANIMAL);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_ANIMAL) && 
@@ -328,7 +329,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_EVIL) && 
@@ -343,7 +344,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_UNDEAD);
+					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_UNDEAD) && 
@@ -358,7 +359,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
+					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_DEMON) && 
@@ -373,7 +374,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ORC);
+					l_ptr->flags3 |= (RF3_ORC);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_ORC) && 
@@ -388,7 +389,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_TROLL);
+					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_TROLL) && 
@@ -403,7 +404,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_GIANT);
+					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_GIANT) && 
@@ -418,7 +419,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
 				if ((o_ptr->name2 == EGO_KILL_DRAGON) && 
@@ -437,7 +438,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
+						l_ptr->flags3 |= (RF3_IM_ACID);
 					}
 				}
 
@@ -455,7 +456,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+						l_ptr->flags3 |= (RF3_IM_ELEC);
 					}
 				}
 
@@ -473,7 +474,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+						l_ptr->flags3 |= (RF3_IM_FIRE);
 					}
 				}
 
@@ -496,7 +497,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
+						l_ptr->flags3 |= (RF3_IM_COLD);
 					}
 				}
 
@@ -514,7 +515,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_IM_POIS);
+						l_ptr->flags3 |= (RF3_IM_POIS);
 					}
 				}
 
@@ -526,7 +527,7 @@ static sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr, bool shooting)
 		}
 	}
 
-	/* Hack - Sometimes, a temporary Holy Attack becomes exhusted. -LM */
+	/* Hack - Sometimes, a temporary Holy Attack becomes exhusted. */
 	if ((p_ptr->special_attack & (ATTACK_HOLY)) && (randint(20) == 1))
 	{
 		p_ptr->special_attack &= ~(ATTACK_HOLY);
@@ -574,12 +575,12 @@ static int get_druid_damage(int plev, char m_name[])
 		p_ptr->special_attack |= (ATTACK_DRUID_CONFU);
 
 		/* And display the attack message. */
-		msg_format("You %s and attempt to confuse %s.", description, m_name);
+		message_format(MSG_HIT, 0, "You %s and attempt to confuse %s.", description, m_name);
 	}
 	else
 	{
-		/* Basic attack message. */
-		msg_format("You %s %s.", description, m_name);
+		/* Basic attack message. */		
+	         message_format(MSG_HIT, 0, "You %s %s.", description, m_name);
 	}
 	return(damage);
 }
@@ -624,6 +625,7 @@ void py_attack(int y, int x)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+	monster_lore *l_ptr;
 	object_type *o_ptr;
 
 	char m_name[80];
@@ -636,7 +638,7 @@ void py_attack(int y, int x)
 	/* Access the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
-
+	l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Disturb the player */
 	disturb(0, 0);
@@ -646,7 +648,7 @@ void py_attack(int y, int x)
 
 
 	/* If the monster is sleeping and visible, it can be hit more effectively 
-	 * by some classes. -LM-
+	 * by some classes.
 	 */
 	if ((m_ptr->csleep) && (m_ptr->ml))
 	{
@@ -691,27 +693,27 @@ void py_attack(int y, int x)
 	}
 
 
-	/* Monsters in rubble can take advantage of cover. -LM- */
+	/* Monsters in rubble can take advantage of cover. */
 	if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
 		terrain_bonus = r_ptr->ac / 7 + 5;
 	}
 	/* Monsters in trees can take advantage of cover, except 
-	 * from players who know nature lore. -LM-
+	 * from players who know nature lore.
 	 */
 	if ((cave_feat[y][x] == FEAT_TREE) && 
 		(mp_ptr->spell_book != TV_DRUID_BOOK))
 	{
 		terrain_bonus = r_ptr->ac / 7 + 5;
 	}
-	/* Monsters in water are vulnerable. -LM-  */
+	/* Monsters in water are vulnerable.  */
 	if (cave_feat[y][x] == FEAT_WATER)
 	{
 		terrain_bonus -= r_ptr->ac / 5;
 	}
 
 
-	/**** The monster bashing code. -LM- ****/
+	/**** The monster bashing code. -LM-  ****/
 
 	/* No shield on arm, no bash.  */
 	if ((!inventory[INVEN_ARM].k_idx) || (p_ptr->shield_on_back)) 
@@ -746,7 +748,7 @@ void py_attack(int y, int x)
 	/* Try to get in a shield bash. */
 	if (bash_chance > rand_int(240 + r_ptr->level * 9))
 	{
-		msg_print("You get in a shield bash!");
+	        message(MSG_HIT, 0, "You get in a shield bash!");
 
 		/* Calculate attack quality, a mix of momentum and accuracy. */
 		bash_quality = p_ptr->skill_thn + (p_ptr->wt / 8) + 
@@ -766,7 +768,7 @@ void py_attack(int y, int x)
 
 		/* Encourage the player to keep wearing that heavy shield. */
 		if (randint(bash_dam) > 30 + randint(bash_dam / 2)) 
-			msg_print("WHAMM!");
+	               message(MSG_HIT, 0, "WHAMM!");
 
 
 		/* Damage, check for fear and death. */
@@ -779,7 +781,7 @@ void py_attack(int y, int x)
 		/* Stunning. */
 		if (bash_quality + p_ptr->lev > randint(200 + r_ptr->level * 4))
 		{
-			msg_format("%^s is stunned.", m_name);
+	               message_format(MSG_HIT, 0, "%^s is stunned.", m_name);
 
 			m_ptr->stunned += rand_int(p_ptr->lev / 5) + 4;
 			if (m_ptr->stunned > 24) m_ptr->stunned = 24;
@@ -789,7 +791,7 @@ void py_attack(int y, int x)
 		if (bash_quality + p_ptr->lev > randint(300 + r_ptr->level * 6) && 
 			(!r_ptr->flags3 & (RF3_NO_CONF)))
 		{
-			msg_format("%^s appears confused.", m_name);
+		        message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
 
 			m_ptr->confused += rand_int(p_ptr->lev / 5) + 4;
 		}
@@ -810,7 +812,7 @@ void py_attack(int y, int x)
 	if (total_deadliness > 150) total_deadliness = 150;
 
 	/* Calculate the "attack quality".  As BTH_PLUS_ADJ has been reduced
-	 * to 1, base skill and modifiers to skill are given equal weight. -LM-
+	 * to 1, base skill and modifiers to skill are given equal weight.
 	 */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
@@ -827,7 +829,7 @@ void py_attack(int y, int x)
 			/* Sound */
 			sound(SOUND_HIT);
 
-			/* If this is the first hit, make some noise. -LM- */
+			/* If this is the first hit, make some noise. */
 			if (hits == 1)
 			{
 				/* Hack -- Rogues and Assassins are silent melee 
@@ -904,7 +906,7 @@ void py_attack(int y, int x)
 				else
 				{
 					k = 1 + ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-					msg_format("You punch %s.", m_name);
+					message_format(MSG_HIT, 0, "You punch %s.", m_name);
 				}
 			}
 
@@ -938,7 +940,7 @@ void py_attack(int y, int x)
 			{
 				/* Message */
 				if (!( p_ptr->special_attack & (ATTACK_DRUID_CONFU))) 
-					msg_print("Your hands stop glowing.");
+				  message(MSG_HIT, 0, "Your hands stop glowing.");
 
 				/* Cancel special confusion attack */
 				p_ptr->special_attack &= ~(ATTACK_CONFUSE);
@@ -949,7 +951,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml)
 					{
-						r_ptr->r_flags3 |= (RF3_NO_CONF);
+						l_ptr->flags3 |= (RF3_NO_CONF);
 					}
 
 					msg_format("%^s is unaffected.", m_name);
@@ -960,7 +962,7 @@ void py_attack(int y, int x)
 				}
 				else
 				{
-					msg_format("%^s appears confused.", m_name);
+				        message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
@@ -979,7 +981,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml) /* control for visibility */
 					{
-						r_ptr->r_flags3 |= (RF3_UNDEAD);
+						l_ptr->flags3 |= (RF3_UNDEAD);
 					}
 
 					msg_format("%^s is immune!", m_name);
@@ -993,7 +995,7 @@ void py_attack(int y, int x)
 				else
 				{
 					m_ptr->black_breath = TRUE;
-					msg_format("%^s is stricken with the Black Breath!", m_name);
+					message_format(MSG_HIT, 0, "%^s is stricken with the Black Breath!", m_name);
 				}
 			}
 
@@ -1023,7 +1025,7 @@ void py_attack(int y, int x)
 			sound(SOUND_MISS);
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			message_format(MSG_MISS, 0, "You miss %s.", m_name);
 		}
 	}
 
@@ -1035,7 +1037,8 @@ void py_attack(int y, int x)
 		sound(SOUND_FLEE);
 
 		/* Message */
-		msg_format("%^s flees in terror!", m_name);
+		message_format(MSG_FLEE, m_ptr->r_idx,
+			       "%^s flees in terror!", m_name);
 	}
 
 
@@ -1142,7 +1145,7 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[120];
 	char m_name[80];
 
 	int path_n = 0;
@@ -1346,25 +1349,25 @@ void do_cmd_fire(void)
 			monster_desc(m_name, m_ptr, 0);
 
 
-			/* Sleeping, visible monsters are easier to hit. -LM- */
+			/* Sleeping, visible monsters are easier to hit. */
 			if ((m_ptr->csleep) && (visible)) 
 				sleeping_bonus = 5 + p_ptr->lev / 5;
 
 
-			/* Monsters in rubble can take advantage of cover. -LM- */
+			/* Monsters in rubble can take advantage of cover. */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
 			/* Monsters in trees can take advantage of cover, except from 
-			 * players who know nature lore. -LM-
+			 * players who know nature lore.
 			 */
 			if ((cave_feat[y][x] == FEAT_TREE) && 
 				(mp_ptr->spell_book != TV_DRUID_BOOK))
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
-			/* Monsters in water are vulnerable. -LM- */
+			/* Monsters in water are vulnerable. */
 			if (cave_feat[y][x] == FEAT_WATER)
 			{
 				terrain_bonus -= r_ptr->ac / 4;
@@ -1396,7 +1399,7 @@ void do_cmd_fire(void)
 
 
 				/* Make some noise.  Hack -- Assassins are silent 
-				 * missile weapon killers. -LM-
+				 * missile weapon killers.
 				 */
 				if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
 					p_ptr->base_wakeup_chance / 4 + 600;
@@ -1514,7 +1517,8 @@ void do_cmd_fire(void)
 						sound(SOUND_FLEE);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						message_format(MSG_FLEE, m_ptr->r_idx,
+							       "%^s flees in terror!", m_name);
 					}
 				}
 			}
@@ -1567,7 +1571,7 @@ void do_cmd_throw(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[120];
 	char m_name[80];
 
 	int path_n = 0;
@@ -1742,20 +1746,20 @@ void do_cmd_throw(void)
 				else sleeping_bonus = 0;
 			}
 
-			/* Monsters in rubble can take advantage of cover. -LM- */
+			/* Monsters in rubble can take advantage of cover. */
 			if (cave_feat[y][x] == FEAT_RUBBLE)
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
 			/* Monsters in trees can take advantage of cover, except from 
-			 * players who know nature lore. -LM-
+			 * players who know nature lore.
 			 */
 			if ((cave_feat[y][x] == FEAT_TREE) && 
 				(mp_ptr->spell_book != TV_DRUID_BOOK))
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
-			/* Monsters in water are vulnerable. -LM- */
+			/* Monsters in water are vulnerable. */
 			if (cave_feat[y][x] == FEAT_WATER)
 			{
 				terrain_bonus -= r_ptr->ac / 4;
@@ -1791,7 +1795,7 @@ void do_cmd_throw(void)
 
 
 				/* Make some noise.  Hack -- Assassins are silent 
-				 * missile weapon killers. -LM-
+				 * missile weapon killers.
 				 */
 				if (p_ptr->pclass == CLASS_ASSASSIN) add_wakeup_chance = 
 					p_ptr->base_wakeup_chance / 4 + 300;
@@ -1812,7 +1816,8 @@ void do_cmd_throw(void)
 
 				/* The basic damage-determination formula is the same in
 				 * throwing as it is in melee (apart from the thrown weapon 
-				 * multiplier, and the ignoring of non-object bonuses to 				 * Deadliness for objects that are not thrown weapons).  See 
+				 * multiplier, and the ignoring of non-object bonuses to
+ 				 * Deadliness for objects that are not thrown weapons).  See 
 				 * formula "py_attack" in "cmd1.c" for more details. -LM-
 				 */
 

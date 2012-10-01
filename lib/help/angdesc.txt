@@ -1,77 +1,29 @@
 
 ================== Angband Description, History, and Copyright =================
 
-     Angband 2.8.3 has an incredibly complex history, and is the result of a lot 
-of work by a lot of people, all of whom have contributed their time and energy 
-for free, being rewarded only by the pleasure of keeping alive one of the best 
-freeware games available anywhere.
+=== Version Information ===
 
-     Angband is a detailed, single player dungeon simulation.  A player creates 
-a male or female character, choosing from a variety of races and classes, and 
-then "runs" that character over a period of days, weeks, even months.  It is a 
-"roguelike" game, one of the plethora of dungeon adventure games inspired or 
-similar to the game Rogue.  Angband was created in 1990 at the University of 
-Warwick, England as a variant of Moria, and has prospered ever since.
+This file was last updated for Angband 2.9.0.
 
-     The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armor, and magical devices by bargaining with various shop
-owners.  Then the player can descend into the Pits of Angband, where he will
-explore the many levels of the dungeon, gaining experience by killing fierce
-creatures, collecting powerful objects and valuable treasure, and returning to 
-town occasionally to stock up on new supplies.  Eventually, as the player grows 
-more experienced, he may attempt to win the game by defeating Morgoth, Lord of 
-Darkness, who resides far below the surface.
+Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
+the Official Angband Home Page ("http://thangorodrim.angband.org") for the
+most up to date information about Angband.
 
+Angband 2.9.0 has an incredibly complex history, and is the result of a
+lot of work by a lot of people, all of whom have contributed their time
+and energy for free, being rewarded only by the pleasure of keeping alive
+one of the best freeware games available anywhere.
 
-=== A Note from the Maintainer of Standard Angband ===
+The version control files, if they existed, would span more than ten years
+time, and more than six different primary developers.  Without such files,
+we must rely on simpler methods, such as change logs, source file diffs, and
+word of mouth.  Some of this information is summarized in this file.
 
-Welcome to Angband 2.8.3.
-
-My name is Ben Harrison, and I have been the maintainer of Angband since
-November 1994.  I have been responsible for many improvements to the game
-over the past few years, and I have many more planned for the future.
-
-Angband 2.8.X is available for almost every known system (including Unix,
-Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
-and the source code is freely available.  Creating a version for a new
-platform involves writing as few as 100 lines of code and recompiling.
-
-Angband 2.8.3 is the current, stable version.
-
-See the Official Angband Home Page ("http://www.phial.com/angband/") for up
-to date information about the latest version of Angband, including a complete
-list of recent modifications and known bugs.
-
-You can obtain the latest source and pre-compiled executables from various
-places, try "ftp://ftp.cis.ksu.edu/pub/Games/Angband/Angband-2.7.x" and
-the developer site at "ftp://export.andrew.cmu.edu/angband".
-
-You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("benh@phial.com"), and you can post interesting experiences and basic
-questions to the newsgroup ("rec.games.roguelike.angband").
-
-You may freely distribute the game, and its source, though you are bound
-not only by the existing copyright notice from 1984, but also whatever
-restrictions may be present on various other pieces of the code, including
-the fact that any source written by me is technically automatically placed
-under copyright and may thus not be used for commercial purposes.  Remember
-to read this help file for some more copyright information.
-
-The documentation is very easy to modify and update, so you may want to
-check in to the ftp site occasionally to see if there are any new help
-files (or spoiler files) for you to acquire.  Note that the spoiler files
-are not distributed with the source since they are so huge, but you can
-obtain them from various places as with the source and executables.  New
-spoiler files may be placed into the "lib/info" directory, or into a user
-specified external directory, to allow access via the "online help" system.
-
-Remember to tell all your friends about how much you like Angband...
-
+Please be sure to read the copyright information at the end of this file.
 
 === Brief Version History ===
 
-First came "VMS Moria", by Robert Alan Koeneke (1985).  See his fascinating 
-letter near the bottom of this file.
+First came "VMS Moria", by Robert Alan Koeneke (1985).
 
 Then came "Umoria" (Unix Moria), by James E. Wilson (1989).
 
@@ -145,18 +97,26 @@ After Angband 2.7.8 was released, I created a web site to keep track of
 all the changes made in each version (though a few may have been missed),
 and acquired the use of a new develoepement ftp server to supplement the
 official "mirror" server.  This web site is now permanently located at
-the Official Angband Home Page (http://www.phial.com).  Unfortunately,
-the next six versions were numbered Angband 2.7.9v1 to Angband 2.7.9v6,
-but really each were rather major updates.  Angband 2.8.0 and 2.8.1 were
-released using a more normal version scheme.  Angband 2.8.2 and 2.8.3 add
-a few random features, clean up some code, and provide graphics support
-and such for a few more platforms.
+the Official Angband Home Page (http://thangorodrim.angband.org/).
+Unfortunately, the next six versions were numbered Angband 2.7.9v1 to
+Angband 2.7.9v6, but really each were rather major updates.  Angband 2.8.0
+and 2.8.1 were released using a more normal version scheme.  Angband 2.8.2
+and 2.8.3 add a few random features, clean up some code, and provide
+graphics support and such for a few more platforms.
 
-The Official Angband Home Page ("http://www.phial.com/angband/") serves
+After the release of Angband 2.8.3 Ben's free time was more and more
+occupied by his work.  He released a beta version of Angband 2.8.5,
+introducing many new features, but couldn't give as much attention to
+maintaining the game as he wanted to.
+
+So in March 2000, I (Robert Ruehlmann) offered to take over Angband and
+started to fix the remaining bugs in the Angband 2.8.5 beta.  The
+resulting version has now been released as Angband 2.9.0.
+
+The Official Angband Home Page ("http://thangorodrim.angband.org/") serves
 not only as the most up to date description of Angband, but also lists
 changes made between versions, and changes planned for upcoming versions,
 and lists various email addresses and web sites related to Angband.
-
 
 === Some of the changes between Angband 2.6.1 and Angband 2.7.8 ===
 
@@ -290,7 +250,6 @@ changes (and bug fixes) can be found at the Official Angband Home Page.
     extreme optimizations
 
 
-
 === A Posting from the Original Author ===
 
 From: koeneke@ionet.net (Robert Alan Koeneke)
@@ -412,7 +371,7 @@ Robert Alan Koeneke
 koeneke@ionet.net
 
 
-=== Versions, contributers, and copyright statements ===
+=== Previous Versions (outdated) ===
 
 
                           VMS Moria Version 4.8
@@ -433,6 +392,7 @@ Modules :
 
 Robert Alan Koeneke               Jimmey Wayne Todd Jr.
 Student/University of Oklahoma    Student/University of Oklahoma
+
 
 
 
@@ -458,16 +418,15 @@ David J. Grabiner     - numerous bug reports, and consistency checking
 Dan Bernstein         - UNIX hangup signal fix, many bug fixes
 and many others...
 
+
+
+
 Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
   This software may be copied and distributed for educational, research, and
   not for profit purposes provided that this copyright and statement are
   included in all such copies.
 
 Umoria Version 5.2, patch level 1
-
-
-
-                        Angband Version 2.8.3
 
 Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, 
                       Charles Teague.
@@ -483,21 +442,49 @@ Angband Version 2.7   : 01/01/95  Ben Harrison
 Angband Version 2.8   : 01/01/97  Ben Harrison
 
 
+
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,
 and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
 
+All changes made by Ben Harrison and Robert Ruehlmann are also available
+under the GNU GENERAL PUBLIC LICENSE.  Note that this doesn't influence
+the current distribution, since parts of the source are still only
+available under the old Moria/Angband license.  Until all parts of
+Angband are distributed under the GPL the only valid license remains
+the original Moria/Angband license.
 
-                        Variant of Angband (Oangband Version 0.4.0)
+
+=== Contributors (incomplete) ===
+
+Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke,
+Ben Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer,
+Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
+Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
+Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
+Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra
+
+
+=== Variant of Angband (Oangband Version 0.5.0) ===
 
 Oangband Version 0.4  : 4/18/99  Leon Marrick
 
-Copyright (c) 1999      Leon Marrick, Ben Harrison, 
-                        James E. Wilson, Robert A. Koeneke
+Oangband Version 0.5  : 4/18/99  Bahman Rabii
+
+Copyright (c) 2000      Bahman Rabii, Leon Marrick, Robert Ruehlmann,
+                        Ben Harrison, James E. Wilson, Robert A. Koeneke
 
 This software may be copied and distributed for educational, research,
 and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
+
+All changes made by Bahman Rabii are also available under the GNU
+GENERAL PUBLIC LICENSE.  Note that this doesn't influence the current
+distribution, since parts of the source are still only available under
+the old Moria/Angband/Oangband license.  Until all parts of Angband
+are distributed under the GPL the only valid license remains the
+original Moria/Angband license.
+
 

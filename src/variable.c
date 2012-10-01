@@ -94,6 +94,8 @@ s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
+char summon_kin_type;		/* Hack -- See summon_specific() */
+
 s32b turn;				/* Current game turn */
 
 s32b old_turn;			/* Hack -- Level feeling counter */
@@ -222,6 +224,17 @@ u16b *message__ptr;
  * The array[MESSAGE_BUF] of chars, by offset
  */
 char *message__buf;
+
+/*
+ * The array[MESSAGE_MAX] of u16b for the types of messages
+ */
+u16b *message__type;
+
+
+/*
+ * Table of colors associated to message-types
+ */
+byte message__color[MSG_MAX];
 
 
 /*
@@ -383,6 +396,11 @@ object_type *o_list;
 monster_type *m_list;
 
 /*
+ * Array[MAX_M_IDX] of monster lore
+ */
+monster_lore *l_list;
+
+/*
  * Hack -- Array[MAX_Q_IDX] of quests
  */
 quest *q_list;
@@ -481,10 +499,9 @@ player_type *p_ptr = &player_type_body;
 
 /*
  * Alterations to the possibility that monsters accessed in the next call to 
- * process_monsters will be disturbed.  -LM-
+ * process_monsters will be disturbed.
  */
 int add_wakeup_chance = 0;
-
 
 /*
  * The vault generation arrays
@@ -541,6 +558,35 @@ header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
+
+/*
+ * The player race arrays
+ */
+header *p_head;
+player_race *p_info;
+char *p_name;
+char *p_text;
+
+
+/*
+ * The player history arrays
+ */
+header *h_head;
+hist_type *h_info;
+char *h_text;
+
+/*
+ * The shop owner arrays
+ */
+header *b_head;
+owner_type *b_info;
+char *b_name;
+
+/*
+ * The racial price adjustment arrays
+ */
+header *g_head;
+byte *g_info;
 
 
 /*

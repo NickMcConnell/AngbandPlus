@@ -6,14 +6,13 @@
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/v_info.raw" file.
 
 # Note that the "spacing" in the "description" lines is very important!
 
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 

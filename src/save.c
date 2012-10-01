@@ -312,12 +312,12 @@ static errr wr_savefile(void)
 	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
-	/* Dump the messages (oldest first!) */
+	/* Dump the messages and types (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str(i));
+		wr_u16b(message_type(i));
 	}
-
 
 	/* Dump the monster lore */
 	tmp16u = MAX_R_IDX;
@@ -348,7 +348,7 @@ static errr wr_savefile(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
+		wr_byte(a_ptr->creat_stat);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
@@ -761,6 +761,18 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->stasis);
+
+	wr_byte(m_ptr->black_breath);
+	
+	wr_s32b(m_ptr->smart); /* Flags for 'smart-learn' */
+
+	/* Dummy writes for features soon to be implemented */
+	wr_byte(0);      
+	wr_byte(0);      
+	wr_byte(0);	 
+	wr_byte(0);   
+	wr_s16b(0);    
+	wr_s16b(0); 
 }
 
 
@@ -770,42 +782,43 @@ static void wr_monster(monster_type *m_ptr)
 static void wr_lore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 	/* Count sights/deaths/kills */
-	wr_s16b(r_ptr->r_sights);
-	wr_s16b(r_ptr->r_deaths);
-	wr_s16b(r_ptr->r_pkills);
-	wr_s16b(r_ptr->r_tkills);
+	wr_s16b(l_ptr->sights);
+	wr_s16b(l_ptr->deaths);
+	wr_s16b(l_ptr->pkills);
+	wr_s16b(l_ptr->tkills);
 
 	/* Count wakes and ignores */
-	wr_byte(r_ptr->r_wake);
-	wr_byte(r_ptr->r_ignore);
+	wr_byte(l_ptr->wake);
+	wr_byte(l_ptr->ignore);
 
 	/* Extra stuff */
-	wr_byte(r_ptr->r_xtra1);
-	wr_byte(r_ptr->r_xtra2);
+	wr_byte(l_ptr->xtra1);
+	wr_byte(l_ptr->xtra2);
 
 	/* Count drops */
-	wr_byte(r_ptr->r_drop_gold);
-	wr_byte(r_ptr->r_drop_item);
+	wr_byte(l_ptr->drop_gold);
+	wr_byte(l_ptr->drop_item);
 
 	/* Count spells */
-	wr_byte(r_ptr->r_cast_inate);
-	wr_byte(r_ptr->r_cast_spell);
+	wr_byte(l_ptr->cast_inate);
+	wr_byte(l_ptr->cast_spell);
 
 	/* Count blows of each type */
-	wr_byte(r_ptr->r_blows[0]);
-	wr_byte(r_ptr->r_blows[1]);
-	wr_byte(r_ptr->r_blows[2]);
-	wr_byte(r_ptr->r_blows[3]);
+	wr_byte(l_ptr->blows[0]);
+	wr_byte(l_ptr->blows[1]);
+	wr_byte(l_ptr->blows[2]);
+	wr_byte(l_ptr->blows[3]);
 
 	/* Memorize flags */
-	wr_u32b(r_ptr->r_flags1);
-	wr_u32b(r_ptr->r_flags2);
-	wr_u32b(r_ptr->r_flags3);
-	wr_u32b(r_ptr->r_flags4);
-	wr_u32b(r_ptr->r_flags5);
-	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(l_ptr->flags1);
+	wr_u32b(l_ptr->flags2);
+	wr_u32b(l_ptr->flags3);
+	wr_u32b(l_ptr->flags4);
+	wr_u32b(l_ptr->flags5);
+	wr_u32b(l_ptr->flags6);
 
 
 	/* Monster limit per level */
@@ -829,6 +842,7 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
 	if (k_ptr->known_effect) tmp8u |= 0x04;
+	if (k_ptr->squelch) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -847,7 +861,7 @@ static void wr_store(store_type *st_ptr)
 	/* Save the "insults" */
 	wr_s16b(st_ptr->insult_cur);
 
-	/* Save the current owner */
+	/* Save the current owner*/
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
@@ -897,8 +911,6 @@ static void wr_options(void)
 {
 	int i, k;
 
-	u16b c;
-
 	u32b flag[8];
 	u32b mask[8];
 
@@ -924,20 +936,7 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte(op_ptr->hitpoint_warn);
 
-
-	/*** Cheating options ***/
-
-	c = 0;
-
-	if (p_ptr->wizard) c |= 0x0002;
-
-	/* Save the cheating flags */
-	for (i = 0; i < CHEAT_MAX; i++)
-	{
-		if (p_ptr->cheat[i]) c |= (0x0100 << i);
-	}
-
-	wr_u16b(c);
+        wr_u16b(0);     /* Was cheating options */
 
 
 	/*** Normal options ***/
@@ -1124,8 +1123,8 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->black_breath);	/* Now used to store Black Breath. */
 	wr_byte(p_ptr->searching);
-	wr_byte(p_ptr->maximize);
-	wr_byte(p_ptr->preserve);
+	wr_byte(0);	/* formerly maximize */
+	wr_byte(0);	/* formerly preserve */
 	wr_byte(p_ptr->schange); /* Now used to store shapechange. */
 
 	/* Store the bones file selector, if the player is not dead. -LM- */
@@ -1148,10 +1147,8 @@ static void wr_extra(void)
 
 
 	/* Future use */
-	wr_byte(0);
-	wr_byte(0);
-	wr_byte(0);
-	for (i = 0; i < 9; i++) wr_u32b(0L);
+	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	for (i = 0; i < 15; i++) wr_byte(0);
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1422,6 +1419,7 @@ static bool wr_savefile_new(void)
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str(i));
+		wr_u16b(message_type((s16b)i));
 	}
 
 
@@ -1470,7 +1468,7 @@ static bool wr_savefile_new(void)
 		/* Most regular artifact info is stored in a_info.raw. */
 		if (i < ART_MIN_RANDOM)
 		{
-			wr_byte(a_ptr->cur_num);
+			wr_byte(a_ptr->creat_stat);
 			wr_byte(0);
 			wr_byte(0);
 			wr_byte(0);
@@ -1504,7 +1502,7 @@ static bool wr_savefile_new(void)
 			wr_byte(a_ptr->level);
 			wr_byte(a_ptr->rarity);
 
-			wr_byte(a_ptr->cur_num);
+			wr_byte(a_ptr->creat_stat);
 			wr_byte(a_ptr->activation);
 
 			/* Add some filler space for later expansion. */
@@ -1512,7 +1510,7 @@ static bool wr_savefile_new(void)
 		}
 	}
 
-	/* Note down how many random artifacts have names.  In Oangband 0.3.0 
+	/* Note down how many random artifacts have names.  In Oangband 0.5.0 
 	 * there are 40 random artifact names.
 	 */
 	wr_u16b(MAX_A_IDX - ART_MIN_RANDOM);
@@ -1678,7 +1676,6 @@ bool save_player(void)
 
 
 #ifdef SET_UID
-
 # ifdef SECURE
 
 	/* Get "games" permissions */

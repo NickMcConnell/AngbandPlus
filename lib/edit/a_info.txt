@@ -6,7 +6,6 @@
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/a_info.raw" file.
 
 # The artifact indexes are defined in "defines.h", and must not be changed.
 
@@ -27,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.4.1
+V:0.5.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -1311,7 +1310,7 @@ D:Smaug himself, and the minds of your enemies stand naked and revealed.
 N:134:of Pain
 I:22:13:0
 W:55:25:190:50000
-P:8:6d6:0:28:0:0
+P:8:6d7:0:28:0:0
 F:TWO_HANDED_REQ | SHOW_MODS
 D:The massive cleaver that crowns this glaive glows blood-red and black; 
 D:fell spells of annihilation swirl and dance as you swing death's myrmidon 

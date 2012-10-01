@@ -75,9 +75,9 @@ static bool know_armour(int r_idx)
 
 	s32b level = r_ptr->level;
 
-	s32b kills = r_ptr->r_tkills;
+	s32b kills = l_list[r_idx].tkills;
 
-	/* Rangers learn quickly. -LM- */
+	/* Rangers learn quickly. */
 	if (p_ptr->pclass == CLASS_RANGER) kills *= 2;
 
 	/* Normal monsters */
@@ -105,14 +105,14 @@ static bool know_damage(int r_idx, int i)
 
 	s32b level = r_ptr->level;
 
-	s32b a = r_ptr->r_blows[i];
+	s32b a = l_list[r_idx].blows[i];
 
 	s32b d1 = r_ptr->blow[i].d_dice;
 	s32b d2 = r_ptr->blow[i].d_side;
 
 	s32b d = d1 * d2;
 
-	/* Hack -- Rangers learn quickly. -LM- */
+	/* Hack -- Rangers learn quickly. */
 	if (p_ptr->pclass == CLASS_RANGER) level = 10 + 3 * level / 2;
 
 	/* Normal monsters */
@@ -144,6 +144,7 @@ static bool know_damage(int r_idx, int i)
 static void roff_aux(int r_idx)
 {
 	monster_race *r_ptr;
+	monster_lore *l_ptr;
 
 	bool old = FALSE;
 	bool sin = FALSE;
@@ -188,6 +189,7 @@ static void roff_aux(int r_idx)
 
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
+	l_ptr = &l_list[r_idx];
 
 	/* Cheat -- know everything */
 	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
@@ -198,10 +200,10 @@ static void roff_aux(int r_idx)
 		COPY(&save_mem, r_ptr, monster_race);
 
 		/* Hack -- Maximal kills */
-		r_ptr->r_tkills = MAX_SHORT;
+		l_ptr->tkills = MAX_SHORT;
 
 		/* Hack -- Maximal info */
-		r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
+		l_ptr->wake = l_ptr->ignore = MAX_UCHAR;
 
 		/* Observe "maximal" attacks */
 		for (m = 0; m < 4; m++)
@@ -210,12 +212,12 @@ static void roff_aux(int r_idx)
 			if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
 			{
 				/* Hack -- maximal observations */
-				r_ptr->r_blows[m] = MAX_UCHAR;
+				l_ptr->blows[m] = MAX_UCHAR;
 			}
 		}
 
 		/* Hack -- maximal drops */
-		r_ptr->r_drop_gold = r_ptr->r_drop_item =
+		l_ptr->drop_gold = l_ptr->drop_item =
 		(((r_ptr->flags1 & (RF1_DROP_4D2)) ? 8 : 0) +
 		 ((r_ptr->flags1 & (RF1_DROP_3D2)) ? 6 : 0) +
 		 ((r_ptr->flags1 & (RF1_DROP_2D2)) ? 4 : 0) +
@@ -224,20 +226,20 @@ static void roff_aux(int r_idx)
 		 ((r_ptr->flags1 & (RF1_DROP_60))  ? 1 : 0));
 
 		/* Hack -- but only "valid" drops */
-		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) r_ptr->r_drop_item = 0;
-		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) r_ptr->r_drop_gold = 0;
+		if (r_ptr->flags1 & (RF1_ONLY_GOLD)) l_ptr->drop_item = 0;
+		if (r_ptr->flags1 & (RF1_ONLY_ITEM)) l_ptr->drop_gold = 0;
 
 		/* Hack -- observe many spells */
-		r_ptr->r_cast_inate = MAX_UCHAR;
-		r_ptr->r_cast_spell = MAX_UCHAR;
+		l_ptr->cast_inate = MAX_UCHAR;
+		l_ptr->cast_spell = MAX_UCHAR;
 
 		/* Hack -- know all the flags */
-		r_ptr->r_flags1 = r_ptr->flags1;
-		r_ptr->r_flags2 = r_ptr->flags2;
-		r_ptr->r_flags3 = r_ptr->flags3;
-		r_ptr->r_flags4 = r_ptr->flags4;
-		r_ptr->r_flags5 = r_ptr->flags5;
-		r_ptr->r_flags6 = r_ptr->flags6;
+		l_ptr->flags1 = r_ptr->flags1;
+		l_ptr->flags2 = r_ptr->flags2;
+		l_ptr->flags3 = r_ptr->flags3;
+		l_ptr->flags4 = r_ptr->flags4;
+		l_ptr->flags5 = r_ptr->flags5;
+		l_ptr->flags6 = r_ptr->flags6;
 	}
 
 
@@ -247,12 +249,12 @@ static void roff_aux(int r_idx)
 
 
 	/* Obtain a copy of the "known" flags */
-	flags1 = (r_ptr->flags1 & r_ptr->r_flags1);
-	flags2 = (r_ptr->flags2 & r_ptr->r_flags2);
-	flags3 = (r_ptr->flags3 & r_ptr->r_flags3);
-	flags4 = (r_ptr->flags4 & r_ptr->r_flags4);
-	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
-	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
+	flags1 = (r_ptr->flags1 & l_ptr->flags1);
+	flags2 = (r_ptr->flags2 & l_ptr->flags2);
+	flags3 = (r_ptr->flags3 & l_ptr->flags3);
+	flags4 = (r_ptr->flags4 & l_ptr->flags4);
+	flags5 = (r_ptr->flags5 & l_ptr->flags5);
+	flags6 = (r_ptr->flags6 & l_ptr->flags6);
 
 
 	/* Assume some "obvious" flags */
@@ -268,7 +270,7 @@ static void roff_aux(int r_idx)
 	if (r_ptr->flags1 & (RF1_ESCORTS)) flags1 |= (RF1_ESCORTS);
 
 	/* Killing a monster reveals some properties */
-	if (r_ptr->r_tkills)
+	if (l_ptr->tkills)
 	{
 		/* Know "race" flags */
 		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
@@ -296,27 +298,27 @@ static void roff_aux(int r_idx)
 	else if (flags1 & (RF1_UNIQUE))
 	{
 		/* Hack -- Determine if the unique is "dead" */
-		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
+	        bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
 
 		/* We've been killed... */
-		if (r_ptr->r_deaths)
+		if (l_ptr->deaths)
 		{
 			/* Killed ancestors */
 			roff(format("%^s has slain %d of your ancestors",
-			            wd_he[msex], r_ptr->r_deaths), 0, 0);
+			            wd_he[msex], l_ptr->deaths), 0, 0);
 
 			/* But we've also killed it */
 			if (dead)
 			{
 				roff(format(", but you have avenged %s!  ",
-				            plural(r_ptr->r_deaths, "him", "them")), 0, 0);
+				            plural(l_ptr->deaths, "him", "them")), 0, 0);
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
 				roff(format(", who %s unavenged.  ",
-				            plural(r_ptr->r_deaths, "remains", "remain")), 0, 0);
+				            plural(l_ptr->deaths, "remains", "remain")), 0, 0);
 			}
 		}
 
@@ -325,27 +327,28 @@ static void roff_aux(int r_idx)
 		{
 			roff("You have slain this foe.  ", 0, 0);
 		}
+		
 	}
 
 	/* Not unique, but killed us */
-	else if (r_ptr->r_deaths)
+	else if (l_ptr->deaths)
 	{
 		/* Dead ancestors */
 		roff(format("%d of your ancestors %s been killed by this creature, ",
-			r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")), 0, 0);
+			l_ptr->deaths, plural(l_ptr->deaths, "has", "have")), 0, 0);
 
 		/* Some kills this life */
-		if (r_ptr->r_pkills)
+		if (l_ptr->pkills)
 		{
 			roff(format("and you have exterminated at least %d of the creatures.  ",
-				r_ptr->r_pkills), 0, 0);
+				l_ptr->pkills), 0, 0);
 		}
 
 		/* Some kills past lives */
-		else if (r_ptr->r_tkills)
+		else if (l_ptr->tkills)
 		{
 			roff(format("and %s have exterminated at least %d of the creatures.  ",
-				"your ancestors", r_ptr->r_tkills), 0, 0);
+				"your ancestors", l_ptr->tkills), 0, 0);
 		}
 
 		/* No kills */
@@ -360,17 +363,17 @@ static void roff_aux(int r_idx)
 	else
 	{
 		/* Killed some this life */
-		if (r_ptr->r_pkills)
+		if (l_ptr->pkills)
 		{
 			roff(format("You have killed at least %d of these creatures.  ",
-				r_ptr->r_pkills), 0, 0);
+				l_ptr->pkills), 0, 0);
 		}
 
 		/* Killed some last life */
-		else if (r_ptr->r_tkills)
+		else if (l_ptr->tkills)
 		{
 			roff(format("Your ancestors have killed at least %d of these creatures.  ",
-				r_ptr->r_tkills), 0, 0);
+				l_ptr->tkills), 0, 0);
 		}
 
 		/* Killed none */
@@ -459,7 +462,7 @@ static void roff_aux(int r_idx)
 	old = FALSE;
 
 
-	/* Player ghosts may have unique descriptions. -LM- */
+	/* Player ghosts may have unique descriptions. */
 	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (ghost_string_type == 2))
 		roff(format("%s  ", ghost_string), 0, 0);
 
@@ -470,7 +473,7 @@ static void roff_aux(int r_idx)
 		roff(format("%^s lives in the town", wd_he[msex]), 0, 0);
 		old = TRUE;
 	}
-	else if (r_ptr->r_tkills)
+	else if (l_ptr->tkills)
 	{
 		if (depth_in_feet)
 		{
@@ -576,7 +579,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Describe experience if known */
-	if (r_ptr->r_tkills)
+	if (l_ptr->tkills)
 	{
 		/* Introduction */
 		if (flags1 & (RF1_UNIQUE))
@@ -637,7 +640,7 @@ static void roff_aux(int r_idx)
 			            q, (long)i, p), 0, 0);
 		}
 	}
-	/* If no kills, known racial information should still be displayed. -LM- */
+	/* If no kills, known racial information should still be displayed. */
 	else if ((flags3 & (RF3_ANIMAL)) || (flags3 & (RF3_EVIL)) || 
 		(flags3 & (RF3_UNDEAD)) || (flags3 & (RF3_DRAGON)) || 
 		(flags3 & (RF3_DEMON)) || (flags3 & (RF3_GIANT)) || 
@@ -832,16 +835,16 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX7))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX8))		vp[vn++] = "do something";
+	if (flags6 & (RF6_BA_LITE))		vp[vn++] = "invoke starbursts";
+	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon simmilar creatures";
+	if (flags6 & (RF6_S_HI_DEMON))		vp[vn++] = "summon greater demons";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
 	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_XXX9))		vp[vn++] = "do something";
-	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
+	if (flags6 & (RF6_XXX10))		vp[vn++] = "do something";
 	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON))		vp[vn++] = "summon a dragon";
@@ -890,7 +893,7 @@ static void roff_aux(int r_idx)
 	if (breath || magic)
 	{
 		/* Total casting */
-		m = r_ptr->r_cast_inate + r_ptr->r_cast_spell;
+		m = l_ptr->cast_inate + l_ptr->cast_spell;
 
 		/* Average frequency */
 		n = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
@@ -1122,9 +1125,9 @@ static void roff_aux(int r_idx)
 
 
 	/* Do we know how aware it is? */
-	if ((((int)r_ptr->r_wake * (int)r_ptr->r_wake) > r_ptr->sleep) ||
-	    (r_ptr->r_ignore == MAX_UCHAR) ||
-	    ((r_ptr->sleep == 0) && (r_ptr->r_tkills >= 10)))
+	if ((((int)l_ptr->wake * (int)l_ptr->wake) > r_ptr->sleep) ||
+	    (l_ptr->ignore == MAX_UCHAR) ||
+	    ((r_ptr->sleep == 0) && (l_ptr->tkills >= 10)))
 	{
 		cptr act;
 
@@ -1179,7 +1182,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Drops gold and/or items */
-	if (r_ptr->r_drop_gold || r_ptr->r_drop_item)
+	if (l_ptr->drop_gold || l_ptr->drop_item)
 	{
 		/* No "n" needed */
 		sin = FALSE;
@@ -1188,7 +1191,7 @@ static void roff_aux(int r_idx)
 		roff(format("%^s may carry", wd_he[msex]), 0, 0);
 
 		/* Count maximum drop */
-		n = MAX(r_ptr->r_drop_gold, r_ptr->r_drop_item);
+		n = MAX(l_ptr->drop_gold, l_ptr->drop_item);
 
 		/* One drop (may need an "n") */
 		if (n == 1)
@@ -1231,7 +1234,7 @@ static void roff_aux(int r_idx)
 
 
 		/* Objects */
-		if (r_ptr->r_drop_item)
+		if (l_ptr->drop_item)
 		{
 			/* Handle singular "an" */
 			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) roff("n", 0, 0);
@@ -1248,7 +1251,7 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Treasures */
-		if (r_ptr->r_drop_gold)
+		if (l_ptr->drop_gold)
 		{
 			/* Cancel prefix */
 			if (!p) sin = FALSE;
@@ -1275,7 +1278,7 @@ static void roff_aux(int r_idx)
 		if (!r_ptr->blow[m].method) continue;
 
 		/* Count known attacks */
-		if (r_ptr->r_blows[m]) n++;
+		if (l_ptr->blows[m]) n++;
 	}
 
 	/* Examine (and count) the actual attacks */
@@ -1287,7 +1290,7 @@ static void roff_aux(int r_idx)
 		if (!r_ptr->blow[m].method) continue;
 
 		/* Skip unknown attacks */
-		if (!r_ptr->r_blows[m]) continue;
+		if (!l_ptr->blows[m]) continue;
 
 
 		/* Extract the attack info */
@@ -1484,7 +1487,7 @@ static void roff_top(int r_idx)
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
-	/* Special treatment for player ghosts. -LM- */
+	/* Special treatment for player ghosts. */
 	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 		Term_addstr(-1, TERM_WHITE, ghost_name);
@@ -1929,6 +1932,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	byte		try, i, backup_file_selector;
 
 	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 	FILE		*fp;
 	bool		err = FALSE;
@@ -2046,7 +2050,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/*** Process race. ***/
 
 	/* Sanity check. */
-	if (ghost_race >= MAX_RACES) ghost_race = rand_int(MAX_RACES);
+	if (ghost_race >= MAX_P_IDX) ghost_race = rand_int(MAX_P_IDX);
 
 	/* And use the ghost race to gain some flags. */
 	process_ghost_race(ghost_race, r_idx, m_ptr);
@@ -2070,7 +2074,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 	/* Hack - Player ghosts are "seen" whenever generated, to conform with  
 	 * previous practice.
 	 */
-	if (from_savefile == FALSE) r_ptr->r_sights = 1;
+	if (from_savefile == FALSE) l_ptr->sights = 1;
 
 	/* Success */
 	return (TRUE);

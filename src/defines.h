@@ -48,14 +48,14 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.4.1"
+#define VERSION_STRING	"0.5.0"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
  */
 #define VERSION_MAJOR	2
-#define VERSION_MINOR	8
-#define VERSION_PATCH	3
+#define VERSION_MINOR	9
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -66,8 +66,8 @@
  * Current Oangband version numbers.
  */
 #define O_VERSION_MAJOR	0
-#define O_VERSION_MINOR	4
-#define O_VERSION_PATCH	1
+#define O_VERSION_MINOR	5
+#define O_VERSION_PATCH	0
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -125,16 +125,16 @@
  */
 #define DUNGEON_WID		198
 
+/*
+ * Radii for various detection spells. -BR-
+ */
+#define DETECT_RAD_DEFAULT      30
+#define DETECT_RAD_MAP          255
 
 /*
  * Total number of stores (see "store.c", etc)
  */
 #define MAX_STORES	9
-
-/*
- * Total number of owners per store (see "store.c", etc)
- */
-#define MAX_OWNERS	6
 
 /*
  * Store number of the player's home (see "store.c", etc)
@@ -148,11 +148,6 @@
 #define MAX_SEXES            2
 
 /*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES           13
-
-/*
  * Maximum number of player "class" types (see "table.c", etc)
  */
 #define MAX_CLASS            9
@@ -164,6 +159,7 @@
  */
 #define MAX_REALM            4
 
+
 /*
  * Maximum array bounds for template based arrays
  */
@@ -173,10 +169,23 @@
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
 #define MAX_R_IDX	585	/* Max size for "r_info[]" */
 #define MAX_V_IDX	150	/* Max size for "v_info[]" */
+#define MAX_H_IDX	212	/* Max size for "h_info[]" */
+#define MAX_B_IDX	6	/* Max size for "b_info[]" */
+#define MAX_P_IDX	13	/* Max size for "p_info[]" */
 
-/* The value for "MAX_R_IDX" cannot be increased unless the monster array is 
- * broken up or is allowed 32 bit indexes.
+
+/*
+ * Size of the "fake" array for reading in names of monsters, objects,
+ * artifacts, store-owners, player-races, ...
  */
+#define FAKE_NAME_SIZE 20480
+
+
+/*
+ * Size of the "fake" array for reading in the descriptions of monsters,
+ * vaults, and the player-histories
+ */
+#define FAKE_TEXT_SIZE 61440
 
 
 /*
@@ -188,14 +197,11 @@
 #define ART_MIN_NORMAL		23
 #define ART_MIN_RANDOM		210
 
-
-
 /*
  * Maximum array bounds for entity list arrays
  */
 #define MAX_O_IDX	256	/* Max size for "o_list[]" */
 #define MAX_M_IDX	512	/* Max size for "m_list[]" */
-
 
 /*
  * Hack -- Maximum number of quests
@@ -237,7 +243,7 @@
 
 /*
  * OPTION: Maximum number of macros (see "io.c")
- * Default: assume at most 256 macros are used
+ * Default: assume at most 256 macros 
  */
 #define MACRO_MAX	256
 
@@ -287,14 +293,14 @@
 #define THEME_ELEMENTAL		1
 #define THEME_DRAGON		2
 #define THEME_WILDERNESS	3
-#define THEME_DEMON			4
-#define THEME_MORIA			5
+#define THEME_DEMON		4
+#define THEME_MORIA		5
 #define THEME_WARLORDS		6
 
 /*
  * Current number of defined themes.  The maximum theoretical number is 32.
  */
-#define THEME_MAX			6
+#define THEME_MAX		6
 
 
 /*
@@ -463,13 +469,19 @@
 #define A_CHR	5
 
 /*
+ * Total number of stats.
+ */
+#define A_MAX   6
+
+/*
  * Player sex constants (hard-coded by save-files, arrays, etc)
  */
 #define SEX_FEMALE	0
 #define SEX_MALE		1
 
 /*
- * Player race constants (hard-coded by save-files, arrays, etc)
+ * Player race constants; used for effects not configurable in
+ * p_info.txt
  */
 #define RACE_HUMAN		0
 #define RACE_HALF_ELF		1
@@ -598,14 +610,16 @@
 /*
  * Legal restrictions for "summon_specific()"
  */
+#define SUMMON_KIN		 1
 #define SUMMON_ANT		11
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
-#define SUMMON_HYDRA		14
-#define SUMMON_ANGEL		15
+#define SUMMON_HYDRA		14 /* unused */
+#define SUMMON_ANGEL		15 /* unused */
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
+#define SUMMON_HI_DEMON		20
 #define SUMMON_HI_UNDEAD	21
 #define SUMMON_HI_DRAGON	22
 #define SUMMON_WRAITH		31
@@ -620,7 +634,7 @@
 /*
  * Spell types used by project(), and related functions.
  */
-#define GF_XXX1			1
+#define GF_XXX1	       	1
 #define GF_ARROW        2
 #define GF_MISSILE      3
 #define GF_MANA         4
@@ -747,6 +761,7 @@
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
+#define FEAT_TRAP_ROGUE	0x1F
 
 /* Special trap that only effects monsters.  Created only by rogues. -LM- */
 #define FEAT_MONSTER_TRAP 0x1F
@@ -1117,23 +1132,21 @@
 #define EGO_SHATTERED		126
 #define EGO_BLASTED			127
 
-
-
 /*** Activation Indexes.  Max is 255. -LM- ***/
 /* Special Artifact activations. */
 #define ACT_GALADRIEL			1
 #define ACT_ELENDIL			2
 #define ACT_THRAIN			3
 #define ACT_CARLAMMAS			4
-#define ACT_INGWE				5
+#define ACT_INGWE	       		5
 #define ACT_BOROMIR			7
 #define ACT_FARAMIR			8
 #define ACT_BARAHIR			9
 #define ACT_TULKAS			10
-#define ACT_NARYA				11
-#define ACT_NENYA				12
-#define ACT_VILYA				13
-#define ACT_POWER				14
+#define ACT_NARYA	       		11
+#define ACT_NENYA	       		12
+#define ACT_VILYA	       		13
+#define ACT_POWER	       		14
 #define ACT_STONE_LORE			15
 
 
@@ -1168,14 +1181,14 @@
 
 #define ACT_FEANOR			61
 #define ACT_DAL				62
-#define ACT_GIMLI				63
+#define ACT_GIMLI		       	63
 
 
 /* Artifact Weapon Activations.  */
 #define ACT_NARTHANC			66
 #define ACT_NIMTHANC			67
 #define ACT_DETHANC			68
-#define ACT_RILIA				69
+#define ACT_RILIA			69
 #define ACT_BELANGIL			70
 #define ACT_ARUNRUTH			71
 #define ACT_RINGIL			72
@@ -1183,10 +1196,10 @@
 
 #define ACT_THEODEN			78
 #define ACT_AEGLOS			79
-#define ACT_OROME				80
-#define ACT_EONWE				81
+#define ACT_OROME		       	80
+#define ACT_EONWE		       	81
 #define ACT_LOTHARANG			82
-#define ACT_ULMO				83
+#define ACT_ULMO		       	83
 #define ACT_AVAVIR			84
 
 #define ACT_TOTILA			89
@@ -1196,7 +1209,7 @@
 #define ACT_OLORIN			93
 #define ACT_TURMIL			94
 
-#define ACT_HARAD				99
+#define ACT_HARAD		       	99
 #define ACT_CUBRAGOL			100
 #define ACT_BUCKLAND			101
 
@@ -1289,6 +1302,7 @@
 #define ACT_RING_FIRE				222
 #define ACT_RING_COLD				223
 #define ACT_AMULET_ESCAPING			224
+#define ACT_AMULET_LION			225
 
 /* Ego-items */
 #define ACT_BALROG_WHIP				245
@@ -1316,6 +1330,7 @@
 #define TV_JUNK          3	/* Sticks, Pottery, etc ('`'). */
 #define TV_SPIKE         5	/* Spikes ('`') */
 #define TV_CHEST         7	/* Chests ('~') */
+
 #define TV_SHOT		16	/* Ammo for slings */
 #define TV_ARROW        17	/* Ammo for bows */
 #define TV_BOLT         18	/* Ammo for x-bows */
@@ -1333,6 +1348,7 @@
 #define TV_SOFT_ARMOR   36	/* Soft Armor */
 #define TV_HARD_ARMOR   37	/* Hard Armor */
 #define TV_DRAG_ARMOR	38	/* Dragon Scale Mail */
+
 #define TV_LITE         39	/* Lites (including Specials) */
 #define TV_AMULET       40	/* Amulets (including Specials) */
 #define TV_RING         45	/* Rings (including Specials) */
@@ -1543,6 +1559,7 @@
 #define SV_AMULET_DWARVES		12
 #define SV_AMULET_BOROMIR		13
 #define SV_AMULET_FARAMIR		14
+#define SV_AMULET_LION		15
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE			0
@@ -1817,6 +1834,8 @@
 #define SV_POTION_STAR_ENLIGHTENMENT	57
 #define SV_POTION_SELF_KNOWLEDGE		58
 #define SV_POTION_EXPERIENCE			59
+#define SV_POTION_VAMPIRE			60
+
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON			0
@@ -2001,7 +2020,6 @@
 #define PROJECT_PLAY	0x0200
 #define PROJECT_HIDE	0x0400
 
-
 /*
  * Bit flags for the "enchant()" function
  */
@@ -2168,9 +2186,10 @@
 #define SHAPE_BAT 7
 #define SHAPE_WEREWOLF 8
 #define SHAPE_VAMPIRE 9
+#define SHAPE_WYRM 10
 
-#define DRUID_SCHANGE \
-    (p_ptr->schange > 0 && p_ptr->schange < 10)
+#define SCHANGE \
+    (p_ptr->schange > 0 && p_ptr->schange < 11)
 
 
 /*** Cave flags ***/
@@ -2222,9 +2241,8 @@
 #define IDENT_CURSED	0x40	/* Item is temporarily cursed */
 #define IDENT_BROKEN	0x80	/* Item is permanently worthless */
 
-
 /*
- * Game-generated feelings.
+ * Game-generated feelings.  Used for inscriptions.
  */
 #define FEEL_NONE              0
 #define FEEL_BROKEN            1
@@ -2565,7 +2583,7 @@
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */
 #define RF3_RES_NEXU		0x02000000	/* Resist nexus */
 #define RF3_RES_DISE		0x04000000	/* Resist disenchantment */
-#define RF3_XXX6			0x08000000	/* Resist (?) */
+#define RF3_XXX6			0x08000000	
 #define RF3_NO_FEAR			0x10000000	/* Cannot be scared */
 #define RF3_NO_STUN			0x20000000	/* Cannot be stunned */
 #define RF3_NO_CONF			0x40000000	/* Cannot be confused */
@@ -2661,16 +2679,16 @@
 #define RF6_DARKNESS		0x00001000	/* Create Darkness */
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
-#define RF6_XXX6			0x00008000	/* ??? */
-#define RF6_XXX7			0x00010000	/* Summon (?) */
-#define RF6_XXX8			0x00020000	/* Summon (?) */
+#define RF6_BA_LITE			0x00008000	/* Starburst */
+#define RF6_S_KIN			0x00010000	/* Summon Similar */
+#define RF6_S_HI_DEMON			0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
 #define RF6_S_MONSTERS		0x00080000	/* Summon Monsters */
 #define RF6_S_ANT			0x00100000	/* Summon Ants */
 #define RF6_S_SPIDER		0x00200000	/* Summon Spiders */
 #define RF6_S_HOUND			0x00400000	/* Summon Hounds */
 #define RF6_XXX9			0x00800000	/* Was Summon Hydras */
-#define RF6_S_ANGEL			0x01000000	/* Summon Angel */
+#define RF6_XXX10			0x01000000	/* Was Summon Angel */
 #define RF6_S_DEMON			0x02000000	/* Summon Demon(s) */
 #define RF6_S_UNDEAD		0x04000000	/* Summon Undead */
 #define RF6_S_DRAGON		0x08000000	/* Summon Dragon */
@@ -2696,9 +2714,9 @@
     RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
     RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | \
-    RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
-
+    RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
+    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE |\
+    RF6_S_KIN | RF6_S_HI_DEMON )
 /*
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
@@ -2715,39 +2733,156 @@
    0L
 
 
+/*
+ * Spells that allow the caster to escape
+ */
+#define RF4_ESCAPE_MASK \
+	(0L)
 
+#define RF5_ESCAPE_MASK \
+	(0L)
 
-/*** Cheating option Definitions ***/
+#define RF6_ESCAPE_MASK \
+	(RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
 
 /*
- * Indexes
+ * Spells that hurt the player directly
  */
-#define CHEAT_cheat_peek	0
-#define CHEAT_cheat_hear	1
-#define CHEAT_cheat_room	2
-#define CHEAT_cheat_xtra	3
-#define CHEAT_cheat_know	4
-#define CHEAT_cheat_live	5
-#define CHEAT_MAX			6
+#define RF4_ATTACK_MASK \
+	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+
+#define RF5_ATTACK_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
+	 RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK | \
+	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 | \
+	 RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | \
+	 RF5_BO_COLD | RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_ATTACK_MASK \
+	(RF6_BA_LITE)
 
 
 /*
- * Hack -- Option symbols
+ * Summoning spells
  */
-#define cheat_peek				p_ptr->cheat[CHEAT_cheat_peek]
-#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]		
-#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]	
-#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]	
-#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]	
-#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]	
+#define RF4_SUMMON_MASK \
+	(0L)
+
+#define RF5_SUMMON_MASK \
+	(0L)
+
+#define RF6_SUMMON_MASK \
+	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	 RF6_S_SPIDER | RF6_S_HOUND | \
+	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
+	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+
+
+/*
+ * Spells that improve the caster's tactical position
+ */
+#define RF4_TACTIC_MASK \
+	(0L)
+
+#define RF5_TACTIC_MASK \
+	(0L)
+
+#define RF6_TACTIC_MASK \
+	(RF6_BLINK)
+
+
+/*
+ * Annoying spells
+   */
+#define RF4_ANNOY_MASK \
+	(RF4_SHRIEK)
+
+#define RF5_ANNOY_MASK \
+	(RF5_DRAIN_MANA | RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_SCARE | \
+	 RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
+
+#define RF6_ANNOY_MASK \
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+
+
+/*
+ * Spells that increase the caster's relative speed
+ */
+#define RF4_HASTE_MASK \
+	(0L)
+
+#define RF5_HASTE_MASK \
+	(RF5_SLOW | RF5_HOLD)
+
+#define RF6_HASTE_MASK \
+	(RF6_HASTE)
+
+
+/*
+ * Healing spells
+ */
+#define RF4_HEAL_MASK \
+	(0L)
+
+#define RF5_HEAL_MASK \
+	(0L)
+
+#define RF6_HEAL_MASK \
+	(RF6_HEAL)
+
+
+/*
+ * Innate spell-like effects
+ */
+#define RF4_INNATE_MASK \
+	(RF4_SHRIEK | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+
+#define RF5_INNATE_MASK \
+	(0L)
+
+#define RF6_INNATE_MASK \
+	(0L)
+
+/*
+ * All spells
+ */
+#define RF4_ALL_MASK \
+	(0xFFFFFFFFL)
+
+#define RF5_ALL_MASK \
+	(0xFFFFFFFFL)
+
+#define RF6_ALL_MASK \
+	(0xFFFFFFFFL)
+
+
+
 
 
 
 /*** Option Definitions ***/
 
-#define OPT_MAX	64
-#define OPT_PAGE_MAX 6
-#define OPT_PAGE_PER 20
+#define OPT_MAX	                       256
+#define OPT_PAGE_MAX                     6
+#define OPT_PAGE_PER                    20
+#define OPT_birth_start                128
+#define OPT_birth_end                  137
+#define OPT_adult_start                192
+#define OPT_adult_end                  201
+#define OPT_cheat_start                160
+#define OPT_cheat_end                  169
+#define OPT_score_start                224
+#define OPT_score_end                  233
+
 
 /*
  * Indexes
@@ -2797,10 +2932,10 @@
 #define OPT_dungeon_align			40
 #define OPT_dungeon_stair			41
 #define OPT_empty_levels			42
-#define OPT_flow_by_sound			43
-#define OPT_flow_by_smell			44
 /* xxx */
-#define OPT_smart_learn				46
+/* xxx */
+/* xxx */
+/* xxx */
 #define OPT_smart_cheat				47
 
 #define OPT_view_reduce_lite		48
@@ -2823,6 +2958,37 @@
 #define OPT_view_bright_lite		61
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
+#define OPT_show_piles                  67
+
+#define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
+#define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
+#define OPT_birth_maximize              130/*(OPT_BIRTH_START+2)*/
+#define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
+/* No Ironman options */
+#define OPT_birth_random_hitpoints      136/*(OPT_BIRTH_START+8)*/
+
+#define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
+#define OPT_cheat_hear                  161        /*(OPT_CHEAT+1)*/
+#define OPT_cheat_room                  162        /*(OPT_CHEAT+2)*/
+#define OPT_cheat_xtra                  163        /*(OPT_CHEAT+3)*/
+#define OPT_cheat_know                  164        /*(OPT_CHEAT+4)*/
+#define OPT_cheat_live                  165        /*(OPT_CHEAT+5)*/
+
+#define OPT_adult_point_based           192/*(OPT_ADULT_START+0)*/
+#define OPT_adult_auto_roller           193/*(OPT_ADULT_START+1)*/
+#define OPT_adult_maximize              194/*(OPT_ADULT_START+2)*/
+#define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
+/* No Ironman options */
+#define OPT_adult_random_hitpoints      200/*(OPT_ADULT_START+8)*/
+
+/* xxx xxx */
+#define OPT_score_peek                  224      /*  (OPT_SCORE+0)*/
+#define OPT_score_hear                  225      /*  (OPT_SCORE+1)*/
+#define OPT_score_room                  226      /*  (OPT_SCORE+2)*/
+#define OPT_score_xtra                  227      /*  (OPT_SCORE+3)*/
+#define OPT_score_know                  228      /*  (OPT_SCORE+4)*/
+#define OPT_score_live                  229      /*  (OPT_SCORE+5)*/
+/* xxx xxx */
 
 
 
@@ -2873,11 +3039,11 @@
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define dungeon_align			op_ptr->opt[OPT_dungeon_align]
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
-#define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
-#define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
 #define empty_levels			op_ptr->opt[OPT_empty_levels]
 /* xxx */
-#define smart_learn				op_ptr->opt[OPT_smart_learn]
+/* xxx */
+/* xxx */
+/* xxx */
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2900,7 +3066,34 @@
 #define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
+#define show_piles                              op_ptr->opt[OPT_show_piles]
 
+
+#define birth_point_based               op_ptr->opt[OPT_birth_point_based]          
+#define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]          
+#define birth_maximize                  op_ptr->opt[OPT_birth_maximize]             
+#define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
+#define birth_random_hitpoints          op_ptr->opt[OPT_birth_random_hitpoints]     
+
+#define cheat_peek				op_ptr->opt[OPT_cheat_peek]
+#define cheat_hear				op_ptr->opt[OPT_cheat_hear]		
+#define cheat_room				op_ptr->opt[OPT_cheat_room]	
+#define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]	
+#define cheat_know				op_ptr->opt[OPT_cheat_know]	
+#define cheat_live				op_ptr->opt[OPT_cheat_live]	
+
+#define adult_point_based               op_ptr->opt[OPT_adult_point_based]          
+#define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]          
+#define adult_maximize                  op_ptr->opt[OPT_adult_maximize]             
+#define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
+#define adult_random_hitpoints          op_ptr->opt[OPT_adult_random_hitpoints]     
+
+#define score_peek				op_ptr->opt[OPT_score_peek]
+#define score_hear				op_ptr->opt[OPT_score_hear]		
+#define score_room				op_ptr->opt[OPT_score_room]	
+#define score_xtra				op_ptr->opt[OPT_score_xtra]	
+#define score_know				op_ptr->opt[OPT_score_know]	
+#define score_live				op_ptr->opt[OPT_score_live]	
 
 
 /*** Macro Definitions ***/
@@ -3192,6 +3385,39 @@ extern int PlayerUID;
 #define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
+/* Color code identifiers for messages */
+#define MSG_GENERIC          0
+#define MSG_HIT              1
+#define MSG_MISS             2
+#define MSG_FLEE             3
+#define MSG_DROP             4
+#define MSG_KILL             5
+#define MSG_LEVEL            6
+#define MSG_DEATH            7
+#define MSG_STUDY            8
+#define MSG_TELEPORT         9
+#define MSG_SHOOT           10
+#define MSG_QUAFF           11
+#define MSG_ZAP             12
+#define MSG_WALK            13
+#define MSG_TPOTHER         14
+#define MSG_HITWALL         15
+#define MSG_EAT             16
+#define MSG_STORE1          17
+#define MSG_STORE2          18
+#define MSG_STORE3          19
+#define MSG_STORE4          20
+#define MSG_DIG             21
+#define MSG_OPENDOOR        22
+#define MSG_SHUTDOOR        23
+#define MSG_TPLEVEL         24
+#define MSG_BELL            25
+#define MSG_NOTHING_TO_OPEN 26
+#define MSG_LOCKPICK_FAIL   27
+#define MSG_STAIRS          28
+
+#define MSG_MAX             29
+
 
 /*** Sound constants ***/
 
@@ -3248,5 +3474,22 @@ extern int PlayerUID;
 # undef MESSAGE_BUF
 # define MESSAGE_BUF	4096
 #endif
+
+/*
+ * Parse errors
+ */
+#define PARSE_ERROR_GENERIC                  1
+#define PARSE_ERROR_OBSOLETE_FILE            2
+#define PARSE_ERROR_MISSING_RECORD_HEADER    3
+#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
+#define PARSE_ERROR_INVALID_FLAG             5
+#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
+#define PARSE_ERROR_OUT_OF_MEMORY            7
+#define PARSE_ERROR_OUT_OF_BOUNDS            8
+#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
+#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
+
+#define PARSE_ERROR_MAX                     11
+
 
 

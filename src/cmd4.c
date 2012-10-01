@@ -176,7 +176,7 @@ void do_cmd_change_name(void)
 void do_cmd_message_one(void)
 {
 	/* Recall one message XXX XXX XXX */
-	prt(format("> %s", message_str(0)), 0, 0);
+        c_prt(message_color(0), format( "> %s", message_str(0)), 0, 0);
 }
 
 
@@ -235,12 +235,13 @@ void do_cmd_messages(void)
 		for (j = 0; (j < per_screen) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
+                        byte attr = message_color((s16b)(i+j));
 
 			/* Apply horizontal scroll */
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, (screen_y - 3) - j, -1, TERM_WHITE, msg);
+			Term_putstr(0, (screen_y - 3) - j, -1, attr, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -394,188 +395,6 @@ void do_cmd_messages(void)
 }
 
 
-/*
- * Ask for a "user pref file" and process it.
- *
- * This function should only be used by standard interaction commands,
- * in which a standard "Command:" prompt is present on the given row.
- *
- * Allow absolute file names?  XXX XXX XXX
- */
-static bool do_cmd_pref_file_hack(int row)
-{
-	char ftmp[80];
-
-	/* Prompt */
-	prt("Command: Load a user pref file", row, 0);
-
-	/* Prompt */
-	prt("File: ", row + 2, 0);
-
-	/* Default filename */
-	sprintf(ftmp, "%s.prf", op_ptr->base_name);
-
-	/* Ask for a file (or cancel) */
-	if (!askfor_aux(ftmp, 80)) return (FALSE);
-
-	/* Process the given filename */
-	if (process_pref_file(ftmp))
-	{
-		/* Mention failure */
-		msg_format("Failed to load '%s'!", ftmp);
-	}
-	else
-	{
-		/* Mention success */
-		msg_format("Loaded '%s'.", ftmp);
-	}
-
-	return (TRUE);
-}
-
-
-/*
- * Cheating options -- textual names
- */
-cptr cheating_text[CHEAT_MAX] =
-{
-	"cheat_peek",
-	"cheat_hear",
-	"cheat_room",
-	"cheat_xtra",
-	"cheat_know",
-	"cheat_live"
-};
-
-/*
- * Cheating options -- descriptions
- */
-cptr cheating_desc[CHEAT_MAX] =
-{
-	"Peek into object creation",
-	"Peek into monster creation",
-	"Peek into dungeon creation",
-	"Peek into something else",
-	"Know complete monster info",
-	"Allow player to avoid death"
-};
-
-
-/*
- * Interact with some cheating options
- */
-static void do_cmd_options_cheat(cptr info)
-{
-	char ch;
-
-	int i, k = 0, n = CHEAT_MAX;
-
-	char buf[80];
-
-
-	/* Clear screen */
-	Term_clear();
-
-	/* Interact with the player */
-	while (TRUE)
-	{
-		/* Prompt XXX XXX XXX */
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
-		prt(buf, 0, 0);
-
-		/* Display the options */
-		for (i = 0; i < n; i++)
-		{
-			byte a = TERM_WHITE;
-
-			/* Color current option */
-			if (i == k) a = TERM_L_BLUE;
-
-			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%s)",
-			        cheating_desc[i],
-			        p_ptr->cheat[i] ? "yes" : "no ",
-			        cheating_text[i]);
-			c_prt(a, buf, i + 2, 0);
-		}
-
-		/* Hilite current option */
-		move_cursor(k + 2, 50);
-
-		/* Get a key */
-		ch = inkey();
-
-		/* Analyze */
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				return;
-			}
-
-			case '-':
-			case '8':
-			{
-				k = (n + k - 1) % n;
-				break;
-			}
-
-			case ' ':
-			case '\n':
-			case '\r':
-			case '2':
-			{
-				k = (k + 1) % n;
-				break;
-			}
-
-			case 't':
-			case '5':
-			{
-				if (p_ptr->cheat[k])
-				{
-					p_ptr->cheat[k] = FALSE;
-				}
-
-				else
-				{
-					/* Mark player as a cheater */
-					p_ptr->noscore |= (0x0100 << k);
-
-					p_ptr->cheat[k] = TRUE;
-				}
-
-				break;
-			}
-
-			case 'y':
-			case '6':
-			{
-				/* Mark player as a cheater */
-				p_ptr->noscore |= (0x0100 << k);
-
-				p_ptr->cheat[k] = TRUE;
-				k = (k + 1) % n;
-				break;
-			}
-
-			case 'n':
-			case '4':
-			{
-				p_ptr->cheat[k] = FALSE;
-				k = (k + 1) % n;
-				break;
-			}
-
-			default:
-			{
-				bell("Illegal command for cheat options!");
-				break;
-			}
-		}
-	}
-}
-
 
 /*
  * Autosave options -- textual names
@@ -705,7 +524,7 @@ static void do_cmd_options_autosave(cptr info)
 			{
 				autosave_freq = toggle_frequency(autosave_freq);
 				prt(format("Timed autosave frequency: every %d turns",
-				    autosave_freq), 5, 0);
+				       autosave_freq), 5, 0);
 			}
 
 			default:
@@ -715,6 +534,67 @@ static void do_cmd_options_autosave(cptr info)
 			}
 		}
 	}
+}
+
+/*
+ * Ask for a "user pref line" and process it
+ *
+ * XXX XXX XXX Allow absolute file names?
+ */
+void do_cmd_pref(void)
+{
+	char tmp[81];
+
+	/* Default */
+	strcpy(tmp, "");
+
+	/* Ask for a "user pref command" */
+	if (!get_string("Pref: ", tmp, 80)) return;
+
+	/* Process that pref command */
+	(void)process_pref_file_aux(tmp);
+}
+
+
+
+
+/*
+ * Ask for a "user pref file" and process it.
+ *
+ * This function should only be used by standard interaction commands,
+ * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
+ */
+static bool do_cmd_pref_file_hack(int row)
+{
+	char ftmp[80];
+
+	/* Prompt */
+	prt("Command: Load a user pref file", row, 0);
+
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Ask for a file (or cancel) */
+	if (!askfor_aux(ftmp, 80)) return (FALSE);
+
+	/* Process the given filename */
+	if (process_pref_file(ftmp))
+	{
+		/* Mention failure */
+		msg_format("Failed to load '%s'!", ftmp);
+	}
+	else
+	{
+		/* Mention success */
+		msg_format("Loaded '%s'.", ftmp);
+	}
+
+	return (TRUE);
 }
 
 
@@ -780,6 +660,16 @@ static void do_cmd_options_aux(int page, cptr info)
 		{
 			case ESCAPE:
 			{
+                                /* Hack -- Notice use of any "cheat" options */
+			  	for (i = OPT_cheat_start; i < OPT_cheat_end+1; i++)
+			        {
+			               if (op_ptr->opt[i])
+				       {
+				              /* Set score option */
+					      op_ptr->opt[OPT_score_start + (i - OPT_cheat_start)] = TRUE;
+				       }
+				}
+
 				return;
 			}
 
@@ -989,6 +879,7 @@ static void do_cmd_options_win(void)
 }
 
 
+
 /*
  * Write all current options to the given preference file in the
  * lib/user directory. Modified from KAmband 1.8.
@@ -1016,8 +907,8 @@ static errr option_dump(cptr fname)
 	/* Start dumping */
 	fprintf(fff, "# Automatic option dump\n\n");
 
-	/* Dump options */
-	for (i = 0; i < OPT_MAX; i++)
+	/* Dump options (skip cheat, adult, score) */
+	for (i = 0; i < OPT_cheat_start; i++)
 	{
 		/* Require a real option */
 		if (!option_text[i]) continue;
@@ -1077,7 +968,6 @@ static errr option_dump(cptr fname)
 	return (0);
 }
 
-
 /*
  * Set or unset various options.
  *
@@ -1107,24 +997,28 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+                prt("(5) Birth Options - For Character Creation (Only)", 9, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 9, 5);
+                prt("(6) Cheat Options", 11, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 11, 5);
+		prt("(W) Window flags", 13, 5);
+
+		/* Squelch Menus */
+		prt("(I) Item squelching menus", 14, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 13, 5);
-		prt("(H) Hitpoint Warning", 14, 5);
-		prt("(A) Autosave Options", 15, 5);
+		prt("(D) Base Delay Factor", 15, 5);
+		prt("(H) Hitpoint Warning", 16, 5);
+		prt("(A) Autosave Options", 17, 5);
 
 		/* Load and Save */
 		prt("(R) Read options from a file", 4, 40);
 		prt("(S) Write options to a file", 5, 40);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 19, 0);
 
 		/* Get command */
 		k = inkey();
@@ -1167,11 +1061,20 @@ void do_cmd_options(void)
 				break;
 			}
 
+			/* Birth Options */
+		        case '5':
+			{
+			        /* Spawn */
+        			do_cmd_options_aux(4, "Birth Options");
+			        break;
+			}
+
 			/* Cheating Options */
 			case 'C':
+			case '6':
 			{
 				/* Spawn */
-				do_cmd_options_cheat("Cheaters never win (seriously!)");
+				do_cmd_options_aux(5, "Cheaters never win (seriously!)");
 				break;
 			}
 
@@ -1181,6 +1084,15 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_win();
+				break;
+			}
+
+			/* Squelching Menus */
+			case 'I':
+			case 'i':
+			{
+				/* Spawn */
+				do_cmd_squelch();
 				break;
 			}
 
@@ -1231,7 +1143,7 @@ void do_cmd_options(void)
 			case 'a':
 			case 'A':
 			{
-				do_cmd_options_autosave("Autosave");
+				(void) do_cmd_options_autosave("Autosave");
 				break;
 			}
 
@@ -1300,27 +1212,6 @@ void do_cmd_options(void)
 
 	/* Load screen */
 	screen_load();
-}
-
-
-
-/*
- * Ask for a "user pref line" and process it
- *
- * XXX XXX XXX Allow absolute file names?
- */
-void do_cmd_pref(void)
-{
-	char tmp[81];
-
-	/* Default */
-	strcpy(tmp, "");
-
-	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", tmp, 80)) return;
-
-	/* Process that pref command */
-	(void)process_pref_file_aux(tmp);
 }
 
 
@@ -1570,7 +1461,6 @@ static errr keymap_dump(cptr fname)
 
 
 #endif
-
 
 /*
  * Interact with "macros"
@@ -1976,7 +1866,6 @@ void do_cmd_macros(void)
 	/* Load screen */
 	screen_load();
 }
-
 
 
 /*
@@ -2674,6 +2563,7 @@ void do_cmd_colors(void)
 }
 
 
+
 /*
  * Note something in the message recall
  */
@@ -3051,7 +2941,7 @@ static void do_cmd_knowledge_artifacts(void)
 
 	char file_name[1024];
 
-	char o_name[80];
+	char o_name[120];
 
 	bool okay[MAX_A_IDX];
 
@@ -3074,7 +2964,7 @@ static void do_cmd_knowledge_artifacts(void)
 		if (!a_ptr->name) continue;
 
 		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
+		if (!(a_ptr->creat_stat == 1)) continue;
 
 		/* Assume okay */
 		okay[k] = TRUE;
@@ -3182,12 +3072,13 @@ static void do_cmd_knowledge_artifacts(void)
  */
 static void do_cmd_knowledge_uniques(void)
 {
-	int k;
+	int i,n;
 
 	FILE *fff;
 
 	char file_name[1024];
-
+	u16b why = 2;
+	u16b *who;
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -3195,27 +3086,50 @@ static void do_cmd_knowledge_uniques(void)
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
-	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX; k++)
+	/* Allocate the "who" array */
+	C_MAKE(who, MAX_R_IDX, u16b);
+
+	/* Collect matching monsters */
+	for (i = 1, n = 0; i < MAX_R_IDX; i++)
 	{
-		monster_race *r_ptr = &r_info[k];
+	       monster_race *r_ptr = &r_info[i];
+	       monster_lore *l_ptr = &l_list[i];
+	  	  
+	       /* Require known monsters */
+	       if (!cheat_know && !l_ptr->sights) continue;
+	  
+	       /* Require unique monsters */
+	       if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+	  	  
+	       /* No Player Ghosts */
+	       if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) continue;
 
-		/* Only print Uniques, but never player ghosts. -LM- */
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
-			(!(r_ptr->flags2 & (RF2_PLAYER_GHOST))))
-		{
-			bool dead = (r_ptr->max_num == 0);
-
-			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
-			{
-				/* Print a message */
-				fprintf(fff, "     %s is %s\n",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
-			}
-		}
+	       /* Collect "appropriate" monsters */
+	       who[n++] = i;
 	}
+
+
+        /* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
+
+        /* Print the monsters */
+	for (i = 0; i < n; i++)
+	{
+	       monster_race *r_ptr = &r_info[who[i]];
+	       bool dead = (r_ptr->max_num == 0);
+
+	       /* Print a message */
+	       fprintf(fff, "     %s is %s\n",
+	              (r_name + r_ptr->name),
+		      (dead ? "dead" : "alive"));
+	}
+
+	/* Free the "who" array */
+	C_KILL(who, MAX_R_IDX, u16b);
 
 	/* Close the file */
 	my_fclose(fff);
@@ -3237,7 +3151,7 @@ static void do_cmd_knowledge_objects(void)
 
 	FILE *fff;
 
-	char o_name[80];
+	char o_name[120];
 
 	char file_name[1024];
 
@@ -3298,7 +3212,7 @@ static void do_cmd_knowledge_home(void)
 	FILE *fff;
 
 	object_type *o_ptr;
-	char o_name[80];
+	char o_name[120];
 
 	char file_name[1024];
 
@@ -3399,7 +3313,7 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_objects();
 		}
 
-		/* The Home. -LM- */
+		/* The Home. */
 		else if (i == '4')
 		{
 			/* Spawn */
@@ -3441,3 +3355,6 @@ void do_cmd_time(void)
 		(hour % 12 == 0) ? 12 : (hour % 12), min,
 		(hour < 12) ? "AM" : "PM");
 }
+
+
+

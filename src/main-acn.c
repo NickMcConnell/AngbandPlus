@@ -2338,6 +2338,8 @@ errr fd_seek(int fd, huge offset)
 	return 0;
 }
 
+
+
 errr fd_lock(int fd, int what)
 {
 	return 0;
@@ -2355,4 +2357,46 @@ errr path_temp(char *buf, int max)
 
 #endif /* __riscos */
 
+
+/*
+ | This section deals with checking that the .raw files are up to date
+ | wrt to the .txt files.  Note that this function won't work for RISC OS 2
+ | (due to the lack of OS_Args 7) so it simply returns 0 to indicate that
+ | the file isn't OOD.
+ |
+ | For this to work, the equivalent function (in init2.c) needs to be
+ | #if-d out (and this function should be declared).  You'll probably
+ | also need to zap the UNIX #includes at the top of the file
+*/
+
+extern errr check_modification_date( int fd, cptr template_file )
+{
+  char raw_buf[1024];
+  char txt_buf[1024];
+  int i;
+  os_error *e;
+
+  if ( os_version() < 300 ) { return 0; }
+
+  /* Use OS_Args 7 to find out the pathname 'fd' refers to */
+        e = SWI
+	  (
+	   6, 0, SWI_OS_Args,
+	   /* In: */
+	   7,                                      /* Get path from filehandle */
+	   fd,                                     /* file handle */
+	   raw_buf,                        /* buffer */
+	   0,0,                            /* unused */
+	   1024                            /* size of buffer */
+	   /* No output regs used */
+	   );
+        if ( e ) { core( e->errmess ); }
+
+        /* Build the path to the template_file */
+        path_build( txt_buf, 1024, ANGBAND_DIR_EDIT, template_file );
+
+        i = file_is_newer( riscosify_name(txt_buf), raw_buf );
+
+        return i;
+}
 

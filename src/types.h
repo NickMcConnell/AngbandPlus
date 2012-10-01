@@ -70,12 +70,14 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 
 typedef struct header header;
+typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
+typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
@@ -88,6 +90,7 @@ typedef struct player_magic player_magic;
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
+typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct druid_blows druid_blows;
 typedef struct player_type player_type;
@@ -145,7 +148,6 @@ struct header
 
 	u16b text_size;		/* Size of the "text" array in bytes */
 };
-
 
 
 /*
@@ -228,6 +230,7 @@ struct object_kind
 	bool tried;			/* The player has "tried" one of the items */
 
 	bool known_effect;	/* Item's effects when used are known. -LM- */
+        bool squelch;
 };
 
 
@@ -263,7 +266,8 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
-	byte cur_num;		/* Number created (0 or 1). */
+	byte creat_stat;		/* Was cur_num.  0 or 1.  
+					 * Possible future expanded functionality. */
 	byte activation;		/* Temporary activation index. -LM- */
 };
 
@@ -351,7 +355,8 @@ struct monster_race
 
 	s32b mexp;				/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
+	s16b mana;				/* Unused (for now) */
+                                                /* to be max mana */
 
 	byte freq_inate;		/* Inate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
@@ -381,35 +386,46 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
-
-
-	s16b r_sights;			/* Count sightings of this monster */
-	s16b r_deaths;			/* Count deaths from this monster */
-
-	s16b r_pkills;			/* Count monsters killed in this life */
-	s16b r_tkills;			/* Count monsters killed in all lives */
-
-	byte r_wake;			/* Number of times woken up (?) */
-	byte r_ignore;			/* Number of times ignored (?) */
-
-	byte r_xtra1;			/* Something (unused) */
-	byte r_xtra2;			/* Something (unused) */
-
-	byte r_drop_gold;		/* Max number of gold dropped at once */
-	byte r_drop_item;		/* Max number of item dropped at once */
-
-	byte r_cast_inate;		/* Max number of inate spells seen */
-	byte r_cast_spell;		/* Max number of other spells seen */
-
-	byte r_blows[4];		/* Number of times each blow type was seen */
-
-	u32b r_flags1;			/* Observed racial flags */
-	u32b r_flags2;			/* Observed racial flags */
-	u32b r_flags3;			/* Observed racial flags */
-	u32b r_flags4;			/* Observed racial flags */
-	u32b r_flags5;			/* Observed racial flags */
-	u32b r_flags6;			/* Observed racial flags */
 };
+
+/*
+ * Monster "lore" information
+ *
+ * Note that these fields are related to the "monster recall" and can
+ * be scrapped if space becomes an issue, resulting in less "complete"
+ * monster recall (no knowledge of spells, etc). XXX XXX XXX
+ *
+ */
+struct monster_lore
+{
+         s16b sights;                  /* Count sightings of this monster */
+         s16b deaths;                  /* Count deaths from this monster */
+       
+         s16b pkills;                  /* Count monsters killed in this life */
+         s16b tkills;                  /* Count monsters killed in all lives */
+       
+         byte wake;                    /* Number of times woken up (?) */
+         byte ignore;                  /* Number of times ignored (?) */
+       
+         byte xtra1;                   /* Something (unused) */
+         byte xtra2;                   /* Something (unused) */
+       
+         byte drop_gold;               /* Max number of gold dropped at once */
+         byte drop_item;               /* Max number of item dropped at once */
+       
+         byte cast_inate;              /* Max number of inate spells seen */
+         byte cast_spell;              /* Max number of other spells seen */
+       
+         byte blows[4];                /* Number of times each blow type was seen */
+       
+         u32b flags1;                  /* Observed racial flags */
+         u32b flags2;                  /* Observed racial flags */
+         u32b flags3;                  /* Observed racial flags */
+         u32b flags4;                  /* Observed racial flags */
+         u32b flags5;                  /* Observed racial flags */
+         u32b flags6;                  /* Observed racial flags */
+};
+
 
 
 
@@ -538,7 +554,7 @@ struct monster_type
 
 	byte stasis;		/* Monster is held in stasis. -LM- */
 
-	bool black_breath;	/* Monster suffers from the Black Breath -LM- */
+	bool black_breath;	/* Monster suffers from the Black Breath -LM- */ /* Does not get saved ? */
 
 	byte cdis;			/* Current dis from player */
 
@@ -546,24 +562,25 @@ struct monster_type
 
 	bool ml;			/* Monster is "visible" */
 
-	s16b hold_o_idx;	/* Object being held (if any) */
-
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif
+	s16b hold_o_idx;	        /* Object being held (if any) */
 
 #ifdef DRS_SMART_OPTIONS
 
-	u32b smart;			/* Field for "smart_learn" */
+        u32b smart;			/* Field for "smart_learn" */  /* Does not get saved ? */
 
 #endif
+
+#ifdef WDT_TRACK_OPTIONS
+        byte ty;			/* Y location of target */  /* Not yet used */
+    	byte tx;			/* X location of target */  /* Not yet used */
+
+    	byte t_dur;			/* How long are we tracking */  /* Not yet used */
+
+  	byte t_bit;			/* Up to eight bit flags */  /* Not yet used */
+#endif
+
+        s16b mana;                      /* Not yet used */
+        s16b max_mana;                  /* Not yet used */
 
 };
 
@@ -623,7 +640,8 @@ struct quest
  */
 struct owner_type
 {
-	cptr owner_name;		/* Name */
+	u32b owner_name;		/* Name */
+        u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -636,7 +654,6 @@ struct owner_type
 
 	byte owner_race;		/* Owner race */
 
-	byte unused;		/* Unused */
 };
 
 
@@ -722,7 +739,9 @@ struct player_sex
  */
 struct player_race
 {
-	cptr title;			/* Type of race */
+
+        u32b name;                      /* Name (offset) */
+        u32b text;                      /* Text (offset) */
 
 	s16b r_adj[6];		/* Racial stat modifiers */
 
@@ -761,6 +780,14 @@ struct player_race
 	u16b f_m_wt;		/* mod weight (females) */
 
 	byte infra;			/* Infra-vision	range */
+
+        u16b choice;            /* Legal class choices */
+
+        s16b hist;                      /* Starting history index */
+
+        u32b flags1;            /* Racial Flags, set 1 */
+        u32b flags2;            /* Racial Flags, set 2 */
+        u32b flags3;            /* Racial Flags, set 3 */
 };
 
 
@@ -793,6 +820,21 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+};
+
+
+/*
+ * Player background information
+ */
+struct hist_type
+{
+       u32b unused;                        /* Unused */
+       u32b text;                          /* Text (offset) */
+
+       byte roll;                          /* Frequency of this entry */
+       byte chart;                         /* Chart index */
+       byte next;                          /* Next chart index */
+       byte bonus;                         /* Social Class Bonus + 50 */
 };
 
 
@@ -851,9 +893,6 @@ struct player_type
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
-
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
 
 	byte schange;		/* Character's new shape, if any. */
 	s16b age;			/* Character's age */
@@ -948,8 +987,6 @@ struct player_type
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */
-
-	bool cheat[CHEAT_MAX];	/* Cheating options */
 
 	/*** Temporary fields ***/
 

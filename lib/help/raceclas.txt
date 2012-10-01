@@ -297,24 +297,6 @@ more experienced player that is familiar with survival techniques.
          and poor magical defences.  He has fairly fast, strong pseudo-ID.  
          His primary stats are Intelligence and Strength.
 
-
-=== Maximize and Preserve modes ===
-
-     Maximize:
-         Deciding to play a game in maximize mode turns all racial and class 
-         bonuses and penalties to stats into permanent modifiers.  Thus, a
-         Half-Troll Warrior in Maximize mode would have a maximum possible
-         Strength of 18/190 before equipment bonuses, but only 18/40 maximum
-         innate Intelligence.  In Oangband, maximize mode is strongly recom-
-         mended for all race and class combinations for the sake of realism.
-
-     Preserve:
-         Selecting Preserve mode makes it possible for artifacts to appear more
-         than once if not discovered, but eliminates all the handy "special" 
-         feelings (see the help file "dungeon.txt").  In Oangband, non-preserve 
-         mode can actually be useful.
-
-
 === Combinations of Race and Class (recommendations only) ===
  
                  Warrior      Priest      Ranger      Druid     Assassin
@@ -399,5 +381,5 @@ Abilities are ranked on a comparative scale ranging from 1 to 10.
      Necromancer   3      6     4      4      4      4      3      3
      Assassin      7      5     3      7      8      8      7      9
 
-* : With blunt weapons (use the 'I'nspect command to find out which weapons are 
-    blunt)
+* : With blunt weapons; otherwise much worse (use the 'I'nspect 
+    command to find out which weapons are blunt)
