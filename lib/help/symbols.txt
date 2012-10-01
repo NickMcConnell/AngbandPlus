@@ -75,4 +75,3 @@ the command '%'.  You may review what a symbol means by typing '/' or '~'.
 
      Angband can also use graphics instead of text to display your surroundings;
 unfortunately, no convenient listing of them yet exists.
-

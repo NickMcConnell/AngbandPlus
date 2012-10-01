@@ -2,10 +2,19 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -238,44 +247,44 @@ const int adj_mag_stat[] =
  */
 const byte adj_chr_gold[] =
 {
-	130	/* 3 */,
-	125	/* 4 */,
-	122	/* 5 */,
-	120	/* 6 */,
-	118	/* 7 */,
-	116	/* 8 */,
-	114	/* 9 */,
-	112	/* 10 */,
-	110	/* 11 */,
-	108	/* 12 */,
-	106	/* 13 */,
-	104	/* 14 */,
-	103	/* 15 */,
-	102	/* 16 */,
-	101	/* 17 */,
-	100	/* 18/00-18/09 */,
-	99	/* 18/10-18/19 */,
-	98	/* 18/20-18/29 */,
-	97	/* 18/30-18/39 */,
-	96	/* 18/40-18/49 */,
-	95	/* 18/50-18/59 */,
-	94	/* 18/60-18/69 */,
-	93	/* 18/70-18/79 */,
-	92	/* 18/80-18/89 */,
-	91	/* 18/90-18/99 */,
-	90	/* 18/100-18/109 */,
-	89	/* 18/110-18/119 */,
-	88	/* 18/120-18/129 */,
-	87	/* 18/130-18/139 */,
-	86	/* 18/140-18/149 */,
-	85	/* 18/150-18/159 */,
-	84	/* 18/160-18/169 */,
-	83	/* 18/170-18/179 */,
-	82	/* 18/180-18/189 */,
-	81	/* 18/190-18/199 */,
-	80	/* 18/200-18/209 */,
-	80	/* 18/210-18/219 */,
-	80	/* 18/220+ */
+	143	/* 3 */,
+	137	/* 4 */,
+	134	/* 5 */,
+	132	/* 6 */,
+	129	/* 7 */,
+	127	/* 8 */,
+	123	/* 9 */,
+	122	/* 10 */,
+	121	/* 11 */,
+	118	/* 12 */,
+	116	/* 13 */,
+	113	/* 14 */,
+	113	/* 15 */,
+	112	/* 16 */,
+	111	/* 17 */,
+	110	/* 18/00-18/09 */,
+	108	/* 18/10-18/19 */,
+	107	/* 18/20-18/29 */,
+	106	/* 18/30-18/39 */,
+	105	/* 18/40-18/49 */,
+	104	/* 18/50-18/59 */,
+	103	/* 18/60-18/69 */,
+	102	/* 18/70-18/79 */,
+	101	/* 18/80-18/89 */,
+	100	/* 18/90-18/99 */,
+	99	/* 18/100-18/109 */,
+	97	/* 18/110-18/119 */,
+	96	/* 18/120-18/129 */,
+	95	/* 18/130-18/139 */,
+	94	/* 18/140-18/149 */,
+	93	/* 18/150-18/159 */,
+	92	/* 18/160-18/169 */,
+	91	/* 18/170-18/179 */,
+	90	/* 18/180-18/189 */,
+	90	/* 18/190-18/199 */,
+	90	/* 18/200-18/209 */,
+	90	/* 18/210-18/219 */,
+	90	/* 18/220+ */
 };
 
 /*
@@ -288,44 +297,44 @@ const byte adj_chr_gold[] =
  */
 const s16b adj_chr_charm[] =
 {
-	- 5	/* 3 */,
-	- 4	/* 4 */,
-	- 3	/* 5 */,
-	- 2	/* 6 */,
-	- 1	/* 7 */,
-	0	/* 8 */,
+	- 10/* 3 */,
+	- 8	/* 4 */,
+	- 6	/* 5 */,
+	- 3	/* 6 */,
+	- 2	/* 7 */,
+	- 1	/* 8 */,
 	0	/* 9 */,
 	0	/* 10 */,
 	0	/* 11 */,
-	1	/* 12 */,
-	1	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	3	/* 16 */,
-	4	/* 17 */,
-	6	/* 18/00-18/09 */,
-	8	/* 18/10-18/19 */,
-	10	/* 18/20-18/29 */,
-	12	/* 18/30-18/39 */,
-	15	/* 18/40-18/49 */,
-	16	/* 18/50-18/59 */,
-	18	/* 18/60-18/69 */,
-	20	/* 18/70-18/79 */,
-	22	/* 18/80-18/89 */,
-	24	/* 18/90-18/99 */,
-	26	/* 18/100-18/109 */,
-	29	/* 18/110-18/119 */,
-	32	/* 18/120-18/129 */,
-	36	/* 18/130-18/139 */,
-	40	/* 18/140-18/149 */,
-	45	/* 18/150-18/159 */,
-	46	/* 18/160-18/169 */,
-	45	/* 18/170-18/179 */,
-	46	/* 18/180-18/189 */,
-	47	/* 18/190-18/199 */,
-	48	/* 18/200-18/209 */,
-	49	/* 18/210-18/219 */,
-	50	/* 18/220+ */
+	0	/* 12 */,
+	0	/* 13 */,
+	0	/* 14 */,
+	0	/* 15 */,
+	1	/* 16 */,
+	1	/* 17 */,
+	2	/* 18/00-18/09 */,
+	2	/* 18/10-18/19 */,
+	3	/* 18/20-18/29 */,
+	3	/* 18/30-18/39 */,
+	4	/* 18/40-18/49 */,
+	4	/* 18/50-18/59 */,
+	5	/* 18/60-18/69 */,
+	5	/* 18/70-18/79 */,
+	6	/* 18/80-18/89 */,
+	6	/* 18/90-18/99 */,
+	7	/* 18/100-18/109 */,
+	7	/* 18/110-18/119 */,
+	8	/* 18/120-18/129 */,
+	8	/* 18/130-18/139 */,
+	9	/* 18/140-18/149 */,
+	9	/* 18/150-18/159 */,
+	10	/* 18/160-18/169 */,
+	10	/* 18/170-18/179 */,
+	11	/* 18/180-18/189 */,
+	11	/* 18/190-18/199 */,
+	12	/* 18/200-18/209 */,
+	13	/* 18/210-18/219 */,
+	15	/* 18/220+ */
 };
 
 
@@ -1806,7 +1815,7 @@ cptr stat_names_full[A_MAX] =
  * main window, including File dump (help), File dump (artifacts, uniques),
  * Character screen, Small scale map, Previous Messages, Store screen, etc.
  */
-cptr window_flag_desc[32] =
+const char *window_flag_desc[32] =
 {
 	"Display inven/equip",
 	"Display equip/inven",
@@ -1820,11 +1829,11 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	"Display monster list",
 	"Display status",
-	"Display script variables",
-	"Display script source",
+	"Display item list",
+	"Display feature recall",
 	"Display borg messages",
 	"Display borg status",
-	"Display feature recall",
+	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -1842,91 +1851,92 @@ cptr window_flag_desc[32] =
 	NULL
 };
 
+
 /*
  * Options -- definitions
  */
-option_type options[OPT_MAX] =
+option_entry options[OPT_MAX] =
 {
 	{"rogue_like_commands",	"Rogue-like commands",					FALSE},		/* OPT_rogue_like_commands */
 	{"quick_messages",		"Activate quick messages",				TRUE},		/* OPT_quick_messages */
-	{"floor_query_flag",	"Prompt for floor item selection",		FALSE},		/* OPT_floor_query_flag */
-	{"carry_query_flag",	"Prompt before picking things up",		TRUE},		/* OPT_carry_query_flag */
+	{"use_sound",			"Use Sound", 							FALSE},		/* OPT_use_sound */
+	{"carry_query_flag",	"Prompt before picking things up",		FALSE},		/* OPT_carry_query_flag */
 	{"use_old_target",		"Use old target by default",			FALSE},		/* OPT_use_old_target */
 	{"always_pickup",		"Pick things up by default",			TRUE},		/* OPT_always_pickup */
-	{"always_repeat",		"Repeat obvious commands",				FALSE},		/* OPT_always_repeat */
-	{"depth_in_feet",		"Show dungeon level in feet",			FALSE},		/* OPT_depth_in_feet */
+	{"floor_query_flag",	"Prompt before using floor items",		TRUE},		/* OPT_floor_query_flag */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"stack_force_notes",	"Merge inscriptions when stacking",		FALSE},		/* OPT_stack_force_notes */
 	{"stack_force_costs",	"Merge discounts when stacking",		FALSE},		/* OPT_stack_force_costs */
 	{"expand_inscribe",     "Expand the power of the inscribe commands", TRUE},	/* OPT_expand_inscribe */
+	{"disturb_detect",		"Disturb whenever leaving trap detected area",TRUE},/* OPT_disturb_detect */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
-	{"show_details",		"Show details in monster descriptions",	TRUE},		/* OPT_show_details */
 	{"ring_bell",			"Audible bell (on errors, etc)",		TRUE},		/* OPT_ring_bell */
 	{"show_flavors",		"Show flavors in object descriptions",	TRUE},		/* OPT_flavors */
-	{"run_ignore_stairs",	"When running, ignore stairs",			TRUE},		/* OPT_run_ignore_stairs */
-	{"run_ignore_doors",	"When running, ignore doors",			TRUE},		/* OPT_run_ignore_doors */
-	{"run_cut_corners",		"When running, cut corners",			TRUE},		/* OPT_run_cut_corners */
-	{"run_use_corners",		"When running, use corners",			TRUE},		/* OPT_run_use_corners */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"disturb_move",		"Disturb whenever any monster moves",	TRUE},		/* OPT_disturb_move */
 	{"disturb_near",		"Disturb whenever viewable monster moves",TRUE},	/* OPT_disturb_near */
-	{"disturb_panel",		"Disturb whenever map panel changes",	TRUE},		/* OPT_disturb_panel */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"disturb_state",		"Disturb whenever player state changes",TRUE},		/* OPT_disturb_state */
-	{"disturb_minor",		"Disturb whenever boring things happen",TRUE},		/* OPT_disturb_minor */
-	{"disturb_wakeup",		"Disturb when a viewable monster wakes up",TRUE},	/* OPT_disturb_wakeup */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{NULL,					NULL,									FALSE},		/* xxx */
 	{"verify_destroy",		"Verify destruction of objects",		TRUE},		/* OPT_verify_destroy */
-	{"verify_special",		"Verify use of special commands",		TRUE},		/* OPT_verify_special */
-	{"allow_quantity",		"Allow quantity specification",			TRUE},		/* OPT_allow_quantity */
 	{NULL,					NULL,									FALSE},		/* xxx */
-	{"auto_haggle",			"Auto-haggle in stores",				TRUE},		/* OPT_auto_haggle */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"auto_scum",			"Auto-scum for good levels",			FALSE},		/* OPT_auto_scum */
 	{"allow_themed_levels","Allow the generation of themed levels",TRUE},		/* OPT_allow_themed_levels */
-	{NULL,					NULL,										FALSE},		/* xxx testing_carry */
-	{"expand_look",			"Expand the power of the look command",	TRUE},		/* OPT_expand_look */
-	{"expand_list",			"Expand the power of the list commands",TRUE},		/* OPT_expand_list */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
+	{NULL,					NULL,									FALSE},		/* xxx */
 	{"view_perma_grids",	"Map remembers all perma-lit grids",	TRUE},		/* OPT_view_perma_grids */
 	{"view_torch_grids",	"Map remembers all torch-lit grids",	FALSE},		/* OPT_view_torch_grids */
-	{"dungeon_align",		"Generate dungeons with aligned rooms",	TRUE},		/* OPT_dungeon_align */
-	{"dungeon_stair",		"Generate dungeons with connected stairs",TRUE},	/* OPT_dungeon_stair */
 	{NULL,					NULL,	FALSE},/* xxx */
 	{NULL,					NULL,	FALSE},/* xxx */
-	{NULL,					NULL,	FALSE},/* xxx track_follow */
-	{NULL,					NULL,	FALSE},/* xxx track_target */
-	{NULL,					NULL,	FALSE},/* xxx track_target */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"smart_cheat",			"Monsters exploit players weaknesses",	FALSE},	/* OPT_smart_cheat */
-	{"view_reduce_lite",	"Reduce lite-radius when running",		FALSE},	/* OPT_view_reduce_lite */
-	{"hidden_player",		"Hide player symbol when running",		FALSE},	/* OPT_hidden_player */
-	{"avoid_abort",			"Avoid checking for user abort",		FALSE},	/* OPT_avoid_abort */
-	{"avoid_other",			"Avoid processing special colors",		FALSE},	/* OPT_avoid_other */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{"flush_failure",		"Flush input on various failures",		TRUE},	/* OPT_flush_failure */
-	{"flush_disturb",		"Flush input whenever disturbed",		FALSE},	/* OPT_flush_disturb */
+	{"flush_disturb",		"Flush input whenever disturbed",		TRUE},	/* OPT_flush_disturb */
 	{NULL,				NULL,										FALSE},	/* xxx flush_command */
-	{"fresh_before",		"Flush output before every command",	TRUE},	/* OPT_fresh_before */
-	{"fresh_after",			"Flush output after various things",	FALSE},	/* OPT_fresh_after */
+	{NULL,					NULL,	FALSE},/* xxx */
+	{NULL,					NULL,	FALSE},/* xxx */
 	{NULL,				NULL,									FALSE},
-	{"compress_savefile",	"Compress messages in savefiles",		TRUE},	/* OPT_compress_savefile */
-	{"hilite_player",		"Hilite the player with the cursor",	FALSE},	/* OPT_hilite_player */
-	{"view_yellow_lite",	"Use special colors for torch lite",	FALSE},	/* OPT_view_yellow_lite */
-	{"view_bright_lite",	"Use special colors for field of view",	FALSE},	/* OPT_view_bright_lite */
-	{"view_granite_lite",	"Use special colors for wall grids",	FALSE},	/* OPT_view_granite_lite */
-	{"view_special_lite",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_lite */
+	{NULL,				NULL,									FALSE},
+	{"hilight_player",		"Hilight the player with the cursor",	FALSE},	/* OPT_hilight_player */
+	{"view_yellow_light",	"Use special colors for torch light",	FALSE},	/* OPT_view_yellow_light */
+	{"view_bright_light",	"Use special colors for field of view",	FALSE},	/* OPT_view_bright_light */
+	{"view_granite_light",	"Use special colors for wall grids",	FALSE},	/* OPT_view_granite_light */
+	{"view_special_light",	"Use special colors for floor grids",	FALSE},	/* OPT_view_special_light */
 	{"easy_open",			"Open/Disarm/Close without direction",	FALSE},	/* OPT_easy_open */
 	{"easy_alter",			"Open/Disarm doors/traps on movement",	FALSE},	/* OPT_easy_alter */
-	{"easy_floor",			"Display floor stacks in a list",		FALSE},	/* OPT_easy_floor */
+	{NULL,				NULL,								FALSE},/* xxx */
 	{"show_piles",			"Show stacks using special attr/char",	FALSE},	/* OPT_show_piles */
 	{"center_player",		"Center map continuously (very slow)",	FALSE},	/* OPT_center_player */
-	{"run_avoid_center",	"Avoid centering while running",		FALSE},	/* OPT_run_avoid_center */
+	{NULL,				NULL,								FALSE},/* xxx */
 	{"xchars_to_file",		"Allow accents in output files",		FALSE},	/* OPT_xchars_to_file */
 	{"auto_more",			"Automatically clear '-more-' prompts",	FALSE},	/* OPT_auto_more */
-	{"toggle_xp",			"Reverse experience display",			FALSE},	/* OPT_toggle_exp*/
-	{"always_show_list",	"Automatically display drop-down lists",FALSE},	/* OPT_auto_display_lists */
+	{NULL,				NULL,								FALSE},/* xxx */
+	{"auto_display_lists",	"Automatically display drop-down lists",FALSE},	/* OPT_auto_display_lists */
 	{"hp_changes_color",	"Player color indicates low hit points",FALSE},	/* OPT_hp_changes_color*/
 	{"verify_leave_quests",	"Verify before descending from quest level",TRUE},/* OPT_verify_leave_quests*/
-	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* opt_mark_squelch_items */
-	{NULL,				NULL,								FALSE},/* xxx */
-	{NULL,				NULL,								FALSE},/* xxx */
-	{NULL,				NULL,								FALSE},/* xxx */
+	{"mark_squelch_items",	"Items marked for squelch appear as dot",FALSE},/* OPT_mark_squelch_items */
+	{"mouse_movement",      "Allow mouse clicks to move the player",       TRUE }, /*OPT_mouse_movement*/
+	{"mouse_buttons",       "Show mouse status line buttons",              FALSE }, /*OPT_mouse_buttons*/
+	{"notify_recharge",		"Notify on object recharge", 	FALSE},/* OPT_notify_recharge */
 	{NULL,				NULL,								FALSE},/* xxx */
 	{NULL,				NULL,							FALSE},/* xxx */
 	{NULL,				NULL,							FALSE},/* xxx */
@@ -1974,9 +1984,9 @@ option_type options[OPT_MAX] =
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
-	{NULL,				NULL,												FALSE},/* xxx */
-	{"birth_point_based",		"Birth: Allow purchase of stats using points",	FALSE},	/* OPT_birth_point_based */
-	{"birth_auto_roller",		"Birth: Allow specification of minimal stats",	FALSE},	/* OPT_birth_auto_roller */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
+	{NULL,NULL,FALSE},/* xxx */
 	{"birth_maximize",			"Birth: Maximize effect of race/class bonuses",	TRUE},	/* OPT_birth_maximize */
 	{"birth_preserve",			"Birth: Preserve artifacts when leaving level",	TRUE},	/* OPT_birth_preserve */
 	{"birth_ironman",			"Birth: Restrict the use of stairs/recall",		FALSE},	/* OPT_birth_ironman */
@@ -1986,12 +1996,12 @@ option_type options[OPT_MAX] =
 	{"birth_no_stacking",		"Birth: Never stack objects on the floor",		FALSE},	/* OPT_birth_no_stacking */
 	{"birth_take_notes",		"Birth: Have notes written to a file",			TRUE},	/* OPT_birth_auto_notes */
 	{"birth_force_small_lev",	"Birth: All levels will be generated as small",	FALSE},	/* OPT_birth_force_small_lev */
-	{"birth_retain_squelch", 	"Birth: Retain squelch settings",				FALSE},	/* OPT_birth_retain_squelch */
+	{NULL,NULL,FALSE},/* xxx */
 	{"birth_no_quests",			"Birth: Disable quests",						FALSE},	/* OPT_birth_no_quests*/
 	{"birth_no_player ghosts",	"Birth: Disable player ghosts",					FALSE},	/* OPT_birth_no_player ghosts*/
 	{"birth_no_store_services",	"Birth: Disable store services",				FALSE},	/* OPT_birth_no_store_services*/
-	{"birth_no_xtra_artifacts","Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
-	{NULL,NULL,FALSE},/* xxx */
+	{"birth_no_xtra_artifacts", "Birth: Disable extra artifacts",				FALSE},	/* OPT_birth_no_xtra_artifacts*/
+	{ "birth_money",            "Birth: Start with more money and no equipment",FALSE },
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
 	{NULL,NULL,FALSE},/* xxx */
@@ -2110,150 +2120,100 @@ option_type options[OPT_MAX] =
  */
 const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
-	/*** User-Interface ***/
+	/*** Interface/Gameplay ***/
 
 	{
+		OPT_use_sound,
 		OPT_rogue_like_commands,
-		OPT_quick_messages,
 		OPT_floor_query_flag,
 		OPT_carry_query_flag,
 		OPT_use_old_target,
 		OPT_always_pickup,
-		OPT_always_repeat,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
-		OPT_ring_bell,
+		OPT_auto_display_lists,
 		OPT_easy_open,
 		OPT_easy_alter,
-		OPT_easy_floor,
 		OPT_expand_inscribe,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE
-	},
-
-	/*** Disturbance ***/
-
-	{
-		OPT_run_ignore_stairs,
-		OPT_run_ignore_doors,
-		OPT_run_cut_corners,
-		OPT_run_use_corners,
-		OPT_disturb_move,
-		OPT_disturb_near,
-		OPT_disturb_panel,
-		OPT_disturb_state,
-		OPT_disturb_minor,
-		OPT_disturb_wakeup,
-		OPT_verify_destroy,
-		OPT_verify_special,
-		OPT_allow_quantity,
-		OPT_auto_more,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE
-	},
-
-	/*** Game-Play ***/
-
-	{
-		OPT_auto_haggle,
+		OPT_mouse_movement,
+		OPT_mouse_buttons,
 		OPT_auto_scum,
 		OPT_allow_themed_levels,
-		OPT_expand_look,
-		OPT_expand_list,
-		OPT_view_perma_grids,
-		OPT_view_torch_grids,
-		OPT_dungeon_align,
-		OPT_dungeon_stair,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
 		OPT_smart_cheat,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_xchars_to_file,
 		OPT_NONE,
 		OPT_NONE
-	},
-
-	/*** Efficiency ***/
-
-	{
-		OPT_view_reduce_lite,
-		OPT_hidden_player,
-		OPT_avoid_abort,
-		OPT_avoid_other,
-		OPT_flush_failure,
-		OPT_flush_disturb,
-		OPT_fresh_before,
-		OPT_fresh_after,
-		OPT_compress_savefile,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
 	},
 
 	/*** Display ***/
 
 	{
-		OPT_depth_in_feet,
-		OPT_show_details,
-		OPT_show_flavors,
-		OPT_hilite_player,
-		OPT_view_yellow_lite,
-		OPT_view_bright_lite,
-		OPT_view_granite_lite,
-		OPT_view_special_lite,
- 		OPT_center_player,
- 		OPT_run_avoid_center,
-		OPT_show_piles,
 		OPT_hp_changes_color,
-		OPT_verify_leave_quest,
+		OPT_hilight_player,
+		OPT_center_player,
+		OPT_show_piles,
+		OPT_show_flavors,
+		OPT_view_yellow_light,
+		OPT_view_bright_light,
+		OPT_view_granite_light,
+		OPT_view_special_light,
+		OPT_view_perma_grids,
+		OPT_view_torch_grids,
 		OPT_mark_squelch_items,
-		OPT_toggle_xp,
-		OPT_auto_display_lists,
-		OPT_xchars_to_file,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
+	},
+
+	/* Warning */
+
+	{
+		OPT_disturb_move,
+		OPT_disturb_near,
+		OPT_disturb_detect,
+		OPT_disturb_state,
+		OPT_quick_messages,
+		OPT_auto_more,
+		OPT_ring_bell,
+		OPT_flush_failure,
+		OPT_flush_disturb,
+		OPT_verify_destroy,
+		OPT_notify_recharge,
+		OPT_verify_leave_quest,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Birth ***/
 
 	{
-		OPT_birth_point_based,
-		OPT_birth_auto_roller,
 		OPT_birth_maximize,
-		OPT_birth_preserve,
+		OPT_birth_rand_artifacts,
+		OPT_birth_money,
+		OPT_birth_take_notes,
+		OPT_birth_force_small_lev,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
-		OPT_birth_rand_artifacts,
 		OPT_birth_no_stacking,
-	 	OPT_birth_take_notes,
-		OPT_birth_force_small_lev,
-		OPT_birth_retain_squelch,
+		OPT_birth_preserve,
 		OPT_birth_no_quests,
 		OPT_birth_no_player_ghosts,
 		OPT_birth_no_store_services,
 		OPT_birth_no_xtra_artifacts,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2337,7 +2297,7 @@ byte spell_info_RF4[32][5]=
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_COLD */
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_POIS */
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_PLAS */
-	{0,     0,     0,     0,     0},        /* RF4_BRTH_LITE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_LIGHT */
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_DARK */
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_CONFU */
 	{0,     0,     0,     0,     0},        /* RF4_BRTH_SOUND */
@@ -2365,7 +2325,7 @@ byte spell_info_RF5[32][5]=
 	{4,     4,     1,     6,     6},        /* RF5_BALL_FIRE */
 	{4,     4,     1,     6,     6},        /* RF5_BALL_COLD */
 	{4,     3,     1,     6,     6},        /* RF5_BALL_POIS */
-	{5,     3,     1,     6,     6},        /* RF5_BALL_LITE */
+	{5,     3,     1,     6,     6},        /* RF5_BALL_LIGHT */
 	{5,     3,     1,     6,     6},        /* RF5_BALL_DARK */
 	{6,     3,     1,     6,     6},        /* RF5_BALL_CONFU */
 	{4,     2,     1,     6,     6},        /* RF5_BALL_SOUND */
@@ -2384,7 +2344,7 @@ byte spell_info_RF5[32][5]=
 	{5,     3,     1,     6,     6},        /* RF5_BOLT_PLAS */
 	{5,     3,     1,     6,     6},        /* RF5_BOLT_ICE */
 	{5,     3,     1,     6,     6},        /* RF5_BOLT_WATER */
-	{5,     3,     1,     6,     6},        /* RF5_BOLT_NETHER */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_NETHR */
 	{5,     2,     1,     6,     6},        /* RF5_BOLT_MANA */
 	{0,     0,     0,     0,     0},        /* RF5_XXX3 */
 	{6,     3,     1,     6,     6},        /* RF5_BEAM_ELEC */
@@ -2504,7 +2464,7 @@ byte spell_desire_RF4[32][8] =
 	{ 75,  0,   0,   5,	0,   0, LRN_COLD  ,   90}, /* RF4_BRTH_COLD */
 	{ 65,  0,   0,   5,	0,   0, LRN_POIS  ,   90}, /* RF4_BRTH_POIS */
 	{ 65,  0,   0,   5,	0,   0, LRN_PLAS  ,   90}, /* RF4_BRTH_PLAS */
-	{ 65,  0,   0,   5,	0,   0, LRN_LITE  ,   90}, /* RF4_BRTH_LITE */
+	{ 65,  0,   0,   5,	0,   0, LRN_LIGHT  ,   90}, /* RF4_BRTH_LIGHT */
 	{ 65,  0,   0,   5,	0,   0, LRN_DARK  ,   90}, /* RF4_BRTH_DARK */
 	{ 65,  0,   0,   5,	0,   0, LRN_CONFU ,   90}, /* RF4_BRTH_CONFU*/
 	{ 65,  0,   0,   5,	0,   0, LRN_SOUND ,   90}, /* RF4_BRTH_SOUND*/
@@ -2533,7 +2493,7 @@ byte spell_desire_RF5[32][8] =
 	{ 50,  0,   0,   0,	0,   0, LRN_FIRE  ,  100}, /* RF5_BALL_FIRE */
 	{ 50,  0,   0,   0,	0,   0, LRN_COLD  ,  100}, /* RF5_BALL_COLD */
 	{ 50,  0,   0,   0,	0,   0, LRN_POIS  ,  100}, /* RF5_BALL_POIS */
-	{ 40,  0,   0,   0,	0,   0, LRN_LITE  ,  100}, /* RF5_BALL_LITE */
+	{ 40,  0,   0,   0,	0,   0, LRN_LIGHT  ,  100}, /* RF5_BALL_LIGHT */
 	{ 40,  0,   0,   0,	0,   0, LRN_DARK  ,  100}, /* RF5_BALL_DARK */
 	{ 40,  0,   0,   0,	0,   0, LRN_CONFU ,  100}, /* RF5_BALL_CONFU*/
 	{ 40,  0,   0,   0,	0,   0, LRN_SOUND ,  100}, /* RF5_BALL_SOUND*/
@@ -2642,3 +2602,348 @@ byte spell_desire_RF7[32][8] =
 
 
 
+
+/*
+ * Character translations and definitions.  -JG-
+ *
+ * Upper case and lower case equivalents of a given ISO Latin-1 character.
+ * A character's general "type"; types may be combined.
+ *
+ * Note that this table assumes use of the standard Angband extended fonts.
+ *
+ * Notice the accented characters in positions 191+.  If they don't appear
+ * correct to you, then you are viewing this table in a non-Latin-1 font.
+ * Individual ports are responsible for translations from the game's
+ * internal Latin-1 to their system's character encoding(s) (unless ASCII).
+ */
+const byte char_tables[256][CHAR_TABLE_SLOTS] =
+{
+/* TO_UPPER, TO_LOWER, CHAR TYPE */
+    {   0,     0,           0L },               /*        Empty      */
+    {   1,     1,  CHAR_SYMBOL },               /*        Solid      */
+    {   2,     2,  CHAR_SYMBOL },               /* Mostly solid      */
+    {   3,     3,  CHAR_SYMBOL },               /* Wall pattern      */
+    {   4,     4,  CHAR_SYMBOL },               /*    Many dots      */
+    {   5,     5,  CHAR_SYMBOL },               /*  Medium dots      */
+    {   6,     6,  CHAR_SYMBOL },               /*     Few dots      */
+    {   7,     7,  CHAR_SYMBOL },               /*     Tiny dot      */
+    {   8,     8,  CHAR_SYMBOL },               /*    Small dot      */
+    {   9,     9,  CHAR_SYMBOL },               /*   Medium dot      */
+    {  10,    10,  CHAR_SYMBOL },               /*    Large dot      */
+    {  11,    11,  CHAR_SYMBOL },               /*       Rubble      */
+    {  12,    12,  CHAR_SYMBOL },               /*     Treasure      */
+    {  13,    13,  CHAR_SYMBOL },               /*  Closed door      */
+    {  14,    14,  CHAR_SYMBOL },               /*    Open Door      */
+    {  15,    15,  CHAR_SYMBOL },               /*  Broken door      */
+    {  16,    16,  CHAR_SYMBOL },               /*       Pillar      */
+    {  17,    17,  CHAR_SYMBOL },               /*        Water      */
+    {  18,    18,  CHAR_SYMBOL },               /*         Tree      */
+    {  19,    19,  CHAR_SYMBOL },               /*    Fire/lava      */
+    {  20,    20,  CHAR_SYMBOL },               /*   Pit/portal      */
+    {  22,    22,           0L },               /*       Unused      */
+    {  22,    22,           0L },               /*       Unused      */
+    {  23,    23,           0L },               /*       Unused      */
+    {  24,    24,           0L },               /*       Unused      */
+    {  25,    25,           0L },               /*       Unused      */
+    {  26,    26,           0L },               /*       Unused      */
+    {  27,    27,           0L },               /*       Unused      */
+    {  28,    28,           0L },               /*       Unused      */
+    {  29,    29,           0L },               /*       Unused      */
+    {  30,    30,           0L },               /*       Unused      */
+    {  31,    31,           0L },               /*       Unused      */
+
+    {  32,    32,   CHAR_BLANK },               /*        Space      */
+    {  33,    33,   CHAR_PUNCT },               /*            !      */
+    {  34,    34,   CHAR_PUNCT },               /*            "      */
+    {  35,    35,   CHAR_PUNCT },               /*            #      */
+    {  36,    36,   CHAR_PUNCT },               /*            $      */
+    {  37,    37,   CHAR_PUNCT },               /*            %      */
+    {  38,    38,   CHAR_PUNCT },               /*            &      */
+    {  39,    39,   CHAR_PUNCT },               /*            '      */
+    {  40,    40,   CHAR_PUNCT },               /*            (      */
+    {  41,    41,   CHAR_PUNCT },               /*            )      */
+    {  42,    42,   CHAR_PUNCT },               /*            *      */
+    {  43,    43,   CHAR_PUNCT },               /*            +      */
+    {  44,    44,   CHAR_PUNCT },               /*            ,      */
+    {  45,    45,   CHAR_PUNCT },               /*            -      */
+    {  46,    46,   CHAR_PUNCT },               /*            .      */
+    {  47,    47,   CHAR_PUNCT },               /*            /      */
+
+    {  48,    48,   CHAR_DIGIT },               /*            0      */
+    {  49,    49,   CHAR_DIGIT },               /*            1      */
+    {  50,    50,   CHAR_DIGIT },               /*            2      */
+    {  51,    51,   CHAR_DIGIT },               /*            3      */
+    {  52,    52,   CHAR_DIGIT },               /*            4      */
+    {  53,    53,   CHAR_DIGIT },               /*            5      */
+    {  54,    54,   CHAR_DIGIT },               /*            6      */
+    {  55,    55,   CHAR_DIGIT },               /*            7      */
+    {  56,    56,   CHAR_DIGIT },               /*            8      */
+    {  57,    57,   CHAR_DIGIT },               /*            9      */
+    {  58,    58,   CHAR_DIGIT },               /*            :      */
+    {  59,    59,   CHAR_DIGIT },               /*            ;      */
+
+    {  60,    60,   CHAR_PUNCT },               /*            <      */
+    {  61,    61,   CHAR_PUNCT },               /*            =      */
+    {  62,    62,   CHAR_PUNCT },               /*            >      */
+    {  63,    63,   CHAR_PUNCT },               /*            ?      */
+    {  64,    64,   CHAR_PUNCT },               /*            @      */
+    {  65,    97,   CHAR_UPPER | CHAR_VOWEL },  /*            A      */
+    {  66,    98,   CHAR_UPPER },               /*            B      */
+    {  67,    99,   CHAR_UPPER },               /*            C      */
+    {  68,   100,   CHAR_UPPER },               /*            D      */
+    {  69,   101,   CHAR_UPPER | CHAR_VOWEL },  /*            E      */
+    {  70,   102,   CHAR_UPPER },               /*            F      */
+    {  71,   103,   CHAR_UPPER },               /*            G      */
+    {  72,   104,   CHAR_UPPER },               /*            H      */
+    {  73,   105,   CHAR_UPPER | CHAR_VOWEL },  /*            I      */
+    {  74,   106,   CHAR_UPPER },               /*            J      */
+    {  75,   107,   CHAR_UPPER },               /*            K      */
+    {  76,   108,   CHAR_UPPER },               /*            L      */
+    {  77,   109,   CHAR_UPPER },               /*            M      */
+    {  78,   110,   CHAR_UPPER },               /*            N      */
+    {  79,   111,   CHAR_UPPER | CHAR_VOWEL },  /*            O      */
+    {  80,   112,   CHAR_UPPER },               /*            P      */
+    {  81,   113,   CHAR_UPPER },               /*            Q      */
+    {  82,   114,   CHAR_UPPER },               /*            R      */
+    {  83,   115,   CHAR_UPPER },               /*            S      */
+    {  84,   116,   CHAR_UPPER },               /*            T      */
+    {  85,   117,   CHAR_UPPER | CHAR_VOWEL },  /*            U      */
+    {  86,   118,   CHAR_UPPER },               /*            V      */
+    {  87,   119,   CHAR_UPPER },               /*            W      */
+    {  88,   120,   CHAR_UPPER },               /*            X      */
+    {  89,   121,   CHAR_UPPER },               /*            Y      */
+    {  90,   122,   CHAR_UPPER },               /*            Z      */
+
+    {  91,    91,   CHAR_PUNCT },               /*            [      */
+    {  92,    92,   CHAR_PUNCT },               /*            \      */
+    {  93,    93,   CHAR_PUNCT },               /*            ]      */
+    {  94,    94,   CHAR_PUNCT },               /*            ^      */
+    {  95,    95,   CHAR_PUNCT },               /*            _      */
+    {  96,    96,   CHAR_PUNCT },               /*            `      */
+    {  65,    97,   CHAR_LOWER | CHAR_VOWEL },  /*            a      */
+    {  66,    98,   CHAR_LOWER },               /*            b      */
+    {  67,    99,   CHAR_LOWER },               /*            c      */
+    {  68,   100,   CHAR_LOWER },               /*            d      */
+    {  69,   101,   CHAR_LOWER | CHAR_VOWEL },  /*            e      */
+    {  70,   102,   CHAR_LOWER },               /*            f      */
+    {  71,   103,   CHAR_LOWER },               /*            g      */
+    {  72,   104,   CHAR_LOWER },               /*            h      */
+    {  73,   105,   CHAR_LOWER | CHAR_VOWEL },  /*            i      */
+    {  74,   106,   CHAR_LOWER },               /*            j      */
+    {  75,   107,   CHAR_LOWER },               /*            k      */
+    {  76,   108,   CHAR_LOWER },               /*            l      */
+    {  77,   109,   CHAR_LOWER },               /*            m      */
+    {  78,   110,   CHAR_LOWER },               /*            n      */
+    {  79,   111,   CHAR_LOWER | CHAR_VOWEL },  /*            o      */
+    {  80,   112,   CHAR_LOWER },               /*            p      */
+    {  81,   113,   CHAR_LOWER },               /*            q      */
+    {  82,   114,   CHAR_LOWER },               /*            r      */
+    {  83,   115,   CHAR_LOWER },               /*            s      */
+    {  84,   116,   CHAR_LOWER },               /*            t      */
+    {  85,   117,   CHAR_LOWER | CHAR_VOWEL },  /*            u      */
+    {  86,   118,   CHAR_LOWER },               /*            v      */
+    {  87,   119,   CHAR_LOWER },               /*            w      */
+    {  88,   120,   CHAR_LOWER },               /*            x      */
+    {  89,   121,   CHAR_LOWER },               /*            y      */
+    {  90,   122,   CHAR_LOWER },               /*            z      */
+    { 123,   123,   CHAR_PUNCT },               /*            {    */
+    { 124,   124,   CHAR_PUNCT },               /*            |      */
+    { 125,   125,   CHAR_PUNCT },               /*            }      */
+    { 126,   126,   CHAR_PUNCT },               /*            ~      */
+    { 127,   127,  CHAR_SYMBOL },               /* Wall pattern      */
+
+    { 128,   128,           0L },               /*       Unused      */
+    { 129,   129,           0L },               /*       Unused      */
+    { 130,   130,           0L },               /*       Unused      */
+    { 131,   131,           0L },               /*       Unused      */
+    { 132,   132,           0L },               /*       Unused      */
+    { 133,   133,           0L },               /*       Unused      */
+    { 134,   134,           0L },               /*       Unused      */
+    { 135,   135,           0L },               /*       Unused      */
+    { 136,   136,           0L },               /*       Unused      */
+    { 137,   137,           0L },               /*       Unused      */
+    { 138,   138,           0L },               /*       Unused      */
+    { 139,   139,           0L },               /*       Unused      */
+    { 140,   140,           0L },               /*       Unused      */
+    { 141,   141,           0L },               /*       Unused      */
+    { 142,   142,           0L },               /*       Unused      */
+    { 143,   143,           0L },               /*       Unused      */
+    { 144,   144,           0L },               /*       Unused      */
+    { 145,   145,           0L },               /*       Unused      */
+    { 146,   146,           0L },               /*       Unused      */
+    { 147,   147,           0L },               /*       Unused      */
+    { 148,   148,           0L },               /*       Unused      */
+    { 149,   149,           0L },               /*       Unused      */
+    { 150,   150,           0L },               /*       Unused      */
+    { 151,   151,           0L },               /*       Unused      */
+    { 152,   152,           0L },               /*       Unused      */
+    { 153,   153,           0L },               /*       Unused      */
+    { 154,   154,           0L },               /*       Unused      */
+    { 155,   155,           0L },               /*       Unused      */
+    { 156,   156,           0L },               /*       Unused      */
+    { 157,   157,           0L },               /*       Unused      */
+    { 158,   158,           0L },               /*       Unused      */
+    { 159,   159,           0L },               /*       Unused      */
+    { 160,   160,           0L },               /*       Unused      */
+
+    { 161,   161,   CHAR_PUNCT },               /*       iexcl   ¡   */
+    { 162,   162,   CHAR_PUNCT },               /*        euro   ¢   */
+    { 163,   163,   CHAR_PUNCT },               /*       pound   £   */
+    { 164,   164,   CHAR_PUNCT },               /*      curren   ¤   */
+    { 165,   165,   CHAR_PUNCT },               /*         yen   ¥   */
+    { 166,   166,   CHAR_PUNCT },               /*      brvbar   ¦   */
+    { 167,   167,   CHAR_PUNCT },               /*        sect   §   */
+    { 168,   168,  CHAR_SYMBOL },               /*  Bolt - vert      */
+    { 169,   169,  CHAR_SYMBOL },               /*  Bolt - horz      */
+    { 170,   170,  CHAR_SYMBOL },               /*  Bolt -rdiag      */
+    { 171,   171,  CHAR_SYMBOL },               /*  Bolt -ldiag      */
+    { 172,   172,  CHAR_SYMBOL },               /*  Spell-cloud      */
+    { 173,   173,  CHAR_SYMBOL },               /*   Spell-elec      */
+    { 174,   174,  CHAR_SYMBOL },               /*  Spell-explo      */
+
+    { 175,   175,           0L },               /*       Unused      */
+    { 176,   176,           0L },               /*       Unused      */
+    { 177,   177,           0L },               /*       Unused      */
+    { 178,   178,           0L },               /*       Unused      */
+    { 179,   179,           0L },               /*       Unused      */
+    { 180,   180,           0L },               /*       Unused      */
+    { 181,   181,           0L },               /*       Unused      */
+    { 182,   182,           0L },               /*       Unused      */
+    { 183,   183,           0L },               /*       Unused      */
+    { 184,   184,           0L },               /*       Unused      */
+    { 185,   185,           0L },               /*       Unused      */
+    { 186,   186,           0L },               /*       Unused      */
+    { 187,   187,           0L },               /*       Unused      */
+    { 188,   188,           0L },               /*       Unused      */
+    { 189,   189,           0L },               /*       Unused      */
+    { 190,   190,           0L },               /*       Unused      */
+
+    { 191,   191,   CHAR_PUNCT },               /*      iquest   ¿   */
+    { 192,   224,   CHAR_UPPER | CHAR_VOWEL },  /*      Agrave   À   */
+    { 193,   225,   CHAR_UPPER | CHAR_VOWEL },  /*      Aacute   Á   */
+    { 194,   226,   CHAR_UPPER | CHAR_VOWEL },  /*       Acirc   Â   */
+    { 195,   227,   CHAR_UPPER | CHAR_VOWEL },  /*      Atilde   Ã   */
+    { 196,   228,   CHAR_UPPER | CHAR_VOWEL },  /*        Auml   Ä   */
+    { 197,   229,   CHAR_UPPER | CHAR_VOWEL },  /*       Aring   Å   */
+    { 198,   230,   CHAR_UPPER | CHAR_VOWEL },  /*       Aelig   Æ   */
+    { 199,   231,   CHAR_UPPER },               /*      Ccedil   Ç   */
+    { 200,   232,   CHAR_UPPER | CHAR_VOWEL },  /*      Egrave   È   */
+    { 201,   233,   CHAR_UPPER | CHAR_VOWEL },  /*      Eacute   É   */
+    { 202,   234,   CHAR_UPPER | CHAR_VOWEL },  /*       Ecirc   Ê   */
+    { 203,   235,   CHAR_UPPER | CHAR_VOWEL },  /*        Euml   Ë   */
+    { 204,   236,   CHAR_UPPER | CHAR_VOWEL },  /*      Igrave   Ì   */
+    { 205,   237,   CHAR_UPPER | CHAR_VOWEL },  /*      Iacute   Í   */
+    { 206,   238,   CHAR_UPPER | CHAR_VOWEL },  /*       Icirc   Î   */
+    { 207,   239,   CHAR_UPPER | CHAR_VOWEL },  /*        Iuml   Ï   */
+    { 208,   240,   CHAR_UPPER },               /*         ETH   Ð   */
+    { 209,   241,   CHAR_UPPER },               /*      Ntilde   Ñ   */
+    { 210,   242,   CHAR_UPPER | CHAR_VOWEL },  /*      Ograve   Ò   */
+    { 211,   243,   CHAR_UPPER | CHAR_VOWEL },  /*      Oacute   Ó   */
+    { 212,   244,   CHAR_UPPER | CHAR_VOWEL },  /*       Ocirc   Ô   */
+    { 213,   245,   CHAR_UPPER | CHAR_VOWEL },  /*      Otilde   Õ   */
+    { 214,   246,   CHAR_UPPER | CHAR_VOWEL },  /*        Ouml   Ö   */
+    { 215,   215,           0L },               /*       Unused      */
+    { 216,   248,   CHAR_UPPER | CHAR_VOWEL },  /*      Oslash   Ø   */
+    { 217,   249,   CHAR_UPPER | CHAR_VOWEL },  /*      Ugrave   Ù   */
+    { 218,   250,   CHAR_UPPER | CHAR_VOWEL },  /*      Uacute   Ú   */
+    { 219,   251,   CHAR_UPPER | CHAR_VOWEL },  /*       Ucirc   Û   */
+    { 220,   252,   CHAR_UPPER | CHAR_VOWEL },  /*        Uuml   Ü   */
+    { 221,   253,   CHAR_UPPER },               /*      Yacute   Ý   */
+    { 222,   254,   CHAR_UPPER },               /*       THORN   Þ   */
+    { 223,   223,   CHAR_LOWER },               /*       szlig   ß   */
+
+    { 192,   224,   CHAR_LOWER | CHAR_VOWEL },  /*      agrave   à   */
+    { 193,   225,   CHAR_LOWER | CHAR_VOWEL },  /*      aacute   á   */
+    { 194,   226,   CHAR_LOWER | CHAR_VOWEL },  /*       acirc   â   */
+    { 195,   227,   CHAR_LOWER | CHAR_VOWEL },  /*      atilde   ã   */
+    { 196,   228,   CHAR_LOWER | CHAR_VOWEL },  /*        auml   ä   */
+    { 197,   229,   CHAR_LOWER | CHAR_VOWEL },  /*       aring   å   */
+    { 198,   230,   CHAR_LOWER | CHAR_VOWEL },  /*       aelig   æ   */
+    { 199,   231,   CHAR_LOWER },               /*      ccedil   ç   */
+    { 200,   232,   CHAR_LOWER | CHAR_VOWEL },  /*      egrave   è   */
+    { 201,   233,   CHAR_LOWER | CHAR_VOWEL },  /*      eacute   é   */
+    { 202,   234,   CHAR_LOWER | CHAR_VOWEL },  /*       ecirc   ê   */
+    { 203,   235,   CHAR_LOWER | CHAR_VOWEL },  /*        euml   ë   */
+    { 204,   236,   CHAR_LOWER | CHAR_VOWEL },  /*      igrave   ì   */
+    { 205,   237,   CHAR_LOWER | CHAR_VOWEL },  /*      iacute   í   */
+    { 206,   238,   CHAR_LOWER | CHAR_VOWEL },  /*       icirc   î   */
+    { 207,   239,   CHAR_LOWER | CHAR_VOWEL },  /*        iuml   ï   */
+    { 208,   240,   CHAR_LOWER },               /*         eth   ð   */
+    { 209,   241,   CHAR_LOWER },               /*      ntilde   ñ   */
+    { 210,   242,   CHAR_LOWER | CHAR_VOWEL },  /*      ograve   ò   */
+    { 211,   243,   CHAR_LOWER | CHAR_VOWEL },  /*      oacute   ó   */
+    { 212,   244,   CHAR_LOWER | CHAR_VOWEL },  /*       ocirc   ô   */
+    { 213,   245,   CHAR_LOWER | CHAR_VOWEL },  /*      otilde   õ   */
+    { 214,   246,   CHAR_LOWER | CHAR_VOWEL },  /*        ouml   ö   */
+    { 247,   247,           0L },               /*       Unused      */
+    { 216,   248,   CHAR_LOWER | CHAR_VOWEL },  /*      oslash   ø   */
+    { 217,   249,   CHAR_LOWER | CHAR_VOWEL },  /*      ugrave   ù   */
+    { 218,   250,   CHAR_LOWER | CHAR_VOWEL },  /*      uacute   ú   */
+    { 219,   251,   CHAR_LOWER | CHAR_VOWEL },  /*       ucirc   û   */
+    { 220,   252,   CHAR_LOWER | CHAR_VOWEL },  /*        uuml   ü   */
+    { 221,   253,   CHAR_LOWER },               /*      yacute   ý   */
+    { 222,   254,   CHAR_LOWER },               /*       thorn   þ   */
+    { 121,   255,   CHAR_LOWER },               /*        yuml   ÿ   */
+};
+
+
+
+
+
+/*
+ * Translate from encodes to extended 8-bit characters and back again.
+ */
+const xchar_type latin1_encode[] =
+{
+    { "`A", 192 },  { "'A", 193 },  { "^A", 194 },  { "~A", 195 },
+    { "\"A", 196 },  { "*A", 197 },  { ",C", 199 },  { "`E", 200 },
+    { "'E", 201 },  { "^E", 202 }, { "\"E", 203 },  { "`I", 204 },
+    { "'I", 205 },  { "^I", 206 }, { "\"I", 207 },  { "~N", 209 },
+    { "`O", 210 },  { "'O", 211 },  { "^O", 212 },  { "~O", 213 },
+	{ "\"O", 214 },  { "/O", 216 },  { "`U", 217 },  { "'U", 218 },
+    { "^U", 219 }, { "\"U", 220 },  { "'Y", 221 },  { "`a", 224 },
+    { "'a", 225 },  { "^a", 226 },  { "~a", 227 }, { "\"a", 228 },
+    { "*a", 229 },  { ",c", 231 },  { "`e", 232 },  { "'e", 233 },
+    { "^e", 234 }, { "\"e", 235 },  { "`i", 236 },  { "'i", 237 },
+    { "^i", 238 }, { "\"i", 239 },  { "~n", 241 },  { "`o", 242 },
+    { "'o", 243 },  { "^o", 244 },  { "~o", 245 }, { "\"o", 246 },
+    { "/o", 248 },  { "`u", 249 },  { "'u", 250 },  { "^u", 251 },
+    { "\"u", 252 },  { "'y", 253 }, { "\"y", 255 },
+
+    { "iexcl", 161 }, { "euro", 162 }, { "pound", 163 }, { "curren", 164 },
+    { "yen", 165 },   { "brvbar", 166 }, { "sect", 167 }, { "Agrave", 192 },
+    { "Aacute", 193 }, { "Acirc", 194 }, { "Atilde", 195 }, { "Auml", 196 },
+    { "Aring", 197 }, { "Aelig", 198 }, { "Ccedil", 199 }, { "Egrave", 200 },
+    { "Eacute", 201 }, { "Ecirc", 202 }, { "Euml", 203 }, { "Igrave", 204 },
+    { "Iacute", 205 }, { "Icirc", 206 }, { "Iuml", 207 }, { "ETH", 208 },
+    { "Ntilde", 209 }, { "Ograve", 210 }, { "Oacute", 211 }, { "Ocirc", 212 },
+    { "Otilde", 213 }, { "Ouml", 214 }, { "Oslash", 216 }, { "Ugrave", 217 },
+    { "Uacute", 218 }, { "Ucirc", 219 }, { "Uuml", 220 }, { "Yacute", 221 },
+    { "THORN", 222 }, { "szlig", 223 }, { "agrave", 224 }, { "aacute", 225 },
+    { "acirc", 226 }, { "atilde", 227 }, { "auml", 228 }, { "aring", 229 },
+    { "aelig", 230 }, { "ccedil", 231 }, { "egrave", 232 }, { "eacute", 233 },
+    { "ecirc", 234 }, { "euml", 235 }, { "igrave", 236 }, { "iacute", 237 },
+    { "icirc", 238 }, { "iuml", 239 }, { "eth", 240 },   { "ntilde", 241 },
+    { "ograve", 242 }, { "oacute", 243 }, { "ocirc", 244 }, { "otilde", 245 },
+    { "ouml", 246 }, { "oslash", 248 }, { "ugrave", 249 }, { "uacute", 250 },
+    { "ucirc", 251 }, { "uuml", 252 }, { "yacute", 253 }, { "thorn", 254 },
+    { "yuml", 255 },   { "\0", 0 }
+};
+
+
+
+cptr squelch_status[SQUELCH_OPT_MAX] =
+{
+	"Never Squelch",
+    "Never Pickup",
+    "Always Pickup",
+    "Always Squelch",
+};
+
+const byte squelch_status_color[SQUELCH_OPT_MAX] =
+{
+	TERM_YELLOW,
+	TERM_L_GREEN,
+	TERM_L_UMBER,
+    TERM_L_RED,
+};

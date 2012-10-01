@@ -1,5 +1,5 @@
 QUESTS:
-(This file was last edited for NPPAngband 0.5.0)
+(This file was last edited for NPPAngband 0.5.1)
 
 There are five different styles of quests in NPPAngband. There are two types of
 fixed quests and five types of optional quests.
@@ -36,8 +36,8 @@ OPTIONAL QUESTS:
 NPPAngband has a town building called the Adventurer's Guild.
 A player may choose to visit this building and receive a quest from the
 Guild. Initially, a player can choose only monster quest.  After the player has
-gone as deep as level 5 (250') they may choose a quest to clear out a pit or 
-nest.  After the player has gone as deep as  level 10 (250') they may choose 
+gone as deep as level 10 (500') they may choose a quest to clear out a pit or 
+nest.  After the player has gone as deep as  level 15 (750') they may choose 
 a quest to clear an entire level of a particular type of monster.  Occasionally, 
 the player has the choice of a vault (artifact) quest. The guild will never 
 assign more than one optional quest at any time. Upon completion of an 
@@ -102,7 +102,7 @@ THEMED LEVEL QUESTS:
 
 This quest is a more difficult version of the Monster Pit/Nest quests.  Instead of
 95 creatures in a pit or nest specified depth, and entire level is full between 
-195 - 275 monsters of a partcular theme.  
+195 - 275 monsters of a particular theme.  
 Since there are so many like creatures bunched so closely together, a creature
 from inside one of these themed levels will not attempt to summon more 
 creatures to the battle.  This tends to be the most difficult type of quest, 

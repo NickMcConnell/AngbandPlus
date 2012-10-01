@@ -163,4 +163,3 @@ be after you've enhanced yourself and hindered them.
 Special Notes:
      In order to attack a creature that you can't see in a wall or door, you
 must issue the Tunnel or alter adjacent grid command.
-

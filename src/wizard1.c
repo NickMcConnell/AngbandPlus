@@ -1,14 +1,24 @@
 /* File: wizard1.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "cmds.h"
 
 
 #ifdef ALLOW_SPOILERS
@@ -17,7 +27,7 @@
 /*
  * The spoiler file being created
  */
-static FILE *fff = NULL;
+static ang_file *fh = NULL;
 
 
 /*
@@ -25,7 +35,7 @@ static FILE *fff = NULL;
  */
 static void spoiler_out_n_chars(int n, char c)
 {
-	while (--n >= 0) fputc(c, fff);
+	while (--n >= 0) file_writec(fh, c);
 }
 
 /*
@@ -46,17 +56,6 @@ static void spoiler_underline(cptr str, char c)
 	spoiler_out_n_chars(strlen(str), c);
 	text_out("\n");
 }
-
-
-/*
- * A tval grouper
- */
-typedef struct
-{
-	byte tval;
-	cptr name;
-} grouper;
-
 
 
 /*
@@ -110,7 +109,7 @@ static const grouper group_item[] =
 	{ TV_CHEST,		"Chests" },
 
 	{ TV_SPIKE,		"Various" },
-	{ TV_LITE,		  NULL },
+	{ TV_LIGHT,		  NULL },
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
 	{ TV_BOTTLE,	  NULL },
@@ -122,11 +121,13 @@ static const grouper group_item[] =
 
 
 
-
 /*
  * Describe the kind
  */
-static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int k)
+static void kind_info(char *buf, size_t buf_len,
+                      char *dam, size_t dam_len,
+                      char *wgt, size_t wgt_len,
+                      int *lev, s32b *val, int k)
 {
 	object_kind *k_ptr;
 
@@ -149,23 +150,31 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	i_ptr->to_h = 0;
 	i_ptr->to_d = 0;
 
+
 	/* Level */
 	(*lev) = k_ptr->k_level;
 
-	/* Make known */
-	i_ptr->ident |= (IDENT_KNOWN);
+	/* Identify the object and get the squelch setting */
+	identify_object(i_ptr, TRUE);
 
 	/* Value */
 	(*val) = object_value(i_ptr);
 
-	/* Hack */
-	if (!buf || !dam || !wgt) return;
-
 	/* Description (too brief) */
-	object_desc_spoil(buf, 80, i_ptr, FALSE, 0);
+	if (buf)
+		object_desc(buf, buf_len, i_ptr, ODESC_PREFIX | ODESC_FULL);
+
+	/* Weight */
+	if (wgt)
+		strnfmt(wgt, wgt_len, "%3d.%d",
+				i_ptr->weight / 10, i_ptr->weight % 10);
+
+	/* Hack */
+	if (!dam)
+		return;
 
 	/* Misc info */
-	strcpy(dam, "");
+	dam[0] = '\0';
 
 	/* Damage */
 	switch (i_ptr->tval)
@@ -181,7 +190,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_BOLT:
 		case TV_ARROW:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			strnfmt(dam, dam_len, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
@@ -191,7 +200,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
+			strnfmt(dam, dam_len, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
 		}
 
@@ -205,17 +214,13 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
 		{
-			sprintf(dam, "%d", i_ptr->ac);
+			strnfmt(dam, dam_len, "%d", i_ptr->ac);
 			break;
 		}
 	}
-
-
-	/* Weight */
-	sprintf(wgt, "%3d.%d", i_ptr->weight / 10, i_ptr->weight % 10);
 }
+
 
 
 /*
@@ -237,17 +242,12 @@ static void spoil_obj_desc(cptr fname)
 	/* We use either ascii or system-specific encoding */
  	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Open the file */
-	fff = my_fopen(buf, "w");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
-	if (!fff)
+	if (!fh)
 	{
 		msg_print("Cannot create spoiler file.");
 		return;
@@ -255,11 +255,11 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (%s)\n\n\n", VERSION_STRING);
+	file_putf(fh, "Spoiler File -- Basic Items (%s)\n\n\n", VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, format, "----------------------------------------",
+	file_putf(fh, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
+	file_putf(fh, format, "----------------------------------------",
 	        "------", "---", "---", "----");
 
 	/* List the groups */
@@ -282,8 +282,8 @@ static void spoil_obj_desc(cptr fname)
 					s32b t1;
 					s32b t2;
 
-					kind_info(NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, &e2, &t2, who[i2]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, &e1, &t1, who[i1]);
+					kind_info(NULL, 0, NULL, 0, NULL, 0, &e2, &t2, who[i2]);
 
 					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
 					{
@@ -301,10 +301,10 @@ static void spoil_obj_desc(cptr fname)
 				s32b v;
 
 				/* Describe the kind */
-				kind_info(buf, dam, wgt, &e, &v, who[s]);
+				kind_info(buf, sizeof(buf), dam, sizeof(dam), wgt, sizeof(wgt), &e, &v, who[s]);
 
 				/* Dump it */
-				x_fprintf(fff, encoding, "  %-51s%7s%6s%4d%9ld\n",
+				x_file_putf(fh, encoding, "  %-51s%7s%6s%4d%9ld\n",
 				        buf, dam, wgt, e, (long)(v));
 			}
 
@@ -315,7 +315,7 @@ static void spoil_obj_desc(cptr fname)
 			if (!group_item[i].tval) break;
 
 			/* Start a new set */
-			x_fprintf(fff, encoding, "\n\n%s\n\n", group_item[i].name);
+			x_file_putf(fh, encoding, "\n\n%s\n\n", group_item[i].name);
 		}
 
 		/* Get legal item types */
@@ -336,7 +336,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (!file_close(fh))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
@@ -345,6 +345,7 @@ static void spoil_obj_desc(cptr fname)
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
 }
+
 
 
 
@@ -378,7 +379,7 @@ static const grouper group_artifact[] =
 	{ TV_GLOVES,        "Gloves" },
 	{ TV_BOOTS,         "Boots" },
 
-	{ TV_LITE,          "Light Sources" },
+	{ TV_LIGHT,          "Light Sources" },
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
 
@@ -386,46 +387,6 @@ static const grouper group_artifact[] =
 };
 
 
-/*
- * Hack -- Create a "forged" artifact
- */
-bool make_fake_artifact(object_type *o_ptr, byte art_num)
-{
-	int i;
-
-	artifact_type *a_ptr = &a_info[art_num];
-
-	/* Ignore "empty" artifacts */
-	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
-
-	/* Get the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/* Oops */
-	if (!i) return (FALSE);
-
-	/* Create the artifact */
-	object_prep(o_ptr, i);
-
-	/* Save the name */
-	o_ptr->art_num = art_num;
-
-	/* Extract the fields */
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
-
-	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
-
-	/* Success */
-	return (TRUE);
-}
 
 
 /*
@@ -443,15 +404,10 @@ static void spoil_artifact(cptr fname)
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
+	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
-	if (!fff)
+	if (!fh)
 	{
 		msg_print("Cannot create spoiler file.");
 		return;
@@ -459,7 +415,7 @@ static void spoil_artifact(cptr fname)
 
 	/* Dump to the spoiler file */
 	text_out_hook = text_out_to_file;
-	text_out_file = fff;
+	text_out_file = fh;
 
 	/* Set object_info_out() hook */
 	object_info_out_flags = object_flags;
@@ -497,22 +453,28 @@ static void spoil_artifact(cptr fname)
 			/* Attempt to "forge" the artifact */
 			if (!make_fake_artifact(i_ptr, (byte)j)) continue;
 
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			i_ptr->ident |= (IDENT_MENTAL);
+
 			/* Grab artifact name */
-			object_desc_spoil(buf, sizeof(buf), i_ptr, TRUE, 1);
+			object_desc(buf, sizeof(buf), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 			/* Print name and underline */
 			spoiler_underline(buf, '-');
 
+			identify_object(i_ptr, TRUE);
+
 			/* Write out the artifact description to the spoiler file */
-			object_info_out(i_ptr);
+			object_info_out(i_ptr, FALSE);
 
 			/*
 			 * Determine the minimum depth an artifact can appear, its rarity,
 			 * its weight, and its value in gold pieces.
 			 */
-			text_out(format("\nLevel %u, Rarity %u, %d.%d lbs, %ld AU\n",
-			                a_ptr->a_level, a_ptr->a_rarity, (a_ptr->weight / 10),
-			                (a_ptr->weight % 10), ((long)a_ptr->cost)));
+			text_out("\nMin Level %u, Rarity %u, %d.%d lbs\n",
+				a_ptr->a_level, a_ptr->a_rarity, (a_ptr->weight / 10),
+				(a_ptr->weight % 10));
 
 			/* Terminate the entry */
 			spoiler_blanklines(2);
@@ -520,7 +482,7 @@ static void spoil_artifact(cptr fname)
 	}
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (!file_close(fh))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
@@ -529,9 +491,6 @@ static void spoil_artifact(cptr fname)
 	/* Message */
 	msg_print("Successfully created a spoiler file.");
 }
-
-
-
 
 
 /*
@@ -559,36 +518,31 @@ static void spoil_mon_desc(cptr fname)
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Open the file */
-	fff = my_fopen(buf, "w");
+	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
-	if (!fff)
+	if (!fh)
 	{
 		msg_print("Cannot create spoiler file.");
 		return;
 	}
 
 	/* Dump the header */
-	x_fprintf(fff, encoding, "Monster Spoilers for %s Version %s\n",
+	x_file_putf(fh, encoding, "Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
-	x_fprintf(fff, encoding, "------------------------------------------\n\n");
+	x_file_putf(fh, encoding, "------------------------------------------\n\n");
 
 	/* Dump the header */
-	x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+	x_file_putf(fh, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+	x_file_putf(fh, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 	        "----", "---", "---", "---", "--", "--", "------------");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	who = C_ZNEW(z_info->r_max, u16b);
 
-	/* Scan the monsters */
-	for (i = 1; i < z_info->r_max; i++)
+	/* Scan the monsters (except the ghost) */
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -626,55 +580,44 @@ static void spoil_mon_desc(cptr fname)
 
 
 		/* Level */
-		sprintf(lev, "%d", r_ptr->level);
+		strnfmt(lev, sizeof(lev), "%d", r_ptr->level);
 
 		/* Rarity */
-		sprintf(rar, "%d", r_ptr->rarity);
+		strnfmt(rar, sizeof(rar), "%d", r_ptr->rarity);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
-		{
-			sprintf(spd, "+%d", (r_ptr->speed - 110));
-		}
+			strnfmt(spd, sizeof(spd), "+%d", (r_ptr->speed - 110));
 		else
-		{
-			sprintf(spd, "-%d", (110 - r_ptr->speed));
-		}
+			strnfmt(spd, sizeof(spd), "-%d", (110 - r_ptr->speed));
 
 		/* Armor Class */
-		sprintf(ac, "%d", r_ptr->ac);
+		strnfmt(ac, sizeof(ac), "%d", r_ptr->ac);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
-		{
-			sprintf(hp, "%d", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
-		}
+		strnfmt(hp, sizeof(hp), "hp dice %d, hp sides %d", r_ptr->hdice,r_ptr->hside);
 
 
 		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		strnfmt(exp, sizeof(exp), "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
 		strnfmt(exp, sizeof(exp), "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		x_fprintf(fff, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
+		x_file_putf(fh, encoding, "%-40.40s%4s%4s%6s%8s%4s %12.12s\n",
 		        nam, lev, rar, spd, hp, ac, exp);
 	}
 
 	/* End it */
-	fprintf(fff, "\n");
+	file_putf(fh, "\n");
 
 	/* Free the "who" array */
 	FREE(who);
 
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (!file_close(fh))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
@@ -687,9 +630,12 @@ static void spoil_mon_desc(cptr fname)
 
 
 
+
+
 /*
  * Monster spoilers originally by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
  */
+
 
 
 /*
@@ -704,17 +650,12 @@ static void spoil_mon_info(cptr fname)
 	int count = 0;
 
 
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Open the file */
-	fff = my_fopen(buf, "w");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
-	if (!fff)
+	if (!fh)
 	{
 		msg_print("Cannot create spoiler file.");
 		return;
@@ -722,16 +663,15 @@ static void spoil_mon_info(cptr fname)
 
 	/* Dump to the spoiler file */
 	text_out_hook = text_out_to_file;
-	text_out_file = fff;
+	text_out_file = fh;
 
 	/* Dump the header */
-	strnfmt(buf, sizeof(buf), "Monster Spoilers for %s Version %s\n",
+	text_out("Monster Spoilers for %s Version %s\n",
 	        VERSION_NAME, VERSION_STRING);
-	text_out(buf);
 	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	who = C_ZNEW(z_info->r_max, u16b);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -750,7 +690,7 @@ static void spoil_mon_info(cptr fname)
 	ang_sort(who, &why, count);
 
 	/*
-	 * List all monsters in order.
+	 * List all monsters in order (except the ghost).
 	 */
 	for (n = 0; n < count; n++)
 	{
@@ -772,62 +712,45 @@ static void spoil_mon_info(cptr fname)
 		}
 
 		/* Name */
-		strnfmt(buf, sizeof(buf), "%s  (", (r_name + r_ptr->name));	/* ---)--- */
-		text_out(buf);
+		text_out("%s  (", (r_name + r_ptr->name));	/* ---)--- */
 
 		/* Color */
 		text_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
-		sprintf(buf, " '%c')\n", r_ptr->d_char);
-		text_out(buf);
+		text_out(" '%c')\n", r_ptr->d_char);
 
 
 		/* Indent */
-		sprintf(buf, "=== ");
-		text_out(buf);
+		text_out("=== ");
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", r_idx);
-		text_out(buf);
+		text_out("Num:%d  ", r_idx);
 
 		/* Level */
-		sprintf(buf, "Lev:%d  ", r_ptr->level);
-		text_out(buf);
+		text_out("Lev:%d  ", r_ptr->level);
 
 		/* Rarity */
-		sprintf(buf, "Rar:%d  ", r_ptr->rarity);
-		text_out(buf);
+		text_out("Rar:%d  ", r_ptr->rarity);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
 		{
-			sprintf(buf, "Spd:+%d  ", (r_ptr->speed - 110));
+			text_out("Spd:+%d  ", (r_ptr->speed - 110));
 		}
 		else
 		{
-			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
+			text_out("Spd:-%d  ", (110 - r_ptr->speed));
 		}
-		text_out(buf);
 
 		/* Hitpoints */
-		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
-		{
-			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
-		}
-		else
-		{
-			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
-		}
-		text_out(buf);
+		text_out("Hp:dice %d sides %d", r_ptr->hdice, r_ptr->hside);
 
 		/* Armor Class */
-		sprintf(buf, "Ac:%d  ", r_ptr->ac);
-		text_out(buf);
+		text_out("Ac:%d  ", r_ptr->ac);
 
 		/* Experience */
-		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
-		text_out(buf);
+		text_out("Exp:%ld\n", (long)(r_ptr->mexp));
 
 		/* Describe */
 		describe_monster(r_idx, TRUE);
@@ -840,7 +763,7 @@ static void spoil_mon_info(cptr fname)
 	FREE(who);
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (!file_close(fh))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
@@ -864,14 +787,11 @@ static void spoil_features(cptr fname)
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Open the file */
-	fff = my_fopen(buf, "w");
+	fh = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
 	/* Oops */
-	if (!fff)
+	if (!fh)
 	{
 		msg_print("Cannot create spoiler file.");
 		return;
@@ -879,7 +799,7 @@ static void spoil_features(cptr fname)
 
 	/* Dump to the spoiler file */
 	text_out_hook = text_out_to_file;
-	text_out_file = fff;
+	text_out_file = fh;
 
 	/* Dump the header */
 	strnfmt(buf, sizeof(buf), "Feature Spoilers for %s Version %s\n",
@@ -888,7 +808,7 @@ static void spoil_features(cptr fname)
 	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->f_max, u16b);
+	who = C_ZNEW(z_info->f_max, u16b);
 
 	/* Scan thef features */
 	for (i = 1; i < z_info->f_max; i++)
@@ -949,7 +869,7 @@ static void spoil_features(cptr fname)
 	FREE(who);
 
 	/* Check for errors */
-	if (ferror(fff) || my_fclose(fff))
+	if (!file_close(fh))
 	{
 		msg_print("Cannot close spoiler file.");
 		return;
@@ -1053,3 +973,51 @@ static int i = 0;
 #endif
 
 #endif
+
+/*
+ * Hack -- Create a "forged" artifact
+ */
+bool make_fake_artifact(object_type *o_ptr, byte art_num)
+{
+	int i;
+
+	artifact_type *a_ptr = &a_info[art_num];
+
+	/* Ignore "empty" artifacts */
+	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
+
+	/* Get the "kind" index */
+	i = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!i) return (FALSE);
+
+	/* Create the artifact */
+	object_prep(o_ptr, i);
+
+	/* Save the name */
+	o_ptr->art_num = art_num;
+
+	/* Extract the fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/*identify it*/
+	object_known(o_ptr);
+
+	/*make it a store item*/
+	o_ptr->ident |= IDENT_STORE;
+
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->a_flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Success */
+	return (TRUE);
+}
+

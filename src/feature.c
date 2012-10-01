@@ -3,12 +3,20 @@
 /*
  * Copyright (c) 2006 Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+
 
 /*
  * Obtains the name of a feature.
@@ -91,7 +99,7 @@ int feat_adjust_combat_for_player(int chance, bool being_attacked)
 	int bonus;
 
 	/*No adjustments when the player is flying. */
-	if (p_ptr->flying) return chance;
+	if (p_ptr->timed[TMD_FLYING]) return chance;
 
 	/*native player adjustment to combat*/
 	if (is_player_native(p_ptr->py, p_ptr->px))
@@ -199,6 +207,44 @@ int feat_adjust_combat_for_monster(const monster_type *m_ptr, int chance,
 
 	return (chance);
 }
+
+/*
+ * Find a secret at the specified location and change it according to
+ * the state.
+ */
+void find_secret(int y, int x)
+{
+	feature_type *f_ptr;
+	feature_lore *f_l_ptr;
+
+	cptr text;
+
+	/* Get feature */
+	f_ptr = &f_info[cave_feat[y][x]];
+	f_l_ptr = &f_l_list[cave_feat[y][x]];
+
+	if (f_l_ptr->f_l_sights < MAX_UCHAR) f_l_ptr->f_l_sights++;
+
+	/* Get the feature description */
+	text = (f_text + f_ptr->f_text);
+
+	if (player_has_los_bold(y, x) && strlen(text))
+	{
+		/* You have found something */
+		msg_format("%s",text);
+	}
+
+	/* Change the location */
+	cave_alter_feat(y, x, FS_SECRET);
+
+
+	/*p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);*/
+
+	/* Disturb */
+	disturb(0, 0);
+}
+
+
 
 
 /*
@@ -354,7 +400,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
  			cave_info[y][x] |= (CAVE_MARK);
 
 			/*Light it up*/
-			lite_spot(y, x);
+			light_spot(y, x);
 		}
 
 		/* We have seen this feature */
@@ -504,6 +550,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 			if (mode == MODE_ACTION)
 			{
 				other_orb_or_ball(y, x, f_ptr->x_gf_type, 2, x_ptr->x_power, FALSE);
+
 				return (TRUE);
 			}
 			else if (mode == MODE_FLAGS) return (EF1_SM_TRAP_BALL);
@@ -545,7 +592,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 				/* Special handling of light trap */
 				if (f_ptr->f_power == 18)
 				{
-					lite_room(p_ptr->py, p_ptr->px);
+					light_room(p_ptr->py, p_ptr->px);
 
 				}
 
@@ -553,7 +600,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 				/* Special handling of darkness trap */
 				else if (f_ptr->f_power == 19)
 				{
-					unlite_room(p_ptr->py, p_ptr->px);
+					unlight_room(p_ptr->py, p_ptr->px);
 
 				}
 
@@ -564,7 +611,7 @@ u16b fire_trap_smart(int f_idx, int y, int x, byte mode)
 
 					if (allow_player_confusion())
 					{
-						(void)set_confused(p_ptr->confused + rand_int(4) + 4 + x_ptr->x_power / 10);
+						(void)inc_timed(TMD_CONFUSED, rand_int(4) + 4 + x_ptr->x_power / 10, TRUE);
 					}
 				}
 
@@ -617,7 +664,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		/* Get the trap effect */
 		effect_type *x_ptr = &x_list[cave_x_idx[y][x]];
 
-		if (p_ptr->flying)
+		if (p_ptr->timed[TMD_FLYING])
 		{
 			char feat_name[80];
 
@@ -625,6 +672,9 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			feature_desc(feat_name, sizeof(feat_name), f_idx, FALSE, TRUE);
 
 			msg_format("You float over the %s.", feat_name);
+
+			/* Disturb the player */
+			 disturb(0, 0);
 
 			/*We are done here*/
 			return;
@@ -642,7 +692,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
  			note_spot(y, x);
 
  			/* Redraw */
-			lite_spot(y, x);
+			light_spot(y, x);
 		}
 
 		/*Count in the feature lore the number of times set off*/
@@ -683,7 +733,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 			if (mode == MODE_ACTION)
 			{
-				if (p_ptr->ffall)
+				if (p_ptr->state.ffall)
 				{
 					msg_print("You float gently to the floor of the pit.");
 					msg_print("You carefully avoid setting off the daggers.");
@@ -704,7 +754,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 						dam += damroll(dice2, sides2);
 					}
 
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)set_cut(p_ptr->timed[TMD_CUT] + randint(dam));
 
 					/* Take the damage */
 					take_hit(dam, name);
@@ -729,7 +779,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			{
 
 				msg_print("You fall through a trap door!");
-				if (p_ptr->ffall)
+				if (p_ptr->state.ffall)
 				{
 					msg_print("You float gently down to the next level.");
 				}
@@ -740,10 +790,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 				}
 
 				/* New depth */
-				p_ptr->depth++;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
+				dungeon_change_level(p_ptr->depth + 1);
 			}
 
 			break;
@@ -764,7 +811,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			{
 
 				msg_print("You fall into a pit!");
-				if (p_ptr->ffall)
+				if (p_ptr->state.ffall)
 				{
 					msg_print("You float gently to the bottom of the pit.");
 				}
@@ -796,7 +843,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 				msg_print("You fall into a spiked pit!");
 
-				if (p_ptr->ffall)
+				if (p_ptr->state.ffall)
 				{
 					msg_print("You float gently to the floor of the pit.");
 					msg_print("You carefully avoid touching the spikes.");
@@ -813,7 +860,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 						msg_print("You are impaled!");
 
 						dam = dam * 2;
-						(void)set_cut(p_ptr->cut + randint(dam));
+						(void)set_cut(p_ptr->timed[TMD_CUT] + randint(dam));
 					}
 
 					/* Take the damage */
@@ -844,7 +891,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 				msg_print("You fall into a poison spiked pit!");
 
-				if (p_ptr->ffall)
+				if (p_ptr->state.ffall)
 				{
 					msg_print("You float gently to the floor of the pit.");
 					msg_print("You carefully avoid touching the poison spikes.");
@@ -861,16 +908,16 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 						msg_print("You are impaled on poisonous spikes!");
 
 						dam = dam * 2;
-						(void)set_cut(p_ptr->cut + randint(dam));
+						(void)set_cut(p_ptr->timed[TMD_CUT] + randint(dam));
 
-						if (p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois)
+						if (p_ptr->state.resist_pois || p_ptr->timed[TMD_OPP_POIS] || p_ptr->state.immune_pois)
 						{
 							msg_print("The poison does not affect you!");
 						}
 						else
 						{
 							dam = dam * 2;
-							(void)set_poisoned(p_ptr->poisoned + randint(dam));
+							(void)inc_timed(TMD_POISONED, randint(dam), TRUE);
 						}
 					}
 
@@ -992,7 +1039,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 					msg_print("A small dart hits you!");
 					dam = damroll(dice, sides);
 					take_hit(dam, name);
-					(void)set_slow(p_ptr->slow + rand_int(duration) + duration);
+					(void)inc_timed(TMD_SLOW, rand_int(duration) + duration, TRUE);
 				}
 				else
 				{
@@ -1103,9 +1150,9 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 			{
 
 				msg_print("You are surrounded by a black gas!");
-				if (!p_ptr->resist_blind)
+				if (!p_ptr->state.resist_blind)
 				{
-					(void)set_blind(p_ptr->blind + rand_int(rand_base) + base);
+					(void)inc_timed(TMD_BLIND,rand_int(rand_base) + base, TRUE);
 				}
 			}
 			break;
@@ -1127,7 +1174,7 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 				msg_print("You are surrounded by a gas of scintillating colors!");
 				if (allow_player_confusion())
 				{
-					(void)set_confused(p_ptr->confused + rand_int(rand_base) + base);
+					(void)inc_timed(TMD_CONFUSED, rand_int(rand_base) + base, TRUE);
 				}
 			}
 			break;
@@ -1148,9 +1195,9 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 
 
 				msg_print("You are surrounded by a pungent green gas!");
-				if (!p_ptr->resist_pois && !p_ptr->oppose_pois && !p_ptr->immune_pois)
+				if (!p_ptr->state.resist_pois && !p_ptr->timed[TMD_OPP_POIS] && !p_ptr->state.immune_pois)
 				{
-					(void)set_poisoned(p_ptr->poisoned + rand_int(rand_base) + base);
+					(void)inc_timed(TMD_POISONED, rand_int(rand_base) + base, TRUE);
 				}
 			}
 			break;
@@ -1167,10 +1214,13 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 									base, rand_base));
 				return;
 			}
-			msg_print("You are surrounded by a strange white mist!");
-			if (!p_ptr->free_act)
+			if (mode == MODE_ACTION)
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(rand_base) + base);
+				msg_print("You are surrounded by a strange white mist!");
+				if (!p_ptr->state.free_act)
+				{
+					(void)inc_timed(TMD_PARALYZED, rand_int(rand_base) + base, TRUE);
+				}
 			}
 			break;
 		}
@@ -1178,6 +1228,8 @@ void hit_trap(int f_idx, int y, int x, byte mode)
 		/*Oops!*/
 		default: msg_print("unknown trap type");
 	}
+
+	if (mode == MODE_ACTION) disturb(0,0);
 }
 
 /*
@@ -1558,7 +1610,7 @@ s16b get_feat_num(int level)
 		{
 
 			/* 10-20 levels boost */
-			//level += (10 + rand_int(11));
+			/*level += (10 + rand_int(11));*/
 
 			/* 25-40 levels boost */
 			level += (25 + rand_int(16));
@@ -2170,7 +2222,8 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 	const feature_type *f_ptr = &f_info[f_idx];
 	cptr flags[50];
 	cptr type;
-	int i, n = 0;
+	int i = 0;
+	u16b n = 0;
 
 	text_out("This is a");
 
@@ -2247,18 +2300,9 @@ static void describe_feature_basic(int f_idx, const feature_lore *f_l_ptr)
 		{
 			text_out_c(TERM_L_GREEN, " appears");
 
-			if (depth_in_feet)
-			{
-				text_out_c(TERM_L_GREEN, format(" at depths of %d feet and below",
+			text_out_c(TERM_L_GREEN, format(" at depths of %d feet and below",
 			                            f_ptr->f_level * 50));
-			}
-			else
-			{
-				text_out_c(TERM_L_GREEN, format(" on dungeon level %d and below",
-			                            f_ptr->f_level));
-			}
 		}
-
 
 	}
 
@@ -2749,10 +2793,10 @@ static void describe_feature_combat_effects(int f_idx, const feature_lore *f_l_p
 		{
 			if (f_ptr->native_to_hit_adj  > 100)
 			{
-				text_out_c(TERM_BLUE, format(" %d percent more", (f_ptr->native_to_hit_adj  - 100)));
+				text_out_c(TERM_BLUE, " %d percent more", (f_ptr->native_to_hit_adj  - 100));
 			}
-			else text_out_c(TERM_BLUE, format(" %d percent less",
-				(100 - f_ptr->native_to_hit_adj)));
+			else text_out_c(TERM_BLUE, " %d percent less",
+				(100 - f_ptr->native_to_hit_adj));
 
 		}
 		else
@@ -3713,7 +3757,6 @@ void process_dynamic_terrain_aux(dynamic_grid_type *g_ptr)
 			if (in_bounds(yy, xx) && cave_ff2_match(yy, xx, FF2_HURT_WATER))
 			{
 				/* Transform */
-				/*project_f(SOURCE_OTHER, yy, xx, 0, 200, GF_WATER);*/
 				cave_alter_feat(yy, xx, FS_HURT_WATER);
 
 				/* Remove the wave must of the time */
@@ -4013,7 +4056,7 @@ s16b select_powerful_race(void)
 	bool *marked;
 
 	/* Player cannot read clearly */
-	if (p_ptr->confused || p_ptr->image)
+	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE])
 	{
 		/* Pick a random monster race */
 		while (TRUE)
@@ -4041,7 +4084,7 @@ s16b select_powerful_race(void)
 	/* No monsters */
 	if (mon_cnt == 0) return (0);
 
-	C_MAKE(marked, z_info->r_max, bool);
+	marked = C_ZNEW(z_info->r_max, bool);
 
 	/* Find the most powerful monsters */
 	for (i = 0; i < mon_max; i++)
@@ -4174,7 +4217,7 @@ void format_monster_inscription(s16b r_idx, char inscr[], size_t max)
 	r_ptr = &r_info[r_idx];
 
 	/* Sleeping monsters */
-	if (m_ptr->csleep)
+	if (m_ptr->m_timed[MON_TMD_SLEEP])
 	{
 		/* Get the monster name */
 		monster_desc(name, sizeof(name), m_ptr, 0x180);
@@ -4303,7 +4346,7 @@ void decipher_strange_inscription(int x_idx)
 	x_ptr->x_r_idx = select_powerful_race();
 
 	/* We are printing thrash  */
-	if ((p_ptr->confused || p_ptr->image) && one_in_(2)) msg_print("You don't trust your eyes.");
+	if ((p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) && one_in_(2)) msg_print("You don't trust your eyes.");
 
 	/* Format the message */
 	format_monster_inscription(x_ptr->x_r_idx, name, sizeof(name));
@@ -4313,6 +4356,7 @@ void decipher_strange_inscription(int x_idx)
 
 	/* Show it */
 	msg_c_format(MSG_NOTICE, name);
+	message_flush();
 
 	/* Destroy the effect sometimes */
 	if (!DEBUG_MODE_ACTIVATED && one_in_(3))
@@ -4348,6 +4392,7 @@ void hit_silent_watcher(int y, int x)
 
 	/* Fire a bolt to the player  */
 	project(SOURCE_OTHER, 0, y, x, p_ptr->py, p_ptr->px, dam, GF_NETHER, flg, 0, 0);
+
 }
 
 
@@ -4432,7 +4477,7 @@ bool hit_wall(int y, int x, bool do_action)
 			cave_alter_feat(y, x, FS_TUNNEL);
 
 			/* Burst of light */
-			project(SOURCE_OTHER, 2, y, x, y, x, dam, GF_LITE, flg, 0, 0);
+			project(SOURCE_OTHER, 2, y, x, y, x, dam, GF_LIGHT, flg, 0, 0);
 		}
 		/* It works most of the time */
 		else
@@ -4441,10 +4486,10 @@ bool hit_wall(int y, int x, bool do_action)
 			msg_print("A blast of bright light teleports you away!");
 
 			/* Blind the player */
-			if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+			if (!p_ptr->state.resist_blind && !p_ptr->state.resist_light)
 			{
 				/* Become blind */
-				(void)set_blind(p_ptr->blind + 10 + randint(10));
+				(void)inc_timed(TMD_BLIND, 10 + randint(10), TRUE);
 			}
 
 			/* Teleport */
@@ -4476,7 +4521,7 @@ bool hit_wall(int y, int x, bool do_action)
 				if (!do_action) return (TRUE);
 
 				/* Can't see  */
-				if (p_ptr->blind || no_lite())
+				if (p_ptr->timed[TMD_BLIND] || no_light())
 				{
 					/* Message */
 					msg_print("You can not see!");
@@ -4514,7 +4559,7 @@ void update_level_flag(void)
 		disturb(0, 0);
 	}
 
-	/* Scan de dungeon */
+	/* Scan the dungeon */
 	for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
 	{
 		for (x = 1; x < (p_ptr->cur_map_wid - 1); x++)

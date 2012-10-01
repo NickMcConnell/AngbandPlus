@@ -1,168 +1,129 @@
-/* File: config.h */
+#ifndef INCLUDED_CONFIG_H
+#define INCLUDED_CONFIG_H
+
+/*** Some really important things you ought to change ***/
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Defines the default paths to the Angband directories, for ports that use
+ * the main.c file.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
- */
-
-
-/*
- * Look through the following lines, and where a comment includes the
- * tag "OPTION:", examine the associated "#define" statements, and decide
- * whether you wish to keep, comment, or uncomment them.  You should not
- * have to modify any lines not indicated by "OPTION".
+ * "config path" is for per-installation configurable data, like the game's
+ * edit files and system-wide preferences.
  *
- * Note: Also examine the "system" configuration file "h-config.h".
+ * "lib path" is for static data, like sounds, graphics and fonts.
  *
- * And finally, remember that the "Makefile" will specify some rather
- * important compile time options, like what visual module to use.
- */
-
-
-/*
- * OPTION: See the Makefile(s), where several options may be declared.
+ * "data path" is for variable data, like save files and scores. On single-
+ * user systems, this also includes user preferences and dumps (on multi-
+ * user systems these go under the user's home directory).
  *
- * Some popular options include "USE_GCU" (allow use with Unix "curses"),
- * "USE_X11" (allow basic use with Unix X11), "USE_XAW" (allow use with
- * Unix X11 plus the Athena Widget set), and "USE_CAP" (allow use with
- * the "termcap" library, or with hard-coded vt100 terminals).
+ * The configure script overrides these values. Check the "--prefix=<dir>"
+ * option of the configure script.
  *
- * The old "USE_NCU" option has been replaced with "USE_GCU".
+ * These values will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessible.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
- * Several other such options are available for non-unix machines,
- * such as "MACINTOSH", "WINDOWS", "USE_IBM", "USE_EMX".
+ * Using the value "./lib/" below tells Angband that, by default,
+ * the user will run "angband" from the same directory that contains
+ * the "lib" directory.  This is a reasonable (but imperfect) default.
  *
- * You may also need to specify the "system", using defines such as
- * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
- */
-
-
-
-/*
- * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
- */
-/* #define USE_NCURSES */
-
-
-/*
- * OPTION: for multi-user machines running the game setuid to some other
- * user (like 'games') this SAFE_SETUID option allows the program to drop
- * its privileges when saving files that allow for user specified pathnames.
- * This lets the game be installed system wide without major security
- * concerns.  There should not be any side effects on any machines.
+ * If at all possible, you should change this value to refer to the
+ * actual location of the folders, for example, "/etc/angband/"
+ * or "/usr/share/angband/", or "/var/games/angband/". In fact, if at all
+ * possible you should use a packaging system which does this for you.
  *
- * This will handle "gids" correctly once the permissions are set right.
+ * N.B. The data path is only used if USE_PRIVATE_PATHS is not defined.
+ * The other two are always used. 
  */
-#define SAFE_SETUID
+#ifndef DEFAULT_CONFIG_PATH
+# define DEFAULT_CONFIG_PATH "." PATH_SEP "lib" PATH_SEP
+#endif 
+
+#ifndef DEFAULT_LIB_PATH
+# define DEFAULT_LIB_PATH "." PATH_SEP "lib" PATH_SEP
+#endif 
+
+#ifndef DEFAULT_DATA_PATH
+# define DEFAULT_DATA_PATH "." PATH_SEP "lib" PATH_SEP
+#endif 
 
 
 /*
- * This flag enables the "POSIX" methods for "SAFE_SETUID".
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref files and character dumps.
  */
-#ifdef _POSIX_SAVED_IDS
-# define SAFE_SETUID_POSIX
-#endif
+#ifdef SET_UID
+# ifndef PRIVATE_USER_PATH
+#  define PRIVATE_USER_PATH "~/.angband"
+# endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
 
 
 /*
- * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
- * The SAFE_SETUID code is weird, use it at your own risk...
+ * OPTION: Create and use hidden directories in the users home directory
+ * for storing save files and high-scores
  */
-#if defined(SUNOS) && !defined(SOLARIS)
-# undef SAFE_SETUID_POSIX
-#endif
+#ifdef PRIVATE_USER_PATH
+/* # define USE_PRIVATE_PATHS */
+#endif /* PRIVATE_USER_PATH */
 
 
 
+/*** Some no-brainer defines ***/
+
+/* Allow the game to make noises correlating to what the player does in-game */
+#define USE_SOUND
+
+/* Allow the use of graphics rather than only having a text-mode */
+#define USE_GRAPHICS
+
+/* Compile in support for debug commands */
+#define ALLOW_DEBUG
+
+/* Compile in support for spoiler generation */
+#define ALLOW_SPOILERS
+
+/* Allow changing colours at runtime */
+#define ALLOW_COLORS
+
+/* Allow changing "visuals" at runtime */
+#define ALLOW_VISUALS
+
+/* Allow changing macros at run-time */
+#define ALLOW_MACROS
 
 /*
- * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
- * a fiddled savefile is one with an internal timestamp different from
- * the actual timestamp.  Thus, turning this option on forbids one from
- * copying a savefile to a different name.  Combined with disabling the
- * ability to save the game without quitting, and with some method of
- * stopping the user from killing the process at the tombstone screen,
- * this should prevent the use of backup savefiles.  It may also stop
- * the use of savefiles from other platforms, so be careful.
+ * Used for getting edit files in a parsable format,
+ * and for guaging monster and artifact strength.
+ *
  */
-/* #define VERIFY_TIMESTAMP */
-
-
-/*
- * OPTION: Forbid the "savefile over-write" cheat, in which you simply
- * run another copy of the game, loading a previously saved savefile,
- * and let that copy over-write the "dead" savefile later.  This option
- * either locks the savefile, or creates a fake "xxx.lok" file to prevent
- * the use of the savefile until the file is deleted.  Not ready yet.
- */
-/* #define VERIFY_SAVEFILE */
-
 
 /* #define ALLOW_DATA_DUMP*/
 
+
 /*
- * OPTION: Hack -- Compile in support for "Borg mode"
+ * OPTION: Person to contact if something goes wrong.
  */
+#define MAINTAINER	"nppangbanddev@verizon.net"
+
+/*** Borg ***/
+
+/* Compile in support for the borg. */
 /* #define ALLOW_BORG */
 
-
-/*
- * OPTION: Hack -- Compile in support for "Debug Commands"
- */
-#define ALLOW_DEBUG
-
-/*
- * OPTION: Hack -- Compile in support for "Spoiler Generation"
- */
-#define ALLOW_SPOILERS
-
-
-/*
- * OPTION: Allow parsing of the ascii template files in "init.c".
- * This must be defined if you do not have valid binary image files.
- * It should be usually be defined anyway to allow easy "updating".
- */
-#define ALLOW_TEMPLATES
-
-
-/*
- * OPTION: Handle signals
- */
-#define HANDLE_SIGNALS
-
-/*
- * OPTION: The notes files are created as temporary files
- */
-#define TEMPORARY_NOTES_FILES
-
-/*
- * OPTION: Allow "Wizards" to yield "high scores"
- */
-/* #define SCORE_WIZARDS */
-
-/*
- * OPTION: Allow "Borgs" to yield "high scores"
- */
+/* Allow borgs to yield "high scores"? */
 /* #define SCORE_BORGS */
 
-/*
- * OPTION: Allow "Cheaters" to yield "high scores"
- */
-/* #define SCORE_CHEATERS */
-
-
-/*#define ALLOW_DATA_DUMP*/
-
 
 /*
- * OPTION: Support multiple "player" grids in "map_info()"
+ * Allow the Borg to use graphics.
  */
-/* #define MAP_INFO_MULTIPLE_PLAYERS */
+#if defined(ALLOW_BORG) && defined(USE_GRAPHICS)
+# define ALLOW_BORG_GRAPHICS
+#endif
 
 
+/*** X11 settings ***/
 
 /*
  * OPTION: Gamma correct colours (with X11)
@@ -171,143 +132,9 @@
 
 
 /*
- * OPTION: Check the modification time of *_info.raw files
- */
-#define CHECK_MODIFICATION_TIME
-
-
-
-/*
- * OPTION: Allow the use of "sound" in various places.
- */
-#define USE_SOUND
-
-/*
- * OPTION: Allow the use of "graphics" in various places
- */
-#define USE_GRAPHICS
-
-
-/*
- * Hack -- Macintosh stuff
- */
-#ifdef MACINTOSH
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-
-#endif
-
-
-/*
- * Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-/* Windows Vista can't create temporary files */
-# undef TEMPORARY_NOTES_FILES
-
-#endif
-
-
-/*
- * Hack -- EMX stuff
- */
-#ifdef USE_EMX
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * OPTION: Set the "default" path to the angband "lib" directory.
- *
- * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.
- *
- * The configure script overrides this value.  Check the "--prefix=<dir>"
- * option of the configure script.
- *
- * This value will be over-ridden by the "ANGBAND_PATH" environment
- * variable, if that variable is defined and accessable.  The final
- * "slash" is required if the value supplied is in fact a directory.
- *
- * Using the value "./lib/" below tells Angband that, by default,
- * the user will run "angband" from the same directory that contains
- * the "lib" directory.  This is a reasonable (but imperfect) default.
- *
- * If at all possible, you should change this value to refer to the
- * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
- * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
- */
-#ifndef DEFAULT_PATH
-# define DEFAULT_PATH "./lib/"
-#endif /* DEFAULT_PATH */
-
-
-/*
- * OPTION: Create and use a hidden directory in the users home directory
- * for storing pref-files and character-dumps.
- */
-
-#ifdef SET_UID
-# ifndef PRIVATE_USER_PATH
-#  define PRIVATE_USER_PATH "~/.angband/"
-# endif /* PRIVATE_USER_PATH */
-#endif /* SET_UID */
-
-
-/*
- * On multiuser systems, add the "uid" to savefile names
- */
-#ifdef SET_UID
-# define SAVEFILE_USE_UID
-#endif /* SET_UID */
-
-
-/*
- * OPTION: Check the "time" against "lib/file/hours.txt"
- */
-/* #define CHECK_TIME */
-
-
-/*
- * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
- * the '-d<what>=<path>' command line option (except for '-du=<path>').
- *
- * This prevents cheating in multi-user installs as well as possible
- * security problems when running setgid.
- */
-#ifdef SET_UID
-#define FIXED_PATHS
-#endif /* SET_UID */
-
-
-/*
- * OPTION: Capitalize the "user_name" (for "default" player name)
- * This option is only relevant on SET_UID machines.
- */
-#define CAPITALIZE_USER_NAME
-
-
-
-/*
- * OPTION: Person to bother if something goes wrong.
- */
-#define MAINTAINER	"nppangband@comcast.net"
-
-
-/*
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"-angband-8x12x-*-iso8859-1"
-
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -321,68 +148,4 @@
 #define DEFAULT_X11_FONT_6		"-angband-5x8x-*-iso8859-1"
 #define DEFAULT_X11_FONT_7		"-angband-5x8x-*-iso8859-1"
 
- /*
- * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
- * but has Mac OS/Windows-like user interface
- */
-#ifdef MACH_O_CARBON
-# ifdef SAVEFILE_USE_UID
-#  undef SAVEFILE_USE_UID
-# endif
-# ifdef SET_UID
-#  undef SET_UID
-# endif
-#endif
-
-
-/*
- * Hack -- Special "ancient machine" versions
- */
-#if defined(USE_286) || defined(ANGBAND_LITE_MAC)
-# ifndef ANGBAND_LITE
-#  define ANGBAND_LITE
-# endif
-#endif
-
-/*
- * OPTION: Attempt to minimize the size of the game
- */
-#ifndef ANGBAND_LITE
-/* #define ANGBAND_LITE */
-#endif
-
-/*
- * Hack -- React to the "ANGBAND_LITE" flag
- */
-# ifdef ANGBAND_LITE
-# undef ALLOW_BORG
-# undef ALLOW_DEBUG
-# undef ALLOW_SPOILERS
-# undef ALLOW_TEMPLATES
-#endif
-
-
-
-/*
- * OPTION: Attempt to prevent all "cheating"
- */
-/* #define VERIFY_HONOR */
-
-
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_TIMESTAMP
-#endif
-
-
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  /* define ALLOW_BORG_GRAPHICS */
-# endif /* USE_GRAPHICS */
-#endif /* ALLOW_BORG */
+#endif /* !INCLUDED_CONFIG_H */

@@ -157,8 +157,6 @@ T:;:3B:2B
 T:+:3B:2B
 T:,:2C:3C
 T:<:2C:3C
-T:-:2D:3D
-T:=:2D:3D
 T:.:2E:3E
 T:>:2E:3E
 T:\/:2F:3F
@@ -221,7 +219,23 @@ T:^:5E:7E
 T:~:5E:7E
 T:|:A5:7C
 
+# Arrow keys
 
+A:\x8A
+P:\[Down]
+P:\[mod2-Down]
+
+A:\x8B
+P:\[Left]
+P:\[mod2-Left]
+
+A:\x8C
+P:\[Right]
+P:\[mod2-Right]
+
+A:\x8D
+P:\[Up]
+P:\[mod2-Up]
 
 
 # Keypad (0-9)
@@ -241,8 +255,6 @@ P:\[KP_End]
 A:2
 P:^__FFB2\r
 P:^__FFDF\r
-P:\[Down]
-P:\[mod2-Down]
 P:\[KP_Down]
 
 A:3
@@ -254,8 +266,6 @@ P:\[KP_Page_Down]
 A:4
 P:^__FFB4\r
 P:^__FFDB\r
-P:\[Left]
-P:\[mod2-Left]
 P:\[KP_Left]
 
 A:5
@@ -267,8 +277,6 @@ P:\[KP_Begin]
 A:6
 P:^__FFB6\r
 P:^__FFDD\r
-P:\[Right]
-P:\[mod2-Right]
 P:\[KP_Right]
 
 A:7
@@ -280,8 +288,6 @@ P:\[KP_Home]
 A:8
 P:^__FFB8\r
 P:^__FFD9\r
-P:\[Up]
-P:\[mod2-Up]
 P:\[KP_Up]
 
 A:9

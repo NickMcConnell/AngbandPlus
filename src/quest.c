@@ -1,7 +1,7 @@
 /* File: quest.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997 Eytan Zweig, Jeff Greene, Diego Gonzalez
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -12,11 +12,12 @@
 
 #include "angband.h"
 
+
 #define QUEST_SLOT_WIELD	0
 #define QUEST_SLOT_BOW		1
 #define QUEST_SLOT_RING		2
 #define QUEST_SLOT_AMULET	3
-#define QUEST_SLOT_LITE		4
+#define QUEST_SLOT_LIGHT	4
 #define QUEST_SLOT_BODY		5
 #define QUEST_SLOT_CLOAK	6
 #define QUEST_SLOT_SHIELD	7
@@ -38,26 +39,35 @@
 /*Monsters only appear so deep*/
 #define MAX_MIN_DEPTH			76
 
-/* Quest Titles*/
-static cptr quest_title[QUEST_SLOT_MAX] =
-{
-	"Monster or Unique Quest",	/*QUEST_MONSTER*/
-	"Pit or Nest Quest",		/*QUEST_PIT*/
-  	"Level Quest",				/*QUEST_LEVEL*/
-	"Vault Quest"				/*QUEST_VAULT*/
-};
 
-/* Quest Titles*/
-static byte quest_title_color[QUEST_SLOT_MAX] =
-{
- 	TERM_BLUE,			/*QUEST_MONSTER*/
- 	TERM_VIOLET,		/*QUEST_VAULT*/
- 	TERM_ORANGE,		/*QUEST_PIT*/
- 	TERM_L_RED			/*QUEST_CLEAR_THEMED_LEVEL*/
-};
 
-/*Now a global variable so quest checkign for themed levels is consistent*/
-int qlev;
+/*
+ * Return the next guild quest level.
+ * Note this function does not handle overflows such as
+ * the max_depth of the dungeon.
+ */
+static int guild_quest_level(void)
+{
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	int depth = 0;
+
+	if (p_ptr->cur_quest) return (p_ptr->cur_quest);
+
+	/*
+	 * If the player hasn't left town yet, first quest
+	 * is at 50 feet..
+	 */
+	if (!p_ptr->max_depth) return (2);
+
+	depth = p_ptr->max_depth + QUEST_LEVEL_BOOST;
+
+	/* Consistently apply either 2 or three levels to the max depth */
+	if (q_ptr->q_flags & (QFLAG_EXTRA_LEVEL)) depth ++;
+
+	if (depth > MAX_DEPTH) depth = MAX_DEPTH;
+
+	return (depth);
+}
 
 /*
  * Determine which classification a quest item is.
@@ -91,9 +101,9 @@ static s16b quest_equip_slot(const object_type *o_ptr)
 			return (QUEST_SLOT_AMULET);
 		}
 
-		case TV_LITE:
+		case TV_LIGHT:
 		{
-			return (QUEST_SLOT_LITE);
+			return (QUEST_SLOT_LIGHT);
 		}
 
 		case TV_DRAG_ARMOR:
@@ -334,14 +344,13 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 		create_quest_artifact(i_ptr);
 
 		/* Get a shorter description to fit the notes file */
-		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_BASE);
 
 		my_strcpy(intro, format("Retrieve the %s from a vault", o_name),
 					sizeof(intro));
 
 		/* The location of the quest */
-		if (!depth_in_feet) my_strcpy(where, format("on dungeon level %d and return to the Guild.", level), sizeof(where));
-		else my_strcpy(where, format("at a depth of %d feet and return to the Guild.", level * 50), sizeof(where));
+		my_strcpy(where, format("at a depth of %d feet and return to the Guild.", level * 50), sizeof(where));
 
 		if (mode == QMODE_SHORT) my_strcpy(buf, format("%s.", intro), max);
 		else if (mode == QMODE_FULL) my_strcpy(buf, format("%s %s", intro, where), max);
@@ -363,16 +372,26 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 		my_strcpy(intro, "Clear out ", sizeof(intro));
 
 		/*If the middle of a quest, give the number remaining*/
-		if (q_ptr->started)
+		if (q_ptr->q_flags & (QFLAG_STARTED))
 		{
-		    int remaining = q_ptr->max_num - q_ptr->cur_num;
-
-			if (remaining > 1)
+			/* Completed quest */
+			if (!q_ptr->active_level)
 			{
-				my_strcpy(intro, format("%d remaining creatures from ", remaining),
-								sizeof(intro));
+				my_strcpy(buf, "Collect your reward!", max);
+				return;
 			}
-			else my_strcpy(intro, "There is 1 remaining creature from ", sizeof(intro));
+			/* Still active */
+			else
+			{
+		    	int remaining = q_ptr->max_num - q_ptr->cur_num;
+
+				if (remaining > 1)
+				{
+					my_strcpy(intro, format("%d remaining creatures from ", remaining),
+									sizeof(intro));
+				}
+				else my_strcpy(intro, "There is 1 remaining creature from ", sizeof(intro));
+			}
 		}
 
 		my_strcpy(mon_theme, feeling_themed_level[q_ptr->theme], sizeof(mon_theme));
@@ -393,8 +412,7 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 		}
 
 		/* The location of the quest */
-		if (!depth_in_feet) my_strcpy(where, format("on dungeon level %d.", level), sizeof(where));
-		else my_strcpy(where, format("at a depth of %d feet.", level * 50), sizeof(where));
+		my_strcpy(where, format("at a depth of %d feet.", level * 50), sizeof(where));
 
 		if (mode == QMODE_SHORT) my_strcpy(buf, format("%s.", intro), max);
 		else if (mode == QMODE_FULL) my_strcpy(buf, format("%s %s", intro, where), max);
@@ -402,6 +420,13 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 		else if (mode == QMODE_HALF_2) my_strcpy(buf, format("%s", where), max);
 
 		/*we are done*/
+		return;
+	}
+
+	/* Completed quest */
+	if (!q_ptr->active_level)
+	{
+		my_strcpy(buf, "Collect your reward!", max);
 		return;
 	}
 
@@ -413,7 +438,7 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 
 		/* Monster quests */
 		my_strcpy(targets, race_name, sizeof(targets));
-		my_strcpy(intro, "To fulfill your task, you must", sizeof(intro));
+		my_strcpy(intro, "To fulfill your quest, ", sizeof(intro));
 	}
 	else
 	{
@@ -440,13 +465,12 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 	else my_strcpy(what, "kill", sizeof(what));
 
 	/* The type of the quest */
-	if (q_ptr->type == QUEST_FIXED) my_strcpy(intro, "For eternal glory, you must", sizeof(intro));
-	else if (q_ptr->type == QUEST_FIXED_U) my_strcpy(intro, "For eternal glory, you must", sizeof(intro));
-	else if (q_ptr->type == QUEST_MONSTER) my_strcpy(intro, "To fulfill your task, you must", sizeof(intro));
+	if (q_ptr->type == QUEST_FIXED) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
+	else if (q_ptr->type == QUEST_FIXED_U) my_strcpy(intro, "For eternal glory, ", sizeof(intro));
+	else if (q_ptr->type == QUEST_MONSTER) my_strcpy(intro, "To fulfill your task, ", sizeof(intro));
 
 	/* The location of the quest */
-	if (!depth_in_feet) my_strcpy(where, format("on dungeon level %d.", level), sizeof(where));
-	else my_strcpy(where, format("at a depth of %d feet.", level * 50), sizeof(where));
+	my_strcpy(where, format("at a depth of %d feet.", level * 50), sizeof(where));
 
 	/* Output */
 	if (mode == QMODE_SHORT) my_strcpy(buf, format("%s %s %s.", intro, what, targets), max);
@@ -456,6 +480,35 @@ void describe_quest(char *buf, size_t max, s16b level, int mode)
 
 	/* We are done */
 	return;
+}
+
+void show_quest_mon(int y, int x)
+{
+
+	int i = quest_check(p_ptr->cur_quest);
+
+	/* Reset the cursor */
+	Term_gotoxy(x, y);
+
+	/*display the monster character if applicable*/
+	if ((i == QUEST_MONSTER) || (i == QUEST_UNIQUE) ||
+		(i == QUEST_FIXED)   || (i == QUEST_FIXED_U))
+	{
+		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
+
+		/* Get the char */
+		byte a1 = r_ptr->d_attr;
+
+		/* Get the attr */
+		char c1 = r_ptr->d_char;
+
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
+	}
+
 }
 
 /*
@@ -486,7 +539,7 @@ static void grant_reward_gold(void)
 	repeats = p_ptr->fame / 4;
 
 	/*but put in a minimum*/
-	if (repeats < 3) repeats = 4;
+	if (repeats < 3) repeats = 3;
 
 	/* Give a good gold type for the level */
 	for (i = 0; i < repeats; i++)
@@ -501,12 +554,11 @@ static void grant_reward_gold(void)
 		while (!make_gold(i_ptr)) continue;
 
 		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 		/* Message */
 		msg_format("You have been rewarded with %ld gold pieces.",
 			           (long)i_ptr->pval);
-		message_flush();
 
 		/* Collect the gold */
 		p_ptr->au += i_ptr->pval;
@@ -515,9 +567,6 @@ static void grant_reward_gold(void)
 
 	/* Redraw gold */
 	p_ptr->redraw |= (PR_GOLD);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/*undo special item level creation*/
 	object_generation_mode = OB_GEN_MODE_NORMAL;
@@ -564,19 +613,19 @@ void get_title(char *buf, size_t max)
 {
 
 	/* Player's title */
-	if (p_ptr->fame > 110) my_strcpy(buf, "oh glorious one", max);
-	else if (p_ptr->fame > 80) my_strcpy(buf, "oh great one", max);
-	else if (p_ptr->fame > 50)
+	if (p_ptr->fame > 150) my_strcpy(buf, "oh glorious one", max);
+	else if (p_ptr->fame > 110) my_strcpy(buf, "oh great one", max);
+	else if (p_ptr->fame > 80)
 	{
 		if (p_ptr->psex == SEX_MALE) my_strcpy(buf, "my lord", max);
 		else my_strcpy(buf, "my lady", max);
 	}
-	else if (p_ptr->fame > 25)
+	else if (p_ptr->fame > 50)
 	{
 		if (p_ptr->psex == SEX_MALE) my_strcpy(buf, "sir", max);
 		else my_strcpy(buf, "madam", max);
 	}
-	else if (p_ptr->fame > 10)
+	else if (p_ptr->fame > 20)
 	{
 		if (!op_ptr->full_name[0])
 		{
@@ -589,17 +638,110 @@ void get_title(char *buf, size_t max)
 	return;
 }
 
+
+
+void prt_rep_guild(int rep_y, int rep_x)
+{
+	byte attr;
+
+	char message[120];
+	char title[40];
+
+	my_strcpy(message, "You might be interested to know that your current reputation is ", sizeof(message));
+
+	put_str(message, rep_y, rep_x);
+
+	/* Prepare to print the reputation after the previous message. */
+	rep_x += strlen(message);
+
+	/* Player's reputation */
+	switch (p_ptr->fame / 5)
+	{
+		case 0:
+		{
+			attr = TERM_RED;
+			my_strcpy(title, "poor", sizeof(title));
+			break;
+		}
+		case 1:
+		case 2:
+		case 3:
+		{
+			attr = TERM_YELLOW;
+			my_strcpy(title, "fair", sizeof(title));
+			break;
+		}
+		case 4:
+		case 5:
+		case 6:
+		{
+			attr = TERM_YELLOW;
+			my_strcpy(title, "good", sizeof(title));
+			break;
+		}
+		case 7:
+		case 8:
+		{
+			attr = TERM_YELLOW;
+			my_strcpy(title, "very good", sizeof(title));
+			break;
+		}
+		case 9:
+		case 10:
+		{
+			attr = TERM_L_GREEN;
+			my_strcpy(title, "excellent", sizeof(title));
+			break;
+		}
+		case 11:
+		case 12:
+		case 13:
+		{
+			attr = TERM_L_GREEN;
+			my_strcpy(title, "superb", sizeof(title));
+			break;
+		}
+		case 14:
+		case 15:
+		case 16:
+		case 17:
+		{
+			attr = TERM_L_GREEN;
+			my_strcpy(title, "heroic", sizeof(title));
+			break;
+		}
+		default:
+		{
+			attr = TERM_L_GREEN;
+			my_strcpy(title, "legendary", sizeof(title));
+			break;
+		}
+	}
+
+	/* Quest count */
+	c_put_str(attr, title, rep_y, rep_x);
+}
+
+void prt_welcome_guild(void)
+{
+	char title[40];
+
+	/*Get the current title*/
+	get_title(title, sizeof(title));
+
+	/* Introduction */
+	put_str(format("Welcome to the Adventurer's Guild, %s.", title), 0, 0);
+
+}
+
 static void grant_reward_hp(void)
 {
 
 	int max = p_ptr->player_hp[0];
-	int max_rand = 0;
-	int min = max;
 	s16b new_hp[PY_MAX_LEVEL];
 
-	int possible_levels[PY_MAX_LEVEL];
-	int num_increases = MIN((max * 2), (PY_MAX_LEVEL / 2));
-	int i;
+	int max_increase = MIN((max * 5 / 2), (PY_MAX_LEVEL / 2));
+	int i, this_increase;
 
 	char title[40];
 
@@ -615,66 +757,42 @@ static void grant_reward_hp(void)
 	for (i = 1; i < PY_MAX_LEVEL; i++)
 	{
 		new_hp[i] = (p_ptr->player_hp[i] - p_ptr->player_hp[i - 1]);
-
-		/*Find out if we have the new min*/
-		if (new_hp[i] < min) min = new_hp[i];
 	}
 
-	/*First count the levels that aren't already maxed.*/
-	for (i = 0; i < PY_MAX_LEVEL; i++)
+	/*
+	 * Max out HP at the lowest possible levels until we are out.
+	 * The reward system does not allow this reward if the player
+	 * is anywhere close to max HP in all levels.
+	 * for i = 1 because we know 0 is already maxed.
+	 */
+	for (i = 1; i < PY_MAX_LEVEL; i++)
 	{
-		/* Already maxed */
-		if (new_hp[i] >= max) continue;
 
-		/*Count it*/
-		possible_levels[max_rand] = i;
-		max_rand++;
+		/* Already Maxed */
+		if (new_hp[i] == max) continue;
 
-		/*Automatically increase those levels with the minimum increase by one*/
-		if ((new_hp[i] == min) && (num_increases))
-		{
-			new_hp[i]++;
-			num_increases--;
-		}
-	}
-
-	/*Randomly add to the lower levels.  */
-	while (num_increases)
-	{
-		/*Start increasing hitpoints, prefer the lower levels*/
-		int choice_1 = rand_int(max_rand);
-		int choice = rand_int(max_rand);
-		if (choice_1 < choice) choice = choice_1;
-		choice_1 = rand_int(max_rand);
-		if (choice_1 < choice) choice = choice_1;
+		this_increase = max - new_hp[i];
 
 		/*
-		 * All hp maxed?  That's a pretty powerful character.
-		 * This should never happen, but we should always make sure to avoid game lockups
+		 * Add HP, but only up until the max increase.
+		 * Then we are done.
 		 */
-		if (!max_rand) break;
-
-		/*We don't want to waste time trying to increase this level anymore*/
-		if (new_hp[choice] == max)
+		if (this_increase < max_increase)
 		{
-			int x;
-
-			/*We have one less to choose from*/
-			max_rand--;
-
-			/*Slide them all down one*/
-			for (x = choice; x < max_rand; x++)
-			{
-				possible_levels[x] = possible_levels[(x + 1)];
-			}
-
-			/*Start over*/
+			new_hp[i] = max;
+			max_increase -= this_increase;
 			continue;
 		}
+		/* Adding the final allotment of HP */
+		else
+		{
+			new_hp[i] = new_hp[i] + max_increase;
 
-		/*Increase it*/
-		new_hp[choice]++;
-		num_increases--;
+			/* We are done. */
+			break;
+		}
+
+
 	}
 
 	/*
@@ -688,7 +806,6 @@ static void grant_reward_hp(void)
 
 	/* Inform the player */
 	msg_format("The adventurer's guild grants to you a newfound vitality, %s!", title);
-	message_flush();
 
 	/* Update the hitpoints. */
 	p_ptr->update |= PU_HP;
@@ -769,7 +886,7 @@ static void grant_reward_object(byte depth, byte type)
 				case TV_POLEARM:
 				case TV_SWORD:
 				{
-					if (adj_str_hold[p_ptr->stat_ind[A_STR]] < k_ptr->weight / 10)
+					if (adj_str_hold[p_ptr->state.stat_ind[A_STR]] < k_ptr->weight / 10)
 					{
 						/* Clear restriction */
 						get_obj_num_hook = NULL;
@@ -808,14 +925,12 @@ static void grant_reward_object(byte depth, byte type)
 			}
 		}
 
-
-
 		/*Let the player know it is a Randart reward*/
 		msg_format("We will attempt to create an artifact in your honor, %s", title);
 		message_flush();
 
 		/*actually create the Randart, mark it if so, if not, make a tailored reward*/
-		if (make_one_randart(i_ptr, ((p_ptr->fame + q_ptr->base_level) / 2), TRUE))
+		if (make_one_randart(i_ptr, ((((p_ptr->fame * 8) / 10)  + q_ptr->base_level) / 2), TRUE))
 		{
 			got_item = TRUE;
 		}
@@ -976,35 +1091,6 @@ static void grant_reward_object(byte depth, byte type)
 
 					break;
 				}
-
-			}
-		}
-
-		/* Maybe we want to give a potion of augmentation */
-		if (!got_item)
-		{
-			/*clear the counter*/
-			x = 0;
-
-			/* Add up the stats indexes over 13*/
-			for (i = 0; i < A_MAX; i++)
-			{
-				x += (MAX(0, p_ptr->stat_ind[i] - 10));
-			}
-
-			/*We only want to give potion if stats are low.*/
-			if ((rand_int(36) + 36) > x)
-			{
-				/* Get local object */
-				i_ptr = &object_type_body;
-
-				/* Wipe the object */
-				object_wipe(i_ptr);
-
-				/* Make the spellbook */
-				object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
-
-				got_item = TRUE;
 			}
 		}
 	}
@@ -1040,9 +1126,11 @@ static void grant_reward_object(byte depth, byte type)
 		if (x > 1)
 		{
 			int row = 10;
-			int col = 15;
+			int col = 23;
 			int y;
 			bool done = FALSE;
+
+			window_make(13, 8, 62, 17);
 
 			msg_format("Your reward is a stat potion of your choice, %s", title);
 			message_flush();
@@ -1082,7 +1170,7 @@ static void grant_reward_object(byte depth, byte type)
 				put_str(tmp_val, row+y, col - 8);
 
 				/* Reduced */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+				if (p_ptr->state.stat_use[i] < p_ptr->state.stat_top[i])
 				{
 					/* Use lowercase stat name */
 					put_str(stat_names_reduced[i], row+y, col);
@@ -1096,7 +1184,7 @@ static void grant_reward_object(byte depth, byte type)
 				}
 
 				/* Internal "natural" maximum value */
-				cnv_stat(p_ptr->stat_max[i], buf);
+				cnv_stat(p_ptr->stat_max[i], buf, sizeof(buf));
 				c_put_str(TERM_L_GREEN, buf, row+y, col+5);
 
 				/* Race Bonus */
@@ -1108,17 +1196,17 @@ static void grant_reward_object(byte depth, byte type)
 				c_put_str(TERM_L_BLUE, buf, row+y, col+14);
 
 				/* Equipment Bonus */
-				strnfmt(buf, sizeof(buf), "%+3d", p_ptr->stat_add[i]);
+				strnfmt(buf, sizeof(buf), "%+3d", p_ptr->state.stat_add[i]);
 				c_put_str(TERM_L_BLUE, buf, row+y, col+18);
 
 				/* Resulting "modified" maximum value */
-				cnv_stat(p_ptr->stat_top[i], buf);
+				cnv_stat(p_ptr->state.stat_top[i], buf, sizeof(buf));
 				c_put_str(TERM_L_GREEN, buf, row+y, col+22);
 
 				/* Only display stat_use if not maximal */
-				if (p_ptr->stat_use[i] < p_ptr->stat_top[i])
+				if (p_ptr->state.stat_use[i] < p_ptr->state.stat_top[i])
 				{
-					cnv_stat(p_ptr->stat_use[i], buf);
+					cnv_stat(p_ptr->state.stat_use[i], buf, sizeof(buf));
 					c_put_str(TERM_YELLOW, buf, row+y, col+28);
 				}
 
@@ -1185,6 +1273,34 @@ static void grant_reward_object(byte depth, byte type)
 
 			screen_load();
 
+		}
+	}
+
+	/* Maybe we want to give a potion of augmentation */
+	if ((!got_item) && ((type == REWARD_GOOD_ITEM) || (type == REWARD_GOOD_ITEM)))
+	{
+		/*clear the counter*/
+		x = 0;
+
+		/* Add up the stats indexes over 13*/
+		for (i = 0; i < A_MAX; i++)
+		{
+			x += (MAX(0, p_ptr->state.stat_ind[i] - 10));
+		}
+
+		/*We only want to give potion if stats are low.*/
+		if ((rand_int(30) + 18) > x)
+		{
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Make the spellbook */
+			object_prep(i_ptr, lookup_kind(TV_POTION, SV_POTION_AUGMENTATION));
+
+			got_item = TRUE;
 		}
 	}
 
@@ -1314,13 +1430,13 @@ static void grant_reward_object(byte depth, byte type)
 		{
 			case REWARD_TAILORED:
 			{
-				repeats = p_ptr->fame / 7;
+				repeats = p_ptr->fame / 8;
 				if (repeats < 3) repeats = 3;
 				break;
 			}
 			case REWARD_GREAT_ITEM:
 			{
-				repeats = p_ptr->fame / 9;
+				repeats = p_ptr->fame / 10;
 				if (repeats < 2) repeats = 2;
 				break;
 			}
@@ -1328,7 +1444,7 @@ static void grant_reward_object(byte depth, byte type)
 			/*good reward*/
 			default:
 			{
-				repeats = p_ptr->fame / 11;
+				repeats = p_ptr->fame / 13;
 				if (repeats < 1) repeats = 1;
 				break;
 			}
@@ -1374,7 +1490,7 @@ static void grant_reward_object(byte depth, byte type)
 			/*sometimes make good counter true to give 4 artifact rarity rolls*/
 			if (type == REWARD_TAILORED)
 			{
-				if (randint(100) < p_ptr->fame) do_great = TRUE;
+				if (randint(125) < p_ptr->fame) do_great = TRUE;
 			}
 			else if (type == REWARD_GREAT_ITEM) do_great = TRUE;
 
@@ -1398,7 +1514,7 @@ static void grant_reward_object(byte depth, byte type)
 
 			/* Make sure weapon isn't too heavy */
 			if ((inven_quest_slot == QUEST_SLOT_WIELD) &&
-				(adj_str_hold[p_ptr->stat_ind[A_STR]] < j_ptr->weight / 10))
+				(adj_str_hold[p_ptr->state.stat_ind[A_STR]] < j_ptr->weight / 10))
 		   	{
 			    continue;
 			}
@@ -1557,7 +1673,7 @@ static void grant_reward_object(byte depth, byte type)
 			char shorter_desc[100];
 
 			/* Get a shorter description to fit the notes file */
-			object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, TRUE, 0);
+			object_desc(shorter_desc, sizeof(shorter_desc), i_ptr, ODESC_BASE);
 
 			/* Build note and write */
 			sprintf(note, "Reward: %s", shorter_desc);
@@ -1586,7 +1702,7 @@ static void grant_reward_object(byte depth, byte type)
 	}
 
 	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Remember history */
 	object_history(i_ptr, ORIGIN_REWARD, 0);
@@ -1623,10 +1739,10 @@ static void grant_reward_object(byte depth, byte type)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_QUEST_ST);
 
 	/*undo special item level creation*/
 	object_generation_mode = FALSE;
@@ -1635,14 +1751,47 @@ static void grant_reward_object(byte depth, byte type)
 
 #define LEV_BOOST 3
 
+/* Helper function to decide if the player should have a quest reward */
+static bool extra_hp_reward(int chance)
+{
+	int cur_hp = p_ptr->player_hp[PY_MAX_LEVEL-1];
+	int max_hp = ((PY_MAX_LEVEL * (p_ptr->hitdie - 1) * 5) / 8) + PY_MAX_LEVEL + (p_ptr->hitdie * 3);
+	int hp_left = max_hp - cur_hp;
+
+	/* Boundry Control before randing check.*/
+	if (hp_left < p_ptr->hitdie) return (FALSE);
+
+	if (randint(chance) > p_ptr->fame) return (FALSE);
+
+	if (one_in_(2)) return (FALSE);
+
+	if (randint1(hp_left) < p_ptr->hitdie) return (FALSE);
+
+	return (TRUE);
+}
+
+/* Helper function to decide if the player should have a custom quest reward */
+static bool custom_randart_reward(int chance, int dice)
+{
+	if (!adult_no_artifacts) return FALSE;
+	if (!adult_no_xtra_artifacts) return FALSE;
+
+	if (chance + damroll(dice,25) > p_ptr->fame) return (FALSE);
+	if (!one_in_(3)) return (FALSE);
+
+	return (TRUE);
+}
+
+
 /*
  * Actually give the character a quest.
  */
 static bool place_mon_quest(int lev)
 {
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	monster_lore *l_ptr;
 
-	int i, chance;
+	int i;
 
 	monster_race *r_ptr;
 
@@ -1813,12 +1962,15 @@ static bool place_mon_quest(int lev)
 	/* Set up the quest */
 	q_ptr->mon_idx = table[i].index;
 	q_ptr->cur_num = 0;
-	q_ptr->started = FALSE;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
 
 	/* Get the actual race */
 	r_ptr = &r_info[q_ptr->mon_idx];
+	l_ptr = &l_list[q_ptr->mon_idx];
+
+	/* Mark it as seen at least once */
+	if (l_ptr->sights < 1 ) l_ptr->sights = 1;
 
 	/*
 	 * This info slightly different depending on if
@@ -1854,50 +2006,32 @@ static bool place_mon_quest(int lev)
 
 	}
 
-	/* Set current quest */
-	p_ptr->cur_quest = lev;
+	/* First roll for tailored award */
+	if (custom_randart_reward(75, 8))	q_ptr->reward = REWARD_RANDART;
 
-	/* Chance of gold reward */
-	chance = 75 - (p_ptr->fame * 2) - (lev *  2);
+	/* Next, a chance to simply increase the player's hp lifeline*/
+	else if (extra_hp_reward(50)) q_ptr->reward = REWARD_INC_HP;
 
-	/* Better rewards for unique quests */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) chance -= 10;
-
-	if (rand_int(100) < chance) q_ptr->reward = REWARD_GOLD;
+	/* Then, a try for a tailored award */
+	else if (25 + damroll(5,20) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 
 	else
 	{
 		/* Chance of good item reward */
-		chance = 95 - (p_ptr->fame * 2) - (lev * 2 / 3);
+		int chance = 95 - (p_ptr->fame * 2) - (lev *  2);
 
 		/* Better rewards for unique quests */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) chance -= 10;
 
-		if (chance < 0) chance = 0;
-
-		if (rand_int(100) < chance)
+		if (rand_int(100) > chance)
 		{
-			if (one_in_(2))	q_ptr->reward = REWARD_GOOD_ITEM;
-			else q_ptr->reward = REWARD_GREAT_ITEM;
+			q_ptr->reward = REWARD_GREAT_ITEM;
 		}
 
-		/* First roll for tailored award */
-		else if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
-		((65 + damroll(6,15) < p_ptr->fame)) && (one_in_(3)))
-			q_ptr->reward = REWARD_RANDART;
+		else if (one_in_(2)) q_ptr->reward = REWARD_GOOD_ITEM;
 
-		/* First roll for tailored award */
-		else if (15 + damroll(6,15) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
+		else q_ptr->reward = REWARD_GOLD;
 
-		/*Finally, a chance to simply increase the player's hp lifeline*/
-		else if ((randint(MAX_DEPTH) > (q_ptr->base_level + 25)) &&
-			     ((randint(p_ptr->player_hp[0]) * PY_MAX_LEVEL) > p_ptr->player_hp[PY_MAX_LEVEL -1]))
-		{
-			q_ptr->reward = REWARD_INC_HP;
-		}
-
-		/* Default - a great item reward */
-		else q_ptr->reward = REWARD_GREAT_ITEM;
 	}
 
 	/*success*/
@@ -2115,18 +2249,12 @@ static bool place_pit_nest_quest(int lev)
 
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
-		((35 + damroll(5,20) < p_ptr->fame)) && (one_in_(3)))
-			q_ptr->reward = REWARD_RANDART;
-	else if (25 + damroll(3,20) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
+	if (custom_randart_reward(75, 6)) q_ptr->reward = REWARD_RANDART;
 
-	/*Finally, a chance to simply increase the player's hp lifeline*/
-	else if ((randint(MAX_DEPTH) > (q_ptr->base_level + 25)) &&
-			 ((randint(p_ptr->player_hp[0]) * PY_MAX_LEVEL) > p_ptr->player_hp[PY_MAX_LEVEL -1]))
-	{
-		q_ptr->reward = REWARD_INC_HP;
-	}
+	/* A chance to simply increase the player's hp lifeline*/
+	else if (extra_hp_reward(40)) q_ptr->reward = REWARD_INC_HP;
 
+	else if (30 + damroll(3,25) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
@@ -2162,11 +2290,6 @@ static bool place_pit_nest_quest(int lev)
 		break;
 	}
 
-	/* Set current quest */
-	p_ptr->cur_quest = lev;
-
-	q_ptr->started = FALSE;
-
 	/*success*/
 	return (TRUE);
 }
@@ -2188,7 +2311,7 @@ static int check_level_quest(void)
 		if (i == LEV_THEME_DRAGON_POIS) continue;
 
 		/* There is at least one good theme. */
-		if (check_theme_depth(qlev, i)) return (TRUE);
+		if (check_theme_depth(guild_quest_level(), i)) return (TRUE);
 	}
 
 	return (FALSE);
@@ -2214,17 +2337,12 @@ static bool place_level_quest(int lev)
 	q_ptr->type = QUEST_THEMED_LEVEL;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if (((!adult_no_artifacts) || (!adult_no_xtra_artifacts)) &&
-	    (30 + damroll(5,20) < p_ptr->fame))  q_ptr->reward = REWARD_RANDART;
-	else if (20 + damroll(3,10) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
+	if (custom_randart_reward(60, 6))  q_ptr->reward = REWARD_RANDART;
 
-	/*Finally, a chance to simply increase the player's hp lifeline*/
-	else if ((randint(MAX_DEPTH) > (q_ptr->base_level + 25)) &&
-			 ((randint(p_ptr->player_hp[0]) * PY_MAX_LEVEL) > p_ptr->player_hp[PY_MAX_LEVEL -1]))
-	{
-		q_ptr->reward = REWARD_INC_HP;
-	}
+	/* A chance to simply increase the player's hp lifeline*/
+	else if (extra_hp_reward(30)) q_ptr->reward = REWARD_INC_HP;
 
+	else if (25 + damroll(3,25) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
@@ -2260,11 +2378,6 @@ static bool place_level_quest(int lev)
 
 	}
 
-	/* Set current quest */
-	p_ptr->cur_quest = lev;
-
-	q_ptr->started = FALSE;
-
 	/*success*/
 	return (TRUE);
 }
@@ -2281,33 +2394,23 @@ static bool place_vault_quest(int lev)
 	q_ptr->type = QUEST_VAULT;
 	q_ptr->base_level = lev;
 	q_ptr->active_level = lev;
-	if ((!adult_no_artifacts) &&  (!adult_no_xtra_artifacts) &&
-		((50 + damroll(5,20) < p_ptr->fame)) && (one_in_(3)))
-			q_ptr->reward = REWARD_RANDART;
-	else if (20 + damroll(3,20) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
+	if (custom_randart_reward(60, 5)) q_ptr->reward = REWARD_RANDART;
 
-	/*Finally, a chance to simply increase the player's hp lifeline*/
-	else if ((randint(MAX_DEPTH) > (q_ptr->base_level + 25)) &&
-			 ((randint(p_ptr->player_hp[0]) * PY_MAX_LEVEL) > p_ptr->player_hp[PY_MAX_LEVEL -1]))
-	{
-		q_ptr->reward = REWARD_INC_HP;
-	}
+	/* A chance to simply increase the player's hp lifeline*/
+	else if (extra_hp_reward(15)) q_ptr->reward = REWARD_INC_HP;
+
+	else if (20 + damroll(3,25) < p_ptr->fame) q_ptr->reward = REWARD_TAILORED;
 
 	else q_ptr->reward = REWARD_GREAT_ITEM;
 
 	/*generate a quest artifact*/
 	make_quest_artifact(lev);
 
-	/* Set current quest */
-	p_ptr->cur_quest = lev;
-
-	q_ptr->started = FALSE;
-
 	/*success*/
 	return (TRUE);
 }
 
-static bool quest_allowed(byte j)
+bool quest_allowed(byte j)
 {
 	/*not a valid quest type*/
 	if (j >= QUEST_SLOT_MAX) return (FALSE);
@@ -2319,57 +2422,102 @@ static bool quest_allowed(byte j)
 	}
 	else if (j == QUEST_SLOT_PIT_NEST)
 	{
-		if (p_ptr->max_depth < 5) return (FALSE);
+		if (p_ptr->max_depth < 6) return (FALSE);
 	}
 	else if (j == QUEST_SLOT_LEVEL)
 	{
-		if (p_ptr->max_depth < 10) return (FALSE);
+		if (p_ptr->max_depth < 14) return (FALSE);
 		if (!check_level_quest()) return (FALSE);
 	}
 
-	/*allowable*/
+	/* Allowable */
 	return (TRUE);
 
 }
 
-/*
- * Display the "contents" of the adventurer's guild
- */
-void display_guild(void)
+/*Determine if we can do a quest, based on players current max depth */
+bool can_quest_at_level(void)
 {
-	int j;
-	byte attr;
-	char q_out[120];
-	char title[40];
+	int i;
 
-	bool do_reward;
+	/*Honor the no quests option*/
+	if (adult_no_quests) return (FALSE);
+
+	/* No more quests if they are at the bottom of the dungeon. */
+	if ((p_ptr->max_depth + 2) > MAX_DEPTH) return (FALSE);
+
+	/* Make sure there is no fixed quest on the same level of quests */
+	for (i = 0; i < z_info->q_max; i++)
+	{
+		/* check fixed quests to see that they're not on the same level*/
+		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
+		{
+			if (q_info[i].base_level == guild_quest_level())
+			{
+				return (FALSE);
+			}
+		}
+	}
+
+	/* Allowable */
+	return (TRUE);
+}
+
+/* Check if the player is eligible for a quest reward. */
+bool check_reward(void)
+{
 
 	/* Check for outstanding rewards */
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
-
-	/* Clear temporary indicator */
-	quest_indicator_timer = 0;
-	quest_indicator_complete = FALSE;
-
-	do_reward = FALSE;
-
-	/* Get level for quest - if never been in dungeon at 50', otherwise 2-3 levels deeper */
-	if (!p_ptr->max_depth) qlev = 1;
-	else qlev = p_ptr->max_depth + 1 + randint(2);
 
 	if ((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE))
 	{
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
 		{
-
-			/* Grant fame bonus */
-			p_ptr->fame += randint(2);
-
-			do_reward = TRUE;
-
-			/*The note has already been written*/
+			return (TRUE);
 		}
+	}
+
+	else if (q_ptr->type == QUEST_VAULT)
+	{
+		/* Find quest item in the inventory*/
+		if (quest_item_slot() > -1) return (TRUE);
+		else return (FALSE);
+
+	}
+
+	else if  ((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
+			  (q_ptr->type == QUEST_PIT) ||
+			  (q_ptr->type == QUEST_NEST))
+	{
+		/*We owe the player a reward*/
+		if ((!q_ptr->active_level) && (q_ptr->reward))
+		{
+			return (TRUE);
+		}
+  	}
+
+	return (FALSE);
+}
+
+/* Actually give the quest reward*/
+void do_reward(void)
+{
+	int j;
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
+	/* Sanity check. */
+	if (!check_reward()) return;
+
+	if ((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_UNIQUE))
+	{
+		/* Grant fame bonus */
+		p_ptr->fame += 1;
+		altered_inventory_counter += 3;
+
+		/* The note has already been written */
 	}
 
 	else if (q_ptr->type == QUEST_VAULT)
@@ -2381,39 +2529,32 @@ void display_guild(void)
 		/* Find quest item in the inventory*/
 		j = quest_item_slot();
 
-		/* We have the quest reward */
-		if (j > -1)
+		o_ptr = &inventory[j];
+
+		/* Grant fame bonus */
+		p_ptr->fame += 5;
+		altered_inventory_counter += 5;
+
+		/*if using notes file, make a note*/
+		if (adult_take_notes)
 		{
+			char o_name[80];
 
-			o_ptr = &inventory[j];
+			/* Get a shorter description to fit the notes file */
+			object_desc(o_name, sizeof(o_name), o_ptr, ODESC_BASE);
 
-			/* Found it */
-			do_reward = TRUE;
+			/*Create the note*/
+			sprintf(note, "Returned %s to the Adventurer's Guild.", o_name);
 
-			/* Grant fame bonus */
-			p_ptr->fame += 3;
-
-			/*if using notes file, make a note*/
-			if (adult_take_notes)
-			{
-				char o_name[80];
-
-				/* Get a shorter description to fit the notes file */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
-
-				/*Create the note*/
-				sprintf(note, "Returned %s to the Adventurer's Guild.", o_name);
-
-				/*write note*/
- 		  		do_cmd_note(note, q_ptr->active_level);
-			}
-
-			artifact_wipe(o_ptr->art_num, TRUE);
-
-			/* Destroy the quest item in the pack */
-			inven_item_increase(j, -255);
-			inven_item_optimize(j);
+			/*write note*/
+ 			do_cmd_note(note, q_ptr->active_level);
 		}
+
+		artifact_wipe(o_ptr->art_num, TRUE);
+
+		/* Destroy the quest item in the pack */
+		inven_item_increase(j, -255);
+		inven_item_optimize(j);
 	}
 
 	else if  ((q_ptr->type ==  QUEST_THEMED_LEVEL) || (q_ptr->type == QUEST_PIT) ||
@@ -2422,213 +2563,87 @@ void display_guild(void)
 		/*We owe the player a reward*/
 		if ((!q_ptr->active_level) && (q_ptr->reward))
 		{
-			if (q_ptr->type == QUEST_THEMED_LEVEL)	p_ptr->fame += 2;
-			else if (q_ptr->type == QUEST_PIT) 		p_ptr->fame += 1;
-			else if (q_ptr->type == QUEST_NEST) 	p_ptr->fame += 1;
+			if (q_ptr->type == QUEST_THEMED_LEVEL)	p_ptr->fame += 1;
 
 			/* Slightly random fame bonus for these harder quests*/
 			p_ptr->fame += randint(2);
-
-			do_reward = TRUE;
+			altered_inventory_counter += 4;
 
 			/*The note has already been written*/
 		}
   	}
 
-	/* Reward the player,and wipe the quest */
-	if (do_reward)
+	/* Generate object at quest level */
+	object_level = q_ptr->base_level;
+
+	/* Create the reward*/
+	if (q_ptr->reward == REWARD_GOLD) grant_reward_gold();
+	else if (q_ptr->reward == REWARD_INC_HP) grant_reward_hp();
+	else grant_reward_object(q_ptr->base_level, q_ptr->reward);
+
+	/* Handle and handle stuff */
+	notice_stuff();
+	handle_stuff();
+
+	/* Reset object level */
+	object_level = p_ptr->depth;
+
+	/* Wipe the quest */
+	guild_quest_wipe();
+
+}
+
+/*
+ * Display the "contents" of the adventurer's guild
+ */
+void display_quest(void)
+{
+	char q_out[120];
+
+
+	put_str("Your current quest:", 8, 3);
+
+	/* Reset the cursor */
+	Term_gotoxy(3, 10);
+
+	/*break quest description into two lines*/
+	describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
+	Term_addstr(-1, TERM_WHITE, q_out);
+
+	/*display the monster character if applicable*/
+	if ((quest_check(p_ptr->cur_quest) == QUEST_MONSTER) ||
+		(quest_check(p_ptr->cur_quest) == QUEST_UNIQUE))
 	{
-		/* Generate object at quest level */
-		object_level = q_ptr->base_level;
+		quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+		monster_race *r_ptr = &r_info[q_ptr->mon_idx];
 
-		/* Create the reward*/
-		if (q_ptr->reward == REWARD_GOLD) grant_reward_gold();
-		else if (q_ptr->reward == REWARD_INC_HP) grant_reward_hp();
-		else grant_reward_object(q_ptr->base_level, q_ptr->reward);
+		/* Get the char */
+		byte a1 = r_ptr->d_attr;
 
-		/* Notice stuff */
-		notice_stuff();
+		/* Get the attr */
+		char c1 = r_ptr->d_char;
 
-		/* Handle stuff */
-		handle_stuff();
-
-		/* Reset object level */
-		object_level = p_ptr->depth;
-
-		/* Wipe the quest */
-		guild_quest_wipe();
-
-		/* Clear the screen */
-		Term_clear();
-
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
 	}
 
-	/* Describe the guild */
-	put_str("The Adventurer's Guild", 3, 30);
+	/* Reset the cursor */
+	Term_gotoxy(3, 11);
+	describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
+	Term_addstr(-1, TERM_WHITE, q_out);
 
-	/*Get the title*/
-	get_title(title, sizeof(title));
-
-	/* Introduction */
-	put_str(format("Welcome to the Adventurer's Guild, %s.", title), 5, 3);
-
-	/* Player's reputation */
-	switch (p_ptr->fame / 5)
-	{
-		case 0:
-		{
-			attr = TERM_RED;
-			my_strcpy(title, "poor", sizeof(title));
-			break;
-		}
-		case 1:
-		case 2:
-		case 3:
-		{
-			attr = TERM_YELLOW;
-			my_strcpy(title, "fair", sizeof(title));
-			break;
-		}
-		case 4:
-		case 5:
-		case 6:
-		{
-			attr = TERM_YELLOW;
-			my_strcpy(title, "good", sizeof(title));
-			break;
-		}
-		case 7:
-		case 8:
-		{
-			attr = TERM_YELLOW;
-			my_strcpy(title, "very good", sizeof(title));
-			break;
-		}
-		case 9:
-		case 10:
-		{
-			attr = TERM_L_GREEN;
-			my_strcpy(title, "excellent", sizeof(title));
-			break;
-		}
-		case 11:
-		case 12:
-		case 13:
-		{
-			attr = TERM_L_GREEN;
-			my_strcpy(title, "superb", sizeof(title));
-			break;
-		}
-		case 14:
-		case 15:
-		case 16:
-		case 17:
-		{
-			attr = TERM_L_GREEN;
-			my_strcpy(title, "heroic", sizeof(title));
-			break;
-		}
-		default:
-		{
-			attr = TERM_L_GREEN;
-			my_strcpy(title, "legendary", sizeof(title));
-			break;
-		}
-	}
-
-	/* Quest count */
-	put_str("You might be interested to know that your current reputation is", 6, 3);
-	c_put_str(attr, title, 6, 67);
-
-	/* Label the quest descriptions */
-	if (!p_ptr->cur_quest)
-	{
-		byte num_quests = 0;
-
-		/* Not Currently in a quest */
-		put_str("Available Quests:", 8, 3);
-
-		/*print out the menu of quests*/
-		for (j = 0; j < QUEST_SLOT_MAX; j++)
-		{
-			/*check if the quest is allowable*/
-			if (!quest_allowed(j)) continue;
-
-			/*display it*/
-			put_str(format("%c)", I2A(num_quests)), 10 + num_quests, 0);
-			c_put_str(quest_title_color[j], quest_title[j], 10 + num_quests, 4);
-			num_quests++;
-		}
-	}
-
-	else
-	{
-
-		put_str("Your current quest:", 8, 3);
-
-		/* Reset the cursor */
-		Term_gotoxy(3, 10);
-
-		/*break quest description into two lines*/
-		describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
-		Term_addstr(-1, TERM_WHITE, q_out);
-
-		/*display the monster character if applicable*/
-		if ((quest_check(p_ptr->cur_quest) == QUEST_MONSTER) ||
-			(quest_check(p_ptr->cur_quest) == QUEST_UNIQUE))
-		{
-			quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
-			monster_race *r_ptr = &r_info[q_ptr->mon_idx];
-
-			/* Get the char */
-			byte a1 = r_ptr->d_attr;
-			/* Get the attr */
-			char c1 = r_ptr->d_char;
-
-			/* Append the "standard" attr/char info */
-			Term_addstr(-1, TERM_WHITE, " ('");
-			Term_addch(a1, c1);
-			Term_addstr(-1, TERM_WHITE, "')");
-		}
-
-		/* Reset the cursor */
-		Term_gotoxy(3, 11);
-		describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
-		Term_addstr(-1, TERM_WHITE, q_out);
-	}
 }
 
 
 /*
  * "Purchase" a quest from the guild
  */
-void guild_purchase(void)
+bool guild_purchase(int choice)
 {
 	int i;
-	byte j, item;
-	char prompt[80];
-	byte max_quest_choice[QUEST_SLOT_MAX];
-	byte num_quests = 0;
-
-	if (p_ptr->cur_quest)
-	{
-		msg_print("Finish your current quest first!");
-		return;
-	}
-
-	/*Honor the no quests option*/
-	if (adult_no_quests)
-	{
-		msg_print("Nothing happens!");
-		return;
-	}
-
-	/*nowhere to quest*/
-	if (qlev >= MAX_DEPTH)
-	{
-		msg_print("You have completely conquered the dungeon!");
-		return;
-	}
+	int qlev = guild_quest_level();
 
 	/* Make sure there is no fixed quest on the same level of quests */
 	for (i = 0; i < z_info->q_max; i++)
@@ -2639,88 +2654,61 @@ void guild_purchase(void)
 			if (q_info[i].base_level == qlev)
 			{
 				msg_print("A greater task lies before you!");
-				return;
+				return (FALSE);
 			}
 		}
 
 	}
 
-	/*get a list of allowable quests*/
-	for (j = 0;j < QUEST_SLOT_MAX; j++)
-	{
-		if (quest_allowed(j))
-		{
-
-			/*Allow*/
-			max_quest_choice[num_quests] = j;
-			num_quests++;
-		}
-	}
-
-	/* Copy the string over */
-	my_strcpy(prompt, "Please choose a quest (ESC to cancel):",
-				sizeof(prompt));
-
-	/* Get the quest number if a choice is needed, then translate that to the quest type */
-	if (num_quests > 1)
-	{
-		s16b choice;
-
-		/*Prompt the player for a quest choice*/
-		choice = get_menu_choice(num_quests, prompt);
-
-		/* Quit if no quest chosen */
-		if (choice == -1) return;
-
-		/* Get a choice*/
-		item = max_quest_choice[choice];
-	}
-
-	/*hack - automatically a monster quest*/
-	else item = 0;
-
 	/*place a monster quest*/
-	if (item == QUEST_SLOT_MONSTER)
+	if (choice == QUEST_SLOT_MONSTER)
 	{
 		if (!place_mon_quest(qlev))
 		{
 			guild_quest_wipe();
-			return;
+			return (FALSE);
 		}
 	}
 	/*Place a vault quest*/
-	else if (item == QUEST_SLOT_VAULT)
+	else if (choice == QUEST_SLOT_VAULT)
 	{
 		if (!place_vault_quest(qlev))
 		{
 			guild_quest_wipe();
-			return;
+			return (FALSE);
 		}
 	}
-	else if (item == QUEST_SLOT_LEVEL)
+	else if (choice == QUEST_SLOT_LEVEL)
 	{
 		if (!place_level_quest(qlev))
 		{
 			guild_quest_wipe();
-			return;
+			return (FALSE);
 		}
 	}
 	/*Nest or Pit quests*/
-	else if (item == QUEST_SLOT_PIT_NEST)
+	else if (choice == QUEST_SLOT_PIT_NEST)
 	{
 		if (!place_pit_nest_quest(qlev))
 		{
 			guild_quest_wipe();
-			return;
+			return (FALSE);
 		}
 	}
 
-	/* Clear screen */
-	Term_clear();
+	/* Set current quest */
+	p_ptr->cur_quest = qlev;
 
-	display_guild();
+	q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_STARTED);
 
-	return;
+	/*
+	 * Have the next quest be either two or three levels above
+	 * this one.
+	 */
+	if (one_in_(2)) q_info[GUILD_QUEST_SLOT].q_flags &= ~(QFLAG_EXTRA_LEVEL);
+	else q_info[GUILD_QUEST_SLOT].q_flags |= (QFLAG_EXTRA_LEVEL);
+
+	return (TRUE);
 }
 
 /*
@@ -2739,6 +2727,8 @@ byte quest_check(int lev)
 		/* Check for quest */
 		if (q_info[i].active_level == lev) return (q_info[i].type);
 	}
+
+	p_ptr->redraw |= (PR_QUEST_ST);
 
 	/* Nope */
 	return 0;
@@ -2785,15 +2775,20 @@ int quest_item_slot(void)
 }
 
 /*
- * Wipe an artifact clean.  Rebuild the names string to delete the name.
- * Check first to make sure it is a randart
+ * Wipe the quest clean.
  */
 void guild_quest_wipe(void)
 {
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	bool extra_level = FALSE;
+
+	/* Save if there should be an extra level added to the next quest depth */
+	if (q_ptr->q_flags & (QFLAG_EXTRA_LEVEL)) extra_level = TRUE;
 
 	/* Wipe the structure */
 	(void)WIPE(q_ptr, quest_type);
+
+	if (extra_level) q_ptr->q_flags |= QFLAG_EXTRA_LEVEL;
 
 	p_ptr->cur_quest = 0;
 
@@ -2814,7 +2809,7 @@ void quest_fail(void)
 	/* Show a special mark for some player turns. Redraw if necessary */
 	quest_indicator_timer = 50;
 	quest_indicator_complete = FALSE;
-	if (!character_icky) p_ptr->redraw |= (PR_DEPTH);
+	if (!character_icky) p_ptr->redraw |= (PR_QUEST_ST);
 
 	/*find out the type of quest*/
 	quest = quest_check(q_ptr->base_level);
@@ -2855,7 +2850,7 @@ void quest_fail(void)
 			create_quest_artifact(i_ptr);
 
 			/* Get a shorter description to fit the notes file */
-			object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), i_ptr, ODESC_BASE);
 
 			/*create the note*/
 			sprintf(note, "Quest: Failed to return %s to the Guild", o_name);
@@ -2928,8 +2923,10 @@ void quest_fail(void)
 	/*wipe the quest*/
 	guild_quest_wipe();
 
+	p_ptr->redraw |= (PR_QUEST_ST);
+
 	/* Disturb */
-	if (disturb_minor) disturb(0,0);
+	disturb(0,0);
 }
 
 
@@ -2937,38 +2934,53 @@ void quest_fail(void)
  * Create the quest indicator string and put it on "dest"
  * Return TRUE if the quest indicator is active
  */
-bool format_quest_indicator(char dest[], int max)
+void format_quest_indicator(char dest[], int max, byte *attr)
 {
 	/* Get the current quest, if any */
 	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
-	/* Temporary failure notification */
-	if (quest_indicator_timer > 0)
+	/* No quest */
+	if (!q_ptr->type)
 	{
-		/* Format */
-		if (quest_indicator_complete) my_strcpy(dest, "Qst:!!!", max);
-		else my_strcpy(dest, "Qst:x", max);
-
-		/* Done */
-		return (TRUE);
+		my_strcpy(dest, "Qst: None", max);
+		return;
 	}
 
-	/* Nothing to see */
-	if (!q_ptr->type || (q_ptr->base_level != p_ptr->depth)) return (FALSE);
-
-	/* Victory! */
+	/* Completed Quest! */
 	if (!q_ptr->active_level)
 	{
-		return (FALSE);
+		my_strcpy(dest, "Q:Reward!", max);
+		*attr = TERM_GREEN;
+		return;
 	}
-	/* Special case. Vault quests */
-	else if (q_ptr->type == QUEST_VAULT)
+
+ 	/* Special case. Vault quests */
+	if (q_ptr->type == QUEST_VAULT)
 	{
 		/* Get the artifact template */
 		artifact_type *a_ptr = &a_info[QUEST_ART_SLOT];
 
 		/* Default character */
 		char chr = ']';
+
+		/* Player has the quest item */
+		if (q_ptr->q_flags & (QFLAG_STARTED))
+		{
+			if (quest_item_slot() > -1)
+			{
+				my_strcpy(dest, "Q:GoTo Guild!", max);
+				*attr = TERM_GREEN;
+				return;
+			}
+
+		}
+
+		else if (q_ptr->base_level != p_ptr->depth)
+		{
+			strnfmt(dest, max, "Q:Goto %d'", q_ptr->base_level * 50);
+			*attr = TERM_BLUE;
+			return;
+		}
 
 		/* Get the symbol of the artifact */
 		if (a_ptr->name[0])
@@ -2982,14 +2994,74 @@ bool format_quest_indicator(char dest[], int max)
 
 		/* Format */
 		strnfmt(dest, max, "Qst:%c", chr);
+		*attr = TERM_L_RED;
 	}
+
+	else if (q_ptr->base_level != p_ptr->depth)
+	{
+		strnfmt(dest, max, "Q:Goto %d'", q_ptr->base_level * 50);
+
+		if (quest_indicator_timer > 0) *attr = TERM_RED;
+		else *attr = TERM_BLUE;
+		return;
+	}
+
 	/* Monster, pit/nest or themed level quests */
 	else
 	{
 		/* Show the remaining number of monsters */
 		strnfmt(dest, max, "Qst:%d", q_ptr->max_num - q_ptr->cur_num);
+		*attr = TERM_L_RED;
 	}
 
 	/* Success */
-	return (TRUE);
+	return;
 }
+
+void quest_monster_update(void)
+{
+	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+	char race_name[80];
+	char note[120];
+
+	int remaining = q_ptr->max_num - q_ptr->cur_num;
+
+	/*nothing left, notification already printed in monster_death */
+	if (!remaining) return;
+
+	if (((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
+         (q_ptr->type == QUEST_PIT) ||
+		 (q_ptr->type == QUEST_NEST)))
+	{
+		if (remaining > 1)
+		{
+			my_strcpy(note, format("There are %d creatures remaining ", remaining), sizeof(note));
+		}
+		else my_strcpy(note, "There is one creature remaining ", sizeof(note));
+		my_strcat(note, format("from the %s", feeling_themed_level[q_ptr->theme]),
+						sizeof(note));
+		if  (q_ptr->type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
+		else if (q_ptr->type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
+		else if (q_ptr->type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
+
+		/*dump the final note*/
+		msg_format(note);
+	}
+	/* Monster quests */
+	else
+	{
+		/* Get the monster race name (singular)*/
+		monster_desc_race(race_name, sizeof(race_name), q_ptr->mon_idx);
+
+		/* Multiple quest monsters */
+		if (remaining > 1)
+		{
+			plural_aux(race_name, sizeof(race_name));
+		}
+
+		msg_format("You have %d %s remaining to complete your quest.",
+				remaining, race_name);
+	}
+}
+
+

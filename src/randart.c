@@ -1,15 +1,24 @@
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 2005 Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 #include "init.h"
+
 
 
 #define MAX_TRIES 200
@@ -34,8 +43,8 @@
 #define AVG_XBOW_AMMO_DAMAGE 12
 
 /* Inhibiting factors for large bonus values */
-#define INHIBIT_STRONG 6
-#define INHIBIT_WEAK 4
+#define INHIBIT_STRONG  15
+#define INHIBIT_WEAK 7
 
 #define ART_FLAGS_BAD 	(TR3_TELEPORT | TR3_DRAIN_EXP | TR3_IMPACT | TR3_AGGRAVATE | \
 						 TR3_LIGHT_CURSE | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)
@@ -61,7 +70,7 @@
 #define CAT_TO_AC		13
 #define CAT_TO_BASE		14 /*add to base damage dice, sides, or armor base*/
 #define CAT_WEIGH_LESS	15
-#define CAT_LITE		16
+#define CAT_LIGHT		16
 #define CAT_NATIVE		17
 #define CAT_MAX			18
 
@@ -69,7 +78,7 @@
 #define ART_TYPE_WEAPON			0
 #define ART_TYPE_SHOVEL			1
 #define ART_TYPE_BOW			2
-#define ART_TYPE_SPECIAL		3	/*Rings, amulets, lite sources*/
+#define ART_TYPE_SPECIAL		3	/*Rings, amulets, LIGHT sources*/
 #define ART_TYPE_ARMOR			4
 #define ART_TYPE_DRAG_ARMOR		5
 #define ART_TYPE_CLOAK			6
@@ -108,7 +117,7 @@
 	#13 CAT_TO_AC
 	#14 CAT_TO_BASE
 	#15 CAT_WEIGH_LESS
-	#16 CAT_LITE
+	#16 CAT_LIGHT
 */
 
 /*
@@ -118,19 +127,19 @@
  */
 static const byte table_type_freq[ART_TYPE_MAX][CAT_MAX] =
 {
-   /*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11,#12 #13#14 #15,#16 #17		*/
-	{20, 2, 60,  7, 30, 12,  5,  2, 2,  0,  8,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
-	{16, 1,	20,  3, 20, 10, 80, 10, 1,  0,  8,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
-	{20, 1,	 0,  0, 10, 10,  0,  0, 0, 40,  8,  1, 80,  0,  0,  6,  0,	0}, /*  ART_TYPE_BOW   	*/
-	{30, 3,	 0,  0, 30, 30,  0,  0, 0,  0, 10,  2, 10, 10,  0,  0, 14,	5}, /*  ART_TYPE_SPECIAL  */
-	{20, 1,	 0,  0, 40, 14,  0,  0, 0,  0, 10,  1,  0, 60, 10, 20,  4,	0}, /*  ART_TYPE_ARMOR   	*/
-	{20, 2,	 0,  0, 30, 20,  0,  0, 0,  0, 10,  1,  0, 60, 20, 20, 20,	0}, /*  ART_TYPE_DRAG_ARMOR   */
-	{14, 2,	 0,  0, 30, 14,  0,  0, 0,  0, 20,  1,  0, 40, 10, 10,  4,	0}, /*  ART_TYPE_CLOAK 	*/
-	{10, 1,  0,  0, 30, 10,  0,  0, 0,  0,  6,  1,  0, 60, 10, 10,  8,	0}, /*  ART_TYPE_SHIELD   */
-	{30, 1,  0,  0, 20, 14,  0,  0, 0,  0, 10, 10,  0, 40, 10, 10, 14,	0}, /*  ART_TYPE_HELM   	*/
-	{20, 1,  0,  0, 10, 24,  0,  0, 0,  0, 10, 10,  0, 30, 10, 10, 20,	0}, /*  ART_TYPE_CROWN  	*/
-	{10, 1,  0,  0, 16, 10,  0,  0, 0,  0,  6,  1, 20, 50, 10, 10,  4,	0}, /*  ART_TYPE_GLOVES   */
-	{16, 5,  0,  0, 16, 10,  0,  0, 0,  0, 30,  1,  0, 40, 10, 10,  4,	10}  /*  ART_TYPE_BOOTS   	*/
+		/*#0, #1,#2, #3, #4, #5, #6, #7, #8, #9,#10,#11,#12 #13#14 #15,#16 #17		*/
+			{25, 2, 60,  7, 30, 12,  5,  2, 2,  0,  8,  1,120, 10, 18, 10, 20,	0}, /*  ART_TYPE_WEAPON   */
+			{16, 1,	20,  3, 20, 10, 80, 10, 1,  0,  8,  1, 40, 10, 10, 10, 10,	0}, /*  ART_TYPE_SHOVEL   */
+			{20, 1,	 0,  0, 10, 10,  0,  0, 0, 40,  8,  1, 80,  0,  0,  6,  0,	0}, /*  ART_TYPE_BOW   	*/
+			{45, 3,	 0,  0, 30, 30,  0,  0, 0,  0, 10,  2, 10, 10,  0,  0, 14,	5}, /*  ART_TYPE_SPECIAL  */
+			{30, 1,	 0,  0, 40, 14,  0,  0, 0,  0, 10,  1,  1, 50, 10, 20,  4,	0}, /*  ART_TYPE_ARMOR   	*/
+			{30, 2,	 0,  0, 30, 20,  0,  0, 0,  0, 10,  1,  3, 50, 20, 20, 20,	0}, /*  ART_TYPE_DRAG_ARMOR   */
+			{20, 2,	 0,  0, 30, 14,  0,  0, 0,  0, 20,  1,  3, 35, 10, 10,  4,	0}, /*  ART_TYPE_CLOAK 	*/
+			{15, 1,  0,  0, 30, 10,  0,  0, 0,  0,  6,  1,  1, 50, 10, 10,  8,	0}, /*  ART_TYPE_SHIELD   */
+			{35, 1,  0,  0, 20, 14,  0,  0, 0,  0, 10, 10,  1, 30, 10, 10, 14,	0}, /*  ART_TYPE_HELM   	*/
+			{25, 1,  0,  0, 10, 24,  0,  0, 0,  0, 10, 10,  5, 25, 10, 10, 20,	0}, /*  ART_TYPE_CROWN  	*/
+			{15, 1,  0,  0, 16, 10,  0,  0, 0,  0,  6,  1, 20, 40, 10, 10,  4,	0}, /*  ART_TYPE_GLOVES   */
+			{16, 5,  0,  0, 16, 10,  0,  0, 0,  0, 30,  1,  5, 30, 10, 10,  4,	10}  /*  ART_TYPE_BOOTS   	*/
 };
 
 
@@ -140,7 +149,7 @@ static u16b art_freq[CAT_MAX];
 /*
  *This list is sliightly different than the artifact type list above.
  *
- *The different types of artifact themes (Rings, amulets, lite sources)
+ *The different types of artifact themes (Rings, amulets, LIGHT sources)
  */
 #define ART_THEME_EDGED			0
 #define ART_THEME_POLEARM		1
@@ -225,14 +234,14 @@ static byte art_stat_freq[A_MAX];
 /*TR2_RESISTANCE is the basic 4 elements and is already defined in defines.h*/
 #define TR2_LOW_RESIST (TR2_RES_FEAR | TR2_RES_POIS | TR2_RES_BLIND | \
 					TR2_RES_CONFU | TR2_RES_NEXUS)
-#define TR2_MED_RESIST (TR2_RES_LITE | TR2_RES_DARK | TR2_RES_SOUND | TR2_RES_SHARD)
+#define TR2_MED_RESIST (TR2_RES_LIGHT | TR2_RES_DARK | TR2_RES_SOUND | TR2_RES_SHARD)
 #define TR2_HIGH_RESIST (TR2_RES_NETHR | TR2_RES_CHAOS | TR2_RES_DISEN)
 /* TR2_IMMUNE_ALL covers immunities and is already defined in defines.h*/
 
 /*
 	#0  TR3_SLOW_DIGEST
 	#1  TR3_FEATHER
-	#2  TR3_LITE
+	#2  TR3_LIGHT
 	#3  TR3_REGEN
 	#4  TR3_TELEPATHY
 	#5  TR3_SEE_INVIS
@@ -276,8 +285,8 @@ static const u32b favored_slay_pairs[NUM_FAVORED_SLAY_PAIRS][2] =
 
 static const u32b favored_resist_pairs[NUM_FAVORED_RESIST_PAIRS][2] =
 {
-	{TR2_RES_LITE, TR2_RES_DARK},
-	{TR2_RES_DARK, TR2_RES_LITE},
+	{TR2_RES_LIGHT, TR2_RES_DARK},
+	{TR2_RES_DARK, TR2_RES_LIGHT},
 	{TR2_RES_CHAOS, TR2_RES_CONFU},
 };
 
@@ -519,9 +528,9 @@ static long eval_max_dam(int r_idx)
 						mult = 5;
 						div_by = 4;
 					}
-					else if (flag_counter == RF4_BRTH_LITE)
+					else if (flag_counter == RF4_BRTH_LIGHT)
 					{
-						which_gf = GF_LITE;
+						which_gf = GF_LIGHT;
 						mult = 5;
 						div_by = 4;
 					}
@@ -790,7 +799,7 @@ static long eval_max_dam(int r_idx)
 				case RBE_EAT_ITEM:
 				case RBE_EAT_FOOD:
 				case RBE_HUNGER:
-				case RBE_EAT_LITE:
+				case RBE_EAT_LIGHT:
 				case RBE_TERRIFY:
 				{
 					atk_dam *= 11;
@@ -945,7 +954,7 @@ static u32b mon_hp_adjust(int r_idx)
 
 
 	/*Not very powerful, but so common and easy to use*/
-	if (r_ptr->flags3 & RF3_HURT_LITE)	slay_reduce += 2;
+	if (r_ptr->flags3 & RF3_HURT_LIGHT)	slay_reduce += 2;
 	if (r_ptr->flags3 & RF3_HURT_ROCK)	slay_reduce += 2;
 
 	/*cut hitpoint value up to half, depending on suceptability to slays*/
@@ -1401,7 +1410,7 @@ s32b artifact_power(int a_idx)
 
 			break;
 		}
-		case TV_LITE:
+		case TV_LIGHT:
 		{
 			p += 5;
 
@@ -1573,7 +1582,7 @@ s32b artifact_power(int a_idx)
 
 		if (a_ptr->a_flags3 & TR3_SLOW_DIGEST) 	{p += 1;	abilities++;}
 		if (a_ptr->a_flags3 & TR3_FEATHER) 		{p += 1;	abilities++;}
-		if (a_ptr->a_flags3 & TR3_LITE) 		{p += 3;	abilities++;}
+		if (a_ptr->a_flags3 & TR3_LIGHT) 		{p += 3;	abilities++;}
 		if (a_ptr->a_flags3 & TR3_REGEN) 		{p += 4;	abilities++;}
 		if (a_ptr->a_flags3 & TR3_TELEPATHY) 	{p += 15;	abilities++;}
 		if (a_ptr->a_flags3 & TR3_SEE_INVIS) 	{p += 5;	abilities++;}
@@ -1607,7 +1616,7 @@ s32b artifact_power(int a_idx)
 		byte resists = 0;
 
 		if (a_ptr->a_flags2 & TR2_RES_POIS)	{p += 14;	resists++;}
-		if (a_ptr->a_flags2 & TR2_RES_LITE)	{p += 8;	resists++;}
+		if (a_ptr->a_flags2 & TR2_RES_LIGHT)	{p += 8;	resists++;}
 		if (a_ptr->a_flags2 & TR2_RES_DARK)	{p += 8;	resists++;}
 		if (a_ptr->a_flags2 & TR2_RES_BLIND){p += 8;	resists++;}
 		if (a_ptr->a_flags2 & TR2_RES_CONFU){p += 12;	resists++;}
@@ -1617,7 +1626,7 @@ s32b artifact_power(int a_idx)
 		if (a_ptr->a_flags2 & TR2_RES_NETHR){p += 10;	resists++;}
 		if (a_ptr->a_flags2 & TR2_RES_CHAOS){p += 10;	resists++;}
 		if (a_ptr->a_flags2 & TR2_RES_DISEN){p += 10;	resists++;}
-		if (a_ptr->a_flags2 & TR2_RES_LITE)	{p += 8;	resists++;}
+		if (a_ptr->a_flags2 & TR2_RES_LIGHT)	{p += 8;	resists++;}
 
 		if (resists > 8) p += 3;
 		if (resists > 9) p += 3;
@@ -1737,12 +1746,15 @@ static void do_pval(artifact_type *a_ptr)
 	{
 
 		if (a_ptr->pval > 6) a_ptr->pval = 6;
-		else if (a_ptr->pval < 6) if (one_in_(a_ptr->pval * factor)) a_ptr->pval++;
+		else if (a_ptr->pval < 6)
+		{
+			if (one_in_(MAX(a_ptr->pval * factor, 1))) a_ptr->pval++;
+		}
 
 		/* = 6 or 7*/
 		if (one_in_(INHIBIT_STRONG)) a_ptr->pval ++;
 	}
-	else if (one_in_(a_ptr->pval * factor))
+	else if (one_in_(MAX(a_ptr->pval * factor, 1)))
 	{
 		/*
 		 * CR: made this a bit rarer and diminishing with higher pval -
@@ -2297,7 +2309,7 @@ static void add_to_dam(artifact_type *a_ptr, int fixed, int random)
 static void add_to_ac(artifact_type *a_ptr, int fixed, int random)
 {
 	/* Inhibit above certain threshholds */
-	if (a_ptr->to_a > 25)
+	if (a_ptr->to_a > 20)
 	{
 		/* Strongly inhibit */
 		if (one_in_(INHIBIT_STRONG)) a_ptr->to_a ++;
@@ -2558,7 +2570,7 @@ static void build_freq_table(artifact_type *a_ptr)
 		}
 		case TV_RING:
 		case TV_AMULET:
-		case TV_LITE:
+		case TV_LIGHT:
 		{
 			art_type = ART_TYPE_SPECIAL;
 			break;
@@ -3168,20 +3180,20 @@ static void add_feature_aux(artifact_type *a_ptr, int choice)
 			if ((a_ptr->weight < 50) || (one_in_(2))) art_freq[CAT_TO_BASE] = 0;
 			break;
 		}
-		case CAT_LITE:
+		case CAT_LIGHT:
 		{
 			/*
-			 * Hack - Don't add this to lite sources
+			 * Hack - Don't add this to LIGHT sources
 			 * or make sure we don't return again if we already had it.
 			 */
-			if (((a_ptr->tval == TV_LITE) || (a_ptr->a_flags3 & TR3_LITE)) ||
+			if (((a_ptr->tval == TV_LIGHT) || (a_ptr->a_flags3 & TR3_LIGHT)) ||
 				(a_ptr->pval < 0))
 			{
-				art_freq[CAT_LITE] = 0;
+				art_freq[CAT_LIGHT] = 0;
 				break;
 			}
 
-			a_ptr->a_flags3 |= TR3_LITE;
+			a_ptr->a_flags3 |= TR3_LIGHT;
 			break;
 		}
 		case CAT_NATIVE:
@@ -3293,7 +3305,7 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 		    case TV_POLEARM:
 			case TV_SWORD:
 			{
-					if (rand_int (100) < (final_power / 8))
+					if (rand_int (150) < (final_power / 8))
 				{
 					a_ptr->a_flags3 |= TR3_AGGRAVATE;
 				}
@@ -3302,7 +3314,7 @@ static void try_supercharge(artifact_type *a_ptr, int final_power)
 
 			default:
 			{
-				if (rand_int (100) < (final_power / 8))
+				if (rand_int (150) < (final_power / 8))
 				{
 					a_ptr->a_flags3 |= TR3_AGGRAVATE;
 				}
@@ -3659,7 +3671,7 @@ void build_randart_tables(void)
 {
 
 	/* Allocate the "kinds" array */
-	C_MAKE(kinds, z_info->art_norm_max, s16b);
+	kinds = C_ZNEW(z_info->art_norm_max, s16b);
 
 	/* Initialize the monster power ratings */
 	(void)init_mon_power();
@@ -3695,10 +3707,10 @@ errr do_randart(u32b randart_seed, bool full)
 	{
 
 		/* Allocate the various "original powers" arrays */
-		C_MAKE(base_power, z_info->art_norm_max, s32b);
-		C_MAKE(base_item_level, z_info->art_norm_max, byte);
-		C_MAKE(base_item_rarity, z_info->art_norm_max, byte);
-		C_MAKE(base_art_rarity, z_info->art_norm_max, byte);
+		base_power = C_ZNEW(z_info->art_norm_max, s32b);
+		base_item_level = C_ZNEW(z_info->art_norm_max, byte);
+		base_item_rarity = C_ZNEW(z_info->art_norm_max, byte);
+		base_art_rarity = C_ZNEW(z_info->art_norm_max, byte);
 
 		/* Store the original power ratings */
 		store_base_power();
@@ -4091,6 +4103,7 @@ void make_quest_artifact(int lev)
 	return;
 }
 
+
 /*
  * Attempt to create an artifact, returns false if there is no available slot.
  * This function assumes that an object suitable for an artifact is there, or if
@@ -4154,7 +4167,7 @@ void artifact_wipe(int a_idx, bool quest_art_wipe)
 
 /*
  * Return true if an artifact can turn into a randart.
- * Note rings, amulets, and lite sources are currently not supported.
+ * Note rings, amulets, and LIGHT sources are currently not supported.
  * This is because there is no clear base object type for additional "special" artifacts,
  * plus object flavor would have to be handled for rings and amulets.
  * Someday I would like to resolve this. -JG

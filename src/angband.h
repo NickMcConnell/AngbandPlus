@@ -2,10 +2,18 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *                    Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #ifndef INCLUDED_ANGBAND_H
@@ -19,20 +27,32 @@
 /*
  * Include the mid-level includes.
  */
+#include "z-file.h"
+#include "z-form.h"
 #include "z-util.h"
 #include "z-virt.h"
-#include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
+#include "z-quark.h"
+#include "z-msg.h"
 
 /*
  * Include the high-level includes.
  */
 #include "config.h"
 #include "defines.h"
+#include "monster.h"
+#include "terrain.h"
+#include "player.h"
+#include "object.h"
+#include "x-char.h"
 #include "types.h"
-#include "externs.h"
+#include "store.h"
 
+
+#include "ui.h"
+#include "z-type.h"
+#include "externs.h"
 
 
 /***** Some older copyright messages follow below *****/

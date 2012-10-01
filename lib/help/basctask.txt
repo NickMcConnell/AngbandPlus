@@ -18,12 +18,6 @@ have one of two problems:
 
 --- Loading your Game ---
 
-DOS, UNIX:
-     The game will automatically look for savefiles in the "lib/save" directory.
-1) It will try to load any file that you specify with the "-u" command line
-   option.
-2) It will try to load any file named "PLAYER" (capitalization may or may not be
-   ignored).
 
 Macintosh, Windows:
      You choose the menu option "file -> open", which allows you to load
@@ -36,7 +30,7 @@ birth interface.  The new character inherits the monster knowledge of his
 ancestor.
 
 Savefile compatibility report:
-	NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.4.1 loads 0.4.0 savefiles.
+	NPPAngband 0.4.0 breaks savefile compatability.  NPP 0.5.1 loads 0.4.0 savefiles.
      NPPAngband 0.3.4 and before loads files from Angband 2.9.0 and later.  To use earlier
 savefiles, import it into Angband 2.9.3, resave, and then open it up with the
 current version.
@@ -54,8 +48,8 @@ dungeon, the Mighty Hammer 'Grond' in hand, to slay you for your impudence.
      Morgoth cannot be killed by some of the easier methods used on normal
 creatures.  Morgoth, like all other unique monsters, will simply teleport away
 to another region of the level if you attempt to use a spell such as destruction
-upon him.  He also cannot be polymorphed, slept, charmed, or genocided.  Magical
-spells like Mana Storm and Annihilation are effective against him, as are some
+upon him.  He also cannot be polymorphed or genocided.  Magical spells like 
+Mana Storm and Annihilation are effective against him, as are some
 of the more powerful weapons, but he is difficult to kill and if allowed to
 escape for a time will heal himself rapidly.
 
@@ -100,5 +94,4 @@ the game has a few answers for that too.  You may cheat death by:
        to learn the game.
      - Making backup savefiles.
      - Aborting the game just as the tombstone appears or before.
-
 

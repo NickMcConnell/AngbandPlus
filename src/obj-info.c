@@ -2,28 +2,24 @@
 
 /*
  * Copyright (c) 2002 Andrew Sidwell, Robert Ruehlmann
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
+#include "cmds.h"
 
-/* TRUE if a paragraph break should be output before next p_text_out() */
-static bool new_paragraph = FALSE;
-
-
-static void p_text_out(cptr str)
-{
-	if (new_paragraph)
-	{
-		text_out("\n\n   ");
-		new_paragraph = FALSE;
-	}
-
-	text_out(str);
-}
 
 static void output_list(cptr list[], int n)
 {
@@ -42,11 +38,11 @@ static void output_list(cptr list[], int n)
 		if (i != 0)
 
 		{
-			p_text_out((i == 1 && i == n - 1) ? " " : ", ");
-			if (i == n - 1)	p_text_out(conjunction);
+			text_out((i == 1 && i == n - 1) ? " " : ", ");
+			if (i == n - 1)	text_out(conjunction);
 
 		}
-		p_text_out(list[i]);
+		text_out(list[i]);
 	}
 }
 
@@ -56,13 +52,13 @@ static void output_desc_list(cptr intro, cptr list[], int n)
 	if (n != 0)
 	{
 		/* Output intro */
-		p_text_out(intro);
+		text_out(intro);
 
 		/* Output list */
 		output_list(list, n);
 
 		/* Output end */
-		p_text_out(".  ");
+		text_out(".  ");
 	}
 }
 
@@ -93,18 +89,18 @@ static bool describe_stats(const object_type *o_ptr, u32b f1)
 	/* Shorten to "all stats", if appropriate. */
 	if (cnt == A_MAX)
 	{
-		p_text_out(format("It %s all your stats", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		text_out(format("It %s all your stats", (o_ptr->pval > 0 ? "increases" : "decreases")));
 	}
 	else
 	{
-		p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
+		text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
 
 		/* Output list */
 		output_list(descs, cnt);
 	}
 
 	/* Output end */
-	p_text_out(format(" by %i.  ", pval));
+	text_out(format(" by %i.  ", pval));
 
 	/* We found something */
 	return (TRUE);
@@ -134,18 +130,17 @@ static bool describe_secondary(const object_type *o_ptr, u32b f1)
 	if (!cnt) return (FALSE);
 
 	/* Start */
-	p_text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
+	text_out(format("It %s your ", (o_ptr->pval > 0 ? "increases" : "decreases")));
 
 	/* Output list */
 	output_list(descs, cnt);
 
 	/* Output end */
-	p_text_out(format(" by %i.  ", pval));
+	text_out(format(" by %i.  ", pval));
 
 	/* We found something */
 	return (TRUE);
 }
-
 
 /*
  * Describe the special slays and executes of an item.
@@ -188,26 +183,26 @@ static bool describe_slay(const object_type *o_ptr, u32b f1)
 	if (slcnt)
 	{
 		/* Output intro */
-		p_text_out("It slays ");
+		text_out("It slays ");
 
 		/* Output list */
 		output_list(slays, slcnt);
 
 		/* Output end (if needed) */
-		if (!excnt) p_text_out(".  ");
+		if (!excnt) text_out(".  ");
 	}
 
 	if (excnt)
 	{
 		/* Output intro */
-		if (slcnt) p_text_out(", and it is especially deadly against ");
-		else p_text_out("It is especially deadly against ");
+		if (slcnt) text_out(", and it is especially deadly against ");
+		else text_out("It is especially deadly against ");
 
 		/* Output list */
 		output_list(execs, excnt);
 
 		/* Output end */
-		p_text_out(".  ");
+		text_out(".  ");
 	}
 
 	/* We are done here */
@@ -293,7 +288,7 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 		vp[vn++] = "poison";
 
 	if (f2 & (TR2_RES_FEAR))  vp[vn++] = "fear";
-	if (f2 & (TR2_RES_LITE))  vp[vn++] = "light";
+	if (f2 & (TR2_RES_LIGHT))  vp[vn++] = "light";
 	if (f2 & (TR2_RES_DARK))  vp[vn++] = "dark";
 	if (f2 & (TR2_RES_BLIND)) vp[vn++] = "blindness";
 	if (f2 & (TR2_RES_CONFU)) vp[vn++] = "confusion";
@@ -315,18 +310,16 @@ static bool describe_resist(const object_type *o_ptr, u32b f2, u32b f3)
 
 
 /*return the number of blows a player gets with a weapon*/
-int get_num_blows(const object_type *o_ptr, u32b f1)
+int get_num_blows(const object_type *o_ptr, u32b f1, int str_add, int dex_add)
 {
 
 	int i, str_index, dex_index, blows, div_weight;
 
 	int str = 0;
 	int dex = 0;
-	int str_add = 0;
-	int dex_add = 0;
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < END_EQUIPMENT; i++)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		u32b wf1, wf2, wf3, wfn;
 		object_type *i_ptr = &inventory[i];
@@ -427,24 +420,151 @@ int get_num_blows(const object_type *o_ptr, u32b f1)
 /*
  * Describe 'number of attacks recieved with a weapon
  */
-static bool describe_attacks (const object_type *o_ptr, u32b f1)
+static bool describe_attacks (const object_type *o_ptr, u32b f1, bool extra_info)
 {
+
+	int old_blows, new_blows, i;
 	int n = o_ptr->tval;
+	int str_plus = 0;
+	int dex_plus = 0;
+	int str_done = -1;
+	int average;
+	int percent;
 
-	if ((n == TV_DIGGING) || (n == TV_HAFTED) ||
-		(n == TV_POLEARM) || (n == TV_SWORD))
+	/* Obtain the "hold" value */
+	int hold = adj_str_hold[p_ptr->state.stat_ind[A_STR]];
+
+	/* Calculate str and dex adjustments */
+	int to_dam = ((int)(adj_str_td[p_ptr->state.stat_ind[A_STR]]) - 128);
+
+	int to_hit = ((int)(adj_dex_th[p_ptr->state.stat_ind[A_DEX]]) - 128);
+	to_hit 	  += ((int)(adj_str_th[p_ptr->state.stat_ind[A_STR]]) - 128);
+
+	/* First check if we need this function */
+	if ((n != TV_DIGGING) && (n != TV_HAFTED) &&
+		(n != TV_POLEARM) && (n != TV_SWORD))
 	{
-		/*get the number of blows*/
-		n = get_num_blows(o_ptr, f1);
-
-		/*print out the number of attacks*/
-		if (n == 1) p_text_out("It gives you one attack per turn.  ");
-		else p_text_out(format("It gives you %d attacks per turn.  ", n));
-
-		return (TRUE);
+		return (FALSE);
 	}
 
-	return (FALSE);
+	/* No descriptions of quest items */
+	if (o_ptr->ident & IDENT_QUEST) return (FALSE);
+
+	/*get the number of blows*/
+	n = get_num_blows(o_ptr, f1, 0, 0);
+
+	/*print out the number of attacks*/
+	if (n == 1) text_out("It gives you one attack per turn.  ");
+	else text_out(format("It gives you %d attacks per turn.  ", n));
+
+	old_blows = n;
+
+	text_out("\n");
+
+	if (!extra_info) return (TRUE);
+
+	/* Apply the mental bonuses tp hit/damage, if known */
+	if (object_known_p(o_ptr))
+	{
+		to_dam += o_ptr->to_d;
+		to_hit += o_ptr->to_h;
+	}
+
+	/* Scan the equipment, skipping the weapon and bow slot */
+	for (i = INVEN_LEFT; i < INVEN_TOTAL; i++)
+	{
+		object_type *j_ptr = &inventory[i];
+		u32b jf1, jf2, jf3, jfn;
+
+		/* Skip non-objects */
+		if (!j_ptr->k_idx) continue;
+
+		/* Only known */
+		if (!object_known_p(o_ptr)) continue;
+
+		/* Extract the item flags */
+		object_flags(j_ptr, &jf1, &jf2, &jf3, &jfn);
+
+		/* Apply the bonuses to hit/damage */
+		to_dam += j_ptr->to_d;
+		to_hit += j_ptr->to_h;
+	}
+
+	/* Priest weapon penalty for non-blessed edged weapons */
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->state.bless_blade) &&
+		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+	{
+		text_out("You are uncomfortable wielding this weapon.  ");
+
+		to_dam -= 2;
+		to_hit -= 2;
+	}
+
+	text_out("\n\n");
+
+	/* It is hard to hold a heavy weapon */
+	if (hold < o_ptr->weight / 10)
+	{
+		text_out("You have trouble wielding this weapon.  ");
+		to_hit += 2 * (hold - o_ptr->weight / 10);
+	}
+
+	text_out("\n");
+
+	/* Now calculate and print out average damage */
+	text_out("Average base damage/hit: ");
+
+	average = (o_ptr->dd * o_ptr->ds) / 2 + to_dam;
+
+	if (average < 0) text_out_c(TERM_L_RED, "%d", 0);
+	else text_out_c(TERM_L_GREEN, "%d", average);
+	text_out(" based on a damage calculation of %dd%d", o_ptr->dd, o_ptr->ds);
+
+	if (to_dam < 0) text_out_c(TERM_L_RED, " - %d", (0 - to_dam));
+	else if (to_dam > 0)text_out_c(TERM_L_GREEN, " + %d", to_dam);
+	text_out(" damage.");
+
+	text_out("\n\n");
+
+	if (f1 & (TR1_KILL_MASK | TR1_SLAY_MASK))
+	{
+		text_out("This damage calculation can be increased due to its special slaying abilities.");
+		text_out("\n\n");
+	}
+	if (f1 & (TR1_BRAND_MASK))
+	{
+		text_out("This damage calculation can be increased due to elemental branding.");
+		text_out("\n\n");
+	}
+
+
+	percent = ((o_ptr->weight + ((to_hit + o_ptr->to_h) * 5) + (p_ptr->lev * 3)) * 100) / 5000;
+	text_out("You have a %d%% chance of inflicting extra damage with each hit from this weapon.", percent);
+	text_out("\n\n");
+
+	/* Then we check for extra "real" blows */
+	for (dex_plus = 0; dex_plus < 8; dex_plus++)
+	{
+		for (str_plus = 0; str_plus < 8; str_plus++)
+		{
+
+			new_blows = get_num_blows(o_ptr, f1, str_plus, dex_plus);
+
+			/* Test to make sure that this extra blow is a
+			 * new str/dex combination, not a repeat
+			 */
+			if ((new_blows > old_blows) &&
+				((str_plus < str_done) || (str_done == -1)))
+			{
+				text_out("With an additional %d str and %d dex it gives you %d attacks per turn.\n",
+						str_plus, dex_plus, new_blows);
+				str_done = str_plus;
+				break;
+			}
+		}
+	}
+
+	return (TRUE);
 }
 
 
@@ -468,7 +588,7 @@ static bool describe_ignores(const object_type *o_ptr, u32b f3)
 
 	/* Describe ignores */
 	if (n == 4)
-		p_text_out("It cannot be harmed by the elements.  ");
+		text_out("It cannot be harmed by the elements.  ");
 	else
 		output_desc_list("It cannot be harmed by ", list, - n);
 
@@ -497,7 +617,7 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
 
 	/* Describe immunities */
 	if (n == A_MAX)
-		p_text_out("It sustains all your stats.  ");
+		text_out("It sustains all your stats.  ");
 	else
 		output_desc_list("It sustains your ", list, n);
 
@@ -531,7 +651,7 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (f3 & (TR3_IMPACT))      good[gc++] = "creates earthquakes on impact";
 	if (f3 & (TR3_SLOW_DIGEST)) good[gc++] = "slows your metabolism";
 	if (f3 & (TR3_FEATHER))     good[gc++] = "makes you fall like a feather";
-	if (((o_ptr->tval == TV_LITE) && artifact_p(o_ptr)) || (f3 & (TR3_LITE)))
+	if (((o_ptr->tval == TV_LIGHT) && artifact_p(o_ptr)) || (f3 & (TR3_LIGHT)))
 		good[gc++] = "lights the dungeon around you";
 	if (f3 & (TR3_REGEN))       good[gc++] = "speeds your regeneration";
 
@@ -564,26 +684,26 @@ static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 	if (gc)
 	{
 		/* Output intro */
-		p_text_out("It grants you ");
+		text_out("It grants you ");
 
 		/* Output list */
 		output_list(good, gc);
 
 		/* Output end (if needed) */
-		if (!bc) p_text_out(".  ");
+		if (!bc) text_out(".  ");
 	}
 
 	if (bc)
 	{
 		/* Output intro */
-		if (gc) p_text_out(", but it also ");
-		else p_text_out("It ");
+		if (gc) text_out(", but it also ");
+		else text_out("It ");
 
 		/* Output list */
 		output_list(bad, bc);
 
 		/* Output end */
-		p_text_out(".  ");
+		text_out(".  ");
 	}
 
 	/* Set "something" */
@@ -909,7 +1029,7 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 			my_strcat(act_desc, format(".  "), sizeof(act_desc));
 
 			/*print it out*/
-			p_text_out(act_desc);
+			text_out(act_desc);
 
 			return (TRUE);
 		}
@@ -922,8 +1042,10 @@ static bool describe_activation(const object_type *o_ptr, u32b f3)
 
 /*
  * Output object information
+ * With extra_info true, it gives information about the weapon attack damage.
+ * False is intended for things like character dumps.
  */
-bool object_info_out(const object_type *o_ptr)
+bool object_info_out(const object_type *o_ptr,  bool extra_info)
 {
 	u32b f1, f2, f3, fn;
 	bool something = FALSE;
@@ -933,6 +1055,7 @@ bool object_info_out(const object_type *o_ptr)
 
 	/* Describe the object */
 	if (describe_stats(o_ptr, f1)) something = TRUE;
+
 	if (describe_secondary(o_ptr, f1)) something = TRUE;
 	if (describe_slay(o_ptr, f1)) something = TRUE;
 	if (describe_brand(o_ptr, f1)) something = TRUE;
@@ -943,7 +1066,7 @@ bool object_info_out(const object_type *o_ptr)
 	if (describe_nativity(o_ptr, fn)) something = TRUE;
 	if (describe_activation(o_ptr, f3)) something = TRUE;
 	if (describe_ignores(o_ptr, f3)) something = TRUE;
-	if (describe_attacks(o_ptr, f1)) something = TRUE;
+	if (describe_attacks(o_ptr, f1, extra_info)) something = TRUE;
 
 	/* Unknown extra powers (artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
@@ -951,9 +1074,11 @@ bool object_info_out(const object_type *o_ptr)
 	{
 		/* Hack -- Put this in a separate paragraph if screen dump */
 		if (something && text_out_hook == text_out_to_screen)
-			new_paragraph = TRUE;
+		{
+			text_out("\n\n   ");
+		}
 
-		p_text_out("It might have hidden powers.");
+		text_out("It might have hidden powers.");
  		something = TRUE;
 
 	}
@@ -963,12 +1088,11 @@ bool object_info_out(const object_type *o_ptr)
 }
 
 
+
 /*
  * Header for additional information when printing to screen.
- *
- * Header for additional information when printing to screen.
  */
-static bool screen_out_head(const object_type *o_ptr)
+bool screen_out_head(const object_type *o_ptr)
 {
 	char *o_name;
 	int name_size = Term->wid;
@@ -979,10 +1103,10 @@ static bool screen_out_head(const object_type *o_ptr)
 	o_name = C_RNEW(name_size, char);
 
 	/* Description */
-	object_desc(o_name, name_size, o_ptr, TRUE, 3);
+	object_desc(o_name, name_size, o_ptr, ODESC_PREFIX | ODESC_SINGULAR | ODESC_FULL);
 
 	/* Print, in colour */
-	text_out_c(TERM_YELLOW, format("%^s", o_name));
+	text_out_c(TERM_YELLOW, "%^s", o_name);
 
 	/* Free up the memory */
 	FREE(o_name);
@@ -992,8 +1116,8 @@ static bool screen_out_head(const object_type *o_ptr)
 	    object_known_p(o_ptr) && a_info[o_ptr->art_num].text)
 
 	{
-		p_text_out("\n\n   ");
-		p_text_out(a_text + a_info[o_ptr->art_num].text);
+		text_out("\n\n   ");
+		text_out(a_text + a_info[o_ptr->art_num].text);
 		has_description = TRUE;
 	}
 	/* Display the known object description */
@@ -1001,16 +1125,16 @@ static bool screen_out_head(const object_type *o_ptr)
 	{
 		if (k_info[o_ptr->k_idx].text)
 		{
-			p_text_out("\n\n   ");
-			p_text_out(k_text + k_info[o_ptr->k_idx].text);
+			text_out("\n\n   ");
+			text_out(k_text + k_info[o_ptr->k_idx].text);
 			has_description = TRUE;
 		}
 
 		/* Display an additional ego-item description */
 		if (o_ptr->ego_num && object_known_p(o_ptr) && e_info[o_ptr->ego_num].text)
 		{
-			p_text_out("\n\n   ");
-			p_text_out(e_text + e_info[o_ptr->ego_num].text);
+			text_out("\n\n   ");
+			text_out(e_text + e_info[o_ptr->ego_num].text);
 			has_description = TRUE;
 		}
 	}
@@ -1026,7 +1150,6 @@ void object_info_screen(const object_type *o_ptr)
 {
 	bool has_description, has_info;
 
-
 	/* Redirect output to the screen */
 	text_out_hook = text_out_to_screen;
 
@@ -1037,18 +1160,18 @@ void object_info_screen(const object_type *o_ptr)
 
 	object_info_out_flags = object_flags_known;
 
+	text_out("\n\n   ");
+
 	/* Dump the info */
-	new_paragraph = TRUE;
-	has_info = object_info_out(o_ptr);
-	new_paragraph = FALSE;
+	has_info = object_info_out(o_ptr, TRUE);
 
 	if (!object_known_p(o_ptr))
 	{
-		p_text_out("\n\n   This item has not been identified.");
+		text_out("\n\n   This item has not been identified.");
 	}
 	else if ((!has_description) && (!has_info) && (o_ptr->tval != cp_ptr->spell_book))
 	{
-		p_text_out("\n\n   This item does not seem to possess any special abilities.");
+		text_out("\n\n   This item does not seem to possess any special abilities.");
 	}
 
 	if (o_ptr->tval != cp_ptr->spell_book)
@@ -1059,22 +1182,22 @@ void object_info_screen(const object_type *o_ptr)
 		/* Show object history if possible */
 		if (format_object_history(buf, sizeof(buf), o_ptr))
 		{
-			p_text_out("\n\n   ");
+			text_out("\n\n   ");
 			text_out_c(TERM_YELLOW, buf);
 		}
 
 		/* Print resale value */
-		p_text_out("\n\n   ");
+		text_out("\n\n   ");
 		price = object_value(o_ptr);
 		if (price > 0)
 		{
 			if (o_ptr->number > 1)
 			{
-				text_out_c(TERM_YELLOW, format("They would fetch %i gold apiece in an average shop.", price));
+				text_out_c(TERM_YELLOW, "They would fetch %i gold apiece in an average shop.", price);
 			}
 			else
 			{
-				text_out_c(TERM_YELLOW, format("It would fetch %i gold in an average shop.", price));
+				text_out_c(TERM_YELLOW, "It would fetch %i gold in an average shop.", price);
 			}
 		}
 		else
@@ -1109,14 +1232,8 @@ static void history_depth(char *buf, size_t max, s16b depth)
 	{
 		my_strcat(buf, " in the town.", max);
 	}
-	else if (depth_in_feet)
-	{
-		my_strcat(buf, format(" at a depth of %d ft.", depth * 50), max);
-	}
-	else
-	{
-		my_strcat(buf, format(" on dungeon level %d.", depth), max);
-	}
+	else my_strcat(buf, format(" at a depth of %d ft.", depth * 50), max);
+
 }
 
 /*
@@ -1216,6 +1333,8 @@ bool format_object_history(char *buf, size_t max, const object_type *o_ptr)
 
 	return (TRUE);
 }
+
+
 
 
 /*

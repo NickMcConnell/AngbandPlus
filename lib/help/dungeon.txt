@@ -96,7 +96,7 @@ common sense approach should be taken when entering these terrains.  For example
 all but the most powerful characters will die if they step in lava or any boiling
 water, unless they have equipment or magic that makes them native to lava terrains.
 
-In all instances below, creatures whoare actively flying do not get the combat and
+In all instances below, creatures who are actively flying do not get the combat and
 movement bonuses.
 
 Forest:
@@ -302,4 +302,3 @@ digest some food.  Every hundred thousand game turns equals one day; the town
 spends half that time in darkness and the other half in light.
      Every time it takes a turn, every monster aware of you recovers from
 temporary conditions.  Every 100 game turns, they regenerate hitpoints.
-

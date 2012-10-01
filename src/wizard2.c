@@ -3,10 +3,19 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -417,6 +426,7 @@ static void do_cmd_wiz_change(void)
 }
 
 
+
 /*
  * Wizard routines for creating objects and modifying them
  *
@@ -533,17 +543,19 @@ static void wiz_display_item(const object_type *o_ptr)
 	prt("seteticfca  craxierl  etropd sss", 17, j+32);
 	prt("trenhstekn  tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
+
+	prt("o_ptr->ident:", 20, j+34);
+	prt(format("sense  %c  empty   %c  known   %c",
+		(o_ptr->ident & IDENT_SENSE) ? '+' : ' ',
+		(o_ptr->ident & IDENT_EMPTY) ? '+' : ' ',
+		(o_ptr->ident & IDENT_KNOWN) ? '+' : ' '), 21, j+34);
+	prt(format("store  %c  effect  %c  ",
+		(o_ptr->ident & IDENT_STORE) ? '+' : ' ',
+		(o_ptr->ident & IDENT_EFFECT) ? '+' : ' '), 22, j+34);
+	prt(format("indest %c  ego    %c ",
+		(o_ptr->ident & IDENT_INDESTRUCT) ? '+' : ' '), 23, j+34);
 }
 
-
-/*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int tval;
-	cptr desc;
-} tval_desc;
 
 /*
  * A list of tvals and their textual names
@@ -569,7 +581,7 @@ static const tval_desc tvals[] =
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
+	{ TV_LIGHT,              "Lite"                 },
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
@@ -624,6 +636,7 @@ static int wiz_create_itemtype(void)
 		ch  = choice_name[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
+
 
 	/* We need to know the maximal possible tval_index */
 	max_num = num;
@@ -816,10 +829,11 @@ static void wiz_reroll_item(object_type *o_ptr)
 		p_ptr->update |= (PU_BONUS | PU_NATIVE);
 
 		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
 	}
 }
 
@@ -1019,14 +1033,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 		if (tmp_int > 99) tmp_int = 99;
 
 		/* Adjust total weight being carried */
-		if (carried)
-		{
-			/* Remove the weight of the old number of objects */
-			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
-
-			/* Add the weight of the new number of objects */
-			p_ptr->total_weight += (tmp_int * o_ptr->weight);
-		}
+		if (carried) p_ptr->update |= (PU_BONUS);
 
 		/* Adjust charge for rods */
 		if (o_ptr->tval == TV_ROD)
@@ -1149,10 +1156,11 @@ static void do_cmd_wiz_play(void)
 		p_ptr->update |= (PU_BONUS | PU_NATIVE);
 
 		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP);
+
 	}
 
 	/* Ignore change */
@@ -1287,7 +1295,7 @@ static void wiz_create_artifact(void)
 static void do_cmd_wiz_cure_all(void)
 {
 	/* Remove curses */
-	(void)remove_curse(TRUE);
+	(void)remove_all_curse();
 
 	/* Restore stats */
 	(void)res_stat(A_STR);
@@ -1309,15 +1317,15 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->csp_frac = 0;
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)clear_timed(TMD_BLIND, TRUE);
+	(void)clear_timed(TMD_CONFUSED, TRUE);
+	(void)clear_timed(TMD_POISONED, TRUE);
+	(void)clear_timed(TMD_AFRAID, TRUE);
+	(void)clear_timed(TMD_PARALYZED, TRUE);
+	(void)clear_timed(TMD_IMAGE, TRUE);
+	(void)clear_timed(TMD_STUN, TRUE);
+	(void)clear_timed(TMD_CUT, TRUE);
+	(void)clear_timed(TMD_SLOW, TRUE);
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1325,6 +1333,7 @@ static void do_cmd_wiz_cure_all(void)
 	/* Redraw everything */
 	do_cmd_redraw();
 }
+
 
 
 /*
@@ -1362,10 +1371,8 @@ static void do_cmd_wiz_jump(void)
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
 
 	/* New depth */
-	p_ptr->depth = p_ptr->command_arg;
+	dungeon_change_level(p_ptr->command_arg);
 
-	/* Leaving */
-	p_ptr->leaving = TRUE;
 }
 
 
@@ -1436,9 +1443,6 @@ static void do_cmd_rerate(void)
 	/* Update and redraw hitpoints */
 	p_ptr->update |= (PU_HP);
 	p_ptr->redraw |= (PR_HP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1529,7 +1533,7 @@ static void do_cmd_wiz_zap(int d)
 	}
 
 	/* Update monster list window */
-	p_ptr->window |= PW_MONLIST;
+	p_ptr->redraw |= PR_MONLIST;
 
 }
 
@@ -1655,7 +1659,7 @@ static void do_cmd_wiz_query(void)
 /* Create a specific terrain grid given its feature number or query a grid */
 static void do_cmd_wiz_monster(void)
 {
-	char ch;
+
 	int x, y;
 	char buf[10];
 	monster_race *r_ptr;
@@ -1710,6 +1714,8 @@ static void do_cmd_wiz_monster(void)
 		msg_print("Monster placement failed");
 	}
 	else msg_print("Monster placement succeeded");
+
+	p_ptr->redraw |= (PR_MAP | PR_MONLIST);
 }
 
 
@@ -1767,7 +1773,7 @@ static void do_cmd_wiz_feature(void)
 	}
 
 	/* Pick a location */
-	if (!target_set_interactive(TARGET_GRID)) return;
+	if (!target_set_interactive(TARGET_GRID, -1, -1)) return;
 
 	/* Paranoia */
 	if (!p_ptr->target_set) return;
@@ -1885,8 +1891,8 @@ void do_cmd_debug(void)
 		/* Detect everything */
 		case 'd':
 		{
-			wiz_lite();
-			detect_all();
+			wiz_light();
+			(void)detect(DETECT_RADIUS, DETECT_ALL);
 			break;
 		}
 
@@ -1950,7 +1956,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area();
+			detect(DETECT_RADIUS + 10, DETECT_MAP);
 			break;
 		}
 
@@ -2016,7 +2022,7 @@ void do_cmd_debug(void)
 		/* Wizard Light the Level */
 		case 'w':
 		{
-			wiz_lite();
+			wiz_light();
 			break;
 		}
 
@@ -2068,6 +2074,7 @@ void do_cmd_debug(void)
 		{
 			/* Leaving */
 			p_ptr->leaving = TRUE;
+			p_ptr->autosave = TRUE;
 			break;
 		}
 

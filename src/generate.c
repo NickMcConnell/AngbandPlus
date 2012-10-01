@@ -2,10 +2,18 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *                    Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -120,7 +128,7 @@
 #define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define DUN_FRACTAL	25	/* 1/chance of having a fractal level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
-#define THEMED_LEVEL_CHANCE	50	/* 1/chance of being a themed level */
+#define THEMED_LEVEL_CHANCE	75	/* 1/chance of being a themed level */
 #define WILDERNESS_LEVEL_CHANCE	60 /* 1/chance of being a pseudo-wilderness level */
 
 #define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
@@ -2700,6 +2708,9 @@ static void build_type_nest(int y0, int x0)
 	/*final preps if this is a quest level*/
 	if (is_quest_level)
 	{
+		int counter = 19 * 5;
+		int bonus_items = 5;
+
 		q_ptr->cur_num = 0;
 		q_ptr->max_num = 0;
 
@@ -2718,6 +2729,18 @@ static void build_type_nest(int y0, int x0)
 
 					/*increase the max_num counter*/
 					q_ptr->max_num ++;
+
+					/* Randomly give 5 monsters a bonus item to drop. */
+					/* Paranoia*/
+					if ((bonus_items) && (counter))
+					{
+						if ((randint0(counter)) < bonus_items)
+						{
+							m_ptr->mflag |= (MFLAG_BONUS_ITEM);
+							bonus_items--;
+						}
+						counter--;
+					}
 				}
 			}
 		}
@@ -2981,6 +3004,9 @@ static void build_type_pit(int y0, int x0)
 	/*final preps if this is a quest level*/
 	if (is_quest_level)
 	{
+		int counter = 19 * 5;
+		int bonus_items = 5;
+
 		q_ptr->cur_num = 0;
 		q_ptr->max_num = 0;
 
@@ -2999,6 +3025,18 @@ static void build_type_pit(int y0, int x0)
 
 					/*increase the max_num counter*/
 					q_ptr->max_num ++;
+
+					/* Randomly give 5 monsters a bonus item to drop. */
+					/* Paranoia*/
+					if ((bonus_items) && (counter))
+					{
+						if ((randint0(counter)) < bonus_items)
+						{
+							m_ptr->mflag |= (MFLAG_BONUS_ITEM);
+							bonus_items--;
+						}
+						counter--;
+					}
 				}
 			}
 		}
@@ -3011,7 +3049,7 @@ static void build_type_pit(int y0, int x0)
 /*
  * Hack -- fill in "vault" rooms
  */
-static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
+static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool quest_vault)
 {
 	int dx, dy, x, y;
 	int ax, ay;
@@ -3240,6 +3278,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				}
 			}
 
+			/*mark it as a quest monster*/
+			if ((cave_m_idx[y][x] > 0) && (quest_vault))
+			{
+				monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+				m_ptr->mflag |= (MFLAG_QUEST);
+			}
+
 			/*
 			 * Make the monsters carry the objects instead of just stand on them.
 			 */
@@ -3297,7 +3343,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
 }
 
 
@@ -3419,7 +3465,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE);
 
 	/* Mark vault grids with the CAVE_G_VAULT flag */
 	mark_g_vault(y0, x0, v_ptr->hgt, v_ptr->wid);
@@ -3452,7 +3498,7 @@ static void build_type9(int y0, int x0)
 	rating += v_ptr->rat;
 
 	/* Hack -- Build the vault */
-	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, TRUE);
 }
 
 
@@ -4279,7 +4325,7 @@ static fractal_map fractal_map_create(fractal_template *t_ptr)
 	fractal_map map;
 
 	/* Allocate the map */
-	C_MAKE(map, t_ptr->size, fractal_map_wid);
+	map = C_ZNEW(t_ptr->size, fractal_map_wid);
 
 	/* Reset the contents of the map */
 	fractal_map_reset(map, t_ptr);
@@ -4469,7 +4515,7 @@ static int fractal_map_is_connected(fractal_map map, fractal_template *t_ptr)
 	grid_queue_type queue, *q_ptr = &queue;
 
 	/* Allocate a "visited" matrix */
-	C_MAKE(visited, t_ptr->size, fractal_map_wid);
+	visited = C_ZNEW(t_ptr->size, fractal_map_wid);
 
 	/* Create the queue */
 	grid_queue_create(q_ptr, 500);
@@ -7137,15 +7183,15 @@ static bool build_feature(int feat, bool do_big_lake)
 
 static int get_feature_from_developer(void)
 {
-	FILE *fp;
+	ang_file *fp;
 	char line[513], *s, *name;
 	int feat = 0;
 
-	fp = fopen("developer_feature.txt", "r");
+	fp = file_open("developer_feature.txt", MODE_WRITE, FTYPE_TEXT);
 
 	if (!fp) return 0;
 
-	while (!my_fgets(fp, line, sizeof(line)))
+	while (file_getl(fp, line, sizeof(line)))
 	{
 		for (s = line; *s && ((*s == ' ') || (*s == '\t')); s++) ;
 
@@ -7159,14 +7205,14 @@ static int get_feature_from_developer(void)
 
 			if (streq(s, name))
 			{
-				my_fclose(fp);
+				file_close(fp);
 
 				return cave_feat_lake(feat) ? feat: 0;
 			}
 		}
 	}
 
-	my_fclose(fp);
+	file_close(fp);
 
 	return 0;
 }
@@ -7491,6 +7537,9 @@ static bool build_themed_level(void)
 		max_depth += ((p_ptr->max_lev - p_ptr->depth) / 2);
 	}
 
+	/* Undead themed levels are just too hard */
+	if (level_theme == LEV_THEME_UNDEAD) max_depth -= 2;
+
 	/*boundry control*/
 	if (max_depth > (MAX_DEPTH - 15)) max_depth = MAX_DEPTH - 15;
 
@@ -7512,6 +7561,9 @@ static bool build_themed_level(void)
 	/* Quest levels are a little more crowded than non-quest levels*/
 	if (is_quest_level) monster_number = QUEST_THEMED_LEVEL_NUM;
 	else monster_number = 250;
+
+	/* Undead themed levels are just too hard */
+	if (level_theme == LEV_THEME_UNDEAD) monster_number /= 2;
 
 	/* Reduce the number as monsters get more powerful*/
 	monster_number -= ((p_ptr->depth / 3) + randint(p_ptr->depth / 3));
@@ -7705,7 +7757,7 @@ static bool build_themed_level(void)
 		/* Attempt to place the monster, allow sleeping, don't allow groups*/
 		(void)place_monster_aux(y, x, r_idx, TRUE, FALSE);
 
-		/*Don't bother with mimics*/
+		/*Don't bother with mimics, mark 1 in 10 monsters for a bonus item */
 		if (cave_m_idx[y][x] > 0)
 		{
 			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
@@ -7713,6 +7765,8 @@ static bool build_themed_level(void)
 			/*Clear the mimic flag*/
 			m_ptr->mimic_k_idx = 0;
 			m_ptr->mflag &= ~(MFLAG_MIMIC);
+
+			if ((mon_cnt % 15) == 0) m_ptr->mflag |= (MFLAG_BONUS_ITEM);
 		}
 	}
 
@@ -7740,6 +7794,7 @@ static bool build_themed_level(void)
 
 					if (!(r_ptr->flags1 & RF1_UNIQUE))
 					{
+						m_ptr->mflag &= ~(MFLAG_SLOWER);
 						m_ptr->mflag |= (MFLAG_FASTER);
 						calc_monster_speed(m_ptr->fy, m_ptr->fx);
 					}
@@ -7748,8 +7803,8 @@ static bool build_themed_level(void)
 					q_ptr->max_num ++;
 
 					/*Not many of them sleeping, others lightly sleeping*/
-					if (one_in_(2)) m_ptr->csleep = 0;
-					else m_ptr->csleep /= 2;
+					if (one_in_(2)) m_ptr->m_timed[MON_TMD_SLEEP] = 0;
+					else m_ptr->m_timed[MON_TMD_SLEEP] /= 2;
 				}
 			}
 		}
@@ -7912,7 +7967,9 @@ static bool pick_transform_center(coord *marked_grids, int num_marked_grids,
 	int max = 300;
 	int cur = 0;
 	coord *grids;
-	int y, x, i, j, k;
+	int i, j, k;
+	int x = 0;
+	int y = 0;
 	bool found = FALSE;
 	int rad = MAX_SIGHT * 2;
 
@@ -7920,7 +7977,7 @@ static bool pick_transform_center(coord *marked_grids, int num_marked_grids,
 	if (flag && level_flag)
 	{
 		/* Allocate storage for a list of features that match that element */
-		C_MAKE(grids, max, coord);
+		grids = C_ZNEW(max, coord);
 
 		/* Scan the dungeon */
 		for (y = 0; y < p_ptr->cur_map_hgt; y++)
@@ -8437,7 +8494,7 @@ static struct elemental_transformation_info {
 	{LF1_ACID, TRANSFORM_REGION, FEAT_ACID_WALL, FEAT_BURNT_S, 100, 0},
 
 	/* Marks the end of the list */
-	{0}
+	{0,0,0,0,0,0}
 };
 
 
@@ -8648,7 +8705,7 @@ static void transform_walls_regions(void)
 	if ((wall_sel_ptr->size + region_sel_ptr->size) == 0) return;
 
 	/* Allocate space for the grids */
-	C_MAKE(grids, max_grids, coord);
+	grids = C_ZNEW(max_grids, coord);
 
 	/* Collect room walls locations for the transformations */
 	for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
@@ -9160,7 +9217,9 @@ static bool pick_monster_location(monster_race *r_ptr, int *py, int *px)
 	int cur = 0;
 	coord *grids;
 	bool found = FALSE;
-	int x, y, tries, k;
+	int tries, k;
+	int x = 0;
+	int y = 0;
 
 	/* Get the LF1_* flags of the monster */
 	u32b flag = get_level_flag_from_race(r_ptr);
@@ -9169,7 +9228,7 @@ static bool pick_monster_location(monster_race *r_ptr, int *py, int *px)
 	if (flag && (level_flag & flag) && ((r_ptr->flags1 & RF1_UNIQUE) || one_in_(2)))
 	{
 		/* Allocate storage for candidate grids */
-		C_MAKE(grids, max, coord);
+		grids = C_ZNEW(max, coord);
 
 		/* Scan the map */
 		for (y = 1; y < (p_ptr->cur_map_hgt - 1); y++)
@@ -9605,7 +9664,7 @@ static bool build_ice_level(void)
  * Lite all elemental features in the level (walls included), and their adjacent grids
  * If show_objects is TRUE we mark the objects placed on such grids
  */
-static void lite_elements(bool show_objects)
+static void light_elements(bool show_objects)
 {
 	int y, x;
 
@@ -9773,7 +9832,7 @@ static bool build_wilderness_level(void)
 	}
 
 	/* Special illumination for ice levels */
-	if (done_ice && ((p_ptr->depth < 50) || one_in_(4))) lite_elements(TRUE);
+	if (done_ice && ((p_ptr->depth < 50) || one_in_(4))) light_elements(TRUE);
 
 	/* Success */
 	return (TRUE);
@@ -9827,7 +9886,7 @@ static bool cave_gen(void)
 		 * We already started the quest. Perhaps we have the object but
 		 * we haven't gone back to the guild yet
 		 */
-		if (q_ptr->started) quest_on_level = 0;
+		if (q_ptr->q_flags & (QFLAG_STARTED)) quest_on_level = 0;
 	}
 
 	/*see if we need a quest room*/
@@ -9866,6 +9925,13 @@ static bool cave_gen(void)
 			/* Make 2 panels the minimum size */
 			if (l < 2) l = 2;
 			if (m < 2) m = 2;
+
+			/* Not too small for quest levels */
+			if (quest_on_level)
+			{
+				if (l < 4) l = 4;
+				if (m < 4) m = 4;
+			}
 
 			/*
 			 * Make the dungeon height & width a multiple
@@ -9928,16 +9994,6 @@ static bool cave_gen(void)
 		/* Pick a block for the room */
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
-
-		/* Align dungeon rooms */
-		if (dungeon_align)
-		{
-			/* Slide some rooms right */
-			if ((bx % 3) == 0) bx++;
-
-			/* Slide some rooms left */
-			if ((bx % 3) == 2) bx--;
-		}
 
 		/* Destroyed levels are boring */
 		if (destroyed)
@@ -10392,7 +10448,7 @@ int pick_dungeon_type(void)
 	}
 
 	/* Random themed level */
-	if (allow_themed_levels && (p_ptr->depth >= 10) && allow_altered_inventory &&
+	if (allow_themed_levels && (p_ptr->depth >= 10) &&
 		!quest_check(p_ptr->depth) && one_in_(THEMED_LEVEL_CHANCE))
 	{
 		return DUNGEON_TYPE_THEMED_LEVEL;

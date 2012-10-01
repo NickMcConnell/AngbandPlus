@@ -95,10 +95,10 @@ soon they hit a monster or wall, or reach their maximum range.  These spells
 only do full damage to the single grid at the center of the explosion, but can
 affect monsters that can't see you.
 
+"Cone" or "Arc" - A cone of damage that gradually gets wider the further
+out it goes.  Damage drops 
+
 "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
      A fair number of spells affect all monsters in line of sight (no walls or
 rubble between you and them, up to a range of 20).
-
-
-
 

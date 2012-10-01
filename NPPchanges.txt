@@ -1,3 +1,153 @@
+
+NPPAngband 0.5.1 changes:
+
+When killing a quest monster, the update of how many creaturess remain to be killed occurs after the notification that the creature was killed.
+Slightly changed the chances of gold and good quest rewards.
+Made digging easier, so it is roughly the same probability of success as vanilla.
+TO eliminate unfair deaths, the minimum size quest level is roughly 2/3 the size of a full size dungeon.
+Player Ghost mummy template now has the resist cold flag.
+Weak Pdeudo-id now senses average items.
+Pseudo-id now identifies average items.
+Implemented the new Angband monster list window format.
+Implemented the new Angband monster object window format, and separated the items the player
+is standing on to appear first.
+Examining a weapon gives a more detailed description of the damage per attack.
+Detection is now based on a set circular range rather than screen size.
+The monster health bar now indicates whether the monster is hasted, slowed, or afraid.
+For both players and monsters, being native to certain terrains can reduce the damage and side effects from magic attacks.
+When a glyph of warding spell fails, the message now specifies the reason the plyph can't be created.
+Morgoth has more monster mana.
+The the first possible quest is available at 100' instead of 50'.
+Monsters are mure succeptable to sleeping, stunning, confusion, and it should be more useful.
+The minimum depth for a nest/pit quest is now 400'.  The minimum depth for a level quest is 800'.
+The recharge amount on rods and wands are proportional to the amount of charges on a wand/staff at creation.
+Smart traps are created with their timer set to a minimum of 3, to give the player time to react.
+Re-named Medium dragon armor and shields to "mature" to be more consistent with the dragon names.
+Changed how player fame is scored and scaled to quest rewards and guild titles, as well as the likelihood of quest reward types.
+When the player is on a stronghold level, to avoid player instadeath the monster spells "teleport player to" and "teleport player away" are disabled.
+Increased extra randarts power, as well as their rarity.
+Monster list is no longer hallucination-proof
+Changed frequency of various powers on randarts.
+Reduced frequency of lingering cloud effects (smoke, nexus clouds, etc)
+Added a store service to purchase a scroll of mass banishment.
+For undead themed levels, cut the number of monsters in half, and reduced the max_depth of the monsters by 2.
+Greatly reduced the amount of monsters that have the cloud_surround feature.
+For the druid spell clear_area, the cleared area is now considered a room, so the light area spell will light the entire cleared area.
+Knowledge screen and character screen now indicate whether the player is native to boiling mud and boiling water.
+Status screen indicated whether the player is hasted or slowed, and if they are native or non-native to terrains.
+The character screen now gives numberical values for saving throw, searching, searching frequency, magic device usage, and disarming.
+Slightly reduced combat abilities of the rogue class.
+Made the following changes for calculating critical hits from fighting:
+*Replaced character level with fighting ability as a factor in calculating their frequency and severity.  
+(In general, the three pure spellcasting classes (priest, druid, mage) will get less of them, and the other 5 will get more.)
+*Critical hit multipliers now increase the damage dice and sides of the weapon, before the damage is calculated.
+*For Combat Critical hits, the damage is calculated twice, and the higher value used.
+Removed the teleport_to and teleport_self_to flags from Azathoth.
+teleport_to and teleport_to_player now use 150 monster energy instead of the standard 100.
+Increased fame boost for level quests.
+Increased the rewards for level quests.
+Increased number of items generated for tailored and great quest rewards.
+Greatly increased the drops from monsters in stronghold levels (including quests).
+Gold stolen by monsters is now stored in their inventory.  
+Changed the way the possibility for store altered inventory is calculated.
+Player gets fame increase for all uniques killed, not just out-of-depth ones.
+No energy is used When the player fails to attack due to being scared. 
+Bugfix:All Servants of valar now have treasure drops. (reported by Anssi Ramela)
+Bugfix:  The temporary chance of the stores selling unusual inventory now saved in the player savefile.
+Frequency of unusual inventory in the stores increased.
+Fixed a type in the quests helpfile (reported by cameron)
+Druid haste spell, when player is already hasted, property adds 5 to the counter instead of 1d5. (bug reported by Pete Mack)
+Certain mimics now have suceptabilities to cold and fire.
+added some more flavors for rods/wands/staves/potions/jewlery
+reduced chance for a randart to aggravate
+Fixed a bug that caused the game to crash occasionally when a light red rune cast a nexus ball.
+divided up the defines.h into several sub-files, such as object.h, player.h, terrain.h.
+On the sidebar, separated quest indicator from the depth indicator.
+Made the quest indicator more detailed.
+Added a level feeling indicator.
+Updated the NPP code base from Angband 3.0.6 to Angband 3.1.2v2.  
+Reduced power of the druid spell "Ulmo's wrath".
+Removed many unused options.
+Added itemlist window (from Angband).
+All items viewed in stores, including flavored items, become identified.  This means players learn the flavor of potions/scrolls, etc...from viewing the item in a store.
+Added a separate quality squelch setting for the best items (maces of disruption, mithril armor, etc)
+Fixed a bug that gave the player less fame than intended for level, pit, and nest quests.
+Player no longer gets a fame increase if a unique is killed by another monster.
+
+
+Other changes from Angband versions 3.0.7 through 3.1.2v2 include:
+
+Player's starting equipment and inventory marked as seen.
+New splash screen
+experience to next level always displayed until clev50 
+Mouse support a la FAangband added, but nowhere near as advanced or useful. Most of the menus you encounter can be selected using the mouse now, as well as using keypresses. Clicking somewhere on the map will now "walk" there, within certain constraints. It's a tad bizarre in the town, but seems to work OK otherwise. 
+Sangband-style object handling, which makes it much easier to sift through things in the dungeon. 
+get 'h' work in stores with the roguelike keyset. 
+Allow use of objects from the floor when blind. 
+Fix obviously wrong code in main-gcu. (William McBrine) 
+Aways cast to (unsigned char) for the islower(), isdigit(), etc functions 
+Fixed Windows bug where you can't move one of the font files after having played a game this reboot. (Thanks to Leon Marrick.) 
+Modernize Mac support; now works on OS X 10.3 onwards, but the old main-mac has been removed, as has the MPW makefile. (Pete Mack) 
+Remove hardcoded values for p_ptr->noscore. 
+Use tables of commands instead of a big switch, to allow doing thing like the new command menu easily without duplication. (See cmd0.c.) 
+Use C99 types where appropriate (for bools and ints). 
+Replace various magic numbers with constants or N_ELEMENTS(). (Hallvard Furuseth) 
+Move lots of things out of defines.h to more appropriate places, like h-basic.h and config.h. 
+Use the safer string handling functions much more; the only use of the "unsafe" built-ins are in the various main-* files. 
+Clean up file locking, move file handling functions into z-file.c, remove usleep() function, add a "portable" directory scanning interface (works on Windows and Unixes at the moment), and my_fexists(). 
+Combine the various h-*.h files into a single header file; remove a lot of cruft, use C99 types when available, 
+Removed trivial-to-hack-around or non-functional compile-time options (VERIFY_SAVEFILE, _TIMESTAMP, and _HONOR, CHECK_TIME).
+Considerably simplify and speed up main-gcu.c. (Thanks to Christer Nyfalt.) 
+Use a new autoconf/automake system, called OMK. 
+Timed player modifiers (blind, confused, etc.) are now kept in an array, rather than being seperate variables in p_ptr. This simplifies a lot of code, and makes it trivial to add new effects. The majority of the work was done using sed scripts.
+The status line, sidebar, and term window update code is much more streamlined. 
+Nuked a lot of old ports: cap, lsl, sla, xpj, ibm, dos, vcs, lfb, ami, emx, vme. 
+As a result of the above, makefiles considerably simplified. As many makefiles as possible use a common list of source files in "Makefile.src", which simplifies maintainance. Makefile.std has also been rewritten and contains much less cruft. 
+A powerful generic menu interface has been added and used throughout the code. It reduces code duplication and makes it much much easier to create menus in various styles; e.g. scrolling or multicolumn. See ui.c. 
+Event handler added. (Menus can listen to each other, etc.) 
+Lots and lots of code duplication removed: 
+Major code cleanup 
+Most of the cleanup has been related to removing ancient or non-functional cruft. 
+"Enter" key brings up a little window in the middle of the screen, from which you can select what command you would like to use. This is inspired by (but not derived from) Hengband. Don't like it? Macro "Enter" to " ". 
+Semi-rewrite of the store code; now uses a scrolling menu with a slightly more streamlined interface. Bigscreen support in stores. Ammo is treated in more aesthetically pleasing quantities. General Store always stocks what it stocks now, and doesn't buy anything back off the player. 
+Resizing the game window automatically updates its contents, on platforms which support this. 
+Mouse support a la FAangband added, but nowhere near as advanced or useful. Most of the menus you encounter can be selected using the mouse now, as well as using keypresses. Clicking somewhere on the map will now "walk" there, within certain constraints. It's a tad bizarre in the town, but seems to work OK otherwise. 
+Score code moved to score.c and extensively refactored. 
+Move to using randint0() and randint1() for random numbers. 
+Use header file guards in all header files, and use a consistent naming scheme for them ("Elly") 
+"make -f Makefile.inc depgen" will output "Makefile.new", which then contains up-to-date dependencies for the project. 
+Remove a whole load of useless or unused configuration options from config.h. 
+Set up an event system for UI display updates, where the game communicates with the UI by sending messages saying that something's changed that the UI might be interested in, rather than deciding that specific things should be redraw. The main screen updates all use this system now. Amongst other things, this system should help things like the borg and graphical frontends, because they can hook right into changes in state. (#348) 
+Additionally, a new file API has been introduced which combines the previous mishmash of fd_*() and my_f*() calls into a simpler, better documented interface. (#137) 
+"Elly" rewrote the message and quark packages, previously in util.c, and in the process split them out into their own z- files. The z-msg package is now much more understandable but marginally less "efficient", and certainly less "optimised". 
+Memory handling has been reviewed. Now, all code should assume that allocation will succeed, just like it did already. There is also a realloc()-style function along with its own hook. string_make() has been modified to no longer return a "const char *", and so all the code now only uses "const" when it means "const". Some macros have been removed. 
+A lot of code-level cleanup has been applied to this release, much of it still in flux. Many new files have been split out of existing files, which should now have much more self-explanitory names. 
+OS X: the OS X version is now a universal binary, and runs faster, better, quicker, and with more sound than before. (Rowan Beentje) 
+Code-level 
+Rewrite the rules for shopkeepers 
+Remove individual-shopkeeper and race-based price changes from the store code, to make it easier to balance pricing. 
+?Adjust adj_chr_gold[] values upwards to represent the average-110% inflation usually applied by the individual-shopkeeper greed values. This should really be applied to the object.txt file instead, though. 
+Make point-based points worth less gold. 
+Minimum starting gold is 200AU. 
+Add an option to start the character with 500AU but no equipment. 
+Point-based character generation is now equivalent to best available from the autoroller. (Eddie Grove)
+Windows versions now use hashes and percent signs for walls until there's time to sort out all existing fonts to be Vista-compatible. (#232) 
+Tell the payer when timed effects increase or decrease as the result of effects. (idea by Eddie Grove) 
+Death menu now uses a scrolly menu. 
+Ensure that store-bought and birth-given torches have the same number of turns for stacking purposes. 
+Remove the "depth_in_feet" option, instead displaying both the dungeon level and the depth everywhere. 
+Add how many items the player already has when buying something at the store. (closes #151) 
+Add a trap detection indicator. Also, colour the edges of trap- detected areas green. (#19) 
+Add EyAngband-style quickstart option. 
+Significant work on making the game more command-based than keypress-based 
+Add Word of Recall status to the status line. 
+Remove the autoroller 
+Stop displaying two highscore entries for dead characters. 
+Reset social status to original value with quickstart 
+Fix inventory/equipment and message update in store. 
+Throughout the source code, changed the spelling of "lite" to "light".
+
+
 NPP050
 
 New features:

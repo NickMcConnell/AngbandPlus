@@ -2,14 +2,22 @@
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * 						Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-
 
 
 
@@ -212,7 +220,7 @@ void delete_monster_idx(int i)
 
 
 	/* Visual update */
-	lite_spot(y, x);
+	light_spot(y, x);
 }
 
 
@@ -321,18 +329,14 @@ void compact_monsters(int size)
 		s16b *mon_index;
 
 		/* Allocate the "mon_lev and mon_index" arrays */
-		C_MAKE(mon_lev, mon_max, s16b);
-		C_MAKE(mon_index, mon_max, s16b);
+		mon_lev = C_ZNEW(mon_max, s16b);
+		mon_index = C_ZNEW(mon_max, s16b);
 
 		/* Message */
 		msg_print("Compacting monsters...");
 
 		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
-
+		p_ptr->redraw |= (PR_MAP | PR_MONSTER);
 
 		/* Scan the monster list */
 		for (i = 1; i < mon_max; i++)
@@ -875,235 +879,432 @@ s16b get_mon_num(int level, int y, int x)
 	return (table[i].index);
 }
 
-
 /*
- * Comparator hook for display_monlist
+ * Helper function for display monlist.  Prints the number of creatures, followed
+ * by either a singular or plural version of the race name as appropriate.
  */
-static bool ang_sort_comp_hook_monlist(const void *u, const void *v, int a, int b)
+static void get_mon_name(char *output_name, size_t max, int r_idx, int in_los)
 {
-	const s16b *race_idx = u;
+	/* Get monster race and name */
+	monster_race *r_ptr = &r_info[r_idx];
 
-	(void)v;
+	char race_name[80];
 
-	/* Get the two races */
-	monster_race *r1_ptr = &r_info[race_idx[a]];
-	monster_race *r2_ptr = &r_info[race_idx[b]];
-
-	/* One of the monsters is a player ghost */
-	if ((r1_ptr->flags2 & (RF2_PLAYER_GHOST)) != (r2_ptr->flags2 & (RF2_PLAYER_GHOST)))
+	/* Player ghosts get special markings */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
-		/* Player ghosts go first */
-		return ((r1_ptr->flags2 & (RF2_PLAYER_GHOST)) ? TRUE: FALSE);
+		char racial_name[80];
+
+		/* Get the ghost name. */
+		my_strcpy(race_name, ghost_name, sizeof(race_name));
+
+		/* Get the racial name. */
+		my_strcpy(racial_name, r_name + r_ptr->name, sizeof(race_name));
+
+		/* Build the ghost name. */
+		my_strcat(race_name, ", the ", sizeof(race_name));
+		my_strcat(race_name, racial_name, sizeof(race_name));
+
+		my_strcpy(output_name, "[G] ", max);
 	}
 
-	/* One of the monsters is an unique */
-	if ((r1_ptr->flags1 & (RF1_UNIQUE)) != (r2_ptr->flags1 & (RF1_UNIQUE)))
+	/* Unique names don't have a number */
+	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		/* Uniques go second */
-		return ((r1_ptr->flags1 & (RF1_UNIQUE)) ? TRUE: FALSE);
+		monster_desc_race(race_name, sizeof(race_name), r_idx);
+
+		my_strcpy(output_name, "[U] ", max);
 	}
 
-	/* Compare monster depth */
-	if (r1_ptr->level > r2_ptr->level) return (TRUE);
-	if (r1_ptr->level < r2_ptr->level) return (FALSE);
+	/* Get the monster race name for normal races*/
+	else
+	{
+		monster_desc_race(race_name, sizeof(race_name), r_idx);
 
-	/* Sort alphabetically */
-	return (r1_ptr->d_char <= r2_ptr->d_char);
+		my_strcpy(output_name, format("%3d ", in_los), max);
+
+		/* Make it plural, if needed. */
+		if (in_los > 1)
+		{
+			plural_aux(race_name, sizeof(race_name));
+		}
+	}
+
+	/* Mix the quantity and the header. */
+	my_strcat(output_name, race_name, max);
 }
 
-/*
- * Swap hook for display_monlist
- */
-static void ang_sort_swap_hook_monlist(void *u, void *v, int a, int b)
-{
-	s16b *race_idx = u, temp;
-
-	(void)v;
-
-	/* Swap */
-	temp = race_idx[a];
-	race_idx[a] = race_idx[b];
-	race_idx[b] = temp;
-}
 
 /*
  * Display visible monsters in a window
  */
 void display_monlist(void)
 {
-	int i, n;
-	int line = 0;
-	s16b r_idx;
+	size_t i, j, k;
+	int max;
+	int line = 1, x = 0;
+	int cur_x;
+	unsigned total_count = 0, disp_count = 0, type_count = 0, los_count = 0;
+
+	byte attr;
 
 	char buf[80];
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
+	monster_race *r2_ptr;
 
-	u16b *race_counts;
-	u16b *hidden_counts;
-	/* Array of monster races indexes */
-	s16b *race_idx;
-	int n_races = 0;
+	monster_vis *list;
 
-	/* Allocate the arrays */
-	C_MAKE(race_counts, z_info->r_max, u16b);
-	C_MAKE(hidden_counts, z_info->r_max, u16b);
-	C_MAKE(race_idx, z_info->r_max, s16b);
+	u16b *order;
 
-	/* Iterate over mon_list */
-	for (i = 1; i < mon_max; i++)
+	bool in_term = (Term != angband_term[0]);
+
+	/* Hallucination is weird */
+	if (p_ptr->timed[TMD_IMAGE])
 	{
-		/* Get the monster */
+		if (in_term)
+			clear_from(0);
+		Term_gotoxy(0, 0);
+		text_out_to_screen(TERM_ORANGE,
+			"Your hallucinations are too wild to see things clearly.");
+
+		return;
+	}
+
+
+	/* Clear the term if in a subwindow, set x otherwise */
+	if (in_term)
+	{
+		clear_from(0);
+		max = Term->hgt - 1;
+	}
+	else
+	{
+		x = 13;
+		max = Term->hgt - 2;
+	}
+
+	/* Allocate the primary array */
+	list = C_ZNEW(z_info->r_max, monster_vis);
+
+	/* Scan the list of monsters on the level */
+	for (i = 1; i < (size_t)mon_max; i++)
+	{
 		m_ptr = &mon_list[i];
 
-		/* Only visible monsters */
+		/* Ignore dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Only consider visible monsters */
 		if (!m_ptr->ml) continue;
 
 		/* Hidden mimics don't count */
 		if (m_ptr->mimic_k_idx) continue;
 
-		/* Get the race index */
-		r_idx = m_ptr->r_idx;
+		/* If this is the first one of this type, count the type */
+		if (!list[m_ptr->r_idx].count) type_count++;
 
-		/* New race */
-		if ((hidden_counts[r_idx] + race_counts[r_idx]) == 0)
+		/* Check for LOS
+		 * Hack - we should use (m_ptr->mflag & (MFLAG_VIEW)) here,
+		 * but this does not catch monsters detected by ESP which are
+		 * targetable, so we cheat and use projectable() instead
+		 */
+		if (projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx,
+				PROJECT_NONE))
 		{
-			/* Add the race */
-			race_idx[n_races++] = r_idx;
-		}
 
-		/* Bump the count for this race */
-		if (m_ptr->mflag & (MFLAG_HIDE)) hidden_counts[r_idx]++;
-		else race_counts[r_idx]++;
+			/* Increment the total number of in-LOS monsters */
+			los_count++;
+
+			/* Increment the LOS count for this monster type */
+			list[m_ptr->r_idx].los++;
+
+			/* Check if asleep and increment accordingly */
+			if (m_ptr->m_timed[MON_TMD_SLEEP]) list[m_ptr->r_idx].los_asleep++;
+
+		}
+		/* Not in LOS so increment if asleep */
+		else if (m_ptr->m_timed[MON_TMD_SLEEP]) list[m_ptr->r_idx].asleep++;
+
+		/* Bump the count for this race, and the total count */
+		if (m_ptr->mflag & (MFLAG_HIDE)) list[m_ptr->r_idx].hidden++;
+		else list[m_ptr->r_idx].count++;
+
+		total_count++;
 	}
 
-	/* Sort the monster races */
-	ang_sort_comp = ang_sort_comp_hook_monlist;
-	ang_sort_swap = ang_sort_swap_hook_monlist;
-	ang_sort(race_idx, NULL, n_races);
-
-	/* Show the found races */
-	for (i = 0; i < n_races; i++)
+	/* Note no visible monsters at all */
+	if (!total_count)
 	{
-		char race_name[80];
-		char output_name[120];
+		/* Clear display and print note */
+		c_prt(TERM_SLATE, "You see no monsters.", 0, 0);
+		if (!in_term)
+		    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 
-		/* Hack -- Don't mangle gcu */
-		if (line >= Term->hgt) break;
+		/* Free up memory */
+		FREE(list);
 
-		/* Get the race index */
-		r_idx = race_idx[i];
+		/* Done */
+		return;
+	}
 
-		/* Get monster race */
-		r_ptr = &r_info[r_idx];
+	/* Allocate the secondary array */
+	order = C_ZNEW(type_count, u16b);
 
-		/* Handle player chosts differently */
-		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	/* Sort, because we cannot rely on monster.txt being ordered */
+
+	/* Populate the ordered array, starting at 1 to ignore @ */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		/* No monsters of this race are visible */
+		if ((list[i].count + list[i].hidden) == 0) continue;
+
+		/* Get the monster info */
+		r_ptr = &r_info[i];
+
+		/* Fit this monster into the sorted array */
+		for (j = 0; j < type_count; j++)
 		{
-			char racial_name[80];
-
-			/* Get the ghost name. */
-			my_strcpy(race_name, ghost_name, sizeof(race_name));
-
-			/* Get the racial name. */
-			my_strcpy(racial_name, r_name + r_ptr->name, sizeof(race_name));
-
-			/* Build the ghost name. */
-			my_strcat(race_name, ", the ", sizeof(race_name));
-			my_strcat(race_name, racial_name, sizeof(race_name));
-
-			my_strcpy(output_name, "[G] ", sizeof(output_name));
-		}
-
-		/* Handle uniques differently */
-		else if (r_ptr->flags1 & (RF1_UNIQUE))
-		{
-			monster_desc_race(race_name, sizeof(race_name), r_idx);
-
-			my_strcpy(output_name, "[U] ", sizeof(output_name));
-		}
-
-		/* Get the monster race name for normal races*/
-		else
-		{
-			monster_desc_race(race_name, sizeof(race_name), r_idx);
-
-			my_strcpy(output_name, format("%3d ", race_counts[r_idx]), sizeof(output_name));
-
-			/* Add race count */
-			if (race_counts[r_idx] > 1)
+			/* If we get to the end of the list, put this one in */
+			if (!order[j])
 			{
-				plural_aux(race_name, sizeof(race_name));
+				order[j] = i;
+				break;
+			}
+
+			/* Get the monster info for comparison */
+			r2_ptr = &r_info[order[j]];
+
+			/* Monsters are sorted by depth */
+			/* Monsters of same depth are sorted by power */
+			if ((r_ptr->level > r2_ptr->level) ||
+				((r_ptr->level == r2_ptr->level) &&
+				(r_ptr->mon_power > r2_ptr->mon_power)))
+			{
+				/* Move weaker monsters down the array */
+				for (k = type_count - 1; k > j; k--)
+				{
+					order[k] = order[k - 1];
+				}
+
+				/* Put current monster in the right place */
+				order[j] = i;
+				break;
 			}
 		}
+	}
 
-		/* Mix the quantity and the header. */
-		my_strcat(output_name, race_name, sizeof(output_name));
+   	/* Message for monsters in LOS - even if there are none */
+	if (!los_count) prt(format("You can see no monsters."), 0, 0);
+	else prt(format("You can see %d monster%s", los_count, (los_count == 1
+		? ":" : "s:")), 0, 0);
 
-		/* Obtain the length of the description */
-		n = sizeof (output_name);
+	/* Print out in-LOS monsters in descending order */
+	for (i = 0; (i < type_count) && (line < max); i++)
+	{
+		int r_idx = order[i];
+		char output_name[80];
 
-		/* Display the entry itself */
-		Term_putstr(0, line, n, TERM_WHITE, output_name);
+		int in_los = list[r_idx].los;
 
-		/* Display the entry itself */
-		Term_putstr(0, line, n, TERM_WHITE, output_name);
+		/* Skip if there are none of these in LOS */
+		if (!in_los) continue;
 
-		/* Append the "standard" attr/char info */
-		Term_addstr(-1, TERM_WHITE, " ('");
-		Term_addch(r_ptr->d_attr, r_ptr->d_char);
-		Term_addstr(-1, TERM_WHITE, "')");
-		n += 6;
 
-		/* Append the "optional" attr/char info */
-		Term_addstr(-1, TERM_WHITE, "/('");
+		r_ptr = &r_info[r_idx];
 
-		Term_addch(r_ptr->x_attr, r_ptr->x_char);
+		/* Reset position */
+		cur_x = x;
 
-		if (use_bigtile)
+		/* Note that these have been displayed */
+		disp_count += in_los;
+
+		/* Get monster race and name */
+		get_mon_name(output_name, sizeof(output_name), r_idx, in_los);
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			if (r_ptr->x_attr & 0x80)
-				Term_addch(255, -1);
-			else
-				Term_addch(0, ' ');
-
-			n++;
+			attr = TERM_VIOLET;
 		}
+		else if (r_ptr->level > p_ptr->depth)
+		{
+			attr = TERM_RED;
+		}
+		else attr = TERM_WHITE;
 
-		Term_addstr(-1, TERM_WHITE, "'):");
-		n += 7;
+		/* Build the monster name */
+		if (list[r_idx].los == 1)
+		{
+			if (list[r_idx].los_asleep == 1)
+			{
+				strnfmt(buf, sizeof(buf), "%s (asleep) ", output_name);
+			}
+			else strnfmt(buf, sizeof(buf), "%s", output_name);
+		}
+		else
+		{
+			if (list[r_idx].los_asleep > 0)
+			{
+				strnfmt(buf, sizeof(buf), "%s (%d asleep) ",
+						output_name, list[r_idx].los_asleep);
+			}
+			else strnfmt(buf, sizeof(buf),  "%s", output_name);
+		}
 
 		/* Add hidden count */
-		if (hidden_counts[r_idx] > 0)
+		if (list[r_idx].hidden)
 		{
-			sprintf(buf, "%d hidden", hidden_counts[r_idx]);
-			Term_addch(TERM_WHITE, '[');
-			Term_addstr(strlen(buf), TERM_YELLOW, buf);
-			Term_addch(TERM_WHITE, ']');
-			n += strlen(buf) + 2;
+			my_strcat(buf, format(" %d hidden", list[r_idx].hidden), sizeof(buf));
 		}
 
-		/* Erase the rest of the line */
-		Term_erase(n, line, 255);
+		/* Display the pict */
+		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
 
-		/* Bump line counter */
+		/* Print and bump line counter */
+		c_prt(attr, buf, line, cur_x);
 		line++;
+
+		/* Page wrap */
+		if (!in_term && (line == max) && disp_count != total_count)
+		{
+			prt("-- more --", line, x);
+			anykey();
+
+			/* Clear the screen */
+			for (line = 1; line <= max; line++)
+				prt("", line, 0);
+
+			/* Reprint Message */
+			prt(format("You can see %d monster%s",
+				los_count, (los_count > 0 ? (los_count == 1 ?
+				":" : "s:") : "s.")), 0, 0);
+
+			/* Reset */
+			line = 1;
+		}
 	}
 
-	/* Free the race counters */
-	FREE(race_counts);
-	FREE(hidden_counts);
-	FREE(race_idx);
-
-	/* Erase the rest of the window */
-	for (i = line; i < Term->hgt; i++)
+   	/* Message for monsters outside LOS, if there are any */
+	if (total_count > los_count)
 	{
-		/* Erase the line */
-		Term_erase(0, i, 255);
-	}
-}
+		/* Leave a blank line */
+		line++;
 
+		prt(format("You are aware of %d %smonster%s",
+		(total_count - los_count), (los_count > 0 ? "other " : ""),
+		((total_count - los_count) == 1 ? ":" : "s:")), line++, 0);
+	}
+
+	/* Print out non-LOS monsters in descending order */
+	for (i = 0; (i < type_count) && (line < max); i++)
+	{
+		int r_idx = order[i];
+		char output_name[80];
+
+		int out_of_los = list[r_idx].count - list[r_idx].los;
+
+		/* Skip if there are none of these out of LOS */
+		if (!out_of_los) continue;
+
+		r_ptr = &r_info[r_idx];
+
+		/* Reset position */
+		cur_x = x;
+
+		/* Note that these have been displayed */
+		disp_count += out_of_los;
+
+		/* Get monster race and name */
+		get_mon_name(output_name, sizeof(output_name), r_idx, out_of_los);
+
+		/* Display uniques in a special colour */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			attr = TERM_VIOLET;
+		}
+		else if (r_ptr->level > p_ptr->depth)
+		{
+			attr = TERM_RED;
+		}
+		else attr = TERM_WHITE;
+
+		/* Build the monster name */
+		if (out_of_los == 1)
+		{
+			if (list[r_idx].asleep == 1)
+			{
+				strnfmt(buf, sizeof(buf), "%s (asleep) ", output_name);
+			}
+			else
+			{
+				strnfmt(buf, sizeof(buf), "%s ", output_name);
+			}
+		}
+		else
+		{
+			if (list[r_idx].asleep > 0)
+			{
+				strnfmt(buf, sizeof(buf), "%s (%d asleep) ", output_name, list[r_idx].asleep);
+			}
+			else strnfmt(buf, sizeof(buf),  "%s", output_name);
+		}
+
+		/* Display the pict */
+		Term_putch(cur_x++, line, r_ptr->x_attr, r_ptr->x_char);
+		if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+		Term_putch(cur_x++, line, TERM_WHITE, ' ');
+
+		/* Print and bump line counter */
+		c_prt(attr, buf, line, cur_x);
+		line++;
+
+		/* Page wrap */
+		if (!in_term && (line == max) && disp_count != total_count)
+		{
+			prt("-- more --", line, x);
+			anykey();
+
+			/* Clear the screen */
+			for (line = 1; line <= max; line++)
+				prt("", line, 0);
+
+			/* Reprint Message */
+			prt(format("You are aware of %d %smonster%s",
+				(total_count - los_count), (los_count > 0 ?
+				"other " : ""), ((total_count - los_count) > 0
+				? ((total_count - los_count) == 1 ? ":" : "s:")
+				: "s.")), 0, 0);
+
+			/* Reset */
+			line = 1;
+		}
+	}
+
+	/* Print "and others" message if we've run out of space */
+	if (disp_count != total_count)
+	{
+		strnfmt(buf, sizeof buf, "  ...and %d others.", total_count - disp_count);
+		c_prt(TERM_WHITE, buf, line, x);
+	}
+
+	/* Otherwise clear a line at the end, for main-term display */
+	else
+	{
+		prt("", line, x);
+	}
+
+	if (!in_term)
+		Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
+
+	/* Free the arrays */
+	FREE(list);
+	FREE(order);
+
+}
 
 /*
  * Build a string describing a monster in some way.
@@ -1248,14 +1449,14 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 		{
 			/* Get the ghost name. */
-			strcpy(desc, ghost_name);
+			my_strcpy(desc, ghost_name, sizeof(desc));
 
 			/* Get the racial name. */
-			strcpy(racial_name, r_name + r_ptr->name);
+			my_strcpy(racial_name, r_name + r_ptr->name, sizeof(racial_name));
 
 			/* Build the ghost name. */
-			strcat(desc, ", the ");
-			strcat(desc, racial_name);
+			my_strcat(desc, ", the ", sizeof(desc));
+			my_strcat(desc, racial_name, sizeof(desc));
 		}
 
 		/* It could be a Unique */
@@ -1473,7 +1674,7 @@ void lore_do_probe_monster(int m_idx)
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
 	{
 		/* Window stuff */
-		p_ptr->window |= (PW_MONSTER);
+		p_ptr->redraw |= (PR_MONSTER);
 	}
 }
 
@@ -1511,7 +1712,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
 	{
 		/* Window stuff */
-		p_ptr->window |= (PW_MONSTER);
+		p_ptr->redraw |= (PR_MONSTER);
 	}
 }
 
@@ -1632,7 +1833,7 @@ void update_mon(int m_idx, bool full)
 	if (d <= MAX_SIGHT)
 	{
 		/* Basic telepathy */
-		if (p_ptr->telepathy)
+		if (p_ptr->state.telepathy)
 		{
 			/* Empty mind, no telepathy */
 			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
@@ -1683,13 +1884,13 @@ void update_mon(int m_idx, bool full)
 		}
 
 		/* Normal line of sight, and not blind, and monster isn't hidden  */
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind && !(m_ptr->mflag & (MFLAG_HIDE)))
+		if (player_has_los_bold(fy, fx) && !p_ptr->timed[TMD_BLIND] && !(m_ptr->mflag & (MFLAG_HIDE)))
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
 
 			/* Use "infravision" */
-			if (d <= p_ptr->see_infra)
+			if (d <= p_ptr->state.see_infra)
 			{
 				/* Handle "cold blooded" monsters */
 				if (r_ptr->flags2 & (RF2_COLD_BLOOD))
@@ -1707,7 +1908,7 @@ void update_mon(int m_idx, bool full)
 			}
 
 	       /* Use "lite carriers" */
-		    if ((r_ptr->flags2 & (RF2_HAS_LITE)) &&
+		    if ((r_ptr->flags2 & (RF2_HAS_LIGHT)) &&
 				!(r_ptr->flags2 & (RF2_INVISIBLE))) easy = is_visible = TRUE;
 
 			/* Use "illumination" */
@@ -1720,7 +1921,7 @@ void update_mon(int m_idx, bool full)
 					do_invisible = TRUE;
 
 					/* See invisible */
-					if (p_ptr->see_inv)
+					if (p_ptr->state.see_inv)
 					{
 						/* Easy to see */
 						easy = is_visible = TRUE;
@@ -1758,7 +1959,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->ml = TRUE;
 
 			/* Draw the monster */
-			lite_spot(fy, fx);
+			light_spot(fy, fx);
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
@@ -1767,7 +1968,7 @@ void update_mon(int m_idx, bool full)
 			if ((l_ptr->sights < MAX_SHORT) && (!(m_ptr->mflag & (MFLAG_MIMIC)))) l_ptr->sights++;
 
 			/* Player knows if it has light */
-			if (r_ptr->flags2 & (RF2_HAS_LITE)) l_ptr->r_l_flags2 |= RF2_HAS_LITE;
+			if (r_ptr->flags2 & (RF2_HAS_LIGHT)) l_ptr->r_l_flags2 |= RF2_HAS_LIGHT;
 
 			/* Disturb on visibility change */
 			if (disturb_move && !(m_ptr->mflag & (MFLAG_MIMIC)))
@@ -1776,11 +1977,13 @@ void update_mon(int m_idx, bool full)
 				if (!(m_ptr->mflag & (MFLAG_TOWN)) || (p_ptr->lev < 10))
 				{
 					disturb(1, 0);
+
+
 				}
 			}
 
 			/* Window stuff */
-			p_ptr->window |= PW_MONLIST;
+			p_ptr->redraw |= PR_MONLIST;
 
 		}
 	}
@@ -1795,7 +1998,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->ml = FALSE;
 
 			/* Erase the monster */
-			lite_spot(fy, fx);
+			light_spot(fy, fx);
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
@@ -1811,7 +2014,7 @@ void update_mon(int m_idx, bool full)
 			}
 
 			/* Window stuff */
-			p_ptr->window |= PW_MONLIST;
+			p_ptr->redraw |= PR_MONLIST;
 
 		}
 	}
@@ -1855,69 +2058,13 @@ void update_mon(int m_idx, bool full)
 				{
 					disturb(1, 0);
 				}
+
+				/* Re-draw monster list window */
+				p_ptr->redraw |= PR_MONLIST;
 			}
 
 		}
 	}
-}
-
-
-/*
- * If no health bar is displayed, track nearest visible monster
- */
-static void autotrack(void)
-{
-	int idx, selected_idx = 0;
-	byte best_distance = 255;
-	monster_type *m_ptr;
-
-	/* If no monster tracked, look for someone to track */
-	if ((p_ptr->target_who != 0) && (mon_list[p_ptr->target_who].ml))
-	{
-		/* Restore the health bar if necessary */
-		if (p_ptr->health_who != p_ptr->target_who)
-		{
-			/* Recall */
-			monster_race_track(mon_list[p_ptr->target_who].r_idx);
-
-			/* Track */
-			health_track(p_ptr->target_who);
-		}
-
-		/* Done */
-	       	return;
-	}
-
-	/* Iterate over mon_list */
-	for (idx = 1; idx < mon_max; idx++)
-	{
-		m_ptr = &mon_list[idx];
-
-		/* Only visible monsters */
-		if (!m_ptr->ml) continue;
-
-		/*hidden mimics don't count*/
-		if (m_ptr->mimic_k_idx) continue;
-
-		/* Nearest monster so far, remember it */
-		if (m_ptr->cdis < best_distance)
-		{
-			best_distance = m_ptr->cdis;
-			selected_idx = idx;
-		}
-
-	}
-
-	/* No monsters visible */
-	if (selected_idx == 0) return;
-
-	m_ptr = &mon_list[selected_idx];
-
-	/* Recall */
-	monster_race_track(m_ptr->r_idx);
-
-	/* Health bar */
-	health_track(selected_idx);
 }
 
 
@@ -1940,7 +2087,6 @@ void update_monsters(bool full)
 		update_mon(i, full);
 	}
 
-	autotrack();
 }
 
 
@@ -2207,6 +2353,8 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
 
+		if ((o_ptr->number + j_ptr->number) >= MAX_STACK_SIZE) continue;
+
 		/* Check for combination */
 		if (object_similar(o_ptr, j_ptr))
 		{
@@ -2253,6 +2401,26 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	return (o_idx);
 }
 
+/*
+ * Helper function for monster_swap.  When a player is being moved,
+ * returns true if the old terrain is a different terrain type than the new
+ * terrain.
+ */
+static bool player_terrain_changed(int y1, int x1, int y2, int x2)
+{
+	int feat1 = cave_feat[y1][x1];
+	int feat2 = cave_feat[y2][x2];
+	u32b elem_flags1 = feat_ff3_match(feat1, TERRAIN_MASK);
+	u32b elem_flags2 = feat_ff3_match(feat2, TERRAIN_MASK);
+
+	/* Different terrain type */
+	if (elem_flags1 != elem_flags2) return (TRUE);
+
+	/* Different damage level */
+	if (f_info[feat1].dam_non_native != f_info[feat2].dam_non_native) return (TRUE);
+
+	return(FALSE);
+}
 
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
@@ -2302,6 +2470,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	/* Player 1 */
 	else if (m1 < 0)
 	{
+		/* Check if we need to update the statusline */
+		if (player_terrain_changed(y1, x1, y2, x2)) p_ptr->redraw |= (PR_STATUS);
 
 		/* Move player */
 		p_ptr->py = y2;
@@ -2319,14 +2489,14 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/*Automatically track the feature the player is on unless player is tracking a feature*/
 		if ((!p_ptr->target_set) || (p_ptr->target_who != 0)) feature_kind_track(cave_feat[y2][x2]);
 
-		/* Update the panel and player stealth */
+		/* Update the trap detection status */
+		p_ptr->redraw |= (PR_DTRAP | PR_ITEMLIST);
+
+		/* Update the panel */
 		p_ptr->update |= (PU_PANEL | PU_STEALTH);
 
 		/* Update the visuals (and monster distances) */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_FEATURE);
 	}
 
 	/* Monster 2 */
@@ -2352,11 +2522,17 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 		/* Try to hide the monster */
 		monster_hide(m_ptr);
+
+		/* Redraw monster list */
+		p_ptr->redraw |= (PR_MONLIST);
 	}
 
 	/* Player 2 */
 	else if (m2 < 0)
 	{
+		/* Check if we need to update the statusline */
+		if (player_terrain_changed(y1, x1, y2, x2)) p_ptr->redraw |= (PR_STATUS);
+
 		/* Move player */
 		p_ptr->py = y1;
 		p_ptr->px = x1;
@@ -2373,6 +2549,9 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/*Automatically track the feature the player is on unless player is tracking a feature*/
 		if ((!p_ptr->target_set) || (p_ptr->target_who != 0)) feature_kind_track(cave_feat[y1][x1]);
 
+		/* Update the trap detection status */
+		p_ptr->redraw |= (PR_DTRAP | PR_ITEMLIST);
+
 		/* Update the panel and player stealth */
 		p_ptr->update |= (PU_PANEL | PU_STEALTH);
 
@@ -2380,12 +2559,12 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_DISTANCE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_MAP | PW_FEATURE);
+		p_ptr->redraw |= (PR_MAP | PR_FEATURE);
 	}
 
 	/* Redraw */
-	lite_spot(y1, x1);
-	lite_spot(y2, x2);
+	light_spot(y1, x1);
+	light_spot(y2, x2);
 }
 
 
@@ -2409,7 +2588,7 @@ s16b player_place(int y, int x)
 	feature_kind_track(cave_feat[y][x]);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_FEATURE);
+	p_ptr->redraw |= (PR_FEATURE);
 
 	/* Success */
 	return (-1);
@@ -2464,7 +2643,7 @@ void monster_hide(monster_type *m_ptr)
 			feature_desc(feat_name, sizeof(feat_name), feat, FALSE, TRUE);
 
 			/* Show a message */
-			if (m_ptr->csleep > 0)
+			if (m_ptr->m_timed[MON_TMD_SLEEP])
 			{
 				msg_c_format(MSG_HIDE_UNHIDE, "It seems that %s was engulfed by the %s.",
 					m_name, feat_name);
@@ -2473,13 +2652,14 @@ void monster_hide(monster_type *m_ptr)
 			{
 				msg_c_format(MSG_HIDE_UNHIDE, "%^s hides in the %s.", m_name, feat_name);
 			}
+
 		}
 
 		/* Mark the monster */
 		m_ptr->mflag |= (MFLAG_HIDE);
 
 		 /* Update 'monster list' window */
-		p_ptr->window |= PW_MONLIST;
+		p_ptr->redraw |= PR_MONLIST;
 
 		/* Update the graphics of the monster */
 		if (character_dungeon)
@@ -2490,7 +2670,7 @@ void monster_hide(monster_type *m_ptr)
 			update_mon((int)(m_ptr - mon_list), FALSE);
 
 			/* Hack -- Show a special character for hidden monsters */
-			if (seen && m_ptr->ml) lite_spot(y, x);
+			if (seen && m_ptr->ml) light_spot(y, x);
 		}
 	}
 }
@@ -2520,9 +2700,6 @@ void monster_unhide(monster_type *m_ptr)
 	/* Reveal the monster */
 	m_ptr->mflag &= ~(MFLAG_HIDE);
 
-	/* Update 'monster list' window */
-	p_ptr->window |= PW_MONLIST;
-
 	/* Remember visibility */
 	seen = m_ptr->ml;
 
@@ -2530,7 +2707,7 @@ void monster_unhide(monster_type *m_ptr)
 	update_mon((int)(m_ptr - mon_list), FALSE);
 
 	/* Hack -- Show a special character for hidden monsters */
-	if (seen && m_ptr->ml) lite_spot(y, x);
+	if (seen && m_ptr->ml) light_spot(y, x);
 
 	/* Hack --- tell the player if something unhides */
 	if ((cave_info[y][x] & (CAVE_MARK)) && m_ptr->ml && player_can_observe() &&
@@ -2562,6 +2739,9 @@ void monster_unhide(monster_type *m_ptr)
 		/* Notify */
 		msg_c_format(MSG_HIDE_UNHIDE, "%^s emerges from the %s.", m_name, feat_name);
 	}
+
+	/* Update 'monster list' window */
+	p_ptr->redraw |= PR_MONLIST;
 }
 
 
@@ -2697,8 +2877,8 @@ void calc_monster_speed(int y, int x)
 	}
 
 	/*factor in the hasting and slowing counters*/
-	if (m_ptr->hasted) speed += 10;
-	if (m_ptr->slowed) speed -= 10;
+	if (m_ptr->m_timed[MON_TMD_FAST]) speed += 10;
+	if (m_ptr->m_timed[MON_TMD_SLOW]) speed -= 10;
 
 	/*set the speed and return*/
 	m_ptr->mspeed = speed;
@@ -2706,95 +2886,7 @@ void calc_monster_speed(int y, int x)
 	return;
 }
 
-void set_monster_haste(s16b m_idx, s16b counter, bool message)
-{
-	/*get the monster at the given location*/
-	monster_type *m_ptr = &mon_list[m_idx];
 
-	bool recalc = FALSE;
-
-	char m_name[80];
-
-	/* Get monster name*/
-	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-	/*see if we need to recalculate speed*/
-	if (m_ptr->hasted)
-	{
-		/*monster is no longer hasted and speed needs to be recalculated*/
-		if (counter == 0)
-		{
-			recalc = TRUE;
-
-			/*give a message*/
-			if (message) msg_format("%^s slows down.", m_name);
-		}
-	}
-	else
-	{
-		/*monster is now hasted and speed needs to be recalculated*/
-		if (counter > 0)
-		{
-			recalc = TRUE;
-
-			/*give a message*/
-			if (message) msg_format("%^s starts moving faster.", m_name);
-		}
-	}
-
-	/*update the counter*/
-	m_ptr->hasted = counter;
-
-	/*re-calculate speed if necessary*/
-	if (recalc) calc_monster_speed(m_ptr->fy, m_ptr->fx);
-
-	return;
-}
-
-void set_monster_slow(s16b m_idx, s16b counter, bool message)
-{
-	/*get the monster at the given location*/
-	monster_type *m_ptr = &mon_list[m_idx];
-
-	bool recalc = FALSE;
-
-	char m_name[80];
-
-	/* Get monster name*/
-	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
-	/*see if we need to recalculate speed*/
-	if (m_ptr->slowed)
-	{
-		/*monster is no longer slowed and speed needs to be recalculated*/
-		if (counter == 0)
-		{
-			recalc = TRUE;
-
-			/*give a message*/
-			if (message) msg_format("%^s speeds up.", m_name);
-		}
-	}
-	else
-	{
-		/*monster is now slowed and speed needs to be recalculated*/
-		if (counter > 0)
-		{
-			recalc = TRUE;
-
-			/*give a message*/
-			if (message) msg_format("%^s starts moving slower.", m_name);
-		}
-	}
-
-	/*update the counter*/
-	m_ptr->slowed = counter;
-
-	/*re-calculate speed if necessary*/
-	if (recalc) calc_monster_speed(m_ptr->fy, m_ptr->fx);
-
-	return;
-}
 
 /*
  * Attempt to place a monster of the given race at the given location.
@@ -2936,7 +3028,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
 	{
-		n_ptr->csleep = rand_range((r_ptr->sleep + 1) / 2, r_ptr->sleep);
+		n_ptr->m_timed[MON_TMD_SLEEP] = rand_range((r_ptr->sleep + 1) / 2, r_ptr->sleep);
 	}
 
 	/* Assign maximal hitpoints */
@@ -2966,7 +3058,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		&& ((randint(5) + 30) > recent_failed_thefts))
 	{
 		/*make them all awake.....*/
-		n_ptr->csleep = 0;
+		n_ptr->m_timed[MON_TMD_SLEEP] = 0;
 
 		/*and wary*/
 		n_ptr->mflag |= (MFLAG_WARY);
@@ -2978,8 +3070,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		}
 
 		/*make all monster's faster*/
-		n_ptr->hasted = (recent_failed_thefts * 10) + rand_int(10);
+		n_ptr->m_timed[MON_TMD_FAST] = (recent_failed_thefts * 10) + rand_int(10);
 
+
+		/* If it just woke up, update the monster list */
+		p_ptr->redraw |= PR_MONLIST;
 	}
 
 	/* 75% non-unique monsters vary their speed*/
@@ -3183,15 +3278,15 @@ static bool place_monster_okay(int r_idx)
  */
 static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 {
-	int escort_size, escort_idx;
+	int escort_size;
 	int n, i;
+	s16b escort_monster_level = monster_level;
+	int escort_idx = 0;
 
 	/* Random direction */
 	int start;
 
 	monster_race *r_ptr = &r_info[leader_idx];
-
-	int level = r_ptr->level;
 
 	int hack_n = 0;
 
@@ -3218,7 +3313,21 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	get_mon_num_prep();
 
 	/* Build monster table, get index of first escort */
-	escort_idx = get_mon_num(monster_level, y, x);
+	escort_idx = get_mon_num(escort_monster_level, y, x);
+
+
+	while (!escort_idx)
+	{
+		/* Build monster table, get index of first escort */
+		escort_idx = get_mon_num(escort_monster_level, y, x);
+
+		/* No eligible escorts.  Try a slightly deeper depth if monster is out-of-depth */
+		if ((!escort_idx) && (escort_monster_level < r_ptr->level)) escort_monster_level++;
+
+		/* Avoid a game freeze if escorts aren't possible*/
+		else break;
+	}
+
 
 	/* Start on the monster */
 	hack_n = 1;
@@ -3267,7 +3376,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 			hack_n++;
 
 			/* Get index of the next escort */
-			escort_idx = get_mon_num(level, y, x);
+			escort_idx = get_mon_num(escort_monster_level, y, x);
 		}
 	}
 
@@ -3682,36 +3791,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 }
 
 
-/*
- * Change monster fear.
- *
- * Monsters can be frightened or panicking.  In both cases, they try to
- * retreat, but when actually panicking, they cannot cast spells that don't
- * either heal or move them.
- */
-void set_mon_fear(monster_type *m_ptr, int v, bool panic)
-{
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	/*hack - monsters who cannot be scared are unaffected*/
-	if (r_ptr->flags3 & (RF3_NO_FEAR)) v = 0;
-
-	/*clear the JUST_SCARED flag*/
-	if (v > m_ptr->monfear)	m_ptr->mflag |= (MFLAG_JUST_SCARED);
-
-	/* Set monfear */
-	m_ptr->monfear = v;
-
-	/* Monster is panicking */
-	if ((m_ptr->monfear) && (panic)) m_ptr->min_range = PANIC_RANGE;
-
-
-
-	/* Otherwise, reset monster combat ranges (later) */
-	else m_ptr->min_range = 0;
-}
-
-
 
 /*
  * Let the given monster attempt to reproduce.
@@ -3764,6 +3843,130 @@ bool multiply_monster(int m_idx)
  	return (result);
 }
 
+/*
+ * The NULL-terminated array of string actions used to format stacked messages.
+ * Singular and plural modifiers are encoded in the same string. Example:
+ * "[is|are] hurt" is expanded to "is hurt" if you request the singular form.
+ * The string is expanded to "are hurt" if the plural form is requested.
+ * The singular and plural parts are optional. Example:
+ * "rear[s] up in anger" only includes a modifier for the singular form.
+ * Any of these strings can start with "~", in which case we consider that
+ * string as a whole message, not as a part of a larger message. This
+ * is useful to display Moria-like death messages.
+ */
+static char *msg_repository[MAX_MON_MSG + 1] =
+{
+	/* Dummy action */
+	"[is|are] hurt.",    		/* MON_MSG_NONE */
+
+	/* From message_pain */
+	"[is|are] unharmed.",		/* MON_MSG_UNHARMED  */
+	"barely notice[s].",		/* MON_MSG_BARELY_NOTICE  */
+	"flinch[es].",				/*  MON_MSG_FLINCH */
+	"squelch[es].",				/* MON_MSG_SQUELCH  */
+	"quiver[s] in pain.",		/* MON_MSG_QUIVER  */
+	"writhe[s] about.",			/*  MON_MSG_WRITHE_ABOUT */
+	"writhe[s] in agony.",		/* MON_MSG_WRITHE_IN_AGONY  */
+	"jerk[s].",					/* MON_MSG_JERK  */
+	"jerk[s] limply.",			/*  MON_MSG_JERK_LIMPLY */
+	"jerk[s] in pain.",			/* MON_MSG_JERK_IN_PAIN  */
+	"jerk[s] in agony.",		/* MON_MSG_JERK_IN_AGONY  */
+	"jerk[s] feebly.", 			/* MON_MSG_JERK_FEEBLY */
+	"shrug[s] off the attack.",  /*  MON_MSG_SHRUG_OFF */
+	"snarl[s].",				/*  MON_MSG_SNARL */
+	"snarl[s] with pain.",		/* MON_MSG_SNARL_WITH_PAIN  */
+	"howl[s] in pain.",			/* MON_MSG_HOWL_IN_PAIN  */
+	"howl[s] in agony.",		/* MON_MSG_HOWL_IN_AGONY  */
+	"yelp[s] feebly.",			/* MON_MSG_YELP_FEEBLY  */
+	"yelp[s] in pain.",			/* MON_MSG_YELP_IN_PAIN  */
+	"hiss[es].",				/* MON_MSG_HISS  */
+	"hiss[es] furiously.",		/* MON_MSG_HISS_FURIOUSLY  */
+	"hiss[es] with pain.",		/* MON_MSG_HISS_WITH_PAIN  */
+	"hiss[es] in agony.",		/* MON_MSG_HISS_IN_AGONY  */
+	"rear[s] up in anger.",		/* MON_MSG_REAR_UP_IN_ANGER  */
+	"growl[s] angrily.",		/* MON_MSG_GROWL_ANGRILY  */
+	"mewl[s] in pain.",			/* MON_MSG_MEWL_IN_PAIN  */
+	"mewl[s] pitifully.",		/* MON_MSG_MEWL_PITIFULLY  */
+	"ignore[s] the attack.",	/* MON_MSG_IGNORE_ATTACK  */
+	"drone[s] angrily.",		/* MON_MSG_DRONE_ANGRILY  */
+	"scuttle[s] about.",		/* MON_MSG_SCUTTLE_ABOUT  */
+	"twitch[es] in pain.",		/* MON_MSG_TWITCH_IN_PAIN  */
+	"flap[s] angrily.",			/* MON_MSG_FLAP_ANGRILY  */
+	"jeer[s] in pain.",			/* MON_MSG_JEER_IN_PAIN  */
+	"squawk[s] with pain.",		/* MON_MSG_SQUAWK_WITH_PAIN  */
+	"twitter[s] in agony.",		/* MON_MSG_TWITTER_IN_AGONY  */
+	"flutter[s] about.",		/* MON_MSG_FLUTTER_ABOUT  */
+	"chirp[s] feebly.",			/* MON_MSG_CHIRP_FEEBLY  */
+	"rattle[s].",				/* MON_MSG_RATTLE  */
+	"clatter[s].",				/* MON_MSG_CLATTER  */
+	"shake[s].",				/* MON_MSG_SHAKE  */
+	"stagger[s].",				/* MON_MSG_STAGGER  */
+	"crumple[s].",				/* MON_MSG_CRUMPLE  */
+	"grunt[s].",				/* MON_MSG_GRUNT  */
+	"grunt[s] with pain.",		/* MON_MSG_GRUNT_WITH_PAIN  */
+	"moan[s].",					/* MON_MSG_MOAN  */
+	"groan[s].",				/* MON_MSG_GROAN  */
+	"hesitate[s].",				/* MON_MSG_HESITATE  */
+	"squeal[s] in pain.",		/* MON_MSG_SQUEAL_IN_PAIN  */
+	"shriek[s] in pain.",		/* MON_MSG_SHRIEK_IN_PAIN  */
+	"shriek[s] in agony.",		/* MON_MSG_SHRIEK_IN_AGONY  */
+	"cr[ies|y] out feebly.",	/* MON_MSG_CRY_OUT_FEEBLY  */
+	"cr[ies|y] out in pain.",	/* MON_MSG_CRY_OUT_IN_PAIN  */
+	"scream[s] in pain.",		/* MON_MSG_SCREAM_IN_PAIN  */
+	"scream[s] in agony.",		/* MON_MSG_SCREAM_IN_AGONY  */
+	"[is|are] sterilized.",		/* MON_MSG_STERILIZE  */
+
+	/* From project_m */ 		/* MON_MSG_DIE */
+	"die[s].",   				/* MON_MSG_DIE  */
+	"[is|are] destroyed.",		/* MON_MSG_DESTROYED */
+	"resist[s] a lot.",			/* MON_MSG_RESIST_A_LOT */
+	"[is|are] hit hard.",		/* MON_MSG_HIT_HARD */
+	"resist[s].",				/* MON_MSG_RESIST */
+	"[is|are] immune.",			/* MON_MSG_IMMUNE */
+	"resist[s] somewhat.",		/* MON_MSG_RESIST_SOMEWHAT */
+	"[is|are] unaffected!",		/* MON_MSG_UNAFFECTED */
+	"spawn[s]!",				/* MON_MSG_SPAWN */
+	"look[s] healthier.",		/* MON_MSG_HEALTHIER */
+	"fall[s] asleep!",			/* MON_MSG_FALL_ASLEEP */
+	"wake[s] up.",				/* MON_MSG_WAKES_UP */
+	"cringe[s] from the light!",/* MON_MSG_CRINGE_LIGHT */
+	"shrivel[s] away in the light!",	/* MON_MSG_SHRIVEL_LIGHT */
+	"lose[s] some skin!",		/* MON_MSG_LOSE_SKIN */
+	"dissolve[s]!",				/* MON_MSG_DISSOLVE */
+	"catch[es] fire!",			/* MON_MSG_CATCH_FIRE */
+	"[is|are] badly frozen.", 	 /* MON_MSG_BADLY_FROZEN */
+	"shudder[s].",				/* MON_MSG_SHUDDER */
+	"become[s] aware of your crafty abilities.",/* MON_MSG_AWARE_OF_CRAFTY_ABILITIES */
+	"take[s] heed of your cunning tactics.",/* MON_MSG_AWARE_OF_CUNNING_TACTICS  */
+	"sense[s] your crafty abilities.",  /* MON_MSG_SENSE_CRAFTY_ABILITIES */
+	"sense[s] you are a cunning foe.",	/* MON_MSG_SENSE_CUNNING_FOE */
+	"change[s]!",				/* MON_MSG_CHANGE */
+	"disappear[s]!",			/* MON_MSG_DISAPPEAR */
+	"[is|are] even more stunned.",		/* MON_MSG_MORE_DAZED */
+	"[is|are] stunned.",		/* MON_MSG_DAZED*/
+	"[is|are] no longer stunned.",	/* MON_MSG_NOT_DAZED */
+	"look[s] more confused.",	/* MON_MSG_MORE_CONFUSED */
+	"look[s] confused.",		/* MON_MSG_CONFUSED */
+	"[is|are] no longer confused.",/* MON_MSG_NOT_CONFUSED */
+	"look[s] more slowed.",		/* MON_MSG_MORE_SLOWED */
+	"look[s] slowed.",			/* MON_MSG_SLOWED */
+	"speed[s] up.",				/* MON_SNG_NOT_SLOWED */
+	"look[s] more hasted.",		/* MON_MSG_MORE_HASTED */
+	"look[s] hasted.",			/* MON_MSG_HASTED */
+	"[is|are] no longer hasted.",/* MON_MSG_NOT_HASTED */
+	"look[s] more terrified!",	/* MON_MSG_MORE_AFRAID */
+	"flee[s] in terror!",		/* MON_MSG_FLEE_IN_TERROR */
+	"[is|are] no longer afraid.",/* MON_MSG_NOT_AFRAID */
+	"~You hear [a|several] scream[|s] of agony!",/* MON_MSG_MORIA_DEATH */
+	"disintegrates!",		/* MON_MSG_DISENTEGRATES */
+	"freez[es] and shatter[s]",  /* MON_MSG_FREEZE_SHATTER */
+	"lose[s] some mana!",		/* MON_MSG_MANA_DRAIN */
+
+
+	NULL						/* MAX_MON_MSG */
+};
+
+
 
 /*
  * Dump a message describing a monster's reaction to damage
@@ -3778,7 +3981,7 @@ void message_pain(int m_idx, int dam)
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	byte msg_code = MON_MSG_UNHARMED;
+	int msg_code = MON_MSG_UNHARMED;
 
 	char m_name[80];
 
@@ -3788,7 +3991,7 @@ void message_pain(int m_idx, int dam)
 	/* Notice non-damage */
 	if (dam == 0)
 	{
-		add_monster_message(m_name, m_ptr->r_idx, msg_code);
+		add_monster_message(m_name, m_idx, msg_code);
 
 		return;
 	}
@@ -3992,120 +4195,14 @@ void message_pain(int m_idx, int dam)
 	}
 
 	/* Save the message for later */
-	add_monster_message(m_name, m_ptr->r_idx, msg_code);
+	add_monster_message(m_name, m_idx, msg_code);
 }
 
 
-/*
- * The NULL-terminated array of string actions used to format stacked messages.
- * Singular and plural modifiers are encoded in the same string. Example:
- * "[is|are] hurt" is expanded to "is hurt" if you request the singular form.
- * The string is expanded to "are hurt" if the plural form is requested.
- * The singular and plural parts are optional. Example:
- * "rear[s] up in anger" only includes a modifier for the singular form.
- * Any of these strings can start with "~", in which case we consider that
- * string as a whole message, not as a part of a larger message. This
- * is useful to display Moria-like death messages.
- */
-static char *msg_repository[MAX_MON_MSG + 1] =
-{
-	/* Dummy action */
-	"[is|are] hurt.",
-
-	/* From project_m */
-	"die[s].",
-	"[is|are] destroyed.",
-	"resist[s] a lot.",
-	"[is|are] hit hard.",
-	"resist[s].",
-	"[is|are] immune.",
-	"resist[s] somewhat.",
-	"[is|are] unaffected!",
-	"spawn[s]!",
-	"look[s] healthier.",
-	"fall[s] asleep!",
-	"cringe[s] from the light!",
-	"shrivel[s] away in the light!",
-	"lose[s] some skin!",
-	"dissolve[s]!",
-	"shudder[s].",
-	"become[s] aware of your crafty abilities.",
-	"take[s] heed of your cunning tactics.",
-	"sense[s] your crafty abilities.",
-	"sense[s] you are a cunning foe.",
-	"change[s]!",
-	"disappear[s]!",
-	"[is|are] more dazed.",
-	"[is|are] dazed.",
-	"look[s] more confused.",
-	"look[s] confused.",
-	"flee[s] in terror!",
-	"~You hear [a|several] scream[|s] of agony!",
-	"lose[s] some mana!",
-
-	/* From message_pain */
-	"[is|are] unharmed.",
-	"barely notice[s].",
-	"flinch[es].",
-	"squelch[es].",
-	"quiver[s] in pain.",
-	"writhe[s] about.",
-	"writhe[s] in agony.",
-	"jerk[s].",
-	"jerk[s] limply.",
-	"jerk[s] in pain.",
-	"jerk[s] in agony.",
-	"jerk[s] feebly.",
-	"shrug[s] off the attack.",
-	"snarl[s].",
-	"snarl[s] with pain.",
-	"howl[s] in pain.",
-	"howl[s] in agony.",
-	"yelp[s] feebly.",
-	"yelp[s] in pain.",
-	"hiss[es].",
-	"hiss[es] furiously.",
-	"hiss[es] with pain.",
-	"hiss[es] in agony.",
-	"rear[s] up in anger.",
-	"growl[s] angrily.",
-	"mewl[s] in pain.",
-	"mewl[s] pitifully.",
-	"ignore[s] the attack.",
-	"drone[s] angrily.",
-	"scuttle[s] about.",
-	"twitch[es] in pain.",
-	"flap[s] angrily.",
-	"jeer[s] in pain.",
-	"squawk[s] with pain.",
-	"twitter[s] in agony.",
-	"flutter[s] about.",
-	"chirp[s] feebly.",
-	"rattle[s].",
-	"clatter[s].",
-	"shake[s].",
-	"stagger[s].",
-	"crumple[s].",
-	"grunt[s].",
-	"grunt[s] with pain.",
-	"moan[s].",
-	"groan[s].",
-	"hesitate[s].",
-	"squeal[s] in pain.",
-	"shriek[s] in pain.",
-	"shriek[s] in agony.",
-	"cr[ies|y] out feebly.",
-	"cr[ies|y] out in pain.",
-	"scream[s] in pain.",
-	"scream[s] in agony.",
-	"[is|are] sterilized.",
-
-	NULL
-};
 
 
-#define SINGULAR	1
-#define PLURAL		2
+#define SINGULAR_MON	1
+#define PLURAL_MON		2
 
 /*
  * Returns a pointer to a statically allocatted string containing a formatted
@@ -4118,7 +4215,7 @@ static char *get_mon_msg_action(byte msg_code, bool do_plural)
 	static char buf[200];
 	char *action;
 
-	int n = 0;
+	u16b n = 0;
 	/* Regular text */
 	byte flag = 0;
 
@@ -4145,21 +4242,21 @@ static char *get_mon_msg_action(byte msg_code, bool do_plural)
 			if (*action == '|')
 			{
 				/* Switch to plural modifier */
-				flag = PLURAL;
+				flag = PLURAL_MON;
 
 				/* Skip the mark */
 				continue;
 			}
 
 			/* Ignore the character if we need the other part */
-			if ((flag == PLURAL) != do_plural) continue;
+			if ((flag == PLURAL_MON) != do_plural) continue;
 		}
 
 		/* Do we need to parse a new quantity modifier? */
 		else if (*action == '[')
 		{
 			/* Switch to singular modifier */
-			flag = SINGULAR;
+			flag = SINGULAR_MON;
 
 			/* Skip the mark */
 			continue;
@@ -4211,6 +4308,34 @@ static void play_mon_msg_sound(u16b r_idx, byte msg_code)
 	}
 }
 
+/*
+ * Tracks which monster has had which pain message stored, so redundant messages
+ * don't happen due to monster attacks hitting other monsters.
+ * Returns TRUE if the message is redundant.
+ */
+static bool redundant_monster_message(int m_idx, int msg_code)
+{
+	int i;
+
+	/* No messages yet */
+	if (!size_mon_hist) return FALSE;
+
+	for (i = 0; i < size_mon_hist; i++)
+	{
+		/* Not the same monster */
+		if (m_idx != mon_message_hist[i].monster_idx) continue;
+
+		/* Not the same code */
+		if (msg_code != mon_message_hist[i].message_code) continue;
+
+		/* We have a match. */
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
 
 /*
  * Stack a codified message for the given monster race. You must supply
@@ -4218,10 +4343,15 @@ static void play_mon_msg_sound(u16b r_idx, byte msg_code)
  * different monster descriptions for the same race.
  * Return TRUE on success.
  */
-bool add_monster_message(char *mon_name, s16b r_idx, byte msg_code)
+bool add_monster_message(char *mon_name, int m_idx, int msg_code)
 {
 	int i;
 	byte mon_flags = 0;
+
+	monster_type *m_ptr = &mon_list[m_idx];
+	int r_idx = m_ptr->r_idx;
+
+	if (redundant_monster_message(m_idx, msg_code)) return (FALSE);
 
 	/* Paranoia */
 	if (!mon_name || !mon_name[0]) mon_name = "it";
@@ -4272,6 +4402,14 @@ bool add_monster_message(char *mon_name, s16b r_idx, byte msg_code)
 	/* One more entry */
 	++size_mon_msg;
 
+	p_ptr->notice |= PN_MON_MESSAGE;
+
+	/* record which monster had this message stored */
+	if (size_mon_hist >= MAX_STORED_MON_CODES) return (TRUE);
+	mon_message_hist[size_mon_hist].monster_idx = m_idx;
+	mon_message_hist[size_mon_hist].message_code = msg_code;
+	size_mon_hist++;
+
 	/* Success */
 	return (TRUE);
 }
@@ -4289,6 +4427,9 @@ void flush_monster_messages(void)
 	char buf[512];
 	char *action;
 	bool action_only;
+
+	/* We use either ascii or system-specific encoding */
+	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
 	/* Show every message */
 	for (i = 0; i < size_mon_msg; i++)
@@ -4346,7 +4487,7 @@ void flush_monster_messages(void)
 			else if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				/* Just copy the race name */
-				my_strcpy(buf, race_name, sizeof(buf));
+				my_strcpy(buf, (r_name + r_ptr->name), sizeof(buf));
 			}
 			/* We have more than one monster */
 			else if (count > 1)
@@ -4395,11 +4536,15 @@ void flush_monster_messages(void)
 			if (mon_msg[i].mon_flags & 0x02) my_strcat(buf, " (offscreen)", sizeof(buf));
 
 			/* Add the separator */
-		       	my_strcat(buf, " ", sizeof(buf));
+		    my_strcat(buf, " ", sizeof(buf));
 		}
 
 		/* Append the action to the message */
 		my_strcat(buf, action, sizeof(buf));
+
+		/* Translate to accented characters */
+		/* Translate the note to the desired encoding */
+		xstr_trans(buf, encoding);
 
 		/* Capitalize the message */
 		*buf = my_toupper((unsigned char)*buf);
@@ -4408,11 +4553,12 @@ void flush_monster_messages(void)
 		play_mon_msg_sound(r_idx, mon_msg[i].msg_code);
 
 		/* Show the message */
-		msg_print_raw(buf);
+		msg_print(buf);
 	}
 
-	/* Delete all the stacked messages */
+	/* Delete all the stacked messages and history */
 	size_mon_msg = 0;
+	size_mon_hist = 0;
 }
 
 
@@ -4447,11 +4593,11 @@ void flush_monster_messages(void)
 		/* Slow/paralyze attacks learn about free action and saving throws */
 		case LRN_FREE_SAVE:
  		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
- 			if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
+ 			if (p_ptr->state.free_act) m_ptr->smart |= (SM_IMM_FREE);
 			else m_ptr->smart &= ~(SM_IMM_FREE);
  			break;
  		}
@@ -4467,11 +4613,11 @@ void flush_monster_messages(void)
 		/* Acid attacks learn about Acid resists and immunities */
 		case LRN_ACID:
  		{
- 			if (p_ptr->resist_acid) m_ptr->smart |= (SM_RES_ACID);
+ 			if (p_ptr->state.resist_acid) m_ptr->smart |= (SM_RES_ACID);
 			else m_ptr->smart &= ~(SM_RES_ACID);
- 			if (p_ptr->oppose_acid) m_ptr->smart |= (SM_OPP_ACID);
+ 			if (p_ptr->timed[TMD_OPP_ACID]) m_ptr->smart |= (SM_OPP_ACID);
 			else m_ptr->smart &= ~(SM_OPP_ACID);
- 			if (p_ptr->immune_acid) m_ptr->smart |= (SM_IMM_ACID);
+ 			if (p_ptr->state.immune_acid) m_ptr->smart |= (SM_IMM_ACID);
 			else m_ptr->smart &= ~(SM_IMM_ACID);
  			break;
  		}
@@ -4479,11 +4625,11 @@ void flush_monster_messages(void)
 		/* Electircal attacks learn about Electrical resists and immunities */
 		case LRN_ELEC:
  		{
- 			if (p_ptr->resist_elec) m_ptr->smart |= (SM_RES_ELEC);
+ 			if (p_ptr->state.resist_elec) m_ptr->smart |= (SM_RES_ELEC);
 			else m_ptr->smart &= ~(SM_RES_ELEC);
- 			if (p_ptr->oppose_elec) m_ptr->smart |= (SM_OPP_ELEC);
+ 			if (p_ptr->timed[TMD_OPP_ELEC]) m_ptr->smart |= (SM_OPP_ELEC);
 			else m_ptr->smart &= ~(SM_OPP_ELEC);
- 			if (p_ptr->immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
+ 			if (p_ptr->state.immune_elec) m_ptr->smart |= (SM_IMM_ELEC);
 			else m_ptr->smart &= ~(SM_IMM_ELEC);
  			break;
  		}
@@ -4491,11 +4637,11 @@ void flush_monster_messages(void)
 		/* Fire attacks learn about Fire resists and immunities */
 		case LRN_FIRE:
  		{
- 			if (p_ptr->resist_fire) m_ptr->smart |= (SM_RES_FIRE);
+ 			if (p_ptr->state.resist_fire) m_ptr->smart |= (SM_RES_FIRE);
 			else m_ptr->smart &= ~(SM_RES_FIRE);
- 			if (p_ptr->oppose_fire) m_ptr->smart |= (SM_OPP_FIRE);
+ 			if (p_ptr->timed[TMD_OPP_FIRE]) m_ptr->smart |= (SM_OPP_FIRE);
 			else m_ptr->smart &= ~(SM_OPP_FIRE);
- 			if (p_ptr->immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
+ 			if (p_ptr->state.immune_fire) m_ptr->smart |= (SM_IMM_FIRE);
 			else m_ptr->smart &= ~(SM_IMM_FIRE);
  			break;
  		}
@@ -4503,11 +4649,11 @@ void flush_monster_messages(void)
 		/* Cold attacks learn about Cold resists and immunities */
 		case LRN_COLD:
  		{
- 			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+ 			if (p_ptr->state.resist_cold) m_ptr->smart |= (SM_RES_COLD);
 			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			if (p_ptr->timed[TMD_OPP_COLD]) m_ptr->smart |= (SM_OPP_COLD);
 			else m_ptr->smart &= ~(SM_OPP_COLD);
- 			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+ 			if (p_ptr->state.immune_cold) m_ptr->smart |= (SM_IMM_COLD);
 			else m_ptr->smart &= ~(SM_IMM_COLD);
  			break;
  		}
@@ -4515,11 +4661,11 @@ void flush_monster_messages(void)
 		/* Poison attacks learn about Poison resists */
 		case LRN_POIS:
  		{
- 			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+ 			if (p_ptr->state.resist_pois) m_ptr->smart |= (SM_RES_POIS);
 			else m_ptr->smart &= ~(SM_RES_POIS);
- 			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+ 			if (p_ptr->timed[TMD_OPP_POIS]) m_ptr->smart |= (SM_OPP_POIS);
 			else m_ptr->smart &= ~(SM_OPP_POIS);
-			if (p_ptr->immune_pois) m_ptr->smart |= (SM_IMM_POIS);
+			if (p_ptr->state.immune_pois) m_ptr->smart |= (SM_IMM_POIS);
 			else m_ptr->smart &= ~(SM_IMM_POIS);
  			break;
  		}
@@ -4527,21 +4673,21 @@ void flush_monster_messages(void)
 		/* Fear attacks learn about resist fear and saving throws */
 		case LRN_FEAR_SAVE:
  		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
- 			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+ 			if (p_ptr->state.resist_fear) m_ptr->smart |= (SM_RES_FEAR);
 			else m_ptr->smart &= ~(SM_RES_FEAR);
  			break;
  		}
 
 		/* Light attacks learn about light and blindness resistance */
-		case LRN_LITE:
+		case LRN_LIGHT:
  		{
- 			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
-			else m_ptr->smart &= ~(SM_RES_LITE);
-			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+ 			if (p_ptr->state.resist_light) m_ptr->smart |= (SM_RES_LIGHT);
+			else m_ptr->smart &= ~(SM_RES_LIGHT);
+			if (p_ptr->state.resist_blind) m_ptr->smart |= (SM_RES_BLIND);
 			else m_ptr->smart &= ~(SM_RES_BLIND);
  			break;
  		}
@@ -4549,9 +4695,9 @@ void flush_monster_messages(void)
 		/* Darkness attacks learn about dark and blindness resistance */
 		case LRN_DARK:
  		{
- 			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
+ 			if (p_ptr->state.resist_dark) m_ptr->smart |= (SM_RES_DARK);
 			else m_ptr->smart &= ~(SM_RES_DARK);
-			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			if (p_ptr->state.resist_blind) m_ptr->smart |= (SM_RES_BLIND);
 			else m_ptr->smart &= ~(SM_RES_BLIND);
  			break;
  		}
@@ -4562,7 +4708,7 @@ void flush_monster_messages(void)
 		 */
 		case LRN_BLIND:
  		{
- 			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+ 			if (p_ptr->state.resist_blind) m_ptr->smart |= (SM_RES_BLIND);
 			else m_ptr->smart &= ~(SM_RES_BLIND);
  			break;
  		}
@@ -4573,7 +4719,7 @@ void flush_monster_messages(void)
 		 */
 		case LRN_CONFU:
  		{
- 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+ 			if (p_ptr->state.resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
  			break;
  		}
@@ -4584,7 +4730,7 @@ void flush_monster_messages(void)
 		 */
 		case LRN_SOUND:
  		{
- 			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+ 			if (p_ptr->state.resist_sound) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
  			break;
  		}
@@ -4592,7 +4738,7 @@ void flush_monster_messages(void)
 		/* Shards attacks learn about shards resistance */
 		case LRN_SHARD:
  		{
-			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			if (p_ptr->state.resist_shard) m_ptr->smart |= (SM_RES_SHARD);
 			else m_ptr->smart &= ~(SM_RES_SHARD);
  			break;
  		}
@@ -4603,7 +4749,7 @@ void flush_monster_messages(void)
 		 */
 		case LRN_NEXUS:
  		{
- 			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+ 			if (p_ptr->state.resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
 			else m_ptr->smart &= ~(SM_RES_NEXUS);
  			break;
  		}
@@ -4611,7 +4757,7 @@ void flush_monster_messages(void)
 		/* Nether attacks learn about Nether resistance */
 		case LRN_NETHR:
  		{
- 			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+ 			if (p_ptr->state.resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
 			else m_ptr->smart &= ~(SM_RES_NETHR);
  			break;
  		}
@@ -4619,11 +4765,11 @@ void flush_monster_messages(void)
 		/* Chaos attacks learn about Chaos, Confusion and Nether resistance */
 		case LRN_CHAOS:
  		{
- 			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
+ 			if (p_ptr->state.resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
 			else m_ptr->smart &= ~(SM_RES_CHAOS);
-			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
+			if (p_ptr->state.resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
 			else m_ptr->smart &= ~(SM_RES_NETHR);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_ptr->state.resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
  			break;
  		}
@@ -4631,7 +4777,7 @@ void flush_monster_messages(void)
 		/* Disenchantment attacks learn about disenchantment resistance */
 		case LRN_DISEN:
  		{
- 			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
+ 			if (p_ptr->state.resist_disen) m_ptr->smart |= (SM_RES_DISEN);
 			else m_ptr->smart &= ~(SM_RES_DISEN);
  			break;
  		}
@@ -4639,9 +4785,9 @@ void flush_monster_messages(void)
 		/* Some attacks learn only about saving throws (cause wounds, etc) */
 		case LRN_SAVE:
 		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
 		}
 
@@ -4654,11 +4800,11 @@ void flush_monster_messages(void)
 		/* Poison archery attacks learn about poison resists */
 		case LRN_PARCH:
 		{
-			if (p_ptr->resist_pois) m_ptr->smart |= (SM_RES_POIS);
+			if (p_ptr->state.resist_pois) m_ptr->smart |= (SM_RES_POIS);
 			else m_ptr->smart &= ~(SM_RES_POIS);
-			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
+			if (p_ptr->timed[TMD_OPP_POIS]) m_ptr->smart |= (SM_OPP_POIS);
 			else m_ptr->smart &= ~(SM_OPP_POIS);
-			if (p_ptr->immune_pois) m_ptr->smart |= (SM_IMM_POIS);
+			if (p_ptr->state.immune_pois) m_ptr->smart |= (SM_IMM_POIS);
 			else m_ptr->smart &= ~(SM_IMM_POIS);
 			break;
 		}
@@ -4666,22 +4812,22 @@ void flush_monster_messages(void)
 		/* Ice attacks learn aboyt sound/shards/cold resists and cold immunity */
 		case LRN_ICE:
 		{
-			if (p_ptr->resist_cold) m_ptr->smart |= (SM_RES_COLD);
+			if (p_ptr->state.resist_cold) m_ptr->smart |= (SM_RES_COLD);
 			else m_ptr->smart &= ~(SM_RES_COLD);
-			if (p_ptr->oppose_cold) m_ptr->smart |= (SM_OPP_COLD);
+			if (p_ptr->timed[TMD_OPP_COLD]) m_ptr->smart |= (SM_OPP_COLD);
 			else m_ptr->smart &= ~(SM_OPP_COLD);
-			if (p_ptr->immune_cold) m_ptr->smart |= (SM_IMM_COLD);
+			if (p_ptr->state.immune_cold) m_ptr->smart |= (SM_IMM_COLD);
 			else m_ptr->smart &= ~(SM_IMM_COLD);
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_ptr->state.resist_sound) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
+			if (p_ptr->state.resist_shard) m_ptr->smart |= (SM_RES_SHARD);
 			break;
 		}
 
 		/* Plasma attacks learn about sound */
 		case LRN_PLAS:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_ptr->state.resist_sound) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
 			break;
 		}
@@ -4692,7 +4838,7 @@ void flush_monster_messages(void)
 		 */
 		case LRN_SOUND2:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_ptr->state.resist_sound) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
 			break;
 		}
@@ -4701,9 +4847,9 @@ void flush_monster_messages(void)
 		case LRN_STORM:
 		case LRN_WATER:
 		{
-			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
+			if (p_ptr->state.resist_sound) m_ptr->smart |= (SM_RES_SOUND);
 			else m_ptr->smart &= ~(SM_RES_SOUND);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_ptr->state.resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 		}
 
@@ -4713,11 +4859,11 @@ void flush_monster_messages(void)
 		 */
 		case LRN_NEXUS_SAVE:
 		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
+			if (p_ptr->state.resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
 			break;
 		}
 
@@ -4727,11 +4873,11 @@ void flush_monster_messages(void)
 		 */
 		case LRN_BLIND_SAVE:
 		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_blind) m_ptr->smart |= (SM_RES_BLIND);
+			if (p_ptr->state.resist_blind) m_ptr->smart |= (SM_RES_BLIND);
 			break;
 		}
 
@@ -4741,16 +4887,17 @@ void flush_monster_messages(void)
 		 */
 		case LRN_CONFU_SAVE:
 		{
-			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
-			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
+			if (p_ptr->state.skills[SKILL_SAVE] >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
-			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
+			if (p_ptr->state.resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
 			break;
 		}
 	}
 }
+
 
 /*
  * Remove the bones file of the current player ghost from the file system.
@@ -4778,4 +4925,5 @@ void delete_current_bones_file(void)
 		bones_selector = 0;
 	}
 }
+
 

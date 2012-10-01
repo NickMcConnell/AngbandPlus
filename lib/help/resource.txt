@@ -42,4 +42,3 @@ servers (note:  You do have to use a worldirc server).  Then join the channel
 channel is always occupied).
 
 
-

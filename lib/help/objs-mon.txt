@@ -28,7 +28,7 @@ Scanning wargear automatically (Pseudo-ID):
 armour).  If you learn something, the item is inscribed.
 
      Item description               weak sensing            strong sensing
-     average item:                  (no inscription)        "average"
+     average item:                  (item is identified)    (item is identified)
      item with plusses              "good"                  "good"
      ego-item (weapon of flame)     "good"                  "excellent"
      artifact (unique item)         "good"                  "special"
@@ -93,10 +93,10 @@ when you wield new ammo) Fixed pseudo-tags appears as "@f1", "@f7", etc.
      Players who use the CTRL-V command (repeat last command) instead of macros
 to deal with shooting will note that the 'f'ire command is more careful now and
 it doesn't use the next slot automatically when a whole stack of ammo is shot.
-     You'll notice that ammo on the floor is automatically wielded if it can
-be combined with existing ammo in the quiver. You can also use the "=g"
-inscription to pick up ammo and place it in the quiver regardless of the
-existence of matching ammo in the quiver.
+     You'll notice that ammo on the floor is automatically wielded if it has
+been fired from, or can be merged with ith existing ammo in the quiver. 
+You can also use the "=g" inscription to pick up ammo and place it in the quiver 
+regardless of the existence of matching ammo in the quiver.
      Throwing weapons can be put in the quiver too. You must inscribe the
 throwing weapon with "@v", "@v1", "@v2", etc. before wielding it. If the
 weapon doesn't contain one of those inscriptions it will be put in the main
@@ -282,7 +282,5 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Blows : Monsters can do great damage and inflict nasty effects in melee.
      - Flying: Some monsters have the ability to fly, and will do do when it 
        allows them to move more quickly through the dungeon.
-
-
 
 

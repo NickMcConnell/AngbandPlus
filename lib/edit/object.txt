@@ -26,15 +26,51 @@
 # include articles and pluralization as necessary to ensure
 # grammatical correctness in object descriptions.
 
-# 'G' is for graphics - symbol and color. There are 15 colors, as
-# follows:
+# 'G' is for graphics - symbol and color. There are 37 colors, 
+# with up to 256 customizable colors, as follows:
 
-# D - Dark Gray    w - White          s - Gray          o - Orange
-# r - Red          g - Green          b - Blue          u - Brown
-# W - Light Gray   v - Violet         y - Yellow        R - Light Red
-# G - Light Green  B - Light Blue     U - Light Brown
-# Another color, 'd', is used for ' flavoured' items.
-
+# b  - Blue
+# b1 - Navy Blue 
+# B  - Light Blue 
+# B1 - Deep Sky Blue
+# d  - Black(default background)
+# D  - Dark Gray (Light Dark)
+# D1 - Taupe (Light Gray Shaded
+# g  - Green
+# G  - Light Green
+# g1 - Jungle Green
+# G1 - Lime Green (bright green)
+# o  - Orange
+# o1 - Light Orange (Orange Peel)
+# 02 - Mahagony
+# r  - Red
+# R  - Light Red
+# r1 - Lava Red
+# R1 - Light Red (raspberry)
+# R2 - Pink
+# s  - Slate (gray)
+# s1 - Slate Gray (light slate)
+# s2 - Silver
+# u  - Brown
+# U  - Light Brown
+# u1 - Auburn (brown shaded)
+# U1 - Fallow (light brown shaded)
+# u2 - Copper
+# v  - Violet
+# v1 - Violet shaded
+# w  - White
+# W  - Light gray (white shaded)
+# w1 - Snow White
+# W1 - Light White (Light Gray shaded)
+# y  - yellow
+# y1 - Maize (yellow shaded)
+# y2 - Gold
+#       
+# (note that black is the same color as the screen background, and
+# thus anything will appear to be an empty black space if its
+# color is d.)
+#       
+#       
 # 'I' is for basic information. The tval is for the type of item, the
 # sval identifies the subtype and the pval indicates the amount of
 # effect the item has, if applicable (a fixed value: variable pvals
@@ -73,7 +109,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.2
 
 
 ##### Non-kind (contains the 'pile' picture) #####
@@ -251,7 +287,7 @@ F:INSTA_ART
 
 
 N:16:& Ring~
-G:=:y2
+G:=:y
 I:45:37:0
 W:100:0:2:5000000
 P:0:0d0:0:0:0
@@ -260,7 +296,9 @@ F:INSTA_ART
 
 # XXX Record17 is unused XXX #
 
+
 # XXX Record18 is unused XXX #
+
 
 
 ##### Morgoth Artifacts #####
@@ -507,14 +545,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A set of armor made from the scales of a young dragon.
 
 
-N:47:Medium Dragon Scale Mail~
+N:47:Mature Dragon Scale Mail~
 G:[:U
 I:38:2:0
 W:40:0:100:30000
 P:12:1d1:-2:0:10
 A:40/16
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:A set of armor made from the scales of a medium dragon.
+D:A set of armor made from the scales of a mature dragon.
 
 
 N:48:Ancient Dragon Scale Mail~
@@ -547,14 +585,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A shield made from the scales of a young dragon.
 
 
-N:51:Medium Dragon Scale Shield~
+N:51:Mature Dragon Scale Shield~
 G:):U
 I:41:2:0
 W:40:0:40:20000
 P:7:1d1:0:0:5
 A:40/16
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:A shield made from the scales of a medium dragon.
+D:A shield made from the scales of a mature dragon.
 
 
 N:52:Ancient Dragon Scale Shield~
@@ -1038,7 +1076,7 @@ A:45/1
 
 
 N:104:& Golden Crown~
-G:]:y2
+G:]:y
 I:33:11:0
 W:45:0:30:1000
 P:0:1d1:0:0:0
@@ -1135,7 +1173,7 @@ D:It can be shot with a sling.
 N:114:& Iron Shot~
 G:{:s
 I:16:1:0
-W:3:0:5:2
+W:1:0:5:2
 P:0:1d4:0:0:0
 A:1/1:15/1:40/2
 F:SHOW_MODS
@@ -1426,7 +1464,7 @@ W:70:0:3:30000
 P:0:0d0:0:0:0
 A:65/8
 F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FIRE
-F:RES_LITE | RES_DARK | LITE | HOLD_LIFE | HIDE_TYPE
+F:RES_LIGHT | RES_DARK | LIGHT | HOLD_LIFE | HIDE_TYPE
 
 
 N:144:Weaponmastery
@@ -2222,7 +2260,7 @@ W:3:0:10:200
 P:0:1d1:0:0:0
 A:3/1
 D:It fires a magic missile that inflicts 3d4 points of damage, with a
-D: 20% chance of getting a magic beam. 
+D: 20 percent chance of getting a magic beam. 
 
 
 N:226:Acid Bolts
@@ -2231,8 +2269,8 @@ I:65:16:0
 W:30:0:10:950
 P:0:1d1:0:0:0
 A:30/1
-D:It shoots an acid bolt that inflicts 10d8 points of damage, with a 20%
-D: chance of getting an acid beam. 
+D:It shoots an acid bolt that inflicts 10d8 points of damage, with a 20 
+D: percent chance of getting an acid beam. 
 
 
 N:227:Lightning Bolts
@@ -2242,7 +2280,7 @@ W:15:0:10:600
 P:0:1d1:0:0:0
 A:15/1
 D:It shoots a lightning bolt that inflicts 6d6 points of damage, with a
-D: 20% chance of getting a lightning beam. 
+D: 20 percent chance of getting a lightning beam. 
 
 
 N:228:Fire Bolts
@@ -2251,8 +2289,8 @@ I:65:18:0
 W:30:0:10:1000
 P:0:1d1:0:0:0
 A:30/1
-D:It shoots a fire bolt that inflicts 12d8 points of damage, with a 20%
-D: chance of getting a fire beam. 
+D:It shoots a fire bolt that inflicts 12d8 points of damage, with a 20
+D: percent chance of getting a fire beam. 
 
 
 N:229:Frost Bolts
@@ -2261,8 +2299,8 @@ I:65:19:0
 W:20:0:10:800
 P:0:1d1:0:0:0
 A:20/1
-D:It shoots a frost bolt that inflicts 6d8 points of damage, with a 20%
-D: chance of getting a cold beam. 
+D:It shoots a frost bolt that inflicts 6d8 points of damage, with a 20 
+D: percent chance of getting a cold beam. 
 
 
 N:230:Acid Balls
@@ -2595,8 +2633,8 @@ W:40:0:15:3500
 P:0:1d1:0:0:0
 A:40/1
 F:EASY_KNOW
-D:It shoots an acid bolt that inflicts 12d8 points of damage, with a 10%
-D: chance of getting an acid beam.
+D:It shoots an acid bolt that inflicts 12d8 points of damage, with a 10
+D: percent chance of getting an acid beam.
 
 
 N:260:Lightning Bolts
@@ -2607,7 +2645,7 @@ P:0:1d1:0:0:0
 A:20/1
 F:IGNORE_ELEC | EASY_KNOW
 D:It shoots a lightning bolt that inflicts 6d6 points of damage, with a
-D: 10% chance of getting a lightning beam.
+D: 10 percent chance of getting a lightning beam.
 
 
 N:261:Fire Bolts
@@ -2617,8 +2655,8 @@ W:30:0:15:3000
 P:0:1d1:0:0:0
 A:30/1
 F:EASY_KNOW
-D:It shoots a fire bolt that inflicts 16d8 points of damage, with a 10%
-D: chance of getting a fire beam. 
+D:It shoots a fire bolt that inflicts 16d8 points of damage, with a 10 
+D: percent chance of getting a fire beam. 
 
 
 N:262:Frost Bolts
@@ -2629,7 +2667,7 @@ P:0:1d1:0:0:0
 A:25/1
 F:EASY_KNOW
 D:It shoots a frost bolt that inflicts 10d8 points of damage, with a 10%
-D: chance of getting a frost beam. 
+D: percent chance of getting a frost beam. 
 
 
 N:263:Acid Balls
@@ -2932,8 +2970,8 @@ D: destroy one or the entire stack of wands or staves.  Each wand or
 D: staff gets a saving throw. A rod will be charged enough to take 180
 D: fewer turns (at regular speed) to recharge fully; failure occurs (20
 D: + number of rods in stack) in 100 , and will drain the stack of rods.
-D:  It can destroy a single rod   50% of the time if the stack of rods
-D: is less than 5% charged.  A single rod will never be destroyed by a
+D:  It can destroy a single rod 50 percent of the time if the stack of rods
+D: is less than 5 percent charged.  A single rod will never be destroyed by a
 D: re-charge attempt.
 
 
@@ -3315,7 +3353,7 @@ W:10:0:4:0
 P:0:1d1:0:0:0
 A:10/1
 F:EASY_KNOW
-D:It drains 25% of your experience total, unless you have hold life. 
+D:It drains 25 percent of your experience total, unless you have hold life. 
 
 
 N:323:Drain Mana
@@ -3852,7 +3890,7 @@ D: with other magic providing temporary poison resistance.
 N:371:Resistance
 G:!:d
 I:75:63:0
-W:65:0:4:900
+W:25:0:4:900
 P:0:1d1:0:0:0
 A:25/4
 F:IGNORE_COLD | EASY_KNOW
@@ -4231,42 +4269,42 @@ D: spikes in one door will not have any further effect.
 ##### Gold/Gems #####
 
 N:404:copper
-G:$:u2
+G:$:u
 I:100:1:0
 W:1:0:0:3
 P:0:0d0:0:0:0
 
 
 N:405:copper
-G:$:u2
+G:$:u
 I:100:2:0
 W:1:0:0:4
 P:0:0d0:0:0:0
 
 
 N:406:copper
-G:$:u2
+G:$:u
 I:100:3:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:407:silver
-G:$:s2
+G:$:s
 I:100:4:0
 W:1:0:0:5
 P:0:0d0:0:0:0
 
 
 N:408:silver
-G:$:s2
+G:$:s
 I:100:5:0
 W:1:0:0:6
 P:0:0d0:0:0:0
 
 
 N:409:silver
-G:$:s2
+G:$:s
 I:100:6:0
 W:1:0:0:7
 P:0:0d0:0:0:0
@@ -4287,21 +4325,21 @@ P:0:0d0:0:0:0
 
 
 N:412:gold
-G:$:y2
+G:$:y
 I:100:9:0
 W:1:0:0:10
 P:0:0d0:0:0:0
 
 
 N:413:gold
-G:$:y2
+G:$:y
 I:100:10:0
 W:1:0:0:11
 P:0:0d0:0:0:0
 
 
 N:414:gold
-G:$:y2
+G:$:y
 I:100:11:0
 W:1:0:0:12
 P:0:0d0:0:0:0
@@ -4639,7 +4677,8 @@ I:92:7:0
 W:60:0:30:50000
 P:0:1d1:0:0:0
 A:60/16
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW | IRONMAN_ONLY
+F:IRONMAN_ONLY | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:EASY_KNOW
 
 
 N:452:[Nature's Fury]

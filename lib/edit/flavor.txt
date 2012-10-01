@@ -14,7 +14,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.2
 
 
 ##### Rings #####
@@ -29,7 +29,7 @@ G:=:g
 D:Alexandrite
 
 N:3:45
-G:=:v
+G:=:v1
 D:Amethyst
 
 N:4:45
@@ -945,7 +945,7 @@ G:!:o
 D:Orange
 
 N:227:75
-G:!:o
+G:!:o1
 D:Orange Speckled
 
 N:228:75
@@ -1281,3 +1281,78 @@ D:Dark Purple
 N:309:75
 G:!:s2
 D:Metallic Silver
+
+N:310:75
+G:!:u2
+D:Copper
+
+N:311:75
+G:!:b1
+D:Navy Blue
+
+N:312:75
+G:!:b1
+D:Sparkling Navy Blue
+
+N:313:75
+G:!:Y1
+D:Maize
+
+N:314:75
+G:!:R1
+D:Raspberry
+
+N:315:75
+G:!:Y1
+D:Sparkling Raspberry
+
+#################A couple more of flavors#################
+
+N:316:45
+G:=:w1
+D:Abalone
+
+N:317:45
+G:=:r2
+D:Almandine
+
+N:318:45
+G:=:r2
+D:Lucite
+
+N:319:45
+G:=:R2
+D:Rose Gold
+
+N:320:40
+G:":G1
+D:Piridot
+
+N:321:40
+G:":o1
+D:Cirtine
+
+N:322:40
+G:":s
+D:Jet Black
+
+N:323:80
+G:,:R2
+D:Pink
+
+N:324:55
+G:_:U1
+D:Shesham
+
+
+N:325:55
+G:_:o1
+D:Fir
+
+N:326:65
+G:-:s2
+D:Cadmium
+
+N:327:66
+G:-:b1
+D:Tantalum

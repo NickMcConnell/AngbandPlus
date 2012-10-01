@@ -299,4 +299,3 @@ of Remove Cure fails, find and read one of *Remove Curse*.
 Permanent Curse:
      There is a great and terrible Ring, seen by perhaps one character in one
 thousand, that can never be removed once put on.
-

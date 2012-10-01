@@ -15,7 +15,7 @@ Command Summary -- Original keyset
      d  Drop an item                         D  Disarm a trap
      e  Equipment list                       E  Eat some food
      f  Fire an item                         F  Fuel your lantern/torch
-     g  Stay still (flip pickup)             G  Gain new spells/prayers
+     g  Get objects off the floor            G  Gain new spells/prayers
      h  (unused)                             H  (unused)
      i  Inventory list                       I  Observe an item
      j  Jam a door                           J  (unused)
@@ -42,13 +42,13 @@ Command Summary -- Original keyset
      %  Interact with visuals               ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
      &  Interact with colors                ^G  {reserved}
-     *  Target monster or location          ^H  (unused)
-     (  Load screen dump                    ^I  (special - tab)
+     *  Target monster or location          ^H  Use floating help menu
+     (  Unused                              ^I  (special - tab)
      )  Dump HTML screen dump               ^J  (special - linefeed)
      {  Inscribe an object                  ^K  (unused)
      }  Uninscribe an object                ^L  (unused)
      [  (unused)                            ^M  (special - return)
-     ]  Get objects off the floor           ^N  (unused)
+     ]  Display Itemlist                    ^N  (unused)
      -  Walk (flip pickup)                  ^O  (unused)
      _  Enter store                         ^P  Show previous messages
      +  Alter grid                          ^Q  Display current quest
@@ -61,7 +61,7 @@ Command Summary -- Original keyset
      <  Go up staircase                     ^X  Save and quit
      .  Run                                 ^Y  (unused)
      >  Go down staircase                   ^Z  (special - borg command)
-     \  (special - bypass keymap)            |  (unused)
+     \  (special - bypass keymap)            !  Port Specific preferences
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
 

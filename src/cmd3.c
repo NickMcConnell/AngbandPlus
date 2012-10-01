@@ -1,11 +1,19 @@
 /* File: cmd3.c */
 
 /*
- * Copyright (c) 2001 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *                    Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -26,13 +34,15 @@ void do_cmd_inven(void)
 	item_tester_full = TRUE;
 
 	/* Display the inventory */
-	show_inven();
+	show_inven(OLIST_WEIGHT | OLIST_QUIVER);
 
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
 	/* Prompt for a command */
-	prt("(Inventory) Command: ", 0, 0);
+	prt(format("(Inventory) Burden %d.%dlb (%d%% capacity). Command: ",
+	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+	    (10 * p_ptr->total_weight) / (6 * adj_str_wgt[p_ptr->state.stat_ind[A_STR]])), 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -40,18 +50,12 @@ void do_cmd_inven(void)
 	/* Load screen */
 	screen_load();
 
+
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
-	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Hack -- Use "display" mode */
-		p_ptr->command_see = TRUE;
 	}
 }
 
@@ -71,7 +75,7 @@ void do_cmd_equip(void)
 	item_tester_full = TRUE;
 
 	/* Display the equipment */
-	show_equip();
+	show_equip(OLIST_WEIGHT);
 
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
@@ -85,45 +89,19 @@ void do_cmd_equip(void)
 	/* Load screen */
 	screen_load();
 
-
 	/* Hack -- Process "Escape" */
 	if (p_ptr->command_new == ESCAPE)
 	{
 		/* Reset stuff */
 		p_ptr->command_new = 0;
 	}
-
-	/* Hack -- Process normal keys */
-	else
-	{
-		/* Enter "display" mode */
-		p_ptr->command_see = TRUE;
-	}
 }
-
-
-/*
- * The "wearable" tester
- */
-static bool item_tester_hook_wear(const object_type *o_ptr)
-{
-	/*Hack - don't allow quest items to be worn*/
-	if(o_ptr->ident & (IDENT_QUEST)) return (FALSE);
-
-	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
-
-	/* Assume not wearable */
-	return (FALSE);
-}
-
 
 static int quiver_wield(int item, object_type *o_ptr)
 {
 	int slot = 0;
-	bool use_new_slot = FALSE;
 	int num;
-	int i;
+	char o_name[80];
 
 	object_type object_type_body;
 	object_type *i_ptr;
@@ -137,9 +115,10 @@ static int quiver_wield(int item, object_type *o_ptr)
 	/* Check free space */
 	if (!quiver_carry_okay(o_ptr, num, item))
 	{
-		msg_print("Your quiver needs more backpack space.");
+		msg_print("Your quiver needs more space.");
 		return 0;
  	}
+
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -150,42 +129,21 @@ static int quiver_wield(int item, object_type *o_ptr)
 	/* Modify quantity */
 	i_ptr->number = num;
 
-	/* Search for available slots. */
-	for (i = INVEN_QUIVER; i < END_QUIVER; i++)
-	{
-		/* Get the item */
-		o_ptr = &inventory[i];
+	/* Describe the result */
+	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
-		/* Accept empty slot, but keep searching for combining */
-		if (!o_ptr->k_idx)
-		{
-			slot = i;
-			use_new_slot = TRUE;
-			continue;
-		}
+	/*Mark it to go in the quiver */
+	o_ptr->ident |= (IDENT_QUIVER);
 
-		/* Accept slot that has space to absorb more */
-		if (object_similar(o_ptr, i_ptr))
-		{
-			slot = i;
-			use_new_slot = FALSE;
-			object_absorb(o_ptr, i_ptr);
-			break;
-		}
-	}
+	slot = wield_slot_ammo(o_ptr);
 
-	/* Use a new slot if needed */
-	if (use_new_slot) object_copy(&inventory[slot], i_ptr);
-
-	if (!slot)
+	/* Handle errors (paranoia) */
+	if (slot == QUIVER_END)
 	{
 		/* No space. */
 		msg_print("Your quiver is full.");
 		return 0;
 	}
-
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight * num;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
@@ -201,109 +159,79 @@ static int quiver_wield(int item, object_type *o_ptr)
 		floor_item_optimize(0 - item);
 	}
 
-	/* Update "p_ptr->pack_size_reduce" */
-	find_quiver_size();
+	/* Get the wield slot */
+	o_ptr = &inventory[slot];
+
+	/* Describe the result */
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
+	/* Take off existing item */
+	if (o_ptr->k_idx)
+	{
+		/* Take off existing item */
+		o_ptr->number += i_ptr->number;
+	}
+
+	/* Wear the new stuff */
+	else object_copy(o_ptr, i_ptr);
+
+	/* Describe the result */
+	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
+
+	/* Message */
+	sound(MSG_WIELD);
+	msg_format("You have readied %s (%c).", o_name, index_to_label(slot));
+
+	/* Cursed! */
+	if (cursed_p(o_ptr))
+	{
+		/* Warn the player */
+		sound(MSG_CURSED);
+		msg_print("Oops! It feels deathly cold!");
+
+	}
+
+	slot = sort_quiver(slot);
+
+	/* Save quiver size */
+	save_quiver_size();
+
+	/* See if we have to overflow the pack */
+	pack_overflow();
+
+	/* Recalculate bonuses */
+	p_ptr->notice |= (PN_SORT_QUIVER);
+	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 
 	/* Reorder the quiver and return the perhaps modified slot */
-	return reorder_quiver(slot);
+	return (slot);
 }
 
 
 /*
  * Wield or wear a single item from the pack or floor
  */
-void do_cmd_wield(void)
+void wield_item(object_type *o_ptr, int item, int slot)
 {
-	int item, slot;
-
-	object_type *o_ptr;
-
-	object_type *i_ptr;
 	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;
 
-	cptr act;
-
-	cptr q, s;
-
+	cptr fmt;
 	char o_name[80];
 
+	bool combined_ammo = FALSE;
+	int num = 1;
 
-	/* Restrict the choices */
-	item_tester_hook = item_tester_hook_wear;
-
-	/* Get an item */
-	q = "Wear/Wield which item? ";
-	s = "You have nothing you can wear or wield.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	/* If we are stacking ammo in the quiver */
+	if (obj_is_ammo(o_ptr))
 	{
-		o_ptr = &inventory[item];
+		num = o_ptr->number;
+		combined_ammo = object_similar(o_ptr, &inventory[slot]);
 	}
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Check the slot */
-	slot = wield_slot(o_ptr);
-
-	/* Ask for ring to replace */
-	if ((o_ptr->tval == TV_RING) &&
-		inventory[INVEN_LEFT].k_idx &&
-		inventory[INVEN_RIGHT].k_idx)
-	{
-		/* Restrict the choices */
-		item_tester_tval = TV_RING;
-
-		/* Choose a ring from the equipment only */
-		q = "Replace which ring? ";
-		s = "Oops.";
-		if (!get_item(&slot, q, s, USE_EQUIP)) return;
-	}
-
-	/* Hack - Throwing weapons can be wielded in the quiver too. */
-	/* Analyze object's inscription and verify the presence of "@v" */
-	if (is_throwing_weapon(o_ptr) && !IS_QUIVER_SLOT(slot) && o_ptr->obj_note)
-	{
-		/* Get the note */
-		cptr note = quark_str(o_ptr->obj_note);
-
-		/* Find the next '@' */
-		while ((note = strchr(note, '@')) != NULL)
-		{
-			/* Found "@v" ? */
-			if (note[1] == 'v')
-			{
-				/* Force quiver */
-				slot = INVEN_QUIVER;
-
-				break;
-			}
-
-			/* Keep searching */
-			++note;
-		}
-	}
-
-	/* Prevent wielding into a cursed slot */
-	if (!IS_QUIVER_SLOT(slot) && cursed_p(&inventory[slot]))
-	{
-		/* Describe it */
-		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
-
-		/* Message */
-		msg_format("The %s you are %s appears to be cursed.",
-		           o_name, describe_use(slot));
-
-		/* Cancel the command */
-		return;
-	}
-
+	/* Describe the result */
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Take a turn */
 	p_ptr->p_energy_use = BASE_ENERGY_MOVE;
@@ -315,87 +243,70 @@ void do_cmd_wield(void)
 		slot = quiver_wield(item, o_ptr);
 
 		/* Can't do it */
-		if (!slot) return;
+		return;
 
-		/* Get the object again */
-		o_ptr = &inventory[slot];
 	}
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Modify quantity */
+	i_ptr->number = 1;
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
 	else
 	{
-		/* Get local object */
-		i_ptr = &object_type_body;
+		floor_item_increase(0 - item, -1);
+		floor_item_optimize(0 - item);
 
-		/* Obtain local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Decrease the item (from the pack) */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_optimize(item);
-		}
-
-		/* Decrease the item (from the floor) */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_optimize(0 - item);
-		}
-
-		/* Get the wield slot */
-		o_ptr = &inventory[slot];
-
-		/* Take off existing item */
-		if (o_ptr->k_idx)
-		{
-			/* Take off existing item */
-			(void)inven_takeoff(slot, 255);
-		}
-
-		/* Wear the new stuff */
-		object_copy(o_ptr, i_ptr);
-
-		/* Increase the weight */
-		p_ptr->total_weight += i_ptr->weight;
-
-		/* Increment the equip counter by hand */
-		p_ptr->equip_cnt++;
-
-		/* Autoinscribe if the object was on the floor */
-		if (item < 0) apply_autoinscription(o_ptr);
 	}
+
+	/* Get the wield slot */
+	o_ptr = &inventory[slot];
+
+	/* Take off existing item */
+	if (o_ptr->k_idx)
+	{
+		/* Take off existing item */
+		(void)inven_takeoff(slot, 255);
+	}
+
+	/* Wear the new stuff */
+	object_copy(o_ptr, i_ptr);
+
+	/* Increment the equip counter by hand */
+	p_ptr->equip_cnt++;
+
+	/* Autoinscribe if the object was on the floor */
+	if (item < 0) apply_autoinscription(o_ptr);
+
+	/* Describe the result */
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
-	{
-		act = "You are wielding";
-	}
+		fmt = "You are wielding %s (%c).";
 	else if (slot == INVEN_BOW)
-	{
-		act = "You are shooting with";
-	}
-	else if (slot == INVEN_LITE)
-	{
-		act = "Your light source is";
-	}
-	else if (!IS_QUIVER_SLOT(slot))
-	{
-		act = "You are wearing";
-	}
-	else
-	{
-		act = "You have readied";
-	}
+		fmt = "You are shooting with %s (%c).";
+	else if (slot == INVEN_LIGHT)
+		fmt = "Your light source is %s (%c).";
 
-	/* Describe the result */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	else
+		fmt = "You are wearing %s (%c).";
 
 	/* Message */
 	sound(MSG_WIELD);
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	msg_format(fmt, o_name, index_to_label(slot));
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
@@ -404,180 +315,50 @@ void do_cmd_wield(void)
 		sound(MSG_CURSED);
 		msg_print("Oops! It feels deathly cold!");
 
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
 	}
 
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS | PU_NATIVE);
+	/* Save quiver size */
+	save_quiver_size();
 
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
+	/* See if we have to overflow the pack */
+	pack_overflow();
 
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST | PR_EXP | PR_STATS);
-}
-
-
-
-/*
- * Take off an item
- */
-void do_cmd_takeoff(void)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Get an item */
-	q = "Take off which item? ";
-	s = "You are not wearing anything to take off.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Item is cursed */
-	if (cursed_p(o_ptr))
-	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
-		return;
-	}
-
-	/* Cursed quiver */
-	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
-	{
-		/* Oops */
-		msg_print("Your quiver is cursed!");
-
-		/* Nope */
-		return;
-	}
-
-
-	/* Take a partial turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
-
-	/* Take off the item */
-	(void)inven_takeoff(item, 255);
+	/* Recalculate bonuses, torch, mana */
+	p_ptr->notice |= (PN_SORT_QUIVER);
+	p_ptr->update |= (PU_BONUS | PU_TORCH | PU_MANA | PU_NATIVE);
+	p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_ITEMLIST);
 }
 
 
 /*
- * Drop an item
+ * Hook to determine if an object is activatable
  */
-void do_cmd_drop(void)
+bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	int item, amt;
+	u32b f1, f2, f3, fn;
 
-	object_type *o_ptr;
+	/* Not known */
+	if (!object_known_p(o_ptr)) return (FALSE);
 
-	cptr q, s;
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &fn);
 
+	/* Check activation flag */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
 
-	/* Get an item */
-	q = "Drop which item? ";
-	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
-	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
-
-		/* Nope */
-		return;
-	}
-
-	/* Cursed quiver */
-	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
-	{
-		/* Oops */
-		msg_print("Your quiver is cursed!");
-
-		/* Nope */
-		return;
-	}
-
-	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
-
-	/* Allow user abort */
-	if (amt <= 0) return;
-
-	/* Take a partial turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
-
-	/* Drop (some of) the item */
-	inven_drop(item, amt);
+	/* Assume not */
+	return (FALSE);
 }
 
-/*
- * An "item_tester_hook" for destroying objects
- */
-static bool item_tester_hook_destroy(const object_type *o_ptr)
-{
-
-	/* Don't bother with known artifacts */
-	return ( !artifact_known(o_ptr) );
-}
 
 
 
 /*
  * Handle the user command to destroy an item
  */
-void do_cmd_destroy(void)
+void do_cmd_destroy(cmd_code code, cmd_arg args[])
 {
-	int item;
-	cptr q, s;
-
-	item_tester_hook = item_tester_hook_destroy;
-
-	/* Get an item */
-	q = "Destroy which item? ";
-	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	int item = args[0].item;
 
 	destroy_item(item);
 }
@@ -610,6 +391,23 @@ void destroy_item(int item)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Can't destroy cursed items we're wielding. */
+	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	{
+		msg_print("You cannot destroy the cursed item.");
+		return;
+	}
+
+	/* Cursed quiver */
+	else if (IS_QUIVER_SLOT(item) && p_ptr->cursed_quiver)
+	{
+		/* Oops */
+		msg_print("Your quiver is cursed!");
+
+		/* Nope */
+		return;
+	}
+
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
 
@@ -636,7 +434,7 @@ void destroy_item(int item)
 	o_ptr->number = amt;
 
 	/*now describe with correct amount*/
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/*reverse the hack*/
 	o_ptr->number = old_number;
@@ -645,14 +443,24 @@ void destroy_item(int item)
 	if (verify_destroy)
 	{
 		int result;
+		char other;
+		char explain[80];
 
 		/* Check for known ego-items */
-		strnfmt(out_val, sizeof(out_val), "Really Destroy %s? ", o_name);
+		strnfmt(out_val, sizeof(out_val), "Really Destroy %s", o_name);
 
 		/* Check for known ego-items */
 		if (ego_item_p(o_ptr) && object_known_p(o_ptr))
 		{
-			result = get_check_other(out_val, 'E');
+			/* get the ego item type */
+			ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
+
+			other = 'e';
+
+			/* Format the prompt */
+			strnfmt(explain, sizeof(explain), "(%c to always squelch ego item type %s)? ", other, e_name + e_ptr->name);
+
+			result = get_check_other(out_val, other, explain);
 
 			/* returned "no"*/
 			if (!result) return;
@@ -660,9 +468,6 @@ void destroy_item(int item)
 			/*return of 2 sets ego item type to squelch*/
 			else if (result == 2)
 			{
-				/* get the ego item type */
-				ego_item_type *e_ptr = &e_info[o_ptr->ego_num];
-
 				/* set to squelch */
 				e_ptr->squelch = TRUE;
 
@@ -676,7 +481,31 @@ void destroy_item(int item)
 		    	!(k_info[o_ptr->k_idx].k_flags3 & (TR3_INSTA_ART)))
 		{
 
-			result = get_check_other(out_val, 's');
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+			char i_name[80];
+
+			/*make a fake object so we can give a proper message*/
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Wipe the object */
+			object_wipe(i_ptr);
+
+			/* Create the object */
+			object_prep(i_ptr, o_ptr->k_idx);
+
+			/*now describe with correct amount*/
+			object_desc(i_name, sizeof(i_name), i_ptr, ODESC_PLURAL | ODESC_FULL);
+
+			other = 's';
+
+			/* Format the prompt */
+			strnfmt(explain, sizeof(explain), "(%c to always squelch %s)?", other, i_name);
+
+			result = get_check_other(out_val, other, explain);
 
 			/* returned "no"*/
 			if (!result) return;
@@ -684,36 +513,15 @@ void destroy_item(int item)
 			/*return of 2 sets item to squelch*/
 			else if (result == 2)
 			{
-				object_kind *k_ptr = &k_info[o_ptr->k_idx];
-				char o_name2[80];
-
-				/*make a fake object so we can give a proper message*/
-				object_type *i_ptr;
-				object_type object_type_body;
-
-				/* Get local object */
-				i_ptr = &object_type_body;
-
-				/* Wipe the object */
-				object_wipe(i_ptr);
-
-				/* Create the object */
-				object_prep(i_ptr, o_ptr->k_idx);
-
-				/*make it plural*/
-				i_ptr->number = 2;
-
-				/*now describe with correct amount*/
-				object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
 
 				/*set to squelch*/
 				k_ptr->squelch = SQUELCH_ALWAYS;
 
 				/* Message - no good routine for extracting the plain name*/
-				msg_format("All %^s will always be squelched.", o_name2);
+				msg_format("All %^s are set to always be squelched.", i_name);
 
 				/*Mark the view to be updated*/
-				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);;
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW);
 			}
 		}
 
@@ -753,24 +561,11 @@ void destroy_item(int item)
 
 		p_ptr->update |= (PU_NATIVE);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		p_ptr->redraw |= (PR_EQUIPPY | PR_RESIST | PR_EXP | PR_STATS | PU_NATIVE);
+		p_ptr->redraw |= (PR_INVEN | PR_EQUIP | PR_RESIST | PR_EXP |
+						  PR_STATS | PU_NATIVE | PR_ITEMLIST);
 
 		/* Done */
 		return;
-	}
-
-	/* Sometimes identify the object that is being destroyed */
-	/* We try hard to prevent scumming (example: stacks of unknown ammo) */
-	if ((amt == o_ptr->number) && object_aware_p(o_ptr) && !object_known_p(o_ptr) && !ammo_p(o_ptr))
-	{
-		/* Identify the object */
-	       	object_known(o_ptr);
-
-		/* Describe the object again */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 	}
 
 	/* Message */
@@ -798,265 +593,171 @@ void destroy_item(int item)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+
 }
 
-
-/*
- * Observe an item, displaying what is known about it
- */
-void do_cmd_observe(void)
+void textui_cmd_destroy(void)
 {
 	int item;
-
-	object_type *o_ptr;
-
-	cptr q, s;
-
-
-	/* Get an item */
-	q = "Examine which item? ";
-	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Describe */
-	object_info_screen(o_ptr);
-}
-
-
-/*
- * Find out if we have to show the prompts for auto(un)inscribe object kinds
- * based on an instance object inscription.
- * We show them if:
- *    The player enabled this feature
- *    The object is aware (to not reveal flavors) and
- *    The object isn't an special artifact template and
- *    The object isn't an identified artifact and
- *    The object isn't ammo.
- */
-#define ACCESS_AUTOINSCRIPTIONS(o_ptr) \
-(expand_inscribe && \
-object_aware_p(o_ptr) && \
-!(k_info[(o_ptr)->k_idx].k_flags3 & TR3_INSTA_ART) && \
-!(artifact_p(o_ptr) && object_known_p(o_ptr)) && \
-!ammo_p(o_ptr))
-
-
-/*
- * Remove the inscription from an object
- * XXX Mention item (when done)?
- */
-void do_cmd_uninscribe(void)
-{
-	int item;
-
-	object_type *o_ptr;
 
 	cptr q, s;
 
 	/* Get an item */
-	q = "Un-inscribe which item? ";
-	s = "You have nothing to un-inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	q = "Destroy which item? ";
+	s = "You have nothing to destroy.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	destroy_item(item);
+}
+
+
+
+
+void refill_lamp(object_type *j_ptr, object_type *o_ptr, int item)
+{
+
+	/* Refuel from a latern */
+	if (o_ptr->sval == SV_LIGHT_LANTERN)
 	{
-		o_ptr = &inventory[item];
-	}
 
-	/* Get the item (on the floor) */
+		j_ptr->timeout += o_ptr->timeout;
+
+	}
+	/* Refuel from a flask */
 	else
 	{
-		o_ptr = &o_list[0 - item];
-	}
+		j_ptr->timeout += o_ptr->pval;
 
-	/* Nothing to remove */
-	if (!o_ptr->obj_note)
-	{
-		msg_print("That item had no inscription to remove.");
-		return;
-	}
-
-	/* Remove the inscription */
-	o_ptr->obj_note = 0;
-
-	/*The object kind has an autoinscription*/
-	if (ACCESS_AUTOINSCRIPTIONS(o_ptr) &&
-	    (get_autoinscription_index(o_ptr->k_idx) != -1))
-	{
-		char tmp_val[160];
-		char o_name2[80];
-
-		/*make a fake object so we can give a proper message*/
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Wipe the object */
-		object_wipe(i_ptr);
-
-		/* Create the object */
-		object_prep(i_ptr, o_ptr->k_idx);
-
-		/*make it plural*/
-		i_ptr->number = 2;
-
-		/*now describe with correct amount*/
-		object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
-
-		/* Prompt */
-		strnfmt(tmp_val, sizeof(tmp_val),
-			"Remove automatic inscription for %s?", o_name2);
-
-		/* Auto-Inscribe if they want that */
-		if (get_check(tmp_val)) remove_autoinscription(o_ptr->k_idx);
 	}
 
 	/* Message */
-	msg_print("Inscription removed.");
+	msg_print("You fuel your lamp.");
 
-	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-}
-
-
-/*
- * Inscribe an object with a comment
- */
-void do_cmd_inscribe(void)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	char tmp[80];
-
-	cptr q, s;
-
-	/* Get an item */
-	q = "Inscribe which item? ";
-	s = "You have nothing to inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	/* Comment */
+	if (j_ptr->timeout >= FUEL_LAMP)
 	{
-		o_ptr = &inventory[item];
+		j_ptr->timeout = FUEL_LAMP;
+		msg_print("Your lamp is full.");
 	}
 
-	/* Get the item (on the floor) */
-	else
+	/* Refilled from a lantern */
+	if (o_ptr->sval == SV_LIGHT_LANTERN)
 	{
-		o_ptr = &o_list[0 - item];
-	}
 
-	/* Describe the activity */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-	/* Message */
-	msg_format("Inscribing %s.", o_name);
-	message_flush();
-
-	/* Start with nothing */
-	strcpy(tmp, "");
-
-	/* Use old inscription */
-	if (o_ptr->obj_note)
-	{
-		/* Start with the old inscription */
-		strnfmt(tmp, sizeof(tmp), "%s", quark_str(o_ptr->obj_note));
-	}
-
-	/* Get a new inscription (possibly empty) */
-	if (get_string("Inscription: ", tmp, sizeof(tmp)))
-	{
-		char tmp_val[160];
-		char o_name2[80];
-
-		/*make a fake object so we can give a proper message*/
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Add an autoinscription? */
-		if (ACCESS_AUTOINSCRIPTIONS(o_ptr))
+		/* Unstack if necessary */
+		if (o_ptr->number > 1)
 		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
 			/* Get local object */
 			i_ptr = &object_type_body;
 
-			/* Wipe the object */
-			object_wipe(i_ptr);
+			/* Obtain a local object */
+			object_copy(i_ptr, o_ptr);
 
-			/* Create the object */
-			object_prep(i_ptr, o_ptr->k_idx);
+			/* Modify quantity */
+			i_ptr->number = 1;
 
-			/*make it plural*/
-			i_ptr->number = 2;
+			/* Remove fuel */
+			i_ptr->timeout = 0;
 
-			/*now describe with correct amount*/
-			object_desc(o_name2, sizeof(o_name2), i_ptr, FALSE, 0);
+			/* Unstack the used item */
+			o_ptr->number--;
 
-			/* Prompt */
-			strnfmt(tmp_val, sizeof(tmp_val),
-				"Automatically inscribe all %s with %s?",
-				o_name2, tmp);
-
-			/* Auto-Inscribe if they want that */
-			if (get_check(tmp_val)) add_autoinscription(o_ptr->k_idx, tmp);
+			/* Carry or drop */
+			if (item >= 0)
+				item = inven_carry(i_ptr);
+			else
+				drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
 		}
 
-		/* Expand certain patterns in inscriptions */
-		expand_inscription(o_ptr, tmp, tmp_val, sizeof(tmp_val));
+		/* Empty a single lantern */
+		else
+		{
+			/* No more fuel */
+			o_ptr->timeout = 0;
+		}
 
-		/* Save the inscription */
-		o_ptr->obj_note = quark_add(tmp_val);
+		/* Combine / Reorder the pack (later) */
+		p_ptr->update |= (PU_BONUS);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER | PN_SORT_QUIVER);
 
-		/* Combine / Reorder the pack */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_INVEN | PR_ITEMLIST);
 	}
+
+	/* Refilled from a flask */
+	else
+	{
+
+		/* Decrease the item (from the pack) */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_EQUIP);
 }
 
 
-
-/*
- * An "item_tester_hook" for refilling lanterns
- */
-static bool item_tester_refill_lantern(const object_type *o_ptr)
+void refuel_torch(object_type *j_ptr, object_type *o_ptr, int item)
 {
-	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
+	/* Refuel */
+	j_ptr->timeout += o_ptr->timeout + 5;
 
-	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->timeout > 0))
+	/* Message */
+	msg_print("You combine the torches.");
+
+	/* Over-fuel message */
+	if (j_ptr->timeout >= FUEL_TORCH)
 	{
-		return (TRUE);
+		j_ptr->timeout = FUEL_TORCH;
+		msg_print("Your torch is fully fueled.");
 	}
 
-	/* Assume not okay */
-	return (FALSE);
+	/* Refuel message */
+	else
+	{
+		msg_print("Your torch glows more brightly.");
+	}
+
+	/* Decrease the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Redraw stuff */
+	p_ptr->redraw |= (PR_EQUIP);
 }
 
 
@@ -1082,7 +783,7 @@ static bool do_cmd_refill_lamp_from_terrain(void)
 	if (!get_check("Do you want to refill your lamp from the oil on the floor? ")) return (FALSE);
 
 	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
+	j_ptr = &inventory[INVEN_LIGHT];
 
 	/* Increase fuel amount (not too much) */
 	j_ptr->timeout += (200 + rand_int(3) * 50);
@@ -1127,7 +828,7 @@ static bool do_cmd_refill_lamp_from_terrain(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
+	p_ptr->redraw |= (PR_EQUIP);
 
 	/* Success */
 	return (TRUE);
@@ -1135,277 +836,45 @@ static bool do_cmd_refill_lamp_from_terrain(void)
 
 
 /*
- * Refill the players lamp (from the pack or floor)
- */
-static void do_cmd_refill_lamp(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_lantern;
-
-	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Take a partial turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
-
-	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel from a latern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		j_ptr->timeout += o_ptr->timeout;
-	}
-	/* Refuel from a flask */
-	else
-	{
-		j_ptr->timeout += o_ptr->pval;
-	}
-
-	/* Message */
-	msg_print("You fuel your lamp.");
-
-	/* Comment */
-	if (j_ptr->timeout >= FUEL_LAMP)
-	{
-		j_ptr->timeout = FUEL_LAMP;
-		msg_print("Your lamp is full.");
-	}
-
-	/* Refilled from a latern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		/* Unstack if necessary */
-		if (o_ptr->number > 1)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Obtain a local object */
-			object_copy(i_ptr, o_ptr);
-
-			/* Modify quantity */
-			i_ptr->number = 1;
-
-			/* Remove fuel */
-			i_ptr->timeout = 0;
-
-			/* Unstack the used item */
-			o_ptr->number--;
-			p_ptr->total_weight -= i_ptr->weight;
-
-			/* Carry or drop */
-			if (item >= 0)
-				item = inven_carry(i_ptr);
-			else
-				drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
-		}
-
-		/* Empty a single latern */
-		else
-		{
-			/* No more fuel */
-			o_ptr->timeout = 0;
-		}
-
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Refilled from a flask */
-	else
-	{
-		/* Decrease the item (from the pack) */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -1);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Decrease the item (from the floor) */
-		else
-		{
-			floor_item_increase(0 - item, -1);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
-
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-
-
-/*
- * An "item_tester_hook" for refilling torches
- */
-static bool item_tester_refill_torch(const object_type *o_ptr)
-{
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
-
-	/* Assume not okay */
-	return (FALSE);
-}
-
-
-/*
- * Refuel the players torch (from the pack or floor)
- */
-static void do_cmd_refill_torch(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
-
-	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Take a partial turn */
-	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
-
-	/* Get the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->timeout += o_ptr->timeout + 5;
-
-	/* Message */
-	msg_print("You combine the torches.");
-
-	/* Over-fuel message */
-	if (j_ptr->timeout >= FUEL_TORCH)
-	{
-		j_ptr->timeout = FUEL_TORCH;
-		msg_print("Your torch is fully fueled.");
-	}
-
-	/* Refuel message */
-	else
-	{
-		msg_print("Your torch glows more brightly.");
-	}
-
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-
-
-
-/*
  * Refill the players lamp, or restock his torches
  */
-void do_cmd_refill(void)
+void do_cmd_refill(cmd_code code, cmd_arg args[])
 {
-	object_type *o_ptr;
+	object_type *j_ptr = &inventory[INVEN_LIGHT];
 
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
+	int item = args[0].item;
+	object_type *o_ptr = object_from_item_idx(item);
+
+	if (!item_is_available(item, NULL, USE_INVEN | USE_FLOOR))
+	{
+		msg_print("You do not have that item to refill with it.");
+		return;
+	}
 
 	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
+	if (j_ptr->tval != TV_LIGHT)
 	{
 		msg_print("You are not wielding a light.");
+		return;
 	}
 
 	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
+	else if (j_ptr->sval == SV_LIGHT_LANTERN)
 	{
 		/* First we check if the lamp can be filled from the oil on the floor */
 		if (!do_cmd_refill_lamp_from_terrain())
 		{
-			do_cmd_refill_lamp();
+			refill_lamp(j_ptr, o_ptr, item);
 		}
 	}
 
 	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
-	{
-		do_cmd_refill_torch();
-	}
+	else if (j_ptr->sval == SV_LIGHT_TORCH)
+		refuel_torch(j_ptr, o_ptr, item);
 
-	/* No torch to refill */
-	else
-	{
-		msg_print("Your light cannot be refilled.");
-	}
+
+	p_ptr->p_energy_use = BASE_ENERGY_MOVE / 2;
+
 }
 
 
@@ -1416,7 +885,7 @@ void do_cmd_refill(void)
 void do_cmd_target(void)
 {
 	/* Target set */
-	if (target_set_interactive(TARGET_KILL))
+	if (target_set_interactive(TARGET_KILL, -1, -1))
 	{
 		msg_print("Target Selected.");
 	}
@@ -1428,6 +897,11 @@ void do_cmd_target(void)
 	}
 }
 
+void do_cmd_target_closest(void)
+{
+	target_set_closest(TARGET_KILL);
+}
+
 
 
 /*
@@ -1436,7 +910,7 @@ void do_cmd_target(void)
 void do_cmd_look(void)
 {
 	/* Look around */
-	if (target_set_interactive(TARGET_LOOK))
+	if (target_set_interactive(TARGET_LOOK, -1, -1))
 	{
 		msg_print("Target Selected.");
 	}
@@ -1559,6 +1033,7 @@ static cptr ident_info[] =
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
 	"9:The Adventurer's Guild",
+	"0:Entrance to the Book Shop",
 	"::Rubble",
 	";:A glyph of warding or glacier",
 	"<:An up staircase",
@@ -1739,13 +1214,14 @@ void ang_sort_swap_hook(void *u, void *v, int a, int b)
  *
  * The responses may be sorted in several ways, see below.
  *
- *
  */
 void do_cmd_query_symbol(void)
 {
 	int i, n, r_idx;
-	char sym, query;
+	char sym;
 	char buf[128];
+
+	ui_event_data query;
 
 	bool all = FALSE;
 	bool uniq = FALSE;
@@ -1758,7 +1234,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified: ", &sym)) return;
+	if (!get_com("Enter character to be identified, or control+[ANU]: ", &sym)) return;
 
 	/* Find that character info, and describe it */
 	for (i = 0; ident_info[i]; ++i)
@@ -1770,17 +1246,17 @@ void do_cmd_query_symbol(void)
 	if (sym == KTRL('A'))
 	{
 		all = TRUE;
-		strcpy(buf, "Full monster list.");
+		my_strcpy(buf, "Full monster list.", sizeof(buf));
 	}
 	else if (sym == KTRL('U'))
 	{
 		all = uniq = TRUE;
-		strcpy(buf, "Unique monster list.");
+		my_strcpy(buf, "Unique monster list.", sizeof(buf));
 	}
 	else if (sym == KTRL('N'))
 	{
 		all = norm = TRUE;
-		strcpy(buf, "Non-unique monster list.");
+		my_strcpy(buf, "Non-unique monster list.", sizeof(buf));
 	}
 	else if (ident_info[i])
 	{
@@ -1794,8 +1270,9 @@ void do_cmd_query_symbol(void)
 	/* Display the result */
 	prt(buf, 0, 0);
 
+
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	who = C_ZNEW(z_info->r_max, u16b);
 
 	/* Collect matching monsters */
 	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
@@ -1803,7 +1280,7 @@ void do_cmd_query_symbol(void)
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Nothing to recall */
+		/* Collect matching monsters */
 		if ((!cheat_know || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 		    && !l_ptr->sights) continue;
 
@@ -1826,54 +1303,65 @@ void do_cmd_query_symbol(void)
 		return;
 	}
 
+	/* Buttons */
+	button_add("[y]", 'y');
+	button_add("[k]", 'k');
+	/* Don't collide with the repeat button */
+	button_add("[n]", 'q');
+	handle_stuff();
 
 	/* Prompt */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+	put_str("Recall details? (y/k/n): ", 0, 40);
 
 	/* Query */
-	query = inkey();
+	query = inkey_ex();
 
 	/* Restore */
 	prt(buf, 0, 0);
 
+	/* Buttons */
+	button_kill('y');
+	button_kill('k');
+	button_kill('q');
+	handle_stuff();
 
-	/* Sort by kills (and level) */
-	if (query == 'k')
+	/* Interpret the response */
+	if (query.key == 'k')
 	{
+		/* Sort by kills (and level) */
 		why = 4;
-		query = 'y';
 	}
-
-	/* Sort by level */
-	if (query == 'p')
+	else if (query.key == 'y' || query.key == 'p')
 	{
+		/* Sort by level; accept 'p' as legacy */
 		why = 2;
-		query = 'y';
 	}
-
-	/* Catch "escape" */
-	if (query != 'y')
+	else
 	{
+		/* Any unsupported response is "nope, no history please" */
+
 		/* XXX XXX Free the "who" array */
 		FREE(who);
 
 		return;
 	}
 
-	/* Sort if needed */
-	if (why)
-	{
-		/* Select the sort method */
-		ang_sort_comp = ang_sort_comp_hook;
-		ang_sort_swap = ang_sort_swap_hook;
 
-		/* Sort the array */
-		ang_sort(who, &why, n);
-	}
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
 
+	/* Sort the array */
+	ang_sort(who, &why, n);
 
 	/* Start at the end */
 	i = n - 1;
+
+	/* Button */
+	button_add("[r]", 'r');
+	button_add("[-]", '-');
+	button_add("[+]", '+');
+	handle_stuff();
 
 	/* Scan the monster memory */
 	while (1)
@@ -1910,7 +1398,7 @@ void do_cmd_query_symbol(void)
 			}
 
 			/* Command */
-			query = inkey();
+			query = inkey_ex();
 
 			/* Unrecall */
 			if (recall)
@@ -1920,36 +1408,35 @@ void do_cmd_query_symbol(void)
 			}
 
 			/* Normal commands */
-			if (query != 'r') break;
+			if (query.key != 'r') break;
 
 			/* Toggle recall */
 			recall = !recall;
 		}
 
 		/* Stop scanning */
-		if (query == ESCAPE) break;
+		if (query.key == ESCAPE) break;
 
 		/* Move to "prev" monster */
-		if (query == '-')
+		if (query.key == '-')
 		{
 			if (++i == n)
-			{
 				i = 0;
-				if (!expand_list) break;
-			}
 		}
 
 		/* Move to "next" monster */
 		else
 		{
 			if (i-- == 0)
-			{
 				i = n - 1;
-				if (!expand_list) break;
-			}
 		}
 	}
 
+	/* Button */
+	button_kill('r');
+	button_kill('-');
+	button_kill('+');
+	handle_stuff();
 
 	/* Re-display the identity */
 	prt(buf, 0, 0);
@@ -2027,24 +1514,24 @@ void py_steal(int y, int x)
 	else msg_print("You find nothing to steal");
 
 	/* Determine the cunning of the thief, based on level & disarming skill. */
-	filching_power = (2 * p_ptr->lev) +  (p_ptr->skill_dis / 2);
+	filching_power = (2 * p_ptr->lev) +  (p_ptr->state.skills[SKILL_DISARM] / 2);
 
 	/*dex bonus counts extra*/
-	filching_power += (adj_dex_dis[p_ptr->stat_ind[A_DEX]]* 3);
+	filching_power += (adj_dex_dis[p_ptr->state.stat_ind[A_DEX]]* 3);
 
 	/*easier on a sleeping monster*/
-	if (m_ptr->csleep)
+	if (m_ptr->m_timed[MON_TMD_SLEEP])
 	{
 		/*easier with better stealth*/
-		filching_power += (p_ptr->skill_stl * 2);
+		filching_power += (p_ptr->state.skills[SKILL_STEALTH] * 2);
 
 		/*extra credit for extreme stealth*/
-		if (p_ptr->skill_stl > 10) filching_power += ((p_ptr->skill_stl - 10) * 3);
+		if (p_ptr->state.skills[SKILL_STEALTH] > 10) filching_power += ((p_ptr->state.skills[SKILL_STEALTH] - 10) * 3);
 	}
 
 	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) filching_power = filching_power / 10;
-	if (p_ptr->confused || p_ptr->image) filching_power = filching_power / 10;
+	if (p_ptr->timed[TMD_BLIND] || no_light()) filching_power = filching_power / 10;
+	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) filching_power = filching_power / 10;
 
 	/* Determine how much protection the monster has. */
 	theft_protection = ((r_ptr->level * 2) + 35);
@@ -2057,12 +1544,12 @@ void py_steal(int y, int x)
 	}
 
 	/*speeling, stunned, or confused monsters are harder to steal from*/
-	if (m_ptr->csleep) theft_protection /= 2;
-	if (m_ptr->confused) theft_protection /= 3;
-	if (m_ptr->stunned) theft_protection /= 5;
+	if (m_ptr->m_timed[MON_TMD_SLEEP]) theft_protection /= 2;
+	if (m_ptr->m_timed[MON_TMD_CONF]) theft_protection /= 3;
+	if (m_ptr->m_timed[MON_TMD_STUN]) theft_protection /= 5;
 
 	/* now adjust for speed*/
-	theft_protection += (m_ptr->mspeed - p_ptr->pspeed);
+	theft_protection += (m_ptr->mspeed - p_ptr->state.p_speed);
 
 	/*enforce a minimum - should almost never be necessary*/
 	if (theft_protection < 1) theft_protection = 1;
@@ -2078,7 +1565,7 @@ void py_steal(int y, int x)
 	if (thief) theft_protection += 30;
 
 	/*sleeping monsters are much easier*/
-	if (m_ptr->csleep)
+	if (m_ptr->m_timed[MON_TMD_SLEEP])
 	{
 		theft_protection /= 2;
 	}
@@ -2117,17 +1604,17 @@ void py_steal(int y, int x)
 
 
 	/* The victim normally, but not always, wakes up and is aggravated. */
-	if ((m_ptr->csleep == 0) || (randint(filching_power) >= theft_protection))
+	if ((!m_ptr->m_timed[MON_TMD_SLEEP]) || (randint(filching_power) >= theft_protection))
 	{
-		m_ptr->csleep = 0;
+		mon_clear_timed(get_mon_idx(m_ptr), MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE);
 
 		/* Give the player a message. */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 		msg_format("You have irritated %s.", m_name);
 
 		/*add to the haste counter and give message*/
-		set_monster_haste(cave_m_idx[m_ptr->fy][m_ptr->fx],
-						  m_ptr->hasted + 100 + rand_int(100), TRUE);
+		mon_inc_timed(cave_m_idx[m_ptr->fy][m_ptr->fx], MON_TMD_FAST,
+				(50 + rand_int(50)), MON_TMD_FLG_NOTIFY);
 
 		/*possibly update the monster health bar*/
 		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
@@ -2160,7 +1647,7 @@ void py_steal(int y, int x)
 	}
 
 	/*let the player know who saw, and aggravate the monsters*/
-	if ((m_ptr->csleep == 0) || (counter2 > counter))
+	if ((!m_ptr->m_timed[MON_TMD_SLEEP]) || (counter2 > counter))
 	{
 		/*dungeon gets different treatment than town*/
 		if (p_ptr->depth)
@@ -2190,35 +1677,17 @@ void py_steal(int y, int x)
 		}
 		else
 		{
-			static store_type *st_ptr = NULL;
-
-			int x;
 
 			/*the town gets aggravated right away, and the shops close*/
 			mass_aggravate_monsters(SOURCE_PLAYER);
 
 			msg_print("The furious townspeople search for the notorious burglar!");
 
-			/*close the shops*/
-			for (x = 0; x < MAX_STORES; x++)
-			{
-				st_ptr = &store[x];
-
-				/* Skip home */
-				if ((x == STORE_HOME) || (STORE_GUILD)) continue;
-
-				/*first close the shops*/
-				if (st_ptr->store_open < turn) st_ptr->store_open = turn;
-
-				/* Add several days to their opening*/
-				st_ptr->store_open += 50000 + randint(25000);
-			}
-
 		}
 	}
 
 	/* The thief also speeds up, but only for just long enough to escape. */
-	if (!p_ptr->fast) p_ptr->fast += 2;
+	if (!p_ptr->timed[TMD_FAST]) inc_timed(TMD_FAST, 2, TRUE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2268,13 +1737,13 @@ bool make_monster_trap(void)
 void py_set_trap(int y, int x)
 {
 
-	if (p_ptr->blind || no_lite())
+	if (p_ptr->timed[TMD_BLIND] || no_light())
 	{
 		msg_print("You can not see to set a trap.");
 		return;
 	}
 
-	if (p_ptr->confused || p_ptr->image)
+	if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE])
 	{
 		msg_print("You are too confused.");
 		return;
@@ -2289,7 +1758,7 @@ void py_set_trap(int y, int x)
 	/* Notify the player. */
 	msg_print("You set a monster trap.");
 
-	lite_spot(y, x);
+	light_spot(y, x);
 
 	/*make the monsters who saw wary*/
 	(void)project_los(y, x, 0, GF_MAKE_WARY);
@@ -2382,7 +1851,7 @@ bool py_modify_trap(int y, int x)
 {
 	int trap_choice = 0;
 
-	if (p_ptr->blind || no_lite())
+	if (p_ptr->timed[TMD_BLIND] || no_light())
 	{
 		msg_print("You can not see to modify your trap.");
 		return (FALSE);
@@ -2404,7 +1873,7 @@ bool py_modify_trap(int y, int x)
 	if (x_list[cave_x_idx[y][x]].x_f_idx == FEAT_MTRAP_BASE) return(FALSE);
 
 	/*Mark it*/
-	lite_spot(y,x);
+	light_spot(y,x);
 
 	/* Notify the player. */
 	msg_print("You modify the monster trap.");
@@ -2416,3 +1885,8 @@ bool py_modify_trap(int y, int x)
 }
 
 
+/* Centers the map on the player */
+void do_cmd_center_map(void)
+{
+	center_panel();
+}

@@ -172,7 +172,6 @@ H:3              : The hitpoint warning will be at 30%.
                See the usage in "lib/pref/pref.prf", etc.
 
 
-
 ====== Visuals, colors, and multimedia ======
 
 Interact with Visuals:  (command: '%') :

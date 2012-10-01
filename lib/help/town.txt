@@ -65,6 +65,7 @@ The Magic Shop ("6"):
      Offers a service to recharge a wand, staff, or rod with no chance of failure.
      Offers a service to identify any item.
      Offers a service to *identify* any item.
+     Offers a service to purchase a mass genocide scroll.
 
 The Black Market ("7"):
      The Black Market will buy and sell anything at extortionate prices.
@@ -89,15 +90,10 @@ The Bookshop ("0"):
 --- Buying and Selling ---
 
 The Price of Items:
-     The price of items that change hands depends on their base cost, how well
-your and the store owner's races get along*, your Charisma, and the innate
-greediness of the store owner.  If you have the "auto_haggle" option set, you
-pay an extra 10% when buying, and get 10% less when selling.
+     The price of items that change hands depends on their base cost and 
+your Charisma. 
 
-     * Everyone likes their own race best
-     * Nobody else likes Half-Orcs and Half-Trolls; the feeling is mutual.
-     * Elves and Dwarves are not very fond of each other; elves have better
-       relations with humans than do dwarves
+ 
 
      If you have the "auto_haggle" option set, you simply pay the going rate.
 Otherwise, you haggle for everything that isn't marked as being fixed price.
@@ -112,27 +108,14 @@ your price closer to the shopkeeper's offer, and he then does the same for you.
 The best way to change a price is to enter "-20" or "+20", instead of retyping a
 new figure.  After some rounds, you and the shopkeeper will meet somewhere in
 the middle.
-     The key to success is to change your price neither too little (which will
-insult the shopkeeper) nor too much (which is a sign of inexperience, and will
-be taken advantage of).  Some shopkeepers like to haggle more, other are
-impatient and demand good offers, but you have always have enough leeway to
-succeed.
-     Just be careful not to antagonize the shopkeepers too much; if you do, you
-might be thrown out of the store, which will stay locked for maybe three or four
-days.  Fortunately, shopkeepers are forgiving souls:  as time passes, they will
-forget any unhappiness you've caused them.  Shopkeepers also forget an insult
-every time you buy or sell anything.
+ 
 
 Store Stocks:
      Stores never have everything in stock; as time passes, their inventory
 slowly changes (but only when you are in the dungeon).  The store owner fully
-identifies, but does not *identify* everything you sell him; you also become
-aware of objects of that type. 
+*identifies* everything you sell him, and recharges wands, rods, and staves. 
 
 Shopkeepers can retire and be replaced:
-     Shopkeepers do retire, but only rarely.  The new shopkeeper has no
-knowledge of your previous reputation, and no memory of any past insults.  He
-puts everything in the store on sale.
-
-
+     Shopkeepers do retire, but only rarely.  He puts everything in the 
+store on sale.
 

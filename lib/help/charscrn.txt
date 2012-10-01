@@ -121,6 +121,8 @@ Attributes:
      - Shots : plus = affects the speed at which you fire missiles
      - Might : plus = increases your missile weapon damage multiplier
 
-The fifth mode tells you in which terrains you are native, and any temporary spell effects you may be under (such as being temporarily resistant to fire, cold, etc...).
+The fifth mode tells you in which terrains you are native, and any temporary 
+spell effects you may be under (such as being temporarily resistant to 
+fire, cold, etc...).
 
 

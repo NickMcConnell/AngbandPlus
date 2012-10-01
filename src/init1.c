@@ -1,11 +1,19 @@
 /* File: init1.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *                    Jeff Greene, Diego Gonzalez
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -27,20 +35,11 @@
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  *
- * Note that if "ALLOW_TEMPLATES" is not defined, then a lot of the code
- * in this file is compiled out, and the game will not run unless valid
- * "binary template files" already exist in "lib/data".  Thus, one can
- * compile Angband with ALLOW_TEMPLATES defined, run once to create the
- * "*.raw" files in "lib/data", and then quit, and recompile without
- * defining ALLOW_TEMPLATES, which will both save 20K and prevent people
- * from changing the ascii template files in potentially dangerous ways.
- *
  * The code could actually be removed and placed into a "stand-alone"
  * program, but that feels a little silly, especially considering some
  * of the platforms that we currently support.
  */
 
-#ifdef ALLOW_TEMPLATES
 
 
 #include "init.h"
@@ -98,7 +97,7 @@ static cptr r_info_blow_effect[] =
 	"EAT_GOLD",
 	"EAT_ITEM",
 	"EAT_FOOD",
-	"EAT_LITE",
+	"EAT_LIGHT",
 	"HUNGER",
 	"POISON",
 	"ACID",
@@ -216,7 +215,7 @@ static flag_name info_flags[] =
 
 	{"STUPID", RF2, RF2_STUPID},
 	{"SMART", RF2, RF2_SMART},
-	{"HAS_LITE", RF2, RF2_HAS_LITE},
+	{"HAS_LIGHT", RF2, RF2_HAS_LIGHT},
 	{"RF2XXX2", RF2, RF2_RF2XXX2},
 	{"INVISIBLE", RF2, RF2_INVISIBLE},
 	{"COLD_BLOOD", RF2, RF2_COLD_BLOOD},
@@ -265,7 +264,7 @@ static flag_name info_flags[] =
 	{"RF3XXX2", RF3, RF3_RF3XXX2},
 	{"RF3XXX3", RF3, RF3_RF3XXX3},
 	{"RF3XXX4", RF3, RF3_RF3XXX4},
-	{"HURT_LITE", RF3, RF3_HURT_LITE},
+	{"HURT_LIGHT", RF3, RF3_HURT_LIGHT},
 	{"HURT_ROCK", RF3, RF3_HURT_ROCK},
 	{"HURT_FIRE", RF3, RF3_HURT_FIRE},
 	{"HURT_COLD", RF3, RF3_HURT_COLD},
@@ -312,7 +311,7 @@ static flag_name info_flags[] =
 	{"BRTH_COLD", RF4, RF4_BRTH_COLD},
 	{"BRTH_POIS", RF4, RF4_BRTH_POIS},
 	{"BRTH_PLAS", RF4, RF4_BRTH_PLAS},
-	{"BRTH_LITE", RF4, RF4_BRTH_LITE},
+	{"BRTH_LIGHT", RF4, RF4_BRTH_LIGHT},
 	{"BRTH_DARK", RF4, RF4_BRTH_DARK},
 	{"BRTH_CONFU", RF4, RF4_BRTH_CONFU},
 	{"BRTH_SOUND", RF4, RF4_BRTH_SOUND},
@@ -347,7 +346,7 @@ static flag_name info_flags[] =
 	{"BALL_FIRE", RF5, RF5_BALL_FIRE},
 	{"BALL_COLD", RF5, RF5_BALL_COLD},
 	{"BALL_POIS", RF5, RF5_BALL_POIS},
-	{"BALL_LITE", RF5, RF5_BALL_LITE},
+	{"BALL_LIGHT", RF5, RF5_BALL_LIGHT},
 	{"BALL_DARK", RF5, RF5_BALL_DARK},
 	{"BALL_CONFU", RF5, RF5_BALL_CONFU},
 	{"BALL_SOUND", RF5, RF5_BALL_SOUND},
@@ -536,7 +535,7 @@ static flag_name info_flags[] =
 	{"RES_COLD", TR2, TR2_RES_COLD},
 	{"RES_POIS", TR2, TR2_RES_POIS},
 	{"RES_FEAR", TR2, TR2_RES_FEAR},
-	{"RES_LITE", TR2, TR2_RES_LITE},
+	{"RES_LIGHT", TR2, TR2_RES_LIGHT},
 	{"RES_DARK", TR2, TR2_RES_DARK},
 	{"RES_BLIND", TR2, TR2_RES_BLIND},
 	{"RES_CONFU", TR2, TR2_RES_CONFU},
@@ -557,7 +556,7 @@ static flag_name info_flags[] =
 
 	{"SLOW_DIGEST", TR3, TR3_SLOW_DIGEST},
 	{"FEATHER", TR3, TR3_FEATHER},
-	{"LITE", TR3, TR3_LITE},
+	{"LIGHT", TR3, TR3_LIGHT},
 	{"REGEN", TR3, TR3_REGEN},
 	{"TELEPATHY", TR3, TR3_TELEPATHY},
 	{"SEE_INVIS", TR3, TR3_SEE_INVIS},
@@ -676,7 +675,7 @@ static flag_name info_flags[] =
 	{"BRIDGED", FF2, FF2_BRIDGED},
 	{"COVERED", FF2, FF2_COVERED},
 	{"GLOW", FF2, FF2_GLOW},
-	{"ATTR_LITE", FF2, FF2_ATTR_LITE},
+	{"ATTR_LIGHT", FF2, FF2_ATTR_LIGHT},
 	{"EFFECT", FF2, FF2_EFFECT},
 	{"F2XXX_3", FF2, FF2_F2XXX_3},
 	{"SHALLOW", FF2, FF2_SHALLOW},
@@ -865,7 +864,7 @@ static cptr a_info_act[ACT_MAX] =
 /*
  * Initialize an "*_info" array, by parsing an ascii "template" file
  */
-errr init_info_txt(FILE *fp, char *buf, header *head,
+errr init_info_txt(ang_file *fp, char *buf, header *head,
                    parse_info_txt_func parse_info_txt_line)
 {
 	errr err;
@@ -885,7 +884,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 	head->text_size = 0;
 
 	/* Parse */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (file_getl(fp, buf, 1024))
 	{
 		/* Advance the line number */
 		error_line++;
@@ -1361,7 +1360,7 @@ void get_feature_name(char *desc, size_t max, byte feature_num)
  */
 static errr grab_one_flag(u32b **flag, cptr errstr, cptr what)
 {
-	uint i;
+	u16b i;
 
 	/* Check flags */
 	for (i = 0; i < N_ELEMENTS(info_flags); i++)
@@ -1495,7 +1494,7 @@ errr parse_f_info(char *buf, header *head)
 		 * for all features' will set this flag for all features, and the features that are
 		 * dynamically lit in vanilla Angband will have this flag in terrain.txt.
 		 */
-		f_ptr->f_flags2 |= (FF2_ATTR_LITE);
+		f_ptr->f_flags2 |= (FF2_ATTR_LIGHT);
 	}
 
 	/* Process 'M' for "Mimic" (one line only) */
@@ -3495,7 +3494,7 @@ errr parse_h_info(char *buf, header *head)
 		s = buf+2;
 
 		/* Store the text */
-		if (!add_text(&h_ptr->text, head, s))
+		if (!add_text(&h_ptr->h_text, head, s))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 	else
@@ -3516,167 +3515,57 @@ errr parse_h_info(char *buf, header *head)
  */
 errr parse_b_info(char *buf, header *head)
 {
-	int i, j;
-
-	char *s, *t;
-
-	/* Current entry */
-	static owner_type *ot_ptr = NULL;
-
+	static int shop_idx = 0;
+	static int owner_idx = 0;
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
 	{
-		/* Find the colon before the subindex */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the subindex */
-		*s++ = '\0';
+		/* Confirm the colon */
+		if (buf[1] != ':') return PARSE_ERROR_MISSING_COLON;
 
 		/* Get the index */
-		i = atoi(buf+2);
+		shop_idx = atoi(buf+2);
+		owner_idx = 0;
 
-		/* Find the colon before the name */
-		t = strchr(s, ':');
-
-		/* Verify that colon */
-		if (!t) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*t++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*t) return (PARSE_ERROR_GENERIC);
-
-		/* Get the subindex */
-		j = atoi(s);
-
-		/* Verify information */
-		if (j >= z_info->b_max) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Get the *real* index */
-		i = (i * z_info->b_max) + j;
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		ot_ptr = (owner_type*)head->info_ptr + i;
-
-		/* Store the name */
-		if (!(ot_ptr->owner_name = add_name(head, t)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		return 0;
 	}
 
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
+	/* Process 'S' for "Owner" */
+	else if (buf[0] == 'S')
 	{
-		int idx, gld, max, min, hgl, tol;
+		owner_type *ot_ptr;
+		char *s;
+		int purse;
 
-		/* There better be a current ot_ptr */
-		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		if (owner_idx >= z_info->b_max)
+			return PARSE_ERROR_TOO_MANY_ENTRIES;
+		if ((shop_idx * z_info->b_max) + owner_idx >= head->info_num)
+			return PARSE_ERROR_TOO_MANY_ENTRIES;
 
-		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			            &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
+		ot_ptr = (owner_type *)head->info_ptr + (shop_idx * z_info->b_max) + owner_idx;
+		if (!ot_ptr) return PARSE_ERROR_GENERIC;
 
-		/* Save the values */
-		ot_ptr->owner_race = idx;
-		ot_ptr->max_cost = gld;
-		ot_ptr->max_inflate = max;
-		ot_ptr->min_inflate = min;
-		ot_ptr->haggle_per = hgl;
-		ot_ptr->insult_max = tol;
+		/* Extract the purse */
+		if (1 != sscanf(buf+2, "%d", &purse)) return PARSE_ERROR_GENERIC;
+		ot_ptr->max_cost = purse;
+
+		s = strchr(buf+2, ':');
+		if (!s || s[1] == 0) return PARSE_ERROR_GENERIC;
+
+		ot_ptr->owner_name = add_name(head, s+1);
+		if (!ot_ptr->owner_name)
+			return PARSE_ERROR_OUT_OF_MEMORY;
+
+		owner_idx++;
+		return 0;
 	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
 
-	/* Success */
-	return (0);
+	/* Oops */
+	return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 }
 
 
-
-
-/*
- * Initialize the "g_info" array, by parsing an ascii "template" file
- */
-errr parse_g_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s;
-
-	/* Current entry */
-	static byte *g_ptr;
-
-
-	/* Process 'A' for "Adjustments" */
-	if (buf[0] == 'A')
-	{
-		int adj;
-
-		/* Start the string */
-		s = buf+1;
-
-		/* Initialize the counter to max races */
-		j = z_info->p_max;
-
-		/* Repeat */
-		while (j-- > 0)
-		{
-			/* Hack - get the index */
-			i = error_idx + 1;
-
-			/* Verify information */
-			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			g_ptr = (byte*)head->info_ptr + i;
-
-			/* Find the colon before the subindex */
-			s = strchr(s, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the subindex */
-			*s++ = '\0';
-
-			/* Get the value */
-			adj = atoi(s);
-
-			/* Save the value */
-			*g_ptr = adj;
-		}
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
 
 /*
  * Initialize the "q_info" array, by parsing an ascii "template" file
@@ -3893,10 +3782,3 @@ errr parse_flavor_info(char *buf, header *head)
 }
 
 
-#else	/* ALLOW_TEMPLATES */
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif
-
-#endif	/* ALLOW_TEMPLATES */

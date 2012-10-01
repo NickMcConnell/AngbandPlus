@@ -42,10 +42,6 @@ Stay still -- with normal pickup (,) / (.) :
 encounter, you will pick up whatever you are standing on.  You may also use the
 "5" key (both keysets).  This command takes a full turn.
 
-Stay still -- flip pickup (g) :
-     Stay in the same square for one move.  Pick up objects if you do not do so
-automatically.  This command takes a full turn.
-
 Walk -- with normal pickup (;) :
      This command activates every time you press a direction key; it moves you
 one step in the given direction.  This command takes a full turn.
@@ -204,7 +200,7 @@ For rogues only, turn an empty dungeon floor space into
 a trap.  Can also be used by rogues to make a normal monster trap into an 
 advanced trap if their level is high enough.
 
-Get objects off of the dungeon floor (']') :
+Get objects off of the dungeon floor ('g') :
      Sort through and pick up selected objects off the floor grid the player
 is standing on, regardless of squelch settings or the order of items on the
 floor.  This command takes no time.
@@ -289,9 +285,9 @@ more information.  This command takes no time.
 
 Check knowledge (~) :
      This command allows you to review what you know about artifacts, unique
-monsters, features, and objects.  You can also review the contents of your home, 
-total kill count for each monster, view your player notes file, or view the 
-player hall of fame.
+monsters, features, terrain, and objects.  You can also review the contents of  
+your home, total kill count for each monster, view your player notes file, 
+or view the player hall of fame.
 
 Identify Symbol (/) :
      Find out what a character represents.  For instance, by pressing '/', then
@@ -394,10 +390,6 @@ Redraw Screen (Ctrl-R) :
 redraws all of the windows.  It is normally only necessary in abnormal
 situations, such as after changing the visual preferences or changing display
 modes.
-
-Load screen dump (left-parenthesis) :
-     Load a "snap-shot" of the current screen from a file and displays it on the
-screen.
 
 Save screen dump (right-parenthesis) :
      Dump a "snap-shot" of the current screen to an HTML file, including encoded

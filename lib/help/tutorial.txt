@@ -25,7 +25,8 @@ open up help, then press '1', then '2'.
      Okay, time to get playing!  Pick up an inexpensive weapon (store 3), some
 flasks of oil (store 1) or a sling and some shots (store 3), some light armour
 (stores 1 and 2), and some phase door scrolls and potions of cure light wounds
-(Stores 4 or 5).  If one is available, get your hands on a lantern, because the
+(Stores 4 or 5), spellbooks if you are a spellcaster (store 0), ask for a quest
+(store 9).  If one is available, get your hands on a lantern, because the
 extra light it provides is very handy.  Once you've earned a little money,
 invest in a shovel or a pickaxe.  Now, 'w'ear a torch or your lantern, your
 armour, and your weapon.

@@ -154,7 +154,7 @@ have intrinsic abilities.
                bows and magic, but they are not as good at hand weapons.  
                Elves are resistant to attacks involving bright light, and have
                their dexterity sustained, and are native 
-to forest terrain.
+               to forest terrain.
 
  
           Hobbits
@@ -235,7 +235,7 @@ to forest terrain.
                to come by than Dunedain: and their wisdom is still a 
                little suspect. And like normal Elves, they resist
                attacks involving bright light, and are native 
-to forest terrain.
+               to forest terrain.
 
 
           Kobold
@@ -316,7 +316,7 @@ to forest terrain.
                experience is required for him to advance.  A ranger has a
                good stealth, good perception, good searching, a good saving
                throw,  are native to forest terrain, and is good 
-with magical devices.  His primary stats
+               with magical devices.  His primary stats
                are Strength, Intelligence, Wisdom and Dexterity.
  
           Paladin
@@ -413,8 +413,8 @@ with magical devices.  His primary stats
                appearance.  A character with a high charisma will receive
                better prices from store owners, whereas a character with a
                very low charisma may be robbed blind. Charisma also affects the
-               character's ability to use magic to sleep, confuse, or scare a 
-               monster
+               character's ability to use magic to sleep, confuse, scare or  
+               stun a monster.
  
 
 === Abilities ===

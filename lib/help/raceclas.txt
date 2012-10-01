@@ -271,3 +271,4 @@ for stealth, which is an exact value.
 and spells can improve many of these skills dramatically.
      Melee blows:  Warriors can get up to 5 blows, not counting an additional
 blow they gain at level 26, mages up to 4, and all other classes up to 5 blows.
+

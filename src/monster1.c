@@ -28,6 +28,403 @@ static cptr wd_his[3] =
 
 #define PLAYER_GHOST_TRIES_MAX 30
 
+
+typedef struct
+{
+  int message_begin;
+  int message_end;
+  int message_increase;
+  u32b flag_resist;
+} mon_timed_effect;
+
+/*
+ * Monster timed effects.  Notice this code assumes the monster resist
+ * is in the third set of flags.
+ * '0' means no message.
+ */
+
+static mon_timed_effect effects[] =
+{
+	/*TMD_MON_SLEEP*/
+	{MON_MSG_FALL_ASLEEP, MON_MSG_WAKES_UP, FALSE, RF3_NO_SLEEP},
+	/*TMD_MON_STUN*/
+	{MON_MSG_DAZED, MON_MSG_NOT_DAZED, MON_MSG_MORE_DAZED, RF3_NO_STUN },
+	/*TMD_MON_CONF*/
+	{MON_MSG_CONFUSED, MON_MSG_NOT_CONFUSED, MON_MSG_MORE_CONFUSED, RF3_NO_CONF },
+	/*TMD_MON_FEAR*/
+	{MON_MSG_FLEE_IN_TERROR, MON_MSG_NOT_AFRAID, MON_MSG_MORE_AFRAID, RF3_NO_FEAR },
+	/*TMD_MON_SLOW*/
+	{MON_MSG_SLOWED, MON_SNG_NOT_SLOWED, MON_MSG_MORE_SLOWED, RF3_NO_SLOW  },
+	/*TMD_MON_FAST*/
+	{MON_MSG_HASTED, MON_MSG_NOT_HASTED, MON_MSG_MORE_HASTED, 0L  },
+
+};
+
+static int charisma_adjustment(const monster_race *r_ptr)
+{
+
+	/*stupid or brainless monsters aren't affected by player charisma*/
+	if (r_ptr->flags2 & (RF2_STUPID | RF2_EMPTY_MIND)) return (0);
+
+	/*weird monsters are rarely affected by player charisma*/
+	if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) && (!one_in_(10))) return (0);
+
+	/*charisma applies*/
+	return (adj_chr_charm[p_ptr->state.stat_ind[A_CHR]]);
+}
+
+#define ZERO_RESIST		0
+#define HALF_RESIST		1
+#define FULL_RESIST		2
+
+
+/*
+ * Helper function for mon_set_timed.  This determined if the monster
+ * Successfully resisted the effect.  Also marks the lore for any
+ * appropriate resists.
+ */
+static int mon_resist_effect(int m_idx, int idx, u16b flag)
+{
+	mon_timed_effect *effect = &effects[idx];
+	int resisted = ZERO_RESIST;
+	int resist_chance;
+	monster_type *m_ptr = &mon_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Hasting never fails */
+	if (idx == MON_TMD_FAST) return (ZERO_RESIST);
+
+	/* Some effects are marked to never fail */
+	if (flag & (MON_TMD_FLG_NOFAIL)) return (ZERO_RESIST);
+
+	/* Stupid, weird, or empty monsters aren't affected by some effects*/
+	if (r_ptr->flags2 & (RF2_STUPID | RF2_EMPTY_MIND | RF2_WEIRD_MIND))
+	{
+		if (idx == MON_TMD_CONF) return (FULL_RESIST);
+		if (idx == MON_TMD_SLEEP) return (FULL_RESIST);
+	}
+
+	/* Calculate the chance of the monster resisting. */
+	if (flag & (MON_TMD_MON_SOURCE))
+	{
+		resist_chance = r_ptr->level;
+	}
+	else
+	{
+		resist_chance = r_ptr->level + 25 - p_ptr->lev / 5;
+		resist_chance -= charisma_adjustment(r_ptr);
+	}
+
+	/* Monsters who resist get half the duration, at most */
+	if (r_ptr->flags3 & (effect->flag_resist))
+	{
+		resisted = HALF_RESIST;
+
+		/* Mark the lore */
+		if (flag & MON_TMD_FLG_SEEN) l_ptr->r_l_flags3 |= effect->flag_resist;
+
+		/* 2 changes to resist */
+		if (randint0(100) < resist_chance) return (FULL_RESIST);
+		if (randint0(100) < resist_chance) return (FULL_RESIST);
+	}
+
+	/* Uniques are doubly hard to affect */
+	if (r_ptr->flags1 & RF1_UNIQUE)
+	{
+		resisted = HALF_RESIST;
+		if (randint0(100) < resist_chance) return (FULL_RESIST);
+	}
+
+	/* Monsters with specific breaths and undead get an extra chance at resisting at stunning*/
+	if ((idx == MON_TMD_STUN) &&
+		((r_ptr->flags4 & (RF4_BRTH_SOUND | RF4_BRTH_FORCE)) || (monster_nonliving(r_ptr))))
+	{
+		resisted = HALF_RESIST;
+
+		if ((randint0(100) < resist_chance))
+		{
+			/* Add the lore */
+			if (flag & MON_TMD_FLG_SEEN)
+			{
+				if (r_ptr->flags4 & (RF4_BRTH_SOUND))
+				{
+					l_ptr->r_l_flags4 |= RF4_BRTH_SOUND;
+				}
+				if (r_ptr->flags4 & (RF4_BRTH_FORCE))
+				{
+					l_ptr->r_l_flags4 |= RF4_BRTH_FORCE;
+				}
+			}
+
+			return (FULL_RESIST);
+		}
+	}
+
+	/* Monsters with specific breaths get an extra chance at resisting confusion*/
+	if ((idx == MON_TMD_CONF) &&
+	    (r_ptr->flags4 & (RF4_BRTH_CONFU | RF4_BRTH_CHAOS)))
+	{
+
+		resisted = HALF_RESIST;
+
+		if ((randint0(100) < resist_chance))
+		{
+			/* Add the lore */
+			if (flag & MON_TMD_FLG_SEEN)
+			{
+				if (r_ptr->flags4 & (RF4_BRTH_CONFU))
+				{
+					l_ptr->r_l_flags4 |= RF4_BRTH_CONFU;
+				}
+				if (r_ptr->flags4 & (RF4_BRTH_CHAOS))
+				{
+					l_ptr->r_l_flags4 |= RF4_BRTH_CHAOS;
+				}
+			}
+			return (FULL_RESIST);
+		}
+	}
+
+	/* Very difficult to make non-living creatures sleep */
+	if ((idx == MON_TMD_SLEEP) &&  (monster_nonliving(r_ptr)))
+	{
+		resisted = HALF_RESIST;
+
+		if ((randint0(100) < resist_chance)) return (FULL_RESIST);
+	}
+
+	/* Inertia breathers are highly resistant to slowing*/
+	if ((idx == MON_TMD_SLOW) && (r_ptr->flags4 & (RF4_BRTH_INER)))
+	{
+		resisted = HALF_RESIST;
+
+		if ((randint0(100) < resist_chance))
+		{
+			/* Add the lore */
+			if (flag & MON_TMD_FLG_SEEN)
+			{
+				l_ptr->r_l_flags4 |= RF4_BRTH_INER;
+			}
+
+			return (FULL_RESIST);
+
+		}
+	}
+
+	return (resisted);
+}
+
+/*
+ * Set a timed monster event to 'v'.  Give messages if the right flags are set.
+ * Check if the monster is able to resist the spell.  Mark the lore
+ * Note much this code assumes the monster resistances are in the
+ * r_ptr>flags3 set.
+ * Returns TRUE if the monster was affected
+ * Return FALSE if the monster was unaffected.
+ */
+static bool mon_set_timed(int m_idx, int idx, int v, u16b flag)
+{
+	mon_timed_effect *effect = &effects[idx];
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	char m_name[80];
+	int m_note = FALSE;
+
+	int resisted;
+
+	m_note = 0;
+
+	/* Get monster name*/
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/* No change */
+	if (m_ptr->m_timed[idx] == v) return FALSE;
+
+	/* Turning off, usually mention */
+	if (v == 0)
+	{
+		m_note = effect->message_end;
+
+		flag |= MON_TMD_FLG_NOTIFY;
+	}
+
+	/* Turning on, usually mention */
+	else if (m_ptr->m_timed[idx] == 0)
+	{
+
+		flag |= MON_TMD_FLG_NOTIFY;
+
+		m_note = effect->message_begin;
+	}
+	/* Different message for increases, but don't automatically mention. */
+	else if (v > m_ptr->m_timed[idx])
+	{
+		m_note = effect->message_increase;
+	}
+
+	/* Determine if the monster resisted or not */
+	resisted = mon_resist_effect(m_idx, idx, flag);
+
+	if (resisted == FULL_RESIST)
+	{
+		m_note = MON_MSG_UNAFFECTED;
+	}
+
+	/* Cut the increase duration in half */
+	else if (resisted == HALF_RESIST)
+	{
+		int change = v - m_ptr->m_timed[idx];
+
+		m_note = MON_MSG_RESIST_SOMEWHAT;
+
+		/* Paranoia - make sure it is an increase that can be cut in half */
+		if (change > 1)
+		{
+			change /= 2;
+			v = m_ptr->m_timed[idx] + change;
+		}
+	}
+
+	/* set the JUST_SCARED flag */
+	else if (idx == MON_TMD_FEAR)
+	{
+		if (v > m_ptr->m_timed[idx]) m_ptr->mflag |= (MFLAG_JUST_SCARED);
+	}
+
+	/* Apply the value, unless they fully resisted */
+	if (resisted != FULL_RESIST)  m_ptr->m_timed[idx] = v;
+
+	/*possibly update the monster health bar*/
+	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+	if ((idx == MON_TMD_FAST) || (idx == MON_TMD_SLOW))
+	{
+	 	 calc_monster_speed(m_ptr->fy, m_ptr->fx);
+	}
+
+	/* Update the visuals, as appropriate. */
+	p_ptr->redraw |= (PR_MONLIST);
+
+	/* Return result without any messages */
+	if ((flag & (MON_TMD_FLG_NOMESSAGE)) || (!m_note) ||
+		(!(flag & (MON_TMD_FLG_SEEN))) ||
+		(!(flag & (MON_TMD_FLG_NOTIFY))))
+	{
+		/* Return a boolean result */
+		if (resisted == FULL_RESIST) return FALSE;
+		return (TRUE);
+	}
+
+	/* Finally, handle the message */
+	add_monster_message(m_name, m_idx, m_note);
+
+	/* Return a boolean result */
+	if (resisted == FULL_RESIST) return FALSE;
+	return (TRUE);
+}
+
+/*
+ * Increase the timed effect `idx` by `v`.
+ */
+bool mon_inc_timed(int m_idx, int idx, int v, u16b flag)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	/* Ignore dead monsters */
+	if (!m_ptr->r_idx) return FALSE;
+
+	if (v < 0) return (FALSE);
+
+	/* Check we have a valid effect */
+	if ((idx < 0) || (idx > MON_TMD_MAX)) return FALSE;
+
+	/* mark if seen */
+	if (m_ptr->ml) flag |= MON_TMD_FLG_SEEN;
+
+	/* Hasting never fails */
+	if (idx == MON_TMD_FAST) flag |= MON_TMD_FLG_NOFAIL;
+
+	/* Can't prolong sleep of sleeping monsters */
+	if ((idx == MON_TMD_SLEEP) &&
+		(m_ptr->m_timed[MON_TMD_SLEEP])) return FALSE;
+
+	/* Make it last for a mimimum # of turns if it is a new effect */
+	if ((!m_ptr->m_timed[idx]) && (v < 2)) v = 2;
+
+	/* New counter amount */
+	v = m_ptr->m_timed[idx] + v;
+
+	/* Boundry Control */
+	if (v > 10000) v = 10000;
+
+	return mon_set_timed(m_idx, idx, v, flag);
+}
+
+/*
+ * Decrease the timed effect `idx` by `v`.
+ */
+bool mon_dec_timed(int m_idx, int idx, int v, u16b flag)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	/* Ignore dead monsters */
+	if (!m_ptr->r_idx) return FALSE;
+
+	if (v < 0) return (FALSE);
+
+	/* Check we have a valid effect */
+	if ((idx < 0) || (idx > MON_TMD_MAX)) return FALSE;
+
+	/* mark if seen */
+	if (m_ptr->ml) flag |= MON_TMD_FLG_SEEN;
+
+	/* Decreasing is never resisted */
+	flag |= MON_TMD_FLG_NOFAIL;
+
+	/* New counter amount */
+	v = m_ptr->m_timed[idx] - v;
+
+	/* Use clear function if appropriate */
+	if (v < 0) return (mon_clear_timed(m_idx, idx, flag));
+
+	return mon_set_timed(m_idx, idx, v, flag);
+}
+
+/**
+ * Clear the timed effect `idx`.
+ */
+bool mon_clear_timed(int m_idx, int idx, u16b flag)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	/* Ignore dead monsters */
+	if (!m_ptr->r_idx) return FALSE;
+
+	if (!m_ptr->m_timed[idx]) return FALSE;
+
+	/* mark if seen */
+	if (m_ptr->ml) flag |= MON_TMD_FLG_SEEN;
+
+	/* Monster is no longer desperate */
+	if (idx == MON_TMD_FEAR)
+	{
+		m_ptr->mflag &= ~(MFLAG_DESPERATE);
+	}
+
+	/* Clearing never fails */
+	flag |= MON_TMD_FLG_NOFAIL;
+
+	/* Check we have a valid effect */
+	if ((idx < 0) || (idx > MON_TMD_MAX)) return FALSE;
+
+	return mon_set_timed(m_idx, idx, 0, flag);
+}
+
+
+
+
+
 /*
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
@@ -238,7 +635,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->r_l_flags4 & (RF4_BRTH_POIS))       vp[vn++] = "poison";
 	if (l_ptr->r_l_flags4 & (RF4_BRTH_PLAS))       vp[vn++] = "plasma";
 
-	if (l_ptr->r_l_flags4 & (RF4_BRTH_LITE))       vp[vn++] = "light";
+	if (l_ptr->r_l_flags4 & (RF4_BRTH_LIGHT))       vp[vn++] = "light";
 	if (l_ptr->r_l_flags4 & (RF4_BRTH_DARK))	   vp[vn++] = "darkness";
 	if (l_ptr->r_l_flags4 & (RF4_BRTH_CONFU))      vp[vn++] = "confusion";
 	if (l_ptr->r_l_flags4 & (RF4_BRTH_SOUND))      vp[vn++] = "sound";
@@ -319,7 +716,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		else vp[vn++] = "produce storms of poison";
 	}
 
-	if (l_ptr->r_l_flags5 & (RF5_BALL_LITE))
+	if (l_ptr->r_l_flags5 & (RF5_BALL_LIGHT))
 	{
 		if (spower < 10) vp[vn++] = "produce spheres of light";
 		else if (spower < 40) vp[vn++] = "produce explosions of light";
@@ -805,7 +1202,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBE_EAT_GOLD:      q = "steal gold"; break;
 			case RBE_EAT_ITEM:      q = "steal items"; break;
 			case RBE_EAT_FOOD:      q = "eat your food"; break;
-			case RBE_EAT_LITE:      q = "absorb light"; break;
+			case RBE_EAT_LIGHT:      q = "absorb light"; break;
 			case RBE_HUNGER:        q = "cause hunger"; break;
 
 			case RBE_POISON:        q = "poison"; break;
@@ -916,7 +1313,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect special abilities. */
 	vn = 0;
-	if (l_ptr->r_l_flags2 & RF2_HAS_LITE)
+	if (l_ptr->r_l_flags2 & RF2_HAS_LIGHT)
 	{
 		/*humaniods carry torches, others glow*/
 		if (!strchr("hkoOTtPp", r_ptr->d_char)) vp[vn++] = "radiate natural light";
@@ -1015,13 +1412,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 			text_out(format("%^s is surrounded by ", wd_he[msex]));
 
 			/* Describe cloud */
-			if (typ == GF_FIRE)           text_out("fire");
-			else if (typ == GF_COLD)      text_out("frost");
-			else if (typ == GF_ELEC)      text_out("lightning");
-			else if (typ == GF_ACID)      text_out("acidic smoke");
-			else if (typ == GF_POIS)      text_out("noxious gases");
-			else if (typ == GF_SOUND)     text_out("a cacophony of sound");
-			else if (typ == GF_SPORE)     text_out("spores");
+			if (typ == GF_SPORE)     text_out("spores");
 			else if (typ == GF_DARK)      text_out("darkness");
 			else if (typ == GF_DARK_WEAK) text_out("darkness");
 			else                          text_out("powerful forces");
@@ -1032,7 +1423,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	/* Collect susceptibilities */
 	vn = 0;
 	if (l_ptr->r_l_flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
-	if (l_ptr->r_l_flags3 & RF3_HURT_LITE) vp[vn++] = "bright light";
+	if (l_ptr->r_l_flags3 & RF3_HURT_LIGHT) vp[vn++] = "bright light";
 	if (l_ptr->r_l_flags3 & RF3_HURT_FIRE) vp[vn++] = "fire";
 	if (l_ptr->r_l_flags3 & RF3_HURT_COLD) vp[vn++] = "cold";
 
@@ -1140,7 +1531,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" cannot be ");
+			if (n == 0) text_out(" is highly resistant to being ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" or ");
 
@@ -1458,16 +1849,8 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		else
 			text_out_c(TERM_SLATE, " is normally found ");
 
-		if (depth_in_feet)
-		{
-			text_out_c(TERM_SLATE, format("at depths of %d feet",
-			                            r_ptr->level * 50));
-		}
-		else
-		{
-			text_out_c(TERM_SLATE, format("on dungeon level %d",
-			                            r_ptr->level));
-		}
+		text_out_c(TERM_SLATE, "at depths of %d feet", r_ptr->level * 50);
+
 		old = TRUE;
 	}
 
@@ -1478,7 +1861,9 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		int n;
 		cptr vp[16];
 
-		text_out(", and is native to ");
+		if (old) text_out(", and");
+
+		text_out(", is native to ");
 
 		if (l_ptr->r_l_native & (RN1_N_LAVA)) vp[vn++] = "lava";
 		if (l_ptr->r_l_native & (RN1_N_ICE)) vp[vn++] = "ice";
@@ -1676,12 +2061,10 @@ void describe_monster(int r_idx, bool spoilers)
 	}
 
 	/* Show kills of monster vs. player(s) */
-	if (!spoilers && show_details)
-		describe_monster_kills(r_idx, &lore);
+	if (!spoilers)	describe_monster_kills(r_idx, &lore);
 
 	/* Monster description */
-	if (spoilers || show_details)
-		describe_monster_desc(r_idx);
+	describe_monster_desc(r_idx);
 
 	/* Describe the movement and level of the monster */
 	describe_monster_movement(r_idx, &lore);
@@ -1856,8 +2239,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 	bool use_view = FALSE;
 
 	/* Allocate some arrays */
-	C_MAKE(monster_dist, mon_max, int);
-	C_MAKE(monster_index, mon_max, int);
+	monster_dist = C_ZNEW(mon_max, int);
+	monster_index = C_ZNEW(mon_max, int);
 
 	/* Note that we're looking from the character's grid */
 	if ((y0 == p_ptr->py) && (x0 == p_ptr->px)) use_view = TRUE;
@@ -1987,7 +2370,7 @@ static void process_ghost_race(int ghost_race, int r_idx)
 
 	/*Add in some intrinsic race abilities*/
 
-	if (p_info[ghost_race].pr_flags2 & TR2_RES_LITE) r_ptr->flags3 &= ~(RF3_HURT_LITE);
+	if (p_info[ghost_race].pr_flags2 & TR2_RES_LIGHT) r_ptr->flags3 &= ~(RF3_HURT_LIGHT);
 
 	if (p_info[ghost_race].pr_flags3 & TR3_FREE_ACT) r_ptr->flags3 |= (RF3_NO_CHARM);
 
@@ -2018,7 +2401,7 @@ static void process_ghost_race(int ghost_race, int r_idx)
 	/*is it an elf name?*/
 	if ((strstr(racename, "elf")) || (strstr(racename, "ELF")))
 	{
-		r_ptr->flags3 &= ~(RF3_HURT_LITE);
+		r_ptr->flags3 &= ~(RF3_HURT_LIGHT);
 	}
 
 	/*go through the races, get average, min, and max abilities for fighting*/
@@ -2427,7 +2810,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
-	FILE		*fp = FALSE;
+	ang_file	*fp;
 	bool		err = FALSE;
 	char		path[1024];
 
@@ -2453,7 +2836,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	 */
 	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE))
 	{
-		return (FALSE);
+		if (FALSE) return (FALSE);
 	}
 
 	/* Store the index of the base race. */
@@ -2486,12 +2869,17 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 			bones_selector = backup_file_selector;
 		}
 
+		if (!file_exists(path)) continue;
+
 		/* Attempt to open the bones file. */
-		fp = my_fopen(path, "r");
+		fp = file_open(path, MODE_READ, -1);
 
 		/* No bones file with that number, try again. */
 		if (!fp)
 		{
+
+			/* Remove the file unless it is a maintainer ghost template. */
+			if (bones_selector <= MAX_DEPTH) file_delete(path);
 
 			bones_selector = 0;
 
@@ -2500,27 +2888,31 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 		}
 
 		/* Success. */
-		if (fp) break;
+		if (fp)
+		{
+
+			 /* XXX XXX XXX Scan the file to get the basic info of the ghost  */
+			if (!file_getl(fp, ghost_name, sizeof(ghost_name)) ||
+				!next_line_to_number(fp, &ghost_sex) ||
+				!next_line_to_number(fp, &ghost_race) ||
+				!next_line_to_number(fp, &ghost_class))
+			{
+				err = TRUE;
+			}
+
+			/* Close the file */
+			(void)file_close(fp);
+
+			break;
+		}
 	}
-
-	/*function failed*/
-	if (!fp) return (FALSE);
-
-	 /* XXX XXX XXX Scan the file to get the basic info of the ghost  */
-	if (my_fgets(fp, ghost_name, sizeof(ghost_name)) ||
-		next_line_to_number(fp, &ghost_sex) ||
-		next_line_to_number(fp, &ghost_race) ||
-		next_line_to_number(fp, &ghost_class))
-	{
-		err = TRUE;
-	}
-
-	/* Close the file */
-	my_fclose(fp);
 
 	/* Hack -- broken file */
 	if (err)
 	{
+		/* Remove the file unless it is a maintainer ghost template. */
+		if (bones_selector <= MAX_DEPTH) file_delete(path);
+
 		bones_selector = 0;
 		return (FALSE);
 	}
@@ -2534,7 +2926,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 	ghost_name[i] = '\0';
 
 	/* Force a name */
-	if (!ghost_name[0]) strcpy(ghost_name, "Nobody");
+	if (!ghost_name[0]) my_strcpy(ghost_name, "Nobody", sizeof(ghost_name));
 
 	/* Capitalize the name */
 	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
@@ -2598,7 +2990,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, try);
 
 			/* Attempt to open the bones file. */
-			fp = my_fopen(path, "r");
+			fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
 
 			/* Found a number to make a new bones file. */
 			if (!fp)
@@ -2606,7 +2998,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 				char esc_name[80];
 
 				/* Try to write a new "Bones File" */
-				fp = my_fopen(path, "w");
+				fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
 
 				/*paranoia*/
 				if (!fp) continue;
@@ -2619,16 +3011,16 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 
 				/*now save the new file*/
 				/* Save the info */
-				fprintf(fp, "%s\n", esc_name);
-				fprintf(fp, "%d\n", ghost_sex);
-				fprintf(fp, "%d\n", ghost_race);
-				fprintf(fp, "%d\n", ghost_class);
+				file_putf(fp, "%s\n", esc_name);
+				file_putf(fp, "%d\n", ghost_sex);
+				file_putf(fp, "%d\n", ghost_race);
+				file_putf(fp, "%d\n", ghost_class);
 
 				/*Mark end of file*/
-				fprintf(fp, "\n");
+				file_putf(fp, "\n");
 
 				/* Close and save the Bones file */
-				my_fclose(fp);
+				(void)file_close(fp);
 
 				/*done*/
 				break;
@@ -2636,7 +3028,7 @@ bool prepare_ghost(int r_idx, bool from_savefile)
 
 			/* This one is used, close it, and then continue*/
 			/* Success. */
-			else my_fclose(fp);
+			else (void)file_close(fp);
 		}
 
 	}

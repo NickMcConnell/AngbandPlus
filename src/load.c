@@ -1,11 +1,18 @@
 /* File: load.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1997 Ben Harrison, Jeff Greene, Diego Gonzalez, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -41,7 +48,7 @@
 /*
  * Local "savefile" pointer
  */
-static FILE	*fff;
+static ang_file	*fff;
 
 /*
  * Hack -- old "encryption" byte
@@ -104,46 +111,6 @@ static bool older_than(int x, int y, int z)
 	return (FALSE);
 }
 
-
-/*
- * Hack -- determine if an item is "wearable" (or a missile)
- */
-static bool wearable_p(const object_type *o_ptr)
-{
-	/* Valid "tval" codes */
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_DRAG_SHIELD:
-		case TV_LITE:
-		case TV_AMULET:
-		case TV_RING:
-		{
-			return (TRUE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
-}
-
-
 /*
  * The following functions are used to load the basic building blocks
  * of savefiles.  They also maintain the "checksum" info.
@@ -154,7 +121,7 @@ static byte sf_get(void)
 	byte c, v;
 
 	/* Get a character, decode the value */
-	c = getc(fff) & 0xFF;
+	c = file_getc(fff) & 0xFF;
 	v = c ^ xor_byte;
 	xor_byte = c;
 
@@ -517,7 +484,7 @@ static errr rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
-
+	byte dummy;
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
@@ -527,14 +494,26 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->fx);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
-	rd_s16b(&m_ptr->csleep);
+	rd_s16b(&m_ptr->m_timed[MON_TMD_SLEEP]);
 	rd_byte(&m_ptr->mspeed);
 	rd_s16b(&m_ptr->m_energy);
-	rd_byte(&m_ptr->stunned);
-	rd_byte(&m_ptr->confused);
-	rd_byte(&m_ptr->monfear);
-	rd_s16b(&m_ptr->hasted);
-	rd_s16b(&m_ptr->slowed);
+	if (older_than(0,5,3))
+	{
+		rd_byte(&dummy);
+		m_ptr->m_timed[MON_TMD_STUN] = dummy;
+		rd_byte(&dummy);
+		m_ptr->m_timed[MON_TMD_CONF] = dummy;
+		rd_byte(&dummy);
+		m_ptr->m_timed[MON_TMD_FEAR] = dummy;
+	}
+	else
+	{
+		rd_s16b(&m_ptr->m_timed[MON_TMD_STUN]);
+		rd_s16b(&m_ptr->m_timed[MON_TMD_CONF]);
+		rd_s16b(&m_ptr->m_timed[MON_TMD_FEAR]);
+	}
+	rd_s16b(&m_ptr->m_timed[MON_TMD_FAST]);
+	rd_s16b(&m_ptr->m_timed[MON_TMD_SLOW]);
 	rd_u32b(&m_ptr->mflag);
 	rd_u32b(&m_ptr->smart);
 	rd_byte(&m_ptr->target_y);
@@ -591,13 +570,16 @@ static errr rd_unknown_extension(void)
 static errr rd_call_huorns_extension(void)
 {
 	byte tmp8u;
+	u16b temp;
 
 	/* Read and validate field type of the spell timer */
 	rd_byte(&tmp8u);
 	if (tmp8u != EXTENSION_TYPE_U16B) return (-1);
 
 	/* Read timer value */
-	rd_u16b(&p_ptr->temp_call_huorns);
+	rd_u16b(&temp);
+
+	p_ptr->timed[TMD_CALL_HOURNS] = temp;
 
 	/* Read and validate end mark of fields */
 	rd_byte(&tmp8u);
@@ -802,18 +784,22 @@ static errr rd_store(int n)
 
 	byte own, num;
 
+	u32b extra32;
+	s16b extra16;
+
 
 	/* Read the basic info */
-	rd_s32b(&st_ptr->store_open);
-	rd_s16b(&st_ptr->insult_cur);
+	rd_u32b(&extra32);
+	rd_s16b(&extra16);
 	rd_byte(&own);
 	rd_byte(&num);
-	rd_s16b(&st_ptr->good_buy);
-	rd_s16b(&st_ptr->bad_buy);
+	rd_s16b(&extra16);
+	rd_s16b(&extra16);
 
 	/* Paranoia */
 	if (own >= z_info->b_max)
 	{
+
 		note("Illegal store owner!");
 		return (-1);
 	}
@@ -1025,24 +1011,24 @@ static void rd_options(void)
 		int ob = i % 32;
 
 		/* Process real entries */
-		if (options[i].text)
-		{
-			/* Process saved entries */
-			if (mask[os] & (1L << ob))
-			{
-				/* Set flag */
-				if (flag[os] & (1L << ob))
-				{
-					/* Set */
-					op_ptr->opt[i] = TRUE;
-				}
+		if (!options[i].name) continue;
 
-				/* Clear flag */
-				else
-				{
-					/* Set */
-					op_ptr->opt[i] = FALSE;
-				}
+		/* Process saved entries */
+		if (mask[os] & (1L << ob))
+		{
+			/* Set flag */
+			if (flag[os] & (1L << ob))
+			{
+				/* Set */
+				op_ptr->opt[i] = TRUE;
+			}
+
+			/* Clear flag */
+			else
+			{
+				/* Set */
+				op_ptr->opt[i] = FALSE;
+
 			}
 		}
 	}
@@ -1071,27 +1057,19 @@ static void rd_options(void)
 			/* Process valid flags */
 			if (window_flag_desc[i])
 			{
-				/* Process valid flags */
-				if (window_mask[n] & (1L << i))
+				/* Blank invalid flags */
+				if (!(window_mask[n] & (1L << i)))
 				{
-					/* Set */
-					if (window_flag[n] & (1L << i))
-					{
-						/* Set */
-						op_ptr->window_flag[n] |= (1L << i);
-					}
+					window_flag[n] &= ~(1L << i);
 				}
 			}
 		}
 	}
 
+	/* Set up the subwindows */
+	subwindows_set_flags(window_flag, ANGBAND_TERM_MAX);
+
 }
-
-
-
-
-static u32b randart_version;
-
 
 static errr rd_player_spells(void)
 {
@@ -1133,6 +1111,7 @@ static errr rd_extra(void)
 	byte tmp8u;
 	u16b tmp16u;
 	u16b file_e_max;
+	u32b extra_u32b;
 
 
 	rd_string(op_ptr->full_name, sizeof(op_ptr->full_name));
@@ -1168,6 +1147,7 @@ static errr rd_extra(void)
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
+
 	rd_byte(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
@@ -1178,6 +1158,15 @@ static errr rd_extra(void)
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	if (!older_than(0,5,1))
+	{
+		for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_birth[i]);
+
+		rd_s16b(&p_ptr->ht_birth);
+		rd_s16b(&p_ptr->wt_birth);
+		rd_s16b(&p_ptr->sc_birth);
+		rd_s32b(&p_ptr->au_birth);
+	}
 
 	strip_bytes(24);	/* oops */
 
@@ -1186,7 +1175,9 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->au);
 
 	rd_s32b(&p_ptr->max_exp);
+
 	rd_s32b(&p_ptr->exp);
+
 	rd_u16b(&p_ptr->exp_frac);
 
 	rd_s16b(&p_ptr->lev);
@@ -1227,49 +1218,50 @@ static errr rd_extra(void)
 
 	/* Read the flags */
 	strip_bytes(2);	/* Old "rest" */
-	rd_s16b(&p_ptr->blind);
-	rd_s16b(&p_ptr->paralyzed);
-	rd_s16b(&p_ptr->confused);
+	rd_s16b(&p_ptr->timed[TMD_BLIND]);
+	rd_s16b(&p_ptr->timed[TMD_PARALYZED]);
+	rd_s16b(&p_ptr->timed[TMD_CONFUSED]);
 	rd_s16b(&p_ptr->food);
 	strip_bytes(4);	/* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->p_energy);
-	rd_s16b(&p_ptr->fast);
-	rd_s16b(&p_ptr->slow);
-	rd_s16b(&p_ptr->afraid);
-	rd_s16b(&p_ptr->cut);
-	rd_s16b(&p_ptr->stun);
-	rd_s16b(&p_ptr->poisoned);
-	rd_s16b(&p_ptr->image);
-	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
-	rd_s16b(&p_ptr->hero);
-	rd_s16b(&p_ptr->shero);
-	rd_s16b(&p_ptr->shield);
-	rd_s16b(&p_ptr->blessed);
-	rd_s16b(&p_ptr->tim_invis);
+	rd_s16b(&p_ptr->timed[TMD_FAST]);
+	rd_s16b(&p_ptr->timed[TMD_SLOW]);
+	rd_s16b(&p_ptr->timed[TMD_AFRAID]);
+	rd_s16b(&p_ptr->timed[TMD_CUT]);
+	rd_s16b(&p_ptr->timed[TMD_STUN]);
+	rd_s16b(&p_ptr->timed[TMD_POISONED]);
+	rd_s16b(&p_ptr->timed[TMD_IMAGE]);
+	rd_s16b(&p_ptr->timed[TMD_PROTEVIL]);
+	rd_s16b(&p_ptr->timed[TMD_INVULN]);
+	rd_s16b(&p_ptr->timed[TMD_HERO]);
+	rd_s16b(&p_ptr->timed[TMD_SHERO]);
+	rd_s16b(&p_ptr->timed[TMD_SHIELD]);
+	rd_s16b(&p_ptr->timed[TMD_BLESSED]);
+	rd_s16b(&p_ptr->timed[TMD_SINVIS]);
 	rd_s16b(&p_ptr->word_recall);
-	rd_s16b(&p_ptr->see_infra);
-	rd_s16b(&p_ptr->tim_infra);
-	rd_s16b(&p_ptr->oppose_fire);
-	rd_s16b(&p_ptr->oppose_cold);
-	rd_s16b(&p_ptr->oppose_acid);
-	rd_s16b(&p_ptr->oppose_elec);
-	rd_s16b(&p_ptr->oppose_pois);
+	rd_s16b(&p_ptr->state.see_infra);
+	rd_s16b(&p_ptr->timed[TMD_SINFRA]);
+	rd_s16b(&p_ptr->timed[TMD_OPP_FIRE]);
+	rd_s16b(&p_ptr->timed[TMD_OPP_COLD]);
+	rd_s16b(&p_ptr->timed[TMD_OPP_ACID]);
+	rd_s16b(&p_ptr->timed[TMD_OPP_ELEC]);
+	rd_s16b(&p_ptr->timed[TMD_OPP_POIS]);
 
 	if (!(older_than(0,4,6)))
 	{
-		rd_s16b(&p_ptr->temp_native_lava);
-		rd_s16b(&p_ptr->temp_native_oil);
-		rd_s16b(&p_ptr->temp_native_sand);
-		rd_s16b(&p_ptr->temp_native_forest);
-		rd_s16b(&p_ptr->temp_native_water);
-		rd_s16b(&p_ptr->temp_native_mud);
+		rd_s16b(&p_ptr->timed[TMD_NAT_LAVA]);
+		rd_s16b(&p_ptr->timed[TMD_NAT_OIL]);
+		rd_s16b(&p_ptr->timed[TMD_NAT_SAND]);
+		rd_s16b(&p_ptr->timed[TMD_NAT_TREE]);
+		rd_s16b(&p_ptr->timed[TMD_NAT_WATER]);
+		rd_s16b(&p_ptr->timed[TMD_NAT_MUD]);
 	}
 
 
 	rd_byte(&p_ptr->confusing);
-	rd_s16b(&p_ptr->slay_elements);	/* oops */
-	rd_byte(&p_ptr->flying);
+	rd_s16b(&p_ptr->timed[TMD_SLAY_ELEM]);	/* oops */
+	rd_byte(&tmp8u);
+	p_ptr->timed[TMD_FLYING] = tmp8u;
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
@@ -1280,6 +1272,19 @@ static errr rd_extra(void)
 
 	/* Read item-quality squelch sub-menu */
  	for (i = 0; i < SQUELCH_BYTES; i++) rd_byte(&squelch_level[i]);
+
+ 	/*
+ 	 * Clear the quality squelch bytes, since they are now in
+ 	 * a different order.
+ 	 */
+ 	if (older_than(0,5,2))
+ 	{
+ 		/*Clear the squelch bytes*/
+ 		for (i = 0; i < SQUELCH_BYTES; i++)
+ 		{
+ 			squelch_level[i] = SQUELCH_NONE;
+ 		}
+ 	}
 
 	/* Load the name of the current greater vault */
 	rd_string(g_vault_name, sizeof(g_vault_name));
@@ -1333,7 +1338,7 @@ static errr rd_extra(void)
 	/*if an active player ghost, read and then write the savefile*/
 	if (bones_selector)
 	{
-		FILE	*fp = FALSE;
+		ang_file *fp = FALSE;
 		char	path[1024];
 		byte ghost_sex, ghost_race, ghost_class;
 		char temp_name[80];
@@ -1348,7 +1353,7 @@ static errr rd_extra(void)
 		sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
 
 		/* Try to write a new "Bones File" */
-		fp = my_fopen(path, "w");
+		fp = file_open(path, MODE_WRITE, FTYPE_SAVE);
 
 		/*paranoia*/
 		if (fp)
@@ -1358,16 +1363,16 @@ static errr rd_extra(void)
 
 			/*now save the new file*/
 			/* Save the info */
-			fprintf(fp, "%s\n", esc_name);
-			fprintf(fp, "%d\n", ghost_sex);
-			fprintf(fp, "%d\n", ghost_race);
-			fprintf(fp, "%d\n", ghost_class);
+			file_putf(fp, "%s\n", esc_name);
+			file_putf(fp, "%d\n", ghost_sex);
+			file_putf(fp, "%d\n", ghost_race);
+			file_putf(fp, "%d\n", ghost_class);
 
 			/*Mark end of file*/
-			fprintf(fp, "\n");
+			file_putf(fp, "\n");
 
 			/* Close and save the Bones file */
-			my_fclose(fp);
+			(void)file_close(fp);
 		}
 
 		/*done*/
@@ -1383,7 +1388,7 @@ static errr rd_extra(void)
 	strip_bytes(13);
 
 	/* Read the randart version */
-	rd_u32b(&randart_version);
+	rd_u32b(&extra_u32b);
 
 	/* Read the randart seed */
 	rd_u32b(&seed_randart);
@@ -1606,12 +1611,12 @@ static bool rd_notes(void)
 	if (alive && adult_take_notes)
 	{
 		/* Create the tempfile (notes_file & notes_fname are global) */
-		notes_file = create_notes_file(notes_fname, sizeof(notes_fname));
+		create_notes_file();
 
 		if (!notes_file)
 		{
 			note("Can't create a temporary file for notes");
-			return (-1);
+			return (TRUE);
 		}
 
 		/* Append the notes in the savefile to the tempfile*/
@@ -1622,11 +1627,11 @@ static bool rd_notes(void)
 			/* Found the end? */
 			if (strstr(tmpstr, NOTES_MARK))
 			break;
-			fprintf(notes_file, "%s\n", tmpstr);
+			file_putf(notes_file, "%s\n", tmpstr);
 		}
 
 		/* Paranoia. Remove the notes from memory */
-		fflush(notes_file);
+		file_flush(notes_file);
 
 	}
 	/* Ignore the notes */
@@ -1645,7 +1650,7 @@ static bool rd_notes(void)
 		}
 	}
 
-	return 0;
+	return (FALSE);
 }
 
 
@@ -1693,16 +1698,13 @@ static errr rd_inventory(void)
 		if (!i_ptr->k_idx)	return (-1);
 
 		/* Verify slot */
-		if (n >= INVEN_TOTAL) return (-1);
+		if (n >= ALL_INVEN_TOTAL) return (-1);
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);
-
-			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
 
 			/* One more item */
 			if (!IS_QUIVER_SLOT(n)) p_ptr->equip_cnt++;
@@ -1727,16 +1729,13 @@ static errr rd_inventory(void)
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);
 
-			/* Add the weight */
-			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
-
 			/* One more item */
 			p_ptr->inven_cnt++;
 		}
-	}
 
-	/* Update "p_ptr->pack_size_reduce" */
-	find_quiver_size();
+		/* Update "p_ptr->pack_size_reduce" */
+		save_quiver_size();
+	}
 
 	/* Success */
 	return (0);
@@ -1817,7 +1816,10 @@ static errr rd_dungeon(void)
 	rd_s16b(&px);
 	rd_byte(&p_ptr->cur_map_hgt);
 	rd_byte(&p_ptr->cur_map_wid);
-	rd_u16b(&tmp16u);
+	rd_u16b(&altered_inventory_counter);
+	/* Paranoia */
+	allow_altered_inventory = FALSE;
+
 	rd_u16b(&tmp16u);
 
 
@@ -2295,8 +2297,7 @@ static errr rd_savefile_new_aux(void)
 			rd_s16b(&q_info[i].cur_num);
 			rd_s16b(&q_info[i].max_num);
 
-			rd_byte(&tmp8u);
-			q_info[i].started = (tmp8u) ? TRUE : FALSE;
+			rd_byte(&q_info[i].q_flags);
 
 			/* Set current quest */
 			if (q_info[i].active_level || q_info[i].reward)
@@ -2311,8 +2312,7 @@ static errr rd_savefile_new_aux(void)
 			/* Read the started field */
 			if (!older_than(0,4,8))
 			{
-				rd_byte(&tmp8u);
-				q_info[i].started = (tmp8u) ? TRUE : FALSE;
+				rd_byte(&q_info[i].q_flags);
 			}
 
 			/* Set current quest */
@@ -2330,8 +2330,7 @@ static errr rd_savefile_new_aux(void)
 			rd_s16b(&q_info[i].cur_num);
 			rd_s16b(&q_info[i].max_num);
 
-			rd_byte(&tmp8u);
-			q_info[i].started = (tmp8u) ? TRUE : FALSE;
+			rd_byte(&q_info[i].q_flags);
 
 			/* Set current quest */
 			if (q_info[i].active_level || q_info[i].reward)
@@ -2376,7 +2375,7 @@ static errr rd_savefile_new_aux(void)
 
 	if (!older_than(0, 4, 10))
 	{
-	       	if (rd_extensions()) return (-1);
+	    if (rd_extensions()) return (-1);
 		if (arg_fiddle) note("Loaded Extensions");
 	}
 
@@ -2499,7 +2498,7 @@ static errr rd_savefile(void)
 	safe_setuid_grab();
 
 	/* The savefile is a binary file */
-	fff = my_fopen(savefile, "rb");
+	fff = file_open(savefile, MODE_READ, -1);
 
 	/* Drop permissions */
 	safe_setuid_drop();
@@ -2511,10 +2510,10 @@ static errr rd_savefile(void)
 	err = rd_savefile_new_aux();
 
 	/* Check for errors */
-	if (ferror(fff)) err = -1;
+	if (file_error(fff)) err = -1;
 
 	/* Close the file */
-	my_fclose(fff);
+	file_close(fff);
 
 	/* Result */
 	return (err);
@@ -2543,12 +2542,7 @@ bool load_player(void)
 
 	byte vvv[4];
 
-#ifdef VERIFY_TIMESTAMP
-	struct stat	statbuf;
-#endif /* VERIFY_TIMESTAMP */
-
 	cptr what = "generic";
-
 
 	/* Paranoia */
 	turn = 0;
@@ -2558,7 +2552,6 @@ bool load_player(void)
 	/* Paranoia */
 	p_ptr->is_dead = FALSE;
 
-
 	/* Allow empty savefile name */
 	if (!savefile[0]) return (TRUE);
 
@@ -2566,7 +2559,9 @@ bool load_player(void)
 	safe_setuid_grab();
 
 	/* Open the savefile */
-	fd = fd_open(savefile, O_RDONLY);
+	fff = file_open(savefile, MODE_READ, -1);
+	if (fff) fd = 0;
+	else fd = -1;
 
 	/* Drop permissions */
 	safe_setuid_drop();
@@ -2583,63 +2578,7 @@ bool load_player(void)
 	}
 
 	/* Close the file */
-	fd_close(fd);
-
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (!err)
-	{
-		FILE *fkk;
-
-		char temp[1024];
-
-		/* Extract name of lock file */
-		my_strcpy(temp, savefile, sizeof(temp));
-		strcat(temp, ".lok");
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Check for lock */
-		fkk = my_fopen(temp, "r");
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* Oops, lock exists */
-		if (fkk)
-		{
-			/* Close the file */
-			my_fclose(fkk);
-
-			/* Message */
-			msg_print("Savefile is currently in use.");
-			message_flush();
-
-			/* Oops */
-			return (FALSE);
-		}
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Create a lock file */
-		fkk = my_fopen(temp, "w");
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* Dump a line of info */
-		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
-
-		/* Close the lock file */
-		my_fclose(fkk);
-	}
-
-#endif /* VERIFY_SAVEFILE */
-
+	file_close(fff);
 
 	/* Okay */
 	if (!err)
@@ -2648,7 +2587,12 @@ bool load_player(void)
 		safe_setuid_grab();
 
 		/* Open the savefile */
-		fd = fd_open(savefile, O_RDONLY);
+		fff = file_open(savefile, MODE_READ, -1);
+		if (fff)
+		{
+			fd = 0;
+		}
+		else fd = -1;
 
 		/* Drop permissions */
 		safe_setuid_drop();
@@ -2664,27 +2608,14 @@ bool load_player(void)
 	if (!err)
 	{
 
-#ifdef VERIFY_TIMESTAMP
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Get the timestamp */
-		(void)fstat(fd, &statbuf);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-#endif /* VERIFY_TIMESTAMP */
-
 		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), sizeof(vvv))) err = -1;
+		if (!file_read(fff, (char*)(vvv), 8)) err = -1;
 
 		/* What */
 		if (err) what = "Cannot read savefile";
 
 		/* Close the file */
-		fd_close(fd);
+		file_close(fff);
 	}
 
 	/* Process file */
@@ -2728,24 +2659,6 @@ bool load_player(void)
 		/* Message (below) */
 		if (err) what = "Broken savefile";
 	}
-
-#ifdef VERIFY_TIMESTAMP
-	/* Verify timestamp */
-	if (!err && !arg_wizard)
-	{
-		/* Hack -- Verify the timestamp */
-		if (sf_when > (statbuf.st_ctime + 100) ||
-		    sf_when < (statbuf.st_ctime - 100))
-		{
-			/* Message */
-			what = "Invalid timestamp";
-
-			/* Oops */
-			err = -1;
-		}
-	}
-#endif /* VERIFY_TIMESTAMP */
-
 
 	/* Okay */
 	if (!err)
@@ -2803,37 +2716,12 @@ bool load_player(void)
 		if (p_ptr->chp >= 0)
 		{
 			/* Reset cause of death */
-			strcpy(p_ptr->died_from, "(alive and well)");
+			my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
 		}
 
 		/* Success */
 		return (TRUE);
 	}
-
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (TRUE)
-	{
-		char temp[1024];
-
-		/* Extract name of lock file */
-		my_strcpy(temp, savefile, sizeof(temp));
-		strcat(temp, ".lok");
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Remove lock */
-		fd_kill(temp);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-	}
-
-#endif /* VERIFY_SAVEFILE */
-
 
 	/* Message */
 	msg_format("Error (%s) reading %d.%d.%d savefile.",

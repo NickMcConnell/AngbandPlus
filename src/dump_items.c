@@ -3,17 +3,24 @@
 /*
  * Copyright (c) 2004 Jeff Greene, Leon Marrick
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
-
-
+/*  Note this file needs updating to work with NPP 0.5.1 and beyond */
 
 #include "angband.h"
 
 #ifdef ALLOW_DATA_DUMP
+
 
 
 /*dumps any u32b flags to be easily parsed by a spreadsheet or database*/
@@ -70,9 +77,6 @@ void write_r_info_txt(void)
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_output.txt");
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
@@ -290,9 +294,6 @@ void write_o_info_txt(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "o_output.txt");
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
 
@@ -483,9 +484,6 @@ void write_e_info_txt(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_output.txt");
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
 
@@ -659,9 +657,6 @@ void write_f_info_txt(void)
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_output.txt");
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
@@ -902,9 +897,6 @@ void write_a_info_txt(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_output.txt");
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
 
@@ -1088,9 +1080,6 @@ void dump_artifact_power(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "power.txt");
 
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);
 
@@ -1180,9 +1169,6 @@ void write_mon_power(void)
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_EDIT, "mon_power_output.txt");
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Check for existing file */
 	fd = fd_open(buf, O_RDONLY);

@@ -1,25 +1,28 @@
-/* File: z-util.c */
-
 /*
- * Copyright (c) 1997 Ben Harrison
+ * File: z-util.c
+ * Purpose: Low-level string handling and other utilities.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: Low level utilities -BEN- */
-
 #include "z-util.h"
-#include "angband.h"
-
-
+#include "z-form.h"
 
 
 /*
  * Convenient storage of the program name
  */
-cptr argv0 = NULL;
+char *argv0 = NULL;
 
 
 /*
@@ -40,8 +43,8 @@ int my_stricmp(const char *s1, const char *s2)
 			return (0);
 		}
 
-		ch1 = toupper(*s1);
-		ch2 = toupper(*s2);
+		ch1 = toupper((unsigned char) *s1);
+		ch2 = toupper((unsigned char) *s2);
 
 		/* If the characters don't match */
 		if (ch1 != ch2)
@@ -55,8 +58,10 @@ int my_stricmp(const char *s1, const char *s2)
 		s2++;
 	}
 
-	return (0);
+	/*Just to avoid compiler warnings about not having a return*/
+	return (TRUE);
 }
+
 
 /*
  * Case insensitive comparison between the first n characters of two strings
@@ -78,6 +83,44 @@ int my_strnicmp(cptr a, cptr b, int n)
 
 	return 0;
 }
+
+/*
+ * An ANSI version of strstr() with case insensitivity.
+ *
+ * In the public domain; found at:
+ *    http://c.snippets.org/code/stristr.c
+ */
+char *my_stristr(const char *string, const char *pattern)
+{
+      const char *pptr, *sptr;
+      char *start;
+
+      for (start = (char *)string; *start != 0; start++)
+      {
+            /* find start of pattern in string */
+            for ( ; ((*start != 0) &&
+			        (toupper((unsigned char)*start) != toupper((unsigned char)*pattern))); start++)
+                  ;
+            if (*start == 0)
+                  return NULL;
+
+            pptr = (const char *)pattern;
+            sptr = (const char *)start;
+
+            while (toupper((unsigned char)*sptr) == toupper((unsigned char)*pptr))
+            {
+                  sptr++;
+                  pptr++;
+
+                  /* if end of pattern then pattern was found */
+                  if (*pptr == 0)
+                        return (start);
+            }
+      }
+
+      return NULL;
+}
+
 
 /*
  * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
@@ -141,6 +184,7 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 /*
  * Determine if string "a" is equal to string "b"
  */
+#undef streq
 bool streq(cptr a, cptr b)
 {
 	return (!strcmp(a, b));
@@ -216,9 +260,6 @@ void quit(cptr str)
 	/* Attempt to use the aux function */
 	if (quit_aux) (*quit_aux)(str);
 
-	/* Cleanup the generic angband stuff */
-	cleanup_angband();
-
 	/* Success */
 	if (!str) (void)(exit(EXIT_SUCCESS));
 
@@ -229,6 +270,102 @@ void quit(cptr str)
 	(void)(exit(EXIT_FAILURE));
 }
 
+
+
+
+/* Compare and swap hooks */
+bool (*ang_sort_comp)(const void *u, const void *v, int a, int b);
+void (*ang_sort_swap)(void *u, void *v, int a, int b);
+
+
+/*
+ * Angband sorting algorithm -- quick sort in place
+ *
+ * Note that the details of the data we are sorting is hidden,
+ * and we rely on the "ang_sort_comp()" and "ang_sort_swap()"
+ * function hooks to interact with the data, which is given as
+ * two pointers, and which may have any user-defined form.
+ */
+void ang_sort_aux(void *u, void *v, int p, int q)
+{
+	int z, a, b;
+
+	/* Done sort */
+	if (p >= q) return;
+
+	/* Pivot */
+	z = p;
+
+	/* Begin */
+	a = p;
+	b = q;
+
+	/* Partition */
+	while (TRUE)
+	{
+		/* Slide i2 */
+		while (!(*ang_sort_comp)(u, v, b, z)) b--;
+
+		/* Slide i1 */
+		while (!(*ang_sort_comp)(u, v, z, a)) a++;
+
+		/* Done partition */
+		if (a >= b) break;
+
+		/* Swap */
+		(*ang_sort_swap)(u, v, a, b);
+
+		/* Advance */
+		a++, b--;
+	}
+
+	/* Recurse left side */
+	ang_sort_aux(u, v, p, b);
+
+	/* Recurse right side */
+	ang_sort_aux(u, v, b+1, q);
+}
+
+
+/*
+ * Angband sorting algorithm -- quick sort in place
+ *
+ * Note that the details of the data we are sorting is hidden,
+ * and we rely on the "ang_sort_comp()" and "ang_sort_swap()"
+ * function hooks to interact with the data, which is given as
+ * two pointers, and which may have any user-defined form.
+ */
+void ang_sort(void *u, void *v, int n)
+{
+	/* Sort the array */
+	ang_sort_aux(u, v, 0, n-1);
+}
+
+/* Arithmetic mean of the first 'size' entries of the array 'nums' */
+int mean(int *nums, int size)
+{
+    	int i, total = 0;
+
+    	for(i = 0; i < size; i++) total += nums[i];
+
+    	return total / size;
+}
+
+/* Variance of the first 'size' entries of the array 'nums'  */
+int variance(int *nums, int size)
+{
+    	int i, avg, total = 0;
+
+    	avg = mean(nums, size);
+
+    	for(i = 0; i < size; i++)
+	{
+        	int delta = nums[i] - avg;
+        	total += delta * delta;
+    	}
+
+    	return total / size;
+}
 
 /*
  * Fast string concatenation.

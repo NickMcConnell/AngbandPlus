@@ -1,15 +1,14 @@
 === Version Information ===
 
-This file was last updated for Angband 3.0.1. and NPPAngband 0.5.0
+This file was last updated for Angband 3.1.2. and NPPAngband 0.5.1
 
 Make sure to read the newsgroup ("http://angband.oook.cz/"), and to visit
 
 the Official Angband Home Page ("http://rephial.org/") for the most
-up to date information about Angband.  The NPPAngband home page is 
-http://members.cox.net/nppangband/ and the NPPAngband fan site is 
-http://nppangband.kickshaws.org/index.php.
+up to date information about Angband.  The NPPAngband home page and 
+forums are http://forum.nppangband.org/.
 
-Angband 3.0.1 has an incredibly complex history, and is the result of a
+Angband 3.1.2 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.
@@ -451,7 +450,6 @@ Student/University of Oklahoma    Student/University of Oklahoma
 
 
 
-
                         Umoria Version 5.2 (formerly UNIX Moria)
 Version 4.83 :  5/14/87
 Version 4.85 : 10/26/87
@@ -506,13 +504,8 @@ This software may be copied and distributed for educational, research,
 and not for profit purposes provided that this copyright and statement
 are included in all such copies.  Other copyrights may also apply.
 
-
-All changes made by Jeff Greene (NPPAngband) Ben Harrison and Robert Ruehlmann
-are also available under the GNU GENERAL PUBLIC LICENSE.  Note that this 
-doesn't influence the current distribution, since parts of the source are 
-still only available under the old Moria/Angband license.  Until all parts of
-Angband are distributed under the GPL the only valid license remains
-the original Moria/Angband license.
+NPPAngband Jeff Greene (NPPAngband) Ben Harrison and Robert Ruehlmann
+is also available under the GNU GENERAL PUBLIC LICENSE.  
 
 
 === Contributors (incomplete) ===

@@ -1,18 +1,21 @@
-/* File: z-term.c */
-
 /*
+ * File: z-term.c
+ * Purpose: a generic, efficient, terminal window package
+ *
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: a generic, efficient, terminal window package -BEN- */
-
-#include "z-util.h"
-#include "z-term.h"
-#include "z-virt.h"
+#include "angband.h"
 
 
 
@@ -290,20 +293,20 @@ term *Term = NULL;
 static errr term_win_nuke(term_win *s)
 {
 	/* Free the window access arrays */
-	KILL(s->a);
-	KILL(s->c);
+	FREE(s->a);
+	FREE(s->c);
 
 	/* Free the window content arrays */
-	KILL(s->va);
-	KILL(s->vc);
+	FREE(s->va);
+	FREE(s->vc);
 
 	/* Free the terrain access arrays */
-	KILL(s->ta);
-	KILL(s->tc);
+	FREE(s->ta);
+	FREE(s->tc);
 
 	/* Free the terrain content arrays */
-	KILL(s->vta);
-	KILL(s->vtc);
+	FREE(s->vta);
+	FREE(s->vtc);
 
 	/* Success */
 	return (0);
@@ -318,20 +321,20 @@ static errr term_win_init(term_win *s, int w, int h)
 	int y;
 
 	/* Make the window access arrays */
-	C_MAKE(s->a, h, byte*);
-	C_MAKE(s->c, h, char*);
+	s->a = C_ZNEW(h, byte *);
+	s->c = C_ZNEW(h, char *);
 
 	/* Make the window content arrays */
-	C_MAKE(s->va, h * w, byte);
-	C_MAKE(s->vc, h * w, char);
+	s->va = C_ZNEW(h * w, byte);
+	s->vc = C_ZNEW(h * w, char);
 
 	/* Make the terrain access arrays */
-	C_MAKE(s->ta, h, byte*);
-	C_MAKE(s->tc, h, char*);
+	s->ta = C_ZNEW(h, byte *);
+	s->tc = C_ZNEW(h, char *);
 
 	/* Make the terrain content arrays */
-	C_MAKE(s->vta, h * w, byte);
-	C_MAKE(s->vtc, h * w, char);
+	s->vta = C_ZNEW(h * w, byte);
+	s->vtc = C_ZNEW(h * w, char);
 
 	/* Prepare the window access arrays */
 	for (y = 0; y < h; y++)
@@ -393,6 +396,9 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 
 
 /*** External hooks ***/
+
+
+
 
 
 /*
@@ -472,61 +478,6 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
 	/* Oops */
 	return (-1);
 }
-
-
-
-
-/*
- * Translate from ISO Latin-1 characters 128+ to 7-bit ASCII.
- *
- * We use this table to maintain compatibility with systems that cannot
- * display 8-bit characters.  We also use it whenever we wish to suppress
- * accents or ensure that a character is 7-bit.
- */
-const char seven_bit_translation[128] =
-{
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	'A', 'A', 'A', 'A', 'A', 'A', ' ', 'C',
- 	'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I',
- 	'D', 'N', 'O', 'O', 'O', 'O', 'O', ' ',
- 	'O', 'U', 'U', 'U', 'U', 'Y', ' ', ' ',
- 	'a', 'a', 'a', 'a', 'a', 'a', ' ', 'c',
- 	'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
- 	'o', 'n', 'o', 'o', 'o', 'o', 'o', ' ',
-	'o', 'u', 'u', 'u', 'u', 'y', ' ', 'y'
-};
-
-
-/*
- * Given a position in the ISO Latin-1 character set (which Angband uses
- * internally), return the correct display character on this system.
- * Assume ASCII-only if no special hook is available.  -LM-
- */
-char xchar_trans(byte c)
-{
- 	char s;
-
- 	/* Use the hook, if available */
- 	if (Term->xchar_hook) return ((char)(Term->xchar_hook)(c));
-
- 	/* 7-bit characters are not translated */
- 	if (c < 128) return (c);
-
- 	/* Translate to 7-bit (strip accent or convert to space) */
- 	s = seven_bit_translation[c - 128];
-
- 	if (s == 0) return (c);
- 	else return (s);
-}
-
-
 
 
 /*** Efficient routines ***/
@@ -831,7 +782,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if ((na & 0x80) && (nc & 0x80))
 		{
 			/* 2nd byte of bigtile */
-			if ((na == 255) && (nc == -1)) continue;
+			if ((na == 255) && (nc == (char) -1)) continue;
 
 			/* Flush */
 			if (fn)
@@ -1559,13 +1510,21 @@ errr Term_addch(byte a, char c)
  * positive value, future calls to either function will
  * return negative ones.
  */
-errr Term_addstr(int n, byte a, cptr s)
+errr Term_addstr(int n, byte a, cptr buf)
 {
 	int k;
 
 	int w = Term->wid;
 
 	errr res = 0;
+
+	char s[1024];
+
+	/* Copy to a rewriteable string */
+ 	my_strcpy(s, buf, 1024);
+
+ 	/* Translate it to 7-bit ASCII or system-specific format */
+ 	xstr_trans(s, LATIN1);
 
 	/* Handle "unusable" cursor */
 	if (Term->scr->cu) return (-1);
@@ -1665,7 +1624,7 @@ errr Term_erase(int x, int y, int n)
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
 
-	if ((n > 0) && (scr_cc[x] == -1) && (scr_aa[x] == 255))
+	if ((n > 0) && (scr_cc[x] == (char) -1) && (scr_aa[x] == 255))
 	{
 		x--;
 		n++;
@@ -1779,7 +1738,7 @@ errr Term_redraw(void)
 	Term->total_erase = TRUE;
 
 	/* Hack -- Refresh */
-	(void)Term_fresh();
+	Term_fresh();
 
 	/* Success */
 	return (0);
@@ -1826,7 +1785,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 	}
 
 	/* Hack -- Refresh */
-	(void)Term_fresh();
+	Term_fresh();
 
 	/* Success */
 	return (0);
@@ -1926,31 +1885,57 @@ errr Term_flush(void)
 }
 
 
-
 /*
  * Add a keypress to the "queue"
  */
 errr Term_keypress(int k)
 {
-	/* Hack -- Refuse to enqueue non-keys */
-	if (!k) return (-1);
+  /* Hack -- Refuse to enqueue non-keys */
+  if (!k) return (-1);
 
-	/* Store the char, advance the queue */
-	Term->key_queue[Term->key_head++] = k;
+  /* Store the char, advance the queue */
+  Term->key_queue[Term->key_head].key = k;
+  Term->key_queue[Term->key_head].index = 0;
+  Term->key_queue[Term->key_head].type = EVT_KBRD;
+  Term->key_head++;
 
-	/* Circular queue, handle wrap */
-	if (Term->key_head == Term->key_size) Term->key_head = 0;
+  /* Circular queue, handle wrap */
+  if (Term->key_head == Term->key_size) Term->key_head = 0;
 
-	/* Success (unless overflow) */
-	if (Term->key_head != Term->key_tail) return (0);
+  /* Success (unless overflow) */
+  if (Term->key_head != Term->key_tail) return (0);
+
+  /* Problem */
+  return (1);
+}
+
+
+/*
+ * Add a mouse event to the "queue"
+ */
+errr Term_mousepress(int x, int y, char button)
+{
+  /* Store the char, advance the queue */
+  Term->key_queue[Term->key_head].key = DEFINED_XFF;
+  Term->key_queue[Term->key_head].mousex = x;
+  Term->key_queue[Term->key_head].mousey = y;
+  Term->key_queue[Term->key_head].index = button;
+  Term->key_queue[Term->key_head].type = EVT_MOUSE;
+  Term->key_head++;
+
+  /* Circular queue, handle wrap */
+  if (Term->key_head == Term->key_size) Term->key_head = 0;
+
+  /* Success (unless overflow) */
+  if (Term->key_head != Term->key_tail) return (0);
 
 #if 0
-	/* Hack -- Forget the oldest key */
-	if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
+  /* Hack -- Forget the oldest key */
+  if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
 #endif
 
-	/* Problem */
-	return (1);
+  /* Problem */
+  return (1);
 }
 
 
@@ -1959,14 +1944,28 @@ errr Term_keypress(int k)
  */
 errr Term_key_push(int k)
 {
-	/* Hack -- Refuse to enqueue non-keys */
+	ui_event_data ke;
+
 	if (!k) return (-1);
+
+	ke.type = EVT_KBRD;
+	ke.index = 0;
+	ke.key = k;
+
+	return Term_event_push(&ke);
+}
+
+errr Term_event_push(const ui_event_data *ke)
+{
+	/* Hack -- Refuse to enqueue non-keys */
+	if (!ke) return (-1);
 
 	/* Hack -- Overflow may induce circular queue */
 	if (Term->key_tail == 0) Term->key_tail = Term->key_size;
 
 	/* Back up, Store the char */
-	Term->key_queue[--Term->key_tail] = k;
+	/* Store the char, advance the queue */
+	Term->key_queue[--Term->key_tail] = *ke;
 
 	/* Success (unless overflow) */
 	if (Term->key_head != Term->key_tail) return (0);
@@ -1994,10 +1993,10 @@ errr Term_key_push(int k)
  *
  * Remove the keypress if "take" is true.
  */
-errr Term_inkey(char *ch, bool wait, bool take)
+errr Term_inkey(ui_event_data *ch, bool wait, bool take)
 {
 	/* Assume no key */
-	(*ch) = '\0';
+	ch->type = ch->key = 0;
 
 	/* Hack -- get bored */
 	if (!Term->never_bored)
@@ -2045,7 +2044,6 @@ errr Term_inkey(char *ch, bool wait, bool take)
 
 /*** Extra routines ***/
 
-
 /*
  * Save the "requested" screen into the "memorized" screen
  *
@@ -2056,18 +2054,20 @@ errr Term_save(void)
 	int w = Term->wid;
 	int h = Term->hgt;
 
-	/* Create */
-	if (!Term->mem)
-	{
-		/* Allocate window */
-		MAKE(Term->mem, term_win);
+	term_win *mem;
 
-		/* Initialize window */
-		term_win_init(Term->mem, w, h);
-	}
+	/* Allocate window */
+	mem = ZNEW(term_win);
+
+	/* Initialize window */
+	term_win_init(mem, w, h);
 
 	/* Grab */
-	term_win_copy(Term->mem, Term->scr, w, h);
+	term_win_copy(mem, Term->scr, w, h);
+
+	/* Front of the queue */
+	mem->next = Term->mem;
+	Term->mem = mem;
 
 	/* Success */
 	return (0);
@@ -2086,63 +2086,23 @@ errr Term_load(void)
 	int w = Term->wid;
 	int h = Term->hgt;
 
-	/* Create */
-	if (!Term->mem)
+	term_win *tmp;
+
+	/* Pop off window from the list */
+	if (Term->mem)
 	{
-		/* Allocate window */
-		MAKE(Term->mem, term_win);
+		/* Save pointer to old mem */
+		tmp = Term->mem;
 
-		/* Initialize window */
-		term_win_init(Term->mem, w, h);
+		/* Forget it */
+		Term->mem = Term->mem->next;
+
+		/* Load */
+		term_win_copy(Term->scr, tmp, w, h);
+
+		/* Free the old window */
+		(void)term_win_nuke(tmp);
 	}
-
-	/* Load */
-	term_win_copy(Term->scr, Term->mem, w, h);
-
-	/* Assume change */
-	for (y = 0; y < h; y++)
-	{
-		/* Assume change */
-		Term->x1[y] = 0;
-		Term->x2[y] = w - 1;
-	}
-
-	/* Assume change */
-	Term->y1 = 0;
-	Term->y2 = h - 1;
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Exchange the "requested" screen with the "tmp" screen
- */
-errr Term_exchange(void)
-{
-	int y;
-
-	int w = Term->wid;
-	int h = Term->hgt;
-
-	term_win *exchanger;
-
-
-	/* Create */
-	if (!Term->tmp)
-	{
-		/* Allocate window */
-		MAKE(Term->tmp, term_win);
-
-		/* Initialize window */
-		term_win_init(Term->tmp, w, h);
-	}
-
-	/* Swap */
-	exchanger = Term->scr;
-	Term->scr = Term->tmp;
-	Term->tmp = exchanger;
 
 	/* Assume change */
 	for (y = 0; y < h; y++)
@@ -2179,6 +2139,8 @@ errr Term_resize(int w, int h)
 	term_win *hold_mem;
 	term_win *hold_tmp;
 
+	ui_event_data evt = { EVT_RESIZE, 0, 0, 0, 0 };
+
 
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
@@ -2213,11 +2175,11 @@ errr Term_resize(int w, int h)
 	hold_tmp = Term->tmp;
 
 	/* Create new scanners */
-	C_MAKE(Term->x1, h, byte);
-	C_MAKE(Term->x2, h, byte);
+	Term->x1 = C_ZNEW(h, byte);
+	Term->x2 = C_ZNEW(h, byte);
 
 	/* Create new window */
-	MAKE(Term->old, term_win);
+	Term->old = ZNEW(term_win);
 
 	/* Initialize new window */
 	term_win_init(Term->old, w, h);
@@ -2226,7 +2188,7 @@ errr Term_resize(int w, int h)
 	term_win_copy(Term->old, hold_old, wid, hgt);
 
 	/* Create new window */
-	MAKE(Term->scr, term_win);
+	Term->scr = ZNEW(term_win);
 
 	/* Initialize new window */
 	term_win_init(Term->scr, w, h);
@@ -2238,7 +2200,7 @@ errr Term_resize(int w, int h)
 	if (hold_mem)
 	{
 		/* Create new window */
-		MAKE(Term->mem, term_win);
+		Term->mem = ZNEW(term_win);
 
 		/* Initialize new window */
 		term_win_init(Term->mem, w, h);
@@ -2251,7 +2213,7 @@ errr Term_resize(int w, int h)
 	if (hold_tmp)
 	{
 		/* Create new window */
-		MAKE(Term->tmp, term_win);
+		Term->tmp = ZNEW(term_win);
 
 		/* Initialize new window */
 		term_win_init(Term->tmp, w, h);
@@ -2331,6 +2293,8 @@ errr Term_resize(int w, int h)
 	Term->y1 = 0;
 	Term->y2 = h - 1;
 
+	/* Push a resize event onto the stack */
+	Term_event_push(&evt);
 
 	/* Success */
 	return (0);
@@ -2403,13 +2367,13 @@ errr term_nuke(term *t)
 	term_win_nuke(t->old);
 
 	/* Kill "displayed" */
-	KILL(t->old);
+	FREE(t->old);
 
 	/* Nuke "requested" */
 	term_win_nuke(t->scr);
 
 	/* Kill "requested" */
-	KILL(t->scr);
+	FREE(t->scr);
 
 	/* If needed */
 	if (t->mem)
@@ -2418,7 +2382,7 @@ errr term_nuke(term *t)
 		term_win_nuke(t->mem);
 
 		/* Kill "memorized" */
-		KILL(t->mem);
+		FREE(t->mem);
 	}
 
 	/* If needed */
@@ -2428,15 +2392,15 @@ errr term_nuke(term *t)
 		term_win_nuke(t->tmp);
 
 		/* Kill "temporary" */
-		KILL(t->tmp);
+		FREE(t->tmp);
 	}
 
 	/* Free some arrays */
-	KILL(t->x1);
-	KILL(t->x2);
+	FREE(t->x1);
+	FREE(t->x2);
 
 	/* Free the input queue */
-	KILL(t->key_queue);
+	FREE(t->key_queue);
 
 	/* Success */
 	return (0);
@@ -2465,7 +2429,7 @@ errr term_init(term *t, int w, int h, int k)
 	t->key_size = k;
 
 	/* Allocate the input queue */
-	C_MAKE(t->key_queue, t->key_size, char);
+	t->key_queue = C_ZNEW(t->key_size, ui_event_data);
 
 
 	/* Save the size */
@@ -2473,19 +2437,19 @@ errr term_init(term *t, int w, int h, int k)
 	t->hgt = h;
 
 	/* Allocate change arrays */
-	C_MAKE(t->x1, h, byte);
-	C_MAKE(t->x2, h, byte);
+	t->x1 = C_ZNEW(h, byte);
+	t->x2 = C_ZNEW(h, byte);
 
 
 	/* Allocate "displayed" */
-	MAKE(t->old, term_win);
+	t->old = ZNEW(term_win);
 
 	/* Initialize "displayed" */
 	term_win_init(t->old, w, h);
 
 
 	/* Allocate "requested" */
-	MAKE(t->scr, term_win);
+	t->scr = ZNEW(term_win);
 
 	/* Initialize "requested" */
 	term_win_init(t->scr, w, h);

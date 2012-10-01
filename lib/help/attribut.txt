@@ -16,9 +16,8 @@ learn new spells and gain attributes.
 
 Gold:
      Gold is amazingly handy, because the goods and services stores sell can 
-be yours with enough of the stuff.  Characters start out with an amount of 
-gold determined by stats (lower is better).  Social class greatly influences 
-starting gold (higher is better).
+be yours with enough of the stuff.  Characters start out with a set amount of 
+gold determined.  
      Within the Pits of Angband lies more gold than you will ever find, more
 seams of treasure than you will ever dig, and more monsters carrying loot than
 you will ever kill.
@@ -32,10 +31,10 @@ considerable).
 
 Spellpoints:
      If you use magic, you will also have spellpoints, or mana.  Your maximum
-mana depends on your level and your intelligence (if you are a mage, rogue, or
-ranger) or wisdom (if you are a priest or paladin).  Ways to recover mana faster
-than by resting are rare and greatly desired.
-     Mana goes down if you wear heavy armour.  Mages, rogues, and rangers also
+mana depends on your level and your intelligence (if you are a mage, druid, 
+rogue, or ranger) and/or wisdom (if you are a druid, ranger, priest or paladin).  
+Ways to recover mana faster than by resting are rare and greatly desired.
+     Mana goes down if you wear heavy armour.  Mages and rogues also
 lose a chunk of mana if they wear most (but not all) kinds of gloves.
 
 Armour Class:
@@ -101,6 +100,7 @@ effectively.
      If you are using spells, intelligence is your primary stat.  It controls
 how many spells you may learn, the amount of mana you have, and your spell
 failure rate.  If you are using prayers, wisdom controls all of these things.
+FOr druids, it is a combination of intelligence and wisdom.
 
 Wisdom:
      Wise characters have a better chance of resisting magical spells cast upon
@@ -123,7 +123,7 @@ Charisma:
      Charisma represents a character's ability to influence others.  A character
 with a high charisma will receive better prices from store owners, whereas a
 character with a very low charisma will be robbed blind.  Charisma also affects
-the character's ability to use magic to sleep, scare, or confuse a monster.
+the character's ability to use magic to sleep, stun, scare, or confuse a monster.
 
 
 --- Abilities ---
@@ -233,12 +233,6 @@ learn the spells now.
 
 Depth:
      How deep in the dungeon you are.
-
-
-
-
-
-
 
 
 
