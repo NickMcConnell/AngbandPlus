@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -455,7 +455,7 @@ W:45:6:70:80000
 P:5:1d3:0:0:21:0
 F:STR | CON | HIDE_TYPE | 
 F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
-D:Envoking the strength and endurance of Thorin, King under the Mountain, 
+D:Invoking the strength and endurance of Thorin, King under the Mountain, 
 D:this little metal shield is proof against the Element of Earth.
 
 
@@ -944,7 +944,7 @@ D:"Iron Cleaver", suggests.
 N:99:'Narthanc'
 I:23:4:0
 W:4:5:12:13000
-P:0:1d4:8:5:0:66
+P:0:1d5:8:5:0:66
 F:THROWING | PERFECT_BALANCE | BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
 D:A fiery dagger finely balanced for deadly throws.
 
@@ -954,7 +954,7 @@ D:A fiery dagger finely balanced for deadly throws.
 N:100:'Nimthanc'
 I:23:4:0
 W:3:5:12:13000
-P:0:1d4:8:5:0:67
+P:0:1d5:8:5:0:67
 F:THROWING | PERFECT_BALANCE | BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
 D:A finely-balanced dagger that numbs with deadly cold.
 
@@ -964,7 +964,7 @@ D:A finely-balanced dagger that numbs with deadly cold.
 N:101:'Dethanc'
 I:23:4:0
 W:5:5:12:13000
-P:0:1d4:8:5:0:68
+P:0:1d5:8:5:0:68
 F:THROWING | PERFECT_BALANCE | BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 D:A dagger covered in sparks and finely balanced for deadly throws.
 
@@ -1376,7 +1376,7 @@ D:and able to melt rock or flesh with ease.
 N:139:'Nimloth'
 I:22:2:3
 W:15:12:50:25000
-P:0:1d6:11:13:0:0
+P:0:1d7:11:13:0:0
 F:THROWING | PERFECT_BALANCE | STEALTH | 
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
 D:A thin spike of thrice-forged steel caps a straight silvan shaft cut from 
@@ -1796,7 +1796,7 @@ D:confusion, and which hurls shot with deadly speed.
 N:183:of Amrod
 I:19:12:2
 W:25:10:30:9000
-P:0:0d0:12:15:0:0
+P:0:2d1:12:15:0:0
 F:STR | CON | MIGHT2 |
 F:RES_FIRE | RES_ELEC | RES_COLD | REGEN
 D:A hunter's bow used for sport and war across the plains of East 
@@ -1808,7 +1808,7 @@ D:Beleriand.  It remembers the fury of the sons of Feanor.
 N:184:of Amras
 I:19:12:1
 W:25:10:30:9000
-P:0:0d0:12:15:0:0
+P:0:2d1:12:15:0:0
 F:INT | WIS | DEX | SHOTS | MIGHT1 | SPEED |
 F:RES_FIRE | RES_ELEC | RES_COLD | SLOW_DIGEST
 D:A cunningly bow, crafted by the Noldor of old.  It remembers the 

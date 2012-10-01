@@ -1885,7 +1885,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_EXP | PR_LEV | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1915,7 +1915,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_EXP | PR_LEV | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -2677,6 +2677,10 @@ void verify_panel(void)
 		{
 			prow_min = panel_row_min;
 			pcol_min = panel_col_min;
+
+			/* Make certain the initial values are valid. */
+			if (prow_min > max_prow_min) prow_min = max_prow_min;
+			if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
 
 			/* Scroll screen when 2 grids from top/bottom edge */
 			if (y > panel_row_max - 2)

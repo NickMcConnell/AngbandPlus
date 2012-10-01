@@ -2179,13 +2179,14 @@ void py_set_trap(int y, int x)
 /*
  * Choose advanced monster trap type
  */
-byte choose_mtrap(void)
+bool choose_mtrap(byte *choice)
 {
-	int num, choice=0;
+	int num, temp=0;
 
 	char c;
 
 	bool done=FALSE;
+	bool chosen=FALSE;
 
 	/* Save screen */
 	screen_save();
@@ -2213,17 +2214,19 @@ byte choose_mtrap(void)
 		{
 			if (islower(c))
 			{
-				choice = A2I(c);
+				temp = A2I(c);
 			}
 			else
 			{
-				choice = c - 'A' + 26;
+				temp = c - 'A' + 26;
 			}
 	      
 			/* Validate input */
-			if ((choice > -1) && (choice < num))
+			if ((temp > -1) && (temp < num))
 			{
 				done = TRUE;
+				*choice = (byte) temp;
+				chosen = TRUE;
 			}
 	      
 			else
@@ -2235,7 +2238,7 @@ byte choose_mtrap(void)
 		/* Allow user to exit the fuction */
                 else if (c == ESCAPE)
                 {
-			choice = 0;
+			*choice = 0;
                         done = TRUE;
                 }
 
@@ -2247,7 +2250,7 @@ byte choose_mtrap(void)
 	screen_load();
 
 	/* Return */
-	return (choice);
+	return (chosen);
 }
 
 /* 
@@ -2255,6 +2258,8 @@ byte choose_mtrap(void)
  */
 void py_modify_trap(int y, int x)
 {
+	byte choice;
+
 	if (p_ptr->blind || no_lite())
 	{
 		msg_print("You can not see to modify your trap.");
@@ -2275,10 +2280,14 @@ void py_modify_trap(int y, int x)
 		return;
 	}
 
-	/* Set the trap, and draw it. */
-	cave_set_feat(y, x, FEAT_MTRAP_BASE + 1 + choose_mtrap());
+	/* get choice */
+	if (choose_mtrap(&choice))
+	{
+		/* Set the trap, and draw it. */
+		cave_set_feat(y, x, FEAT_MTRAP_BASE + 1 + choice);
 
-	/* Notify the player. */
-	msg_print("You modify the monster trap.");
+		/* Notify the player. */
+		msg_print("You modify the monster trap.");
+	}
 }
 

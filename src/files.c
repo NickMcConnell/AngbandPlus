@@ -2016,7 +2016,7 @@ static void display_player_stat_info(void)
 	c_put_str(TERM_YELLOW, "Currnt", row-1, stat_col+31);
 
 	/* Display the stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Reduced name of stat */
 		c_put_str(TERM_WHITE, stat_names_reduced[i], row+i, stat_col);
@@ -2067,7 +2067,7 @@ static void display_player_stat_info(void)
 		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
 
 		/* Initialize color based of sign of pval. */
-		for (stat=0; stat<6; stat++)
+		for (stat=0; stat<A_MAX; stat++)
 		{
 			/* Default */
 			a = TERM_SLATE;
@@ -2120,7 +2120,7 @@ static void display_player_stat_info(void)
 	player_flags(&f1, &f2, &f3, TRUE);
 
 	/* Check stats */
-	for (stat=0; stat<6; stat++)
+	for (stat=0; stat<A_MAX; stat++)
 	{
 		/* Default */
 		a = TERM_SLATE;
@@ -2195,7 +2195,7 @@ void display_player(int mode)
 		prt_num("Social Class     ", (int)p_ptr->sc, 5, 27, TERM_L_BLUE);
 
 		/* Display the stats */
-		for (i = 0; i < 6; i++)
+		for (i = 0; i < A_MAX; i++)
 		{
 			/* Special treatment of "injured" stats */
 			if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])

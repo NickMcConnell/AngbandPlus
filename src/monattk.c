@@ -353,6 +353,11 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		terrain_bonus = -(ac / 3);
 	}
 
+	/* 
+	 * Hack -- darkness protects those who serve it.
+	 */
+	if (check_specialty(SP_UNLIGHT) & !player_can_see_bold(p_ptr->py, p_ptr->px)) terrain_bonus += ac / 8 + 10;
+
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -448,6 +453,15 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 				continue;
 			}
 
+			/* Try for Evasion */
+			if (check_specialty(SP_EVASION) & (randint(3) == 1))
+			{
+				/* Message */
+				msg_print("You Evade the attack!");
+
+				/* Hack */
+				continue;
+			}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -667,34 +681,13 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 					break;
 				}
 
-				/* Poison is no longer fully cumulative. */
 				case RBE_POISON:
 				{
-					/* Take damage */
+					/* Basic damage is not resistable. */
 					take_hit(damage, ddesc);
 
-					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois && p_ptr->oppose_pois))
-					{
-						if (p_ptr->resist_pois || p_ptr->oppose_pois) damage /= 3;
-
-						if (p_ptr->poisoned)
-						{
-							/* 1/3 to 2/3 damage. */
-							if (set_poisoned(p_ptr->poisoned + 
-								randint((damage + 2) / 3) + 
-								(damage / 3)))
-								obvious = TRUE;
-						}
-						else 
-						{
-							/* 1/2 to whole damage, plus 4. */
-							if (set_poisoned(p_ptr->poisoned + 4 + 
-								randint((damage + 1) / 2) + 
-								(damage / 2)))
-								obvious = TRUE;
-						}
-					}
+					/* Poison Counter Only */
+					if (pois_hit(damage)) obvious = TRUE;
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, LRN_POIS);
@@ -1221,7 +1214,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 						msg_print("You stand your ground!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (check_save(100))
 					{
 						msg_print("You stand your ground!");
 						obvious = TRUE;
@@ -1265,7 +1258,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if (check_save(100))
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;
@@ -1996,7 +1989,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				case RBE_CONFUSE:
 				case RBE_PARALYZE:
 				{
-					typ = GF_DARK;
+					typ = GF_CONFUSION;
 					desc = " confusion";
 					add_of = " of";
 					break;
@@ -2045,14 +2038,14 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			if ((r_ptr->flags3 & (RF3_ANIMAL)) || (typ == GF_ACID))
 			{
 				if (blind) msg_print("You hear a soft sound.");
-				else msg_format("%s spits%s at you.", 
+				else msg_format("%^s spits%s at you.", 
 					m_name, desc);
 			}
 			/* All other creatures use a whip. */
 			else
 			{
 				if (blind) msg_print("You hear a crack.");
-				else msg_format("%s lashes at you with a whip%s%s.", 
+				else msg_format("%^s lashes at you with a whip%s%s.", 
 					m_name, add_of, desc);
 			}
 
@@ -3433,14 +3426,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(1, 0);
 			msg_format("%^s commands you to return.", m_name);
-			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
-			{
-				msg_print("Teleport Resistance!");
-			}
-			else
-			{
-				teleport_player_to(m_ptr->fy, m_ptr->fx);
-			}
+			teleport_player_to(m_ptr->fy, m_ptr->fx, FALSE);
 			break;
 		}
 
@@ -3449,14 +3435,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 		{
 			disturb(1, 0);
 			msg_format("%^s teleports you away.", m_name);
-			if ((check_specialty(SP_TELEPORT_RESIST)) && (rand_int(100) < p_ptr->skill_sav))
-			{
-				msg_print("Teleport Resistance!");
-			}
-			else
-			{
-				teleport_player(100, TRUE);
-			}
+			teleport_player(100, FALSE);
 			break;
 		}
 
@@ -3466,21 +3445,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles strangely.", m_name);
 			else msg_format("%^s gestures at your feet.", m_name);
-			if (check_specialty(SP_TELEPORT_RESIST))
-			{
-				msg_print("Teleport Resistance!");
-			}
-			else if (p_ptr->resist_nexus)
+			if (p_ptr->resist_nexus)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				teleport_player_level();
+				teleport_player_level(FALSE);
 			}
 			break;
 		}
@@ -3517,7 +3492,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			disturb(1, 0);
 			msg_format("%^s tries to blank your mind.", m_name);
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3611,127 +3586,127 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			else if (spower < 90) msg_format("%^s murmurs deeply.", m_name);
 			else msg_format("%^s chants powerfully.", m_name);
 
-			if (p_ptr->fast && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->fast && (!check_save(spower)))
 			{
 				set_fast(0);
 				r1 += 2;
 			}
-			if (p_ptr->protevil && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->protevil && (!check_save(spower)))
 			{
 				set_protevil(0);
 				r1 += 2;
 			}
-			if (p_ptr->magicdef && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->magicdef && (!check_save(spower)))
 			{
 				set_extra_defences(0);
 				r1 += 2;
 			}
-			if (p_ptr->hero && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->hero && (!check_save(spower)))
 			{
 				set_hero(0);
 				r1 += 2;
 			}
-			if (p_ptr->shero && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->shero && (!check_save(spower)))
 			{
 				set_shero(0);
 				r1 += 2;
 			}
-			if (p_ptr->shield && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->shield && (!check_save(spower)))
 			{
 				set_shield(0);
 				r1 += 2;
 			}
-			if (p_ptr->blessed && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->blessed && (!check_save(spower)))
 			{
 				set_blessed(0);
 				r1 += 2;
 			}
-			if (p_ptr->tim_invis && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->tim_invis && (!check_save(spower)))
 			{
 				set_tim_invis(0);
 				r1 += 2;
 			}
-			if (p_ptr->tim_infra && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->tim_infra && (!check_save(spower)))
 			{
 				set_tim_infra(0);
 				r1 += 2;
 			}
-			if (p_ptr->tim_esp && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->tim_esp && (!check_save(spower)))
 			{
 				set_tim_esp(0);
 				r1 += 2;
 			}
-			if (p_ptr->superstealth && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->superstealth && (!check_save(spower)))
 			{
 				set_superstealth(0);
 				r1 += 2;
 			}
-			if (p_ptr->ele_attack && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->ele_attack && (!check_save(spower)))
 			{
 				set_ele_attack(0, 0);
 				r1 += 2;
 			}
-			if (p_ptr->oppose_acid && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->oppose_acid && (!check_save(spower)))
 			{
 				set_oppose_acid(0);
 				r1 += 2;
 			}
-			if (p_ptr->oppose_elec && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->oppose_elec && (!check_save(spower)))
 			{
 				set_oppose_elec(0);
 				r1 += 2;
 			}
-			if (p_ptr->oppose_fire && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->oppose_fire && (!check_save(spower)))
 			{
 				set_oppose_fire(0);
 				r1 += 2;
 			}
-			if (p_ptr->oppose_cold && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->oppose_cold && (!check_save(spower)))
 			{
 				set_oppose_cold(0);
 				r1 += 2;
 			}
-			if (p_ptr->oppose_pois && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->oppose_pois && (!check_save(spower)))
 			{
 				set_oppose_pois(0);
 				r1 += 2;
 			}
-			if (p_ptr->word_recall && (rand_int(spower) > p_ptr->skill_sav))
+			if (p_ptr->word_recall && (!check_save(spower)))
 			{
 				set_recall(0);
 				r1 += 2;
 			}
-			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (rand_int(spower) > p_ptr->skill_sav))
+			if ((p_ptr->special_attack & (ATTACK_CONFUSE)) && (!check_save(spower)))
 			{
 				p_ptr->special_attack &= ~(ATTACK_CONFUSE);
 				msg_print("Your hands stop glowing.");
 				r1 += 2;
 			}
-			if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (rand_int(spower) > p_ptr->skill_sav))
+			if ((p_ptr->special_attack & (ATTACK_BLKBRTH)) && (!check_save(spower)))
 			{
 				p_ptr->special_attack &= ~(ATTACK_BLKBRTH);
 				msg_print("Your hands stop radiating Night.");
 				r1 += 2;
 			}
-			if ((p_ptr->special_attack & (ATTACK_FLEE)) && (rand_int(spower) > p_ptr->skill_sav))
+			if ((p_ptr->special_attack & (ATTACK_FLEE)) && (!check_save(spower)))
 			{
 				p_ptr->special_attack &= ~(ATTACK_FLEE);
 				msg_print("You forget your escape plan.");
 				r1 += 2;
 			}
-			if ((p_ptr->special_attack & (ATTACK_SUPERSHOT)) && (rand_int(spower) > p_ptr->skill_sav))
+			if ((p_ptr->special_attack & (ATTACK_SUPERSHOT)) && (!check_save(spower)))
 			{
 				p_ptr->special_attack &= ~(ATTACK_SUPERSHOT);
 				msg_print("Your ready crossbow bolt seems less dangerous.");
 				r1 += 2;
 			}
-			if ((p_ptr->special_attack & (ATTACK_HOLY)) && (rand_int(spower) > p_ptr->skill_sav))
+			if ((p_ptr->special_attack & (ATTACK_HOLY)) && (!check_save(spower)))
 			{
 				p_ptr->special_attack &= ~(ATTACK_HOLY);
 				msg_print("Your Holy attack dissipates.");
 				r1 += 2;
 			}
-			if (SCHANGE && (rand_int(spower) > p_ptr->skill_sav))
+			if (SCHANGE && (!check_save(spower)))
 			{
 				shapechange(SHAPE_NORMAL);
 				r1 += 2;
@@ -3763,7 +3738,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 				msg_format("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3792,7 +3767,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_format("%^s looks deep into your eyes.", m_name);
 			}
-			if (rand_int(100) < p_ptr->skill_sav)
+			if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3931,7 +3906,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_print("You refuse to be frightened.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 				msg_print("You refuse to be frightened.");
 			}
@@ -3952,7 +3927,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -3973,7 +3948,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 				msg_print("You disbelieve the feeble spell.");
 			}
@@ -3993,7 +3968,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 				msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 				msg_print("You resist the effects!");
 			}
@@ -4014,7 +3989,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 			{
 					msg_print("You are unaffected!");
 			}
-			else if (rand_int(100) < p_ptr->skill_sav)
+			else if (check_save(100))
 			{
 					msg_format("You resist the effects!");
 			}

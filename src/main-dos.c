@@ -96,7 +96,7 @@
 /*
  * Maximum number of terminals
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA TERM_WIN_MAX
 
 
 /*

@@ -3572,7 +3572,7 @@ void update_smell(void)
 /*
  * Map around a given point, or the current panel (plus some) 
  * ala "magic mapping".   Staffs of magic mapping map more than 
- * rods do, because staffs effect larger areas in general.
+ * rods do, because staffs affect larger areas in general.
  *
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.

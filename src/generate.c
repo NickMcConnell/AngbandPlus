@@ -2826,11 +2826,12 @@ static bool build_type1(void)
 			if ((!water_room) && (rand_int(2) == 0))
 			{
 				/* From light and earth... */
+				/* Note that we also have to light the boundary walls. */
 				if (!light)
 				{
-					for (y = y1; y <= y2; y++)
+					for (y = y1 - 1; y <= y2 + 1; y++)
 					{
-						for (x = x1; x <= x2; x++)
+						for (x = x1 - 1; x <= x2 + 1; x++)
 						{
 							cave_info[y][x] |= (CAVE_GLOW);
 						}

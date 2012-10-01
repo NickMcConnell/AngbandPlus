@@ -184,7 +184,7 @@
 /*
  * Maximum number of windows
  */
-# define MAX_TERM_DATA 8
+# define MAX_TERM_DATA TERM_WIN_MAX
 
 /*
  * Activate some special code

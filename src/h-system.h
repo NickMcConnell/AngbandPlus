@@ -11,9 +11,6 @@
  *
  * This file is a big hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
- *
- * It is (very) unlikely that VMS will work without help, primarily
- * because VMS does not use the "ASCII" character set.
  */
 
 
@@ -50,10 +47,8 @@
 
 
 
-#ifdef MACINTOSH
+#if defined(MACINTOSH) && defined(__MWERKS__)
 # include <unix.h>
-/* # include <unistd.h> *//* For CodeWarrior 6 -pelpel- */
-/* # include <fcntl.h>  *//* For CodeWarrior 6 -pelpel- */
 #endif
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
@@ -61,7 +56,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
+    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -70,7 +65,7 @@
 #endif
 
 
-#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
+#if !defined(NeXT) && !defined(RISCOS)
 # include <fcntl.h>
 #endif
 
@@ -98,30 +93,11 @@
 
 #endif
 
+#if defined(__DJGPP__) || defined(__MWERKS__)
+#include <unistd.h>
+#endif /* __DJGPP__ || __MWERKS__ */
 
-#ifdef SET_UID
-
-# ifdef USG
-#  include <string.h>
-# else
-#  include <strings.h>
-extern char *strstr();
-extern char *strchr();
-extern char *strrchr();
-# endif
-
-#else
-
-# include <string.h>
-
-#endif
-
-
-
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
-extern long atol();
-#endif
-
+#include <string.h>
 
 #include <stdarg.h>
 

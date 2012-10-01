@@ -2222,9 +2222,10 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 	}
 
 
-	/* Animal packs try to lure the character into the open. */
+	/* Uninjured animals in packs try to lure the character into the open. */
 	if ((!*fear) && (r_ptr->flags1 & (RF1_FRIENDS)) && 
 			(r_ptr->flags3 & (RF3_ANIMAL))  && 
+			(m_ptr->hp == m_ptr->maxhp) &&
 		      (!((r_ptr->flags2 & (RF2_PASS_WALL)) || 
 		      (r_ptr->flags2 & (RF2_KILL_WALL)))))
 	{
@@ -3245,7 +3246,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	{
 		if (!(r_ptr->flags2 & (RF2_FLYING)) && (rand_int(3) != 0 || (RF2_PASS_WALL)))
 		{
-			if (m_ptr->ml) msg_format("%s avoids your netted trap.", m_name);
+			if (m_ptr->ml) msg_format("%^s avoids your netted trap.", m_name);
 			trap_hit = FALSE;
 		}
 	}
@@ -3255,7 +3256,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	{
 		if (!(r_ptr->flags2 & (RF2_PASS_WALL)))
 		{
-			if (m_ptr->ml) msg_format("%s ignores your spirit trap.", m_name);
+			if (m_ptr->ml) msg_format("%^s ignores your spirit trap.", m_name);
 			trap_hit = FALSE;
 		}
 	}
@@ -3270,7 +3271,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	{
 		if ((r_ptr->flags2 & (RF2_PASS_WALL)) && (rand_int(4) != 0))
 		{
-			if (m_ptr->ml) msg_format("%s flies over your trap.", m_name);
+			if (m_ptr->ml) msg_format("%^s flies over your trap.", m_name);
 			trap_hit = FALSE;
 		}
 	}
@@ -3280,7 +3281,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 		  (r_ptr->flags2 & (RF2_FLYING))) &&
 	          (rand_int(4) != 0))
 	{
-		if (m_ptr->ml) msg_format("%s flies over your trap.", m_name);
+		if (m_ptr->ml) msg_format("%^s flies over your trap.", m_name);
 		trap_hit = FALSE;
 	}
 
@@ -3293,7 +3294,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	/* Smart monsters may attempts to disarm traps which would affect them */
 	if ((trap_hit) && (r_ptr->flags2 & (RF2_SMART)) && (randint(dis_chance) > p_ptr->skill_dis - 15))
 	{
-		if (m_ptr->ml) msg_format("%s finds your trap and disarms it.", m_name);
+		if (m_ptr->ml) msg_format("%^s finds your trap and disarms it.", m_name);
 
 		/* Trap is gone */
 		trap_destroyed = TRUE;
@@ -3308,7 +3309,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 		/* Check for avoidance */
 		if (randint(dis_chance) > (p_ptr->skill_dis - 15) / 2)
 		{
-			if (m_ptr->ml) msg_format("%s avoids your trap.", m_name);
+			if (m_ptr->ml) msg_format("%^s avoids your trap.", m_name);
 
 			/* Didn't work */
 			trap_hit = FALSE;
@@ -3334,7 +3335,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 		}
 
 		/* Players sees the monster */
-		if (m_ptr->ml) msg_format("%s sets off your cunning trap!", m_name);
+		if (m_ptr->ml) msg_format("%^s sets off your cunning trap!", m_name);
 
 		/* Not seen but in line of sight */
 		else if (player_has_los_bold(y, x)) msg_print("Something sets off your cunning trap!");

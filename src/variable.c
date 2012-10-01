@@ -255,15 +255,15 @@ byte message__color[MSG_MAX];
 
 
 /*
- * The array[8] of window pointers
+ * The array[TERM_WIN_MAX] of window pointers
  */
-term *angband_term[8];
+term *angband_term[TERM_WIN_MAX];
 
 
 /*
- * The array[8] of window names (modifiable?)
+ * The array[TERM_WIN_MAX] of window names (modifiable?)
  */
-char angband_term_name[8][16] =
+char angband_term_name[TERM_WIN_MAX][16] =
 {
 	"Angband",
 	"Term-1",
@@ -465,6 +465,15 @@ s16b alloc_kind_size;
  */
 alloc_entry *alloc_kind_table;
 
+/*
+ * The size of the "alloc_ego_table"
+ */
+s16b alloc_ego_size;
+
+/*
+ * The array[alloc_ego_size] of entries in the "ego allocator table"
+ */
+alloc_entry *alloc_ego_table;
 
 /*
  * The size of "alloc_race_table" (at most MAX_R_IDX)

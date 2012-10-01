@@ -26,7 +26,7 @@ to be worn without penatly, and reduces the penalty per pound of additional
 armor.  Available to Mages, Necromancers, and Druids.
 
 Armsman: More critical hits with melee weapons.  Reduces reliance on high
-combat skill  for criticals.  Available to Warriors, Paladins, Assassins,
+combat skill for criticals.  Available to Warriors, Paladins, Assassins,
 Rogues, Priests, and Rangers.
 
 Athletics: Increases Dexterity and Constitution and often prevents them from 
@@ -37,17 +37,16 @@ Beguile: Increases effectiveness of confusion, slow, sleep, fear, and turning
 attacks.  Works with spells and devices.  Available to Mages, Necromancers, 
 and Druids.
 
-Clarity: Increases Intellegency and Wisdom and often prevents them from being 
+Clarity: Increases Intellegence and Wisdom and often prevents them from being 
 reduced.  Available Mages, Priests, Necromancers, and Druids.
 
-Evasion: Increases armor class of characters wearing light armor.  The
-allowed weight increases with strength and maximum bonus increases
-with dexterity (and player level at low levels).  Available to Rogues,
+Evasion: Gives a good chance to avoid melee attacks and great chance to avoid
+missile weapons such as arrows, darts, and boulders.  Available to Rogues,
 Assassins, Warriors, and Rangers.
 
-Extend Magic: Beneficial magics last longer.  Includes all powerups from 
-spells and items (haste, elemental resistance, blessing, etc).  Available
-to Mages, Priests, Paladins, Druids, and Necromancers.
+Enhance Magic: Beneficial magics become stronger and last longer.  Includes
+all powerups from spells and items (haste, elemental resistance, blessing,
+etc).  Available to Mages, Priests, Paladins, Druids, and Necromancers.
 
 Extra Trap: Allows a rogue to have two monster traps at once.  Available 
 only to Rogues.
@@ -61,18 +60,20 @@ Fast Casting: Speeds the casting of all spells, but especially those well
 below the caster's level.  Available to Mages, Priests, Necromancers, and
 Druids.
 
-Fury: Allows faster movement for a short time after taking damage.
-The benefit increases with the damage taken.  Available to Warriors,
-Priests, Paladins, Assassins, and Rangers.
+Fury: Allows faster action for a short time after attacking in melee or
+taking damage.  Available to  Warriors, Priests, Paladins, Assassins, and
+Rangers.
 
 Harmony: Gain hit points whenever you cast any spell.  Available to Priests
 and Druids.
 
 Heighten Magic: Increases the effects of caster-level dependent spells.
-Available to Mages, Priests, Necromancers, and Druids.
+Bonus starts out small but increases as spells are cast in rapid
+succession.  Available to Mages, Priests, Necromancers, and Druids.
 
-Holy Light: Grants increased light radius, resistance to light, and extra
-damage to undead creatures.  Available to Priests and Paladins.
+Holy Light: Grants increased light radius and resistance to light.  Evil,
+undead, and light-sensitive creatures take extra damage in melee and fear
+your light-based spells.  Available to Priests and Paladins.
 
 Magic Resistance: Greatly improved saving throws.  Available to Mages,
 Necromancers, and Paladins.
@@ -90,6 +91,10 @@ and Druids.
 
 Mighty Throw: Doubles the range of throwing weapons and other thrown objects.
 Available to Assassins, Rangers, Rogues, and Warriors.
+
+Phasewalking: Grants a short term speed boost after teleportation.  Give
+resistance to all forms of hostile teleportation.  Available to Mages,
+Priests, and Rogues.
 
 Piercing Shot: Archery attacks may skewer multiple targets.  After a
 successful hit, an arrow or crossbow bolt will sometimes continue on; targets
@@ -114,12 +119,9 @@ Soul Siphon: Grants mana whenever a living monster is slain.  There is a chance
 of taking damage when aborbing too many souls at once.  Available only to
 Necromancers.
 
-Teleport Resistance: Allows a saving throw vs teleportation attacks and
-complete immunity to teleport level.  Does apply to Nexus effects.  Available
-to Mages, Priests, and Rogues.
-
-Unlight: Increases stealth, provides resist darkness, and allows various 
-actions such as reading without light, but limits light radius.  Available to
+Unlight: Increases stealth, provides resist darkness, but limits light radius.
+In dark areas provides even more stealth, protection from damage, and allows
+actions (such as reading) which normally require light.  Available to 
 Necromancers, Rogues, and Assassins.
 
 
@@ -134,8 +136,8 @@ Armsman          Yes   No    Yes   Yes   Yes   Yes   No    No    Yes
 Athletics        Yes   No    No    Yes   Yes   Yes   No    No    Yes
 Beguile          No    Yes   No    No    No    No    Yes   Yes   No
 Clarity          No    Yes   Yes   No    No    No    Yes   Yes   No
+Enhance Magic    No    Yes   Yes   No    No    Yes   Yes   Yes   No
 Evasion          Yes   No    No    Yes   Yes   No    No    No    Yes
-Extend Magic     No    Yes   Yes   No    No    Yes   Yes   Yes   No
 Extra Trap       No    No    No    Yes   No    No    No    No    No
 Fast Attacking   Yes   No    No    Yes   Yes   Yes   No    No    Yes
 Fast Casting     No    Yes   Yes   No    No    No    Yes   Yes   No
@@ -148,11 +150,11 @@ Marksmanship     Yes   No    No    Yes   Yes   No    No    No    Yes
 Martial Arts     Yes   No    No    No    No    No    No    No    No
 Meditation       No    Yes   Yes   No    No    No    Yes   Yes   No
 Mighty Throw     Yes   No    No    Yes   Yes   No    No    No    Yes
+Phasewalking     No    Yes   Yes   Yes   No    No    No    No    No
 Piercing Shot    Yes   No    No    No    Yes   No    No    No    Yes
 Power Siphon     No    Yes   No    No    No    No    No    No    No
 Power Strike     No    No    No    No    No    No    Yes   No    No
 Regeneration     Yes   No    No    Yes   Yes   Yes   Yes   No    Yes
 Shield Mastery   Yes   No    No    No    Yes   Yes   No    No    No
 Soul Siphon      No    No    No    No    No    No    No    Yes   No
-Teleport Resis.  No    Yes   Yes   Yes   No    No    No    No    No
 Unlight          No    No    No    Yes   No    No    No    Yes   Yes

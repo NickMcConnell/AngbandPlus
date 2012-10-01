@@ -1078,6 +1078,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	bool show_weapon;
 	bool show_armour;
 
+	bool fake_art;
+
 	char *b;
 
 	char *t;
@@ -1091,6 +1093,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char c1 = '{', c2 = '}';
 
 	char discount_buf[80];
+	char insc_buf[80];
 
 	u32b f1, f2, f3;
 
@@ -1123,6 +1126,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Assume no need to show "armour" bonuses */
 	show_armour = FALSE;
+
+	/* Check to see if it has been inscribed as a fake artifact */
+	fake_art = (o_ptr->note && strchr(quark_str(o_ptr->note), '#'));
 
 	/* Extract default "base" string */
 	basenm = (k_name + k_ptr->name);
@@ -1379,8 +1385,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, ' ');
 		}
 
-		/* Hack -- The only one of its kind */
-		else if (artifact_p(o_ptr) && ((known) || ((easy_know) && (aware))))
+		/* Hack -- The only one of its kind (known real artifacts, or any fake 
+		 * artifact). */
+		else if ((artifact_p(o_ptr) && ((known) || ((easy_know) && (aware)))) || fake_art)
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1423,8 +1430,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, ' ');
 		}
 
-		/* Hack -- The only one of its kind */
-		else if (artifact_p(o_ptr) && ((known) || ((easy_know) && (aware))))
+		/* Hack -- The only one of its kind (known real artifacts, or any fake 
+		 * artifact). */
+		else if ((artifact_p(o_ptr) && ((known) || ((easy_know) && (aware)))) || fake_art)
 		{
 			object_desc_str_macro(t, "The ");
 		}
@@ -1511,6 +1519,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+	/* Append a 'fake' artifact name, if any, as if it were a real artifact 
+	 * name. */
+	if (fake_art)
+	{
+		/* Find the '#'. Everything after it is the fake artifact name. */
+		cptr str = strchr(quark_str(o_ptr->note), '#');
+
+		/* Add the false name. */
+		object_desc_chr_macro(t, ' ');
+		object_desc_str_macro(t, (&str[1]));
+	}
 
 	/* Additional details, step 1. */
 	if (mode > 0)
@@ -1916,7 +1935,39 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Use standard inscription */
 		if (o_ptr->note)
 		{
-			u = quark_str(o_ptr->note);
+			/* Don't include the fake artifact name in the inscription. */
+			if (fake_art)
+			{
+				char *tmp;
+
+				strcpy(insc_buf, quark_str(o_ptr->note));
+				tmp = insc_buf;
+
+				/* Advance until we hit the '#' marking the beginning of the 
+				 * fake artifact name. */
+				for (; *tmp && (*tmp != '#'); tmp++);
+
+				/* Mark what was the '#' as the new end of the string (and the
+				 * inscription). */
+				*tmp = '\0';
+
+				/* Is there a portion of the inscription that was not dedicated
+				 * to the fake artifact name? */
+				if (strlen(insc_buf))
+				{
+					/* The remaining portion becomes the inscription. */
+					u = insc_buf;
+				}
+				else
+				{
+					/* No remaining portion, so no inscription. */
+					u = NULL;
+				}
+			}
+			else /* No fake artifact inscription. */
+			{
+				u = quark_str(o_ptr->note);
+			}
 		}
 
 		/* Use nothing */
@@ -2903,7 +2954,7 @@ void toggle_inven_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		/* Unused */
 		if (!angband_term[j]) continue;
@@ -3527,7 +3578,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			int ne = 0;
 
 			/* Scan windows */
-			for (j = 0; j < 8; j++)
+			for (j = 0; j < TERM_WIN_MAX; j++)
 			{
 				/* Unused */
 				if (!angband_term[j]) continue;

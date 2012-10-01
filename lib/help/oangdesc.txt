@@ -63,7 +63,7 @@ Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 
 If you feel the need for more detail, I'd suggest just perusing the help
 files.  You will also find a file in the "lib/info/diffs" folder that lists
-(many of) the changes between Oangband 0.6.0 and 0.6.1.
+(many of) the changes between Oangband 0.6.0 and 0.6.2.
 
 
 === The Jaded Angband Player's Guide to Oangband ===

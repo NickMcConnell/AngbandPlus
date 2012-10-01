@@ -640,6 +640,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 static void chest_trap(int y, int x, s16b o_idx)
 {
 	int i, trap, nasty_tricks_count;
+	int j;
 
 	object_type *o_ptr = &o_list[o_idx];
 
@@ -672,17 +673,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
-		{
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
-			}
-			else
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(10) + 5);
-			}
-		}
+		pois_hit(25);
 	}
 
 	/* Paralyze */
@@ -726,8 +717,9 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Elemental summon. */
 	if (trap & (CHEST_E_SUMMON))
 	{
+		j = randint(3) + 5;
 		msg_print("Elemental beings appear to protect their treasures!");
-		for (i = 0; i < randint(3) + 5; i++)
+		for (i = 0; i < j; i++)
 		{
 			summon_specific(y, x, FALSE, summon_level, SUMMON_ELEMENTAL);
 		}
@@ -738,10 +730,12 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 		msg_print("A storm of birds swirls around you!");
 
-		for (i = 0; i < randint(3) + 3; i++)
+		j = randint(3) + 3;
+		for (i = 0; i < j; i++)
 			(void)fire_meteor(0, GF_FORCE, y, x, o_ptr->pval / 5, 7, TRUE);
 
-		for (i = 0; i < randint(5) + o_ptr->pval / 5; i++)
+		j = randint(5) + o_ptr->pval /5;
+		for (i = 0; i < j; i++)
 		{
 			summon_specific(y, x, TRUE, summon_level, SUMMON_BIRD);
 		}
@@ -755,7 +749,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 		{
 			msg_print("Demons materialize in clouds of fire and brimstone!");
 
-			for (i = 0; i < randint(3) + 2; i++)
+			j = randint(3) + 2;
+			for (i = 0; i < j; i++)
 			{
 				(void)fire_meteor(0, GF_FIRE, y, x, 10, 5, TRUE);
 				summon_specific(y, x, FALSE, summon_level, SUMMON_DEMON);
@@ -767,7 +762,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 		{
 			msg_print("Draconic forms loom out of the darkness!");
 
-			for (i = 0; i < randint(3) + 2; i++)
+			j = randint(3) + 2;
+			for (i = 0; i < j; i++)
 			{
 				summon_specific(y, x, FALSE, summon_level, SUMMON_DRAGON);
 			}
@@ -778,7 +774,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 		{
 			msg_print("Creatures strange and twisted assault you!");
 
-			for (i = 0; i < randint(5) + 3; i++)
+			j = randint(5) + 3;
+			for (i = 0; i < j; i++)
 			{
 				summon_specific(y, x, FALSE, summon_level, SUMMON_HYBRID);
 			}
@@ -789,7 +786,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 		{
 			msg_print("Vortices coalesce and wreak destruction!");
 
-			for (i = 0; i < randint(3) + 2; i++)
+			j = randint(3) + 2;
+			for (i = 0; i < j; i++)
 			{
 				summon_specific(y, x, TRUE, summon_level, SUMMON_VORTEX);
 			}
@@ -809,7 +807,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		for (; nasty_tricks_count > 0; nasty_tricks_count--)
 		{
 			/* ...but a high saving throw does help a little. */
-			if (randint(2 * o_ptr->pval) > p_ptr->skill_sav)
+			if (!check_save(2 * o_ptr->pval))
 			{
 				if (rand_int(6) == 0) take_hit(damroll(5, 20), "a chest dispel-player trap");
 				else if (rand_int(5) == 0) (void)set_cut(p_ptr->cut + 200);
@@ -933,8 +931,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 	/* Difficulty rating. */
-	j = i - 5 + o_ptr->pval / 2;
-
+	j = i - (5 + o_ptr->pval / 2);
+	
 	/* Always have a small chance of success */
 	if (j < 2) j = 2;
 

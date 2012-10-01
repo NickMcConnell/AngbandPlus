@@ -151,17 +151,7 @@ void do_cmd_eat_food(void)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
-			{
-				if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-				{
-					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10)) ident = TRUE;
-				}
-				else
-				{
-					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 5)) ident = TRUE;
-				}
-			}
+			pois_hit(15);
 			break;
 		}
 
@@ -497,17 +487,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_POISON:
 		{
-			if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
-			{
-				if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-				{
-					if (set_poisoned(p_ptr->poisoned + rand_int(25) + 10)) ident = TRUE;
-				}
-				else
-				{
-					if (set_poisoned(p_ptr->poisoned + rand_int(10) + 5)) ident = TRUE;
-				}
-			}
+			pois_hit(30);
 			break;
 		}
 
@@ -1201,7 +1181,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_player_level(FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -3160,7 +3140,7 @@ void do_cmd_activate(void)
 		}
 		case ACT_THRAIN:
 		{
-			/* Hack - 'show' effected region only with
+			/* Hack - 'show' affected region only with
 			 * the first detect */
 			msg_print("The stone glows a deep green...");
 			wiz_lite(FALSE);
@@ -3326,7 +3306,7 @@ void do_cmd_activate(void)
 				msg_print("Your scales glow many colours...");
 				(void)hp_player(30);
 				(void)set_afraid(0);
-				(void)set_shero(p_ptr->hero + randint(50) + 50);
+				(void)set_shero(p_ptr->shero + randint(50) + 50);
 				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);

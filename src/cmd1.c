@@ -590,7 +590,7 @@ static int check_trap_hit(int power)
  */
 void hit_trap(int y, int x)
 {
-	int i, j, num;
+	int i, j, k, num;
 	int dam = 0;
 
 	int nastyness, selection;
@@ -684,7 +684,9 @@ void hit_trap(int y, int x)
 						if (randint(2) == 1)
 						{
 							msg_print("Undead suddenly appear and call you to them!");
-							for (i = 0; i < randint(3) + 2; i++)
+
+							k = randint(3) + 2;
+							for (i = 0; i < k; i++)
 							{
 								summon_specific(y, x, FALSE, p_ptr->depth, SUMMON_UNDEAD);
 							}
@@ -704,7 +706,8 @@ void hit_trap(int y, int x)
 						/* activate the ordinary daggers. */
 						msg_print("Daggers pierce you everywhere!");
 
-						for (i = 0; i < randint(10) + 5; i++)
+						k = randint(10) + 5;
+						for (i = 0; i < k; i++)
 						{
 							dam += damroll(3, 4);
 						}
@@ -741,21 +744,16 @@ void hit_trap(int y, int x)
 					/* Extra spike damage */
 					if (rand_int(100) < 85)
 					{
+						bool was_poisoned;
+
 						msg_print("You are impaled on poisonous spikes!");
 
 						dam = dam * (randint(6) + 3);
 						(void)set_cut(p_ptr->cut + randint(dam));
 
-						if (p_ptr->resist_pois || p_ptr->oppose_pois)
-						{
-							msg_print("The poison does not affect you!");
-						}
+						was_poisoned = pois_hit(dam);
 
-						else
-						{
-							dam = 3 * dam / 2;
-							(void)set_poisoned(p_ptr->poisoned + randint(dam));
-						}
+						if (!was_poisoned) msg_print("The poison does not affect you!");
 					}
 
 					/* Take the damage */
@@ -1017,25 +1015,12 @@ void hit_trap(int y, int x)
 			if (selection == 3)
 			{
 				msg_print("You are surrounded by a pungent green gas!");
-				if (!p_ptr->resist_pois || !p_ptr->oppose_pois)
-				{
-					if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-					{
-						Rand_quick = FALSE;
 
-						(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+				Rand_quick = FALSE;
 
-						Rand_quick = TRUE;
-					}
-					else
-					{
-						Rand_quick = FALSE;
+				pois_hit(25);
 
-						(void)set_poisoned(p_ptr->poisoned + rand_int(10) + 5);
-
-						Rand_quick = TRUE;
-					}
-				}
+				Rand_quick = TRUE;
 			}
 
 			/* sleeping trap. */
@@ -1214,7 +1199,7 @@ void hit_trap(int y, int x)
 
 						/* case of charged rods. */
 						if ((o_ptr->tval == TV_ROD) &&
-						    (o_ptr->timeout < o_ptr->pval)) num = 1;
+						    (o_ptr->timeout < (o_ptr->pval * o_ptr->number))) num = 1;
 
 
 						if (num == 1)
@@ -1228,7 +1213,7 @@ void hit_trap(int y, int x)
 								o_ptr->pval = 0;
 
 							if (o_ptr->tval == TV_ROD) 
-								o_ptr->timeout = o_ptr->pval * 2;
+								o_ptr->timeout = o_ptr->pval * o_ptr->number * 2;
 
 
 							/* Combine / Reorder the pack */
@@ -1250,7 +1235,7 @@ void hit_trap(int y, int x)
 			/* trap of forgetting. */
 			else if (nastyness < 35)
 			{
-				if (rand_int(100) < p_ptr->skill_sav)
+				if (check_save(100))
 				{
 					msg_print("You hang on to your memories!");
 				}
@@ -1276,7 +1261,7 @@ void hit_trap(int y, int x)
 
 				msg_print("You feel yourself being twisted by wild magic!");
 
-				if (rand_int(100) < p_ptr->skill_sav)
+				if (check_save(100))
 				{
 					msg_print("You resist the effects!");
 				}
@@ -1308,7 +1293,7 @@ void hit_trap(int y, int x)
 				msg_print("You feel time itself assault you!");
 
 				/* Target the player with a radius 0 ball attack. */
-				fire_meteor(0, GF_CONFUSION, p_ptr->py, p_ptr->px, 
+				fire_meteor(0, GF_TIME, p_ptr->py, p_ptr->px, 
 					75, 0, TRUE);
 			}
 
@@ -1328,7 +1313,8 @@ void hit_trap(int y, int x)
 				}
 
 				/* XXX (hard coded) summon 3-6 software bugs. */
-				for (i = 0; i < randint(4) + 2; ++i)
+				k = randint(4) + 2;
+				for (i = 0; i < k; ++i)
 				{
 					/* Look for a location */
 					for (j = 0; j < 20; ++j)
@@ -1350,7 +1336,7 @@ void hit_trap(int y, int x)
 					}
 
 					/* Attempt to place the awake software bug */
-					place_monster_aux(y, x, 216, FALSE, TRUE);
+					place_monster_aux(y, x, 453, FALSE, TRUE);
 				}
 
 				/* herald the arrival of Software Bugs. */

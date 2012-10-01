@@ -195,8 +195,8 @@ extern u16b *message__type;
 extern byte message__color[MSG_MAX];
 extern u16b *message__type;
 extern byte message__color[MSG_MAX];
-extern term *angband_term[8];
-extern char angband_term_name[8][16];
+extern term *angband_term[TERM_WIN_MAX];
+extern char angband_term_name[TERM_WIN_MAX][16];
 extern byte angband_color_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
 extern sint view_n;
@@ -232,6 +232,8 @@ extern object_type *inventory;
 extern object_type *quiver;
 extern s16b alloc_kind_size;
 extern alloc_entry *alloc_kind_table;
+extern s16b alloc_ego_size;
+extern alloc_entry *alloc_ego_table;
 extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern u32b alloc_race_total;
@@ -688,16 +690,21 @@ extern bool save_player(void);
 extern bool load_player(void);
 
 /* spells1.c */
+extern bool check_save(int roll);
 extern s16b poly_r_idx(int r_idx);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis, bool safe);
-extern void teleport_player_to(int ny, int nx);
-extern void teleport_player_level(void);
+extern void teleport_player_to(int ny, int nx, bool friendly);
+extern void teleport_player_level(bool friendly);
+extern void add_heighten_power(int value);
+extern void add_speed_boost(int value);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
 extern void cold_dam(int dam, cptr kb_str);
+extern void pois_dam(int dam, cptr kb_str);
+extern bool pois_hit(int pois_inc);
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
@@ -973,7 +980,7 @@ extern int stricmp(cptr a, cptr b);
 #endif
 
 #ifdef SET_UID
-# ifndef HAS_USLEEP
+# ifndef HAVE_USLEEP
 /* util.c */
 extern int usleep(huge usecs);
 # endif

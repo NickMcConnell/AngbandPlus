@@ -3666,6 +3666,8 @@ static errr init_alloc(void)
 
 	monster_race *r_ptr;
 
+	ego_item_type *e_ptr;
+
 	alloc_entry *table;
 
 	s16b num[MAX_DEPTH];
@@ -3844,6 +3846,84 @@ static errr init_alloc(void)
 		}
 	}
 
+
+	/*** Analyze ego_item allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(num, MAX_DEPTH, s16b);
+
+	/* Size of "alloc_ego_table" */
+	alloc_ego_size = 0;
+
+	/* Scan the ego items */
+	for (i = 1; i < MAX_E_IDX; i++)
+	{
+		/* Get the i'th ego item */
+		e_ptr = &e_info[i];
+
+		/* Legal items */
+		if (e_ptr->rarity)
+		{
+			/* Count the entries */
+			alloc_ego_size++;
+
+			/* Group by level */
+			num[e_ptr->level]++;
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i-1];
+	}
+
+	/*** Initialize ego-item allocation info ***/
+
+	/* Allocate the alloc_ego_table */
+	C_MAKE(alloc_ego_table, alloc_ego_size, alloc_entry);
+
+	/* Get the table entry */
+	table = alloc_ego_table;
+
+	/* Scan the ego-items */
+	for (i = 1; i < MAX_E_IDX; i++)
+	{
+		/* Get the i'th ego item */
+		e_ptr = &e_info[i];
+
+		/* Count valid pairs */
+		if (e_ptr->rarity)
+		{
+			int p, x, y, z;
+
+			/* Extract the base level */
+			x = e_ptr->level;
+
+			/* Extract the base probability */
+			p = (100 / e_ptr->rarity);
+
+			/* Skip entries preceding our locale */
+			y = (x > 0) ? num[x-1] : 0;
+
+			/* Skip previous entries at this locale */
+			z = y + aux[x];
+
+			/* Load the entry */
+			table[z].index = i;
+			table[z].level = x;
+			table[z].prob1 = p;
+			table[z].prob2 = p;
+			table[z].prob3 = p;
+
+			/* Another entry complete for this locale */
+			aux[x]++;
+		}
+	}
 
 	/* Success */
 	return (0);

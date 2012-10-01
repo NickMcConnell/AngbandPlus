@@ -1083,8 +1083,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
+	wr_s16b(p_ptr->speed_boost);	/* Specialty Fury */
+	wr_s16b(p_ptr->heighten_power);	/* Specialty Heighten Magic */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(p_ptr->sc);

@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -298,7 +298,7 @@ N:44:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:12:18
-A:0/1:5/1:15/1:25/1
+A:0/1:5/2:15/2:25/2
 P:0:1d4:0:0:0
 F:THROWING | SHOW_MODS
 D:A two-edged knife with a sharp point.  Well-balanced for throwing by the 
@@ -499,7 +499,7 @@ N:74:& Throwing Hammer~
 G:\:D
 I:21:4:0
 W:40:0:55:250
-A:40/1
+A:40/2
 P:0:2d4:0:0:0
 F:THROWING | SHOW_MODS
 D:A short-handled iron hammer that can strike hard with thrown.
@@ -585,7 +585,7 @@ N:87:& Storm Hammer~
 G:\:b
 I:21:17:0
 W:50:0:125:950
-A:50/3
+A:50/5
 P:0:1d11:0:0:0
 F:THROWING | SHOW_MODS
 D:A heavy throwing hammer, carved with runes of Air.  Only the very 
@@ -633,7 +633,7 @@ N:97:& Spear~
 G:/:s
 I:22:2:0
 W:5:0:50:55
-A:5/1
+A:5/2:10/4
 P:0:1d6:0:0:0
 F:THROWING | SHOW_MODS
 D:The basic polearm, with a double-edged knife mounted on a light shaft.  
@@ -712,7 +712,7 @@ N:109:& Throwing Axe~
 G:/:s
 I:22:14:0
 W:25:0:40:150
-A:25/1
+A:25/2
 P:0:2d3:0:0:0
 F:THROWING | SHOW_MODS
 D:A short-handled hatchet, balanced for throwing.  A classic skirmisher's weapon.
@@ -878,7 +878,7 @@ D:requires a crank to be cocked.
 N:138:& Lead Shot~
 G:{:s
 I:16:1:0
-W:1:0:2:2
+W:1:0:1:1
 A:1/1:30/2
 P:0:1d3:0:0:0
 F:SHOW_MODS
@@ -887,7 +887,7 @@ D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
 N:139:& Seeker Shot~
 G:{:s
 I:16:2:0
-W:40:0:4:20
+W:40:0:2:10
 A:40/2:65/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
@@ -900,7 +900,7 @@ D:A massive slug of lead that sinks deeply into its target.
 N:142:& Arrow~
 G:{:U
 I:17:1:0
-W:3:0:2:4
+W:3:0:1:2
 A:3/1:15/1:55/2
 P:0:1d4:0:0:0
 F:SHOW_MODS
@@ -909,7 +909,7 @@ D:A standard clothyard arrow, straight and cleanly fletched.
 N:143:& Seeker Arrow~
 G:{:G
 I:17:2:0
-W:55:0:2:30
+W:55:0:1:15
 A:55/2:80/1
 P:0:1d9:0:0:0
 F:SHOW_MODS
@@ -923,7 +923,7 @@ D:and fletched with eagle feathers.
 N:146:& Bolt~
 G:{:s
 I:18:1:0
-W:3:0:3:5
+W:3:0:2:3
 A:3/1:25/1:65/2
 P:0:1d5:0:0:0
 F:SHOW_MODS
@@ -932,7 +932,7 @@ D:A short, heavy arrow shot from a crossbow.
 N:147:& Seeker Bolt~
 G:{:B
 I:18:2:0
-W:65:0:3:35
+W:65:0:2:20
 A:65/2:85/1
 P:0:1d11:0:0:0
 F:SHOW_MODS

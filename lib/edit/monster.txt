@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.6.1
+V:0.6.2
 
 
 #N: monster index: name
@@ -4290,7 +4290,7 @@ F:MALE | MOVE_BODY |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | HURT_LITE
-S:1_IN_16 | POW_0 | 
+S:1_IN_16 | POW_14 | 
 S:BOULDER
 D:A great white troll with powerfully clawed hands.
 
@@ -4768,9 +4768,8 @@ B:HIT:EAT_ITEM
 F:MALE | SMART | WEIRD_MIND | 
 F:DROP_60 | DROP_1D2 | MOVE_BODY | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | 
-F:ARCHER
-S:1_IN_5 | POW_20 | 
+F:EVIL
+S:1_IN_4 | POW_20 | 
 S:TELE_SELF_TO | TRAPS | DARKNESS | 
 S:SHOT
 D:A cunning-eyed thief of wiley artifice and shifty speed.
@@ -6161,9 +6160,8 @@ B:HIT:EAT_ITEM
 F:MALE | SMART | WEIRD_MIND | 
 F:DROP_2D2 | MOVE_BODY | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | 
-F:ARCHER
-S:1_IN_5 | POW_35 | 
+F:EVIL | IM_POIS
+S:1_IN_3 | POW_35 | 
 S:TELE_SELF_TO | TELE_TO | TRAPS | DARKNESS | BLIND | SLOW | 
 S:SHOT | 
 D:Cool and confident, fast and lithe; protect your possessions quickly!
@@ -7103,9 +7101,8 @@ B:HIT:HURT:7d12
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_60 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | KILL_BODY | 
-F:NO_FEAR | IM_ACID | IM_ELEC | 
-F:ARCHER
-S:1_IN_6 | POW_55 | 
+F:NO_FEAR | IM_ACID | IM_ELEC
+S:1_IN_3 | POW_55 | 
 S:BOLT
 D:A staunch leader of men, mighty among the hounds of battle.  He truly 
 D:has slain his ten-thousands.

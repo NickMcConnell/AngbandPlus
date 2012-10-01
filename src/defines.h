@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.6.1"
+#define VERSION_STRING	"0.6.2"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -67,7 +67,7 @@
  */
 #define O_VERSION_MAJOR	0
 #define O_VERSION_MINOR	6
-#define O_VERSION_PATCH	1
+#define O_VERSION_PATCH	2
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -218,6 +218,11 @@
 #define MAX_M_IDX	512	/* Max size for "m_list[]" */
 
 /*
+ * Number of tval/min-sval/max-sval slots per ego_item
+ */
+#define EGO_TVALS_MAX 3
+
+/*
  * Hack -- Maximum number of quests
  */
 #define MAX_Q_IDX	4
@@ -366,6 +371,13 @@
  * Lower values yield better objects more often.
  */
 #define GREAT_OBJ	25
+
+/*
+ * There is a 1/20 (5%) chance that ego-items with an inflated base-level are
+ * generated when an object is turned into an ego-item (see make_ego_item()
+ * in object2.c). As above, lower values yield better ego-items more often.
+ */
+#define GREAT_EGO	20
 
 /*
  * There is a 1/40 (2.5%) chance of inflating the requested monster_level
@@ -3014,7 +3026,7 @@
 #define OPT_expand_list				37
 #define OPT_view_perma_grids	 	38
 #define OPT_view_torch_grids		39
-/* xxx */
+#define OPT_auto_more			40
 #define OPT_dungeon_stair			41
 /* xxx */
 /* xxx */
@@ -3121,7 +3133,7 @@
 #define expand_list				op_ptr->opt[OPT_expand_list]
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
-/* xxx */
+#define auto_more			op_ptr->opt[OPT_auto_more]
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 /* xxx */
 /* xxx */
@@ -3593,7 +3605,7 @@ extern int PlayerUID;
 #define SP_ARMOR_PROFICIENCY	2	/* Reduced mana penalty for armor */
 #define SP_EVASION		3	/* Chance to dodge attacks */
 #define SP_MAGIC_RESIST		4	/* Improved Saves */
-#define SP_TELEPORT_RESIST	5	/* Save vs Teleport Attacks; Immune to Teleport Level */
+#define SP_PHASEWALK	5	/* Save vs Teleport Attacks; Immune to Teleport Level */
 #define SP_UNLIGHT		6	/* Improved Stealth, Res Dark, function w/o light, Reduced Light */
 
 /* Physical Attacks */
@@ -3607,7 +3619,7 @@ extern int PlayerUID;
 
 /* Magic and Mana */
 #define SP_BEGUILE		40	/* More effective monster status attacks */
-#define SP_EXTEND_MAGIC		41	/* Longer duration powerups */
+#define SP_ENHANCE_MAGIC	41	/* Stronger and Longer Buffs */
 #define SP_FAST_CAST		42	/* Less energy to cast (low level) spells */
 #define SP_POWER_SIPHON		43	/* Gain mana when monsters cast */
 #define SP_HEIGHTEN_MAGIC	44	/* Cast spells at higher effective level */
@@ -3625,5 +3637,8 @@ extern int PlayerUID;
 
 #define SP_NO_SPECIALTY		255
 
-
+/*
+ * Max number of terminal windows -CN-
+ */
+#define TERM_WIN_MAX 8
 

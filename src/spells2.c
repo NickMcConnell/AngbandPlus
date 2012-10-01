@@ -1693,7 +1693,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	    (o_ptr->tval == TV_ARROW) ||
 	    (o_ptr->tval == TV_SHOT))
 	{
-		prob = prob / 20;
+		prob = prob / 35;
 	}
 
 	/* Try "n" times */
@@ -2614,7 +2614,7 @@ bool recharge(int power)
 					if (randint(10) == 1) fail_type = 2;
 					else fail_type = 1;
 				}
-				/* 75% chance to blow up one wand, otherwise draining. */
+				/* 67% chance to blow up one wand, otherwise draining. */
 				else if (o_ptr->tval == TV_WAND)
 				{
 					if (randint(3) != 1) fail_type = 2;
@@ -3287,7 +3287,6 @@ void aggravate_monsters(int who, bool the_entire_level)
 	int i;
 
 	bool sleep = FALSE;
-	bool speed = FALSE;
 
 	/* Aggravate everyone nearby */
 	for (i = 1; i < m_max; i++)
@@ -3336,25 +3335,11 @@ void aggravate_monsters(int who, bool the_entire_level)
 					/* Do not necessarily go active */
 				}
 			}
-
-			/* Speed up monsters in line of sight */
-			else if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) && 
-				(sleep == FALSE))
-			{
-				/* Speed up (instantly) to racial base + 10 */
-				if (m_ptr->mspeed < r_ptr->speed + 10)
-				{
-					/* Speed up */
-					m_ptr->mspeed = r_ptr->speed + 10;
-					speed = TRUE;
-				}
-			}
 		}
 	}
 
 	/* Messages */
-	if (speed) msg_print("You feel a sudden stirring nearby!");
-	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
+	if (sleep) msg_print("You hear a sudden stirring in the distance!");
 }
 
 

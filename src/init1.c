@@ -2132,6 +2132,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	ego_item_type *e_ptr = NULL;
 
+	static int cur_t = 0;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -2220,6 +2222,9 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			/* Advance the index */
 			e_head->name_size += strlen(s);
 
+			/* Start with the first of the tval indices */
+			cur_t = 0;
+
 			/* Next... */
 			continue;
 		}
@@ -2253,20 +2258,47 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		/* Process 'X' for "Xtra" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int slot, rating;
+			int xtra, rating;
 
 			/* Scan for the values */
 			if (2 != sscanf(buf+2, "%d:%d",
-					&slot, &rating)) return (1);
+					&rating, &xtra)) return (1);
 
 			/* Save the values */
-			e_ptr->slot = slot;
+			e_ptr->xtra = xtra;
 			e_ptr->rating = rating;
 
 			/* Next... */
 			continue;
 		}
 
+		/* Process 'T' for "Types allowed" (up to three lines) */
+		else if (buf[0] == 'T')
+		{
+			int tval, sval1, sval2;
+
+			/* There better be a current e_ptr */
+			if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+					&tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
+			
+			/* Save the values */
+			e_ptr->tval[cur_t] = (byte)tval;
+			e_ptr->min_sval[cur_t] = (byte)sval1;
+			e_ptr->max_sval[cur_t] = (byte)sval2;
+			
+			/* Increase counter for 'possible tval' index */
+			cur_t++;
+
+			/* Allow only a limited number of T: lines */
+			if (cur_t > EGO_TVALS_MAX) return (PARSE_ERROR_GENERIC);
+
+			/* Next... */
+			continue;
+		}
+		
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{

@@ -392,25 +392,15 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 			}
 
 			/* Slay Undead */
-			if (((f1 & (TR1_SLAY_UNDEAD)) || check_specialty(SP_HOLY_LIGHT)) && 
-			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			if ((f1 & (TR1_SLAY_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml)
 				{
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
-				if (f1 & (TR1_SLAY_KILL))
-				{
-					if ((check_specialty(SP_HOLY_LIGHT)) && (mul < 27)) mul = 27;
-					else if (mul < 25) mul = 25;
-				}
-				else if (f1 & (TR1_SLAY_UNDEAD))
-				{
-					if ((check_specialty(SP_HOLY_LIGHT)) && (mul < 22)) mul = 22;
-					else if (mul < 20) mul = 20;
-				}
-				else if (mul < 12) mul = 12;
+				if (f1 & (TR1_SLAY_KILL) && (mul < 25)) mul = 25;
+				else if (f1 & (TR1_SLAY_UNDEAD) && (mul < 20)) mul = 20;
 			}
 
 			/* Slay Demon */
@@ -568,6 +558,22 @@ static sint adjust_dam(long *die_average, object_type *o_ptr, monster_type *m_pt
 				else if (mul < 17) mul = 17;
 			}
 
+			/* Additional bonus for Holy Light */
+			if (check_specialty(SP_HOLY_LIGHT))
+			{
+				/* +2 or +3 versus Undead and light-sensitive creatures */
+				if ((r_ptr->flags3 & (RF3_UNDEAD)) || (r_ptr->flags3 & (RF3_HURT_LITE)))
+				{
+					mul += (mul + 10) / 10;
+				}
+
+				/* +1 or +2 versus other Evil creatures */
+				else if (r_ptr->flags3 & (RF3_EVIL))
+				{
+					mul += mul / 10;
+				}
+			}
+
 			break;
 		}
 	}
@@ -689,7 +695,8 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 	else
 	{
 		/* Basic attack message. */		
-		 message_format(MSG_HIT, 0, "You %s %s.", description, m_name);
+		if (power_strike) message_format(MSG_HIT, 0, "Power Strike! You %s %s.", description, m_name);
+		else message_format(MSG_HIT, 0, "You %s %s.", description, m_name);
 	}
 	return(damage);
 }
@@ -899,7 +906,7 @@ void py_attack(int y, int x)
 		p_ptr->lev : 0);
 
 	/* Some classes don't bash very often. */
-	if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_MAGE) || 
+	if ((p_ptr->pclass == CLASS_MAGE) || 
 		(p_ptr->pclass == CLASS_DRUID) || (p_ptr->pclass == CLASS_NECRO)) 
 	{
 		bash_chance /= 3;
@@ -950,6 +957,33 @@ void py_attack(int y, int x)
 		/* Damage, check for fear and death. */
 		if (mon_take_hit(cave_m_idx[y][x], bash_dam, &fear, NULL))
 		{
+			/*
+			 * Hack -- High-level warriors can spread their attacks out 
+			 * among weaker foes.
+			 * In this case a shield bash kill takes the same time one
+			 * attack.
+			 */
+			if ((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->energy_use) && 
+			    (p_ptr->lev > 39))
+			{
+				p_ptr->energy_use = p_ptr->energy_use / blows;
+			}
+
+			/* Specialty Ability Fury */
+			if (check_specialty(SP_FURY))
+			{
+				int boost_value;
+
+				/* Mega-Hack - base bonus value on energy used this round */
+				/* value = 15 * (energy_use/100) * (10/energy per turn) */
+				boost_value = (3 * p_ptr->energy_use) / (extract_energy[p_ptr->pspeed] * 2);
+
+				/* Minimum boost */
+				boost_value = ((boost_value > 0) ? boost_value : 1);
+
+				add_speed_boost(boost_value);
+			}
+
 			/* Fight's over. */
 			return;
 		}
@@ -965,7 +999,7 @@ void py_attack(int y, int x)
 
 		/* Confusion. */
 		if (bash_quality + p_ptr->lev > randint(300 + r_ptr->level * 6) && 
-			(!r_ptr->flags3 & (RF3_NO_CONF)))
+			!(r_ptr->flags3 & (RF3_NO_CONF)))
 		{
 			message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
 
@@ -974,7 +1008,11 @@ void py_attack(int y, int x)
 
 		/* The player will sometimes stumble. */
 		if ((30 + adj_dex_th[p_ptr->stat_ind[A_DEX]] - 128) < randint(60))
+		{
 			blows -= randint(blows);
+
+			message(MSG_GENERIC, 0, "You stumble!");
+		}
 	}
 
 
@@ -1142,12 +1180,14 @@ void py_attack(int y, int x)
 				}
 				else if (m_ptr->confused > 0)
 				{
-					message_format(MSG_HIT, 0, "%^s appears more confused.", m_name);
+					if (m_ptr->ml) message_format(MSG_HIT, 0, "%^s appears more confused.", m_name);
+					else message_format(MSG_HIT, 0, "%^s sounds more confused.", m_name);
 					m_ptr->confused += 4 + rand_int(p_ptr->lev) / 12;
 				}
 				else
 				{
-					message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+					if (m_ptr->ml) message_format(MSG_HIT, 0, "%^s appears confused.", m_name);
+					else message_format(MSG_HIT, 0, "%^s sounds confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
@@ -1202,6 +1242,21 @@ void py_attack(int y, int x)
 				/* Redraw the state */
 				p_ptr->redraw |= (PR_STATUS);
 
+				/* Specialty Ability Fury */
+				if (check_specialty(SP_FURY))
+				{
+					int boost_value;
+
+					/* Mega-Hack - base bonus value on energy used this round */
+					/* value = 15 * (energy_use/100) * (10/energy per turn) */
+					boost_value = (3 * p_ptr->energy_use) / (extract_energy[p_ptr->pspeed] * 2);
+
+					/* Minimum boost */
+					boost_value = ((boost_value > 0) ? boost_value : 1);
+
+					add_speed_boost(boost_value);
+				}
+
 				/* Fight's over. */
 				return;
 			}
@@ -1221,6 +1276,20 @@ void py_attack(int y, int x)
 		}
 	}
 
+	/* Specialty Ability Fury */
+	if (check_specialty(SP_FURY))
+	{
+		int boost_value;
+
+		/* Mega-Hack - base bonus value on energy used this round */
+		/* value = 15 * (energy_use/100) * (10/energy per turn) */
+		boost_value = (3 * p_ptr->energy_use) / (extract_energy[p_ptr->pspeed] * 2);
+
+		/* Minimum boost */
+		boost_value = ((boost_value > 0) ? boost_value : 1);
+
+		add_speed_boost(boost_value);
+	}
 
 	/* Hack -- delayed fear messages */
 	if (fear && m_ptr->ml)
@@ -1415,7 +1484,7 @@ void do_cmd_fire(void)
 	sound(SOUND_SHOOT);
 
 	/* Missile launchers of Velocity sometimes "supercharge" */
-	if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(20) == 0))
+	if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(5) == 0))
 	{
 		object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -1428,7 +1497,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Missile launchers of Accuracy sometimes "supercharge" */
-	if ((o_ptr->name2 == EGO_ACCURACY) && (rand_int(6) == 0))
+	if ((o_ptr->name2 == EGO_ACCURACY) && (rand_int(5) == 0))
 	{
 		object_desc(o_name, o_ptr, FALSE, 0);
 

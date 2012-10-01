@@ -419,7 +419,7 @@ struct _term_data
 /*
  * Maximum number of windows XXX XXX XXX
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA TERM_WIN_MAX
 
 /*
  * An array of term_data's

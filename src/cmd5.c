@@ -308,7 +308,7 @@ void dimen_door(void)
 	}
 
 	/* Controlled teleport. */
-	else teleport_player_to(ny,nx);
+	else teleport_player_to(ny,nx,TRUE);
 }
 
 
@@ -418,6 +418,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 	cptr p = "";
 
+	cptr h = "";
+
 
 #ifdef ALLOW_REPEAT /* TNB */
 
@@ -453,6 +455,12 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	if (mp_ptr->spell_book == TV_DRUID_BOOK) p = "druidic lore";
 	if (mp_ptr->spell_book == TV_NECRO_BOOK) p = "ritual";
 
+	/* Power enhancement. */
+	else if (p_ptr->heighten_power > 145) h = "(**Heightened**) ";
+	else if (p_ptr->heighten_power > 85) h = "(Heightened!) ";
+	else if (p_ptr->heighten_power > 35) h = "(heightened) ";
+	else h = "";
+
 	/* Assume no usable spells */
 	okay = FALSE;
 
@@ -487,8 +495,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
-		p, I2A(0), I2A(after_last_spell - first_spell - 1), prompt, p);
+	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %s%^s which %s? ",
+		p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -948,6 +956,8 @@ void do_cmd_cast_or_pray(void)
 	int chance, beam;
 	s16b shape = 0;
 
+	bool failed = FALSE;
+
 	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
@@ -1103,11 +1113,13 @@ void do_cmd_cast_or_pray(void)
 	chance = spell_chance(spell);
 
 	/* Specialty Ability */
-	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 4 + (plev / 12);
+	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 1 + ((p_ptr->heighten_power + 5)/ 10);
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
+		failed = TRUE;
+
 		if (flush_failure) flush();
 		if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
 			msg_print("You failed to get the spell off!");
@@ -1376,7 +1388,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 40:	/* Teleport Level */
 			{
-				(void)teleport_player_level();
+				(void)teleport_player_level(TRUE);
 				break;
 			}
 			case 41:	/* Word of Recall */
@@ -1779,7 +1791,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 98: /* Teleport Level */
 			{
-				(void)teleport_player_level();
+				(void)teleport_player_level(TRUE);
 				break;
 			}
 			case 99: /* Word of Recall */
@@ -2083,7 +2095,7 @@ void do_cmd_cast_or_pray(void)
 				(void)detect_stairs(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
-			case 142:  /* cease small life */
+			case 142:  /* snuff small life */
 			{
 				(void)dispel_small_monsters(2 + plev / 5);
 				break;
@@ -2287,7 +2299,7 @@ void do_cmd_cast_or_pray(void)
 			{
 				msg_print("You hurl mighty waves at your foes!");
 				fire_sphere(GF_WATER, 0,
-					  3 * plev / 2 + randint(30 + plev * 2), plev / 7, 20);
+					  30 + ((4 * plev) / 5) + randint(30 + plev * 2), plev / 7, 20);
 				break;
 			}
 			case 173:  /* volcanic eruption */
@@ -2301,14 +2313,14 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_PLASMA, dir, 
-					3 * plev + randint(50 + plev * 5), 1, FALSE);
+					35 + (2 * plev) + randint(90 + plev * 4), 1, FALSE);
 				break;
 			}
 			case 175:  /* starburst. */
 			{
 				msg_print("Light bright beyond enduring dazzles your foes!");
 				fire_sphere(GF_LITE, 0,
-					  5 * plev / 2 + randint(plev * 3), plev / 10, 20);
+					  40 + (3 * plev / 2) + randint(plev * 3), plev / 10, 20);
 				break;
 			}
 			case 176:  /* song of lulling */
@@ -2479,10 +2491,8 @@ void do_cmd_cast_or_pray(void)
 			case 202: /* noxious fumes */
 			{
 				fire_sphere(GF_POIS, 0, 10 + plev, 2 + plev / 12, 40);
-				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-				{
-					set_poisoned(p_ptr->poisoned + rand_int(2) + 2);
-				}
+
+				pois_hit(5);
 				break;
 			}
 			case 203: /* turn undead */
@@ -2571,7 +2581,7 @@ void do_cmd_cast_or_pray(void)
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + plev / 2);
 				break;
 			}
-			case 217: /* Dispel Demons */
+			case 217: /* Exorcise Demons */
 			{
 				(void)dispel_demons(2 * plev + randint(2 * plev));
 				break;
@@ -2678,7 +2688,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 234: /* detect all monsters */
 			{
-				/* Hack - 'show' effected region only with
+				/* Hack - 'show' affected region only with
 				 * the first detect */
 				(void)detect_monsters_normal(DETECT_RAD_DEFAULT, TRUE);
 				(void)detect_monsters_invis(DETECT_RAD_DEFAULT, FALSE);
@@ -2688,14 +2698,14 @@ void do_cmd_cast_or_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_NETHER, dir,
-				       damroll(3 * plev / 5, 11));
+				       damroll(3 * plev / 5, 13));
 				break;
 			}
 			case 236: /* orb of death */
 			{
 				if (!get_aim_dir(&dir)) return;
 				take_hit(damroll(2, 8), "Death claiming his wages");
-				fire_sphere(GF_SPIRIT, dir, 15 + (7 * plev / 2), 1, 20);
+				fire_sphere(GF_SPIRIT, dir, 20 + (2 * plev), 1, 20);
 				break;
 			}
 			case 237: /* dispel life */
@@ -2861,12 +2871,25 @@ void do_cmd_cast_or_pray(void)
 		}
 	}
 
-	/* Take a turn; reduced for fast casters */
+	/* Take a turn */
 	p_ptr->energy_use = 100;
-	if (check_specialty(SP_FAST_CAST)) p_ptr->energy_use -= 5 + ((p_ptr->lev - s_ptr->slevel)/2);
+
+	/* Reduced for fast casters */
+	if (check_specialty(SP_FAST_CAST))
+	{
+		int level_difference = p_ptr->lev - s_ptr->slevel;
+
+		p_ptr->energy_use -= 5 + (level_difference / 2);
+
+		/* Increased bonus for really easy spells */
+		if (level_difference > 25) p_ptr->energy_use -= (level_difference - 25);
+	}
+
+	/* Give Credit for Heighten Magic */
+	if (check_specialty(SP_HEIGHTEN_MAGIC)) add_heighten_power(20);
 
 	/* Paranioa */
-	if (p_ptr->energy_use < 70) p_ptr->energy_use = 70;
+	if (p_ptr->energy_use < 50) p_ptr->energy_use = 50;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -2875,7 +2898,7 @@ void do_cmd_cast_or_pray(void)
 		p_ptr->csp -= s_ptr->smana;
 
 		/* Specialty ability Harmony */
-		if (check_specialty(SP_HARMONY))
+		if ((failed == FALSE) & (check_specialty(SP_HARMONY)))
 		{
 		  	int frac, boost;
 
@@ -3078,6 +3101,7 @@ void do_cmd_gain_specialty(void)
 			/* Display that specialty's information. */
 			Term_erase(5, hgt + 4, 255);
 			Term_erase(5, hgt + 3, 255);
+			Term_erase(5, hgt + 2, 255);
 			c_roff(TERM_L_BLUE, specialty_tips[choices[cur]], 5, 0);
 
 			/* Move the cursor */
@@ -3181,21 +3205,24 @@ void do_cmd_gain_specialty(void)
 
 		if (use_cur)
 		{
-			/* Add new specialty */
-			p_ptr->specialty_order[k] = choices[cur];
+			if (get_check("Are you sure? "))
+			{
+				/* Add new specialty */
+				p_ptr->specialty_order[k] = choices[cur];
 
-			/* Increment next available slot */
-			k++;
+				/* Increment next available slot */
+				k++;
 
-			/* Update specialties available count */
-			p_ptr->new_specialties--;
-			p_ptr->old_specialties = p_ptr->new_specialties;
+				/* Update specialties available count */
+				p_ptr->new_specialties--;
+				p_ptr->old_specialties = p_ptr->new_specialties;
 
-			/* Update some stuff */
-			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY | PU_TORCH);
+				/* Update some stuff */
+				p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY | PU_TORCH);
 
-			/* Redraw Study Status */
-			p_ptr->redraw |= (PR_STUDY);
+				/* Redraw Study Status */
+				p_ptr->redraw |= (PR_STUDY);
+			}
 
 			/* Check if we are completely done */
 			if ((p_ptr->new_specialties <= 0) || (k >= 9)) done_all = TRUE;
@@ -3274,6 +3301,7 @@ void do_cmd_view_specialties(void)
 		/* Display that specialty's information. */
 		Term_erase(5, hgt + 4, 255);
 		Term_erase(5, hgt + 3, 255);
+		Term_erase(5, hgt + 2, 255);
 		c_roff(TERM_L_BLUE, specialty_tips[p_ptr->specialty_order[cur]], 5, 0);
 
 		/* Move the cursor */

@@ -481,8 +481,8 @@ static void process_world(void)
 	/* Every 10 game turns */
 	if (turn % 10) return;
 
-	/* Hack - beneficial effects timeout at half speed with EXTEND_MAGIC */
-	if ((check_specialty(SP_EXTEND_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
+	/* Hack - beneficial effects timeout at 2/3 speed with ENHANCE_MAGIC */
+	if ((check_specialty(SP_ENHANCE_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
 		extend_magic = TRUE;
 
 	/*** Check the Time and Load ***/
@@ -1044,6 +1044,24 @@ static void process_world(void)
 			msg_print("The Black Breath saps your soul!");
 			disturb(0, 0);
 		}
+	}
+
+	/* Decay special heighten power */
+	if (p_ptr->heighten_power)
+	{
+		int decrement;
+
+		/* 
+		 * Mega-Hack - To keep it from being a free ride for high speed characters, 
+		 * Heighten Power decays quickly when highly charged
+		 */
+		decrement = 10 + (p_ptr->heighten_power / 55);
+
+		if (p_ptr->heighten_power > decrement) p_ptr->heighten_power -= decrement;
+		else p_ptr->heighten_power = 0;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
 	}
 
 	/* Decay special speed boost */
@@ -2933,7 +2951,7 @@ void play_game(bool new_game)
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
 	
-	for (i = 1; i < 8; i++)
+	for (i = 1; i < TERM_WIN_MAX; i++)
 	{
 		/* Does the term exist? */
 		if (angband_term[i])

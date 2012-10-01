@@ -29,7 +29,7 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
 	char history[4][60];
 };
@@ -52,7 +52,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 
 
@@ -1183,7 +1183,14 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+#define MIN_POINT_STAT_VALUE 10 /* Minimum stat value - no points used */
+#define MAX_POINT_STAT_VALUE 18 /* Maximum stat value - full points used */
+#define BUY_POINTS 48 /* Number of points available to buy stats */
+
+ /*
+  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+  */
+static int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1191,8 +1198,8 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  *
  * This function handles "point-based" character creation.
  *
- * The player selects, for each stat, a value from 10 to 18 (inclusive),
- * each costing a certain amount of points (as above), from a pool of 48
+ * each costing a certain amount of points (as above), from a pool of
+ * BUY_POINTS available points, to which race/class modifiers are then applied.
  * available points, to which race/class modifiers are then applied.
  *
  * Each unused point is converted into 50 gold pieces.
@@ -1219,7 +1226,7 @@ static bool player_birth_aux_2(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Initial stats */
-		stats[i] = 10;
+		stats[i] = MIN_POINT_STAT_VALUE;
 	}
 
 	/* Roll for base hitpoints */
@@ -1244,11 +1251,11 @@ static bool player_birth_aux_2(void)
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
 
 			/* Total cost */
-			cost += birth_stat_costs[stats[i] - 10];
+			cost += birth_stat_costs[stats[i] - MIN_POINT_STAT_VALUE];
 		}
 
 		/* Restrict cost */
-		if (cost > 48)
+		if (cost > BUY_POINTS)
 		{
 			/* Warning */
 			bell("Excessive stats!");
@@ -1261,7 +1268,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (50 * (48 - cost)) + 100;
+		p_ptr->au = (50 * (BUY_POINTS - cost)) + 100;
 
 		/* She charmed the banker into it! */
 		/* Mum and Dad figure she won't blow it on beer! */
@@ -1289,13 +1296,13 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
+			sprintf(buf, "%4d", birth_stat_costs[stats[i] - MIN_POINT_STAT_VALUE]);
 			put_str(buf, row + i, col + 32);
 		}
 
 
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost);
+		sprintf(buf, "Total Cost %2d/%2d.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost, BUY_POINTS);
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
@@ -1326,13 +1333,13 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Decrease stat */
-		if ((ch == '4') && (stats[stat] > 10))
+		if ((ch == '4') && (stats[stat] > MIN_POINT_STAT_VALUE))
 		{
 			stats[stat]--;
 		}
 
 		/* Increase stat */
-		if ((ch == '6') && (stats[stat] < 18))
+		if ((ch == '6') && (stats[stat] < MAX_POINT_STAT_VALUE))
 		{
 			stats[stat]++;
 		}
@@ -1370,9 +1377,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1384,7 +1391,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 

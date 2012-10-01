@@ -291,7 +291,7 @@ static void do_cmd_wiz_bamf(void)
 	}
 
 	/* The simple act of controlled teleport. */
-	else teleport_player_to(ny,nx);
+	else teleport_player_to(ny,nx,TRUE);
 }
 
 

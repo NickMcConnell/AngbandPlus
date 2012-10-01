@@ -1469,7 +1469,7 @@ struct term_data
 /*
  * The number of term data structures
  */
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA TERM_WIN_MAX
 
 /*
  * The array of term data structures

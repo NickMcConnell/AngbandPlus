@@ -150,7 +150,7 @@
 
 #endif
 
-#define MAX_TERM_DATA 8
+#define MAX_TERM_DATA TERM_WIN_MAX
 
 /* Maximum length a filename (including a path) can reach. Somewhat arbitary */
 #define MAX_PATH_LENGTH		160

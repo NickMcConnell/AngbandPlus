@@ -308,7 +308,6 @@ struct ego_item_type
 	u16b name;			/* Name (offset) */
 	u16b text;			/* Text (offset) */
 
-	byte slot;			/* Standard slot value */
 	byte rating;		/* Rating boost */
 
 	byte level;			/* Minimum level */
@@ -325,6 +324,12 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+
+	byte tval[EGO_TVALS_MAX]; /* Legal tval */
+	byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
+	byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
+
+	byte xtra;			/* Extra sustain/resist/power */
 };
 
 
@@ -1220,6 +1225,7 @@ struct player_type
 
 	/* Helper variables for some specialty abilities */
 	s16b speed_boost;		/* Short term speed boost (Fury) */
+	s16b heighten_power;		/* Magic Intensity boose from casting (Heighten Magic) */
 	s16b mana_gain;			/* Mana gained by special means this turn */
 };
 

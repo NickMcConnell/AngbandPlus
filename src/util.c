@@ -61,7 +61,7 @@ int stricmp(cptr a, cptr b)
 
 #ifdef SET_UID
 
-# ifndef HAS_USLEEP
+# ifndef HAVE_USLEEP
 
 /*
  * For those systems that don't have "usleep()" but need it.
@@ -2040,7 +2040,7 @@ void message_add(cptr str, u16b type)
 		for (s = str, t = old; (*s == *t) && *s; ++s, ++t) /* loop */ ;
 
 		/* Continue if not equal */
-		if (*s) continue;
+		if (*s || *t) continue;
 
 		/* Get the next available message index */
 		x = message__next;
@@ -2331,8 +2331,8 @@ static void msg_print_aux(u16b type, cptr msg)
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
 
-#if 0
 	/* Handle "auto_more" */
+	if (auto_more)
 	{
 		/* Force window update */
 		window_stuff();
@@ -2340,7 +2340,7 @@ static void msg_print_aux(u16b type, cptr msg)
 		/* Done */
 		return;
 	}
-#endif
+
 
 	/* Copy it */
 	strcpy(buf, msg);

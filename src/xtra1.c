@@ -206,22 +206,34 @@ static void prt_level(void)
  */
 static void prt_exp(void)
 {
-	char out_val[32];
+	char out_val[8];
 
-	sprintf(out_val, "%8ld", (long)p_ptr->exp);
-
-	if (p_ptr->exp >= p_ptr->max_exp)
+	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
-		put_str("EXP ", ROW_EXP, 0);
-		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+		long val = (long)((player_exp[p_ptr->lev - 1]) - p_ptr->exp);
+
+		/* Boundary check */
+		if (val < 0) val = 0;
+
+		sprintf(out_val, "%7ld", val);
+
+		if (p_ptr->exp >= p_ptr->max_exp)
+		{
+			put_str("NEXT ", ROW_EXP, 0);
+			c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 5);
+		}
+		else
+		{
+			put_str("Next ", ROW_EXP, 0);
+			c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 5);
+		}
 	}
 	else
 	{
-		put_str("Exp ", ROW_EXP, 0);
-		c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
+		put_str("NEXT ", ROW_EXP, 0);
+		c_put_str(TERM_L_GREEN, "******* ", ROW_EXP, COL_EXP + 5);
 	}
 }
-
 
 /*
  * Prints current gold
@@ -1196,7 +1208,7 @@ static void prt_frame_basic(void)
 	prt_exp();
 
 	/* All Stats */
-	for (i = 0; i < 6; i++) prt_stat(i);
+	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
 	prt_ac();
@@ -1267,7 +1279,7 @@ static void fix_inven(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1301,7 +1313,7 @@ static void fix_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1334,7 +1346,7 @@ static void fix_player_0(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1368,7 +1380,7 @@ static void fix_player_1(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1405,7 +1417,7 @@ static void fix_message(void)
 	int x, y;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1460,7 +1472,7 @@ static void fix_overhead(void)
 	int cy, cx;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1499,7 +1511,7 @@ static void fix_monster(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1532,7 +1544,7 @@ static void fix_object(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1845,13 +1857,13 @@ static void calc_specialty(void)
 	/* Calculate number allowed */
         p_ptr->specialties_allowed = 1 + (p_ptr->lev / 20);
         if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->specialties_allowed++;
-        if (p_ptr->specialties_allowed > 10) p_ptr->specialties_allowed = 10;
+        if (p_ptr->specialties_allowed > MAX_SPECIALTIES) p_ptr->specialties_allowed = MAX_SPECIALTIES;
 
 	/* Assume none known */
 	num_known = 0;
 
 	/* Count the number of specialties we know */
-        for (i = 0; i < 10; i++)
+        for (i = 0; i < MAX_SPECIALTIES; i++)
         {
                 if (p_ptr->specialty_order[i] != SP_NO_SPECIALTY) num_known++;
         }
@@ -1860,7 +1872,7 @@ static void calc_specialty(void)
 	p_ptr->new_specialties = p_ptr->specialties_allowed - num_known;
 
 	/* Check if specialty array is full */
-	if ((num_known == 10) && (p_ptr->new_specialties > 0)) p_ptr->new_specialties = 0;
+	if ((num_known == MAX_SPECIALTIES) && (p_ptr->new_specialties > 0)) p_ptr->new_specialties = 0;
 
 	/* More specialties are available (or fewer forgotten) */
 	if (p_ptr->old_specialties < p_ptr->new_specialties)
@@ -2541,7 +2553,7 @@ static void shape_change_main(void)
 			p_ptr->ffall = FALSE;
 			p_ptr->to_d += 10;
 			p_ptr->dis_to_d += 10;
-			p_ptr->skill_dig += 8;
+			p_ptr->skill_dig += 150;
 			p_ptr->skill_thb -= 30;
 			p_ptr->skill_tht -= 30;
 			break;
@@ -2594,7 +2606,7 @@ static void shape_change_main(void)
 			p_ptr->to_d += 5;
 			p_ptr->dis_to_d += 5;
 			p_ptr->skill_stl += 1;
-			p_ptr->skill_dev += 6;
+			p_ptr->skill_dev += 25;
 			p_ptr->skill_thb -= 10;
 			p_ptr->skill_tht -= 10;
 			break;
@@ -2607,7 +2619,7 @@ static void shape_change_main(void)
 			p_ptr->to_d += 5;
 			p_ptr->dis_to_d += 5;
 			p_ptr->skill_stl -= 3;
-			p_ptr->skill_dev += 4;
+			p_ptr->skill_dev += 10;
 			p_ptr->skill_thb -= 30;
 			p_ptr->skill_tht -= 30;
 
@@ -2723,6 +2735,7 @@ static void calc_bonuses(void)
 
 	int old_stealth;
 
+	int old_see_infra;
 	int old_telepathy;
 	int old_see_inv;
 
@@ -2734,9 +2747,11 @@ static void calc_bonuses(void)
 	int extra_shots;
 	int extra_might;
 
-	int old_stat_top[6];
-	int old_stat_use[6];
-	int old_stat_ind[6];
+	int old_stat_top[A_MAX];
+	int old_stat_use[A_MAX];
+	int old_stat_ind[A_MAX];
+
+	bool enhance = FALSE;
 
 	object_type *o_ptr;
 
@@ -2753,13 +2768,14 @@ static void calc_bonuses(void)
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
+	old_see_infra = p_ptr->see_infra;
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
 	old_dis_to_a = p_ptr->dis_to_a;
 
 	/* Save the old stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		old_stat_top[i] = p_ptr->stat_top[i];
 		old_stat_use[i] = p_ptr->stat_use[i];
@@ -2789,7 +2805,7 @@ static void calc_bonuses(void)
 	extra_might = 0;
 
 	/* Clear the stat modifiers */
-	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
+	for (i = 0; i < A_MAX; i++) p_ptr->stat_add[i] = 0;
 
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
@@ -3136,10 +3152,11 @@ static void calc_bonuses(void)
 	/* Unlight stealth boost */
 	if (check_specialty(SP_UNLIGHT))
 	{
-		p_ptr->skill_stl += 4;
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px)) p_ptr->skill_stl += 6;
+		else p_ptr->skill_stl += 3;
 	}
 
-	/* Speed Boost (Fury) */
+	/* Speed Boost (Fury, Phasewalk) */
 	if (p_ptr->speed_boost)
 	{
 		p_ptr->pspeed += (p_ptr->speed_boost + 5) / 10;
@@ -3148,7 +3165,7 @@ static void calc_bonuses(void)
 	/*** Handle stats ***/
 
 	/* Calculate stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		int add, top, use, ind;
 
@@ -3184,47 +3201,10 @@ static void calc_bonuses(void)
 	}
 
 
-	/* Evasion AC boost */
-	if (check_specialty(SP_EVASION))
-	{
-		int cur_wgt = 0;
-		int evasion_wgt;
-		int max_bonus;
-
-		/* Weigh the armor */
-		cur_wgt += inventory[INVEN_BODY].weight;
-		cur_wgt += inventory[INVEN_HEAD].weight;
-		cur_wgt += inventory[INVEN_ARM].weight;
-		cur_wgt += inventory[INVEN_OUTER].weight;
-		cur_wgt += inventory[INVEN_HANDS].weight;
-		cur_wgt += inventory[INVEN_FEET].weight;
-
-		/* Highest weight to get any bonus */
-		evasion_wgt = 100 + adj_str_evas[p_ptr->stat_ind[A_STR]];
-
-		/* Highest bonus we can get at this level */
-		max_bonus = 2 * adj_dex_evas[p_ptr->stat_ind[A_DEX]];
-
-		/* Sanity check for very low level characters */
-		if (max_bonus > (5 * p_ptr->lev)) max_bonus = (5 * p_ptr->lev); 
-
-		/* Do we get the max bonus? */
-		if (cur_wgt < evasion_wgt / 2)
-		{
-			p_ptr->to_a += max_bonus;
-                        p_ptr->dis_to_a += max_bonus;
-		}
-
-		/* Do we get any bonus? */
-		else if (cur_wgt < evasion_wgt)
-		{
-			p_ptr->to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
-			p_ptr->dis_to_a += max_bonus * 2 - (max_bonus * 2 * cur_wgt)/evasion_wgt;
-		}
-	}
-
-
 	/*** Temporary flags ***/
+
+	/* Hack - Temporary bonuses are stronger with Enhance Magic */
+	if (check_specialty(SP_ENHANCE_MAGIC)) enhance = TRUE;
 
 	/* Apply temporary "stun".  */
 	if (p_ptr->stun > 50)
@@ -3245,8 +3225,10 @@ static void calc_bonuses(void)
 	/* Heightened magical defenses.   Saving Throw effect added later */
 	if (p_ptr->magicdef)
 	{
-		p_ptr->to_a += 25;
-		p_ptr->dis_to_a += 25;
+		int bonus = ((enhance == TRUE) ? 35 : 25);
+
+		p_ptr->to_a += bonus;
+		p_ptr->dis_to_a += bonus;
 
 		p_ptr->resist_blind = TRUE;
 		p_ptr->resist_confu = TRUE;
@@ -3255,10 +3237,13 @@ static void calc_bonuses(void)
 	/* Temporary blessing */
 	if (p_ptr->blessed)
 	{
-		p_ptr->to_a += 5;
-		p_ptr->dis_to_a += 5;
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
+		int bonus1 = ((enhance == TRUE) ? 10 : 5);
+		int bonus2 = ((enhance == TRUE) ? 15 : 10);
+
+		p_ptr->to_a += bonus1;
+		p_ptr->dis_to_a += bonus1;
+		p_ptr->to_h += bonus2;
+		p_ptr->dis_to_h += bonus2;
 	}
 
 	/* Temporary shield.  Added an exception for Necromancers to keep
@@ -3266,33 +3251,44 @@ static void calc_bonuses(void)
 	 */
 	if ((p_ptr->shield) && (p_ptr->pclass == CLASS_NECRO))
 	{
-		p_ptr->to_a += 35;
-		p_ptr->dis_to_a += 35;
+		int bonus = ((enhance == TRUE) ? 50 : 35);
+
+		p_ptr->to_a += bonus;
+		p_ptr->dis_to_a += bonus;
 	}
 	else if (p_ptr->shield)
 	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
+		int bonus = ((enhance == TRUE) ? 65 : 50);
+
+		p_ptr->to_a += bonus;
+		p_ptr->dis_to_a += bonus;
 	}
 
 	/* Temporary "Hero".  Now also increases Deadliness. */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h += 10;
-		p_ptr->dis_to_h += 10;
-		p_ptr->to_d += 5;
-		p_ptr->dis_to_d += 5;
+		int bonus1 = ((enhance == TRUE) ? 15 : 10);
+		int bonus2 = ((enhance == TRUE) ? 10 : 5);
+
+		p_ptr->to_h += bonus1;
+		p_ptr->dis_to_h += bonus1;
+		p_ptr->to_d += bonus2;
+		p_ptr->dis_to_d += bonus2;
 	}
 
 	/* Temporary "Berserk".   Now also increases Deadliness. */
 	if (p_ptr->shero)
 	{
-		p_ptr->to_h += 5;
-		p_ptr->dis_to_h += 5;
-		p_ptr->to_d += 15;
-		p_ptr->dis_to_d += 15;
-		p_ptr->to_a -= 10;
-		p_ptr->dis_to_a -= 10;
+		int bonus1 = ((enhance == TRUE) ? 10 : 5);
+		int bonus2 = ((enhance == TRUE) ? 20 : 15);
+		int bonus3 = ((enhance == TRUE) ? 15 : 10);
+
+		p_ptr->to_h += bonus1;
+		p_ptr->dis_to_h += bonus1;
+		p_ptr->to_d += bonus2;
+		p_ptr->dis_to_d += bonus2;
+		p_ptr->to_a -= bonus3;
+		p_ptr->dis_to_a -= bonus3;
 
 		/* but berserkers make *lousy* archers. */
 		p_ptr->skill_thb -= 20;
@@ -3302,7 +3298,9 @@ static void calc_bonuses(void)
 	/* Temporary "fast" */
 	if (p_ptr->fast)
 	{
-		p_ptr->pspeed += 10;
+		int bonus = ((enhance == TRUE) ? 13 : 10);
+
+		p_ptr->pspeed += bonus;
 	}
 
 	/* Temporary "slow" */
@@ -3320,7 +3318,9 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost.   More useful now. */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra = p_ptr->see_infra + 3;
+		int bonus = ((enhance == TRUE) ? 5 : 3);
+
+		p_ptr->see_infra = p_ptr->see_infra + bonus;
 	}
 
 
@@ -3585,7 +3585,7 @@ static void calc_bonuses(void)
 			}
 
 
-			/* See formula "do_cmd_fire" in "cmd2.c" for Assassin bonus
+			/* See formula "do_cmd_fire" in "attack.c" for Assassin bonus
 			 * to Deadliness. */
 		}
 
@@ -3671,7 +3671,7 @@ static void calc_bonuses(void)
 	/*** Notice changes ***/
 
 	/* Analyze stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < A_MAX; i++)
 	{
 		/* Notice changes */
 		if (p_ptr->stat_top[i] != old_stat_top[i])
@@ -3762,6 +3762,13 @@ static void calc_bonuses(void)
 
 	/* Hack -- See Invis Change */
 	if (p_ptr->see_inv != old_see_inv)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+	/* Hack -- See Invis Change */
+	if (p_ptr->see_infra != old_see_infra)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
@@ -4224,7 +4231,7 @@ void window_stuff(void)
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < TERM_WIN_MAX; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])

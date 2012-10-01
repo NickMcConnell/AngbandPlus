@@ -1129,7 +1129,7 @@ byte adj_str_evas[] =
  * To get "D", we look up the relevant "adj_dex_blow[]" (see above).
  *
  * (Some interesting calculations)
- * The character cannot get five blows with any weapon greater than 21
+ * The character cannot get five blows with any weapon greater than 24
  * lb, and cannot get six with any weapon greater than 14.4 lb.
  */
 byte blows_table[12][12] =
@@ -1517,12 +1517,12 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 		SP_ARMOR_PROFICIENCY,
 		SP_BEGUILE,
 		SP_CLARITY,
-		SP_EXTEND_MAGIC,
+		SP_ENHANCE_MAGIC,
 		SP_FAST_CAST,
 		SP_MEDITATION,
 		SP_POWER_SIPHON,
 		SP_MAGIC_RESIST,
-		SP_TELEPORT_RESIST,
+		SP_PHASEWALK,
 		SP_HEIGHTEN_MAGIC,
 		SP_NO_SPECIALTY,
 		SP_NO_SPECIALTY,
@@ -1534,11 +1534,11 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 	{
 		/* Priest */
 		SP_CLARITY,
-		SP_EXTEND_MAGIC,
+		SP_ENHANCE_MAGIC,
 		SP_FAST_CAST,
 		SP_MEDITATION,
 		SP_ARMSMAN,
-		SP_TELEPORT_RESIST,
+		SP_PHASEWALK,
 		SP_HOLY_LIGHT,
 		SP_HARMONY,
 		SP_FURY,
@@ -1559,7 +1559,7 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 		SP_MARKSMAN,
 		SP_REGENERATION,
 		SP_MIGHTY_THROW,
-		SP_TELEPORT_RESIST,
+		SP_PHASEWALK,
 		SP_UNLIGHT,
 		SP_EXTRA_TRAP,
 		SP_NO_SPECIALTY,
@@ -1597,7 +1597,7 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 		SP_FURY,
 		SP_REGENERATION,
 		SP_SHIELD_MAST,
-		SP_EXTEND_MAGIC,
+		SP_ENHANCE_MAGIC,
 		SP_MAGIC_RESIST,
 		SP_HOLY_LIGHT,
 		SP_NO_SPECIALTY,
@@ -1614,7 +1614,7 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 		SP_CLARITY,
 		SP_FAST_CAST,
 		SP_MEDITATION,
-		SP_EXTEND_MAGIC,
+		SP_ENHANCE_MAGIC,
 		SP_REGENERATION,
 		SP_HARMONY,
 		SP_POWER_STRIKE,
@@ -1632,7 +1632,7 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
 		SP_ARMOR_PROFICIENCY,
 		SP_BEGUILE,
 		SP_CLARITY,
-		SP_EXTEND_MAGIC,
+		SP_ENHANCE_MAGIC,
 		SP_FAST_CAST,
 		SP_MEDITATION,
 		SP_MAGIC_RESIST,
@@ -1672,7 +1672,7 @@ byte specialty_info [MAX_CLASS][CLASS_SPECIALTIES] =
  *
  *    Spell Book Tval, Spell Stat, Spell Realm, Level of first spell, 
  *    Max armour weight that avoids mana penalties, Additional armour
- *    weight to elminate all mana.
+ *    weight to eliminate all mana.
  *
  *    Number of spells (max is 64), array (not spell) index of first 
  *    spell in each of the nine books, listed by sval.
@@ -1970,7 +1970,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  82,	30,  4, 40,  10},	/* Sense Invisible */
 			{  86,	35, 15, 50,  15},	/* Probing */
 			{  49,	37, 15, 60,  16},	/* Shield */
-			{  27,	40, 22, 60,  20},	/* Recharging II */
+			{  27,	40, 22, 60,  20},	/* Recharge Item II */
 			{  37,	42, 25, 60,  21},	/* Resistance */
 			{  60,	47, 25, 50,  25},	/* Day of Misrule */
 
@@ -2018,8 +2018,8 @@ player_magic magic_info[MAX_CLASS] =
 			{ 139,	11,  5, 45,   3}, /* sleep creature */
 			{ 140,	13,  5, 40,   3}, /* frighten creature */
 			{ 187,	13,  3, 40,   3}, /* Creature Knowledge */
-			{  86,	15,  5, 45,   3}, /* map area */
-			{ 142,	16,  5, 60,   3}, /* cease small life */
+			{  86,	15,  5, 45,   3}, /* sense surroundings */
+			{ 142,	16,  5, 60,   3}, /* snuff small life */
 			{ 144,	18,  8, 70,   4}, /* heroism */
 
 			/* Gifts of Nature (sval 2) */
@@ -2127,7 +2127,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Purifications and Healing (sval 6) */
 			{ 114,	28,  4, 50,  10}, /* Disarm Trap */
-			{ 123,	36,  7, 50,  23}, /* Horn of Wrath */
+			{ 123,	36,  7, 50,  23}, /* Sanctify for Battle */
 			{ 107,	41, 19, 65,  34}, /* Healing */
 			{ 109,	46, 40, 70,  45}, /* Restoration */
 			{ 110,	46, 40, 70,  45}, /* Remembrance */
@@ -2136,7 +2136,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Wrath of God (sval 8) */
 			{ 117,	37, 10, 70,  20}, /* Ball of Light */
-			{ 124,	40, 10, 50,  29}, /* Sanctify for Battle */
+			{ 124,	40, 10, 50,  29}, /* Horn of Wrath */
 			{ 118,	42, 12, 75,  37}, /* Holy Lance */
 			{ 119,	45, 45, 70,  40}, /* Word of Destruction */
 			{ 120,	49, 25, 60,  70}, /* Annihilation */
@@ -2276,7 +2276,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 204,	11,  5, 30,   4}, /* turn evil */
 			{ 205,	11,  4, 35,   5}, /* cure poison */
 			{ 206,	12,  6, 45,   5}, /* dispel undead */
-			{ 207,	13,  7, 50,   5}, /* dispel evil */
+			{ 207,	14,  8, 50,   5}, /* dispel evil */
 
 			/* Blood Novitiate (sval 2) */
 			{ 208,	14,  5, 40,   6}, /* see invisible */
@@ -2292,7 +2292,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 217,	23, 11, 50,   8}, /* Dispel Demons */
 			{ 218,	23, 11, 55,   9}, /* dark spear */
 			{ 219,	24, 11, 60,  10}, /* mana bolt */
-			{ 221,	28, 21, 65,  12}, /* dark ball */
+			{ 221,	28, 16, 65,  12}, /* dark ball */
 			{ 222,	33, 21, 70,  16}, /* stench of death */
 			{ 220,	43, 25, 70,  21}, /* genocide */
 
@@ -2315,7 +2315,7 @@ player_magic magic_info[MAX_CLASS] =
 			/* Life Force Mastery (sval 6) */
 			{ 234,	31, 12, 75,  30}, /* detect all monsters */
 			{ 235,	36, 15, 50,  35}, /* strike at life */
-			{ 236,	38, 25, 60,  40}, /* orb of death */
+			{ 236,	38, 22, 60,  40}, /* orb of death */
 			{ 237,	43, 25, 70,  75}, /* dispel life */
 			{ 238,	46, 36, 70, 120}, /* vampiric drain */
 
@@ -2329,7 +2329,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Necronomicon(sval 8) */
 			{ 245,	31, 24, 45,  30}, /* word of destruction */
-			{ 246,	36, 30, 50,  35}, /* teleport away */
+			{ 246,	36, 30, 50,  35}, /* teleport other */
 			{ 247,	38, 32, 60,  40}, /* smash undead */
 			{ 248,	42, 40, 70,  75}, /* bind undead */
 			{ 249,	47, 40, 70, 120}, /* darkness storm */
@@ -2800,6 +2800,7 @@ byte deadliness_conversion[151] =
  * also controls the quality of treasure).
  * Table revised for Oangband.
  */
+/* Note that traps can actually be 4 entries past the nominal "best" comment */
 int chest_traps[100] =
 {
 	0,					/* 0 == empty */
@@ -2837,22 +2838,22 @@ int chest_traps[100] =
 	(CHEST_POISON | CHEST_SUMMON),
 	(CHEST_E_SUMMON),
 	(CHEST_EXPLODE),
-	(CHEST_BIRD_STORM),	/* 35 == best small iron */
+	(CHEST_BIRD_STORM),	
 	0,
 	(CHEST_SUMMON),
 	(CHEST_EXPLODE),
 	(CHEST_E_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
+	(CHEST_EXPLODE | CHEST_SUMMON), /* 40 == best small iron */
 	(CHEST_BIRD_STORM),
 	(CHEST_EXPLODE),
 	(CHEST_BIRD_STORM),
 	(CHEST_E_SUMMON),
-	(CHEST_BIRD_STORM),	/* 45 == best large iron */
+	(CHEST_BIRD_STORM),
 	0,
 	(CHEST_E_SUMMON),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_E_SUMMON),
+	(CHEST_E_SUMMON),	/* 50 == best large iron */
 	(CHEST_BIRD_STORM),
 	(CHEST_E_SUMMON),
 	(CHEST_H_SUMMON),
@@ -2887,7 +2888,7 @@ int chest_traps[100] =
 	(CHEST_H_SUMMON),
 	(CHEST_BIRD_STORM),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_H_SUMMON),
+	(CHEST_H_SUMMON),	/* 95 == best small jeweled */
 	(CHEST_H_SUMMON),
 	(CHEST_H_SUMMON),
 	(CHEST_E_SUMMON),
@@ -3173,7 +3174,7 @@ cptr option_text[OPT_MAX] =
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
 	"view_torch_grids",			/* OPT_view_torch_grids */
-	NULL,
+	"auto_more",				/* OPT_auto_more */
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	NULL,
 	NULL,
@@ -3325,7 +3326,7 @@ cptr option_desc[OPT_MAX] =
 	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	NULL,									   /*40*/
+	"Automatically clear '-more-' prompts",		/* OPT_auto_more */	
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	NULL,
 	NULL,
@@ -3477,7 +3478,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	TRUE,		/* OPT_view_torch_grids */
-	FALSE,						     /*40*/
+	FALSE,		/* OPT_auto_more */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,
 	FALSE,
@@ -3631,7 +3632,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_destroy_junk,
 		OPT_verify_special,
 		OPT_ring_bell,
-		255,
+		OPT_auto_more,
 		255,
 		255
 	},
@@ -4129,7 +4130,7 @@ cptr specialty_names[255]=
 	"Armor Proficiency",
 	"Evasion",
 	"Magic Resistance",
-	"Teleport Resistance",
+	"Phasewalking",
 	"Unlight",
 	"","","","","","","","","","","","","",
 	"Armsman",				/* Physical Offense */
@@ -4141,7 +4142,7 @@ cptr specialty_names[255]=
 	"Martial Arts",
 	"","","","","","","","","","","","","",
 	"Beguile",				/* Magic and Mana */
-	"Extend Magic",
+	"Enhance Magic",
 	"Fast Casting",
 	"Power Siphon",
 	"Heighten Magic",

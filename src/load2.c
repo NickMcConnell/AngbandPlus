@@ -1852,7 +1852,13 @@ static errr rd_extra(void)
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
-	strip_bytes(8);
+	if (!o_older_than(0, 6, 2))
+	{
+		rd_s16b(&p_ptr->speed_boost);
+		rd_s16b(&p_ptr->heighten_power);
+	}
+	else strip_bytes(4);
+	strip_bytes(4);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 

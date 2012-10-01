@@ -292,7 +292,7 @@ cptr obj_special_info[6][50] =
 		"",				/* Polymorph */
 		"(damage: 6 - 88)",	/* Acid Bolts */
 		"(damage: 4 - 56)",	/* Lightning Bolts */
-		"(damage: 7 - 114)",	/* Fire Bolts */
+		"(damage: 7 - 104)",	/* Fire Bolts */
 		"(damage: 5 - 72)",	/* Frost Bolts */
 		"(damage: 60 - 100)",	/* Acid Balls */
 		"(damage: 40 - 80)",	/* Lightning Balls */
@@ -588,10 +588,10 @@ cptr specialty_tips[255]=
 	"Increases the effects of body armor.",
 	"Improves shield AC, chance of shield deflection, and damage from shield bashes.",
 	"Reduces mana penalties for armor use.",
-	"Increases your armor class when you wear light armor.  Allowed armor increases with strength and the maximum bonus increases with dexterity and player level.",
+	"Gives a good chance to avoid melee attacks and a great chance to avoid missile weapons.",
 	"Improves your saving throws.",
-	"Gives a chance to resist hostile teleportation attacks; gives immunity to hostile teleport level.",
-	"Increases stealth, provides resistance to darkness, and allows you to take actions (like reading) without light.  Reduces light radius.",
+	"Causes you to speed up after teleporting.  Gives resistance to hostile teleportation.",
+	"Increases AC and gives damage resistance in the dark.  Gives stealth and resist darkness.  Allows you to take actions (like reading) without light.  Reduces light radius.",
 	"","","","","","","","","","","","","",
 	"Grants extra critical hits with melee weapons.",
 	"Gives you extra melee attacks; better when you have more attacks to begin with.  Works armed and unarmed.",
@@ -602,21 +602,21 @@ cptr specialty_tips[255]=
 	"Gives you a powerful unarmed attack.",
 	"","","","","","","","","","","","","",
 	"Enhances your power to slow, sleep, confuse, or turn your enemies.",
-	"Increases the duration of beneficial magic.",
+	"Increases the effects and durations of beneficial magical effects.",
 	"Increases spell casting speed, especially for low level spells from high level casters.",
 	"Gives you mana when monsters cast spells.",
-	"Increases the power of your caster-level dependent spells.",
+	"Causes spells cast in rapid succession to become increasingly powerful.",
 	"Gives you mana when you slay monsters.  May cause damage when overloaded.",
 	"Causes you to gain hit points when casting spells.",
 	"","","","","","","","","","","","","",
 	"Increases and partially sustains Dexterity and Constitution.",
 	"Increases and partially sustains Intelligence and Wisdom.",
 	"",
-	"Allows you to move faster after being damaged.",
+	"Allows you to move faster after attacking or being damaged.",
 	"Improves mana regeneration; cumulative with other forms of regeneration.",
 	"Improves hit point regeneration; cumulative with other forms of regeneration.",
 	"Allows you to have two monster traps at a time.",
-	"Increases light radius and damage dealt to undead creatures, and grants resistance to light.",
+	"Increases light radius.  Causes undead, evil, and light-sensitive creatures to take extra melee damage and makes them fear your light-based spells.  Grants resistance to light.",
 	"","","","","","","","","","","","",
 	"","","","","","","","","","","","","","","","","","","","",
 	"","","","","","","","","","","","","","","","","","","","",
@@ -2596,15 +2596,15 @@ void self_knowledge(void)
 	}
 	if (check_specialty(SP_EVASION))
 	{
-		info[i++] = "You are hard to hit when wearing light armor.";
+		info[i++] = "You are very hard to hit.";
 	}
 	if (check_specialty(SP_MAGIC_RESIST))
 	{
 		info[i++] = "You resist magical effects.";
 	}
-	if (check_specialty(SP_TELEPORT_RESIST))
+	if (check_specialty(SP_PHASEWALK))
 	{
-		info[i++] = "You resist hostile teleportation.";
+		info[i++] = "You are adept at teleportation.";
 	}
 	if (check_specialty(SP_ARMSMAN))
 	{
@@ -2646,9 +2646,9 @@ void self_knowledge(void)
 	{
 		info[i++] = "You can daunt and deceive your foes.";
 	}
-	if (check_specialty(SP_EXTEND_MAGIC))
+	if (check_specialty(SP_ENHANCE_MAGIC))
 	{
-		info[i++] = "Benecial spells last longer on you.";
+		info[i++] = "Beneficial magics are extra potent on you.";
 	}
 	if (check_specialty(SP_FAST_CAST))
 	{
@@ -2676,7 +2676,7 @@ void self_knowledge(void)
 	}
 	if (check_specialty(SP_FURY))
 	{
-		info[i++] = "You move quickly after being injured.";
+		info[i++] = "You move quickly after attacking or being injured.";
 	}
 	if (check_specialty(SP_MEDITATION))
 	{
@@ -2692,7 +2692,7 @@ void self_knowledge(void)
 	}
         if (check_specialty(SP_HEIGHTEN_MAGIC))
 	{
-		info[i++] = "Your spells are unusually effective.";
+		info[i++] = "Your spells get stronger when cast quickly.";
 	}
 
 	if (p_ptr->blind)
@@ -3230,7 +3230,7 @@ void spell_info(char *p, int spell_index)
 	int beam, beam_low;
 
         /* Specialty Ability */
-        if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 4 + (plev / 12);
+	if (check_specialty(SP_HEIGHTEN_MAGIC)) plev += 1 + (p_ptr->heighten_power / 10);
 
 	/* Beaming chance */
 	beam = (((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_NECRO)) 
@@ -3331,7 +3331,7 @@ void spell_info(char *p, int spell_index)
 		case 143: sprintf(p, " dam %dd8, beam %d%%", 3 + plev / 5, beam_low); 
 			break;
 		case 144: strcpy(p, " dur 20+d20"); break;
-		case 146: sprintf(p, " dam %dd8, beam %d", 5+plev/5, beam_low); break;
+		case 146: sprintf(p, " dam %dd8, beam %d%%", 5+plev/5, beam_low); break;
 		case 147: sprintf(p, " dist %d", 45 + (plev/3)); break;
 		case 148: sprintf(p, " dam %dd8, beam %d%%", 5+plev/4, beam_low); break;
 		case 149: strcpy(p, " dur 20+d20"); break;
@@ -3348,12 +3348,12 @@ void spell_info(char *p, int spell_index)
 		case 170: sprintf(p, " heal %dd12, any cut", 25 + plev / 2); break;
 		case 171: sprintf(p, " dam %d+d%d, rad %d", plev, 50 + plev * 2, 
 			1 + plev / 12); break;
-		case 172: sprintf(p, " dam %d+d%d, rad %d", 3 * plev / 2, 
+		case 172: sprintf(p, " dam %d+d%d, rad %d", 30 + ((4 * plev) / 5), 
 			30 + plev * 2, plev / 7); break;
 		case 173: sprintf(p, " dam %d+d%d, rad %d", 3 * plev / 2, 50 + plev * 3, 
 			1 + plev / 15); break;
-		case 174: sprintf(p, " dam %d+d%d, rad 1", 3*plev, 50+plev*5); break;
-		case 175: sprintf(p, " dam %d+d%d, rad %d", 5 * plev / 2, plev * 3, 
+		case 174: sprintf(p, " dam %d+d%d, rad 1", 35+(2*plev), 90+plev*4); break;
+		case 175: sprintf(p, " dam %d+d%d, rad %d", 40 + (3 * plev / 2), plev * 3, 
 			plev / 10); break;
 		case 177: sprintf(p, " dur %d+d30", plev / 2); break;
 		case 178: sprintf(p, " dam d%d", plev * 2); break;
@@ -3385,8 +3385,8 @@ void spell_info(char *p, int spell_index)
 		case 230: sprintf(p, " %d+d%d", plev / 2, plev); break;
 		case 231: strcpy(p, " dur d66"); break;
 		case 233: strcpy(p, " dur 10+d20"); break;
-		case 235: sprintf(p, " dam %dd11", 3 * plev / 5); break;
-		case 236: sprintf(p, " dam %d, hurt 2d8", 15 + (7 * plev / 2)); break;
+		case 235: sprintf(p, " dam %dd13", 3 * plev / 5); break;
+		case 236: sprintf(p, " dam %d, hurt 2d8", 20 + (2 * plev)); break;
 		case 237: sprintf(p, " dam %d+d%d", 60, plev * 2); break;
 		case 238: sprintf(p, " dam %dd11, heal %d", plev / 3, 3 * plev); break;
 		case 240: strcpy(p, " hurt 2d7"); break;
