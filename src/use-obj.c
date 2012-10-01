@@ -18,7 +18,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			{
 				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
 				{
@@ -191,8 +191,6 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 
 		case SV_FOOD_RATION:
-		case SV_FOOD_BISCUIT:
-		case SV_FOOD_JERKY:
 		case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
@@ -209,13 +207,6 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_FOOD_PINT_OF_ALE:
-		case SV_FOOD_PINT_OF_WINE:
-		{
-			msg_print("That tastes good.");
-			*ident = TRUE;
-			break;
-		}
 	}
 
 	/* Food can feed the player */
@@ -257,7 +248,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_POISON:
 		{
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			{
 				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
 				{
@@ -735,11 +726,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RESISTANCE:
 		{
-			if((set_oppose_acid(p_ptr->oppose_acid + randint(30) + 30)) ||
-			   (set_oppose_elec(p_ptr->oppose_elec + randint(30) + 30)) ||
-			   (set_oppose_fire(p_ptr->oppose_fire + randint(30) + 30)) ||
-			   (set_oppose_cold(p_ptr->oppose_cold + randint(30) + 30)) ||
-			   (set_oppose_pois(p_ptr->oppose_pois + randint(30) + 30)))
+			int act_time = randint(30) + 30;
+			if((set_oppose_acid(p_ptr->oppose_acid + act_time)) ||
+			   (set_oppose_elec(p_ptr->oppose_elec + act_time)) ||
+			   (set_oppose_fire(p_ptr->oppose_fire + act_time)) ||
+			   (set_oppose_cold(p_ptr->oppose_cold + act_time)) ||
+			   (set_oppose_pois(p_ptr->oppose_pois + act_time)))
 
 			{
 				*ident = TRUE;
@@ -820,6 +812,17 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_SCROLL_SUMMON_UNIQUE:
+		{
+
+			if (summon_specific(py, px, p_ptr->depth, SUMMON_UNIQUE))
+			{
+				*ident = TRUE;
+			}
+
+			break;
+		}
+
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) *ident = TRUE;
@@ -870,7 +873,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_REMOVE_CURSE:
 		{
-			if (remove_curse())
+			if (remove_curse(FALSE))
 			{
 				msg_print("You feel as if someone is watching over you.");
 				*ident = TRUE;
@@ -880,7 +883,7 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_STAR_REMOVE_CURSE:
 		{
-			remove_all_curse();
+			remove_curse(TRUE);
 			*ident = TRUE;
 			break;
 		}
@@ -922,7 +925,14 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 
 		case SV_SCROLL_RECHARGING:
 		{
-			if (!recharge(60)) used_up = FALSE;
+			if (!recharge(60, FALSE)) used_up = FALSE;
+			*ident = TRUE;
+			break;
+		}
+
+		case SV_SCROLL_STAR_RECHARGING:
+		{
+			if (!recharge(150, TRUE)) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -1047,6 +1057,32 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
+		case SV_SCROLL_CREATE_RANDART:
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/*artifact power is based on depth*/
+			int randart_power = 15 + p_ptr->depth;
+
+			/*occasional power boost*/
+			while (one_in_(15)) randart_power += 15;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			if (make_one_randart(i_ptr, randart_power, FALSE))
+			{
+				*ident = TRUE;
+				used_up = TRUE;
+
+				/* Drop it near the player */
+				drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+			}
+			else msg_print("The Artifact creation failed");
+			break;
+		}
+
 		case SV_SCROLL_BANISHMENT:
 		{
 			if (!banishment()) used_up = FALSE;
@@ -1137,19 +1173,6 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 		{
 			if (!ident_spell()) use_charge = FALSE;
 			*ident = TRUE;
-			break;
-		}
-
-		case SV_STAFF_REMOVE_CURSE:
-		{
-			if (remove_curse())
-			{
-				if (!p_ptr->blind)
-				{
-					msg_print("The staff glows blue for a moment...");
-				}
-				*ident = TRUE;
-			}
 			break;
 		}
 
@@ -1708,7 +1731,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 		case SV_ROD_IDENTIFY:
 		{
 			*ident = TRUE;
-			if (ident_spell()) used_charge = FALSE;
+			if (!ident_spell()) used_charge = FALSE;
 			break;
 		}
 
@@ -1786,6 +1809,12 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
+			break;
+		}
+
+		case SV_ROD_STONE_TO_MUD:
+		{
+			if (wall_to_mud(dir, 20 + randint(30))) *ident = TRUE;
 			break;
 		}
 
@@ -1922,9 +1951,11 @@ static bool activate_object(object_type *o_ptr)
 	/* Activate the artifact */
 	message(MSG_ZAP, 0, "You activate it...");
 
-	/* Artifacts */
-	if (o_ptr->name1)
+	/* Artifacts, except for special artifacts with dragon scale mail*/
+	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
 	{
+		bool did_activation = TRUE;
+
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 		char o_name[80];
 
@@ -2028,16 +2059,17 @@ static bool activate_object(object_type *o_ptr)
 
 			case ACT_RAGE_BLESS_RESIST:
 			{
+				int act_time = randint(50) + 50;
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + randint(50) + 50);
 				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(50) + 50);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(50) + 50);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
+				(void)set_oppose_acid(p_ptr->oppose_acid + act_time);
+				(void)set_oppose_elec(p_ptr->oppose_elec + act_time);
+				(void)set_oppose_fire(p_ptr->oppose_fire + act_time);
+				(void)set_oppose_cold(p_ptr->oppose_cold + act_time);
+				(void)set_oppose_pois(p_ptr->oppose_pois + act_time);
 				break;
 			}
 
@@ -2090,12 +2122,13 @@ static bool activate_object(object_type *o_ptr)
 
 			case ACT_RESIST:
 			{
+				int act_time = randint(20) + 20;
 				msg_format("Your %s glows many colours...", o_name);
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				(void)set_oppose_acid(p_ptr->oppose_acid + act_time);
+				(void)set_oppose_elec(p_ptr->oppose_elec + act_time);
+				(void)set_oppose_fire(p_ptr->oppose_fire + act_time);
+				(void)set_oppose_cold(p_ptr->oppose_cold + act_time);
+				(void)set_oppose_pois(p_ptr->oppose_pois + act_time);
 				break;
 			}
 
@@ -2109,7 +2142,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_RECHARGE1:
 			{
 				msg_format("Your %s glows bright yellow...", o_name);
-				recharge(60);
+				recharge(60, FALSE);
 				break;
 			}
 
@@ -2294,7 +2327,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_IDENTIFY:
 			{
 				msg_format("Your %s glows yellow...", o_name);
-				if (!ident_spell()) return FALSE;
+				if (!identify_fully()) return FALSE;
 				break;
 			}
 
@@ -2316,7 +2349,7 @@ static bool activate_object(object_type *o_ptr)
 			case ACT_FIREBRAND:
 			{
 				msg_format("Your %s glows deep red...", o_name);
-				(void)brand_bolts();
+				(void)brand_bolts(TRUE);
 				break;
 			}
 
@@ -2341,73 +2374,131 @@ static bool activate_object(object_type *o_ptr)
 				set_shero(p_ptr->shero + randint(50) + 50);
 				break;
 			}
+			case ACT_RES_ACID:
+			{
+				msg_format("Your %s glows light gray...", o_name);
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				break;
+			}
+			case ACT_RES_ELEC:
+			{
+				msg_format("Your %s glows light blue...", o_name);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				break;
+			}
+			case ACT_RES_FIRE:
+			{
+				msg_format("Your %s glows light red...", o_name);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				break;
+			}
+			case ACT_RES_COLD:
+			{
+				msg_format("Your %s glows bright white...", o_name);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				break;
+			}
+			case ACT_RES_POIS:
+			{
+				msg_format("Your %s glows light blue...", o_name);
+				(void)set_oppose_cold(p_ptr->oppose_elec + randint(20) + 20);
+				break;
+			}
+
+			default:
+		   	{
+				if ((a_ptr->tval != TV_DRAG_ARMOR) &&
+					(a_ptr->tval != TV_DRAG_SHIELD)) return (FALSE);
+				else did_activation = FALSE;
+			}
 		}
 
-		/* Set the recharge time */
-		if (a_ptr->randtime)
-			o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
-		else
-			o_ptr->timeout = a_ptr->time;
+		if (did_activation)
+		{
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			/* Set the recharge time */
+			if (a_ptr->randtime)
+				o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
+			else o_ptr->timeout = a_ptr->time;
 
-		/* Done */
-		return FALSE;
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+			/* Done */
+			return FALSE;
+		}
 	}
 
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
+	if ((o_ptr->tval == TV_DRAG_ARMOR) ||
+		(o_ptr->tval == TV_DRAG_SHIELD))
 	{
+
+		u16b value = o_ptr->sval;
+
+		if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
+
 		/* Get a direction for breathing (or abort) */
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		/* Branch on the sub-type */
-		switch (o_ptr->sval)
+		switch (o_ptr->name2)
 		{
-			case SV_DRAGON_BLUE:
+			case EGO_DRAGON_BLUE:
 			{
+				value *= 50;
+
 				msg_print("You breathe lightning.");
-				fire_arc(GF_ELEC, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_ELEC, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + (value);
 				break;
 			}
 
-			case SV_DRAGON_WHITE:
+			case EGO_DRAGON_WHITE:
 			{
+				value *= 50;
+
 				msg_print("You breathe frost.");
-				fire_arc(GF_COLD, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_COLD, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + (value);
 				break;
 			}
 
-			case SV_DRAGON_BLACK:
+			case EGO_DRAGON_BLACK:
 			{
+				value *= 50;
+
 				msg_print("You breathe acid.");
-				fire_arc(GF_ACID, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_ACID, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_GREEN:
+			case EGO_DRAGON_GREEN:
 			{
+				value *= 50;
+
 				msg_print("You breathe poison gas.");
-				fire_arc(GF_POIS, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_POIS, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_RED:
+			case EGO_DRAGON_RED:
 			{
+				value *= 50;
+
 				msg_print("You breathe fire.");
-				fire_arc(GF_FIRE, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_FIRE, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_MULTIHUED:
+			case EGO_DRAGON_MULTIHUED:
 			{
+				value *= 75;
+
 				chance = rand_int(5);
 				msg_format("You breathe %s.",
 				           ((chance == 1) ? "lightning" :
@@ -2418,51 +2509,61 @@ static bool activate_object(object_type *o_ptr)
 				           ((chance == 2) ? GF_COLD :
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 300, 0, 30);
-				o_ptr->timeout = rand_int(225) + 225;
+				          dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value * 3 / 4) + (value * 3 / 4);
 				break;
 			}
 
-			case SV_DRAGON_BRONZE:
+			case EGO_DRAGON_BRONZE:
 			{
+				value *= 50;
+
 				msg_print("You breathe confusion.");
-				fire_arc(GF_CONFUSION, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_CONFUSION, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_GOLD:
+			case EGO_DRAGON_GOLD:
 			{
+				value *= 50;
+
 				msg_print("You breathe sound.");
-				fire_arc(GF_SOUND, dir, 200, 0, 30);
-				o_ptr->timeout = rand_int(450) + 450;
+				fire_arc(GF_SOUND, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_CHAOS:
+			case EGO_DRAGON_CHAOS:
 			{
+				value *= 60;
+
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 250, 0, 30);
-				o_ptr->timeout = rand_int(300) + 300;
+				          dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_LAW:
+			case EGO_DRAGON_LAW:
 			{
+				value *= 60;
+
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
-				          dir, 300, 0, 30);
-				o_ptr->timeout = rand_int(300) + 300;
+				          dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_BALANCE:
+			case EGO_DRAGON_BALANCE:
 			{
+				value *= 75;
+
 				chance = rand_int(4);
 				msg_format("You breathe %s.",
 				           ((chance == 1) ? "chaos" :
@@ -2471,26 +2572,30 @@ static bool activate_object(object_type *o_ptr)
 				fire_arc(((chance == 1) ? GF_CHAOS :
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
-				          dir, 400, 0, 30);
-				o_ptr->timeout = rand_int(300) + 300;
+				          dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_SHINING:
+			case EGO_DRAGON_PSEUDO:
 			{
+				value *= 65;
+
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
-				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 350, 0, 30);
-				o_ptr->timeout = rand_int(300) + 300;
+				fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 
-			case SV_DRAGON_POWER:
+			case EGO_DRAGON_POWER:
 			{
+				value *= 100;
+
 				msg_print("You breathe the elements.");
-				fire_arc(GF_MISSILE, dir, 500, 0, 30);
-				o_ptr->timeout = rand_int(300) + 300;
+				fire_arc(GF_MISSILE, dir, value, 0, 30);
+				o_ptr->timeout = rand_int(value) + value;
 				break;
 			}
 		}
@@ -2640,7 +2745,7 @@ static cptr act_description[ACT_MAX] =
 	"large lightning ball (250)",
 	"banishment",
 	"mass banishment",
-	"identify",
+	"*identify*",
 	"drain life (90)",
 	"drain life (120)",
 	"bizarre things",
@@ -2664,7 +2769,12 @@ static cptr act_description[ACT_MAX] =
 	"fire branding of bolts",
 	"starlight (10d8)",
 	"mana bolt (12d8)",
-	"berserk rage (50+d50 turns)"
+	"berserk rage (50+d50 turns)",
+	"resist acid (20+d20 turns)",
+	"resist electricity (20+d20 turns)",
+	"resist fire (20+d20 turns)",
+	"resist cold (20+d20 turns)",
+	"resist poison (20+d20 turns)"
 };
 
 
@@ -2676,6 +2786,8 @@ void describe_item_activation(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
+	u16b value;
+
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -2683,25 +2795,36 @@ void describe_item_activation(const object_type *o_ptr)
 	if (!(f3 & TR3_ACTIVATE)) return;
 
 	/* Artifact activations */
-	if (o_ptr->name1)
+	if ((o_ptr->name1) && (o_ptr->name1 < z_info->art_norm_max))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
+		bool drag_armor = FALSE;
+
 		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX) return;
+		if (a_ptr->activation >= ACT_MAX)
+		{
+			if ((a_ptr->tval == TV_DRAG_ARMOR) ||
+				(a_ptr->tval == TV_DRAG_SHIELD))
+			     drag_armor = TRUE;
+			else return;
+		}
 
 		/* Some artifacts can be activated */
-		text_out(act_description[a_ptr->activation]);
+		if (!drag_armor)
+		{
+			text_out(act_description[a_ptr->activation]);
 
-		/* Output the number of turns */
-		if (a_ptr->time && a_ptr->randtime)
-			text_out(format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime));
-		else if (a_ptr->time)
-			text_out(format(" every %d turns", a_ptr->time));
-		else if (a_ptr->randtime)
-			text_out(format(" every d%d turns", a_ptr->randtime));
+			/* Output the number of turns */
+			if (a_ptr->time && a_ptr->randtime)
+				text_out(format(" every %d+d%d turns", a_ptr->time, a_ptr->randtime));
+			else if (a_ptr->time)
+				text_out(format(" every %d turns", a_ptr->time));
+			else if (a_ptr->randtime)
+				text_out(format(" every d%d turns", a_ptr->randtime));
 
-		return;
+			return;
+		}
 	}
 
 	/* Now do the rings */
@@ -2736,76 +2859,114 @@ void describe_item_activation(const object_type *o_ptr)
 		return;
 	}
 
-
 	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return;
+	if ((o_ptr->tval != TV_DRAG_ARMOR) &&
+		(o_ptr->tval != TV_DRAG_SHIELD)) return;
+
+	/*Bigger the dragon scale mail, the bigger the damage & re-charge*/
+	value = o_ptr->sval;
+
+	/*Armor is more powerful than shields*/
+	if (o_ptr->tval == TV_DRAG_ARMOR) value *= 2;
 
 	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	switch (o_ptr->name2)
 	{
-		case SV_DRAGON_BLUE:
+
+		case EGO_DRAGON_BLUE:
 		{
-			text_out("breathe lightning (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe lightning (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_WHITE:
+		case EGO_DRAGON_WHITE:
 		{
-			text_out("breathe frost (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe frost (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_BLACK:
+		case EGO_DRAGON_BLACK:
 		{
-			text_out("breathe acid (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe acid (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_GREEN:
+		case EGO_DRAGON_GREEN:
 		{
-			text_out("breathe poison gas (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe poison gas (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_RED:
+		case EGO_DRAGON_RED:
 		{
-			text_out("breathe fire (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe fire (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_MULTIHUED:
+		case EGO_DRAGON_MULTIHUED:
 		{
-			text_out("breathe multi-hued (300) every 225+d225 turns");
+			value *= 75;
+
+			text_out(format("breathe multi-hued (%d) every %d+d%d turns", value,
+							(value * 3 / 4), (value * 3 / 4)));
 			break;
 		}
-		case SV_DRAGON_BRONZE:
+		case EGO_DRAGON_BRONZE:
 		{
-			text_out("breathe confusion (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe confusion (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_GOLD:
+		case EGO_DRAGON_GOLD:
 		{
-			text_out("breathe sound (200) every 450+d450 turns");
+			value *= 50;
+
+			text_out(format("breathe sound (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_CHAOS:
+		case EGO_DRAGON_CHAOS:
 		{
-			text_out("breathe chaos/disenchant (250) every 300+d300 turns");
+			value *= 60;
+
+			text_out(format("breathe chaos/disenchant (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_LAW:
+		case EGO_DRAGON_LAW:
 		{
-			text_out("breathe sound/shards (300) every 300+d300 turns");
+			value *= 60;
+
+			text_out(format("breathe sound/shards (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_BALANCE:
+		case EGO_DRAGON_BALANCE:
 		{
-			text_out("breathe balance (400) every 300+d300 turns");
+			value *= 75;
+
+			text_out(format("breathe balance (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_SHINING:
+		case EGO_DRAGON_PSEUDO:
 		{
-			text_out("breathe light/darkness (350) every 300+d300 turns");
+			value *= 65;
+
+			text_out(format("breathe light/darkness (%d) every %d+d%d turns", value, value, value));
 			break;
 		}
-		case SV_DRAGON_POWER:
+		case EGO_DRAGON_POWER:
 		{
-			text_out("breathe the elements (500) every 300+d300 turns");
+			value *= 100;
+
+			text_out(format("breathe the elements (%d) every %d+d%d turns", value, value, value));
+			break;
+		}
+		default:
+		{
 			break;
 		}
 	}

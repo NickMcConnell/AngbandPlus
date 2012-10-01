@@ -92,7 +92,7 @@ generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h 
 randart.o: randart.c $(INCS) init.h
-load.o: load.c $(INCS)
+load.o: load.c $(INCS)  init.h 
 main-cap.o: main-cap.c $(INCS) main.h
 main-gcu.o: main-gcu.c $(INCS) main.h
 main-lsl.o: main-lsl.c $(INCS) main.h

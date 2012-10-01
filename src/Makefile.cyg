@@ -159,7 +159,7 @@ init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h 
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load.o: load.c $(INCS)
+load.o: load.c $(INCS)  init.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)

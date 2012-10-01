@@ -490,6 +490,12 @@ static bool auto_pickup_okay(const object_type *o_ptr)
 	/* It can't be carried */
 	if (!inven_carry_okay(o_ptr)) return (FALSE);
 
+	/*object is marked to not pickup*/
+	if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP) return (FALSE);
+
+	/*object is marked to not pickup*/
+	if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_ALWAYS_PICKUP) return (TRUE);
+
 	/* No inscription */
 	if (!o_ptr->note) return (FALSE);
 
@@ -548,6 +554,98 @@ static void py_pickup_aux(int o_idx)
 	delete_object_idx(o_idx);
 }
 
+/*
+ * Allow the player to sort through items in a pile and
+ * pickup what they want.  This command does not use
+ * any energy because it costs a player no extra energy
+ * to walk into a grid and automatically pick up items
+ */
+void do_cmd_pickup_from_pile(void)
+{
+	bool picked_up_item  = FALSE;
+
+	/*
+	 * Loop through and pick up objects until escape is hit or the backpack
+	 * can't hold anything else.
+	 */
+	while (TRUE)
+	{
+		int item;
+
+		char prompt[80];
+
+		int floor_list[MAX_FLOOR_STACK];
+
+		int floor_num;
+
+		/*start with everything updated*/
+		handle_stuff();
+
+		/* Scan for floor objects */
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, p_ptr->py, p_ptr->px, 0x01);
+
+		/* No pile */
+		if (floor_num < 1)
+		{
+			if (picked_up_item) msg_format("There are no more objects where you are standing.");
+			else msg_format("There are no objects where you are standing.");
+			break;
+		}
+
+		/* Restrict the choices */
+		item_tester_hook = inven_carry_okay;
+
+		/* re-test to see if we can pick any of them up */
+		floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, p_ptr->py, p_ptr->px, 0x01);
+
+		/* Nothing can be picked up */
+		if (floor_num < 1)
+		{
+			msg_format("Your backpack is full.");
+			break;
+		}
+
+		/* Save screen */
+		screen_save();
+
+		/* Display */
+		show_floor(floor_list, floor_num);
+
+		my_strcpy(prompt, "Pick up which object? (ESC to cancel):", sizeof(prompt));
+
+		/*clear the restriction*/
+		item_tester_hook = NULL;
+
+		/* Get the object number to be bought */
+		item = get_menu_choice(floor_num, prompt);
+
+		/*player chose escape*/
+		if (item == -1)
+		{
+			screen_load();
+			break;
+		}
+
+		/* Pick up the object */
+		py_pickup_aux(floor_list[item]);
+
+		/*Mark that we picked something up*/
+		picked_up_item = TRUE;
+
+		/* Load screen */
+		screen_load();
+	}
+
+	/*clear the restriction*/
+	item_tester_hook = NULL;
+
+	/* Combine / Reorder the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Just be sure all inventory management is done. */
+	notice_stuff();
+
+}
 
 /*
  * Make the player carry everything in a grid.
@@ -565,21 +663,20 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
-	int last_o_idx = 0;
-
 	int can_pickup = 0;
 	int not_pickup = 0;
 
- 	/* Automatically destroy squelched items in pile if necessary */
- 	if (auto_destroy == 1)
- 	{
- 		do_squelch_pile(py, px);
- 	}
+	int can_pickup_last_o_idx = 0;
+	int not_pickup_last_o_idx = 0;
 
+ 	/* Automatically destroy squelched items in pile if necessary */
+	do_squelch_pile(py, px);
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
+		bool do_not_pickup = FALSE;
+
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
@@ -593,7 +690,8 @@ void py_pickup(int pickup)
 		disturb(0, 0);
 
 		/* End loop if squelched stuff reached */
-		if (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware)
+		if ((k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) &&
+	    	(k_info[o_ptr->k_idx].aware))
 		{
 			next_o_idx = 0;
 			continue;
@@ -622,6 +720,13 @@ void py_pickup(int pickup)
 			continue;
 		}
 
+		/*some items are marked to never pickup*/
+		if (k_info[o_ptr->k_idx].squelch == NO_SQUELCH_NEVER_PICKUP)
+		{
+			do_not_pickup = TRUE;
+
+		}
+
 		/* Test for auto-pickup */
 		if (auto_pickup_okay(o_ptr))
 		{
@@ -633,7 +738,7 @@ void py_pickup(int pickup)
 		}
 
 		/* Easy Floor */
-		if (easy_floor)
+		if ((easy_floor) && (!do_not_pickup))
 		{
 			/* Pickup if possible */
 			if (pickup && inven_carry_okay(o_ptr))
@@ -649,7 +754,7 @@ void py_pickup(int pickup)
 				else
 				{
 					/* Remember */
-					last_o_idx = this_o_idx;
+					can_pickup_last_o_idx = this_o_idx;
 
 					/* Count */
 					++can_pickup;
@@ -660,7 +765,7 @@ void py_pickup(int pickup)
 			else
 			{
 				/* Remember */
-				last_o_idx = this_o_idx;
+				not_pickup_last_o_idx = this_o_idx;
 
 				/* Count */
 				++not_pickup;
@@ -671,7 +776,7 @@ void py_pickup(int pickup)
 		}
 
 		/* Describe the object */
-		if (!pickup)
+		if ((!pickup) || (do_not_pickup))
 		{
 			msg_format("You see %s.", o_name);
 
@@ -710,7 +815,7 @@ void py_pickup(int pickup)
 			if (not_pickup == 1)
 			{
 				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
+				o_ptr = &o_list[not_pickup_last_o_idx];
 
 				/* Describe the object */
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -737,7 +842,7 @@ void py_pickup(int pickup)
 			if (not_pickup == 1)
 			{
 				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
+				o_ptr = &o_list[not_pickup_last_o_idx];
 
 				/* Describe the object */
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -754,6 +859,15 @@ void py_pickup(int pickup)
 			}
 
 			/* Done */
+			return;
+		}
+
+		/* Hack - do not make a list for only one object */
+		if ((can_pickup == 1) && !always_pickup)
+		{
+
+			py_pickup_aux(can_pickup_last_o_idx);
+
 			return;
 		}
 
@@ -927,7 +1041,7 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
 
-					if (p_ptr->resist_pois || p_ptr->oppose_pois)
+					if (p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois)
 					{
 						msg_print("The poison does not affect you!");
 					}
@@ -1068,7 +1182,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0F:
 		{
 			msg_print("You are surrounded by a pungent green gas!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
+			if (!p_ptr->resist_pois && !p_ptr->oppose_pois && !p_ptr->immune_pois)
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
 			}
@@ -1206,6 +1320,9 @@ void py_attack(int y, int x)
 	}
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ) + sleeping_bonus);
 
+	/*Mark the monster as attacked*/
+	m_ptr->mflag |= (MFLAG_HIT_BY_MELEE);
+
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
@@ -1305,11 +1422,11 @@ void py_attack(int y, int x)
 					{
 						l_ptr->flags3 |= (RF3_NO_CONF);
 					}
-							msg_format("%^s is unaffected.", m_name);
+							msg_format("%^s is unaffected!", m_name);
 				}
 				else if (rand_int(100) < r_ptr->level)
 				{
-					msg_format("%^s is unaffected.", m_name);
+					msg_format("%^s is unaffected!", m_name);
 				}
 				else
 				{

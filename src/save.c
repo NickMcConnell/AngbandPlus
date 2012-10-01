@@ -416,8 +416,6 @@ static errr wr_savefile(void)
 		/* Dump the dungeon */
 		wr_dungeon();
 
-		/* Dump the ghost */
-		wr_ghost();
 	}
 
 #endif
@@ -728,7 +726,7 @@ static void wr_item(const object_type *o_ptr)
 
 	/* Extra information */
 	wr_byte(o_ptr->xtra1);
-	wr_byte(o_ptr->xtra2);
+	wr_u32b(o_ptr->xtra2);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -746,7 +744,10 @@ static void wr_item(const object_type *o_ptr)
 /*
  * Special monster flags that get saved in the savefile
  */
-#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY)
+#define SAVE_MON_FLAGS (MFLAG_MIMIC | MFLAG_ACTV | MFLAG_TOWN | MFLAG_WARY | \
+						MFLAG_SLOWER | MFLAG_FASTER | MFLAG_ALWAYS_CAST | \
+						MFLAG_AGGRESSIVE | MFLAG_ATTACKED_BAD | \
+						MFLAG_HIT_BY_SPELL | MFLAG_HIT_BY_MELEE | MFLAG_QUEST)
 
 
 /*
@@ -767,14 +768,16 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+	wr_s16b(m_ptr->hasted);
+	wr_s16b(m_ptr->slowed);
 
 	/*save the temporary flags*/
 	tmp32u = m_ptr->mflag & (SAVE_MON_FLAGS);
 	wr_u32b(tmp32u);
 
 	wr_u32b(m_ptr->smart);
-	wr_byte(m_ptr->ty);
-	wr_byte(m_ptr->tx);
+	wr_byte(m_ptr->target_y);
+	wr_byte(m_ptr->target_x);
 	wr_byte(m_ptr->mana);
 	wr_s16b(m_ptr->mimic_k_idx);
 	wr_byte(0);
@@ -847,8 +850,12 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
 
-	if (k_ptr->squelch) tmp8u |= 0x04;
 	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
+
+	wr_byte(tmp8u);
+
+	/*write the squelch settings*/
+	tmp8u = k_ptr->squelch;
 
 	wr_byte(tmp8u);
 }
@@ -1008,21 +1015,6 @@ static void wr_options(void)
 
 
 /*
- * Hack -- Write the "ghost" info
- */
-static void wr_ghost(void)
-{
-	int i;
-
-	/* Name */
-	wr_string("Broken Ghost");
-
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
-}
-
-
-/*
  * Write some "extra" info
  */
 static void wr_extra(void)
@@ -1125,21 +1117,74 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);
 
-	/* Demoband use */
+	/* 4gai use */
 	wr_s16b(p_ptr->base_wakeup_chance);
 	wr_s16b(total_wakeup_chance);
 
-	/* Squelch bytes */
+	/* Save item-quality squelch sub-menu */
 	for (i = 0; i < SQUELCH_BYTES; i++) wr_byte(squelch_level[i]);
-	wr_byte(auto_destroy);
+
+	/* Store the name of the current greater vault */
+	wr_string(g_vault_name);
+
+	/* Save the current number of ego-item types */
+	wr_u16b(z_info->e_max);
+
+	/* Save ego-item squelch settings */
+	for (i = 0; i < z_info->e_max; i++)
+	{
+		ego_item_type *e_ptr = &e_info[i];
+		byte tmp8u = 0;
+
+		if (e_ptr->squelch) tmp8u |= 0x01;
+		if (e_ptr->everseen) tmp8u |= 0x02;
+
+		wr_byte(tmp8u);
+	}
+
+	/* Store the bones file selector, if the player is not dead. -LM- */
+	wr_byte(bones_selector);
+
+	/*save the bones template as part of the savefile*/
+	if (bones_selector)
+	{
+		FILE	*fp = FALSE;
+		char	path[1024];
+
+		sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
+
+		/* Attempt to open the bones file. */
+		fp = my_fopen(path, "r");
+
+		/*something would have to be very strange for this not to be true*/
+		if (fp)
+		{
+			int		ghost_sex, ghost_race, ghost_class = 0;
+			bool err = FALSE;
+
+			/*Ghost name is a global viriable and is nto needed*/
+			char dummy[80];
+
+			/* XXX XXX XXX Scan the file */
+			err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", dummy,
+						&ghost_sex, &ghost_race, &ghost_class) != 4);
+
+			/* Close the file */
+			my_fclose(fp);
+
+			wr_string(ghost_name);
+			wr_byte(ghost_sex);
+			wr_byte(ghost_race);
+			wr_byte(ghost_class);
+		}
+	}
+
 
 	/* Store the number of thefts on the level. -LM- */
 	wr_byte(recent_failed_thefts);
 
 	/* Store number of monster traps on this level. -LM- */
 	wr_byte(num_trap_on_level);
-
-
 
 	/* Future use */
 	for (i = 0; i < 13; i++) wr_byte(0);
@@ -1175,7 +1220,7 @@ static void wr_extra(void)
 	wr_byte(feeling);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_byte(do_feeling);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -1187,13 +1232,19 @@ static void wr_extra(void)
  */
 static void wr_randarts(void)
 {
-	int i;
+	int i, begin;
 
-	wr_u16b(z_info->a_max);
+	if (adult_rand_artifacts) begin = 0;
+	else begin = z_info->art_norm_max;
 
-	for (i = 0; i < z_info->a_max; i++)
+	wr_u16b(begin);
+	wr_u16b(z_info->art_max);
+
+	for (i = begin; i < z_info->art_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
+
+		wr_string(a_ptr->name);
 
 		wr_byte(a_ptr->tval);
 		wr_byte(a_ptr->sval);
@@ -1222,13 +1273,58 @@ static void wr_randarts(void)
 		wr_u16b(a_ptr->time);
 		wr_u16b(a_ptr->randtime);
 	}
+
 }
 
+/*
+ * Write the notes into the savefile. Every savefile has at least NOTES_MARK.
+ */
+static void wr_notes(void)
+{
+	/* Paranoia */
+	if (adult_take_notes && notes_file)
+	{
+		char buff[1024];
+    	char tmpstr[100];
+
+    	my_fclose(notes_file);
+
+    	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
+
+    	/* Re-open for readding */
+    	notes_file = my_fopen(buff, "r");
+
+    	while (TRUE)
+    	{
+			/* Read the note from the tempfile */
+			if (my_fgets(notes_file, tmpstr, sizeof(tmpstr)))
+			{
+				/* Found the end */
+				break;
+			}
+
+			/* Paranoia */
+			if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
+
+      		/* Write it into the savefile */
+      		wr_string(tmpstr);
+    	}
+
+    	my_fclose(notes_file);
+
+    	/* Re-open for appending */
+    	notes_file = my_fopen(buff, "a");
+  	}
+
+  	/* Always write NOTES_MARK */
+  	wr_string(NOTES_MARK);
+}
 
 /*
  * The cave grid flags that get saved in the savefile
  */
-#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
+#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | \
+						 CAVE_ROOM | CAVE_MARKED | CAVE_G_VAULT)
 
 
 /*
@@ -1483,7 +1579,7 @@ static bool wr_savefile_new(void)
 			wr_s16b(q_info[i].cur_num);
 		}
 
-		else if ((q_info[i].type == QUEST_GUILD) || (q_info[i].type == QUEST_UNIQUE))
+		else if ((q_info[i].type == QUEST_MONSTER) || (q_info[i].type == QUEST_UNIQUE))
 		{
 			wr_byte(q_info[i].reward);
 			wr_byte(q_info[i].active_level);
@@ -1501,11 +1597,23 @@ static bool wr_savefile_new(void)
 			wr_byte(q_info[i].active_level);
 			wr_byte(q_info[i].base_level);
 		}
+		else if ((q_info[i].type == QUEST_THEMED_LEVEL) ||
+			     (q_info[i].type == QUEST_NEST) ||
+			     (q_info[i].type == QUEST_PIT))
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+			wr_byte(q_info[i].theme);
+			wr_s16b(q_info[i].cur_num);
+			wr_s16b(q_info[i].max_num);
+			wr_byte(q_info[i].started);
+		}
 
 	}
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = z_info->a_max;
+	tmp16u = z_info->art_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -1545,12 +1653,11 @@ static bool wr_savefile_new(void)
 	}
 
 
-	/* Write randart information */
-	if (adult_rand_artifacts)
-	{
-		wr_randarts();
-	}
+	/*Write the randarts*/
+	wr_randarts();
 
+	/*Copy the notes file into the savefile*/
+	wr_notes();
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1585,8 +1692,6 @@ static bool wr_savefile_new(void)
 		/* Dump the dungeon */
 		wr_dungeon();
 
-		/* Dump the ghost */
-		wr_ghost();
 	}
 
 

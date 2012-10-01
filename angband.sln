@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Angband", "Angband.vcproj", "{FE533703-6231-4985-B431-0885879508FA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5D678DC9-5D5B-4114-B548-9F373D4BA025} = {5D678DC9-5D5B-4114-B548-9F373D4BA025}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tolua", "tolua.vcproj", "{5D678DC9-5D5B-4114-B548-9F373D4BA025}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{FE533703-6231-4985-B431-0885879508FA}.Debug.ActiveCfg = Debug|Win32
+		{FE533703-6231-4985-B431-0885879508FA}.Debug.Build.0 = Debug|Win32
+		{FE533703-6231-4985-B431-0885879508FA}.Release.ActiveCfg = Release|Win32
+		{FE533703-6231-4985-B431-0885879508FA}.Release.Build.0 = Release|Win32
+		{5D678DC9-5D5B-4114-B548-9F373D4BA025}.Debug.ActiveCfg = Debug|Win32
+		{5D678DC9-5D5B-4114-B548-9F373D4BA025}.Debug.Build.0 = Debug|Win32
+		{5D678DC9-5D5B-4114-B548-9F373D4BA025}.Release.ActiveCfg = Release|Win32
+		{5D678DC9-5D5B-4114-B548-9F373D4BA025}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

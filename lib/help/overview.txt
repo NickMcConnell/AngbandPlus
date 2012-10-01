@@ -16,7 +16,8 @@ send him comments, or make sure your bug report gets heard, email
 "nppangband@comcast.net".
      The Angband newsgroup is at "news:rec.games.roguelike.angband"; it's filled
 with helpful folks.  If you want to talk about Angband or ask for help, this
-discussion forum is the place to go.
+discussion forum is the place to go.  The NPPAngband forum at the NPP Fan Site is:
+http://nppangband.tannert.net/forums/index.php
 
 
 --- The main screen ---
@@ -46,8 +47,7 @@ view your resists and abilities.
 
      The online help system is available by typing '?'.  You can also learn more
 about the symbols you see on screen by typing '/', then the symbol you wish to
-learn more about.
-
+learn more about.  
 
 --- The options screen  ('=') ---
 
@@ -71,9 +71,6 @@ slain character one last time.  Here you can:
      - see the high score table, 
      - fully identify individual items, and
      - make final notes to the character dump.
-
-
-
 
 
 

@@ -1102,8 +1102,15 @@ bool set_oppose_pois(int v)
 	/* Open */
 	if (v)
 	{
-		/*Check if player has permanent resist to poison*/
-		if ((p_ptr->resist_pois) && (!p_ptr->oppose_pois))
+		/*first check for immunity to cold*/
+		if ((p_ptr->immune_pois) && (v > p_ptr->oppose_pois))
+		{
+			msg_print("You feel no change in your resistance to poison.");
+			notice = TRUE;
+		}
+
+		/*Then check if player has permanent resist to poison*/
+		else if ((p_ptr->resist_pois) && (!p_ptr->oppose_pois))
 		{
 			msg_print("You feel exceptionally resistant to poison!");
 			notice = TRUE;
@@ -1120,7 +1127,7 @@ bool set_oppose_pois(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois)
+		if ((p_ptr->oppose_pois) && (!(p_ptr->immune_pois)))
 		{
 			msg_print("You feel less resistant to poison.");
 			notice = TRUE;
@@ -1804,7 +1811,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1887,22 +1894,30 @@ int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
-	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
+	/* Analyze "coin" or golem monsters */
+	if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
 	{
 		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (3);
-		if (strstr(name, " silver ")) return (6);
-		if (strstr(name, " gold ")) return (11);
-		if (strstr(name, " mithril ")) return (17);
-		if (strstr(name, " adamantite ")) return (18);
+		if (strstr(name, " copper ")) return (SV_GOLD_COPPER);
+		if (strstr(name, " silver ")) return (SV_GOLD_SILVER);
+		if (strstr(name, " gold ")) return (SV_GOLD_GOLD);
+		if (strstr(name, " mithril ")) return (SV_GOLD_MITHRIL);
+		if (strstr(name, " opal")) return (SV_GOLD_OPALS);
+		if (strstr(name, " saphire")) return (SV_GOLD_SAPHIRES);
+		if (strstr(name, " rubies")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " diamond")) return (SV_GOLD_DIAMOND);
+		if (strstr(name, " adamantite ")) return (SV_GOLD_ADAMANTITE);
 
 		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (3);
-		if (strstr(name, "Silver ")) return (6);
-		if (strstr(name, "Gold ")) return (11);
-		if (strstr(name, "Mithril ")) return (17);
-		if (strstr(name, "Adamantite ")) return (18);
+		if (strstr(name, " Copper ")) return (SV_GOLD_COPPER);
+		if (strstr(name, " Silver ")) return (SV_GOLD_SILVER);
+		if (strstr(name, " Gold ")) return (SV_GOLD_GOLD);
+		if (strstr(name, " Mithril ")) return (SV_GOLD_MITHRIL);
+		if (strstr(name, " Opal")) return (SV_GOLD_OPALS);
+		if (strstr(name, " Saphire")) return (SV_GOLD_SAPHIRES);
+		if (strstr(name, " Rubies")) return (SV_GOLD_RUBIES);
+		if (strstr(name, " Diamond")) return (SV_GOLD_DIAMOND);
+		if (strstr(name, " Adamantite ")) return (SV_GOLD_ADAMANTITE);
 	}
 
 	/* Assume nothing */
@@ -2003,6 +2018,9 @@ void monster_death(int m_idx, int who)
 
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
+
+		/*Remove the mark to hide when monsters carry this object*/
+		o_ptr->ident &= ~(IDENT_HIDE_CARRY);
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -2138,14 +2156,15 @@ void monster_death(int m_idx, int who)
 	{
 		quest_type *q_ptr = &q_info[i];
 
-		/*hack - don't count if player didn't kill
-		 *this assumes only player can kill uniques!!!!!
+		/*
+		 * Hack - don't count if player didn't kill
+		 * This assumes only a player can kill quest monsters!!!!!
 		 * This line is also ugly codeing. :)
 		 */
 		if (who != -1) continue;
 
 		/* Quest level? */
-		if (q_ptr->active_level == p_ptr->depth)
+		if ((q_ptr->active_level == p_ptr->depth) && (p_ptr->depth > 0))
 		{
 			/* One on the level */
 			questlevel = TRUE;
@@ -2153,7 +2172,6 @@ void monster_death(int m_idx, int who)
 			/* Require "Quest Monsters" */
 			if 	(q_ptr->mon_idx == m_ptr->r_idx)
 			{
-
 				char race_name[80];
 
 				/* Get the monster race name (singular)*/
@@ -2212,19 +2230,85 @@ void monster_death(int m_idx, int who)
 				}
 
 				/*let the player know how many left*/
-				else if (q_ptr->type == QUEST_GUILD)
+				else if (q_ptr->type == QUEST_MONSTER)
 				{
-						int remaining = q_ptr->max_num - q_ptr->cur_num;
+					int remaining = q_ptr->max_num - q_ptr->cur_num;
 
-						/* Multiple quest monsters */
-						if (remaining > 1)
-						{
-							plural_aux(race_name, sizeof(race_name));
-						}
+					/* Multiple quest monsters */
+					if (remaining > 1)
+					{
+						plural_aux(race_name, sizeof(race_name));
+					}
 
-						msg_format("You have %d %s remaining to complete your quest.",
+					msg_format("You have %d %s remaining to complete your quest.",
 								remaining, race_name);
 				}
+			}
+			/*quest monster from a themed level, nest, or pit*/
+			else if ((m_ptr->mflag & (MFLAG_QUEST)) &&
+					 ((q_ptr->type ==  QUEST_THEMED_LEVEL) ||
+			 		  (q_ptr->type == QUEST_PIT) ||
+				  	  (q_ptr->type == QUEST_NEST)))
+			{
+				char note[120];
+
+				/* Mark kills */
+				q_ptr->cur_num++;
+
+				/* Completed quest? */
+				if (q_ptr->cur_num == q_ptr->max_num)
+				{
+					/* Mark complete */
+					q_ptr->active_level = 0;
+
+					/* One complete */
+					completed = TRUE;
+
+					if (adult_take_notes)
+					{
+						char mon_theme[80];
+						/*Get the theme*/
+						my_strcpy(mon_theme, feeling_themed_level[q_ptr->theme], sizeof(mon_theme));
+
+						my_strcpy(note, "Quest: Cleared out ", sizeof(note));
+
+						/*make the grammar proper*/
+						if (is_a_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
+						else my_strcat(note, "a ", sizeof(note));
+
+						/*dump the monster theme*/
+						my_strcat(note, mon_theme, sizeof(note));
+
+						/*Finish off the line*/
+						if  (q_ptr->type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
+			 			else if (q_ptr->type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
+				  		else if (q_ptr->type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
+
+						/*write it*/
+						do_cmd_note(note, p_ptr->depth);
+
+					}
+				}
+				/*not done yet*/
+				else
+				{
+					int remaining = q_ptr->max_num - q_ptr->cur_num;
+
+					if (remaining > 1)
+					{
+						my_strcpy(note, format("There are %d creatures remaining ", remaining), sizeof(note));
+					}
+					else my_strcpy(note, "There is one creature remaining ", sizeof(note));
+					my_strcat(note, format("from the %s", feeling_themed_level[q_ptr->theme]),
+									sizeof(note));
+					if  (q_ptr->type ==  QUEST_THEMED_LEVEL) 	my_strcat(note, " stronghold.", sizeof(note));
+			 		else if (q_ptr->type == QUEST_PIT)	my_strcat(note, " pit.", sizeof(note));
+				  	else if (q_ptr->type == QUEST_NEST)	my_strcat(note, " nest.", sizeof(note));
+
+					/*dump the final note*/
+					msg_format(note);
+				}
+
 			}
 
 		}
@@ -2242,7 +2326,7 @@ void monster_death(int m_idx, int who)
  		char real_name[120];
 
 		/* Get the monster's real name for the notes file */
-		monster_desc(real_name, sizeof(real_name), m_ptr, 0x80);
+		monster_desc_race(real_name, sizeof(real_name), m_ptr->r_idx);
 
 		/* Write note */
        	if monster_nonliving(r_ptr) sprintf(note2, "Destroyed %s", real_name);
@@ -2341,7 +2425,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	s32b div, new_exp, new_exp_frac;
+	s32b divider, new_exp, new_exp_frac;
+
+	char	path[1024];
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2405,14 +2491,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 
 
 		/* Player level */
-		div = p_ptr->lev;
+		divider = p_ptr->lev;
 
 		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+		new_exp = ((long)r_ptr->mexp * r_ptr->level) / divider;
 
 		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
+		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % divider)
+		                * 0x10000L / divider) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
@@ -2437,8 +2523,27 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, int who)
 		{
 	    	r_ptr->max_num = 0;
 
-			/* reputation bonus */
+			/* reputation bonus, except for the town unique */
  			if (r_ptr->level) p_ptr->fame++;
+		}
+
+		/* When the player kills a player ghost, the bones file that
+		 * it used is (often) deleted.
+		 */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			/*Another point of player fame*/
+			p_ptr->fame++;
+
+			/*
+			 * Remove the ghost template.
+			 */
+			if(bones_selector < MAX_DEPTH)
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE,
+					bones_selector);
+				remove(path);
+			}
 		}
 
 		/* Recall even invisible uniques or winners */
@@ -2675,7 +2780,8 @@ void verify_panel(void)
 
 
 /*
- * Monster health description
+ * Monster health description.
+ * This function should not be called without a check that the monster is a mimic
  */
 static void look_mon_desc(char *buf, size_t max, int m_idx)
 {
@@ -2683,6 +2789,15 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
+
+	/*monster is an undiscovered mimic, don't desccribe and return*/
+	if (m_ptr->mimic_k_idx)
+	{
+		/*Paranoia - terminate the string*/
+		buf[0] = '\0';
+
+	    return;
+	}
 
 	/* Determine if the monster is "living" (vs "undead") */
 	if (monster_nonliving(r_ptr)) living = FALSE;
@@ -2714,6 +2829,8 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (m_ptr->confused) my_strcat(buf, ", confused", max);
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
+	if ((m_ptr->slowed) && (!m_ptr->hasted)) my_strcat(buf, ", slowed", max);
+	if ((!m_ptr->slowed) && (m_ptr->hasted)) my_strcat(buf, ", hasted", max);
 }
 
 
@@ -3409,12 +3526,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					{
 
 						/* Describe the monster, unless a mimic */
-						if (!(m_ptr->mflag & (MFLAG_MIMIC)))
+						if (!(m_ptr->mimic_k_idx))
 						{
 							char buf[80];
 
 							look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
-
 
 							/* Describe, and prompt for recall */
 							if (p_ptr->wizard)
@@ -3495,6 +3611,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 					/* Get the next object */
 					next_o_idx = o_ptr->next_o_idx;
+
+					/*Don't let the player see certain objects (used for vault treasure)*/
+					if ((o_ptr->ident & (IDENT_HIDE_CARRY)) && (!p_ptr->wizard) &&
+						(!cheat_peek))	 continue;
 
 					/* Obtain an object description */
 					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3737,8 +3857,125 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	return (query);
 }
 
+/*
+ * Draw a visible path over the squares between (x1,y1) and (x2,y2).
+ * The path consists of "*", which are white except where there is a
+ * monster, object or feature in the grid.
+ *
+ * This routine has (at least) three weaknesses:
+ * - remembered objects/walls which are no longer present are not shown,
+ * - squares which (e.g.) the player has walked through in the dark are
+ *   treated as unknown space.
+ * - walls which appear strange due to hallucination aren't treated correctly.
+ *
+ * The first two result from information being lost from the dungeon arrays,
+ * which requires changes elsewhere
+ */
+static int draw_path(u16b *path, char *c, byte *a,
+    int y1, int x1, int y2, int x2)
+{
+	int i;
+	int max;
+	bool on_screen;
 
+	/* Find the path. */
+	max = project_path(path, MAX_RANGE, y1, x1, &y2, &x2, PROJECT_THRU);
 
+	/* No path, so do nothing. */
+	if (max < 1) return 0;
+
+	/* The starting square is never drawn, but notice if it is being
+     * displayed. In theory, it could be the last such square.
+     */
+	on_screen = panel_contains(y1, x1);
+
+	/* Draw the path. */
+	for (i = 0; i < max; i++)
+	{
+		byte colour;
+
+		/* Find the co-ordinates on the level. */
+		int y = GRID_Y(path[i]);
+		int x = GRID_X(path[i]);
+		/*
+		 * As path[] is a straight line and the screen is oblong,
+		 * there is only section of path[] on-screen.
+		 * If the square being drawn is visible, this is part of it.
+		 * If none of it has been drawn, continue until some of it
+		 * is found or the last square is reached.
+		 * If some of it has been drawn, finish now as there are no
+		 * more visible squares to draw.
+		 *
+		 */
+		 if (panel_contains(y,x)) on_screen = TRUE;
+		 else if (on_screen) break;
+		 else continue;
+
+	 	/* Find the position on-screen */
+		move_cursor_relative(y,x);
+
+		/* This square is being overwritten, so save the original. */
+		Term_what(Term->scr->cx, Term->scr->cy, a+i, c+i);
+
+		/* Choose a colour. */
+		/* Visible monsters are red. */
+		if (cave_m_idx[y][x] && mon_list[cave_m_idx[y][x]].ml)
+		{
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+			/*mimics act as objects*/
+			if (m_ptr->mimic_k_idx) colour = TERM_YELLOW;
+			else colour = TERM_L_RED;
+		}
+
+		/* Known objects are yellow. */
+		else if (cave_o_idx[y][x] && o_list[cave_o_idx[y][x]].marked)
+		{
+
+			colour = TERM_YELLOW;
+    	}
+
+		/* Known walls are blue. */
+		else if (!cave_floor_bold(y,x) && (cave_info[y][x] & (CAVE_MARK) ||
+					player_can_see_bold(y,x)))
+		{
+			colour = TERM_BLUE;
+		}
+		/* Unknown squares are grey. */
+		else if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
+		{
+			colour = TERM_L_DARK;
+		}
+		/* Unoccupied squares are white. */
+		else
+		{
+			colour = TERM_WHITE;
+		}
+
+		/* Draw the path segment */
+		(void)Term_addch(colour, '*');
+	}
+	return i;
+}
+
+/*
+ * Load the attr/char at each point along "path" which is on screen from
+ * "a" and "c". This was saved in draw_path().
+ */
+static void load_path(int max, u16b *path, char *c, byte *a)
+{
+	int i;
+	for (i = 0; i < max; i++)
+	{
+		if (!panel_contains(GRID_Y(path[i]), GRID_X(path[i]))) continue;
+
+		move_cursor_relative(GRID_Y(path[i]), GRID_X(path[i]));
+
+		(void)Term_addch(a[i], c[i]);
+	}
+
+	Term_fresh();
+}
 
 /*
  * Handle "target" and "look".
@@ -3801,13 +4038,17 @@ bool target_set_interactive(int mode)
 
 	char info[80];
 
+	/* These are used for displaying the path to the target */
+	u16b path[MAX_RANGE];
+	char path_char[MAX_RANGE];
+	byte path_attr[MAX_RANGE];
+	int max;
 
 	/* Cancel target */
 	target_set_monster(0);
 
 	/* Cancel tracking */
 	/* health_track(0); */
-
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
@@ -3818,6 +4059,8 @@ bool target_set_interactive(int mode)
 	/* Interact */
 	while (!done)
 	{
+		max = 0;
+
 		/* Interesting grids */
 		if (flag && temp_n)
 		{
@@ -3836,8 +4079,15 @@ bool target_set_interactive(int mode)
 				strcpy(info, "q,p,o,+,-,<dir>");
 			}
 
+			/* Draw the path in "target" mode. If there is one */
+			if (mode & (TARGET_KILL))
+			  max = draw_path (path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info);
+
+			/* Remove the path */
+			if (max > 0)	load_path (max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -3982,8 +4232,15 @@ bool target_set_interactive(int mode)
 			/* Default prompt */
 			strcpy(info, "q,t,p,m,+,-,<dir>");
 
+			/* Draw the path in "target" mode. If there is one */
+			if (mode & (TARGET_KILL))
+			  max = draw_path (path, path_char, path_attr, py, px, y, x);
+
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
+
+			/* Remove the path */
+			if (max > 0)  load_path (max, path, path_char, path_attr);
 
 			/* Cancel tracking */
 			/* health_track(0); */

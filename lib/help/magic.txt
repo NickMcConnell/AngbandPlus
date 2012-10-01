@@ -5,7 +5,10 @@
 --- Spellcasting ---
 
      Spells and prayers are collected in books, nine for each realm.  Four are
-readily available in stores, the other five are harder to find.
+readily available in stores, the other five are harder to find.  One book in 
+each realm, the Tensor's Transformation magic book and Holy Infusions 
+Prayerbook, are only available in 'ironman' games where the birth_no_stores
+or birth_ironman are set to true.
 
 Getting spell information:
       You may browse books of your realm.  Spells that you have cast
@@ -97,10 +100,6 @@ affect monsters that can't see you.
 "Dispel", "Confuse/Slow/Frighten/etc. Monsters"
      A fair number of spells affect all monsters in line of sight (no walls or
 rubble between you and them, up to a range of 20).
-
-
-
-
 
 
 

@@ -15,10 +15,10 @@ learn new spells and gain attributes.
      As you gain levels, your title changes to reflect your growing power.
 
 Gold:
-     Gold is amazingly handy, because everything stores sell can be yours with
-enough of the stuff.  Characters start out with an amount of gold determined by
-stats (lower is better).  Social class greatly influences starting gold (higher
-is better).
+     Gold is amazingly handy, because the goods and services stores sell can 
+be yours with enough of the stuff.  Characters start out with an amount of 
+gold determined by stats (lower is better).  Social class greatly influences 
+starting gold (higher is better).
      Within the Pits of Angband lies more gold than you will ever find, more
 seams of treasure than you will ever dig, and more monsters carrying loot than
 you will ever kill.
@@ -190,7 +190,7 @@ then from left to right.
                  when many things happen.  You often miss monsters, and cannot
                  cast spells or read scrolls.
      Confusion : You move and attack randomly and cannot cast spells, read
-                 scrolls, or use magical devices.
+                 scrolls, or use magical devices, except for staves.
      Fear      : You cannot use melee combat.
      Poison    : Instead of recovering battle damage, you take additional damage
                  every turn.
@@ -211,7 +211,7 @@ to find ways to hasten yourself temporarily and permanently.
 ("very fast").  A speed of 10 is half speed ("slow"), and one of -20 is one
 third speed ("very slow").
      Permanent speed bonuses add to your base speed.  Temporary effects may
-increase or reduce speed by 10.
+increase or reduce speed by 10.  
 
 Study:
      If you know magic, and can learn spells, you will see a "study" indicator

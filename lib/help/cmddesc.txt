@@ -157,7 +157,7 @@ Zap a rod (z) / (a) :
 Tunnel (T) / (Ctrl-T) :
      Dig through barriers, mine treasure found in wall seams, and otherwise
 alter the dungeon to your liking.  This command may take a count and requires a
-full turn.
+full turn.  This command also makes alot of noise.
 
 Open a door or chest (o) :
      Open a door or chest.  If locked, you will attempt to pick the lock based
@@ -202,6 +202,11 @@ Organize (set) a trap (O):
 For rogues only, turn an empty dungeon floor space into
 a trap.  Can also be used by rogues to make a normal monster trap into an 
 advanced trap if their level is high enough.
+
+Get objects off of the dungeon floor (']') :
+     Sort through and pick up selected objects off the floor grid the player
+is standing on, regardless of squelch settings or the order of items on the
+floor.  This command takes no time.
 
 
 --- Special Action Commands ---
@@ -283,7 +288,9 @@ more information.  This command takes no time.
 
 Check knowledge (~) :
      This command allows you to review what you know about artifacts, unique
-monsters, and objects.
+monsters, and objects.  You can also review the contents of your home, total
+kill count for each monster, view your player notes file, or view the 
+player hall of fame.
 
 Identify Symbol (/) :
      Find out what a character represents.  For instance, by pressing '/', then
@@ -433,13 +440,6 @@ Window-specific notes:
 run.  If you are playing a IBM port under Windows, and see what appear to be
 very strange colors, right-click on the executable, go to "Program Properties ->
 Screen -> Usage, and make sure that the program runs in full-screen mode.
-
-
-
-
-
-
-
 
 
 

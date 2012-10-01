@@ -59,7 +59,7 @@ the attacks of your foes never lower that stat.
 Stealth:
      Certain cloaks, boots, and (more rarely) other items lessen the amount of
 noise you make when moving around the dungeon.  This is very handy for avoiding
-fights and getting in the first hit, which causes extra damage ona sleeping
+fights and getting in the first hit, which causes extra damage on a sleeping
 monster in NPPAngband.
 
 Searching:
@@ -149,13 +149,16 @@ Immunity to Cold:
 Immunity to Fire:
      You take no damage from fire, and fire cannot attack your backpack.
 
+Immunity to Poison:
+     You take no damage from poison.
+
 
 --- Resistances ---
 
      Resistances from equipment cannot be combined; you either have it or you
 don't.  You can, however, temporarily oppose the elements and poison for an
 additional 2/3rds reduction in damage.
-     Resistances and oppositions have no effect on the amount of damage
+     Resistances and oppositions also help reduce the amount of damage
 elemental attacks do to items in your backpack.
 
 Resist Acid:
@@ -284,9 +287,6 @@ of Remove Cure fails, find and read one of *Remove Curse*.
 Permanent Curse:
      There is a great and terrible Ring, seen by perhaps one character in ten
 thousand, that can never be removed once put on.
-
-
-
 
 
 

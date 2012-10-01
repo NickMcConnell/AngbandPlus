@@ -91,7 +91,9 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
-
+typedef struct names_type names_type;
+typedef struct flavor_type flavor_type;
+typedef struct editing_buffer editing_buffer;
 
 
 /**** Available structs ****/
@@ -108,7 +110,7 @@ struct maxima
 
 	u16b f_max;		/* Max size for "f_info[]" */
 	u16b k_max;		/* Max size for "k_info[]" */
-	u16b a_max;		/* Max size for "a_info[]" */
+	u16b art_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
 	u16b r_max;		/* Max size for "r_info[]" */
 	u16b v_max;		/* Max size for "v_info[]" */
@@ -118,9 +120,12 @@ struct maxima
 	u16b c_max;		/* Max size for "c_info[]" */
 	u16b q_max;		/* Max size for "q_info[]" */
 	u16b flavor_max; /* Max size for "flavor_info[]" */
-
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "mon_list[]" */
+	u16b ghost_other_max;  /* number of maintainer player ghost templates*/
+	u16b art_spec_max; /* Max number of special artifacts*/
+	u16b art_norm_max; /* Max number for normal artifacts (special - normal)*/
+	u16b art_rand_max; /*max number of random artifacts*/
 };
 
 
@@ -201,7 +206,7 @@ struct object_kind
 
 	bool tried;			/* The player has "tried" one of the items */
 
-	bool squelch;		/* Squelch item if known            */
+	byte squelch;		/* Squelch setting for the particular item */
 
 	bool everseen;		/* Used to despoilify squelch menus */
 };
@@ -211,13 +216,14 @@ struct object_kind
 /*
  * Information about "artifacts".
  *
- * Note that the save-file only writes "cur_num" to the savefile.
+ * Note that the save-file only writes "cur_num" to the savefile,
+ * except for the random artifacts
  *
  * Note that "max_num" is always "1" (if that artifact "exists")
  */
 struct artifact_type
 {
-	u32b name;			/* Name (offset) */
+	char name[MAX_LEN_ART_NAME];	/* Name */
 	u32b text;			/* Text (offset) */
 
 	byte tval;			/* Artifact type */
@@ -281,6 +287,9 @@ struct ego_item_type
 	byte max_pval;		/* Maximum pval */
 
 	byte xtra;			/* Extra sustain/resist/power */
+
+	bool everseen;			/* Do not spoil squelch menus */
+	bool squelch;			/* Squelch this ego-item */
 };
 
 
@@ -343,7 +352,14 @@ struct monster_race
 	byte freq_ranged;		/* Ranged attack frequency */
 	byte mana;				/* Max mana */
 	byte spell_power;		/* Power of (damage-dealing) spells */
-	byte unused;        	/* Not currently used */
+	u32b mon_power;        		/* Monster Power Rating */
+
+#ifdef ALLOW_DATA_DUMP
+
+	u32b mon_eval_hp;		/*evaluated hitpoint power of monster*/
+	u32b mon_eval_dam;		/*evaluated damage power of monster*/
+
+#endif /*ALLOW_DATA_DUMP*/
 
 
 	u32b flags1;			/* Flags 1 (general) */
@@ -482,7 +498,7 @@ struct object_type
 	byte name2;			/* Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
-	byte xtra2;			/* Extra info index */
+	u32b xtra2;			/* Extra info index */
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -533,6 +549,8 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	s16b slowed;		/* Monster is slowed */
+	s16b hasted;		/* Monster is hasted */
 
 	byte cdis;			/* Current dis from player */
 
@@ -542,14 +560,10 @@ struct monster_type
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
-
 	u32b smart;			/* Field for "smart_learn" */
 
-	byte ty;			/* Monster target */
-	byte tx;
-
-	/* Harrassment spells are more likely early in a battle */
-	byte harass;
+	byte target_y;			/* Monster target */
+	byte target_x;
 
 	byte min_range;		/* What is the closest we want to be? */  /* Not saved */
 	byte best_range;	/* How close do we want to be? */  /* Not saved */
@@ -590,9 +604,9 @@ struct alloc_entry
 struct quest_type
 {
 	u32b name;			/* Name (offset) */
-
 	byte type;			/* Quest Type */
 	byte reward;		/* Quest Reward */
+	byte theme;			/* Monster Theme for themed levels and nests/pits*/
 
 	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
 	byte base_level;	/* The dungeon level on which the quest was assigned*/
@@ -646,10 +660,6 @@ struct store_type
 	byte stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
-
-	s16b table_num;     /* Table -- Number of entries */
-	s16b table_size;    /* Table -- Total Size of Array */
-	s16b *table;        /* Table -- Legal item kinds */
 
 };
 
@@ -1022,6 +1032,7 @@ struct player_type
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
 	bool immune_cold;	/* Immunity to cold */
+	bool immune_pois;	/* immunity to poison*/
 
 	bool resist_acid;	/* Resist acid */
 	bool resist_elec;	/* Resist lightning */
@@ -1089,8 +1100,6 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	u32b noise;			/* Derived from stealth */
-
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 
@@ -1148,7 +1157,7 @@ struct high_score
 };
 
 
-typedef struct flavor_type flavor_type;
+
 
 struct flavor_type
 {
@@ -1163,3 +1172,45 @@ struct flavor_type
 	byte x_attr;    /* Desired flavor attribute */
 	char x_char;    /* Desired flavor character */
 };
+
+
+
+/*
+ * The structure editing_buffer allows to quickly insert and delete text at
+ * every position of a string. It is based on the Emacs editor.
+ * It has a internal buffer, a fake "cursor" and a gap that begins at this
+ * "cursor".
+ * Maybe the most important operation is "set_position". It moves the gap
+ * at any position of the buffer. Because of it, insertions and deletions
+ * are really fast operations.
+ *
+ * This is a representation of the buffer:
+ *
+ * xxxxxxx.ooooxxxx             x: text
+ *         |                    o: gap (it must be '\0')
+ *         pos ("cursor")       .: the character before the "cursor"
+ *
+ * This is the same buffer after moving the "cursor" one position to the left:
+ *
+ * xxxxxxxoooo.xxxx             note the new position of "."
+ *        |
+ *        pos ("cursor")
+ */
+struct editing_buffer
+{
+	/* Public fields, Read ONLY */
+	size_t pos;
+
+	/* Private fields */
+	size_t gap_size, max_size;
+	char *buf;
+};
+
+
+/*structure of letter probabilitiesfor the random name generator*/
+struct names_type
+{
+	u16b lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
+	u16b ltotal[S_WORD+1][S_WORD+1];
+};
+

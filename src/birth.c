@@ -10,6 +10,8 @@
 
 #include "angband.h"
 
+
+
 /*
  * Forward declare
  */
@@ -462,16 +464,20 @@ static void player_wipe(void)
 		object_wipe(&inventory[i]);
 	}
 
-
 	/* Start with no artifacts made yet */
-	for (i = 0; i < z_info->a_max; i++)
+	/*and clear the slots for in-game randarts*/
+	for (i = 0; i < z_info->art_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
+
 		a_ptr->cur_num = 0;
+
 	}
 
+	/* Wipe the quest */
+	guild_quest_wipe();
 
-	/* Reset the quests */
+	/* Reset the fixed quests */
 	for (i = 0; i < z_info->q_max; i++)
 	{
 		quest_type *q_ptr = &q_info[i];
@@ -482,20 +488,10 @@ static void player_wipe(void)
 			q_ptr->active_level = q_ptr->base_level;
 			q_ptr->cur_num = 0;
 		}
-		else
-		{
-			q_ptr->type = 0;
-			q_ptr->mon_idx = 0;
-			q_ptr->base_level = 0;
-			q_ptr->active_level = 0;
-			q_ptr->cur_num = 0;
-			q_ptr->max_num = 0;
-			q_ptr->reward = 0;
-		}
 	}
 
-	/* No current quest */
-	p_ptr->cur_quest = 0;
+	/*re-set the object_level*/
+	object_level = 0;
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -530,14 +526,20 @@ static void player_wipe(void)
 	}
 
 
-	/* Hack -- no ghosts */
-	r_info[z_info->r_max-1].max_num = 0;
+	/* Zero out the max_num */
+	r_info[z_info->r_max].max_num = 0;
+
+	/*No current player ghosts*/
+	bones_selector = 0;
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
 	/*re-set the thefts counter*/
 	recent_failed_thefts = 0;
+
+	/*re-set the altered inventory counter*/
+	allow_altered_inventory = 0;
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -573,7 +575,7 @@ static void player_outfit(void)
 		if (e_ptr->tval > 0)
 		{
 			/* Get the object_kind */
-			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+			s16b k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
 
 			/* Valid item? */
 			if (!k_idx) continue;
@@ -1131,12 +1133,19 @@ static bool player_birth_aux_1(void)
 	{
 		for (i = 0; i < z_info->k_max; i++)
 		{
-			k_info[i].squelch = FALSE;
+			k_info[i].squelch = SQUELCH_NEVER;
 		}
 		for (i = 0; i < SQUELCH_BYTES; i++)
 		{
-			squelch_level[i] = 0;
+			squelch_level[i] = SQUELCH_NONE;
 		}
+	}
+
+	/* Clear the ego-item squelching flags */
+	for (i = 0; i < z_info->e_max; i++)
+	{
+		e_info[i].everseen = FALSE;
+		e_info[i].squelch = FALSE;
 	}
 
 	/* Clear */
@@ -1269,13 +1278,13 @@ static bool player_birth_aux_2(void)
 		for (i = 0; i < A_MAX; i++)
 		{
 			/* Display cost */
-			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
+			strnfmt(buf, sizeof(buf), "%4d", birth_stat_costs[stats[i] - 10]);
 			put_str(buf, row + i, col + 32);
 		}
 
 
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
+		strnfmt(buf, sizeof(buf), "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
@@ -1323,19 +1332,18 @@ static bool player_birth_aux_2(void)
 	return (TRUE);
 }
 
+#define BASE_COLUMN		7
+#define STAT_TITLE_ROW	14
+#define BASE_STAT_ROW	16
 
 /*
  * Helper function for 'player_birth()'.
  *
  * This function handles "auto-rolling" and "random-rolling".
- *
- * The delay may be reduced, but is recommended to keep players
- * from continuously rolling up characters, which can be VERY
- * expensive CPU wise.  And it cuts down on player stupidity.
  */
 static bool player_birth_aux_3(void)
 {
-	int i, j, m, v;
+	int i, j, m;
 
 	bool flag;
 	bool prev = FALSE;
@@ -1354,9 +1362,13 @@ static bool player_birth_aux_3(void)
 
 	s32b stat_match[A_MAX];
 
+	s32b stat_base[A_MAX];
+
 	s32b auto_round = 0L;
 
 	s32b last_round;
+
+	s16b active = 0;
 
 
 	/*** Autoroll ***/
@@ -1364,96 +1376,158 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[A_MAX];
-
-		char inp[80];
-
 
 		/* Extra info */
-		Term_putstr(5, 10, -1, TERM_WHITE,
+		Term_putstr(5, 6, -1, TERM_WHITE,
 		            "The auto-roller will automatically ignore characters which do");
-		Term_putstr(5, 11, -1, TERM_WHITE,
+		Term_putstr(5, 7, -1, TERM_WHITE,
 		            "not meet the minimum values for any stats specified below.");
-		Term_putstr(5, 12, -1, TERM_WHITE,
+		Term_putstr(5, 8, -1, TERM_WHITE,
 		            "Note that stats are not independant, so it is not possible to");
-		Term_putstr(5, 13, -1, TERM_WHITE,
+		Term_putstr(5, 9, -1, TERM_WHITE,
 		            "get perfect (or even high) values for all your stats.");
 
 		/* Prompt for the minimum stats */
-		put_str("Enter minimum value for: ", 15, 2);
+		put_str("Use 2/8 to move, 4/6 to modify, 'Q' when done.", 11, 2);
+		/* */
+		put_str("The base stat range if from 8 to 17", 13, 2);
 
-		/* Output the maximum stats */
+		/* Print out the labels for the columns */
+		c_put_str(TERM_WHITE, "Base", STAT_TITLE_ROW, BASE_COLUMN);
+		c_put_str(TERM_WHITE, " RB", STAT_TITLE_ROW, BASE_COLUMN + 6);
+		c_put_str(TERM_WHITE, " CB", STAT_TITLE_ROW, BASE_COLUMN + 9);
+		c_put_str(TERM_WHITE, "Total", STAT_TITLE_ROW, BASE_COLUMN + 14);
+
+		/* Output the stats */
 		for (i = 0; i < A_MAX; i++)
 		{
-			/* Reset the "success" counter */
+			/* Reset the base and "success" counters */
+			stat_base[i] = 8;
 			stat_match[i] = 0;
-
-			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-
-			/* Save the maximum */
-			mval[i] = m;
-
-			/* Extract a textual format */
-			/* cnv_stat(m, inp); */
-
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
-
-			/* Prepare a prompt */
-			strnfmt(buf, sizeof(buf), "%-5s%-20s", stat_names[i], inp);
-
-			/* Dump the prompt */
-			put_str(buf, 16 + i, 5);
 		}
 
-		/* Input the minimum stats */
-		for (i = 0; i < A_MAX; i++)
+		while (TRUE)
 		{
-			/* Get a minimum stat */
-			while (TRUE)
+			int total_stats = 0;
+
+			/* Erase and start over */
+			clear_from(15);
+
+			/* Output the stats */
+			for (i = 0; i < A_MAX; i++)
 			{
-				char *s;
 
-				/* Move the cursor */
-				put_str("", 16 + i, 30);
+				byte use_color;
 
-				/* Default */
-				strcpy(inp, "");
+				total_stats += (stat_base[i] - 5);
 
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 9)) inp[0] = '\0';
+				/*Get the colors, use different color for "highlighted" stat*/
+				if (i == active)
+				{
+					use_color = TERM_L_BLUE;
+				}
+				else
+				{
+					use_color = TERM_WHITE;
+				}
 
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
+				/* Race/Class bonus */
+				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
+				/* Obtain the "maximal" stat */
+				m = adjust_stat(stat_base[i], j, TRUE);
 
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
+				/* Save the stat value */
+				stat_limit[i] = m;
 
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
+				/* Label stats */
+				c_put_str(use_color, stat_names[i], BASE_STAT_ROW + i, BASE_COLUMN - 5);
 
-				/* Break on valid input */
-				if (v <= mval[i]) break;
+				/* Base */
+				strnfmt(buf, sizeof(buf), "%3d", stat_base[i]);
+				c_put_str(use_color, buf, BASE_STAT_ROW + i, BASE_COLUMN);
+
+				/* Race Bonus */
+				strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[i]);
+				c_put_str(use_color, buf, BASE_STAT_ROW + i, BASE_COLUMN + 6);
+
+				/* Class Bonus */
+				strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[i]);
+				c_put_str(use_color, buf, BASE_STAT_ROW + i, BASE_COLUMN + 9);
+
+				/* Extract a textual format */
+				/* cnv_stat(m, inp); */
+
+				/* Above 18 */
+				if (m > 18)
+				{
+					strnfmt(buf, sizeof(buf), "18/%02d", (m - 18));
+				}
+
+				/* From 3 to 18 */
+				else
+				{
+					strnfmt(buf, sizeof(buf), "%2d", m);
+				}
+
+				/* Dump the loaded stat */
+				c_put_str(use_color, buf, BASE_STAT_ROW + i, BASE_COLUMN + 14);
 			}
 
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+			/*check if total is impossible*/
+			if (total_stats >= 54)
+			{
+				c_put_str(TERM_RED, "Successful Character creation impossible!",
+						  15, BASE_COLUMN);
+			}
+
+			/* Place cursor just after active stat */
+			Term_gotoxy(BASE_COLUMN + 2, BASE_STAT_ROW + active);
+
+			/* Get key */
+			ch = inkey();
+
+			/* Quit */
+			if ((ch == 'Q') || (ch == 'q'))
+			{
+				if (total_stats >= 54)
+				{
+					/* Warning */
+					bell("Excessive stats!");
+				}
+				else break;
+			}
+
+			/* Move up one stat */
+			else if (ch == '8')
+			{
+				if (active <= 0) active = A_MAX - 1;
+				else active -= 1;
+
+			}
+
+			/* Next stat */
+			else if (ch == '2')
+			{
+				if (active == A_MAX - 1) active = 0;
+				else active += 1;
+			}
+
+			/* Decrease stat */
+			else if (ch == '4')
+			{
+				if (stat_base[active] <= 8) stat_base[active] = 8;
+				else stat_base[active] -= 1;
+			}
+
+			/* Increase stat */
+			else if (ch == '6')
+			{
+				if (stat_base[active] >= 17) stat_base[active] = 17;
+				else stat_base[active] += 1;
+			}
+
+			else bell("Invalid command.");
 		}
 	}
 
@@ -1555,7 +1629,7 @@ static bool player_birth_aux_3(void)
 						{
 							int p = 1000L * stat_match[i] / auto_round;
 							byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-							sprintf(buf, "%3d.%d%%", p/10, p%10);
+							strnfmt(buf, sizeof(buf), "%3d.%d%%", p/10, p%10);
 							c_put_str(attr, buf, 3+i, col+13);
 						}
 
@@ -1571,9 +1645,6 @@ static bool player_birth_aux_3(void)
 
 					/* Make sure they see everything */
 					Term_fresh();
-
-					/* Delay 1/100 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 10);
 
 					/* Do not wait for a key */
 					inkey_scan = TRUE;
@@ -1763,7 +1834,7 @@ static void player_birth_done_hook(void)
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
+	i_ptr->timeout = rand_range(3, 7) * 500;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
@@ -1796,13 +1867,11 @@ void player_birth(void)
 
  	  	/* Variables */
  	  	char buff[1024];
- 	  	char fname[80];
  	  	char long_day[25];
  	  	time_t ct = time((time_t*)0);
 
- 	  	/* Create the file name from the character's full name plus .txt */
- 	  	sprintf(fname, "%s.txt", op_ptr->full_name);
- 	  	path_build(buff, 1024, ANGBAND_DIR_SAVE, fname);
+ 	  	/* Build the path to the notes file */
+    	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE,  NOTES_FILENAME);
 
  	  	/* Open the file (notes_file is global) */
  	  	notes_file = my_fopen(buff, "w");

@@ -251,25 +251,24 @@ void identify_pack(void)
 
 
 
-
+#define ENCHANT_MAX 9
 
 
 /*
  * Used by the "enchant" function (chance of failure)
  */
-static const int enchant_table[16] =
+static const int enchant_table[ENCHANT_MAX + 1] =
 {
-	0, 10,  50, 100, 200,
-	300, 400, 500, 700, 950,
-	990, 992, 995, 997, 999,
-	1000
+	0, 20,  50, 150, 300,
+	450, 600, 750,
+	900, 990
 };
 
 
 /*
  * Hack -- Removes curse from an object.
  */
-static void uncurse_object(object_type *o_ptr)
+void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
@@ -295,7 +294,7 @@ static void uncurse_object(object_type *o_ptr)
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
  * will not be uncursed.
  */
-static int remove_curse_aux(int all)
+static int remove_curse_aux(bool star_curse)
 {
 	int i, cnt = 0;
 
@@ -316,7 +315,7 @@ static int remove_curse_aux(int all)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Heavily Cursed Items need a special spell */
-		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
+		if (!star_curse && (f3 & (TR3_HEAVY_CURSE))) continue;
 
 		/* Perma-Cursed Items can NEVER be uncursed */
 		if (f3 & (TR3_PERMA_CURSE)) continue;
@@ -342,17 +341,9 @@ static int remove_curse_aux(int all)
 /*
  * Remove most curses
  */
-bool remove_curse(void)
+bool remove_curse(bool star_curse)
 {
-	return (remove_curse_aux(FALSE));
-}
-
-/*
- * Remove all curses
- */
-bool remove_all_curse(void)
-{
-	return (remove_curse_aux(TRUE));
+	return (remove_curse_aux(star_curse));
 }
 
 
@@ -595,7 +586,11 @@ void self_knowledge(void)
 		info[i++] = "You are resistant to cold.";
 	}
 
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
+	if (p_ptr->immune_pois)
+	{
+		info[i++] = "You are completely immune to poison.";
+	}
+	else if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
@@ -1697,41 +1692,32 @@ void stair_creation(void)
 	/* XXX XXX XXX */
 	delete_object(py, px);
 
-	/* Create a staircase */
-	if (!p_ptr->depth)
-	{
-		cave_set_feat(py, px, FEAT_MORE);
-	}
-	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-			 (p_ptr->depth >= MAX_DEPTH-1))
-	{
-		if (one_in_(2))	cave_set_feat(py, px, FEAT_LESS);
-		else cave_set_feat(py, px, FEAT_LESS_SHAFT);
-	}
-	else if (one_in_(2))
-	{
-		if ((quest_check(p_ptr->depth + 1) == QUEST_FIXED) ||
-			 (quest_check(p_ptr->depth + 1) == QUEST_FIXED_U) ||
-		 	(p_ptr->depth <= 1))
-			cave_set_feat(py, px, FEAT_MORE);
-		else if (one_in_(2)) cave_set_feat(py, px, FEAT_MORE);
-		else cave_set_feat(py, px, FEAT_MORE_SHAFT);
-	}
-	else
-	{
-		if (one_in_(2))	cave_set_feat(py, px, FEAT_LESS);
-		else cave_set_feat(py, px, FEAT_LESS_SHAFT);
-	}
+	place_random_stairs(py, px);
 }
-
-
 
 
 /*
  * Hook to specify "weapon"
  */
-static bool item_tester_hook_weapon(const object_type *o_ptr)
+bool item_tester_hook_wieldable_weapon(const object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify "weapon"
+ */
+bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1755,11 +1741,12 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-static bool item_tester_hook_armour(const object_type *o_ptr)
+bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
 		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
@@ -1844,7 +1831,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOHIT))
 		{
 			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
+			else if (o_ptr->to_h > ENCHANT_MAX) chance = 1000;
 			else chance = enchant_table[o_ptr->to_h];
 
 			/* Attempt to enchant */
@@ -1872,7 +1859,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
+			else if (o_ptr->to_d > ENCHANT_MAX) chance = 1000;
 			else chance = enchant_table[o_ptr->to_d];
 
 			/* Attempt to enchant */
@@ -1900,7 +1887,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOAC))
 		{
 			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
+			else if (o_ptr->to_a > ENCHANT_MAX) chance = 1000;
 			else chance = enchant_table[o_ptr->to_a];
 
 			/* Attempt to enchant */
@@ -2029,7 +2016,6 @@ bool ident_spell(void)
 
 	cptr q, s;
 
-
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unknown;
 
@@ -2050,7 +2036,6 @@ bool ident_spell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
@@ -2059,7 +2044,7 @@ bool ident_spell(void)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Squelch it? */
-	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, 1);
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr, 0, TRUE);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2143,7 +2128,6 @@ bool identify_fully(void)
 
 	cptr q, s;
 
-
 	/* Only un-*id*'ed items */
 	item_tester_hook = item_tester_unknown_star;
 
@@ -2164,14 +2148,13 @@ bool identify_fully(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Identify it */
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
 	/* Squelch it? */
 	if (item < INVEN_WIELD)
-		squelch = squelch_itemp(o_ptr, 0, 1);
+		squelch = squelch_itemp(o_ptr, 0, TRUE);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
@@ -2259,7 +2242,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-static bool item_tester_hook_recharge(const object_type *o_ptr)
+bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);
@@ -2272,6 +2255,52 @@ static bool item_tester_hook_recharge(const object_type *o_ptr)
 
 	/* Nope */
 	return (FALSE);
+}
+
+/*re-charge a staff or wand, and remove the identification*/
+void recharge_staff_wand(object_type *o_ptr, int lev, int num)
+{
+	int t, recharge_amount;
+
+	/* Recharge based on the standard number of charges. */
+	t = (num / (lev + 2)) + 1;
+
+	/*have a minimum of 2 charges added*/
+	if (t <= 0) t = 1;
+
+	recharge_amount = 1 + randint(t);
+
+	/* Multiple wands in a stack increase recharging somewhat. */
+	if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+	{
+		recharge_amount += damroll (o_ptr->number - 1,2);
+		if (recharge_amount < 1) recharge_amount = 1;
+		if (recharge_amount > 12) recharge_amount = 12;
+	}
+
+	/* Multiple staffs in a stack increase recharging somewhat,
+	 * a little more than wands.
+	 */
+	if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
+	{
+		recharge_amount += damroll (o_ptr->number - 1,2);
+		if (recharge_amount < 1) recharge_amount = 1;
+		if (recharge_amount > 18) recharge_amount = 18;
+	}
+
+	/* Recharge the wand or staff. */
+	o_ptr->pval += recharge_amount;
+
+	/* *Identified* items keep the knowledge about the charges */
+	if (!(o_ptr->ident & IDENT_MENTAL))
+	{
+		/* We no longer "know" the item */
+		o_ptr->ident &= ~(IDENT_KNOWN);
+	}
+
+	/* Hack -- we no longer think the item is empty */
+	o_ptr->ident &= ~(IDENT_EMPTY);
+
 }
 
 
@@ -2300,11 +2329,10 @@ static bool item_tester_hook_recharge(const object_type *o_ptr)
  * new "auto_sort_pack" option would correctly handle replacing
  * the "broken" wand with any other item (i.e. a broken stick).
  *
- * XXX XXX XXX Perhaps we should auto-unstack recharging stacks.
  */
-bool recharge(int num)
+bool recharge(int num, bool cannot_fail)
 {
-	int i, t, item, lev, chance;
+	int i, item, lev, chance;
 
 	object_type *o_ptr;
 
@@ -2340,9 +2368,8 @@ bool recharge(int num)
 		recharge_strength = ((num > lev) ? (num - lev) : 0) / 5;
 
 		/* Back-fire */
-		if (one_in_(recharge_strength))
+		if ((one_in_(recharge_strength)) && (!cannot_fail))
 		{
-
 			/*rods in a larger stack are more likely to be destroyed*/
 			chance = 20 + (o_ptr->number * 5);
 
@@ -2435,7 +2462,7 @@ bool recharge(int num)
 		else i = (100 + num - lev - (10 * o_ptr->pval)) / 15;
 
 		/* Back-fire XXX XXX XXX */
-		if ((i <= 1) || (one_in_(i)))
+		if (((i <= 1) || (one_in_(i))) && (!cannot_fail))
 		{
 			/* 25% chance of the entire stack, 5% more for each wand/staff in the stack
 			 * else destroy one wand/staff. */
@@ -2515,41 +2542,7 @@ bool recharge(int num)
 		/* Recharge */
 		else
 		{
-
-			/* Recharge based on the standard number of charges. */
-			t = (num / (lev + 2)) + 1;
-
-			/*have a minimum of 2 charges added*/
-			if (t <= 0) t = 1;
-
-			recharge_amount = 1+ randint(t);
-
-			/* Multiple wands in a stack increase recharging somewhat. */
-			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
-			{
-				recharge_amount += damroll (o_ptr->number - 1,2);
-				if (recharge_amount < 1) recharge_amount = 1;
-				if (recharge_amount > 12) recharge_amount = 12;
-			}
-
-			/* Multiple staffs in a stack increase recharging somewhat,
-		 	 * a little more than wands.
-		 	 */
-			if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
-			{
-				recharge_amount += damroll (o_ptr->number - 1,2);
-				if (recharge_amount < 1) recharge_amount = 1;
-				if (recharge_amount > 18) recharge_amount = 18;
-			}
-
-			/* Recharge the wand or staff. */
-			o_ptr->pval += recharge_amount;
-
-			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
-
-			/* Hack -- we no longer think the item is empty */
-			o_ptr->ident &= ~(IDENT_EMPTY);
+			recharge_staff_wand(o_ptr, lev, num);
 		}
 	}
 
@@ -2870,6 +2863,86 @@ bool project_los(int typ, int dam)
 	return (obvious);
 }
 
+/*
+ * This routine clears the entire "temp" set.
+ */
+void clear_temp_array(void)
+{
+	int i;
+
+	/* Apply flag changes */
+	for (i = 0; i < temp_n; i++)
+	{
+		int y = temp_y[i];
+		int x = temp_x[i];
+
+		/* No longer in the array */
+		cave_info[y][x] &= ~(CAVE_TEMP);
+	}
+
+	/* None left */
+	temp_n = 0;
+}
+
+
+/*
+ * Aux function -- see below
+ */
+void cave_temp_mark(int y, int x, bool room)
+{
+	/* Avoid infinite recursion */
+	if (cave_info[y][x] & (CAVE_TEMP)) return;
+
+	/* Option -- do not leave the current room */
+	if ((room) && (!(cave_info[y][x] & (CAVE_ROOM)))) return;
+
+	/* Verify space */
+	if (temp_n == TEMP_MAX) return;
+
+	/* Mark the grid */
+	cave_info[y][x] |= (CAVE_TEMP);
+
+	/* Add it to the marked set */
+	temp_y[temp_n] = y;
+	temp_x[temp_n] = x;
+	temp_n++;
+}
+
+/*
+ * Mark the nearby area with CAVE_TEMP flags.  Allow limited range.
+ */
+void spread_cave_temp(int y1, int x1, int range, bool room)
+{
+	int i, y, x;
+
+	/* Add the initial grid */
+	cave_temp_mark(y1, x1, room);
+
+	/* While grids are in the queue, add their neighbors */
+	for (i = 0; i < temp_n; i++)
+	{
+		x = temp_x[i], y = temp_y[i];
+
+		/* Walls get marked, but stop further spread */
+		if (!cave_floor_bold(y, x)) continue;
+
+		/* Note limited range (note:  we spread out one grid further) */
+		if ((range) && (distance(y1, x1, y, x) >= range)) continue;
+
+		/* Spread adjacent */
+		cave_temp_mark(y + 1, x, room);
+		cave_temp_mark(y - 1, x, room);
+		cave_temp_mark(y, x + 1, room);
+		cave_temp_mark(y, x - 1, room);
+
+		/* Spread diagonal */
+		cave_temp_mark(y + 1, x + 1, room);
+		cave_temp_mark(y - 1, x - 1, room);
+		cave_temp_mark(y - 1, x + 1, room);
+		cave_temp_mark(y + 1, x - 1, room);
+	}
+}
+
 
 /*
  * Speed monsters
@@ -2947,54 +3020,26 @@ bool dispel_monsters(int dam)
  */
 void aggravate_monsters(int who)
 {
-	int i;
+	int y, x;
 
-	bool sleep2 = FALSE;
-	bool speed = FALSE;
-
-	/* Aggravate everyone nearby */
-	for (i = 1; i < mon_max; i++)
+	/*if a monster, use monster coordinates*/
+	if(who > 0)
 	{
-		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_type *m_ptr = &mon_list[who];
 
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Skip aggravating monster (or player) */
-		if (i == who) continue;
-
-		/* Wake up nearby sleeping monsters */
-		if (m_ptr->cdis < MAX_SIGHT * 2)
-		{
-			/* Wake up */
-			if (m_ptr->csleep)
-			{
-				/* Wake up */
-				m_ptr->csleep = 0;
-				sleep2 = TRUE;
-			}
-		}
-
-		/* Speed up monsters in line of sight */
-		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
-		{
-			/* Speed up (instantly) to racial base + 4 */
-			if (m_ptr->mspeed < r_ptr->speed + 4)
-			{
-				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 4;
-				speed = TRUE;
-			}
-		}
-
-		/*possibly update the monster health bar*/
-		if (p_ptr->health_who == i)	p_ptr->redraw |= (PR_HEALTH);
-
+		x = m_ptr->fx;
+		y = m_ptr->fy;
 	}
+
+	/*use the player coordinates*/
+	else
+	{
+		x = p_ptr->px;
+		y = p_ptr->py;
+	}
+
 	/* Messages */
-	if (speed) msg_print("You feel a sudden stirring nearby!");
-	else if (sleep2) msg_print("You hear a sudden stirring in the distance!");
+	(void)(project_los_not_player(y, x, (250 + rand_int(250)), GF_OLD_SPEED));
 
 }
 
@@ -3010,8 +3055,6 @@ void mass_aggravate_monsters(int who)
 	for (i = 1; i < mon_max; i++)
 	{
 		monster_type *m_ptr = &mon_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
@@ -3025,12 +3068,11 @@ void mass_aggravate_monsters(int who)
 			m_ptr->csleep = 0;
 		}
 
-		/* Speed up (instantly) to racial base + 4 */
-		if (m_ptr->mspeed < r_ptr->speed + 4)
+		/* Speed up monsters in line of sight */
+		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			/* Speed up */
-			m_ptr->mspeed = r_ptr->speed + 4;
-
+			set_monster_haste(cave_m_idx[m_ptr->fy][m_ptr->fx],
+							  m_ptr->hasted + 50 + rand_int(50), m_ptr->ml);
 		}
 
 		/*possibly update the monster health bar*/
@@ -3063,6 +3105,9 @@ bool banishment(void)
 
 		/* Hack -- Skip Unique Monsters */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+		/* Quest monsters can only be "killed" by the player */
+		if (m_ptr->mflag & (MFLAG_QUEST)) continue;
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
@@ -3105,6 +3150,9 @@ bool mass_banishment(void)
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
+
+		/* Quest monsters can only be "killed" by the player */
+		if (m_ptr->mflag & (MFLAG_QUEST)) continue;
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -3383,6 +3431,13 @@ void earthquake(int cy, int cx, int r)
 
 			/* Skip most grids */
 			if (rand_int(100) < 85) continue;
+
+			/* Hack - make quest monsters immune*/
+			if (cave_m_idx[yy][xx] > 0)
+			{
+				monster_type *m_ptr = &mon_list[cave_m_idx[yy][xx]];
+				if (m_ptr->mflag & (MFLAG_QUEST)) continue;
+			}
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
@@ -3727,7 +3782,7 @@ static void cave_temp_room_lite(void)
 				m_ptr->csleep = 0;
 
 				/* Notice the "waking up" */
-				if ((m_ptr->ml) && (!m_ptr->mimic_k_idx))
+				if ((m_ptr->ml) && (!m_ptr->mimic_k_idx) && (disturb_wakeup))
 				{
 					char m_name[80];
 
@@ -4052,6 +4107,19 @@ bool fire_arc(int typ, int dir, int dam, int rad, int degrees)
 	                    0L, degrees));
 }
 
+/*
+ * Character casts a star-shaped spell.
+ */
+bool fire_star(int typ, int dir, int dam, int rad)
+{
+	int y1, x1;
+
+	/* Get target */
+	adjust_target(dir, p_ptr->py, p_ptr->px, &y1, &x1);
+
+	/* Cast a star */
+	return (project_star(-1, rad, y1, x1, dam, typ, 0L));
+}
 
 /*
  * Cast multiple non-jumping ball spells at the same target.
@@ -4175,7 +4243,7 @@ bool heal_monster(int dir, int dam)
 bool speed_monster(int dir)
 {
 	u32b flg = PROJECT_STOP;
-	return (fire_bolt_beam_special(GF_OLD_SPEED, dir, 0, MAX_RANGE, flg));
+	return (fire_bolt_beam_special(GF_OLD_SPEED, dir, p_ptr->lev, MAX_RANGE, flg));
 }
 
 bool slow_monster(int dir)
@@ -4397,7 +4465,7 @@ bool curse_weapon(void)
  *
  * Turns the (non-magical) object into an ego-item of 'brand_type'.
  */
-void brand_object(object_type *o_ptr, byte brand_type)
+bool brand_object(object_type *o_ptr, byte brand_type, bool do_enchant)
 {
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify broken / cursed items */
@@ -4410,27 +4478,46 @@ void brand_object(object_type *o_ptr, byte brand_type)
 
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
+		/*Handle weapons differently than ammo*/
+		if (wield_slot(o_ptr) == INVEN_WIELD)
+		{
+			/* Brand the object */
+			o_ptr->name2 = EGO_BRAND_ELEMENTS;
+
+			o_ptr->xtra1 = OBJECT_XTRA_TYPE_BRAND;
+			o_ptr->xtra2 = 1 << brand_type;
+		}
+		else
+		{
+
+			/* Brand the object */
+			o_ptr->name2 = brand_type;
+		}
+
 		switch (brand_type)
 		{
-			case EGO_BRAND_FIRE:
-			case EGO_FLAME:
+			case BRAND_OFFSET_FLAME:
+			case EGO_AMMO_FLAME:
+			{
 				act = "fiery";
 				break;
-			case EGO_BRAND_COLD:
-			case EGO_FROST:
+			}
+			case BRAND_OFFSET_FROST:
+			case EGO_AMMO_FROST:
+			{
 				act = "frosty";
 				break;
-			case EGO_BRAND_POIS:
+			}
+			case BRAND_OFFSET_VENOM:
 			case EGO_AMMO_VENOM:
+			{
 				act = "sickly";
 				break;
+			}
 		}
 
 		/* Describe */
 		msg_format("A %s aura surrounds the %s.", act, o_name);
-
-		/* Brand the object */
-		o_ptr->name2 = brand_type;
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -4439,20 +4526,28 @@ void brand_object(object_type *o_ptr, byte brand_type)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Enchant */
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		if (do_enchant) enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+		/* Hack - Identify it */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		return (TRUE);
 	}
 	else
 	{
 		if (flush_failure) flush();
 		msg_print("The Branding failed.");
 	}
+
+	return (FALSE);
 }
 
 
 /*
  * Brand the current weapon
  */
-void brand_weapon(void)
+bool brand_weapon(bool enchant)
 {
 	object_type *o_ptr;
 	byte brand_type;
@@ -4460,20 +4555,20 @@ void brand_weapon(void)
 	o_ptr = &inventory[INVEN_WIELD];
 
 	/* Select a brand */
-	if (rand_int(100) < 25)
-		brand_type = EGO_BRAND_FIRE;
+	if (one_in_(3))
+		brand_type = BRAND_OFFSET_FLAME;
 	else
-		brand_type = EGO_BRAND_COLD;
+		brand_type = BRAND_OFFSET_FROST;
 
 	/* Brand the weapon */
-	brand_object(o_ptr, brand_type);
+	return (brand_object(o_ptr, brand_type, enchant));
 }
 
 
 /*
  * Hook to specify "ammo"
  */
-static bool item_tester_hook_ammo(const object_type *o_ptr)
+bool item_tester_hook_ammo(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -4492,12 +4587,11 @@ static bool item_tester_hook_ammo(const object_type *o_ptr)
 /*
  * Brand some (non-magical) ammo
  */
-bool brand_ammo(void)
+bool brand_ammo(bool enchant)
 {
 	int item;
 	object_type *o_ptr;
 	cptr q, s;
-	int r;
 	byte brand_type;
 
 	/* Only accept ammo */
@@ -4520,28 +4614,23 @@ bool brand_ammo(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	r = rand_int(100);
-
 	/* Select the brand */
-	if (r < 33)
-		brand_type = EGO_FLAME;
-	else if (r < 67)
-		brand_type = EGO_FROST;
-	else
-		brand_type = EGO_AMMO_VENOM;
+	if (one_in_(3))
+		brand_type = EGO_AMMO_FLAME;
+	else if (one_in_(2))
+		brand_type = EGO_AMMO_FROST;
+	else brand_type = EGO_AMMO_VENOM;
 
 	/* Brand the ammo */
-	brand_object(o_ptr, brand_type);
+	return (brand_object(o_ptr, brand_type, enchant));
 
-	/* Done */
-	return (TRUE);
 }
 
 
 /*
  * Enchant some (non-magical) bolts
  */
-bool brand_bolts(void)
+bool brand_bolts(bool enchant)
 {
 	int item;
 	object_type *o_ptr;
@@ -4569,10 +4658,8 @@ bool brand_bolts(void)
 	}
 
 	/* Brand the bolts */
-	brand_object(o_ptr, EGO_FLAME);
+	return (brand_object(o_ptr, EGO_AMMO_FLAME, enchant));
 
-	/* Done */
-	return (TRUE);
 }
 
 

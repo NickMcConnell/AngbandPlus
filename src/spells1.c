@@ -89,6 +89,10 @@ void teleport_away(int m_idx, int dis)
 	/* Sound */
 	sound(MSG_TPOTHER);
 
+	/*the monster should re-evaluate their target*/
+	m_ptr->target_y = 0;
+	m_ptr->target_x = 0;
+
 	/* Swap the monsters */
 	monster_swap(oy, ox, ny, nx);
 }
@@ -102,6 +106,10 @@ void teleport_away(int m_idx, int dis)
  */
 void teleport_player(int dis)
 {
+	int x_location_tables [20];
+	int y_location_tables [20];
+	int spot_counter = 0;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -109,54 +117,84 @@ void teleport_player(int dis)
 
 	bool look = TRUE;
 
-
-	/* Initialize */
-	y = py;
-	x = px;
-
 	/* Minimum distance */
 	min = dis / 2;
+
+	/*guage the dungeon size*/
+	d = distance(p_ptr->cur_map_hgt, p_ptr->cur_map_wid, 0, 0);
+
+	/*first start with a realistic range*/
+	if (dis > d) dis = d;
+
+	/*must have a realistic minimum*/
+	if (min > (d * 4 / 10))
+	{
+		min = (d * 4 / 10);
+	}
 
 	/* Look until done */
 	while (look)
 	{
-		/* Verify max distance */
-		if (dis > 200) dis = 200;
+
+		/*find the allowable range*/
+		int min_y = MAX((py - dis), 0);
+		int min_x = MAX((px - dis), 0);
+		int max_y = MIN((py + dis), (p_ptr->cur_map_hgt - 1));
+		int max_x = MIN((px + dis), (p_ptr->cur_map_wid - 1));
 
 		/* Try several locations */
-		for (i = 0; i < 500; i++)
+		for (i = 0; i < 10000; i++)
 		{
+
 			/* Pick a (possibly illegal) location */
-			while (1)
-			{
-				y = rand_spread(py, dis);
-				x = rand_spread(px, dis);
-				d = distance(py, px, y, x);
-				if ((d >= min) && (d <= dis)) break;
-			}
+			y = rand_range(min_y, max_y);
+			x = rand_range(min_x, max_x);
+			d = distance(py, px, y, x);
+			if ((d <= min) || (d >= dis)) continue;
 
-			/* Ignore illegal locations */
-			if (!in_bounds_fully(y, x)) continue;
-
-			/* Require "naked" floor space */
+			/*only open floor space*/
 			if (!cave_naked_bold(y, x)) continue;
 
 			/* No teleporting into vaults and such */
 			if (cave_info[y][x] & (CAVE_ICKY)) continue;
 
-			/* This grid looks good */
-			look = FALSE;
+			/*don't go over size of array*/
+			if (spot_counter < 20)
+			{
+				x_location_tables[spot_counter] = x;
+				y_location_tables[spot_counter] = y;
 
-			/* Stop looking */
-			break;
+				/*increase the counter*/
+				spot_counter++;
+			}
+
+			/*we have enough spots, keep looking*/
+			if (spot_counter == 20)
+			{
+				/* This grid looks good */
+				look = FALSE;
+
+				/* Stop looking */
+				break;
+			}
 		}
+
+		/*we have enough random spots*/
+		if (spot_counter > 3) break;
 
 		/* Increase the maximum distance */
 		dis = dis * 2;
 
 		/* Decrease the minimum distance */
-		min = min / 2;
+		min = min * 6 / 10;
+
 	}
+
+	i = rand_int(spot_counter);
+
+	/* Mark the location */
+	x = x_location_tables[i];
+	y = y_location_tables[i];
 
 	/* Sound */
 	sound(MSG_TELEPORT);
@@ -256,6 +294,9 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 		/* Consider all empty grids */
 		if (cave_empty_bold(y, x))
 		{
+			/*Don't allow monster to teleport onto glyphs*/
+			if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
 			/* Calculate distance between target and current grid */
 			dist = distance(ny, nx, y, x);
 
@@ -293,55 +334,69 @@ void teleport_player_level(int who)
 {
 	byte kind_of_quest = quest_check(p_ptr->depth);
 
+	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
+
+	bool go_up = FALSE;
+	bool go_down = FALSE;
+
 	if (adult_ironman)
 	{
 		msg_print("Nothing happens.");
 		return;
 	}
 
-	if (!p_ptr->depth)
+	if (!p_ptr->depth) go_down = TRUE;
+
+	/*
+	 * Fixed quests where the player can't go lower until they finish the quest, or the
+	 * bottom of the dungeon.
+	 */
+	if ((kind_of_quest == QUEST_FIXED) ||
+	    (kind_of_quest == QUEST_FIXED_U) ||
+	    (p_ptr->depth >= MAX_DEPTH-1))
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
-
-		/* New depth */
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+		go_up = TRUE;
 	}
 
-	else if ((kind_of_quest == QUEST_FIXED) ||
-			 (kind_of_quest == QUEST_FIXED_U) ||
-			 (p_ptr->depth >= MAX_DEPTH-1))
-	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
-
-		/* New depth */
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
-
-	/*Not fair to fail the quest if the monster teleports player off*/
-	else if ((who >= 1) &&
-		((kind_of_quest == QUEST_GUILD) ||
+	/*Not fair to fail the quest if the monster teleports the player off*/
+	if ((who >= 1) &&
+		((kind_of_quest == QUEST_MONSTER) ||
 		 (kind_of_quest == QUEST_UNIQUE) ||
-		 (kind_of_quest == QUEST_VAULT)))
+		 (kind_of_quest == QUEST_PIT) ||
+		 (kind_of_quest == QUEST_NEST) ||
+		 (kind_of_quest == QUEST_THEMED_LEVEL)))
 	{
 		/*de-activate the quest*/
-		p_ptr->cur_quest = 0;
+		q_ptr->started = FALSE;
 
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		go_up = TRUE;
 
-		/* New depth */
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
 	}
 
-	else if (rand_int(100) < 50)
+	/* Same as above, but don't re-set the quest if the player already has the quest chest*/
+	if ((who >= 1) && (kind_of_quest == QUEST_VAULT))
+	{
+		/* Player is holding the quest item?  If so, player can go up or down*/
+		if (quest_item_slot() == -1)
+		{
+			q_ptr->started = FALSE;
+		}
+
+		/*
+		 * We found the item, but go up.
+		 */
+		else go_up = TRUE;
+	}
+
+	/*We don't have a direction yet, pick one at random*/
+	if ((!go_up) && (!go_down))
+	{
+		if (one_in_(2)) go_up = TRUE;
+		else go_down = TRUE;
+	}
+
+	/*up*/
+	if (go_up == TRUE)
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -350,6 +405,7 @@ void teleport_player_level(int who)
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
+
 	}
 
 	else
@@ -625,6 +681,7 @@ static bool hates_acid(const object_type *o_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
 		{
 			return (TRUE);
 		}
@@ -1409,7 +1466,7 @@ void disease(int *damage)
 	}
 
 	/* Infect the character (fully cumulative) */
-	set_poisoned(p_ptr->poisoned + *damage + 1);
+	if (!(p_ptr->immune_pois)) set_poisoned(p_ptr->poisoned + *damage + 1);
 
 	/* Determine # of stat-reduction attempts */
 	attempts = (5 + *damage) / 5;
@@ -1614,6 +1671,26 @@ static int project_m_x;
 static int project_m_y;
 
 
+/*reveal a mimic, re-light the spot, and print a message if asked for*/
+void reveal_mimic(int y, int x, bool message)
+{
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+	/*no longer a mimic*/
+	m_ptr->mimic_k_idx = 0;
+
+	/* Mimic no longer acts as a detected object */
+	m_ptr->mflag &= ~(MFLAG_MIMIC);
+
+	/* Message  XXX */
+	if (message) msg_print("There is a mimic!");
+
+	/* Redraw */
+	lite_spot(y, x);
+
+
+}
+
 
 /*
  * We are called from "project()" to "damage" terrain features
@@ -1737,7 +1814,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 					    (cave_feat[y][x] <= FEAT_DOOR_TAIL))
 					{
 						/* Update the visuals */
-						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
 					}
 				}
 
@@ -1746,6 +1823,9 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 
 				/* Destroy the feature */
 				cave_set_feat(y, x, FEAT_FLOOR);
+
+				/* Update the flow code */
+				p_ptr->update |= (PU_NOISE_WEAK);
 			}
 
 			break;
@@ -1864,7 +1944,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			}
 
 			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK | PU_NOISE_STRONG);
 
 			break;
 		}
@@ -1881,8 +1961,8 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 			/* Observe */
 			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
 
-			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			/* Update the visuals and the no_door flow*/
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS | PU_NOISE_WEAK);
 
 			break;
 		}
@@ -2296,6 +2376,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	/* Stunning setting (amount to stun) */
 	int do_stun = 0;
 
+	/* Slow setting (amount to haste) */
+	int do_slow = 0;
+
+	/* Haste setting (amount to haste) */
+	int do_haste = 0;
+
 	/* Sleep amount (amount to sleep) */
 	int do_sleep = 0;
 
@@ -2342,6 +2428,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 	/* Monster goes active */
 	m_ptr->mflag |= (MFLAG_ACTV);
+
+	/*Mark the monster as attacked by the player*/
+	if (who < 0) m_ptr->mflag |= (MFLAG_HIT_BY_SPELL);
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -2422,6 +2511,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		/* Holy Orb -- hurts Evil */
 		case GF_HOLY_ORB:
 		{
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
@@ -2650,6 +2740,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				dam *= 3; dam /= (randint(6)+6);
 				if (seen) l_ptr->flags4 |= (RF4_BRTH_INER);
 			}
+			else
+			{
+				do_slow = rand_int(4) + 4;
+			}
 			break;
 		}
 
@@ -2680,6 +2774,10 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 				dam *= 3; dam /= (randint(6)+6);
 				do_dist = 0;
 				if (seen) l_ptr->flags4 |= (RF4_BRTH_GRAV);
+			}
+			else
+			{
+				do_slow = rand_int(4) + 4;
 			}
 			break;
 		}
@@ -2744,8 +2842,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Attempt to polymorph (see below) */
 			do_poly = TRUE;
 
-			/* Powerful monsters can resist */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			/* Powerful monsters and questors resist */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (m_ptr->mflag & (MFLAG_QUEST)) ||
 			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				note = " is unaffected!";
@@ -2769,7 +2867,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			m_ptr->hp = m_ptr->maxhp;
 
 			/* Speed up */
-			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
+			do_haste = 25 + rand_int(25);
 
 			/* Attempt to clone. */
 			if (multiply_monster(cave_m_idx[y][x]))
@@ -2814,7 +2912,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			{
 				obvious = FALSE;
 
-				note = " is unaffected";
+				note = " is unaffected!";
 
 			}
 
@@ -2834,8 +2932,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			if (seen) obvious = TRUE;
 
 			/* Speed up */
-			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
-			note = " starts moving faster.";
+			do_haste = 50 + rand_int(50);
 
 			/* No "real" damage */
 			dam = 0;
@@ -2863,8 +2960,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/* Normal monsters slow down */
 			else
 			{
-				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
-				note = " starts moving slower.";
+				do_slow = dam;
 			}
 
 			/* No "real" damage */
@@ -3340,14 +3436,21 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 	/* Absolutely no effect */
 	if (skipped) return (FALSE);
 
-	/* "Unique" monsters cannot be polymorphed */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
+	/* "Unique" monsters or quest monsters cannot be polymorphed */
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (m_ptr->mflag & (MFLAG_QUEST))) do_poly = FALSE;
 
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Uniques may only be killed by the player */
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
+	}
+
+	/* Hack - "Quest" monsters can only be hurt by the player */
+	if (m_ptr->mflag & (MFLAG_QUEST))
+	{
+		/* Uniques may only be killed by the player */
+		if (who > 0)  dam = 0;
 	}
 
 	/* Check for death */
@@ -3364,7 +3467,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 		note = " is unaffected!";
 
 		/* Pick a "new" monster race */
-		tmp = poly_r_idx(m_ptr->r_idx);
+		tmp = poly_r_idx(m_ptr);
 
 		/* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
@@ -3439,7 +3542,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 			/*mark the lore*/
 			if (seen) l_ptr->flags3 |= (RF3_NO_STUN);
 
-			note = " is unaffected.";
+			note = " is unaffected!";
 
 		}
 
@@ -3479,6 +3582,29 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])
 		p_ptr->redraw |= (PR_HEALTH);
+	}
+
+	/*Slowing*/
+	else if (do_slow)
+	{
+
+		/* Increase fear */
+		tmp = m_ptr->slowed + do_slow;
+
+		/* set or add to slow counter */
+		set_monster_slow(cave_m_idx[m_ptr->fy][m_ptr->fx],
+						tmp, seen);
+	}
+
+	/* Hasting */
+	else if (do_haste)
+	{
+		/* Increase fear */
+		tmp = m_ptr->hasted + do_haste;
+
+		/* set or add to slow counter */
+		set_monster_haste(cave_m_idx[m_ptr->fy][m_ptr->fx],
+						tmp, seen);
 	}
 
 
@@ -3526,20 +3652,13 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 				if (m_ptr->mimic_k_idx)
 				{
-					/*no longer a mimic*/
-					m_ptr->mimic_k_idx = 0;
 
-					/* Mimic no longer acts as a detected object */
-					m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-					/* Message  XXX */
-					if (seen) msg_print("There is a mimic!");
+					/* Reveal it */
+					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
 
 					/* Get the actualmonster name */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-					/* Redraw */
-					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 
 				/* dump the note*/
@@ -3559,20 +3678,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 				if (m_ptr->mimic_k_idx)
 				{
-					/*no longer a mimic*/
-					m_ptr->mimic_k_idx = 0;
-
-					/* Mimic no longer acts as a detected object */
-					m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-					/* Message  XXX */
-					if (seen) msg_print("There is a mimic!");
+					/* Reveal it */
+					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
 
 					/* Get the actualmonster name */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-					/* Redraw */
-					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 
 				/* dump the note*/
@@ -3612,20 +3723,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, u32b flg)
 
 				if (m_ptr->mimic_k_idx)
 				{
-					/*no longer a mimic*/
-					m_ptr->mimic_k_idx = 0;
-
-					/* Character notices monster */
-					m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-					/* Message  XXX */
-					if (seen) msg_print("There is a mimic!");
+					/* Reveal it */
+					reveal_mimic(m_ptr->fy, m_ptr->fx, seen);
 
 					/* Get the actualmonster name */
 					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
-					/* Redraw */
-					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 
 				msg_format("%^s%s", m_name, note);
@@ -3790,11 +3893,13 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 		/* Standard damage -- also poisons player */
 		case GF_POIS:
 		{
+			/*player is immune*/
+			if (p_ptr->immune_pois) break;
 			if (blind) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
 			}
@@ -4169,7 +4274,7 @@ static bool project_p(int who, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Poison */
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 			{
 				set_poisoned(p_ptr->poisoned + randint(dam * 2));
 			}
@@ -4664,6 +4769,9 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			calc_starburst(1 + rad * 2, 1 + rad * 2, arc_first, arc_dist,
 				&arc_num);
 
+			/* Mark the area nearby -- limit range, ignore rooms */
+			spread_cave_temp(y0, x0, rad, FALSE);
+
 		}
 
 		/* Pre-calculate some things for arcs. */
@@ -4840,6 +4948,9 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			}
 		}
 	}
+
+	/* Clear the "temp" array  XXX */
+	clear_temp_array();
 
 	/* Calculate and store the actual damage at each distance. */
 	for (i = 0; i <= MAX_RANGE; i++)
@@ -5102,6 +5213,9 @@ bool project(int who, int rad, int y0, int x0, int y1, int x1, int dam, int typ,
 			}
 		}
 	}
+
+	/* Clear the "temp" array  (paranoia is good) */
+	clear_temp_array();
 
 	/* Update stuff if needed */
 	if (p_ptr->update) update_stuff();

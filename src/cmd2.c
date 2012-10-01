@@ -29,20 +29,28 @@ void do_cmd_go_up(void)
 	/*find out of leaving a level*/
 	quest = quest_check(p_ptr->depth);
 
-	/* Verify leaving quest level */
-	if ((verify_leave_quest) &&
-		(quest == QUEST_GUILD || quest == QUEST_UNIQUE ||
-       ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
-	{
-		sprintf(out_val, "Really risk failing your quest? ");
-		if (!get_check(out_val)) return;
-	}
-
 	/* Ironman */
 	if (adult_ironman)
 	{
 		msg_print("Nothing happens!");
 		return;
+	}
+
+	/* Verify leaving normal quest level */
+	if ((verify_leave_quest) &&
+		((quest == QUEST_MONSTER) || (quest == QUEST_UNIQUE)))
+	{
+		sprintf(out_val, "Really risk failing your quest? ");
+		if (!get_check(out_val)) return;
+	}
+
+	/* Verify leaving normal quest level */
+	if ((verify_leave_quest) &&
+        (((quest == QUEST_VAULT) && (quest_item_slot() == -1)) ||
+		 (quest == QUEST_PIT) || quest == QUEST_NEST || (quest == QUEST_THEMED_LEVEL)))
+	{
+		sprintf(out_val, "Really fail your special quest? ");
+		if (!get_check(out_val)) return;
 	}
 
 	/* Hack -- take a turn */
@@ -83,6 +91,9 @@ void do_cmd_go_down(void)
 	byte quest;
 	char out_val[160];
 
+	/*find out if entering a quest level*/
+	quest = quest_check(p_ptr->depth);
+
 	/* Verify stairs */
 	if (!cave_down_stairs(p_ptr->py, p_ptr->px))
 	{
@@ -90,19 +101,22 @@ void do_cmd_go_down(void)
 		return;
 	}
 
-	/*find out if leaving a quest level*/
-	quest = quest_check(p_ptr->depth);
-
-	/* Verify leaving quest level */
+	/* Verify leaving normal quest level */
 	if ((verify_leave_quest) &&
-		(quest == QUEST_GUILD || quest == QUEST_UNIQUE ||
-        ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
-		{
-			sprintf(out_val, "Really risk failing your quest? ");
+		((quest == QUEST_MONSTER) || (quest == QUEST_UNIQUE)))
+	{
+		sprintf(out_val, "Really risk failing your quest? ");
+		if (!get_check(out_val)) return;
+	}
 
-			if (!get_check(out_val)) return;
-		}
-
+	/* Verify leaving normal quest level */
+	if ((verify_leave_quest) &&
+        (((quest == QUEST_VAULT) && (quest_item_slot() == -1)) ||
+		 (quest == QUEST_PIT) || quest == QUEST_NEST || (quest == QUEST_THEMED_LEVEL)))
+	{
+		sprintf(out_val, "Really fail your quest? ");
+		if (!get_check(out_val)) return;
+	}
 
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
@@ -264,7 +278,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	if (!o_ptr->pval) return;
 
 	/* Opening a chest */
-	chest_or_quest = OPEN_CHEST;
+	object_generation_mode = OB_GEN_MODE_CHEST;
 
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval);
@@ -349,8 +363,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_level = p_ptr->depth;
 
 	/* No longer opening a chest */
-	chest_or_quest = FALSE;
-
+	object_generation_mode = OB_GEN_MODE_NORMAL;
 
 	/* Empty */
 	o_ptr->pval = 0;
@@ -402,7 +415,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!(p_ptr->resist_pois || p_ptr->oppose_pois || p_ptr->immune_pois))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
 		}
@@ -458,16 +471,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
-	/*never open quest chests*/
-	if(o_ptr->ident & IDENT_QUEST)
-	{
-		msg_print("This chest is to be opened by the Guild!");
-
-		flag = FALSE;
-	}
 
 	/* Attempt to unlock it */
-	else if (o_ptr->pval > 0)
+	if (o_ptr->pval > 0)
 	{
 		/* Assume locked, and thus not open */
 		flag = FALSE;
@@ -515,17 +521,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		/*squelch chest if autosquelch calls for it*/
 		if ((squelch_level[CHEST_INDEX]) == SQUELCH_OPENED_CHESTS)
 		{
-			/*paranioa, should never happen.*/
-			if(o_ptr->ident & IDENT_QUEST)
-			{
-				msg_print("You avoid squelching the chest so that you may complete your quest.");
-			}
-			else
-			{
+
 				delete_object_idx(o_idx);
 				msg_print("Chest squelched after it was opened.");
-			}
-
 		}
 	}
 
@@ -1206,6 +1204,9 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	/* Sound XXX XXX XXX */
 	/* sound(MSG_DIG); */
+
+	/* Make some noise. */
+	add_wakeup_chance = 1000;
 
 	/* Titanium */
 	if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
@@ -2876,20 +2877,12 @@ void do_cmd_fire(void)
 				/* Reveal fully visible mimics */
 				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
 				{
-					/* Mimic no longer acts as a detected object */
-					m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-					/*no longer a mimic*/
-					m_ptr->mimic_k_idx = 0;
+					/* Reveal it */
+					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
 
 					/*We can not see it*/
 					visible = TRUE;
 
-					/* Message  XXX */
-					msg_print("There is a mimic!");
-
-					/* Redraw */
-					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 
 				/* Handle unseen monster */
@@ -2978,7 +2971,7 @@ void do_cmd_fire(void)
 }
 
 /*handle special effects of throwing certain potions*/
-static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
+static bool thrown_potion_effects(object_type *o_ptr, bool *is_dead, bool *fear, int m_idx)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -3131,7 +3124,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 				ident = TRUE;
 			}
 
-			/*monster forgets player history*/
+			/* Potion isn't idntified */
 			else used_potion = FALSE;
 
 			break;
@@ -3149,7 +3142,7 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 		{
 
 			/*slowness explosion at the site, radius 1*/
-			ident = explosion(-1, 1, y, x, 20, GF_OLD_SPEED);
+			ident = explosion(-1, 1, y, x, 20 + rand_int(20), GF_OLD_SPEED);
 			break;
 		}
 
@@ -3273,6 +3266,16 @@ static bool thrown_potion_effects(object_type *o_ptr, bool *fear, int m_idx)
 
 			break;
 		}
+	}
+
+	/*monster is now dead, skip messages below*/
+	if (cave_m_idx[y][x] == 0)
+	{
+		do_stun = FALSE;
+		un_confuse = FALSE;
+		un_stun = FALSE;
+		un_fear = FALSE;
+		*is_dead = TRUE;
 	}
 
 	if (un_confuse)
@@ -3638,20 +3641,12 @@ void do_cmd_throw(void)
 				/* Reveal fully visible mimics */
 				if ((m_ptr->mimic_k_idx) && (m_ptr->ml))
 				{
-					/* Mimic no longer acts as a detected object */
-					m_ptr->mflag &= ~(MFLAG_MIMIC);
-
-					/*no longer a mimic*/
-					m_ptr->mimic_k_idx = 0;
+					/* Reveal it */
+					reveal_mimic(m_ptr->fy, m_ptr->fx, TRUE);
 
 					/*We can not see it*/
 					visible = TRUE;
 
-					/* Message  XXX */
-					msg_print("There is a mimic!");
-
-					/* Redraw */
-					lite_spot(m_ptr->fy, m_ptr->fx);
 				}
 
 				/* Handle unseen monster */
@@ -3694,7 +3689,7 @@ void do_cmd_throw(void)
 					pdam = m_ptr->hp;
 
 					/*returns true if the damage has already been handled*/
-					potion_effect = (thrown_potion_effects(i_ptr, &fear, cave_m_idx[y][x]));
+					potion_effect = (thrown_potion_effects(i_ptr, &is_dead, &fear, cave_m_idx[y][x]));
 
 					/*check the change in monster hp*/
 					pdam -= m_ptr->hp;

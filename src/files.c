@@ -10,14 +10,6 @@
 
 #include "angband.h"
 
-
-#define BUFLEN 1024
-
-#define MIN_NAME_LEN 5
-#define MAX_NAME_LEN 9
-#define S_WORD 26
-#define E_WORD S_WORD
-
 /*
  * Hack -- drop permissions
  */
@@ -353,12 +345,7 @@ errr process_pref_file_command(char *buf)
 	else if (buf[0] == 'Q')
 	{
 		i = tokenize(buf+2, 4, zz);
-		if (i == 1)
-		{
-			auto_destroy = strtol(zz[0], NULL, 0);
-			return(0);
-		}
-		else if (i == 2)
+		if (i == 2)
 		{
 			n1 = strtol(zz[0], NULL, 0);
 			n2 = strtol(zz[1], NULL, 0);
@@ -373,7 +360,7 @@ errr process_pref_file_command(char *buf)
 			sq = strtol(zz[3], NULL, 0);
 			if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
 			{
-				k_info[i].squelch = (sq ? TRUE : FALSE);
+				k_info[i].squelch = sq;
 				return(0);
 			}
 			else
@@ -382,7 +369,7 @@ errr process_pref_file_command(char *buf)
 				{
 					if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
 					{
-						k_info[i].squelch = (sq ? TRUE : FALSE);
+						k_info[i].squelch = sq;
 						return(0);
 					}
 				}
@@ -1360,6 +1347,8 @@ static void display_player_xtra_info(void)
 	{
 		s32b advance = (player_exp[p_ptr->lev - 1] *
 		                p_ptr->expfact / 100L);
+		/*some players want to see experience needed to gain next level*/
+		if (toggle_xp) advance -= p_ptr->exp;
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
 		            format("%10ld", advance));
 	}
@@ -1376,11 +1365,11 @@ static void display_player_xtra_info(void)
 	if (p_ptr->max_depth)
 	{
 		/*express in feet or level*/
-		if (depth_in_feet) sprintf(buf,"%5d ft", p_ptr->max_depth * 50);
-		else sprintf(buf," Lev %3d",p_ptr->max_depth);
+		if (depth_in_feet) strnfmt(buf, sizeof(buf), "%5d ft", p_ptr->max_depth * 50);
+		else strnfmt(buf, sizeof(buf), " Lev %3d",p_ptr->max_depth);
 	}
  	/*hasn't left town*/
-	else sprintf(buf, "    Town");
+	else strnfmt(buf, sizeof(buf), "    Town");
 
 	Term_putstr(col+10, 14, -1, TERM_L_GREEN, buf);
 
@@ -1390,13 +1379,13 @@ static void display_player_xtra_info(void)
 	            format("%10ld", p_ptr->au));
 
 	/* Burden (in pounds) */
-	sprintf(buf, "%ld.%ld lbs",
+	strnfmt(buf, sizeof(buf), "%ld.%ld lbs",
 	        p_ptr->total_weight / 10L,
 	        p_ptr->total_weight % 10L);
 	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
 
 	/*calculate burden as a % of character's max burden*/
-	sprintf(buf, format("%6ld lbs", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L));
+	strnfmt(buf, sizeof(buf), format("%6ld lbs", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L));
 	Term_putstr(col+8, 16, -1, TERM_L_GREEN, buf);
 
 	/* Now print burden as a percentage of carrying capacity */
@@ -1404,7 +1393,7 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 17, -1, TERM_WHITE, "% Burden");
 
 	/*output, but leave a space for the %*/
-	sprintf(buf, format("%9ld", tmpl));
+	strnfmt(buf, sizeof(buf), format("%9ld", tmpl));
 	Term_putstr(col+8, 17, -1, (tmpl < 100L) ? TERM_L_GREEN : TERM_YELLOW, buf);
 
 	/*Hack - add the % at the end*/
@@ -1419,7 +1408,7 @@ static void display_player_xtra_info(void)
 	plus = p_ptr->dis_to_a;
 
 	/* Total Armor */
-	sprintf(buf, "[%d,%+d]", base, plus);
+	strnfmt(buf, sizeof(buf), "[%d,%+d]", base, plus);
 	Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
 	Term_putstr(col+5, 10, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1429,7 +1418,7 @@ static void display_player_xtra_info(void)
 	dam = p_ptr->dis_to_d;
 
 	/* Basic fighting */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
+	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
 	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1446,7 +1435,7 @@ static void display_player_xtra_info(void)
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
 	/* Melee attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
+	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
 	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1472,19 +1461,19 @@ static void display_player_xtra_info(void)
 
 
 	/* Range attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
+	strnfmt(buf, sizeof(buf), "(%+d,%+d)", hit, dam);
 	Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
 	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%11s", buf));
 
 
 	/* Blows */
-	sprintf(buf, "%d/turn", p_ptr->num_blow);
+	strnfmt(buf, sizeof(buf), "%d/turn", p_ptr->num_blow);
 	Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
 	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%11s", buf));
 
 
 	/* Shots */
-	sprintf(buf, "%d/turn", p_ptr->num_fire);
+	strnfmt(buf, sizeof(buf), "%d/turn", p_ptr->num_fire);
 	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
 	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1522,7 +1511,7 @@ static void display_player_xtra_info(void)
 	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%11s", buf));
 
 	/* Infra */
-	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
+	strnfmt(buf, sizeof(buf), "%d ft", p_ptr->see_infra * 10);
 	Term_putstr(col, 17, -1, TERM_WHITE, "Infra");
 	Term_putstr(col+5, 17, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1667,17 +1656,15 @@ static void display_home_equippy(int y, int x)
 		o_ptr = &st_ptr->stock[i];
 
 		/* Skip empty objects */
-		if (!o_ptr->k_idx) c = ' ';
+		if (!o_ptr->k_idx) continue;
 
-		else
-		{
-			/* Get attr/char for display */
-			a = object_attr(o_ptr);
-			c = object_char(o_ptr);
+		/* Get attr/char for display */
+		a = object_attr(o_ptr);
+		c = object_char(o_ptr);
 
-			/* Dump */
-			Term_putch(x+i, y, a, c);
-		}
+		/* Dump */
+		Term_putch(x+i, y, a, c);
+
 	}
 }
 
@@ -1831,7 +1818,7 @@ static void display_player_flag_info(void)
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
 				/* Hack -- Check immunities */
-				if ((x == 0) && (y < 4) &&
+				if ((x == 0) && (y < 5) &&
 				    (f[set] & ((TR2_IM_ACID) << y)))
 				{
 					c_put_str(TERM_L_GREEN, "*", row, col+n);
@@ -1859,7 +1846,7 @@ static void display_player_flag_info(void)
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
 			/* Hack -- Check immunities */
-			if ((x == 0) && (y < 4) &&
+			if ((x == 0) && (y < 5) &&
 			    (f[set] & ((TR2_IM_ACID) << y)))
 			{
 				c_put_str(TERM_L_GREEN, "*", row, col+n);
@@ -1946,13 +1933,13 @@ static void display_player_misc_info(void)
 
 	/* Hit Points */
 	put_str("HP", 7, 1);
-	sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
+	strnfmt(buf, sizeof(buf), "%d/%d", p_ptr->chp, p_ptr->mhp);
 	c_put_str(TERM_L_BLUE, buf, 7, 8);
 
 
 	/* Spell Points */
 	put_str("SP", 8, 1);
-	sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
+	strnfmt(buf, sizeof(buf), "%d/%d", p_ptr->csp, p_ptr->msp);
 	c_put_str(TERM_L_BLUE, buf, 8, 8);
 }
 
@@ -1960,18 +1947,11 @@ static void display_player_misc_info(void)
 /*
  * Special display, part 2b
  */
-static void display_player_stat_info(void)
+void display_player_stat_info(int row, int col)
 {
-	int i, row, col;
+	int i;
 
 	char buf[80];
-
-
-	/* Row */
-	row = 3;
-
-	/* Column */
-	col = 33;
 
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "  Self", row-1, col+5);
@@ -2008,15 +1988,15 @@ static void display_player_stat_info(void)
 		c_put_str(TERM_L_GREEN, buf, row+i, col+5);
 
 		/* Race Bonus */
-		sprintf(buf, "%+3d", rp_ptr->r_adj[i]);
+		strnfmt(buf, sizeof(buf), "%+3d", rp_ptr->r_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+11);
 
 		/* Class Bonus */
-		sprintf(buf, "%+3d", cp_ptr->c_adj[i]);
+		strnfmt(buf, sizeof(buf), "%+3d", cp_ptr->c_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+14);
 
 		/* Equipment Bonus */
-		sprintf(buf, "%+3d", p_ptr->stat_add[i]);
+		strnfmt(buf, sizeof(buf), "%+3d", p_ptr->stat_add[i]);
 		c_put_str(TERM_L_BLUE, buf, row+i, col+18);
 
 		/* Resulting "modified" maximum value */
@@ -2370,7 +2350,7 @@ static void display_home_equipment_info(int mode)
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
 				/* Hack -- Check immunities */
-				if ((xmin == 0) && (y < 4) &&
+				if ((xmin == 0) && (y < 5) &&
 				    (f[set] & ((TR2_IM_ACID) << y)))
 				{
 					c_put_str(TERM_L_GREEN, "*", row, col+n);
@@ -2418,7 +2398,7 @@ void display_player(int mode)
 	clear_from(0);
 
 	/* All Modes Use Stat info */
-	display_player_stat_info();
+	display_player_stat_info(3, 33);
 
 	if ((mode) < 2)
 	{
@@ -3085,10 +3065,15 @@ errr file_character(cptr name, bool full)
 		/* Skip completed quest */
 		if (q_ptr->active_level)
 		{
+			char q_out[160];
+
 			fprintf(fff, "  [Current Quest]\n\n");
 
+			/*get the quest description*/
+			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_FULL);
+
 			/* Describe quest */
-			fprintf(fff, "%s\n", describe_quest(p_ptr->cur_quest, 4));
+			fprintf(fff, "%s\n", q_out);
 
 			/* Add an empty line */
 			fprintf(fff, "\n\n");
@@ -3100,17 +3085,13 @@ errr file_character(cptr name, bool full)
 	if (adult_take_notes)
 	{
 		char buff[1024];
- 	  	char fname[80];
-		int holder;
+ 	 	int holder;
 
 		/*close the notes file for writing*/
 		my_fclose(notes_file);
 
-		/*the name of the notes file is based on character name*/
-		sprintf(fname, "%s.txt", op_ptr->full_name);
-
 		/*get the path for the notes file*/
-		path_build(buff, 1024, ANGBAND_DIR_SAVE, fname);
+		path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
 
 		/*open notes file for reading*/
 		notes_file = my_fopen(buff, "r");
@@ -3118,11 +3099,13 @@ errr file_character(cptr name, bool full)
 		do
 
 		{
+
 			/*get a character from the notes file*/
 			holder = getc(notes_file);
 
 			/*output it to the character dump, unless end of file char*/
 			if (holder != EOF) fprintf(fff, "%c", holder);
+
 		}
 
 		while (holder != EOF);
@@ -3805,7 +3788,6 @@ void get_name(void)
 		{
 
 			/*get the random name, display for approval. */
-
 			make_random_name(tmp, sizeof(tmp));
 
 			/* Erase line 22 */
@@ -3993,17 +3975,9 @@ static void center_string(char *buf, size_t len, cptr str)
 	strnfmt(buf, len, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
 
-
-
-#if 0
-
 /*
- * Save a "bones" file for a dead character
- *
- * Note that we will not use these files until a later version, and
- * then we will only use the name and level on which death occured.
- *
- * Should probably attempt some form of locking...
+ * Save a "bones" file for a dead character.  Now activated and (slightly)
+ * altered (from Oangband).  Allows the inclusion of personalized strings.
  */
 static void make_bones(void)
 {
@@ -4011,6 +3985,7 @@ static void make_bones(void)
 
 	char str[1024];
 
+	int i;
 
 	/* Ignore wizards and borgs */
 	if (!(p_ptr->noscore & 0x00FF))
@@ -4018,51 +3993,70 @@ static void make_bones(void)
 		/* Ignore people who die in town */
 		if (p_ptr->depth)
 		{
+			int level;
 			char tmp[128];
 
-			/* XXX XXX XXX "Bones" name */
-			sprintf(tmp, "bone.%03d", p_ptr->depth);
+			/* Slightly more tenacious saving routine. */
+			for (i = 0; i < 10; i++)
+			{
+				/* Ghost hovers near level of death. */
+				if (i == 0) level = p_ptr->depth;
+				else level = p_ptr->depth + 5 - damroll(2, 4);
+				if (level < 1) level = randint(4);
 
-			/* Build the filename */
-			path_build(str, sizeof(str), ANGBAND_DIR_BONE, tmp);
+				/* XXX XXX XXX "Bones" name */
+				sprintf(tmp, "bone.%03d", level);
 
-			/* Attempt to open the bones file */
-			fp = my_fopen(str, "r");
+				/* Build the filename */
+				path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
 
-			/* Close it right away */
-			if (fp) my_fclose(fp);
+				/* Attempt to open the bones file */
+				fp = my_fopen(str, "r");
 
-			/* Do not over-write a previous ghost */
+				/* Close it right away */
+				if (fp) my_fclose(fp);
+
+				/* Do not over-write a previous ghost */
+				if (fp) continue;
+
+				/* If no file by that name exists, we can make a new one. */
+				if (!(fp)) break;
+			}
+
+			/* Failure */
 			if (fp) return;
 
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
 
-			/* Grab permissions */
-			safe_setuid_grab();
-
 			/* Try to write a new "Bones File" */
 			fp = my_fopen(str, "w");
-
-			/* Drop permissions */
-			safe_setuid_drop();
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
 
 			/* Save the info */
-			fprintf(fp, "%s\n", op_ptr->full_name);
-			fprintf(fp, "%d\n", p_ptr->mhp);
+			if (op_ptr->full_name[0] != '\0') fprintf(fp, "%s\n", op_ptr->full_name);
+			else fprintf(fp, "Anonymous\n");
+
+			fprintf(fp, "%d\n", p_ptr->psex);
 			fprintf(fp, "%d\n", p_ptr->prace);
 			fprintf(fp, "%d\n", p_ptr->pclass);
 
+			/* Clear screen */
+			Term_clear();
+
+			/*Mark end of file*/
+			fprintf(fp, "\n");
+
 			/* Close and save the Bones file */
 			my_fclose(fp);
+
+			return;
 		}
 	}
 }
 
-#endif /* 0 */
 
 
 /*
@@ -4136,19 +4130,19 @@ static void print_tomb(void)
 	center_string(buf, sizeof(buf), c_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
-	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
+	strnfmt(tmp, sizeof(tmp), "Level: %d", (int)p_ptr->lev);
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 11, 11);
 
-	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
+	strnfmt(tmp, sizeof(tmp), "Exp: %ld", (long)p_ptr->exp);
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 12, 11);
 
-	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
+	strnfmt(tmp, sizeof(tmp), "AU: %ld", (long)p_ptr->au);
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 13, 11);
 
-	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	strnfmt(tmp, sizeof(tmp), "Killed on Level %d", p_ptr->depth);
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 14, 11);
 
@@ -4156,8 +4150,7 @@ static void print_tomb(void)
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 15, 11);
 
-
-	sprintf(tmp, "%-.24s", ctime(&death_time));
+	strnfmt(tmp, sizeof(tmp), "%-.24s", ctime(&death_time));
 	center_string(buf, sizeof(buf), tmp);
 	put_str(buf, 17, 11);
 }
@@ -4226,7 +4219,6 @@ static void show_info(void)
 
 	store_type *st_ptr = &store[STORE_HOME];
 
-
 	/* Display player */
 	display_player(0);
 
@@ -4282,7 +4274,7 @@ static void show_info(void)
 				o_ptr = &st_ptr->stock[i];
 
 				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
+				strnfmt(tmp_val, sizeof(tmp_val), "%c) ", I2A(j));
 				prt(tmp_val, j+2, 4);
 
 				/* Get the object description */
@@ -4511,7 +4503,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		/* Indicate non-top scores */
 		if (k > 0)
 		{
-			sprintf(tmp_val, "(from position %d)", place);
+			strnfmt(tmp_val, sizeof(tmp_val), "(from position %d)", place);
 			put_str(tmp_val, 0, 40);
 		}
 
@@ -4753,37 +4745,37 @@ static errr enter_score(void)
 	strnfmt(the_score.what, sizeof(the_score.what), "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points());
+	strnfmt(the_score.pts, sizeof(the_score.pts), "%9lu", (long)total_points());
 	the_score.pts[9] = '\0';
 
 	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
+	strnfmt(the_score.gold, sizeof(the_score.gold), "%9lu", (long)p_ptr->au);
 	the_score.gold[9] = '\0';
 
 	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
+	strnfmt(the_score.turns, sizeof(the_score.turns), "%9lu", (long)turn);
 	the_score.turns[9] = '\0';
 
-	/* Save the date in standard encoded form (9 chars) */
-	strftime(the_score.day, 10, "@%Y%m%d", localtime(&death_time));
+	/* Save the date in standard encoded form */
+	strftime(the_score.day, sizeof(the_score.day), "@%Y%m%d", localtime(&death_time));
 
 	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
+	strnfmt(the_score.who, sizeof(the_score.who), "%-.15s", op_ptr->full_name);
 
 	/* Save the player info XXX XXX XXX */
-	sprintf(the_score.uid, "%7u", player_uid);
-	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
+	strnfmt(the_score.uid, sizeof(the_score.uid), "%7u", player_uid);
+	strnfmt(the_score.sex, sizeof(the_score.sex), "%c", (p_ptr->psex ? 'm' : 'f'));
+	strnfmt(the_score.p_r, sizeof(the_score.p_r), "%2d", p_ptr->prace);
+	strnfmt(the_score.p_c, sizeof(the_score.p_c), "%2d", p_ptr->pclass);
 
 	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
+	strnfmt(the_score.cur_lev, sizeof(the_score.cur_lev), "%3d", p_ptr->lev);
+	strnfmt(the_score.cur_dun, sizeof(the_score.cur_dun), "%3d", p_ptr->depth);
+	strnfmt(the_score.max_lev, sizeof(the_score.max_lev), "%3d", p_ptr->max_lev);
+	strnfmt(the_score.max_dun, sizeof(the_score.max_dun), "%3d", p_ptr->max_depth);
 
 	/* Save the cause of death (31 chars) */
-	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
+	strnfmt(the_score.how, sizeof(the_score.how), "%-.31s", p_ptr->died_from);
 
 	/* Grab permissions */
 	safe_setuid_grab();
@@ -5035,13 +5027,15 @@ static void close_game_aux(void)
 	bool wants_to_quit = FALSE;
 	cptr p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
-        /* Handle retirement */
- 		if (p_ptr->total_winner)
-        {
+    /* Dump bones file */
+	make_bones();
 
- 		 	kingly();
+	/* Handle retirement */
+ 	if (p_ptr->total_winner)
+    {
 
-        }
+ 		 kingly();
+    }
 
 	/* Save dead player */
 	if (!save_player())
@@ -5214,11 +5208,6 @@ static void close_game_aux(void)
 		}
 	}
 
-#if 0
-	/* Dump bones file */
-	make_bones();
-#endif
-
 }
 
 
@@ -5290,12 +5279,17 @@ void close_game(void)
 	highscore_fd = -1;
 
 	/* Close the notes file */
- 	if (adult_take_notes) my_fclose(notes_file);
+ 	if (adult_take_notes)
+	{
+		my_fclose(notes_file);
 
+		/* Delete the notes file */
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, NOTES_FILENAME);
+		fd_kill(buf);
+	}
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
-
 
 	/* Allow suspending now */
 	signals_handle_tstp();
@@ -5711,106 +5705,113 @@ void signals_init(void)
 
 #endif	/* HANDLE_SIGNALS */
 
-/*
- * Attr value-to-char convertion table
- */
-static byte conv_color[16] =
+
+static void write_html_escape_char(FILE *htm, char c)
 {
-	'd',
-	'w',
-	's',
-	'o',
-	'r',
-	'g',
-	'b',
-	'u',
-	'D',
-	'W',
-	'v',
-	'y',
-	'R',
-	'G',
-	'B',
-	'U',
-};
+	switch (c)
+	{
+		case '<':
+			fprintf(htm, "&lt;");
+			break;
+		case '>':
+			fprintf(htm, "&gt;");
+			break;
+		case '&':
+			fprintf(htm, "&amp;");
+			break;
+		default:
+			fprintf(htm, "%c", c);
+			break;
+	}
+}
 
 /*
- * Clean up a line for recording via cmovie or html dump
+ * Get the default (ASCII) tile for a given screen location
  */
-void cmovie_clean_line(int y, char *abuf, char *cbuf)
+static void get_default_tile(int row, int col, byte *a_def, char *c_def)
 {
-	const byte *ap = Term->scr->a[y];
-	const char *cp = Term->scr->c[y];
-
 	byte a;
 	char c;
 
-	int x;
 	int wid, hgt;
 	int screen_wid, screen_hgt;
+
+	int x;
+	int y = row - ROW_MAP + p_ptr->wy;
 
 	/* Retrieve current screen size */
 	Term_get_size(&wid, &hgt);
 
-	/* Calculate the size of dungeon map area */
+	/* Calculate the size of dungeon map area (ignoring bigscreen) */
 	screen_wid = wid - (COL_MAP + 1);
 	screen_hgt = hgt - (ROW_MAP + 1);
 
-	/* For the time being, assume 80 column display XXX XXX XXX */
-	for (x = 0; x < wid; x++)
+	/* Get the tile from the screen */
+	a = Term->scr->a[row][col];
+	c = Term->scr->c[row][col];
+
+	/* Skip bigtile placeholders */
+	if (use_bigtile && (a == 255) && (c == -1))
 	{
+		/* Replace with "white space" */
+		a = TERM_WHITE;
+		c = ' ';
+	}
+	/* Convert the map display to the default characters */
+	else if (!character_icky &&
+	    ((col - COL_MAP) >= 0) && ((col - COL_MAP) < screen_wid) &&
+	    ((row - ROW_MAP) >= 0) && ((row - ROW_MAP) < screen_hgt))
+	{
+		/* Bigtile uses double-width tiles */
+		if (use_bigtile)
+			x = (col - COL_MAP) / 2 + p_ptr->wx;
+		else
+			x = col - COL_MAP + p_ptr->wx;
+
 		/* Convert dungeon map into default attr/chars */
-		if (!character_icky &&
-            ((x - COL_MAP) >= 0) &&
-		    ((x - COL_MAP) < screen_wid) &&
-		    ((y - ROW_MAP) >= 0) &&
-		    ((y - ROW_MAP) < screen_hgt))
+		if (in_bounds(y, x))
 		{
 			/* Retrieve default attr/char */
-            map_info_default(y + p_ptr->wy - ROW_MAP, x + p_ptr->wx - COL_MAP, &a, &c);
-
-			abuf[x] = conv_color[a & 0xf];
-
-			if (c == '\0') cbuf[x] = ' ';
-			else cbuf[x] = c;
+			map_info_default(y, x, &a, &c);
 		}
-
 		else
 		{
-			abuf[x] = conv_color[ap[x] & 0xf];
-			cbuf[x] = cp[x];
+			/* "Out of bounds" is empty */
+			a = TERM_WHITE;
+			c = ' ';
 		}
+
+		if (c == '\0') c = ' ';
 	}
 
-	/* Null-terminate the prepared strings */
-	abuf[x] = '\0';
-	cbuf[x] = '\0';
+	/* Filter out remaining graphics */
+	if (a & 0xf0)
+	{
+		/* Replace with "white space" */
+		a = TERM_WHITE;
+		c = ' ';
+	}
+
+	/* Return the default tile */
+	*a_def = a;
+	*c_def = c;
 }
 
 
-/*
- * Take an html screenshot
- */
+
+/* Take an html screenshot */
 void html_screenshot(cptr name)
 {
 	int y, x;
-	int yy = p_ptr->wy - ROW_MAP;
-	int xx = p_ptr->wx - COL_MAP;
 	int wid, hgt;
 
-	byte *ap;
-	char *cp;
-
-	byte a = 0, oa = TERM_WHITE;
+	byte a;
+	byte oa = TERM_WHITE;
 	char c = ' ';
 
 	FILE *htm;
 
 	char buf[1024];
-
-	/* The terms package supports up to 255x255 screen size */
-	char abuf[256];
-	char cbuf[256];
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
@@ -5818,17 +5819,15 @@ void html_screenshot(cptr name)
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-	/* Hack -- drop permissions */
-	/* safe_setuid_drop(); */
-
 	/* Append to the file */
 	htm = my_fopen(buf, "w");
 
-	/* Hack -- grab permissions */
-	/* safe_setuid_grab(); */
-
 	/* Oops */
-	if (!htm) return;
+	if (!htm)
+	{
+		plog_fmt("Cannot write the '%s' file!", buf);
+		return;
+	}
 
 	/* Retrieve current screen size */
 	Term_get_size(&wid, &hgt);
@@ -5847,58 +5846,53 @@ void html_screenshot(cptr name)
 	/* Dump the screen */
 	for (y = 0; y < hgt; y++)
 	{
-		ap = Term->scr->a[y];
-		cp = Term->scr->c[y];
-
-		/* For each line... */
 		for (x = 0; x < wid; x++)
 		{
-			/* Convert dungeon map into default attr/chars */
-			if (!character_icky &&
-				((x - COL_MAP) >= 0) && ((x - COL_MAP) < SCREEN_WID) &&
-				((y - ROW_MAP) >= 0) &&	((y - ROW_MAP) < SCREEN_HGT) &&
-				((y - ROW_MAP) < p_ptr->cur_map_hgt))
-			{
-				if (!in_bounds(y + yy, x + xx)) continue;
 
-				/* Retrieve default attr/char */
-				map_info_default(y + yy, x + xx, &a, &c);
+			/* Get the ASCII tile */
+			get_default_tile(y, x, &a, &c);
 
-				abuf[x] = conv_color[a & 0xf];
-
-				if (c == '\0') cbuf[x] = ' ';
-				else cbuf[x] = c;
-			}
-
-			else
-			{
-				abuf[x] = conv_color[ap[x] & 0xf];
-				cbuf[x] = cp[x];
-			}
-		}
-
-		/* Null-terminate the prepared strings */
-		abuf[x] = '\0';
-		cbuf[x] = '\0';
-
-		/* Dump each row */
-		for (x = 0; x < wid; x++)
-		{
-			a = color_char_to_attr(abuf[x]);
-			c = cbuf[x];
-
+			/* Color change */
 			if (oa != a)
 			{
-				fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+				/* From the default white to another color */
+				if (oa == TERM_WHITE)
+				{
+					fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">",
+					        angband_color_table[a][1],
+					        angband_color_table[a][2],
+					        angband_color_table[a][3]);
+				}
+				/* From another color to the default white */
+				else if (a == TERM_WHITE)
+				{
+					fprintf(htm, "</FONT>");
+				}
+				/* Change colors */
+				else
+				{
+					fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">",
+					        angband_color_table[a][1],
+					        angband_color_table[a][2],
+					        angband_color_table[a][3]);
+				}
+
+				/* Remember the last color */
 				oa = a;
 			}
-			fprintf(htm, "%c", c);
+
+			/* Write the character and escape special HTML characters */
+			write_html_escape_char(htm, c);
 		}
 
 		/* End the row */
 		fprintf(htm, "\n");
 	}
-	fprintf(htm, "</TT></PRE></FONT>\n");
+
+	/* Close the last <font> tag if necessary */
+	if (a != TERM_WHITE) fprintf(htm, "</FONT>");
+
+	fprintf(htm, "</TT></PRE>\n");
 
 	fprintf(htm, "</BODY>\n");
 	fprintf(htm, "</HTML>\n");
@@ -5906,4 +5900,3 @@ void html_screenshot(cptr name)
 	/* Close it */
 	my_fclose(htm);
 }
-

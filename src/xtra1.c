@@ -195,19 +195,34 @@ static void prt_level(void)
 static void prt_exp(void)
 {
 	char out_val[32];
+	s32b exp_display;
+	byte attr;
 
-	sprintf(out_val, "%8ld", (long)p_ptr->exp);
-
+	/*use different color if player's experience is drained*/
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str("EXP ", ROW_EXP, 0);
-		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_L_GREEN;
 	}
 	else
 	{
-		put_str("Exp ", ROW_EXP, 0);
-		c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
+		attr = TERM_YELLOW;
 	}
+
+	/*some players want to see how much they need to gain to get to the next level*/
+	if ((toggle_xp) && (p_ptr->lev < PY_MAX_LEVEL))
+	{
+		exp_display = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) -
+									p_ptr->exp);
+	}
+
+	else exp_display = p_ptr->exp;
+
+	sprintf(out_val, "%8ld", exp_display);
+
+	put_str("EXP ", ROW_EXP, 0);
+
+	c_put_str(attr, out_val, ROW_EXP, COL_EXP + 4);
+
 }
 
 
@@ -362,6 +377,7 @@ static void prt_sp(void)
 static void prt_depth(void)
 {
 	char depths[32];
+	s16b attr = TERM_WHITE;
 
 	if (!p_ptr->depth)
 	{
@@ -376,8 +392,24 @@ static void prt_depth(void)
 		sprintf(depths, "Lev %d", p_ptr->depth);
 	}
 
+	/* Get color of level based on feeling  -JSV- */
+	if ((p_ptr->depth) && (do_feeling))
+	{
+		if (feeling ==  1) attr = TERM_VIOLET;
+		else if (feeling ==  2) attr = TERM_RED;
+		else if (feeling ==  3) attr = TERM_L_RED;
+		else if (feeling ==  4) attr = TERM_ORANGE;
+		else if (feeling ==  5) attr = TERM_ORANGE;
+		else if (feeling ==  6) attr = TERM_YELLOW;
+		else if (feeling ==  7) attr = TERM_YELLOW;
+		else if (feeling ==  8) attr = TERM_WHITE;
+		else if (feeling ==  9) attr = TERM_WHITE;
+		else if (feeling == 10) attr = TERM_L_WHITE;
+		else if (feeling >= LEV_THEME_HEAD) attr = TERM_BLUE;
+	}
+
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
+	c_prt(attr, format("%7s", depths), ROW_DEPTH, COL_DEPTH);
 }
 
 
@@ -1717,14 +1749,31 @@ static void calc_torch(void)
 			}
 
 			/* Lanterns (with fuel) provide more lite */
-			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
+			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->timeout > 0))
 			{
-				p_ptr->cur_lite += 2;
+				object_flags(o_ptr, &f1, &f2, &f3);
+
+				/* Resist Dark means light radius of 3 */
+				if ((f2 & TR2_RES_DARK) && (o_ptr->pval >= 0))
+				{
+				  p_ptr->cur_lite += 3;
+				}
+				/* Resist Light means light radius of 1 */
+				/* The same with cursed lanterns */
+				else if ((f2 & TR2_RES_LITE) || (o_ptr->pval < 0))
+				{
+				  p_ptr->cur_lite += 1;
+				}
+				else
+				{
+				  p_ptr->cur_lite += 2;
+				}
+
 				continue;
 			}
 
 			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
+			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->timeout > 0))
 			{
 				p_ptr->cur_lite += 1;
 				continue;
@@ -1928,7 +1977,7 @@ static void calc_bonuses(void)
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
-
+	p_ptr->immune_pois = FALSE;
 
 	/*** Extract race/class info ***/
 
@@ -1994,6 +2043,7 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
 	if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
 	if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+	if (f2 & (TR2_IM_POIS)) p_ptr->immune_pois = TRUE;
 
 	/* Resistance flags */
 	if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
@@ -2093,6 +2143,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_IM_ACID)) p_ptr->immune_acid = TRUE;
 		if (f2 & (TR2_IM_COLD)) p_ptr->immune_cold = TRUE;
 		if (f2 & (TR2_IM_ELEC)) p_ptr->immune_elec = TRUE;
+		if (f2 & (TR2_IM_POIS)) p_ptr->immune_pois = TRUE;
 
 		/* Resistance flags */
 		if (f2 & (TR2_RES_ACID)) p_ptr->resist_acid = TRUE;
@@ -2165,6 +2216,7 @@ static void calc_bonuses(void)
 		{
 			/* Modify the stats for race/class */
 			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+
 		}
 
 		/* Extract the new "stat_top" value for the stat */
@@ -2372,9 +2424,6 @@ static void calc_bonuses(void)
 	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
 	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
 
-	/* Apply Skill -- Extract noise from stealth */
-	p_ptr->noise = (1L << (30 - p_ptr->skill_stl));
-
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
@@ -2500,13 +2549,13 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int div;
+		int divide_by;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+		divide_by = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
 		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / divide_by);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
@@ -2623,9 +2672,9 @@ static void calc_bonuses(void)
 			p_ptr->base_wakeup_chance = 4 * p_ptr->base_wakeup_chance / 5;
 
 			/* Always make at least some innate noise */
-			if (p_ptr->base_wakeup_chance < 100)
+			if (p_ptr->base_wakeup_chance < 50)
 			{
-				p_ptr->base_wakeup_chance = 100;
+				p_ptr->base_wakeup_chance = 50;
 				break;
 			}
 		}
@@ -2718,6 +2767,7 @@ static void calc_bonuses(void)
 			msg_print("You feel more comfortable after removing your weapon.");
 		}
 	}
+
 }
 
 
@@ -2802,6 +2852,18 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_UPDATE_VIEW);
 		update_view();
+	}
+
+	if (p_ptr->update & (PU_NOISE_STRONG))
+	{
+		p_ptr->update &= ~(PU_NOISE_STRONG);
+		update_noise(TRUE, FLOW_PASS_DOORS);
+
+	}
+	if (p_ptr->update & (PU_NOISE_WEAK))
+	{
+		p_ptr->update &= ~(PU_NOISE_WEAK);
+		update_noise(TRUE, FLOW_NO_DOORS);
 	}
 
 	if (p_ptr->update & (PU_DISTANCE))

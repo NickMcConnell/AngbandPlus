@@ -330,7 +330,7 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h
-load.o: load.c $(INCS)
+load.o: load.c $(INCS)  init.h
 maid-x11.o: maid-x11.c $(INCS) maid-x11.h
 main-cap.o: main-cap.c $(INCS) main.h
 main-gcu.o: main-gcu.c $(INCS) main.h

@@ -17,6 +17,9 @@ you busy.
 http://home.comcast.net/~nppangband/
 	The NPPAngband web site.
 
+The NPPAngband forum at the NPP Fan Site is:
+http://nppangband.tannert.net/forums/index.php
+
 http://ftp.sunet.se/pub/games/Angband/
      The largest repository of Angband files.
 
@@ -42,10 +45,6 @@ to this link, download mirc, and use it to connect to one of the Worldirc
 servers (note:  You do have to use a worldirc server).  Then join the channel
 #angband.  You'll know you've got it right when you see other people (the
 channel is always occupied).
-
-
-
-
 
 
 

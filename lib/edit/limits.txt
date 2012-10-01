@@ -7,27 +7,40 @@
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/limits.raw" file.
+#
+# These numbers are all actually the maximum + 1, not counting the artifact non-total numbers
 
 
 # Version stamp (required)
 
-V:3.0.9
+V:0.4.0
 
 
 # Maximum number of feature types
 M:F:86
 
 # Maximum number of object kinds
-M:K:515
+M:K:441
 
-# Maximum number of artifacts
-M:A:137
+# 
+# Maximum number of total artifacts (special + normal + pre-made random + in-game random)
+# special artifacts (1 to this number - 1)
+# normal artifacts ((special) to (special + this number - 1))
+# max random artfiacts ((normal artifacts) to (normal artfiacts + this number - 1))
+# total artifacts will equal special + normal + random + 1 slot for a fake quest artifact
+# reads M:A:special:normal:random
+# changing these numbers will almost always break savefile compatibility
+#
+M:A:18:122:35
 
 # Maximum number of ego-item types
-M:E:128
+M:E:145
 
 # Maximum number of monster races
-M:R:634
+M:R:656
+
+# Maximum number of permanant maintainer ghost templates (in *angband/lib/bones)
+M:G:18
 
 # Maximum number of vaults
 M:V:55
@@ -36,7 +49,7 @@ M:V:55
 M:P:11
 
 # Maximum number of player classes
-M:C:6
+M:C:7
 
 # Maximum number of player history lines
 M:H:165
@@ -66,5 +79,5 @@ M:N:20480
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:61440
+M:T:65440
 

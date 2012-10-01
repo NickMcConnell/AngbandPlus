@@ -27,7 +27,7 @@ least one up staircase, and two down staircases, unless it is the home of Sauron
 staircases will appear.  Otherwise, the staircases are guaranteed, but they may
 be difficult to find.  Once you leave a level, you can never return to it.
 Watch out for spells and traps that can suddenly force you off the level.  "Shafts"
-are represented by light brown "<" (up) and ">" (down) and may take you up or down 
+are represented by light brown "<" (up) and ">" (down) and will take you up or down 
 two levels instead of one.
 
 Secret doors:
@@ -98,9 +98,9 @@ on, you get access to objects and spells that do this for you, and very handy
 they are.
 
 Level Feelings:
-     If you have spent enough time on the previous level, you will get a feeling
-when you enter another one.  The more interesting the choice of adjectives, the
-more dangerous and lucrative the level is likely to be.
+     If you have spent enough time on the level, you will get a feeling
+about that level.  The more interesting the choice of adjectives, the more 
+dangerous and lucrative the level is likely to be.
      Things that boost level feelings include:  out of depth monsters, out of
 depth uniques, out of depth objects, certain powerful object kinds, very
 special rooms, and chests.
@@ -147,12 +147,6 @@ digest some food.  Every hundred thousand game turns equals one day; the town
 spends half that time in darkness and the other half in light.
      Every time it takes a turn, every monster aware of you recovers from
 temporary conditions.  Every 100 game turns, they regenerate hitpoints.
-
-
-
-
-
-
 
 
 

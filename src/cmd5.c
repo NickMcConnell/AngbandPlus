@@ -228,6 +228,9 @@ static cptr get_spell_info(int tval, int spell)
 			case PRAYER_BLESS:
 				strcpy(p, " dur 12+d12");
 				break;
+			case PRAYER_BOLT_OF_DRAINING:
+				sprintf(p, " %d+2d4", (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 3)));
+				break;
 			case PRAYER_PORTAL:
 				sprintf(p, " range %d", 3 * plev);
 				break;
@@ -304,14 +307,15 @@ static cptr get_spell_info(int tval, int spell)
 
 static int get_spell_index(const object_type *o_ptr, int index)
 {
-	int spell;
-	int num = 0;
 
 	/* Get the item's sval */
 	int sval = o_ptr->sval;
 
 	int spell_type;
 
+	/* Check bounds */
+	if ((index < 0) || (index >= SPELLS_PER_BOOK)) return (-1);
+	if ((sval < 0) || (sval >= BOOKS_PER_REALM)) return (-1);
 
 	/* Mage or priest spells? */
 	if (cp_ptr->spell_book == TV_MAGIC_BOOK)
@@ -319,23 +323,7 @@ static int get_spell_index(const object_type *o_ptr, int index)
 	else
 		spell_type = 1;
 
-	/* Extract spells */
-	for (spell = 0; spell < PY_MAX_SPELLS; spell++)
-	{
-		/* Check for this spell */
-		if ((spell < 32) ?
-		    (spell_table[spell_type][sval][0] & (1L << spell)) :
-		    (spell_table[spell_type][sval][1] & (1L << (spell - 32))))
-		{
-			/* Found it */
-			if (index == num) return (spell);
-
-			num++;
-		}
-	}
-
-	/* No spell */
-	return (-1);
+	return spell_list[spell_type][sval][index];
 }
 
 
@@ -478,7 +466,7 @@ void display_koff(int k_idx)
 
 
 		/* Extract spells */
-		for (i = 0; i < 9; i++)
+		for (i = 0; i < SPELLS_PER_BOOK; i++)
 		{
 			spell = get_spell_index(i_ptr, i);
 
@@ -554,7 +542,7 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 #endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < SPELLS_PER_BOOK; i++)
 	{
 		spell = get_spell_index(o_ptr, i);
 
@@ -585,6 +573,19 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 	        p, I2A(0), I2A(num - 1), prompt, p);
+
+	/* Option -- automatically show lists */
+	if (auto_display_lists)
+	{
+		/* Show list */
+		redraw = TRUE;
+
+		/* Save screen */
+		screen_save();
+
+		/* Display a list of spells */
+		print_spells(spells, num, 1, 20);
+	}
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -774,6 +775,7 @@ static bool cast_mage_spell(int spell)
 	{
 		case SPELL_MAGIC_MISSILE:
 		{
+
 			if (!get_aim_dir(&dir)) return (FALSE);
 			fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
 			                  damroll(3 + ((plev - 1) / 5), 4));
@@ -905,8 +907,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_RECHARGE_ITEM_I:
 		{
-			(void)recharge(2 + plev / 5);
-			break;
+			return recharge(2 + plev / 5, FALSE);
 		}
 
 		case SPELL_WONDER: /* wonder */
@@ -925,8 +926,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_IDENTIFY:
 		{
-			(void)ident_spell();
-			break;
+			return ident_spell();
 		}
 
 		case SPELL_MASS_SLEEP:
@@ -959,8 +959,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_RECHARGE_ITEM_II: /* greater recharging */
 		{
-			recharge(50 + plev);
-			break;
+			return recharge(50 + plev, FALSE);
 		}
 
 		case SPELL_TELEPORT_OTHER:
@@ -992,8 +991,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_BANISHMENT:
 		{
-			(void)banishment();
-			break;
+			return banishment();
 		}
 
 		case SPELL_DOOR_CREATION:
@@ -1113,8 +1111,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_ELEMENTAL_BRAND: /* elemental brand */
 		{
-			(void)brand_ammo();
-			break;
+			return brand_ammo(TRUE);
 		}
 
 		case SPELL_RESIST_POISON:
@@ -1198,15 +1195,13 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_ENCHANT_ARMOR: /* enchant armor */
 		{
-			(void)enchant_spell(0, 0, rand_int(3) + plev / 20);
-			break;
+			return enchant_spell(0, 0, rand_int(3) + plev / 20);
 		}
 
 		case SPELL_ENCHANT_WEAPON: /* enchant weapon */
 		{
-			(void)enchant_spell(rand_int(4) + plev / 20,
-			                    rand_int(4) + plev / 20, 0);
-			break;
+			return enchant_spell(rand_int(4) + plev / 20,
+			                     rand_int(4) + plev / 20, 0);
 		}
 	}
 
@@ -1319,7 +1314,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_REMOVE_CURSE:
 		{
-			remove_curse();
+			remove_curse(FALSE);
 			break;
 		}
 
@@ -1448,8 +1443,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_PERCEPTION:
 		{
-			(void)ident_spell();
-			break;
+			return ident_spell();
 		}
 
 		case PRAYER_PROBING:
@@ -1546,31 +1540,28 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_RECHARGING:
 		{
-			(void)recharge(15);
-			break;
+			return recharge(15, FALSE);
 		}
 
 		case PRAYER_DISPEL_CURSE:
 		{
-			(void)remove_all_curse();
+			(void)remove_curse(TRUE);
 			break;
 		}
 
 		case PRAYER_ENCHANT_WEAPON:
 		{
-			(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-			break;
+			return enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
 		}
 
 		case PRAYER_ENCHANT_ARMOUR:
 		{
-			(void)enchant_spell(0, 0, rand_int(3) + 2);
-			break;
+			return enchant_spell(0, 0, rand_int(3) + 2);
 		}
 
 		case PRAYER_ELEMENTAL_BRAND:
 		{
-			brand_weapon();
+			(void)brand_weapon(TRUE);
 			break;
 		}
 
@@ -1658,7 +1649,7 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	handle_stuff();
 
 	/* Extract spells */
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < SPELLS_PER_BOOK; i++)
 	{
 		spell = get_spell_index(o_ptr, i);
 
@@ -1846,7 +1837,7 @@ void do_cmd_study(void)
 		int gift = -1;
 
 		/* Extract spells */
-		for (i = 0; i < 9; i++)
+		for (i = 0; i < SPELLS_PER_BOOK; i++)
 		{
 			spell = get_spell_index(o_ptr, i);
 

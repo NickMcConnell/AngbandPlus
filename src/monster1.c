@@ -26,7 +26,7 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
 	(((c) == 1) ? (s) : (p))
 
-
+#define PLAYER_GHOST_TRIES_MAX 30
 
 /*
  * Determine if the "armor" is known
@@ -56,7 +56,7 @@ static bool know_armour(int r_idx, s32b kills)
  * Determine if the "mana" is known
  * The higher the level, the fewer kills needed.
  */
-static bool know_mana(int r_idx)
+static bool know_mana_or_spells(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -64,9 +64,11 @@ static bool know_mana(int r_idx)
 
 	s32b kills = l_list[r_idx].tkills;
 
+	/*Hack - always know about ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (TRUE);
+
 	/* Mages learn quickly. */
 	if (cp_ptr->spell_book == TV_MAGIC_BOOK) kills *= 2;
-
 
 	/* Normal monsters */
 	if (kills > 304 / (4 + level)) return (TRUE);
@@ -141,7 +143,6 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	bool magic = FALSE;
 	int vn;
 	cptr vp[64];
-
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -482,10 +483,12 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		if (l_ptr->flags7 & (RF7_S_AINU))		vp[vn++] = "a maia";
 		if (l_ptr->flags7 & (RF7_S_DEMON))		vp[vn++] = "a demon";
 		if (l_ptr->flags7 & (RF7_S_HI_DEMON))	vp[vn++] = "Greater Demons";
+		if (l_ptr->flags7 & (RF7_S_UNIQUE))		vp[vn++] = "Unique Monsters";
+		if (l_ptr->flags7 & (RF7_S_HI_UNIQUE))	vp[vn++] = "Greater Unique Monsters";
 		if (l_ptr->flags7 & (RF7_S_UNDEAD))		vp[vn++] = "an undead";
 		if (l_ptr->flags7 & (RF7_S_HI_UNDEAD))	vp[vn++] = "Greater Undead";
 		if (l_ptr->flags7 & (RF7_S_WRAITH))		vp[vn++] = "the Ringwraiths";
-		if (l_ptr->flags7 & (RF7_S_UNIQUE))		vp[vn++] = "Unique Monsters";
+
 	}
 
 
@@ -567,13 +570,24 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 			text_out(format(" about %d percent of the time", n));
 		}
 
-		/* Describe monster mana */
-		if (r_ptr->mana && know_mana(r_idx))
+		/* Describe monster mana and spellpower*/
+		if (((r_ptr->mana) || (r_ptr->spell_power)) && know_mana_or_spells(r_idx))
 		{
-			/* Mana */
-			text_out(format(" with a mana rating of %d and a spell power of %d",
-				    r_ptr->mana, r_ptr->spell_power));
+			text_out(" with");
 
+			/* Mana */
+			if (r_ptr->mana)
+			{
+				text_out(format(" a mana rating of %d", r_ptr->mana));
+
+				if (r_ptr->spell_power) text_out(" and");
+			}
+
+			/* spell power */
+			if (r_ptr->spell_power)
+			{
+				text_out(format(" a spell power of %d", r_ptr->spell_power));
+			}
 		}
 
 		/* End this sentence */
@@ -700,7 +714,7 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
-	int m, n, r;
+	int m, r, n;
 	cptr p, q;
 
 	int msex = 0;
@@ -709,7 +723,6 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
 
-
 	/* Count the number of "known" attacks */
 	for (n = 0, m = 0; m < MONSTER_BLOW_MAX; m++)
 	{
@@ -717,7 +730,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		if (!r_ptr->blow[m].method) continue;
 
 		/* Count known attacks */
-		if (l_ptr->blows[m]) n++;
+		if ((l_ptr->blows[m]) || (l_ptr->sights == MAX_SHORT) ||
+			                      (l_ptr->ranged == MAX_UCHAR)) n++;
 	}
 
 	/* Examine (and count) the actual attacks */
@@ -731,13 +745,11 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* Skip unknown attacks */
 		if (!l_ptr->blows[m]) continue;
 
-
 		/* Extract the attack info */
 		method = r_ptr->blow[m].method;
 		effect = r_ptr->blow[m].effect;
 		d1 = r_ptr->blow[m].d_dice;
 		d2 = r_ptr->blow[m].d_side;
-
 
 		/* No method yet */
 		p = NULL;
@@ -849,7 +861,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			text_out_c(TERM_L_RED, q);
 
 			/* Describe damage (if known) */
-			if (d1 && d2 && know_damage(r_idx, l_ptr, m))
+			if (d1 && d2 && ((know_damage(r_idx, l_ptr, m)) || (l_ptr->sights == MAX_SHORT) ||
+			                      (l_ptr->ranged == MAX_UCHAR)))
 			{
 				/* Display the damage */
 				text_out(" with damage");
@@ -879,6 +892,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 	{
 		text_out(format("Nothing is known about %s attack.  ", wd_his[msex]));
 	}
+
 }
 
 
@@ -892,7 +906,6 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	cptr vp[64];
 
 	int msex = 0;
-
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -937,6 +950,11 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		text_out(".  ");
 	}
 
+	/*note if this is an unused ghost template*/
+	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0))
+	{
+		text_out(format("%^s is a player ghost template.  ", wd_he[msex]));
+	}
 
 	/* Describe special abilities. */
 	if (l_ptr->flags2 & RF2_INVISIBLE)
@@ -1322,7 +1340,8 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
 
 	/* Describe monster "toughness" */
-	if (know_armour(r_idx, l_ptr->tkills))
+	if ((know_armour(r_idx, l_ptr->tkills)) || (l_ptr->sights == MAX_SHORT) ||
+			 (l_ptr->ranged == MAX_UCHAR))
 	{
 		/* Armor */
 		text_out(format("%^s has an armor rating of %d",
@@ -1404,7 +1423,6 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 
 	bool old = FALSE;
 
-
 	text_out("This");
 
 	if (l_ptr->flags3 & RF3_ANIMAL) text_out_c(TERM_L_BLUE, " natural");
@@ -1424,7 +1442,8 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 		text_out_c(TERM_SLATE, " lives in the town");
 		old = TRUE;
 	}
-	else if (l_ptr->tkills)
+	else if ((l_ptr->tkills)  || (l_ptr->sights == MAX_SHORT) ||
+			 (l_ptr->ranged == MAX_UCHAR))
 	{
 		if (l_ptr->flags1 & RF1_FORCE_DEPTH)
 			text_out_c(TERM_SLATE, " is found ");
@@ -1516,7 +1535,6 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 
 	int i;
 
-
 	/* Hack -- Maximal kills */
 	l_ptr->tkills = MAX_SHORT;
 
@@ -1577,17 +1595,26 @@ void describe_monster(int r_idx, bool spoilers)
 {
 	monster_lore lore;
 
+	monster_lore save_mem;
+
 	/* Get the race and lore */
 	const monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
+	/* Cheat -- know everything */
+	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
+	{
+		/* XXX XXX XXX */
+
+		/* Hack -- save memory */
+		COPY(&save_mem, l_ptr, monster_lore);
+	}
 
 	/* Hack -- create a copy of the monster-memory */
 	COPY(&lore, l_ptr, monster_lore);
 
 	/* Assume some "obvious" flags */
 	lore.flags1 |= (r_ptr->flags1 & RF1_OBVIOUS_MASK);
-
 
 	/* Killing a monster reveals some properties */
 	if (lore.tkills)
@@ -1600,7 +1627,10 @@ void describe_monster(int r_idx, bool spoilers)
 	}
 
 	/* Cheat -- know everything */
-	if (cheat_know || spoilers) cheat_monster_lore(r_idx, &lore);
+	if (cheat_know || spoilers || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
+	{
+		cheat_monster_lore(r_idx, &lore);
+	}
 
 	/* Show kills of monster vs. player(s) */
 	if (!spoilers && show_details)
@@ -1639,6 +1669,13 @@ void describe_monster(int r_idx, bool spoilers)
 
 	/* All done */
 	text_out("\n");
+
+	/* Cheat -- know everything */
+	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
+	{
+		/* Hack -- restore memory */
+		COPY(l_ptr, &save_mem, monster_lore);
+	}
 }
 
 
@@ -1655,7 +1692,6 @@ void roff_top(int r_idx)
 	byte a1, a2;
 	char c1, c2;
 
-
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -1663,7 +1699,6 @@ void roff_top(int r_idx)
 	/* Get the attrs */
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
-
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -1675,6 +1710,13 @@ void roff_top(int r_idx)
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
+	}
+
+	/* Special treatment for player ghosts. */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		Term_addstr(-1, TERM_WHITE, ghost_name);
+		Term_addstr(-1, TERM_WHITE, ", the ");
 	}
 
 	/* Dump the name */
@@ -1745,3 +1787,635 @@ void display_roff(int r_idx)
 	roff_top(r_idx);
 }
 
+
+/*
+ * Add various player ghost attributes depending on race. -LM-
+ */
+static void process_ghost_race(int ghost_race, int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	byte n;
+	cptr racename;
+	int i;
+
+	int dun_level = r_ptr->level;
+
+	int race_middle = 0;
+	/*nonsense high amount which will be lowered later*/
+	int race_min = 25000;
+	int race_max = 0;
+
+	/*adjust hit points for the ghost class*/
+	r_ptr->hdice = (p_info[ghost_race].r_mhp * r_ptr->hdice)/10;
+
+	/*increase searching range based on ghost race searching and infravision*/
+	r_ptr->aaf += (p_info[ghost_race].r_srh + p_info[ghost_race].r_fos) / 2 + p_info[ghost_race].infra;
+
+	/*Add in some intrinsic race abilities*/
+
+	if (p_info[ghost_race].flags2 & TR2_RES_LITE) r_ptr->flags3 &= ~(RF3_HURT_LITE);
+
+	if (p_info[ghost_race].flags3 & TR3_FREE_ACT) r_ptr->flags3 |= (RF3_NO_CHARM);
+
+	if (p_info[ghost_race].flags2 & TR2_RES_POIS) r_ptr->flags3 |= (RF3_IM_POIS);
+
+	if (p_info[ghost_race].flags3 & TR3_REGEN) r_ptr->flags2 |= (RF2_REGENERATE);
+
+	/*extract the ghost name*/
+	racename = p_name + p_info[ghost_race].name;
+
+	/*is it an orc name?*/
+	if ((strstr(racename, "orc")) || (strstr(racename, "Orc")))
+	{
+		r_ptr->flags3 |= (RF3_ORC);
+	}
+
+	/*is it a troll name?*/
+	if ((strstr(racename, "troll")) || (strstr(racename, "Troll")))
+	{
+		r_ptr->flags4 |= (RF4_BOULDER);
+		r_ptr->flags3 |= (RF3_TROLL);
+
+	}
+
+	/*is it a troll name?*/
+	if ((strstr(racename, "elf")) || (strstr(racename, "ELF")))
+	{
+		r_ptr->flags3 &= ~(RF3_HURT_LITE);
+	}
+
+	/*go through the races, get average, min, and max abilities for fighting*/
+	for(i = 0; i < z_info->p_max; i++)
+	{
+
+		if (p_info[i].r_thn < race_min)
+		{
+			race_min = p_info[i].r_thn;
+		}
+		if (p_info[i].r_thn > race_max)
+		{
+			race_max = p_info[i].r_thn;
+		}
+		race_middle += p_info[i].r_thn;
+
+	}
+
+	/*get the average fighting ability*/
+	race_middle =  (race_middle / (z_info->p_max - 1));
+
+	/*
+	 * Get "quartiles" for race fighting ability.
+	 * This isn't quite statistically correct, but close enough
+	 */
+	race_max =  (race_middle + race_max) / 2;
+	race_min =  (race_middle + race_min) / 2;
+
+	/*top quartile gets extra fighting ability*/
+	if(p_info[ghost_race].r_thn > race_max)
+	{
+
+		for (n = 0; n < MONSTER_BLOW_MAX; n++)
+		{
+			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
+			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+		}
+
+		r_ptr->ac += r_ptr->ac / 3;
+
+	}
+
+	/*bottom quartile gets less fighting ability*/
+	else if(p_info[ghost_race].r_thn < race_min)
+	{
+
+		for (n = 0; n < MONSTER_BLOW_MAX; n++)
+		{
+			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+		}
+
+		r_ptr->ac -= r_ptr->ac / 3;
+
+	}
+
+	/*re-set for bows*/
+	race_middle = 0;
+	/*nonsense high amount which will be lowered later*/
+	race_min = 25000;
+	race_max = 0;
+
+	/*go through the races, get average, min, and max abilities for bow ability*/
+	for(i = 0; i < z_info->p_max; i++)
+	{
+
+		if (p_info[i].r_thb < race_min)
+		{
+			race_min = p_info[i].r_thb;
+		}
+		if (p_info[i].r_thb > race_max)
+		{
+			race_max = p_info[i].r_thb;
+		}
+		race_middle += p_info[i].r_thb;
+
+	}
+
+	/*get the average bow ability*/
+	race_middle =  (race_middle / (z_info->p_max - 1));
+
+	/*
+	 * Get "quartiles" for race bow ability.
+	 * This isn't quite statistically correct, but close enough
+	 */
+	race_max =  (race_middle + race_max) / 2;
+	race_min =  (race_middle + race_min) / 2;
+
+	/*top quartile gets extra bow ability*/
+	if(p_info[ghost_race].r_thb > race_max)
+	{
+
+		r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 6);
+		r_ptr->spell_power += r_ptr->spell_power / 5;
+
+		if (dun_level > 54)
+			r_ptr->flags4 |= (RF4_PMISSL);
+		else if (dun_level > 44)
+			r_ptr->flags4 |= (RF4_BOLT);
+		else if (dun_level > 34)
+			r_ptr->flags4 |= (RF4_MISSL);
+		else if (dun_level > 24)
+			r_ptr->flags4 |= (RF4_ARROW);
+		else r_ptr->flags4 |= (RF4_SHOT);
+
+	}
+
+	/*bottom quartile gets no bow ability*/
+	else if(p_info[ghost_race].r_thb < race_min)
+	{
+
+		r_ptr->flags4 &= ~(RF4_ARCHERY_MASK);
+	}
+
+}
+
+/*
+ * Add various player ghost attributes depending on class. -LM-
+ */
+static void process_ghost_class(int ghost_class, int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int dun_level = r_ptr->level;
+	byte i, n;
+	int class_middle = 0;
+	/*nonsense high amount which will be lowered later*/
+	int class_min = 25000;
+	int class_max = 0;
+
+	/*adjust hit points for the ghost class*/
+	r_ptr->hdice += (c_info[ghost_class].c_mhp * r_ptr->hdice)/20;
+
+	/*spellcasters get magic ability*/
+	if (c_info[ghost_class].spell_book)
+	{
+
+		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 6;
+		r_ptr->spell_power += r_ptr->spell_power / 5;
+	}
+
+	/*pure spellcasters get even more magic ability*/
+	if (c_info[ghost_class].flags & CF_ZERO_FAIL)
+	{
+		r_ptr->freq_ranged += (100 - r_ptr->freq_ranged) / 5;
+		r_ptr->spell_power += r_ptr->spell_power / 4;
+		r_ptr->mana += r_ptr->mana / 2;
+	}
+
+	/* adjust for bravery flag*/
+	if ((c_info[ghost_class].flags & CF_BRAVERY_30) && (dun_level > 20))
+	{
+		r_ptr->flags3 |= (RF3_NO_FEAR);
+	}
+
+	/*gives ghost rogues stealing ability and other thief abilities*/
+	if (c_info[ghost_class].flags & CF_ROGUE_COMBAT)
+	{
+
+		if (r_ptr->blow[0].effect == RBE_HURT) r_ptr->blow[0].effect = RBE_EAT_GOLD;
+		if (r_ptr->blow[1].effect == RBE_HURT) r_ptr->blow[1].effect = RBE_EAT_ITEM;
+		r_ptr->flags7 |= (RF7_S_THIEF);
+
+		r_ptr->aaf += r_ptr->aaf / 3;
+	}
+
+	/*set trap setters set traps*/
+	if (c_info[ghost_class].flags & CF_SET_TRAPS) r_ptr->flags6 |= (RF6_TRAPS);
+
+	/*get extra frequency with arrows*/
+	if (c_info[ghost_class].flags & CF_EXTRA_ARROW)
+	{
+
+		if (dun_level > 30) r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 3);
+		r_ptr->flags4 |= (RF4_ARROW);
+
+	}
+	/*get extra frequency with shots*/
+	if (c_info[ghost_class].flags & CF_EXTRA_SHOT)
+	{
+
+		if (dun_level > 30) r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 3);
+		r_ptr->flags4 |= (RF4_SHOT);
+	}
+
+	/*add the mage_spells*/
+	if (c_info[ghost_class].spell_book == TV_MAGIC_BOOK)
+	{
+		byte level_adj = MAX(dun_level - c_info[ghost_class].spell_stat, 0);
+
+
+		if (level_adj > 25) r_ptr->flags2 |= (RF2_LOW_MANA_RUN);
+		if (level_adj > 35) r_ptr->flags3 |= (RF3_IM_ELEM);
+		if (level_adj > 11) r_ptr->flags5 |= (RF5_BALL_POIS);
+		if (level_adj > 65) r_ptr->flags6 |= (RF6_TELE_AWAY);
+		if (level_adj > 55) r_ptr->flags6 |= (RF6_TELE_TO);
+		if (level_adj > 5) r_ptr->flags6 |= (RF6_BLINK);
+		if (level_adj > 50) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
+		if (dun_level > 35) r_ptr->flags6 |= (RF6_HASTE);
+
+
+		if (c_info[ghost_class].flags & CF_ZERO_FAIL)
+		{
+			if (level_adj > 0) r_ptr->flags5 |= (RF5_BOLT_MANA);
+			if (level_adj > 25) r_ptr->flags5 |= (RF5_BALL_FIRE);
+			if (level_adj > 35) r_ptr->flags5 |= (RF5_BALL_COLD);
+			if (level_adj > 55) r_ptr->flags5 |= (RF5_BALL_STORM);
+			if (level_adj > 65) r_ptr->flags5 |= (RF5_BALL_MANA);
+			if (level_adj > 75) r_ptr->flags6 |= (RF6_MIND_BLAST);
+			if (level_adj > 85) r_ptr->flags6 |= (RF6_BRAIN_SMASH);
+		}
+
+	}
+
+	if (c_info[ghost_class].spell_book == TV_PRAYER_BOOK)
+	{
+		byte level_adj = MAX(dun_level - c_info[ghost_class].spell_stat, 0);
+
+		if (level_adj > 25) r_ptr->flags2 |= (RF2_LOW_MANA_RUN);
+		if (level_adj > 11) r_ptr->flags5 |= (RF5_HOLY_ORB);
+		if (level_adj > 5)  r_ptr->flags6 |= (RF6_HEAL);
+		if (level_adj > 15) r_ptr->flags6 |= (RF6_BLINK);
+		if (level_adj > 55) r_ptr->flags6 |= (RF6_TELE_SELF_TO);
+		if (dun_level > 45) r_ptr->flags6 |= (RF6_HASTE);
+		if (dun_level > 65) r_ptr->flags5 |= (RF5_BEAM_NETHR);
+		if (dun_level > 10) r_ptr->flags3 |= (RF3_IM_FIRE |	RF3_IM_COLD);
+
+		if (c_info[ghost_class].flags & CF_ZERO_FAIL)
+		{
+			r_ptr->spell_power += r_ptr->spell_power / 4;
+
+			if (level_adj > 25) r_ptr->flags5 |= (RF5_BALL_FIRE);
+			if (level_adj > 35) r_ptr->flags5 |= (RF5_BALL_COLD);
+			if (level_adj > 55) r_ptr->flags5 |= (RF5_BALL_STORM);
+			if (level_adj > 65) r_ptr->flags5 |= (RF5_BALL_MANA);
+			if (level_adj > 45) r_ptr->flags6 |= (RF6_WOUND);
+			if (level_adj > 65) r_ptr->flags7 |= (RF7_S_UNDEAD);
+			if (level_adj > 80) r_ptr->flags7 |= (RF7_S_HI_UNDEAD);
+			if (level_adj > 50) r_ptr->flags7 |= (RF7_S_WRAITH);
+		}
+
+	}
+
+	/*go through the classes, get average, min, and max abilities for fighting*/
+	for(i = 0; i < z_info->c_max; i++)
+	{
+		int total = c_info[i].c_thn + ((c_info[i].x_thn * dun_level) / 20);
+
+		if (total < class_min)
+		{
+			class_min = total;
+		}
+		if (total > class_max)
+		{
+			class_max = total;
+		}
+		class_middle += total;
+
+	}
+
+	/*get the average fighting ability*/
+	class_middle =  (class_middle / (z_info->c_max - 1));
+
+	/*
+	 * Get "quartiles" for class fighting ability.
+	 * This isn't quite statistically correct, but close enough
+	 */
+	class_max =  (class_middle + class_max) / 2;
+	class_min =  (class_middle + class_min) / 2;
+
+	/*top quartile gets extra fighting ability*/
+	if((c_info[ghost_class].c_thn + (c_info[ghost_class].x_thn * dun_level / 20)) > class_max)
+	{
+
+		for (n = 0; n < MONSTER_BLOW_MAX; n++)
+		{
+			r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
+			r_ptr->blow[n].d_dice = 5 * r_ptr->blow[n].d_dice / 4;
+		}
+
+		r_ptr->ac += r_ptr->ac / 3;
+
+	}
+
+	/*bottom quartile gets less fighting ability*/
+	else if((c_info[ghost_class].c_thn + ((c_info[ghost_class].x_thn * dun_level) / 20)) < class_min)
+	{
+
+		for (n = 0; n < MONSTER_BLOW_MAX; n++)
+		{
+			r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+		}
+
+		r_ptr->ac -= r_ptr->ac / 3;
+
+	}
+
+	/*re-set for bows*/
+	class_middle = 0;
+	/*nonsense high amount which will be lowered later*/
+	class_min = 25000;
+	class_max = 0;
+
+	/*go through the classes, get average, min, and max abilities for bow ability*/
+	for(i = 0; i < z_info->c_max; i++)
+	{
+		int total = c_info[i].c_thb + ((c_info[i].x_thb * dun_level) / 20);
+
+		if (total < class_min)
+		{
+			class_min = total;
+		}
+		if (total > class_max)
+		{
+			class_max = total;
+		}
+		class_middle += total;
+
+	}
+
+	/*get the average bow ability*/
+	class_middle =  (class_middle / (z_info->c_max - 1));
+
+	/*
+	 * Get "quartiles" for class bow ability.
+	 * This isn't quite statistically correct, but close enough
+	 */
+	class_max =  (class_middle + class_max) / 2;
+	class_min =  (class_middle + class_min) / 2;
+
+	/*top quartile gets extra bow ability*/
+	if((c_info[ghost_class].c_thb + (c_info[ghost_class].x_thb * dun_level / 20)) > class_max)
+	{
+
+		r_ptr->freq_ranged += ((100 - r_ptr->freq_ranged) / 6);
+		r_ptr->spell_power += r_ptr->spell_power / 5;
+
+		if (dun_level > 54)
+			r_ptr->flags4 |= (RF4_PMISSL);
+		else if (dun_level > 44)
+			r_ptr->flags4 |= (RF4_BOLT);
+		else if (dun_level > 34)
+			r_ptr->flags4 |= (RF4_MISSL);
+		else if (dun_level > 24)
+			r_ptr->flags4 |= (RF4_ARROW);
+		else r_ptr->flags4 |= (RF4_SHOT);
+
+	}
+
+	/*bottom quartile gets no bow ability*/
+	else if((c_info[ghost_class].c_thb + (c_info[ghost_class].x_thb * dun_level / 20)) < class_min)
+	{
+		r_ptr->flags4 &= ~(RF4_ARCHERY_MASK);
+	}
+
+}
+
+/*
+ * Once a monster with the flag "PLAYER_GHOST" is generated, it needs
+ * to have a little color added, if it hasn't been prepared before.
+ * This function uses a bones file to get a name, give the ghost a
+ * gender, and add flags depending on the race and class of the slain
+ * adventurer.  -LM-
+ */
+bool prepare_ghost(int r_idx, bool from_savefile)
+{
+	int		ghost_sex, ghost_race, ghost_class = 0;
+	byte	try, i, backup_file_selector;
+	bool prepare_new_template = FALSE;
+
+	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
+
+	FILE		*fp = FALSE;
+	bool		err = FALSE;
+	char		path[1024];
+
+	/* Paranoia. */
+	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
+
+	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
+	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE))
+	{
+		/* Hack - Ensure that ghosts are always "seen". */
+		l_ptr->sights = 1;
+
+		/* Nothing more to do. */
+		return (TRUE);
+	}
+
+	/* Hack -- No easy player ghosts, unless the ghost is from a savefile.
+	 * This also makes player ghosts much rarer, and effectively (almost)
+	 * prevents more than one from being on a level.
+	 * From 0.5.1, other code makes it is formally impossible to have more
+	 * than one ghost at a time. -BR-
+	 */
+	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE))
+	{
+		return (FALSE);
+	}
+
+	/* Store the index of the base race. */
+	r_ghost = r_idx;
+
+		/* Choose a bones file.  Use the variable bones_selector if it has any
+	 * information in it (this allows saved ghosts to reacquire all special
+	 * features), then use the current depth, and finally pick at random.
+	 */
+	for (try = 0; try < PLAYER_GHOST_TRIES_MAX + z_info->ghost_other_max; ++try)
+	{
+		/* Prepare a path, and store the file number for future reference. */
+		if (try == 0)
+		{
+			if (bones_selector)
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
+			}
+			else
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
+				bones_selector = (byte)p_ptr->depth;
+			}
+		}
+		else
+		{
+			if (try < PLAYER_GHOST_TRIES_MAX) backup_file_selector = randint(MAX_DEPTH - 1);
+			else backup_file_selector = MAX_DEPTH + rand_int(z_info->ghost_other_max);
+			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
+			bones_selector = backup_file_selector;
+		}
+
+		/* Attempt to open the bones file. */
+		fp = my_fopen(path, "r");
+
+		/* No bones file with that number, try again. */
+		if (!fp)
+		{
+
+			bones_selector = 0;
+
+			/*try again*/
+			continue;
+		}
+
+		/* Success. */
+		if (fp) break;
+	}
+
+	/*function failed*/
+	if (!fp) return (FALSE);
+
+	/* XXX XXX XXX Scan the file */
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name,
+			&ghost_sex, &ghost_race, &ghost_class) != 4);
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Hack -- broken file */
+	if (err)
+	{
+		bones_selector = 0;
+		return (FALSE);
+	}
+
+	/*** Process the ghost name and store it in a global variable. ***/
+
+	/* XXX XXX XXX Find the first comma, or end of string */
+	for (i = 0; (i < 40) && (ghost_name[i]) && (ghost_name[i] != ','); i++);
+
+	/* Terminate the name */
+	ghost_name[i] = '\0';
+
+	/* Force a name */
+	if (!ghost_name[0]) strcpy(ghost_name, "Nobody");
+
+	/* Capitalize the name */
+	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
+
+	/*** Process sex. ***/
+
+	/* Sanity check. */
+	if ((ghost_sex >= MAX_SEXES) || (ghost_class < 0)) ghost_sex = rand_int(MAX_SEXES);
+
+	/* And use that number to toggle on either the male or the female flag. */
+	if (ghost_sex == 0) r_ptr->flags1 |= (RF1_FEMALE);
+	if (ghost_sex == 1) r_ptr->flags1 |= (RF1_MALE);
+
+
+	/*** Process race. ***/
+
+	/* Sanity check. */
+	if (ghost_race >= z_info->p_max)
+	{
+		prepare_new_template = TRUE;
+		ghost_race = rand_int(z_info->p_max);
+	}
+
+	/* And use the ghost race to gain some flags. */
+	process_ghost_race(ghost_race, r_idx);
+
+
+	/*** Process class. ***/
+
+	/* Sanity check. */
+	if (ghost_class >= z_info->c_max)
+	{
+		prepare_new_template = TRUE;
+		ghost_class = rand_int(z_info->c_max);
+	}
+
+	/* And use the ghost class to gain some flags. */
+	process_ghost_class(ghost_class, r_idx);
+
+	/* Hack -- increase the level feeling */
+	rating += 10;
+
+	/* A ghost makes the level special */
+	good_item_flag = TRUE;
+
+	/* Hack - Player ghosts are "seen" whenever generated, to conform with
+	 * previous practice.
+	 */
+	l_ptr->sights = 1;
+
+	/*
+	 * If we used a random race/class, prepare a new template so the new
+	 * ghost is consistent when the game is re-opened
+	 */
+	if (prepare_new_template)
+	{
+		/* Find a blank bones file*/
+		for (try = 1; try < MAX_DEPTH; ++try)
+		{
+			/*make the path*/
+			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, try);
+
+			/* Attempt to open the bones file. */
+			fp = my_fopen(path, "r");
+
+			/* Found a number to make a new bones file. */
+			if (!fp)
+			{
+				/* Try to write a new "Bones File" */
+				fp = my_fopen(path, "w");
+
+				/*paranoia*/
+				if (!fp) continue;
+
+				/*use this number for the ghost*/
+				bones_selector = try;
+
+				/*now save the new file*/
+				/* Save the info */
+				fprintf(fp, "%s\n", ghost_name);
+				fprintf(fp, "%d\n", ghost_sex);
+				fprintf(fp, "%d\n", ghost_race);
+				fprintf(fp, "%d\n", ghost_class);
+
+				/*Mark end of file*/
+				fprintf(fp, "\n");
+
+				/* Close and save the Bones file */
+				my_fclose(fp);
+
+				/*done*/
+				break;
+			}
+
+			/* This one is used, close it, and then continue*/
+			/* Success. */
+			else my_fclose(fp);
+		}
+
+	}
+
+	/* Success */
+	return (TRUE);
+}

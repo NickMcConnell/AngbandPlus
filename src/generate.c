@@ -112,15 +112,14 @@
  * I generated over 50,000 levels without incident once I made these changes. JG
  */
 
-static int next_to_walls(int y, int x); /*prototype for next_to_walls*/
-
 /*
  * Dungeon generation values
  */
 
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
+#define DUN_UNUSUAL	180	/* Level/chance of unusual room */
 #define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
+#define THEMED_LEVEL_CHANCE	50	/* 1/chance of being a themed level */
 
 /*
  * Dungeon tunnel generation values
@@ -175,16 +174,18 @@ static int next_to_walls(int y, int x); /*prototype for next_to_walls*/
  * Bounds on some arrays used in the "dun_data" structure.
  * These bounds are checked, though usually this is a formality.
  */
-#define CENT_MAX	100
+#define CENT_MAX	110
 #define DOOR_MAX	200
 #define WALL_MAX	500
 #define TUNN_MAX	900
+
+bool allow_uniques;
 
 
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	10
+#define ROOM_MAX	12
 #define ROOM_MIN     2
 
 /*
@@ -272,7 +273,27 @@ static const room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
 	{ -1, 2, -2, 3, 10 },	/* 8 = Greater vault (66x44) */
-	{ 0, 1, -1, 1, 0 }		/* 9 = Quest vault (44x22) */
+	{ 0, 1, -1, 1, 0 },		/* 9 = Quest vault (44x22) */
+	{ 0, 1, -1, 1, 0},		/* 10 = Starburst (33x22) */
+	{ -1, 2, -2, 3, 0}		/* 11 = Great Starburst Room(66x44) */
+
+	/*hack - if the dimensions for starburst rooms or great starburst rooms change,
+	 these lines in build_type_starburst need changing:
+	 if (giant_room)
+	{
+		dy = 19;
+		dx = 30;
+	}
+	33x22
+	else
+	{
+		dy = 10;
+		dx = 14;
+	}
+
+	-JG
+	 */
+
 };
 
 /*
@@ -298,6 +319,24 @@ static void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
 	}
 }
 
+/*
+ * Count the number of walls adjacent to the given grid.
+ *
+ * Note -- Assumes "in_bounds_fully(y, x)"
+ *
+ * We count only granite walls and permanent walls, and stairs.
+ */
+static int next_to_walls(int y, int x)
+{
+	int k = 0;
+
+	if (cave_feat[y+1][x] >= FEAT_WALL_EXTRA) k++;
+	if (cave_feat[y-1][x] >= FEAT_WALL_EXTRA) k++;
+	if (cave_feat[y][x+1] >= FEAT_WALL_EXTRA) k++;
+	if (cave_feat[y][x-1] >= FEAT_WALL_EXTRA) k++;
+
+	return (k);
+}
 
 /*
  * Pick a random direction
@@ -312,6 +351,27 @@ static void rand_dir(int *rdir, int *cdir)
 	*cdir = ddx_ddd[i];
 }
 
+/*
+ * Count unused blocks in the dungeon.
+ */
+static int count_unused_blocks(void)
+{
+  	int y, x, count;
+
+  	for (count = 0, y = 0; y < dun->row_rooms; y++)
+  	{
+    	for (x = 0; x < dun->col_rooms; x++)
+    	{
+      		if (dun->room_map[y][x]) continue;
+
+      		++count;
+    	}
+  	}
+
+  return (count);
+}
+
+#define MAX_RANGE_TO_ROOM 15
 
 /*
  * Returns random co-ordinates for player/monster/object
@@ -327,6 +387,8 @@ static bool new_player_spot(void)
 	int y_location_tables [40];
 	int rand_spot;
 
+	int try;
+
 	/*  */
 	for (yy = 0; yy < p_ptr->cur_map_hgt; yy++)
 	{
@@ -338,9 +400,46 @@ static bool new_player_spot(void)
 
 			/* Refuse to start on anti-teleport grids */
 			if (cave_info[yy][xx] & (CAVE_ICKY)) continue;
+			if (cave_info[yy][xx] & (CAVE_ROOM)) continue;
 
-			/*we like to be next to walls*/
-			if ((next_to_walls(yy,xx) < 3) && (!cave_stair_bold(yy, xx))) continue;
+			/* We like to be next to walls */
+			if (next_to_walls(yy, xx) < 3) continue;
+
+			/* Put the player outside rooms if needed */
+			if ((p_ptr->cur_map_hgt == MAX_DUNGEON_HGT) &&
+			    (p_ptr->cur_map_wid == MAX_DUNGEON_WID))
+			{
+			  	int i, d, x, y;
+			  	bool found_room = FALSE;
+
+			  	/* Scan the floor in every direction */
+			  	for (d = 0; (d < 8) && !found_room; d++)
+			  	{
+			    	/* Limit the range */
+			    	for (i = 1; i <= MAX_RANGE_TO_ROOM; i++)
+			    	{
+			      		/* Get coordinates */
+			      		x = xx + i * ddx_ddd[d];
+			     		y = yy + i * ddy_ddd[d];
+
+			      		/* Outside limits */
+			      		if (!in_bounds(y, x)) break;
+
+			      		/* Walls */
+			      		if ((cave_feat[y][x] >= FEAT_WALL_HEAD) &&
+				  			(cave_feat[y][x] <= FEAT_WALL_TAIL)) break;
+
+			      		/* Room, reject coordinates */
+			      		if (cave_info[y][x] & (CAVE_ROOM))
+			      		{
+							found_room = TRUE;
+							break;
+			      		}
+			    	}
+			  	}
+
+			  	if (found_room) continue;
+			}
 
 			/*don't go over size of array*/
 			if (i < 40)
@@ -364,43 +463,27 @@ static bool new_player_spot(void)
 		}
 	}
 
-
 	/*paranoia*/
 	if (i == 0) return (FALSE);
 
-	/*select a location*/
-	rand_spot = rand_int (i);
-
-	/* Place the player, check for failure */
-	if (player_place(y_location_tables[rand_spot], x_location_tables[rand_spot]) == 0)
+	/*
+	 * Try to place the player "i" times to reduce the number of failed
+	 * levels. -DG-
+	 */
+	for (try = 0; try < i; try++)
 	{
-		return (FALSE);
+		/*select a location*/
+		rand_spot = rand_int(i);
+
+		/* Place the player, check for failure */
+		if (player_place(y_location_tables[rand_spot], x_location_tables[rand_spot]))
+		{
+			return (TRUE);
+		}
 	}
-	else return (TRUE);
+
+	return (FALSE);
 }
-
-
-
-/*
- * Count the number of walls adjacent to the given grid.
- *
- * Note -- Assumes "in_bounds_fully(y, x)"
- *
- * We count only granite walls and permanent walls, and stairs.
- */
-static int next_to_walls(int y, int x)
-{
-	int k = 0;
-
-	if (cave_feat[y+1][x] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y-1][x] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y][x+1] >= FEAT_WALL_EXTRA) k++;
-	if (cave_feat[y][x-1] >= FEAT_WALL_EXTRA) k++;
-
-	return (k);
-}
-
-
 
 /*
  * Convert existing terrain type to rubble
@@ -412,14 +495,12 @@ static void place_rubble(int y, int x)
 }
 
 
-
-
 /*
  * Pick either an ordinary up staircase or an up shaft.
  */
 static int pick_up_stairs(void)
 {
-	if ((p_ptr->depth >= 2) && (!quest_check(p_ptr->depth - 1)))
+	if (p_ptr->depth >= 2)
 	{
 		if (one_in_(2)) return (FEAT_LESS_SHAFT);
 	}
@@ -446,7 +527,7 @@ static int pick_down_stairs(void)
 /*
  * Place an up/down staircase at given location
  */
-static void place_random_stairs(int y, int x)
+void place_random_stairs(int y, int x)
 {
 	/* Paranoia */
 	if (!cave_clean_bold(y, x)) return;
@@ -474,108 +555,11 @@ static void place_random_stairs(int y, int x)
 	}
 	else
 	{
-		if (one_in_(2))	cave_set_feat(y, x, FEAT_LESS);
+		if ((one_in_(2)) || (p_ptr->depth == 1)) cave_set_feat(y, x, FEAT_LESS);
 		else cave_set_feat(y, x, FEAT_LESS_SHAFT);
 	}
 }
 
-
-/*
- * Places some staircases near walls
- */
-static bool alloc_stairs(int feat, int num)
-{
-	int x;
-
-	/* Place "num" stairs */
-	for (x = 0; x < num; x++)
-	{
-		int i = 0;
-
-		int yy, xx;
-
-		int x_location_tables [40];
-		int y_location_tables [40];
-		int rand_spot;
-
-		/*  */
-		for (yy = 0; yy < p_ptr->cur_map_hgt; yy++)
-		{
-			for (xx = 0; xx < p_ptr->cur_map_wid; xx++)
-			{
-
-				/* Must be a "naked" floor grid */
-				if (!cave_naked_bold(yy, xx)) continue;
-
-				/*we like to be next to walls*/
-				if ((next_to_walls(yy,xx) < 3) && (!cave_stair_bold(yy, xx))) continue;
-
-				/*don't go over size of array*/
-				if (i < 40)
-				{
-					x_location_tables[i] = xx;
-					y_location_tables[i] = yy;
-
-					/*increase the counter*/
-					i++;
-				}
-
-				/*put it in a random slot*/
-				else
-				{
-					rand_spot = rand_int(40);
-
-					x_location_tables[rand_spot] = xx;
-					y_location_tables[rand_spot] = yy;
-				}
-
-			}
-		}
-
-
-		/*paranoia*/
-		if (i == 0) return (FALSE);
-
-		/*select a location*/
-		rand_spot = rand_int (i);
-
-		/*get the coordinates*/
-		yy = y_location_tables[rand_spot];
-		xx = x_location_tables[rand_spot];
-
-		/* Town -- must go down */
-		if (!p_ptr->depth)
-		{
-			/* Clear previous contents, add down stairs */
-			cave_set_feat(yy, xx, FEAT_MORE);
-		}
-
-		/* Quest -- must go up */
-		else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
-				 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
-				 (p_ptr->depth >= MAX_DEPTH-1))
-		{
-			/* Clear previous contents, add up stairs */
-			cave_set_feat(yy, xx, pick_up_stairs());
-		}
-
-		/* Requested type */
-		else
-		{
-			/* Allow shafts, but guarantee the first one is an ordinary stair */
-			if (x != 0)
-			{
-				if      (feat == FEAT_LESS) feat = pick_up_stairs();
-				else if (feat == FEAT_MORE) feat = pick_down_stairs();
-			}
-
-			/* Clear previous contents, add stairs */
-			cave_set_feat(yy, xx, feat);
-		}
-	}
-
-	return (TRUE);
-}
 
 
 /*
@@ -591,7 +575,7 @@ static void alloc_object(int set, int typ, int num)
 		/* Pick a "legal" spot */
 		for (i = 0; i < 10000; i++)
 		{
-			bool room;
+			bool is_room;
 
 			/* Location */
 			y = rand_int(p_ptr->cur_map_hgt);
@@ -601,13 +585,13 @@ static void alloc_object(int set, int typ, int num)
 			if (!cave_naked_bold(y, x)) continue;
 
 			/* Check for "room" */
-			room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
+			is_room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
 
 			/* Require corridor? */
-			if ((set == ALLOC_SET_CORR) && room) continue;
+			if ((set == ALLOC_SET_CORR) && is_room) continue;
 
 			/* Require room? */
-			if ((set == ALLOC_SET_ROOM) && !room) continue;
+			if ((set == ALLOC_SET_ROOM) && !is_room) continue;
 
 			/* Accept it */
 			break;
@@ -1092,10 +1076,8 @@ static void build_type1(int y0, int x0)
 
 	int light = FALSE;
 
-
 	/* Occasional light */
 	if (p_ptr->depth <= randint(25)) light = TRUE;
-
 
 	/* Pick a room size */
 	y1 = y0 - randint(4);
@@ -1115,7 +1097,7 @@ static void build_type1(int y0, int x0)
 
 
 	/* Hack -- Occasional pillar room */
-	if (rand_int(20) == 0)
+	if (one_in_(20))
 	{
 		for (y = y1; y <= y2; y += 2)
 		{
@@ -1127,7 +1109,7 @@ static void build_type1(int y0, int x0)
 	}
 
 	/* Hack -- Occasional ragged-edge room */
-	else if (rand_int(50) == 0)
+	else if (one_in_(50))
 	{
 		for (y = y1 + 2; y <= y2 - 2; y += 2)
 		{
@@ -1573,6 +1555,7 @@ static void build_type4(int y0, int x0)
 }
 
 
+
 /*
  * The following functions are used to determine if the given monster
  * is appropriate for inclusion in a monster nest or monster pit or
@@ -1596,8 +1579,12 @@ static bool vault_aux_jelly(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!strchr("ijm,", r_ptr->d_char)) return (FALSE);
@@ -1613,8 +1600,12 @@ static bool vault_aux_kobold_yeek_orc_naga(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "k", "o", or "y" monsters */
 	if (!strchr("koyn", r_ptr->d_char)) return (FALSE);
@@ -1630,8 +1621,12 @@ static bool vault_aux_humanoids(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "p" or "h" monsters */
 	if (!strchr("ph", r_ptr->d_char)) return (FALSE);
@@ -1647,8 +1642,12 @@ static bool vault_aux_youngdragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "d" monsters */
 	if (!strchr("d", r_ptr->d_char)) return (FALSE);
@@ -1664,8 +1663,15 @@ static bool vault_aux_animal(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/* Hack -- No "Q" monsters */
+	if (strchr("Q", r_ptr->d_char)) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Require "animal" flag */
 	if (!(r_ptr->flags3 & (RF3_ANIMAL))) return (FALSE);
@@ -1681,8 +1687,12 @@ static bool vault_aux_undead(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Require Undead */
 	if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
@@ -1698,8 +1708,12 @@ static bool vault_aux_orc(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "o" monsters */
 	if (!strchr("o", r_ptr->d_char)) return (FALSE);
@@ -1715,11 +1729,79 @@ static bool vault_aux_troll(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "T" monsters */
 	if (!strchr("T", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster pit (troll)"
+ */
+static bool vault_aux_orc_ogre_troll_giant(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
+
+	/* Hack -- Require "T, o, O, or P" monsters */
+	if (!strchr("ToOP", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Helper function for "monster pit (coins)"
+ */
+static bool vault_aux_coins(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
+
+	/* Hack -- Require "$" monsters */
+	if (!strchr("$", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster pit (hydras)"
+ */
+static bool vault_aux_hydras(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
+
+	/* Hack -- Require "T" monsters */
+	if (!strchr("M", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1732,8 +1814,12 @@ static bool vault_aux_ogre(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "O" monsters */
 	if (!strchr("O", r_ptr->d_char)) return (FALSE);
@@ -1749,8 +1835,12 @@ static bool vault_aux_hounds(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "Z" monsters */
 	if (!strchr("Z", r_ptr->d_char)) return (FALSE);
@@ -1766,8 +1856,12 @@ static bool vault_aux_giant(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "P" monsters */
 	if (!strchr("P", r_ptr->d_char)) return (FALSE);
@@ -1790,11 +1884,15 @@ static bool vault_aux_dragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
 
 	/* Hack -- Require "d" or "D" monsters */
 	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
 	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
@@ -1810,8 +1908,12 @@ static bool vault_aux_ancdragon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "D" monsters */
 	if (!strchr("D", r_ptr->d_char)) return (FALSE);
@@ -1823,12 +1925,58 @@ static bool vault_aux_ancdragon(int r_idx)
 /*
  * Helper function for "monster pit (demon)"
  */
-static bool vault_aux_demon(int r_idx)
+static bool vault_aux_all_demons(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	/* Decline unique monsters */
-	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
+
+	/* Hack -- Require "U" monsters */
+	if (!strchr("Uu", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster pit (minor demon)"
+ */
+static bool vault_aux_minor_demon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
+
+	/* Hack -- Require "U" monsters */
+	if (!strchr("u", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Helper function for "monster pit (demon)"
+ */
+static bool vault_aux_major_demon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters if a nest or pit*/
+	if ((!allow_uniques) &&
+		(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
+	/*no player ghosts*/
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- Require "U" monsters */
 	if (!strchr("U", r_ptr->d_char)) return (FALSE);
@@ -1837,6 +1985,173 @@ static bool vault_aux_demon(int r_idx)
 	return (TRUE);
 }
 
+
+
+/*set the get_mon_num_hook functional pointer based on theme*/
+void get_mon_hook(byte theme)
+{
+	if 		(theme == LEV_THEME_CREEPING_COIN)	get_mon_num_hook = vault_aux_coins;
+	else if (theme == LEV_THEME_ORC)			get_mon_num_hook = vault_aux_orc;
+	else if (theme == LEV_THEME_TROLL)			get_mon_num_hook = vault_aux_troll;
+	else if (theme == LEV_THEME_OGRE)			get_mon_num_hook = vault_aux_ogre;
+	else if (theme == LEV_THEME_HOUND)			get_mon_num_hook = vault_aux_hounds;
+	else if (theme == LEV_THEME_HYDRA) 			get_mon_num_hook = vault_aux_hydras;
+	else if (theme == LEV_THEME_GIANT)			get_mon_num_hook = vault_aux_giant;
+	else if (theme == LEV_THEME_DRAGON_YOUNG)	get_mon_num_hook = vault_aux_youngdragon;
+	else if (theme == LEV_THEME_DRAGON_ACID)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_BRTH_ACID;
+	}
+	else if (theme == LEV_THEME_DRAGON_FIRE)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_BRTH_FIRE;
+	}
+	else if (theme == LEV_THEME_DRAGON_ELEC)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_BRTH_ELEC;
+	}
+	else if (theme == LEV_THEME_DRAGON_COLD)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_BRTH_COLD;
+	}
+	else if (theme == LEV_THEME_DRAGON_POIS)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_BRTH_POIS;
+	}
+	else if (theme == LEV_THEME_DRAGON_CHROMATIC)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+		vault_aux_dragon_mask4 = RF4_ELEM_BREATH_MASK;
+	}
+	else if (theme == LEV_THEME_DRAGON_MISC)
+	{
+		get_mon_num_hook = vault_aux_dragon;
+	}
+	else if (theme == LEV_THEME_DRAGON_ANCIENT)	get_mon_num_hook = vault_aux_ancdragon;
+	else if (theme == LEV_THEME_JELLY)			get_mon_num_hook = vault_aux_jelly;
+	else if (theme == LEV_THEME_ORC_NAGA_YEEK_KOBOLD)	get_mon_num_hook = vault_aux_kobold_yeek_orc_naga;
+	else if (theme == LEV_THEME_ANIMAL)			get_mon_num_hook = vault_aux_animal;
+	else if (theme == LEV_THEME_HUMANOID)		get_mon_num_hook = vault_aux_humanoids;
+	else if (theme == LEV_THEME_DEMON_MINOR)	get_mon_num_hook = vault_aux_minor_demon;
+	else if (theme == LEV_THEME_DEMON_ALL)		get_mon_num_hook = vault_aux_all_demons;
+	else if (theme == LEV_THEME_DEMON_MAJOR)	get_mon_num_hook = vault_aux_major_demon;
+	else if (theme == LEV_THEME_CAVE_DWELLER)	get_mon_num_hook = vault_aux_orc_ogre_troll_giant;
+	else if (theme == LEV_THEME_UNDEAD)			get_mon_num_hook = vault_aux_undead;
+}
+
+/*return a theme for a monster nest*/
+byte get_nest_theme(int nestlevel)
+{
+	int mindepth, whatnest;
+
+	/*enforce minimum depth, to keep weak nests out of deep levels*/
+	mindepth = nestlevel / 4;
+
+	/*keep total to 100 or less*/
+	if ((mindepth + nestlevel) > 100) nestlevel = 100 - mindepth;
+
+	/* Hack -- Choose a nest type */
+	whatnest = randint(nestlevel) + mindepth;
+
+	if ((whatnest <= 25)  && (nestlevel <= 25))
+	{
+		/*coins, jelly, or kobolds/yeeks/orcs*/
+		if (one_in_(3))			return LEV_THEME_CREEPING_COIN;
+		else if (one_in_(2))	return LEV_THEME_JELLY;
+		else					return LEV_THEME_ORC_NAGA_YEEK_KOBOLD;
+	}
+
+	/*hydras or young dragons*/
+	else if ((whatnest <= 50) && (nestlevel <= 50))
+	{
+		if (one_in_(2))			return LEV_THEME_DRAGON_YOUNG;
+		else					return LEV_THEME_HYDRA;
+	}
+
+	/*Animals or humanoids*/
+	else if (whatnest <=75)
+	{
+		if (one_in_(2))			return LEV_THEME_ANIMAL;
+		else					return LEV_THEME_HUMANOID;
+	}
+
+	/*Monster nest (undead) */
+	else if (whatnest <=95)		return LEV_THEME_UNDEAD;
+
+	/*Ancient Dragon Nest*/
+	else						return LEV_THEME_DRAGON_ANCIENT;
+}
+
+/*return a theme for a monster pit*/
+byte get_pit_theme(int pitlevel)
+{
+	int mindepth, whatpit;
+
+	/*enforce minimum depth, to keep weak nests out of deep levels*/
+	mindepth = pitlevel / 4;
+
+	/*keep total to 100 or less, so results aren't skewed at deep depths*/
+	if ((mindepth + pitlevel) > 100) pitlevel = 100 - mindepth;
+
+	/* Hack -- Choose a nest type */
+	whatpit = randint(pitlevel) + mindepth;
+
+	/* Orc pit */
+	if ((whatpit <= 20) && (pitlevel <= 25))
+	{
+		if (one_in_(2))	return LEV_THEME_CREEPING_COIN;
+		else 			return LEV_THEME_ORC;
+	}
+
+	/*troll or ogre*/
+	else if ((whatpit <= 35)  && (pitlevel <= 35))
+	{
+		if (one_in_(2))	return LEV_THEME_TROLL;
+		else			return LEV_THEME_OGRE;
+	}
+	else if ((whatpit <= 50) && (p_ptr->depth <= 60))
+	{
+		/* Hound, youngdragon, or hydra pit */
+		if (one_in_(3))			return LEV_THEME_HOUND;
+		else if (one_in_(2))	return LEV_THEME_HYDRA;
+		else					return LEV_THEME_DRAGON_YOUNG;
+	}
+
+	/* Giant pit */
+	else if ((whatpit <= 60) && (p_ptr->depth <= 80))	return LEV_THEME_GIANT;
+
+	/* Dragon pit */
+	else if (whatpit <= 80)
+	{
+		/* Pick dragon type */
+		switch (rand_int(6))
+		{
+			/* Black */
+			case 0: return LEV_THEME_DRAGON_ACID;
+			/* Blue */
+			case 1: return LEV_THEME_DRAGON_ELEC;
+			/* Red */
+			case 2: return LEV_THEME_DRAGON_FIRE;
+			/* White */
+			case 3: return LEV_THEME_DRAGON_COLD;
+			/* Green */
+			case 4: return LEV_THEME_DRAGON_POIS;
+			/* Chromatic */
+			default:return LEV_THEME_DRAGON_CHROMATIC;
+		}
+	}
+
+	/* Ancient Dragon pit */
+	else if (whatpit <= 90)	return LEV_THEME_DRAGON_ANCIENT;
+
+	/* Demon pit */
+	else					return LEV_THEME_DEMON_MAJOR;
+}
 
 
 /*
@@ -1858,20 +2173,26 @@ static bool vault_aux_demon(int r_idx)
  *
  * Note that "monster nests" will never contain "unique" monsters.
  */
-static void build_type5(int y0, int x0)
+static void build_type_nest(int y0, int x0)
 {
 	int y, x, y1, x1, y2, x2;
 
-	int i, j, harder_pit_check, mindepth, nestchooser, whatnest;
+	int i, j, harder_nest_check;
 
 	s16b what[64];
 
-	cptr name;
+	byte room_theme;
 
 	bool empty = FALSE;
 
 	int light = FALSE;
 
+	byte is_quest_level = FALSE;
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
+	/*no uniques in nests/pits*/
+	allow_uniques = FALSE;
 
 	/* Large room */
 	y1 = y0 - 4;
@@ -1879,6 +2200,8 @@ static void build_type5(int y0, int x0)
 	x1 = x0 - 11;
 	x2 = x0 + 11;
 
+	/*check if we need a quest*/
+	if (quest_check(p_ptr->depth) == QUEST_NEST) is_quest_level = TRUE;
 
 	/* Generate new room */
 	generate_room(y1-1, x1-1, y2+1, x2+1, light);
@@ -1889,7 +2212,6 @@ static void build_type5(int y0, int x0)
 	/* Generate inner floors */
 	generate_fill(y1, x1, y2, x2, FEAT_FLOOR);
 
-
 	/* Advance to the center room */
 	y1 = y1 + 2;
 	y2 = y2 - 2;
@@ -1899,127 +2221,38 @@ static void build_type5(int y0, int x0)
 	/* Generate inner walls */
 	generate_draw(y1-1, x1-1, y2+1, x2+1, FEAT_WALL_INNER);
 
-	/* Open the inner room with a secret door */
+	/* Open the inner room with one or two secret doors */
+	generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 	generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
-	/*get current level*/
-	nestchooser = p_ptr->depth;
+	/*select the theme, or get the quest level theme*/
+	if (is_quest_level) room_theme = q_ptr->theme;
+	else room_theme = get_nest_theme(p_ptr->depth);
 
-	/*enforce minimum depth, to keep weak nests out of deep levels*/
-	mindepth = nestchooser / 4;
-
-	/*keep total to 100 or less*/
-	if ((mindepth + nestchooser) > 100) nestchooser = 100 - mindepth;
-
-	/* Hack -- Choose a nest type */
-	whatnest = randint(nestchooser) + mindepth;
-
-
-	if ((whatnest <= 25)  && (p_ptr->depth <= 30))
-	{
-
-		if (one_in_(2))
-
-		/* Monster nest (jelly) */
-		{
-			/* Describe */
-			name = "jelly";
-
-			/* Restrict to jelly */
-			get_mon_num_hook = vault_aux_jelly;
-		}
-		else
-
-		/* Monster nest (kobolds, yeeks, orcs) */
-		{
-			/* Describe */
-			name = "kobold yeek orc";
-
-			/* Restrict to kobolds, yeeks, orcs and nagas*/
-			get_mon_num_hook = vault_aux_kobold_yeek_orc_naga;
-		}
-	}
-
-
-	else if (whatnest <= 50)
-	{
-
-		/* Monster nest (young dragons) */
-
-		/* Describe */
-		name = "young dragon";
-
-		/* Restrict to young dragons */
-		get_mon_num_hook = vault_aux_youngdragon;
-
-	}
-
-	else if (whatnest <=75)
-	{
-		if (one_in_(2))
-		/*animal pit*/
-		{
-
-			/* Describe */
-			name = "animal";
-
-			/* Restrict to animal */
-			get_mon_num_hook = vault_aux_animal;
-		}
-
-		else
-		/* Monster nest (humanoid) */
-		{
-			/* Describe */
-			name = "humaniod";
-
-			/* Restrict to humanoids */
-			get_mon_num_hook = vault_aux_humanoids;
-		}
-
-	}
-
-	/*Monster nest (undead) */
-	else if (whatnest <=95)
-	{
-
-		name = "undead";
-
-		/* Restrict to undead */
-		get_mon_num_hook = vault_aux_undead;
-	}
-
-	/*Ancient Dragon Next*/
-	else
-	{
-		/* Message */
-		name = "ancient dragons";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_ancdragon;
-	}
-
+	/*get the mon_hook*/
+	get_mon_hook(room_theme);
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
-
 
 	/* Pick some monster types */
 	for (i = 0; i < 64; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 5);
+		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 8 : 5));
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
 	}
-
 
 	/* Remove restriction */
 	get_mon_num_hook = NULL;
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
+
+	/*allow uniques again*/
+	allow_uniques = TRUE;
 
 	/* Oops */
 	if (empty) return;
@@ -2028,7 +2261,7 @@ static void build_type5(int y0, int x0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster nest (%s)", name);
+		msg_format("Monster nest (%s)", feeling_themed_level[room_theme]);
 	}
 
 	/* Increase the level rating */
@@ -2068,20 +2301,18 @@ static void build_type5(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_pit_check = r_info[what[63]].level - p_ptr->depth;
+	harder_nest_check = r_info[what[63]].level - p_ptr->depth;
 
 	/*Hack - make some pits harder if deeper*/
-	if (randint(100) < harder_pit_check)
+	if ((randint(100) < harder_nest_check) || (is_quest_level))
 	{
 		/* Use the top 8 entries */
 		for (i = 0; i < 32; i++)
 		{
 
 			what[i] = what[i + 32];
-
 		}
 	}
-
 
 	/* Place some monsters */
 	for (y = y0 - 2; y <= y0 + 2; y++)
@@ -2094,6 +2325,45 @@ static void build_type5(int y0, int x0)
 			(void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
 		}
 	}
+
+	/* No teleporting inside pits/nests*/
+	for (y = y0 - 2; y <= y0 + 2; y++)
+	{
+		for (x = x0 - 9; x <= x0 + 9; x++)
+		{
+			/* Part of a vault */
+			cave_info[y][x] |= (CAVE_ICKY);
+		}
+	}
+
+
+	/*final preps if this is a quest level*/
+	if (is_quest_level)
+	{
+		q_ptr->cur_num = 0;
+		q_ptr->max_num = 0;
+
+		/* Square-by-square grid search for monsters */
+		for (y = y0 - 2; y <= y0 + 2; y++)
+		{
+			for (x = x0 - 9; x <= x0 + 9; x++)
+			{
+				/*Is there a monster here?*/
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+					/*mark it as a quest monster*/
+					m_ptr->mflag |= (MFLAG_QUEST);
+
+					/*increase the max_num counter*/
+					q_ptr->max_num ++;
+				}
+			}
+		}
+	}
+
+
 }
 
 
@@ -2104,12 +2374,6 @@ static void build_type5(int y0, int x0)
  * A monster pit is a "big" room, with an "inner" room, containing
  * a "collection" of monsters of a given type organized in the room.
  *
- * Monster types in the pit
- *   orc pit	(Dungeon Level 5 and deeper)
- *   troll pit	(Dungeon Level 20 and deeper)
- *   giant pit	(Dungeon Level 40 and deeper)
- *   dragon pit	(Dungeon Level 60 and deeper)
- *   demon pit	(Dungeon Level 80 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -2141,24 +2405,33 @@ static void build_type5(int y0, int x0)
  *
  * Note that "monster pits" will never contain "unique" monsters.
  */
-static void build_type6(int y0, int x0)
+static void build_type_pit(int y0, int x0)
 {
-	int whatpit, what[16], harder_nest_check;
+	int what[16], harder_pit_check;
 
-	int i, j, y, x, y1, x1, y2, x2, pitchooser, mindepth;
+	int i, j, y, x, y1, x1, y2, x2;
 
 	bool empty = FALSE;
 
 	int light = FALSE;
 
-	cptr name;
+	byte pit_theme;
+
+	byte is_quest_level = FALSE;
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
+	/*no uniques in nests/pits*/
+	allow_uniques = FALSE;
+
+	/*check if we need a quest*/
+	if (quest_check(p_ptr->depth) == QUEST_PIT) is_quest_level = TRUE;
 
 	/* Large room */
 	y1 = y0 - 4;
 	y2 = y0 + 4;
 	x1 = x0 - 11;
 	x2 = x0 + 11;
-
 
 	/* Generate new room */
 	generate_room(y1-1, x1-1, y2+1, x2+1, light);
@@ -2169,7 +2442,6 @@ static void build_type6(int y0, int x0)
 	/* Generate inner floors */
 	generate_fill(y1, x1, y2, x2, FEAT_FLOOR);
 
-
 	/* Advance to the center room */
 	y1 = y1 + 2;
 	y2 = y2 - 2;
@@ -2179,201 +2451,16 @@ static void build_type6(int y0, int x0)
 	/* Generate inner walls */
 	generate_draw(y1-1, x1-1, y2+1, x2+1, FEAT_WALL_INNER);
 
-	/* Open the inner room with a secret door */
+	/* Open the inner room with one or two secret doors */
+	generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 	generate_hole(y1-1, x1-1, y2+1, x2+1, FEAT_SECRET);
 
 	/* Choose a pit type */
+	if(is_quest_level) pit_theme = q_ptr->theme;
+	else pit_theme = get_pit_theme(p_ptr->depth);
 
-	/*get current level*/
-	pitchooser = p_ptr->depth;
-
-	/*enforce minimum depth, to keep weak nests out of deep levels*/
-	mindepth = pitchooser / 4;
-
-	/*keep total to 100 or less, so results aren't skewed at deep depths*/
-	if ((mindepth + pitchooser) > 100) pitchooser = 100 - mindepth;
-
-	/* Hack -- Choose a nest type */
-	whatpit = randint(pitchooser) + mindepth;
-
-	/* Orc pit */
-	if ((whatpit <= 20) && (p_ptr->depth <= 30))
-	{
-		/* Message */
-		name = "orc";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_orc;
-	}
-
-
-	else if ((whatpit <= 35)  && (p_ptr->depth <= 40))
-	{
-		if (one_in_(2))
-		{
-			/* Message */
-			name = "troll";
-
-			/* Restrict monster selection */
-			get_mon_num_hook = vault_aux_troll;
-		}
-
-		else
-		{
-			/* Message */
-			name = "ogre";
-
-			/* Restrict monster selection */
-			get_mon_num_hook = vault_aux_ogre;
-		}
-	}
-
-
-	else if ((whatpit <= 50) && (p_ptr->depth <= 60))
-	{
-		/* Hound pit */
-		if (one_in_(3))
-		{
-			/* Message */
-			name = "hound";
-
-			/* Restrict monster selection */
-			get_mon_num_hook = vault_aux_hounds;
-		}
-
-		/*young dragon_pit*/
-		else
-		{
-			/* Describe */
-			name = "young dragon";
-
-			/* Restrict to young dragons */
-			get_mon_num_hook = vault_aux_youngdragon;
-		}
-
-
-	}
-
-	/* Giant pit */
-	else if ((whatpit <= 60) && (p_ptr->depth <= 80))
-	{
-		/* Message */
-		name = "giant";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_giant;
-	}
-
-	/* Dragon pit */
-	else if (whatpit <= 80)
-	{
-		/* Pick dragon type */
-		switch (rand_int(6))
-		{
-			/* Black */
-			case 0:
-			{
-				/* Message */
-				name = "acid dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BRTH_ACID;
-
-				/* Done */
-				break;
-			}
-
-			/* Blue */
-			case 1:
-			{
-				/* Message */
-				name = "electric dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BRTH_ELEC;
-
-				/* Done */
-				break;
-			}
-
-			/* Red */
-			case 2:
-			{
-				/* Message */
-				name = "fire dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BRTH_FIRE;
-
-				/* Done */
-				break;
-			}
-
-			/* White */
-			case 3:
-			{
-				/* Message */
-				name = "cold dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BRTH_COLD;
-
-				/* Done */
-				break;
-			}
-
-			/* Green */
-			case 4:
-			{
-				/* Message */
-				name = "poison dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BRTH_POIS;
-
-				/* Done */
-				break;
-			}
-
-			/* Chromatic */
-			default:
-			{
-				/* Message */
-				name = "chromatic dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BRTH_ACID | RF4_BRTH_ELEC |
-				                          RF4_BRTH_FIRE | RF4_BRTH_COLD |
-				                          RF4_BRTH_POIS);
-
-				/* Done */
-				break;
-			}
-
-		}
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_dragon;
-	}
-
-	/* Ancient Dragon pit */
-	else if (whatpit <= 90)
-	{
-		/* Message */
-		name = "ancient dragons";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_ancdragon;
-	}
-	/* Demon pit */
-	else
-	{
-		/* Message */
-		name = "demon";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_demon;
-	}
+	/*get the monster hook*/
+	get_mon_hook(pit_theme);
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
@@ -2382,7 +2469,7 @@ static void build_type6(int y0, int x0)
 	for (i = 0; i < 16; i++)
 	{
 		/* Get a (hard) monster type */
-		what[i] = get_mon_num(p_ptr->depth + 6);
+		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 8 : 6));
 
 		/* Notice failure */
 		if (!what[i]) empty = TRUE;
@@ -2393,6 +2480,9 @@ static void build_type6(int y0, int x0)
 
 	/* Prepare allocation table */
 	get_mon_num_prep();
+
+	/*allow uniques again*/
+	allow_uniques = TRUE;
 
 	/* Oops */
 	if (empty) return;
@@ -2424,10 +2514,10 @@ static void build_type6(int y0, int x0)
 	 * less than the level of the hardest
 	 * monster minus the current level
 	 */
-	harder_nest_check = r_info[what[15]].level - p_ptr->depth;
+	harder_pit_check = r_info[what[15]].level - p_ptr->depth;
 
-	/*Hack - make some pits harder if deeper*/
-	if (randint(100) < harder_nest_check)
+	/*Hack - make some pits harder if deeper, or a quest level*/
+	if ((randint(100) < harder_pit_check) || (is_quest_level))
 	{
 		/* Use the top 8 entries */
 		for (i = 0; i < 8; i++)
@@ -2453,7 +2543,7 @@ static void build_type6(int y0, int x0)
 	if (cheat_room)
 	{
 		/* Room type */
-		msg_format("Monster pit (%s)", name);
+		msg_format("Monster pit (%s)", feeling_themed_level[pit_theme]);
 	}
 
 
@@ -2466,7 +2556,6 @@ static void build_type6(int y0, int x0)
 	{
 		good_item_flag = TRUE;
 	}
-
 
 	/* Top and bottom rows */
 	for (x = x0 - 9; x <= x0 + 9; x++)
@@ -2516,6 +2605,44 @@ static void build_type6(int y0, int x0)
 
 	/* Center monster */
 	place_monster_aux(y0, x0, what[7], FALSE, FALSE);
+
+	/* No teleporting inside pits/nests*/
+	for (y = y0 - 2; y <= y0 + 2; y++)
+	{
+		for (x = x0 - 9; x <= x0 + 9; x++)
+		{
+			/* Mark it */
+			cave_info[y][x] |= (CAVE_ICKY);
+		}
+	}
+
+
+	/*final preps if this is a quest level*/
+	if (is_quest_level)
+	{
+		q_ptr->cur_num = 0;
+		q_ptr->max_num = 0;
+
+		/* Square-by-square grid search for monsters */
+		for (y = y0 - 2; y <= y0 + 2; y++)
+		{
+			for (x = x0 - 9; x <= x0 + 9; x++)
+			{
+				/*Is there a monster here?*/
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+					/*mark it as a quest monster*/
+					m_ptr->mflag |= (MFLAG_QUEST);
+
+					/*increase the max_num counter*/
+					q_ptr->max_num ++;
+				}
+			}
+		}
+	}
+
 }
 
 
@@ -2530,23 +2657,25 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 	bool flip_v = FALSE;
 	bool flip_h = FALSE;
 
+	byte quest_artifact_spots = 0;
+
 	cptr t;
 
 	/* Flip the vault (sometimes) */
-	if (rand_int(2) == 0) flip_v = TRUE;
-	if (rand_int(2) == 0) flip_h = TRUE;
+	if (one_in_(2)) flip_v = TRUE;
+	if (one_in_(2)) flip_h = TRUE;
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
 
-		if (flip_v) ay = ymax - dy;
+		if (flip_v) ay = ymax - 1 - dy;
 		else ay = dy;
 
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 
-			if (flip_h) ax = xmax - dx;
+			if (flip_h) ax = xmax - 1 - dx;
 			else ax = dx;
 
 			/* Extract the location */
@@ -2617,17 +2746,25 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 		}
 	}
 
+	/*Count the 'Q's for a quest vault*/
+	for (t = data; t - data < ymax * xmax; t++)
+	{
+
+		/* Hack -- count the quest spots */
+		if (*t == 'Q') quest_artifact_spots++;
+
+	}
 
 	/* Place dungeon monsters and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
-		if (flip_v) ay = ymax - dy;
+		if (flip_v) ay = ymax - 1 - dy;
 		else ay = dy;
 
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
 
-			if (flip_h) ax = xmax - dx;
+			if (flip_h) ax = xmax - 1 - dx;
 			else ax = dx;
 
 			/* Extract the grid */
@@ -2697,8 +2834,29 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Quest chest */
 				case 'Q':
 				{
+					monster_level = p_ptr->depth + 10;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = p_ptr->depth;
 
-					place_quest_chest(y, x, TRUE, TRUE);
+					/*randomly pick from several quest artifacts spots to place the artifact*/
+					if ((quest_artifact_spots > 0) && (one_in_(quest_artifact_spots)))
+					{
+						place_quest_artifact(y, x);
+
+						/*don't place it again*/
+						quest_artifact_spots = 0;
+					}
+					else
+					{
+						/*place a decent sized object*/
+						object_level = p_ptr->depth + 7;
+						place_object(y, x, TRUE, FALSE, DROP_TYPE_UNTHEMED);
+						object_level = p_ptr->depth;
+
+						/*This quest artifact spot is no longer an option*/
+						quest_artifact_spots --;
+					}
+
 					break;
 				}
 
@@ -2720,11 +2878,32 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 			}
+
+			/*
+			 * Make the monsters carry the objects instead of just stand on them.
+			 */
+			if ((cave_m_idx[y][x] > 0) && (cave_o_idx[y][x] > 0))
+			{
+
+				/* Get the object */
+				object_type *o_ptr = &o_list[cave_o_idx[y][x]];
+
+				/*but don't do gold*/
+				if (o_ptr->tval != TV_GOLD)
+				{
+					/*Don't let the player see what the object it*/
+					o_ptr->ident |= (IDENT_HIDE_CARRY);
+
+					(void)monster_carry(cave_m_idx[y][x], o_ptr);
+
+					/*remove the item from the floor*/
+					floor_item_increase(cave_o_idx[y][x], -1);
+					floor_item_optimize(cave_o_idx[y][x]);
+				}
+			}
 		}
 	}
 }
-
-
 
 /*
  * Type 7 -- simple vaults (see "vault.txt")
@@ -2761,6 +2940,141 @@ static void build_type7(int y0, int x0)
 }
 
 
+/*
+ * Returns TRUE if all grids in a given rectangle have the given feature.
+ * If "filled" is FALSE, only the perimeter of the rectantle is analyzed.
+ */
+static bool rectangle_has_feature(int y1, int x1, int y2, int x2,
+    bool filled, int feat)
+{
+  	int y, x;
+
+  	/* Check bounds */
+  	if ((y1 > y2) || (x1 > x2)) return (FALSE);
+
+  	for (y = y1; y <= y2; y++)
+  	{
+    	for (x = x1; x <= x2; x++)
+    	{
+      		if (filled || (x == x1) || (x == x2) || (y == y1) || (y == y2))
+      		{
+				/* We found another feature */
+				if (cave_feat[y][x] != feat) return (FALSE);
+      		}
+    	}
+  	}
+
+  	return (TRUE);
+}
+
+/*
+ * Returns TRUE if the grid is inside the inner room of greater vaults made of
+ * permanent walls.
+ */
+static bool inside_inner_room(int y, int x)
+{
+  	int delta, dir, num_stop;
+  	bool stop[8];
+
+  	/*
+   	 * We analyze the adyacent grids in all directions, but closer grids first.
+   	 * So we need to know when to stop looking at a direction.
+   	 */
+  	for (dir = 0; dir < 8; dir++)
+  	{
+    	stop[dir] = FALSE;
+  	}
+
+  	delta = num_stop = 0;
+
+  	/* Keep going until all trayectories are stopped */
+  	while (num_stop < 8)
+  	{
+    	/* We analyze all adyacent grids at 1 "unit" of distance, then 2, etc. */
+    	++delta;
+
+    	/* Scan all directions */
+    	for (dir = 0; (dir < 8); dir++)
+    	{
+      		int dy, dx;
+
+      		/* Stopped? */
+      		if (stop[dir]) continue;
+
+      		/* Get the grid */
+      		dy = y + delta * ddy_ddd[dir];
+      		dx = x + delta * ddx_ddd[dir];
+
+      		/* We can reach the border of the vault */
+     		if (cave_feat[dy][dx] == FEAT_WALL_OUTER) return (FALSE);
+
+      		/* We can reach a floor grid outside the inner room */
+      		if ((cave_feat[dy][dx] == FEAT_FLOOR) &&
+	  			((cave_info[dy][dx] & (CAVE_G_VAULT)) == 0)) return (FALSE);
+
+      		/* We need to stop on non-floor grids */
+      		if (cave_feat[dy][dx] != FEAT_FLOOR)
+      		{
+				stop[dir] = TRUE;
+				++num_stop;
+      		}
+    	}
+  	}
+
+  return (TRUE);
+}
+
+/*
+ * Mark greater vault grids with the CAVE_G_VAULT flag.
+ * Returns TRUE if it succeds.
+ */
+static bool mark_g_vault(int y0, int x0, int ymax, int xmax)
+{
+  	int y1, x1, y2, x2, y, x;
+
+  	/* Get the coordinates */
+  	y1 = y0 - ymax / 2;
+  	x1 = x0 - xmax / 2;
+  	y2 = y1 + ymax - 1;
+  	x2 = x1 + xmax - 1;
+
+  	/* We *need* a perimeter of "outer" walls */
+  	if (!rectangle_has_feature(y1, x1, y2, x2, FALSE, FEAT_WALL_OUTER))
+  	{
+    	return (FALSE);
+  	}
+
+  	/* Step 1 - Mark all grids inside that perimeter with the new flag */
+  	for (y = y1 + 1; y < y2; y++)
+  	{
+    	for (x = x1 + 1; x < x2; x++)
+    	{
+      		cave_info[y][x] |= (CAVE_G_VAULT);
+    	}
+  	}
+
+	/* Step 2 - Attempt to remove the CAVE_G_VAULT flag of grids outside
+	 * permanent walls. Several ideas were tried, and this one works fine with
+	 * almost all grids in all vaults. Note that the entry points of vaults are
+	 * unmarked, even if they are granite walls, doors or traps. -DG-
+	 * Jeff, if you do not like it, remove this loop and the function
+	 * "inside_inner_room".
+	 */
+	for (y = y1 + 1; y < y2; y++)
+ 	{
+    	for (x = x1 + 1; x < x2; x++)
+    	{
+      		/* Ignore permanent walls */
+      		if (cave_feat[y][x] == FEAT_PERM_INNER) continue;
+
+      		/* Process open floor, granite walls, doors and traps */
+      		if (!inside_inner_room(y, x)) cave_info[y][x] &= ~(CAVE_G_VAULT);
+    	}
+  	}
+
+  	return (TRUE);
+}
+
 
 /*
  * Type 8 -- greater vaults (see "vault.txt")
@@ -2782,19 +3096,6 @@ static void build_type8(int y0, int x0)
 	/* Message */
 	if (cheat_room) msg_format("Greater vault (%s)", v_name + v_ptr->name);
 
-	/* Make a note of the greater vault if auto-note is selected. */
-    if (adult_take_notes)
-
-		{
-        	char note[120];
-
-           	/* Build note and write */
-           	sprintf(note, "(%s)", v_name + v_ptr->name);
-
-           	do_cmd_note(note, p_ptr->depth);
-
-         }
-
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
@@ -2807,6 +3108,13 @@ static void build_type8(int y0, int x0)
 
 	/* Hack -- Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+
+	/* Hack -- Mark vault grids with the CAVE_G_VAULT flag */
+	if (mark_g_vault(y0, x0, v_ptr->hgt, v_ptr->wid))
+	{
+		my_strcpy(g_vault_name, v_name + v_ptr->name, sizeof(g_vault_name));
+	}
+
 }
 
 /*
@@ -2835,6 +3143,358 @@ static void build_type9(int y0, int x0)
 	/* Hack -- Build the vault */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
+
+
+static bool feat_needs_open_floor(int feat)
+{
+	if ((feat == FEAT_INVIS) ||
+ 		(feat == FEAT_GLYPH) ||
+      	(feat == FEAT_OPEN) ||
+      	(feat == FEAT_BROKEN) ||
+      	(feat == FEAT_SECRET) ||
+      	(feat == FEAT_RUBBLE))
+    	return (TRUE);
+
+	/* Stairs */
+	if (feat >= FEAT_STAIR_HEAD && feat <= FEAT_STAIR_TAIL)
+		return (TRUE);
+
+	/* Doors */
+	if (feat >= FEAT_DOOR_HEAD && feat <= FEAT_DOOR_TAIL)
+		return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Make a starburst room. -LM-
+ *
+ * Starburst rooms are made in three steps:
+ * 1: Choose a room size-dependant number of arcs.  Large rooms need to
+ *    look less granular and alter their shape more often, so they need
+ *    more arcs.
+ * 2: For each of the arcs, calculate the portion of the full circle it
+ *    includes, and its maximum effect range (how far in that direction
+ *    we can change features in).  This depends on room size, shape, and
+ *    the maximum effect range of the previous arc.
+ * 3: Use the table "get_angle_to_grid" to supply angles to each grid in
+ *    the room.  If the distance to that grid is not greater than the
+ *    maximum effect range that applies at that angle, change the feature
+ *    if appropriate (this depends on feature type).
+ *
+ * Usage notes:
+ * - This function uses a table that cannot handle distances larger than
+ *   20, so it calculates a distance conversion factor for larger rooms.
+ * - This function is not good at handling rooms much longer along one axis
+ *   than the other.
+ * - It is safe to call this function on areas that might contain vaults or
+ *   pits, because "icky" and occupied grids are left untouched.
+ *
+ * - Mixing these rooms (using normal floor) with rectangular ones on a
+ *   regular basis produces a somewhat chaotic looking dungeon.  However,
+ *   this code does works well for lakes, etc.
+ *
+ */
+static bool generate_starburst_room(int y1, int x1, int y2, int x2,
+    bool light, int feat, bool special_ok)
+{
+	int y0, x0, y, x, ny, nx;
+	int i, d;
+	int size;
+	int dist, max_dist, dist_conv, dist_check;
+	int height, width, arc_dist;
+	int degree_first, center_of_arc, degree;
+
+	/* Special variant room.  Discovered by accident. */
+	bool make_cloverleaf = FALSE;
+
+	/* Holds first degree of arc, maximum effect distance in arc. */
+	int arc[45][2];
+
+	/* Number (max 45) of arcs. */
+	int arc_num;
+
+
+	/* Make certain the room does not cross the dungeon edge. */
+	if ((!in_bounds(y1, x1)) || (!in_bounds(y2, x2))) return (FALSE);
+
+	/* Robustness -- test sanity of input coordinates. */
+	if ((y1 + 2 >= y2) || (x1 + 2 >= x2)) return (FALSE);
+
+
+	/* Get room height and width. */
+	height = 1 + y2 - y1;
+	width  = 1 + x2 - x1;
+
+	/* Note the "size" */
+	size = 2 + div_round(width + height, 22);
+
+
+	/* Get a shrinkage ratio for large rooms, as table is limited. */
+	if ((width > 40) || (height > 40))
+	{
+    	if (width > height) dist_conv = 1 + (10 * width  / 40);
+    	else                dist_conv = 1 + (10 * height / 40);
+  	}
+	else dist_conv = 10;
+
+	/* Make a cloverleaf room sometimes.  (discovered by accident) */
+	if ((special_ok) && (height > 10) && (one_in_(20)))
+	{
+    	arc_num = 12;
+    	make_cloverleaf = TRUE;
+	}
+
+	/* Usually, we make a normal starburst. */
+	else
+	{
+		/* Ask for a reasonable number of arcs. */
+		arc_num = 8 + (height * width / 80);
+		arc_num = rand_spread(arc_num, 3);
+		if (arc_num < 8) arc_num = 8;
+		if (arc_num > 45) arc_num = 45;
+	}
+
+
+	/* Get the center of the starburst. */
+	y0 = y1 + height / 2;
+	x0 = x1 + width  / 2;
+
+	/* Start out at zero degrees. */
+	degree_first = 0;
+
+
+	/* Determine the start degrees and expansion distance for each arc. */
+	for (i = 0; i < arc_num; i++)
+	{
+		/* Get the first degree for this arc (using 180-degree circles). */
+    	arc[i][0] = degree_first;
+
+		/* Get a slightly randomized start degree for the next arc. */
+		degree_first += div_round(180, arc_num);
+
+		/* Do not entirely leave the usual range */
+		if (degree_first < 180 * (i+1) / arc_num)
+		{
+      		degree_first = 180 * (i+1) / arc_num;
+		}
+		if (degree_first > (180 + arc_num) * (i+1) / arc_num)
+		{
+			degree_first = (180 + arc_num) * (i+1) / arc_num;
+		}
+
+		/* Get the center of the arc (convert from 180 to 360 circle). */
+		center_of_arc = degree_first + arc[i][0];
+
+		/* Get arc distance from the horizontal (0 and 180 degrees) */
+		if      (center_of_arc <=  90) arc_dist = center_of_arc;
+		else if (center_of_arc >= 270) arc_dist = ABS(center_of_arc - 360);
+		else                           arc_dist = ABS(center_of_arc - 180);
+
+		/* Special case -- Handle cloverleafs */
+		if ((arc_dist == 45) && (make_cloverleaf)) dist = 0;
+
+		/*
+		 * Usual case -- Calculate distance to expand outwards.  Pay more
+ 		 * attention to width near the horizontal, more attention to height
+		 * near the vertical.
+		 */
+		else dist = ((height * arc_dist) + (width * (90 - arc_dist))) / 90;
+
+		/* Randomize distance (should never be greater than radius) */
+		arc[i][1] = rand_range(dist / 4, dist / 2);
+
+		/* Keep variability under control (except in special cases). */
+		if ((dist != 0) && (i != 0))
+		{
+			int diff = arc[i][1] - arc[i-1][1];
+
+			if (ABS(diff) > size)
+			{
+				if (diff > 0)	arc[i][1] = arc[i-1][1] + size;
+				else			arc[i][1] = arc[i-1][1] - size;
+      		}
+    	}
+	}
+
+	/* Neaten up final arc of circle by comparing it to the first. */
+	if (TRUE)
+	{
+		int diff = arc[arc_num - 1][1] - arc[0][1];
+
+		if (ABS(diff) > size)
+		{
+			if (diff > 0)	arc[arc_num - 1][1] = arc[0][1] + size;
+			else			arc[arc_num - 1][1] = arc[0][1] - size;
+		}
+	}
+
+
+	/* Precalculate check distance. */
+	dist_check = 21 * dist_conv / 10;
+
+	/* Change grids between (and not including) the edges. */
+	for (y = y1 + 1; y < y2; y++)
+	{
+		for (x = x1 + 1; x < x2; x++)
+		{
+			/* Do not touch "icky" grids. */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+			/* Do not touch occupied grids. */
+			if (cave_m_idx[y][x] != 0) continue;
+			if (cave_o_idx[y][x] != 0) continue;
+
+
+			/* Get distance to grid. */
+			dist = distance(y0, x0, y, x);
+
+			/* Look at the grid if within check distance. */
+			if (dist < dist_check)
+			{
+				/* Convert and reorient grid for table access. */
+				ny = 20 + 10 * (y - y0) / dist_conv;
+				nx = 20 + 10 * (x - x0) / dist_conv;
+
+				/* Illegal table access is bad. */
+				if ((ny < 0) || (ny > 40) || (nx < 0) || (nx > 40))  continue;
+
+				/* Get angle to current grid. */
+				degree = get_angle_to_grid[ny][nx];
+
+				/* Scan arcs to find the one that applies here. */
+				for (i = arc_num - 1; i >= 0; i--)
+				{
+					if (arc[i][0] <= degree)
+					{
+						max_dist = arc[i][1];
+
+						/* Must be within effect range. */
+						if (max_dist >= dist)
+						{
+							/* Check for some features */
+							if (feat_needs_open_floor(feat))
+							{
+								if (cave_feat[y][x] == FEAT_FLOOR)
+								{
+									cave_set_feat(y, x, feat);
+
+		  							/* If light is 0 the illumination is taken from the floor */
+		  							/* Is interesting when light is not 0 because you can
+		   							 * create an illuminated starburst "room" inside another
+		   							 * completely dark */
+		  							if (light) cave_info[y][x] |= (CAVE_GLOW);
+								}
+							}
+	      					else
+	      					{
+								/* Otherwise, always put feat */
+								cave_set_feat(y, x, feat);
+
+								if (feat != FEAT_WALL_EXTRA)	cave_info[y][x] |= (CAVE_ROOM);
+								else					cave_info[y][x] &= ~(CAVE_ROOM);
+
+								/* Illuminate */
+								if (light)  cave_info[y][x] |= (CAVE_GLOW);
+								else		cave_info[y][x] &= ~(CAVE_GLOW);
+	      					}
+	    				}
+
+	    				/* Arc found.  End search */
+	    				break;
+					}
+				}
+			}
+		}
+	}
+
+	/*
+	 * If we placed floors or dungeon granite, all dungeon granite next
+	 * to floors needs to become outer wall.
+	 */
+	if ((feat == FEAT_FLOOR) || (feat == FEAT_WALL_EXTRA))
+	{
+    	for (y = y1 + 1; y < y2; y++)
+		{
+			for (x = x1 + 1; x < x2; x++)
+			{
+				/* Floor grids only */
+				if (cave_feat[y][x] == FEAT_FLOOR)
+				{
+	  				/* Look in all directions. */
+	  				for (d = 0; d < 8; d++)
+	  				{
+	    				/* Extract adjacent location */
+	    				int yy = y + ddy_ddd[d];
+	    				int xx = x + ddx_ddd[d];
+
+	    				/* Join to room */
+	    				cave_info[yy][xx] |= (CAVE_ROOM);
+
+	    				/* Illuminate if requested. */
+	    				if (light) cave_info[yy][xx] |= (CAVE_GLOW);
+
+	    				/* Look for dungeon granite. */
+	    				if (cave_feat[yy][xx] == FEAT_WALL_EXTRA)
+	    				{
+	      					/* Turn into outer wall. */
+	      					cave_set_feat(yy, xx, FEAT_WALL_OUTER);
+	    				}
+	  				}
+				}
+      		}
+    	}
+  	}
+
+	/* Success */
+	return (TRUE);
+}
+
+
+static void build_type_starburst(int y0, int x0, bool giant_room)
+{
+	int light = FALSE;
+
+	int dy, dx;
+	/*
+	 * Hack - get the size of the room, could be large or very large.
+	 */
+	 /*66x44*/
+	if (giant_room)
+	{
+		dy = 19;
+		dx = 30;
+	}
+	/*33x22*/
+	else
+	{
+		dy = 10;
+		dx = 14;
+	}
+
+	/* Occasional light */
+	if (p_ptr->depth <= randint(25)) light = TRUE;
+
+	if (one_in_(2))
+    	generate_starburst_room (y0 - dy, x0 - dx, y0 + dy, x0 + dx,
+								 	light, FEAT_FLOOR, TRUE);
+  	else
+  	{
+    	/* Test: create an inner starburst room (magma) */
+    	/* Even glyphs can be used ;) */
+
+    	/* Note special_ok == FALSE, no cloverleaf room */
+    	generate_starburst_room (y0 - dy, x0 - dx, y0 + dy, x0 + dx,
+									light, FEAT_FLOOR, FALSE);
+
+    	/* Beware of trapping the player at the first levels */
+    	dy /= 3;
+    	dx /= 3;
+    	generate_starburst_room (y0 - dy, x0 - dx, y0 + dy, x0 + dx,
+									light, FEAT_WALL_INNER, TRUE);
+	}
+}
+
 
 
 /*
@@ -2915,7 +3575,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		tmp_row = row1 + row_dir;
 		tmp_col = col1 + col_dir;
 
-
 		/* Do not leave the dungeon!!! XXX XXX */
 		while (!in_bounds_fully(tmp_row, tmp_col))
 		{
@@ -2932,7 +3591,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			tmp_row = row1 + row_dir;
 			tmp_col = col1 + col_dir;
 		}
-
 
 		/* Avoid the edge of the dungeon */
 		if (cave_feat[tmp_row][tmp_col] == FEAT_PERM_SOLID) continue;
@@ -3076,15 +3734,244 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 
 		/* Occasional doorway */
 		if (rand_int(100) < DUN_TUN_PEN)
-		{
-			/* Place a random door */
-			place_random_door(y, x);
+ 		{
+		  	if ((cave_feat[y-1][x] >= FEAT_MAGMA) &&
+			    (cave_feat[y+1][x] >= FEAT_MAGMA))
+			{
+ 				/* Place a random door */
+ 				place_random_door(y, x);
+ 			}
+			else if ((cave_feat[y][x-1] >= FEAT_MAGMA) &&
+			    (cave_feat[y][x+1] >= FEAT_MAGMA))
+			{
+			  /* Place a random door */
+			  place_random_door(y, x);
+			}
 		}
 	}
 }
 
 
+/*
+ * Place the player outside all rooms and corridors. Build a tunnel to the
+ * closest room.
+ */
+static bool new_player_safe_spot(void)
+{
+  	int i;
+  	int y_location_tables[40];
+  	int x_location_tables[40];
+  	int rand_spot;
+  	int x, y;
+  	int close_room = 0, room_dist = 1000;
+  	int try = 0;
 
+  	/* Find unused blocks */
+  	for (i = 0, y = 0; y < dun->row_rooms; y++)
+  	{
+    	for (x = 0; x < dun->col_rooms; x++)
+    	{
+      		/* Ignore used blocks */
+      		if (dun->room_map[y][x]) continue;
+
+      		/* We have space in the arrays */
+      		if (i < 40)
+      		{
+				y_location_tables[i] = y;
+				x_location_tables[i] = x;
+				++i;
+      		}
+      		/* Put it in a random place */
+      		else
+      		{
+				rand_spot = rand_int(i);
+				y_location_tables[rand_spot] = y;
+				x_location_tables[rand_spot] = x;
+      		}
+    	}
+  	}
+
+  	/* Paranoia */
+  	if (i == 0)
+  	{
+    	if (cheat_room) msg_print("No unused block.");
+
+    	return (FALSE);
+  	}
+
+  	/* Find a safe spot */
+  	while (TRUE)
+  	{
+    	int d;
+
+    	/* Hack - Avoid infinite loops */
+    	if (++try >= 1000)
+    	{
+      		if (cheat_room) msg_print("No empty spot.");
+
+      		return (FALSE);
+    	}
+
+    	/* Pick a random block */
+    	rand_spot = rand_int(i);
+
+    	/* Pick a random spot inside that block */
+    	y = y_location_tables[rand_spot] * BLOCK_HGT + rand_int(BLOCK_HGT);
+    	x = x_location_tables[rand_spot] * BLOCK_WID + rand_int(BLOCK_WID);
+
+    	/* The spot must be a wall. Note that we do not need to call
+     	 * in_bounds_fully
+		 */
+    	if (cave_feat[y][x] != FEAT_WALL_EXTRA) continue;
+
+    	/* The spot must be surrounded by walls */
+    	for (d = 0; d < 8; d++)
+    	{
+      		int dy = y + ddy_ddd[d];
+      		int dx = x + ddx_ddd[d];
+
+      		if ((cave_feat[dy][dx] != FEAT_WALL_EXTRA) &&
+	  			(cave_feat[dy][dx] != FEAT_PERM_SOLID)) break;
+    	}
+
+    	/* We found a non-wall grid */
+    	if (d < 8) continue;
+
+    	/* We found the safe spot */
+    	break;
+  	}
+
+  	/* Find the closest room */
+  	for (i = 0; i < dun->cent_n; i++)
+  	{
+    	int dist = distance(y, x, dun->cent[i].y, dun->cent[i].x);
+
+    	/* Ignore dangerous rooms */
+    	if (cave_info[dun->cent[i].y][dun->cent[i].x] & (CAVE_ICKY)) continue;
+
+    	/* We found a closer room */
+    	if (dist < room_dist)
+    	{
+      		room_dist = dist;
+      		close_room = i;
+    	}
+  	}
+
+  	/* Connect the safe spot to the closest room */
+  	build_tunnel(y, x, dun->cent[close_room].y, dun->cent[close_room].x);
+
+  	/* build_tunnel goes crazy sometimes */
+  	if (next_to_walls(y, x) < 3) return (FALSE);
+
+  	/* Hack - build tunnel ignores the safe spot */
+  	cave_set_feat(y, x, FEAT_FLOOR);
+
+  	/* Actually place the player */
+ 	return player_place(y, x);
+}
+
+
+/*
+ * Places some staircases near walls
+ */
+static bool alloc_stairs(int feat, int num)
+{
+	int x;
+
+	/*smaller levels don't need that many stairs, but there are a minimum of 4 rooms*/
+	if (dun->cent_n == 4) num = 1;
+	else if (num > (dun->cent_n / 2)) num = dun->cent_n / 2;
+
+	/* Place "num" stairs */
+	for (x = 0; x < num; x++)
+	{
+		int i = 0;
+
+		int yy, xx;
+
+		int x_location_tables [40];
+		int y_location_tables [40];
+		int rand_spot;
+
+		/*  */
+		for (yy = 0; yy < p_ptr->cur_map_hgt; yy++)
+		{
+			for (xx = 0; xx < p_ptr->cur_map_wid; xx++)
+			{
+
+				/* Must be a "naked" floor grid */
+				if (!cave_naked_bold(yy, xx)) continue;
+
+				/*we like to be next to walls*/
+				if ((next_to_walls(yy,xx) < 3) && (!cave_stair_bold(yy, xx))) continue;
+
+				/*don't go over size of array*/
+				if (i < 40)
+				{
+					x_location_tables[i] = xx;
+					y_location_tables[i] = yy;
+
+					/*increase the counter*/
+					i++;
+				}
+
+				/*put it in a random slot*/
+				else
+				{
+					rand_spot = rand_int(40);
+
+					x_location_tables[rand_spot] = xx;
+					y_location_tables[rand_spot] = yy;
+				}
+
+			}
+		}
+
+
+		/*paranoia*/
+		if (i == 0) return (FALSE);
+
+		/*select a location*/
+		rand_spot = rand_int (i);
+
+		/*get the coordinates*/
+		yy = y_location_tables[rand_spot];
+		xx = x_location_tables[rand_spot];
+
+		/* Town -- must go down */
+		if (!p_ptr->depth)
+		{
+			/* Clear previous contents, add down stairs */
+			cave_set_feat(yy, xx, FEAT_MORE);
+		}
+
+		/* Quest -- must go up */
+		else if ((quest_check(p_ptr->depth) == QUEST_FIXED) ||
+				 (quest_check(p_ptr->depth) == QUEST_FIXED_U) ||
+				 (p_ptr->depth >= MAX_DEPTH-1))
+		{
+			/* Clear previous contents, add up stairs */
+			if (x != 0) cave_set_feat(yy, xx, FEAT_LESS);
+			else cave_set_feat(yy, xx, pick_up_stairs());
+		}
+
+		/* Requested type */
+		else
+		{
+			/* Allow shafts, but guarantee the first one is an ordinary stair */
+			if (x != 0)
+			{
+				if      (feat == FEAT_LESS) feat = pick_up_stairs();
+				else if (feat == FEAT_MORE) feat = pick_down_stairs();
+			}
+
+			/* Clear previous contents, add stairs */
+			cave_set_feat(yy, xx, feat);
+		}
+	}
+
+	return (TRUE);
+}
 
 /*
  * Count the number of "corridor" grids adjacent to the given grid.
@@ -3098,7 +3985,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 static int next_to_corr(int y1, int x1)
 {
 	int i, y, x, k = 0;
-
 
 	/* Scan adjacent grids */
 	for (i = 0; i < 4; i++)
@@ -3178,7 +4064,256 @@ static void try_door(int y, int x)
 	}
 }
 
+/*
+ * Hack - mark some squares in teh dungeon, that are counted when the player
+ * walks over them.  This is a painful, awful hack used to occasionally allow the
+ * stores sell things outside their pre-determined inventory without allowing
+ * the player to townscum and pick up items in the stores.  Players need to
+ * explore the dungeon in order to occasionally walk over the squares, increasing
+ * the chance of stores selling other items. -JG
+ */
+static void place_marked_squares(void)
+{
+	int y, x, k, i;
+	s32b j;
 
+	/*
+	 * First factor in the number of "secret squares" based on size of dungeon
+	 * Start with 100 since we are dealing with int variables.
+	 * This will be reduced later
+	 */
+	j = 100;
+
+	/*factor in dungeon size*/
+	j = ((j * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) + 10;
+	j = ((j * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) + 10;
+
+	/*divide by 10*/
+	j /= 10;
+
+	/* Place some objects */
+	for (k = 0; k < j; k++)
+	{
+		bool is_room;
+
+		/*put half of them in corridors, half in rooms*/
+		if (one_in_(2)) is_room = TRUE;
+		else is_room = FALSE;
+
+		/* Pick a "legal" spot */
+		for (i = 0; i < 10000; i++)
+		{
+
+			/* Location */
+			y = rand_int(p_ptr->cur_map_hgt);
+			x = rand_int(p_ptr->cur_map_wid);
+
+			/* Require "naked" floor grid */
+			if (!cave_naked_bold(y, x)) continue;
+
+			/*Already Marked*/
+			if (cave_info[y][x] & (CAVE_MARKED)) continue;
+
+			/* Check if it should be a room or not "room" */
+			if (((cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE) != is_room)
+			{
+				continue;
+			}
+
+			break;
+		}
+
+		/* No point found */
+		if (i == 10000) return;
+
+		/*mark it*/
+		cave_info[y][x] |= (CAVE_MARKED);
+	}
+
+}
+
+static void basic_granite(void)
+{
+	int y, x;
+
+	/* Hack -- Start with basic granite */
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		{
+			/* Create granite wall */
+			cave_set_feat(y, x, FEAT_WALL_EXTRA);
+		}
+	}
+}
+
+
+static bool place_traps_rubble_player(void)
+{
+	int k;
+
+	/* Basic "amount" */
+	k = (p_ptr->depth / 3);
+	if (k > 10) k = 10;
+	if (k < 2) k = 2;
+
+	/* Put some rubble in corridors */
+	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+
+	/* Place some traps in the dungeon */
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+
+	/* Determine the character location, if it is needed */
+	if ((p_ptr->px + p_ptr->py == 0) && !new_player_spot())
+	{
+		if (cheat_room) msg_format("Couldn't spot player.");
+
+		return(FALSE);
+	}
+
+	/*
+	 * Hack - place up to 10 "marked squares" in the dungeon if
+	 * player is close to max_depth
+	 */
+	if ((p_ptr->depth + 3) > p_ptr->max_depth) place_marked_squares();
+
+	return (TRUE);
+
+}
+
+static bool scramble_and_connect_rooms_stairs(void)
+{
+	int i, y1, x1, y, x;
+
+	/* Start with no tunnel doors */
+	dun->door_n = 0;
+
+	/* Hack -- Scramble the room order */
+	for (i = 0; i < dun->cent_n; i++)
+	{
+		int pick1 = rand_int(dun->cent_n);
+		int pick2 = rand_int(dun->cent_n);
+		y1 = dun->cent[pick1].y;
+		x1 = dun->cent[pick1].x;
+		dun->cent[pick1].y = dun->cent[pick2].y;
+		dun->cent[pick1].x = dun->cent[pick2].x;
+		dun->cent[pick2].y = y1;
+		dun->cent[pick2].x = x1;
+	}
+
+	/* Hack -- connect the first room to the last room */
+	y = dun->cent[dun->cent_n-1].y;
+	x = dun->cent[dun->cent_n-1].x;
+
+	/* Connect all the rooms together */
+	for (i = 0; i < dun->cent_n; i++)
+	{
+		/* Connect the room to the previous room */
+		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
+
+		/* Remember the "previous" room */
+		y = dun->cent[i].y;
+		x = dun->cent[i].x;
+	}
+
+	/* Attempt to place the player in a safe spot */
+	/* Note that this code must be executed before placing intersection
+	 * doors */
+	if ((count_unused_blocks() > 0) && !new_player_safe_spot())
+	{
+	  	if (cheat_room) msg_format("Couldn't spot player.");
+
+		return (FALSE);
+	}
+
+	/* Place intersection doors */
+	for (i = 0; i < dun->door_n; i++)
+	{
+		/* Extract junction location */
+		y = dun->door[i].y;
+		x = dun->door[i].x;
+
+		/* Try placing doors */
+		try_door(y, x - 1);
+		try_door(y, x + 1);
+		try_door(y - 1, x);
+		try_door(y + 1, x);
+	}
+
+	/* Place 3 or 5 down stairs near some walls */
+	if (!(alloc_stairs(FEAT_MORE, (3 + randint(2)))))
+	{
+		if (cheat_room) msg_format("failed to place down stairs");
+
+		return(FALSE);
+	}
+
+	/* Place 1 or 3 up stairs near some walls */
+	if (!(alloc_stairs(FEAT_LESS, (1 + randint(2)))))
+	{
+		if (cheat_room) msg_format("failed to place down stairs");
+
+		return(FALSE);
+	}
+
+	/* Hack -- Add some magma streamers */
+	for (i = 0; i < DUN_STR_MAG; i++)
+	{
+		/*if we can't build streamers, something is wrong with level*/
+		if (!build_streamer(FEAT_MAGMA, DUN_STR_MC)) return (FALSE);
+	}
+
+	/* Hack -- Add some quartz streamers */
+	for (i = 0; i < DUN_STR_QUA; i++)
+	{
+		/*if we can't build streamers, something is wrong with level*/
+		if (!build_streamer(FEAT_QUARTZ, DUN_STR_QC)) return (FALSE);
+	}
+
+	return (TRUE);
+
+}
+
+static void set_perm_boundry(void)
+{
+	int y, x;
+
+	/* Special boundary walls -- Top */
+	for (x = 0; x < p_ptr->cur_map_wid; x++)
+	{
+		y = 0;
+
+		/* Clear previous contents, add "solid" perma-wall */
+		cave_set_feat(y, x, FEAT_PERM_SOLID);
+	}
+
+	/* Special boundary walls -- Bottom */
+	for (x = 0; x < p_ptr->cur_map_wid; x++)
+	{
+		y = p_ptr->cur_map_hgt-1;
+
+		/* Clear previous contents, add "solid" perma-wall */
+		cave_set_feat(y, x, FEAT_PERM_SOLID);
+	}
+
+	/* Special boundary walls -- Left */
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		x = 0;
+
+		/* Clear previous contents, add "solid" perma-wall */
+		cave_set_feat(y, x, FEAT_PERM_SOLID);
+	}
+
+	/* Special boundary walls -- Right */
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	{
+		x = p_ptr->cur_map_wid-1;
+
+		/* Clear previous contents, add "solid" perma-wall */
+		cave_set_feat(y, x, FEAT_PERM_SOLID);
+	}
+}
 
 
 /*
@@ -3192,7 +4327,6 @@ static bool room_build(int by0, int bx0, int typ)
 	int y, x;
 	int by, bx;
 	int by1, bx1, by2, bx2;
-
 
 	/* Restrict level */
 	if (p_ptr->depth < room[typ].level) return (FALSE);
@@ -3230,11 +4364,13 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
+		case 11:build_type_starburst(y, x, TRUE); break;
+		case 10:build_type_starburst(y, x, FALSE); break;
 		case 9: build_type9(y, x); break;
 		case 8: build_type8(y, x); break;
 		case 7: build_type7(y, x); break;
-		case 6: build_type6(y, x); break;
-		case 5: build_type5(y, x); break;
+		case 6: build_type_pit(y, x); break;
+		case 5: build_type_nest(y, x); break;
 		case 4: build_type4(y, x); break;
 		case 3: build_type3(y, x); break;
 		case 2: build_type2(y, x); break;
@@ -3269,19 +4405,371 @@ static bool room_build(int by0, int bx0, int typ)
 }
 
 
+/*select a monster type for a themed level*/
+byte get_level_theme(s16b orig_theme_num)
+{
+
+	s16b mindepth, theme_depth;
+
+	s16b theme_num = orig_theme_num;
+
+	/*enforce minimum depth, to keep weak nests out of deep levels*/
+	mindepth = theme_num / 4;
+
+	/*keep total to 100 or less*/
+	if ((mindepth + theme_num) > 100) theme_num = 100 - mindepth;
+
+	/* Hack -- Choose a nest type */
+	theme_depth = randint(theme_num) + mindepth;
+
+	if ((theme_depth <= 20) && (orig_theme_num <= 28))
+	{
+		/*Coins, minor demons, Orcs, or a mixture of a couple monsters*/
+		if (one_in_(4))			return (LEV_THEME_ORC_NAGA_YEEK_KOBOLD);
+		else if (one_in_(3))	return (LEV_THEME_DEMON_MINOR);
+		else if (one_in_(2))	return (LEV_THEME_CREEPING_COIN);
+		else					return (LEV_THEME_ORC);
+	}
+
+	else if ((theme_depth <= 35)  && (orig_theme_num <= 40))
+	{
+		/*Trolls or Ogres, or a mixture of cave dwellers*/
+		if (one_in_(3))	return (LEV_THEME_CAVE_DWELLER);
+		if (one_in_(2))	return (LEV_THEME_TROLL);
+		else			return (LEV_THEME_OGRE);
+	}
+
+	else if ((theme_depth <= 50) && (orig_theme_num <= 60))
+	{
+		/* Hounds, Hydras, demon, or young dragon*/
+		if (one_in_(4))			return (LEV_THEME_DEMON_ALL);
+		else if (one_in_(3))	return (LEV_THEME_HOUND);
+		else if (one_in_(2))	return (LEV_THEME_HYDRA);
+		else					return (LEV_THEME_DRAGON_YOUNG);
+	}
+
+	/* Giant, animal, or humanoid pit */
+	else if ((theme_depth <= 60) && (orig_theme_num <= 80))
+	{
+		/* Giant pit */
+		if (one_in_(4))			return (LEV_THEME_HUMANOID);
+		else if (one_in_(3))	return (LEV_THEME_UNDEAD);
+		else if (one_in_(2))	return (LEV_THEME_GIANT);
+		else 					return (LEV_THEME_ANIMAL);
+	}
+
+	/* Dragon pit */
+	else if (theme_depth <= 75)
+	{
+		/* Pick dragon type */
+		switch (rand_int(6))
+		{
+			/* Black */
+			case 0:	return (LEV_THEME_DRAGON_ACID);
+			/* Blue */
+			case 1:	return (LEV_THEME_DRAGON_ELEC);
+			/* Red */
+			case 2:	return (LEV_THEME_DRAGON_FIRE);
+			/* White */
+			case 3:	return (LEV_THEME_DRAGON_COLD);
+			/* Green */
+			case 4:	return (LEV_THEME_DRAGON_POIS);
+			/* Chromatic */
+			default:return (LEV_THEME_DRAGON_CHROMATIC);
+		}
+	}
+
+
+	else
+	{
+		/* Ancient Dragon pit */
+	    if one_in_(2)	return (LEV_THEME_DRAGON_ANCIENT);
+
+		/* > 90 - Demon pit */
+		else			return (LEV_THEME_DEMON_MAJOR);
+	}
+}
+
+#define THEMED_LEV_MON_TYPE_MAX	64
+
 /*
- * Generate a new dungeon level
+ * Generate a themed dungeon level
+ *
+ * Note that "dun_body" adds about 4000 bytes of memory to the stack.
+ */
+
+static bool build_themed_level(void)
+{
+	int i;
+	int by, bx;
+	byte is_quest_level = FALSE;
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+
+	s16b what[THEMED_LEV_MON_TYPE_MAX];
+
+	byte level_theme;
+
+	dun_data dun_body;
+
+	u16b monster_number;
+
+	u16b max_monster_types = THEMED_LEV_MON_TYPE_MAX;
+
+	/* Global data */
+	dun = &dun_body;
+
+	/*check if we need a quest*/
+	if (quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL) is_quest_level = TRUE;
+
+	/* Always a dungeon of 5 * 15 blocks*/
+	p_ptr->cur_map_hgt = MAX_DUNGEON_HGT * 5 / 6;
+	p_ptr->cur_map_wid = MAX_DUNGEON_WID * 5 / 6;
+
+	/* Hack -- Start with basic granite */
+	basic_granite();
+
+	/* Actual maximum number of rooms on this level */
+	dun->row_rooms = p_ptr->cur_map_hgt / BLOCK_HGT;
+	dun->col_rooms = p_ptr->cur_map_wid / BLOCK_WID;
+
+	/* Initialize the room table */
+	for (by = 0; by < dun->row_rooms; by++)
+	{
+		for (bx = 0; bx < dun->col_rooms; bx++)
+		{
+			dun->room_map[by][bx] = FALSE;
+		}
+	}
+
+	/* No rooms yet */
+	dun->cent_n = 0;
+
+	/* Build some rooms, note starburst rooms fail alot*/
+	for (i = 0; i < DUN_ROOMS * 2; i++)
+	{
+		/* Pick a block for the room */
+		by = rand_int(dun->row_rooms);
+		bx = rand_int(dun->col_rooms);
+
+		/*make most% of the rooms starburst rooms*/
+		if (i < DUN_ROOMS)
+		{
+			/*make the first 33% of  attempts at an unusually large room*/
+			bool large_room = ((dun->cent_n < 1) ? 11 : 10);
+
+			if (!room_build(by, bx, large_room)) continue;
+		}
+
+		/* or else Attempt a trivial room */
+		else if (room_build(by, bx, 1)) continue;
+	}
+
+	/*start over on all themed levels with less than 6 rooms due to inevitable crash*/
+	if (dun->cent_n < 6)
+	{
+		if (cheat_room) msg_format("not enough rooms");
+		return (FALSE);
+	}
+
+	/*set the permanent walls*/
+	set_perm_boundry();
+
+	/*make the tunnels*/
+	if (!scramble_and_connect_rooms_stairs())
+	{
+		if (cheat_room) msg_format("unable to scramble and connect rooms");
+
+		return (FALSE);
+	}
+
+	if (!place_traps_rubble_player()) return (FALSE);
+
+	/*note we are going to have an extremely crowded dungeon*/
+	/*there is no need for objects on the floor -JG*/
+
+	/*select the monster theme, get the feeling*/
+	if (is_quest_level) level_theme = q_ptr->theme;
+	else level_theme = get_level_theme(p_ptr->depth);
+
+	/*insert the feeling now*/
+	feeling = level_theme + LEV_THEME_HEAD;
+
+	/*get the hook*/
+	get_mon_hook(level_theme);
+
+	/*select 64 eligible monsters from the theme*/
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick some monster types -
+	 * notice we must make sure uniques aren't placed twice
+	 * and that the array has plenty of non-unique monsters
+	 */
+	for (i = 0; i < THEMED_LEV_MON_TYPE_MAX; i++)
+	{
+		/* Get an eligible monster type */
+		what[i] = get_mon_num(p_ptr->depth + (is_quest_level ? 5 : 3));
+	}
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Sort the entries XXX XXX XXX */
+	for (i = 0; i < THEMED_LEV_MON_TYPE_MAX - 1; i++)
+	{
+		u16b j;
+
+		/* Sort the entries */
+		for (j = 0; j < THEMED_LEV_MON_TYPE_MAX - 1; j++)
+		{
+			int i1 = j;
+			int i2 = j + 1;
+
+			int p1 = r_info[what[i1]].level;
+			int p2 = r_info[what[i2]].level;
+
+			/* Bubble */
+			if (p1 > p2)
+			{
+				int tmp = what[i1];
+				what[i1] = what[i2];
+				what[i2] = tmp;
+			}
+		}
+	}
+
+	/* Quest levels are a little more crowded than non-quest levels*/
+	if (is_quest_level) monster_number = 325;
+	else monster_number = 275;
+
+ 	/* Reduce the number as monsters get more powerful*/
+	monster_number -= (p_ptr->depth / 2) - randint(p_ptr->depth / 2);
+
+	/*boundry control*/
+	if (monster_number > (z_info->m_max	- 25)) monster_number = z_info->m_max - 25;
+
+	/*place the monsters in the dungeon*/
+	while (mon_cnt < monster_number)
+	{
+		int z = rand_int(max_monster_types);
+		int r_idx = what[z];
+		monster_race *r_ptr;
+		int y, x;
+
+		/*hack - make sure we don't place uniques twice*/
+		r_ptr = &r_info[r_idx];
+
+		/*don't attempt to re-place duplicate unique entries*/
+		if (r_ptr->cur_num >= r_ptr->max_num)
+		{
+			/*we have maxed out all possible types of monsters*/
+			if (max_monster_types < 1) break;
+
+			/*
+			 * Eliminate that slot as a choice by taking the monster in
+			 * the last slot and placing it in the current slot.
+			 */
+			what[z] = what[max_monster_types - 1];
+
+			/*zero out the last slot (probably unnecessary)*/
+			what[max_monster_types - 1] = 0;
+
+			/*shorten the list by one*/
+			max_monster_types--;
+
+			/*go back to the beginning*/
+			continue;
+		}
+
+		/*not a monster*/
+		if (!r_idx) continue;
+
+		/* Pick a location */
+		while (TRUE)
+		{
+			int dist;
+
+			y = rand_int(p_ptr->cur_map_hgt);
+			x = rand_int(p_ptr->cur_map_wid);
+
+			if (!cave_floor_bold(y,x)) continue;
+
+			/*better distance*/
+			dist = distance(p_ptr->py, p_ptr->px, y, x);
+
+			/*hack - too close*/
+			if (dist < 5) continue;
+
+			/*give the player a chance - no monsters starting in LOS*/
+			if (dist < MAX_RANGE)
+			{
+				if (los(y, x, p_ptr->py, p_ptr->px)) continue;
+			}
+
+			/*found a spot*/
+			break;
+		}
+
+		/* Attempt to place the monster, allow sleeping, groups*/
+		(void)place_monster_aux(y, x, r_idx, TRUE, TRUE);
+	}
+
+	/*final preps if this is a quest level*/
+	if (is_quest_level)
+	{
+		int y, x;
+
+		q_ptr->cur_num = 0;
+		q_ptr->max_num = 0;
+
+		/* Square-by-square grid search for monsters */
+		for (y = 0; y < p_ptr->cur_map_hgt; y++)
+		{
+			for (x = 0; x < p_ptr->cur_map_wid; x++)
+			{
+				/*Is there a monster here?*/
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+					/*mark it as a quest monster*/
+					m_ptr->mflag |= (MFLAG_QUEST);
+
+					/*increase the max_num counter*/
+					q_ptr->max_num ++;
+				}
+			}
+		}
+	}
+
+	return (TRUE);
+
+}
+
+
+/*
+ * Generate an unthemed new dungeon level
  *
  * Note that "dun_body" adds about 4000 bytes of memory to the stack.
  */
 static bool cave_gen(void)
 {
-	int i, k, y, x, y1, x1;
+	int i, k;
 
 	int by, bx;
 
 	bool destroyed = FALSE;
-	bool quest_vault = FALSE;
+	bool need_quest_room = FALSE;
+	bool greater_vault = FALSE;
+
+	/*Hack - get the quest type*/
+	byte quest_on_level = quest_check(p_ptr->depth);
+
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
 
 	/* Hack - variables for allocations */
 	s16b mon_gen, obj_gen;
@@ -3296,27 +4784,49 @@ static bool cave_gen(void)
 	obj_gen = Rand_normal(DUN_AMT_ROOM, 3);
 
 	/* Possible "destroyed" level */
+	if ((p_ptr->depth > 10) && (one_in_(DUN_DEST))) destroyed = TRUE;
 
-	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
+	/*see if we need a quest room*/
+	if (quest_on_level)
+	{
+		/* Hack -- No destroyed "quest" levels */
+		destroyed = FALSE;
 
-	if (((adult_force_small_lev) || (randint(SMALL_LEVEL)==1)) &&
-		(quest_check(p_ptr->depth) != QUEST_VAULT))
+		switch (q_ptr->type)
+		{
+			case QUEST_VAULT:
+			case QUEST_PIT:
+			case QUEST_NEST:
+			{
+				need_quest_room = TRUE;
+				break;
+			}
+			default: break;
+		}
+	}
+
+	if ((adult_force_small_lev) || (one_in_(SMALL_LEVEL)) ||
+		(quest_on_level == QUEST_VAULT))
     {
 		int l, m;
 
 		while (TRUE)
 		{
-			l = randint(MAX_DUNGEON_HGT / (2 * PANEL_HGT));
-			m = randint(MAX_DUNGEON_WID / (2 * PANEL_WID_FIXED));
+			/*note: Panel height and width is 1/6 of max height/width*/
+			l = randint(MAX_DUNGEON_HGT / (PANEL_HGT));
+			m = randint(MAX_DUNGEON_WID / (PANEL_WID_FIXED));
 
-			p_ptr->cur_map_hgt = l * (2 * PANEL_HGT);
-			p_ptr->cur_map_wid = m * (2 * PANEL_WID_FIXED);
+			/*make the dungeon height & width a multiple of 2 to 6 of panel hgt & width*/
+			p_ptr->cur_map_hgt = MAX(2, l) * (PANEL_HGT);
+			p_ptr->cur_map_wid = MAX(2, m) * (PANEL_WID_FIXED);
 
 			/* Exit if less than normal dungeon */
-			if ((p_ptr->cur_map_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_map_wid < MAX_DUNGEON_WID)) break;
+			if ((p_ptr->cur_map_hgt < MAX_DUNGEON_HGT) ||
+				(p_ptr->cur_map_wid < MAX_DUNGEON_WID)) break;
 		}
 
-		if (cheat_room) msg_format("A 'small' dungeon level (%dx%d).", m, l);
+		if ((cheat_room) && (!adult_force_small_lev))
+			 msg_format("A 'small' dungeon level (%dx%d).", m, l);
 
 		if (!adult_force_small_lev) rating += ((m + l <= 3) ? 15 : 10);
 	}
@@ -3327,19 +4837,8 @@ static bool cave_gen(void)
 		p_ptr->cur_map_wid = MAX_DUNGEON_WID;
 	}
 
-
-	/* Hack -- Start with basic granite */
-	for (y = 0; y < p_ptr->cur_map_hgt; y++)
-	{
-		for (x = 0; x < p_ptr->cur_map_wid; x++)
-		{
-			/* Create granite wall */
-			cave_set_feat(y, x, FEAT_WALL_EXTRA);
-		}
-	}
-
-	/* Hack -- No destroyed "quest" levels */
-	if (quest_check(p_ptr->depth)) destroyed = FALSE;
+	/*start with basic granite*/
+	basic_granite();
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = p_ptr->cur_map_hgt / BLOCK_HGT;
@@ -3386,14 +4885,26 @@ static bool cave_gen(void)
 			/* Never mind */
 			continue;
 		}
-
-		/* First, build a quest vault if needed */
-		if ((quest_check(p_ptr->depth) == QUEST_VAULT) && (quest_item_slot() == -1) &&
-			(!quest_vault))
+		/*first make a necessary quest room*/
+		if (need_quest_room)
 		{
-			if (room_build(by, bx, 9)) quest_vault = TRUE;
-			continue;
+			if (quest_on_level == QUEST_VAULT)
+			{
+				if (room_build(by, bx, 9)) need_quest_room = FALSE;
+				continue;
+			}
+			else if (quest_on_level == QUEST_PIT)
+			{
+				if (room_build(by, bx, 6)) need_quest_room = FALSE;
+				continue;
+			}
+			else if (quest_on_level == QUEST_NEST)
+			{
+				if (room_build(by, bx, 5)) need_quest_room = FALSE;
+				continue;
+			}
 		}
+
 
 		/* Attempt an "unusual" room */
 		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
@@ -3405,7 +4916,11 @@ static bool cave_gen(void)
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
 				/* Type 8 -- Greater vault (10%) */
-				if ((k < 10) && room_build(by, bx, 8)) continue;
+				if ((k < 10) && !greater_vault && room_build(by, bx, 8))
+				{
+					greater_vault = TRUE;
+					continue;
+				}
 
 				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 25) && room_build(by, bx, 7)) continue;
@@ -3427,46 +4942,20 @@ static bool cave_gen(void)
 			if ((k < 100) && room_build(by, bx, 2)) continue;
 		}
 
+		/*occasionally attempt a starburst room*/
+		if (one_in_(5))
+		{
+			bool giant_room = (one_in_(10) ? 11 : 10);
+
+			if (room_build(by, bx, giant_room)) continue;
+		}
+
 		/* Attempt a trivial room */
 		if (room_build(by, bx, 1)) continue;
 	}
 
-	/* Special boundary walls -- Top */
-	for (x = 0; x < p_ptr->cur_map_wid; x++)
-	{
-		y = 0;
-
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- Bottom */
-	for (x = 0; x < p_ptr->cur_map_wid; x++)
-	{
-		y = p_ptr->cur_map_hgt-1;
-
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- Left */
-	for (y = 0; y < p_ptr->cur_map_hgt; y++)
-	{
-		x = 0;
-
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
-
-	/* Special boundary walls -- Right */
-	for (y = 0; y < p_ptr->cur_map_hgt; y++)
-	{
-		x = p_ptr->cur_map_wid-1;
-
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
-	}
-
+	/*set the permanent walls*/
+	set_perm_boundry();
 
 	/*start over on all levels with less than two rooms due to inevitable crash*/
 	if (dun->cent_n < ROOM_MIN)
@@ -3475,63 +4964,11 @@ static bool cave_gen(void)
 		return (FALSE);
 	}
 
-	/* Hack -- Scramble the room order */
-	for (i = 0; i < dun->cent_n; i++)
+	/*make the tunnels*/
+	if (!scramble_and_connect_rooms_stairs())
 	{
-		int pick1 = rand_int(dun->cent_n);
-		int pick2 = rand_int(dun->cent_n);
-		y1 = dun->cent[pick1].y;
-		x1 = dun->cent[pick1].x;
-		dun->cent[pick1].y = dun->cent[pick2].y;
-		dun->cent[pick1].x = dun->cent[pick2].x;
-		dun->cent[pick2].y = y1;
-		dun->cent[pick2].x = x1;
-	}
-
-	/* Start with no tunnel doors */
-	dun->door_n = 0;
-
-	/* Hack -- connect the first room to the last room */
-	y = dun->cent[dun->cent_n-1].y;
-	x = dun->cent[dun->cent_n-1].x;
-
-	/* Connect all the rooms together */
-	for (i = 0; i < dun->cent_n; i++)
-	{
-		/* Connect the room to the previous room */
-		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
-
-		/* Remember the "previous" room */
-		y = dun->cent[i].y;
-		x = dun->cent[i].x;
-	}
-
-	/* Place intersection doors */
-	for (i = 0; i < dun->door_n; i++)
-	{
-		/* Extract junction location */
-		y = dun->door[i].y;
-		x = dun->door[i].x;
-
-		/* Try placing doors */
-		try_door(y, x - 1);
-		try_door(y, x + 1);
-		try_door(y - 1, x);
-		try_door(y + 1, x);
-	}
-
-	/* Hack -- Add some magma streamers */
-	for (i = 0; i < DUN_STR_MAG; i++)
-	{
-		/*if we can't build streamers, something is wrong with level*/
-		if (!build_streamer(FEAT_MAGMA, DUN_STR_MC)) return (FALSE);
-	}
-
-	/* Hack -- Add some quartz streamers */
-	for (i = 0; i < DUN_STR_QUA; i++)
-	{
-		/*if we can't build streamers, something is wrong with level*/
-		if (!build_streamer(FEAT_QUARTZ, DUN_STR_QC)) return (FALSE);
+		if (cheat_room) msg_format("couldn't connect the rooms");
+		return (FALSE);
 	}
 
 	/*don't destroy really small levels*/
@@ -3540,39 +4977,11 @@ static bool cave_gen(void)
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
-	/* Place 3 or 4 down stairs near some walls */
-	if (!(alloc_stairs(FEAT_MORE, rand_range(3, 4))))
+	/*place the stairs, traps, rubble, player, secret stairs*/
+	if (!place_traps_rubble_player())
 	{
-		if (cheat_room) msg_format("failed to place down stairs");
-
-		return(FALSE);
-	}
-
-	/* Place 1 or 2 up stairs near some walls */
-	if (!(alloc_stairs(FEAT_LESS, rand_range(1, 2))))
-	{
-		if (cheat_room) msg_format("failed to place down stairs");
-
-		return(FALSE);
-	}
-
-	/* Basic "amount" */
-	k = (p_ptr->depth / 3);
-	if (k > 10) k = 10;
-	if (k < 2) k = 2;
-
-	/* Put some rubble in corridors */
-	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
-
-	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
-
-	/* Determine the character location */
-	if (!new_player_spot())
-	{
-		if (cheat_room) msg_format("couldn't spot player");
-
-		return(FALSE);
+		if (cheat_room) msg_format("couldn't place traps, rubble, or player");
+		return (FALSE);
 	}
 
 	/* To make small levels a bit more playable */
@@ -3596,9 +5005,8 @@ static bool cave_gen(void)
 	mon_gen += randint(8);
 
 	/* Put some monsters in the dungeon */
-	for (i = mon_gen + k; i > 0; i--)
+	for (i = mon_gen; i > 0; i--)
 	{
-
 		(void)alloc_monster(0, TRUE);
 	}
 
@@ -3612,8 +5020,10 @@ static bool cave_gen(void)
 		{
 			int y, x;
 
-			if ((q_ptr->type == QUEST_GUILD) || (q_ptr->type == QUEST_FIXED))
+			if ((q_ptr->type == QUEST_MONSTER) || (q_ptr->type == QUEST_FIXED))
 			{
+				int j;
+
 				monster_race *r_ptr = &r_info[q_ptr->mon_idx];
 				s16b num_questors;
 
@@ -3636,10 +5046,21 @@ static bool cave_gen(void)
 					/* Place the questor */
 					place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE);
 				}
+
+				/* Process the monsters (backwards) */
+				for (j = mon_max - 1; j >= 1; j--)
+				{
+					/* Access the monster */
+					monster_type *m_ptr = &mon_list[j];
+
+					/*mark it as a quest monster if applicable*/
+					if 	(q_ptr->mon_idx == m_ptr->r_idx) m_ptr->mflag |= (MFLAG_QUEST);
+				}
 			}
 
 			else if ((q_ptr->type == QUEST_UNIQUE) || (q_ptr->type == QUEST_FIXED_U))
 			{
+
 				/* Pick a location */
 				while (TRUE)
 				{
@@ -3651,8 +5072,16 @@ static bool cave_gen(void)
 
 				/* Place the questor */
 				place_monster_aux(y, x, q_ptr->mon_idx, TRUE, TRUE);
-			}
 
+				/*Is there a monster here?*/
+				if (cave_m_idx[y][x] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+					/*mark it as a quest monster*/
+					m_ptr->mflag |= (MFLAG_QUEST);
+				}
+			}
 		}
 	}
 
@@ -3930,13 +5359,19 @@ static void town_gen(void)
  */
 void generate_cave(void)
 {
-	int y, x, num;
+	int y, x, num, i;
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
-	/* Generate */
-	for (num = 0; TRUE; num++)
+	/* Don't know feeling yet */
+	do_feeling = FALSE;
+
+	/*allow uniques to be generated everywhere but in nests/pits*/
+	allow_uniques = TRUE;
+
+	/* Generate num is increased below*/
+	for (num = 0; TRUE;)
 	{
 		bool okay = TRUE;
 
@@ -3945,7 +5380,7 @@ void generate_cave(void)
 		/* Reset */
 		o_max = 1;
 		mon_max = 1;
-
+		feeling = 0;
 
 		/* Start with a blank cave */
 		for (y = 0; y < MAX_DUNGEON_HGT; y++)
@@ -3965,8 +5400,11 @@ void generate_cave(void)
 				cave_m_idx[y][x] = 0;
 
 #ifdef MONSTER_FLOW
-				/* No flow */
-				cave_cost[y][x] = 0;
+				for(i = 0; i < MAX_FLOWS; i++)
+				{
+					cave_cost[i][y][x] = 0;
+				}
+
 				cave_when[y][x] = 0;
 #endif /* MONSTER_FLOW */
 
@@ -4002,39 +5440,66 @@ void generate_cave(void)
 			p_ptr->create_stair = 0;
 		}
 
+		/*
+	 	 * It is possible for levels to be themed,
+	 	 * but make sure the player isn't scumming
+		 * or we are on a fixed quest level.
+	 	 */
+		else if(((p_ptr->depth >= 15) && (allow_altered_inventory) &&
+	    		 (one_in_(THEMED_LEVEL_CHANCE)) && (allow_themed_levels) &&
+			 	 (!quest_check(p_ptr->depth))) ||
+				(quest_check(p_ptr->depth) == QUEST_THEMED_LEVEL))
+		{
+			if (build_themed_level())
+			{
+
+				/* Message. */
+				if (cheat_room) msg_print("Themed level");
+
+				okay = TRUE;
+			}
+			else okay = FALSE;
+		}
+
 		/* Build a real level */
 		else
 		{
 			/* Make a dungeon, or report the failure to make one*/
-			okay = (cave_gen());
+			if (cave_gen()) okay = TRUE;
+			else okay = FALSE;
+
 		}
 
 		/*message*/
-		if((!okay) && ((cheat_room || cheat_hear || cheat_peek || cheat_xtra)))
+		if(!okay)
+		{
+	   		if (cheat_room || cheat_hear || cheat_peek || cheat_xtra)
 					why = "defective level";
+		}
 
 		else
 		{
 
+			/*themed levels already have thier feeling*/
 			/* Extract the feeling */
-			if (rating > 100) feeling = 2;
-			else if (rating > 80) feeling = 3;
-			else if (rating > 60) feeling = 4;
-			else if (rating > 40) feeling = 5;
-			else if (rating > 30) feeling = 6;
-			else if (rating > 20) feeling = 7;
-			else if (rating > 10) feeling = 8;
-			else if (rating > 0) feeling = 9;
-			else feeling = 10;
+			if (!feeling)
+			{
+				if (rating > 100) feeling = 2;
+				else if (rating > 80) feeling = 3;
+				else if (rating > 60) feeling = 4;
+				else if (rating > 40) feeling = 5;
+				else if (rating > 30) feeling = 6;
+				else if (rating > 20) feeling = 7;
+				else if (rating > 10) feeling = 8;
+				else if (rating > 0) feeling = 9;
+				else feeling = 10;
 
-			/* Hack -- Have a special feeling sometimes */
-			if (good_item_flag && !adult_preserve) feeling = 1;
+				/* Hack -- Have a special feeling sometimes */
+				if (good_item_flag && !adult_preserve) feeling = 1;
 
-			/* It takes 1000 game turns for "feelings" to recharge */
-			if (((turn - old_turn) < 1000) && (old_turn > 1)) feeling = 0;
-
-			/* Hack -- no feeling in the town */
-			if (!p_ptr->depth) feeling = 0;
+				/* Hack -- no feeling in the town */
+				if (!p_ptr->depth) feeling = 0;
+			}
 
 			/* Prevent object over-flow */
 			if (o_max >= z_info->o_max)
@@ -4059,8 +5524,11 @@ void generate_cave(void)
 			/* Mega-Hack -- "auto-scum" */
 			if (auto_scum && (num < 100))
 			{
-				/* Require "goodness" */
-				if ((feeling > 9) ||
+				/*count this level*/
+				num++;
+
+				/* Require "goodness", but always accept themed levels */
+				if (((feeling > 9) && (feeling < LEV_THEME_HEAD)) ||
 				    ((p_ptr->depth >= 5) && (feeling > 8)) ||
 				    ((p_ptr->depth >= 10) && (feeling > 7)) ||
 				    ((p_ptr->depth >= 20) && (feeling > 6)) ||
@@ -4079,9 +5547,10 @@ void generate_cave(void)
 				}
 			}
 
-			/* Accept */
-			if (okay) break;
 		}
+
+		/* Accept */
+		if (okay) break;
 
 		/* Message */
 		if (why) msg_format("Generation restarted (%s)", why);
@@ -4095,9 +5564,6 @@ void generate_cave(void)
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
-	/* Remember when this level was "created" */
-	old_turn = turn;
 
 	/* Reset the number of traps on the level. */
 	num_trap_on_level = 0;

@@ -86,6 +86,7 @@ static const grouper group_item[] =
 
 	{ TV_CLOAK,		"Armour (Misc)" },
 	{ TV_SHIELD,	  NULL },
+	{ TV_DRAG_SHIELD, NULL },
 	{ TV_HELM,		  NULL },
 	{ TV_CROWN,		  NULL },
 	{ TV_GLOVES,	  NULL },
@@ -203,6 +204,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
 		{
 			sprintf(dam, "%d", i_ptr->ac);
 			break;
@@ -366,6 +368,7 @@ static const grouper group_artifact[] =
 
 	{ TV_CLOAK,         "Cloaks" },
 	{ TV_SHIELD,        "Shields" },
+	{ TV_DRAG_SHIELD,   NULL },
 	{ TV_HELM,          "Helms/Crowns" },
 	{ TV_CROWN,         NULL },
 	{ TV_GLOVES,        "Gloves" },
@@ -382,15 +385,14 @@ static const grouper group_artifact[] =
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, byte name1)
+bool make_fake_artifact(object_type *o_ptr, byte name1)
 {
 	int i;
 
 	artifact_type *a_ptr = &a_info[name1];
 
-
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
+	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
 
 	/* Get the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -474,7 +476,7 @@ static void spoil_artifact(cptr fname)
 		}
 
 		/* Now search through all of the artifacts */
-		for (j = 1; j < z_info->a_max; ++j)
+		for (j = 1; j < z_info->art_max; ++j)
 		{
 			artifact_type *a_ptr = &a_info[j];
 			char buf[80];
@@ -579,8 +581,8 @@ static void spoil_mon_desc(cptr fname)
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
-	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < z_info->r_max - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -742,7 +744,7 @@ static void spoil_mon_info(cptr fname)
 	ang_sort(who, &why, count);
 
 	/*
-	 * List all monsters in order (except the ghost).
+	 * List all monsters in order.
 	 */
 	for (n = 0; n < count; n++)
 	{

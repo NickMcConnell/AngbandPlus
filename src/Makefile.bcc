@@ -58,8 +58,8 @@ OBJ = \
   variable.obj wizard1.obj wizard2.obj xtra1.obj \
   xtra2.obj z-form.obj z-rand.obj z-term.obj \
   z-util.obj z-virt.obj \
-  use-obj.obj
-  obj-info.obj \
+  use-obj.obj \
+  obj-info.obj 
 
 all : $(EXE_FILE)
 
@@ -80,8 +80,6 @@ install: $(EXE_FILE)
 ########################### Explicit Rules ########################
 $(EXE_FILE): $(OBJ) angband.res
 	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
-
-import32.lib
 
 angband.res: angband.rc
 	$(RC) -r angband.rc

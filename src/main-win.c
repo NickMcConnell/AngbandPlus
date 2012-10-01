@@ -86,7 +86,7 @@
 # define HELP_GENERAL "angband.chm"
 # define HELP_SPOILERS "angband.chm"
 #else /* HTML_HELP */
-# define HELP_GENERAL "help.hlp"
+# define HELP_GENERAL "angband.hlp"
 # define HELP_SPOILERS "spoilers.hlp"
 #endif /* HTML_HELP */
 
@@ -274,6 +274,7 @@
 #ifdef HTML_HELP
 #include <htmlhelp.h>
 #endif /* HTML_HELP */
+
 
 /*
  * Include the support for loading bitmaps

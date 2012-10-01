@@ -382,13 +382,66 @@ void reset_visuals(bool unused)
 #endif /* ALLOW_BORG_GRAPHICS */
 }
 
+/*
+ * Returns TRUE if an object has some ego-powers that should be ignored if
+ * the game does not want *full* knowledge of it.
+*/
+bool object_has_hidden_powers(const object_type *o_ptr)
+{
+	/* *identified* items are never hidden*/
+	if (o_ptr->ident & (IDENT_MENTAL)) return (FALSE);
+
+  	/* Hack - Ignore chests */
+  	if (o_ptr->tval == TV_CHEST) return (FALSE);
+
+  	/* Analyze xtra1 */
+  	switch (o_ptr->xtra1)
+  	{
+  		case OBJECT_XTRA_STAT_SUSTAIN:
+      	case OBJECT_XTRA_TYPE_HIGH_RESIST:
+      	case OBJECT_XTRA_TYPE_POWER:
+      	case OBJECT_XTRA_TYPE_IMMUNITY:
+		{
+			return (TRUE);
+		}
+	}
+
+  	return (FALSE);
+}
+
+/*Helper function for add extra flags. Adds the flags from xtra2*/
+static u32b add_xtra2_flags(u32b xtra_flags, byte xtra_size, u32b xtra_base)
+{
+	byte i;
+
+	u32b flag_check = 0x00000001L;
+
+	u32b return_flag = 0;
+
+	for (i = 0; i < xtra_size; i++)
+	{
+		/*Do we have this flag?*/
+		if (xtra_flags & flag_check)
+		{
+			/*mark it*/
+			return_flag |= xtra_base;
+		}
+
+		/*shift everything for the next check*/
+		flag_check  = flag_check << 1;
+		xtra_base  = xtra_base << 1;
+
+	}
+
+	return (return_flag);
+}
+
 
 /*
  * Modes of object_flags_aux()
  */
 #define OBJECT_FLAGS_FULL   1 /* Full info */
 #define OBJECT_FLAGS_KNOWN  2 /* Only flags known to the player */
-#define OBJECT_FLAGS_RANDOM 3 /* Only known random flags */
 
 
 /*
@@ -398,7 +451,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 {
 	object_kind *k_ptr;
 
-	if (mode != OBJECT_FLAGS_FULL)
+	if (mode == OBJECT_FLAGS_KNOWN)
 	{
 		/* Clear */
 		(*f1) = (*f2) = (*f3) = 0L;
@@ -407,54 +460,50 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (!object_known_p(o_ptr)) return;
 	}
 
-	if (mode != OBJECT_FLAGS_RANDOM)
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Base object */
+	(*f1) = k_ptr->flags1;
+	(*f2) = k_ptr->flags2;
+	(*f3) = k_ptr->flags3;
+
+	if (mode == OBJECT_FLAGS_FULL)
 	{
-		k_ptr = &k_info[o_ptr->k_idx];
-
-		/* Base object */
-		(*f1) = k_ptr->flags1;
-		(*f2) = k_ptr->flags2;
-		(*f3) = k_ptr->flags3;
-
-		if (mode == OBJECT_FLAGS_FULL)
+		/* Artifact */
+		if (o_ptr->name1)
 		{
-			/* Artifact */
-			if (o_ptr->name1)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-				(*f1) = a_ptr->flags1;
-				(*f2) = a_ptr->flags2;
-				(*f3) = a_ptr->flags3;
-			}
-		}
-
-		/* Ego-item */
-		if (o_ptr->name2)
-		{
-			ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-			(*f1) |= e_ptr->flags1;
-			(*f2) |= e_ptr->flags2;
-			(*f3) |= e_ptr->flags3;
-		}
-
-		if (mode == OBJECT_FLAGS_KNOWN)
-		{
-			/* Obvious artifact flags */
-			if (o_ptr->name1)
-			{
-				artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-				/* Obvious flags (pval) */
-				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
-
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
-			}
+			(*f1) = a_ptr->flags1;
+			(*f2) = a_ptr->flags2;
+			(*f3) = a_ptr->flags3;
 		}
 	}
 
-	if (mode != OBJECT_FLAGS_FULL)
+	/* Ego-item */
+	if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+		(*f1) |= e_ptr->flags1;
+		(*f2) |= e_ptr->flags2;
+		(*f3) |= e_ptr->flags3;
+	}
+
+	if (mode == OBJECT_FLAGS_KNOWN)
+	{
+		/* Obvious artifact flags */
+		if (o_ptr->name1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+			/* Obvious flags (pval) */
+			(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
+			(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+		}
+	}
+
+	if (mode == OBJECT_FLAGS_KNOWN)
 	{
 		bool spoil = FALSE;
 
@@ -468,11 +517,8 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		if (ego_item_p(o_ptr)) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
-		/* Need full knowledge or spoilers */
-		if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
-
-		/* Artifact */
-		if (o_ptr->name1)
+		/* Artifact, *ID'ed or spoiled */
+		if ((o_ptr->name1) && (spoil || (o_ptr->ident & IDENT_MENTAL)))
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -480,15 +526,12 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
 
-			if (mode == OBJECT_FLAGS_RANDOM)
-			{
-				/* Hack - remove 'ignore' flags */
-				(*f3) &= ~(TR3_IGNORE_MASK);
-			}
 		}
 
 		/* Full knowledge for *identified* objects */
-		if (!(o_ptr->ident & IDENT_MENTAL)) return;
+		if ((!(o_ptr->ident & IDENT_MENTAL)) &&
+		    (object_has_hidden_powers(o_ptr)))	return;
+
 	}
 
 	/*hack - chests use xtra1 to store the theme, don't give additional powers to chests*/
@@ -497,27 +540,91 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 	/* Extra powers */
 	switch (o_ptr->xtra1)
 	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
+
+		case OBJECT_XTRA_STAT_SUSTAIN:
 		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
+			/* Flag 2 */
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SUSTAIN,
+												   OBJECT_XTRA_BASE_SUSTAIN);
 			break;
 		}
 
-		case OBJECT_XTRA_TYPE_RESIST:
+		case OBJECT_XTRA_TYPE_HIGH_RESIST:
 		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
+			/* Flag 2 */
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_HIGH_RESIST,
+												   OBJECT_XTRA_BASE_HIGH_RESIST);
 			break;
 		}
 
 		case OBJECT_XTRA_TYPE_POWER:
 		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
+			/* Flag 3 */
+			(*f3) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_POWER,
+												   OBJECT_XTRA_BASE_POWER);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_IMMUNITY:
+		{
+			/* Flag 2 */
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_IMMUNITY,
+												   OBJECT_XTRA_BASE_IMMUNITY);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_STAT_ADD:
+		{
+			/* Flag 1 */
+			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_STAT_ADD,
+												   OBJECT_XTRA_BASE_STAT_ADD);
+			/*Stat add Also sustains*/
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SUSTAIN,
+												   OBJECT_XTRA_BASE_SUSTAIN);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_SLAY:
+		{
+			/* Flag 1 */
+			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_SLAY,
+												   OBJECT_XTRA_BASE_SLAY);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_KILL:
+		{
+			/* Flag 1 */
+			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_KILL,
+												   OBJECT_XTRA_BASE_KILL);
+			break;
+		}
+		case OBJECT_XTRA_TYPE_BRAND:
+		{
+			/* Flag 1 */
+			(*f1) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_BRAND,
+												   OBJECT_XTRA_BASE_BRAND);
+			/*
+			 * elemental brands also provide the appropriate resist
+			 * Note that the OBJECT_XTRA_SIZE_LOW_RESIST is not used.  There
+			 * are only 4 base resists, but 5 base brands (+poison).  Hence the
+			 * OBJECT_XTRA_SIZE_BRAND used here is deliberate and not a bug.
+			 */
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_BRAND,
+												   OBJECT_XTRA_BASE_LOW_RESIST);
+
+			break;
+		}
+		case OBJECT_XTRA_TYPE_LOW_RESIST:
+		{
+			/* Flag 2 */
+			(*f2) |= add_xtra2_flags(o_ptr->xtra2, OBJECT_XTRA_SIZE_LOW_RESIST,
+												   OBJECT_XTRA_BASE_LOW_RESIST);
 			break;
 		}
 	}
+
+	/*Now add the ignores for any xtra above*/
+	if ((*f2) & (TR2_RES_ACID))	(*f3) |= TR3_IGNORE_ACID;
+	if ((*f2) & (TR2_RES_ELEC))	(*f3) |= TR3_IGNORE_ELEC;
+	if ((*f2) & (TR2_RES_FIRE))	(*f3) |= TR3_IGNORE_FIRE;
+	if ((*f2) & (TR2_RES_COLD))	(*f3) |= TR3_IGNORE_COLD;
 }
 
 
@@ -626,8 +733,30 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
  \
 } while (0)
 
+/*
+ * Strip an "object name" into a buffer.
+ */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
 
 
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "buf".
@@ -811,6 +940,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
 		{
 			show_armour = TRUE;
 			break;
@@ -1101,7 +1231,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 			object_desc_chr_macro(t, ' ');
-			object_desc_str_macro(t, (a_name + a_ptr->name));
+			object_desc_str_macro(t, a_ptr->name);
 		}
 
 		/* Grab any ego-item name */
@@ -1111,6 +1241,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, (e_name + e_ptr->name));
+
+			/* Hack - Now we know about the ego-item type */
+			e_info[o_ptr->name2].everseen = TRUE;
 		}
 	}
 
@@ -1124,14 +1257,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	{
 		cptr tail = "";
 
-		/*may be a quest item*/
-		if(o_ptr->ident & IDENT_QUEST)
-		{
-			tail = " (Sealed by Guild Magic)";
-		}
 
 		/* Not searched yet */
-		else if (!known)
+		if (!known)
 		{
 			/* Nothing */
 		}
@@ -1394,11 +1522,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+	if (fuelable_lite_p(o_ptr))
 	{
 		/* Hack -- Turns of light for normal lites */
 		object_desc_str_macro(t, " (with ");
-		object_desc_num_macro(t, o_ptr->pval);
+		object_desc_num_macro(t, o_ptr->timeout);
 		object_desc_str_macro(t, " turns of light)");
 	}
 
@@ -1496,9 +1624,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	}
 
 
-	/* Indicate "charging" objects, but not rods */
-	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD)
+	/* Indicate "charging" objects, but not rods or lites */
+	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD
+	    && !fuelable_lite_p(o_ptr))
 	{
+
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
 	}
@@ -1506,7 +1636,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;
-
 
 	/* Use standard inscription */
 	if (o_ptr->note)
@@ -1553,6 +1682,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_str_macro(q, "% off");
 		*q = '\0';
 		v = discount_buf;
+	}
+
+	/* Use the "unknown" inscription */
+	else if (!known && can_be_pseudo_ided(o_ptr))
+	{
+		v = "unknown";
+		c1 = '<';
+		c2 = '>';
 	}
 
 	/* Nothing */
@@ -1677,6 +1814,7 @@ void mimic_desc_object(char *buf, size_t max, s16b mimic_k_idx)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_DRAG_SHIELD:
 		case TV_LITE:
 		{
 			break;
@@ -1982,6 +2120,9 @@ s16b label_to_equip(int c)
  */
 s16b wield_slot(const object_type *o_ptr)
 {
+	/*Hack - don't allow quest items to be worn*/
+	if(o_ptr->ident & (IDENT_QUEST)) return (-1);
+
 	/* Slot for equipment */
 	switch (o_ptr->tval)
 	{
@@ -2030,6 +2171,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 
 		case TV_SHIELD:
+		case TV_DRAG_SHIELD:
 		{
 			return (INVEN_ARM);
 		}
@@ -3055,6 +3197,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
+	bool allow_list;
+
 
 #ifdef ALLOW_REPEAT
 
@@ -3120,7 +3264,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept equipment */
 	if (e1 <= e2) allow_equip = TRUE;
 
-
 	/* Scan all objects in the grid */
 	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x00);
 
@@ -3176,7 +3319,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 
 		/* Use floor if allowed */
-		else if (easy_floor)
+		else if (use_floor)
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
 		}
@@ -3186,6 +3329,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		{
 			p_ptr->command_wrk = (USE_INVEN);
 		}
+	}
+
+	/* Option to always show a list */
+	if (auto_display_lists)
+	{
+		p_ptr->command_see = TRUE;
 	}
 
 
@@ -3335,6 +3484,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
 
+		/* Hack - Find the origin of the next key */
+		allow_list = interactive_input(TRUE);
 
 		/* Get a key */
 		which = inkey();
@@ -3419,17 +3570,17 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-				if (easy_floor)
+				if (easy_floor && allow_list)
 				{
 					/* There is only one item */
-					if (floor_num == 1)
+					if (f1 == f2)
 					{
 						/* Hack -- Auto-Select */
 						if ((p_ptr->command_wrk == (USE_FLOOR)) ||
 						    (!floor_query_flag))
 						{
 							/* Special index */
-							k = 0 - floor_list[0];
+							k = 0 - floor_list[f1];
 
 							/* Allow player to "refuse" certain actions */
 							if (!get_item_allow(k))
@@ -3683,7 +3834,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* Forget the item_tester_hook restriction */
 	item_tester_hook = NULL;
-
 
 	/* Clean up */
 	if (show_choices)

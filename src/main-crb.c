@@ -104,7 +104,7 @@
  *
  * Added support for POSIX-style pathnames, for Mach-O Carbon (gcc, CW >= 7).
  * We can finally live without Pascal strings to handle files this way.
- * 
+ *
  * (Mach-O Carbon) Graphics tiles are moved out of the resource fork into
  * bundle-based data fork files.
  *
@@ -172,7 +172,7 @@
  *   PICT 1002 = Graphics tile set (16x16 images)
  *   PICT 1004 = Graphics tile set (32x32)
  *
- *   Mach-O Carbon now uses data fork resources: 
+ *   Mach-O Carbon now uses data fork resources:
  *   8x8.png   = Graphics tile set (8x8)
  *   16x16.png = Graphics tile set (16x16 images)
  *   32x32.png = Graphics tile set (32x32)
@@ -802,7 +802,7 @@ static OSErr path_to_spec(const char *path, FSSpec *spec)
 
 	/* ... then FSRef to FSSpec */
 	err = FSGetCatalogInfo(&ref, kFSCatInfoNone, NULL, NULL, spec, NULL);
-	
+
 	/* Inform caller of success or failure */
 	return (err);
 }
@@ -1383,7 +1383,7 @@ static void term_data_check_size(term_data *td)
 		 * Handle fake monospace
 		 *
 		 * pelpel: This is SLOW. Couldn't we use CharExtra
-		 * and SpaceExtra for monospaced fonts? 
+		 * and SpaceExtra for monospaced fonts?
 		 */
 		if (td->t->higher_pict) td->t->higher_pict = FALSE;
 		td->t->always_pict = TRUE;
@@ -1400,7 +1400,7 @@ static void term_data_resize(term_data *td)
 {
 	/*
 	 * Actually resize the window
-	 * 
+	 *
 	 * ResizeWindow is the preferred API call, but it cannot
 	 * be used here.
 	 */
@@ -2063,7 +2063,7 @@ static void cleanup_sound(void)
  * Play sound effects asynchronously -- pelpel
  *
  * I don't believe those who first started using the previous implementations
- * imagined this is *much* more complicated as it may seem.  Anyway, 
+ * imagined this is *much* more complicated as it may seem.  Anyway,
  * introduced round-robin scheduling of channels and made it much more
  * paranoid about HLock/HUnlock.
  *
@@ -2472,6 +2472,8 @@ static errr Term_xtra_mac_react(void)
 		use_sound = arg_sound;
 	}
 
+	/* Don't actually switch graphics until the game is running */
+	if (!initialized || !game_in_progress) return (-1);
 
 	/* Handle graphics */
 	if (graf_mode_req != graf_mode)
@@ -2577,11 +2579,15 @@ static errr Term_xtra_mac_react(void)
 		term_data_resize(td);
 
 		/* Reset visuals */
+		if (initialized && game_in_progress)
+		{
+
 #ifndef ANG281_RESET_VISUALS
-		reset_visuals(TRUE);
+			reset_visuals(TRUE);
 #else
-		reset_visuals();
+			reset_visuals();
 #endif /* !ANG281_RESET_VISUALS */
+		}
 	}
 
 	/* Success */
@@ -3172,7 +3178,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			/* Draw the character */
 			DrawChar(c);
 
-#ifdef CLIP_HACK			
+#ifdef CLIP_HACK
 			/* Clip to the window - inefficient (; ;) XXX XXX */
 			ClipRect(&portRect);
 #endif /* CLIP_HACK */
@@ -3216,6 +3222,12 @@ static void term_data_link(int i)
 
 	/* Use a "software" cursor */
 	td->t->soft_cursor = TRUE;
+
+	/*
+	 * HACK - We have an "icky" lower right corner, since
+	 * the window resize control is placed there
+	 */
+	td->t->icky_corner = TRUE;
 
 	/* Erase with "white space" */
 	td->t->attr_blank = TERM_WHITE;
@@ -3302,14 +3314,7 @@ static char *locate_lib(char *buf, size_t size)
 	/* Remove the trailing path */
 	*p = '\0';
 
-	/*
-	 * Paranoia - bounds check, with 5 being the length of "/lib/"
-	 * and 1 for terminating '\0'.
-	 */
-	if (strlen(buf) + 5 + 1 > size) goto ret;
-
-	/* Append "/lib/" */
-	strcat(buf, "/lib/");
+	my_strcat(buf, "/lib/", size);
 
 	/* Set result */
 	res = buf;
@@ -3551,8 +3556,12 @@ static void cf_load_prefs()
 	/* Any of the above failed */
 	if (!ok)
 	{
+
+#if 0
 		/* This may be the first run */
 		mac_warning("Preferences are not found.");
+
+#endif /* 0 */
 
 		/* Ignore the rest */
 		return;
@@ -4310,7 +4319,7 @@ static void init_menubar(void)
 	/* Get graphics (sub)menu (id 144) */
 	m = GetMenu(SUBMENU_GRAPH);
 
-	/* Insert it as a submenu */		
+	/* Insert it as a submenu */
 	InsertMenu(m, hierMenu);
 
 
@@ -4637,19 +4646,19 @@ static void setup_menus(void)
 
 		/* Item "None" */
 		EnableMenuItem(submenu, ITEM_NONE);
-		CheckMenuItem(submenu, ITEM_NONE, (graf_mode == GRAF_MODE_NONE));
+		CheckMenuItem(submenu, ITEM_NONE, (graf_mode_req == GRAF_MODE_NONE));
 
 		/* Item "8x8" */
 		EnableMenuItem(submenu, ITEM_8X8);
-		CheckMenuItem(submenu, ITEM_8X8, (graf_mode == GRAF_MODE_8X8));
+		CheckMenuItem(submenu, ITEM_8X8, (graf_mode_req == GRAF_MODE_8X8));
 
 		/* Item "16x16" */
 		EnableMenuItem(submenu, ITEM_16X16);
-		CheckMenuItem(submenu, ITEM_16X16, (graf_mode == GRAF_MODE_16X16));
+		CheckMenuItem(submenu, ITEM_16X16, (graf_mode_req == GRAF_MODE_16X16));
 
 		/* Item "32x32" */
 		EnableMenuItem(submenu, ITEM_32X32);
-		CheckMenuItem(submenu, ITEM_32X32, (graf_mode == GRAF_MODE_32X32));
+		CheckMenuItem(submenu, ITEM_32X32, (graf_mode_req == GRAF_MODE_32X32));
 
 #ifdef USE_DOUBLE_TILES
 
@@ -5972,7 +5981,7 @@ static bool CheckEvents(int wait)
 
 					/* Find the window */
 					w = FrontWindow();
-					
+
 					if (w != NULL)
 					{
 						/* Relevant "term_data" */
@@ -6387,7 +6396,7 @@ int main(void)
 	if ((err == noErr) &&
 	    (response & gestaltMenuMgrAquaLayoutMask)) is_aqua = TRUE;
 
-	/* 
+	/*
 	 * Remember Mac OS version, in case we have to cope with version-specific
 	 * problems
 	 */

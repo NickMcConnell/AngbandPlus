@@ -13,10 +13,24 @@
 /*max length of note output*/
 #define LINEWRAP	75
 
+/*used for knowledge display*/
+#define BROWSER_ROWS			16
+
 /*
  *  Header and footer marker string for pref file dumps
  */
 static cptr dump_seperator = "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#";
+
+typedef struct monster_list_entry monster_list_entry;
+/*
+ * Structure for building monster "lists"
+ */
+struct monster_list_entry
+{
+	s16b r_idx;			/* Monster race index */
+
+	byte amount;
+};
 
 
 /*
@@ -255,7 +269,7 @@ void do_cmd_change_name(void)
 	store_type *st_ptr = &store[STORE_HOME];
 
 	/* Prompt */
-	p = "[(c)hange name, (f)ile, (h/+)prev display mode, (-/l)next display mode, or ESC]";
+	p = "[(c)hange name, (f)ile, (h/-)prev display mode, (l/+)next display mode, or ESC]";
 
 	/* Save screen */
 	screen_save();
@@ -2800,23 +2814,23 @@ void do_cmd_colors(void)
  	    }
  	    else if (what_depth == CHEST_LEVEL)
  	    {
- 			sprintf(depths, "Chest");
+ 			strnfmt(depths, sizeof(depths), "Chest");
  	    }
 		else if (what_depth == QUEST_LEVEL)
  	    {
- 			sprintf(depths, "Quest");
+ 			strnfmt(depths, sizeof(depths), "Quest");
  	    }
 		else if (depth_in_feet)
  	    {
- 			sprintf(depths, " %4d", what_depth * 50);
+ 			strnfmt(depths, sizeof(depths), " %4d", what_depth * 50);
  	    }
 		else
  	    {
- 		sprintf(depths, " %4d", what_depth);
+ 		strnfmt(depths, sizeof(depths), " %4d", what_depth);
 		}
 
  	  	/* Make preliminary part of note */
-     	sprintf(info_note, "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
+     	strnfmt(info_note, sizeof(info_note), "|%9lu| %s | %2d  | ", turn, depths, p_ptr->lev);
 
 		/*write the info note*/
 		fprintf(notes_file, info_note);
@@ -2893,7 +2907,7 @@ void do_cmd_colors(void)
  	 	/* Add note to buffer */
  	 	else
 		{
-			fprintf(notes_file, buf);
+			fprintf(notes_file, "%s", buf);
 
 			/*break the line*/
 			fprintf(notes_file, "\n");
@@ -2922,7 +2936,7 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_feeling_text[11] =
+static cptr do_cmd_feeling_text[LEV_THEME_HEAD] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
@@ -2944,8 +2958,6 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
-	/* Verify the feeling */
-	if (feeling > 10) feeling = 10;
 
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
@@ -2954,16 +2966,88 @@ void do_cmd_feeling(void)
 		return;
 	}
 
+	/* No useful feelings until enough time has passed */
+	if (!do_feeling)
+	{
+		msg_print("You are still uncertain about this level...");
+		return;
+	}
+
+	/* Verify the feeling */
+	if (feeling >= LEV_THEME_HEAD)
+	{
+
+		/*print out a message about a themed level*/
+		char note[100];
+		char mon_theme[80];
+
+		my_strcpy(note, "You have entered ", sizeof(note));
+		my_strcpy(mon_theme, feeling_themed_level[feeling - LEV_THEME_HEAD], sizeof(mon_theme));
+		if (is_a_vowel(mon_theme[0])) my_strcat(note, "an ", sizeof(note));
+		else my_strcat(note, "a ", sizeof(note));
+
+		my_strcat(note, format("%s stronghold.", mon_theme), sizeof(note));
+
+		msg_print(note);
+	}
+
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	else msg_print(do_cmd_feeling_text[feeling]);
 }
+
+
+
+/*
+ * Array of feeling strings
+ */
+static cptr do_cmd_challenge_text[14] =
+{
+	"challenges you from beyond the grave!",
+	"thunders 'Prove worthy of your traditions - or die ashamed!'.",
+	"desires to test your mettle!",
+	"has risen from the dead to test you!",
+	"roars 'Fight, or know yourself for a coward!'.",
+	"summons you to a duel of life and death!",
+	"desires you to know that you face a mighty champion of yore!",
+	"demands that you prove your worthiness in combat!",
+	"calls you unworthy of your ancestors!",
+	"challenges you to a deathmatch!",
+	"walks Middle-Earth once more!",
+	"challenges you to demonstrate your prowess!",
+	"demands you prove yourself here and now!",
+	"asks 'Can ye face the best of those who came before?'."
+};
+
+
+
+
+/*
+ * Personalize, randomize, and announce the challenge of a player ghost. -LM-
+ */
+void ghost_challenge(void)
+{
+	monster_race *r_ptr = &r_info[r_ghost];
+
+	/*paranoia*/
+	/* Check there is a name/ghost first */
+	if (ghost_name[0] == '\0')
+	{
+		/*there wasn't a ghost*/
+		bones_selector = 0;
+		return;
+	}
+
+	msg_format("%^s, the %^s %s", ghost_name, r_name + r_ptr->name,
+		do_cmd_challenge_text[rand_int(14)]);
+}
+
 
 /*
  * Display the current quest (if any)
  */
 void do_cmd_quest(void)
 {
-	cptr q_out;
+	char q_out[120];
 
 	quest_type *q_ptr = &q_info[quest_num(p_ptr->cur_quest)];
 
@@ -2978,15 +3062,15 @@ void do_cmd_quest(void)
 
 		else
 		{
-			q_out = describe_quest(p_ptr->cur_quest, 4);
+			describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_FULL);
 
 			/* Break into two lines if necessary */
 			if (strlen(q_out) < 70) msg_print(q_out);
 			else
 			{
-				q_out = describe_quest(p_ptr->cur_quest, 1);
+				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_1);
 				msg_format(q_out);
-				q_out = describe_quest(p_ptr->cur_quest, 2);
+				describe_quest(q_out, sizeof(q_out), p_ptr->cur_quest, QMODE_HALF_2);
 				msg_format(q_out);
 			}
 		}
@@ -3101,25 +3185,14 @@ void do_cmd_load_screen(void)
 static void do_cmd_knowledge_notes(void)
 {
 	char buff[1024];
-  	char fname[80];
 
 	/*close the notes file for writing*/
 	my_fclose(notes_file);
 
-	/*the name of the notes file is based on character name*/
-	sprintf(fname, "%s.txt", op_ptr->full_name);
-
-	/*get the path for the notes file*/
-	path_build(buff, sizeof(buff), ANGBAND_DIR_SAVE, fname);
-
-	/*open notes file for reading*/
-	notes_file = my_fopen(buff, "r");
+	path_build(buff, sizeof(buff), ANGBAND_DIR_FILE, NOTES_FILENAME);
 
 	/* Display the file contents */
-	show_file(buff, "Notes", 0, 0);
-
-	/*close it for reading*/
-	my_fclose(notes_file);
+ 	show_file(buff, "Notes", 0, 0);
 
 	/*re-open for appending*/
 	notes_file = my_fopen(buff, "a");
@@ -3141,220 +3214,1513 @@ void do_cmd_save_screen(void)
 	msg_print("Dump saved.");
 }
 
+/*
+ * Description of each object group.
+ */
+static cptr object_group_text[] =
+{
+	"Mushrooms",
+	"Potions",
+	"Scrolls",
+	"Rings",
+	"Amulets",
+	"Light Sources",
+	"Wands",
+	"Staves",
+	"Rods",
+	"Swords",
+	"Hafted Weapons",
+	"Polearms",
+	"Diggers",
+	"Bows",
+	"Soft Armor",
+	"Hard Armor",
+	"Dragon Armor",
+	"Dragon Shields",
+	"Shields",
+	"Cloaks",
+	"Gloves",
+	"Helms",
+	"Crowns",
+	"Boots",
+	"Spell books",
+	"Prayer books",
+	"Shots",
+	"Arrows",
+	"Bolts",
+	"Chests",
+	NULL
+};
 
 
+
+/*
+ * TVALs of items in each group
+ */
+static byte object_group_tval[] =
+{
+	TV_FOOD,
+	TV_POTION,
+	TV_SCROLL,
+	TV_RING,
+	TV_AMULET,
+	TV_LITE,
+	TV_WAND,
+	TV_STAFF,
+	TV_ROD,
+	TV_SWORD,
+	TV_HAFTED,
+	TV_POLEARM,
+	TV_DIGGING,
+	TV_BOW,
+	TV_SOFT_ARMOR,
+	TV_HARD_ARMOR,
+	TV_DRAG_ARMOR,
+	TV_DRAG_SHIELD,
+	TV_SHIELD,
+	TV_CLOAK,
+	TV_GLOVES,
+	TV_HELM,
+	TV_CROWN,
+	TV_BOOTS,
+	TV_MAGIC_BOOK,
+	TV_PRAYER_BOOK,
+	TV_SHOT,
+	TV_ARROW,
+	TV_BOLT,
+	TV_CHEST,
+	0
+};
+
+/*
+ * Build a list of objects indexes in the given group. Return the number
+ * of objects in the group.
+ */
+static int collect_objects(int grp_cur, int object_idx[])
+{
+	int i, j, k, object_cnt = 0;
+
+	/* Get a list of x_char in this group */
+	byte group_tval = object_group_tval[grp_cur];
+
+	/* Check every object */
+	for (i = 0; i < z_info->k_max; i++)
+	{
+		/* Access the object type */
+		object_kind *k_ptr = &k_info[i];
+
+		/*used to check for allocation*/
+		k = 0;
+
+		/* Skip empty objects */
+		if (!k_ptr->name) continue;
+
+		/* Skip items with no distribution (including special artifacts) */
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
+		{
+			/*add the rarity, if there is one*/
+			k += k_ptr->chance[j];
+		}
+		/*not in allocation table*/
+		if (!(k))  continue;
+
+		/* Require objects ever seen*/
+		if (!(k_ptr->everseen || k_ptr->aware)) continue;
+
+		/* Check for object in the group */
+		if (k_ptr->tval == group_tval)
+		{
+			/* Add the race */
+			object_idx[object_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	object_idx[object_cnt] = 0;
+
+	/* Return the number of races */
+	return object_cnt;
+}
+
+/*
+ * Check if an artifact is *identified*.  Assumes all lost or discarded
+ * artifacts are *identified*.  Assumes it is a known artifact
+ */
+static bool is_artifact_fully_identified(byte art_num)
+{
+	int i, y;
+
+	/* Process objects in the dungeon */
+	for (i = 1; i < o_max; i++)
+	{
+		/*get the object*/
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Go to next one if this is not the artifact */
+		if (o_ptr->name1 != art_num) continue;
+
+		/* We have a match, return the status*/
+		return (o_ptr->ident & (IDENT_MENTAL));
+	}
+
+	/*
+	 * Scan the inventory for the artifact
+	 * Notice we are doing the inventory and equipment in the same loop.
+	 */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr;
+
+		/* First, the item actually in the slot */
+		o_ptr = &inventory[i];
+
+		/*nothing there*/
+		if (!(o_ptr->k_idx)) continue;
+
+		/* Go to next one if this is not the artifact */
+		if (o_ptr->name1 != art_num) continue;
+
+		/* We have a match, return the status*/
+		return (o_ptr->ident & (IDENT_MENTAL));
+	}
+
+	/* Check each store for the artifact*/
+	for (y = 0; y < MAX_STORES; y++)
+	{
+		/* Get the store */
+		store_type *st_ptr = &store[y];
+
+		/*The guild doesn't carry stock*/
+		if (y == STORE_GUILD) continue;
+
+		/* Look for items in the home, if there is anything there */
+		if (st_ptr->stock_num)
+		{
+			/*go through each item in the house*/
+			for (i = 0; i < st_ptr->stock_num; i++)
+			{
+				object_type *o_ptr;
+
+				/* Point to the item */
+				o_ptr = &st_ptr->stock[i];
+
+				/*nothing there*/
+				if (!(o_ptr->k_idx)) continue;
+
+				/* Go to next one if this is not the artifact */
+				if (o_ptr->name1 != art_num) continue;
+
+				/* We have a match, return the status*/
+				return (o_ptr->ident & (IDENT_MENTAL));
+			}
+		}
+
+	}
+
+	/*
+	 * Artifact isn't in the stores, on the ground, or in the inventory,
+	 * so it must have been lost or discarded.  We then give the player
+	 * full identification for their reference
+     */
+	return(TRUE);
+
+}
+
+
+
+/*
+ * Build a list of artifact indexes in the given group. Return the number
+ * of eligible artifacts in that group.
+ */
+static int collect_artifacts(int grp_cur, int object_idx[])
+{
+	int i, object_cnt = 0;
+	bool *okay;
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Get a list of x_char in this group */
+	byte group_tval = object_group_tval[grp_cur];
+
+	/*make a list of artifacts not found*/
+	/* Allocate the "object_idx" array */
+	C_MAKE(okay, z_info->art_max, bool);
+
+	/* Default first,  */
+	for (i = 0; i < z_info->art_max; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/*start with false*/
+		okay[i] = FALSE;
+
+		/* Skip "empty" artifacts */
+		if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->cur_num) continue;
+
+		/*assume all created artifacts are good at this point*/
+		okay[i] = TRUE;
+	}
+
+	/* Process objects in the dungeon */
+	for (i = 1; i < o_max; i++)
+	{
+		/*get the object*/
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!o_ptr->name1) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* We found a created, unidentified artifact */
+		okay[o_ptr->name1] = FALSE;
+
+	}
+
+	/*
+	 * Scan the inventory for unidentified artifacts
+	 * Notice we are doing the inventory and equipment in the same loop.
+	 */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		/* First, the item actually in the slot */
+		object_type *o_ptr = &inventory[i];
+
+		/*nothing there*/
+		if (!(o_ptr->k_idx)) continue;
+
+		/* Ignore non-artifacts */
+		if (!o_ptr->name1) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* We found a created, unidentified artifact */
+		okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Look for items in the home, if there is anything there */
+	if (st_ptr->stock_num)
+	{
+		/*go through each item in the house*/
+		for (i = 0; i < st_ptr->stock_num; i++)
+		{
+			/* Point to the item */
+			object_type *o_ptr = &st_ptr->stock[i];;
+
+			/*nothing there*/
+			if (!(o_ptr->k_idx)) continue;
+
+			/* Ignore non-artifacts */
+			if (!o_ptr->name1) continue;
+
+			/* Ignore known items */
+			if (object_known_p(o_ptr)) continue;
+
+			/* We found a created, unidentified artifact */
+			okay[o_ptr->name1] = FALSE;
+		}
+
+	}
+
+	if (cheat_know)
+	{
+		for (i = 0; i < z_info->art_max; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+
+			/* Skip "empty" artifacts */
+			if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+			/*assume all created artifacts are good at this point*/
+			okay[i] = TRUE;
+		}
+	}
+
+
+	/* Finally, go through the list of artifacts and categorize the good ones */
+	for (i = 0; i < z_info->art_max; i++)
+	{
+		/* Access the artifact */
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Skip empty artifacts */
+		if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+		/* Require artifacts ever seen*/
+		if (okay[i] == FALSE) continue;
+
+		/* Check for race in the group */
+		if (a_ptr->tval == group_tval)
+		{
+			/* Add the race */
+			object_idx[object_cnt++] = i;
+		}
+	}
+
+	/* Terminate the list */
+	object_idx[object_cnt] = 0;
+
+	/*clear the array*/
+	KILL(okay);
+
+	/* Return the number of races */
+	return object_cnt;
+
+}
+
+
+/*
+ * Display the object groups.
+ */
+static void display_group_list(int col, int row, int wid, int per_page,
+	int grp_idx[], cptr group_text[], int grp_cur, int grp_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (grp_idx[i] >= 0); i++)
+	{
+		/* Get the group index */
+		int grp = grp_idx[grp_top + i];
+
+		/* Choose a color */
+		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+		/* Erase the entire line */
+		Term_erase(col, row + i, wid);
+
+		/* Display the group label */
+		c_put_str(attr, group_text[grp], row + i, col);
+	}
+}
+
+/*
+ * Move the cursor in a browser window
+ */
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
+						   int *list_cur, int list_cnt)
+{
+	int d;
+	int col = *column;
+	int grp = *grp_cur;
+	int list = *list_cur;
+
+	/* Extract direction */
+	d = target_dir(ch);
+
+	if (!d) return;
+
+	/* Diagonals - hack */
+	if ((ddx[d] > 0) && ddy[d])
+	{
+		/* Browse group list */
+		if (!col)
+		{
+			int old_grp = grp;
+
+			/* Move up or down */
+			grp += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp < 0) grp = 0;
+			if (grp != old_grp)	list = 0;
+		}
+
+		/* Browse sub-list list */
+		else
+		{
+			/* Move up or down */
+			list += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (list >= list_cnt) list = list_cnt - 1;
+			if (list < 0) list = 0;
+		}
+
+		(*grp_cur) = grp;
+		(*list_cur) = list;
+
+		return;
+	}
+
+	if (ddx[d])
+	{
+		col += ddx[d];
+		if (col < 0) col = 0;
+		if (col > 1) col = 1;
+
+		(*column) = col;
+
+		return;
+	}
+
+	/* Browse group list */
+	if (!col)
+	{
+		int old_grp = grp;
+
+		/* Move up or down */
+		grp += ddy[d];
+
+		/* Verify */
+		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp < 0) grp = 0;
+		if (grp != old_grp)	list = 0;
+	}
+
+	/* Browse sub-list list */
+	else
+	{
+		/* Move up or down */
+		list += ddy[d];
+
+		/* Verify */
+		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
+	}
+
+	(*grp_cur) = grp;
+	(*list_cur) = list;
+}
+
+/*
+ * Hack -- Create a "forged" artifact
+ */
+static bool prepare_fake_artifact(object_type *o_ptr, byte name1)
+{
+	s16b i;
+
+	artifact_type *a_ptr = &a_info[name1];
+
+	/* Ignore "empty" artifacts */
+	if (a_ptr->tval + a_ptr->sval == 0) return FALSE;
+
+	/* Get the "kind" index */
+	i = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!i) return (FALSE);
+
+	/* Create the artifact */
+	object_prep(o_ptr, i);
+
+	/* Save the name */
+	o_ptr->name1 = name1;
+
+	/* Extract the fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/*identify it*/
+	object_known(o_ptr);
+
+	/*make it a store item*/
+	o_ptr->ident |= IDENT_STORE;
+
+	/* Set the "known" flag, but only if the artifact is *identified* */
+	if (is_artifact_fully_identified(name1))
+	{
+		o_ptr->ident |= (IDENT_MENTAL);
+	}
+
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Describe fake artifact
+ */
+void desc_art_fake(int a_idx)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Make fake artifact */
+	prepare_fake_artifact(i_ptr, a_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	object_info_screen(i_ptr);
+}
+
+/*
+ * Display the objects in a group.
+ */
+static void display_artifact_list(int col, int row, int per_page, int object_idx[],
+	int object_cur, int object_top)
+{
+	int i;
+	char o_name[80];
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && object_idx[i]; i++)
+	{
+		/* Get the object index */
+		int a_idx = object_idx[object_top + i];
+
+		/* Choose a color */
+		byte attr = TERM_WHITE;
+		byte cursor = TERM_L_BLUE;
+		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Wipe the object */
+		object_wipe(i_ptr);
+
+		/* Make fake artifact */
+		prepare_fake_artifact(i_ptr, a_idx);
+
+		/* Get its name */
+		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 0);
+
+		/* Display the name */
+		c_prt(attr, o_name, row + i, col);
+
+
+		if (cheat_know)
+		{
+			artifact_type *a_ptr = &a_info[a_idx];
+
+			c_prt(attr, format ("%3d", a_idx), row + i, 68);
+			c_prt(attr, format ("%3d", a_ptr->level), row + i, 72);
+			c_prt(attr, format ("%3d", a_ptr->rarity), row + i, 76);
+
+		}
+
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
 
 /*
  * Display known artifacts
  */
 static void do_cmd_knowledge_artifacts(void)
 {
-	int i, k, z, x, y;
+	int i, len, max;
+	int grp_cur, grp_top;
+	int artifact_old, artifact_cur, artifact_top;
+	int grp_cnt, grp_idx[100];
+	int artifact_cnt;
+	int *artifact_idx;
 
-	FILE *fff;
+	int column = 0;
+	bool flag;
+	bool redraw;
 
-	char file_name[1024];
+	/* Allocate the "artifact_idx" array */
+	C_MAKE(artifact_idx, z_info->art_max, int);
 
-	char o_name[80];
+	max = 0;
+	grp_cnt = 0;
 
-	bool *okay;
-
-
-	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
-
-	/* Failure */
-	if (!fff) return;
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, z_info->a_max, bool);
-
-	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
+	/* Check every group */
+	for (i = 0; object_group_text[i] != NULL; i++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		/* Measure the label */
+		len = strlen(object_group_text[i]);
 
-		/* Default */
-		okay[k] = FALSE;
+		/* Save the maximum length */
+		if (len > max) max = len;
 
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
+		/* See if artifact are known */
+		if (collect_artifacts(i, artifact_idx))
+		{
+			/* Build a list of groups with known artifacts */
+			grp_idx[grp_cnt++] = i;
+		}
 	}
 
-	/* Check the dungeon */
-	for (y = 0; y < p_ptr->cur_map_hgt; y++)
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	grp_cur = grp_top = 0;
+	artifact_cur = artifact_top = 0;
+	artifact_old = -1;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
 	{
-		for (x = 0; x < p_ptr->cur_map_wid; x++)
+		char ch;
+
+		if (redraw)
 		{
-			object_type *o_ptr;
+			clear_from(0);
 
-			/* Scan all objects in the grid */
-			for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
+			prt("Knowledge - artifacts", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+
+			if (cheat_know)
 			{
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
+				prt("Idx", 4, 68);
+				prt("Dep", 4, 72);
+				prt("Rar", 4, 76);
+			}
 
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
 
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll artifact list */
+		if (artifact_cur < artifact_top) artifact_top = artifact_cur;
+		if (artifact_cur >= artifact_top + BROWSER_ROWS) artifact_top = artifact_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of object groups */
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
+
+		/* Get a list of objects in the current group */
+		artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
+
+		/* Display a list of objects in the current group */
+		display_artifact_list(max + 3, 6, BROWSER_ROWS, artifact_idx, artifact_cur, artifact_top);
+
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
+
+		/* The "current" object changed */
+		if (artifact_old != artifact_idx[artifact_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" object */
+			artifact_old = artifact_idx[artifact_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				desc_art_fake(artifact_idx[artifact_cur]);
+
+				redraw = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, artifact_cnt);
+				break;
 			}
 		}
 	}
 
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Scan the artifacts */
-	for (k = 0; k < z_info->a_max; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* List "dead" ones */
-		if (!okay[k]) continue;
-
-		/* Paranoia */
-		strcpy(o_name, "Unknown Artifact");
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, z);
-
-			/* Make it an artifact */
-			i_ptr->name1 = k;
-
-			/* Describe the artifact */
-			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
-		}
-
-		/* Hack -- Build the artifact name */
-		fprintf(fff, "     The %s\n", o_name);
-	}
-
-	/* Free the "okay" array */
-	FREE(okay);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Known (or lost) artifacts", 0, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
+	/* XXX XXX Free the "object_idx" array */
+	KILL(artifact_idx);
 }
 
+/*
+ * Description of each monster group.
+ */
+static cptr monster_group_text[] =
+{
+	"Uniques",						/*All uniques, all letters*/
+	"Ants",  						/*'a'*/
+	"Ainur/Maiar",					/*'A'*/
+	"Bats",							/*'b'*/
+	"Birds",						/*'B'*/
+	"Centipedes",					/*'c'*/
+	"Canines",						/*'C'*/
+	"Dragons",						/*'d'*/
+	"Ancient Dragons/Wyrms",		/*'D'*/
+	"Floating Eyes",				/*'e'*/
+	"Elementals",					/*'E'*/
+	"Felines",						/*'f'*/
+	"Dragon Flies",					/*'F'*/
+	"Golems",						/*'g'*/
+	"Ghosts",						/*'G'*/
+	"Hobbits/Elves/Dwarves",		/*'h'*/
+	"Hybrids",						/*'H'*/
+	"Icky Things",					/*'i'*/
+	"Insects",						/*'I'*/
+	"Jellies",						/*'j'*/
+	"Snakes",						/*'J'*/
+	"Kobolds",						/*'k'*/
+	"Killer Beetles",				/*'K'*/
+	"Louses",						/*'l'*/
+	"Lichs",						/*'L'*/
+	"Molds",						/*'m'*/
+	"Multi-Headed Reptiles",		/*'M'*/
+	"Nagas",						/*'n'*/
+	/*Unused*/						/*'N'*/
+	"Orcs",							/*'o'*/
+	"Ogres",						/*'O'*/
+	"People/Humans",				/*'p'*/
+	"Giant Humanoids",				/*'P'*/
+	"Quadrupeds",					/*'q'*/
+	"Quylthulgs",					/*'Q'*/
+	"Rodents",						/*'r'*/
+	"Reptiles/Amphibians",			/*'R'*/
+	"Skeletons",					/*'s'*/
+	"Spiders/Scorpions/Ticks",		/*'S'*/
+	"Townpersons",					/*'t'*/
+	"Trolls",						/*'T'*/
+	"Minor Demons",					/*'u'*/
+	"Major Demons",					/*'U'*/
+	"Vortices",						/*'v'*/
+	"Vampires",						/*'V'*/
+	"Worms/Worm Masses",			/*'w'*/
+	"Wight/Wraith/etc",				/*'W'*/
+	/*Unused*/						/*'x'*/
+	"Xorn/Xaren/etc",				/*'X'*/
+	"Yeeks",						/*'y'*/
+	"Yetis",						/*'Y'*/
+	"Zombies/Mummies",				/*'z'*/
+	"Zephyr Hounds",				/*'Z'*/
+	"Mushroom Patches",				/*','*/
+	"Mimics",						/*'$!?=._-*/
+	NULL
+};
 
 /*
- * Display known uniques
- *
- * Note that the player ghosts are ignored.  XXX XXX XXX
+ * Symbols of monsters in each group. Note the "Uniques" group
+ * is handled differently.
  */
-static void do_cmd_knowledge_uniques(void)
+static cptr monster_group_char[] =
 {
-	int i, n;
-	FILE *fff;
-	char file_name[1024];
-	u16b why = 2;
-	u16b *who;
-	int killed = 0;
-	char header[80];
+	(char *) -1L,
+	"a",
+	"A",
+	"b",
+	"B",
+	"c",
+	"C",
+	"d",
+	"D",
+	"e",
+	"E",
+	"f",
+	"F",
+	"g",
+	"G",
+	"h",
+	"H",
+	"i",
+	"I",
+	"j",
+	"J",
+	"k",
+	"K",
+	"l",
+	"L",
+	"m",
+	"M",
+	"n",
+	/*"N",  Unused*/
+	"o",
+	"O",
+	"p",
+	"P",
+	"q",
+	"Q",
+	"r",
+	"R",
+	"s",
+	"S",
+	"t",
+	"T",
+	"u",
+	"U",
+	"v",
+	"V",
+	"w",
+	"W",
+	/*"x", Unused*/
+	"X",
+	"y",
+	"Y",
+	"z",
+	"Z",
+	",",
+	"$!?=._-",  /*Mimics*/
+	NULL
+};
 
+/*
+ * Build a list of monster indexes in the given group. Return the number
+ * of monsters in the group.
+ */
+static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
+{
+	int i, mon_count = 0;
 
-	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
+	/* Get a list of x_char in this group */
+	cptr group_char = monster_group_char[grp_cur];
 
-	/* Failure */
-	if (!fff) return;
+	/* XXX Hack -- Check if this is the "Uniques" group */
+	bool grp_unique = (monster_group_char[grp_cur] == (char *) -1L);
 
-	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, u16b);
+	/* Check every race */
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		/* Access the race */
+		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
-	/* Collect matching monsters */
-	for (i = 1, n = 0; i < z_info->r_max; i++)
+		/* Is this a unique? */
+		bool unique = (r_ptr->flags1 & (RF1_UNIQUE));
+
+		/* Skip empty race */
+		if (!r_ptr->name) continue;
+
+		/* No Player Ghosts, unless active */
+		if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) continue;
+
+		if (grp_unique && !(unique)) continue;
+
+		/* Require known monsters */
+		if (!(mode & 0x02) && (!cheat_know) && (!(l_ptr->sights))) continue;
+
+		/* Check for race in the group */
+		if ((grp_unique) || (strchr(group_char, r_ptr->d_char)))
+		{
+			/* Add the race */
+			mon_idx[mon_count++].r_idx = i;
+
+			/* XXX Hack -- Just checking for non-empty group */
+			if (mode & 0x01) break;
+		}
+	}
+
+	/* Terminate the list */
+	mon_idx[mon_count].r_idx = 0;
+
+	/* Return the number of races */
+	return (mon_count);
+}
+
+/*
+ * Display the monsters in a group.
+ */
+static void display_monster_list(int col, int row, int per_page, monster_list_entry *mon_idx,
+	int mon_cur, int mon_top, int grp_cur)
+{
+	int i;
+
+	u32b known_uniques, dead_uniques, slay_count;
+
+	/* Start with 0 kills*/
+	known_uniques = dead_uniques = slay_count = 0;
+
+	/* Count up monster kill counts */
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 		monster_lore *l_ptr = &l_list[i];
 
-		/* Require known monsters */
-		if (!cheat_know && !l_ptr->sights) continue;
+		/* Require non-unique monsters */
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			/*No active player ghosts*/
+			if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) continue;
 
-		/* Require unique monsters */
-		if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+			/*Count if we have seen the unique*/
+			if (l_ptr->sights)
+			{
+				known_uniques++;
+
+				/*Count if the unique is dead*/
+				if (r_ptr->max_num == 0)
+				{
+					dead_uniques++;
+					slay_count++;
+				}
+			}
+
+		}
 
 		/* Collect "appropriate" monsters */
-		who[n++] = i;
+		else slay_count += l_ptr->pkills;
 	}
 
-	/* Select the sort method */
-	ang_sort_comp = ang_sort_comp_hook;
-	ang_sort_swap = ang_sort_swap_hook;
-
-	/* Sort the array by dungeon depth of monsters */
-	ang_sort(who, &why, n);
-
-
-	/* Print the monsters */
-	for (i = 0; i < n; i++)
+	/* Display lines until done */
+	for (i = 0; i < per_page && mon_idx[i].r_idx; i++)
 	{
-		monster_race *r_ptr = &r_info[who[i]];
-		bool dead = (r_ptr->max_num == 0);
+		byte attr;
 
-		if (dead) killed++;
+		/* Get the race index */
+		int r_idx = mon_idx[mon_top + i].r_idx;
 
-		/* Print a message */
-		fprintf(fff, "     %-30s is %s\n",
-			    (r_name + r_ptr->name),
-			    (dead ? "dead" : "alive"));
+		/* Access the race */
+		monster_race *r_ptr = &r_info[r_idx];
+		monster_lore *l_ptr = &l_list[r_idx];
+
+		char race_name[80];
+
+		/* Handle player chosts differently */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			char racial_name[80];
+
+			/* Get the ghost name. */
+			strcpy(race_name, ghost_name);
+
+			/* Get the racial name. */
+			strcpy(racial_name, r_name + r_ptr->name);
+
+			/* Build the ghost name. */
+			strcat(race_name, ", the ");
+			strcat(race_name, racial_name);
+		}
+
+		/* Get the monster race name (singular)*/
+		else monster_desc_race(race_name, sizeof(race_name), r_idx);
+
+		/* Choose a color */
+		attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
+
+		/* Display the name */
+		c_prt(attr, race_name, row + i, col);
+
+		if (cheat_know)
+		{
+			c_prt(attr, format ("%d", r_idx), row + i, 60);
+		}
+
+		/* Display symbol */
+		Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+
+		/* Display kills */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/*use alive/dead for uniques*/
+			put_str(format("%s", (r_ptr->max_num == 0) ? "dead" : "alive"),
+			        row + i, 73);
+		}
+		else put_str(format("%5d", l_ptr->pkills), row + i, 73);
+
 	}
 
-	/* Free the "who" array */
-	FREE(who);
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
 
-	/* Close the file */
-	my_fclose(fff);
+	/*Clear the monster count line*/
+	Term_erase(0, 22, 255);
 
-	/* Construct header line */
-	sprintf(header, "Uniques: %d known, %d killed", n, killed);
+	if (monster_group_char[grp_cur] != (char *) -1L)
+   	{
 
-	/* Display the file contents */
-	show_file(file_name, header, 0, 0);
 
-	/* Remove the file */
-	fd_kill(file_name);
+		c_put_str(TERM_L_BLUE, format("Total Creatures Slain: %8d.", slay_count), 22, col);
+	}
+	else
+	{
+		c_put_str(TERM_L_BLUE, format("Known Uniques: %3d, Slain Uniques: %3d.", known_uniques, dead_uniques),
+						22, col);
+	}
+}
+
+
+/*
+ * Display known monsters.
+ */
+static void do_cmd_knowledge_monsters(void)
+{
+	int i, len, max;
+	int grp_cur, grp_top;
+	int mon_cur, mon_top;
+	int grp_cnt, grp_idx[100];
+	monster_list_entry *mon_idx;
+	int monster_count;
+
+	int column = 0;
+	bool flag;
+	bool redraw;
+
+	/* Allocate the "mon_idx" array */
+	C_MAKE(mon_idx, z_info->r_max, monster_list_entry);
+
+	max = 0;
+	grp_cnt = 0;
+
+	/* Check every group */
+	for (i = 0; monster_group_text[i] != NULL; i++)
+	{
+
+		/* Measure the label */
+		len = strlen(monster_group_text[i]);
+
+		/* Save the maximum length */
+		if (len > max) max = len;
+
+		/* See if any monsters are known */
+		if ((monster_group_char[i] == ((char *) -1L)) || collect_monsters(i, mon_idx, 0x01))
+		{
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
+		}
+
+	}
+
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	grp_cur = grp_top = 0;
+	mon_cur = mon_top = 0;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+			prt("Knowledge - Monsters", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (cheat_know) prt("Idx", 4, 60);
+			prt("Sym   Kills", 4, 67);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll monster list */
+		if (mon_cur < mon_top) mon_top = mon_cur;
+		if (mon_cur >= mon_top + BROWSER_ROWS) mon_top = mon_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of monster groups */
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, monster_group_text, grp_cur, grp_top);
+
+		/* Get a list of monsters in the current group */
+		monster_count = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
+
+		/* Display a list of monsters in the current group */
+		display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, mon_top, grp_cur);
+
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
+
+		/* Hack -- handle stuff */
+		handle_stuff();
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				if (mon_idx[mon_cur].r_idx)
+				{
+					screen_roff(mon_idx[mon_cur].r_idx);
+
+					(void) inkey();
+
+					redraw = TRUE;
+				}
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, monster_count);
+
+				break;
+			}
+		}
+	}
+
+	/* XXX XXX Free the "mon_idx" array */
+	KILL(mon_idx);
+}
+
+/*
+ * Add a pval so the object descriptions don't look strange*
+ */
+void apply_magic_fake(object_type *o_ptr)
+{
+	/* Analyze type */
+	switch (o_ptr->tval)
+	{
+		case TV_DIGGING:
+		{
+			o_ptr->pval = 1;
+			break;
+		}
+
+		/*many rings need a pval*/
+		case TV_RING:
+		{
+			switch (o_ptr->sval)
+			{
+				case SV_RING_STR:
+				case SV_RING_CON:
+				case SV_RING_DEX:
+				case SV_RING_INT:
+				case SV_RING_SPEED:
+				case SV_RING_SEARCHING:
+				{
+					o_ptr->pval = 1;
+					break;
+				}
+
+				case SV_RING_AGGRAVATION:
+				{
+					o_ptr->ident |= (IDENT_CURSED);
+					break;
+				}
+				case SV_RING_WEAKNESS:
+				case SV_RING_STUPIDITY:
+				{
+					/* Broken */
+					o_ptr->ident |= (IDENT_BROKEN);
+
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					/* Penalize */
+					o_ptr->pval = -1;
+
+					break;
+				}
+				/* WOE */
+				case SV_RING_WOE:
+				{
+					/* Broken */
+					o_ptr->ident |= (IDENT_BROKEN);
+
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					/* Penalize */
+					o_ptr->to_a = -1;
+					o_ptr->pval = -1;
+
+					break;
+				}
+				/* Ring that increase damage */
+				case SV_RING_DAMAGE:
+				{
+					/* Bonus to damage */
+					o_ptr->to_d = 1;
+
+					break;
+				}
+				/* Ring that increase accuracy */
+				case SV_RING_ACCURACY:
+				{
+					/* Bonus to hit */
+					o_ptr->to_h = 1;
+
+					break;
+				}
+				/* Rings that provide of Protection */
+				case SV_RING_PROTECTION:
+				case SV_RING_FLAMES:
+				case SV_RING_ACID:
+				case SV_RING_ICE:
+				case SV_RING_LIGHTNING:
+				{
+					/* Bonus to armor class */
+					o_ptr->to_a = 1;
+
+					break;
+				}
+				/*both to-hit and to-damage*/
+				case SV_RING_SLAYING:
+				{
+					/* Bonus to damage and to hit */
+					o_ptr->to_d = 1;
+					o_ptr->to_h = 1;
+
+					break;
+				}
+				default: break;
+
+			}
+			/*break for TVAL-Rings*/
+			break;
+		}
+
+		case TV_AMULET:
+		{
+			/* Analyze */
+			switch (o_ptr->sval)
+			{
+				/* Amulet of wisdom/charisma/infravision */
+				case SV_AMULET_WISDOM:
+				case SV_AMULET_CHARISMA:
+				case SV_AMULET_INFRAVISION:
+				case SV_AMULET_SEARCHING:
+				case SV_AMULET_ESP:
+				case SV_AMULET_DEVOTION:
+				case SV_AMULET_TRICKERY:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1;
+
+					break;
+				}
+
+				/* Amulet of the Magi -- never cursed */
+				case SV_AMULET_THE_MAGI:
+				{
+					o_ptr->pval = 1;
+					o_ptr->to_a = 1;
+
+					break;
+				}
+
+				/* Amulet of Weaponmastery -- never cursed */
+				case SV_AMULET_WEAPONMASTERY:
+				{
+					o_ptr->to_h = 1;
+					o_ptr->to_d = 1;
+					o_ptr->pval = 1;
+
+					break;
+				}
+
+				/* Amulet of Doom -- always cursed */
+				case SV_AMULET_DOOM:
+				{
+					/* Broken */
+					o_ptr->ident |= (IDENT_BROKEN);
+
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					/* Penalize */
+					o_ptr->pval = -1;
+					o_ptr->to_a = -1;
+
+					break;
+				}
+
+				default: break;
+
+			}
+			/*break for TVAL-Amulets*/
+			break;
+		}
+
+		case TV_LITE:
+		{
+			/* Analyze */
+			switch (o_ptr->sval)
+			{
+				case SV_LITE_TORCH:
+				case SV_LITE_LANTERN:
+				{
+					o_ptr->timeout = 1;
+
+					break;
+				}
+
+			}
+			/*break for TVAL-Lites*/
+			break;
+		}
+
+		/*give then one charge*/
+		case TV_STAFF:
+		case TV_WAND:
+		{
+			o_ptr->pval = 1;
+
+			break;
+		}
+
+	}
+
+}
+
+/*
+ * Describe fake object
+ */
+static void desc_obj_fake(int k_idx)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
+	/* Create the object */
+	object_prep(i_ptr, k_idx);
+
+	/*add minimum bonuses so the descriptions don't look strange*/
+	apply_magic_fake(i_ptr);
+
+	/* It's fully known */
+	i_ptr->ident |= IDENT_KNOWN;
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	object_info_screen(i_ptr);
+}
+
+/*
+ * Display the objects in a group.
+ */
+static void display_object_list(int col, int row, int per_page, int object_idx[],
+	int object_cur, int object_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && object_idx[i]; i++)
+	{
+		char buf[80];
+
+		/* Get the object index */
+		int k_idx = object_idx[object_top + i];
+
+		/* Access the object */
+		object_kind *k_ptr = &k_info[k_idx];
+
+		/* Choose a color */
+		byte attr = ((k_ptr->aware) ? TERM_WHITE : TERM_SLATE);
+		byte cursor = ((k_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
+		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Acquire the basic "name" of the object*/
+	    strip_name(buf, k_idx);
+
+		/* Display the name */
+		c_prt(attr, buf, row + i, col);
+
+		if (cheat_know) c_prt(attr, format ("%d", k_idx), row + i, 70);
+
+		if (k_ptr->aware)
+		{
+
+			/* Obtain attr/char */
+			byte a = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_attr): k_ptr->d_attr;
+			byte c = k_ptr->flavor ? (flavor_info[k_ptr->flavor].x_char): k_ptr->d_char;
+
+			/* Display symbol */
+			Term_putch(76, row + i, a, c);
+		}
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
 }
 
 /*
@@ -3422,57 +4788,150 @@ static void do_cmd_knowledge_home(void)
  */
 static void do_cmd_knowledge_objects(void)
 {
-	int k;
+	int i, len, max;
+	int grp_cur, grp_top;
+	int object_old, object_cur, object_top;
+	int grp_cnt, grp_idx[100];
+	int object_cnt;
+	int *object_idx;
 
-	FILE *fff;
+	int column = 0;
+	bool flag;
+	bool redraw;
 
-	char o_name[80];
+	/* Allocate the "object_idx" array */
+	C_MAKE(object_idx, z_info->k_max, int);
 
-	char file_name[1024];
+	max = 0;
+	grp_cnt = 0;
 
-
-	/* Temporary file */
-	fff = my_fopen_temp(file_name, sizeof(file_name));
-
-	/* Failure */
-	if (!fff) return;
-
-	/* Scan the object kinds */
-	for (k = 1; k < z_info->k_max; k++)
+	/* Check every group */
+	for (i = 0; object_group_text[i] != NULL; i++)
 	{
-		object_kind *k_ptr = &k_info[k];
+		/* Measure the label */
+		len = strlen(object_group_text[i]);
 
-		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		/* Save the maximum length */
+		if (len > max) max = len;
 
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
+		/* See if any monsters are known */
+		if (collect_objects(i, object_idx))
 		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, k);
-
-			/* Describe the object */
-			object_desc_spoil(o_name, sizeof(o_name), i_ptr, FALSE, 0);
-
-			/* Print a message */
-			fprintf(fff, "     %s\n", o_name);
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
 		}
 	}
 
-	/* Close the file */
-	my_fclose(fff);
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
 
-	/* Display the file contents */
-	show_file(file_name, "Known Objects", 0, 0);
+	grp_cur = grp_top = 0;
+	object_cur = object_top = 0;
+	object_old = -1;
 
-	/* Remove the file */
-	fd_kill(file_name);
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+			prt("Knowledge - objects", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (cheat_know) prt("Idx", 4, 70);
+			prt("Sym", 4, 75);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll monster list */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of object groups */
+		display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, object_group_text, grp_cur, grp_top);
+
+		/* Get a list of objects in the current group */
+		object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
+
+		/* Display a list of objects in the current group */
+		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
+
+		/* Prompt */
+		prt("<dir>, 'r' to recall, ESC", 23, 0);
+
+		/* Mega Hack -- track this monster race */
+		if (object_cnt) object_kind_track(object_idx[object_cur]);
+
+		/* The "current" object changed */
+		if (object_old != object_idx[object_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" object */
+			object_old = object_idx[object_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				desc_obj_fake(object_idx[object_cur]);
+
+				redraw = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				break;
+			}
+		}
+	}
+
+	/* XXX XXX Free the "object_idx" array */
+	KILL(object_idx);
 }
 
 
@@ -3555,14 +5014,11 @@ void do_cmd_knowledge(void)
 {
 	char ch;
 
-
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
-
 	/* Save screen */
 	screen_save();
-
 
 	/* Interact until done */
 	while (1)
@@ -3578,7 +5034,7 @@ void do_cmd_knowledge(void)
 
 		/* Give some choices */
 		prt("(1) Display known artifacts", 4, 5);
-		prt("(2) Display known uniques", 5, 5);
+		prt("(2) Display known monsters", 5, 5);
 		prt("(3) Display known objects", 6, 5);
 		prt("(4) Display hall of fame", 7, 5);
 		prt("(5) Display kill counts", 8, 5);
@@ -3609,7 +5065,7 @@ void do_cmd_knowledge(void)
 		/* Uniques */
 		else if (ch == '2')
 		{
-			do_cmd_knowledge_uniques();
+			do_cmd_knowledge_monsters();
 		}
 
 		/* Objects */

@@ -19,9 +19,9 @@ and Staffs of Perception are too expensive to use on everything.
 Full identification:
      Some items have special powers.  Ego-item descriptions usually tell you
 everything, but artifacts are known only by legend.  To learn absolutely
-everything about an object, read a scroll of *identify* on it.  Such scrolls are
-rare and expensive; if you don't have access to one, try using the object a lot
-and inscribing it.
+everything about an object, read a scroll of *identify* on it.  If you 
+don't have access to one, the magic shop offers *identify* as a service if
+you haven enough gold.  You can also try using the object a lot and inscribing it.
 
 Scanning wargear automatically (Pseudo-ID):
      Every so often, you automatically scan un-identified wargear (weapons and
@@ -43,7 +43,7 @@ armour).  If you learn something, the item is inscribed.
 you useful things about it.  If the item is fully identified, you see all of its
 attributes.
      Known attributes of equipped items are displayed in the character screen
-display (type 'C' to bring up the character screen, then press 'h' to cycle
+display (type 'C' to bring up the character screen, then press '+/-' to cycle
 through the information).  This interface is helpful when you want to optimize
 your equipment.
 
@@ -52,7 +52,7 @@ your equipment.
 
 Your inventory (backpack) and equipment (your person):
      You pick up objects by moving on top on them or staying still (if you have
-the "auto_pickup" option on), or by using the 'g'et command (if you don't).  You
+the "auto_pickup" option on), or by using various pickup commands.  You
 may carry up to 23 different items or piles of items, and have 12 areas of your
 body where wearable equipment may go.  Press 'i', and you see the contents of
 your backpack; press 'e' and you see what you are wearing.  Both listings toggle
@@ -97,7 +97,7 @@ Ego-Weapons and Armours:
      Some rare weapons and armours have special abilities.  These are called ego
 items, and are feared by great and meek.
 
-Dragon Scale Mails:
+Dragon Scale Mail and Shields:
      These extremely rare pieces of armour come in many different colors, each
 protecting you against the relevant dragons.  They also occasionally allow you
 to breathe as dragons do!
@@ -106,8 +106,8 @@ Artifacts:
      There are rumors of incredibly rare, unique artifacts which are even more
 powerful than ego items.  Some artifacts are standard, and you may already know
 of their fame, while others will certainly be unfamiliar to you and will need to
-be fully identified (*identified*).  Artifacts cannot be destroyed, although
-they can be disenchanted.
+be fully identified (*identified*).  Artifacts cannot be destroyed unless you 
+read a curse armor or curse weapon scroll, although they can be disenchanted.
 
 
 --- Object enhancement ---
@@ -120,6 +120,8 @@ of Enchant Weapon and Enchant Armour.
      - The larger the pile of objects you try to enchant, the more likely it is
        that you will fail.  However, ammunition is unusually easy to enchant.
      - You can sometimes break curses on objects by enchanting them.
+The armory and weaponsmith offer enchantment services for your weapons and
+armor, for a price.
 
 
 --- Object destruction ---
@@ -167,9 +169,9 @@ Your Monster Memory:
 attributes and whatever information the monster description may provide.  As you
 fight and kill monsters, use various attacks on them, probe them with magic, and
 get killed by them, you learn more about their strengths and weaknesses.
-     You recall this memory in one of two ways:  'l'ooking at/e'x'amining the
+     You recall this memory in one of three ways:  'l'ooking at/e'x'amining the
 monster and then pressing 'r' for recall, or by pressing '/' and typing the
-monster's letter.
+monster's letter, or by pressing '~' and going to the monster knowlesge section.
      Unlike object memory, monster memory can be passed on even after your
 character dies.  You may use menu commands or command-line options to open up a
 specific file that contains a character with a monster memory.
@@ -185,8 +187,8 @@ the monster is none of the above.  Otherwise - green when healthy, and yellow,
 orange, and red when wounded, and if frightened - violet,.
 
 The Monster Mana Bar:
-     A good way to keep track of a specific monster is to target it.  When you
-do so, its health bar appears on the left side of the main screen, just below
+     A good way to keep track of a specific monster's mana is to target it.  When
+you do so, its health bar appears on the left side of the main screen, just below
 the hitpoint and mana indicators.  Similar health bars are also used when
 looking around and when displaying the closest monsters.
  
@@ -201,7 +203,6 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Awareness : Some monsters will stay asleep even if you dance in front of
        them, others are ever vigilant.  The distance that monsters can
        perceive you (if you are not in line of sight) also varies greatly.
-
      - Color : The color of a monster can be a valuable hint.
      - Chromatic : Changes colors randomly.
      - Invisible : Cannot be seen with normal sight.
@@ -209,14 +210,12 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Telepathy : Some monsters are always visible with telepathy, others are
        rarely visible, and others still never visible.
      - Uses symbol : Appears exactly like whatever terrain it is on.
-
      - Groups : Monsters may appear in groups, or have escorts.
      - Multiply : Monster breeds explosively.
-
      - Drops : Monsters may drop anything from nothing at all to many excellent
        objects.
      - Experience : The experience you get from killing monsters varies greatly.
-     - Evasive: They can frequently dodge an attack or spell cast at them.
+     - Evasive: They can frequently dodge an attack at them.
      - Bash Door : Most monsters (but not all) can either bash down or open
        doors.  Everyone can close doors, and some characters can spike doors to
        delay their foes.
@@ -236,16 +235,14 @@ danger they pose to you.  Some of the more interesting are listed and described.
      - Casting speed : Be careful of monsters that cast spells very often,
        especially if they also move quickly.
      - Mana - monsters have mana limitations.  When they are out, they can't
-       cast most spells.
+       cast most spells.  Note that the dangerous breath attacks do not use 
+       any mana.
      - Spell power - affects how much damage a monster spell does	
      - Smart : Monsters may be skilled at choosing spells, somewhat skilled, or
        unskilled
-     - Breath Powerfully : Dragon breaths have a larger blast radius, and do.
+     - Breath Powerfully : Dragon breaths have a larger blast angle, and do.
        a hihger amount of damage per monster HP with certain kinds of breaths.
      - Blows : Monsters can do great damage and inflict nasty effects in melee.
-
-
-
 
 
 

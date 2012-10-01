@@ -13,7 +13,7 @@ Features that do not block line of sight
      '   A broken door                    6   Entrance to Magic Shop
      <   A staircase up                   7   Entrance to the Black Market
      >   A staircase down                 8   Entrance to your Home
-					  9   Entrance to the Adventurer's Guild
+					            9   Entrance to the Adventurer's Guild
 
 Features that block line of sight
      #   A secret door                    #   A wall
@@ -31,7 +31,7 @@ Objects
      "   An amulet                        [   Hard armour
      $   Gold or gems                     ]   Misc. armour
      ~   Light sources, Tools, Chests     )   A shield
-     ~   Junk, Sticks, Skeletons, etc     &   (pile)
+     &   (pile)
 
 Monsters
      $   Creeping Coins                   ,   Mushroom Patch
@@ -68,11 +68,6 @@ the command '%'.  You may review what a symbol means by typing '/'.
 
      Angband can also use graphics instead of text to display your surroundings;
 unfortunately, no convenient listing of them yet exists.
-
-
-
-
-
 
 
 

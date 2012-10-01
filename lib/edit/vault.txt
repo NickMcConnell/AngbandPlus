@@ -39,7 +39,7 @@
 #    8 - monster up to 20 levels OOD and treasure up to 20 levels OOD
 #    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
 #    ~ - monster up to 20 levels OOD and a chest with objects 20 levels OOD
-#    Q - Quest item (for quest vaults).
+#    Q - Quest item (should be used only inside quest vaults (type 9 vaults).
 
 # Use this to measure columns                                                                        1
 #          1         2         3         4         5         6         7         8         9         0
@@ -48,7 +48,7 @@
 
 # Version stamp (required)
 
-V:3.0.9
+V:0.4.0
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
@@ -757,7 +757,7 @@ D:%%%%%
 
 
 N:37:Lesser vault ("Interlock")
-X:7:10:17:12
+X:7:10:12:17
 D:%%%%%%%%%%%%%%%%%
 D:%......^^^......%
 D:%.######+######.%
@@ -1123,18 +1123,20 @@ D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ### Quest Vaults (type 9) -- maximum size 44x22 ###
+### These should have at least two "Q" slots so the player doesn't know ###
+### who is holding the quest artifact ###
 
 N:51:Round Quest
 X:9:0:12:19
 D:       %%%%%       
 D:    %%%,^#^,%%%    
 D:  %%....#+#....%%  
-D: %.....&#9#&...,.% 
+D: %.....&#Q#&...,.% 
 D:%...,.##X+X##.,...%
-D:%.@.,.#*X8X*+^,.,.%
+D:%.@.,.#*XQX*+^,.,.%
 D:%.,.,^+*XQX*#.,.@.%
 D:%...,.##XXX##.,...%
-D: %.,....#*#......% 
+D: %.,....#Q#......% 
 D:  %%....#+#....%%  
 D:    %%%^^#^^%%%    
 D:       %%%%%       
@@ -1146,8 +1148,8 @@ D:X,^,,,,,,,,,X
 D:X,XXXX#XXXX^X
 D:X,X,,&,,^,X,X
 D:X,X,XXXXX,X,X
-D:X,X^X^+8X&X,X
-D:X,X&+9XQX,X,X
+D:X,X^X^+QX&X,X
+D:X,X&+QXQX,X,X
 D:X,X,XXXXX^X,X
 D:X,X,^,&,,,X,X
 D:X^XXXXXXXXX,X
@@ -1159,12 +1161,12 @@ X:9:0:12:16
 D:################
 D:#.............^#
 D:#.XXXXXXXXXXXX.#
-D:#.X9##,,#,,##X.#
+D:#.XQ##,,#,,##X.#
 D:#.X#+^^^^#,,#X.#
 D:#.X#&^^#^#,,&X.#
 D:#.X##^^^^#,,,X.#
 D:#.X,+#,&##@,,X.#
-D:#.X9,##^#Q8##X.#
+D:#.XQ,##^#Q8##X.#
 D:#.XXXXX+XXXXXX.#
 D:#^.............#
 D:################
@@ -1172,16 +1174,16 @@ D:################
 N:54:Storeroom Quest
 X:9:0:13:17
 D:XXXXXXXXXXXXXXXXX
-D:X~&+.X*X*X*X*X*XX
+D:XQ&+.X*X*X*X*X*XX
 D:X&@X...........*X
 D:XXXX^XXXX.&&&..XX
 D:X~&X^X.^..&&&..*X
-D:X~@X^X^XXXXXXXXXX
+D:X9@X^X^XXXXXXXXXX
 D:XQ8+^X@^^^^^^^^^#
-D:X~@X^X^XXXXXXXXXX
+D:X9@X^X^XXXXXXXXXX
 D:X~&X^X.^..&&&..*X
 D:XXXX^XXXX.&&&..XX
 D:X&@X...........*X
-D:X~&+.X*X*X*X*X*XX
+D:XQ&+.X*X*X*X*X*XX
 D:XXXXXXXXXXXXXXXXX
 

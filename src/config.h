@@ -193,7 +193,6 @@
  */
 #define HANDLE_SIGNALS
 
-
 /*
  * OPTION: Allow "Wizards" to yield "high scores"
  */
@@ -209,15 +208,12 @@
  */
 /* #define SCORE_CHEATERS */
 
-
 /*
 * OPTION: Allow monsters to use noise and scent information to better
 * track the character.  This feature requires a significant amount of
 * memory, but makes monsters behave much more intelligently.
 */
 #define MONSTER_FLOW
-
-
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
@@ -242,11 +238,6 @@
  */
 #define CHECK_MODIFICATION_TIME
 
-
-/*
- * OPTION: Allow the use of random artifacts (see "randart.c").
- */
-#define GJW_RANDART
 
 
 /*
@@ -366,7 +357,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@thangorodrim.net"
+#define MAINTAINER	"nppangband@comcast.net"
 
 
 /*
@@ -426,7 +417,6 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef GJW_RANDART
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS

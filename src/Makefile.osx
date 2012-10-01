@@ -1,6 +1,6 @@
 # File: Makefile.osx
 
-# This is a (rather crude) Makefile for Mac OS X Carbon port of Angband.
+# This is a (rather crude) Makefile for Mac OS X Carbon port of NPPAngband.
 #
 # Based on Makefile.std, made separate because this port does not uses
 # main.c.
@@ -70,7 +70,7 @@ all: install
 # Application bundle -- a directory looking like an ordinary application
 
 # Name of the game
-APPNAME = Angband.app
+APPNAME = NPPAngband.app
 # Bundle of the game (it must be a directory whose name ends in ".app")
 APPBNDL = ../$(APPNAME)
 
@@ -91,21 +91,21 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-ICONFILES = Angband.icns Save.icns Edit.icns Data.icns
+ICONFILES = NPPAngband.icns Save.icns Edit.icns Data.icns
 TILES = 8x8.png 16x16.png 32x32.png
-PLIST = Angband.xml
-RESSRCS = Angband.r
-# RESSRCS = Angband.r Sound.r
+PLIST = NPPAngband.xml
+RESSRCS = NPPAngband.r
+# RESSRCS = NPPAngband.r Sound.r
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
 
-install: angband $(RESSRCS) $(ICONFILES) $(PLIST)
+install: nppangband $(RESSRCS) $(ICONFILES) $(PLIST)
 	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
 	[ -d $(APPCONT) ] || mkdir $(APPCONT)
 	[ -d $(APPBIN) ] || mkdir $(APPBIN)
 	[ -d $(APPRES) ] || mkdir $(APPRES)
-	install -m 755 angband $(APPBIN)
+	install -m 755 nppangband $(APPBIN)
 	install -m 644 $(ICONFILES) $(APPRES)
-	$(REZ) $(RFLAGS) -o $(APPRES)/angband.rsrc $(RESSRCS)
+	$(REZ) $(RFLAGS) -o $(APPRES)/NPPAngband.rsrc $(RESSRCS)
 	install -m 644 $(PLIST) $(APPCONT)/Info.plist
 	$(SETFILE) -a B $(APPBNDL)
 
@@ -117,8 +117,8 @@ install-tiles: $(TILES)
 # Build the "Angband" program
 #
 
-angband: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+nppangband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o NPPAngband $(OBJS) $(LIBS)
 
 
 #
@@ -126,7 +126,7 @@ angband: $(OBJS)
 #
 
 clean:
-	-rm -f *.o angband
+	-rm -f *.o NPPAngband
 
 
 #
@@ -165,7 +165,7 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS) init.h
 init2.o: init2.c $(INCS) init.h
-load.o: load.c $(INCS)
+load.o: load.c $(INCS)  init.h
 maid-x11.o: maid-x11.c $(INCS) maid-x11.h
 main-cap.o: main-cap.c $(INCS) main.h
 main-gcu.o: main-gcu.c $(INCS) main.h

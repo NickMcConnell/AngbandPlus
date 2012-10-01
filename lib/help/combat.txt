@@ -4,7 +4,6 @@
      Without using magic, you may attack monsters in hand-to-hand (melee)
 combat, by using missile weapons, or by throwing things at them.
 
-
 --- Melee ---
 
      If you are barehanded, you do a small amount of damage, depending on
@@ -30,10 +29,10 @@ has brands or slays, or gets lots of critical hits.
 
 Brands and Slays:
      Some remarkable weapons do extra damage to various kinds of monsters; a
-Dagger of Fire, for instance, would do extra damage to creatures not immune to
-fire.  Slays, in contrast, do extra damage to particular monster races, so wield
-that Mace of Orc Slaying if you come upon any orcs.  Only the best applicable
-quality is used; they do not combine.
+Dagger branded with Fire, for instance, would do extra damage to creatures not 
+immune to fire.  Slays, in contrast, do extra damage to particular monster 
+races, so wield that Mace of Slays (orc) if you come upon any orcs.  Only the 
+best applicable quality is used; they do not combine.
      See the object attributes section for how powerful individual slays and
 brands are.
 
@@ -58,7 +57,8 @@ turn.  This value depends on your class, strength and dexterity, and on weapon
 weight.  You normally start out with one blow, but will get more as time passes.
      The more blows you get, the more damage you do, and the more reliable melee
 becomes (because you get more chances to hit).  If you want to be effective in
-hand-to-hand combat, get extra blows if at all possible.
+hand-to-hand combat, get extra blows if at all possible.  You can also (I)nspect
+a weapon to find out how many blows you would get if you wielded that weapon.
 
 
 --- Shooting ---
@@ -155,11 +155,6 @@ be after you've enhanced yourself and hindered them.
 Special Notes:
      In order to attack a creature that you can't see in a wall or door, you
 must issue the Tunnel or alter adjacent grid command.
-
-
-
-
-
 
 
 

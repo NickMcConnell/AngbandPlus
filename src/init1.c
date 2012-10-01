@@ -223,7 +223,7 @@ static flag_name info_flags[] =
 	{"EVASIVE", RF2, RF2_EVASIVE},
 	{"CLOUD_SURROUND", RF2, RF2_CLOUD_SURROUND},
 	{"RF2XXX5", RF2, RF2_RF2XXX5},
-	{"RF2XXX7", RF2, RF2_RF2XXX7},
+	{"PLAYER_GHOST", RF2, RF2_PLAYER_GHOST},
 	{"RF2XXX6", RF2, RF2_RF2XXX6},
 	{"OPEN_DOOR", RF2, RF2_OPEN_DOOR},
 	{"BASH_DOOR", RF2, RF2_BASH_DOOR},
@@ -443,11 +443,12 @@ static flag_name info_flags[] =
 	{"S_DEMON", RF7, RF7_S_DEMON},
 	{"S_HI_DEMON", RF7, RF7_S_HI_DEMON},
 	{"RF7XX14", RF7, RF7_RF7XX14},
-	{"RF7XX15", RF7, RF7_RF7XX15},
+	{"S_UNIQUE", RF7, RF7_S_UNIQUE},
+	{"S_HI_UNIQUE", RF7, RF7_S_HI_UNIQUE},
 	{"S_UNDEAD", RF7, RF7_S_UNDEAD},
 	{"S_HI_UNDEAD", RF7, RF7_S_HI_UNDEAD},
 	{"S_WRAITH", RF7, RF7_S_WRAITH},
-	{"S_UNIQUE", RF7, RF7_S_UNIQUE},
+
 
 /*object_flags*/
 
@@ -478,11 +479,11 @@ static flag_name info_flags[] =
 	{"KILL_DRAGON", TR1, TR1_KILL_DRAGON},
 	{"KILL_DEMON", TR1, TR1_KILL_DEMON},
 	{"KILL_UNDEAD", TR1, TR1_KILL_UNDEAD},
-	{"BRAND_POIS", TR1, TR1_BRAND_POIS},
 	{"BRAND_ACID", TR1, TR1_BRAND_ACID},
 	{"BRAND_ELEC", TR1, TR1_BRAND_ELEC},
 	{"BRAND_FIRE", TR1, TR1_BRAND_FIRE},
 	{"BRAND_COLD", TR1, TR1_BRAND_COLD},
+	{"BRAND_POIS", TR1, TR1_BRAND_POIS},
 
 	/*TR1 Uber-flags*/
 	{"ALL_STATS", TR1, TR1_ALL_STATS},
@@ -502,11 +503,11 @@ static flag_name info_flags[] =
 	{"TR2XXX3", TR2, TR2_TR2XXX3},
 	{"TR2XXX4", TR2, TR2_TR2XXX4},
 	{"TR2XXX5", TR2, TR2_TR2XXX5},
-	{"TR2XXX6", TR2, TR2_TR2XXX6},
 	{"IM_ACID", TR2, TR2_IM_ACID},
 	{"IM_ELEC", TR2, TR2_IM_ELEC},
 	{"IM_FIRE", TR2, TR2_IM_FIRE},
 	{"IM_COLD", TR2, TR2_IM_COLD},
+	{"IM_POIS", TR2, TR2_IM_POIS},
 	{"RES_ACID", TR2, TR2_RES_ACID},
 	{"RES_ELEC", TR2, TR2_RES_ELEC},
 	{"RES_FIRE", TR2, TR2_RES_FIRE},
@@ -541,7 +542,7 @@ static flag_name info_flags[] =
 	{"FREE_ACT", TR3, TR3_FREE_ACT},
 	{"HOLD_LIFE", TR3, TR3_HOLD_LIFE},
 	{"NEVER_PICKUP", TR3, TR3_NEVER_PICKUP},
-	{"TR3XXX2", TR3, TR3_TR3XXX2},
+	{"IRONMAN_ONLY", TR3, TR3_IRONMAN_ONLY},
 	{"TR3XXX3", TR3, TR3_TR3XXX3},
 	{"TR3XXX4", TR3, TR3_TR3XXX4},
 	{"IMPACT", TR3, TR3_IMPACT},
@@ -642,7 +643,7 @@ static cptr a_info_act[ACT_MAX] =
 	"ELEC2",
 	"BANISHMENT",
 	"MASS_BANISHMENT",
-	"IDENTIFY",
+	"IDENTIFY_FULLY",
 	"DRAIN_LIFE1",
 	"DRAIN_LIFE2",
 	"BIZZARE",
@@ -666,7 +667,12 @@ static cptr a_info_act[ACT_MAX] =
 	"FIREBRAND",
 	"STARLIGHT",
 	"MANA_BOLT",
-	"BERSERKER"
+	"BERSERKER",
+	"RES_ACID",
+	"RES_ELEC",
+	"RES_FIRE",
+	"RES_COLD",
+	"RES_POIS"
 };
 
 
@@ -851,13 +857,19 @@ errr parse_z_info(char *buf, header *head)
 	/* Process 'A' for "Maximum a_info[] index" */
 	else if (buf[2] == 'A')
 	{
-		int max;
+		int art_special_max, art_normal_max, art_random_max;
 
 		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+4, "%d:%d:%d", &art_special_max,
+					&art_normal_max, &art_random_max)) return (PARSE_ERROR_GENERIC);
 
-		/* Save the value */
-		z_info->a_max = max;
+		/* Save the values */
+		z_info->art_spec_max = art_special_max;
+		z_info->art_norm_max = art_normal_max + art_special_max;
+		z_info->art_rand_max = z_info->art_norm_max + art_random_max;
+
+		/*that final slot is for a set quest artifact*/
+		z_info->art_max = art_special_max + art_normal_max + art_random_max + 1;
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */
@@ -870,6 +882,18 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->e_max = max;
+	}
+
+	/* Process 'G' for "Maximum e_info[] index" */
+	else if (buf[2] == 'G')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->ghost_other_max = max;
 	}
 
 	/* Process 'R' for "Maximum r_info[] index" */
@@ -1301,7 +1325,6 @@ errr parse_k_info(char *buf, header *head)
 	/* Current entry */
 	static object_kind *k_ptr = NULL;
 
-
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')
 	{
@@ -1606,8 +1629,7 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr = (artifact_type*)head->info_ptr + i;
 
 		/* Store the name */
-		if (!(a_ptr->name = add_name(head, s)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
+		my_strcpy(a_ptr->name, s, MAX_LEN_ART_NAME);
 
 		/* Ignore everything */
 		a_ptr->flags3 |= (TR3_IGNORE_MASK);
@@ -1756,6 +1778,89 @@ errr parse_a_info(char *buf, header *head)
 
 
 /*
+ * Add a name to the probability tables
+ */
+static errr build_prob(char *name, names_type *n_ptr)
+{
+	int c_prev, c_cur, c_next;
+
+	while (*name && !isalpha((unsigned char) *name))
+      ++name;
+
+	if (!*name)	return PARSE_ERROR_GENERIC;
+
+	c_prev = c_cur = S_WORD;
+
+	do
+	{
+		if (isalpha ((unsigned char) *name))
+		{
+			c_next = A2I (tolower ((unsigned char) *name));
+			n_ptr->lprobs[c_prev][c_cur][c_next]++;
+			n_ptr->ltotal[c_prev][c_cur]++;
+			c_prev = c_cur;
+			c_cur = c_next;
+		}
+	}
+	while (*++name);
+
+	n_ptr->lprobs[c_prev][c_cur][E_WORD]++;
+	n_ptr->ltotal[c_prev][c_cur]++;
+
+	return 0;
+}
+
+/*
+ * Initialize the "n_info" array, by parsing an ascii "template" file
+ */
+errr parse_n_info(char *buf, header *head)
+{
+	names_type *n_ptr = head->info_ptr;
+
+	/*
+	 * This function is called once, when the raw file does not exist.
+	 * If you want to initialize some stuff before parsing the txt file
+ 	 * you can do:
+	 *
+	 * static int do_init = 1;
+	 *
+	 * if (do_init)
+	 * {
+	 *    do_init = 0;
+	 *    ...
+	 *    do_stuff_with_n_ptr
+	 *    ...
+	 * }
+	 *
+	 */
+
+	if (buf[0] == 'N')
+	{
+    	return build_prob (buf + 2, n_ptr);
+	}
+
+ 	/*
+	 * If you want to do something after parsing the file you can add
+	 * a special directive at the end of the txt file, like:
+	 *
+	 * else
+	 * if (buf[0] == 'X')          (Only at the end of the txt file)
+	 * {
+	 *    ...
+	 *    do_something_else_with_n_ptr
+	 *    ...
+	 * }
+	 *
+	 */
+	else
+	{
+    	/* Oops */
+    	return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+  	}
+}
+
+
+/*
  * Grab one flag in a ego-item_type from a textual string
  */
 static bool grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
@@ -1767,10 +1872,6 @@ static bool grab_one_ego_item_flag(ego_item_type *ptr, cptr what)
 	f[TR3] = &(ptr->flags3);
 	return grab_one_flag(f, "object", what);
 }
-
-
-
-
 
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file
@@ -2285,41 +2386,6 @@ errr parse_r_info(char *buf, header *head)
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
-
-#if 0
-	/* XXX XXX XXX The ghost is unused */
-
-	/* Mega-Hack -- acquire "ghost" */
-	r_ptr = &r_info[z_info->r_max-1];
-
-	/* Get the next index */
-	r_ptr->name = head->name_size;
-	r_ptr->text = head->text_size;
-
-	/* Save some space for the ghost info */
-	head->name_size += 64;
-	head->text_size += 64;
-
-	/* Hack -- Default name/text for the ghost */
-	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
-	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
-
-	/* Hack -- set the attr/char info */
-	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
-	r_ptr->d_char = r_ptr->x_char = 'G';
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_UNIQUE);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->hdice = r_ptr->hside = 1;
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->mexp = 1L;
-#endif
 
 	/* Success */
 	return (0);

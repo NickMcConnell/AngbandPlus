@@ -96,7 +96,7 @@ const int adj_mag_study[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table (INT/WIS) -- extra half-mana-points per level (divided by 100)
  */
 const int adj_mag_mana[] =
 {
@@ -1016,7 +1016,7 @@ const byte adj_con_fix[] =
 
 
 /*
- * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
+ * Stat Table (CON) -- extra half-hitpoints per level (divided by 100)
  */
 const int adj_con_mhp[] =
 {
@@ -1185,56 +1185,56 @@ const byte extract_energy[200] =
  */
 const s32b player_exp[PY_MAX_LEVEL] =
 {
-	10,
-	25,
-	45,
-	70,
-	100,
-	140,
-	200,
-	280,
-	380,
-	500,
-	650,
-	850,
-	1100,
-	1400,
-	1800,
-	2300,
-	2900,
-	3600,
-	4400,
-	5400,
-	6800,
-	8400,
-	10200,
-	12500,
-	17500,
-	25000,
-	35000L,
-	50000L,
-	75000L,
-	100000L,
-	150000L,
-	200000L,
-	275000L,
-	350000L,
-	450000L,
-	550000L,
-	700000L,
-	850000L,
-	1000000L,
-	1250000L,
-	1500000L,
-	1800000L,
-	2100000L,
-	2400000L,
-	2700000L,
-	3000000L,
-	3500000L,
-	4000000L,
-	4500000L,
-	5000000L
+		10,			/* Experience needed to gain level 2 */
+		25,			/* Experience needed to gain level 3 */
+		45,			/* Experience needed to gain level 4 */
+		70,			/* Experience needed to gain level 5 */
+		100,		/* Experience needed to gain level 6 */
+		140,		/* Experience needed to gain level 7 */
+		200,		/* Experience needed to gain level 8 */
+		280,		/* Experience needed to gain level 9 */
+		380,		/* Experience needed to gain level 10 */
+		500,		/* Experience needed to gain level 11 */
+		650,		/* Experience needed to gain level 12 */
+		850,		/* Experience needed to gain level 13 */
+		1100,		/* Experience needed to gain level 14 */
+		1400,		/* Experience needed to gain level 15 */
+		1800,		/* Experience needed to gain level 16 */
+		2300,		/* Experience needed to gain level 17 */
+		2900,		/* Experience needed to gain level 18 */
+		3600,		/* Experience needed to gain level 19 */
+		4400,		/* Experience needed to gain level 20 */
+		5400,		/* Experience needed to gain level 21 */
+		6800,		/* Experience needed to gain level 22 */
+		8400,		/* Experience needed to gain level 23 */
+		10200,		/* Experience needed to gain level 24 */
+		12500,		/* Experience needed to gain level 25 */
+		17500,		/* Experience needed to gain level 26 */
+		25000,		/* Experience needed to gain level 27 */
+		35000L,		/* Experience needed to gain level 28 */
+		50000L,		/* Experience needed to gain level 29 */
+		75000L,		/* Experience needed to gain level 30 */
+		100000L,	/* Experience needed to gain level 31 */
+		150000L,	/* Experience needed to gain level 32 */
+		200000L,	/* Experience needed to gain level 33 */
+		275000L,	/* Experience needed to gain level 34 */
+		350000L,	/* Experience needed to gain level 35 */
+		450000L,	/* Experience needed to gain level 36 */
+		550000L,	/* Experience needed to gain level 37 */
+		700000L,	/* Experience needed to gain level 38 */
+		850000L,	/* Experience needed to gain level 39 */
+		1000000L,	/* Experience needed to gain level 40 */
+		1250000L,	/* Experience needed to gain level 41 */
+		1500000L,	/* Experience needed to gain level 42 */
+		1800000L,	/* Experience needed to gain level 43 */
+		2100000L,	/* Experience needed to gain level 44 */
+		2400000L,	/* Experience needed to gain level 45 */
+		2700000L,	/* Experience needed to gain level 46 */
+		3000000L,	/* Experience needed to gain level 47 */
+		3500000L,	/* Experience needed to gain level 48 */
+		4000000L,	/* Experience needed to gain level 49 */
+		4500000L,	/* Experience needed to gain level 50 */
+		5000000L	/* Level 50 */
 };
 
 
@@ -1260,210 +1260,246 @@ const player_sex sex_info[MAX_SEXES] =
 /*
  * Spells in each book (mage spells then priest spells)
  */
-const u32b spell_table[2][9][2] =
+const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK] =
 {
 	{
-	/* Magic for Beginners */
-	BOOK(SPELL_MAGIC_MISSILE,
-	     SPELL_DETECT_MONSTERS,
-	     SPELL_PHASE_DOOR,
-	     SPELL_LIGHT_AREA,
-	     SPELL_TREASURE_DETECTION,
-	     SPELL_CURE_LIGHT_WOUNDS,
-	     SPELL_OBJECT_DETECTION,
-	     SPELL_FIND_TRAPS_DOORS,
-	     SPELL_STINKING_CLOUD),
+		/* Magic for Beginners */
+		{
+			SPELL_MAGIC_MISSILE,
+			SPELL_DETECT_MONSTERS,
+			SPELL_PHASE_DOOR,
+			SPELL_LIGHT_AREA,
+			SPELL_TREASURE_DETECTION,
+			SPELL_CURE_LIGHT_WOUNDS,
+			SPELL_OBJECT_DETECTION,
+			SPELL_FIND_TRAPS_DOORS,
+			SPELL_STINKING_CLOUD,
+		},
 
-	/* Conjurings and Tricks */
-	BOOK(SPELL_CONFUSE_MONSTER,
-	     SPELL_LIGHTNING_BOLT,
-	     SPELL_TRAP_DOOR_DESTRUCTION,
-	     SPELL_CURE_POISON,
-	     SPELL_SLEEP_MONSTER,
-	     SPELL_TELEPORT_SELF,
-	     SPELL_SPEAR_OF_LIGHT,
-	     SPELL_FROST_BOLT,
-	     SPELL_WONDER),
+		/* Conjurings and Tricks */
+		{
+			SPELL_CONFUSE_MONSTER,
+			SPELL_LIGHTNING_BOLT,
+			SPELL_TRAP_DOOR_DESTRUCTION,
+			SPELL_CURE_POISON,
+			SPELL_SLEEP_MONSTER,
+			SPELL_TELEPORT_SELF,
+			SPELL_SPEAR_OF_LIGHT,
+			SPELL_FROST_BOLT,
+			SPELL_WONDER,
+		},
 
-	/* Incantations and Illusions */
-	BOOK(SPELL_SATISFY_HUNGER,
-	     SPELL_RECHARGE_ITEM_I,
-	     SPELL_TURN_STONE_TO_MUD,
-	     SPELL_FIRE_BOLT,
-	     SPELL_POLYMORPH_OTHER,
-	     SPELL_IDENTIFY,
-	     SPELL_DETECT_INVISIBLE,
-	     SPELL_ACID_BOLT,
-	     SPELL_SLOW_MONSTER),
+		/* Incantations and Illusions */
+		{
+			SPELL_SATISFY_HUNGER,
+	    	SPELL_RECHARGE_ITEM_I,
+			SPELL_TURN_STONE_TO_MUD,
+			SPELL_FIRE_BOLT,
+			SPELL_POLYMORPH_OTHER,
+			SPELL_IDENTIFY,
+			SPELL_DETECT_INVISIBLE,
+			SPELL_ACID_BOLT,
+			SPELL_SLOW_MONSTER,
+		},
 
-	/* Sorcery and Evocations */
-	BOOK(SPELL_FROST_BALL,
-	     SPELL_TELEPORT_OTHER,
-	     SPELL_HASTE_SELF,
-	     SPELL_MASS_SLEEP,
-	     SPELL_FIRE_BALL,
-	     SPELL_DETECT_ENCHANTMENT,
-	     -1,
-	     -1,
-	     -1),
+		/* Sorcery and Evocations */
+		{
+			SPELL_FROST_BALL,
+			SPELL_TELEPORT_OTHER,
+			SPELL_HASTE_SELF,
+			SPELL_MASS_SLEEP,
+			SPELL_FIRE_BALL,
+			SPELL_DETECT_ENCHANTMENT,
+			-1,
+			-1,
+			-1,
+		},
 
-	/* Resistances of Scarabtarices */
-	BOOK(SPELL_RESIST_COLD,
-	     SPELL_RESIST_FIRE,
-	     SPELL_RESIST_POISON,
-	     SPELL_RESISTANCE,
-	     SPELL_SHIELD,
-	     -1,
-	     -1,
-	     -1,
-	     -1),
+		/* Resistances of Scarabtarices */
+		{
+			SPELL_RESIST_COLD,
+			SPELL_RESIST_FIRE,
+			SPELL_RESIST_POISON,
+			SPELL_RESISTANCE,
+			SPELL_SHIELD,
+			-1,
+			-1,
+			-1,
+			-1,
+		},
 
-	/* Raal's Tome of Destruction */
-	BOOK(SPELL_SHOCK_WAVE,
-	     SPELL_EXPLOSION,
-	     SPELL_CLOUD_KILL,
-	     SPELL_ACID_BALL,
-	     SPELL_ICE_STORM,
-	     SPELL_METEOR_SWARM,
-	     SPELL_RIFT,
-	     -1,
-	     -1),
+		/* Raal's Tome of Destruction */
+		{
+			SPELL_SHOCK_WAVE,
+			SPELL_EXPLOSION,
+			SPELL_CLOUD_KILL,
+			SPELL_ACID_BALL,
+			SPELL_ICE_STORM,
+			SPELL_METEOR_SWARM,
+			SPELL_RIFT,
+			-1,
+			-1,
+		},
 
-	/* Mordenkainen's Escapes */
-	BOOK(SPELL_DOOR_CREATION,
-	     SPELL_STAIR_CREATION,
-	     SPELL_TELEPORT_LEVEL,
-	     SPELL_WORD_OF_RECALL,
-	     SPELL_RUNE_OF_PROTECTION,
-	     -1,
-	     -1,
-	     -1,
-	     -1),
+		/* Mordenkainen's Escapes */
+		{
+			SPELL_DOOR_CREATION,
+			SPELL_STAIR_CREATION,
+			SPELL_TELEPORT_LEVEL,
+			SPELL_WORD_OF_RECALL,
+			SPELL_RUNE_OF_PROTECTION,
+			-1,
+			-1,
+			-1,
+			-1,
+		},
 
-	/* Tenser's transformations */
-	BOOK(SPELL_HEROISM,
-	     SPELL_BERSERKER,
-	     SPELL_ENCHANT_ARMOR,
-	     SPELL_ENCHANT_WEAPON,
-	     SPELL_RECHARGE_ITEM_II,
-	     SPELL_ELEMENTAL_BRAND,
-	     -1,
-	     -1,
-	     -1),
+		/* Tenser's transformations */
+		{
+			SPELL_HEROISM,
+			SPELL_BERSERKER,
+			SPELL_ENCHANT_ARMOR,
+			SPELL_ENCHANT_WEAPON,
+			SPELL_RECHARGE_ITEM_II,
+			SPELL_ELEMENTAL_BRAND,
+			-1,
+			-1,
+			-1,
+		},
 
-	/* Kelek's Grimoire of Power */
-	BOOK(SPELL_EARTHQUAKE,
-	     SPELL_BEDLAM,
-	     SPELL_REND_SOUL,
-	     SPELL_BANISHMENT,
-	     SPELL_WORD_OF_DESTRUCTION,
-	     SPELL_MASS_BANISHMENT,
-	     SPELL_CHAOS_STRIKE,
-	     SPELL_MANA_STORM,
-	     -1),
+		/* Kelek's Grimoire of Power */
+		{
+			SPELL_EARTHQUAKE,
+			SPELL_BEDLAM,
+			SPELL_REND_SOUL,
+			SPELL_BANISHMENT,
+			SPELL_WORD_OF_DESTRUCTION,
+			SPELL_MASS_BANISHMENT,
+			SPELL_CHAOS_STRIKE,
+			SPELL_MANA_STORM,
+			-1,
+		},
 	},
 
 	{
 		/*** Priest spell books ***/
 
 		/*Beginner's Handbook*/
-		BOOK(PRAYER_DETECT_EVIL,
-			 PRAYER_CURE_LIGHT_WOUNDS,
-			 PRAYER_BLESS,
-			 PRAYER_REMOVE_FEAR,
-			 PRAYER_CALL_LIGHT,
-			 PRAYER_FIND_TRAPS_DOORS_STAIRS,
-			 PRAYER_BOLT_OF_DRAINING,
-			 PRAYER_SLOW_POISON,
-			 -1),
+		{
+			PRAYER_DETECT_EVIL,
+			PRAYER_CURE_LIGHT_WOUNDS,
+			PRAYER_BLESS,
+			PRAYER_REMOVE_FEAR,
+			PRAYER_CALL_LIGHT,
+			PRAYER_FIND_TRAPS_DOORS_STAIRS,
+			PRAYER_BOLT_OF_DRAINING,
+			PRAYER_SLOW_POISON,
+			-1,
+		},
 
 		/*Words of Wisdom*/
-		BOOK(PRAYER_SCARE_MONSTER,
-			 PRAYER_PORTAL,
-			 PRAYER_CURE_SERIOUS_WOUNDS,
-			 PRAYER_CHANT,
-			 PRAYER_SANCTUARY,
-			 PRAYER_SATISFY_HUNGER,
-			 PRAYER_REMOVE_CURSE,
-			 PRAYER_RESIST_HEAT_COLD,
-			 -1),
+		{
+			PRAYER_SCARE_MONSTER,
+			PRAYER_PORTAL,
+			PRAYER_CURE_SERIOUS_WOUNDS,
+			PRAYER_CHANT,
+			PRAYER_SANCTUARY,
+			PRAYER_SATISFY_HUNGER,
+			PRAYER_REMOVE_CURSE,
+			PRAYER_RESIST_HEAT_COLD,
+			-1,
+		},
 
 		/*Chants and Blessings*/
-		BOOK(PRAYER_NEUTRALIZE_POISON,
-			 PRAYER_ORB_OF_DRAINING,
-			 PRAYER_CURE_CRITICAL_WOUNDS,
-			 PRAYER_SENSE_INVISIBLE,
-			 PRAYER_PROTECTION_FROM_EVIL,
-			 PRAYER_EARTHQUAKE,
-			 PRAYER_SENSE_SURROUNDINGS,
-			 PRAYER_CURE_MORTAL_WOUNDS,
-			 PRAYER_TURN_UNDEAD),
+		{
+			PRAYER_NEUTRALIZE_POISON,
+			PRAYER_ORB_OF_DRAINING,
+			PRAYER_CURE_CRITICAL_WOUNDS,
+			PRAYER_SENSE_INVISIBLE,
+			PRAYER_PROTECTION_FROM_EVIL,
+			PRAYER_EARTHQUAKE,
+			PRAYER_SENSE_SURROUNDINGS,
+			PRAYER_CURE_MORTAL_WOUNDS,
+			PRAYER_TURN_UNDEAD,
+		},
 
 		/*Exorcism and Dispelling*/
-		BOOK(PRAYER_PRAYER,
-			 PRAYER_DISPEL_UNDEAD,
-			 PRAYER_HEAL,
-			 PRAYER_DISPEL_EVIL,
-			 PRAYER_GLYPH_OF_WARDING,
-			 PRAYER_HOLY_WORD,
-			 -1,
-			 -1,
-			 -1),
+		{
+			PRAYER_PRAYER,
+			PRAYER_DISPEL_UNDEAD,
+			PRAYER_HEAL,
+			PRAYER_DISPEL_EVIL,
+			PRAYER_GLYPH_OF_WARDING,
+			PRAYER_HOLY_WORD,
+			-1,
+			-1,
+			-1,
+		},
 
 		/*Ethereal Openings*/
-		BOOK(PRAYER_BLINK,
-			 PRAYER_TELEPORT_SELF,
-			 PRAYER_TELEPORT_OTHER,
-			 PRAYER_TELEPORT_LEVEL,
-			 PRAYER_WORD_OF_RECALL,
-			 PRAYER_ALTER_REALITY,
-			 -1,
-			 -1,
-			 -1),
+		{
+			PRAYER_BLINK,
+			PRAYER_UNBARRING_WAYS,
+			PRAYER_TELEPORT_SELF,
+			PRAYER_TELEPORT_OTHER,
+			PRAYER_TELEPORT_LEVEL,
+			PRAYER_WORD_OF_RECALL,
+			PRAYER_ALTER_REALITY,
+			-1,
+			-1,
+		},
 
 		/*Godly Insights*/
-		BOOK(PRAYER_DETECT_MONSTERS,
-			 PRAYER_DETECTION,
-			 PRAYER_PERCEPTION,
-			 PRAYER_PROBING,
-			 PRAYER_CLAIRVOYANCE,
-			 -1,
-			 -1,
-			 -1,
-			 -1),
+		{
+			PRAYER_DETECT_MONSTERS,
+			PRAYER_DETECTION,
+			PRAYER_RECHARGING,
+			PRAYER_PERCEPTION,
+			PRAYER_PROBING,
+			PRAYER_CLAIRVOYANCE,
+			-1,
+			-1,
+			-1,
+		},
 
 		/*Purifications and Healing*/
-		BOOK(PRAYER_CURE_SERIOUS_WOUNDS2,
-			 PRAYER_CURE_MORTAL_WOUNDS2,
-			 PRAYER_HEALING,
-			 PRAYER_RESTORATION,
-			 PRAYER_REMEMBRANCE,
-			 -1,
-			 -1,
-			 -1,
-			 -1),
+		{
+			PRAYER_CURE_SERIOUS_WOUNDS2,
+			PRAYER_CURE_MORTAL_WOUNDS2,
+			PRAYER_HEALING,
+			PRAYER_RESTORATION,
+			PRAYER_REMEMBRANCE,
+			-1,
+			-1,
+			-1,
+			-1,
+		},
 
 		/*Holy Infusions*/
-		BOOK(PRAYER_UNBARRING_WAYS,
-			 PRAYER_RECHARGING,
-			 PRAYER_DISPEL_CURSE,
-			 PRAYER_ENCHANT_WEAPON,
-			 PRAYER_ENCHANT_ARMOUR,
-			 PRAYER_ELEMENTAL_BRAND,
-			 -1,
-			 -1,
-			 -1),
+		{
+			PRAYER_DISPEL_CURSE,
+			PRAYER_ENCHANT_WEAPON,
+			PRAYER_ENCHANT_ARMOUR,
+			PRAYER_ELEMENTAL_BRAND,
+			-1,
+			-1,
+			-1,
+			-1,
+			-1,
+		},
 
 		/*Wrath of God*/
-		BOOK(PRAYER_DISPEL_UNDEAD2,
-			 PRAYER_DISPEL_EVIL2,
-			 PRAYER_BANISH_EVIL,
-			 PRAYER_WORD_OF_DESTRUCTION,
-			 PRAYER_ANNIHILATION,
-			 -1,
-			 -1,
-			 -1,
-			 -1)
+		{
+			PRAYER_DISPEL_UNDEAD2,
+			PRAYER_DISPEL_EVIL2,
+			PRAYER_BANISH_EVIL,
+			PRAYER_WORD_OF_DESTRUCTION,
+			PRAYER_ANNIHILATION,
+			-1,
+			-1,
+			-1,
+			-1,
+		}
 	}
 };
 
@@ -1675,13 +1711,13 @@ const byte chest_traps[64] =
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),			/* 15 == best large wooden */
+	(CHEST_SUMMON | CHEST_LOSE_CON),			/* 15 == best large wooden */
 	0,
 	(CHEST_LOSE_STR),
 	(CHEST_LOSE_CON),
 	(CHEST_PARALYZE),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_SUMMON),
+	(CHEST_SUMMON | CHEST_PARALYZE),
 	(CHEST_PARALYZE),
 	(CHEST_LOSE_STR),
 	(CHEST_LOSE_CON),
@@ -1697,7 +1733,7 @@ const byte chest_traps[64] =
 	(CHEST_EXPLODE),
 	(CHEST_EXPLODE | CHEST_SUMMON),	/* 35 == best large iron */
 	0,
-	(CHEST_SUMMON),
+	(CHEST_SUMMON | CHEST_EXPLODE),
 	(CHEST_EXPLODE),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
@@ -1716,15 +1752,48 @@ const byte chest_traps[64] =
 	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_POISON | CHEST_PARALYZE),
 	(CHEST_POISON | CHEST_PARALYZE),	/* 55 == best large steel */
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
+	(CHEST_EXPLODE | CHEST_PARALYZE | CHEST_LOSE_STR),
+	(CHEST_EXPLODE | CHEST_PARALYZE | CHEST_LOSE_CON),
+	(CHEST_EXPLODE | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_PARALYZE),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_PARALYZE),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_PARALYZE),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_PARALYZE),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_PARALYZE),
 };
+
+/*
+ * Array of feeling strings
+ */
+cptr feeling_themed_level[LEV_THEME_TAIL] =
+{
+	"creeping coin",
+	"orc",
+	"troll",
+	"ogre",
+	"hound",
+	"hydra",
+	"giant",
+	"young dragon",
+	"acid dragon",
+	"fire dragon",
+	"electric dragon",
+	"cold dragon",
+	"poison dragon",
+	"chromatic dragon",
+	"dragon",
+	"ancient dragon",
+	"jelly",
+	"lessor cave dweller",
+	"animal",
+	"humanoid",
+	"minor demon",
+	"demon",
+	"major demon",
+	"cave dweller",
+	"undead"
+};
+
 
 
 /*
@@ -1779,6 +1848,7 @@ cptr stat_names_full[A_MAX] =
 	"constitution",
 	"charisma"
 };
+
 
 
 /*
@@ -1856,7 +1926,7 @@ cptr option_text[OPT_MAX] =
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
-	NULL,						/* xxx disturb_other */
+	"disturb_wakeup",			/* OPT_disturb_wakeup */
 	NULL,						/* xxx alert_hitpoint */
 	NULL,						/* xxx alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
@@ -1865,7 +1935,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
-	NULL,						/* xxx testing_stack */
+	"allow_themed_levels",		/* OPT_allow_themed_levels */
 	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
@@ -1903,8 +1973,8 @@ cptr option_text[OPT_MAX] =
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	"scroll_target",			/* OPT_scroll_target */
 	"auto_more",				/* OPT_auto_more */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"toggle_xp",				/* OPT_toggle_exp*/
+	"always_show_list",			/* xxx */
 	"hp_changes_color",			/* OPT_hp_changes_color*/
 	"verify_leave_quests",		/* OPT_verify_leave_quests*/
 	"mark_squelch_items",		/* opt_mark_squelch_items */
@@ -2120,7 +2190,7 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	NULL,										/* xxx disturb_other */
+	"Disturb when a viewable monster wakes up",	/* OPT_disturb_wakeup */
 	NULL,										/* xxx alert_hitpoint */
 	NULL,										/* xxx alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
@@ -2129,7 +2199,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
-	NULL,										/* xxx testing_stack */
+	"Allow the generation of themed levels",	/* OPT_allow_themed_levels */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
 	"Expand the power of the list commands",	/* OPT_expand_list */
@@ -2167,8 +2237,8 @@ cptr option_desc[OPT_MAX] =
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	"Scroll map while targetting",				/* OPT_scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Reverse experience display",				/* OPT_toggle_xp */
+	"Automatically display drop-down lists",	/* OPT_auto_display_lists */
 	"Player color indicates low hit points",	/* OPT_hp_changes_color */
 	"Verify before descending from quest level",/* OPT_verify_leave_quest */
 	"Items marked for squelch appear as dot",   /* OPT_mark_squelch_items */
@@ -2384,7 +2454,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
-	FALSE,		/* xxx disturb_other */
+	TRUE,		/* OPT_disturb_wakeup */
 	FALSE,		/* xxx alert_hitpoint */
 	FALSE,		/* xxx alert_failure */
 	TRUE,		/* OPT_verify_destroy */
@@ -2393,7 +2463,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_allow_themed_levels */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
@@ -2431,8 +2501,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_toggle_xp */
+	FALSE,		/* OPT_auto_display_lists */
 	TRUE,		/* OPT_verify_leave_quests */
 	FALSE,		/* OPT_mark_squelch_items */
 	FALSE,		/* xxx */
@@ -2660,11 +2730,11 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
+		OPT_disturb_wakeup,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2678,13 +2748,13 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_auto_haggle,
 		OPT_auto_scum,
+		OPT_allow_themed_levels,
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
 		OPT_dungeon_align,
 		OPT_dungeon_stair,
-		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2743,8 +2813,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_hp_changes_color,
 		OPT_verify_leave_quest,
 		OPT_mark_squelch_items,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_toggle_xp,
+		OPT_auto_display_lists,
 		OPT_NONE
 	},
 
@@ -2809,6 +2879,7 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"broken",
 	"average",
 	"good",
+	"good",
 	"excellent",
 	"special",
 	"uncursed",
@@ -2817,148 +2888,168 @@ cptr inscrip_text[MAX_INSCRIP] =
 
 
 
-byte mana_cost_RF4[32]=
+/*
+ * First column is Mana Cost
+ * Second column is multiplier * spellpower (breaths handled separately)
+ * Third column is a divider to we can have damage like
+ * spellpower * 5/2 using only integer math.
+ * 4th column is damage variance
+ * 5th column is Optimal Ranges for various spells.
+ * 6 is optimal for Breath Weapons, Beams, and Arcs.
+ * 3 is hard maximum for Lash/Spit.
+ * 0 indicates no range limitation for other spells.
+ *
+ * This range is considered a preference if d_range in spell_desire is > 0.
+ * It is a hard limit if d_range = 0.
+ */
+
+/*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+byte spell_info_RF4[32][5]=
 {
-	1,			/* RF4_SHIEIK */
-	0,			/* RF4_LASH */
-	0,			/* RF4_BOULDER */
-	0,			/* RF4_SHOT */
-	0,			/* RF4_ARROW */
-	0,			/* RF4_BOLT */
-	0,			/* RF4_MISSL */
-	0,			/* RF4_PMISSLE */
-	0,			/* RF4_BRTH_ACID */
-	0,			/* RF4_BRTH_ELEC */
-	0,			/* RF4_BRTH_FIRE */
-	0,			/* RF4_BRTH_COLD */
-	0,			/* RF4_BRTH_POIS */
-	0,			/* RF4_BRTH_PLAS */
-	0,			/* RF4_BRTH_LITE */
-	0,			/* RF4_BRTH_DARK */
-	0,			/* RF4_BRTH_CONFU */
-	0,			/* RF4_BRTH_SOUND */
-	0,			/* RF4_BRTH_SHARD */
-	0,			/* RF4_BRTH_INER */
-	0,			/* RF4_BRTH_GRAV */
-	0,			/* RF4_BRTH_FORCE */
-	0,			/* RF4_BRTH_NEXUS */
-	0,			/* RF4_BRTH_NETHR */
-	0,			/* RF4_BRTH_CHAOS */
-	0,			/* RF4_BRTH_DISEN */
-	0,			/* RF4_BRTH_TIME */
-	0,			/* RF4_BRTH_MANA */
-	0,			/* RF4_XXX3 */
-	0,			/* RF4_XXX4 */
-	0,			/* RF4_XXX5 */
-	0			/* RF4_XXX6 */
+	{1,     0,     0,     0,     0},        /* RF4_SHIEIK */
+	{0,     0,     0,     0,     0},        /* RF4_LASH */
+	{0,     3,     1,     4,     4},        /* RF4_BOULDER */
+	{0,     4,     1,     4,     4},        /* RF4_SHOT */
+	{0,     4,     1,     4,     4},        /* RF4_ARROW */
+	{0,     4,     1,     4,     4},        /* RF4_BOLT */
+	{0,     3,     1,     4,     4},        /* RF4_MISSL */
+	{0,     3,     1,     6,     6},        /* RF4_PMISSLE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_ACID */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_ELEC */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_FIRE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_COLD */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_POIS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_PLAS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_LITE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_DARK */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_CONFU */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_SOUND */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_SHARD */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_INER */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_GRAV */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_FORCE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_NEXUS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_NETHR */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_CHAOS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_DISEN */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_TIME */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_MANA */
+	{0,     0,     0,     0,     0},        /* RF4_XXX3 */
+	{0,     0,     0,     0,     0},        /* RF4_XXX4 */
+	{0,     0,     0,     0,     0},        /* RF4_XXX5 */
+	{0,     0,     0,     0,     0}        /* RF4_XXX6 */
 };
 
-byte mana_cost_RF5[32]=
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+byte spell_info_RF5[32][5]=
 {
-	4,			/* RF5_BALL_ACID */
-	4,			/* RF5_BALL_ELEC */
-	4,			/* RF5_BALL_FIRE */
-	4,			/* RF5_BALL_COLD */
-	4,			/* RF5_BALL_POIS */
-	5, 			/* RF5_BALL_LITE */
-	5, 			/* RF5_BALL_DARK */
-	6, 			/* RF5_BALL_CONFU */
-	4, 			/* RF5_BALL_SOUND */
-	4, 			/* RF5_BALL_SHARD */
-	0, 			/* RF5_XXX2 */
-	5, 			/* RF5_BALL_STORM */
-	6, 			/* RF5_BALL_NETHR */
-	7, 			/* RF5_BALL_CHAOS */
-	7, 			/* RF5_BALL_MANA */
-	7, 			/* RF5_BALL_WATER */
-	4, 			/* RF5_BOLT_ACID */
-	4, 			/* RF5_BOLT_ELEC */
-	4, 			/* RF5_BOLT_FIRE */
-	4, 			/* RF5_BOLT_COLD */
-	4, 			/* RF5_BOLT_POIS */
-	5, 			/* RF5_BOLT_PLAS */
-	5, 			/* RF5_BOLT_ICE */
-	5, 			/* RF5_BOLT_WATER */
-	5, 			/* RF5_BOLT_NETHER */
-	5, 			/* RF5_BOLT_MANA */
-	0, 			/* RF5_XXX3 */
-	6, 			/* RF5_BEAM_ELEC */
-	6, 			/* RF5_BEAM_ICE */
-	6, 			/* RF5_BEAM_NETHER */
-	0, 			/* RF5_XXX4 */
-	5  			/* RF5_HOLY_ORB */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_ACID */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_ELEC */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_FIRE */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_COLD */
+	{4,     3,     1,     6,     6},        /* RF5_BALL_POIS */
+	{5,     3,     1,     6,     6},        /* RF5_BALL_LITE */
+	{5,     3,     1,     6,     6},        /* RF5_BALL_DARK */
+	{6,     3,     1,     6,     6},        /* RF5_BALL_CONFU */
+	{4,     2,     1,     6,     6},        /* RF5_BALL_SOUND */
+	{4,     3,     1,     6,     6},        /* RF5_BALL_SHARD */
+	{0,     0,     0,     0,     0},        /* RF5_XXX2 */
+	{5,     3,     1,     4,     4},        /* RF5_BALL_STORM */
+	{6,     3,     1,     6,     6},        /* RF5_BALL_NETHR */
+	{7,     3,     1,     4,     4},        /* RF5_BALL_CHAOS */
+	{7,     3,     1,     8,     8},        /* RF5_BALL_MANA */
+	{7,     3,     1,     6,     6},        /* RF5_BALL_WATER */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_ACID */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_ELEC */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_FIRE */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_COLD */
+	{4,     3,     1,     6,     6},        /* RF5_BOLT_POIS */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_PLAS */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_ICE */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_WATER */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_NETHER */
+	{5,     2,     1,     6,     6},        /* RF5_BOLT_MANA */
+	{0,     0,     0,     0,     0},        /* RF5_XXX3 */
+	{6,     3,     1,     6,     6},        /* RF5_BEAM_ELEC */
+	{6,     4,     1,     6,     6},        /* RF5_BEAM_ICE */
+	{6,     3,     1,     6,     6},        /* RF5_BEAM_NETHER */
+	{0,     0,     0,     0,     0},        /* RF5_XXX4 */
+	{5,     5,     2,     8,     8}        /* RF5_HOLY_ORB */
 };
 
-byte mana_cost_RF6[32]=
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+byte spell_info_RF6[32][5]=
 {
-	6, 			/* RF6_HASTE */
-	0, 			/* RF6_ADD_MANA */
-	3, 			/* RF6_HEAL */
-	3, 			/* RF6_CURE */
-	3, 			/* RF6_BLINK */
-	6, 			/* RF6_TPORT */
-	0, 			/* RF6_XXX1 */
-	4, 			/* RF6_TELE_SELF_TO */
-	4, 			/* RF6_TELE_TO */
-	8, 			/* RF6_TELE_AWAY */
-	8, 			/* RF6_TELE_LEVEL */
-	0, 			/* RF6_XXX2 */
-	1, 			/* RF6_DARKNESS */
-	2, 			/* RF6_TRAPS */
-	6, 			/* RF6_FORGET */
-	2, 			/* RF6_DRAIN_MANA */
-	0, 			/* RF6_XXX4 */
-	0, 			/* RF6_XXX5 */
-	3, 			/* RF6_MIND_BLAST */
-	4, 			/* RF6_BRAIN_SMASH */
-	4, 			/* RF6_WOUND */
-	0, 			/* RF6_XXX6 */
-	0, 			/* RF6_XXX7 */
-	0, 			/* RF6_XXX8 */
-	0, 			/* RF6_XXX9 */
-	2, 			/* RF6_HUNGER */
-	0, 			/* RF6_XX11 */
-	1, 			/* RF6_SCARE */
-	3, 			/* RF6_BLIND */
-	4, 			/* RF6_CONF */
-	5, 			/* RF6_SLOW */
-	6  			/* RF6_HOLD */
+	{6,     0,     0,     0,     0},        /* RF6_HASTE */
+	{0,     0,     0,     0,     0},        /* RF6_ADD_MANA */
+	{3,     0,     0,     0,     0},        /* RF6_HEAL */
+	{3,     0,     0,     0,     0},        /* RF6_CURE */
+	{3,     0,     0,     0,     0},        /* RF6_BLINK */
+	{8,     0,     0,     0,     0},        /* RF6_TPORT */
+	{0,     0,     0,     0,     0},        /* RF6_XXX1 */
+	{4,     0,     0,     0,     0},        /* RF6_TELE_SELF_TO */
+	{4,     0,     0,     0,     0},        /* RF6_TELE_TO */
+	{8,     0,     0,     0,     0},        /* RF6_TELE_AWAY */
+	{8,     0,     0,     0,     0},        /* RF6_TELE_LEVEL */
+	{0,     0,     0,     0,     0},        /* RF6_XXX2 */
+	{1,     0,     0,     0,     0},        /* RF6_DARKNESS */
+	{2,     0,     0,     0,     0},        /* RF6_TRAPS */
+	{6,     0,     0,     0,     0},        /* RF6_FORGET */
+	{2,     0,     0,     0,     0},        /* RF6_DRAIN_MANA */
+	{0,     0,     0,     0,     0},        /* RF6_XXX4 */
+	{0,     0,     0,     0,     0},        /* RF6_XXX5 */
+	{3,     3,     2,     6,     6},        /* RF6_MIND_BLAST */
+	{4,     5,     2,     6,     6},        /* RF6_BRAIN_SMASH */
+	{4,     5,     2,     6,     6},        /* RF6_WOUND */
+	{0,     0,     0,     0,     0},        /* RF6_XXX6 */
+	{0,     0,     0,     0,     0},        /* RF6_XXX7 */
+	{0,     0,     0,     0,     0},        /* RF6_XXX8 */
+	{0,     0,     0,     0,     0},        /* RF6_XXX9 */
+	{2,     0,     0,     0,     0},        /* RF6_HUNGER */
+	{0,     0,     0,     0,     0},        /* RF6_XX11 */
+	{1,     0,     0,     0,     0},        /* RF6_SCARE */
+	{3,     0,     0,     0,     0},        /* RF6_BLIND */
+	{4,     0,     0,     0,     0},        /* RF6_CONF */
+	{5,     0,     0,     0,     0},        /* RF6_SLOW */
+	{6,     0,     0,     0,     0}        /* RF6_HOLD */
 };
 
-byte mana_cost_RF7[32]=
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+byte spell_info_RF7[32][5]=
 {
-	12,			/* RF7_S_KIN */ /* Summon - 6 */
-	0, 			/* RF7_XXX1 */
-	0, 			/* RF7_XXX2 */
-	10,			/* RF7_S_MONSTER */ /* Summon - 1 */
-	15,			/* RF7_S_MONSTERS */ /* Summon - 8 */
-	0,			/* RF7_XXX3 */
-	0, 			/* RF7_XXX4 */
-	0, 			/* RF7_XXX5 */
-	10, 		/* RF7_S_ANT */ /* Summon - 6 */
-	12,			/* RF7_S_SPIDER */ /* Summon - 6 */
-	14,			/* RF7_S_HOUND */ /* Summon - 6 */
-	15,			/* RF7_S_ANIMAL */ /* Summon - 6 */
-	15, 		/* RF7_S_HYDRA */
-	0, 			/* RF7_XXX7 */
-	15,			/* RF7_S_THIEF */ /* Summon - 6 */
-	5, 			/* RF7_S_BERTBILLTOM */ /* Summon - 2 */
-	0, 			/* RF7_XXX8 */
-	15, 			/* RF7_S_AINU */
-	0, 			/* RF7_XX10 */
-	0, 			/* RF7_XX11 */
-	14,			/* RF7_S_DRAGON */ /* Summon - 1 */
-	20,			/* RF7_S_HI_DRAGON */ /* Summon - 8 */
-	0, 			/* RF7_XX12 */
-	0, 			/* RF7_XX13 */
-	14,			/* RF7_S_DEMON */ /* Summon - 1 / 2-3 */
-	20,			/* RF7_S_HI_DEMON */ /* Summon - 8 */
-	0, 			/* RF7_XX14 */
-	0, 			/* RF7_XX15 */
-	12,			/* RF7_S_UNDEAD */ /* Summon - 1 */
-	20,			/* RF7_S_HI_UNDEAD */ /* Summon - 8 */
-	20,			/* RF7_S_WRAITH */ /* Summon - 8 */
-	20 			/* RF7_S_UNIQUE */ /* Summon - 8 */
+	{12,    0,     0,     0,     0},        /* RF7_S_KIN */ /* Summon - 6 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX1 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX2 */
+	{10,    0,     0,     0,     0},        /* RF7_S_MONSTER */ /* Summon - 1 */
+	{15,    0,     0,     0,     0},        /* RF7_S_MONSTERS */ /* Summon - 8 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX3 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX4 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX5 */
+	{10,    0,     0,     0,     0},        /* RF7_S_ANT */ /* Summon - 6 */
+	{12,    0,     0,     0,     0},        /* RF7_S_SPIDER */ /* Summon - 6 */
+	{14,    0,     0,     0,     0},        /* RF7_S_HOUND */ /* Summon - 6 */
+	{15,    0,     0,     0,     0},        /* RF7_S_ANIMAL */ /* Summon - 6 */
+	{15,    0,     0,     0,     0},        /* RF7_S_HYDRA */
+	{0,     0,     0,     0,     0},        /* RF7_XXX7 */
+	{15,    0,     0,     0,     0},        /* RF7_S_THIEF */ /* Summon - 6 */
+	{5,     0,     0,     0,     0},        /* RF7_S_BERTBILLTOM */ /* Summon - 2 */
+	{0,     0,     0,     0,     0},        /* RF7_XXX8 */
+	{15,    0,     0,     0,     0},        /* RF7_S_AINU */
+	{0,     0,     0,     0,     0},        /* RF7_XX10 */
+	{0,     0,     0,     0,     0},        /* RF7_XX11 */
+	{14,    0,     0,     0,     0},        /* RF7_S_DRAGON */ /* Summon - 1 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_DRAGON */ /* Summon - 8 */
+	{0,     0,     0,     0,     0},        /* RF7_XX12 */
+	{0,     0,     0,     0,     0},        /* RF7_XX13 */
+	{14,    0,     0,     0,     0},        /* RF7_S_DEMON */ /* Summon - 1 / 2-3 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_DEMON */ /* Summon - 8 */
+	{0,     0,     0,     0,     0},        /* RF7_XX14 */
+	{15,    0,     0,     0,     0},        /* RF7_S_UNIQUE */ /* Summon - 8 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_UNIQUE */ /* Summon - 8 */
+	{12,    0,     0,     0,     0},        /* RF7_S_UNDEAD */ /* Summon - 1 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_UNDEAD */ /* Summon - 8 */
+	{20,    0,     0,     0,     0}        /* RF7_S_WRAITH */ /* Summon - 8 */
+
 };
 
 /*
@@ -3064,12 +3155,12 @@ byte spell_desire_RF6[32][8] =
 	{ 10,  0,   30,  0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
 	{ 27,  0,   0,   0,	10,  15,   0	  ,  100}, /* RF6_BLINK	    */
-	{ 10,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TPORT	    */
+	{  3,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TPORT	    */
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX1	    */
 	{ 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_TELE_SELF_TO*/
 	{ 30,  0,   0,   0,	0,   10,   0	  ,  100}, /* RF6_TELE_TO   */
-	{ 10,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TELE_AWAY */
-	{ 10,  0,   0,   0,	20,  10,LRN_NEXUS_SAVE,	   100}, /* RF6_TELE_LEVEL */
+	{  3,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TELE_AWAY */
+	{  3,  0,   0,   0,	20,  10,LRN_NEXUS_SAVE,	   100}, /* RF6_TELE_LEVEL */
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_XXX3	    */
 	{ 20,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
 	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
@@ -3124,39 +3215,10 @@ byte spell_desire_RF7[32][8] =
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DEMON   */
 	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON*/
 	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX14	    */
-	{ 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNIQUE  */
+	{ 0,   18,  0,   0,	0,   0,	   0  	  ,  100}, /* RF7_S_HI_UNIQUE */
 	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
 	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
-	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_WRAITH  */
-	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
-};
-
-/*
- * Optimal Ranges for various spells.
- * 6 is optimal for Breath Weapons, Beams, and Arcs.
- * 3 is hard maximum for Lash/Spit.
- * 0 indicates no range limitation for other spells.
- *
- * This range is considered a preference if d_range in spell_desire is > 0.
- * It is a hard limit if d_range = 0.
- */
-byte spell_range_RF4[32] =
-{
-	0,3,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,0,0,0
-};
-
-byte spell_range_RF5[32] =
-{
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
-
-byte spell_range_RF6[32] =
-{
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-};
-
-byte spell_range_RF7[32] =
-{
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_WRAITH  */
 };
 

@@ -41,14 +41,14 @@ Command Summary -- Original keyset
      $  (unused)                            ^D  (unused)
      %  Interact with visuals               ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
-     &  Interact with colors                ^G  (unused)
+     &  Interact with colors                ^G  {reserved}
      *  Target monster or location          ^H  (unused)
      (  Load screen dump                    ^I  (special - tab)
      )  Dump HTML screen dump               ^J  (special - linefeed)
      {  Inscribe an object                  ^K  (unused)
      }  Uninscribe an object                ^L  (unused)
-     [  Use talents                         ^M  (special - return)
-     ]  (unused)                            ^N  (unused)
+     [  (unused)                            ^M  (special - return)
+     ]  Get objects off the floor           ^N  (unused)
      -  Walk (flip pickup)                  ^O  (unused)
      _  Enter store                         ^P  Show previous messages
      +  Alter grid                          ^Q  Display current quest
@@ -111,14 +111,14 @@ Command Summary -- Roguelike keyset
      $  (unused)                            ^D  Destroy item
      %  Interact with visuals               ^E  Toggle choice window
      ^  (special - control key)             ^F  Repeat level feeling
-     &  Interact with colors                ^G  (unused)
+     &  Interact with colors                ^G  Get objects off the floor
      *  Target monster or location          ^H  (alter - west)
      (  Load screen dump                    ^I  (special - tab)
      )  Dump screen dump                    ^J  (alter - south)
      {  Inscribe an object                  ^K  (alter - north)
      }  Uninscribe an object                ^L  (alter - east)
      [  (unused)                            ^M  (special - return)
-     ]  (unused)                            ^N  (alter - south east)
+     ]  Get objects off the floor           ^N  (alter - south east)
      -  Walk (flip pickup)                  ^O  Pilfer from Monsters
      _  Enter store                         ^P  Show previous messages
      +  Alter grid                          ^Q  Display current quest
@@ -134,9 +134,6 @@ Command Summary -- Roguelike keyset
      \  (special - bypass keymap)            |  (unused)
      `  (special - escape)                   ~  Check knowledge
      /  Identify symbol                      ?  Help
-
-
-
 
 
 

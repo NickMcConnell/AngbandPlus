@@ -190,7 +190,6 @@ bool los(int y1, int x1, int y2, int x2)
 	/* Calculate scale factor */
 	f1 = f2 << 1;
 
-
 	/* Travel horizontally */
 	if (ax >= ay)
 	{
@@ -552,6 +551,9 @@ static u16b image_random(void)
  */
 bool feat_supports_lighting(int feat)
 {
+	/* Pseudo graphics don't support lighting */
+	if (use_graphics == GRAPHICS_PSEUDO) return FALSE;
+
 	if 	((use_graphics != GRAPHICS_DAVID_GERVAIS) &&
 	    (((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)) ||
 		 ((feat >= FEAT_MTRAP_HEAD) && (feat <= FEAT_MTRAP_TAIL))))
@@ -594,6 +596,7 @@ static void special_lighting_floor(byte *a, char *c, int info)
 			switch (use_graphics)
 			{
 				case GRAPHICS_NONE:
+				case GRAPHICS_PSEUDO:
 					/* Use "yellow" */
 					if (*a == TERM_WHITE) *a = TERM_YELLOW;
 					break;
@@ -614,6 +617,7 @@ static void special_lighting_floor(byte *a, char *c, int info)
 		switch (use_graphics)
 		{
 			case GRAPHICS_NONE:
+			case GRAPHICS_PSEUDO:
 				/* Use "dark gray" */
 				if (*a == TERM_WHITE) *a = TERM_L_DARK;
 				break;
@@ -630,6 +634,7 @@ static void special_lighting_floor(byte *a, char *c, int info)
 		switch (use_graphics)
 		{
 			case GRAPHICS_NONE:
+			case GRAPHICS_PSEUDO:
 				/* Use "gray" */
 				if (*a == TERM_WHITE) *a = TERM_SLATE;
 				break;
@@ -656,6 +661,7 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
 		switch (use_graphics)
 		{
 			case GRAPHICS_NONE:
+			case GRAPHICS_PSEUDO:
 				/* Use "dark gray" */
 				if (*a == TERM_WHITE) *a = TERM_L_DARK;
 				break;
@@ -672,6 +678,7 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
 		switch (use_graphics)
 		{
 			case GRAPHICS_NONE:
+			case GRAPHICS_PSEUDO:
 				/* Use "gray" */
 				if (*a == TERM_WHITE) *a = TERM_SLATE;
 				break;
@@ -867,6 +874,9 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
  * tiles should be handled differently.  One possibility would be to
  * extend feature_type with attr/char definitions for the different states.
  */
+
+#define GRAF_BROKEN_BONE 440
+
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 {
 	byte a;
@@ -1004,10 +1014,11 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 
 			/*autosquelch insert*/
-			sq_flag = ((mark_squelch_items) && (k_info[o_ptr->k_idx].squelch) &&
- 			(k_info[o_ptr->k_idx].aware));
+			sq_flag = ((mark_squelch_items) &&
+				       (k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) &&
+ 				       (k_info[o_ptr->k_idx].aware));
 
-			/*hack - never allow quest chests to appear as dot*/
+			/*hack - never allow quest items to appear as dot*/
 			if ((!sq_flag) || (o_ptr->ident & IDENT_QUEST))
 			{
 				/* Normal attr */
@@ -1025,16 +1036,31 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			}
 			else if (do_purple_dot)
 			{
-				/* Special squelch character HACK */
-				/* Colour of Blade of Chaos */
-				a = k_info[36].x_attr;
-				/* Symbol of floor */
-				c = f_info[1].x_char;
+				if (use_graphics)
+				{
+					/* Special squelch character HACK */
+					/* Colour of Blade of Chaos */
+					/*This can't be right, but I am not sure what to do for graphics*/
+					a = k_info[GRAF_BROKEN_BONE].x_attr;
+					/* Symbol of floor */
+					c = k_info[GRAF_BROKEN_BONE].x_char;
+				}
+				else
+				{
+					/* Special squelch character HACK */
+					/* Colour of Blade of Chaos */
+					a = TERM_VIOLET;
+					/* Symbol of floor */
+					c = f_info[1].x_char;
+				}
 			}
 
 			/* Special stack symbol, unless everything in the pile is squelchable */
-			if ((++floor_num > 1) && (a != k_info[36].x_attr) &&
-				(c != f_info[1].x_char))
+			if ((++floor_num > 1) &&
+				(use_graphics ? ((a != k_info[GRAF_BROKEN_BONE].x_attr) ||
+				                 (c != k_info[GRAF_BROKEN_BONE].x_char)) :
+								((a != TERM_VIOLET) ||
+								 (c != f_info[1].x_char))))
 			{
 				object_kind *k_ptr;
 
@@ -1058,7 +1084,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	{
 		monster_type *m_ptr = &mon_list[m_idx];
 
-		/* Visible monster */
+		/* Visible monster*/
 		if (m_ptr->ml)
 		{
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1430,17 +1456,18 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			}
 
 			/*autosquelch insert*/
-			sq_flag = ((mark_squelch_items) && (k_info[o_ptr->k_idx].squelch) &&
- 			(k_info[o_ptr->k_idx].aware));
+			sq_flag =  ((mark_squelch_items) &&
+						(k_info[o_ptr->k_idx].squelch == SQUELCH_ALWAYS) &&
+ 						(k_info[o_ptr->k_idx].aware));
 
-			/*hack - never allow quest chests to appear as dot*/
+			/*hack - never allow quest items to appear as dot*/
 			if ((!sq_flag) || (o_ptr->ident & IDENT_QUEST))
 			{
 				/* Normal attr */
 				a = object_attr_default(o_ptr);
 
 				/* Normal char */
-				c = object_attr_default(o_ptr);
+				c = object_char_default(o_ptr);
 
 				/*found a non-squelchable item, unless showing piles, display this one*/
 				if (!show_piles) break;
@@ -1453,14 +1480,15 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 			{
 				/* Special squelch character HACK */
 				/* Colour of Blade of Chaos */
-				a = k_info[36].x_attr;
+				a = TERM_VIOLET;
+
 				/* Symbol of floor */
 				c = f_info[1].x_char;
 			}
 
 			/* Special stack symbol, unless everything in the pile is squelchable */
-			if ((++floor_num > 1) && (a != k_info[36].x_attr) &&
-				(c != f_info[1].x_char))
+			if ((++floor_num > 1) && ((a != TERM_VIOLET) ||
+				(c != f_info[1].x_char)))
 			{
 				object_kind *k_ptr;
 
@@ -3350,8 +3378,7 @@ void update_view(void)
  *
  * The biggest limitation of this code is that it does not easily
  * allow for alternate ways around doors (not all monsters can handle
- * doors) and lava/water (many monsters are not allowed to enter
- * water, lava, or both).
+ * doors).
  *
  * The flow table is three-dimensional.  The first dimension allows the
  * table to both store and overwrite grids safely.  The second indicates
@@ -3360,14 +3387,14 @@ void update_view(void)
  */
 
 
-void update_noise(bool full)
+void update_noise(bool full, byte which_flow)
 {
 #ifdef MONSTER_FLOW
 	int cost;
 	int route_distance = 0;
 
 	int i, d;
-	int y, x, y2, x2;
+	byte y, x, y2, x2;
 	int last_index;
 	int grid_count = 0;
 
@@ -3380,15 +3407,15 @@ void update_noise(bool full)
 	byte flow_table[2][2][8 * NOISE_STRENGTH];
 
 	/* The character's grid has no flow info.  Do a full rebuild. */
-	if (cave_cost[p_ptr->py][p_ptr->px] == 0) full = TRUE;
+	if (cave_cost[which_flow][p_ptr->py][p_ptr->px] == 0) full = TRUE;
 
 	/* Determine when to rebuild, update, or do nothing */
 	if (!full)
 	{
-		dist = ABS(p_ptr->py - flow_center_y);
+		dist = ABS(p_ptr->py - flow_center_y[which_flow]);
 
-		if (ABS(p_ptr->px - flow_center_x) > dist)
-			dist = ABS(p_ptr->px - flow_center_x);
+		if (ABS(p_ptr->px - flow_center_x[which_flow]) > dist)
+			dist = ABS(p_ptr->px - flow_center_x[which_flow]);
 		/*
 		 * Character is far enough away from the previous flow center -
 		 * do a full rebuild.
@@ -3398,23 +3425,23 @@ void update_noise(bool full)
 		else
 		{
 			/* Get axis distance to center of last update */
-			dist = ABS(p_ptr->py - update_center_y);
+			dist = ABS(p_ptr->py - update_center_y[which_flow]);
 
-			if (ABS(p_ptr->px - update_center_x) > dist)
-				dist = ABS(p_ptr->px - update_center_x);
+			if (ABS(p_ptr->px - update_center_x[which_flow]) > dist)
+				dist = ABS(p_ptr->px - update_center_x[which_flow]);
 
 			/*
 			 * We probably cannot decrease the center cost any more.
 			 * We should assume that we have to do a full rebuild.
 			 */
-			if (cost_at_center - (dist + 5) <= 0) full = TRUE;
+			if (cost_at_center[which_flow] - (dist + 5) <= 0) full = TRUE;
 
 			/* Less than five grids away from last update */
 			else if (dist < 5)
 			{
 				/* We're in LOS of the last update - don't update again */
-				if (los(p_ptr->py, p_ptr->px, update_center_y,
-				    update_center_x)) return;
+				if (los(p_ptr->py, p_ptr->px, update_center_y[which_flow],
+				    update_center_x[which_flow])) return;
 
 				/* We're not in LOS - update */
 				else full = FALSE;
@@ -3467,13 +3494,13 @@ void update_noise(bool full)
 						if (!in_bounds(y2, x2)) continue;
 
 						/* Ignore illegal grids */
-						if (cave_cost[y2][x2] == 0) continue;
+						if (!cave_cost[which_flow][y2][x2]) continue;
 
 						/* Ignore previously erased grids */
-						if (cave_cost[y2][x2] == 255) continue;
+						if (cave_cost[which_flow][y2][x2] == 255) continue;
 
 						/* Erase previous info, mark grid */
-						cave_cost[y2][x2] = 255;
+						cave_cost[which_flow][y2][x2] = 255;
 
 						/* Store this grid in the flow table */
 						flow_table[next_cycle][0][grid_count] = y2;
@@ -3483,8 +3510,8 @@ void update_noise(bool full)
 						grid_count++;
 
 						/* If this is the previous update center, we can stop */
-						if ((y2 == update_center_y) &&
-							(x2 == update_center_x)) found = TRUE;
+						if ((y2 == update_center_y[which_flow]) &&
+							(x2 == update_center_x[which_flow])) found = TRUE;
 					}
 				}
 
@@ -3510,53 +3537,52 @@ void update_noise(bool full)
 		 	 * enough to maintain the correct cost slope out to the range
 		 	 * we have to update the flow.
 		 	 */
-			cost_at_center -= route_distance;
+			cost_at_center[which_flow] -= route_distance;
 
 			/* We can't reduce the center cost any more.  Do a full rebuild. */
-			if (cost_at_center < 0) full = TRUE;
+			if (cost_at_center[which_flow] < 0) full = TRUE;
 			else
 			{
 				/* Store the new update center */
-				update_center_y = p_ptr->py;
-				update_center_x = p_ptr->px;
+				update_center_y[which_flow] = p_ptr->py;
+				update_center_x[which_flow] = p_ptr->px;
 			}
 		}
+	}
 
+	/* Full rebuild */
+	if (full)
+ 	{
+		/*
+		 * Set the initial cost to 100; updates will progressively
+		 * lower this value.  When it reaches zero, another full
+		 * rebuild has to be done.
+		 */
+		cost_at_center[which_flow] = BASE_FLOW_CENTER;
 
-		/* Full rebuild */
-		if (full)
- 		{
-			/*
-		 	 * Set the initial cost to 100; updates will progressively
-		 	 * lower this value.  When it reaches zero, another full
-		 	 * rebuild has to be done.
-		 	 */
-			cost_at_center = 100;
+		/* Save the new noise epicenter */
+		flow_center_y[which_flow] = p_ptr->py;
+		flow_center_x[which_flow] = p_ptr->px;
+		update_center_y[which_flow] = p_ptr->py;
+		update_center_x[which_flow] = p_ptr->px;
 
-			/* Save the new noise epicenter */
-			flow_center_y = p_ptr->py;
-			flow_center_x = p_ptr->px;
-			update_center_y = p_ptr->py;
-			update_center_x = p_ptr->px;
-
-
-			/* Erase all of the current flow (noise) information */
-			for (y = 0; y < p_ptr->cur_map_hgt; y++)
+		/* Erase all of the current flow (noise) information */
+		for (y = 0; y < p_ptr->cur_map_hgt; y++)
+		{
+			for (x = 0; x < p_ptr->cur_map_wid; x++)
 			{
-				for (x = 0; x < p_ptr->cur_map_wid; x++)
-				{
-					cave_cost[y][x] = 0;
-				}
+				cave_cost[which_flow][y][x] = 0;
+
 			}
+
 		}
 
 	}
 
-
 	/*** Update or rebuild the flow ***/
 
 	/* Store base cost at the character location */
-	cave_cost[p_ptr->py][p_ptr->px] = cost_at_center;
+	cave_cost[which_flow][p_ptr->py][p_ptr->px] = cost_at_center[which_flow];
 
 	/* Store this grid in the flow table, note that we've done so */
 	flow_table[this_cycle][0][0] = p_ptr->py;
@@ -3564,7 +3590,9 @@ void update_noise(bool full)
 	grid_count = 1;
 
 	/* Extend the noise burst out to its limits */
-	for (cost = cost_at_center + 1; cost <= cost_at_center + NOISE_STRENGTH; cost++)
+	for (cost = cost_at_center[which_flow] + 1;
+		 cost <= cost_at_center[which_flow] + NOISE_STRENGTH;
+		 cost++)
 	{
 		/* Get the number of grids we'll be looking at */
 		last_index = grid_count;
@@ -3578,6 +3606,7 @@ void update_noise(bool full)
 		/* Get each valid entry in the flow table in turn. */
 		for (i = 0; i < last_index; i++)
 		{
+
 			/* Get this grid */
 			y = flow_table[this_cycle][0][i];
 			x = flow_table[this_cycle][1][i];
@@ -3585,6 +3614,7 @@ void update_noise(bool full)
 			/* Look at all adjacent grids */
 			for (d = 0; d < 8; d++)
 			{
+
 				/* Child location */
 				y2 = y + ddy_ddd[d];
 				x2 = x + ddx_ddd[d];
@@ -3596,13 +3626,24 @@ void update_noise(bool full)
 				if (full)
 				{
 
-					/* Ignore previously marked grids */
-					if (cave_cost[y2][x2]) continue;
+					/* Ignore previously marked grids, unless this is a shorter distance */
+					if (cave_cost[which_flow][y2][x2]) continue;
 
 					/* Ignore walls. */
 					if (cave_info[y2][x2] & (CAVE_WALL))
 					{
-						continue;
+						/* if updating door_flow, keep going, else stop*/
+						if (which_flow == FLOW_PASS_DOORS)
+						{
+							if ((cave_feat[y2][x2] > FEAT_WALL_HEAD) &&
+								(cave_feat[y2][x2] <= FEAT_WALL_TAIL)) continue;
+						}
+						/* assume FLOW_NO_DOORS*/
+						else
+						{
+							if ((cave_feat[y2][x2] >= FEAT_DOOR_HEAD) &&
+							(cave_feat[y2][x2] <= FEAT_WALL_TAIL)) continue;
+						}
 					}
 				}
 
@@ -3610,11 +3651,25 @@ void update_noise(bool full)
 				else
 				{
 					/* Ignore all but specially marked grids */
-					if (cave_cost[y2][x2] != 255) continue;
+					if (cave_cost[which_flow][y2][x2] != 255) continue;
 				}
 
 				/* Store cost at this location */
-				cave_cost[y2][x2] = cost;
+				cave_cost[which_flow][y2][x2] = cost;
+
+				/*Monsters at this site need to re-consider their targets*/
+				if (cave_m_idx[y2][x2] > 0)
+				{
+					monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+					/*always a target Y is a target x*/
+					if (m_ptr->target_x)
+					{
+
+						/*We need to re-evaluate target*/
+						m_ptr->target_x = m_ptr->target_y = 0;
+					}
+				}
 
 				/* Store this grid in the flow table */
 				flow_table[next_cycle][0][grid_count] = y2;
@@ -3639,7 +3694,7 @@ void update_noise(bool full)
 		}
 	}
 
-#endif
+#endif /* MONSTER_FLOW */
 }
 
 
@@ -3686,7 +3741,7 @@ void update_smell(void)
 		{
 			for (x = 0; x < p_ptr->cur_map_wid; x++)
 			{
-			/* Ignore non-existent scent */
+				/* Ignore non-existent scent */
 				if (cave_when[y][x] == 0) continue;
 
 				/* Erase the earlier part of the previous cycle */
@@ -3707,7 +3762,7 @@ void update_smell(void)
 		{
 			/* Translate table to map grids */
 			y = i + py - 2;
-		x = j + px - 2;
+			x = j + px - 2;
 
 			/* Check Bounds */
 			if (!in_bounds(y, x)) continue;
@@ -3716,7 +3771,7 @@ void update_smell(void)
 			if (cave_info[y][x] & (CAVE_WALL))
 			{
 				continue;
-		}
+			}
 
 			/* Grid must not be blocked by walls from the character */
 			if (!los(p_ptr->py, p_ptr->px, y, x)) continue;
@@ -4024,6 +4079,14 @@ void town_illuminate(bool daytime)
  */
 void cave_set_feat(int y, int x, int feat)
 {
+
+	if ((cave_feat[y][x] > FEAT_DOOR_HEAD)  &&
+		(cave_feat[y][x] <= FEAT_WALL_TAIL))
+	{
+		/* Update the visuals, and door code */
+		p_ptr->update |= (PU_NOISE_STRONG | PU_NOISE_WEAK);
+	}
+
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
@@ -4033,6 +4096,9 @@ void cave_set_feat(int y, int x, int feat)
 	if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_WALL_TAIL))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
+
+		/* Update the visuals, and door code */
+		p_ptr->update |= (PU_NOISE_STRONG | PU_NOISE_WEAK);
 	}
 
 	/* Handle "floor"/etc grids */

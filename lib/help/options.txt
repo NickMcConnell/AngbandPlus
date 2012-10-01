@@ -32,7 +32,7 @@ essentially four choices of filenames:
 --- Option Set #1:  User Interface ---
 
 ***** <rogue_like_commands>
-Rogue-like commands                           [rogue_like_commands]  (off) :
+Rogue-like commands                           [rogue_like_commands]  (off):
      Selects the "roguelike" command set, which uses eight of the letter keys to
 move the character about.  This command set can be really useful if you have no
 number pad, and some people just naturally prefer it.  However, the original
@@ -41,22 +41,22 @@ command set has considerably more unused keys available for macros and keymaps.
 ***** <quick_messages>
 Activate quick messages                       [quick_messages]       (on) :
      Allows the use of any keypress as a response to the "-more-" prompt.
-Allows most keys to mean "no" to any "[y/n]" prompt.  Usage of this option can
+Allows most keys to mean "no" to any "[y/n]" prompt.  Use of this option can
 be dangerous!
 
 ***** <floor_query_flag>
-Prompt for floor item selection               [floor_query_flag]     (off) :
+Prompt for floor item selection               [floor_query_flag]     (off):
      Allows you to choose any item in a floor stack, even if you do not have
 "easy_floor" on.
 
 ***** <carry_query_flag>
 Prompt before picking things up               [carry_query_flag]     (on) :
     Forces the game to ask your permission before allowing you to pick up any
-object.  Usually turned on if "auto_pickup" is also ON.  If it is OFF, usage of
+object.  Usually turned on if "auto_pickup" is also ON.  If it is OFF, use of
 this option is normally not necessary.
 
 ***** <use_old_target>
-Use old target by default                     [use_old_target]       (off) :
+Use old target by default                     [use_old_target]       (off):
      Forces all commands which normally ask for a direction to use the current
 target if there is one.  Use of this option can be dangerous if you target
 locations on the ground, unless you clear them when done.
@@ -69,18 +69,18 @@ commands, which can be used to reverse this option for a single turn, and the
 option "carry_query_flag", which lets you decide whether to pick things up.
 
 ***** <always_repeat>
-Repeat obvious commands                       [always_repeat]        (off) :
+Repeat obvious commands                       [always_repeat]        (off):
      The tunneling, altering, resting, disarming, opening, closing, and bashing
 commands will repeat 99 times unless you explicitly give a different command
 count.
 
 ***** <stack_force_notes>
-Merge inscriptions when stacking              [stack_force_notes]    (off) :
+Merge inscriptions when stacking              [stack_force_notes]    (off):
      Allows objects with and without inscriptions to stack, retaining any
 inscription.
 
 ***** <stack_force_costs>
-Merge discounts when stacking                 [stack_force_costs]    (off) :
+Merge discounts when stacking                 [stack_force_costs]    (off):
      Allows objects with greater and lesser discounts to stack, retaining the
 larger discount.
 
@@ -89,22 +89,22 @@ Audible bell (on errors, etc)                 [ring_bell]            (on) :
      Make a bell sound when errors occur (such as typing an invalid key).
 
 ***** <easy_open>
-Open/Disarm/Close without direction           [easy_open]            (off) :
+Open/Disarm/Close without direction           [easy_open]            (off):
      When you issue the open, close, or disarm commands, and there is only one
 useable door or visible trap adjacent to you, it is selected automatically.
 
 ***** <easy_alter>
-Open/Disarm doors/traps on movement           [easy_alter]           (off) :
+Open/Disarm doors/traps on movement           [easy_alter]           (off):
      When you move into a door, you attempt to open it.  When you move into a
 trap, you attempt to disarm it.
 
 ***** <easy_floor>
-Display floor stacks in a list                [easy_floor]           (off) :
+Display floor stacks in a list                [easy_floor]           (off):
      Displays items on the floor using a list similar to that used for
 inventory.  Allows you to comfortably handle large piles of floor items.
 
 ***** <scroll_target>
-Scroll map while targetting                   [scroll_target]        (off) :
+Scroll map while targetting                   [scroll_target]        (off):
      When looking or targeting, the panel will shift as needed, allowing you to
 review everything you know about the dungeon.
 
@@ -159,6 +159,11 @@ Disturb whenever boring things happen         [disturb_minor]        (on) :
      Disturbs you when you sense wargear automatically (pseudo-ID), hear a door
 being bashed open, or begin to run out of fuel.
 
+***** <disturb_wakeup>
+Disturb whenever viewable monster wakes up   [disturb_wakeup]        (on) :
+     This option causes you to be disturbed when viewable monster 
+wakes up or stirrs.
+
 ***** <verify_destroy>
 Verify destruction of objects                 [verify_destroy]       (on) :
      Gives you an "are you sure" message when you try to destroy an object.
@@ -175,7 +180,7 @@ object.  If you prefer to enter command counts before commands instead of typing
 quantities when prompted, turn this option off.
 
 ***** <auto_more>
-Automatically clear '-more-' prompts          [auto_more]            (off) :
+Automatically clear '-more-' prompts          [auto_more]            (off):
      The game does not wait for a keypress when it comes to a -more- prompt, but
 erases the message instead.  This may speed up play, but can cause you to miss
 important warnings or interesting occurrences if you do not have an extra window
@@ -185,15 +190,23 @@ devoted to message recall.
 
 ***** <auto_haggle>
 Auto-haggle in stores                         [auto_haggle]          (on) :
-     Causes you to accept the prices the shopkeeper asks or offers.  Usage of
+     Causes you to accept the prices the shopkeeper asks or offers.  use of
 this option causes you to pay 10% more than normal when buying, and get 10% less
 when selling.
 
 ***** <auto_scum>
-Auto-scum for good levels                     [auto_scum]            (off) :
+Auto-scum for good levels                     [auto_scum]            (off):
      Regenerates dungeon levels until one is found with enough dangerous
-monsters and nifty objects.  Usage of this option makes for more intense but
+monsters and nifty objects.  use of this option makes for more intense but
 dangerous games.
+
+***** <auto_scum>
+Allow the generation of themed levels         [allow_themed_levels]  (on):
+     Allows the generation of themed levels.  Themed levels are levels packed
+with many monsters of a particular type, such as orcs, trolls, hydras, 
+or dragons.  Once the level is created, no additional monsters will be created
+on a themed level.  With this option set to "on", it is highly recommended that 
+the dungeon_stair option be set to "on" as well.
 
 ***** <expand_look>
 Expand the power of the look command          [expand_look]          (on) :
@@ -213,7 +226,7 @@ you to know which lit floor grids are in line of sight.  If you are using color,
 however, the "view_bright_lite" option works better.
 
 ***** <view_torch_grids>
-Map remembers all torch-lit grids             [view_torch_grids]     (off) :
+Map remembers all torch-lit grids             [view_torch_grids]     (off):
      Memorize all floor grids that have ever been lit up by the player.  This is
 one way to help keep track of which areas you have explored.
 
@@ -226,10 +239,13 @@ the number of large rooms (greater vaults in particular).
 ***** <dungeon_stair>
 Generate dungeons with connected stairs       [dungeon_stair]        (on) :
      When entering a level using a staircase, it remains in place.  This allows
-you to beat a hasty retreat if necessary.
+you to beat a hasty retreat if necessary.  If this option is turned off, it is
+recommended that the allow_themed_levels option be turned off also, since
+themed levels are packed with so many monsters, it is unlikely the player
+will appear in a safe spot without this option on.
 
 ***** <smart_cheat>
-Monsters exploit players weaknesses           [smart_cheat]          (off) :
+Monsters exploit players weaknesses           [smart_cheat]          (off):
      Monsters instantly know all your resistances, and need spend no time
 learning.
 
@@ -237,17 +253,17 @@ learning.
 --- Option Set #4:  Efficiency ---
 
 ***** <view_reduce_lite>
-Reduce lite-radius when running               [view_reduce_lite]     (off) :
+Reduce lite-radius when running               [view_reduce_lite]     (off):
      When running, your light radius is reduced to one.  Not recommended for use
 unless your machine is very slow.
 
 ***** <hidden_player>
-Hide player symbol when running               [hidden_player]        (off) :
+Hide player symbol when running               [hidden_player]        (off):
      Saves a small amount of time by not refreshing your symbol when running.
 Again, makes little difference except on very slow machines.
 
 ***** <avoid_abort>
-Avoid checking for user abort                 [avoid_abort]          (off) :
+Avoid checking for user abort                 [avoid_abort]          (off):
      Avoid checking to see if the user has pressed a key during resting or
 running or repeated commands.  On some system, this makes the game more
 efficient, but on others (including most graphical ones) it can be troublesome.
@@ -255,7 +271,7 @@ Resting for long periods of time with this option set is dangerous since the
 resting may not stop until the user takes damage from starvation.
 
 ***** <avoid_other>
-Avoid processing special colors               [avoid_other]          (off) :
+Avoid processing special colors               [avoid_other]          (off):
      Forbids chromatic monsters to shimmer and makes clear monsters appear
 white.  May increase speed on some older machines.
 
@@ -268,7 +284,7 @@ commands that can fail, since it will prevent you from walking towards monsters
 when your spells fail.
 
 ***** <flush_disturb>
-Flush input whenever disturbed                [flush_disturb]        (off) :
+Flush input whenever disturbed                [flush_disturb]        (off):
      This option forces the game to flush all pending input whenever the
 character is disturbed.  This is useful if you use macros that take time, since
 it will prevent you from continuing your macro while being attacked by a
@@ -281,7 +297,7 @@ but slows down the game slightly.  You must turn this option on to see spell
 effects.
 
 ***** <fresh_after>
-Flush output after various things             [fresh_after]          (off) :
+Flush output after various things             [fresh_after]          (off):
      This option forces the game to flush all output not only after every player
 command, but also after every round of processing monsters and objects, and
 after every message.  This maximizes your information, but may slow down the
@@ -298,7 +314,7 @@ message information.
 --- Option Set #5:  Display ---
 
 ***** <depth_in_feet>
-Show dungeon level in feet                    [depth_in_feet]        (off) :
+Show dungeon level in feet                    [depth_in_feet]        (off):
      Displays dungeon level in feet, as opposed to level.
 
 ***** <show_labels>
@@ -343,26 +359,37 @@ option off will slightly increase the speed of the game.
 
 ***** <view_bright_lite>
 Use special colors for field of view          [view_bright_lite]     (off) :
-     If the option "view_special_light" is also on, those floor grids that the
-player can see directly appear white, and all other known grids appear dark
-gray.  If the option "view_granite_light" is on, walls will be colored in the
-same way.  Turning this option off will slightly increase the speed of the game.
+     This option causes special colors to be used for non "viewable" grids in
+ certain situations (see "view_granite_lite" and "view_special_lite"). When 
+this option is set, floor grids which are normally drawn in "white" but 
+which are not currently "viewable" by the player are instead drawn in "dark 
+gray".  This makes the "viewable" grids to appear "brighter" than the others,
+allowing the player to easily determine which floor grids are in "line of 
+sight".  Turning this option off will probably increase the speed of the game.
 
 ***** <view_granite_lite>
 Use special colors for wall grids             [view_granite_lite]    (off) :
-     If either the option "view_yellow_light" or "view_bright_light" is on, wall
-grids will change color depending on lighting conditions instead of always being
-gray.  This option may not work well if the attr/char codes for walls/veins have
-been changed, or if graphics are being used.  Turning it off will slightly
-increase the speed of the game.
+     This option activates a special color scheme for all "wall" grids which
+are normally drawn in "white" (as walls and rubble normally are).  When the 
+player is blind, we use "dark gray", else if the grid is torch-lit, we use 
+"yellow" (or "white") depending on the "view_yellow_lite" option, else if the
+"view_bright_lite" option is set, and the grid is not in line of sight, or the 
+grid is dark, or the grid is only "partially" lit, then we use "gray", 
+otherwise we use the normal "white".  Turning this option off will probably 
+increase the speed of the game.  This option may not work well if the attr/char
+codes for walls/veins have been changed, or if "graphics" are being used.
 
 ***** <view_special_lite>
 Use special colors for floor grids            [view_special_lite]    (off) :
-     If either the option "view_yellow_light" or "view_bright_light" is on,
-floor grids will change color depending on lighting conditions instead of always
-being black or white.  This option may not work well if the attr/char codes for
-floors have been changed, or if graphics are being used.  Turning it off will
-slightly increase the speed of the game.
+     This option activates a special color scheme for all "floor" grids which
+are normally drawn in "white" (as they normally are).  When the player is blind, 
+we use "dark gray", else if the grid is torch-lit, we use "yellow"
+(or "white") depending on the "view_yellow_lite" option, else if the grid
+is "dark", we use "dark gray", else if the "view_bright_lite" option is
+set, and the grid is not in line of sight, we use "gray", otherwise we
+use the normal "white".  Turning this option off will probably increase
+the speed of the game.  This option may not work well if the attr/char
+codes for walls/veins have been changed, or if "graphics" are being used.
 
 ***** <center_player>
 Center map continuously (very slow)           [center_player]        (off) :
@@ -383,11 +410,11 @@ Show stacks using special attr/char           [show_piles]           (off) :
 ***** <hp_changes_color>
 Player color indicates low hit points         [hp_changes_color]     (off) :
 	As a player's hitpoints drops, the color of the player changes 
-as a warning.  90-100% of max hp - White.  70-89% - yellow.  50-69% -
-orange.  30-49% - light red.  Less than 30% of max hp - Red
+as a warning.  90-100% of max hp - White.  70-89% - Yellow.  50-69% -
+Orange.  30-49% - Light Red.  Less than 30% of max hp - Red.
 
-***** <verify_leave_quest>
-Verify before descending from quest level     [verify_leave_quest]     (on) :
+***** <verify_leave_quests>
+Verify before descending from quest level     [verify_leave_quests]     (on) :
     Asks for confirmation when you try to leave a quest level using down 
 stairs (thereby risking quest failure).
 
@@ -396,6 +423,17 @@ Items marked for squelch appear as dot        [mark_squelch_items]    (off) :
     Any item that is marked for squelching on the dungeon floor or ground 
 appears as a purple dot on-screen, allowing the player to easily ignore that
 item.
+
+***** <toggle_xp>
+Reverse experience display		          [toggle_xp]		    (off) :
+    If this option is on, the amount of experience you need to move up
+    to the next level will be displayed on the main screen.  If the
+    option is off or if your character has reached the maximum character
+    level, it will show your total experience.
+
+***** <auto_display_lists>
+Automatically display drop-down lists	    [auto_display_lists]   (off)  :	
+    If selecting anything from a list, the list will automatically pop up.
 
 --- Option Set #6:  Birth ---
 
@@ -437,7 +475,9 @@ surface by any means, until victorious.  If by accident you do, you must
 immediately return to the dungeon.
      Some forms of Ironman play require that you visit no stores before going
 into the dungeon, or that you must use a down staircase as soon as you see it
-("crash-dive ironman"), but they are variants on the basic theme.
+("crash-dive ironman"), but they are variants on the basic theme.  There are
+certain objects available in ironman mode that are not available in a regular
+game.
 
 Adult: Restrict the use of stairs/recall      [adult_ironman]        (off) :
      Can never go up.  Can never use recall until you win the game.  No stairs
@@ -469,10 +509,9 @@ Adult:  Have notes to written to a file       [adult_take_notes]     (off) :
 	Character can write notes to a specific file.  In addition, notes
 are taken automatically when: a player reaches a character level
 divisible by 5 (5, 10, 15, etc..), a unique is killed, an artifact is
-identified, or a greater vault created.  The turn, character level, and 
-depth of the player is automatically recorded.  This information is 
-in character dumps near the bottom.  For certain artifacts of unusual power
-artifacts found out of depth, or unusually rare artifacts, the level the 
+identified, or a greater vault is found.  The turn, character level, and 
+depth of the player are automatically recorded.  This information is 
+in character dumps near the bottom.  For artifacts, the level the 
 artifact was found is recorded, rather than the level the player
 is on when they identify the item.  Also given separate notes are 
 player birth, death, and the killing of Morgoth.  

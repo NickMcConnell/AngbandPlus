@@ -165,6 +165,42 @@ P:^_CO27\r
 A:\aw0\s\s\\+9
 P:^_CO28\r
 
+#
+# Keypad -- (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+#
+A:/
+P:^_K/\r
+A:*
+P:^_K*\r
+A:7
+P:^_K7\r
+A:8
+P:^_K8\r
+A:9
+P:^_K9\r
+A:-
+P:^_K-\r
+A:4
+P:^_K4\r
+A:5
+P:^_K5\r
+A:6
+P:^_K6\r
+A:+
+P:^_K+\r
+A:1
+P:^_K1\r
+A:2
+P:^_K2\r
+A:3
+P:^_K3\r
+A:0
+P:^_K0\r
+A:.
+P:^_K.\r
+
+
+
 
 #
 # Option-Control-Keypad-Zero -- wield {@0}

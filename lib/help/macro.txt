@@ -115,6 +115,32 @@ Activate the Phial:
      Macro a trigger key to "Af\s\s".
 
 
+Other, more complicated macros:
+Destroy stacks with out additional input.
+\e099k-a\e
+
+In plain language it means: 
+\e (esc to clear input buffer and exit other prompts)
+0 (choose how many repeats/quantity)
+99 (repeats)
+k (destroy)
+- (floor)
+ a(first object if there are many, other wise 'a'im wand), 
+\e (esc for exiting the 'a'im wand prompt if needed).
+
+
+Easy_floor behavior with macros changed in NPP 0.4.0. 
+
+The first object in the floor is always selected if you 
+use a macro. Use this macro to destroy objects: 
+"\e\e\e\e0\\k-y", the extra "a" is not needed anymore. 
+
+Another useful macro: "\e\e\e\e0\\k-s". 
+
+
+
+
+
 --- In Depth ---
 
 Not all keys can be entered as simple numbers or letters:

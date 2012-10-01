@@ -2419,6 +2419,49 @@ s16b message_num(void)
 }
 
 
+/*
+ * Returns TRUE if the game is NOT executing a macro or keymap action
+ *
+ * Note: the game puts a special mark in the keyboard queue to indicate
+ * the end of a macro. It allows to avoid circular macros.
+ * This special mark is discarded in the next call to inkey.
+ * If "look_ahead" is TRUE the queue is inspected to find if the next
+ * character is this mark (all characters in the macro were processed).
+ * If it is, this function returns TRUE. It allows to "predict" the origin
+ * of the character returned by a FUTURE call to inkey.
+ * If look_ahead is FALSE the queue is NOT inspected. It can be useful
+ * to determinate the origin of the character returned by a PAST call to
+ * inkey.
+ */
+int interactive_input(bool look_ahead)
+{
+	/* Keymaps have higher priority */
+	if (inkey_next && *inkey_next) return FALSE;
+
+	/* Verify macros */
+	if (parse_macro)
+	{
+		char ch;
+
+		/* Do not examine the keyboard queue, so we are still inside a macro */
+		if (!look_ahead) return FALSE;
+
+		/* Look at the next character. Do not wait for it. Do not remove it. */
+		Term_inkey(&ch, FALSE, FALSE);
+
+		/* Verify if that character marks the end of a macro action */
+		if (ch != 30) return FALSE;
+
+		/*
+		 * Fall through. The character in the queue is the end of macro mark.
+		 * All characters in the macro were processed by past calls to inkey.
+		 */
+	}
+
+	return TRUE;
+}
+
+
 
 /*
  * Recall the "text" of a saved message
@@ -3675,6 +3718,63 @@ s16b get_quantity(cptr prompt, int max)
 	return (amt);
 }
 
+/*
+ * Hack - duplication of get_check prompt to give option of setting destroyed
+ * option to squelch.
+ *
+ * 0 - No
+ * 1 = Yes
+ * 2 = third option
+ *
+ * The "prompt" should take the form "Query? "
+ *
+ * Note that "[y/n/{char}]" is appended to the prompt.
+ */
+int get_check_other(cptr prompt, char other)
+{
+	char ch;
+
+	char buf[80];
+
+	/*default set to no*/
+	int result = 0;
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.70s[y/n/%c] ", prompt, other);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		if (strchr("YyNn", ch)) break;
+		if (ch == toupper(other)) break;
+		if (ch == tolower(other)) break;
+		bell("Illegal response to question!");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Normal negation */
+	if ((ch == 'Y') || (ch == 'y')) result = 1;
+	/*other option*/
+	else if ((ch == toupper(other)) || (ch == tolower(other))) result = 2;
+	/*all else default to no*/
+
+	/* Success */
+	return (result);
+}
+
+
+
 
 /*
  * Verify something with the user
@@ -3717,6 +3817,69 @@ bool get_check(cptr prompt)
 	/* Success */
 	return (TRUE);
 }
+
+/*
+ * Give a prompt, then get a choice withing a certain range.
+ */
+int get_menu_choice(s16b max, char *prompt)
+{
+	int choice = -1;
+
+	char ch;
+
+	bool done = FALSE;
+
+	prt(prompt, 0, 0);
+
+	while (!done)
+	{
+		ch = inkey();
+
+		/* Letters are used for selection */
+		if (isalpha(ch))
+		{
+			if (islower(ch))
+			{
+				choice = A2I(ch);
+			}
+			else
+			{
+				choice = ch - 'A' + 26;
+			}
+
+			/* Validate input */
+			if ((choice > -1) && (choice < max))
+			{
+				done = TRUE;
+			}
+
+			else
+			{
+				bell("Illegal response to question!");
+			}
+		}
+
+		/* Allow user to exit the fuction */
+        else if (ch == ESCAPE)
+        {
+			/* Mark as no choice made */
+			choice = -1;
+
+			done = TRUE;
+        }
+
+         /* Invalid input */
+         else bell("Illegal response to question!");
+
+	}
+
+	/* Clear the prompt */
+	prt("", 0, 0);
+
+	/* Return */
+	return (choice);
+}
+
 
 
 /*
@@ -4679,5 +4842,223 @@ void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
 		*ty = y0 - 20 + best_y;
 		*tx = x0 - 20 + best_x;
 	}
+}
+
+/*
+ * Initialize a editing_buffer structure. It takes a pointer to a valid
+ * structure, an optional string used to initialize the contents of the
+ * buffer and a maximum buffer size (it must include an extra space for an
+ * ending '\0').
+ */
+void editing_buffer_init(editing_buffer *eb_ptr, const char *buf,
+    size_t max_size)
+{
+  	size_t len = 0;
+
+  	if (!eb_ptr) return;
+
+  	if (buf) len = strlen(buf);
+
+  	/* Alloc a clean buffer */
+  	C_MAKE(eb_ptr->buf, max_size, char);
+
+  	/* Copy the initial string, if any */
+  	if (len > 0) strcpy(eb_ptr->buf, buf);
+
+  	/* Initialize the remaining fields */
+  	eb_ptr->pos = len;
+
+  	/* Important, we keep one space unused to ensure the correctness of the
+   	 * "print" function */
+  	eb_ptr->max_size = max_size - 1;
+  	eb_ptr->gap_size = eb_ptr->max_size - len;
+}
+
+/*
+ * Free the resources used by the editing_buffer structure.
+ */
+void editing_buffer_destroy(editing_buffer *eb_ptr)
+{
+  	/* Destroy the buffer */
+  	if (eb_ptr && eb_ptr->buf)
+  	{
+    	FREE(eb_ptr->buf);
+    	eb_ptr->buf = NULL;
+  	}
+}
+
+/*
+ * Puts a character on the buffer. Returns a non-zero value if it succeds.
+ */
+int editing_buffer_put_chr(editing_buffer *eb_ptr, char ch)
+{
+  	if (!eb_ptr) return 0;
+
+  	/* Do not have space */
+  	if (eb_ptr->gap_size < 1) return 0;
+
+  	/* Copy the character. Advance the "cursor" */
+  	eb_ptr->buf[eb_ptr->pos++] = ch;
+
+  	/* We have less space */
+  	--eb_ptr->gap_size;
+
+  	return 1;
+}
+/*
+ * Changes the position of the "cursor" in the buffer.
+ * Valid values for "new_pos" are from 0 to EDITING_BUFFER_LEN(eb_ptr).
+ * BEWARE: the type of "new_pos" is "size_t" (unsigned).
+ * Returns a non-zero value if it succeds.
+ */
+int editing_buffer_set_position(editing_buffer *eb_ptr, size_t new_pos)
+{
+  	if (!eb_ptr) return 0;
+
+  	/* Valid position? */
+  	if (new_pos > EDITING_BUFFER_LEN(eb_ptr)) return 0;
+
+  	/* Trivial */
+  	if (new_pos == eb_ptr->pos) return 1;
+
+  	/* Easy case, we change only the "cursor" */
+  	if (eb_ptr->gap_size < 1)
+ 	{
+    	eb_ptr->pos = new_pos;
+    	return 1;
+  	}
+
+  	/* Move the gap. Note that if "new_pos" defers of "pos" by +-1, only
+   	 * one character is moved (fast keyboard arrows) */
+
+  	/* First case. "new_pos" is after the gap */
+  	while (eb_ptr->pos < new_pos)
+  	{
+    	eb_ptr->buf[eb_ptr->pos] = eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size];
+
+		/* Important, keep the gap clean */
+    	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = '\0';
+    	++eb_ptr->pos;
+  	}
+
+  	/* Second case. "new_pos" is before the gap */
+  	while (eb_ptr->pos > new_pos)
+  	{
+    	--eb_ptr->pos;
+    	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = eb_ptr->buf[eb_ptr->pos];
+
+		/* Important, keep the gap clean */
+    	eb_ptr->buf[eb_ptr->pos] = '\0';
+  	}
+
+  	return 1;
+}
+
+/*
+ * Hack - Efficient printing function.
+ */
+void editing_buffer_display(editing_buffer *eb_ptr, int x, int y, byte col)
+{
+  	if (!eb_ptr) return;
+
+  	Term_erase(x, y, (int)eb_ptr->max_size);
+
+  	/* Print the beginning of the buffer */
+  	/* In many cases, it is all we have to do */
+
+  	/* Here is the reason why the gap should be "clean" */
+  	/* It ensures an ending '\0' */
+  	Term_putstr(x, y, -1, col, eb_ptr->buf);
+
+  	/* Unless this happens */
+
+  	/* Here is the reason why we reserved one space in editing_buffer_init */
+  	/* Again, it ensures an ending '\0' */
+  	if ((eb_ptr->pos < EDITING_BUFFER_LEN(eb_ptr)) && (eb_ptr->gap_size > 0))
+    	Term_putstr(x + eb_ptr->pos, y, -1, col,
+					eb_ptr->buf + eb_ptr->pos + eb_ptr->gap_size);
+}
+
+/*
+ * Deletes the character under the "cursor". Returns 1 if it succeds.
+ */
+int editing_buffer_delete(editing_buffer *eb_ptr)
+{
+  	if (!eb_ptr) return 0;
+
+  	/* We are at the end of the buffer */
+  	if (eb_ptr->pos == EDITING_BUFFER_LEN(eb_ptr))  return 0;
+
+ 	/* Important, keep the gap clean */
+  	eb_ptr->buf[eb_ptr->pos + eb_ptr->gap_size] = '\0';
+
+  	/* We have more space */
+  	++eb_ptr->gap_size;
+
+  	return 1;
+}
+
+/*
+ * Removes all the contents of the buffer.
+ */
+void editing_buffer_clear(editing_buffer *eb_ptr)
+{
+  	if (!eb_ptr) return;
+
+  	/* Clear the buffer */
+  	C_WIPE(eb_ptr->buf, eb_ptr->max_size, char);
+
+  	/* Reinitialize the remaining fields but "max_size" */
+  	eb_ptr->pos = 0;
+  	eb_ptr->gap_size = eb_ptr->max_size;
+}
+
+/*
+ * Obtains a copy of the contents of the buffer.
+ */
+void editing_buffer_get_all(editing_buffer *eb_ptr, char buf[], size_t max_size)
+{
+  	size_t i, n = EDITING_BUFFER_LEN(eb_ptr);
+  	if (!eb_ptr) return;
+
+  	/* Note the use of EDITING_BUFFER_GET to ignore the gap */
+  	for (i = 0; (i < n) && (i < max_size - 1); i++)
+	{
+    	buf[i] = EDITING_BUFFER_GET(eb_ptr, i);
+	}
+
+  	/* Terminate the string */
+  	buf[i] = '\0';
+}
+
+
+
+
+/*
+ * Inserts a string in the buffer. Returns the number of written characters.
+ * "n" is the maximum number of characters to write, -1 means all the string.
+ */
+int editing_buffer_put_str(editing_buffer *eb_ptr, const char *str, int n)
+{
+	const char *p_str;
+
+	if (!eb_ptr || !str) return 0;
+
+	for (p_str = str; *p_str; p_str++)
+	{
+   		/* We do not have space */
+    	if (eb_ptr->gap_size < 1) break;
+
+    	/* Check max input size */
+   		if ((n >= 0) && (p_str - str >= n)) break;
+
+    	/* Insert the character. Advance the cursor */
+    	eb_ptr->buf[eb_ptr->pos++] = *p_str;
+
+		/* We have less space */
+    	--eb_ptr->gap_size;
+  	}
+
+  	return (p_str - str);
 }
 

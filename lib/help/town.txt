@@ -16,7 +16,7 @@ acquire treasure.
 --- Stores ---
 
      You enter buildings by walking onto their entranceways, which (in text
-mode) are represented by numbers from 1 to 8.
+mode) are represented by numbers from 1 to 9.
      A new display then replaces the old.  You see the name and race of the
 store owner, the name of the store, and the maximum number of gold pieces that
 the store owner will pay for any one item.  Below it is displayed the inventory;
@@ -110,12 +110,6 @@ Shopkeepers can retire and be replaced:
      Shopkeepers do retire, but only rarely.  The new shopkeeper has no
 knowledge of your previous reputation, and no memory of any past insults.  He
 puts everything in the store on sale.
-
-
-
-
-
-
 
 
 

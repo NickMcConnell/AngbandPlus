@@ -81,7 +81,7 @@ char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;				/* Current game turn */
 
-s32b old_turn;			/* Hack -- Level feeling counter */
+bool do_feeling;			/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 int use_graphics;		/* The "graphics" mode is enabled */
@@ -101,7 +101,7 @@ bool inkey_flag;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */
 
-bool chest_or_quest;		/* Hack -- use different depth check, prevent embedded chests */
+byte object_generation_mode;/* Hack -- use different depth check, prevent embedded chests */
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
@@ -313,13 +313,20 @@ s16b (*cave_o_idx)[MAX_DUNGEON_WID];
  */
 s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 
+/*
+ * Table of avergae monster power.
+ * Used to hep determine a suitable quest monster.
+ */
+
+u32b mon_power_ave[MAX_DEPTH][CREATURE_TYPE_MAX];
+
 
 #ifdef MONSTER_FLOW
 
 /*
- * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
+ * Arrays[NUM_FLOWS][DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
-byte (*cave_cost)[MAX_DUNGEON_WID];
+byte cave_cost[MAX_FLOWS][MAX_DUNGEON_WID][MAX_DUNGEON_HGT];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
@@ -335,15 +342,15 @@ int scent_when = 250;
 /*
  * Centerpoints of the last flow (noise) rebuild and the last flow update.
  */
-int flow_center_y;
-int flow_center_x;
-int update_center_y;
-int update_center_x;
+byte flow_center_y[MAX_FLOWS];
+byte flow_center_x[MAX_FLOWS];
+byte update_center_y[MAX_FLOWS];
+byte update_center_x[MAX_FLOWS];
 
 /*
  * Flow cost at the center grid of the current update.
  */
-int cost_at_center = 0;
+int cost_at_center[MAX_FLOWS];
 
 
 #endif	/* MONSTER_FLOW */
@@ -455,8 +462,8 @@ cptr keymap_act[KEYMAP_MODES][256];
  */
 const player_sex *sp_ptr;
 const player_race *rp_ptr;
-const player_class *cp_ptr;
-const player_magic *mp_ptr;
+player_class *cp_ptr;
+player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -509,8 +516,12 @@ char *k_text;
  * The artifact arrays
  */
 artifact_type *a_info;
-char *a_name;
 char *a_text;
+
+/*
+ * The random name generator tables
+ */
+names_type *n_info;
 
 /*
  * The ego-item arrays
@@ -764,3 +775,37 @@ FILE *notes_file;
  */
 byte recent_failed_thefts;
 byte num_trap_on_level;
+
+/*occasionally allow chance of different inventory in a store*/
+byte allow_altered_inventory;
+
+
+/* The bones file a restored player ghost should use to collect extra
+ * flags, a sex, and a unique name.  This also indicates that there is
+ * a ghost active.  -LM-
+ */
+byte bones_selector;
+
+/*
+ * The player ghost template index. -LM-
+ */
+int r_ghost;
+
+/*
+ * The player ghost name is stored here for quick reference by the
+ * description function.  -LM-
+ */
+char ghost_name[80];
+
+
+/*
+ * The type (if any) of the player ghost's personalized string, and
+ * the string itself. -LM-
+ */
+int ghost_string_type = 0;
+char ghost_string[80];
+
+/*
+ * The name of the current greater vault, if any. -DG-
+ */
+char g_vault_name[80];

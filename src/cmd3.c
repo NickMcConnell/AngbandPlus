@@ -107,12 +107,16 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(const object_type *o_ptr)
 {
+	/*Hack - don't allow quest items to be worn*/
+	if(o_ptr->ident & (IDENT_QUEST)) return (FALSE);
+
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
 
 	/* Assume not wearable */
 	return (FALSE);
 }
+
 
 
 /*
@@ -390,6 +394,39 @@ void do_cmd_drop(void)
 	inven_drop(item, amt);
 }
 
+/*
+ * An "item_tester_hook" for destroying objects
+ */
+static bool item_tester_hook_destroy(const object_type *o_ptr)
+{
+	cptr s;
+
+	if (artifact_p(o_ptr))
+	{
+    	/* Ignore known or sensed artifacts */
+    	if ((object_known_p(o_ptr)) ||
+			(o_ptr->ident & (IDENT_SENSE)))	return (FALSE);
+	}
+
+	/* No inscription */
+	if (!o_ptr->note) return (TRUE);
+
+	/* Find a '!' */
+	s = strchr(quark_str(o_ptr->note), '!');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Ignore objects with inscriptions "!k" and "!*" */
+		if (s[1] == 'k' || s[1] == '*') return (FALSE);
+
+		/* Find another '!' */
+		s = strchr(s + 1, '!');
+	}
+
+	return (TRUE);
+}
+
 
 
 /*
@@ -409,6 +446,7 @@ void do_cmd_destroy(void)
 
 	cptr q, s;
 
+	item_tester_hook = item_tester_hook_destroy;
 
 	/* Get an item */
 	q = "Destroy which item? ";
@@ -461,15 +499,85 @@ void do_cmd_destroy(void)
 	/* Verify destruction */
 	if (verify_destroy)
 	{
-		strnfmt(out_val, sizeof(out_val), "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
+		int result;
+
+		strnfmt(out_val, sizeof(out_val), "Really Destroy %s? ", o_name);
+		if (ego_item_p(o_ptr) && object_known_p(o_ptr))
+		{
+			result = get_check_other(out_val, 'E');
+
+			/* returned "no"*/
+			if (!result) return;
+
+			/*return of 2 sets ego item type to squelch*/
+			else if (result == 2)
+			{
+				/* get the ego item type */
+				ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+				/* set to squelch */
+				e_ptr->squelch = TRUE;
+
+				/* message */
+				msg_format("Ego-item type %s set to be squelched upon identification.", e_name + e_ptr->name);
+			}
+		}
+		else
+		{
+
+			result = get_check_other(out_val, 's');
+
+			/* returned "no"*/
+			if (!result) return;
+
+			/*return of 2 sets item to squelch*/
+			else if (result == 2)
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				char o_name2[80];
+
+				/*make a fake object so we can give a proper message*/
+				object_type *i_ptr;
+				object_type object_type_body;
+
+				/* Get local object */
+				i_ptr = &object_type_body;
+
+				/* Wipe the object */
+				object_wipe(i_ptr);
+
+				/* Create the object */
+				object_prep(i_ptr, o_ptr->k_idx);
+
+				/* It's fully known */
+				i_ptr->ident |= IDENT_KNOWN;
+
+				/*make it plural*/
+				i_ptr->number = 2;
+
+				/*make it look realistic*/
+				apply_magic_fake(i_ptr);
+
+				/*now describe with correct amount*/
+				object_desc(o_name2, sizeof(o_name2), o_ptr, FALSE, 0);
+
+				/*set to squelch*/
+				k_ptr->squelch = SQUELCH_ALWAYS;
+
+				/* Message - no good routine for extracting the plain name*/
+				msg_format("The obejct type %^s has been set to always be squelched.", o_name2);
+
+				/*Mark the view to be updated*/
+				p_ptr->update |= (PU_UPDATE_VIEW);
+			}
+		}
 	}
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Artifacts * quest chests cannot be destroyed */
-	if ((artifact_p(o_ptr)) || (o_ptr->ident & IDENT_QUEST))
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr))
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
@@ -633,7 +741,6 @@ void do_cmd_inscribe(void)
 
 	cptr q, s;
 
-
 	/* Get an item */
 	q = "Inscribe which item? ";
 	s = "You have nothing to inscribe.";
@@ -695,7 +802,7 @@ static bool item_tester_refill_lantern(const object_type *o_ptr)
 	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
 	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0))
+	    (o_ptr->timeout > 0))
 	{
 		return (TRUE);
 	}
@@ -743,16 +850,24 @@ static void do_cmd_refill_lamp(void)
 	/* Get the lantern */
 	j_ptr = &inventory[INVEN_LITE];
 
-	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
+	/* Refuel from a latern */
+	if (o_ptr->sval == SV_LITE_LANTERN)
+	{
+	  j_ptr->timeout += o_ptr->timeout;
+	}
+	/* Refuel from a flask */
+	else
+	{
+	  j_ptr->timeout += o_ptr->pval;
+	}
 
 	/* Message */
 	msg_print("You fuel your lamp.");
 
 	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
+	if (j_ptr->timeout >= FUEL_LAMP)
 	{
-		j_ptr->pval = FUEL_LAMP;
+		j_ptr->timeout = FUEL_LAMP;
 		msg_print("Your lamp is full.");
 	}
 
@@ -775,7 +890,7 @@ static void do_cmd_refill_lamp(void)
 			i_ptr->number = 1;
 
 			/* Remove fuel */
-			i_ptr->pval = 0;
+			i_ptr->timeout = 0;
 
 			/* Unstack the used item */
 			o_ptr->number--;
@@ -792,7 +907,7 @@ static void do_cmd_refill_lamp(void)
 		else
 		{
 			/* No more fuel */
-			o_ptr->pval = 0;
+			o_ptr->timeout = 0;
 		}
 
 
@@ -888,15 +1003,15 @@ static void do_cmd_refill_torch(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
+	j_ptr->timeout += o_ptr->timeout + 5;
 
 	/* Message */
 	msg_print("You combine the torches.");
 
 	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
+	if (j_ptr->timeout >= FUEL_TORCH)
 	{
-		j_ptr->pval = FUEL_TORCH;
+		j_ptr->timeout = FUEL_TORCH;
 		msg_print("Your torch is fully fueled.");
 	}
 
@@ -966,9 +1081,6 @@ void do_cmd_refill(void)
 		msg_print("Your light cannot be refilled.");
 	}
 }
-
-
-
 
 
 
@@ -1108,10 +1220,6 @@ void do_cmd_locate(void)
 	handle_stuff();
 }
 
-
-
-
-
 /*
  * The table of "symbol info" -- each entry is a string of the form
  * "X:desc" where "X" is the trigger, and "desc" is the "info".
@@ -1215,7 +1323,6 @@ static cptr ident_info[] =
 	"~:A tool (or miscellaneous item)",
 	NULL
 };
-
 
 
 /*
@@ -1325,7 +1432,7 @@ void ang_sort_swap_hook(void *u, void *v, int a, int b)
  *
  * The responses may be sorted in several ways, see below.
  *
- * Note that the player ghosts are ignored, since they do not exist.
+ *
  */
 void do_cmd_query_symbol(void)
 {
@@ -1380,7 +1487,6 @@ void do_cmd_query_symbol(void)
 	/* Display the result */
 	prt(buf, 0, 0);
 
-
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
@@ -1391,7 +1497,8 @@ void do_cmd_query_symbol(void)
 		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !l_ptr->sights) continue;
+		if ((!cheat_know || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
+		    && !l_ptr->sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1622,10 +1729,10 @@ void py_steal(int y, int x)
 	if (m_ptr->csleep)
 	{
 		/*easier with better stealth*/
-		filching_power += ((30 - p_ptr->skill_stl) * 2);
+		filching_power += (p_ptr->skill_stl * 2);
 
 		/*extra credit for extreme stealth*/
-		if (p_ptr->skill_stl < 20) filching_power += ((20 - p_ptr->skill_stl) * 3);
+		if (p_ptr->skill_stl > 10) filching_power += ((p_ptr->skill_stl - 10) * 3);
 	}
 
 	/* Penalize some conditions */
@@ -1673,8 +1780,8 @@ void py_steal(int y, int x)
 	 *creatures who hold chests are INCREDIBLY protective -JG
 	 */
 	if (r_ptr->flags1 & (RF1_DROP_CHEST)) theft_protection *= 2;
-	else if (r_ptr->flags1 & (RF1_DROP_GREAT)) theft_protection += (theft_protection * 5 / 3);
-	else if (r_ptr->flags1 & (RF1_DROP_GOOD)) theft_protection += (theft_protection * 3 / 2);
+	else if (r_ptr->flags1 & (RF1_DROP_GREAT)) theft_protection = (theft_protection * 5 / 3);
+	else if (r_ptr->flags1 & (RF1_DROP_GOOD)) theft_protection = (theft_protection * 3 / 2);
 
 	/* The more you fail to steal, the more wary the monsters. */
 	theft_protection += (recent_failed_thefts * 5) / 2;
@@ -1706,11 +1813,14 @@ void py_steal(int y, int x)
 	if ((m_ptr->csleep == 0) || (randint(filching_power) >= theft_protection))
 	{
 		m_ptr->csleep = 0;
-		if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
 
-		/* Give the player with a message. */
+		/* Give the player a message. */
 		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 		msg_format("You have irritated %s.", m_name);
+
+		/*add to the haste counter and give message*/
+		set_monster_haste(cave_m_idx[m_ptr->fy][m_ptr->fx],
+						  m_ptr->hasted + 100 + rand_int(100), TRUE);
 
 		/*possibly update the monster health bar*/
 		if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx])

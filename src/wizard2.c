@@ -105,9 +105,9 @@ static void do_cmd_wiz_flow(void)
  				{
 					for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 					{
-						int lowest_cost = cave_cost[y][x];
+						byte lowest_cost = cave_cost[FLOW_PASS_DOORS][y][x];
 						int dir = -1;
-						int cost;
+						byte cost;
 						if (lowest_cost == 0) continue;
 
 						for (i = 0; i < 8; i++)
@@ -116,7 +116,7 @@ static void do_cmd_wiz_flow(void)
 							y2 = y + ddy_ddd[i];
 							x2 = x + ddx_ddd[i];
 
-							cost = cave_cost[y2][x2];
+							cost = cave_cost[FLOW_PASS_DOORS][y2][x2];
 							if (!cost) continue;
 
 							/* If this grid's scent is younger, save it */
@@ -156,26 +156,26 @@ static void do_cmd_wiz_flow(void)
 			{
 				int j;
 
-				for (i = cost_at_center - 2; i <= 100 + NOISE_STRENGTH; ++i)
+				for (i = cost_at_center[FLOW_PASS_DOORS] - 2; i <= 100 + NOISE_STRENGTH; ++i)
  				{
 					/* First show grids with no scent */
-					if (i == cost_at_center - 2) j = 0;
+					if (i == cost_at_center[FLOW_PASS_DOORS] - 2) j = 0;
 
 					/* Then show specially marked grids (bug-checking) */
-					else if (i == cost_at_center - 1) j = 255;
+					else if (i == cost_at_center[FLOW_PASS_DOORS] - 1) j = 255;
 
 					/* Then show standard grids */
 					else j = i;
 
 					/* Update map */
-				for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+					for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
 					{
 						for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 						{
 							byte a = TERM_YELLOW;
 
 							/* Display proper cost */
-							if (cave_cost[y][x] != j) continue;
+							if (cave_cost[FLOW_PASS_DOORS][y][x] != j) continue;
 
 							/* Display player/floors/walls */
 							if ((y == py) && (x == px))
@@ -481,29 +481,29 @@ static void wiz_display_item(const object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY.......BRAND", 11, j);
-	prt("                ae      xxxpaefc", 12, j);
-	prt("siwdcc  ssidsasmnvudotgddduoclio", 13, j);
-	prt("tnieoh  trnipthgiinmrrnrrmniierl", 14, j);
-	prt("rtsxna..lcfgdkttmldncltggndsdced", 15, j);
+	prt("                ae      xxxaefcp", 12, j);
+	prt("siwdcc  ssitsasmnvudotgddduclioo", 13, j);
+	prt("tnieoh  trnupthgiinmrrnrrmnierli", 14, j);
+	prt("rtsxna..lcfndkttmldncltggnddceds", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST........IMM.RESIST.........", 18, j);
-	prt("            afecaefcpfldbc s n  ", 19, j);
-	prt("siwdcc      cilocliooeialoshnecd", 20, j);
-	prt("tnieoh      irelierliatrnnnrethi", 21, j);
-	prt("rtsxna......decddcedsrekdfddxhss", 22, j);
+	prt("SUST.......IMM..RESIST.........", 18, j);
+	prt("           afecpaefcpfldbc s n  ", 19, j);
+	prt("siwdcc     ciloocliooeialoshnecd", 20, j);
+	prt("tnieoh     ireliierliatrnnnrethi", 21, j);
+	prt("rtsxna.....decdsdcedsrekdfddxhss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
 	prt("s   ts h     tadiiii   aiehs  hp", 11, j+32);
-	prt("lf  eefo     egrgggg  bcnaih  vr", 12, j+32);
-	prt("we  lerl    ilgannnn  ltssdo  ym", 13, j+32);
-	prt("da reied    merirrrr  eityew ccc", 14, j+32);
-	prt("itlepnel    ppanaefc  svaktm uuu", 15, j+32);
-	prt("ghigavai    aoveclio  saanyo rrr", 16, j+32);
-	prt("seteticf    craxierl  etropd sss", 17, j+32);
-	prt("trenhste    tttpdced  detwes eee", 18, j+32);
+	prt("lf  eefoni   egrgggg  bcnaih  vr", 12, j+32);
+	prt("we  lerler  ilgannnn  ltssdo  ym", 13, j+32);
+	prt("da reiedvo  merirrrr  eityew ccc", 14, j+32);
+	prt("itlepnelpn  ppanaefc  svaktm uuu", 15, j+32);
+	prt("ghigavaiim  aoveclio  saanyo rrr", 16, j+32);
+	prt("seteticfca  craxierl  etropd sss", 17, j+32);
+	prt("trenhstekn  tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -536,6 +536,7 @@ static const tval_desc tvals[] =
 	{ TV_BOOTS,             "Boots"                },
 	{ TV_CLOAK,             "Cloak"                },
 	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_DRAG_SHIELD,       "Dragon Scale Shield"  },
 	{ TV_HARD_ARMOR,        "Hard Armor"           },
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
@@ -558,32 +559,6 @@ static const tval_desc tvals[] =
 	{ TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };
-
-
-/*
- * Strip an "object name" into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
 
 
 /*
@@ -1217,7 +1192,7 @@ static void wiz_create_artifact(int a_idx)
 	artifact_type *a_ptr = &a_info[a_idx];
 
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return;
+	if (a_ptr->tval + a_ptr->sval == 0) return;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1261,7 +1236,7 @@ static void wiz_create_artifact(int a_idx)
 static void do_cmd_wiz_cure_all(void)
 {
 	/* Remove curses */
-	(void)remove_all_curse();
+	(void)remove_curse(TRUE);
 
 	/* Restore stats */
 	(void)res_stat(A_STR);
@@ -1567,6 +1542,7 @@ static void do_cmd_wiz_query(void)
 		case 't': mask |= (CAVE_TEMP); break;
 		case 'w': mask |= (CAVE_WALL); break;
 		case 'f': mask |= (CAVE_FIRE); break;
+		case 'V': mask |= (CAVE_G_VAULT); break;
 	}
 
 	/* Scan map */

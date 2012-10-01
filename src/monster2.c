@@ -19,24 +19,23 @@
  * Perform a modified version of "get_mon_num()", with exact minimum and
  * maximum depths and preferred monster types.
  */
-s16b poly_r_idx(int base_idx)
+s16b poly_r_idx(const monster_type *m_ptr)
 {
-	monster_race *r_ptr = &r_info[base_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	s16b base_idx = m_ptr->r_idx;
 
 	alloc_entry *table = alloc_race_table;
 
 	int i, min_lev, max_lev, r_idx;
 	long total, value;
 
-	/* int q_idx = q_info[quest_num(p_ptr->depth)].r_idx; */
-
 	/* Source monster's level and symbol */
 	int r_lev = r_ptr->level;
 	char d_char = r_ptr->d_char;
 
-
 	/* Hack -- Uniques and quest monsters never polymorph */
-	if (r_ptr->flags1 & (RF1_UNIQUE))
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) || (m_ptr->mflag & (MFLAG_QUEST)))
 	{
 		return (base_idx);
 	}
@@ -52,7 +51,7 @@ s16b poly_r_idx(int base_idx)
 	for (i = 0; i < alloc_race_size; i++)
 	{
 		/* Assume no probability */
-	table[i].prob3 = 0;
+		table[i].prob3 = 0;
 
 		/* Ignore illegal monsters - only those that don't get generated. */
 		if (!table[i].prob1) continue;
@@ -132,6 +131,8 @@ void delete_monster_idx(int i)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s16b this_o_idx, next_o_idx = 0;
 
 
@@ -156,6 +157,17 @@ void delete_monster_idx(int i)
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
 
+	/* Total Hack -- If the monster was a player ghost, remove it from
+	 * the monster memory, ensure that it never appears again, and clear
+	 * its bones file selector.
+	 */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		l_ptr->sights = 0;
+		l_ptr->pkills = 1;
+		l_ptr->tkills = 0;
+		bones_selector = 0;
+	}
 
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -321,7 +333,8 @@ void compact_monsters(int size)
 				mon_lev[i] = r_ptr->level;
 
 				/* Quest monsters always get compacted last */
-				if (r_ptr->flags1 & (RF1_QUESTOR)) mon_lev[i] += MAX_DEPTH * 3;
+				if ((r_ptr->flags1 & (RF1_QUESTOR)) || (m_ptr->mflag & (MFLAG_QUEST)))
+					mon_lev[i] += MAX_DEPTH * 3;
 
 				/*same with active quest monsters*/
 				else if (q_info[quest_num(p_ptr->depth)].mon_idx == m_ptr->r_idx)
@@ -422,10 +435,25 @@ void wipe_mon_list(void)
 
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
+		/* Total Hack -- Clear player ghost information. */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			l_ptr->sights = 0;
+			l_ptr->pkills = 1;
+			l_ptr->tkills = 0;
+			bones_selector = 0;
+
+			/* Hack -
+			 * if player is just leaving the level, but not quitting the game,
+			 * we don't want the ghost to appear again
+		     */
+			if ((p_ptr->playing) && (p_ptr->leaving)) r_ptr->max_num = 0;
+		}
 
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
@@ -451,6 +479,9 @@ void wipe_mon_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
+
+	/* Hack -- make sure there is no player ghost */
+	bones_selector = 0;
 }
 
 
@@ -462,7 +493,6 @@ void wipe_mon_list(void)
 s16b mon_pop(void)
 {
 	int i;
-
 
 	/* Normal allocation */
 	if (mon_max < z_info->m_max)
@@ -568,7 +598,7 @@ errr get_mon_num_prep(void)
  */
 s16b get_mon_num(int level)
 {
-	int i, p, j, mindepth;
+	int i, p, j, x, mindepth;
 
 	int r_idx;
 
@@ -578,11 +608,19 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
-	/* Boost the level */
-	if (level > 0)
+	quest_type *q_ptr = &q_info[GUILD_QUEST_SLOT];
+	bool quest_level = FALSE;
+
+	if (((q_ptr->type == QUEST_THEMED_LEVEL) ||
+		 (q_ptr->type == QUEST_PIT) ||
+		 (q_ptr->type == QUEST_NEST)) &&
+		(p_ptr->cur_quest == p_ptr->depth)) quest_level = TRUE;
+
+	/* Boost the level, but not for quest levels.  That has already been done */
+	if ((level > 0) && (!quest_level))
 	{
-		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
+		/* Occasional "nasty" monste */
+		if (one_in_(NASTY_MON))
 		{
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
@@ -592,7 +630,7 @@ s16b get_mon_num(int level)
 		}
 
 		/* Occasional "nasty" monster */
-		if (rand_int(NASTY_MON) == 0)
+		if (one_in_(NASTY_MON))
 		{
 			/* Pick a level bonus */
 			int d = level / 4 + 2;
@@ -631,6 +669,8 @@ s16b get_mon_num(int level)
 			/* Get the actual race */
 			r_ptr = &r_info[r_idx];
 
+			if (r_ptr->cur_num >= r_ptr->max_num) continue;
+
 			/* Hack -- No low depth monsters monsters in deeper
 			 * parts of the dungeon, except uniques,
 			 * Note mindepth is given a lower value just before this "for loop")
@@ -640,10 +680,25 @@ s16b get_mon_num(int level)
 				(!(r_ptr->flags1 & (RF1_UNIQUE)))) continue;
 
 			/* Hack -- "unique" monsters must be "unique" */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
-			    (r_ptr->cur_num >= r_ptr->max_num))
+			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
-				continue;
+				bool do_continue = FALSE;
+
+				/* Check quests for uniques*/
+				for (x = 0; x < z_info->q_max; x++)
+				{
+					if ((q_info[x].type == QUEST_UNIQUE) || (q_info[x].type == QUEST_FIXED_U))
+					{
+						/*is this unique marked for a quest?*/
+						if (q_info[x].mon_idx == table[i].index)
+						{
+							/*Is it at this depth?*/
+							if (p_ptr->depth != q_info[x].base_level)  do_continue = TRUE;
+						}
+					}
+				}
+
+				if (do_continue) continue;
 			}
 
 			/* Depth Monsters never appear out of depth */
@@ -903,6 +958,8 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 
 	cptr name = (r_name + r_ptr->name);
 
+	char racial_name[40] = "oops";
+
 	bool seen, pron;
 
 	/*
@@ -984,8 +1041,22 @@ void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode)
 	/* Handle all other visible monster requests */
 	else
 	{
+		/* It could be a player ghost. */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			/* Get the ghost name. */
+			strcpy(desc, ghost_name);
+
+			/* Get the racial name. */
+			strcpy(racial_name, r_name + r_ptr->name);
+
+			/* Build the ghost name. */
+			strcat(desc, ", the ");
+			strcat(desc, racial_name);
+		}
+
 		/* It could be a Unique */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Start with the name (thus nominative and objective) */
 			my_strcpy(desc, name, max);
@@ -1050,15 +1121,13 @@ void monster_desc_race(char *desc, size_t max, int r_idx)
 	my_strcpy(desc, name, max);
 }
 
-
 /*
  * Learn about a monster (by "probing" it)
  */
-void lore_do_probe(int m_idx)
+void lore_probe_aux(int r_idx)
 {
-	monster_type *m_ptr = &mon_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 	int i;
 
@@ -1090,15 +1159,7 @@ void lore_do_probe(int m_idx)
 		}
 	}
 
-	/* Update monster recall window */
-	if (p_ptr->monster_race_idx == m_ptr->r_idx)
-	{
-		/* Window stuff */
-		p_ptr->window |= (PW_MONSTER);
-	}
-
 	/*probing is now much more informative*/
-
 	i = randint (4);
 
 	switch (i)
@@ -1132,11 +1193,11 @@ void lore_do_probe(int m_idx)
 		}
 	}
 
-	/* Hack -- observe many spells */
-	l_ptr->ranged = MAX_UCHAR;
+	/* Hack -- Increse the sightings, and ranged attacks around 50% of the time */
+	if (l_ptr->sights < MAX_SHORT)	l_ptr->sights += (MAX_SHORT - l_ptr->sights) / 100;
+	if (l_ptr->ranged < MAX_UCHAR)	l_ptr->ranged += (MAX_UCHAR - l_ptr->ranged) / 5;
 
 	i = randint (3);
-
 	switch (i)
 	{
 		case 1:
@@ -1147,8 +1208,8 @@ void lore_do_probe(int m_idx)
 				/* Examine "actual" blows */
 				if (r_ptr->blow[i].effect || r_ptr->blow[i].method)
 				{
-					/* Hack -- maximal observations */
-					l_ptr->blows[i] = MAX_UCHAR;
+					/* Hack -- increase observations */
+					l_ptr->blows[i] += (MAX_UCHAR - l_ptr->blows[i]) / 2;
 				}
 			}
 			break;
@@ -1183,6 +1244,24 @@ void lore_do_probe(int m_idx)
 
 	}
 
+}
+
+/*
+ * Learn about a monster (by "probing" it)
+ */
+void lore_do_probe(int m_idx)
+{
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	/*increase the information*/
+	lore_probe_aux(m_ptr->r_idx);
+
+	/* Update monster recall window */
+	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+	{
+		/* Window stuff */
+		p_ptr->window |= (PW_MONSTER);
+	}
 }
 
 
@@ -1608,11 +1687,15 @@ static s16b get_mimic_k_idx(const monster_race *r_ptr)
 			cptr name = (r_name + r_ptr->name);
 
 			/* Look for textual clues */
-			if (strstr(name, " copper "))     return (lookup_kind(TV_GOLD, SV_GOLD_COPPER));
-			if (strstr(name, " silver "))     return (lookup_kind(TV_GOLD, SV_GOLD_SILVER));
-			if (strstr(name, " gold "))       return (lookup_kind(TV_GOLD, SV_GOLD_GOLD));
-			if (strstr(name, " mithril "))    return (lookup_kind(TV_GOLD, SV_GOLD_MITHRIL));
-			if (strstr(name, " adamantite ")) return (lookup_kind(TV_GOLD, SV_GOLD_ADAMANTITE));
+			if (strstr(name, " copper "))     	return (lookup_kind(TV_GOLD, SV_GOLD_COPPER));
+			if (strstr(name, " silver "))     	return (lookup_kind(TV_GOLD, SV_GOLD_SILVER));
+			if (strstr(name, " gold"))       	return (lookup_kind(TV_GOLD, SV_GOLD_GOLD));
+			if (strstr(name, " mithril"))    	return (lookup_kind(TV_GOLD, SV_GOLD_MITHRIL));
+			if (strstr(name, " opal"))    		return (lookup_kind(TV_GOLD, SV_GOLD_OPALS));
+			if (strstr(name, " saphire"))    	return (lookup_kind(TV_GOLD, SV_GOLD_SAPHIRES));
+			if (strstr(name, " rubies"))    	return (lookup_kind(TV_GOLD, SV_GOLD_RUBIES));
+			if (strstr(name, " diamond"))    	return (lookup_kind(TV_GOLD, SV_GOLD_DIAMOND));
+			if (strstr(name, " adamantite ")) 	return (lookup_kind(TV_GOLD, SV_GOLD_ADAMANTITE));
 			break;
 		}
 
@@ -1830,7 +1913,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 
 	monster_type *m_ptr = &mon_list[m_idx];
 
-
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -2007,7 +2089,6 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
 
@@ -2086,6 +2167,134 @@ static bool no_threat(const monster_race *r_ptr)
 	return (TRUE);
 }
 
+/*calculate the monster_speed of a monster at a given location*/
+void calc_monster_speed(int y, int x)
+{
+	int speed, i;
+
+	/*point to the monster at the given location & the monster race*/
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Paranoia XXX XXX */
+	if (cave_m_idx[y][x] == 0) return;
+
+	/* Get the monster base speed */
+	speed = r_ptr->speed;
+
+	/*note: a monster should only have one of these flags*/
+	if (m_ptr->mflag & (MFLAG_SLOWER))
+	{
+		/* Allow some small variation each time to make pillar dancing harder */
+		i = extract_energy[r_ptr->speed] / 10;
+		speed -= rand_spread(0, i);
+	}
+	else if (m_ptr->mflag & (MFLAG_FASTER))
+	{
+		/* Allow some small variation each time to make pillar dancing harder */
+		i = extract_energy[r_ptr->speed] / 10;
+		speed += rand_spread(0, i);
+	}
+
+	/*factor in the hasting and slowing counters*/
+	if (m_ptr->hasted) speed += 10;
+	if (m_ptr->slowed) speed -= 10;
+
+	/*set the speed and return*/
+	m_ptr->mspeed = speed;
+
+	return;
+}
+
+void set_monster_haste(s16b m_idx, s16b counter, bool message)
+{
+	/*get the monster at the given location*/
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	bool recalc = FALSE;
+
+	char m_name[80];
+
+	/* Get monster name*/
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/*see if we need to recalculate speed*/
+	if (m_ptr->hasted)
+	{
+		/*monster is no longer hasted and speed needs to be recalculated*/
+		if (counter == 0)
+		{
+			recalc = TRUE;
+
+			/*give a message*/
+			if (message) msg_format("%^s slows down.", m_name);
+		}
+	}
+	else
+	{
+		/*monster is now hasted and speed needs to be recalculated*/
+		if (counter > 0)
+		{
+			recalc = TRUE;
+
+			/*give a message*/
+			if (message) msg_format("%^s starts moving faster.", m_name);
+		}
+	}
+
+	/*update the counter*/
+	m_ptr->hasted = counter;
+
+	/*re-calculate speed if necessary*/
+	if (recalc) calc_monster_speed(m_ptr->fy, m_ptr->fx);
+
+	return;
+}
+
+void set_monster_slow(s16b m_idx, s16b counter, bool message)
+{
+	/*get the monster at the given location*/
+	monster_type *m_ptr = &mon_list[m_idx];
+
+	bool recalc = FALSE;
+
+	char m_name[80];
+
+	/* Get monster name*/
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
+
+	/*see if we need to recalculate speed*/
+	if (m_ptr->slowed)
+	{
+		/*monster is no longer slowed and speed needs to be recalculated*/
+		if (counter == 0)
+		{
+			recalc = TRUE;
+
+			/*give a message*/
+			if (message) msg_format("%^s speeds up.", m_name);
+		}
+	}
+	else
+	{
+		/*monster is now slowed and speed needs to be recalculated*/
+		if (counter > 0)
+		{
+			recalc = TRUE;
+
+			/*give a message*/
+			if (message) msg_format("%^s starts moving slower.", m_name);
+		}
+	}
+
+	/*update the counter*/
+	m_ptr->slowed = counter;
+
+	/*re-calculate speed if necessary*/
+	if (recalc) calc_monster_speed(m_ptr->fy, m_ptr->fx);
+
+	return;
+}
 
 /*
  * Attempt to place a monster of the given race at the given location.
@@ -2108,7 +2317,6 @@ static bool no_threat(const monster_race *r_ptr)
  */
 static bool place_monster_one(int y, int x, int r_idx, bool slp)
 {
-	int i;
 
 	monster_race *r_ptr;
 
@@ -2129,6 +2337,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Handle failure of the "get_mon_num()" function */
 	if (!r_idx) return (FALSE);
 
+	if ((feeling >= LEV_THEME_HEAD) && (character_dungeon == TRUE)) return (FALSE);
+
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
@@ -2138,15 +2348,45 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
+	/*limit the population*/
+	if (r_ptr->cur_num >= r_ptr->max_num)
+	{
+		return (FALSE);
+	}
+
 	/* Name */
 	name = (r_name + r_ptr->name);
 
 	/* Hack -- "unique" monsters must be "unique" */
-	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
+	if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		int i;
+
+		/* Check quests for uniques*/
+		for (i = 0; i < z_info->q_max; i++)
+		{
+			if ((q_info[i].type == QUEST_UNIQUE) || (q_info[i].type == QUEST_FIXED_U))
+			{
+				/*is this unique marked for a quest?*/
+				if (q_info[i].mon_idx == r_idx)
+				{
+					/*Is it at the proper depth?*/
+					if(p_ptr->depth != q_info[i].base_level)  return (FALSE);
+
+				}
+			}
+		}
+
+	}
+
+
+	/* Hack -- only 1 player ghost at a time */
+	if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && bones_selector)
 	{
 		/* Cannot create */
 		return (FALSE);
 	}
+
 
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
@@ -2163,6 +2403,21 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
+
+	/*
+	 * If the monster is a player ghost, perform various manipulations
+	 * on it, and forbid ghost creation if something goes wrong.
+	 */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+
+		if (!prepare_ghost(r_idx, FALSE))
+		{
+			return (FALSE);
+		}
+
+		name = format("%s, the %s", ghost_name, name);
+	}
 
 	/* Town level has some special rules */
 	if ((!p_ptr->depth) && (!r_ptr->level))
@@ -2190,7 +2445,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		n_ptr->maxhp = (r_ptr->hdice * r_ptr->hside);
 	}
-
+	/*assign hitpoints using dice rolls*/
 	else
 	{
 		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
@@ -2199,29 +2454,46 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Mark minimum range for recalculation */
 	n_ptr->min_range = 0;
 
-	/* Monsters like to use harassment spells at first  XXX XXX */
-	if (r_ptr->level > 20) n_ptr->harass = BASE_HARASS;
-
-	/* Weaker monsters don't live long enough to spend forever harassing */
-	else n_ptr->harass = LOW_HARASS;
-
 	/* Initialize mana */
 	n_ptr->mana = r_ptr->mana;
 
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
 
-	/* Extract the monster base speed */
-	n_ptr->mspeed = r_ptr->speed;
-
-	/* Hack -- small racial variety*/
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+	/* Hack -- in the dungeon, aggravate every monster as long as there
+	 * are too many recent thefts
+	 */
+	if ((p_ptr->depth) && (recent_failed_thefts > 30)
+		&& ((randint(5) + 30) > recent_failed_thefts))
 	{
-		/* Allow some small variation per monster */
-		i = extract_energy[r_ptr->speed] / 10;
-		if (i) n_ptr->mspeed += rand_spread(0, i);
+		/*make them all awake.....*/
+		n_ptr->csleep = 0;
+
+		/*and wary*/
+		n_ptr->mflag |= (MFLAG_WARY);
+
+		/*Everybody but uniques are always hasted*/
+		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+		{
+			n_ptr->mflag |= (MFLAG_FASTER);
+		}
+
+		/*make all monster's faster*/
+		n_ptr->hasted = (recent_failed_thefts * 10) + rand_int(10);
 
 	}
+
+	/* 75% non-unique monsters vary their speed*/
+	else if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+	{
+		if (!(one_in_(4)))
+		{
+			if (one_in_(2))
+			n_ptr->mflag |= (MFLAG_SLOWER);
+			else n_ptr->mflag |= (MFLAG_FASTER);
+		}
+	}
+
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
@@ -2236,28 +2508,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		n_ptr->energy = (byte)rand_int(25);
 	}
 
-	/* Hack -- in the dungeon, aggravate every monster as long as there
-	 * are too many recent thefts
-	 */
-	if ((p_ptr->depth) && (recent_failed_thefts > 30)
-		&& ((randint(5) + 30) > recent_failed_thefts))
-	{
-		/*make them all awake.....*/
-		n_ptr->csleep = 0;
-
-		/*and wary*/
-		n_ptr->mflag |= (MFLAG_WARY);
-
-		/*Everybody but uniques is slightly hasted*/
-		if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-		{
-			n_ptr->mspeed = r_ptr->speed + 4;
-		}
-
-	}
-
-	/* Mimics (sexcept lurkers, trappers) start out hidden.*/
-
+	/* Mimics (except lurkers, trappers) start out hidden.*/
 	if (r_ptr->flags1 & (RF1_CHAR_MIMIC))
 	{
 		n_ptr->mimic_k_idx = get_mimic_k_idx(r_ptr);
@@ -2267,6 +2518,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
+
+	/*calculate the monster_speed*/
+	calc_monster_speed(y, x);
 
 	/* Powerful monster */
 	if (r_ptr->level > p_ptr->depth)
@@ -2593,64 +2847,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 }
 
 
-
-
-/*
- * XXX XXX XXX Player Ghosts are such a hack, they have been completely
- * removed.
- *
- * An idea for reintroducing them is to create a small number of
- * "unique" monsters which will serve as the "player ghosts".
- * Each will have a place holder for the "name" of a deceased player,
- * which will be extracted from a "bone" file, or replaced with a
- * "default" name if a real name is not available.  Each ghost will
- * appear exactly once and will not induce a special feeling.
- *
- * Possible methods:
- *   (s) 1 Skeleton
- *   (z) 1 Zombie
- *   (M) 1 Mummy
- *   (G) 1 Polterguiest, 1 Spirit, 1 Ghost, 1 Shadow, 1 Phantom
- *   (W) 1 Wraith
- *   (V) 1 Vampire, 1 Vampire Lord
- *   (L) 1 Lich
- *
- * Possible change: Lose 1 ghost, Add "Master Lich"
- *
- * Possible change: Lose 2 ghosts, Add "Wraith", Add "Master Lich"
- *
- * Possible change: Lose 4 ghosts, lose 1 vampire lord
- *
- * Note that ghosts should never sleep, should be very attentive, should
- * have maximal hitpoints, drop only good (or great) items, should be
- * cold blooded, evil, undead, immune to poison, sleep, confusion, fear.
- *
- * Base monsters:
- *   Skeleton
- *   Zombie
- *   Mummy
- *   Poltergeist
- *   Spirit
- *   Ghost
- *   Vampire
- *   Wraith
- *   Vampire Lord
- *   Shadow
- *   Phantom
- *   Lich
- *
- * This routine will simply extract ghost names from files, and
- * attempt to allocate a player ghost somewhere in the dungeon,
- * note that normal allocation may also attempt to place ghosts,
- * so we must work with some form of default names.
- *
- * XXX XXX XXX
- */
-
-
-
-
-
 /*
  * Attempt to allocate a random monster in the dungeon.
  *
@@ -2720,6 +2916,8 @@ static bool summon_specific_okay(int r_idx)
 	bool okay = FALSE;
 	int i;
 
+	/* Player ghosts cannot be summoned. */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
 
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
@@ -2823,6 +3021,13 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_HI_UNIQUE:
+		{
+			if (((r_ptr->flags1 & (RF1_UNIQUE)) != 0) &&
+				(r_ptr->level > (MAX_DEPTH / 2))) okay = TRUE;
+			break;
+		}
+
 
 		case SUMMON_KIN:
 		{
@@ -2899,6 +3104,9 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	int i, x, y, r_idx;
 
 	monster_type *m_ptr;
+
+	/*hack - no summoning on themed levels*/
+	if (feeling >= LEV_THEME_HEAD) return (FALSE);
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -3363,6 +3571,8 @@ void message_pain(int m_idx, int dam)
 			else m_ptr->smart &= ~(SM_RES_POIS);
  			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
 			else m_ptr->smart &= ~(SM_OPP_POIS);
+			if (p_ptr->immune_pois) m_ptr->smart |= (SM_IMM_POIS);
+			else m_ptr->smart &= ~(SM_IMM_POIS);
  			break;
  		}
 
@@ -3500,6 +3710,8 @@ void message_pain(int m_idx, int dam)
 			else m_ptr->smart &= ~(SM_RES_POIS);
 			if (p_ptr->oppose_pois) m_ptr->smart |= (SM_OPP_POIS);
 			else m_ptr->smart &= ~(SM_OPP_POIS);
+			if (p_ptr->immune_pois) m_ptr->smart |= (SM_IMM_POIS);
+			else m_ptr->smart &= ~(SM_IMM_POIS);
 			break;
 		}
 
