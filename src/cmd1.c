@@ -1354,12 +1354,14 @@ void move_player(int dir, int jumping)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x;
-	bool oktomove = TRUE;
+	int y, x, wt;
 
 	/* Find the result of moving */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
+
+	/* Determine a max carrying capacity for swimming */
+	wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
 
 
 	/* Hack -- attack monsters */
@@ -1367,81 +1369,82 @@ void move_player(int dir, int jumping)
 	{
 		/* Attack */
 		py_attack(y, x);
-		oktomove = FALSE;
 	}
 
-	/* water & lava -KMW- */
-	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
+#if 0
+
+	/* Water -KMW- */
+	else if ((cave_feat[y][x] == FEAT_DEEP_WATER) &&
+		(p_ptr->total_weight >= wt) && (!p_ptr->levitate))
 	{
-		int wt;
-
-		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
-		if ((p_ptr->total_weight < wt) || (p_ptr->levitate))
-			oktomove = TRUE;
-		else {
-			p_ptr->running = 0;
-			oktomove = FALSE;
-		}
+		msg_print("You can't swim with that much weight.");
+		p_ptr->running = 0;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
-	else if (cave_feat[y][x] == FEAT_SHAL_LAVA)
+	/* Shallow Lava */
+	else if ((cave_feat[y][x] == FEAT_SHAL_LAVA) &&
+		!((p_ptr->resist_fire) || (p_ptr->immune_fire) ||
+		    (p_ptr->oppose_fire) || (p_ptr->levitate)))
 	{
-		if ((p_ptr->resist_fire) || (p_ptr->immune_fire) ||
-		    (p_ptr->oppose_fire) || (p_ptr->levitate))
-			oktomove = TRUE;
-		else {
-			p_ptr->running = 0;
-			oktomove = FALSE;
-		}
+		msg_print("The heat is too intense!");
+		p_ptr->running = 0;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && !p_ptr->levitate)
+	/* Deep Lava (not levitating) */
+	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && (!p_ptr->levitate))
 	{
 		msg_print("You can't move through that!");
 		p_ptr->running = 0;
-		oktomove = FALSE;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
-	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && p_ptr->levitate &&
+	/* Deep Lava (levitating) */
+	else if ((cave_feat[y][x] == FEAT_DEEP_LAVA) && (p_ptr->levitate) &&
 	    !((p_ptr->resist_fire) || (p_ptr->oppose_fire) ||
 	    (p_ptr->immune_fire)))
 	{
 		msg_print("The heat is too intense to move over it.");
 		p_ptr->running = 0;
-		oktomove = FALSE;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
+	/* Chasm */
 	else if ((cave_feat[y][x] == FEAT_CHASM) && !p_ptr->levitate)
 	{
 		msg_print("You can't cross the chasm.");
 		p_ptr->running = 0;
-		oktomove = FALSE;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
+	/* Mountain */
 	else if (cave_feat[y][x] == FEAT_MOUNTAIN)
 	{
 		msg_print("You can't move through that!");
 		p_ptr->running = 0;
-		oktomove = FALSE;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
 
-	else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
-		(cave_feat[y][x] <= FEAT_QUEST_EXIT))
-	{
-		oktomove = TRUE;
-	}
-
-	else if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
-		   (cave_feat[y][x] <= FEAT_BLDG_TAIL))
-	{
-		oktomove = TRUE;
-	}
-
+	/* Trees */
 	else if ((cave_feat[y][x] == FEAT_TREES) &&
-		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+		!((p_ptr->pclass == CLASS_RANGER) ||
+		 (p_ptr->pclass == CLASS_DRUID) ||
+		 (p_ptr->ghostly)))
 	{
-		oktomove = TRUE;
+		msg_print("The trees are in your way.");
+		p_ptr->running = 0;
+		cave_info[y][x] |= (CAVE_MARK);
+		lite_spot(y, x);
 	}
+
+#endif /* 0 */
 
 #ifdef ALLOW_EASY_ALTER
 
@@ -1467,19 +1470,14 @@ void move_player(int dir, int jumping)
 
 		/* Alter */
 		do_cmd_alter();
-
-		oktomove = FALSE;
 	}
 
 #endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls" */
-	else if ((!cave_floor_bold(y, x)) &&
-	    (!p_ptr->ghostly) &&
-	    (cave_feat[y][x] != FEAT_FOG))
+	else if ((!cave_floor_bold(y, x)) && (!p_ptr->ghostly) &&
+		   (!cave_perma_bold(y, x)))
 	{
-		oktomove = FALSE;
-
 		/* Disturb the player */
 		disturb(0, 0);
 
@@ -1534,12 +1532,24 @@ void move_player(int dir, int jumping)
 		}
 	}
 
-	else if ((p_ptr->ghostly) && ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
-	    (cave_feat[y][x] <= FEAT_PERM_SOLID)))
-		oktomove = FALSE;
+	/* This case got omitted by the !cave_perma_bold above */
+	else if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
+	    (cave_feat[y][x] <= FEAT_PERM_SOLID))
+	{
+		if (!(cave_info[y][x] & (CAVE_MARK)))
+		{
+			message(MSG_HITWALL, 0, "You feel a wall blocking your way.");
+			cave_info[y][x] |= (CAVE_MARK);
+			lite_spot(y, x);
+		}
+		else
+		{
+			message(MSG_HITWALL, 0, "There is a wall blocking your way.");
+		}
+	}
 
 	/* Normal movement */
-	if (oktomove)
+	else
 	{
 		/* Sound XXX XXX XXX */
 		/* sound(MSG_WALK); */

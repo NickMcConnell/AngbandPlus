@@ -1,3 +1,6 @@
+This file is taken directly from standard Angband (version 2.9.1)
+======================================================================
+
 Compiling Angband 2.9.1
 =======================
 

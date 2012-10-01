@@ -328,7 +328,7 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->r_max) return (1);
+			if ((i < 0) || (i >= z_info->r_max)) return (1);
 			r_ptr = &r_info[i];
 			if (n1) r_ptr->x_attr = n1;
 			if (n2) r_ptr->x_char = n2;
@@ -346,7 +346,7 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->k_max) return (1);
+			if ((i < 0) || (i >= z_info->k_max)) return (1);
 			k_ptr = &k_info[i];
 			if (n1) k_ptr->x_attr = n1;
 			if (n2) k_ptr->x_char = n2;
@@ -364,7 +364,7 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->f_max) return (1);
+			if ((i < 0) || (i >= z_info->f_max)) return (1);
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
@@ -381,6 +381,7 @@ errr process_pref_file_aux(char *buf)
 			j = (byte)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
+			if ((j < 0) || (j >= 256)) return (1);
 			misc_to_attr[j] = n1;
 			misc_to_char[j] = n2;
 			return (0);
@@ -395,6 +396,7 @@ errr process_pref_file_aux(char *buf)
 		{
 			j = (byte)strtol(zz[0], NULL, 0) % 128;
 			n1 = strtol(zz[1], NULL, 0);
+			if ((j < 0) || (j >= 128)) return (1);
 			if (n1) tval_to_attr[j] = n1;
 			return (0);
 		}
@@ -447,6 +449,7 @@ errr process_pref_file_aux(char *buf)
 		if (tokenize(buf+2, 5, zz) == 5)
 		{
 			i = (byte)strtol(zz[0], NULL, 0);
+			if ((i < 0) || (i >= 256)) return (1);
 			angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
 			angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
 			angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
@@ -1678,6 +1681,13 @@ static void display_player_flag_info(void)
 
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
+
+			/* Hack -- Check immunities */
+			if ((x == 0) && (y < 4) &&
+			    (f[set] & ((TR2_IM_ACID) << y)))
+			{
+				c_put_str(TERM_WHITE, "*", row, col+n);
+			}
 
 			/* Check flags */
 			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);

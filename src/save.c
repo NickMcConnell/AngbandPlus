@@ -1108,6 +1108,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->word_recall);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
+	wr_s16b(p_ptr->tim_levitate);
 	wr_s16b(p_ptr->tim_sus_str);
 	wr_s16b(p_ptr->tim_sus_int);
 	wr_s16b(p_ptr->tim_sus_wis);

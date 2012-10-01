@@ -2972,7 +2972,7 @@ void do_cmd_activate(void)
 
 			case ACT_GENOCIDE:
 			{
-				msg_format("Your % glows deep blue...", o_name);
+				msg_format("Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
@@ -3191,17 +3191,7 @@ void do_cmd_activate(void)
 
 			case ACT_WOR:
 			{
-				msg_format("Your %s glows soft white...", o_name);
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 

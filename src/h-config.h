@@ -282,7 +282,7 @@
 /*
  * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
  */
-/* #define HAS_STRICMP */
+#define HAS_STRICMP
 
 /*
  * Linux has "stricmp()" with a different name

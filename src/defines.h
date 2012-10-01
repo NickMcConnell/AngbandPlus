@@ -49,7 +49,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
 #define VERSION_PATCH	1
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 
 /*
@@ -723,20 +723,20 @@
 /* Seams */
 #define FEAT_MAGMA		0x32
 #define FEAT_QUARTZ		0x33
-#define FEAT_MAGMA_H	0x34
-#define FEAT_QUARTZ_H	0x35
-#define FEAT_MAGMA_K	0x36
-#define FEAT_QUARTZ_K	0x37
+#define FEAT_MAGMA_H		0x34
+#define FEAT_QUARTZ_H		0x35
+#define FEAT_MAGMA_K		0x36
+#define FEAT_QUARTZ_K		0x37
 
 /* Walls */
-#define FEAT_WALL_EXTRA	0x38
-#define FEAT_WALL_INNER	0x39
-#define FEAT_WALL_OUTER	0x3A
-#define FEAT_WALL_SOLID	0x3B
-#define FEAT_PERM_EXTRA	0x3C
-#define FEAT_PERM_INNER	0x3D
-#define FEAT_PERM_OUTER	0x3E
-#define FEAT_PERM_SOLID	0x3F
+#define FEAT_WALL_EXTRA		0x38
+#define FEAT_WALL_INNER		0x39
+#define FEAT_WALL_OUTER		0x3A
+#define FEAT_WALL_SOLID		0x3B
+#define FEAT_PERM_EXTRA		0x3C
+#define FEAT_PERM_INNER		0x3D
+#define FEAT_PERM_OUTER		0x3E
+#define FEAT_PERM_SOLID		0x3F
 
 /* Buildings -KMW- */
 #define FEAT_BLDG_HEAD		0x40
@@ -744,23 +744,23 @@
 
 /* Extra Terrain -KMW- */
 #define FEAT_TREES		0x60
-#define FEAT_FOG		0x61
-#define FEAT_MOUNTAIN		0x64
+#define FEAT_FOG			0x61
 /* 0x62 - 0x63 reserved for terrains that block line of sight -KMW- */
+#define FEAT_MOUNTAIN		0x64
 /* 0x65 - 0x66 can be used for those that do not block line of sight -KMW- */
-#define FEAT_GRASS	0x67
-#define FEAT_DEEP_WATER	0x68
-#define FEAT_SHAL_WATER	0x69
+#define FEAT_GRASS		0x67
+#define FEAT_DEEP_WATER		0x68
+#define FEAT_SHAL_WATER		0x69
 #define FEAT_DEEP_LAVA		0x6A
 #define FEAT_SHAL_LAVA		0x6B
 #define FEAT_CHASM		0x6C
-#define FEAT_DIRT		0x6D
+#define FEAT_DIRT			0x6D
 
 /* Quest features -KMW- */
 #define FEAT_QUEST_ENTER	0x70
-#define FEAT_QUEST_EXIT	0x71
+#define FEAT_QUEST_EXIT		0x71
 #define FEAT_GQUEST_ENTER	0x72
-#define FEAT_QUEST_DOWN	0x73
+#define FEAT_QUEST_DOWN		0x73
 #define FEAT_QUEST_UP		0x74
 
 
@@ -1876,21 +1876,22 @@
 /*
  * The special inscriptions.
  */
-#define INSCRIP_NULL		100
-#define INSCRIP_TERRIBLE	100+1
-#define INSCRIP_WORTHLESS	100+2
-#define INSCRIP_CURSED		100+3
-#define INSCRIP_BROKEN		100+4
-#define INSCRIP_AVERAGE		100+5
-#define INSCRIP_GOOD		100+6
-#define INSCRIP_EXCELLENT	100+7
-#define INSCRIP_SPECIAL		100+8
-#define INSCRIP_UNCURSED	100+9
+#define INSCRIP_NULL            100
+#define INSCRIP_TERRIBLE        100+1
+#define INSCRIP_WORTHLESS       100+2
+#define INSCRIP_CURSED          100+3
+#define INSCRIP_BROKEN          100+4
+#define INSCRIP_AVERAGE         100+5
+#define INSCRIP_GOOD            100+6
+#define INSCRIP_EXCELLENT       100+7
+#define INSCRIP_SPECIAL         100+8
+#define INSCRIP_UNCURSED        100+9
+#define INSCRIP_INDESTRUCTIBLE  100+10
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP			10
+#define MAX_INSCRIP			11
 
 
 /*
@@ -2612,6 +2613,8 @@
 #define OPT_cheat_xtra				(OPT_CHEAT+3)
 #define OPT_cheat_know				(OPT_CHEAT+4)
 #define OPT_cheat_live				(OPT_CHEAT+5)
+#define OPT_cheat_flav				(OPT_CHEAT+6)
+
 /* xxx xxx */
 #define OPT_adult_point_based		(OPT_ADULT+0)
 #define OPT_adult_auto_roller		(OPT_ADULT+1)
@@ -2730,6 +2733,7 @@
 #define cheat_xtra				op_ptr->opt[OPT_cheat_xtra]
 #define cheat_know				op_ptr->opt[OPT_cheat_know]
 #define cheat_live				op_ptr->opt[OPT_cheat_live]
+#define cheat_flav				op_ptr->opt[OPT_cheat_flav]
 /* xxx xxx */
 #define adult_point_based		op_ptr->opt[OPT_adult_point_based]
 #define adult_auto_roller		op_ptr->opt[OPT_adult_auto_roller]
@@ -2971,17 +2975,36 @@
  *
  * Line 1 -- perma-walls
  * Line 2-3 -- stairs
- * Line 4-5 --building doors -KMW-
- * Line 6-7 -- shop doors
+ * Line 4-5 -- shop doors
  */
 #define cave_perma_bold(Y,X) \
 	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
-	((cave_feat[Y][X] == FEAT_LESS) || \
-	(cave_feat[Y][X] == FEAT_MORE)) || \
-	((cave_feat[Y][X] >= FEAT_BLDG_HEAD) && \
-	(cave_feat[Y][X] <= FEAT_BLDG_TAIL)) || \
-	((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	(cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+	 ((cave_feat[Y][X] == FEAT_LESS) || \
+	  (cave_feat[Y][X] == FEAT_MORE)) || \
+	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
+	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+
+
+/*
+ * Determine if a "legal" grid is "permanent"
+ *
+ * Line 1 -- perma-walls
+ * Line 2-3 -- stairs
+ * Line 4-5 -- building doors -KMW-
+ * Line 6-7 -- shop doors
+ * Line 8-9 -- quest entrances -JIH-
+ */
+#define cave_perma_bold_new(Y,X) \
+	(((cave_feat[Y][X] >= FEAT_PERM_EXTRA) && \
+	  (cave_feat[Y][X] <= FEAT_PERM_SOLID)) || \
+	 ((cave_feat[Y][X] == FEAT_LESS) || \
+	  (cave_feat[Y][X] == FEAT_MORE)) || \
+	 ((cave_feat[Y][X] >= FEAT_BLDG_HEAD) && \
+	  (cave_feat[Y][X] <= FEAT_BLDG_TAIL)) || \
+	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
+	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)) || \
+	 ((cave_feat[Y][X] >= FEAT_QUEST_ENTER) && \
+	  (cave_feat[Y][X] <= FEAT_QUEST_EXIT)))
 
 
 /*

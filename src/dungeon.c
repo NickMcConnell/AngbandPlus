@@ -243,7 +243,8 @@ static void sense_inventory(void)
 		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
+		if ((o_ptr->discount > 0) &&
+		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -253,6 +254,10 @@ static void sense_inventory(void)
 
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
+
+		/* Indestructible objects are either excellent or terrible */
+		if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
+			heavy = TRUE;
 
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
@@ -602,6 +607,75 @@ static void process_world(void)
 		take_hit(1, "poison");
 	}
 
+	/* Take damage from shallow lava */
+	if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_SHAL_LAVA) &&
+	    !p_ptr->immune_fire && !p_ptr->levitate)
+	{
+		int damage = p_ptr->lev;
+
+		if (p_ptr->resist_fire) damage = damage / 3;
+		if (p_ptr->oppose_fire) damage = damage / 3;
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print("The lava burns you!");
+			take_hit(damage, "shallow lava");
+		}
+	}
+
+	/* Take damage from deep lava */
+	else if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_DEEP_LAVA) &&
+		   (!p_ptr->immune_fire))
+	{
+		int damage = p_ptr->lev * 2;
+		cptr message;
+		cptr hit_from;
+
+		if (p_ptr->resist_fire) damage = damage / 3;
+		if (p_ptr->oppose_fire) damage = damage / 3;
+
+		if (p_ptr->levitate)
+		{
+			damage = damage / 5;
+
+			message = "The heat burns you!";
+			hit_from = "flying over deep lava";
+		}
+		else
+		{
+			message = "The lava burns you!";
+			hit_from = "deep lava";
+		}
+
+		if (damage)
+		{
+			/* Take damage */
+			msg_print(message);
+			take_hit(damage, hit_from);
+		}
+	}
+
+	/* Take damage from drowning */
+	else if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_DEEP_WATER) &&
+		   (!p_ptr->levitate))
+	{
+		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
+		{
+			/* Take damage */
+			msg_print("You are drowning!");
+			take_hit(randint(p_ptr->lev), "drowning");
+		}
+	}
+
+	/* Take damage from being stuck in rock */
+	if (!cave_floor_bold(p_ptr->py, p_ptr->px) &&
+	    !cave_perma_bold(p_ptr->py, p_ptr->px) && !p_ptr->ghostly)
+	{
+		msg_print("You are being crushed!");
+		take_hit(1 + (p_ptr->lev / 5), "solid rock");
+	}
+
 	/* Take damage from cuts */
 	if (p_ptr->cut)
 	{
@@ -781,31 +855,48 @@ static void process_world(void)
 		(void)set_tim_infra(p_ptr->tim_infra - 1);
 	}
 
+	/* Timed levitation */
+	if (p_ptr->tim_levitate)
+	{
+		(void)set_tim_levitate(p_ptr->tim_levitate - 1);
+	}
+
+	/* Timed sustained strength */
 	if (p_ptr->tim_sus_str) {
 		p_ptr->tim_sus_str--;
 		if (!p_ptr->tim_sus_str)
 			msg_print("Your strength is no longer protected.");
 	}
+
+	/* Timed sustained intelligence */
 	if (p_ptr->tim_sus_int) {
 		p_ptr->tim_sus_int--;
 		if (!p_ptr->tim_sus_int)
 			msg_print("Your intelligence is no longer protected.");
 	}
+
+	/* Timed sustained wisdom */
 	if (p_ptr->tim_sus_wis) {
 		p_ptr->tim_sus_wis--;
 		if (!p_ptr->tim_sus_wis)
 			msg_print("Your wisdom is no longer protected.");
 	}
+
+	/* Timed sustained dexterity */
 	if (p_ptr->tim_sus_dex) {
 		p_ptr->tim_sus_dex--;
 		if (!p_ptr->tim_sus_dex)
 			msg_print("Your dexterity is no longer protected.");
 	}
+
+	/* Timed sustained constitution */
 	if (p_ptr->tim_sus_con) {
 		p_ptr->tim_sus_con--;
 		if (!p_ptr->tim_sus_con)
 			msg_print("Your constitution is no longer protected.");
 	}
+
+	/* Timed sustained charisma */
 	if (p_ptr->tim_sus_chr) {
 		p_ptr->tim_sus_chr--;
 		if (!p_ptr->tim_sus_chr)

@@ -3678,21 +3678,30 @@ static void cave_gen(void)
 
 	/* Add streamers of trees, water, or lava -KMW- */
 	if ((p_ptr->depth <= 2) && (randint(20) > 15))
-		for (i=0; i < randint(DUN_STR_QUA); i++)
-			build_streamer2(FEAT_TREES,1);
-	if ((p_ptr->depth <= 19) && (randint(20) > 15)) {
-		for (i=0; i < randint(DUN_STR_QUA - 1); i++)
-			build_streamer2(FEAT_SHAL_WATER,0);
-		if (randint(20) > 15) {
-			for (i=0; i < randint(DUN_STR_QUA); i++)
-				build_streamer2(FEAT_DEEP_WATER,1);
+	{
+		for (i = 0; i < randint(DUN_STR_QUA); i++)
+			build_streamer2(FEAT_TREES, 1);
+	}
+	else if ((p_ptr->depth <= 19) && (randint(20) > 15))
+	{
+		for (i = 0; i < randint(DUN_STR_QUA - 1); i++)
+			build_streamer2(FEAT_SHAL_WATER, 0);
+
+		if (randint(20) > 15)
+		{
+			for (i = 0; i < randint(DUN_STR_QUA); i++)
+				build_streamer2(FEAT_DEEP_WATER, 1);
 		}
-	} else if ((p_ptr-> depth > 19) && (randint(20) > 15)) {
-		for (i=0; i < randint(DUN_STR_QUA); i++)
-			build_streamer2(FEAT_SHAL_LAVA,0);
-		if (randint(20) > 15) {
-			for (i=0; i < randint(DUN_STR_QUA - 1); i++)
-				build_streamer2(FEAT_DEEP_LAVA,1);
+	}
+	else if ((p_ptr-> depth > 19) && (randint(20) > 15))
+	{
+		for (i = 0; i < randint(DUN_STR_QUA); i++)
+			build_streamer2(FEAT_SHAL_LAVA, 0);
+
+		if (randint(20) > 15)
+		{
+			for (i = 0; i < randint(DUN_STR_QUA - 1); i++)
+				build_streamer2(FEAT_DEEP_LAVA, 1);
 		}
 	}
 

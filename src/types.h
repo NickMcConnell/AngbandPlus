@@ -1008,6 +1008,7 @@ struct player_type
 	s16b tim_invis;		/* Timed --Invisibility -KMW- */
  	s16b tim_ghostly;		/* Timed -- walk through walls -KMW- */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_levitate;	/* Timed -- Levitation */
 	s16b tim_sus_str;		/* Timed -- sustain strength -KMW- */
 	s16b tim_sus_int;		/* Timed -- sustain intelligence -KMW- */
 	s16b tim_sus_wis;		/* Timed -- sustain wisdom -KMW- */

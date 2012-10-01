@@ -421,6 +421,7 @@ void reset_tim_flags(void)
 	p_ptr->tim_invis = 0;		/* Timed -- Invisibility -KMW- */
 	p_ptr->tim_ghostly = 0;		/* Timed -- walk through walls -KMW- */
 	p_ptr->tim_infra = 0;		/* Timed -- Infra Vision */
+	p_ptr->tim_levitate = 0;	/* Timed -- Levitation */
 	p_ptr->tim_sus_str = 0;		/* Timed -- sustain strength -KMW- */
 	p_ptr->tim_sus_int = 0;		/* Timed -- sustain intelligence -KMW- */
 	p_ptr->tim_sus_wis = 0;		/* Timed -- sustain wisdom -KMW- */
@@ -1962,6 +1963,13 @@ void do_cmd_bldg(void)
 
 	which = (cave_feat[py][px] - FEAT_BLDG_HEAD);
 	building_loc = which;
+
+	/* Hack -- Check the "locked doors" */
+	if (adult_no_stores)
+	{
+		msg_print("The doors are locked.");
+		return;
+	}
 
 	if (which < 7)
 		bldg = &city[which];

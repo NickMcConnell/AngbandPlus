@@ -1049,7 +1049,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* See if the object is "aware" */
-	aware = (object_aware_p(o_ptr) ? TRUE : FALSE);
+	aware = ((object_aware_p(o_ptr) || (cheat_flav)) ? TRUE : FALSE);
 
 	/* See if the object is "known" */
 	known = (object_known_p(o_ptr) ? TRUE : FALSE);

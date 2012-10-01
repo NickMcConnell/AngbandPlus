@@ -789,6 +789,7 @@ extern bool set_tim_tsanchor(int v);
 extern bool set_tim_invis(int v);
 extern bool set_tim_ghost(int v);
 extern bool set_tim_infra(int v);
+extern bool set_tim_levitate(int v);
 extern bool set_oppose_acid(int v);
 extern bool set_oppose_elec(int v);
 extern bool set_oppose_fire(int v);

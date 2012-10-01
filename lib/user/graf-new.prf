@@ -500,33 +500,75 @@ F:62:0x80/0x93
 # permanent wall -- solid (perm)
 F:63:0x80/0x93
 
-# Trees
-F:96:0x82/0x9A
+# 64 Library
 
-# Mountain
+# 65 Castle
+
+# 66 Arena
+
+# 67 Gambling House
+
+# 68 Inn
+
+# 69 Beastmaster
+
+# 70 Weaponsmaster
+
+# 74 Fighter's Hall
+
+# 75 Tower of Sorcery
+
+# 76 Inner Temple
+
+# 77 House of Thieves
+
+# 78 Ranger's Tavern
+
+# 79 Order of Paladins
+
+# 80 Tower of Illusion
+
+# 81 Grove of the Druids
+
+# trees
+F:96:0xBE/0x8C
+
+# fog
+#F:97:0x81/0x8C
+
+# a mountain chain
 F:100:0x8D/0x98
 
-# Grass
-F:103:0xB6/0x97
+# grass
+F:103:0xBB/0x8E
 
-
-# Deep Water
+# a pool of deep water
 F:104:0x83/0x80
 
-# Shallow Water
+# stream of shallow water
 F:105:0x83/0x83
 
-# Deep Lava
+# a pool of deep lava
 F:106:0xB6/0x9D
 
-# Shallow Lava
+# a stream of shallow lava
 F:107:0xB6/0x9A
 
-# Dirt
-F:109:0xB6/0x94
+# chasm
+F:108:0xBD/0x97
 
+# dirt
+F:109:0xBB/0x94
 
+# 112 quest entrance
 
+# 113 quest exit
+
+# 114 guild quest entrance
+
+# 115 quest down level
+
+# 116 quest up level
 
 
 ##### Object attr/char definitions #####
@@ -615,9 +657,6 @@ K:26:0x8E/0x80
 
 # & Pint~ of Fine Wine
 K:27:0x8E/0x80
-
-# No-dachi
-K:29:0xB5/0x89
 
 # & Broken Dagger~
 K:30:0x8A/0x8D
@@ -798,9 +837,6 @@ K:88:0x8E/0x8D
 
 # Dwarven Pick
 K:89:0x8E/0x91
-
-# Elven Cloak (rr9)
-K:90:0x89/0x89
 
 # Pair of Soft Leather Boots
 K:91:0x88/0x8E
@@ -1063,20 +1099,8 @@ K:177:0x83/0x9C
 # Scroll of Rumour
 K:178:0x83/0x9C
 
-# Scroll of Logrus
-K:179:0x83/0x9C
-
-# Scroll of Remove Curse
-K:180:0x83/0x9C
-
 # Scroll of Light
 K:181:0x83/0x9C
-
-# Scroll of Fire
-K:182:0x83/0x9C
-
-# Scroll of Ice
-K:183:0x83/0x9C
 
 # Scroll of Summon Monster
 K:184:0x83/0x9C
@@ -1111,12 +1135,6 @@ K:193:0x83/0x9C
 # Scroll of Trap Detection
 K:194:0x83/0x9C
 
-# Sheaf Arrow
-K:195:0xB6/0x91
-
-# Mithril Shot
-K:196:0xB6/0x8F
-
 # Scroll of Door/Stair Location
 K:197:0x83/0x9C
 
@@ -1140,9 +1158,6 @@ K:203:0x83/0x9C
 
 # Scroll of Trap/Door Destruction
 K:204:0x83/0x9C
-
-# Scroll of Artifact Creation
-K:205:0x83/0x9C
 
 # Scroll of Recharging
 K:206:0x83/0x9C
@@ -1331,7 +1346,7 @@ K:266:0x85/0x85
 K:267:0x85/0x85
 
 # Potion of Resistance
-K:268:0x85/0x85
+K:267:0x85/0x85
 
 # Wand of Light
 K:269:0x86/0x93
@@ -1405,9 +1420,6 @@ K:291:0x86/0x93
 # Wand of Wonder
 K:292:0x86/0x93
 
-# Flight Arrow
-K:293:0xB6/0x90
-
 # Wand of Acid Bolts
 K:294:0x86/0x93
 
@@ -1422,9 +1434,6 @@ K:297:0x86/0x93
 
 # Wand of Annihilation
 K:298:0x86/0x93
-
-# Wand of Rockets
-K:299:0x86/0x93
 
 # Staff of Trap Location
 K:300:0x87/0x92
@@ -1516,29 +1525,29 @@ K:328:0x87/0x92
 # Staff of Healing
 K:329:0x87/0x92
 
-# [Book of Common Prayer]
-K:330:0x8D/0x84
+# [Magic for Beginners]
+K:330:0x8C/0x86
 
-# [High Mass]
-K:331:0x8D/0x85
+# [Conjurings and Tricks]
+K:331:0x8C/0x87
 
-# [Book of the Unicorn]
-K:332:0x8D/0x86
+# [Incantations and Illusions]
+K:332:0x8C/0x88
 
-# [Blessings of the Grail]
-K:333:0x8D/0x87
+# [Sorcery and Evocations]
+K:333:0x8C/0x89
 
-# [Beginner's Handbook]
-K:334:0x8C/0x9C
+# [Beginners Handbook]
+K:334:0x8C/0x8F
 
-# [Master Sorcerer's Handbook]
-K:335:0x8C/0x9D
+# [Words of Wisdom]
+K:335:0x8C/0x90
 
-# [Pattern Sorcery]
-K:336:0x8C/0x9E
+# [Chants and Blessings]
+K:336:0x8C/0x91
 
-# [Grimoire of Power]
-K:337:0x8C/0x9F
+# [Exorcism and Dispelling]
+K:337:0x8C/0x92
 
 # Small wooden chest
 K:338:0x84/0x99
@@ -1575,9 +1584,6 @@ K:348:0x8E/0x88
 
 # Empty Bottle
 K:349:0x8E/0x87
-
-# Rod of Havoc
-K:350:0x86/0x83
 
 # Rod of Door/Stair Location
 K:351:0x86/0x83
@@ -1660,35 +1666,35 @@ K:376:0x86/0x83
 # Rod of Speed
 K:377:0x86/0x83
 
-# [Call of the Wild]
-K:379:0x8D/0x80
+# [Resistance of Scarabtarices]
+K:379:0x8C/0x8A
 
-# [Nature Mastery]
-K:380:0x8D/0x81
+# [Mordenkainen's Escapes]
+K:380:0x8C/0x8B
 
-# [Nature's Gifts]
-K:381:0x8D/0x82
+# [Kelek's Grimoire of Power]
+K:381:0x8C/0x8C
 
-# [Nature's Wrath]
-K:382:0x8D/0x83
+# [Tenser's Transformations]
+K:382:0x8C/0x8D
 
-# [Sign of Chaos]
-K:383:0x8C/0x98
+# [Raal's Tome of Destruction]
+K:383:0x8C/0x8E
 
-# [Chaos Mastery]
-K:384:0x8C/0x99
+# [Ethereal Openings]
+K:384:0x8C/0x93
 
-# [Chaos Channels]
-K:385:0x8C/0x9A
+# [Godly Insights]
+K:385:0x8C/0x94
 
-# [Armageddon Tome]
-K:386:0x8C/0x9B
+# [Purifications and Healing]
+K:386:0x8C/0x95
 
-# [Black Prayers]
-K:387:0x8D/0x88
+# [Holy Infusions]
+K:387:0x8C/0x96
 
-# [Black Mass]
-K:388:0x8D/0x89
+# [Wrath of God]
+K:388:0x8C/0x97
 
 # Shard of Pottery
 K:389:0x8E/0x92
@@ -1719,9 +1725,6 @@ K:397:0x8E/0x97
 
 # Gnome Skeleton
 K:398:0x8E/0x99
-
-# Great Hammer
-K:399:0xB5/0x8A
 
 # Black Dragon Scale Mail
 K:400:0x8A/0x82
@@ -1792,6 +1795,32 @@ K:421:0x85/0x85
 # Potion of *Enlightenment*
 K:422:0x85/0x85
 
+# [Illusions for Beginners]
+K:425:0x8C/0x9C
+
+# [Tricks and Visions]
+K:426:0x8C/0x9C
+
+# [Phantasms and Illusions]
+K:427:0x8C/0x9D
+
+# [Shadows and Prisms]
+K:428:0x8C/0x9D
+
+# [Serten's Immunities]
+K:429:0x8C/0x9E
+
+# [Knowledge of Kenault]
+K:430:0x8C/0x9E
+
+# [Otiluke's Spheres]
+K:431:0x8C/0x9E
+
+# [Boccob's Book of Shadows]
+K:432:0x8C/0x9F
+
+# [Bigby's Handbook]
+K:433:0x8C/0x9F
 
 # Ring of Blindness Resistance
 K:434:0x84/0x83
@@ -1801,6 +1830,12 @@ K:435:0x84/0x83
 
 # Ring of Extra Attacks
 K:436:0x84/0x83
+
+# Ring of Fear Resistance
+K:437:0x84/0x83
+
+# Ring of Nether Resistance
+K:438:0x84/0x83
 
 # copper
 K:480:0x83/0x91
@@ -1898,6 +1933,35 @@ K:510:0x84/0x94
 # The One Ring
 K:511:0x84/0x95
 
+# [Natures Handbook]
+K:512:0x8D/0x80
+
+# [Natural States]
+K:513:0x8D/0x80
+
+# [Wilderness Guide]
+K:514:0x8D/0x81
+
+# [Call of the Wild]
+K:515:0x8D/0x81
+
+# [Druidic Insights]
+K:516:0x8D/0x82
+
+# [Growth & Destruction]
+K:517:0x8D/0x82
+
+# [Nature's Wrath]
+K:518:0x8D/0x82
+
+# [Druidic Alterations]
+K:519:0x8D/0x83
+
+# [Commune with Nature]
+K:520:0x8D/0x83
+
+# 521 - 611 unused
+
 
 
 ##### Monster attr/char definitions #####
@@ -1914,6 +1978,9 @@ R:2:0xA7/0x82
 
 # scruffy little dog
 R:3:0x9D/0x9A
+
+# farmer maggot
+R:4:0xAA/0x81
 
 # blubbering idiot
 R:5:0xAA/0x82
@@ -2768,7 +2835,7 @@ R:287:0xA1/0x8D
 R:288:0xA3/0x9F
 
 # monadic deva
-R:289:0xD/0x8F
+R:289:0x9D/0x8F
 
 # mim, betrayer of turin
 R:290:0xA8/0x80
@@ -3250,6 +3317,9 @@ R:448:0xA0/0x99
 # adunaphel the quiet
 R:449:0xA4/0x87
 
+# dark elven sorceror
+R:450:0xA8/0x81
+
 # master lich
 R:451:0xA1/0x84
 
@@ -3523,6 +3593,9 @@ R:540:0xAD/0x97
 # draugluin, sire of all werewolves
 R:541:0x9E/0x85
 
+# feagwath the undead sorceror
+R:542:0xA1/0x87
+
 # carcharoth, the jaws of thirst
 R:543:0x9E/0x86
 
@@ -3538,23 +3611,92 @@ R:546:0xAC/0x80
 # morgoth, lord of darkness
 R:547:0xA1/0x99
 
-# balrog
-R:548:0xAD/0x95
+# Balrog
+# R:548:4/-71
 
-# phantom warrior
+# Greater Balrog
+R:549:0xAD/0x98
+
+# Grand Master thief
+# R:550:3/-16
+
+# Troll Clan Chief
+# R:551:13/-72
+
+# Troll King
+# R:552:14/-72
+
+# Troll High Priest
+R:553:0xA3/0x98
+
+# Blue Dragon Worm
+R:554:0xAD/0x81
+
+# White Dragon Worm
+R:555:0xAC/0x9D
+
+# Red Dragon Worm
+R:556:0xAD/0x82
+
+# Black Dragon Worm
+R:557:0xB0/0x99
+
+# Green Dragon Worm
+R:558:0xAC/0x9E
+
+# Multi-hued Dragon Worm
+R:559:0xAD/0x85
+
+# Old Sorcerer
+R:560:0xB3/0x8E
+
+# Phantom warrior
 R:561:0xB0/0x8F
 
-# wyvern
+# Wyvern
 R:562:0xB1/0x83
 
-# spectator
+# Spectator
 R:563:0xB1/0x9B
 
-# nightgaunt
+# Nightgaunt
 R:564:0xB2/0x91
 
-# war troll
+# War troll
 R:565:0xB2/0x94
+
+# Black troll
+R:566:0xA3/0x95
+
+# Python
+R:567:0xA2/0x84
+
+# Eol, the Dark Elf
+# R:568:10/-24
+
+# Maeglin, the Traitor of Gondolin
+R:569:0xB3/0x9B
+
+# Sea slime
+R:570:0xB7/0x95
+
+# Sea serpent
+# R:571:6/-28
+
+# Town Guard
+R:572:0xB3/0x9F
+
+# Guard Captain
+R:573:0xB3/0x92
+
+# Royal Guard
+R:574:0xB4/0x80
+
+# Eilinel the Entrapped
+R:575:0xB3/0x94
+
+# Easterling
+R:576:0xB8/0x95
 
 
 # Load the special player pictures

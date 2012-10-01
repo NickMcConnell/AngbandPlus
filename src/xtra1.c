@@ -1854,6 +1854,7 @@ extern void calc_bonuses(void)
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
+	if (f3 & (TR3_LEVITATION)) p_ptr->levitate = TRUE;
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
@@ -2165,6 +2166,12 @@ extern void calc_bonuses(void)
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra++;
+	}
+
+	/* Temporary levitation */
+	if (p_ptr->tim_levitate)
+	{
+		p_ptr->levitate = TRUE;
 	}
 
 	/* temporary stat sustain */

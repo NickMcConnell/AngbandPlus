@@ -171,7 +171,7 @@ D:X..............................::::::X
 D:X.....bbb.........cccc.........::::::X
 D:X.................................:::X
 D:X............mp.................:::::X
-D:X........kklmnopqo...........::::::::X
+D:X........kklmnopnol..........::::::::X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:106:Barracks

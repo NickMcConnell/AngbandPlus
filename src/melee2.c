@@ -3106,10 +3106,17 @@ static bool get_moves(int m_idx, int mm[5])
 #endif /* MONSTER_AI */
 
 	/* Apply fear */
-	if (!done && mon_will_run(m_idx))
+	if ((!smart_monsters || m_ptr->is_pet) && mon_will_run(m_idx))
+	{
+		/* XXX XXX Not very "smart" */
+		y = (-y);
+		x = (-x);
+	}
+
+	else if (!done && mon_will_run(m_idx))
 	{
 		/* Try to find safe place */
-		if (!(smart_monsters && find_safety(m_idx, &y, &x)))
+		if (find_safety(m_idx, &y, &x))
 		{
 			/* This is not a very "smart" method XXX XXX */
 			y = (-y);

@@ -1003,6 +1003,106 @@ bool set_tim_infra(int v)
 
 
 /*
+ * Set "p_ptr->tim_levitate", notice observable changes
+ *
+ * Note that we check if we are already levitating via a racial
+ * instrinsic or as a result of our equipment. If so, we reset the
+ * counter to avoid unnecessary and annoying messages.
+ */
+bool set_tim_levitate(int v)
+{
+	int i;
+
+	bool notice = FALSE;
+	bool levitating = FALSE;
+
+	object_type *o_ptr;
+
+	u32b f1, f2, f3;
+
+	/*** Analyze Player ***/
+
+	/* Extract the player flags */
+	player_flags(&f1, &f2, &f3);
+
+	/* Check if levitating */
+	if (f3 & (TR3_LEVITATION))
+	{
+		msg_print("You are already levitating.");
+		levitating = TRUE;
+		v = 0;
+	}
+
+	/*** Analyze equipment ***/
+
+	/* Scan the equipment */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Extract the item flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		/* Check if levitating */
+		if (f3 & (TR3_LEVITATION))
+		{
+			msg_print("You are already levitating.");
+			levitating = TRUE;
+			v = 0;
+		}
+	}
+
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_levitate)
+		{
+			msg_print("You rise up from the floor!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (!levitating)
+		{
+			if (p_ptr->tim_levitate)
+			{
+				msg_print("You drop to the floor.");
+				notice = TRUE;
+			}
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_levitate = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
  * Set "p_ptr->oppose_acid", notice observable changes
  */
 bool set_oppose_acid(int v)
@@ -2214,7 +2314,6 @@ void monster_death(int m_idx)
 	int number_mon;
 
 	int number = 0;
-	int total = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 

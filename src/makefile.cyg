@@ -7,7 +7,7 @@
 # File locations - change these as appropriate
 #
 CYGDIR  = c:/cygwin
-TGTDIR  = c:/kangband/
+TGTDIR  = c:/kangband
 
 #
 # Standard defines

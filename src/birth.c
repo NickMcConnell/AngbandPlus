@@ -879,7 +879,18 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
+		if (ch == '*')
+		{
+			while (1)
+			{
+				k = rand_int(MAX_CLASS);
+
+				/* Try again if not a legal choice */
+				if (!(rp_ptr->choice & (1L << k))) continue;
+
+				break;
+			}
+		}
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");

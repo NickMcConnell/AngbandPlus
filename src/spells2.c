@@ -971,6 +971,13 @@ void set_recall(void)
 		return;
 	}
 
+	/* Time/Space anchor */
+	if (p_ptr->ts_anchor)
+	 {
+		msg_print("Your time/space anchor prevents you from recalling.");
+		return;
+	}
+
 	/* Activate recall */
 	if (!p_ptr->word_recall)
 	{

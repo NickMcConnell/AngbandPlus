@@ -2866,7 +2866,7 @@ static void do_cmd_knowledge_objects(void)
 		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
+		if (k_ptr->flavor && (k_ptr->aware || cheat_flav))
 		{
 			object_type *i_ptr;
 			object_type object_type_body;

@@ -1,7 +1,13 @@
+# File: graf-ibm.prf
+
+#
 # Graphics definition preference file.
 #
-# Generated automatically by `makepref' by Mike Marcelais
+# Generated automatically by `makepref' by Mike Marcelais, which will
+# need to be updated to use the "S" instead of "U" directives....
 #
+
+
 # Feature Graphic Definitions
 
 # open floor
@@ -43,17 +49,14 @@ F:12:6/-57
 # Magic Shop
 F:13:4/-56
 
-# Black Market
+# Bookstore
 F:14:8/-55
 
-# Home
-F:15:11/-54
+# Black Market
+F:15:8/-54
 
 # trap door
-F:16:1/-34
-
-# pit
-F:17:2/-34
+F:17:1/-34
 
 # pit
 F:18:2/-34
@@ -61,20 +64,20 @@ F:18:2/-34
 # pit
 F:19:2/-34
 
-# strange rune
-F:20:3/-33
+# pit
+F:20:2/-33
 
 # strange rune
 F:21:3/-33
 
-# discolored spot
-F:22:7/-33
+# strange rune
+F:22:3/-33
 
 # discolored spot
 F:23:7/-33
 
-# dart trap
-F:24:4/-36
+# discolored spot
+F:24:7/-36
 
 # dart trap
 F:25:4/-36
@@ -85,8 +88,8 @@ F:26:4/-36
 # dart trap
 F:27:4/-36
 
-# gas trap
-F:28:5/-35
+# dart trap
+F:28:4/-35
 
 # gas trap
 F:29:5/-35
@@ -97,10 +100,10 @@ F:30:5/-35
 # gas trap
 F:31:5/-35
 
-# door
-F:32:15/-51
+# gas trap
+F:32:5/-34
 
-# locked door
+# door
 F:33:15/-42
 
 # locked door
@@ -121,7 +124,7 @@ F:38:15/-42
 # locked door
 F:39:15/-42
 
-# jammed door
+# locked door
 F:40:15/-43
 
 # jammed door
@@ -192,6 +195,96 @@ F:62:1/-44
 
 # permanent wall
 F:63:1/-44
+
+# Library
+F:64:15/-51
+
+# Castle
+F:65:15/-42
+
+# Arena
+F:66:15/-42
+
+# Gambling House
+F:67:15/-42
+
+# Inn
+F:68:15/-42
+
+# Beastmaster
+F:69:15/-42
+
+# Weaponsmaster
+F:70:15/-42
+
+# Fighter's Hall
+F:74:3/-43
+
+# Tower of Sorcery
+F:75:12/-43
+
+# Inner Temple
+F:76:13/-43
+
+# House of Thieves
+F:77:10/-43
+
+# Ranger's Tavern
+F:78:7/-43
+
+# Order of Paladins
+F:79:1/-43
+
+# Tower of Illusion
+F:80:14/-51
+
+# Grove of the Druids
+F:81:13/-42
+
+# tree
+F:96:13/-44
+
+# dense fog
+F:97:2/-44
+
+# mountain
+F:100:15/-33
+
+# patch of grass
+F:103:5/-37
+
+# pool of deep water
+F:104:6/-44
+
+# stream of shallow water
+F:105:14/-44
+
+# pool of deep lava
+F:106:4/-44
+
+# stream of shallow lava
+F:107:15/-44
+
+# chasm
+F:108:8/-44
+
+# patch of dirt
+F:109:7/-37
+
+# quest entrance
+F:112:11/-50
+
+# quest exit
+F:113:11/-32
+
+# guild quest entrance
+F:114:4/-50
+
+# quest down level
+F:115:4/-50
+
+# quest up level
+F:116:4/-32
 
 
 # Item Graphic Definitions
@@ -964,6 +1057,9 @@ K:266:0/-110
 # Infra-vision
 K:267:0/-110
 
+# Resistance
+K:268:0/-110
+
 # Light
 K:269:0/-99
 
@@ -1381,6 +1477,12 @@ K:411:10/-124
 # Power Dragon Scale Mail~
 K:412:10/-124
 
+# & Dragon Helm~
+K:413:13/-117
+
+# & Dragon Shield~
+K:414:13/-106
+
 # Death
 K:415:0/-110
 
@@ -1404,6 +1506,51 @@ K:421:0/-110
 
 # *Enlightenment*
 K:422:0/-110
+
+# [Illusions for Beginners]
+K:425:14/-123
+
+# [Tricks and Visions]
+K:426:14/-123
+
+# [Phantasms and Illusions]
+K:427:14/-123
+
+# [Shadows and Prisms]
+K:428:14/-123
+
+# [Serten's Immunities]
+K:429:14/-123
+
+# [Knowledge of Kenault]
+K:430:6/-123
+
+# [Otiluke's Spheres]
+K:431:6/-123
+
+# [Boccob's Book of Shadows]
+K:432:6/-123
+
+# [Bigby's Handbook]
+K:433:6/-123
+
+# Blindness Resistance
+K:434:0/-109
+
+# Lordly Protection
+K:435:0/-109
+
+# Extra Attacks
+K:436:0/-109
+
+# Fear Resistance
+K:437:0/-109
+
+# Nether Resistance
+K:438:0/-109
+
+# Confusion Resistance
+K:439:0/-109
 
 # copper
 K:480:7/-47
@@ -1501,30 +1648,60 @@ K:510:0/-109
 # & Ring~
 K:511:11/-109
 
+# [Natures Handbook]
+K:512:11/-123
+
+# [Natural States]
+K:513:11/-123
+
+# [Wilderness Guide]
+K:514:11/-123
+
+# [Call of the Wild]
+K:515:11/-123
+
+# [Druidic Insights]
+K:516:15/-123
+
+# [Growth & Destruction]
+K:517:15/-123
+
+# [Nature's Wrath]
+K:518:15/-123
+
+# [Druidic Alterations]
+K:519:15/-123
+
+# [Commune with Nature]
+K:520:15/-123
+
+
+# The following things should use the "S:<code>:<attr>/<char>" mechanism
 
 # TV_AMULET
-#U:40:0/130
+# U:40:0/130
 
 # TV_RING
-#U:45:0/147
+# U:45:0/147
 
 # TV_STAFF
-#U:55:0/154
+# U:55:0/154
 
 # TV_WAND
-#U:65:0/157
+# U:65:0/157
 
 # TV_ROD
-#U:66:0/148
+# U:66:0/148
 
 # TV_SCROLL
-#U:70:0/149
+# U:70:0/149
 
 # TV_POTION
-#U:75:0/146
+# U:75:0/146
 
 # TV_FOOD
-#U:80:0/144
+# U:80:0/144
+
 
 # Monster Graphic Definitions
 
@@ -1540,7 +1717,7 @@ R:2:15/-26
 # Scruffy little dog
 R:3:15/-89
 
-# Farmer Maggot
+# Bill Ferney
 R:4:1/-24
 
 # Blubbering idiot
@@ -3172,7 +3349,94 @@ R:546:10/-16
 # Morgoth, Lord of Darkness
 R:547:8/-76
 
+# Balrog
+R:548:4/-71
+
+# Greater Balrog
+R:549:12/-71
+
+# Grand Master thief
+R:550:3/-16
+
+# Troll Clan Chief
+R:551:13/-72
+
+# Troll King
+R:552:14/-72
+
+# Troll High Priest
+R:553:13/-72
+
+# Blue Dragon Worm
+R:554:14/-9
+
+# White Dragon Worm
+R:555:9/-9
+
+# Red Dragon Worm
+R:556:4/-9
+
+# Black Dragon Worm
+R:557:2/-9
+
+# Green Dragon Worm
+R:558:5/-9
+
+# Multi-hued Dragon Worm
+R:559:14/-9
+
+# Old Sorcerer
+R:560:7/-16
+
+# Phantom warrior
+R:561:14/-85
+
+# Wyvern
+R:562:13/-28
+
+# Spectator
+R:563:14/-27
+
+# Nightgaunt
+R:564:8/-71
+
+# War troll
+R:565:5/-72
+
+# Black troll
+R:566:8/-72
+
+# Python
+R:567:13/-82
+
+# Eol, the Dark Elf
+R:568:10/-24
+
+# Maeglin, the Traitor of Gondolin
+R:569:8/-24
+
+# Sea slime
+R:570:6/-4
+
+# Sea serpent
+R:571:6/-28
+
+# Town Guard
+R:572:7/-16
+
+# Guard Captain
+R:573:3/-16
+
+# Royal Guard
+R:574:4/-16
+
+# Eilinel the Entrapped
+R:575:8/-16
+
+# Easterling
+R:576:12/-16
+
 # Nobody, the Undefined Ghost
-R:548:1/-85
+R:579:1/-85
 
 

@@ -13,25 +13,26 @@
 
 # Objects
 OBJS = \
-  main.o main-dos.o main-ibm.o \
-  generate.o dungeon.o init1.o init2.o \
-  store.o birth.o wizard1.o wizard2.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  bldg.o load.o save.o files.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o monster1.o monster2.o \
-  variable.o tables.o util.o cave.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  randart.o spells3.o
+	main.o main-dos.o main-ibm.o \
+	generate.o dungeon.o init1.o init2.o randart.o \
+	store.o birth.o wizard1.o wizard2.o \
+	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+	load1.o load2.o save.o files.o \
+	xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+	object1.o object2.o monster1.o monster2.o \
+	variable.o tables.o util.o cave.o \
+	z-term.o z-rand.o z-form.o z-virt.o z-util.o \
+	spells3.o \
 
 # Compiler
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM
+CFLAGS = -Wall -O2 -fno-strength-reduce -s -DUSE_DOS -DUSE_IBM \
+-DUSE_BACKGROUND -DUSE_TRANSPARENCY
 
 # Libraries
-LIBS = -lpc
+LIBS = -lpc -lalleg
 
 
 #
@@ -42,12 +43,10 @@ default: kangband.exe
 	copy kangband.exe ..
 	del kangband.exe
 
-install: kangband.exe makepref.exe gredit.exe
+install: kangband.exe
 	copy kangband.exe ..
-	copy makepref.exe ..
-	copy gredit.exe ..
 
-all: kangband.exe makepref.exe gredit.exe
+all: kangband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -56,13 +55,7 @@ all: kangband.exe makepref.exe gredit.exe
 #
 
 kangband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS) -lalleg
-
-makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o $@ makepref.o $(LIBS)
-
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o $@ gredit.o $(LIBS) -lgrx20
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 
 #

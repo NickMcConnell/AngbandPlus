@@ -66,7 +66,7 @@ static u32b	x_check = 0L;
  * This function determines if the version of the savefile
  * currently being read is older than version "x.y.z".
  */
-static bool older_than(byte x, byte y, byte z)
+static bool older_than(byte x, byte y, byte z, byte e)
 {
 
 	/* Much older, or much more recent */
@@ -80,6 +80,10 @@ static bool older_than(byte x, byte y, byte z)
 	/* Barely older, or barely more recent */
 	if (sf_patch < z) return (TRUE);
 	if (sf_patch > z) return (FALSE);
+
+	/* Even more barely older, or barely more recent */
+	if (sf_extra < e) return (TRUE);
+	if (sf_extra > e) return (FALSE);
 
 	/* Identical versions */
 	return (FALSE);
@@ -478,7 +482,7 @@ static void rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->pval);
 
 	/* Old method */
-	if (older_than(2, 7, 8))
+	if (older_than(2, 7, 8, 0))
 	{
 		rd_byte(&o_ptr->name1);
 		rd_byte(&o_ptr->name2);
@@ -534,7 +538,7 @@ static void rd_item(object_type *o_ptr)
 	strip_bytes(12);
 
 	/* Old version */
-	if (older_than(2,8,0))
+	if (older_than(2,8,0,0))
 	{
 		/* Old something */
 		strip_bytes(2);
@@ -547,7 +551,7 @@ static void rd_item(object_type *o_ptr)
 		rd_s16b(&o_ptr->held_m_idx);
 	}
 
-	if (older_than(2,8,2))
+	if (older_than(2,8,2,0))
 	{
 		/* Old special powers */
 		strip_bytes(2);
@@ -585,7 +589,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Hack -- the "gold" values changed in 2.7.8 */
-	if (older_than(2, 7, 8) && (o_ptr->tval == TV_GOLD))
+	if (older_than(2, 7, 8, 0) && (o_ptr->tval == TV_GOLD))
 	{
 		/* Extract the value */
 		o_ptr->pval = (s16b)old_cost;
@@ -623,7 +627,7 @@ static void rd_item(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* The ego item indexes changed in 2.7.9 */
-	if (older_than(2, 7, 9) && o_ptr->name2)
+	if (older_than(2, 7, 9, 0) && o_ptr->name2)
 	{
 		/* Convert the ego-item names */
 		o_ptr->name2 = convert_ego_item[o_ptr->name2];
@@ -722,7 +726,7 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Hack -- the "searching" bonuses changed in 2.7.6 */
-	if (older_than(2, 7, 6))
+	if (older_than(2, 7, 6, 0))
 	{
 		/* Reduce the "pval" bonus on "search" */
 		if (f1 & (TR1_SEARCH))
@@ -793,7 +797,7 @@ static void rd_item(object_type *o_ptr)
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- assume "curse" */
-		if (older_than(2, 7, 9))
+		if (older_than(2, 7, 9, 0))
 		{
 			/* Hack -- assume cursed */
 			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -819,7 +823,7 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- assume "curse" */
-		if (older_than(2, 7, 9))
+		if (older_than(2, 7, 9, 0))
 		{
 			/* Hack -- assume cursed */
 			if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -835,7 +839,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Hack -- assume "cursed" items */
-	if (older_than(2, 7, 9))
+	if (older_than(2, 7, 9, 0))
 	{
 		/* Hack -- assume cursed */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -890,7 +894,7 @@ static void rd_lore(int r_idx)
 
 
 	/* Pre-2.7.7 */
-	if (older_than(2, 7, 7))
+	if (older_than(2, 7, 7, 0))
 	{
 		/* Strip old flags */
 		strip_bytes(20);
@@ -1011,7 +1015,7 @@ static errr rd_store(int n)
 	rd_s16b(&st_ptr->bad_buy);
 
 	/* Extract the owner (see above) */
-	st_ptr->owner = (older_than(2, 7, 8) ? convert_owner[own] : own);
+	st_ptr->owner = (older_than(2, 7, 8, 0) ? convert_owner[own] : own);
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -1029,7 +1033,7 @@ static errr rd_store(int n)
 		rd_item(i_ptr);
 
 		/* Not marked XXX XXX */
-		if (older_than(2, 8, 2))
+		if (older_than(2, 8, 2, 0))
 		{
 			i_ptr->marked = FALSE;
 		}
@@ -1060,7 +1064,7 @@ static void rd_randomizer(void)
 	u16b tmp16u;
 
 	/* Old version */
-	if (older_than(2, 8, 0)) return;
+	if (older_than(2, 8, 0, 0)) return;
 
 	/* Tmp */
 	rd_u16b(&tmp16u);
@@ -1124,7 +1128,7 @@ static void rd_options(void)
 	rd_u16b(&tmp16u);
 
 	/* Pre-2.8.0 savefiles are done */
-	if (older_than(2, 8, 0)) return;
+	if (older_than(2, 8, 0, 0)) return;
 
 
 	/*** Normal Options ***/
@@ -1214,7 +1218,7 @@ static void rd_ghost(void)
 	rd_string(buf, 64);
 
 	/* Older ghosts */
-	if (older_than(2, 7, 7))
+	if (older_than(2, 7, 7, 0))
 	{
 		/* Strip old data */
 		strip_bytes(52);
@@ -1324,7 +1328,7 @@ static errr rd_extra(void)
 	strip_bytes(2);
 
 	/* Ignore old redundant info */
-	if (older_than(2, 7, 7)) strip_bytes(24);
+	if (older_than(2, 7, 7, 0)) strip_bytes(24);
 
 	/* Read the flags */
 	strip_bytes(2);	/* Old "rest" */
@@ -1359,6 +1363,12 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 
+	if (!older_than(2,9,1,1))
+	{
+		rd_s16b(&p_ptr->tim_levitate);
+	}
+
+
 	rd_s16b(&p_ptr->tim_sus_str);
 	rd_s16b(&p_ptr->tim_sus_int);
 	rd_s16b(&p_ptr->tim_sus_wis);
@@ -1379,7 +1389,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_neth);
 
 	/* Old redundant flags */
-	if (older_than(2, 7, 7)) strip_bytes(34);
+	if (older_than(2, 7, 7, 0)) strip_bytes(34);
 
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u);	/* oops */
@@ -1387,11 +1397,11 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(2, 8, 5)) adult_maximize = tmp8u;
+	if (older_than(2, 8, 5, 0)) adult_maximize = tmp8u;
 	rd_byte(&tmp8u);	/* oops */
-	if (older_than(2, 8, 5)) adult_preserve = tmp8u;
+	if (older_than(2, 8, 5, 0)) adult_preserve = tmp8u;
 	rd_byte(&tmp8u);
-	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
+	if (older_than(2, 8, 5, 0)) adult_rand_artifacts = tmp8u;
 
 	/* Future use */
 	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
@@ -1541,7 +1551,7 @@ static errr rd_inventory(void)
 		rd_item(i_ptr);
 
 		/* Not marked XXX XXX */
-		if (older_than(2, 8, 2))
+		if (older_than(2, 8, 2, 0))
 		{
 			i_ptr->marked = FALSE;
 		}
@@ -1550,7 +1560,7 @@ static errr rd_inventory(void)
 		if (!i_ptr->k_idx) return (53);
 
 		/* Hack -- convert old slot numbers */
-		if (older_than(2, 7, 4)) n = convert_slot(n);
+		if (older_than(2, 7, 4, 0)) n = convert_slot(n);
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
@@ -1619,7 +1629,7 @@ static void rd_messages(void)
 		rd_string(buf, 128);
 
 		/* Read the message type */
-		if (!older_than(2, 9, 1))
+		if (!older_than(2, 9, 1, 0))
 			rd_u16b(&tmp16u);
 		else
 			tmp16u = MSG_GENERIC;
@@ -1687,7 +1697,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			byte feat = FEAT_FLOOR;
 
 			/* Old method */
-			if (older_than(2, 7, 5))
+			if (older_than(2, 7, 5, 0))
 			{
 				/* Extract the old "info" flags */
 				if ((tmp8u >> 4) & 0x1) info |= (CAVE_ROOM);
@@ -2200,7 +2210,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	/*** Monsters ***/
 
 	/* Extract index of first monster */
-	start = (older_than(2, 7, 7) ? 2 : 1);
+	start = (older_than(2, 7, 7, 0) ? 2 : 1);
 
 	/* Read the monster count */
 	rd_u16b(&limit);
@@ -2300,11 +2310,9 @@ static errr rd_dungeon(void)
 	rd_s16b(&oldpy);   /* for arena old locations -KMW- */
 	rd_s16b(&oldpx);
 
-	if (older_than(2,9,1)) {
-		if (sf_extra < 5){
-			oldpx = 0;
-			oldpy = 0;
-		}
+	if (older_than(2,8,3,5)) {
+		oldpx = 0;
+		oldpy = 0;
 	}
 
 	rd_s16b(&ymax);
@@ -2338,7 +2346,7 @@ static errr rd_dungeon(void)
 
 
 	/* Old method */
-	if (older_than(2,8,0))
+	if (older_than(2,8,0, 0))
 	{
 		return (rd_dungeon_aux(depth, py, px));
 	}
@@ -2577,7 +2585,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Hack -- Warn about "obsolete" versions */
-	if (older_than(2, 7, 4))
+	if (older_than(2, 7, 4, 0))
 	{
 		note("Warning -- converting obsolete save file.");
 	}
@@ -2654,7 +2662,7 @@ static errr rd_savefile_new_aux(void)
 		l_ptr = &l_list[i];
 
 		/* XXX XXX Hack -- repair old savefiles */
-		if (older_than(2, 7, 6))
+		if (older_than(2, 7, 6, 0))
 		{
 			/* Assume no kills */
 			l_ptr->r_pkills = 0;
@@ -2810,7 +2818,7 @@ static errr rd_savefile_new_aux(void)
 #ifdef VERIFY_CHECKSUMS
 
 	/* Recent version */
-	if (!older_than(2,8,2))
+	if (!older_than(2,8,2,0))
 	{
 		/* Save the checksum */
 		n_v_check = v_check;

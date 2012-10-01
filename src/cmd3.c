@@ -454,23 +454,26 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		int feel = INSCRIP_SPECIAL;
-
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
+		/* Don't mark id'ed objects */
+		if (object_known_p(o_ptr)) return;
 
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed, don't sense ID'ed stuff */
-		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
-			o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		/* It has already been sensed */
+		if (o_ptr->ident & (IDENT_SENSE))
+		{
+			/* Already sensed objects always get improved feelings */
+			if (cursed_p(o_ptr) || broken_p(o_ptr))
+				o_ptr->discount = INSCRIP_TERRIBLE;
+			else
+				o_ptr->discount = INSCRIP_SPECIAL;
+		}
+		else
+		{
+			/* Mark the object as indestructible */
+			o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
+		}
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);

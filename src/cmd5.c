@@ -641,13 +641,17 @@ void do_cmd_cast(void)
 		{
 			case 0:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* confusion bolt -KMW- */
 	 				if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_CONFUSION, dir,
 					    damroll(2 + ((plev - 1) / 5), 4));
 					break;
-				} else { /* magic missile */
+				}
+				else
+				{
+					/* magic missile */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
 					    damroll(3 + ((plev - 1) / 5), 4));
@@ -682,11 +686,15 @@ void do_cmd_cast(void)
 
 			case 5:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* fear -KMW- */
 					(void)do_fear_monster();
 					break;
-				} else { /* cure wounds */
+				}
+				else
+				{
+					/* cure wounds */
 	 				(void)do_cure_wounds();
 					break;
 				}
@@ -716,12 +724,16 @@ void do_cmd_cast(void)
 
 			case 9:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* infravision */
 					if (p_ptr->tim_infra == 0)
 					set_tim_infra(p_ptr->tim_infra + 200 + randint(100));
 					break;
-				} else { /* confuse monster */
+				}
+				else
+				{
+					/* confuse monster */
 					if (!get_aim_dir(&dir)) return;
 					(void)confuse_monster(dir, plev);
 					break;
@@ -730,11 +742,15 @@ void do_cmd_cast(void)
 
 			case 10:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
-				} else { /* lightning bolt */
+				}
+				else
+				{
+					/* lightning bolt */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_ELEC, dir,
 					    damroll(3+((plev-5)/4), 8));
@@ -750,16 +766,19 @@ void do_cmd_cast(void)
 
 			case 12:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* fog cloud -KMW- */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FOG, dir,
 					    10 + (plev / 2), 3);
 					break;
-				} else { /* sleep */
+				}
+				else
+				{
+					/* sleep */
 					if (!get_aim_dir(&dir)) return;
 					(void)do_sleep_monster();
-					break;
 					break;
 				}
 			}
@@ -772,11 +791,15 @@ void do_cmd_cast(void)
 
 			case 14:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* satisfy hunger */
 					(void)set_food(PY_FOOD_MAX - 1);
 					break;
-				} else { /* teleport self */
+				}
+				else
+				{
+					/* teleport self */
 					teleport_player(plev * 5);
 					break;
 				}
@@ -784,11 +807,15 @@ void do_cmd_cast(void)
 
 			case 15:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* shadow door */
 					(void)door_creation();
 					break;
-				} else { /* spear of light */
+				}
+				else
+				{
+					/* spear of light */
 					if (!get_aim_dir(&dir)) return;
 					msg_print("A line of blue shimmering light appears.");
 					fire_beam(GF_LITE, dir,
@@ -800,13 +827,17 @@ void do_cmd_cast(void)
 
 			case 16:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* shadow monster */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_FORCE, dir,
 					    damroll(5+((plev-6)/4), 8));
 					break;
-				} else { /* frost bolt */
+				}
+				else
+				{
+					/* frost bolt */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_COLD, dir,
 					    damroll(5+((plev-5)/4), 8));
@@ -823,11 +854,15 @@ void do_cmd_cast(void)
 
 			case 18:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* detect invisible */
 					(void)set_tim_s_invis(p_ptr->tim_s_invis + randint(24) + 24);
 					break;
-				} else { /* satisfy hunger */
+				}
+				else
+				{
+					/* satisfy hunger */
 					(void)set_food(PY_FOOD_MAX - 1);
 					break;
 				}
@@ -841,10 +876,14 @@ void do_cmd_cast(void)
 
 			case 20:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					(void)brand_ammo(1,0);
 					break;
-				} else { /* fetch item */
+				}
+				else
+				{
+					/* fetch item */
 					if (!get_aim_dir(&dir)) return;
 					fetch_item(dir, plev*15);
 					break;
@@ -853,7 +892,8 @@ void do_cmd_cast(void)
 
 			case 21:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* spear of light */
 					if (!get_aim_dir(&dir)) return;
 					msg_print("A line of blue shimmering light appears.");
@@ -861,7 +901,10 @@ void do_cmd_cast(void)
 					    damroll(2+((plev-5)/4), 6));
 					lite_line(dir);
 					break;
-				} else { /* polymorph other */
+				}
+				else
+				{
+					/* polymorph other */
 					if (!get_aim_dir(&dir)) return;
 					(void)poly_monster(dir);
 					break;
@@ -870,13 +913,17 @@ void do_cmd_cast(void)
 
 			case 22:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* chaos */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
 					    25 + plev, 2);
 					break;
-				} else { /* identify */
+				}
+				else
+				{
+					/* identify */
 					(void)ident_spell();
 					break;
 				}
@@ -884,13 +931,16 @@ void do_cmd_cast(void)
 
 			case 23:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* mental barrier */
 					p_ptr->tim_sus_int = p_ptr->tim_sus_int + 100;
 					p_ptr->tim_sus_wis = p_ptr->tim_sus_wis + 100;
 					msg_print("Your wisdom and intelligence cannot be changed!");
 					break;
-				} else {
+				}
+				else
+				{
 					/* lower water */
 					alter_terrain(py,px,plev,2);
 					break;
@@ -899,11 +949,15 @@ void do_cmd_cast(void)
 
 			case 24:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* true sight */
 					map_area();
 					break;
-				} else { /* fire bolt */
+				}
+				else
+				{
+					/* fire bolt */
 					if (!get_aim_dir(&dir)) return;
 
 					fire_bolt_or_beam(beam, GF_FIRE, dir,
@@ -921,12 +975,16 @@ void do_cmd_cast(void)
 
 			case 26:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir, 35 + (plev), 2);
 					break;
-				} else { /* frost ball */
+				}
+				else
+				{
+					/* frost ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_COLD, dir, 30 + (plev), 2);
 					break;
@@ -935,13 +993,17 @@ void do_cmd_cast(void)
 
 			case 27:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* bolt of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_DARK, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
-				} else { /* summon elemental -KMW- */
+				}
+				else
+				{
+					/* summon elemental -KMW- */
 					summon_monster(SUMMON_ELEMENTAL);
 					break;
 				}
@@ -949,11 +1011,15 @@ void do_cmd_cast(void)
 
 			case 28:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* shadowform */
 					(void)set_tim_ghost(p_ptr->tim_ghostly + plev + randint(24));
 					break;
-				} else { /* teleport other */
+				}
+				else
+				{
+					/* teleport other */
 					if (p_ptr->ts_anchor) {
 						msg_print("Your time/space anchor prevents it from leaving.");
 						break;
@@ -979,11 +1045,15 @@ void do_cmd_cast(void)
 
 			case 30:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* prismatic wall */
 					warding_glyph();
 					break;
-				} else { /* fire ball */
+				}
+				else
+				{
+					/* fire ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FIRE, dir,
 					    55 + (plev), 2);
@@ -993,14 +1063,18 @@ void do_cmd_cast(void)
 
 			case 31:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* prismatic spray */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, 5, 40 + (plev), 2);
 					fire_beam(GF_LITE, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
-				} else { /* word of destruction */
+				}
+				else
+				{
+					/* word of destruction */
 					destroy_area(py, px, 15, TRUE);
 					break;
 				}
@@ -1008,11 +1082,15 @@ void do_cmd_cast(void)
 
 			case 32:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* chromatic shield */
 					(void)set_shield(p_ptr->shield + randint(30) + 30);
 					break;
-				} else { /* genocide */
+				}
+				else
+				{
+					/* genocide */
 					(void)genocide();
 					break;
 				}
@@ -1020,11 +1098,15 @@ void do_cmd_cast(void)
 
 			case 33:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* wizard lock */
 					do_cmd_spike(TRUE);
 					break;
-				} else { /* door creation */
+				}
+				else
+				{
+					/* door creation */
 					(void)door_creation();
 					break;
 				}
@@ -1032,13 +1114,17 @@ void do_cmd_cast(void)
 
 			case 34:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* bedlam */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
 					    50 + plev, 10);
 					break;
-				} else { /* stair creation */
+				}
+				else
+				{
+					/* stair creation */
 					(void)stair_creation();
 					break;
 				}
@@ -1046,20 +1132,15 @@ void do_cmd_cast(void)
 
 			case 35:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* word of recall */
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(20) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+					set_recall();
 					break;
-				} else { /* teleport level */
+				}
+				else
+				{
+					/* teleport level */
 					if (p_ptr->ts_anchor) {
 						msg_print("Your time/space anchor prevents you from leaving.");
 						break;
@@ -1071,11 +1152,15 @@ void do_cmd_cast(void)
 
 			case 36:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* detect enchantment */
 					(void)detect_objects_magic();
 					break;
-				} else { /* earthquake */
+				}
+				else
+				{
+					/* earthquake */
 					earthquake(py, px, 10);
 					break;
 				}
@@ -1083,39 +1168,33 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if(mp_ptr->spell_type == 2) {
+				if(mp_ptr->spell_type == 2)
+				{
 					/* probing */
 					(void)probing();
 					break;
-				} else { /* word of recall */
-					if (!p_ptr->word_recall)
-					{
-						if (p_ptr->ts_anchor) {
-							msg_print("Your time/space anchor prevents you from recalling.");
-							break;
-						}
-
-						p_ptr->word_recall = rand_int(20) + 15;
-						msg_print("The air about you becomes charged...");
-					}
-					else
-					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
-					}
+				}
+				else
+				{
+					/* word of recall */
+					set_recall();
 					break;
 				}
 			}
 
 			case 38:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* sunfire */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
 					    50 + plev, 10);
 					break;
-				} else { /* dimension door */
+				}
+				else
+				{
+					/* dimension door */
 					int i,j;
 
 					msg_print("You open a dimensional gate. Choose a destination.");
@@ -1131,11 +1210,15 @@ void do_cmd_cast(void)
 
 			case 39: /* the bigbys that are duplicates - warding, slow etc. shoudl act all aroundplayer */
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Interposing Hand */
 					warding_glyph();
 					break;
-				} else { /* acid bolt */
+				}
+				else
+				{
+					/* acid bolt */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_ACID, dir,
 					    damroll(6+((plev-5)/4), 8));
@@ -1145,13 +1228,17 @@ void do_cmd_cast(void)
 
 			case 40:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Phantom Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_CONFUSION, dir,
 					    damroll(2+((plev-5)/4), 8));
 					break;
-				} else { /* cloud kill */
+				}
+				else
+				{
+					/* cloud kill */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_POIS, dir,
 					    20 + (plev / 2), 3);
@@ -1161,13 +1248,17 @@ void do_cmd_cast(void)
 
 			case 41:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Forceful Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_FORCE, dir,
 					    damroll(6+((plev-5)/4), 8));
 					break;
-				} else { /* acid ball */
+				}
+				else
+				{
+					/* acid ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_ACID, dir,
 					    40 + (plev), 2);
@@ -1177,12 +1268,16 @@ void do_cmd_cast(void)
 
 			case 42:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Grasping Hand */
 					if (!get_aim_dir(&dir)) return;
 					(void)slow_monster(dir);
 					break;
-				} else { /* ice storm */
+				}
+				else
+				{
+					/* ice storm */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_COLD, dir,
 					    70 + (plev), 3);
@@ -1192,13 +1287,17 @@ void do_cmd_cast(void)
 
 			case 43:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Clenched Fist */
 					if (!get_aim_dir(&dir)) return;
 					fire_beam(GF_FORCE, dir,
 					    damroll(10+((plev-5)/4), 8));
 					break;
-				} else { /* meteor swarm */
+				}
+				else
+				{
+					/* meteor swarm */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_METEOR, dir,
 					    65 + (plev), 3);
@@ -1208,14 +1307,18 @@ void do_cmd_cast(void)
 
 			case 44:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Bigby's Crushing Hand */
 					/* want to have this last two turns */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_GRAVITY, dir,
 					    damroll(12+((plev-5)/4), 8));
 					break;
-				} else { /* plasma bolt */
+				}
+				else
+				{
+					/* plasma bolt */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_PLASMA, dir,
 					    damroll(10+((plev-5)/4), 8));
@@ -1225,13 +1328,17 @@ void do_cmd_cast(void)
 
 			case 45:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* force blast */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, 5,
 					    300 + (plev * 2), 3);
 					break;
-				} else { /* mana storm */
+				}
+				else
+				{
+					/* mana storm */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_MANA, dir,
 					    300 + (plev * 2), 3);
@@ -1241,13 +1348,17 @@ void do_cmd_cast(void)
 
 			case 46:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Sphere of Light */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
 					    30 + (plev), 2);
 					break;
-				} else { /* wizard light */
+				}
+				else
+				{
+					/* wizard light */
 					wiz_lite();
 					break;
 				}
@@ -1255,13 +1366,17 @@ void do_cmd_cast(void)
 
 			case 47:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* sphere of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
 					    35 + (plev), 2);
 					break;
-				} else { /* detect enchantment */
+				}
+				else
+				{
+					/* detect enchantment */
 					(void)detect_objects_magic();
 					break;
 				}
@@ -1269,13 +1384,17 @@ void do_cmd_cast(void)
 
 			case 48:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* sphere of confusion */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CONFUSION, dir,
 					    40 + (plev), 2);
 					break;
-				} else { /* time/space anchor */
+				}
+				else
+				{
+					/* time/space anchor */
 					(void)set_tim_tsanchor(p_ptr->ts_anchor + randint(100) + p_ptr->lev);
 					break;
 				}
@@ -1283,13 +1402,17 @@ void do_cmd_cast(void)
 
 			case 49:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* sphere of chaos */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
 					    45 + (plev), 2);
 					break;
-				} else { /* genocide */
+				}
+				else
+				{
+					/* genocide */
 					(void)genocide();
 					break;
 				}
@@ -1297,13 +1420,17 @@ void do_cmd_cast(void)
 
 			case 50:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* sphere of sound */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_SOUND, dir,
 					    50 + (plev), 2);
 					break;
-				} else { /* mass genocide */
+				}
+				else
+				{
+					/* mass genocide */
 					(void)mass_genocide();
 					break;
 				}
@@ -1311,13 +1438,17 @@ void do_cmd_cast(void)
 
 			case 51:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* explosion */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_SHARD, dir,
 					    80 + (plev), 2);
 					break;
-				} else { /* probing */
+				}
+				else
+				{
+					/* probing */
 					(void)probing();
 					break;
 				}
@@ -1325,11 +1456,15 @@ void do_cmd_cast(void)
 
 			case 52:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* remove fear */
 					(void)set_afraid(0);
 					break;
-				} else { /* resist fire */
+				}
+				else
+				{
+					/* resist fire */
 					(void)set_oppose_fire(p_ptr->oppose_cold + randint(20) + 20);
 					break;
 				}
@@ -1337,11 +1472,15 @@ void do_cmd_cast(void)
 
 			case 53:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* resist light & dark */
 					(void)set_oppose_ld(p_ptr->oppose_ld + randint(20) + 20);
 					break;
-				} else { /* resist cold */
+				}
+				else
+				{
+					/* resist cold */
 					(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 					break;
 				}
@@ -1349,11 +1488,15 @@ void do_cmd_cast(void)
 
 			case 54:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* resist poison */
 					(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 					break;
-				} else { /* resist acid */
+				}
+				else
+				{
+					/* resist acid */
 					(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 					break;
 				}
@@ -1361,11 +1504,15 @@ void do_cmd_cast(void)
 
 			case 55:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* resist chaos & confusion */
 					(void)set_oppose_cc(p_ptr->oppose_cc + randint(20) + 20);
 					break;
-				} else { /* resist poison */
+				}
+				else
+				{
+					/* resist poison */
 					(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 					break;
 				}
@@ -1373,11 +1520,15 @@ void do_cmd_cast(void)
 
 			case 56:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* resist sound & shards */
 					(void)set_oppose_ss(p_ptr->oppose_ss + randint(20) + 20);
 					break;
-				} else { /* protection from corrosion */
+				}
+				else
+				{
+					/* protection from corrosion */
 					rustproof();
 					break;
 				}
@@ -1385,11 +1536,15 @@ void do_cmd_cast(void)
 
 			case 57:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* resist nexus */
 					(void)set_oppose_nex(p_ptr->oppose_nex + randint(20) + 20);
 					break;
-				} else { /* resistance */
+				}
+				else
+				{
+					/* resistance */
 					(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) +
 					    20);
 					(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) +
@@ -1405,11 +1560,15 @@ void do_cmd_cast(void)
 
 			case 58:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* Invisibility */
 					(void)set_tim_invis(p_ptr->tim_invis + randint(24));
 					break;
-				} else { /* heroism */
+				}
+				else
+				{
+					/* heroism */
 					(void)hp_player(10);
 					(void)set_hero(p_ptr->hero + randint(25) + 25);
 					(void)set_afraid(0);
@@ -1419,14 +1578,18 @@ void do_cmd_cast(void)
 
 			case 59:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* shadow monsters */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, 5, 30 + (plev), 2);
 					fire_beam(GF_FORCE, dir,
 					    damroll(6+((plev-5)/4), 8));
 					break;
-				} else { /* shield */
+				}
+				else
+				{
+					/* shield */
 					(void)set_shield(p_ptr->shield + randint(20) + 30);
 					break;
 				}
@@ -1434,13 +1597,17 @@ void do_cmd_cast(void)
 
 			case 60:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
 					    40 + (plev), 2);
 					break;
-				} else { /* berserker */
+				}
+				else
+				{
+					/* berserker */
 					(void)hp_player(30);
 					(void)set_shero(p_ptr->shero + randint(25) + 25);
 					(void)set_afraid(0);
@@ -1469,11 +1636,15 @@ void do_cmd_cast(void)
 
 			case 62:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* shadow gate */
 					teleport_player(plev * 7);
 					break;
-				} else { /* essence of speed */
+				}
+				else
+				{
+					/* essence of speed */
 					if (!p_ptr->fast)
 						(void)set_fast(randint(30) + 30 + plev);
 					else
@@ -1485,17 +1656,19 @@ void do_cmd_cast(void)
 
 			case 63:
 			{
-				if (mp_ptr->spell_type == 2) {
+				if (mp_ptr->spell_type == 2)
+				{
 					/* summon shadows */
 					summon_monster(SUMMON_SHADOWS);
 					break;
-				} else {
+				}
+				else
+				{
 					/* globe of invulnerability */
 					(void)set_invuln(p_ptr->invuln + randint(4) + 4);
 					break;
 				}
 			}
-
 		}
 
 		/* A spell was cast */
@@ -1745,13 +1918,17 @@ void do_cmd_pray(void)
 
 			case 2:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* poison bolt */
 	 				if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_POIS, dir,
 					    damroll(3 + ((plev - 1) / 5), 4));
 					break;
-				} else { /* bless */
+				}
+				else
+				{
+					/* bless */
 					(void)set_blessed(p_ptr->blessed + randint(12) + 12);
 					break;
 				}
@@ -1790,11 +1967,15 @@ void do_cmd_pray(void)
 
 			case 8:
 			{
-				if(p_ptr->pclass == CLASS_DRUID) {
+				if(p_ptr->pclass == CLASS_DRUID)
+				{
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
-				} else { /* scare monster */
+				}
+				else
+				{
+					/* scare monster */
 					if (!get_aim_dir(&dir)) return;
 					(void)do_fear_monster();
 					break;
@@ -1815,11 +1996,15 @@ void do_cmd_pray(void)
 
 			case 11:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* cool lava */
 					alter_terrain(py,px,plev,1);
 					break;
-				} else { /* chant */
+				}
+				else
+				{
+					/* chant */
 					(void)set_blessed(p_ptr->blessed + randint(24) + 24);
 					break;
 				}
@@ -1827,12 +2012,16 @@ void do_cmd_pray(void)
 
 			case 12:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* poison cloud */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_POIS, dir, 9 + (plev / 2), 3);
 					break;
-				} else { /* sanctuary */
+				}
+				else
+				{
+					/* sanctuary */
 					(void)do_sleep_monster();
 					break;
 				}
@@ -1859,19 +2048,22 @@ void do_cmd_pray(void)
 
 			case 16:
 			{
-				if (p_ptr->levitate == 0)
-					p_ptr->levitate = p_ptr->levitate + randint(100);
+				(void)set_tim_levitate(p_ptr->tim_levitate + randint(50) + 50);
 				break;
 			}
 
 			case 17:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* charm monster */
 					if (!get_aim_dir(&dir)) return;
 					charm_monster(dir, plev);
 					break;
-				} else { /* orb of draining */
+				}
+				else
+				{
+					/* orb of draining */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_HOLY_ORB, dir, (damroll(3, 6) + plev +
 					     (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
@@ -1888,11 +2080,15 @@ void do_cmd_pray(void)
 
 			case 19:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* grow trees */
 					alter_terrain(py,px,1,4);
 					break;
-				} else { /* sense invisible */
+				}
+				else
+				{
+					/* sense invisible */
 					(void)set_tim_s_invis(p_ptr->tim_s_invis + randint(24) + 24);
 					break;
 				}
@@ -1906,11 +2102,15 @@ void do_cmd_pray(void)
 
 			case 21:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* sense invisible */
 					(void)set_tim_s_invis(p_ptr->tim_s_invis + randint(24) + 24);
 					break;
-				} else { /* earthquake */
+				}
+				else
+				{
+					/* earthquake */
 					earthquake(py, px, 10);
 					break;
 				}
@@ -1924,11 +2124,15 @@ void do_cmd_pray(void)
 
 			case 23:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* lower water */
 					alter_terrain(py,px,plev,2);
 					break;
-				} else { /* cure mortal wounds */
+				}
+				else
+				{
+					/* cure mortal wounds */
 					(void)hp_player(damroll(8, 10));
 					(void)set_stun(0);
 					(void)set_cut(0);
@@ -1938,11 +2142,15 @@ void do_cmd_pray(void)
 
 			case 24:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* turn animals */
 					(void)turn_animals();
 					break;
-				} else { /* turn undead */
+				}
+				else
+				{
+					/* turn undead */
 					(void)turn_undead();
 					break;
 				}
@@ -1950,11 +2158,15 @@ void do_cmd_pray(void)
 
 			case 25:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* fear */
 					(void)do_fear_monster();
 					break;
-				} else { /* prayer */
+				}
+				else
+				{
+					/* prayer */
 					(void)set_blessed(p_ptr->blessed + randint(48) + 48);
 					break;
 				}
@@ -1962,11 +2174,15 @@ void do_cmd_pray(void)
 
 			case 26:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* call wolves */
 					summon_monster(SUMMON_WOLVES);
 					break;
-				} else { /* dispel undead */
+				}
+				else
+				{
+					/* dispel undead */
 					(void)dispel_undead(plev * 3);
 					break;
 				}
@@ -1982,11 +2198,15 @@ void do_cmd_pray(void)
 
 			case 28:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* analyze monster */
 					(void) probing();
 					break;
-				} else { /* dispel evil */
+				}
+				else
+				{
+					/* dispel evil */
 					(void)dispel_evil(plev * 3);
 					break;
 				}
@@ -2000,11 +2220,15 @@ void do_cmd_pray(void)
 
 			case 30:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* detection */
 					(void)detect_all();
 					break;
-				} else { /* holy word */
+				}
+				else
+				{
+					/* holy word */
 					(void)dispel_evil(plev * 4);
 					(void)hp_player(1000);
 					(void)set_afraid(0);
@@ -2017,13 +2241,17 @@ void do_cmd_pray(void)
 
 			case 31:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* nexus bolt */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_NEXUS, dir,
 					    damroll(8+((plev-5)/4), 8));
 					break;
-				} else { /* summon angel */
+				}
+				else
+				{
+					/* summon angel */
 					summon_monster(SUMMON_ANGEL);
 					break;
 				}
@@ -2037,7 +2265,8 @@ void do_cmd_pray(void)
 
 			case 33:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* map terrain */
 					for(y=0;y < DUNGEON_HGT;y++) {
 						for(x=0;x < DUNGEON_WID;x++) {
@@ -2052,7 +2281,10 @@ void do_cmd_pray(void)
 					p_ptr->redraw |= (PR_MAP);
 
 					break;
-				} else { /* detection */
+				}
+				else
+				{
+					/* detection */
 					(void)detect_all();
 					break;
 				}
@@ -2085,11 +2317,15 @@ void do_cmd_pray(void)
 
 			case 38:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* fear */
 					(void)do_fear_monster();
 					break;
-				} else { /* cure wounds */
+				}
+				else
+				{
+					/* cure wounds */
 	 				(void)do_cure_wounds();
 					break;
 				}
@@ -2105,11 +2341,15 @@ void do_cmd_pray(void)
 
 			case 40:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* forest */
 					flood(py, px, 20,2);
 					break;
-				} else { /* *healing* */
+				}
+				else
+				{
+					/* *healing* */
 					(void)hp_player(2000);
 					(void)set_stun(0);
 					(void)set_cut(0);
@@ -2130,12 +2370,16 @@ void do_cmd_pray(void)
 
 			case 42:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* faithfulness */
 					if (!get_aim_dir(&dir)) return;
 					pet_monster(dir, plev);
 					break;
-				} else { /* remembrance */
+				}
+				else
+				{
+					/* remembrance */
 					(void)restore_level();
 					break;
 				}
@@ -2143,12 +2387,16 @@ void do_cmd_pray(void)
 
 			case 43:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* firestorm */
 					fire_ball(GF_FIRE, 5,
 					    35 + (plev * 2), 10);
 					break;
-				} else { /* dispel demons */
+				}
+				else
+				{
+					/* dispel demons */
 					(void)dispel_undead(plev * 6);
 					break;
 				}
@@ -2156,12 +2404,16 @@ void do_cmd_pray(void)
 
 			case 44:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* fissure */
 					(void) fissure(FEAT_WALL_EXTRA);
 					(void) fissure(FEAT_WALL_EXTRA);
 					break;
-				} else { /* dispel undead */
+				}
+				else
+				{
+					/* dispel undead */
 					(void)dispel_undead(plev * 4);
 					break;
 				}
@@ -2169,13 +2421,17 @@ void do_cmd_pray(void)
 
 			case 45:
 			{
-				if(p_ptr->pclass == CLASS_DRUID) {
+				if(p_ptr->pclass == CLASS_DRUID)
+				{
 					/* tornado */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, dir,
 					    60 + (plev), 2);
 					break;
-				} else { /* dispel evil */
+				}
+				else
+				{
+					/* dispel evil */
 					(void)dispel_evil(plev * 4);
 					break;
 				}
@@ -2183,11 +2439,15 @@ void do_cmd_pray(void)
 
 			case 46:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* earthquake */
 					earthquake(py, px, 10);
 					break;
-				} else { /* banishment */
+				}
+				else
+				{
+					/* banishment */
 					if (banish_evil(100))
 					{
 						msg_print("The power of your god banishes evil!");
@@ -2198,11 +2458,15 @@ void do_cmd_pray(void)
 
 			case 47:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* flood */
 					flood(py, px, 20,1);
 					break;
-				} else { /* word of destruction */
+				}
+				else
+				{
+					/* word of destruction */
 					destroy_area(py, px, 15, TRUE);
 					break;
 				}
@@ -2210,13 +2474,17 @@ void do_cmd_pray(void)
 
 			case 48:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* nexus ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_NEXUS, dir,
 					    70 + (plev), 2);
 					break;
-				} else { /* annihilation */
+				}
+				else
+				{
+					/* annihilation */
 					if (!get_aim_dir(&dir)) return;
 					drain_life(dir, 200);
 					break;
@@ -2245,11 +2513,15 @@ void do_cmd_pray(void)
 
 			case 52:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* Eruption */
 					alter_terrain(py,px,plev,5);
 					break;
-				} else { /* dispel curse */
+				}
+				else
+				{
+					/* dispel curse */
 					(void)remove_all_curse();
 					break;
 				}
@@ -2257,7 +2529,8 @@ void do_cmd_pray(void)
 
 			case 53:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* sustain self */
 					p_ptr->tim_sus_str = p_ptr->tim_sus_str + 100;
 					p_ptr->tim_sus_int = p_ptr->tim_sus_int + 100;
@@ -2267,7 +2540,10 @@ void do_cmd_pray(void)
 					p_ptr->tim_sus_chr = p_ptr->tim_sus_chr + 100;
 					msg_print("You feel complete and unchangeable!");
 					break;
-				} else { /* enchant weapon */
+				}
+				else
+				{
+					/* enchant weapon */
 					(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
 					break;
 				}
@@ -2275,11 +2551,15 @@ void do_cmd_pray(void)
 
 			case 54:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* brand ammo */
 					(void)brand_ammo(2,0);
 					break;
-				} else { /* enchant armor */
+				}
+				else
+				{
+					/* enchant armor */
 					(void)enchant_spell(0, 0, rand_int(3) + 2);
 					break;
 				}
@@ -2319,12 +2599,16 @@ void do_cmd_pray(void)
 
 			case 60:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* summon animals */
 					summon_monster(SUMMON_ANIMALS);
 					summon_monster(SUMMON_ANIMALS);
 					break;
-				} else { /* teleport level */
+				}
+				else
+				{
+					/* teleport level */
 					(void)teleport_player_level();
 					break;
 				}
@@ -2332,16 +2616,7 @@ void do_cmd_pray(void)
 
 			case 61:
 			{
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -2357,13 +2632,17 @@ void do_cmd_pray(void)
 
 			case 63:
 			{
-				if (p_ptr->pclass == CLASS_DRUID) {
+				if (p_ptr->pclass == CLASS_DRUID)
+				{
 					/* drown */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_WATER, dir,
 					    100 + (plev * 2), 3);
 					break;
-				} else { /* immolation */
+				}
+				else
+				{
+					/* immolation */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FIRE, dir,
 					    100 + (plev * 2), 3);

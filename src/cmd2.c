@@ -2054,37 +2054,73 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
-	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
+	/* Fog */
+	else if (cave_feat[y][x] == FEAT_FOG)
 	{
-		int wt;
-
-		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
-		if (!((p_ptr->total_weight < wt) || (p_ptr->levitate)))
-		{
-			msg_print("You can't swim with that much weight.");
-			return (FALSE);
-		}
-		else
-		{
-			return (TRUE);
-		}
+		return (TRUE);
 	}
 
+	/* Shallow Water */
+	else if (cave_feat[y][x] == FEAT_SHAL_WATER)
+	{
+		return (TRUE);
+	}
+
+	/* Deep Water */
+	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
+	{
+		return (TRUE);
+	}
+
+	/* Shallow Lava */
+	else if (cave_feat[y][x] == FEAT_SHAL_LAVA)
+	{
+		return (TRUE);
+	}
+
+	/* Deep Lava */
+	else if (cave_feat[y][x] == FEAT_DEEP_LAVA)
+	{
+		return (TRUE);
+	}
+
+	/* Trees -KMW- */
+	else if (cave_feat[y][x] == FEAT_TREES)
+	{
+		return (TRUE);
+	}
+
+	/* Chasm -KMW- */
+	else if (cave_feat[y][x] == FEAT_CHASM)
+	{
+		msg_print("The chasm can't be crossed.");
+		return (FALSE);
+	}
+
+	/* Mountains -KMW- */
+	else if (cave_feat[y][x] == FEAT_MOUNTAIN)
+	{
+		msg_print("You can't scale the mountains!");
+		return (FALSE);
+	}
+
+	/* Special Buildings */
 	else if ((cave_feat[y][x] >= FEAT_BLDG_HEAD) &&
 		   (cave_feat[y][x] <= FEAT_BLDG_TAIL))
 	{
 		return (TRUE);
 	}
-	else if ((cave_feat[y][x] == FEAT_TREES) &&
-		((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+
+	/* Quest entrances -KMW- */
+	else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
+		   (cave_feat[y][x] <= FEAT_QUEST_EXIT))
 	{
 		return (TRUE);
 	}
 
 	/* Require open space */
-	else if ((!cave_floor_bold(y, x)) &&
-	    (!p_ptr->ghostly) &&
-	    (cave_feat[y][x] != FEAT_FOG))
+	else if ((!cave_floor_bold(y, x)) && (!p_ptr->ghostly) &&
+		   (!cave_perma_bold(y, x)))
 	{
 		/* Rubble */
 		if (cave_feat[y][x] == FEAT_RUBBLE)
@@ -2108,31 +2144,6 @@ static bool do_cmd_walk_test(int y, int x)
 			msg_print("There is a door in the way!");
 		}
 
-		/* Trees -KMW- */
-		else if (cave_feat[y][x] == FEAT_TREES)
-		{
-			msg_print("The trees are in your way!");
-		}
-
-		/* Chasm -KMW- */
-		else if ((cave_feat[y][x] == FEAT_CHASM) && !p_ptr->levitate)
-		{
-			msg_print("The chasm can't be crossed.");
-		}
-
-		/* Mountains -KMW- */
-		else if (cave_feat[y][x] == FEAT_MOUNTAIN)
-		{
-			msg_print("You can't scale the mountains!");
-		}
-
-		/* Quest entrances -KMW- */
-		else if ((cave_feat[y][x] >= FEAT_QUEST_ENTER) &&
-		    (cave_feat[y][x] <= FEAT_QUEST_EXIT))
-		{
-			return (TRUE);
-		}
-
 		/* Wall */
 		else
 		{
@@ -2144,9 +2155,13 @@ static bool do_cmd_walk_test(int y, int x)
 		return (FALSE);
 	}
 
-	else if ((p_ptr->ghostly) && ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
-	    (cave_feat[y][x] <= FEAT_PERM_SOLID)))
+	/* This case is ommitted by the !cave_perma_bold above */
+	else if ((cave_feat[y][x] >= FEAT_PERM_EXTRA) &&
+		   (cave_feat[y][x] <= FEAT_PERM_SOLID))
+	{
+		msg_print("There is a wall in the way!");
 		return (FALSE);
+	}
 
 	/* Okay */
 	return (TRUE);

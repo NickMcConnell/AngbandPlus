@@ -2964,7 +2964,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
-	NULL,						/* xxx */
+	"cheat_flav",				/* OPT_cheat_flav */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3228,7 +3228,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,										/* xxx */
+	"Cheat: Know all flavored objects",			/* OPT_cheat_flav */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3492,7 +3492,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_xtra */
 	FALSE,		/* OPT_cheat_know */
 	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_cheat_flav */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3726,7 +3726,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		255,
+		OPT_cheat_flav,
 		255,
 		255,
 		255,
@@ -3755,6 +3755,7 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"good",
 	"excellent",
 	"special",
-	"uncursed"
+	"uncursed",
+	"indestructible"
 };
 

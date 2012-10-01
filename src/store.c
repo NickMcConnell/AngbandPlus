@@ -2878,7 +2878,7 @@ static void store_examine(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc_store(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);
