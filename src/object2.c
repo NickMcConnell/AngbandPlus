@@ -754,26 +754,8 @@ s16b get_obj_num(int level)
  */
 void object_known(object_type *o_ptr)
 {
-	/* Remove "default inscriptions" */
-	if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-	{
-		/* Access the inscription */
-		cptr q = quark_str(o_ptr->note);
-
-		/* Hack -- Remove auto-inscriptions */
-		if ((streq(q, "cursed")) ||
-		    (streq(q, "broken")) ||
-		    (streq(q, "good")) ||
-		    (streq(q, "average")) ||
-		    (streq(q, "excellent")) ||
-		    (streq(q, "worthless")) ||
-		    (streq(q, "special")) ||
-		    (streq(q, "terrible")))
-		{
-			/* Forget the inscription */
-			o_ptr->note = 0;
-		}
-	}
+	/* Forget the feeling */
+	o_ptr->feel = FEEL_NONE;
 
 	/* Clear the "Felt" info */
 	o_ptr->ident &= ~(IDENT_SENSE);
@@ -1181,6 +1163,60 @@ static s32b object_value_real(object_type *o_ptr)
 
 
 /*
+ * Distribute charges of rods or wands.
+ *
+ * o_ptr = source item
+ * q_ptr = target item, must be of the same type as o_ptr
+ * amt   = number of items that are transfered
+ */
+void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
+{
+	/*
+	 * Hack -- If rods or wands are dropped, the total maximum timeout or
+	 * charges need to be allocated between the two stacks.  If all the items
+	 * are being dropped, it makes for a neater message to leave the original
+	 * stack's pval alone. -LM-
+	 */
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD))
+	{
+		q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		if (amt < o_ptr->number)
+			o_ptr->pval -= q_ptr->pval;
+
+		/* Hack -- Rods also need to have their timeouts distributed.  The
+		 * dropped stack will accept all time remaining to charge up to its
+		 * maximum.
+		 */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (q_ptr->pval > o_ptr->timeout)
+				q_ptr->timeout = o_ptr->timeout;
+			else
+				q_ptr->timeout = q_ptr->pval;
+
+			if (amt < o_ptr->number)
+				o_ptr->timeout -= q_ptr->timeout;
+		}
+	}
+}
+
+
+void reduce_charges(object_type *o_ptr, int amt)
+{
+	/*
+	 * Hack -- If rods or wand are destroyed, the total maximum timeout or
+	 * charges of the stack needs to be reduced, unless all the items are
+	 * being destroyed. -LM-
+	 */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) &&
+		(amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+	}
+}
+
+
+/*
  * Return the price of an item including plusses (and charges)
  *
  * This function returns the "value" of the given item (qty one)
@@ -1356,24 +1392,24 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_ARROW:
 		case TV_SHOT:
 		{
-
 			/* Normally, require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) 
 			{
-
 				/* Hack - Allow pseudo and fully-IDed ammo without 
 				 * plusses to stack together. -LM-
 				 */
 				if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || 
 					(o_ptr->tval == TV_SHOT))
 				{
-					if ((o_ptr->ident & (IDENT_SENSE) || 
+					if (!((o_ptr->ident & (IDENT_SENSE) || 
 						object_known_p(o_ptr)) &&
 						(j_ptr->ident & (IDENT_SENSE) || 
 						object_known_p(j_ptr)) && 
 						o_ptr->to_h == 0 && o_ptr->to_d == 0 &&
-						j_ptr->to_h == 0 && j_ptr->to_d == 0)
-					return(TRUE);
+						j_ptr->to_h == 0 && j_ptr->to_d == 0))
+					{
+						return(FALSE);
+					}
 				}
 
 				else return (0);
@@ -1394,8 +1430,10 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
 
 			/* Hack -- Never stack "powerful" items, except balanced */
-			if (o_ptr->xtra1 != OBJECT_XTRA_TYPE_BALANCE || 
-				j_ptr->xtra1 != OBJECT_XTRA_TYPE_BALANCE) return (FALSE);
+			if (((o_ptr->xtra1) && (o_ptr->xtra1 != 
+				OBJECT_XTRA_TYPE_BALANCE)) || ((j_ptr->xtra1) && 
+				(j_ptr->xtra1 != OBJECT_XTRA_TYPE_BALANCE))) 
+				return (FALSE);
 
 			/* Hack -- Never stack recharging items */
 			if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
@@ -1465,6 +1503,9 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Hack -- blend "mental" status */
 	if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
+
+	/* Hack -- blend "feelings" */
+	if (j_ptr->feel) o_ptr->feel = j_ptr->feel;
 
 	/* Hack -- blend "inscriptions" */
 	if (j_ptr->note) o_ptr->note = j_ptr->note;
@@ -1693,9 +1734,6 @@ static void object_mention(object_type *o_ptr)
 	}
 }
 
-
-
-
 /*
  * Mega-Hack -- Attempt to create one of the "Special Objects".
  *
@@ -1717,13 +1755,12 @@ static bool make_artifact_special(object_type *o_ptr)
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
 
-	first_pick = rand_int(ART_MIN_NORMAL);
+	first_pick = rand_int(artifact_special_cnt);
 
-	/* Check the artifact list (just the "specials") */
-	for (i = first_pick; i < first_pick + ART_MIN_NORMAL; i++)
+	for (i = 0; i < artifact_special_cnt; i++)
 	{
-		/* Convert i into an index from 1 to ART_MIN_NORMAL - 1. */
-		int choice = (i % (ART_MIN_NORMAL - 1)) + 1;
+		int j = (first_pick + i) % artifact_special_cnt;
+		int choice = artifact_special[j];
 		artifact_type *a_ptr = &a_info[choice];
 
 		/* Skip "empty" artifacts */
@@ -1792,9 +1829,10 @@ static bool make_artifact(object_type *o_ptr)
 	if (o_ptr->number != 1) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
-	for (i = ART_MIN_NORMAL; i < MAX_A_IDX; i++)
+	for (i = 0; i < artifact_normal_cnt; i++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		int choice = artifact_normal[i];
+		artifact_type *a_ptr = &a_info[choice];
 
 		/* Skip "empty" items */
 		if (!a_ptr->name) continue;
@@ -1820,7 +1858,7 @@ static bool make_artifact(object_type *o_ptr)
 		if (rand_int(a_ptr->rarity) != 0) continue;
 
 		/* Hack -- mark the item as an artifact */
-		o_ptr->name1 = i;
+		o_ptr->name1 = choice;
 
 		/* Success */
 		return (TRUE);
@@ -5171,30 +5209,8 @@ void inven_drop(int item, int amt)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
-
-	/* Hack -- If rods or wands are dropped, the total maximum timeout or 
-	 * charges need to be allocated between the two stacks.  If all the items 
-	 * are being dropped, it makes for a neater message to leave the original 
-	 * stack's pval alone. -LM-
-	 */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 	
-	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-		if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
-
-		/* Hack -- Rods also need to have their timeouts distributed.  The 
-		 * dropped stack will accept all time remaining to charge up to its 
-		 * maximum.
-		 */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-		{
-			if (i_ptr->pval > o_ptr->timeout) i_ptr->timeout = o_ptr->timeout;
-			else i_ptr->timeout = i_ptr->pval;
-
-			if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
-		}
-	}
-
+	/* Distribute charges of wands or rods */
+	distribute_charges(o_ptr, i_ptr, amt);
 
 	/* Modify quantity */
 	i_ptr->number = amt;

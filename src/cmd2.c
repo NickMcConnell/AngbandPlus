@@ -52,6 +52,13 @@ void do_cmd_go_up(void)
 	/* New depth */
 	p_ptr->depth--;
 
+
+	/* Use the "simple" RNG to insure that stairs are consistant. */
+	Rand_quick = TRUE;
+
+	/* Use the coordinates of the staircase to seed the RNG. */
+	Rand_value = py * px;
+
 	/* If the new level is not a quest level, or the town, there is a 33% 
 	 * chance of going up another level. -LM-
 	 */
@@ -63,6 +70,9 @@ void do_cmd_go_up(void)
 		answer = inkey();
 		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth--;
 	}
+
+	/* Revert to use of the "complex" RNG. */
+	Rand_quick = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -107,6 +117,13 @@ void do_cmd_go_down(void)
 	/* New level */
 	p_ptr->depth++;
 
+
+	/* Use the "simple" RNG to insure that stairs are consistant. */
+	Rand_quick = TRUE;
+
+	/* Use the coordinates of the staircase to seed the RNG. */
+	Rand_value = py * px;
+
 	/* If the new level is not a quest level, or the bottom of the dungeon, 
 	 * there is a 50% chance of descending another level. -LM-
 	 */
@@ -118,6 +135,9 @@ void do_cmd_go_down(void)
 		answer = inkey();
 		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth++;
 	}
+
+	/* Revert to use of the "complex" RNG. */
+	Rand_quick = FALSE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -949,18 +969,18 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 
 
 /*
- * Return the number of features around (or under) the character. -TNB-
+ * Return the number of features around (or under) the character.
  * Usually look for doors and floor traps.
  */
-static int count_dt(int *y, int *x, byte f1, byte f2)
+static int count_feats(int *y, int *x, byte f1, byte f2)
 {
 	int d, count;
-
+	
 	/* Count how many matches */
 	count = 0;
-
+	
 	/* Check around (and under) the character */
-	for (d = 0; d < 9; d++) 
+	for (d = 0; d < 9; d++)
 	{
 		/* Extract adjacent (legal) location */
 		int yy = p_ptr->py + ddy_ddd[d];
@@ -968,19 +988,19 @@ static int count_dt(int *y, int *x, byte f1, byte f2)
 
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
-
+				
 		/* Not looking for this feature */
 		if (cave_feat[yy][xx] < f1) continue;
 		if (cave_feat[yy][xx] > f2) continue;
-
-		/* OK */
+			
+		/* Count it */
 		++count;
-
-		/* Remember the location. Only useful if only one match */
+			
+		/* Remember the location of the last door found */
 		*y = yy;
 		*x = xx;
 	}
-
+	
 	/* All done */
 	return count;
 }
@@ -1015,13 +1035,15 @@ static int count_chests(int *y, int *x, bool trapped)
 		if (o_ptr->pval == 0) continue;
 
 		/* No (known) traps here */
-		if (trapped && (!object_known_p(o_ptr) ||
-			  !chest_traps[o_ptr->pval])) continue;
+		if (trapped &&
+			(!object_known_p(o_ptr) ||
+			(o_ptr->pval < 0) ||
+			!chest_traps[o_ptr->pval])) continue;
 
 		/* OK */
 		++count;
 
-		/* Remember the location. Only useful if only one match */
+		/* Remember the location of the last chest found */
 		*y = yy;
 		*x = xx;
 	}
@@ -1199,20 +1221,11 @@ void do_cmd_open(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_open) 
 	{
-		int num_doors, num_chests;
-
-		/* Count closed doors (locked or jammed) */
-		num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
-
-		/* Count chests (locked) */
-		num_chests = count_chests(&y, &x, FALSE);
-
-		/* See if only one target */
-		if (num_doors || num_chests)
+		/* Handle a single closed door or locked chest */
+		if ((count_feats(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL) +
+		     count_chests(&y, &x, FALSE)) == 1)
 		{
-			bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
-				   (num_chests > 1);
-			if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 
@@ -1373,10 +1386,14 @@ void do_cmd_close(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_open)
 	{
-		/* Count open doors */
-		if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1) 
+		/* Handle a single open door */
+		if (count_feats(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
 		{
-			p_ptr->command_dir = coords_to_dir(y, x);
+			/* Don't close door player is on */
+			if ((y != py) || (x != px))
+			{
+				p_ptr->command_dir = coords_to_dir(y, x);
+			}
 		}
 	}
 
@@ -1920,20 +1937,11 @@ void do_cmd_disarm(void)
 	/* Option: Pick a direction -TNB- */
 	if (easy_disarm) 
 	{
-		int num_traps, num_chests;
-
-		/* Count visible traps */
-		num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
-
-		/* Count chests (trapped) */
-		num_chests = count_chests(&y, &x, TRUE);
-
-		/* See if only one target */
-		if (num_traps || num_chests) 
+		/* Handle a single visible trap or trapped chest */
+		if ((count_feats(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL) +
+		     count_chests(&y, &x, TRUE)) == 1)
 		{
-			bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
-				(num_chests > 1);
-			if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 

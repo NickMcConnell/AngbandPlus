@@ -202,6 +202,8 @@ void do_cmd_messages(void)
 	char shower[81];
 	char finder[81];
 
+	int per_screen = screen_y - 4;
+
 
 	/* Wipe finder */
 	strcpy(finder, "");
@@ -229,8 +231,8 @@ void do_cmd_messages(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < 20) && (i + j < n); j++)
+		/* Dump per_screen lines of messages */
+		for (j = 0; (j < per_screen) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
 
@@ -238,7 +240,7 @@ void do_cmd_messages(void)
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, TERM_WHITE, msg);
+			Term_putstr(0, (screen_y - 3) - j, -1, TERM_WHITE, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -251,7 +253,8 @@ void do_cmd_messages(void)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+					Term_putstr(str-msg, (screen_y - 3) - j, len,
+						TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -264,7 +267,8 @@ void do_cmd_messages(void)
 		           i, i+j-1, n, q), 0, 0);
 
 		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]",
+			screen_y - 1, 0);
 
 		/* Get a command */
 		k = inkey();
@@ -299,7 +303,7 @@ void do_cmd_messages(void)
 		if (k == '=')
 		{
 			/* Prompt */
-			prt("Show: ", 23, 0);
+			prt("Show: ", screen_y - 1, 0);
 
 			/* Get a "shower" string, or continue */
 			if (!askfor_aux(shower, 80)) continue;
@@ -314,7 +318,7 @@ void do_cmd_messages(void)
 			int z;
 
 			/* Prompt */
-			prt("Find: ", 23, 0);
+			prt("Find: ", screen_y - 1, 0);
 
 			/* Get a "finder" string, or continue */
 			if (!askfor_aux(finder, 80)) continue;
@@ -353,18 +357,18 @@ void do_cmd_messages(void)
 			if (i + 10 < n) i += 10;
 		}
 
-		/* Recall 20 older messages */
+		/* Recall one screen of older messages */
 		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
 		{
 			/* Go older if legal */
-			if (i + 20 < n) i += 20;
+			if (i + per_screen < n) i += per_screen;
 		}
 
-		/* Recall 20 newer messages */
+		/* Recall one screen of newer messages */
 		if ((k == 'n') || (k == KTRL('N')))
 		{
 			/* Go newer (if able) */
-			i = (i >= 20) ? (i - 20) : 0;
+			i = (i >= per_screen) ? (i - per_screen) : 0;
 		}
 
 		/* Recall 10 newer messages */
@@ -387,6 +391,46 @@ void do_cmd_messages(void)
 
 	/* Load screen */
 	screen_load();
+}
+
+
+/*
+ * Ask for a "user pref file" and process it.
+ *
+ * This function should only be used by standard interaction commands,
+ * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
+ */
+static bool do_cmd_pref_file_hack(int row)
+{
+	char ftmp[80];
+
+	/* Prompt */
+	prt("Command: Load a user pref file", row, 0);
+
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Ask for a file (or cancel) */
+	if (!askfor_aux(ftmp, 80)) return (FALSE);
+
+	/* Process the given filename */
+	if (process_pref_file(ftmp))
+	{
+		/* Mention failure */
+		msg_format("Failed to load '%s'!", ftmp);
+	}
+	else
+	{
+		/* Mention success */
+		msg_format("Loaded '%s'.", ftmp);
+	}
+
+	return (TRUE);
 }
 
 
@@ -531,6 +575,8 @@ static void do_cmd_options_cheat(cptr info)
 		}
 	}
 }
+
+
 /*
  * Autosave options -- textual names
  */
@@ -681,13 +727,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[16];
+	int opt[OPT_PAGE_PER];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < OPT_PAGE_PER; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -943,6 +989,93 @@ static void do_cmd_options_win(void)
 }
 
 
+/*
+ * Write all current options to the given preference file in the
+ * lib/user directory. Modified from KAmband 1.8.
+ */
+static errr option_dump(cptr fname)
+{
+	int i, j;
+
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Write to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic option dump\n\n");
+
+	/* Dump options */
+	for (i = 0; i < OPT_MAX; i++)
+	{
+		/* Require a real option */
+		if (!option_text[i]) continue;
+
+		/* Comment */
+		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+
+		/* Dump the option */
+		if (op_ptr->opt[i])
+		{
+			fprintf(fff, "Y:%s\n", option_text[i]);
+		}
+		else
+		{
+			fprintf(fff, "X:%s\n", option_text[i]);
+		}
+
+		/* Skip a line */
+		fprintf(fff, "\n");
+	}
+
+	/* Dump window flags */
+	for (i = 1; i < 8; i++)
+	{
+		/* Require a real window */
+		if (!angband_term[i]) continue;
+
+		/* Check each flag */
+		for (j = 0; j < 32; j++)
+		{
+			/* Require a real flag */
+			if (!window_flag_desc[j]) continue;
+
+			/* Comment */
+			fprintf(fff, "# Window '%s', Flag '%s'\n",
+				angband_term_name[i], window_flag_desc[j]);
+
+			/* Dump the flag */
+			if (op_ptr->window_flag[i] & (1L << j))
+			{
+				fprintf(fff, "W:%d:%d:1\n", i, j);
+			}
+			else
+			{
+				fprintf(fff, "W:%d:%d:0\n", i, j);
+			}
+
+			/* Skip a line */
+			fprintf(fff, "\n");
+		}
+	}
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -985,6 +1118,10 @@ void do_cmd_options(void)
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
 		prt("(A) Autosave Options", 15, 5);
+
+		/* Load and Save */
+		prt("(R) Read options from a file", 4, 40);
+		prt("(S) Write options to a file", 5, 40);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -1099,6 +1236,52 @@ void do_cmd_options(void)
 			}
 
 
+			}
+
+			case 'r':
+			case 'R':
+			{
+				/* Ask for and load a user pref file */
+				(void) do_cmd_pref_file_hack(18);
+				break;
+			}
+
+			case 's':
+			case 'S':
+			{
+				char ftmp[80];
+	
+				/* Prompt */
+				prt("Command: Write options to a file", 18, 0);
+	
+				/* Prompt */
+				prt("File: ", 20, 0);
+	
+				/* Default filename */
+				sprintf(ftmp, "%s.prf", op_ptr->base_name);
+	
+				/* Ask for a file */
+				if (!askfor_aux(ftmp, 80)) break;
+	
+				/* Drop priv's */
+				safe_setuid_drop();
+	
+				/* Dump the options */
+				if (option_dump(ftmp))
+				{
+					/* Failure */
+					msg_print("Failed!");
+				}
+				else
+				{
+					/* Success */
+					msg_print("Done.");
+				}
+	
+				/* Grab priv's */
+				safe_setuid_grab();
+
+				break;
 			}
 
 			/* Unknown option */
@@ -1474,6 +1657,10 @@ void do_cmd_macros(void)
 		/* Load a 'macro' file */
 		else if (i == '1')
 		{
+#if 1
+			/* Ask for and load a user pref file */
+			(void) do_cmd_pref_file_hack(16);
+#else
 			/* Prompt */
 			prt("Command: Load a user pref file", 16, 0);
 
@@ -1492,6 +1679,7 @@ void do_cmd_macros(void)
 				/* Prompt */
 				msg_print("Could not load file!");
 			}
+#endif
 		}
 
 #ifdef ALLOW_MACROS
@@ -1723,6 +1911,8 @@ void do_cmd_macros(void)
 
 				/* Prompt */
 				msg_print("Added a keymap.");
+
+				angband_keymap_flag = TRUE;
 			}
 		}
 
@@ -1746,6 +1936,8 @@ void do_cmd_macros(void)
 
 			/* Prompt */
 			msg_print("Removed a keymap.");
+
+			angband_keymap_flag = TRUE;
 		}
 
 		/* Enter a new action */
@@ -1844,6 +2036,10 @@ void do_cmd_visuals(void)
 		/* Load a 'pref' file */
 		else if (i == '1')
 		{
+#if 1
+			/* Ask for and load a user pref file */
+			(void) do_cmd_pref_file_hack(15);
+#else
 			/* Prompt */
 			prt("Command: Load a user pref file", 15, 0);
 
@@ -1858,6 +2054,7 @@ void do_cmd_visuals(void)
 
 			/* Process the given filename */
 			(void)process_pref_file(tmp);
+#endif
 		}
 
 #ifdef ALLOW_VISUALS
@@ -2285,6 +2482,16 @@ void do_cmd_colors(void)
 		/* Load a 'pref' file */
 		if (i == '1')
 		{
+#if 1
+			/* Ask for and load a user pref file */
+			if (!do_cmd_pref_file_hack(8)) break;
+
+			/* Mega-Hack -- react to changes */
+			Term_xtra(TERM_XTRA_REACT, 0);
+
+			/* Mega-Hack -- redraw */
+			Term_redraw();
+#else
 			/* Prompt */
 			prt("Command: Load a user pref file", 8, 0);
 
@@ -2305,6 +2512,7 @@ void do_cmd_colors(void)
 
 			/* Mega-Hack -- redraw */
 			Term_redraw();
+#endif
 		}
 
 #ifdef ALLOW_COLORS
@@ -2601,11 +2809,25 @@ void do_cmd_load_screen(void)
 
 	FILE *fff;
 
-	char buf[1024];
+	char tmp_val[80], buf[1024];
 
+	int len;
+
+
+	/* Ask for a file (or cancel) */
+	(void) strcpy(tmp_val, "dump.txt");
+
+	/* Prompt */
+	prt("File: ", 0, 0);
+
+	/* Ask for a file */
+	if (!askfor_aux(tmp_val, 80)) return;
+
+	/* Hack -- Erase prompt */
+	prt("", 0, 0);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, ANGBAND_DIR_USER, tmp_val);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");
@@ -2623,13 +2845,22 @@ void do_cmd_load_screen(void)
 
 
 	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; okay; y++)
 	{
 		/* Get a line of data */
 		if (my_fgets(fff, buf, 1024)) okay = FALSE;
 
+		/* Stop on blank line */
+		if (!buf[0]) break;
+
+		/* Get the width */
+		len = strlen(buf);
+
+		/* XXX Restrict to current screen size */
+		if (len >= Term->wid) len = Term->wid;
+
 		/* Show each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < len; x++)
 		{
 			/* Put the attr/char */
 			Term_draw(x, y, TERM_WHITE, buf[x]);
@@ -2637,17 +2868,26 @@ void do_cmd_load_screen(void)
 	}
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+//	if (my_fgets(fff, buf, 1024)) okay = FALSE;
 
 
-	/* Dump the screen */
-	for (y = 0; okay && (y < 24); y++)
+	/* Load the screen */
+	for (y = 0; okay; y++)
 	{
 		/* Get a line of data */
 		if (my_fgets(fff, buf, 1024)) okay = FALSE;
 
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		/* Stop on blank line */
+		if (!buf[0]) break;
+
+		/* Get the width */
+		len = strlen(buf);
+
+		/* XXX Restrict to current screen size */
+		if (len >= Term->wid) len = Term->wid;
+
+		/* Show each row */
+		for (x = 0; x < len; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -2664,12 +2904,12 @@ void do_cmd_load_screen(void)
 		}
 
 		/* End the row */
-		fprintf(fff, "\n");
+/*		fprintf(fff, "\n"); */
 	}
 
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+//	if (my_fgets(fff, buf, 1024)) okay = FALSE;
 
 
 	/* Close it */
@@ -2698,11 +2938,23 @@ void do_cmd_save_screen(void)
 
 	FILE *fff;
 
-	char buf[1024];
+	char tmp_val[80], buf[1024];
 
+
+	/* Ask for a file (or cancel) */
+	(void) strcpy(tmp_val, "dump.txt");
+
+	/* Prompt */
+	prt("File: ", 0, 0);
+
+	/* Ask for a file */
+	if (!askfor_aux(tmp_val, 80)) return;
+
+	/* Hack -- Erase prompt */
+	prt("", 0, 0);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, ANGBAND_DIR_USER, tmp_val);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2725,10 +2977,10 @@ void do_cmd_save_screen(void)
 
 
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < Term->hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < Term->wid; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -2749,16 +3001,16 @@ void do_cmd_save_screen(void)
 
 
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < Term->hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < Term->wid; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
 
 			/* Dump it */
-			buf[x] = hack[a&0x0F];
+			buf[x] = hack[a & 0x0F];
 		}
 
 		/* Terminate */
@@ -3171,3 +3423,21 @@ void do_cmd_knowledge(void)
 }
 
 
+/*
+ * Display the time and date
+ */
+void do_cmd_time(void)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+
+
+	/* Message */
+	msg_format("This is day %d. The time is %d:%02d %s.", day,
+		(hour % 12 == 0) ? 12 : (hour % 12), min,
+		(hour < 12) ? "AM" : "PM");
+}

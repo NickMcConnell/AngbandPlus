@@ -394,7 +394,7 @@ static int remove_curse_aux(int all)
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Take note */
-		o_ptr->note = quark_add("uncursed");
+		o_ptr->feel = FEEL_UNCURSED;
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -501,26 +501,8 @@ bool lose_all_info(void)
 		/* Allow "protection" by the MENTAL flag */
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
-		/* Remove "default inscriptions" */
-		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
-		{
-			/* Access the inscription */
-			cptr q = quark_str(o_ptr->note);
-
-			/* Hack -- Remove auto-inscriptions */
-			if ((streq(q, "cursed")) ||
-			    (streq(q, "broken")) ||
-			    (streq(q, "good")) ||
-			    (streq(q, "average")) ||
-			    (streq(q, "excellent")) ||
-			    (streq(q, "worthless")) ||
-			    (streq(q, "special")) ||
-			    (streq(q, "terrible")))
-			{
-				/* Forget the inscription */
-				o_ptr->note = 0;
-			}
-		}
+		/* Forget the feeling */
+		o_ptr->feel = FEEL_NONE;
 
 		/* Hack -- Clear the "empty" flag */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -1348,7 +1330,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->feel = FEEL_UNCURSED;
 				}
 			}
 		}
@@ -1373,7 +1355,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->feel = FEEL_UNCURSED;
 				}
 			}
 		}
@@ -1398,7 +1380,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 					msg_print("The curse is broken!");
 					o_ptr->ident &= ~(IDENT_CURSED);
 					o_ptr->ident |= (IDENT_SENSE);
-					o_ptr->note = quark_add("uncursed");
+					o_ptr->feel = FEEL_UNCURSED;
 				}
 			}
 		}
@@ -1548,8 +1530,6 @@ bool brand_missile(bool spell)
 	int choice;
 	int i;
 
-	item_tester_tval = TV_BOLT;
-
 	/* Use the first acceptable missiles */
 	for (i = 0; i < INVEN_PACK; i++)
 	{
@@ -1682,6 +1662,8 @@ void set_ele_attack(u32b attack_type, int duration)
 			        ((attack_type == ATTACK_COLD) ? "chill to the bone!" : 
 			         ((attack_type == ATTACK_POIS) ? "poison your enemies!" : 
 					"do nothing special."))))));
+
+		p_ptr->redraw |= PR_STATUS;
 	}
 }
 
@@ -2115,7 +2097,7 @@ bool recharge(int power)
 
 
 		/* Back-fire */
-		if (rand_int(recharge_strength) == 0)
+		if ((recharge_strength < 0) || (rand_int(recharge_strength) == 0))
 		{
 			/* Activate the failure code. */
 			fail = TRUE;
@@ -2403,7 +2385,7 @@ void tap_magical_energy(void)
 		}
 
 		/* Player is a smart cookie. */
-		else msg_format("Your mana was already at its maximum.  ^%s not drained.", item_name);
+		else msg_format("Your mana was already at its maximum.  %^s not drained.", item_name);
 	}
 }
 
@@ -2549,8 +2531,7 @@ void unmake(int dir)
 {
 	byte chaotic_effect;
 	int i;
-	bool repeat = FALSE;
-
+	bool repeat = TRUE;
 
 	while (repeat)
 	{
@@ -2592,12 +2573,12 @@ void unmake(int dir)
 			/* Unmake the caster. */
 			case 17:
 			{
-			(void)dec_stat(A_STR, 20, (rand_int(3) == 0));
-			(void)dec_stat(A_INT, 20, (rand_int(3) == 0));
-			(void)dec_stat(A_WIS, 20, (rand_int(3) == 0));
-			(void)dec_stat(A_DEX, 20, (rand_int(3) == 0));
-			(void)dec_stat(A_CON, 20, (rand_int(3) == 0));
-			(void)dec_stat(A_CHR, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_STR, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_INT, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_WIS, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_DEX, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_CON, 20, (rand_int(3) == 0));
+				(void)dec_stat(A_CHR, 20, (rand_int(3) == 0));
 				break;	
 			}
 		}
@@ -3934,7 +3915,7 @@ bool fire_sphere(int typ, int dir, int dam, int rad, byte diameter_of_source)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(-1, rad, ty, tx, dam, typ, flg, 0, 0));
+	return (project(-1, rad, ty, tx, dam, typ, flg, 0, diameter_of_source));
 }
 
 
@@ -4135,6 +4116,12 @@ bool wall_to_mud(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
+}
+
+bool wall_to_mud_hack(int dir, int dam)
+{
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	return (project_hook(GF_KILL_WALL, dir, dam, flg));
 }
 
 bool destroy_door(int dir)

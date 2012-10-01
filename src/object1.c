@@ -111,7 +111,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Cedar", "Cherry", "Cottonwood", "Cypress", "Dogwood", 
 	"Elm", "Eucalyptus", "Fir", "Golden", "Hazel", 
 	"Hawthorn", "Hemlock", "Hickory", "Holly", "Ironwood", 
-	"Ivory", "Laurel", "Linden" "Locust", "Mahogany", 
+	"Ivory", "Laurel", "Linden", "Locust", "Mahogany", 
 	"Maple", "Mallorn", "Mistletoe", "Mulberry", "Oak", 
 	"Olive", "Palmwood", "Poplar", "Pine", "Redwood", 
 	"Rosewood", "Rowan", "Runed", "Sequoia", "Silver", 
@@ -1009,6 +1009,78 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 } while (0)
 
 
+static char *object_desc_inscrip(object_type *o_ptr, char *buf)
+{
+	/* See if the object is "aware" */
+	bool aware = object_aware_p(o_ptr) ? TRUE : FALSE;
+
+	/* See if the object is "known" */
+	bool known = object_known_p(o_ptr) ? TRUE : FALSE;
+
+	char tmp_val[160], *t = buf, *v = NULL;
+
+
+	/* Append the user's inscription if available */
+	if (o_ptr->note)
+	{
+		char *u = (char *) quark_str(o_ptr->note);
+		while (*u) *t++ = *u++;
+	}
+
+	/* Append the game-generated "feeling" if available */
+	if (o_ptr->feel)
+	{
+		v = (char *) feel_text[o_ptr->feel];
+	}
+
+	/* Note "cursed" if the item is known to be cursed */
+	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
+	{
+		v = "cursed";
+	}
+
+	/* Mega-Hack -- note empty wands/staffs */
+	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
+	{
+		v = "empty";
+	}
+
+	/* Note "tried" if the object has been tested unsuccessfully */
+	else if (!aware && object_tried_p(o_ptr))
+	{
+		v = "tried";
+	}
+
+	/* Note the discount, if any.  No annoying inscription for homemade 
+	 * branded items. -LM-
+	 */
+	else if ((o_ptr->discount) && (o_ptr->discount != 80))
+	{
+		char *q = tmp_val;
+		object_desc_num_macro(q, o_ptr->discount);
+		strcpy(q, "% off");
+		v = tmp_val;
+	}
+
+	/* Append the game-generated inscription, if any */
+	if (v)
+	{
+		/* Join */
+		if (t > buf)
+		{
+			*t++ = ',';
+			*t++ = ' ';
+		}
+
+		/* Append */
+		while (*v) *t++ = *v++;
+	}
+
+	/* Terminate */
+	*t = '\0';
+
+	return buf;
+}
 
 
 /*
@@ -1100,7 +1172,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
 
-	char tmp_val[160];
+	char result[256], tmp_val[160];
 
 	u32b f1, f2, f3;
 
@@ -1362,8 +1434,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Start dumping the result */
-	t = buf;
-
+	t = result;
 
 	/* The object "expects" a "number" */
 	if (basenm[0] == '&')
@@ -1526,9 +1597,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 1)
 	{
-		/* Terminate and return */
-		*t = '\0';
-		return;
+		goto done;
 	}
 
 
@@ -1778,9 +1847,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 2)
 	{
-		/* Terminate and return */
-		*t = '\0';
-		return;
+		goto done;
 	}
 
 
@@ -1957,62 +2024,33 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 3)
 	{
-		/* Terminate and return */
-		*t = '\0';
-		return;
+		goto done;
 	}
 
-
-	/* Default to nothing */
-	v = NULL;
-
-	/* Use the standard inscription if available */
-	if (o_ptr->note)
-	{
-		v = quark_str(o_ptr->note);
-	}
-
-	/* Note "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
-	{
-		v = "cursed";
-	}
-
-	/* Mega-Hack -- note empty wands/staffs */
-	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
-	{
-		v = "empty";
-	}
-
-	/* Note "tried" if the object has been tested unsuccessfully */
-	else if (!aware && object_tried_p(o_ptr))
-	{
-		v = "tried";
-	}
-
-	/* Note the discount, if any.  No annoying inscription for homemade 
-	 * branded items. -LM-
-	 */
-	else if ((o_ptr->discount) && (o_ptr->discount != 80))
-	{
-		char *q = tmp_val;
-		object_desc_num_macro(q, o_ptr->discount);
-		strcpy(q, "% off");
-		v = tmp_val;
-	}
+	/* Get the combined user/game inscription */
+	v = object_desc_inscrip(o_ptr, tmp_val);
 
 	/* Append the inscription, if any */
-	if (v)
+	if (v[0])
 	{
 		/* Append the inscription */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, c1);
-		while ((t < buf + 75) && *v) *t++ = *v++;
+		while (*v) *t++ = *v++;
 		object_desc_chr_macro(t, c2);
 	}
 
+done:
+
 	/* Terminate */
 	*t = '\0';
+
+	/* Copy to output */
+	t = result;
+	while ((t < result + 79) && *t) *buf++ = *t++;
+
+	/* Terminate */
+	*buf = '\0';
 }
 
 
@@ -2541,11 +2579,13 @@ void show_inven(void)
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = screen_x - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
+	/* Hack -- Only 80 chars in description allowed */
+	if (lim > 79) lim = 79;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -2596,7 +2636,7 @@ void show_inven(void)
 	}
 
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > screen_x - 4) ? 0 : ((screen_x - 1) - len);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2628,7 +2668,7 @@ void show_inven(void)
 				make_metric(wgt) / 10, make_metric(wgt) % 10);
 			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + 1, screen_x - 9);
 		}
 	}
 
@@ -2661,13 +2701,16 @@ void show_equip(void)
 	len = 79 - 50;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = screen_x - 4;
 
 	/* Require space for labels (if needed) */
 	if (show_labels) lim -= (14 + 2);
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
+
+	/* Hack -- Only 80 chars in description allowed */
+	if (lim > 79) lim = 79;
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2709,7 +2752,7 @@ void show_equip(void)
 	}
 
 	/* Hack -- Find a column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > screen_x - 4) ? 0 : ((screen_x - 1) - len);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -2756,7 +2799,7 @@ void show_equip(void)
 				make_metric(wgt) / 10, make_metric(wgt) % 10);
 			else sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 
-			put_str(tmp_val, j+1, 71);
+			put_str(tmp_val, j+1, screen_x - 9);
 		}
 	}
 
@@ -3598,6 +3641,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						bell("");
 						break;
 					}
+				}
+
+				/* Hack -- Fix screen */
+				if (p_ptr->command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
 				}
 
 				/* Need to redraw */

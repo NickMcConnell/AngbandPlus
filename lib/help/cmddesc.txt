@@ -105,7 +105,7 @@ Drop an item (d)
      drop the item onto an adjacent space.  This command may take a quantity, 
      and takes some energy.
 
-Destroy an item (k) or Destroy an item (^D)
+Destroy an item (k) or Destroy an item (Ctrl-D)
      This destroys an item in your inventory or on the dungeon floor.  If the 
      selected pile contains multiple objects, you may specify a quantity.  You 
      must always (currently) verify this command.  This command may take a quan-
@@ -224,7 +224,7 @@ Toggle search mode (S) or Toggle search mode (#)
 
 --- Dungeon and Object Alteration Commands ---
 
-Tunnel (T) or Tunnel (^T)
+Tunnel (T) or Tunnel (Ctrl-T)
      This command allows you to dig through barriers, obtain treasure found in 
      wall seams, and otherwise alter the dungeon to your liking.  Races other 
      than Ents would be well advised to be wielding a weapon, preferably some-
@@ -453,11 +453,11 @@ Observe an item (I)
 
 --- Message Commands ---
 
-Repeat level feeling (^F)
+Repeat level feeling (Ctrl-F)
      Repeats the feeling about the dungeon level that you got when you first 
      entered the level.
 
-View previous messages (^P)
+View previous messages (Ctrl-P)
      This command shows you all the recent messages.  You can scroll through 
      them, or exit with ESCAPE.
 
@@ -481,7 +481,10 @@ Check knowledge (~)
      character.  Currently, this includes being able to list all known artifacts, 
      uniques, objects, and the contents of your home.
 
- 
+Time of day (Ctrl-T) or (')
+     Displays the day and hour/minute.
+
+
 --- Saving and Exiting Commands ---
 
 Save and Quit (Ctrl-X)
@@ -521,8 +524,8 @@ Interact with macros (@)
 Interact with visuals (%)
      Allow you to interact with visuals.  You may load or save visuals from user 
      pref files, or modify the attr/char mappings for the monsters, objects, and 
-     terrain features.  You must use the "redraw" command (^R) to redraw the map 
-     after changing attr/char mappings.
+     terrain features.  You must use the "redraw" command (Ctrl-R) to redraw the
+     map after changing attr/char mappings.
 
 Interact with colors (&)
      Allow the user to interact with colors.  This command only works on some 
@@ -561,24 +564,27 @@ Game Version (V)
 
 --- Extra Commands ---
 
-Toggle Choice Window (^E) 
+Toggle Choice Window (Ctrl-E) 
      Toggles the display in any sub-windows (if available) which are displaying 
      your inventory or equipment.
 
-Redraw Screen (^R)
+Redraw Screen (Ctrl-R)
      This command adapts to various changes in global options, and redraws all 
      of the windows.  It is normally only necessary in abnormal situations, such 
      as after changing the visual attr/char mappings, or enabling "graphics" 
      mode.
 
 Load screen dump (left-paren)
-     This command loads a "snap-shot" of the current screen from the file 
-     "dump.txt", and displays it on the screen.
+     This command loads a "snap-shot" of the current screen from a file 
+     and displays it on the screen.
 
 Save screen dump (right-paren)
-     This command dumps a "snap-shot" of the current screen to the file 
-     "dump.txt", including encoded color information.
+     This command dumps a "snap-shot" of the current screen to a file 
+     including encoded color information.
 
+Repeat last command (n) or ([)
+     Repeats the previous command, selecting the same objects, spells, etc,
+     you typed.
 
 
 === Special Keys - Not modified for Oangband ===

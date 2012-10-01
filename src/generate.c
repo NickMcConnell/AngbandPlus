@@ -3162,6 +3162,30 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data, bool ligh
  */
 static void build_type7(int y0, int x0)
 {
+#if 1
+	vault_type *v_ptr;
+	int i;
+	int v_idx[MAX_V_IDX];
+	int v_cnt = 0;
+
+	/* Examine each vault */
+	for (i = 0; i < MAX_V_IDX; i++)
+	{
+		/* Access the vault */
+		v_ptr = &v_info[i];
+
+		/* Accept each interesting room that is acceptable for this depth. -LM- */
+		if ((v_ptr->typ == 7) && (v_ptr->min_lev <= p_ptr->depth) && 
+			(v_ptr->max_lev >= p_ptr->depth))
+		{
+			v_idx[v_cnt++] = i;
+		}
+	}
+
+	/* Access a random vault record */
+	v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
+
+#else
 	vault_type *v_ptr;
 	int i;
 
@@ -3175,6 +3199,7 @@ static void build_type7(int y0, int x0)
 		if ((v_ptr->typ == 7) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
+#endif
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3189,6 +3214,30 @@ static void build_type7(int y0, int x0)
  */
 static void build_type8(int y0, int x0)
 {
+#if 1
+	vault_type *v_ptr;
+	int i;
+	int v_idx[MAX_V_IDX];
+	int v_cnt = 0;
+
+	/* Examine each vault */
+	for (i = 0; i < MAX_V_IDX; i++)
+	{
+		/* Access the vault */
+		v_ptr = &v_info[i];
+
+		/* Accept each lesser vault that is acceptable for this depth. -LM- */
+		if ((v_ptr->typ == 8) && (v_ptr->min_lev <= p_ptr->depth) && 
+			(v_ptr->max_lev >= p_ptr->depth))
+		{
+			v_idx[v_cnt++] = i;
+		}
+	}
+
+	/* Access a random vault record */
+	v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
+
+#else
 	vault_type *v_ptr;
 	int i;
 
@@ -3202,7 +3251,7 @@ static void build_type8(int y0, int x0)
 		if ((v_ptr->typ == 8) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
-
+#endif
 	/* Message */
 	if (cheat_room) msg_print("Lesser Vault");
 
@@ -3218,7 +3267,6 @@ static void build_type8(int y0, int x0)
 
 	/* Hack -- Build the vault (never lit). */
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, FALSE, TRUE);
-
 }
 
 
@@ -3228,6 +3276,30 @@ static void build_type8(int y0, int x0)
  */
 static void build_type9(int y0, int x0)
 {
+#if 1
+	vault_type *v_ptr;
+	int i;
+	int v_idx[MAX_V_IDX];
+	int v_cnt = 0;
+
+	/* Examine each vault */
+	for (i = 0; i < MAX_V_IDX; i++)
+	{
+		/* Access the vault */
+		v_ptr = &v_info[i];
+
+		/* Accept each greater vault that is acceptable for this depth. -LM- */
+		if ((v_ptr->typ == 9) && (v_ptr->min_lev <= p_ptr->depth) && 
+			(v_ptr->max_lev >= p_ptr->depth))
+		{
+			v_idx[v_cnt++] = i;
+		}
+	}
+
+	/* Access a random vault record */
+	v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
+
+#else
 	vault_type *v_ptr;
 	int i;
 
@@ -3241,6 +3313,7 @@ static void build_type9(int y0, int x0)
 		if ((v_ptr->typ == 9) && (v_ptr->min_lev <= p_ptr->depth) && 
 			(v_ptr->max_lev >= p_ptr->depth)) break;
 	}
+#endif
 
 	/* Message */
 	if (cheat_room) msg_print("Greater Vault");
@@ -3707,6 +3780,11 @@ static bool build_themed_level(void)
 
 	vault_type *t_ptr;
 
+	/*
+	 * Down stairs aren't allowed on quest levels, and we must give
+	 * a chance for the quest monsters to appear.
+	 */
+	if (is_quest(p_ptr->depth)) return (FALSE);
 
 	/* Pick a themed level at random.  Our patience gives out after 40 tries. */
 	for(i = 0; i < 40; i++)
@@ -3727,6 +3805,9 @@ static bool build_themed_level(void)
 
 	/* Give the player something to read. */
 	msg_print("Please wait.  This may take a little while.");
+
+	/* Display the message */
+	if (!fresh_after) Term_fresh();
 
 
 	/* Initialize the info arrays for the chosen themed level only.  Do 
@@ -3783,7 +3864,8 @@ static void cave_gen(void)
 
 
 	/* It is possible for levels to be themed. -LM- */
-	if ((rand_int(THEMED_LEVEL_CHANCE) == 0) && (p_ptr->depth >= 20) && 		((turn - old_turn) >= 1000) && build_themed_level())
+	if ((rand_int(THEMED_LEVEL_CHANCE) == 0) && (p_ptr->depth >= 20) &&
+ 		((turn - old_turn) >= 1000) && build_themed_level())
 	{
 		/* Message. */
 		if (cheat_room) msg_print("Themed level.");
@@ -4081,8 +4163,8 @@ static void build_store(int n, int yy, int xx)
 {
 	int y, x, y0, x0, y1, x1, y2, x2, tmp;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
+	int qy = OLD_SCREEN_HGT;
+	int qx = OLD_SCREEN_WID;
 
 
 	/* Find the "center" of the store */
@@ -4172,8 +4254,8 @@ static void town_gen_hack(void)
 {
 	int y, x, k, n;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
+	int qy = OLD_SCREEN_HGT;
+	int qx = OLD_SCREEN_WID;
 
 	int rooms[MAX_STORES];
 
@@ -4211,8 +4293,8 @@ static void town_gen_hack(void)
 	while (TRUE)
 	{
 		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
-		x = qx + rand_range(3, SCREEN_WID - 4);
+		y = qy + rand_range(3, OLD_SCREEN_HGT - 4);
+		x = qx + rand_range(3, OLD_SCREEN_WID - 4);
 
 		/* Require a "naked" floor grid */
 		if (cave_naked_bold(y, x)) break;
@@ -4255,8 +4337,8 @@ static void town_gen(void)
 
 	int residents;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
+	int qy = OLD_SCREEN_HGT;
+	int qx = OLD_SCREEN_WID;
 
 	bool daytime;
 
@@ -4291,10 +4373,24 @@ static void town_gen(void)
 		}
 	}
 
-	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
+	/* Boundary walls (see town_illuminate() */
+	for (x = qx; x < qx + OLD_SCREEN_WID; x++)
 	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
+		cave_set_feat(qy, x, FEAT_PERM_EXTRA);
+		cave_set_feat(qy + OLD_SCREEN_HGT - 1, x, FEAT_PERM_EXTRA);
+	}
+
+	/* Boundary walls (see town_illuminate() */
+	for (y = qy; y < qy + OLD_SCREEN_HGT; y++)
+	{
+		cave_set_feat(y, qx, FEAT_PERM_EXTRA);
+		cave_set_feat(y, qx + OLD_SCREEN_WID - 1, FEAT_PERM_EXTRA);
+	}
+
+	/* Then place some floors */
+	for (y = qy+1; y < qy+OLD_SCREEN_HGT-1; y++)
+	{
+		for (x = qx+1; x < qx+OLD_SCREEN_WID-1; x++)
 		{
 			/* Create empty floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
@@ -4488,6 +4584,17 @@ void generate_cave(void)
 
 		/* Wipe the monsters */
 		wipe_m_list();
+
+		/* A themed level was generated */
+		if (p_ptr->themed_level)
+		{
+			/* Allow the themed level to be generated again */
+			p_ptr->themed_level_appeared &=
+				~(1L << (p_ptr->themed_level - 1));
+
+			/* This is not a themed level */
+			p_ptr->themed_level = 0;
+		}
 	}
 
 

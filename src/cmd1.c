@@ -106,6 +106,64 @@ void search(void)
 }
 
 
+/*
+ * Return TRUE if the given object is inscribed with "=g".
+ */
+static bool auto_pickup_okay(object_type *o_ptr)
+{
+	cptr s;
+	
+	/* No inscription */
+	if (!o_ptr->note)
+		return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process preventions */
+	while (s)
+	{
+		/* =g ('g'et) means auto pickup */
+		if (s[1] == 'g') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
+
+
+/*
+ * Carry an object and delete it.
+ */
+static void py_pickup_aux(int o_idx)
+{
+	int slot;
+	
+	char o_name[80];
+	object_type *o_ptr;
+
+
+	o_ptr = &o_list[o_idx];
+	
+	/* Carry the object */
+	slot = inven_carry(o_ptr);
+
+	/* Get the object again */
+	o_ptr = &inventory[slot];
+
+	/* Describe the object */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+	/* Delete the object */
+	delete_object_idx(o_idx);
+}
+
 
 /*
  * Pick up objects and treasure on the floor.
@@ -130,8 +188,8 @@ void search(void)
  * Pick up a single object without menus, unless menus for single items are 
  * forced.  Confirm pickup if that option is on.
  *
- * Pick up multiple objects (unless using autopickup, no confirm) using a 
- * menu system (TNB).  Recursively call this function (forcing menus for any 
+ * Pick up multiple objects (unless using autopickup, no confirm) using Tim
+ * Baker's menu system.  Recursively call this function (forcing menus for any 
  * number of objects) until objects are gone, backpack is full, or player is 
  * satisfied.
  *
@@ -149,14 +207,13 @@ byte py_pickup(int pickup)
 
 	/* Objects picked up.  Used to determine time cost of command. */
 	byte objs_picked_up = 0;
-
-	int slot;
-        
+   
 	int floor_num = 0, floor_list[23], floor_o_idx = 0;
 
 	int can_pickup = 0;
 	bool call_function_again = FALSE;
 	bool do_ask = TRUE;
+
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -198,6 +255,16 @@ byte py_pickup(int pickup)
 			continue;
 		}
 
+		/* Automatically pick up some items */
+		else if (inven_carry_okay(o_ptr) && auto_pickup_okay(o_ptr))
+		{
+			/* Pick up the object */
+			py_pickup_aux(this_o_idx);
+			
+			/* Check the next object */
+			continue;
+		}
+
 		/* Pick up objects automatically, without menus, if pickup is 
 		 * allowed and menus are not forced, auto-pickup is on, and 
 		 * query_floor is off.
@@ -207,20 +274,18 @@ byte py_pickup(int pickup)
 			/* If backpack is not full, carry the item. */
 			if (inven_carry_okay(o_ptr))
 			{
-				/* Carry the item in an inventory slot */
-				int slot = inven_carry(o_ptr);
+				/* Pick up the object */
+				py_pickup_aux(this_o_idx);
+			}
 
-				/* Get the item again */
-				o_ptr = &inventory[slot];
+			/* Otherwise, add one to the number of floor objects. */
+			else
+			{
+				/* Count non-gold objects that remain on the floor. */
+				floor_num++;
 
-				/* Describe the object again */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Message */
-				msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-				/* Delete the object */
-				delete_object_idx(this_o_idx);
+				/* Remember this index */
+				floor_o_idx = this_o_idx;
 			}
 		}
 
@@ -229,11 +294,11 @@ byte py_pickup(int pickup)
 		 */
 		else
 		{
-			/* Count non-gold objects that remain on the floor. */
-			floor_num++;
-
 			/* Remember this object index */
 			floor_list[floor_num] = this_o_idx;
+
+			/* Count non-gold objects that remain on the floor. */
+			floor_num++;
 
 			/* Remember this index */
 			floor_o_idx = this_o_idx;
@@ -366,26 +431,11 @@ byte py_pickup(int pickup)
 		}
 	}
 
-	/* Access the object */
-	o_ptr = &o_list[this_o_idx];
-
-	/* Carry the object */
-	slot = inven_carry(o_ptr);
-
-	/* Get the object again */
-	o_ptr = &inventory[slot];
-
-	/* Describe the object */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Message */
-	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+	/* Pick up the object */
+	py_pickup_aux(this_o_idx);
 
 	/* Indicate an object picked up. */
 	objs_picked_up = 1;
-
-	/* Delete the object */
-	delete_object_idx(this_o_idx);
 
 	/* If requested, call this function recursively.  Count objects picked 
 	 * up.  Force the display of a menu in all cases.
@@ -1593,17 +1643,13 @@ void move_player(int dir, int do_pickup)
 				}
 				case FEAT_LAVA:
 				{
-					char answer;
-
 					/* Assume player will continue. */
 					temp = TRUE;
 
 					/* Smart enough to stop running. */
 					if (p_ptr->running) 
 					{
-						msg_print("Lava blocks your path.  Step into it?");
-						answer = inkey();
-						if ((answer != 'Y') && (answer != 'y'))
+						if (!get_check("Lava blocks your path.  Step into it? "))
 						{
 							temp = FALSE;
 							p_ptr->running = 0;
@@ -1615,9 +1661,7 @@ void move_player(int dir, int do_pickup)
 						(!p_ptr->oppose_fire) && 
 						(!p_ptr->immune_fire))
 					{
-						msg_print("The heat of the lava scalds you!  Really enter?");
-						answer = inkey();
-						if ((answer != 'Y') && (answer != 'y'))
+						if (!get_check("The heat of the lava scalds you!  Really enter? "))
 						{
 							temp = FALSE;
 						}

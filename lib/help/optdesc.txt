@@ -169,6 +169,10 @@ Alert user to various failures    [alert_failure]
 Verify destruction of objects    [verify_destroy]
      Prompt for verification of the "destroy" command.
 
+Verify destruction of worthless objects    [verify_destroy_junk]
+     Prompt for verification of the "destroy" command when destroying
+     worthless objects. This option has no effect if verify_destroy is off.
+
 Verify use of special commands    [verify_special]
      Prompt for verification of the "special" commands (borg and debug).
 
@@ -348,6 +352,16 @@ Use special colors for floor grids (slow)    [view_special_lite]
      always being gray.  This option may not work well if the attr/char codes 
      for floors have been changed, or if graphics are being used.  Turning 
      it off will slightly increase the speed of the game.
+
+Keep the player centered (slow)    [center_player]
+    Scrolls the display whenever the character moves. When this option is off,
+    the display scrolls when the character reaches the edges of the visible
+    dungeon.
+
+Keep player centered while running (slow)    [center_running]
+    When this option is on, the center_player option is enabled while
+    running. Otherwise, the screen is recentered on the player when running
+    is finished. This option has no effect if center_player is off.
 
 
 === Cheating Options ===

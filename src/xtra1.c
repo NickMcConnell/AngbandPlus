@@ -402,7 +402,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
 }
 
 
@@ -837,6 +837,275 @@ static void health_redraw(void)
 }
 
 
+/*
+ * Constants for extra status messages
+ */
+enum {
+	STATUS_BLESSED,
+	STATUS_HERO,
+	STATUS_SHERO,
+	STATUS_OPPOSE_ACID,
+	STATUS_OPPOSE_COLD,
+	STATUS_OPPOSE_ELEC,
+	STATUS_OPPOSE_FIRE,
+	STATUS_OPPOSE_POIS,
+	STATUS_PROTEVIL,
+	STATUS_SHIELD,
+	STATUS_FAST,
+	STATUS_SLOW,
+	STATUS_TIM_INFRA,
+	STATUS_SEE_INVIS,
+	STATUS_ESP,
+	STATUS_IMAGE,
+	STATUS_RECALL,
+	STATUS_ELE_ATTACK,
+	STATUS_MAGICDEF,
+	STATUS_STEALTH,
+	STATUS_MAX
+};
+
+/*
+ * One of these exists for every extra status message.
+ *
+ * Col and row tell us where to draw.
+ * Attr is the TERM_XXX color.
+ * Width is the maximum field width.
+ */
+typedef struct {
+	int col, row;
+	byte attr;
+	int width;
+} status_type;
+
+/*
+ * Table of extra status message info.
+ *
+ * Order must match that of the STATUS_XXX constants.
+ * Notice that col and row are initialized in init_status();
+ * The attr field may be overridden in prt_status().
+ */
+status_type status_info[] = {
+	{0, 0, TERM_L_WHITE, 7}, /* Blessed */
+	{0, 0, TERM_L_WHITE, 4}, /* Hero */
+	{0, 0, TERM_L_WHITE, 7}, /* Berserk */
+	{0, 0, TERM_SLATE, 7}, /* ResAcid */
+	{0, 0, TERM_WHITE, 7}, /* ResCold */
+	{0, 0, TERM_BLUE, 7}, /* ResElec */
+	{0, 0, TERM_RED, 7}, /* ResFire */
+	{0, 0, TERM_GREEN, 7}, /* ResPois */
+	{0, 0, TERM_L_BLUE, 8}, /* ProtEvil */
+	{0, 0, TERM_L_BLUE, 6}, /* Shield */
+	{0, 0, TERM_L_GREEN, 6}, /* Faster */
+	{0, 0, TERM_L_UMBER, 6}, /* Slower */
+	{0, 0, TERM_L_BLUE, 5}, /* Infra */
+	{0, 0, TERM_L_BLUE, 8}, /* SeeInvis */
+	{0, 0, TERM_L_GREEN, 3}, /* ESP */
+	{0, 0, TERM_YELLOW, 6}, /* Halluc */
+	{0, 0, TERM_L_BLUE, 6}, /* Recall */
+	{0, 0, TERM_WHITE, 7}, /* Att1234 */
+	{0, 0, TERM_WHITE, 8}, /* MagicDef */
+	{0, 0, TERM_SLATE, 7}, /* Stealth */
+};
+
+/*
+ * Initialize the extra status messages.
+ */
+static void init_status(void)
+{
+	int i, col, row;
+
+	col = 0;
+	row = screen_y - 3;
+
+	/* Check each status message */
+	for (i = 0; i < STATUS_MAX; i++)
+	{
+		/* Access the info */
+		status_type *sp = &status_info[i];
+
+		/* Save the column */
+		sp->col = col;
+
+		/* Save the row */
+		sp->row = row;
+
+		/* Move past this message */
+		col += sp->width + 1;
+
+		/* This is not the last message */
+		if (i < STATUS_MAX - 1)
+		{
+			/* There isn't room for the next message on this line */
+			if (col + status_info[i + 1].width >= 80 /* screen_x */)
+			{
+				/* Wrap */
+				col = 0;
+				row++;
+			}
+		}
+	}
+}
+
+
+/*
+ * Display all the extra status messages.
+ */
+static void prt_status(void)
+{
+	static bool initialized = FALSE;
+
+	char *s = "                    ";
+
+	int i;
+
+
+	/* XXX Hack -- Always print messages (for debugging) */
+	bool force = FALSE;
+
+	/* XXX Check for room */
+	if (screen_y < 26) return;
+
+	/* Initialize */
+	if (!initialized)
+	{
+		/* Initialize */
+		init_status();
+
+		/* Only once */
+		initialized = TRUE;
+	}
+
+	/* Check each status message */
+	for (i = 0; i < STATUS_MAX; i++)
+	{
+		/* Access the info */
+		status_type *sp = &status_info[i];
+
+		/* Get the default attribute */
+		byte attr = sp->attr;
+
+		/* Assume empty display */
+		char *t = s;
+
+		/* Examine */
+		switch (i)
+		{
+			case STATUS_BLESSED:
+				if (force || p_ptr->blessed) t = "Blessed";
+				break;
+
+			case STATUS_HERO:
+				if (force || p_ptr->hero) t = "Hero";
+				break;
+
+			case STATUS_SHERO:
+				if (force || p_ptr->shero) t = "Berserk";
+				break;
+
+			case STATUS_OPPOSE_ACID:
+				if (force || p_ptr->oppose_acid) t = "ResAcid";
+				break;
+
+			case STATUS_OPPOSE_COLD:
+				if (force || p_ptr->oppose_cold) t = "ResCold";
+				break;
+
+			case STATUS_OPPOSE_ELEC:
+				if (force || p_ptr->oppose_elec) t = "ResElec";
+				break;
+
+			case STATUS_OPPOSE_FIRE:
+				if (force || p_ptr->oppose_fire) t = "ResFire";
+				break;
+
+			case STATUS_OPPOSE_POIS:
+				if (force || p_ptr->oppose_pois) t = "ResPois";
+				break;
+
+			case STATUS_PROTEVIL:
+				if (force || p_ptr->protevil) t = "ProtEvil";
+				break;
+
+			case STATUS_SHIELD:
+				if (force || p_ptr->shield) t = "Shield";
+				break;
+
+			case STATUS_FAST:
+				if (force || p_ptr->fast) t = "Faster";
+				break;
+
+			case STATUS_SLOW:
+				if (force || p_ptr->slow) t = "Slower";
+				break;
+
+			case STATUS_TIM_INFRA:
+				if (force || p_ptr->tim_infra) t = "Infra";
+				break;
+
+			case STATUS_SEE_INVIS:
+				if (force || p_ptr->tim_invis) t = "SeeInvis";
+				break;
+
+			case STATUS_ESP:
+				if (force || p_ptr->tim_esp) t = "ESP";
+				break;
+
+			case STATUS_RECALL:
+				if (force || p_ptr->word_recall) t = "Recall";
+				break;
+
+			case STATUS_IMAGE:
+				if (force || p_ptr->image) t = "Halluc";
+				break;
+
+			case STATUS_ELE_ATTACK:
+				if (force || p_ptr->ele_attack)
+				{
+					if (force || p_ptr->special_attack & ATTACK_ACID)
+					{
+						attr = TERM_L_DARK;
+						t = "AttAcid";
+					}
+					else if (p_ptr->special_attack & ATTACK_ELEC)
+					{
+						attr = TERM_BLUE;
+						t = "AttElec";
+					}
+					else if (p_ptr->special_attack & ATTACK_FIRE)
+					{
+						attr = TERM_RED;
+						t = "AttFire";
+					}
+					else if (p_ptr->special_attack & ATTACK_COLD)
+					{
+						attr = TERM_WHITE;
+						t = "AttCold";
+					}
+					else if (p_ptr->special_attack & ATTACK_POIS)
+					{
+						attr = TERM_GREEN;
+						t = "AttPois";
+					}
+				}
+				break;
+
+			case STATUS_MAGICDEF:
+				if (force || p_ptr->magicdef) t = "MagicDef";
+				break;
+
+			case STATUS_STEALTH:
+				if (force || p_ptr->superstealth) t = "Stealth";
+				break;
+		}
+
+		/* XXX Hack -- Always show */
+		if (force) attr = TERM_L_DARK;
+
+		/* Display */
+		Term_putstr(sp->col, sp->row, sp->width, attr, t);
+	}
+}
+
 
 /*
  * Display basic info (mostly left of map)
@@ -908,6 +1177,9 @@ static void prt_frame_extra(void)
 
 	/* Study spells */
 	prt_study();
+
+	/* Status */
+	prt_status();
 }
 
 
@@ -2058,12 +2330,13 @@ sint add_special_missile_skill (byte pclass, byte prace, s16b weight, object_typ
 		{
 			if (p_ptr->ammo_tval == TV_ARROW)
 			{
-				add_skill -= 3 - p_ptr->lev / 4;
+				add_skill -= (3 + p_ptr->lev / 4);
 			}
 			break;
 		}
 		/* Elves and bows just go together.  High-elves already have a high enough missile skill. */
-		case RACE_ELF || RACE_HALF_ELF:
+		case RACE_HALF_ELF:
+		case RACE_ELF:
 		{
 			if (p_ptr->ammo_tval == TV_ARROW)
 			{
@@ -2345,12 +2618,6 @@ static void calc_bonuses(void)
 	u32b f1, f2, f3;
 
 
-	/* Hack - If the player's usage of his shield changes, we must 
-	 * recalculate various things. -LM-
-	 */
-	calc_again:
-
-
 	/*** Memorize ***/
 
 	/* Save the old speed */
@@ -2371,6 +2638,12 @@ static void calc_bonuses(void)
 		old_stat_use[i] = p_ptr->stat_use[i];
 		old_stat_ind[i] = p_ptr->stat_ind[i];
 	}
+
+
+	/* Hack - If the player's usage of his shield changes, we must
+	 * recalculate various things. -LM-
+	 */
+	calc_again:
 
 
 	/*** Reset ***/
@@ -3228,7 +3501,12 @@ static void calc_bonuses(void)
 
 				/* Hack - recalculate bonuses again. */
 				if (p_ptr->old_shield_on_back != 
-					p_ptr->shield_on_back) goto calc_again;
+					p_ptr->shield_on_back)
+				{
+					/* do not check strength again */
+					old_stat_ind[i] = p_ptr->stat_ind[i];
+					goto calc_again;
+				}
 			}
 
 			/* Change in CON affects Hitpoints */
@@ -3619,6 +3897,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
+		p_ptr->redraw &= ~(PR_STATUS);
 		prt_frame_extra();
 	}
 
@@ -3680,6 +3959,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_STUDY);
 		prt_study();
+	}
+
+	if (p_ptr->redraw & (PR_STATUS))
+	{
+		p_ptr->redraw &= ~(PR_STATUS);
+		prt_status();
 	}
 }
 

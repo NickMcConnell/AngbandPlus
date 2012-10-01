@@ -3,8 +3,7 @@
 
 Welcome, fellow programmer.
 
-	This file is for those who have, are, or might in the future use Oangband material.  If you are planning to release an Oangband port, please do not include 
-this file with the distribution.  It is addressed to you as coder, and the general public would not have much need for it.
+	This file is for those who have, are, or might in the future use Oangband material.  If you are planning to release an Oangband port, please do not include this file with the distribution.  It is addressed to you as coder, and the general public would not have much need for it.
 
 
 
@@ -16,7 +15,7 @@ this file with the distribution.  It is addressed to you as coder, and the gener
 
 
 Using Oangband material within an existing project:
-	Oangband source code, or anything in the *.info.txt files, generally needs nothing more than a few "-LM-" or "Oangband"s, but written material requires a full name, or list of names if I cite any, on each file.
+	Oangband source code, or most information in the *.info.txt files, generally needs nothing more than a few "-LM-" or "Oangband"s, but written material, including descriptions in *_info.txt files, requires a full name, or list of names if I cite any, on each file.
 	It is generally not a good idea to take more than half of Oangband's additions to any one *info.txt file.  This may sound kind of Prussian, but this mistake has been made more than once.
 
 

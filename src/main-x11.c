@@ -2051,10 +2051,6 @@ static errr CheckEvent(bool wait)
 			cols = ((Infowin->w - 2) / td->fnt->wid);
 			rows = ((Infowin->h - 2) / td->fnt->hgt);
 
-			/* Hack -- do not allow resize of main screen */
-			if (td == &data[0]) cols = 80;
-			if (td == &data[0]) rows = 24;
-
 			/* Hack -- minimal size */
 			if (cols < 1) cols = 1;
 			if (rows < 1) rows = 1;
@@ -2284,7 +2280,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 /*
  * Initialize a term_data
  */
-static errr term_data_init(term_data *td, bool fixed, cptr name, cptr font)
+static errr term_data_init(term_data *td, bool fixed, cptr name, cptr font, int number)
 {
 	term *t = &td->t;
 
@@ -2298,9 +2294,19 @@ static errr term_data_init(term_data *td, bool fixed, cptr name, cptr font)
 	/* Hack -- key buffer size */
 	num = (fixed ? 1024 : 16);
 
-	/* Assume full size windows */
-	wid = 80 * td->fnt->wid;
-	hgt = 24 * td->fnt->hgt;
+	/* Assume full size windows 
+	 * Rather hackishly we make only the main window
+	 * screen_y size (bigscreen size requested. */
+	if (number)
+	{
+		hgt = 24 * td->fnt->hgt;
+		wid = 80 * td->fnt->wid;
+	}
+	else
+	{
+		hgt = screen_y * td->fnt->hgt;
+		wid = screen_x * td->fnt->wid;
+	}
 
 	/* Create a top-window */
 	MAKE(td->outer, infowin);
@@ -2320,10 +2326,11 @@ static errr term_data_init(term_data *td, bool fixed, cptr name, cptr font)
 	Infowin_map();
 
 	/* No graphics yet */
-	td->tiles = NULL;
+	/*td->tiles = NULL;*/
 
 	/* Initialize the term */
-	term_init(t, 80, 24, num);
+	if (number) term_init(t, 80, 24, num);
+	else term_init(t, screen_x, screen_y, num);
 
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
@@ -2506,7 +2513,7 @@ errr init_x11(int argc, char *argv[])
 		if (!fnt_name) fnt_name = DEFAULT_X11_FONT_SCREEN;
 
 		/* Initialize the term_data */
-		term_data_init(td, TRUE, name, fnt_name);
+		term_data_init(td, TRUE, name, fnt_name, i);
 
 		/* Save global entry */
 		angband_term[i] = Term;

@@ -386,6 +386,24 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+			case 'B':
+			case 'b':
+			case 'Y':
+			case 'y':
+			{
+				screen_y = atoi(&argv[i][2]);
+				if (screen_y <= 0) screen_y = 50;
+				break;
+			}
+			
+			case 'X':
+			case 'x':
+			{
+				screen_x = atoi(&argv[i][2]);
+				if (screen_x <= 80) screen_x = 80;
+				break;
+			}
+			
 			case 'O':
 			case 'o':
 			{
@@ -445,6 +463,9 @@ int main(int argc, char *argv[])
 				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
+				puts("  -xnn     Request nn width screen. Defaults to 80.");
+				puts("  -ynn     Request nn line screen. Normally 25.");
+				puts("           This option defaults to 50 lines.");
 				puts("  -s<num>  Show <num> high scores");
 				puts("  -u<who>  Use your <who> savefile");
 				puts("  -m<sys>  Force 'main-<sys>.c' usage");
@@ -634,6 +655,9 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
+	/* Calculate screen geometry */
+	SCREEN_HGT = screen_y - 2;
+	SCREEN_WID = screen_x - (COL_MAP + 1);
 
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
@@ -646,7 +670,7 @@ int main(int argc, char *argv[])
 	init_angband();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(screen_y-1);
 
 	/* Play the game */
 	play_game(new_game);

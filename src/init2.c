@@ -757,6 +757,84 @@ static errr init_k_info(void)
 }
 
 
+/*
+ * In Angband, all of the "special" artifacts are first in the
+ * artifact list. The first non-special artifact is at ART_MIN_NORMAL.
+ * OAngband adds several new special artifacts greater than ART_MIN_NORMAL.
+ * As a further catch, Morgoth's Crown and Hammer are special artifacts
+ * greater than ART_MIN_NORMAL which should not be created until Morgoth
+ * is defeated. -TNB-
+ */
+
+/* Lists of normal and special a_info[] indexes */
+int *artifact_normal, *artifact_special;
+int artifact_normal_cnt, artifact_special_cnt;
+
+/*
+ * This routine separates all the normal and special artifacts into
+ * separate lists for easy allocation later.
+ */
+void init_artifacts(void)
+{
+	int loop;
+
+	/* First: count. Second: build lists */
+	for (loop = 0; loop <= 1; loop++)
+	{
+		int a_idx;
+
+		artifact_normal_cnt = 0;
+		artifact_special_cnt = 0;
+
+		/* Check every artifact (including randoms) */
+		for (a_idx = 1; a_idx < MAX_A_IDX; a_idx++)
+		{
+			/* Access this artifact */
+			artifact_type *a_ptr = &a_info[a_idx];
+
+			/* Require "real" artifacts */
+			if (!a_ptr->name) continue;
+
+			/* This is a "special" artifact */
+			if ((a_idx < ART_MIN_NORMAL) ||
+				(a_ptr->tval == TV_ROD) ||
+				(a_ptr->tval == TV_STAFF) ||
+				(a_ptr->tval == TV_WAND))
+			{
+				if (loop == 1)
+				{
+					artifact_special[artifact_special_cnt] = a_idx;
+				}
+
+				/* Count the special artifacts */
+				artifact_special_cnt++;
+			}
+
+			/*
+			 * This is a "normal" artifact. Notice we must skip
+			 * Morgoth's Crown and Hammer.
+			 */
+			else if (!(a_ptr->flags3 & TR3_INSTA_ART))
+			{
+				if (loop == 1)
+				{
+					artifact_normal[artifact_normal_cnt] = a_idx;
+				}
+
+				/* Count the normal artifacts */
+				artifact_normal_cnt++;
+			}
+		}
+
+		/* Allocate the lists the first time through */
+		if (loop == 0)
+		{
+			C_MAKE(artifact_normal, artifact_normal_cnt, int);
+			C_MAKE(artifact_special, artifact_special_cnt, int);
+		}
+	}
+}
+
 
 /*
  * Initialize the "a_info" array, by parsing a binary "image" file
@@ -2395,20 +2473,7 @@ static errr init_other(void)
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/
 
-	/* The "basic" feelings */
-	(void)quark_add("cursed");
-	(void)quark_add("broken");
-	(void)quark_add("average");
-	(void)quark_add("good");
-
-	/* The "extra" feelings */
-	(void)quark_add("excellent");
-	(void)quark_add("worthless");
-	(void)quark_add("special");
-	(void)quark_add("terrible");
-
 	/* Some extra strings */
-	(void)quark_add("uncursed");
 	(void)quark_add("on sale");
 
 
@@ -2638,12 +2703,12 @@ static errr init_alloc(void)
 
 
 /*
- * Hack -- take notes on line 23
+ * Hack -- take notes on bottom line
  */
 static void note(cptr str)
 {
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	Term_erase(0, screen_y - 1, 255);
+	Term_putstr((screen_x - 80) / 2 + 20, screen_y - 1, -1, TERM_WHITE, str);
 	Term_fresh();
 }
 
@@ -2771,13 +2836,14 @@ void init_angband(void)
 	/* Dump */
 	if (fp)
 	{
-		int i = 0;
+		int i = (screen_y - 24)/2;
+		int w = (screen_x - 80)/2;
 
 		/* Dump the file to the screen */
 		while (0 == my_fgets(fp, buf, 1024))
 		{
 			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
+			Term_putstr(w, i++, -1, TERM_WHITE, buf);
 		}
 
 		/* Close */

@@ -796,15 +796,47 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->xtra2);
 	}
 
+	/* Feeling */
+	if (!o_older_than(0, 4, 1))
+	{
+		rd_byte(&o_ptr->feel);
+	}
+
 	/* Inscription */
 	rd_string(buf, 128);
+
+	/* If this savefile is old, maybe we need to translate the feeling */
+	if (o_older_than(0, 4, 1))
+	{
+		int i;
+
+		/* Check each feeling */
+		for (i = 0; i < FEEL_MAX; i++)
+		{
+			/* Skip "empty" feelings */
+			if (feel_text[i] == NULL) continue;
+
+			/* Found a match */
+			if (streq(buf, feel_text[i]))
+			{
+				/* Remember the feeling */
+				o_ptr->feel = i;
+
+				/* Forget the inscription */
+				buf[0] = '\0';
+
+				/* Done */
+				break;
+			}
+		}
+	}
 
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
 
 	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_older_than(0, 3, 6)) && (o_ptr->k_idx >= 445) && 
+	if ((older_than(2, 8, 3)) && (o_ptr->k_idx >= 445) && 
 		(o_ptr->k_idx <= 479)) return;
 
 
@@ -1054,6 +1086,9 @@ static void rd_item(object_type *o_ptr)
 		 o_ptr->dd = k_ptr->dd;
 	if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
 		 o_ptr->ds = k_ptr->ds;
+
+	if (o_ptr->name2 == EGO_BALROG) o_ptr->dd = old_dd;
+	if (o_ptr->name2 == EGO_DWARVEN) o_ptr->ac += 5;
 
 	/* Acquire standard weight, unless an ego-item. */
 	if (!o_ptr->name2) o_ptr->weight = k_ptr->weight;
@@ -1779,7 +1814,7 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 
-	rd_byte(&p_ptr->black_breath);	/* Status of Black Breath. */
+	rd_byte((byte *) &p_ptr->black_breath);	/* Status of Black Breath. */
 
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
@@ -2864,6 +2899,21 @@ static errr rd_dungeon(void)
 		}
 	}
 
+	/*
+	 * Attach objects carried by a monster to the monster again.
+	 * We look for the each object in o_list[] that is carried by
+	 * a monster. If the monster isn't carrying any object yet,
+	 * then assign it the object. The object with the highest
+	 * o_idx is assumed to be at the head of the list of objects
+	 * carried by a monster. -TNB-
+	 */
+	for (i = o_max; i > 0; i--)
+	{
+		object_type *o_ptr = &o_list[i];
+		if (!o_ptr->held_m_idx) continue;
+		if (m_list[o_ptr->held_m_idx].hold_o_idx) continue;
+		m_list[o_ptr->held_m_idx].hold_o_idx = i;
+	}
 
 	/*** Success ***/
 
@@ -3375,7 +3425,7 @@ errr rd_version_info(void)
 	fd = fd_open(savefile, O_RDONLY);
 
 	/* No file.  Report error. */
-	if (!fd) return (-1);
+	if (fd < 0) return (-1);
 
 	fd_read(fd, (char*)&sf_major, 1);
 	fd_read(fd, (char*)&sf_minor, 1);

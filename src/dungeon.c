@@ -19,72 +19,72 @@
 
 
 /*
- * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
+ * Return a "feeling" (or FEEL_NONE) about an item.  Method 1 (Heavy).
  */
-static cptr value_check_aux1(object_type *o_ptr)
+static int value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_TERRIBLE;
 
 		/* Normal */
-		return "special";
+		return FEEL_SPECIAL;
 	}
 
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return "worthless";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_WORTHLESS;
 
 		/* Normal */
-		return "excellent";
+		return FEEL_EXCELLENT;
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Good "armor" bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return FEEL_GOOD;
 
 	/* Good "weapon" bonus */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
 	/* Default to "average" */
-	return "average";
+	return FEEL_AVERAGE;
 }
 
 
 /*
- * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
+ * Return a "feeling" (or FEEL_NONE) about an item.  Method 2 (Light).
  */
-static cptr value_check_aux2(object_type *o_ptr)
+static int value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return "cursed";
+	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return "broken";
+	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr)) return "good";
+	if (artifact_p(o_ptr)) return FEEL_GOOD;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return "good";
+	if (ego_item_p(o_ptr)) return FEEL_GOOD;
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return "good";
+	if (o_ptr->to_a > 0) return FEEL_GOOD;
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return "good";
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
 
 	/* No feeling */
-	return (NULL);
+	return FEEL_NONE;
 }
 
 
@@ -111,12 +111,11 @@ static void sense_inventory(void)
 
 	bool heavy = FALSE;
 
-	cptr feel;
+	int feel;
 
 	object_type *o_ptr;
 
 	char o_name[80];
-
 
 	/*** Check for "sensing" ***/
 
@@ -276,7 +275,7 @@ static void sense_inventory(void)
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
 		/* Skip non-feelings */
-		if (!feel) continue;
+		if (feel == FEEL_NONE) continue;
 
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
@@ -289,7 +288,7 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) you are %s %s %s...",
 			           o_name, index_to_label(i), describe_use(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
 		}
 
 		/* Message (inventory) */
@@ -297,14 +296,15 @@ static void sense_inventory(void)
 		{
 			msg_format("You feel the %s (%c) in your pack %s %s...",
 			           o_name, index_to_label(i),
-			           ((o_ptr->number == 1) ? "is" : "are"), feel);
+			           ((o_ptr->number == 1) ? "is" : "are"),
+			           feel_text[feel]);
 		}
 
 		/* We have "felt" it */
 		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Inscribe it textually */
-		if (!o_ptr->note) o_ptr->note = quark_add(feel);
+		o_ptr->feel = feel;
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1280,6 +1280,8 @@ static void process_world(void)
 
 			/* Sound */
 			sound(SOUND_TPLEVEL);
+
+			p_ptr->redraw |= PR_STATUS;
 		}
 	}
 }
@@ -1527,7 +1529,7 @@ static void process_command(void)
 		/* Identify an object */
 		case 'I':
 		{
-			do_cmd_observe(NULL, 0);
+			do_cmd_observe(NULL, FALSE);
 			break;
 		}
 
@@ -1958,6 +1960,13 @@ static void process_command(void)
 
 #endif
 
+		/* Time */
+		case KTRL('T'):
+		{
+			do_cmd_time();
+			break;
+		}
+
 		/* Save and quit */
 		case KTRL('X'):
 		{
@@ -2112,7 +2121,6 @@ static void process_player(void)
 {
 	int i;
 
-
 	/*** Apply energy ***/
 
 	/* Give the player some energy */
@@ -2158,10 +2166,17 @@ static void process_player(void)
 	/* Handle "abort" */
 	if (!avoid_abort)
 	{
+		/*
+		 * Originally, with "resting < 0" you could not abort.
+		 * In "resting && !(resting & 0x0F)":
+		 *     -1 & 0x0F == 15
+		 *     -2 & 0x0F == 16
+		 */
+
 		/* Check for "player abort" */
 		if (p_ptr->running ||
 		    p_ptr->command_rep ||
-		    (p_ptr->resting && !(p_ptr->resting & 0x0F)))
+		    (p_ptr->resting && !((turn * 10) % 0x0F)))
 		{
 			/* Do not wait */
 			inkey_scan = TRUE;
@@ -2778,6 +2793,18 @@ static void process_some_user_pref_files(void)
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
 
+	/* Access the "race" pref file */
+	sprintf(buf, "%s.prf", rp_ptr->title);
+
+	/* Process that file */
+	process_pref_file(buf);
+
+	/* Access the "class" pref file */
+	sprintf(buf, "%s.prf", cp_ptr->title);
+
+	/* Process that file */
+	process_pref_file(buf);
+
 	/* Process the "PLAYER.prf" file */
 	sprintf(buf, "%s.prf", op_ptr->base_name);
 
@@ -2819,9 +2846,14 @@ void play_game(bool new_game)
 		quit("main window is too small");
 	}
 
+	/* Calculate the height of the dungeon display */
+	SCREEN_HGT = screen_y - 2;
+
+	/* XXX Hack -- Show extra status messages if there is enough room */
+	if (screen_y >= 26) SCREEN_HGT -= 2;
+
 	/* Forbid resizing */
 	Term->fixed_shape = TRUE;
-
 
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
@@ -2837,6 +2869,9 @@ void play_game(bool new_game)
 	/* Nothing loaded */
 	if (!character_loaded)
 	{
+		/* Reset RNG when dead-character savefile is loaded */
+		Rand_quick = TRUE;
+
 		/* Make new player */
 		new_game = TRUE;
 
@@ -2891,6 +2926,9 @@ void play_game(bool new_game)
 
 		/* Hack -- enter the world */
 		turn = 1;
+
+		/* Read the default options */
+		process_pref_file("birth.prf");
 	}
 
 	/* Normal machine (process player name) */
@@ -2921,6 +2959,9 @@ void play_game(bool new_game)
 
 	/* Reset visuals */
 	reset_visuals(TRUE);
+
+	/* Initialize the artifact allocation lists */
+	init_artifacts();
 
 
 	/* Window stuff */

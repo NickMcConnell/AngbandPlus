@@ -128,6 +128,18 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+/* 
+ * Screen size (in characters)
+ * This should be corrected (if non-default) by main-xxx.c
+ */
+s16b screen_x = 80;
+s16b screen_y = 24;
+
+/*
+ * Height of dungeon map on screen.
+ */
+s16b SCREEN_HGT = 22;
+s16b SCREEN_WID = 66;
 
 /*
  * Dungeon variables
@@ -723,5 +735,5 @@ byte num_trap_on_level;
 byte num_glyph_on_level;
 
 
-
-
+/* XXX Mega-Hack - See main-win.c */
+bool angband_keymap_flag = TRUE;

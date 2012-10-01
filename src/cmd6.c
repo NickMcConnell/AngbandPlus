@@ -15,6 +15,49 @@
 #include "angband.h"
 
 
+/*
+ * If a spell/wand/rod/etc calls fire_bolt() followed by fire_cloud()
+ * and the targetted monster is killed by the first fire_bolt(), then
+ * the target is cleared and the second fire_cloud() will start at
+ * the character's location. For example:
+ *
+ *     fire_bolt(GF_POIS, dir, damroll(plev / 2, 11));
+ *     fire_cloud(GF_POIS, dir, 30, 6);
+ *
+ * The solution is to remember the target, and if the monster is
+ * killed by the fire_bolt() then the target is set to the location
+ * the monster was at. The macros to do this are:
+ *
+ * TARGET_DECLARE  -- Declare some variables
+ * TARGET_PRESERVE -- Remember the current target location
+ * TARGET_RESTORE  -- Set the target to the saved location
+ *
+ * The above statements would now be written:
+ *
+ *     TARGET_DECLARE
+ *     ...
+ *     TARGET_PRESERVE
+ *     fire_bolt(GF_POIS, dir, damroll(plev / 2, 11));
+ *     TARGET_RESTORE
+ *     fire_cloud(GF_POIS, dir, 30, 6);
+ */
+ 
+#define TARGET_DECLARE \
+	int save_target_y = 0, save_target_x = 0; \
+	bool save_target_set;
+
+#define TARGET_PRESERVE \
+	if ((dir == 5) && target_okay() && p_ptr->target_who) \
+	{ \
+		save_target_y = p_ptr->target_row; \
+		save_target_x = p_ptr->target_col; \
+		save_target_set = TRUE; \
+	} \
+	else save_target_set = FALSE;
+
+#define TARGET_RESTORE \
+	if (save_target_set && !p_ptr->target_set) \
+		target_set_location(save_target_y, save_target_x);
 
 /*
  * This file includes code for eating food, drinking potions,
@@ -1122,6 +1165,9 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
+#if 1
+			word_recall(rand_int(20) + 15);
+#else
 			if (p_ptr->word_recall == 0)
 			{
 				p_ptr->word_recall = randint(20) + 15;
@@ -1132,6 +1178,8 @@ void do_cmd_read_scroll(void)
 				p_ptr->word_recall = 0;
 				msg_print("A tension leaves the air around you...");
 			}
+			p_ptr->redraw |= PR_STATUS;
+#endif
 			ident = TRUE;
 			break;
 		}
@@ -1927,9 +1975,11 @@ void do_cmd_use_staff(void)
 	}
 
 
+
+
 	/* Make it possible to fully identify staffs through use. -LM- */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(obj_special_info[3][o_ptr->sval] != "") &&
+		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 25 : 35) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
@@ -1937,7 +1987,7 @@ void do_cmd_use_staff(void)
 
 		if (artifact_p(o_ptr)) 
 			msg_format("You feel you know more about the Staff %s.", 
-			a_name + a_info[o_ptr->name1].name);
+				a_name + a_info[o_ptr->name1].name);
 		
 		else msg_format("You feel you know more about staffs of %s.", 
 			k_name + k_ptr->name);
@@ -1972,6 +2022,7 @@ void do_cmd_aim_wand(void)
 
 	cptr q, s;
 
+	TARGET_DECLARE
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
@@ -2037,6 +2088,9 @@ void do_cmd_aim_wand(void)
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 		return;
 	}
 
@@ -2263,7 +2317,9 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STORMS:
 		{
+			TARGET_PRESERVE
 			fire_bolt(GF_WATER, dir, damroll(12 + plev / 5, 4));
+			TARGET_RESTORE
 			fire_bolt(GF_ELEC, dir, damroll(12 + plev / 5, 4));
 			ident = TRUE;
 			break;
@@ -2273,7 +2329,9 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_ILKORIN:
 		{
 			msg_print("Deadly venom spurts and steams from your wand.");
+			TARGET_PRESERVE
 			fire_bolt(GF_POIS, dir, damroll(plev / 2, 11));
+			TARGET_RESTORE
 			fire_cloud(GF_POIS, dir, 30, 6);
 			ident = TRUE;
 			break;
@@ -2284,11 +2342,18 @@ void do_cmd_aim_wand(void)
 			msg_print("You speak soft, beguiling words.");
 
 			if (rand_int(3) == 0) 
+			{
 				if (slow_monster(dir, plev * 2)) ident = TRUE;
-			else if (rand_int(2) == 0) 	
+			}
+			else if (rand_int(2) == 0) 
+			{
 				if (confuse_monster(dir, plev * 2)) ident = TRUE;
+			}
 			else
+			{
 				if (sleep_monster(dir, plev * 2)) ident = TRUE;
+			}
+
 			ident = TRUE;
 			break;
 		}
@@ -2347,7 +2412,7 @@ void do_cmd_aim_wand(void)
 
 	/* Make it possible to fully identify wands through use. -LM- */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(obj_special_info[4][o_ptr->sval] != "") &&
+		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 30 : 40) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
@@ -2355,7 +2420,7 @@ void do_cmd_aim_wand(void)
 
 		if (artifact_p(o_ptr)) 
 			msg_format("You feel you know more about the Wand %s.", 
-			a_name + a_info[o_ptr->name1].name);
+				a_name + a_info[o_ptr->name1].name);
 		
 		else msg_format("You feel you know more about wands of %s.", 
 			k_name + k_ptr->name);
@@ -2410,7 +2475,10 @@ void do_cmd_zap_rod(void)
 
 
 	/* Get a direction (unless KNOWN not to need it) */
-	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
+	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) &&
+		 (o_ptr->sval <= SV_ROD_GLAURUNGS)) ||
+		 (o_ptr->sval == SV_ROD_DELVING) ||
+		 !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
@@ -2497,6 +2565,9 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RECALL:
 		{
+#if 1
+			word_recall(rand_int(20) + 15);
+#else
 			if (p_ptr->word_recall == 0)
 			{
 				msg_print("The air about you becomes charged...");
@@ -2507,6 +2578,8 @@ void do_cmd_zap_rod(void)
 				msg_print("A tension leaves the air around you...");
 				p_ptr->word_recall = 0;
 			}
+			p_ptr->redraw |= PR_STATUS;
+#endif
 			ident = TRUE;
 			break;
 		}
@@ -2724,8 +2797,13 @@ void do_cmd_zap_rod(void)
 				/* Lots of damage to creatures of stone. */
 				fire_sphere(GF_KILL_WALL, 0, 300, 4, 20);
 			}
+
 			/* Otherwise, an extremely powerful destroy wall/stone. */
-			else fire_beam(GF_KILL_WALL, dir, 160 + randint(240));
+			else
+			{
+				extern bool wall_to_mud_hack(int dir, int dam);
+				(void) wall_to_mud_hack(dir, 160 + randint(240));
+			}
 			ident = TRUE;
 			break;
 		}
@@ -2759,6 +2837,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_PORTALS:
 		{
 			msg_print("Choose a location to teleport to.");
+			msg_print(NULL);
 			dimen_door();
 			ident = TRUE;
 			break;
@@ -2792,7 +2871,7 @@ void do_cmd_zap_rod(void)
 
 	/* Make it possible to fully identify rods through use. -LM- */
 	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(obj_special_info[5][o_ptr->sval] != "") &&
+		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 45 : 65) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
@@ -2801,8 +2880,8 @@ void do_cmd_zap_rod(void)
 
 		if (artifact_p(o_ptr)) 
 			msg_format("You feel you know more about the Rod %s.", 
-			a_name + a_info[o_ptr->name1].name);
-		
+				a_name + a_info[o_ptr->name1].name);
+
 		else msg_format("You feel you know more about rods of %s.", 
 			k_name + k_ptr->name);
 	}
@@ -2916,6 +2995,7 @@ void do_cmd_activate(void)
 	cptr q, s;
 	cptr missile_name = "";
 
+	TARGET_DECLARE
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
@@ -3496,6 +3576,9 @@ void do_cmd_activate(void)
 		case ACT_AVAVIR:
 		{
 			msg_print("Your scythe glows soft white...");
+#if 1
+			word_recall(rand_int(20) + 15);
+#else
 			if (p_ptr->word_recall == 0)
 			{
 				p_ptr->word_recall = randint(20) + 15;
@@ -3506,6 +3589,8 @@ void do_cmd_activate(void)
 				p_ptr->word_recall = 0;
 				msg_print("A tension leaves the air around you...");
 			}
+			p_ptr->redraw |= PR_STATUS;
+#endif
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -3700,7 +3785,9 @@ void do_cmd_activate(void)
 		{
 			msg_print("You throw a radiant sphere...");
 			if (!get_aim_dir(&dir)) return;
+			TARGET_PRESERVE 
 			fire_ball(GF_LITE, dir, 50, 0, FALSE);
+			TARGET_RESTORE
 			fire_ball(GF_CONFUSION, dir, 10, 0, FALSE);
 			o_ptr->timeout = 250;
 			break;
@@ -3986,6 +4073,9 @@ void do_cmd_activate(void)
 		}
 		case ACT_RANDOM_RECALL:
 		{
+#if 1
+			word_recall(rand_int(20) + 15);
+#else
 			if (p_ptr->word_recall == 0)
 			{
 				p_ptr->word_recall = rand_int(20) + 15;
@@ -3996,6 +4086,8 @@ void do_cmd_activate(void)
 				p_ptr->word_recall = 0;
 				msg_print("A tension leaves the air around you...");
 			}
+			p_ptr->redraw |= PR_STATUS;
+#endif
 			o_ptr->timeout = 350;
 			break;
 		}
@@ -4369,10 +4461,11 @@ void do_cmd_activate(void)
 			break;
 		}
 
+		default:
 
-
-		/* Mistake */
-		msg_print("Oops.  Activation type unrecognized.");
+			/* Mistake */
+			msg_print("Oops.  Activation type unrecognized.");
+			break;
 	}
 
 	/* Window stuff */
@@ -4384,7 +4477,7 @@ void do_cmd_activate(void)
 	 */
 	if (((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_RING)) && 
 		(k_info[o_ptr->k_idx].known_effect == FALSE) && 
-		!artifact_p(o_ptr) && (obj_special_info[0][o_ptr->sval] != "") && 
+		!artifact_p(o_ptr) && strlen(obj_special_info[0][o_ptr->sval]) && 
 		(rand_int(25) == 0))
 	{
 		char o_name[80];

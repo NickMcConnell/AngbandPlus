@@ -214,6 +214,13 @@ C:1:^C
 A:w0
 C:1:X
 
+# Time of day
+A:^T
+C:1:'
+
+# Repeat last command
+A:n
+C:1:[
 
 ##### System Specific Subfiles #####
 

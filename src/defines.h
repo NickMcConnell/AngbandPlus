@@ -48,7 +48,7 @@
 /*
  * Current version string - according to Oangband reckoning.
  */
-#define VERSION_STRING	"0.4.0"
+#define VERSION_STRING	"0.4.1"
 
 /*
  * Version of Angband from which this version of Oangband is derived.
@@ -67,7 +67,7 @@
  */
 #define O_VERSION_MAJOR	0
 #define O_VERSION_MINOR	4
-#define O_VERSION_PATCH	0
+#define O_VERSION_PATCH	1
 
 /* Currently unused. */
 #define O_VERSION_EXTRA	0
@@ -102,13 +102,13 @@
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	22
+#define OLD_SCREEN_HGT	22
 
 /*
  * Number of grids in each screen (horizontally)
  * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define SCREEN_WID	66
+#define OLD_SCREEN_WID	66
 
 
 /*
@@ -287,8 +287,8 @@
 #define THEME_ELEMENTAL		1
 #define THEME_DRAGON		2
 #define THEME_WILDERNESS	3
-#define THEME_DEMON		4
-#define THEME_MORIA		5
+#define THEME_DEMON			4
+#define THEME_MORIA			5
 #define THEME_WARLORDS		6
 
 /*
@@ -561,32 +561,32 @@
 #define ROW_STUN		22
 #define COL_STUN		0	/* <stun> */
 
-#define ROW_HUNGRY		23
+#define ROW_HUNGRY		(screen_y-1)
 #define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND		23
+#define ROW_BLIND		(screen_y-1)
 #define COL_BLIND		7	/* "Blind" */
 
-#define ROW_CONFUSED	23
+#define ROW_CONFUSED	(screen_y-1)
 #define COL_CONFUSED	13	/* "Confused" */
 
-#define ROW_AFRAID		23
+#define ROW_AFRAID		(screen_y-1)
 #define COL_AFRAID		22	/* "Afraid" */
 
-#define ROW_POISONED	23
+#define ROW_POISONED	(screen_y-1)
 #define COL_POISONED	29	/* "Poisoned" */
 
-#define ROW_STATE		23
+#define ROW_STATE		(screen_y-1)
 #define COL_STATE		38	/* <state> */
 
-#define ROW_SPEED		23
+#define ROW_SPEED		(screen_y-1)
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		23
+#define ROW_STUDY		(screen_y-1)
 #define COL_STUDY		64	/* "Study" */
 
-#define ROW_DEPTH		23
-#define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+#define ROW_DEPTH		(screen_y-1)
+#define COL_DEPTH		(screen_x-10)	/* "Lev NNN" / "NNNN ft" */
 
 #define ROW_MAP			1
 #define COL_MAP			13
@@ -2111,6 +2111,7 @@
 /* xxx */
 #define PR_MAP		0x08000000L	/* Display Map */
 /* xxx (many) */
+#define PR_STATUS	0x80000000L /* Display extra status messages */
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
@@ -2220,6 +2221,22 @@
 #define IDENT_MENTAL	0x20	/* Item information is known */
 #define IDENT_CURSED	0x40	/* Item is temporarily cursed */
 #define IDENT_BROKEN	0x80	/* Item is permanently worthless */
+
+
+/*
+ * Game-generated feelings.
+ */
+#define FEEL_NONE              0
+#define FEEL_BROKEN            1
+#define FEEL_TERRIBLE          2
+#define FEEL_WORTHLESS         3
+#define FEEL_CURSED            4
+#define FEEL_UNCURSED          5
+#define FEEL_AVERAGE           6
+#define FEEL_GOOD              7
+#define FEEL_EXCELLENT         8
+#define FEEL_SPECIAL           9
+#define FEEL_MAX               10
 
 
 /*
@@ -2729,6 +2746,8 @@
 /*** Option Definitions ***/
 
 #define OPT_MAX	64
+#define OPT_PAGE_MAX 6
+#define OPT_PAGE_PER 20
 
 /*
  * Indexes
@@ -2747,7 +2766,7 @@
 #define OPT_show_weights			11
 #define OPT_show_choices			12
 #define OPT_show_details			13
-#define OPT_metric				14
+#define OPT_metric					14
 #define OPT_show_flavors			15
 
 #define OPT_run_ignore_stairs		16
@@ -2765,7 +2784,7 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_ring_bell				30
-/* xxx */
+#define OPT_verify_destroy_junk		31
 
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
@@ -2773,8 +2792,8 @@
 #define OPT_easy_disarm 			35
 #define OPT_expand_look				36
 #define OPT_expand_list				37
-#define OPT_view_perma_grids	 		38
-#define OPT_view_torch_grids			39
+#define OPT_view_perma_grids	 	38
+#define OPT_view_torch_grids		39
 #define OPT_dungeon_align			40
 #define OPT_dungeon_stair			41
 #define OPT_empty_levels			42
@@ -2790,10 +2809,14 @@
 #define OPT_avoid_other				51
 #define OPT_flush_failure			52
 #define OPT_flush_disturb			53
-/* xxx */
+
+#define OPT_center_player			54
+
 #define OPT_fresh_before			55
 #define OPT_fresh_after				56
-/* xxx */
+
+#define OPT_center_running			57
+
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
 #define OPT_view_yellow_lite		60
@@ -2820,7 +2843,7 @@
 #define show_weights			op_ptr->opt[OPT_show_weights]
 #define show_choices			op_ptr->opt[OPT_show_choices]
 #define show_details			op_ptr->opt[OPT_show_details]
-#define use_metric			op_ptr->opt[OPT_metric]
+#define use_metric				op_ptr->opt[OPT_metric]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
 
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
@@ -2838,12 +2861,12 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
-/* xxx */
+#define verify_destroy_junk		op_ptr->opt[OPT_verify_destroy_junk]
 
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
-#define easy_open                      op_ptr->opt[OPT_easy_open]  /* TNB */
-#define easy_disarm                    op_ptr->opt[OPT_easy_disarm]  /* TNB */
+#define easy_open				op_ptr->opt[OPT_easy_open]  /* TNB */
+#define easy_disarm				op_ptr->opt[OPT_easy_disarm]  /* TNB */
 #define expand_look				op_ptr->opt[OPT_expand_look]
 #define expand_list				op_ptr->opt[OPT_expand_list]
 #define view_perma_grids		op_ptr->opt[OPT_view_perma_grids]
@@ -2863,10 +2886,14 @@
 #define avoid_other				op_ptr->opt[OPT_avoid_other]
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
-/* xxx */
+
+#define center_player			op_ptr->opt[OPT_center_player]
+
 #define fresh_before			op_ptr->opt[OPT_fresh_before]
 #define fresh_after				op_ptr->opt[OPT_fresh_after]
-/* xxx */
+
+#define center_running			op_ptr->opt[OPT_center_running]
+
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]

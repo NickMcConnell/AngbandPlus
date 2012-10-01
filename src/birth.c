@@ -223,7 +223,7 @@ static hist_type bg[] =
 	{"an Entish Forestwarden.  ", 81, 32, 74, 80},
 	{"a respected Entish sage.  ", 91, 32, 74, 90},
 	{"an Entwife whose memory men cherish.  ", 96, 32, 74, 100},
-	{"Fangorn himself.  ", 199, 32, 74, 110},
+	{"Fangorn himself.  ", 100, 32, 74, 110},
 
 
 	{"You have dark brown eyes, ", 25, 50, 51, 50},

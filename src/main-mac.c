@@ -3000,7 +3000,7 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
-					do_cmd_save_game();
+					do_cmd_save_game(FALSE);
 
 					break;
 				}
@@ -3043,7 +3043,7 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-						do_cmd_save_game();
+						do_cmd_save_game(FALSE);
 					}
 
 					/* Quit */
@@ -4182,7 +4182,7 @@ static void init_stuff(void)
 /*
  * Macintosh Main loop
  */
-void main(void)
+int main(void)
 {
 	int i;
 
@@ -4410,6 +4410,8 @@ void main(void)
 
 	/* Hack -- Process Events Forever */
 	while (TRUE) CheckEvents(TRUE);
+
+	return 0;
 }
 
 

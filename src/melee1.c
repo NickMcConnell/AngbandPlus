@@ -135,12 +135,8 @@ static void make_request(int m_idx)
 	int sanity_check = 0;
 	int offer_price = 0;
 
-	byte deal = 0;
-
 	char m_name[80];
 	char o_name[80];
-
-	char answer;
 
 
 	/* Get the monster name (or "it") */
@@ -239,20 +235,9 @@ static void make_request(int m_idx)
 		/* Try to make a deal for the item. */
 		msg_format("%^s looks longingly at your abundant supplies:", m_name);
 		msg_format("'Kind Sir, I desperately need %d %s.  I will gladly give %d gold in exchange.'", requested_number, o_name, offer_price);
-		msg_print(NULL);
-
-		can_you_hear_me_now:
-
-		msg_print("Accept the offer? (y/n)");
-
-		/* Listen for a reply. */
-		answer = inkey();
-		if ((answer == 'Y') || (answer == 'y')) deal = 2;
-		else if ((answer == 'N') || (answer == 'n') || (answer == ESCAPE)) deal = 1;
-		else goto can_you_hear_me_now;
 
 		/* Make the trade. */
-		if (deal == 2)
+		if (get_check("Accept the offer? "))
 		{
 			/* Be friendly. */
 			msg_print(NULL);
@@ -269,8 +254,9 @@ static void make_request(int m_idx)
 			/* Redraw gold */
 			p_ptr->redraw |= (PR_GOLD);
 		}
+
 		/* How can you be so stingy! */
-		else if (deal == 1)
+		else
 		{
 			/* Complain bitterly. */
 			msg_print(NULL);
@@ -671,6 +657,7 @@ bool make_attack_normal(int m_idx, int y, int x)
 					break;
 				}
 
+				/* Poison is no longer fully cumulative. -LM- */
 				case RBE_POISON:
 				{
 					/* Take damage */
@@ -679,9 +666,21 @@ bool make_attack_normal(int m_idx, int y, int x)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint((damage + 1) / 2) + (damage / 2)))
+						if (p_ptr->poisoned)
 						{
-							obvious = TRUE;
+							/* 1/4 to 1/2 damage. */
+							if (set_poisoned(p_ptr->poisoned + 
+								randint((damage + 3) / 4) + 
+								(damage / 4)))
+								obvious = TRUE;
+						}
+						else 
+						{
+							/* 1/2 to whole damage, plus 4. */
+							if (set_poisoned(p_ptr->poisoned + 4 + 
+								randint((damage + 1) / 2) + 
+								(damage / 2)))
+								obvious = TRUE;
 						}
 					}
 

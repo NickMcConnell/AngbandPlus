@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -1995,7 +1995,7 @@ W:50:0:3:0
 A:50/1
 F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 D:that calls a terrible curse upon you, crushing your mind and body in a 
-D:relentless vice
+D:relentless vice.
 
 N:303:Teleportation
 G:":d
@@ -3209,7 +3209,7 @@ N:492:& Wand~
 G:-:d
 I:65:40:10
 W:40:0:10:15000
-A:40/40
+# A:40/40 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3221,7 +3221,7 @@ N:493:& Wand~
 G:-:d
 I:65:41:4
 W:70:0:10:27500
-A:70/52
+# A:70/52 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3233,7 +3233,7 @@ N:494:& Wand~
 G:-:d
 I:65:42:4
 W:100:0:10:150000
-A:100/48
+# A:100/48 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3245,7 +3245,7 @@ N:495:& Wand~
 G:-:d
 I:65:43:6
 W:70:0:10:22500
-A:70/48
+# A:70/48 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3555,7 +3555,7 @@ N:540:& Staff~
 G:_:d
 I:55:40:6
 W:85:0:50:35000
-A:85/40
+# A:85/40 TNB
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
@@ -3566,7 +3566,7 @@ N:541:& Staff~
 G:_:d
 I:55:41:6
 W:50:0:50:20000
-A:50/40
+# A:50/40 TNB
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
@@ -3578,7 +3578,7 @@ N:542:& Staff~
 G:_:d
 I:55:42:5
 W:85:0:50:30000
-A:85/48
+# A:85/48 TNB
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
@@ -3590,7 +3590,7 @@ N:543:& Staff~
 G:_:d
 I:55:43:5
 W:50:0:50:20000
-A:50/48
+# A:50/48 TNB
 P:0:1d2:0:0:0
 F:INSTA_ART
 D:
@@ -3761,7 +3761,7 @@ I:66:20:18
 W:35:0:15:2700
 A:35/2
 P:0:1d1:0:0:0
-D:that shoots bolts of lightning~.
+D:that shoots bolts of acid~.
 
 N:589:Lightning Bolts
 G:-:d
@@ -3886,7 +3886,7 @@ N:608:& Rod~
 G:-:d
 I:66:40:0
 W:65:0:15:12500
-A:65/40
+# A:65/40 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3898,7 +3898,7 @@ N:609:& Rod~
 G:-:d
 I:66:41:300
 W:80:0:15:20000
-A:80/40
+# A:80/40 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3910,7 +3910,7 @@ N:610:& Rod~
 G:-:d
 I:66:42:75
 W:85:0:15:25000
-A:85/48
+# A:85/48 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:
@@ -3922,7 +3922,7 @@ N:611:& Rod~
 G:-:d
 I:66:43:40
 W:70:0:15:50000
-A:70/64
+# A:70/64 TNB
 P:0:1d1:0:0:0
 F:INSTA_ART
 D:

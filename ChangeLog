@@ -1,0 +1,250 @@
+This is the list of changes for OAngband 0.4.1, which was put together
+by Tim Baker to fix all the known bugs reported by OAngband users,
+who had had enough of the bugs in an otherwise excellent variant.
+We hope Leon Marrick gives us his blessing in this endeavor, but
+we have waited long enough!
+
+
+Changes to OAngband 0.4.0e
+==========================
+
+o The following things were changed to support Tom Morton's Bigscreen Patch:
+
+	> Inventory and equipment lists (right-justified, longer descriptions)
+	> The message history (fill screen vertically)
+	> Notes during initialization (centered on bottom row)
+	> The 'M'ap command (the map fills the screen)
+	> The message line at the top of the screen (more of a message is seen)
+	> The tomb display (centered)
+	> The high scores display (more scores vertically)
+	> The dungeon level is displayed in the lower-right corner
+	> Screen dumps (handle different screen sizes)
+
+o Changed the Windows version to allow the user to choose any fixed-width
+	font installed on the computer, in addition to the included font files.
+	I like the "Fixedsys" font. Because of this, I had to remove the
+	pseudo-graphics from font-win.prf.
+
+o Changed the Windows version to apply a "gamma correction" to the screen
+	colors (to make them a bit brighter).
+
+o Added two options for keeping the player centered, "center_player" and
+	"center_running" under the Efficiency page. Stolen from ZAngband.
+
+o Changed the Windows version to optimize drawing of the screen. This is to
+	counteract the slow center_player option.
+
+o The target/look command now scrolls the screen. Stolen from ZAngband.
+
+o Fixed a bug with selecting an item. The screen was not redrawn when
+	switching between inventory and equipment with '/'. Didn't rr report
+	this for easy_floor once?
+
+o Many extra status messages are displayed if the screen is at least 26 rows
+	tall. The possible messages are: Blessed, Hero, Berserk, ResAcid, ResCold,
+	ResElec, ResFire, ResPois, ProtEvil, Shield, Faster, Slower, Infra,
+	SeeInvis, ESP, Recall, Halluc, AttAcid, AttElec, AttFire, AttCold, AttPois,
+	MagicDef and Stealth. This requires 2 extra rows near the bottom.
+
+o Added the "verify_destroy_junk" option to the Disturbance page. When this
+	option is on, you are asked to confirm the destruction of worthless
+	objects when using the destroy command.
+
+o Ask for which ring to replace when putting on another ring, if two rings are
+	already being worn.
+
+o Added two commands for saving and loading options in the "options" command.
+	The window flags are also saved/loaded.
+
+o If there is a lib\user\birth.prf file, it is automatically loaded when a
+	new character is created, before the other preference files (see below).
+
+o Race- and class-specific preference files are loaded in addition to the
+	others, as in ZAngband. The order now is:
+	> user.prf
+	> Hobbit.prf (race name)
+	> Rogue.prf (class name)
+	> Bilbo.prf (character name)
+
+o Separated user inscriptions from game-generated inscriptions. This required
+	the game version to be bumped to 0.4.1, since an extra object field was
+	needed to hold the game inscription in the savefile.
+
+o Added many new menus to the Windows version, containing most of the game
+	commands. This should help new players.
+
+o Changed the "screen dump" commands to ask for a filename, and fixed a bug.
+
+o Made sure the monster fear message was displayed when a monster sets off
+	the player's cunning trap.
+
+o Fixed a few "buf[i] == NULL" typos.
+
+o Added "time of day" command (^T/') from ZAngband, minus the descriptive
+	messages.
+
+o Added auto-pickup of any item inscribed with "=g". The item will be picked
+	up regardless of any pickup options, if there is room. Inscribe your ammo!
+
+o Grids outside the town walls are darkened. This looks better with big
+	screens or when center_player is on.
+
+
+Changes to OAngband 0.4.0d
+==========================
+
+o Themed levels aren't generated on quest levels, to prevent down
+	staircases and give the quest monsters a better chance of being
+	generated.
+
+o The item activation description for objects which brand missiles
+	said "brand missiles every 999 turns" but the code value is actually
+	every 1750 turns.
+
+o Make sure the "Please wait.  This may take a little while." message
+	is displayed while generating a themed level if the fresh_after
+	option is not set.
+
+o *Identify* was incorrectly listing some uncursed objects as cursed.
+
+o Random artifacts were not being allocated. All my fault. They were
+	initialized for each character, but never showed up in the cave.
+
+o Elven Cloak random artifacts always get a "pval" bonus, since they always
+	affect stealth.
+
+o Fixed a bug where *Identify*ing some objects would not display the full
+	knowledge the first time.
+
+
+Changes to OAngband 0.4.0c
+==========================
+
+o when the shield was moved on or off the characters' back due to
+	2-handed weapons use, some things were not recalculated
+
+o some fixes for Macintosh compilation
+	- "(byte *) &p_ptr->black_breath" cast in load2.c
+	- fixed multi-line string constants in analyze_misc() in wizard1.c
+	- add FALSE parameter to do_cmd_save_game() in main-mac.c
+	- change "void main(void)" to "int main(void)"
+
+o D: line changed to F: for 'Careth Asdriag' in a_info.txt
+
+o Monsters on themed levels can sense the player to their full range
+	if they are hurt. This is to prevent the player shooting monsters
+	which are just out of sight.
+
+o Fixed a problem with character history of Ents.
+
+o Tom Morton's bigscreen patch applied. I changed this so the "default"
+	terminal size is 80x24 instead of 80x25, which seemed strange, and
+	resulted in a blank line at the bottom of the screen. Made the
+	store display consider the new screen height.
+
+o Fixed some potential problems with the generation of special rooms and
+	vaults.
+
+
+Changes to OAngband 0.4.0b
+==========================
+
+o it is no longer possible to scum for special shots when using
+	missile weapons of Velocity or Accuracy
+
+o problems with picking up items were fixed
+
+o it is no longer possible to close a door while standing on it
+	using the easy_open option
+
+o the Rogue hit-and-run attack takes effect when stealing from
+	a monster
+
+o elemental attack choices were incorrectly labelled c) d) a) b)
+
+o the "dimension door" spells now start out allowing the user to
+	choose locations, instead of monsters, and temporarily set
+	the expand_look option
+
+o it was possible that an invalid spell could be chosen when
+	repeating a command if the book containing the spell was
+	destroyed
+
+o the "Choose a location to teleport to." prompt was not seen
+	when using the dimension door spells
+
+o the Sanctify for Battle prayer now says "Your blows will strike
+	with Holy might!" when invoked.
+
+o the Volcanic Eruption spell no longer asks for a direction, as it is
+	centered at the character's location
+
+o the Stench of Death can no longer be cast "for free" by cancelling
+	the poison ball component of the spell
+
+o many multi-attack spells would kill the targetted monster on the
+	first attack, causing the next attack to be centered on the
+	character's position, which was not desired
+
+o the pack is combined/reordered if an empty unidentified wand is used
+
+o some rods would ask (or not ask) for a direction before using
+
+o the Rod of Delving didn't affect walls if fired in a direction
+
+o when resting with "&" or "*", the rest couldn't be interupted
+
+o the Random Number Generator is re-initialized when a dead-character
+	savefile is read in
+
+o if a themed level is generated, and the cave is created
+	again because of "too many monsters", the themed level
+	is un-marked so it may be created again another time
+
+o various corrections were made to spell comments
+
+o Artifact rods, staffs and wands were fixed. The "A:" entries were
+	removed from k_info.txt to prevent the base objects being created
+	without turning them into artifacts, and the "W:" entries were
+	updated in a_info.txt with the correct allocation chances.
+
+o Balrog and Dwarven ego-items have their special bonuses maintained
+	when reading a savefile
+
+o monsters no longer lose any items they had picked up or stolen
+
+o when a monster breaks a glyph of protection it increases the number
+	which the character can set on that level
+
+o if a monster moves into a monster trap set by the character, the trap
+	goes off after the monster steps on it, not before, and doesn't go
+	off if the grid is actually blocked by another monster
+
+o fixed recall of unique monsters, where it would say "^he is a" or
+	"^she is a" or "^it is a"
+
+o temporary ESP works (it used to do nothing at all)
+
+o long object descriptions are correctly handled (this fixes the
+	"a Pair of Hard Leather Boots of Pitiless Torment" bug)
+
+o pseudo-identified ammo no longer stacks with other fully-identified
+	ammo if the damage dice are different
+
+o fixed the "^XXX is not drained" message when draining charges
+
+o the Wand of Unmaking had no effect
+
+o mass-produced rods and wands would have the wrong number of
+	charges
+
+o the "Repeat last command (n)" command was broken in stores
+
+o dropping or selling the wielded weapon in a store now takes the
+	shield off the player's back if it was there
+
+o the Battle Axe 'Mundwine' was a dart
+
+-- Tim Baker
+dbaker@direct.ca
+February 13, 2000

@@ -201,15 +201,15 @@ static void choose_ele_attack(void)
 
 	num = (p_ptr->lev - 20) / 7;
 
-			  c_prt(TERM_RED,    "        c) Fire Brand", 2, 14);
+				  c_prt(TERM_RED,    "        a) Fire Brand", 2, 14);
 
-	if (num >= 2) c_prt(TERM_L_WHITE,"        d) Cold Brand", 3, 14);
+	if (num >= 2) c_prt(TERM_L_WHITE,"        b) Cold Brand", 3, 14);
 	else prt("", 3, 14);
 
-	if (num >= 3) c_prt(TERM_L_DARK, "        a) Acid Brand", 4, 14);
+	if (num >= 3) c_prt(TERM_L_DARK, "        c) Acid Brand", 4, 14);
 	else prt("", 4, 14);
 
-	if (num >= 4) c_prt(TERM_BLUE,   "        b) Elec Brand", 5, 14);
+	if (num >= 4) c_prt(TERM_BLUE,   "        d) Elec Brand", 5, 14);
 	else prt("", 5, 14);
 
 	prt("", 6, 14);
@@ -267,9 +267,13 @@ void dimen_door(void)
 {
 	int ny;
 	int nx;
+	bool okay;
+	bool old_expand_look = expand_look;
 
-	/* Use the standard targeting function. */
-	if (!target_set_interactive(TARGET_LOOK)) return;
+	expand_look = TRUE;
+	okay = target_set_interactive(TARGET_LOOK | TARGET_GRID);
+	expand_look = old_expand_look;
+	if (!okay) return;
 
 	/* grab the target coords. */
 	ny = p_ptr->target_row;
@@ -404,15 +408,25 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	/* Get the spell, if available */
 	if (repeat_pull(sn)) 
 	{
-		/* Verify the spell */
-		if (spell_okay(*sn, known)) 
+		/* Find the array index of the spellbook's first spell. */
+		first_spell = mp_ptr->book_start_index[sval];
+	
+		/* Find the first spell in the next book. */
+		after_last_spell = mp_ptr->book_start_index[sval+1];
+
+		/* Verify the spell is in this book */
+		if (((*sn) >= first_spell) && ((*sn) < after_last_spell))
 		{
-			/* Success */
-			return (TRUE);
+			/* Verify the spell is okay */
+			if (spell_okay(*sn, known)) 
+			{
+				/* Success */
+				return (TRUE);
+			}
 		}
 	}
 
-#endif
+#endif /* ALLOW_REPEAT */
 
 	/* Determine the magic description, for color. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) p = "spell";
@@ -556,7 +570,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 
 #ifdef ALLOW_REPEAT /* TNB */
 	repeat_push(*sn);
-#endif
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -597,22 +612,22 @@ void do_cmd_browse(void)
 	/* Get a realm-flavored description. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
 	{
-		q = "Browse which magic book?";
+		q = "Browse which magic book? ";
 		s = "You have no magic books that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
-		q = "Browse which holy book?";
+		q = "Browse which holy book? ";
 		s = "You have no holy books that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_DRUID_BOOK)
 	{
-		q = "Browse which stone of lore?";
+		q = "Browse which stone of lore? ";
 		s = "You have no stones that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_NECRO_BOOK)
 	{
-		q = "Browse which tome?";
+		q = "Browse which tome? ";
 		s = "You have no tomes that you can read.";
 	}
 
@@ -755,22 +770,22 @@ void do_cmd_study(void)
 	/* Get a realm-flavored description. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
 	{
-		q = "Study which magic book?";
+		q = "Study which magic book? ";
 		s = "You have no magic books that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
-		q = "Study which holy book?";
+		q = "Study which holy book? ";
 		s = "You have no holy books that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_DRUID_BOOK)
 	{
-		q = "Study which stone of lore?";
+		q = "Study which stone of lore? ";
 		s = "You have no stones that you can read.";
 	}
 	if (mp_ptr->spell_book == TV_NECRO_BOOK)
 	{
-		q = "Study which tome?";
+		q = "Study which tome? ";
 		s = "You have no tomes that you can read.";
 	}
 
@@ -996,22 +1011,22 @@ void do_cmd_cast_or_pray(void)
 	/* Get a realm-flavored description. */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
 	{
-		q = "Use which magic book?";
+		q = "Use which magic book? ";
 		s = "You have no magic books that you can use.";
 	}
 	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
-		q = "Use which holy book?";
+		q = "Use which holy book? ";
 		s = "You have no holy books that you can use.";
 	}
 	if (mp_ptr->spell_book == TV_DRUID_BOOK)
 	{
-		q = "Use which stone of lore?";
+		q = "Use which stone of lore? ";
 		s = "You have no stones that you can use.";
 	}
 	if (mp_ptr->spell_book == TV_NECRO_BOOK)
 	{
-		q = "Use which tome?";
+		q = "Use which tome? ";
 		s = "You have no tomes that you can use.";
 	}
 
@@ -1341,6 +1356,9 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 41:	/* Word of Recall */
 			{
+#if 1
+				word_recall(rand_int(20) + 15);
+#else
 				if (!p_ptr->word_recall)
 				{
 					p_ptr->word_recall = rand_int(20) + 15;
@@ -1351,11 +1369,14 @@ void do_cmd_cast_or_pray(void)
 					p_ptr->word_recall = 0;
 					msg_print("A tension leaves the air around you...");
 				}
+				p_ptr->redraw |= PR_STATUS;
+#endif
 				break;
 			}
 			case 42: /* Dimension Door. */
 			{
 				msg_print("Choose a location to teleport to.");
+				msg_print(NULL);
 				dimen_door();
 				break;
 			}
@@ -1524,7 +1545,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 68: /* Call Light */
 			{
-				(void)lite_area(damroll(2, (plev / 3)), (plev / 10) + 1);
+				(void)lite_area(damroll(2, 1 + (plev / 3)), (plev / 10) + 1);
 				break;
 			}
 			case 69: /* Find Traps */
@@ -1730,6 +1751,9 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 99: /* Word of Recall */
 			{
+#if 1
+				word_recall(rand_int(20) + 15);
+#else
 				if (p_ptr->word_recall == 0)
 				{
 					p_ptr->word_recall = rand_int(20) + 15;
@@ -1740,6 +1764,8 @@ void do_cmd_cast_or_pray(void)
 					p_ptr->word_recall = 0;
 					msg_print("A tension leaves the air around you...");
 				}
+				p_ptr->redraw |= PR_STATUS;
+#endif
 				break;
 			}
 			case 100: /* Alter Reality */
@@ -1911,8 +1937,9 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 123: /* Paladin Prayer: Sanctify for Battle */
 			{
+				if (!(p_ptr->special_attack & ATTACK_HOLY))
+					msg_print("Your blows will strike with Holy might!");
 				p_ptr->special_attack |= (ATTACK_HOLY);
-
 				break;
 			}
 			case 124: /* Paladin Prayer: Horn of Wrath */
@@ -1942,7 +1969,7 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 129:  /* call light */
 			{
-				(void)lite_area(damroll(2, (plev / 4)), (plev / 10) + 1);
+				(void)lite_area(damroll(2, 1 + (plev / 4)), (plev / 10) + 1);
 				break;
 			}
 			case 130: /* foraging */
@@ -2223,7 +2250,6 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 173:  /* volcanic eruption */
 			{
-				if (!get_aim_dir(&dir)) return;
 				msg_print("The earth convulses and erupts in fire!");
 				fire_sphere(GF_FIRE, 0, 3 * plev / 2 + randint(50 + plev * 3), 1 + plev / 15, 20);
 				earthquake(py, px, plev / 5, TRUE);
@@ -2536,9 +2562,10 @@ void do_cmd_cast_or_pray(void)
 				take_hit(damroll(2, 8), "the stench of Death");
 				(void)dispel_living(50 + randint(plev));
 				confu_monsters(plev + 10);
-
-				if (!get_aim_dir(&dir)) return;
-				fire_sphere(GF_POIS, dir, plev * 2, 5 + plev / 11, 40);
+				if (get_aim_dir(&dir))
+				{
+					fire_sphere(GF_POIS, dir, plev * 2, 5 + plev / 11, 40);
+				}
 				break;
 			}
 			case 223: /* probing */
@@ -2637,7 +2664,7 @@ void do_cmd_cast_or_pray(void)
 				fire_bolt(GF_SPIRIT, dir,
 				                  damroll(plev / 3, 11));
 				(void)hp_player(3 * plev);
-				p_ptr->food += 1000;
+				(void)set_food(p_ptr->food + 1000);
 				break;
 			}
 			case 239: /* recharging */

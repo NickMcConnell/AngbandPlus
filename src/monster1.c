@@ -647,7 +647,7 @@ static void roff_aux(int r_idx)
 
 		/* Pronoun. */
 		if (flags1 & (RF1_UNIQUE)) 
-			roff(format("^%s is a", wd_he[msex]), 0, 0);
+			roff(format("%^s is a", wd_he[msex]), 0, 0);
 		else roff("It is a", 0, 0);
 
 		/* Describe the "quality" */

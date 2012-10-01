@@ -362,7 +362,7 @@
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/* #define USE_GRAPHICS TNB */
 
 
 /*

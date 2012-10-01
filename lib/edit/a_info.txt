@@ -27,7 +27,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -121,7 +121,7 @@ D:as gossamer it rests upon the bearer.
 
 N:7:of Boromir
 I:40:13:2
-W:30:35:2:20000
+W:30:35:2:25000
 P:0:0d0:0:18:0:7
 F:STR | SHOW_MODS | HIDE_TYPE | 
 F:SUST_STR | RES_FEAR | ACTIVATE | 
@@ -134,7 +134,7 @@ D:intermingled, with great golden hounds set at either end.
 
 N:8:of Faramir
 I:40:14:2
-W:30:35:2:20000
+W:30:35:2:25000
 P:0:0d0:18:0:0:8
 F:STEALTH | SHOW_MODS | HIDE_TYPE | 
 F:RES_CONFU | SUST_DEX | ACTIVATE | 
@@ -1218,7 +1218,7 @@ W:15:8:40:25000
 P:0:1d7:13:8:0:0
 F:STR | DEX | HIDE_TYPE | 
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
-D:RES_FEAR | SHOW_MODS
+F:RES_FEAR | SHOW_MODS
 D:An heirloom of the dauntless Lords of Rhun far to the east, and a name 
 D:of dismay to creatures natural and unnatural.
 
@@ -1461,7 +1461,7 @@ D:of the Rangers of Arnor.
 # The Battle Axe 'Mundwine'
 
 N:145:'Mundwine'
-I:22:28:0
+I:22:22:0
 W:40:20:250:30000
 P:0:3d8:12:17:0:0
 F:TWO_HANDED_DES | SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | 
@@ -1806,7 +1806,8 @@ D:confusion, and which hurls shot with deadly speed.
 
 N:186:of Gandalf
 I:55:40:6
-W:85:1:50:35000
+# W:85:1:50:35000   Use unused k_info[] chance -- TNB
+W:85:40:50:35000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
 D:A thorny staff with whorls and faintly gleaming engravings covering its 
@@ -1817,7 +1818,8 @@ D:surface from heel to crown.
 
 N:187:of Winds
 I:55:41:6
-W:50:1:50:20000
+# W:50:1:50:20000 TNB
+W:50:40:50:20000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
 D:This staff trembles ever so slightly, buffeted by the Four Winds that 
@@ -1828,7 +1830,8 @@ D:impatiently await release.
 
 N:188:of Meneltarma
 I:55:42:5
-W:80:1:50:30000
+# W:80:1:50:30000 TNB
+W:80:48:50:30000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
 D:Suddenly, the cries of beings that cling to existance beyond life seem 
@@ -1840,7 +1843,8 @@ D:await your will!
 
 N:189:of Radagast
 I:55:43:5
-W:50:1:50:20000
+# W:50:1:50:20000 TNB
+W:50:48:50:20000
 P:0:1d2:0:0:0:0
 F:INSTA_ART
 D:Radagast the Brown made the languages of beasts and birds his life's work, 
@@ -1860,7 +1864,8 @@ D:and could discover many hidden things and secret from his natural allies.
 
 N:194:'Ilkorin'
 I:65:40:10
-W:40:1:10:15000
+# W:40:1:10:15000 TNB
+W:40:40:10:15000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:Deadly venoms that blight and wither seep continually from this wand.
@@ -1870,7 +1875,8 @@ D:Deadly venoms that blight and wither seep continually from this wand.
 
 N:195:of Saruman
 I:65:41:5
-W:70:1:10:27500
+# W:70:1:10:27500 TNB
+W:70:52:10:27500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:Saruman the White could charm even those most aware of his treachery - and 
@@ -1881,7 +1887,8 @@ D:then exploit their doubt and hesitation.
 
 N:196:of Unmaking
 I:65:42:5
-W:100:1:10:150000
+# W:100:1:10:150000 TNB
+W:100:48:10:150000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:Most treacherous of all spells of doom are those that rip asunder the fabric 
@@ -1894,7 +1901,8 @@ D:last.
 
 N:197:of Ulpion
 I:65:43:5
-W:70:1:10:22500
+# W:70:1:10:22500 TNB
+W:70:48:10:22500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:The legendary wizard Ulpion was skilled beyond all others in the lore of 
@@ -1916,7 +1924,8 @@ D:crashing waves and seastorms.
 
 N:202:of Delving
 I:66:40:0
-W:65:1:15:12500
+# W:65:1:15:12500 TNB
+W:65:40:15:12500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:Even Dwarven skill must yield to he who can dissolve the sinews of 
@@ -1927,7 +1936,8 @@ D:mountains at a word.
 
 N:203:'Mantle of Shadow'
 I:66:41:300
-W:80:1:15:20000
+# W:80:1:15:20000 TNB
+W:80:40:15:20000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:The legendary rogues of old could wrap themselves in shadows, and become 
@@ -1938,7 +1948,8 @@ D:as mist and rumour to their unwitting foes.
 
 N:204:of Air
 I:66:42:75
-W:85:1:15:25000
+# W:85:1:15:25000 TNB
+W:85:48:15:25000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:The Elemental Host of the vast Plains of Air wield powers unknown to 
@@ -1950,7 +1961,8 @@ D:their wrath.
 
 N:205:of Portals
 I:66:43:40
-W:70:1:15:50000
+# W:70:1:15:50000 TNB
+W:70:64:15:50000
 P:0:1d1:0:0:0:0
 F:INSTA_ART
 D:The mastery of mystic entrances and exits is now almost unknown, and 

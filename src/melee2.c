@@ -2338,8 +2338,8 @@ static int mon_will_run(int m_idx)
 
 #endif
 
-	/* Keep monsters from running too far away */
-	if (m_ptr->cdis > (p_ptr->themed_level ? 
+	/* Keep monsters from running too far away (unless hurt) */
+	if (m_ptr->cdis > ((p_ptr->themed_level && (m_ptr->hp == m_ptr->maxhp)) ? 
 		MAX_SIGHT / 2 : MAX_SIGHT) + 5) return (FALSE);
 
 	/* All "afraid" monsters will run away */
@@ -3848,6 +3848,9 @@ static void process_monster(int m_idx, int total_wakeup_chance)
 				/* Break the rune */
 				cave_set_feat(ny, nx, FEAT_FLOOR);
 
+				/* One less glyph on the level */
+				num_glyph_on_level--;
+				
 				/* Allow movement */
 				do_move = TRUE;
 			}
@@ -3969,93 +3972,6 @@ static void process_monster(int m_idx, int total_wakeup_chance)
 					break;
 				}
 
-				/* Rogues may set traps for monsters.  They can be fairly 
-				 * deadly, but monsters can also sometimes disarm or fly 
-				 * over them. -LM-
-				 */
-				case FEAT_MONSTER_TRAP:
-				{
-					if ((r_ptr->flags2 & (RF2_SMART)) && (randint(3) == 1))
-					{
-						if (m_ptr->ml)
-						{
-							char m_name[80];
-
-							/* Acquire the monster name/poss */
-							monster_desc(m_name, m_ptr, 0);
-
-							msg_format("%s finds your trap and disarms it.", m_name);
-						}
-
-						/* Kill the trap, decrement the monster trap count. */
-						cave_feat[ny][nx] = FEAT_FLOOR;
-						num_trap_on_level--;
-					}
-
-					/* Traps seldom effect flying monsters or ghosts. */
-					else if (((r_ptr->flags2 & (RF2_PASS_WALL)) || 
-						(r_ptr->flags2 & (RF2_FLYING))) && 
-						(randint(4) != 1))
-					{
-						if (m_ptr->ml)
-						{
-							char m_name[80];
-
-							/* Acquire the monster name/poss */
-							 monster_desc(m_name, m_ptr, 0);
-
-							msg_format("%s flies over your trap.", m_name);
-						}
-					}
-
-					/* I thought traps only effected players!  Unfair! */
-					else
-					{
-						/* Monster fear. */
-						bool fear = FALSE;
-
-						/* Assume a default death */
-						cptr note_dies = " dies.";
-
-						/* Some monsters get "destroyed" */
-						if ((r_ptr->flags3 & (RF3_DEMON)) ||
-						    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-						    (r_ptr->flags2 & (RF2_STUPID)) ||
-						    (strchr("Evg", r_ptr->d_char)))
-						{
-							/* Special note at death */
-							note_dies = " is destroyed.";
-						}
-
-						if (player_has_los_bold(ny, nx))
-						{
-							char m_name[80];
-
-							/* Acquire the monster name/poss */
-							if (m_ptr->ml) monster_desc(m_name, m_ptr, 0);
-							/* Default name */
-							else strcpy(m_name, "Something");
-
-							msg_format("%s sets off your cunning trap!", m_name);
-						}
-
-						else msg_print("You hear anguished yells in the distance.");
-
-						/* Sometimes, the trap is destroyed. */
-						if (randint(3) == 1)
-						{
-							cave_feat[ny][nx] = FEAT_FLOOR;
-							num_trap_on_level--;
-						}
-
-						/* Hurt the monster.  Big bruisers fall hard. */
-						mon_take_hit(cave_m_idx[oy][ox], 
-							(1 + randint(p_ptr->lev * 3) + m_ptr->maxhp / 20), &fear, note_dies);
-					}
-
-					break;
-				}
-
 				/* No other traversable terrain hinders movement. */
 				default:
 				{
@@ -4112,6 +4028,110 @@ static void process_monster(int m_idx, int total_wakeup_chance)
 
 			/* Move the monster */
 			monster_swap(oy, ox, ny, nx);
+
+			/* Rogues may set traps for monsters.  They can be fairly
+			 * deadly, but monsters can also sometimes disarm or fly
+			 * over them. -LM-
+			 */
+			if (cave_feat[ny][nx] == FEAT_MONSTER_TRAP)
+			{
+				if ((r_ptr->flags2 & (RF2_SMART)) && (randint(3) == 1))
+				{
+					if (m_ptr->ml)
+					{
+						char m_name[80];
+
+						/* Acquire the monster name/poss */
+						monster_desc(m_name, m_ptr, 0);
+
+						msg_format("%s finds your trap and disarms it.", m_name);
+					}
+
+					/* Kill the trap, decrement the monster trap count. */
+					cave_set_feat(ny, nx, FEAT_FLOOR);
+					num_trap_on_level--;
+				}
+
+				/* Traps seldom effect flying monsters or ghosts. */
+				else if (((r_ptr->flags2 & (RF2_PASS_WALL)) ||
+					(r_ptr->flags2 & (RF2_FLYING))) &&
+					(randint(4) != 1))
+				{
+					if (m_ptr->ml)
+					{
+						char m_name[80];
+
+						/* Acquire the monster name/poss */
+						monster_desc(m_name, m_ptr, 0);
+
+						msg_format("%s flies over your trap.", m_name);
+					}
+				}
+
+				/* I thought traps only effected players!  Unfair! */
+				else
+				{
+					/* Monster fear. */
+					bool fear = FALSE;
+
+					/* Assume a default death */
+					cptr note_dies = " dies.";
+
+					/* Some monsters get "destroyed" */
+					if ((r_ptr->flags3 & (RF3_DEMON)) ||
+						(r_ptr->flags3 & (RF3_UNDEAD)) ||
+						(r_ptr->flags2 & (RF2_STUPID)) ||
+						(strchr("Evg", r_ptr->d_char)))
+					{
+						/* Special note at death */
+						note_dies = " is destroyed.";
+					}
+
+					if (player_has_los_bold(ny, nx))
+					{
+						char m_name[80];
+
+						/* Acquire the monster name/poss */
+						if (m_ptr->ml) monster_desc(m_name, m_ptr, 0);
+
+						/* Default name */
+						else strcpy(m_name, "Something");
+
+						msg_format("%s sets off your cunning trap!", m_name);
+					}
+
+					else msg_print("You hear anguished yells in the distance.");
+
+					/* Sometimes, the trap is destroyed. */
+					if (randint(3) == 1)
+					{
+						cave_set_feat(ny, nx, FEAT_FLOOR);
+						num_trap_on_level--;
+					}
+
+					/* Hurt the monster.  Big bruisers fall hard. */
+					if (mon_take_hit(cave_m_idx[ny][nx],
+						(1 + randint(p_ptr->lev * 3) + m_ptr->maxhp / 20), &fear, note_dies))
+						return;
+
+					/* Take note */
+					if (fear && m_ptr->ml)
+					{
+						char m_name[80];
+
+						/* Sound */
+						sound(SOUND_FLEE);
+
+						/* Get "the monster" or "it" */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Message */
+						msg_format("%^s flees in terror!", m_name);
+					}
+				}
+
+				break;
+			}
 
 			/* Possible disturb */
 			if (m_ptr->ml &&
@@ -4349,7 +4369,6 @@ void process_monsters(void)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
-
 	/* The likelyhood, in 1/100ths of a percent, that any monster
 	 * will be disturbed. -LM-
 	 */
@@ -4420,9 +4439,11 @@ void process_monsters(void)
 		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Monsters can "sense" the player.  Sighting impaired on themed 
-		 * levels.
+		 * levels (unless hurt).
 		 */
-		if (m_ptr->cdis <= (p_ptr->themed_level ? r_ptr->aaf / 2 : r_ptr->aaf))
+		if (m_ptr->cdis <=
+			((p_ptr->themed_level && (m_ptr->hp == m_ptr->maxhp)) ?
+			r_ptr->aaf / 2 : r_ptr->aaf))
 		{
 			/* Process the monster */
 			process_monster(i, total_wakeup_chance);
@@ -4439,8 +4460,9 @@ void process_monsters(void)
 		/* Monsters can "see" the player (backwards) XXX XXX */
 		if (player_has_los_bold(fy, fx))
 		{
-			/* Hack -- Reduced sighting on themed levels. -LM- */
-			if ((p_ptr->themed_level) && (m_ptr->cdis > MAX_SIGHT / 2))
+			/* Hack -- Reduced sighting on themed levels (unless hurt). -LM- */
+			if ((p_ptr->themed_level && (m_ptr->hp == m_ptr->maxhp)) &&
+				(m_ptr->cdis > MAX_SIGHT / 2))
 				continue;
 
 			/* Process the monster */
@@ -4461,7 +4483,9 @@ void process_monsters(void)
 			/* Check the flow (normal aaf is about 20) */
 			if ((cave_when[fy][fx] == cave_when[py][px]) &&
 				(cave_cost[fy][fx] < MONSTER_FLOW_DEPTH) &&
-				(cave_cost[fy][fx] < (p_ptr->themed_level ? r_ptr->aaf / 2 : r_ptr->aaf)))
+				(cave_cost[fy][fx] <
+					((p_ptr->themed_level && (m_ptr->hp == m_ptr->maxhp)) ?
+					r_ptr->aaf / 2 : r_ptr->aaf)))
 			{
 				/* Process the monster */
 				process_monster(i, total_wakeup_chance);

@@ -2393,6 +2393,13 @@ static void choose_basic_theme(int a_idx)
 				add_pval_later1 = INFRA;
 			}
 
+			/* Hack -- Elven Cloaks have STEALTH, so force a pval */
+			if (!add_pval_later1 && (k_ptr->sval == SV_ELVEN_CLOAK))
+			{
+				/* Should this be for free? */
+				a_ptr->pval = 2 + randint(potential / 2500);
+			}
+
 			break;
 		}
 

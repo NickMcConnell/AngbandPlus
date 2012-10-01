@@ -857,16 +857,8 @@ static int inven_damage(inven_func typ, int perc)
 				           o_name, index_to_label(i),
 				           ((amt > 1) ? "were" : "was"));
 
-				/* Hack -- If rods or wand are destroyed, the total maximum 
-				 * timeout or charges of the stack needs to be reduced, 
-				 * unless all the items are being destroyed. -LM-
-				 */
-				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
-					&& (amt < o_ptr->number))
-				{
-					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-				}
-
+				/* Reduce the charges of rods/wands */
+				reduce_charges(o_ptr, amt);
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -2089,7 +2081,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 			/* Unlock chests */
 			case GF_KILL_TRAP:
-			case GF_KILL_DOOR:
 			{
 				/* Chests are noticed only if trapped or locked */
 				if (o_ptr->tval == TV_CHEST)
@@ -2388,8 +2379,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* Affected by terrain. */
 			dam += terrain_adjustment;
-
-			if (dam > 10) do_stun = randint(dam > 240 ? 32 : dam / 8);
 
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ELEC))

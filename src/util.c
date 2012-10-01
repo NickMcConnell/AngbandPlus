@@ -2231,6 +2231,8 @@ void msg_print(cptr msg)
 
 	char buf[1024];
 
+	int lim = screen_x - 8;
+
 
 	/* Hack -- Reset */
 	if (!msg_flag) p = 0;
@@ -2239,7 +2241,7 @@ void msg_print(cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (p && (!msg || ((p + n) > 72)))
+	if (p && (!msg || ((p + n) > lim)))
 	{
 		/* Flush */
 		msg_flush(p);
@@ -2270,17 +2272,17 @@ void msg_print(cptr msg)
 	t = buf;
 
 	/* Split message */
-	while (n > 72)
+	while (n > lim)
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = 72;
+		split = lim;
 
 		/* Find the "best" split point */
-		for (check = 40; check < 72; check++)
+		for (check = 40; check < lim; check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2422,6 +2424,18 @@ void put_str(cptr str, int row, int col)
 
 
 /*
+ * As above, but centered horizontally
+ */
+void put_str_center(cptr str, int row)
+{
+	int len = strlen(str);
+	int col = (Term->wid - len) / 2;
+
+	Term_putstr(col, row, -1, TERM_WHITE, str);
+}
+
+
+/*
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
  */
@@ -2444,6 +2458,18 @@ void prt(cptr str, int row, int col)
 	c_prt(TERM_WHITE, str, row, col);
 }
 
+
+/*
+ * As above, but in "white"
+ */
+void prt_center(cptr str, int row)
+{
+	int len = strlen(str);
+	int col = (Term->wid - len) / 2;
+
+	/* Spawn */
+	c_prt(TERM_WHITE, str, row, col);
+}
 
 
 
@@ -2506,15 +2532,18 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			/* Go immediately to the next character. */
+			continue;
 		}
 
 		/* Clean up the char */
-		ch = (isprint(*s) ? *s : (*s == '\n' ? '\0' : ' '));
+		ch = (isprint(*s) ? *s : ' ');
 
 		/* Wrap words as needed */
 		if ((x >= w - 1) && (ch != ' '))
 		{
-			int i, n = 0;
+			int i, n = l_margin;
 
 			byte av[256];
 			char cv[256];
@@ -2523,7 +2552,7 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 			if (x < w)
 			{
 				/* Scan existing text */
-				for (i = w - 2; i >= 0; i--)
+				for (i = w - 2; i >= l_margin; i--)
 				{
 					/* Grab existing attr/char */
 					Term_what(i, y, &av[i], &cv[i]);
@@ -2537,7 +2566,7 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 			}
 
 			/* Special case */
-			if (n == 0) n = w;
+			if (n == l_margin) n = w;
 
 			/* Clear line */
 			Term_erase(n, y, 255);
@@ -2563,7 +2592,7 @@ void c_roff(byte a, cptr str, byte l_margin, byte r_margin)
 		/* Dump */
 		Term_addch(a, ch);
 
-		/* Advance */
+		/* Advance. */
 		if (++x > w) x = w;
 	}
 }
@@ -3335,26 +3364,26 @@ static int repeat__key[REPEAT_MAX];
 
 void repeat_push(int what)
 {
-       /* Too many keys */
-       if (repeat__cnt == REPEAT_MAX) return;
+	/* Too many keys */
+	if (repeat__cnt == REPEAT_MAX) return;
 
-       /* Push the "stuff" */
-       repeat__key[repeat__cnt++] = what;
+	/* Push the "stuff" */
+	repeat__key[repeat__cnt++] = what;
 
-       /* Prevents us from pulling keys */
-       ++repeat__idx;
+	/* Prevents us from pulling keys */
+	++repeat__idx;
 }
 
 bool repeat_pull(int *what)
 {
-       /* All out of keys */
-       if (repeat__idx == repeat__cnt) return (FALSE);
+	/* All out of keys */
+	if (repeat__idx == repeat__cnt) return (FALSE);
 
-       /* Grab the next key, advance */
-       *what = repeat__key[repeat__idx++];
+	/* Grab the next key, advance */
+	*what = repeat__key[repeat__idx++];
 
-       /* Success */
-       return (TRUE);
+	/* Success */
+	return (TRUE);
 }
 
 /*
@@ -3362,40 +3391,40 @@ bool repeat_pull(int *what)
  */
 void repeat_check(void)
 {
-       int             what;
+	int what;
 
-    /* Ignore some commands */
-    if (p_ptr->command_cmd == ESCAPE) return;
-    if (p_ptr->command_cmd == ' ') return;
-    if (p_ptr->command_cmd == '\r') return;
-    if (p_ptr->command_cmd == '\n') return;
+	/* Ignore some commands */
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\r') return;
+	if (p_ptr->command_cmd == '\n') return;
 
-       /* Repeat Last Command */
-       if (p_ptr->command_cmd == 'n') {
+	/* Repeat Last Command */
+	if (p_ptr->command_cmd == 'n')
+	{
+		/* Reset */
+		repeat__idx = 0;
 
-               /* Reset */
-               repeat__idx = 0;
+		/* Get the command */
+		if (repeat_pull(&what))
+		{
+			/* Save the command */
+			p_ptr->command_cmd = what;
+		}
+	}
 
-               /* Get the command */
-               if (repeat_pull(&what)) {
+	/* Start saving new command */
+	else
+	{
+		/* Reset */
+		repeat__cnt = 0;
+		repeat__idx = 0;
 
-                       /* Save the command */
-                       p_ptr->command_cmd = what;
-               }
-       }
+		what = p_ptr->command_cmd;
 
-       /* Start saving new command */
-       else {
-
-               /* Reset */
-               repeat__cnt = 0;
-               repeat__idx = 0;
-
-               what = p_ptr->command_cmd;
-
-               /* Save this command */
-               repeat_push(what);
-       }
+		/* Save this command */
+		repeat_push(what);
+	}
 }
 
 

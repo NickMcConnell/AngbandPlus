@@ -326,6 +326,9 @@ bool set_image(int v)
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 
@@ -379,6 +382,9 @@ bool set_fast(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -429,6 +435,9 @@ bool set_slow(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -478,6 +487,9 @@ bool set_shield(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -530,6 +542,9 @@ bool set_blessed(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -579,6 +594,9 @@ bool set_hero(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -630,6 +648,9 @@ bool set_shero(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -676,6 +697,9 @@ bool set_protevil(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -726,6 +750,9 @@ bool set_extra_defences(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -783,6 +810,9 @@ bool set_tim_invis(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -838,6 +868,9 @@ bool set_tim_esp(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -885,6 +918,9 @@ bool set_superstealth(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -945,6 +981,9 @@ bool set_tim_infra(int v)
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -991,6 +1030,9 @@ bool set_oppose_acid(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1039,6 +1081,9 @@ bool set_oppose_elec(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1085,6 +1130,9 @@ bool set_oppose_fire(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1133,6 +1181,9 @@ bool set_oppose_cold(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1179,6 +1230,9 @@ bool set_oppose_pois(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1754,7 +1808,70 @@ bool set_food(int v)
 }
 
 
+/*
+ * Set "p_ptr->word_recall", notice observable changes
+ */
+bool set_recall(int v)
+{
+	bool notice = FALSE;
 
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->word_recall)
+		{
+			msg_print("The air about you becomes charged...");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->word_recall)
+		{
+			msg_print("A tension leaves the air around you...");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->word_recall = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status */
+	p_ptr->redraw |= PR_STATUS;
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->word_recall", notice observable changes
+ */
+void word_recall(int v)
+{
+	if (!p_ptr->word_recall)
+	{
+		(void)set_recall(v);
+	}
+	else
+	{
+		(void)set_recall(0);
+	}
+}
 
 
 /*
@@ -2225,10 +2342,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hack - Cancel any special player stealth magics. -LM- */
 	if (p_ptr->superstealth)
 	{
-		msg_print("You emerge from the shadows and stand revealed once more.");
-		p_ptr->superstealth = 0;
+		set_superstealth(0);
 	}
-
 
 	/* Complex message. Moved from melee and archery, now allows spell and 
        * magical items damage to be debugged by wizards.  -LM-
@@ -2407,6 +2522,50 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 }
 
 
+/*
+ * Handle a request to change the current panel
+ *
+ * Return TRUE if the panel was changed
+ *
+ * Also used in do_cmd_locate()
+ */
+bool change_panel(int dy, int dx)
+{
+	/* Apply the motion */
+	int y = p_ptr->wy + dy * (SCREEN_HGT / 2);
+	int x = p_ptr->wx + dx * (SCREEN_WID / 2);
+
+	/* Verify the row */
+	if (y < 0) y = 0;
+	if (y > DUNGEON_HGT - SCREEN_HGT) y = DUNGEON_HGT - SCREEN_HGT;
+
+	/* Verify the col */
+	if (x < 0) x = 0;
+	if (x > DUNGEON_WID - SCREEN_WID) x = DUNGEON_WID - SCREEN_WID;
+
+	/* Handle "changes" */
+	if ((y != p_ptr->wy) || (x != p_ptr->wx))
+	{
+		/* Save the new panel info */
+		p_ptr->wy = y;
+		p_ptr->wx = x;
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* Success */
+		return (TRUE);
+	}
+
+	/* No change */
+	return (FALSE);
+}
 
 
 /*
@@ -2426,61 +2585,96 @@ void verify_panel(void)
 	bool scroll = FALSE;
 
 
-	/* Initial row */
-	i = p_ptr->wy;
-
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+	/* Center on player */
+	if (center_player && (center_running || !p_ptr->running))
 	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
+		i = py - SCREEN_HGT / 2;
 		if (i < 0) i = 0;
 		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
-	}
-
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
-
-	/* New panel row */
-	if (p_ptr->wy != i)
-	{
-		/* Update panel */
-		p_ptr->wy = i;
-
-		/* Scroll */
-		scroll = TRUE;
-	}
-
-
-	/* Initial col */
-	i = p_ptr->wx;
-
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
-	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
+		
+		/* New panel row */
+		if (p_ptr->wy != i)
+		{
+			/* Update panel */
+			p_ptr->wy = i;
+	
+			/* Scroll */
+			scroll = TRUE;
+		}
+	
+		i = px - SCREEN_WID / 2;
 		if (i < 0) i = 0;
 		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+	
+		/* New panel col */
+		if (p_ptr->wx != i)
+		{
+			/* Update panel */
+			p_ptr->wx = i;
+	
+			/* Scroll */
+			scroll = TRUE;
+		}
 	}
 
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
-
-	/* New panel col */
-	if (p_ptr->wx != i)
+	/* Don't center on player */
+	else
 	{
-		/* Update panel */
-		p_ptr->wx = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		/* Initial row */
+		i = p_ptr->wy;
+	
+		/* Scroll screen when 2 grids from top/bottom edge */
+		if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+		{
+			i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
+			if (i < 0) i = 0;
+			if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+		}
+	
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = (DUNGEON_HGT - SCREEN_HGT)/2;
+	
+		/* New panel row */
+		if (p_ptr->wy != i)
+		{
+			/* Update panel */
+			p_ptr->wy = i;
+	
+			/* Scroll */
+			scroll = TRUE;
+		}
+	
+	
+		/* Initial col */
+		i = p_ptr->wx;
+	
+		/* Scroll screen when 4 grids from left/right edge */
+		if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
+		{
+			i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
+			if (i < 0) i = 0;
+			if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		}
+	
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = (DUNGEON_WID-SCREEN_WID)/2;
+	
+		/* New panel col */
+		if (p_ptr->wx != i)
+		{
+			/* Update panel */
+			p_ptr->wx = i;
+	
+			/* Scroll */
+			scroll = TRUE;
+		}
 	}
-
 
 	/* Scroll */
 	if (scroll)
 	{
 		/* Optional disturb on "panel change" */
-		if (disturb_panel) disturb(0, 0);
+		if (disturb_panel && !center_player) disturb(0, 0);
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -2489,7 +2683,6 @@ void verify_panel(void)
 		p_ptr->window |= (PW_OVERHEAD);
 	}
 }
-
 
 
 /*
@@ -3504,6 +3697,15 @@ bool target_set_interactive(int mode)
 	/* Cancel tracking */
 	/* health_track(0); */
 
+	/*
+	 * Hack -- Start out by selecting any grid by using the TARGET_GRID
+	 * flag. I do this so dimen_door() is a bit nicer. -TNB-
+	 */
+	if (mode & TARGET_GRID)
+	{
+		flag = FALSE;
+		mode &= ~TARGET_GRID;
+	}
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
@@ -3624,8 +3826,64 @@ bool target_set_interactive(int mode)
 			/* Hack -- move around */
 			if (d)
 			{
+				/* Modified to scroll to monster */
+				int y2 = p_ptr->wy;
+				int x2 = p_ptr->wx;
+
 				/* Find a new monster */
 				i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
+
+				/* Request to target past last interesting grid */
+				while (i < 0)
+				{
+					/* Note the change */
+					if (change_panel(ddy[d], ddx[d]))
+					{
+						int v = temp_y[m];
+						int u = temp_x[m];
+
+						/* Recalculate interesting grids */
+						target_set_interactive_prepare(mode);
+
+						/* Look at interesting grids */
+						flag = TRUE;
+
+						/* Find a new monster */
+						i = target_pick(v, u, ddy[d], ddx[d]);
+
+						/* Use that grid */
+						if (i >= 0) m = i;
+					}
+
+					/* Nothing interesting */
+					else
+					{
+						if ((y2 != p_ptr->wy) || (x2 != p_ptr->wx))
+						{
+							/* Restore previous position */
+							p_ptr->wy = y2;
+							p_ptr->wx = x2;
+	
+							/* Update stuff */
+							p_ptr->update |= (PU_MONSTERS);
+	
+							/* Redraw map */
+							p_ptr->redraw |= (PR_MAP);
+	
+							/* Window stuff */
+							p_ptr->window |= (PW_OVERHEAD);
+	
+							/* Handle stuff */
+							handle_stuff();
+	
+							/* Recalculate interesting grids */
+							target_set_interactive_prepare(mode);
+						}
+
+						/* Done */
+						break;
+					}
+				}
 
 				/* Use that grid */
 				if (i >= 0) m = i;
@@ -3706,9 +3964,34 @@ bool target_set_interactive(int mode)
 			/* Handle "direction" */
 			if (d)
 			{
+				int dx = ddx[d];
+				int dy = ddy[d];
+
 				/* Move */
-				x += ddx[d];
-				y += ddy[d];
+				x += dx;
+				y += dy;
+
+				/* Do not move horizontally if unnecessary */
+				if (((x < p_ptr->wx + SCREEN_WID / 2) && (dx > 0)) ||
+					 ((x > p_ptr->wx + SCREEN_WID / 2) && (dx < 0)))
+				{
+					dx = 0;
+				}
+
+				/* Do not move vertically if unnecessary */
+				if (((y < p_ptr->wy + SCREEN_HGT / 2) && (dy > 0)) ||
+					 ((y > p_ptr->wy + SCREEN_HGT / 2) && (dy < 0)))
+				{
+					dy = 0;
+				}
+
+				/* Apply the motion */
+				if ((y >= p_ptr->wy + SCREEN_HGT) || (y < p_ptr->wy) ||
+					 (x >= p_ptr->wx + SCREEN_WID) || (x < p_ptr->wx))
+				{
+					if (change_panel(dy, dx))
+						target_set_interactive_prepare(mode);
+				}
 
 				/* Slide into legality */
 				if ((x >= DUNGEON_WID-1) || (x >= p_ptr->wx+SCREEN_WID)) x--;
@@ -3726,6 +4009,21 @@ bool target_set_interactive(int mode)
 
 	/* Clear the top line */
 	prt("", 0, 0);
+
+	/* Recenter the map around the player */
+	verify_panel();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);
@@ -3761,13 +4059,14 @@ bool get_aim_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (repeat_pull(dp)) {
-
-       /* Verify */
-       if (!(*dp == 5 && !target_okay())) {
-               return (TRUE);
-           }
-    }
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			return (TRUE);
+		}
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -3887,9 +4186,10 @@ bool get_rep_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (repeat_pull(dp)) {
-        return (TRUE);
-    }
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
 
 #endif /* ALLOW_REPEAT */
 

@@ -32,7 +32,7 @@ cptr obj_class_info[101] =
 	"",	"",	"",	"",	"",
 	"",	"Sling ammo.",	"Bow ammo.",	"Crossbow ammo.",	"Missile launchers allow you to inflict damage from a distance without using magic.",
 
-	"Diggers, especially heavy ones, are invaluable for forced entry and escape and can make a lucky miner rich.",	"Hafted weapons rely on blunt force to inflict damage.  Since they spill relatively little blood, priests much prefer to carry one.",	"Pole-mounted weapons are often cumbersome and may require two hands to wield, but some offer both a high degree of protection and powerful attacks.",	"The effectiveness of edged weapons relies on keen edges and sharp points.  They tend to be quite light and are easy to use, but some may not deal enough damage for your liking.",	"",
+	"Diggers, especially heavy ones, are invaluable for forced entry and escape and can make a lucky miner rich.",	"Hafted weapons rely on blunt force to inflict damage.  Since they spill relatively little blood, priests much prefer to carry one.",	"Pole-mounted weapons are often cumbersome and may require two hands to wield, but some offer both a high degree of protection and powerful attacks.",	"The effectiveness of edged weapons depends on keen edges and sharp points.  They tend to be quite light and are easy to use, but some may not deal enough damage for your liking.",	"",
 	"",	"",	"",	"",	"",
 
 	"Footwear protects the feet only, but some rare items of this type have magics to render them fleet, light, or steady.",	"Your hands would benefit from protection too, but most magic users need to keep their fingers unencumbered or magically supple.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Many a blow will be struck upon your head, and protection here will certainly be helpful.  Some rare items may protect and enhance your mind.",	"Shields can be worn on your arm, or on your back if you need both hands to use your weapon.  So protective can a shield be that it can reduce damage as much or more than body armour, and you can perhaps deflect physical missiles (even shards) or take advantage of opportunities to bash your foe if you have one on your arm.",
@@ -493,7 +493,7 @@ cptr spell_tips[255] =
 	"Detects all evil monsters, even invisible ones.",
 	"Attempts (strongly) to frighten all monsters in line of sight.",
 	"Maps the local area.",
-	"Detects all monsters, traps, doors, and stairs on the current level, and grant temporary see invisible.",
+	"Detects all monsters, traps, doors, and stairs on the current panel, and grants temporary see invisible.",
 	"Healing, plus removal of all cuts and poison.",	/* 170 - herbal healing */
 	"Fires a very large cold ball.",
 	"Hurls water outwards from yourself in all directions.",
@@ -741,7 +741,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 #endif
 
 		/* No object description, so return failure. */
-		if (*buf == NULL) return;
+		if (!buf[0]) return;
 
 
 		/* Various object types have different kinds of information. */
@@ -985,7 +985,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 			{
 				char make_lower;
 
-				if (modstr != "")
+				if (strlen(modstr))
 				{
 					u = modstr;
 					make_lower = *u;
@@ -1004,11 +1004,15 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 					/* Grab the numerical info. */
 					cptr moddata = extra_data(o_ptr);
 
-					/* Insert a space if any info is available. */
-					*t++ = ' ';
+					/* If there is any numerical data,  */
+					if (strlen(moddata) > 0)
+					{
+						/* ...insert a space, and */
+						*t++ = ' ';
 
-					/* Insert it into the string */
-					for (v = moddata; *v; v++) *t++ = *v;
+						/* insert the mumerical data into the string. */
+						for (v = moddata; *v; v++) *t++ = *v;
+					}
 				}
 
 				/* Otherwise, nothing. */
@@ -1508,7 +1512,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ACT_RANDOM_BRAND_MISSILE:
 		{
-			return "brand missiles every 999 turns";
+			return "brand missiles every 1750 turns";
 		}
 		case ACT_RANDOM_SUPER_SHOOTING:
 		{
@@ -2335,9 +2339,12 @@ void identify_fully_aux(object_type *o_ptr)
 			if ((j == 0) && (f3 & (TR3_TELEPORT))) list_ok = TRUE;
 			if ((j == 1) && (f3 & (TR3_AGGRAVATE))) list_ok = TRUE;
 			if ((j == 2) && (f3 & (TR3_DRAIN_EXP))) list_ok = TRUE;
-			if ((j == 3) && (f3 & (TR3_PERMA_CURSE))) list_ok = TRUE;
-			if ((j == 4) && (f3 & (TR3_HEAVY_CURSE))) list_ok = TRUE;
-			if ((j == 5) && (f3 & (TR3_LIGHT_CURSE))) list_ok = TRUE;
+			if (cursed_p(o_ptr))
+			{
+				if ((j == 3) && (f3 & (TR3_PERMA_CURSE))) list_ok = TRUE;
+				if ((j == 4) && (f3 & (TR3_HEAVY_CURSE))) list_ok = TRUE;
+				if ((j == 5) && (f3 & (TR3_LIGHT_CURSE))) list_ok = TRUE;
+			}
 
 			if (!list_ok) continue;
 
@@ -3090,7 +3097,7 @@ void spell_info(char *p, int spell_index)
 		/* Piety */
 		case 65: sprintf(p, " heal 2d%d", plev / 4 + 5); break;
 		case 66: strcpy(p, " dur 12+d12"); break;
-		case 68: sprintf(p, " dam 2d%d, rad %d", plev/3, plev/10+1); break;
+		case 68: sprintf(p, " dam 2d%d, rad %d", 1 + plev/3, plev/10+1); break;
 		case 71: strcpy(p, " halve poison"); break;
 		case 72: sprintf(p, " heal 4d%d", plev / 4 + 6); break;
 		case 74: sprintf(p, " range %d", 2 * plev); break;
@@ -3120,7 +3127,7 @@ void spell_info(char *p, int spell_index)
 
 		/* Nature Magics */
 
-		case 129: sprintf(p, " dam 2d%d, rad %d", plev/4, plev/10+1); break;
+		case 129: sprintf(p, " dam 2d%d, rad %d", 1 + plev/4, plev/10+1); break;
 		case 131: strcpy(p, " range 10"); break;
 		case 132: strcpy(p, " halve poison"); break;
 		case 133: sprintf(p, " dam %dd6, length %d", 2+plev/8, 1+plev/5); break;
@@ -3174,16 +3181,16 @@ void spell_info(char *p, int spell_index)
 		case 209: strcpy(p, " range 16, hurt 1d4"); break;
 		case 215: sprintf(p, " dam %dd8, hurt 1d6", 2 + plev / 3); break;
 		case 216: sprintf(p, " dur %d+d20", plev / 2); break;
-		case 217: sprintf(p, " dam %d+d%d", 2 * plev, 2 * plev); 
+		case 217: sprintf(p, " dam %d+d%d", 2 * plev, 2 * plev); break;
 		case 218: sprintf(p, " dam %d", 12 + plev); break;
 		case 219: sprintf(p, " dam %dd8, beam %d%%", 1 + plev / 2, beam); break;
 		case 221: sprintf(p, " dam %d, rad 2", 50 + plev * 2); break;
 		case 222: sprintf(p, " dam %d+d%d, hit ~9", 50 + plev * 2, plev); break;
-		case 223: strcpy(p, " dur 20+d20"); break;
-		case 225: sprintf(p, " dur %d+d%d", plev / 2, plev); break;
-		case 226: strcpy(p, " dur d66"); break;
+		case 226: sprintf(p, " range %d, hurt 2d6", plev * 3); break;
 		case 228: strcpy(p, " dur 20+d20"); break;
-		case 232: sprintf(p, " hurt 2d6, range %d", plev * 3); break;
+		case 230: sprintf(p, " %d+d%d", plev / 2, plev); break;
+		case 231: strcpy(p, " dur d66"); break;
+		case 233: strcpy(p, " dur 10+d20"); break;
 		case 235: sprintf(p, " dam %dd11", 3 * plev / 5); break;
 		case 236: sprintf(p, " dam %d, hurt 2d8", 15 + plev * 3); break;
 		case 237: sprintf(p, " dam %d+d%d", 60, plev * 2); break;
@@ -3195,6 +3202,9 @@ void spell_info(char *p, int spell_index)
 		case 247: sprintf(p, " dam %d+d50", plev * 3); break;
 		case 248: strcpy(p, " hurt 1d3/kill"); break;
 		case 249: sprintf(p, " dam %d, rad %d", 11 * plev / 2, plev/7); break;
+		case 250: sprintf(p, " dur 30+d40"); break;
+		case 251: sprintf(p, " dur 40"); break;
+		case 252: sprintf(p, " dur 40"); break;
 	}
 }
 

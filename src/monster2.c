@@ -949,7 +949,7 @@ void update_mon(int m_idx, bool full)
 	if (d <= (p_ptr->themed_level ? MAX_SIGHT / 2 : MAX_SIGHT))
 	{
 		/* Basic telepathy */
-		if (p_ptr->telepathy)
+		if (p_ptr->telepathy || p_ptr->tim_esp)
 		{
 			/* Empty mind, no telepathy */
 			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
@@ -1434,10 +1434,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Hack -- Demons & creatures who breathe fire cannot appear on water. -LM- */
-	if ((cave_feat[y][x] == FEAT_WATER) && ((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) return (FALSE);
+	if ((cave_feat[y][x] == FEAT_WATER) && 
+		((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) 
+		return (FALSE);
 
 	/* Hack -- Only creatures resistant to fire may appear on lava. -LM- */
-	if ((cave_feat[y][x] == FEAT_LAVA) && (!(r_ptr->flags3 & (RF3_IM_FIRE)))) return (FALSE);
+	if ((cave_feat[y][x] == FEAT_LAVA) && (!(r_ptr->flags3 & (RF3_IM_FIRE)))) 
+		return (FALSE);
 
 
 	/* Paranoia */

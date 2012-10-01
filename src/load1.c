@@ -120,7 +120,7 @@ static void note(cptr msg)
 	prt(msg, y, 0);
 
 	/* Advance one line (wrap if needed) */
-	if (++y >= 24) y = 2;
+	if (++y >= screen_y) y = 2;
 
 	/* Flush it */
 	Term_fresh();

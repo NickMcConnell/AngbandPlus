@@ -499,6 +499,7 @@ struct object_type
 
 	byte marked;		/* Object is marked */
 
+	byte feel;			/* Feeling index */
 	u16b note;			/* Inscription index */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */

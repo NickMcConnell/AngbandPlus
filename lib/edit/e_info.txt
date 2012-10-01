@@ -25,7 +25,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by
@@ -377,9 +377,9 @@ D:muscles bulge as he hammers his foes.
 
 N:52:of Magic Mastery
 X:34:17
-W:0:0:0:1500
+W:0:0:0:1000
 C:0:0:0:4
-F:MAGIC_MASTERY | SHOW_MODS | HIDE_TYPE
+F:MAGIC_MASTERY | HIDE_TYPE
 D:They enhance magical device skill.  Mages and Necromancers can wear 
 D:these comfortably.
 

@@ -213,7 +213,7 @@ static void say_comment_5(void)
  */
 static void say_comment_6(void)
 {
-	msg_print(comment_6[rand_int(5)]);
+	msg_print(comment_6[rand_int(MAX_COMMENT_6)]);
 }
 
 
@@ -324,6 +324,11 @@ static int store_num = (MAX_STORES - 1);
  * We store the current "store page" here so everyone can access it
  */
 static int store_top = 0;
+
+/*
+ * We store the number of items per page here so everyone can access it
+ */
+static int store_per = 0;
 
 /*
  * We store the current "store pointer" here so everyone can access it
@@ -626,6 +631,12 @@ static void mass_produce(object_type *o_ptr)
 
 	/* Save the total pile size */
 	o_ptr->number = size - (size * discount / 100);
+
+	/* Hack -- rod/wands share the timeout/charges */
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+	{
+		o_ptr->pval = o_ptr->number * k_info[o_ptr->k_idx].pval;
+	}
 }
 
 
@@ -1075,6 +1086,9 @@ static int store_carry(object_type *o_ptr)
 	/* Cursed/Worthless items "disappear" when sold */
 	if (value <= 0) return (-1);
 
+	/* Erase the feeling */
+	o_ptr->feel = FEEL_NONE;
+
 	/* Erase the inscription */
 	o_ptr->note = 0;
 
@@ -1454,14 +1468,14 @@ static void display_entry(int item)
 
 
 	/* Must be on current "page" to get displayed */
-	if (!((item >= store_top) && (item < store_top + 12))) return;
+	if (!((item >= store_top) && (item < store_top + store_per))) return;
 
 
 	/* Get the object */
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % store_per) + 6;
 
 	/* Label it, clear the line --(-- */
 	sprintf(out_val, "%c) ", store_to_label(item));
@@ -1581,8 +1595,8 @@ static void display_inventory(void)
 {
 	int i, k;
 
-	/* Display the next 12 items */
-	for (k = 0; k < 12; k++)
+	/* Display the next store_per items */
+	for (k = 0; k < store_per; k++)
 	{
 		/* Stop when we run out of items */
 		if (store_top + k >= st_ptr->stock_num) break;
@@ -1592,19 +1606,19 @@ static void display_inventory(void)
 	}
 
 	/* Erase the extra lines and the "more" prompt */
-	for (i = k; i < 13; i++) prt("", i + 6, 0);
+	for (i = k; i < store_per + 1; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
 	put_str("        ", 5, 20);
 
 	/* Visual reminder of "more items" */
-	if (st_ptr->stock_num > 12)
+	if (st_ptr->stock_num > store_per)
 	{
 		/* Show "more" reminder (after the last object ) */
 		prt("-more-", k + 6, 3);
 
 		/* Indicate the "current page" */
-		put_str(format("(Page %d)", store_top/12 + 1), 5, 20);
+		put_str(format("(Page %d)", store_top/store_per + 1), 5, 20);
 	}
 }
 
@@ -1616,10 +1630,10 @@ static void store_prt_gold(void)
 {
 	char out_val[64];
 
-	prt("Gold Remaining: ", 19, 53);
+	prt("Gold Remaining: ", screen_y - 5, 53);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
-	prt(out_val, 19, 67);
+	prt(out_val, screen_y - 5, 67);
 }
 
 
@@ -1718,7 +1732,7 @@ static bool get_stock(int *com_val, cptr pmt)
 			return (TRUE);
 		}
 	}
-#endif /* TNB */
+#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1784,6 +1798,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(*com_val);
+    
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2490,17 +2510,13 @@ static void store_purchase(void)
 	/* Get desired object */
 	object_copy(i_ptr, o_ptr);
 
-	/* Modify quantity */
-	i_ptr->number = amt;
-
 	/* Hack -- If a rod or wand, allocate total maximum timeouts or charges 
 	 * between those purchased and left on the shelf. -LM-
 	 */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-	{
-		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-	}
+	reduce_charges(i_ptr, i_ptr->number - amt);
 
+	/* Modify quantity */
+	i_ptr->number = amt;
 
 	/* Hack -- require room in pack */
 	if (!inven_carry_okay(i_ptr))
@@ -2567,6 +2583,9 @@ static void store_purchase(void)
 				msg_format("You bought %s (%c) for %ld gold.",
 				           o_name, store_to_label(item),
 				           (long)price);
+
+				/* Erase the feeling */
+				i_ptr->feel = FEEL_NONE;
 
 				/* Erase the inscription */
 				i_ptr->note = 0;
@@ -2638,7 +2657,7 @@ static void store_purchase(void)
 				else if (st_ptr->stock_num != n)
 				{
 					/* Only one screen left */
-					if (st_ptr->stock_num <= 12)
+					if (st_ptr->stock_num <= store_per)
 					{
 						store_top = 0;
 					}
@@ -2667,29 +2686,8 @@ static void store_purchase(void)
 	/* Home is much easier */
 	else
 	{
-		/* Hack -- If a rod or wand, allocate total maximum
-		 * timeouts or charges between those picked up and 
-		 * those left behind. -LM-
-		 */
-		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-		{
-			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-			o_ptr->pval -= i_ptr->pval;
-
-			/* Hack -- Rods also need to have their timeouts distributed.  
-			 * The dropped stack will accept all time remaining to charge 
-			 * up to its maximum.
-		 	 */
-			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-			{
-				if (i_ptr->pval > o_ptr->timeout) 
-					i_ptr->timeout = o_ptr->timeout;
-				else i_ptr->timeout = i_ptr->pval;
-
-				if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
-			}
-		}
-
+		/* Distribute charges of wands or rods */
+		distribute_charges(o_ptr, i_ptr, amt);
 
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
@@ -2714,7 +2712,7 @@ static void store_purchase(void)
 		if (st_ptr->stock_num != n)
 		{
 			/* Only one screen left */
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= store_per)
 			{
 				store_top = 0;
 			}
@@ -2876,6 +2874,9 @@ static void store_sell(void)
 			object_aware(o_ptr);
 			object_known(o_ptr);
 
+			/* Erase the feeling */
+			i_ptr->feel = FEEL_NONE;
+
 			/* Remove any inscription */
 			i_ptr->note = 0;
 
@@ -2919,17 +2920,15 @@ static void store_sell(void)
 			/* Hack -- Allocate charges between those wands or rods sold 
 			 * and retained, unless all are being sold. -LM-
 			 */
-			if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-			{
-				i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-
-				if (o_ptr->number > amt) o_ptr->pval -= i_ptr->pval;
-			}
+			distribute_charges(o_ptr, i_ptr, amt);
 
 			/* Take the object from the player */
 			inven_item_increase(item, -amt);
 			inven_item_describe(item);
 			inven_item_optimize(item);
+
+			if (item == INVEN_WIELD)
+				p_ptr->shield_on_back = FALSE;
 
 
 			/* Handle stuff */
@@ -2955,28 +2954,8 @@ static void store_sell(void)
 	/* Player is at home */
 	else
 	{
-		/* Hack -- If a rod or wand, allocate total maximum timeouts or
-		 * charges between those dropped and kept in the backpack, unless 
-		 * all are being dropped. -LM-
-		 */
-		if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-		{
-			i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-			if (o_ptr->number > amt) o_ptr->pval -= i_ptr->pval;
-
-			/* Hack -- Rods also need to have their timeouts distributed.  
-			 * The dropped stack will accept all time remaining to charge 
-			 * up to its maximum.
-		 	 */
-			if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
-			{
-				if (i_ptr->pval > o_ptr->timeout) 
-					i_ptr->timeout = o_ptr->timeout;
-				else i_ptr->timeout = i_ptr->pval;
-
-				if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
-			}
-		}
+		/* Distribute charges of wands/rods */
+		distribute_charges(o_ptr, i_ptr, amt);
 
 		/* Describe */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -2986,6 +2965,9 @@ static void store_sell(void)
 		inven_item_increase(item, -amt);
 		inven_item_describe(item);
 		inven_item_optimize(item);
+
+		if (item == INVEN_WIELD)
+			p_ptr->shield_on_back = FALSE;
 
 
 		/* Handle stuff */
@@ -3041,7 +3023,7 @@ static void store_inspect(void)
 	o_ptr = &st_ptr->stock[item];
 
 	/* Examine the item. */
-	do_cmd_observe(o_ptr, (store_num == STORE_HOME ? TRUE : FALSE));
+	do_cmd_observe(o_ptr, (store_num == STORE_HOME ? FALSE : TRUE));
 }
 
 
@@ -3065,6 +3047,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -3078,7 +3067,7 @@ static void store_process_command(void)
 			/* Browse */
 		case ' ':
 		{
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= store_per)
 			{
 				/* Nothing to see */
 				msg_print("Entire inventory is shown.");
@@ -3087,7 +3076,7 @@ static void store_process_command(void)
 			else if (store_top == 0)
 			{
 				/* Page 2 */
-				store_top = 12;
+				store_top = store_per;
 
 				/* Redisplay wares */
 				display_inventory();
@@ -3436,6 +3425,9 @@ void do_cmd_store(void)
 	/* Start at the beginning */
 	store_top = 0;
 
+	/* Calculate max number of items per page */
+	store_per = screen_y - 12;
+
 	/* Display the store */
 	display_store();
 
@@ -3452,24 +3444,25 @@ void do_cmd_store(void)
 		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
-		clear_from(21);
+		clear_from(screen_y - 3);
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
-		prt("   I) Inspect an object.", 23, 0);
+		prt(" ESC) Exit from Building.", screen_y - 2, 0);
 
 		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
+		if (st_ptr->stock_num > store_per)
 		{
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" SPACE) Next page of stock", screen_y - 1, 0);
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 40);
-		prt(" d) Drop/Sell an item.", 23, 40);
+		prt(" g) Get/Purchase an item.", screen_y - 2, 29);
+		prt(" d) Drop/Sell an item.", screen_y - 1, 29);
+
+		prt("   I) Inspect an item.", screen_y - 2, 55);
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", screen_y - 3, 0);
 
 		/* Get a command */
 		request_command(TRUE);

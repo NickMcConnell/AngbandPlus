@@ -669,25 +669,6 @@ void py_attack(int y, int x)
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
 
-	/* Monsters in rubble can take advantage of cover. -LM- */
-	if (cave_feat[y][x] == FEAT_RUBBLE)
-	{
-		terrain_bonus = r_ptr->ac / 7 + 5;
-	}
-	/* Monsters in trees can take advantage of cover, except 
-	 * from players who know nature lore. -LM-
-	 */
-	if ((cave_feat[y][x] == FEAT_TREE) && 
-		(mp_ptr->spell_book != TV_DRUID_BOOK))
-	{
-		terrain_bonus = r_ptr->ac / 7 + 5;
-	}
-	/* Monsters in water are vulnerable. -LM-  */
-	if (cave_feat[y][x] == FEAT_WATER)
-	{
-		terrain_bonus -= r_ptr->ac / 5;
-	}
-
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -710,11 +691,38 @@ void py_attack(int y, int x)
 	}
 
 
+	/* Monsters in rubble can take advantage of cover. -LM- */
+	if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		terrain_bonus = r_ptr->ac / 7 + 5;
+	}
+	/* Monsters in trees can take advantage of cover, except 
+	 * from players who know nature lore. -LM-
+	 */
+	if ((cave_feat[y][x] == FEAT_TREE) && 
+		(mp_ptr->spell_book != TV_DRUID_BOOK))
+	{
+		terrain_bonus = r_ptr->ac / 7 + 5;
+	}
+	/* Monsters in water are vulnerable. -LM-  */
+	if (cave_feat[y][x] == FEAT_WATER)
+	{
+		terrain_bonus -= r_ptr->ac / 5;
+	}
+
+
 	/**** The monster bashing code. -LM- ****/
 
-	/* No shield on arm, no bashing.  Weak monsters don't warrant a bash. */
-	if ((!inventory[INVEN_ARM].k_idx) || (p_ptr->shield_on_back) || 
-		(r_ptr->level < p_ptr->lev / 2)) 
+	/* No shield on arm, no bash.  */
+	if ((!inventory[INVEN_ARM].k_idx) || (p_ptr->shield_on_back)) 
+	{
+		bash_chance = 0;
+	}
+
+	/* Players do not bash if they could otherwise take advantage of special 
+	 * bonuses against sleeping monsters, or if the monster is low-level.
+	 */
+	else if ((sleeping_bonus) || (r_ptr->level < p_ptr->lev / 2))
 	{
 		bash_chance = 0;
 	}
@@ -728,7 +736,6 @@ void py_attack(int y, int x)
 	/* Players bash more often when they see a real need. */
 	if (bash_chance)
 	{
-
 		if ((!inventory[INVEN_WIELD].k_idx) && (p_ptr->pclass != CLASS_DRUID))
 			bash_chance *= 3;
 		else if ((inventory[INVEN_WIELD].dd * inventory[INVEN_WIELD].ds * blows) 
@@ -1156,23 +1163,6 @@ void do_cmd_fire(void)
 		return;
 	}
 
-	/* Missile launchers of Velocity and Accuracy sometimes "supercharge" */
-	if ((j_ptr->name2 == EGO_VELOCITY) || (j_ptr->name2 == EGO_ACCURACY))
-	{
-		/* Occasional boost to shot. */
-		if (randint(16) == 1)
-		{
-			if (j_ptr->name2 == EGO_VELOCITY) special_dam = TRUE;
-			else if (j_ptr->name2 == EGO_ACCURACY) special_hit = TRUE;
-
-			/* Describe the object */
-			object_desc(o_name, j_ptr, FALSE, 0);
-
-			/* Let player know that weapon is activated. */
-			msg_format("You feel your %s tremble in your hand.", o_name);
-		}
-	}
-
 	/* Require proper missile */
 	item_tester_tval = p_ptr->ammo_tval;
 
@@ -1193,6 +1183,23 @@ void do_cmd_fire(void)
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
+
+	/* Missile launchers of Velocity and Accuracy sometimes "supercharge" */
+	if ((j_ptr->name2 == EGO_VELOCITY) || (j_ptr->name2 == EGO_ACCURACY))
+	{
+		/* Occasional boost to shot. */
+		if (randint(16) == 1)
+		{
+			if (j_ptr->name2 == EGO_VELOCITY) special_dam = TRUE;
+			else if (j_ptr->name2 == EGO_ACCURACY) special_hit = TRUE;
+
+			/* Describe the object */
+			object_desc(o_name, j_ptr, FALSE, 0);
+
+			/* Let player know that weapon is activated. */
+			msg_format("You feel your %s tremble in your hand.", o_name);
+		}
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -1599,6 +1606,9 @@ void do_cmd_throw(void)
 
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
+
+	/* Distribute the charges of rods/wands between the stacks */
+	distribute_charges(o_ptr, i_ptr, 1);
 
 	/* Extract the thrown object's flags. */
 	object_flags(i_ptr, &f1, &f2, &f3);

@@ -1259,7 +1259,7 @@ static byte priority(byte a, char c)
 
 
 /*
- * Display a "small-scale" map of the dungeon in the active Term
+ * Display a "small-scale" map of the dungeon in the active Term.
  *
  * Note that this function must "disable" the special lighting
  * effects so that the "priority" function will work.
@@ -1268,22 +1268,37 @@ static byte priority(byte a, char c)
  * function to work with any graphic attr/char mappings, and the
  * attempts to optimize this function where possible.
  */
+
+#define MAX_SCREEN_HGT 68
+#define MAX_SCREEN_WID 150
+
+#include <math.h>
+
 void display_map(int *cy, int *cx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int i, j, x, y;
+	int y2, y3, x2, x3;
 
 	byte ta;
 	char tc;
 
 	byte tp;
 
-	byte ma[MAP_HGT + 2][MAP_WID + 2];
-	char mc[MAP_HGT + 2][MAP_WID + 2];
+	int map_hgt = Term->hgt - 2;
+	int map_wid = Term->wid - 2;
 
-	byte mp[MAP_HGT + 2][MAP_WID + 2];
+	byte ma[MAX_SCREEN_HGT][MAX_SCREEN_WID];
+	char mc[MAX_SCREEN_HGT][MAX_SCREEN_WID];
+
+	byte mp[MAX_SCREEN_HGT][MAX_SCREEN_WID];
+
+	byte mx[DUNGEON_WID];
+	byte my[DUNGEON_HGT];
+
+	double fx, fy;
 
 	bool old_view_special_lite;
 	bool old_view_granite_lite;
@@ -1297,11 +1312,34 @@ void display_map(int *cy, int *cx)
 	view_special_lite = FALSE;
 	view_granite_lite = FALSE;
 
+	/* Calculate which dungeon rows are covered by map rows */
+	fy = ((double) DUNGEON_HGT) / map_hgt;
+	y2 = 0;
+	for (y = 1; y <= map_hgt; y++)
+	{
+		double d = y * fy;
+		if (d - floor(d) < 0.5) y3 = floor(d);
+		else y3 = ceil(d);
+		for (j = y2; j < y3; j++) my[j] = y - 1;
+		y2 = y3;
+	}
+
+	/* Calculate which dungeon columns are covered by map columns */
+	fx = ((double) DUNGEON_WID) / map_wid;
+	x2 = 0;
+	for (x = 1; x <= map_wid; x++)
+	{
+		double d = x * fx;
+		if (d - floor(d) < 0.5) x3 = floor(d);
+		else x3 = ceil(d);
+		for (j = x2; j < x3; j++) mx[j] = x - 1;
+		x2 = x3;
+	}
 
 	/* Clear the chars and attributes */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < map_wid+2; ++x)
 		{
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
@@ -1318,8 +1356,8 @@ void display_map(int *cy, int *cx)
 		for (j = 0; j < DUNGEON_HGT; ++j)
 		{
 			/* Location */
-			x = i / RATIO + 1;
-			y = j / RATIO + 1;
+			x = mx[i] + 1;
+			y = my[j] + 1;
 
 			/* Extract the current attr/char at that map location */
 			map_info(j, i, &ta, &tc);
@@ -1344,27 +1382,27 @@ void display_map(int *cy, int *cx)
 
 
 	/* Corners */
-	x = MAP_WID + 1;
-	y = MAP_HGT + 1;
+	x = map_wid + 1;
+	y = map_hgt + 1;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
 
 	/* Draw the horizontal edges */
-	for (x = 1; x <= MAP_WID; x++) mc[0][x] = mc[y][x] = '-';
+	for (x = 1; x <= map_wid; x++) mc[0][x] = mc[y][x] = '-';
 
 	/* Draw the vertical edges */
-	for (y = 1; y <= MAP_HGT; y++) mc[y][0] = mc[y][x] = '|';
+	for (y = 1; y <= map_hgt; y++) mc[y][0] = mc[y][x] = '|';
 
 
 	/* Display each map line in order */
-	for (y = 0; y < MAP_HGT+2; ++y)
+	for (y = 0; y < map_hgt+2; ++y)
 	{
 		/* Start a new line */
 		Term_gotoxy(0, y);
 
 		/* Display the line */
-		for (x = 0; x < MAP_WID+2; ++x)
+		for (x = 0; x < map_wid+2; ++x)
 		{
 			ta = ma[y][x];
 			tc = mc[y][x];
@@ -1376,8 +1414,8 @@ void display_map(int *cy, int *cx)
 
 
 	/* Player location */
-	(*cy) = py / RATIO + 1;
-	(*cx) = px / RATIO + 1;
+	(*cy) = my[py] + 1;
+	(*cx) = mx[px] + 1;
 
 
 	/* Restore lighting effects */
@@ -1411,7 +1449,7 @@ void do_cmd_view_map(void)
 	display_map(&cy, &cx);
 
 	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	put_str_center(" Hit any key to continue ", screen_y - 1);
 
 	/* Hilite the player */
 	move_cursor(cy, cx);
@@ -1422,7 +1460,6 @@ void do_cmd_view_map(void)
 	/* Load screen */
 	screen_load();
 }
-
 
 
 /*
@@ -3208,8 +3245,21 @@ void town_illuminate(bool daytime)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
+			/* Grids "outside" the town walls */
+			if (cave_feat[y][x] == FEAT_PERM_SOLID) {
+
+				/* Darken the grid */
+				cave_info[y][x] &= ~(CAVE_GLOW);
+
+				/* Hack -- Forget grids */
+				if (view_perma_grids)
+				{
+					cave_info[y][x] &= ~(CAVE_MARK);
+				}
+			}	
+
 			/* Interesting grids */
-			if (cave_feat[y][x] > FEAT_INVIS)
+			else if (cave_feat[y][x] > FEAT_INVIS)
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
@@ -3755,6 +3805,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+		/* Recenter the panel when running stops */
+		if (center_player && !center_running) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

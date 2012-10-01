@@ -462,6 +462,9 @@ errr process_pref_file_aux(char *buf)
 
 		keymap_act[mode][i] = string_make(macro_buffer);
 
+		/* XXX Mega-Hack - Let system know a keymap changed */
+		angband_keymap_flag = TRUE;
+
 		return (0);
 	}
 
@@ -507,6 +510,43 @@ errr process_pref_file_aux(char *buf)
 		}
 	}
 
+	/* Process "W:<win>:<flag>:<value>" -- window flags */
+	else if (buf[0] == 'W')
+	{
+		int win, flag, value;
+
+		if (tokenize(buf + 2, 3, zz) == 3)
+		{
+			win = strtol(zz[0], NULL, 0);
+			flag = strtol(zz[1], NULL, 0);
+			value = strtol(zz[2], NULL, 0);
+
+			/* Ignore illegal windows */
+			/* Hack -- Ignore the main window */
+			if ((win <= 0) || (win >= 8)) return (1);
+
+			/* Ignore illegal flags */
+			if ((flag < 0) || (flag >= 32)) return (1);
+
+			/* Require a real flag */
+			if (window_flag_desc[flag])
+			{
+				if (value)
+				{
+					/* Turn flag on */
+					op_ptr->window_flag[win] |= (1L << flag);
+				}
+				else
+				{
+					/* Turn flag off */
+					op_ptr->window_flag[win] &= ~(1L << flag);
+				}
+			}
+
+			/* Success */
+			return (0);
+		}
+	}
 
 	/* Failure */
 	return (1);
@@ -1571,7 +1611,7 @@ static u32b display_player_flag_head[4] =
 	TR2_RES_ACID,
 	TR2_RES_BLIND,
 	TR3_SLOW_DIGEST,
-	TR1_STEALTH
+	TR1_MAGIC_MASTERY
 };
 
 /*
@@ -2442,7 +2482,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
+		for (i = 0; i < screen_y - 4; )
 		{
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
@@ -2507,21 +2547,21 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (menu)
 		{
 			/* Wait for it */
-			prt("[Press a number, or ESC to exit.]", 23, 0);
+			prt("[Press a number, or ESC to exit.]", screen_y-1, 0);
 		}
 
 		/* Prompt -- small files */
 		else if (size <= 20)
 		{
 			/* Wait for it */
-			prt("[Press ESC to return to the previous file, or ? to exit.]", 23, 0);
+			prt("[Press ESC to return to the previous file, or ? to exit.]", screen_y-1, 0);
 		}
 
 		/* Prompt -- large files */
 		else
 		{
 			/* Wait for it */
-			prt("[Press Space to advance, ESC to return to the previous file, or ? to exit.]", 23, 0);
+			prt("[Press Space to advance, ESC to return to the previous file, or ? to exit.]", screen_y-1, 0);
 		}
 
 		/* Get a keypress */
@@ -2534,7 +2574,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '=')
 		{
 			/* Get "shower" */
-			prt("Show: ", 23, 0);
+			prt("Show: ", screen_y-1, 0);
 			(void)askfor_aux(shower, 80);
 		}
 
@@ -2542,7 +2582,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '/')
 		{
 			/* Get "finder" */
-			prt("Find: ", 23, 0);
+			prt("Find: ", screen_y-1, 0);
 			if (askfor_aux(finder, 80))
 			{
 				/* Find it */
@@ -2559,7 +2599,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '#')
 		{
 			char tmp[81];
-			prt("Goto Line: ", 23, 0);
+			prt("Goto Line: ", screen_y-1, 0);
 			strcpy(tmp, "0");
 			if (askfor_aux(tmp, 80))
 			{
@@ -2571,7 +2611,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (k == '%')
 		{
 			char tmp[81];
-			prt("Goto File: ", 23, 0);
+			prt("Goto File: ", screen_y-1, 0);
 			strcpy(tmp, "help.hlp");
 			if (askfor_aux(tmp, 80))
 			{
@@ -2938,22 +2978,22 @@ static char *get_personalized_string(byte choice)
 	sprintf(tmp, "%-79.79s", tmp);
 
 	/* Ensure that strings end like a sentence, and neatly clip the string. */
-	for (n = 79;; n--)
+	for (n = 79; ; n--)
 	{
-		if ((tmp[n] == NULL) || (tmp[n] == ' ') ||(tmp[n] == '\0')) continue;
+		if ((tmp[n] == ' ') || (tmp[n] == '\0')) continue;
 		else
 		{
 			if ((tmp[n] == '!') || (tmp[n] == '.') || (tmp[n] == '?'))
 			{
 				tmp[n + 1] = '\0';
-				for (i = n + 2; i < 80; i++) tmp[i] = NULL;
+				for (i = n + 2; i < 80; i++) tmp[i] = '\0';
 				break;
 			}
 			else 
 			{
 				tmp[n + 1] = '.';
 				tmp[n + 2] = '\0';
-				for (i = n + 3; i < 80; i++) tmp[i] = NULL;
+				for (i = n + 3; i < 80; i++) tmp[i] = '\0';
 				break;
 			}
 		}
@@ -3144,6 +3184,8 @@ static void print_tomb(void)
 
 	time_t ct = time((time_t)0);
 
+	int y, x;
+
 
 	/* Clear screen */
 	Term_clear();
@@ -3157,13 +3199,14 @@ static void print_tomb(void)
 	/* Dump */
 	if (fp)
 	{
-		int i = 0;
+		y = (screen_y - 24)/2;
+		x = (screen_x - 80)/2;
 
 		/* Dump the file to the screen */
 		while (0 == my_fgets(fp, buf, 1024))
 		{
 			/* Display and advance */
-			put_str(buf, i++, 0);
+			put_str(buf, y++, x);
 		}
 
 		/* Close */
@@ -3183,43 +3226,46 @@ static void print_tomb(void)
 		p =  player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
 	}
 
+	y = (screen_y - 24)/2;
+	x = (screen_x - 80)/2;
+
 	center_string(buf, op_ptr->full_name);
-	put_str(buf, 6, 11);
+	put_str(buf, y + 6, x + 11);
 
 	center_string(buf, "the");
-	put_str(buf, 7, 11);
+	put_str(buf, y + 7, x + 11);
 
 	center_string(buf, p);
-	put_str(buf, 8, 11);
+	put_str(buf, y + 8, x + 11);
 
 
 	center_string(buf, cp_ptr->title);
-	put_str(buf, 10, 11);
+	put_str(buf, y + 10, x + 11);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
 	center_string(buf, tmp);
-	put_str(buf, 11, 11);
+	put_str(buf, y + 11, x + 11);
 
 	sprintf(tmp, "Exp: %ld", (long)p_ptr->exp);
 	center_string(buf, tmp);
-	put_str(buf, 12, 11);
+	put_str(buf, y + 12, x + 11);
 
 	sprintf(tmp, "AU: %ld", (long)p_ptr->au);
 	center_string(buf, tmp);
-	put_str(buf, 13, 11);
+	put_str(buf, y + 13, x + 11);
 
 	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
 	center_string(buf, tmp);
-	put_str(buf, 14, 11);
+	put_str(buf, y + 14, x + 11);
 
 	sprintf(tmp, "by %s.", p_ptr->died_from);
 	center_string(buf, tmp);
-	put_str(buf, 15, 11);
+	put_str(buf, y + 15, x + 11);
 
 
 	sprintf(tmp, "%-.24s", ctime(&ct));
 	center_string(buf, tmp);
-	put_str(buf, 17, 11);
+	put_str(buf, y + 17, x + 11);
 }
 
 
@@ -3275,8 +3321,8 @@ static void show_info(void)
 
 
 	/* Describe options */
-	prt("You may now dump a character record to one or more files.", 21, 0);
-	prt("Then, hit RETURN to see the character, or ESC to abort.", 22, 0);
+	prt("You may now dump a character record to one or more files.", screen_y - 3, 0);
+	prt("Then, hit RETURN to see the character, or ESC to abort.", screen_y - 2, 0);
 
 	/* Dump character records as requested */
 	while (TRUE)
@@ -3284,7 +3330,7 @@ static void show_info(void)
 		char out_val[160];
 
 		/* Prompt */
-		put_str("Filename: ", 23, 0);
+		put_str("Filename: ", screen_y - 1, 0);
 
 		/* Default */
 		strcpy(out_val, "");
@@ -3310,7 +3356,7 @@ static void show_info(void)
 	display_player(0);
 
 	/* Prompt for inventory */
-	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
+	prt("Hit any key to see more information (ESC to abort): ", screen_y - 1, 0);
 
 	/* Allow abort at this point */
 	if (inkey() == ESCAPE) return;
@@ -3557,6 +3603,8 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 	char out_val[256];
 	char tmp_val[160];
 
+	int per_screen = (screen_y - 4) / 4;
+
 
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return;
@@ -3584,24 +3632,26 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 	if (i > to) i = to;
 
 
-	/* Show 5 per page, until "done" */
-	for (k = from, place = k+1; k < i; k += 5)
+	/* Show per_screen per page, until "done" */
+	for (k = from, place = k+1; k < i; k += per_screen)
 	{
 		/* Clear screen */
 		Term_clear();
 
 		/* Title */
-		put_str("                Oangband Hall of Fame", 0, 0);
+		put_str_center("Oangband Hall of Fame", 0);
 
+#if 0
 		/* Indicate non-top scores */
 		if (k > 0)
 		{
 			sprintf(tmp_val, "(from position %d)", k + 1);
 			put_str(tmp_val, 0, 40);
 		}
+#endif
 
-		/* Dump 5 entries */
-		for (j = k, n = 0; j < i && n < 5; place++, j++, n++)
+		/* Dump per_screen entries */
+		for (j = k, n = 0; j < i && n < per_screen; place++, j++, n++)
 		{
 			int pr, pc, clev, mlev, cdun, mdun;
 
@@ -3684,9 +3734,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 
 		/* Wait for response */
-		prt("[Press ESC to quit, any other key to continue.]", 23, 17);
+		prt_center("[Press ESC to quit, any other key to continue.]", screen_y - 1);
 		j = inkey();
-		prt("", 23, 0);
+		prt("", screen_y - 1, 0);
 
 		/* Hack -- notice Escape */
 		if (j == ESCAPE) break;

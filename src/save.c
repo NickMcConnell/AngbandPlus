@@ -729,6 +729,9 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
 
+	/* Feeling */
+	wr_byte(o_ptr->feel);
+
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
 	{

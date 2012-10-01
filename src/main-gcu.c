@@ -805,6 +805,11 @@ errr init_gcu(int argc, char *argv[])
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
+	/* Very dodgy 50-line support */
+	if (screen_y==50)
+	{
+			system("consolechars -f alt-8x8.psf.gz -H 8");
+	}
 
 #if defined(USG)
 	/* Initialize for USG Unix */
@@ -924,7 +929,7 @@ errr init_gcu(int argc, char *argv[])
 	/*** Now prepare the term ***/
 
 	/* Initialize the term */
-	term_init(t, 80, 24, 256);
+	term_init(t, 80, screen_y, 256);
 
 	/* Avoid the bottom right corner */
 	t->icky_corner = TRUE;

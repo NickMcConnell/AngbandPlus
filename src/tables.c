@@ -3061,20 +3061,20 @@ cptr option_text[OPT_MAX] =
 	"alert_failure",			/* OPT_alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
-	"ring_bell",			/* OPT_ring_bell */
-	NULL,
+	"ring_bell",				/* OPT_ring_bell */
+	"verify_destroy_junk",		/* OPT_verify_destroy_junk */
 
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
-	"easy_open",			/* OPT_easy_open   -TNB- */
-	"easy_disarm",			/* OPT_easy_disarm   -TNB- */
+	"easy_open",				/* OPT_easy_open   -TNB- */
+	"easy_disarm",				/* OPT_easy_disarm   -TNB- */
 	"expand_look",				/* OPT_expand_look */
 	"expand_list",				/* OPT_expand_list */
 	"view_perma_grids",			/* OPT_view_perma_grids */
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"dungeon_align",			/* OPT_dungeon_align */
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"empty_levels",			/* OPT_empty_levels */
+	"empty_levels",				/* OPT_empty_levels */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
 	NULL,
@@ -3087,10 +3087,10 @@ cptr option_text[OPT_MAX] =
 	"avoid_other",				/* OPT_avoid_other */
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
-	NULL,
+	"center_player",			/* OPT_center_player */
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
-	NULL,
+	"center_running",			/* OPT_center_running */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
@@ -3105,46 +3105,46 @@ cptr option_text[OPT_MAX] =
  */
 cptr option_desc[OPT_MAX] =
 {
-	"Rogue-like commands",					/* OPT_rogue_like_commands */
-	"Activate quick messages",				/* OPT_quick_messages */
+	"Rogue-like commands",						/* OPT_rogue_like_commands */
+	"Activate quick messages",					/* OPT_quick_messages */
 	"Prompt for floor item selection",			/* OPT_floor_query_flag */
 	"Prompt before picking things up",			/* OPT_carry_query_flag */
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
-	"Repeat obvious commands",				/* OPT_always_repeat */
-	"Show dungeon level in feet (or meters)",		/* OPT_depth_in_feet */
+	"Repeat obvious commands",					/* OPT_always_repeat */
+	"Show dungeon level in feet (or meters)",	/* OPT_depth_in_feet */
 	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
 	"Merge discounts when stacking",			/* OPT_stack_force_costs */
 	"Show labels in equipment listings",		/* OPT_show_labels */
 	"Show weights in all object listings",		/* OPT_show_weights */
 	"Show choices in inven/equip windows",		/* OPT_show_choices */
 	"Show details in monster descriptions",		/* OPT_show_details */
-	"Use metric (SI) measurements",			/* OPT_metric */
+	"Use metric (SI) measurements",				/* OPT_metric */
 	"Show flavors in object descriptions",		/* OPT_show_flavors */
 
-	"When running, ignore stairs",			/* OPT_run_ignore_stairs */
+	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
 	"When running, use corners",				/* OPT_run_use_corners */
 	"Disturb whenever any monster moves",		/* OPT_disturb_move */
 	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
-	"Disturb whenever player state changes",		/* OPT_disturb_state */
-	"Disturb whenever boring things happen",		/* OPT_disturb_minor */
-	"Disturb whenever various things happen",		/* OPT_disturb_other */
+	"Disturb whenever player state changes",	/* OPT_disturb_state */
+	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
+	"Disturb whenever various things happen",	/* OPT_disturb_other */
 	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
 	"Alert user to various failures",			/* OPT_alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	NULL,
+	"Verify destruction of worthless objects",	/* OPT_verify_destroy_junk */
 
-	"Auto-haggle in stores",				/* OPT_auto_haggle */
+	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Open and close doors automatically",		/* OPT_easy_open  -TBN- */
 	"Disarm traps automatically",   			/* OPT_easy_disarm   -TNB- */
 	"Expand the power of the look command",		/* OPT_expand_look */
-	"Expand the power of the list commands",		/* OPT_expand_list */
+	"Expand the power of the list commands",	/* OPT_expand_list */
 	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
@@ -3162,10 +3162,10 @@ cptr option_desc[OPT_MAX] =
 	"Avoid processing special colors",			/* OPT_avoid_other */
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	NULL,								/* xxx */
+	"Keep the player centered (slow)",			/* OPT_center_player */
 	"Flush output before every command",		/* OPT_fresh_before */
 	"Flush output after various things",		/* OPT_fresh_after */
-	NULL,
+	"Keep player centered while running (slow)",/* OPT_center_running */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Highlight the player with the cursor",		/* OPT_hilite_player */
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
@@ -3181,21 +3181,21 @@ cptr option_desc[OPT_MAX] =
  */
 bool option_norm[OPT_MAX] =
 {
-	FALSE,	/* OPT_rogue_like_commands */
-	FALSE,	/* OPT_quick_messages */
-	FALSE,	/* OPT_floor_query_flag */
-	FALSE,	/* OPT_carry_query_flag */
-	FALSE,	/* OPT_use_old_target */
+	FALSE,		/* OPT_rogue_like_commands */
+	FALSE,		/* OPT_quick_messages */
+	FALSE,		/* OPT_floor_query_flag */
+	FALSE,		/* OPT_carry_query_flag */
+	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	TRUE,		/* OPT_always_repeat */
 	TRUE,		/* OPT_depth_in_feet */
 	TRUE,		/* OPT_stack_force_notes */
-	FALSE,	/* OPT_stack_force_costs */
+	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
-	FALSE,	/* OPT_metric */
+	FALSE,		/* OPT_metric */
 	TRUE,		/* OPT_show_flavors */
 
 	TRUE,		/* OPT_run_ignore_stairs */
@@ -3207,16 +3207,16 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
-	FALSE,	/* OPT_disturb_other */
+	FALSE,		/* OPT_disturb_other */
 	TRUE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_ring_bell */
-	FALSE,
+	TRUE,		/* OPT_verify_destroy_junk */
 
 	TRUE,		/* OPT_auto_haggle */
-	FALSE,	/* OPT_auto_scum */
+	FALSE,		/* OPT_auto_scum */
 	TRUE,		/* OPT_easy_open */
 	FALSE,		/* OPT_easy_disarm */
 	TRUE,		/* OPT_expand_look */
@@ -3238,10 +3238,10 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
-	FALSE,
+	FALSE,		/* OPT_center_player */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,
+	FALSE,		/* OPT_center_running */
 	FALSE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
 	TRUE,		/* OPT_view_yellow_lite */
@@ -3255,7 +3255,7 @@ bool option_norm[OPT_MAX] =
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** User-Interface ***/
 
@@ -3275,7 +3275,11 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_metric,
-		OPT_show_flavors
+		OPT_show_flavors,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -3294,8 +3298,12 @@ byte option_page[4][16] =
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
 		OPT_verify_destroy,
+		OPT_verify_destroy_junk,
 		OPT_verify_special,
 		OPT_ring_bell,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -3317,7 +3325,11 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		255,
 		OPT_smart_learn,
-		OPT_smart_cheat
+		OPT_smart_cheat,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Efficiency and Lighting ***/
@@ -3329,16 +3341,20 @@ byte option_page[4][16] =
 		OPT_avoid_other,
 		OPT_flush_failure,
 		OPT_flush_disturb,
-		255,
 		OPT_fresh_before,
 		OPT_fresh_after,
-		255,
 		OPT_compress_savefile,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
-		OPT_view_special_lite
+		OPT_view_special_lite,
+		OPT_center_player,
+		OPT_center_running,
+		255,
+		255,
+		255,
+		255
 	}
 };
 
@@ -3365,4 +3381,18 @@ druid_blows d_blow[NUM_D_BLOWS] =
 	{ "blizzard gouge",	14,11 },
 	{ "tsunami whirl",	 7,26 },
 	{ "stormwind chop",	10,22 }
+};
+
+cptr feel_text[FEEL_MAX] =
+{
+	NULL,            /* FEEL_NONE */
+	"broken",        /* FEEL_BROKEN */
+	"terrible",      /* FEEL_TERRIBLE */
+	"worthless",     /* FEEL_WORTHLESS */
+	"cursed",        /* FEEL_CURSED */
+	"uncursed",      /* FEEL_UNCURSED */
+	"average",       /* FEEL_AVERAGE */
+	"good",          /* FEEL_GOOD */
+	"excellent",     /* FEEL_EXCELLENT */
+	"special",       /* FEEL_SPECIAL */
 };

@@ -53,7 +53,7 @@
 
 # Version stamp (required)
 
-V:0.4.0
+V:0.4.1
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol
@@ -4247,7 +4247,7 @@ S:BLIND | HOLD | DRAIN_MANA
 D:You don't believe in them.
 
 N:327:Great Eagle of Dol Guldur
-G:K:D
+G:B:D
 I:130:12d12:25:30:20
 W:37:4:0:225
 B:BITE:HURT:6d2
@@ -8255,7 +8255,7 @@ D:A larger-than life figure covered in wrappings.  Twin flames burn in its head.
 D:You feel you know it and it knows you.
 
 N:552:Wight
-G:C:D
+G:W:s
 I:115:26d12:20:20:0
 W:30:5:0:210
 B:WAIL:TERRIFY

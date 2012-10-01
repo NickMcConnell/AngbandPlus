@@ -68,8 +68,9 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[4][16];
+extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern druid_blows d_blow[NUM_D_BLOWS];
+extern cptr feel_text[FEEL_MAX];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -132,6 +133,10 @@ extern s16b o_max;
 extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
+extern s16b screen_x;
+extern s16b screen_y;
+extern s16b SCREEN_HGT;
+extern s16b SCREEN_WID;
 extern s16b feeling;
 extern s16b rating;
 extern bool empty_level;
@@ -252,6 +257,9 @@ extern byte player_is_crossing;
 extern byte number_of_thefts_on_level;
 extern byte num_trap_on_level;
 extern byte num_glyph_on_level;
+extern int *artifact_normal, *artifact_special;
+extern int artifact_normal_cnt, artifact_special_cnt;
+extern bool angband_keymap_flag;
 
 /*
  * Automatically generated "function declarations"
@@ -334,7 +342,7 @@ extern void do_cmd_wield(void);
 extern void do_cmd_takeoff(void);
 extern void do_cmd_drop(void);
 extern void do_cmd_destroy(void);
-extern void do_cmd_observe(object_type *o_ptr, bool is_home);
+extern void do_cmd_observe(object_type *o_ptr, bool in_store);
 extern void do_cmd_uninscribe(void);
 extern void do_cmd_inscribe(void);
 extern void do_cmd_refill(void);
@@ -362,6 +370,7 @@ extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
+extern void do_cmd_time(void);
 
 /* cmd5.c */
 extern void shapechange(s16b shape);
@@ -438,6 +447,7 @@ extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
 
 /* init2.c */
+extern void init_artifacts(void);
 extern errr init_t_info(byte chosen_level);
 extern void kill_t_info(void);
 extern void init_file_paths(char *path);
@@ -526,6 +536,8 @@ extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
 extern s32b object_value(object_type *o_ptr);
+extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
+extern void reduce_charges(object_type *o_ptr, int amt);
 extern bool object_similar(object_type *o_ptr, object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
 extern s16b lookup_kind(int tval, int sval);
@@ -730,8 +742,10 @@ extern void screen_save(void);
 extern void screen_load(void);
 extern void c_put_str(byte attr, cptr str, int row, int col);
 extern void put_str(cptr str, int row, int col);
+extern void put_str_center(cptr str, int row);
 extern void c_prt(byte attr, cptr str, int row, int col);
 extern void prt(cptr str, int row, int col);
+extern void prt_center(cptr str, int row);
 extern void c_roff(byte a, cptr str, byte l_margin, byte r_margin);
 extern void roff(cptr str, byte l_margin, byte r_margin);
 extern void clear_from(int row);
@@ -790,6 +804,8 @@ extern bool set_oppose_pois(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
+extern bool set_recall(int v);
+extern void word_recall(int v);
 extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);

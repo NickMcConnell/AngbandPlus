@@ -207,6 +207,19 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Ask for ring to replace */
+	if ((o_ptr->tval == TV_RING) &&
+		inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+	
+		/* Choose a ring from the equipment only */
+		q = "Replace which ring? ";
+		s = "Oops.";
+		if (!get_item(&slot, q, s, USE_EQUIP)) return;
+	}
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -467,7 +480,7 @@ void do_cmd_drop(void)
 	}
 
 	/* Ensure that the shield hand is used, if a shield is available. -LM- */
-	if (wield_slot(o_ptr) == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
+	if (item == INVEN_WIELD) p_ptr->shield_on_back = FALSE;
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
@@ -529,7 +542,7 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy)
+	if (verify_destroy && (verify_destroy_junk || (object_value(o_ptr) >= 1)))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -541,16 +554,16 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		cptr feel = "special";
+		int feel = FEEL_SPECIAL;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
 
 		/* Hack -- inscribe the artifact, if not identified. */
-		if (!object_known_p(o_ptr)) o_ptr->note = quark_add(feel);
+		if (!object_known_p(o_ptr)) o_ptr->feel = feel;
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -565,21 +578,11 @@ void do_cmd_destroy(void)
 		return;
 	}
 
-
-
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 
-	/* Hack -- If rods or wand are destroyed, the total maximum timeout or 
-	 * charges of the stack needs to be reduced, unless all the items are 
-	 * being destroyed. -LM-
-	 */
-	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
-		&& (amt < o_ptr->number))
-	{
-		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
-	}
-
+	/* Reduce the charges of rods/wands */
+	reduce_charges(o_ptr, amt);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -619,16 +622,15 @@ void do_cmd_destroy(void)
  * extra information about effects when used will appear if the effects 
  * can be quantified.
  *
- * Boolean value "is_home" only takes effect if player is in some store.
+ * Boolean value "in_store" only takes effect if player is in some store.
  */
-void do_cmd_observe(object_type *o_ptr, bool is_home)
+void do_cmd_observe(object_type *o_ptr, bool in_store)
 {
 	int item;
 	int y, x;
 	int i;
 
 	bool aware, known, known_effects, mental;
-	bool in_store = FALSE;
 
 	object_kind *k_ptr;
 
@@ -642,10 +644,6 @@ void do_cmd_observe(object_type *o_ptr, bool is_home)
 
 	/* Initialize object description. */
 	strcpy(info_text, "");
-
-
-	/* Determine if called in a normal store. */
-	if ((o_ptr) && (!is_home)) in_store = TRUE;
 
 	/* If not called in a store, we must get an object to inspect. */
 	if (!o_ptr)
@@ -1197,9 +1195,16 @@ void do_cmd_locate(void)
 		}
 
 		/* Prepare to ask which way to look */
+#if 1
+		sprintf(out_val,
+		        "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
+		        y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
+		        x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
+#else
 		sprintf(out_val,
 		        "Map sector [%d,%d], which is%s your sector.  Direction?",
 		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+#endif
 
 		/* Assume no direction */
 		dir = 0;
@@ -1808,9 +1813,7 @@ void py_steal(int y, int x)
 	if (p_ptr->superstealth)
 	{
 		theft_protection = 3 * theft_protection / 5;
-
-		msg_print("You emerge from the shadows and stand revealed once more.");
-		p_ptr->superstealth = 0;
+		set_superstealth(0);
 	}
 
 	/* The more you steal on a level, the more wary the monsters. */
@@ -1848,7 +1851,7 @@ void py_steal(int y, int x)
 			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
 
 		/* Pickings are scarce in a land of many thieves. */
-		purse *= (p_ptr->depth + 5) / (p_ptr->max_depth + 5);
+		purse = purse * (p_ptr->depth + 5) / (p_ptr->max_depth + 5);
 
 		/* Increase player gold. */
 		p_ptr->au += purse;
@@ -1914,6 +1917,19 @@ void py_steal(int y, int x)
 		/* Aggravate monsters nearby. */
 		aggravate_monsters(1, FALSE);
 	}
+
+	/* Rogue "Hit and Run" attack. -LM- */
+	if (p_ptr->special_attack & (ATTACK_FLEE))
+	{
+		/* Cancel the fleeing spell */
+		p_ptr->special_attack &= ~(ATTACK_FLEE);
+
+		/* Message */
+		msg_print("You escape into the shadows!");
+
+		/* Teleport. */
+		teleport_player(6 + p_ptr->lev / 5);
+	}
 }
 
 
@@ -1924,7 +1940,6 @@ void py_steal(int y, int x)
  */
 void py_set_trap(int y, int x)
 {
-
 	/* Paranoia -- Forbid more than one trap being set. */
 	if (num_trap_on_level > 0)
 	{
@@ -1932,14 +1947,13 @@ void py_set_trap(int y, int x)
 		return;
 	}
 
-	/* Set the trap, insure that it is visible, and notify the player. */
-	cave_feat[y][x] = FEAT_MONSTER_TRAP;
-	cave_info[y][x] |= (CAVE_MARK);
+	/* Set the trap, and draw it. */
+	cave_set_feat(y, x, FEAT_MONSTER_TRAP);
+
+	/* Notify the player. */
 	msg_print("You set a monster trap.");
 
 	/* Increment the number of monster traps. */
 	num_trap_on_level++;
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
 }
+
