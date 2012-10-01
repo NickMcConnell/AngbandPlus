@@ -14,7 +14,7 @@
 // W: Deep water
 // l: Shallow lava
 // L: Deep lava
-// 1,2,3,4,5,6,7,8,9,0: Shops
+// 1,2,3,4,5,6,7,8,9,0,m: Shops
 // <: Stair up
 // >: Stair down
 // +: Door
@@ -39,6 +39,12 @@
 	Type 8: Change town.	Detail: Town's id.
 	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
 	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster. Extra: 0. Normal 1. Elite 2. Boss
+	Type 14: Random Monster of type. Detail: Monster's depth adjustement. Extra: 1. Undead 2. Demon 3. Dragon Extra2: 0. Normal 1. Elite 2. Boss
+	Type 15: Random Item of tval. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. Extra2: Item's tval
+	Type 16: Random Nightmare Horror. Detail: Misfortune adjustment. (by default, it's the current monster level.)
 
 // Function executed when entering town/quest
 // T:(scripted function's name);

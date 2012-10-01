@@ -145,7 +145,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES      12
+#define MAX_STORES      13
 
 /*
  * Number of buildings
@@ -155,8 +155,8 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES_PER_TOWN 12
-#define MAX_STORE_TYPES     12
+#define MAX_STORES_PER_TOWN 13
+#define MAX_STORE_TYPES     13
 
 #define STORE_GENERAL   0
 #define STORE_ARMOURY   1
@@ -170,6 +170,7 @@
 #define STORE_LICIAL    9
 #define STORE_RARE      10
 #define STORE_RODS      11
+#define STORE_MUSIC     12
 
 
 #define BUILDING_NON_MEMBER 0
@@ -779,7 +780,7 @@
 
 /* Shops */
 #define FEAT_SHOP_HEAD  204
-#define FEAT_SHOP_TAIL  215
+#define FEAT_SHOP_TAIL  216
 
 /* Terrains */
 #define FEAT_DEEP_WATER         187

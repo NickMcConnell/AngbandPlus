@@ -981,7 +981,7 @@ function throw_damages ()
 	local tskill = 0
 	local xmight = 0
 
-	tskill = p_ptr.skill[4] + (p_ptr.skill[4] / 2)
+	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
         k = damroll(drop_ranged.dd, drop_ranged.ds)
         k = k * (tskill + 1)
@@ -1010,7 +1010,7 @@ function max_throw_damages ()
 	local tskill = 0
 	local xmight = 0
 
-	tskill = p_ptr.skill[4] + (p_ptr.skill[4] / 2)
+	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
         k = maxroll(drop_ranged.dd, drop_ranged.ds)
         k = k * (tskill + 1)
@@ -1039,7 +1039,7 @@ function min_throw_damages ()
 	local tskill = 0
 	local xmight = 0
 
-	tskill = p_ptr.skill[4] + (p_ptr.skill[4] / 2)
+	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
         k = damroll(drop_ranged.dd, 1)
         k = k * (tskill + 1)

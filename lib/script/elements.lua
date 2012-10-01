@@ -1976,7 +1976,13 @@ function element_hit_monster (who, m_idx, element, dam)
 		-- Mysticism: Harm
                 if (element == GF_HARM) then
 
-			ppower = (p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1] + (p_ptr.skill[25] * 3) + p_ptr.skill[2])
+			if (music == 1) then
+				ppower = (p_ptr.stat_ind[A_CHR+1] + (p_ptr.skill[25] * 3) + p_ptr.skill[2])
+				if (p_ptr.abilities[(CLASS_BARD * 10) + 1] > 0) then
+
+					ppower = ppower + multiply_divide(ppower, p_ptr.abilities[(CLASS_BARD * 10) + 1] * 3, 100)
+				end
+			else ppower = (p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1] + (p_ptr.skill[25] * 3) + p_ptr.skill[2]) end
 			mpower = (monster(m_idx).level + monster(m_idx).str)
 
 			-- Monster race can get some bonus.

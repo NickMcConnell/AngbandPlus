@@ -225,7 +225,15 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
                 { "Jonhatan The Trickster", 30000, 140, 106, 6, 11, RACE_HUMAN},
                 { "Gorg The Ogre Magi", 30000, 180, 115, 7, 36, RACE_HALF_OGRE},
                 { "Vincent The Thinker", 30000, 150, 103, 6, 12, RACE_GNOME},
-	}
+	},
+
+	{
+                /* Music Store */
+                { "Shopkeeper",       30000,    170, 108,  5, 15, RACE_HUMAN},
+		{ "Shopkeeper",       30000,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Shopkeeper",       30000,    170, 107,  5, 15, RACE_HALF_ELF},
+		{ "Shopkeeper",       30000,    165, 107,  6, 18, RACE_HUMAN},
+        }
 
 };
 

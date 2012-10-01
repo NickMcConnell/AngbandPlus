@@ -126,7 +126,7 @@ Effects: You gain a 25% bonus to your maximum mana.
 SHOOTING:
 Shooting an enemy from a safe distance has always been considered a good
 killing technique. There are many types of ranged weapons: Bows, Crossbows
-and Slings. This skill allow you to become good at using all of them.
+and Firearms. This skill allow you to become good at using all of them.
 
 Effects: -Extra damages = Base ammos damages * Shooting skill level
 
@@ -135,7 +135,8 @@ as melee combat can be much more risky. If you wish to invest in this skill,
 consider putting more points in your Dexterity for maximum damages.
 
 This being the general Shooting skill, it lets you use all three types
-of ranged weapons: bows, crossbows and firearms.
+of ranged weapons: bows, crossbows and firearms. It will also improve damages
+of throw weapons.
 
 SPECIAL FEATS:
 

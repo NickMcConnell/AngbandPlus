@@ -5751,6 +5751,7 @@ int generate_town()
 				else if (buf[i] == '8') dmatrix[ypos][xpos] = 211;
 				else if (buf[i] == '9') dmatrix[ypos][xpos] = 214;
 				else if (buf[i] == '0') dmatrix[ypos][xpos] = 215;
+				else if (buf[i] == 'm') dmatrix[ypos][xpos] = 216;
 				else if (buf[i] == '*') dmatrix[ypos][xpos] = 213;
 				else if (buf[i] == '-') dmatrix[ypos][xpos] = 233;
 				else if (buf[i] == 's') dmatrix[ypos][xpos] = FEAT_SNOW;
@@ -8378,6 +8379,7 @@ int generate_quest()
 				else if (buf[i] == '8') dmatrix[ypos][xpos] = 211;
 				else if (buf[i] == '9') dmatrix[ypos][xpos] = 214;
 				else if (buf[i] == '0') dmatrix[ypos][xpos] = 215;
+				else if (buf[i] == 'm') dmatrix[ypos][xpos] = 216;
 				else if (buf[i] == '*') dmatrix[ypos][xpos] = 213;
 				else if (buf[i] == '-') dmatrix[ypos][xpos] = 233;
 				else if (buf[i] == 's') dmatrix[ypos][xpos] = FEAT_SNOW;
@@ -10478,6 +10480,7 @@ void generate_vault(int vy, int vx, int num)
 				else if (buf[i] == '8') dmatrix[ypos][xpos] = 211;
 				else if (buf[i] == '9') dmatrix[ypos][xpos] = 214;
 				else if (buf[i] == '0') dmatrix[ypos][xpos] = 215;
+				else if (buf[i] == 'm') dmatrix[ypos][xpos] = 216;
 				else if (buf[i] == '*') dmatrix[ypos][xpos] = 213;
 				else if (buf[i] == '-') dmatrix[ypos][xpos] = 233;
 				else if (buf[i] == 's') dmatrix[ypos][xpos] = FEAT_SNOW;

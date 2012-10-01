@@ -18,10 +18,11 @@
 # 5. Magic Shop
 # 6. Black Market(do not define any items for it)
 # 7. Home(do not define any items for it)
-# 8. Unused(was bookstore, but could be used for anything you want)
+# 8. Dungeon Shop(do not define any items for it)
 # 9. Licialhyd Shop(hard-coded for the most part, don't edit)
 # 10. Rare Items Shop
 # 11. Rods and Crystals Shop
+# 12. Music Shop
 
 # T:(town's min):(town max)  -- This means that towns no. (min) to (max) will use this list.
 # I:(shop's id):(item's id)
@@ -359,6 +360,46 @@ I:11:568
 I:11:568
 I:11:569
 I:11:569
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1124
+I:12:1124
+I:12:1125
+I:12:1125
+I:12:1132
+I:12:1132
+I:12:1133
+I:12:1133
+I:12:1134
+I:12:1134
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1139
+I:12:1139
+I:12:1143
+I:12:1143
+I:12:1144
+I:12:1144
+I:12:1145
+I:12:1145
+I:12:1142
+I:12:1142
+I:12:1160
+I:12:1160
+I:12:1160
+I:12:1161
+I:12:1161
+I:12:1161
+I:12:1162
+I:12:1162
+I:12:1163
+I:12:1163
+I:12:1165
+I:12:1165
 
 # The Ivhala shop lists.
 # Hope you like Steel, for that's what you get. :)
@@ -994,6 +1035,46 @@ I:11:568
 I:11:568
 I:11:569
 I:11:569
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1124
+I:12:1124
+I:12:1125
+I:12:1125
+I:12:1132
+I:12:1132
+I:12:1133
+I:12:1133
+I:12:1134
+I:12:1134
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1139
+I:12:1139
+I:12:1143
+I:12:1143
+I:12:1144
+I:12:1144
+I:12:1145
+I:12:1145
+I:12:1142
+I:12:1142
+I:12:1160
+I:12:1160
+I:12:1160
+I:12:1161
+I:12:1161
+I:12:1161
+I:12:1162
+I:12:1162
+I:12:1163
+I:12:1163
+I:12:1165
+I:12:1165
 
 # Ophelia shops list
 # The Alchemy shop is special for having some ingredients, and a nice choice.
@@ -1451,3 +1532,33 @@ I:11:911
 I:11:912
 I:11:568
 I:11:568
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1123
+I:12:1124
+I:12:1124
+I:12:1130
+I:12:1130
+I:12:1130
+I:12:1130
+I:12:1131
+I:12:1131
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1140
+I:12:1139
+I:12:1139
+I:12:1143
+I:12:1143
+I:12:1144
+I:12:1144
+I:12:1145
+I:12:1145
+I:12:1160
+I:12:1160
+I:12:1160
+I:12:1161
+I:12:1161
+I:12:1161

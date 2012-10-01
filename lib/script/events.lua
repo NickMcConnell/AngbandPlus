@@ -1394,14 +1394,14 @@ end
 function monster_passive (m_idx, eventcode)
 
 	-- Bardic reputation.
-	if (p_ptr.abilities[(CLASS_BARD * 10) + 7] > 0 and monster(m_idx).boss == 0 and monster(m_idx).cursed == 0 and monster(m_idx).monfear == 0 and not(is_pet(monster(m_idx))) and not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and monster(m_idx).cdis <= 5) then
+	if (p_ptr.abilities[(CLASS_BARD * 10) + 7] > 0 and m_race(monster(m_idx).r_idx).cursed == 0 and monster(m_idx).monfear == 0 and not(is_pet(monster(m_idx))) and not(get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) and monster(m_idx).cdis <= 5) then
 
 		local racekills
 		local ppower
 		local mpower
 
 		-- This function is hard-coded for speed issues.
-		racekills = get_race_kills(monster(m_idx).d_char)
+		racekills = get_race_kills(m_race(monster(m_idx).r_idx).d_char)
 
 		if (racekills > 0 and not(get_monster_flag3(monster(m_idx).r_idx, RF3_NO_FEAR))) then
 
@@ -1412,13 +1412,13 @@ function monster_passive (m_idx, eventcode)
 
 			if (lua_randint(ppower) >= lua_randint(mpower)) then
 
-				if (monster(m_idx).monfear == 0) then msg_print(string.format('%s becomes scared!', m_race(monster(m_idx).r_idx).name_char)) end
+				-- if (monster(m_idx).monfear == 0) then msg_print(string.format('%s becomes terrified!', m_race(monster(m_idx).r_idx).name_char)) end
 				monster(m_idx).monfear = (2 + racekills)
 			end
 		end
 	end
 
-	monster_events_code(m_idx, eventcode)
+	if (eventcode > 0) then monster_events_code(m_idx, eventcode) end
 end
 
 function monster_take_damages (m_idx, eventcode)

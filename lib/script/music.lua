@@ -246,7 +246,7 @@ function execute_song (num)
 	-- It's a music effect.
 	music = 1
 
-	if (music_song[num+1].element == GF_SOUND) then no_effect_allies = 1 end
+	if (is_elemental(music_song[num+1].element) or (is_mysticism(music_song[num+1].element) and not(music_song[num+1].element == GF_OLD_HEAL or music_song[num+1].element == GF_WAR_BLESSING))) then no_effect_allies = 1 end
 	if (music_song[num+1].element == GF_OLD_HEAL) then no_effect_hostile = 1 end
 	if (music_song[num+1].element == GF_DURATION) then
 

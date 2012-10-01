@@ -905,10 +905,9 @@ N:215:Rods and Crystals Shop
 G:C:g
 F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
-N:216:dark tree
-G:#:g
-F:SUPPORT_LIGHT
-F:WALL | NO_WALK | NO_VISION
+N:216:Music Shop
+G:M:G
+F:FLOOR | PERMANENT | REMEMBER | NOTICE
 
 N:217:statue of Variaz
 G:V:g

@@ -392,7 +392,7 @@ typedef int errr;
 #define FEAT_PATTERN_XTRA1 0x48
 #define FEAT_PATTERN_XTRA2 0x49
 #define FEAT_SHOP_HEAD  204
-#define FEAT_SHOP_TAIL  215
+#define FEAT_SHOP_TAIL  216
 #define FEAT_DEEP_WATER         187
 #define FEAT_SHAL_WATER		0x54
 #define FEAT_DEEP_LAVA		0x55
@@ -1689,7 +1689,7 @@ extern bool hack_allow_special;
 extern magic_spells magic_spell[30];
 extern monster_magics monster_magic[15];
 extern music_songs music_song[15];
-extern store_type stores[12];
+extern store_type stores[13];
 extern object_type *current_weapon;
 extern object_type *drop_ranged;
 extern object_type *current_item;

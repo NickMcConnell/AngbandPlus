@@ -2958,10 +2958,10 @@ static void process_monster(int m_idx, bool is_friend)
 	inv = player_invis(m_ptr);
 
 	/* Call a lua script. */
-	if (r_ptr->event_passive > 0)
-	{
+	/*if (r_ptr->event_passive > 0)*/
+	/*{*/
 		call_lua("monster_passive", "(dd)", "", m_idx, r_ptr->event_passive);
-	}
+	/*}*/
 
 	/* Monster is summoned. It will eventually fade... */
 	if (m_ptr->summoned > 0)
@@ -4313,7 +4313,7 @@ static void process_monster(int m_idx, bool is_friend)
 			monster_desc(m_name, m_ptr, 0);
 			
 			/* Dump a message */
-			msg_format("%^s turns to fight!", m_name);
+			/*msg_format("%^s turns to fight!", m_name);*/
 		}
 		
 		/* XXX XXX XXX Actually do something now (?) */

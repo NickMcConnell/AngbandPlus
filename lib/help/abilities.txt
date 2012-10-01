@@ -1606,8 +1606,8 @@ Morale Boost spell.
 
 4. Charming Demeanor(Passive, level 1)
 
-Effect: Increase your charisma by 5%
-Extra points: +5% additional charisma bonus
+Effect: Increase your charisma by 10%
+Extra points: +10% additional charisma bonus
 
 This passive ability adds some percentile bonus to your charisma. Charisma
 helps improve songs in many ways, and allows summoned monsters to fight
@@ -1662,7 +1662,7 @@ you've slain. Note that the power is based on the number of different kinds
 you've slain. For example, killing a Small Kobold and a Kobold Infantry
 gives this ability a power of 6 per point and a duration of 4. However,
 killing 100 Small Kobolds and Kobold Infantries will not result in an increase
-in the power of this ability. Elites, bosses and uniques will be immune, as
+in the power of this ability. Uniques will always be immune, as
 are fear resistant enemies. Also, monsters with a depth level of
 0(town monsters) are not counted.
 
@@ -1700,7 +1700,7 @@ Effect: When singing a song, your performance is so majestic that enemies
         will have a lot of trouble hurting you.
 Extra points: Improve the abilities mentioned below.
 
-- Increase your AC by (10% of Charisma)% per point.
+- Increase your to_ac bonus by (20% of Charisma)% per point.
 - Adds (10% of Charisma)% to any Magic Defense rolls.
 - If an enemy uses any attack of the same element as your current song, a test
 of this ability's power versus the monster's level and mind is performed.

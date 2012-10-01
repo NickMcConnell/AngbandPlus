@@ -16,7 +16,7 @@
 // W: Deep water
 // l: Shallow lava
 // L: Deep lava
-// 1,2,3,4,5,6,7,8,9,0: Shops
+// 1,2,3,4,5,6,7,8,9,0,m: Shops
 // <: Stair up
 // >: Stair down
 // +: Door

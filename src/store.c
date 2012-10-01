@@ -879,6 +879,22 @@ static bool store_will_buy(object_type *o_ptr)
 			}
 			break;
 		}
+		/* Music Shop */
+		case 12:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+                                case TV_MELODY:
+                                case TV_HARMONY:
+                                case TV_RHYTHM:
+                                case TV_INSTRUMENT:
+				break;
+                                default:
+				return (FALSE);
+			}
+			break;
+		}
 	}
 
 	/* XXX XXX XXX Ignore "worthless" items */

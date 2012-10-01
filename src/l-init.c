@@ -1,6 +1,6 @@
 /*
 ** Lua binding: init
-** Generated automatically by tolua 5.0a on 05/05/09 21:58:36.
+** Generated automatically by tolua 5.0a on 05/24/09 20:03:28.
 */
 
 #ifndef __cplusplus
@@ -19690,7 +19690,7 @@ static int tolua_get_init_stores(lua_State* tolua_S)
 #endif
  tolua_index = (int)tolua_tonumber(tolua_S,2,0)-1;
 #ifndef TOLUA_RELEASE
- if (tolua_index<0 || tolua_index>=12)
+ if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
 #endif
  tolua_pushusertype(tolua_S,(void*)&stores[tolua_index],"store_type");
@@ -19710,7 +19710,7 @@ static int tolua_set_init_stores(lua_State* tolua_S)
 #endif
  tolua_index = (int)tolua_tonumber(tolua_S,2,0)-1;
 #ifndef TOLUA_RELEASE
- if (tolua_index<0 || tolua_index>=12)
+ if (tolua_index<0 || tolua_index>=13)
  tolua_error(tolua_S,"array indexing out of range.",NULL);
 #endif
   stores[tolua_index] = *((store_type*)  tolua_tousertype(tolua_S,3,0));

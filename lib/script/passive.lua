@@ -690,10 +690,10 @@ function calc_bonuses ()
 	-- Bard's Charming Demeanor
         if (p_ptr.abilities[(CLASS_BARD * 10) + 4] >= 1) then
 
-                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_BARD * 10) + 4]) * 5) / 100)
+                p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_BARD * 10) + 4]) * 10) / 100)
         end
 
-	-- Bard's Lord of the Bard
+	-- Bard's Lore of the Bard
         if (p_ptr.abilities[(CLASS_BARD * 10) + 6] >= 1) then
 
                 p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], p_ptr.abilities[(CLASS_BARD * 10) + 6] * 10, 100)
@@ -1011,7 +1011,7 @@ function calc_bonuses ()
 
 		local cursong
 		cursong = p_ptr.events[29041]
-		if (p_ptr.stat_ind[A_CHR+1] < music_song[cursong+1].cost) then
+		if (p_ptr.stat_ind[A_CHR+1] < (music_song[cursong+1].cost - (p_ptr.skill_base[29] / 2))) then
 
 			p_ptr.events[29041] = 0
 			p_ptr.events[29042] = 0
@@ -1294,10 +1294,10 @@ function calc_bonuses ()
 
 		local chrbonus
 
-		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], 10, 100) * p_ptr.abilities[(CLASS_BARD * 10) + 10]
+		chrbonus = multiply_divide(p_ptr.stat_ind[A_CHR+1], 20, 100) * p_ptr.abilities[(CLASS_BARD * 10) + 10]
 
                 p_ptr.to_a = p_ptr.to_a + multiply_divide(p_ptr.to_a, chrbonus, 100)
-                p_ptr.dis_to_a = p_ptr.dis_to_a + multiply_divide(p_ptr.dis_to_a, chrbonus, 100)
+                p_ptr.dis_to_a = p_ptr.dis_to_a + multiply_divide(p_ptr.dis_to_a , chrbonus, 100)
         end
 
         -- Base AC never go below 0.
