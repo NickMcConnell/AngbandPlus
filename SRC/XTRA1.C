@@ -1911,7 +1911,8 @@ static void calc_bonuses(void)
 		if (f3 & TR3_PSEUDO_ID)    psi_flags |= PSI_PSEUDO_ID;
 		if (f2 & TR2_RES_FORCE)     psi_flags |= RES_FORCE;
 		if (f2 & TR2_RES_INERT)   psi_flags |= RES_INERT;
-                if (f3 & TR3_FEATHER)   psi_flags |= RES_GRAVT; /* hack */
+                if ((f3 & TR3_FEATHER) || (f2 & TR2_RES_GRAVT))
+		  psi_flags |= RES_GRAVT; /* hack */
       if (f2 & TR2_RES_PSI)     psi_flags |= RES_PSI;
 
       meta_psi_lev = max(meta_psi_lev, ((f2 & TR2_META_PSI1) ? 1 : 0) +
@@ -1955,7 +1956,8 @@ static void calc_bonuses(void)
 
 		/* Good flags */
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
-		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+		if ((f3 & TR3_FEATHER) || (f2 & TR2_RES_GRAVT))
+		  p_ptr->ffall = TRUE;
 		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
 		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;

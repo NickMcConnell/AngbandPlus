@@ -93,7 +93,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map
- n  (unused)                             N  (unused)
+ n  Use a psionic power                  N  (unused)
  o  Open a door or chest                 O  (unused)
  p  Pray a prayer                        P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
@@ -152,7 +152,7 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  j  (walk - south)                       J  (run - south)
  k  (walk - north)                       K  (run - north)
  l  (walk - east)                        L  (run - east)
- m  Cast a spell                         M  Full dungeon map
+ m  Cast a spell or psionic power        M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  (unused)
  p  Pray a prayer                        P  Browse a book

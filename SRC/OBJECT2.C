@@ -2079,19 +2079,22 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-					case 11: case 12:
+					case 11:
 					{
 						o_ptr->name2 = EGO_FLAME;
 						break;
 					}
 
-					case 13: case 14:
+					case 12:
 					{
 						o_ptr->name2 = EGO_FROST;
 						break;
 					}
+					
+				case 13: {o_ptr->name2=EGO_ACID; break;}
+				case 14: {o_ptr->name2=EGO_ELEC; break;}
 
-					default: /* case 15-20 */
+				default: /* case 15-20 */
 					{
 						o_ptr->name2 = EGO_WOUNDING;
 						break;
@@ -2202,7 +2205,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 
 				/* Roll for ego-item */
-				switch (randint(19))
+				switch (randint(20))
 				{
 					case 1: case 2: case 3: case 4:
 					{
@@ -2233,6 +2236,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_RESISTANCE;
 						break;
 					}
+					
+				case 19:
+				  {
+				    o_ptr->name2 = EGO_RESIST_POIS;
+				    break;
+				  }
 
 					default:
 					{
@@ -2252,7 +2261,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(10))
+				switch (randint(11))
 				{
 					case 1:
 					{
@@ -2278,7 +2287,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-					default:
+				case 10:
+				  {
+				    o_ptr->name2 = EGO_ENDURE_POIS;
+				    break;
+				  }
+
+				default:
 					{
 						o_ptr->name2 = EGO_ENDURANCE;
 						break;
@@ -2373,7 +2388,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_QUIET;
 						break;
 					}
-
+					
+				case 14:
+				  {
+				    o_ptr->name2 = EGO_STABILITY;
+				    break;
+				  }
+			       
 					default:
 					{
 						o_ptr->name2 = EGO_SLOW_DESCENT;

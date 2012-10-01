@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.8.3   **   The Pits of Angband   **
+              **   Psiband 1.0.7b  **     Psionic Angband     **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -10,10 +10,10 @@
                        Angband 2.0 - 2.4 - 2.6.2 by:
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
+            Angband 2.7.0-2.8.3:  Copyright (c) 1997 Ben Harrison
+                     Psiband 1.0.0-1.0.7b by Aram Harrow
 
-               Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
-
-         Send comments, bug reports, and patches, to "benh@phial.com"
+         Send comments, bug reports, and patches, to "aram@mit.edu"
         Visit the Angband Home Page at "http://www.phial.com/angband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"

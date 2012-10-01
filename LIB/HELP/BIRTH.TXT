@@ -209,7 +209,7 @@ have intrinsic abilities.
                unseen, and resist light effects just like regular elves.
  
  
-=== Classes (outdated) ===
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some
@@ -251,7 +251,20 @@ have intrinsic abilities.
                ing throws,  and  make  decent  fighters,  preferring  blunt
                weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
                priest's primary stats.
- 
+
+          Psionicist 
+	       A Psionicist is a class who has chosen to develop the powers
+               inherent in his mind. Psionicists have far more diverse and
+               useful powers than Mages or Priests and at almost all levels
+               (except early on) should be able to rely on their powers as 
+               their main weapons, instead of hand-to-hand. To this effect,
+               good Intelligence (the stat used for their powers.)
+               This is balanced by weakness in Fighting, Constitution, hit
+               points, and most other combat-oriented statistics and
+               abilities.  More detailed information about every power and 
+               detail of the psionicist class can be found in the 
+               "psionics.txt" help file.
+  
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
                but  is capable of fighting his way out of a tight spot.  He
@@ -296,13 +309,16 @@ have intrinsic abilities.
           Strength
                Strength is important in fighting with weapons and in melee
                combat.  A high strength can improve your chances of hitting
-               as well as the amount of damage done with each hit.  Char-
-               acters with low strengths may receive penalties.  Strength
-               is also useful in tunneling and in carrying heavy items.
+               as well as the amount of damage done with each hit, and high 
+               strength also helps characters to get multiple attacks with 
+               weapons. Characters with low strengths may receive penalties.  
+               Strength is also useful in tunneling and in carrying heavy 
+               items, and lack of strength can hinder the character's 
+               ability to use heavy weapons.
  
           Intelligence
-               Intelligence affects the spellcasting abilities of mage-like
-               spellcasters, mages, rangers, and rogues.  Intelligence
+               Intelligence affects the spellcasting abilities of mages, 
+               rangers, rogues and psionicists. The character's Intelligence
                will affect the number of spells you may learn each level as
                well as the number of spell points you receive.  A high
                intelligence may also improve your chances of successfully
@@ -323,8 +339,8 @@ have intrinsic abilities.
           Dexterity
                Dexterity is a combination of agility and quickness.  A high
                dexterity may allow a character to get multiple blows with
-               lighter weapons, thus greatly increasing his kill power, and
-               will increase his chances of hitting with any weapon and
+               weapons, thus greatly increasing his kill power, and will 
+               also increase his chances of hitting with any weapon and
                dodging blows from enemies.  Dexterity is also useful in
                picking locks, disarming traps, and protecting yourself from
                some of the thieves that inhabit the dungeons.
@@ -333,7 +349,11 @@ have intrinsic abilities.
                Constitution is a character's ability to resist damage to his
                body, and to recover from damage received.  Therefore a
                character with a high constitution will receive more hit
-               points and also recover them faster while resting.
+               points and also recover them faster while resting, and will 
+               throw off the longer-lasting effects of poison faster than 
+               other characters (though high constitution offers no 
+               protection against the initial poisoning attack itself, apart
+               from the extra hit points the character may have.)
  
           Charisma
                Charisma represents a character's personality and physical
@@ -395,7 +415,7 @@ have intrinsic abilities.
  
           Magical Devices
                Using a magical device such as  a  wand  or  staff  requires
-               experience  and  knowledge.  Spell  users such as  magi  and
+               experience  and  knowledge.  Spell  users such as  mages and
                priests are therefore much better at using a magical  device
                than say a warrior.  This skill is modified by intelligence,
                and increases with the level of the character.
@@ -441,7 +461,7 @@ have intrinsic abilities.
                the player to see walls and objects.  Infra-vision will allow
                a  character  to see any warm-blooded creatures up to a cer-
                tain distance.  This ability works equally well with or with
-               out  a  light source.  The majority of Angband's creatures are
+               out a light source. However, some of Angband's creatures are
                cold-blooded, and will not be detected unless lit  up  by  a
                light  source.  All non human races have innate  infra-vision
                ability.  Human can gain infra-vision only if it is magically
@@ -472,7 +492,7 @@ are listed in the following table.
            Rogue         +2      +1      -2      +3      +1      -1
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
- 
+ 	   Psionicist	 -5	   +3	     +1	 +1      -2      +1  
  
  
 === Ability Tables (outdated) ===
@@ -501,5 +521,38 @@ are listed in the following table.
           Rogue     8     9    7    10     10      6     10     10      +25%
           Ranger    6    10    8     7      6      7      6      6      +30%
           Paladin   9     5    4     2      2      4      2      2      +35%
- 
+	  Psionicist  1     ?    ?     ?      ?      ?      ?      ?      +50%
 
+=== Preserve Mode and Maximize Mode ===
+
+     When you start your character, you will be offered the option of 
+starting in "preserve" or "maximize" mode. Playing in maximize mode is highly
+recommended: preserve mode is a matter of taste.
+
+     "Maximize" mode causes the "race" and "class" stat bonuses to be applied 
+as "equipment" bonuses.  This usually makes the character harder at the 
+beginning of the game, but easier later on, since the stats are no longer 
+limited to a "natural" value of "18/100".  The character description screen 
+shows the value of this flag. (For instance, in Maximize mode, a half-troll
+warrior be able to get up to 18/190 strength without considering the equipment
+being worn, while a hobbit mage would be limited to a maximum of 18/30: but 
+the hobbit mage would be able to get 18/150 intelligence without equipment, 
+where the half-troll warrior would be limited to 18/40. In non-maximize mode, 
+all the above limits would be 18/100 without equipment.)
+
+     "Preserve" mode means that the player can never lose an artifact without
+having found it. In non-preserve mode, the player will get a guaranteed 
+"special" feeling if an artifact is lying on the ground at the generation of
+a dungeon level (it is also possible to get this feeling from monster pits and
+vaults with no artifact present, but this gets rarer deeper in the dungeon: and
+the player does not get a "special" feeling for artifacts dropped when a 
+monster dies, as they were not present on the floor when the level was 
+generated), but any artifact left behind is gone forever, whether the player 
+has found it or not, and whether it has been identified or not: it will appear 
+on the "seen artifacts" list when you use the "~" command. In "preserve" mode, 
+only those artifacts which are actually identified by the player or sold to 
+the shops are added to that list and removed from play forever: if you leave
+an unidentified artifact lying on the ground in the dungeon, it can be 
+generated again. However, the player will never get a "special" feeling at all, 
+and thus there is no indication that there is a chance of an artifact being
+on the level.

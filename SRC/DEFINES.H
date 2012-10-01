@@ -891,7 +891,7 @@
 #define EGO_RESIST_COLD		7
 #define EGO_RESISTANCE		8
 #define EGO_ELVENKIND		9
-/* xxx */
+#define EGO_RESIST_POIS         10
 #define EGO_PERMANENCE		11
 /* xxx */
 /* xxx */
@@ -904,7 +904,7 @@
 #define EGO_ENDURE_FIRE		18
 #define EGO_ENDURE_COLD		19
 #define EGO_ENDURANCE		20
-/* xxx */
+#define EGO_ENDURE_POIS         21
 /* xxx */
 /* xxx */
 
@@ -951,7 +951,7 @@
 #define EGO_QUIET			57
 #define EGO_MOTION			58
 #define EGO_SPEED			59
-/* xxx */
+#define EGO_STABILITY                   60
 #define EGO_NOISE			61
 #define EGO_SLOWNESS		62
 #define EGO_ANNOYANCE		63
@@ -1017,8 +1017,8 @@
 #define EGO_HURT_TROLL		117
 #define EGO_HURT_GIANT		118
 #define EGO_HURT_DRAGON		119
-/* xxx */
-/* xxx */
+#define EGO_ACID                        120
+#define EGO_ELEC                        121
 #define EGO_FLAME			122
 #define EGO_FROST			123
 #define EGO_WOUNDING		124
@@ -1926,7 +1926,7 @@
 #define TR2_META_PSI2	0x00000080L	/* Metapsionics 2 */
 #define TR2_RES_PSI             0x00000100L     /* Resist Psionics*/
 #define TR2_RES_FORCE   0x00000200L     /* Resist Force */
-/* #define TR2_RES_GRAVT   0x00000400L     Resist Gravity */
+#define TR2_RES_GRAVT   0x00000400L     /* Resist Gravity (same as FEATHER)*/
 #define TR2_RES_INERT   0x00000800L     /* Resist Inertia */
 #define TR2_IM_ACID			0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
@@ -2619,8 +2619,12 @@
  *
  * Note the use of the new "CAVE_WALL" flag.
  */
-     //#define cave_floor_bold(Y,X) \
-//	(!(cave_info[Y][X] & (CAVE_WALL)))
+
+/*
+#define cave_floor_bold(Y,X) \
+      (!(cave_info[Y][X] & (CAVE_WALL)))
+      */
+
 #define cave_floor_bold(Y,X) \
      (!(cave_info[Y][X] & CAVE_WALL) && \
       (cave_feat[Y][X] != FEAT_FORCE_WALL))

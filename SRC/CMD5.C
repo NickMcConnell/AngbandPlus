@@ -1252,7 +1252,7 @@ void do_cmd_psi(void)
       f_lev = sval % 3;
 
       /* If we are using metapsionics limit focus power */
-      if (o_ptr != &inventory[INVEN_NECK]) f_lev = min(meta_psi_lev,f_lev);
+      if (o_ptr != &inventory[INVEN_NECK]) f_lev = min(meta_psi_lev-1,f_lev);
       sval /= 3;
     }
 		else
@@ -1390,7 +1390,7 @@ void do_cmd_psi(void)
 	case 7: /* Mind Wrack */
 	  {
 	    req_focus(1);
-	    if (get_aim_dir(&dir)) return;
+	    if (!get_aim_dir(&dir)) return;
 	    fire_ball(GF_PSI3,dir,A(damroll(2 , plev)),0);
 	    break;
 	  }
@@ -2815,7 +2815,7 @@ int get_balefire_effect()
       // if (!rand_int(20)) result |= BALE_TIME_TRAVEL;
       if (!rand_int(20)) result |= BALE_HISTORY;
       if (!rand_int(12)) result |= BALE_ALTER;
-      if (!rand_int(30)) result |= BALE_ALTER | BALE_TIME_TRAVEL;
+      if (!rand_int(40)) result |= BALE_ALTER | BALE_TIME_TRAVEL;
       if (!rand_int(40)) result |= BALE_HOLE | BALE_SUMMON | BALE_CLONE | BALE_TIME_ATTACK;
     }
   return result;
@@ -2844,7 +2844,7 @@ void time_travel(bool forward)
 	    msg_print("suffusing the atmosphere.  You soon realize that the");
 	    msg_print("price of total victory has been total war.");
 	    p_ptr->chp = 0;
-	    take_hit(1,"Uranium-238");
+	    take_hit(1,"nuclear fallout");
 	    break;
 	  default:
 	    msg_print("You arrive even further in the future.");
@@ -2855,7 +2855,7 @@ void time_travel(bool forward)
       else
 	{
 	  msg_print("Hopefully, this time you're back in the present!");
-	  town_special = TOWN_MESSAGE; /* optional with TOWN_WEIRD */
+	  town_special = TOWN_MESSAGE; /* optional with TOWN_WIERD */
 	}
     }
   else if ((town_special & ~TOWN_MESSAGE) == TOWN_DEAD_PAST)

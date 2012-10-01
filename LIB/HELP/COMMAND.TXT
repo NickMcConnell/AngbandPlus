@@ -285,6 +285,24 @@ Pray a prayer (p)
         or confused while praying, and there must be some light present.
         This command takes some energy.
 
+Use a psionic power (n)
+        This works in a similar way to casting spells and praying prayers: 
+        you must have previously learned the power with the "G" command, 
+        and (for psionic powers) you must either be wearing a psionic
+        focus which gives use of that power, or you must be wearing a 
+        Metapsionic focus of equal or higher level and be carrying the 
+        correct focus containing that power in your backpack. For example,
+        for Psychic Crush (a power from Telepathy II), you must either:
+        (1) be wearing Telepathy II or III, or (2) be wearing Metapsionics 
+        II or III *and* have Telepathy II or III in your backpack. If you 
+        use a power when you have insufficient mana, you may damage 
+        your mind, and lose one or two points from intelligence and/or 
+        wisdom: this loss may be temporary or permanent. In addition, 
+        some powers may have dangerous side-effects even when successful.
+        Psionic powers may be used when the character cannot see, either
+        due to being blind or running out of light: however, the character
+        must not be confused.
+
 --- Object Manipulation Commands ---
 
 Eat some food (E)
@@ -532,8 +550,13 @@ Interact with the system (!)
 Save and Quit (Ctrl-X)
         To save your game so that you can return to it later, use this
         command.  Save files will also be generated (hopefully) if the
-        game crashes due to a system error.  After you die, you can use
-        your savefile to play again with the same options and such.
+        game crashes due to a system error. (If not, you can go back to
+        the old savefile: it does not disappear from the lib/save folder
+        until it is overwritten by saving the same game at a later stage,
+        so you can only lose a savefile if the computer itself goes wrong
+        or the game crashes in the middle of saving.) After you die, you 
+        can use your savefile to play again with the same options and
+        monster memory of the old character.
 
 Save (Ctrl-S)
         This command saves the game but doesn't exit Angband.  Use this

@@ -1,6 +1,5 @@
 # File: k_info.txt
 
-
 # This file is used to initialize the "lib/raw/k_info.raw" file, which is
 # used to initialize the "object kind" information for the Angband game.
 
@@ -15,12 +14,25 @@
 
 # XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
 
-# The old "MULTI_HUED" objects are now "violet", and no other object
-# is violet, so all six violet objects can be made "multi-hued", though
-# this would be a heinous hack.  XXX XXX
+#   Changes made by JLE:
 
-# Note that object zero is used for the "stack" picture (unused).
+#   Psionic foci have been added into the game. Some objects have gone to make
+# room for them - most notably, the rings for sustaining one single stat. In 
+# place of this, those rings and amulets which add to one stat also now sustain
+# that stat as well as giving a bonus to it.
 
+#   RES_PSI added to some objects - Metapsionic foci, Amulets of the Magi.
+
+#   Now, *all* third level foci are immune to destruction. But first and second
+# level metapsionic foci can be destroyed by lightning.
+
+#   Amulets of the Magi now give bonuses and sustains to int and wis.
+
+#   Ring of Searching (useless) replaced by a much deeper and rarer Ring of 
+# Sustaining (sustain all stats)
+
+#   From my personalised version of vanilla: Poison resistance rings are now a 
+# 2000' item, rings of speed 3500'.
 
 # Version stamp (required)
 
@@ -698,6 +710,8 @@ F:SHOW_MODS | TUNNEL
 
 ##### Armor #####
 
+# Boots
+
 N:91:& Pair~ of Soft Leather Boots
 G:]:U
 I:30:2:0
@@ -718,6 +732,8 @@ I:30:6:0
 W:20:0:80:50
 A:20/1
 P:6:1d1:0:0:0
+
+# Helmets
 
 N:94:& Hard Leather Cap~
 G:]:u
@@ -769,6 +785,8 @@ W:50:0:40:2000
 A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
+
+# Armour
 
 N:101:& Robe~
 G:(:b
@@ -920,8 +938,7 @@ W:30:0:250:850
 A:30/1
 P:16:1d4:-2:0:0
 
-
-# This shield does not belong here
+### One shield, out of place... ###
 
 N:122:& Shield~ of Deflection
 G:[:B
@@ -930,7 +947,6 @@ W:70:0:100:10000
 A:70/8
 P:10:1d1:0:0:10
 F:IGNORE_ACID
-
 
 ### The Cloaks ###
 
@@ -973,7 +989,7 @@ A:50/1
 P:5:1d1:0:0:0
 
 
-### The shields ###
+### The rest of the shields ###
 
 N:128:& Small Leather Shield~
 G:):U
@@ -1011,42 +1027,42 @@ G:=:d
 I:45:24:0
 W:30:0:2:500
 A:30/1
-F:STR | HIDE_TYPE
+F:STR | SUST_STR | HIDE_TYPE
 
 N:133:Dexterity
 G:=:d
 I:45:26:0
 W:30:0:2:500
 A:30/1
-F:DEX | HIDE_TYPE
+F:DEX | SUST_DEX | HIDE_TYPE
 
 N:134:Constitution
 G:=:d
 I:45:27:0
 W:30:0:2:500
 A:30/1
-F:CON | HIDE_TYPE
+F:CON | SUST_CON | HIDE_TYPE
 
 N:135:Intelligence
 G:=:d
 I:45:25:0
 W:30:0:2:500
 A:30/1
-F:INT | HIDE_TYPE
+F:INT | SUST_INT | HIDE_TYPE
 
 N:136:Speed
 G:=:d
 I:45:31:0
-W:80:0:2:100000
-A:80/1
+W:70:0:2:100000
+A:70/1
 F:SPEED | HIDE_TYPE
 
-N:137:Searching
+N:137:Sustaining
 G:=:d
 I:45:23:0
-W:5:0:2:250
-A:5/1
-F:SEARCH | HIDE_TYPE
+W:50:0:2:10000
+A:50/32
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 
 N:138:Teleportation
 G:=:d
@@ -1083,11 +1099,11 @@ W:5:0:2:200
 A:5/1
 F:FEATHER | EASY_KNOW
 
-N:143:Poison Resistance
+N:143:Resist Poison
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/2
+W:40:0:2:16000
+A:40/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1174,49 +1190,58 @@ W:30:0:2:340
 A:30/1
 F:SEE_INVIS | EASY_KNOW
 
-# 156-161 deleted for psionics
+# 156-161 now Psionic Foci (formerly Sustain *stat* rings)
+# Telepathy and Psychoportation.
 
-#N:156:Sustain Strength
-#G:=:d
-#I:45:10:0
-#W:30:0:2:750
-#A:30/1
-#F:SUST_STR | EASY_KNOW
+N:156:[Telepathy I]
+G:#:R
+I:92:0:2
+W:5:0:2:50
+A:2/1:7/1
+P:0:1d1:0:0:0
+F:WIS | CHR | EASY_KNOW | PSI_ERASE
 
-#N:157:Sustain Intelligence
-#G:=:d
-#I:45:11:0
-#W:30:0:2:600
-#A:30/1
-#F:SUST_INT | EASY_KNOW
+N:157:[Telepathy II]
+G:#:o
+I:92:1:2
+W:20:0:2:750
+A:20/3
+F:WIS | CHR | INT | SUST_INT | SUST_WIS | EASY_KNOW | PSI_ERASE
 
-#N:158:Sustain Wisdom
-#G:=:d
-#I:45:12:0
-#W:30:0:2:600
-#A:30/1
-#F:SUST_WIS | EASY_KNOW
+N:158:[Telepathy III]
+G:#:y
+I:92:2:3
+W:50:0:2:2000
+A:50/7:70/3
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | 
+F:INT | WIS | CHR | SUST_INT | SUST_WIS | TELEPATHY | EASY_KNOW | PSI_ERASE
 
-#N:159:Sustain Constitution
-#G:=:d
-#I:45:13:0
-#W:30:0:2:750
-#A:30/1
-#F:SUST_CON | EASY_KNOW
+N:159:[Psychoportation I]
+G:#:R
+I:92:3:0
+W:5:0:2:200
+A:3/1:10/1
+P:0:1d1:0:0:2
+F:EASY_KNOW | PSI_ERASE
 
-#N:160:Sustain Dexterity
-#G:=:d
-#I:45:14:0
-#W:30:0:2:750
-#A:30/1
-#F:SUST_DEX | EASY_KNOW
+N:160:[Psychoportation II]
+G:#:o
+I:92:4:2
+W:20:0:2:600
+A:20/4:40/1
+P:0:1d1:0:0:5
+F:DEX | EASY_KNOW | PSI_ERASE
 
-#N:161:Sustain Charisma
-#G:=:d
-#I:45:15:0
-#W:30:0:2:500
-#A:30/1
-#F:SUST_CHR | EASY_KNOW
+N:161:[Psychoportation III]
+G:#:y
+I:92:5:6
+W:50:0:2:1500
+A:50/6:90/1
+P:0:1d1:0:0:10
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | 
+F:DEX | TELEPORT | EASY_KNOW | PSI_ERASE
+
+### One last ring ###
 
 N:162:Slaying
 G:=:d
@@ -1232,14 +1257,14 @@ G:":d
 I:40:6:0
 W:20:0:3:500
 A:20/1
-F:WIS | HIDE_TYPE
+F:WIS | SUST_WIS |  HIDE_TYPE
 
 N:164:Charisma
 G:":d
 I:40:7:0
 W:20:0:3:500
 A:20/1
-F:CHR | HIDE_TYPE
+F:CHR | SUST_CHR | HIDE_TYPE
 
 N:165:Searching
 G:":d
@@ -1284,7 +1309,7 @@ I:40:8:0
 W:50:0:3:30000
 A:50/4
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+F:FREE_ACT | SEE_INVIS | SEARCH | INT | SUST_INT | WIS | SUST_WIS | RES_PSI |  
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:DOOM
@@ -2749,59 +2774,8 @@ A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-### 156-161 389-399
-### Psionics ###
-
-N:156:[Telepathy I]
-G:#:R
-I:92:0:2
-W:5:0:2:50
-A:2/1:7/1
-P:0:1d1:0:0:0
-F:WIS | CHR | PSI_ERASE | EASY_KNOW
-#O:WIS | CHR
-
-N:157:[Telepathy II]
-G:#:r
-I:92:1:2
-W:20:0:2:750
-A:20/3
-F:WIS | CHR | INT | SUST_INT | SUST_WIS | EASY_KNOW | PSI_ERASE 
-#O:WIS | CHR | INT
-
-N:158:[Telepathy III]
-G:#:y
-I:92:2:3
-W:50:0:2:2000
-A:50/7:70/3
-F:INT | WIS | CHR | SUST_INT | SUST_WIS | TELEPATHY | EASY_KNOW | PSI_ERASE 
-#O:INT | WIS | CHR | SUST_INT | SUST_WIS
-
-N:159:[Psychoportation I]
-G:#:R
-I:92:3:0
-W:5:0:2:200
-A:3/1:10/1
-P:0:1d1:0:0:2
-F:PSI_ERASE | EASY_KNOW
-
-N:160:[Psychoportation II]
-G:#:r
-I:92:4:2
-W:20:0:2:600
-A:20/4:40/1
-P:0:1d1:0:0:5
-F:DEX | PSI_ERASE | EASY_KNOW
-#O:DEX
-
-N:161:[Psychoportation III]
-G:#:y
-I:92:5:6
-W:50:0:2:1500
-A:50/6:90/1
-P:0:1d1:0:0:10
-F:DEX | TELEPORT | PSI_ERASE | EASY_KNOW
-#O:DEX | TELEPORT
+#   389-400: The rest of the Psionics:
+# Psychometabolism, Psychokinesis, Metapsionics, Clairsentience.
 
 N:389:[Psychometabolism I]
 G:#:R
@@ -2809,25 +2783,23 @@ I:92:6:2
 W:5:0:2:800
 A:5/1
 P:0:1d1:0:0:0
-F:CON | SUST_CON | SUST_STR | PSI_ERASE | EASY_KNOW
-#O:CON | SUST_CON | SUST_STR
+F:CON | SUST_CON | SUST_STR | EASY_KNOW | PSI_ERASE
 
 N:390:[Psychometabolism II]
-G:#:r
+G:#:o
 I:92:7:2
 W:40:0:2:850
 A:20/8:60/4
-F:STR | CON | SUST_STR | SUST_CON | SUST_DEX | PSI_ERASE | EASY_KNOW
-#O:STR | CON | SUST_STR | SUST_CON | SUST_DEX
+F:STR | CON | SUST_STR | SUST_CON | SUST_DEX | EASY_KNOW | PSI_ERASE
 
 N:391:[Psychometabolism III]
 G:#:y
 I:92:8:3
 W:70:0:2:900
 A:50/12:80/3
-F:STR | CON | DEX | SUST_STR | SUST_CON | SUST_DEX | HOLD_LIFE | PSI_ERASE |
-F:EASY_KNOW
-#O:STR | CON | DEX | SUST_STR | SUST_CON | SUST_DEX | HOLD_LIFE
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | 
+F:STR | CON | DEX | SUST_STR | SUST_CON | SUST_DEX | HOLD_LIFE | EASY_KNOW | PSI_ERASE
+
 
 N:392:[Psychokinesis I]
 G:#:R
@@ -2835,17 +2807,15 @@ I:92:9:0
 W:5:0:2:300
 A:5/2
 P:0:1d1:0:0:0
-F:RES_FORCE | PSI_ERASE | EASY_KNOW
-#O:RES_FORCE
+F:RES_FORCE | EASY_KNOW | PSI_ERASE
 
 N:393:[Psychokinesis II]
-G:#:r
+G:#:o
 I:92:10:0
 W:20:0:2:2000
 A:20/4:40/1
 P:0:1d1:0:0:0
-F:RES_FORCE | RES_SHARD | RES_INERT | PSI_ERASE | EASY_KNOW
-#O:RES_FORCE | RES_SHARD | RES_INERT
+F:RES_FORCE | RES_SHARD | RES_INERT | EASY_KNOW | PSI_ERASE
 
 N:394:[Psychokinesis III]
 G:#:y
@@ -2853,51 +2823,47 @@ I:92:11:0
 W:55:0:2:20000
 A:45/8:99/1
 P:0:1d1:0:0:0
-F:RES_FORCE | RES_SHARD | RES_INERT | RES_GRAVT | PSI_ERASE | EASY_KNOW
-#O:RES_FORCE | RES_SHARD | RES_INERT | RES_GRAVT
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | 
+F:RES_FORCE | RES_SHARD | RES_INERT | FEATHER | EASY_KNOW | PSI_ERASE
 
 N:395:[Metapsionics I]
-G:#:w
+G:#:R
 I:92:12:0
 W:30:0:2:5000
 A:20/4:60/2
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | META_PSI1 |
-F:EASY_KNOW
+F:META_PSI1 | EASY_KNOW | RES_PSI | PSI_ERASE
 
 N:396:[Metapsionics II]
-G:#;W
+G:#;o
 I:92:13:0
 W:70:0:2:10000
 A:60/4:99/2
 P:0:1d1:0:0:0
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | META_PSI2 |
-F:EASY_KNOW
+F:META_PSI2 | EASY_KNOW | RES_PSI | PSI_ERASE
 
 N:397:[Metapsionics III]
-G:#:v
+G:#:y
 I:92:14:0
 W:90:0:2:25000
 A:90/6
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
-F:META_PSI1 | META_PSI2 | EASY_KNOW
+F:META_PSI1 | META_PSI2 | EASY_KNOW | RES_PSI | PSI_ERASE
 
 N:398:[Clairsentience I]
 G:#:R
 I:92:15:3
 W:3:0:2:100
 A:3/1
-F:SEARCH | PSI_ERASE | PSI_PSEUDO_ID | EASY_KNOW
-#O:SEARCH | PSI_PSEUDO_ID
+F:SEARCH | PSI_PSEUDO_ID | EASY_KNOW | PSI_ERASE
 
 N:399:[Clairsentience II]
-G:#:r
+G:#:o
 I:92:16:4
 W:20:0:2:507
 A:20/4
 P:0:1d2:0:0:0
-F:SEARCH | RES_BLIND | PSI_ERASE | PSI_PSEUDO_ID | EASY_KNOW
-#O:SEARCH | RES_BLIND | PSI_PSEUDO_ID
+F:SEARCH | RES_BLIND | PSI_PSEUDO_ID | EASY_KNOW | PSI_ERASE
 
 N:400:[Clairsentience III]
 G:#:y
@@ -2905,20 +2871,11 @@ I:92:17:5
 W:50:0:2:4076
 A:40/7:60/3
 P:0:1d2:0:0:0
-F:SEARCH | RES_BLIND | TELEPATHY | PSI_ERASE | PSI_PSEUDO_ID | EASY_KNOW
-#O:SEARCH | RES_BLIND | TELEPATHY | PSI_PSEUDO_ID
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | 
+F:SEARCH | RES_BLIND | TELEPATHY | PSI_PSEUDO_ID | EASY_KNOW | PSI_ERASE
 
 
 ##### Dragon Scale Mail #####
-
-N:413:Black Dragon Scale Mail~
-G:[:s
-I:38:1:0
-W:60:0:200:30000
-A:60/8
-P:30:2d4:-2:0:10
-F:RES_ACID |
-F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:401:Blue Dragon Scale Mail~
 G:[:b
@@ -2959,13 +2916,13 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:405:Multi-Hued Dragon Scale Mail~
 G:[:v
 I:38:6:0
-W:100:0:200:150000
-A:100/16
+W:90:0:200:150000
+A:90/16
 P:30:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:406:Shining Dragon Scale Mail~
+N:406:Pseudo Dragon Scale Mail~
 G:[:o
 I:38:10:0
 W:65:0:200:60000
@@ -3022,14 +2979,22 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:412:Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
-W:110:0:200:300000
-A:110/64
+W:100:0:200:300000
+A:100/32
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
+F:RES_DISEN | RES_SOUND | RES_CONFU | RES_SHARD | RES_BLIND | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 413 is black dragon scale mail XXX ##
+N:413:Black Dragon Scale Mail~
+G:[:s
+I:38:1:0
+W:60:0:200:30000
+A:60/8
+P:30:2d4:-2:0:10
+F:RES_ACID |
+F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 414 XXX ##
 
@@ -3267,7 +3232,7 @@ F:INSTA_ART
 N:502:& Arkenstone~
 G:~:y
 I:39:6:0
-W:60:0:5:60000
+W:50:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
@@ -3285,7 +3250,7 @@ F:INSTA_ART
 N:504:& Amulet~
 G:":d
 I:40:11:0
-W:60:0:3:90000
+W:65:0:3:90000
 F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
@@ -3310,7 +3275,7 @@ F:INSTA_ART
 N:507:& Ring~
 G:=:d
 I:45:33:0
-W:90:0:2:150000
+W:70:0:2:150000
 F:INSTA_ART
 
 # The Ring of Power (Narya) -- see artifact list
@@ -3318,7 +3283,8 @@ F:INSTA_ART
 N:508:& Ring~
 G:=:d
 I:45:34:0
-W:80:0:2:100000
+W:70:0:2:100000
+P:0:0d0:6:6:0
 F:INSTA_ART
 
 # The Ring of Power (Nenya) -- see artifact list
@@ -3326,7 +3292,8 @@ F:INSTA_ART
 N:509:& Ring~
 G:=:d
 I:45:35:0
-W:90:0:2:200000
+W:80:0:2:200000
+P:0:0d0:8:8:0
 F:INSTA_ART
 
 # The Ring of Power (Vilya) -- see artifact list
@@ -3334,7 +3301,8 @@ F:INSTA_ART
 N:510:& Ring~
 G:=:d
 I:45:36:0
-W:100:0:2:300000
+W:90:0:2:300000
+P:0:0d0:10:10:0
 F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
@@ -3342,6 +3310,7 @@ F:INSTA_ART
 N:511:& Ring~
 G:=:y
 I:45:37:0
-W:110:0:2:5000000
+W:100:0:2:5000000
+P:0:0d0:15:15:0
 F:INSTA_ART
 

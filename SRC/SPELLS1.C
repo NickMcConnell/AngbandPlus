@@ -3896,8 +3896,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	   /* Psionics */
 	 case GF_PSI:
 	   if (fuzzy) msg_print("Your mind is hit by mental energy!");
-
-
 	   if (psi_flags & RES_PSI) resist1;
 	   if (pa_ptr->mental_barrier) resist1;
 	   if (rand_int(100) < p_ptr->skill_sav) resist1;
@@ -3905,12 +3903,25 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	   if (p_ptr->sustain_wis) if (rand_int(2)) resist1;
 	   if (p_ptr->resist_confu) if (rand_int(3)) resist1;
 
-	   if (p_ptr->confused && !rand_int(3))
+	   if (p_ptr->paralyzed && rand_int(4) &&
+	       !(p_ptr->confused && rand_int(2)))
 	     {
-	       msg_print("Your mind is caught completely unguarded!");
-	       resist = FALSE;
-	       dam = dam * randint(randint(24)) / 3;
+	       if (resist)
+		 {
+		   msg_print("Your willpower stops the attack cold!");
+		   dam = 0;
+		   break;
+		 }
+	       else
+		 resist2;
 	     }
+	   else
+	     if (p_ptr->confused && !rand_int(3))
+	       {
+		 msg_print("Your mind is caught completely unguarded!");
+		 resist = FALSE;
+		 dam = dam * randint(randint(24)) / 3;
+	       }
 	   if (!resist) set_confused(p_ptr->confused + rand_int(20) + 10);
 	   if (f1 & TR1_INT) dam = dam * (9 + randint(9)) / 12;
 	   if (f1 & TR1_WIS) dam = dam * (9 + randint(9)) / 12;
@@ -3935,7 +3946,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	     if (p_ptr->resist_confu) if (!rand_int(3)) resist2;
 	
 	     if (p_ptr->paralyzed && !((p_ptr->shero) && rand_int(2)) &&
-		 !((p_ptr->confused) && rand_int(6))) /* note: or meditating */
+		 !((p_ptr->confused) && rand_int(2))) /* note: or meditating */
 	       {
 		 if (resist)
 		   {

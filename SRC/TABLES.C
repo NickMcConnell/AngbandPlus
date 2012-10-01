@@ -2977,7 +2977,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_flow_by_smell */
 	FALSE,		/* OPT_call_pet */
 	FALSE,		/* OPT_old_ai */
-	FALSE,		/* OPT_smart_learn */
+	TRUE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
@@ -3062,7 +3062,7 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		OPT_smart_learn,
 		OPT_smart_cheat,
-		255,
+		OPT_old_ai,
 		255
 	},
 
