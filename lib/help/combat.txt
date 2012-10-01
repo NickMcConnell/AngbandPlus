@@ -140,7 +140,7 @@ the difference, but note that Berserkers make lousy archers and throwers.
      The Quiver Slots:
          Ammo is best kept in special quiver slots.  You may "wield" up to 
          ten different groups of ammo, then fire them just as you would those 
-         in the backpack.
+         in the backpack.  Ammo in the quiver will use space in your backpack.
 
      Attacking:
          You shoot at a monster by typing 'f' (or 't' in the roguelike command 

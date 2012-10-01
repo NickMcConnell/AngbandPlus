@@ -104,7 +104,7 @@ static void update_smart_cheat(int m_idx)
 	/* Know weirdness */
 	if (p_ptr->free_act) m_ptr->smart |= (SM_IMM_FREE);
 	if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
-	if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+	if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 	if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 
 	/* Know immunities */
@@ -335,7 +335,7 @@ static int find_resist(int m_idx, int spell_lrn)
 		{
 			if (smart & (SM_RES_NEXUS)) return(100);
 			else if (smart & (SM_PERF_SAVE)) return(100);
-			else if (smart & (SM_GOOD_SAVE)) return(40);
+			else if (smart & (SM_GOOD_SAVE)) return(30);
 			else return(0);
 		}
 		/* Spells Requiring Save or Resist Fear */
@@ -346,7 +346,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			else if (smart & (SM_PERF_SAVE)) a = 100;
 			else
 			{
-				if (smart & (SM_GOOD_SAVE)) a += 40;
+				if (smart & (SM_GOOD_SAVE)) a += 30;
 				if (p_ptr->afraid) a += 50;
 			}
 			return(a);
@@ -359,7 +359,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			else if (smart & (SM_PERF_SAVE)) a = 100;
 			else
 			{
-				if (smart & (SM_GOOD_SAVE)) a += 40;
+				if (smart & (SM_GOOD_SAVE)) a += 30;
 				if (p_ptr->blind) a += 50;
 			}
 			return(a);
@@ -372,7 +372,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			else if (smart & (SM_PERF_SAVE)) a = 100;
 			else
 			{
-				if (smart & (SM_GOOD_SAVE)) a += 40;
+				if (smart & (SM_GOOD_SAVE)) a += 30;
 				if (p_ptr->confused) a += 50;
 			}
 			return(a);
@@ -386,7 +386,7 @@ static int find_resist(int m_idx, int spell_lrn)
 			else if (p_ptr->paralyzed) a = 80;
 			else
 			{
-				if (smart & (SM_GOOD_SAVE)) a += 40;
+				if (smart & (SM_GOOD_SAVE)) a += 30;
 				if (p_ptr->slow) a += 50;
 			}
 			return(a);
@@ -396,7 +396,7 @@ static int find_resist(int m_idx, int spell_lrn)
 		case LRN_SAVE:
 		{
 			if (smart & (SM_PERF_SAVE)) return(100);
-			else if (smart & (SM_GOOD_SAVE)) return(40);
+			else if (smart & (SM_GOOD_SAVE)) return(30);
 			else return(0);
 		}
 		/* Anything else */
@@ -963,9 +963,12 @@ static void mon_beam(int m_idx, int typ, int dam, int range)
 	{
 		flg |= PROJECT_ARC;
 
+		/* Paranoia */
+		if (range > 25) range = 25;
+
 		/* Target the player with a limited-range beam. */
 		(void)project(m_idx, range, py, px, dam, typ, flg, 0, 
-		range * 10);
+			      (byte)(range * 10));
 	}
 
 	/* Otherwise, use a standard beam. */
@@ -1029,9 +1032,12 @@ static void mon_arc(int m_idx, int typ, bool noharm, int dam, int rad, int degre
 	/* XXX XXX -- POWERFUL monster breaths lose less damage with range. */
 	if (r_ptr->flags2 & (RF2_POWERFUL)) diameter_of_source *= 2;
 
+	/* Max */
+	if (diameter_of_source > 250) diameter_of_source = 250;
+
 	/* Target the player with an arc-shaped attack. */
 	(void)project(m_idx, rad, py, px, dam, typ, flg, degrees_of_arc, 
-		diameter_of_source);
+		(byte)diameter_of_source);
 }
 
 
@@ -1112,7 +1118,7 @@ bool make_attack_spell(int m_idx)
 	if (randint(100) > chance)
 	{
 		/* If not an ARCHER, give up */
-		if (!r_ptr->flags2 & (RF2_ARCHER)) return (FALSE);
+		if (!(r_ptr->flags2 & (RF2_ARCHER))) return (FALSE);
 
 		/* If at point blank, give up */
 		if (m_ptr->cdis < 2) return (FALSE);
@@ -1216,6 +1222,7 @@ bool make_attack_spell(int m_idx)
 					/* Some of attack is pure damage, and so 
 					 * resists should not be allowed to reduce 
 					 * damage as much as they do normally.
+					 * Damage will be reduced later.
 					 */
 					if (p_ptr->resist_acid) damage *= 2;
 					if (p_ptr->oppose_acid) damage *= 2;
@@ -1323,14 +1330,14 @@ bool make_attack_spell(int m_idx)
 			if ((r_ptr->flags3 & (RF3_ANIMAL)) || (typ == GF_ACID))
 			{
 				if (blind) msg_print("You hear a soft sound.");
-				else msg_format("%s spits%s at you.", 
+				else msg_format("%^s spits%s at you.", 
 					m_name, desc);
 			}
 			/* All other creatures use a whip. */
 			else
 			{
 				if (blind) msg_print("You hear a crack.");
-				else msg_format("%s lashes at you with a whip%s%s.", 
+				else msg_format("%^s lashes at you with a whip%s%s.", 
 					m_name, add_of, desc);
 			}
 
@@ -2666,6 +2673,9 @@ bool make_attack_spell(int m_idx)
 				msg_format("%^s blinks toward you.", m_name);
 			}
 
+			/* Have we seen them at any point?  If so, we will learn about the spell. */
+			if (m_ptr->ml) seen = TRUE;
+
 			break;
 		}
 		/* RF6_TELE_TO */
@@ -2951,7 +2961,7 @@ bool make_attack_spell(int m_idx)
 				if (k == 2) (void)set_cut(p_ptr->cut + 23 + damroll(3, 8));
 				if (k == 3) (void)set_cut(p_ptr->cut + 46 + damroll(4, 12));
 				if (k == 4) (void)set_cut(p_ptr->cut + 95 + damroll(8, 15));
-				if (k == 5) (void)set_cut(p_ptr->cut = 1200);
+				if (k == 5) (void)set_cut(1200);
 			}
 			break;
 		}
@@ -3487,6 +3497,12 @@ bool make_attack_spell(int m_idx)
 		l_ptr->flags7 |= (1L << (thrown_spell - 32*6));
 		if (l_ptr->cast_spell < MAX_UCHAR) l_ptr->cast_spell++;
 		}
+
+		/* Remember special flags */
+		if (r_ptr->flags2 & (RF2_ARCHER)) l_ptr->flags2 |= RF2_ARCHER;
+		if (r_ptr->flags2 & (RF2_MORGUL_MAGIC)) l_ptr->flags2 |= RF2_MORGUL_MAGIC;
+		if (r_ptr->flags2 & (RF2_UDUN_MAGIC)) l_ptr->flags2 |= RF2_UDUN_MAGIC;
+
 	}
 
 	if(seen && p_ptr->wizard) 
@@ -4040,9 +4056,9 @@ static bool get_moves(int m_idx, int mm[5])
 
 	/* Are we too close or too far? */
 	/* Strictly, we should probably set too_far to TRUE if out of line
-	 * of sight.  The difference is small.  Let's save the CPU time.
+	 * of sight.  Instead we handle that later (only if it matters) to save CPU.
 	 */
-	if (m_ptr->cdis < min_range) too_close = TRUE;
+	if ((m_ptr->cdis < min_range) && (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))) too_close = TRUE;
 	if (m_ptr->cdis > m_ptr->best_range) too_far = TRUE;
 
 #ifdef MONSTER_FLOW
@@ -4158,8 +4174,13 @@ static bool get_moves(int m_idx, int mm[5])
 		/* Sometime, we may decide close enough is close enough */
 		else if ((!too_far) && (m_ptr->cdis > 1) && (rand_int(2) == 0))
 		{
-			y = 0;
-			x = 0;
+
+			/* Don't actually stop unless you have a shot */
+			if (projectable(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px, PROJECT_CHCK) == PROJECT_NO)
+			{
+				y = 0;
+				x = 0;
+			}
 		}
 	}
 
@@ -5406,12 +5427,14 @@ static void process_monster(int m_idx, int total_wakeup_chance)
 		if (do_move && (cave_m_idx[ny][nx] > 0))
 		{
 			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
+			monster_race *nr_ptr = &r_info[cave_m_idx[ny][nx]];
 
 			/* Assume no movement */
 			do_move = FALSE;
 
 			/* Kill weaker monsters */
 			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
+			    (!(nr_ptr->flags1 & (RF1_UNIQUE))) &&
 			    (compare_monsters(m_ptr, n_ptr) > 0))
 			{
 				/* Allow movement */

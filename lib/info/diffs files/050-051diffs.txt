@@ -1,3 +1,23 @@
+Changes in 0.5.1b
+
+- Many Bugs fixed.
+- Destroying items by any means no longer takes any time.
+- 'Weak' psuedo-id no longer triggers item squelching.
+- Items inscribed '!k' or '!*' are no longer squelchable.
+- Floor item selection:
+  1 - Typing '.' while selecting from the floor items chooses 
+      the first floor item (whether a single item or first in
+      a list).
+  2 - floor_query_flag can be turned OFF to force the selection
+      of a floor item if there is only one.
+  Note that these two approaches don't mesh well, so you should choose
+  one.  Leaving floor_query_flag ON takes full advantage of the new
+  '.' selection, especially in macros.  If you turn floor_query_flag
+  OFF, avoid macros involving the '.'selection.
+- Added an updated Cygwin Makefile and an LCC Makefile for Windows
+  compiling.  Note that Borland C++ seems to cause compiler bugs in
+  Oangband and should be avoided.
+
 Changes in 0.5.1
 
 Monster List (r_info.txt):

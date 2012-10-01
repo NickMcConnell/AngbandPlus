@@ -2923,7 +2923,7 @@ I:75:60:0
 W:70:0:4:20000
 A:70/5
 P:0:1d1:0:0:0
-D:that turns you into a Vampire.  It is dangerous to the holy and to
+D:that turns you into a Vampire.  It is dangerous to the holy and to 
 D:the guardians of nature.
 
 ## XXX 441 XXX ##
@@ -4024,7 +4024,7 @@ I:7:8:0
 W:95:0:650:9000
 A:95/10
 P:0:2d6:0:0:0
-D:A magnificent chest, with room for severalitems.
+D:A magnificent chest, with room for several items.
 
 ## XXX 624 XXX ##
 

@@ -42,10 +42,10 @@ cptr obj_class_info[101] =
 	"You may wear a ring upon each of your two ring fingers, and benefit or suffer from the magics it contains.",	"",	"",	"",	"",
 
 	"",	"",	"",	"",	"",
-	"Staffs are heavy, and take up plenty of space in your backpack, but can hold a lot of sometimes powerful spells that effect large areas.  Staffs recharge easily and well.",	"",	"",	"",	"",
+	"Staffs are heavy, and take up plenty of space in your backpack, but can hold a lot of sometimes powerful spells that affect large areas.  Staffs recharge easily and well.",	"",	"",	"",	"",
 
 	"",	"",	"",	"",	"",
-	"Wands hold a variety of spells, useful both in combat and for exploration.  Bolt spells in wands often beam, and ball spells affect large areas.  Once its charges are exhausted, a wand is useless until recharged.",	"The magics stored in rods never run out, given enough time between uses to recover.  Rods can do a lot of damage, but they effect only small areas.  Bolt spells in rods seldom or never beam.",	"",	"",	"",
+	"Wands hold a variety of spells, useful both in combat and for exploration.  Bolt spells in wands often beam, and ball spells affect large areas.  Once its charges are exhausted, a wand is useless until recharged.",	"The magics stored in rods never run out, given enough time between uses to recover.  Rods can do a lot of damage, but they affect only small areas.  Bolt spells in rods seldom or never beam.",	"",	"",	"",
 
 	"One will often find sheets of parchment with magic spells.  They are easy to read, and are a warrior or paladin's best chance at making use of magic.",	"",	"",	"",	"",
 	"Healers, alchemists, and sages create potions in vast quantities, and store them in small flasks of clear glass or gleaming crystal.  Once quaffed, a potion is guaranteed to work, but not every strange liquid was mixed for your benefit...",	"",	"",	"",	"",
@@ -248,9 +248,9 @@ cptr obj_special_info[6][50] =
 		"(damage: 50 - 80)",		/* Cold Balls */
 		"",					/* Wonder */
 		"(damage: 100 - 300)",		/* Annihilation */
-		"(damage: 140)",			/* Dragon's Flame */
-		"(damage: 140)",			/* Dragon's Frost */
-		"(damage: 150 - 170)",		/* Dragon's Breath */
+		"(damage: 160)",			/* Dragon's Flame */
+		"(damage: 160)",			/* Dragon's Frost */
+		"(damage: 180 - 210)",		/* Dragon's Breath */
 		"(damage: 10 - 234)",		/* Striking */
 		"(damage: 35 - 140)",		/* Storms */
 		"",		/*  */
@@ -339,7 +339,7 @@ cptr spell_tips[255] =
 	"Attempts to put a monster to sleep.",
 	"Removes all poison from your body.",
 	"Random major displacement.",
-	"Fires a line of weak light.  Effects light-hating creatures.",
+	"Fires a line of weak light.  Affects light-hating creatures.",
 	"Minor recharging.",
 	"Fires an arc of cold.",
 	"Fully feeds you.",
@@ -460,7 +460,7 @@ cptr spell_tips[255] =
 	"Short-range beam of lightning.",
 	"Destroys all doors next to you.",
 	"Melts a wall square to floor.",
-	"Fires a line of weak light.  Effects light-hating creatures.",
+	"Fires a line of weak light.  Affects light-hating creatures.",
 	"Removes all poison from your body.",
 	"Fires a bolt or beam of frost.",
 	"Attempts to put a monster to sleep.",
@@ -987,11 +987,11 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
 
 				if (strlen(modstr))
 				{
-					u = modstr;
-					make_lower = *u;
-					*t++ = tolower(make_lower);
-
-					for (u = modstr + 1; *u; u++) *t++ = *u;
+					for (u = modstr; *u; u++)
+					{
+						make_lower = *u;
+						*t++ = tolower(make_lower);
+					}
 				}
 			}
 
@@ -2470,7 +2470,7 @@ void self_knowledge(void)
 
 
 	/* Acquire item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = INVEN_WIELD; k < INVEN_SUBTOTAL; k++)
 	{
 		u32b t1, t2, t3;
 

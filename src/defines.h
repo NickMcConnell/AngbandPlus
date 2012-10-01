@@ -143,6 +143,11 @@
 #define STORE_HOME 		7
 
 /*
+ * Store number of the Black Market
+ */
+#define STORE_BLACKM 		6
+
+/*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            2
@@ -445,6 +450,7 @@
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
 
+#define INVEN_SUBTOTAL	36
 #define INVEN_BLANK     36	/* Blank separator line. */
 
 /* 10 quiver slots */
@@ -2081,8 +2087,6 @@
 #define USE_INVEN	0x02	/* Allow inven items */
 #define USE_FLOOR	0x04	/* Allow floor items */
 #define CAN_SQUELCH	0x10	/* Allow selection of all squelched items */
-
-
 
 /*** Player flags ***/
 

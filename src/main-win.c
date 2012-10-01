@@ -189,11 +189,18 @@
 #define IDM_OPTIONS_OLD_GRAPHICS 401
 #define IDM_OPTIONS_NEW_GRAPHICS 402
 #define IDM_OPTIONS_SOUND		410
-#define IDM_OPTIONS_SAVER		420
-#define IDM_OPTIONS_MAP			430
+#define IDM_OPTIONS_SAVER		430
+#define IDM_OPTIONS_MAP			440
 
 #define IDM_HELP_GENERAL		901
 #define IDM_HELP_SPOILERS		902
+
+/*
+ * Define Graphics
+ */
+#define GRAPHICS_NONE           0
+#define GRAPHICS_ORIGINAL       1
+#define GRAPHICS_ADAM_BOLT      2
 
 
 /*
@@ -1186,7 +1193,9 @@ static void load_sound_prefs(void)
  */
 static int new_palette(void)
 {
+#ifdef USE_GRAPHICS
 	HPALETTE hBmPal;
+#endif /* USE_GRAPHICS */
 	HPALETTE hNewPal;
 	HDC hdc;
 	int i, nEntries;
@@ -1956,7 +1965,7 @@ static errr Term_xtra_win_sound(int v)
 	if (i == 0) return (1);
 
 	/* Build the path */
-	path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, sound_file[v][randint0(i)]);
+	path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, sound_file[v][rand_int(i)]);
 
 #ifdef WIN32
 
@@ -3131,7 +3140,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -3141,11 +3150,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			else
 			{
@@ -3206,7 +3211,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -3216,11 +3221,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			break;
@@ -3718,7 +3719,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (game_in_progress && character_generated)
 			{
-				if (!inkey_flag && !can_save)
+				if (!inkey_flag)
 				{
 					plog("You may not do that right now.");
 					return 0;
@@ -3728,11 +3729,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-#ifdef ZANGBAND
 				do_cmd_save_game(FALSE);
-#else /* ZANGBAND */
-				do_cmd_save_game();
-#endif /* ZANGBAND */
 			}
 			quit(NULL);
 			return 0;

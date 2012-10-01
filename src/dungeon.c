@@ -111,7 +111,7 @@ static void sense_inventory(void)
 
 	bool heavy = FALSE;
 
-	int feel;
+	byte feel;
 
 	object_type *o_ptr;
 
@@ -279,8 +279,10 @@ static void sense_inventory(void)
 		if (feel == FEEL_NONE) continue;
 
 		/* Squelch it? */
-		if (i<INVEN_WIELD) {
-		  squelch = squelch_itemp(o_ptr, feel, 0);
+		/* Only for classes with strong pseudo -BR- */
+		if ((i<INVEN_WIELD) && (heavy))
+		{
+			squelch = squelch_itemp(o_ptr, feel, 0);
 		}
 
 		/* Stop everything */
@@ -316,7 +318,7 @@ static void sense_inventory(void)
 		o_ptr->feel = feel;
 
 		/* Squelch it if necessary */
-		if (squelch) do_squelch_item(o_ptr);
+		if (squelch == 1) do_squelch_item(o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -341,19 +343,19 @@ static void regenhp(int percent)
 
 	/* Extract the new hitpoints */
 	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-	p_ptr->chp += new_chp >> 16;   /* div 65536 */
+	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
 
 	/* check for overflow */
 	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
 	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
 	if (new_chp_frac >= 0x10000L)
 	{
-		p_ptr->chp_frac = new_chp_frac - 0x10000L;
+		p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
 		p_ptr->chp++;
 	}
 	else
 	{
-		p_ptr->chp_frac = new_chp_frac;
+		p_ptr->chp_frac = (u16b)(new_chp_frac);
 	}
 
 	/* Fully healed */
@@ -385,7 +387,7 @@ static void regenmana(int percent)
 
 	old_csp = p_ptr->csp;
 	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
-	p_ptr->csp += new_mana >> 16;	/* div 65536 */
+	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
 	/* check for overflow */
 	if ((p_ptr->csp < 0) && (old_csp > 0))
 	{
@@ -394,12 +396,12 @@ static void regenmana(int percent)
 	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
 	if (new_mana_frac >= 0x10000L)
 	{
-		p_ptr->csp_frac = new_mana_frac - 0x10000L;
+		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
 		p_ptr->csp++;
 	}
 	else
 	{
-		p_ptr->csp_frac = new_mana_frac;
+		p_ptr->csp_frac = (u16b)new_mana_frac;
 	}
 
 	/* Must set frac to zero even if equal */
@@ -646,15 +648,21 @@ static void process_world(void)
 			/* Message */
 			if (cheat_xtra) msg_print("Updating Shops...");
 
-			/* Maintain each shop (except home) */
+			/* Maintain each shop (except home) - Do Black Market last. */
 			for (n = 0; n < MAX_STORES; n++)
 			{
 				/* Ignore home */
 				if (n == STORE_HOME) continue;
 
+				/* Save for last */
+				if (n == STORE_BLACKM) continue;
+
 				/* Maintain */
 				store_maint(n);
 			}
+
+			/* Now the Black Market */
+			store_maint(STORE_BLACKM);
 
 
 			/* Sometimes, shuffle the shop-keepers */
@@ -1018,9 +1026,7 @@ static void process_world(void)
 	/* Oppose Fire */
 	if (p_ptr->oppose_fire)
 	{
-		/* Vampires never oppose fire. */
-		if (p_ptr->schange == SHAPE_VAMPIRE) p_ptr->oppose_fire = 0;
-		else (void)set_oppose_fire(p_ptr->oppose_fire - 1);
+		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
 	}
 
 	/* Oppose Poison */
@@ -1224,9 +1230,16 @@ static void process_world(void)
 		/* Examine all charging rods or stacks of charging rods. */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
+
+			/* Some rods should never get discharged at all */
+			if (!k_ptr->pval) temp = o_ptr->timeout;
+			
 			/* Determine how many rods are charging. */
-			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
-			if (temp > o_ptr->number) temp = o_ptr->number;
+			else
+			{
+				temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				if (temp > o_ptr->number) temp = o_ptr->number;
+			}
 
 			/* Decrease timeout by that number. */
 			o_ptr->timeout -= temp;
@@ -2772,7 +2785,7 @@ static void dungeon(void)
 		while (p_ptr->energy >= 100 && !p_ptr->leaving)
 		{
 			/* process monster with even more energy first */
-			process_monsters(p_ptr->energy + 1);
+			process_monsters((byte)(p_ptr->energy + 1));
 
 			/* if still alive */
 			if (!p_ptr->leaving)

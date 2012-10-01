@@ -1434,11 +1434,16 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require identical "ego-item" names */
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
 
-			/* Hack -- Never stack "powerful" items, except balanced */
-			if (((o_ptr->xtra1) && (o_ptr->xtra1 != 
-				OBJECT_XTRA_TYPE_BALANCE)) || ((j_ptr->xtra1) && 
-				(j_ptr->xtra1 != OBJECT_XTRA_TYPE_BALANCE))) 
+			/* Hack -- Never stack items with different 'powers' */
+			if ((o_ptr->xtra1 != j_ptr->xtra1) || (o_ptr->xtra2 != j_ptr->xtra2))
 				return (FALSE);
+
+			/* Hack -- Never stack powerful items except throwing weapons */ 
+			if (o_ptr->xtra1)
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				if (!(k_ptr->flags1 & (TR1_THROWING))) return (FALSE);
+			}
 
 			/* Hack -- Never stack recharging items */
 			if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
@@ -3611,7 +3616,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_DF:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_SUSTAIN;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
 				break;
 			}
 
@@ -3629,7 +3634,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_AMAN:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_RESIST);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
 				break;
 			}
 
@@ -3637,7 +3642,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			case EGO_MAGI:
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
-				o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_POWER);
+				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
 				break;
 			}
 
@@ -3658,7 +3663,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			(o_ptr->xtra1 == 0))
 		{
 			o_ptr->xtra1 = OBJECT_XTRA_TYPE_BALANCE;
-			o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_BALANCE);
+			o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_BALANCE);
 		}
 
 
@@ -4827,11 +4832,23 @@ void inven_item_describe(int item)
 
 	char o_name[120];
 
-	/* Get a description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	if (artifact_p(o_ptr) && object_known_p(o_ptr))
+	{
+	  
+		/* Get a description */
+		object_desc(o_name, o_ptr, FALSE, 3);
 
-	/* Print a message */
-	msg_format("You have %s (%c).", o_name, index_to_label(item));
+		/* Print a message */
+		msg_format("You no longer have the %s (%c).", o_name, index_to_label(item));
+	}
+	else
+	{
+		/* Get a description */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+		/* Print a message */
+		msg_format("You have %s (%c).", o_name, index_to_label(item));
+	}
 }
 
 
@@ -5606,19 +5623,51 @@ static bool get_tag_num(int i, int *tag_num)
 	return (FALSE);
 }
 
+/*
+ * Calculate and apply the reduction in pack size due to use of the
+ * Quiver.
+ */
+void find_quiver_size(void)
+{
+	int ammo_num, i;
+	object_type *i_ptr;
+
+	/*
+	 * Items in the quiver take up space which needs to be subtracted 
+	 * from space available elsewhere.
+	 */
+	ammo_num = 0;
+
+	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty. */
+		if (!i_ptr->k_idx) continue;
+
+		/* Tally up missiles. */
+		ammo_num += i_ptr->number;
+	}
+
+	/* Every 99 missiles in the quiver takes up one backpack slot. */
+	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+}
 
 /*
  * Update (combine and sort ammo in) the quiver.  If requested, find 
- * the right slot to put new ammo in, and make it available.
+ * the right slot to put new ammo in, make it available, and return it.
  *
  * Items marked with inscriptions of the form "@ [any letter or none] 
  * [any digit]" ("@f4", "@4", etc.) will be placed in the slot the 
  * digit corresponds to.  Everything else will be sorted around them.
  */
-void process_quiver(int *slot, object_type *o_ptr)
+int process_quiver(int num_new, object_type *o_ptr)
 {
 	int i, j, k, num;
-	int tag_num, ammo_num;
+	int tag_num;
+
+	int slot=0;
 
 	s32b i_value;
 	s32b j_value;
@@ -5630,13 +5679,15 @@ void process_quiver(int *slot, object_type *o_ptr)
 
 	bool flag = FALSE;
 
-	bool untouchable[1 + INVEN_Q9 - INVEN_Q0];
+	bool track = FALSE;
 
+	bool temp_slot=FALSE;
+
+	bool untouchable[1 + INVEN_Q9 - INVEN_Q0];
 
 	/* All slots start out being alterable. */
 	for (i = 0; i < 1 + INVEN_Q9 - INVEN_Q0; i++) 
 		untouchable[i] = FALSE;
-
 
 	/* Combine the quiver (backwards) */
 	for (i = INVEN_Q9; i > INVEN_Q0; i--)
@@ -5666,7 +5717,7 @@ void process_quiver(int *slot, object_type *o_ptr)
 				object_absorb(j_ptr, i_ptr);
 
 				/* One object is gone */
-				p_ptr->inven_cnt--;
+				p_ptr->equip_cnt--;
 
 				/* Slide everything down */
 				for (k = i; k < INVEN_Q9; k++)
@@ -5685,6 +5736,41 @@ void process_quiver(int *slot, object_type *o_ptr)
 				break;
 			}
 		}
+	}
+
+	/* If requested, find a slot for new ammo. */
+	if (num_new)
+	{
+
+		/* Search for available slots. */
+		for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+		{
+			/* Get the item */
+			i_ptr = &inventory[i];
+
+			/* Accept empty slot */
+			if (!i_ptr->k_idx)
+			{
+				slot = i;
+				temp_slot = TRUE;
+				continue;
+			}
+
+			/* Accept slot that has space to absorb more */
+			if ((object_similar(o_ptr, i_ptr)) && ((num_new + i_ptr->number) < 100))
+			{
+				slot = i;
+				temp_slot = FALSE;
+				break;
+			}
+		}
+
+		/* TEMPORARILY put the new ammo in the quiver for sorting. */
+		if (temp_slot)
+		{
+			object_copy(&inventory[slot], o_ptr);
+		}
+
 	}
 
 	/* Re-order the quiver (forwards) */
@@ -5727,6 +5813,10 @@ void process_quiver(int *slot, object_type *o_ptr)
 
 			/* Mark the destination slot as being untouchable. */
 			untouchable[INVEN_Q0 + tag_num] = TRUE;
+
+			/* Keep track of 'new' item */
+			if (slot == i) slot = INVEN_Q0 + tag_num;
+			else if (slot == INVEN_Q0 + tag_num) slot = i;
 
 			/* Go to next slot. */
 			continue;
@@ -5793,6 +5883,13 @@ void process_quiver(int *slot, object_type *o_ptr)
 		/* Save a copy of the moving item */
 		object_copy(j_ptr, &inventory[i]);
 
+		/* Keep track of 'new' item */
+		if (slot == i)
+		{
+			slot = j;
+			track = TRUE;
+		}
+
 		/* Slide the objects */
 		for (k = i; k > j;)
 		{
@@ -5806,70 +5903,34 @@ void process_quiver(int *slot, object_type *o_ptr)
 			/* Slide the item */
 			object_copy(&inventory[k], &inventory[k-num]);
 
+			/* Keep track of 'new' item */
+			if ((slot == k-num) && (!track)) slot = k;
+
 			/* Move down to the next alterable slot. */
 			k -= num;
 		}
+
+		/* Helper for tracking 'new' ammo */
+		track = FALSE;
 
 		/* Insert the moving item */
 		object_copy(&inventory[j], j_ptr);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 
-	/*
-	 * Items in the quiver take up space which needs to be subtracted 
-	 * from space available elsewhere.
-	 */
-	ammo_num = 0;
+	/* Remove temporary ammo.  Will be added for real later. */
+	if (temp_slot) object_wipe(&inventory[slot]);
 
-	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
-	{
-		/* Get the item */
-		i_ptr = &inventory[i];
-
-		/* Ignore empty. */
-		if (!i_ptr->k_idx) continue;
-
-		/* Tally up missiles. */
-		ammo_num += i_ptr->number;
-	}
-
-	/* Every 99 missiles in the quiver takes up one backpack slot. */
-	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
-
+	/* Calculate backpack reduction */
+	find_quiver_size();
 
 	/* Message */
-	if ((!slot) && (flag)) msg_print("You reorganize your quiver.");
+	if ((!num_new) && (flag)) msg_print("You reorganize your quiver.");
 
+	return (slot);
 
-	/* If requested, find a slot for new ammo. */
-	if (slot)
-	{
-		/* Search for available slots. */
-		for (i = INVEN_Q0; i <= INVEN_Q9; i++)
-		{
-			/* Get the item */
-			i_ptr = &inventory[i];
-
-			/* Accept empty slot */
-			if (!i_ptr->k_idx)
-			{
-				*slot = i;
-				return;
-			}
-
-			/* Accept slot that has space to absorb more */
-			if (object_similar(o_ptr, i_ptr))
-			{
-				*slot = i;
-				return;
-			}
-		}
-
-		/* No slot available. */
-		*slot = 0;
-	}
 }
 
 

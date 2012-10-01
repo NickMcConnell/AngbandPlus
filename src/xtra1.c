@@ -661,7 +661,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
+	c_put_str((byte)attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
 }
 
 
@@ -1366,7 +1366,7 @@ static void fix_message(void)
 			byte color = message_color((s16b)i);
 
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, color, message_str(i));
+			Term_putstr(0, (h - 1) - i, -1, color, message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -2561,7 +2561,7 @@ static void shape_change_main(void)
 			p_ptr->hold_life = TRUE;
 			p_ptr->resist_cold = TRUE;
 			p_ptr->resist_lite = FALSE;
-			p_ptr->oppose_fire = FALSE;
+			/* p_ptr->oppose_fire = FALSE; */ /* Now handled differently */
 			p_ptr->regenerate = TRUE;
 			p_ptr->to_a += 5;
 			p_ptr->dis_to_a += 5;
@@ -2901,7 +2901,7 @@ static void calc_bonuses(void)
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3768,7 +3768,7 @@ void notice_stuff(void)
 	{
 		p_ptr->notice &= ~(PN_COMBINE);
 		combine_pack();
-		process_quiver(NULL, NULL);
+		(void) process_quiver(0, NULL);
 	}
 
 	/* Reorder the pack */

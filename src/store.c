@@ -1173,7 +1173,7 @@ static bool black_market_crap(object_type *o_ptr)
 	{
 		/* Ignore the Home and the Black Market itself. */
 		if (i == STORE_HOME) continue;
-		if (i == 6) continue;
+		if (i == STORE_BLACKM) continue;
 
 		/* Check every object in the store */
 		for (j = 0; j < store[i].stock_num; j++)
@@ -1255,7 +1255,7 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (store_num == 6)
+		if (store_num == STORE_BLACKM)
 		{
 			/* Pick a level for object/magic.  Now depends partly 
 			 * on player level.
@@ -1307,7 +1307,7 @@ static void store_create(void)
 
 
 		/* Prune the black market */
-		if (store_num == 6)
+		if (store_num == STORE_BLACKM)
 		{
 			/* Hack -- No "crappy" items */
 			if (black_market_crap(i_ptr)) continue;
@@ -3565,7 +3565,7 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
 	{
-		st_ptr->owner = rand_int(MAX_B_IDX);
+		st_ptr->owner = (byte)rand_int(MAX_B_IDX);
 	}
 
 	/* Activate the new owner */
@@ -3624,7 +3624,7 @@ void store_maint(int which)
 	st_ptr->insult_cur = 0;
 
 	/* Mega-Hack -- prune the black market */
-	if (store_num == 6)
+	if (store_num == STORE_BLACKM)
 	{
 		/* Destroy crappy black market items */
 		for (j = st_ptr->stock_num - 1; j >= 0; j--)
@@ -3701,7 +3701,7 @@ void store_init(int which)
 
 
 	/* Pick an owner */
-	st_ptr->owner = rand_int(MAX_B_IDX);
+	st_ptr->owner = (byte)rand_int(MAX_B_IDX);
 
 	/* Activate the new owner */
 	ot_ptr = &b_info[(store_num * MAX_B_IDX) + st_ptr->owner];

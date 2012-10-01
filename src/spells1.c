@@ -1244,9 +1244,6 @@ static int minus_ac(int dam)
 	 */
 	if (SCHANGE) return (FALSE);
 
-	/* Not every week attack is effective. */
-	if (rand_int(dam) < 10) return (FALSE);
-
 	/* Pick a (possibly empty) equipment slot */
 	switch (randint(6))
 	{
@@ -1379,7 +1376,7 @@ void elec_dam(int dam, cptr kb_str)
 	if (dam > 30)
 	{
 		if (randint(dam - 15) > dam / 2)
-			set_stun(p_ptr->stun += rand_int(dam > 900 ? 50 : 5 + dam / 20));
+			set_stun(p_ptr->stun += (int)rand_int(dam > 900 ? 50 : 5 + dam / 20));
 	}
 
 	/* Take damage */
@@ -3558,7 +3555,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 				rand_int(4) == 0) note = " fights off your spell.";
 			else 
 			{
-				m_ptr->stasis = 5 + rand_int(6);
+				m_ptr->stasis = (byte)(5 + rand_int(6));
 				note = " is Held within your magics!";
 			}
 			/* Obvious effect */
@@ -3580,7 +3577,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 					rand_int(5) == 0) note = " fights off your spell.";
 				else 
 				{
-					m_ptr->stasis = 6 + rand_int(7);
+					m_ptr->stasis = (byte)(6 + rand_int(7));
 					note = " is Held within your magics!";
 				}
 				/* Obvious effect */
@@ -3630,6 +3627,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 			/* Mark grid for later processing. */
 			cave_info[y][x] |= (CAVE_TEMP);
 
+			/* No damage */
+			dam = 0;
+
 			break;
 		}
 
@@ -3638,6 +3638,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		{
 			/* Mark grid for later processing. */
 			cave_info[y][x] |= (CAVE_TEMP);
+
+			/* No damage */
+			dam = 0;
 
 			break;
 		}
@@ -3648,6 +3651,9 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		{
 			/* Mark grid for later processing. */
 			cave_info[y][x] |= (CAVE_TEMP);
+
+			/* No damage */
+			dam = 0;
 
 			break;
 		}
@@ -5030,7 +5036,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 			{
 				dam *= 5; dam /= 9 + rand_int(3);
 			}
-			else if (!blind)
+			else if (!blind && !p_ptr->resist_blind)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -5231,7 +5237,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 					msg_print("The noise shatters your wits, and you struggle to recover.");
 
 					/* Hack - directly reduce player energy. */
-					p_ptr->energy -= rand_int(dam / 2);
+					p_ptr->energy -= (s16b)rand_int(dam / 2);
 				}
 			}
 			take_hit(dam, killer);
@@ -6294,7 +6300,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		if (flg & (PROJECT_BEAM))
 		{
 			/* Use length limit, if any is given. */
-			if ((rad > 0) && (rad < path_n)) path_n = rad + 1;
+			if ((rad > 0) && (rad < path_n)) path_n = rad;
 		}
   
 
@@ -6404,6 +6410,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	 */
 	else if (rad > 0)
 	{
+
+		/* Some projection types always PROJECT_THRU. */
+		if ((typ == GF_KILL_WALL) || (typ == GF_KILL_DOOR))
+		{
+			flg |= (PROJECT_THRU);
+		}
+
 		/* Pre-calculate some things for arcs. */
 		if (flg & (PROJECT_ARC))
 		{
@@ -6453,7 +6466,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 				if (!in_bounds(y, x)) continue;
 
 				/* Some explosions are allowed to affect one layer of walls */
-				if (flg & (PROJECT_THRU))
+				/* All exposions can affect one layer of rubble or trees -BR- */
+				if ((flg & (PROJECT_THRU)) || (cave_passable_bold(y, x)))
 				{
 					/* If this is a wall grid, ... */
 					if (!cave_floor_bold(y, x))
@@ -6553,7 +6567,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		else
 		{
 			dam_temp = (diameter_of_source * dam) / ((i + 1) * 10);
-			if (dam_temp > dam) dam_temp = dam;
+			if (dam_temp > (u32b)dam) dam_temp = dam;
 		}
 
 		/* Store it. */

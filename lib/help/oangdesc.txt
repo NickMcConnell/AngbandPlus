@@ -45,12 +45,13 @@ detection spells.
 - One-slot wand and rod stacking, arc spells, themed random artifacts, and 
 player ghosts that challenge you to mortal combat.
 
+- A versatile quiver that makes archery really practical.
+
 - New just about everything.  Whether it be Wands of Storms, the Dark Elven 
 Smith Eol, Shields of Night and Day, Athelas, Amulets of the Lion, Large 
 Jeweled Chests, or activatable rings, Oangband has novelty enough for anyone.
 
 - And Angband-compatible savefiles.
-
 
 
 If you feel the need for more detail, I'd suggest just perusing the help files.  

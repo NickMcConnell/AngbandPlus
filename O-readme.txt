@@ -1,6 +1,6 @@
 
              ****************************************************
-             **   Oangband 0.5.1   ***   The Pits of Angband   **
+             **   Oangband 0.5.1b  ***   The Pits of Angband   **
              ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -24,7 +24,7 @@
 
 === General Info ===
 
-This is the readme file for Oangband 0.5.1 (April 2, 2000)
+This is the readme file for Oangband 0.5.1b (April 26, 2000)
 
      Oangband is a variant of Angband, created to experiment with
 changes in melee algorithms, monster AI, spells, items, a substantial
@@ -48,6 +48,6 @@ variants of Angband possible.
      Oangband 0.5.1 was producing in collaboration between Leon
 Marrick and Bahman Rabii.
 
-     Expect another full version (more than bug-fixes) in late 2001.
+     Expect another version (more than bug-fixes) in late 2001.
 
 Bahman Rabii

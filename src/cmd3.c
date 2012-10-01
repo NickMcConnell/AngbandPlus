@@ -251,14 +251,51 @@ void do_cmd_wield(void)
 	/* Ammo goes in quiver slots, which have special rules. */
 	if (slot == INVEN_Q0)
 	{
+		int i;
+		int ammo_num = 0;
+
+		object_type *ammo_ptr;
+
 		/* Get a quantity */
 		num = get_quantity(NULL, o_ptr->number);
 
 		/* Cancel */
 		if (!num) return;
 
+		/* Count number of missiles in the quiver slots. */
+		for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+		{
+			/* Get the item */
+			ammo_ptr = &inventory[i];
+
+			/* Ignore empty. */
+			if (!ammo_ptr->k_idx) continue;
+
+			/* Tally up missiles. */
+			ammo_num += ammo_ptr->number;
+		}
+
+		/*
+		 * If the ammo now being added will make the quiver take up another
+		 * backpack slot, and there are none available, refuse to wield
+		 * the new ammo.
+		 */
+		if ((ammo_num + num) > 99 * p_ptr->pack_size_reduce)
+		{
+			/* We have no more space. */
+			if (p_ptr->inven_cnt >= INVEN_PACK - p_ptr->pack_size_reduce)
+			{
+				/* Unless we are emptying a slot in the process, we can't fit it*/
+				if (!((item >= 0) && (num == o_ptr->number)))
+				{
+					msg_print("Your quiver needs more backpack space.");
+					return;
+				}
+			}
+		}
+
 		/* Find a slot that can hold more ammo. */
-		process_quiver(&slot, o_ptr);
+		slot = process_quiver(num, o_ptr);
 
 		if (!slot)
 		{
@@ -535,6 +572,8 @@ void do_cmd_drop(void)
 
 /*
  * Destroy an item
+ *
+ * No longer takes a turn -BR-
  */
 void do_cmd_destroy(void)
 {
@@ -558,9 +597,7 @@ void do_cmd_destroy(void)
 	/* Try to destroy all items marked SQUELCH */
 	if (item == ALL_SQUELCHED)
 	{
-
-		/* If any destroyed, spend energy */
-		if (destroy_squelched_items()) p_ptr->energy_use = 100;
+		(void)(destroy_squelched_items());
 		return;
 	}
 
@@ -597,9 +634,6 @@ void do_cmd_destroy(void)
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
 	}
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))

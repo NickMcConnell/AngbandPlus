@@ -1789,7 +1789,7 @@ static void spread_monsters(char symbol, int depth, int num,
 	bool dummy;
 
 	/* Restrict monsters.  Allow uniques. */
-	(void)mon_restrict(symbol, depth, &dummy, TRUE);
+	(void)mon_restrict(symbol, (byte)depth, &dummy, TRUE);
 
 	/* Set generation level */
 	monster_level = depth;
@@ -1837,7 +1837,7 @@ static void spread_monsters(char symbol, int depth, int num,
 	}
 
 	/* Remove monster restrictions. */
-	(void)mon_restrict('\0', depth, &dummy, TRUE);
+	(void)mon_restrict('\0', (byte)depth, &dummy, TRUE);
 
 	/* Reset monster generation level. */
 	monster_level = p_ptr->depth;
@@ -3450,7 +3450,7 @@ static bool build_type5(void)
 	 * Set monster generation restrictions.  Decide how to order 
 	 * monsters.  Get a description of the monsters.
 	 */
-	name = mon_restrict(symbol, depth, &ordered, FALSE);
+	name = mon_restrict(symbol, (byte)depth, &ordered, FALSE);
 
 	/* A default description probably means trouble, so stop. */
 	if (streq(name, "misc") || !name[0]) return (TRUE);
@@ -3575,7 +3575,7 @@ static bool build_type5(void)
 	}
 
 	/* Remove restrictions */
-	(void)mon_restrict('\0', depth, &dummy, FALSE);
+	(void)mon_restrict('\0', (byte)depth, &dummy, FALSE);
 
 
 	/* Describe */
@@ -3787,7 +3787,7 @@ static bool build_type6(void)
 	bool dummy;
 
 	/* Monster generation variables. */
-	int monsters_left, depth;
+	s16b monsters_left, depth;
 	char symbol;
 
 	/* Description of monsters in room */
@@ -4084,7 +4084,7 @@ static bool build_type6(void)
 
 
 	/* Set monster generation restrictions.  Describe the monsters. */
-	name = mon_restrict(symbol, depth, &dummy, TRUE);
+	name = mon_restrict(symbol, (byte)depth, &dummy, TRUE);
 
 	/* A default description probably means trouble, so stop. */
 	if (streq(name, "misc") || !name[0]) return (TRUE);
@@ -4121,14 +4121,14 @@ static bool build_type6(void)
 
 		/* Place a single monster.  Sleeping 2/3rds of the time. */
 		place_monster_aux(y, x, get_mon_num_quick(depth), 
-			rand_int(3) != 0, FALSE);
+			(rand_int(3) != 0), FALSE);
 
 		/* One less monster to place. */
 		monsters_left--;
 	}
 
 	/* Remove our restrictions. */
-	(void)mon_restrict('\0', depth, &dummy, FALSE);
+	(void)mon_restrict('\0', (byte)depth, &dummy, FALSE);
 
 
 	/* Describe */
@@ -4796,7 +4796,7 @@ static bool build_type7(void)
 
 	/* Build the vault (sometimes lit, not icky, type 7) */
 	if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-		p_ptr->depth < rand_int(37), FALSE, 7)) return (FALSE);
+		(p_ptr->depth < rand_int(37)), FALSE, 7)) return (FALSE);
 
 	return (TRUE);
 }
@@ -6502,6 +6502,9 @@ static void cave_gen(void)
 		/* Find out how many rooms of this type we can build. */
 		num_to_build = num_rooms_allowed(room_type);
 
+		/* No vaults on Quest levels (for now) -BR- */
+		if (is_quest(p_ptr->depth) && ((room_type == 8) || (room_type ==9))) num_to_build = 0;
+
 		/* Try to build all we are allowed. */
 		for (j = 0; j < num_to_build; j++)
 		{
@@ -6657,12 +6660,12 @@ static void cave_gen(void)
 	if (moria_level)
 	{
 		/* Set global monster restriction variables. */
-		mon_restrict('0', p_ptr->depth, &dummy, TRUE);
+		mon_restrict('0', (byte)p_ptr->depth, &dummy, TRUE);
 	}
 	else 
 	{
 		/* Remove all monster restrictions. */
-		mon_restrict('\0', p_ptr->depth, &dummy, TRUE);
+		mon_restrict('\0', (byte)p_ptr->depth, &dummy, TRUE);
 	}
 
 	/* Build the monster probability table. */
@@ -6676,7 +6679,7 @@ static void cave_gen(void)
 		if ((get_mon_num_hook) && (j < 5))
 		{
 			/* Remove all monster restrictions. */
-			mon_restrict('\0', p_ptr->depth, &dummy, TRUE);
+			mon_restrict('\0', (byte)p_ptr->depth, &dummy, TRUE);
 
 			/* Build the monster probability table. */
 			(void)get_mon_num(p_ptr->depth);

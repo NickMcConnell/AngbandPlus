@@ -2247,7 +2247,7 @@ bool ident_spell(void)
 	}
  
 	/* Now squelch it if needed */
-	if (squelch) do_squelch_item(o_ptr);
+	if (squelch == 1) do_squelch_item(o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -2355,7 +2355,8 @@ bool identify_fully(void)
 		
 	}
 
-	if (squelch==1) do_squelch_item(o_ptr);
+	/* Now squelch it if needed */
+	if (squelch == 1) do_squelch_item(o_ptr);
 
 	do_cmd_observe(o_ptr, FALSE);
 
@@ -2944,7 +2945,7 @@ void unmake(int dir)
 	while (repeat)
 	{
 		/* Pick an effect. */
-		chaotic_effect = rand_int(18);
+		chaotic_effect = (byte)rand_int(18);
 
 		switch (chaotic_effect)
 		{
@@ -4155,8 +4156,8 @@ void lite_room(int y1, int x1)
 	{
 		x = temp_x[i], y = temp_y[i];
 
-		/* Walls get lit, but stop light */
-		if (!cave_floor_bold(y, x)) continue;
+                /* Walls (but not trees) get lit, but stop light */
+		if ((!cave_floor_bold(y, x)) && (cave_feat[y][x] != FEAT_TREE)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(y + 1, x);
@@ -4440,11 +4441,14 @@ bool fire_arc(int typ, int dir, int dam, int rad, int degrees_of_arc)
 		else diameter_of_source = diameter_of_source * 60 / degrees_of_arc;
 	}
 
+	/* Max */
+	if (diameter_of_source > 250) diameter_of_source = 250;
+
 	/* Analyze the "dir" and the "target".  Use the given degrees of arc, 
 	 * and the calculated source diameter.
 	 */
 	return (project(-1, rad, ty, tx, dam, typ, flg, degrees_of_arc, 
-		diameter_of_source));
+		(byte)diameter_of_source));
 }
 
 

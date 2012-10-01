@@ -1114,6 +1114,9 @@ bool set_oppose_fire(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	/* Hack - Vampires don't resist fire */
+	if (p_ptr->schange == SHAPE_VAMPIRE) v = 0;
+
 	/* Open */
 	if (v)
 	{
@@ -2411,11 +2414,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (new_exp_frac >= 0x10000L)
 		{
 			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000L;
+			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
 		}
 		else
 		{
-			p_ptr->exp_frac = new_exp_frac;
+			p_ptr->exp_frac = (u16b)new_exp_frac;
 		}
 
 		/* Gain experience */
@@ -3241,6 +3244,8 @@ static bool target_set_interactive_accept(int y, int x)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
+	/* Bounds */
+	if (!(in_bounds(y, x))) return (FALSE);
 
 	/* Player grids are always interesting */
 	if (cave_m_idx[y][x] < 0) return (TRUE);

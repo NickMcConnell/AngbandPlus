@@ -681,7 +681,7 @@ errr fd_seek(int fd, huge n)
 	if (p < 0) return (1);
 
 	/* Failure */
-	if (p != n) return (1);
+	if ((huge)p != n) return (1);
 
 	/* Success */
 	return (0);
@@ -731,7 +731,7 @@ errr fd_read(int fd, char *buf, huge n)
 #endif
 
 	/* Read the final piece */
-	if (read(fd, buf, n) != n) return (1);
+	if (read(fd, buf, n) != (long)n) return (1);
 
 	/* Success */
 	return (0);
@@ -764,7 +764,7 @@ errr fd_write(int fd, cptr buf, huge n)
 #endif
 
 	/* Write the final piece */
-	if (write(fd, buf, n) != n) return (1);
+	if (write(fd, buf, n) != (long)n) return (1);
 
 	/* Success */
 	return (0);
@@ -3122,7 +3122,7 @@ void request_command(bool shopping)
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = p_ptr->command_new;
+			cmd = (char)p_ptr->command_new;
 
 			/* Forget it */
 			p_ptr->command_new = 0;
@@ -3366,8 +3366,8 @@ void request_command(bool shopping)
  */
 uint damroll(uint num, uint sides)
 {
-   int i = 0;
-   int sum = num;
+   unsigned int i = 0;
+   unsigned int sum = num;
    for (i = 0; i < num; i++)
    {
 	   sum += (rand_int(sides));

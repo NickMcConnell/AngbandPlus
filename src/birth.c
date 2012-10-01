@@ -1637,9 +1637,15 @@ void player_birth(void)
 		/* Ignore home */
 		if (n == STORE_HOME) continue;
 
+		/* Save for last */
+		if (n == STORE_BLACKM) continue;
+
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+
+       	/* Maintain the black market (ten times) */
+	for (i = 0; i < 10; i++) store_maint(STORE_BLACKM);
 
 	/* Unsquelch all items */
 	for (n = 0; n < k_head->info_num; n++) k_info[n].squelch = FALSE;

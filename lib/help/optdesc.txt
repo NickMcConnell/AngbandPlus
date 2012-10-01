@@ -473,7 +473,8 @@ threshholds for various categories of armor, weaponry and ammunition.
 For any given category, you may choose to squelch some, most, or none
 of the items, depending on quality.  These items will be generated
 normally, but those identified as squlechable will be marked
-"SQUELCH".
+"SQUELCH".  Note that items inscribed with '!k' or '!*' can not be
+squelched.
 
 === Miscellaneous Options ===
 

@@ -939,7 +939,7 @@ static void rd_item(object_type *o_ptr)
 	if (older_than(2, 7, 8) && (o_ptr->tval == TV_GOLD))
 	{
 		/* Extract the value */
-		o_ptr->pval = old_cost;
+		o_ptr->pval = (s16b)old_cost;
 
 		/* Done */
 		return;

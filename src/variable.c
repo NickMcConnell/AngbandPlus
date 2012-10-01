@@ -740,6 +740,10 @@ bool (*get_mon_num_hook)(int r_idx);
  */
 bool (*get_obj_num_hook)(int k_idx);
 
+/*
+ * The "highscore" file descriptor, if available.
+ */
+int highscore_fd = -1;
 
 /*
  * Themed levels generate their own feeling mesaages. -LM-

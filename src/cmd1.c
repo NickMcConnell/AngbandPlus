@@ -107,19 +107,54 @@ void search(void)
 
 
 /*
- * Objects that combine with items already in the quiver get picked 
+ * Objects that combine with items already in the quiver get picked
  * up, placed in the quiver, and combined automatically.
  */
 static bool quiver_carry(object_type *o_ptr, int o_idx)
 {
 	int i;
+	int ammo_num = 0;
+
+	int old_num;
 
 	object_type *i_ptr;
 
 
 	/* Must be ammo. */
-	if ((o_ptr->tval != TV_BOLT) && (o_ptr->tval != TV_ARROW) && 
-		(o_ptr->tval != TV_SHOT)) return (FALSE);
+	if ((o_ptr->tval != TV_BOLT) && (o_ptr->tval != TV_ARROW) &&
+	    (o_ptr->tval != TV_SHOT)) return (FALSE);
+
+
+	/* Count number of missiles in the quiver slots. */
+	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
+	{
+		/* Get the item */
+		i_ptr = &inventory[i];
+
+		/* Ignore empty. */
+		if (!i_ptr->k_idx) continue;
+
+		/* Tally up missiles. */
+		ammo_num += i_ptr->number;
+	}
+
+	/* No missiles to combine with. */
+	if (!ammo_num) return (FALSE);
+
+	/*
+	 * If the ammo now being added will make the quiver take up another
+	 * backpack slot, verify that we have one available.  We will mark it
+	 * as used later.
+	 */
+	if ((ammo_num + o_ptr->number) > 99 * p_ptr->pack_size_reduce)
+	{
+		/* We have no more space. */
+		if (p_ptr->inven_cnt >= INVEN_PACK - p_ptr->pack_size_reduce)
+		{
+			return (FALSE);
+		}
+	}
+
 
 	/* Check quiver for similar objects. */
 	for (i = INVEN_Q0; i <= INVEN_Q9; i++)
@@ -132,8 +167,17 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 		{
 			char o_name[120];
 
+			/* How many did we have before? */
+			old_num = i_ptr->number;
+
+			/* Don't absorb unless there is space for all of it */
+			if ((old_num + o_ptr->number) > 99) return FALSE;
+
 			/* Absorb floor object. */
 			object_absorb(i_ptr, o_ptr);
+
+			/* Increase carried weight */
+			p_ptr->total_weight += o_ptr->weight * (o_ptr->number - old_num);
 
 			/* Get the object again */
 			o_ptr = &inventory[i];
@@ -151,6 +195,7 @@ static bool quiver_carry(object_type *o_ptr, int o_idx)
 		}
 	}
 
+	/* Didn't find a slot with similar objects. */
 	return (FALSE);
 }
 
@@ -1145,7 +1190,7 @@ void hit_trap(int y, int x)
 				for (i = 0; i < 20; i++)
 				{
 					/* Pick an item */
-					i = rand_int(INVEN_PACK);
+					i = rand_int(INVEN_PACK - p_ptr->pack_size_reduce);
 
 					/* Obtain the item */
 					o_ptr = &inventory[i];

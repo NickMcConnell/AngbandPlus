@@ -1453,7 +1453,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		if (*s == '~')
 		{
 			/* Add a plural if needed */
-			if (o_ptr->number != 1)
+			if ((o_ptr->number != 1) && !(known && artifact_p(o_ptr)))
 			{
 				char k = t[-1];
 
@@ -2078,7 +2078,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  * Convert an inventory index into a one character label
  * Note that the label does NOT distinguish inven/equip.
  */
-s16b index_to_label(int i)
+char index_to_label(int i)
 {
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_WIELD) return (I2A(i));
@@ -2502,7 +2502,7 @@ void display_equip(void)
 		if ((!o_ptr->k_idx) && (i >= INVEN_Q0) && (i <= INVEN_Q9))
 		{
 			/* Clear the line, skip to next slot */
-			Term_erase(0, i, 255);
+			Term_erase(0, i - INVEN_WIELD, 255);
 			continue;
 		}
 
@@ -2510,7 +2510,7 @@ void display_equip(void)
 		if (i == INVEN_BLANK)
 		{
 			/* Clear the line, skip to next slot */
-			Term_erase(0, i, 255);
+			Term_erase(0, i - INVEN_WIELD, 255);
 			continue;
 		}
 
@@ -3349,6 +3349,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	bool oops = FALSE;
 
+	bool fall_through = FALSE;
+
 	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
 
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
@@ -3466,6 +3468,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Hack -- Start on equipment if requested */
 		if (p_ptr->command_see && (p_ptr->command_wrk == (USE_EQUIP))
 			&& use_equip)
+		{
+			p_ptr->command_wrk = (USE_EQUIP);
+		}
+
+		/* Hack -- Start on equipment if for shooting */
+		if ((p_ptr->command_cmd == 'f')
+			&& allow_equip)
 		{
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
@@ -3618,7 +3627,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (f1 > f2) sprintf(tmp_val, " (none),");
 
 			/* List choices. */
-			else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
+			else sprintf(tmp_val, " %c-%c, . for a,", I2A(f1-f1), I2A(f2-f1));
 
 			/* Append */
 			strcat(out_val, tmp_val);
@@ -3731,35 +3740,29 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				/*
-				 * If we are already examining the floor, and there
-				 * is only one item, we will always select it.
 				 * If we aren't examining the floor and there is only
 				 * one item, we will select it if floor_query_flag
 				 * is FALSE.
 				 */
-				if (floor_num == 1)
+				/* Hack -- Auto-Select */
+				if ((!floor_query_flag) && (floor_num == 1))
 				{
-					/* Hack -- Auto-Select */
-					if ((p_ptr->command_wrk == (USE_FLOOR)) || 
-						(!floor_query_flag))
+				        /* Special index */
+				        k = 0 - floor_list[0];
+
+					/* Allow player to "refuse" certain actions */
+					if (!get_item_allow(k))
 					{
-						/* Special index */
-						k = 0 - floor_list[0];
-
-						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(k))
-						{
-							done = TRUE;
-							break;
-						}
-
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-
+					        done = TRUE;
 						break;
 					}
+
+					/* Accept that choice */
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+
+					break;
 				}
 
 				/* Hack -- Fix screen */
@@ -3773,6 +3776,34 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				}
 
 				p_ptr->command_wrk = (USE_FLOOR);
+
+				break;
+			}
+
+			case '.':
+			{
+				/*
+				 * If we are already examining the floor, select it
+				 * the top item. -BR-
+				 */
+				/* Hack -- Auto-Select */
+				if (p_ptr->command_wrk == (USE_FLOOR))
+				{
+				        /* Special index */
+				        k = 0 - floor_list[0];
+
+					/* Allow player to "refuse" certain actions */
+					if (!get_item_allow(k))
+					{
+					        done = TRUE;
+						break;
+					}
+
+					/* Accept that choice */
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+				}
 
 				break;
 			}
@@ -3871,7 +3902,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 							p_ptr->command_wrk = USE_EQUIP;
 
 							/* Fall through. */
-							goto fall_through;
+							fall_through = TRUE;
 						}
 					}
 
@@ -3879,40 +3910,46 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					 * If not asking for ammo, or not allowed to look at 
 					 * equipment, display error message.
 					 */
-					bell("Illegal object choice (tag)!");
-					break;
+					if (!fall_through)
+					{
+						bell("Illegal object choice (tag)!");
+						break;
+					}
 				}
 
 				/* Hack -- Validate the item */
-				if ((k < INVEN_WIELD) ? !allow_inven : !allow_equip)
+				if ((!fall_through) && ((k < INVEN_WIELD) ? !allow_inven : !allow_equip))
 				{
 					bell("Illegal object choice (tag1)!");
 					break;
 				}
 
 				/* Validate the item */
-				if (!get_item_okay(k))
+				if ((!fall_through) && (!get_item_okay(k)))
 				{
 					bell("Illegal object choice (tag2)!");
 					break;
 				}
 
 				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(k))
+				if ((!fall_through) && (!get_item_allow(k)))
 				{
 					done = TRUE;
 					break;
 				}
 
 				/* Accept that choice */
-				(*cp) = k;
-				item = TRUE;
-				done = TRUE;
-				break;
+				if (!fall_through)
+				{
+					(*cp) = k;
+					item = TRUE;
+					done = TRUE;
+					break;
+				}
 
+				/* Done with fall_through */
+				fall_through = FALSE;
 
-				/* Fall through, if requested. */
-				fall_through:
 			}
 
 			default:

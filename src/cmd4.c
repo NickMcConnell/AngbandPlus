@@ -272,7 +272,7 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-	int i, j, k, n;
+	s16b i, j, k, n;
 	int q;
 
 	char shower[80];
@@ -393,7 +393,7 @@ void do_cmd_messages(void)
 		/* Hack -- handle find */
 		if (k == '/')
 		{
-			int z;
+			s16b z;
 
 			/* Prompt */
 			prt("Find: ", hgt-1, 0);
@@ -2218,10 +2218,10 @@ void do_cmd_visuals(void)
 			{
 				monster_race *r_ptr = &r_info[r];
 
-				int da = (byte)(r_ptr->d_attr);
-				int dc = (byte)(r_ptr->d_char);
-				int ca = (byte)(r_ptr->x_attr);
-				int cc = (byte)(r_ptr->x_char);
+				byte da = (byte)(r_ptr->d_attr);
+				byte dc = (byte)(r_ptr->d_char);
+				byte ca = (byte)(r_ptr->x_attr);
+				byte cc = (byte)(r_ptr->x_char);
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2273,10 +2273,10 @@ void do_cmd_visuals(void)
 			{
 				object_kind *k_ptr = &k_info[k];
 
-				int da = (byte)k_ptr->d_attr;
-				int dc = (byte)k_ptr->d_char;
-				int ca = (byte)k_ptr->x_attr;
-				int cc = (byte)k_ptr->x_char;
+				byte da = (byte)k_ptr->d_attr;
+				byte dc = (byte)k_ptr->d_char;
+				byte ca = (byte)k_ptr->x_attr;
+				byte cc = (byte)k_ptr->x_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2328,10 +2328,10 @@ void do_cmd_visuals(void)
 			{
 				feature_type *f_ptr = &f_info[f];
 
-				int da = (byte)f_ptr->d_attr;
-				int dc = (byte)f_ptr->d_char;
-				int ca = (byte)f_ptr->x_attr;
-				int cc = (byte)f_ptr->x_char;
+				byte da = (byte)f_ptr->d_attr;
+				byte dc = (byte)f_ptr->d_char;
+				byte ca = (byte)f_ptr->x_attr;
+				byte cc = (byte)f_ptr->x_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
@@ -2554,7 +2554,7 @@ void do_cmd_colors(void)
 		/* Edit colors */
 		else if (i == '3')
 		{
-			static int a = 0;
+			static byte a = 0;
 
 			/* Prompt */
 			prt("Command: Modify colors", 8, 0);
@@ -2574,7 +2574,7 @@ void do_cmd_colors(void)
 					Term_putstr(i*4, 20, -1, a, "###");
 
 					/* Exhibit all colors */
-					Term_putstr(i*4, 22, -1, i, format("%3d", i));
+					Term_putstr(i*4, 22, -1, (byte)i, format("%3d", i));
 				}
 
 				/* Describe the color */

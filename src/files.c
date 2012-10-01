@@ -1538,7 +1538,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 				(*f1) |= (TR1_INFRA);
 				(*f3) |= (TR3_REGEN);
 				(*f3) |= (TR3_AGGRAVATE);
-			break;	
+				break;	
 			}
 			case SHAPE_VAMPIRE:
 			{
@@ -1548,15 +1548,133 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
 				(*f2) |= (TR2_RES_COLD);
 				(*f3) |= (TR3_REGEN);
 				(*f1) |= (TR1_STEALTH);
-			break;
+				(*f1) |= (TR1_MAGIC_MASTERY);
+				break;
 			}
 			case SHAPE_WYRM:
 			{
+				object_type *o_ptr = &inventory[INVEN_BODY];
 				(*f1) |= (TR1_STEALTH);
-			break;
+				(*f1) |= (TR1_MAGIC_MASTERY);
+
+				/* Paranoia */
+				if (o_ptr->tval != TV_DRAG_ARMOR) break;
+
+				/* Add 'extra' power if any */
+				switch (o_ptr->sval)
+				{
+
+					case (SV_DRAGON_BLACK):
+					{
+						(*f2) |= (TR2_IM_ACID);
+						break;
+					}
+					case (SV_DRAGON_BLUE):
+					{
+						(*f2) |= (TR2_IM_ELEC);
+						break;
+					}
+					case (SV_DRAGON_WHITE):
+					{
+						(*f2) |= (TR2_IM_COLD);
+						break;
+					}
+					case (SV_DRAGON_RED):
+					{
+						(*f2) |= (TR2_IM_FIRE);
+						break;
+					}
+					case (SV_DRAGON_GREEN):
+					{
+						(*f3) |= (TR3_REGEN);
+						break;
+					}
+					case (SV_DRAGON_SHINING):
+					{
+						(*f3) |= (TR3_SEE_INVIS);
+						break;
+					}
+					case (SV_DRAGON_LAW):
+					case (SV_DRAGON_CHAOS):
+					{
+						(*f3) |= (TR3_HOLD_LIFE);
+						break;
+					}
+					case (SV_DRAGON_BRONZE):
+					case (SV_DRAGON_GOLD):
+					{
+						(*f3) |= (TR3_FREE_ACT);
+						break;
+					}
+
+				}
+				break;
 			}
 		}
 	}
+}
+
+/*
+ * Obtain information about player negative mods.
+ * Currently includes shapechange and race effects.
+ *
+ * We do not include AGGRAVATE, which is inherantly bad.  We only use
+ * 'reversed' effects.
+ *
+ * The only effect that we *do* include are those which either totally
+ * negate a resist/ability or those which have a negatively effective
+ * pval.
+ *
+ * Based on player_flags, but for display purposes only.
+ */
+void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
+{
+	/* Clear */
+	(*f1) = (*f2) = (*f3) = 0L;
+
+	/* HACK - add weakness of some races */
+	if ((rp_ptr->flags_special) & PS_WOODEN) 
+	{	
+		(*f3) |= (TR3_FEATHER);
+	}
+
+	/* Shapechange, if any. */
+	switch (p_ptr->schange)
+	{
+		case SHAPE_NORMAL:
+		{
+			break;
+		}
+		case SHAPE_MOUSE:
+		case SHAPE_FERRET:
+		case SHAPE_HOUND:
+		case SHAPE_GAZELLE:
+		case SHAPE_LION:
+		case SHAPE_BAT:
+		case SHAPE_WEREWOLF:
+		{
+			(*f1) |= (TR1_MAGIC_MASTERY);
+			break;
+		}
+		case SHAPE_ENT:
+		{
+			(*f2) |= (TR2_RES_FIRE);
+			(*f3) |= (TR3_FEATHER);
+			break;
+		}
+		case SHAPE_VAMPIRE:
+		{
+			(*f2) |= (TR2_RES_LITE);
+			(*f3) |= (TR3_LITE);
+			break;
+		}
+		case SHAPE_WYRM:
+		{
+			(*f1) |= (TR1_STEALTH);
+			break;
+		}
+	}
+
 }
 
 
@@ -1574,7 +1692,7 @@ static void display_player_equippy(int y, int x)
 
 
 	/* Dump equippy chars */
-	for (i=INVEN_WIELD; i<INVEN_TOTAL; i++)
+	for (i=INVEN_WIELD; i<INVEN_SUBTOTAL; i++)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1712,7 +1830,7 @@ static void display_player_flag_info(void)
 			c_put_str(TERM_WHITE, name, row, col);
 
 			/* Check equipment */
-			for (n=6, i=INVEN_WIELD; i<INVEN_TOTAL; i++,n++)
+			for (n=6, i=INVEN_WIELD; i<INVEN_SUBTOTAL; i++,n++)
 			{
 				byte attr = TERM_SLATE;
 
@@ -1730,11 +1848,24 @@ static void display_player_flag_info(void)
 				/* Non-existant objects */
 				if (!o_ptr->k_idx) attr = TERM_L_DARK;
 
-				/* Default */
-				c_put_str(attr, ".", row, col+n);
+				/* Hack -- Check immunities */
+				if ((x == 0) && (y < 4) &&
+				    (f[set] & ((TR2_IM_ACID) << y)))
+				{
+					c_put_str(TERM_WHITE, "*", row, col+n);
+				}
 
 				/* Check flags */
-				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+				else if (f[set] & flag)
+				{
+					c_put_str(TERM_WHITE, "+", row, col+n);
+				}
+
+				/* Default */
+				else
+				{
+					c_put_str(attr, ".", row, col+n);
+				}
 
 				/* Hack -- "Might" covers both might1 and might2. */
 				if ((y == 6) && (x == 3))
@@ -1744,6 +1875,7 @@ static void display_player_flag_info(void)
 					else if (f[set] & TR1_MIGHT1) 
 						c_put_str(TERM_WHITE, "+", row, col+n);
 				}
+
 			}
 
 			/* Player flags */
@@ -1752,8 +1884,21 @@ static void display_player_flag_info(void)
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
+			/* Hack -- Check immunities */
+			if ((x == 0) && (y < 4) &&
+			    (f[set] & ((TR2_IM_ACID) << y)))
+			{
+				c_put_str(TERM_WHITE, "*", row, col+n);
+			}
+
 			/* Check flags */
-			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			else if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+
+			/* Player 'reversed' flags */
+			player_weakness_dis(&f[1], &f[2], &f[3]);
+
+			/* Check flags */
+			if (f[set] & flag) c_put_str(TERM_RED, "X", row, col+n);
 
 			/* Advance */
 			row++;
@@ -1876,7 +2021,7 @@ static void display_player_stat_info(void)
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
 
 	/* Process equipment */
-	for (i=INVEN_WIELD; i<INVEN_TOTAL; i++)
+	for (i=INVEN_WIELD; i<INVEN_SUBTOTAL; i++)
 	{
 		/* Access object */
 		o_ptr = &inventory[i];
@@ -1938,7 +2083,7 @@ static void display_player_stat_info(void)
 
 		/* Advance */
 		col++;
-    }
+	}
 
 	/* Player flags */
 	player_flags(&f1, &f2, &f3, TRUE);
@@ -3137,6 +3282,9 @@ static void make_bones(void)
 				if (!(fp)) break;
 			}
 
+			/* Failure */
+			if (fp) return;
+
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
 
@@ -3544,58 +3692,6 @@ static void death_examine(void)
 	do_cmd_observe(o_ptr, FALSE);
 }
 
-
-
-
-/*
- * Semi-Portable High Score List Entry (128 bytes)
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-	char what[8];		/* Version info (string) */
-
-	char pts[10];		/* Total Score (number) */
-
-	char gold[10];		/* Total Gold (number) */
-
-	char turns[10];		/* Turns Taken (number) */
-
-	char day[10];		/* Time stamp (string) */
-
-	char who[16];		/* Player Name (string) */
-
-	char uid[8];		/* Player UID (number) */
-
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
-
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
-
-	char how[32];		/* Method of death (string) */
-};
-
-
-
-/*
- * The "highscore" file descriptor, if available.
- */
-static int highscore_fd = -1;
-
-
 /*
  * Seek score 'i' in the highscore file
  */
@@ -3708,9 +3804,10 @@ static int highscore_add(high_score *score)
  *
  * Mega-Hack -- allow "fake" entry at the given position.
  */
-static void display_scores_aux(int from, int to, int note, high_score *score)
+void display_scores_aux(int from, int to, int note, high_score *score)
 {
-	int i, j, k, n, attr, place;
+	int i, j, k, n, place;
+	byte attr;
 	int wid, hgt;
 
 	high_score the_score;
@@ -3777,10 +3874,8 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			cptr user, gold, when, aged;
 
-
 			/* Hack -- indicate death in yellow */
 			attr = (j == note) ? TERM_YELLOW : TERM_WHITE;
-
 
 			/* Mega-Hack -- insert a "fake" record */
 			if ((note == j) && score)
@@ -3881,6 +3976,11 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 void display_scores(int from, int to)
 {
 	char buf[1024];
+
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
@@ -4104,7 +4204,7 @@ static void top_twenty(void)
 /*
  * Predict the players location, and display it.
  */
-static errr predict_score(void)
+errr predict_score(void)
 {
 	int j;
 
@@ -4837,7 +4937,7 @@ void signals_ignore_tstp(void)
 {
 }
 
-v/*
+/*
  * Do nothing
  */
 void signals_handle_tstp(void)

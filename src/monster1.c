@@ -175,6 +175,7 @@ static void roff_aux(int r_idx)
 
 	bool old = FALSE;
 	bool sin = FALSE;
+	bool unique = FALSE;
 
 	int m, n, r;
 
@@ -323,6 +324,9 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
 	}
 
+	/* Define a convenience variable */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) unique = TRUE;
+
 	/* Descriptions */
 	if (show_details)
 	{
@@ -418,7 +422,7 @@ static void roff_aux(int r_idx)
 	}
 
 	/* Treat uniques differently */
-	else if (flags1 & (RF1_UNIQUE))
+	else if (unique)
 	{
 		/* Hack -- Determine if the unique is "dead" */
 		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
@@ -543,13 +547,13 @@ static void roff_aux(int r_idx)
 		else if (r_ptr->flags1 & (RF1_FORCE_DEPTH))
 		{
 			roff(format("%^s is %s, always found %s", wd_he[msex], 
-				wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), 
+				wd_rarity(r_ptr->rarity, unique),
 				depth_desc), 0, 0);
 		}
 		else
 		{
 			roff(format("%^s is %s, normally found %s", wd_he[msex], 
-				wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), 
+				wd_rarity(r_ptr->rarity, unique),
 				depth_desc), 0, 0);
 		}
 
@@ -1031,28 +1035,30 @@ static void roff_aux(int r_idx)
 	if (flags5 & (RF5_BEAM_ICE))		vp[vn++] = "cast lances of ice";
 	if (flags5 & (RF5_BEAM_NETHR))
 	{
-		if (spower < 40) vp[vn++] = "cast lances of nether";
-		else if (spower < 90) vp[vn++] = "shoot rays of death";
+		if (spower < 40) vp[vn++] = "cast beams of nether";
+		else if (spower < 90) vp[vn++] = "hurl lances of nether";
+		else vp[vn++] = "shoot rays of death";
 	}
 	if (flags5 & (RF5_ARC__HFIRE))
 	{
 		if (flags2 & (RF2_UDUN_MAGIC))
 		{
-			if (spower < 50) vp[vn++] = "produce a column of hellfire";
+			if (spower < 50) vp[vn++] = "produce columns of hellfire";
 			else if (spower < 100) vp[vn++] = "envelop you in hellfire";
 			else vp[vn++] = "breath like the Balrog";
 		}
 		else
 		{
-			if (spower < 50) vp[vn++] = "produce a column of fire";
+			if (spower < 50) vp[vn++] = "produce columns of fire";
 			else if (spower < 100) vp[vn++] = "envelop you in fire";
+			else vp[vn++] = "envelop you in flamestrikes";
 		}
 	}
 	if (flags5 & (RF5_ARC__FORCE))
 	{
 		if (spower < 50) vp[vn++] = "thrust you away";
-		else if (spower < 100) vp[vn++] = "hurls you away";
-		else vp[vn++] = "snatches you up, and throws you away";
+		else if (spower < 100) vp[vn++] = "hurl you away";
+		else vp[vn++] = "snatch you up, and throws you away";
 	}
 	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
 	if (flags6 & (RF6_ADD_MANA))		vp[vn++] = "restore mana";
@@ -2433,7 +2439,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 			else
 			{
 				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
-				bones_selector = p_ptr->depth;
+				bones_selector = (byte)p_ptr->depth;
 			}
 		}
 		else
@@ -2476,13 +2482,15 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
 			&ghost_sex, &ghost_race, &ghost_class) != 4);
 	}
 
-	/* Hack -- broken file */
-	if (err) return (FALSE);
-
-
 	/* Close the file */
 	my_fclose(fp);
 
+	/* Hack -- broken file */
+	if (err)
+	{
+		bones_selector = 0;
+		return (FALSE);
+	}
 
 	/*** Process the ghost name and store it in a global variable. ***/
 

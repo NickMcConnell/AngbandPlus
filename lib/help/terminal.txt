@@ -27,10 +27,10 @@ be used when starting Oangband:
 
 Using an X display -
 
-Oangband will open seven additional terminals by default.  To use
-fewer the terminals put the option "-- -n#" at the end of the command
-line when launching Oangband, where # is the number of terminals
-desired (eg "oangband -mgcu -- -n3").
+Oangband will open only the main terminal by default.  To use more the
+terminals put the option "-- -n#" at the end of the command line when
+launching Oangband, where # is the number of terminals desired, up to
+eight (eg "oangband -mx11 -- -n3").
 
 Using a gcu 'curses' console display -
 

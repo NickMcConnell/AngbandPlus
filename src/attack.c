@@ -1931,7 +1931,7 @@ void do_cmd_throw(void)
 	/* Chance of breakage (during attacks).   Throwing weapons are designed 
 	 * not to break.  -LM-
 	 */
-	if (f1 & (TR1_PERFECT_BALANCE)) j = (hit_body ? 1 : 0);
+	if (f1 & (TR1_PERFECT_BALANCE)) j = 0;
 	else if (f1 & (TR1_THROWING)) j = (hit_body ? 2 : 0);
 	else j = (hit_body ? breakage_chance(i_ptr) : 0);
 

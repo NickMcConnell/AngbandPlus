@@ -393,7 +393,7 @@ static errr wr_savefile(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Dump index */
-		wr_u16b(i);
+		wr_u16b((s16b)i);
 
 		/* Dump object */
 		wr_item(o_ptr);
@@ -645,8 +645,8 @@ static void wr_byte(byte v)
 
 static void wr_u16b(u16b v)
 {
-	sf_put(v & 0xFF);
-	sf_put((v >> 8) & 0xFF);
+	sf_put((byte)(v & 0xFF));
+	sf_put((byte)((v >> 8) & 0xFF));
 }
 
 static void wr_s16b(s16b v)
@@ -656,10 +656,10 @@ static void wr_s16b(s16b v)
 
 static void wr_u32b(u32b v)
 {
-	sf_put(v & 0xFF);
-	sf_put((v >> 8) & 0xFF);
-	sf_put((v >> 16) & 0xFF);
-	sf_put((v >> 24) & 0xFF);
+	sf_put((byte)(v & 0xFF));
+	sf_put((byte)((v >> 8) & 0xFF));
+	sf_put((byte)((v >> 16) & 0xFF));
+	sf_put((byte)((v >> 24) & 0xFF));
 }
 
 static void wr_s32b(s32b v)
@@ -871,7 +871,7 @@ static void wr_store(store_type *st_ptr)
 	wr_byte(st_ptr->owner);
 
 	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
+	wr_byte((byte)st_ptr->stock_num);
 
 	/* Save the "haggle" info */
 	wr_s16b(st_ptr->good_buy);
@@ -937,10 +937,10 @@ static void wr_options(void)
 	/*** Special Options ***/
 
 	/* Write "delay_factor" */
-	wr_byte(op_ptr->delay_factor);
+	wr_byte((byte)op_ptr->delay_factor);
 
 	/* Write "hitpoint_warn" */
-	wr_byte(op_ptr->hitpoint_warn);
+	wr_byte((byte)op_ptr->hitpoint_warn);
 
 	wr_u16b(0);     /* Was cheating options */
 
@@ -1177,7 +1177,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte((byte)feeling);
 
 	/* Turn of last "feeling" */
 	wr_s32b(old_turn);
@@ -1376,7 +1376,7 @@ static bool wr_savefile_new(void)
 	xor_byte = 0;
 	wr_byte(VERSION_PATCH);
 	xor_byte = 0;
-	tmp8u = rand_int(256);
+	tmp8u = (byte)rand_int(256);
 	wr_byte(tmp8u);
 
 
@@ -1424,7 +1424,7 @@ static bool wr_savefile_new(void)
 	/* Dump the messages (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
-		wr_string(message_str(i));
+		wr_string(message_str((s16b)i));
 		wr_u16b(message_type((s16b)i));
 	}
 
@@ -1446,7 +1446,7 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_list[i].level);
+		wr_byte((byte)q_list[i].level);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);

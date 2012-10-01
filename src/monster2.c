@@ -316,6 +316,9 @@ void wipe_m_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
+
+	/* Hack -- make sure there is no player ghost */
+	bones_selector = 0;
 }
 
 
@@ -1577,7 +1580,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Give a random starting energy */
-	n_ptr->energy = rand_int(100);
+	n_ptr->energy = (byte)rand_int(100);
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
@@ -1843,12 +1846,12 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 			if (r_info[escort_idx].flags1 & (RF1_FRIENDS))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(my, mx, escort_idx, slp, 5 + randint(10));
+				(void)place_monster_group(my, mx, escort_idx, slp, (s16b)(5 + randint(10)));
 			}
 			else if (r_info[escort_idx].flags1 & (RF1_FRIEND))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(my, mx, escort_idx, slp, 1 + randint(2));
+				(void)place_monster_group(my, mx, escort_idx, slp, (s16b)(1 + randint(2)));
 			}
 		}
 	}
@@ -1889,13 +1892,13 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a large group */
-		(void)place_monster_group(y, x, r_idx, slp, damroll(3, 7));
+		(void)place_monster_group(y, x, r_idx, slp, (s16b)damroll(3, 7));
 	}
 
 	else if (r_ptr->flags1 & (RF1_FRIEND))
 	{
 		/* Attempt to place a small group */
-		(void)place_monster_group(y, x, r_idx, slp, randint(3));
+		(void)place_monster_group(y, x, r_idx, slp, (s16b)randint(3));
 	}
 
 	/* Escorts for certain monsters */
@@ -1946,7 +1949,7 @@ bool place_monster(int y, int x, bool slp, bool grp, bool quick)
  * Use "quick" to either rebuild the monster generation table, or 
  * just draw another monster from it.
  */
-bool alloc_monster(int dis, int slp, bool quick)
+bool alloc_monster(int dis, bool slp, bool quick)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2094,7 +2097,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_UNIQUE:
 		{
-			okay = (r_ptr->flags1 & (RF1_UNIQUE));
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) != 0) okay = TRUE;
 			break;
 		}
 
@@ -2427,7 +2430,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Slow/paralyze attacks learn about free action and saving throws */
 		case LRN_FREE_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2505,7 +2508,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Fear attacks learn about resist fear and saving throws */
 		case LRN_FEAR_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2562,7 +2565,7 @@ void update_smart_learn(int m_idx, int what)
 			else m_ptr->smart &= ~(SM_RES_SOUND);
 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
 			else m_ptr->smart &= ~(SM_RES_CONFU);
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2615,7 +2618,7 @@ void update_smart_learn(int m_idx, int what)
 		/* Some attacks learn only about saving throws (cause wounds, etc) */
 		case LRN_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2723,7 +2726,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_NEXUS_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2737,7 +2740,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_BLIND_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);
@@ -2751,7 +2754,7 @@ void update_smart_learn(int m_idx, int what)
 		 */
 		case LRN_CONFU_SAVE:
 		{
-			if (p_ptr->skill_sav >= 85) m_ptr->smart |= (SM_GOOD_SAVE);
+			if (p_ptr->skill_sav >= 75) m_ptr->smart |= (SM_GOOD_SAVE);
 			else m_ptr->smart &= ~(SM_GOOD_SAVE);
 			if (p_ptr->skill_sav >= 100) m_ptr->smart |= (SM_PERF_SAVE);
 			else m_ptr->smart &= ~(SM_PERF_SAVE);

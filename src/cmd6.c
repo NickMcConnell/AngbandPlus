@@ -980,20 +980,34 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_VAMPIRE:
 		{
-		  if (mp_ptr->spell_book == TV_PRAYER_BOOK){
-		    msg_print("You reject the unholy serum.");
-		    take_hit(damroll(10, 6), "dark forces");
-		    break;
-		  }
-		  if (mp_ptr->spell_book == TV_DRUID_BOOK) {
-		    msg_print("You reject the unholy serum.");
-		    take_hit(damroll(10, 6), "unnatural forces");
-		    break;
-		  }
-		  msg_print("You are infused with dark power.");
-		  take_hit(damroll(3, 6), "shapeshifting stress");
-		  shapechange(SHAPE_VAMPIRE);
-		  break;
+
+			/* Already a Vampire */
+			if (p_ptr->schange == SHAPE_VAMPIRE) break;
+
+			/* Priests/Paladins can't be Vampires */
+			if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+			{
+				msg_print("You reject the unholy serum.");
+				take_hit(damroll(10, 6), "dark forces");
+				break;
+			}
+
+			/* Druids/Rangers can't be Vampires */
+			if (mp_ptr->spell_book == TV_DRUID_BOOK)
+			{
+				msg_print("You reject the unnatural serum.");
+				take_hit(damroll(10, 6), "dark forces");
+				break;
+			}
+
+			/* Others can */
+			msg_print("You are infused with dark power.");
+
+			/* But it hurts */
+			take_hit(damroll(3, 6), "shapeshifting stress");
+			shapechange(SHAPE_VAMPIRE);
+			ident = TRUE;
+			break;
 		}
 
 	}
@@ -1532,7 +1546,7 @@ void do_cmd_use_staff(void)
 	cptr q, s;
 
 
-	/* Restrict choices to wands */
+	/* Restrict choices to staffs */
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item */
@@ -1577,7 +1591,7 @@ void do_cmd_use_staff(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -2008,20 +2022,24 @@ void do_cmd_use_staff(void)
 
 
 	/* Make it possible to fully identify staffs through use. */
-	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
+	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 25 : 35) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
 
-		if (artifact_p(o_ptr)) 
-			msg_format("You feel you know more about the Staff %s.", 
-				a_name + a_info[o_ptr->name1].name);
-		
-		else msg_format("You feel you know more about staffs of %s.", 
-			k_name + k_ptr->name);
+		/* If we actually give more information now, let the player know. */
+		if (strlen(obj_special_info[3][o_ptr->sval]))
+		{
+			if (artifact_p(o_ptr))
+				msg_format("You feel you know more about the Staff %s.",
+					a_name + a_info[o_ptr->name1].name);
+
+			else msg_format("You feel you know more about staffs of %s.",
+				k_name + k_ptr->name);
+		}
 	}
+
 }
 
 
@@ -2440,19 +2458,22 @@ void do_cmd_aim_wand(void)
 
 
 	/* Make it possible to fully identify wands through use. */
-	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
+	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
 		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 30 : 40) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
 
-		if (artifact_p(o_ptr)) 
-			msg_format("You feel you know more about the Wand %s.", 
-				a_name + a_info[o_ptr->name1].name);
-		
-		else msg_format("You feel you know more about wands of %s.", 
-			k_name + k_ptr->name);
+		/* If we actually give more information now, let the player know. */
+		if (strlen(obj_special_info[4][o_ptr->sval]))
+		{
+			if (artifact_p(o_ptr))
+				msg_format("You feel you know more about the Wand %s.",
+					a_name + a_info[o_ptr->name1].name);
+
+			else msg_format("You feel you know more about wands of %s.",
+				k_name + k_ptr->name);
+		}
 	}
 }
 
@@ -2822,7 +2843,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_DELVING:
 		{
 			/* Aimed at oneself, this rod creates a room. */
-			if ((p_ptr->target_row == p_ptr->py) && 
+			if ((dir == 5) && (p_ptr->target_row == p_ptr->py) && 
 				(p_ptr->target_col == p_ptr->px))
 			{
 				/* Lots of damage to creatures of stone. */
@@ -2901,20 +2922,22 @@ void do_cmd_zap_rod(void)
 
 
 	/* Make it possible to fully identify rods through use. */
-	if ((!k_ptr->known_effect) && (object_known_p(o_ptr)) && 
-		(strlen(obj_special_info[3][o_ptr->sval]) > 0) &&
-		(rand_int((p_ptr->pclass == CLASS_MAGE) ? 45 : 65) == 0))
+	if ((object_known_p(o_ptr)) && (!k_ptr->known_effect) &&
+	    (rand_int((p_ptr->pclass == CLASS_MAGE) ? 45 : 65) == 0))
 	{
 		/* Mark all objects of that type as fully known. */
 		k_ptr->known_effect = TRUE;
 
+		/* If we actually give more information now, let the player know. */
+		if (strlen(obj_special_info[5][o_ptr->sval]))
+		{
+			if (artifact_p(o_ptr))
+				msg_format("You feel you know more about the Rod %s.",
+					a_name + a_info[o_ptr->name1].name);
 
-		if (artifact_p(o_ptr)) 
-			msg_format("You feel you know more about the Rod %s.", 
-				a_name + a_info[o_ptr->name1].name);
-
-		else msg_format("You feel you know more about rods of %s.", 
-			k_name + k_ptr->name);
+			else msg_format("You feel you know more about rods of %s.",
+				k_name + k_ptr->name);
+		}
 	}
 }
 
@@ -4605,6 +4628,9 @@ void do_cmd_activate(void)
 
 		case ACT_AMULET_LION:
 		{
+			/* Already a Lion */
+			if (p_ptr->schange == SHAPE_LION) break;
+
 			msg_print("You become a fierce Lion.");
 			shapechange(SHAPE_LION);
 			o_ptr->timeout = 200;
@@ -4635,21 +4661,32 @@ void do_cmd_activate(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 
-	/* Give the player a chance to learn more about the effects of 
-	 * non-artifact dragon scale mails.
+	/*
+	 * Give the player a chance to learn more about the effects of
+	 * non-artifact dragon scale mails, amulets, and rings.
 	 */
-	if (((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_RING)) && 
-		(k_info[o_ptr->k_idx].known_effect == FALSE) && 
-		!artifact_p(o_ptr) && strlen(obj_special_info[0][o_ptr->sval]) && 
-		(rand_int(25) == 0))
+	if (((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_AMULET) ||
+	     (o_ptr->tval == TV_RING)) && (!artifact_p(o_ptr)) &&
+	    (!k_info[o_ptr->k_idx].known_effect) && (rand_int(25) == 0))
 	{
-		char o_name[120];
+		int chooser = 0;
 
-		object_desc(o_name, o_ptr, TRUE, 0);
+		if (o_ptr->tval == TV_DRAG_ARMOR) chooser = 0;
+		if (o_ptr->tval == TV_AMULET) chooser = 1;
+		if (o_ptr->tval == TV_RING) chooser = 2;
 
+		/* We now (theoretically) know more about the object's powers */
 		k_info[o_ptr->k_idx].known_effect = TRUE;
 
-		msg_format("You feel you know more about the effects of %s.", o_name);
+		/* If we actually give more information now, let the player know. */
+		if (strlen(obj_special_info[chooser][o_ptr->sval]))
+		{
+			char o_name[120];
+			object_desc(o_name, o_ptr, TRUE, 0);
+
+			msg_format("You feel you know more about the effects of %s.",
+				   o_name);
+		}
 	}
 
 	/* Success */

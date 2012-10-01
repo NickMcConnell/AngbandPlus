@@ -29,10 +29,11 @@ adventures.  It also tells you how to keep track of all this information.
      Gold:
          Gold is amazingly handy, because everything the town can sell can be 
          yours with enough of the stuff.  Characters start out with an amount 
-         of gold determined by charisma (higher is better), sex (female char-
-         acters start with more gold.  In Oangband, males and females are 
-         clones, so take advantage of this!), social class (higher is better), 
-         and the player class's primary statistic (lower is much better).  
+         of gold determined by ability scores (lower is better) and sex (female 
+	 characters start with more gold - In Oangband, males and females are 
+         clones, so take advantage of this!).  If the character is being
+	 'rolled' with random atributes, social class also influences starting
+	 gold (higher is better).
 
          Inside the dungeon lies more gold than you will ever find, more seams 
          of treasure than you will ever dig, and more monsters carrying loot 

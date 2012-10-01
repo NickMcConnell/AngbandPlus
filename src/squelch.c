@@ -688,7 +688,7 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 
 		case SQUELCH_ALL:
 		{
-			result = SQUELCH_YES;
+			if (!(artifact_p(o_ptr))) result = SQUELCH_YES;
 			break;
 		}
 	}
@@ -696,10 +696,22 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 
 	if (result==SQUELCH_NO) return result;
 
-	/* Squelching will fail on an artifact */
+	/* Extra Paranoia */
 	if (artifact_p(o_ptr))
 	  result = SQUELCH_FAILED;
-  
+
+	/* Items inscribed with '!k' or '!*' are note squelchable. */
+	if (o_ptr->note)
+	{
+	        cptr s = strchr(quark_str(o_ptr->note), '!');
+		while (s)
+		{
+		        if ((s[1] == 'k') || (s[1] == '*')) result = SQUELCH_FAILED;
+			s = strchr(s + 1, '!');
+		}
+		
+	}
+
 	return result;
 }
 

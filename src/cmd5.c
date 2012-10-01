@@ -142,7 +142,7 @@ void shapechange(s16b shape)
 	char *shapedesc = "";
 
 	/* Wonder Twin powers -- Activate! */
-	p_ptr->schange = shape;
+	p_ptr->schange = (byte) shape;
 	p_ptr->update |= PU_BONUS;
 
 	switch (shape)
@@ -357,8 +357,8 @@ static void rebalance_weapon(void)
 		/* Light curse and lower to_h and to_d by 2 to 5 each. */
 		
 		o_ptr->ident |= (IDENT_CURSED);
-		o_ptr->to_h -= 2 + rand_int(4);
-		o_ptr->to_d -= 2 + rand_int(4);
+		o_ptr->to_h -= (s16b) (2 + rand_int(4));
+		o_ptr->to_d -= (s16b) (2 + rand_int(4));
 
 		/* Describe */
 		msg_format("Oh no!  A dreadful black aura surrounds your %s!", o_name);
@@ -372,7 +372,7 @@ static void rebalance_weapon(void)
 	{
 		/* Grant perfect balance. */
 		o_ptr->xtra1 = OBJECT_XTRA_TYPE_BALANCE;
-		o_ptr->xtra2 = rand_int(OBJECT_XTRA_SIZE_BALANCE);
+		o_ptr->xtra2 = (byte) rand_int(OBJECT_XTRA_SIZE_BALANCE);
 
 		/* Description */
 		object_desc(o_name, o_ptr, FALSE, 0);
@@ -940,7 +940,7 @@ void do_cmd_cast_or_pray(void)
 
 	int item, spell, dir;
 	int chance, beam;
-	int shape = 0;
+	s16b shape = 0;
 
 	int plev = p_ptr->lev;
 
@@ -2058,8 +2058,8 @@ void do_cmd_cast_or_pray(void)
 			}
 			case 141:  /* detect trap/doors */
 			{
-				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
-				(void)detect_doors(DETECT_RAD_DEFAULT, TRUE);
+				(void)detect_traps(DETECT_RAD_DEFAULT, FALSE);
+				(void)detect_doors(DETECT_RAD_DEFAULT, FALSE);
 				(void)detect_stairs(DETECT_RAD_DEFAULT, TRUE);
 				break;
 			}
