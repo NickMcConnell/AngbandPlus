@@ -989,6 +989,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			object_desc_str_macro(t, "The ");
 		}
 
+
 		/* Hack -- A single one, and next character will be a vowel */
 		else if ((*s == '#') ? is_a_vowel(modstr[0]) : is_a_vowel(*s))
 		{
@@ -1037,6 +1038,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 	}
 
+	/* Perfectly balanced throwing weapons are indicated. */
+	if ((known) && (o_ptr->ident & IDENT_PERFECT_BALANCE))
+	{
+		object_desc_str_macro(t, "Well-balanced ");
+	}
 
 	/* Paranoia XXX XXX XXX */
 	/* ASSERT(*s != '~'); */
@@ -1116,8 +1122,14 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	{
 		cptr tail = "";
 
+		/*may be a quest item*/
+		if(o_ptr->ident & IDENT_QUEST)
+		{
+			tail = " (QUEST_OBJECT!)";
+		}
+
 		/* Not searched yet */
-		if (!known)
+		else if (!known)
 		{
 			/* Nothing */
 		}
@@ -1333,13 +1345,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
 
-		/* Clear explaination for staffs. */
-		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1))
-		{
-			object_desc_num_macro(t, o_ptr->number);
-			object_desc_str_macro(t, "x ");
-		}
-
+		/*write out the word charge(s) as appropriate*/
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " charge");
 		if (o_ptr->pval != 1)
@@ -1360,7 +1366,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			if (o_ptr->number > 1)
 			{
 
-				\
 				/* Paranoia. */
 				if (k_ptr->pval == 0) k_ptr->pval = 1;
 
@@ -1628,7 +1633,7 @@ void identify_random_gen(const object_type *o_ptr)
 
 	/* Set the indent/wrap */
 	text_out_indent = 3;
-	text_out_wrap = 75;
+	text_out_wrap = 65;
 
 	/* Dump the info */
 	if (object_info_out(o_ptr))
@@ -3468,3 +3473,4 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Result */
 	return (item);
 }
+

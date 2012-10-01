@@ -5,8 +5,8 @@
 #
 # Change these paths if necessary
 #
-ANGBAND_PATH = C:\angband
-LCC_PATH     = C:\lcc
+ANGBAND_PATH = C:\nppangbandsource
+LCC_PATH     = C:\src
 
 
 #

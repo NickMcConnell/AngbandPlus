@@ -569,7 +569,7 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
- 	/* Automatically destroysquelched items in pile if necessary */
+ 	/* Automatically destroy squelched items in pile if necessary */
  	if (auto_destroy == 1)
  	{
  		do_squelch_pile(py, px);
@@ -815,6 +815,37 @@ void hit_trap(int y, int x)
 	switch (cave_feat[y][x])
 	{
 		case FEAT_TRAP_HEAD + 0x00:
+ 		{
+			if (p_ptr->ffall)
+			{
+				msg_print("You float gently to the floor of the pit.");
+				msg_print("You carefully avoid setting off the daggers.");
+			}
+
+			else
+			{
+				/* activate the ordinary daggers. */
+				msg_print("Daggers pierce you everywhere!");
+
+				/* Base damage */
+				dam = damroll(2, 6);
+
+				msg_print("You are impaled!");
+
+				for (i = 0; i < randint(5); i++)
+				{
+					dam += damroll(2, 3);
+				}
+
+				(void)set_cut(p_ptr->cut + randint(dam));
+
+				/* Take the damage */
+				take_hit(dam, name);
+			}
+			break;
+		}
+
+		case FEAT_TRAP_HEAD + 0x01:
 		{
 			msg_print("You fall through a trap door!");
 			if (p_ptr->ffall)
@@ -836,7 +867,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x01:
+		case FEAT_TRAP_HEAD + 0x02:
 		{
 			msg_print("You fall into a pit!");
 			if (p_ptr->ffall)
@@ -851,7 +882,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x02:
+		case FEAT_TRAP_HEAD + 0x03:
 		{
 			msg_print("You fall into a spiked pit!");
 
@@ -881,7 +912,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x03:
+		case FEAT_TRAP_HEAD + 0x04:
 		{
 			msg_print("You fall into a spiked pit!");
 
@@ -922,7 +953,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x04:
+		case FEAT_TRAP_HEAD + 0x05:
 		{
 			msg_print("You are enveloped in a cloud of smoke!");
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -935,14 +966,14 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x05:
+		case FEAT_TRAP_HEAD + 0x06:
 		{
 			msg_print("You hit a teleport trap!");
 			teleport_player(100);
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x06:
+		case FEAT_TRAP_HEAD + 0x07:
 		{
 			msg_print("You are enveloped in flames!");
 			dam = damroll(4, 6);
@@ -950,7 +981,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x07:
+		case FEAT_TRAP_HEAD + 0x08:
 		{
 			msg_print("You are splashed with acid!");
 			dam = damroll(4, 6);
@@ -958,7 +989,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x08:
+		case FEAT_TRAP_HEAD + 0x09:
 		{
 			if (check_hit(125))
 			{
@@ -974,7 +1005,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x09:
+		case FEAT_TRAP_HEAD + 0x0A:
 		{
 			if (check_hit(125))
 			{
@@ -990,7 +1021,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0A:
+		case FEAT_TRAP_HEAD + 0x0B:
 		{
 			if (check_hit(125))
 			{
@@ -1006,7 +1037,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0B:
+		case FEAT_TRAP_HEAD + 0x0C:
 		{
 			if (check_hit(125))
 			{
@@ -1022,7 +1053,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0C:
+		case FEAT_TRAP_HEAD + 0x0D:
 		{
 			msg_print("You are surrounded by a black gas!");
 			if (!p_ptr->resist_blind)
@@ -1032,7 +1063,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0D:
+		case FEAT_TRAP_HEAD + 0x0E:
 		{
 			msg_print("You are surrounded by a gas of scintillating colors!");
 			if (!p_ptr->resist_confu)
@@ -1042,7 +1073,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0E:
+		case FEAT_TRAP_HEAD + 0x0F:
 		{
 			msg_print("You are surrounded by a pungent green gas!");
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
@@ -1052,7 +1083,7 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x0F:
+		case FEAT_TRAP_HEAD + 0x10:
 		{
 			msg_print("You are surrounded by a strange white mist!");
 			if (!p_ptr->free_act)
@@ -1075,6 +1106,8 @@ void py_attack(int y, int x)
 {
 	int num = 0, k, bonus, chance;
 
+	int sleeping_bonus = 0;
+
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
@@ -1087,24 +1120,25 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
+	bool was_asleep = FALSE;
+
 
 	/* Get the monster */
 	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 
-
-	/* Disturb the player */
-	disturb(0, 0);
-
+	/*record if monster was sleeping before waking*/
+	if (m_ptr->csleep) was_asleep = TRUE;
 
 	/* Disturb the monster */
 	m_ptr->csleep = 0;
 
+	/* Disturb the player */
+	disturb(0, 0);
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
-
 
 	/* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -1129,17 +1163,53 @@ void py_attack(int y, int x)
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
+	/*
+	 * If the monster is sleeping and visible, it can be hit more easily.
+	 * Especially by Rogues
+	 */
+
+	if ((was_asleep) && (m_ptr->ml))
+	{
+		sleeping_bonus =  5 + 1 * p_ptr->lev / 5;
+
+		if (cp_ptr->flags & CF_ROGUE_COMBAT)
+		{
+			/*50 % increase*/
+			sleeping_bonus *= 3;
+			sleeping_bonus /= 2;
+		}
+	}
+	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ) + sleeping_bonus);
 
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
+
+		message_flush();
+
 		/* Test for hit */
 		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
 		{
-			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			if (was_asleep)
+			{
+				if (cp_ptr->flags & CF_ROGUE_COMBAT)
+				{
+					message_format(MSG_HIT, m_ptr->r_idx,
+						"You ruthlessly sneak attack %s!", m_name);
+				}
+				else
+				{
+					message_format(MSG_HIT, m_ptr->r_idx,
+						"You sneak attack %s!", m_name);
+				}
+			}
+
+			else
+			{
+				/* Message */
+				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			}
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1167,26 +1237,32 @@ void py_attack(int y, int x)
 			}
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+			{
+				/*return energy from unused attacks*/
+				if (num < p_ptr->num_blow)
+				{
+					p_ptr->energy_use -= (((p_ptr->num_blow - (num)) * 100 ) /
+		  									p_ptr->num_blow);
+				}
+				break;
+			}
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
-
-				/* Message */
+						/* Message */
 				msg_print("Your hands stop glowing.");
-
-				/* Confuse the monster */
+						/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
 				{
 					if (m_ptr->ml)
 					{
 						l_ptr->flags3 |= (RF3_NO_CONF);
 					}
-
-					msg_format("%^s is unaffected.", m_name);
+							msg_format("%^s is unaffected.", m_name);
 				}
 				else if (rand_int(100) < r_ptr->level)
 				{
@@ -1281,8 +1357,9 @@ void move_player(int dir, int jumping)
 
 #endif /* ALLOW_EASY_ALTER */
 
-	/* Player can not walk through "walls" */
+	/* Player can not walk through "walls", but can go through traps */
 	else if (!cave_floor_bold(y, x))
+
 	{
 		/* Disturb the player */
 		disturb(0, 0);
@@ -1408,6 +1485,14 @@ void move_player(int dir, int jumping)
 			/* Hit the trap */
 			hit_trap(y, x);
 		}
+
+		/* Walk on a monster trap */
+		else if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) &&
+				  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+		{
+			msg_print("You inspect your cunning trap.");
+		}
+
 	}
 }
 
@@ -2134,4 +2219,5 @@ void run_step(int dir)
 	/* Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);
 }
+
 

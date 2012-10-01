@@ -48,14 +48,14 @@ typedef byte byte_256[256];
 
 
 /*
- * An array of DUNGEON_WID byte's
+ * An array of MAX_DUNGEON_WID byte's
  */
-typedef byte byte_wid[DUNGEON_WID];
+typedef byte byte_wid[MAX_DUNGEON_WID];
 
 /*
- * An array of DUNGEON_WID s16b's
+ * An array of MAX_DUNGEON_WID s16b's
  */
-typedef s16b s16b_wid[DUNGEON_WID];
+typedef s16b s16b_wid[MAX_DUNGEON_WID];
 
 
 
@@ -74,7 +74,7 @@ typedef struct vault_type vault_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
-typedef struct quest quest;
+typedef struct quest_type quest_type;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
@@ -111,6 +111,7 @@ struct maxima
 	u16b h_max;		/* Max size for "h_info[]" */
 	u16b b_max;		/* Max size per element of "b_info[]" */
 	u16b c_max;		/* Max size for "c_info[]" */
+	u16b q_max;		/* Max size for "q_info[]" */
 	u16b flavor_max; /* Max size for "flavor_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
@@ -480,7 +481,7 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags */
+	u32b ident;			/* Special flags (was byte) */
 
 	byte marked;		/* Object is marked */
 
@@ -562,25 +563,24 @@ struct alloc_entry
 
 /*
  * Structure for the "quests"
- *
- * Hack -- currently, only the "level" parameter is set, with the
- * semantics that "one (QUEST) monster of that level" must be killed,
- * and then the "level" is reset to zero, meaning "all done".  Later,
- * we should allow quests like "kill 100 fire hounds", and note that
- * the "quest level" is then the level past which progress is forbidden
- * until the quest is complete.  Note that the "QUESTOR" flag then could
- * become a more general "never out of depth" flag for monsters.
  */
-struct quest
+struct quest_type
 {
-	byte level;		/* Dungeon level */
-	int r_idx;		/* Monster race */
+	u32b name;			/* Name (offset) */
 
-	int cur_num;	/* Number killed (unused) */
-	int max_num;	/* Number required (unused) */
+	byte type;			/* Quest Type */
+	byte reward;		/* Quest Reward */
+
+	byte active_level;	/* Equals dungeon level if not completed, 0 if completed */
+	byte base_level;	/* The dungeon level on which the quest was assigned*/
+
+	s16b mon_idx;		/* Monster race/unique */
+
+	s16b cur_num;		/* Number killed */
+	s16b max_num;		/* Number required */
+
+	bool started;		/* Has the player start the quest */
 };
-
-
 
 
 /*
@@ -833,6 +833,8 @@ struct player_type
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
 
+	u16b fame;			/* Fame - used for quests */
+
 	s32b au;			/* Current Gold */
 
 	s16b max_depth;		/* Max depth */
@@ -921,6 +923,9 @@ struct player_type
 
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
+
+	byte cur_map_hgt;		/* Current dungeon level hight */
+	byte cur_map_wid;		/* Current dungeon level width */
 
 	s32b total_weight;		/* Total weight being carried */
 
@@ -1064,6 +1069,8 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	u16b cur_quest;		/* Current quest */
 };
 
 

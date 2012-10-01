@@ -1,0 +1,508 @@
+
+====== Options ======
+
+Various concepts mentioned below:
+     "disturb"    : cancel any running, resting, or repeated commands
+     "flush"      : forget any keypresses waiting in the keypress queue,
+                    including any macros in progress
+     "fresh"      : dump any pending output to the screen
+
+Options you may want to change to your preferences include:
+     - Roguelike commands, if you are used to the commands used in certain other
+       roguelike games, or have no number pad.
+     - Checking that the hitpoint warning is non-zero can save your character's
+       life.
+     - Set the delay factor to two or more, and turn ON "fresh_before", if you
+       want to see pretty ball explosions and whatnot.
+     - Playing around with the lighting options in the Display Options section
+       can be a lot of fun.
+
+Saving options:
+     Options are saved in your character's savefile, but you may want to use the
+same options for other characters too.  Whenever you save options, you have
+essentially four choices of filenames:
+     - <<savefile name>>.prf  : affects only that character
+     - <<race name>>.prf      : affects all characters of that race
+     - <<class name>>.prf     : affects all characters of that class
+     - user.prf               : affects all of your characters
+
+     These rules also apply to other kinds of preferences.
+
+
+--- Option Set #1:  User Interface ---
+
+Rogue-like commands                           [rogue_like_commands]  (off) :
+     Selects the "roguelike" command set, which uses eight of the letter keys to
+move the character about.  This command set can be really useful if you have no
+number pad, and some people just naturally prefer it.  However, the original
+command set has considerably more unused keys available for macros and keymaps.
+
+Activate quick messages                       [quick_messages]       (on) :
+     Allows the use of any keypress as a response to the "-more-" prompt.
+Allows most keys to mean "no" to any "[y/n]" prompt.  Usage of this option can
+be dangerous!
+
+Prompt for floor item selection               [floor_query_flag]     (off) :
+     Allows you to choose any item in a floor stack, even if you do not have
+"easy_floor" on.
+
+Prompt before picking things up               [carry_query_flag]     (on) :
+    Forces the game to ask your permission before allowing you to pick up any
+object.  Usually turned on if "auto_pickup" is also ON.  If it is OFF, usage of
+this option is normally not necessary.
+
+Use old target by default                     [use_old_target]       (off) :
+     Forces all commands which normally ask for a direction to use the current
+target if there is one.  Use of this option can be dangerous if you target
+locations on the ground, unless you clear them when done.
+
+Pick things up by default                     [always_pickup]        (on) :
+    Tells the game that walking onto an item should attempt to pick it up.
+Picking up objects this way takes no additional energy.  Note the "g" and "-"
+commands, which can be used to reverse this option for a single turn, and the
+option "carry_query_flag", which lets you decide whether to pick things up.
+
+Repeat obvious commands                       [always_repeat]        (off) :
+     The tunneling, altering, resting, disarming, opening, closing, and bashing
+commands will repeat 99 times unless you explicitly give a different command
+count.
+
+Merge inscriptions when stacking              [stack_force_notes]    (off) :
+     Allows objects with and without inscriptions to stack, retaining any
+inscription.
+
+Merge discounts when stacking                 [stack_force_costs]    (off) :
+     Allows objects with greater and lesser discounts to stack, retaining the
+larger discount.
+
+Audible bell (on errors, etc)                 [ring_bell]            (on) :
+     Make a bell sound when errors occur (such as typing an invalid key).
+
+Open/Disarm/Close without direction           [easy_open]            (off) :
+     When you issue the open, close, or disarm commands, and there is only one
+useable door or visible trap adjacent to you, it is selected automatically.
+
+Open/Disarm doors/traps on movement           [easy_alter]           (off) :
+     When you move into a door, you attempt to open it.  When you move into a
+trap, you attempt to disarm it.
+
+Display floor stacks in a list                [easy_floor]           (off) :
+     Displays items on the floor using a list similar to that used for
+inventory.  Allows you to comfortably handle large piles of floor items.
+
+Scroll map while targetting                   [scroll_target]        (off) :
+     When looking or targeting, the panel will shift as needed, allowing you to
+review everything you know about the dungeon.
+
+
+--- Option Set #2:  Disturbance ---
+
+When running, ignore stairs                   [run_ignore_stairs]    (on) :
+     Ignore stairs when running.
+
+When running, ignore doors                    [run_ignore_doors]     (on) :
+     Ignore open doors when running.
+
+When running, cut corners                     [run_cut_corners]      (on) :
+     Cut sharply around known corners when running.  This will result in faster
+running (which matters if you are fleeing), but may cause you to run into a
+lurking monster.
+
+When running, use corners                     [run_use_corners]      (on) :
+     Fully examine potential corners in corridors.  Activates only in special
+cases.
+
+Disturb whenever any monster moves            [disturb_move]         (on) :
+     Disturb the player when any visible monster moves, appears, or disappears,
+whether in line of sight or out of it.  This increases safety, but may cause
+trouble when you have telepathy and are trying to rest.
+
+Disturb whenever viewable monster moves       [disturb_near]         (on) :
+     Disturb the player when any viewable (visible and in direct line of sight)
+monster moves, whenever any monster becomes viewable, and whenever any viewable
+monster becomes no longer viewable.
+     It is recommended that you leave this option on; not doing so may cause you
+to be ambushed by monsters you can easily see.
+
+Disturb whenever map panel changes            [disturb_panel]        (on) :
+     Disturbs you when the map panel shifts.  This slows down your exploration,
+but makes it easier to avoid leaving a detected area.
+
+Disturb whenever player state changes         [disturb_state]        (on) :
+     This option causes you to be disturbed whenever the player state changes,
+including changes in hunger, resistance, confusion, etc.
+
+Disturb whenever boring things happen         [disturb_minor]        (on) :
+     Disturbs you when you sense wargear automatically (pseudo-ID), hear a door
+being bashed open, or begin to run out of fuel.
+
+Verify destruction of objects                 [verify_destroy]       (on) :
+     Gives you an "are you sure" message when you try to destroy an object.
+
+Verify use of special commands                [verify_special]       (on) :
+     Asks if you are certain before entering wizard, debug, or borg mode (if
+allowed).
+
+Allow quantity specification                  [allow_quantity]       (on) :
+     Prompt for a quantity when necessary, instead of defaulting to a single
+object.  If you prefer to enter command counts before commands instead of typing
+quantities when prompted, turn this option off.
+
+Automatically clear '-more-' prompts          [auto_more]            (off) :
+     The game does not wait for a keypress when it comes to a -more- prompt, but
+erases the message instead.  This may speed up play, but can cause you to miss
+important warnings or interesting occurrences if you do not have an extra window
+devoted to message recall.
+
+
+--- Option Set #3:  Game-Play ---
+
+Auto-haggle in stores                         [auto_haggle]          (on) :
+     Causes you to accept the prices the shopkeeper asks or offers.  Usage of
+this option causes you to pay 10% more than normal when buying, and get 10% less
+when selling.
+
+Auto-scum for good levels                     [auto_scum]            (off) :
+     Regenerates dungeon levels until one is found with enough dangerous
+monsters and nifty objects.  Usage of this option makes for more intense but
+dangerous games.
+
+Expand the power of the look command          [expand_look]          (on) :
+    Expand the look command to allow the user to inspect grids which are not
+actually in view of the player, allowing the examination of objects/monsters
+which have only been detected by spells, or sensed via telepathy.
+
+Expand the power of the list commands         [expand_list]          (on) :
+    Allows the targeting interface to cycle through all appropriate grids, and
+your monster recall to browse through all of the monsters of a given type.
+
+Map remembers all perma-lit grids             [view_perma_grids]     (on) :
+     Memorize all permanently lit floor grids.  Turning this option off allows
+you to know which lit floor grids are in line of sight.  If you are using color,
+however, the "view_bright_lite" option works better.
+
+Map remembers all torch-lit grids             [view_torch_grids]     (off) :
+     Memorize all floor grids that have ever been lit up by the player.  This is
+one way to help keep track of which areas you have explored.
+
+Generate dungeons with aligned rooms          [dungeon_align]        (on) :
+     Aligns rooms to 11x33 blocks (as opposed to 11x11 ones).  This makes it
+less likely that a room will continue past the current panel view, but reduces
+the number of large rooms (greater vaults in particular).
+
+Generate dungeons with connected stairs       [dungeon_stair]        (on) :
+     When entering a level using a staircase, it remains in place.  This allows
+you to beat a hasty retreat if necessary.
+
+Monsters chase current location (v.slow)      [flow_by_sound]        (off) :
+     Allows monsters to navigate around obstacles between you and them.  This
+option will substantially slow down the game on older machines, but makes
+monsters behave much more intelligently.
+
+Monsters chase recent locations (v.slow)      [flow_by_smell]        (off) :
+     Allows monsters to track you down by following your footsteps.  The same
+comments apply here.
+
+Monsters behave more intelligently            [smart_monsters]       (off) :
+     Monsters choose spells depending on tactical situation (for example, they
+are more likely to use a healing spell when badly wounded).  They breath less
+often (sometimes much less often), but cast spells almost twice as frequently.
+They do not cast bolt spells if another monster blocks the way, and can find
+hiding places to run away to.
+
+Monsters act smarter in groups (v.slow)       [smart_packs]          (off) :
+     Monster packs attempt to ambush the character.  Monster groups are better
+at surrounding him.
+
+Monsters learn from their mistakes            [smart_learn]          (off) :
+     Allows monsters to learn about your resistances by observation, and to use
+this knowledge to avoid making further mistakes.
+
+Monsters exploit players weaknesses           [smart_cheat]          (off) :
+     Monsters instantly know all your resistances, and need spend no time
+learning.
+
+
+--- Option Set #4:  Efficiency ---
+
+Reduce lite-radius when running               [view_reduce_lite]     (off) :
+     When running, your light radius is reduced to one.  Not recommended for use
+unless your machine is very slow.
+
+Hide player symbol when running               [hidden_player]        (off) :
+     Saves a small amount of time by not refreshing your symbol when running.
+Again, makes little difference except on very slow machines.
+
+Avoid checking for user abort                 [avoid_abort]          (off) :
+     Avoid checking to see if the user has pressed a key during resting or
+running or repeated commands.  On some system, this makes the game more
+efficient, but on others (including most graphical ones) it can be troublesome.
+Resting for long periods of time with this option set is dangerous since the
+resting may not stop until the user takes damage from starvation.
+
+Avoid processing special colors               [avoid_other]          (off) :
+     Forbids chromatic monsters to shimmer and makes clear monsters appear
+white.  May increase speed on some older machines.
+
+Flush input on various failures               [flush_failure]        (on) :
+     This option forces the game to flush all pending input whenever various
+failures occur, such as failure to cast a spell, failure to use a wand, etc.
+This is very useful if you use macros that include directional components with
+commands that can fail, since it will prevent you from walking towards monsters
+when your spells fail.
+
+Flush input whenever disturbed                [flush_disturb]        (off) :
+     This option forces the game to flush all pending input whenever the
+character is disturbed.  This is useful if you use macros that take time, since
+it will prevent you from continuing your macro while being attacked by a
+monster.
+
+Flush output before every command             [fresh_before]         (on) :
+     Refresh the screen before commands, which gives you much more information
+but slows down the game slightly.  You must turn this option on to see spell
+effects.
+
+Flush output after various things             [fresh_after]          (off) :
+     This option forces the game to flush all output not only after every player
+command, but also after every round of processing monsters and objects, and
+after every message.  This maximizes your information, but may slow down the
+game (especially on slower machines) and on faster machines you cannot see the
+results anyway.
+
+Compress messages in savefiles                [compress_savefile]    (on) :
+     Compress the savefile, saving only the most recent player messages.  This
+can cut the size of the savefile substantially, but will result in the loss of
+message information.
+
+
+--- Option Set #5:  Display ---
+
+Show dungeon level in feet                    [depth_in_feet]        (off) :
+     Displays dungeon level in feet, as opposed to level.
+
+Show labels in equipment listings             [show_labels]          (on) :
+    Display "labels" (what an object is being used for) for objects in all
+equipment listings.
+
+Show weights in all object listings           [show_weights]         (on) :
+     Display weights (in pounds) of objects in all inventory, equipment, store,
+and home listings.
+
+Show choices in inven/equip windows           [show_choices]         (on) :
+    Display choices (legal responses) in any sub-windows that are being used to
+display your inventory or equipment.  Also, if one sub-window is being used to
+display your inventory or equipment, then this option will cause it to be
+(temporarily) toggled as needed.
+
+Show details in monster descriptions          [show_details]         (on) :
+     Display a description and number of kills for each monster in the monster
+recall.
+
+Show flavors in object descriptions           [show_flavors]         (on) :
+     Display "flavors" (color or variety) in object descriptions and information
+screens, even for objects whose type is known.  This does not affect objects in
+stores.
+
+Hilite the player with the cursor             [hilite_player]        (off) :
+     Place the visible cursor on the player.  This looks fine on some UNIX
+terminals, but horrible on most graphics machines.
+
+Use special colors for torch lite             [view_yellow_lite]     (off) :
+     If the option "view_special_light" is also on, floor grids that are only
+lit by the player's own light source will appear yellow.  If the option
+"view_granite_light" is on, walls will be colored in the same way.  Turning this
+option off will slightly increase the speed of the game.
+
+Use special colors for field of view          [view_bright_lite]     (off) :
+     If the option "view_special_light" is also on, those floor grids that the
+player can see directly appear white, and all other known grids appear dark
+gray.  If the option "view_granite_light" is on, walls will be colored in the
+same way.  Turning this option off will slightly increase the speed of the game.
+
+Use special colors for wall grids             [view_granite_lite]    (off) :
+     If either the option "view_yellow_light" or "view_bright_light" is on, wall
+grids will change color depending on lighting conditions instead of always being
+gray.  This option may not work well if the attr/char codes for walls/veins have
+been changed, or if graphics are being used.  Turning it off will slightly
+increase the speed of the game.
+
+Use special colors for floor grids            [view_special_lite]    (off) :
+     If either the option "view_yellow_light" or "view_bright_light" is on,
+floor grids will change color depending on lighting conditions instead of always
+being black or white.  This option may not work well if the attr/char codes for
+floors have been changed, or if graphics are being used.  Turning it off will
+slightly increase the speed of the game.
+
+Center map continuously (very slow)           [center_player]        (off) :
+     Center the map continuously.  Advantages include removal of the need to
+adjust the map panel and less jerky character movement; disadvantages include
+not being able to control your field of view and constant map shifting.
+Substantially slows down the game.
+
+Avoid centering while running                 [run_avoid_center]     (off) :
+     Don't center the map when running.  A compromise between normal and always
+centered movement.
+
+Show stacks using special attr/char           [show_piles]           (off) :
+     Displays a stack of floor objects using a special character.
+
+
+Player color indicates low hit points         [hp_changes_color]     (off) :
+	As a player's hitpoints drops, the color of the player changes 
+as a warning.  90-100% of max hp - White.  70-89% - yellow.  50-69% -
+orange.  30-49% - light red.  Less than 30% of max hp - Red
+
+Verify before descending from quest level     [verify_leave_quest]     (on) :
+    Asks for confirmation when you try to leave a quest level using down 
+stairs (thereby risking quest failure).
+
+--- Option Set #6:  Birth ---
+
+     You may only change birth options when starting up a new character.
+
+Adult: Allow purchase of stats using points   [adult_point_based]    (off) :
+     Allows you to buy stats using a pool of points.  Gives you extra gold for
+each point not spent.  This method allows you to raise individual stats higher
+than rolling, but does not give you total stats so great.
+
+Adult: Allow specification of minimal stats   [adult_auto_roller]    (off) :
+     Allows you to specify minimum stats when creating a character.  Characters
+are randomly generated until one is found to meet your requirements.
+
+     If neither of the two above options is set, you roll for stats manually.
+
+Adult: Maximize effect of race/class bonuses  [adult_maximize]       (on) :
+     If maximize mode is ON, racial and class adjustments to vital statistics
+(stat) act as permanent modifiers.  A Dwarven priest will be able to raise his
+inherent wisdom to 18/150, but his intelligence only to 18/40.
+     Maximize mode makes races and classes play more differently, usually to the
+player's benefit; it is therefore recommended in most cases.
+
+Adult: Preserve artifacts when leaving level  [adult_preserve]       (on) :
+     If preserve mode is ON, artifacts will not be lost unless you actually
+identify then abandon them.  However, you get no special feelings (which help
+you to find artifacts).  If this option is OFF, artifacts appear once and once
+only, but you get special feelings.
+
+Adult: Restrict the use of stairs/recall      [adult_ironman]        (off) :
+     Can never go up.  Can never use recall until you win the game.  No stairs
+are ever placed under you when you change levels.
+
+Ironman Play:
+     "Go down into the dungeon.  Return with Morgoth's Crown or not at all."
+In Ironman mode, you can never go up any staircase, and can never return to the
+surface by any means, until victorious.  If by accident you do, you must
+immediately return to the dungeon.
+     Some forms of Ironman play require that you visit no stores before going
+into the dungeon, or that you must use a down staircase as soon as you see it
+("crash-dive ironman"), but they are variants on the basic theme.
+
+Adult: Restrict the use of stores/home        [adult_no_stores]      (off) :
+     Cannot use any stores or your home.
+
+Adult: Restrict creation of artifacts         [adult_no_artifacts]   (off) :
+     No artifacts will appear.
+
+Adult: Randomize some of the artifacts (beta) [adult_rand_artifacts] (off) :
+     Most of the artifacts will get random names and qualities.  This can make
+for a fun change of pace.
+
+Adult: Don't stack objects on the floor       [adult_no_stacking]    (off) :
+     The game normally allows many objects to stack in each floor grid.
+However, some people prefer the challenge of allowing only one object to appear
+in each floor grid.  Turning this option ON causes objects dropped by monsters
+to disappear if space is tight, and therefore encourages you to fight battles in
+wide-open spaces.
+
+Adult:  Have notes to written to a file       [adult_take_notes]     (off) :
+	Character can write notes to a specific file.  In addition, notes
+are taken automatically when: a player reaches a character level
+divisible by 5 (5, 10, 15, etc..), a unique is killed, an artifact is
+identified, or a greater vault created.  The turn, character level, and 
+depth of the player is automatically recorded.  This information is 
+in character dumps near the bottom.  For certain artifacts of unusual power
+artifacts found out of depth, or unusually rare artifacts, the level the 
+artifact was found is recorded, rather than the level the player
+is on when they identify the item.  Also given separate notes are 
+player birth, death, and the killing of Morgoth.  
+
+Adult:  All Levels Will Be Generates As Small [birth_force_small_lev] (off) :
+    All levels will be generated as small levels, giving you less space to 
+    which you can run...
+
+--- Option Set #7:  Cheat ---
+
+Peek into object creation                     [cheat_peek]           (off) :
+     Cheaters never win.  But they can peek at object creation.
+
+Peek into monster creation                    [cheat_hear]           (off) :
+     Cheaters never win.  But they can peek at monster creation.
+
+Peek into dungeon creation                    [cheat_room]           (off) :
+     Cheaters never win.  But they can peek at room creation.
+
+Know complete monster info                    [cheat_know]           (off) :
+     Cheaters never win.  But they can know all about monsters.
+
+Allow player to avoid death                   [cheat_live]           (off) :
+     Cheaters never win.  But they can cheat death.
+
+
+--- Window Options ---
+
+Window Flags:
+     Some platforms support multiple windows, which can display all sorts of
+useful information.  The best thing about these windows is that they are
+(usually) updated automatically to reflect the current state of the world.
+
+     inven/equip:       Display the player inventory (and equipment).
+     equip/inven:       Display the player equipment (and inventory).
+     player (basic):    Display the main character screen.
+     player (extra):    Display the character screen's equipment flags section.
+     messages:          Display recent messages and notes.
+     overhead view:     Display an overhead view of the dungeon.
+     monster recall:    Display a description of the target monster.
+     object recall:     Display a description of the most recently selected
+          object.  Currently this only affects spellbooks and prayerbooks.
+     snap-shot:         This window flag is currently unused.
+     script variables:  Used for debugging scripts.
+     script source:     Used for debugging scripts.
+     borg messages:     Used for the automatic Angband player (the borg).
+     borg status:       Used for the automatic Angband player (the borg).
+
+--- Miscellaneous Options ---
+
+Hitpoint warning:
+     If non-zero, is the percentage of maximal hitpoints (x10) at which you
+start to get special warnings.  It is also used as the cut-off for using red to
+display both hitpoints and mana.
+
+Delay Factor:
+     The "delay_factor" value, if non-zero, will slow down the visual effects
+used for missile, bolt, beam, and ball attacks.  The actual time delay is equal
+to "delay_factor" squared, in milliseconds.  A value of five works well on many
+machines.
+     Note:  You also need to have "fresh_before" ON.
+
+
+--- Options Commands ---
+
+Load a user pref file:
+     Reads user preferences (including options) from a file you choose.
+Normally used when preferences don't load automatically, and you want to rewrite
+them to a file that will.
+
+Append options to a file:
+     Saves options to file.  See the preferences section for help on what
+filename to use (the file "user.prf" usually works).
+
+
+
+
+
+
+
+
+
+
+

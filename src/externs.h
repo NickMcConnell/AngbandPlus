@@ -1,3 +1,4 @@
+
 /* File: externs.h */
 
 /*
@@ -11,7 +12,7 @@
 
 /*
  * Note that some files have their own header files
- * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
+ * (z-virt.h, z-.h, z-form.h, term.h, random.h)
  */
 
 
@@ -108,7 +109,7 @@ extern bool inkey_xtra;
 extern bool inkey_scan;
 extern bool inkey_flag;
 extern s16b coin_type;
-extern bool opening_chest;
+extern bool chest_or_quest;
 extern bool shimmer_monsters;
 extern bool shimmer_objects;
 extern bool repair_mflag_nice;
@@ -140,16 +141,15 @@ extern u16b *temp_g;
 extern byte *temp_y;
 extern byte *temp_x;
 extern byte (*cave_info)[256];
-extern byte (*cave_feat)[DUNGEON_WID];
-extern s16b (*cave_o_idx)[DUNGEON_WID];
-extern s16b (*cave_m_idx)[DUNGEON_WID];
-extern byte (*cave_cost)[DUNGEON_WID];
-extern byte (*cave_when)[DUNGEON_WID];
+extern byte (*cave_feat)[MAX_DUNGEON_WID];
+extern s16b (*cave_o_idx)[MAX_DUNGEON_WID];
+extern s16b (*cave_m_idx)[MAX_DUNGEON_WID];
+extern byte (*cave_cost)[MAX_DUNGEON_WID];
+extern byte (*cave_when)[MAX_DUNGEON_WID];
 extern maxima *z_info;
 extern object_type *o_list;
 extern monster_type *mon_list;
 extern monster_lore *l_list;
-extern quest *q_list;
 extern store_type *store;
 extern object_type *inventory;
 extern s16b alloc_kind_size;
@@ -204,6 +204,8 @@ extern char *g_text;
 extern flavor_type *flavor_info;
 extern char *flavor_name;
 extern char *flavor_text;
+extern quest_type *q_info;
+extern char *q_name;
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_GRAF;
 extern cptr ANGBAND_DIR;
@@ -234,6 +236,8 @@ extern int text_out_indent;
 extern int highscore_fd;
 extern bool use_transparency;
 FILE *notes_file;
+extern byte recent_failed_thefts;
+extern byte num_trap_on_level;
 
 
 /*
@@ -276,7 +280,6 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
-extern bool is_quest(int level);
 
 /* cmd1.c */
 extern bool test_hit(int chance, int ac, int vis);
@@ -328,9 +331,15 @@ extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
 extern bool ang_sort_comp_hook(const void *u, const void *v, int a, int b);
 extern void ang_sort_swap_hook(void *u, void *v, int a, int b);
+extern void py_steal(int y, int x);
+extern int  count_monsters_made_wary (int y, int x, int player_sees);
+extern bool make_monster_trap(void);
+extern void py_set_trap(int y, int x, bool count_trap);
+extern void py_modify_trap(int y, int x);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);
+extern void options_birth_menu(bool adult);
 extern void do_cmd_change_name(void);
 extern void do_cmd_message_one(void);
 extern void do_cmd_messages(void);
@@ -342,6 +351,7 @@ extern void do_cmd_colors(void);
 extern void do_cmd_note(char *note, int what_depth);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
+extern void do_cmd_quest(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
@@ -431,6 +441,7 @@ extern s16b mon_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, size_t max, const monster_type *m_ptr, int mode);
+extern void monster_desc_race(char *desc, size_t max, int r_idx);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
@@ -500,12 +511,13 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
-extern bool make_object(object_type *j_ptr, bool good, bool great, int chesttype);
+extern bool make_object(object_type *j_ptr, bool good, bool great, int objecttype);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great);
 extern void place_object(int y, int x, bool good, bool great, int droptype);
+extern void place_quest_chest(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);
 extern void place_trap(int y, int x);
@@ -530,7 +542,20 @@ extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
 extern void print_spells(const byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
-extern int choose_chest_contents (int chest_theme);
+extern int choose_chest_contents (void);
+extern void steal_object_from_monster(int y, int x);
+extern void create_quest_item(int ny, int nx);
+
+
+/* quest.c */
+extern void plural_aux(char *name, size_t max);
+extern cptr describe_quest(s16b level, int mode);
+extern void display_guild(void);
+extern void guild_purchase(void);
+extern byte quest_check(int lev);
+extern int quest_num(int lev);
+extern int quest_item_slot(void);
+extern void quest_fail(void);
 
 /* save.c */
 extern bool save_player(void);
@@ -591,6 +616,7 @@ extern bool dispel_undead(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
 extern void aggravate_monsters(int who);
+extern void mass_aggravate_monsters(int who);
 extern bool banishment(void);
 extern bool mass_banishment(void);
 extern bool probing(void);
@@ -753,6 +779,7 @@ extern bool set_food(int v);
 extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
+extern int  get_coin_type(const monster_race *r_ptr);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
 extern bool modify_panel(int wy, int wx);
@@ -771,6 +798,7 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+
 
 /* squlech.c */
 extern byte squelch_level[24];
@@ -815,6 +843,8 @@ extern void show_floor(const int *floor_list, int floor_num);
 extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
 
+extern void make_random_name(void);
+
 #ifdef RISCOS
 /* main-ros.c */
 extern char *riscosify_name(cptr path);
@@ -839,3 +869,4 @@ extern void do_cmd_borg(void);
 extern void do_cmd_spoilers(void);
 
 #endif /* ALLOW_SPOILERS */
+

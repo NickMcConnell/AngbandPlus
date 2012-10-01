@@ -390,6 +390,26 @@ tolua_lerror:
  return 0;
 }
 
+/* function: make_monster_trap */
+static int toluaI_spell_make_monster_trap00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  bool toluaI_ret = (bool)  make_monster_trap();
+ tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'make_monster_trap'.");
+ return 0;
+}
+
 /* function: identify_pack */
 static int toluaI_spell_identify_pack00(lua_State* tolua_S)
 {
@@ -1109,6 +1129,25 @@ tolua_lerror:
  return 0;
 }
 
+/* function: make_monster_trap */
+static int toluaI_spell_make_monster_trap01(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  bool toluaI_ret = (bool)  make_monster_trap();
+ tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ return toluaI_spell_make_monster_trap00(tolua_S);
+}
+
 /* function: destroy_area */
 static int toluaI_spell_destroy_area00(lua_State* tolua_S)
 {
@@ -1793,6 +1832,25 @@ tolua_lerror:
  return 0;
 }
 
+/* function: make_monster_trap */
+static int toluaI_spell_make_monster_trap02(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  bool toluaI_ret = (bool)  make_monster_trap();
+ tolua_pushbool(tolua_S,(int)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ return toluaI_spell_make_monster_trap01(tolua_S);
+}
+
 /* function: destroy_doors_touch */
 static int toluaI_spell_destroy_doors_touch00(lua_State* tolua_S)
 {
@@ -2042,7 +2100,7 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SUMMON_SPIDER",SUMMON_SPIDER);
  tolua_constant(tolua_S,NULL,"SUMMON_HOUND",SUMMON_HOUND);
  tolua_constant(tolua_S,NULL,"SUMMON_HYDRA",SUMMON_HYDRA);
- tolua_constant(tolua_S,NULL,"SUMMON_ANGEL",SUMMON_ANGEL);
+ tolua_constant(tolua_S,NULL,"SUMMON_AINUR",SUMMON_AINUR);
  tolua_constant(tolua_S,NULL,"SUMMON_DEMON",SUMMON_DEMON);
  tolua_constant(tolua_S,NULL,"SUMMON_UNDEAD",SUMMON_UNDEAD);
  tolua_constant(tolua_S,NULL,"SUMMON_DRAGON",SUMMON_DRAGON);
@@ -2127,6 +2185,7 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"apply_disenchant",toluaI_spell_apply_disenchant00);
  tolua_function(tolua_S,NULL,"project",toluaI_spell_project00);
  tolua_function(tolua_S,NULL,"warding_glyph",toluaI_spell_warding_glyph00);
+ tolua_function(tolua_S,NULL,"make_monster_trap",toluaI_spell_make_monster_trap00);
  tolua_function(tolua_S,NULL,"identify_pack",toluaI_spell_identify_pack00);
  tolua_function(tolua_S,NULL,"remove_curse",toluaI_spell_remove_curse00);
  tolua_function(tolua_S,NULL,"remove_all_curse",toluaI_spell_remove_all_curse00);
@@ -2162,6 +2221,7 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"banishment",toluaI_spell_banishment00);
  tolua_function(tolua_S,NULL,"mass_banishment",toluaI_spell_mass_banishment00);
  tolua_function(tolua_S,NULL,"probing",toluaI_spell_probing00);
+ tolua_function(tolua_S,NULL,"make_monster_trap",toluaI_spell_make_monster_trap01);
  tolua_function(tolua_S,NULL,"destroy_area",toluaI_spell_destroy_area00);
  tolua_function(tolua_S,NULL,"earthquake",toluaI_spell_earthquake00);
  tolua_function(tolua_S,NULL,"lite_room",toluaI_spell_lite_room00);
@@ -2191,6 +2251,7 @@ int tolua_spell_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"teleport_monster",toluaI_spell_teleport_monster00);
  tolua_function(tolua_S,NULL,"door_creation",toluaI_spell_door_creation00);
  tolua_function(tolua_S,NULL,"trap_creation",toluaI_spell_trap_creation00);
+ tolua_function(tolua_S,NULL,"make_monster_trap",toluaI_spell_make_monster_trap02);
  tolua_function(tolua_S,NULL,"destroy_doors_touch",toluaI_spell_destroy_doors_touch00);
  tolua_function(tolua_S,NULL,"sleep_monsters_touch",toluaI_spell_sleep_monsters_touch00);
  tolua_function(tolua_S,NULL,"curse_armor",toluaI_spell_curse_armor00);
@@ -2212,7 +2273,7 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_SPIDER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_HOUND");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_HYDRA");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_ANGEL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_AINUR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_DEMON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_UNDEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SUMMON_DRAGON");
@@ -2297,6 +2358,7 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"apply_disenchant");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"project");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"warding_glyph");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"make_monster_trap");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"identify_pack");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"remove_curse");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"remove_all_curse");
@@ -2332,6 +2394,7 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"banishment");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"mass_banishment");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"probing");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"make_monster_trap");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"destroy_area");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"earthquake");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lite_room");
@@ -2361,6 +2424,7 @@ void tolua_spell_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"teleport_monster");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"door_creation");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"trap_creation");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"make_monster_trap");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"destroy_doors_touch");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"sleep_monsters_touch");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"curse_armor");

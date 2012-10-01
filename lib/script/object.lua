@@ -474,6 +474,9 @@ function read_scroll(object)
 	elseif object.sval == SV_SCROLL_RUNE_OF_PROTECTION then
 		warding_glyph()
 		ident = TRUE
+	elseif object.sval == SV_SCROLL_CREATE_MONSTER_TRAP then
+		  if make_monster_trap() then ident = TRUE
+  			else used_up = FALSE end
 	elseif object.sval == SV_SCROLL_TRAP_DOOR_DESTRUCTION then
 		if destroy_doors_touch() then ident = TRUE end
 	elseif object.sval == SV_SCROLL_STAR_DESTRUCTION then

@@ -2568,13 +2568,13 @@ static void windows_map_aux(void)
 
 #else /* ZANGBAND */
 
-	td->map_tile_wid = (td->tile_wid * td->cols) / DUNGEON_WID;
-	td->map_tile_hgt = (td->tile_hgt * td->rows) / DUNGEON_HGT;
+	td->map_tile_wid = (td->tile_wid * td->cols) / MAX_DUNGEON_WID;
+	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_DUNGEON_HGT;
 
 	min_x = 0;
 	min_y = 0;
-	max_x = DUNGEON_WID;
-	max_y = DUNGEON_HGT;
+	max_x = MAX_DUNGEON_WID;
+	max_y = MAX_DUNGEON_HGT;
 
 #endif /* ZANGBAND */
 

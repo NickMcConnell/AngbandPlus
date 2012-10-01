@@ -1,0 +1,244 @@
+
+====== Preferences ======
+
+     Information about options, usage of extra windows, colors and symbols, and
+macros can all be stored in preference files.  In addition, you can customize
+the game in many other ways and save these preferences to file.
+
+
+--- The priority order of preference files ---
+
+     Whenever the game starts up, and whenever it creates or loads a character,
+it opens various preference files and modifies various things according to
+instructions in them.  The preference files below are listed in descending order
+of priority:  anything in higher files overrides anything in a file below it.
+
+"lib/user/<<base name of character>>.prf"
+     May contain options, color definitions, attr/char remappings (what
+monsters, objects, and features look like), and many other things.  Anything in
+this file is guaranteed to override anything in any other file.
+     What is the "base name" of your character?  It is the name of your
+character, usually with non-alphabetic, non-numeric characters translated to
+'_'s, and (on IBM/DOS) shortened to eight characters.  You may check the base
+name by trying to save macros or keymaps.
+
+"lib/user/<<character race>>.prf"
+     Any preferences that you want to apply to all characters of a given race
+should go here.
+
+"lib/user/<<character class>>.prf"
+     Any preferences that you want to apply to all characters of a given class
+should go here.
+
+"lib/user/user.prf"
+     Any preferences that you want to apply to all of your characters should go
+here.
+
+"lib/pref/user.prf"
+     This file is loaded just before the one above it.  Links to system-specific
+user-preference files, which tend to be used by porters to customize the game in
+ways that they think users of their system will appreciate.  For example, "user-
+mac.prf" includes a bunch of extra macros.
+
+
+Your character's savefile
+     Always contains your current options and window settings.  Never contains
+macros, keymaps, or visual preferences (these all need to be saved in an
+external file).
+
+     Many players need no other preference files and can stop reading here.
+
+
+"lib/pref/font.prf":  The basic text-mode preference file.
+     Links to font.xxx.prf, which defines the exact colors for all spells and
+objects in text mode, and contains the default colors used to display object
+descriptions in inventory (wizard books are light red, priest books are light
+green, etc.).
+     Also links to system-specific text-mode preference files (font-ibm.prf,
+font-win.prf, etc.).  Each of these files assigns new text-mode characters and
+attributes (colors) for objects, monsters, features, etc.  For example, "font-
+ibm.prf" changes dungeon walls from '#'s to solid blocks.
+
+"lib/pref/flvr-xxx.prf":  graphics for individual flavors of objects.
+     Links to flvr-new.prf, which handles Adam Bolt's 16x16 graphics, and to
+flvr-dvg, which handles David Gervais's 32x32 graphics.
+
+"lib/pref/graf.prf":  The basic graphics-mode preference file.
+     Links to font.xxx.prf (but later overrides a lot of the information it
+contains).
+     Also links to system-specific graphics-mode preference files, all of which
+then link to one of two files:
+graf-xxx.prf:  The preference file used for 8x8 graphics.
+     Each color of objects and spell effects, and each individual terrain and
+monster, are assigned their own graphical representation.
+graf-new.prf:  The preference file used for Adam Bolt's 16x16 graphics.
+graf-dvg.prf:  The preference file used for David Gervais's 32x32 graphics.
+
+"lib/pref/pref.prf":
+     This is the source of most default settings except for char/attr
+remappings.  It contains the default values of options and the keymaps for the
+original and roguelike keysets.  Links to the file "message.prf", which controls
+the colors of messages.  Links to system-specific general preference files
+(pref-x11.prf, pref-gcu.prf, etc.).  These contain system-specific keymappings
+and allow the game to recognize your keyboard.
+
+message.prf:  Message colors.
+     Each message can be assigned to a type; each type may have one or more
+sounds and a color associated with it.
+
+
+--- Writing your own preference files ---
+
+     All preference files use a common system to store information.  You must be
+careful of two things:
+1) Make sure that the file will actually be loaded.  It needs to be one of the
+files mentioned above, or be called by one of those files.
+2) Watch out for automatic preference dumps.  If you try to edit anything
+between the special markers, your changes will be lost.  The solution is to skip
+past all the automatic stuff, and put your changes at the bottom, below the last
+marker.
+
+List of preference file instructions:
+
+%:human.prf      :  open up the file "lib/pref/human.prf" or
+"lib/user/human.prf"
+     and read it.  If both files exist, rules in the latter takes priority.
+
+R:0:w/@          :  The monster, with index 0 (zero), will be white ('w'),
+     and be represented with a '@'.
+
+R:0:0x8C/0x80    : The monster, with index 0 (zero), will get the graphical
+     tile at position (0x8C - 0x80), (0x80 - 0x80) = row 12, column 0.  Note
+     that values above 0x7F (127) indicate the use of graphics.
+
+K:50:v/~         :  The object, with index 50, will be violet ('v'), and be
+     represented with a '~'.
+
+K:50:0x83/0x96   : The object, with index 50, will get the graphical
+     tile at position (0x83 - 0x80), (0x96 - 0x80) = row 3, column 22.
+
+F:1:1/249        :  The feature, with index 1, will be white (color 1), and
+     be represented by the character in ASCII position 249 (a centered dot)
+
+S:0xB1:0x01/0x2D : Index B1 (177) of the flavor table will contain the color
+     1 (white) and the character in ASCII position 45 ('-').  A detailed
+     look at how the flavor table works is beyond the scope of this document;
+     suffice it to say that all characters used to display spell effects, and
+     all object kinds with flavors, get 16 entries in the flavor table, one
+     for each color.
+
+E:90:0x0C        : Tval 90 (magic books) will display in the inventory and
+     various listing as color 0x0C (light red).
+
+A:R*\r           : The next key listed will be mapped to this set of
+     actions (can be either a keymap or a macro).
+
+C:0:x            : The previous action listed is a keymap, is active in the
+     original keyset (set 0), and will be activated by typing 'x'.
+
+P:1:^O           : The previous action listed is a macro, is active in the
+     roguelike keyset (set 1), and will be activated by typing control-'O'.
+
+V:1:0x00:0xff:0xff:0xff   :  The color in position 1 (white), will have a
+     special value of 0x00 (zero), a red-value of 0xff (255), a green-value
+     of 0xff, and a blue-value of 0xff.
+
+X:rogue_like_commands  :  The "rogue_like_commands" option will be off.
+
+Y:rogue_like_commands  :  The "rogue_like_commands" option will be on.
+
+W:2:6:1          : Window 2 (the third one), will display window display #6
+     (display messages), and be active (1) as opposed to inactive (0).
+
+M:1:w            : Message type 1 (standard hit message) will appear white.
+
+D:4              : The delay factor will be 4 (squared).
+
+H:3              : The hitpoint warning will be at 30%.
+
+?:<<text>>       : A conditional expression.  If true, allows another
+     line to activate.  The tests include:
+     AND     - logical AND
+     IOR     - inclusive OR
+     EQU     - (string) equals
+     NOT     - logical negation
+     LEQ     - (string) less than or equal to
+     GEQ     - (string) greater than or equal to
+     [,]     - group expressions
+     $CLASS  - current class
+     $GRAF   - 3-letter graphics abbr in "graf-***.prf" (old, new)
+     $PLAYER - current player name
+     $RACE   - current race
+     $CLASS  - current class
+     $SYS    - 3-letter system abbr in "pref-***.prf" (ami, mac, win,...)
+               See the usage in "lib/pref/pref.prf", etc.
+
+
+
+====== Visuals, colors, and multimedia ======
+
+Interact with Visuals:  (command: '%') :
+     You may adjust the character and attribute (color) used to display objects,
+monsters, and terrain features.
+     1) Update your preferences with a specific user preference file.
+     2) Save your current monster visuals to file.
+     3) Save your current object visuals to file.
+     4) Save your current terrain visuals to file.
+     %) Save your current flavor preferences to file.
+     6) Change monster visuals.
+     7) Change object visuals.
+     8) Change terrain visuals.
+     9) Change the symbol and flavor used for many kinds of objects.
+     0) Reset visuals to their last saved values (undo all changes).
+
+     When changing visuals, you may type the following keys:
+     n: advance one (wrap around if at the end)
+     N: go back one (wrap around if at the beginning)
+     a: change to the next color (wrap around if at color 15)
+     A: change to the previous color (wrap around if at color 0)
+     c: change to the next character in the ASCII sequence (wrap around at 255)
+     C: change to the previous character (wrap around if at 0)
+
+     A good way to get used to the interface is to choose option 6:  change
+monster visuals, note that the first "monster" is your character, and change it
+from a white '@' to something silly.  Leave, see how weird you look, come back,
+and (if you like) press '0' to reset the visuals.
+     Remember to type Control-R after making any changes.
+
+
+
+Interact with colors:  (command '&') :
+     In the interact with colors display, you have three options available:
+     1) Update your preferences with a specific user preference file.
+     2) Save your colors to file.
+     3) Modify colors.
+
+     When changing colors, you may issue the following commands:
+     n: go to the next color (wraps around at 255)
+     N: go back one (wrap around if at 0)
+     k: change a value (possibly the gamma correction?)
+     K: change a value (possibly the gamma correction?)
+     r: increase the red in this color (wraps around at hex value 0xff)
+     R: decrease the red in this color (wraps around at hex value 0x00)
+     g: increase the green in this color (wraps around at hex value 0xff)
+     G: decrease the green in this color (wraps around at hex value 0x00)
+     b: increase the blue in this color (wraps around at hex value 0xff)
+     B: decrease the blue in this color (wraps around at hex value 0x00)
+
+     Note that, while the game is theoretically capable of using more than 16
+colors, it is not currently set up to do so.  Also, color 0 should not be
+changed.
+
+     Remember to type Control-R after making any changes.
+
+
+Interact with multimedia:  (command '!') :
+     Some ports of this game (but not all) will play sounds and music.  If your
+port is one of them, you can adjust volumes, turn sounds off and on entirely,
+and tweak various other things.
+
+
+
+
+
+

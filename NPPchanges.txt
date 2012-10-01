@@ -1,6 +1,94 @@
-Version 0.1.1 (bugfixes)
+Version 0.2.0 
 
-fixed: names of killed uniques didn't appear in notes file if player was blind, unique was invisible 
+New features:
+
+Added EYAngband-style quests.
+Added EYAngband small levels and option to always have small levels
+All classes get better chance to hit sleeping monster
+
+Rogues get new abilities (from Oangband):
+extra shot with sling at level 26
+unusually gifted with slings, better to-hit and to-dam
+get additional to-hit and to-dam when throwing well-balanced weapons
+unusually higher chance to hit sleeping monster
+ability to set traps, set advanced monster traps, and steal items
+from monsters. (one trap to begin, and second trap at level 26)
+/*warning, failing to steal has some very negative consequences*/
+
+Added Leon Marrick's modified help files and re-edited them for NPPAngband.
+Added throwing weapons and well balanced weapons.  They are easier to hit with & 
+they do extra damage.
+Players start with equipment wielded.
+Took interactive startup menus from EYAngband.
+Added minimum depth for monsters during creation.  Weaker monsters don't appear 
+deeper.
+Players don't use full energy if they use less than max# of attacks
+to kill a monster.
+Modified the file dump to include a chart of resist flags, stat increases and 
+sustains due to equipment.
+Added additional player screens which show chart of resist flags, stat
+Increases and sustains due to home inventory.
+Changed "A" monsters from Angels to "Ainur", and modified a couple other 
+monsters.
+Adjusted speeds of some monsters to +5, +15, or +25.
+Made probing more informative.
+Added "Create Monster Trap" scroll.
+Rangers only get one extra shot with bow, at level 26.
+Warriors get an extra attack at level 26(but a max of 5 from the weapon, for a 
+total of 6).
+Made "young_dragon" nests more common, humaniod nests deeper, & animal pits 
+rarer.
+Some nests will occasionally use the highest level monsters
+rather than every other monster out of 16 chosen. 
+Some pits will occasionally use only the harder half of the 64 chosen monsters. 
+Chance of avoiding theft not 100% until dex is 18/180.
+Rods may be recharged, with a chance of destroying them.
+Messages for temporary resists now factor in the appropriate permanant resist
+(ex. a player who is immune to cold will not get message "you feel more
+ resistant to cold" when they quaff a potion of resist cold)
+Altered parsing routine to allow for uber-flags (ex. resist_all), from 
+SCthAngband.
+Added some uber-flags (ex...im_elem, no_charm, drop_up_to_14 items)
+Staffs now stack like the wands/rods.
+The stun counter stops increasing when a player is knocked out, so players 
+have a much better chance of avoiding the "knocked out" instadeath.
+Adjusted the way chest themes are derived, and made larger chests
+have more great items than smaller chests.
+Smaller chests are now more common.
+Large jeweled chests replace ruined chests, and have more items.
+Many Greater Vaults how have chests in them.
+Chests with potions, scrolls, rods/wands/staffs now more common.
+Tweaked the items that can be in a chest.
+Players are now much more likely to enter a dungeon next in a corner or hallway
+rather than a room.
+Removed debug information from executable file. Executable file is now
+three times smaller, and much quicker.
+Changed all references of "Multi-Hued" to "Chromatic"
+Added random name generator as option for character during birth.
+Randarts are less likely to aggravate.
+Made the first winner's (Matthias Kurzke) character, (Tim, a hobbit rogue) into 
+a black market shopkeeper.
+
+bugfixes:
+fixed: several typos in the options menu
+fixed: partially destroying stacks of wands, rods, and staffs now shows the 
+proper amount
+	of charges by which the stack is being reduced.
+fixed: notes patch could be turned on & off in mid-game, should be birth option
+fixed: buffer problems in writing messages to a file with the birth_take_notes 
+option
+fixed: Special note wasn't written to notes file when a player was dead, or when 
+Morgoth killed
+fixed: The HTML screenshot meta tag indicated an Angband 3.0.3 screen dump. HTML 
+file now indicates an NPPAngband screen dump.
+fixed: The name of greater vaults wasn't showing up right in the notes file.
+
+
+
+Version 0.1.1 (all bugfixes)
+
+fixed: names of killed uniques didn't appear in notes file if player was blind, 
+unique was invisible 
 	or out of LOS when killed
 fixed: player notes didn't properly indicate player depth
 fixed: artifacts made it to the notes patch multiple times, and
@@ -15,50 +103,69 @@ Version 0.1.0
 
 *	Added support for describing monsters speed at +5 (somewhat quickly), +15 
 (exceedingly quickly), and +25 (extremely quickly). 
-*	Added patch to change player's color as their hit-points drop. This is an option 
+*	Added patch to change player's color as their hit-points drop. This is an 
+option 
 found under "display options". 
 *	Increased chance of increased damage dice and to hit dice on weapons, and 
 increased changes in increased damage dice on ammunition. 
 *	Decreased level boost from dragon scale mail to +10. 
 *	Reduced level boost from powerful amulets to +10. 
-*	Amulets & spell books are generated as a guaranteed "good" only if out of depth. 
-*	Added option to go up or down additional flight of stairs some of the time (from 
+*	Amulets & spell books are generated as a guaranteed "good" only if out of 
+depth. 
+*	Added option to go up or down additional flight of stairs some of the time 
+(from 
 Oangband). 
 *	Added "themed chests", similar to Oangband. There are 16 themes, and may 
 frequently contain guaranteed good or great objects. 
 *	Chests now increase level rating by +5. 
-*	Added different templates for "great items" rather than good items. There are 
+*	Added different templates for "great items" rather than good items. There 
+are 
 several things in the good list aren't in the great list (such as spellbooks).   
-*	Changed the object generation code so that the "great" flag no longer needs the 
-"good" flag to produce a great item. The "great" flag without the "good" flag will 
+*	Changed the object generation code so that the "great" flag no longer 
+needs the 
+"good" flag to produce a great item. The "great" flag without the "good" flag 
+will 
 produce a great item, but it only gets one chance instead of four to become an 
 artifact. This was done as a way to keep the new style chests from becoming too 
 powerful. 
 *	Added Dr. Whites Monster Lite patch. 
 *	Added Eytan Zwieg's vault flipping patch. 
-*	Added a note taking patch, this is a birth option (birth_take_notes), and needs to be 
-specified before the character is started. I did a significant re-write of this patch. 
+*	Added a note taking patch, this is a birth option (birth_take_notes), and 
+needs to be 
+specified before the character is started. I did a significant re-write of this 
+patch. 
 Comments can be written to a file, and they will automatically print out in a 
-character dump. In addition, it automatically records the turn, level of char, and 
-dungeon level of certain events, such as: the killing of uniques, finding of artifacts, 
-and greater vaults created, when a player is killed or wins the game, and every time 
-the character gains a new level, but only if it is divisible by 5 (level 5, 10, 15, 20, 
-etc…). These notes automatically print out with the character dump. The formatting 
-on this feature isn't perfect yet, but I plan on finishing it after I incorporate 
+character dump. In addition, it automatically records the turn, level of char, 
+and 
+dungeon level of certain events, such as: the killing of uniques, finding of 
+artifacts, 
+and greater vaults created, when a player is killed or wins the game, and every 
+time 
+the character gains a new level, but only if it is divisible by 5 (level 5, 10, 
+15, 20, 
+etc…). These notes automatically print out with the character dump. The 
+formatting 
+on this feature isn't perfect yet, but I plan on finishing it after I 
+incorporate 
 EYAngband's resistance system. 
 *	Added rod-wand-stacking based on Oangband 0.6.0. 
-*	Reduced delay when using the autoroller to create a character. Should be 10 times 
+*	Reduced delay when using the autoroller to create a character. Should be 
+10 times 
 faster. 
 *	Added DarkGod's html screen dump patch. 
-*	Dropped Items may now be specified by theme. Code is mostly in place to create 
+*	Dropped Items may now be specified by theme. Code is mostly in place to 
+create 
 themed monster drops. Currently, the themed drops are used in chest opening & 
 vault creation (chests w/ monster 40 levels OOD).  
 *	Added the autosquelch patch. I made some minor changes to the sub-quality 
-squelching menu. For rings and amulets, there are only three levels (none, cursed, 
-and all but artifact). I also added in the option to automatically squelch chests after 
+squelching menu. For rings and amulets, there are only three levels (none, 
+cursed, 
+and all but artifact). I also added in the option to automatically squelch 
+chests after 
 they are opened.
  
-*	I deliberately made almost no changes to the edit files, so the first version will give 
+*	I deliberately made almost no changes to the edit files, so the first 
+version will give 
 almost the the exact same playability as Angband v 3.0.3. with some nice options 
 that Angband, IMHO, should contain, such as rod/wand stacking, screen dumps 
 and autosquelch. The only changes in the edit files are:
@@ -77,8 +184,10 @@ right now. I plan on adding more types of Ogres, but I am deliberately
 holding that until the next version of NPP Angband so this one keeps as 
 close as possible to 100% Angband 3.0.3 playability. 
 
-*  Six new types of monster vaults and pits. The ogre pits are a little bland right 
-now. I plan on adding more types of Ogres, but I am deliberately holding that until 
+*  Six new types of monster vaults and pits. The ogre pits are a little bland 
+right 
+now. I plan on adding more types of Ogres, but I am deliberately holding that 
+until 
 the next version of NPP Angband so this one keeps as close as possible to 100% 
 Angband 3.0.3 playability. 
 *  There is a minimum depth enforcer when selecting the type of Monster Pit or 

@@ -1679,10 +1679,19 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_ALTER_REALITY:
 		{
-			msg_print("The world changes!");
+			/* Ironman */
+			if (adult_ironman && !p_ptr->total_winner)
+			{
+				msg_print("Nothing happens.");
+			}
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+			else
+			{
+				msg_print("The world changes!");
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
 
 			break;
 		}

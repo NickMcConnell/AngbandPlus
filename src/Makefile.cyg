@@ -48,6 +48,7 @@ EXOBJS = \
 	obj-info.o \
 	object1.o \
 	object2.o \
+	quest.o\
 	randart.o \
 	readdib.o \
 	save.o \
@@ -248,6 +249,9 @@ object1.o: object1.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 object2.o: object2.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+quest.o: quest.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 randart.o: randart.c $(INCS) init.h

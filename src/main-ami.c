@@ -3779,8 +3779,8 @@ static int size_gfx( term_data *td )
 	td->gfx_h = (GFXH / tileh) * td->fh;
 
 	/* Calculate map bitmap dimensions */
-	td->mpt_w = td->ww / DUNGEON_WID;
-	td->mpt_h = td->wh / DUNGEON_HGT;
+	td->mpt_w = td->ww / MAX_DUNGEON_WID;
+	td->mpt_h = td->wh / MAX_DUNGEON_HGT;
 
 	td->map_w = td->mpt_w * tilenumw;
 	td->map_h = td->mpt_h * tilenumh;
@@ -4001,8 +4001,8 @@ static void amiga_map(void)
 	int i, j;
 	byte a, ta;
 	char c, tc;
-	int cur_wid = DUNGEON_WID
-	int cur_hgt = DUNGEON_HGT;
+	int cur_wid = MAX_DUNGEON_WID
+	int cur_hgt = MAX_DUNGEON_HGT;
 
 	/* Only in graphics mode, and not on Kickstart1.3 */
 	if (!use_graphics || KICK13) return;
@@ -5067,7 +5067,7 @@ void amiga_hs_to_ascii(void)
 	/* Reconfigure Date */
 	if ((*when == '@') && strlen(when) == 9)
 	{
-		sprintf(date_temp, "%.2s-%.2s-%.4s", 
+		sprintf(date_temp, "%.2s-%.2s-%.4s",
 			when+7, when+5, when+1);
 	}
 	else
@@ -5113,7 +5113,7 @@ void amiga_hs_to_ascii(void)
 }
 
 /* Provides name of the last used save file in 'buf', by reading
-   'user/data-ami.prf'. This is a hack, but works for most player names. 
+   'user/data-ami.prf'. This is a hack, but works for most player names.
    Insert in main.c */
 void amiga_user_name( char *buf )
 {

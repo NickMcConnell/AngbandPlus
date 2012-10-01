@@ -1,30 +1,26 @@
-Welcome to the Angband Online Help System.
+                   Adventuring in the Pits of Angband
 
-Please choose one of the following online help files:
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) Playing the Game           (playing.txt)
-    (6) Command Descriptions       (command.txt)
-    (7) Option Descriptions        (option.txt)
-    (8) Version Information        (version.txt)
-    (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) User Menu (if any)         (user.hlp)
 
-Browser/help commands:
-  #     go to line         %  go to file         ?  go to last file/main menu
-  SPACE advance 1 page     -  back up 1 page     /  search for text
-  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
-  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] playing.txt
-***** [6] command.txt
-***** [7] option.txt
-***** [8] version.txt
-***** [9] spoiler.hlp
-***** [0] user.hlp
+    (1) The Basics                                        (general.hlp)
+    (2) Your Character                                    (charattr.hlp)
+    (3) The World                                         (explore.hlp)
+    (4) Interacting with the Game                         (command.hlp)
+    (5) Combat and Magic                                  (combat.hlp)
 
+    (6) Review Commands                                   (cmdlist.txt)
+
+
+
+
+Help Commands:
+       ESC   : leave the online help
+       ?     : return to previous document or menu
+       space : advance one page
+       -     : back up one half page
+       /     : search (not case-sensitive)
+***** [1] general.hlp
+***** [2] charattr.hlp
+***** [3] explore.hlp
+***** [4] command.hlp
+***** [5] combat.hlp
+***** [6] cmdlist.txt

@@ -356,9 +356,19 @@ static bool describe_sustains(const object_type *o_ptr, u32b f2)
  */
 static bool describe_misc_magic(const object_type *o_ptr, u32b f3)
 {
-	cptr good[6], bad[4];
+	cptr good[7], bad[4];
 	int gc = 0, bc = 0;
 	bool something = FALSE;
+
+	/* Throwing weapons. */
+	if (f3 & (TR3_THROWING))
+	{
+		if (o_ptr->ident & IDENT_PERFECT_BALANCE)
+		{
+			good[gc++] = ("can be thrown hard and fast");
+		}
+		else good[gc++] = ("can be thrown effectively");
+	}
 
 	/* Collect stuff which can't be categorized */
 	if (f3 & (TR3_BLESSED))     good[gc++] = "is blessed by the gods";
@@ -491,7 +501,7 @@ static void screen_out_head(const object_type *o_ptr)
 {
 	char *o_name;
 	int name_size = Term->wid;
-	
+
 	/* Allocate memory to the size of the screen */
 	o_name = C_RNEW(name_size, char);
 
@@ -551,3 +561,4 @@ void object_info_screen(const object_type *o_ptr)
 
 	return;
 }
+

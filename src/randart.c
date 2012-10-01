@@ -1,4 +1,3 @@
-/* File: randart.c */
 
 
 /*
@@ -35,7 +34,7 @@ static cptr names_list =
 "aglarond\n"
 "aglon\n"
 "ainulindale\n"
-"ainur\n"
+"Ainur\n"
 "alcarinque\n"
 "aldaron\n"
 "aldudenie\n"
@@ -625,6 +624,7 @@ static cptr names_list =
 "yavanna\n"
 ;
 
+
 #define MAX_TRIES 200
 #define BUFLEN 1024
 
@@ -750,6 +750,21 @@ startover:
 	return (word_buf);
 }
 
+void make_random_name(void)
+{
+	char *temporary;
+
+	/*build the database of letter frequency*/
+	build_prob(names_list);
+
+	/*get the randomly generated word*/
+	temporary = make_word();
+
+	/* Hack - assume name will be accepted. */
+	my_strcpy(op_ptr->full_name, temporary, sizeof(op_ptr->full_name));
+
+	return;
+}
 
 /*
  * Use W. Sheldon Simms' random name generator.
@@ -765,7 +780,7 @@ static errr init_names(void)
 	/* Temporary space for names, while reading and randomizing them. */
 	cptr *names;
 
-
+	/*build the database of letter frequency*/
 	build_prob(names_list);
 
 	/* Allocate the "names" array */
@@ -1073,13 +1088,13 @@ static s32b artifact_power(int a_idx)
 	if (a_ptr->flags2 & TR2_RES_NEXUS) p += 10;
 	if (a_ptr->flags2 & TR2_RES_CHAOS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_DISEN) p += 12;
-
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
 	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 8;
 	if (a_ptr->flags3 & TR3_TELEPATHY) p += 20;
 	if (a_ptr->flags3 & TR3_SLOW_DIGEST) p += 4;
 	if (a_ptr->flags3 & TR3_REGEN) p += 8;
+	if (a_ptr->flags3 & TR3_PERFECT_BALANCE) p += 12;
 	if (a_ptr->flags3 & TR3_TELEPORT) p -= 20;
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) p -= 16;
 	if (a_ptr->flags3 & TR3_AGGRAVATE) p -= 8;
@@ -1455,6 +1470,12 @@ static void add_ability(artifact_type *a_ptr)
 			case TV_POLEARM:
 			case TV_SWORD:
 			{
+				/*give throwing weapons a chance to be balanced*/
+				if ((a_ptr->flags3 & TR3_THROWING) && (randint (2) == 1))
+				{
+					a_ptr->flags3 |= (TR3_PERFECT_BALANCE);
+				}
+
 				if (r < 4)
 				{
 					a_ptr->flags1 |= TR1_WIS;
@@ -1833,7 +1854,7 @@ static void add_ability(artifact_type *a_ptr)
  */
 static void do_curse(artifact_type *a_ptr)
 {
-	if (rand_int(3) == 0)
+	if (rand_int(7) == 0)
 		a_ptr->flags3 |= TR3_AGGRAVATE;
 	if (rand_int(5) == 0)
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
@@ -2153,3 +2174,5 @@ static int i = 0;
 #endif /* MACINTOSH */
 
 #endif /* GJW_RANDART */
+
+

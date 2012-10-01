@@ -89,6 +89,7 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
+	byte oops;			/* Unused */
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
@@ -97,6 +98,8 @@ struct player_type
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
+
+	u16b fame;			/* Fame - used for quests */
 
 	s32b au;			/* Current Gold */
 
@@ -158,11 +161,12 @@ struct player_type
 
 	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
-	byte spell_order[PY_MAX_SPELLS]; /* Spell order */
+	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
+	char history[250];	/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -185,6 +189,9 @@ struct player_type
 
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
+
+	byte cur_map_hgt;		/* Current dungeon level hight */
+	byte cur_map_wid;		/* Current dungeon level width */
 
 	s32b total_weight;		/* Total weight being carried */
 
@@ -328,6 +335,8 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	u16b cur_quest;		/* Current quest */
 };
 
 

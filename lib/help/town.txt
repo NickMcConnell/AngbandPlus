@@ -1,0 +1,121 @@
+
+====== The Town ======
+
+     You begin your adventures in the town.  It consists of eight buildings,
+each with a shop entranceway, and is well populated.  The first time you are in
+town it will be daytime, but the sun rises and sets as time passes.
+
+Townspeople:
+     Most townsfolk are fairly harmless.  However, there are slippery-fingered
+thieves and armed killers that you need to avoid.  Fights will break out,
+though, so be prepared.  Since your character grew up in this world of intrigue,
+no experience is awarded for killing the town inhabitants, though you may
+acquire treasure.
+
+
+--- Stores ---
+
+     You enter buildings by walking onto their entranceways, which (in text
+mode) are represented by numbers from 1 to 8.
+     A new display then replaces the old.  You see the name and race of the
+store owner, the name of the store, and the maximum number of gold pieces that
+the store owner will pay for any one item.  Below it is displayed the inventory;
+if it is numerous, you may display another page by typing space.  Near the
+bottom of the screen is displayed a list of commonly-used commands.
+     - ESC:  leave the store.
+     - 'g' or 'p': get/purchase an item.
+     - 'd' or 's': drop/sell an item.
+     - 'l': look at an item (display any special properties, read spellbooks)
+
+The General Store ("1"):
+     Sells foods, drinks, cloaks, torches, lamps, oil, shovels, picks, spikes,
+and ammunition for missile launchers.  Buys items of these types and some
+others.
+
+The Armoury ("2"):
+     Buys and sells every kind of armour.
+
+The Weaponsmith's Shop ("3"):
+     Buys and sells melee weapons, missile launchers, and ammunition.
+
+The Temple ("4"):
+     Buys and sells blunt weapons, healing and restoration supplies, prayer
+books, and various other holy items.
+
+The Alchemy Shop ("5"):
+     Buys and sells potions and scrolls.
+
+The Magic Shop ("6"):
+     Buys and sells magic books, rings, amulets, wands, rods, and staffs.  Also
+buys potions and scrolls.
+
+The Black Market ("7"):
+     The Black Market will buy and sell anything at extortionate prices.
+However, it occasionally has VERY good items in it.  The shopkeepers are not
+known for their tolerance...
+
+Your Home ("8"):
+     Here you may store objects that you cannot carry on your travels or will
+need later.
+
+The Adventurer's Guild ("9"):
+     Here you may take on quests and recieve rewards when you have completed
+a quest.
+
+
+--- Buying and Selling ---
+
+The Price of Items:
+     The price of items that change hands depends on their base cost, how well
+your and the store owner's races get along*, your Charisma, and the innate
+greediness of the store owner.  If you have the "auto_haggle" option set, you
+pay an extra 10% when buying, and get 10% less when selling.
+
+     * Everyone likes their own race best
+     * Nobody else likes Half-Orcs and Half-Trolls; the feeling is mutual.
+     * Elves and Dwarves are not very fond of each other; elves have better
+       relations with humans than do dwarves
+
+     If you have the "auto_haggle" option set, you simply pay the going rate.
+Otherwise, you haggle for everything that isn't marked as being fixed price.
+
+Haggling:
+     If you are selling something, a typical haggling session starts with the
+shopkeeper assuring you that a good price is maybe 1-25% of what the item is
+really worth.  You demand many times this, and the bargaining begins.  You bring
+your price closer to the shopkeeper's offer, and he then does the same for you.
+The best way to change a price is to enter "-20" or "+20", instead of retyping a
+new figure.  After some rounds, you and the shopkeeper will meet somewhere in
+the middle.
+     The key to success is to change your price neither too little (which will
+insult the shopkeeper) nor too much (which is a sign of inexperience, and will
+be taken advantage of).  Some shopkeepers like to haggle more, other are
+impatient and demand good offers, but you have always have enough leeway to
+succeed.
+     Just be careful not to antagonize the shopkeepers too much; if you do, you
+might be thrown out of the store, which will stay locked for maybe three or four
+days.  Fortunately, shopkeepers are forgiving souls:  as time passes, they will
+forget any unhappiness you've caused them.  Shopkeepers also forget an insult
+every time you buy or sell anything.
+
+Store Stocks:
+     Stores never have everything in stock; as time passes, their inventory
+slowly changes (but only when you are in the dungeon).  The store owner fully
+identifies everything you sell him; you also become aware of objects of that
+type.
+
+Shopkeepers can retire and be replaced:
+     Shopkeepers do retire, but only rarely.  The new shopkeeper has no
+knowledge of your previous reputation, and no memory of any past insults.  He
+puts everything in the store on sale.
+
+
+
+
+
+
+
+
+
+
+

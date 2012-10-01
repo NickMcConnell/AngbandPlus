@@ -1,6 +1,6 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
+NPPAngband is a roleplaying game, in which you, the player, control a character
 in the world of Angband.  Perhaps the most important thing you control is the
 birth of your character, in which you choose or allow to be chosen various
 attributes that will affect the future life of your character.
@@ -307,12 +307,14 @@ have intrinsic abilities.
                still cannot rely on their performance.  Rogues can also
                learn a few spells, but not the powerful offensive spells
                mages can use.  A rogue's primary stats are Dexterity and
-               Intelligence.
+               Intelligence.  He can set traps, and steal from monsters.  
+		   Failing to steal from a monster aggravates them.  Do it often
+		   Enough, and you will aggravate the entire dungeon.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter, and the
                best of all the classes with a missile weapon such as a bow.
-               The ranger learns spells much more slowly than a  mage,  but
+               The ranger learns spells much more slowly than a mage,  but
                is capable of learning all but the most powerful spells.
                Because a ranger is really a dual class character, more
                experience is required for him to advance.  A ranger has a
@@ -541,7 +543,7 @@ level, adjusted for constitution) and an XP modifier of 20+20=40%.
   Warrior    25(+10) 18(+7)  18(+10)  1(+0)  14(+0)   7(+0)  70(+45) 55(+45)
   Mage       30(+7)  36(+13) 30(+9)   2(+0)  16(+0)  20(+0)  34(+15) 20(+15)
   Priest     25(+7)  30(+10) 32(+12)  2(+0)  16(+0)   8(+0)  48(+20) 35(+20)
-  Rogue      45(+15) 32(+10) 28(+10)  5(+0)  32(+0)  24(+0)  60(+40) 66(+30)
+  Rogue      45(+15) 32(+10) 28(+10)  5(+0)  32(+0)  24(+0)  55(+40) 60(+30)
   Ranger     30(+8)  32(+10) 28(+10)  3(+0)  24(+0)  16(+0)  56(+30) 72(+45)
   Paladin    20(+7)  25(+10) 25(+11)  1(+0)  12(+0)   2(+0)  68(+35) 40(+30)
 
@@ -556,3 +558,5 @@ has.
 characters to each other in the absence of other bonuses from high stats 
 (strength bonus to-dam, dex bonus to-hit, wisdom bonus to saving throw,
 intelligence bonus to magical device usage, etc.) or wearing magical items.)
+
+

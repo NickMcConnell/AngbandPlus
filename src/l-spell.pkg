@@ -13,7 +13,7 @@ typedef int errr;
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
 #define SUMMON_HYDRA		14
-#define SUMMON_ANGEL		15
+#define SUMMON_AINUR		15
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
@@ -25,6 +25,7 @@ typedef int errr;
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
 #define SUMMON_KIN			33
+
 
 
 /*
@@ -118,6 +119,7 @@ extern bool apply_disenchant(int mode);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 
 extern void warding_glyph(void);
+extern bool make_monster_trap(void);
 extern void identify_pack(void);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
@@ -153,6 +155,7 @@ extern void aggravate_monsters(int who);
 extern bool banishment(void);
 extern bool mass_banishment(void);
 extern bool probing(void);
+extern bool make_monster_trap(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
 extern void lite_room(int y1, int x1);
@@ -182,6 +185,7 @@ extern bool fear_monster(int dir, int plev);
 extern bool teleport_monster(int dir);
 extern bool door_creation(void);
 extern bool trap_creation(void);
+extern bool make_monster_trap(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 extern bool curse_armor(void);

@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:3.0.3
+V:3.0.5
 
 
 # 0x00 --> <darkness>
@@ -70,55 +70,53 @@ G:':U
 N:5:broken door
 G:':u
 
-# 0x06 --> up stairs (perm)
+# 0x06 --> shop -- General Store (perm)
 
-N:6:up staircase
-G:<:w
-
-# 0x07 --> down stairs (perm)
-
-N:7:down staircase
-G:>:w
-
-# 0x08 --> shop -- general store (perm)
-
-N:8:General Store
+N:6:General Store
 G:1:U
 
-# 0x09 --> shop -- armoury (perm)
+# 0x07 --> shop -- armoury (perm)
 
-N:9:Armoury
+N:7:Armoury
 G:2:s
 
-# 0x0A --> shop -- weapon shop (perm)
+# 0x08 --> shop -- weapon shop (perm)
 
-N:10:Weapon Smiths
+N:8:Weapon Smiths
 G:3:w
 
-# 0x0B --> shop -- temple (perm)
+# 0x09 --> shop -- temple (perm)
 
-N:11:Temple
+N:9:Temple
 G:4:g
 
-# 0x0C --> shop -- alchemist (perm)
+# 0x0A --> shop -- alchemist (perm)
 
-N:12:Alchemy Shop
+N:10:Alchemy Shop
 G:5:b
 
-# 0x0D --> shop -- magic shop (perm)
+# 0x0B --> shop -- magic shop (perm)
 
-N:13:Magic Shop
+N:11:Magic Shop
 G:6:r
 
-# 0x0E --> shop -- black market (perm)
+# 0x0C --> shop -- black market (perm)
 
-N:14:Black Market
+N:12:Black Market
 G:7:D
 
-# 0x0F --> shop -- home (perm)
-
-N:15:Home
+# 0x0D --> shop -- home (perm)
+N:13:Home
 G:8:y
+
+# 0x0E --> shop -- Adventurer's Guild (perm)
+N:14:Adventurer's Guild
+G:9:v
+
+# 0x0F --> visible trap -- dagger pit
+
+N:15:dagger pit
+G:^:s
 
 # 0x10 --> visible trap -- trap door
 
@@ -384,4 +382,93 @@ M:60
 N:63:permanent wall
 G:#:w
 M:60
+
+# 0x40 --> monster trap -- basic
+
+N:64:monster trap (basic)
+G:^:y
+
+# 0x41 --> monster trap -- sturdy
+
+N:65:monster trap (sturdy)
+G:^:y
+
+# 0x42 --> monster trap -- slowing
+
+N:66:monster trap (slowing)
+G:^:y
+
+# 0x43 --> monster trap -- confusion
+
+N:67:monster trap (confusion)
+G:^:y
+
+# 0x44 --> monster trap -- poison
+
+N:68:monster trap (poison gas)
+G:^:y
+
+# 0x45 --> monster trap -- drain life
+
+N:69:monster trap (drain life)
+G:^:y
+
+# 0x46 --> monster trap -- shocking
+
+N:70:monster trap (lightning)
+G:^:y
+
+# 0x47 --> monster trap -- explosive
+
+N:71:monster trap (explosive)
+G:^:y
+
+# 0x48 --> monster trap -- portal
+
+N:72:monster trap (portal)
+G:^:y
+
+# 0x49 --> monster trap -- dispel monsters
+
+N:73:monster trap (dispel monsters)
+G:^:y
+
+# 0x4A --> monster trap -- unused
+
+N:74:monster trap
+G:^:y
+
+# 0x4B --> monster trap -- unused
+
+N:75:monster trap
+G:^:y
+
+# 0x4C --> monster trap -- unused
+
+N:76:monster trap
+G:^:y
+
+# 0x4D --> monster trap -- unused
+
+N:77:monster trap
+G:^:y
+
+# 0x4E --> monster trap -- unused
+N:78:monster trap
+G:^:y
+
+# 0x4F --> monster trap -- unused
+
+N:79:monster trap
+G:^:y
+
+# 0x50 --> up stairs (perm)
+
+N:80:up staircase
+G:<:w
+
+# 0x51 --> down stairs (perm)
+
+N:81:down staircase
+G:>:w
 

@@ -261,6 +261,7 @@ typedef int errr;
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
 #define SV_LUCERN_HAMMER		10	/* 2d5 */
+#define SV_THROWING_HAMMER		11	/* 2d5 */
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL				13	/* 2d6 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
@@ -586,7 +587,7 @@ typedef int errr;
 #define SV_SCROLL_PROTECTION_FROM_EVIL	37
 #define SV_SCROLL_RUNE_OF_PROTECTION	38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION	39
-/* xxx */
+#define SV_SCROLL_CREATE_MONSTER_TRAP	40
 #define SV_SCROLL_STAR_DESTRUCTION		41
 #define SV_SCROLL_DISPEL_UNDEAD			42
 /* xxx */
@@ -723,14 +724,38 @@ typedef int errr;
 /*
  * Special object flags
  */
-#define IDENT_SENSE     0x01	/* Item has been "sensed" */
-#define IDENT_FIXED     0x02	/* Item has been "haggled" */
-#define IDENT_EMPTY     0x04	/* Item charges are known */
-#define IDENT_KNOWN     0x08	/* Item abilities are known */
-#define IDENT_STORE     0x10	/* Item is in the inventory of a store */
-#define IDENT_MENTAL    0x20	/* Item information is known */
-#define IDENT_CURSED    0x40	/* Item is temporarily cursed */
-#define IDENT_BROKEN    0x80	/* Item is permanently worthless */
+#define IDENT_SENSE     		0x00000001	/* Item has been "sensed" */
+#define IDENT_FIXED     		0x00000002	/* Item has been "haggled" */
+#define IDENT_EMPTY     		0x00000004	/* Item charges are known */
+#define IDENT_KNOWN     		0x00000008	/* Item abilities are known */
+#define IDENT_STORE     		0x00000010	/* Item is in the inventory of a store */
+#define IDENT_MENTAL    		0x00000020	/* Item information is known */
+#define IDENT_CURSED    		0x00000040	/* Item is temporarily cursed */
+#define IDENT_BROKEN    		0x00000080	/* Item is permanently worthless */
+#define IDENT_QUEST     		0x00000100	/* Item is a quest item */
+#define IDENT_PERFECT_BALANCE   0x00000200	/* Item has perfect balance */
+#define IDENT_UNUSED_XXXXX4XX   0x00000400	/* Unused */
+#define IDENT_UNUSED_XXXXX8XX   0x00000800	/* Unused */
+#define IDENT_UNUSED_XXXX1XXX   0x00001000	/* Unused */
+#define IDENT_UNUSED_XXXX2XXX   0x00002000	/* Unused */
+#define IDENT_UNUSED_XXXX4XXX   0x00004000	/* Unused */
+#define IDENT_UNUSED_XXXX8XXX   0x00008000	/* Unused */
+#define IDENT_UNUSED_XXX1XXXX   0x00010000	/* Unused */
+#define IDENT_UNUSED_XXX2XXXX   0x00020000	/* Unused */
+#define IDENT_UNUSED_XXX4XXXX   0x00040000	/* Unused */
+#define IDENT_UNUSED_XXX8XXXX   0x00080000	/* Unused */
+#define IDENT_UNUSED_XX1XXXXX   0x00100000	/* Unused */
+#define IDENT_UNUSED_XX2XXXXX   0x00200000	/* Unused */
+#define IDENT_UNUSED_XX4XXXXX   0x00400000	/* Unused */
+#define IDENT_UNUSED_XX8XXXXX   0x00800000	/* Unused */
+#define IDENT_UNUSED_X1XXXXXX   0x01000000	/* Unused */
+#define IDENT_UNUSED_X2XXXXXX   0x02000000	/* Unused */
+#define IDENT_UNUSED_X4XXXXXX   0x04000000	/* Unused */
+#define IDENT_UNUSED_X8XXXXXX   0x08000000	/* Unused */
+#define IDENT_UNUSED_1XXXXXXX   0x10000000	/* Unused */
+#define IDENT_UNUSED_2XXXXXXX   0x20000000	/* Unused */
+#define IDENT_UNUSED_4XXXXXXX   0x40000000	/* Unused */
+#define IDENT_UNUSED_8XXXXXXX   0x80000000	/* Unused */
 
 
 /*
@@ -761,8 +786,8 @@ typedef int errr;
 #define TR1_DEX             0x00000008L /* DEX += "pval" */
 #define TR1_CON             0x00000010L /* CON += "pval" */
 #define TR1_CHR             0x00000020L /* CHR += "pval" */
-#define TR1_XXX1            0x00000040L /* (reserved) */
-#define TR1_XXX2            0x00000080L /* (reserved) */
+#define TR1_TR1XXX1         0x00000040L /* (reserved) */
+#define TR1_TR1XXX2         0x00000080L /* (reserved) */
 #define TR1_STEALTH         0x00000100L /* Stealth += "pval" */
 #define TR1_SEARCH          0x00000200L /* Search += "pval" */
 #define TR1_INFRA           0x00000400L /* Infra += "pval" */
@@ -794,12 +819,12 @@ typedef int errr;
 #define TR2_SUST_DEX        0x00000008L /* Sustain DEX */
 #define TR2_SUST_CON        0x00000010L /* Sustain CON */
 #define TR2_SUST_CHR        0x00000020L /* Sustain CHR */
-#define TR2_XXX1            0x00000040L /* (reserved) */
-#define TR2_XXX2            0x00000080L /* (reserved) */
-#define TR2_XXX3            0x00000100L /* (reserved) */
-#define TR2_XXX4            0x00000200L /* (reserved) */
-#define TR2_XXX5            0x00000400L /* (reserved) */
-#define TR2_XXX6            0x00000800L /* (reserved) */
+#define TR2_TR2XXX1            0x00000040L /* (reserved) */
+#define TR2_TR2XXX2            0x00000080L /* (reserved) */
+#define TR2_TR2XXX3            0x00000100L /* (reserved) */
+#define TR2_TR2XXX4            0x00000200L /* (reserved) */
+#define TR2_TR2XXX5            0x00000400L /* (reserved) */
+#define TR2_TR2XXX6            0x00000800L /* (reserved) */
 #define TR2_IM_ACID         0x00001000L /* Immunity to acid */
 #define TR2_IM_ELEC         0x00002000L /* Immunity to elec */
 #define TR2_IM_FIRE         0x00004000L /* Immunity to fire */
@@ -829,10 +854,10 @@ typedef int errr;
 #define TR3_SEE_INVIS       0x00000020L /* See Invis */
 #define TR3_FREE_ACT        0x00000040L /* Free action */
 #define TR3_HOLD_LIFE       0x00000080L /* Hold life */
-#define TR3_XXX1            0x00000100L
-#define TR3_XXX2            0x00000200L
-#define TR3_XXX3            0x00000400L
-#define TR3_XXX4            0x00000800L
+#define TR3_NEVER_PICKUP    0x00000100L /* monsters can't pick up item*/
+#define TR3_TR3XXX2         0x00000200L
+#define TR3_TR3XXX3         0x00000400L
+#define TR3_TR3XXX4         0x00000800L
 #define TR3_IMPACT          0x00001000L /* Earthquake blows */
 #define TR3_TELEPORT        0x00002000L /* Random teleportation */
 #define TR3_AGGRAVATE       0x00004000L /* Aggravate monsters */
@@ -841,15 +866,15 @@ typedef int errr;
 #define TR3_IGNORE_ELEC     0x00020000L /* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE     0x00040000L /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD     0x00080000L /* Item ignores Cold Damage */
-#define TR3_XXX5            0x00100000L /* (reserved) */
-#define TR3_XXX6            0x00200000L /* (reserved) */
+#define TR3_THROWING        0x00100000L /* Can be thrown for additional damage */
+#define TR3_PERFECT_BALANCE 0x00200000L /* Can be thrown for even more additional damage  */
 #define TR3_BLESSED         0x00400000L /* Item has been blessed */
 #define TR3_ACTIVATE        0x00800000L /* Item can be activated */
 #define TR3_INSTA_ART       0x01000000L /* Item makes an artifact */
 #define TR3_EASY_KNOW       0x02000000L /* Item is known if aware */
 #define TR3_HIDE_TYPE       0x04000000L /* Item hides description */
 #define TR3_SHOW_MODS       0x08000000L /* Item shows Tohit/Todam */
-#define TR3_XXX7            0x10000000L /* (reserved) */
+#define TR3_TR3XXX7            0x10000000L /* (reserved) */
 #define TR3_LIGHT_CURSE     0x20000000L /* Item has Light Curse */
 #define TR3_HEAVY_CURSE     0x40000000L /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE     0x80000000L /* Item has Perma Curse */
@@ -1182,7 +1207,7 @@ extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
-extern bool make_object(object_type *j_ptr, bool good, bool great, int chesttype);
+extern bool make_object(object_type *j_ptr, bool good, bool great, int objecttype);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
@@ -1220,3 +1245,5 @@ extern bool cursed_p(const object_type *o_ptr);
 
 extern bool object_info_out(const object_type *o_ptr);
 extern void object_info_screen(const object_type *o_ptr);
+extern bool make_monster_trap(void);
+

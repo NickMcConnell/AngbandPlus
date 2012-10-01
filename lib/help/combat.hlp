@@ -1,0 +1,24 @@
+                               Combat and Magic
+
+
+    (1) Non-Magical Combat                                (combat.txt)
+    (2) Defending Yourself                                (defence.txt)
+    (3) Object Attributes                                 (equip.txt)
+    (4) Magic                                             (magic.txt)
+
+
+
+
+
+
+
+Help Commands:
+       ESC   : leave the online help
+       ?     : return to previous document or menu
+       space : advance one page
+       -     : back up one half page
+       /     : search (not case-sensitive)
+***** [1] combat.txt
+***** [2] defence.txt
+***** [3] equip.txt
+***** [4] magic.txt

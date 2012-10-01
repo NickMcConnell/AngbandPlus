@@ -1,0 +1,118 @@
+QUESTS:
+(This file was last edited for NPPAngband 0.2.0)
+
+There are five different styles of quests in NPPAngband. There are two types of 
+fixed quests and three types of optional quests.
+
+FIXED QUESTS:
+
+"Vanilla" Angband has always had two standard fixed quests:
+
+Kill Sauron at 4950 feet.
+Kill Morgoth at 5000 feet.
+
+When one of these quests is completed, a staircase appears to allow a player to 
+go deeper in the dungeon. A player must kill Sauron at 4950 feet in order to be 
+able to meet Morgoth. Defeating Morgoth, or completing both quests, wins the 
+game. These quests are unchanged for every game.
+
+NPPAngband version 0.2.0 has incorporated the EYAngband style quest system, 
+which work as follows:
+
+FIXED UNIQUE QUESTS: 
+
+This is unchanged from Angband. The player always has two fixed quests, defeat Sauron and Morgoth, in order to win the game. The player cannot dive deeper than their native depths before completing these quests. 
+
+FIXED QUESTS:
+
+While coding support exists in NPPAngband to add additional fixed quests to kill 
+as assigned number of a given creature at a given depth, there are currently no 
+fixed quests in the game (just like EYAngband). Additional fixed quests could be 
+added by altering the quests.txt and limits.txt files, however this would 
+destroy savefile compatibility, and would need to be done before starting a new 
+game. (Note: Do not attempt this unless you know *exactly* what you are doing)
+
+OPTIONAL QUESTS:
+
+New to version 0.2.0 of NPPAngband is a town building called the Adventurer's 
+Guild. A player may choose to visit this building and receive a quest from the 
+Guild. A player can choose from an easy, medium, or hard quest, and occasionally 
+has the choice of a special (vault) quest. The guild will never assign more than 
+one optional quest at any time. Upon completion of an optional quest, the guild 
+gives a reward to the player. 
+
+At any given time, the status of the player's optional quest can be viewed by 
+pressing <CTRL-Q>.
+
+The Adventurer's Guild (building # 9 in the town) chooses what kind of quest the 
+adventurer is given. The guild can assign four different types of quests:
+
+MONSTER QUESTS- 
+
+This is the most common quest. The player is assigned to go to a specified 
+depth, usually 2-3 levels below the deepest level the player has gone, and kill 
+a certain number of monsters (usually around 11 creatures). The depth and number 
+of monsters varies, but typically quests will be assigned as follows:
+
+Easy Quests - Easy quests typically require the adventurer to kill between 5 and 
+17 creatures ranging from 2 to 5 levels out of depth (from the assigned quest 
+depth). 
+
+Medium quests - Medium quests typically require the adventurer to kill between 5 
+and 17 creatures ranging from 5 to 8 levels out of depth (from the assigned 
+quest depth). 
+
+Hard quests - Medium quests typically require the adventurer to kill between 5 
+and 17 creatures ranging from 8 to 11 levels out of depth (from the assigned 
+quest depth). 
+
+Note: The difficulty of the quest can vary greatly depending on the monster 
+selected, so occasionally an "easy" quest can be quite difficult, and 
+occasionally a relatively easy "hard" quest can be assigned. In addition, a 
+lesser number of creatures from deeper in the dungeon will occasionally be 
+assigned.  When the player is below 3500' (level 70), the standad number of 
+monsters assigned on a quest starts to increase.
+
+Unlike fixed quests, it is not mandatory to complete the quest in order to win 
+the game.  A player can choose to dive right past the designated quest level, or 
+leave and return to a quest level. Leaving an optional quest level without 
+killing the required number of creatures can result in a failed quest.  Failing 
+a quest greatly tarnishing the player's reputation at the guild. 
+
+UNIQUE QUESTS:
+
+Unique quests are similar to guild quests, except the quest is always to kill 
+one unique. The unique will be from several levels deeper than typical guild 
+quest monsters. The unique will always appear at the specified quest depth until 
+killed or the quest fails. Since Uniques tend to be more difficult to kill than 
+regular creatures, this type of quest tends to be more difficult than monster 
+quests. 
+
+SPECIAL, or VAULT QUESTS:
+
+This quest is to go to a specified depth and "retrieve a fabled treasure" and 
+return it to the guild, which is stored inside a chest. The chest is always 
+located in a vault guarded by monsters, on a small, or "arena", level. The chest 
+is special in that it cannot be opened by the player or picked up by a monster. 
+Returning the chest to the adventurer's guild completes the quest. The 
+difficulty of a vault quest is dependent on the monsters guarding the chest.
+
+REWARD:
+
+The biggest reason to take on an optional quest is the reward.  The quality of 
+the reward depends on two factors. The first factor is the selected difficulty 
+of the quest (easy, medium, hard, or special).  The second factor is the 
+player's reputation at the guild. The player's reputation at the guild is 
+increased by completing quests and by killing uniques. If an adventurer fails a 
+quest, by either leaving the quest level without completing the quest, or takes 
+too long to complete the quest, the adventurer's reputation with the guild is 
+greatly decreased. 
+
+Early in the game, the quest reward is usually gold.  As a players reputation at 
+the guild increases, the guild will choose to reward the player with stat gain 
+potions, or guaranteed good or guaranteed great equipment. If a players 
+reputation at the guild is high enough, the guild may attempt to tailor a great 
+item to the players biggest need, based on an evaluation of the equipment the 
+player is wearing, as well as the equipment in the players backpack and home.
+
+

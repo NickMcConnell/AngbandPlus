@@ -714,7 +714,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->ident);
+	wr_u32b(o_ptr->ident);
 
 	wr_byte(o_ptr->marked);
 
@@ -1037,6 +1037,8 @@ static void wr_extra(void)
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
+	wr_u16b(p_ptr->fame);
+
 	wr_u32b(p_ptr->au);
 
 	wr_u32b(p_ptr->max_exp);
@@ -1108,8 +1110,14 @@ static void wr_extra(void)
 	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
 	wr_byte(auto_destroy);
 
+	/* Store the number of thefts on the level. -LM- */
+	wr_byte(recent_failed_thefts);
+
+	/* Store number of monster traps on this level. -LM- */
+	wr_byte(num_trap_on_level);
+
 	/* Future use */
-	for (i = 0; i < 15; i++) wr_byte(0);
+	for (i = 0; i < 13; i++) wr_byte(0);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);
@@ -1218,8 +1226,8 @@ static void wr_dungeon(void)
 	wr_u16b(0);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
-	wr_u16b(DUNGEON_HGT);
-	wr_u16b(DUNGEON_WID);
+	wr_byte(p_ptr->cur_map_hgt);
+	wr_byte(p_ptr->cur_map_wid);
 	wr_u16b(0);
 	wr_u16b(0);
 
@@ -1231,9 +1239,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Extract the important cave_info flags */
 			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
@@ -1270,9 +1278,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_map_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_map_wid; x++)
 		{
 			/* Extract a byte */
 			tmp8u = cave_feat[y][x];
@@ -1432,22 +1440,43 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
-
 	/* Dump the object memory */
 	tmp16u = z_info->k_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
-
 	/* Hack -- Dump the quests */
-	tmp16u = MAX_Q_IDX;
+	tmp16u = z_info->q_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
+		wr_byte(q_info[i].type);
+
+		if ((q_info[i].type == QUEST_FIXED) || (q_info[i].type == QUEST_FIXED_U))
+		{
+			wr_byte(q_info[i].active_level);
+			wr_s16b(q_info[i].cur_num);
+		}
+
+		else if ((q_info[i].type == QUEST_GUILD) || (q_info[i].type == QUEST_UNIQUE))
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+
+			wr_s16b(q_info[i].mon_idx);
+
+			wr_s16b(q_info[i].cur_num);
+			wr_s16b(q_info[i].max_num);
+			wr_byte(q_info[i].started);
+		}
+		else if (q_info[i].type == QUEST_VAULT)
+		{
+			wr_byte(q_info[i].reward);
+			wr_byte(q_info[i].active_level);
+			wr_byte(q_info[i].base_level);
+		}
+
 	}
 
 	/* Hack -- Dump the artifacts */
@@ -1744,3 +1773,4 @@ bool save_player(void)
 	/* Return the result */
 	return (result);
 }
+
