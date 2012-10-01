@@ -305,6 +305,8 @@ void compact_objects(int size)
 	int i, y, x, num, cnt;
 
 	int cur_lev, cur_dis, chance;
+	
+	bool is_trap = FALSE;
 
 
 	/* Compact */
@@ -367,6 +369,8 @@ void compact_objects(int size)
 				x = o_ptr->ix;
 			}
 
+			if (cave_feat[y][x] == FEAT_MON_TRAP) is_trap = TRUE;
+			
 			/* Nearby objects start out "immune" */
 			if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis)) continue;
 
@@ -376,12 +380,21 @@ void compact_objects(int size)
 			/* Hack -- only compact artifacts in emergencies */
 			if (artifact_p(o_ptr) && (cnt < 1000)) chance = 100;
 
+			/* Another hack - try not to compact active traps */
+			if (is_trap && (cnt < 300)) chance = 100;
+			
+			/* Usually try to compact gold first */
+			if (o_ptr->tval == TV_GOLD) chance = 10;
+			
 			/* Apply the saving throw */
 			if (rand_int(100) < chance) continue;
 
 			/* Delete the object */
 			delete_object_idx(i);
 
+			/* Delete trap if we did */
+			if (is_trap) cave_set_feat(y, x, FEAT_FLOOR);
+			
 			/* Count it */
 			num++;
 		}
@@ -773,7 +786,7 @@ void object_tried(object_type *o_ptr)
  * Return the "value" of an "unknown" item
  * Make a guess at the value of non-aware items
  */
-static s32b object_value_base(object_type *o_ptr)
+static s32b object_value_base(const object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -833,7 +846,7 @@ static s32b object_value_base(object_type *o_ptr)
  *
  * Every wearable item with a "pval" bonus is worth extra (see below).
  */
-static s32b object_value_real(object_type *o_ptr)
+static s32b object_value_real(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -901,6 +914,7 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_TRAPKIT:
 		{
 			/* Hack -- Negative "pval" is always bad */
 			if (o_ptr->pval < 0) return (0L);
@@ -916,9 +930,9 @@ static s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_CON)) value += (o_ptr->pval * 200L);
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
 
-			/* Give credit for stealth and searching */
+			/* Give credit for stealth and sensing */
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
-			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
+			if (f1 & (TR1_SENSING)) value += (o_ptr->pval * 150L);
 
 			/* Give credit for infra-vision and tunneling */
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
@@ -995,6 +1009,7 @@ static s32b object_value_real(object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_SWORD:
 		case TV_POLEARM:
+		case TV_TRAPKIT:
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
@@ -1052,7 +1067,7 @@ static s32b object_value_real(object_type *o_ptr)
  *
  * Note that discounted items stay discounted forever.
  */
-s32b object_value(object_type *o_ptr)
+s32b object_value(const object_type *o_ptr)
 {
 	s32b value;
 
@@ -1073,12 +1088,17 @@ s32b object_value(object_type *o_ptr)
 	/* Known items -- acquire the actual value */
 	else
 	{
+#if 0		
 		/* Hack -- Felt broken items */
 		if ((o_ptr->ident & (IDENT_SENSE)) && broken_p(o_ptr)) return (0L);
 
 		/* Hack -- Felt cursed items */
 		if ((o_ptr->ident & (IDENT_SENSE)) && cursed_p(o_ptr)) return (0L);
-
+#else
+		/* Hack -- Felt cursed items */
+		if ((o_ptr->ident & (IDENT_SENSE)) && (o_ptr->discount < INSCRIP_AVERAGE))
+			return (0L);		
+#endif
 		/* Base value (see above) */
 		value = object_value_base(o_ptr);
 	}
@@ -1117,7 +1137,7 @@ s32b object_value(object_type *o_ptr)
  *
  * Chests, and activatable items, never stack (for various reasons).
  */
-bool object_similar(object_type *o_ptr, object_type *j_ptr)
+bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1180,6 +1200,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
+		case TV_TRAPKIT:
 		{
 			/* Fall through */
 		}
@@ -1194,7 +1215,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Fall through */
 		}
-
+		
 		/* Missiles */
 		case TV_BOLT:
 		case TV_ARROW:
@@ -1319,7 +1340,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
  *
  * These assumptions are enforced by the "object_similar()" code.
  */
-void object_absorb(object_type *o_ptr, object_type *j_ptr)
+void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1381,7 +1402,7 @@ void object_wipe(object_type *o_ptr)
 /*
  * Prepare an object based on an existing object
  */
-void object_copy(object_type *o_ptr, object_type *j_ptr)
+void object_copy(object_type *o_ptr, const object_type *j_ptr)
 {
 	/* Copy the structure */
 	COPY(o_ptr, j_ptr, object_type);
@@ -1451,6 +1472,8 @@ void object_prep(object_type *o_ptr, int k_idx)
  *
  * A sample distribution of values from "m_bonus(10, N)" is shown below:
  *
+ * MWK: Negative inputs will yield negative outputs
+ *
  *   N       0     1     2     3     4     5     6     7     8     9    10
  * ---    ----  ----  ----  ----  ----  ----  ----  ----  ----  ----  ----
  *   0   66.37 13.01  9.73  5.47  2.89  1.31  0.72  0.26  0.12  0.09  0.03
@@ -1474,11 +1497,20 @@ void object_prep(object_type *o_ptr, int k_idx)
 static s16b m_bonus(int max, int level)
 {
 	int bonus, stand, extra, value;
-
+        int sign = 1;
 
 	/* Paranoia -- enforce maximal "level" */
 	if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
+	/* Paranoia -- check for 0 */
+	if (max == 0) return (0);
+	
+	/* Were we called with negative input? */
+	if (max < 0)
+	{
+		max = 0 - max;
+		sign = -1;
+	}
 
 	/* The "bonus" moves towards the max */
 	bonus = ((max * level) / MAX_DEPTH);
@@ -1507,10 +1539,10 @@ static s16b m_bonus(int max, int level)
 	if (value < 0) return (0);
 
 	/* Enforce the maximum value */
-	if (value > max) return (max);
+	if (value > max) return (max * sign);
 
 	/* Result */
-	return (value);
+	return (value * sign);
 }
 
 
@@ -1552,9 +1584,9 @@ static void object_mention(object_type *o_ptr)
 /*
  * Attempt to change an object into an ego-item -MWK-
  * Better only called by apply_magic()
- * The return value is currently unused, but a wizard might be interested in it.
+ * The return value says if we picked a cursed item (if allowed)
  */
-static bool make_ego_item(object_type *o_ptr, bool cursed)
+static int make_ego_item(object_type *o_ptr, bool only_good)
 {
 	int i, j, level;
 
@@ -1571,7 +1603,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	if (o_ptr->name1) return (FALSE);
 	if (o_ptr->name2) return (FALSE);
 
-	level = p_ptr->depth;
+	level = object_level;
 
 	/* Boost level (like with object base types) */
 	if (level > 0)
@@ -1582,16 +1614,6 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 			/* The bizarre calculation again */
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
 		}
-	}
-
-	/*
-	 * Hack - *Cursed* items have a totally different level distribution
-	 * This is needed to obtain the old Weapons of Morgul distribution.
-	 */
-	if (cursed)
-	{
-		/* Probability goes linear with level */
-		level = p_ptr->depth + rand_int(127);
 	}
 
 	/* Reset total */
@@ -1612,9 +1634,8 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 		/* Get the actual kind */
 		e_ptr = &e_info[e_idx];
 
-		/* Test if this is a possible ego-item for value of (cursed) */
-		if (!cursed && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
-		if (cursed && !(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
+		/* If we force good/great, don't create cursed */
+		if (only_good && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
 		/* Test if this is a legal ego-item type for this object */
 		for (j = 0; j < 3; j++)
@@ -1640,7 +1661,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	}
 
 	/* No legal ego-items */
-	if (total <= 0) return (FALSE);
+	if (total <= 0) return (0);
 
 
 	/* Pick an ego-item */
@@ -1657,8 +1678,10 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	}
 
 	/* We have one */
-	o_ptr->name2 = (byte)table[i].index;
-	return (TRUE);
+	e_idx = (byte)table[i].index;
+	o_ptr->name2 = e_idx;
+	e_ptr = &e_info[e_idx];
+	return (e_ptr->flags3 & (TR3_LIGHT_CURSE) ? -2 : 2);
 }
 
 
@@ -1885,7 +1908,7 @@ static void charge_staff(object_type *o_ptr)
 
 
 /*
- * Apply magic to an item known to be a "weapon"
+ * Apply magic to an item known to be a "weapon" (or "trapping kit")
  *
  * Hack -- note special base damage dice boosting
  * Hack -- note special processing for weapon/digger
@@ -1975,7 +1998,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			{
 				/* Hack -- Super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(5L * o_ptr->dd * o_ptr->ds) == 0))
 				{
 					o_ptr->dd++;
 				}
@@ -1997,7 +2020,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			{
 				/* Hack -- super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(5L * o_ptr->dd * o_ptr->ds) == 0))
 				{
 					o_ptr->dd++;
 				}
@@ -2006,6 +2029,23 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
 			}
 
+			break;
+		}
+		
+		case TV_TRAPKIT:
+		{
+			/* Good */
+			if (power > 0) o_ptr->to_a += randint(5);
+			
+			/* Very good */
+			if (power > 1) o_ptr->to_a += randint(5);
+			
+			/* Bad */
+			if (power < 0) o_ptr->to_a -= randint(5);
+
+			/* Very bad */
+			if (power < -1) o_ptr->to_a -= randint(5);
+									
 			break;
 		}
 	}
@@ -2067,10 +2107,19 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 			/* Mention the item */
 			if (cheat_peek) object_mention(o_ptr);
-#if 0			
+			
 			/* Precognition */
-			if (p_ptr->precognition) msg_print("You sense dragons.");
-#endif
+			if (p_ptr->precognition)
+			{
+				/* Fail rather often */
+				if (randint(100) < 30) 
+				{
+					msg_print("You feel there is an extraordinary object around here.");
+				
+					/* Sometimes, give a full message */
+					if (randint(100) < 60) object_mention(o_ptr);
+				}
+                        }
 			break;
 		}
 	}
@@ -2087,7 +2136,17 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_3(object_type *o_ptr, int level, int power)
 {
+	
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	
+	/* Add random bonus */
+	o_ptr->pval += m_bonus(k_ptr->r_pval, level);
+	o_ptr->to_a += m_bonus(k_ptr->r_to_a, level);
+	o_ptr->to_h += m_bonus(k_ptr->r_to_h, level);
+	o_ptr->to_d += m_bonus(k_ptr->r_to_d, level);		
+	
 	/* Apply magic (good or bad) according to type */
+	
 	switch (o_ptr->tval)
 	{
 		case TV_RING:
@@ -2095,14 +2154,17 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Strength, Constitution, Dexterity, Intelligence */
+				/* The rings that can be both good and cursed */
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
 				case SV_RING_INT:
+				case SV_RING_SENSING:
+				case SV_RING_DAMAGE:
+				case SV_RING_ACCURACY:
+				case SV_RING_PROTECTION:
+				case SV_RING_SLAYING:				
 				{
-					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(5, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2115,6 +2177,11 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
+						
+						/* Reverse bonus */
+						o_ptr->to_d = 0 - (o_ptr->to_d);
+						o_ptr->to_h = 0 - (o_ptr->to_h);
+						o_ptr->to_a = 0 - (o_ptr->to_a);
 					}
 
 					break;
@@ -2150,61 +2217,32 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
 
-#if 0					/* Precognition */
-					if (p_ptr->precognition) msg_print("You feel something fast!");
-#endif					
-					break;
-				}
-
-				/* Searching */
-				case SV_RING_SEARCHING:
-				{
-					/* Bonus to searching */
-					o_ptr->pval = 1 + m_bonus(5, level);
-
-					/* Cursed */
-					if (power < 0)
+					/* Precognition */
+					if (p_ptr->precognition)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
+						/* Fail rather often */
+						if (randint(100) < 30) 
+						{
+							msg_print("You feel there is an extraordinary object around here.");
+						
+							/* Sometimes, give a full message */
+							if (randint(100) < 60) object_mention(o_ptr);
+						}
 					}
-
 					break;
 				}
 
-				/* Flames, Acid, Ice */
+				/* Flames, Acid, Ice -- always good */
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:
 				case SV_RING_ICE:
 				{
-					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
 					break;
 				}
 
-				/* Weakness, Stupidity */
+				/* Weakness, Stupidity -- always cursed*/
 				case SV_RING_WEAKNESS:
 				case SV_RING_STUPIDITY:
-				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (1 + m_bonus(5, level));
-
-					break;
-				}
-
-				/* WOE, Stupidity */
 				case SV_RING_WOE:
 				{
 					/* Broken */
@@ -2213,102 +2251,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					o_ptr->ident |= (IDENT_CURSED);
 
-					/* Penalize */
-					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
-					o_ptr->pval = 0 - (1 + m_bonus(5, level));
-
 					break;
 				}
 
-				/* Ring of damage */
-				case SV_RING_DAMAGE:
-				{
-					/* Bonus to damage */
-					o_ptr->to_d = 5 + randint(5) + m_bonus(10, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonus */
-						o_ptr->to_d = 0 - (o_ptr->to_d);
-					}
-
-					break;
-				}
-
-				/* Ring of Accuracy */
-				case SV_RING_ACCURACY:
-				{
-					/* Bonus to hit */
-					o_ptr->to_h = 5 + randint(5) + m_bonus(10, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse tohit */
-						o_ptr->to_h = 0 - (o_ptr->to_h);
-					}
-
-					break;
-				}
-
-				/* Ring of Protection */
-				case SV_RING_PROTECTION:
-				{
-					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse toac */
-						o_ptr->to_a = 0 - (o_ptr->to_a);
-					}
-
-					break;
-				}
-
-				/* Ring of Slaying */
-				case SV_RING_SLAYING:
-				{
-					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(5) + m_bonus(10, level);
-					o_ptr->to_h = randint(5) + m_bonus(10, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->to_h = 0 - (o_ptr->to_h);
-						o_ptr->to_d = 0 - (o_ptr->to_d);
-					}
-
-					break;
-				}
 			}
 
 			break;
@@ -2319,12 +2264,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Amulet of wisdom/charisma */
+				/* Amulet that can be cursed */
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_CHARISMA:
+				case SV_AMULET_SENSING:
+				case SV_AMULET_INFRAVISION:
 				{
-					o_ptr->pval = 1 + m_bonus(5, level);
-
 					/* Cursed */
 					if (power < 0)
 					{
@@ -2341,40 +2286,30 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				/* Amulet of searching / pseudo-ID */
-				case SV_AMULET_SEARCHING:
-				case SV_AMULET_PSEUDO_ID:
-				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				/* Amulet of the Magi -- never cursed */
+				/* Amulet of the Magi etc -- never cursed */
 				case SV_AMULET_THE_MAGI:
+				case SV_AMULET_DEVOTION:
+				case SV_AMULET_TRICKERY:
+				case SV_AMULET_WEAPONMASTERY:
 				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
-					o_ptr->to_a = randint(5) + m_bonus(5, level);
-
 					/* Boost the rating */
 					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
-
+					
+					/* Precognition */
+					if (p_ptr->precognition)
+					{
+						/* Fail rather often */
+						if (randint(100) < 30) 
+						{
+							msg_print("You feel there is an extraordinary object around here.");
+						
+							/* Sometimes, give a full message */
+							if (randint(100) < 60) object_mention(o_ptr);
+						}
+					}
 					break;
 				}
 
@@ -2386,15 +2321,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					/* Cursed */
 					o_ptr->ident |= (IDENT_CURSED);
-
-					/* Penalize */
-					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
-					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
-
 					break;
 				}
 			}
-
 			break;
 		}
 	}
@@ -2420,7 +2349,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			}
 
 			/* Hack -- Lanterns -- random fuel */
-			if (o_ptr->sval == SV_LITE_LANTERN)
+			else if (o_ptr->sval == SV_LITE_LANTERN)
 			{
 				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
@@ -2460,7 +2389,20 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	}
 }
 
-
+void trap_hack(object_type *o_ptr)
+{
+	if (o_ptr->tval != TV_TRAPKIT) return;
+	switch (o_ptr->sval)
+	{
+		case SV_TRAP_POTION:
+		case SV_TRAP_SCROLL:
+		case SV_TRAP_DEVICE:
+			o_ptr->to_h = 0;
+			o_ptr->to_d = 0;
+		default:
+			return;
+	}
+}
 
 /*
  * Complete the "creation" of an object by applying "magic" to the item
@@ -2495,7 +2437,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  */
 void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 {
-	int i, rolls, f1, f2, power;
+	int i, rolls, f1, f2, power, e_power;
 
 
 	/* Maximum "level" for various things */
@@ -2537,7 +2479,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Roll for "broken" */
 		if (rand_int(100) < f2) power = -2;
 	}
-
 
 	/* Assume no rolls */
 	rolls = 0;
@@ -2594,10 +2535,20 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Cheat -- peek at the item */
 		if (cheat_peek) object_mention(o_ptr);
-#if 0
+		
 		/* Precognition */
-		if (p_ptr->precognition) msg_print("You feel great joy.");
-#endif		
+		if (p_ptr->precognition)
+		{
+			/* Fail rather often */
+			if (randint(100) < 30) 
+			{
+				msg_print("You feel there is a special object around here.");
+				
+				/* Sometimes, give a full message */
+				if (randint(100) < 60) object_mention(o_ptr);
+			}
+		}
+		
 		/* Done */
 		return;
 	}
@@ -2614,28 +2565,39 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
-		{
-			if (power) a_m_aux_1(o_ptr, lev, power);
-			if (((power > 1) ? TRUE : FALSE) || ((power < -1) ? TRUE : FALSE))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
-			break;
-		}
-
+		case TV_TRAPKIT:
+                {
+                	if ((power > 1) || (power < -1))
+			{
+                		e_power = make_ego_item(o_ptr, (good || great));
+                		
+	                	/* If nonzero return value, use the power of the found ego */
+        	        	if (e_power) power = e_power;
+        	        }
+                	if (power) a_m_aux_1(o_ptr, lev, power);
+                	break;	
+                }
+		
 		case TV_DRAG_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
 		case TV_HELM:
 		case TV_CROWN:
-		case TV_CLOAK:
+		case TV_CLOAK:                      
 		case TV_GLOVES:
 		case TV_BOOTS:
-		{
-			if (power) a_m_aux_2(o_ptr, lev, power);
-			if (((power > 1) ? TRUE : FALSE) || (power < -1))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
-			break;
-		}
+                {
+                	if ((power > 1) || (power < -1))
+                	{
+                		e_power = make_ego_item(o_ptr, (good || great));
+                		
+				/* If nonzero return value, use the power of the found ego */
+                		if (e_power) power = e_power;
+                	}
+                	if (power) a_m_aux_2(o_ptr, lev, power);
+                	break;	
+                }
 
 		case TV_RING:
 		case TV_AMULET:
@@ -2651,7 +2613,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			break;
 		}
 	}
-
 
 	/* Hack -- analyze ego-items */
 	if (o_ptr->name2)
@@ -2719,14 +2680,26 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Cheat -- describe the item */
 		if (cheat_peek) object_mention(o_ptr);
-#if 0
+
 		/* Precognition */
-		if (p_ptr->precognition) msg_print("You feel joy.");
-#endif		
+		if (p_ptr->precognition)
+		{
+			/* Fail rather often */
+			if (randint(100) < 30) 
+			{
+				msg_print("You feel there is an excellent object around here.");
+				
+				/* Sometimes, give a full message */
+				if (randint(100) < 60) object_mention(o_ptr);
+			}
+		}
+
+		/* Remove some unnecessary stuff hack */
+		if (o_ptr->tval == TV_TRAPKIT) trap_hack(o_ptr);
+						
 		/* Done */
 		return;
 	}
-
 
 	/* Examine real objects */
 	if (o_ptr->k_idx)
@@ -2738,7 +2711,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+		
 	}
+	
+	/* Remove some unnecessary stuff hack */
+	if (o_ptr->tval == TV_TRAPKIT) trap_hack(o_ptr);
+	
 }
 
 
@@ -2779,13 +2757,15 @@ static bool kind_is_good(int k_idx)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_DIGGING:
+		case TV_TRAPKIT:
 		{
 			if (k_ptr->to_h < 0) return (FALSE);
 			if (k_ptr->to_d < 0) return (FALSE);
 			return (TRUE);
 		}
 
-		/* Ammo -- Arrows/Bolts are good */
+		/* Ammo -- Always good */
+		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
 		{
@@ -2814,10 +2794,13 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
-		/* Amulets -- Amulets of the Magi are good */
+		/* Amulets -- Amulets of the Magi etc. are good */
 		case TV_AMULET:
 		{
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_DEVOTION) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_WEAPONMASTERY) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_TRICKERY) return (TRUE);
 			return (FALSE);
 		}
 	}
@@ -3502,19 +3485,9 @@ void inven_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("You have %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("You have %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	msg_format("You have %d charge%s remaining.", o_ptr->pval,
+	           (o_ptr->pval != 1) ? "s" : "");
 }
 
 
@@ -3648,19 +3621,9 @@ void floor_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("There are %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("There is %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	msg_format("There are %d charge%s remaining.", o_ptr->pval,
+	           (o_ptr->pval != 1) ? "s" : "");
 }
 
 
@@ -3722,13 +3685,10 @@ void floor_item_optimize(int item)
 }
 
 
-
-
-
 /*
  * Check if we have space for an item in the pack without overflow
  */
-bool inven_carry_okay(object_type *o_ptr)
+bool inven_carry_okay(const object_type *o_ptr)
 {
 	int j;
 
@@ -3946,7 +3906,6 @@ s16b inven_carry(object_type *o_ptr)
 }
 
 
-
 /*
  * Take off (some of) a non-cursed equipment item
  *
@@ -4029,8 +3988,6 @@ s16b inven_takeoff(int item, int amt)
 	/* Return slot */
 	return (slot);
 }
-
-
 
 
 /*
@@ -4304,7 +4261,7 @@ s16b spell_chance(int spell)
 
 	int cost;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 
 	/* Paranoia -- must be literate */
@@ -4341,12 +4298,24 @@ s16b spell_chance(int spell)
 		if (minfail < 5) minfail = 5;
 	}
         
-        /* inhibit psi objects give a flat 20% minfail */
-	if ((p_ptr->pclass == CLASS_PSIONICIST) && (p_ptr->inhibit_psi))	
+        /* inhibit psi objects give a 20% minfail penalty*/
+	if ((mp_ptr->spell_book == TV_PSI_BOOK) && (p_ptr->inhibit_psi))	
         {
-        	if (minfail < 20) minfail = 20;
+        	minfail += 20;
         }
 
+        /* inhibit magic objects give a 20% minfail penalty*/
+	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) && (p_ptr->inhibit_magic))	
+        {
+        	minfail += 20;
+        }
+        
+        /* inhibit prayer objects give a 20% minfail penalty*/
+	if ((mp_ptr->spell_book == TV_PRAYER_BOOK) && (p_ptr->inhibit_prayer))	
+        {
+        	minfail += 20;
+        }
+        
 	/* Priest prayer penalty for "edged" weapons (before minfail)*/
 	if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
 	{
@@ -4376,7 +4345,7 @@ s16b spell_chance(int spell)
  */
 bool spell_okay(int spell, bool known)
 {
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	/* Get the spell */
 	s_ptr = &mp_ptr->info[spell];
@@ -4427,69 +4396,119 @@ void spell_info(char *p, int spell)
 		int plev = p_ptr->lev;
 		switch (spell)
 		{
-			case 0: sprintf(p," dam %dd4",a(1 + plev / 4)); break; /*MThrust*/
-			case 1: /* Empathy */
-			{
-				if (plev >= 25) sprintf(p," LOS");
+			case PSI_MIND_THRUST:
+				sprintf(p," dam %dd4",a(2 + plev / 4)); 
+				break;
+			case PSI_EMPATHY:
+				if (plev >= 25) strcpy(p," LOS");
 				else sprintf(p," rad %d",MAX(2, plev / 5));
 				break;
-			}
-			case 2: sprintf(p," dur d%d",10 + a(plev/2)); break; /*MBarrier*/
-			/* 3 = intimidate , 4 = sleep */
-			case 5: sprintf(p," dam %d",a(5 * plev)); break;       /*PBlast*/
-			case 6: sprintf(p," dam %dd9", a(plev)); break; /*Pcrush*/       /*PCrush*/
-			case 7: sprintf(p," dam 3d%d",a(plev)); break;         /*MWrack*/
-			/* 8 = amnesia */
-			case 9: sprintf(p," dam 6d%d",a(plev)); break; /*PWAve*/
-			case 11:sprintf(p," range %d",a(10)); break;                /*Blink*/
-			case 12:sprintf(p," range %d",a(5 * plev)); break;      /*Tport*/
-			case 13:sprintf(p," range %d",a(plev)); break;      /*DDoor*/
-			case 14:sprintf(p," dur %d + d%d",a(plev/10),a(5));break; /*PTravel*/
-			/* 15 = teleport other, 16 = recall*/
-			case 17: sprintf(p," dur %d+d%d",a(plev/4),20); break;     /*TControl*/
-			case 18: sprintf(p," dam 10d%d",a(plev)); break;        /*T Bolt*/
-			case 19: sprintf(p," dur %d+d%d",10,a(plev /4)); break;   /*TSAnch*/
-			case 20: sprintf(p," (5d%d)%%",a(plev)); break;         /*TShift*/
-			case 22: sprintf(p," heal %dd6",a(plev / 2)); break;  /*CellAdj*/
-			case 23: sprintf(p," dam 3d%d",a(plev)); break;        /* LControl */
-			/* 24 = satisfy hunger */
-			case 25: sprintf(p," dur %d+d%d",a(plev/2),20); break;     /*Adren*/
-			case 26: sprintf(p," dur d%d",a(10 + plev)); break;   /*Biofeed*/
-			/*case 666: sprintf(p," dur dd%d",a(12 + plev)); break;  was Shadow*/
-			case 27: sprintf(p," dam %dd10",a(plev)); break;      /*DrainL*/
-			case 28: sprintf(p," dur %d+d%d",a(10),a(20)); break; /*EnergyC*/
-			case 29: sprintf(p," dam 15d(6d%d)",a(plev)); break;  /*DeathF*/
-			/* 30 = double pain */
-			/* 31 = complete healing */
-			/* 33 = wall of force */
-			case 34: sprintf(p," dur %d+d%d",a(10), a(plev / 5)); break; /*Inertia*/
-			case 35: if (plev > 30) plev = 30 + (plev - 30) / 4;
-			         sprintf(p," dam 3d%d",a(plev)); break; /*PForce*/
-			case 36: if (plev > 30) plev = 30 + (plev - 30) / 4;
-			         sprintf(p," dam %d",a(30+plev*2)); break; /*SonicB*/
-			case 37: if (plev > 30) plev = 30 + (plev - 30) / 2;
-			         sprintf(p," dam %dd9",a(plev)); break; /*Disin*/
-			/* 38 = telekinesis */
-			case 39: sprintf(p," dam %d",a(plev*5)); break;  /*SoCold*/
-			case 40: sprintf(p," dam %d",a(plev*7)); break; /*FireE*/
-			case 41: if (plev > 40) plev = 40;
-			         sprintf(p," dam 15d%d",a(plev)); break;      /*Detonate*/
-			case 42: sprintf(p," dam 5d%d",a(p_ptr->chp)); break; /*Balefire*/
-			/* 44 = cannibalize */
-			case 45: sprintf(p, " +(1 to %d)/3",(plev + 7) / 8); /*Intensify*/
+			case PSI_MENTAL_BARRIER:
+				sprintf(p," dur d%d",10 + a(plev/2)); 
+				break;
+			case PSI_PSIONIC_BLAST:
+				sprintf(p," dam %d",a(5 * plev)); 
+				break;
+			case PSI_PSIONIC_CRUSH:
+				sprintf(p," dam %dd9", a(plev)); 
+				break;
+			case PSI_MIND_WRACK: 
+				sprintf(p," dam 3d%d",a(plev)); 
+				break;
+			case PSI_PSYCHIC_WAVE:
+				sprintf(p," dam 6d%d",a(plev)); 
+				break;
+			case PSI_BLINK:
+				sprintf(p," range %d",a(10)); 
+				break;
+			case PSI_TELEPORT:
+				sprintf(p," range %d",a(5 * plev)); 
+				break;
+			case PSI_DIMENSION_DOOR:
+				sprintf(p," range %d",a(plev)); 
+				break;
+			case PSI_PROBABILITY_TRAVEL:
+				sprintf(p," dur %d + d%d",a(plev/10),a(5)); 
+				break;
+			case PSI_TIME_CONTROL:
+				sprintf(p," dur %d+d%d",a(plev/4),(p_ptr->fast ? 0 : 20)); 
+				break;
+			case PSI_TIME_BOLT:
+				sprintf(p," dam 10d%d",a(plev)); 
+				break;
+			case PSI_TIME_SPACE_ANCHOR: 
+				sprintf(p," dur %d+d%d",10,a(plev /4)); 
+				break;
+			case PSI_TIME_SHIFT: 
+				sprintf(p," (5d%d)%%",a(plev)); 
+				break;
+			case PSI_CELL_ADJUSTMENT: 
+				sprintf(p," heal %dd6",a(plev / 2)); 
+				break;  
+			case PSI_LIGHT_CONTROL:
+				sprintf(p," dam 3d%d",a(plev)); 
+				break;
+			case PSI_ADRENALINE_CONTROL: 
+				sprintf(p," dur %d+d%d",a(plev/2),20); 
+				break;
+			case PSI_BIOFEEDBACK: 
+				sprintf(p," dur d%d",a(10 + plev)); 
+				break;
+			case PSI_DRAIN_LIFE: 
+				sprintf(p," dam %dd10",a(plev)); 
+				break;
+			case PSI_ENERGY_CONTAINMENT: 
+				sprintf(p," dur %d+d%d",a(10),a(20)); 
+				break;
+			case PSI_DEATH_FIELD: 
+				sprintf(p," dam 15d(6d%d)",a(plev)); 
+				break;
+			case PSI_INERTIAL_BARRIER: 
+				sprintf(p," dur %d+d%d",a(10), a(plev / 5)); 
+				break;
+			case PSI_PROJECT_FORCE:
+				if (plev > 30) plev = 30 + (plev - 30) / 4;
+			        sprintf(p," dam 3d%d",a(plev));
+			        break;
+			case PSI_SONIC_BOOM:
+				if (plev > 30) plev = 30 + (plev - 30) / 4;
+			         sprintf(p," dam %d",a(30+plev*2));
 			         break;
-			/* 46 = receptacle, 47 = empower */
-			case 48: sprintf(p," dam %dd6",a(plev/2)); break;   /*PDrain*/
-			/* 49 = psychic surgery */
-			/* 50 = splice */
-			case 51: sprintf(p," dam 40d%d",a(plev)); break;      /*Ublast*/
-			case 52: sprintf(p," dam 100d%d",a(plev)); break;     /*Ublast2*/
-			/* 54 = detect monsters */
-			case 55: sprintf(p," dur %d+d%d",a(plev/2),a(20)); break; /*Aware*/
-			/* 56 = reveal secrets, 57 = clairvoyance, 58 = metaphysical
-			  analysis, 59 = read object, 60 = read aura */
-			case 61: sprintf(p," dur %d+d%d",a(5),a(plev/5)); break;  /*Precog*/
-			/* 62 = analyze monster */
+			case PSI_DISINTEGRATE:
+				if (plev > 30) plev = 30 + (plev - 30) / 2;
+			        sprintf(p," dam %dd9",a(plev));
+			        break;
+			case PSI_SPHERE_OF_COLD:
+				sprintf(p," dam %d",a(plev*5)); 
+				break;
+			case PSI_FIRE_ERUPTION:
+				sprintf(p," dam %d",a(plev*7)); 
+				break;
+			case PSI_DETONATE:
+				if (plev > 40) plev = 40;
+			        sprintf(p," dam 15d%d",a(plev)); 
+			        break;
+			case PSI_BALEFIRE:
+				sprintf(p," dam 5d%d",a(p_ptr->chp)); 
+				break;
+			case PSI_INTENSIFY: 
+				sprintf(p, " +(1 to %d)/3",(plev + 7) / 8);
+			        break;
+			case PSI_PSYCHIC_DRAIN: 
+				sprintf(p," dam %dd6",a(plev/2)); 
+				break;
+			case PSI_ULTRABLAST: 
+				sprintf(p," dam 40d%d",a(plev)); 
+				break;
+			case PSI_STAR_ULTRABLAST: 
+				sprintf(p," dam 100d%d",a(plev)); 
+				break;
+			case PSI_AWARENESS:
+				sprintf(p," dur %d+d%d",10 + a(plev/2),a(20));
+				break; 
+			case PSI_PRECOGNITION:
+				sprintf(p," dur %d+d%d",a(10),a(plev/10)); 
+				break;
 		}
 	}
 	
@@ -4501,34 +4520,90 @@ void spell_info(char *p, int spell)
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-			case 2: strcpy(p, " range 10"); break;
-			case 5: strcpy(p, " heal 2d8"); break;
-			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-			case 14: sprintf(p, " range %d", plev * 10); break;
-			case 15: strcpy(p, " dam 6d8"); break;
-			case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-			case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 26: sprintf(p, " dam %d", 30 + plev); break;
-			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 30: sprintf(p, " dam %d", 55 + plev); break;
-			case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-			case 39: sprintf(p, " dam %d", 40 + plev/2); break;
-			case 40: sprintf(p, " dam %d", 40 + plev); break;
-			case 41: sprintf(p, " dam %d", 70 + plev); break;
-			case 42: sprintf(p, " dam %d", 65 + plev); break;
-			case 43: sprintf(p, " dam %d", 300 + plev*2); break;
-			case 49: strcpy(p, " dur 20+d20"); break;
-			case 50: strcpy(p, " dur 20+d20"); break;
-			case 51: strcpy(p, " dur 20+d20"); break;
-			case 52: strcpy(p, " dur 20+d20"); break;
-			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 25+d25"); break;
-			case 55: strcpy(p, " dur 30+d20"); break;
-			case 56: strcpy(p, " dur 25+d25"); break;
-			case 57: sprintf(p, " dur %d+d25", 30+plev); break;
-			case 58: strcpy(p, " dur 6+d8"); break;
+			case SPELL_MAGIC_MISSILE:
+				sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5));
+				break;
+			case SPELL_PHASE_DOOR:
+				strcpy(p, " range 10");
+				break;
+			case SPELL_CURE_LIGHT_WOUNDS:
+				strcpy(p, " heal 2d8");
+				break;
+			case SPELL_STINKING_CLOUD:
+				sprintf(p, " dam %d", 10 + (plev / 2));
+				break;
+			case SPELL_LIGHTNING_BOLT:
+				sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4)));
+				break;
+			case SPELL_TELEPORT_SELF:
+				sprintf(p, " range %d", plev * 10);
+				break;
+			case SPELL_SPEAR_OF_LIGHT:
+				strcpy(p, " dam 6d8");
+				break;
+			case SPELL_FROST_BOLT:
+				sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4)));
+				break;
+			case SPELL_TURN_STONE_TO_MUD:
+				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
+				break;
+			case SPELL_FROST_BALL:
+				sprintf(p, " dam %d", 30 + plev);
+				break;
+			case SPELL_HASTE_SELF:
+				sprintf(p, " dur %d+d20", plev);
+				break;
+			case SPELL_FIRE_BALL:
+				sprintf(p, " dam %d", 55 + plev);
+				break;
+			case SPELL_ACID_BOLT:
+				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
+				break;
+			case SPELL_CLOUD_KILL:
+				sprintf(p, " dam %d", 40 + plev / 2);
+				break;
+			case SPELL_ACID_BALL:
+				sprintf(p, " dam %d", 40 + plev);
+				break;
+			case SPELL_ICE_STORM:
+				sprintf(p, " dam %d", 70 + plev);
+				break;
+			case SPELL_METEOR_SWARM:
+				sprintf(p, " dam %d", 65 + plev);
+				break;
+			case SPELL_MANA_STORM:
+				sprintf(p, " dam %d", 300 + plev * 2);
+				break;
+			case SPELL_RESIST_FIRE:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_COLD:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_ACID:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESIST_POISON:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_RESISTANCE:
+				strcpy(p, " dur 20+d20");
+				break;
+			case SPELL_HEROISM:
+				strcpy(p, " dur 25+d25");
+				break;
+			case SPELL_SHIELD:
+				strcpy(p, " dur 30+d20");
+				break;
+			case SPELL_BERSERKER:
+				strcpy(p, " dur 25+d25");
+				break;
+			case SPELL_ESSENCE_OF_SPEED:
+				sprintf(p, " dur %d+d30", 30 + plev);
+				break;
+			case SPELL_GLOBE_OF_INVULNERABILITY:
+				strcpy(p, " dur 8+d8");
+				break;
 		}
 	}
 
@@ -4538,35 +4613,83 @@ void spell_info(char *p, int spell)
 		int plev = p_ptr->lev;
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
+		int orb = (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4));
 
 		/* Analyze the spell */
 		switch (spell)
 		{
-			case 1: strcpy(p, " heal 2d10"); break;
-			case 2: strcpy(p, " dur 12+d12"); break;
-			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: strcpy(p, " heal 4d10"); break;
-			case 11: strcpy(p, " dur 24+d24"); break;
-			case 15: strcpy(p, " dur 10+d10"); break;
-			case 17: sprintf(p, " %d+3d6", plev + orb); break;
-			case 18: strcpy(p, " heal 6d10"); break;
-			case 19: strcpy(p, " dur 24+d24"); break;
-			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 23: strcpy(p, " heal 8d10"); break;
-			case 25: strcpy(p, " dur 48+d48"); break;
-			case 26: sprintf(p, " dam d%d", 3*plev); break;
-			case 27: strcpy(p, " heal 300"); break;
-			case 28: sprintf(p, " dam d%d", 3*plev); break;
-			case 30: strcpy(p, " heal 1000"); break;
-			case 36: strcpy(p, " heal 4d10"); break;
-			case 37: strcpy(p, " heal 8d10"); break;
-			case 38: strcpy(p, " heal 2000"); break;
-			case 41: sprintf(p, " dam d%d", 4*plev); break;
-			case 42: sprintf(p, " dam d%d", 4*plev); break;
-			case 45: strcpy(p, " dam 200"); break;
-			case 52: strcpy(p, " range 10"); break;
-			case 53: sprintf(p, " range %d", 8*plev); break;
+			case PRAYER_CURE_LIGHT_WOUNDS:
+				strcpy(p, " heal 2d10");
+				break;
+			case PRAYER_BLESS:
+				strcpy(p, " dur 12+d12");
+				break;
+			case PRAYER_PORTAL:
+				sprintf(p, " range %d", 3 * plev);
+				break;
+			case PRAYER_CURE_SERIOUS_WOUNDS:
+				strcpy(p, " heal 4d10");
+				break;
+			case PRAYER_CHANT:
+				strcpy(p, " dur 24+d24");
+				break;
+			case PRAYER_RESIST_HEAT_COLD:
+				strcpy(p, " dur 10+d10");
+				break;
+			case PRAYER_ORB_OF_DRAINING:
+				sprintf(p, " %d+3d6", plev + orb);
+				break;
+			case PRAYER_CURE_CRITICAL_WOUNDS:
+				strcpy(p, " heal 6d10");
+				break;
+			case PRAYER_SENSE_INVISIBLE:
+				strcpy(p, " dur 24+d24");
+				break;
+			case PRAYER_PROTECTION_FROM_EVIL:
+				sprintf(p, " dur %d+d25", 3 * plev);
+				break;
+			case PRAYER_CURE_MORTAL_WOUNDS:
+				strcpy(p, " heal 8d10");
+				break;
+			case PRAYER_PRAYER:
+				strcpy(p, " dur 48+d48");
+				break;
+			case PRAYER_DISPEL_UNDEAD:
+				sprintf(p, " dam d%d", 3 * plev);
+				break;
+			case PRAYER_HEAL:
+				strcpy(p, " heal 300");
+				break;
+			case PRAYER_DISPEL_EVIL:
+				sprintf(p, " dam d%d", 3 * plev);
+				break;
+			case PRAYER_HOLY_WORD:
+				strcpy(p, " heal 1000");
+				break;
+			case PRAYER_CURE_SERIOUS_WOUNDS2:
+				strcpy(p, " heal 4d10");
+				break;
+			case PRAYER_CURE_MORTAL_WOUNDS2:
+				strcpy(p, " heal 8d10");
+				break;
+			case PRAYER_HEALING:
+				strcpy(p, " heal 2000");
+				break;
+			case PRAYER_DISPEL_UNDEAD2:
+				sprintf(p, " dam d%d", 4 * plev);
+				break;
+			case PRAYER_DISPEL_EVIL2:
+				sprintf(p, " dam d%d", 4 * plev);
+				break;
+			case PRAYER_ANNIHILATION:
+				strcpy(p, " dam 200");
+				break;
+			case PRAYER_BLINK:
+				strcpy(p, " range 10");
+				break;
+			case PRAYER_TELEPORT_SELF:
+				sprintf(p, " range %d", 8 * plev);
+				break;
 		}
 	}
 }
@@ -4576,11 +4699,11 @@ void spell_info(char *p, int spell)
 /*
  * Print a list of spells (for browsing or casting or viewing).
  */
-void print_spells(byte *spells, int num, int y, int x)
+void print_spells(const byte *spells, int num, int y, int x)
 {
 	int i, spell;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr comment;
 
@@ -4719,14 +4842,14 @@ void display_koff(int k_idx)
 		int spell;
 		int num = 0;
 
-		byte spells[64];
+		byte spells[PY_MAX_SPELLS];
 
 
 		/* Get the item's sval */
 		sval = i_ptr->sval;
 
 		/* Extract spells */
-		for (spell = 0; spell < 64; spell++)
+		for (spell = 0; spell < PY_MAX_SPELLS; spell++)
 		{
 			/* Check for this spell */
 			if ((spell < 32) ?
@@ -4742,5 +4865,3 @@ void display_koff(int k_idx)
 		print_spells(spells, num, 2, 0);
 	}
 }
-
-

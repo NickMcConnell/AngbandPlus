@@ -7,7 +7,7 @@
 # Basic defines (change the file locations as appropriate).
 #
 
-LCC_PATH =      C:\programme\lcc
+LCC_PATH =	C:\lcc
 LINK	=	$(LCC_PATH)\bin\lcclnk.exe
 CC		=	$(LCC_PATH)\bin\lcc.exe
 RC		=	$(LCC_PATH)\bin\lrc.exe

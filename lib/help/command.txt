@@ -275,6 +275,7 @@ Cast a spell (m)
         Psionics also uses this command.
         
 Pray a prayer (p)
+Put down a trap
         To pray effectively, you must have previously learned the prayer
         and must have in your inventory a book from which the prayer can
         be read.  Each prayer has a chance of being ignored which starts
@@ -285,7 +286,19 @@ Pray a prayer (p)
         Since you must read the prayer from a book, you cannot be blind
         or confused while praying, and there must be some light present.
         This command takes some energy.
-
+        
+        For Rogues, the "p" key has a completely different meaning. They
+        can use it to set traps that can have many bad effects on monsters.
+        You will need a "trapping kit" that mostly consists of the trigger,
+        and something that should be triggered. For example, you can load a
+        Catapult Trap with any sling ammunition, or a Fumes Trap with any
+        potion. Magic traps are loaded with scrolls, Device Traps with 
+        magic devices. Not everything will have an effect on monsters that
+        set the trap off, or it might even have a good effect on them.
+        Also, be aware that some monsters are trained in spotting and/or
+        disarming your traps, and when a monster has disarmed one trap, it
+        is more likely to succeed the next time.
+        
 Use a power (U) or Other powers (O)
         This command allows you to do miscellaneous things, currently only
         ending of force walls is implemented.        

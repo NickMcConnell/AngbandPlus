@@ -41,13 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.2.0"
+#define VERSION_STRING	"1.3.0"
+#define VERSION_NAME	"PsiAngband"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	2
+#define VERSION_MINOR	3
 #define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
@@ -113,9 +114,15 @@
 
 
 /*
+ * Maximum amount of Angband windows.
+ */
+#define ANGBAND_TERM_MAX 8
+
+
+/*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES	8
+#define MAX_STORES	9
 
 
 /*
@@ -129,7 +136,7 @@
 #define STORE_MAGIC		5
 #define STORE_B_MARKET	6
 #define STORE_HOME		7
-
+#define STORE_BOOK		8
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
  */
@@ -181,25 +188,25 @@
 
 
 /*
- * OPTION: Maximum number of macros (see "io.c")
+ * OPTION: Maximum number of macros (see "util.c")
  * Default: assume at most 256 macros are used
  */
 #define MACRO_MAX	256
 
 /*
- * OPTION: Maximum number of "quarks" (see "io.c")
+ * OPTION: Maximum number of "quarks" (see "util.c")
  * Default: assume at most 512 different inscriptions are used
  */
 #define QUARK_MAX	512
 
 /*
- * OPTION: Maximum number of messages to remember (see "io.c")
+ * OPTION: Maximum number of messages to remember (see "util.c")
  * Default: assume maximal memorization of 2048 total messages
  */
 #define MESSAGE_MAX	2048
 
 /*
- * OPTION: Maximum space for the message text buffer (see "io.c")
+ * OPTION: Maximum space for the message text buffer (see "util.c")
  * Default: assume that each of the 2048 messages is repeated an
  * average of three times, and has an average length of 48
  */
@@ -340,6 +347,252 @@
 #define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
+
+/*
+ * Maximum number of players spells
+ */
+#define PY_MAX_SPELLS 64
+
+/* Magic for Beginners */
+#define SPELL_MAGIC_MISSILE             0
+#define SPELL_DETECT_MONSTERS           1
+#define SPELL_PHASE_DOOR                2
+#define SPELL_LIGHT_AREA                3
+#define SPELL_TREASURE_DETECTION        4
+#define SPELL_CURE_LIGHT_WOUNDS         5
+#define SPELL_OBJECT_DETECTION          6
+#define SPELL_FIND_TRAPS_DOORS          7
+#define SPELL_STINKING_CLOUD            8
+
+/* Conjurings and Tricks */
+#define SPELL_CONFUSE_MONSTER           9
+#define SPELL_LIGHTNING_BOLT           10
+#define SPELL_TRAP_DOOR_DESTRUCTION    11
+#define SPELL_SLEEP_I                  12
+#define SPELL_CURE_POISON              13
+#define SPELL_TELEPORT_SELF            14
+#define SPELL_SPEAR_OF_LIGHT           15
+#define SPELL_FROST_BOLT               16
+#define SPELL_TURN_STONE_TO_MUD        17
+
+/* Incantations and Illusions */
+#define SPELL_SATISFY_HUNGER           18
+#define SPELL_RECHARGE_ITEM_I          19
+#define SPELL_SLEEP_II                 20
+#define SPELL_POLYMORPH_OTHER          21
+#define SPELL_IDENTIFY                 22
+#define SPELL_SLEEP_III                23
+#define SPELL_FIRE_BOLT                24
+#define SPELL_SLOW_MONSTER             25
+
+/* Sorcery and Evocations */
+#define SPELL_FROST_BALL               26
+#define SPELL_RECHARGE_ITEM_II         27
+#define SPELL_TELEPORT_OTHER           28
+#define SPELL_HASTE_SELF               29
+#define SPELL_FIRE_BALL                30
+#define SPELL_WORD_OF_DESTRUCTION      31
+#define SPELL_GENOCIDE                 32
+
+/* Mordenkainen's Escapes */
+#define SPELL_DOOR_CREATION            33
+#define SPELL_STAIR_CREATION           34
+#define SPELL_TELEPORT_LEVEL           35
+#define SPELL_EARTHQUAKE               36
+#define SPELL_WORD_OF_RECALL           37
+
+/* Raal's Tome of Destruction */
+#define SPELL_ACID_BOLT                38
+#define SPELL_CLOUD_KILL               39
+#define SPELL_ACID_BALL                40
+#define SPELL_ICE_STORM                41
+#define SPELL_METEOR_SWARM             42
+#define SPELL_MANA_STORM               43
+
+/* Kelek's Grimoire of Power */
+#define SPELL_DETECT_EVIL              44
+#define SPELL_DETECT_ENCHANTMENT       45
+#define SPELL_RECHARGE_ITEM_III        46
+#define SPELL_GENOCIDE2                47
+#define SPELL_MASS_GENOCIDE            48
+
+/* Resistance of Scarabtarices */
+#define SPELL_RESIST_FIRE              49
+#define SPELL_RESIST_COLD              50
+#define SPELL_RESIST_ACID              51
+#define SPELL_RESIST_POISON            52
+#define SPELL_RESISTANCE               53
+
+/* Tenser's transformations */
+#define SPELL_HEROISM                  54
+#define SPELL_SHIELD                   55
+#define SPELL_BERSERKER                56
+#define SPELL_ESSENCE_OF_SPEED         57
+#define SPELL_GLOBE_OF_INVULNERABILITY 58
+
+/* Beginners Handbook */
+#define PRAYER_DETECT_EVIL              0
+#define PRAYER_CURE_LIGHT_WOUNDS        1
+#define PRAYER_BLESS                    2
+#define PRAYER_REMOVE_FEAR              3
+#define PRAYER_CALL_LIGHT               4
+#define PRAYER_FIND_TRAPS               5
+#define PRAYER_DETECT_DOORS_STAIRS      6
+#define PRAYER_SLOW_POISON              7
+
+/* Words of Wisdom */
+#define PRAYER_SCARE_MONSTER            8
+#define PRAYER_PORTAL                   9
+#define PRAYER_CURE_SERIOUS_WOUNDS     10
+#define PRAYER_CHANT                   11
+#define PRAYER_SANCTUARY               12
+#define PRAYER_SATISFY_HUNGER          13
+#define PRAYER_REMOVE_CURSE            14
+#define PRAYER_RESIST_HEAT_COLD        15
+
+/* Chants and Blessings */
+#define PRAYER_NEUTRALIZE_POISON       16
+#define PRAYER_ORB_OF_DRAINING         17
+#define PRAYER_CURE_CRITICAL_WOUNDS    18
+#define PRAYER_SENSE_INVISIBLE         19
+#define PRAYER_PROTECTION_FROM_EVIL    20
+#define PRAYER_EARTHQUAKE              21
+#define PRAYER_SENSE_SURROUNDINGS      22
+#define PRAYER_CURE_MORTAL_WOUNDS      23
+#define PRAYER_TURN_UNDEAD             24
+
+/* Exorcism and Dispelling */
+#define PRAYER_PRAYER                  25
+#define PRAYER_DISPEL_UNDEAD           26
+#define PRAYER_HEAL                    27
+#define PRAYER_DISPEL_EVIL             28
+#define PRAYER_GLYPH_OF_WARDING        29
+#define PRAYER_HOLY_WORD               30
+
+/* Godly Insights */
+#define PRAYER_DETECT_MONSTERS         31
+#define PRAYER_DETECTION               32
+#define PRAYER_PERCEPTION              33
+#define PRAYER_PROBING                 34
+#define PRAYER_CLAIRVOYANCE            35
+
+/* Purifications and Healing */
+#define PRAYER_CURE_SERIOUS_WOUNDS2    36
+#define PRAYER_CURE_MORTAL_WOUNDS2     37
+#define PRAYER_HEALING                 38
+#define PRAYER_RESTORATION             39
+#define PRAYER_REMEMBRANCE             40
+
+/* Wrath of God */
+#define PRAYER_DISPEL_UNDEAD2          41
+#define PRAYER_DISPEL_EVIL2            42
+#define PRAYER_BANISHMENT              43
+#define PRAYER_WORD_OF_DESTRUCTION     44
+#define PRAYER_ANNIHILATION            45
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          46
+#define PRAYER_RECHARGING              47
+#define PRAYER_DISPEL_CURSE            48
+#define PRAYER_ENCHANT_WEAPON          49
+#define PRAYER_ENCHANT_ARMOUR          50
+#define PRAYER_ELEMENTAL_BRAND         51
+
+/* Ethereal openings */
+#define PRAYER_BLINK                   52
+#define PRAYER_TELEPORT_SELF           53
+#define PRAYER_TELEPORT_OTHER          54
+#define PRAYER_TELEPORT_LEVEL          55
+#define PRAYER_WORD_OF_RECALL          56
+#define PRAYER_ALTER_REALITY           57
+
+/* Telepathy */
+#define PSI_MIND_THRUST                 0
+#define PSI_EMPATHY                     1
+#define PSI_MENTAL_BARRIER              2
+#define PSI_INTIMIDATE                  3
+#define PSI_SLEEP                       4
+#define PSI_PSIONIC_BLAST               5
+#define PSI_PSIONIC_CRUSH               6
+#define PSI_MIND_WRACK                  7
+#define PSI_AMNESIA                     8
+#define PSI_PSYCHIC_WAVE		9
+#define PSI_XXX1                       10
+
+/* Psychoportation */
+#define PSI_BLINK                      11
+#define PSI_TELEPORT                   12
+#define PSI_DIMENSION_DOOR             13
+#define PSI_PROBABILITY_TRAVEL         14
+#define PSI_BANISHMENT                 15
+#define PSI_RECALL                     16
+#define PSI_TIME_CONTROL               17
+#define PSI_TIME_BOLT                  18
+#define PSI_TIME_SPACE_ANCHOR          19
+#define PSI_TIME_SHIFT                 20
+#define PSI_XXX2                       21
+
+/* Psychometabolism */
+#define PSI_CELL_ADJUSTMENT            22
+#define PSI_LIGHT_CONTROL              23
+#define PSI_SATISFY_HUNGER             24
+#define PSI_ADRENALINE_CONTROL         25
+#define PSI_BIOFEEDBACK                26
+#define PSI_DRAIN_LIFE                 27
+#define PSI_ENERGY_CONTAINMENT         28
+#define PSI_DEATH_FIELD                29
+#define PSI_DOUBLE_PAIN                30
+#define PSI_COMPLETE_HEALING           31
+#define PSI_XXX3                       32
+
+
+/* Psychokinesis */
+#define PSI_WALL_OF_FORCE              33
+#define PSI_INERTIAL_BARRIER           34
+#define PSI_PROJECT_FORCE              35
+#define PSI_SONIC_BOOM                 36
+#define PSI_DISINTEGRATE               37
+#define PSI_TELEKINESIS                38
+#define PSI_SPHERE_OF_COLD             39
+#define PSI_FIRE_ERUPTION              40
+#define PSI_DETONATE                   41
+#define PSI_BALEFIRE                   42
+#define PSI_XXX4                       43
+
+/* Metapsionics */
+#define PSI_CANNIBALIZE                44
+#define PSI_INTENSIFY                  45
+#define PSI_RECEPTACLE                 46
+#define PSI_EMPOWER                    47
+#define PSI_PSYCHIC_DRAIN              48
+#define PSI_PSYCHIC_SURGERY            49
+#define PSI_SPLICE                     50
+#define PSI_ULTRABLAST                 51
+#define PSI_STAR_ULTRABLAST            52
+#define PSI_XXX5                       53
+
+/* Clairsentience */
+#define PSI_DETECT_MONSTERS            54
+#define PSI_AWARENESS                  55
+#define PSI_REVEAL_SECRETS             56
+#define PSI_CLAIRVOYANCE               57
+#define PSI_METAPHYSICAL_AWARENESS     58
+#define PSI_READ_OBJECT                59
+#define PSI_READ_AURA                  60
+#define PSI_PRECOGNITION               61
+#define PSI_ANALYZE_MONSTER            62
+#define PSI_XXX6                       63
+
+#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
+#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
+
+#define BOOK(a, b, c, d, e, f, g, h, i, j) \
+{ \
+	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
+	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i) | BOOK1(j)), \
+	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
+	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i) | BOOK2(j))  \
+}
 
 
 /*
@@ -511,7 +764,7 @@
 /*
  * Legal restrictions for "summon_specific()"
  */
-#define SUMMON_ANT			11
+#define SUMMON_ANIMAL			11
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
 #define SUMMON_HYDRA		14
@@ -529,6 +782,7 @@
 #define SUMMON_KIN			33
 /* xxx */
 #define SUMMON_TIME		41
+#define SUMMON_POWERFUL		42
 
 
 /*
@@ -663,11 +917,11 @@
 #define FEAT_LESS		0x06
 #define FEAT_MORE		0x07
 
-/* Shops */
-#define FEAT_SHOP_HEAD	0x08
-#define FEAT_SHOP_TAIL	0x0F
+/* Monster Trap */
+#define FEAT_MON_TRAP	0x0F
 
 /* Traps */
+#define FEAT_TRAP_START 0x0F
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
 
@@ -698,6 +952,10 @@
 #define FEAT_PERM_SOLID	0x3F
 
 #define FEAT_FORCE_WALL	0x40
+#define FEAT_WALL_TAIL  0x40
+/* Shops */
+#define FEAT_SHOP_HEAD	0x51
+#define FEAT_SHOP_TAIL	0x59
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -948,7 +1206,7 @@
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
-/* xxx */
+#define EGO_BRAND_POIS		76
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1029,6 +1287,7 @@
 #define TV_JUNK          3	/* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5	/* Spikes ('~') */
 #define TV_CHEST         7	/* Chests ('~') */
+#define TV_TRAPKIT	11	/* Trapping Kits -- before all ammo */
 #define TV_SHOT			16	/* Ammo for slings */
 #define TV_ARROW        17	/* Ammo for bows */
 #define TV_BOLT         18	/* Ammo for x-bows */
@@ -1217,14 +1476,23 @@
 #define SV_AMULET_ADORNMENT		2
 #define SV_AMULET_SLOW_DIGEST	3
 #define SV_AMULET_RESIST_ACID	4
-#define SV_AMULET_SEARCHING		5
+#define SV_AMULET_SENSING		5
 #define SV_AMULET_WISDOM		6
 #define SV_AMULET_CHARISMA		7
 #define SV_AMULET_THE_MAGI		8
-#define SV_AMULET_PSEUDO_ID		9
+#define SV_AMULET_REGENERATION		9
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
+#define SV_AMULET_ESP			13
+#define SV_AMULET_RESISTANCE		14
+#define SV_AMULET_SUSTENANCE		15
+#define SV_AMULET_DEVOTION		16
+#define SV_AMULET_TRICKERY		17
+#define SV_AMULET_WEAPONMASTERY		18
+#define SV_AMULET_INFRAVISION		19
+#define SV_AMULET_ELFSTONE		20
+#define SV_AMULET_EVENSTAR		21
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
@@ -1250,7 +1518,7 @@
 #define SV_RING_RESIST_POIS		20
 #define SV_RING_FREE_ACTION		21
 #define SV_RING_SEE_INVIS		22
-#define SV_RING_SEARCHING		23
+#define SV_RING_SENSING			23
 #define SV_RING_STR				24
 #define SV_RING_INT				25
 #define SV_RING_DEX				26
@@ -1507,6 +1775,13 @@
 #define SV_FOOD_PINT_OF_ALE		38
 #define SV_FOOD_PINT_OF_WINE	39
 
+/* sval codes for TV_TRAPKIT */
+#define SV_TRAP_BOW	1
+#define SV_TRAP_XBOW	2
+#define SV_TRAP_CATAPULT	3
+#define SV_TRAP_POTION	4
+#define SV_TRAP_SCROLL	5
+#define SV_TRAP_DEVICE	6
 
 /*
  * Special "sval" limit -- first "normal" food
@@ -1637,11 +1912,18 @@
  *	LOOK: Describe grid fully
  *	XTRA: Currently unused flag
  *	GRID: Select from all grids
+ *	OBJ:  try to target objects, for telekinesis
+ *      FLOOR: try to target anything, for dimension door
+ *	
+ * Note: In Psiband, OBJ and FLOOR are hacks that don't interact nicely
+ *       with the other bit flags. -MWK-
  */
 #define TARGET_KILL		0x01
 #define TARGET_LOOK		0x02
 #define TARGET_XTRA		0x04
 #define TARGET_GRID		0x08
+#define TARGET_OBJ 0x10
+#define TARGET_FLOOR 0x20
 
 
 /*
@@ -1859,29 +2141,31 @@
 #define SM_RES_DISEN	0x80000000
 
 /*
- * Bit flags for the 'monster status' byte
+ * Bit flags for the 'monster status' u16b 
  */
 
-#define STATUS_AMNESIA1	0x1
-#define STATUS_AMNESIA2	0x2
+#define STATUS_AMNESIA1	0x0001
+#define STATUS_AMNESIA2	0x0002
 #define STATUS_AMNESIA	(STATUS_AMNESIA1 | STATUS_AMNESIA2)
-#define STATUS_DOMINATE	0x4
-#define STATUS_EMPATHY	0x8
-#define STATUS_BALE_CLONE	0x10
+#define STATUS_DOMINATE	0x0004
+#define STATUS_EMPATHY	0x0008
+#define STATUS_BALE_CLONE	0x0010
+#define STATUS_NOTE_TRAP	0x0020
+#define STATUS_DISARM_TRAP	0x0040
 
 /*
  * Bit flags for the balefire effects
  */
-#define BALE_ALTER       1
-#define BALE_HISTORY     2
+#define BALE_ALTER       0x0001
+#define BALE_HISTORY     0x0002
 /*#define BALE_TIME_TRAVEL 4*/
-#define BALE_TIME_ATTACK 8
-#define BALE_ABORT       16
-#define BALE_SUMMON      32
+#define BALE_TIME_ATTACK 0x0008
+#define BALE_ABORT       0x0010
+#define BALE_SUMMON      0x0020
 /*#define BALE_HOLE        64*/
-#define BALE_KILL        128
-#define BALE_HEAL        256
-#define BALE_CLONE       512
+#define BALE_KILL        0x0080
+#define BALE_HEAL        0x0100
+#define BALE_CLONE       0x0200
 
 
 /*
@@ -1909,9 +2193,9 @@
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
 #define TR1_XXX1			0x00000040L	/* (reserved) */
-#define TR1_PSEUDO_ID			0x00000080L	/* Pseudo-ID += "pval" */
+#define TR1_OLD_PSEUDO_ID		0x00000080L	/* old Pseudo-ID += "pval" */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
-#define TR1_SEARCH			0x00000200L	/* Search += "pval" */
+#define TR1_SENSING			0x00000200L	/* Sensing += "pval" */
 #define TR1_INFRA			0x00000400L	/* Infra += "pval" */
 #define TR1_TUNNEL			0x00000800L	/* Tunnel += "pval" */
 #define TR1_SPEED			0x00001000L	/* Speed += "pval" */
@@ -1968,6 +2252,26 @@
 #define TR2_XXX4		0x40000000L	/* XXX4 */
 #define TR2_XXX5	 	0x80000000L	/* XXX5 */
 
+/*
+ * Since trapping kits can't give resistances, the
+ * TR2_ flag set is used for some special flag properties
+ * This is a hack, but why should that memory be wasted? -MWK-
+ */
+ 
+#define TRAP2_AUTOMATIC_5	0x00000001L	/* Trap automatically rearms itself, 1 in 5 failure */
+#define TRAP2_AUTOMATIC_99	0x00000002L	/* Trap automatically rearms itself */
+#define TRAP2_KILL_GHOST	0x00000004L	/* Trap also affects PASS_WALL creatures */
+#define TRAP2_TELEPORT_TO	0x00000008L	/* After everything else, teleport to player */
+#define TRAP2_ONLY_DRAGON	0x00000010L	/* Affect only dragons & other AFFECTed creatures */
+#define TRAP2_ONLY_DEMON	0x00000020L	/* Affect only demons & other AFFECTed creatures */
+#define TRAP2_ONLY_ANIMAL	0x00000040L	/* Affect only animals & other AFFECTed creatures */
+#define TRAP2_ONLY_UNDEAD	0x00000080L	/* Affect only undead & others */
+#define	TRAP2_ONLY_EVIL		0x00000100L	/* Affect only evil creatures &c. */
+
+
+#define TRAP2_ONLY_MASK		(TRAP2_ONLY_DRAGON | TRAP2_ONLY_DEMON | TRAP2_ONLY_ANIMAL | \
+				 TRAP2_ONLY_UNDEAD | TRAP2_ONLY_EVIL )
+
 #define TR3_SLOW_DIGEST		0x00000001L	/* Slow digest */
 #define TR3_FEATHER	 		0x00000002L	/* Feather Falling */
 #define TR3_LITE			0x00000004L	/* Perma-Lite */
@@ -1980,7 +2284,7 @@
 #define TR3_DRAIN_HP		0x00000200L	/* Drains hp */
 #define TR3_META_PSI1		0x00000400L	/* Metapsionics 1 */
 #define TR3_META_PSI2		0x00000800L	/* Metapsionics 2 */
-#define TR3_IMPACT			0x00001000L	/* Earthquake blows */
+#define TR3_IMPACT		0x00001000L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
 #define TR3_DRAIN_EXP		0x00008000L	/* Experience drain */
@@ -1988,15 +2292,15 @@
 #define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
-#define TR3_XXX5		0x00100000L	/* unused */
+#define TR3_INHIBIT_MAGIC	0x00100000L	/* Item inhibits spell magic */
 #define TR3_INHIBIT_PSI		0x00200000L	/* Item inhibits psionics */
-#define TR3_BLESSED			0x00400000L	/* Item has been blessed */
+#define TR3_BLESSED		0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
 #define TR3_INSTA_ART		0x01000000L	/* Item makes an artifact */
 #define TR3_EASY_KNOW		0x02000000L	/* Item is known if aware */
 #define TR3_HIDE_TYPE		0x04000000L	/* Item hides description */
 #define TR3_SHOW_MODS		0x08000000L	/* Item shows Tohit/Todam */
-#define TR3_XXX7			0x10000000L	/* (reserved) */
+#define TR3_INHIBIT_PRAYER	0x10000000L	/* inhibits prayers */
 #define TR3_LIGHT_CURSE		0x20000000L	/* Item has Light Curse */
 #define TR3_HEAVY_CURSE		0x40000000L	/* Item has Heavy Curse */
 #define TR3_PERMA_CURSE		0x80000000L	/* Item has Perma Curse */
@@ -2008,8 +2312,8 @@
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_PSEUDO_ID | \
-	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
+	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_OLD_PSEUDO_ID | \
+	 TR1_STEALTH | TR1_SENSING | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
 /*
@@ -2105,8 +2409,8 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
-#define RF2_XXX2			0x00000008	/* (?) */
+#define RF2_NOTICE_TRAP			0x00000004	/* Monster usually finds traps */
+#define RF2_DISARM_TRAP			0x00000008	/* Monster is good at disarming traps */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
@@ -2202,8 +2506,8 @@
 #define RF4_BR_SHAR			0x01000000	/* Breathe Shards */
 #define RF4_BR_PLAS			0x02000000	/* Breathe Plasma */
 #define RF4_BR_WALL			0x04000000	/* Breathe Force */
-#define RF4_BR_MANA			0x08000000	/* Breathe Mana */
-#define RF4_BR_INSA			0x10000000	/* Breathe Insanity */
+#define RF4_BR_XXX1			0x08000000	/* Breathe XXX */
+#define RF4_BR_XXX2			0x10000000	/* Breathe XXX */
 #define RF4_P_WAVE			0x20000000	/* Psionic Wave */
 #define RF4_BOULDER			0x40000000	/* Throw a boulder */
 #define RF4_XXX8			0x80000000
@@ -2262,12 +2566,12 @@
 #define RF6_DARKNESS		0x00001000	/* Create Darkness */
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
-#define RF6_XXX6			0x00008000	/* ??? */
+#define RF6_S_ANIMALS			0x00008000	/* Summon animals */
 #define RF6_S_KIN			0x00010000	/* Summon Kin */
 #define RF6_S_HI_DEMON		0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
 #define RF6_S_MONSTERS		0x00080000	/* Summon Monsters */
-#define RF6_S_ANT			0x00100000	/* Summon Ants */
+#define RF6_S_ANIMAL			0x00100000	/* Summon an animal */
 #define RF6_S_SPIDER		0x00200000	/* Summon Spiders */
 #define RF6_S_HOUND			0x00400000	/* Summon Hounds */
 #define RF6_S_HYDRA			0x00800000	/* Summon Hydras */
@@ -2300,10 +2604,10 @@
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
 	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
 	 RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-	 RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	 RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
-	 RF6_S_WRAITH | RF6_S_UNIQUE)
+	 RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_ANIMALS)
 
 
 /*
@@ -2341,8 +2645,8 @@
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
-	 RF4_P_BLAST | RF4_P_CRUSH | RF4_M_WRACK | RF4_BR_INSA | RF4_P_WAVE)
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | \
+	 RF4_P_BLAST | RF4_P_CRUSH | RF4_M_WRACK | RF4_P_WAVE  | RF4_BOULDER)
 
 #define RF5_ATTACK_MASK \
 	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
@@ -2366,10 +2670,11 @@
 	(0L)
 
 #define RF6_SUMMON_MASK \
-	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
-	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE | \
+	 RF6_S_ANIMALS)
 
 
 /*
@@ -2389,7 +2694,7 @@
  * Annoying spells
  */
 #define RF4_ANNOY_MASK \
-	(RF4_SHRIEK)
+	(RF4_SHRIEK | RF4_P_BLAST | RF4_P_CRUSH | RF4_M_WRACK | RF4_P_WAVE )
 
 #define RF5_ANNOY_MASK \
 	(RF5_DRAIN_MANA | RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_SCARE | \
@@ -2433,8 +2738,8 @@
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
-	 RF4_BR_INSA)
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | \
+	 RF4_BOULDER)
 
 #define RF5_INNATE_MASK \
 	(0L)
@@ -2711,12 +3016,6 @@
  * Hack -- The main "screen"
  */
 #define term_screen	(angband_term[0])
-
-/*
- * Hack -- random number generation
- */
-#define randint(M) \
-	(rand_int(M) + 1)
 
 
 /*
@@ -3002,8 +3301,9 @@ extern int PlayerUID;
 #define MSG_NOTHING_TO_OPEN 26
 #define MSG_LOCKPICK_FAIL   27
 #define MSG_STAIRS          28
+#define MSG_HITPOINT_WARN   29
 
-#define MSG_MAX             29
+#define MSG_MAX             30
 
 
 /*** Sound constants ***/
@@ -3067,36 +3367,11 @@ extern int PlayerUID;
 
 
 /*
- * Available graphic modes
- */
-#define GRAPHICS_NONE       0
-#define GRAPHICS_ORIGINAL   1
-#define GRAPHICS_ADAM_BOLT  2
-
-
-/*
  * r_info indices of the quest monsters
  * (required for loading old savefiles)
  */
 #define R_INFO_SAURON 546
 #define R_INFO_MORGOTH 547
-
-
-/*
- * Parse errors
- */
-#define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_OBSOLETE_FILE            2
-#define PARSE_ERROR_MISSING_RECORD_HEADER    3
-#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
-#define PARSE_ERROR_INVALID_FLAG             5
-#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
-#define PARSE_ERROR_OUT_OF_MEMORY            7
-#define PARSE_ERROR_OUT_OF_BOUNDS            8
-#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
-#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
-
-#define PARSE_ERROR_MAX                     11
 
 
 /*
@@ -3175,4 +3450,10 @@ extern int PlayerUID;
 #define ACT_DETONATE		62
 #define ACT_BERSERKER		63
 #define ACT_STARLIGHT		64
-#define ACT_MAX                 64+1
+#define ACT_DESTRUCTION		65
+#define ACT_MAX                 65+1
+
+/*
+ * HACK - define if the source contains the cleanup_angband() function.
+ */
+#define HAS_CLEANUP

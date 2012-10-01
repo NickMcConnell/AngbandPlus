@@ -261,7 +261,7 @@ void identify_pack(void)
 /*
  * Used by the "enchant" function (chance of failure)
  */
-static int enchant_table[16] =
+static const int enchant_table[16] =
 {
 	0, 10,  50, 100, 200,
 	300, 400, 500, 700, 950,
@@ -582,7 +582,14 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your mind is clouded";
 	}
-
+	if (p_ptr->inhibit_magic)
+	{
+		info[i++] = "Spellcasting is hard for you.";
+	}
+	if (p_ptr->inhibit_prayer)
+	{
+		info[i++] = "Praying is hard for you.";
+	}
 	if (p_ptr->immune_acid)
 	{
 		info[i++] = "You are completely immune to acid.";
@@ -769,10 +776,6 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
 	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "Your searching ability is affected by your equipment.";
-	}
 	if (f1 & (TR1_INFRA))
 	{
 		info[i++] = "Your infravision is affected by your equipment.";
@@ -797,9 +800,9 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
-	if (f1 & (TR1_PSEUDO_ID))
+	if (f1 & (TR1_SENSING))
 	{
-	 	info[i++] = "Your object sensing speed is affected by your equipment.";
+	 	info[i++] = "Your sensing abilities are affected by your equipment.";
 	}
 
 	/* Get the current weapon */
@@ -824,6 +827,10 @@ void self_knowledge(void)
 		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
+		}
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your weapon poisons your foes.";
 		}
 
 		/* Special "slay" flags */
@@ -1086,7 +1093,7 @@ bool detect_traps(void)
 			}
 
 			/* Detect traps */
-			if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+			if ((cave_feat[y][x] >= FEAT_TRAP_START) &&
 			    (cave_feat[y][x] <= FEAT_TRAP_TAIL))
 			{
 				/* Hack -- Memorize */
@@ -1406,6 +1413,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_PSI_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1685,7 +1693,7 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
-static bool item_tester_hook_weapon(object_type *o_ptr)
+static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1700,6 +1708,16 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 		{
 			return (TRUE);
 		}
+		case TV_TRAPKIT:
+			switch(o_ptr->sval)
+			{
+				case SV_TRAP_BOW:
+				case SV_TRAP_XBOW:
+				case SV_TRAP_CATAPULT:
+				{
+					return (TRUE);
+				}
+			}
 	}
 
 	return (FALSE);
@@ -1709,7 +1727,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-static bool item_tester_hook_armour(object_type *o_ptr)
+static bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1731,7 +1749,7 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -1740,7 +1758,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_star(object_type *o_ptr)
+static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -1812,7 +1830,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f3 & (TR3_PERMA_CURSE | TR3_HEAVY_CURSE))) &&
 				    (o_ptr->to_h >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -1840,7 +1858,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f3 & (TR3_PERMA_CURSE | TR3_HEAVY_CURSE))) &&
 				    (o_ptr->to_d >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -1868,7 +1886,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 				/* Break curse */
 				if (cursed_p(o_ptr) &&
-				    (!(f3 & (TR3_PERMA_CURSE))) &&
+				    (!(f3 & (TR3_PERMA_CURSE | TR3_HEAVY_CURSE))) &&
 				    (o_ptr->to_a >= 0) && (rand_int(100) < 25))
 				{
 					msg_print("The curse is broken!");
@@ -2132,7 +2150,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-static bool item_tester_hook_recharge(object_type *o_ptr)
+bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);
@@ -2469,22 +2487,15 @@ void aggravate_monsters(int who)
 }
 
 
-
-/*
- * Delete all non-unique monsters of a given "type" from the level
+/* 
+ * Delete all non-uniques with a given char, return number of monsters hit
  */
-bool genocide(void)
+int genocide_aux(char typ)
 {
-	int i;
-
-	char typ;
-
-	bool result = FALSE;
-
-
-	/* Mega-Hack -- Get a monster symbol */
-	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
-
+	int i, num;
+	
+	num = 0;
+	
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
 	{
@@ -2502,15 +2513,40 @@ bool genocide(void)
 
 		/* Delete the monster */
 		delete_monster_idx(i);
+		
+		/* Count it */
+		num++;
+	}
+	
+	return(num);
 
+}
+/*
+ * Delete all non-unique monsters of a given "type" from the level
+ */
+bool genocide(void)
+{
+	int i, num;
+
+	char typ;
+
+	bool result = FALSE;
+
+
+	/* Mega-Hack -- Get a monster symbol */
+	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+
+	
+	num = genocide_aux(typ);
+	
+	/* Hurt the player */
+	for (i = 0; i < num; i++)
+	{
 		/* Take some damage */
 		take_hit(randint(4), "the strain of casting Genocide");
-
-		/* Take note */
-		result = TRUE;
 	}
 
-	return (result);
+	return (num !=0);
 }
 
 
@@ -3615,7 +3651,7 @@ bool dimension_door(int lev)
 	int i, j;
 	
 	/* Get a target point */
-	if (!tgt_pt(&i,&j)) return (FALSE);
+	if (!tgt_pt(&j,&i,TARGET_FLOOR)) return (FALSE);
 	
 	/* Is target point valid? */
 	if (!cave_empty_bold(j,i) || (cave_info[j][i] & CAVE_ICKY) ||
@@ -3658,7 +3694,7 @@ bool telekinesis(int lev)
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 	
 	/* Get a starting point for the telekinesis */
-	if (!tgt_pt(&sx,&sy)) return (FALSE);
+	if (!tgt_pt(&sy,&sx,TARGET_OBJ)) return (FALSE);
 	
 	/* Is there an object lying there? */
 	o_idx = cave_o_idx[sy][sx];

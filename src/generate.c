@@ -248,7 +248,7 @@ static dun_data *dun;
 /*
  * Array of room types (assumes 11x11 blocks)
  */
-static room_data room[ROOM_MAX] =
+static const room_data room[ROOM_MAX] =
 {
 	{ 0, 0, 0, 0, 0 },		/* 0 = Nothing */
 	{ 0, 0, -1, 1, 1 },		/* 1 = Simple (33x11) */
@@ -2392,7 +2392,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Lesser Vault");
+	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2428,7 +2428,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Greater Vault");
+	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3203,7 +3203,8 @@ static void build_store(int n, int yy, int xx)
 
 	/* Find the "center" of the store */
 	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 14 + 12;
+	x0 = qx + xx * 12 + 10;
+	if (!yy) x0 = x0 + xx * 3;
 
 	/* Determine the store boundaries */
 	y1 = y0 - randint((yy == 0) ? 3 : 2);
@@ -3227,7 +3228,7 @@ static void build_store(int n, int yy, int xx)
 	/* Re-roll "annoying" doors */
 	if (((tmp == 0) && (yy == 1)) ||
 	    ((tmp == 1) && (yy == 0)) ||
-	    ((tmp == 2) && (xx == 3)) ||
+	    ((tmp == 2) && (xx == 3 + yy)) ||
 	    ((tmp == 3) && (xx == 0)))
 	{
 		/* Pick a new direction */
@@ -3307,8 +3308,8 @@ static void town_gen_hack(void)
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++)
 	{
-		/* Place four stores per row */
-		for (x = 0; x < 4; x++)
+		/* Place four/five stores per row */
+		for (x = 0; x < 4 + y; x++)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));

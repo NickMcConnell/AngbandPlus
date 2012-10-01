@@ -16,7 +16,7 @@
  */
 
 /*
- * Approximate Distance between two points.
+ * Approximate distance between two points.
  *
  * When either the X or Y component dwarfs the other component,
  * this function is almost perfect, and otherwise, it tends to
@@ -299,10 +299,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 
@@ -634,6 +631,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	int floor_num = 0;
 
+	bool no_objects_hack = FALSE;
+	
 	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
 	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
 
@@ -646,6 +645,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Cave flags */
 	info = cave_info[y][x];
 
+	/* Mega - Hack -- Don't display the objects that constitute a monster trap -MWK- */
+	if (feat == FEAT_MON_TRAP) no_objects_hack = TRUE;
+		
 	/* Hack -- rare random hallucination on non-outer walls */
 	if (image && (!rand_int(256)) && (feat < FEAT_PERM_SOLID))
 	{
@@ -654,7 +656,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		a = PICT_A(i);
 		c = PICT_C(i);
 	}
-
+	
 	/* Boring grids (floors, etc) */
 	else if (feat <= FEAT_INVIS)
 	{
@@ -857,6 +859,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 #endif /* USE_TRANSPARENCY */
 
 	/* Objects */
+	if (!no_objects_hack)
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
@@ -1323,7 +1326,7 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static byte priority_table[][2] =
+static const byte priority_table[][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -3241,7 +3244,6 @@ void wiz_lite(void)
 {
 	int i, y, x;
 
-
 	/* Memorize objects */
 	for (i = 1; i < o_max; i++)
 	{
@@ -3286,7 +3288,7 @@ void wiz_lite(void)
 					if (view_perma_grids && !view_torch_grids)
 					{
 						/* Memorize the grid */
-						cave_info[yy][xx] |= (CAVE_MARK);
+						cave_info[yy][xx] |= (CAVE_MARK);					
 					}
 				}
 			}
@@ -3303,6 +3305,55 @@ void wiz_lite(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+/*
+ * Light up the dungeon using "claravoyance"
+ *
+ * This function "illuminates" every grid in the dungeon and memorizes all
+ * wall grids. It doesn NOT detect any objects or show the lighted floor.
+ *
+ */
+void clairvoyance(void)
+{
+	int i, y, x;
+
+	/* Scan all normal grids */
+	for (y = 1; y < DUNGEON_HGT-1; y++)
+	{
+		/* Scan all normal grids */
+		for (x = 1; x < DUNGEON_WID-1; x++)
+		{
+			/* Process all non-walls */
+			if (cave_feat[y][x] < FEAT_SECRET)
+			{
+				/* Scan all neighbors */
+				for (i = 0; i < 9; i++)
+				{
+					int yy = y + ddy_ddd[i];
+					int xx = x + ddx_ddd[i];
+
+					/* Perma-lite the grid */
+					cave_info[yy][xx] |= (CAVE_GLOW);
+
+					/* Memorize normal features */
+					if (cave_feat[yy][xx] > FEAT_INVIS)
+					{
+						/* Memorize the grid */
+						cave_info[yy][xx] |= (CAVE_MARK);
+					}
+				}
+			}
+		}
+	}
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
 
 /*
  * Forget the dungeon map (ala "Thinking of Maud...").
@@ -3450,7 +3501,7 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	if ((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_WALL_TAIL))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}

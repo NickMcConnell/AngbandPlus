@@ -41,7 +41,7 @@ especially this one, before beginning any serious adventuring...
 
 === A Note from the Maintainers ===
 
-Welcome to Psiband 1.2.0
+Welcome to Psiband 1.3.0
 
 My name is Jonathan Ellis, and I have been one of the maintainers of 
 Psiband since the retirement of the original designer, Aram Harrow.  
@@ -53,12 +53,12 @@ Thanks also to Ben Harrison and Robert Ruehlmann for being the successive
 maintainers of Angband, the original game of which this is a variant, and 
 to everyone else who has contributed to Angband development.
 
-Psiband 1.2.0 is portable to almost every known system (including Unix,
+Psiband 1.3.0 is portable to almost every known system (including Unix,
 Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
 and the source code is freely available.  Creating a version for a new
 platform involves writing as few as 100 lines of code and recompiling.
 
-Psiband 1.2.0 is the most recent official "stable" version - and indeed,
+Psiband 1.3.0 is the most recent official "stable" version - and indeed,
 the only truly "stable" version, all previous efforts having had nasty 
 bugs in.
 

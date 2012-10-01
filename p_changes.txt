@@ -1,0 +1,68 @@
+Changes in PsiAngband 1.3.0:
+
+- The codebase was updated to vanilla 2.9.2 (except for autoconf support)
+
+- Cursed ego items are generated in a more sensible manner now.
+
+- Objects with boosted damage dice are slightly more common.
+
+- Rogues can set traps for monsters. This requires a "trapping kit" as a trigger
+  and something to "load" the trap with. This uses the "p" command.
+  All scrolls, potions, wands, staffs and rods can be used (with the appropriate
+  trigger) as traps to confuse, poison, teleport, genocide, ... unwary monsters.
+  But standing next to a trap with area effect will hurt the player, too.
+  There are also traps that shoot ammo: hidden catapults, bows and xbows.
+  
+  Some monsters can disarm traps, and a monster that has disarmed one of your
+  traps will learn how to disarm all of them...
+  
+  Ammo Traps can have (+hit,+dam) just like bows. They can also be enchanted.
+  All traps can have a [+AC] showing how hard it is to disarm it.
+  There is also ego and artifact traps.
+
+  A note: If you use the "Disarm traps on movement" option, you own trap will also be 
+  disarmed by moving into it. To prevent this, move with "-"+ direction. (This is also
+  good for using a trap door or teleportation trap to escape from a vault.)
+  
+- A bookstore was added. The town will change to a new town, so don't leave anything
+  on the floor when you upgrade your savefile!
+  
+- Since several monsters changed their positions, some uniques might get resurrected.
+  Apart from that, 1.2.0 savefiles should work. Back them up first, just to be sure,
+  and if you encounter a problem, send the 1.2.0 savefile to me (mawende@gmx.net) and
+  I'll try to fix it. 
+
+- Searching and Pseudo-ID bonus combined to "Sensing". Amulets of Pseudo-ID will be
+  magically converted (read:hacked) into Amulets of Sensing. 
+  
+- Psionic Foci are "*" now. Hidden gold is "$".
+
+- Lots of new amulets were added, some of which give a rating boost and are mentioned
+  to cheaters. Some of these are also not good for spellcasters... and there's several
+  other rather class-specific ego-items and artifacts.
+
+- Priests should only use blunt or blessed ammo, or get a severe to-hit penalty (-15).  
+
+- Being hungry no longer has effects on your speed.
+
+- Potions of Infravision give +30 feet now.
+
+- Adrenaline (as potions or as spell) is a *lot* better now, but too much of it is
+  still dangerous...
+
+- Heavy Curses (such as on Calris) can't be broken by enchanting alone anymore. 
+  But *Remove Curse* scrolls appear during stat gain now. 
+
+- Precognition should be less scummy than in 1.0.7b and more useful than in 1.2.0 now.
+
+- Some low-level psionic spells have a better damage/mana ratio now.
+
+- Psionicists have more hitpoints.
+    
+- The spell and activation of clairvoyance don't detect objects anymore.
+  But *Enlightenment* still does.
+
+- Revamped targetting for Telekinesis, Dimension Door etc.  
+
+- Summoning flags changed slightly.
+

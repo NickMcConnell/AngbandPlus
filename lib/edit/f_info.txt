@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.3.0
 
 
 # 0x00 --> <darkness>
@@ -80,45 +80,10 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> shop -- general store (perm)
+# 0x0F --> monster trap
 
-N:8:General Store
-G:1:U
-
-# 0x09 --> shop -- armoury (perm)
-
-N:9:Armoury
-G:2:s
-
-# 0x0A --> shop -- weapon shop (perm)
-
-N:10:Weapon Smiths
-G:3:w
-
-# 0x0B --> shop -- temple (perm)
-
-N:11:Temple
-G:4:g
-
-# 0x0C --> shop -- alchemist (perm)
-
-N:12:Alchemy Shop
-G:5:b
-
-# 0x0D --> shop -- magic shop (perm)
-
-N:13:Magic Shop
-G:6:r
-
-# 0x0E --> shop -- black market (perm)
-
-N:14:Black Market
-G:7:D
-
-# 0x0F --> shop -- home (perm)
-
-N:15:Home
-G:8:y
+N:15:monster trap
+G:;:v
 
 # 0x10 --> visible trap -- trap door
 
@@ -332,12 +297,12 @@ M:51
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
-G:*:o
+G:$:o
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
-G:*:o
+G:$:o
 
 # 0x38 --> granite wall -- basic
 
@@ -389,3 +354,48 @@ M:60
 
 N:64:force wall
 G:#:b
+
+# 0x51 --> shop -- general store (perm)
+
+N:81:General Store
+G:1:U
+
+# 0x52 --> shop -- armoury (perm)
+
+N:82:Armoury
+G:2:s
+
+# 0x53 --> shop -- weapon shop (perm)
+
+N:83:Weapon Smiths
+G:3:w
+
+# 0x54 --> shop -- temple (perm)
+
+N:84:Temple
+G:4:g
+
+# 0x55 --> shop -- alchemist (perm)
+
+N:85:Alchemy Shop
+G:5:b
+
+# 0x56 --> shop -- magic shop (perm)
+
+N:86:Magic Shop
+G:6:r
+
+# 0x57 --> shop -- black market (perm)
+
+N:87:Black Market
+G:7:D
+
+# 0x58 --> shop -- home (perm)
+
+N:88:Home
+G:8:y
+
+# 0x59 --> shop -- home (perm)
+
+N:89:Bookstore
+G:9:u

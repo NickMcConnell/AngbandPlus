@@ -848,7 +848,7 @@ static void fix_inven(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -882,7 +882,7 @@ static void fix_equip(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -915,7 +915,7 @@ static void fix_player_0(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -949,7 +949,7 @@ static void fix_player_1(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -986,7 +986,7 @@ static void fix_message(void)
 	int x, y;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1041,7 +1041,7 @@ static void fix_overhead(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1074,7 +1074,7 @@ static void fix_monster(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1107,7 +1107,7 @@ static void fix_object(void)
 	int j;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1144,7 +1144,7 @@ static void calc_spells(void)
 	int i, j, k, levels;
 	int num_allowed, num_known;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" :
 	((mp_ptr->spell_book == TV_PSI_BOOK) ? "power" : "prayer"));
@@ -1174,7 +1174,7 @@ static void calc_spells(void)
 	num_known = 0;
 
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Count known spells */
 		if ((j < 32) ?
@@ -1294,7 +1294,7 @@ static void calc_spells(void)
 
 
 	/* Check for spells to remember */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
@@ -1353,7 +1353,7 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
+	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Get the spell */
 		s_ptr = &mp_ptr->info[j];
@@ -1428,13 +1428,7 @@ static void calc_mana(void)
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
-
-        /* Inhibit psi objects hurt psionics */
-        if ((p_ptr->pclass == CLASS_PSIONICIST) && p_ptr->inhibit_psi)
-        {
-		msp = (3 * msp) / 4; 
-        }
-	
+        	
 	/* Only mages are affected */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
@@ -1492,6 +1486,23 @@ static void calc_mana(void)
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
 
+        /* Inhibit psi objects hurt psionics */
+        if (p_ptr->inhibit_psi)
+        {
+		msp = (2 * msp) / 3; 
+        }
+        
+        /* Inhibit magic objects hurt mages */
+        if (p_ptr->inhibit_magic)
+        {
+		msp = (2 * msp) / 3; 
+        }
+        
+        /* Inhibit prayer objects hurt priests */
+        if (p_ptr->inhibit_prayer)
+        {
+		msp = (2 * msp) / 3; 
+        }
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1804,6 +1815,8 @@ static void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 	p_ptr->resist_psi = FALSE;
 	p_ptr->inhibit_psi = FALSE;
+	p_ptr->inhibit_prayer = FALSE;
+	p_ptr->inhibit_magic = FALSE;
 
 
 
@@ -1862,6 +1875,13 @@ static void calc_bonuses(void)
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+        if ((f3 & (TR3_INHIBIT_PSI) && mp_ptr->spell_book == TV_PSI_BOOK))
+        	p_ptr->inhibit_psi = TRUE;
+        if ((f3 & (TR3_INHIBIT_MAGIC) && mp_ptr->spell_book == TV_MAGIC_BOOK))
+        	p_ptr->inhibit_magic = TRUE;
+        if ((f3 & (TR3_INHIBIT_PRAYER) && mp_ptr->spell_book == TV_PRAYER_BOOK))
+        	p_ptr->inhibit_prayer = TRUE;
+
 
 	/* Bad flags */
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -1870,7 +1890,6 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 	if (f3 & (TR3_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
 	if (f3 & (TR3_DRAIN_HP)) p_ptr->drain_hp = TRUE;
-        if (f3 & (TR3_INHIBIT_PSI)) p_ptr->inhibit_psi = TRUE;
 	
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -1928,16 +1947,16 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
 		/* Affect pseudo-ID */
-		if (f1 & (TR1_PSEUDO_ID)) p_ptr->pseudo_id += o_ptr->pval;
+		if (f1 & (TR1_SENSING)) p_ptr->pseudo_id += o_ptr->pval;
 		
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
 
 		/* Affect searching ability (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
+		if (f1 & (TR1_SENSING)) p_ptr->skill_srh += (o_ptr->pval * 5);
 
 		/* Affect searching frequency (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (o_ptr->pval * 5);
+		if (f1 & (TR1_SENSING)) p_ptr->skill_fos += (o_ptr->pval * 5);
 
 		/* Affect infravision */
 		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
@@ -1969,6 +1988,12 @@ static void calc_bonuses(void)
 
 		/* Weird flags */
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+        	if ((f3 & (TR3_INHIBIT_PSI) && mp_ptr->spell_book == TV_PSI_BOOK))
+	        	p_ptr->inhibit_psi = TRUE;
+        	if ((f3 & (TR3_INHIBIT_MAGIC) && mp_ptr->spell_book == TV_MAGIC_BOOK))
+	        	p_ptr->inhibit_magic = TRUE;
+        	if ((f3 & (TR3_INHIBIT_PRAYER) && mp_ptr->spell_book == TV_PRAYER_BOOK))
+	        	p_ptr->inhibit_prayer = TRUE;
 
 		/* Bad flags */
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -1977,7 +2002,6 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
 		if (f3 & (TR3_DRAIN_HP)) p_ptr->drain_hp = TRUE;
-                if (f3 & (TR3_INHIBIT_PSI)) p_ptr->inhibit_psi = TRUE;
 				
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -2043,6 +2067,21 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
+        /* Adrenaline effects */
+        if (p_ptr->adrenaline)
+	{
+		p_ptr->stat_add[A_CON] += 5;
+		p_ptr->stat_add[A_STR] += 5;
+		p_ptr->stat_add[A_DEX] += 5;
+		p_ptr->to_h += 12;
+		p_ptr->dis_to_h += 12;
+		p_ptr->to_d += 8;
+		p_ptr->dis_to_d += 8;
+		p_ptr->to_a -= 20;
+		p_ptr->dis_to_a -= 20;
+	}
+	
+	
 	
 	/*** Handle stats ***/
 
@@ -2165,59 +2204,25 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra += 3;
 	}
 	
-	/* Temporary telepathy */
+	/* Hack - Temporary telepathy */
 	if (p_ptr->awareness)
 	{
 		p_ptr->telepathy = TRUE;
 	}
 	
-	/* Temporary mental resists */
+	/* Hack - Temporary mental resists */
 	if (p_ptr->mental_barrier)
 	{
 	 	p_ptr->resist_confu = TRUE;
 	 	p_ptr->resist_fear = TRUE;
 	 	p_ptr->sustain_int = TRUE;
 	 	p_ptr->sustain_wis = TRUE;
-	}
-	
-	/* Hunger effects (psi) */
-	if (p_ptr->food < PY_FOOD_ALERT)
-	{
-		p_ptr->pspeed--;
-		p_ptr->to_h--;
-		p_ptr->stat_add[A_STR]--;
-	}
-	if (p_ptr->food < PY_FOOD_WEAK)
-	{
-		p_ptr->pspeed--;
-		p_ptr->to_h--;
-		for (i=0 ; i<6 ; i++) p_ptr->stat_add[i]--;
-	}
+	}	
 
-        /* Adrenaline effects */
-        if (p_ptr->adrenaline)
-	{
-		i = p_ptr->lev / 7;
-		if (i>5) i = 5;
-		p_ptr->stat_add[A_CON] += i;
-		p_ptr->stat_add[A_STR] += i;
-		p_ptr->stat_add[A_DEX] += (i + 1) / 2;
-		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
-		if (p_ptr->adrenaline & 1)
-		{
-			p_ptr->to_d += 8;
-			p_ptr->dis_to_d += 8;
-		}
-		if (p_ptr->adrenaline & 2) extra_blows++;
-		p_ptr->to_a -= 20;
-		p_ptr->dis_to_a -= 10;
-	}
 	
-
 	/*** Special flags ***/
 
 	/* Hack -- Hero/Shero -> Res fear */
@@ -2236,7 +2241,7 @@ static void calc_bonuses(void)
 	i = weight_limit();
 
 	/* Apply "encumbrance" from weight */
-	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
+	if (j > i / 2) p_ptr->pspeed -= ((j - (i / 2)) / (i / 10));
 
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
@@ -2688,6 +2693,40 @@ static void calc_bonuses(void)
 		/* Save it */
 		p_ptr->old_inhibit_psi = p_ptr->inhibit_psi;
 	}
+	
+	/* Take note when "inhibit magic" changes */
+	if (p_ptr->old_inhibit_magic != p_ptr->inhibit_magic)
+	{
+		/* Message */
+		if (p_ptr->inhibit_magic)
+		{
+			msg_print("Your equipment makes it hard to cast spells.");
+		}
+		else
+		{
+			msg_print("Casting spells seems easier now.");
+		}
+		
+		/* Save it */
+		p_ptr->old_inhibit_magic = p_ptr->inhibit_magic;
+	}
+	
+	/* Take note when "inhibit prayer" changes */
+	if (p_ptr->old_inhibit_prayer != p_ptr->inhibit_prayer)
+	{
+		/* Message */
+		if (p_ptr->inhibit_prayer)
+		{
+			msg_print("Concentrating on praying is hard.");
+		}
+		else
+		{
+			msg_print("Concentrating on praying seems easier now.");
+		}
+		
+		/* Save it */
+		p_ptr->old_inhibit_prayer = p_ptr->inhibit_prayer;
+	}
 }
 
 
@@ -3008,7 +3047,7 @@ void window_stuff(void)
 	if (!p_ptr->window) return;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		/* Save usable flags */
 		if (angband_term[j])
@@ -3053,7 +3092,7 @@ void window_stuff(void)
 		fix_player_1();
 	}
 
-	/* Display overhead view */
+	/* Display message recall */
 	if (p_ptr->window & (PW_MESSAGE))
 	{
 		p_ptr->window &= ~(PW_MESSAGE);

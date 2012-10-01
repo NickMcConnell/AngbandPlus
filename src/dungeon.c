@@ -14,7 +14,7 @@
 /*
  * Return a "feeling" (or NULL) about an item.
  */
-static int value_check_aux(object_type *o_ptr)
+static int value_check_aux(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -136,7 +136,9 @@ static void sense_inventory(void)
 
 	int mode = 0;
 
-	int feel, ps_speed;
+	int feel;
+	
+	int ps_speed = 0;
 
 	object_type *o_ptr;
 
@@ -276,6 +278,7 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_TRAPKIT:
 			{
 				okay = TRUE;
 				break;
@@ -1299,7 +1302,7 @@ static bool enter_wizard_mode(void)
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
 		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
@@ -1330,7 +1333,7 @@ static bool verify_debug_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
@@ -1369,7 +1372,7 @@ static bool verify_borg_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, borg commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
@@ -1696,10 +1699,13 @@ static void process_command(void)
 			break;
 		}
 
-		/* Pray a prayer */
+		/* Pray a prayer or put down a trap */
 		case 'p':
 		{
-			do_cmd_pray();
+			if (p_ptr->pclass == CLASS_ROGUE)
+				do_cmd_set_trap();
+			else
+				do_cmd_pray();
 			break;
 		}
 
@@ -2570,7 +2576,7 @@ static void dungeon(void)
 
 
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Hack -- Increase "xtra" depth */
@@ -2792,23 +2798,11 @@ static void dungeon(void)
 
 /*
  * Process some user pref files
- *
- * Hack -- Allow players on UNIX systems to keep a ".angband.prf" user
- * pref file in their home directory.  Perhaps it should be loaded with
- * the "basic" user pref files instead of here.  This may allow bypassing
- * of some of the "security" compilation options.  XXX XXX XXX XXX XXX
  */
 static void process_some_user_pref_files(void)
 {
 	char buf[1024];
 
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	char *homedir;
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
@@ -2818,22 +2812,6 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
-
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	/* Process the "~/.angband.prf" file */
-	if ((homedir = getenv("HOME")))
-	{
-		/* Get the ".angband.prf" filename */
-		path_build(buf, 1024, homedir, ".angband.prf");
-
-		/* Process the ".angband.prf" file */
-		(void)process_pref_file(buf);
-	}
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 }
 
 
@@ -2871,13 +2849,13 @@ void play_game(bool new_game)
 
 
 	/* Verify main term */
-	if (!angband_term[0])
+	if (!term_screen)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -3089,7 +3067,7 @@ void play_game(bool new_game)
 
 
 		/* XXX XXX XXX */
-		msg_print(NULL);
+		message_flush();
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
@@ -3108,7 +3086,7 @@ void play_game(bool new_game)
 
 				/* Message */
 				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
+				message_flush();
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
@@ -3139,7 +3117,7 @@ void play_game(bool new_game)
 				{
 					/* Message */
 					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
+					message_flush();
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
@@ -3165,7 +3143,4 @@ void play_game(bool new_game)
 
 	/* Close stuff */
 	close_game();
-
-	/* Quit */
-	quit(NULL);
 }

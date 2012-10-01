@@ -14,7 +14,6 @@
 static int bale_effect = 0;
 int blast_center_x, blast_center_y;
 
-
 /*
  * Helper function -- return a "nearby" race for polymorphing
  *
@@ -289,6 +288,64 @@ void teleport_player_to(int ny, int nx)
 	handle_stuff();
 }
 
+/*
+ * Teleport a monster to a grid near the given location
+ *
+ * This function is slightly obsessive about correctness.
+ * This function allows teleporting into vaults (!)
+ */
+void teleport_monster_to(int m_idx, int ny, int nx)
+{
+	monster_type *m_ptr=&m_list[m_idx];
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+
+	int y, x;
+
+	int dis = 0, ctr = 0;
+	
+	/* Time/space anchor prevents teleportation */
+	if (p_ptr->ts_anchor)
+	{
+		msg_print("The time/space prevents the monster from teleporting.");
+		return;
+	}
+
+	/* Initialize */
+	y = my;
+	x = mx;
+
+	/* Find a usable location */
+	while (1)
+	{
+		/* Pick a nearby legal location */
+		while (1)
+		{
+			y = rand_spread(ny, dis);
+			x = rand_spread(nx, dis);
+			if (in_bounds_fully(y, x)) break;
+		}
+
+		/* Accept "naked" floor grids */
+		if (cave_naked_bold(y, x)) break;
+
+		/* Occasionally advance the distance */
+		if (++ctr > (4 * dis * dis + 4 * dis + 1))
+		{
+			ctr = 0;
+			dis++;
+		}
+	}
+
+	/* Sound */
+	sound(MSG_TELEPORT);
+
+	/* Move monster */
+	monster_swap(my, mx, y, x);
+
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
+}
 
 /*
  * Teleport the player one level up or down (random when legal)
@@ -497,7 +554,7 @@ void take_hit(int dam, cptr kb_str)
 	{
 		/* Hack -- Note death */
 		message(MSG_DEATH, 0, "You die.");
-		msg_print(NULL);
+		message_flush();
 
 		/* Note cause of death */
 		strcpy(p_ptr->died_from, kb_str);
@@ -525,8 +582,8 @@ void take_hit(int dam, cptr kb_str)
 		}
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
-		msg_print(NULL);
+		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
+		message_flush();
 	}
 }
 
@@ -538,7 +595,7 @@ void take_hit(int dam, cptr kb_str)
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-static bool hates_acid(object_type *o_ptr)
+static bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -565,6 +622,7 @@ static bool hates_acid(object_type *o_ptr)
 
 		/* Staffs/Scrolls are wood/paper */
 		case TV_STAFF:
+		case TV_TRAPKIT:
 		case TV_SCROLL:
 		{
 			return (TRUE);
@@ -592,7 +650,7 @@ static bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-static bool hates_elec(object_type *o_ptr)
+static bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -617,7 +675,7 @@ static bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-static bool hates_fire(object_type *o_ptr)
+static bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -652,6 +710,7 @@ static bool hates_fire(object_type *o_ptr)
 		/* Staffs/Scrolls burn */
 		case TV_STAFF:
 		case TV_SCROLL:
+		case TV_TRAPKIT:
 		{
 			return (TRUE);
 		}
@@ -664,7 +723,7 @@ static bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-static bool hates_cold(object_type *o_ptr)
+static bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -683,7 +742,7 @@ static bool hates_cold(object_type *o_ptr)
 /*
  * Melt something
  */
-static int set_acid_destroy(object_type *o_ptr)
+static int set_acid_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
@@ -696,7 +755,7 @@ static int set_acid_destroy(object_type *o_ptr)
 /*
  * Electrical damage
  */
-static int set_elec_destroy(object_type *o_ptr)
+static int set_elec_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
@@ -709,7 +768,7 @@ static int set_elec_destroy(object_type *o_ptr)
 /*
  * Burn something
  */
-static int set_fire_destroy(object_type *o_ptr)
+static int set_fire_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
@@ -722,7 +781,7 @@ static int set_fire_destroy(object_type *o_ptr)
 /*
  * Freeze things
  */
-static int set_cold_destroy(object_type *o_ptr)
+static int set_cold_destroy(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
@@ -737,12 +796,12 @@ static int set_cold_destroy(object_type *o_ptr)
 /*
  * This seems like a pretty standard "typedef"
  */
-typedef int (*inven_func)(object_type *);
+typedef int (*inven_func)(const object_type *);
 
 /*
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
- * Destruction taken from "melee.c" code for "stealing".
+ *
  * Returns number of items destroyed.
  */
 static int inven_damage(inven_func typ, int perc)
@@ -1273,7 +1332,7 @@ bool apply_disenchant(int mode)
 /*
  * Apply Nexus
  */
-static void apply_nexus(monster_type *m_ptr)
+static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -1411,7 +1470,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			/* Destroy traps */
 			if ((cave_feat[y][x] == FEAT_INVIS) ||
-			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+			    ((cave_feat[y][x] >= FEAT_TRAP_START) &&
 			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)))
 			{
 				/* Check line of sight */
@@ -1420,10 +1479,15 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					msg_print("There is a bright flash of light!");
 					obvious = TRUE;
 				}
-
+#if 0				
+				if (cave_feat[y][x] == FEAT_MON_TRAP)
+				{
+					msg_print("Destroying monster trap!");
+				}				
+#endif
 				/* Forget the trap */
 				cave_info[y][x] &= ~(CAVE_MARK);
-
+				
 				/* Destroy the trap */
 				cave_set_feat(y, x, FEAT_FLOOR);
 			}
@@ -1453,7 +1517,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((cave_feat[y][x] == FEAT_OPEN) ||
 			    (cave_feat[y][x] == FEAT_BROKEN) ||
 			    (cave_feat[y][x] == FEAT_INVIS) ||
-			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+			    ((cave_feat[y][x] >= FEAT_TRAP_START) &&
 			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)) ||
 			    ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
 			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
@@ -1473,7 +1537,12 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 						p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 					}
 				}
-
+#if 0				
+				if (cave_feat[y][x] == FEAT_MON_TRAP)
+				{
+					msg_print("Destroying monster trap!");
+				}				
+#endif
 				/* Forget the door */
 				cave_info[y][x] &= ~(CAVE_MARK);
 
@@ -1722,7 +1791,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	dam = (dam + r) / (r + 1);
 #endif /* 0 */
 
-
+	/* Hack -- do not destroy active monster traps */
+	
+        if (cave_feat[y][x] != FEAT_MON_TRAP)
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -1961,7 +2032,6 @@ static int num_psi_attacks(monster_race *r_ptr)
 	if (r_ptr->flags4 & RF4_P_BLAST) x++;
 	if (r_ptr->flags4 & RF4_P_CRUSH) x++;
 	if (r_ptr->flags4 & RF4_M_WRACK) x++;
-	if (r_ptr->flags4 & RF4_BR_INSA) x++;
 	if (r_ptr->flags4 & RF4_P_WAVE) x++;
 	if (r_ptr->flags5 & RF5_MIND_BLAST) x++;
 	if (r_ptr->flags5 & RF5_BRAIN_SMASH) x++;
@@ -2046,7 +2116,7 @@ static bool psi_backlash(int m_idx,int dam)
  *
  * We attempt to return "TRUE" if the player saw anything "useful" happen.
  */
-static bool project_m(int who, int r, int y, int x, int dam, int typ)
+bool project_m(int who, int r, int y, int x, int dam, int typ)
 {
 	int tmp;
 
@@ -2201,7 +2271,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam /= 4;
 			}
 	
-			if (psi_backlash(cave_m_idx[y][x],dam)) resist = TRUE;
+			if ((who == -1) && psi_backlash(cave_m_idx[y][x],dam)) resist = TRUE;
 
 			if (((m_ptr->confused > 0) && !rand_int(3)) ||
 			    ((m_ptr->confused > 20) && !rand_int(3)) ||
@@ -2287,7 +2357,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 	
 			if (rand_int(3))
-			if (psi_backlash(cave_m_idx[y][x],dam))
+			if ((who == -1) && psi_backlash(cave_m_idx[y][x],dam))
 			if (rand_int(3)) resist = TRUE;
 
 			if (((m_ptr->confused > 0) && !rand_int(3)) ||
@@ -2376,7 +2446,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			if (rand_int(2))
-			  if (psi_backlash(cave_m_idx[y][x],dam))
+			  if ((who == -1) &&psi_backlash(cave_m_idx[y][x],dam))
 			    if (rand_int(2))
 			      resist = TRUE;
 	
@@ -2448,7 +2518,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			if (rand_int(3))
-			  if (psi_backlash(cave_m_idx[y][x],dam))
+			  if ((who == -1) &&psi_backlash(cave_m_idx[y][x],dam))
 			    if (rand_int(4)) resist = TRUE;
 
 			if (randint(dam) >
@@ -2465,7 +2535,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					note = " begins drooling and staring off into space.";
 					break;
 					case 2:
-					note = " starts forgetting basic motor skills.";
+					note = " starts forgetting basic motoric skills.";
 					m_ptr->mspeed -= randint(9);
 					break;
 					case 3:
@@ -2499,7 +2569,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 			
-			if (psi_backlash(cave_m_idx[y][x],damroll(dam,r_ptr->level))) dam = 0;
+			if ((who == -1) && psi_backlash(cave_m_idx[y][x],damroll(dam,r_ptr->level))) dam = 0;
 			dam *= 10 + (r_ptr->flags2 & RF2_SMART ? -4 : 0) +
 			(r_ptr->flags2 & RF2_WEIRD_MIND ? -4 : 0) +
 			(r_ptr->flags3 & RF3_UNDEAD ? -4 : 0) +
@@ -3679,6 +3749,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies))
 		{
 			/* Dead monster */
+			
 		}
 
 		/* Damaged monster */
@@ -3836,7 +3907,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		if (p_ptr->resist_psi) psi_resists++;
 		if (p_ptr->mental_barrier) psi_resists++;
 		if (rand_int(100) < p_ptr->skill_sav) psi_resists++;
-		if ((p_ptr->shero) && (rand_int(100) >= p_ptr->skill_sav)) psi_resists--;
+		if ((p_ptr->shero || p_ptr->adrenaline) && (rand_int(100) >= p_ptr->skill_sav)) psi_resists--;
 		if (p_ptr->confused) psi_resists--;
 		if (p_ptr->image) psi_resists--;
 		if (p_ptr->stun) psi_resists--;
@@ -3885,7 +3956,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (p_ptr->resist_psi) psi_resists++;
 			if (p_ptr->mental_barrier) psi_resists++;
 			if (p_ptr->paralyzed) psi_resists++;
-			if (p_ptr->shero) psi_resists--;
+			if (p_ptr->shero || p_ptr->adrenaline) psi_resists--;
 			if (p_ptr->confused) psi_resists--;
 			if (p_ptr->image) psi_resists--;
 			if (p_ptr->stun) psi_resists--;
@@ -4655,6 +4726,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Encoded "radius" info (see above) */
 	byte gm[16];
 
+	/* Psi Mega-Hack -- fading damage (fade_dam is a global var) */
+	fade_dam = dam;
 
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))

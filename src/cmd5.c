@@ -28,14 +28,14 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	int spell;
 	int num = 0;
 
-	byte spells[64];
+	byte spells[PY_MAX_SPELLS];
 
 	bool verify;
 
 	bool flag, redraw, okay;
 	char choice;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	char out_val[160];
 	
@@ -58,7 +58,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 #endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
-	for (spell = 0; spell < 64; spell++)
+	for (spell = 0; spell < PY_MAX_SPELLS; spell++)
 	{
 		/* Check for this spell */
 		if ((spell < 32) ?
@@ -243,7 +243,7 @@ void do_cmd_browse(void)
 	int spell;
 	int num = 0;
 
-	byte spells[64];
+	byte spells[PY_MAX_SPELLS];
 
 	object_type *o_ptr;
 
@@ -319,7 +319,7 @@ void do_cmd_browse(void)
 
 
 	/* Extract spells */
-	for (spell = 0; spell < 64; spell++)
+	for (spell = 0; spell < PY_MAX_SPELLS; spell++)
 	{
 		/* Check for this spell */
 		if ((spell < 32) ?
@@ -457,7 +457,7 @@ void do_cmd_study(void)
 		int gift = -1;
 
 		/* Extract spells */
-		for (spell = 0; spell < 64; spell++)
+		for (spell = 0; spell < PY_MAX_SPELLS; spell++)
 		{
 			/* Check spells in the book */
 			if ((spell < 32) ?
@@ -505,7 +505,7 @@ void do_cmd_study(void)
 	}
 
 	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
 		if (p_ptr->spell_order[i] == 99) break;
@@ -557,7 +557,7 @@ void do_cmd_cast(void)
 
 	object_type *o_ptr;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr q, s;
 
@@ -633,6 +633,9 @@ void do_cmd_cast(void)
 		/* Warning */
 		msg_print("You do not have enough mana to cast this spell.");
 
+		/* Flush input */
+		flush();
+
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
 	}
@@ -657,7 +660,7 @@ void do_cmd_cast(void)
 		/* Spells.  */
 		switch (spell)
 		{
-			case 0:
+			case SPELL_MAGIC_MISSILE:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
@@ -665,45 +668,45 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 1:
+			case SPELL_DETECT_MONSTERS:
 			{
 				(void)detect_monsters_normal();
 				break;
 			}
 
-			case 2:
+			case SPELL_PHASE_DOOR:
 			{
 				teleport_player(10);
 				break;
 			}
 
-			case 3:
+			case SPELL_LIGHT_AREA:
 			{
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
-			case 4:
+			case SPELL_TREASURE_DETECTION:
 			{
 				(void)detect_treasure();
 				(void)detect_objects_gold();
 				break;
 			}
 
-			case 5:
+			case SPELL_CURE_LIGHT_WOUNDS:
 			{
 				(void)hp_player(damroll(2, 8));
 				(void)set_cut(p_ptr->cut - 15);
 				break;
 			}
 
-			case 6:
+			case SPELL_OBJECT_DETECTION:
 			{
 				(void)detect_objects_normal();
 				break;
 			}
 
-			case 7:
+			case SPELL_FIND_TRAPS_DOORS:
 			{
 				(void)detect_traps();
 				(void)detect_doors();
@@ -711,7 +714,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 8:
+			case SPELL_STINKING_CLOUD:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
@@ -719,14 +722,14 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 9:
+			case SPELL_CONFUSE_MONSTER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)confuse_monster(dir, plev);
 				break;
 			}
 
-			case 10:
+			case SPELL_LIGHTNING_BOLT:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
@@ -734,32 +737,32 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 11:
+			case SPELL_TRAP_DOOR_DESTRUCTION:
 			{
 				(void)destroy_doors_touch();
 				break;
 			}
 
-			case 12:
+			case SPELL_SLEEP_I:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)sleep_monster(dir);
 				break;
 			}
 
-			case 13:
+			case SPELL_CURE_POISON:
 			{
 				(void)set_poisoned(0);
 				break;
 			}
 
-			case 14:
+			case SPELL_TELEPORT_SELF:
 			{
 				teleport_player(plev * 5);
 				break;
 			}
 
-			case 15:
+			case SPELL_SPEAR_OF_LIGHT:
 			{
 				if (!get_aim_dir(&dir)) return;
 				msg_print("A line of blue shimmering light appears.");
@@ -767,7 +770,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 16:
+			case SPELL_FROST_BOLT:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_COLD, dir,
@@ -775,51 +778,51 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 17:
+			case SPELL_TURN_STONE_TO_MUD:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)wall_to_mud(dir);
 				break;
 			}
 
-			case 18:
+			case SPELL_SATISFY_HUNGER:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
-			case 19:
+			case SPELL_RECHARGE_ITEM_I:
 			{
 				(void)recharge(5);
 				break;
 			}
 
-			case 20:
+			case SPELL_SLEEP_II:
 			{
 				(void)sleep_monsters_touch();
 				break;
 			}
 
-			case 21:
+			case SPELL_POLYMORPH_OTHER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)poly_monster(dir);
 				break;
 			}
 
-			case 22:
+			case SPELL_IDENTIFY:
 			{
 				(void)ident_spell();
 				break;
 			}
 
-			case 23:
+			case SPELL_SLEEP_III:
 			{
 				(void)sleep_monsters();
 				break;
 			}
 
-			case 24:
+			case SPELL_FIRE_BOLT:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
@@ -827,14 +830,14 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 25:
+			case SPELL_SLOW_MONSTER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)slow_monster(dir);
 				break;
 			}
 
-			case 26:
+			case SPELL_FROST_BALL:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
@@ -842,20 +845,20 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 27:
+			case SPELL_RECHARGE_ITEM_II:
 			{
 				(void)recharge(40);
 				break;
 			}
 
-			case 28:
+			case SPELL_TELEPORT_OTHER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
 				break;
 			}
 
-			case 29:
+			case SPELL_HASTE_SELF:
 			{
 				if (!p_ptr->fast)
 				{
@@ -868,7 +871,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 30:
+			case SPELL_FIRE_BALL:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir,
@@ -876,49 +879,49 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 31:
+			case SPELL_WORD_OF_DESTRUCTION:
 			{
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 
-			case 32:
+			case SPELL_GENOCIDE:
 			{
 				(void)genocide();
 				break;
 			}
 
-			case 33:
+			case SPELL_DOOR_CREATION:
 			{
 				(void)door_creation();
 				break;
 			}
 
-			case 34:
+			case SPELL_STAIR_CREATION:
 			{
 				(void)stair_creation();
 				break;
 			}
 
-			case 35:
+			case SPELL_TELEPORT_LEVEL:
 			{
 				(void)teleport_player_level();
 				break;
 			}
 
-			case 36:
+			case SPELL_EARTHQUAKE:
 			{
 				earthquake(py, px, 10);
 				break;
 			}
 
-			case 37:
+			case SPELL_WORD_OF_RECALL:
 			{
 				set_recall();
 				break;
 			}
 
-			case 38:
+			case SPELL_ACID_BOLT:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_ACID, dir,
@@ -926,7 +929,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 39:
+			case SPELL_CLOUD_KILL:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
@@ -934,7 +937,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 40:
+			case SPELL_ACID_BALL:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ACID, dir,
@@ -942,7 +945,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 41:
+			case SPELL_ICE_STORM:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
@@ -950,7 +953,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 42:
+			case SPELL_METEOR_SWARM:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_METEOR, dir,
@@ -958,7 +961,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 43:
+			case SPELL_MANA_STORM:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_MANA, dir,
@@ -966,61 +969,61 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 44:
+			case SPELL_DETECT_EVIL:
 			{
 				(void)detect_monsters_evil();
 				break;
 			}
 
-			case 45:
+			case SPELL_DETECT_ENCHANTMENT:
 			{
 				(void)detect_objects_magic();
 				break;
 			}
 
-			case 46:
+			case SPELL_RECHARGE_ITEM_III:
 			{
 				recharge(100);
 				break;
 			}
 
-			case 47:
+			case SPELL_GENOCIDE2:
 			{
 				(void)genocide();
 				break;
 			}
 
-			case 48:
+			case SPELL_MASS_GENOCIDE:
 			{
 				(void)mass_genocide();
 				break;
 			}
 
-			case 49:
+			case SPELL_RESIST_FIRE:
 			{
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 				break;
 			}
 
-			case 50:
+			case SPELL_RESIST_COLD:
 			{
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 				break;
 			}
 
-			case 51:
+			case SPELL_RESIST_ACID:
 			{
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				break;
 			}
 
-			case 52:
+			case SPELL_RESIST_POISON:
 			{
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 				break;
 			}
 
-			case 53:
+			case SPELL_RESISTANCE:
 			{
 				int time = randint(20) + 20;
 				(void)set_oppose_acid(p_ptr->oppose_acid + time);
@@ -1031,7 +1034,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 54:
+			case SPELL_HEROISM:
 			{
 				(void)hp_player(10);
 				(void)set_hero(p_ptr->hero + randint(25) + 25);
@@ -1039,13 +1042,13 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 55:
+			case SPELL_SHIELD:
 			{
 				(void)set_shield(p_ptr->shield + randint(20) + 30);
 				break;
 			}
 
-			case 56:
+			case SPELL_BERSERKER:
 			{
 				(void)hp_player(30);
 				(void)set_shero(p_ptr->shero + randint(25) + 25);
@@ -1053,7 +1056,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 57:
+			case SPELL_ESSENCE_OF_SPEED:
 			{
 				if (!p_ptr->fast)
 				{
@@ -1066,7 +1069,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 58:
+			case SPELL_GLOBE_OF_INVULNERABILITY:
 			{
 				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
 				break;
@@ -1203,7 +1206,7 @@ void do_cmd_pray(void)
 
 	object_type *o_ptr;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 
 	cptr q, s;
 
@@ -1279,6 +1282,9 @@ void do_cmd_pray(void)
 		/* Warning */
 		msg_print("You do not have enough mana to recite this prayer.");
 
+		/* Flush input */
+		flush();
+
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
 	}
@@ -1299,114 +1305,114 @@ void do_cmd_pray(void)
 	{
 		switch (spell)
 		{
-			case 0:
+			case PRAYER_DETECT_EVIL:
 			{
 				(void)detect_monsters_evil();
 				break;
 			}
 
-			case 1:
+			case PRAYER_CURE_LIGHT_WOUNDS:
 			{
 				(void)hp_player(damroll(2, 10));
 				(void)set_cut(p_ptr->cut - 10);
 				break;
 			}
 
-			case 2:
+			case PRAYER_BLESS:
 			{
 				(void)set_blessed(p_ptr->blessed + randint(12) + 12);
 				break;
 			}
 
-			case 3:
+			case PRAYER_REMOVE_FEAR:
 			{
 				(void)set_afraid(0);
 				break;
 			}
 
-			case 4:
+			case PRAYER_CALL_LIGHT:
 			{
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
-			case 5:
+			case PRAYER_FIND_TRAPS:
 			{
 				(void)detect_traps();
 				break;
 			}
 
-			case 6:
+			case PRAYER_DETECT_DOORS_STAIRS:
 			{
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
 			}
 
-			case 7:
+			case PRAYER_SLOW_POISON:
 			{
 				(void)set_poisoned(p_ptr->poisoned / 2);
 				break;
 			}
 
-			case 8:
+			case PRAYER_SCARE_MONSTER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)fear_monster(dir, plev);
 				break;
 			}
 
-			case 9:
+			case PRAYER_PORTAL:
 			{
 				teleport_player(plev * 3);
 				break;
 			}
 
-			case 10:
+			case PRAYER_CURE_SERIOUS_WOUNDS:
 			{
 				(void)hp_player(damroll(4, 10));
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
 
-			case 11:
+			case PRAYER_CHANT:
 			{
 				(void)set_blessed(p_ptr->blessed + randint(24) + 24);
 				break;
 			}
 
-			case 12:
+			case PRAYER_SANCTUARY:
 			{
 				(void)sleep_monsters_touch();
 				break;
 			}
 
-			case 13:
+			case PRAYER_SATISFY_HUNGER:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
-			case 14:
+			case PRAYER_REMOVE_CURSE:
 			{
 				remove_curse();
 				break;
 			}
 
-			case 15:
+			case PRAYER_RESIST_HEAT_COLD:
 			{
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
 				break;
 			}
 
-			case 16:
+			case PRAYER_NEUTRALIZE_POISON:
 			{
 				(void)set_poisoned(0);
 				break;
 			}
 
-			case 17:
+			case PRAYER_ORB_OF_DRAINING:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_HOLY_ORB, dir,
@@ -1416,38 +1422,38 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 18:
+			case PRAYER_CURE_CRITICAL_WOUNDS:
 			{
 				(void)hp_player(damroll(6, 10));
 				(void)set_cut(0);
 				break;
 			}
 
-			case 19:
+			case PRAYER_SENSE_INVISIBLE:
 			{
 				(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
 				break;
 			}
 
-			case 20:
+			case PRAYER_PROTECTION_FROM_EVIL:
 			{
 				(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
 				break;
 			}
 
-			case 21:
+			case PRAYER_EARTHQUAKE:
 			{
 				earthquake(py, px, 10);
 				break;
 			}
 
-			case 22:
+			case PRAYER_SENSE_SURROUNDINGS:
 			{
 				map_area();
 				break;
 			}
 
-			case 23:
+			case PRAYER_CURE_MORTAL_WOUNDS:
 			{
 				(void)hp_player(damroll(8, 10));
 				(void)set_stun(0);
@@ -1455,25 +1461,25 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 24:
+			case PRAYER_TURN_UNDEAD:
 			{
 				(void)turn_undead();
 				break;
 			}
 
-			case 25:
+			case PRAYER_PRAYER:
 			{
 				(void)set_blessed(p_ptr->blessed + randint(48) + 48);
 				break;
 			}
 
-			case 26:
+			case PRAYER_DISPEL_UNDEAD:
 			{
 				(void)dispel_undead(randint(plev * 3));
 				break;
 			}
 
-			case 27:
+			case PRAYER_HEAL:
 			{
 				(void)hp_player(300);
 				(void)set_stun(0);
@@ -1481,19 +1487,19 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 28:
+			case PRAYER_DISPEL_EVIL:
 			{
 				(void)dispel_evil(randint(plev * 3));
 				break;
 			}
 
-			case 29:
+			case PRAYER_GLYPH_OF_WARDING:
 			{
 				warding_glyph();
 				break;
 			}
 
-			case 30:
+			case PRAYER_HOLY_WORD:
 			{
 				(void)dispel_evil(randint(plev * 4));
 				(void)hp_player(1000);
@@ -1504,44 +1510,44 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 31:
+			case PRAYER_DETECT_MONSTERS:
 			{
 				(void)detect_monsters_normal();
 				break;
 			}
 
-			case 32:
+			case PRAYER_DETECTION:
 			{
 				(void)detect_all();
 				break;
 			}
 
-			case 33:
+			case PRAYER_PERCEPTION:
 			{
 				(void)ident_spell();
 				break;
 			}
 
-			case 34:
+			case PRAYER_PROBING:
 			{
 				(void)probing();
 				break;
 			}
 
-			case 35:
+			case PRAYER_CLAIRVOYANCE:
 			{
-				wiz_lite();
+				clairvoyance();
 				break;
 			}
 
-			case 36:
+			case PRAYER_CURE_SERIOUS_WOUNDS2:
 			{
 				(void)hp_player(damroll(4, 10));
 				(void)set_cut(0);
 				break;
 			}
 
-			case 37:
+			case PRAYER_CURE_MORTAL_WOUNDS2:
 			{
 				(void)hp_player(damroll(8, 10));
 				(void)set_stun(0);
@@ -1549,7 +1555,7 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 38:
+			case PRAYER_HEALING:
 			{
 				(void)hp_player(2000);
 				(void)set_stun(0);
@@ -1557,7 +1563,7 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 39:
+			case PRAYER_RESTORATION:
 			{
 				(void)do_res_stat(A_STR);
 				(void)do_res_stat(A_INT);
@@ -1568,25 +1574,25 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 40:
+			case PRAYER_REMEMBRANCE:
 			{
 				(void)restore_level();
 				break;
 			}
 
-			case 41:
+			case PRAYER_DISPEL_UNDEAD2:
 			{
 				(void)dispel_undead(randint(plev * 4));
 				break;
 			}
 
-			case 42:
+			case PRAYER_DISPEL_EVIL2:
 			{
 				(void)dispel_evil(randint(plev * 4));
 				break;
 			}
 
-			case 43:
+			case PRAYER_BANISHMENT:
 			{
 				if (banish_evil(100))
 				{
@@ -1595,87 +1601,87 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case 44:
+			case PRAYER_WORD_OF_DESTRUCTION:
 			{
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 
-			case 45:
+			case PRAYER_ANNIHILATION:
 			{
 				if (!get_aim_dir(&dir)) return;
 				drain_life(dir, 200);
 				break;
 			}
 
-			case 46:
+			case PRAYER_UNBARRING_WAYS:
 			{
 				(void)destroy_doors_touch();
 				break;
 			}
 
-			case 47:
+			case PRAYER_RECHARGING:
 			{
 				(void)recharge(15);
 				break;
 			}
 
-			case 48:
+			case PRAYER_DISPEL_CURSE:
 			{
 				(void)remove_all_curse();
 				break;
 			}
 
-			case 49:
+			case PRAYER_ENCHANT_WEAPON:
 			{
 				(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
 				break;
 			}
 
-			case 50:
+			case PRAYER_ENCHANT_ARMOUR:
 			{
 				(void)enchant_spell(0, 0, rand_int(3) + 2);
 				break;
 			}
 
-			case 51:
+			case PRAYER_ELEMENTAL_BRAND:
 			{
 				brand_weapon();
 				break;
 			}
 
-			case 52:
+			case PRAYER_BLINK:
 			{
 				teleport_player(10);
 				break;
 			}
 
-			case 53:
+			case PRAYER_TELEPORT_SELF:
 			{
 				teleport_player(plev * 8);
 				break;
 			}
 
-			case 54:
+			case PRAYER_TELEPORT_OTHER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
 				break;
 			}
 
-			case 55:
+			case PRAYER_TELEPORT_LEVEL:
 			{
 				(void)teleport_player_level();
 				break;
 			}
 
-			case 56:
+			case PRAYER_WORD_OF_RECALL:
 			{
 				set_recall();
 				break;
 			}
 
-			case 57:
+			case PRAYER_ALTER_REALITY:
 			{
 				msg_print("The world changes!");
 
@@ -1767,22 +1773,22 @@ int get_psi_cost(int spell)
 	switch (spell)
 	{
 		/* The non-intensifiable spells */
-		case 15: /* teleport other */
-		case 16: /* recall */
-		case 24: /* satisfy hunger */
-		case 31: /* complete healing */
-		case 33: /* wall of force */
-		case 44: /* cannibalize */
-		case 45: /* intensify */
-		case 46: /* receptacle */
-		case 49: /* psychic surgery */
-		case 50: /* splice */
-		case 54: /* detect monsters */
-		case 56: /* reveal secrets */
-		case 57: /* clairvoyance */
-		case 58: /* m. analysis */
-		case 59: /* read object */
-		case 60: /* read aura */
+		case PSI_BANISHMENT: 
+		case PSI_RECALL:
+		case PSI_SATISFY_HUNGER:
+		case PSI_COMPLETE_HEALING:
+		case PSI_WALL_OF_FORCE:
+		case PSI_CANNIBALIZE:
+		case PSI_INTENSIFY:
+		case PSI_RECEPTACLE:
+		case PSI_PSYCHIC_SURGERY:
+		case PSI_SPLICE:
+		case PSI_DETECT_MONSTERS:
+		case PSI_REVEAL_SECRETS:
+		case PSI_CLAIRVOYANCE:
+		case PSI_METAPHYSICAL_AWARENESS:
+		case PSI_READ_OBJECT:
+		case PSI_READ_AURA:
 			return cost;
     		default:
     			return (cost * (2 + p_ptr->intensify)) / 2;
@@ -1799,7 +1805,7 @@ int inverse_amplify(int dam)
 	return (dam * 3) / (3 + p_ptr->intensify);
 }
 
-static bool item_tester_hook_drain(object_type *o_ptr)
+static bool item_tester_hook_drain(const object_type *o_ptr)
 {
 	int t = o_ptr->tval;
 	if ((t != TV_STAFF) && (t != TV_WAND)) return (FALSE);
@@ -1827,7 +1833,7 @@ void do_cmd_psi(void)
 
 	object_type *o_ptr;
 
-	magic_type *s_ptr;
+	const magic_type *s_ptr;
 	char temp[20];
 	int i,j;
 
@@ -1907,6 +1913,9 @@ void do_cmd_psi(void)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to use this power.");
+		
+		/* Flush input */
+		flush();
 
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
@@ -1938,14 +1947,14 @@ void do_cmd_psi(void)
 		{
 			/* *** TELEPATHY *** */
 
-			case 0: /* Mind Thrust */
+			case PSI_MIND_THRUST:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_PSI, dir, A(damroll(1 + (plev / 4), 4)),0);
+				fire_ball(GF_PSI, dir, damroll(A(2 + (plev / 4)), 4),0);
 				break;
 			}
 
-			case 1: /* Empathy */
+			case PSI_EMPATHY:
 			{
 				if (plev < 25)
 				{
@@ -1957,34 +1966,34 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 2: /* Mental Barrier */
+			case PSI_MENTAL_BARRIER:
 			{
 				(void)set_mental_barrier(p_ptr->mental_barrier + 10 + randint(A(plev / 2)));
 				break;
 			}
 
-			case 3: /* Intimidate */
+			case PSI_INTIMIDATE:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fear_monster(dir,A(plev * 3));
 				break;
 			}
 
-			case 4: /* Sleep */
+			case PSI_SLEEP:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_OLD_SLEEP,dir,A(plev * 3),0);
 				break;
 			}
 
-			case 5: /* Psionic Blast */
+			case PSI_PSIONIC_BLAST:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_PSI, dir, A(plev * 5),2);
 				break;
 			}
 			
-			case 6: /* Psychic Crush */
+			case PSI_PSIONIC_CRUSH:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -1992,7 +2001,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 7: /* Mind Wrack */
+			case PSI_MIND_WRACK:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2000,7 +2009,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 8: /* Amnesia */
+			case PSI_AMNESIA:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;
@@ -2008,7 +2017,7 @@ void do_cmd_psi(void)
 				break;
 			}
 			
-			case 9: /* Psychic Wave*/
+			case PSI_PSYCHIC_WAVE:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;
@@ -2018,19 +2027,19 @@ void do_cmd_psi(void)
 	
 			/* *** PSYCHOPORTATION *** */
 	
-			case 11: /* Blink */
+			case PSI_BLINK:
 			{
 				teleport_player(A(10));
 				break;
 			}
 
-			case 12: /* Teleport */
+			case PSI_TELEPORT:
 			{
 				teleport_player(A(plev * 5));
 				break;
 			}
 
-			case 13: /* Dimension Door */
+			case PSI_DIMENSION_DOOR:
 			{
 				msg_print("You open a dimensional door.");			
 				if (dimension_door(A(plev)))
@@ -2041,14 +2050,14 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 14: /* Probability Travel */
+			case PSI_PROBABILITY_TRAVEL:
 			{
 				req_focus(1);
 				set_prob_travel(p_ptr->prob_travel + (randint(A(5)) + A(plev / 10)));
 				break;
 			}
 
-			case 15: /* Teleport Other */
+			case PSI_BANISHMENT:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2056,14 +2065,14 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 16: /* Recall */
+			case PSI_RECALL:
 			{
 				req_focus(2);
 				set_recall();
 				break;
 			}
 
-			case 17: /* Time Control */
+			case PSI_TIME_CONTROL:
 			{
 				req_focus(1);
 				if (p_ptr->ts_anchor)
@@ -2071,21 +2080,19 @@ void do_cmd_psi(void)
 					msg_print("You end your time/space anchor.");
 					p_ptr->ts_anchor = 0;
 				}
-
-				(void)set_fast(p_ptr->fast + A(plev / 4 + randint(20)));
 				
 				if (p_ptr->fast)
 				{
-					set_fast(p_ptr->fast + randint(A(plev/4)));
+					(void)set_fast(p_ptr->fast + randint(A(plev/4)));
 				}
 				else
 				{
-					set_fast(p_ptr->fast + 20 + randint(A(plev/4)));
+					(void)set_fast(p_ptr->fast + 20 + randint(A(plev/4)));
 				}
 				break;
 			}
 			
-			case 18: /* Time Bolt */
+			case PSI_TIME_BOLT:
 			{
 				req_focus(1);
 				if (p_ptr->ts_anchor)
@@ -2113,13 +2120,13 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 19: /* Time/Space Anchor */
+			case PSI_TIME_SPACE_ANCHOR:
 			{
 				(void)set_ts_anchor(10 + A(randint(plev/4)));
 				break;
 			}
 
-			case 20: /* Time Shift */
+			case PSI_TIME_SHIFT:
 			{
 				req_focus(2);
 				if (p_ptr->ts_anchor)
@@ -2134,14 +2141,14 @@ void do_cmd_psi(void)
 
 			/* *** PSYCHOMETABOLISM *** */
 			
-			case 22: /* Cell Adjustment */
+			case PSI_CELL_ADJUSTMENT:
 			{
 				(void)hp_player((damroll(A(plev / 2), 6)));
 				(void)set_cut(p_ptr->cut - A(15));
 				break;
 			}
 			
-			case 23: /* Light Control */
+			case PSI_LIGHT_CONTROL:
 			{
 				project(-1,(plev / 10) + 1,p_ptr->py,p_ptr->px,(damroll(3, A(plev))),
 				GF_LITE_WEAK, PROJECT_GRID | PROJECT_KILL);
@@ -2149,7 +2156,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 24: /* Satisfy Hunger */
+			case PSI_SATISFY_HUNGER:
 			{
 				msg_print("You start converting your body's energy into food.");
 				p_ptr->energy -= inverse_amplify(300 - 5 * plev);
@@ -2157,37 +2164,19 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 25: /* Adrenaline Control */
+			case PSI_ADRENALINE_CONTROL:
 			{
 				(void)set_adrenaline(p_ptr->adrenaline+ randint(20) + A(plev/2));
 				break;
 			}
 		
-			case 26: /* Biofeedback */
+			case PSI_BIOFEEDBACK:
 			{
 				(void)set_biofeedback(p_ptr->biofeedback + randint(A(10 + plev)));
 				break;
 			}
-#if 0		
-			case 666: /* Shadowform */
-			{
-				req_focus(2);
-				msg_print("You leave the physical world and become a living shadow!");
-				p_ptr->shadow_form += randint(randint(A(plev + 12)));
-				if (p_ptr->shadow_form > 30 + randint(plev * 2))
-				{
-					msg_print("You begin to fade into the netherworld!");
-					i = randint(p_ptr->shadow_form);
-					_killer = "shadows";
-					project(-2,1,p_ptr->py,p_ptr->px,damroll(i,6),GF_NETHER,PROJECT_KILL);
-					p_ptr->shadow_form -= i;
-					if (p_ptr->shadow_form < 0) p_ptr->shadow_form = 0;
-				}
-				break;
-			}
-#endif
 						
-			case 27: /* Drain Life */
+			case PSI_DRAIN_LIFE:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2199,7 +2188,7 @@ void do_cmd_psi(void)
 				break;
 			}
 			
-			case 28: /* Energy Contaiment */
+			case PSI_ENERGY_CONTAINMENT:
 			{
 				int n = A(10 + randint(20));
 				(void)set_oppose_acid(p_ptr->oppose_acid + n);
@@ -2210,7 +2199,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 29: /* Death Field */
+			case PSI_DEATH_FIELD:
 			{
 				req_focus(1);
 				sprintf(temp,"Intensity (1-%d): ",plev);
@@ -2222,7 +2211,7 @@ void do_cmd_psi(void)
 				break;
 			}
 			
-			case 30: /* Double Pain */
+			case PSI_DOUBLE_PAIN:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;
@@ -2230,7 +2219,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 31: /* Complete Healing */
+			case PSI_COMPLETE_HEALING:
 			{
 				req_focus(2);
 				msg_print("You enter a trance and your body begins to rapidly recover.");
@@ -2246,7 +2235,7 @@ void do_cmd_psi(void)
 			/* *** PSYCHOKINESIS *** */
 
 			
-			case 33: /* Wall of Force */
+			case PSI_WALL_OF_FORCE:
 			{
 				if (no_fw == MAX_FORCE_WALLS)
 				{
@@ -2254,7 +2243,7 @@ void do_cmd_psi(void)
 					return;
 				}
 				msg_print("You create a barrier of pure force.");
-				if (!tgt_pt(&i,&j)) return;
+				if (!tgt_pt(&j,&i,TARGET_FLOOR)) return;
 				if (!cave_empty_bold(j,i))
 				{
 					msg_print("There's something in the way!");
@@ -2268,13 +2257,13 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 34: /* Inertial Barrier */
+			case PSI_INERTIAL_BARRIER:
 			{
 				(void)set_inertial_barrier(p_ptr->inertial_barrier + A(10 + randint(plev / 5)));
 				break;
 			}
 
-			case 35: /* Project Force */
+			case PSI_PROJECT_FORCE:
 			{
 				if (!get_aim_dir(&dir)) return;
 				if (plev > 30) plev = 30 + (plev - 30) / 4;
@@ -2284,7 +2273,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 36: /* Sonic Boom */
+			case PSI_SONIC_BOOM:
 			{
 				if (!get_aim_dir(&dir)) return;
 				msg_print("You hear a roar of sound.");
@@ -2293,7 +2282,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 37: /* Disintegrate */
+			case PSI_DISINTEGRATE:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2302,14 +2291,14 @@ void do_cmd_psi(void)
 				break;
 			}
 			
-			case 38: /* Telekinesis */
+			case PSI_TELEKINESIS:
 			{
 				req_focus(1);
 				(void)telekinesis(A(plev));
 				break;
 			}
 
-			case 39: /* Sphere of Cold */
+			case PSI_SPHERE_OF_COLD:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2317,7 +2306,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 40: /* Fire Eruption */
+			case PSI_FIRE_ERUPTION:
 			{
 				req_focus(1);
 				if (!get_aim_dir(&dir)) return;
@@ -2325,7 +2314,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 41: /* Detonate */
+			case PSI_DETONATE:
 			{
 				int radius = 0;
 				req_focus(2);
@@ -2352,7 +2341,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 42: /* Balefire */
+			case PSI_BALEFIRE:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;
@@ -2364,7 +2353,7 @@ void do_cmd_psi(void)
 			
 			/* *** METAPSIONICS *** */
 
-			case 44: /* Cannibalize */
+			case PSI_CANNIBALIZE:
 			{
 				int m = 0,h;
 				
@@ -2385,14 +2374,14 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 45: /* Intensify */
+			case PSI_INTENSIFY:
 			{
 				p_ptr->intensify = get_quantity(format("Intensify level? (max %d):",
 				  (plev + 7) / 8),(plev + 7) / 8);
 				break;
 			}
 
-			case 46: /* Receptacle */
+			case PSI_RECEPTACLE:
 			{	
 				item_tester_hook = item_tester_hook_drain;
 				if (!get_item(&item, "Drain what item?", "Nothing charged to drain",
@@ -2451,13 +2440,13 @@ void do_cmd_psi(void)
 				break;
 			}
 			
-			case 47: /* Empower */
+			case PSI_EMPOWER:
 			{
 				recharge(rand_int(3)?100:100*randint(randint(A(plev))));
 				break;
 			}
 
-			case 48: /* Psychic Drain */
+			case PSI_PSYCHIC_DRAIN:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;
@@ -2470,7 +2459,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 49: /* Psychic Surgery */
+			case PSI_PSYCHIC_SURGERY:
 			{
 				restore_level();
 				set_afraid(0);
@@ -2479,7 +2468,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 50: /* Splice */
+			case PSI_SPLICE:
 			{
 				req_focus(1);
 				if (splice_val)
@@ -2496,7 +2485,7 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 51: /* Ultrablast */
+			case PSI_ULTRABLAST:
 			{
 				req_focus(1);
 				msg_print("You project waves of psychic energy with all your strength!");
@@ -2513,7 +2502,7 @@ void do_cmd_psi(void)
 				break;
 			}
   			
-			case 52: /* *Ultrablast* */
+			case PSI_STAR_ULTRABLAST:
 			{
 				req_focus(2);
 				msg_print("You project deadly psychic energy with all your strength!");	
@@ -2532,19 +2521,19 @@ void do_cmd_psi(void)
 
 			/* *** CLAIRSENTIENCE *** */
 
-			case 54: /* Detect Monsters */
+			case PSI_DETECT_MONSTERS:
 			{
 				(void)detect_monsters_normal();
 				break;
 			}
 
-			case 55: /* Awareness */
+			case PSI_AWARENESS:
 			{
-				(void)set_awareness(p_ptr->awareness + A(plev / 2 + randint(20)));
+				(void)set_awareness(p_ptr->awareness + 10 + A(plev / 2 + randint(20)));
 				break;
 			}
 
-			case 56: /* Reveal Secrets */
+			case PSI_REVEAL_SECRETS:
 			{
 				detect_doors();
 				detect_traps();
@@ -2552,41 +2541,41 @@ void do_cmd_psi(void)
 				break;
 			}
 
-			case 57: /* Clairvoyance */
+			case PSI_CLAIRVOYANCE:
 			{
 				msg_print("An image of your surroundings forms in your mind...");
 				map_area();
 				break;
 			}
 
-			case 58: /* Metaphysical analysis */
+			case PSI_METAPHYSICAL_AWARENESS:
 			{
 				show_durations();
 				break;
 			}
 
-			case 59: /* Read Object */
+			case PSI_READ_OBJECT:
 			{
 				req_focus(1);
 				(void)ident_spell();
 				break;
 			}
 
-			case 60: /* Read Aura */
+			case PSI_READ_AURA:
 			{
 				req_focus(2);
 				(void)identify_fully();
 				break;
 			}
 
-			case 61: /* Precognition */
+			case PSI_PRECOGNITION:
 			{
 				req_focus(2);
-				(void)set_precognition(p_ptr->precognition + A(5 + randint(plev / 5)));
+				(void)set_precognition(p_ptr->precognition + A(10 + randint(plev / 10)));
 				break;
 			}
 
-			case 62: /* Analyze Monster */
+			case PSI_ANALYZE_MONSTER:
 			{
 				req_focus(2);
 				if (!get_aim_dir(&dir)) return;

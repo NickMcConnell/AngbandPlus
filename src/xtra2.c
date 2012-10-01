@@ -11,7 +11,6 @@
 #include "angband.h"
 
 
-
 /*
  * Set "p_ptr->blind", notice observable changes
  *
@@ -2156,6 +2155,27 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 	}
+
+	/* Gain max levels while possible */
+	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+	                           p_ptr->expfact / 100L)))
+	{
+		/* Gain max level */
+		p_ptr->max_lev++;
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
 }
 
 
@@ -2203,7 +2223,7 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -2231,6 +2251,43 @@ static int get_coin_type(monster_race *r_ptr)
 
 
 /*
+ * Create magical stairs after finishing a quest monster.
+ */
+static void build_quest_stairs(int y, int x)
+{
+	int ny, nx;
+
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	msg_print("A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+}
+
+
+/*
  * Handle the "death" of a monster.
  *
  * Disperse treasures centered at the monster location based on the
@@ -2246,7 +2303,7 @@ static int get_coin_type(monster_race *r_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx;
+	int i, j, y, x;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -2422,41 +2479,11 @@ void monster_death(int m_idx)
 		if (q_list[i].level) total++;
 	}
 
-
-	/* Need some stairs */
-	if (total)
-	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-	}
-
+	/* Build magical stairs */
+	build_quest_stairs(y, x);
 
 	/* Nothing left, game over... */
-	else
+	if (total == 0)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -2810,13 +2837,12 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-cptr look_mon_desc(int m_idx)
+static void look_mon_desc(char *buf, int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
-	int perc;
 
 
 	/* Determine if the monster is "living" (vs "undead") */
@@ -2829,29 +2855,27 @@ cptr look_mon_desc(int m_idx)
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		return (living ? "unhurt" : "undamaged");
+		strcpy(buf, (living ? "unhurt" : "undamaged"));
 	}
-
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else
 	{
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		/* Calculate a health "percentage" */
+		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+
+		if (perc >= 60)
+			strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"));
+		else if (perc >= 25)
+			strcpy(buf, (living ? "wounded" : "damaged"));
+		else if (perc >= 10)
+			strcpy(buf, (living ? "badly wounded" : "badly damaged"));
+		else
+			strcpy(buf, (living ? "almost dead" : "almost destroyed"));
 	}
 
-	if (perc >= 25)
-	{
-		return (living ? "wounded" : "damaged");
-	}
-
-	if (perc >= 10)
-	{
-		return (living ? "badly wounded" : "badly damaged");
-	}
-
-	return (living ? "almost dead" : "almost destroyed");
+	if (m_ptr->csleep) strcat(buf, ", asleep");
+	if (m_ptr->confused) strcat(buf, ", confused");
+	if (m_ptr->monfear) strcat(buf, ", afraid");
+	if (m_ptr->stunned) strcat(buf, ", stunned");
 }
 
 
@@ -2961,7 +2985,7 @@ sint motion_dir(int y1, int x1, int y2, int x2)
  */
 sint target_dir(char ch)
 {
-	int d;
+	int d = 0;
 
 	int mode;
 
@@ -2970,32 +2994,37 @@ sint target_dir(char ch)
 	cptr s;
 
 
-	/* Default direction */
-	d = (isdigit(ch) ? D2I(ch) : 0);
-
-	/* Roguelike */
-	if (rogue_like_commands)
+	/* Already a direction? */
+	if (isdigit(ch))
 	{
-		mode = KEYMAP_MODE_ROGUE;
+		d = D2I(ch);
 	}
-
-	/* Original */
 	else
 	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-	/* Extract the action (if any) */
-	act = keymap_act[mode][(byte)(ch)];
-
-	/* Analyze */
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
 
@@ -3053,6 +3082,32 @@ bool target_able(int m_idx)
 	return (TRUE);
 }
 
+/*
+ * Determine is an object can be targetted (for telekinesis)
+ *
+ */
+bool target_able_o(int o_idx)
+{	
+	int this_o_idx, next_o_idx;
+	
+	/* Scan all objects in the grid */
+	for (this_o_idx = o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Memorized object */
+		if (o_ptr->marked) return (TRUE);
+	}
+
+	/* Assume not okay */
+	return (FALSE);
+}
 
 
 
@@ -3321,7 +3376,7 @@ static bool target_set_interactive_accept(int y, int x)
 		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) return (TRUE);
 
 		/* Notice traps */
-		if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		if ((cave_feat[y][x] >= FEAT_TRAP_START) &&
 		    (cave_feat[y][x] <= FEAT_TRAP_TAIL)) return (TRUE);
 
 		/* Notice doors */
@@ -3344,12 +3399,12 @@ static bool target_set_interactive_accept(int y, int x)
 /*
  * Prepare the "temp" array for "target_interactive_set"
  *
- * Return the number of target_able monsters in the set.
+ * Return the number of target_able monsters + objects in the set.
  */
 static void target_set_interactive_prepare(int mode)
 {
 	int y, x;
-
+	
 	/* Reset "temp" array */
 	temp_n = 0;
 
@@ -3372,6 +3427,16 @@ static void target_set_interactive_prepare(int mode)
 
 				/* Must be a targettable monster */
 			 	if (!target_able(cave_m_idx[y][x])) continue;
+			}
+			
+			/* Another special mode */
+			if (mode & (TARGET_OBJ))
+			{
+				/* Must have an object at this point */
+				if(!(cave_o_idx[y][x])) continue;
+
+				/* Must be targettable */
+				if (!target_able_o(cave_o_idx[y][x])) continue;
 			}
 
 			/* Save the location */
@@ -3425,7 +3490,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	int query;
 
-	char out_val[160];
+	char out_val[256];
 
 
 	/* Repeat forever */
@@ -3460,7 +3525,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -3526,9 +3594,23 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+						char buf[80];
+
+						/* Describe the monster */
+						look_mon_desc(buf, cave_m_idx[y][x]);
+
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+						if (p_ptr->wizard)
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s] (%d:%d)",
+						            s1, s2, s3, m_name, buf, info, y, x);
+						}
+						else
+						{
+							sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
+							        s1, s2, s3, m_name, buf, info);
+						}
+
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -3545,12 +3627,16 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					recall = !recall;
 				}
 
+				if (!(mode & TARGET_OBJ))
+			
 				/* Stop on everything but "return"/"space" */
 				if ((query != '\n') && (query != '\r') && (query != ' ')) break;
-
+					
+				if (!(mode & TARGET_OBJ))
 				/* Sometimes stop at "space" key */
 				if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
-
+                                
+				
 				/* Change the intro */
 				s1 = "It is ";
 
@@ -3580,7 +3666,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					object_desc(o_name, o_ptr, TRUE, 3);
 
 					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					if (p_ptr->wizard)
+						sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+					else
+						sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3633,8 +3722,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Describe the pile */
-					sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
-						s1, s2, s3, floor_num, info);
+					if (p_ptr->wizard)
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s] (%d:%d)", s1, s2, s3, floor_num, info, y, x);
+					else
+						sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
+							s1, s2, s3, floor_num, info);
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3705,7 +3797,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				object_desc(o_name, o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				if (p_ptr->wizard)
+					sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+				else
+					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -3762,7 +3857,10 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+				sprintf(out_val, "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			else
+				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -3824,6 +3922,9 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * This command will cancel any old target, even if used from
  * inside the "look" command.
+ *
+ * MWK: Do NOT use TARGET_KILL and TARGET_OBJ together! Hack Alert!
+ *
  */
 bool target_set_interactive(int mode)
 {
@@ -3838,6 +3939,10 @@ bool target_set_interactive(int mode)
 	bool done = FALSE;
 
 	bool flag = TRUE;
+	
+	bool objs = (mode & TARGET_OBJ);
+	
+	bool floor = (mode & TARGET_FLOOR);
 
 	char query;
 
@@ -3862,23 +3967,43 @@ bool target_set_interactive(int mode)
 	while (!done)
 	{
 		/* Interesting grids */
-		if (flag && temp_n)
+		if ((flag && temp_n) && !floor)
 		{
 			y = temp_y[m];
 			x = temp_x[m];
 
-			/* Allow target */
-			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
+			/* Are we targetting monsters? */
+			if (!objs)
 			{
-				strcpy(info, "q,t,p,o,+,-,<dir>");
-			}
+				/* Allow target */
+				if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
+				{
+					strcpy(info, "q,t,p,o,+,-,<dir>");
+				}
 
-			/* Dis-allow target */
-			else
-			{
-				strcpy(info, "q,p,o,+,-,<dir>");
-			}
+				/* Dis-allow target */
+				else
+				{
+					strcpy(info, "q,p,o,+,-,<dir>");
+				}
+                        }
+                        /* or objects */
+                        else
+                        {
+				/* Allow target */
+				if ((cave_o_idx[y][x] > 0) && target_able_o(cave_o_idx[y][x]))
+				{
+					strcpy(info, "q,t,p,o,+,-,<dir> OBJECT MODE");
+				}
 
+				/* Dis-allow target */
+				else
+				{
+					strcpy(info, "q,p,o,+,-,<dir> OBJECT MODE");
+				}
+                        	
+                        }
+                        
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info);
 
@@ -3890,7 +4015,7 @@ bool target_set_interactive(int mode)
 
 			/* Analyze */
 			switch (query)
-			{
+			{			
 				case ESCAPE:
 				case 'q':
 				{
@@ -3950,6 +4075,7 @@ bool target_set_interactive(int mode)
 				case '5':
 				case '0':
 				case '.':
+				if (!objs)
 				{
 					int m_idx = cave_m_idx[y][x];
 
@@ -3965,7 +4091,23 @@ bool target_set_interactive(int mode)
 					}
 					break;
 				}
+                                else
+                                {
+					int o_idx = cave_o_idx[y][x];
 
+					if ((o_idx > 0) && target_able_o(o_idx))
+					{
+						target_set_location(y, x);
+						done = TRUE;
+					}
+					else
+					{
+						bell("Illegal target!");
+					}
+					break;
+                                
+                                }
+				
 				default:
 				{
 					/* Extract direction */
@@ -4025,6 +4167,9 @@ bool target_set_interactive(int mode)
 		{
 			/* Default prompt */
 			strcpy(info, "q,t,p,m,+,-,<dir>");
+			
+			/* Telekinesis prompt */
+			if (objs) strcpy(info, "q,t,p,m,+,-,<dir> OBJECT MODE");
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
@@ -4080,7 +4225,7 @@ bool target_set_interactive(int mode)
 					m = 0;
 					bd = 999;
 
-					/* Pick a nearby monster */
+					/* Pick a nearby monster or object */
 					for (i = 0; i < temp_n; i++)
 					{
 						t = distance(y, x, temp_y[i], temp_x[i]);
@@ -4430,7 +4575,7 @@ bool confuse_dir(int *dp)
 }
 
 /* The dimension door interface*/
-bool tgt_pt(int *x,int *y)
+bool old_tgt_pt(int *x,int *y)
 {
 	char ch = 0;
 	int d,cu,cv;
@@ -4479,3 +4624,41 @@ bool tgt_pt(int *x,int *y)
 	return success;
 }
 
+
+bool tgt_pt(int *y, int *x, int mode)
+{
+	bool save_t_set;
+	int save_who, save_row, save_col; 		
+	
+	/* Hack - Save old target */
+	save_t_set = p_ptr->target_set;
+	save_who = p_ptr->target_who;
+	save_row = p_ptr->target_row;
+	save_col = p_ptr->target_col;
+		
+	/* Cancel target - just in case */
+	p_ptr->target_set = FALSE;
+	p_ptr->target_who = 0;
+	p_ptr->target_row = 0;
+	p_ptr->target_col = 0;
+	
+	/* Set our target using the standard method */
+	if (!target_set_interactive(mode)) return (FALSE);
+
+	/* Did we target a monster, by chance? */
+	if (p_ptr->target_who) return (FALSE);	
+	
+	/* Set the target for the caller function */
+	*x = p_ptr->target_col;
+	*y = p_ptr->target_row;
+
+	/* Reset old target */
+	p_ptr->target_set = save_t_set;
+	p_ptr->target_who = save_who;
+	p_ptr->target_row = save_row;
+	p_ptr->target_col = save_col;
+	
+	/* Everything worked */
+	return (TRUE);
+		
+}

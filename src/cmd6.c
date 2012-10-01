@@ -811,7 +811,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_ENLIGHTENMENT:
 		{
 			msg_print("An image of your surroundings forms in your mind...");
-			wiz_lite();
+			clairvoyance();
 			ident = TRUE;
 			break;
 		}
@@ -819,7 +819,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		{
 			msg_print("You begin to feel more enlightened...");
-			msg_print(NULL);
+			message_flush();
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
@@ -838,7 +838,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_SELF_KNOWLEDGE:
 		{
 			msg_print("You begin to know yourself a little better...");
-			msg_print(NULL);
+			message_flush();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -2654,7 +2654,7 @@ void do_cmd_zap_rod(void)
 /*
  * Hook to determine if an object is activatable
  */
-static bool item_tester_hook_activate(object_type *o_ptr)
+static bool item_tester_hook_activate(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -2908,7 +2908,7 @@ void do_cmd_activate(void)
 			case ACT_CLAIRVOYANCE:
 			{
 				msg_format("The %s glows a deep green...", o_name);
-				wiz_lite();
+				clairvoyance();
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -3237,16 +3237,7 @@ void do_cmd_activate(void)
 			case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -3347,7 +3338,7 @@ void do_cmd_activate(void)
 			case ACT_PRECOGNITION:
 			{
 				msg_format("Your %s opens a time gate...", o_name);
-				(void)set_precognition(p_ptr->precognition + 5 + randint(5)); 
+				(void)set_precognition(p_ptr->precognition + 10 + randint(10)); 
 				break;
 			}
 			
@@ -3421,6 +3412,14 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows with the light of a thousand stars...", o_name);
 				for (k = 0; k < 8; k++) strong_lite_line(ddd[k]);
+				break;
+			}
+			
+			case ACT_DESTRUCTION:
+			{
+				msg_format("Your %s lets out a deafening roar ...", o_name);
+				destroy_area(p_ptr->py, p_ptr->px, 15, TRUE);
+				break;
 			}
 		}
 
@@ -3588,4 +3587,165 @@ void do_cmd_activate(void)
 	msg_print("Oops.  That object cannot be activated.");
 }
 
+/* This should not be here MWK XXX */
+extern bool item_tester_hook_recharge(const object_type *o_ptr);
 
+/*
+ * The trap setting code for rogues -MWK- 
+ *
+ * Note that this depends on the order in which items are stored in an item stack!
+ * 
+ * Also, it will fail or give weird results if the tvals are resorted!
+ */
+void do_cmd_set_trap(void)                
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	
+	int item_kit, item_load;
+	int num;
+
+	object_type *o_ptr, *j_ptr, *i_ptr;
+	
+	cptr q,s,c;
+	
+	object_type object_type_body;
+
+	char o_name[80];
+	
+	u32b f1, f2, f3;
+
+	/* Check some conditions */
+	if (p_ptr->blind)            
+	{
+		msg_print("You can't see anything.");
+		return;
+	}
+	if (no_lite())
+	{
+		msg_print("You don't dare to set a trap in the darkness.");
+		return;
+	}
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Only set traps on clean floor grids */
+	if (cave_feat[py][px] != FEAT_FLOOR)
+	{
+		msg_print("You cannot set a trap on this.");
+		return;
+	}
+	
+	/* Hack - do not set traps on squares containing items */
+	if (cave_o_idx[py][px])
+	{
+		msg_print("You cannot set traps on other items.");
+		return;
+	}
+
+	/* Restrict choices to trapkits */
+	item_tester_tval = TV_TRAPKIT;
+
+	/* Get an item */
+	q = "Use which trapping kit? ";
+	s = "You have no trapping kits.";
+	if (!get_item(&item_kit, q, s, USE_INVEN)) return;
+	
+	o_ptr = &inventory[item_kit];
+	
+	/* Trap kits need a second object */
+	switch (o_ptr->sval)
+	{
+		case SV_TRAP_BOW:
+			item_tester_tval = TV_ARROW;
+			break;
+		case SV_TRAP_XBOW:
+			item_tester_tval = TV_BOLT;
+			break;
+		case SV_TRAP_CATAPULT:
+			item_tester_tval = TV_SHOT;
+			break;
+		case SV_TRAP_POTION:
+			item_tester_tval = TV_POTION;
+			break;
+		case SV_TRAP_SCROLL:
+			item_tester_tval = TV_SCROLL;
+			break;
+		case SV_TRAP_DEVICE:
+			item_tester_hook = item_tester_hook_recharge;
+			break;
+		default:
+			msg_print("Unknown trapping kit type!");
+			break;
+	}
+	
+	/* Get the second item */
+	q = "Load with what? ";
+	s = "You have nothing to load that trap with.";
+	if (!get_item(&item_load, q, s, USE_INVEN)) return;
+	
+	/* Get the second object */
+	j_ptr = &inventory[item_load];
+
+	/* Assume a single object */
+	num = 1;
+				
+	/* In some cases, take multiple objects to load */
+	if (o_ptr->sval != SV_TRAP_DEVICE)
+	{
+		object_flags(o_ptr, &f1, &f2, &f3);
+		if ((f1 & TR1_SHOTS) && (o_ptr->pval > 0)) num += o_ptr->pval;
+	
+		if (f2 & (TRAP2_AUTOMATIC_5 | TRAP2_AUTOMATIC_99)) num = 99;
+		
+		if (num > j_ptr->number) num = j_ptr->number;
+
+		c = format("How many (1-%d)? ", num);
+				
+		/* Ask for number of items to use */
+		num = get_quantity(c, num);
+	}
+
+	/* Canceled */
+	if (!num) return; 
+		
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+	
+	/* Obtain local object for trap content */
+	object_copy(i_ptr, j_ptr);
+
+	/* Set number */
+	i_ptr->number = num;
+	
+	/* Drop it here */
+	floor_carry(py, px, i_ptr);
+	
+	/* Obtain local object for trap trigger kit */
+	object_copy(i_ptr, o_ptr);
+	
+	/* Set number */
+	i_ptr->number = 1;
+
+	/* Drop it here */
+	floor_carry(py, px, i_ptr);
+
+	/* Modify, Describe, Optimize */
+	inven_item_increase(item_kit, -1);
+	inven_item_describe(item_kit);
+	inven_item_optimize(item_kit);
+
+	/* Modify, Describe, Optimize */
+	inven_item_increase(item_load, -num);
+	inven_item_describe(item_load);
+	inven_item_optimize(item_load);
+				                             
+	/* Actually set the trap */
+	cave_set_feat(py, px, FEAT_MON_TRAP);
+}

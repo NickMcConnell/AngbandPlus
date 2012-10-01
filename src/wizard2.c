@@ -329,10 +329,10 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY.......BRAND", 11, j);
-	prt("       p      smae      xxxpaefc", 12, j);
-	prt("siwdcc sssidsahinvudotgddduolio", 13, j);
-	prt("tnieoh itrniptotiinmrrnrreniierl", 14, j);
-	prt("rtsxna.dlcfgdktemldncltggmdsdced", 15, j);
+	prt("              smae      xxxpaefc", 12, j);
+	prt("siwdcc  ssidsahinvudotgddduoclio", 13, j);
+	prt("tnieoh  tnniptotiinmrrnrreniierl", 14, j);
+	prt("rtsxna. lsfgdktemldncltggmdsdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
@@ -344,14 +344,14 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("s   ts h     tadiiii i aiehs  hp", 11, j+32);
-	prt("lf  eefo dmm egrgggg nbcnaih  vr", 12, j+32);
-	prt("we  lerldreeilgannnn hltssdo  ym", 13, j+32);
-	prt("da reiedrattmerirrrr ieityew ccc", 14, j+32);
-	prt("itlepnelmiaappanaefc bsvaktm uuu", 15, j+32);
-	prt("ghigavaianppaoveclio psaanyo rrr", 16, j+32);
-	prt("seteticfnhsscraxierl setropd sss", 17, j+32);
-	prt("trenhsteap12tttpdced idetwes eee", 18, j+32);
+	prt("s   ts h     tadiiiiii aiehsi hp", 11, j+32);
+	prt("lf  eefo dmm egrggggnnbcnaihn vr", 12, j+32);
+	prt("we  lerldreeilgannnnhhltssdoh ym", 13, j+32);
+	prt("da reiedrattmerirrrrmieityewpccc", 14, j+32);
+	prt("itlepnelmiaappanaefcabsvaktmruuu", 15, j+32);
+	prt("ghigavaianppaovecliogpsaanyoarrr", 16, j+32);
+	prt("seteticfnhsscraxierlisetropdysss", 17, j+32);
+	prt("trenhsteap12tttpdcedcidetwesreee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -368,7 +368,7 @@ typedef struct tval_desc
 /*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[] =
+static const tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
@@ -402,6 +402,7 @@ static tval_desc tvals[] =
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+	{ TV_TRAPKIT,		"Trapping Kit"         },
 	{ 0,                    NULL                   }
 };
 
@@ -749,7 +750,7 @@ static void wiz_statistics(object_type *o_ptr)
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
 		           quality, p_ptr->depth);
-		msg_print(NULL);
+		message_flush();
 
 		/* Set counters to zero */
 		matches = better = worse = other = 0;
@@ -833,7 +834,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Final dump */
 		msg_format(q, i, matches, better, worse, other);
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -845,11 +846,11 @@ static void wiz_statistics(object_type *o_ptr)
 /*
  * Change the quantity of a the item
  */
-static void wiz_quantity_item(object_type *o_ptr)
+static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[100];
+	char tmp_val[3];
 
 
 	/* Never duplicate artifacts */
@@ -868,6 +869,16 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Paranoia */
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
+
+		/* Adjust total weight being carried */
+		if (carried)
+		{
+			/* Remove the weight of the old number of objects */
+			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+
+			/* Add the weight of the new number of objects */
+			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
@@ -961,7 +972,8 @@ static void do_cmd_wiz_play(void)
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			bool carried = (item >= 0) ? TRUE : FALSE;
+			wiz_quantity_item(i_ptr, carried);
 		}
 	}
 
@@ -1442,7 +1454,7 @@ static void do_cmd_wiz_query(void)
 
 	/* Get keypress */
 	msg_print("Press any key.");
-	msg_print(NULL);
+	message_flush();
 
 	/* Redraw map */
 	prt_map();
@@ -1458,13 +1470,6 @@ static void do_cmd_wiz_query(void)
 extern void do_cmd_spoilers(void);
 
 #endif
-
-
-
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
 
 
 
@@ -1575,7 +1580,8 @@ void do_cmd_debug(void)
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+			break;
 		}
 
 		/* Identify */

@@ -44,7 +44,7 @@ something you are more comfortable with.
 
   #   A secret door                      #   A wall
   +   A closed door                      %   A mineral vein
-  +   A locked door                      *   A mineral vein with treasure
+  +   A locked door                      $   A mineral vein with treasure 
   +   A jammed door                      :   A pile of rubble
 
 
@@ -56,10 +56,11 @@ something you are more comfortable with.
   -   A wand or rod                      }   A sling, bow, or x-bow
   _   A staff                            {   A shot, arrow, or bolt
   =   A ring                             (   Soft armour
-  "   An amulet (includes psionic foci)  [   Hard armour
+  "   An amulet                          [   Hard armour
   $   Gold or gems                       ]   Helmets, caps or boots.
   ~   Lites, Tools, Chests, etc          )   A shield or cloak.
   ~   Junk, Sticks, Skeletons, etc       &   (unused)
+  *   A psionic focus
  
  
                              Monsters
@@ -207,6 +208,9 @@ Your Home ("8")
      This is your house where  you  can  store  objects  that you 
      cannot carry on your travels, or will need at a later date.
 
+The Bookstore ("9")
+     It sells not only books of all kind, but also psionic foci.
+     
 
 === Within The Dungeon ===
 

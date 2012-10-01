@@ -20,18 +20,18 @@
 
 # Version stamp (required)
 
-V:1.2.0
+V:1.3.0
 
 
 # General Store
 N:0:0:Bilbo the Friendly
-I:3:200:175:108:4:12
+I:3:2000:175:108:4:12
 N:0:1:Rincewind the Chicken
-I:0:200:175:108:4:12
+I:0:2000:175:108:4:12
 N:0:2:Snafu the Midget
-I:4:300:170:107:5:15
+I:4:3000:170:107:5:15
 N:0:3:Lyar-el the Comely
-I:2:400:165:107:6:18
+I:2:4000:165:107:6:18
 
 # Armoury
 N:1:0:Kon-Dar the Ugly
@@ -102,3 +102,13 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+
+# Bookstore
+N:8:0:Kusma the Bookworm
+I:0:30000:200:110:6:9
+N:8:1:Thandin the Loremaster
+I:5:15000:180:120:5:11
+N:8:2:Fratuk the Omniscient
+I:4:20000:215:113:6:10
+N:8:3:Inziladun the Thinker
+I:8:25000:175:110:5:9

@@ -113,7 +113,7 @@ static void note(cptr msg)
 /*
  * Hack -- determine if an item is "wearable" (or a missile)
  */
-static bool wearable_p(object_type *o_ptr)
+static bool wearable_p(const object_type *o_ptr)
 {
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -138,6 +138,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_TRAPKIT:
 		{
 			return (TRUE);
 		}
@@ -245,7 +246,7 @@ static void strip_bytes(int n)
  * This function attempts to "repair" old savefiles, and to extract
  * the most up to date values for various object fields.
  */
-static void rd_item(object_type *o_ptr)
+static errr rd_item(object_type *o_ptr)
 {
 	byte old_dd;
 	byte old_ds;
@@ -260,6 +261,10 @@ static void rd_item(object_type *o_ptr)
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
 
+	/* Paranoia */
+	if ((o_ptr->k_idx < 0) || (o_ptr->k_idx >= z_info->k_max))
+		return (-1);
+		
 	/* Location */
 	rd_byte(&o_ptr->iy);
 	rd_byte(&o_ptr->ix);
@@ -271,7 +276,17 @@ static void rd_item(object_type *o_ptr)
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
 
-
+	/* Hack - some special conversions */
+	if (older_than(1, 3, 0))
+	{
+		switch(o_ptr->k_idx)
+		{
+			case 425: o_ptr->k_idx = lookup_kind(TV_AMULET, SV_AMULET_SENSING); break;
+			case 513: o_ptr->k_idx = lookup_kind(TV_POTION, SV_POTION_ADRENALINE); break;
+			case 221: o_ptr->k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION); break;
+		}
+	}
+	
 	/* New method */
 	rd_byte(&o_ptr->discount);
 
@@ -315,10 +330,6 @@ static void rd_item(object_type *o_ptr)
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
 
-
-	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
-
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -350,7 +361,7 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->name1 = o_ptr->name2 = 0;
 
 		/* All done */
-		return;
+		return (0);
 	}
 
 
@@ -400,6 +411,9 @@ static void rd_item(object_type *o_ptr)
 	{
 		artifact_type *a_ptr;
 
+		/* Paranoia */
+		if (o_ptr->name1 >= z_info->a_max) return (-1);
+
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
 
@@ -424,6 +438,9 @@ static void rd_item(object_type *o_ptr)
 	{
 		ego_item_type *e_ptr;
 
+		/* Paranoia */
+		if (o_ptr->name2 >= z_info->e_max) return (-1);
+
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
 
@@ -444,6 +461,9 @@ static void rd_item(object_type *o_ptr)
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
 	}
+
+	/* Success */
+	return (0);
 }
 
 
@@ -565,6 +585,7 @@ static errr rd_store(int n)
 
 	byte num;
 
+
 	/* Read the basic info */
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
@@ -586,7 +607,11 @@ static errr rd_store(int n)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 		/* Accept any valid items */
 		if (st_ptr->stock_num < STORE_INVEN_MAX)
@@ -653,6 +678,8 @@ static void rd_options(void)
 
 	u32b flag[8];
 	u32b mask[8];
+	u32b window_flag[ANGBAND_TERM_MAX];
+	u32b window_mask[ANGBAND_TERM_MAX];
 
 
 	/*** Oops ***/
@@ -715,13 +742,19 @@ static void rd_options(void)
 	/*** Window Options ***/
 
 	/* Read the window flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
+	{
+		rd_u32b(&window_flag[n]);
+	}
 
 	/* Read the window masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
+	{
+		rd_u32b(&window_mask[n]);
+	}
 
 	/* Analyze the options */
-	for (n = 0; n < 8; n++)
+	for (n = 0; n < ANGBAND_TERM_MAX; n++)
 	{
 		/* Analyze the options */
 		for (i = 0; i < 32; i++)
@@ -730,10 +763,10 @@ static void rd_options(void)
 			if (window_flag_desc[i])
 			{
 				/* Process valid flags */
-				if (mask[n] & (1L << i))
+				if (window_mask[n] & (1L << i))
 				{
 					/* Set */
-					if (flag[n] & (1L << i))
+					if (window_flag[n] & (1L << i))
 					{
 						/* Set */
 						op_ptr->window_flag[n] |= (1L << i);
@@ -791,14 +824,33 @@ static errr rd_extra(void)
 		rd_string(p_ptr->history[i], 60);
 	}
 
-	/* Class/Race/Gender/Spells */
+	/* Player race */
 	rd_byte(&p_ptr->prace);
+
+	/* Verify player race */
+	if (p_ptr->prace >= z_info->p_max)
+	{
+		note(format("Invalid player race (%d).", p_ptr->prace));
+		return (-1);
+	}
+
+	/* Player class */
 	rd_byte(&p_ptr->pclass);
+
+	/* Verify player class */
+	if (p_ptr->pclass >= MAX_CLASS)
+	{
+		note(format("Invalid player class (%d).", p_ptr->pclass));
+		return (-1);
+	}
+
+	/* Player gender */
 	rd_byte(&p_ptr->psex);
-	rd_byte(&tmp8u);	/* oops */
 
 	/* Repair psex (2.8.1 beta) */
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
+
+	strip_bytes(1);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -822,6 +874,13 @@ static errr rd_extra(void)
 	rd_u16b(&p_ptr->exp_frac);
 
 	rd_s16b(&p_ptr->lev);
+
+	/* Verify player level */
+	if ((p_ptr->lev < 1) || (p_ptr->lev > PY_MAX_LEVEL))
+	{
+		note(format("Invalid player level (%d).", p_ptr->lev));
+		return (-1);
+	}
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -915,7 +974,7 @@ static errr rd_extra(void)
 	
 	
 	/* Future use */
-	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
+	strip_bytes(40);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -961,7 +1020,7 @@ static errr rd_extra(void)
 		if (randart_version != RANDART_VERSION)
 		{
 			note(format("Incompatible random artifacts version!"));
-			return (25);
+			return (-1);
 		}
 
 		/* Initialize randarts */
@@ -970,7 +1029,7 @@ static errr rd_extra(void)
 #else /* GJW_RANDART */
 
 		note("Random artifacts are disabled in this binary.");
-		return (25);
+		return (-1);
 
 #endif /* GJW_RANDART */
 
@@ -994,7 +1053,7 @@ static errr rd_extra(void)
 	if (tmp16u > PY_MAX_LEVEL)
 	{
 		note(format("Too many (%u) hitpoint entries!", tmp16u));
-		return (25);
+		return (-1);
 	}
 
 	/* Read the player_hp array */
@@ -1012,7 +1071,7 @@ static errr rd_extra(void)
 	rd_u32b(&p_ptr->spell_forgotten1);
 	rd_u32b(&p_ptr->spell_forgotten2);
 
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
@@ -1062,7 +1121,7 @@ static errr rd_inventory(void)
 		rd_item(i_ptr);
 
 		/* Hack -- verify item */
-		if (!i_ptr->k_idx) return (53);
+		if (!i_ptr->k_idx) return (-1);
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)
@@ -1084,7 +1143,7 @@ static errr rd_inventory(void)
 			note("Too many items in the inventory!");
 
 			/* Fail */
-			return (54);
+			return (-1);
 		}
 
 		/* Carry inventory */
@@ -1276,7 +1335,7 @@ static errr rd_dungeon(void)
 	if (!player_place(py, px))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
+		return (-1);
 	}
 
 
@@ -1289,7 +1348,7 @@ static errr rd_dungeon(void)
 	if (limit >= z_info->o_max)
 	{
 		note(format("Too many (%d) object entries!", limit));
-		return (151);
+		return (-1);
 	}
 
 	/* Read the dungeon items */
@@ -1309,7 +1368,11 @@ static errr rd_dungeon(void)
 		object_wipe(i_ptr);
 
 		/* Read the item */
-		rd_item(i_ptr);
+		if (rd_item(i_ptr))
+		{
+			note("Error reading item");
+			return (-1);
+		}
 
 
 		/* Make an object */
@@ -1319,7 +1382,7 @@ static errr rd_dungeon(void)
 		if (o_idx != i)
 		{
 			note(format("Cannot place object %d!", i));
-			return (152);
+			return (-1);
 		}
 
 		/* Get the object */
@@ -1352,7 +1415,7 @@ static errr rd_dungeon(void)
 	if (limit >= z_info->m_max)
 	{
 		note(format("Too many (%d) monster entries!", limit));
-		return (161);
+		return (-1);
 	}
 
 	/* Read the monsters */
@@ -1376,7 +1439,7 @@ static errr rd_dungeon(void)
 		if (monster_place(n_ptr->fy, n_ptr->fx, n_ptr) != i)
 		{
 			note(format("Cannot place monster %d", i));
-			return (162);
+			return (-1);
 		}
 	}
 
@@ -1395,6 +1458,13 @@ static errr rd_dungeon(void)
 
 		/* Ignore dungeon objects */
 		if (!o_ptr->held_m_idx) continue;
+
+		/* Verify monster index */
+		if (o_ptr->held_m_idx >= z_info->m_max)
+		{
+			note("Invalid monster index");
+			return (-1);
+		}
 
 		/* Get the monster */
 		m_ptr = &m_list[o_ptr->held_m_idx];
@@ -1496,7 +1566,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->r_max)
 	{
 		note(format("Too many (%u) monster races!", tmp16u));
-		return (21);
+		return (-1);
 	}
 
 	/* Read the available records */
@@ -1523,7 +1593,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->k_max)
 	{
 		note(format("Too many (%u) object kinds!", tmp16u));
-		return (22);
+		return (-1);
 	}
 
 	/* Read the object memory */
@@ -1545,10 +1615,10 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > 4)
+	if (tmp16u > MAX_Q_IDX)
 	{
 		note(format("Too many (%u) quests!", tmp16u));
-		return (23);
+		return (-1);
 	}
 
 	/* Load the Quests */
@@ -1570,7 +1640,7 @@ static errr rd_savefile_new_aux(void)
 	if (tmp16u > z_info->a_max)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
-		return (24);
+		return (-1);
 	}
 
 	/* Read the artifact flags */
@@ -1586,7 +1656,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Read the extra stuff */
-	if (rd_extra()) return (25);
+	if (rd_extra()) return (-1);
 	if (arg_fiddle) note("Loaded extra information");
 
 
@@ -1605,7 +1675,7 @@ static errr rd_savefile_new_aux(void)
 	if (rd_inventory())
 	{
 		note("Unable to read inventory");
-		return (21);
+		return (-1);
 	}
 
 
@@ -1613,10 +1683,19 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		if (rd_store(i)) return (22);
+		if (rd_store(i)) return (-1);
 	}
-
-
+	
+	/* Hack -- Fill newly added stores */
+	if (tmp16u < MAX_STORES)
+	{
+		for ( ; tmp16u < MAX_STORES ; tmp16u++)
+		for (i = 1; i < 10; i++)
+		{
+			store_maint(tmp16u);	
+		}
+	}
+	
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
 	{
@@ -1625,14 +1704,28 @@ static errr rd_savefile_new_aux(void)
 		if (rd_dungeon())
 		{
 			note("Error reading dungeon data");
-			return (34);
+			return (-1);
 		}
 
 		/* Read the ghost info */
 		rd_ghost();
 	}
 
-
+        /* Give a message about town change */
+        if (older_than(1,2,1))
+        {
+        	if (p_ptr->depth)
+        	{
+        		note("The town has changed since your last visit!");
+        	}
+        	else
+        	{
+        		note("The town changes!");
+        		generate_cave();
+        	}
+        }
+	        
+	
 #ifdef VERIFY_CHECKSUMS
 
 	/* Recent version */
@@ -1647,7 +1740,7 @@ static errr rd_savefile_new_aux(void)
 	if (o_v_check != n_v_check)
 	{
 		note("Invalid checksum");
-		return (11);
+		return (-1);
 	}
 
 	/* Save the encoded checksum */
@@ -1660,7 +1753,7 @@ static errr rd_savefile_new_aux(void)
 	if (o_x_check != n_x_check)
 	{
 		note("Invalid encoded checksum");
-		return (11);
+		return (-1);
 	}
 	
 
@@ -1683,8 +1776,14 @@ errr rd_savefile_new(void)
 {
 	errr err;
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* The savefile is a binary file */
 	fff = my_fopen(savefile, "rb");
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Paranoia */
 	if (!fff) return (-1);
@@ -1701,5 +1800,4 @@ errr rd_savefile_new(void)
 	/* Result */
 	return (err);
 }
-
 

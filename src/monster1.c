@@ -653,8 +653,6 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BR_SHAR))		vp[vn++] = "shards";
 	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
-	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-	if (flags4 & (RF4_BR_INSA))		vp[vn++] = "insanity";
 	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
 
 	/* Describe breaths */
@@ -733,11 +731,11 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_ANIMALS))		vp[vn++] = "summon animals";
 	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon similar monsters";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
+	if (flags6 & (RF6_S_ANIMAL))		vp[vn++] = "summon an animal";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
@@ -848,6 +846,8 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+	if (flags2 & (RF2_NOTICE_TRAP)) vp[vn++] = "find traps";
+	if (flags2 & (RF2_DISARM_TRAP)) vp[vn++] = "disarm traps";
 
 	/* Describe special abilities. */
 	if (vn)
@@ -1419,7 +1419,7 @@ static void roff_top(int r_idx)
 void screen_roff(int r_idx)
 {
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Begin recall */
 	Term_erase(0, 1, 255);

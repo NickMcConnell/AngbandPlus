@@ -598,7 +598,7 @@ s16b get_mon_num(int level)
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
-void monster_desc(char *desc, monster_type *m_ptr, int mode)
+void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 {
 	cptr res;
 
@@ -1856,9 +1856,10 @@ bool alloc_monster(int dis, bool slp)
 	int px = p_ptr->px;
 
 	int y, x;
+	int	attempts_left = 10000;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (1)
+	while (--attempts_left)
 	{
 		/* Pick a location */
 		y = rand_int(DUNGEON_HGT);
@@ -1869,6 +1870,16 @@ bool alloc_monster(int dis, bool slp)
 
 		/* Accept far away grids */
 		if (distance(y, x, py, px) > dis) break;
+	}
+
+	if (!attempts_left)
+	{
+		if (cheat_xtra || cheat_hear)
+		{
+			msg_print("Warning! Could not allocate a new monster.");
+		}
+
+		return FALSE;
 	}
 
 	/* Attempt to place the monster, allow groups */
@@ -1904,9 +1915,9 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-		case SUMMON_ANT:
+		case SUMMON_ANIMAL:
 		{
-			okay = ((r_ptr->d_char == 'a') &&
+			okay = ((r_ptr->flags3  & (RF3_ANIMAL)) &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -1971,7 +1982,9 @@ static bool summon_specific_okay(int r_idx)
 		{
 			okay = ((r_ptr->d_char == 'L') ||
 			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
+			        (r_ptr->d_char == 'W') ||
+			        ((r_ptr->flags3 & (RF3_UNDEAD) &&
+			         (r_ptr->level >= 40))));
 			break;
 		}
 
@@ -2002,9 +2015,19 @@ static bool summon_specific_okay(int r_idx)
 		
 		case SUMMON_TIME:
 		{
-		 	okay = ((r_ptr->flags4 ^ (RF4_BR_TIME)) &&
+		 	okay = ((r_ptr->flags4 == (RF4_BR_TIME)) &&
 		 	        (r_ptr->d_char == 'v'));
 		 	break;
+		}
+		
+		case SUMMON_POWERFUL:
+		{
+			okay = ((r_ptr->d_char == 'D') ||
+				(r_ptr->d_char == 'U') ||
+				(r_ptr->d_char == 'L') ||
+				(r_ptr->d_char == 'V') ||
+				(r_ptr->d_char == 'W'));
+			break;
 		}
 	}
 

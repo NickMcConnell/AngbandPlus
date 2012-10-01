@@ -303,7 +303,8 @@ have intrinsic abilities.
                A Rogue is a character that prefers to live by his cunning,
                but is capable of fighting his way out of a tight spot.  He
                is the master of traps and locks, no device being impossible
-               for him to overcome. A rogue has a high stealth allowing
+               for him to overcome. He may even set his own traps and harm
+               unwary monsters in them. A rogue has a high stealth allowing
                him to sneak around many creatures without having to fight,
                or sneak up and get the first blow.  A rogue's perception is
                higher than any other class, and many times he will notice a
@@ -311,7 +312,7 @@ have intrinsic abilities.
                better than warriors or paladins with magical devices, but
                still cannot rely on their performance.  Rogues can also
                learn a few spells, but not the powerful offensive spells
-               magi can use.  A rogue's primary stat is Dexterity, and they 
+               magi can use. A rogue's primary stat is Dexterity, and they 
                are also fairly intelligent: but, however good they may have 
                once been at talking their way out of situations, they are 
                now known around the town as rogues, and so they seldom get 
@@ -511,7 +512,7 @@ have intrinsic abilities.
  Half-Troll    Yes      No       Yes      No       No       No       No
  Dunadan       Yes      Yes      Yes      No       Yes      Yes      Yes
  High-Elf      Yes      Yes      Yes      Yes      Yes      No       No
- Kobold	   Yes      No       Yes      Yes      Yes      No       No
+ Kobold        Yes      No       Yes      Yes      Yes      No       No
 
 
 === Miscellaneous ===
@@ -546,7 +547,7 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
-	     Kobold	     -1   -1    0   +2   +2   -3	   8		 +15%
+           Kobold      -1   -1    0   +2   +2   -3       8         +15%
 
                 STR     INT     WIS     DEX     CON     CHR   Hit Dice bonus
   Warrior       +5      -2      -2      +2      +2      -1         +9
@@ -555,7 +556,7 @@ are listed in the following table.
   Rogue         +2      +1      -2      +3      +1      -1         +6
   Ranger        +2      +2       0      +1      +1      +1         +4
   Paladin       +3      -3      +1       0      +2      +2         +6
-  Psionicist    -5      +3      +1      +1      -2      +1         -1
+  Psionicist    -5      +3      +1      +1      -2      +1          0
  
  
 === Ability Tables ===

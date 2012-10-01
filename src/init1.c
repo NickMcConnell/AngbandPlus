@@ -10,6 +10,8 @@
 
 #include "angband.h"
 
+#include "init.h"
+
 
 /*
  * This file is used to initialize various variables and arrays for the
@@ -39,37 +41,6 @@
  * program, but that feels a little silly, especially considering some
  * of the platforms that we currently support.
  */
-
-
-/*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
- */
-int color_char_to_attr(char c)
-{
-	switch (c)
-	{
-		case 'd': return (TERM_DARK);
-		case 'w': return (TERM_WHITE);
-		case 's': return (TERM_SLATE);
-		case 'o': return (TERM_ORANGE);
-		case 'r': return (TERM_RED);
-		case 'g': return (TERM_GREEN);
-		case 'b': return (TERM_BLUE);
-		case 'u': return (TERM_UMBER);
-
-		case 'D': return (TERM_L_DARK);
-		case 'W': return (TERM_L_WHITE);
-		case 'v': return (TERM_VIOLET);
-		case 'y': return (TERM_YELLOW);
-		case 'R': return (TERM_L_RED);
-		case 'G': return (TERM_L_GREEN);
-		case 'B': return (TERM_L_BLUE);
-		case 'U': return (TERM_L_UMBER);
-	}
-
-	return (-1);
-}
 
 
 #ifdef ALLOW_TEMPLATES
@@ -206,8 +177,8 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	"NOTICE_TRAP",
+	"DISARM_TRAP",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -309,8 +280,8 @@ static cptr r_info_flags4[] =
 	"BR_SHAR",
 	"BR_PLAS",
 	"BR_WALL",
-	"BR_MANA",
-	"BR_INSA",
+	"XXX8X2",
+	"XXX8X3",
 	"P_WAVE",
 	"BOULDER",
 	"XXX8X4"
@@ -375,12 +346,12 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"S_ANIMALS",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+	"S_ANIMAL",
 	"S_SPIDER",
 	"S_HOUND",
 	"S_HYDRA",
@@ -407,9 +378,9 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"XXX1",
-	"PSEUDO_ID",
+	"OLD_PSEUDO_ID_XXX",
 	"STEALTH",
-	"SEARCH",
+	"SENSING",
 	"INFRA",
 	"TUNNEL",
 	"SPEED",
@@ -474,6 +445,44 @@ static cptr k_info_flags2[] =
 };
 
 /*
+ * Trap Kits have different interpretations for flags2
+ */
+static cptr k_info_flags2_trap[] =
+{	"AUTOMATIC_5",
+	"AUTOMATIC_99",
+	"KILL_GHOST",
+	"TELEPORT_TO",
+	"ONLY_DRAGON",
+	"ONLY_DEMON",
+	"ONLY_ANIMAL",
+	"ONLY_UNDEAD",
+	"ONLY_EVIL",
+	"XXX10",
+	"XXX11",
+	"XXX12",
+	"XXX13",
+	"XXX14",
+	"XXX15",
+	"XXX16",
+	"XXX17",
+	"XXX18",
+	"XXX19",
+	"XXX20",
+	"XXX21",
+	"XXX22",
+	"XXX23",
+	"XXX24",
+	"XXX25",
+	"XXX26",
+	"XXX27",
+	"XXX28",
+	"XXX29",
+	"XXX30",
+	"XXX31",
+	"XXX32"	
+};
+
+/*
  * Object flags
  */
 static cptr k_info_flags3[] =
@@ -498,7 +507,7 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
+	"INHIBIT_MAGIC",
 	"INHIBIT_PSI",
 	"BLESSED",
 	"ACTIVATE",
@@ -506,7 +515,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"INHIBIT_PRAYER",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -516,7 +525,7 @@ static cptr k_info_flags3[] =
 /*
  * Activation type
  */
-static cptr a_info_act[] =
+static cptr a_info_act[ACT_MAX] =
 {
 	"ILLUMINATION",
 	"MAGIC_MAP",
@@ -582,7 +591,8 @@ static cptr a_info_act[] =
 	"DISINTEGRATE",	
 	"DETONATE",
 	"BERSERKER",
-	"STARLIGHT"		
+	"STARLIGHT",
+	"DESTRUCTION"		
 };
 
 
@@ -593,11 +603,12 @@ static cptr a_info_act[] =
 /*
  * Initialize the "z_info" structure, by parsing an ascii "template" file
  */
-errr init_z_info_txt(FILE *fp, char *buf)
+errr init_z_info_txt(FILE *fp, char *buf, header *head)
 {
 	/* Not ready yet */
 	bool okay = FALSE;
 
+	z_info = head->info_ptr;
 
 	/* Hack - just before the first record */
 	error_idx = -1;
@@ -605,6 +616,9 @@ errr init_z_info_txt(FILE *fp, char *buf)
 	/* Just before the first line */
 	error_line = -1;
 
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -626,9 +640,9 @@ errr init_z_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != z_head->v_major) ||
-			    (v2 != z_head->v_minor) ||
-			    (v3 != z_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -875,7 +889,7 @@ errr init_z_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "v_info" array, by parsing an ascii "template" file
  */
-errr init_v_info_txt(FILE *fp, char *buf)
+errr init_v_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -887,6 +901,10 @@ errr init_v_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	vault_type *v_ptr = NULL;
 
+	v_info = head->info_ptr;
+	v_name = head->name_ptr;
+	v_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -896,8 +914,8 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 
 	/* Prepare the "fake" stuff */
-	v_head->name_size = 0;
-	v_head->text_size = 0;
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -919,9 +937,9 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != v_head->v_major) ||
-			    (v2 != v_head->v_minor) ||
-			    (v3 != v_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -959,7 +977,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= v_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -968,17 +986,17 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			v_ptr = &v_info[i];
 
 			/* Hack -- Verify space */
-			if (v_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!v_ptr->name) v_ptr->name = ++v_head->name_size;
+			if (!v_ptr->name) v_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(v_name + v_head->name_size, s);
+			strcpy(v_name + head->name_size, s);
 
 			/* Advance the index */
-			v_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -995,17 +1013,17 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (v_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!v_ptr->text) v_ptr->text = ++v_head->text_size;
+			if (!v_ptr->text) v_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(v_text + v_head->text_size, s);
+			strcpy(v_text + head->text_size, s);
 
 			/* Advance the index */
-			v_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -1038,8 +1056,8 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++v_head->name_size;
-	++v_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -1055,7 +1073,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
  */
-errr init_f_info_txt(FILE *fp, char *buf)
+errr init_f_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -1067,6 +1085,10 @@ errr init_f_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	feature_type *f_ptr = NULL;
 
+	f_info = head->info_ptr;
+	f_name = head->name_ptr;
+	f_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -1076,8 +1098,8 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 
 	/* Prepare the "fake" stuff */
-	f_head->name_size = 0;
-	f_head->text_size = 0;
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -1099,9 +1121,9 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != f_head->v_major) ||
-			    (v2 != f_head->v_minor) ||
-			    (v3 != f_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -1139,7 +1161,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= f_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1148,17 +1170,17 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			f_ptr = &f_info[i];
 
 			/* Hack -- Verify space */
-			if (f_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!f_ptr->name) f_ptr->name = ++f_head->name_size;
+			if (!f_ptr->name) f_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(f_name + f_head->name_size, s);
+			strcpy(f_name + head->name_size, s);
 
 			/* Advance the index */
-			f_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Default "mimic" */
 			f_ptr->mimic = i;
@@ -1180,17 +1202,17 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (f_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!f_ptr->text) f_ptr->text = ++f_head->text_size;
+			if (!f_ptr->text) f_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(f_text + f_head->text_size, s);
+			strcpy(f_text + head->text_size, s);
 
 			/* Advance the index */
-			f_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -1247,8 +1269,8 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++f_head->name_size;
-	++f_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -1288,6 +1310,17 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 		}
 	}
 
+	/* Check traps - flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2_trap[i]))
+		{
+			k_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+	
+	
 	/* Check flags3 */
 	for (i = 0; i < 32; i++)
 	{
@@ -1310,7 +1343,7 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 /*
  * Initialize the "k_info" array, by parsing an ascii "template" file
  */
-errr init_k_info_txt(FILE *fp, char *buf)
+errr init_k_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -1322,6 +1355,9 @@ errr init_k_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	object_kind *k_ptr = NULL;
 
+	k_info = head->info_ptr;
+	k_name = head->name_ptr;
+	k_text = head->text_ptr;
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -1331,8 +1367,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 
 	/* Prepare the "fake" stuff */
-	k_head->name_size = 0;
-	k_head->text_size = 0;
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -1354,9 +1390,9 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != k_head->v_major) ||
-			    (v2 != k_head->v_minor) ||
-			    (v3 != k_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -1394,7 +1430,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= k_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1403,17 +1439,17 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr = &k_info[i];
 
 			/* Hack -- Verify space */
-			if (k_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!k_ptr->name) k_ptr->name = ++k_head->name_size;
+			if (!k_ptr->name) k_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(k_name + k_head->name_size, s);
+			strcpy(k_name + head->name_size, s);
 
 			/* Advance the index */
-			k_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -1432,17 +1468,17 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (k_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!k_ptr->text) k_ptr->text = ++k_head->text_size;
+			if (!k_ptr->text) k_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(k_text + k_head->text_size, s);
+			strcpy(k_text + head->text_size, s);
 
 			/* Advance the index */
-			k_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -1497,6 +1533,25 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'R' for "Random additions" (one line only) */
+		if (buf[0] == 'R')
+		{
+			int to_ac, to_hit, to_dam, pval;
+
+			/* Scan for the values */
+			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			                &to_hit, &to_dam, &to_ac, &pval)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			k_ptr->r_to_a = to_ac;
+			k_ptr->r_to_h = to_hit;
+			k_ptr->r_to_d = to_dam;
+			k_ptr->r_pval = pval;
+
+			/* Next... */
+			continue;
+		}
+		
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
@@ -1522,9 +1577,12 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		{
 			int i;
 
-			/* XXX XXX XXX Simply read each number following a colon */
+			/* XXX Simply read each number following a colon */
 			for (i = 0, s = buf+1; s && (s[0] == ':') && s[1]; ++i)
 			{
+				/* Sanity check */
+				if (i > 3) return (PARSE_ERROR_TOO_MANY_ALLOCATIONS);
+
 				/* Default chance */
 				k_ptr->chance[i] = 1;
 
@@ -1603,8 +1661,8 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++k_head->name_size;
-	++k_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -1637,6 +1695,16 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, k_info_flags2[i]))
+		{
+			a_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+	
+	/* Check flags2 - trap */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2_trap[i]))
 		{
 			a_ptr->flags2 |= (1L << i);
 			return (0);
@@ -1690,7 +1758,7 @@ static errr grab_one_activation(artifact_type *a_ptr, cptr what)
 /*
  * Initialize the "a_info" array, by parsing an ascii "template" file
  */
-errr init_a_info_txt(FILE *fp, char *buf)
+errr init_a_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -1702,12 +1770,20 @@ errr init_a_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	artifact_type *a_ptr = NULL;
 
+	a_info = head->info_ptr;
+	a_name = head->name_ptr;
+	a_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
 
 	/* Just before the first line */
 	error_line = -1;
+
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 
 	/* Parse */
@@ -1730,9 +1806,9 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != a_head->v_major) ||
-			    (v2 != a_head->v_minor) ||
-			    (v3 != a_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -1770,7 +1846,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= a_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1779,17 +1855,17 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr = &a_info[i];
 
 			/* Hack -- Verify space */
-			if (a_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!a_ptr->name) a_ptr->name = ++a_head->name_size;
+			if (!a_ptr->name) a_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(a_name + a_head->name_size, s);
+			strcpy(a_name + head->name_size, s);
 
 			/* Advance the index */
-			a_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Ignore everything */
 			a_ptr->flags3 |= (TR3_IGNORE_MASK);
@@ -1811,17 +1887,17 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (a_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!a_ptr->text) a_ptr->text = ++a_head->text_size;
+			if (!a_ptr->text) a_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(a_text + a_head->text_size, s);
+			strcpy(a_text + head->text_size, s);
 
 			/* Advance the index */
-			a_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -1952,8 +2028,8 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++a_head->name_size;
-	++a_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -1992,6 +2068,16 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 		}
 	}
 
+	/* Check flags2 - trap */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags2_trap[i]))
+		{
+			e_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+	
 	/* Check flags3 */
 	for (i = 0; i < 32; i++)
 	{
@@ -2015,7 +2101,7 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 /*
  * Initialize the "e_info" array, by parsing an ascii "template" file
  */
-errr init_e_info_txt(FILE *fp, char *buf)
+errr init_e_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -2034,6 +2120,13 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 	/* Just before the first line */
 	error_line = -1;
+
+	e_info = head->info_ptr;
+	e_name = head->name_ptr;
+
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 
 	/* Parse */
@@ -2056,9 +2149,9 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != e_head->v_major) ||
-			    (v2 != e_head->v_minor) ||
-			    (v3 != e_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -2096,7 +2189,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= e_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2105,17 +2198,17 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			e_ptr = &e_info[i];
 
 			/* Hack -- Verify space */
-			if (e_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!e_ptr->name) e_ptr->name = ++e_head->name_size;
+			if (!e_ptr->name) e_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(e_name + e_head->name_size, s);
+			strcpy(e_name + head->name_size, s);
 
 			/* Advance the index */
-			e_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Start with the first of the tval indices */
 			cur_t = 0;
@@ -2137,17 +2230,17 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (e_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!e_ptr->text) e_ptr->text = ++e_head->text_size;
+			if (!e_ptr->text) e_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(e_text + e_head->text_size, s);
+			strcpy(e_text + head->text_size, s);
 
 			/* Advance the index */
-			e_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -2269,8 +2362,8 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++e_head->name_size;
-	++e_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -2377,7 +2470,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 /*
  * Initialize the "r_info" array, by parsing an ascii "template" file
  */
-errr init_r_info_txt(FILE *fp, char *buf)
+errr init_r_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -2389,6 +2482,10 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	monster_race *r_ptr = NULL;
 
+	r_info = head->info_ptr;
+	r_name = head->name_ptr;
+	r_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -2398,8 +2495,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 	/* Start the "fake" stuff */
-	r_head->name_size = 0;
-	r_head->text_size = 0;
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -2421,9 +2518,9 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != r_head->v_major) ||
-			    (v2 != r_head->v_minor) ||
-			    (v3 != r_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -2461,7 +2558,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= r_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2470,17 +2567,17 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr = &r_info[i];
 
 			/* Hack -- Verify space */
-			if (r_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!r_ptr->name) r_ptr->name = ++r_head->name_size;
+			if (!r_ptr->name) r_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(r_name + r_head->name_size, s);
+			strcpy(r_name + head->name_size, s);
 
 			/* Advance the index */
-			r_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -2497,17 +2594,17 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (r_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!r_ptr->text) r_ptr->text = ++r_head->text_size;
+			if (!r_ptr->text) r_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(r_text + r_head->text_size, s);
+			strcpy(r_text + head->text_size, s);
 
 			/* Advance the index */
-			r_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -2686,9 +2783,13 @@ errr init_r_info_txt(FILE *fp, char *buf)
 					while ((*t == ' ') || (*t == '|')) t++;
 				}
 
-				/* XXX XXX XXX Hack -- Read spell frequency */
+				/* XXX Hack -- Read spell frequency */
 				if (1 == sscanf(s, "1_IN_%d", &i))
 				{
+					/* Sanity check */
+					if ((i < 1) || (i > 100))
+						return (PARSE_ERROR_INVALID_SPELL_FREQ);
+
 					/* Extract a "frequency" */
 					r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
 
@@ -2700,7 +2801,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				}
 
 				/* Parse this entry */
-				if (0 != grab_one_spell_flag(r_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+				if (0 != grab_one_spell_flag(r_ptr, s))
+					return (PARSE_ERROR_INVALID_FLAG);
 
 				/* Start the next entry */
 				s = t;
@@ -2716,8 +2818,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++r_head->name_size;
-	++r_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* XXX XXX XXX The ghost is unused */
@@ -2726,12 +2828,12 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	r_ptr = &r_info[z_info->r_max-1];
 
 	/* Get the next index */
-	r_ptr->name = r_head->name_size;
-	r_ptr->text = r_head->text_size;
+	r_ptr->name = head->name_size;
+	r_ptr->text = head->text_size;
 
 	/* Save some space for the ghost info */
-	r_head->name_size += 64;
-	r_head->text_size += 64;
+	head->name_size += 64;
+	head->text_size += 64;
 
 	/* Hack -- Default name/text for the ghost */
 	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
@@ -2812,7 +2914,7 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 /*
  * Initialize the "p_info" array, by parsing an ascii "template" file
  */
-errr init_p_info_txt(FILE *fp, char *buf)
+errr init_p_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i, j;
 
@@ -2824,6 +2926,10 @@ errr init_p_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	player_race *pr_ptr = NULL;
 
+	p_info = head->info_ptr;
+	p_name = head->name_ptr;
+	p_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -2831,6 +2937,9 @@ errr init_p_info_txt(FILE *fp, char *buf)
 	/* Just before the first line */
 	error_line = -1;
 
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -2852,9 +2961,9 @@ errr init_p_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != p_head->v_major) ||
-			    (v2 != p_head->v_minor) ||
-			    (v3 != p_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -2892,7 +3001,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= p_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2901,17 +3010,17 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			pr_ptr = &p_info[i];
 
 			/* Hack -- Verify space */
-			if (p_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(s) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!pr_ptr->name) pr_ptr->name = ++p_head->name_size;
+			if (!pr_ptr->name) pr_ptr->name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(p_name + p_head->name_size, s);
+			strcpy(p_name + head->name_size, s);
 
 			/* Advance the index */
-			p_head->name_size += strlen(s);
+			head->name_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -2992,23 +3101,6 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			pr_ptr->r_mhp = mhp;
 			pr_ptr->r_exp = exp;
 			pr_ptr->infra = infra;
-
-			/* Next... */
-			continue;
-		}
-
-		/* Hack -- Process 'I' for "info" and such */
-		if (buf[0] == 'I')
-		{
-			int hist, b_age, m_age;
-
-			/* Scan for the values */
-			if (3 != sscanf(buf+2, "%d:%d:%d",
-			                &hist, &b_age, &m_age)) return (PARSE_ERROR_GENERIC);
-
-			pr_ptr->hist = hist;
-			pr_ptr->b_age = b_age;
-			pr_ptr->m_age = m_age;
 
 			/* Next... */
 			continue;
@@ -3128,8 +3220,8 @@ errr init_p_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++p_head->name_size;
-	++p_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -3146,7 +3238,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "h_info" array, by parsing an ascii "template" file
  */
-errr init_h_info_txt(FILE *fp, char *buf)
+errr init_h_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i;
 
@@ -3158,6 +3250,9 @@ errr init_h_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	hist_type *h_ptr = NULL;
 
+	h_info = head->info_ptr;
+	h_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -3165,9 +3260,9 @@ errr init_h_info_txt(FILE *fp, char *buf)
 	/* Just before the first line */
 	error_line = -1;
 
-
-	/* Prepare the "fake" stuff */
-	h_head->text_size = 0;
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -3189,9 +3284,9 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != h_head->v_major) ||
-			    (v2 != h_head->v_minor) ||
-			    (v3 != h_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -3219,7 +3314,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= h_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -3252,17 +3347,17 @@ errr init_h_info_txt(FILE *fp, char *buf)
 			s = buf+2;
 
 			/* Hack -- Verify space */
-			if (h_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+			if (head->text_size + strlen(s) + 8 > z_info->fake_text_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the text index */
-			if (!h_ptr->text) h_ptr->text = ++h_head->text_size;
+			if (!h_ptr->text) h_ptr->text = ++head->text_size;
 
 			/* Append chars to the name */
-			strcpy(h_text + h_head->text_size, s);
+			strcpy(h_text + head->text_size, s);
 
 			/* Advance the index */
-			h_head->text_size += strlen(s);
+			head->text_size += strlen(s);
 
 			/* Next... */
 			continue;
@@ -3275,7 +3370,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "text" size */
-	++h_head->text_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -3292,7 +3387,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "b_info" array, by parsing an ascii "template" file
  */
-errr init_b_info_txt(FILE *fp, char *buf)
+errr init_b_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i, j;
 
@@ -3304,6 +3399,10 @@ errr init_b_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	owner_type *ot_ptr = NULL;
 
+	b_info = head->info_ptr;
+	b_name = head->name_ptr;
+	b_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -3311,9 +3410,9 @@ errr init_b_info_txt(FILE *fp, char *buf)
 	/* Just before the first line */
 	error_line = -1;
 
-
-	/* Prepare the "fake" stuff */
-	b_head->name_size = 0;
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -3335,9 +3434,9 @@ errr init_b_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != b_head->v_major) ||
-			    (v2 != b_head->v_minor) ||
-			    (v3 != b_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -3393,7 +3492,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= b_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -3402,17 +3501,17 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			ot_ptr = &b_info[i];
 
 			/* Hack -- Verify space */
-			if (b_head->name_size + strlen(t) + 8 > z_info->fake_name_size)
+			if (head->name_size + strlen(t) + 8 > z_info->fake_name_size)
 				return (PARSE_ERROR_OUT_OF_MEMORY);
 
 			/* Advance and Save the name index */
-			if (!ot_ptr->owner_name) ot_ptr->owner_name = ++b_head->name_size;
+			if (!ot_ptr->owner_name) ot_ptr->owner_name = ++head->name_size;
 
 			/* Append chars to the name */
-			strcpy(b_name + b_head->name_size, t);
+			strcpy(b_name + head->name_size, t);
 
 			/* Advance the index */
-			b_head->name_size += strlen(t);
+			head->name_size += strlen(t);
 
 			/* Next... */
 			continue;
@@ -3450,7 +3549,8 @@ errr init_b_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "name" and "text" sizes */
-	++b_head->name_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
@@ -3467,7 +3567,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 /*
  * Initialize the "g_info" array, by parsing an ascii "template" file
  */
-errr init_g_info_txt(FILE *fp, char *buf)
+errr init_g_info_txt(FILE *fp, char *buf, header *head)
 {
 	int i, j;
 
@@ -3479,6 +3579,10 @@ errr init_g_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	byte *g_ptr;
 
+	g_info = head->info_ptr;
+	g_name = head->name_ptr;
+	g_text = head->text_ptr;
+
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -3487,8 +3591,9 @@ errr init_g_info_txt(FILE *fp, char *buf)
 	error_line = -1;
 
 
-	/* Prepare the "fake" stuff */
-	g_head->text_size = 0;
+	/* Start the "fake" stuff */
+	head->name_size = 0;
+	head->text_size = 0;
 
 	/* Parse */
 	while (0 == my_fgets(fp, buf, 1024))
@@ -3510,9 +3615,9 @@ errr init_g_info_txt(FILE *fp, char *buf)
 
 			/* Scan for the values */
 			if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
-			    (v1 != g_head->v_major) ||
-			    (v2 != g_head->v_minor) ||
-			    (v3 != g_head->v_patch))
+			    (v1 != head->v_major) ||
+			    (v2 != head->v_minor) ||
+			    (v3 != head->v_patch))
 			{
 				return (PARSE_ERROR_OBSOLETE_FILE);
 			}
@@ -3549,7 +3654,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 				if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 				/* Verify information */
-				if (i >= g_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+				if (i >= head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
 
 				/* Save the index */
 				error_idx = i;
@@ -3587,7 +3692,8 @@ errr init_g_info_txt(FILE *fp, char *buf)
 
 
 	/* Complete the "text" size */
-	++g_head->text_size;
+	++head->name_size;
+	++head->text_size;
 
 
 	/* No version yet */
