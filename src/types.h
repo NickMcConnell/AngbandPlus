@@ -48,14 +48,14 @@ typedef byte byte_256[256];
 typedef s16b s16b_256[256];
 
 /*
- * An array of DUNGEON_WID byte's
+ * An array of MAX_DUNGEON_WID byte's
  */
-typedef byte byte_wid[DUNGEON_WID];
+typedef byte byte_wid[MAX_DUNGEON_WID];
 
 /*
- * An array of DUNGEON_WID s16b's
+ * An array of MAX_DUNGEON_WID s16b's
  */
-typedef s16b s16b_wid[DUNGEON_WID];
+typedef s16b s16b_wid[MAX_DUNGEON_WID];
 
 /**** Available Structs ****/
 
@@ -214,6 +214,10 @@ struct object_kind
 	byte dd, ds;				/* Damage dice/sides */
 
 	s16b weight;				/* Weight */
+
+	byte qd, qs;				/* Quantity dice/sides */
+	
+	byte breakage;				/* Chance of breaking when thrown/fired */
 
 	s32b cost;					/* Object "base cost" */
 
@@ -990,6 +994,9 @@ struct player_type
 
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
+
+	byte cur_hgt;			/* Current dungeon level hight */
+	byte cur_wid;			/* Current dungeon level width */
 
 	s32b total_weight;		/* Total weight being carried */
 

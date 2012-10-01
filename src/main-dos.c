@@ -684,9 +684,9 @@ static errr Term_xtra_dos(int n, int v)
 			if (!use_sound) return (0);
 
 #ifdef USE_MOD_FILES
-			if (song_number && (midi_pos == -1) && !is_mod_playing())
+			if (song_number && (midi_pos < 0) && !is_mod_playing())
 #else /* USE_MOD_FILES */
-			if (song_number && (midi_pos == -1))
+			if (song_number && (midi_pos < 0))
 #endif /* USE_MOD_FILES */
 			{
 				if (song_number > 1)

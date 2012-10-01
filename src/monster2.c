@@ -1253,7 +1253,6 @@ s16b player_place(int y, int x)
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
 
-
 	/* Save player location */
 	p_ptr->py = y;
 	p_ptr->px = x;
@@ -1442,6 +1441,8 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
 	}
 
+	if (adult_easy_mode) n_ptr->maxhp = n_ptr->maxhp/2 + 1;
+
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;
 
@@ -1485,53 +1486,51 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 /*
  * Maximum size of a group of monsters
  */
-#define GROUP_MAX	32
+#define GROUP_MAX	18
 
 /*
  * Attempt to place a "group" of monsters around the given location
+ *
+ * Eyangband:
+ *
+ * Monsters usually only form groups if OOD (all monsters resident higher than they
+ * were in Vanilla to balance this), though a small chance exists to form groups
+ * at any depth. The deeper you go, the more monsters likely to be in the group,
+ * up to the max is 24 monsters, "big" groups double the size of the group.
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp)
+
+static bool place_monster_group(int y, int x, int r_idx, bool slp, bool big)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
-	int total, extra = 0;
+	int total, size, max_size;
 
 	int hack_n;
 
-	byte hack_y[GROUP_MAX];
-	byte hack_x[GROUP_MAX];
+	byte hack_y[GROUP_MAX*2];
+	byte hack_x[GROUP_MAX*2];
 
+	/* Determine max size of group */
+	if (r_ptr->level < p_ptr->depth) size = 1 + (p_ptr->depth - r_ptr->level)*2;
+	else size = 1;
+
+	/* Big groups */
+	if (big) size *= 2;
 
 	/* Pick a group size */
-	total = randint(13);
+	total = randint(size);
 
-	/* Hard monsters, small groups */
-	if (r_ptr->level > p_ptr->depth)
-	{
-		extra = r_ptr->level - p_ptr->depth;
-		extra = 0 - randint(extra);
-	}
-
-	/* Easy monsters, large groups */
-	else if (r_ptr->level < p_ptr->depth)
-	{
-		extra = p_ptr->depth - r_ptr->level;
-		extra = randint(extra);
-	}
-
-	/* Hack -- limit group reduction */
-	if (extra > 12) extra = 12;
-
-	/* Modify the group size */
-	total += extra;
+	/* Small chance for a larger group */
+	if (rand_int(5) == 0) total += randint(2);
 
 	/* Minimum size */
 	if (total < 1) total = 1;
 
 	/* Maximum size */
-	if (total > GROUP_MAX) total = GROUP_MAX;
-
+	if (big) max_size = GROUP_MAX*2;
+	else max_size = GROUP_MAX;
+	if (total > max_size) total = max_size;
 
 	/* Save the rating */
 	old = rating;
@@ -1570,7 +1569,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 	/* Hack -- restore the rating */
 	rating = old;
-
 
 	/* Success */
 	return (TRUE);
@@ -1705,14 +1703,18 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	}
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if ((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND))
 	{
+		bool big = FALSE;
+
+		if (r_ptr->flags1 & RF1_FRIENDS) big = TRUE;
+
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp);
+		(void)place_monster_group(y, x, r_idx, slp, big);
 	}
 
 	/* Escorts for certain monsters */
-	if (r_ptr->flags1 & (RF1_ESCORT))
+	if ((r_ptr->flags1 & (RF1_ESCORT)) || (r_ptr->flags1 & (RF1_ESCORTS)))
 	{
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
@@ -1750,11 +1752,11 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			(void)place_monster_one(ny, nx, z, slp);
 
 			/* Place a "group" of escorts if needed */
-			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
-			    (r_ptr->flags1 & (RF1_ESCORTS)))
+			if ((r_info[z].flags1 & RF1_FRIENDS) || (r_info[z].flags1 & RF1_FRIEND)
+				|| (r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp);
+				(void)place_monster_group(ny, nx, z, slp, FALSE);
 			}
 		}
 	}
@@ -1805,8 +1807,8 @@ bool alloc_monster(int dis, bool slp)
 	while (1)
 	{
 		/* Pick a location */
-		y = rand_int(DUNGEON_HGT);
-		x = rand_int(DUNGEON_WID);
+		y = rand_int(p_ptr->cur_hgt);
+		x = rand_int(p_ptr->cur_wid);
 
 		/* Require "naked" floor grid */
 		if (!cave_naked_bold(y, x)) continue;
@@ -1837,10 +1839,8 @@ static bool summon_specific_okay(int r_idx)
 
 	bool okay = FALSE;
 
-
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
-
 
 	/* Check our requirements */
 	switch (summon_specific_type)

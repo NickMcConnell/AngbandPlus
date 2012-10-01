@@ -104,7 +104,7 @@ static tval_desc typevals[] =
 	{TYPE_FOOD,		"Food Items"			},
 	{TYPE_MISC,		"Miscellaneous"			},
 	{0, NULL}
-};    
+};
 
 /*
  * Here are the categories for squelch-on-identification.
@@ -114,24 +114,24 @@ static tval_desc typevals[] =
 
 static tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_DIGGING,           "Diggers"              },
-	{ 0,                    NULL }
+	{ TV_SWORD,			"Sword"				},
+	{ TV_POLEARM,		"Polearm"			},
+	{ TV_HAFTED,		"Hafted Weapon"		},
+	{ TV_BOW,			"Bow"				},
+	{ TV_ARROW,			"Arrows"			},
+	{ TV_BOLT,			"Bolts"				},
+	{ TV_SHOT,			"Shots"				},
+	{ TV_SHIELD,		"Shield"			},
+	{ TV_CROWN,			"Crown"				},
+	{ TV_HELM,			"Helm"				},
+	{ TV_GLOVES,		"Gloves"			},
+	{ TV_BOOTS,			"Boots"				},
+	{ TV_CLOAK,			"Cloak"				},
+	{ TV_DRAG_ARMOR,	"Dragon Scale Mail"	},
+	{ TV_HARD_ARMOR,	"Hard Armor"		},
+	{ TV_SOFT_ARMOR,	"Soft Armor"		},
+	{ TV_DIGGING,		"Diggers"			},
+	{ 0,				NULL }
 };
 
 /*
@@ -296,8 +296,8 @@ static int do_cmd_squelch_aux(void)
 				get_com("", &sq);
 			}
 		}
-	} 
-	else 
+	}
+	else
 	{
 		/* Analyze choice */
 		num = ch-'a';
@@ -310,9 +310,9 @@ static int do_cmd_squelch_aux(void)
 		tval_desc = typevals[num].desc;
 
 		/*** And now we go for k_idx ***/
-	  
+
 		/* Clear screen */
-	  
+
 		while (1) 
 		{
 			Term_clear();
@@ -323,7 +323,7 @@ static int do_cmd_squelch_aux(void)
 			for (num = 0, i = 1; (num < 64) && (i < z_info->k_max); i++)
 			{
 				object_kind *k_ptr = &k_info[i];
-		
+
 				if (tv_to_type[k_ptr->tval] == typeval) 
 				{
 					int j, k;
@@ -365,10 +365,10 @@ static int do_cmd_squelch_aux(void)
 
 				/* Acquire the "name" of object "i" */
 				strip_name(buf, choice[num]);
-	      
+
 				/* Get the squelch character */
 				sq = (k_ptr->squelch ? (k_ptr->aware ? '*' : '.') : ' ');
-	      
+
 				/* Get the color */
 				color = (k_ptr->squelch ? 
 					(k_ptr->aware ? TERM_RED : TERM_L_UMBER) :
@@ -437,14 +437,14 @@ static int do_qual_squelch(void)
 	{
 		/* Clear screen */
 		Term_clear();
-	  
+
 		/* Print all tval's and their descriptions */
 		for (num = 0; (num<60) && tvals[num].tval; num++)
-	    {
+		{
 			row = 2 + (num % 20);
 			col = 30 * (num / 20);
 			prt(format("(%c): %s", squelch_str[squelch_level[num]], tvals[num].desc), row, col);
-	    }
+		}
 
 		/* Print out the rest of the screen */
 		prt("Legend:", 2, 30);
@@ -472,7 +472,7 @@ static int do_qual_squelch(void)
 
 		/* Analyze */
 		switch (ch)
-	    {
+		{
 			case ESCAPE:
 			{
 				return 0;
@@ -496,7 +496,7 @@ static int do_qual_squelch(void)
 			case 'c':
 			{
 				squelch_level[index] = SQUELCH_CURSED;
-			    break;
+				break;
 			}
 
 			case 'C':
@@ -554,12 +554,12 @@ static int do_qual_squelch(void)
 			}
 
 			case '-':
-		    case '8':
+			case '8':
 			{
 				index = (max_num + index - 1) % max_num;
 				break;
 			}
-	    
+
 			case ' ':
 			case '\n':
 			case '\r':
@@ -568,25 +568,25 @@ static int do_qual_squelch(void)
 				index = (index + 1) % max_num;
 				break;
 			}
-	    
+
 			case '6':
 			{
 				squelch_level[index] = (squelch_level[index]+1)%(SQUELCH_ALL+1);
 				break;
 			}
-	    
+
 			case '4':
 			{
 				squelch_level[index] = (SQUELCH_ALL+squelch_level[index])%(SQUELCH_ALL+1);
 				break;
 			}
-	    
+
 			default:
 			{
 				bell("");
 				break;
 			}
-	    }
+		}
 	}
 }
 
@@ -595,11 +595,8 @@ static int do_qual_squelch(void)
  * This is currently called every time the squelch menus are 
  * accessed.  This can certainly be improved.
  */
-
 void init_tv_to_type(void) 
 {
-	  tv_to_type[TV_BOTTLE]			=TYPE_MISC;
-	  tv_to_type[TV_JUNK]			=TYPE_MISC;
 	  tv_to_type[TV_SPIKE]			=TYPE_MISC;
 	  tv_to_type[TV_CHEST]			=TYPE_MISC;
 	  tv_to_type[TV_SHOT]			=TYPE_AMMO;
@@ -651,8 +648,8 @@ void do_cmd_squelch(void)
 	}
 
 	/* Rearrange all the stacks to reflect squelch menus were touched. */
-	for(x=0; x<DUNGEON_WID; x++)
-		for(y=0; y<DUNGEON_HGT; y++)
+	for (x=0 ; x < p_ptr->cur_hgt ; x++)
+		for (y=0 ; y < p_ptr->cur_hgt ; y++)
 			rearrange_stack(y, x);
 
 	/* Restore the screen */

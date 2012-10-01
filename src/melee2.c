@@ -2954,8 +2954,8 @@ static bool get_moves(int m_idx, int mm[5])
 	x = m_ptr->fx - x2;
 
 	/* Normal animal packs try to get the player out of corridors. */
-	if (adult_smart_packs &&
-	    (r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags2 & RF2_ANIMAL) &&
+	if (adult_smart_packs && (r_ptr->flags2 & RF2_ANIMAL) && 
+		((r_ptr->flags1 & RF1_FRIENDS) || (r_ptr->flags1 & RF1_FRIEND))  &&
 	    !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
 	{
 		int i, room = 0;
@@ -3007,7 +3007,8 @@ static bool get_moves(int m_idx, int mm[5])
 	}
 
 	/* Monster groups try to surround the player */
-	if (!done && adult_smart_packs && (r_ptr->flags1 & RF1_FRIENDS))
+	if (!done && adult_smart_packs && ((r_ptr->flags1 & RF1_FRIENDS) ||
+		(r_ptr->flags1 & RF1_FRIEND)))
 	{
 		int i;
 
@@ -4128,17 +4129,16 @@ static void process_monster(int m_idx)
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f4 & (TR4_KILL_DRAGON)) flg2 |= (RF2_DRAGON);
-					if (f4 & (TR4_SLAY_DRAGON)) flg2 |= (RF2_DRAGON);
-					if (f4 & (TR4_SLAY_TROLL))	flg2 |= (RF2_TROLL);
-					if (f4 & (TR4_SLAY_GIANT))	flg2 |= (RF2_GIANT);
-					if (f4 & (TR4_SLAY_ORC))	flg2 |= (RF2_ORC);
-					if (f4 & (TR4_SLAY_DEMON))	flg2 |= (RF2_DEMON);
-					if (f4 & (TR4_SLAY_UNDEAD)) flg2 |= (RF2_UNDEAD);
-					if (f4 & (TR4_SLAY_ANIMAL)) flg2 |= (RF2_ANIMAL);
-					if (f4 & (TR4_SLAY_PLANT))	flg2 |= (RF2_PLANT);
-					if (f4 & (TR4_SLAY_EVIL))	flg2 |= (RF2_EVIL);
-					if (f4 & (TR4_SLAY_CHAOS))	flg2 |= (RF2_CHAOTIC);
+					if (f4 & (TR4_KILL_DRAGON))		flg2 |= (RF2_DRAGON);
+					if (f4 & (TR4_SLAY_DRAGON))		flg2 |= (RF2_DRAGON);
+					if (f4 & (TR4_SLAY_HUMANOID))	flg2 |= (RF2_HUMANOID);
+					if (f4 & (TR4_SLAY_PERSON))		flg2 |= (RF2_PERSON);
+					if (f4 & (TR4_SLAY_DEMON))		flg2 |= (RF2_DEMON);
+					if (f4 & (TR4_SLAY_UNDEAD))		flg2 |= (RF2_UNDEAD);
+					if (f4 & (TR4_SLAY_ANIMAL))		flg2 |= (RF2_ANIMAL);
+					if (f4 & (TR4_SLAY_PLANT))		flg2 |= (RF2_PLANT);
+					if (f4 & (TR4_SLAY_EVIL))		flg2 |= (RF2_EVIL);
+					if (f4 & (TR4_SLAY_CHAOS))		flg2 |= (RF2_CHAOTIC);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags2 & flg2))

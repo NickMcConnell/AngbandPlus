@@ -1599,11 +1599,11 @@ spell_book books[SV_MAX_BOOKS] =
 		/* The Lore of the Hunter (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ SP_BRAND_AMMO_ANIMAL,	"Hunter's Arrows & Bolts",  18, 25, 60,	  6},
+			{ SP_BRAND_AMMO_ANIMAL,	"Hunter's Arrows",			18, 25, 60,	  6},
 			{ SP_CALM_ANIMALS,		"Calm Animals",				23, 35, 55,   8},
-			{ SP_BRAND_AMMO_WOUND,	"Sharpen Arrows & Bolts",   28, 25, 70,   2},
+			{ SP_BRAND_AMMO_WOUND,	"Sharpen Arrows",			28, 25, 70,   2},
 			{ SP_HASTE_SELF_1,		"Haste Self",				33, 12, 90,  10},
-			{ SP_BRAND_AMMO_ELEMNT,	"Elemental Arrows & Bolts", 43, 40, 80,  10},
+			{ SP_BRAND_AMMO_ELEMNT,	"Elemental Arrows",			43, 40, 80,  10},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}, { 0, NULL, 99,  0, 0, 0},
 			{ 0, NULL, 99,  0, 0, 0}
@@ -2031,21 +2031,23 @@ option_type options[OPT_NORMAL] =
 
 option_type options_birth[OPT_BIRTH] =
 {
-	{"birth_point_based",	"Allow purchase of stats using points",		FALSE},
-	{"birth_auto_roller",	"Allow specification of minimal stats",		FALSE},
-	{"birth_preserve",		"Preserve artifacts when leaving level",	TRUE },
-	{"birth_ironman",		"Restrict the use of stairs/recall",		FALSE},
-	{"birth_no_stores",		"Restrict the use of stores/home",			FALSE},
-	{"birth_no_artifacts",	"Restrict creation of artifacts",			FALSE},
-	{"birth_rand_artifacts","Randomize some of the artifacts",			FALSE},
-	{"birth_autoscum",		"Generate better (harder) levels",			FALSE},
-	{"birth_no_feelings",	"No level feelings",						FALSE},
-	{"birth_start_kit",		"Pre-shop for some basic items",			FALSE},
-	{"birth_smart_packs",	"Monsters act smarter in groups",			FALSE},
-	{"birth_smart_cheat",	"Monsters exploit players weaknesses",		FALSE},
-	{"birth_flow_by_sound",	"Monsters chase current location",			TRUE },
-	{"birth_flow_by_smell",	"Monsters chase recent locations",			TRUE },
-	{"birth_random_hp",		"Generate hitpoints randomly",				TRUE }
+	{"birth_point_based",		"Allow purchase of stats using points",		FALSE},
+	{"birth_auto_roller",		"Allow specification of minimal stats",		FALSE},
+	{"birth_preserve",			"Preserve artifacts when leaving level",	TRUE },
+	{"birth_ironman",			"Restrict the use of stairs/recall",		FALSE},
+	{"birth_no_stores",			"Restrict the use of stores/home",			FALSE},
+	{"birth_no_artifacts",		"Restrict creation of artifacts",			FALSE},
+	{"birth_rand_artifacts",	"Randomize some of the artifacts",			FALSE},
+	{"birth_autoscum",			"Generate better (harder) levels",			FALSE},
+	{"birth_no_feelings",		"No level feelings",						FALSE},
+	{"birth_start_kit",			"Pre-shop for some basic items",			FALSE},
+	{"birth_smart_packs",		"Monsters act smarter in groups",			FALSE},
+	{"birth_smart_cheat",		"Monsters exploit players weaknesses",		FALSE},
+	{"birth_flow_by_sound",		"Monsters chase current location",			TRUE },
+	{"birth_flow_by_smell",		"Monsters chase recent locations",			TRUE },
+	{"birth_random_hp",			"Generate hitpoints randomly",				TRUE },
+	{"birth_force_small_lev",	"All levels will be generated as small",	FALSE},
+	{"birth_easy_mode",			"Easy mode",								FALSE}
 };
 
 option_type options_cheat[OPT_CHEAT] =
@@ -2216,6 +2218,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Difficulty ***/
 
 	{
+		OPT_birth_easy_mode,
 		OPT_birth_autoscum,
 		OPT_birth_preserve,
 #ifdef GJW_RANDART
@@ -2227,8 +2230,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
-		255,
-		255,
+		OPT_birth_force_small_lev,
 		255,
 		255,
 		255,

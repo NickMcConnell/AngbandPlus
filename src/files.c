@@ -2007,11 +2007,11 @@ static void display_player_flag_info(void)
 		}
 	}
 
-	prt("---SLAY---X b   wt  q  -BRAND-", 17, 46);
-	prt("apecudotgdd l   oe  u  aefcvld", 18, 46);
-	prt("nlvhnerrirr e   ur  a  clioeia", 19, 46);
-	prt("mniodmclngg s   no  k  ierlntr", 20, 46);
-	prt("ltlsdn.ltnn s   dr  e  dcedmek", 21, 46);
+	prt("---SLAY--X  b   wt  q  -BRAND-", 17, 46);
+	prt("apecudhpdd  l   oe  u  aefcvld", 18, 46);
+	prt("nlvhnemrrr  e   ur  a  clioeia", 19, 46);
+	prt("mniodmnsgg  s   no  k  ierlntr", 20, 46);
+	prt("ltlsdndnnn  s   dr  e  dcedmek", 21, 46);
 
 }
 
@@ -2647,10 +2647,8 @@ errr file_character(cptr name, bool full)
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
-
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Success */
 	return (0);
@@ -3194,7 +3192,8 @@ void get_name(void)
  */
 static long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+	if (adult_easy_mode) return ((p_ptr->max_exp + (100 * p_ptr->max_depth))/4);
+	else return (p_ptr->max_exp + (100 * p_ptr->max_depth));
 }
 
 /*
@@ -3509,7 +3508,6 @@ static void death_examine(void)
 	}
 }
 
-
 /*
  * Seek score 'i' in the highscore file
  */
@@ -3518,7 +3516,6 @@ static int highscore_seek(int i)
 	/* Seek for the requested record */
 	return (fd_seek(highscore_fd, i * sizeof(high_score)));
 }
-
 
 /*
  * Read one score from the highscore file
@@ -3529,7 +3526,6 @@ static errr highscore_read(high_score *score)
 	return (fd_read(highscore_fd, (char*)(score), sizeof(high_score)));
 }
 
-
 /*
  * Write one score to the highscore file
  */
@@ -3538,9 +3534,6 @@ static int highscore_write(high_score *score)
 	/* Write the record, note failure */
 	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
 }
-
-
-
 
 /*
  * Just determine where a new score *would* be placed
@@ -3569,7 +3562,6 @@ static int highscore_where(high_score *score)
 	return (MAX_HISCORES - 1);
 }
 
-
 /*
  * Actually place an entry into the high score file
  * Return the location (0 is best) or -1 on "failure"
@@ -3580,7 +3572,6 @@ static int highscore_add(high_score *score)
 	bool done = FALSE;
 
 	high_score the_score, tmpscore;
-
 
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return (-1);
@@ -3612,8 +3603,6 @@ static int highscore_add(high_score *score)
 	/* Return location used */
 	return (slot);
 }
-
-
 
 /*
  * Display the scores in a given range.
@@ -3839,7 +3828,6 @@ static errr enter_score(void)
 
 	high_score the_score;
 
-
 	/* No score file */
 	if (highscore_fd < 0)
 	{
@@ -3904,7 +3892,6 @@ static errr enter_score(void)
 		return (0);
 	}
 
-
 	/* Clear the record */
 	(void)WIPE(&the_score, high_score);
 
@@ -3959,7 +3946,6 @@ static errr enter_score(void)
 
 	/* Unlock the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
-
 
 	/* Success */
 	return (0);

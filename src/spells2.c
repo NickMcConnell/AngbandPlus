@@ -587,17 +587,13 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f4 & (TR4_SLAY_ORC))
+		if (f4 & (TR4_SLAY_HUMANOID))
 		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
+			info[i++] = "Your weapon is especially deadly against humanoids.";
 		}
-		if (f4 & (TR4_SLAY_TROLL))
+		if (f4 & (TR4_SLAY_PERSON))
 		{
-			info[i++] = "Your weapon is especially deadly against trolls.";
-		}
-		if (f4 & (TR4_SLAY_GIANT))
-		{
-			info[i++] = "Your weapon is especially deadly against giants.";
+			info[i++] = "Your weapon is especially deadly against people.";
 		}
 		if (f4 & (TR4_SLAY_DRAGON))
 		{
@@ -1087,15 +1083,14 @@ bool detect_objects_magic(void)
 			case TV_POTION:
 			case TV_MAGIC_BOOK:
 			case TV_POWDER:
+			case TV_LITE_SPECIAL:
 			{
 				found = TRUE;
 				break;
 			}
 			case TV_LITE:
-			case TV_LITE_SPECIAL:
 			{
-				if (sv == SV_LANTERN_SIGHT) found = TRUE;
-				if (artifact_p(o_ptr) || ego_item_p(o_ptr)) found = TRUE;
+				if (sv >= SV_LANTERN_SIGHT) found = TRUE;
 				break;
 			}
 			default:
@@ -1404,23 +1399,6 @@ static bool item_tester_hook_brand(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-/*
- * Hook for arrows and bolts
- */
-static bool item_tester_hook_arrow(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_BOLT:
-		case TV_ARROW:
 		{
 			return (TRUE);
 		}
@@ -1749,12 +1727,7 @@ bool brand_weapon(byte weapon_type, int brand_type, bool add_plus)
 	char o_name[80];
 	bool ammo;
 
-	if (weapon_type) 
-	{
-		/* Hack - choosing arrows also gives you bolts */
-		if (weapon_type == TV_ARROW) item_tester_hook = item_tester_hook_arrow;
-		else item_tester_tval = weapon_type;
-	}
+	if (weapon_type) item_tester_tval = weapon_type;
 	else item_tester_hook = item_tester_hook_brand;
 
 	/* Get an item */

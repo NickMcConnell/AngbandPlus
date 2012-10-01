@@ -106,8 +106,6 @@ static grouper group_item[] =
 	{ TV_LITE,		  NULL },
 	{ TV_LITE_SPECIAL,NULL },
 	{ TV_FLASK,		  NULL },
-	{ TV_JUNK,		  NULL },
-	{ TV_BOTTLE,	  NULL },
 
 	{ TV_MUSIC,		"Musical Instruments" },
 
@@ -451,9 +449,8 @@ static flag_desc slay_flags_desc[] =
 	{ TR4_SLAY_CHAOS,         "Chaos" },
 	{ TR4_SLAY_UNDEAD,        "Undead" },
 	{ TR4_SLAY_DEMON,         "Demon" },
-	{ TR4_SLAY_ORC,           "Orc" },
-	{ TR4_SLAY_TROLL,         "Troll" },
-	{ TR4_SLAY_GIANT,         "Giant" },
+	{ TR4_SLAY_HUMANOID,      "Humanoid" },
+	{ TR4_SLAY_PERSON,        "Person" },
 	{ TR4_SLAY_DRAGON,        "Dragon" },
 	{ TR4_KILL_DRAGON,        "Xdragon" }
 };
@@ -1622,9 +1619,8 @@ static void spoil_mon_info(cptr fname)
 
 		if (flags2 & (RF2_DRAGON)) spoil_out(" dragon");
 		else if (flags2 & (RF2_DEMON)) spoil_out(" demon");
-		else if (flags2 & (RF2_GIANT)) spoil_out(" giant");
-		else if (flags2 & (RF2_TROLL)) spoil_out(" troll");
-		else if (flags2 & (RF2_ORC)) spoil_out(" orc");
+		else if (flags2 & (RF2_HUMANOID)) spoil_out(" humanoid");
+		else if (flags2 & (RF2_PERSON)) spoil_out(" person");
 		else if (flags2 & (RF2_PLANT))	spoil_out(" plant");
 		else spoil_out(" creature");
 
@@ -1654,18 +1650,20 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(".  ");
 
-		if (flags1 & (RF1_ESCORT))
+		/* Collect monster associates */
+		vn = collect_mon_group(flags1, vp);
+	
+		if (vn)
 		{
-			sprintf(buf, "%s usually appears with ", wd_che[msex]);
-			spoil_out(buf);
-			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
-			else spoil_out("an escort.  ");
-		}
-
-		if (flags1 & (RF1_FRIENDS))
-		{
-			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
-			spoil_out(buf);
+			spoil_out(wd_che[msex]);
+			for (i = 0; i < vn; i++)
+			{
+				if (!i) spoil_out(" usually appears with ");
+				else if (i < vn-1) spoil_out(", ");
+				else spoil_out(" and ");
+				spoil_out(vp[i]);
+			}
+			spoil_out(".  ");
 		}
 
 		/* Collect inate attacks */
@@ -1810,7 +1808,7 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(wd_che[msex]);
 			for (i = 0; i < vn; i++)
 			{
-				if (!i) spoil_out(" can't be ");
+				if (!i) spoil_out(" cannot be ");
 				else if (i < vn-1) spoil_out(", ");
 				else spoil_out(" or ");
 				spoil_out(vp[i]);

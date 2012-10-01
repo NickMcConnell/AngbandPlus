@@ -18,9 +18,7 @@
  */
 
 #include <windows.h>
-
 #include "readdib.h"
-
 
 /*
  * Extract the "WIN32" flag from the compiler
@@ -39,14 +37,12 @@
 # define huge /* oops */
 #endif
 
-
 /*
  * Needed for lcc-win32
  */
 #ifndef SEEK_SET
 #define SEEK_SET 0
 #endif
-
 
 /*
  * Number of bytes to be read during each read operation
@@ -76,7 +72,6 @@ static DWORD PASCAL lread(int fh, VOID FAR *pv, DWORD ul)
 		return 0;
 	return ulT;
 }
-
 
 /*
  * Given a BITMAPINFOHEADER, create a palette based on the color table.
@@ -132,7 +127,6 @@ static HPALETTE PASCAL NEAR MakeDIBPalette(LPBITMAPINFOHEADER lpInfo)
 	}
 }
 
-
 /*
  * Given a DIB, create a bitmap and corresponding palette to be used for a
  * device-dependent representation of the image.
@@ -178,8 +172,6 @@ static BOOL NEAR PASCAL MakeBitmapAndPalette(HDC hDC, HANDLE hDIB,
 	}
 	return (result);
 }
-
-
 
 /*
  * Reads a DIB from a file, obtains a handle to its BITMAPINFO struct, and

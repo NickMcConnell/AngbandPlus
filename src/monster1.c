@@ -375,6 +375,24 @@ void describe_mon_attacks(int method, int effect, cptr method_text[1], cptr effe
 }
 
 /*
+ * Collect the types of the monster's companions 
+ */ 
+int collect_mon_group(u32b flags1, cptr vp[64])
+{
+	int n;
+
+	/* Collect innate */
+	n = 0;
+	if (flags1 & (RF1_ESCORTS))			vp[n++] = "many escorts";
+	else if (flags1 & (RF1_ESCORT))		vp[n++] = "escorts";
+	if (flags1 & (RF1_FRIENDS))			vp[n++] = "many other similar companions";
+	else if (flags1 & (RF1_FRIEND))		vp[n++] = "other similar companions";
+	if (flags1 & (RF1_COMPANION))		vp[n++] = "a unique companion";
+
+	return n;
+}
+
+/*
  * Hack -- display monster information using "roff()"
  *
  * Note that there is now a compiler option to only read the monster
@@ -501,6 +519,7 @@ static void roff_aux(int r_idx)
 
 	/* Assume some "creation" flags */
 	if (r_ptr->flags1 & (RF1_COMPANION))	flags1 |= (RF1_COMPANION);
+	if (r_ptr->flags1 & (RF1_FRIEND))		flags1 |= (RF1_FRIEND);
 	if (r_ptr->flags1 & (RF1_FRIENDS))		flags1 |= (RF1_FRIENDS);
 	if (r_ptr->flags1 & (RF1_ESCORT))		flags1 |= (RF1_ESCORT);
 	if (r_ptr->flags1 & (RF1_ESCORTS))		flags1 |= (RF1_ESCORTS);
@@ -509,9 +528,8 @@ static void roff_aux(int r_idx)
 	if (l_ptr->r_tkills)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags2 & (RF2_ORC))		flags2 |= (RF2_ORC);
-		if (r_ptr->flags2 & (RF2_TROLL))	flags2 |= (RF2_TROLL);
-		if (r_ptr->flags2 & (RF2_GIANT))	flags2 |= (RF2_GIANT);
+		if (r_ptr->flags2 & (RF2_HUMANOID))	flags2 |= (RF2_HUMANOID);
+		if (r_ptr->flags2 & (RF2_PERSON))	flags2 |= (RF2_PERSON);
 		if (r_ptr->flags2 & (RF2_DRAGON))	flags2 |= (RF2_DRAGON);
 		if (r_ptr->flags2 & (RF2_DEMON))	flags2 |= (RF2_DEMON);
 		if (r_ptr->flags2 & (RF2_UNDEAD))	flags2 |= (RF2_UNDEAD);
@@ -796,12 +814,11 @@ static void roff_aux(int r_idx)
 		if (flags2 & (RF2_UNDEAD))	roff(" undead");
 
 		/* Describe the "race" */
-		if (flags2 & (RF2_DRAGON))		roff(" dragon");
-		else if (flags2 & (RF2_DEMON))	roff(" demon");
-		else if (flags2 & (RF2_GIANT))	roff(" giant");
-		else if (flags2 & (RF2_TROLL))	roff(" troll");
-		else if (flags2 & (RF2_ORC))	roff(" orc");
-		else if (flags2 & (RF2_PLANT))	roff(" plant");
+		if (flags2 & (RF2_DRAGON))			roff(" dragon");
+		else if (flags2 & (RF2_DEMON))		roff(" demon");
+		else if (flags2 & (RF2_HUMANOID))	roff(" humanoid");
+		else if (flags2 & (RF2_PERSON))		roff(" person");
+		else if (flags2 & (RF2_PLANT))		roff(" plant");
 		else roff(" creature");
 
 		/* calculate the integer exp part */
@@ -842,25 +859,29 @@ static void roff_aux(int r_idx)
 			        q, (long)i, p));
 	}
 
-	/* Describe companions */
-	if (flags1 & (RF1_COMPANION))
-	{
-		roff(format("%^s usually appears with a companion.  ",
-		            wd_he[msex]));
-	}
+	/* Collect monster associates */
+	vn = collect_mon_group(flags1, vp);
 
-	/* Describe escorts */
-	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
+	/* Describe special abilities. */
+	if (vn)
 	{
-		roff(format("%^s usually appears with escorts.  ",
-		            wd_he[msex]));
-	}
+		/* Intro */
+		roff(format("%^s", wd_he[msex]));
 
-	/* Describe friends */
-	else if (flags1 & (RF1_FRIENDS))
-	{
-		roff(format("%^s usually appears in groups.  ",
-		            wd_he[msex]));
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) roff(" usually appears with ");
+			else if (n < vn-1) roff(", ");
+			else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+
+		/* End */
+		roff(".  ");
 	}
 
 	/* Collect inate attacks */
@@ -1102,7 +1123,7 @@ static void roff_aux(int r_idx)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) roff(" can't be ");
+			if (n == 0) roff(" cannot be ");
 			else if (n < vn-1) roff(", ");
 			else roff(" or ");
 

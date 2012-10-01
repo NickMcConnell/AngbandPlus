@@ -365,25 +365,24 @@ static void wr_options(void)
 	/*** Birth and Adult options ***/
 
 	/* Reset */
-	flag16[0] = 0L;
-	flag16[1] = 0L;
+	for (i = 0; i < 4; i++) flag16[i] = 0L;
 
 	/* Analyze the options */
 	for (i = 0; i < OPT_BIRTH; i++)
 	{
+		int os = i / 16;
 		int ob = i % 16;
 
 		/* Process real entries */
 		if (options_birth[i].text)
 		{
-			if (op_ptr->opt_birth[i]) flag16[0] |= (1L << ob);
-			if (op_ptr->opt_adult[i]) flag16[1] |= (1L << ob);
+			if (op_ptr->opt_birth[i]) flag16[os]   |= (1L << ob);
+			if (op_ptr->opt_adult[i]) flag16[os+2] |= (1L << ob);
 		}
 	}
 
 	/* Dump the flags */
-	wr_u16b(flag16[0]);
-	wr_u16b(flag16[1]);
+	for (i = 0; i < 4; i++) wr_u16b(flag16[i]);
 
 	/*** Cheating/scoring options ***/
 
@@ -611,15 +610,14 @@ static void wr_dungeon(void)
 	byte count;
 	byte prev_char;
 
-
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
-	wr_u16b(DUNGEON_HGT);
-	wr_u16b(DUNGEON_WID);
+	wr_byte(p_ptr->cur_hgt);
+	wr_byte(p_ptr->cur_wid);
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -628,9 +626,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Extract the important cave_info flags */
 			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
@@ -667,9 +665,9 @@ static void wr_dungeon(void)
 	prev_char = 0;
 
 	/* Dump the cave */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			/* Extract a byte */
 			tmp8u = cave_feat[y][x];

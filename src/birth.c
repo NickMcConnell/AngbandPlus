@@ -423,6 +423,8 @@ static void get_money(void)
 	}
 	else if (gold < 0) gold = 0;
 
+	if (adult_easy_mode) gold += 500;
+
 	/* Save the gold */
 	p_ptr->au = gold;
 }
@@ -943,7 +945,8 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (25* (POINTS - cost)) + ((adult_start_kit) ? 0 : 100);
+		p_ptr->au = (25* (POINTS - cost)) + ((adult_start_kit) ? 0 : 100) 
+			+ ((adult_easy_mode) ? 500 : 0);
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP);

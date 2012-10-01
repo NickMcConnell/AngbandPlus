@@ -493,9 +493,9 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Check the dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < p_ptr->cur_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < p_ptr->cur_wid; x++)
 		{
 			s16b this_o_idx, next_o_idx = 0;
 

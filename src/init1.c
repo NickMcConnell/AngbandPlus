@@ -158,15 +158,15 @@ static cptr r_info_flags1[] =
 	"QUESTOR",
 	"MALE",
 	"FEMALE",
+	"XXX1",
 	"CHAR_CLEAR",
-	"CHAR_MULTI",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
-	"XXX1",
 	"COMPANION",
+	"FRIEND",
 	"FRIENDS",
 	"ESCORT",
 	"ESCORTS",
@@ -215,9 +215,9 @@ static cptr r_info_flags2[] =
 	"XXX1",
 	"XXX2",
 	"XXX3",
-	"ORC",
-	"TROLL",
-	"GIANT",
+	"XXX4",
+	"PERSON",
+	"HUMANOID",
 	"DRAGON",
 	"DEMON",
 	"UNDEAD",
@@ -402,6 +402,8 @@ static cptr c_info_flags[] =
 	"CHOOSE_SPELLS",			
 	"MUSIC",			
 	"LORE",			
+	"BETTER_CRITICAL",			
+	"BETTER_SHOT",			
 	"XXX1",			
 	"XXX2",			
 	"XXX3",			
@@ -413,8 +415,6 @@ static cptr c_info_flags[] =
 	"XXX9",	
 	"XXX10",	
 	"XXX11",	
-	"XXX12",	
-	"XXX13",	
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
@@ -551,23 +551,23 @@ static cptr k_info_flags4[] =
 	"SLAY_CHAOS",
 	"SLAY_UNDEAD",
 	"SLAY_DEMON",
-	"SLAY_ORC",
-	"SLAY_TROLL",
-	"SLAY_GIANT",
+	"SLAY_HUMANOID",
+	"SLAY_PERSON",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
 	"XXX1",
-	"BLESSED",
 	"XXX2",
+	"BLESSED",
 	"XXX3",
 	"XXX4",
+	"XXX5",
 	"WOUNDING",
 	"TERROR",
-	"XXX5",
 	"XXX6",
-	"IMPACT",
 	"XXX7",
+	"IMPACT",
 	"XXX8",
+	"XXX9",
 	"BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
@@ -575,8 +575,8 @@ static cptr k_info_flags4[] =
 	"BRAND_VENOM",
 	"BRAND_LITE",
 	"BRAND_DARK",
-	"XXX9",
 	"XXX10",
+	"XXX11",
 };
 
 /*
@@ -1405,13 +1405,11 @@ errr init_k_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	object_kind *k_ptr = NULL;
 
-
 	/* Just before the first record */
 	error_idx = -1;
 
 	/* Just before the first line */
 	error_line = -1;
-
 
 	/* Prepare the "fake" stuff */
 	k_head->name_size = 0;
@@ -1498,6 +1496,11 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Advance the index */
 			k_head->name_size += strlen(s);
 
+			/* Default quantity and breakage */
+			k_ptr->breakage=10;
+			k_ptr->qd=1;
+			k_ptr->qs=1;
+
 			/* Next... */
 			continue;
 		}
@@ -1566,6 +1569,24 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->extra = extra;
 			k_ptr->weight = wgt;
 			k_ptr->cost = cost;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'X' for "Even more Info" (one line only) */
+		if (buf[0] == 'X')
+		{
+			int qd, qs, breakage;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%dd%d:%d",
+			                &qd, &qs, &breakage)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			k_ptr->qd = qd;
+			k_ptr->qs = qs;
+			k_ptr->breakage = breakage;
 
 			/* Next... */
 			continue;
@@ -3665,9 +3686,6 @@ errr init_h_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
-
-
-
 /*
  * Initialize the "b_info" array, by parsing an ascii "template" file
  */
@@ -3683,13 +3701,11 @@ errr init_b_info_txt(FILE *fp, char *buf)
 	/* Current entry */
 	owner_type *ot_ptr = NULL;
 
-
 	/* Just before the first record */
 	error_idx = -1;
 
 	/* Just before the first line */
 	error_line = -1;
-
 
 	/* Prepare the "fake" stuff */
 	b_head->name_size = 0;
@@ -3800,7 +3816,6 @@ errr init_b_info_txt(FILE *fp, char *buf)
 		/* There better be a current ot_ptr */
 		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
@@ -3822,26 +3837,19 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
 
-
 	/* Complete the "name" and "text" sizes */
 	++b_head->name_size;
-
 
 	/* No version yet */
 	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
 
-
 	/* Success */
 	return (0);
 }
-
-
-
 
 /*
  * Initialize the "g_info" array, by parsing an ascii "template" file

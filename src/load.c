@@ -597,24 +597,24 @@ static void rd_options(void)
 	/*** Birth and Adult Options ***/
 
 	/* Read the option flags */
-	rd_u16b(&flag16[0]);
-	rd_u16b(&flag16[1]);
+	for (n = 0; n < 4; n++) rd_u16b(&flag16[n]);
 
 	/* Analyze the options */
 	for (i = 0; i < OPT_BIRTH; i++)
 	{
+		int os = i / 16;
 		int ob = i % 16;
 
 		/* Process real entries */
 		if (options_birth[i].text)
 		{
 			/* Set flag */
-			if (flag16[0] & (1L << ob)) op_ptr->opt_birth[i] = TRUE;
+			if (flag16[os] & (1L << ob)) op_ptr->opt_birth[i] = TRUE;
 			/* Clear flag */
 			else op_ptr->opt_birth[i] = FALSE;
 
 			/* Set flag */
-			if (flag16[1] & (1L << ob)) op_ptr->opt_adult[i] = TRUE;
+			if (flag16[os+2] & (1L << ob)) op_ptr->opt_adult[i] = TRUE;
 			/* Clear flag */
 			else op_ptr->opt_adult[i] = FALSE;
 		}
@@ -1060,13 +1060,11 @@ static errr rd_dungeon(void)
 
 	s16b depth;
 	s16b py, px;
-	s16b ymax, xmax;
 
 	byte count;
 	byte tmp8u;
 
 	u16b limit;
-
 
 	/*** Basic info ***/
 
@@ -1074,8 +1072,8 @@ static errr rd_dungeon(void)
 	rd_s16b(&depth);
 	rd_s16b(&py);
 	rd_s16b(&px);
-	rd_s16b(&ymax);
-	rd_s16b(&xmax);
+	rd_byte(&p_ptr->cur_hgt);
+	rd_byte(&p_ptr->cur_wid);
 
 	/* Ignore illegal dungeons */
 	if ((depth < 0) || (depth >= MAX_DEPTH))
@@ -1085,16 +1083,15 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
+	if ((p_ptr->cur_hgt > MAX_DUNGEON_HGT) || (p_ptr->cur_wid > MAX_DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", p_ptr->cur_hgt, p_ptr->cur_wid));
 		return (0);
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= DUNGEON_WID) ||
-	    (py < 0) || (py >= DUNGEON_HGT))
+	if ((px < 0) || (px >= p_ptr->cur_wid) || (py < 0) || (py >= p_ptr->cur_hgt))
 	{
 		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
@@ -1103,7 +1100,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < p_ptr->cur_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -1116,22 +1113,21 @@ static errr rd_dungeon(void)
 			cave_info[y][x] = tmp8u;
 
 			/* Advance/Wrap */
-			if (++x >= DUNGEON_WID)
+			if (++x >= p_ptr->cur_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= p_ptr->cur_hgt) break;
 			}
 		}
 	}
 
-
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < p_ptr->cur_hgt; )
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -1144,17 +1140,16 @@ static errr rd_dungeon(void)
 			cave_set_feat(y, x, tmp8u);
 
 			/* Advance/Wrap */
-			if (++x >= DUNGEON_WID)
+			if (++x >= p_ptr->cur_wid)
 			{
 				/* Wrap */
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= p_ptr->cur_hgt) break;
 			}
 		}
 	}
-
 
 	/*** Player ***/
 
@@ -1326,6 +1321,11 @@ static errr rd_savefile_new_aux(void)
 	note(format("Loading a %d.%d.%d savefile...",
 	            sf_major, sf_minor, sf_patch));
 
+	if (older_than(0,2,2))
+	{
+		note("Not compatible with 0.2.1 or older savefiles!");
+		return (21);
+	}
 
 	/* Strip the version bytes */
 	strip_bytes(4);
@@ -1333,11 +1333,9 @@ static errr rd_savefile_new_aux(void)
 	/* Hack -- decrypt */
 	xor_byte = sf_extra;
 
-
 	/* Clear the checksums */
 	v_check = 0L;
 	x_check = 0L;
-
 
 	/* Operating system info */
 	rd_u32b(&sf_xtra);

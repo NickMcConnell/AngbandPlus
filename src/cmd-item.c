@@ -1176,7 +1176,6 @@ void do_cmd_eat_food(void)
 		}
 
 		case SV_FOOD_RATION:
-		case SV_FOOD_BISCUIT:
 		case SV_FOOD_JERKY:
 		case SV_FOOD_SLIME_MOLD:
 		{
@@ -1190,14 +1189,6 @@ void do_cmd_eat_food(void)
 			msg_print("That tastes good.");
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
-			ident = TRUE;
-			break;
-		}
-
-		case SV_FOOD_PINT_OF_ALE:
-		case SV_FOOD_PINT_OF_WINE:
-		{
-			msg_print("That tastes good.");
 			ident = TRUE;
 			break;
 		}

@@ -1,3 +1,138 @@
+Changes from 0.2.1 to 0.2.2:
+
+- Not compatible with older savefiles. Sorry.
+
+## General Changes ##
+
+- Added new "easy mode", which considerably lowers monster HP, and gives better prices at 
+  stores. You also start with an additional 500 GP. However, scores are reduced by 75%.
+
+- The system for player attacks with "special" effects (confusing, blinding, etc.) has
+  been totally redone; you can no longer affect monsters that are immune to the attack,
+  and the player is notified of the effect, and missiles now will have the proper effects.
+  Also, confusion attacks (from a scroll of monster confusion) no longer depend on the 
+  player's level but rather on the amount of damage inflicted.
+
+- Rangers now get spells from the third spellbook (Incantations and Illusions) 2 levels 
+  later than before (i.e. Identify is now level 15).
+
+- Modified critical hit rules:
+  - Now you get a different critical hit effect based on weapon type. Swords, arrows and
+    bolts now cause less damage upon a critical hit but will also induce bleeding. 
+    Hafted weapons and shots cause less damage upon a critical hit but will also stun
+    monsters, and on very good critical hits also sometimes confuse them.
+  - The effect of critical hits now more level dependant (though not very significantly so).
+  - Critical hits for shooting and throwing seperated. Neither is dependant on the weight
+    of the missile anymore (since this difference was meaningless in the case of missiles
+    and plain stupid in the case of thrown stuff - try throwing a dagger and a plate armour
+    and see what gives you better hits).
+  - Critical hits are somewhat affected by class - there is a new class flag 
+    BETTER_CRITICAL which causes improved critical hits and is given to the warrior class. 
+  - There's also a BETTER_SHOT flag which gives a similar improvement to missile criticals
+    (given to rangers). 
+  - Priests (and custom classes with the BLESSED_WEAPON flag) will never score a critical 
+    hit with a non-blessed sharp weapon.
+
+- Some levels may now be small, which means that they will take less than the full number
+  of panels. Unlike in other variants, they are not optional, but relatively rare.
+  (thanks to Joseph William Dixon for his assistance).
+
+- New birth option - birth_force_small_level. Every level will be generated as a small 
+  level. (note that a "small" level may still be full size, though very rarely)
+
+- Destoryed levels slightly rarer.
+
+- Potions of Detect Invisiblity now cheaper and sold at the alchemist.
+
+- Rangers can no longer brand/enchant bolts - only arrows. 
+
+## Item Changes ##
+
+- Some swords changed for more variety: Long swords now do 2d6 base damage and worth
+  slightly more money, Scimitars now weigh 9 pounds. Cutlasses now do 2d3 damage.
+  Small swords completely removed. Some artifacts changed - sting is now a short sword,
+  Gondricam now does 2d3 damage, Anguirel and Elvagil do 2d6, Haradekket now weighs 9
+  pounds. 
+
+- New ammo types: Spiked Bullet (heavy sling ammo), Biting Arrow (better damage, but 95%
+  of breaking), Tough Arrow (heavier, more expensive than normal, but only 10% of breaking),
+  Bite Bolt (as biter arrow).
+
+- New SLAY_HUMANOID and SLAY_PERSON flags for weapons replacing the old SLAY_ORC, 
+  SLAY_GIANT, SLAY_TROLL flags. New ego items of slay humanoid and slay person have 
+  replaced the old items. New weapons of Carnage which have both flags. Many artifact 
+  weapons changed to reflect the new flags. 
+
+- Some artifact powers changed a bit.
+
+- Changed the way the PVAL description works. Now, all possible effects have descriptions
+  (i.e. +1 con), not just some of them. If an item has more than one pval-dependant flag,
+  it just shows the plus (like HIDE_TYPE). As a result, HIDE_TYPE removed from all 
+  artifacts and is now present only on some ego-items, rings and similar items to avoid  
+  displays such as "Ring of strength (+1 str)".
+
+- k_info.txt gains a new row - X:, which determines the quantity of items in a stack, and
+  the chance that item will break when thrown/fired (both values were previously hardcoded,
+  dependant on item type). Items with the X: row missing will act the same as before. Some
+  items will now gain more appropriate quantities (especially food which will no longer 
+  appear in such large quantities), and more appropriate breakage chances.
+
+- Removed all junk items (empty bottles, broken sticks, shards of pottery, ruined chest).
+  Also removed Hard Biscuits, Pints of Fine Ale and Pints of Fine Wine. The relative large
+  amount of items added in this and previous versions made junk items redundant.
+
+- Shooters of Extra-might display streamlined - instead of (for instance):
+  Short bow of Extra Might (x2) (+1, +1) (+1), it will show:
+  Short bow of Extra Might (x3) (+1, +1).  As a result, the multiplier will no longer 
+  be shown on unidentified bows.
+
+- Crowns of Wizardry easier to find.
+
+- Ego weapons and ammo of slay plant are now more common. Ego weapons of slay nature made
+  rarer as their old rarity was a bug.
+
+## Monster changes ##
+
+- New monsters: Dark quylthulg, Giant green louse, Nilbog Warrior, Nilbog Lord, Doom
+  sword, Warping Fiend (from Gumband)
+
+- New unique: Chun the Unavoidable.
+
+- Ogre Cheiftains now gain escorts.
+
+- Several creatures changed depths, rarities, and exp values to better match their powers,
+  including a re-organization of most of the late uniques.
+
+- The GIANT, TROLL, and ORC flags have been consolidated into a HUMANOID flag (which has
+  also been given to some 'h' creatures). A new PERSON flag has been added for 'p' monsters
+  and other 'h' monsters.
+
+- Changed the way monster groups are generated. Monsters now usually generate groups only
+  if OOD; as a result, all group monsters raised a few levels. FRIENDS now generates 
+  larger groups than before. A FRIEND flag has been added which generates smaller groups.
+  Note that FRIEND is non-cumulative with FRIENDS. Note also that the monster memory 
+  description has changed from "it usually appears in a group" to "it usually appears with 
+  other similar companions" or "many other similar companions" depending on the flag.
+
+- To complete the previous change, group monsters all raised a few levels; monsters that
+  had both a group and non-group version were turned into a single entry. 
+
+- Changed the behavior of the ESCORT and ESCORTS flags; now, if you have ESCORTS, you no
+  longer require ESCORT as well. As a result, the now redundant flag has been removed from
+  all monsters.
+
+- The CHAR_MULTI flag, which had no effect, removed.
+
+## Bug fixes ##
+
+- A majr bug with artifact generation was fixed that caused some artifacts (and other
+  items) to behave weirdly, and the DONT_RANDOMIZE flag didn't work.
+
+- Lord Voldemorte was being generated without escorts (because he had just ESCORTS but not
+  ESCORT).
+
+- Detect Enchantment will now properly detect magical lights.
+
 Changes from 0.2.0 to 0.2.1:
 
 ## General Changes ##

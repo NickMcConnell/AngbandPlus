@@ -348,13 +348,11 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	int adjust;
 	s32b price;
 
-
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
 
 	/* Worthless items */
 	if (price <= 0) return (0L);
-
 
 	/* Compute the racial factor */
 	factor = g_info[(ot_ptr->owner_race * z_info->p_max) + p_ptr->prace];
@@ -362,6 +360,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
+	if (adult_easy_mode) factor = factor / 2;
 
 	/* Shop is buying */
 	if (flip)

@@ -310,7 +310,7 @@ byte (*cave_info)[256];
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
  */
-byte (*cave_feat)[DUNGEON_WID];
+byte (*cave_feat)[MAX_DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
@@ -323,7 +323,7 @@ byte (*cave_feat)[DUNGEON_WID];
  * any object is in a grid, and relatively fast determination of which objects
  * are in a grid.
  */
-s16b (*cave_o_idx)[DUNGEON_WID];
+s16b (*cave_o_idx)[MAX_DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid monster indexes
@@ -335,19 +335,19 @@ s16b (*cave_o_idx)[DUNGEON_WID];
  * the player structure, but provides extremely fast determination of which,
  * if any, monster or player is in any given grid.
  */
-s16b (*cave_m_idx)[DUNGEON_WID];
+s16b (*cave_m_idx)[MAX_DUNGEON_WID];
 
 #ifdef MONSTER_FLOW
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  */
-byte (*cave_cost)[DUNGEON_WID];
+byte (*cave_cost)[MAX_DUNGEON_WID];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps
  */
-byte (*cave_when)[DUNGEON_WID];
+byte (*cave_when)[MAX_DUNGEON_WID];
 
 #endif	/* MONSTER_FLOW */
 

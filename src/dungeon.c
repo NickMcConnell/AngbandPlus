@@ -462,7 +462,6 @@ static void process_world(void)
 		}
 	}
 
-
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
@@ -2006,7 +2005,6 @@ static void process_player(void)
 {
 	int i;
 
-
 	/*** Check for interrupts ***/
 
 	/* Complete resting */
@@ -2346,8 +2344,6 @@ static void process_player(void)
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 }
 
-
-
 /*
  * Interact with the current dungeon level.
  *
@@ -2362,15 +2358,12 @@ static void dungeon(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-
 	/* Hack -- enforce illegal panel */
-	p_ptr->wy = DUNGEON_HGT;
-	p_ptr->wx = DUNGEON_WID;
-
+	p_ptr->wy = p_ptr->cur_hgt;
+	p_ptr->wx = p_ptr->cur_wid;
 
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
-
 
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
@@ -2378,7 +2371,6 @@ static void dungeon(void)
 	p_ptr->command_rep = 0;
 	p_ptr->command_arg = 0;
 	p_ptr->command_dir = 0;
-
 
 	/* Cancel the target */
 	target_set_monster(0);

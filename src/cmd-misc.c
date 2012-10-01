@@ -54,7 +54,6 @@ void do_cmd_locate(void)
 
 	char out_val[160];
 
-
 	/* Start at current panel */
 	y2 = y1 = p_ptr->wy;
 	x2 = x1 = p_ptr->wx;
@@ -115,11 +114,11 @@ void do_cmd_locate(void)
 
 		/* Verify the row */
 		if (y2 < 0) y2 = 0;
-		if (y2 > DUNGEON_HGT - SCREEN_HGT) y2 = DUNGEON_HGT - SCREEN_HGT;
+		if (y2 > p_ptr->cur_hgt - SCREEN_HGT) y2 = p_ptr->cur_hgt - SCREEN_HGT;
 
 		/* Verify the col */
 		if (x2 < 0) x2 = 0;
-		if (x2 > DUNGEON_WID - SCREEN_WID) x2 = DUNGEON_WID - SCREEN_WID;
+		if (x2 > p_ptr->cur_wid - SCREEN_WID) x2 = p_ptr->cur_wid - SCREEN_WID;
 
 		/* Handle "changes" */
 		if ((p_ptr->wy != y2) || (p_ptr->wx != x2))
@@ -152,7 +151,6 @@ void do_cmd_locate(void)
 static s16b chest_check(int y, int x)
 {
 	s16b this_o_idx, next_o_idx = 0;
-
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)

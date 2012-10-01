@@ -3069,47 +3069,45 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_BISCUIT },
-
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_LITE, SV_LANTERN },
-		{ TV_LITE, SV_LANTERN },
-		{ TV_LITE, SV_LANTERN },
 
+		{ TV_LITE, SV_LANTERN },
+		{ TV_LITE, SV_LANTERN },
+		{ TV_LITE, SV_LANTERN },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
 		{ TV_LITE, SV_TORCH },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
-		{ TV_SPIKE, 0 },
 
+		{ TV_SPIKE, 0 },
+		{ TV_SPIKE, 0 },
+		{ TV_SPIKE, 0 },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_LANTERN },
 		{ TV_FLASK, SV_FLASK_BURNING },
-		{ TV_FLASK, SV_FLASK_BURNING },
-		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK },
 
+		{ TV_CLOAK, SV_CLOAK },
+		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_FUR_CLOAK },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_DIGGING, SV_PICK },
+		{ TV_CLOAK, SV_FUR_CLOAK },
+		{ TV_SHOT, SV_SHOT_NORMAL },
+		{ TV_SHOT, SV_SHOT_NORMAL },
 
+		{ TV_ARROW, SV_ARROW_NORMAL },
+		{ TV_ARROW, SV_ARROW_TOUGH },
+		{ TV_ARROW, SV_ARROW_BITER },
+		{ TV_BOLT, SV_BOLT_NORMAL },
+		{ TV_BOLT, SV_BOLT_BITER },
+		{ TV_DIGGING, SV_PICK },
 		{ TV_DIGGING, SV_PICK },
 		{ TV_DIGGING, SV_SHOVEL },
+
 		{ TV_DIGGING, SV_SHOVEL },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
 		{ TV_MUSIC, SV_MUSIC_LYRE },
@@ -3184,13 +3182,13 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_MAIN_GAUCHE },
 		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
-
+		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_SABRE },
+
 		{ TV_SWORD, SV_CUTLASS },
 		{ TV_SWORD, SV_TULWAR },
+		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
@@ -3215,19 +3213,19 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
 
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_SHOT, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_ARROW, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
-		{ TV_BOLT, SV_AMMO_NORMAL },
+		{ TV_SHOT, SV_SHOT_NORMAL },
+		{ TV_SHOT, SV_SHOT_NORMAL },
+		{ TV_SHOT, SV_SHOT_NORMAL },
+		{ TV_ARROW, SV_ARROW_NORMAL },
+		{ TV_ARROW, SV_ARROW_NORMAL },
+		{ TV_ARROW, SV_ARROW_NORMAL },
+		{ TV_BOLT, SV_BOLT_NORMAL },
+		{ TV_BOLT, SV_BOLT_NORMAL },
 
-		/* Item */
-		/* Item */
-		/* Item */
-		/* Item */
+		{ TV_ARROW, SV_ARROW_TOUGH },
+		{ TV_ARROW, SV_ARROW_BITER },
+		{ TV_BOLT, SV_BOLT_BITER },
+		{ TV_SHOT, SV_SHOT_BULLET },
 		/* Item */
 		/* Item */
 		/* Item */
@@ -3319,9 +3317,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RES_CHR },
 		{ TV_POTION, SV_POTION_RES_CHR },
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_HEAT },
 		{ TV_POTION, SV_POTION_RESIST_COLD },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_POTION, SV_POTION_DETECT_INVIS },
+		{ TV_POTION, SV_POTION_DETECT_INVIS },
 
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
 		{ TV_POTION, SV_POTION_CURE_DISEASE },
@@ -3518,20 +3516,20 @@ static errr init_other(void)
 	/*** Prepare dungeon arrays ***/
 
 	/* Padded into array */
-	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+	C_MAKE(cave_info, MAX_DUNGEON_HGT, byte_256);
 
 	/* Feature array */
-	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
+	C_MAKE(cave_feat, MAX_DUNGEON_HGT, byte_wid);
 
 	/* Entity arrays */
-	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
-	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_o_idx, MAX_DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_m_idx, MAX_DUNGEON_HGT, s16b_wid);
 
 #ifdef MONSTER_FLOW
 
 	/* Flow arrays */
-	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
-	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
+	C_MAKE(cave_cost, MAX_DUNGEON_HGT, byte_wid);
+	C_MAKE(cave_when, MAX_DUNGEON_HGT, byte_wid);
 
 #endif /* MONSTER_FLOW */
 

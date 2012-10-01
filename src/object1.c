@@ -363,8 +363,6 @@ static bool object_easy_know(int i)
 
 		/* Simple items */
 		case TV_FLASK:
-		case TV_JUNK:
-		case TV_BOTTLE:
 		case TV_SPIKE:
 		case TV_POWDER:
 		{
@@ -1216,13 +1214,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Assume no "modifier" string */
 	modstr = "";
 
-
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_BOTTLE:
-		case TV_JUNK:
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
@@ -1445,7 +1440,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-
 	/* Start dumping the result */
 	t = b = tmp_buf;
 
@@ -1534,7 +1528,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-
 	/* Paranoia XXX XXX XXX */
 	/* ASSERT(*s != '~'); */
 
@@ -1572,14 +1565,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-
 	/* Append the "kind name" to the "base name" */
 	if (append_name)
 	{
 		object_desc_str_macro(t, " of ");
 		object_desc_str_macro(t, (k_name + k_ptr->name));
 	}
-
 
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
@@ -1603,10 +1594,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
-
 	/* No more details wanted */
 	if (mode < 1) goto object_desc_done;
-
 
 	/* Hack -- Chests must be described in detail */
 	if (o_ptr->tval == TV_CHEST)
@@ -1732,21 +1721,25 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Bows */
 		case TV_BOW:
 		{
-			/* Hack -- Extract the "base power" */
-			power = (o_ptr->sval % 10);
+			if (known)
+			{
+				/* Hack -- Extract the "base power" */
+				power = (o_ptr->sval % 10);
 
-			/* Append a "power" string */
-			object_desc_chr_macro(t, ' ');
-			object_desc_chr_macro(t, p1);
-			object_desc_chr_macro(t, 'x');
-			object_desc_num_macro(t, power);
-			object_desc_chr_macro(t, p2);
+				if (f1 & TR1_MIGHT) power += (o_ptr->pval);
+
+				/* Append a "power" string */
+				object_desc_chr_macro(t, ' ');
+				object_desc_chr_macro(t, p1);
+				object_desc_chr_macro(t, 'x');
+				object_desc_num_macro(t, power);
+				object_desc_chr_macro(t, p2);
+			}
 
 			/* All done */
 			break;
 		}
 	}
-
 
 	/* Add the weapon bonuses */
 	if (known)
@@ -1815,10 +1808,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, b2);
 	}
 
-
 	/* No more details wanted */
 	if (mode < 2) goto object_desc_done;
-
 
 	/* Hack -- Wands and Staffs have charges.  Make certain how many charges 
 	 * a stack of staffs really has is clear. -LM-
@@ -1893,7 +1884,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if (known && (f1 & (TR1_PVAL_NOMIGHT_MASK)))
 	{
 		cptr tail = "";
 		cptr tail2 = "";
@@ -1911,44 +1902,122 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Nothing */
 		}
 
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
+		else 
 		{
-			/* Dump " to stealth" */
-			tail = " to stealth";
+			int pvflag = (f1 & TR1_PVAL_NOMIGHT_MASK);
+
+			/* Str */
+			if (pvflag == (TR1_STR))
+			{
+				/* Dump " str" */
+				tail = " str";
+			}
+
+			/* Int */
+			if (pvflag == (TR1_INT))
+			{
+				/* Dump " int" */
+				tail = " int";
+			}
+
+			/* Wis */
+			if (pvflag == (TR1_WIS))
+			{
+				/* Dump " wis" */
+				tail = " wis";
+			}
+
+			/* Con */
+			if (pvflag == (TR1_CON))
+			{
+				/* Dump " con" */
+				tail = " con";
+			}
+
+			/* Dex */
+			if (pvflag == (TR1_DEX))
+			{
+				/* Dump " dex" */
+				tail = " dex";
+			}
+
+			/* Chr */
+			if (pvflag == (TR1_CHR))
+			{
+				/* Dump " chr" */
+				tail = " chr";
+			}
+
+			/* Stealth */
+			if (pvflag == (TR1_STEALTH))
+			{
+				/* Dump " stealth" */
+				tail = " stealth";
+			}
+
+			/* Searching */
+			if (pvflag == (TR1_SEARCH))
+			{
+				/* Dump " searching" */
+				tail = " searching";
+			}
+
+			/* Health */
+			if (pvflag == (TR1_HEALTH))
+			{
+				/* Dump " searching" */
+				tail = " health";
+			}
+
+			/* Mana */
+			if (pvflag == (TR1_MANA))
+			{
+				/* Dump " searching" */
+				tail = " mana";
+			}
+
+			/* Tunneling */
+			if (pvflag == (TR1_TUNNEL))
+			{
+				/* Dump " tunneling" */
+				tail = " tunneling";
+			}
+
+			/* Infravision */
+			if (pvflag == (TR1_INFRA))
+			{
+				/* Dump " infravision" */
+				tail = " infravision";
+			}
+
+			/* Speed */
+			if (pvflag == (TR1_SPEED))
+			{
+				/* Dump " speed" */
+				tail = " speed";
+			}
+
+			/* Blows */
+			if (pvflag == (TR1_BLOWS))
+			{
+				/* Add " attack" */
+				tail = " attack";
+
+				/* Add "attacks" */
+				if (ABS(o_ptr->pval) != 1) tail2 = "s";
+			}
+
+			/* Shots */
+			if (pvflag == (TR1_SHOTS))
+			{
+				/* Add " attack" */
+				tail = " shot";
+
+				/* Add "attacks" */
+				if (ABS(o_ptr->pval) != 1) tail2 = "s";
+			}
+
 		}
-
-		/* Searching */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			tail = " to searching";
-		}
-
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			tail = " to infravision";
-		}
-
-		/* Speed */
-		else if (f1 & (TR1_SPEED))
-		{
-			/* Dump " to speed" */
-			tail = " to speed";
-		}
-
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			tail = " attack";
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) tail2 = "s";
-		}
-
 		/* Add the descriptor */
 		object_desc_str_macro(t, tail);
 		object_desc_str_macro(t, tail2);
@@ -1978,7 +2047,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	{
 		u = NULL;
 	}
-
 
 	/* Use special inscription, if any */
 	if (o_ptr->discount >= INSCRIP_NULL)
@@ -2459,17 +2527,13 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f4 & (TR4_SLAY_ORC))
+	if (f4 & (TR4_SLAY_HUMANOID))
 	{
-		info[i++] = "It is especially deadly against orcs.";
+		info[i++] = "It is especially deadly against humanoids.";
 	}
-	if (f4 & (TR4_SLAY_TROLL))
+	if (f4 & (TR4_SLAY_PERSON))
 	{
-		info[i++] = "It is especially deadly against trolls.";
-	}
-	if (f4 & (TR4_SLAY_GIANT))
-	{
-		info[i++] = "It is especially deadly against giants.";
+		info[i++] = "It is especially deadly against people.";
 	}
 	if (f4 & (TR4_SLAY_DRAGON))
 	{

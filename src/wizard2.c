@@ -298,9 +298,9 @@ static void wiz_display_item(object_type *o_ptr)
 	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
 	           o_ptr->tval, o_ptr->sval), 4, j);
 
-	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
+	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d  break = %d",
 	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+	           o_ptr->ac, o_ptr->dd, o_ptr->ds, k_info[o_ptr->k_idx].breakage), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d  timeout = %-d",
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d, o_ptr->timeout), 6, j);
@@ -320,11 +320,11 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_binary(f2, 17, j+2);
 	prt_binary(f4, 17, j+36);
 	prt("f IMMU........RESIST..............  ....SLAY................BRAND... f", 18, j);
-	prt("l aefcaefcfhbbpdldcsswnncdtm......  apecudotgdd.b...wt..q..aefcvld.. l", 19, j);
-	prt("a cliocliorllroiiaonhtethiia......  nlvhnerrirr.l...or..u..clioeia.. a", 20, j);
-	prt("g ierlierladiaistrndrrxhssmn......  iaiadmcoagg.e...ur..a..ierlntr.. g", 21, j);
-	prt("s dceddcedclnvseekf.d..r.eea......  mnloeo.lnnn.s...no..k..dcedoek.. s", 22, j);
-    prt("2 ........tfde.a.........n........  lt.sdn.lt.+.s...dr..e......m.... 4", 23, j);
+	prt("l aefcaefcfhbbpdldcsswnncdtm......  apecudhpdd..b...wt..q..aefcvld.. l", 19, j);
+	prt("a cliocliorllroiiaonhtethiia......  nlvhnemerr..l...or..u..clioeia.. a", 20, j);
+	prt("g ierlierladiaistrndrrxhssmn......  iaiadmnrgg..e...ur..a..ierlntr.. g", 21, j);
+	prt("s dceddcedclnvseekf.d..r.eea......  mnloeoosnn..s...no..k..dcedoek.. s", 22, j);
+    prt("2 ........tfde.a.........n........  lt.sdndn.+..s...dr..e......m.... 4", 23, j);
 }
 
 /*

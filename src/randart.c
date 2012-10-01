@@ -114,12 +114,11 @@ static rand_sv_type rand_swords[] =
 	{ 5, SV_DAGGER },
 	{ 9, SV_MAIN_GAUCHE },
 	{ 10, SV_RAPIER }, /* or at least pointy ;-) */
-	{ 12, SV_SMALL_SWORD },
-	{ 14, SV_SHORT_SWORD },
-	{ 16, SV_SABRE },
-	{ 18, SV_CUTLASS },
-	{ 20, SV_TULWAR },
-	{ 23, SV_BROAD_SWORD },
+	{ 13, SV_SHORT_SWORD },
+	{ 15, SV_SABRE },
+	{ 17, SV_CUTLASS },
+	{ 19, SV_TULWAR },
+	{ 22, SV_BROAD_SWORD },
 	{ 26, SV_LONG_SWORD },
 	{ 30, SV_SCIMITAR },
 	{ 45, SV_BASTARD_SWORD },
@@ -797,23 +796,15 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags4 |= TR4_SLAY_DEMON;
 					if (rand_int(3) == 0) a_ptr->flags4 |= TR4_SLAY_UNDEAD;
 				}
-				else if (r < 59)
+				else if (r < 60)
 				{
-					a_ptr->flags4 |= TR4_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_GIANT;
-				}
-				else if (r < 64)
-				{
-					a_ptr->flags4 |= TR4_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_GIANT;
+					a_ptr->flags4 |= TR4_SLAY_PERSON;
+					if (rand_int(4) == 0) a_ptr->flags4 |= TR4_SLAY_HUMANOID;
 				}
 				else if (r < 67)
 				{
-					a_ptr->flags4 |= TR4_SLAY_GIANT;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags4 |= TR4_SLAY_TROLL;
+					a_ptr->flags4 |= TR4_SLAY_HUMANOID;
+					if (rand_int(4) == 0) a_ptr->flags4 |= TR4_SLAY_PERSON;
 				}
 				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;
 				else if (r < 76)
@@ -1130,7 +1121,6 @@ static void add_ability(artifact_type *a_ptr)
 			case 50:
 				if (rand_int(3) == 0) a_ptr->flags3 |= TR3_INVIS;
 				break;
-
 		}
 	}
 }
@@ -1222,17 +1212,16 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 		case TV_SWORD:
 		{
 			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
-			if (a_ptr->flags4 & TR4_SLAY_ANIMAL) p = (p * 4) / 3;
-			if (a_ptr->flags4 & TR4_SLAY_PLANT)  p = (p * 5) / 4;
-			if (a_ptr->flags4 & TR4_SLAY_EVIL)   p = (p * 3) / 2;
-			if (a_ptr->flags4 & TR4_SLAY_CHAOS)  p = (p * 3) / 2;
-			if (a_ptr->flags4 & TR4_KILL_DRAGON) p = (p * 3) / 2;
-			if (a_ptr->flags4 & TR4_SLAY_UNDEAD) p = (p * 4) / 3;
-			if (a_ptr->flags4 & TR4_SLAY_DRAGON) p = (p * 4) / 3;
-			if (a_ptr->flags4 & TR4_SLAY_DEMON)  p = (p * 5) / 4;
-			if (a_ptr->flags4 & TR4_SLAY_TROLL)  p = (p * 5) / 4;
-			if (a_ptr->flags4 & TR4_SLAY_ORC)    p = (p * 5) / 4;
-			if (a_ptr->flags4 & TR4_SLAY_GIANT)  p = (p * 6) / 5;
+			if (a_ptr->flags4 & TR4_SLAY_ANIMAL)	p = (p * 4) / 3;
+			if (a_ptr->flags4 & TR4_SLAY_PLANT)		p = (p * 6) / 5;
+			if (a_ptr->flags4 & TR4_SLAY_EVIL)		p = (p * 3) / 2;
+			if (a_ptr->flags4 & TR4_SLAY_CHAOS)		p = (p * 3) / 2;
+			if (a_ptr->flags4 & TR4_KILL_DRAGON)	p = (p * 3) / 2;
+			if (a_ptr->flags4 & TR4_SLAY_UNDEAD)	p = (p * 4) / 3;
+			if (a_ptr->flags4 & TR4_SLAY_DRAGON)	p = (p * 4) / 3;
+			if (a_ptr->flags4 & TR4_SLAY_HUMANOID)  p = (p * 4) / 3;
+			if (a_ptr->flags4 & TR4_SLAY_DEMON)		p = (p * 5) / 4;
+			if (a_ptr->flags4 & TR4_SLAY_PERSON)	p = (p * 5) / 4;
 
 			if (a_ptr->flags4 & TR4_WOUNDING)    p = (p * 2);
 			if (a_ptr->flags4 & TR4_TERROR)      p = (p * 4) / 3;
@@ -1446,6 +1435,8 @@ static void do_curse(artifact_type *a_ptr)
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
 	if (rand_int(7) == 0)
 		a_ptr->flags3 |= TR3_TELEPORT;
+	if (rand_int(7) == 0)
+		a_ptr->flags3 |= TR3_DISRUPT;
 	if (rand_int(8) == 0)
 		a_ptr->flags3 |= TR3_DRAIN_ITEM;
 
@@ -1601,11 +1592,6 @@ static int scramble_artifact(int a_idx)
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
 	if (activates) a_ptr->flags3 |= TR3_ACTIVATE;
-
-	/* Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
-	   too lazy to find out which ones need it and which ones don't. */
-	if (a_ptr->pval)
-		a_ptr->flags3 |= TR3_HIDE_TYPE;
 
 	return 0;
 }

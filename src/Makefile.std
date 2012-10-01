@@ -239,7 +239,7 @@ all: angband
 #
 
 install: angband
-cp angband ..
+	 cp angband ..
 
 
 #
@@ -247,7 +247,7 @@ cp angband ..
 #
 
 angband: $(OBJS)
-$(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
+	 $(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
 
 
 #
@@ -255,7 +255,7 @@ $(CC) $(CFLAGS) $(LDFLAGS) -o angband $(OBJS) $(LIBS)
 #
 
 clean:
-\rm *.o angband
+	\rm *.o angband
 
 
 #
@@ -263,7 +263,7 @@ clean:
 #
 
 depend:
-makedepend -D__MAKEDEPEND__ $(SRCS)
+	makedepend -D__MAKEDEPEND__ $(SRCS)
 
 
 #

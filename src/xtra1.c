@@ -2543,7 +2543,6 @@ static void calc_bonuses(void)
 		if (p_ptr->num_fire < 1) p_ptr->num_fire = 1;
 	}
 
-
 	/*** Analyze weapon ***/
 
 	/* Examine the "current weapon" */
@@ -2625,7 +2624,6 @@ static void calc_bonuses(void)
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
 	}
-
 
 	/*** Notice changes ***/
 

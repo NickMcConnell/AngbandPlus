@@ -720,8 +720,8 @@ void object_aware(object_type *o_ptr)
 
 	/* If newly aware and squelched, must rearrange stacks */
 	if (!flag && (k_info[o_ptr->k_idx].squelch))
-		for(x=0; x<DUNGEON_WID; x++)
-			for(y=0; y<DUNGEON_HGT; y++)
+		for(x=0; x<p_ptr->cur_wid; x++)
+			for(y=0; y<p_ptr->cur_hgt; y++)
 				rearrange_stack(y, x);
 }
 
@@ -2984,25 +2984,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	k_ptr = &k_info[j_ptr->k_idx];
 
 	/* Hack -- some objects appear in stacks */
-	switch (j_ptr->tval)
-	{
-		case TV_SPIKE:
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		{
-			j_ptr->number = damroll(6, 7);
-			break;
-		}
-		case TV_POWDER:
-		case TV_FOOD:
-		{	
-			if ((k_ptr->cost <= 60) && (rand_int(2) == 0)) j_ptr->number = damroll(2,4);
-			else if ((k_ptr->cost <= 150) && (rand_int(2) == 0)) j_ptr->number = damroll(2, 3);
-			else j_ptr->number = damroll(1, 3);
-			break;
-		}
-	}
+	if ((k_ptr->qd>1) || (k_ptr->qs>1)) j_ptr->number = damroll(k_ptr->qd, k_ptr->qs);
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -3298,8 +3280,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Random locations */
 		else
 		{
-			ty = rand_int(DUNGEON_HGT);
-			tx = rand_int(DUNGEON_WID);
+			ty = rand_int(p_ptr->cur_hgt);
+			tx = rand_int(p_ptr->cur_wid);
 		}
 
 		/* Require floor space */

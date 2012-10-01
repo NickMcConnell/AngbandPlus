@@ -2359,13 +2359,13 @@ static void windows_map_aux(void)
 	s16b py = p_ptr->py;
 	s16b px = p_ptr->px;
 
-	td->map_tile_wid = (td->tile_wid * td->cols) / DUNGEON_WID;
-	td->map_tile_hgt = (td->tile_hgt * td->rows) / DUNGEON_HGT;
+	td->map_tile_wid = (td->tile_wid * td->cols) / MAX_DUNGEON_WID;
+	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_DUNGEON_HGT;
 
 	min_x = 0;
 	min_y = 0;
-	max_x = DUNGEON_WID;
-	max_y = DUNGEON_HGT;
+	max_x = MAX_DUNGEON_WID;
+	max_y = MAX_DUNGEON_HGT;
 
 	/* Draw the map */
 	for (x = min_x; x < max_x; x++)

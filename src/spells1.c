@@ -586,13 +586,6 @@ static bool hates_acid(object_type *o_ptr)
 			return (TRUE);
 		}
 
-		/* Junk is useless */
-		case TV_BOTTLE:
-		case TV_JUNK:
-		{
-			return (TRUE);
-		}
-
 		/* Low level instruments */
 		case TV_MUSIC:
 		{
@@ -683,7 +676,6 @@ static bool hates_cold(object_type *o_ptr)
 	{
 		case TV_POTION:
 		case TV_FLASK:
-		case TV_BOTTLE:
 		{
 			return (TRUE);
 		}
@@ -759,7 +751,6 @@ static int inven_damage(inven_func typ, int perc)
 
 	char o_name[80];
 
-
 	/* Count the casualties */
 	k = 0;
 
@@ -825,7 +816,6 @@ static int minus_ac(void)
 	u32b f1, f2, f3, f4;
 
 	char o_name[80];
-
 
 	/* Pick a (possibly empty) inventory slot */
 	switch (randint(6))
@@ -3135,7 +3125,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	    !(r_ptr->flags3 & (RF3_NO_CUT)))
 	{
 		/* Already partially bleeding */
-		if (m_ptr->bleeding) note = " is bleeding more.";
+		if (m_ptr->bleeding) note = " is bleeding more strongly.";
 		/* Was not poisoned */
 		else note = " is bleeding.";
 		m_ptr->bleeding += do_cut;

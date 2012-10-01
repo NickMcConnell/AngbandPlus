@@ -639,13 +639,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 static bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
-	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
+	if (wy > p_ptr->cur_hgt - SCREEN_HGT) wy = p_ptr->cur_hgt - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
-	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
+	if (wx > p_ptr->cur_wid - SCREEN_WID) wx = p_ptr->cur_wid - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
 	/* React to changes */
@@ -2173,11 +2171,11 @@ bool target_set_interactive(int mode)
 				if (scroll_target)
 				{
 					/* Slide into legality */
-					if (x >= DUNGEON_WID - 1) x--;
+					if (x >= p_ptr->cur_wid - 1) x--;
 					else if (x <= 0) x++;
 
 					/* Slide into legality */
-					if (y >= DUNGEON_HGT - 1) y--;
+					if (y >= p_ptr->cur_hgt - 1) y--;
 					else if (y <= 0) y++;
 
 					/* Adjust panel if needed */

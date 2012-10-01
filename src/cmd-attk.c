@@ -16,10 +16,14 @@
  * hack - defines for weapons of bleeding, fear, and poisoning 
  */
 
-#define SPEC_CUT	0x01
-#define SPEC_POIS	0x02
-#define SPEC_FEAR	0x04
-#define SPEC_BLIND	0x08
+#define SPEC_CUT		0x01
+#define SPEC_CUT_STRONG	0x02
+#define SPEC_POIS		0x04
+#define SPEC_FEAR		0x08
+#define SPEC_BLIND		0x10
+#define SPEC_STUN		0x20
+#define SPEC_CONF		0x40
+
 
 /*
  * Determine if the player "hits" a monster (normal combat).
@@ -72,36 +76,66 @@ static bool test_hit_norm(int chance, int ac, int vis)
 }
 
 /*
- * Critical hits (from objects thrown by player)
+ * Critical hits (from objects fired by player)
  * Factor in item weight, total plusses, and player level.
  */
-static sint critical_shot(int weight, int plus, int dam)
+static sint critical_shot(int plus, int tval, byte *special, int dam)
 {
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2);
+
+	/* Improved critical hits for some classes */
+	if (cp_ptr->flags & CF_BETTER_SHOT) i += 10 + (p_ptr->lev * 2);
 
 	/* Critical hit */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(500);
+		k = p_ptr->lev + randint(500);
+
+		/* Improved critical hits for some classes */
+		if (cp_ptr->flags & CF_BETTER_SHOT) k *= 2;
 
 		if (k < 500)
 		{
 			msg_print("It was a good hit!");
-			dam = 2 * dam + 5;
+			dam = 2 * dam;
 		}
-		else if (k < 1000)
+		else if (k < 900)
 		{
 			msg_print("It was a great hit!");
-			dam = 2 * dam + 10;
+			dam = 2 * dam + 5;
 		}
 		else
 		{
 			msg_print("It was a superb hit!");
-			dam = 3 * dam + 15;
+			dam = ((5 * dam) / 2) + 10;
 		}
+	
+		if ((tval == TV_ARROW) || (tval == TV_BOLT)) (*special) |= SPEC_CUT_STRONG;
+		if (tval == TV_SHOT) (*special) |= SPEC_STUN;
+	}
+
+	return (dam);
+}
+
+/*
+ * Critical hits (from objects thrown by player)
+ * Factor in item weight, total plusses, and player level.
+ */
+static sint critical_throw(int plus, int dam)
+{
+	int i;
+
+	/* Extract "shot" power */
+	i = ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2);
+
+	/* Critical hit */
+	if (randint(5000) <= i)
+	{
+		msg_print("It was a good hit!");
+		dam = 2 * dam;
 	}
 
 	return (dam);
@@ -112,46 +146,189 @@ static sint critical_shot(int weight, int plus, int dam)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static sint critical_norm(int weight, int plus, int dam)
+static sint critical_norm(int weight, int plus, int tval, byte *special, int dam)
 {
 	int i, k;
 
+	/* No critical hit with "bad" weapons */
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (p_ptr->icky_wield)) return (dam);
+	
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+
+	/* Improved critical hits for some classes */
+	if (cp_ptr->flags & CF_BETTER_CRITICAL) i += 50 + (p_ptr->lev * 3);
 
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(650);
+		k = weight + p_ptr->lev + randint(620);
+
+		/* Improved critical hits for some classes */
+		if (cp_ptr->flags & CF_BETTER_CRITICAL) k *= 2;
 
 		if (k < 400)
 		{
 			msg_print("It was a good hit!");
-			dam = 2 * dam + 5;
+			if (tval == TV_POLEARM) dam = 2 * dam + 5;
 		}
 		else if (k < 700)
 		{
 			msg_print("It was a great hit!");
-			dam = 2 * dam + 10;
+			if (tval == TV_POLEARM) dam = 2 * dam + 10;
+			else dam = dam + 5;
 		}
 		else if (k < 900)
 		{
 			msg_print("It was a superb hit!");
-			dam = 3 * dam + 15;
+			if (tval == TV_POLEARM) dam = 3 * dam + 15;
+			else dam = ((3 * dam) / 2) + 8;
 		}
 		else if (k < 1300)
 		{
 			msg_print("It was a *GREAT* hit!");
-			dam = 3 * dam + 20;
+			if (tval == TV_POLEARM) dam = 3 * dam + 20;
+			else dam = ((3 * dam) / 2) + 10;
+
+			if ((tval == TV_HAFTED) && (rand_int(100) < 10)) (*special) |= SPEC_CONF;
 		}
 		else
 		{
 			msg_print("It was a *SUPERB* hit!");
-			dam = ((7 * dam) / 2) + 25;
+			if (tval == TV_POLEARM) dam = ((7 * dam) / 2) + 25;
+			else dam = 2 * dam + 13;
+
+			if ((tval == TV_HAFTED) && (rand_int(100) < 25)) (*special) |= SPEC_CONF;
 		}
+	
+		if (tval == TV_SWORD) (*special) |= SPEC_CUT;
+		if (tval == TV_HAFTED) (*special) |= SPEC_STUN;
 	}
 
 	return (dam);
+}
+
+static void attack_special(int m_idx, byte special, int dam)
+{
+	char m_name[80];
+	
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Special - Cut monster */
+	if ((special & SPEC_CUT) || (special & SPEC_CUT_STRONG))
+	{
+		/* Cut the monster */
+		if (r_ptr->flags3 & (RF3_NO_CUT))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_NO_CUT);
+			}
+		}
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially poisoned */
+			if (m_ptr->bleeding) msg_format("%^s is bleeding more strongly.", m_name);
+			/* Was not poisoned */
+			else msg_format("%^s is bleeding.", m_name);
+
+			if (special & SPEC_CUT_STRONG) m_ptr->bleeding += dam*5;
+			m_ptr->bleeding += dam*2;
+		}
+	}
+
+	/* Special - Poison monster */
+	if (special & SPEC_POIS) 
+	{
+		/* Poison the monster */
+		if (r_ptr->flags3 & (RF3_RES_POIS))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_RES_POIS);
+			}
+		}
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially poisoned */
+			if (m_ptr->poisoned) msg_format("%^s is more poisoned.", m_name);
+			/* Was not poisoned */
+			else msg_format("%^s is poisoned.", m_name);
+
+			m_ptr->poisoned += dam;
+		}
+	}
+
+	/* Special - Blind monster */
+	if (special & SPEC_BLIND) 
+	{
+		/* Blind the monster */
+		if (r_ptr->flags3 & (RF3_NO_BLIND))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_NO_BLIND);
+			}
+		}
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially blinded */
+			if (m_ptr->blinded) msg_format("%^s appears more blinded.", m_name);
+			/* Was not blinded */
+			else msg_format("%^s appears blinded.", m_name);
+
+			m_ptr->blinded += 1 + dam/3 + rand_int(dam)/3;
+		}
+	}
+
+	/* Special - Stun monster */
+	if (special & SPEC_STUN)
+	{
+		/* Stun the monster */
+		if (r_ptr->flags3 & (RF3_NO_STUN))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_NO_STUN);
+			}
+		}
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially stunned */
+			if (m_ptr->stunned) msg_format("%^s appears more dazed.", m_name);
+			/* Was not stunned */
+			else msg_format("%^s appears dazed.", m_name);
+
+			m_ptr->stunned += 10 + rand_int(dam) / 5;
+		}
+	}
+
+	/* Special - Confuse monster */
+	if (special & SPEC_CONF) 
+	{
+		/* Confuse the monster */
+		if (r_ptr->flags3 & (RF3_RES_CONF))
+		{
+			if (m_ptr->ml)
+			{
+				l_ptr->r_flags3 |= (RF3_RES_CONF);
+			}
+		}
+		else if (rand_int(100) >= r_ptr->level)
+		{
+			/* Already partially confused */
+			if (m_ptr->confused) msg_format("%^s appears more confused.", m_name);
+			/* Was not stunned */
+			else msg_format("%^s appears confused.", m_name);
+
+			m_ptr->confused += 10 + rand_int(dam) / 5;
+		}
+	}
 }
 
 /*
@@ -270,37 +447,25 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Orc */
-			if ((f4 & (TR4_SLAY_ORC)) &&
-			    (r_ptr->flags2 & (RF2_ORC)))
+			/* Slay Humanoid */
+			if ((f4 & (TR4_SLAY_HUMANOID)) &&
+			    (r_ptr->flags2 & (RF2_HUMANOID)))
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags2 |= (RF2_ORC);
+					l_ptr->r_flags2 |= (RF2_HUMANOID);
 				}
 
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Troll */
-			if ((f4 & (TR4_SLAY_TROLL)) &&
-			    (r_ptr->flags2 & (RF2_TROLL)))
+			/* Slay People */
+			if ((f4 & (TR4_SLAY_PERSON)) &&
+			    (r_ptr->flags2 & (RF2_PERSON)))
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags2 |= (RF2_TROLL);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Giant */
-			if ((f4 & (TR4_SLAY_GIANT)) &&
-			    (r_ptr->flags2 & (RF2_GIANT)))
-			{
-				if (m_ptr->ml)
-				{
-					l_ptr->r_flags2 |= (RF2_GIANT);
+					l_ptr->r_flags2 |= (RF2_PERSON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -486,7 +651,7 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 				else 
 				{
 					if (mult < 2) mult = 2;
-					if (rand_int(100)<20) (*special) |= SPEC_BLIND;
+					if (rand_int(100)<20) (*special) |= SPEC_BLIND;  
 				}
 			}
 
@@ -500,7 +665,13 @@ static sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, byte 
 						l_ptr->r_flags3 |= (RF3_NO_CUT);
 					}
 				}
-				if (rand_int(100)<50) (*special) |= SPEC_CUT;
+				if (rand_int(100)<50) 
+				{
+					/* Hack - bolts and arrows do more cutting damage */
+					if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW)) 
+						(*special) |= SPEC_CUT_STRONG;
+					else (*special) |= SPEC_CUT;
+				}
 			}
 
 			/* Terror */
@@ -1233,7 +1404,6 @@ void py_attack(int y, int x)
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
-	monster_lore *l_ptr;
 
 	object_type *o_ptr;
 
@@ -1247,7 +1417,6 @@ void py_attack(int y, int x)
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
-	l_ptr = &l_list[m_ptr->r_idx];
 
 	/* Disturb the player */
 	disturb(0);
@@ -1307,7 +1476,7 @@ void py_attack(int y, int x)
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr, &special);
 				if ((f4 & TR4_IMPACT) && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, o_ptr->tval, &special, k);
 				k += o_ptr->to_d;
 			}
 
@@ -1323,17 +1492,12 @@ void py_attack(int y, int x)
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
-			/* Special - Force fear */
-			if (special & SPEC_FEAR) fear = TRUE;
-
-			/* Special - Cut monster */
-			if (special & SPEC_CUT) m_ptr->bleeding += k*2;
-
-			/* Special - Poison monster */
-			if (special & SPEC_POIS) m_ptr->poisoned += k;
-
-			/* Special - Blind monster */
-			if (special & SPEC_BLIND) m_ptr->blinded += k/2;
+			/* HACK - Special - Force fear */
+			if (special & SPEC_FEAR) 
+			{
+				fear = TRUE;
+				special &= ~SPEC_FEAR;
+			}
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
@@ -1341,32 +1505,18 @@ void py_attack(int y, int x)
 			/* Confusion attack */
 			if (p_ptr->confusing)
 			{
+				/* Confuse the monster */
+				special |= SPEC_CONF;
+
 				/* Cancel glowing hands */
 				p_ptr->confusing = FALSE;
 
 				/* Message */
 				msg_print("Your hands stop glowing.");
-
-				/* Confuse the monster */
-				if (r_ptr->flags3 & (RF3_RES_CONF))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_RES_CONF);
-					}
-
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else if (rand_int(100) < r_ptr->level)
-				{
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else
-				{
-					msg_format("%^s appears confused.", m_name);
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
-				}
 			}
+
+			/* Handle special effects (confusing, stunning, etc */
+			if (special) attack_special(cave_m_idx[y][x], special, k);
 		}
 
 		/* Player misses */
@@ -1598,7 +1748,6 @@ static int see_wall(int dir, int y, int x)
 	return (TRUE);
 }
 
-
 /*
  * Hack -- Check for an "unknown corner" (see below)
  */
@@ -1799,7 +1948,6 @@ static void run_init(int dir)
 
 	bool deepleft, deepright;
 	bool shortleft, shortright;
-
 
 	/* Save the direction */
 	p_ptr->run_cur_dir = dir;
@@ -2711,54 +2859,6 @@ void do_cmd_rest(void)
 }
 
 /*
- * Determines the odds of an object breaking when thrown at a monster
- *
- * Note that artifacts never break, see the "drop_near()" function.
- */
-static int breakage_chance(object_type *o_ptr)
-{
-	/* Examine the item type */
-	switch (o_ptr->tval)
-	{
-		/* Always break */
-		case TV_FLASK:
-		case TV_POTION:
-		case TV_POWDER:
-		case TV_BOTTLE:
-		case TV_FOOD:
-		case TV_JUNK:
-		{
-			return (100);
-		}
-
-		/* Often break */
-		case TV_LITE:
-		case TV_SCROLL:
-		{
-			return (50);
-		}
-
-		/* Sometimes break */
-		case TV_ARROW:
-		{
-			return (35);
-		}
-
-		/* Sometimes break */
-		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_SPIKE:
-		{
-			return (25);
-		}
-	}
-
-	/* Rarely break */
-	return (10);
-}
-
-/*
  * Fire an object from the pack or floor.
  *
  * You may only fire items that "match" your missile launcher.
@@ -3017,7 +3117,7 @@ void do_cmd_fire(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = critical_shot(i_ptr->to_h, i_ptr->tval, &special, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -3029,15 +3129,13 @@ void do_cmd_fire(void)
 					           tdam, m_ptr->hp);
 				}
 
-				/* Special - Force fear */
-				if (special & SPEC_FEAR) fear = TRUE;
-
-				/* Special - Cut monster */
-				if (special & SPEC_CUT) m_ptr->bleeding += tdam*2;
-
-				/* Special - Poison monster */
-				if (special & SPEC_POIS) m_ptr->poisoned += tdam;
-
+				/* HACK - Special - Force fear */
+				if (special & SPEC_FEAR) 
+				{
+					fear = TRUE;
+					special &= ~SPEC_FEAR;
+				}
+	
 				/* Hit the monster, check for death */
 				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
 				{
@@ -3047,6 +3145,9 @@ void do_cmd_fire(void)
 				/* No death */
 				else
 				{
+					/* Handle special effects (confusing, stunning, etc */
+					if (special) attack_special(cave_m_idx[y][x], special, tdam);
+
 					/* Message */
 					message_pain(cave_m_idx[y][x], tdam);
 
@@ -3071,7 +3172,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	j = (hit_body ? k_info[i_ptr->k_idx].breakage : 0);
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
@@ -3395,7 +3496,7 @@ void do_cmd_throw(void)
 				{
 					/* Apply special damage XXX XXX XXX */
 					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-					tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+					tdam = critical_throw(i_ptr->to_h, tdam);
 
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;
@@ -3407,17 +3508,12 @@ void do_cmd_throw(void)
 								   tdam, m_ptr->hp);
 					}
 
-					/* Special - Force fear */
-					if (special & SPEC_FEAR) fear = TRUE;
-
-					/* 
-					 * Special - Cut monster (note that cutting missiles do more relative
-					 * damage than cutting melee attacks).
-					 */
-					if (special & SPEC_CUT) m_ptr->bleeding += tdam*5;
-
-					/* Special - Poison monster */
-					if (special & SPEC_POIS) m_ptr->poisoned += tdam;
+					/* HACK - Special - Force fear */
+					if (special & SPEC_FEAR) 
+					{
+						fear = TRUE;
+						special &= ~SPEC_FEAR;
+					}
 
 					/* Hit the monster, check for death */
 					if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
@@ -3430,6 +3526,9 @@ void do_cmd_throw(void)
 					{
 						/* Message */
 						message_pain(cave_m_idx[y][x], tdam);
+
+						/* Handle special effects (confusing, stunning, etc */
+						if (special) attack_special(cave_m_idx[y][x], special, tdam);
 
 						/* Take note */
 						if (fear && m_ptr->ml)
@@ -3468,7 +3567,7 @@ void do_cmd_throw(void)
 	}
 
 	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	j = (hit_body ? k_info[i_ptr->k_idx].breakage : 0);
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
