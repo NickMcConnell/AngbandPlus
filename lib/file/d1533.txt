@@ -1,0 +1,34 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter the queen's training underground. She is there. However,;
+T:much like Emma, her skin is pale, and she has an empty, soulless gaze.;
+T:It seems she too has been turned into an undead being by the Grey Wight.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Christina;
+T:The Grey Wight came here. I drew all the power from my amulet of Golden Truth,;
+T:and tried to fight him. I've failed. But now, I understand why. Shan is;
+T:weak. She is a weak demoness, unlike Ryoon, who is a real, powerful;
+T:Archfiend. So I threw away the amulet, and accepted Ryoon's blessing.;
+T:I am no longer part of the living. And if I prove myself worthy, I will;
+T:become a ghost, and become a member of the Grey Wight's elite force.;
+T:How is that, <NAME>?;
+A:You are possessed by the Grey Wight. We have no choice but to fight.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Christina;
+T:Fight? Oh, I see... you are still after this amulet. Forget about it.;
+T:How about accepting the blessing of Ryoon instead?;
+A:And become a mindless puppet? Never.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Christina;
+T:A shame, <NAME>... because now, I will have no choice but to kill you.;
+T:But once you're dead, maybe you too can be raised as a ghost, and serve;
+T:the Ghostfather. Yes. I will kill you, so that you too can enjoy undeath!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

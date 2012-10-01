@@ -162,6 +162,7 @@ int template_race;
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE	1	/* Rubble */
+#define ALLOC_TYP_CHEST		2       /* Chests */
 #define ALLOC_TYP_TRAP		3	/* Trap */
 #define ALLOC_TYP_GOLD		4	/* Gold */
 #define ALLOC_TYP_OBJECT	5	/* Object */
@@ -880,6 +881,12 @@ static void alloc_object(int set, int typ, int num)
 			case ALLOC_TYP_RUBBLE:
 			{
 				place_rubble(y, x);
+				break;
+			}
+
+			case ALLOC_TYP_CHEST:
+			{
+				place_chest(y, x);
 				break;
 			}
 
@@ -5370,6 +5377,21 @@ void quest_artifact_prep(int a_idx, int x, int y)
 	q_ptr->extra4 = a_ptr->extra4;
 	q_ptr->extra5 = a_ptr->extra5;
 	q_ptr->reflect = a_ptr->reflect;
+	q_ptr->cursed = a_ptr->cursed;
+
+	/* Item events */
+	q_ptr->event_passive_equipped = a_ptr->event_passive_equipped;
+	q_ptr->event_passive_carried = a_ptr->event_passive_carried;
+	q_ptr->event_passive_floor = a_ptr->event_passive_floor;
+	q_ptr->event_pickup = a_ptr->event_pickup;
+	q_ptr->event_drop = a_ptr->event_drop;
+	q_ptr->event_destroy = a_ptr->event_destroy;
+	q_ptr->event_equip = a_ptr->event_equip;
+	q_ptr->event_takeoff = a_ptr->event_takeoff;
+	q_ptr->event_summon = a_ptr->event_summon;
+	q_ptr->event_unsummon = a_ptr->event_unsummon;
+	q_ptr->event_spawn = a_ptr->event_spawn;
+	q_ptr->event_misc = a_ptr->event_misc;
 
         a_ptr->cur_num = 1;
 
@@ -5491,6 +5513,21 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 	o_ptr->extra4 = k_ptr->extra4;
 	o_ptr->extra5 = k_ptr->extra5;
 	o_ptr->reflect = k_ptr->reflect;
+	o_ptr->cursed = k_ptr->cursed;
+
+	/* Item events */
+	o_ptr->event_passive_equipped = k_ptr->event_passive_equipped;
+	o_ptr->event_passive_carried = k_ptr->event_passive_carried;
+	o_ptr->event_passive_floor = k_ptr->event_passive_floor;
+	o_ptr->event_pickup = k_ptr->event_pickup;
+	o_ptr->event_drop = k_ptr->event_drop;
+	o_ptr->event_destroy = k_ptr->event_destroy;
+	o_ptr->event_equip = k_ptr->event_equip;
+	o_ptr->event_takeoff = k_ptr->event_takeoff;
+	o_ptr->event_summon = k_ptr->event_summon;
+	o_ptr->event_unsummon = k_ptr->event_unsummon;
+	o_ptr->event_spawn = k_ptr->event_spawn;
+	o_ptr->event_misc = k_ptr->event_misc;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0 && o_ptr->tval != TV_LICIALHYD) o_ptr->ident |= (IDENT_BROKEN);
@@ -6885,6 +6922,61 @@ static bool cave_gen(void)
                 }
         }
 
+	/* Place the stairs to a secret level(if there's one) */
+	if (d_info[dungeon_type].secret > 0 && p_ptr->events[d_info[dungeon_type].secretevent] != 2 && dun_level == d_info[dungeon_type].maxdepth)
+	{
+		/* Place the sealed stairway at a random spot. */
+		/* If it's unlocked, place it right next to the player. */
+		if (p_ptr->events[d_info[dungeon_type].secretevent] == 0) alloc_stairs(242, 1, 3, 0);
+		else
+		{
+			int randpos;
+			cave_type *c_ptr;
+			randpos = randint(8);
+
+			if (randpos == 1)
+			{
+				c_ptr = &cave[py+1][px-1];
+				if (in_bounds(py+1, px-1)) c_ptr->feat = 243;
+			}
+			if (randpos == 2)
+			{
+				c_ptr = &cave[py+1][px];
+				if (in_bounds(py+1, px)) c_ptr->feat = 243;
+			}
+			if (randpos == 3)
+			{
+				c_ptr = &cave[py+1][px+1];
+				if (in_bounds(py+1, px+1)) c_ptr->feat = 243;
+			}
+			if (randpos == 4)
+			{
+				c_ptr = &cave[py][px-1];
+				if (in_bounds(py, px-1)) c_ptr->feat = 243;
+			}
+			if (randpos == 5)
+			{
+				c_ptr = &cave[py][px+1];
+				if (in_bounds(py, px+1)) c_ptr->feat = 243;
+			}
+			if (randpos == 6)
+			{
+				c_ptr = &cave[py-1][px-1];
+				if (in_bounds(py-1, px-1)) c_ptr->feat = 243;
+			}
+			if (randpos == 7)
+			{
+				c_ptr = &cave[py-1][px];
+				if (in_bounds(py-1, px)) c_ptr->feat = 243;
+			}
+			if (randpos == 8)
+			{
+				c_ptr = &cave[py-1][px+1];
+				if (in_bounds(py-1, px+1)) c_ptr->feat = 243;
+			}
+		}
+	}
+
         /* Monsters and objects change even in persistent dungeons. */
         if (seed_dungeon) {
             Rand_quick = FALSE;
@@ -6924,7 +7016,7 @@ static bool cave_gen(void)
 	}
 
 	/* Place some traps in the dungeon */
-        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k * 2));
+        alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_CHEST, randint(k));
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));

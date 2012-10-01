@@ -1,0 +1,41 @@
+Misfortune Embrace(Passive)
+
+Effect: Embrace Misfortune, essentially becoming a Nightmare Horror.
+Bonus to all stats: (10% of Misfortune)% for every points of alignment below 0.
+Power to pierce enemy resistances: 25% of Misfortune.
+Bonus to Harm-type attacks damages: 20%
+For every points of alignment below 5, you gain 1 permanent Misfortune.
+Extra points: +1 multiplier to stats bonus.
+              +1 multiplier to power of piercing.
+              +1 multiplier to Misfortune increase.
+              +20% to Harm-type attacks damages.
+              With 5 or more points, Harm-type attacks no longer allows
+              monsters to roll a saving throw.
+
+This passive ability will increase all your stats based on both your
+Misfortune and your alignment. The lower, the better, so this abililty
+is best suited for evil characters. The bonus to stats is based on your
+base stats, bonus from items are not counted.
+
+You also gain a chance to bypass any natural resistances a monster may
+have. The power is 25% of Misfortune, versus the monster's level and
+Nightmare rank(if fighting a Nightmare). This only apply to natural
+resistances, not to elite and boss abilities, or counters.
+
+Finally, it will increase the damages of Harm-type attacks, and with
+five or more points, monsters will no longer be allowed a saving throw
+to prevent the damages.
+
+Also, if you are very evil and have an alignment lower than 5, you
+will start having permanent Misfortune, even if you do not wear cursed
+items. Beware increasing this ability a lot if your alignment is very
+low. It may backfire!
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

@@ -1592,7 +1592,7 @@ function generate_monster (r_idx, rank, mtype)
 
 	-- Appear in groups?
 	-- Normal monsters only.
-	if (mtype == 0 and lua_randint(100) <= 10) then
+	if (mtype == 0 and lua_randint(100) <= 5) then
 		give_monster_race_flag1(r_idx, RF1_FRIENDS)
 		friends = 1
 	end
@@ -1722,6 +1722,8 @@ function generate_monster (r_idx, rank, mtype)
 	m_race(r_idx).r_deaths = 0
 	m_race(r_idx).r_pkills = 0
 	m_race(r_idx).r_tkills = 0
+	m_race(r_idx).r_ekills = 0
+	m_race(r_idx).r_bkills = 0
 	m_race(r_idx).r_wake = 0
 	m_race(r_idx).r_ignore = 0
 	m_race(r_idx).r_xtra1 = 0
@@ -2251,7 +2253,7 @@ function prepare_flow_dungeon (level)
         dungeon(201).next = 0
         dungeon(201).min_plev = 0
         dungeon(201).mode = 0
-        dungeon(201).min_m_alloc_level = 28
+        dungeon(201).min_m_alloc_level = 14
         dungeon(201).max_m_alloc_chance = 160
 	dungeon(201).quest = 9001
 

@@ -759,6 +759,9 @@ static void health_redraw(void)
 		/* Questors */
 		if (r_ptr->flags1 & (RF1_QUESTOR)) attr = TERM_L_BLUE;
 
+		/* Scaled monsters. */
+		if (r_ptr->flags7 & (RF7_SCALED)) attr = TERM_INDIGO;
+
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
 
@@ -768,16 +771,17 @@ static void health_redraw(void)
 		Term_erase(COL_INFO, ROW_MH + 2, 12);
 
 		/* Dump the current "health" (use '*' symbols) */
-		if (r_ptr->flags1 & (RF1_QUESTOR)) sprintf(thelevel, "??????????");
+		if (r_ptr->flags1 & (RF1_QUESTOR) || r_ptr->flags7 & (RF7_SECRET_BOSS)) sprintf(thelevel, "??????????");
 		else if (r_ptr->cursed > 0) sprintf(thelevel, "NIGHTMARE");
                 else if (m_ptr->boss == 1) sprintf(thelevel, "ELITE");
                 else if (m_ptr->boss == 2) sprintf(thelevel, "**BOSS**");
                 else sprintf(thelevel, "Level %d", m_ptr->level);
                 Term_putstr(COL_INFO + 1, ROW_MH, 12, attr, thelevel);
-                sprintf(thehealth, "Hp: %ld", m_ptr->hp);
+		if (m_ptr->maxhp >= 100000000) sprintf(thehealth, "%ld", m_ptr->hp);
+                else sprintf(thehealth, "Hp: %ld", m_ptr->hp);
 		sprintf(thelives, "Lives: %ld", m_ptr->lives);
                 /* Don't display the hp if it's a boss */
-                if (m_ptr->boss != 2 && !(r_ptr->flags1 & (RF1_QUESTOR)) && (r_ptr->cursed == 0))
+                if (m_ptr->boss != 2 && !(r_ptr->flags1 & (RF1_QUESTOR)) && !(r_ptr->flags7 & (RF7_SECRET_BOSS)) && (r_ptr->cursed == 0))
 		{
 			Term_putstr(COL_INFO, ROW_MH + 1, 12, attr, thehealth);
 			if (m_ptr->lives > 0) Term_putstr(COL_INFO, ROW_MH + 2, 12, attr, thelives);
@@ -2040,6 +2044,9 @@ void calc_equipment()
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		/* Skip disabled objects. */
+		if (o_ptr->disabled > 0 || o_ptr->disabled == -1) continue;
 
 		/* Extract the item flags */
                 object_flags(o_ptr, &f1, &f2, &f3, &f4);

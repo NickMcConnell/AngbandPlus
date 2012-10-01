@@ -102,6 +102,7 @@
 -- GF_SOUL_CRUSH   170
 -- GF_DURATION     171 (defined in init.lua)
 -- GF_INSPIRE_COURAGE 172 (defined in init.lua)
+-- GF_DISABLE      173 (defined in init.lua)
 
 -- Monster is hit by element!
 -- If "who" is 0, the source is the player. Otherwise, it's another monster.
@@ -111,6 +112,7 @@ function element_hit_monster (who, m_idx, element, dam)
 	local ppower
 	local mpower
 	local originalpower
+	local resistmod
 
 	-- Some attacks do not affect allies.
 	if (is_pet(monster(m_idx)) and no_effect_allies == 1) then return 0 end
@@ -153,6 +155,18 @@ function element_hit_monster (who, m_idx, element, dam)
 	else
 
 		enemy_immortality = TRUE
+	end
+
+	-- Accurate Strike may be "nevermiss".
+	if (accuratestrike == 1) then
+
+		local proll
+		local mroll
+
+		proll = p_ptr.abilities[(CLASS_WARRIOR * 10) + 5] * 20
+		mroll = monster(m_idx).level + monster(m_idx).dex
+
+		if (lua_randint(proll) >= lua_randint(mroll)) then nevermiss = TRUE end
 	end
 
 	-- Hexblaze Strike may be "nevermiss".
@@ -221,6 +235,12 @@ function element_hit_monster (who, m_idx, element, dam)
 		dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_MAGE * 10) + 3] * 10, 100)
 	end
 
+	-- Rogue's Art of Poisoning. 
+        if ((p_ptr.abilities[(CLASS_ROGUE * 10) + 7] >= 1) and element == GF_POIS) then
+
+		dam = dam + multiply_divide(dam, (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] * 5), 100)
+        end
+
 	-- Elemental Lord's Mastery Of Elements! 
         if ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 10] >= 1) and element == p_ptr.elemlord) then
 
@@ -239,18 +259,47 @@ function element_hit_monster (who, m_idx, element, dam)
 		dam = dam * 2
 	end
 
+	-- Misfortune Embrace's harm bonus.
+	if ((p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) and element == GF_HARM) then
+
+		dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] * 20, 100)
+	end
+
 	-- Some races gets elemental bonus.
 	if (p_ptr.prace == RACE_KOBOLD and element == GF_POIS) then dam = dam + (dam / 2) end
 	if (p_ptr.prace == RACE_CELESTIAL and element == GF_LITE) then dam = dam + (dam / 4) end
 	if (p_ptr.prace == RACE_DEMON and element == GF_DARK) then dam = dam + (dam / 4) end
 	if (p_ptr.prace == RACE_ZULGOR and element == GF_CHAOS) then dam = dam + (dam / 4) end
 
+	-- Resistances modifier.
+	resistmod = 0
+	-- Rogue's Art of Poisoning. 
+        if ((p_ptr.abilities[(CLASS_ROGUE * 10) + 7] >= 1) and element == GF_POIS) then
+
+		resistmod = resistmod - (p_ptr.abilities[(CLASS_ROGUE * 10) + 7] * 3)
+        end
+
 	-- This is the code for a magic attack.
 	if ((dam > 0) and not(ranged_attack) and not(throw_attack) and not(melee_attack)) then
 
 		-- Apply monster's resistances
-		if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
-			dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1], 100)
+		if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) then
+			local ppower
+			local mpower
+
+			ppower = (p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+			mpower = monster(m_idx).level + m_race(monster(m_idx).r_idx).cursed
+
+			if (not(lua_randint(ppower) > lua_randint(mpower))) then
+
+				if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+					dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+				end
+			end
+		else
+			if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+				dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+			end
 		end
 
 		-- Some monsters may have counters, immunities, returning, etc...
@@ -287,7 +336,7 @@ function element_hit_monster (who, m_idx, element, dam)
 
         	-- Arg!! Magic Returning bosses?? :|
 		-- The danger of putting this code in a lua script is that someone might comment it... :(
-        	if ((element ~= GF_TURN_UNDEAD) and (element ~= GF_AURA_LIFE) and not(no_magic_return) and not(lord_piercing(5, 2, element, monster(m_idx), 1)) and (get_monster_ability(monster(m_idx), BOSS_MAGIC_RETURNING))) then
+        	if ((element ~= GF_TURN_UNDEAD) and (element ~= GF_AURA_LIFE) and not(no_magic_return) and not(lord_piercing(10, 10, element, monster(m_idx), 1)) and (get_monster_ability(monster(m_idx), BOSS_MAGIC_RETURNING))) then
 
                 	msg_print("You take damages from your spell!")
 			if (element == GF_LIFE_BLAST or element == GF_DIVINATION) then lua_project(m_idx, 0, py, px, originalpower / 2, element, 2)
@@ -305,7 +354,7 @@ function element_hit_monster (who, m_idx, element, dam)
 		end
 		-- Counters that block magic!
 		-- Commenting this code will bring you bad luck.
-        	if ((element ~= GF_TURN_UNDEAD) and (element ~= GF_AURA_LIFE) and not(no_magic_return) and ((m_race(monster(m_idx).r_idx).countertype == 2 or m_race(monster(m_idx).r_idx).countertype == 3 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance) and not(nevermiss)) then
+        	if ((element ~= GF_TURN_UNDEAD) and (element ~= GF_AURA_LIFE) and not(no_magic_return) and ((m_race(monster(m_idx).r_idx).countertype == 2 or m_race(monster(m_idx).r_idx).countertype == 3 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19 or m_race(monster(m_idx).r_idx).countertype == 24) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance) and not(nevermiss)) then
 
 			local proll
 			local mroll
@@ -316,6 +365,9 @@ function element_hit_monster (who, m_idx, element, dam)
 
 			-- Shadow Stalker's Storm of Shadow Edges ability is harder to counter.
 			if (stormshadow) then proll = proll + p_ptr.skill[7] end
+
+			-- Violet Power.
+			if (element == GF_LIFE_BLAST and p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7] >= 1) then proll = proll + ((p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7]) end
 
 			if (lua_randint(mroll) >= lua_randint(proll)) then
 
@@ -344,6 +396,9 @@ function element_hit_monster (who, m_idx, element, dam)
 			-- Shadow Stalker's Storm of Shadow Edges ability is harder to counter.
 			if (stormshadow) then proll = proll + p_ptr.skill[7] end
 
+			-- Violet Power.
+			if (element == GF_LIFE_BLAST and p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7] >= 1) then proll = proll + ((p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7]) end
+
 			if (lua_randint(mroll) >= lua_randint(proll)) then
 
 				msg_print(string.format('%s blocked your magic!', m_name))
@@ -366,13 +421,13 @@ function element_hit_monster (who, m_idx, element, dam)
         	end
 
         	-- Some elites/bosses are resistant or immune to magic...
-        	if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(10, 3, element, monster(m_idx), 1))) then
+        	if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(20, 20, element, monster(m_idx), 1))) then
 
                 	dam = dam / 2
         	end
 
         	-- GF_PHYSICAL is actually physical damages...
-        	if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(1, 1, element, monster(m_idx), 1)) and dam > 0) then
+        	if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(2, 2, element, monster(m_idx), 1)) and dam > 0) then
 
                 	msg_print(string.format('%s is immune!', m_name))
                 	dam = 0
@@ -437,7 +492,11 @@ function element_hit_monster (who, m_idx, element, dam)
 			local mroll
 
 			proll = p_ptr.abilities[(CLASS_MARKSMAN * 10) + 10] * 20
-			mroll = monster(m_idx).level + monster(m_idx).dex
+			if (m_race(monster(m_idx).r_idx).event_misc == 328) then
+				mroll = monster(m_idx).level + monster(m_idx).mind
+			else
+				mroll = monster(m_idx).level + monster(m_idx).dex
+			end
 
 			if (lua_randint(proll) >= lua_randint(mroll)) then
 
@@ -453,17 +512,41 @@ function element_hit_monster (who, m_idx, element, dam)
 		if (hit == 1) then
 
 			-- Apply monster's resistances
-			if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+			if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) then
+				local ppower
+				local mpower
 
-				local resamount
+				ppower = (p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+				mpower = monster(m_idx).level + m_race(monster(m_idx).r_idx).cursed
 
-				resamount = m_race(monster(m_idx).r_idx).resistances[element+1]
-				if (piercing_shot > 0 and resamount > 0) then
+				if (not(lua_randint(ppower) > lua_randint(mpower))) then
 
-					resamount = resamount - (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] * 5)
-					if (resamount < 0) then resamount = 0 end
+					if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+
+						local resamount
+
+						resamount = m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod
+						if (piercing_shot > 0 and resamount > 0) then
+
+							resamount = resamount - (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] * 5)
+							if (resamount < 0) then resamount = 0 end
+						end
+						dam = dam - multiply_divide(dam, resamount, 100)
+					end
 				end
-				dam = dam - multiply_divide(dam, resamount, 100)
+			else
+				if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+
+					local resamount
+
+					resamount = m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod
+					if (piercing_shot > 0 and resamount > 0) then
+
+						resamount = resamount - (p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] * 5)
+						if (resamount < 0) then resamount = 0 end
+					end
+					dam = dam - multiply_divide(dam, resamount, 100)
+				end
 			end
 
 			-- Some monsters may have counters, immunities, returning, etc...
@@ -502,13 +585,23 @@ function element_hit_monster (who, m_idx, element, dam)
 			end
         		
 			-- Check for ranged counters
-			if ((m_race(monster(m_idx).r_idx).countertype == 16 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance and not(nevermiss)) then
+			if ((m_race(monster(m_idx).r_idx).countertype == 16 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19 or m_race(monster(m_idx).r_idx).countertype == 24) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance and not(nevermiss)) then
 
 				local proll
 				local mroll
 
-				mroll = monster(m_idx).dex
+				if (m_race(monster(m_idx).r_idx).event_misc == 328) then
+					mroll = monster(m_idx).mind
+				else
+					mroll = monster(m_idx).dex
+				end
 				proll = p_ptr.stat_ind[A_DEX+1]
+
+				-- Rogue's Stealthy Fighter may help.
+				if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
+
+					proll = proll + multiply_divide(p_ptr.skill[7], (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] - 10) * 10, 100)
+				end
 
 				if (lua_randint(mroll) >= lua_randint(proll)) then
 
@@ -525,13 +618,13 @@ function element_hit_monster (who, m_idx, element, dam)
 			end
 
         		-- Some elites/bosses are resistant or immune...
-        		if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(10, 3, element, monster(m_idx), 1)) and not(piercing_shot > 0 and p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] >= 10)) then
+        		if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(20, 20, element, monster(m_idx), 1)) and not(piercing_shot > 0 and p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] >= 10)) then
 
                 		dam = dam / 2
         		end
 
         		-- GF_PHYSICAL is actually physical damages...
-        		if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(1, 1, element, monster(m_idx), 1)) and not(piercing_shot > 0 and p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] >= 20) and dam > 0) then
+        		if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(2, 2, element, monster(m_idx), 1)) and not(piercing_shot > 0 and p_ptr.abilities[(CLASS_MARKSMAN * 10) + 9] >= 20) and dam > 0) then
 
                 		msg_print(string.format('%s is immune!', m_name))
                 		dam = 0
@@ -659,6 +752,15 @@ function element_hit_monster (who, m_idx, element, dam)
 			msg_print(string.format('You miss %s.', m_name))
 			dam = 0
 		end
+
+		-- Counter attack!
+		if (m_race(monster(m_idx).r_idx).countertype == 24) then
+
+			mcounter = TRUE
+			msg_print(string.format('%s counter shoots!', m_name))
+			make_ranged_attack(m_idx)
+			mcounter = FALSE
+		end
 	end
 
 	-- Code for throw attacks.
@@ -691,8 +793,23 @@ function element_hit_monster (who, m_idx, element, dam)
 		if (hit == 1) then
 
 			-- Apply monster's resistances
-			if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
-				dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1], 100)
+			if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) then
+				local ppower
+				local mpower
+
+				ppower = (p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+				mpower = monster(m_idx).level + m_race(monster(m_idx).r_idx).cursed
+
+				if (not(lua_randint(ppower) > lua_randint(mpower))) then
+
+					if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+						dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+					end
+				end
+			else
+				if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+					dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+				end
 			end
 
 			-- Some monsters may have counters, immunities, returning, etc...
@@ -728,13 +845,24 @@ function element_hit_monster (who, m_idx, element, dam)
         		end
         		
 			-- Check for ranged counters
-			if ((m_race(monster(m_idx).r_idx).countertype == 16 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance) then
+			if ((m_race(monster(m_idx).r_idx).countertype == 16 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 18 or m_race(monster(m_idx).r_idx).countertype == 19 or m_race(monster(m_idx).r_idx).countertype == 24) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance) then
 
-				if (lua_randint(monster(m_idx).dex) >= lua_randint(p_ptr.stat_ind[A_DEX+1])) then
+				if (m_race(monster(m_idx).r_idx).event_misc == 328) then
 
-					msg_print(string.format('%s blocked your item!', m_name))
-                			dam = 0
-					blocked = 1
+					if (lua_randint(monster(m_idx).mind) >= lua_randint(p_ptr.stat_ind[A_DEX+1])) then
+
+						msg_print(string.format('%s blocked your item!', m_name))
+                				dam = 0
+						blocked = 1
+					end
+				else
+					
+					if (lua_randint(monster(m_idx).dex) >= lua_randint(p_ptr.stat_ind[A_DEX+1])) then
+
+						msg_print(string.format('%s blocked your item!', m_name))
+                				dam = 0
+						blocked = 1
+					end
 				end
 			end
 			if ((m_race(monster(m_idx).r_idx).countertype == 20 or m_race(monster(m_idx).r_idx).countertype == 21 or m_race(monster(m_idx).r_idx).countertype == 22 or m_race(monster(m_idx).r_idx).countertype == 23) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance) then
@@ -745,13 +873,13 @@ function element_hit_monster (who, m_idx, element, dam)
 			end
 
         		-- Some elites/bosses are resistant or immune...
-        		if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(10, 3, element, monster(m_idx), 1))) then
+        		if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES) and not(lord_piercing(20, 20, element, monster(m_idx), 1))) then
 
                 		dam = dam / 2
         		end
 
         		-- GF_PHYSICAL is actually physical damages...
-        		if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(1, 1, element, monster(m_idx), 1)) and dam > 0) then
+        		if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(2, 2, element, monster(m_idx), 1)) and dam > 0) then
 
                 		msg_print(string.format('%s is immune!', m_name))
                 		dam = 0
@@ -827,6 +955,15 @@ function element_hit_monster (who, m_idx, element, dam)
 			msg_print(string.format('You miss %s.', m_name))
 			dam = 0
 		end
+
+		-- Counter attack!
+		if (m_race(monster(m_idx).r_idx).countertype == 24) then
+
+			mcounter = TRUE
+			msg_print(string.format('%s counter shoots!', m_name))
+			make_ranged_attack(m_idx)
+			mcounter = FALSE
+		end
 	end
 
 	-- Code for melee attacks.
@@ -853,6 +990,7 @@ function element_hit_monster (who, m_idx, element, dam)
 		local		meleex = monster(m_idx).fx
 		local		meleey = monster(m_idx).fy
 		local 		save_magic_return
+		local           dstalker = 0
 
 		-- Piercing Stab passive feat
                 if (dagger_check() and p_ptr.skill_base[16] >= 5) then daggerbonus = p_ptr.to_h / 4 end
@@ -861,14 +999,29 @@ function element_hit_monster (who, m_idx, element, dam)
                 if (player_hit_monster(monster(m_idx), daggerbonus) == 1) then
 
 			-- Apply monster's resistances
-			if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
-				dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1], 100)
+			if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) then
+				local ppower
+				local mpower
+
+				ppower = (p_ptr.cursed / 4) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+				mpower = monster(m_idx).level + m_race(monster(m_idx).r_idx).cursed
+
+				if (not(lua_randint(ppower) > lua_randint(mpower))) then
+
+					if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+						dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+					end
+				end
+			else
+				if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (element == p_ptr.elemlord))) then
+					dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[element+1] + resistmod, 100)
+				end
 			end
 
 			-- If it's Smite Evil or Stealth Attack, use Physical resistance.
 			if (element == GF_SMITE_EVIL or element == GF_STEALTH_ATTACK) then
 				if (not((get_monster_ability(monster(m_idx), PIERCING_SPELLS)) and (p_ptr.elemlord == GF_PHYSICAL))) then
-					dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[GF_PHYSICAL+1], 100)
+					dam = dam - multiply_divide(dam, m_race(monster(m_idx).r_idx).resistances[GF_PHYSICAL+1] + resistmod, 100)
 				end
 			end
 
@@ -974,6 +1127,12 @@ function element_hit_monster (who, m_idx, element, dam)
 					mroll = monster(m_idx).str + monster(m_idx).dex
 					proll = p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1] + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 10)
 
+					-- Rogue's Stealthy Fighter may help.
+					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
+
+						proll = proll + multiply_divide(p_ptr.skill[7], (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] - 10) * 10, 100)
+					end
+
 					if (lua_randint(mroll) >= lua_randint(proll)) then
 
 						msg_print(string.format('%s blocked your attack!', m_name))
@@ -1000,13 +1159,34 @@ function element_hit_monster (who, m_idx, element, dam)
 					blocked = TRUE
 				end
 
+				-- Rogue's Deadly Stalker.
+				if (p_ptr.abilities[(CLASS_ROGUE * 10) + 6] >= 1) then
+
+					if (not(player_invis(monster(m_idx)))) then
+
+						dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_ROGUE * 10) + 6] * 33, 100)
+						dstalker = 1
+					end
+				end
+
+				-- Rogue's Finishing Blow.
+				if (finishingblow == 1) then
+
+					if (monster(m_idx).seallight > 0 or monster(m_idx).monfear > 0 or monster(m_idx).csleep > 0 or monster(m_idx).confused > 0) then
+
+						dam = dam * p_ptr.abilities[(CLASS_ROGUE * 10) + 8]
+					else
+						dam = dam + multiply_divide(dam, p_ptr.abilities[(CLASS_ROGUE * 10) + 8] * 10, 100)
+					end
+				end
+
                                 if (get_monster_ability(monster(m_idx), BOSS_HALVE_DAMAGES)) then
  
                                         dam = dam / 2
                                 end
 
 				-- GF_PHYSICAL is actually physical damages...
-        			if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(1, 1, element, monster(m_idx), 1)) and dam > 0) then
+        			if ((get_monster_ability(monster(m_idx), BOSS_IMMUNE_MAGIC)) and element ~= GF_PHYSICAL and element ~= GF_MISSILE and element ~= GF_ICE and element ~= GF_SMITE_EVIL and element ~= GF_STEALTH_ATTACK and not(lord_piercing(2, 2, element, monster(m_idx), 1)) and dam > 0) then
 
                 			msg_print(string.format('%s is immune!', m_name))
                 			dam = 0
@@ -1020,13 +1200,24 @@ function element_hit_monster (who, m_idx, element, dam)
         			end
                                 
 				-- Some counters...
-				if ((m_race(monster(m_idx).r_idx).countertype == 1 or m_race(monster(m_idx).r_idx).countertype == 3 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 19) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance and not(nevermiss)) then
+				if ((m_race(monster(m_idx).r_idx).countertype == 1 or m_race(monster(m_idx).r_idx).countertype == 3 or m_race(monster(m_idx).r_idx).countertype == 17 or m_race(monster(m_idx).r_idx).countertype == 19 or m_race(monster(m_idx).r_idx).countertype == 24) and lua_randint(100) <= m_race(monster(m_idx).r_idx).counterchance and not(nevermiss)) then
 
 					local proll
 					local mroll
 
-					mroll = monster(m_idx).str + monster(m_idx).dex
+					if (m_race(monster(m_idx).r_idx).event_misc == 328) then
+						mroll = monster(m_idx).mind
+					else
+						mroll = monster(m_idx).str + monster(m_idx).dex
+					end
 					proll = p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1] + (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] * 10)
+
+					-- Rogue's Stealthy Fighter may help.
+					if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] > 10) then
+
+						proll = proll + multiply_divide(p_ptr.skill[7], (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] - 10) * 10, 100)
+					end
+
 					if (lua_randint(mroll) >= lua_randint(proll)) then
 
 						msg_print(string.format('%s blocked your attack!', m_name))
@@ -1193,6 +1384,25 @@ function element_hit_monster (who, m_idx, element, dam)
 					end
 				end
 
+				-- Rogue's Deadly Stalker.
+				if (dstalker == 1) then
+
+					if (not(get_monster_flag3(monster(m_idx).r_idx, RF3_NO_STUN))) then
+
+						local proll
+						local mroll
+
+						proll = p_ptr.abilities[(CLASS_ROGUE * 10) + 6] * 20
+						mroll = monster(m_idx).str + monster(m_idx).level
+
+						if (lua_randint(proll) >= lua_randint(mroll)) then
+
+							msg_print(string.format('%s has been paralyzed!', m_name))
+							monster(m_idx).seallight = 2 + (p_ptr.abilities[(CLASS_ROGUE * 10) + 6] / 10)
+						end
+					end
+				end
+
 				-- Brands.
 				if (unarmed()) then
 					if (inven(INVEN_HANDS).brandtype > 0 and not(blocked)) then
@@ -1205,10 +1415,15 @@ function element_hit_monster (who, m_idx, element, dam)
 					end
 				else
 					if (current_weapon.brandtype > 0 and not(blocked)) then
+
+						local bdam
+
+						bdam = current_weapon.branddam
+						if (current_weapon.itemskill == 15 and p_ptr.skill_base[16] >= 50) then bdam = bdam + multiply_divide(bdam, 20, 100) end
 						save_magic_return = no_magic_return
 						melee_attack = FALSE
 						no_magic_return = TRUE
-						fire_jump_ball(current_weapon.brandtype, (current_weapon.branddam), current_weapon.brandrad, meleex, meleey, TRUE)
+						fire_jump_ball(current_weapon.brandtype, bdam, current_weapon.brandrad, meleex, meleey, TRUE)
 						no_magic_return = save_magic_return
 						melee_attack = TRUE
 					end
@@ -1253,6 +1468,14 @@ function element_hit_monster (who, m_idx, element, dam)
 			dam = 0
 		end
 
+		-- Counter attack!
+		if (m_race(monster(m_idx).r_idx).countertype == 24) then
+
+			mcounter = TRUE
+			msg_print(string.format('%s counter attacks!', m_name))
+			make_attack_normal(m_idx, 0)
+			mcounter = FALSE
+		end
 	end
 
 	-- A special counter is coded here.
@@ -1342,6 +1565,12 @@ function element_hit_monster (who, m_idx, element, dam)
 
 			dam = dam - multiply_divide(dam, 75, 100)
 		end
+	end
+
+	-- Avemorsh's Torment.
+	if (m_race(monster(m_idx).r_idx).event_misc == 2502 and p_ptr.events[25005] < 100 and dam > 0) then
+
+		dam = dam - multiply_divide(dam, 90, 100)
 	end
 
 	-- This is Christina's special ability.
@@ -1571,6 +1800,12 @@ function element_hit_monster (who, m_idx, element, dam)
 		-- These does not do anything to other monsters, and you shouldn't be able
 		-- to use them. But I put them here just in case.
 		if (element == GF_LOSE_STR or element == GF_LOSE_INT or element == GF_LOSE_WIS or element == GF_LOSE_DEX or element == GF_LOSE_CON or element == GF_LOSE_CHR or element == GF_LOSE_ALL or element == GF_LOSE_EXP) then
+
+			dam = 0
+		end
+
+		-- Disable does nothing for now.
+		if (element == GF_DISABLE) then
 
 			dam = 0
 		end
@@ -1862,6 +2097,9 @@ function element_hit_monster (who, m_idx, element, dam)
 			-- Monster race can get some bonus.
 			if (p_ptr.prace == RACE_MONSTER) then ppower = ppower + p_ptr.events[29018] end
 
+			-- Violet Power gives some bonus.
+			if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7] >= 1) then ppower = ppower + (p_ptr.cursed * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7]) end
+
 			if (not(lua_randint(ppower) >= lua_randint(mpower))) then
 
 				msg_print(string.format('%s resists.', m_name))
@@ -1988,10 +2226,15 @@ function element_hit_monster (who, m_idx, element, dam)
 			-- Monster race can get some bonus.
 			if (p_ptr.prace == RACE_MONSTER) then ppower = ppower + p_ptr.events[29018] end
 
-			if (not(lua_randint(ppower) >= lua_randint(mpower))) then
+			-- Misfortune Embrace cancels this with 5 or more points.
 
-				msg_print(string.format('%s resists.', m_name))
-				dam = 0
+			if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] < 5) then
+
+				if (not(lua_randint(ppower) >= lua_randint(mpower))) then
+
+					msg_print(string.format('%s resists.', m_name))
+					dam = 0
+				end
 			end
 		end
 
@@ -2191,7 +2434,7 @@ function element_hit_monster (who, m_idx, element, dam)
 		-- Elemental Lord ability: Piercing Spells
 		if (element == GF_VULNERABILITY) then
 
-			ppower = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] * 15
+			ppower = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] * 30
 			mpower = (monster(m_idx).level + monster(m_idx).mind)
 
 			-- Monsters
@@ -2629,34 +2872,6 @@ function element_hit_monster (who, m_idx, element, dam)
 
                         -- It does not affect uniques, elites or bosses.
                         if (get_monster_flag3(monster(m_idx).r_idx, RF3_NO_SLEEP)) then
-
-				if (get_monster_flag3(monster(m_idx).r_idx, RF3_NO_SLEEP)) then
-
-					memorize_race_flag3(monster(m_idx).r_idx, RF3_NO_SLEEP)
-				end
-                                msg_print(string.format('%s is unaffected.', m_name))
-			else
-
-				if (lua_randint(ppower) >= lua_randint(mpower)) then
-
-					-- Go to sleep.
-					monster(m_idx).csleep = 500
-					msg_print(string.format('%s falls asleep.', m_name))
-				end
-			end
-
-			-- No damages.
-			dam = 0
-		end
-
-                -- Rogue ability: Gas Trap
-		if (element == GF_SLEEP_GAS) then
-
-			ppower = p_ptr.abilities[(CLASS_ROGUE * 10) + 7] * 10
-                        mpower = (monster(m_idx).level + monster(m_idx).str)
-
-                        -- It does not affect uniques nor bosses. But elites can be affected.
-                        if ((get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) or (get_monster_flag3(monster(m_idx).r_idx, RF3_NO_SLEEP)) or monster(m_idx).boss < 2) then
 
 				if (get_monster_flag3(monster(m_idx).r_idx, RF3_NO_SLEEP)) then
 
@@ -3406,8 +3621,60 @@ function element_hit_player (who, element, dam, rad)
 			no_magic_return = FALSE
 		end
 
+		-- Violet Power Nightmare ability!
+		if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7] >= 1) then
+
+			if (dam > 0 and (monster_physical)) then
+
+				msg_print(string.format('%s takes a hit from the attack!', m_name))
+
+				-- The "flg" parameter for "project" doesn't really apply to lua, so we must use an alternate function.
+				no_magic_return = TRUE
+				melee_attack = TRUE
+				nevermiss = TRUE
+				lua_project(0, rad, monster(who).fy, monster(who).fx, dam * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7], element, 1)
+				no_magic_return = FALSE
+				melee_attack = FALSE
+				nevermiss = FALSE
+			end
+
+			if (dam > 0 and not(monster_physical) and not(monster_ranged)) then
+
+				msg_print(string.format('%s takes a hit from the spell!', m_name))
+
+				no_magic_return = TRUE
+				lua_project(0, rad, monster(who).fy, monster(who).fx, dam * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 7], element, 1)
+				no_magic_return = FALSE
+			end
+		end
+
+		-- Elemental Lord's Absorb Elemental Energy.
+		if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9] >= 1 and is_elemental(element) and not(element == GF_PHYSICAL or element == GF_MISSILE or element == GF_ICE) and not(monster_physical) and not(monster_ranged)) then
+
+        		local i
+			local ppower
+			local mpower
+
+			ppower = 0
+			mpower = 0
+
+        		
+			ppower = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 9] * 20
+			if (element == p_ptr.elemlord) then ppower = ppower * 3 end
+			mpower = (monster(who).level + monster(who).mind)
+			if (mpower < 0) then mpower = 0 end
+
+			if (lua_randint(ppower) >= lua_randint(mpower)) then
+
+				msg_print("You absorb the spell!")
+				p_ptr.chp = p_ptr.chp + dam
+				if (p_ptr.chp > p_ptr.mhp or p_ptr.chp < 0) then p_ptr.chp = p_ptr.mhp end
+				dam = 0
+			end
+		end
+
 		-- Can you block magic attacks?
-		if ((p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] >= 10) and (shield_has()) and not(monster_physical) and not(monster_ranged)) then
+		if ((p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] >= 10) and dam > 0 and (shield_has()) and not(monster_physical) and not(monster_ranged)) then
 
 			local baseblock = 0
 			local proll = 0
@@ -3437,9 +3704,9 @@ function element_hit_player (who, element, dam, rad)
 		end
 
 		-- Monsters: counters 2, 3, 11, 12, 18 and 19 can block magic.
-		if (p_ptr.prace == RACE_MONSTER and not(monster_physical) and not(monster_ranged)) then
+		if (p_ptr.prace == RACE_MONSTER and not(monster_physical) and dam > 0 and not(monster_ranged)) then
 
-			if ((m_race(p_ptr.body_monster).countertype == 2 or m_race(p_ptr.body_monster).countertype == 3 or m_race(p_ptr.body_monster).countertype == 11 or m_race(p_ptr.body_monster).countertype == 12 or m_race(p_ptr.body_monster).countertype == 18 or m_race(p_ptr.body_monster).countertype == 19) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
+			if ((m_race(p_ptr.body_monster).countertype == 2 or m_race(p_ptr.body_monster).countertype == 3 or m_race(p_ptr.body_monster).countertype == 11 or m_race(p_ptr.body_monster).countertype == 12 or m_race(p_ptr.body_monster).countertype == 18 or m_race(p_ptr.body_monster).countertype == 19 or m_race(p_ptr.body_monster).countertype == 24) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
 
 				local proll
 				local mroll
@@ -3469,7 +3736,7 @@ function element_hit_player (who, element, dam, rad)
 		end
 
 		-- Monsters: counters 5, 6, 14, 15, 22, 23 are guaranteed magic blocks if they trigger.
-		if (p_ptr.prace == RACE_MONSTER and not(monster_physical) and not(monster_ranged)) then
+		if (p_ptr.prace == RACE_MONSTER and not(monster_physical) and dam > 0 and not(monster_ranged)) then
 
 			if ((m_race(p_ptr.body_monster).countertype == 5 or m_race(p_ptr.body_monster).countertype == 6 or m_race(p_ptr.body_monster).countertype == 14 or m_race(p_ptr.body_monster).countertype == 15 or m_race(p_ptr.body_monster).countertype == 22 or m_race(p_ptr.body_monster).countertype == 23) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
 
@@ -3570,12 +3837,16 @@ function element_hit_player (who, element, dam, rad)
 		-- Monsters: counters 1, 3, 10, 12, 17 and 19 can block melee attacks.
 		if (p_ptr.prace == RACE_MONSTER and dam > 0 and (monster_physical)) then
 
-			if ((m_race(p_ptr.body_monster).countertype == 1 or m_race(p_ptr.body_monster).countertype == 3 or m_race(p_ptr.body_monster).countertype == 10 or m_race(p_ptr.body_monster).countertype == 12 or m_race(p_ptr.body_monster).countertype == 17 or m_race(p_ptr.body_monster).countertype == 19) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
+			if ((m_race(p_ptr.body_monster).countertype == 1 or m_race(p_ptr.body_monster).countertype == 3 or m_race(p_ptr.body_monster).countertype == 10 or m_race(p_ptr.body_monster).countertype == 12 or m_race(p_ptr.body_monster).countertype == 17 or m_race(p_ptr.body_monster).countertype == 19 or m_race(p_ptr.body_monster).countertype == 24) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
 
 				local proll
 				local mroll
 
-				proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]
+				if (m_race(p_ptr.body_monster).event_misc == 328) then
+					proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + ((p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1]) / 2)
+				else
+					proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]
+				end
 				mroll = monster(who).str + monster(who).dex
 
 				if (lua_randint(proll) >= lua_randint(mroll)) then
@@ -3643,7 +3914,7 @@ function element_hit_player (who, element, dam, rad)
 		end
 
 		-- Kensai's Iajutsu!
-		if (p_ptr.abilities[(CLASS_KENSAI * 10) + 2] >= 1 and (monster_physical) and (kensai_equip())) then
+		if (p_ptr.abilities[(CLASS_KENSAI * 10) + 2] >= 1 and (monster_physical) and (kensai_equip()) and not(monster_counter_attack)) then
 			msg_print("With Iajutsu...")
 			if (inven(INVEN_WIELD).itemskill == 12) then
 				current_weapon = inven(INVEN_WIELD)
@@ -3679,12 +3950,16 @@ function element_hit_player (who, element, dam, rad)
 		-- Monsters: counters 16, 17, 18 and 19 can block ranged attacks.
 		if (p_ptr.prace == RACE_MONSTER and dam > 0 and (monster_ranged)) then
 
-			if ((m_race(p_ptr.body_monster).countertype == 16 or m_race(p_ptr.body_monster).countertype == 17 or m_race(p_ptr.body_monster).countertype == 18 or m_race(p_ptr.body_monster).countertype == 19) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
+			if ((m_race(p_ptr.body_monster).countertype == 16 or m_race(p_ptr.body_monster).countertype == 17 or m_race(p_ptr.body_monster).countertype == 18 or m_race(p_ptr.body_monster).countertype == 19 or m_race(p_ptr.body_monster).countertype == 24) and lua_randint(100) <= m_race(p_ptr.body_monster).counterchance) then
 
 				local proll
 				local mroll
 
-				proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + p_ptr.stat_ind[A_DEX+1]
+				if (m_race(p_ptr.body_monster).event_misc == 328) then
+					proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + ((p_ptr.stat_ind[A_INT+1] + p_ptr.stat_ind[A_WIS+1]) / 2)
+				else
+					proll = ((p_ptr.abilities[(CLASS_MONSTER * 10) + 7] * 5) * 3) + p_ptr.stat_ind[A_DEX+1]
+				end
 				mroll = monster(who).dex
 
 				if (lua_randint(proll) >= lua_randint(mroll)) then
@@ -3704,22 +3979,6 @@ function element_hit_player (who, element, dam, rad)
                         	dam = 0
 			end
 		end
-
-        	-- Rogue's Evasion ability!
-        	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 5] >= 1 and dam > 0 and not(monster_physical) and not(monster_ranged)) then
-
-			local ppower
-			local mpower
-
-			ppower = p_ptr.abilities[(CLASS_ROGUE * 10) + 5] * 10
-			mpower = monster(who).level + monster(who).mind
-
-                	if (lua_randint(ppower) >= lua_randint(mpower)) then
-
-				msg_print("You evade the attack!")
-				dam = 0
-			end
-        	end
 
         	-- Enough agility can provide a chance to avoid damages...
         	if (p_ptr.skill_base[6] >= 70 and dam > 0 and not(monster_physical) and not(monster_ranged)) then
@@ -3943,6 +4202,13 @@ function element_hit_player (who, element, dam, rad)
 			else
 				dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
 			end
+
+			if (m_race(monster(who).r_idx).event_misc == 2501 and monster(who).mana == 120) then
+
+				if (dam < (p_ptr.chp / 2)) then dam = (p_ptr.chp / 2) end
+			end
+		else
+			dam = dam - multiply_divide(dam, p_ptr.resistances[element+1], 100)
 		end
 
 		-- Dual/triple elements...
@@ -4203,6 +4469,8 @@ function element_hit_player (who, element, dam, rad)
 				if (lua_randint(mpower) >= lua_randint(ppower)) then
 
 					take_hit(dam, m_name)
+					-- Are we dead?
+					if (p_ptr.inside_quest == 30000) then return end
 					update_and_handle()
 				else
 					msg_print("You resist the effects.")
@@ -4837,6 +5105,70 @@ function element_hit_player (who, element, dam, rad)
                         	dam = 0
 			end
 
+			-- Disable!
+			-- Will target one of your items, randomly chosen.
+			-- Hopefully it won't be your weapon or armor!
+			if (element == GF_DISABLE) then
+
+				local slot
+				local found
+				local item
+				local ipower
+				local mpower
+				local itemloop
+
+				slot = 0
+				found = 0
+				item = 0
+				itemloop = 0
+
+				-- Check if we have any equipment, or if they're already all disabled.
+				for slot = INVEN_WIELD, INVEN_TOTAL do
+
+					if (inven(slot).tval > 0 and inven(slot).disabled == 0) then
+
+						found = 1
+					end
+				end
+
+				-- There's something to disable? Good!
+				if (found == 1) then
+
+					while (itemloop == 0) do
+
+						item = lua_randint(40) + INVEN_WIELD
+						if (inven(item).tval > 0 and inven(item).disabled == 0) then
+
+							-- For Crafted items, Crafting is used.
+							if (get_object_flag4(inven(item), TR4_CRAFTED)) then
+
+								ipower = p_ptr.skill[12] / 2
+							else
+								ipower = (inven(item).level * 3) + inven(item).cursed
+								if (inven(item).name1 > 0 or inven(item).name2 > 0) then ipower = ipower * 2 end
+							end
+
+							mpower = (monster(who).level + monster(who).mind)
+
+							if (lua_randint(mpower) >= lua_randint(ipower)) then
+
+								-- msg_print(string.format('%s has been disabled!', lua_get_object_desc(item)))
+								item_has_been_disabled_message(item)
+								inven(item).disabled = dam
+								update_and_handle()
+							else
+								msg_print("An item resisted the effects.")
+							end
+
+							itemloop = 1
+						end
+					end
+				end
+
+				-- No damages.
+				dam = 0
+			end
+
 		end
 
 	end
@@ -4916,6 +5248,7 @@ function get_element_name (element)
 	elseif (element == GF_RACIAL_CHAMPION) then elementname = "Racial Champion"
 	elseif (element == GF_SOUL_CRUSH) then elementname = "Soul Crush"
 	elseif (element == GF_DURATION) then elementname = "Duration (Summoned Monsters)"
+	elseif (element == GF_DISABLE) then elementname = "Disable"
 	else elementname = "Unknown" end
 
 	return elementname
@@ -4952,6 +5285,8 @@ function drink_potion (potion)
 	lua_project(-2, 0, py, px, power, potion.brandtype, 1)
 
 	update_and_handle()
+
+	energy_use = 100
 end
 
 -- Event handlers should be added for every functions you plan on using.

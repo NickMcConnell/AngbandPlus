@@ -355,6 +355,19 @@ static void rd_item(object_type *o_ptr)
 	rd_s16b(&o_ptr->tweakpoints);
 	rd_s16b(&o_ptr->disabled);
 
+	rd_s16b(&o_ptr->event_passive_equipped);
+	rd_s16b(&o_ptr->event_passive_carried);
+	rd_s16b(&o_ptr->event_passive_floor);
+	rd_s16b(&o_ptr->event_pickup);
+	rd_s16b(&o_ptr->event_drop);
+	rd_s16b(&o_ptr->event_destroy);
+	rd_s16b(&o_ptr->event_equip);
+	rd_s16b(&o_ptr->event_takeoff);
+	rd_s16b(&o_ptr->event_summon);
+	rd_s16b(&o_ptr->event_unsummon);
+	rd_s16b(&o_ptr->event_spawn);
+	rd_s16b(&o_ptr->event_misc);
+
 	rd_s16b(&o_ptr->brandtype);
 	rd_s32b(&o_ptr->branddam);
 	rd_s16b(&o_ptr->brandrad);
@@ -494,12 +507,6 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
 	}
-	
-        /* OOOHHHHH NOO!!!!!! YOU'RE DEAD!!! TOOOO BAD! :) */
-        if (death)
-        {
-                no_more_items();
-        }
 }
 
 
@@ -571,6 +578,8 @@ static void rd_lore(int r_idx)
         rd_s16b(&r_ptr->r_deaths);
         rd_s16b(&r_ptr->r_pkills);
         rd_s16b(&r_ptr->r_tkills);
+	rd_s16b(&r_ptr->r_ekills);
+	rd_s16b(&r_ptr->r_bkills);
 
         /* Count wakes and ignores */
         rd_byte(&r_ptr->r_wake);
@@ -1247,6 +1256,8 @@ static void rd_extra(void)
         rd_s16b(&p_ptr->magic_mode);
         rd_byte(&p_ptr->auraon);
         rd_s32b(&p_ptr->deathcount);
+	rd_s32b(&p_ptr->reincarnations);
+	rd_s32b(&p_ptr->secretscleared);
         rd_s16b(&p_ptr->guardconfuse);
 	rd_byte(&p_ptr->learning);
 	rd_s16b(&p_ptr->startx);
@@ -1255,6 +1266,7 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->cur_hgt);
 	rd_s16b(&p_ptr->alignment);
 	rd_s16b(&p_ptr->cursed);
+	rd_s16b(&p_ptr->inside_secret);
 	rd_s16b(&p_ptr->dualwield);
 	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->events[i]);
 	for (i = 0; i < 30000; ++i) rd_s16b(&p_ptr->towns[i]);
@@ -2375,6 +2387,7 @@ static errr rd_savefile_new_aux(void)
 	 * Initialize arena and rewards information
 	 */
 	p_ptr->inside_quest = 0;
+	p_ptr->inside_secret = 0;
 
 	/* Start in town 1 */
 	p_ptr->town_num = 1;
@@ -2512,11 +2525,19 @@ static errr rd_savefile_new_aux(void)
 	{
 		int x, y;
 		/* Dead players have no dungeon */
+
+		/* The new death system of 0.4 is experimental at the moment. */
+		/* I do not want to delete the entire old code,  so there's still junk left. */
+		{
+			quit("This character is dead. Please roll a new character. If you're using a command prompt, you can use Portralis -n.");
+		}
+
                 note("You have lost all your items!!!");
                 no_more_items();
                 p_ptr->au = 0;
                 p_ptr->chp = 1;
                 p_ptr->inside_quest = 0;
+		p_ptr->inside_secret = 0;
                 p_ptr->cut = 0;
                 p_ptr->stun = 0;
                 p_ptr->poisoned = 0;

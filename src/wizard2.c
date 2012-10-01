@@ -152,6 +152,20 @@ void wiz_create_named_art()
 	q_ptr->reflect = a_ptr->reflect;
 	q_ptr->cursed = a_ptr->cursed;
 
+	/* Item events */
+	q_ptr->event_passive_equipped = a_ptr->event_passive_equipped;
+	q_ptr->event_passive_carried = a_ptr->event_passive_carried;
+	q_ptr->event_passive_floor = a_ptr->event_passive_floor;
+	q_ptr->event_pickup = a_ptr->event_pickup;
+	q_ptr->event_drop = a_ptr->event_drop;
+	q_ptr->event_destroy = a_ptr->event_destroy;
+	q_ptr->event_equip = a_ptr->event_equip;
+	q_ptr->event_takeoff = a_ptr->event_takeoff;
+	q_ptr->event_summon = a_ptr->event_summon;
+	q_ptr->event_unsummon = a_ptr->event_unsummon;
+	q_ptr->event_spawn = a_ptr->event_spawn;
+	q_ptr->event_misc = a_ptr->event_misc;
+
         a_ptr->cur_num = 1;
 
 	/* Drop the artifact from heaven */
@@ -1412,6 +1426,7 @@ static void do_cmd_wiz_jump(void)
 	leaving_quest = p_ptr->inside_quest;
 
 	p_ptr->inside_quest = 0;
+	p_ptr->inside_secret = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;

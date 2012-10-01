@@ -243,19 +243,6 @@ void do_cmd_wield(void)
                         
         }
 
-    if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
-    {
-        char dummy[512];
-
-		/* Describe it */
-        object_desc(o_name, o_ptr, FALSE, 0);
-
-        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-        if (!(get_check(dummy)))
-            return;
-    }
-
         b_ptr = &inventory[INVEN_ARM];
 
 	/* Extract the flags */
@@ -428,6 +415,12 @@ void do_cmd_wield(void)
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Possibly call an item event. */
+	if (o_ptr->event_equip != 0)
+	{
+		call_lua("item_equip", "(Od)", "", o_ptr, o_ptr->event_equip);
 	}
 
 	/* Recalculate bonuses */
@@ -680,6 +673,12 @@ void do_cmd_destroy(void)
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 	sound(SOUND_DESTITEM);
+
+	/* Possibly call an item event. */
+	if (o_ptr->event_destroy != 0)
+	{
+		call_lua("item_destroy", "(Od)", "", o_ptr, o_ptr->event_destroy);
+	}
 
 	/*
 	 * Hack -- If rods or wand are destroyed, the total maximum timeout or 
@@ -2062,20 +2061,6 @@ void do_cmd_auto_wield(object_type *o_ptr)
 		/* Cancel the command */
 		return;
 	}
-
-
-    if ((cursed_p(o_ptr)) && (wear_confirm)
-        && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
-    {
-        char dummy[512];
-
-		/* Describe it */
-        object_desc(o_name, o_ptr, FALSE, 0);
-
-        sprintf(dummy, "Really use the %s {cursed}? ", o_name);
-        if (!(get_check(dummy)))
-            return;
-    }
 
         b_ptr = &inventory[INVEN_ARM];
 

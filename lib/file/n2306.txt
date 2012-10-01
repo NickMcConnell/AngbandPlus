@@ -1,0 +1,25 @@
+Violet Power(Passive)
+
+Effect: Gain the ability to return melee and magic attacks. Also improves the
+        success rate of Life Blast attacks.
+Life Blast Power bonus: Misfortune
+Bonus vs magic blocking counters: 25% of Misfortune
+Extra points: +(Misfortune) to Life Blast power.
+              +(25% of Misfortune) to overcome magic blocking counters.
+              +1 multiplier to reflected damages.
+
+This passive ability allows you to return melee and magic attacks to your
+enemies with additional damages. Note that it does not block the attack, and
+you can still take damages.
+
+Also, this ability will make any Life Blast spells and attacks get an increased
+success rate, and increased chance of overcoming enemy magic blocking counters.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

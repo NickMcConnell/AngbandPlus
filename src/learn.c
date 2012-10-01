@@ -3016,6 +3016,20 @@ void do_cmd_cast(bool wisdom)
 						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
 					}
 
+					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
+					{
+						o_ptr = &inventory[INVEN_WIELD];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+						o_ptr = &inventory[INVEN_WIELD+1];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+					}
+
 					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
@@ -3061,6 +3075,20 @@ void do_cmd_cast(bool wisdom)
 					{
 						o_ptr = &inventory[INVEN_ESSENCE];
 						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+					}
+
+					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
+					{
+						o_ptr = &inventory[INVEN_WIELD];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+						o_ptr = &inventory[INVEN_WIELD+1];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
 					}
 
 					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
@@ -3124,6 +3152,20 @@ void do_cmd_cast(bool wisdom)
 						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
 					}
 
+					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
+					{
+						o_ptr = &inventory[INVEN_WIELD];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+						o_ptr = &inventory[INVEN_WIELD+1];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+					}
+
 					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					alterbonus += multiply_divide(alterbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
 					mystbonus += multiply_divide(mystbonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
@@ -3178,6 +3220,20 @@ void do_cmd_cast(bool wisdom)
 					{
 						o_ptr = &inventory[INVEN_ESSENCE];
 						if (o_ptr->tval == TV_ESSENCE) rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+					}
+
+					if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] >= 10 && spell_ptr->type[i] == p_ptr->elemlord)
+					{
+						o_ptr = &inventory[INVEN_WIELD];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
+						o_ptr = &inventory[INVEN_WIELD+1];
+						if (o_ptr->tval == TV_WEAPON)
+						{
+							rodbonus += damroll(o_ptr->dd, o_ptr->ds);
+						}
 					}
 
 					elembonus += multiply_divide(elembonus, p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 5] * 10, 100);
@@ -3749,7 +3805,7 @@ void do_cmd_cast(bool wisdom)
                                         }
                                         case 5:
                                         {
-                                                detect_traps();
+                                                detect_chests();
                                                 break;
                                         }
 
@@ -6843,8 +6899,8 @@ void spell_making()
                         else c_put_str(TERM_L_DARK, "[2] Detect Doors", 9, 0);
                         if (p_ptr->divination_effects & DIVI_DETECT_STAIRS) c_put_str(TERM_WHITE, "[3] Detect Stairs", 10, 0);
                         else c_put_str(TERM_L_DARK, "[3] Detect Stairs", 10, 0);
-                        if (p_ptr->divination_effects & DIVI_DETECT_TRAPS) c_put_str(TERM_WHITE, "[4] Detect Traps", 11, 0);
-                        else c_put_str(TERM_L_DARK, "[4] Detect Traps", 11, 0);
+                        if (p_ptr->divination_effects & DIVI_DETECT_CHESTS) c_put_str(TERM_WHITE, "[4] Detect Chests", 11, 0);
+                        else c_put_str(TERM_L_DARK, "[4] Detect Chests", 11, 0);
                         if (p_ptr->divination_effects & DIVI_TELEPATHY) c_put_str(TERM_WHITE, "[5] Telepathy", 12, 0);
                         else c_put_str(TERM_L_DARK, "[5] Telepathy", 12, 0);
                         if (p_ptr->divination_effects & DIVI_IDENTIFY) c_put_str(TERM_WHITE, "[6] Identify", 13, 0);
@@ -6926,7 +6982,7 @@ void spell_making()
                                 }
                                 else if (choice == '4')
                                 {
-                                        if (!(p_ptr->divination_effects & DIVI_DETECT_TRAPS)) msg_print("You haven't learned this effect yet.");
+                                        if (!(p_ptr->divination_effects & DIVI_DETECT_CHESTS)) msg_print("You haven't learned this effect yet.");
                                         else
                                         {
                                                 efftype = 5;
@@ -6934,7 +6990,7 @@ void spell_making()
                                                 effcost = 0;
                                                 effkind = 16;
                                                 interfacetype = 1;
-                                                sprintf(choseneffect, "Detect Traps");
+                                                sprintf(choseneffect, "Detect Chests");
                                                 chosen = TRUE;
                                         }
                                 }
@@ -8589,6 +8645,14 @@ void activate_item(object_type *o_ptr, bool wisdom)
 			call_lua("activate_spell_script", "(d)", "", o_ptr->spell[Power].power);
 			break;
 		}
+		/* Type change */
+		case 10:
+		{
+			o_ptr->extra1 = o_ptr->spell[Power].power;
+			msg_format("Damages type changed to %s!", get_element_name(o_ptr->spell[Power].power));
+			energy_use = 100;
+			break;
+		}
 		
 		default:
 		{
@@ -9079,6 +9143,9 @@ char *get_monster_attack_name(int m_idx, int num)
 	char aname[80];
 	char extra[80];
 	monster_race *r_ptr = &r_info[m_idx];
+	bool scaled = FALSE;
+
+	if (r_ptr->flags7 & (RF7_SCALED)) scaled = TRUE;
 
 	/* Generate the name. */
 	/* If it's just "!", let's make a NICE name! ;) */
@@ -9091,9 +9158,18 @@ char *get_monster_attack_name(int m_idx, int num)
 		sprintf(aname, "%s %s", get_element_name(r_ptr->attack[num].element), aact);
 	}
 
-	if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s melee attack, base dam: %dd%d)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
-	else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s ranged attack, base dam: %dd%d)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
-	else sprintf(extra, "(Special attack)");
+	if (scaled)
+	{
+		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s melee attack)", get_element_name(r_ptr->attack[num].element));
+		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s ranged attack)", get_element_name(r_ptr->attack[num].element));
+		else sprintf(extra, "(Special attack)");
+	}
+	else
+	{
+		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s melee attack, base dam: %dd%d)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s ranged attack, base dam: %dd%d)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		else sprintf(extra, "(Special attack)");
+	}
 
 	sprintf(attackname, "%s %s", aname, extra);
 
@@ -9106,6 +9182,9 @@ char *get_monster_attack_name_short(int m_idx, int num)
 	char aname[80];
 	char extra[80];
 	monster_race *r_ptr = &r_info[m_idx];
+	bool scaled = FALSE;
+
+	if (r_ptr->flags7 & (RF7_SCALED)) scaled = TRUE;
 
 	/* Generate the name. */
 	/* If it's just "!", let's make a NICE name! ;) */
@@ -9118,9 +9197,18 @@ char *get_monster_attack_name_short(int m_idx, int num)
 		sprintf(aname, "%s %s", get_element_name(r_ptr->attack[num].element), aact);
 	}
 
-	if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s, %dd%d, Melee)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
-	else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s, %dd%d, Ranged)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
-	else sprintf(extra, "(Special attack)");
+	if (scaled)
+	{
+		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s, Melee)", get_element_name(r_ptr->attack[num].element));
+		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s, Ranged)", get_element_name(r_ptr->attack[num].element));
+		else sprintf(extra, "(Special attack)");
+	}
+	else
+	{
+		if (r_ptr->attack[num].type == 1) sprintf(extra, "(%s, %dd%d, Melee)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		else if (r_ptr->attack[num].type == 3) sprintf(extra, "(%s, %dd%d, Ranged)", get_element_name(r_ptr->attack[num].element), r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		else sprintf(extra, "(Special attack)");
+	}
 
 	sprintf(attackname, "%s %s", aname, extra);
 
@@ -9135,6 +9223,15 @@ char *get_monster_attack_name_damages(monster_type *m_ptr, int num)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	s32b mindam;
 	s32b maxdam;
+	bool scaled = FALSE;
+	int scaledlevel;
+
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 
 	/* Generate the name. */
 	/* If it's just "!", let's make a NICE name! ;) */
@@ -9150,19 +9247,23 @@ char *get_monster_attack_name_damages(monster_type *m_ptr, int num)
 	/* Calculate damages. */
 	if (r_ptr->attack[num].type == 1)
 	{
-		mindam = damroll(r_ptr->attack[num].ddice, 1);
+		if (scaled) mindam = damroll(multiply_divide(scaledlevel, r_ptr->attack[num].ddice, 100), 1);
+		else mindam = damroll(r_ptr->attack[num].ddice, 1);
 		mindam *= (m_ptr->skill_attack + 1);
-		mindam += ((mindam * ((m_ptr->str - 5) * 5)) / 100);
-		mindam += ((mindam * m_ptr->str) / 100);
+		mindam += multiply_divide(mindam, ((m_ptr->str - 5) * 5), 100);
+		mindam += multiply_divide(mindam, m_ptr->str, 100);
+
 		/* Bosses may get higher damages! */
 		if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) mindam *= 2;
                 if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) mindam -= mindam / 2;
                 else if (m_ptr->abilities & (CURSE_LOWER_POWER)) mindam -= mindam / 4;
 
-		maxdam = maxroll(r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		if (scaled) maxdam = maxroll(multiply_divide(scaledlevel, r_ptr->attack[num].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[num].dside, 100));
+		else maxdam = maxroll(r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
 		maxdam *= (m_ptr->skill_attack + 1);
-		maxdam += ((maxdam * ((m_ptr->str - 5) * 5)) / 100);
-		maxdam += ((maxdam * m_ptr->str) / 100);
+		maxdam += multiply_divide(maxdam, ((m_ptr->str - 5) * 5), 100);
+		maxdam += multiply_divide(maxdam, m_ptr->str, 100);
+
 		/* Bosses may get higher damages! */
 		if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) maxdam *= 2;
                 if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) maxdam -= maxdam / 2;
@@ -9170,19 +9271,24 @@ char *get_monster_attack_name_damages(monster_type *m_ptr, int num)
 	}
 	else if (r_ptr->attack[num].type == 3)
 	{
-		mindam = damroll(r_ptr->attack[num].ddice, 1);
+		if (scaled) mindam = damroll(multiply_divide(scaledlevel, r_ptr->attack[num].ddice, 100), 1);
+		else mindam = damroll(r_ptr->attack[num].ddice, 1);
 		mindam *= (m_ptr->skill_ranged + 1);
-		mindam += ((mindam * ((m_ptr->dex - 5) * 5)) / 100);
-		mindam += ((mindam * m_ptr->dex) / 100);
+		mindam += multiply_divide(mindam, ((m_ptr->dex - 5) * 5), 100);
+		mindam += multiply_divide(mindam, m_ptr->dex, 100);
+
+
 		/* Bosses may get higher damages! */
 		if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) mindam *= 2;
                 if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) mindam -= mindam / 2;
                 else if (m_ptr->abilities & (CURSE_LOWER_POWER)) mindam -= mindam / 4;
 
-		maxdam = maxroll(r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
+		if (scaled) maxdam = maxroll(multiply_divide(scaledlevel, r_ptr->attack[num].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[num].dside, 100));
+		else maxdam = maxroll(r_ptr->attack[num].ddice, r_ptr->attack[num].dside);
 		maxdam *= (m_ptr->skill_ranged + 1);
-		maxdam += ((maxdam * ((m_ptr->dex - 5) * 5)) / 100);
-		maxdam += ((maxdam * m_ptr->dex) / 100);
+		maxdam += multiply_divide(maxdam, ((m_ptr->dex - 5) * 5), 100);
+		maxdam += multiply_divide(maxdam, m_ptr->dex, 100);
+
 		/* Bosses may get higher damages! */
 		if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) maxdam *= 2;
                 if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) maxdam -= maxdam / 2;
@@ -9388,4 +9494,312 @@ int pick_song(int reduction)
 	}
 
 	return (Power);
+}
+
+void browse_spells()
+{
+	int i;
+	char query;
+	char choice;
+	bool looping = TRUE;
+
+	 /* Save what's on screen */
+        Term_save();
+
+	/* Flush messages */
+	msg_print(NULL);
+
+	while (looping)
+	{
+
+	/* Begin... */
+	Term_erase(0, 1, 255);
+
+	/* Prepare the screen */
+        for (i = 0; i < SCREEN_HGT; i++)
+        {
+        	roff("\n");
+        }
+        c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+                
+        /* First, select the school. */
+        c_put_str(TERM_WHITE, "Select a spell school:", 4, 0);
+        c_put_str(TERM_L_RED, "[1] Elemental", 7, 0);
+        c_put_str(TERM_VIOLET, "[2] Alteration", 9, 0);
+        c_put_str(TERM_L_BLUE, "[3] Mysticism", 11, 0);
+        c_put_str(TERM_YELLOW, "[4] Conjuration", 13, 0);
+        c_put_str(TERM_WHITE, "[5] Divination", 15, 0);
+
+	c_put_str(TERM_WHITE, "Press ESC to return to game.", 22, 0);
+
+        /* End of scanning */
+        query = inkey();
+
+        if (query == '1')
+        {
+        	/* Perpare the screen */
+                c_put_str(TERM_WHITE, "", 0, 0);
+                for (i = 0; i < SCREEN_HGT; i++)
+                {
+                	roff("\n");
+                }
+                c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        	c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+
+                /* All right, let's prepare the list! :) */
+                if (p_ptr->elemental_effects & ELEM_MISSILE) c_put_str(TERM_WHITE, "[0] Missile", 7, 0);
+                else c_put_str(TERM_L_DARK, "[0] Missile", 7, 0);
+                if (p_ptr->elemental_effects & ELEM_FIRE) c_put_str(TERM_WHITE, "[1] Fire", 8, 0);
+                else c_put_str(TERM_L_DARK, "[1] Fire", 8, 0);
+                if (p_ptr->elemental_effects & ELEM_COLD) c_put_str(TERM_WHITE, "[2] Cold", 9, 0);
+                else c_put_str(TERM_L_DARK, "[2] Cold", 9, 0);
+                if (p_ptr->elemental_effects & ELEM_ELEC) c_put_str(TERM_WHITE, "[3] Electricity", 10, 0);
+                else c_put_str(TERM_L_DARK, "[3] Electricity", 10, 0);
+                if (p_ptr->elemental_effects & ELEM_ACID) c_put_str(TERM_WHITE, "[4] Acid", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Acid", 11, 0);
+                if (p_ptr->elemental_effects & ELEM_POIS) c_put_str(TERM_WHITE, "[5] Poison", 12, 0);
+                else c_put_str(TERM_L_DARK, "[5] Poison", 12, 0);
+                if (p_ptr->elemental_effects & ELEM_LITE) c_put_str(TERM_WHITE, "[6] Light", 13, 0);
+                else c_put_str(TERM_L_DARK, "[6] Light", 13, 0);
+                if (p_ptr->elemental_effects & ELEM_DARK) c_put_str(TERM_WHITE, "[7] Darkness", 14, 0);
+                else c_put_str(TERM_L_DARK, "[7] Darkness", 14, 0);
+                if (p_ptr->elemental_effects & ELEM_PHYSICAL) c_put_str(TERM_WHITE, "[8] Physical", 15, 0);
+                else c_put_str(TERM_L_DARK, "[8] Physical", 15, 0);
+                if (p_ptr->elemental_effects & ELEM_RADIO) c_put_str(TERM_WHITE, "[9] Radio", 16, 0);
+                else c_put_str(TERM_L_DARK, "[9] Radio", 16, 0);
+                if (p_ptr->elemental_effects & ELEM_WATER) c_put_str(TERM_WHITE, "[a] Water", 17, 0);
+                else c_put_str(TERM_L_DARK, "[a] Water", 17, 0);
+                if (p_ptr->elemental_effects & ELEM_CHAOS) c_put_str(TERM_WHITE, "[b] Chaos", 18, 0);
+                else c_put_str(TERM_L_DARK, "[b] Chaos", 18, 0);
+                if (p_ptr->elemental_effects & ELEM_EARTH) c_put_str(TERM_WHITE, "[c] Earth", 19, 0);
+                else c_put_str(TERM_L_DARK, "[c] Earth", 19, 0);
+                if (p_ptr->elemental_effects & ELEM_SOUND) c_put_str(TERM_WHITE, "[d] Sound", 7, 20);
+                else c_put_str(TERM_L_DARK, "[d] Sound", 7, 20);
+                if (p_ptr->elemental_effects & ELEM_WARP) c_put_str(TERM_WHITE, "[e] Warp", 8, 20);
+                else c_put_str(TERM_L_DARK, "[e] Warp", 8, 20);
+                if (p_ptr->elemental_effects & ELEM_WIND) c_put_str(TERM_WHITE, "[f] Wind", 9, 20);
+                else c_put_str(TERM_L_DARK, "[f] Wind", 9, 20);
+                if (p_ptr->elemental_effects & ELEM_MANA) c_put_str(TERM_WHITE, "[g] Mana", 10, 20);
+                else c_put_str(TERM_L_DARK, "[g] Mana", 10, 20);
+		if (p_ptr->elemlord != 0)
+		{
+			char elemname[80];
+			sprintf(elemname, "[z] %s", get_element_name(p_ptr->elemlord));
+			c_put_str(TERM_WHITE, elemname, 19, 20);
+                }
+
+		c_put_str(TERM_WHITE, "Press any keys to return to main spells menu.", 22, 0);
+
+		choice = inkey();
+	}
+	/* Alterations! */
+        else if (query == '2')
+        {
+                /* Perpare the screen */
+                c_put_str(TERM_WHITE, "", 0, 0);
+                for (i = 0; i < SCREEN_HGT; i++)
+                {
+                        roff("\n");
+                }
+                c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        	c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+
+                /* All right, let's prepare the list! :) */
+                if (p_ptr->alteration_effects & ALTER_REDUCE_HIT) c_put_str(TERM_WHITE, "[0] Reduce Hit Rate", 7, 0);
+                else c_put_str(TERM_L_DARK, "[0] Reduce Hit Rate", 7, 0);
+                if (p_ptr->alteration_effects & ALTER_REDUCE_DEF) c_put_str(TERM_WHITE, "[1] Reduce Defense", 8, 0);
+                else c_put_str(TERM_L_DARK, "[1] Reduce Defense", 8, 0);
+                if (p_ptr->alteration_effects & ALTER_REDUCE_SPEED) c_put_str(TERM_WHITE, "[2] Reduce Speed", 9, 0);
+                else c_put_str(TERM_L_DARK, "[2] Reduce Speed", 9, 0);
+                if (p_ptr->alteration_effects & ALTER_REDUCE_LEVEL) c_put_str(TERM_WHITE, "[3] Reduce Level", 10, 0);
+                else c_put_str(TERM_L_DARK, "[3] Reduce Level", 10, 0);
+                if (p_ptr->alteration_effects & ALTER_LIFE_BLAST) c_put_str(TERM_WHITE, "[4] Life Blast", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Life Blast", 11, 0);
+                if (p_ptr->alteration_effects & ALTER_LOCK) c_put_str(TERM_WHITE, "[5] Lock", 12, 0);
+                else c_put_str(TERM_L_DARK, "[5] Lock", 12, 0);
+                if (p_ptr->alteration_effects & ALTER_HALVE_POWER) c_put_str(TERM_WHITE, "[6] Halve Power", 13, 0);
+                else c_put_str(TERM_L_DARK, "[6] Halve Power", 13, 0);
+                if (p_ptr->alteration_effects & ALTER_HALVE_MAGIC) c_put_str(TERM_WHITE, "[7] Halve Magic", 14, 0);
+                else c_put_str(TERM_L_DARK, "[7] Halve Magic", 14, 0);
+                if (p_ptr->alteration_effects & ALTER_STONE_TO_MUD) c_put_str(TERM_WHITE, "[8] Stone to Mud", 15, 0);
+                else c_put_str(TERM_L_DARK, "[8] Stone to Mud", 15, 0);
+                if (p_ptr->alteration_effects & ALTER_DEMORALIZE) c_put_str(TERM_WHITE, "[9] Demoralize", 16, 0);
+                else c_put_str(TERM_L_DARK, "[9] Demoralize", 16, 0);
+                if (p_ptr->alteration_effects & ALTER_RETROGRADE) c_put_str(TERM_WHITE, "[a] Retrograde", 17, 0);
+                else c_put_str(TERM_L_DARK, "[a] Retrograde", 17, 0);
+                if (p_ptr->alteration_effects & ALTER_EVOLVE) c_put_str(TERM_WHITE, "[b] Evolve", 18, 0);
+                else c_put_str(TERM_L_DARK, "[b] Evolve", 18, 0);
+                if (p_ptr->alteration_effects & ALTER_UNEVOLVE) c_put_str(TERM_WHITE, "[c] Un-Evolve", 19, 0);
+                else c_put_str(TERM_L_DARK, "[c] Un-Evolve", 19, 0);
+                if (p_ptr->alteration_effects & ALTER_HASTE) c_put_str(TERM_WHITE, "[d] Haste", 7, 20);
+                else c_put_str(TERM_L_DARK, "[d] Haste", 7, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_STR) c_put_str(TERM_WHITE, "[e] Raise Strength", 8, 20);
+                else c_put_str(TERM_L_DARK, "[e] Raise Strength", 8, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_INT) c_put_str(TERM_WHITE, "[f] Raise Intelligence", 9, 20);
+                else c_put_str(TERM_L_DARK, "[f] Raise Intelligence", 9, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_WIS) c_put_str(TERM_WHITE, "[g] Raise Wisdom", 10, 20);
+                else c_put_str(TERM_L_DARK, "[g] Raise Wisdom", 10, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_DEX) c_put_str(TERM_WHITE, "[h] Raise Dexterity", 11, 20);
+                else c_put_str(TERM_L_DARK, "[h] Raise Dexterity", 11, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_CON) c_put_str(TERM_WHITE, "[i] Raise Constitution", 12, 20);
+                else c_put_str(TERM_L_DARK, "[i] Raise Constitution", 12, 20);
+                if (p_ptr->alteration_effects & ALTER_RAISE_CHR) c_put_str(TERM_WHITE, "[j] Raise Charisma", 13, 20);
+                else c_put_str(TERM_L_DARK, "[j] Raise Charisma", 13, 20);
+                if (p_ptr->alteration_effects & ALTER_POSITION) c_put_str(TERM_WHITE, "[k] Alter Position", 14, 20);
+                else c_put_str(TERM_L_DARK, "[k] Alter Position", 14, 20);
+                if (p_ptr->alteration_effects & ALTER_HASTE_OTHER) c_put_str(TERM_WHITE, "[l] Haste Other", 15, 20);
+                else c_put_str(TERM_L_DARK, "[l] Haste Other", 15, 20);
+                if (p_ptr->alteration_effects & ALTER_PHYS_RESIST) c_put_str(TERM_WHITE, "[m] Physical Resistance", 16, 20);
+                else c_put_str(TERM_L_DARK, "[m] Physical Resistance", 16, 20);
+                if (p_ptr->alteration_effects & ALTER_MAGIC_RESIST) c_put_str(TERM_WHITE, "[n] Magic Resistance", 17, 20);
+                else c_put_str(TERM_L_DARK, "[n] Magic Resistance", 17, 20);
+                if (p_ptr->alteration_effects & ALTER_STONESKIN) c_put_str(TERM_WHITE, "[o] Stoneskin", 18, 20);
+                else c_put_str(TERM_L_DARK, "[o] Stoneskin", 18, 20);
+                if (p_ptr->alteration_effects & ALTER_PARALYZE) c_put_str(TERM_WHITE, "[p] Paralyze", 19, 20);
+                else c_put_str(TERM_L_DARK, "[p] Paralyze", 19, 20);
+
+		c_put_str(TERM_WHITE, "Press any keys to return to main spells menu.", 22, 0);
+
+		choice = inkey();
+	}
+        /* Mysticism */
+        else if (query == '3')
+        {
+        	/* Perpare the screen */
+                c_put_str(TERM_WHITE, "", 0, 0);
+                for (i = 0; i < SCREEN_HGT; i++)
+                {
+                        roff("\n");
+                }
+                c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        	c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+
+                /* All right, let's prepare the list! :) */
+                if (p_ptr->healing_effects & MYST_HEAL) c_put_str(TERM_WHITE, "[0] Heal", 7, 0);
+                else c_put_str(TERM_L_DARK, "[0] Heal", 7, 0);
+                if (p_ptr->healing_effects & MYST_RESTORE_STATS) c_put_str(TERM_WHITE, "[1] Restore Stats", 8, 0);
+                else c_put_str(TERM_L_DARK, "[1] Restore Stats", 8, 0);
+                if (p_ptr->healing_effects & MYST_RESTORE_STATUS) c_put_str(TERM_WHITE, "[2] Restore Status", 9, 0);
+                else c_put_str(TERM_L_DARK, "[2] Restore Status", 9, 0);
+                if (p_ptr->healing_effects & MYST_HARM) c_put_str(TERM_WHITE, "[3] Harm", 10, 0);
+                else c_put_str(TERM_L_DARK, "[3] Harm", 10, 0);                        
+                if (p_ptr->healing_effects & MYST_HEAL_OTHERS) c_put_str(TERM_WHITE, "[4] Heal Others", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Heal Others", 11, 0);
+                if (p_ptr->healing_effects & MYST_REVIVE_MONSTER) c_put_str(TERM_WHITE, "[5] Revive Monster", 12, 0);
+                else c_put_str(TERM_L_DARK, "[5] Revive Monster", 12, 0);
+                if (p_ptr->healing_effects & MYST_RESTORE_MANA) c_put_str(TERM_WHITE, "[6] Restore Mana", 13, 0);
+                else c_put_str(TERM_L_DARK, "[6] Restore Mana", 13, 0);
+		if (p_ptr->healing_effects & MYST_SMITE_UNDEADS) c_put_str(TERM_WHITE, "[7] Smite Undeads", 14, 0);
+                else c_put_str(TERM_L_DARK, "[7] Smite Undeads", 14, 0);
+		if (p_ptr->healing_effects & MYST_SMITE_DEMONS) c_put_str(TERM_WHITE, "[8] Smite Demons", 15, 0);
+                else c_put_str(TERM_L_DARK, "[8] Smite Demons", 15, 0);
+		if (p_ptr->healing_effects & MYST_SMITE_EVIL) c_put_str(TERM_WHITE, "[9] Smite Evil", 16, 0);
+                else c_put_str(TERM_L_DARK, "[9] Smite Evil", 16, 0);
+		if (p_ptr->healing_effects & MYST_SMITE_GOOD) c_put_str(TERM_WHITE, "[a] Smite Good", 17, 0);
+                else c_put_str(TERM_L_DARK, "[a] Smite Good", 17, 0);
+		if (p_ptr->healing_effects & MYST_WAR_BLESSING) c_put_str(TERM_WHITE, "[b] War Blessing", 18, 0);
+                else c_put_str(TERM_L_DARK, "[b] War Blessing", 18, 0);
+		if (p_ptr->healing_effects & MYST_BLESSING) c_put_str(TERM_WHITE, "[c] Blessing", 19, 0);
+                else c_put_str(TERM_L_DARK, "[c] Blessing", 19, 0);
+
+		c_put_str(TERM_WHITE, "Press any keys to return to main spells menu.", 22, 0);
+
+		choice = inkey();
+	}
+        /* Conjurations! */
+        else if (query == '4')
+        {
+                /* Perpare the screen */
+                c_put_str(TERM_WHITE, "", 0, 0);
+                for (i = 0; i < SCREEN_HGT; i++)
+                {
+                        roff("\n");
+                }
+                c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        	c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+
+                /* All right, let's prepare the list! :) */
+                if (p_ptr->conjuration_effects & CONJ_SUMMON_KIND) c_put_str(TERM_WHITE, "[0] Summon Kind", 7, 0);
+                else c_put_str(TERM_L_DARK, "[0] Summon Kind", 7, 0);
+                if (p_ptr->conjuration_effects & CONJ_SUMMON_SPECIFIC) c_put_str(TERM_WHITE, "[1] Summon Specific", 8, 0);
+                else c_put_str(TERM_L_DARK, "[1] Summon Specific", 8, 0);
+                if (p_ptr->conjuration_effects & CONJ_FIRE_FIELD) c_put_str(TERM_WHITE, "[2] Fire Fields", 9, 0);
+                else c_put_str(TERM_L_DARK, "[2] Fire Fields", 9, 0);
+                if (p_ptr->conjuration_effects & CONJ_COLD_FIELD) c_put_str(TERM_WHITE, "[3] Cold Fields", 10, 0);
+                else c_put_str(TERM_L_DARK, "[3] Cold Fields", 10, 0);
+                if (p_ptr->conjuration_effects & CONJ_ELEC_FIELD) c_put_str(TERM_WHITE, "[4] Electric Fields", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Electric Fields", 11, 0);
+                if (p_ptr->conjuration_effects & CONJ_WEBS) c_put_str(TERM_WHITE, "[5] Webs", 12, 0);
+                else c_put_str(TERM_L_DARK, "[5] Webs", 12, 0);
+                if (p_ptr->conjuration_effects & CONJ_GROW_TREES) c_put_str(TERM_WHITE, "[6] Grow Trees", 13, 0);
+                else c_put_str(TERM_L_DARK, "[6] Grow Trees", 13, 0);
+                if (p_ptr->conjuration_effects & CONJ_THORNS) c_put_str(TERM_WHITE, "[7] Thorned Vines", 14, 0);
+                else c_put_str(TERM_L_DARK, "[7] Thorned Vines", 14, 0);
+                if (p_ptr->conjuration_effects & CONJ_STORMS) c_put_str(TERM_WHITE, "[8] Storms", 15, 0);
+                else c_put_str(TERM_L_DARK, "[8] Storms", 15, 0);
+                if (p_ptr->conjuration_effects & CONJ_ITEM) c_put_str(TERM_WHITE, "[9] Conjure Item", 16, 0);
+                else c_put_str(TERM_L_DARK, "[9] Conjure Item", 16, 0);
+                if (p_ptr->conjuration_effects & CONJ_MAGIC_ITEM) c_put_str(TERM_WHITE, "[a] Conjure Magic Item", 17, 0);
+                else c_put_str(TERM_L_DARK, "[a] Conjure Magic Item", 17, 0);
+                if (p_ptr->conjuration_effects & CONJ_SPECIAL_ITEM) c_put_str(TERM_WHITE, "[b] Conjure Special Item", 18, 0);
+                else c_put_str(TERM_L_DARK, "[b] Conjure Special Item", 18, 0);
+
+		c_put_str(TERM_WHITE, "Press any keys to return to main spells menu.", 22, 0);
+
+		choice = inkey();
+	}
+        /* Divinations! */
+        else if (query == '5')
+        {
+        	/* Perpare the screen */
+                c_put_str(TERM_WHITE, "", 0, 0);
+                for (i = 0; i < SCREEN_HGT; i++)
+                {
+                        roff("\n");
+                }
+                c_put_str(TERM_WHITE, "PORTRALIS SPELLS LIST", 0, 0);
+        	c_put_str(TERM_WHITE, "-----------------------", 1, 0);
+
+                /* All right, let's prepare the list! :) */
+                if (p_ptr->divination_effects & DIVI_DETECT_MONSTERS) c_put_str(TERM_WHITE, "[0] Detect Monsters", 7, 0);
+                else c_put_str(TERM_L_DARK, "[0] Detect Monsters", 7, 0);
+                if (p_ptr->divination_effects & DIVI_DETECT_OBJECTS) c_put_str(TERM_WHITE, "[1] Detect Objects", 8, 0);
+                else c_put_str(TERM_L_DARK, "[1] Detect Objects", 8, 0);
+                if (p_ptr->divination_effects & DIVI_DETECT_DOORS) c_put_str(TERM_WHITE, "[2] Detect Doors", 9, 0);
+                else c_put_str(TERM_L_DARK, "[2] Detect Doors", 9, 0);
+                if (p_ptr->divination_effects & DIVI_DETECT_STAIRS) c_put_str(TERM_WHITE, "[3] Detect Stairs", 10, 0);
+                else c_put_str(TERM_L_DARK, "[3] Detect Stairs", 10, 0);
+                if (p_ptr->divination_effects & DIVI_DETECT_CHESTS) c_put_str(TERM_WHITE, "[4] Detect Chests", 11, 0);
+                else c_put_str(TERM_L_DARK, "[4] Detect Chests", 11, 0);
+                if (p_ptr->divination_effects & DIVI_TELEPATHY) c_put_str(TERM_WHITE, "[5] Telepathy", 12, 0);
+                else c_put_str(TERM_L_DARK, "[5] Telepathy", 12, 0);
+                if (p_ptr->divination_effects & DIVI_IDENTIFY) c_put_str(TERM_WHITE, "[6] Identify", 13, 0);
+                else c_put_str(TERM_L_DARK, "[6] Identify", 13, 0);
+                if (p_ptr->divination_effects & DIVI_SCAN_MONSTER) c_put_str(TERM_WHITE, "[7] Scan Monster", 14, 0);
+                else c_put_str(TERM_L_DARK, "[7] Scan Monster", 14, 0);
+                if (p_ptr->divination_effects & DIVI_REVEAL) c_put_str(TERM_WHITE, "[8] Reveal", 15, 0);
+                else c_put_str(TERM_L_DARK, "[8] Reveal", 15, 0);
+		if (p_ptr->divination_effects & DIVI_DIVINATION) c_put_str(TERM_WHITE, "[9] Divination", 16, 0);
+                else c_put_str(TERM_L_DARK, "[9] Divination", 16, 0);
+		if (p_ptr->divination_effects & DIVI_RESTORE_FATE) c_put_str(TERM_WHITE, "[a] Restore Fate", 17, 0);
+                else c_put_str(TERM_L_DARK, "[a] Restore Fate", 17, 0);
+		if (p_ptr->divination_effects & DIVI_FATE_MONSTERS) c_put_str(TERM_WHITE, "[b] Twist Fate: Monsters", 18, 0);
+                else c_put_str(TERM_L_DARK, "[b] Twist Fate: Monsters", 18, 0);
+		if (p_ptr->divination_effects & DIVI_FATE_ITEMS) c_put_str(TERM_WHITE, "[c] Twist Fate: Items", 19, 0);
+                else c_put_str(TERM_L_DARK, "[c] Twist Fate: Items", 19, 0);
+		if (p_ptr->divination_effects & DIVI_FATE_DUNGEONS) c_put_str(TERM_WHITE, "[d] Twist Fate: Random Dungeons", 7, 28);
+                else c_put_str(TERM_L_DARK, "[d] Twist Fate: Random Dungeons", 7, 28);
+
+		c_put_str(TERM_WHITE, "Press any keys to return to main spells menu.", 22, 0);
+
+		choice = inkey();
+        }
+
+	if (query == ESCAPE) looping = FALSE;
+
+	}
+
+	Term_load();
+	update_and_handle();
 }

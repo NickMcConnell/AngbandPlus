@@ -107,13 +107,16 @@ function use_ability (powernum)
 	-- The "nevermiss" global variable is set to true. This way, the attack
 	-- will never miss. Once the attack is executed, the variable is set to
 	-- false again.
-	nevermiss = TRUE
+	if (not(combatfeat)) then nevermiss = TRUE
+	else accuratestrike = 1 end
+
 	melee_attack = TRUE
 	no_magic_return = TRUE
     	chain_attack(dir, dtype, dam, 0, 1)
 	no_magic_return = FALSE
 	melee_attack = FALSE
 	nevermiss = FALSE
+	accuratestrike = 0
 
     	energy_use = 100;
   end
@@ -471,13 +474,16 @@ function use_ability (powernum)
   if (powernum == 13) then
 
 	local dir
+	local rad
 
 	-- This is different from lua_get_rep_dir(). This one allow you to set
 	-- the monster as a target.
-	dir = lua_get_aim_dir()        
+	dir = lua_get_aim_dir()
 
-	-- Use a bolt spell against an ememy.
-        fire_bolt(GF_VULNERABILITY, dir, 100)
+	rad = 2 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 5] / 10)
+
+	-- Use a ball spell against an ememy.
+	fire_ball(GF_VULNERABILITY, dir, 100, rad)
 
         update_and_handle()
         energy_use = 100
@@ -550,7 +556,9 @@ function use_ability (powernum)
 
 	local dam
         dam = (p_ptr.chp * p_ptr.abilities[(CLASS_PRIEST * 10) + 10])
+	ignore_spellcraft = TRUE
         attack_aura(GF_LITE, dam, 5 + (p_ptr.abilities[(CLASS_PRIEST * 10) + 10] / 30))
+	ignore_spellcraft = FALSE
         update_and_handle()
         energy_use = 100
   end
@@ -577,6 +585,39 @@ function use_ability (powernum)
 	else
 		msg_print("Because of your good alignment, the prayer was unanswered.")
 	end
+  end
+
+  -- Finishing Blow
+  if (powernum == 26) then
+
+        local dam
+	local dtype
+
+        -- If used trough combat feats, we already selected a weapon.
+	if (not(combatfeat)) then choose_current_weapon() end
+
+        if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon!")
+                return
+        end
+
+        dam = weapon_damages()
+
+        dir = lua_get_rep_dir()
+
+	dtype = current_weapon.extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	melee_attack = TRUE
+	no_magic_return = TRUE
+	finishingblow = 1
+        chain_attack(dir, dtype, dam, 0, 1)
+	finishingblow = 0
+	melee_attack = FALSE
+	no_magic_return = FALSE
+
+	energy_use = 100
   end
 
   -- Animal Empathy
@@ -667,6 +708,46 @@ function use_ability (powernum)
     	energy_use = 100;
   end
 
+  -- Element Strike
+  if (powernum == 53) then
+
+	local dam
+	local dir
+	local dtype
+	local rad
+
+	if (not(combatfeat)) then choose_current_weapon() end
+
+	if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon!")
+                return
+        end
+
+	-- We need to choose a direction to attack. If used as combat feat,
+	-- this won't be asked.
+	dir = lua_get_rep_dir()
+
+	dam = weapon_damages()
+	dam = dam + multiply_divide(dam, ((p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 2]) * 15), 100)
+
+	dtype = p_ptr.elemlord
+
+	rad = p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 2] / 10
+
+	-- We use a radius 0, range 1 chain attack.
+	-- The "nevermiss" global variable is set to true. This way, the attack
+	-- will never miss. Once the attack is executed, the variable is set to
+	-- false again.
+	no_magic_return = TRUE
+	ignore_spellcraft = TRUE
+    	chain_attack(dir, dtype, dam, rad, 1)
+	ignore_spellcraft = FALSE
+	no_magic_return = FALSE
+
+    	energy_use = 100;
+  end
+
   -- Wave of Element
   if (powernum == 57) then
 
@@ -691,7 +772,11 @@ function use_ability (powernum)
 
 	rad = 0 + (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 8] / 20)
 
+	no_magic_return = TRUE
+	ignore_spellcraft = TRUE
 	chain_attack(dir, p_ptr.elemlord, dam, rad, 30)
+	ignore_spellcraft = FALSE
+	no_magic_return = FALSE
 
 	energy_use = 100
 
@@ -864,7 +949,9 @@ function use_ability (powernum)
 		-- Shoot!
 		if (shooting == 1) then
 			ranged_attack = TRUE
+			ignore_spellcraft = TRUE
 			fire_ball(element, dir, dam, rad)
+			ignore_spellcraft = FALSE
 			ranged_attack = FALSE
 
 			-- Shooter loses some ammos.
@@ -2269,6 +2356,55 @@ function use_ability (powernum)
     	energy_use = 100;
   end
 
+  -- Thunderglow Shots
+  if (powernum == 2305) then
+
+	special_ranged_attacks(GF_ELEC, 1 + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 6] / 5), p_ptr.abilities[(CLASS_NIGHT1 * 10) + 6] * (5 + (p_ptr.cursed / 4)), (p_ptr.cursed / 50))
+	special_ranged_attacks(GF_LITE, 1 + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 6] / 5), p_ptr.abilities[(CLASS_NIGHT1 * 10) + 6] * (5 + (p_ptr.cursed / 4)), (p_ptr.cursed / 50))
+
+	energy_use = 100
+  end
+
+  -- Light Armored Nightmare
+  if (powernum == 2307) then
+
+	local dam
+	local dtype
+	local dbonus
+
+	-- If used trough combat feats, we already selected a weapon.
+	if (not(combatfeat)) then choose_current_weapon() end
+
+        if (current_weapon.tval == 0) then
+
+                msg_print("You must use a weapon!")
+                return
+        end
+
+	dbonus = 20 * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 8]
+	dbonus = dbonus + multiply_divide(dbonus, p_ptr.cursed, 100)
+        
+	-- Damages.
+	dam = weapon_damages()
+	dam = dam + multiply_divide(dam, dbonus, 100)
+        if (dam < 0) then dam = 0 end
+
+	dtype = current_weapon.extra1
+	if (dtype == 0) then dtype = GF_PHYSICAL end
+
+	-- The function "attack_aura" projects an attack around the player.
+	-- Here, we project Physical over a radius of 1.
+	melee_attack = TRUE
+	no_magic_return = TRUE
+	attack_aura(dtype, dam, 2 + (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 8] / 5))
+	no_magic_return = FALSE
+	melee_attack = FALSE
+
+	-- The attack takes a turn.
+	-- Every 100 pts of "energy_use", an extra turn is taken.
+	energy_use = 100
+  end
+
 end
 
 -- Returns the name of a scripted power.
@@ -2281,6 +2417,13 @@ function get_scripted_spell_name (r_idx, which)
 
 	if (m_race(r_idx).spell[which].name == "mind_gazer_divination") then attname = "Mind Gazer Divination" end
 	if (m_race(r_idx).spell[which].name == "naga_princess_mystic_blade") then attname = "Mystic Blade" end
+	if (m_race(r_idx).spell[which].name == "christina_sword_of_gaia") then attname = "Sword of Gaia" end
+	if (m_race(r_idx).spell[which].name == "grey_wight_gaze") then attname = "Grey Wight's Gaze" end
+	if (m_race(r_idx).spell[which].name == "monster_teleport_to_player") then attname = "Teleport to Player" end
+	if (m_race(r_idx).spell[which].name == "reality_twists_quazar") then attname = "Quazar's Reality Twists" end
+	if (m_race(r_idx).spell[which].name == "reality_twists_simon") then attname = "Simon's Reality Twists" end
+	if (m_race(r_idx).spell[which].name == "reality_twists_simon_2") then attname = "Simon's Reality Twists" end
+	if (m_race(r_idx).spell[which].name == "ancient_phantom_golem_boost") then attname = "Enhance Bone Golems" end
 
 	return attname
 end

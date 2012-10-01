@@ -1,0 +1,93 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter a large room with a large dark pit. In the middle of the pit,;
+T:standing on a floating platform, is Loroth Varos. From the dark pit, you;
+T:can see several ghostly shapes coming out. Loroth seems to be gathering;
+T:them, while chanting some sort of dark prayer.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Loroth;
+T:Greetings, <NAME>. Welcome to my summoning ritual! I am in the process;
+T:of summoning the one who will reshape Ivhala!;
+A:I won't let you do that.:0:0:0:1:3:0:0:0:0
+A:Prepare to die for good, Loroth Varos!:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Loroth;
+T:The problem, you see, is that the ritual is already ongoing! There is;
+T:no way for you to stop it. If only the Shan worshippers had sent you;
+T:straight to me, without having you waste your time slaying a small cult;
+T:just to prove yourself worthy of an amulet... Oh, but the protocol;
+T:had to be followed to the letter! Mwhahahaha!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Loroth;
+T:Let me guess. It's that fool Korthrax who sent you to me, correct?;
+T:I do not regret betraying Shan. Shan herself isn't the problem though.;
+T:It's her followers! A bunch of goody-two-shoes-wannabe, who don't;
+T:seem to realize that Shan is an Archfiend, NOT a Goddess! Ryoon followers,;
+T:on the other hand, knows perfectly who the Ghostfather is, and what;
+T:it means to worship him.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Loroth;
+T:It means to sacrifice our body of flesh, and embrace a higher level of;
+T:existance! Why live in flesh and endure pain and hunger? I have ascended;
+T:to the realm of the phantoms, where I feel no pain, no hunger! And I get;
+T:more power than I ever dreamed of! So why? Why are you wasting your time;
+T:protecting the living, when you would do them much more good by letting;
+T:them be turned into ghosts and wights? Tell me!;
+A:I am a protector of the living. And you are insane!:0:0:0:1:6:0:0:0:0
+A:I only do what seems to be the right choice.:0:0:0:1:7:0:0:0:0
+A:I'm not here to protect anyone. It's just that I will be well rewarded.:0:0:0:1:8:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Loroth;
+T:Insane? And you, protector of the living, aren't you insane to be working;
+T:with demons and Archfiend worshippers? Don't tell me you believe those;
+T:lies about Shan being a being of good! She's an Archfiend! What part of it;
+T:do you not understand?? You're just as blind as all her followers!!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Loroth;
+T:What a simple-minded individual you are. For someone as powerful as you,;
+T:I was expecting a more complex personality...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Loroth;
+T:Mwhahahaha! You would make a fine demon worshipper, <NAME>!;
+T:Have you ever considered entering in a cult of Zekis, the Lord of Greed?;
+T:There is no better places in Portralis to get treasures and rewards;
+T:for your work!;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Loroth;
+T:But in any cases, that chaos order's philosophy is similar to ours.;
+T:To alter reality, to make it better. To revive the fallen races, and;
+T:rewrite history. That's why they brought back the orcs into existance.;
+T:That's also why we associated with them. We have a similar vision.;
+T:There is no reasons for Chaos and Darkness not to work together.;
+A:[CONTINUE]:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Loroth;
+T:Well, I believe there is nothing more to tell you. You're here to kill me,;
+T:or die trying, so we shall now fight, and see who has the greatest powers!;
+T:You will never stop our ritual, <NAME>!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -1,0 +1,41 @@
+N:1:0:0:0:0:0
+I: ;
+T:The avatar of the Grey Wight falls on the ground, and it's body starts;
+T:disintegrating itself.;
+A:[CONTINUE]:0:0:0:11:8:2:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Grey Wight;
+T:...I understand now. Balcia was right. You are NOT a mortal. I do not;
+T:know what you are, but a simple mortal you are not.;
+A:I'm glad you realized it!:0:0:0:1:3:0:0:0:0
+A:Or maybe you were overconfident.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Grey Wight;
+T:But you haven't won the battle yet. In fact, the battle has only begun!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:From the disintegrating body, a ghostly form appears. It looks like;
+T:a vaguely humanoid ghost, entirely grey, with one large central;
+T:red eye.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Grey Wight;
+T:My body has been destroyed, but I continue to exist in this world in the;
+T:form of a ghost! I will be waiting for you...;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The ghost disappears through the door. You should now follow it.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

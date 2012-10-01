@@ -589,6 +589,19 @@ static void wr_item(object_type *o_ptr)
 	wr_s16b(o_ptr->tweakpoints);
 	wr_s16b(o_ptr->disabled);
 
+	wr_s16b(o_ptr->event_passive_equipped);
+	wr_s16b(o_ptr->event_passive_carried);
+	wr_s16b(o_ptr->event_passive_floor);
+	wr_s16b(o_ptr->event_pickup);
+	wr_s16b(o_ptr->event_drop);
+	wr_s16b(o_ptr->event_destroy);
+	wr_s16b(o_ptr->event_equip);
+	wr_s16b(o_ptr->event_takeoff);
+	wr_s16b(o_ptr->event_summon);
+	wr_s16b(o_ptr->event_unsummon);
+	wr_s16b(o_ptr->event_spawn);
+	wr_s16b(o_ptr->event_misc);
+
 	wr_s16b(o_ptr->brandtype);
 	wr_s32b(o_ptr->branddam);
 	wr_s16b(o_ptr->brandrad);
@@ -722,6 +735,8 @@ static void wr_lore(int r_idx)
 	wr_s16b(r_ptr->r_deaths);
 	wr_s16b(r_ptr->r_pkills);
 	wr_s16b(r_ptr->r_tkills);
+	wr_s16b(r_ptr->r_ekills);
+	wr_s16b(r_ptr->r_bkills);
 
 	/* Count wakes and ignores */
 	wr_byte(r_ptr->r_wake);
@@ -1296,6 +1311,8 @@ static void wr_extra(void)
         wr_s16b(p_ptr->magic_mode);
         wr_byte(p_ptr->auraon);
         wr_s32b(p_ptr->deathcount);
+	wr_s32b(p_ptr->reincarnations);
+	wr_s32b(p_ptr->secretscleared);
         wr_s16b(p_ptr->guardconfuse);
 	wr_byte(p_ptr->learning);
 	wr_s16b(p_ptr->startx);
@@ -1304,6 +1321,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->cur_hgt);
 	wr_s16b(p_ptr->alignment);
 	wr_s16b(p_ptr->cursed);
+	wr_s16b(p_ptr->inside_secret);
 	wr_s16b(p_ptr->dualwield);
 	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->events[i]);
 	for (i = 0; i < 30000; ++i) wr_s16b(p_ptr->towns[i]);

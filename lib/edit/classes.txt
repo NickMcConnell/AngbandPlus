@@ -186,16 +186,16 @@ K:High Thief:High Thief;
 K:Master Thief:Master Thief;
 K:Assassin:Assassin;
 K:Guildmaster:Guildmistress;
-A:Hide In Shadows:1:1:24:0
-A:Backstabbing:0:0:0:0
-A:Dexterity:0:0:0:0
-A:Thievery:0:0:0:0
-A:Evasion:0:0:0:0
-A:Poison Weapon:1:1:25:0
-A:Gas Trap:1:1:26:0
-A:Poison Trap:1:1:27:0
-A:Spike Trap:1:1:28:0
-A:Rogue Mastery:0:0:0:0
+A:Stealthy Fighter:0:0:0:0
+A:Thievery:1:1:24:1
+A:Rogue Weapons Mastery:0:0:0:0
+A:Swashbuckler:0:1:0:0
+A:Lockpicking:0:1:0:0
+A:Deadly Stalker:0:0:0:0
+A:Art of Poisoning:1:1:25:0
+A:Finishing Blow:1:0:26:1
+A:Stealthy and Cunning:0:0:0:0
+A:Black Market's Bounty Hunter:0:1:0:0
 
 N:Ranger:6:0
 Q:0:0:0:0:0:0
@@ -356,8 +356,9 @@ A:Spell Mastery:0:0:0:0
 # make the required classes require a class level of 11!
 
 N:Elemental Lord:11:1
-Q:20:10:0:0:0:0
+Q:10:10:0:0:0:0
 R:1:3
+R:3:3
 S:25:25:0:0:25:0
 B:12:10
 B:13:10
@@ -375,15 +376,15 @@ K:Champion:Champion;
 K:Lord:Lady;
 K:King:Queen;
 K:Emperor:Empress;
-A:Element Ball:1:1:52:0
-A:Element Strike:1:1:53:1
+A:Element Knight:0:1:0:0
+A:Element Strike:1:0:53:1
 A:Shield of Element:1:1:54:0
-A:Fist of Element:1:1:55:1
+A:Element Weapon:1:1:55:0
 A:Piercing Spells:1:0:13:0
 A:Aura of Element:0:1:0:0
 A:Command Element:1:1:56:0
 A:Wave of Element:1:0:57:0
-A:Absorb Elemental Energy:0:1:0:0
+A:Absorb Elemental Energy:0:0:0:0
 A:Mastery Of Element:0:1:0:0
 
 # Innate learning and auto-switching to monster magics is hard-coded.
@@ -726,9 +727,9 @@ A:Eyes of Misfortune:0:0:0:0
 A:Ghostly Misfortune:0:0:0:0
 A:Hexblaze Strike:1:0:2302:1
 A:Shadow of Misfortune:0:0:0:0
-A:Improved Essences Activation:0:1:0:0
-A:Improved Defense:0:0:0:0
-A:Improved Counters:0:0:0:0
-A:Improved Passive Powers:0:0:0:0
-A:Racial Champion:1:0:113:0
-A:Paragon Elder Monster:0:1:0:0
+A:Restless Dead:0:1:0:0
+A:Thunderglow Shots:1:0:2305:0
+A:Violet Power:0:0:0:0
+A:Light Armored Nightmare:1:0:2307:1
+A:Misfortune Embrace:0:0:0:0
+A:-:0:0:0:0

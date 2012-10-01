@@ -44,7 +44,7 @@
 // Functions on grids.
 // R:(scripted function's name):x:y
 
-N:(47,35);
+N:(45,37);
 I:198:66
 S:99:29
 

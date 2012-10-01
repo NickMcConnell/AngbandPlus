@@ -150,6 +150,7 @@ void do_cmd_go_up(void)
 					{
 						dun_level = 1;
 						p_ptr->inside_quest = 0;
+						p_ptr->inside_secret = 0;
 						p_ptr->startx = c_ptr->eventtype;
 						p_ptr->starty = c_ptr->eventextra;
 						/* Set events */
@@ -165,6 +166,7 @@ void do_cmd_go_up(void)
 				{
 					dun_level = 1;
 					p_ptr->inside_quest = 0;
+					p_ptr->inside_secret = 0;
 					p_ptr->startx = c_ptr->eventtype;
 					p_ptr->starty = c_ptr->eventextra;
 					/* Set events */
@@ -185,6 +187,7 @@ void do_cmd_go_up(void)
                         dun_level--;
 			/* Leave a quest if no event 5 is found... */
 			p_ptr->inside_quest = 0;
+			p_ptr->inside_secret = 0;
 		}
                 else
                 {
@@ -192,6 +195,7 @@ void do_cmd_go_up(void)
                         if (dun_level <= 0) dun_level = 0;
 			/* Leave a quest if no event 5 is found... */
 			p_ptr->inside_quest = 0;
+			p_ptr->inside_secret = 0;
                 }
 		/* If we're in a random dungeon, return to the wilderness */
 		if (dungeon_type == 200 && dun_level <= 0)
@@ -587,7 +591,7 @@ static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
 	
-	bool small;
+	bool gold = FALSE;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -595,20 +599,24 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_type *o_ptr = &o_list[o_idx];
 
 
-	/* Small chests often hold "gold" */
-	small = (o_ptr->sval < SV_CHEST_MIN_LARGE);
+	/* Gold or items? */
+	if (o_ptr->sval == 1 && randint(100) >= 50) gold = TRUE;
 
-	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
-
-	/* Zero pval means empty chest */
-	if (!o_ptr->pval) number = 0;
+	/* Determine how much to drop */
+	if (o_ptr->sval == 6 || o_ptr->sval == 7) number = 1;
+	else if (o_ptr->sval == 4 || o_ptr->sval == 5) number = randint(3) + 2;
+	else if (o_ptr->sval == 3) number = randint(7) + 3;
+	else if (o_ptr->sval == 2) number = randint(4) + 2;
+	else number = rand_int(2) + 1;
 
 	/* Opening a chest */
 	opening_chest = TRUE;
 
+	/* Chest type. */
+	opening_chest_type = o_ptr->sval;
+
 	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
+	object_level = o_ptr->pval;
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -620,7 +628,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		object_wipe(q_ptr);
 
 		/* Small chests often drop gold */
-		if (small && (rand_int(100) < 75))
+		if (gold)
 		{
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
@@ -630,7 +638,14 @@ static void chest_death(int y, int x, s16b o_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(q_ptr, FALSE, FALSE)) continue;
+			if (o_ptr->sval >= 3)
+			{
+				if (!make_object(q_ptr, TRUE, FALSE)) continue;
+			}
+			else
+			{
+				if (!make_object(q_ptr, FALSE, FALSE)) continue;
+			}
 		}
 
 		/* Drop it in the dungeon */
@@ -641,6 +656,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	object_level = dun_level;
 
 	/* No longer opening a chest */
+	opening_chest_type = 0;
 	opening_chest = FALSE;
 
 	/* Empty */
@@ -652,108 +668,97 @@ static void chest_death(int y, int x, s16b o_idx)
 
 
 /*
- * Chests have traps too.
- *
- * Exploding chest destroys contents (and traps).
- * Note that the chest itself is never destroyed.
- */
-static void chest_trap(int y, int x, s16b o_idx)
-{
-        int  trap;
-
-	object_type *o_ptr = &o_list[o_idx];
-
-	bool ident = FALSE;
-
-	/* Ignore disarmed chests */
-	if (o_ptr->pval <= 0) return;
-
-	/* Obtain the trap */
-	trap = o_ptr->pval;
-	
-	/* Message */
-	msg_print("You found a trap!");
-	
-	/* Set off trap */
-	ident = player_activate_trap_type(y, x, o_ptr, o_idx);
-	if (ident)
-	{
-		t_info[o_ptr->pval].ident = TRUE;
-		msg_format("You identified the trap as %s.",
-			   t_name + t_info[trap].name);
-	}
-}
-
-
-/*
  * Attempt to open the given chest at the given location
  *
  * Assume there is no monster blocking the destination
  *
- * Returns TRUE if repeated commands may continue
+ * As of Portralis 0.4, this code has been changed.
+ * there are no more traps on chests, and chests can ACTUALLY be useful!
  */
 static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 {
-	int i, j;
-
-	bool flag = TRUE;
-
-	bool more = FALSE;
-
 	object_type *o_ptr = &o_list[o_idx];
+	int ppower;
+	int cpower;
+
+	/* Already open. */
+	if (o_ptr->pval == 0)
+	{
+		msg_print("This chest is empty.");
+		return (FALSE);
+	}
+
+	/* Attempt to unlock it */
+	if (o_ptr->extra1 >= 1)
+	{
+		msg_print("You've already tried to open this chest.");
+		return (FALSE);
+	}
+
+	ppower = p_ptr->stat_ind[A_DEX] + p_ptr->stat_ind[A_INT];
+	cpower = (o_ptr->pval) * (o_ptr->sval - 1);
+
+	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 4] > 0) ppower = ppower + multiply_divide(ppower, p_ptr->abilities[(CLASS_ROGUE * 10) + 4] * 50, 100);
+
+	/* Magic chests and higher REQUIRES the Lockpicking ability. */
+	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] == 0)
+	{
+		msg_print("You need at least 1 point in Lockpicking to unlock this chest.");
+		return (FALSE);
+	}
+	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 5)
+	{
+		msg_print("You need at least 5 points in Lockpicking to unlock this chest.");
+		return (FALSE);
+	}
+	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 10)
+	{
+		msg_print("You need at least 10 points in Lockpicking to unlock this chest.");
+		return (FALSE);
+	}
+	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] < 10)
+	{
+		msg_print("You need at least 30 points in Lockpicking to unlock this chest.");
+		return (FALSE);
+	}
+
+	/* Must have enough power. */
+	if (ppower < cpower)
+	{
+		msg_format("You need %d dex+int to attempt to open this chest. Current power: %d", cpower, ppower);
+		return (FALSE);
+	}
+
+	/* Guaranteed success rate? */
+	if (o_ptr->sval == 2 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 10) cpower = 0;
+	if (o_ptr->sval == 3 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 20) cpower = 0;
+	if (o_ptr->sval == 4 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 40) cpower = 0;
+	if (o_ptr->sval == 5 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 50) cpower = 0;
+	if (o_ptr->sval == 6 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 75) cpower = 0;
+	if (o_ptr->sval == 7 && p_ptr->abilities[(CLASS_ROGUE * 10) + 4] >= 100) cpower = 0;
+
+	if (randint(ppower) >= randint(cpower))
+	{
+		/* Let the Chest drop items */
+		chest_death(y, x, o_idx);
+		do_cmd_save_game();
+	}
+	else
+	{
+		o_ptr->extra1 = 1;
+		do_cmd_save_game();
+		msg_print("You've failed to open this chest.");
+		return (FALSE);
+	}
+
+	opening_chest = FALSE;
+	opening_chest_type = 0;
 
 	/* Take a turn */
 	energy_use = 100;
-
-	/* Attempt to unlock it */
-	if (o_ptr->pval > 0)
-	{
-		/* Assume locked, and thus not open */
-		flag = FALSE;
-
-		/* Get the "disarm" factor */
-                i = p_ptr->stat_ind[A_DEX];
-
-		/* Penalize some conditions */
-		if (p_ptr->blind || no_lite()) i = i / 10;
-		if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-		/* Extract the difficulty */
-		j = i - o_ptr->pval;
-
-		/* Always have a small chance of success */
-		if (j < 2) j = 2;
-
-		/* Success -- May still have traps */
-		if (rand_int(100) < j)
-		{
-			msg_print("You have picked the lock.");
-			gain_exp(1);
-			flag = TRUE;
-		}
-
-		/* Failure -- Keep trying */
-		else
-		{
-			/* We may continue repeating */
-			more = TRUE;
-			if (flush_failure) flush();
-			msg_print("You failed to pick the lock.");
-		}
-	}
-
-	/* Allowed to open */
-	if (flag)
-	{
-		/* Apply chest traps, if any */
-		chest_trap(y, x, o_idx);
-
-		/* Let the Chest drop items */
-		chest_death(y, x, o_idx);
-	}
 	
 	/* Result */
-	return (more);
+	return (FALSE);
 }
 
 
@@ -2052,84 +2057,6 @@ bool easy_open_door(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
-{
-	int i, j;
-
-	bool more = FALSE;
-
-	object_type *o_ptr = &o_list[o_idx];
-	trap_type *t_ptr;
-
-        t_ptr = &t_info[o_ptr->pval];
-
-	/* Take a turn */
-	energy_use = 100;
-
-	/* Get the "disarm" factor */
-        i = p_ptr->stat_ind[A_DEX];
-
-	/* Penalize some conditions */
-	if (p_ptr->blind || no_lite()) i = i / 10;
-	if (p_ptr->confused || p_ptr->image) i = i / 10;
-
-	/* Extract the difficulty */
-	j = i - t_ptr->difficulty * 3;
-
-	/* Always have a small chance of success */
-	if (j < 2) j = 2;
-
-	/* Must find the trap first. */
-	if (!object_known_p(o_ptr))
-	{
-		msg_print("I don't see any traps.");
-	}
-
-	/* Already disarmed/unlocked */
-	else if (o_ptr->pval <= 0)
-	{
-		msg_print("The chest is not trapped.");
-	}
-
-	/* Success (get a lot of experience) */
-	else if (rand_int(100) < j)
-	{
-		msg_print("You have disarmed the chest.");
-		gain_exp(t_ptr->difficulty * 3);
-		o_ptr->pval = (0 - o_ptr->pval);
-	}
-
-	/* Failure -- Keep trying */
-	else if ((i > 5) && (randint(i) > 5))
-	{
-		/* We may keep trying */
-		more = TRUE;
-		if (flush_failure) flush();
-		msg_print("You failed to disarm the chest.");
-	}
-
-	/* Failure -- Set off the trap */
-	else
-	{
-		msg_print("You set off a trap!");
-		sound(SOUND_FAIL);
-		chest_trap(y, x, o_idx);
-	}
-
-	/* Result */
-	return (more);
-}
-
-
-/*
- * Perform the basic "disarm" command
- *
- * Assume destination is a visible trap
- *
- * Assume there is no monster blocking the destination
- *
- * Returns TRUE if repeated commands may continue
- */
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
 bool do_cmd_disarm_aux(int y, int x, int dir)
@@ -2332,13 +2259,6 @@ void do_cmd_disarm(void)
 			/* Attack */
                         /*py_attack(y, x, -1);*/
 			call_lua("py_attack", "(ddd)", "", y, x, -1);
-		}
-
-		/* Disarm chest */
-		else if (o_idx)
-		{
-			/* Disarm the chest */
-			more = do_cmd_disarm_chest(y, x, o_idx);
 		}
 
 		/* Disarm trap */
@@ -4000,9 +3920,14 @@ void do_cmd_steal()
 
         if(item != -1)
         {
-                int stealmod = p_ptr->abilities[(CLASS_ROGUE + 10) + 3] / 3;
+		int ppower;
+		int mpower;
+
+		ppower = p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * (20 + multiply_divide(p_ptr->skill[6], 3, 100) + multiply_divide(p_ptr->stat_ind[A_DEX], 3, 100));
+		mpower = m_ptr->dex + m_ptr->level;
+
                 /* Failure check */
-                if(rand_int((40 - p_ptr->stat_ind[A_DEX] - stealmod) + (o_list[item].weight / ((p_ptr->pclass == CLASS_ROGUE)?30:5)) + ((p_ptr->pclass != CLASS_ROGUE)?25:0) - ((m_ptr->csleep)?10:0) + r_info[m_ptr->r_idx].level) > 10)
+                if (randint(ppower) < randint(mpower))
                 {
                         /* Take a turn */
                         energy_use = 100;
@@ -4010,28 +3935,18 @@ void do_cmd_steal()
                         /* Wake up */
                         m_ptr->csleep = 0;
 
-                        /* Speed up because monsters are ANGRY when you try to thief them */
-                        m_ptr->mspeed += 5;
-
                         screen_load();
 
-                        msg_print("Oops ! The monster is now really *ANGRY*.");
+                        msg_print("You have failed to steal the item!");
 
                         return;
                 }
-
+		
                 /* Reconnect the objects list */
                 if(k > 0) o_list[monst_list[k - 1]].next_o_idx = monst_list[k + 1];
-                if(k + 1 >= num) o_list[monst_list[k - 1]].next_o_idx = 0;
+                if(k + 1 >= num && !(k == 0 && num == 1)) o_list[monst_list[k - 1]].next_o_idx = 0;
                 if(k == 0) m_ptr->hold_o_idx = monst_list[k + 1];
                 if(num == 1) m_ptr->hold_o_idx = 0;
-
-                /* Rogues gain some xp */
-                if(p_ptr->pclass == CLASS_ROGUE)
-                {
-                        gain_exp((randint((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2) + (((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2));
-                        if(get_check("Phase door now ?")) teleport_player(10);
-                }
 
                 /* Get the item */
                 o_ptr = &forge;
@@ -4040,7 +3955,7 @@ void do_cmd_steal()
                 if(o_list[item].tval == TV_GOLD)
                 {
                         /* Collect the gold */
-                        p_ptr->au += o_list[item].pval;
+                        p_ptr->au += o_list[item].pval + multiply_divide(o_list[item].pval, p_ptr->abilities[(CLASS_ROGUE * 10) + 1] * 20, 100);
   
                         /* Redraw gold */
                         p_ptr->redraw |= (PR_GOLD);
@@ -4052,6 +3967,8 @@ void do_cmd_steal()
                 {
                         object_copy(o_ptr, &o_list[item]);
 
+			call_lua("stolen_item_enhance", "O", "", o_ptr);
+
                         inven_carry(o_ptr, FALSE);
                 }
 
@@ -4060,6 +3977,7 @@ void do_cmd_steal()
         }
 
         screen_load();
+	do_cmd_redraw();
 
 	/* Take a turn */
 	energy_use = 100;
@@ -4809,10 +4727,7 @@ void use_hardcode_ability(int powernum)
 		
 		case 24:
 		{
-			int invpower = p_ptr->abilities[(CLASS_ROGUE * 10)] + 10;
-                        (void)set_invis(invpower, invpower);
-                        p_ptr->ac_boost = p_ptr->abilities[(CLASS_ROGUE * 10)] * 25;
-                        (void)set_ac_boost(invpower);
+			do_cmd_steal();
                         energy_use = 100;
 			break;
 		}
@@ -5072,11 +4987,31 @@ void use_hardcode_ability(int powernum)
 		}
 		case 55:
 		{
-			s32b mdam;
-			call_lua("monk_damages", "", "l", &mdam);
-			mdam += multiply_divide(mdam, ((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] - 1) * 10), 100);
-                        if (!get_rep_dir(&dir)) return;
-                        chain_attack(dir, p_ptr->elemlord, mdam, p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 3] / 30, 1);
+			int item;
+        		object_type             *o_ptr;
+        		cptr q, s;
+        		u32b f1, f2, f3, f4;
+
+        		/* Restrict choices to melee weapons */
+        		item_tester_tval = TV_WEAPON;
+
+        		/* Get an item */
+        		q = "Enchant which weapon? ";
+        		s = "You have no valid weapons!";
+        		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+
+        		/* Get the item (in the pack) */
+        		if (item >= 0)
+        		{
+                		o_ptr = &inventory[item];
+        		}
+        		/* Get the item (on the floor) */
+        		else
+        		{
+                		o_ptr = &o_list[0 - item];
+        		}
+        		msg_print("Damages type changed to your element!");
+        		o_ptr->extra1 = p_ptr->elemlord;
                         energy_use = 100;
 			break;
 		}

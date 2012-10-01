@@ -315,6 +315,19 @@ struct object_kind
 	s16b reflect;
 	s16b cursed;
 
+	s16b event_passive_equipped;
+	s16b event_passive_carried;
+	s16b event_passive_floor;
+	s16b event_pickup;
+	s16b event_drop;
+	s16b event_destroy;
+	s16b event_equip;
+	s16b event_takeoff;
+	s16b event_summon;
+	s16b event_unsummon;
+	s16b event_spawn;
+	s16b event_misc;
+
 	monster_spell spell[20];
 
 };
@@ -391,6 +404,19 @@ struct artifact_type
 	s16b extra5;
 	s16b reflect;
 	s16b cursed;
+
+	s16b event_passive_equipped;
+	s16b event_passive_carried;
+	s16b event_passive_floor;
+	s16b event_pickup;
+	s16b event_drop;
+	s16b event_destroy;
+	s16b event_equip;
+	s16b event_takeoff;
+	s16b event_summon;
+	s16b event_unsummon;
+	s16b event_spawn;
+	s16b event_misc;
 
 	monster_spell spell[20];
 };
@@ -532,6 +558,8 @@ struct monster_race
 
 	s16b r_pkills;			/* Count monsters killed in this life */
 	s16b r_tkills;			/* Count monsters killed in all lives */
+	s16b r_ekills;                  /* Elite kills. */
+	s16b r_bkills;                  /* Boss killes. */
 
 	byte r_wake;			/* Number of times woken up (?) */
 	byte r_ignore;			/* Number of times ignored (?) */
@@ -813,6 +841,19 @@ struct object_type
 	s16b tweakpoints;
 
 	s16b disabled;
+
+	s16b event_passive_equipped;
+	s16b event_passive_carried;
+	s16b event_passive_floor;
+	s16b event_pickup;
+	s16b event_drop;
+	s16b event_destroy;
+	s16b event_equip;
+	s16b event_takeoff;
+	s16b event_summon;
+	s16b event_unsummon;
+	s16b event_spawn;
+	s16b event_misc;
 
 	byte discount;		/* Discount (if any) */
 
@@ -1501,6 +1542,8 @@ struct player_type
         /* Death count! */
         /* Note I made it a 32b value. You will NEED that much! :) */
         s32b deathcount;
+	s32b reincarnations;
+	s32b secretscleared;
 
         /* Great guard counter */
         s16b guardconfuse;
@@ -1542,6 +1585,9 @@ struct player_type
 
 	/* How cursed you are. */
 	s16b cursed;
+
+	/* Inside a secret level. */
+	s16b inside_secret;
 
 	/* Have the towns changed? */
 	s16b towns[30000];
@@ -1808,6 +1854,10 @@ struct dungeon_info_type {
 
         byte special_percent;           /* % of monsters affected by the flags/races allowed, to add some variety */
 	s16b quest;	/* "Quest" level at the end of the dungeon. */
+	s16b secret; /* Secret level at the end. */
+	s16b secretitem; /* Item required to open it. */
+	s16b secretevent; /* Event associated with the secret level. */
+	s16b secretintro; /* Intro text when entering the level. */
 };
 
 /* A structure for inscriptions */

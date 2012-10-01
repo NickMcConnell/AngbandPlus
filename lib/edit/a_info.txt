@@ -16,6 +16,7 @@ V:2.8.1
 # T:(stat):(bonus)   -- Can have many stats lines.
 # K:(skill):(bonus)  -- Can have many skills lines.
 # U:(itemtype):(itemskill):(extrablows):(extrashots):(speedbonus):(lifebonus):(manabonus):(infra):(spellbonus):(invis):(light):(extra1):(extra2):(extra3):(extra4):(extra5)
+# Z:(passive equipped):(passive carried):(passive floor):(pickup):(drop):(destroy):(equip):(takeoff):(summon):(unsummon):(spawn):(misc)
 
 # Note: stats and skills numbers starts at 0.
 # STATS:
@@ -232,9 +233,9 @@ R:2:25
 T:3:2
 U:0:15:0:0:0:0:0:0:0:0:0:23:0:0:0:0:0:0
 F:ETERNAL | ACTIVATE
-S:Type change, Physical:9:3:0:0:0:0:0
-S:Type change, Cold:9:4:0:0:0:0:0
-S:Type change, Ice:9:5:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Cold:10:2:0:0:0:0:0
+S:Type change, Ice:10:23:0:0:0:0:0
 D:The blade of this dagger is actually solid ice that deals chilling blows 
 D:to enemies.
 
@@ -278,8 +279,8 @@ R:5:25
 T:3:2
 U:0:16:0:0:2:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:ETERNAL | ACTIVATE
-S:Type change, Poison:9:6:0:0:0:0:0
-S:Type change, Physical:9:3:0:0:0:0:0
+S:Type change, Poison:10:5:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
 D:A posion-covered battle axe that delivers quick, painful and poisonous 
 D:blows, hence it's name Barbarian Viper.
 
@@ -454,8 +455,8 @@ T:4:15
 K:29:20
 U:0:29:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
 F:LEVELS | ETERNAL | ACTIVATE
-S:Type change, Physical:9:3:0:0:0:0:0
-S:Type change, Fire:9:8:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Fire:10:1:0:0:0:0:0
 D:A Mithril pickaxe with an handle made of runed volcanic rock. The runic scripture 
 D:seems to be of dwarven origin, although it is not contemporary dwarven tongue. 
 D:It could be that this pickaxe was crafted by an ancient dwarven clan who used to 
@@ -497,16 +498,16 @@ D:have anything to do with alchemy.
 N:33:'Blood Blade'
 I:21:104:0
 W:45:30:80:300000
-P:20:10d14:150:150:0
+P:20:15d25:150:150:0
 T:0:20
 T:3:20
 K:5:20
 K:12:30
 U:0:12:5:0:20:0:0:0:0:0:0:0:0:0:0:0:0:120
 F:LEVELS | ETERNAL | COULD2H | SPECIAL_GENE | ACTIVATE
-S:Type change, Physical:9:3:0:0:0:0:0
-S:Type change, Fire:9:8:0:0:0:0:0
-S:Type change, Darkness:9:9:0:0:0:0:0
+S:Type change, Physical:10:15:0:0:0:0:0
+S:Type change, Fire:10:1:0:0:0:0:0
+S:Type change, Darkness:10:7:0:0:0:0:0
 D:This mithril katana has a dark red blade. As battles intensifies, blood will spill from the blade 
 D:itself, and this cursed blood will awaken the killing instincts of it's wielder.
 
@@ -546,6 +547,51 @@ S:Summon Demons:6:50:10:20:0:u:100
 D:A pair of magical bracers enchanted with both light and darkness. They allow the wearer 
 D:to summon both celestials and demons, and make him or her much more apt at controlling 
 D:them effectively.
+
+# Rod of Spirit Trapping 'Gin'Whal'
+N:36:'Gin'Whal'
+I:66:19:0
+W:50:60:30:75000
+P:0:4d8:50:50:0
+R:1:25
+R:10:25
+T:1:15
+T:2:15
+U:0:17:0:0:0:0:40:0:30:0:0:0:0:0:0:0:0:0
+F:ACTIVATE | LEVELS | SPECIAL_GENE | ETERNAL | RES_FEAR
+S:Fire Ball:2:100:1:3:0:0:0
+S:Storm:2:100:10:3:0:0:0
+S:Summon Spirits/Elementals:6:40:5:20:0:E:40
+D:The Rod of Spirit Trapping has been imbued with fire and wind, and the spirits 
+D:inside of it are more powerful than ever. Spells cast with this rod will be 
+D:very deadly.
+
+# The REAL Amulet of Golden Truth! :)
+N:37:of Golden Truth 'Shan's Blessing'
+I:40:38:0
+W:60:30:2:200000
+P:20:1d1:100:100:0
+R:2:25
+R:6:25
+T:0:20
+T:1:20
+T:2:20
+T:3:20
+T:4:20
+T:5:20
+K:27:20
+U:0:0:0:0:0:0:0:0:0:0:5:0:0:0:0:0:0:0
+F:ETERNAL | LEVELS | ACTIVATE | SPECIAL_GENE
+F:RES_CONF | RES_FEAR | HOLD_LIFE | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX
+F:SUST_CON | SUST_CHR | RES_BLIND | SAFETY
+S:Healing:3:10000:0:0:0:0:100
+S:Summon Icarnation:7:2115:1:20:0:0:100
+S:Summon Ice Drake:7:2121:1:20:0:0:100
+D:Amulets of Golden Truth are given to followers of Shan. However, rarely 
+D:are they given something as powerful as what you are currently looking at. 
+D:You are not an official follower of Shan, yet you have been given this 
+D:magnificient relic as a reward for your victory over the Grey Wight and 
+D:Balcia.
 
 # The template for artifacts corpses
 

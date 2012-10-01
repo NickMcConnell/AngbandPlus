@@ -99,9 +99,9 @@ function make_item_magic (item, itemlevel, special)
 		item.tweakpoints = 2
 	end
 
-	-- If Chargeable, there is a tiny chance of it becoming special.
+	-- If levelable, there is a tiny chance of it becoming special.
 	-- Bonuslevel must also be at least 80.
-	if ((get_object_flag4(item, TR4_LEVELS) and bonuslevel >= 80 and item.cursed == 0 and crappy == 0 and lua_randint(500) <= 5) or (special) or (fate_item_modifier == 4 and p_ptr.events[29007] == 1) or (p_ptr.events[29025] == 1)) then
+	if ((get_object_flag4(item, TR4_LEVELS) and bonuslevel >= 80 and item.cursed == 0 and crappy == 0 and dun_level > 0 and lua_randint(500) <= 5) or (special) or (fate_item_modifier == 4 and p_ptr.events[29007] == 1) or (p_ptr.events[29025] == 1)) then
 
 		local rndval
 		local rndval2
@@ -175,7 +175,7 @@ function make_item_magic (item, itemlevel, special)
 	-- They won't be generated in towns. So black markets won't sell them.
 	-- Specials will never become cursed.
 	-- And there is no such thing such as a "crappy" cursed item.
-	if (((bonuslevel >= 20 and lua_randint(100) <= (5 + cursebadluck)) and (isspecial == 0) and (magicitemscroll == 0) and (crappy == 0) and (dun_level > 0)) or (forcecurse == 1) or (p_ptr.events[29024] == 1)) then
+	if (((bonuslevel >= 20 and lua_randint(100) <= (5 + cursebadluck)) and (isspecial == 0) and (magicitemscroll == 0) and (crappy == 0) and (dun_level > 0)) or (forcecurse == 1) or (p_ptr.events[29024] == 1) or (opening_chest and opening_chest_type == 5)) then
 
 		item.cursed = lua_randint(bonuslevel) + (itemlevel / 4)
 
@@ -248,7 +248,8 @@ function make_item_magic (item, itemlevel, special)
 			if (amt <= 0) then amt = 1 end
 
 			-- Special items are always 'themed' with your character.
-			if (isspecial == 1) then
+			-- Some cursed items with high misfortune also benefits from this.
+			if ((isspecial == 1) or (item.cursed >= kind(item).level)) then
 
 				local a
 				local b
@@ -599,6 +600,74 @@ function make_item_magic (item, itemlevel, special)
 			end
 			if (newdam > item.branddam) then item.branddam = newdam end
 		end
+
+		-- Special and Cursed weapons may gain a "type change" activation, if they don't already have something.
+		-- Specials always gain one, while cursed needs a high misfortune level.
+		-- Rods do not gain one, as they already have their magic activations.
+		-- Non-physical weapons will not get one either.
+		if (((isspecial == 1) or (item.cursed >= kind(item).level)) and (item.spell[1].type == 0) and not(item.tval == TV_ROD) and (item.extra1 == GF_PHYSICAL or item.extra1 == 0)) then
+
+			local typechange
+
+			typechange = 0
+
+			-- Give "ACTIVATE" flag.
+			give_object_flag3(item, TR3_ACTIVATE)
+
+			-- Get an element.
+			while (typechange == 0 or typechange == GF_PHYSICAL) do
+
+				if (isspecial == 1) then
+
+					typechange = lua_randint(20)
+				else
+
+					if (item.cursed >= 80) then
+
+						typechange = lua_randint(20)
+					elseif (item.cursed >= 40) then
+
+						typechange = lua_randint(19)
+					else
+
+						typechange = lua_randint(12)
+					end
+				end
+
+				if (typechange == 16) then
+
+					typechange = GF_FROSTFIRE
+				end
+				if (typechange == 17) then
+
+					typechange = GF_GREY
+				end
+				if (typechange == 18) then
+
+					typechange = GF_TOXIC
+				end
+				if (typechange == 19) then
+
+					typechange = GF_ICE
+				end
+				if (typechange == 20) then
+
+					typechange = GF_ELEMENTAL
+				end
+			end
+
+			-- Build the first activation.
+			item.spell[1].name = string.format('Type change, %s', get_element_name(typechange))
+			item.spell[1].type = 10
+			item.spell[1].power = typechange
+			item.spell[1].cost = 0
+
+			-- A second activation to revert to Physical.
+			item.spell[2].name = string.format('Type change, Physical')
+			item.spell[2].type = 10
+			item.spell[2].power = 15
+			item.spell[2].cost = 0
+		end
 	end
 
 	-- Anything that has base AC can get a bonus.
@@ -830,9 +899,9 @@ function read_scroll (scroll)
 		map_area()
 	end
 
-	-- Trap Detection.
+	-- Chests Detection.
 	if (scroll.sval == 10) then
-		detect_traps()
+		detect_chests()
 	end
 
 	-- Word of Recall.
@@ -924,6 +993,28 @@ function read_scroll (scroll)
 
 		give_object_flag4(item, TR4_CRAFTED)
 		msg_print("This item is now treated as an enchanted crafted item!")
+	end
+
+	-- Instant Item Level Up
+	if (scroll.sval == 21) then
+
+		local item
+		local i
+
+		item = lua_pick_item(0)
+
+		if (not(item)) then return 0 end
+
+		if (not(get_object_flag4(item, TR4_LEVELS))) then
+
+			msg_print("You must choose a levelable item.")
+			return 0
+		end
+
+		for i = item.level, (p_ptr.lev-1) do
+
+			object_gain_level(item)
+		end
 	end
 
 
@@ -1938,6 +2029,347 @@ function mining_treasures (x, y, feat)
 	end
 end
 
+-- Pretty much identical to "Divine Item". Just uses different ability and skill!
+function stolen_item_enhance (item)
+
+	local power
+	local i
+
+	-- This condition is to check if we actually selected an item.
+	if (item) then
+
+		-- Check if the item is identified.
+		if (not(is_identified(item))) then
+
+			-- "power" based on Diviner's ability.
+			power = lua_randint(p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2) + (p_ptr.abilities[(CLASS_ROGUE * 10) + 2] / 2)
+			power = power * 3
+
+			-- Power can never exceed half of your Stealth skill.
+			if (power > (p_ptr.skill[7] / 2)) then power = p_ptr.skill[7] / 2 end
+
+			-- Give abilities.
+			-- Code is heavily based on objects.lua, "make_item_magic" function.
+			i = 0
+
+			-- Some items may skip that part.
+			if (item.tval == TV_BOOMERANG or not(divinable(item))) then i = power end
+
+			-- Artifacts gains no additional powers.
+			if (item.name1 > 0) then i = power end
+
+			while (i < power) do
+
+				local btype
+				local amt
+				local whichone
+				local misctype
+
+				-- Roll for what type of bonus it will be.
+				btype = lua_randint(100)
+
+				-- A resistances bonus.
+				if (btype >= 80) then
+
+					-- Determine a random amount.
+					amt = lua_randint(power - i)
+
+					amt = amt / 3
+
+					if (amt > 100) then amt = 100 end
+
+					-- Give resistances to elements 1 to 15.
+					whichone = lua_randint(15)
+					item.resistances[whichone+1] = item.resistances[whichone+1] + amt
+					if (item.resistances[whichone+1] > 100) then item.resistances[whichone+1] = 100 end
+
+					-- Increase i.
+					i = i + (amt * 1)
+
+				-- A stats bonus.
+				elseif (btype >= 60) then
+
+					-- Random amount.
+					amt = lua_randint(power - i)
+
+					amt = amt / 5
+					if (amt <= 0) then amt = 1 end
+
+					-- Apply it to a random stat.
+					whichone = lua_randint(6)
+					item.statsbonus[whichone] = item.statsbonus[whichone] + amt
+
+					-- Increase i.
+					i = i + (amt * 10)
+
+				-- A skills bonus.
+				elseif (btype >= 40) then
+
+					-- Random amount.
+					amt = lua_randint(power - i)
+
+					amt = amt / 5
+					if (amt <= 0) then amt = 1 end
+
+					-- Apply it to a random skill.
+					whichone = lua_randint(28)
+
+					-- phlinn's code snippet.
+					if (item.tval == TV_WEAPON or item.tval == TV_ROD or item.tval == TV_RANGED) then
+						if (whichone >= 13 and whichone <= 22) then 
+							whichone = item.itemskill + 1
+						end
+					end
+
+					item.skillsbonus[whichone] = item.skillsbonus[whichone] + amt
+
+					-- Increase i.
+					i = i + (amt * 10)
+
+				-- A misc bonus.
+				elseif (btype >= 20) then
+
+					-- What type of "misc" bonus do you get.
+					if (item.tval == TV_ROD or item.tval == TV_ARM_BAND) then misctype = lua_randint(6)
+					else misctype = lua_randint(5) end
+
+					-- The amount of "i" that it costs depends on the bonus you get.
+
+					-- Extra blows.
+					if (misctype == 1) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						amt = amt / 8
+						if (amt <= 0) then amt = 1 end
+
+						-- Apply it.
+						item.extrablows = item.extrablows + amt
+
+						-- Increase i.
+						i = i + (amt * 12)
+					end
+
+					-- Speed bonus.
+					if (misctype == 2) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						amt = amt / 6
+						if (amt <= 0) then amt = 1 end
+
+						-- Apply it.
+						item.speedbonus = item.speedbonus + amt
+
+						-- Increase i.
+						i = i + (amt * 10)
+					end
+
+					-- Life bonus.
+					if (misctype == 3) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						-- Apply it.
+						item.lifebonus = item.lifebonus + amt
+
+						-- Increase i.
+						i = i + amt
+					end
+
+					-- Light
+					if (misctype == 4) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						amt = amt / 5
+						if (amt <= 0) then amt = 1 end
+
+						-- Light NEVER exceeds 5.
+						if (amt > 5) then amt = 5 end
+						amt = amt - item.light
+
+						-- Apply it.
+						item.light = item.light + amt
+
+						-- Increase i.
+						i = i + amt
+					end
+
+					-- Reflection.
+					if (misctype == 5) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						-- Apply it.
+						item.reflect = item.reflect + amt
+
+						-- Increase i.
+						i = i + amt
+					end
+
+					-- Mana bonus.
+					if (misctype == 6) then
+
+						-- Random amount.
+						amt = lua_randint(power - i)
+
+						-- Apply it.
+						item.manabonus = item.manabonus + amt
+
+						-- Increase i.
+						i = i + amt
+					end
+
+				-- Gain a flag.
+				else
+
+					-- Pick a flag
+					if (p_ptr.abilities[(CLASS_DIVINER * 10) + 1] >= 10) then
+						misctype = lua_randint(15)
+					elseif (p_ptr.abilities[(CLASS_DIVINER * 10) + 1] >= 5) then
+						misctype = lua_randint(14)
+					else misctype = lua_randint(13) end
+
+					-- Give the flag. i cost varies per flags.
+
+					-- Resist fear.
+					if (misctype == 1 and not(get_object_flag2(item, TR2_RES_FEAR))) then
+
+						give_object_flag2(item, TR2_RES_FEAR)
+						i = i + 5
+					end
+
+					-- Resist conf.
+					if (misctype == 2 and not(get_object_flag2(item, TR2_RES_CONF))) then
+
+						give_object_flag2(item, TR2_RES_CONF)
+						i = i + 15
+					end
+
+					-- Resist blind.
+					if (misctype == 3 and not(get_object_flag2(item, TR2_RES_BLIND))) then
+
+						give_object_flag2(item, TR2_RES_BLIND)
+						i = i + 5
+					end
+
+					-- Hold life.
+					if (misctype == 4 and not(get_object_flag2(item, TR2_HOLD_LIFE))) then
+
+						give_object_flag2(item, TR2_HOLD_LIFE)
+						i = i + 10
+					end
+
+					-- Safety.
+					if (misctype == 5 and not(get_object_flag4(item, TR4_SAFETY))) then
+
+						give_object_flag4(item, TR4_SAFETY)
+						i = i + 15
+					end
+
+					-- Sustain Strength.
+					if (misctype == 6 and not(get_object_flag2(item, TR2_SUST_STR))) then
+
+						give_object_flag2(item, TR2_SUST_STR)
+						i = i + 5
+					end
+
+					-- Sustain Intelligence.
+					if (misctype == 7 and not(get_object_flag2(item, TR2_SUST_INT))) then
+
+						give_object_flag2(item, TR2_SUST_INT)
+						i = i + 5
+					end
+
+					-- Sustain Wisdom.
+					if (misctype == 8 and not(get_object_flag2(item, TR2_SUST_WIS))) then
+
+						give_object_flag2(item, TR2_SUST_WIS)
+						i = i + 5
+					end
+
+					-- Sustain Dexterity.
+					if (misctype == 9 and not(get_object_flag2(item, TR2_SUST_DEX))) then
+
+						give_object_flag2(item, TR2_SUST_DEX)
+						i = i + 5
+					end
+
+					-- Sustain Constitution.
+					if (misctype == 10 and not(get_object_flag2(item, TR2_SUST_CON))) then
+
+						give_object_flag2(item, TR2_SUST_CON)
+						i = i + 5
+					end
+
+					-- Sustain Charisma.
+					if (misctype == 11 and not(get_object_flag2(item, TR2_SUST_CHR))) then
+
+						give_object_flag2(item, TR2_SUST_CHR)
+						i = i + 5
+					end
+
+					-- Telepathy.
+					if (misctype == 12 and not(get_object_flag3(item, TR3_TELEPATHY))) then
+
+						give_object_flag3(item, TR3_TELEPATHY)
+						i = i + 15
+					end
+
+					-- Regen.
+					if (misctype == 13 and not(get_object_flag3(item, TR3_REGEN))) then
+
+						give_object_flag3(item, TR3_REGEN)
+						i = i + 10
+					end
+
+					-- Eternal.
+					if (misctype == 14 and not(get_object_flag4(item, TR4_ETERNAL))) then
+
+						give_object_flag4(item, TR4_ETERNAL)
+						i = i + 20
+					end
+
+					-- Levels.
+					if (misctype == 15 and not(get_object_flag4(item, TR4_LEVELS))) then
+
+						give_object_flag4(item, TR4_LEVELS)
+						item.level = 1
+						item.kills = 0
+						item.tweakpoints = item.tweakpoints + 2
+						i = i + 50
+					end
+				end
+
+			end
+
+			-- Improve the base AC, base damages, to_h, to_d, etc...
+			if (not(item.name1 > 0) and divinable(item)) then
+				item.dd = item.dd + ((item.dd * (power / 3)) / 100)
+				item.ds = item.ds + ((item.ds * (power / 3)) / 100)
+				item.ac = item.ac + ((item.ac * (power / 3)) / 100)
+				item.to_h = item.to_h + lua_randint(power / 3)
+				item.to_d = item.to_d + lua_randint(power / 3)
+				item.to_a = item.to_a + lua_randint(power / 3)
+
+				-- Give a flag to mark is as a magic item.
+				give_object_flag4(item, TR4_ENCHANTED)
+			end
+
+			-- Fully identify the item.
+			identify_fully_specific(item)
+		else
+			msg_print("This item is already identified.")
+		end
+	end
+end
+
 add_event_handler("make_item_magic", make_item_magic)
 add_event_handler("zap_rod", zap_rod)
 add_event_handler("read_scroll", read_scroll)
@@ -1949,3 +2381,4 @@ add_event_handler("prepare_rods_activations", prepare_rods_activations)
 add_event_handler("prepare_essence", prepare_essence)
 add_event_handler("object_skill_points_value", object_skill_points_value)
 add_event_handler("mining_treasures", mining_treasures)
+add_event_handler("stolen_item_enhance", stolen_item_enhance)

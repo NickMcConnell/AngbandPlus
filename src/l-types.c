@@ -1,6 +1,6 @@
 /*
 ** Lua binding: types
-** Generated automatically by tolua 5.0a on 05/24/09 20:03:29.
+** Generated automatically by tolua 5.0a on 01/03/10 14:05:14.
 */
 
 #ifndef __cplusplus
@@ -3723,6 +3723,331 @@ static int tolua_set_object_kind_reflect(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: cursed of class  object_kind */
+static int tolua_get_object_kind_cursed(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cursed'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->cursed);
+ return 1;
+}
+
+/* set function: cursed of class  object_kind */
+static int tolua_set_object_kind_cursed(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cursed'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->cursed = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_equipped of class  object_kind */
+static int tolua_get_object_kind_event_passive_equipped(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_equipped);
+ return 1;
+}
+
+/* set function: event_passive_equipped of class  object_kind */
+static int tolua_set_object_kind_event_passive_equipped(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_equipped = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_carried of class  object_kind */
+static int tolua_get_object_kind_event_passive_carried(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_carried);
+ return 1;
+}
+
+/* set function: event_passive_carried of class  object_kind */
+static int tolua_set_object_kind_event_passive_carried(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_carried = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_floor of class  object_kind */
+static int tolua_get_object_kind_event_passive_floor(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_floor);
+ return 1;
+}
+
+/* set function: event_passive_floor of class  object_kind */
+static int tolua_set_object_kind_event_passive_floor(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_floor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_pickup of class  object_kind */
+static int tolua_get_object_kind_event_pickup(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_pickup);
+ return 1;
+}
+
+/* set function: event_pickup of class  object_kind */
+static int tolua_set_object_kind_event_pickup(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_pickup = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_drop of class  object_kind */
+static int tolua_get_object_kind_event_drop(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_drop);
+ return 1;
+}
+
+/* set function: event_drop of class  object_kind */
+static int tolua_set_object_kind_event_drop(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_drop = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_destroy of class  object_kind */
+static int tolua_get_object_kind_event_destroy(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_destroy);
+ return 1;
+}
+
+/* set function: event_destroy of class  object_kind */
+static int tolua_set_object_kind_event_destroy(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_destroy = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_equip of class  object_kind */
+static int tolua_get_object_kind_event_equip(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_equip);
+ return 1;
+}
+
+/* set function: event_equip of class  object_kind */
+static int tolua_set_object_kind_event_equip(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_equip = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_takeoff of class  object_kind */
+static int tolua_get_object_kind_event_takeoff(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_takeoff);
+ return 1;
+}
+
+/* set function: event_takeoff of class  object_kind */
+static int tolua_set_object_kind_event_takeoff(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_takeoff = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_summon of class  object_kind */
+static int tolua_get_object_kind_event_summon(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_summon);
+ return 1;
+}
+
+/* set function: event_summon of class  object_kind */
+static int tolua_set_object_kind_event_summon(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_summon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_unsummon of class  object_kind */
+static int tolua_get_object_kind_event_unsummon(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_unsummon);
+ return 1;
+}
+
+/* set function: event_unsummon of class  object_kind */
+static int tolua_set_object_kind_event_unsummon(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_unsummon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_spawn of class  object_kind */
+static int tolua_get_object_kind_event_spawn(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_spawn);
+ return 1;
+}
+
+/* set function: event_spawn of class  object_kind */
+static int tolua_set_object_kind_event_spawn(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_spawn = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_misc of class  object_kind */
+static int tolua_get_object_kind_event_misc(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_misc);
+ return 1;
+}
+
+/* set function: event_misc of class  object_kind */
+static int tolua_set_object_kind_event_misc(lua_State* tolua_S)
+{
+  object_kind* self = (object_kind*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_misc = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: spell of class  object_kind */
 static int tolua_get_types_object_kind_spell(lua_State* tolua_S)
 {
@@ -4937,6 +5262,331 @@ static int tolua_set_artifact_type_reflect(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->reflect = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: cursed of class  artifact_type */
+static int tolua_get_artifact_type_cursed(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cursed'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->cursed);
+ return 1;
+}
+
+/* set function: cursed of class  artifact_type */
+static int tolua_set_artifact_type_cursed(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'cursed'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->cursed = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_equipped of class  artifact_type */
+static int tolua_get_artifact_type_event_passive_equipped(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_equipped);
+ return 1;
+}
+
+/* set function: event_passive_equipped of class  artifact_type */
+static int tolua_set_artifact_type_event_passive_equipped(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_equipped = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_carried of class  artifact_type */
+static int tolua_get_artifact_type_event_passive_carried(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_carried);
+ return 1;
+}
+
+/* set function: event_passive_carried of class  artifact_type */
+static int tolua_set_artifact_type_event_passive_carried(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_carried = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_floor of class  artifact_type */
+static int tolua_get_artifact_type_event_passive_floor(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_floor);
+ return 1;
+}
+
+/* set function: event_passive_floor of class  artifact_type */
+static int tolua_set_artifact_type_event_passive_floor(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_floor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_pickup of class  artifact_type */
+static int tolua_get_artifact_type_event_pickup(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_pickup);
+ return 1;
+}
+
+/* set function: event_pickup of class  artifact_type */
+static int tolua_set_artifact_type_event_pickup(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_pickup = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_drop of class  artifact_type */
+static int tolua_get_artifact_type_event_drop(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_drop);
+ return 1;
+}
+
+/* set function: event_drop of class  artifact_type */
+static int tolua_set_artifact_type_event_drop(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_drop = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_destroy of class  artifact_type */
+static int tolua_get_artifact_type_event_destroy(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_destroy);
+ return 1;
+}
+
+/* set function: event_destroy of class  artifact_type */
+static int tolua_set_artifact_type_event_destroy(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_destroy = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_equip of class  artifact_type */
+static int tolua_get_artifact_type_event_equip(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_equip);
+ return 1;
+}
+
+/* set function: event_equip of class  artifact_type */
+static int tolua_set_artifact_type_event_equip(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_equip = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_takeoff of class  artifact_type */
+static int tolua_get_artifact_type_event_takeoff(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_takeoff);
+ return 1;
+}
+
+/* set function: event_takeoff of class  artifact_type */
+static int tolua_set_artifact_type_event_takeoff(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_takeoff = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_summon of class  artifact_type */
+static int tolua_get_artifact_type_event_summon(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_summon);
+ return 1;
+}
+
+/* set function: event_summon of class  artifact_type */
+static int tolua_set_artifact_type_event_summon(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_summon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_unsummon of class  artifact_type */
+static int tolua_get_artifact_type_event_unsummon(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_unsummon);
+ return 1;
+}
+
+/* set function: event_unsummon of class  artifact_type */
+static int tolua_set_artifact_type_event_unsummon(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_unsummon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_spawn of class  artifact_type */
+static int tolua_get_artifact_type_event_spawn(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_spawn);
+ return 1;
+}
+
+/* set function: event_spawn of class  artifact_type */
+static int tolua_set_artifact_type_event_spawn(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_spawn = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_misc of class  artifact_type */
+static int tolua_get_artifact_type_event_misc(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_misc);
+ return 1;
+}
+
+/* set function: event_misc of class  artifact_type */
+static int tolua_set_artifact_type_event_misc(lua_State* tolua_S)
+{
+  artifact_type* self = (artifact_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_misc = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -10059,6 +10709,306 @@ static int tolua_set_object_type_disabled(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->disabled = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_equipped of class  object_type */
+static int tolua_get_object_type_event_passive_equipped(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_equipped);
+ return 1;
+}
+
+/* set function: event_passive_equipped of class  object_type */
+static int tolua_set_object_type_event_passive_equipped(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_equipped'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_equipped = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_carried of class  object_type */
+static int tolua_get_object_type_event_passive_carried(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_carried);
+ return 1;
+}
+
+/* set function: event_passive_carried of class  object_type */
+static int tolua_set_object_type_event_passive_carried(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_carried'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_carried = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_passive_floor of class  object_type */
+static int tolua_get_object_type_event_passive_floor(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_passive_floor);
+ return 1;
+}
+
+/* set function: event_passive_floor of class  object_type */
+static int tolua_set_object_type_event_passive_floor(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_passive_floor'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_passive_floor = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_pickup of class  object_type */
+static int tolua_get_object_type_event_pickup(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_pickup);
+ return 1;
+}
+
+/* set function: event_pickup of class  object_type */
+static int tolua_set_object_type_event_pickup(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_pickup'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_pickup = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_drop of class  object_type */
+static int tolua_get_object_type_event_drop(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_drop);
+ return 1;
+}
+
+/* set function: event_drop of class  object_type */
+static int tolua_set_object_type_event_drop(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_drop'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_drop = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_destroy of class  object_type */
+static int tolua_get_object_type_event_destroy(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_destroy);
+ return 1;
+}
+
+/* set function: event_destroy of class  object_type */
+static int tolua_set_object_type_event_destroy(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_destroy'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_destroy = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_equip of class  object_type */
+static int tolua_get_object_type_event_equip(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_equip);
+ return 1;
+}
+
+/* set function: event_equip of class  object_type */
+static int tolua_set_object_type_event_equip(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_equip'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_equip = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_takeoff of class  object_type */
+static int tolua_get_object_type_event_takeoff(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_takeoff);
+ return 1;
+}
+
+/* set function: event_takeoff of class  object_type */
+static int tolua_set_object_type_event_takeoff(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_takeoff'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_takeoff = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_summon of class  object_type */
+static int tolua_get_object_type_event_summon(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_summon);
+ return 1;
+}
+
+/* set function: event_summon of class  object_type */
+static int tolua_set_object_type_event_summon(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_summon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_summon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_unsummon of class  object_type */
+static int tolua_get_object_type_event_unsummon(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_unsummon);
+ return 1;
+}
+
+/* set function: event_unsummon of class  object_type */
+static int tolua_set_object_type_event_unsummon(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_unsummon'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_unsummon = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_spawn of class  object_type */
+static int tolua_get_object_type_event_spawn(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_spawn);
+ return 1;
+}
+
+/* set function: event_spawn of class  object_type */
+static int tolua_set_object_type_event_spawn(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_spawn'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_spawn = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: event_misc of class  object_type */
+static int tolua_get_object_type_event_misc(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->event_misc);
+ return 1;
+}
+
+/* set function: event_misc of class  object_type */
+static int tolua_set_object_type_event_misc(lua_State* tolua_S)
+{
+  object_type* self = (object_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'event_misc'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->event_misc = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -18868,6 +19818,56 @@ static int tolua_set_player_type_deathcount(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: reincarnations of class  player_type */
+static int tolua_get_player_type_reincarnations(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'reincarnations'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->reincarnations);
+ return 1;
+}
+
+/* set function: reincarnations of class  player_type */
+static int tolua_set_player_type_reincarnations(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'reincarnations'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->reincarnations = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: secretscleared of class  player_type */
+static int tolua_get_player_type_secretscleared(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretscleared'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->secretscleared);
+ return 1;
+}
+
+/* set function: secretscleared of class  player_type */
+static int tolua_set_player_type_secretscleared(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretscleared'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->secretscleared = ((s32b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: guardconfuse of class  player_type */
 static int tolua_get_player_type_guardconfuse(lua_State* tolua_S)
 {
@@ -19386,6 +20386,31 @@ static int tolua_set_player_type_cursed(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->cursed = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: inside_secret of class  player_type */
+static int tolua_get_player_type_inside_secret(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'inside_secret'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->inside_secret);
+ return 1;
+}
+
+/* set function: inside_secret of class  player_type */
+static int tolua_set_player_type_inside_secret(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'inside_secret'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->inside_secret = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -20701,6 +21726,106 @@ static int tolua_set_dungeon_info_type_quest(lua_State* tolua_S)
  tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
 #endif
   self->quest = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: secret of class  dungeon_info_type */
+static int tolua_get_dungeon_info_type_secret(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secret'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->secret);
+ return 1;
+}
+
+/* set function: secret of class  dungeon_info_type */
+static int tolua_set_dungeon_info_type_secret(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secret'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->secret = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: secretitem of class  dungeon_info_type */
+static int tolua_get_dungeon_info_type_secretitem(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretitem'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->secretitem);
+ return 1;
+}
+
+/* set function: secretitem of class  dungeon_info_type */
+static int tolua_set_dungeon_info_type_secretitem(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretitem'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->secretitem = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: secretevent of class  dungeon_info_type */
+static int tolua_get_dungeon_info_type_secretevent(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretevent'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->secretevent);
+ return 1;
+}
+
+/* set function: secretevent of class  dungeon_info_type */
+static int tolua_set_dungeon_info_type_secretevent(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretevent'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->secretevent = ((s16b)  tolua_tonumber(tolua_S,2,0));
+ return 0;
+}
+
+/* get function: secretintro of class  dungeon_info_type */
+static int tolua_get_dungeon_info_type_secretintro(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretintro'",NULL);
+#endif
+ tolua_pushnumber(tolua_S,(long)self->secretintro);
+ return 1;
+}
+
+/* set function: secretintro of class  dungeon_info_type */
+static int tolua_set_dungeon_info_type_secretintro(lua_State* tolua_S)
+{
+  dungeon_info_type* self = (dungeon_info_type*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'secretintro'",NULL);
+ if (!tolua_isnumber(tolua_S,2,0,&tolua_err))
+ tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->secretintro = ((s16b)  tolua_tonumber(tolua_S,2,0));
  return 0;
 }
 
@@ -22467,6 +23592,19 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"extra4",tolua_get_object_kind_extra4,tolua_set_object_kind_extra4);
  tolua_variable(tolua_S,"extra5",tolua_get_object_kind_extra5,tolua_set_object_kind_extra5);
  tolua_variable(tolua_S,"reflect",tolua_get_object_kind_reflect,tolua_set_object_kind_reflect);
+ tolua_variable(tolua_S,"cursed",tolua_get_object_kind_cursed,tolua_set_object_kind_cursed);
+ tolua_variable(tolua_S,"event_passive_equipped",tolua_get_object_kind_event_passive_equipped,tolua_set_object_kind_event_passive_equipped);
+ tolua_variable(tolua_S,"event_passive_carried",tolua_get_object_kind_event_passive_carried,tolua_set_object_kind_event_passive_carried);
+ tolua_variable(tolua_S,"event_passive_floor",tolua_get_object_kind_event_passive_floor,tolua_set_object_kind_event_passive_floor);
+ tolua_variable(tolua_S,"event_pickup",tolua_get_object_kind_event_pickup,tolua_set_object_kind_event_pickup);
+ tolua_variable(tolua_S,"event_drop",tolua_get_object_kind_event_drop,tolua_set_object_kind_event_drop);
+ tolua_variable(tolua_S,"event_destroy",tolua_get_object_kind_event_destroy,tolua_set_object_kind_event_destroy);
+ tolua_variable(tolua_S,"event_equip",tolua_get_object_kind_event_equip,tolua_set_object_kind_event_equip);
+ tolua_variable(tolua_S,"event_takeoff",tolua_get_object_kind_event_takeoff,tolua_set_object_kind_event_takeoff);
+ tolua_variable(tolua_S,"event_summon",tolua_get_object_kind_event_summon,tolua_set_object_kind_event_summon);
+ tolua_variable(tolua_S,"event_unsummon",tolua_get_object_kind_event_unsummon,tolua_set_object_kind_event_unsummon);
+ tolua_variable(tolua_S,"event_spawn",tolua_get_object_kind_event_spawn,tolua_set_object_kind_event_spawn);
+ tolua_variable(tolua_S,"event_misc",tolua_get_object_kind_event_misc,tolua_set_object_kind_event_misc);
  tolua_array(tolua_S,"spell",tolua_get_types_object_kind_spell,tolua_set_types_object_kind_spell);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"artifact_type","artifact_type","",NULL);
@@ -22515,6 +23653,19 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"extra4",tolua_get_artifact_type_extra4,tolua_set_artifact_type_extra4);
  tolua_variable(tolua_S,"extra5",tolua_get_artifact_type_extra5,tolua_set_artifact_type_extra5);
  tolua_variable(tolua_S,"reflect",tolua_get_artifact_type_reflect,tolua_set_artifact_type_reflect);
+ tolua_variable(tolua_S,"cursed",tolua_get_artifact_type_cursed,tolua_set_artifact_type_cursed);
+ tolua_variable(tolua_S,"event_passive_equipped",tolua_get_artifact_type_event_passive_equipped,tolua_set_artifact_type_event_passive_equipped);
+ tolua_variable(tolua_S,"event_passive_carried",tolua_get_artifact_type_event_passive_carried,tolua_set_artifact_type_event_passive_carried);
+ tolua_variable(tolua_S,"event_passive_floor",tolua_get_artifact_type_event_passive_floor,tolua_set_artifact_type_event_passive_floor);
+ tolua_variable(tolua_S,"event_pickup",tolua_get_artifact_type_event_pickup,tolua_set_artifact_type_event_pickup);
+ tolua_variable(tolua_S,"event_drop",tolua_get_artifact_type_event_drop,tolua_set_artifact_type_event_drop);
+ tolua_variable(tolua_S,"event_destroy",tolua_get_artifact_type_event_destroy,tolua_set_artifact_type_event_destroy);
+ tolua_variable(tolua_S,"event_equip",tolua_get_artifact_type_event_equip,tolua_set_artifact_type_event_equip);
+ tolua_variable(tolua_S,"event_takeoff",tolua_get_artifact_type_event_takeoff,tolua_set_artifact_type_event_takeoff);
+ tolua_variable(tolua_S,"event_summon",tolua_get_artifact_type_event_summon,tolua_set_artifact_type_event_summon);
+ tolua_variable(tolua_S,"event_unsummon",tolua_get_artifact_type_event_unsummon,tolua_set_artifact_type_event_unsummon);
+ tolua_variable(tolua_S,"event_spawn",tolua_get_artifact_type_event_spawn,tolua_set_artifact_type_event_spawn);
+ tolua_variable(tolua_S,"event_misc",tolua_get_artifact_type_event_misc,tolua_set_artifact_type_event_misc);
  tolua_array(tolua_S,"spell",tolua_get_types_artifact_type_spell,tolua_set_types_artifact_type_spell);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"ego_item_type","ego_item_type","",NULL);
@@ -22725,6 +23876,18 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"cursed",tolua_get_object_type_cursed,tolua_set_object_type_cursed);
  tolua_variable(tolua_S,"tweakpoints",tolua_get_object_type_tweakpoints,tolua_set_object_type_tweakpoints);
  tolua_variable(tolua_S,"disabled",tolua_get_object_type_disabled,tolua_set_object_type_disabled);
+ tolua_variable(tolua_S,"event_passive_equipped",tolua_get_object_type_event_passive_equipped,tolua_set_object_type_event_passive_equipped);
+ tolua_variable(tolua_S,"event_passive_carried",tolua_get_object_type_event_passive_carried,tolua_set_object_type_event_passive_carried);
+ tolua_variable(tolua_S,"event_passive_floor",tolua_get_object_type_event_passive_floor,tolua_set_object_type_event_passive_floor);
+ tolua_variable(tolua_S,"event_pickup",tolua_get_object_type_event_pickup,tolua_set_object_type_event_pickup);
+ tolua_variable(tolua_S,"event_drop",tolua_get_object_type_event_drop,tolua_set_object_type_event_drop);
+ tolua_variable(tolua_S,"event_destroy",tolua_get_object_type_event_destroy,tolua_set_object_type_event_destroy);
+ tolua_variable(tolua_S,"event_equip",tolua_get_object_type_event_equip,tolua_set_object_type_event_equip);
+ tolua_variable(tolua_S,"event_takeoff",tolua_get_object_type_event_takeoff,tolua_set_object_type_event_takeoff);
+ tolua_variable(tolua_S,"event_summon",tolua_get_object_type_event_summon,tolua_set_object_type_event_summon);
+ tolua_variable(tolua_S,"event_unsummon",tolua_get_object_type_event_unsummon,tolua_set_object_type_event_unsummon);
+ tolua_variable(tolua_S,"event_spawn",tolua_get_object_type_event_spawn,tolua_set_object_type_event_spawn);
+ tolua_variable(tolua_S,"event_misc",tolua_get_object_type_event_misc,tolua_set_object_type_event_misc);
  tolua_variable(tolua_S,"discount",tolua_get_object_type_discount,tolua_set_object_type_discount);
  tolua_variable(tolua_S,"number",tolua_get_object_type_number,tolua_set_object_type_number);
  tolua_variable(tolua_S,"weight",tolua_get_object_type_weight,tolua_set_object_type_weight);
@@ -23084,6 +24247,8 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"magic_mode",tolua_get_player_type_magic_mode,tolua_set_player_type_magic_mode);
  tolua_variable(tolua_S,"auraon",tolua_get_player_type_auraon,tolua_set_player_type_auraon);
  tolua_variable(tolua_S,"deathcount",tolua_get_player_type_deathcount,tolua_set_player_type_deathcount);
+ tolua_variable(tolua_S,"reincarnations",tolua_get_player_type_reincarnations,tolua_set_player_type_reincarnations);
+ tolua_variable(tolua_S,"secretscleared",tolua_get_player_type_secretscleared,tolua_set_player_type_secretscleared);
  tolua_variable(tolua_S,"guardconfuse",tolua_get_player_type_guardconfuse,tolua_set_player_type_guardconfuse);
  tolua_variable(tolua_S,"learning",tolua_get_player_type_learning,tolua_set_player_type_learning);
  tolua_variable(tolua_S,"startx",tolua_get_player_type_startx,tolua_set_player_type_startx);
@@ -23103,6 +24268,7 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"dualwield",tolua_get_player_type_dualwield,tolua_set_player_type_dualwield);
  tolua_variable(tolua_S,"alignment",tolua_get_player_type_alignment,tolua_set_player_type_alignment);
  tolua_variable(tolua_S,"cursed",tolua_get_player_type_cursed,tolua_set_player_type_cursed);
+ tolua_variable(tolua_S,"inside_secret",tolua_get_player_type_inside_secret,tolua_set_player_type_inside_secret);
  tolua_array(tolua_S,"towns",tolua_get_types_player_type_towns,tolua_set_types_player_type_towns);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"border_type","border_type","",NULL);
@@ -23157,6 +24323,10 @@ TOLUA_API int tolua_types_open (lua_State* tolua_S)
  tolua_variable(tolua_S,"final_guardian",tolua_get_dungeon_info_type_final_guardian,tolua_set_dungeon_info_type_final_guardian);
  tolua_variable(tolua_S,"special_percent",tolua_get_dungeon_info_type_special_percent,tolua_set_dungeon_info_type_special_percent);
  tolua_variable(tolua_S,"quest",tolua_get_dungeon_info_type_quest,tolua_set_dungeon_info_type_quest);
+ tolua_variable(tolua_S,"secret",tolua_get_dungeon_info_type_secret,tolua_set_dungeon_info_type_secret);
+ tolua_variable(tolua_S,"secretitem",tolua_get_dungeon_info_type_secretitem,tolua_set_dungeon_info_type_secretitem);
+ tolua_variable(tolua_S,"secretevent",tolua_get_dungeon_info_type_secretevent,tolua_set_dungeon_info_type_secretevent);
+ tolua_variable(tolua_S,"secretintro",tolua_get_dungeon_info_type_secretintro,tolua_set_dungeon_info_type_secretintro);
  tolua_endmodule(tolua_S);
  tolua_cclass(tolua_S,"monster_magics","monster_magics","",NULL);
  tolua_beginmodule(tolua_S,"monster_magics");

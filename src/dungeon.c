@@ -474,7 +474,7 @@ static void regenhp(int percent)
 	old_chp = p_ptr->chp;
         
         /* Regenerate by (percent)% */
-	regenamt = multiply_divide(p_ptr->chp, percent, 100);
+	regenamt = multiply_divide(p_ptr->mhp, percent, 100);
 	if (regenamt < 1) regenamt = 1;
 	p_ptr->chp += regenamt;
 
@@ -508,7 +508,7 @@ static void regenmana(int percent)
 	old_csp = p_ptr->csp;
 
 	/* Regenerate by (percent)% */
-	regenamt = multiply_divide(p_ptr->csp, percent, 100);
+	regenamt = multiply_divide(p_ptr->msp, percent, 100);
 
         /* Wielding a rod with a high skill? */
         if (rod_has() && p_ptr->skill[17] >= 30)
@@ -1067,6 +1067,12 @@ static void process_world(void)
 	/* Default regeneration */
 	regen_amount = 1;
 
+	/* Restless Dead Nightmare ability */
+	if (p_ptr->abilities[(CLASS_NIGHT1 * 10) + 4] >= 1)
+	{
+		regen_amount += (p_ptr->abilities[(CLASS_NIGHT1 * 10) + 4] / 3);
+	}
+
 	/* Divine Blood ability */
 	if (p_ptr->abilities[(CLASS_PRIEST * 10) + 2] >= 1)
 	{
@@ -1452,6 +1458,12 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Passive equip event. */
+		if (o_ptr->event_passive_equipped != 0)
+		{
+			call_lua("item_passive_equipped", "(Od)", "", o_ptr, o_ptr->event_passive_equipped);
+		}
+
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
 		{
@@ -1468,12 +1480,23 @@ static void process_world(void)
                                 }
                                 else
                                 {
+					/* Possibly call an item event. */
+					if (o_ptr->event_unsummon != 0)
+					{
+						call_lua("item_unsummon", "(Od)", "", o_ptr, o_ptr->event_unsummon);
+					}
                                         inven_item_increase(i, -(o_ptr->number));
                                         inven_item_describe(i);
                                         inven_item_optimize(i);
                                         j++;                                        
                                 }
                         }
+		}
+
+		/* Disabled items slowly re-enable themselves. */
+		if (o_ptr->disabled > 0)
+		{
+			o_ptr->disabled -= 1;
 		}
 	}
 
@@ -1492,6 +1515,12 @@ static void process_world(void)
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
+
+		/* Passive carried event. */
+		if (o_ptr->event_passive_carried != 0)
+		{
+			call_lua("item_passive_carried", "(Od)", "", o_ptr, o_ptr->event_passive_carried);
+		}
 
 		/* Examine all charging rods or stacks of charging rods. */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
@@ -1635,6 +1664,12 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Passive floor event. */
+		if (o_ptr->event_passive_floor != 0)
+		{
+			call_lua("item_passive_floor", "(Od)", "", o_ptr, o_ptr->event_passive_floor);
+		}
+
 		/* Recharge rods on the ground.  No messages. */
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
@@ -1738,6 +1773,7 @@ static void process_world(void)
 				p_ptr->wild_mode = 0;
 				is_recall = TRUE;
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 				dun_level = 0;
 				/* Re-initialise the wilderness position! */
 				/* jj is y, ii is x */
@@ -1766,6 +1802,7 @@ static void process_world(void)
                                 is_recall = TRUE;
 
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -2263,6 +2300,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Browse spells */
+		case 'b':
+		{
+                        browse_spells();
+			break;
+		}
+
 		/* Bash a door */
 		case 'B':
 		{
@@ -2340,13 +2384,6 @@ static void process_command(void)
 		case 'K':
                 {
 			do_cmd_turn_on_off_misc();
-                        break;
-                }
-
-                /* Steal an item form a monster */
-                case 'Z':
-                {
-                        do_cmd_steal();
                         break;
                 }
 
@@ -2725,6 +2762,9 @@ static void process_player(void)
 
 	/* Give the player some energy */
         p_ptr->energy += extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed];
+
+	/* Cap energy */
+	if (p_ptr->energy > (100 + extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed])) p_ptr->energy = 100 + extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed];
 
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
@@ -3561,6 +3601,7 @@ void play_game(bool new_game)
 		/* Start in town */
 		dun_level = 0;
 		p_ptr->inside_quest = 0;
+		p_ptr->inside_secret = 0;
 
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
@@ -3772,6 +3813,7 @@ void play_game(bool new_game)
 				/* dun_level = 0; */
 				leaving_quest = 0;
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -3987,6 +4029,21 @@ static void object_prep_magic(object_type *o_ptr, int k_idx, int magic)
 	o_ptr->extra4 = k_ptr->extra4;
 	o_ptr->extra5 = k_ptr->extra5;
 	o_ptr->reflect = k_ptr->reflect;
+	o_ptr->cursed = k_ptr->cursed;
+
+	/* Item events */
+	o_ptr->event_passive_equipped = k_ptr->event_passive_equipped;
+	o_ptr->event_passive_carried = k_ptr->event_passive_carried;
+	o_ptr->event_passive_floor = k_ptr->event_passive_floor;
+	o_ptr->event_pickup = k_ptr->event_pickup;
+	o_ptr->event_drop = k_ptr->event_drop;
+	o_ptr->event_destroy = k_ptr->event_destroy;
+	o_ptr->event_equip = k_ptr->event_equip;
+	o_ptr->event_takeoff = k_ptr->event_takeoff;
+	o_ptr->event_summon = k_ptr->event_summon;
+	o_ptr->event_unsummon = k_ptr->event_unsummon;
+	o_ptr->event_spawn = k_ptr->event_spawn;
+	o_ptr->event_misc = k_ptr->event_misc;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0 && o_ptr->tval != TV_LICIALHYD) o_ptr->ident |= (IDENT_BROKEN);
@@ -4176,6 +4233,20 @@ static void dialog_artifact_prep(int a_idx)
 	q_ptr->extra5 = a_ptr->extra5;
 	q_ptr->reflect = a_ptr->reflect;
 	q_ptr->cursed = a_ptr->cursed;
+
+	/* Item events */
+	q_ptr->event_passive_equipped = a_ptr->event_passive_equipped;
+	q_ptr->event_passive_carried = a_ptr->event_passive_carried;
+	q_ptr->event_passive_floor = a_ptr->event_passive_floor;
+	q_ptr->event_pickup = a_ptr->event_pickup;
+	q_ptr->event_drop = a_ptr->event_drop;
+	q_ptr->event_destroy = a_ptr->event_destroy;
+	q_ptr->event_equip = a_ptr->event_equip;
+	q_ptr->event_takeoff = a_ptr->event_takeoff;
+	q_ptr->event_summon = a_ptr->event_summon;
+	q_ptr->event_unsummon = a_ptr->event_unsummon;
+	q_ptr->event_spawn = a_ptr->event_spawn;
+	q_ptr->event_misc = a_ptr->event_misc;
 
         a_ptr->cur_num = 1;
 
@@ -4787,6 +4858,7 @@ int process_dialog(int dnum, FILE *fp)
 					p_ptr->startx = answers[choice].eparam2;
 					p_ptr->starty = answers[choice].eparam3;
 					p_ptr->inside_quest = 0;
+					p_ptr->inside_secret = 0;
 					p_ptr->wild_mode = 0;
 
 					newx = get_town_overworldx(answers[choice].eparam1);

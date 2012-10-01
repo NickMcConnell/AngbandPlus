@@ -1,0 +1,384 @@
+N:1:125:1:0:0:0
+I:Rogoth;
+T:*Rogoth is lying on the ground. As you approach, the orc wight painfully;
+T:tries to stand up.*;
+T:You....are back. Have you found a Rod of Spirit Trapping?;
+A:Yes, I have it right here.:2:66:19:1:19:0:0:0:0
+A:Can you repeat where I should look for it?:0:0:0:1:18:0:0:0:0
+A:Not yet. I'll be going now.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:125:0:0:0:0
+I: ;
+T:In front of you is what looks like some kind of wight, though upon closer;
+T:look, you can see that it's body is that of an orc. As you approach, the;
+T:undead orc raises his head, looks at you straight in the eyes, and begins;
+T:speaking with a ghostly voice...;
+A:[CONTINUE]:0:0:0:1:2:0:0:125:1
+%
+
+N:2:0:0:0:0:0
+I:Orc Wight;
+T:.......you....you are with 'them', aren't you? What have you done??;
+T:Why...why torment us more...than we already are?;
+A:If you mean Quazar and the zulgors, they're gone.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Orc Wight;
+T:*The orc wight pauses for a moment. He looks relieved...*;
+T:Yes... I can feel it. This man...he is gone. So...you are not with them.;
+T:I am relieved. You may be the person I was waiting for.;
+A:Who are you?:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Rogoth;
+T:I am Rogoth... I was once a shaman, ages ago. Now, I am nothing more than;
+T:a weak, ghostly apparition. But I cannot rest.... the truth...;
+T:*He takes a pause. Speaking seems to wear him out*;
+T:...the truth...must be known.;
+A:The truth?:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Rogoth;
+T:Av....Avemorsh...means 'supreme'. It wasn't just the name of this place.;
+T:It was also the name of the most powerful Orc warrior to ever walk the land.;
+T:The elves...they would never have had a chance. Avemorsh was worth thousands;
+T:of armies in the body of a single warrior. He was unstoppable. He was;
+T:called the Gin'Whal... 'Fire Storm'. He wielded flame and wind better than;
+T:the greatest of archmages. He wielded his axe with the might of a hundred;
+T:giants. And his body was harder than adamant! No forces in Portralis would;
+T:have been strong enough to stop him.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Rogoth;
+T:...but the elves started praying. And then, HE came. The legendary founder;
+T:of Nimbraya...Daldumaar himself! He sent a challenge to Avemorsh,;
+T:and of course, our proud leader accepted the challenge. Soon after,;
+T:he departed to the location where the battle between the two warriors;
+T:would take place...;
+A:And then?:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Rogoth;
+T:....and then, we never saw Avemorsh again. Our leader...was gone.;
+A:What? But such a powerful warrior wouldn't just disappear like that!:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:1:0:0
+I:Rogoth;
+T:That's why we must find the truth! Find what happened to our invincible;
+T:leader. The war against the humans and dwarves started not long after;
+T:Avemorsh's disappearence. The elven champion Daldumaar, Nimbraya's founder,;
+T:must have been behind this!;
+A:You dare to accuse our divine hero? And you expect me to help you??:0:0:0:1:9:0:0:0:0
+A:Hold on! History tells us your race was brutal... Why should I help you?:0:0:0:1:10:0:0:0:0
+%
+
+N:8:0:0:2:0:0
+I:Rogoth;
+T:That's why we must find the truth! Find what happened to our invincible;
+T:leader. The war against the humans and dwarves started not long after;
+T:Avemorsh's disappearence. The elven champion Daldumaar, Nimbraya's founder,;
+T:must have been behind this!;
+A:You dare to accuse our divine hero? And you expect me to help you??:0:0:0:1:9:0:0:0:0
+A:Hold on! History tells us your race was brutal... Why should I help you?:0:0:0:1:10:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Rogoth;
+T:That's why we must find the truth! Find what happened to our invincible;
+T:leader. The war against the humans and dwarves started not long after;
+T:Avemorsh's disappearence. The elven champion Daldumaar must have been;
+T:behind this!;
+A:Hold on! History tells us your race was brutal... Why should I help you?:0:0:0:1:10:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Rogoth;
+T:Oh... you are an <RACE>? Sorry...my eyes do not see anymore. I can only feel;
+T:your presence. I did not mean to offend you. My apologies. Of course, it could;
+T:be someone who pretended to be Daldumaar...but who else could be powerful;
+T:enough to stand against our leader? This is what you and I must discover.;
+A:History tells us your race was brutal... Why should I help you?:0:0:0:1:10:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Rogoth;
+T:We weren't a bad race. We were a warrior race, and I suppose we looked a bit;
+T:more savage than the other races. But to steal our leader, and then declare;
+T:war on us while our morale was at it's lowest? That was low...;
+A:History tells us that YOU declared the war!:0:0:0:1:11:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Rogoth;
+T:What? We never did such a thing! It was the dwarves that started it all!;
+T:...or should I say the elves?;
+A:You started by waging war against the dwarves, and the humans and elves.:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Rogoth;
+T:That is wrong! It was THEY who attacked first!;
+A:This doesn't make any sense. How can you prove your claims?:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Rogoth;
+T:We must free the restless spirit of Avemorsh.;
+A:He is alive?:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Rogoth;
+T:In the form of a restless spirit. Sealed somewhere beneath this ruined temple.;
+T:A place haunted by memories, dreams and beliefs, all of which have been turned;
+T:into dreadful nightmares. The spirit of Avemorsh is now sealed in a cursed;
+T:ethereal prison, not totally inside this world, but not totally;
+T:outside. His own principles are used as the chains that binds him! The more;
+T:he suffers and demands freedom, the stronger the chains become. This isn't;
+T:the work of a mere mortal. That's why I am sure Daldumaar had something;
+T:to do with it! Or, perhaps, another force we have yet to learn about...;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Rogoth;
+T:Of course, entering such a place, if even possible, would be suicide.;
+T:It is a place that only greater beings could ever enter.;
+T:Instead, we must free the spirit from the chains using conjuration rituals,;
+T:and summon Avemorsh on our plane! Even if it lasts just for a few minutes,;
+T:it will be enough for him to reveal the truth. And then he will be able to;
+T:rest in peace, and so will I. And of course, you will be rewarded for your;
+T:efforts. I will be able to bind a fraction of Avemorsh's soul to your;
+T:weapon to empower it. This should be helpful for your future battles!;
+A:So, what is it that I must do?:0:0:0:1:16:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Rogoth;
+T:Fortunately, I know a ritual of spirit conjuration. But in order to conjure;
+T:a spirit through this ritual, another spirit has to be sacrificed.;
+T:But for a powerful warrior like Avemorsh, one spirit might not even be enough.;
+T:We may need many. And of course, we will need a container to contain those;
+T:spirits. So your goal will be to find that container.;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Rogoth;
+T:The container I am referring to is a Rod of Spirit Trapping. Well, that's;
+T:the best translation I can find anyway. It's a special rod with the power;
+T:to trap spirits and elementals, and unleash them at our enemies.;
+T:Most are probably lost, but with some luck, maybe I know where you can find;
+T:one. This underground temple once had a secret place where all our valuable;
+T:treasures were stored. After all these years, the place has likely been;
+T:looted of any valuable treasures. But with a bit of luck, there might be;
+T:a few things left, including a Rod of Spirit Trapping.;
+A:[CONTINUE]:0:0:0:1:18:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Rogoth;
+T:Outside the cave are many pools of water. Search them carefully, and you;
+T:should find a hidden switch that will reveal the entrance of a cave.;
+T:At the bottom of it is our secret room. That room should be pretty safe,;
+T:but I can't say anything about the cave itself. Over the centuries, I am;
+T:sure that many powerful creatures got in there, so you should be ready;
+T:for anything. Good luck...;
+T:*The wight falls on the ground. He clearly doesn't have much strength left.*;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Rogoth;
+T:So...you've found one! And... and it is already charged with many spirits;
+T:inside of it. This means that I can now perform the ritual...;
+T:Here...let me take the rod...;
+A:[Give him the rod]:0:0:0:6:1252:22:0:0:0
+A:Actually, I would rather keep this rod.:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I:Rogoth;
+T:...really? Once the ritual is complete, I will not have any strength left,;
+T:and will be gone. You will be able to take the rod back. In fact, since we;
+T:are using it to summon an incredibly powerful spirit, it might even become;
+T:infused by Avemorsh's energy in the process, and become even more powerful.;
+T:This is in addition to what you will learn from the spirit of Avemorsh.;
+T:*You look at Rogoth... he seems to be telling the truth.*;
+A:All right, take it. [Give him the rod]:0:0:0:6:1252:22:0:0:0
+A:Use it for the ritual, but don't infuse it. I've already enchanted it.:0:0:0:1:21:0:0:0:0
+%
+
+N:21:0:0:0:0:0
+I:Rogoth;
+T:All right... I will make sure the rod doesn't get infused with any energy.;
+T:We will now begin the ritual...;
+A:[CONTINUE]:0:0:0:1:23:0:0:127:1
+%
+
+N:22:0:0:0:0:0
+I:Rogoth;
+T:Thanks you... Don't worry. Once the ritual is complete, the rod will;
+T:be yours. In fact, since we are summoning a powerful spirit, the rod;
+T:will surely get infused with powerful energy in the process. So in addition;
+T:to what we will learn from Avemorsh, you will get a powerful rod.;
+T:All right... let's begin the ritual.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I: ;
+T:Rogoth takes the rod, and activates it. Holding the rod in his hands,;
+T:he begins chanting a prayer in orcish language. The rod starts glowing;
+T:with a strong light, and the ground begins to tremble!;
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I:Rogoth;
+T:Orsh im zek sta vil ter!;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I: ;
+T:The entire room is filled with a red light, and a powerful wind starts;
+T:blowing! The wind is so strong that it causes the nearby walls to crack;
+T:under it's strength.;
+A:[CONTINUE]:0:0:0:1:26:0:0:0:0
+%
+
+N:26:0:0:0:0:0
+I:Rogoth;
+T:Veem tala ker! Orsh im zek no! Kost ar Gin'Whal!;
+A:[CONTINUE]:0:0:0:1:27:0:0:0:0
+%
+
+N:27:0:0:0:0:0
+I: ;
+T:Suddently, a humanoid form appears. It vaguely ressembles a red-skinned orc;
+T:covered in flames. You assume that it is the form the spirit of Avemorsh;
+T:has taken.;
+A:[CONTINUE]:0:0:0:1:28:0:0:0:0
+%
+
+N:28:0:0:0:0:0
+I:Rogoth;
+T:..gin...Gin'Whal! Nir tosh Gin'Whal! A friend is seeking an answer...;
+T:An answer about the history of our race... Much happened after you've left;
+T:us, but you are probably aware of it all... Please, tell us the truth...;
+T:Why have we orcs suffered a war that led to the extinction of our race?;
+A:[CONTINUE]:0:0:0:1:29:0:0:0:0
+%
+
+N:29:0:0:0:0:0
+I:Avemorsh;
+T:There is nothing to explain. Dwarves were a nuisance, so we had to exterminate;
+T:them! They allied themselves with humans, so they too became our enemies.;
+T:And what do we do with our enemies? We crush them!;
+A:[CONTINUE]:0:0:0:1:30:0:0:0:0
+%
+
+N:30:0:0:0:0:0
+I:Rogoth;
+T:..w...wha...what? But...what about Daldumaar's challenge? You never came back;
+T:after you accepted the challenge...;
+A:[CONTINUE]:0:0:0:1:31:0:0:0:0
+%
+
+N:31:0:0:0:0:0
+I:Avemorsh;
+T:Daldumaar? Who is this??;
+A:[CONTINUE]:0:0:0:1:32:0:0:0:0
+%
+
+N:32:0:0:0:0:0
+I:Avemorsh;
+T:FOOL! You have disturbed me for nothing! Your questions makes no sense!;
+T:Daldumaar has never challenged me, and we waged war on the dwarves;
+T:because they were a nuisance! There is nothing else to explain!!;
+A:[CONTINUE]:0:0:0:1:33:0:0:0:0
+%
+
+N:33:0:0:0:0:0
+I:Rogoth;
+T:...no! This cannot be!!;
+A:[CONTINUE]:0:0:0:1:34:0:0:0:0
+%
+
+N:34:0:0:0:0:0
+I:Avemorsh;
+T:Now! Both of you will be consumed by my flames!!!;
+A:[CONTINUE]:0:0:0:1:35:0:0:0:0
+%
+
+N:35:0:0:0:0:0
+I: ;
+T:Avemorsh gathers flames around him, but before he can finish, Rogoth holds;
+T:the rod, and desactivate it's powers. The spirit of Avemorsh disappears.;
+A:[CONTINUE]:0:0:0:1:36:0:0:0:0
+%
+
+N:36:0:0:0:0:0
+I:Rogoth;
+T:....this...cannot be. This is a lie! Avemorsh...would never say such things...;
+T:I...I....;
+A:Looks like history may have been right after all...:0:0:0:1:37:0:0:0:0
+%
+
+N:37:0:0:0:0:0
+I:Rogoth;
+T:...could it be that my...undead form...has blurred my thoughts? Perhaps...;
+T:perhaps I have forgotten the real Avemorsh... and thought he was a hero...;
+T:but maybe he really is a violent overlord... perhaps history was right...;
+T:But...no...it...cannot be....;
+A:[CONTINUE]:0:0:0:1:38:0:0:128:1
+%
+
+N:38:127:1:0:0:0
+I:Rogoth;
+T:...I have no power left... I will soon disappear. Here...you may take back;
+T:the rod...;
+A:Thanks you.:0:0:0:1:39:0:0:0:0
+%
+
+N:38:0:0:0:0:0
+I:Rogoth;
+T:...I have no power left... I will soon disappear. At least...the rod has;
+T:been imbued, like I thought it would... Here...you may take it... wield;
+T:it proudly, you've earned it...;
+A:Thanks you.:0:0:0:3:36:4:39:0:0
+%
+
+N:39:0:0:0:0:0
+I:Rogoth;
+T:I'm...I'm sorry I had you do this for nothing. It looks like...you were right.;
+T:Maybe that is what really happened. I suppose history isn't always what you;
+T:want it to be... undeath must have affected my thoughts...who knows...perhaps;
+T:I was an evil orc during my life... perhaps this wraithly form is the result;
+T:of a hidden desire for peace that never came true... But thanks you for giving;
+T:me a chance... I will now go. Farewell, my friend...;
+A:[CONTINUE]:0:0:0:9:1048:40:0:0:0
+%
+
+N:40:0:0:0:0:0
+I: ;
+T:Rogoth falls on the ground and disappears. You are about to leave when you;
+T:notice something on the ground where Rogoth was standing. It's a small;
+T:red stone with a rune engraved on it.;
+A:[CONTINUE]:0:0:0:3:1261:0:41:0:0
+%
+
+N:41:0:0:0:0:0
+I: ;
+T:You decide to take it with you. Who knows, it may come in handy.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

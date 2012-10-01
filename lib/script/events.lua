@@ -68,6 +68,9 @@ function after_player_move (x, y)
 			if (global_object.tval == TV_ESSENCE) then
 
 				klev = m_race(global_object.pval).level + (object_skill_points_value(global_object) / 5)
+			elseif (global_object.tval == TV_CHEST) then
+
+				klev = global_object.pval + (object_skill_points_value(global_object) / 5)
 			else
 				klev = kind(global_object).level + (object_skill_points_value(global_object) / 5)
 			end
@@ -337,6 +340,231 @@ function after_player_move (x, y)
 			p_ptr.leaving = TRUE
                 end
 	end
+
+	-- Sealed stairway.
+	if (cave(py, px).feat == 242) then
+
+		local ch
+		local item
+
+		msg_print("You have discovered a sealed stairway. Try to unseal it? [y/n]")
+		ch = inkey()
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			msg_print("Choose an item to undo the seal. ")
+
+			item = lua_pick_item(0)
+
+			if (item.k_idx == dungeon(dungeon_type).secretitem) then
+
+				msg_print("The seal has been broken, and a stairway appears!")
+				p_ptr.events[dungeon(dungeon_type).secretevent+1] = 1
+				cave(py, px).feat = 243
+				update_and_handle()
+			else
+				msg_print("Nothing happened.")
+			end
+                end
+	end
+
+	-- Secret Stairway.
+	if (cave(py, px).feat == 243) then
+
+		local ch
+
+		msg_print("Enter Secret Level? [y/n/(h)elp]")
+		ch = inkey()
+
+		if (ch == 72 or ch == 104) then
+
+			show_file("secret.txt", NULL, 0, 0)
+                end
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			show_dialog(dungeon(dungeon_type).secretintro)
+			p_ptr.inside_quest = dungeon(dungeon_type).secret
+			p_ptr.inside_secret = dungeon(dungeon_type).secret
+			p_ptr.questx = 0
+			p_ptr.questy = 0
+
+			p_ptr.leaving = TRUE
+			--generate_cave()
+                end
+	end
+
+	-- Portal of Final Death.
+	if (cave(py, px).feat == 244) then
+
+		local ch
+		local ch2
+
+		msg_print("Enter the Portal of Final Death? [y/n]")
+		ch = inkey()
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			msg_print("Your character will be gone forever! Are you sure? [y/n]")
+			ch2 = inkey()
+
+			if (ch2 == 89 or ch2 == 121) then
+
+				death = TRUE
+				p_ptr.leaving = TRUE
+			end
+                end
+	end
+
+	-- Portal of Resurrection
+	if (cave(py, px).feat == 245) then
+
+		local ch
+		local i
+
+		msg_print("Enter the Portal of Resurrection? [y/n]")
+		ch = inkey()
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			local x
+
+			msg_print("You enter the portal of resurrection...")
+			
+			for i = 1, 100 do
+				no_more_items()
+			end
+                	p_ptr.au = 0
+                	p_ptr.chp = p_ptr.mhp
+                	p_ptr.inside_quest = 0
+			p_ptr.inside_secret = 0
+                	p_ptr.cut = 0
+                	p_ptr.stun = 0
+                	p_ptr.poisoned = 0
+			p_ptr.confused = 0
+			p_ptr.afraid = 0
+			p_ptr.blind = 0
+                	p_ptr.word_recall = 0
+                	restore_level()
+                	dun_level = 0
+			dying = FALSE
+
+			p_ptr.town_num = p_ptr.events[29999]
+			p_ptr.deathcount = p_ptr.deathcount + 1
+
+			-- Restart to the latest town's startx/starty.
+			lua_revive_in_town()
+
+			p_ptr.wild_mode = FALSE
+
+			p_ptr.leaving = TRUE
+			generate_cave()
+			do_cmd_save_game()
+                end
+	end
+
+	-- Portal of Reincarnation
+	if (cave(py, px).feat == 246) then
+
+		local ch
+
+		msg_print("Enter the Portal of Reincarnation? [y/n]")
+		ch = inkey()
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			local i
+
+			msg_print("You enter the portal of reincarnation...")
+			
+			for i = 1, 100 do
+				no_more_items()
+			end
+                	p_ptr.au = 0
+                	p_ptr.chp = p_ptr.mhp
+                	p_ptr.inside_quest = 0
+			p_ptr.inside_secret = 0
+                	p_ptr.cut = 0
+                	p_ptr.stun = 0
+                	p_ptr.poisoned = 0
+			p_ptr.confused = 0
+			p_ptr.afraid = 0
+			p_ptr.blind = 0
+                	p_ptr.word_recall = 0
+                	restore_level()
+                	dun_level = 0
+			dying = FALSE
+
+			p_ptr.town_num = p_ptr.events[29999]
+
+			-- Reincarnation is hard-coded.
+			p_ptr.deathcount = p_ptr.deathcount + 1
+			p_ptr.reincarnations = p_ptr.reincarnations + 1
+
+			-- Reset base stats.
+			p_ptr.stat_cur[A_STR+1] = 5
+			p_ptr.stat_cur[A_INT+1] = 5
+			p_ptr.stat_cur[A_WIS+1] = 5
+			p_ptr.stat_cur[A_DEX+1] = 5
+			p_ptr.stat_cur[A_CON+1] = 5
+			p_ptr.stat_cur[A_CHR+1] = 5
+			p_ptr.stat_max[A_STR+1] = 5
+			p_ptr.stat_max[A_INT+1] = 5
+			p_ptr.stat_max[A_WIS+1] = 5
+			p_ptr.stat_max[A_DEX+1] = 5
+			p_ptr.stat_max[A_CON+1] = 5
+			p_ptr.stat_max[A_CHR+1] = 5
+
+			for i = 1, SKILL_MAX do
+
+				p_ptr.skill_base[i] = 0
+			end
+
+			for i = 1, MAX_ABILITIES do
+
+				p_ptr.abilities[i] = 0
+			end
+
+			for i = 1, 36 do
+
+				p_ptr.abilities_powers[i] = 0
+			end
+
+			p_ptr.num_abilities = 0
+
+			if (p_ptr.prace == RACE_MONSTER) then
+
+				for i = 1, 20 do
+
+					p_ptr.abilities_monster_attacks[i] = 0
+					p_ptr.abilities_monster_spells[i] = 0
+				end
+				p_ptr.boss_abilities = 0
+			end
+
+			p_ptr.statpoints = p_ptr.lev * 2
+			p_ptr.skillpoints = p_ptr.lev * 5
+			p_ptr.ability_points = p_ptr.lev
+
+			p_ptr.statpoints = p_ptr.statpoints + (p_ptr.secretscleared * 4)
+			p_ptr.skillpoints = p_ptr.skillpoints + (p_ptr.secretscleared * 10)
+			p_ptr.ability_points = p_ptr.ability_points + (p_ptr.secretscleared * 2)
+
+			-- Restart to the latest town's startx/starty.
+			lua_revive_in_town()
+
+			p_ptr.wild_mode = FALSE
+
+			p_ptr.leaving = TRUE
+			generate_cave()
+			do_cmd_save_game()
+                end
+	end
 end
 
 -- Before and after melee occurs for every blows.
@@ -429,6 +657,7 @@ end
 -- Events before a new floor is created.
 function player_before_floor (dnum)
 
+	generate_monster(2050, dun_level, 0)
 end
 
 -- Events after creation of a new floor.
@@ -965,6 +1194,176 @@ function player_events_code (eventcode)
 		update_and_handle()
 	end
 
+	-- An aura of Disable. (power 20)
+	-- Useless for the player.
+	if (eventcode == 21) then
+
+		no_magic_return = TRUE
+		attack_aura(GF_DISABLE, 20, 5)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Fire! (power 30)
+	if (eventcode == 22) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = p_ptr.stat_ind[A_INT+1] - 5
+		else
+			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+		end
+
+		sdam = (30 * damstat)
+		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_FIRE, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Water! (power 30)
+	if (eventcode == 23) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = p_ptr.stat_ind[A_INT+1] - 5
+		else
+			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+		end
+
+		sdam = (30 * damstat)
+		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_WATER, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Earth! (power 30)
+	if (eventcode == 24) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = p_ptr.stat_ind[A_INT+1] - 5
+		else
+			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+		end
+
+		sdam = (30 * damstat)
+		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_EARTH, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Wind! (power 30)
+	if (eventcode == 25) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = p_ptr.stat_ind[A_INT+1] - 5
+		else
+			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+		end
+
+		sdam = (30 * damstat)
+		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_WIND, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- An aura of Chaos! (power 30)
+	if (eventcode == 26) then
+
+		local sdam
+		local damstat
+
+		if (p_ptr.stat_ind[A_INT+1] >= p_ptr.stat_ind[A_WIS+1]) then
+			damstat = p_ptr.stat_ind[A_INT+1] - 5
+		else
+			damstat = p_ptr.stat_ind[A_WIS+1] - 5
+		end
+
+		sdam = (30 * damstat)
+		sdam = sdam + multiply_divide(sdam, p_ptr.skill[2] * 10, 100)
+		sdam = sdam + multiply_divide(sdam, p_ptr.abilities[(CLASS_MONSTER * 10) + 8] * 50, 100)
+
+		no_magic_return = TRUE
+		attack_aura(GF_CHAOS, sdam, 3)
+		no_magic_return = FALSE
+
+		update_and_handle()
+	end
+
+	-- Teleports away.
+	if (eventcode == 28) then
+
+		msg_print("You teleport!")
+		teleport_player(10 + p_ptr.abilities[(CLASS_MONSTER * 10) + 8])
+	end
+
+	-- If you play as a monster that has the ability to teleport to the player, you gain
+	-- the power to teleport where you want. The same restrictions as jump applies though.
+	if (eventcode == 2303) then
+
+		local x
+		local y
+
+		-- We use a special function that returns x and y coordinates in global
+		-- variables, so we can use these in Lua.
+        	if (not(lua_tgt_pt())) then return end
+		x = global_x
+		y = global_y
+
+		-- Most functions here use a (y,x) format, instead of (x,y).
+		-- This is important, because if you use (x,y), it might crash.
+        	if (not(lua_cave_empty_bold(y,x))) then
+
+              		msg_print("You cannot teleport at that location.")
+
+        	else
+
+                	if (not(get_cave_info_flag(y, x, CAVE_MARK))) then
+
+                        	if (get_cave_info_flag(y, x, CAVE_LITE)) then
+
+					teleport_player_to(y,x)
+                        	else
+					msg_print("You cannot teleport at that location.")
+				end
+
+                	else
+
+				teleport_player_to(y,x)
+			end
+        	end
+	end
+
 end
 
 -- MONSTERS EVENTS
@@ -1274,8 +1673,150 @@ function monster_events_code (m_idx, eventcode)
 		update_and_handle()
 	end
 
+	-- An aura of Disable! (power 20)
+	if (eventcode == 21) then
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 5, monster(m_idx).fy, monster(m_idx).fx, 20, GF_DISABLE, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Fire! (power 30)
+	if (eventcode == 22) then
+
+		local sdam
+
+		sdam = (30 * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Water! (power 30)
+	if (eventcode == 23) then
+
+		local sdam
+
+		sdam = (30 * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WATER, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Earth! (power 30)
+	if (eventcode == 24) then
+
+		local sdam
+
+		sdam = (30 * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_EARTH, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Wind! (power 30)
+	if (eventcode == 25) then
+
+		local sdam
+
+		sdam = (30 * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WIND, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- An aura of Chaos! (power 30)
+	if (eventcode == 26) then
+
+		local sdam
+
+		sdam = (30 * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_CHAOS, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- Balcia(Banshee)'s special move.
+	if (eventcode == 27) then
+
+		if (p_ptr.events[1550] == 0 and monster(m_idx).lives <= 3) then
+
+			if (inven(INVEN_ESSENCE).tval > 0 and inven(INVEN_WIELD).tval == 0 and inven(INVEN_WIELD+1).tval == 0) then
+
+				show_dialog(1541)
+				inven(INVEN_ESSENCE).disabled = 20
+			elseif (inven(INVEN_WIELD).tval > 0 or inven(INVEN_WIELD+1).tval > 0) then
+
+				show_dialog(1541)
+				inven(INVEN_WIELD).disabled = 20
+				inven(INVEN_WIELD+1).disabled = 20
+			elseif (inven(INVEN_GLOVES).tval > 0) then
+				show_dialog(1541)
+				inven(INVEN_HANDS).disabled = 20
+			elseif (inven(INVEN_TOOL).tval > 0) then
+				show_dialog(1541)
+				inven(INVEN_TOOL).disabled = 20
+			end
+			update_and_handle()
+			p_ptr.events[1550] = 1
+		end
+	end
+
+	-- Teleports away(on a lit grid).
+	if (eventcode == 28) then
+
+		if (lua_randint(100) <= 33) then
+
+			local m_name = ""
+
+			if not (monster(m_idx).ml) then
+				m_name = "it"
+			elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+				m_name = m_race(monster(m_idx).r_idx).name_char
+			else
+				m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+			end
+
+			msg_print(string.format('%s teleports!', m_name))
+			teleport_away_light(m_idx, 10)
+		end
+	end
+
 	-- Shadow Mistress's teleportation.
+	-- Code has been rewritten so that this ability can be used for more creatures.
 	if (eventcode == 2303) then
+
+		local m_name = ""
+
+		if not (monster(m_idx).ml) then
+			m_name = "it"
+		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+			m_name = m_race(monster(m_idx).r_idx).name_char
+		else
+			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+		end
 
 		-- Check range
 		if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
@@ -1283,10 +1824,43 @@ function monster_events_code (m_idx, eventcode)
 			-- Check path
 			if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
 
-				msg_print("The Nightmare Shadow Mistress teleports through the shadows!")
+				msg_print(string.format('%s teleports to you!', m_name))
 				teleport_to_player(m_idx)
 			end
 		end
+	end
+
+	-- An aura of Fire and Wind.
+	-- Scaled.
+	if (eventcode == 2500) then
+
+		local sdam
+		local lvl
+
+		if (p_ptr.max_plv < 30) then lvl = 30
+		else lvl = p_ptr.max_plv end
+
+		sdam = (lvl * monster(m_idx).mind)
+		sdam = sdam + multiply_divide(sdam, monster(m_idx).skill_magic * 10, 100)
+
+		donthurtmonsters = 1
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_FIRE, 2)
+		lua_project(m_idx, 3, monster(m_idx).fy, monster(m_idx).fx, sdam, GF_WIND, 2)
+		donthurtmonsters = 0
+
+		update_and_handle()
+	end
+
+	-- Set mana to 0.
+	if (eventcode == 2501) then
+
+		monster(m_idx).mana = 0
+	end
+
+	-- Store the lives.
+	if (eventcode == 2505) then
+
+		p_ptr.events[25011] = monster(m_idx).lives
 	end
 
 	-- Flow event codes.
@@ -1418,12 +1992,62 @@ function monster_passive (m_idx, eventcode)
 		end
 	end
 
-	if (eventcode > 0) then monster_events_code(m_idx, eventcode) end
+	if (eventcode == 2501) then
+
+		local m_name = ""
+
+		if not (monster(m_idx).ml) then
+			m_name = "it"
+		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+			m_name = m_race(monster(m_idx).r_idx).name_char
+		else
+			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+		end
+
+		if ((monster(m_idx).seallight > 0 or monster(m_idx).csleep > 0) and (monster(m_idx).mana > 0)) then
+
+			msg_print(string.format('%s calms down.', m_name))
+			monster(m_idx).mana = 0
+		end
+
+		if (monster(m_idx).mana == 120) then monster_events_code(m_idx, 2303) end
+	else
+
+		if (eventcode > 0) then monster_events_code(m_idx, eventcode) end
+	end
 end
 
 function monster_take_damages (m_idx, eventcode)
 
-	monster_events_code(m_idx, eventcode)
+	if (eventcode == 2501) then
+
+		-- Pure Orcish Rage abilities.
+		local m_name = ""
+
+		if not (monster(m_idx).ml) then
+			m_name = "it"
+		elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+			m_name = m_race(monster(m_idx).r_idx).name_char
+		else
+			m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+		end
+
+		if (monster(m_idx).seallight == 0 and monster(m_idx).csleep == 0) then
+
+			if (monster(m_idx).mana < 100) then monster(m_idx).mana = monster(m_idx).mana + 20 end
+
+			msg_print(string.format('%s is building up rage(%d%%).', m_name, monster(m_idx).mana))
+
+			if (monster(m_idx).mana == 100) then
+
+				msg_print(string.format('%s unleash all his rage, and becomes an unstoppable force!!', m_name))
+				monster(m_idx).lives = monster(m_idx).lives * 3
+				monster(m_idx).mana = 120
+			end
+		end
+	else
+		monster_events_code(m_idx, eventcode)
+	end
 end
 
 function monster_dies (m_idx, eventcode)
@@ -1434,6 +2058,73 @@ end
 function monster_spawn (m_idx, eventcode)
 
 	monster_events_code(m_idx, eventcode)
+end
+
+-- ITEMS EVENTS
+
+-- Scripts related to item events, such as dropping, destroying, picking up items, etc...
+
+function item_events_code (m_idx, eventcode)
+
+	if (eventcode == 1) then
+
+		msg_print("I bet you're happy, right?")
+	end
+end
+
+function item_passive_equipped (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_passive_carried (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_passive_floor (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_pickup (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_drop (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_destroy (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_equip (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_takeoff (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_summon (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_unsummon (item, eventcode)
+
+	item_events_code(item, eventcode)
+end
+
+function item_spawn (item, eventcode)
+
+	item_events_code(item, eventcode)
 end
 
 add_event_handler("before_player_move", before_player_move)
@@ -1463,3 +2154,15 @@ add_event_handler("monster_passive", monster_passive)
 add_event_handler("monster_take_damages", monster_take_damages)
 add_event_handler("monster_dies", monster_dies)
 add_event_handler("monster_spawn", monster_spawn)
+add_event_handler("item_events_code", item_events_code)
+add_event_handler("item_passive_equipped", item_passive_equipped)
+add_event_handler("item_passive_carried", item_passive_carried)
+add_event_handler("item_passive_floor", item_passive_floor)
+add_event_handler("item_pickup", item_pickup)
+add_event_handler("item_drop", item_drop)
+add_event_handler("item_destroy", item_destroy)
+add_event_handler("item_equip", item_equip)
+add_event_handler("item_takeoff", item_takeoff)
+add_event_handler("item_summon", item_summon)
+add_event_handler("item_unsummon", item_unsummon)
+add_event_handler("item_spawn", item_spawn)

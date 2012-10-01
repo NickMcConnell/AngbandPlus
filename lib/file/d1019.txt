@@ -663,6 +663,7 @@ I:Julian;
 T:What do you want to know?;
 A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
 A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:What about the orcs? I still find it odd that they were able to revive them...:0:0:0:1:70:0:0:0:0
 A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %
 
@@ -675,6 +676,7 @@ T:descendants. It also means that you have some connection to the Red Licialhyd;
 T:within you, making your quest all the more important. Who knows what unknown;
 T:powers sleeps inside of you?;
 A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:What about the orcs? I still find it odd that they were able to revive them...:0:0:0:1:70:0:0:0:0
 A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %
 
@@ -686,6 +688,7 @@ T:of these children. But we won't know for sure until we solve the mystery;
 T:of this order and the Red Licialhyd. I'm sure they have the answer to this;
 T:question, though I doubt they'll want to share it with us...;
 A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:What about the orcs? I still find it odd that they were able to revive them...:0:0:0:1:70:0:0:0:0
 A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %
 
@@ -695,5 +698,36 @@ T:I have no ideas. I have never heard this name before. But cults and secret;
 T:orders often worship some kind of deity, so perhaps that's what Summapal;
 T:is. But I guess we'll only know for sure once we find the order.;
 A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
+A:What about the orcs? I still find it odd that they were able to revive them...:0:0:0:1:70:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:70:0:0:0:0:0
+I:Julian;
+T:Indeed, to be able to bring them back to existance was quite a feat.;
+T:What puzzles me, however, is why did they chose orcs over other monsters.;
+T:They could have used undead monsters or conjured demons, it would have been;
+T:much easier and just as deadly. Either they just wanted to show us just how;
+T:powerful they are...or perhaps there is more to this than we know.;
+A:I am intrigued. Do you have any suggestions where I could look for clues?:0:0:0:1:71:0:0:0:0
+A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
+A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
+A:I'll be leaving.:0:0:0:0:0:0:0:0:0
+%
+
+N:71:0:0:0:0:0
+I:Julian;
+T:Hmmm... not sure. It looks like they saw something in orcs over other;
+T:monsters. To find the answer to this puzzle, we would need to learn more;
+T:about orcs, and their secrets. Unfortunately, our libraries have information;
+T:about the war against the orcs, but very little concerning their customs;
+T:and traditions. The best place to start searching would be ruins of orcish;
+T:origin, though that is difficult to find. Hmmm...but come to think of it,;
+T:didn't you happen to visit one such place already? Now that Quazar's;
+T:influence is broken, I wonder if that place could contain more clues...;
+T:In any case, good luck, <NAME>. If you find anything, please come tell me;
+T:about it!;
+A:What do you think happened to the children after they were saved?:0:0:0:1:68:0:0:0:0
+A:Who do you think this 'Summapal' is?:0:0:0:1:69:0:0:0:0
 A:I'll be leaving.:0:0:0:0:0:0:0:0:0
 %

@@ -257,37 +257,6 @@ void search(void)
 					/* Disturb */
 					disturb(0, 0);
 				}
-
-				/* Scan all objects in the grid */
-				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-				{
-					object_type *o_ptr;
-					
-					/* Acquire object */
-					o_ptr = &o_list[this_o_idx];
-
-					/* Acquire next object */
-					next_o_idx = o_ptr->next_o_idx;
-
-					/* Skip non-chests */
-					if (o_ptr->tval != TV_CHEST) continue;
-
-					/* Skip non-trapped chests */
-					if (!o_ptr->pval) continue;
-
-					/* Identify once */
-					if (!object_known_p(o_ptr))
-					{
-						/* Message */
-						msg_print("You have discovered a trap on the chest!");
-
-						/* Know the trap */
-						object_known(o_ptr);
-
-						/* Notice it */
-						disturb(0, 0);
-					}
-				}
 			}
 		}
 	}
@@ -732,7 +701,7 @@ void incarnate_monster_attack(s16b m_idx, int x, int y)
         				damage += ((damage * p_ptr->dis_to_d) / 100);
         				damage += ((damage * p_ptr->stat_ind[A_STR]) / 100);
 					/* Some counters... */
-					if ((r_ptr->countertype == 1 || r_ptr->countertype == 3 || r_ptr->countertype == 17 || r_ptr->countertype == 19) && randint(100) <= r_ptr->counterchance)
+					if ((r_ptr->countertype == 1 || r_ptr->countertype == 3 || r_ptr->countertype == 17 || r_ptr->countertype == 19 || r_ptr->countertype == 24) && randint(100) <= r_ptr->counterchance)
 					{
 						if (monster_hit_player(t_ptr, 0))
 						{
@@ -1156,7 +1125,7 @@ void py_attack(int y, int x, int max_blow)
                                 }
 
 				/* Some counters... */
-				if ((r_ptr->countertype == 1 || r_ptr->countertype == 3 || r_ptr->countertype == 17 || r_ptr->countertype == 19) && randint(100) <= r_ptr->counterchance)
+				if ((r_ptr->countertype == 1 || r_ptr->countertype == 3 || r_ptr->countertype == 17 || r_ptr->countertype == 19 || r_ptr->countertype == 24) && randint(100) <= r_ptr->counterchance)
 				{
 					if (monster_hit_player(m_ptr, 0))
 					{
@@ -1700,7 +1669,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 		oktomove = FALSE;
 	}
 
-        else if ((c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER) && !p_ptr->climb && !p_can_pass_walls)
+        else if ((c_ptr->feat == FEAT_MOUNTAIN || c_ptr->feat == FEAT_GLACIER) && !p_ptr->climb && !p_ptr->fly && !p_can_pass_walls)
 	{
 		msg_print("You can't climb the mountains!");
 		running = 0;
@@ -1921,7 +1890,7 @@ void move_player_aux(int dir, int do_pickup, int run)
                 if (p_ptr->abilities[(CLASS_PALADIN * 10) + 2] >= 1) aura_of_life();
 
 		/* Elemental Lord's aura! */
-                if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] >= 1 && p_ptr->auraon) elem_lord_aura((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] * 5) * spellstat, 2 + (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] / 30));
+                if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] >= 1 && p_ptr->auraon) elem_lord_aura((p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] * 30) * spellstat, 2 + (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 5] / 10));
 
                 /* Justice Warrior's Aura Of Evil Repulsing! */
                 if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 2] >= 1) aura_repulse_evil(2 + (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 2] / 20));
@@ -2060,6 +2029,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 					p_ptr->starty = c_ptr->eventextra;
 
 					p_ptr->inside_quest = 0;
+					p_ptr->inside_secret = 0;
 					p_ptr->wild_mode = FALSE;
 					dun_level = 0;
 
@@ -2078,6 +2048,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 				p_ptr->starty = c_ptr->eventextra;
 
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 				p_ptr->wild_mode = FALSE;
 				dun_level = 0;
 
@@ -2117,6 +2088,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 					p_ptr->town_num = c_ptr->eventtype;
 					p_ptr->inside_quest = 0;
+					p_ptr->inside_secret = 0;
 					p_ptr->wild_mode = FALSE;
 					dun_level = 0;
 
@@ -2136,6 +2108,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 				p_ptr->town_num = c_ptr->eventtype;
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 				p_ptr->wild_mode = FALSE;
 				dun_level = 0;
 
@@ -2175,6 +2148,7 @@ void move_player_aux(int dir, int do_pickup, int run)
 
 				p_ptr->wild_mode = TRUE;
 				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
 				dun_level = 0;
 
 				p_ptr->leaving = TRUE;

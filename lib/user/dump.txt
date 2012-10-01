@@ -1,0 +1,50 @@
+                                                                               
+Human        —————”””””š”””””””””‘‘‘‘‘‘‘‘‘”””””””””””””””””””””””””šššššš“”””””
+Apprentice   “““““—””””””””””””””‘””””””””””””””””””””””””š””””””””””šššš“”””””
+Unranked     ““““““—”””””””””””””‘””“““š””””“““““”””””””””””””””””””””ššš“”””””
+LEVEL      1 “““““““—””””””””š”””‘‘‘““”””””“““““””””š””””””””””””””””ššš“”””””
+EXP        0 “““““““—””””””””””””‘””“““”””””““‹““”””””””””””””””””š”””ššš“”””””
+AU      1000 “““““““—””””“““““”””‘””””””””””””‘””t”””““““””““““”””””””ššš“”””””
+             ““ƒ“““—”””””“““““”””‘””””””””””””‘””””””““““””““““”””””””ššš“”””””
+STR:        5——‘———””””””““‰““”””‘””“““”””””””‘””””””““M“””“C““””””””””””””””””
+INT:        6š”‘”š”””””””””‘”””””‘”“““““””””””‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘”””””
+WIS:        5‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘ˆ““““””””””‘””””””””””””“Œ““””””””””””””””””
+DEX:        5””””””””””””””””””””‘”“““““””””””‘”””””š””””””““““”””””””ššš“”””””
+CON:        5””””””””””””””””””””‘””“““”””””””@””””””””””””““““”””””””ššš“”””””
+CHR:        6””””““““””””””””””””‘””””””””””””‘”””””””””””””””””š”””šš€€€“”””””
+AC         0 ””””““““””””””””””””‘””””””””””””‘””””””””””””””””””””š€€€€€“”””””
+             ””””“““‡‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘‘”””””””””“““””š€€€€€€“”””””
+HP   36/   36””””““““””””””‘”””””‘””””““ƒ““”””””””t‘”””””””””“ƒ“”€€€€€€€š“”””””
+SP   10/   10š”””““““””””””‘”””””‘””””“““““””””””””‘””””””š”””t€€€€€€€ššš“”””””
+             ””””””””””””””‘”””””‘””””“““““”””””””š‘š”””””””””€€€€€€€šššš“”””””
+[          ] ””””””“““”””””‘”””‘‘‘”””””””””””””””š“Š“š””””””””€€€€€€€šššš“”””””
+             ””””””““ƒ‘‘‘‘‘‘”””‘““”””””””””””””š“““““š””””””€€€€€€€ššššš“”””””
+             ””””””“““”””””””””‘“““””””””””””””””š“““š”””””€€€€€€€ššššššš“”””””
+             š”””””””””””””””””‘“““””””””””š””””””ššš”””””€€€€€€€šššššššš“”””””
+                                                                   Udor        
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+BBBBBwwwwwwwwrrrrrrrrrrsrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrssssssdrrrrr
+BBBBBBBBBBwwwdddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrsrrrrrrrrrrssssdrrrrr
+BBBBBBBBwwwwwddddddrrrrrrrrrrrrrrrrrdddsrrrrdddddrrrrrrrrrrrrrrrrrrrrrsssdrrrrr
+wwwwwwGGGGGGwdddddddrrrrrrrrrsrrrrrrsddrrrrrdddddrrrrsrrrrrrrrrrrrrrrrsssdrrrrr
+wwwwGGGGGGGGwdddddddrrrrrrrrrrrrrrrrdddrrrrrddsddrrrrrrrrrrrrrrrrrsrrrsssdrrrrr
+wwwGGGGGGGGGwdddddddrrrrrdddddrrrrrrrrrrrrrrrrrrrRrrrddddrrddddrrrrrrrsssdrrrrr
+wwwwwwwwwwwwwddsdddrrrrrrdddddrrrrrrrrrrrrrrrrrrrrrrrddddrrddddrrrrrrrsssdrrrrr
+wwwwwwGGGGGGGrrrrrrrrrrrrddsddrrrrrrdddrrrrrrrrrrrrrrddGdrrdgddrrrrrrrrrrrrrrrr
+wwwwwwGGGGGGGsrrrsrrrrrrrrrrrrrrrrrdddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+wwwwwwGGGGGGGrrrrrrrrrrrrrrrrrrrrrrsddddrrrrrrrrrrrrrrrrrrrdsddrrrrrrrrrrrrrrrr
+wwwwwwGGGGGGGrrrrrrrrrrrrrrrrrrrrrrdddddrrrrrrrrrrrrsrrrrrrddddrrrrrrrsssdrrrrr
+wwwwwwGGGGGGGrrrrrrrrrrrrrrrrrrrrrrrdddrrrrrrrwrrrrrrrrrrrrddddrrrrrrrsssdrrrrr
+wwwwwwGGGGGGGrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrsrrrssooodrrrrr
+wwwGGGGGGGGGwrrrrddddrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrsooooodrrrrr
+wwwwwwwwwwwwwrrrrdddsrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdddrrsoooooodrrrrr
+wwGGGGGGGGGGGrrrrddddrrrrrrrrrrrrrrrrrddsddrrrrrrrurrrrrrrrrrdsdrooooooosdrrrrr
+wwGGGGGGGGGGGsrrrddddrrrrrrrrrrrrrrrrrdddddrrrrrrrrrrrrrrrsrrrbooooooosssdrrrrr
+wwwwwwwwwwwwwrrrrrrrrrrrrrrrrrrrrrrrrrdddddrrrrrrrsrsrrrrrrrrrooooooossssdrrrrr
+wwwwwwwwwwwwwrrrrrrdddrrrrrrrrrrrrrrrrrrrrrrrrrrrsdsdsrrrrrrrrooooooossssdrrrrr
+wwwwwwwwwwwwwrrrrrrddsrrrrrrrrrrdsdrrrrrrrrrrrrrsdddddsrrrrrrooooooosssssdrrrrr
+wwwwwwwwwwwwwrrrrrrdddrrrrrrrrrrdddrrrrrrrrrrrrrrsdddsrrrrrooooooosssssssdrrrrr
+wwwwwwwwwwwwwsrrrrrrrrrrrrrrrrrrdddrrrrrrrrsrrrrrrsssrrrrrooooooossssssssdrrrrr
+GGGGGGGwwwwwGwwwwwwwwGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+

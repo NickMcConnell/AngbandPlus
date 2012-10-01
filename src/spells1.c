@@ -317,7 +317,7 @@ void teleport_away(int m_idx, int dis)
 void teleport_to_player(int m_idx)
 {
 	int ny, nx, oy, ox, d, i, min;
-	int dis = 2;
+	int dis = 1;
 
 	bool look = TRUE;
 
@@ -335,7 +335,8 @@ void teleport_to_player(int m_idx)
 	ox = m_ptr->fx;
 
 	/* Minimum distance */
-	min = dis / 2;
+	/*min = dis / 2;*/
+	min = 1;
 
 	/* Look until done */
 	while (look && --attempts)
@@ -1055,7 +1056,7 @@ void take_hit(s32b damage, cptr hit_from)
         if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] >= 1 && !(p_ptr->confused) && damage > 0)
         {
                 int chance = p_ptr->guardconfuse;
-                s32b reduction = (p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] * 1000);
+                s32b reduction = (p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] * multiply_divide((p_ptr->dis_ac + p_ptr->dis_to_a), p_ptr->abilities[(CLASS_DEFENDER * 10) + 5] * 20, 100));
                 char ch;
 
                 msg_format("You are about to take %ld damages...", damage);
@@ -1153,62 +1154,108 @@ void take_hit(s32b damage, cptr hit_from)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
-		if ((p_ptr->inside_quest > 0) && (p_ptr->death_dialog > 0))
+		bool willsurvive = FALSE;
+
+		/* Restless Dead may allow you to survive. */
+		if (p_ptr->abilities[(CLASS_NIGHT1 * 10) + 4] >= 1)
 		{
-			p_ptr->chp = 1;
-			death = FALSE;
-			if (p_ptr->eventdeath > 0) p_ptr->events[p_ptr->eventdeath] = p_ptr->eventdeathset;
-			show_dialog(p_ptr->death_dialog);
+			int ppower;
+			int dpower;
+
+			ppower = (p_ptr->cursed / 3) * p_ptr->abilities[(CLASS_NIGHT1 * 10) + 4];
+			dpower = (dun_level * 3);
+
+			if (randint(ppower) >= randint(dpower)) willsurvive = TRUE;
+		}
+
+		if ((willsurvive) && !(death))
+		{
+			msg_print("You refuse to die!");
+			p_ptr->chp = 0;
+			update_and_handle();
 		}
 		else
 		{
-                	cptr str;
 
-                	/* You're dying! */
-                	dying = TRUE;
+			if ((p_ptr->inside_quest > 0) && (p_ptr->death_dialog > 0))
+			{
+				p_ptr->chp = 1;
+				death = FALSE;
+				if (p_ptr->eventdeath > 0) p_ptr->events[p_ptr->eventdeath] = p_ptr->eventdeathset;
+				show_dialog(p_ptr->death_dialog);
+			}
+			else if (p_ptr->inside_secret > 0)
+			{
+				p_ptr->chp = 1;
+				death = FALSE;
+				show_dialog(20000);
+				p_ptr->inside_quest = 0;
+				p_ptr->inside_secret = 0;
+				dun_level = 0;
+				p_ptr->leaving = TRUE;
+			}
+			else
+			{
+                		cptr str;
 
-                	/* Sound */
-                	sound(SOUND_DEATH);
+                		/* You're dying! */
+                		dying = TRUE;
 
-                	/* Hack -- Note death */
-                	if (!last_words)
-                	{
-                        	msg_print("You die.");
-                        	msg_print(NULL);
-                	}
-                	else
-                	{
-                        	(void)get_rnd_line("death.txt", death_message);
-                        	msg_print(death_message);
-                	}
+                		/* Sound */
+                		/*sound(SOUND_DEATH);*/
 
-                	/* Note cause of death */
-                	(void)strcpy(died_from, hit_from);
+                		/* Hack -- Note death */
+                		/*if (!last_words)
+                		{
+                        		msg_print("You die.");
+                        		msg_print(NULL);
+                		}
+                		else
+                		{
+                        		(void)get_rnd_line("death.txt", death_message);
+                        		msg_print(death_message);
+                		}*/
 
-                	if (p_ptr->image) strcat(died_from,"(?)");
+                		/* Note cause of death */
+                		(void)strcpy(died_from, hit_from);
 
-                	/* Increase death count! */
-                	p_ptr->deathcount += 1;
+                		if (p_ptr->image) strcat(died_from,"(?)");
 
-                	/* No longer a winner */
-                	total_winner = FALSE;
+                		/* Increase death count! */
+                		/*p_ptr->deathcount += 1;*/
 
-                	/* Leaving */
-                	p_ptr->leaving = TRUE;
+                		/* No longer a winner */
+                		total_winner = FALSE;
 
-			/* We won't resurrect in the wild... */
-			p_ptr->wild_mode = FALSE;
+                		/* Leaving */
+				/* As of Portralis 0.4, our destination is the Limbo! :) */
+				dun_level = 1;
+				p_ptr->chp = 1;
+				p_ptr->inside_quest = 30000;
+				p_ptr->questx = 15;
+				p_ptr->questy = 7;
+				p_ptr->word_recall = 0;
+                		p_ptr->leaving = TRUE;
+				/*generate_cave();*/
 
-                	/* Note death */
-                	death = TRUE;
+				/*dying = FALSE;*/
 
-                	if (get_check("Dump the screen? "))
-                	{
-                        	do_cmd_save_screen();
-                	}
+				/*do_cmd_save_game();*/
 
-                	/* Dead */
-                	return;
+				/* We won't resurrect in the wild... */
+				/*p_ptr->wild_mode = FALSE;*/
+
+                		/* Note death */
+                		/*death = TRUE;*/
+
+                		/*if (get_check("Dump the screen? "))
+                		{
+                        		do_cmd_save_screen();
+                		}*/
+
+                		/* Dead */
+                		return;
+			}
 		}
 	}
 
@@ -3261,7 +3308,7 @@ bool project_m(int who, int r, int y, int x, s32b dam, int typ)
 		call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 		if (hit == 1)
 		{
-			if ((r_ptr->countertype == 16 || r_ptr->countertype == 17 || r_ptr->countertype == 18 || r_ptr->countertype == 19) && randint(100) <= r_ptr->counterchance)
+			if ((r_ptr->countertype == 16 || r_ptr->countertype == 17 || r_ptr->countertype == 18 || r_ptr->countertype == 19 || r_ptr->countertype == 24) && randint(100) <= r_ptr->counterchance)
 			{
 				if (randint(m_ptr->dex) >= randint(p_ptr->stat_ind[A_DEX]))
 				{
@@ -3322,6 +3369,24 @@ bool project_m(int who, int r, int y, int x, s32b dam, int typ)
 
 			if (is_pet(m_ptr) && !(m_ptr->ml))
 				sad = TRUE;
+
+			if (m_ptr->lives > 0)
+			{
+				sound(SOUND_FLEE);
+				m_ptr->lives -= 1;
+				msg_format("%^s has lost a life point.", m_name);
+				m_ptr->hp = m_ptr->maxhp;
+				return (FALSE);
+			}
+
+			/* Immortality. */
+			if ((r_ptr->flags7 & (RF7_IMMORTAL)) && (enemy_immortality))
+			{
+				msg_format("%^s has been knocked out.", m_name);
+				m_ptr->hp = 1;
+				m_ptr->seallight = 5;
+				return (FALSE);
+			}
 
 #ifdef PET_GAIN_EXP
                 if(stupidvariable == 1)
@@ -4451,4 +4516,102 @@ bool lord_piercing(int basechance, int factor, int typ, monster_type *m_ptr, int
 
         /* Default */
         return (FALSE);
+}
+
+/* Teleport, but only on a lit grid. */
+void teleport_away_light(int m_idx, int dis)
+{
+	int ny, nx, oy, ox, d, i, min;
+	int tries = 0;
+
+	bool look = TRUE;
+
+	monster_type *m_ptr = &m_list[m_idx];
+
+	/* Paranoia */
+	if (!m_ptr->r_idx) return;
+
+	/* Save the old location */
+	oy = m_ptr->fy;
+	ox = m_ptr->fx;
+
+	/* Minimum distance */
+	min = dis / 2;
+
+	/* Look until done */
+	while (look)
+	{
+		tries++;
+
+		/* Verify max distance */
+		if (dis > 200) dis = 200;
+
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+				ny = rand_spread(oy, dis);
+				nx = rand_spread(ox, dis);
+				d = distance(oy, ox, ny, nx);
+				if ((d >= min) && (d <= dis)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds(ny, nx)) continue;
+
+			/* Require "empty" floor space */
+			if (!cave_empty_bold(ny, nx)) continue;
+
+			/* Hack -- no teleport onto glyph of warding */
+			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
+			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+
+			/* ...nor onto the Pattern */
+			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
+			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+
+			/* No teleporting into vaults and such */
+			if (!(p_ptr->inside_quest))
+				if (cave[ny][nx].info & (CAVE_ICKY)) continue;
+
+			/* Requires light. */
+			if (!(cave[ny][nx].info & (CAVE_GLOW)) && !(cave[ny][nx].info & (CAVE_LITE)) && !(cave[ny][nx].info & (CAVE_MARK))) continue;
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dis = dis * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+
+		/* Stop after MAX_TRIES tries */
+		if (tries > MAX_TRIES) return;
+	}
+
+	/* Update the new location */
+	cave[ny][nx].m_idx = m_idx;
+
+	/* Update the old location */
+	cave[oy][ox].m_idx = 0;
+
+	/* Move the monster */
+	m_ptr->fy = ny;
+	m_ptr->fx = nx;
+
+	/* Update the monster (new location) */
+	update_mon(m_idx, TRUE);
+
+	/* Redraw the old grid */
+	lite_spot(oy, ox);
+
+	/* Redraw the new grid */
+	lite_spot(ny, nx);
 }

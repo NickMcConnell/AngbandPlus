@@ -344,8 +344,16 @@ static void roff_aux(int r_idx, int remem)
 		/* Killed some this life */
 		if (r_ptr->r_pkills)
 		{
-			roff(format("You have killed at least %d of these creatures.  ",
-			            r_ptr->r_pkills));
+			if (r_ptr->r_ekills > 0 || r_ptr->r_bkills > 0)
+			{
+				roff(format("You have killed at least %d of these creatures, including %d elites and %d bosses.  ",
+			            	r_ptr->r_pkills, r_ptr->r_ekills, r_ptr->r_bkills));
+			}
+			else
+			{
+				roff(format("You have killed at least %d of these creatures.  ",
+			            	r_ptr->r_pkills));
+			}
 		}
 
 		/* Killed some last life */
@@ -525,7 +533,15 @@ static void roff_aux(int r_idx, int remem)
 		}
 
 		/* Speed */
-		if (r_ptr->speed > 110)
+		if (r_ptr->flags7 & (RF7_VERY_FAST))
+		{
+			c_roff(TERM_INDIGO, " blindingly fast");
+		}
+		else if (r_ptr->flags7 & (RF7_FAST))
+		{
+			c_roff(TERM_YELLOW, " unbelievably fast");
+		}
+		else if (r_ptr->speed > 110)
 		{
                         if (r_ptr->speed > 130) c_roff(TERM_RED, " incredibly");
                         else if (r_ptr->speed > 120) c_roff(TERM_ORANGE, " very");
@@ -1847,8 +1863,16 @@ void roff_aux_boss(int r_idx, int remem, monster_type *m_ptr)
 		/* Killed some this life */
 		if (r_ptr->r_pkills)
 		{
-			roff(format("You have killed at least %d of these creatures.  ",
-			            r_ptr->r_pkills));
+			if (r_ptr->r_ekills > 0 || r_ptr->r_bkills > 0)
+			{
+				roff(format("You have killed at least %d of these creatures, including %d elites and %d bosses.  ",
+			            	r_ptr->r_pkills, r_ptr->r_ekills, r_ptr->r_bkills));
+			}
+			else
+			{
+				roff(format("You have killed at least %d of these creatures.  ",
+			            	r_ptr->r_pkills));
+			}
 		}
 
 		/* Killed some last life */

@@ -1,3 +1,11 @@
+N:1:1524:2:0:0:0
+I:Gold Soldier;
+T:Hello, <NAME>.;
+A:Who is this Ludgar Zos you mentionned before?:0:0:0:1:16:0:0:0:0
+A:I have some questions.:0:0:0:1:9:0:0:0:0
+A:I'll be going then.:0:0:0:0:0:0:0:0:0
+%
+
 N:1:1524:1:0:0:0
 I:Gold Soldier;
 T:Korthrax should be waiting for you at (82,49). You should go there as soon;
@@ -140,7 +148,7 @@ T:As promised, we have made the arrangements for you to get the amulet you;
 T:need. You'll need to meet with Korthrax, a high priest of Shan, and one;
 T:of Ludgar Zos' closest advisors. He will give you further instructions on;
 T:obtaining the amulet. The meeting will take place at (82,49), the site;
-T:of some old ruins, and will be waiting for you outside.;
+T:of some old ruins, and he will be waiting for you outside.;
 A:[CONTINUE]:0:0:0:1:15:0:0:0:0
 %
 
@@ -156,8 +164,8 @@ A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 N:16:0:0:0:0:0
 I:Gold Soldier;
 T:Master Ludgar is the most powerful priest of Shan in Rhyzendal. Highly devoted;
-T:to server the Golden Sul-Rin, he is a highly respected figure in the northern;
-T:lands. Much more that the "official" leader, Soroth Zenras.;
+T:to serving the Golden Sul-Rin, he is a highly respected figure in the northern;
+T:lands. Much more than the "official" leader, Soroth Zenras.;
 A:Tell me more about Soroth Zenras.:0:0:0:1:17:0:0:0:0
 A:I have some other questions.:0:0:0:1:9:0:0:0:0
 A:I'll be going.:0:0:0:0:0:0:0:0:0
@@ -172,7 +180,6 @@ T:that Shan is the one and only true leader. After all, politics pale in;
 T:comparison to an Archfiend's powers. But other nations would be too scared;
 T:of dealing with one such as Shan directly, so we prefer to have someone;
 T:of lesser power to facilitate communications and trades.;
-A:Tell me more of Soroth Zenras.:0:0:0:1:17:0:0:0:0
 A:I have some other questions.:0:0:0:1:9:0:0:0:0
 A:I'll be going.:0:0:0:0:0:0:0:0:0
 %

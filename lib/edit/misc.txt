@@ -1,7 +1,7 @@
 # File: misc.txt
 
 # Maximum number of monsters in r_info.txt
-M:R:2470
+M:R:2700
 
 # Maximum number of items in k_info.txt
 M:K:1500

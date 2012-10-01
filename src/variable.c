@@ -239,7 +239,6 @@ bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
-bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 
 
@@ -372,6 +371,9 @@ bool damages_counter_player_damages;
 s16b damages_counter_duration;
 bool stormshadow;
 bool enemy_immortality;
+bool mcounter;
+bool monster_counter_attack;
+bool building_vault;
 char tmpluastring[80];
 bool red_roff;
 bool ignorephysimmunity;
@@ -1186,7 +1188,7 @@ magic_spells magic_spell[31];
 monster_magics monster_magic[15];
 
 /* Music songs. */
-music_songs music_song[15];
+music_songs music_song[16];
 
 /* Wilderness! */
 wild_info wild[MAX_WILD_X][MAX_WILD_Y];
@@ -1214,6 +1216,12 @@ int fate_item_modifier = 0;
 
 /* A global object to be used. */
 object_type global_object;
+
+/* New option */
+bool very_fast_messages;
+
+/* Chest type being opened. */
+int opening_chest_type;
 
 /* Wilderness variables. */
 s16b wild_max_x;

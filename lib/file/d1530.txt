@@ -1,0 +1,10 @@
+N:1:0:0:0:0:0
+I: ;
+T:You arrive near the palace. There are no more Defenders, all of them have;
+T:been turned into those 'Defender Wights'. They are now patrolling in front;
+T:of the palace. As for the area itself, it's layout seems to have changed,;
+T:much like what happened in Jindar when the orcs started appearing.;
+T:The main gate is sealed, and you will have to find a way to get inside the;
+T:palace.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

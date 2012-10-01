@@ -257,7 +257,7 @@ N:27:0:0:0:0:0
 I:Tia;
 T:WOAH!! NO WAY!! IT... IT WORKED!!!! Haha, I can't believe it! It really;
 T:worked! Ooh, these gloves are really awesome! Let's use a scroll and;
-T:identify it! I want to feel all of their power!;
+T:identify them! I want to feel all of their power!;
 A:[CONTINUE]:0:0:0:1:28:0:0:0:0
 %
 

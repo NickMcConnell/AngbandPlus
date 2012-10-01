@@ -162,7 +162,7 @@ physically weak. But make no mistakes, their spells more than make
 up for their frail bodies!
 
 ELEMENTAL LORD:
-Requirements: Warrior level 3, Strength: 20, Intelligence: 10
+Requirements: Warrior level 3, Mage level 3, Strength: 10, Intelligence: 10
 
         Strength: +25%
         Constitution: +25%

@@ -42,7 +42,7 @@
 /* Added for NewAngband(code from old Pern) */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 0
-#define FAKE_VER_MINOR 3
+#define FAKE_VER_MINOR 4
 #define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
@@ -619,6 +619,13 @@
 #define CLASS_MONSTER           22
 #define CLASS_BARD              23
 
+/* Nightmare abilities templates */
+#define CLASS_NIGHT1            40
+#define CLASS_NIGHT2            41
+#define CLASS_NIGHT3            42
+#define CLASS_NIGHT4            43
+#define CLASS_NIGHT5            44
+
 /*** Screen Locations ***/
 
 /*
@@ -1131,6 +1138,18 @@
  * Special "sval" limit -- first "large" chest
  */
 #define SV_CHEST_MIN_LARGE      4
+
+/* The first "chest" object in k_info.
+#define CHEST_MIN_KIDX 38
+
+/* More chest constants. */
+#define CHEST_WOODEN 38
+#define CHEST_IRON 39
+#define CHEST_STEEL 40
+#define CHEST_MAGIC 41
+#define CHEST_CURSED 42
+#define CHEST_ANCIENT 43
+#define CHEST_SPECIAL 44
 
 /*
  * Special "sval" limit -- first "good" magic/prayer book
@@ -2266,8 +2285,8 @@
 #define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
 #define RF7_PLAYER_MONSTER      0x00000040  /* Monster is an old player */
 #define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
-#define RF7_LEVEL_30            0x00000100  /* Monster is always level 30 */
-#define RF7_LEVEL_60            0x00000200  /* Monster is always level 60 */
+#define RF7_FAST                0x00000100  /* Monster is unusually fast */
+#define RF7_VERY_FAST           0x00000200  /* Monster is REALLY fast */
 #define RF7_LEVEL_100           0x00000400  /* Monster is always level 100 */
 #define RF7_VARIAZ              0x00000800  /* That monster is VARIAZ!! */
 #define RF7_SEDUCE_MALES        0x00002000  /* Have an easy time with males! */
@@ -2282,6 +2301,9 @@
 #define RF7_IMMORTAL            0x00400000  /* Immortal enemy. */
 #define RF7_RANDOM              0x00800000  /* Random monster. */
 #define RF7_UNPLAYABLE          0x01000000  /* Unplayable with Monster race. */
+#define RF7_SCALED              0x02000000  /* Scaled enemy. Scales with player level. */
+#define RF7_SECRET_BOSS         0x04000000  /* Secret level boss. */
+#define RF7_CANNOT_COUNTERSPELL 0x08000000  /* Can't counterspell this monster. */
 
 
 /*
@@ -3075,7 +3097,7 @@ extern int PlayerUID;
 #define DIVI_DETECT_OBJECTS     0x00000002L
 #define DIVI_DETECT_DOORS       0x00000004L
 #define DIVI_DETECT_STAIRS      0x00000008L
-#define DIVI_DETECT_TRAPS       0x00000010L
+#define DIVI_DETECT_CHESTS      0x00000010L
 #define DIVI_TELEPATHY          0x00000020L
 #define DIVI_IDENTIFY           0x00000040L
 #define DIVI_SCAN_MONSTER       0x00000080L

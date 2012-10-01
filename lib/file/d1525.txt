@@ -1,0 +1,64 @@
+N:1:0:0:0:0:0
+I: ;
+T:Behind the door, you hear two persons talking...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Man;
+T:Everything is ready, lady Balcia. We took many of the Defenders that you;
+T:and your order placed under your influence, and turned them into wights.;
+T:We have over 500 of those 'Defender Wights' ready to be sacrificed in order;
+T:to summon the allmighty Grey Wight, one of Ryoon's most powerful servant.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:Excellent work, Loroth. It seems we were right to ask for your help.;
+T:Christina and <NAME> thought they could reverse our magic with;
+T:the help of an Archfiend's powers. Well, in this case, we just had to;
+T:ask for the help of worshippers of a rival Archfiend!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Loroth;
+T:Hehehe... Christina is a good-hearthed queen. Therefore, she has no ideas;
+T:how to deal with Archfiends! She claims to be a friend of Shan, but in the;
+T:world of Archfiends, there is no such things called 'friend'. Turning away;
+T:from the gods, only to be deceived by a Sul-Rin... Christina's days are;
+T:counted.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Balcia;
+T:Yes, but stay on your guards. Ivhala is ours, and Christina will be very;
+T:soon. But there is a problem. That problem is <NAME>.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Loroth;
+T:As strong as <heshe> is, <heshe> will not stand a chance against;
+T:the Grey Wight once we summon it. In fact, if the Grey Wight, no mere;
+T:mortals will be able to stop it. It will require the intervention of;
+T:gods and their champions. This will turn into an epic war between;
+T:gods and demons, much to Ryoon's delight!;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Balcia;
+T:This war would indeed reshape Portralis. But for that, we need to actually;
+T:summon it, so I suggest that we hurry, and start the summoning ritual.;
+T:We never know when <NAME> will show up. Let's get going.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:The two leaves the room. It doesn't seem like they have noticed you yet.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

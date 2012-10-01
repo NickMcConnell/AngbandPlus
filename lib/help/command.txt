@@ -1,7 +1,7 @@
 === List of Commands ===
 
  a  Aim a wand                           A  Activate an artifact
- b  (unused)                             B  Bash a door
+ b  Browse spells                        B  Bash a door
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap
  e  Equipment list                       E  (unused)
@@ -25,7 +25,7 @@
  w  Wear/wield equipment                 W  Talk to npc/monsters
  x  Toggle dual wielding                 X  Use a Licialhyd
  y  Make a pile of gold                  Y  Change class
- z  Zap a rod                            Z  Steal from monster
+ z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (unused)
  #  (unused)                            ^C  (special - break)

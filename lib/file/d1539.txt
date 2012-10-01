@@ -1,0 +1,62 @@
+N:1:0:0:0:0:0
+I: ;
+T:You arrive in a large room. Balcia is in the middle. However, you notice that;
+T:her skin has become greyish.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balcia;
+T:This is quite an unexpected turn of events, <NAME>. The ghost;
+T:of the Grey Wight is now inside my body. We have merged together! We are;
+T:one being now. Do you realize the power we now hold?;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:But I haven't used my red licialhyd yet. But I won't keep you waiting.;
+T:I will use it right now!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Balcia activates her red licialhyd. She starts glowing with a strong, red;
+T:light.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Balcia;
+T:UWAAHHHH!!!!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:The light becomes very strong, and the ground starts shaking. After a moment,;
+T:the light fades. In front of you is a ghost of Balcia. She has turned into a;
+T:ghost, and her color is all grey. On her forehead is a third, glowing red eye.;
+T:From her ghostly emanates an aura of pure chaos.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Balcia;
+T:How do you like my new form, <NAME>? Using the red licialhyd, me and the ghost;
+T:of the Grey Wight have fused together to form one mighty being! I now wield;
+T:unimaginable powers! I control chaos and darkness. I control the living,;
+T:the dead, and reality itself! I have become a being of another level of;
+T:existance. I have acheived what Summapal said I would! His words were the;
+T:truth, <NAME>.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Balcia;
+T:Well then. It's time to say goodbye, <NAME>. On this day, I will erase;
+T:you from this world. And then, our order will be victorious! It will;
+T:be a day of victory for Summapal and the Ghostfather!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

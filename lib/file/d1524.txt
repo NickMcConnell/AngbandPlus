@@ -1,0 +1,209 @@
+N:1:1525:1:0:0:0
+I:Gary Dragonheart;
+T:Hi there, <NAME>! Found any new scales yet? Let me know if you need anything!;
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1525:0:0:0:0
+I: ;
+T:You meet an aged, grey-bearded dwarf who is busy hammering what seems to;
+T:be a red dragon scale mail. After a moment, he notices you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Gary Dragonheart;
+T:Hello there, <CLASS>! The name's Gary. Gary Dragonheart!;
+T:The greatest dragon armors specialist in Ivhala, and hopefully in all;
+T:of Portralis! And who might you be?;
+A:My name is <NAME>.:0:0:0:1:3:0:0:1525:1
+%
+
+N:3:0:0:0:0:0
+I:Gary Dragonheart;
+T:Glad to meet you, <NAME>. As I said, I'm a dragon armors specialist.;
+T:If you've ever fought those beasts, you know how hard their scales;
+T:are! It's only natural that one who defeats such a creature would want;
+T:an armor made from the beast's scales. But just because you're a great;
+T:warrior doesn't mean you're necessarely a great smith! And this is where;
+T:I come in!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Gary Dragonheart;
+T:Adventurers like you brings me the scales of the dragons and drakes.;
+T:And I make armors from them, and charge a price that is more than;
+T:reasonable. Of course, obtaining the scales may not be easy, but for;
+T:experienced adventurers, I offer an alternative to paying exorbitant;
+T:prices you'd normally pay for dragon armors! So tell me, <NAME>,;
+T:what are you interested in?;
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Gary Dragonheart;
+T:Me? Well, I was once a dragon hunter during my younger days. Me, a couple;
+T:friends, and our master, often went on dragon hunting journeys. We would;
+T:take the scales and sell them for profit. That was the good old days!;
+T:But it all ended when my master died by the claws of an Ice Drake...he did;
+T:not know that the Ice Drakes couldn't be really hurt by normal weapons,;
+T:and neither did we. That day marked the end of our dragon hunting days,;
+T:Now I work as a dragon armor specialist, and forge armors for the new;
+T:generation of dragon hunters who brings me dragon or drake scales.;
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Gary Dragonheart;
+T:Dragons are amongst the strongest creatures in the world. Underneath;
+T:their reptilian appearence lies a creature with great intelligence;
+T:and magical powers, far above those an average mortal wizard would;
+T:ever possess. Their elemental breath attacks are not mere natural;
+T:defenses. They draw power directly from the dragon's inner magical;
+T:energy. Their scales are extremely tough, and combined with the;
+T:dragon's size, this makes dragons incredibly resilient. So as you;
+T:can see, dragons are pretty much the perfect creatures. They have;
+T:strength, size, toughness, intelligence and magical powers. And they;
+T:don't have any real weaknesses to offset this.;
+A:What are the different kinds of dragons?:0:0:0:1:7:0:0:0:0
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Gary Dragonheart;
+T:You have the six basic colors: red, white, blue, green, black and gold.;
+T:Each of them possess a different type of elemental energy. Red has fire,;
+T:white has cold, blue has electricity, green has poison, black has acid;
+T:and gold has light. Then you have the Ice Dragons of Rhyzendal, which;
+T:have ice scales that are indestructible to mundane weapons.;
+T:Their elemental breaths combines cold with shards of ice for physical;
+T:damages. And finally, you have the prismatic dragons, the most powerful;
+T:known dragon kind, combining all six elements into one body,;
+T:and recognisable by their purple scales and their superior powers.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Gary Dragonheart;
+T:A dragon's powers will also greatly evolve based on how long it lives.;
+T:But even baby dragons are capable of fighting, and can be found as predators;
+T:in the upper levels of dungeons and caves. They continue to fight through;
+T:their youth, becoming deadly and intelligent creatures. Once they reach;
+T:maturity, they become unstoppable forces that can only be defeated by the;
+T:bravest and most powerful challengers. Dragons loves to fight by the way.;
+T:They enjoy testing their might against strong adventuers, and keep their;
+T:belongings as war trophies. The older they live, the more treasures they;
+T:accumulate, and some of the oldest dragons have incredibly large treasure;
+T:hoards.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Gary Dragonheart;
+T:That's pretty much it about dragons. If you meet one, make sure you are;
+T:properly equipped to fight it, or you'll most likely become the dragon's;
+T:next meal! Don't hesitate to run away. There's no shame in running away;
+T:from a dragon.;
+A:Are there any rumors about any other kind of dragons?:0:0:0:1:10:0:0:0:0
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Gary Dragonheart;
+T:Well... Several years ago, my master told me something. He said that while;
+T:he was tracking a mature red dragon he was hired to kill, he briefly saw;
+T:a copper-colored baby dragon! He tried to follow it, but lost it's track.;
+T:Later that day, he saw an orange-colored baby dragon! Although the color;
+T:was different, the baby dragon was otherwise identical to the copper;
+T:one. Could it have been the same dragon? Unfortunately, my master never;
+T:saw it again...and he got killed before he could ever get a chance to search;
+T:for it.;
+T:*sigh*;
+T:My dear old master... damn those drakes...;
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:11:0:0:0:0:0
+I:Gary Dragonheart;
+T:*He shivers, as if you just mentionned something that makes him remember;
+T:some unpleasent memories...*;
+T:...drakes... Well, a drake's kind of like a smaller, lighter dragon, but they;
+T:are just as dangerous as the larger dragons, if not more. To make up for;
+T:their lesser raw power, they are faster, they can use their energy breaths;
+T:more quickly, and even have the power to magically summon real dragons!;
+T:A drake's magical abilities should never be underestimated... Also, they;
+T:control two elements instead of one. My master told me about the;
+T:Frostfire Drake, a drake of fire and cold, the Noxious Drake, a drake of;
+T:acid and poison, and the Sky Drake, a drake of electricity and light.;
+A:[CONTINUE]:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Gary Dragonheart;
+T:And of course, there's the notorious Ice Drake, perhaps the nastiest of;
+T:them all. A drake of pure magical ice that is near impervious mundane weapons.;
+T:Don't even bother trying to damage their scales, it doesn't work. My master;
+T:learned that the hard way... and the damn thing killed him. And we were;
+T:never able to avenge him. The Ice Drake is the first drake I've ever fought,;
+T:and also the last one. We never killed it. *sigh*... Anyway, I hope you'll;
+T:have more success than me and my friends had.;
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Gary Dragonheart;
+T:Ah, good! All I need is for you to give me the scales of the dragon or drake,;
+T:and I will make you an armor out of it. And of course, you'll need to pay;
+T:the appropriate price. The price will vary depending on the scales.;
+A:[Give him scales]:0:0:0:11:7:14:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:14:1526:1:0:0:0
+I: ;
+T:Gary takes the scales, and begins crafting an armor while you sit down and;
+T:wait. A moment later, he is finished.;
+A:[CONTINUE]:0:0:0:1:15:0:0:0:0
+%
+
+N:14:1526:0:0:0:0
+I:Gary Dragonheart;
+T:I can't just forge an armor like that, you know. You need to bring me some;
+T:dragon scales, and you have to have enough money to pay the price. Come back;
+T:once you have that, and I'll make you an armor.;
+A:I have some scales, and would like an armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Gary Dragonheart;
+T:Here you go, <NAME>! Wear it proudly!;
+A:I have more scales, and would like another armor.:0:0:0:1:13:0:0:0:0
+A:Tell me more about dragons.:0:0:0:1:6:0:0:0:0
+A:Tell me more about drakes.:0:0:0:1:11:0:0:0:0
+A:Tell me more about you.:0:0:0:1:5:0:0:0:0
+A:Thanks. Good bye!:0:0:0:0:0:0:0:0:0
+%

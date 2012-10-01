@@ -26,6 +26,8 @@
 // t: Snow-tree
 // G: Glacier
 // p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
 
 // E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
 	Type 1: Dialog	Detail: Which dialog.
@@ -38,42 +40,44 @@
 	Type 8: Change town.	Detail: Town's id.
 	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
 	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster.
 
-N: ;
+N:Bottom Floor;
 
-I:31:20:0:46:0:0:0
-S:15:17
+I:21:15:0:56:0:0:0
+S:3:12
+
+// Locked door.
+E:4:7:3:1:999:0:1539:0:0:0
+
+// Chaos Lords.
+E:8:12:7:1365:0:70:1539:0:0:0
+E:18:7:7:1365:0:70:1539:0:0:0
+E:9:2:7:1365:0:70:1539:0:0:0
+
+// Balcia.
+E:9:10:7:1369:0:80:1539:0:0:0
+
+// Second key.
+E:2:9:6:1255:0:0:0:0:0:0
 
 // Quest exit.
-E:26:17:5:41:33:0:0:0:0:0
+E:2:4:5:145:20:0:0:0:0:0
 
-// Dialog.
-E:15:15:1:300:0:0:300:0:300:1
-
-// A dead adventurer...
-E:5:16:6:8:0:0:0:0:0:0
-E:5:17:6:1211:0:0:301:0:301:1
-
-// The Grey Wight
-E:15:10:7:1043:0:70:303:0:0:0
-
-D:###############################
-D:#MMMMMMMMMMMMMMMMMMMMMMMMMMMMM#
-D:#MMM;;;;;;;;;;;;;;;;;;;;;;;MMM#
-D:#MMM;##########:##########;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#;;;;;;;;;;;;;;;;;;;#;MMM#
-D:#MMM;#####################;MMM#
-D:#MMM;;;;;;;;;;;;;;;;;;;;;;;MMM#
-D:#MMM;MMMMMMMMMM;MMMMMMMMMM;MMM#
-D:#MMM;MMMMMMMMMM;MMMMMMMMMM;MMM#
-D:#MMM;MMMMMMMMMM;MMMMMMMMMM;MMM#
-D:#MM;;;MMMMMMLl;;;lLMMMMMM;;;MM#
-D:#MM;;;MMMMMMLl;;;lLMMMMMM;<;MM#
-D:#MMMMMMMMMMMLll<llLMMMMMMMMMMM#
-D:###############################
+D:#####################
+D:#####################
+D:#########..........##
+D:#########+########.##
+D:##<##.p.....p.####.##
+D:##.##pp.....pp####.##
+D:##.##.p.....p.####.##
+D:##..+.......p.####.##
+D:##.##.p.....p.####.##
+D:##.##ppppppppp####.##
+D:#####.p.....p.####.##
+D:##################.##
+D:##<................##
+D:#####################
+D:#####################

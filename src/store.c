@@ -133,12 +133,12 @@ static void say_comment_1(void)
 {
 	char rumour[80];
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
-	if (randint(RUMOR_CHANCE) == 1 && speak_unique )
+	/*if (randint(RUMOR_CHANCE) == 1 && speak_unique )
 	   { msg_print("The shopkeeper whispers something into your ear:");
 
 		get_rnd_line("rumors.txt", rumour);
 		msg_print(rumour);
-		}
+		}*/
 }
 
 
@@ -413,10 +413,13 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
                 oldprice = price;
 
                 /* Now, charisma reduces the price by 1%/points... */
-                for (x = 0; x < ((p_ptr->stat_ind[A_CHR] - 5) + (p_ptr->abilities[(CLASS_BARD * 10) + 6] * 2)); x++)
-                {
-                        price -= (price / 100);
-                }
+		if (price < 500000)
+		{
+                	for (x = 0; x < ((p_ptr->stat_ind[A_CHR] - 5) + (p_ptr->abilities[(CLASS_BARD * 10) + 6] * 2)); x++)
+                	{
+                        	price -= (price / 100);
+                	}
+		}
 
 	}
 
@@ -527,7 +530,7 @@ static void mass_produce(object_type *o_ptr)
 
 
 	/* Pick a discount */
-	if (cost < 5)
+	if (cost < 5 || cost >= 500000)
 	{
 		discount = 0;
 	}
@@ -1266,7 +1269,7 @@ static void store_create(void)
                         level = 5 + p_ptr->lev + rand_int(15);
 
                         /* Limit the level to 39 */
-                        if (level > 39) level = 39;
+                        if (level > (39 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 2))) level = (39 + (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 2));
 
 			/* Random item (usually of given level) */
                         i = get_obj_num_store(level);
@@ -1320,7 +1323,7 @@ static void store_create(void)
                 /* Black Market gets better stuff. */
 		if (cur_store_num == 6)
 		{
-                        apply_magic(q_ptr, 20, TRUE, TRUE, FALSE, FALSE);
+                        apply_magic(q_ptr, 20 + p_ptr->abilities[(CLASS_ROGUE * 10) + 9], TRUE, TRUE, FALSE, FALSE);
                 }
 		else if (cur_store_num == 8)
 		{

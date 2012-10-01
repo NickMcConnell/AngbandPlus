@@ -1,0 +1,25 @@
+N:1:25009:6:0:0:0
+I:Avemorsh;
+T:My fire, my wind, my axe, my magic... they're all failing me!! Why??;
+T:Why can't I stop you?? I am leagues above you!! *pant*...*pant*...;
+T:If...if I cannot defeat you by myself...then I will call upon my fallen;
+T:brethren. Arise my peoples!! Let's show this <RACE> the might of;
+T:the orcish race!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:25009:5:0:0:0
+I:Avemorsh;
+T:*pant*...*pant*...why is a puny <RACE> giving me so much trouble??;
+T:I am Avemorsh the Gin'Whal! The most powerful of all orcs!! There's no;
+T:way I can lose!! If my axe won't do it...then I will cast the most;
+T:powerful spell you've ever seen! You will not survive this time!!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:25009:4:0:0:0
+I:Avemorsh;
+T:Not bad. But let's see what you can do against my mighty Axe of Pain!;
+T:*A black axe that emits a red light appears in his hands!*;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

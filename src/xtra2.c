@@ -1889,6 +1889,31 @@ void monster_death(int m_idx)
                 drop_near(q_ptr, -1, y, x);
 	}
 
+	/* Defeating a Secret Boss will award you nice rewards! :) */
+	/* Monsters can capture essences. */
+        if (r_ptr->flags7 & (RF7_SECRET_BOSS))
+	{
+		dungeon_info_type *d_ptr;
+		int statamt, skillamt, apamt;
+
+		d_ptr = &d_info[dungeon_type];
+
+		call_lua("stat_points_per_levels", "", "d", &statamt);
+                p_ptr->statpoints += statamt * 2;
+                        
+		call_lua("skill_points_per_levels", "", "d", &skillamt);
+                p_ptr->skillpoints += skillamt * 2;
+			
+		call_lua("ability_points_per_levels", "", "d", &apamt);
+                p_ptr->ability_points += apamt * 2;
+
+		msg_print("Congratulations! You have completed a Secret Level! You gain power!");
+
+		p_ptr->events[d_info[dungeon_type].secretevent] = 2;
+		anihilate_monsters();
+		update_and_handle();
+	}
+
 	/* Reset */
 	object_level = dun_level;
 
@@ -2205,7 +2230,7 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
                         	{
                                 	/* Gain a kill, buy only if the enemy is equal or higher level */
 					/* than we are. The depth must also be higher than the weapon's level. */
-					if ((m_ptr->level >= p_ptr->lev) && (o_ptr->level < p_ptr->lev)) o_ptr->kills += 1;
+					if ((m_ptr->level >= p_ptr->lev) && (r_ptr->level >= o_ptr->level) && (o_ptr->level < p_ptr->lev)) o_ptr->kills += 1;
                                 	if((o_ptr->kills >= (o_ptr->level * 5)) && (o_ptr->level < 200))
                                 	{
                                         	/* Get object name */
@@ -2232,7 +2257,12 @@ bool mon_take_hit(int m_idx, s32b dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+			if (r_ptr->r_pkills < MAX_SHORT)
+			{
+				r_ptr->r_pkills++;
+				if (m_ptr->boss == 1) r_ptr->r_ekills++;
+				if (m_ptr->boss == 2) r_ptr->r_bkills++;
+			}
 
 			/* Count kills in all lives */
 			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
@@ -4114,6 +4144,9 @@ void gain_exp_kill(s32b amount, monster_type *m_ptr)
 
 	/* Gain some experience */
 	p_ptr->exp += amount;
+
+	/* Rogue's BMBH allows you to gain gold too! */
+	if (p_ptr->abilities[(CLASS_ROGUE * 10) + 9] >= 1) p_ptr->au += ((amount * 5) + multiply_divide((amount * 10), p_ptr->abilities[(CLASS_ROGUE * 10) + 9] * 20, 100));
 
 	/* Slowly recover from experience drainage */
 	if (p_ptr->exp < p_ptr->max_exp)

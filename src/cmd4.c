@@ -3072,7 +3072,8 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+	if (p_ptr->inside_quest == 30000) msg_print("You have died. Welcome to Limbo!");
+	else msg_print(do_cmd_feeling_text[feeling]);
 }
 
 

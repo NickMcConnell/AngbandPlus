@@ -288,9 +288,9 @@ static cptr r_info_flags7[] =
         "MORTAL",
         "PLAYER_MONSTER",
         "NAZGUL",
+        "FAST",
+        "VERY_FAST",
         "XXXX",
-        "LEVEL_30",
-        "LEVEL_60",
         "LEVEL_100",
         "VARIAZ",
         "SEDUCE_MALES",
@@ -305,9 +305,9 @@ static cptr r_info_flags7[] =
         "IMMORTAL",
         "RANDOM",
         "UNPLAYABLE",
-        "XXX7x25",
-	"XXX7X26",
-	"XXX7X27",
+        "SCALED",
+	"SECRET_BOSS",
+	"CANNOT_COUNTERSPELL",
 	"XXX7X28",
 	"XXX7X29",
 	"XXX7X30",
@@ -1383,8 +1383,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (3);
 
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1406,8 +1404,6 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'G' for "Graphics" (one line only) */
 		if (buf[0] == 'G')
@@ -1707,6 +1703,32 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->spell[i].special3 = sspecial3;
 			k_ptr->spell[i].summchar = summchar;
 			k_ptr->spell[i].cost = scost;		
+
+			/* Next... */
+			continue;
+		}
+
+		/* Item events. */
+		if (buf[0] == 'Z')
+		{
+			int e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12;
+			/* Scan for the values */
+			if (12 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        &e1, &e2, &e3, &e4, &e5, &e6, &e7, &e8, &e9, &e10, &e11, &e12)) return (1);
+
+			/* Save the values */
+			k_ptr->event_passive_equipped = e1;
+			k_ptr->event_passive_carried = e2;
+			k_ptr->event_passive_floor = e3;
+			k_ptr->event_pickup = e4;
+			k_ptr->event_drop = e5;
+			k_ptr->event_destroy = e6;
+			k_ptr->event_equip = e7;
+			k_ptr->event_takeoff = e8;
+			k_ptr->event_summon = e9;
+			k_ptr->event_unsummon = e10;
+			k_ptr->event_spawn = e11;
+			k_ptr->event_misc = e12;
 
 			/* Next... */
 			continue;
@@ -2162,6 +2184,31 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Item events. */
+		if (buf[0] == 'Z')
+		{
+			int e1, e2, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12;
+			/* Scan for the values */
+			if (12 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                        &e1, &e2, &e3, &e4, &e5, &e6, &e7, &e8, &e9, &e10, &e11, &e12)) return (1);
+
+			/* Save the values */
+			a_ptr->event_passive_equipped = e1;
+			a_ptr->event_passive_carried = e2;
+			a_ptr->event_passive_floor = e3;
+			a_ptr->event_pickup = e4;
+			a_ptr->event_drop = e5;
+			a_ptr->event_destroy = e6;
+			a_ptr->event_equip = e7;
+			a_ptr->event_takeoff = e8;
+			a_ptr->event_summon = e9;
+			a_ptr->event_unsummon = e10;
+			a_ptr->event_spawn = e11;
+			a_ptr->event_misc = e12;
+
+			/* Next... */
+			continue;
+		}
 
 		/* Oops */
 		return (6);
@@ -3663,10 +3710,11 @@ errr init_d_info_txt(FILE *fp, char *buf)
                         int min_lev, max_lev;
                         int min_plev, next, mode;
                         int min_alloc, max_chance;
+			int secret, secretitem, secretevent, secretintro;
 
 			/* Scan for the values */
-                        if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
-                                &min_lev, &max_lev, &min_plev, &next, &mode, &min_alloc, &max_chance)) return (1);
+                        if (11 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                                &min_lev, &max_lev, &min_plev, &next, &mode, &min_alloc, &max_chance, &secret, &secretitem, &secretevent, &secretintro)) return (1);
 
 			/* Save the values */
                         d_ptr->mindepth = min_lev;
@@ -3676,6 +3724,10 @@ errr init_d_info_txt(FILE *fp, char *buf)
                         d_ptr->mode = mode;
                         d_ptr->min_m_alloc_level = min_alloc;
                         d_ptr->max_m_alloc_chance = max_chance;
+			d_ptr->secret = secret;
+			d_ptr->secretitem = secretitem;
+			d_ptr->secretevent = secretevent;
+			d_ptr->secretintro = secretintro;
 
                         /* Next... */
 			continue;

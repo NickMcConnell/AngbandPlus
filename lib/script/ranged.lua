@@ -137,7 +137,9 @@ function ranged_shoot ()
 							-- Finally, "shoot_type" is the type of shooter that was used.
 							shoot_type = inven(INVEN_WIELD + weap).itemtype
 							ranged_attack = TRUE
+							ignore_spellcraft = TRUE
 							fire_ball(element, dir, dam, rad)
+							ignore_spellcraft = FALSE
 							ranged_attack = FALSE
 
 							-- Shooter loses some ammos(except for bows).
@@ -261,7 +263,9 @@ function ranged_throw ()
 			potion_throw = 0
 		else
 			throw_attack = TRUE
+			ignore_spellcraft = TRUE
 			fire_ball(element, dir, dam, rad)
+			ignore_spellcraft = FALSE
 			throw_attack = FALSE
 		end
 
@@ -323,7 +327,9 @@ function monster_ranged_attacks (which)
 
 		dir = lua_get_aim_dir()
 
+		ignore_spellcraft = TRUE
 		fire_ball(m_race(p_ptr.body_monster).attack[which].element, dir, dam, rad)
+		ignore_spellcraft = FALSE
 
 		-- Run a script?
 		player_after_ranged(dam)
@@ -426,7 +432,9 @@ function monster_ranged_attacks (which)
 							-- Finally, "shoot_type" is the type of shooter that was used.
 							shoot_type = inven(INVEN_WIELD + weap).itemtype
 							ranged_attack = TRUE
+							ignore_spellcraft = TRUE
 							fire_ball(element, dir, dam, rad)
+							ignore_spellcraft = FALSE
 							ranged_attack = FALSE
 
 							-- Shooter loses some ammos(except for bows).
@@ -619,9 +627,11 @@ function special_ranged_attacks (selement, maxshots, modifier, radbonus)
 							-- Finally, "shoot_type" is the type of shooter that was used.
 							shoot_type = inven(INVEN_WIELD + weap).itemtype
 							ranged_attack = TRUE
+							ignore_spellcraft = TRUE
 							if (storm_shot == 1) then attack_aura(element, dam, rad)
 							elseif (pointblankshot == 1) then chain_attack(dir, element, dam, rad, 1)
 							else fire_ball(element, dir, dam, rad) end
+							ignore_spellcraft = FALSE
 							ranged_attack = FALSE
 
 							-- Shooter loses some ammos(except for bows).
@@ -696,6 +706,18 @@ function ranged_damages ()
 
 	tskill = p_ptr.skill[3] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	if (current_weapon.tval == TV_RANGED) then
 
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
@@ -710,7 +732,12 @@ function ranged_damages ()
 		return 0
 	end
 
-        k = damroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
+	if (inven(INVEN_AMMO).disabled == 0) then
+        	k = damroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
+	else
+		k = 1
+	end
+
 	if (p_ptr.prace == RACE_MONSTER and p_ptr.events[29017] > 0) then
 		k = k + p_ptr.events[29017]
 		p_ptr.events[29017] = 0
@@ -722,8 +749,20 @@ function ranged_damages ()
                 k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
         end
 
-	k = multiply_divide(k, current_weapon.extra4, 100)
+	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_RANGED) then
+
+			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
 	if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
 
@@ -794,6 +833,18 @@ function max_ranged_damages ()
 
 	tskill = p_ptr.skill[3] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	if (current_weapon.tval == TV_RANGED) then
 
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
@@ -808,7 +859,12 @@ function max_ranged_damages ()
 		return 0
 	end
 
-        k = maxroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
+	if (inven(INVEN_AMMO).disabled == 0) then
+        	k = maxroll(inven(INVEN_AMMO).dd, inven(INVEN_AMMO).ds)
+	else
+		k = 1
+	end
+
 	if (p_ptr.prace == RACE_MONSTER and p_ptr.events[29017] > 0) then
 		k = k + p_ptr.events[29017]
 		p_ptr.events[29017] = 0
@@ -820,8 +876,20 @@ function max_ranged_damages ()
                 k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
         end
 
-	k = multiply_divide(k, current_weapon.extra4, 100)
+	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_RANGED) then
+
+			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
         if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
 
@@ -892,6 +960,18 @@ function min_ranged_damages ()
 
 	tskill = p_ptr.skill[3] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	if (current_weapon.tval == TV_RANGED) then
 
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
@@ -906,7 +986,12 @@ function min_ranged_damages ()
 		return 0
 	end
 
-        k = damroll(inven(INVEN_AMMO).dd, 1)
+	if (inven(INVEN_AMMO).disabled == 0) then
+        	k = damroll(inven(INVEN_AMMO).dd, 1)
+	else
+		k = 1
+	end
+
 	if (p_ptr.prace == RACE_MONSTER and p_ptr.events[29017] > 0) then
 		k = k + p_ptr.events[29017]
 		p_ptr.events[29017] = 0
@@ -918,8 +1003,20 @@ function min_ranged_damages ()
                 k = k + multiply_divide(k, p_ptr.abilities[(CLASS_RANGER * 10) + 2] * 10, 100)
         end
 
-	k = multiply_divide(k, current_weapon.extra4, 100)
+	if (current_weapon.disabled == 0) then k = multiply_divide(k, current_weapon.extra4, 100) end
         k = k * (tskill + 1)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_RANGED) then
+
+			if (not(get_object_flag4(current_weapon, TR4_MUST2H))) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
         if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 6] >= 1 and get_object_flag4(current_weapon, TR4_CRAFTED)) then
 
@@ -983,7 +1080,11 @@ function throw_damages ()
 
 	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
-        k = damroll(drop_ranged.dd, drop_ranged.ds)
+	if (drop_ranged.disabled == 0) then
+        	k = damroll(drop_ranged.dd, drop_ranged.ds)
+	else
+		k = 1
+	end
         k = k * (tskill + 1)
 	k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
 	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)
@@ -1012,7 +1113,11 @@ function max_throw_damages ()
 
 	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
-        k = maxroll(drop_ranged.dd, drop_ranged.ds)
+	if (drop_ranged.disabled == 0) then
+        	k = maxroll(drop_ranged.dd, drop_ranged.ds)
+	else
+		k = 1
+	end
         k = k * (tskill + 1)
         k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
 	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)
@@ -1041,7 +1146,11 @@ function min_throw_damages ()
 
 	tskill = p_ptr.skill[3] + (p_ptr.skill[4] + (p_ptr.skill[4] / 2))
 
-        k = damroll(drop_ranged.dd, 1)
+	if (drop_ranged.disabled == 0) then
+        	k = damroll(drop_ranged.dd, 1)
+	else
+		k = 1
+	end
         k = k * (tskill + 1)
         k = k + multiply_divide(k, (((p_ptr.stat_ind[A_STR+1] * 5 + p_ptr.stat_ind[A_DEX+1] * 5)) + drop_ranged.to_d), 100)
 	k = k + multiply_divide(k, (p_ptr.stat_ind[A_STR+1] + p_ptr.stat_ind[A_DEX+1]), 100)

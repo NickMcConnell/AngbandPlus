@@ -79,17 +79,19 @@ overcoming "guaranteed block" type counters.
 
 5. Accurate Strike(Active, level 1, combat feat)
 
-Effect: Attack that never miss.
+Effect: Attack that has a high chance to bypass enemy counters,
+        and will never miss at all if used outside of a combat feat.
 Damages: Normal attack damages(branded weapons are not counted)
+Power: 20
 Type: Weapon's damages type.
 Extra points: +10% to damages.
+              +20 to power.
 
-The main feature of this ability is that it never miss. And if you 
-put many points into this ability, it can become powerful as
-well. It's also good to put at least a single point into this
-ability early in the game, if your to_hit is not very high.
-Also, this ability will bypass any enemy counters, even "guaranteed
-block" counters.
+This ability deals extra damages. If you use it as part of a combat feat,
+it has a chance to bypass any melee blocking counters based on this
+ability's power versus the monster's level and dexterity. If used outside
+of a combat feat, however, it has a 100% success rate, bypassing both the
+hit rate test and enemy counters.
 
 6. Hardiness(Passive, level 1)
 
@@ -678,158 +680,200 @@ current hp, so to use this ability effectively, you must have
 a good hp. Raising your Constitution to a high level might be a
 good idea should you decide to focus in this ability. Do note
 that damages are based on your current hp, so if you get hurt,
-this ability will get weaker.
+this ability will get weaker. Also note that spellcraft does not
+increase the damages of this ability.
 
 ROGUE
 -------
 
-1. Hide In Shadows(Active, level 1)
+1. Stealthy Fighter(Passive, level 1)
 
-Effect: Makes you invisible and raise your AC.
-Invisibility Strength: 10
-AC bonus: +25
-Duration: 10
-Extra points: +1 to duration
-	      +1 to invisibility strength
-	      +25 bonus AC
+Effect: Use your Stealth skill as a Fighting or Shooting skill.
+% of Stealth used: 10%
+Extra points: +10% of Stealth used, up to a maximum of 100% at 10 points.
+              For every points above 10, 10% of your Stealth is added to any
+              rolls to bypass enemy melee and ranged blocking counters.
 
-This ability gives you invisibility for a duration, as well as a bonus to AC.
-This ability is useful to make your way past enemy ranks without fighting, and 
-if you happen to fight them, you will have an increased AC to avoid blows more 
-easily. Note that higher level enemies will have an easier time spotting you
-while invisible.
+This passive ability allows you to use your Stealth as a skill to improve
+both your melee and shooting abilities, while retaining all the benefits of
+the Stealth skill. Stealth is very useful to avoid being attacked by enemies,
+and this ability will allow you to do that without hampering your ability
+to deal damages.
 
-2. Backstabbing(Passive, level 1)
+2. Thievery(Active/Passive, level 1, combat feat)
 
-Effect: Improve the effectiveness of backstab attacks.
-Bonus to backstab: +1 multiplier to backstab damages
-Extra points: +1 multiplier to backstab damages.
+Effect: Steal items from enemies, and also increase stealth. It may just be
+        a Rogue's instinct for treasure hunting, but these stolen items tends
+        to be unusually valuable... And was the monster really carrying that
+        much gold???
+Power of stealing: 20 + (3% of Stealth) + (3% of Dexterity)
+Bonus to Stealth: +5%
+Extra points: +(20 + (3% of Stealth) + (3% of Dexterity)) to Steal power.
+              +5% to Stealth.
+              The quality of items just keeps getting better!
+              (partially based on Stealth)
 
-When your Stealth skill reaches 30, you gain the ability to backstab sleeping
-enemies for three times normal damages(or fleeing enemies for half normal
-backstab damages). With this ability, you can raise the damages of backstab
-attacks. Don't place points in this ability if you don't plan to raise your 
-Stealth skill.
+When you use this ability on ane enemy, you have a chance to steal an item
+it carries based on this ability's level and your stealth versus the monster's
+level and dexterity. If you succeed, you will steal the item, and will be more
+powerful than it would have been if you just killed the monster. So while
+attempting to steal may be risky, it will be worth it if you succeed. Note that
+this ability has no effects on monsters that carries no items. Also, if you
+steal gold, the amount of gold stolen will increase with this ability's level.
 
-3. Dexterity(Passive, level 1)
+As a passive effect, it also gives a boost to your Stealth, which can be useful
+if your character is built around it.
 
-Effect: Increase your dexterity by 5%
-Extra points: +5% additional dexterity bonus
+3. Rogue Weapons Mastery(Passive, level 1)
 
-This passive ability adds some percentile bonus to your dexterity.
-This ability works the same way as the warrior's Strength ability,
-except it raises Dexterity instead. Unless you play as a marksman
-type character, having too much dexterity is not that benefical,
-so one strategy would be to use this ability to get your high
-dexterity, and save stat points for other stats such as Strength
-or Intelligence.
+Effect: Increases damages of 'Rogue' weapons, that is, concealable light blades
+        and ranged weapons(daggers, short swords, crossbows, pistols, etc...).
+        In other words, increase damages with any Daggers or Swords with a
+        weight of 10 or lower, as well as one-handed ranged weapons.
+Bonus damages: +10%
+Extra points: +10% to damages with 'Rogue' weapons.
 
-4. Thievery(Passive, level 1)
+Rogues have always favored effective and concealable weapons, such as daggers,
+short blades, pistols, one-handed crossbows, etc... This improves the damages
+dealt with these weapons. Because it improves both melee and ranged weapons,
+this can be a useful ability if you seek versatility.
 
-Effect: Increase your chances of stealing.
-Extra points: Increase chances of stealing.
+4. Swashbuckler(Passive, level 1)
 
-This passive ability increase your odds of stealing in shops.
-Often will you find some nice, very expensive items
-in shops, especially the Black Market. Instead of buying that special
-cloak that gives you +50% life and +5 extra blows, why not steal it?
-If you raise this ability high, you can greatly raise your odds of
-stealing. With 100 points, your odds are 100%! But remember that in
-the Black Market, you will never find the best items in the game, so
-consider that before investing all your points in this ability.
+Effect: Improves dexterity, melee parrying and allow you to counter attack
+        whenever you successfully parry. To benefit from the parry bonus
+        and the counter attack ability, your weapon must be a bladed
+        weapon(sword or dagger) with a weight of 10 or less.
+Bonus to Dexterity: +10%
+Bonus to Parry rolls: +10%
+Bonus to counter attack damages: +10%
+Extra points: +10% to Dexterity.
+              +10% to Parry rolls.
+              +10% to counter attack damages.
 
-5. Evasion(Passive, level 1)
+This passive ability makes you a swashbuckler, a fencer who fights with
+dexterity and style. This allows you to gain extra dexterity, and if you
+wield the proper weapon, also improves parrying and allows you to counter
+attack. Note that you must wield a weapon that enables parrying(it must
+have a base AC bonus), and it must be a bladed weapon with a weight of
+10 or less.
 
-Effect: Increase your AC bonus and allow you to evade magical attacks.
-Bonus to AC: 50
-Evasion power: 10
-Extra points: +50 to AC
-	      +10 to evasion power
+5. Lockpicking(Passive, level 1)
 
-This passive ability allow you to get a bonus to your AC, but the greatest
-benefit is the ability to avoid magical attacks and breaths from enemies.
-When attacked by an enemy's magic spell, you will have to win a saving
-throw between this ability versus the monster's level + mind stat. If you
-win, you take no damages.
+Effect: Greatly improves your chances of opening locked chests. Also allows
+        you to attempt unlocking Magic chests.
+Bonus to Lockpicking rolls: +50%
+Extra points: +50% to Lockpicking rolls.
+              More bonus based on the ability's level:
+              5+ points: Allows you to attempt unlocking Cursed chests.
+              10+ points: Allows you to attempt unlocking Ancient chests.
+                          Also, guarantees 100% success rate on Iron chests.
+              20+ points: Guarantees 100% success rate on Large Steel chests.
+              30+ points: Allows you to attempt unlocking Strange chests.
+              40+ points: Guarantees 100% success rate on Magic chests.
+              50+ points: Guarantees 100% success rate on Cursed chests.
+              75+ points: Guarantees 100% success rate on Ancient chests.
+              100 points: Guarantees 100% success rate on Strange chests.
 
-6. Poison Weapon(Active, level 1)
+This passive ability is a required ability to open the higher level locked
+chests that you will find in the dungeons. Locked chests typically contains
+higher level items than you would normally find on the dungeon level, but
+the amount of dexterity and intelligence required to even attempt lockpicking,
+let alone succeed, is very high. This ability will GREATLY raise the chance.
+Magic chests requires at least one point in this ability in order to become
+unlockable, and higher quality chests requires more. Note that with enough
+points, you get 100% chance to open certain chests. However, you must still
+have enough dex/int to attempt to unlock it in the first place.
 
-Effect: Put a poison brand on a weapon.
-Poison damages: 200
-Extra points: +200 poison damages.
+6. Deadly Stalker(Passive, level 1)
 
-This ability will give a poison brand to any weapons, gloves or ammos.
-You can use this ability even on magical items, but note that if they
-already have a brand, the ability will override it, as well as the
-damages. This ability can be a great help to defeat enemies immune to
-physical attacks, and will be especially useful to Kobolds due to
-their natural bonus to poison damages. Poisoned arrows and bolts are
-also very useful, as is enchanting a pack of daggers with poison to
-throw at the enemies. Also, if you use this on an item that has a
-radius to the elemental brand, it will not remove the radius, only
-change the brand and damages.
+Effect: When striking an enemy with a melee attack while using a temporary
+        insibility ability(such as Stealth's Hide feat), a stealth roll for
+        detection is made. If the monster fails, it will take extra damages.
+        If you do get the bonus, also has a chance to paralyze.
+Extra melee damages: +33%
+Paralysis power: 20
+Paralysis duration: 2 turns.
+Extra points: +33% extra melee damages.
+              +20 to paralysis power.
+              +1 to paralysis duration for every 10 points.
 
-7. Gas Trap(Active, level 6)
+This passive ability gives you a chance to get additional damages with
+any melee attacks while invisible through a special ability. The success
+rate is based on your stealth and the invisibility's power, versus the monster's
+level and mind stat. Note that while no monsters are immune to this effect,
+elites and bosses have better detection, and uniques have even more. Note
+that this ability applies to any melee attacks, even special melee abilities.
 
-Effect: Set a gas trap on the floor that will put enemies to sleep.
-Radius: 3
-Base trap power: 10
-Can be resisted: Yes
-Extra points: +10 to trap's power.
-	      +1 to radius for every 20 points.
+If you succeed in getting the damages, you also get a chance to paralyze your
+victim. The test is between this ability's level versus the monster's level
+and strength. Note that monsters immune to paralysis will not be affected
+by this effect(but still receive the damages bonus).
 
-This ability allow the rogue to set a gas trap on the floor. When an enemy
-walks on the trap, a sleeping gas will be released, and it will put monsters
-to sleep. Whether the trap works or not depends on the monster's level
-and strength versus ability level. Using this on higher level enemies will
-be much harder, unless you placed several points in this ability. 
-This ability is mostly useful to backstabbing characters, because it will
-allow them to do so more often, but it can be useful for weaker characters
-who must slow down some powerful monsters. It will cost 500 golds to set
-a gas trap, to cover the trap's material cost, so make sure you have some
-gold on you if you plan on using this. This will not work on uniques
-and bosses(but elites can be affected), and on sleep resistant monsters.
-Other enemies can resist it.
+7. Art of Poisoning(Active/Passive, level 6)
 
-8. Poison Trap(Active, level 6)
+Effect: Change a weapon, ammo or gloves damages type to Poison. Improves the
+        damages of Poison attacks, and allow them to ignore resistances.
+Bonus to Poison damages: +5%
+Resistances ignored: 3%
+Extra points: +5% to Poison damages.
+              +3% resistances ignored.
 
-Effect: Set a poisoning trap on the floor.
-Damages: Weapon's base poison brand damages/(Dex - 5)(max roll)
-Type: Poison
-Extra points: +33% poison brand damages.
+This ability can be used to change a weapon's damages type to Poison.
+As a passive bonus, it will improve the damages of all Poison attacks(melee,
+ranged and magic), as well as allowing them to ignore some of the resistances
+a monster may have. Many monsters are naturally immune to Poison, and this
+ability can help you deal with them more easily. If the monster does not
+have any resistances to poison, the resistance will be treated as a weakness,
+and you will deal more damages. For example, with 10 points in this ability,
+a monster with no resistances to Poison will take 30% more damages.
 
-This ability allow the rogue to set a trap on the floor that will do
-poison damages. A poison-branded weapon is required to make the trap,
-so make sure you have one(you can use Poison Weapon to add poison brand). 
-The stronger the weapon's brand, the stronger the trap. This ability is 
-most useful in narrow corridors, as monsters are sure to walk in your trap.
+8. Finishing Blow(Active, level 6, combat feat)
 
-9. Spike Trap(Active, level 6)
+Effect: A melee attack that deals huge damages to enemies afflicted by a status
+        ailment(such as paralysis, fear, confusion, etc...).
+Bonus damages to afflicted targets: +100%
+Bonus damages to non-afflicted targets: +10%
+Extra points: +100% bonus damages to afflicted targets.
+              +10% bonus damages to non-afflicted targets.
 
-Effect: Set a trap on the floor.
-Damages: Weapon's damages(max roll) * 10/(Dex - 5)(max roll)
-Type: Physical
-Extra points: +1 multiplier to weapon's damages
+This ability is a melee attack that will deal severe damages to an enemy
+afflicted by some form of status ailment. This includes paralysis, fear,
+confusion and sleep. This ability is most useful if you also took Deadly Stalker,
+or another ability that can cause status ailments(such as the Fighter's
+Critical Hits). However, even if the enemy doesn't have any status ailments,
+this ability is still more powerful than a normal attack, so you can use
+it as a general combat feat ability to improve your damages in all situations.
 
-This ability allow the rogue to set a trap on the floor. When an enemy
-walks on the trap, a spike will rise and will impale the enemy. This
-mechanical device is made from a polearm, so you will need to sacrifice
-a polearm-type weapon to make the trap. You can use any polearms,
-including self-made or manually enchanted ones. The stronger the
-polearm, the better the trap. This ability is most useful in narrow 
-corridors, as monsters are sure to walk in your trap.
+9. Stealthy and Cunning(Passive, level 6)
 
-10. Rogue Mastery(Passive, level 10)
+Effect: Adds points to your intelligence based on your Stealth.
+Bonus to Intelligence: +5% of your Stealth.
+Extra points: +5% of your Stealth to Intelligence.
 
-Effect: Gives +2 to stealth and agility skills
-Extra points: +2 additional points to stealth and agility skills
+This passive ability will improve your intelligence based on your Stealth.
+Intelligence gives you mana, and magic can be a helpful complementary ability
+to a Rogue, especially alteration spells to paralyze your opponents(and finish
+them with Finishing Blow), or Poison elemental spells if you also took
+Art of Poisoning. Other spells can also be helpful and this ability will make
+access to them much easier. Finally, Intelligence is used with picking locks,
+so this ability can also be used as a complementary ability to Lockpicking.
 
-Stealth and agility are the rogue's hallmark, and this ability is there to
-honour these abilities. Working the same way as the warrior's Weapon
-Mastery, this passive ability gives a boost to both Stealth and Agility
-skills. You can use this ability to boost the skills, and keep your skill
-points for other skills, or you can use this to further raise the already
-high skills, turning you in an invisible, untouchable stalker!
+10. Black Market's Bounty Hunter(Passive, level 10)
+
+Effect: Gain gold after every kills. Increase the quality of items sold
+        at the Black Market.
+Black Market item level/magic level increase: +2
+Extra points: +20% gold gained from kills.
+              +2 to Black Market's maximum item level and magic level.
+
+After every kills, you will gain an amount of gold equal to the experience
+value of the monster times 5. That amount is then increased by this ability's
+level. The ability will also increase the limit of items available in the
+black market. Normally, any items of depth level 40 or higher will never
+appear in the black market. However, this will allow them to appear, and
+with the gold you've made from kills, you'll be able to buy them more easily.
+Magic items in the black market will also be improved.
 
 RANGER
 --------
@@ -1851,34 +1895,43 @@ this can be extremely useful.
 ELEMENTAL LORD
 ----------------
 
-1. <Element> Ball(Active, level 1)
+1. <Element> Knight(Passive, level 1)
 
-Effect: Cast a ball spell of your chosen element.
-Damages: 10/(Int - 5)
-Type: Varie
-Radius: 1
-Extra points: +10 damages/(Int - 5).
-              +1 to radius for every 20 points.
+Effect: Your base strength and base weapon skills provides bonus to your
+        intelligence and Elemental skill, while your base intelligence
+        and base Elemental skill provide bonus to strength and weapon skills.
+Bonus to Strength: 33% of base Intelligence.
+Bonus to Intelligence: 33% of base Strength.
+Bonus to weapon skills: 10% of base Elemental skill.
+Bonus to Elemental: 10% of base weapon skills.
+Extra points: +33% to stats bonus.
+              +10% to skills bonus.
+              With 10 or more points, your strength will be added to your
+              intelligence and wisdom for the purpose of overcoming magic
+              blocking counters. This applies to all magic spells and abilities.
 
-This ability allow you to cast a ball of your chosen element at your enemies.
-It costs no mana, and if you invest some points into it, it can become very
-powerful. If you enjoy this ability, having a high Spellcraft skill can
-empower it further. Because Elemental Lords are more combat-oriented, this
-ability can make up for the lack of spells.
+This passive ability will allow you to easily balance strength and intelligence,
+so that you will become skilled at both melee combat and spellcasting. The stats
+bonus is rather high, meaning that this ability will not only help balancing
+the two stats, but make them higher overall. There is also a bonus to skills,
+which will complement the stats bonus. With 10 or more points, strength
+will be added to intelligence to help overcoming enemies magic blocking counters.
 
 2. <Element> Strike(Active, level 1, combat feat)
 
-Effect: A melee attack that does elemental damages.
+Effect: A close-range magic attack that does elemental damages.
 Damages: Base weapon damages.
-Type: Varie
-Extra points: +10% to damages.
+Elemental Type: Chosen element.
+Extra points: +15% to damages.
+              +1 to radius every 10 points.
 
-This ability allow you to perform a special melee attack that will do damages
-of your chosen elemental type. Because Elemental Lords are melee fighters, 
-this attack can become extremely deadly. First of all, it's an always-hit 
-attack. Second, it's considered a magical attack, allowing you to take down 
-the monsters immune to weapons and physical attacks. Note that bosses
-immune to magic will not be affected.
+This ability is treated as a magic attack, meaning it doesn't require a hit rate
+test to hit enemies, and isn't blocked by melee blocking counters. However,
+magic blocking counters can block it and intelligence will be required to
+overcome them. Also, unlike most magic attacks, this attack isn't affected by
+Spellcraft, since melee damages are already very high, but does gain radius
+with enough points. Magic returning enemies will not return damages from
+this ability.
 
 3. Shield Of <Element>(Active, level 1)
 
@@ -1892,40 +1945,45 @@ Extra points: +30 damages/(Int - 5).
 
 This ability allow you to create a magical shield around you that will cause
 elemental damages to melee attackers, as well as making you immune to your
-chosen element. It is very useful when you get yourself surrounded, or if you
-have a lot of armor and wish to take on a physical immune monster. It is also
-useful if you are slow or unable to move(either knocked out or paralyzed).
-And of course, if you are about to face a monster who use magical attacks of
-your element, it will make their spells useless. Magic damages from this
-ability are not returned by magic returning bosses.
+chosen element. Unlike most non-spells magical abilities, this one is also
+affected by Elemental, so if you want to raise damages, Elemental is a better
+skill to use than Spellcraft. Magic damages caused by this ability will not
+be returned by magic returning enemies.
 
-4. Fist Of <Element>(Active, level 1, combat feat)
+4. <Element> Weapon(Active/Passive, level 1)
 
-Effect: Powerful punch imbued with elemental energy.
-Damages: Base unarmed damages.
-Type: Varie
-Extra points: +10% to damages.
-              +1 to radius for every 30 points.
+Effect: Change a melee weapon's element type to your chosen element. When
+        wielding a melee weapon of your chosen element, you gain additional
+        mana.
+Mana bonus: (Weapon's maximum base damages * 3).
+Extra points: +1 multiplier to mana bonus.
+              With 10 or more points, if you wield a weapon of your chosen
+              element, damages rolls from it will be added to the base power
+              of elemental spells of your chosen element.
 
-This ability allow you to deliver a powerful punch attack based on your to_d
-bonus. This ability is intended for Martial Arts characters, so your
-Martial Arts skill should be high if you plan on using this ability a lot. 
-Also, if you invest a lot of points in this ability, it will gain a radius,
-which can be very devastating.
+This ability serves two purposes. One, to be able to have a melee weapon of
+your chosen element all the time. And two, to be able to gain extra mana
+when wielding it. Since elemental lords are also melee warriors, this means
+they will need strength and heavy armor, which can affect their ability to
+use a lot of mana. This ability will make up for it. If you are dual-wielding,
+you will gain mana from both weapons. Finally, if you have 10 or more points,
+it can also provide a nice bonus to your spells damages.
 
 5. Piercing Spells: <Element>(Active/Passive, level 1)
 
-Effect: Offensive spells from your chosen element bypass enemy abilities.
+Effect: Spells and abilities of your chosen element bypass enemy abilities.
         Can also be activated to make enemies vulnerable to your element.
-Chance to bypass Halve Damages ability: 10%
-Chance to bypass Magic Returning ability: 5%
-Chance to bypass Magic Immune ability: 1%
-Piercing power for vulnerability: 15
+Chance to bypass Halve Damages ability: 20%
+Chance to bypass Magic Returning ability: 10%
+Chance to bypass Magic Immune ability: 2%
+Piercing power for vulnerability: 30
 Can be resisted: Yes(vulnerability).
-Extra points: +3% chances to bypass Halve Damages.
-		+2% chances to bypass Magic Returning resistances.
-		+1% chances to bypass Magic Immune ability.
-                +15 to vulnerability's power.
+Radius(vulnerability): 2
+Extra points: +20% chances to bypass Halve Damages.
+		+10% chances to bypass Magic Returning resistances.
+		+2% chances to bypass Magic Immune ability.
+                +30 to vulnerability's power.
+                +1 to radius every 10 points.
 
 This passive ability gives your spells and magic attacks a chance to bypass
 the enemy's abilities that might prevent your spells from working. This ability 
@@ -1942,21 +2000,18 @@ and mind stat.
 
 6. Aura Of <Element>(Passive, level 1)
 
-Effect: Damages enemies around you as you move.
-Damages: 5/(Int - 5)
-Type: Varie
+Effect: Damages enemies around you as you move or pass a turn.
+Damages: 30/(Int - 5)
+Element Type: Chosen element.
 Radius: 2
-Extra points: +5 damages/(Int - 5)
-		+1 to radius for every 30 points.
+Extra points: +30 damages/(Int - 5)
+              +1 to radius for every 10 points.
 
 This passive ability will cause damages to enemies around you as you move.
-This can be very useful, especially if you decide to invest points, as it
-will weaken your enemies as you run away, and then once they are weakened,
-you can turn back and face them. It is also useful when moving trough
-large group of enemies. Also note that the damages from this ability are
-not returned, so it can be useful to take down bosses that are immune to
-physical and magic returning. Spellcraft will help raising the power and
-radius of this ability.
+This can be useful to deal damages to surrounding enemies. Unlike most
+non-spell elemental magic attacks, this one is enhanced by your
+Elemental skill, so it's better to use that instead of Spellcraft.
+Also, damages will not be returned by magic returning enemies.
 NOTE: When you gain this ability, it will not automaticly activate.
 To activate, use "Turn on your aura.". Use it again to turn it off. Useful
 for preventing your pets from being hurt.
@@ -1991,29 +2046,29 @@ Range: 30
 Extra points: +10% to damages.
               +1 to radius every 20 points.
 
-This ability allow you to throw a wave of elemental energy that is based
-on your weapon's power. This is a useful ability if you plan to focus on
-your melee skills. This ability will give you both the ranged attacks
-and magical attacks needed to defeat your opponents. This ability is most
-useful when used in narrow corridors, and your Spellcraft skill can help
-raising the damages as well. Despite being based on weapon damages, it
-is treated as a magical attack. Once you use it, your weapon will have
-to recharge 5 turns before it can be used again.
+This ability allow you to cast a wave of elemental energy that is based
+on your weapon damages. It is a magical attack, but like other Elemental Lord
+abilities, they will not be returned by magic returning enemies. When it
+gain radius, it will strike enemies more than once, making it very powerful.
+This ability is not affected by Spellcraft or Elemental. Damages are solely
+based on melee damages.
 
 9. Absorb Elemental Energy(Passive, level 6)
 
-Effect: You have a chance of absorbing enemies spells and breaths, and
-	get healed instead of damaged.
-Chance of absorbing: 1%
-Chance of absorbing chosen element: 5%
-Extra points: +1% chance of absorbing.
-		+5% chance to absorb chosen element.
+Effect: You have a chance of absorbing enemies magic attacks, and get healed
+        instead of damaged.
+Power: 20
+Power against chosen element: 60
+Extra points: +20 to power.
+              +60 to power against chosen element.
 
-This passive ability allow you to absorb spells and breaths from your
-enemies. When you get hit by a spell, if successful, all damages will
-be void and you will actually get healed. Chances of absorbing spells
-of your chosen element are higher. Note that missile and mana type
-spells will not be absorbed by this ability.
+This passive ability gives you a chance that when struck by an enemy's magic
+attacks, you will get healed instead of damaged. The chance is based on
+this ability's power versus the monster's level and mind stat. If the attack
+is of your chosen element, the chance to absorb it is higher. Note that
+Physical, Missile and Ice elements cannot be absorbed. This also only works
+for attacks that shares a type with the Elemental school. Enemies' Life Blasts,
+for example, will not be absorbed.
 
 10. Mastery Of <Element>(Passive, level 10)
 
@@ -2021,13 +2076,9 @@ Effect: Damages from your chosen element are augmented.
 Bonus damages: +10%
 Extra points: +10% damages.
 
-This passive ability allow you to make all your spells and elemental
-attacks do more damages if they are of your chosen element. Since
-most of the Elemental Lord's special attacks are elemental-based,
-investing points in this ability will always be helpful. It will be
-even more helpful if you cast a lot of offensive spells, as this will
-make them more powerful, and it is cumulative with any Spellcraft
-bonus.
+This passive ability allow you to increase elemental damages from ANY sources,
+melee, ranged or magical. The bonus adds itself as multiplicative, so it can
+significantly raise your damages.
 
 MONSTER MAGE
 --------------
@@ -2260,10 +2311,10 @@ returning bosses.
 
 Effect: Improve your combat abilities when using a shield.
 Bonus to_hit and to_dam: +30
-Bonus to_ac: +100
+Bonus Defense: 10% of shield's base AC.
 Bonus to initial blocking power: +5
 Extra points: +30 to_hit and to_dam.
-		+100 to_ac.
+		+10% of shield's base AC to Defense.
 		+5 to initial blocking power.
 		With 10 or more points, you can block magic attacks.
 
@@ -2276,24 +2327,26 @@ block power increase on both, the other bonus will only apply once.
 
 5. Defensive Evasion(Passive, level 1)
 
-Effect: A percentage of your Defense is added to Agility and Magic Defense.
-Bonus: 10% of Defense skill to Agility and Magic Defense.
-Extra points: +10% of Defense added to Agility and Magic Defense.
+Effect: A percentage of your base Defense is added to Agility and Magic Defense.
+Bonus: 5% of base Defense skill to Agility and Magic Defense.
+Extra points: +5% of base Defense added to Agility and Magic Defense.
 
 This passive ability allow you to get a bonus to Agility and Magic Defense
-based on your Defense skill. Normally, for a perfect defense, it is best
+based on your baseDefense skill. Normally, for a perfect defense, it is best
 to spread skill points between the three skills. However, with this
 ability, you can focus on only Defense and make it much higher than usual
 for maximum defense, or raise only Defense to the usual amount, and then
 place the points you would have placed in Agility or Magic Defense into
-other skills instead.
+other skills instead. Note that only your base Defense will be counted for
+the bonus(that is, the total number of natural skill points spent in the skill).
+Bonus from race, class or items will not apply.
 
 6. Great Guard(Passive, level 1)
 
 Effect: Absorb great damages. You may get confused in the process.
 Reduction: Damages are divided by this ability's level.
-Extra reduction: 1000
-Extra points: +1000 to extra reduction.
+Extra reduction: 20% of total AC.
+Extra points: +20% of total AC to reduction.
 
 This ability allow you to absorb damages from any sources, which can be 
 anything: a melee attack, a spell or even damages from traps or 
@@ -2346,17 +2399,14 @@ this ability a lot more powerful.
 
 10. Armored Might(Passive, level 1)
 
-Effect: Gain strength based on your base AC.
-Strength bonus: 0.5% of base AC.
-Extra points: +1 multiplier to bonus.
+Effect: Gain strength based on your armor's base AC value.
+Strength bonus: 10% of armor's base AC.
+Extra points: +10% of armor's base AC to strength.
 
-This passive ability allow you to gain strength based on your base
-AC. At first, 0.5% bonus may seem low, however, as you get better armors
-and higher Defense, you'll find that the bonus will become quite
-significant. If you have a lot of high AC armor pieces and a high Defense
-skill, you can gain a lot of strength with this ability!
-Note: this ability is applied before the Martial Arts modifier for base AC,
-and therefore, will not benefit from it.
+This passive ability allow you to gain strength based on yourarmor's base
+AC. This can result in very high strength if you wear armors with high AC
+values. Note that this ability will only work with hard armors and dragon
+armors. It does not work with soft armors.
 
 High Monk
 -------
@@ -2695,7 +2745,8 @@ SHADOW STALKER
 1. Stealth Attack(Active, level 1, combat feat)
 
 Effect: When invisible trough a special ability(like Hide in Shadows),
-	  this attack treats your Stealth as Fighting.
+	this attack adds your Stealth to your melee skills as if it
+        was Fighting.
 Damages: Normal attack damages(branded weapons are not counted)
 Type: Weapon's damages type.
 Extra points: +20% to damages.
@@ -2704,7 +2755,7 @@ This ability allow the Shadow Stalker to make a good use of his/her
 stealth, by treating it as Fighting during damages calculation. 
 This ability also has the advantage of allowing you to use any 
 weapons with only one skill. Note that this ability requires you to 
-use a special ability to become invisible (like Hide in Shadows or
+use a special ability to become invisible (like Hide or
 Shadow Cloak). Items that grants invisibility does not allow you to
 use this ability.
 

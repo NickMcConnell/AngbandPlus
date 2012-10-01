@@ -189,7 +189,6 @@ extern bool skip_mutations;     /* Skip mutations screen in 'C'haracter display 
 extern bool plain_descriptions;
 extern bool stupid_monsters;
 extern bool auto_destroy;
-extern bool wear_confirm;
 extern bool confirm_stairs;
 extern bool disturb_pets;
 extern bool view_perma_grids;
@@ -264,6 +263,9 @@ extern bool damages_counter_player_damages;
 extern s16b damages_counter_duration;
 extern bool stormshadow;
 extern bool enemy_immortality;
+extern bool mcounter;
+extern bool monster_counter_attack;
+extern bool building_vault;
 extern char tmpluastring[80];
 extern bool red_roff;
 extern bool term_saved;
@@ -434,7 +436,7 @@ extern bool autoroll;
 extern bool hack_allow_special;
 extern magic_spells magic_spell[31];
 extern monster_magics monster_magic[15];
-extern music_songs music_song[15];
+extern music_songs music_song[16];
 extern wild_info wild[MAX_WILD_X][MAX_WILD_Y];
 extern store_type stores[MAX_STORES];
 extern object_type *current_weapon;
@@ -444,6 +446,8 @@ extern bool combatfeat;
 extern bool center_player;
 extern int fate_item_modifier;
 extern object_type global_object;
+extern bool very_fast_messages;
+extern int opening_chest_type;
 
 /* birth.c */
 extern errr init_randart(void);
@@ -685,6 +689,7 @@ extern bool is_elemental(int power);
 extern bool is_alteration(int power);
 extern bool is_mysticism(int power);
 extern bool is_divination(int power);
+extern void browse_spells();
 
 /* load1.c */
 extern errr rd_savefile_old(void);
@@ -857,6 +862,8 @@ extern bool make_object_tval(object_type *j_ptr, int tval, bool good, bool great
 extern void place_object_tval(int y, int x, int tval, bool good, bool great);
 extern void drop_global_object(int x, int y);
 extern void drop_object_specific(int y, int x, int tval, int sval, int num, int magic);
+extern bool make_chest(object_type *j_ptr);
+extern void place_chest(int y, int x);
 
 /* object3.c */
 bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item);
@@ -903,6 +910,7 @@ extern void mutate_player(void);
 extern void generate_spell(int plev);
 extern bool unsafe;
 extern void describe_attack_fully(int type, char* r);
+extern void teleport_away_light(int m_idx, int dis);
 
 
 /* spells2.c */
@@ -927,6 +935,7 @@ extern bool detect_treasure(void);
 extern bool detect_objects_gold(void);
 extern bool detect_objects_normal(void);
 extern bool detect_objects_magic(void);
+extern bool detect_chests(void);
 extern bool detect_monsters_normal(void);
 extern bool detect_monsters_invis(void);
 extern bool detect_monsters_evil(void);
@@ -1337,12 +1346,25 @@ extern void give_monster_race_flag6(int r_idx, u32b flag);
 extern void give_monster_race_flag7(int r_idx, u32b flag);
 extern void give_monster_race_flag8(int r_idx, u32b flag);
 extern void give_monster_race_flag9(int r_idx, u32b flag);
+extern void remove_monster_race_flag1(int r_idx, u32b flag);
+extern void remove_monster_race_flag2(int r_idx, u32b flag);
+extern void remove_monster_race_flag3(int r_idx, u32b flag);
+extern void remove_monster_race_flag4(int r_idx, u32b flag);
+extern void remove_monster_race_flag5(int r_idx, u32b flag);
+extern void remove_monster_race_flag6(int r_idx, u32b flag);
+extern void remove_monster_race_flag7(int r_idx, u32b flag);
+extern void remove_monster_race_flag8(int r_idx, u32b flag);
+extern void remove_monster_race_flag9(int r_idx, u32b flag);
 extern void give_dungeon_flag1(int dinfo, u32b flag);
 extern void remove_dungeon_flag1(int dinfo, u32b flag);
 extern void lua_cave_mark(int y, int x, u32b flag);
 extern void lua_get_string(int len);
 extern bool get_feat_flag1(int feat, u32b flag);
 extern void give_object_ident(object_type *o_ptr, u32b flag);
+extern void lua_create_object_inven(int tval, int sval, int number);
+extern char *lua_get_object_desc(int slot);
+extern void item_has_been_disabled_message(int slot);
+extern void lua_revive_in_town();
 
 
 /* Skills names, and number of skills available. */

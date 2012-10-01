@@ -1,0 +1,13 @@
+N:1:0:0:0:0:0
+I: ;
+T:Overwhelmed by your enemies, you can no longer fight, and you fall;
+T:on the ground. You pass out...;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:When you wake up, you find yourself outside the dungeon. Somehow, you;
+T:are still alive...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

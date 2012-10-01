@@ -57,6 +57,9 @@ function calc_body_bonus ()
 		p_ptr.dis_ac = p_ptr.dis_ac + m_race(p_ptr.body_monster).ac + ((m_race(p_ptr.body_monster).ac * (p_ptr.lev * 5)) / 100)
         	p_ptr.pspeed = m_race(p_ptr.body_monster).speed
 
+		if(get_monster_flag7(p_ptr.body_monster, RF7_VERY_FAST)) then p_ptr.pspeed = p_ptr.pspeed + 50 end
+		if(get_monster_flag7(p_ptr.body_monster, RF7_FAST)) then p_ptr.pspeed = p_ptr.pspeed + 30 end
+
         	if(get_monster_flag1(p_ptr.body_monster, RF1_NEVER_MOVE)) then p_ptr.immovable = TRUE end
         	if(get_monster_flag2(p_ptr.body_monster, RF2_STUPID)) then p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] - 1 end
         	if(get_monster_flag2(p_ptr.body_monster, RF2_SMART)) then p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + 1 end
@@ -105,7 +108,7 @@ function calc_hitpoints ()
         while (i < 65) do
 
                 -- Hitpoints multiplier
-                if (inven(i).k_idx > 0) then
+                if (inven(i).k_idx > 0 and inven(i).disabled == 0) then
 
                         hpmult = hpmult + inven(i).lifebonus
                 end
@@ -211,6 +214,19 @@ function calc_mana ()
 		end
         end
 
+	-- Elemental Lord's Element Weapon.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4] >= 1) then
+
+		if (inven(INVEN_WIELD).tval == TV_WEAPON and inven(INVEN_WIELD).extra1 == p_ptr.elemlord) then
+
+			msp = msp + ((maxroll(inven(INVEN_WIELD).dd, inven(INVEN_WIELD).ds) * 3) * p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4])
+		end
+		if (inven(INVEN_WIELD+1).tval == TV_WEAPON and inven(INVEN_WIELD+1).extra1 == p_ptr.elemlord) then
+
+			msp = msp + ((maxroll(inven(INVEN_WIELD+1).dd, inven(INVEN_WIELD+1).ds) * 3) * p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 4])
+		end
+	end
+
         -- Spellcraft skill gives you more mana...
         if (p_ptr.skill_base[2] >= 80) then msp = msp + (msp / 4) end
 
@@ -218,13 +234,13 @@ function calc_mana ()
         while (i < 65) do
 
                 -- Mana multiplier
-                if (inven(i).k_idx > 0) then
+                if (inven(i).k_idx > 0 and inven(i).disabled == 0) then
 
                         manamult = manamult + inven(i).manabonus
                 end
 
 		-- Bonus for crafted items if you have the proper ability!
-		if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 5] >= 1) then
+		if (p_ptr.abilities[(CLASS_ENCHANTER * 10) + 5] >= 1 and inven(i).disabled == 0) then
 
 			if (inven(i).tval == TV_WEAPON or inven(i).tval == TV_ROD or inven(i).tval == TV_AMMO) then
 
@@ -641,8 +657,17 @@ function calc_bonuses ()
 	-- Includes any previous bonuses/penalities
 	calc_resistances(1)
 
-	-- Cursed...
+	-- Calculate Misfortune.
 	calc_cursed()
+
+	-- Misfortune Embrace may increase Misfortune even more.
+	if ((p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) and (p_ptr.alignment < 5)) then
+
+		local misbonus
+		misbonus = ((p_ptr.alignment + 5) * (-1)) * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+
+		p_ptr.cursed = p_ptr.cursed + misbonus
+	end
 
         -- Stat boosting abilities
         -- Warrior's Strength
@@ -660,10 +685,17 @@ function calc_bonuses ()
                 p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + (((p_ptr.stat_cur[A_CON+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
                 p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + (((p_ptr.stat_cur[A_CHR+1] * p_ptr.abilities[(CLASS_PRIEST * 10) + 3]) * 3) / 100)
         end
-        -- Rogue's Dexterity 
-        if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
 
-                p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + (((p_ptr.stat_cur[A_DEX+1] * p_ptr.abilities[(CLASS_ROGUE * 10) + 3]) * 5) / 100)
+	-- Rogue's Thievery also boost Stealth.
+   	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 2] >= 1) then
+
+        	p_ptr.skill_bonus[7] = p_ptr.skill_bonus[7] + multiply_divide(p_ptr.skill_base[7], p_ptr.abilities[(CLASS_ROGUE * 10) + 2] * 5, 100)
+	end
+
+        -- Rogue's Swashbuckler
+        if (p_ptr.abilities[(CLASS_ROGUE * 10) + 4] >= 1) then
+
+                p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], p_ptr.abilities[(CLASS_ROGUE * 10) + 4] * 10, 100)
         end
         -- Ranger's Wilderness lore!
         if (p_ptr.abilities[(CLASS_RANGER * 10) + 1] >= 1) then
@@ -675,6 +707,18 @@ function calc_bonuses ()
         if (p_ptr.abilities[(CLASS_MONK * 10) + 5] >= 1) then
 
                 p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + (((p_ptr.stat_cur[A_WIS+1] * p_ptr.abilities[(CLASS_MONK * 10) + 5]) * 5) / 100)
+        end
+	-- Elemental Lord's Element Knight.
+	if (p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] >= 1) then
+        
+                p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 33, 100)
+		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 33, 100)
+		p_ptr.skill_bonus[13] = p_ptr.skill_bonus[13] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
+		p_ptr.skill_bonus[14] = p_ptr.skill_bonus[14] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
+		p_ptr.skill_bonus[15] = p_ptr.skill_bonus[15] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
+		p_ptr.skill_bonus[16] = p_ptr.skill_bonus[16] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
+		p_ptr.skill_bonus[17] = p_ptr.skill_bonus[17] + multiply_divide(p_ptr.skill_base[23], p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
+		p_ptr.skill_bonus[23] = p_ptr.skill_bonus[23] + multiply_divide((p_ptr.skill_base[13] + p_ptr.skill_base[14] + p_ptr.skill_base[15] + p_ptr.skill_base[16] + p_ptr.skill_base[17]), p_ptr.abilities[(CLASS_ELEM_LORD * 10) + 1] * 10, 100)
         end
         -- Monster Mage's Constitution
         if (p_ptr.abilities[(CLASS_MONSTER_MAGE * 10) + 3] >= 1) then
@@ -776,12 +820,6 @@ function calc_bonuses ()
 	p_ptr.skill_bonus[27] = p_ptr.skill_bonus[27] + p_ptr.skill_base[27] / 2
    end
 
-   -- Rogue's Rogue Mastery!
-   if (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] >= 1) then
-
-           p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] * 2)
-           p_ptr.skill_bonus[7] = p_ptr.skill_bonus[7] + (p_ptr.abilities[(CLASS_ROGUE * 10) + 10] * 2)
-   end
    -- Monk's Martial Arts Mastery!
    if (p_ptr.abilities[(CLASS_MONK * 10) + 10] >= 1) then
 
@@ -827,6 +865,26 @@ function calc_bonuses ()
 	end
    end
 
+   -- Misfortune Embrace
+   if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9] >= 1) then
+
+	if (p_ptr.alignment < 0) then
+
+		local sbonus
+
+		sbonus = p_ptr.cursed / 10
+		sbonus = sbonus * (p_ptr.alignment * (-1))
+		sbonus = sbonus * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 9]
+
+		p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + multiply_divide(p_ptr.stat_cur[A_STR+1], sbonus, 100)
+		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.stat_cur[A_INT+1], sbonus, 100)
+		p_ptr.stat_add[A_WIS+1] = p_ptr.stat_add[A_WIS+1] + multiply_divide(p_ptr.stat_cur[A_WIS+1], sbonus, 100)
+		p_ptr.stat_add[A_DEX+1] = p_ptr.stat_add[A_DEX+1] + multiply_divide(p_ptr.stat_cur[A_DEX+1], sbonus, 100)
+		p_ptr.stat_add[A_CON+1] = p_ptr.stat_add[A_CON+1] + multiply_divide(p_ptr.stat_cur[A_CON+1], sbonus, 100)
+		p_ptr.stat_add[A_CHR+1] = p_ptr.stat_add[A_CHR+1] + multiply_divide(p_ptr.stat_cur[A_CHR+1], sbonus, 100)
+	end
+   end
+
    -- Fighter's Accuracy!
    if (p_ptr.abilities[(CLASS_FIGHTER * 10) + 6] >= 1) then
 
@@ -840,8 +898,15 @@ function calc_bonuses ()
         p_ptr.dis_to_h = p_ptr.dis_to_h + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
         p_ptr.to_d = p_ptr.to_d + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
         p_ptr.dis_to_d = p_ptr.dis_to_d + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 30)
-        p_ptr.to_a = p_ptr.to_a + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 100)
-        p_ptr.dis_to_a = p_ptr.dis_to_a + (p_ptr.abilities[(CLASS_DEFENDER * 10) + 4] * 100)
+
+	if (inven(INVEN_WIELD).tval == TV_SHIELD) then
+
+		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + ((inven(INVEN_WIELD).ac / 10) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 4])
+	end
+	if (inven(INVEN_WIELD+1).tval == TV_SHIELD) then
+
+		p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + ((inven(INVEN_WIELD+1).ac / 10) * p_ptr.abilities[(CLASS_DEFENDER * 10) + 4])
+	end
    end
    -- Ranger's Forestry ability!
    if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
@@ -935,8 +1000,24 @@ function calc_bonuses ()
 	-- Defender's Defensive Evasion.
    	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] >= 1) then
 
-		p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(p_ptr.skill[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 10, 100)
-		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.skill[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 10, 100)
+		p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 5, 100)
+		p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(p_ptr.skill_base[5], p_ptr.abilities[(CLASS_DEFENDER * 10) + 5] * 5, 100)
+   	end
+
+	-- Light Armored Nightmare!
+   	if (p_ptr.abilities[(CLASS_NIGHT1 * 10) + 8] >= 1) then
+
+		if (inven(INVEN_BODY).tval == TV_SOFT_ARMOR) then
+
+			local acbonus
+
+			acbonus = 20 * p_ptr.abilities[(CLASS_NIGHT1 * 10) + 8]
+			acbonus = acbonus + multiply_divide(acbonus, p_ptr.cursed, 100)
+
+			p_ptr.skill_bonus[5] = p_ptr.skill_bonus[5] + multiply_divide(inven(INVEN_BODY).ac, acbonus, 100)
+			p_ptr.skill_bonus[6] = p_ptr.skill_bonus[6] + multiply_divide(inven(INVEN_BODY).ac, acbonus, 100)
+			p_ptr.skill_bonus[28] = p_ptr.skill_bonus[28] + multiply_divide(inven(INVEN_BODY).ac, acbonus, 100)
+		end
    	end
 
 
@@ -982,19 +1063,23 @@ function calc_bonuses ()
    	end
 
 	-- Defender's Armored Might
-   	if (p_ptr.abilities[(CLASS_DEFENDER * 10) + 10] >= 1) then
+   	if ((p_ptr.abilities[(CLASS_DEFENDER * 10) + 10] >= 1) and (inven(INVEN_BODY).tval == TV_HARD_ARMOR or inven(INVEN_BODY).tval == TV_DRAG_ARMOR)) then
 
-		-- You won't get anything below 200 anyway.
-		if (p_ptr.ac > 200) then
+		local newac
+		local strbonus
 
-			local strbonus
+		newac = inven(INVEN_BODY).ac + multiply_divide(inven(INVEN_BODY).ac, p_ptr.abilities[(CLASS_DEFENDER * 10) + 1] * 2, 100)
 
-			strbonus = p_ptr.ac / 100
-			strbonus = strbonus / 2
-			strbonus = strbonus * p_ptr.abilities[(CLASS_DEFENDER * 10) + 10]
-			p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + strbonus
-		end
+		strbonus = newac / 10
+		strbonus = strbonus * p_ptr.abilities[(CLASS_DEFENDER * 10) + 10]
+		p_ptr.stat_add[A_STR+1] = p_ptr.stat_add[A_STR+1] + strbonus
    	end
+
+	-- Rogue's Stealthy and Cunning.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 9] >= 1) then
+
+		p_ptr.stat_add[A_INT+1] = p_ptr.stat_add[A_INT+1] + multiply_divide(p_ptr.skill[7], p_ptr.abilities[(CLASS_ROGUE * 10) + 9] * 5, 100)
+	end
 
 	-- Battle Skill Warrior's ability!
         if (p_ptr.abilities[(CLASS_WARRIOR * 10) + 4] >= 1) then
@@ -1204,12 +1289,16 @@ function calc_bonuses ()
 		avgwgt = ((inven(INVEN_WIELD).weight / 10) + (inven(INVEN_WIELD+1).weight / 10)) / 2
 		if (p_ptr.skill[9] < ((avgwgt) * 3)) then
 
-			hitpenality = (((avgwgt) * 3) - p_ptr.skill[9]) * 2
-			if (hitpenality >= 0) then
+			-- With enough skill, daggers no longer cause penalities.
+			if (not((inven(INVEN_WIELD).itemskill == 15 and inven(INVEN_WIELD+1).itemskill == 15) and (p_ptr.skill_base[16] >= 20))) then
 
-				if (hitpenality > 95) then hitpenality = 95 end
-				p_ptr.to_h = p_ptr.to_h - ((p_ptr.to_h * hitpenality) / 100)
-				p_ptr.dis_to_h = p_ptr.dis_to_h - ((p_ptr.dis_to_h * hitpenality) / 100)
+				hitpenality = (((avgwgt) * 3) - p_ptr.skill[9]) * 2
+				if (hitpenality >= 0) then
+
+					if (hitpenality > 95) then hitpenality = 95 end
+					p_ptr.to_h = p_ptr.to_h - ((p_ptr.to_h * hitpenality) / 100)
+					p_ptr.dis_to_h = p_ptr.dis_to_h - ((p_ptr.dis_to_h * hitpenality) / 100)
+				end
 			end
 		else
 			hitbonus = (p_ptr.skill[9] - ((avgwgt) * 3)) * 2
@@ -1373,7 +1462,9 @@ function calc_bonuses ()
 		end
 
 		-- Extra shots?
-		p_ptr.num_fire = p_ptr.num_fire + inven(INVEN_WIELD).extrashots
+		--p_ptr.num_fire = p_ptr.num_fire + inven(INVEN_WIELD).extrashots
+		-- Sekira's fix.
+		p_ptr.num_fire = p_ptr.num_fire + extra_shots
 
 		-- Dual Wielding reduces the number of blows if weapons are
 		-- too heavy...
@@ -1381,15 +1472,19 @@ function calc_bonuses ()
 		-- wield two of them.
 		if (two_weapon_wield() and p_ptr.dualwield == 1) then
 
-			local blowpenality
-			blowpenality = 0
-			if (p_ptr.skill[9] < ((inven(INVEN_WIELD).weight / 10) * 3)) then
+			-- With enough skill, daggers no longer cause penalities.
+			if (not((inven(INVEN_WIELD).itemskill == 15 and inven(INVEN_WIELD+1).itemskill == 15) and (p_ptr.skill_base[16] >= 20))) then
 
-				blowpenality = (((inven(INVEN_WIELD).weight / 10) * 3) - p_ptr.skill[9]) / 5
-				-- You never actually GAIN blows!
-				if (blowpenality < 0) then blowpenality = 0 end
+				local blowpenality
+				blowpenality = 0
+				if (p_ptr.skill[9] < ((inven(INVEN_WIELD).weight / 10) * 3)) then
+
+					blowpenality = (((inven(INVEN_WIELD).weight / 10) * 3) - p_ptr.skill[9]) / 5
+					-- You never actually GAIN blows!
+					if (blowpenality < 0) then blowpenality = 0 end
+				end
+				p_ptr.num_blow = p_ptr.num_blow - blowpenality
 			end
-			p_ptr.num_blow = p_ptr.num_blow - blowpenality
 		end
 
 		-- Require at least one blow
@@ -1470,11 +1565,18 @@ function calc_bonuses ()
 		end
 
 		-- Extra shots?
-		p_ptr.num_fire2 = p_ptr.num_fire2 + inven(INVEN_WIELD+1).extrashots
+		--p_ptr.num_fire2 = p_ptr.num_fire2 + inven(INVEN_WIELD+1).extrashots
+		-- Sekira's fix.
+		p_ptr.num_fire2 = p_ptr.num_fire2 + extra_shots
 
 		-- For the second weapon, unless we have a Dual Wield skill of 20+
 		-- we only get half the number of blows.
-		if (p_ptr.skill_base[9] < 20) then p_ptr.num_blow2 = (p_ptr.num_blow2 / 2) end
+
+		-- With enough skill, daggers no longer cause penalities.
+		if (not((inven(INVEN_WIELD).itemskill == 15 and inven(INVEN_WIELD+1).itemskill == 15) and (p_ptr.skill_base[16] >= 20))) then
+
+			if (p_ptr.skill_base[9] < 20) then p_ptr.num_blow2 = (p_ptr.num_blow2 / 2) end
+		end
 
 		-- Dual Wielding reduces the number of blows if weapons are
 		-- too heavy...
@@ -1482,15 +1584,19 @@ function calc_bonuses ()
 		-- wield two of them.
 		if (two_weapon_wield() and p_ptr.dualwield == 1) then
 
-			local blowpenality
-			blowpenality = 0
-			if (p_ptr.skill[9] < ((inven(INVEN_WIELD+1).weight / 10) * 3)) then
+			-- With enough skill, daggers no longer cause penalities.
+			if (not((inven(INVEN_WIELD).itemskill == 15 and inven(INVEN_WIELD+1).itemskill == 15) and (p_ptr.skill_base[16] >= 20))) then
 
-				blowpenality = (((inven(INVEN_WIELD+1).weight / 10) * 3) - p_ptr.skill[9]) / 5
-				-- You never actually GAIN blows!
-				if (blowpenality < 0) then blowpenality = 0 end
+				local blowpenality
+				blowpenality = 0
+				if (p_ptr.skill[9] < ((inven(INVEN_WIELD+1).weight / 10) * 3)) then
+
+					blowpenality = (((inven(INVEN_WIELD+1).weight / 10) * 3) - p_ptr.skill[9]) / 5
+					-- You never actually GAIN blows!
+					if (blowpenality < 0) then blowpenality = 0 end
+				end
+				p_ptr.num_blow2 = p_ptr.num_blow2 - blowpenality
 			end
-			p_ptr.num_blow2 = p_ptr.num_blow2 - blowpenality
 		end
 
 		-- Require at least one blow
@@ -1532,12 +1638,6 @@ function calc_bonuses ()
 		end
 	end
         
-        -- Rogue's Evasion ability!
-        if (p_ptr.abilities[(CLASS_ROGUE * 10) + 5] >= 1) then
-
-                p_ptr.to_a = p_ptr.to_a + (p_ptr.abilities[(CLASS_ROGUE * 10) + 5] * 50)
-                p_ptr.dis_to_a = p_ptr.dis_to_a + (p_ptr.abilities[(CLASS_ROGUE * 10) + 5] * 50)
-        end
         -- Monk Speed!
 	-- The 'Monk' in question here is Sekira, who fixed this part of the code. :)
 	if (p_ptr.abilities[(CLASS_MONK * 10) + 8] >= 1) then

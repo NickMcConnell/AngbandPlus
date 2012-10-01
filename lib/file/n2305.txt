@@ -1,0 +1,25 @@
+Thunderglow Shots(Active)
+
+Effect: Shoot an Electricity shot, followed by a Light shot.
+Damages: Base shot damages.
+Radius: Misfortune / 50
+Maximum shots: 1
+Extra points: +((25% of Misfortune) + 5)% to damages.
+              +1 maximum shots every 5 points.
+
+This ability fires a shot of Electricity, followed by a shot of Light. So you
+basically get two shots for every extra shots you have. If you increase your
+Misfortune, you will get more damages and may also gain radius.
+
+Note that if you have 2 or more maximum shots, all electric shots will be
+fired before the light shots. Aborting the electric shots will not prevent
+you from firing the light shots.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

@@ -16,7 +16,7 @@ T:effect in this world. A leader needs to be powerful, and by that I mean;
 T:being a great and mighty warrior. Some creatures in this world will never;
 T:listen to words. When such creatures appears - and that's quite often -,;
 T:what is a leader going to do? Sit in his throne and let his soldier die;
-T:for him? Julian do that. Marek do that. Elowyn do that. But me? No.;
+T:for him? Julian does that. Marek does that. Elowyn does that. But me? No.;
 T:I fight in the front row, and I protect even the other Defenders, for they,;
 T:like everyone else, have families and loved ones. Soldiers aren't just;
 T:units. They are peoples too.;
@@ -86,7 +86,7 @@ T:Shan is different than the others of her kind. Make no mistakes though, her;
 T:powers are no lesser. In Rhyzendal, she is worshipped as a goddess.;
 T:As for me...she is a friend. I know her personally. She gave me this amulet;
 T:as a token of our friendship, and for my own protection. It is this amulet;
-T:that has repelled the zulgors magics. Had I not been in possession of this;
+T:that has repelled the zulgors' magics. Had I not been in possession of this;
 T:gift, I might have fallen prey to their spell as well...;
 A:[CONTINUE]:0:0:0:1:9:0:0:0:0
 %
@@ -341,7 +341,7 @@ T:the Flow would be overflowed by these dreadful thoughts, and as a response,;
 T:would cause them to incarnate themselves in the form of fearful entities.;
 T:They would feed from fear, and there would be no limits to their powers.;
 T:They would be the incarnations of nightmares, quite literally. These;
-T:nightmare horrors would then proceed to destroying the world. And that would;
+T:nightmare horrors would then proceed to destroy the world. And that would;
 T:be the end...;
 A:Nightmare horrors? I think you're going a bit too far...:0:0:0:1:30:0:0:0:0
 A:You seem well versed in theology.:0:0:0:1:29:0:0:0:0

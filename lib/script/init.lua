@@ -5,7 +5,6 @@ TRUE=true
 -- Some classes definitions.
 CLASS_GUNNER=18
 CLASS_KENSAI=21
-CLASS_NIGHT1=40
 
 -- Some elements definitions.
 GF_ELEMENTAL=24
@@ -24,6 +23,7 @@ GF_RACIAL_CHAMPION=169
 GF_SOUL_CRUSH=170
 GF_DURATION=171
 GF_INSPIRE_COURAGE=172
+GF_DISABLE=173
 
 -- Some variables
 pointblankshot = 0
@@ -52,6 +52,8 @@ storm_shot = 0
 piercing_shot = 0
 evil_slayer = 0
 need_gun = 0
+finishingblow = 0
+accuratestrike = 0
 
 -- Redirect error messages to Angband's msg_print()
 _ALERT = function(text)

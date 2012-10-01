@@ -1,0 +1,105 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster.
+
+N: ;
+
+I:31:15:0:47:0:0:0
+S:29:2
+
+// Dialogue.
+E:28:7:1:1525:0:0:1529:0:1529:1
+
+// Previous floor.
+E:29:1:4:507:29:2:0:0:0:0
+
+// Locked door.
+E:19:7:3:1:36:0:0:0:0:0
+E:10:11:3:0:0:0:0:0:0:0
+
+// Switch.
+E:22:2:9:22:12:1:0:0:0:0
+E:14:10:9:5:6:1:0:0:0:0
+E:6:5:9:5:6:1:0:0:0:0
+
+// Silver Key.
+E:20:10:6:1253:0:0:0:0:0:0
+
+// Defender Wights.
+E:18:12:7:1364:0:60:1530:0:0:0
+E:18:7:7:1364:0:60:1530:0:0:0
+E:15:7:7:1364:0:60:1530:0:0:0
+E:11:7:7:1364:0:60:1530:0:0:0
+
+E:15:1:7:1364:0:60:1530:0:0:0
+E:12:1:7:1364:0:60:1530:0:0:0
+E:9:1:7:1364:0:60:1530:0:0:0
+E:6:1:7:1364:0:60:1530:0:0:0
+
+E:13:10:7:1364:0:60:1530:0:0:0
+E:13:11:7:1364:0:60:1530:0:0:0
+E:13:12:7:1364:0:60:1530:0:0:0
+
+// Chaos Lord.
+E:3:13:7:1365:0:70:1530:0:0:0
+
+// Next floor.
+E:9:13:4:516:7:8:0:0:1530:1
+
+D:###############################
+D:###................###---####<#
+D:###.##############.###...####.#
+D:###.##############.####.#####.#
+D:###.####...........####.#####.#
+D:##...#.#.##############+#####.#
+D:##...#.#.############.....###.#
+D:##---#.#...........+.......+..#
+D:######.#.############.....#####
+D:###....#.##############+###-.-#
+D:###.####.##....-#.+..-#.###-.-#
+D:##...###..+....-#.#####.####.##
+D:##...######....-#.....#......##
+D:##...+...>#####################
+D:###############################

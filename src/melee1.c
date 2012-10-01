@@ -131,6 +131,7 @@ bool make_attack_normal(int m_idx, byte divis)
 	int do_cut, do_stun;
         int mon_att_bonus = 0;
 	int oldmx, oldmy;
+	int blows;
 
 	s32b gold;
 
@@ -151,6 +152,8 @@ bool make_attack_normal(int m_idx, byte divis)
 
         u32b f1, f2, f3, f4;
 	u32b ff1, ff2, ff3, ff4;
+	bool scaled;
+	int scaledlevel;
 
         o_ptr = &inventory[INVEN_WIELD];
 	j_ptr = &inventory[INVEN_WIELD+1];
@@ -158,14 +161,36 @@ bool make_attack_normal(int m_idx, byte divis)
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 	object_flags(o_ptr, &ff1, &ff2, &ff3, &ff4);
 
+	/* Scaled? */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
+
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
 	/* ...nor if friendly */
 	if (is_pet(m_ptr))  return FALSE;
 
-        /* If the arms are mutilated...no attacks, right? Right. */
-        if (m_ptr->abilities & (MUTILATE_ARMS)) return FALSE;
+	/* If the arms are mutilated...no attacks, right? Right. */
+        if (m_ptr->abilities & (MUTILATE_ARMS))
+	{
+		int ppower;
+		int mpower;
+
+		ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+		mpower = m_ptr->level + m_ptr->str;
+
+		if (randint(mpower) >= randint(ppower))
+		{
+			m_ptr->abilities &= (MUTILATE_ARMS);
+		}
+
+		return (FALSE);
+	}
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -182,8 +207,18 @@ bool make_attack_normal(int m_idx, byte divis)
 	oldmx = m_ptr->fx;
 	oldmy = m_ptr->fy;
 
+	/* Counter attacks! Only one blow. */
+	monster_counter_attack = FALSE;
+	if (mcounter)
+	{
+		blows = r_ptr->attacks - 1;
+		mcounter = FALSE;
+		monster_counter_attack = TRUE;
+	}
+	else blows = 0;
+
 	/* Attack until we have no more blows! */
-	for (i = 0; i < r_ptr->attacks; i++)
+	for (i = blows; i < r_ptr->attacks; i++)
 	{
 		bool visible = FALSE;
 		bool obvious = FALSE;
@@ -291,10 +326,12 @@ bool make_attack_normal(int m_idx, byte divis)
 
 				if (monster_hit_player(m_ptr, mon_att_bonus))
 				{
-					damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
+					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosen].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosen].dside, 100));
+					else damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
 					damage *= (m_ptr->skill_attack + 1);
-					damage += ((damage * ((m_ptr->str - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->str) / 100);
+					damage += multiply_divide(damage, ((m_ptr->str - 5) * 5), 100);
+					damage += multiply_divide(damage, m_ptr->str, 100);
+
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -309,20 +346,11 @@ bool make_attack_normal(int m_idx, byte divis)
                                 		m_ptr->hp -= damage * p_ptr->abilities[(CLASS_MAGE * 10) + 6];
                         		}
 
-                        		/* Justice Warrior's protection from evil! */
-                        		if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
-                        		{
-                                		int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
-                                		if (reduction > 75) reduction = 75;
-                                		damage -= ((damage * reduction) / 100);
-                                		damage -= (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5);
-                        		}
-
                         		/* Physical resistance...and it apply AFTER the Damages Curse! :) */
                         		if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}                
 
@@ -330,6 +358,7 @@ bool make_attack_normal(int m_idx, byte divis)
                         		{
                                 		int block = 0;
 						int x;
+						bool swashbuckler = FALSE;
 
 						/* Try to block with each of your weapons. */
 						for (x = 0; x < 2; x++)
@@ -346,6 +375,12 @@ bool make_attack_normal(int m_idx, byte divis)
 
 								/* Polearm skill allows you to parry with a spear. */
 								if (o_ptr->tval == TV_WEAPON && o_ptr->itemskill == 14 && p_ptr->skill[14] >= 25) block += 20;
+
+								/* Rogue's Swashbuckler ability */
+								if (p_ptr->abilities[(CLASS_ROGUE * 10) + 3] >= 1 && o_ptr->tval == TV_WEAPON)
+								{
+									if (o_ptr->itemskill == 15 || (o_ptr->itemskill == 12 && o_ptr->weight <= 100)) swashbuckler = TRUE;
+								}
 
                                         			/* Defender is the master of shields! */
                                         			if (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] >= 1) block += (p_ptr->abilities[(CLASS_DEFENDER * 10) + 3] * 5);
@@ -372,11 +407,15 @@ bool make_attack_normal(int m_idx, byte divis)
 
 							mblock = m_ptr->str + m_ptr->dex;
 
+							if (swashbuckler) block = block + multiply_divide(block, p_ptr->abilities[(CLASS_ROGUE * 10) + 3] * 10, 100);
+
 							/* Now, try to block */
                                 			if (randint(block) >= randint(mblock))
 							{
 								msg_print("You block!");
 								nothurt = TRUE;
+
+								if (swashbuckler) swashbuckler_counter_attack(m_ptr);
 							}
 						}
                         		}
@@ -522,7 +561,7 @@ bool make_attack_normal(int m_idx, byte divis)
 				else msg_format("%^s misses you.", m_name);
 
 				/* Still alive? We may be able to counter attack! */
-				if (p_ptr->chp >= 0)
+				if (p_ptr->chp >= 0 && !(monster_counter_attack))
 				{
 					if (p_ptr->abilities[(CLASS_WARRIOR * 10) + 7] >= 1) counter_attack(m_ptr);
 				}
@@ -532,12 +571,16 @@ bool make_attack_normal(int m_idx, byte divis)
                 		{
                         		s32b dam;
 					int spellstat;
+					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
 
 					spellstat = (p_ptr->stat_ind[A_INT] - 5);
 					if (spellstat < 0) spellstat = 0;
                         		dam = (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 2] * 30) * spellstat;
+					dam += multiply_divide(dam, elembonus, 100);
                         		no_magic_return = TRUE;
+					ignore_spellcraft = TRUE;
                         		(void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, p_ptr->elemlord, PROJECT_GRID | PROJECT_KILL);
+					ignore_spellcraft = FALSE;
                         		no_magic_return = FALSE;
                 		}
 
@@ -610,8 +653,9 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					damage = damroll(m_ptr->animdam_d, m_ptr->animdam_s);
 					damage *= (m_ptr->skill_attack + 1);
-					damage += ((damage * ((m_ptr->str - 5) * 5)) / 100);
-					damage += ((damage * m_ptr->str) / 100);
+					damage += multiply_divide(damage, ((m_ptr->str - 5) * 5), 100);
+					damage += multiply_divide(damage, m_ptr->str, 100);
+
 					/* Bosses may get higher damages! */
 					if (m_ptr->abilities & (BOSS_DOUBLE_DAMAGES)) damage *= 2;
                         		if (m_ptr->abilities & (CURSE_HALVE_DAMAGES)) damage -= damage / 2;
@@ -623,20 +667,11 @@ bool make_attack_normal(int m_idx, byte divis)
                                 		m_ptr->hp -= damage * p_ptr->abilities[(CLASS_MAGE * 10) + 6];
                         		}
 
-                        		/* Justice Warrior's protection from evil! */
-                        		if (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] >= 1 && r_ptr->flags3 & (RF3_EVIL))
-                        		{
-                                		int reduction = p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8];
-                                		if (reduction > 75) reduction = 75;
-                                		damage -= ((damage * reduction) / 100);
-                                		damage -= (p_ptr->abilities[(CLASS_JUSTICE_WARRIOR * 10) + 8] * 5);
-                        		}
-
                         		/* Physical resistance...and it apply AFTER the Damages Curse! :) */
                         		if (p_ptr->pres_dur > 0)
                         		{
                                 		s32b damagepercent;
-                                		damagepercent = (damage * p_ptr->pres) / 100;
+                                		damagepercent = multiply_divide(damage, p_ptr->pres, 100);
                                 		damage -= damagepercent; 
                         		}
 
@@ -726,12 +761,16 @@ bool make_attack_normal(int m_idx, byte divis)
                 		{
                         		s32b dam;
 					int spellstat;
+					s32b elembonus = (p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10);
 
 					spellstat = (p_ptr->stat_ind[A_INT] - 5);
 					if (spellstat < 0) spellstat = 0;
                         		dam = (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 2] * 30) * spellstat;
+					dam += multiply_divide(dam, elembonus, 100);
                         		no_magic_return = TRUE;
+					ignore_spellcraft = TRUE;
                         		(void)project(0, 0, m_ptr->fy, m_ptr->fx, dam, p_ptr->elemlord, PROJECT_GRID | PROJECT_KILL);
+					ignore_spellcraft = FALSE;
                         		no_magic_return = FALSE;
                 		}
 

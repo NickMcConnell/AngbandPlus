@@ -732,6 +732,11 @@ per rounds, making them quite useful, especially magically branded
 daggers. The special dagger feats can also be very powerful if
 used correctly.
 
+NOTE: You will get a LOT of extra attacks with daggers. Therefore, it is
+recommended to turn on the "very quick messages" option if you decide to use
+daggers. Otherwise, you will have to press Enter several times, and it
+may get annoying.
+
 SPECIAL FEATS:
 
 - Piercing Stab(Passive, 5 points): Because of their size, a dagger can
@@ -740,31 +745,20 @@ hit the opponent's vital parts more easily.
 
 Effects: 25% bonus to your hit rate when striking with a dagger.
 
-- Eyes Stab(Active, 30 points, combat feat): Stabbing with a dagger is quick 
-and easy, but this also allow a warrior to easily strike specific parts of 
-the body. By stabbing the target's eyes, they will be blinded, greatly 
-lowering their attack rating, and because they can't see, they will have 
-trouble dodging, and will lose a potion of their defense.
+- Naturally Dual-Wieldable(Passive, 20 points): Daggers are the smallest
+and lightest weapons, and therefore requires much less specialized training
+in order to wield two of them properly. A sufficiently trained dagger
+wielder can wield two daggers with perfect accuracy.
 
-Effects: Reduce target's attack rating by 50% and defense by 25%. You
-may only use this once on a particular enemy. This does not work against
-elites, bosses and uniques.
+Effects: Removes all hit rate and blows penalities of dual wielding when
+wielding two daggers.
 
-- Fatal Stab(Active, 80 points): Taking advantage of the fact that daggers
-are extremely easy to draw out, this dangerous and vicious technique
-consists in quickly stabbing an opponent's vital point, and force the
-dagger hard so that it will remain in the victim's body. The infection
-and pain is incredible, and the target will become severly wounded and
-unable to fight due to the pain.
+- Lethal Brands(Passive, 50 points): Due to daggers being the least powerful
+weapon in terms of raw power, many masters of Dagger wielding enjoy elemental
+branded daggers. They have learned to make them more effective than they
+normally would be.
 
-Effects: To use this technique, you must sacrifice a dagger in your
-inventory to struck it into the monster's mody. The more powerful
-the dagger, the better this will work. The monster will instantly
-lose 10% of it's attack rating, defense, hp and speed, and will
-lose an extra 10% for every extra pval the weapon has, up to a maximum
-of 90%. Elites, Bosses and Uniques will only lose up to 30%. Note
-that using this technique requires a successful hit test. If you miss
-the monster, the dagger is still lost.
+Effects: Brands on daggers do 20% more damages.
 
 --------------------------------------------------------------------
 
@@ -797,24 +791,27 @@ Effects: Does damages, and reduce target's defense by 25%. This ability
 does twice the damages of a normal attack.
 
 - Mutilate Legs(Active, 40 points): A violent technique employed by strong
-and/or brutal axemen, this technique can instantly mutilate the legs of
+and/or brutal axemen, this technique can greatly damage the legs of
 the enemy in a single blow(or anything else that allow them to move).
 
 Effects: Does damages, and prevent monster from moving. Note that it only
 prevent the monster from moving, it does not prevent it to attack or cast
 spells. Uniques, elites and bosses are not affected. Other enemies will
 attempt to resist. Then, it will be a test of your Axe skill and your
-strength versus the monster's level and monster's strength.
+strength versus the monster's level and monster's strength. The effect
+will last a couple of turns, then the monster will recover. Monsters
+with more strength will recover more quickly.
 
 - Mutilate Arms(Active, 70 points): Another violent technique, this
-will allow a skilled axeman to instantly mutilate the arms(or means
+will allow a skilled axeman to greatly damage the arms(or means
 of attacks) of an enemy.
 
 Effects: Does damages, and prevent monster from using physical attacks.
 They can still use their magical attacks. Does not work against elites,
 bosses and uniques. Other enemies will attempt to resist. Then, it 
 will be a test of your Axe skill and your strength versus the monster's 
-level and monster's strength.
+level and monster's strength. It will eventually expire after a few
+turns. Monsters with more strength will recover more quickly.
 
 --------------------------------------------------------------------
 

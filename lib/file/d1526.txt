@@ -1,0 +1,68 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter a large room, where you see Balcia and Loroth. Balcia is a zulgor;
+T:woman, with red and yellow hairs and eyes, who wears a black robe. Loroth is;
+T:hiding his face undernearh a cloak which he wears over a red robe. All you;
+T:can see is his two red eyes, and since he is a worshipper of Ryoon,;
+T:he might not actually have a face as he might be a ghost or wight.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balcia;
+T:See what I told you, Loroth? <NAME> can show up at any time.;
+T:And there <heshe> is.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Loroth;
+T:Hahaha... welcome, <NAME>. It's good to meet you. I have heard quite;
+T:a bit about you. About how you've defeated the zulgors Quazar and Simon.;
+T:And how you have defeated some of us. Well done, <NAME>.;
+A:And now it's your turn!:0:0:0:1:4:0:0:0:0
+A:You and your friends are weak. I will end your existance.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Balcia;
+T:Not so fast, <NAME>. Don't forget about me. Loroth is busy finalizing;
+T:the preparations that will allow us to summon the Grey Wight. This will;
+T:mean the end of Ivhala. No...the end of Portralis as you know it!;
+A:Why do you want to destroy Ivhala?:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Balcia;
+T:Not destroy. 'Alter' would be the better word. The peoples of Ivhala won't be;
+T:destroyed. Just turned into wights and ghosts.;
+A:But why?:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Balcia;
+T:Because such are the words of Summapal! Now, enough talk. Loroth!;
+T:Go finish the preparations for the ritual. I will keep <NAME> busy here.;
+T:That should give you enough time.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Loroth;
+T:With pleasure, my lady!;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I: ;
+T:Loroth goes away, then closes the door. Balcia proceed to magically seal;
+T:the door using one of her chaotic magic spells.;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Balcia;
+T:The door has been sealed, and you can only unseal it by defeating me.;
+T:So let's go, <NAME>. Show me the power that defeated Quazar and Simon!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

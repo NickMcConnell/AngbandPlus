@@ -1686,6 +1686,7 @@ static void display_player_flag_info(void)
 static void display_player_misc_info(void)
 {
 	char	buf[80];
+	char    scorebuf[30];
 
 	/* Display basics */
 	put_str("Name      :", 2, 1);
@@ -1693,6 +1694,7 @@ static void display_player_misc_info(void)
 	put_str("Race      :", 4, 1);
 	put_str("Class     :", 5, 1);
 	put_str("Element   :", 6, 1);
+	put_str("Score     :", 7, 1);
 
 	c_put_str(TERM_L_BLUE, player_name, 2, 13);
 	if (p_ptr->body_monster != 0)
@@ -1714,6 +1716,8 @@ static void display_player_misc_info(void)
 	c_put_str(TERM_L_BLUE, classes_def[p_ptr->pclass].name, 5, 13);
 	if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 6, 13);
 	else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 13);
+	sprintf(scorebuf, "%ld", total_points());
+	c_put_str(TERM_L_GREEN, scorebuf, 7, 13);
 
 	/* Display extras */
 	put_str("Level     :", 6, 1);
@@ -2358,6 +2362,7 @@ void display_player(int mode)
 	int i;
 
 	char	buf[80];
+	char    scorebuf[30];
 
 
 	/* XXX XXX XXX */
@@ -2380,6 +2385,7 @@ void display_player(int mode)
                 put_str("Race        :", 4, 1);
                 put_str("Class       :", 5, 1);
 		put_str("Element     :", 6, 1);
+		put_str("Score       :", 7, 1);
                 /*put_str("Body        :", 6, 1);*/
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
@@ -2420,6 +2426,8 @@ void display_player(int mode)
 		}
 		if (p_ptr->elemlord == 0) c_put_str(TERM_L_BLUE, "n/a", 6, 15);
 		else c_put_str(TERM_L_BLUE, get_element_name(p_ptr->elemlord), 6, 15);
+		sprintf(scorebuf, "%ld", total_points());
+		c_put_str(TERM_L_GREEN, scorebuf, 7, 15);
                 
 
 		/* Age, Height, Weight, Social */
@@ -2430,6 +2438,8 @@ void display_player(int mode)
 		prt_num("Alignment  ", p_ptr->alignment, 2, 28, TERM_L_BLUE);
 		prt_num("Misfortune ", p_ptr->cursed, 3, 28, TERM_L_BLUE);
                 prt_num("Death Count", p_ptr->deathcount, 4, 28, TERM_L_BLUE);
+		prt_num("Reincarnate", p_ptr->reincarnations, 5, 28, TERM_L_BLUE);
+		if (p_ptr->secretscleared > 0) prt_num("Secret Lvls", p_ptr->secretscleared, 6, 28, TERM_L_BLUE);
 
 		/* Base, Mod, Cur */
 		c_put_str(TERM_WHITE, "BASE   MOD   MUT   CUR ", 1, 53);
@@ -2449,26 +2459,47 @@ void display_player(int mode)
 					colour=TERM_YELLOW;
 
 				/* Use lowercase stat name */
-				put_str(stat_names_reduced[i], 2 + i, 49);
+				/*put_str(stat_names_reduced[i], 2 + i, 49);*/
 
 				/* Get the current stat */
 				/* Formerly stat_use */
-				value = p_ptr->stat_ind[i];
+				/*value = p_ptr->stat_ind[i];*/
 
 				/* Obtain the current stat (modified) */
-                                cnv_stat(value, buf);
+                                /*cnv_stat(value, buf);*/
 
 				/* Display the current stat (modified) */
-				c_put_str(colour, buf, 2 + i, 63);
+				/*c_put_str(colour, buf, 2 + i, 63);*/
 
 				/* Acquire the max stat */
-				value = p_ptr->stat_top[i];
+				/*value = p_ptr->stat_top[i];*/
 
 				/* Obtain the maximum stat (modified) */
-                                cnv_stat(value, buf);
+                                /*cnv_stat(value, buf);*/
 
 				/* Display the maximum stat (modified) */
-				c_put_str(TERM_L_GREEN, buf, 2 + i, 72);
+				/*c_put_str(TERM_L_GREEN, buf, 2 + i, 72);*/
+
+				/* Assume uppercase stat name */
+				put_str(stat_names[i], 2 + i, 49);
+
+				/* Display base, mod and cur stat. */
+				sprintf(buf, "%d", p_ptr->stat_max[i]);
+				/*cnv_stat(p_ptr->stat_cur[i], buf);*/
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 54);
+				sprintf(buf, "%d", p_ptr->stat_add[i]);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 60);
+				sprintf(buf, "%d", p_ptr->stat_mut[i]);
+				c_put_str(TERM_L_GREEN, buf, 2 + i, 66);
+				sprintf(buf, "%d", p_ptr->stat_ind[i]);
+				c_put_str(colour, buf, 2 + i, 72);
+
+				/* Obtain the current stat (modified) */
+				/* Formerly stat_use */
+                                /*cnv_stat(p_ptr->stat_ind[i], buf);*/
+
+				/* Display the current stat (modified) */
+				/*c_put_str(TERM_L_GREEN, buf, 2 + i, 63);*/
 			}
 
 			/* Normal treatment of "normal" stats */
@@ -3642,7 +3673,7 @@ void do_cmd_suicide(void)
 	}
 
         /* Increase Death Count */
-        p_ptr->deathcount += 1;
+        /*p_ptr->deathcount += 1;*/
 
 	/* Stop playing */
 	alive = FALSE;
@@ -3724,102 +3755,58 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
-#if 0   /* Old calculation */
-        s16b max_dl = 0, i;
-
-        for(i = 0; i < max_d_idx; i++)
-                if(max_dlv[i] > max_dl)
-                        max_dl = max_dlv[i];
-
-        return (p_ptr->max_exp + (100 * max_dl));
-#else   /* New calculation */
-        s16b max_dl = 0, i, k;
-        long temp, Total = 0;
-        long mult = 100;
-	
-	if (p_ptr->preserve) mult -= 10; /* Penalize preserve, maximize modes */
-	if (p_ptr->maximize) mult -= 15;
-        if (auto_scum) mult -= 50;
-	if (stupid_monsters) mult -= 50;
-        if (small_levels)    mult += ((always_small_level) ? 20 : 50);
-	if (empty_levels)    mult += 10;
-        if (water_levels)    mult += 10; /* Watter levels are generaly harder */
-	if (smart_learn) mult += 20;
-	if (smart_cheat) mult += 20;	
- 
-	if (mult < 10) mult = 10; /* At least 10% of the original score */
-		
-        for (i = 0; i < max_d_idx; i++)
-                if(max_dlv[i] > max_dl)
-                        max_dl = max_dlv[i];
-
-        temp = p_ptr->lev * p_ptr->lev * p_ptr->lev * p_ptr->lev + (100 * max_dl);
-
-        temp += p_ptr->max_exp / 5;
-
-        temp += p_ptr->au / 5;
-	
-        temp = (temp * mult / 100);
-
-        /* The know objects increase the score */
-	/* Scan the object kinds */
-	for (k = 1; k < max_k_idx; k++)
-	{
-		object_kind *k_ptr = &k_info[k];
-
-		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
-		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, k);
-
-                        temp += object_value_real(i_ptr);
-                }
-	}
+        s16b i, k;
+        long Total = 0;
 
         for (k = 1; k < max_r_idx-1; k++)
         {
                 monster_race *r_ptr = &r_info[k];
 
-                if (r_ptr->flags1 & (RF1_UNIQUE))
-                {
-                        bool dead = (r_ptr->max_num == 0);
+		/* Skip "friendly" monsters. */
+		/* Also skip Random monsters. */
+		if (!(r_ptr->flags7 & (RF7_FRIENDLY)) && !(r_ptr->flags7 & (RF7_RANDOM)))
+		{
 
-                        if (dead)
-                        {
-                                /* Uniques are supposed to be harder */
-                                Total += 50;
-                        }
-                }
-                else
-                {
-                        s16b This = r_ptr->r_pkills;
+                	if (r_ptr->flags1 & (RF1_UNIQUE))
+                	{
+                        	bool dead = (r_ptr->max_num == 0);
 
-                        if (This > 0)
-                        {
-                                Total += This;
-                        }
-                }
+                        	if (dead)
+                        	{
+                                	/* Uniques are supposed to be harder */
+					if (r_ptr->flags7 & (RF7_SECRET_BOSS)) Total += 100;
+                                	else Total += 50;
+                        	}
+                	}
+                	else
+                	{
+				if (r_ptr->r_pkills > 0)
+				{
+					if (r_ptr->cursed >= 1) Total += 100;
+                        		else if (r_ptr->r_bkills > 0) Total += 30;
+					else if (r_ptr->r_ekills > 0) Total += 20;
+					else Total += 10;
+				}
+                	}
+		}
         }
-        temp += Total * 50;
+	/* Raise score by 25% for every secret levels cleared! */
+	for (i = 0; i < p_ptr->secretscleared; i++)
+	{
+		Total = Total + multiply_divide(Total, 25, 100);
+	}
+	/* Reduce score by 10% for every deaths. */
+	for (i = 0; i < p_ptr->deathcount; i++)
+	{
+		Total = Total - multiply_divide(Total, 10, 100);
+	}
+	/* Reduce score by 33% for every reincarnations. */
+	for (i = 0; i < p_ptr->reincarnations; i++)
+	{
+		Total = Total - multiply_divide(Total, 33, 100);
+	}
 
-        temp += total_bounties * 100;
-
-        if (total_winner) temp += 1000000;
-
-
-
-	return (temp);
-#endif
+	return (Total);
 }
 
 
@@ -4106,19 +4093,19 @@ static void print_tomb(void)
 		center_string(buf, tmp);
 		put_str(buf, 13, 11);
 
-		(void)sprintf(tmp, "Killed on Level %d", dun_level);
+		/*(void)sprintf(tmp, "Killed on Level %d", dun_level);
 		center_string(buf, tmp);
-		put_str(buf, 14, 11);
+		put_str(buf, 14, 11);*/
 
 
-		if (strlen(died_from) > 24)
+		/*if (strlen(died_from) > 24)
 		{
 			strncpy(dummy, died_from, 24);
 			dummy[24] = '\0';
 			(void)sprintf(tmp, "by %s.", dummy);
 		}
 		else
-			(void)sprintf(tmp, "by %s.", died_from);
+			(void)sprintf(tmp, "by %s.", died_from);*/
 
 		center_string(buf, tmp);
 		put_str(buf, 15, 11);
@@ -4575,7 +4562,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			c_put_str(attr, out_val, n*4 + 2, 0);
 
 			/* Another line of info */
-			if (in_arena)
+			/*if (in_arena)
 			{
 				sprintf(out_val, "               Killed by %s in the Arena",
 				    the_score.how);
@@ -4585,7 +4572,6 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 				sprintf(out_val, "               Killed by %s while questing",
 				    the_score.how);
 			}
-			/* Hack -- some people die in the town */
 			else if (!cdun)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
@@ -4595,7 +4581,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			{
 				sprintf(out_val, "               Killed by %s on %s %d",
 				    the_score.how, "Dungeon Level", cdun);
-			}
+			}*/
+			/*sprintf(out_val, "               Killed by %s", the_score.how);*/
+			sprintf(out_val, "                             ", the_score.how);
 
 			/* Append a "maximum level" */
 			if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
@@ -4605,8 +4593,8 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* And still another line of info */
 			sprintf(out_val,
-			        "               (User %s, Date %s, Gold %s, Turn %s).",
-			        user, when, gold, aged);
+			        "               (User %s, Date %s, Gold %s).",
+			        user, when, gold);
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 

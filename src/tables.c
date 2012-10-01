@@ -1293,8 +1293,8 @@ option_type option_info[] =
         { &auto_destroy,                TRUE, 5, 5, 3,
 	"auto_destroy",                 "No query to destroy known worthless items" },
 
-        { &wear_confirm,                TRUE, 5,5, 4,
-	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
+        { &very_fast_messages,          FALSE, 5,5, 4,
+	"very_fast_messages",           "Very fast messages(auto-clear '-more-' prompts)" },
 
 	{ &confirm_stairs,              FALSE, 5, 5, 5,
 	"confirm_stairs",               "Prompt before exiting a dungeon level" },

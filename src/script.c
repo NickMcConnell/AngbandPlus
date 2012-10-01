@@ -1069,6 +1069,69 @@ void give_monster_race_flag9(int r_idx, u32b flag)
 	r_ptr->flags9 |= flag;
 }
 
+void remove_monster_race_flag1(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags1 &= flag;
+}
+
+void remove_monster_race_flag2(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags2 &= flag;
+}
+
+void remove_monster_race_flag3(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags3 &= flag;
+}
+
+void remove_monster_race_flag4(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags4 &= flag;
+}
+
+void remove_monster_race_flag5(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags5 &= flag;
+}
+
+void remove_monster_race_flag6(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags6 &= flag;
+}
+
+void remove_monster_race_flag7(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags7 &= flag;
+}
+
+void remove_monster_race_flag8(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags8 &= flag;
+}
+
+void remove_monster_race_flag9(int r_idx, u32b flag)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	r_ptr->flags9 &= flag;
+}
+
 void give_dungeon_flag1(int dinfo, u32b flag)
 {
 	dungeon_info_type *d_ptr;
@@ -1110,4 +1173,54 @@ bool get_feat_flag1(int feat, u32b flag)
 void give_object_ident(object_type *o_ptr, u32b flag)
 {
 	o_ptr->ident |= flag;
+}
+
+void lua_create_object_inven(int tval, int sval, int number)
+{
+	object_type	forge;
+	object_type	*q_ptr;
+
+	/* Get local object */
+        q_ptr = &forge;
+
+        object_prep(q_ptr, lookup_kind(tval, sval));
+        q_ptr->number = number;
+        object_aware(q_ptr);
+        object_known(q_ptr);
+        (void)inven_carry(q_ptr, FALSE);
+}
+
+char *lua_get_object_desc(int slot)
+{
+	char desc[80];
+	object_type *o_ptr = &inventory[slot];
+	object_desc(desc, o_ptr, TRUE, 0);
+
+	return(desc);
+}
+
+/* The above function doesn't work, and I don't want to spend hours on this. */
+void item_has_been_disabled_message(int slot)
+{
+	char desc[80];
+	object_type *o_ptr = &inventory[slot];
+	object_desc(desc, o_ptr, TRUE, 0);
+
+	msg_format("%s has been disabled!", desc);
+}
+
+void lua_revive_in_town()
+{
+	int x, y;
+	for (x = 0; x < wild_max_x; x++)
+	{
+		for (y = 0; y < wild_max_y; y++)
+		{
+			if (wild[x][y].town == p_ptr->town_num)
+			{
+				p_ptr->wild_x = x;
+				p_ptr->wild_y = y;
+			}
+		}
+	}
 }

@@ -1637,6 +1637,21 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->extra4 = k_ptr->extra4;
 	o_ptr->extra5 = k_ptr->extra5;
 	o_ptr->reflect = k_ptr->reflect;
+	o_ptr->cursed = k_ptr->cursed;
+
+	/* Item events */
+	o_ptr->event_passive_equipped = k_ptr->event_passive_equipped;
+	o_ptr->event_passive_carried = k_ptr->event_passive_carried;
+	o_ptr->event_passive_floor = k_ptr->event_passive_floor;
+	o_ptr->event_pickup = k_ptr->event_pickup;
+	o_ptr->event_drop = k_ptr->event_drop;
+	o_ptr->event_destroy = k_ptr->event_destroy;
+	o_ptr->event_equip = k_ptr->event_equip;
+	o_ptr->event_takeoff = k_ptr->event_takeoff;
+	o_ptr->event_summon = k_ptr->event_summon;
+	o_ptr->event_unsummon = k_ptr->event_unsummon;
+	o_ptr->event_spawn = k_ptr->event_spawn;
+	o_ptr->event_misc = k_ptr->event_misc;
 
 	/* Hack -- worthless items are always "broken" */
 	if (k_ptr->cost <= 0 && o_ptr->tval != TV_LICIALHYD) o_ptr->ident |= (IDENT_BROKEN);
@@ -1656,6 +1671,12 @@ void object_prep(object_type *o_ptr, int k_idx)
 	if (o_ptr->tval == TV_RANGED)
 	{
 		o_ptr->pval2 = k_ptr->extra3;
+	}
+
+	/* This is where we run the "event_spawn" event. */
+	if (o_ptr->event_spawn != 0)
+	{
+		call_lua("item_spawn", "(Od)", "", o_ptr, o_ptr->event_spawn);
 	}
 }
 
@@ -1842,13 +1863,17 @@ static bool make_artifact_special(object_type *o_ptr)
 {
 	int i;
 	int k_idx = 0;
+	int tries;
+
+	if (opening_chest && opening_chest_type == 6) tries = -30000;
+	else tries = 0;
 
 
 	/* No artifacts in the town */
 	if (!dun_level) return (FALSE);
 
 	/* Check the artifact list (just the "specials") */
-	for (i = 0; i < ART_MIN_NORMAL; i++)
+	for (i = tries; i < ART_MIN_NORMAL; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1867,10 +1892,13 @@ static bool make_artifact_special(object_type *o_ptr)
 		if ((a_ptr->flags4 & TR4_ICE) && !(d_info[dungeon_type].flags1 & DF1_ICE)) continue;
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
-		if (a_ptr->level > dun_level) continue;
+		if (a_ptr->level > object_level) continue;
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if (!(opening_chest && opening_chest_type == 6))
+		{
+			if (rand_int(a_ptr->rarity) != 0) return (0);
+		}
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1910,10 +1938,13 @@ static bool make_artifact_special(object_type *o_ptr)
 		if ((a_ptr->flags4 & TR4_ICE) && !(d_info[dungeon_type].flags1 & DF1_ICE)) continue;
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
-		if (a_ptr->level > dun_level) continue;
+		if (a_ptr->level > object_level) continue;
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if (!(opening_chest && opening_chest_type == 6))
+		{
+			if (rand_int(a_ptr->rarity) != 0) return (0);
+		}
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1991,7 +2022,11 @@ static bool make_artifact(object_type *o_ptr)
 		}
 
 		/* We must make the "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) continue;
+		/* Ancient chests always have an artifact if possible. */
+		if (!(opening_chest && opening_chest_type == 6))
+		{
+			if (rand_int(a_ptr->rarity) != 0) continue;
+		}
 
 		/* Hack -- mark the item as an artifact */
 		o_ptr->name1 = i;
@@ -2560,6 +2595,20 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		o_ptr->reflect = a_ptr->reflect;
 		o_ptr->cursed = a_ptr->cursed;
 
+		/* Item events */
+		o_ptr->event_passive_equipped = a_ptr->event_passive_equipped;
+		o_ptr->event_passive_carried = a_ptr->event_passive_carried;
+		o_ptr->event_passive_floor = a_ptr->event_passive_floor;
+		o_ptr->event_pickup = a_ptr->event_pickup;
+		o_ptr->event_drop = a_ptr->event_drop;
+		o_ptr->event_destroy = a_ptr->event_destroy;
+		o_ptr->event_equip = a_ptr->event_equip;
+		o_ptr->event_takeoff = a_ptr->event_takeoff;
+		o_ptr->event_summon = a_ptr->event_summon;
+		o_ptr->event_unsummon = a_ptr->event_unsummon;
+		o_ptr->event_spawn = a_ptr->event_spawn;
+		o_ptr->event_misc = a_ptr->event_misc;
+
 		/* Hack -- extract the "broken" flag */
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -2685,6 +2734,20 @@ static bool kind_is_legal(int k_idx)
 
         if (k_ptr->tval == TV_HYPNOS) return FALSE;
 
+	/* When opening Magic chests and higher types of chests, prevent some "junk" from being generated. */
+	if (opening_chest)
+	{
+		if (opening_chest_type >= 4)
+		{
+			if (k_ptr->tval == TV_WEAPON || k_ptr->tval == TV_ROD || k_ptr->tval == TV_RANGED || k_ptr->tval == TV_AMMO
+			|| k_ptr->tval == TV_SOFT_ARMOR || k_ptr->tval == TV_HARD_ARMOR || k_ptr->tval == TV_DRAG_ARMOR || k_ptr->tval == TV_GLOVES
+			|| k_ptr->tval == TV_ARM_BAND || k_ptr->tval == TV_SHIELD || k_ptr->tval == TV_HELM || k_ptr->tval == TV_CLOAK
+			|| k_ptr->tval == TV_BOOTS || k_ptr->tval == TV_RING || k_ptr->tval == TV_AMULET || k_ptr->tval == TV_INSTRUMENT
+			|| k_ptr->tval == TV_LITE || k_ptr->tval == TV_THROWING) return TRUE;
+			else return FALSE;
+		}
+	}
+
 	/* Assume legal */
 	return TRUE;
 }
@@ -2721,6 +2784,7 @@ static bool kind_is_good(int k_idx)
 		case TV_WEAPON:
                 case TV_ROD:
 		case TV_DIGGING:
+		case TV_THROWING:
 		{
 			if (k_ptr->to_h < 0) return (FALSE);
 			if (k_ptr->to_d < 0) return (FALSE);
@@ -2740,23 +2804,26 @@ static bool kind_is_good(int k_idx)
                 case TV_BOOK_CONJURATION:
                 case TV_BOOK_DIVINATION:
 		{
-			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD && !(opening_chest)) return (TRUE);
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed are good */
+		/* Rings are good. */
 		case TV_RING:
 		{
-			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
-			return (FALSE);
+			return (TRUE);
 		}
 
-		/* Amulets -- Amulets of the Magi and Resistance are good */
+		/* Amulets are good. */
 		case TV_AMULET:
 		{
-			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
-			if (k_ptr->sval == SV_AMULET_RESISTANCE) return (TRUE);
-			return (FALSE);
+			return (TRUE);
+		}
+
+		/* Instruments are good. */
+		case TV_INSTRUMENT:
+		{
+			return (TRUE);
 		}
 	}
 
@@ -2789,10 +2856,13 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	base = object_level;
 
 	/* Twist Fate: Items! */
-	if (!(p_ptr->inside_quest) && p_ptr->events[29006] == 1)
+	if (!opening_chest)
 	{
-		base += fate_items(1);
-		if (base <= 0) base = 1;
+		if (!(p_ptr->inside_quest) && p_ptr->events[29006] == 1)
+		{
+			base += fate_items(1);
+			if (base <= 0) base = 1;
+		}
 	}
 
 	/* An item may be afflicted by a curse(but not always). */
@@ -2800,6 +2870,12 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	else cursechance = 0;
 
 	if (cursechance > 75) cursechance = 75;
+
+	/* Opening a cursed chest? */
+	if (opening_chest)
+	{
+		cursechance = 0;
+	}
 
 	/* Again, no side effects in quest levels. */
 	if (cursechance > 0 && !(p_ptr->inside_quest))
@@ -2810,7 +2886,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 			if (base < 1) base = 1;
 		}
 	}
-
 
 	/* Generate a special object, or a normal object */
 	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
@@ -2834,14 +2909,14 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		k_idx = get_obj_num(base);
 
 		/* Good objects */
-		if (good)
-		{
+		/*if (good)*/
+		/*{*/
 			/* Clear restriction */
-			get_obj_num_hook = NULL;
+			/*get_obj_num_hook = NULL;*/
 
 			/* Prepare allocation table */
-			get_obj_num_prep();
-		}
+			/*get_obj_num_prep();*/
+		/*}*/
 
 		/* Handle failure */
 		if (!k_idx) return (FALSE);
@@ -2852,7 +2927,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 	/* Apply magic (allow artifacts) */
 	/* Twist Fate: Items! */
-	if (!(p_ptr->inside_quest) && p_ptr->events[29006] == 1)
+	if (!(p_ptr->inside_quest) && p_ptr->events[29006] == 1 && !(opening_chest))
 	{
 		int itype;
 		itype = fate_items(2);
@@ -2865,7 +2940,10 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		}
 		fate_item_modifier = 0;
 	}
-        else apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
+        else if (opening_chest && opening_chest_type == 7) apply_magic(j_ptr, object_level, TRUE, TRUE, TRUE, TRUE);
+	else if (opening_chest && opening_chest_type == 6) apply_magic(j_ptr, object_level + 20, TRUE, TRUE, TRUE, FALSE);
+	else if (opening_chest && (opening_chest_type == 4 || opening_chest_type == 5)) apply_magic(j_ptr, object_level, TRUE, TRUE, TRUE, FALSE);
+	else apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
 
 	/* Hack -- generate multiple spikes/missiles */
         /* NewAngband Hack: Give weapons a durability */
@@ -3990,6 +4068,12 @@ s16b inven_takeoff(int item, int amt, bool force_drop)
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
 
+	/* Possibly call an item event. */
+	if (q_ptr->event_takeoff != 0)
+	{
+		call_lua("item_takeoff", "(Od)", "", q_ptr, q_ptr->event_takeoff);
+	}
+
         if (force_drop)
         {
                 drop_near(q_ptr,0, py,px);
@@ -4079,6 +4163,12 @@ void inven_drop(int item, int amt)
 
 	/* Drop it near the player */
         drop_near(q_ptr, 0, py, px);
+
+	/* Possibly call an item event. */
+	if (q_ptr->event_drop != 0)
+	{
+		call_lua("item_drop", "(Od)", "", q_ptr, q_ptr->event_drop);
+	}
 
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
@@ -5373,4 +5463,114 @@ void drop_object_specific(int y, int x, int tval, int sval, int num, int magic)
 	if (num > 99) num = 99;
         q_ptr->number = num;
         drop_near(q_ptr, -1, y, x);
+}
+
+/* Create a chest. */
+bool make_chest(object_type *j_ptr)
+{
+	int base;
+	int k_idx;
+	int chesttype = 0;
+	int chestroll;
+
+	/* Base level for the object */
+	base = object_level;
+
+	/* Prepare allocation table */
+	get_obj_num_prep();
+
+	/* Pick a chest type. */
+	/* This depends on the dungeon level. */
+	chestroll = randint(700 + dun_level);
+	if (chestroll >= 800) chesttype = CHEST_SPECIAL;
+	else if (chestroll >= 700) chesttype = CHEST_ANCIENT;
+	else if (chestroll >= 650) chesttype = CHEST_CURSED;
+	else if (chestroll >= 550) chesttype = CHEST_MAGIC;
+	else if (chestroll >= 450) chesttype = CHEST_STEEL;
+	else if (chestroll >= 300) chesttype = CHEST_IRON;
+	else chesttype = CHEST_WOODEN;
+
+	k_idx = chesttype;
+
+	/* Handle failure(shouldn't happen) */
+	if (!k_idx) return (FALSE);
+
+	/* Prepare the object */
+	object_prep(j_ptr, k_idx);
+
+	/* Give the chest a level. */
+	/* It's actually the chest's pval. */
+	/* Different levels of chests have different levels. */
+	/* Steel and higher always have high item levels. */
+	/* Iron can be high or a bit lower than the dungeon level, but it tends to be good overall. */
+	/* Wooden ranged from "ok" to trash. But they are never locked. */
+	if (chesttype >= CHEST_MAGIC) j_ptr->pval = multiply_divide(dun_level, 120, 100) + randint(dun_level / 2) + (dun_level / 10);
+	else if (chesttype >= CHEST_STEEL) j_ptr->pval = multiply_divide(dun_level, 110, 100) + randint(dun_level / 2);
+	else if (chesttype >= CHEST_IRON) j_ptr->pval = multiply_divide(dun_level, 75, 100) + randint(dun_level / 2);
+	else j_ptr->pval = randint(dun_level);
+	
+	/* Success */
+	return (TRUE);
+}
+
+/* Place a chest at given location. */
+void place_chest(int y, int x)
+{
+	s16b o_idx;
+
+	cave_type *c_ptr;
+
+	object_type forge;
+	object_type *q_ptr;
+
+
+	/* Paranoia -- check bounds */
+	if (!in_bounds(y, x)) return;
+
+	/* Require clean floor space */
+	if (!cave_clean_bold(y, x)) return;
+
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Wipe the object */
+	object_wipe(q_ptr);
+
+	/* Make an object (if possible) */
+	if (!make_chest(q_ptr)) return;
+
+	/* Make an object */
+	o_idx = o_pop();
+
+	/* Success */
+	if (o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[o_idx];
+
+		/* Structure Copy */
+		object_copy(o_ptr, q_ptr);
+
+		/* Location */
+		o_ptr->iy = y;
+		o_ptr->ix = x;
+
+		/* Acquire grid */
+		c_ptr = &cave[y][x];
+
+		/* Build a stack */
+		o_ptr->next_o_idx = c_ptr->o_idx;
+
+		/* Place the object */
+		c_ptr->o_idx = o_idx;
+
+		/* Notice */
+		note_spot(y, x);
+		
+		/* Redraw */
+		lite_spot(y, x);
+	}
 }

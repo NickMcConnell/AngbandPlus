@@ -109,8 +109,6 @@ T:50:41:119:1
 // Grand Palace of the Sul-Rin
 T:41:8:200:0
 
-T:61:44:300:0
-
 // IVHALA
 // The home of the Defenders! :)
 // 6 cells city.

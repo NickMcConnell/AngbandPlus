@@ -2190,13 +2190,16 @@ static void msg_flush(int x)
 	Term_putstr(x, 0, -1, a, "-more-");
 	
 	/* Get an acceptable keypress */
-	while (1)
+	if (!very_fast_messages)
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell();
+		while (1)
+		{
+			int cmd = inkey();
+			if (quick_messages) break;
+			if ((cmd == ESCAPE) || (cmd == ' ')) break;
+			if ((cmd == '\n') || (cmd == '\r')) break;
+			bell();
+		}
 	}
 	
 	/* Clear the line */

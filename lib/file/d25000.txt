@@ -1,0 +1,7 @@
+N:1:0:0:0:0:0
+I:SECRET LEVEL;
+T:Wrath of the Gin'Whal;
+T: ;
+T:Minimum scaled enemies level: 30;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

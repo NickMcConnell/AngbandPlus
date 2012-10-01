@@ -1,0 +1,131 @@
+// This is a quest template.
+// Very similar to town template.
+// N:Name of town;
+// I:width:height:(0: dark 1: lite):(dungeon level, set to -1 to use current level):(dialog upon death... this mean we don't really die, but also that yoU're supposed to lose! ;)):event if death:set event if death
+// S:start position x:start position y
+// F: Feature definition
+// T:(script function's name. It will be run when entering the quest/town.);
+// D:town definition, use the following characters for features:
+//
+// #: Permanent wall
+// X: Granite wall
+// .: Floor
+// T: Tree
+// M: Mountain
+// w: Shallow water
+// W: Deep water
+// l: Shallow lava
+// L: Deep lava
+// 1,2,3,4,5,6,7,8,9,0,m: Shops
+// <: Stair up
+// >: Stair down
+// +: Door
+// ,: Grass
+// ;: Dirt
+// -: Table/Counter
+// s: Snow
+// t: Snow-tree
+// G: Glacier
+// p: pit
+// x: Ice Wall
+// I: Permanent Ice Wall
+// =: Ice Door
+
+// E:x:y:event type:event detail:Extra:Extra2:(event condition):(event condition value):(Set event):(Set event value)
+	Type 1: Dialog	Detail: Which dialog.
+	Type 2: Dungeon entrance  Detail: Which dungeon Extra: startx Extra2: starty. (set extra and extra2 if you want to set up a start position in case character die).
+	Type 3: Locked door  Detail: Item tval needed	Extra: Item sval needed
+	Type 4: Quest enter. Detail: Quest number. Extra1: X pos. Extra2: Y pos. (if no values specified, use the quest's default start position.)
+	Type 5: Quest exit.	Detail: X position.	Extra: Y position.
+	Type 6: Item. 	Detail: Item's number	Extra: 0. Normal, 1. Good, 2. Magic, 3. Special
+	Type 7: Monster	Detail: Monster's id.	Extra: 0. Awake 1. Sleeping 2. Friendly, awake. 3. Friendly, sleeping.  Extra2: Level
+	Type 8: Change town.	Detail: Town's id.
+	Type 9: Switch: Alter terrain. Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 10: Switch: Alter terrain(intelligence test). Detail: x coordinate. Extra: y coordinate. Extra2: Terrain ID.
+	Type 11: Random Item. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. (use if you want an item of a lower/higher depth)
+	Type 12: Random Gold.
+	Type 13: Random Monster. Detail: Monster's depth adjustement. Use to get a weaker/stronger monster. Extra: 0. Normal 1. Elite 2. Boss
+	Type 14: Random Monster of type. Detail: Monster's depth adjustement. Extra: 1. Undead 2. Demon 3. Dragon Extra2: 0. Normal 1. Elite 2. Boss
+	Type 15: Random Item of tval. 	Detail: 0. Normal, 1. Good, 2. Magic 3. Levelable 4. Cursed 5. Special  Extra: Item's level adjustment. Extra2: Item's tval
+	Type 16: Random Nightmare Horror. Detail: Misfortune adjustment. (by default, it's the current monster level.)
+
+// NOTE: Do not use events 29000 to 29999. They are reserved for various things.
+
+// R:(script function's name):x:y
+
+N:Secret Level;
+
+I:41:21:0:16:0:0:0
+S:2:3
+
+T:ginwhal_prepare_level;
+
+// Firestorm Gatekepper.
+// Basically a test to see if you're ready for Secret Levels. :)
+E:7:3:7:2500:0:0:25001:0:0:0
+E:9:3:3:1:999:0:25001:0:0:0
+
+// Pure Orcish Rage
+R:open_rage_wall_1:17:3
+E:12:1:7:2501:0:0:25002:0:0:0
+E:13:1:7:2501:0:0:25002:0:0:0
+E:14:1:7:2501:0:0:25002:0:0:0
+E:15:1:7:2501:0:0:25002:0:0:0
+E:16:1:7:2501:0:0:25002:0:0:0
+
+E:34:1:9:19:6:1:0:0:0:0
+E:34:5:9:34:6:1:0:0:0:0
+R:open_rage_wall_2:32:7
+R:open_rage_wall_3:38:7
+E:37:1:7:2501:0:0:25002:0:0:0
+E:38:1:7:2501:0:0:25002:0:0:0
+E:39:1:7:2501:0:0:25002:0:0:0
+E:36:5:7:2501:0:0:25002:0:0:0
+E:36:6:7:2501:0:0:25002:0:0:0
+E:36:7:7:2501:0:0:25002:0:0:0
+E:35:12:7:2501:0:0:25002:0:0:0
+E:36:12:7:2501:0:0:25002:0:0:0
+E:37:12:7:2501:0:0:25002:0:0:0
+E:38:12:7:2501:0:0:25002:0:0:0
+
+// It's not even on the door.
+// Basically, a checkpoint.
+E:38:15:3:0:0:0:0:0:25002:1
+
+// Avemorsh's Torment
+E:19:14:7:2502:0:0:25003:0:0:0
+E:11:12:7:2503:0:0:25003:0:0:0
+E:12:14:3:1:999:0:25003:0:0:0
+
+// Eternal Pains.
+E:9:14:7:2504:0:0:25006:0:0:0
+E:8:9:7:2504:0:0:25006:0:0:0
+E:12:6:7:2504:0:0:25006:0:0:0
+
+// Checkpoint.
+E:13:6:3:0:0:0:0:0:25006:1
+
+// Stairway to Avemorsh.
+E:16:6:4:25001:10:11:0:0:0:0
+
+D:#########################################
+D:#........###.....##................##...#
+D:#........##########................######
+D:#<.......+........+................#...##
+D:#........##########................###.##
+D:#........##########................#.#.##
+D:###########...+.>###################.#.##
+D:###########.#######..............#.#.#.##
+D:###########.##########################X##
+D:#####.......##########################.##
+D:#####.###########################.p....##
+D:#####.###########################.#######
+D:#####.#####.X.............#######.#....##
+D:#####.#######.....ppp.....#######.#######
+D:#####.......+.....p.p.....+...###......##
+D:#############.....ppp.....###.########.##
+D:#############.............###.....####+##
+D:#################################......##
+D:#########################################
+D:#########################################
+D:#########################################

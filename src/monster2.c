@@ -971,9 +971,9 @@ s16b get_mon_num(int level)
 		harderloop = (dun_level-30);
 
 		/* No more than 5 loops. */
-		if (harderloop > 50) harderloop = 50;
+		if (harderloop > 25) harderloop = 25;
 
-		for (p = 0; p < (harderloop / 10); p++)
+		for (p = 0; p < (harderloop / 5); p++)
 		{
 			/* Save old */
 			j = i;
@@ -1641,6 +1641,10 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 
 	cptr		name = (r_name + r_ptr->name);
 
+	bool scaled = FALSE;
+	int scaledlevel;
+	
+
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
 
@@ -1692,13 +1696,13 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
         }
 
 	/* Random monsters should only be placed in random dungeons. */
-	if ((r_ptr->flags7 & (RF7_RANDOM)) && !(d_info[dungeon_type].flags1 & DF1_RANDOM_ONLY)) return FALSE;
+	if ((r_ptr->flags7 & (RF7_RANDOM)) && !(d_info[dungeon_type].flags1 & DF1_RANDOM_ONLY) && !summoning_specific) return FALSE;
 
 	/* Ice monsters should only be placed in ice dungeons. */
-	if ((r_ptr->flags7 & (RF7_ICE)) && !(d_info[dungeon_type].flags1 & DF1_ICE)) return FALSE;
+	if ((r_ptr->flags7 & (RF7_ICE)) && !(d_info[dungeon_type].flags1 & DF1_ICE) && !summoning_specific) return FALSE;
 
 	/* Cursed monsters cannot appear unless the player is cursed enough. */
-	if (r_ptr->cursed > 0)
+	if (r_ptr->cursed > 0 && !summoning_specific)
 	{
 		if ((p_ptr->cursed < r_ptr->cursed) || (p_ptr->inside_quest) || dun_level == 0 || (charm))
 		{
@@ -1761,6 +1765,14 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 	{
 		/* Unique monsters induce message */
                 if ((cheat_hear)) msg_format("Unique (%s).", name);
+	}
+
+	/* This is a scaled enemy. It's stats scales with the player's level. */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
 	}
 
 
@@ -1903,7 +1915,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
                 }
 
                 /* Average dungeon and monster levels */
-                object_level = (dun_level + r_ptr->level) / 2;
+		if (scaled)
+		{
+			if (r_ptr->flags7 & (RF7_SECRET_BOSS)) object_level = scaledlevel * 2;
+			else object_level = scaledlevel + (scaledlevel / 2);
+		}
+                else object_level = (dun_level + r_ptr->level) / 2;
 
                 /* Determine how much we can drop */
                 if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
@@ -1993,17 +2010,27 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 	m_ptr->ml = FALSE;
 
         /* Give the monster a level */
-        tempint = dun_level;
+	if (scaled) tempint = scaledlevel;
+        else tempint = dun_level;
+
 	if (r_ptr->cursed > 0 && tempint < r_ptr->cursed) tempint = r_ptr->cursed;
-	if (m_ptr->boss >= 1 || r_ptr->cursed > 0) m_ptr->level = tempint;
+	if (m_ptr->boss >= 1 || r_ptr->cursed > 0 || (scaled)) m_ptr->level = tempint;
         else m_ptr->level = randint(tempint / 2) + (tempint / 2);
-	if (r_ptr->cursed > 0 && m_ptr->level < r_ptr->level) m_ptr->level = r_ptr->level;
-        if (p_ptr->lev >= 4) m_ptr->level += randint(3);
+	if (scaled)
+	{
+		if (r_ptr->cursed > 0 && m_ptr->level < scaledlevel) m_ptr->level = scaledlevel;
+	}
+	else
+	{
+		if (r_ptr->cursed > 0 && m_ptr->level < r_ptr->level) m_ptr->level = r_ptr->level;
+	}
+        if (p_ptr->lev >= 4 || (scaled)) m_ptr->level += randint(3);
         /* Higher levels for lower depths...and higher player levels! */
-        if (p_ptr->lev >= 4)
+        if (p_ptr->lev >= 4 || (scaled))
         {
                 m_ptr->level += (tempint / 4);
-                m_ptr->level += p_ptr->lev / 4;
+		if (scaled && p_ptr->lev < tempint) m_ptr->level += tempint / 4;
+                else m_ptr->level += p_ptr->lev / 4;
         }
 	/* However, a fixed level will override everything. */
 	if (r_ptr->fixedlevel > 0) m_ptr->level = r_ptr->fixedlevel;
@@ -2043,7 +2070,25 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
+
+	/* Scaled enemies can gain extra lives. */
+	if (scaled)
+	{
+		int baselives = m_ptr->lives;
+
+		
+		/* Increment by 5% per levels. */
+		baselives = baselives + multiply_divide(baselives, (scaledlevel * 5), 100);
+
+		/* Add some lives. */
+		if (scaledlevel >= 20)
+		{
+			baselives = baselives + ((scaledlevel - 10) / 10);
+		}
+
+		m_ptr->lives = baselives;
+	}
 
 	/* Determine the monster's hp. */
 	{
@@ -2052,11 +2097,13 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 		{
-			hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = maxroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
 		}
 		else
 		{
-			hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = damroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
 		}
 
 		hpperlevels += multiply_divide(hpperlevels, (m_ptr->level * 5), 100);
@@ -2084,12 +2131,24 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 	m_ptr->hp = m_ptr->maxhp;
 
 	/* Now, determine the stats! */
-	m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	if (scaled)
+	{
+		m_ptr->str = multiply_divide(scaledlevel, r_ptr->str, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->str, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = multiply_divide(scaledlevel, r_ptr->dex, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->dex, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = multiply_divide(scaledlevel, r_ptr->mind, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->mind, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = multiply_divide(scaledlevel, r_ptr->skill_attack, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_attack, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = multiply_divide(scaledlevel, r_ptr->skill_ranged, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_ranged, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = multiply_divide(scaledlevel, r_ptr->skill_magic, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_magic, 100), ((m_ptr->level - 1) * 5), 100);
+	}
+	else
+	{
+		m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	}
 
 	if (m_ptr->boss == 1)
 	{
@@ -2124,7 +2183,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm, int dur)
 	m_ptr->hitrate += multiply_divide(m_ptr->hitrate, ((m_ptr->dex - 5) * 5), 100);
 
         /* Defense! */
-	m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	if (scaled) m_ptr->defense = multiply_divide(scaledlevel, r_ptr->ac, 100) + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	else m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
 
 	/* Mana! */
 	m_ptr->mana = (m_ptr->mind - 5) * 10;
@@ -2227,6 +2287,9 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 
 	cptr		name = (r_name + r_ptr->name);
 
+	bool scaled = FALSE;
+	int scaledlevel;
+
 
 	/* Verify location */
         if (!in_bounds(y, x)) return 0;
@@ -2304,6 +2367,14 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 	{
 		/* Unique monsters induce message */
                 if ((cheat_hear)) msg_format("Unique (%s).", name);
+	}
+
+	/* This is a scaled enemy. It's stats scales with the player's level. */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
 	}
 
 
@@ -2418,7 +2489,12 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 
 
                 /* Average dungeon and monster levels */
-                object_level = (dun_level + r_ptr->level) / 2;
+		if (scaled)
+		{
+			if (r_ptr->flags7 & (RF7_SECRET_BOSS)) object_level = scaledlevel * 2;
+			else object_level = scaledlevel + (scaledlevel / 2);
+		}
+                else object_level = (dun_level + r_ptr->level) / 2;
 
                 /* Determine how much we can drop */
                 if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
@@ -2506,23 +2582,30 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 	m_ptr->ml = FALSE;
 
         /* Give the monster a level */
-        tempint = dun_level;
+	if (scaled) tempint = scaledlevel;
+        else tempint = dun_level;
+
 	if (r_ptr->cursed > 0 && tempint < r_ptr->cursed) tempint = r_ptr->cursed;
-	if (m_ptr->boss >= 1 || r_ptr->cursed > 0) m_ptr->level = tempint;
+	if (m_ptr->boss >= 1 || r_ptr->cursed > 0 || (scaled)) m_ptr->level = tempint;
         else m_ptr->level = randint(tempint / 2) + (tempint / 2);
-	if (r_ptr->cursed > 0 && m_ptr->level < r_ptr->level) m_ptr->level = r_ptr->level;
-        if (p_ptr->lev >= 4) m_ptr->level += randint(3);
+	if (scaled)
+	{
+		if (r_ptr->cursed > 0 && m_ptr->level < scaledlevel) m_ptr->level = scaledlevel;
+	}
+	else
+	{
+		if (r_ptr->cursed > 0 && m_ptr->level < r_ptr->level) m_ptr->level = r_ptr->level;
+	}
+        if (p_ptr->lev >= 4 || (scaled)) m_ptr->level += randint(3);
         /* Higher levels for lower depths...and higher player levels! */
-        if (p_ptr->lev >= 4)
+        if (p_ptr->lev >= 4 || (scaled))
         {
                 m_ptr->level += (tempint / 4);
-                m_ptr->level += p_ptr->lev / 4;
+		if (scaled && p_ptr->lev < tempint) m_ptr->level += tempint / 4;
+                else m_ptr->level += p_ptr->lev / 4;
         }
-	/* However, a fixed level will override the level. */
+	/* However, a fixed level will override everything. */
 	if (r_ptr->fixedlevel > 0) m_ptr->level = r_ptr->fixedlevel;
-
-	/* But a level specified in an event will override ANYTHING. */
-	if (monlevel > 0) m_ptr->level = monlevel;
 
         /* Bosses are 5 levels higher than the current dungeon level */
         if (m_ptr->boss == 2) m_ptr->level += 5;
@@ -2559,7 +2642,24 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
+
+	/* Scaled enemies can gain extra lives. */
+	if (scaled)
+	{
+		int baselives = m_ptr->lives;
+
+		/* Increment by 5% per levels. */
+		baselives = baselives + multiply_divide(baselives, (scaledlevel * 5), 100);
+
+		/* Add some lives. */
+		if (scaledlevel >= 20)
+		{
+			baselives = baselives + ((scaledlevel - 10) / 10);
+		}
+
+		m_ptr->lives = baselives;
+	}
 
 	/* Determine the monster's hp. */
 	{
@@ -2568,11 +2668,13 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 		{
-			hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = maxroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
 		}
 		else
 		{
-			hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = damroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
 		}
 
 		hpperlevels += multiply_divide(hpperlevels, (m_ptr->level * 5), 100);
@@ -2600,12 +2702,24 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 	m_ptr->hp = m_ptr->maxhp;
 
 	/* Now, determine the stats! */
-	m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	if (scaled)
+	{
+		m_ptr->str = multiply_divide(scaledlevel, r_ptr->str, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->str, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = multiply_divide(scaledlevel, r_ptr->dex, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->dex, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = multiply_divide(scaledlevel, r_ptr->mind, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->mind, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = multiply_divide(scaledlevel, r_ptr->skill_attack, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_attack, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = multiply_divide(scaledlevel, r_ptr->skill_ranged, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_ranged, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = multiply_divide(scaledlevel, r_ptr->skill_magic, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_magic, 100), ((m_ptr->level - 1) * 5), 100);
+	}
+	else
+	{
+		m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	}
 
 	if (m_ptr->boss == 1)
 	{
@@ -2639,7 +2753,8 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm, int
 	m_ptr->hitrate += multiply_divide(m_ptr->hitrate, ((m_ptr->dex - 5) * 5), 100);
 
         /* Defense! */
-	m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	if (scaled) m_ptr->defense = multiply_divide(scaledlevel, r_ptr->ac, 100) + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	else m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
 
 	/* Mana! */
 	m_ptr->mana = (m_ptr->mind - 5) * 10;
@@ -3877,7 +3992,16 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 
 void apply_monster_level_hp(monster_type *m_ptr)
 {
+	bool scaled = FALSE;
+	int scaledlevel = 0;
         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->lev > r_ptr->level) scaledlevel = p_ptr->lev;
+		else scaledlevel = r_ptr->level;
+	}
 
 
 	/* Determine the monster's hp. */
@@ -3887,11 +4011,13 @@ void apply_monster_level_hp(monster_type *m_ptr)
 
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
 		{
-			hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = maxroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = maxroll(r_ptr->hdice, r_ptr->hside);
 		}
 		else
 		{
-			hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
+			if (scaled) hpperlevels = damroll(r_ptr->hdice * scaledlevel, r_ptr->hside * scaledlevel);
+			else hpperlevels = damroll(r_ptr->hdice, r_ptr->hside);
 		}
 
 		hpperlevels += multiply_divide(hpperlevels, (m_ptr->level * 5), 100);
@@ -3919,12 +4045,24 @@ void apply_monster_level_hp(monster_type *m_ptr)
 	m_ptr->hp = m_ptr->maxhp;
 
 	/* Now, determine the stats! */
-	m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	if (scaled)
+	{
+		m_ptr->str = multiply_divide(scaledlevel, r_ptr->str, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->str, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = multiply_divide(scaledlevel, r_ptr->dex, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->dex, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = multiply_divide(scaledlevel, r_ptr->mind, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->mind, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = multiply_divide(scaledlevel, r_ptr->skill_attack, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_attack, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = multiply_divide(scaledlevel, r_ptr->skill_ranged, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_ranged, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = multiply_divide(scaledlevel, r_ptr->skill_magic, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_magic, 100), ((m_ptr->level - 1) * 5), 100);
+	}
+	else
+	{
+		m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	}
 
 	if (m_ptr->boss == 1)
 	{
@@ -3958,7 +4096,8 @@ void apply_monster_level_hp(monster_type *m_ptr)
 	m_ptr->hitrate += multiply_divide(m_ptr->hitrate, ((m_ptr->dex - 5) * 5), 100);
 
         /* Defense! */
-	m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	if (scaled) m_ptr->defense = multiply_divide(scaledlevel, r_ptr->ac, 100) + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	else m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
 
 	/* Mana! */
 	m_ptr->mana = (m_ptr->mind - 5) * 10;
@@ -4395,7 +4534,7 @@ bool place_monster_one_no_boss(int y, int x, int r_idx, bool slp, bool charm, in
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
 
 	/* Determine the monster's hp. */
 	{
@@ -4747,7 +4886,7 @@ s16b place_monster_one_return_no_boss(int y, int x, int r_idx, bool slp, bool ch
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
 
         /* Give the hp */
         m_ptr->maxhp = petmaxhp;
@@ -5136,7 +5275,7 @@ s16b place_monster_one_simulacrum(int y, int x, int r_idx, bool slp, bool charm,
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
 
         /* Give the hp */
         m_ptr->maxhp = pethp;
@@ -5320,7 +5459,7 @@ int get_mon_num_kind(int lev, char kind)
 
                 /* Make sure it's the right kind */
                 /* And not UNIQUE */
-                if ((r_ptr->d_char == kind) && !(r_ptr->flags1 & (RF1_UNIQUE)))
+                if ((r_ptr->d_char == kind) && (r_ptr->level >= 1) && !(r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags9 & (RF9_SPECIAL_GENE)) && !(r_ptr->flags7 & (RF7_TOWNSFOLK)) && !(r_ptr->flags7 & (RF7_GUARD)))
                 {
                         /* Check for the depth */
                         if (r_ptr->level <= lev) cansummon = TRUE;
@@ -5338,7 +5477,7 @@ int get_mon_num_kind(int lev, char kind)
 
                 /* Make sure it's the right kind */
                 /* And not UNIQUE */
-                if ((r_ptr->d_char == kind) && !(r_ptr->flags1 & (RF1_UNIQUE)) && choosemon != 0)
+                if ((r_ptr->d_char == kind) && (r_ptr->level >= 1) && !(r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags9 & (RF9_SPECIAL_GENE)) && !(r_ptr->flags7 & (RF7_TOWNSFOLK)) && !(r_ptr->flags7 & (RF7_GUARD)) && choosemon != 0)
                 {
                         /* Check for the depth */
                         if (r_ptr->level <= lev) okaysignal = TRUE;
@@ -5807,7 +5946,7 @@ bool place_monster_one_image(int y, int x, int r_idx, bool slp, bool charm, int 
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
 
         /* The image has the same hp as you, more if you invest in the */
         /* Mirror Images ability. */
@@ -6091,7 +6230,7 @@ s16b place_monster_animated(int y, int x, int r_idx, bool slp, bool charm, s32b 
 	m_ptr->lives = r_ptr->lives;
 
 	/* To keep up Nightmares difficulty! :) */
-	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level, 100);
+	if (r_ptr->cursed > 0) m_ptr->lives += multiply_divide(m_ptr->lives, m_ptr->level * 3, 100);
 
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
@@ -6405,15 +6544,37 @@ bool summon_specific_rflag(int y1, int x1, int lev, u32b rflag, bool Group_ok, b
 /* Don't change the hp. Just the stats. */
 void apply_monster_level_stats(monster_type *m_ptr)
 {
+	bool scaled = FALSE;
+	int scaledlevel;
         monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->lev > r_ptr->level) scaledlevel = p_ptr->lev;
+		else scaledlevel = r_ptr->level;
+	}
+	
+
 	/* Now, determine the stats! */
-	m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
-	m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	if (scaled)
+	{
+		m_ptr->str = multiply_divide(scaledlevel, r_ptr->str, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->str, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = multiply_divide(scaledlevel, r_ptr->dex, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->dex, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = multiply_divide(scaledlevel, r_ptr->mind, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->mind, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = multiply_divide(scaledlevel, r_ptr->skill_attack, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_attack, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = multiply_divide(scaledlevel, r_ptr->skill_ranged, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_ranged, 100), ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = multiply_divide(scaledlevel, r_ptr->skill_magic, 100) + multiply_divide(multiply_divide(scaledlevel, r_ptr->skill_magic, 100), ((m_ptr->level - 1) * 5), 100);
+	}
+	else
+	{
+		m_ptr->str = r_ptr->str + multiply_divide(r_ptr->str, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->dex = r_ptr->dex + multiply_divide(r_ptr->dex, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->mind = r_ptr->mind + multiply_divide(r_ptr->mind, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_attack = r_ptr->skill_attack + multiply_divide(r_ptr->skill_attack, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_ranged = r_ptr->skill_ranged + multiply_divide(r_ptr->skill_ranged, ((m_ptr->level - 1) * 5), 100);
+		m_ptr->skill_magic = r_ptr->skill_magic + multiply_divide(r_ptr->skill_magic, ((m_ptr->level - 1) * 5), 100);
+	}
 
 	if (m_ptr->boss == 1)
 	{
@@ -6440,6 +6601,22 @@ void apply_monster_level_stats(monster_type *m_ptr)
 	if (m_ptr->skill_attack > 2000000000 || m_ptr->skill_attack < 0) m_ptr->skill_attack = 2000000000;
 	if (m_ptr->skill_ranged > 2000000000 || m_ptr->skill_ranged < 0) m_ptr->skill_ranged = 2000000000;
 	if (m_ptr->skill_magic > 2000000000 || m_ptr->skill_magic < 0) m_ptr->skill_magic = 2000000000;
+
+        /* Hit rate! */
+        m_ptr->hitrate = ((m_ptr->dex - 5) * 10) + 2;
+	m_ptr->hitrate += ((m_ptr->str - 5) / 2);
+	m_ptr->hitrate += multiply_divide(m_ptr->hitrate, ((m_ptr->dex - 5) * 5), 100);
+
+        /* Defense! */
+	if (scaled) m_ptr->defense = multiply_divide(scaledlevel, r_ptr->ac, 100) + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+	else m_ptr->defense = r_ptr->ac + multiply_divide(r_ptr->ac, ((m_ptr->level - 1) * 5), 100);
+
+	/* Mana! */
+	m_ptr->mana = (m_ptr->mind - 5) * 10;
+	if (m_ptr->mana < 0) m_ptr->mana = 0;
+
+	if (m_ptr->boss == 1) m_ptr->defense += multiply_divide(m_ptr->defense, (m_ptr->level * 5), 100);
+	if (m_ptr->boss == 2 || r_ptr->cursed > 0) m_ptr->defense += multiply_divide(m_ptr->defense, (m_ptr->level * 10), 100);
 }
 
 /* Compare your current monster with an evolution. */
@@ -6452,6 +6629,9 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 	monster_race *b_ptr;
 	char c;
 	char str[80];
+	bool scaled = FALSE;
+	int scaledlevel;
+	int colorterm;
 
 	/* Initialise monster race pointers. */
 	r_ptr = &r_info[r_idx];
@@ -6463,6 +6643,15 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 		msg_print("You have no clues about the powers of this monster.");
 		return;
 	}
+
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+		colorterm = TERM_INDIGO;
+	}
+	else colorterm = TERM_L_GREEN;
 
 	/* Save what's on screen */
         Term_save();
@@ -6496,35 +6685,45 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 			if (compare)
 			{
 				c_put_str(TERM_WHITE, "Current Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 17);
+				c_put_str(colorterm, b_ptr->name_char, 2, 17);
 			}
 			else
 			{
 				c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 9);
+				c_put_str(colorterm, b_ptr->name_char, 2, 9);
 			}
 			c_put_str(TERM_WHITE, "Depth: ", 3, 0);
-			sprintf(str, "%d", b_ptr->level);
-			c_put_str(TERM_L_GREEN, str, 3, 7);
+			if (scaled) sprintf(str, "Unknown");
+			else sprintf(str, "%d", b_ptr->level);
+			c_put_str(colorterm, str, 3, 7);
 			c_put_str(TERM_WHITE, "Type: ", 4, 0);
 			if (b_ptr->body_parts[BODY_WEAPON]) sprintf(str, "Humanoid Monster");
 			else sprintf(str, "Essence Monster");
-			c_put_str(TERM_L_GREEN, str, 4, 6);
+			c_put_str(colorterm, str, 4, 6);
 
 			c_put_str(TERM_WHITE, "--- BASE STATS ---", 5, 0);
 			if (recall)
 			{
-				if (b_ptr->flags1 & (RF1_FORCE_MAXHP))
+				if (scaled)
 				{
 					c_put_str(TERM_WHITE, "Base Hp  : ", 6, 0);
-					sprintf(str, "%ld", maxroll(b_ptr->hdice, b_ptr->hside));
-					c_put_str(TERM_L_GREEN, str, 6, 11);
+					sprintf(str, "Unknown");
+					c_put_str(TERM_INDIGO, str, 6, 11);
 				}
 				else
 				{
-					c_put_str(TERM_WHITE, "Hp Roll  : ", 6, 0);
-					sprintf(str, "%dd%d", b_ptr->hdice, b_ptr->hside);
-					c_put_str(TERM_L_GREEN, str, 6, 11);
+					if (b_ptr->flags1 & (RF1_FORCE_MAXHP))
+					{
+						c_put_str(TERM_WHITE, "Base Hp  : ", 6, 0);
+						sprintf(str, "%ld", maxroll(b_ptr->hdice, b_ptr->hside));
+						c_put_str(TERM_L_GREEN, str, 6, 11);
+					}
+					else
+					{
+						c_put_str(TERM_WHITE, "Hp Roll  : ", 6, 0);
+						sprintf(str, "%dd%d", b_ptr->hdice, b_ptr->hside);
+						c_put_str(TERM_L_GREEN, str, 6, 11);
+					}
 				}
 			}
 			else
@@ -6533,49 +6732,112 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 				sprintf(str, "%ld", maxroll(b_ptr->hdice, b_ptr->hside) / 2);
 				c_put_str(TERM_L_GREEN, str, 6, 11);
 			}
-			c_put_str(TERM_WHITE, "Strength : ", 7, 0);
-			sprintf(str, "%ld", b_ptr->str);
-			c_put_str(TERM_L_GREEN, str, 7, 11);
-			c_put_str(TERM_WHITE, "Dexterity: ", 8, 0);
-			sprintf(str, "%ld", b_ptr->dex);
-			c_put_str(TERM_L_GREEN, str, 8, 11);
-			c_put_str(TERM_WHITE, "Mind     : ", 9, 0);
-			sprintf(str, "%ld", b_ptr->mind);
-			c_put_str(TERM_L_GREEN, str, 9, 11);
 
-			if (recall)
+			if (scaled)
 			{
-				c_put_str(TERM_WHITE, "Attack Skill: ", 7, 20);
-				sprintf(str, "%ld", r_ptr->skill_attack);
-				c_put_str(TERM_L_GREEN, str, 7, 34);
-				c_put_str(TERM_WHITE, "Ranged Skill: ", 8, 20);
-				sprintf(str, "%ld", r_ptr->skill_ranged);
-				c_put_str(TERM_L_GREEN, str, 8, 34);
-				c_put_str(TERM_WHITE, "Magic Skill : ", 9, 20);
-				sprintf(str, "%ld", r_ptr->skill_magic);
-				c_put_str(TERM_L_GREEN, str, 9, 34);
+				c_put_str(TERM_WHITE, "Strength : ", 7, 0);
+				sprintf(str, "Unknown");
+				c_put_str(TERM_INDIGO, str, 7, 11);
+				c_put_str(TERM_WHITE, "Dexterity: ", 8, 0);
+				sprintf(str, "Unknown");
+				c_put_str(TERM_INDIGO, str, 8, 11);
+				c_put_str(TERM_WHITE, "Mind     : ", 9, 0);
+				sprintf(str, "Unknown");
+				c_put_str(TERM_INDIGO, str, 9, 11);
+
+				if (recall)
+				{
+					c_put_str(TERM_WHITE, "Attack Skill: ", 7, 20);
+					sprintf(str, "Unknown");
+					c_put_str(TERM_INDIGO, str, 7, 34);
+					c_put_str(TERM_WHITE, "Ranged Skill: ", 8, 20);
+					sprintf(str, "Unknown");
+					c_put_str(TERM_INDIGO, str, 8, 34);
+					c_put_str(TERM_WHITE, "Magic Skill : ", 9, 20);
+					sprintf(str, "Unknown");
+					c_put_str(TERM_INDIGO, str, 9, 34);
+				}
+			}
+			else
+			{
+				c_put_str(TERM_WHITE, "Strength : ", 7, 0);
+				sprintf(str, "%ld", b_ptr->str);
+				c_put_str(TERM_L_GREEN, str, 7, 11);
+				c_put_str(TERM_WHITE, "Dexterity: ", 8, 0);
+				sprintf(str, "%ld", b_ptr->dex);
+				c_put_str(TERM_L_GREEN, str, 8, 11);
+				c_put_str(TERM_WHITE, "Mind     : ", 9, 0);
+				sprintf(str, "%ld", b_ptr->mind);
+				c_put_str(TERM_L_GREEN, str, 9, 11);
+
+				if (recall)
+				{
+					c_put_str(TERM_WHITE, "Attack Skill: ", 7, 20);
+					sprintf(str, "%ld", r_ptr->skill_attack);
+					c_put_str(TERM_L_GREEN, str, 7, 34);
+					c_put_str(TERM_WHITE, "Ranged Skill: ", 8, 20);
+					sprintf(str, "%ld", r_ptr->skill_ranged);
+					c_put_str(TERM_L_GREEN, str, 8, 34);
+					c_put_str(TERM_WHITE, "Magic Skill : ", 9, 20);
+					sprintf(str, "%ld", r_ptr->skill_magic);
+					c_put_str(TERM_L_GREEN, str, 9, 34);
+				}
 			}
 
 			c_put_str(TERM_WHITE, "--- MISC STATS ---", 10, 0);
 
-			c_put_str(TERM_WHITE, "Base AC  : ", 11, 0);
-			sprintf(str, "%ld", b_ptr->ac);
-			c_put_str(TERM_L_GREEN, str, 11, 11);
-			c_put_str(TERM_WHITE, "Speed    : ", 12, 0);
-			sprintf(str, "%d", b_ptr->speed - 110);
-			c_put_str(TERM_L_GREEN, str, 12, 11);
-			c_put_str(TERM_WHITE, "Attacks  : ", 13, 0);
-			sprintf(str, "%d", b_ptr->attacks);
-			c_put_str(TERM_L_GREEN, str, 13, 11);
-			c_put_str(TERM_WHITE, "Spells   : ", 14, 0);
-			sprintf(str, "%d", b_ptr->spells);
-			c_put_str(TERM_L_GREEN, str, 14, 11);
-
-			if (recall)
+			if (scaled)
 			{
-				c_put_str(TERM_WHITE, "Lives    : ", 11, 20);
-				sprintf(str, "%ld", b_ptr->lives);
-				c_put_str(TERM_L_GREEN, str, 11, 31);
+				c_put_str(TERM_WHITE, "Base AC  : ", 11, 0);
+				sprintf(str, "Unknown");
+				c_put_str(TERM_INDIGO, str, 11, 11);
+				c_put_str(TERM_WHITE, "Speed    : ", 12, 0);
+				if (r_ptr->flags7 & (RF7_VERY_FAST)) sprintf(str, "%d {VERY FAST}", b_ptr->speed - 110);
+				else if (r_ptr->flags7 & (RF7_FAST)) sprintf(str, "%d {FAST}", b_ptr->speed - 110);
+				else sprintf(str, "%d", b_ptr->speed - 110);
+				c_put_str(TERM_INDIGO, str, 12, 11);
+				c_put_str(TERM_WHITE, "Attacks  : ", 13, 0);
+				sprintf(str, "%d", b_ptr->attacks);
+				c_put_str(TERM_INDIGO, str, 13, 11);
+				c_put_str(TERM_WHITE, "Spells   : ", 14, 0);
+				sprintf(str, "%d", b_ptr->spells);
+				c_put_str(TERM_INDIGO, str, 14, 11);
+			}
+			else
+			{
+				c_put_str(TERM_WHITE, "Base AC  : ", 11, 0);
+				sprintf(str, "%ld", b_ptr->ac);
+				c_put_str(TERM_L_GREEN, str, 11, 11);
+				c_put_str(TERM_WHITE, "Speed    : ", 12, 0);
+				if (r_ptr->flags7 & (RF7_VERY_FAST)) sprintf(str, "%d {VERY FAST}", b_ptr->speed - 110);
+				else if (r_ptr->flags7 & (RF7_FAST)) sprintf(str, "%d {FAST}", b_ptr->speed - 110);
+				else sprintf(str, "%d", b_ptr->speed - 110);
+				c_put_str(TERM_L_GREEN, str, 12, 11);
+				c_put_str(TERM_WHITE, "Attacks  : ", 13, 0);
+				sprintf(str, "%d", b_ptr->attacks);
+				c_put_str(TERM_L_GREEN, str, 13, 11);
+				c_put_str(TERM_WHITE, "Spells   : ", 14, 0);
+				sprintf(str, "%d", b_ptr->spells);
+				c_put_str(TERM_L_GREEN, str, 14, 11);
+			}
+
+			if (scaled)
+			{
+				if (recall)
+				{
+					c_put_str(TERM_WHITE, "Lives    : ", 11, 20);
+					sprintf(str, "Unknown");
+					c_put_str(TERM_INDIGO, str, 11, 31);
+				}
+			}
+			else
+			{
+				if (recall)
+				{
+					c_put_str(TERM_WHITE, "Lives    : ", 11, 20);
+					sprintf(str, "%ld", b_ptr->lives);
+					c_put_str(TERM_L_GREEN, str, 11, 31);
+				}
 			}
 
 			c_put_str(TERM_WHITE, "---  COUNTERS  ---", 15, 0);
@@ -6583,10 +6845,10 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 				char *countername;
 				c_put_str(TERM_WHITE, "Type     : ", 16, 0);
 				call_lua("get_counter_name", "(d)", "s", b_ptr->countertype, &countername);
-				c_put_str(TERM_L_GREEN, countername, 16, 11);
+				c_put_str(colorterm, countername, 16, 11);
 				c_put_str(TERM_WHITE, "Attempt  : ", 17, 0);
 				sprintf(str, "%d%%", b_ptr->counterchance);
-				c_put_str(TERM_L_GREEN, str, 17, 11);
+				c_put_str(colorterm, str, 17, 11);
 			}
 
 			c_put_str(TERM_WHITE, "---    MISC    ---", 18, 0);
@@ -6599,24 +6861,24 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 				if (recall)
 				{
 					call_lua("get_misc_monster_info", "(dd)", "s", r_idx, 1, &line1);
-					c_put_str(TERM_L_GREEN, line1, 19, 0);
+					c_put_str(colorterm, line1, 19, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", r_idx, 2, &line2);
-					c_put_str(TERM_L_GREEN, line2, 20, 0);
+					c_put_str(colorterm, line2, 20, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", r_idx, 3, &line3);
-					c_put_str(TERM_L_GREEN, line3, 21, 0);
+					c_put_str(colorterm, line3, 21, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", r_idx, 4, &line4);
-					c_put_str(TERM_L_GREEN, line4, 22, 0);
+					c_put_str(colorterm, line4, 22, 0);
 				}
 				else
 				{
 					call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 1, &line1);
-					c_put_str(TERM_L_GREEN, line1, 19, 0);
+					c_put_str(colorterm, line1, 19, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 2, &line2);
-					c_put_str(TERM_L_GREEN, line2, 20, 0);
+					c_put_str(colorterm, line2, 20, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 3, &line3);
-					c_put_str(TERM_L_GREEN, line3, 21, 0);
+					c_put_str(colorterm, line3, 21, 0);
 					call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 4, &line4);
-					c_put_str(TERM_L_GREEN, line4, 22, 0);
+					c_put_str(colorterm, line4, 22, 0);
 				}
 			}
 
@@ -6653,7 +6915,9 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 				sprintf(str, "%ld", r_ptr->ac);
 				c_put_str(TERM_L_GREEN, str, 11, 51);
 				c_put_str(TERM_WHITE, "Speed    : ", 12, 40);
-				sprintf(str, "%d", r_ptr->speed - 110);
+				if (r_ptr->flags7 & (RF7_VERY_FAST)) sprintf(str, "%d {VERY FAST}", r_ptr->speed - 110);
+				else if (r_ptr->flags7 & (RF7_FAST)) sprintf(str, "%d {FAST}", r_ptr->speed - 110);
+				else sprintf(str, "%d", r_ptr->speed - 110);
 				c_put_str(TERM_L_GREEN, str, 12, 51);
 				c_put_str(TERM_WHITE, "Attacks  : ", 13, 40);
 				sprintf(str, "%d", r_ptr->attacks);
@@ -6709,12 +6973,12 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 			if (compare)
 			{
 				c_put_str(TERM_WHITE, "Current Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 17);
+				c_put_str(colorterm, b_ptr->name_char, 2, 17);
 			}
 			else
 			{
 				c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 9);
+				c_put_str(colorterm, b_ptr->name_char, 2, 9);
 			}
 
 			c_put_str(TERM_WHITE, "--- ATTACKS ---", 3, 0);
@@ -6724,7 +6988,8 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 				{
 					if (recall) sprintf(attackname, "%s", get_monster_attack_name_short(r_idx, x));
 					else sprintf(attackname, "%s", get_monster_attack_name_short(p_ptr->body_monster, x));
-					c_put_str(TERM_WHITE, attackname, 4+x, 0);
+					if (scaled) c_put_str(TERM_INDIGO, attackname, 4+x, 0);
+					else c_put_str(TERM_WHITE, attackname, 4+x, 0);
 				}
 			}
 			
@@ -6766,71 +7031,108 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 			if (compare)
 			{
 				c_put_str(TERM_WHITE, "Current Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 17);
+				c_put_str(colorterm, b_ptr->name_char, 2, 17);
 			}
 			else
 			{
 				c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 9);
+				c_put_str(colorterm, b_ptr->name_char, 2, 9);
 			}
 
 			c_put_str(TERM_WHITE, "--- SPELLS ---", 3, 0);
 			for (x = 0; x < 20; x++)
         		{
-				if (b_ptr->spell[x].type > 0)
+				if (scaled)
 				{
-					char extra[160];
-					if (b_ptr->spell[x].type == 1)
+					if (b_ptr->spell[x].type > 0)
 					{
-						sprintf(extra, "(%d, %s)", b_ptr->spell[x].power, get_element_name(b_ptr->spell[x].special1));
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 2)
-					{
-						sprintf(extra, "(%d, %s, rad %d)", b_ptr->spell[x].power, get_element_name(b_ptr->spell[x].special1), b_ptr->spell[x].special2);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 3 || b_ptr->spell[x].type == 4)
-					{
-						sprintf(extra, "(Power %d)", b_ptr->spell[x].power);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 5)
-					{
-						if (b_ptr->spell[x].special1 == 1 || b_ptr->spell[x].special1 == 4) sprintf(extra, "(Str, %d)", b_ptr->spell[x].power);
-						else if (b_ptr->spell[x].special1 == 2 || b_ptr->spell[x].special1 == 9) sprintf(extra, "(Dex, %d)", b_ptr->spell[x].power);
-						else if (b_ptr->spell[x].special1 == 3 || b_ptr->spell[x].special1 == 5) sprintf(extra, "(Int/Wis, %d)", b_ptr->spell[x].power);
-						else sprintf(extra, "(Str/Dex/Int/Wis, %d)", b_ptr->spell[x].power);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 6)
-					{
-						sprintf(extra, "(lvl %d, Num: %d)", b_ptr->spell[x].power, b_ptr->spell[x].special1);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 7)
-					{
-						sprintf(extra, "(Num: %d)", b_ptr->spell[x].special1);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 8)
-					{
-						sprintf(extra, "(Dist %d)", b_ptr->spell[x].power);
-                				sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
-					}
-					else if (b_ptr->spell[x].type == 9)
-					{
-						char *powname;
+						char extra[160];
+						if (b_ptr->spell[x].type == 1)
+						{
+							sprintf(extra, "(%s)", get_element_name(b_ptr->spell[x].special1));
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 2)
+						{
+							sprintf(extra, "(%s, rad ??)", get_element_name(b_ptr->spell[x].special1), b_ptr->spell[x].special2);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 3 || b_ptr->spell[x].type == 4 || b_ptr->spell[x].type == 5 || b_ptr->spell[x].type == 6 || b_ptr->spell[x].type == 7 || b_ptr->spell[x].type == 8)
+						{
+                					sprintf(spellname, "%s", b_ptr->spell[x].name);
+						}
+						else if (b_ptr->spell[x].type == 9)
+						{
+							char *powname;
 
-						/* Calls lua! */
-						if (recall) call_lua("get_scripted_spell_name", "(dd)", "s", r_idx, x+1, &powname);
-						else call_lua("get_scripted_spell_name", "(dd)", "s", p_ptr->body_monster, x+1, &powname);
+							/* Calls lua! */
+							if (recall) call_lua("get_scripted_spell_name", "(dd)", "s", r_idx, x+1, &powname);
+							else call_lua("get_scripted_spell_name", "(dd)", "s", p_ptr->body_monster, x+1, &powname);
 
-                				sprintf(spellname, "%s", powname);
+                					sprintf(spellname, "%s", powname);
+						}
+						else sprintf(spellname, "%s", b_ptr->spell[x].name);
+
+						c_put_str(TERM_INDIGO, spellname, 4+x, 0);
 					}
-					else sprintf(spellname, "%s", b_ptr->spell[x].name);
+				}
+				else
+				{
+					if (b_ptr->spell[x].type > 0)
+					{
+						char extra[160];
+						if (b_ptr->spell[x].type == 1)
+						{
+							sprintf(extra, "(%d, %s)", b_ptr->spell[x].power, get_element_name(b_ptr->spell[x].special1));
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 2)
+						{
+							sprintf(extra, "(%d, %s, rad %d)", b_ptr->spell[x].power, get_element_name(b_ptr->spell[x].special1), b_ptr->spell[x].special2);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 3 || b_ptr->spell[x].type == 4)
+						{
+							sprintf(extra, "(Power %d)", b_ptr->spell[x].power);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 5)
+						{
+							if (b_ptr->spell[x].special1 == 1 || b_ptr->spell[x].special1 == 4) sprintf(extra, "(Str, %d)", b_ptr->spell[x].power);
+							else if (b_ptr->spell[x].special1 == 2 || b_ptr->spell[x].special1 == 9) sprintf(extra, "(Dex, %d)", b_ptr->spell[x].power);
+							else if (b_ptr->spell[x].special1 == 3 || b_ptr->spell[x].special1 == 5) sprintf(extra, "(Int/Wis, %d)", b_ptr->spell[x].power);
+							else sprintf(extra, "(Str/Dex/Int/Wis, %d)", b_ptr->spell[x].power);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 6)
+						{
+							sprintf(extra, "(lvl %d, Num: %d)", b_ptr->spell[x].power, b_ptr->spell[x].special1);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 7)
+						{
+							sprintf(extra, "(Num: %d)", b_ptr->spell[x].special1);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 8)
+						{
+							sprintf(extra, "(Dist %d)", b_ptr->spell[x].power);
+                					sprintf(spellname, "%s %s", b_ptr->spell[x].name, extra);
+						}
+						else if (b_ptr->spell[x].type == 9)
+						{
+							char *powname;
 
-					c_put_str(TERM_WHITE, spellname, 4+x, 0);
+							/* Calls lua! */
+							if (recall) call_lua("get_scripted_spell_name", "(dd)", "s", r_idx, x+1, &powname);
+							else call_lua("get_scripted_spell_name", "(dd)", "s", p_ptr->body_monster, x+1, &powname);
+
+                					sprintf(spellname, "%s", powname);
+						}
+						else sprintf(spellname, "%s", b_ptr->spell[x].name);
+
+						c_put_str(TERM_WHITE, spellname, 4+x, 0);
+					}
 				}
         		}
 			
@@ -6923,12 +7225,12 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 			if (compare)
 			{
 				c_put_str(TERM_WHITE, "Current Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 17);
+				c_put_str(colorterm, b_ptr->name_char, 2, 17);
 			}
 			else
 			{
 				c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-				c_put_str(TERM_L_GREEN, b_ptr->name_char, 2, 9);
+				c_put_str(colorterm, b_ptr->name_char, 2, 9);
 			}
 
 			c_put_str(TERM_WHITE, "--- RESISTANCES ---", 3, 0);
@@ -6940,7 +7242,7 @@ void evolution_compare(int r_idx, bool compare, bool recall)
 					sprintf(resname, "%s:", get_element_name(x), b_ptr->resistances[x]);
 					c_put_str(TERM_WHITE, resname, 4+respos, 0);
 					sprintf(resamt, "%d", b_ptr->resistances[x]);
-					c_put_str(TERM_L_GREEN, resamt, 4+respos, 17);
+					c_put_str(colorterm, resamt, 4+respos, 17);
 					respos++;
 				}
 			}
@@ -7049,15 +7351,33 @@ void scan_monster(monster_type *m_ptr)
 	monster_race *r_ptr;
 	char c;
 	char str[80];
+	bool scaled = FALSE;
+	int scaledlevel;
+	int colorterm;
 
 	/* Initialise monster race pointers. */
 	r_ptr = &r_info[m_ptr->r_idx];
+
+	/*if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		evolution_compare(m_ptr->r_idx, FALSE, TRUE);
+		return;
+	}*/
 
 	if (r_ptr->cursed > 0)
 	{
 		msg_print("This monster cannot be scanned!");
 		return;
 	}
+
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+		colorterm = TERM_INDIGO;
+	}
+	else colorterm = TERM_L_GREEN;
 
 	/* Save what's on screen */
         Term_save();
@@ -7088,74 +7408,85 @@ void scan_monster(monster_type *m_ptr)
 
 			/* Current monster */
 			c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-			c_put_str(TERM_L_GREEN, r_ptr->name_char, 2, 9);
+			c_put_str(colorterm, r_ptr->name_char, 2, 9);
 
 			c_put_str(TERM_WHITE, "Level: ", 3, 0);
 			sprintf(str, "%d", m_ptr->level);
-			c_put_str(TERM_L_GREEN, str, 3, 7);
+			c_put_str(colorterm, str, 3, 7);
 
-			c_put_str(TERM_WHITE, "Depth: ", 3, 13);
-			sprintf(str, "%d", r_ptr->level);
-			c_put_str(TERM_L_GREEN, str, 3, 20);
+			if (scaled)
+			{
+				c_put_str(TERM_WHITE, "Depth: ", 3, 13);
+				sprintf(str, "Unknown");
+				c_put_str(TERM_INDIGO, str, 3, 20);
+			}
+			else
+			{
+				c_put_str(TERM_WHITE, "Depth: ", 3, 13);
+				sprintf(str, "%d", r_ptr->level);
+				c_put_str(TERM_L_GREEN, str, 3, 20);
+			}
 			c_put_str(TERM_WHITE, "Type: ", 4, 0);
 			if (r_ptr->body_parts[BODY_WEAPON]) sprintf(str, "Humanoid Monster");
 			else sprintf(str, "Essence Monster");
-			c_put_str(TERM_L_GREEN, str, 4, 6);
+			c_put_str(colorterm, str, 4, 6);
 
 			c_put_str(TERM_WHITE, "--- BASE STATS ---", 5, 0);
 			c_put_str(TERM_WHITE, "Hp       : ", 6, 0);
 			sprintf(str, "%ld/%ld", m_ptr->hp, m_ptr->maxhp);
-			c_put_str(TERM_L_GREEN, str, 6, 11);
+			c_put_str(colorterm, str, 6, 11);
 			c_put_str(TERM_WHITE, "Strength : ", 7, 0);
 			sprintf(str, "%ld", m_ptr->str);
-			c_put_str(TERM_L_GREEN, str, 7, 11);
+			c_put_str(colorterm, str, 7, 11);
 			c_put_str(TERM_WHITE, "Dexterity: ", 8, 0);
 			sprintf(str, "%ld", m_ptr->dex);
-			c_put_str(TERM_L_GREEN, str, 8, 11);
+			c_put_str(colorterm, str, 8, 11);
 			c_put_str(TERM_WHITE, "Mind     : ", 9, 0);
 			sprintf(str, "%ld", m_ptr->mind);
-			c_put_str(TERM_L_GREEN, str, 9, 11);
+			c_put_str(colorterm, str, 9, 11);
 
 			c_put_str(TERM_WHITE, "Attack Skill: ", 7, 20);
 			sprintf(str, "%ld", m_ptr->skill_attack);
-			c_put_str(TERM_L_GREEN, str, 7, 34);
+			c_put_str(colorterm, str, 7, 34);
 			c_put_str(TERM_WHITE, "Ranged Skill: ", 8, 20);
 			sprintf(str, "%ld", m_ptr->skill_ranged);
-			c_put_str(TERM_L_GREEN, str, 8, 34);
+			c_put_str(colorterm, str, 8, 34);
 			c_put_str(TERM_WHITE, "Magic Skill : ", 9, 20);
 			sprintf(str, "%ld", m_ptr->skill_magic);
-			c_put_str(TERM_L_GREEN, str, 9, 34);
+			c_put_str(colorterm, str, 9, 34);
 
 			c_put_str(TERM_WHITE, "--- MISC STATS ---", 10, 0);
 
 			c_put_str(TERM_WHITE, "Defense  : ", 11, 0);
 			sprintf(str, "%ld", m_ptr->defense);
-			c_put_str(TERM_L_GREEN, str, 11, 11);
+			c_put_str(colorterm, str, 11, 11);
 			c_put_str(TERM_WHITE, "Speed    : ", 12, 0);
-			sprintf(str, "%d", m_ptr->mspeed - 110);
-			c_put_str(TERM_L_GREEN, str, 12, 11);
+			if (r_ptr->flags7 & (RF7_VERY_FAST)) sprintf(str, "%d {VERY FAST}", m_ptr->mspeed - 110);
+			else if (r_ptr->flags7 & (RF7_FAST)) sprintf(str, "%d {FAST}", m_ptr->mspeed - 110);
+			else sprintf(str, "%d", m_ptr->mspeed - 110);
+			c_put_str(colorterm, str, 12, 11);
 			c_put_str(TERM_WHITE, "Attacks  : ", 13, 0);
 			sprintf(str, "%d", r_ptr->attacks);
-			c_put_str(TERM_L_GREEN, str, 13, 11);
+			c_put_str(colorterm, str, 13, 11);
 			c_put_str(TERM_WHITE, "Spells   : ", 14, 0);
 			sprintf(str, "%d", r_ptr->spells);
-			c_put_str(TERM_L_GREEN, str, 14, 11);
+			c_put_str(colorterm, str, 14, 11);
 
 			c_put_str(TERM_WHITE, "Hit Rate : ", 11, 20);
 			sprintf(str, "%ld", m_ptr->hitrate);
-			c_put_str(TERM_L_GREEN, str, 11, 31);
+			c_put_str(colorterm, str, 11, 31);
 			c_put_str(TERM_WHITE, "Lives    : ", 12, 20);
 			sprintf(str, "%ld", m_ptr->lives);
-			c_put_str(TERM_L_GREEN, str, 12, 31);
+			c_put_str(colorterm, str, 12, 31);
 			c_put_str(TERM_WHITE, "---  COUNTERS  ---", 15, 0);
 			{
 				char *countername;
 				c_put_str(TERM_WHITE, "Type     : ", 16, 0);
 				call_lua("get_counter_name", "(d)", "s", r_ptr->countertype, &countername);
-				c_put_str(TERM_L_GREEN, countername, 16, 11);
+				c_put_str(colorterm, countername, 16, 11);
 				c_put_str(TERM_WHITE, "Attempt  : ", 17, 0);
 				sprintf(str, "%d%%", r_ptr->counterchance);
-				c_put_str(TERM_L_GREEN, str, 17, 11);
+				c_put_str(colorterm, str, 17, 11);
 			}
 
 			c_put_str(TERM_WHITE, "---    MISC    ---", 18, 0);
@@ -7166,13 +7497,13 @@ void scan_monster(monster_type *m_ptr)
 				char *line4;
 				
 				call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 1, &line1);
-				c_put_str(TERM_L_GREEN, line1, 19, 0);
+				c_put_str(colorterm, line1, 19, 0);
 				call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 2, &line2);
-				c_put_str(TERM_L_GREEN, line2, 20, 0);
+				c_put_str(colorterm, line2, 20, 0);
 				call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 3, &line3);
-				c_put_str(TERM_L_GREEN, line3, 21, 0);
+				c_put_str(colorterm, line3, 21, 0);
 				call_lua("get_misc_monster_info", "(dd)", "s", p_ptr->body_monster, 4, &line4);
-				c_put_str(TERM_L_GREEN, line4, 22, 0);
+				c_put_str(colorterm, line4, 22, 0);
 			}
 
 			c_put_str(TERM_WHITE, "--- ABILITIES/AILMENTS ---", 3, 40);
@@ -7288,7 +7619,7 @@ void scan_monster(monster_type *m_ptr)
 
 			/* Current monster */
 			c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-			c_put_str(TERM_L_GREEN, r_ptr->name_char, 2, 9);
+			c_put_str(colorterm, r_ptr->name_char, 2, 9);
 
 			c_put_str(TERM_WHITE, "--- ATTACKS ---", 3, 0);
 			for (x = 0; x < 20; x++)
@@ -7317,7 +7648,7 @@ void scan_monster(monster_type *m_ptr)
 
 			/* Current monster */
 			c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-			c_put_str(TERM_L_GREEN, r_ptr->name_char, 2, 9);
+			c_put_str(colorterm, r_ptr->name_char, 2, 9);
 
 			c_put_str(TERM_WHITE, "--- SPELLS ---", 3, 0);
 			for (x = 0; x < 20; x++)
@@ -7334,7 +7665,8 @@ void scan_monster(monster_type *m_ptr)
 						if (r_ptr->spell[x].special3 == 1) dam = r_ptr->spell[x].power;
 						else
 						{
-							dam = (r_ptr->spell[x].power * mindstat);
+							if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[x].power, 100) * mindstat;
+							else dam = (r_ptr->spell[x].power * mindstat);
 							dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 							dam = dam + dambonus;
 							if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -7352,7 +7684,8 @@ void scan_monster(monster_type *m_ptr)
 						if (r_ptr->spell[x].special3 == 1) dam = r_ptr->spell[x].power;
 						else
 						{
-							dam = (r_ptr->spell[x].power * mindstat);
+							if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[x].power, 100) * mindstat;
+							else dam = (r_ptr->spell[x].power * mindstat);
 							dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 							dam = dam + dambonus;
 							if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -7370,7 +7703,8 @@ void scan_monster(monster_type *m_ptr)
 						if (r_ptr->spell[x].special3 == 1) dam = r_ptr->spell[x].power;
 						else
 						{
-							dam = (r_ptr->spell[x].power * mindstat);
+							if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[x].power, 100) * mindstat;
+							else dam = (r_ptr->spell[x].power * mindstat);
 							dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 							dam = dam + dambonus;
 							if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -7385,15 +7719,24 @@ void scan_monster(monster_type *m_ptr)
 					}
 					else if (r_ptr->spell[x].type == 5)
 					{
-						if (r_ptr->spell[x].special1 == 1 || r_ptr->spell[x].special1 == 4) sprintf(extra, "(Str, %d)", r_ptr->spell[x].power);
-						else if (r_ptr->spell[x].special1 == 2 || r_ptr->spell[x].special1 == 9) sprintf(extra, "(Dex, %d)", r_ptr->spell[x].power);
-						else if (r_ptr->spell[x].special1 == 3 || r_ptr->spell[x].special1 == 5) sprintf(extra, "(Int/Wis, %d)", r_ptr->spell[x].power);
-						else sprintf(extra, "(Str/Dex/Int/Wis, %d)", r_ptr->spell[x].power);
+						int pow;
+						if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[x].power, 100);
+						else pow = r_ptr->spell[x].power;
+						
+						if (r_ptr->spell[x].special1 == 1 || r_ptr->spell[x].special1 == 4) sprintf(extra, "(Str, %d)", pow);
+						else if (r_ptr->spell[x].special1 == 2 || r_ptr->spell[x].special1 == 9) sprintf(extra, "(Dex, %d)", pow);
+						else if (r_ptr->spell[x].special1 == 3 || r_ptr->spell[x].special1 == 5) sprintf(extra, "(Int/Wis, %d)", pow);
+						else sprintf(extra, "(Str/Dex/Int/Wis, %d)", pow);
                 				sprintf(spellname, "%s %s", r_ptr->spell[x].name, extra);
 					}
 					else if (r_ptr->spell[x].type == 6)
 					{
-						sprintf(extra, "(lvl %d, Num: %d)", r_ptr->spell[x].power, r_ptr->spell[x].special1);
+						int pow;
+
+						if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[x].power, 100);
+						else pow = r_ptr->spell[x].power;
+
+						sprintf(extra, "(lvl %d, Num: %d)", pow, r_ptr->spell[x].special1);
                 				sprintf(spellname, "%s %s", r_ptr->spell[x].name, extra);
 					}
 					else if (r_ptr->spell[x].type == 7)
@@ -7440,7 +7783,7 @@ void scan_monster(monster_type *m_ptr)
 
 			/* Current monster */
 			c_put_str(TERM_WHITE, "Monster: ", 2, 0);
-			c_put_str(TERM_L_GREEN, r_ptr->name_char, 2, 9);
+			c_put_str(colorterm, r_ptr->name_char, 2, 9);
 
 			c_put_str(TERM_WHITE, "--- RESISTANCES ---", 3, 0);
 			respos = 0;
@@ -7451,7 +7794,7 @@ void scan_monster(monster_type *m_ptr)
 					sprintf(resname, "%s:", get_element_name(x), r_ptr->resistances[x]);
 					c_put_str(TERM_WHITE, resname, 4+respos, 0);
 					sprintf(resamt, "%d", r_ptr->resistances[x]);
-					c_put_str(TERM_L_GREEN, resamt, 4+respos, 17);
+					c_put_str(colorterm, resamt, 4+respos, 17);
 					respos++;
 				}
 			}

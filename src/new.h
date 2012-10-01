@@ -215,6 +215,7 @@ extern void anihilate_monsters_specific(int r_idx);
 extern void fire_jump_ball(int typ, s32b dam, int rad, int x, int y, bool nomagic);
 extern bool fighter_throw(int dir);
 extern void mass_change_allegiance(int r_idx, bool friendly);
+extern void swashbuckler_counter_attack(monster_type *m_ptr);
 
 /* xtra1.c */
 extern bool safety_check();

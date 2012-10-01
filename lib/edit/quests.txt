@@ -50,6 +50,7 @@ EVENTS AND WHAT THEY MEAN:
 29046: Target of the Counter Shot ability.
 
 29998: Revive marker.
+29999: Limbo first.
 
 -- Udor --
 1,4. Rats problem
@@ -143,12 +144,11 @@ EVENTS AND WHAT THEY MEAN:
 123. 2nd Cleo first.
 124. 2nd Cleo slain.
 
--- Lava Cave --
-
-300. Dialog.
-301. The note.
-302. Grey Wight's attack.
-303. Grey Wight defeated.
+-- Avemorsh basement.
+125. Orc Wight first.
+126. Rod of spirit trapping picked up.
+127. 1. Keep rod.
+128. 1. Rogoth is gone.
 
 -- Jindar --
 1000. Rolf's state. 0: never spoke. 1: Talked your way inside palace. 2. Let you enter.
@@ -278,3 +278,44 @@ have started the main quest.
 1522. Door Keeper Wight
 1523. Cult defeated.
 1524. Meeting with Korthrax.
+1525. Gary first.
+1526. Gary crafting status. 0 = failed. 1 = success.
+1527. Korthrax first.
+1528. Find Loroth quest started.
+1529. Dialogue.
+1530. Loroth/Balcia first floor cleared.
+1531. Balcia encounter.
+1532. Balcia defeated.
+1533. Loroth encounter.
+1534. Loroth defeated.
+1535. Korthrax after Loroth.
+1536. Ivhala after wight.
+1537. Ivhala full of wights! 1. No more wights.
+1538. Emma battle.
+1539. Balcia second battle.
+1540. Ivhalian Palace first floor.
+1541. Palace twisted underground.
+1542. Christina slain.
+1543. Grey Wight first.
+1544. Grey Wight slain.
+1545. Third encounter with Balcia.
+1546. Balcia, third defeat.
+1547. Banshee first.
+1548. Banshee defeated.
+1549. Balcia special move.
+1550. Rhyzendal arc start.
+1551. Locked door in Q520.
+
+-- Wrath of the Gin'Whal
+25000. Main event.
+25001. Gatekeeper beaten.
+25002. Second challenge: Pure Orcish Rage
+25003. Third challenge: Avemorsh's Torment
+25004. Torment caster ability.
+25005. 0. Will summon Nightmares. 1. Will summon demons.
+25006. Fourth challenge: Eternal Pains.
+25007. Avemorsh first.
+25008. Avemorsh defeated.
+25009. Avemorsh attacks.
+25010. Avemorsh starting lives.
+25011. Avemorsh third phase counter.

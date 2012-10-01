@@ -1,0 +1,23 @@
+Restless Dead(Passive)
+
+Effect: You get a chance of not dying when your hp is below 0. Also icreases
+        regeneration rate.
+Power: 33% of Misfortune.
+Extra points: +1 multiplier to Power.
+              +1% to regeneration rate for every 3 points.
+
+If you were to die from any sources, there will be a roll between this
+ability's power and (dungeon level * 3). If you win the roll, you will
+survive, with 0 hp. Also, this ability will increase your hp's
+regeneration rate if you place many points in it. The increase is applied
+before any other bonus, so if you have other abilities that increases
+regeneration, you may end up with a very powerful regeneration rate.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

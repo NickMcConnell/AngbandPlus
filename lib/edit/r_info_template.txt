@@ -131,3 +131,4 @@ Counters type:
 21. *Block* ranged and melee attacks.
 22. *Block* ranged and magic attacks.
 23. *Block* ranged, melee and magic attacks.
+24. Block all, melee counter attack. (experimental, may be buggy)

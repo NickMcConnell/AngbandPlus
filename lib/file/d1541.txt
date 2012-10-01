@@ -1,0 +1,19 @@
+N:1:0:0:0:0:0
+I:Balcia;
+T:I can't believe it! I am losing the battle! I won't let this happen!!;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:Balcia uses her chaotic magic to alter reality. Suddently, you do not;
+T:sense any energy coming from your weapons(or anything else you were;
+T:using in place of a weapon).;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:Much better. Let's see what you can do without your precious little toys!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

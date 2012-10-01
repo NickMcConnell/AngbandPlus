@@ -176,6 +176,7 @@ function py_attack_execute (y, x, max_blow)
                                 usedcombo = 1
                                 totalcombo = totalcombo + 1
 				combatfeat = FALSE
+				update_and_handle()
                         end
 
 			-- Characters "T" and "t"
@@ -294,6 +295,18 @@ function weapon_damages()
 
 	tskill = p_ptr.skill[1] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	-- Defensive Strike!
 	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
 
@@ -305,8 +318,22 @@ function weapon_damages()
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
 	end
 
-        k = damroll(current_weapon.dd, current_weapon.ds)
+	if (current_weapon.disabled > 0 or current_weapon.disabled == -1) then k = 1
+        else k = damroll(current_weapon.dd, current_weapon.ds)
+	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_WEAPON) then
+
+			if (current_weapon.itemskill == 15 or (current_weapon.itemskill == 12 and current_weapon.weight <= 100)) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
@@ -427,7 +454,7 @@ function monk_damages()
 
 	-- Damages bonus from gloves!
 	glovebonus = 0
-	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0) then
+	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0 and inven(INVEN_HANDS).disabled == 0) then
 		glovebonus = lua_randint(inven(INVEN_HANDS).ac)
 	end
 	
@@ -472,6 +499,19 @@ function monk_damages()
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
+
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
         k = k * (tskill + 1)
 	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
 
@@ -579,6 +619,18 @@ function min_weapon_damages()
 
 	tskill = p_ptr.skill[1] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	-- Defensive Strike!
 	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
 
@@ -590,8 +642,22 @@ function min_weapon_damages()
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
 	end
 
-        k = damroll(current_weapon.dd, 1)
+	if (current_weapon.disabled > 0 or current_weapon.disabled == -1) then k = 1
+        else k = damroll(current_weapon.dd, 1)
+	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_WEAPON) then
+
+			if (current_weapon.itemskill == 15 or (current_weapon.itemskill == 12 and current_weapon.weight <= 100)) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
@@ -697,6 +763,18 @@ function max_weapon_damages()
 
 	tskill = p_ptr.skill[1] + craftbonus
 
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
 	-- Defensive Strike!
 	if (defensive_strike == 1) then tskill = tskill + p_ptr.skill[5] end
 
@@ -708,8 +786,22 @@ function max_weapon_damages()
 		tskill = tskill + (p_ptr.skill[current_weapon.itemskill + 1] + (p_ptr.skill[current_weapon.itemskill + 1] / 2))
 	end
 
-        k = maxroll(current_weapon.dd, current_weapon.ds)
+	if (current_weapon.disabled > 0 or current_weapon.disabled == -1) then k = 1
+        else k = maxroll(current_weapon.dd, current_weapon.ds)
+	end
 	k = k + ((k * (p_ptr.abilities[(CLASS_FIGHTER * 10) + 1] * 10)) / 100)
+
+	-- Rogue Weapons Mastery.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 3] >= 1) then
+
+		if (current_weapon.tval == TV_WEAPON) then
+
+			if (current_weapon.itemskill == 15 or (current_weapon.itemskill == 12 and current_weapon.weight <= 100)) then
+
+				k = k + multiply_divide(k, p_ptr.abilities[(CLASS_ROGUE * 10) + 3] * 10, 100)
+			end
+		end
+	end
 
 	-- Ranger's Forestry ability!
         if ((p_ptr.abilities[(CLASS_RANGER * 10) + 2] >= 1) and (standing_on_forest())) then
@@ -813,7 +905,7 @@ function min_monk_damages()
 
 	-- Damages bonus from gloves!
 	glovebonus = 0
-	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0) then
+	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0 and inven(INVEN_HANDS).disabled == 0) then
 		glovebonus = 1
 	end
 
@@ -858,6 +950,19 @@ function min_monk_damages()
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
+
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
         k = k * (tskill + 1)
 	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
 
@@ -938,7 +1043,7 @@ function max_monk_damages()
 
 	-- Damages bonus from gloves!
 	glovebonus = 0
-	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0) then
+	if (inven(INVEN_HANDS).tval ~= 0 and inven(INVEN_HANDS).ac > 0 and inven(INVEN_HANDS).disabled == 0) then
 		glovebonus = inven(INVEN_HANDS).ac
 	end
 
@@ -983,6 +1088,19 @@ function max_monk_damages()
 	k = k + glovebonus
 	tskill = p_ptr.skill[1]
 	tskill = tskill + (p_ptr.skill[19] + (p_ptr.skill[19] / 2))
+
+	-- Rogue's Stealthy Fighter ability.
+	if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 1) then
+
+		local tmod
+
+		if (p_ptr.abilities[(CLASS_ROGUE * 10) + 1] >= 10) then tmod = 100
+		else tmod = p_ptr.abilities[(CLASS_ROGUE * 10) + 1] * 10
+		end
+
+		tskill = tskill + multiply_divide(p_ptr.skill[7], tmod, 100)
+	end
+
         k = k * (tskill + 1)
 	k = k + multiply_divide(k, p_ptr.dis_to_d, 100)
 
@@ -1169,6 +1287,9 @@ function monster_hit_player(monster, bonus)
 
                 if (lua_randint(disroll) >= lua_randint(dismroll)) then return 0 end
         end
+
+	-- Pure Orcish Rage.
+	if (m_race(monster.r_idx).event_misc == 2501 and monster.mana >= 100) then return 1 end
 
         if (mroll >= proll) then return 1
         else return 0

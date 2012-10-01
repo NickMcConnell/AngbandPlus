@@ -413,6 +413,125 @@ function dialog_script (scriptid)
 		p_ptr.events[96] = 1
 	end
 
+	-- Gary's dragon armors crafting.
+	if (scriptid == 7) then
+
+		local scale
+		local armortval
+		local armorsval
+		local price
+		local ch
+
+		-- Assume failure.
+		p_ptr.events[1527] = 0
+
+		-- Initialize variables.
+		armortval = 0
+		armorsval = 0
+		price = 0
+
+		-- Pick a scale.
+		scale = lua_get_item(4)
+
+		if (not(inven(scale))) then
+
+			msg_print(NULL)
+			return
+		end
+
+		-- Determine the type of armors we're going to get.
+		if (inven(scale).sval == 7) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 4
+			price = 30000
+		elseif (inven(scale).sval == 8) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 3
+			price = 30000
+		elseif (inven(scale).sval == 9) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 2
+			price = 30000
+		elseif (inven(scale).sval == 10) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 1
+			price = 30000
+		elseif (inven(scale).sval == 11) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 5
+			price = 30000
+		elseif (inven(scale).sval == 12) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 6
+			price = 30000
+		elseif (inven(scale).sval == 13) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 7
+			price = 200000
+		elseif (inven(scale).sval == 41) then
+			armortval = TV_DRAG_ARMOR
+			armorsval = 8
+			price = 40000
+		elseif (inven(scale).sval == 43) then
+			armortval = TV_SOFT_ARMOR
+			armorsval = 13
+			price = 50000
+		elseif (inven(scale).sval == 44) then
+			armortval = TV_SOFT_ARMOR
+			armorsval = 14
+			price = 50000
+		elseif (inven(scale).sval == 45) then
+			armortval = TV_SOFT_ARMOR
+			armorsval = 15
+			price = 50000
+		elseif (inven(scale).sval == 46) then
+			armortval = TV_SOFT_ARMOR
+			armorsval = 16
+			price = 1000000
+		elseif (inven(scale).sval == 47) then
+			armortval = TV_SOFT_ARMOR
+			armorsval = 17
+			price = 60000
+		else
+			msg_print("Not a dragon scale, or cannot make armor out of it.")
+			msg_print(NULL)
+			return
+		end
+
+		-- Prompt
+  		msg_print(string.format('This armor will cost %d golds. Still interested? [y/n]', price))
+
+		ch = inkey()
+
+		-- Characters 89 and 121 are "Y" and "y"
+                if (ch == 89 or ch == 121) then
+
+			if (p_ptr.au >= price) then
+
+				p_ptr.au = p_ptr.au - price
+				lua_create_object_inven(armortval, armorsval, 1)
+				p_ptr.events[1527] = 1
+				inven_item_increase(scale+1, -1)
+        			inven_item_describe(scale+1)
+        			inven_item_optimize(scale+1)
+				update_and_handle()
+			else
+				msg_print("Not enough money.")
+				msg_print(NULL)
+				return
+			end
+                else
+			msg_print(NULL)
+			return
+		end
+	end
+
+	-- Eliminate all monsters.
+	if (scriptid == 8) then
+
+		anihilate_monsters()
+	end
+
 end
 
 -- Function called when using scripted spells/activations.
@@ -633,6 +752,65 @@ function activate_spell_script (powernum)
 	p_ptr.muta2 = 0
 	p_ptr.muta3 = 0
 	update_and_handle()
+  end
+
+  -- Ring of the Tortoise activation.
+  if (powernum == 11) then
+	if (p_ptr.ac_boost_dur == 0) then
+		p_ptr.ac_boost = p_ptr.to_a * 2
+        	set_ac_boost(10)
+		energy_use = 100
+	else
+		msg_print("You cannot use this power while your AC is already enhanced.")
+	end
+  end
+
+  -- Ring of the Cat activation.
+  if (powernum == 12) then
+
+	msg_print("You jump high!")
+        if (not(lua_tgt_pt())) then return end
+	x = global_x
+	y = global_y
+
+	-- Most functions here use a (y,x) format, instead of (x,y).
+	-- This is important, because if you use (x,y), it might crash.
+        if (not(lua_cave_empty_bold(y,x)) or (distance(y,x,py,px) > 4)) then
+
+              msg_print("You can't jump there...")
+
+        else
+
+                if (not(get_cave_info_flag(y, x, CAVE_MARK))) then
+
+                        if (get_cave_info_flag(y, x, CAVE_LITE)) then
+				
+				teleport_player_to(y,x)
+                        else
+				msg_print("You can't jump there...")
+			end
+
+                else
+			
+			teleport_player_to(y,x)
+		end
+        end
+
+	energy_use = 100
+  end
+
+  -- Ring of the Dwarves.
+  if (powernum == 13) then
+
+	map_area()
+	energy_use = 100
+  end
+
+  -- Ring of Lore.
+  if (powernum == 14) then
+
+	identify_fully()
+	energy_use = 100
   end
 
 end
@@ -1543,6 +1721,15 @@ function populate_ruin_room (centerx, centery, wid, hgt)
 	end
 end
 
+-- Used by the death 'quest', Q30000.txt.
+function place_death_portals ()
+
+	cave_set_feat(11, 4, 244)
+	cave_set_feat(11, 15, 245)
+	cave_set_feat(11, 26, 246)
+	do_cmd_save_game()
+end
+
 ----------------------------------
 
 -- Used in Q25.txt
@@ -1819,6 +2006,123 @@ function ivhala_palace_exit_to_city ()
 	verify_panel()
 end
 
+-- Used in Q516.txt
+function balcia_first ()
+
+	if (p_ptr.events[1532] == 0) then
+
+		show_dialog(1526)
+		p_ptr.events[1532] = 1
+	end
+end
+
+-- Used in Q517.txt
+function loroth_first ()
+
+	if (p_ptr.events[1534] == 0) then
+
+		show_dialog(1528)
+		p_ptr.events[1534] = 1
+	end
+end
+
+-- Used in T511.txt
+function ivhala_wight_first ()
+
+	if (p_ptr.events[1537] == 0) then
+
+		show_dialog(1530)
+		p_ptr.events[1537] = 1
+	end
+end
+
+-- Used in Q521.txt
+function enter_underground_twisted ()
+
+	if (p_ptr.events[1542] == 0) then
+
+		show_dialog(1533)
+		p_ptr.events[1542] = 1
+	end
+end
+
+-- Used in Q522.txt
+function grey_wight_first ()
+
+	if (p_ptr.events[1544] == 0) then
+
+		show_dialog(1535)
+		p_ptr.events[1544] = 1
+	end
+end
+
+-- Used in Q523.txt
+function balcia_third ()
+
+	if (p_ptr.events[1546] == 0) then
+
+		show_dialog(1537)
+		p_ptr.events[1546] = 1
+	end
+end
+
+-- Used in Q524.txt
+function banshee_first ()
+
+	-- Reset special move.
+	p_ptr.events[1550] = 0
+
+	if (p_ptr.events[1548] == 0) then
+
+		show_dialog(1539)
+		p_ptr.events[1548] = 1
+	end
+end
+
+-- Used in Q25000.txt
+
+function ginwhal_prepare_level ()
+
+	p_ptr.events[25005] = 0
+	p_ptr.events[25006] = 0
+end
+
+function open_rage_wall_1 ()
+
+	msg_print("A secret door opens up!")
+	cave_set_feat(2, 12, FEAT_FLOOR)
+	update_and_handle()
+end
+
+function open_rage_wall_2 ()
+
+	msg_print("You hear some secret doors opening themselves...")
+	cave_set_feat(3, 35, FEAT_FLOOR)
+	cave_set_feat(7, 33, FEAT_FLOOR)
+	update_and_handle()
+end
+
+function open_rage_wall_3 ()
+
+	msg_print("You hear some secret doors opening themselves...")
+	cave_set_feat(2, 38, FEAT_FLOOR)
+	cave_set_feat(5, 37, FEAT_FLOOR)
+	cave_set_feat(11, 38, FEAT_FLOOR)
+	update_and_handle()
+end
+
+function avemorsh_battle ()
+
+	p_ptr.events[25010] = 0
+	p_ptr.events[25012] = 0
+
+	if (p_ptr.events[25008] == 0) then
+
+		show_dialog(25001)
+		p_ptr.events[25008] = 1
+	end
+end
+
 -- ########## SPECIAL ATTACKS OF MONSTERS ##########
 
 -- Quazar's reality twisting magic.
@@ -1869,19 +2173,6 @@ function reality_twists_quazar (m_idx)
 		p_ptr.inside_quest = 1013
 		update_and_handle()
 	end
-end
-
-function grey_wight_fear (m_idx)
-
-	if (p_ptr.events[303] == 0) then
-		show_dialog(301)
-		p_ptr.events[303] = 1
-	else
-		msg_print("The Grey Wight gazes you, and you are afflicted by the great fear!")
-	end
-	set_afraid(100)
-	set_confused(2)
-	update_and_handle()
 end
 
 function ancient_phantom_golem_boost (m_idx)
@@ -2023,6 +2314,379 @@ function naga_princess_mystic_blade (m_idx)
 	msg_print("The Naga Princess of Blades uses Mystic Blade!")
 	lua_bolt(m_idx, GF_HARM, dam)
 	update_and_handle()
+end
+
+-- Used by the Grey Wight.
+function grey_wight_gaze (m_idx)
+
+	local ppower
+	local mpower
+	local m_name = ""
+
+	ppower = (p_ptr.skill[28] * 10)
+	mpower = monster(m_idx).level + monster(m_idx).mind
+
+	if not (monster(m_idx).ml) then
+		m_name = "it"
+	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+		m_name = m_race(monster(m_idx).r_idx).name_char
+	else
+		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+	end
+
+	if (lua_randint(mpower) >= lua_randint(ppower)) then
+
+		msg_print(string.format('%s gazes at you with the red eye! You are paralyzed by fear!', m_name))
+		set_afraid(10)
+		set_paralyzed(2)
+	else
+		msg_print(string.format('%s gazes at you with the red eye, but you defend yourself against the attack.', m_name))
+	end
+end
+
+-- Teleport to player.
+function monster_teleport_to_player (m_idx)
+
+	local m_name = ""
+
+	if not (monster(m_idx).ml) then
+		m_name = "it"
+	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+		m_name = m_race(monster(m_idx).r_idx).name_char
+	else
+		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+	end
+
+	-- Check range
+	if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
+
+		-- Check path
+		if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
+
+			msg_print(string.format('%s teleports to you!', m_name))
+			teleport_to_player(m_idx)
+		end
+	end
+end
+
+-- Used in Q25000.txt
+function torment_spells (m_idx)
+
+	local m_name = ""
+
+	if not (monster(m_idx).ml) then
+		m_name = "it"
+	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+		m_name = m_race(monster(m_idx).r_idx).name_char
+	else
+		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+	end
+
+	if (p_ptr.events[25005] < 100) then
+
+		p_ptr.events[25005] = p_ptr.events[25005] + 10
+		msg_print(string.format('%s charges energy... (%d%%)', m_name, p_ptr.events[25005]))
+	elseif (p_ptr.events[25005] >= 100) then
+
+		if (p_ptr.events[25006] == 1) then
+
+			msg_print(string.format('%s summon demons!', m_name))
+			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
+			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
+			summon_specific_kind(py, px, p_ptr.max_plv + (p_ptr.max_plv / 2), 117, FALSE, FALSE, 20)
+		else
+			msg_print(string.format('%s summons soldiers of death!', m_name))
+			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
+			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
+			summon_specific_ridx(py, px, 2308, FALSE, FALSE, 0)
+		end
+	end
+end
+
+-- It's nothing but a big script. :)
+function avemorsh_attacks (m_idx)
+
+	local i
+	local m_name = ""
+
+	if not (monster(m_idx).ml) then
+		m_name = "it"
+	elseif (get_monster_flag1(monster(m_idx).r_idx, RF1_UNIQUE)) then
+		m_name = m_race(monster(m_idx).r_idx).name_char
+	else
+		m_name = string.format('%s %s', "The", m_race(monster(m_idx).r_idx).name_char)
+	end
+
+	-- Avemorsh has a lot of attacks.
+	-- What he does depends on how many lives he has left.
+
+	-- Phase 1: 75%+ lives.
+	if (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 75, 100)) then
+
+		-- He will do one of three attacks: Fire Storm, Razor Winds or Energy Blast.
+		if (p_ptr.events[25010] == 0) then
+
+			p_ptr.events[25010] = lua_randint(3)
+			if (p_ptr.events[25010] == 1) then
+
+				msg_print(string.format('%s gather flames!', m_name))
+			end
+			if (p_ptr.events[25010] == 2) then
+
+				msg_print(string.format('%s surrounds himself with wind!', m_name))
+			end
+			if (p_ptr.events[25010] == 3) then
+
+				msg_print(string.format('%s begins casting a powerful spell...', m_name))
+			end
+		else
+
+			if (p_ptr.events[25010] == 1) then
+
+				local dam
+				local lvl
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- That's 7500000 at level 30. :)
+				dam = 250000 * lvl
+
+				msg_print(string.format('%s invokes a powerful Fire Storm!', m_name))
+
+				lua_ball(m_idx, GF_FIRE, dam, 10)
+				lua_ball(m_idx, GF_FIRE, dam, 10)
+				lua_ball(m_idx, GF_FIRE, dam, 10)
+
+				p_ptr.events[25010] = 0
+			end
+
+			if (p_ptr.events[25010] == 2) then
+
+				local dam
+				local lvl
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- That's 7500000 at level 30. :)
+				dam = 250000 * lvl
+
+				msg_print(string.format('%s conjures mighty Razor Winds!', m_name))
+
+				lua_ball(m_idx, GF_WIND, dam, 10)
+				lua_ball(m_idx, GF_WIND, dam, 10)
+				lua_ball(m_idx, GF_WIND, dam, 10)
+
+				p_ptr.events[25010] = 0
+			end
+
+			if (p_ptr.events[25010] == 3) then
+
+				local dam
+				local lvl
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- Only 3000000 at level 30, and only once.
+				-- But you'll have to think a bit to counter Missile!
+				dam = 100000 * lvl
+
+				msg_print(string.format('%s casts an Energy Blast!', m_name))
+
+				lua_ball(m_idx, GF_MISSILE, dam, 10)
+
+				p_ptr.events[25010] = 0
+			end
+		end
+
+	-- Phase 2: 50%+ lives.
+	elseif (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 50, 100)) then
+
+		if (p_ptr.events[25010] < 4) then
+
+			p_ptr.events[25010] = 4
+			show_dialog(25002)
+		else
+
+			-- His second phase consists of 5 melee Spin Attacks of Harm type.
+			-- If you are next to him, he will use them.
+			if ( (((monster(m_idx).fx - 1) == px) or ((monster(m_idx).fx + 1) == px) or ((monster(m_idx).fx) == px)) and (((monster(m_idx).fy - 1) == py) or ((monster(m_idx).fy + 1) == py) or ((monster(m_idx).fy) == py))) then
+
+				local dam
+				local lvl
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- 15000000 at level 30. Five times. Yeouch!
+				dam = 500000 * lvl
+
+				msg_print(string.format('%s performs a serie of deadly Spin Attacks!', m_name))
+
+				-- This one is a melee attack.
+				monster_physical = TRUE
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				monster_physical = FALSE
+			else
+
+				-- Otherwise, 75% of the time, he will teleport at you.
+				-- But 25% of the time, he will instead cast a Wind spell.
+				if (lua_randint(100) >= 25) then
+
+					-- Check range
+					if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
+
+						-- Check path
+						if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
+
+							msg_print(string.format('%s jumps right next to you!', m_name))
+							teleport_to_player(m_idx)
+						end
+					end
+				else
+
+					local dam
+					local lvl
+
+					if (p_ptr.max_plv < 30) then lvl = 30
+					else lvl = p_ptr.max_plv
+					end
+
+					-- That's 4500000 at level 30.
+					dam = 150000 * lvl
+
+					msg_print(string.format('%s casts a Fire Ball!', m_name))
+
+					lua_ball(m_idx, GF_FIRE, dam, 5)
+				end
+			end
+		end
+	-- Phase 3: 25%+ lives.
+	elseif (monster(m_idx).lives >= multiply_divide(p_ptr.events[25011], 25, 100)) then
+
+		if (p_ptr.events[25010] < 5) then
+
+			p_ptr.events[25010] = 5
+			show_dialog(25002)
+		else
+
+			-- During the third phase, he will gather energy for 5 turns, the unleash a big spell.
+			-- After that, he will jump next to you, spin, then start over.
+			if (p_ptr.events[25012] > 100) then
+
+				local dam
+				local lvl
+
+				-- Check range
+				if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
+
+					-- Check path
+					if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
+
+						msg_print(string.format('%s jumps right next to you!', m_name))
+						teleport_to_player(m_idx)
+					end
+				end
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- That's 3000000 at level 30.
+				dam = 100000 * lvl
+
+				msg_print(string.format('%s performs Gust Spin!', m_name))
+
+				monster_physical = TRUE
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_WIND, 2)
+				monster_physical = FALSE
+
+				p_ptr.events[25012] = 0
+				
+			elseif (p_ptr.events[25012] < 100) then
+
+				p_ptr.events[25012] = p_ptr.events[25012] + 20
+				msg_print(string.format('%s gathers energy... (%d%%)', m_name, p_ptr.events[25012]))
+			else
+
+				local dam
+				local lvl
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- That's 30000000 at level 30. :)
+				-- 5 times. Missile. Can you survive?
+				dam = 1000000 * lvl
+
+				msg_print(string.format('%s screams DESTRUCTION!!!', m_name))
+
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+				lua_project(m_idx, 10, monster(m_idx).fy, monster(m_idx).fx, dam, GF_HARM, 2)
+
+				p_ptr.events[25012] = p_ptr.events[25012] + 20
+			end
+		end
+	-- Phase 4: below 25% lives.
+	else
+
+		if (p_ptr.events[25010] < 6) then
+
+			p_ptr.events[25010] = 6
+			show_dialog(25002)
+		else
+
+			-- The last phase is quite simple. Each turns, he wull summon a Vengeful Orc.
+			-- Every once in a while, he will throw one last Fire Spin in the mix.
+			if (lua_randint(100) >= 25) then
+
+				msg_print(string.format('%s summons a Vengeful Orc!', m_name))
+				summon_specific_ridx(py, px, 2302, FALSE, FALSE, 0)
+			else
+				local dam
+				local lvl
+
+				-- Check range
+				if (monster(m_idx).cdis <= MAX_RANGE and not(is_pet(monster(m_idx)))) then
+
+					-- Check path
+					if (projectable(monster(m_idx).fy, monster(m_idx).fx, py, px)) then
+
+						msg_print(string.format('%s jumps right next to you!', m_name))
+						teleport_to_player(m_idx)
+					end
+				end
+
+				if (p_ptr.max_plv < 30) then lvl = 30
+				else lvl = p_ptr.max_plv
+				end
+
+				-- That's 3000000 at level 30.
+				dam = 100000 * lvl
+
+				msg_print(string.format('%s performs Fire Spin!', m_name))
+
+				monster_physical = TRUE
+				lua_project(m_idx, 1, monster(m_idx).fy, monster(m_idx).fx, dam, GF_FIRE, 2)
+				monster_physical = FALSE
+			end
+		end
+	end
+
 end
 
 -- ########## MISC SCRIPTS ##########
@@ -2169,6 +2833,12 @@ function get_counter_name (counter)
 		return cname
 	end
 
+	if (counter == 24) then
+
+		cname = "Block All, Counter Attack"
+		return cname
+	end
+
 	if (counter == 1000) then
 
 		cname = "Soak damages based on your items value."
@@ -2310,11 +2980,119 @@ function get_misc_monster_info (r_idx, line)
 		if (line == 4) then return "                                    " end
 	end
 
+	-- Hunter of Zekis
+	if (r_idx == 314) then
+
+		if (line == 1) then return "Disabling Aura(Power 20, rad 5)     " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Fused Warrior of Fire
+	if (r_idx == 316) then
+
+		if (line == 1) then return "Fire Aura(Power 30, rad 3)          " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Fused Warrior of Water
+	if (r_idx == 317) then
+
+		if (line == 1) then return "Water Aura(Power 30, rad 3)         " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Fused Warrior of Earth
+	if (r_idx == 318) then
+
+		if (line == 1) then return "Earth Aura(Power 30, rad 3)         " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Fused Warrior of Wind
+	if (r_idx == 319) then
+
+		if (line == 1) then return "Wind Aura(Power 30, rad 3)          " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Lura
+	if (r_idx == 320) then
+
+		if (line == 1) then return "Can teleport before moving.         " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Four Elemental
+	if (r_idx == 325) then
+
+		if (line == 1) then return "Fire Aura(Power 30, rad 3)          " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Nymph Sorceress
+	if (r_idx == 328) then
+
+		if (line == 1) then return "Blocks melee and ranged using Mind. " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
 	-- Christina
-	if (r_idx == 1357) then
+	if (r_idx == 1357 or r_idx == 1373) then
 
 		if (line == 1) then return "All damages taken are halved.       " end
 		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Korthrax
+	if (r_idx == 1363) then
+
+		if (line == 1) then return "Phase when damaged(rad 10)          " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Chaos Lord.
+	if (r_idx == 1365) then
+
+		if (line == 1) then return "Chaos Aura(Power 30, rad 3)         " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Balcia.
+	if (r_idx == 1366 or r_idx == 1369) then
+
+		if (line == 1) then return "33% to phase when damaged(rad 10)   " end
+		if (line == 2) then return "                                    " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Balcia(Banshee).
+	if (r_idx == 2001) then
+
+		if (line == 1) then return "33% to phase when damaged(rad 10)   " end
+		if (line == 2) then return "Chaos Aura(Power 30, rad 3)         " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
 	end
@@ -2351,6 +3129,33 @@ function get_misc_monster_info (r_idx, line)
 
 		if (line == 1) then return "Creates Cold fields when moving.    " end
 		if (line == 2) then return "(Power 20, rad 6)                   " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Firestorm Gatekeeper
+	if (r_idx == 2500) then
+
+		if (line == 1) then return "Fire Aura(Power ??, rad 3)          " end
+		if (line == 2) then return "Wind Aura(Power ??, rad 3)          " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Pure Orcish Rage
+	if (r_idx == 2501) then
+
+		if (line == 1) then return "Prone to great feats of rage when   " end
+		if (line == 2) then return "taking damages.                     " end
+		if (line == 3) then return "                                    " end
+		if (line == 4) then return "                                    " end
+	end
+
+	-- Avemorsh's Torment
+	if (r_idx == 2502) then
+
+		if (line == 1) then return "90% damages reduction while         " end
+		if (line == 2) then return "charging energy.                    " end
 		if (line == 3) then return "                                    " end
 		if (line == 4) then return "                                    " end
 	end
@@ -2452,7 +3257,6 @@ add_event_handler("go_inside_twisted_temple", go_inside_twisted_temple)
 add_event_handler("twisted_temple_first_time", twisted_temple_first_time)
 add_event_handler("make_all_lancers_hostile", make_all_lancers_hostile)
 add_event_handler("reality_twists_quazar", reality_twists_quazar)
-add_event_handler("grey_wight_fear", grey_wight_fear)
 add_event_handler("donoriel_shop_first", donoriel_shop_first)
 add_event_handler("donoriel_to_basement", donoriel_to_basement)
 add_event_handler("basement_to_donoriel", basement_to_donoriel)
@@ -2481,3 +3285,20 @@ add_event_handler("altered_ophelia_tomb_2", altered_ophelia_tomb_2)
 add_event_handler("altered_ophelia_tomb_3", altered_ophelia_tomb_3)
 add_event_handler("jeffrey_killed_reward", jeffrey_killed_reward)
 add_event_handler("altered_ophelia_tomb_4", altered_ophelia_tomb_4)
+add_event_handler("place_death_portals", place_death_portals)
+add_event_handler("balcia_first", balcia_first)
+add_event_handler("loroth_first", loroth_first)
+add_event_handler("ivhala_wight_first", ivhala_wight_first)
+add_event_handler("enter_underground_twisted", enter_underground_twisted)
+add_event_handler("grey_wight_first", grey_wight_first)
+add_event_handler("grey_wight_gaze", grey_wight_gaze)
+add_event_handler("monster_teleport_to_player", monster_teleport_to_player)
+add_event_handler("balcia_third", balcia_third)
+add_event_handler("banshee_first", banshee_first)
+add_event_handler("ginwhal_prepare_level", ginwhal_prepare_level)
+add_event_handler("open_rage_wall_1", open_rage_wall_1)
+add_event_handler("open_rage_wall_2", open_rage_wall_2)
+add_event_handler("open_rage_wall_3", open_rage_wall_3)
+add_event_handler("torment_spells", torment_spells)
+add_event_handler("avemorsh_battle", avemorsh_battle)
+add_event_handler("avemorsh_attacks", avemorsh_attacks)

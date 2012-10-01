@@ -27,7 +27,7 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      76       /* Used with rings (min 38) */
+#define MAX_ROCKS      80       /* Used with rings (min 38) */
 #define MAX_AMULETS    40       /* Used with amulets (min 13) */
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     40       /* Used with wands/rods (min 29/28) */
@@ -57,7 +57,8 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Plain", "Brass",  "Scarab","Shining",
         "Rusty","Transparent", "Steel", "Iron", "Polished", "Copper", "Crystal",
 	"Diamond", "Gemmed", "Shiny", "Precious", "Amber", "Brown",
-	"Blue", "White", "Black", "Purple", "Orange", "Red", "Yellow", "Green", "Dark"
+	"Blue", "White", "Black", "Purple", "Orange", "Red", "Yellow", "Green", "Dark",
+	"Cyan", "Aqua", "Magenta", "Pale Yellow"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -1377,6 +1378,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Skip the ampersand (and space) */
 		s = basenm + 2;
 
+		/* Disabled items! */
+		if (o_ptr->disabled > 0 || o_ptr->disabled == -1)
+		{
+			if (o_ptr->disabled == -1)
+			{
+				t = object_desc_str(t, "{BROKEN} ");
+			}
+			else
+			{
+				t = object_desc_str(t, "{DISABLED, ");
+				t = object_desc_num(t, o_ptr->disabled);
+				t = object_desc_str(t, "} ");
+			}
+		}
+
 		/* No prefix */
 		if (!pref)
 		{
@@ -1434,6 +1450,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	{
 		/* No ampersand */
 		s = basenm;
+
+		/* Disabled items! */
+		if (o_ptr->disabled > 0 || o_ptr->disabled == -1)
+		{
+			if (o_ptr->disabled == -1)
+			{
+				t = object_desc_str(t, "{BROKEN} ");
+			}
+			else
+			{
+				t = object_desc_str(t, "{DISABLED, ");
+				t = object_desc_num(t, o_ptr->disabled);
+				t = object_desc_str(t, "} ");
+			}
+		}
 
 		/* No pref */
 		if (!pref)
@@ -1599,29 +1630,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			/* Nothing */
 		}
+		/* Failed to open */
+		else if (o_ptr->extra1 >= 1)
+		{
+			t = object_desc_str(t, " (failed)");
+		}
 
 		/* May be "empty" */
 		else if (!o_ptr->pval)
 		{
 			t = object_desc_str(t, " (empty)");
-		}
-
-		/* May be "disarmed" */
-		else if (o_ptr->pval < 0)
-		{
-			t = object_desc_str(t, " (disarmed)");
-		}
-
-		/* Describe the traps, if any */
-		else
-		{
-			/* Describe the traps */
-			t = object_desc_str(t, " (");
-			if (t_info[o_ptr->pval].ident)
-				t = object_desc_str(t, t_name + t_info[o_ptr->pval].name);
-			else
-				t = object_desc_str(t, "trapped");
-			t = object_desc_str(t, ")");
 		}
 	}
 
@@ -1932,6 +1950,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_str(t, str);
                 t = object_desc_str(t, ")");
 	}
+	else if (o_ptr->tval == TV_CHEST)
+	{
+                t = object_desc_str(t, " (Level: ");
+                t = object_desc_num(t, o_ptr->pval);
+                t = object_desc_str(t, ")");
+	}
+
         /* Parry flag? */
         if (f4 & (TR4_PARRY))
 	{
@@ -2139,6 +2164,56 @@ bool identify_fully_aux(object_type *o_ptr)
                 /* Add a blank line */
                 info[i++] = "";
         }
+	else
+        {                
+	
+                char buff2[400], *s, *t;
+		int n;
+		bool addline = FALSE;
+
+		strcpy (buff2, k_text + k_ptr->text);
+
+		s = buff2;
+
+                /* Collect the history */
+                while (TRUE)
+                {
+
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                info[i++] = s;
+
+				/* Will add a blank line. */
+				if (n > 0) addline = TRUE;
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        s = t;
+                }
+
+                /* Add a blank line */
+                if (addline) info[i++] = "";
+        }
+
         sprintf(idesc, get_item_type_name(o_ptr));
         info[i++] = idesc;
 	if (o_ptr->tval == TV_WEAPON || o_ptr->tval == TV_ROD || o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_AMMO || o_ptr->tval == TV_RANGED || o_ptr->tval == TV_ESSENCE || o_ptr->tval == TV_THROWING)
@@ -2167,6 +2242,12 @@ bool identify_fully_aux(object_type *o_ptr)
 		char o_val[80];
 		sprintf(o_val, "Value: %ld golds", object_value_real(o_ptr));
 		info[i++] = o_val;
+	}
+	if (o_ptr->cursed != 0)
+	{
+		char s[80];
+		sprintf(s, "Misfortune: %d", o_ptr->cursed);
+		info[i++] = s;
 	}
 
         info[i++] = "";
@@ -2616,12 +2697,6 @@ bool identify_fully_aux(object_type *o_ptr)
         {
                 info[i++] = "It can parry blows from enemies.";
         }
-	if (o_ptr->cursed != 0)
-	{
-		char s[80];
-		sprintf(s, "Nightmares and misfortune sleep within... (Level %d)", o_ptr->cursed);
-		info[i++] = s;
-	}
 	if (o_ptr->xtra1 > 0)
 	{
 		char s[80];
@@ -4866,6 +4941,12 @@ void py_pickup_floor(int pickup)
    
                         /* Describe the object */
                         object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Item pickup event. */
+			if (o_ptr->event_pickup != 0)
+			{
+				call_lua("item_pickup", "(Od)", "", o_ptr, o_ptr->event_pickup);
+			}
    
                         /* Message */
                         msg_format("You have %s (%c).", o_name, index_to_label(slot));
@@ -4896,7 +4977,7 @@ void object_gain_level(object_type *o_ptr)
 	else if (o_ptr->to_a > 0) o_ptr->to_a += 1;
 	if (((o_ptr->ac * 5) / 100) > 1 && o_ptr->ac > 0) o_ptr->ac += ((o_ptr->ac * 5) / 100);
 	else if (o_ptr->ac > 0) o_ptr->ac += 1;
-	if (((o_ptr->branddam * 5) / 100) > 1 && o_ptr->branddam > 0) o_ptr->branddam += ((o_ptr->branddam * 5) / 100);
+	if (multiply_divide(o_ptr->branddam, 5, 100) > 1 && o_ptr->branddam > 0) o_ptr->branddam += multiply_divide(o_ptr->branddam, 5, 100);
 	else if (o_ptr->branddam > 0) o_ptr->branddam += 1;
 
 	/* Ranged weapons. */

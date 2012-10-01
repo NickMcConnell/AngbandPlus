@@ -36,8 +36,6 @@ F:Smash:13:15:1:1015:1
 F:Dizzy Smash:13:40:1:1016:1
 F:Shattering Blow:13:70:1:1017:1
 F:Thrust:14:5:1:1018:1
-F:Eyes Stab:15:30:1:1019:1
-F:Fatal Stab:15:80:1:1020:0
 F:Chop:16:10:1:1021:1
 F:Mutilate Legs:16:40:1:1022:0
 F:Mutilate Arms:16:70:1:1023:0

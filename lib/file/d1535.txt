@@ -1,0 +1,37 @@
+N:1:0:0:0:0:0
+I: ;
+T:You enter a large room. The Grey Wight is there, waiting for you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Grey Wight;
+T:So you came, <NAME>. I knew you would. And you are quite a fool to have;
+T:done so. Just what do you think you can do? Do you even realize who you;
+T:are facing? You are facing the Grey Wight of Ryoon! The very embodiement;
+T:of fear, the will and essence of the Ghostfather!;
+A:You're actually Loroth Varos.:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Grey Wight;
+T:Indeed, I am using his body as my avatar in this world. My true self cannot;
+T:come in your world through a simple summoning ritual. But even as an avatar,;
+T:I have more than enough power to turn this city into a city of the undead.;
+T:The palace and everything surrounding it are already ours. And soon, the rest;
+T:of the city will fall as well! Those mortals are weaklings. Defenders? Pah!;
+T:Insects, if you ask me. They wear big armors, try to look scary, but in;
+T:the end, they're just a bunch of humans and dwarves. A bunch of living;
+T:fleshlings who are cursed with the weakness of life.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Grey Wight;
+T:But enough talk. As much as I enjoy this body, I want a stronger one.;
+T:Your body, that is. For that, I must kill you, and once you die, I will;
+T:take over your body. I am impervious to both light and darkness. I have;
+T:no weaknesses. There is nothing you can do to win this battle. The living;
+T:will bperish and the Ghostfather will be victorious!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

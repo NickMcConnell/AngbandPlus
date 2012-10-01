@@ -1,0 +1,63 @@
+N:1:0:0:0:0:0
+I: ;
+T:After a long and difficult battle, your last attack seems to have finally;
+T:finished off Balcia. She can no longer control her body, and it is starting;
+T:to disintegrate.;
+A:[CONTINUE]:0:0:0:11:8:2:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balcia;
+T:This....this cannot be happening... no way!! You...you can't be THAT powerful!;
+A:Looks like this is the end for you, Balcia.:0:0:0:1:3:0:0:1537:1
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:...but...even if I die today... with all the power that we've used to;
+T:twist Ivhala... my death will not reverse what has been done! We may;
+T:not have turned the entire city like we wanted, but at least, the Ivhalian;
+T:palace will be changed forever, and Christina's death will serve as a;
+T:warning to all other leaders of Portralis that our order is not to be;
+T:trifled with! Summapal's dream WILL come true, <NAME>! It is only;
+T:a matter of time!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:The red eye starts glowing stronger, and then the voice of the Grey Wight;
+T:is heard.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Grey Wight;
+T:I hardly consider this a defeat, <NAME>. Even though you survived,;
+T:thousands of Defenders have joined me in the world of undeath. They have;
+T:been liberated from the curse of life. In addition, the soul of that;
+T:lady Balcia will now belong to the Ghostfather, and she will surely;
+T:be reincarnated in the form of a demonic ghostly being. She will be;
+T:a valuable addition to Ryoon's forces!;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Grey Wight;
+T:My presence in this world will end. And you will surely let Shan know;
+T:of this victory. But one day, we shall meet again, <NAME>. Ryoon has seen;
+T:and will not forget what happened on this day. One day, you too;
+T:will be liberated from the curse of life, and you will join us in the;
+T:realm of the Ghostfather! Good bye, <NAME>.;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:The red eye disappears, and the ghostly body of Balcia completely;
+T:disintegrates. She is no more. With Christina gone, and the palace;
+T:changed forever, there seems to be little more for you to do in Ivhala.;
+T:You should now return to Korthrax at (82,49), and tell him of the;
+T:Grey Wight's defeat.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

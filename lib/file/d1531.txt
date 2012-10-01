@@ -1,0 +1,70 @@
+N:1:1538:1:0:0:0
+I: ;
+T:Emma falls on the ground. Still slightly moving, she seems to be regaining;
+T:her senses.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:1:1501:1:0:0:0
+I:Emma;
+T:Greetings, <NAME>. It's good to see you again.;
+T:*Captain Emma is there, but something's different about her. Her skin is;
+T:pale, are eyes do not blink and her look is empty. It seems she has been;
+T:turned into an undead being.*;
+A:Emma! What have they done to you?:0:0:0:1:2:0:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Emma;
+T:*You see a female Defender, with pale skin and an empty look, with eyes;
+T:that do not blink.*;
+T:Greetings, <NAME>. I am Emma, the captain of the Ivhalian Defenders.;
+T:I do not believe we've met before.;
+A:Seems like they turned you into some kind of zombie.:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Emma;
+T:I was trying to fight the wights...when the Grey Wight approached me.;
+T:He said that I was a great warrior, and that he would give me Ryoon's;
+T:blessing. And so, I have left the world of the living, and embraced;
+T:undeath. That is the blessing of the Ghostfather.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Emma;
+T:And the Grey Wight has promised me that I would receive an even greater;
+T:reward, to be turned into a ghost! But for that, I must kill you. I really;
+T:hope I can leave the world of flesh, and become a ghost. So, <NAME>, I will;
+T:now kill you. Who knows? Maybe you too will receive Ryoon's blessing!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:It doesn't seem like there is any ways to have her regain her senses.;
+T:You will have to fight her to free her from the curse of undeath.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Emma;
+T:Ack...I'm sorry, <NAME>. I...I have failed to fulfill my duties as the;
+T:captain of the Defenders. The queen...what about the queen??;
+A:I don't know. Don't worry, Emma, I will defeat the Grey Wight.:0:0:0:1:6:0:0:0:0
+A:I don't really care. All I want is destroy the Grey Wight.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Emma;
+T:Please...save the queen. Tell her...I'm sorry. Good luck, <NAME>...;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I: ;
+T:With these last words, Emma falls on the ground, truly dead. You should;
+T:now search the area for anything that could be of use to enter the palace.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

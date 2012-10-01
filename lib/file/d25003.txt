@@ -1,0 +1,54 @@
+N:1:0:0:0:0:0
+I: ;
+T:After a long and difficult battle, Avemorsh finally falls on the ground.;
+T:His eyes stops glowing, and the purple energy that was cursing him is;
+T:gone.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Avemorsh;
+T:*pant*...*pant*...congratulations, <CLASS>. You have defeated me.;
+T:You have earned my greatest respect. I have been trapped in this place;
+T:for ages... This is a place that is between the material plane and the;
+T:plane of spirits. A prison that kept me prisoner ever since the fall;
+T:of my race. The purple energy you saw was a mind controlling spell;
+T:casted by none other than Arikyenzal himself!;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Avemorsh;
+T:I don't have much time left...there is something you must know.;
+T:Daldumaar... the elves in Nimbraya worships him as a champion who fought;
+T:the mighty Destroyer Arikyenzal, and saved Nimbraya. But the real story;
+T:is very different. Daldumaar was actually a SERVANT of Arikyenzal!!;
+A:A servant of Arikyenzal? You mean...the Nimbrayan religion is wrong??:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Avemorsh;
+T:I know it's difficult to believe... but Arikyenzal is the one behind all;
+T:of this. Behind the orc war...and many other things. It will be difficult;
+T:for you to prove that. But if you can...please... let the truth be known.;
+T:Let the world know what we orcs really were!;
+A:I will...if I can.:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Avemorsh;
+T:Farewell, <CLASS>...;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I: ;
+T:Avemorsh falls on the ground. Flames consumes what's left of his body;
+T:and a moment after, he is gone. On this day, you have defeated one of;
+T:the mightiest warriors in Portralis...but at the same time, you have;
+T:learned a very important piece of information that could greatly shake;
+T:the kingdom of Nimbraya. Right now, you may leave this place. But if;
+T:you ever visit Nimbraya one day, there may be someone who will listen;
+T:to you...;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

@@ -253,10 +253,10 @@ dextrous, and are distinguishable from humans by their fair,
 pale skin and pointed ears. Legends tells that originally, there 
 was no elves living on Portralis. Legend tells that their origins 
 lies in another world, in another place,  but that some of 
-them somehow ended up here. They adapted themselves to the new 
-land, and have found home in the southern forests. Though not as 
+them somehow ended up here. They adapted to the new land
+and have found home in the southern forests. Though not as 
 widespread as humans, elves have significant power and influence 
-in Portralis,  especially in the magical lore. Elves are also known 
+in Portralis, especially in the magical lore. Elves are also known 
 to be the finest archers in the world.
 
 DWARVES
@@ -398,7 +398,7 @@ and use them in times of trouble to increase their chance of survival.
 At the time when Portralis was discovered, and the kingdom of Jindar was 
 founded, it was populated with the orcish race. Strong, aggressive, 
 beast-like, green skinned humanoids that stroke fear in the human and 
-dwarven races. They once populated the eastern mountains were the 
+dwarven races. They once populated the eastern mountains where the 
 dwarves lives, and the two races fought countless battles against each 
 others. But the orcs were more ambitious than just conquering the 
 mountains. They wanted to control the entire world of Portralis, eradicate 
@@ -472,7 +472,7 @@ back, but this time, it was they who were greatly outnumbered. And after
 along with the ogres. A great celebration was held, and a hope for an 
 ever-lasting peace was born. Then, the kobolds returned to their 
 underground caves, and soon started populating them. Kobolds were still
-aggressive, and the anger of centuried of slavery was still burning in 
+aggressive, and the anger of centuries of slavery was still burning in 
 their eyes. Some even feared that the kobolds would eventually start 
 another big war like the first orcish war, but that never actually 
 happened. Though the kobolds can be aggressive with intruders in their 

@@ -1,6 +1,267 @@
-N:1:0:0:0:0:0
-I:Messenger;
-T:Sorry, this area isn't ready in the current Portralis build. Come back;
-T:in a future build! In the meantime, why don't you go check (48,51)?;
+N:1:1550:1:0:0:0
+I:Korthrax;
+T:Shan's palace is not done yet. Wait for a future release.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1535:1:0:0:0
+I:Korthrax;
+T:Yes, <NAME>?;
+A:The Grey Wight is no more. [Tell him all that has happened.]:1:1548:1:1:18:0:0:0:0
+A:I have some questions.:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1527:1:0:0:0
+I:Korthrax;
+T:Well, <NAME>, have you found Loroth Varos yet?;
+A:[Tell him all that has happened.]:1:1534:1:1:10:0:0:0:0
+A:No, but I have some questions.:0:0:0:1:8:0:0:0:0
+A:No, I'll be going.:0:0:0:0:0:0:0:0:0
+%
+
+N:1:1527:0:0:0:0
+I: ;
+T:You see a tall, imposing, yet calm and wise-looking Rhyzendalian;
+T:who wears a golden robe that bears Shan's mark, the eye with the;
+T:heart-shaped iris. He is pretty much what you could expect from a high priest;
+T:of Shan, and is most likely the one you're supposed to meet.;
+A:[CONTINUE]:0:0:0:1:2:0:0:1527:1
+%
+
+N:2:0:0:0:0:0
+I:Korthrax;
+T:Greetings, <NAME>. My name is Korthrax, and I have received words that;
+T:you were looking into obtaining an Amulet of Golden Truth. Normally, such;
+T:requests would be turned down immediately, as you are not a follower of the;
+T:Golden Sul-Rin. But Shan directly asked us to accept this request. I do not;
+T:know why you are an exception to the rule, but I am in no position to;
+T:question Shan's orders.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Korthrax;
+T:But do not think that you will be given an amulet for free. Though you have;
+T:proved to be quite a force in combat by defeating a cult of Ryoon, that isn't;
+T:enough to earn an amulet of Golden Truth. The real test is about to begin.;
+T:And I shall explain it to you right away.;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Korthrax;
+T:Though you have defeated a cult of Ryoon, the Archfiend's influence in the;
+T:region hasn't been stopped yet. In fact, all you've killed is a minor;
+T:group of fanatics. In order to earn your amulet, you will have to put;
+T:a permanent end to Ryoon's followers in the Agharias region, and in order;
+T:to do that, you'll have to kill their most powerful priest. The man I am;
+T:refering to is a traitorous Rhyzendalian named Loroth Varos, who betrayed;
+T:Shan and turned to Ryoon. This traitor must be punished, and it is your task;
+T:to put an end to his existance.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Korthrax;
+T:You know what high priests of Ryoon looks like. They are no longer living;
+T:beings, reflecting the Ghostfather's hatred of life. As such, prepare to;
+T:face a powerful undead being, most likely a ghost or a wight. Or one of;
+T:those 'Demon Wights', one of Ryoon's signature servants.;
+A:And where is this 'Loroth Varos'?:0:0:0:1:6:0:0:1528:1
+%
+
+N:6:0:0:0:0:0
+I:Korthrax;
+T:I do not know for sure, he is difficult to find and the agents we sent to;
+T:look for him never returned... But the last time he was seen was around;
+T:(87,43). I guess this is where you should start your search.;
+A:(87,43)? But that was Simon's hiding place! One of the zulgors!:0:0:0:1:7:0:0:1528:1
+%
+
+N:7:0:0:0:0:0
+I:Korthrax;
+T:So Loroth was seen around one of your enemies' hideout? They might have;
+T:made an alliance then. One more reason for you to find this priest of Ryoon;
+T:as quickly as possible. Well, that is all. Once you've dealt with him,;
+T:come to me, and you will be able to earn your amulet.;
+A:Before I go, I have some questions.:0:0:0:1:8:0:0:0:0
+A:I'll start searching then...:0:0:0:0:0:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Korthrax;
+T:Yes?;
+A:What about those ruins? What are they?:0:0:0:1:9:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I:Korthrax;
+T:To be honest, I don't know. I chose this location because it was easy;
+T:to identify on a map, but I do not know what they are, or if there;
+T:is anything to discover here. Perhaps this is something you might;
+T:want to investigate on your own.;
+A:I have other questions.:0:0:0:1:8:0:0:0:0
+A:Good bye.:0:0:0:0:0:0:0:0:0
+%
+
+N:10:0:0:0:0:0
+I:Korthrax;
+T:*sigh*...Loroth, you fool...what have you done...;
+A:[CONTINUE]:0:0:0:1:11:0:0:1535:1
+%
+
+N:11:0:0:0:0:0
+I:Korthrax;
+T:The Grey Wight is one of Ryoon's most powerful servants. The Grey Wight;
+T:itself would be unstoppable, short of an intervention from the gods;
+T:or other Archfiends. But what you are facing is only an avatar, so there;
+T:is still hope. Forget about Ivhala though. It is the end for them. The avatar;
+T:has more than enough power to completely destroy it by itself. And it will;
+T:be made even easier with help of that chaos order.;
+A:So, what now? Would an amulet of Golden Truth be of any help?:0:0:0:1:12:0:0:0:0
+%
+
+N:12:0:0:0:0:0
+I:Korthrax;
+T:The amulet of Golden Truth wouldn't help you against the Grey Wight.;
+T:It is grey because it has absorbed all the champions of light it has;
+T:defeated. Many celestials and heavenly beings who attacked Ryoon tried;
+T:to fight the Grey Wight, and failed. The monster absorbed them, and;
+T:because there were so many, it has become resistant to light, the force;
+T:that once had a chance to harm it. This has created a monster that;
+T:neither light nor darkness can fight.;
+A:Does it has any weaknesses?:0:0:0:1:13:0:0:0:0
+%
+
+N:13:0:0:0:0:0
+I:Korthrax;
+T:Not that I know of. It is both a demonic and undead being that is impervious;
+T:to light. This means it has all the strengths of both, but none of the;
+T:usual weaknesses. The best you can do is fight it with all you've got, and;
+T:hope for the best. It is clear that no mere mortal can defeat it,;
+T:but someone like you...perhaps.;
+A:Are you saying I'm not a mortal?:0:0:0:1:14:0:0:0:0
+%
+
+N:14:0:0:0:0:0
+I:Korthrax;
+T:I'm starting to question myself about that. You have overcome countless;
+T:challenges that would have been impossible for any mortals.;
+T:Compare yourself with the soldiers and other peoples of Portralis.;
+T:Are you scared of any of them? Don't you feel that you have much, much;
+T:more power than they do?;
+A:You're right. It's nice to know I'm powerful!:0:0:0:1:15:0:0:0:0
+A:Or perhaps you are overestimating demonic and undead beings.:0:0:0:1:16:0:0:0:0
+%
+
+N:15:0:0:0:0:0
+I:Korthrax;
+T:Well, don't overestimate yourself either. You have limits, like everyone else.;
+T:The Grey Wight is no ordinary foe. And with the help of the chaos order,;
+T:he will become even stronger. You'll need everything you've got to even;
+T:stand a slight chance!;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:16:0:0:0:0:0
+I:Korthrax;
+T:I doubt it. There is almost nothing you did that other mortals could have done;
+T:easily, or at all. You truly are different than the other, <NAME>.;
+T:But use your power wisely. Many powerful forces have been defeated not by;
+T:raw strength, but by having their own power used against them.;
+A:[CONTINUE]:0:0:0:1:17:0:0:0:0
+%
+
+N:17:0:0:0:0:0
+I:Korthrax;
+T:I can already sense that Ivhala is in trouble. The Grey Wight is spreading;
+T:death as we speak. I can also sense a very unstable force at work as well.;
+T:This is chaos, so I assume that zulgors might be present there as well.;
+T:Go back to Ivhala, and see what you can do. I believe the palace should;
+T:be your destination. Good luck, <NAME>.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:18:0:0:0:0:0
+I:Korthrax;
+T:If Christina and Shan were truly friends, then Shan will surely be saddened;
+T:by the news of her death. Not only did she die, but her soul now belongs;
+T:to Ryoon. This is quite a sad fate for one such as Christina. She did not;
+T:deserve it. Alas, we cannot do much but defeat the order of chaos and;
+T:avenge her death.;
+A:[CONTINUE]:0:0:0:1:19:0:0:0:0
+%
+
+N:19:0:0:0:0:0
+I:Korthrax;
+T:Well, <NAME>... you have proved yourself worthy of wearing the amulet;
+T:you are seeking. I will now conjure the amulet you desire, and it will;
+T:be yours.;
+A:[CONTINUE]:0:0:0:1:20:0:0:0:0
+%
+
+N:20:0:0:0:0:0
+I: ;
+T:Korthrax begins casting a spell. A strong light glows, and an amulet;
+T:appears in his hands. Engraved on it is an eye with an heart-shaped;
+T:iris, the mark of Shan. You can sense a formidable power coming from;
+T:this amulet!;
+A:[CONTINUE]:0:0:0:3:37:4:21:0:0
+%
+
+N:21:0:0:0:0:0
+I:Korthrax;
+T:Here you go, <NAME>. A well-deserved reward for all your trouble!;
+T:I believe it is now time for you to meet face to face with Shan.;
+T:You are now an enemy of Ryoon, meaning you're a friend of Shan. Or at;
+T:least, an ally. You may have heard a lot of different opinions on;
+T:whether Shan should be considered a Goddess or an Archfiend... I invite;
+T:you to come with me to Shan's palace, and meet her, so that you can;
+T:have your own opinion. Few have the chance to meet with the Golden Sul-Rin;
+T:in person. But I believe you deserve this honor.;
+A:Thanks you.:0:0:0:1:22:0:0:1550:1
+%
+
+N:22:0:0:0:0:0
+I:Korthrax;
+T:Let me know when you are ready, and I will use a spell to transport us;
+T:directly to the palace.;
+A:[CONTINUE]:0:0:0:1:23:0:0:0:0
+%
+
+N:23:0:0:0:0:0
+I: ;
+T:And that is the end of the Ivhala arc of the main quest! The Rhyzendal;
+T:part and Shan's palace are not done yet, but for the time being, you can;
+T:enjoy your new amulet! Feel free to drop by the Portralis forum at;
+T:http://variaz.proboards3.com;
+T:You can then post your comments and suggestions, or bug reports(they are;
+T:only a product of your imagination, I assure you! :) );
+A:[CONTINUE]:0:0:0:1:24:0:0:0:0
+%
+
+N:24:0:0:0:0:0
+I: ;
+T:I do not plan on making several new changes in the code as far as characters;
+T:are concerned, so your character should be compatible with the next release,;
+T:where the main quest will continue and more sub-quests will be finished.;
+T:In the meantime, there are still things for you to play with. Try visiting;
+T:the ruins at (48,51). Or maybe try to explore random dungeons with a few;
+T:cursed items equipped. After all, the only drawbacks are more elites and;
+T:an increased chance of getting bad magic items. There is NO other side effects;
+T:...or at least, I don't think there is. :) Oh, and while we're at it, that;
+T:Avemorsh cave... wasn't there an extra locked door in this release? I wonder;
+T:what that is...;
+A:[CONTINUE]:0:0:0:1:25:0:0:0:0
+%
+
+N:25:0:0:0:0:0
+I: ;
+T:In any cases, thanks for playing the game! Hope you will continue to do;
+T:so! :);
+T: ;
+T:Variaz;
 A:[END DIALOG]:0:0:0:0:0:0:0:0:0
 %

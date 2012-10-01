@@ -1250,7 +1250,7 @@ R:12:50
 R:13:100
 R:15:50
 R:48:-100
-F:DROP_CORPSE | NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:0:0
 D:A massive, animated statue of clay. Though it moves slowly, it is very 
@@ -2140,9 +2140,8 @@ S:cast:Summon Reptiles:6:30:5:10:0:R:90
 S:cast:Summon Lesser Dragons:6:18:3:10:0:d:120
 D:Nymphs are magical, female humanoids who are beautiful beyond words. 
 D:Their affinity with pure magical energy have earned them the title of 
-D:"Embodiemend of Magic". Male adventurers can easily be seduced by a 
-D:nymph's beauty, making them extremely vulnerable to the nymph's magical 
-D:spells. Though very weak, nymphs will use powerful magics to defeat their foes.
+D:"Embodiemend of Magic".Though very weak physically, nymphs will use powerful 
+D:magics to defeat their foes.
 
 N:136:Firestorm Eagle
 G:B:R
@@ -2353,7 +2352,7 @@ R:12:60
 R:13:100
 R:15:60
 R:48:-100
-F:DROP_CORPSE | NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:0:0
 D:A giant animated statue of stone. It is highly resistant to almost any forms 
@@ -3489,7 +3488,7 @@ R:12:60
 R:13:100
 R:15:60
 R:48:-100
-F:DROP_CORPSE | NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:0:0
 D:A giant animated statue of iron. Incredibly strong due to it's massive, 
@@ -3575,6 +3574,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:7:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3598,6 +3598,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:8:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3621,6 +3622,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:9:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3644,6 +3646,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:10:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3667,6 +3670,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:11:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3691,6 +3695,7 @@ W:35:5:60000:3000
 B:90:40:70:5:0:10:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:12:100:0
 L:2
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -3748,6 +3753,7 @@ W:40:6:60000:3000
 B:100:50:80:5:0:12:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:13:100:0
 L:3
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -4143,7 +4149,7 @@ R:12:75
 R:13:100
 R:15:50
 R:21:100
-F:DROP_CORPSE | NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:0:0
 D:A huge humanoid shaped, magically animated mass of mud. While it's body is 
@@ -4501,7 +4507,7 @@ D:Many of the lesser imps bind themselves to an element to become an Elemental I
 D:However, the process of binding to a dual element is much more difficult, and 
 D:only the most powerful imps are capable of such a feat. As a result, they are 
 D:very respected amongst demons, and especially amongst lesser Elemental imps. 
-D:This particular Dual Imp is bound to Grey, is grey, and a grey light enlighten 
+D:This particular Dual Imp is bound to Grey, is grey, and a grey light enlightens 
 D:it's body.
 
 N:259:Mud Imp
@@ -4554,20 +4560,20 @@ R:12:75
 R:13:100
 R:15:75
 R:48:-100
-F:DROP_CORPSE | NONLIVING | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:20:1
 S:cast:Energy Ball:2:20:17:2:0:0:10
 D:A giant animated statue of steel. The ground trembles as this massive mass of steel 
 D:advances toward you. The magic used to animate it is so powerful that in addition to 
-D:it's immense physical, it has developped some magic abilities, as well as some form 
+D:it's immense physical strength, it has developped some magic abilities, as well as some form 
 D:of sentience.
 
 # It's been a while since eyes got a new monster.
 # Even with it's low hp and defense, it still has two lives.
 # The first enemy to use Divination.
 N:261:Mind Gazer
-G:e:W
+G:e:w
 I:120:24d18:30:120:0:0:0:0:0:0:0:0
 W:42:1:300:1300
 B:8:14:60:1:1:12:1
@@ -4887,7 +4893,7 @@ R:12:75
 R:13:100
 R:15:50
 R:21:100
-F:DROP_CORPSE | NONLIVING | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NONLIVING | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 F:NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
 M:0:0
 D:A mud golem that has broken away from its master. Generally more 
@@ -5046,6 +5052,7 @@ W:46:2:12000:4000
 B:80:40:60:10:0:20:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:43:100:0
 L:3
 A:claw:!:1:4d8:15:0:0
 A:bite:!:1:4d8:15:0:0
@@ -5076,6 +5083,7 @@ W:46:2:12000:4000
 B:80:40:60:10:0:20:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:44:100:0
 L:3
 A:claw:!:1:4d8:15:0:0
 A:bite:!:1:4d8:15:0:0
@@ -5103,6 +5111,7 @@ W:46:2:12000:4000
 B:80:40:60:10:0:20:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:45:100:0
 L:3
 A:claw:!:1:4d8:15:0:0
 A:bite:!:1:4d8:15:0:0
@@ -5405,7 +5414,7 @@ S:cast:Summon Demons:6:45:10:20:0:u:800
 D:A demon elf dark knight dedicated to evil. Evil to the point where even their own kind 
 D:fears them, the Blackguards lives a solitary life, dedicating it to killing anything 
 D:they judge unworthy. Which means pretty much anything that lives. They wield darkness-imbued 
-D:Claymore, use mystical incantations to cause pain and are capable of summoning demons. They 
+D:Claymores, use mystical incantations to cause pain and are capable of summoning demons. They 
 D:wear a black full plate armor.
 
 # And yet another sphere! This one is dark blue. That still doesn't tell much about
@@ -5522,11 +5531,11 @@ D:is greater than most giants.
 
 N:300:Phoenix of Solar Flames
 G:B:R
-I:140:320d300:20:5000:0:0:0:0:0:0:0:0
+I:140:340d320:20:5000:0:0:0:0:0:0:0:0
 W:50:10:8000:10000
-B:100:70:120:20:0:20:6
+B:100:100:200:20:0:40:6
 C:19:100
-L:5
+L:10
 Z:0:0:0:0:0:0:0:20:0:0:0:0:0
 A:hit:Piercing Beak:1:5d10:15:0:0
 A:hit:Blazing Wings:1:5d10:1:0:0
@@ -5563,12 +5572,12 @@ D:it, and from it's ashes it shall revive.
 # enemy of a particular depth. Depth 50 is no exception.
 N:301:Bone Lord
 G:s:g
-I:130:240d240:20:4000:0:0:0:0:0:0:0:0
+I:130:270d270:20:4000:0:0:0:0:0:0:0:0
 W:50:1:2100:4000
-B:90:70:90:15:0:22:6
+B:90:70:100:15:0:28:6
 E:1:1:1:2:1:1
 C:19:100
-L:4
+L:5
 A:hit:Bone Blade:1:5d8:15:0:0
 A:hit:Black Blade:1:5d8:7:0:0
 A:hit:Arcane Blade:1:5d8:16:0:0
@@ -5592,12 +5601,12 @@ D:many powerful undead liches can only dream of.
 # Archer version.
 N:302:Bone Lord Sniper
 G:s:g
-I:130:240d240:20:4000:0:0:0:0:0:0:0:0
+I:130:270d270:20:4000:0:0:0:0:0:0:0:0
 W:50:1:2100:4000
-B:70:90:90:0:15:22:1
+B:70:90:100:0:15:28:1
 E:1:1:1:2:1:1
 C:19:100
-L:4
+L:5
 A:shoot:Bone Arrow:3:5d8:15:0:100
 A:shoot:Black Arrow:3:5d8:7:0:100
 A:shoot:Arcane Arrow:3:5d8:16:0:100
@@ -5623,10 +5632,10 @@ N:303:Naga Archpriestess
 G:n:w
 I:120:160d150:20:900:0:0:0:0:0:0:0:0
 W:50:1:1500:3500
-B:15:20:100:1:0:25:1
+B:15:20:120:1:0:30:1
 E:1:1:1:2:1:0
 C:19:100
-L:3
+L:4
 A:hit:Staff:1:1d3:15:0:0
 F:DROP_CORPSE | FORCE_MAXHP | FEMALE | OPEN_DOOR | BASH_DOOR
 M:100:2
@@ -5641,9 +5650,9 @@ N:304:Andraos
 G:E:g
 I:130:230d220:20:2200:0:0:0:0:0:0:0:0
 W:50:1:0:4000
-B:30:24:110:4:0:24:2
+B:30:24:140:4:0:30:2
 C:19:100
-L:4
+L:5
 A:touch:Warp Hands:1:4d7:8:0:0
 R:8:100
 R:15:100
@@ -5662,17 +5671,17 @@ D:threatened by a very strong mind, it will instead resort to using offensive pl
 # Can dodge melee/ranged attacks with ease, and is overall quite deadly.
 N:305:Shadow Queen
 G:p:D
-I:160:220d220:20:2400:0:0:0:0:0:0:0:0
+I:160:240d230:20:3200:0:0:0:0:0:0:0:0
 W:50:1:1200:4000
-B:70:120:90:13:13:22:6
+B:70:120:100:13:13:25:6
 E:1:1:1:2:1:1
 C:19:100
-L:3
+L:4
 Z:0:0:0:0:0:0:0:0:0:0:0:0:305
-A:hit:Materialized Blade:1:4d8:15:0:0
-A:hit:Shadow Blade:1:4d8:7:0:0
-A:throw:Materialized Stars:3:4d5:15:0:33
-A:throw:Shadow Stars:3:4d5:7:0:33
+A:hit:Materialized Blade:1:5d8:15:0:0
+A:hit:Shadow Blade:1:5d8:7:0:0
+A:throw:Materialized Stars:3:5d8:15:0:33
+A:throw:Shadow Stars:3:5d8:7:0:33
 R:7:100
 F:DROP_CORPSE | DROP_60 | FORCE_MAXHP | INVISIBLE | FEMALE | OPEN_DOOR | BASH_DOOR
 M:25:2
@@ -5903,6 +5912,410 @@ D:A dark, ethereal spirit of nightmares. 'Hana', in the language of spirits,
 D:means 'ascended', and it is therefore an ascended form of the lesser Influenzos. 
 D:The mere presence of this spirit is enough to confuse the mind of all but the 
 D:most powerful warriors with terrible, nightmarish visions.
+
+##### All right, we're done. Let's continue depth 50+. :)
+
+# The following imps, while they do have physical attacks, they do not use them.
+# This is for convenience for Monster race players who play as minor demons.
+
+
+# Here's a new, VERY evil enemy.
+# The Hunter of Zekis, a minion of Zekis, the Lord of Greed, doesn't draw power
+# from your treasures like the Imps of Greed. Instead, he prevents them from working!
+
+# This enemy will most likely cause you a lot of trouble the first time you
+# encounter it, and dealing with it will be a new challenge from now on.
+# And you know this is only the beginning of the item disabling madness! :)
+N:314:Hunter of Zekis
+G:u:y
+I:140:170d170:20:2600:0:0:0:0:0:0:0:0
+W:51:1:800:2500
+B:40:60:150:9:0:22:2
+E:1:0:1:2:1:1
+C:19:100
+L:3
+Z:0:0:0:0:0:0:0:21:0:0:0:0:0
+A:claw:!:1:3d6:15:0:0
+R:6:-100
+R:7:100
+F:EVIL | DEMON | FORCE_MAXHP | FRIENDS | DROP_CORPSE | CAN_FLY | OPEN_DOOR | BASH_DOOR
+M:100:2
+S:cast:Energy Ball:2:30:17:3:0:0:30
+S:cast:Disabling Ball:2:20:173:3:1:0:30
+D:A minion of the Archfiend Zekis, the Lord of Greed, this gold-skinned imp preys 
+D:upon adventurers with valuable treasures. When it meets one, it will put a curse 
+D:on the adventurer's weapons and magical relics, so that they cannot be used for 
+D:self-defense. After that, finishing off the adventurers is usually child play, and 
+D:the treasures can be added to the Lord of Greed's treasure hoard.
+
+# Some state leaders says that nuclear weapons should be banned.
+# Could this have anything to do with this monster?
+N:315:Radio Imp
+G:u:G
+I:140:170d170:20:2600:0:0:0:0:0:0:0:0
+W:51:1:800:2500
+B:40:60:150:9:0:22:2
+E:1:0:1:2:1:1
+C:19:100
+L:3
+A:claw:!:1:3d6:15:0:0
+A:claw:Radio Claw:1:3d6:13:0:0
+R:6:-100
+R:7:100
+R:13:100
+F:EVIL | DEMON | FORCE_MAXHP | FRIENDS | DROP_CORPSE | CAN_FLY | OPEN_DOOR | BASH_DOOR
+M:100:2
+S:cast:Radio Ball:2:30:13:3:0:0:30
+D:A small, winged imp, bound to the element of Radioactivity. It's skin is 
+D:bright green, and powerful radiations emanates from it's body. Because Radioactivity 
+D:is one of the most difficult elements to master, it is to be expected from one who 
+D:masters it to be very powerful. As such, Radio Imps are ranked even above dual imps 
+D:in demonic hierarchy, and are both respected and feared.
+
+# The Fused Warriors!
+# Human elemental lords who have merged with elementals to create a super being.
+N:316:Fused Warrior of Fire
+G:p:r
+I:130:300d250:20:5000:0:0:0:0:0:0:0:0
+W:51:1:1700:4500
+B:100:100:100:20:0:50:5
+E:1:1:1:2:1:1
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:22:0:0:0:0:0
+A:hit:Sharp Sword:1:5d8:15:0:0
+A:hit:Blazing Strike:1:5d8:1:0:0
+R:1:100
+F:DROP_60 | FORCE_MAXHP | MALE | OPEN_DOOR | BASH_DOOR
+M:33:2
+S:cast:Blazing Sphere:2:30:1:3:0:0:30
+D:A master Fire Lord who, through magical means, has merged with a Greater Fire Elemental. 
+D:The result is a powerful merged being with immense power. He wears a bright red full plate 
+D:armor and a flame-covered blade. His skin has the color of fire, and his eyes glows bright 
+D:red. A powerful aura of fire emanates from his body.
+
+N:317:Fused Warrior of Water
+G:p:b
+I:130:300d250:20:5000:0:0:0:0:0:0:0:0
+W:51:1:1700:4500
+B:100:100:100:20:0:50:5
+E:1:1:1:2:1:1
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:23:0:0:0:0:0
+A:hit:Sharp Sword:1:5d8:15:0:0
+A:hit:Aqua Strike:1:5d8:9:0:0
+R:9:100
+F:DROP_60 | FORCE_MAXHP | MALE | OPEN_DOOR | BASH_DOOR
+M:33:2
+S:cast:Water Sphere:2:30:9:3:0:0:30
+D:A master Water Lord who, through magical means, has merged with a Greater Water Elemental. 
+D:The result is a powerful merged being with immense power. He wears a dark blue full plate 
+D:armor and a water-covered blade. His skin has a blue color, and his eyes glows bright 
+D:blue. A powerful aura of water emanates from his body.
+
+N:318:Fused Warrior of Earth
+G:p:u
+I:130:300d250:20:5000:0:0:0:0:0:0:0:0
+W:51:1:1700:4500
+B:100:100:100:20:0:50:5
+E:1:1:1:2:1:1
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:24:0:0:0:0:0
+A:hit:Sharp Sword:1:5d8:15:0:0
+A:hit:Earth Strike:1:5d8:11:0:0
+R:11:100
+F:DROP_60 | FORCE_MAXHP | MALE | OPEN_DOOR | BASH_DOOR
+M:33:2
+S:cast:Earth Sphere:2:30:11:3:0:0:30
+D:A master Earth Lord who, through magical means, has merged with a Greater Earth Elemental. 
+D:The result is a powerful merged being with immense power. He wears a brown full plate 
+D:armor and a blade imbued with earth power. His skin has a brown color, and his eyes glows bright 
+D:brown. A powerful aura of earth emanates from his body.
+
+N:319:Fused Warrior of Wind
+G:p:W
+I:130:300d250:20:5000:0:0:0:0:0:0:0:0
+W:51:1:1700:4500
+B:100:100:100:20:0:50:5
+E:1:1:1:2:1:1
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:25:0:0:0:0:0
+A:hit:Sharp Sword:1:5d8:15:0:0
+A:hit:Wind Strike:1:5d8:10:0:0
+R:10:100
+F:DROP_60 | FORCE_MAXHP | MALE | OPEN_DOOR | BASH_DOOR
+M:33:2
+S:cast:Wind Sphere:2:30:10:3:0:0:30
+D:A master Wind Lord who, through magical means, has merged with a Greater Wind Elemental. 
+D:The result is a powerful merged being with immense power. He wears a grey full plate 
+D:armor and a blade that emits gusts of wind. His skin has a pale grey color, and his eyes glows bright 
+D:grey. A powerful aura of wind emanates from his body.
+
+# A creature of Alteration and Mana, the Lura is rare, but very powerful.
+# It's been a while since there was a new feline monster. This one will make up
+# for the time lost.
+N:320:Lura
+G:f:v
+I:140:330d310:30:4000:0:0:0:0:0:0:0:0
+W:51:3:1900:5000
+B:120:80:160:15:0:32:6
+C:19:100
+L:8
+Z:0:0:0:0:0:0:2303:0:0:0:0:0:0
+A:claw:Mystic Claw:1:8d5:17:0:0
+A:claw:Mana Claw:1:8d5:16:0:0
+R:16:100
+R:112:100
+R:148:100
+F:ANIMAL | FORCE_MAXHP | NEVER_MOVE | DROP_CORPSE
+F:NO_FEAR | NO_CONF | NO_SLEEP
+M:33:2
+S:cast:Mana Ball:2:30:16:3:0:0:30
+S:cast:Life Blast 35%:1:35:112:0:1:0:50
+D:A large, mysterious feline with purple fur. Several shining green runes are etched on the creature's 
+D:body. Unlike a typical feline, this creature does not seem to move. It seems to be 
+D:patiently waiting for it's preys. Little is known about this rare creature, but it 
+D:appears to be extremely intelligent. It's claws looks powerful and seems to be 
+D:made of pure magical energy.
+
+# Winged Serpents!
+
+# Compared to the above stuff, Winged Serpents are more moderate, and shouldn't
+# be too much of a problem for a well prepared character. Especially since it's
+# the first monster in a long while to not have any counters.
+# I mean, there has to be SOME monsters that you can actually kill, right? ;)
+
+# They have various colors, and embodies many elements that can be represented
+# by that color.
+N:321:White Winged Serpent
+G:J:w
+I:120:200d200:20:3000:0:0:0:0:0:0:0:0
+W:50:1:6000:3000
+B:80:50:40:10:0:30:4
+C:0:0
+L:4
+A:constrict:!:1:4d10:15:0:0
+A:bite:Cold Fang:1:4d10:2:0:0
+A:bite:Light Fang:1:4d10:6:0:0
+R:2:100
+R:6:100
+F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | ANIMAL
+M:25:2
+S:breath:Cold:2:30:2:2:0:0:20
+S:breath:Light:2:30:6:2:0:0:20
+D:A huge snake-like creature with a pair of large wings. White can represent 
+D:cold but also light, and this creature seems to possess powers tied to both elements.
+
+N:322:Green Winged Serpent
+G:J:G
+I:120:200d200:20:3000:0:0:0:0:0:0:0:0
+W:50:1:6000:3000
+B:80:50:40:10:0:30:4
+C:0:0
+L:4
+A:constrict:!:1:4d10:15:0:0
+A:bite:Acid Fang:1:4d10:4:0:0
+A:bite:Poison Fang:1:4d10:5:0:0
+R:4:100
+R:5:100
+F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | ANIMAL
+M:25:2
+S:breath:Acid:2:30:4:2:0:0:20
+S:breath:Poison:2:30:5:2:0:0:20
+D:A huge snake-like creature with a pair of large wings. Green can represent 
+D:poison but also acid, and this creature seems to possess powers tied to both elements.
+
+N:323:Blue Winged Serpent
+G:J:b
+I:120:200d200:20:3000:0:0:0:0:0:0:0:0
+W:50:1:6000:3000
+B:80:50:40:10:0:30:4
+C:0:0
+L:4
+A:constrict:!:1:4d10:15:0:0
+A:bite:Electric Fang:1:4d10:3:0:0
+A:bite:Water Fang:1:4d10:9:0:0
+R:3:100
+R:9:100
+F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | ANIMAL
+M:25:2
+S:breath:Electricity:2:30:3:2:0:0:20
+S:breath:Water:2:30:9:2:0:0:20
+D:A huge snake-like creature with a pair of large wings. Blue can represent 
+D:water but also electricity, and this creature seems to possess powers tied to both elements.
+
+# Unlike the previous golems, this one isn't big and slow, but focus on speed and mobility instead.
+# This is due to mithril being very light.
+
+# Seriously, this thing looks more like some kind of humanoid robot than an actual golem.
+# It looks like a robot. It's deadly like a robot. It has superspeed reactors like a robot.
+
+# ...ok. It's definitely a robot. And it's rare. Thanks The Creator for that.
+N:324:Mithril Hunter
+G:g:w
+I:140:330d330:20:9000:0:0:0:0:0:0:0:0
+W:52:3:1800:7500
+B:120:80:50:7:0:30:6
+C:19:100
+L:6
+T:11:16:100:0
+A:slash:Wrist Blade:1:6d12:15:0:0
+A:slash:Charged Wrist Blade:1:6d12:3:0:0
+A:launch:Razor Disk:3:15d9:15:0:33
+A:launch:Charged Disk:3:15d9:3:0:33
+R:1:75
+R:2:75
+R:3:100
+R:4:-100
+R:5:100
+R:9:50
+R:10:100
+R:11:100
+R:12:75
+R:13:100
+R:15:75
+R:48:-100
+F:NONLIVING | EMPTY_MIND | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:FAST | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+M:0:0
+D:Unlike most golems which are built to be big and strong, the Mithril Hunter is different. 
+D:Since mithril is very light, this golem was created to take advantage of this. It is human-sized, 
+D:and has a slim, humanoid look. It's head is helm-shaped, and it has glowing blue, artificial eyes. 
+D:Attached to it's hands are powerful wrist blades, which are charged with supervolted electricity 
+D:and can easily pierce through even the most hardened matter. The internal reactors can be 
+D:charged to extreme levels to give the golem a speed that living creatures could only dream of. 
+D:It's ability to fight accuratly and to predict it's opponents' moves hints at some form of intelligence.
+
+# Wait wait, wait! What was that "FAST" flag just now??
+# ...bah, who cares. It gives a mithril ore if you kill it. Definitely worth the 10+ death counts.
+# Let's move on!
+
+N:325:Lesser Four Elemental
+G:E:o
+I:130:300d280:20:4000:0:0:0:0:0:0:0:0
+W:53:1:2200:4200
+B:150:80:150:9:0:32:4
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:22:0:0:0:0:0
+A:hit:Burning Punch:1:5d8:1:0:0
+A:hit:Aqua Punch:1:5d8:9:0:0
+A:hit:Gust Punch:1:5d8:10:0:0
+A:hit:Earth Punch:1:5d8:11:0:0
+R:1:100
+R:3:50
+R:4:50
+R:5:75
+R:9:100
+R:10:100
+R:11:100
+R:15:90
+F:FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:NO_SLEEP | NO_STUN | NO_FEAR
+M:33:2
+S:cast:Blazing Sphere:2:30:1:3:0:0:30
+S:cast:Tidal Wave:2:30:9:3:0:0:30
+S:cast:Whirlwind:2:30:10:3:0:0:30
+S:cast:Earth Sphere:2:30:11:3:0:0:30
+D:A humanoid-shaped, orange colored elemental that combines the strengths and powers of 
+D:all four types of elementals, but none of the weaknesses. It has the size and strength 
+D:of an earth elemental, the wisdom of a water elemental, the speed and resistance to 
+D:physical blows of an air elemental and emits a powerful fire aura like a fire elemental. 
+D:Despite it's status as 'lesser', a Lesser Four Elemental is even more powerful than 
+D:a Greater elemental of single elements.
+
+N:326:White Wight
+G:W:w
+I:130:270d250:20:3200:0:0:0:0:0:0:0:0
+W:53:1:1100:4200
+B:90:60:130:14:0:40:5
+E:1:1:1:2:1:1
+C:19:100
+L:5
+A:claws:White Claws:1:6d6:17:8:20000
+A:claws:Claws of Soul Darkening:1:6d6:7:8:20000
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:75
+R:17:100
+F:DROP_CORPSE | EVIL | FORCE_MAXHP | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF
+M:25:1
+S:cast:Energy Sphere:2:40:17:3:0:0:30
+S:cast:Vitae Sap:1:50:112:0:1:0:200
+D:A wight that is white in color, but has a soul just as dark as any other wights. 
+D:White ghostly energy emanates from this wight's body, and it has the power to directly 
+D:target one's life force, and destroy it.
+
+N:327:Radio Hound
+G:Z:G
+I:130:200d200:20:3400:0:0:0:0:0:0:0:0
+W:53:1:2200:2100
+B:120:70:90:18:0:23:6
+C:0:0
+L:3
+A:bite:!:1:5d9:15:0:0
+A:bite:Radio Bite:1:5d9:13:0:0
+R:13:100
+F:ANIMAL | FRIENDS | FORCE_MAXHP | DROP_CORPSE
+M:25:1
+S:breath:Radio Breath:2:30:13:3:0:0:60
+D:A mighty canine bound to the element of Radioactivity. Due to the extreme radiations 
+D:caused by this element, this hound has mutated in a way that has made it far more powerful 
+D:than other elemental hounds.
+
+# One day, the father decided to have a father-son conversation:
+# "Listen my boy... I know that sometimes, you see extremely beautiful women, and you go crazy about them.
+# But please, show self-control, for she might be a mighty sorceress in disguise. And if that's the
+# case, you're basically dead..."
+
+# A week later, the boy was found dead in a deep dungeon. Sitting next to his body was a beautiful nymph.
+# He really should have listened to his father's advice... Especially since these nymphs are much
+# more common than the ones of depth 21...and million times more dangerous.
+N:328:Nymph Sorceress
+G:h:g
+I:130:150d130:20:300:0:0:0:0:0:0:0:0
+W:55:1:1300:7500
+B:5:6:200:0:0:52:1
+E:1:1:1:2:1:1
+C:19:100
+L:7
+Z:0:0:0:0:0:0:0:0:0:0:0:0:328
+R:16:100
+R:22:100
+F:DROP_CORPSE | FEMALE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:NO_FEAR | NO_CONF
+M:100:3
+S:cast:Mana Blast:2:30:16:3:0:0:30
+S:cast:Confusing Blast:2:30:22:3:0:0:30
+S:cast:Summon Monsters from the Flow:7:2050:10:20:0:0:1500
+D:Nymphs are said to be embodiement of magic and beauty in female form. 
+D:However, for a nymph to earn the title of Sorceress in a race that is already 
+D:made up of naturally born sorceresses, she has to have mastered magic to a level 
+D:that few beings can comprehend. She masters pure magic, along with powerful 
+D:mind-dazing and destructive spells, and uses her magic to block and deflect blows. 
+D:Nymph Sorceresses are said to have connections to other planes of existance, 
+D:and can summon beings that have never been seen before.
+
+# And here's the Lost Soul.
+N:999:Lost Soul
+G:E:W
+I:110:1d1:20:1:0:0:0:30000:0:0:0:0
+W:1:1:0:0
+B:1:1:5:0:0:0:0
+C:0:0
+R:15:100
+F:FORCE_MAXHP | FRIENDLY | PET | PASS_WALL | OPEN_DOOR | BASH_DOOR
+F:NO_SLEEP | NO_STUN | SPECIAL_GENE | NEVER_MOVE_FRIENDLY
+M:0:0
+D:A lost soul that wanders in the Limbo.
 
 
 ########### QUEST/TOWNS/SPECIAL MONSTERS ############
@@ -6586,35 +6999,7 @@ D:was once a strong monk during his life, but is now a restless zombie. Unlike
 D:most zombies, he seems to have kept his speed and agility he had as a monk, 
 D:as well as his skill with martial arts.
 
-N:1043:The Grey Wight
-G:W:W
-I:110:130d110:20:2000:0:303:1:301:70:0:0:0
-W:50:1:1700:5000
-B:50:25:50:10:0:15:4
-E:1:1:1:2:1:1
-C:19:100
-T:1:30:100:0
-L:3
-A:claws:Soul Draining Claws:1:6d6:15:8:10000
-A:claws:Grey Claws:1:6d6:19:0:0
-A:gazes:Deadly Gaze:1:3d3:16:0:0
-R:2:100
-R:5:100
-R:6:100
-R:7:100
-R:13:100
-R:15:50
-R:19:100
-F:FORCE_MAXHP | EVIL | UNDEAD | COLD_BLOOD | SPECIAL_GENE | OPEN_DOOR | BASH_DOOR
-F:REGENERATE | UNIQUE | DEATH_DIALOG | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
-M:25:1
-S:cast:Grey Beam:1:20:19:0:0:0:20
-S:cast:grey_wight_fear:999:0:0:0:0:0:0
-D:A grey humanoid-shaped undead creature with no facial features, save 
-D:for a glowing red circle on the creature's face that seems to serve as 
-D:some sort of eye. As you get near the creature, you can sense an 
-D:unusual fear afflicting you, and you desire nothing but flee as quickly 
-D:as possible.
+# 1043 isn't used anymore.
 
 N:1044:Ancient Bone Golem
 G:g:w
@@ -6699,6 +7084,29 @@ S:cast:Water Ball:2:10:9:2:0:0:10
 S:cast:Earth Ball:2:10:11:2:0:0:10
 D:A young alchemist who experiments with various herbs and components to create 
 D:new potions.
+
+N:1048:Orc Wight
+G:o:B
+I:110:6d5:20:5:0:0:0:60:10:0:0:0
+W:4:1:600:0
+B:2:2:12:1:0:1:1
+E:1:1:1:2:1:1
+C:0:0
+A:touch:Chill Touch:1:2d8:2:0:0
+A:touch:Wight's Touch:1:2d4:7:8:100
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:100
+F:MALE | ORC | UNDEAD | FORCE_MAXHP | UNIQUE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
+F:REGENERATE | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+F:FRIENDLY | PET | NEVER_MOVE_FRIENDLY | SPECIAL_GENE
+M:50:1
+S:cast:Fire Bolt:1:10:1:0:0:0:5
+D:An orcish wight who is extremely weakened. It's wraithly body is starting to fade, 
+D:and it seems in terrible pain.
 
 
 # The following monsters are hard-coded. Do not delete them, or their associated
@@ -7764,7 +8172,7 @@ C:19:100
 T:1:34:100:0
 A:hit:Steel Long Sword:1:4d6:15:0:0
 A:hit:Wind Strike:1:4d6:10:0:0
-F:DROP_CORPSE | FEMALE | ONLY_DEPTH | FRIENDLY | PET | OPEN_DOOR | BASH_DOOR
+F:DROP_CORPSE | UNIQUE | FEMALE | ONLY_DEPTH | FRIENDLY | PET | OPEN_DOOR | BASH_DOOR
 F:FORCE_MAXHP | NEVER_MOVE_FRIENDLY | GUARD | DEATH_DIALOG | SPECIAL_GENE
 M:25:1
 S:cast:Storm:2:15:10:3:0:0:20
@@ -7890,7 +8298,6 @@ E:1:1:1:2:1:1
 C:19:100
 A:hit:Steel Claymore:1:4d7:15:0:0
 A:hit:Ki Strike:1:4d7:17:0:0
-R:7:25
 F:DROP_CORPSE | MALE | ORC | FORCE_MAXHP
 F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
 F:NO_FEAR | NO_CONF
@@ -7932,7 +8339,6 @@ E:1:1:1:2:1:1
 C:19:100
 A:hit:Steel Claymore:1:4d7:15:0:0
 A:hit:Ki Strike:1:4d7:17:0:0
-R:7:25
 F:DROP_CORPSE | MALE | ORC | FORCE_MAXHP | UNIQUE | CAN_SPEAK
 F:OPEN_DOOR | BASH_DOOR | ONLY_ITEM | DROP_GOOD | DROP_GREAT | DROP_1D2 | SPECIAL_GENE
 F:NO_FEAR | NO_CONF
@@ -8232,17 +8638,339 @@ D:A powerful Demon Wight who is also a high ranked priest of Ryoon. He is the le
 D:this cult, and his goal is to collect the souls of mortals who are siding with good 
 D:and with the gods.
 
-N:1363:Messenger
-G:t:B
-I:110:1d1:10:0:0:0:0:1523:1:0:0:0
-W:0:1:1300:0
-B:3:3:5:0:0:0:0
-C:0:0
-F:DROP_CORPSE | ONLY_DEPTH | FRIENDLY | PET | TOWNSFOLK | OPEN_DOOR |
-F:SPECIAL_GENE | NEVER_MOVE_FRIENDLY | BASH_DOOR
-M:0:0
-D:A messenger sent by the Creator to tell you that this area isn't ready in the current build.
+N:1363:Korthrax
+G:u:y
+I:120:210d200:20:3000:0:0:0:1523:90:0:0:0
+W:33:1:1700:0
+B:50:50:130:12:0:25:5
+E:1:1:1:2:1:1
+C:19:100
+L:5
+Z:0:0:0:0:0:0:0:0:0:9:0:0:0
+A:hit:Ice Sword:1:4d6:15:0:0
+A:hit:Ice Sword:1:4d6:23:0:0
+A:hit:Ice Sword:1:4d6:2:0:0
+R:1:25
+R:2:25
+R:6:-100
+R:7:100
+F:DROP_CORPSE | FORCE_MAXHP | UNIQUE | CAN_FLY | DEMON | FRIENDLY | PET
+F:MALE | SPECIAL_GENE | NEVER_MOVE_FRIENDLY | OPEN_DOOR | BASH_DOOR
+F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP
+M:100:2
+S:cast:Ice Globe:2:30:23:5:0:0:80
+S:cast:Darkness Globe:2:30:7:5:0:0:80
+S:cast:Summon Incarnations:7:2115:10:20:0:0:1200
+S:cast:Summon Ice Drakes:7:2121:10:20:0:0:1200
+D:A high priest of Shan, and close advisor to Ludgar Zos, Korthrax is quite a 
+D:powerful figure. He displays a calm attitude, and is patient, wise and not 
+D:prone to anger. However, that only serves to hide his true powers, which are 
+D:drawn directly from Shan's essence, and therefore incredibly strong.
 
+N:1364:Defender Wight
+G:W:W
+I:120:260d245:20:4000:0:0:0:0:0:0:0:0
+W:50:1:1100:0
+B:90:60:70:12:0:12:4
+E:1:1:1:2:1:1
+C:19:100
+L:5
+A:hit:Soul Draining Sword:1:6d7:15:8:10000
+A:hit:Soul Chilling Sword:1:6d7:2:8:10000
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:75
+F:DROP_CORPSE | EVIL | FORCE_MAXHP | DEMON | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:NEVER_BOSS | SPECIAL_GENE | NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF
+M:25:1
+S:cast:Life Force Crush:1:33:112:0:1:0:90
+D:Once an Ivhalian Defender, he has been turned into a Demon Wight. The magic 
+D:that was used is very powerful, and this makes the Defender Wight even deadlier 
+D:than the average Demon Wight, who already bests any mortals in combat. If beings 
+D:like this keeps appearing, it won't be long before the gods will be forced to 
+D:intervene and send their champions to save Portralis. It still wears a heavy 
+D:defender armor, a shield and it's sword is now enchanted with soul-draining 
+D:powers.
+
+# Quite powerful.
+N:1365:Chaos Lord
+G:p:D
+I:130:312d255:20:5000:0:0:0:0:0:0:0:0
+W:55:1:1700:5000
+B:130:100:100:20:0:50:5
+E:1:1:1:2:1:1
+C:19:100
+L:7
+Z:0:0:0:0:0:0:0:26:0:0:0:0:0
+A:hit:Sharp Sword:1:5d8:15:0:0
+A:hit:Chaos Strike:1:5d8:14:0:0
+R:14:100
+F:DROP_CORPSE | DROP_60 | FORCE_MAXHP | MALE | OPEN_DOOR | BASH_DOOR
+F:ATTR_MULTI | ATTR_ANY | SPECIAL_GENE | NEVER_BOSS
+M:33:2
+S:cast:Chaos Sphere:2:30:14:3:0:0:30
+D:A zulgor elemental lord who serves the order of chaos that is currently threatening 
+D:Portralis. His immense strength, combined with perfect mastery of Chaos, makes him 
+D:a deadly force that few beings could ever match.
+
+N:1366:Balcia
+G:p:D
+I:130:200d100:20:1000:0:1532:1:1527:80:0:0:0
+W:55:1:1500:5000
+B:50:20:130:6:0:40:1
+E:1:1:1:2:1:1
+C:19:100
+L:5
+Z:0:0:0:0:0:0:0:0:0:28:0:0:0
+R:14:100
+F:FORCE_MAXHP | EVIL | FEMALE | UNIQUE | OPEN_DOOR | BASH_DOOR
+F:ATTR_MULTI | ATTR_ANY | SPECIAL_GENE | DEATH_DIALOG
+F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
+M:100:2
+S:cast:Chaos Sphere:2:30:14:3:0:0:30
+S:cast:Storm of Pain:2:30:162:3:0:0:30
+D:A very powerful zulgor sorceress who is part of the order of chaos. She is very 
+D:devoted and will follow Summapal's words to the letter.
+
+N:1367:Loroth Varos
+G:u:r
+I:130:200d160:20:3200:0:1534:1:1529:80:0:0:0
+W:55:1:1100:5000
+B:90:50:110:10:0:25:4
+E:1:1:1:2:1:1
+C:19:100
+L:5
+A:claws:Soul Draining Claws:1:5d6:15:8:10000
+A:claws:Soul Chilling Claws:1:5d6:2:8:10000
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:75
+F:EVIL | MALE | UNIQUE | FORCE_MAXHP | DEMON | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:DEATH_DIALOG | NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF | CAN_FLY | SPECIAL_GENE
+M:100:2
+S:cast:Darkness Ball:2:30:7:3:0:0:20
+S:cast:Freeze Ball:2:30:2:3:0:0:20
+S:cast:Summon Ghosts:6:50:10:20:0:G:600
+S:cast:Summon Wights:6:50:10:20:0:W:600
+S:cast:Summon Demons:6:50:10:20:0:u:600
+D:A traitorous Rhyzendalian who has betrayed Shan and turned to Ryoon. His body has become 
+D:ghost-like, and the Ghostfather has gifted him with tremendous powers. His specialty 
+D:is summoning magic, and he is capable of summoning powerful undeads and demons.
+
+N:1368:Captain Emma 'Stormbringer'
+G:z:D
+I:130:500d100:20:4000:0:1538:1:1531:80:0:0:0
+W:55:1:2000:5000
+B:80:50:80:15:0:25:4
+C:19:100
+L:6
+A:hit:Cursed Long Sword:1:5d8:15:0:0
+A:hit:Wind Strike:1:5d8:10:0:0
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:25
+F:UNIQUE | DROP_CORPSE | FEMALE | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:FORCE_MAXHP | CAN_SPEAK | SPECIAL_GENE
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:NO_STUN | NO_CONF | NO_FEAR | NO_SLEEP
+M:33:2
+S:cast:Storm:2:30:10:3:0:0:20
+D:Emma Stormbringer, the captain of the Ivhalian Defenders, has been turned into 
+D:an undead being. In this state, she is under the control of the Grey Wight, and will 
+D:turn against her former friends and allies. Undeath has brought her a considerable 
+D:amount of powers, which she is ready to unleash upon you!
+
+N:1369:Balcia
+G:p:D
+I:130:200d100:20:1000:0:1539:1:1532:80:0:0:0
+W:55:1:1500:5000
+B:50:20:130:6:0:40:1
+E:1:1:1:2:1:1
+C:19:100
+L:5
+Z:0:0:0:0:0:0:0:0:0:28:0:0:0
+R:14:100
+F:FORCE_MAXHP | EVIL | FEMALE | UNIQUE | OPEN_DOOR | BASH_DOOR
+F:ATTR_MULTI | ATTR_ANY | SPECIAL_GENE | CAN_SPEAK
+F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
+M:100:2
+S:cast:Storm of Pain:2:30:162:3:0:0:30
+S:cast:Summon Chaos Lord:7:1365:1:20:0:0:1000
+D:A very powerful zulgor sorceress who is part of the order of chaos. She is very 
+D:devoted and will follow Summapal's words to the letter.
+
+# A normal monster version.
+N:1370:Defender Wight
+G:W:W
+I:120:260d245:20:4000:0:0:0:0:0:0:32:0
+W:50:1:1100:0
+B:90:60:70:12:0:12:4
+E:1:1:1:2:1:1
+C:19:100
+L:5
+A:hit:Soul Draining Sword:1:6d7:15:8:10000
+A:hit:Soul Chilling Sword:1:6d7:2:8:10000
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:75
+F:DROP_CORPSE | EVIL | FORCE_MAXHP | DEMON | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF
+M:25:1
+S:cast:Life Force Crush:1:33:112:0:1:0:90
+D:Once an Ivhalian Defender, he has been turned into a Demon Wight. The magic 
+D:that was used is very powerful, and this makes the Defender Wight even deadlier 
+D:than the average Demon Wight, who already bests any mortals in combat. If beings 
+D:like this keeps appearing, it won't be long before the gods will be forced to 
+D:intervene and send their champions to save Portralis. It still wears a heavy 
+D:defender armor, a shield and it's sword is now enchanted with soul-draining 
+D:powers.
+
+N:1371:Twisted Orc Wiseblade
+G:o:B
+I:130:280d250:20:2600:0:0:0:0:0:0:0:0
+W:55:1:1800:4500
+B:100:40:80:15:0:25:4
+E:1:1:1:2:1:1
+C:19:100
+L:6
+A:hit:Claymore:1:5d8:15:0:0
+A:hit:Ki Strike:1:5d8:17:0:0
+R:14:50
+F:DROP_CORPSE | MALE | ORC | FORCE_MAXHP
+F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
+F:NO_FEAR | NO_CONF
+M:25:2
+S:cast:Chaos Ball:2:30:14:3:0:0:20
+S:cast:Harm:1:30:162:0:0:0:30
+D:An orc Wiseblade who has been brought back to existance by a chaotic twist of reality. 
+D:Unlike before, a lot of raw chaos has been infused in this orc, making him extremely 
+D:powerful.
+
+N:1372:Zombie Enchantress
+G:z:U
+I:120:200d120:20:1000:0:0:0:0:0:0:0:0
+W:55:1:1500:0
+B:30:80:50:1:13:4:1
+C:0:0
+L:4
+A:shoot:Steel Arrow:3:4d6:15:0:50
+A:shoot:Fire Arrow:3:4d6:1:0:50
+A:shoot:Acid Arrow:3:4d6:4:0:50
+A:shoot:Poison Arrow:3:4d6:5:0:50
+A:shoot:Water Arrow:3:4d6:9:0:50
+R:2:100
+R:5:100
+R:6:-100
+R:7:100
+R:13:100
+R:15:25
+F:DROP_CORPSE | FEMALE | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:FORCE_MAXHP | SPECIAL_GENE | NEVER_BOSS
+F:NO_STUN | NO_CONF | NO_FEAR | NO_SLEEP
+M:0:0
+D:An Ivhalian battle enchantress who has been turned into a zombie by the Grey Wight. 
+D:She is now under his control, but has retained all her dexterity and skill with the 
+D:bow and enchanted arrows. Now imbued with the Grey Wight's power, she is deadlier 
+D:than ever before.
+
+# This could be a long battle.
+# Earth resistance could be very helpful for this fight.
+N:1373:Christina
+G:z:W
+I:130:281d216:20:10000:0:1542:1:1534:90:0:0:0
+W:55:1:2000:5500
+B:100:50:60:20:0:40:6
+E:1:1:1:2:1:1
+C:19:100
+L:7
+Z:0:0:0:0:0:0:0:0:0:0:0:0:1357
+A:hit:Adamantium Long Sword:1:6d5:15:0:0
+A:hit:Earth Strike:1:6d5:11:0:0
+R:2:100
+R:5:100
+R:6:-50
+R:7:100
+R:11:100
+R:13:100
+R:15:50
+F:DROP_CORPSE | FEMALE | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:DEATH_DIALOG | FORCE_MAXHP | SPECIAL_GENE | UNIQUE
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
+M:25:1
+S:use:christina_sword_of_gaia:999:0:0:0:0:0:0
+D:Even the mighty queen of Ivhala could not resist the power of the Grey Wight. 
+D:She has been turned into an undead being, and is now under the control of the wight. 
+D:She has retained all of her former powers, and has become even more resilient than 
+D:ever before.
+
+N:1374:Avatar of the Grey Wight
+G:W:W
+I:130:300d250:20:3500:0:1544:1:1536:100:0:0:0
+W:60:1:1300:6000
+B:120:60:120:15:0:40:6
+E:1:1:1:2:1:1
+C:19:100
+L:10
+A:claws:Soul Draining Claws:1:6d5:15:8:50000
+A:claws:Unholy Light Claws:1:6d5:6:8:50000
+A:claws:Soul Darkening Claws:1:6d5:7:8:50000
+A:claws:Grey Wight's Claws:1:6d5:19:8:50000
+R:2:100
+R:5:100
+R:6:100
+R:7:100
+R:13:100
+R:15:75
+R:19:100
+F:EVIL | FORCE_MAXHP | UNIQUE | DEMON | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:PASS_WALL | DEATH_DIALOG | SPECIAL_GENE
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF
+M:33:2
+S:cast:Grey Destroyer:2:30:19:5:0:0:40
+S:cast:Life Force Crush:1:33:112:0:1:0:90
+S:cast:Summon Ghosts:6:60:10:20:0:G:1000
+S:cast:Summon Wights:6:60:10:20:0:W:1000
+S:use:grey_wight_gaze:999:0:0:0:0:0:0
+S:use:monster_teleport_to_player:999:0:0:0:0:0:0
+D:The Grey Wight is one of the most powerful servants of Ryoon, the Ghostfather. 
+D:It is the very embodiement of fear and despair. It has taken over the body 
+D:of Loroth Varos, who now serves as his avatar. The body has been transformed into 
+D:a monstrous creature with a grey, translucent body, skeletal wings, a large 
+D:central red eye but otherwise no facial features, and it has long, sharp 
+D:claws that could make short work of even the strongest metal.
+
+N:1375:Balcia
+G:p:D
+I:130:200d100:20:1000:0:1546:1:1538:80:0:0:0
+W:55:1:1500:5000
+B:50:20:130:6:0:40:1
+E:1:1:1:2:1:1
+C:19:100
+L:5
+Z:0:0:0:0:0:0:0:0:0:28:0:0:0
+R:14:100
+F:FORCE_MAXHP | EVIL | FEMALE | UNIQUE | OPEN_DOOR | BASH_DOOR
+F:ATTR_MULTI | ATTR_ANY | SPECIAL_GENE | DEATH_DIALOG
+F:NO_STUN | NO_FEAR | NO_CONF | NO_SLEEP
+M:100:2
+S:cast:Storm of Pain:2:30:162:3:0:0:30
+S:cast:Summon Chaos Lord:7:1365:1:20:0:0:1000
+D:A very powerful zulgor sorceress who is part of the order of chaos. She is very 
+D:devoted and will follow Summapal's words to the letter.
 
 # Monsters 1500+: The city of Jindar!
 # All of Jindar's citizens, questors, etc, etc...
@@ -9228,6 +9956,22 @@ D:A very tough-looking dwarf who handles the wyverns of the Storm Wyvern
 D:Travel Agency. He carries a whip, but also a sharp axe in case a wyvern 
 D:goes out of control.
 
+N:1568:Gary Dragonheart
+G:h:u
+I:100:30d25:20:320:0:0:0:1524:30:0:0:0
+W:15:1:1900:0
+B:40:7:10:2:0:0:1
+E:1:1:1:2:1:1
+C:0:0
+A:hit:Smith Hammer:1:1d6:15:0:0
+F:DROP_CORPSE | MALE | UNIQUE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
+F:FRIENDLY | PET | SPECIAL_GENE | NEVER_MOVE_FRIENDLY
+M:0:0
+D:An old dwarf who earned the name 'Dragonheart' for the great courage 
+D:he had in facing dragons and draconic creatures during his youth. Today, while 
+D:he no longer fights, he works as a talented smith and specializes in 
+D:crafting armors from the scales of dragons.
+
 # 1600+. Jindar quest-related characters, monsters, etc... All the characters
 # not related to main quest here, but for subquests and all!
 
@@ -9797,6 +10541,44 @@ D:purpose yet. He tricked you into giving him a strange and powerful red
 D:licialhyd, and fused with it into one powerful being. With the power 
 D:to twist reality, his extremely high strength and the mastery of chaos 
 D:magic, it is clear that no mere mortals would ever be a match for him.
+
+# Quite a few steps above Quazar.
+# You'll notice she is NOT immune to Physical. This is because otherwise,
+# she is nearly impossible to beat for zulgors.
+N:2001:Balcia, the Three-Eyed Banshee of Chaos
+G:G:D
+I:140:500d167:20:3000:0:1548:1:1540:100:0:0:0
+W:65:1:1200:10000
+B:50:30:150:5:0:40:1
+E:1:1:1:2:1:1
+C:19:100
+T:1:42:100:0
+L:15
+Z:0:0:0:0:0:0:0:26:27:28:0:0:0
+R:2:100
+R:5:100
+R:6:100
+R:7:100
+R:13:100
+R:14:100
+R:15:25
+R:19:100
+F:EVIL | FORCE_MAXHP | UNIQUE | FEMALE | DEMON | UNDEAD | OPEN_DOOR | BASH_DOOR
+F:PASS_WALL | DEATH_DIALOG | ATTR_MULTI | ATTR_ANY | QUESTOR | SPECIAL_GENE
+F:ONLY_ITEM | DROP_4D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:NO_STUN | NO_FEAR | NO_SLEEP | NO_CONF
+M:100:2
+S:cast:Chaos Destroyer:2:30:14:5:0:0:40
+S:cast:Grey Destroyer:2:30:19:5:0:0:40
+S:cast:Life Force Crush:1:33:112:0:1:0:90
+S:use:grey_wight_gaze:999:0:0:0:0:0:0
+D:Balcia and the ghost of the Grey Wight have fused together to form one unique 
+D:being. Then, to complete the union, Balcia used a shard of red licialhyd. 
+D:She has now turned into a ghost. She appears as a transluscent grey, woman-shaped 
+D:ghost, with a third glowing red eye on her forehead. Her power has fluctuated 
+D:to a level far exceeding her previous state, which was already very powerful. 
+D:Combining the powers of both Balcia and the Grey Wight, there seems to be very 
+D:little hope to ever defeat this three-eyed banshee of chaos.
 
 #### 2050 to 2099 are reserved for random/generated monsters.
 #### These monsters will be saved in your save file.
@@ -10503,6 +11285,7 @@ C:0:0
 A:claw:!:1:2d6:15:0:0
 A:bite:!:1:2d6:15:0:0
 R:2:50
+R:15:25
 R:23:50
 F:DROP_CORPSE | DRAGON | ICE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR
 M:10:1
@@ -10525,6 +11308,7 @@ A:bite:Cold Bite:1:4d6:2:0:0
 A:claw:Ice Claw:1:4d6:23:0:0
 A:bite:Ice Bite:1:4d6:23:0:0
 R:2:100
+R:15:50
 R:23:100
 F:DROP_CORPSE | DRAGON | ICE | FORCE_MAXHP | BASH_DOOR
 F:CAN_FLY | NO_FEAR
@@ -10543,6 +11327,7 @@ W:40:3:60000:3000
 B:100:50:80:5:0:12:4
 E:0:0:0:0:0:0
 C:19:100
+T:4:41:100:0
 L:3
 A:claw:!:1:5d10:15:0:0
 A:bite:!:1:5d10:15:0:0
@@ -10551,6 +11336,7 @@ A:bite:Freezing Bite:1:5d10:2:0:0
 A:claw:Blizzard Claw:1:5d10:23:0:0
 A:bite:Blizzard Bite:1:5d10:23:0:0
 R:2:100
+R:15:75
 R:23:100
 F:DROP_CORPSE | DRAGON | ICE | FORCE_MAXHP | BASH_DOOR
 F:DROP_2D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
@@ -10560,8 +11346,9 @@ S:breath:Blast of Frost:2:30:2:5:0:0:40
 S:breath:Blast of Glaciers:2:30:23:5:0:0:40
 D:An ice dragon which has reached maturity. It has cyan, ice-covered scales and large, 
 D:powerful wings. Ice dragons are seldom seen outside of Rhyzendal, but in their native 
-D:land, they strike fear amongst the other creatures and even their own kind. Their 
-D:breath are said to be capable of creating new chains of glaciers, and they are the 
+D:land, they strike fear amongst the other creatures and even their own kind. This is 
+D:due in part to the magic in their ice scales, that makes them almost impervious to physical 
+D:blows. Their breath are said to be capable of creating new chains of glaciers, and they are the 
 D:the most resilient of all dragon kinds.
 
 N:2120:Abominable
@@ -10585,6 +11372,32 @@ S:breath:Dark Breath:2:15:7:3:0:0:20
 D:A large, black-furred yeti. The Abominable is said to be empowered by demonic 
 D:essence, and has an evil and aggressive nature. It has all the powers of a normal 
 D:yeti, but also has dark powers of it's own.
+
+N:2121:Ice Drake
+G:d:b
+I:130:200d160:20:3300:0:0:0:0:0:0:0:0
+W:48:2:12000:4200
+B:90:45:70:12:0:22:4
+E:0:0:0:0:0:0
+C:19:100
+T:4:47:100:0
+L:3
+A:claw:Ice Claw:1:4d8:23:0:0
+A:bite:!:1:4d8:15:0:0
+A:claw:Cold Claw:1:4d8:2:0:0
+R:2:100
+R:15:75
+R:23:100
+F:DROP_CORPSE | FORCE_MAXHP | CAN_FLY | ICE | OPEN_DOOR | BASH_DOOR
+F:NO_FEAR | NO_SLEEP
+M:25:2
+S:breath:Cold:2:25:2:3:0:0:60
+S:breath:Ice:2:25:23:3:0:0:60
+S:wail:Ice Drake's Cry:7:2119:1:10:0:0:1500
+D:A blue dragon-like creature with glowing white eyes. It's body is covered with scales 
+D:of solid, magical ice that is nearly unbreakable, and it possesses great speed, 
+D:power and resilience. The cry of the Ice Drake is used to call forth a powerful 
+D:dragon to aid it in battle.
 
 
 
@@ -10702,7 +11515,7 @@ W:40:1:2100:0
 B:60:50:60:12:0:20:4
 E:1:1:1:2:1:1
 C:19:100
-L:2
+L:3
 Z:0:1:0:1:0:1:0:1:0:0:0:0:0
 A:slash:Raging Sword:1:4d7:15:0:0
 A:attack:Burning Rage:1:4d7:1:0:0
@@ -10784,10 +11597,11 @@ N:2307:Death Drake
 G:d:D
 I:130:480d450:20:6000:0:0:0:0:0:0:0:150
 W:60:1:12000:0
-B:150:60:100:12:0:40:5
+B:150:110:150:12:0:40:5
 E:0:0:0:0:0:0
 C:19:100
-L:10
+T:4:46:100:0
+L:12
 A:claw:!:1:7d10:15:0:0
 A:bite:!:1:7d10:15:0:0
 A:claw:Shadow Claw:1:7d10:7:0:0
@@ -10807,14 +11621,17 @@ D:to tear it's foes apart.
 
 # He possesses a rather scary variety of attacks.
 # This is a very tough enemy when you first meet him.
+# Now upgraded with the dreaded counter 24 that makes him incredibly
+# difficult to kill for melee characters. Not that he was easy in the
+# first place.
 N:2308:Doom Guard Soldier
 G:p:r
-I:120:360d330:20:4200:0:0:0:0:0:0:0:70
+I:120:360d330:20:5000:0:0:0:0:0:0:0:70
 W:45:1:1800:0
-B:100:60:100:15:0:30:5
+B:100:100:100:20:0:50:5
 E:1:1:1:2:1:1
-C:19:100
-L:4
+C:24:100
+L:6
 Z:0:7:0:0:0:0:0:6:0:0:0:0:0
 A:hit:Cursed Claymore:1:7d10:15:8:10000
 A:hit:Harm Strike:1:7d10:162:0:0
@@ -10839,7 +11656,7 @@ I:180:750d720:20:20000:0:0:0:0:0:0:0:300
 W:130:3:0:0
 B:20:60:300:15:0:50:6
 C:23:100
-L:20
+L:40
 Z:0:0:0:0:0:0:0:8:0:9:0:0:0
 A:hit:!:1:10d10:16:0:0
 A:hit:!:1:10d10:8:0:0
@@ -10863,8 +11680,8 @@ M:100:5
 S:cast:Black Hole:2:75:8:10:0:0:200
 S:cast:Mana Storm:2:50:16:3:0:0:80
 D:This elemental is like a walking humanoid-shaped black hole. It will send anything 
-D:that strikes somewhere else in space-time, making it nearly impossible to harm. 
-D:It moves in semi-teleportation, and therefore blindingly fast. Since it gathers 
+D:that strikes it somewhere else in space-time, making it nearly impossible to harm. 
+D:It moves in semi-teleportation, and is therefore blindingly fast. Since it gathers 
 D:energy from every planes of existance, it is almost impossible to imagine it's power.
 
 # Just try and survive this one.
@@ -10876,7 +11693,7 @@ I:120:400d360:20:1600:0:0:0:0:0:0:0:200
 W:65:1:1200:0
 B:7:7:120:1:0:20:1
 C:9:100
-L:7
+L:9
 Z:0:0:0:0:0:0:0:10:0:0:0:0:0
 A:touch:!:1:1d4:16:0:0
 R:15:75
@@ -10899,7 +11716,7 @@ W:65:1:1300:0
 B:12:5:160:4:0:50:2
 E:1:1:1:2:1:1
 C:19:100
-L:3
+L:5
 Z:0:1:0:1:0:1:0:1:0:0:0:0:0
 A:touch:Chilling Hand:1:5d6:2:0:0
 A:touch:Dark Hand:1:5d6:7:0:0
@@ -10930,7 +11747,7 @@ I:160:1d1:20:4000:0:0:0:0:0:0:0:100
 W:50:1:10:0
 B:1:50:160:0:0:30:0
 C:5:100
-L:6
+L:8
 Z:0:0:0:0:0:0:0:0:0:0:0:0:2312
 R:3:100
 R:6:100
@@ -10952,7 +11769,7 @@ I:130:300d300:20:3000:0:0:0:0:0:0:0:60
 W:42:1:400:0
 B:90:60:90:15:0:30:4
 C:19:100
-L:4
+L:5
 Z:0:0:0:0:0:0:0:13:0:0:0:0:0
 A:hit:Elemental Slash:1:5d8:24:0:0
 R:1:100
@@ -10990,7 +11807,7 @@ I:130:350d330:20:5000:0:0:0:0:0:0:0:60
 W:42:1:2800:0
 B:120:60:50:12:0:32:5
 C:19:100
-L:4
+L:5
 Z:0:0:0:0:0:0:0:0:0:0:0:0:2314
 A:claw:Claws of Suffering:1:12d6:162:0:0
 A:bite:!:1:12d6:15:0:0
@@ -11006,3 +11823,161 @@ D:pleasure in tearing apart it's victims with it's sharp claws and using it's ma
 D:powers to cause even more agony. Because it is an embodiement of pain and death, 
 D:anything that would attempt to harm or kill it is bound to fail, making this sadistic 
 D:creature immortal.
+
+
+###### SCALED MONSTERS ######
+
+# Leveling up is not the key. These monsters will ALWAYS be a challenge! A good character build,
+# powerful fully leveled items, and a well executed strategy are required to win.
+# The signature monster type of Secret Levels! :)
+
+# The depth level of the monsters are equal to the player's level, unless the player is below
+# their base depth level.
+
+# The hp roll is the hp roll per depth levels. So if you give 2d2, and the monster becomes depth
+# 20, hp roll will be 40d40.
+
+# Base stats, skills and base AC are all percentile values of the depth level. So if you make
+# a monster's stats 100, skills 20 and AC 1000, at level 20, it will have base stats of 20, skills
+# of 4 and base AC of 200.
+
+# Dices rolls of attacks and spells powers are also percentile value of depth level.
+
+# The non-scaled values are speed, blows and number of spells.
+
+#############################
+### Wrath of the Gin'Whal ###
+#############################
+
+# Are you ready for Secret Levels? This monster will tell. :)
+N:2500:Firestorm Gatekeeper
+G:E:o
+I:140:10d10:20:10000:0:25001:1:0:0:0:0:0
+W:30:1:800:0
+B:400:400:400:200:0:200:6
+C:19:100
+L:6
+Z:0:0:0:0:0:0:0:2500:0:0:0:0:0
+A:hit:Burning Punch:1:25d10:1:0:0
+A:hit:Gust Blades:1:25d10:10:0:0
+R:1:100
+R:2:-100
+R:5:75
+R:9:-100
+R:10:100
+R:15:50
+F:FORCE_MAXHP | OPEN_DOOR | SCALED | SPECIAL_GENE | NEVER_BOSS | BASH_DOOR
+F:NO_SLEEP | NO_STUN | NO_FEAR
+M:33:2
+S:cast:Blaze:2:100:1:5:0:0:30
+S:cast:Storm:2:100:10:5:0:0:30
+D:An elemental of fire and wind born from the spirit of Avemorsh himself. 
+D:It guards a magically sealed door and protects anyone from entering 
+D:this forbidden area. It is surrounded by an incredible torrent of flames 
+D:and extremely strong winds. Anything that approaches it will instantly 
+D:be disintegrated by the powerful forces emitted by this creature.
+
+# Flee while you can! Oh wait, even that is difficult to do. :\
+N:2501:Pure Orcish Rage
+G:o:R
+I:180:15d15:20:12000:0:0:0:0:0:0:0:0
+W:30:1:1800:0
+B:500:500:100:200:200:0:8
+E:1:1:1:2:1:1
+C:17:100
+L:8
+Z:0:0:0:0:0:0:0:0:2501:2501:0:2501:2501
+A:hit:Great Axe:1:25d10:15:0:0
+A:hit:Fiery Axe:1:25d10:1:0:0
+A:hit:Storm Axe:1:25d10:10:0:0
+A:throws:Throwing Axe:3:25d10:15:0:33
+A:throws:Burning Axe:3:25d10:1:0:33
+A:throws:Gust Axe:3:25d10:10:0:33
+F:EVIL | MALE | ORC | SCALED | SPECIAL_GENE | NEVER_BOSS | FORCE_MAXHP
+F:VERY_FAST | OPEN_DOOR | BASH_DOOR | NO_FEAR | NO_CONF
+M:0:0
+D:An orcish spirit burning with rage. For several ages since the fall of the 
+D:orcish race, this spirit has been accumulating rage and anger. Now, it has 
+D:finally found an opponent to unleash it upon. Millenias of rage awaits 
+D:anyone foolish enough to challenge this spirit.
+
+N:2502:Avemorsh's Torment
+G:o:D
+I:140:13d13:20:5000:0:25003:1:0:0:0:0:0
+W:30:1:1500:0
+B:100:100:500:10:0:200:1
+E:1:1:1:2:1:1
+C:19:100
+L:12
+Z:0:0:0:0:0:0:0:0:0:0:0:0:2502
+F:EVIL | MALE | ORC | SCALED | SPECIAL_GENE | NEVER_BOSS | FORCE_MAXHP
+F:OPEN_DOOR | BASH_DOOR | NO_FEAR | NO_CONF
+M:100:1
+S:cast:torment_spells:999:0:0:0:0:0:0
+D:A spirit of torment, who took the shape of what seems to be an orcish 
+D:wizard. He seems to be in the process of conjuring nightmarish enemies.
+
+N:2503:Cursed Orb
+G:*:R
+I:160:1d1:20:20:0:25005:1:0:0:0:0:0
+W:30:1:10:0
+B:1:1:1:0:0:0:0
+C:0:0
+L:5
+F:CAN_FLY | RAND_50 | RAND_25 | SCALED | NO_CONF | NO_SLEEP | NO_STUN | NO_FEAR
+F:VERY_FAST | NONLIVING | COLD_BLOOD | SPECIAL_GENE
+M:0:0
+D:A floating sphere filled with evil energy.
+
+N:2504:Eternal Pain of a Fallen Orc
+G:o:r
+I:140:16d16:20:20000:0:0:0:0:0:0:0:0
+W:30:1:1800:0
+B:420:420:420:200:200:200:6
+E:1:1:1:2:1:1
+C:19:100
+L:8
+A:hit:Painful Strike:1:25d10:162:0:0
+A:hit:Ki Strike:1:25d10:17:0:0
+A:throw:Fire Lance:1:30d15:1:0:50
+A:throw:Gust Lance:1:30d15:10:0:50
+F:DROP_CORPSE | MALE | ORC | SCALED | FORCE_MAXHP
+F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
+F:NO_FEAR | NO_CONF
+M:25:2
+S:cast:Harm:1:250:162:0:0:0:30
+S:cast:Summon Eternal Pain:7:2504:1:20:0:0:0
+D:An orcish spirit tied to the eternal pain that Avemorsh is enduring. Lots of 
+D:pain...will only bring even more of it.
+
+# The very first secret boss! :)
+# He is incredibly tough until you figure out how his attacks works.
+# Then he should become manageable.
+# It's a lot more about learning to counter his attacks that anything else.
+# You will fail if you just try outlevel him, as he is a scaled enemy.
+N:2505:Avemorsh
+G:o:o
+I:140:18d18:20:10000:0:25008:1:25003:0:0:0:0
+W:30:1:1800:0
+B:500:500:500:300:300:300:6
+E:1:1:1:2:1:1
+C:19:100
+L:15
+Z:0:0:0:0:0:0:0:0:0:0:0:2505:2505
+R:1:100
+R:10:100
+R:108:100
+R:117:100
+F:DROP_CORPSE | MALE | ORC | SCALED | UNIQUE | SECRET_BOSS | FORCE_MAXHP
+F:OPEN_DOOR | BASH_DOOR | NEVER_BOSS | SPECIAL_GENE
+F:ONLY_ITEM | DROP_4D2 | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:CANNOT_COUNTERSPELL | DEATH_DIALOG | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP
+M:100:1
+S:cast:avemorsh_attacks:999:0:0:0:0:0:0
+D:Avemorsh was the most powerful orc, and quite possibly one of the most powerful 
+D:warriors in the history of Portralis. Yet, little is known about him. It's almost 
+D:as if he has been erased from history. It seems like there is something important 
+D:that he cannot remember. It seems like a force even greater than him is controlling 
+D:him, and forcing him to fight against his will. You cannot even imagine what a 
+D:being stronger than Avemorsh would be, except maybe some kind of ancient wyrm 
+D:or a divine champion...

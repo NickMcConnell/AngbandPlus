@@ -1,0 +1,59 @@
+N:1:0:0:0:0:0
+I: ;
+T:As you arrive on the next floor, Balcia is there, waiting for you.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balcia;
+T:Incredible! To defeat an avatar of the Grey Wight is no small feat.;
+T:That confirms it. You are not a mortal, at least not anymore. There's;
+T:no way a mere mortal could have done all what you did!;
+A:Let me guess, we'll fight for a third time?:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:Of course! But as I've told you before, this is going to be our last fight.;
+T:Our powers may seem limitless, but that's not the case. After restoring;
+T:myself many times, I will need to rest for a bit, for this power is very;
+T:demanding. At least it is for the moment. If Summapal's plan come true,;
+T:however, our powers will become unlimited!;
+A:Just who is this Summapal anyway?:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Balcia;
+T:His name is Dhazen Summapal. He is the first of the children of chaos that;
+T:were born from the red licialhyd. You probably heard that story before,;
+T:right? He is therefore the oldest and most powerful zulgor in Portralis.;
+T:He is also the only true pure-blooded zulgor left in this world.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:9:0:0
+I:Balcia;
+T:Neither me nor you are pure-blooded zulgors. My bloodline is more pure;
+T:than yours, but I am still impure. Summapal wants to restore our bloodline,;
+T:to purify us. Both you and I could become far more powerful than we are.;
+T:We would ascend to a different level of existance. And then, we could;
+T:reshape this worthless world. We could rewrite history. Doesn't that;
+T:appeal to you?;
+A:As you can see, I am already powerful.:0:0:0:1:6:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Balcia;
+T:I may be powerful, but I am not pure. Summapal wants to restore our;
+T:bloodline, to purify us. Then, we would have the power to reshape this;
+T:worthless world. We could rewrite history. We could bring the entire;
+T:world to a different level of existance!;
+A:You are insane.:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Balcia;
+T:Well then, shall we proceed to our third and last battle? Let's see;
+T:if you are truly a force, or if you were just lucky last time!;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

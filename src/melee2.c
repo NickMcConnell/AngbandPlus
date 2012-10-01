@@ -844,7 +844,6 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 static void bolt(int m_idx, int typ, s32b dam_hp)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-        bool absorb = FALSE;
         monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -852,25 +851,9 @@ static void bolt(int m_idx, int typ, s32b dam_hp)
         if (m_ptr->abilities & (CURSE_HALVE_MAGIC)) dam_hp -= dam_hp / 2;
         else if (m_ptr->abilities & (CURSE_LOWER_MAGIC)) dam_hp -= dam_hp / 4;
 
-        /* Absorb the hp! :) */
-        if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8] >= 1)
-        {
-                int chance;
-                chance = p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8];
-                if (typ == p_ptr->elemlord) chance *= 5;
-                if (randint(100) <= chance)
-                {
-                        msg_print("You absorb the energy!");
-                        p_ptr->chp += dam_hp;
-                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-                        absorb = TRUE;
-                        update_and_handle();
-                }
-        }
-
 	
 	/* Target the player with a bolt attack */
-        if (!absorb) (void)project(m_idx, 0, py, px, dam_hp, typ, flg);
+        (void)project(m_idx, 0, py, px, dam_hp, typ, flg);
 
         no_magic_return = FALSE;
 }
@@ -1161,7 +1144,6 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 static void breath(int m_idx, int typ, s32b dam_hp, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-        bool absorb = FALSE;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1173,24 +1155,8 @@ static void breath(int m_idx, int typ, s32b dam_hp, int rad)
         if (m_ptr->abilities & (CURSE_HALVE_MAGIC)) dam_hp -= dam_hp / 2;
         else if (m_ptr->abilities & (CURSE_LOWER_MAGIC)) dam_hp -= dam_hp / 4;
 
-        /* Absorb the hp! :) */
-        if (p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8] >= 1)
-        {
-                int chance;
-                chance = p_ptr->abilities[(CLASS_ELEM_LORD * 10) + 8];
-                if (typ == p_ptr->elemlord) chance *= 5;
-                if (randint(100) <= chance)
-                {
-                        msg_print("You absorb all the energy!");
-                        p_ptr->chp += dam_hp;
-                        if (p_ptr->chp > p_ptr->mhp) p_ptr->chp = p_ptr->mhp;
-                        absorb = TRUE;
-                        update_and_handle();
-                }
-        }
-
 	/* Target the player with a ball attack */
-        if (absorb != TRUE) (void)project(m_idx, rad, py, px, dam_hp, typ, flg);
+        (void)project(m_idx, rad, py, px, dam_hp, typ, flg);
 
         no_magic_return = FALSE;
 }
@@ -1776,6 +1742,9 @@ bool make_attack_spell(int m_idx)
 	/* Monsters can cast more than one spell... */
 	for (j = 0; j < r_ptr->spells; j++)
 	{
+	/* Leaving? Then return. */
+	if (p_ptr->leaving) return;
+
 	/* First, find the number of available spells */
 	i = 0;
 	numspells = 0;
@@ -2651,7 +2620,15 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	bool			fear = FALSE;
 	byte            y_saver = t_ptr->fy;
 	byte            x_saver = t_ptr->fx;
+	bool scaled = FALSE;
+	int scaledlevel;
 
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & RF1_NEVER_BLOW) return FALSE;
@@ -2742,7 +2719,8 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
+					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosen].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosen].dside, 100));
+					else damage = damroll(r_ptr->attack[chosen].ddice, r_ptr->attack[chosen].dside);
 					if (is_pet(m_ptr)) damage *= ((m_ptr->skill_attack + p_ptr->skill[9]) + 1);
 					else damage *= (m_ptr->skill_attack + 1);
 					if (is_pet(m_ptr))
@@ -2889,7 +2867,7 @@ bool player_invis(monster_type * m_ptr)
 	if (m_ptr->boss >= 1) mpower *= 2;
 
 	/* Uniques have much more power. */
-	if (r_ptr->flags1 & RF1_UNIQUE) mpower *= 5;
+	if (r_ptr->flags1 & RF1_UNIQUE || r_ptr->cursed > 0) mpower *= 5;
 
 	if (randint(ppower) >= randint(mpower)) return (TRUE);
 
@@ -3428,15 +3406,41 @@ static void process_monster(int m_idx, bool is_friend)
 		}
                 
                 /* Hack -- trees are obstacle */
-                else if ((cave[ny][nx].feat == FEAT_TREES) && (r_ptr->flags9 & RF9_KILL_TREES))
+                else if (cave[ny][nx].feat == FEAT_TREES)
 		{
-                                do_move = TRUE;
+			if (r_ptr->flags9 & RF9_KILL_TREES)
+			{
+				do_move = TRUE;
 
-                                /* Forget the tree */
-                                c_ptr->info &= ~(CAVE_MARK);
+                		/* Forget the tree */
+                		c_ptr->info &= ~(CAVE_MARK);
 
-                                /* Notice */
-                                cave_set_feat(ny, nx, FEAT_GRASS);
+                		/* Notice */
+                		cave_set_feat(ny, nx, FEAT_GRASS);
+			}
+			else if (r_ptr->flags7 & (RF7_CAN_FLY))
+			{
+				do_move = TRUE;
+			}
+			else if (cave[ny][nx].field_damage > 0)
+			{
+				int ppower;
+				int mpower;
+
+				ppower = p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS] + (p_ptr->skill[25] * 3) + p_ptr->skill[1];
+				mpower = m_ptr->level + m_ptr->str;
+
+				if (randint(mpower) >= randint(ppower))
+				{
+					do_move = TRUE;
+
+                			/* Forget the tree */
+                			c_ptr->info &= ~(CAVE_MARK);
+
+                			/* Notice */
+                			cave_set_feat(ny, nx, FEAT_GRASS);
+				}
+			}
 		}
 
                 /* NEWANGBAND: Vines!! */
@@ -3447,7 +3451,7 @@ static void process_monster(int m_idx, bool is_friend)
                         else
                         {
                                 int randchance = 0;
-                                if ((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1) randchance = 40;
+                                if ((r_ptr->flags1 & (RF1_UNIQUE)) || m_ptr->boss >= 1 || r_ptr->cursed > 0) randchance = 40;
                                 else randchance = 75;
                                 if (randint(100) > randchance) do_move = TRUE;
                         }
@@ -3579,18 +3583,17 @@ static void process_monster(int m_idx, bool is_friend)
 
                 else if ((cave[ny][nx].feat == FEAT_WEBS) && cave[ny][nx].owner != 1)
 		{
-                                /* The monster is stupid, and will walk trough! */
-                                do_move = TRUE;
-
-                                /* Slow it down...maybe. */
-                                /* Unless it's a spider...or Variaz! */
-                                if (m_ptr->mspeed > 0 && r_ptr->d_char != 'S')
+                                /* Can slow down enemies. */
+                                if (r_ptr->d_char != 'S')
 				{
-					if (randint((p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS] + (p_ptr->skill[25] * 3) + p_ptr->skill[1])) >= randint((m_ptr->level + m_ptr->dex + m_ptr->str)))
+					if (!(randint((p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS] + (p_ptr->skill[25] * 3) + p_ptr->skill[1])) >= randint((m_ptr->level + m_ptr->dex + m_ptr->str))))
 					{
-                                		m_ptr->mspeed -= 2;
-						/* Webs will vanish! */
-                                		cave[ny][nx].feat = FEAT_FLOOR;
+                                		do_move = TRUE;
+						if (randint(100) >= 50)
+						{
+							cave[ny][nx].feat = FEAT_FLOOR;
+							update_and_handle();
+						}
 					}
 				}
                                 if (m_ptr->mspeed <= 0) m_ptr->mspeed = 0;
@@ -4000,6 +4003,16 @@ static void process_monster(int m_idx, bool is_friend)
 			do_move = FALSE;
 		}
 
+		/* The "Before Move" event ignores the NEVER_MOVE flag. */
+		if (do_move)
+		{
+			/* Call a lua script. */
+			if (r_ptr->event_before_move > 0)
+			{
+				call_lua("monster_before_move", "(dd)", "", m_idx, r_ptr->event_before_move);
+			}
+		}
+
 		/* Some monsters never move */
 		if (do_move && (r_ptr->flags7 & RF7_NEVER_MOVE_FRIENDLY) && is_pet(m_ptr))
 		{
@@ -4021,19 +4034,26 @@ static void process_monster(int m_idx, bool is_friend)
 		}
 
                 /* No legs, no moves! */
-                if (m_ptr->abilities & (MUTILATE_LEGS)) do_move = FALSE;
+                if (m_ptr->abilities & (MUTILATE_LEGS))
+		{
+			int ppower;
+			int mpower;
+			do_move = FALSE;
+
+			ppower = p_ptr->skill[16] + p_ptr->stat_ind[A_STR];
+			mpower = m_ptr->level + m_ptr->str;
+
+			if (randint(mpower) >= randint(ppower))
+			{
+				m_ptr->abilities &= (MUTILATE_LEGS);
+			}
+		}
 		
 		
 		/* Creature has been allowed move */
 		if (do_move)
 		{
 			s16b this_o_idx, next_o_idx = 0;
-
-			/* Call a lua script. */
-			if (r_ptr->event_before_move > 0)
-			{
-				call_lua("monster_before_move", "(dd)", "", m_idx, r_ptr->event_before_move);
-			}
 			
 			/* Take a turn */
 			do_turn = TRUE;
@@ -4449,10 +4469,23 @@ void process_monsters(void)
 		
 		/* Obtain the energy boost */
 		e = extract_energy[m_ptr->mspeed];
+
+		/* Unusually fast enemy. */
+		if (r_ptr->flags7 & (RF7_FAST))
+		{
+			e = e + m_ptr->level;
+			e = e * 3;
+		}
+
+		/* REALLY fast enemy. */
+		if (r_ptr->flags7 & (RF7_VERY_FAST))
+		{
+			e = e + m_ptr->level;
+			e = e * 6;
+		}
 		
 		/* Give this monster some energy */
 		m_ptr->energy += e;
-		
 		
 		/* Not enough energy to move */
 		if (m_ptr->energy < 100) continue;
@@ -4589,6 +4622,16 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 	char kind;
 	bool canlearn = TRUE;
 	int mindstat;
+	bool scaled = FALSE;
+	int scaledlevel;
+
+	/* Scaled? */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 		
 	/* Extract monster name */
 	monster_desc(m_name, m_ptr, 0);
@@ -4607,8 +4650,11 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 	if (r_ptr->spell[spellnum].type != 999) msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
 
 	/* Counter Spell can even counter scripted attacks! */
-	if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] >= 1 && r_ptr->spell[spellnum].type == 999) msg_format("%^s attempts a strange power...", m_name);
-	if (counterspell(m_ptr)) return;
+	if (!(r_ptr->flags7 & (RF7_CANNOT_COUNTERSPELL)))
+	{
+		if (p_ptr->abilities[(CLASS_HIGH_MAGE * 10) + 4] >= 1 && r_ptr->spell[spellnum].type == 999) msg_format("%^s attempts a strange power...", m_name);
+		if (counterspell(m_ptr)) return;
+	}
 
 	/* Let's see what type of spell it was... */
 	switch (r_ptr->spell[spellnum].type)
@@ -4620,7 +4666,8 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				dam = (r_ptr->spell[spellnum].power * mindstat);
+				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+				else dam = (r_ptr->spell[spellnum].power * mindstat);
 				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -4643,7 +4690,8 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				dam = (r_ptr->spell[spellnum].power * mindstat);
+				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+				else dam = (r_ptr->spell[spellnum].power * mindstat);
 				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -4664,7 +4712,8 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		/* Type 3: Healing Spell */
 		case 3:
 		{
-			dam = (r_ptr->spell[spellnum].power * mindstat);
+			if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+			else dam = (r_ptr->spell[spellnum].power * mindstat);
 			dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 			dam = dam + dambonus;
 			m_ptr->hp += dam;
@@ -4695,34 +4744,38 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		*/
 		case 5:
 		{
-			if (r_ptr->spell[spellnum].special1 == 1) m_ptr->str += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 2) m_ptr->dex += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 3) m_ptr->mind += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 4) m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 5) m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+			int pow;
+			if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100);
+			else pow = r_ptr->spell[spellnum].power;
+
+			if (r_ptr->spell[spellnum].special1 == 1) m_ptr->str += pow;
+			if (r_ptr->spell[spellnum].special1 == 2) m_ptr->dex += pow;
+			if (r_ptr->spell[spellnum].special1 == 3) m_ptr->mind += pow;
+			if (r_ptr->spell[spellnum].special1 == 4) m_ptr->skill_attack += pow;
+			if (r_ptr->spell[spellnum].special1 == 5) m_ptr->skill_magic += pow;
 			if (r_ptr->spell[spellnum].special1 == 6) 
 			{
-				m_ptr->str += r_ptr->spell[spellnum].power;
-				m_ptr->dex += r_ptr->spell[spellnum].power;
-				m_ptr->mind += r_ptr->spell[spellnum].power;
+				m_ptr->str += pow;
+				m_ptr->dex += pow;
+				m_ptr->mind += pow;
 			}
 			if (r_ptr->spell[spellnum].special1 == 7) 
 			{
-				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
-				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+				m_ptr->skill_attack += pow;
+				m_ptr->skill_ranged += pow;
+				m_ptr->skill_magic += pow;
 				canlearn = FALSE;
 			}
 			if (r_ptr->spell[spellnum].special1 == 8) 
 			{
-				m_ptr->str += r_ptr->spell[spellnum].power;
-				m_ptr->dex += r_ptr->spell[spellnum].power;
-				m_ptr->mind += r_ptr->spell[spellnum].power;
-				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
-				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+				m_ptr->str += pow;
+				m_ptr->dex += pow;
+				m_ptr->mind += pow;
+				m_ptr->skill_attack += pow;
+				m_ptr->skill_ranged += pow;
+				m_ptr->skill_magic += pow;
 			}
-			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
+			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += pow;
 			m_ptr->boosted = 1;
 			break;
 		}
@@ -4731,8 +4784,16 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		{
 			for (i = 0; i < r_ptr->spell[spellnum].special1; i++)
 			{
-				if (is_pet(m_ptr)) summon_specific_kind(py, px, r_ptr->spell[spellnum].power, r_ptr->spell[spellnum].summchar, FALSE, TRUE, r_ptr->spell[spellnum].special2);
-				else summon_specific_kind(py, px, r_ptr->spell[spellnum].power, r_ptr->spell[spellnum].summchar, FALSE, FALSE, r_ptr->spell[spellnum].special2);
+				int pow;
+				int dur;
+				if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100);
+				else pow = r_ptr->spell[spellnum].power;
+
+				if (scaled) dur = multiply_divide(scaledlevel, r_ptr->spell[spellnum].special2, 100);
+				else dur = r_ptr->spell[spellnum].special2;
+
+				if (is_pet(m_ptr)) summon_specific_kind(py, px, pow, r_ptr->spell[spellnum].summchar, FALSE, TRUE, dur);
+				else summon_specific_kind(py, px, pow, r_ptr->spell[spellnum].summchar, FALSE, FALSE, dur);
 			}
 			break;
 		}
@@ -4741,8 +4802,11 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 		{
 			for (i = 0; i < r_ptr->spell[spellnum].special1; i++)
 			{
-				if (is_pet(m_ptr)) summon_specific_ridx(py, px, r_ptr->spell[spellnum].power, FALSE, TRUE, r_ptr->spell[spellnum].special2);
-				else summon_specific_ridx(py, px, r_ptr->spell[spellnum].power, FALSE, FALSE, r_ptr->spell[spellnum].special2);
+				int dur;
+				if (scaled) dur = multiply_divide(scaledlevel, r_ptr->spell[spellnum].special2, 100);
+				else dur = r_ptr->spell[spellnum].special2;
+				if (is_pet(m_ptr)) summon_specific_ridx(py, px, r_ptr->spell[spellnum].power, FALSE, TRUE, dur);
+				else summon_specific_ridx(py, px, r_ptr->spell[spellnum].power, FALSE, FALSE, dur);
 			}
 			break;
 		}
@@ -4774,7 +4838,7 @@ void monster_cast_spell(int m_idx, monster_type *m_ptr, int spellnum)
 	}
 
 	/* Counter Shot ability. */
-	if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+	if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
 	{
 		p_ptr->events[29046] = m_idx;
 		call_lua("use_ability", "(d)", "", 120);
@@ -4825,6 +4889,16 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 	char m_name[80];
 	char t_name[80];
 	int mindstat;
+	bool scaled = FALSE;
+	int scaledlevel;
+
+	/* Scaled? */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 			
 	/* Extract monster name */
 	monster_desc(m_name, m_ptr, 0);
@@ -4842,6 +4916,9 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		call_lua("monster_before_magic", "(dd)", "", m_idx, r_ptr->event_before_magic);
 	}
 
+	/* Leaving? Then return. */
+	if (p_ptr->leaving) return;
+
 	/* Let's see what type of spell it was... */
 	switch (r_ptr->spell[spellnum].type)
 	{
@@ -4853,7 +4930,8 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				dam = (r_ptr->spell[spellnum].power * mindstat);
+				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+				else dam = (r_ptr->spell[spellnum].power * mindstat);
 				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -4874,7 +4952,8 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			if (r_ptr->spell[spellnum].special3 == 1) dam = r_ptr->spell[spellnum].power;
 			else
 			{
-				dam = (r_ptr->spell[spellnum].power * mindstat);
+				if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+				else dam = (r_ptr->spell[spellnum].power * mindstat);
 				dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 				dam = dam + dambonus;
 				if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -4893,7 +4972,8 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		case 3:
 		{
 			msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
-			dam = (r_ptr->spell[spellnum].power * mindstat);
+			if (scaled) dam = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100) * mindstat;
+			else dam = (r_ptr->spell[spellnum].power * mindstat);
 			dambonus = multiply_divide(dam, m_ptr->skill_magic * 10, 100);
 			dam = dam + dambonus;
 			if (m_ptr->abilities & (BOSS_DOUBLE_MAGIC)) dam *= 2;
@@ -4925,34 +5005,39 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 		*/
 		case 5:
 		{
+			int pow;
+			if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100);
+			else pow = r_ptr->spell[spellnum].power;
+
 			msg_format("%^s %s %s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name);
-			if (r_ptr->spell[spellnum].special1 == 1) m_ptr->str += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 2) m_ptr->dex += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 3) m_ptr->mind += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 4) m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-			if (r_ptr->spell[spellnum].special1 == 5) m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+
+			if (r_ptr->spell[spellnum].special1 == 1) m_ptr->str += pow;
+			if (r_ptr->spell[spellnum].special1 == 2) m_ptr->dex += pow;
+			if (r_ptr->spell[spellnum].special1 == 3) m_ptr->mind += pow;
+			if (r_ptr->spell[spellnum].special1 == 4) m_ptr->skill_attack += pow;
+			if (r_ptr->spell[spellnum].special1 == 5) m_ptr->skill_magic += pow;
 			if (r_ptr->spell[spellnum].special1 == 6) 
 			{
-				m_ptr->str += r_ptr->spell[spellnum].power;
-				m_ptr->dex += r_ptr->spell[spellnum].power;
-				m_ptr->mind += r_ptr->spell[spellnum].power;
+				m_ptr->str += pow;
+				m_ptr->dex += pow;
+				m_ptr->mind += pow;
 			}
 			if (r_ptr->spell[spellnum].special1 == 7) 
 			{
-				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
-				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+				m_ptr->skill_attack += pow;
+				m_ptr->skill_ranged += pow;
+				m_ptr->skill_magic += pow;
 			}
 			if (r_ptr->spell[spellnum].special1 == 8) 
 			{
-				m_ptr->str += r_ptr->spell[spellnum].power;
-				m_ptr->dex += r_ptr->spell[spellnum].power;
-				m_ptr->mind += r_ptr->spell[spellnum].power;
-				m_ptr->skill_attack += r_ptr->spell[spellnum].power;
-				m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
-				m_ptr->skill_magic += r_ptr->spell[spellnum].power;
+				m_ptr->str += pow;
+				m_ptr->dex += pow;
+				m_ptr->mind += pow;
+				m_ptr->skill_attack += pow;
+				m_ptr->skill_ranged += pow;
+				m_ptr->skill_magic += pow;
 			}
-			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += r_ptr->spell[spellnum].power;
+			if (r_ptr->spell[spellnum].special1 == 9) m_ptr->skill_ranged += pow;
 			m_ptr->boosted = 1;
 			break;
 		}
@@ -4962,8 +5047,16 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			msg_format("%^s %s %s at %^s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name, t_name);
 			for (i = 0; i < r_ptr->spell[spellnum].special1; i++)
 			{
-				if (is_pet(m_ptr)) summon_specific_kind(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, r_ptr->spell[spellnum].summchar, FALSE, TRUE, r_ptr->spell[spellnum].special2);
-				else summon_specific_kind(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, r_ptr->spell[spellnum].summchar, FALSE, FALSE, r_ptr->spell[spellnum].special2);
+				int pow;
+				int dur;
+				if (scaled) pow = multiply_divide(scaledlevel, r_ptr->spell[spellnum].power, 100);
+				else pow = r_ptr->spell[spellnum].power;
+
+				if (scaled) dur = multiply_divide(scaledlevel, r_ptr->spell[spellnum].special2, 100);
+				else dur = r_ptr->spell[spellnum].special2;
+
+				if (is_pet(m_ptr)) summon_specific_kind(t_ptr->fy, t_ptr->fx, pow, r_ptr->spell[spellnum].summchar, FALSE, TRUE, dur);
+				else summon_specific_kind(t_ptr->fy, t_ptr->fx, pow, r_ptr->spell[spellnum].summchar, FALSE, FALSE, dur);
 			}
 			break;
 		}
@@ -4973,8 +5066,11 @@ void monster_cast_spell_monst(int m_idx, monster_type *m_ptr, int y, int x, mons
 			msg_format("%^s %s %s at %^s!", m_name, r_ptr->spell[spellnum].act, r_ptr->spell[spellnum].name, t_name);
 			for (i = 0; i < r_ptr->spell[spellnum].special1; i++)
 			{
-				if (is_pet(m_ptr)) summon_specific_ridx(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, FALSE, TRUE, r_ptr->spell[spellnum].special2);
-				else summon_specific_ridx(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, FALSE, FALSE, r_ptr->spell[spellnum].special2);
+				int dur;
+				if (scaled) dur = multiply_divide(scaledlevel, r_ptr->spell[spellnum].special2, 100);
+				else dur = r_ptr->spell[spellnum].special2;
+				if (is_pet(m_ptr)) summon_specific_ridx(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, FALSE, TRUE, dur);
+				else summon_specific_ridx(t_ptr->fy, t_ptr->fx, r_ptr->spell[spellnum].power, FALSE, FALSE, dur);
 			}
 			break;
 		}
@@ -5025,6 +5121,8 @@ bool make_ranged_attack(int m_idx)
 	u32b f1, f2, f3;
 	s32b damage;
 	int flg;
+	bool scaled = FALSE;
+	int scaledlevel;
 
 	/* Target location */
 	int x = px;
@@ -5045,9 +5143,19 @@ bool make_ranged_attack(int m_idx)
 	/* Assume "projectable" */
 	bool direct = TRUE;
 
+	monster_counter_attack = FALSE;
+
 	o_ptr = &inventory[INVEN_WIELD];
 
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Scaled? */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 
 	/* Cannot shoot when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -5106,6 +5214,9 @@ bool make_ranged_attack(int m_idx)
 	/* If no ranged attacks were found, return. */
 	if (!(found_ranged)) return (FALSE);
 
+	/* Leaving? Then return. */
+	if (p_ptr->leaving) return;
+
 	/* Pick a random ranged attack! */
 	chosenattack = (randint(i) - 1);
 
@@ -5126,7 +5237,7 @@ bool make_ranged_attack(int m_idx)
 		}
 
 		/* Counter Shot ability. */
-		if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+		if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
 		{
 			p_ptr->events[29046] = m_idx;
 			call_lua("use_ability", "(d)", "", 120);
@@ -5140,8 +5251,9 @@ bool make_ranged_attack(int m_idx)
 	if (r_ptr->attack[chosenattack].special1 == 0)
 	{
 		/* We don't ALWAYS fire... */
-		if (randint(100) <= r_ptr->attack[chosenattack].special2)
+		if (randint(100) <= r_ptr->attack[chosenattack].special2 || (mcounter))
 		{
+			if (mcounter) monster_counter_attack = TRUE;
 			/* Call a lua script. */
 			if (r_ptr->event_before_ranged > 0)
 			{
@@ -5150,7 +5262,8 @@ bool make_ranged_attack(int m_idx)
 
 			if (monster_hit_player(m_ptr, 0))
 			{
-				damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
+				if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
+				else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
 				damage *= (m_ptr->skill_ranged + 1);
 				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
 				damage += multiply_divide(damage, m_ptr->dex, 100);
@@ -5278,7 +5391,7 @@ bool make_ranged_attack(int m_idx)
 			}
 
 			/* Counter Shot ability. */
-			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
 			{
 				p_ptr->events[29046] = m_idx;
 				call_lua("use_ability", "(d)", "", 120);
@@ -5300,7 +5413,8 @@ bool make_ranged_attack(int m_idx)
 
 			if (monster_hit_player(m_ptr, 0))
 			{
-				damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
+				if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
+				else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
 				damage *= (m_ptr->skill_ranged + 1);
 				damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
 				damage += multiply_divide(damage, m_ptr->dex, 100);
@@ -5427,7 +5541,7 @@ bool make_ranged_attack(int m_idx)
 			}
 
 			/* Counter Shot ability. */
-			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1)
+			if ((m_ptr->r_idx) && p_ptr->abilities[(CLASS_MARKSMAN * 10) + 3] > 0 && p_ptr->events[29045] == 1 && !(monster_counter_attack))
 			{
 				p_ptr->events[29046] = m_idx;
 				call_lua("use_ability", "(d)", "", 120);
@@ -5485,6 +5599,8 @@ bool make_ranged_attack_monst(int m_idx)
 	u32b f1, f2, f3;
 	s32b damage;
 	int flg;
+	bool scaled = FALSE;
+	int scaledlevel;
 
 	/* Target location */
 	int x = px;
@@ -5504,6 +5620,14 @@ bool make_ranged_attack_monst(int m_idx)
 
 	/* Assume "projectable" */
 	bool direct = TRUE;
+
+	/* Scaled? */
+	if (r_ptr->flags7 & (RF7_SCALED))
+	{
+		scaled = TRUE;
+		if (p_ptr->max_plv > r_ptr->level) scaledlevel = p_ptr->max_plv;
+		else scaledlevel = r_ptr->level;
+	}
 
 	/* Cannot shoot when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -5606,6 +5730,9 @@ bool make_ranged_attack_monst(int m_idx)
 			return;
 		}
 
+		/* Leaving? Then return. */
+		if (p_ptr->leaving) return;
+
 		/* Now... shoot the poor player! */
 		/* Special1 is the radius... */
 		if (r_ptr->attack[chosenattack].special1 == 0)
@@ -5621,7 +5748,8 @@ bool make_ranged_attack_monst(int m_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
+					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
+					else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
 					damage *= (m_ptr->skill_ranged + 1);
 					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
 					damage += multiply_divide(damage, m_ptr->dex, 100);
@@ -5664,7 +5792,8 @@ bool make_ranged_attack_monst(int m_idx)
 
 				if (monster_hit_monster(m_ptr, t_ptr))
 				{
-					damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
+					if (scaled) damage = damroll(multiply_divide(scaledlevel, r_ptr->attack[chosenattack].ddice, 100), multiply_divide(scaledlevel, r_ptr->attack[chosenattack].dside, 100));
+					else damage = damroll(r_ptr->attack[chosenattack].ddice, r_ptr->attack[chosenattack].dside);
 					damage *= (m_ptr->skill_ranged + 1);
 					damage += multiply_divide(damage, ((m_ptr->dex - 5) * 5), 100);
 					damage += multiply_divide(damage, m_ptr->dex, 100);

@@ -1,0 +1,28 @@
+Light Armored Nightmare(Active/Passive, combat feat)
+
+Effect: Become a powerful, swift force when wearing soft armor. Can be activated
+        for a powerful spin attack.
+Bonus to Defense, Agility and Magic Defense: 20% of Soft Armor's base AC.
+Damages: Base weapon damages.
+Radius: 2
+Extra points: +1 multiplier to Defense, Agility and Magic Defense bonus.
+              +20% of soft armor's base AC to damages.
+              +1 to radius every 5 points.
+
+All bonus and damages are increased by (Misfortune)%.
+
+This ability increases all your defensive stats based on your soft armor's base
+AC. If you wear a powerful soft armor, the bonus can be extremely high, more so
+if your Misfortune level is also high. Furthermore, this ability can be
+activated and used as a combat feat for a very powerful spin attack that will
+damages enemies around you over a large radius. Your soft armor's power will
+enhance the spin attack's damages.
+
+ABOUT NIGHTMARE ABILITIES:
+
+These abilities are a separate set of abilities that you can learn by defeating
+Nightmare Horrors, and using their licialhyds. They do not require ability
+points to learn, although they do count toward the total abilities limit.
+Each Nightmare Horror has a different ability. You may learn a new ability, or
+improve a learned one, once every 3 levels. Both normal races and monsters
+may learn these abilities.

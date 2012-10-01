@@ -1,0 +1,55 @@
+N:1:1539:1:0:0:0
+I:Balcia;
+T:Hmph, so you've won that second round. Well, you know the drill. I will twist;
+T:reality to heal myself, and then teleport away. I won't always be able to do;
+T:this though, so when we meet again, it will be our final battle.;
+T:Until then...good bye!;
+A:[CONTINUE]:0:0:0:11:8:5:0:0:0
+%
+
+N:1:0:0:0:0:0
+I:Balcia;
+T:So, <NAME>, what do you think of the 'Defender Wights'? Pretty useful;
+T:minions, are they?;
+A:Why are you doing this?:0:0:0:1:2:0:0:0:0
+A:They're as weak as you are.:0:0:0:1:3:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Balcia;
+T:As I've told you before, I follow the words of Summapal. The world;
+T:we live in is rotten. Weak. Useless. It needs to be changed.;
+T:But no one will change it. So our order's goal is to alter reality,;
+T:rewrite history! What if the orcs had won the war? What if peoples turned;
+T:to archfiends rather than gods? Maybe this world would change for the;
+T:better!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:Tough words, as always. Well, unlike the majority of peoples, you actually;
+T:have the power to back up those words. The world we live in is rotten.;
+T:Weak. Useless. It needs to be changed. But no one will change it.;
+T:So our order's goal is to alter reality, rewrite history! What if the orcs;
+T:had won the war? What if peoples turned to archfiends rather than gods?;
+T:Maybe this world would change for the better!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Balcia;
+T:Well, it's time for a rematch, <NAME>. Oh, you may have noticed these;
+T:Chaos Elemental Lords, right? They are members of our order, who I have;
+T:called here. Better yet, I have a spell to summon them whenever I need;
+T:their services. I didn't use it last time, but this time, how about;
+T:I show it to you?;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:Balcia disappears one again. You may now search the area for anything;
+T:that could allow you to enter the palace.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

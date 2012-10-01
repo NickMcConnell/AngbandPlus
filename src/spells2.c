@@ -2022,6 +2022,70 @@ bool detect_objects_magic(void)
 	return (detect);
 }
 
+/* Detect chests. */
+bool detect_chests(void)
+{
+	int i, y, x;
+
+	bool detect = FALSE;
+
+	if (p_ptr->inside_quest)
+	{
+		msg_print("You can't use this here.");
+		return (FALSE);
+	}
+
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		cave_type *c_ptr;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y, x)) continue;
+
+		c_ptr = &cave[y][x];
+		
+		/* Detect only chests. */
+		if (o_ptr->tval == TV_CHEST && !(c_ptr->info & (CAVE_ICKY)))
+		{
+			/* Hack -- memorize it */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of chests!");
+	}
+
+	if (detect_monsters_string("!=?|"))
+	{
+		detect = TRUE;
+	}
+
+	/* Result */
+	return (detect);
+}
+
 
 /*
  * Detect all "normal" monsters on the current panel
@@ -5010,16 +5074,14 @@ bool elem_lord_aura(s32b dam, int rad)
         int x;
         s32b dambonus = 0;
 
-	if (!ignore_spellcraft)
-	{
-		dambonus = multiply_divide(dam, (p_ptr->skill[1] * 10), 100);
-        	rad += p_ptr->skill[1] / 30;
-        	dam += dambonus;
-	}
+	dambonus = multiply_divide(dam,(p_ptr->skill[22] * 20) + (p_ptr->skill[1] * 10), 100);
+        dam += dambonus;
 
 	/* Hook into the "project()" function */
         no_magic_return = TRUE;
+	ignore_spellcraft = TRUE;
         (void)project(0, rad, py, px, dam, p_ptr->elemlord, flg);
+	ignore_spellcraft = FALSE;
         no_magic_return = FALSE;
 
 	/* Assume seen */
@@ -8187,13 +8249,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8214,13 +8276,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8241,13 +8303,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8268,13 +8330,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8295,13 +8357,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8322,13 +8384,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8349,13 +8411,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -8376,13 +8438,13 @@ bool eye_stab(int dir)
 			call_lua("player_hit_monster", "(Md)", "d", m_ptr, 0, &hit);
 			if (hit == 1)
 			{
-				if (!(m_ptr->boss >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
+				if (!(m_ptr->boss >= 1 || r_ptr->cursed >= 1 || (r_ptr->flags1 & (RF1_UNIQUE))))
 				{
                         		if (!(m_ptr->abilities & (EYE_STABBED)))
                         		{
                                 		msg_print("You stab the monster's eyes!");
-                                		m_ptr->hitrate -= (m_ptr->hitrate / 2);
-                                		m_ptr->defense -= (m_ptr->defense / 4);
+                                		m_ptr->hitrate -= (m_ptr->hitrate / 5);
+                                		m_ptr->defense -= (m_ptr->defense / 10);
                                 		m_ptr->abilities |= (EYE_STABBED);
                         		}
                         		else msg_print("You already blinded this monster!");
@@ -10292,4 +10354,29 @@ void identify_fully_specific(object_type *o_ptr)
 
 	/* Describe it fully */
 	identify_fully_aux(o_ptr);
+}
+
+void swashbuckler_counter_attack(monster_type *m_ptr)
+{
+        s32b dam;
+	int dtype;
+
+        choose_current_weapon();
+
+	if (current_weapon->tval == 0) return;
+        
+        call_lua("weapon_damages", "", "l", &dam);
+	dam += multiply_divide(dam, ((p_ptr->abilities[(CLASS_ROGUE * 10) + 3]) * 10), 100);
+        if (dam < 0) dam = 0;
+
+	dtype = current_weapon->extra1;
+	if (dtype == 0) dtype = GF_PHYSICAL;
+
+        msg_print("You counter attack!");
+	melee_attack = TRUE;
+	no_magic_return = TRUE;
+        fire_ball_spot(m_ptr->fx, m_ptr->fy, dtype, dam, 0);
+	melee_attack = FALSE;
+	no_magic_return = FALSE;
+        update_and_handle();
 }

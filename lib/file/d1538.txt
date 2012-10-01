@@ -1,0 +1,59 @@
+N:1:0:0:0:0:0
+I:Balcia;
+T:Erg... this is the third time you defeat me. It looks like I will not;
+T:be able to defeat you. Unless...;
+A:[CONTINUE]:0:0:0:11:8:2:0:0:0
+%
+
+N:2:0:0:0:0:0
+I: ;
+T:From her pocket, Balcia takes a shard of red licialhyd.;
+A:[CONTINUE]:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Balcia;
+T:...unless I use this! I know the risks very well. I know that if I am;
+T:defeated after merging with the red licialhyd, it will be the end for me.;
+T:But I am not able to keep up with you with my normal powers, so I have;
+T:no choice!;
+A:[CONTINUE]:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I: ;
+T:Balcia is about to use the red licialhyd. But then, from the door in front;
+T:of you, the ghost of the Grey Wight appears.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I:Grey Wight;
+T:Hold on, Balcia.;
+A:[CONTINUE]:0:0:0:1:6:0:0:0:0
+%
+
+N:6:0:0:0:0:0
+I:Balcia;
+T:Ah, there you are. You'll give me a hand in defeating <NAME>?;
+A:[CONTINUE]:0:0:0:1:7:0:0:0:0
+%
+
+N:7:0:0:0:0:0
+I:Grey Wight;
+T:Come with me. I know how we can defeat <NAME>.;
+A:[CONTINUE]:0:0:0:1:8:0:0:0:0
+%
+
+N:8:0:0:0:0:0
+I:Balcia;
+T:If you say so...;
+A:[CONTINUE]:0:0:0:1:9:0:0:0:0
+%
+
+N:9:0:0:0:0:0
+I: ;
+T:Balcia uses her magic to teleport herself and the Grey Wight behind;
+T:the door. They are not very far, however. You should follow them.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

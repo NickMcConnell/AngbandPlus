@@ -1,0 +1,44 @@
+N:1:0:0:0:0:0
+I: ;
+T:Christina finally falls on the ground. Even as an undead, she has taken too;
+T:much damage to continue fighting. She seems to be regaining some of her;
+T:senses.;
+A:[CONTINUE]:0:0:0:1:2:0:0:0:0
+%
+
+N:2:0:0:0:0:0
+I:Christina;
+T:<NAME>... I'm sorry. I...I have betrayed Shan. I threw away her gift,;
+T:and became a servant of Ryoon. I've tried to fight the Grey Wight, but he;
+T:is just too strong. I...I've never seen a being that powerful. I have failed.;
+T:Failed to protect Ivhala. Failed to be a queen...;
+A:Rest in peace now, Christina. The Grey Wight will be defeated!:0:0:0:1:3:0:0:0:0
+%
+
+N:3:0:0:0:0:0
+I:Christina;
+T:Thanks you, <NAME>. I know that if there's one person in this world who;
+T:can fight the Grey Wight, it's you. But I wonder just how long you'll;
+T:be able to keep fighting. We are at a point where we might have to;
+T:summon the help of greater beings to fight this threat. This enemy is;
+T:unusually powerful. The cult of Ryoon is powerful in it's own right,;
+T:but the real enemy is this order of chaos.;
+A:Yes, and this Summapal, who seems to be their master.:0:0:0:1:4:0:0:0:0
+%
+
+N:4:0:0:0:0:0
+I:Christina;
+T:After you've dealth with them, continue looking for the amulet of;
+T:Golden Truth. You will surely need it in the future.;
+T:Good bye, <NAME>...and thanks you for all you've done.;
+A:[CONTINUE]:0:0:0:1:5:0:0:0:0
+%
+
+N:5:0:0:0:0:0
+I: ;
+T:Christina is now dead, her body lying on the ground. On this day, a mighty;
+T:nation has fallen, and this is a victory for the order of chaos. The only;
+T:thing you can do now is to find and defeat Balcia and the Grey Wight, so that;
+T:at least, the death of Christina and Ivhala can be avenged.;
+A:[END DIALOG]:0:0:0:0:0:0:0:0:0
+%

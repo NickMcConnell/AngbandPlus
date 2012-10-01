@@ -284,7 +284,7 @@ static hist_type bg[] =
 	{"and you are an orange devling. ", 100, 46, 0, 50},
 
 	/* Celestial */
-	{"You are a messenger of heaven sent in Portalis ", 100, 47, 48, 50},
+	{"You are a messenger of heaven sent in Portralis ", 100, 47, 48, 50},
 
 	{"to protect innocents from evil. ", 100, 48, 49, 50},
 
@@ -778,6 +778,7 @@ static void get_extra(void)
 
 	/* Initialize arena and rewards information -KMW- */
 	p_ptr->inside_quest = 0;
+	p_ptr->inside_secret = 0;
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -1663,6 +1664,7 @@ static bool player_birth_aux()
 	/* Init the random quests */
 	init_flags = INIT_ASSIGN;
 	p_ptr->inside_quest = 0;
+	p_ptr->inside_secret = 0;
 
 	/* Set the quest monster hook */
 	get_mon_num_hook = monster_quest;
@@ -1671,6 +1673,7 @@ static bool player_birth_aux()
 	get_mon_num_prep();
 
         p_ptr->inside_quest = 0;
+	p_ptr->inside_secret = 0;
 
 
 	/*** Generate ***/
@@ -2403,7 +2406,8 @@ void no_more_items(void)
                 o_ptr = &inventory[i];
                 object_flags(o_ptr, &f1, &f2, &f3, &f4);
                 /* Skip Eternal items */
-                if (!(f4 & (TR4_ETERNAL)))
+		/* As of Portralis 0.4, also skip items worht 1000 golds or less. */
+                if (!(f4 & (TR4_ETERNAL)) && object_value_real(o_ptr) > 1000)
                 {
                         /* object_wipe(&inventory[i]); */
                         inven_item_increase(i, -(o_ptr->number));

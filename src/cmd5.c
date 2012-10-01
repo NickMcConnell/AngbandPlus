@@ -153,7 +153,7 @@ static bool item_tester_hook_bullet(object_type *o_ptr)
 /* Everything except the following items. */
 static bool item_tester_hook_levelable(object_type *o_ptr)
 {
-        if (!(wield_slot(o_ptr) == INVEN_TOOL) && !(wield_slot(o_ptr) == -1)) return (TRUE);
+        if (!(wield_slot(o_ptr) == -1)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -499,8 +499,8 @@ void do_cmd_study(void)
                                 p_ptr->divination_effects |= DIVI_DETECT_STAIRS;
                                 break;
                         case 4:
-                                msg_print("You learned the effect of Detect Traps!");
-                                p_ptr->divination_effects |= DIVI_DETECT_TRAPS;
+                                msg_print("You learned the effect of Detect Chests!");
+                                p_ptr->divination_effects |= DIVI_DETECT_CHESTS;
                                 break;
                         case 5:
                                 msg_print("You learned the effect of Telepathy!");
@@ -1239,34 +1239,31 @@ void mana_shield()
 /* Add poison brand to an item */
 void assassin_poison_weapon()
 {
-                int item;
-                object_type             *o_ptr;
-                cptr q, s;
-                u32b f1, f2, f3, f4;
+	int item;
+        object_type             *o_ptr;
+        cptr q, s;
+        u32b f1, f2, f3, f4;
 
-                /* Restrict choices to weapons */
-                item_tester_hook = item_tester_hook_poisonable;
+        /* Restrict choices to weapons */
+        item_tester_hook = item_tester_hook_poisonable;
 
-                /* Get an item */
-                q = "Poison which weapon/ammo/glove? ";
-                s = "You have no valid weapons/ammos/gloves!";
-                if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+        /* Get an item */
+        q = "Poison which weapon/ammo/glove? ";
+        s = "You have no valid weapons/ammos/gloves!";
+        if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
 
-                /* Get the item (in the pack) */
-                if (item >= 0)
-                {
-                        o_ptr = &inventory[item];
-                }
-                /* Get the item (on the floor) */
-                else
-                {
-                        o_ptr = &o_list[0 - item];
-                }
-                msg_print("You put poison on your weapon!");
-                o_ptr->brandtype = GF_POIS;
-		o_ptr->branddam = 200 * p_ptr->abilities[(CLASS_ROGUE * 10) + 5];
-                /* This is to prevent players to sell this weapon */
-                o_ptr->ident |= (IDENT_BROKEN);
+        /* Get the item (in the pack) */
+        if (item >= 0)
+        {
+                o_ptr = &inventory[item];
+        }
+        /* Get the item (on the floor) */
+        else
+        {
+                o_ptr = &o_list[0 - item];
+        }
+        msg_print("Damages type changed to Poison!");
+        o_ptr->extra1 = GF_POIS;
 }
 
 /* May be used by any function... */
@@ -1771,7 +1768,7 @@ void capture_soul(int x, int y)
                                 return;
                         }
 			/* The random boss cannot be captured. */
-			if (m_ptr->r_idx == 1030 || (m_ptr->r_idx >= 2050 && m_ptr->r_idx <= 2099))
+			if (m_ptr->r_idx == 1030 || (m_ptr->r_idx >= 2050 && m_ptr->r_idx <= 2099) || (r_ptr->flags7 & (RF7_SCALED)))
 			{
 				msg_print("The soul of this monster cannot be captured.");
 				return;
@@ -3000,6 +2997,13 @@ void conjure_item(int itemtval, int itemsval, int duration, bool magic, bool spe
         object_copy(&inventory[slot], q_ptr);
         total_weight += q_ptr->weight;
         inven_item_describe(slot);
+
+	o_ptr = &inventory[slot];
+	/* Possibly call an item event. */
+	if (o_ptr->event_summon != 0)
+	{
+		call_lua("item_summon", "(Od)", "", o_ptr, o_ptr->event_summon);
+	}
         update_and_handle();
 }
 
@@ -3214,7 +3218,7 @@ void combine_items(bool batch)
                                 object_known(a_ptr);
 
                                 msg_print("You created a new item!");
-                                if (is_weapon(a_ptr) || a_ptr->tval == TV_ROD || a_ptr->tval == TV_RANGED)
+                                if (is_weapon(a_ptr) || a_ptr->tval == TV_ROD || a_ptr->tval == TV_RANGED || a_ptr->tval == TV_THROWING)
                                 {
 					/* "Blue Steel" */
 					if (highestlevel >= 120)
@@ -3952,6 +3956,13 @@ void conjure_item_any(int itemtval, int itemsval, int duration, int quantity, bo
         object_copy(&inventory[slot], q_ptr);
         total_weight += q_ptr->weight;
         inven_item_describe(slot);
+
+	o_ptr = &inventory[slot];
+	/* Possibly call an item event. */
+	if (o_ptr->event_summon != 0)
+	{
+		call_lua("item_summon", "(Od)", "", o_ptr, o_ptr->event_summon);
+	}
         update_and_handle();
 }
 
