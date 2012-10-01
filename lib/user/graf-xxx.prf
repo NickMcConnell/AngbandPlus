@@ -503,7 +503,32 @@ F:62:0x80/0x95
 # granite wall
 F:63:0x80/0x95
 
+# General Store
+F:64:0x81/0x91
 
+# Armoury
+F:65:0x81/0x92
+
+# Weapon Smiths
+F:66:0x81/0x93
+
+# Temple
+F:67:0x81/0x94
+
+# Alchemy Shop
+F:68:0x81/0x95
+
+# Magic Shop
+F:69:0x81/0x96
+
+# Black Market
+F:70:0x81/0x97
+
+# Home
+F:71:0x81/0x98
+
+# Bookseller
+F:72:0xA0/0x9F
 
 ##### Object attr/char definitions #####
 
@@ -3186,7 +3211,7 @@ R:453:0x95/0x8D
 # Gorlim, Betrayer of Barahir
 R:454:0x9D/0x83
 
-# Solar
+# Storm Troll
 R:455:0x8E/0x96
 
 # Glabrezu
@@ -3228,7 +3253,7 @@ R:467:0x9F/0x80
 # Ariel, Queen of Air
 R:468:0x90/0x94
 
-# 11-headed hydra
+# Nazgul's Steed
 R:469:0x93/0x9F
 
 # Patriarch
@@ -3333,8 +3358,8 @@ R:502:0x9E/0x86
 # Aether vortex
 R:503:0x9E/0x87
 
-# The Lernean Hydra
-R:504:0x94/0x80
+# Evil Iggy
+R:504:0x9C/0x93
 
 # Thuringwethil
 R:505:0x95/0x82
@@ -3348,8 +3373,8 @@ R:507:0x93/0x83
 # Fundin Bluecloak
 R:508:0x99/0x8B
 
-# Uriel, Angel of Fire
-R:509:0x8E/0x97
+# Maeglin, Betrayer of Gondolin
+R:509:0x99/0x8A
 
 # Azriel, Angel of Death
 R:510:0x8E/0x98
@@ -3372,7 +3397,7 @@ R:515:0x91/0x8A
 # The Cat Lord
 R:516:0x98/0x91
 
-# Chaos beetle
+# Serpent of Chaos
 R:517:0x91/0x9F
 
 # Chaos hound
@@ -3402,8 +3427,8 @@ R:525:0x93/0x84
 # Greater draconic quylthulg
 R:526:0x93/0x85
 
-# Greater rotting quylthulg
-R:527:0x93/0x86
+# Great Wyrm of Power
+R:527:0x90/0x81
 
 # Vecna, the Emperor Lich
 R:528:0x92/0x8B
@@ -3432,8 +3457,8 @@ R:535:0x95/0x96
 # Pazuzu, Lord of Air
 R:536:0x8E/0x9C
 
-# Hell hound
-R:537:0x8F/0x87
+# Storm of Unmagic
+R:537:0x9E/0x87
 
 # Cantoras, the Skeletal Lord
 R:538:0x9D/0x9B
@@ -3465,6 +3490,38 @@ R:546:0x9D/0x8A
 # Morgoth, Lord of Darkness
 R:547:0x92/0x9E
 
+# Player Ghost - Skeleton
+R:548:0x9D/0x95
+
+# Player Ghost - Zombie
+R:549:0x9E/0x99
+
+# Player Ghost - Spirit
+R:550:0x91/0x80
+
+# Player Ghost - Mummy
+R:551:0x92/0x8E
+
+# Player Ghost - Werewolf
+R:552:0x8F/0x85
+
+# Player Ghost - Ghost
+R:553:0x91/0x82
+
+# Player Ghost - Vampire
+R:554:0x94/0x9F
+
+# Player Ghost - Phantom
+R:555:0x91/0x87
+
+# Player Ghost - Lich
+R:556:0x92/0x88
+
+# Player Ghost - Nether Wraith
+R:557:0x95/0x8A
+
+# Player Ghost - Nightwing
+R:558:0x8F/0x9E
 
 # Load the special player pictures
 %:xtra-xxx.prf

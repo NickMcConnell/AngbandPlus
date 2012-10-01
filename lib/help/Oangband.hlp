@@ -1,0 +1,55 @@
+=== About Oangband ===
+ 
+                        Welcome to Opinion Angband!
+     Opinion Angband,  or Oangband for short,  is one of the many  variants of 
+Angband.  Like all variant authors,  I have found a balance between the rogue-
+like game  of my  dreams  and my  rather severe  coding and  time limitations.
+
+     Oangband was  created to  accomplish  exactly two things:   Teach L.M.  C
+programming,  and turn a new conception of  non-magical combat into a game you
+can enjoy.   As you will shortly discover,  however,  Oangband has developed a 
+life of its own.  Significant changes include:
+
+-The elimination of years of slow HP and damage inflation, and a "tabula rasa" 
+approach to game balance in general.  
+
+-A fundamentally  altered conception of  physical combat.   Until you read the 
+help file on attacking and defending to get the straight word,  think of Oang-
+band combat  as being  like archery in  Standard Angband with  +to_dam figures 
+that add a percentage  to total damage.  Almost every major aspect of non-magi
+cal combat  differs in Oangband than what  you have gotten used to in Angband.
+
+-A radically  revised magical system,  offering you the chance to  play any of 
+four spellcasters,  any of four  warrior-spellcasters,  or the pure warrior we 
+all know and love.  Read "Creating  a Character"  for magical realm info,  and "Attacking and Defending" for the lowdown on combat of all kinds.
+
+-Very much  more varied classes.   Mages are great with  magical items, rogues 
+steal and set traps, Assassins whip poisoned knives at their foes, Rangers are  flexible, Priests envoke the power of Holy Light,  and Necromancers just blast everything in sight.  Races are also more differenciated.
+
+-New  just about  everything.   Whether it be Wands of Storms,  the Dark Elven 
+Smith Eol, Shields of  Night and Day, Athelas, new vaults, rods of Dragonfire, 
+Large Jeweled Chests,  or activatable rings,  Oangband has novelty  enough for 
+anyone.  Various help files will have more information.
+
+-Player ghosts, random artifacts, far and away more interesting chests, varied dungeon rooms, more than three times as many vaults, varied terrain that real-
+ly makes a difference to vision, movement, and combat, Tolkien's genuine Black Breath, a more intuitive understanding of stealth and noise, one-slot wand and 
+rod stacking,  more  possible  alterations using  *_info.txt  files,  and many enhancements to the wizard commands.
+
+This file  just scratches the surface.   If you want to read  about changes in 
+more detail,  get wind of other  modifications in Oangband,  and check out the 
+philosophy that drives this variant, scan "Oangband Changes (long)".
+
+
+
+=== The Jaded Angband Player's Guide to Oangband ===
+
+-Don't think a whip will instantly make you a combat machine.
+-Don't ignore combat magic and spells that hinder monsters.
+-Don't think melee is a panacea.
+-Don't try to melee or shoot with the pros if you haven't the Skill to swing it.
+-Forget about blows.  Everybody gets two for a long time.
+-Don't sweat too much about plusses to damage (now called Deadliness).  They 
+ can win the game for you, but only if you get your base damage up first.
+
+
+Leon Marrick, maintainer of Oangband version 0.3.0

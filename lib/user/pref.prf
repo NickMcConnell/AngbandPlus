@@ -63,6 +63,10 @@ C:0:^C
 A:w0
 C:0:X
 
+# Hack -- Oangband convenience
+A:R*\r
+C:0:x
+
 
 ##### Roguelike Keyset Mappings #####
 

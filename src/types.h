@@ -1,6 +1,8 @@
 /* File: types.h */
 
-/*
+/* Definitions for a large number of types and arrays.  This file controls
+ * what sort of data can go where.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -87,6 +89,7 @@ typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
 typedef struct player_other player_other;
+typedef struct druid_blows druid_blows;
 typedef struct player_type player_type;
 
 
@@ -229,10 +232,6 @@ struct object_kind
 
 /*
  * Information about "artifacts".
- *
- * Note that the save-file only writes "cur_num" to the savefile.
- *
- * Note that "max_num" is always "1" (if that artifact "exists")
  */
 struct artifact_type
 {
@@ -253,7 +252,6 @@ struct artifact_type
 	byte dd, ds;		/* Damage when hits */
 
 	s16b weight;		/* Weight */
-
 	s32b cost;			/* Artifact "cost" */
 
 	u32b flags1;		/* Artifact Flags, set 1 */
@@ -263,8 +261,8 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
-	byte cur_num;		/* Number created (0 or 1) */
-	byte max_num;		/* Unused (should be "1") */
+	byte cur_num;		/* Number created (0 or 1). */
+	byte activation;		/* Temporary activation index. -LM- */
 };
 
 
@@ -427,6 +425,9 @@ struct vault_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
+
+	byte min_lev;		/* Minimum allowable level, if specified. */
+	byte max_lev;		/* Maximum allowable level, if specified. */
 };
 
 
@@ -479,8 +480,8 @@ struct object_type
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
-	byte xtra1;			/* Extra info type */
-	byte xtra2;			/* Extra info index */
+	byte xtra1;			/* Extra info type (or activation indicator). */
+	byte xtra2;			/* Extra info or activation index. */
 
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
@@ -615,18 +616,18 @@ struct quest
  */
 struct owner_type
 {
-	cptr owner_name;	/* Name */
+	cptr owner_name;		/* Name */
 
 	s16b max_cost;		/* Purse limit */
 
-	byte max_inflate;	/* Inflation (max) */
-	byte min_inflate;	/* Inflation (min) */
+	int max_inflate;		/* Initial Inflation */
+	int min_inflate;		/* Final Offer Inflation */
 
-	byte haggle_per;	/* Haggle unit */
+	byte haggle_per;		/* Haggle unit */
 
-	byte insult_max;	/* Insult limit */
+	byte insult_max;		/* Insult limit */
 
-	byte owner_race;	/* Owner race */
+	byte owner_race;		/* Owner race */
 
 	byte unused;		/* Unused */
 };
@@ -667,7 +668,8 @@ struct store_type
 
 /*
  * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
+ * where X is 0 for mage-spells,  1 for priest-spells, 
+ * 2 for druid-spells, and 3 for necro-spells. -LM-
  */
 struct magic_type
 {
@@ -687,13 +689,10 @@ struct player_magic
 {
 	s16b spell_book;		/* Tval of spell books (if any) */
 	s16b spell_xtra;		/* Something for later */
-
 	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
-
+	s16b spell_realm;		/* Spell Realm (if any)  */
 	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;		/* Weight that hurts spells */
-
+	s16b spell_weight;	/* Weight that hurts spells */
 	magic_type info[64];	/* The available spells */
 };
 
@@ -803,6 +802,17 @@ struct player_other
 };
 
 
+/* Druid blows. -LM- */
+struct druid_blows
+{
+
+	cptr description;		/* Name of the blow. */
+
+	s16b dd;			/* Number of damage dice. */
+	s16b ds;			/* Number of dice sides. */
+};
+
+
 /*
  * Most of the "player" information goes here.
  *
@@ -830,7 +840,8 @@ struct player_type
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
 
-	s16b age;			/* Characters age */
+	byte schange;		/* Character's new shape, if any. */
+	s16b age;			/* Character's age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
@@ -870,13 +881,13 @@ struct player_type
 	s16b stun;			/* Timed -- Stun */
 
 	s16b protevil;		/* Timed -- Protection */
-	s16b invuln;		/* Timed -- Invulnerable */
+	s16b magicdef;		/* Timed -- Magical Defenses */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
-	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b tim_infra;		/* Timed -- Infravision */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -890,7 +901,7 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	byte confusing;		/* Glowing hands */
+	byte confusing;		/* Hands glowing with Confusion or Night */
 	byte searching;		/* Currently searching */
 
 	u32b spell_learned1;	/* Spell flags */
@@ -1046,7 +1057,7 @@ struct player_type
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
-	bool exp_drain;		/* Experience draining */
+	bool black_breath;	/* Experience draining */
 
 	bool bless_blade;	/* Blessed blade */
 
@@ -1075,7 +1086,7 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	u32b noise;			/* Derived from stealth */
+	u32b base_wakeup_chance;/* Derived from stealth.  Revised in Oangband. */
 
 	s16b num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */

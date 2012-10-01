@@ -1,6 +1,10 @@
 /* File: monster2.c */
 
-/*
+/* Monster processing, compacting, generation, goody drops, deletion, 
+ * place the player, monsters, and their escorts at a given location, 
+ * generation of monsters, summoning, monster reaction to pain 
+ * levels, monster learning.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -39,7 +43,6 @@ void delete_monster_idx(int i)
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
 
-
 	/* Hack -- remove target monster */
 	if (p_ptr->target_who == i) target_set_monster(0);
 
@@ -50,6 +53,17 @@ void delete_monster_idx(int i)
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
 
+	/* Total Hack -- If the monster was a player ghost, remove it 
+	 * from the monster memory, set its kills to zero, and clear 
+	 * its bones file selector. -LM-
+	 */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		r_ptr->r_sights = 0;
+		r_ptr->r_pkills = 0;
+		r_ptr->r_tkills = 0;
+		bones_selector = 0;
+	}
 
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -257,8 +271,6 @@ void wipe_m_list(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
-
 		/* Hack -- Reduce the racial counter */
 		r_ptr->cur_num--;
 
@@ -416,7 +428,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 10 + 2;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -462,11 +474,9 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
-		/* Depth Monsters never appear out of depth */
-		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
-		{
-			continue;
-		}
+		/* Forced-depth monsters never appear at levels other than their native depth. */
+		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level != p_ptr->depth)) continue;
+
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -496,7 +506,7 @@ s16b get_mon_num(int level)
 	/* Power boost */
 	p = rand_int(100);
 
-	/* Try for a "harder" monster once (50%) or twice (10%) */
+	/* Try for a "harder" monster once (60%) or twice (10%) */
 	if (p < 60)
 	{
 		/* Save old */
@@ -605,9 +615,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	cptr name = (r_name + r_ptr->name);
+	char racial_name[40] = "oops";
 
 	bool seen, pron;
-
 
 	/* Can we "see" it (forced, or not hidden + visible) */
 	seen = ((mode & (0x80)) || (!(mode & (0x40)) && m_ptr->ml));
@@ -621,6 +631,9 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	{
 		/* an encoding of the monster "sex" */
 		int kind = 0x00;
+
+		/* Clear the description. */
+		strcpy(desc, "                         ");
 
 		/* Extract the gender (if applicable) */
 		if (r_ptr->flags1 & (RF1_FEMALE)) kind = 0x20;
@@ -685,8 +698,25 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	/* Handle all other visible monster requests */
 	else
 	{
+		/* It could be a Player Ghost. -LM- */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			/* Clear the descriptor. */
+			strcpy(desc, "                               ");
+
+			/* Get the ghost name. */
+			strcpy(desc, ghost_name);
+
+			/* Get the racial name. */
+			strcpy(racial_name, r_name + r_ptr->name);
+
+			/* Build the ghost name. */
+			strcat(desc, ", the ");
+			strcat(desc, racial_name);
+		}
+
 		/* It could be a Unique */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Start with the name (thus nominative and objective) */
 			strcpy(desc, name);
@@ -777,9 +807,10 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 	if (num_item > r_ptr->r_drop_item) r_ptr->r_drop_item = num_item;
 	if (num_gold > r_ptr->r_drop_gold) r_ptr->r_drop_gold = num_gold;
 
-	/* Hack -- memorize the good/great flags */
+	/* Hack -- memorize the good/great/chest flags */
 	if (r_ptr->flags1 & (RF1_DROP_GOOD)) r_ptr->r_flags1 |= (RF1_DROP_GOOD);
 	if (r_ptr->flags1 & (RF1_DROP_GREAT)) r_ptr->r_flags1 |= (RF1_DROP_GREAT);
+	if (r_ptr->flags1 & (RF1_DROP_CHEST)) r_ptr->r_flags1 |= (RF1_DROP_CHEST);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1377,16 +1408,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	cptr name;
 
-
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
 
-	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	/* Require passable terrain, with no other creature or player. -LM-  */
+	if (!cave_passable_bold(y, x)) return (FALSE);
+	if (cave_m_idx[y][x] != 0) return (FALSE);
 
 	/* Hack -- no creation on glyph of warding */
 	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
-
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1394,12 +1424,19 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
+
+	/* Hack -- Demons & creatures who breath fire cannot appear on water. -LM- */
+	if ((cave_feat[y][x] == FEAT_WATER) && ((strchr("uU", r_ptr->d_char)) || (r_ptr->flags4 & (RF4_BR_FIRE)))) return (FALSE);
+
+	/* Hack -- Only creatures resistant to fire may appear on lava. -LM- */
+	if ((cave_feat[y][x] == FEAT_LAVA) && (!(r_ptr->flags3 & (RF3_IM_FIRE)))) return (FALSE);
+
+
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
 	/* Name */
 	name = (r_name + r_ptr->name);
-
 
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
@@ -1417,11 +1454,22 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	}
 
 
-	/* Powerful monster */
-	if (r_ptr->level > p_ptr->depth)
+	/* Powerful monster (Trigger tweaked a little in Oangband) */
+	if (r_ptr->level > p_ptr->depth + 2)
 	{
+		/* Player ghosts */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			/* Message for cheaters */
+			if (cheat_hear) msg_print("Deep Unique (Player Ghost).");
+
+			/* Boost rating by twice delta-depth */
+			rating += (r_ptr->level - p_ptr->depth) * 2;
+		}
+
+
 		/* Unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
 			if (cheat_hear) msg_format("Deep Unique (%s).", name);
@@ -1444,8 +1492,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Note the monster */
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-		/* Unique monsters induce message */
-		if (cheat_hear) msg_format("Unique (%s).", name);
+		if (cheat_hear)
+		{
+			/* Hack -- Player ghost hasn't been named yet. -LM- */
+			if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) 
+				msg_print("Unique (Player Ghost).");
+
+			/* Other unique monsters induce the standard message. */
+			else msg_format("Unique (%s).", name);
+		}
 	}
 
 
@@ -1459,6 +1514,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
 
+	/* If the monster is a player ghost, perform various manipulations on it, 
+	 * and forbid ghost creation if something goes wrong. -LM-
+	 */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		if (!prepare_ghost(r_idx, n_ptr, FALSE)) return (FALSE);
+	}
 
 	/* Enforce sleeping if needed */
 	if (slp && r_ptr->sleep)
@@ -1466,7 +1528,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		int val = r_ptr->sleep;
 		n_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
-
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -1512,7 +1573,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	/* Optimize -- Repair flags */
 	repair_mflag_born = TRUE;
-
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
@@ -1677,7 +1737,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
 
-
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
 
@@ -1772,62 +1831,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 }
 
 
-
-
-/*
- * XXX XXX XXX Player Ghosts are such a hack, they have been completely
- * removed until Angband 2.8.0, in which there will actually be a small
- * number of "unique" monsters which will serve as the "player ghosts".
- * Each will have a place holder for the "name" of a deceased player,
- * which will be extracted from a "bone" file, or replaced with a
- * "default" name if a real name is not available.  Each ghost will
- * appear exactly once and will not induce a special feeling.
- *
- * Possible methods:
- *   (s) 1 Skeleton
- *   (z) 1 Zombie
- *   (M) 1 Mummy
- *   (G) 1 Polterguiest, 1 Spirit, 1 Ghost, 1 Shadow, 1 Phantom
- *   (W) 1 Wraith
- *   (V) 1 Vampire, 1 Vampire Lord
- *   (L) 1 Lich
- *
- * Possible change: Lose 1 ghost, Add "Master Lich"
- *
- * Possible change: Lose 2 ghosts, Add "Wraith", Add "Master Lich"
- *
- * Possible change: Lose 4 ghosts, lose 1 vampire lord
- *
- * Note that ghosts should never sleep, should be very attentive, should
- * have maximal hitpoints, drop only good (or great) items, should be
- * cold blooded, evil, undead, immune to poison, sleep, confusion, fear.
- *
- * Base monsters:
- *   Skeleton
- *   Zombie
- *   Mummy
- *   Poltergeist
- *   Spirit
- *   Ghost
- *   Vampire
- *   Wraith
- *   Vampire Lord
- *   Shadow
- *   Phantom
- *   Lich
- *
- * This routine will simply extract ghost names from files, and
- * attempt to allocate a player ghost somewhere in the dungeon,
- * note that normal allocation may also attempt to place ghosts,
- * so we must work with some form of default names.
- *
- * XXX XXX XXX
- */
-
-
-
-
-
 /*
  * Attempt to allocate a random monster in the dungeon.
  *
@@ -1882,11 +1885,14 @@ static bool summon_specific_okay(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	bool okay = FALSE;
+	int i, effect;
 
+
+	/* Player ghosts cannot be summoned. -LM- */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return(FALSE);
 
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
-
 
 	/* Check our requirements */
 	switch (summon_specific_type)
@@ -1908,13 +1914,6 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_HOUND:
 		{
 			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
-			break;
-		}
-
-		case SUMMON_HYDRA:
-		{
-			okay = ((r_ptr->d_char == 'M') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -1968,9 +1967,23 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE));
+			break;
+		}
+
+		case SUMMON_THIEF:
+		{
+			/* Scan through all four blows */
+			for (i = 0; i < 4; i++)
+			{
+				/* Extract infomation about the blow effect */
+				effect = r_ptr->blow[i].effect;
+				if (effect == RBE_EAT_GOLD) okay = TRUE;
+				if (effect == RBE_EAT_ITEM) okay = TRUE;
+			}
 			break;
 		}
 	}
@@ -1982,13 +1995,13 @@ static bool summon_specific_okay(int r_idx)
 
 /*
  * Place a monster (of the specified "type") near the given
- * location.  Return TRUE iff a monster was actually summoned.
+ * location.  Return TRUE if a monster was actually summoned.
  *
  * We will attempt to place the monster up to 10 times before giving up.
  *
- * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Unique's
- * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Unique's
- * Note: None of the other summon codes will ever summon Unique's.
+ * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Uniques
+ * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Uniques
+ * Note: None of the other summon codes will ever summon Uniques.
  *
  * This function has been changed.  We now take the "monster level"
  * of the summoning monster as a parameter, and use that, along with
@@ -2013,13 +2026,14 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	for (i = 0; i < 20; ++i)
 	{
 		/* Pick a distance */
-		int d = (i / 15) + 1;
+		int d = (i / 10) + 1;
 
 		/* Pick a location */
 		scatter(&y, &x, y1, x1, d, 0);
 
-		/* Require "empty" floor grid */
-		if (!cave_empty_bold(y, x)) continue;
+		/* Require passable terrain, with no other creature or player. -LM-  */
+		if (!cave_passable_bold(y, x)) continue;
+		if (cave_m_idx[y][x] != 0) continue;
 
 		/* Hack -- no summon on glyph of warding */
 		if (cave_feat[y][x] == FEAT_GLYPH) continue;
@@ -2368,5 +2382,3 @@ void update_smart_learn(int m_idx, int what)
 #endif /* DRS_SMART_OPTIONS */
 
 }
-
-

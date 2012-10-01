@@ -1,6 +1,9 @@
 /* File: cmd3.c */
 
-/*
+/* Inventory and equipment display and management interface, observing an 
+ * object, inscribing, refuelling, (l)ooking around the screen and 
+ * Looking around the dungeon, help info on textual chars ("8" is the home, 
+ * etc.), monster memory interface, stealing and setting monster traps.
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -11,17 +14,15 @@
 #include "angband.h"
 
 
-
-
-
-
 /*
  * Display inventory
  */
 void do_cmd_inven(void)
 {
-	/* Note that we are in "inventory" mode */
-	p_ptr->command_wrk = FALSE;
+	char string[80];
+
+	/* Note that we are in "inventory" mode. */
+	p_ptr->command_wrk = (USE_INVEN);
 
 
 	/* Save screen */
@@ -36,8 +37,14 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Inventory) Command: ", 0, 0);
+	/* Insert the total burden and character capacity into a string. -LM- */
+	sprintf(string, "(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+
+
+	/* Output that string, and prompt for a command. */
+	prt(string, 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -67,8 +74,10 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
+	char string[80];
+
 	/* Note that we are in "equipment" mode */
-	p_ptr->command_wrk = TRUE;
+	p_ptr->command_wrk = (USE_EQUIP);
 
 
 	/* Save screen */
@@ -83,8 +92,15 @@ void do_cmd_equip(void)
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Equipment) Command: ", 0, 0);
+
+	/* Insert the total burden and character capacity into a string. -LM- */
+	sprintf(string, "(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+
+
+	/* Output that string, and prompt for a command. */
+	prt(string, 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -123,7 +139,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 
 
 /*
- * Wield or wear a single item from the pack or floor
+ * Wield or wear a single item from the pack or floor, if not shapechanged.
  */
 void do_cmd_wield(void)
 {
@@ -143,6 +159,13 @@ void do_cmd_wield(void)
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
+
+	if (DRUID_SCHANGE)
+	{
+		msg_print("You cannot wield new equipment while shapechanged.");
+		msg_print("Use the ']' command to return to your normal form.");
+		return;
+	}
 
 	/* Get an item */
 	q = "Wear/Wield which item? ";
@@ -275,7 +298,7 @@ void do_cmd_wield(void)
 
 
 /*
- * Take off an item
+ * Take off an item, if not shapechanged.
  */
 void do_cmd_takeoff(void)
 {
@@ -284,6 +307,13 @@ void do_cmd_takeoff(void)
 	object_type *o_ptr;
 
 	cptr q, s;
+
+	if (DRUID_SCHANGE)
+	{
+		msg_print("You cannot take off equipment while shapechanged!");
+		msg_print("Use the ']' command to return to your normal form.");
+		return;
+	}
 
 
 	/* Get an item */
@@ -338,7 +368,14 @@ void do_cmd_drop(void)
 	/* Get an item */
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	if (DRUID_SCHANGE)
+	{
+		if (!get_item(&item, q, s, (USE_INVEN))) return;
+	}
+	else
+	{
+		if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	}
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -386,6 +423,7 @@ void do_cmd_destroy(void)
 	int old_number;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	char o_name[80];
 
@@ -410,6 +448,9 @@ void do_cmd_destroy(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
@@ -460,8 +501,21 @@ void do_cmd_destroy(void)
 		return;
 	}
 
+
+
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+
+	/* Hack -- If rods or wand are destroyed, the total maximum timeout or 
+	 * charges of the stack needs to be reduced, unless all the items are 
+	 * being destroyed. -LM-
+	 */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+		&& (amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+	}
+
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -1042,7 +1096,7 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Entrance to Bookseller",
 	"::Rubble",
 	";:A glyph of warding",
 	"<:An up staircase",
@@ -1062,7 +1116,7 @@ static cptr ident_info[] =
 	"J:Snake",
 	"K:Killer Beetle",
 	"L:Lich",
-	"M:Multi-Headed Reptile",
+	"M:Mummy",
 	/* "N:unused", */
 	"O:Ogre",
 	"P:Giant Humanoid",
@@ -1081,7 +1135,7 @@ static cptr ident_info[] =
 	"]:Misc. armor",
 	"^:A trap",
 	"_:A staff",
-	/* "`:unused", */
+	"`:A tool or junk",
 	"a:Ant",
 	"b:Bat",
 	"c:Centipede",
@@ -1111,7 +1165,7 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:A tool (or miscellaneous item)",
+	"~:A chest or light",
 	NULL
 };
 
@@ -1269,7 +1323,6 @@ static void roff_top(int r_idx)
  *
  * The responses may be sorted in several ways, see below.
  *
- * Note that the player ghosts are ignored, since they do not exist.
  */
 void do_cmd_query_symbol(void)
 {
@@ -1326,7 +1379,7 @@ void do_cmd_query_symbol(void)
 
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < MAX_R_IDX-1; i++)
+	for (n = 0, i = 1; i < MAX_R_IDX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1471,3 +1524,210 @@ void do_cmd_query_symbol(void)
 }
 
 
+
+/* Hack -- possible victim outcry. -LM- */
+static cptr desc_victim_outcry[] =
+{
+	"'My money, where's my money?'",
+	"'Thief! Thief! Thief! Baggins! We hates it forever!'",
+	"'Tell me, have you seen a purse wandering around?'",
+	"'Thieves, Fire, Murder!'",
+	"''Ere, 'oo are you?'",
+	"'Hey, look what I've copped!'",
+	"'How dare you!'",
+	"'Help yourself again, thief, there is plenty and to spare!'",
+	"'All the world detests a thief.'",
+	"'Catch me this thief!'",
+	"'Hi! Ho! Robbery!'",
+	"'My gold, my precious gold!'",
+	"'My gold is costly, thief!'",
+	"'Your blood for my gold?  Agreed!'",
+	"'I scrimp, I save, and now it's gone!'",
+	"'Robbers like you are part of the problem!'",
+	"'Banditti!  This dungeon's just not safe anymore!'",
+	"'Ruined!  I'm ruined!'",
+	"'Where, where is the common decency?'",
+	"'Your knavish tricks end here and now!'",
+};
+
+
+
+/*
+ * Rogues may steal gold from monsters.  The monster needs to have 
+ * something to steal (it must drop some form of loot), and should 
+ * preferably be asleep.  Humanoids and dragons are a rogue's favorite
+ * targets.  Steal too often on a level, and monsters will be more wary, 
+ * and the hue and cry will be eventually be raised.  Having every 
+ * monster on the level awake and aggravated is not pleasant. -LM-
+ */
+void py_steal(int y, int x)
+{
+	cptr act = NULL;
+
+	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	char m_name[80];
+
+	int i;
+	int effect, theft_protection;
+	int filching_power = 0;
+	int purse = 0;
+
+	bool thief = FALSE;
+	bool success = FALSE;
+
+	/* Hard limit on theft. */
+	if (number_of_thefts_on_level > 4)
+	{
+		msg_print("Everyone is keeping a lookout for you.  You can steal nothing here.");
+		return;
+	}
+
+	/* Determine the cunning of the thief. */
+	filching_power = 2 * p_ptr->lev;
+
+
+	/* Determine how much protection the monster has. */
+	theft_protection = (7 * (r_ptr->level + 2) / 4);
+	theft_protection += (m_ptr->mspeed - p_ptr->pspeed);
+
+	/* Send a thief to catch a thief. */
+	for (i = 0; i < 4; i++)
+	{
+		/* Extract infomation about the blow effect */
+		effect = r_ptr->blow[i].effect;
+		if (effect == RBE_EAT_GOLD) thief = TRUE;
+		if (effect == RBE_EAT_ITEM) thief = TRUE;
+	}
+	if (thief) theft_protection += 30;
+
+	if ((m_ptr->csleep) && (theft_protection > 0)) theft_protection = 3 * theft_protection / 5;
+
+	/* The more you steal on a level, the more wary the monsters. */
+	theft_protection += number_of_thefts_on_level * 15;
+
+	/* Did the theft succeed?  */
+	if ((theft_protection > 0) && (randint(theft_protection) < filching_power)) success = TRUE;
+
+
+	/* If the theft succeeded, determine the value of the purse. */
+	if (success)
+	{
+		purse = randint(3 * (r_ptr->level + 2) / 2);
+
+		/* Uniques are juicy targets. */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) purse *= 3;
+
+		/* But some monsters are dirt poor. */
+		if (!((r_ptr->flags1 & (RF1_DROP_60)) || 
+		    (r_ptr->flags1 & (RF1_DROP_90)) || 
+		    (r_ptr->flags1 & (RF1_DROP_1D2)) || 
+		    (r_ptr->flags1 & (RF1_DROP_2D2)) || 
+		    (r_ptr->flags1 & (RF1_DROP_3D2)) || 
+		    (r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
+
+		/* Some monster races are far better to steal from than others. */
+		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') || 
+		    (r_ptr->d_char == 'p') || (r_ptr->d_char == 'D') || 
+		    (r_ptr->d_char == 'h')) purse *= 2 + randint(3);
+		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') || 
+		    (r_ptr->d_char == 'O') || (r_ptr->d_char == 'T')) 
+			purse *= 1 + randint(2);
+
+		/* Pickings are scarce in a land of many thieves. */
+		purse *= (p_ptr->depth + 5) / (p_ptr->max_depth + 5);
+
+		/* Increase player gold. */
+		p_ptr->au += purse;
+
+		/* Redraw gold */
+		p_ptr->redraw |= (PR_GOLD);
+
+		/* Announce the good news. */
+		if (purse) msg_format("You burgle %d gold.", purse);
+
+		/* Pockets are empty. */
+		else msg_print("You burgle only dust.");
+	}
+
+	/* The victim normally, but not always, wakes up and is aggravated. */
+	if (randint(4) != 1)
+	{
+		m_ptr->csleep = 0;
+		if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
+
+
+		/* Occasionally, amuse the player with a message. */
+		if ((randint(5) == 1) && (purse) && (r_ptr->flags2 & (RF2_SMART)))
+		{
+			monster_desc(m_name, m_ptr, 0);
+			act = desc_victim_outcry[rand_int(20)];
+			msg_format("%^s cries out %s", m_name, act);
+		}
+		/* Otherwise, simply explain what happened. */
+		else 
+		{
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("You have aroused %^s.", m_name);
+		}
+	}
+
+	/* The thief also speeds up, but only for just long enough to escape. */
+	if (!p_ptr->fast) p_ptr->fast += 2;
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+
+	/* Increment the number of thefts, and possibly raise the hue and cry. */
+	number_of_thefts_on_level++;
+
+	if (number_of_thefts_on_level > 4)
+	{
+		/* Notify the player of the trouble he's in. */
+		msg_print("All the level is in an uproar over your misdeeds!");
+
+		/* Aggravate and speed up all monsters on level. */
+		aggravate_monsters(1, TRUE);
+	}
+
+	else if ((number_of_thefts_on_level > 2) || (randint(8) == 1))
+	{
+		msg_print("You hear hunting parties scouring the area for a notorious burgler.");
+		
+		/* Aggravate monsters nearby. */
+		aggravate_monsters(1, FALSE);
+	}
+}
+
+
+/* 
+ * Rogues may set traps.  Only one such trap may exist at any one time, 
+ * but an old trap can be disarmed to free up equipment for a new trap.
+ * -LM-
+ */
+void py_set_trap(int y, int x)
+{
+
+	/* Paranoia -- Forbid more than one trap being set. */
+	if (monster_trap_on_level > 0)
+	{
+		msg_print("You must disarm your existing trap to free up your equipment.");
+		return;
+	}
+
+	/* Set the trap, insure that it is visible, and notify the player. */
+	cave_feat[y][x] = FEAT_MONSTER_TRAP;
+	cave_info[y][x] |= (CAVE_MARK);
+	msg_print("You set a monster trap.");
+
+	/* Increment the number of monster traps. */
+	monster_trap_on_level++;
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+}

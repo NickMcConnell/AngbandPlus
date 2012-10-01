@@ -22,8 +22,14 @@
 
 # Version stamp (required)
 
-V:2.8.3
+V:0.3.1
 
+#N: ego-item index: name (appended to base object description)
+#X: base object tval (general kind): amount the level feeling is increased by
+#W: not used: not used: no longer used: bonus to value
+#C: Bonus to Skill: Bonus to Deadliness: Bonus to armour class: 
+#     pval (controls how much stats or skills are increased by)
+#F: All item-specific flags (special qualities).
 
 ### Body Armor ###
 
@@ -114,7 +120,11 @@ C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 21 (unused)
+N:21:of Night and Day
+X:32:18
+W:0:0:0:10000
+C:0:0:5:0
+F:RES_LITE | RES_DARK
 
 # 22 (unused)
 
@@ -169,11 +179,10 @@ W:0:0:0:1000
 C:0:0:0:5
 F:SEARCH | RES_BLIND | SEE_INVIS
 
-N:31:of Infravision
-X:33:11
-W:0:0:0:500
-C:0:0:0:5
-F:INFRA | HIDE_TYPE
+N:31:of Serenity
+X:33:12
+W:0:0:0:5000
+F:RES_CONFU | RES_SOUND
 
 N:32:of Light
 X:33:6
@@ -263,7 +272,11 @@ W:0:0:0:0
 C:15:15:0:0
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
-# 47 (unused)
+N:47:of Shard Protection
+X:31:10
+W:0:0:0:2500
+C:0:0:5:0
+F:RES_SHARD
 
 
 ### Gloves ###
@@ -317,7 +330,7 @@ F:FEATHER
 
 N:57:of Stealth
 X:35:16
-W:0:0:0:500
+W:0:0:0:1000
 C:0:0:0:3
 F:STEALTH
 
@@ -328,11 +341,14 @@ F:FREE_ACT
 
 N:59:of Speed
 X:35:25
-W:0:0:0:200000
+W:0:0:0:15000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
-# 60 (unused)
+N:60:of Stability
+X:35:15
+W:0:0:0:2000
+F:RES_NEXUS
 
 N:61:of Noise
 X:35:0
@@ -378,7 +394,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # OneAbility
 
 N:66:(Blessed)
-X:24:20
+X:24:15
 W:0:0:0:5000
 C:0:0:0:3
 F:WIS | 
@@ -394,11 +410,7 @@ F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 
-N:69:of Extra Attacks
-X:24:20
-W:0:0:0:10000
-C:0:0:0:2
-F:BLOWS
+# 69 (unused)
 
 # 70 (unused)
 
@@ -408,25 +420,28 @@ F:BLOWS
 
 N:72:of Melting
 X:24:15
-W:0:0:0:8000
+W:0:0:0:4500
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
 N:73:of Shocking
-X:24:20
+X:24:15
 W:0:0:0:4500
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
 N:74:of Burning
-X:24:20
-W:0:0:0:3000
+X:24:15
+W:0:0:0:4000
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 
 N:75:of Freezing
 X:24:15
-W:0:0:0:2500
+W:0:0:0:4000
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-# 76 (unused)
+N:76:of Poisoning
+X:24:15
+W:0:0:0:4000
+F:BRAND_POIS
 
 # 77 (unused)
 
@@ -438,17 +453,17 @@ F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
 N:80:of Slay Animal
 X:24:18
-W:0:0:0:3500
+W:0:0:0:3000
 F:SLAY_ANIMAL
 
 N:81:of Slay Evil
 X:24:18
-W:0:0:0:3500
+W:0:0:0:3000
 F:SLAY_EVIL
 
 N:82:of Slay Undead
 X:24:18
-W:0:0:0:3500
+W:0:0:0:3000
 F:SLAY_UNDEAD
 
 N:83:of Slay Demon
@@ -458,49 +473,49 @@ F:SLAY_DEMON
 
 N:84:of Slay Orc
 X:24:10
-W:0:0:0:2500
+W:0:0:0:2000
 F:SLAY_ORC
 
 N:85:of Slay Troll
 X:24:10
-W:0:0:0:2500
+W:0:0:0:2250
 F:SLAY_TROLL
 
 N:86:of Slay Giant
 X:24:14
-W:0:0:0:2500
+W:0:0:0:2250
 F:SLAY_GIANT
 
 N:87:of Slay Dragon
 X:24:18
-W:0:0:0:3500
+W:0:0:0:3000
 F:SLAY_DRAGON
 
 # The "Kill" brands (8)
 
 N:88:of *Slay* Animal
 X:24:20
-W:0:0:0:6000
+W:0:0:0:7000
 C:0:0:0:2
 F:INT | SLAY_ANIMAL | REGEN
 
 N:89:of *Slay* Evil
 X:24:20
-W:0:0:0:5000
+W:0:0:0:6500
 C:0:0:0:2
 F:WIS | SLAY_EVIL | BLESSED
 
 N:90:of *Slay* Undead
 X:24:24
-W:0:0:0:8000
+W:0:0:0:7500
 C:0:0:0:2
 F:WIS | SLAY_UNDEAD | SEE_INVIS
 
 N:91:of *Slay* Demon
-X:24:16
-W:0:0:0:4000
+X:24:18
+W:0:0:0:5500
 C:0:0:0:2
-F:INT | SLAY_DEMON
+F:INT | SLAY_DEMON | RES_FIRE
 
 N:92:of *Slay* Orc
 X:24:14
@@ -509,22 +524,22 @@ C:0:0:0:2
 F:DEX | SLAY_ORC
 
 N:93:of *Slay* Troll
-X:24:14
-W:0:0:0:4000
+X:24:15
+W:0:0:0:4750
 C:0:0:0:2
 F:STR | SLAY_TROLL
 
 N:94:of *Slay* Giant
-X:24:16
+X:24:14
 W:0:0:0:4000
 C:0:0:0:2
 F:STR | SLAY_GIANT
 
 N:95:of *Slay* Dragon
-X:24:24
-W:0:0:0:6000
-C:0:0:0:2
-F:CON | SLAY_DRAGON | KILL_DRAGON
+X:24:20
+W:0:0:0:6500
+C:0:0:0:3
+F:CON | SLAY_DRAGON
 
 # 96 (unused)
 
@@ -566,83 +581,95 @@ C:5:15:0:0
 
 # 106 (unused)
 
-# 107 (unused)
+N:107:of Extra Might
+X:25:20
+W:0:0:0:14000
+C:5:10:0:0
+F:MIGHT2
 
 N:108:of Extra Might
 X:25:20
-W:0:0:0:10000
-C:5:10:0:2
-F:MIGHT
+W:0:0:0:7000
+C:5:10:0:0
+F:MIGHT1
 
 N:109:of Extra Shots
 X:25:20
-C:10:5:0:1
-W:0:0:0:10000
+C:10:5:0:0
+W:5:0:0:10000
 F:SHOTS
 
 # 110 (unused)
 
-# 111 (unused)
-
-
 ### Ammo ###
 
-N:112:of Hurt Animal
+N:111:of Hurt Animal
 X:23:10
 W:0:0:0:25
 F:SLAY_ANIMAL
 
-N:113:of Hurt Evil
+N:112:of Hurt Evil
 X:23:10
 W:0:0:0:25
 F:SLAY_EVIL
 
-N:114:of Hurt Undead
+N:113:of Hurt Undead
 X:23:10
 W:0:0:0:25
 F:SLAY_UNDEAD
 
-N:115:of Hurt Demon
+N:114:of Hurt Demon
 X:23:10
 W:0:0:0:15
 F:SLAY_DEMON
 
-N:116:of Hurt Orc
+N:115:of Hurt Orc
 X:23:10
 W:0:0:0:15
 F:SLAY_ORC
 
-N:117:of Hurt Troll
+N:116:of Hurt Troll
 X:23:10
 W:0:0:0:15
 F:SLAY_TROLL
 
-N:118:of Hurt Giant
+N:117:of Hurt Giant
 X:23:10
 W:0:0:0:15
 F:SLAY_GIANT
 
-N:119:of Hurt Dragon
+N:118:of Hurt Dragon
 X:23:10
 W:0:0:0:35
 F:SLAY_DRAGON
 
-# 120 (unused)
+N:119:of Acid
+X:23:11
+W:0:0:0:28
+F:BRAND_ACID | IGNORE_ACID
 
-# 121 (unused)
-
-N:122:of Flame
+N:120:of Electricity
 X:23:10
-F:BRAND_FIRE | IGNORE_FIRE
-W:0:0:0:30
-
-N:123:of Frost
-X:23:10
-F:BRAND_COLD | IGNORE_COLD
 W:0:0:0:25
+F:BRAND_ELEC | IGNORE_ELEC
+
+N:121:of Flame
+X:23:11
+W:0:0:0:28
+F:BRAND_FIRE | IGNORE_FIRE
+
+N:122:of Frost
+X:23:10
+W:0:0:0:25
+F:BRAND_COLD | IGNORE_COLD
+
+N:123:of Poison
+X:23:10
+W:0:0:0:25
+F:BRAND_POIS
 
 N:124:of Wounding
-X:23:5
+X:24:5
 W:0:0:0:20
 C:5:5:0:0
 

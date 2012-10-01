@@ -1,6 +1,10 @@
 /* File: object1.c */
 
-/*
+/* Object flavors, colors, easy-know, display of modifiers (eg. "(+2 to 
+ * strength)"), naming, puralizations, etc., artifact and DSM activation 
+ * descriptions, text for full info screen, what items go where in equip-
+ * ment, equipment-related strings, etc., and inventory management and 
+ * display functions.
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -24,16 +28,16 @@
 
 
 /*
- * Max sizes of the following arrays
+ * Max sizes of the following arrays.  Slightly enlarged for Oangband.
  */
-#define MAX_ROCKS      42       /* Used with rings (min 38) */
-#define MAX_AMULETS    16       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     60       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
+#define MAX_ROCKS      44       /* Used with rings (min 38) */
+#define MAX_AMULETS    19       /* Used with amulets (min 13) */
+#define MAX_WOODS      36       /* Used with staffs (min 30) */
+#define MAX_METALS     35       /* Used with wands/rods (min 29/28) */
+#define MAX_COLORS     65       /* Used with potions (min 60) */
+#define MAX_SHROOM     23       /* Used with mushrooms (min 20) */
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
+#define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
 
 /*
@@ -44,10 +48,10 @@ static cptr ring_adj[MAX_ROCKS] =
 {
 	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
 	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
+	"Emerald", "Fluorite", "Garnet", "Granite", "Hemitite", "Jade",
 	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
 	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
+	"Rhodonite", "Ruby", "Sapphire", "Tanzanite", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
 	"Engagement", "Adamantite"
@@ -57,10 +61,10 @@ static byte ring_col[MAX_ROCKS] =
 {
 	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
 	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN,
+	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_L_GREEN,
 	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
 	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
+	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
 	TERM_YELLOW, TERM_L_GREEN
@@ -76,15 +80,15 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper"
+	"Copper", "Serpentine", "Horn", "Cochineal"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
-	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
+	TERM_ORANGE, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER
+	TERM_L_UMBER, TERM_GREEN, TERM_L_WHITE, TERM_RED
 };
 
 
@@ -100,7 +104,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Golden", "Ashen", "Ivory", "Willow", "Cherry", "Palmwood"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -111,7 +115,7 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, TERM_L_WHITE, TERM_SLATE, TERM_RED, TERM_L_UMBER
 };
 
 
@@ -121,8 +125,8 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
-	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
+	"Aluminum", "Antimony", "Cast Iron", "Chromium", "Copper", "Electrum",
+	"Galvorn", "Gold", "Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
 	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
@@ -132,7 +136,8 @@ static cptr wand_adj[MAX_METALS] =
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
+	TERM_L_BLUE, TERM_SLATE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, 
+	TERM_L_WHITE, TERM_L_DARK, TERM_YELLOW,
 	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
@@ -162,6 +167,7 @@ static cptr food_adj[MAX_SHROOM] =
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
 	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+	"Greasy", "Fuzzy", "Red"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -169,7 +175,8 @@ static byte food_col[MAX_SHROOM] =
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_L_WHITE, TERM_WHITE, TERM_L_RED
 };
 
 
@@ -192,7 +199,8 @@ static cptr potion_adj[MAX_COLORS] =
 	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
 	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
 	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold"
+	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold", "Cobalt",
+	"Frothing", "Turgid", "Limpid", "Muddy"
 };
 
 static byte potion_col[MAX_COLORS] =
@@ -208,7 +216,8 @@ static byte potion_col[MAX_COLORS] =
 	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
 	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
 	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW
+	TERM_MULTI, TERM_RED, TERM_YELLOW, TERM_YELLOW, TERM_BLUE, TERM_SLATE,
+	TERM_SLATE, TERM_WHITE, TERM_UMBER
 };
 
 
@@ -221,23 +230,23 @@ static cptr syllables[MAX_SYLLABLES] =
 	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
 	"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
 	"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
-	"byt", "comp", "con", "cos", "cre", "dalf", "dan",
-	"den", "der", "doe", "dok", "eep", "el", "eng", "er", "ere", "erk",
-	"esh", "evs", "fa", "fid", "flit", "for", "fri", "fu", "gan",
+	"byt", "can", "comp", "con", "cos", "cre", "czra", "dalf", "dan",
+	"den", "der", "doe", "dok", "dora", "eep", "el", "eng", "er", "ere", "erk",
+	"esh", "evs", "fa", "fid", "fin", "flit", "for", "fri", "fu", "gan",
 	"gar", "glen", "gop", "gre", "ha", "he", "hyd", "i",
 	"ing", "ion", "ip", "ish", "it", "ite", "iv", "jo",
 	"kho", "kli", "klis", "la", "lech", "man", "mar",
 	"me", "mi", "mic", "mik", "mon", "mung", "mur", "nag", "nej",
 	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
 	"od", "ood", "org", "orn", "ox", "oxy", "pay", "pet",
-	"ple", "plu", "po", "pot", "prok", "re", "rea", "rhov",
+	"ple", "plu", "po", "pot", "prok", "qua", "qur", "re", "rea", "rhov",
 	"ri", "ro", "rog", "rok", "rol", "sa", "san", "sat",
 	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
 	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
 	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
 	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
 	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerg", "yp", "zun", "tri", "blaa"
+	"yerg", "yp", "zun", "tri", "blaa",
 };
 
 
@@ -333,6 +342,9 @@ static bool object_easy_know(int i)
 		/* Spellbooks */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_DRUID_BOOK:
+		case TV_NECRO_BOOK:
+
 		{
 			return (TRUE);
 		}
@@ -508,7 +520,7 @@ void flavor_init(void)
 		potion_col[j] = temp_col;
 	}
 
-	/* Scrolls (random titles, always white) */
+	/* Scrolls (random titles) */
 	for (i = 0; i < MAX_TITLES; i++)
 	{
 		/* Get a new title */
@@ -580,8 +592,8 @@ void flavor_init(void)
 			if (okay) break;
 		}
 
-		/* All scrolls are white */
-		scroll_col[i] = TERM_WHITE;
+		/* All scrolls are white. */
+		scroll_col[i] = TERM_L_WHITE;
 	}
 
 
@@ -717,7 +729,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= e_ptr->flags3;
 	}
 
-	/* Extra powers */
+	/* Extra powers.  Special throwing weapon ability added. -LM- */
 	switch (o_ptr->xtra1)
 	{
 		case OBJECT_XTRA_TYPE_SUSTAIN:
@@ -740,13 +752,20 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
 			break;
 		}
+
+		case OBJECT_XTRA_TYPE_BALANCE:
+		{
+			/* OBJECT_XTRA_WHAT_BALANCE == 1 */
+			(*f1) |= (OBJECT_XTRA_BASE_BALANCE << o_ptr->xtra2);
+			break;
+		}
 	}
 }
 
 
 
 /*
- * Obtain the "flags" for an item which are known to the player
+ * Obtain the "flags" for an item which is known to the player
  */
 void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
@@ -801,7 +820,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
 
-	/* Extra powers */
+	/* Extra powers.  Special throwing weapon ability added. -LM- */
 	switch (o_ptr->xtra1)
 	{
 		case OBJECT_XTRA_TYPE_SUSTAIN:
@@ -822,6 +841,13 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		{
 			/* OBJECT_XTRA_WHAT_POWER == 3 */
 			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_BALANCE:
+		{
+			/* OBJECT_XTRA_WHAT_BALANCE == 1 */
+			(*f1) |= (OBJECT_XTRA_BASE_BALANCE << o_ptr->xtra2);
 			break;
 		}
 	}
@@ -1100,7 +1126,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = amulet_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet ~" : "& Amulet~");
+			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
 			break;
 		}
@@ -1210,6 +1236,22 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Druid Books */
+		case TV_DRUID_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Stone~ of Nature Lore #";
+			break;
+		}
+
+		/* Necromantic Books */
+		case TV_NECRO_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Tome~ of Necromancy #";
+			break;
+		}
+
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
 		{
@@ -1312,6 +1354,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+	/* Non-artifact perfectly balanced throwing weapons are indicated. -LM- */
+	if ((f1 & (TR1_PERFECT_BALANCE)) && (f1 & (TR1_THROWING)) && 
+		(known) && (!o_ptr->name1))
+	{
+		object_desc_str_macro(t, "Well-balanced ");
+	}
 
 	/* Paranoia XXX XXX XXX */
 	/* while (*s == '~') s++; */
@@ -1517,8 +1565,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Bows */
 		case TV_BOW:
 		{
-			/* Hack -- Extract the "base power" */
-			power = (o_ptr->sval % 10);
+			/* Extract the "base power", using the weapon's damage dice. -LM- */
+			power = (o_ptr->dd);
+
+			/* Modify the power, if the weapon is known. -LM- */
+			if (known)
+			{
+				if (f1 & (TR1_MIGHT1)) power += 1;
+				if (f1 & (TR1_MIGHT2)) power += 2;
+			}
 
 			/* Append a "power" string */
 			object_desc_chr_macro(t, ' ');
@@ -1610,7 +1665,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Hack -- Wands and Staffs have charges */
+	/* Hack -- Wands and Staffs have charges.  Make certain how many charges 
+	 * a stack of staffs really has is clear. -LM-
+	 */
 	if (known &&
 	    ((o_ptr->tval == TV_STAFF) ||
 	     (o_ptr->tval == TV_WAND)))
@@ -1618,22 +1675,56 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
+
+		/* Clear explaination for staffs. */
+		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1)) 
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_str_macro(t, "x ");
+		}
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " charge");
 		if (o_ptr->pval != 1)
 		{
 			object_desc_chr_macro(t, 's');
 		}
+
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
+	/* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may 
+	 * be in any state of charge or discharge, this now includes a number. -LM-
+	 */
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval)
+		/* Hack -- Dump " (# charging)" if relevant */
+		if (o_ptr->timeout)
 		{
-			object_desc_str_macro(t, " (charging)");
+			/* Stacks of rods display an exact count of charging rods. */
+			if (o_ptr->number > 1)
+			{
+				/* Paranoia. */
+				if (k_ptr->pval == 0) k_ptr->pval = 1;
+
+				/* Find out how many rods are charging, by dividing 
+				 * current timeout by each rod's maximum timeout.  
+				 * Ensure that any remainder is rounded up.  Display 
+			 	 * very discharged stacks as merely fully discharged.
+			 	 */
+				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				if (power > o_ptr->number) power = o_ptr->number;
+
+				/* Display prettily. */
+				object_desc_str_macro(t, " (");
+				object_desc_num_macro(t, power);
+				object_desc_str_macro(t, " charging)");
+			}
+
+			/* "one Rod of Perception (1 charging)" would look tacky. */
+			else
+			{
+				object_desc_str_macro(t, " (charging)");
+			}
 		}
 	}
 
@@ -1705,16 +1796,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			tail = " to speed";
 		}
 
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			tail = " attack";
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) tail2 = "s";
-		}
-
 #if 0
 
 		/* Shots */
@@ -1723,8 +1804,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Nothing */
 		}
 
-		/* Might */
-		else if (f1 & (TR1_MIGHT))
+		/* Might1 */
+		else if (f1 & (TR1_MIGHT1))
+		{
+			/* Nothing */
+		}
+
+		/* Might2 */
+		else if (f1 & (TR1_MIGHT2))
 		{
 			/* Nothing */
 		}
@@ -1740,8 +1827,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout)
+	/* Indicate charging objects, but not rods. */
+	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
@@ -1863,288 +1950,600 @@ cptr item_activation(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Require activation ability */
-	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
+	if (o_ptr->xtra1 != OBJECT_XTRA_TYPE_ACTIVATION) return (NULL);
 
-	/* Some artifacts can be activated */
-	switch (o_ptr->name1)
+	/* Some objects and artifacts can be activated */
+	switch (o_ptr->xtra2)
 	{
-		case ART_NARTHANC:
+		case ACT_GALADRIEL:
 		{
-			return "fire bolt (9d8) every 8+d8 turns";
+			return "illumination (2d15 damage) every 10+d10 turns";
 		}
-		case ART_NIMTHANC:
+		case ACT_ELENDIL:
 		{
-			return "frost bolt (6d8) every 7+d7 turns";
+			return "magic mapping every 40+d40 turns";
 		}
-		case ART_DETHANC:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_RILIA:
-		{
-			return "stinking cloud (12) every 4+d4 turns";
-		}
-		case ART_BELANGIL:
-		{
-			return "frost ball (48) every 5+d5 turns";
-		}
-		case ART_DAL:
-		{
-			return "remove fear and cure poison every 5 turns";
-		}
-		case ART_RINGIL:
-		{
-			return "frost ball (100) every 300 turns";
-		}
-		case ART_ANDURIL:
-		{
-			return "fire ball (72) every 400 turns";
-		}
-		case ART_FIRESTAR:
-		{
-			return "large fire ball (72) every 100 turns";
-		}
-		case ART_FEANOR:
-		{
-			return "haste self (20+d20 turns) every 200 turns";
-		}
-		case ART_THEODEN:
-		{
-			return "drain life (120) every 400 turns";
-		}
-		case ART_TURMIL:
-		{
-			return "drain life (90) every 70 turns";
-		}
-		case ART_CASPANION:
-		{
-			return "door and trap destruction every 10 turns";
-		}
-		case ART_AVAVIR:
-		{
-			return "word of recall every 200 turns";
-		}
-		case ART_TARATOL:
-		{
-			return "haste self (20+d20 turns) every 100+d100 turns";
-		}
-		case ART_ERIRIL:
-		{
-			return "identify every 10 turns";
-		}
-		case ART_OLORIN:
-		{
-			return "probing every 20 turns";
-		}
-		case ART_EONWE:
-		{
-			return "mass genocide every 1000 turns";
-		}
-		case ART_LOTHARANG:
-		{
-			return "cure wounds (4d7) every 3+d3 turns";
-		}
-		case ART_CUBRAGOL:
-		{
-			return "fire branding of bolts every 999 turns";
-		}
-		case ART_ARUNRUTH:
-		{
-			return "frost bolt (12d8) every 500 turns";
-		}
-		case ART_AEGLOS:
-		{
-			return "frost ball (100) every 500 turns";
-		}
-		case ART_OROME:
-		{
-			return "stone to mud every 5 turns";
-		}
-		case ART_SOULKEEPER:
-		{
-			return "heal (1000) every 888 turns";
-		}
-		case ART_BELEGENNON:
-		{
-			return "phase door every 2 turns";
-		}
-		case ART_CELEBORN:
-		{
-			return "genocide every 500 turns";
-		}
-		case ART_LUTHIEN:
-		{
-			return "restore life levels every 450 turns";
-		}
-		case ART_ULMO:
-		{
-			return "teleport away every 150 turns";
-		}
-		case ART_COLLUIN:
-		{
-			return "resistance (20+d20 turns) every 111 turns";
-		}
-		case ART_HOLCOLLETH:
-		{
-			return "Sleep II every 55 turns";
-		}
-		case ART_THINGOL:
-		{
-			return "recharge item I every 70 turns";
-		}
-		case ART_COLANNON:
-		{
-			return "teleport every 45 turns";
-		}
-		case ART_TOTILA:
-		{
-			return "confuse monster every 15 turns";
-		}
-		case ART_CAMMITHRIM:
-		{
-			return "magic missile (2d6) every 2 turns";
-		}
-		case ART_PAURHACH:
-		{
-			return "fire bolt (9d8) every 8+d8 turns";
-		}
-		case ART_PAURNIMMEN:
-		{
-			return "frost bolt (6d8) every 7+d7 turns";
-		}
-		case ART_PAURAEGEN:
-		{
-			return "lightning bolt (4d8) every 6+d6 turns";
-		}
-		case ART_PAURNEN:
-		{
-			return "acid bolt (5d8) every 5+d5 turns";
-		}
-		case ART_FINGOLFIN:
-		{
-			return "a magical arrow (150) every 90+d90 turns";
-		}
-		case ART_HOLHENNETH:
-		{
-			return "detection every 55+d55 turns";
-		}
-		case ART_GONDOR:
-		{
-			return "heal (500) every 500 turns";
-		}
-		case ART_RAZORBACK:
-		{
-			return "star ball (150) every 1000 turns";
-		}
-		case ART_BLADETURNER:
-		{
-			return "berserk rage, bless, and resistance every 400 turns";
-		}
-		case ART_GALADRIEL:
-		{
-			return "illumination every 10+d10 turns";
-		}
-		case ART_ELENDIL:
-		{
-			return "magic mapping every 50+d50 turns";
-		}
-		case ART_THRAIN:
+		case ACT_THRAIN:
 		{
 			return "clairvoyance every 100+d100 turns";
 		}
-		case ART_INGWE:
-		{
-			return "dispel evil (x5) every 300+d300 turns";
-		}
-		case ART_CARLAMMAS:
+		case ACT_CARLAMMAS:
 		{
 			return "protection from evil every 225+d225 turns";
 		}
-		case ART_TULKAS:
+		case ACT_INGWE:
+		{
+			return "dispel evil (x4) every 300+d300 turns";
+		}
+		case ACT_BOROMIR:
+		{
+			return "frighten monsters every 40+d40 turns";
+		}
+		case ACT_FARAMIR:
+		{
+			return "dispel small life every 55+d55 turns";
+		}
+		case ACT_TULKAS:
 		{
 			return "haste self (75+d75 turns) every 150+d150 turns";
 		}
-		case ART_NARYA:
+		case ACT_NARYA:
 		{
-			return "large fire ball (120) every 225+d225 turns";
+			return "large fire ball (225) every 275+d275 turns";
 		}
-		case ART_NENYA:
+		case ACT_NENYA:
 		{
-			return "large frost ball (200) every 325+d325 turns";
+			return "large frost ball (250) every 325+d325 turns";
 		}
-		case ART_VILYA:
+		case ACT_VILYA:
 		{
-			return "large lightning ball (250) every 425+d425 turns";
+			return "large lightning ball (275) every 375+d375 turns";
 		}
-		case ART_POWER:
+		case ACT_POWER:
 		{
 			return "bizarre things every 450+d450 turns";
 		}
+		case ACT_STONE_LORE:
+		{
+			return "perilous identify every turn";
+		}
+		case ACT_RAZORBACK:
+		{
+			return "star ball (150) every 1000 turns";
+		}
+		case ACT_BLADETURNER:
+		{
+			return "heroism, bless, and resistance every 400 turns";
+		}
+		case ACT_SOULKEEPER:
+		{
+			return "heal (1000) every 888 turns";
+		}
+		case ACT_BELEGENNON:
+		{
+			return "phase door every 2 turns";
+		}
+		case ACT_CELEBORN:
+		{
+			return "genocide every 500 turns";
+		}
+		case ACT_CASPANION:
+		{
+			return "door destruction every turn";
+		}
+		case ACT_HIMRING:
+		{
+			return "protection from evil every 200 + d200 turns";
+		}
+		case ACT_ELEMENTS:
+		{
+			return "protection from the elements every 160 turns";
+		}
+		case ACT_GIL_GALAD:
+		{
+			return "blinding light every 250 turns";
+		}
+		case ACT_HOLHENNETH:
+		{
+			return "detection every 55+d55 turns";
+		}
+		case ACT_GONDOR:
+		{
+			return "heal (500) every 500 turns";
+		}
+		case ACT_COLLUIN:
+		{
+			return "resistance (20+d20 turns) every 175 turns";
+		}
+		case ACT_HOLCOLLETH:
+		{
+			return "Sleep II every 55 turns";
+		}
+		case ACT_THINGOL:
+		{
+			return "recharge magical device every 70 turns";
+		}
+		case ACT_COLANNON:
+		{
+			return "teleport (100) every 45 turns";
+		}
+		case ACT_LUTHIEN:
+		{
+			return "restore life levels every 450 turns";
+		}
+		case ACT_CAMMITHRIM:
+		{
+			return "magic missile (2d6) every 2 turns";
+		}
+		case ACT_EOL:
+		{
+			return "mana bolt (9d8) every 7+d7 turns";
+		}
+		case ACT_PAURNIMMEN:
+		{
+			return "frost bolt (6d8) every 6+d6 turns";
+		}
+		case ACT_PAURAEGEN:
+		{
+			return "lightning bolt (4d8) every 4+d4 turns";
+		}
+		case ACT_PAURNEN:
+		{
+			return "acid bolt (5d8) every 5+d5 turns";
+		}
+		case ACT_FINGOLFIN:
+		{
+			return "instant tunnelling every 3+d3 turns";
+		}
+		case ACT_FEANOR:
+		{
+			return "haste self (20+d20 turns) every 200 turns";
+		}
+		case ACT_DAL:
+		{
+			return "remove fear and cure poison every 5 turns";
+		}
+		case ACT_NARTHANC:
+		{
+			return "fire bolt (6d8) every 7+d7 turns";
+		}
+		case ACT_NIMTHANC:
+		{
+			return "frost bolt (5d8) every 6+d6 turns";
+		}
+		case ACT_DETHANC:
+		{
+			return "lightning bolt (4d8) every 5+d5 turns";
+		}
+		case ACT_RILIA:
+		{
+			return "stinking cloud (12) every 4+d4 turns";
+		}
+		case ACT_BELANGIL:
+		{
+			return "frost ball (3 * level / 2) every 5+d5 turns";
+		}
+		case ACT_ARUNRUTH:
+		{
+			return "frost bolt (12d8) every 300 turns";
+		}
+		case ACT_RINGIL:
+		{
+			return "frost storm (150) every 200 turns";
+		}
+		case ACT_ANDURIL:
+		{
+			return "fire ball (145) every 200 turns";
+		}
+		case ACT_THEODEN:
+		{
+			return "drain life (120) every 400 turns";
+		}
+		case ACT_AEGLOS:
+		{
+			return "frost ball (100) every 500 turns";
+		}
+		case ACT_OROME:
+		{
+			return "stone to mud every 5 turns";
+		}
+		case ACT_EONWE:
+		{
+			return "mass genocide every 1000 turns";
+		}
+		case ACT_LOTHARANG:
+		{
+			return "cure wounds (4d12) every 3+d3 turns";
+		}
+		case ACT_ULMO:
+		{
+			return "teleport away every 75 turns";
+		}
+		case ACT_AVAVIR:
+		{
+			return "word of recall every 200 turns";
+		}
+		case ACT_TOTILA:
+		{
+			return "confuse monster every 15 turns";
+		}
+		case ACT_FIRESTAR:
+		{
+			return "large fire ball (125) every 150 turns";
+		}
+		case ACT_TARATOL:
+		{
+			return "haste self (20+d20 turns) every 100+d100 turns";
+		}
+		case ACT_ERIRIL:
+		{
+			return "identify every 10 turns";
+		}
+		case ACT_OLORIN:
+		{
+			return "probing every 20 turns";
+		}
+		case ACT_TURMIL:
+		{
+			return "drain life (90) every 70 turns";
+		}
+		case ACT_HARAD:
+		{
+			return "a deadly shot every 200+d200 turns";
+		}
+		case ACT_CUBRAGOL:
+		{
+			return "fire branding of bolts every 400 turns";
+		}
+		case ACT_DAVID:
+		{
+			return "elemental branding of any missile every 999 turns";
+		}
+
+
+		case ACT_RANDOM_FIRE1:
+		{
+			return "fire bolt (3 + level / 8)d8 every 7+d7 turns";
+		}
+		case ACT_RANDOM_FIRE2:
+		{
+			return "sphere of fire (100) every 300 turns";
+		}
+		case ACT_RANDOM_FIRE3:
+		{
+			return "fire storm (150) every 800 turns";
+		}
+		case ACT_RANDOM_COLD1:
+		{
+			return "frost bolt (3 + level / 8)d8 every 7+d7 turns";
+		}
+		case ACT_RANDOM_COLD2:
+		{
+			return "sphere of frost (100) every 300 turns";
+		}
+		case ACT_RANDOM_COLD3:
+		{
+			return "frost storm (150) every 800 turns";
+		}
+		case ACT_RANDOM_ACID1:
+		{
+			return "acid bolt (3 + level / 8)d8 every 7+d7 turns";
+		}
+		case ACT_RANDOM_ACID2:
+		{
+			return "sphere of acid (100) every 300 turns";
+		}
+		case ACT_RANDOM_ACID3:
+		{
+			return "acid storm (160) every 800 turns";
+		}
+		case ACT_RANDOM_ELEC1:
+		{
+			return "electricity bolt (3 + level / 8)d8 every 7+d7 turns";
+		}
+		case ACT_RANDOM_ELEC2:
+		{
+			return "ball lightning (100) every 300 turns";
+		}
+		case ACT_RANDOM_ELEC3:
+		{
+			return "lightning strike (130+25) every 800 turns";
+		}
+		case ACT_RANDOM_POIS1:
+		{
+			return "poison dart (3 + level / 10)d8 every 22+d22 turns";
+		}
+		case ACT_RANDOM_POIS2:
+		{
+			return "poison cloud (130) every 500 turns";
+		}
+		case ACT_RANDOM_LIGHT1:
+		{
+			return "blinding ball of light (50) every 250 turns";
+		}
+		case ACT_RANDOM_LIGHT2:
+		{
+			return "dispel light-hating (175) every 700 turns";
+		}
+
+		case ACT_RANDOM_DISPEL_UNDEAD:
+		{
+			return "dispel undead (100) every 300 turns";
+		}
+		case ACT_RANDOM_DISPEL_EVIL:
+		{
+			return "dispel evil (100) every 400 turns";
+		}
+		case ACT_RANDOM_SMITE_UNDEAD:
+		{
+			return "dispel an undead (level / 4)d33 every 200 turns";
+		}
+		case ACT_RANDOM_SMITE_DEMON:
+		{
+			return "dispel a demon (level / 4)d33 every 200 turns";
+		}
+		case ACT_RANDOM_SMITE_DRAGON:
+		{
+			return "dispel a dragon (level / 4)d33 every 200 turns";
+		}
+		case ACT_RANDOM_HOLY_ORB:
+		{
+			return "holy orb (60) every 175 turns";
+		}
+		case ACT_RANDOM_BLESS:
+		{
+			return "blessing (24+d24) every 200 turns";
+		}
+		case ACT_RANDOM_FRIGHTEN_ALL:
+		{
+			return "frighten adversaries every 120+d120 turns";
+		}
+		case ACT_RANDOM_HEAL1:
+		{
+			return "heal (5d20) every 85 turns";
+		}
+		case ACT_RANDOM_HEAL2:
+		{
+			return "heal (7d40) every 225 turns";
+		}
+		case ACT_RANDOM_HEAL3:
+		{
+			return "heal (10d60) every 500 turns";
+		}
+		case ACT_RANDOM_CURE:
+		{
+			return "cure ailments every 500 turns";
+		}
+		case ACT_RANDOM_PROT_FROM_EVIL:
+		{
+			return "protection from evil (24+d24) every 250 turns";
+		}
+		case ACT_RANDOM_CHAOS:
+		{
+			return "chaos ball (d300) every 600 turns";
+		}
+		case ACT_RANDOM_SHARD_SOUND:
+		{
+			return "shard or sound ball (150) every 600 turns";
+		}
+		case ACT_RANDOM_NETHR:
+		{
+			return "nether orb (100) every 400 turns";
+		}
+		case ACT_RANDOM_LINE_LIGHT:
+		{
+			return "ray of light (4d7) every 6+d6 turns";
+		}
+		case ACT_RANDOM_STARLIGHT:
+		{
+			return "starlight (4d7) every 8+d8 turns";
+		}
+		case ACT_RANDOM_EARTHQUAKE:
+		{
+			return "earthquake (radius 10) every 40+d40 turns";
+		}
+		case ACT_RANDOM_IDENTIFY:
+		{
+			return "identify every 30 turns";
+		}
+		case ACT_RANDOM_SPEED:
+		{
+			return "haste self (20+d20) every 120+d120 turns";
+		}
+		case ACT_RANDOM_TELEPORT_AWAY:
+		{
+			return "teleport away every 110 turns";
+		}
+		case ACT_RANDOM_HEROISM:
+		{
+			return "heroism every 200 turns";
+		}
+		case ACT_RANDOM_STORM_DANCE:
+		{
+			return "storm dance every 300 turns";
+		}
+		case ACT_RANDOM_RESIST_ELEMENTS:
+		{
+			return "resistance to the elements every 400 turns";
+		}
+		case ACT_RANDOM_RESIST_ALL:
+		{
+			return "resistance every 400 turns";
+		}
+		case ACT_RANDOM_TELEPORT1:
+		{
+			return "teleport self (30) every 10+d10 turns";
+		}
+		case ACT_RANDOM_TELEPORT2:
+		{
+			return "major displacement (200) every 80 turns";
+		}
+		case ACT_RANDOM_RECALL:
+		{
+			return "recall every 350 turns";
+		}
+		case ACT_RANDOM_REGAIN:
+		{
+			return "restore level every 800 turns";
+		}
+		case ACT_RANDOM_RESTORE:
+		{
+			return "restore stats every 800 turns";
+		}
+		case ACT_RANDOM_SHIELD:
+		{
+			return "magic shield every 400 turns";
+		}
+		case ACT_RANDOM_BRAND_MISSILE:
+		{
+			return "brand missiles every 999 turns";
+		}
+		case ACT_RANDOM_SUPER_SHOOTING:
+		{
+			return "an especially deadly shot every 200+d200 turns";
+		}
+		case ACT_RANDOM_DETECT_MONSTERS:
+		{
+			return "detect monsters every 4+d4 turns";
+		}
+		case ACT_RANDOM_DETECT_EVIL:
+		{
+			return "detect evil every 4+d4 turns";
+		}
+		case ACT_RANDOM_DETECT_ALL:
+		{
+			return "detection every 30+d30 turns";
+		}
+		case ACT_RANDOM_MAGIC_MAP:
+		{
+			return "sense surroundings every 30+d30 turns";
+		}
+		case ACT_RANDOM_DETECT_D_S_T:
+		{
+			return "detect traps, doors, and stairs every 10+d10 turns";
+		}
+		case ACT_RANDOM_CONFU_FOE:
+		{
+			return "strong confuse monster every 250 turns";
+		}
+		case ACT_RANDOM_SLEEP_FOE:
+		{
+			return "strong sleep monster every 250 turns";
+		}
+		case ACT_RANDOM_TURN_FOE:
+		{
+			return "strong frighten monster every 250 turns";
+		}
+		case ACT_RANDOM_SLOW_FOE:
+		{
+			return "strong slow monster every 250 turns";
+		}
+		case ACT_RANDOM_BANISH_EVIL:
+		{
+			return "banish evil every 400 turns";
+		}
+		case ACT_RANDOM_DISARM:
+		{
+			return "disarming every 7+d7 turns";
+		}
+		case ACT_RANDOM_CONFU_FOES:
+		{
+			return "confuse monsters every 300 turns";
+		}
+		case ACT_RANDOM_SLEEP_FOES:
+		{
+			return "sleep monsters every 300 turns";
+		}
+		case ACT_RANDOM_TURN_FOES:
+		{
+			return "frighten monsters every 300 turns";
+		}
+		case ACT_RANDOM_SLOW_FOES:
+		{
+			return "slow monsters every 300 turns";
+		}
+
+		case ACT_DRAGON_BLUE:
+		{
+			return "breathe lightning (130) every 350+d350 turns";
+		}
+		case ACT_DRAGON_WHITE:
+		{
+			return "breathe frost (140) every 350+d350 turns";
+		}
+		case ACT_DRAGON_BLACK:
+		{
+			return "breathe acid (150) every 350+d350 turns";
+		}
+		case ACT_DRAGON_GREEN:
+		{
+			return "breathe poison gas (150) every 350+d350 turns";
+		}
+		case ACT_DRAGON_RED:
+		{
+			return "breathe fire (160) every 350+d350 turns";
+		}
+		case ACT_DRAGON_MULTIHUED:
+		{
+			return "breathe an element or poison (190) every 350+d350 turns";
+		}
+		case ACT_DRAGON_BRONZE:
+		{
+			return "breathe confusion (130) every 300+d300 turns";
+		}
+		case ACT_DRAGON_GOLD:
+		{
+			return "breathe sound (130) every 300+d300 turns";
+		}
+		case ACT_DRAGON_CHAOS:
+		{
+			return "breathe chaos/disenchant (180) every 300+d300 turns";
+		}
+		case ACT_DRAGON_LAW:
+		{
+			return "breathe sound/shards (190) every 300+d300 turns";
+		}
+		case ACT_DRAGON_BALANCE:
+		{
+			return "breathe balance (210) every 300+d300 turns";
+		}
+		case ACT_DRAGON_SHINING:
+		{
+			return "breathe light/darkness (160) every 300+d300 turns";
+		}
+		case ACT_DRAGON_POWER:
+		{
+			return "breathe the elements (240) every 300+d300 turns";
+		}
+
+		case ACT_RING_ACID:
+		{
+			return "cast a acid ball(80) and oppose acid every 50+d100 turns";
+		}
+		case ACT_RING_COLD:
+		{
+			return "cast a cold ball(80) and oppose cold every 50+d100 turns";
+		}
+		case ACT_RING_FIRE:
+		{
+			return "cast a fire ball(80) and oppose fire every 50+d100 turns";
+		}
+		case ACT_RING_ELEC:
+		{
+			return "cast a electricity ball(80) and oppose electricity every 50+d100 turns";
+		}
+		case ACT_AMULET_ESCAPING:
+		{
+			return "teleport(40) every 40+d40 turns";
+		}
+		default:
+		{
+			return "an undocumented activation";
+		}
 	}
 
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
-	/* Branch on the sub-type */
-	switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			return "breathe confusion (120) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-			return "breathe sound (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
-			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			return "You breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_SHINING:
-		{
-			return "breathe light/darkness (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
-		}
-	}
-
-
-	/* Oops */
+	/* Nothing else activates. */
 	return NULL;
 }
 
@@ -2165,8 +2564,8 @@ bool identify_fully_aux(object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 
-	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
+	/* Describe activation, if present. */
+	if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
 	{
 		info[i++] = "It can be activated for...";
 		info[i++] = item_activation(o_ptr);
@@ -2218,7 +2617,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your charisma.";
 	}
-
+	if (f1 & (TR1_MAGIC_MASTERY))
+	{
+		info[i++] = "It affects your magical device skill.";
+	}
 	if (f1 & (TR1_STEALTH))
 	{
 		info[i++] = "It affects your stealth.";
@@ -2239,17 +2641,18 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your speed.";
 	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "It affects your attack speed.";
-	}
+
 	if (f1 & (TR1_SHOTS))
 	{
 		info[i++] = "It affects your shooting speed.";
 	}
-	if (f1 & (TR1_MIGHT))
+	if (f1 & (TR1_MIGHT1))
 	{
 		info[i++] = "It affects your shooting power.";
+	}
+	if (f1 & (TR1_MIGHT2))
+	{
+		info[i++] = "It greatly affects your shooting power.";
 	}
 
 	if (f1 & (TR1_SLAY_ANIMAL))
@@ -2285,11 +2688,6 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It is especially deadly against dragons.";
 	}
 
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		info[i++] = "It is a great bane of dragons.";
-	}
-
 	if (f1 & (TR1_BRAND_ACID))
 	{
 		info[i++] = "It does extra damage from acid.";
@@ -2305,6 +2703,20 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_BRAND_COLD))
 	{
 		info[i++] = "It does extra damage from frost.";
+	}
+
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		info[i++] = "It does extra damage from poison.";
+	}
+
+	if (f1 & (TR1_THROWING))
+	{
+		if (f1 & (TR1_PERFECT_BALANCE))
+		{
+			info[i++] = "It can be thrown hard and fast.";
+		}
+		else info[i++] = "It can be thrown effectively.";
 	}
 
 	if (f2 & (TR2_SUST_STR))
@@ -2547,14 +2959,16 @@ bool identify_fully_aux(object_type *o_ptr)
 		/* Show the info */
 		prt(info[j], k++, 0);
 
-		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
+		/* Page wrap every 20 lines. */
+		if ((k % 22 == 0) && (j+1 < i))
 		{
 			prt("-- more --", k, 0);
 			inkey();
 
 			/* Erase the screen */
 			Term_clear();
+
+			k = 2;
 
 			/* Label the information */
 			prt("     Item Attributes:", 1, 0);
@@ -2736,7 +3150,7 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
-		default:          p = "In pack"; break;
+		default:	  p = "In pack"; break;
 	}
 
 	/* Hack -- Heavy weapon */
@@ -2788,7 +3202,7 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
-		default:          p = "carrying in your pack"; break;
+		default:	  p = "carrying in your pack"; break;
 	}
 
 	/* Hack -- Heavy weapon */
@@ -3015,10 +3429,6 @@ void display_equip(void)
 }
 
 
-
-
-
-
 /*
  * Display the inventory.
  *
@@ -3125,7 +3535,7 @@ void show_inven(void)
 		/* Display the weight if needed */
 		if (show_weights)
 		{
-			int wgt = o_ptr->weight * o_ptr->number;
+			int wgt = o_ptr->weight * o_ptr->number;	
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			put_str(tmp_val, j + 1, 71);
 		}
@@ -3465,6 +3875,166 @@ static int get_tag(int *cp, char tag)
 }
 
 
+/*
+ * scan_floor -- From Tim Baker's Easy Patch 1.2
+ *
+ * Return a list of o_list[] indexes of items at the given cave
+ * location. Valid flags are:
+ *
+ *	    mode & 0x01 -- Item tester
+ *	    mode & 0x02 -- Marked items only
+ *	    mode & 0x04 -- Stop after first
+ */
+bool scan_floor(int *items, int *item_num, int y, int x, int mode)
+{
+	int this_o_idx, next_o_idx;
+
+	int num = 0;
+
+	(*item_num) = 0;
+
+	/* Sanity */
+	if (!in_bounds(y, x)) return (FALSE);
+
+	/* Scan all objects in the grid */
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Item tester */
+		if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+
+		/* Marked */
+		if ((mode & 0x02) && !o_ptr->marked) continue;
+
+		/* Accept this item */
+		items[num++] = this_o_idx;
+
+		/* Only one */
+		if (mode & 0x04) break;
+
+		/* XXX Hack -- Enforce limit */
+		if (num == 23) break;
+	}
+
+	/* Number of items */
+	(*item_num) = num;
+
+	/* Result */
+	return (num != 0);
+}
+
+
+/*
+ * Display a list of the items on the floor at the given location.
+ *
+ * From Tim Baker's Easy Patch 1.2
+ */
+void show_floor(int y, int x)
+{
+	int i, j, k, l;
+	int col, len, lim;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	char tmp_val[80];
+
+	int out_index[23];
+	byte out_color[23];
+	char out_desc[23][80];
+
+	int floor_list[23], floor_num;
+
+	/* Default length */
+	len = 79 - 50;
+
+	/* Maximum space allowed for descriptions */
+	lim = 79 - 3;
+
+	/* Require space for weight (if needed) */
+	if (show_weights) lim -= 9;
+
+	/* Scan for objects in the grid, using item_tester_okay() */
+	(void) scan_floor(floor_list, &floor_num, y, x, 0x01);
+
+	/* Display the inventory */
+	for (k = 0, i = 0; i < floor_num; i++)
+	{
+		o_ptr = &o_list[floor_list[i]];
+
+		/* Describe the object */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+		/* Hack -- enforce max length */
+		o_name[lim] = '\0';
+
+		/* Save the index */
+		out_index[k] = i;
+
+		/* Acquire inventory color */
+		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+
+		/* Save the object description */
+		strcpy(out_desc[k], o_name);
+
+		/* Find the predicted "line length" */
+		l = strlen(out_desc[k]) + 5;
+
+		/* Be sure to account for the weight */
+		if (show_weights) l += 9;
+
+		/* Maintain the maximum length */
+		if (l > len) len = l;
+
+		/* Advance to next "line" */
+		k++;
+	}
+
+	/* Find the column to start in */
+	col = (len > 76) ? 0 : (79 - len);
+
+	/* Output each entry */
+	for (j = 0; j < k; j++)
+	{
+		/* Get the index */
+		i = floor_list[out_index[j]];
+
+		/* Get the item */
+		o_ptr = &o_list[i];
+
+		/* Clear the line */
+		prt("", j + 1, col ? col - 2 : col);
+
+		/* Prepare an index --(-- */
+		sprintf(tmp_val, "%c)", index_to_label(j));
+
+		/* Clear the line with the (possibly indented) index */
+		put_str(tmp_val, j + 1, col);
+
+		/* Display the entry itself */
+		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
+
+		/* Display the weight if needed */
+		if (show_weights)
+		{
+			int wgt = o_ptr->weight * o_ptr->number;
+			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			put_str(tmp_val, j + 1, 71);
+		}
+	}
+
+	/* Make a "shadow" below the list (only if needed) */
+	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+}
+
 
 /*
  * Let the user select an item, save its "index"
@@ -3480,17 +4050,16 @@ static int get_tag(int *cp, char tag)
  * inventory, or floor, respectively, if the proper flag was given,
  * and there are any acceptable items in that location.
  *
- * The equipment or inventory are displayed (even if no acceptable
- * items are in that location) if the proper flag was given.
+ * Any of these are displayed (even if no acceptable items are in that 
+ * location) if the proper flag was given.
  *
  * If there are no acceptable items available anywhere, and "str" is
  * not NULL, then it will be used as the text of a warning message
  * before the function returns.
  *
- * Note that the user must press "-" to specify the item on the floor,
- * and there is no way to "examine" the item on the floor, while the
- * use of "capital" letters will "examine" an inventory/equipment item,
- * and prompt for its use.
+ * Note that the user must press "-" to specify the item on the floor.  The
+ * use of "capital" letters will "examine" an inventory, equipment, or floor
+ * item, and prompt for its use.
  *
  * If a legal item is selected from the inventory, we save it in "cp"
  * directly (0 to 35), and return TRUE.
@@ -3515,15 +4084,14 @@ static int get_tag(int *cp, char tag)
  *
  * We always erase the prompt when we are done, leaving a blank line,
  * or a warning message, if appropriate, if no items are available.
+ *
+ * This function has been revised using code from Tim Baker's Easy Patch 1.2
  */
 bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	s16b this_o_idx, next_o_idx = 0;
-
-	char n1, n2, which = ' ';
+	char n1 = ' ';
+	char n2 = ' ';
+	char which = ' ';
 
 	int j, k, i1, i2, e1, e2;
 
@@ -3535,6 +4103,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool inven = FALSE;
 	bool floor = FALSE;
 
+	bool allow_equip = FALSE;
+	bool allow_inven = FALSE;
 	bool allow_floor = FALSE;
 
 	bool toggle = FALSE;
@@ -3542,6 +4112,53 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char tmp_val[160];
 	char out_val[160];
 
+	int floor_num, floor_list[23], floor_top = 0;
+
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(cp))
+	{
+		/* Floor item? */
+		if (*cp < 0)
+		{
+			object_type *o_ptr;
+
+			/* Special index */
+			k = 0 - (*cp);
+
+			/* Acquire object */
+			o_ptr = &o_list[k];
+
+			/* Validate the item */
+			if (item_tester_okay(o_ptr))
+			{
+				/* Forget the item_tester_tval restriction */
+				item_tester_tval = 0;
+
+				/* Forget the item_tester_hook restriction */
+				item_tester_hook = NULL;
+
+				/* Success */
+				return (TRUE);
+			}
+		}
+
+		/* Verify the item */
+		else if (get_item_okay(*cp))
+		{
+			/* Forget the item_tester_tval restriction */
+			item_tester_tval = 0;
+
+			/* Forget the item_tester_hook restriction */
+			item_tester_hook = NULL;
+
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Extract args */
 	if (mode & (USE_EQUIP)) equip = TRUE;
@@ -3583,29 +4200,28 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
 	while ((e1 <= e2) && (!get_item_okay(e2))) e2--;
 
+ 
+	/* Count "okay" floor items */
+	floor_num = 0;
 
 	/* Restrict floor usage */
 	if (floor)
 	{
 		/* Scan all objects in the grid */
-		for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-		{
-			object_type *o_ptr;
-
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
-			/* Accept the item on the floor if legal */
-			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
-		}
+		(void) scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01);
 	}
 
+	/* Accept inventory */
+	if (i1 <= i2) allow_inven = TRUE;
+
+	/* Accept equipment */
+	if (e1 <= e2) allow_equip = TRUE;
+
+	/* Accept floor */
+	if (floor_num) allow_floor = TRUE;
 
 	/* Require at least one legal choice */
-	if (!allow_floor && (i1 > i2) && (e1 > e2))
+	if (!allow_inven && !allow_equip && !allow_floor)
 	{
 		/* Cancel p_ptr->command_see */
 		p_ptr->command_see = FALSE;
@@ -3621,30 +4237,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	else
 	{
 		/* Hack -- Start on equipment if requested */
-		if (p_ptr->command_see && p_ptr->command_wrk && equip)
+		if (p_ptr->command_see && (p_ptr->command_wrk == (USE_EQUIP))
+			&& allow_equip)
 		{
-			p_ptr->command_wrk = TRUE;
+			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
 		/* Use inventory if allowed */
-		else if (inven)
+		else if (allow_inven)
 		{
-			p_ptr->command_wrk = FALSE;
+			p_ptr->command_wrk = (USE_INVEN);
 		}
 
 		/* Use equipment if allowed */
-		else if (equip)
+		else if (allow_equip)
 		{
-			p_ptr->command_wrk = TRUE;
+			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
-		/* Use inventory for floor */
-		else
+		/* Use floor if allowed */
+		else if (allow_floor)
 		{
-			p_ptr->command_wrk = FALSE;
+			p_ptr->command_wrk = (USE_FLOOR);
 		}
 	}
-
 
 	/* Hack -- start out in "display" mode */
 	if (p_ptr->command_see)
@@ -3652,7 +4268,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Save screen */
 		screen_save();
 	}
-
 
 	/* Repeat until done */
 	while (!done)
@@ -3677,8 +4292,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 
 			/* Toggle if needed */
-			if ((p_ptr->command_wrk && ni && !ne) ||
-			    (!p_ptr->command_wrk && !ni && ne))
+			if ((p_ptr->command_wrk == (USE_EQUIP) && ni && !ne) ||
+				(p_ptr->command_wrk == (USE_INVEN) && !ni && ne))
 			{
 				/* Toggle */
 				toggle_inven_equip();
@@ -3695,7 +4310,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 
 		/* Inventory screen */
-		if (!p_ptr->command_wrk)
+		if (p_ptr->command_wrk == (USE_INVEN))
 		{
 			/* Extract the legal requests */
 			n1 = I2A(i1);
@@ -3706,7 +4321,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		}
 
 		/* Equipment screen */
-		else
+		else if (p_ptr->command_wrk == (USE_EQUIP))
 		{
 			/* Extract the legal requests */
 			n1 = I2A(e1 - INVEN_WIELD);
@@ -3716,56 +4331,91 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (p_ptr->command_see) show_equip();
 		}
 
+		/* Floor screen */
+		else if (p_ptr->command_wrk == (USE_FLOOR))
+		{
+			j = floor_top;
+			k = MIN(floor_top + 23, floor_num) - 1;
+
+			/* Extract the legal requests */
+			n1 = I2A(j - floor_top);
+			n2 = I2A(k - floor_top);
+
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_floor(p_ptr->py, p_ptr->px);
+		}
+
 		/* Viewing inventory */
-		if (!p_ptr->command_wrk)
+		if (p_ptr->command_wrk == (USE_INVEN))
 		{
 			/* Begin the prompt */
 			sprintf(out_val, "Inven:");
 
-			/* Some legal items */
-			if (i1 <= i2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(i1), index_to_label(i2));
+			/* Build the prompt */
+			sprintf(tmp_val, " %c-%c,",
+				index_to_label(i1), index_to_label(i2));
 
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
+			/* Append */
+			strcat(out_val, tmp_val);
 
 			/* Indicate ability to "view" */
 			if (!p_ptr->command_see) strcat(out_val, " * to see,");
 
 			/* Append */
-			if (equip) strcat(out_val, " / for Equip,");
+			if (allow_equip) strcat(out_val, " / for Equip,");
+
+			/* Append */
+			if (allow_floor) strcat(out_val, " - for floor,");
 		}
 
 		/* Viewing equipment */
-		else
+		else if (p_ptr->command_wrk == (USE_EQUIP))
 		{
 			/* Begin the prompt */
 			sprintf(out_val, "Equip:");
 
-			/* Some legal items */
-			if (e1 <= e2)
-			{
-				/* Build the prompt */
-				sprintf(tmp_val, " %c-%c,",
-				        index_to_label(e1), index_to_label(e2));
+			/* Build the prompt */
+			sprintf(tmp_val, " %c-%c,",
+				index_to_label(e1), index_to_label(e2));
 
-				/* Append */
-				strcat(out_val, tmp_val);
-			}
+			/* Append */
+			strcat(out_val, tmp_val);
 
 			/* Indicate ability to "view" */
 			if (!p_ptr->command_see) strcat(out_val, " * to see,");
 
 			/* Append */
-			if (inven) strcat(out_val, " / for Inven,");
+			if (allow_inven) strcat(out_val, " / for Inven,");
+
+			/* Append */
+			if (allow_floor) strcat(out_val, " - for floor,");
 		}
 
-		/* Indicate legality of the "floor" item */
-		if (allow_floor) strcat(out_val, " - for floor,");
+		/* Viewing floor */
+		else if (p_ptr->command_wrk == (USE_FLOOR))
+		{
+			/* Begin the prompt */
+			sprintf(out_val, "Floor:");
+
+			/* Build the prompt */
+			sprintf(tmp_val, " %c-%c,", n1, n2);
+
+			/* Append */
+			strcat(out_val, tmp_val);
+
+			/* Indicate ability to "view" */
+			if (!p_ptr->command_see) strcat(out_val, " * to see,");
+
+			/* Append */
+			if (allow_inven)
+			{
+				strcat(out_val, " / for Inven,");
+			}
+			else if (allow_equip)
+			{
+				strcat(out_val, " / for Equip,");
+			}
+		}
 
 		/* Finish the prompt */
 		strcat(out_val, " ESC");
@@ -3775,7 +4425,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
-
 
 		/* Get a key */
 		which = inkey();
@@ -3817,11 +4466,82 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			case '/':
 			{
-				/* Verify legality */
-				if (!inven || !equip)
+				if (p_ptr->command_wrk == (USE_INVEN))
 				{
-					bell("Cannot switch item selector!");
+					if (!allow_equip)
+					{
+						bell("");
+						break;
+					}
+					p_ptr->command_wrk = (USE_EQUIP);
+				}
+				else if (p_ptr->command_wrk == (USE_EQUIP))
+				{
+					if (!allow_inven)
+					{
+						bell("");
+						break;
+					}
+					p_ptr->command_wrk = (USE_INVEN);
+				}
+				else if (p_ptr->command_wrk == (USE_FLOOR))
+				{
+					if (allow_inven)
+					{
+						p_ptr->command_wrk = (USE_INVEN);
+					}
+					else if (allow_equip)
+					{
+						p_ptr->command_wrk = (USE_EQUIP);
+					}
+					else
+					{
+						bell("");
+						break;
+					}
+				}
+
+				/* Need to redraw */
+				break;
+			}
+
+			case '-':
+			{
+				if (!allow_floor)
+				{
+					bell("");
 					break;
+				}
+
+				/*
+				 * If we are already examining the floor, and there
+				 * is only one item, we will always select it.
+				 * If we aren't examining the floor and there is only
+				 * one item, we will select it if floor_query_flag
+				 * is FALSE.
+				 */
+				if (floor_num == 1)
+				{
+					if ((p_ptr->command_wrk == (USE_FLOOR)) || 
+						(!floor_query_flag))
+					{
+						/* Special index */
+						k = 0 - floor_list[0];
+
+						/* Allow player to "refuse" certain actions */
+						if (!get_item_allow(k))
+						{
+							done = TRUE;
+							break;
+						}
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+
+						break;
+					}
 				}
 
 				/* Hack -- Fix screen */
@@ -3834,54 +4554,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					screen_save();
 				}
 
-				/* Switch inven/equip */
-				p_ptr->command_wrk = !p_ptr->command_wrk;
+				p_ptr->command_wrk = (USE_FLOOR);
 
-				/* Need to redraw */
-				break;
-			}
-
-			case '-':
-			{
-				/* Use floor item */
-				if (allow_floor)
-				{
-					/* Scan all objects in the grid */
-					for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
-					{
-						object_type *o_ptr;
-
-						/* Acquire object */
-						o_ptr = &o_list[this_o_idx];
-
-						/* Acquire next object */
-						next_o_idx = o_ptr->next_o_idx;
-
-						/* Validate the item */
-						if (!item_tester_okay(o_ptr)) continue;
-
-						/* Special index */
-						k = 0 - this_o_idx;
-
-						/* Verify the item (if required) */
-						if (floor_query_flag && !verify("Try", k)) continue;
-
-						/* Allow player to "refuse" certain actions */
-						if (!get_item_allow(k)) continue;
-
-						/* Accept that choice */
-						(*cp) = k;
-						item = TRUE;
-						done = TRUE;
-						break;
-					}
-
-					/* Outer break */
-					if (done) break;
-				}
-
-				/* Oops */
-				bell("Illegal object choice (floor)!");
 				break;
 			}
 
@@ -3893,21 +4567,21 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Look up the tag */
 				if (!get_tag(&k, which))
 				{
-					bell("Illegal object choice (tag)!");
+					bell("");
 					break;
 				}
 
 				/* Hack -- Validate the item */
 				if ((k < INVEN_WIELD) ? !inven : !equip)
 				{
-					bell("Illegal object choice (tag)!");
+					bell("");
 					break;
 				}
 
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (tag)!");
+					bell("");
 					break;
 				}
 
@@ -3929,21 +4603,44 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '\r':
 			{
 				/* Choose "default" inventory item */
-				if (!p_ptr->command_wrk)
+				if (p_ptr->command_wrk == (USE_INVEN))
 				{
 					k = ((i1 == i2) ? i1 : -1);
 				}
 
 				/* Choose "default" equipment item */
-				else
+				else if (p_ptr->command_wrk == (USE_EQUIP))
 				{
 					k = ((e1 == e2) ? e1 : -1);
+				}
+
+				/* Choose "default" floor item */
+				else if (p_ptr->command_wrk == (USE_FLOOR))
+				{
+					if (floor_num == 1)
+					{
+						/* Special index */
+						k = 0 - floor_list[0];
+
+						/* Allow player to "refuse" certain actions */
+						if (!get_item_allow(k))
+						{
+							done = TRUE;
+							break;
+						}
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+					}
+					break;
 				}
 
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell("Illegal object choice (default)!");
+					bell("");
 					break;
 				}
 
@@ -3970,21 +4667,37 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				which = tolower(which);
 
 				/* Convert letter to inventory index */
-				if (!p_ptr->command_wrk)
+				if (p_ptr->command_wrk == (USE_INVEN))
 				{
 					k = label_to_inven(which);
 				}
 
 				/* Convert letter to equipment index */
-				else
+				else if (p_ptr->command_wrk == (USE_EQUIP))
 				{
 					k = label_to_equip(which);
 				}
 
-				/* Validate the item */
-				if (!get_item_okay(k))
+				/* Convert letter to floor index */
+				else if (p_ptr->command_wrk == (USE_FLOOR))
 				{
-					bell("Illegal object choice (normal)!");
+					k = islower(which) ? A2I(which) : -1;
+					if (k < 0 || k >= floor_num)
+					{
+	
+						bell("");
+						break;
+					}
+
+					/* Special index */
+					k = 0 - floor_list[k];
+				}
+
+				/* Validate the item */
+				if ((p_ptr->command_wrk != (USE_FLOOR)) && 
+					!get_item_okay(k))
+				{
+					bell("");
 					break;
 				}
 
@@ -4010,7 +4723,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			}
 		}
 	}
-
 
 	/* Fix the screen if necessary */
 	if (p_ptr->command_see)
@@ -4050,8 +4762,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Warning if needed */
 	if (oops && str) msg_print(str);
 
+#ifdef ALLOW_REPEAT
+
+	if (item) repeat_push(*cp);
+
+#endif /* ALLOW_REPEAT */
+
 	/* Result */
 	return (item);
 }
-
-

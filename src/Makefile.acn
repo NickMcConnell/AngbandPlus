@@ -19,7 +19,7 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
+  melee1.o melee2.o save.o files.o randart.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
@@ -43,9 +43,9 @@ LDFLAGS = -s symbols #-d
 
 .c.o:;	$(CC) $(CFLAGS) -c -o $@ $<
 
-angband: $(OBJS)
-	$(LD) $(LDFLAGS) -o angband $(OBJS)
-	Squeeze angband ^.!RunImage
+oangband: $(OBJS)
+	$(LD) $(LDFLAGS) -o oangband $(OBJS)
+	Squeeze oangband ^.!RunImage
 
 
 # Dynamic dependencies:

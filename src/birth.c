@@ -1,6 +1,10 @@
 /* File: birth.c */
 
-/*
+/* All sorts of code used when a character is selected, rolled, and born. 
+ * Includes background info, determination and rolling of stats and skills,
+ * the character birth interface, the autoroller, and actual creation of a
+ * character.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -124,8 +128,8 @@ static hist_type bg[] =
 	{"Miller.  ", 40, 11, 3, 90},
 	{"Home Owner.  ", 50, 11, 3, 100},
 	{"Burglar.  ", 80, 11, 3, 110},
-	{"Warrior.  ", 95, 11, 3, 115},
-	{"Mage.  ", 99, 11, 3, 125},
+	{"Shiriff.  ", 95, 11, 3, 115},
+	{"Mayor.  ", 99, 11, 3, 125},
 	{"Clan Elder.  ", 100, 11, 3, 140},
 
 	{"You are one of several children of a Gnome ", 85, 13, 14, 45},
@@ -783,8 +787,8 @@ static void get_money(void)
 	if (gold < 100) gold = 100;
 
 	/* She charmed the banker into it! -CJS- */
-	/* She slept with the banker.. :) -GDH-  */
-	/* if (p_ptr->psex == SEX_FEMALE) gold += 50; */
+	/* Mum and Dad figure she won't blow it on beer! -LM- */
+	if (p_ptr->psex == SEX_FEMALE) gold += 50; /* restored by LM */
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -906,10 +910,6 @@ static void player_wipe(void)
 	}
 
 
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
-
-
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -930,15 +930,15 @@ static byte player_init[MAX_CLASS][3][2] =
 {
 	{
 		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_POTION, SV_POTION_BERSERK_STR },
+		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
 
 	{
 		/* Mage */
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
 	},
 
@@ -952,22 +952,43 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Rogue */
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
 
 	{
 		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_DRUID_BOOK, 0 },
+		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_BOW, SV_LONG_BOW }
 	},
 
 	{
 		/* Paladin */
 		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		{ TV_HAFTED, SV_MACE },
+		{ TV_POTION, SV_POTION_HEROISM }
+	},
+
+	{
+		/* Druid */
+		{ TV_DRUID_BOOK, 0 },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_HEALING }
+	},
+
+	{
+		/* Necromancer */
+		{ TV_NECRO_BOOK, 0 },
+		{ TV_HAFTED, SV_WHIP },
+		{ TV_CLOAK, SV_CLOAK }
+	},
+
+	{
+		/* Assassin */
+		{ TV_NECRO_BOOK, 0 },
+		{ TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_BOW, SV_SLING }
 	}
 };
 
@@ -1058,7 +1079,6 @@ static bool player_birth_aux()
 
 	bool autoroll = FALSE;
 
-
 	/*** Instructions ***/
 
 	/* Clear screen */
@@ -1077,9 +1097,11 @@ static bool player_birth_aux()
 
 	/*** Player sex ***/
 
-	/* Extra info */
+	/* Extra info.  Made moe verbose by LM. */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Your 'sex' does not have any significant gameplay effects.");
+		"Females start with more money, and weigh less, but otherwise");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"your 'sex' does not have any significant gameplay effects.");
 
 	/* Prompt for "Sex" */
 	for (n = 0; n < MAX_SEXES; n++)
@@ -1165,7 +1187,7 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Any entries with a (*) should only be used by advanced players.");
+		"Any entries with a (*) are not recommended.");
 
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS; n++)
@@ -1178,8 +1200,11 @@ static bool player_birth_aux()
 		mp_ptr = &magic_info[p_ptr->pclass];
 		str = cp_ptr->title;
 
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+		/* Verify legality.  Altered in Oangband to use a table. */
+		/* if (!(rp_ptr->choice & (1L << n))) mod = " (*)"; */
+
+	/*	k = legal_class[p_ptr->prace][n];*/
+		if (!(legal_class[p_ptr->prace][n])) mod = " (*)";
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
@@ -1212,11 +1237,13 @@ static bool player_birth_aux()
 
 	/*** Maximize mode ***/
 
-	/* Extra info */
+	/* Extra info.  Made more verbose by LM */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
+		"Using 'maximize' mode turns your class and race modifiers to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but often makes it easier to win.");
+		"stats into permanent bonuses or penalties. It makes the game");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"harder at the start but often makes it easier to win.");
 
 	/* Ask about "maximize" mode */
 	while (1)
@@ -1494,8 +1521,9 @@ static bool player_birth_aux()
 				/* Make sure they see everything */
 				Term_fresh();
 
-				/* Delay 1/10 second */
-				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+				/* Delay 2/100 second */
+				/* CHANGE BACK TO 100 FOR MULTIUSER MACHINES -LM- */
+				if (flag) Term_xtra(TERM_XTRA_DELAY, 20);
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;
@@ -1624,13 +1652,15 @@ static bool player_birth_aux()
 /*
  * Create a new character.
  *
+ * This function also initializes the random artifacts that the player 
+ * may find.
+ *
  * Note that we may be called with "junk" leftover in the various
  * fields, so we must be sure to clear them first.
  */
 void player_birth(void)
 {
 	int i, n;
-
 
 	/* Create a new character */
 	while (1)
@@ -1641,6 +1671,12 @@ void player_birth(void)
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
+
+
+	/* Now that the player information is available, we are able to generate 
+	 * random artifacts. -LM-
+	 */
+	initialize_random_artifacts();
 
 
 	/* Note player birth in the message recall */
@@ -1654,7 +1690,6 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{
@@ -1662,7 +1697,7 @@ void player_birth(void)
 		store_init(n);
 
 		/* Ignore home */
-		if (n == MAX_STORES - 1) continue;
+		if (n == STORE_HOME) continue;
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);

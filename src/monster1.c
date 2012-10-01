@@ -1,6 +1,8 @@
 /* File: monster1.c */
 
-/*
+/* how the char gains new monster info and the monster recall, including 
+ * all descriptions.  The player ghost code.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -19,6 +21,36 @@ static cptr wd_he[3] =
 static cptr wd_his[3] =
 { "its", "his", "her" };
 
+/*
+ * Descriptions of monster rarity. -LM-
+ */
+static char *wd_rarity(byte rarity, bool unique)
+{
+	static char rarity_desc[20];
+
+	if (unique)
+	{
+		if (rarity == 1) strcpy(rarity_desc, "very often encountered");
+		else if (rarity == 2) strcpy(rarity_desc, "often encountered");
+		else if (rarity == 3) strcpy(rarity_desc, "fairly often encountered");
+		else if (rarity == 4) strcpy(rarity_desc, "infrequently encountered");
+		else if ((rarity == 5) || (rarity == 6)) strcpy(rarity_desc, "seldom encountered");
+		else if (rarity < 10) strcpy(rarity_desc, "very seldom encountered");
+		else strcpy(rarity_desc, "almost never encountered");
+	}
+	else
+	{
+		if (rarity == 1) strcpy(rarity_desc, "ubiquitous");
+		else if (rarity == 2) strcpy(rarity_desc, "common");
+		else if (rarity == 3) strcpy(rarity_desc, "fairly common");
+		else if (rarity == 4) strcpy(rarity_desc, "not very common");
+		else if ((rarity == 5) || (rarity == 6)) strcpy(rarity_desc, "fairly rare");
+		else if (rarity < 10) strcpy(rarity_desc, "rare");
+		else strcpy(rarity_desc, "extremely rare");
+	}
+
+	return rarity_desc;
+}
 
 /*
  * Pluralizer.  Args(count, singular, plural)
@@ -129,8 +161,6 @@ static void roff_aux(int r_idx)
 
 	monster_race save_mem;
 
-
-
 #if 0
 
 	/* Nothing erased */
@@ -151,9 +181,8 @@ static void roff_aux(int r_idx)
 	/* Access the race and lore */
 	r_ptr = &r_info[r_idx];
 
-
 	/* Cheat -- know everything */
-	if (cheat_know)
+	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 	{
 		/* XXX XXX XXX */
 
@@ -432,13 +461,13 @@ static void roff_aux(int r_idx)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
+			roff(format("%^s is %s, normally found at depths of %d feet",
+			            wd_he[msex], wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), r_ptr->level * 50));
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
+			roff(format("%^s is %s, normally found on dungeon level %d",
+			            wd_rarity(r_ptr->rarity, r_ptr->flags1 & (RF1_UNIQUE)), wd_he[msex], r_ptr->level));
 		}
 		old = TRUE;
 	}
@@ -457,7 +486,8 @@ static void roff_aux(int r_idx)
 			roff(format("%^s ", wd_he[msex]));
 			old = TRUE;
 		}
-		roff("moves");
+		if (flags1 & (RF1_NEVER_MOVE)) roff("acts");
+		else roff("moves");
 
 		/* Random-ness */
 		if ((flags1 & (RF1_RAND_50)) || (flags1 & (RF1_RAND_25)))
@@ -492,7 +522,7 @@ static void roff_aux(int r_idx)
 		}
 		else if (r_ptr->speed < 110)
 		{
-			if (r_ptr->speed < 90) roff(" incredibly");
+			if (r_ptr->speed < 90) roff(" extremely");
 			else if (r_ptr->speed < 100) roff(" very");
 			roff(" slowly");
 		}
@@ -611,10 +641,10 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
-	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
-	if (flags4 & (RF4_XXX4))		vp[vn++] = "do something";
-	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
-	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
+	if (flags4 & (RF4_BOULDER))		vp[vn++] = "throw a boulder";
+	if (flags4 & (RF4_ARROW_5))		vp[vn++] = "fire a seeker arrow";
+	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire a little arrow";
+	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire a arrow";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
 	if (flags4 & (RF4_ARROW_4))		vp[vn++] = "fire missiles";
 
@@ -748,7 +778,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
-	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
+	if (flags6 & (RF6_XXX9))		vp[vn++] = "do something";
 	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
 	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
@@ -831,6 +861,7 @@ static void roff_aux(int r_idx)
 		/* Maximized hitpoints */
 		if (flags1 & (RF1_FORCE_MAXHP))
 		{
+
 			roff(format(" and a life rating of %d.  ",
 			            r_ptr->hdice * r_ptr->hside));
 		}
@@ -1035,13 +1066,13 @@ static void roff_aux(int r_idx)
 	{
 		cptr act;
 
-		if (r_ptr->sleep > 200)
+		if (r_ptr->sleep > 150)
 		{
-			act = "prefers to ignore";
+			act = "is nearly oblivious of";
 		}
 		else if (r_ptr->sleep > 95)
 		{
-			act = "pays very little attention to";
+			act = "prefers to ignore";
 		}
 		else if (r_ptr->sleep > 75)
 		{
@@ -1141,12 +1172,13 @@ static void roff_aux(int r_idx)
 		if (r_ptr->r_drop_item)
 		{
 			/* Handle singular "an" */
-			if (sin) roff("n");
+			if ((sin) && (!(r_ptr->flags1 & (RF1_DROP_CHEST)))) roff("n");
 			sin = FALSE;
 
 			/* Dump "object(s)" */
 			if (p) roff(p);
-			roff(" object");
+			if (r_ptr->flags1 & (RF1_DROP_CHEST)) roff(" chest");
+			else roff(" object");
 			if (n != 1) roff("s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
@@ -1231,8 +1263,8 @@ static void roff_aux(int r_idx)
 			case RBM_XXX4:	break;
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
-			case RBM_MOAN:	p = "moan"; break;
-			case RBM_XXX5:	break;
+			case RBM_SNEER:	p = "sneer"; break;
+			case RBM_REQUEST:	p = "offer to trade"; break;
 		}
 
 
@@ -1347,7 +1379,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Cheat -- know everything */
-	if (cheat_know)
+	if ((cheat_know) || (r_ptr->flags2 & (RF2_PLAYER_GHOST)))
 	{
 		/* Hack -- restore memory */
 		COPY(r_ptr, &save_mem, monster_type);
@@ -1390,8 +1422,16 @@ static void roff_top(int r_idx)
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
-	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	/* Special treatment for player ghosts. -LM- */
+	if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+	{
+		Term_addstr(-1, TERM_WHITE, ghost_name);
+		Term_addstr(-1, TERM_WHITE, ", the ");
+		Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	}
+
+	/* For all other monsters, dump the racial name. */
+	else Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
@@ -1452,4 +1492,315 @@ void display_roff(int r_idx)
 }
 
 
+/* Add various attributes depending on race.  Not currently used. -LM- */
+/* static void process_ghost_race(int ghost_race, int r_idx, monster_type *m_ptr) */
 
+/* Add various attributes depending on class. -LM- */
+static void process_ghost_class(int ghost_class, int r_idx, monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	int dun_level = r_ptr->level;
+
+	/* Note the care taken to make sure that all monsters that get spells 
+	 * can also cast them, since not all racial templates include spells.
+	 */
+	switch(ghost_class)
+	{
+		/* Warrior */
+		case 0:
+		{
+			if (r_ptr->freq_spell <= 10) r_ptr->freq_spell = 5;
+			else r_ptr->freq_spell -= 5;
+
+			r_ptr->hdice = 5 * r_ptr->hdice / 4;
+			r_ptr->ac += r_ptr->level / 10 + 5;
+
+			break;
+		}
+		/* Mage */
+		case 1:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 6;
+
+			if (dun_level < 15) r_ptr->flags5 |= (RF5_MISSILE);
+			else if (dun_level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
+			else if (dun_level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
+			else if (dun_level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
+			else if (dun_level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
+			else if (dun_level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
+
+			if (dun_level >= 20) r_ptr->flags6 |= (RF6_HASTE);
+			if (dun_level > 40) m_ptr->mspeed += 5;
+			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
+
+			r_ptr->hdice = 2 * r_ptr->hdice / 3;
+			
+			break;
+		}
+		/* Priest */
+		case 2:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
+			else r_ptr->freq_spell += 5;
+
+			if (dun_level <= 15) r_ptr->flags5 |= (RF5_CAUSE_1);
+			else if (dun_level <= 30) r_ptr->flags5 |= (RF5_CAUSE_2);
+			else if (dun_level <= 45) r_ptr->flags5 |= (RF5_CAUSE_3);
+			else if (dun_level <= 60) r_ptr->flags5 |= (RF5_CAUSE_4);
+			else r_ptr->flags6 |= (RF6_S_MONSTERS);
+
+			if (dun_level > 50) r_ptr->flags6 |= (RF6_HEAL);
+
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+			break;
+		}
+		/* Rogue */
+		case 3:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+			if (dun_level <= 30) r_ptr->flags6 |= (RF6_HASTE);
+			else if (dun_level > 30) m_ptr->mspeed += 5;
+			if (m_ptr->mspeed > 130) m_ptr->mspeed = 130;
+
+			r_ptr->flags6 |= (RF6_TRAPS);
+
+			break;
+		}
+		/* Ranger */
+		case 4:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+			if (dun_level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
+			else if (dun_level <= 30) r_ptr->flags4 |= (RF4_ARROW_2);
+			else r_ptr->flags4 |= (RF4_ARROW_5);
+
+			r_ptr->flags6 |= (RF6_BLINK);
+
+			break;
+		}
+		/* Paladin */
+		case 5:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+			r_ptr->flags4 |= (RF4_SHRIEK);
+
+			if (dun_level <= 25) r_ptr->flags5 |= (RF5_CAUSE_1);
+			else if (dun_level <= 40) r_ptr->flags5 |= (RF5_CAUSE_2);
+			else if (dun_level <= 55) r_ptr->flags5 |= (RF5_CAUSE_3);
+			else if (dun_level <= 70) r_ptr->flags5 |= (RF5_CAUSE_4);
+
+			r_ptr->flags3 |= (RF3_IM_FIRE | 
+					RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
+			
+			break;
+		}
+		/* Druid */
+		case 6:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
+			else r_ptr->freq_spell += 5;
+
+			if (dun_level <= 20) r_ptr->flags5 |= (RF5_MISSILE);
+			else if (dun_level >= 20) r_ptr->flags5 |= (RF5_BO_COLD);
+			else if (dun_level >= 40) r_ptr->flags5 |= (RF5_BO_PLAS);
+			else if (dun_level >= 50) r_ptr->flags5 |= (RF5_BO_WATE);
+			else if (dun_level >= 70) r_ptr->flags5 |= (RF5_BA_WATE);
+
+			if (dun_level >= 25) r_ptr->flags6 |= RF6_S_ANT;
+			else if (dun_level >= 35) r_ptr->flags6 |= RF6_S_SPIDER;
+			else if (dun_level >= 45) r_ptr->flags6 |= RF6_S_MONSTER;
+			else if (dun_level >= 65) r_ptr->flags6 |= RF6_S_HOUND;
+
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+			break;
+		}
+		/* Necromancer */
+		case 7:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 6;
+
+			if (dun_level < 20) r_ptr->flags6 |= (RF6_DARKNESS);
+			if (dun_level < 20) r_ptr->flags5 |= (RF5_MISSILE);
+			else if (dun_level >= 20) r_ptr->flags5 |= (RF5_MIND_BLAST);
+			else if (dun_level >= 30) r_ptr->flags6 |= (RF6_S_DEMON);
+			else if (dun_level >= 40) r_ptr->flags5 |= (RF5_BRAIN_SMASH);
+			else if (dun_level >= 50) r_ptr->flags6 |= (RF6_S_UNDEAD);
+			else if (dun_level >= 70) r_ptr->flags5 |= (RF5_BA_MANA);
+			else if (dun_level >= 80) r_ptr->flags6 |= (RF6_S_HI_UNDEAD);
+
+			r_ptr->hdice = 2 * r_ptr->hdice / 3;
+			
+			break;
+		}
+		/* Assassin */
+		case 8:
+		{
+			if ((dun_level >= 10) && (r_ptr->freq_spell == 0)) r_ptr->freq_spell = 8;
+
+			if (dun_level > 30) r_ptr->flags6 |= (RF6_DARKNESS);
+
+			if (dun_level >= 10) r_ptr->flags4 |= (RF4_ARROW_1);
+			else if (dun_level >= 20) r_ptr->flags4 |= (RF4_ARROW_2);
+			else if (dun_level >= 40) r_ptr->flags4 |= (RF4_ARROW_5);
+
+			if (dun_level >= 65) r_ptr->flags6 |= (RF6_S_DEMON);
+
+			if (dun_level >= 50) r_ptr->flags6 |= (RF6_TRAPS);
+
+			break;
+		}
+	}
+}
+
+/*
+ * Once a monster with the flag "PLAYER_GHOST" is generated, it needs to have 
+ * a little color added, if it hasn't been prepared before.  This function uses 
+ * a bones file to get a name, give the ghost a gender, and add a few features 
+ * depending on the class (but not race) of the slain adventurer.  -LM-
+ */
+bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
+{
+	int		ghost_sex, ghost_race, ghost_class = 0;
+	byte		try, i, backup_file_selector;
+
+	monster_race *r_ptr = &r_info[r_idx];
+
+	FILE		*fp;
+
+	bool		err = FALSE;
+
+	char		path[1024];
+
+	/* Paranoia. */
+	if (!(r_ptr->flags2 & (RF2_PLAYER_GHOST))) return (TRUE);
+
+	/* Hack -- If the ghost has a sex, then it must already have been prepared. */
+	if ((r_ptr->flags1 & RF1_MALE) || (r_ptr->flags1 & RF1_FEMALE)) return (TRUE);
+
+	/* Hack -- No easy player ghosts, unless the ghost is from a savefile 
+	 * or a test is being performed.  This also makes player ghosts much 
+	 * rarer, and effectively (almost) prevents more than one from being 
+	 * on a level.
+	 */
+	if ((r_ptr->level < p_ptr->depth - 5) && (from_savefile == FALSE) && 
+		(p_ptr->noscore == FALSE)) return (FALSE);
+
+
+	/* Choose a bones file.  Use the variable bones_selector if it has any 
+	 * information in it (this allows saved ghosts to reacquire all special 
+	 * features), then use the current depth, and finally pick at random.
+	 */
+	for (try = 0; try < 40; ++try)
+	{
+		/* Prepare a path, and store the file number for future reference. */
+		if (try == 0) 
+		{
+			if (bones_selector)
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, bones_selector);
+			}
+			else
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, p_ptr->depth);
+				bones_selector = p_ptr->depth;
+			}
+		}
+		else
+		{
+			backup_file_selector = randint(MAX_DEPTH - 1);
+			sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, backup_file_selector);
+			bones_selector = backup_file_selector;
+		}
+
+		/* Attempt to open the bones file. */
+		fp = my_fopen(path, "r");
+
+		/* No bones file with that number, try again. */
+		if (!fp)
+		{
+			bones_selector = 0;
+			continue;
+		}
+
+		/* Success. */
+		if (fp) break;
+	}
+
+	/* No bones file found, so no Ghost is made. */
+	if (!fp) return (FALSE);
+
+	/* XXX XXX XXX Scan the file */
+	err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name, 
+		&ghost_sex, &ghost_race, &ghost_class) != 4);
+
+	/* Hack -- broken file */
+	if (err) return (FALSE);
+
+	/* Close the file */
+	my_fclose(fp);
+
+
+	/*** Process the bones file name and store it in a global variable. ***/
+
+	/* XXX XXX XXX Find the first comma, or end of string */
+	for (i = 0; (i < 16) && (ghost_name[i]) && (ghost_name[i] != ','); i++);
+
+	/* Terminate the name */
+	ghost_name[i] = '\0';
+
+	/* Force a name */
+	if (!ghost_name[0]) strcpy(ghost_name, "Nobody");
+
+	/* Capitalize the name */
+	if (islower(ghost_name[0])) ghost_name[0] = toupper(ghost_name[0]);
+
+
+	/*** Process sex. ***/
+
+	/* Sanity check. */
+	if ((ghost_sex >= MAX_SEXES) || (ghost_class < 0)) ghost_sex = rand_int(MAX_SEXES);
+
+	/* And use that number to toggle on either the male or the female flag. */
+	if (ghost_sex == 0) r_ptr->flags1 |= (RF1_FEMALE);
+	if (ghost_sex == 1) r_ptr->flags1 |= (RF1_MALE);
+
+
+	/*** Process race. ***/
+
+	/* Sanity check. */
+	if (ghost_race >= MAX_RACES) ghost_race = rand_int(MAX_RACES);
+
+	/* And use the ghost race to gain some flags.  Not currently used. */
+	/* process_ghost_race(ghost_race, r_idx, m_ptr); */
+
+
+	/*** Process class. ***/
+
+	/* Sanity check. */
+	if (ghost_class >= MAX_CLASS) ghost_class = rand_int(MAX_CLASS);
+
+	/* And use the ghost class to gain some flags. */
+	process_ghost_class(ghost_class, r_idx, m_ptr);
+
+
+	/* Hack -- increase the rating */
+	rating += 10;
+
+	/* A ghost makes the level special */
+	good_item_flag = TRUE;
+
+	/* Player ghosts are "seen" whenever generated, to conform with previous 
+	 * practice.
+	 */
+	if (from_savefile == FALSE) r_ptr->r_sights = 1;
+
+	/* Success */
+	return (TRUE);
+}

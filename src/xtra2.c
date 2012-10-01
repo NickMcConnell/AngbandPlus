@@ -1,6 +1,11 @@
 /* File: xtra2.c */
 
-/*
+/* Handlers for most of the player's temporary attributes, resistances,
+ * nutrition, experience.  Monsters that drop a specific treasure, monster
+ * death and subsequent events, screen scrolling, monster health descrip-
+ * tions.  Sorting, targetting, what and how squares appear when looked at,
+ * prompting for a direction to aim at and move in.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -681,9 +686,9 @@ bool set_protevil(int v)
 
 
 /*
- * Set "p_ptr->invuln", notice observable changes
+ * Set "p_ptr->magicdef", notice observable changes
  */
-bool set_invuln(int v)
+bool set_extra_defences(int v)
 {
 	bool notice = FALSE;
 
@@ -693,9 +698,9 @@ bool set_invuln(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if (!p_ptr->magicdef)
 		{
-			msg_print("You feel invulnerable!");
+			msg_print("You feel your magical vulnerablity diminish.");
 			notice = TRUE;
 		}
 	}
@@ -703,15 +708,15 @@ bool set_invuln(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->magicdef)
 		{
-			msg_print("You feel vulnerable once more.");
+			msg_print("Your magical vulnerablity falls to its normal value.");
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
-	p_ptr->invuln = v;
+	p_ptr->magicdef = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1626,8 +1631,8 @@ bool set_food(int v)
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
-	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	/* Disturb, except if going from full to normal. -LM- */
+	if ((disturb_state) && (new_aux != 3)) disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1925,6 +1930,10 @@ void monster_death(int m_idx)
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
+
+	/* Hack -- nothing's more annoying than a chest that doesn't appear. -LM- */
+	if ((r_ptr->flags1 & (RF1_DROP_CHEST)) && (r_ptr->flags1 & (RF1_DROP_90))) number = 1;
+
 	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
 	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
@@ -1945,8 +1954,8 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		/* Make Gold.  Reduced to 30% chance instead of 50%. -LM- */
+		if (do_gold && (!do_item || (rand_int(100) < 30)))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;
@@ -1955,11 +1964,22 @@ void monster_death(int m_idx)
 			dump_gold++;
 		}
 
+		/* Make chest. -LM- */
+		else if (r_ptr->flags1 & (RF1_DROP_CHEST))
+		{
+			required_tval = TV_CHEST;
+			(void)make_object(i_ptr, FALSE, FALSE, TRUE);
+			required_tval = 0;
+
+			/* Assume seen XXX XXX XXX */
+			dump_item++;
+		}
+
 		/* Make Object */
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, good, great)) continue;
+			if (!make_object(i_ptr, good, great, FALSE)) continue;
 
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
@@ -2081,6 +2101,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b div, new_exp, new_exp_frac;
 
+	char	path[1024];
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2088,6 +2109,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
+
+	/* Complex message. Moved from melee and archery, now allows spell and 
+       * magical items damage to be debugged by wizards.  -LM- */
+	if (p_ptr->wizard)
+	{
+		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
+	}
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -2102,6 +2130,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Make a sound */
 		sound(SOUND_KILL);
+
+		/* Increase the noise level slightly. -LM- */
+		if (add_wakeup_chance <= 8000) add_wakeup_chance += 500;
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -2159,6 +2190,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+
+		/* When the player kills a player ghost, the bones file that 
+		 * it used is (often) deleted. -LM-
+		 */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			if (randint(3) != 1)
+			{
+				sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, 
+					bones_selector);
+				remove(path);
+			}
+		}
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
@@ -2899,6 +2943,8 @@ static void target_set_interactive_prepare(int mode)
  * This function correctly handles multiple objects per grid, and objects
  * and terrain features in the same grid, though the latter never happens.
  *
+ * This function uses Tim Baker's code to look at objects.
+ *
  * This function must handle blindness/hallucination.
  */
 static int target_set_interactive_aux(int y, int x, int mode, cptr info)
@@ -2914,6 +2960,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	int query;
 
 	char out_val[160];
+
+	int floor_list[23], floor_num;
 
 
 	/* Repeat forever */
@@ -3091,6 +3139,73 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 
 		/* Scan all objects in the grid */
+		if (scan_floor(floor_list, &floor_num, y, x, 0x02))
+		{                               
+			/* Not boring */
+			boring = FALSE;
+
+			while (1)
+			{
+				if (floor_num == 1)
+				{
+					char o_name[80];
+
+					object_type *o_ptr;
+
+					/* Acquire object */
+					o_ptr = &o_list[floor_list[0]];
+
+					/* Describe the object */
+					object_desc(o_name, o_ptr, TRUE, 3);
+
+					/* Message */
+					sprintf(out_val, "%s%s%s%s [%s]",
+						s1, s2, s3, o_name, info);
+				}
+				else
+				{
+					/* Message */
+					sprintf(out_val, "%s%s%sa pile of %d items [l,%s]",
+						s1, s2, s3, floor_num, info);
+				}
+
+				prt(out_val, 0, 0);
+				move_cursor_relative(y, x);
+
+				/* Command */
+				query = inkey();
+
+				/* Display list of items (query == "el", not "won") */
+				if ((floor_num > 1) && ((query == 'l') || (query == ' ') || (query == '*') || (query == '?')))
+				{
+					/* Save screen */
+					screen_save();
+
+					/* Display */
+					show_floor(y, x);
+
+					/* Prompt */
+					prt("Hit any key to continue", 0, 0);
+
+					/* Wait */
+					(void) inkey();
+
+					/* Load screen */
+					screen_load();
+				}
+				else
+				{
+					/* Stop */
+					break;
+				}
+			}
+
+			/* Stop */
+			break;
+		}
+
+
+		/* Scan all objects in the grid */
 		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
@@ -3162,6 +3277,12 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			/* Pick proper indefinite article */
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+
+			/* Hack -- special treatment for certain terrain features. -LM- */
+			if ((feat == FEAT_WATER) || (feat == FEAT_LAVA) || (feat == FEAT_TREE))
+			{
+				s3 = "";
+			}
 
 			/* Hack -- special introduction for store doors */
 			if ((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL))
@@ -3510,6 +3631,17 @@ bool get_aim_dir(int *dp)
 
 	cptr p;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    if (repeat_pull(dp)) {
+
+       /* Verify */
+       if (!(*dp == 5 && !target_okay())) {
+               return (TRUE);
+           }
+    }
+
+#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3590,6 +3722,12 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
+
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
@@ -3619,6 +3757,13 @@ bool get_rep_dir(int *dp)
 
 	cptr p;
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    if (repeat_pull(dp)) {
+        return (TRUE);
+    }
+
+#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3650,6 +3795,12 @@ bool get_rep_dir(int *dp)
 
 	/* Save direction */
 	(*dp) = dir;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -3695,5 +3846,4 @@ bool confuse_dir(int *dp)
 	/* Not confused */
 	return (FALSE);
 }
-
 

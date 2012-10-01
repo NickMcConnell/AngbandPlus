@@ -1,0 +1,438 @@
+Listing of (almost) all differences in Oangband 0.2.0 code from Angband 2.8.3 code.  See the file "020-031 diffs.txt" for changes from version 0.2.0 to version 0.3.1 of Oangband.
+
+
+Comments in the code:
+-All one-sentence comments with a period at the end are mine, as are any with a "-LM-" or "Oangband".
+
+Information:
+-Added annotations to all non-trivial .c and .h files.
+
+*_info files:
+
+a_info:
+-reduced damage dice of most dangerous weapons to avoid problems with the new combat code.  Reduced plusses of a few top weapons, removed all "KILL_DRAGON"s and "BLOWS".
+-made the Dagger of Rilia poisonous.
+-added the amulets of Legolas and Bromir,  Heavy Crossbow of Harad, and the Sling of David
+-changed quite a number of armours and weapons, toned down some potentially unbalancing artifacts, upgraded, added, or changed others (including two or three especially for rogues/assassins), and generally made reasonably powerful artifact weapons and armour appear deeper in the dungeon.  See r_info section for why.
+-Made the Cesti of Fingolfin less of a no-brainer, but warrriors will still find it an extremely valuable find.
+
+-artifacts launchers revised to take advantage of the new launcher multiplier code.
+
+e_info:
+-removed weapons of *slay* dragon, of extra attacks, added weapon of poison
+-added missiles of Acid, Electricity, and Poison.
+-added several new ego-item types.
+
+f_info:
+-moved bookstores, added new bookstore
+
+k_info:
+-reduced damage dice of most dangerous weapons to avoid problems with the new combat code.
+-added Springs of Athelas, Cakes of the Beornings
+-upgraded shots, downgraded seeker missiles.
+-scrolls of enchant weapon are less expensive, and also appear on the town level.
+-added scrolls of Missile Branding and Frightening.
+-potions of Restore Mana are now rarer and more valuable.  Oangband magic users must mostly do without.
+-replaced Staffs of the Magi with Staffs of Banishment, and staffs of Cure light wounds with Staffs of Cure Medium wounds, added Staffs of Detection, Mana Storm, and Starburst.
+-moved a few wands around, tweaked some depths and prices, added wands of Striking and of Storms.
+-removed rod of Detection, added rods of Lighting Flash, Northwinds, Dragonfire, and Glaurung's Blood.
+-combined the six rings of sustain a stat into three of sustain two stats each, removed the ring of INT, added rings of ESP, resist Nether, resist light/dark, and Electricity.
+-upgraded Amulets of the Magi (call me nostalgic) and made them quite rare.  removed amulets of adornment.  added an amulet of escaping, and two more artifact amulets (of Boromir and of Faramir).
+-moved spellbooks, created new spellbooks for new realms.  Used some names from Sangband and one from Zangband.
+-revised the cost and depth of chests, replaced Ruined chest with Large Jeweled chest (with a new sval of 8).  Gave them distinctive new colors.
+-changed the character symbol for spikes and junk to "`" to help make chests (and lights) look more interesting,.
+-tweaked many depths, rarities, prices, etc, and made a lot of items appear deeper in the dungeon.  See r_info section for why.
+
+-potions of resist heat and of resist cold changed to resist fire and cold and of resist acid and electricity respectively.  Potion of Resistance added.
+-launchers now have damage dice.  See object1.c and xtra1.c for usage.
+-Small jeweled chest added.
+-several seldom-used weapons deleted, most food items made less common (to compensate for the fact that many now occur in stacks).
+
+r_info:
+-spread out the monsters a bit, to try avoiding having 80% of the monster types appear in the first 2500'.  No unaltered monster has had its depth increased by more than 1000'.  This is why object depths were spread out too.
+-various monsters replaced (With what?  Play a game and find out...), but the list is still the same size.
+-a far more liberal distribution of "Smart" flags, high-level dragons are a bit tougher and smarter, and some uniques can speak.  Some other changes.
+
+-player ghost templates added.  most player ghosts drop chests.
+-monster ACs reworked, just as HPs were before.  Chars that are poor fighters will find it even more difficult to do much damage to many monsters, but good fighters should be able to land most of their blows.
+-A few uniques tweaked.  Some monsters changed.  Some monsters from Moria added.  All the hydras and most of the angels are now gone.
+-mummified monsters are once again "M"s, but this may not always be so.
+
+v_info:
+-more than doubled the number of vault types.  Took three of Zangband's good designs.
+
+-30 new interesting rooms added.
+
+Patches:
+-DSB's rod sorting patch (removed in 0.3.0).
+-Tim Baker's easy patch (with some slight changes to suppress compilation-errors).
+-Keldon's monster AI (with some small tweaks to ameliorate a couple of perceived problems).
+
+Birth.c
+-females get more money (+50 gold).
+-more verbose gender and maximize info in startup messages.
+-New classes have appropriate startup items, rangers now have a Druid book, a few other changes here.
+-In order to improve the customizability of what classes are legal for what races, and make the new classes legal for some races, I replaced the old bit operator method with code to read from a table (in Tables.c).  What I can't understand, I can always replace...
+-Fixed function player_birth to not maintain store STORE_HOME (the home) instead of  "MAX_STORES -1".
+-smaller delay (now 20) in autoroller. - change back to 100 for multiuser machines!
+-(in future I plan to have a penalty imposed for autoroller use, similar to auto-haggling)
+
+-mages now get a scroll of teleport instead of a dagger.
+
+cave.c
+-monsters do not flow in arena levels.  This fixes a bug that regularly froze the game.
+
+Cmd1.c
+-Reduced the ability of monster AC to ward off blows (necessary after max probable Skill was chopped in half)
+-penalty for invisible monsters in melee reduced to 2/3rd chance, rather than 1/2.
+-Archery and melee critical hits totally reworked.  More options, modified for lower total skills, made far more common, more robust, more precise, and now use only the total player skill to determine frequency and level.  Varied combat messages added; they replace the messages that used to appear in the do_cmd_fire and do_cmd_throw functions in Cmd2.c.  Game now displays a single combat message per hit that varies according according to the level of critical hit one gets and the weapon wielded (in melee) or monster visibility (in archery).
+-reduced, more precise slays and brands, KILL_DRAGON removed, BRAND_POIS added.
+-removed combat messages for normal weapons from function py_attack to function critical_melee (used to be critical_norm).
+-fixed a wee bug that introduced an extra space after an un-IDed amulet description.
+-new formula to create a system of weaponless melee combat for druids.  Simplistic, but it works.
+-Made calculation of total damage multiply the number of dice by slays, criticals, Deadliness before determining actual damage.
+-Deadliness now gives +2% to total melee damage per plus in melee.
+-Assassins are very deadly shots.
+-It is possible to give a living monster the Black Breath.
+
+Cmd2.c  
+-chests now distribute more and better objects, of types that the player class is known to be interested in.  Opening a large chest is at least as good as killing a great Wyrm.
+-Made spiking only take 2/5ths of a  turn.
+-altered the 'g' command. Takes a lot less time, does less (only picks up objects, and that only if always_pickup is false).
+-Some objects now break slightly less frequently if thrown.
+-Made all equipment items contribute to archery Deadliness.
+-Removed the combat messages from the do_cmd_fire and do_cmd_throw functions to the critical hit functions in cmd1.c.
+-Made calculation of total damage multiply the number of dice by slays, criticals before determining actual damage and adding the Deadliness percentage in archery and throwing.
+-Deadliness now gives +2% to total melee damage per plus in archery.
+
+-thrown objects are now more likely to hit something (for realism's sake).
+
+Cmd3.c
+-added Sangband's code to make wearing and removing equipment, and dropping items from equipment impossible when shapechanged.
+-Added Bookseller to help on ASCII characters, added info about new character "`", changed info about "~".
+
+-character help for 'M' now reads "Mummy".
+
+Cmd4.c
+-changed a few mentions of "Angband" to "Oangband" and constants containing the current Angband version to new constants containing the current Oangband version
+
+-it is now possible to see the contents of your home through the check knowledge command.
+
+Cmd5.c
+-added shapeshifting code.  Code also makes code elsewhere redraw mana and a shapechange display.  Decided to allow shape-changed druids to cast spells.  However, see xtra1.c.
+-added code to magically create sprigs of Athelas (for druids only, of course).
+-changed "mp_ptr->spell_type" to "mp_ptr->spell_book - TV_MAGIC_BOOK" in spell indexes to allow more varied spell realms.
+-Made berserk rage forbid magic.
+-other minor changes to allow more spell realms.  Addition of Druid and necromantic spells to spell list acessed by the command "m".
+-necromancer spells also have an improved chance to beam.
+-replaced and/or tweaked a number of mage spells, made mages a bit better at recharging items, defined and added druid and necro spells.  Player level is now far more important in determining spell damage; this should make more spells useful longer.
+-added some code from Sangband, plus Zangband's name and some of its code for teleporting to a specific location.
+
+Cmd6.c
+-new formula for adding brands to missiles.
+-Added sprigs of athelas and cakes of the beornings to food effects.  Made sprigs of Althelas and potions of *Healing* and of Life remove any Black Breath gotten from blows.
+-added scrolls of Missile Branding and Frightening to scroll effects, adapted some code to implement missile branding.  Scrolls of recharging are now slightly less powerful.
+-mages take just a little less time to use staffs and aim wands than anyone else.  Minimum energy use is 75 at level 50.
+-replaced Staffs of the Magi with Staffs of Banishment, and staffs of Cure light wounds with Staffs of Cure Medium wounds, added Staffs of Detection, Mana Storm, Starburst, and Mass Confusion to staff effects.
+-added wands of Striking and of Storms, upgraded the high-level wands.  Wands of Dragon <<foo>> and Annihilation are now quite formidable.
+-removed rod of detection.
+-added  rods of Lighting Flash, Northwinds, Dragonfire, and Glaurung's Blood to rod effects.  Made their damage depend on level.
+-added activations for various new artifacts.
+-tweaked a few artifact activations, note especially the Cesti of Fingolfin.
+-slightly reduced most dragon scale mail activation damages to match reduced monster HPs.
+-added activations for rings of Ice, Flames, Acid, and Electricity.  Added activation for Amulet of Escaping.
+-since the Ring of Power is now more dangerous, I upgraded some of its activations slightly.
+-Added Sangband's code for command to end shapeshift, plus a hook to force mana redraw.
+
+-elemental resistance potion effects changed, potion of resistance added.
+-made ordinary rings and amulets easier to use for chars with poor magic skills.
+
+Dungeon.c
+-added Sangband's command to end a shapeshift.
+-defined inventory sensing abilities for three new classes.
+- fixed function void process_world to maintain the home (STORE_HOME), rather than "MAX_STORES -1".  I'm infuriated with this hard-coding!  It cost me two hours!
+-made drain_exp more deadly.
+-Once they reach level 50, priests now never lose their protection from evil.
+-altered same function to point to set_extra_defences instead of invulnerability.
+-made monsters with the Black Breath not regenerate.
+
+-message appears every so often when a char is Black Breathed.
+-all stores now shuffle and the home is no longer assumed to be the last store.
+
+files.c
+-altered color for Heroic and Legendary Skill levels to blue.  As a side note:  Now melee skill ratings seem accurate; legendary really is just about as good as any char can hope to get.
+-added Topi's code for reading a random line from a text file.
+-changed back to the 2.8.2 character screen.
+-changed the name of the game in various displayed messages to "Oangband".  
+-changed a few mentions of "Angband" to "Oangband" and constants containing the current Angband version to new constants containing the current Oangband version
+-made messages displayed when the player is killing his character a little clearer.
+
+-shapechange and warrior bonuses to resists and abilities now shown on the character screen.
+
+Generate.c
+-destroyed levels are made somewhat less often now.
+-used some Zangband nests and pits
+-used Zangband's empty_levels idea.
+-made it possible for the vault generation code to force the creation of a chest in a particular spot.
+-Introduced Zangband's hack to fit an extra store into the town.
+
+-interesting rooms (11x33 vaults that add color but little treasure to the dungeon) added.
+-monster nests and pits are less likely to cause "special" feelings.
+-Monster nests and pits now seldom cause special feelings, but greater vaults always do.
+
+Init1.c
+-Added new flags to look for in r_info:  "SPEAKING" and "ARROW_5".
+-Added a new weapon flag1:  "BRAND_POIS".
+-new extra might flags now acquired from *_info files.
+
+Init2.c
+-added a new store to and changed others in the array controlling what stores will sell.  made the array apply for all stores, as in Zangband.
+-changed the *_info.txt version numbering system to Oangband reckoning.
+
+load2.c
+-read a previously unused byte as the character's shapechange.
+-weapons with enhanced damage dice now save and reload properly.
+-black breath now read from savefiles.
+-launchers with +2 to might retain their bonus.
+
+melee1.c
+-undead monsters (deeper than 1500') can give the player the Black Breath (an upgraded version of the old drain exp).  This cannot be cured except by "eating" Athelas, or quaffing a potion of *Healing* or of Life.
+-slight changes to protection from evil; now protects against higher level monsters (up to 75th from 50th), but higher-level monsters also have a considerably improved saving throw (a level 75 monster will only be repelled a bit over 7% of the time against a level 50 player).
+-elemental attacks are now not much less likely to hit than straight damage, and are reduced less by resistances.
+
+melee2.c
+-Added Keldon Jones improved monster AI, with a few tweaks to reduce certain game-balance problems.
+-Allowed monsters a chance to recover from the Black Breath.
+-Added a simplified version of Zangband's code to make uniques speak.
+-removed KILL_DRAGON weapons from those that dragons cannot pick up.
+-added the effect of "ARROW_5"
+-made chaos do more damage.
+
+-monster breaths upgraded considerably to compensate for lower HPs.
+-no monster can now summon hydras, because they no longer exist.
+-Demons with a level higher than 45 are better at summoning other demons.
+
+monster2.c
+-added a couple of new monster flag descriptions.
+
+object1c.
+-Added more colors, woods, metals, syllables, etc. to naming arrays to stop the game crashing when certain objects were looked at.
+ -Added Druid and Necro books to easy-know and naming code.
+-added new artifacts and corrected others and Dragon Scale Mail in the activation description code. Added activation descriptions for any new artifacts that needed it.
+-removed KILL_DRAGON and BLOWS from description code, added BRAND_POIS.
+
+-like in Angband 2.8.2, displayed launcher multipliers are modified by extra might flags.  Unlike it, this only happens if the weapon is known.
+-both extra might flags are described properly.
+
+object2.c
+-added DSB's road sorting patch.
+-tweaked the bonuses for rings of Accuracy/Skill, Damage/Deadliness, and Slaying/Combat.  Changed their internal names
+-reduced the level bonus for amulets of the magi.
+-added charges to most staffs, especially those that detect something (except ID, high level ones)
+-added new staffs and wands to the initial charges functions.
+-completely changed the code for improving melee weapons' damage dice, and made it affect all non-artifacts.  Changed the formula for adding value to such weapons.
+-changed the formula for adding value for stat bonuses and speed items to reflect the vastly greater importance of a +6 STR ring compared to a +1 STR ring, or of a +6 pair of Boots of Speed compared to a +1 pair.
+-altered the formula for adding value to melee weapons and bows to reflect the changed effects of  Skill and Deadliness.
+-made chests with a pval of 0 (i.e. empty chests) worthless.
+-made it possible for chests to get far higher pvals, some other changes.
+-Added a bunch of new ego items to the object generation code, removed KILL_DRAGON and extra blows.
+-expanded the formula "make_object" to also accept a required tval.  All sorts of new possibilities open up...
+-Consideranly expanded the definition of "good" to include all sorts of neat items formerly ignored.  This makes the chest-opening code in cmd2.c quite a bit more poweful.
+-Added a function hook to force the creation of items with a given tval, in almost identical fashion to that forcing good objects.
+-Used this code to make it possible for function place_object to accept a specific tval.  Changed references to this function as appropriate.
+-removed the addition to spell failure chance when priests wield sharp weapons, made the formula recognize druids and necros as pure spellcasters.
+-removed rings of intelligence from , added amulets of intelligence to pval-determination code.
+-introduced a little hack to reduce the bonuses of missiles slightly.  I wanted their bonuses to not exceed 10.
+-made the function spell_info work with the new realms of magic and display the correct figures for new and altered spells, including max effective damage for spells that center on the player.
+
+-objects required to be of a certain general type are now never cursed or broken.
+-ego-launcher probabilities altered, launchers of extra might divided into extra might1 and extra might2.
+-worthless objects generated more than 1500' below their normal depth are usually rejected and cheap objects similarly out of depth are sometimes rejected.  This not only cuts down on "junk", but also slightly reduces the problem of excessive object kinds leaving no space in the backpack for marginal items.
+-cheap food and mushrooms are now generated in quantities of 1 to 5. This makes certain objects actually useful.
+
+save.c
+-write a byte to hold shapechange in the savefile.
+-black breath now written to savefiles.
+
+spells1.c
+-made druid and necro books be able to burn.
+-made armor immune to acid and disenchantment if the player has shapeshifted.
+-made items resist elemental attacks better.
+-removed the special exception made for invulnerability in function take_hit.
+-Added Zangband's chance for stat reduction through elemental attacks, but reduced to 4%, and only if the damage is 10 or greater.
+-made monster level slightly less important in the calculations of frightening, slowing, and sleeping.
+-added Sangband's GF_SPIRIT.
+-Chaos resistance now reduces damage more, and nexus sometimes prevents movement when gravity hits.
+
+spells2c
+-Changed the text displayed when a *ID* scroll is read and used to "...*identify*..."
+-made Druid and necro books get discovered by detect enchantment spell
+-adapted some code to allow the frightening of all monsters in LOS, confusion of all monsters in LOS.
+-added description for shapeshifts and poison, changed that for invulnerabilty, and removed those for extra blows and kill_dragon in self-knowledge.
+-mages now get a 50% chance to save the staffs and wands they fail in recharging from destruction.
+-self-knowledge displays extra might flags correctly.
+
+Stores.c
+-changed store_num from "7" to "MAX_STORES".
+-added Druid and Necro books to the types of items that, if cheap, can be sold in piles.  Made the Black Market occasionally sell stacks of wands, rods, and staffs.
+-made Bookseller buy books (inc. those of new realms), made other stores no longer accept them.
+-store number 6 no longer buys potions or scrolls.
+-store owners with low purses put items on sale more frequently.
+
+Tables.c
+-Added a easily user modifable table for racial class limitations, to replace the old bit operator method.
+-Theft table modified to make both theft and security from theft less of a sure thing.  Now thefts work like hits do, with a minimum chance of 5% and a max of 95%.
+-Reduced the affect of STR on Skill, raised the effect of DEX on Skill, raised the effect of STR on Deadliness, and lowered the maximum CON bonus to HPs.
+-Bookseller shop given owners.
+-Revised the blows table; no player can get fewer than two or more than four attacks/rnd now.
+-More than halved all base class and race melee and archery skills, more than halved all level additions to same.
+-Imposed a stealth penalty on mages, made them slightly more stealthy to begin with.
+-Three new classes added, defined, and given level titles.  Two new spellbooks assigned to appropriate classes.  MAX_REALM used to make tables more easily modifiable.
+-greatly revised the whole magic system, added two new realms of spells.
+-extended the chest traps table.
+-Table of druid blows added, for reference by a function in cmd1.c.
+-rangers now have +0 INT, +1 WIS.
+-a few class combat modifiers altered slightly; warriors are a little weaker at the beginning.
+-magic bolt costs tweaked for necros, assassins
+
+Types.c
+-Added a structure in order to make the table of druid blows.
+-Used some of Sangband's changes in altering the player_magic structure
+-changed the names of two or three items in the player_info structure.
+
+variable.c
+-added a global variable to hold required tvals.
+
+wizard1.c and wizard2.c
+-now all items can be made in wizard mode.
+-created a "collection of spare parts" function that makes it possible to make any artifact using a count.  Type '0' to activate the count, type in the index of the artifact you desire, hit control-A to enter debug mode, and hit r.
+-Druid and necro books can now be made in Debug mode.
+-Weapons of *slay* dragon and extra attacks are no longer listed, Poison Brand now is.
+-changed the spoiler version numbering system to Oangband reckoning.
+
+xtra1.c
+-restored the 2.8.2-style desplay of stats from internal figures.  Anything over 18/219 is once again "18/***".
+-any non-humaniod shapeshift now chops maximum mana in half.
+-shapechanges now get displayed and the display is updated if the right flag in p_ptr->redraw is set
+-Light radius is now cumulative.  It only checks for Helms of light, light sources, and priest/paladin bonus, though.
+-Set the maximum number of blows for all classes to 4.  Set the minimum effective weapon weight for all classes to 3.0 pounds. 
+-New bonuses and penalties to base Skill in both melee and archery, based on wielded weapon weight, type, character class, race, and level.  New classes also included.  Edged weapon penalty increased, added to these calculations.
+-Shapeshifting function added, called by a line in calc_bonuses.
+-display of "spell" and "prayer" in number of spells that can be known made to display correctly. 
+-made the function calc_spells work with the new realms of magic.
+-game now generates a more verbose message if the player is in Wizard mode and does damage to a monster with ball/beam/bolt magic.
+-slight revisions to the maximum mana calculation.
+-Necromancers don't like gloves.  Gloves with a plus to DEX are no longer suitable for mages/necros.
+-the AC bonus of magical shielding has been reduced to 40 for Necromancers.
+-added a Deadliness bonus to Berserk, also made it reduce archery skill by 15. 
+-temporary infravision now increases infravision by 2.
+-chaos no longer grants resist confusion.  they are two very different things...
+-Changed the new timed increased magical defenses to raise armour class, saving throw, and forbid blinding and confusion instead.  
+-Changes in Stealth as player level increases now divided by 100.  I don't like this irregularity, but it was by far the easiest option open to me if I wanted to implement a decrease in stealth for mages.
+-new classes given maximum blows, etc.
+-Extra blows code removed.
+-Extra shots with various weapon types added for Rogues, Rangers, and Warriors.  
+
+-increased druid bonus for fighting barehanded to make them as good as paladins (except they can't take advantage of weapon bonuses).
+-mana reduction for over-heavy armour changed to a percentage decrease, so high-level spellcasters need to worry about over-heavy armour just as much as they did when first starting out.  This should keep spellcasters in line, and keep warriors competitive.
+-warriors now regenerate intrinsically at level 40.
+-statistics are now effected by shapechanges.
+-extra_shot and extra_might no longer use pvals, altered extra_might flags included.
+
+Xtras2.c
+-changed the name, the function, and the p_ptr of invulnerablilty (the last in types.c).  See xtra1.c for altered affects.  -Invulnerability is dead!  I shall not mourn its passing!
+-Reduced the generic chance for a monster to drop gold to 30%.
+-going from full to normal no longer disturbs the player under any circumstances.
+
+wizard1.c
+-shots and might are no longer in the list of flags that can be affected by pval.
+
+Wizard2.c, dungeon.c
+-Wizards also remove Black Breath when fully healing themselves and when resurrected.
+-fixed an old Angband bug in the set stats and experience command.  Now debuggers can easily reduce their level if so desired.
+
+
+defines.h
+-Implemented a "pseudo-version" of 0.1.0 by adding new constants, and using them wherever it seems likely not to casue problems (such as saving and loading savefiles).
+-increased MAX_STORES and MAX_CLASS to 9, added Sangband's constant for the home.
+-created a constant called NUM_D_BLOWS, for the druid blow table, and set it to 20.
+-created a new flag for p_ptr->redraw to allow the display of shapechanges on the main window to change.
+-Changed the mapping of stores in f_info.txt, to make room for the Bookstore.  They now start at 42, a la Zangband.
+-added three new class definitions.
+-reduced BTH_PLUS_ADJ (multiplier applied to bonus skill in the calculation of total skill) to 1.  I may remove it later.
+-made stores shuffle slightly more often.
+-Added new tvals for nature and necromantic books.  The tval for Magic books is now the base index in all tables concerning player spells, which lends itelf to far easier addition and subtraction of new realms, but forces all tvals of other realms to follow that of magic books in neat, sequential order.
+- Added new svals for various new objects, made a number of changes and deletions.
+-Stuck in some code for Keldon Jones' monster AI.
+-Added a new monster special flag:  MFLAG_BLBR, meaning that the monster suffers from the Black Breath.
+-Added a new monster flag2:  "SPEAKING".
+-Added Zangband's chance for stat reduction through elemental attacks, but reduced to 4%, and only if the resisted damage is 10 or more.
+-Added an ego shield, cloak, boots, and helm, removed the extra attacks and kill_dragon ego indexes, added poison brand to weapons.  Added ammo of poison, elctricity, and acid.
+-added a new option "empty_levels".
+
+-new ego flag for launchers:  EGO_EXTRA_MIGHT2 and revised ego flag EGO_EXTRA_MIGHT to EGO_EXTRA_MIGHT1.
+-similar changes to the object flag1 "might".
+-removed extra shots and extra might from the pval-dependant flags list.
+
+
+
+
+Melee2.c, dungeon.c, spells1.c, xtra1.c, cmd1.c, cmd2.c
+-Revised the implementation of noise, and made it more intuitive.  Made it possible for various actions to increase the chance that monsters will be disturbed, and took advantage of this new capacity to make bashing and all major kinds of combat more noisy (Rogues are quieter in melee and assassins are quieter when shooting.).  Monsters in LOS are more likely to be disturbed by extra noise.  Also, faster players no longer have an effective bonus to stealth.  To make up for all this, resting now makes less noise, and the base effectiveness of stealth has been increased.
+
+
+
+
+All sorts of files:
+-removed all remaining player ghost hacks and references (except a broken function in save.c, to avoid possible disaster), to make way for...
+
+a new implementation of player ghosts!
+
+cmd3.c
+-player ghosts are not recalled in the monster memory (they vary, and are known fully when seen anyway)
+
+cmd4.c
+-player ghosts are recalled in the list of dead uniques.
+
+defines.h
+-new monster flag2:  "RF2_PLAYER_GHOST".  All monsters in R_info with this flag are considered player ghosts.  For various reasons, this flag should always be used in conjunction with the flag1:  "RF1_UNIQUE".
+
+files.c
+-bones files now made again, player sex now added to bones files (replacing mexp).
+-bones file creator is now less likely to fail.
+
+init1.c
+-added a new flag2 to look for:  "PLAYER_GHOST".
+
+load2.c
+-up-to-date savefiles now use the last record in the monster index (there is no longer anything special about it)
+
+melee2.c
+-player ghosts know everything about the player.
+
+monster1.c
+-the player knows everything about visible player ghosts.
+-new player ghost code (to add special features to the ghost and increase the level rating) written and placed into this file.  This code handles newly generated, repeatedly generated, and restored ghosts correctly.
+-player ghosts start off known whenever generated.
+
+monster2.c
+-player ghosts cannot be summoned (except by wizards summoning a specific monster).
+-player ghosts generate special messages if cheat_hear is activated.
+-monster generation now traps for player ghosts.
+-player ghosts are described properly.
+-player ghosts are removed from monster memory and the number of the bones file they used is cleared when they are deleted.
+
+defines.h, init1.c, monster1.c, monster2.c
+-changed the unused flag1 DROP_USEFUL to DROP_CHEST, made the game look for it, and made monster descriptions describe the drop.
+
+variable.c, save.c, load2.c
+-created a global variable to save the bones file number that the active player ghost uses, and made savefiles write and read it.  When a player ghost is loaded, it is modified just like it would be if it were being generated anew.
+
+xtra2.c
+-when a player ghost dies, the bones file it used is often deleted.
+-made chests appear when monsters with the drop_chest flag die.
+
+
+
+Various Other Changes:
+-editing, tweaking, adding and changing comments, etc..  Additions and changes in a bunch of formulas, definitions, and structure definitions.

@@ -1,6 +1,7 @@
 /* File: save.c */
 
-/*
+/* Creation of savefiles.  Loading a player from a savefile.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -767,6 +768,10 @@ static void wr_lore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
+
+	/* Hack -- Player ghosts are always unknown to new characters. -LM- */
+	if ((p_ptr->is_dead) && (r_ptr->flags2 & (RF2_PLAYER_GHOST))) r_ptr->r_sights = 0;
+
 	/* Count sights/deaths/kills */
 	wr_s16b(r_ptr->r_sights);
 	wr_s16b(r_ptr->r_deaths);
@@ -807,7 +812,6 @@ static void wr_lore(int r_idx)
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
 
-	/* Later (?) */
 	wr_byte(0);
 	wr_byte(0);
 	wr_byte(0);
@@ -901,8 +905,15 @@ static void wr_options(void)
 
 	/*** Oops ***/
 
-	/* Oops */
-	for (i = 0; i < 4; i++) wr_u32b(0L);
+	/* Once contained options.  Reduced from four to three and 1/4 
+	 * longints in Oangband. */
+	for (i = 0; i < 3; i++) wr_u32b(0L);
+	wr_byte(0);
+
+
+	/*** Timed Autosave (inspired by Zangband) ***/
+	wr_byte(autosave);
+	wr_s16b(autosave_freq);
 
 
 	/*** Special Options ***/
@@ -1090,7 +1101,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
-	wr_s16b(p_ptr->invuln);
+	wr_s16b(p_ptr->magicdef);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
@@ -1108,14 +1119,27 @@ static void wr_extra(void)
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->black_breath);	/* Now used to store Black Breath. */
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
-	wr_byte(0);
+	wr_byte(p_ptr->schange); /* Now used to store shapechange. */
+
+	/* Store the bones file selector, if the player is not dead. -LM- */
+	if (!(p_ptr->is_dead)) wr_byte(bones_selector);
+	else wr_byte(0);
+
+	/* Store the number of thefts on the level. -LM- */
+	wr_byte(number_of_thefts_on_level);
+
+	/* Store whether a monster trap exists on this level. -LM- */
+	wr_byte(monster_trap_on_level);
+
 
 	/* Future use */
-	for (i = 0; i < 12; i++) wr_u32b(0L);
+
+	wr_byte(0);
+	for (i = 0; i < 11; i++) wr_u32b(0L);
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1359,9 +1383,13 @@ static bool wr_savefile_new(void)
 	/* Number of times saved */
 	wr_u16b(sf_saves);
 
+	/* Oangband version information. */
+	wr_byte(O_VERSION_MAJOR);
+	wr_byte(O_VERSION_MINOR);
+	wr_byte(O_VERSION_PATCH);
+	wr_byte(O_VERSION_EXTRA);
 
 	/* Space */
-	wr_u32b(0L);
 	wr_u32b(0L);
 
 
@@ -1408,18 +1436,81 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 	}
 
-	/* Hack -- Dump the artifacts */
+
+	/* Record the total number of artifacts. */
 	tmp16u = MAX_A_IDX;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++)
+
+	/* Record the number of random artifacts. */
+	tmp16u = MAX_A_IDX - ART_MIN_RANDOM;
+	wr_u16b(tmp16u);
+	
+
+	/* As the least bad of various possible options considered, Oangband now 
+	 * saves all random artifact data in savefiles.  This requires (44 * 40) 
+	 * = 1760 extra bytes in the savefile, which does not seem unreasonable.
+	 */
+	/* Write the artifact info. */
+	for (i = 0; i < MAX_A_IDX; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
+
+		/* Most regular artifact info is stored in a_info.raw. */
+		if (i < ART_MIN_RANDOM)
+		{
+			wr_byte(a_ptr->cur_num);
+			wr_byte(0);
+			wr_byte(0);
+			wr_byte(0);
+		}
+		/* But random artifacts are specific to each player. */
+		else
+		{
+			wr_u16b(a_ptr->name);
+			wr_u16b(a_ptr->text);
+
+			wr_byte(a_ptr->tval);
+			wr_byte(a_ptr->sval);
+			wr_u16b(a_ptr->pval);
+
+			wr_u16b(a_ptr->to_h);
+			wr_u16b(a_ptr->to_d);
+			wr_u16b(a_ptr->to_a);
+
+			wr_byte(a_ptr->dd);
+			wr_byte(a_ptr->ds);
+
+			wr_u16b(a_ptr->ac);
+			wr_u16b(a_ptr->weight);
+
+			wr_u32b(a_ptr->cost);
+
+			wr_u32b(a_ptr->flags1);
+			wr_u32b(a_ptr->flags2);
+			wr_u32b(a_ptr->flags3);
+
+			wr_byte(a_ptr->level);
+			wr_byte(a_ptr->rarity);
+
+			wr_byte(a_ptr->cur_num);
+			wr_byte(a_ptr->activation);
+
+			/* Add some filler space for later expansion. */
+			wr_u32b(0);
+		}
 	}
 
+	/* Note down how many random artifacts have names.  In Oangband 0.3.0 
+	 * there are 40 random artifact names.
+	 */
+	wr_u16b(MAX_A_IDX - ART_MIN_RANDOM);
+
+	/* Write the list of random artifact names. */
+	for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		wr_string(format("%s", a_name + a_ptr->name));
+	}
 
 
 	/* Write the "extra" information */

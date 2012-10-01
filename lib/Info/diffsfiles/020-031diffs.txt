@@ -1,0 +1,419 @@
+Listing of (most) changes from Oangband 0.2.0 to Oangband 0.3.1.  See the file "A-020 diffs.txt" for changes from Angband 2.8.3 to version 0.2.0 of Oangband.
+
+
+
+added various new sections to the help files to explain loading and saving games, and to document all the significant changes below.
+
+created files that explained how to edit *_info files and use the Angband debugging system.
+
+added annotations to each of the *_info files.
+
+
+a_info.txt
+-added the "throwing" flag to a few artifact daggers and spears.  Gave the 'thancs perfect balance.
+-added the activation index, or zero, to all artifacts.  Now activations are user-modifiable.
+
+e_info.txt
+-boots of speed have a lower base value (the real value comes from the bonus to speed).
+
+f_info.txt
+-lava, water, and trees now exist.
+-altered the trap features' names, changed notes to reflect the new system of traps, made it clear that the six trap features that were no longer needed are now unused.
+-added a "monster trap" that only effects monsters and that only rogues can create.
+
+k_into.txt
+-made Elvish waybread, Cakes of the Beornings, and Scrolls of Satisfy Hunger more expensive.  Elvish Waybread is still likely to be underpriced.
+-added a new polearm: throwing axe, and a new hafted weapon: throwing hammer
+-added the "throwing" flag to four weapons:  spears, throwing axes, throwing hammers, and daggers.
+-rings of speed have a lower base value (the real value comes from the bonus to speed).
+-cost of treasure items raised almost tenfold to accommodate a more intuitive system of assigning actual value.
+-changed amulet of Seaching to amulet of Magical Item Mastery.
+-lowered the cost of potions of gain stat.
+-wands of slow, sleep, and confuse monster are now rarer at shallow depths, but become just as common as before deeper down.
+-added a new scroll "*Recharging*", tweaked the level for scrolls of recharging.
+-renamed and reduced the price of scrolls and wands of door destruction.
+-pvals (now, how long they need to recharge between zaps) are included with all rod listings.
+-pvals (maximum possible number of initial charges) are also included with all wand and staff listings.
+-because they are now far more desirable and convenient to use, most combat rods are rarer.  Timeouts have been retweaked.  Rod ball spells have decreased radii (rods shouldn't usually be area-effect items).
+-because it is now quite easy to collect stacks of wands with large numbers of charges, common wands now have about 1/4th fewer charges.
+
+r_info.txt
+-the phantom ghost template lacked a number of needed flags.  This has been fixed.
+-fewer monsters have a disturbance of 0.
+-new monster "Wolf Chieftain".
+-poisonous snakes are nastier, but wood and mirkwood spiders are less deadly.
+-monsters that drop "good" items drop fewer now, as the good flag now means more.
+-monsters that drop objects now drop fewer, as objects are less frequently very low-level.
+-dragons retweaked again.  Now there is a strong distinction between young and mature dragons, and young dragons and above (mature and above for multi-hued) can inflict elemental and poison damage, as appropriate to their type.
+-most trolls now throw boulders, all but a few rather uncommonly as distance attacks go.  I imagine that trolls will be treated with a little more respect now...
+-increased the rarity of most creatures that come in groups.
+-a far less liberal distribution of NO_FEAR, NO_SLEEP, and NO_CONF flags, but they are still quite common, particularly at higher levels.
+-far and away more monsters can push past other monsters.  No more lines of orcs stopped by their sleeping leader!
+-flying monster are now specified.  They can easily cross certain terrain types.
+-Ted Sandyman replaced with The Desperate Adventurer.
+-fewer low-level thieves, but noticably nastier high-level ones.  Some confident adventurers are going to get a nasty surprise...
+
+v_info.txt
+-interesting rooms no longer add to level feelings (although they still can if so desired).
+-there are now fewer traps in vaults, especially greater vaults.
+-v_info.txt now accepts a minimum and maximum level for vaults and special rooms.
+-lots of people have contributed lots of vaults, many taking advantage of the new terrain features and vault codes.
+
+
+Added five new files to /lib/files/ to name random artifacts.
+
+
+
+birth.c
+-changed the starting weapon of a paladin to a mace.
+-random artifacts initialize at player birth.
+
+cave.c
+-wize_lite only fully reveals vaults if the player is using a debug command or has quaffed a potion of *enlightenment*.  Otherwise greater and lesser vaults are effectively perma-lit and magic-mapped.
+-trees now considered "walls".
+-rubble no longer considered "walls" for purposes of lighting and magic mapping.
+-new features added to priority list for reduced-scale dungeon map.
+-players and monsters in tree and rubble grids can now be targetted 
+and fired upon.
+
+cmd1.c
+-granted weapons of *slay* a specific monster type a slightly increased damage dice multiplier.  This is a hack.
+-completely reworked traps, increasing the number of kinds almost threefold.  Now a given trap feature may have any of multiple effects depending partially on dungeon depth.  To prevent a single trap from randomly blasting you with , say, various elemental attacks, the simple RNG is used where appropriate and the coordinates of the trap input.  Lots of nasty new traps, but kept rarish enough not to be too much of a problem.
+-do_cmd_walk_test now tests for passable terrain, not floors.
+-fixed a bug that prevented extra noise being made in melee at all.
+-fixed the reduction in noise for rogues in melee, also made it apply to assassins.
+-more effective attacks by rogues and to a lesser extent assassins against sleeping monsters in melee.
+-rubble, trees, and water effect hit chance in melee.
+-lava, water, rubble, and trees all now have special movement restrictions or delays.  Because rubble is now traversable, certain messages have been removed.
+-level 35+ warriors now are not charged energy for extra melee attacks.
+-slightly more interesting message appears when a frightened character attacks a monster he cannot see.
+-floor pick up interface replaced by that in Tim Baker's easy patch 1.2
+
+cmd2.c
+-players are given the chance to go up or down another level 50% of the time when descending, and 33% of the time when ascending, if the first level is not a quest level, the bottom of the dungeon, or the town.  I expect this to substantially reduce player frustration at tedious diving.
+-bashing a door is slightly more effective than it was, especially for characters with a double-digit STR.
+-players cannot tunnel through trees, even though trees are otherwise considered "walls".
+-traps deep down in the dungeon are more difficult to disarm.
+-do_cmd_alter (the '+' command) now contains links to code that allows Rogues to steal and set traps.
+-fixed the reduction in noise for assasins in archery.  
+-more effective attacks by all classes against sleeping monsters in archery.
+-made it possible to cast a spell that increases the damage done by a single shot significantly.
+-reworked the thrown object code, and brought it into conformity with the other non-magical combat code.  Made throwing weapons do a reasonable amount of damage, and made weapons of perfect balance deadly.
+-rubble, trees, and water effect hit chance in both archery and throwing.
+-more effective attacks by assassins when using throwing weapons against sleeping monsters.
+
+cmd3.c
+-added Zangband-inspired info on burden and total capacity to the inventory and equipment displays.
+-when the player destroys some of the wands or rods in a stack, the stack's charges or total timeout are reduced accordingly.
+-added code to allow Rogues to steal gold and set traps.
+
+
+cmd4.c
+-added Zangband's autosave option
+-Tim Baker's fix for an Angband 2.8.3 bug in the keymap saving code.
+-player ghosts are no longer listed in the lineup of uniques.  This is a hack.
+
+cmd5.c
+-all spell realms other than necromancy now have a spell or prayer to disarm an adjacent trap.
+-a number of attack spells's damages have been lowered slightly, various other minor changes.
+-fixed horrible bug in spell "Blizzard".  It was doing 50 + randint(5000) points of damage!  Amazing what one little "*" can do...
+-bug with shapechanges halving mana before the spell's mana cost was calculated fixed.
+-most duration spells are now no longer fully cumulative.  Exceptions include infravision and the intervention of deities.
+-mage spell "stone to mud" now higher-level.
+-added specific damages to sleep, slow, confuse, frighten, and turning spells.   Spell realms now differ more here.
+-necro spell to dispel evil has become a spell to dispel non-evil.  Spell to dispel evil added back at a higher level, replacing a near-duplicate spell.
+-priests are now able to jam a door with magical spikes (this replaces cure light wounds).  The spell of cure serious wounds is now slightly less powerful and lower level.
+-necro's magic bolt now more powerful than mage's magic missile.
+-recharge spells reworked.  Mage's recharge I now weaker.
+
+cmd6.c
+-made elvish waybread heal more and fully satisfy the player.
+-added a new scroll "*Recharging*" to the effects code.
+-went all wishy-washy and allowed potions of *enlightenment* to wizard-light even vaults.  I am such a softy...
+-all sleeping, slowing, confusing, turnng, and frightening functions now have a specific damage passed to them.  Some items, especially artifacts, are now much more effective then others.
+-the code for activating objects has been reorganized.  About 60 new activations added.  The code now uses o_ptr->xtra2 to find a activation index, which it then matches to one of a (long) list of effects.  This applies to any and all objects with activations.  This prevents the addition of random artifacts with activations making the whole system even more hackish than it was already.
+-rods now use timeouts in the same way as do activatable items, and pvals to find out how much to increase a timeout by.
+-rod damages have been tweaked (mostly slight increases)
+-wands no longer unstack when used.
+-wand and rod damages tweaked yet again, mostly to make them more regular.  Rods now do more slightly damage than wands, whether shooting balls or bolts, but seldom or never fire beams, and produce much smaller balls.
+
+dungeon.c
+-descriptions for shapechanges are now formatted so that immediately changing from one shape to another does not lead to descriptions like "lionlle".
+-various shapechanges now either immediately set opposition to an element to zero, or stop any decrease in opposition.
+-reduced regeneration's effect on mana regeneration.  It now provides a 50% bonus rather than a 100% bonus.
+-when the player uses debug commands, he receives a message that explicitly tells him that his savefile will be marked.  Any player who is already running a no-score character will not get the warning again.
+-the timeout of a rod stack decreases by one for each charging rod in that stack per 10 game turns, whether the stack is in the backpack or on the floor.
+
+files.c
+-tweaked certain inputs into the "likert" function to make it more optimistic about fighting and archery skill and less about saving throws.  Altered the likert function itself slightly to provide more precise information.
+
+files.c (alternative 2.8.3 file)
+-updated the likert colors to match the standard files.c.  Added warrior and shapechange bonuses to the flags display.
+
+generate.c
+-tweaked monster pit and nest generation, made special rooms no longer icky.  Special rooms are now sometimes lit.
+-made destroy level a external function (allows use by a trap), and added an input to alter the function, depending on whether or not it is called while a level is being generated.  This function now creates a fair bit of rubble.
+-ordinary rooms may now (2% chance total) have a collapsed ceiling (filled with rubble/walls/etc.), be filled with a lake, or contain trees growing under magical light, often with a little lake within the copse.
+-there are slightly fewer traps in Oangband.
+-monster pit and nest generation tweaked.  Both made rarer (especially nests) and use dungeon level less exclusively to determine type.  Dragons of every type may now appear.  Various changes in relative chance of creation.
+-rewrote the code that reads symbols in a textual vault description.  Added the new terrain and treasure seams, added some more random monster and object choices, made it possible to place specific object kinds, and allowed vaults to specifically include monsters of any race (other than 'x' and 'X').
+-vaults now take a minimum and maximum depth.
+-interesting rooms are no longer "icky".  Player may now teleport around in them, and they will be fully mapped by wiz_lite().
+-the number of monster traps and thefts on a level is reset as soon as another level is generated.
+-the vault symbol '1' now only produces good items 1 time in 4.
+-monsters generated to be of a specific race are not quite as tough in interesting rooms.
+
+init1.c
+-removed "kill_dragon" and added "throwing" and  "perfect_balance" to list of strings that cause object flags to be set from a *_info file.
+-added "boulder" and "flying"  to the list of strings that cause monster flags to be set.
+-expanded the code for handing the "P:..." line in "a_info.txt" to also acquire an activation index.
+-expanded the code for handlin the "X..." line in v_info.txt to also acquire minimum and maximum allowable depths.  This makes it possible to have really tough special rooms, and interesting but safe greater vaults (not that I plan to have many of either).
+-new "request" monster blow type obtained from r_info.txt files.
+
+init2.c
+-made the code that builds the artifact array from a binary file only load artifacts up to just before the first random artifact.
+-to help ID random artifacts, the alchemy shop now occasionally sells scrolls of *Identify*.  It no longer sells potions of berserk strength.
+
+
+load2.c
+-there is now a function that tests for old Oangband savefiles.
+-made the program load autosave information.
+-the game loads how many thefts have occured and how many monster traps exist on the level
+-revised a line of code that hard-coded the maximum number of quests to four.
+-Oangband version information is finally written down.
+-added infomation on the number of random artifacts, to provide security against later alterations.
+-wrote some code to handle both the new and old styles of saving artifacts.
+-blasted and shattered objects are no longer partially restored when saved and loaded.
+-old-style rods and wands are properly converted.
+-old-style artifact and dragon scale mail activations are now properly transferred.
+
+melee1.c
+-monster wand/staff draining attack can now also drain rods.
+-monster hps and object charges/timeouts handled correctly when draining (the new-style) wands and rods.
+-when a wand or rod from a stack is stolen, the stack's charges or maximum timeout are reduced accordingly.  The stolen item is created with a reasonable pval.
+-blinding, confusing, frightening, and paralyzing melee attacks are no longer fully cumulative, but their initial durations are now just a touch higher.
+-new attack type - request.  The first Angband NPC!
+
+melee2.c
+-breathers that know or can learn about the player will less frequently surpress their breath weapon in the face of player resistances and immunities.  Monsters will never give up on attack spells entirely, whatever difficulties they face.
+-casting frequency of haste-self spells tweaked, other similar changes
+-attack spell frequency reduced.  I wanted that Druid to blind me, /then/ kill me...
+-Bug in the Keldon's AI patch fixed:  monsters with friends are no longer effectively immune to fear.
+-Bug with one of my changes to the AI patch that occasionally made the game freeze fixed.
+-the formulas that determine whether a monster can unlock or bash down a door have been revised.  Now, no monster need ever dispair of getting any door open, but is highly unlikely to be certain of success.  Monster level, not HPs, now determines success in unlocking.  Jamming is now more useful, because a thoughly jammed door can more effectively resist powerful monsters.
+-monsters that can't open or bash doors will (usually, but not always, to avoid endless loops) stagger around, looking for other options.
+-monster movement is affected by lava, rubble, water, and trees.
+-If a monster moves over a Rogue's monster trap, it can disarm it, fly over it, or take damage from it, which sometimes destroys the trap.
+-monsters can now throw boulders.  To save space, only one boulder-type attack is defined, but damage increases as monster level does.
+-monsters are able to push past similar monsters.  A monster able to push past another monster is sometimes blocked temporarily, to simulate the nuisance factor.
+-bug in black breath code that gave the undead too good a chance to inflict the Black Breath fixed.
+-the function clean_shot now allows bolts to enter trees and rubble.
+-significantly hasted or slowed monsters (by more than any possible random variation) now eventually return to normal speed.
+
+monster1.c
+-the new throw boulder monster flag is described.
+-monster descriptions now describe how common the monster is.
+-monsters that cannot move about the dungeon display a monster description explaining how quickly they act, not move.
+
+monster2.c
+-added SUMMON_THIEF to the summon_specific function.
+-deleted player ghosts are never counted in the list of kills for either the player or his ancestors.  This is a hack, I know...
+-the string that contains the monster race name is of fixed length.  This hopefully fixes a bug reported with writable strings (caused by the ghost naming code) in gcc.
+-creatures may be summoned onto any passable terrain, but will never appear (though any means) on terrain they cannot traverse on the ground.
+-forced-depth monster now /only/ appear at their native depth, no longer at their native depth or deeper.  I pray I'm not introducing some kind of nasty bug...
+
+object1.c
+-a throwing weapon with the extra ability "perfect balance" will be given that flag when processed.
+-a throwing weapon with the extra ability "perfect balance" will be called something like "a Balanced Dagger of Fire".
+-all new activation now display properly when an object is fully ID'd.
+-magic_mastery flag displays a description if fully ID'd.
+-throwing flag displays a description if fully ID'd.
+-fully ID code now displays as many screens as are necessary to completely describe the object or artifact.
+-charging rods and stacks of rods display an indicator that includes the number of rods charging if necessary.
+-staff stack descriptions now include the number of staffs before their number of charges, to make it clear to the player how they work.
+-Added Tim Baker's code to view and interact with objects on the floor.
+
+object2.c
+-when a special artifact is requested, the available indices are no longer tested in order from 1 to 16, rather a random start point is selected, and the list wraps around.  This removes the advantage that items early on the list formerly enjoyed. 
+-further expanded the concept of "good", added code to make amulets of Magical Item Mastery gain pvals.
+-because it is now necessary, artifacts tranfer their activation information to the object they become when generated.
+-un-ID'ed weapons and ammo with enhanced damage dice now have a higher value.
+-allowed ego-item throwing weapons to sometimes also become perfectly balanced.
+-if a chest is specifically asked for, a reasonably high-level one will be created far more frequently.  This allows the removal of some hackish code in generate.c and xtra2.c.
+-rewrote the code to grant melee weapons enhanced damage dice.  This should squash a few bugs, and possibly even make the game playable for those without floating point capacities.
+-revised the bonus to price for melee weapons and missiles with enhanced damage dice.
+-added a bonus to price for items with perfact balance.
+-made ego-weapons of elemental brands more common, and everything else a little rarer, especially weapons of *slay* any monster.
+-added value bonus for magical item mastery plusses, flattened the curve of value added for stat bonuses
+-changed the trap instantiation formula to control the depth of all trap types.  This allows a less hackish treatment of trap doors, and prevents both Angband-style instadeaths from pit traps and trap doors for new chars and reduces the chances for all the nasty new traps to appear before a char has a sporting chance of being able to deal with them.
+-added a few more charges to staffs, wand of disarming, door destruction.
+-because it is now necessary, added activations to dragon scale mail, rings of acid, electricity, flames, and ice, and to amulets of escaping.
+-missiles now usually have even plusses to Skill and Deadliness, to make them stack just that little bit better.
+-various altered spells had their info revised.
+-pricing code tweaked to handle new-style wand stacks.
+-wands no longer require the same number of charges to stack.
+-rods of the same kind will now always stack.
+-when two wands stack together, their charges combine.
+-charges or maximum timeouts (pvals) allocate appropriately when wands and rods are dropped.
+-removed dsb's patch, as it is no longer applicable.
+-the charging of wands and staffs is no longer hard-coded.  All items of these types get between 1/2 and the full pval listed along with the rest of the item information in k_info.txt.
+-object compacting code deletes all aware objects with a base value of two gold or less in the first compaction round.  This should reduce the number of Potions of Speed and Scrolls of Identify that bite the dust.  This change may even speed up the entire function...
+-armour Skill penalties only effect the value of the armour if they differ from the base armour kind's penalty to Skill, or are greater than 0, or are less than -12.
+-algorithm for assigning value to a treasure item reworked and simplified.  High-level treasure types are now found much deeper in the dungeon, and values always range between maximum cost and 1/2 maximum cost.
+-some little corrections and adjustments to spell info to match changes elsewhere
+-amulets of escaping no longer also get the attributes of amulets of doom.
+
+randart.c
+-created a new .c file to contain all the code needed to initialize random artifacts.  I shall not claim to have the best system of random artifacts, but I certainly have that which requires most code!
+
+saliant features of the Oangband random artifact implementation:
+	-Random artifacts initialize when a character is born, and are saved in savefiles.  There are 40 
+	random artifacts.  They appear in addition to normal artifacts (127 normal artifacts, plus 40 
+	random artifacts, makes for 167 possible artifacts).
+
+	-Angband 2.7.0+ and all Oangband savefiles are compatable.  Adventurers without random 
+	artifacts will silently get forty to find.
+
+	-There are no random artifact light sources, rings, or amulets.  There are, however, random 
+	artifact dragon scale mails, with either artifact or intrinsic activations.
+
+	-To create an internal array of artifacts, the game first uses a_info.txt/a_info.raw just as it did 
+	before , then fills in the empty random artifact spaces when it loads a savefile or creates a new 
+	character.  Same story with the artifact names structure, the code for modifying which is 
+	adopted from Greg Wooledge's random artifacts.
+
+	- random artifacts are created and processed exactly like regular artifacts.
+
+	-Artifacts are often generated according to a theme.  This theme controls all activations and 
+	offers the best chance of getting highly desirable qualities.  There are upwards of 65 themes.
+
+	-The code is capable of creating most possible variations of artifacts that the normal list offers 
+	(including the Glaive of Pain, Camlost, and even something close to Calris), but will not generate 
+	extremely powerful items (Although an almost-Ringil is possible, Deathwreaker is not on, nor 
+	is Bladeturner).  10% of all artifacts it generates are of "terrible" quality.
+
+	-Artifacts can be named using the W. Sheldon Simms random name generator, or from any of 
+	four lists found in files.txt.   Zangband provided the code that makes the second method possible.
+
+	-Artifact and object activations have been regularized.  Users may now easily add or take away 
+	activations from artifacts by editing a_info.txt.  The number of activations available to choose 
+	from has been more than doubled (to roughly 145).
+
+save.c
+-made the program write autosave information.
+-included information on a level's monster traps and how many thefts the player has performed on that level.
+-included Oangband version information, allowing clean tests for old Oangband savefiles.
+-made the program save random artifacts to savefiles.  This eats up 1600 extra bytes, plus 160 for filler space that I added for expandability.
+-made the program write a list of random artifact names.  This takes about 600 or so bytes.
+
+spells1.c
+-elemental destruction of  inventory items now increases more smoothly as damage increases.  Maximum chance is 2% for most items, and 3% for potions and scrolls, at 225 (resisted) damage, as opposed to the 3% at 60 damage (before resists) of Standard Angband.  Minimum chance is now 3/1000 instead of 10/1000.
+-unbarring ways and trap/door destruction no longer effects traps.  Traps have to be disarmed.
+-various spells can solidify lava, turn water into steam, and burn trees
+-various terrain features adjust the damage done by various spells.  Monsters tend to be able to take advantage of terrain better than the player, to partially balance out their poorer tactics.  Spells that mostly effect the body are fully adjusted, other damage-dealing spells (not dispel, though) are partially affected, and other spells are not affected at all (unless the monster ducks behind a rock or dodges around a tree).
+-the projection KILL_TRAP has "merely" a 95% chance of success, otherwise the trap activates.
+-evil monsters resist nether less.
+-turn undead, evil, frighten monsters, slowing, confusing, and sleeping all reworked.  Unique immunities replaced by a bonus to saving throw, a more straightforward comparison between spell power and monster saving throw, no cumulative effects (except with speed), no rescue from previous effects, monsters now slow down and sleep less.  Occasional "super-charging" of spell power, to make all these spells useful (with a fair bit of luck) against a out-of-depth monster that can't be taken out any other way.  It is more difficult to confuse or frighten undead (using normal methods) . Priests and necromancers are good at frightening evil and undead, and mages and druids are good at slowing, sleeping, and confusing their foes.
+-a new spell type exists that dispels all non-evil creatures, demons, and dragons.
+-rods can now be destroyed by electricity (they're very tough, though).
+-when wands from a stack are destroyed, the stack's charges are reduced accordingly.  when rods are destroyed, the maximum 
+timeout of the stack is reduced accordingly.
+-monsters no longer remain hasted or slowed permenantly.
+
+spells2.c
+-added a function to allow magical spiking.
+-all sleeping, confusing, frightening, turning, and slowing spells  now all directly transfer a given dam value to the "project" function.
+-the spell line of light does 4d7 damage now, instead of 6d8.
+-destroy area now produces a fair bit of rubble.
+-earthquake now can produce lava (if caused by a volcanic eruption) and rubble.
+-added a function to dispel creatures who can't stand bright light.
+-the recharging code has been heavily revised.  Staffs are more robust, and no more than one will ever be destroyed.  New-style rods and wands are handled appropriately, and a stack of wands will often only lose one member.  On the other hand, each staff in a stack will gain fewer charges (although always at least one), and the new-style wand stacking makes certain that the player can no longer get an excessive number of charges at one time.  The number of extra charges wands and staffs now get is related to how many their type normally gets starting out.
+-recharging code now outputs more easily understandable messages that include the type and indicate the quantity of the item effected.
+-The function "disarm_trap" now casts a radius 0 ball spell on the adjcent square in whatever direction has been chosen.
+-new spell types exists that dispels all non-evil creatures, a single demon, all demons in LOS, and a single dragon.
+-damage input to recharge spell now has no bonus added to it.  This permits the weakening of the mage's recharge I.
+
+store.c
+-reworked the equations for determing buy and sell prices at stores.  Now owner greed and the charisma and racial modifiers are all multiplied together (and the number appropriately deflated) to obtain a final adjustment to price.  This allows the removal of the black market hack and far better handling of extreme cases (especially when buying, where the old equations often generated rather ridiculous offers).
+-shots, arrows, and bolts worth less than 500 gold each will appear in quantities of at least 12d5 - 11.
+-the black market bonus to magic now increases as player level does.
+-rod and wand stacks now distribute total maximum timeouts and charges between those kept and those sold, purchased, or dropped.
+-missiles are never removed from a store's inventory one by one.
+-rods and wands can combine with others of their type in all cases.
+-rods and wand pvals (maximum timeouts and charges) are incremented appropriately when they combine or are destroyed.
+
+tables.c
+-black marketeers are now very greedy, to make up for the fact that they now operate under the same rules as do other stores.
+-rogues and aassassins now get fewer HPs, to make up for the bonuses they now receive in various combat situations and their disarming skill, which is now more important.  
+-many classes now have a lower allowable armour weight.
+-all other classes are now poorer at disarming (at least initially).
+-Dwarves take longer to advance, and are not quite as good at disarming.
+-various (mostly druid) spells now cost more.  One or two now cost less.
+-early spells for pure spell-casters have been moved up in level.  By giving more spells the chance to be "state-of-the-art" (the highest-level magic available), this change may help encourage players to pay attention to each spell they receive.
+-Spells that promised trap destruction have been renamed, they and "Unbarring Ways" have had their costs reduced.
+-mage spell "stone to mud" now higher-level.
+-the mage's genocide, mass genocide, and word of destruction are all considerably more expensive.  This partially rebalances the class that benefits most from the new-style wands and rods.
+-New spells that disarm traps have replaced the priestly "Brand Weapon", the mage's "Sleep II", and the druid's "Resistance".  Costs, etc. have been altered.
+-some priestly spells switched for neatness.
+-add_mag_stat table replaced by the Angband table with the same name.
+-Black Marketeers have an even higher greed value.
+-mages' standard teleport spell is now somewhat more effective at early levels and not so effective later on than it was before.
+-gave mage's recharge II a slightly lower failure rate.
+-made mages pay 1 mana more to detect doors, stairs, and traps.
+-almost all mage area-effect damage spells now cost more, but a few are easier to cast.
+-the necro spells turn undead and turn evil are now cheaper.
+-the necro spell dispel evil is now back in its old position, but even weaker, and they have a new spell that can do lots of damage to demons.
+-priests and paladins are now worse at teleportation (since both are so powerful in other ways, I felt a rebalance was called for)
+
+several other changes.
+
+variables.c, externs.h
+-added some autosave-related global variables.
+-added some savefile variables to record the Oangband version.
+-added a global variable allowing a restriction on monster race.
+-added a global variable that allows some terrain to take two turns to enter.
+-added global variables that limit the amount of traps and stealing a rogue can set or do.
+
+wizard1.c
+-the code for generating artifact spoilers now understands missile launcher qualities, the new system of artifact flags, and random teleportation.
+-the new throw boulder monster flag is described.
+
+wizard2.c
+-because it is now necessary, artifacts transfer their activation information to the object they become when generated.
+-the 'd' command now performs a dimension door instead of a teleport to target.
+-when rod quantities are changed by a debugger, their pvals automatically change as needed.
+-treasure objects can now be generated using the wizard commands.
+
+xtra1.c
+-one extra spellpoint given to spellcasters.
+-rogues and assassins no longer get a bonus to Skill if they aren't wielding a weapon.
+-stealth is now a tad less effective intrinsically, because of various reductions to noise-generation for some classes.
+-player processing code now increases magic items bonus if an item is found with the magic mastery flag.
+-rogues now get an extra shot at 20th level, not 15th level.
+
+xtra2.c
+-noise level now increases slightly when a monster dies.
+-new features are described grammatically when looked at.
+-code to look at grids uses Tim Baker's object inspection code.
+
+defines.h
+-increased the number of monsters on a normal level to 16 from 14.  <<wicked cackle>>
+-increased the chance for out of depth monsters to appear.  <<maniacal laughter>>
+-added a new polearm:  throwing axe.
+-added a new hafted weapon: throwing hammer.
+-defined a new object flag1, "Throwing".
+-defined a new ego flag:  perfect balance.
+-added a new object flag1 to pval-dependant list.
+-added a new summon type to the summon list.
+-added a new scroll "*Recharging*".
+-added a new monster flag2 "Flying, and flag4 "Boulder".
+-added two bolt spells to the list of those that may hurt fellow monsters.
+-added some inputs to permit damage to be passed to various spell hooks.
+-added some spell types.
+-added some definitions to allow ego-item throwing weapons a chance at getting the "perfect balance" flag.
+-added definitions for all activations, new and old, to make a more flexible system of activations possible.
+-added a new definition for features that are passable.  This is used to allow features to both block LOS and yet be passable by creatures incapable of passing or boring through rock.
+-"request" monster blow type added.
+
+
+...And quite a lot of other changes made and then forgotten about.

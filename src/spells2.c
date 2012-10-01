@@ -1,6 +1,12 @@
 /* File: spells2.c */
 
-/*
+/* Healing spells, glyphs of warding, reducing or sustaining a stat, ID 
+ * everything, chance for enchant spells to fail, remove curses, regain 
+ * exp, self-knowledge, detection spells, create stairs.  Definitions of 
+ * armour & weapons, enchantment and ID code, what items are rechargable 
+ * and the recharging code.  Spells that effect an area or LOS, lighten 
+ * & darken rooms and areas, casting ball, projection, beam, and bolt 
+ * spells.  Some old functions.
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -9,10 +15,6 @@
  */
 
 #include "angband.h"
-
-
-
-
 
 /*
  * Increase players hit points, notice effects
@@ -68,6 +70,65 @@ bool hp_player(int num)
 
 	/* Ignore */
 	return (FALSE);
+}
+
+/*
+ * Jam a closed door with a magical spike.  
+ * Code is taken from do_cmd_spike. -LM-
+ */
+void magic_spiking(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x, i, dir;
+
+
+	/* Get a direction (or abort) */
+	if (!get_rep_dir(&dir)) return;
+
+	/* Get location */
+	y = py + ddy[dir];
+	x = px + ddx[dir];
+
+
+	/* Verify legality */
+	if (!do_cmd_spike_test(y, x)) return;
+
+	/* Monster */
+	if (cave_m_idx[y][x] > 0)
+	{
+		/* Message */
+		msg_print("There is a monster in the way!");
+
+		/* Attack */
+		py_attack(y, x);
+	}
+
+	/* Go for it */
+	else
+	{
+		/* Verify legality */
+		if (!do_cmd_spike_test(y, x)) return;
+
+		/* Successful jamming */
+		msg_print("You magically jam the door.");
+
+		/* Convert "locked" to "stuck" XXX XXX XXX */
+		if (cave_feat[y][x] < FEAT_DOOR_HEAD + 0x08)
+		{
+			cave_feat[y][x] += 0x08;
+		}
+
+		/* Add three magical spikes to the door. */
+		for (i = 0; i < 3; i++)
+		{
+			if (cave_feat[y][x] < FEAT_DOOR_TAIL)
+			{
+				cave_feat[y][x] += 0x01;
+			}
+		}
+	}
 }
 
 
@@ -417,6 +478,36 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
+	switch (p_ptr->schange)
+	{
+		case SHAPE_MOUSE:
+			info[i++] = "You are wearing the body of a mouse.";
+			break;
+		case SHAPE_FERRET:
+			info[i++] = "You are wearing the body of a ferret.";
+			break;
+		case SHAPE_HOUND:
+			info[i++] = "You are wearing the body of a hound.";
+			break;
+		case SHAPE_GAZELLE:
+			info[i++] = "You are wearing the body of a gazelle.";
+			break;
+		case SHAPE_LION:
+			info[i++] = "You are wearing the body of a lion.";
+			break;
+		case SHAPE_ENT:
+			info[i++] = "You are wearing the body of a ent.";
+			break;
+		case SHAPE_BAT:
+			info[i++] = "You are wearing the body of a bat.";
+			break;
+		case SHAPE_WEREWOLF:
+			info[i++] = "You are wearing the body of a werewolf.";
+			break;
+		case SHAPE_VAMPIRE:
+			info[i++] = "You are wearing the body of a vampire.";
+			break;
+	}
 
 	if (p_ptr->blind)
 	{
@@ -476,9 +567,9 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
-	if (p_ptr->invuln)
+	if (p_ptr->magicdef)
 	{
-		info[i++] = "You are temporarily invulnerable.";
+		info[i++] = "You have enhanced protection from the spells of others.";
 	}
 	if (p_ptr->confusing)
 	{
@@ -711,15 +802,16 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "Your attack speed is affected by your equipment.";
-	}
+
 	if (f1 & (TR1_SHOTS))
 	{
 		info[i++] = "Your shooting speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_MIGHT))
+	if (f1 & (TR1_MIGHT1))
+	{
+		info[i++] = "Your shooting might is affected by your equipment.";
+	}
+	if (f1 & (TR1_MIGHT2))
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
@@ -747,6 +839,10 @@ void self_knowledge(void)
 		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
+		}
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your weapon poisons your foes.";
 		}
 
 		/* Special "slay" flags */
@@ -782,13 +878,6 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
-
-		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
-		{
-			info[i++] = "Your weapon is a great bane of dragons.";
-		}
-
 
 		/* Indicate Blessing */
 		if (f3 & (TR3_BLESSED))
@@ -1262,6 +1351,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+			(tv == TV_DRUID_BOOK) || (tv == TV_NECRO_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1884,9 +1974,9 @@ bool identify_fully(void)
 	cptr q, s;
 
 
-	/* Get an item */
-	q = "Identify which item? ";
-	s = "You have nothing to identify.";
+	/* Get an item.  -Altered to print "*identify*" by LM- */
+	q = "*Identify* which item? ";
+	s = "You have nothing to *identify*.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -1962,7 +2052,7 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 	/* Recharge wands */
 	if (o_ptr->tval == TV_WAND) return (TRUE);
 
-	/* Hack -- Recharge rods */
+	/* Recharge rods */
 	if (o_ptr->tval == TV_ROD) return (TRUE);
 
 	/* Nope */
@@ -1972,17 +2062,16 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
 
 /*
  * Recharge a wand/staff/rod from the pack or on the floor.
+ * This function has been heavily revised in Oangband.
  *
- * Mage -- Recharge I --> recharge(5)
- * Mage -- Recharge II --> recharge(40)
- * Mage -- Recharge III --> recharge(100)
+ * Mage -- Recharge I --> recharge(90)
+ * Mage -- Recharge II --> recharge(150)
+ * Mage -- Recharge III --> recharge(220)
  *
- * Priest -- Recharge --> recharge(15)
+ * Priest or Necromancer -- Recharge --> recharge(140)
  *
- * Scroll of recharging --> recharge(60)
- *
- * recharge(20) = 1/6 failure for empty 10th level wand
- * recharge(60) = 1/10 failure for empty 10th level wand
+ * Scroll of recharging --> recharge(130)
+ * Scroll of *recharging* --> recharge(200)
  *
  * It is harder to recharge high level, and highly charged wands.
  *
@@ -2002,8 +2091,11 @@ bool recharge(int num)
 	int i, t, item, lev;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
+
 
 	cptr q, s;
+	cptr item_name = "";
 
 
 	/* Only accept legal items */
@@ -2026,6 +2118,8 @@ bool recharge(int num)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
@@ -2034,34 +2128,63 @@ bool recharge(int num)
 	if (o_ptr->tval == TV_ROD)
 	{
 		/* Extract a recharge power */
-		i = (100 - lev + num) / 5;
+		i = (num - lev) / 5;
 
 		/* Back-fire */
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
-			/* Hack -- backfire */
-			msg_print("The recharge backfires, draining the rod further!");
+			/* If player is not a mage, there is a 25% chance of destroying a rod. -LM- */
+			if ((p_ptr->pclass != CLASS_MAGE) && (randint(4) == 1))
+			{
+				msg_print("Wild magic consumes your rod!");
 
-			/* Hack -- decharge the rod */
-			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;
+				/* Reduce total maximum timeout by the maximum timeout of 
+				 * one item of that kind. -LM-
+				 */
+				o_ptr->pval -= k_ptr->pval;
+
+				/* Reduce and describe inventory */
+				if (item >= 0)
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}
+
+				/* Reduce and describe floor item */
+				else
+				{
+					floor_item_increase(0 - item, -1);
+					floor_item_describe(0 - item);
+					floor_item_optimize(0 - item);
+				}
+			}
+			/* Otherwise, increase the timeout. -LM- */
+			else
+			{
+				msg_print("The recharge backfires, draining the rod further!");
+
+				/* Hack -- discharge the rod or stack of rods. */
+				if (o_ptr->timeout < 10000) o_ptr->timeout = (o_ptr->timeout + 100) * 2;
+			}
 		}
 
 		/* Recharge */
 		else
 		{
 			/* Rechange amount */
-			t = (num * damroll(2, 4));
+			t = (num * damroll(3, 2));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
+			if (o_ptr->timeout > t)
 			{
-				o_ptr->pval -= t;
+				o_ptr->timeout -= t;
 			}
 
 			/* Fully recharged */
 			else
 			{
-				o_ptr->pval = 0;
+				o_ptr->timeout = 0;
 			}
 		}
 	}
@@ -2069,40 +2192,143 @@ bool recharge(int num)
 	/* Recharge wand/staff */
 	else
 	{
-		/* Recharge power */
-		i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
+		/* Recharge power.  Slightly more charges allowed in Oangband.  Wand 
+		 * charges are combined, so adjust for the number of wands. -LM-
+		 */
+		if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+		{
+			i = (num + 100 - lev - (8 * o_ptr->pval / o_ptr->number)) / 15;
+		}
+		else i = (num + 100 - lev - (8 * o_ptr->pval)) / 15;
+
+
+		/* Get the name of the object or stack. -LM- */
+		if (o_ptr->tval == TV_WAND) item_name = "wand";
+		if (o_ptr->tval == TV_STAFF) item_name = "staff";
+
 
 		/* Back-fire XXX XXX XXX */
 		if ((i <= 1) || (rand_int(i) == 0))
 		{
-			/* Dangerous Hack -- Destroy the item */
-			msg_print("There is a bright flash of light.");
+			/* Always drain a wand or stack of wands completely.  A stack of 
+			 * staffs is unaffected by the destruction of one. -LM-
+			 */
+			if (o_ptr->tval == TV_WAND) o_ptr->pval = 0;
 
-			/* Reduce and describe inventory */
-			if (item >= 0)
+			/* Mages do better at recharging. -LM- */
+			if (p_ptr->pclass == CLASS_MAGE)
 			{
-				inven_item_increase(item, -999);
-				inven_item_describe(item);
-				inven_item_optimize(item);
+				/* 50% chance of saving the item. */
+				if (randint(2) == 1)
+				{
+					msg_format("Your skill saves the %s from destruction, but all charges are lost.", item_name);
+					o_ptr->pval = 0;
+				}
+
+				/* Otherwise, destroy one item. */
+				else
+				{
+					msg_format("Wild magic consumes your %s!", item_name);
+
+					/* Reduce and describe inventory */
+					if (item >= 0)
+					{
+						inven_item_increase(item, -1);
+						inven_item_describe(item);
+						inven_item_optimize(item);
+					}
+
+					/* Reduce and describe floor item */
+					else
+					{
+						floor_item_increase(0 - item, -1);
+						floor_item_describe(0 - item);
+						floor_item_optimize(0 - item);
+					}
+				}
 			}
 
-			/* Reduce and describe floor item */
+			/* All other classes get no special favours. */
 			else
 			{
-				floor_item_increase(0 - item, -999);
-				floor_item_describe(0 - item);
-				floor_item_optimize(0 - item);
+				/* All wands in a stack are destroyed 25% of the time, 
+				 * but no more than one staff at a time is ever destroyed. 
+				 * -LM-
+				 */
+				if ((randint(4) == 1) && (o_ptr->tval == TV_WAND))
+				{
+
+					if (o_ptr->number > 1) msg_print("Wild magic consumes your wands!");
+					else msg_print("Wild magic consumes your wand!");
+
+					/* Reduce and describe inventory */
+					if (item >= 0)
+					{
+						inven_item_increase(item, -999);
+						inven_item_describe(item);
+						inven_item_optimize(item);
+					}
+
+					/* Reduce and describe floor item */
+					else
+					{
+						floor_item_increase(0 - item, -999);
+						floor_item_describe(0 - item);
+						floor_item_optimize(0 - item);
+					}
+				}
+
+				/* Otherwise, destroy only one object. */
+				else
+				{
+					msg_format("Wild magic consumes your %s!", item_name);
+
+					/* Reduce and describe inventory */
+					if (item >= 0)
+					{
+						inven_item_increase(item, -1);
+						inven_item_describe(item);
+						inven_item_optimize(item);
+					}
+
+					/* Reduce and describe floor item */
+					else
+					{
+						floor_item_increase(0 - item, -1);
+						floor_item_describe(0 - item);
+						floor_item_optimize(0 - item);
+					}
+				}
 			}
 		}
 
-		/* Recharge */
+
+		/* If the spell didn't backfire, recharge the wand or staff. */
 		else
 		{
-			/* Extract a "power" */
-			t = (num / (lev + 2)) + 1;
+			/* Recharge based on the standard number of charges. -LM- */
+			t = randint(1 + k_ptr->pval / 2);
 
-			/* Recharge based on the power */
-			if (t > 0) o_ptr->pval += 2 + randint(t);
+			/* Multiple wands in a stack increase recharging somewhat. -LM- */
+			if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+			{
+				t += (randint(t * (o_ptr->number - 1))) / 2;
+				if (t < 1) t = 1;
+				if (t > 12) t = 12;
+			}
+
+			/* But each staff in a stack gets fewer additional charges, 
+			 * although always at least one. -LM-
+			 */
+			if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 0))
+			{
+				t /= o_ptr->number;
+				if (t < 1) t = 1;
+			}
+
+			/* Recharge the wand or staff. */
+			o_ptr->pval += t;
+
 
 			/* Hack -- we no longer "know" the item */
 			o_ptr->ident &= ~(IDENT_KNOWN);
@@ -2178,19 +2404,34 @@ bool speed_monsters(void)
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int dam)
 {
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
+	return (project_hack(GF_OLD_SLOW, dam));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int dam)
 {
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_hack(GF_OLD_SLEEP, dam));
 }
 
+/*
+ * Frighten monsters. -LM-
+ */
+bool fear_monsters(int dam)
+{
+	return (project_hack(GF_TURN_ALL, dam));
+}
+
+/*
+ * Confuse monsters. -LM-
+ */
+bool confu_monsters(int dam)
+{
+	return (project_hack(GF_OLD_CONF, dam));
+}
 
 /*
  * Banish evil monsters
@@ -2204,11 +2445,18 @@ bool banish_evil(int dist)
 /*
  * Turn undead
  */
-bool turn_undead(void)
+bool turn_undead(int dam)
 {
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	return (project_hack(GF_TURN_UNDEAD, dam));
 }
 
+/*
+ * Turn evil. -LM-
+ */
+bool turn_evil(int dam)
+{
+	return (project_hack(GF_TURN_EVIL, dam));
+}
 
 /*
  * Dispel undead monsters
@@ -2226,6 +2474,20 @@ bool dispel_evil(int dam)
 	return (project_hack(GF_DISP_EVIL, dam));
 }
 
+
+bool dispel_demons(int dam)
+{
+	return (project_hack(GF_DISP_DEMON, dam));
+}
+
+/*
+ * Dispel non-evil monsters
+ */
+bool dispel_not_evil(int dam)
+{
+	return (project_hack(GF_DISP_NOT_EVIL, dam));
+}
+
 /*
  * Dispel all monsters
  */
@@ -2234,14 +2496,26 @@ bool dispel_monsters(int dam)
 	return (project_hack(GF_DISP_ALL, dam));
 }
 
+/*
+ * Dispel all living creatures
+ */
+bool dispel_living(int dam)
+{
+	return (project_hack(GF_SPIRIT, dam));
+}
 
-
-
+/*
+ * Dispel monsters who can't stand bright light. -LM-
+ */
+bool dispel_light_hating(int dam)
+{
+	return (project_hack(GF_LITE_WEAK, dam));
+}
 
 /*
  * Wake up all monsters, and speed up "los" monsters.
  */
-void aggravate_monsters(int who)
+void aggravate_monsters(int who, bool the_entire_level)
 {
 	int i;
 
@@ -2260,27 +2534,45 @@ void aggravate_monsters(int who)
 		/* Skip aggravating monster (or player) */
 		if (i == who) continue;
 
-		/* Wake up nearby sleeping monsters */
-		if (m_ptr->cdis < MAX_SIGHT * 2)
+		/* Wake up and hasten all monsters, with no additional messages. -LM- */
+		if (the_entire_level)
 		{
 			/* Wake up */
 			if (m_ptr->csleep)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
-				sleep = TRUE;
 			}
+
+			/* Get mad. */
+			if (m_ptr->mspeed < r_ptr->speed + 10) 
+				m_ptr->mspeed = r_ptr->speed + 10;
 		}
 
-		/* Speed up monsters in line of sight */
-		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
+		/* Wake up nearby sleeping monsters */
+		else 
 		{
-			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			if (m_ptr->cdis < MAX_SIGHT * 2)
 			{
-				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
-				speed = TRUE;
+				/* Wake up */
+				if (m_ptr->csleep)
+				{
+					/* Wake up */
+					m_ptr->csleep = 0;
+					sleep = TRUE;
+				}
+			}
+			/* Speed up monsters in line of sight */
+			else if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) && 
+				(sleep == FALSE))
+			{
+				/* Speed up (instantly) to racial base + 10 */
+				if (m_ptr->mspeed < r_ptr->speed + 10)
+				{
+					/* Speed up */
+					m_ptr->mspeed = r_ptr->speed + 10;
+					speed = TRUE;
+				}
 			}
 		}
 	}
@@ -2568,7 +2860,7 @@ void destroy_area(int y1, int x1, int r, bool full)
  * Note that players and monsters (except eaters of walls and passers
  * through walls) will never occupy the same grid as a wall (or door).
  */
-void earthquake(int cy, int cx, int r)
+void earthquake(int cy, int cx, int r, bool volcano)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2621,7 +2913,7 @@ void earthquake(int cy, int cx, int r)
 			if (!dx && !dy) continue;
 
 			/* Skip most grids */
-			if (rand_int(100) < 85) continue;
+			if (rand_int(100) < 75) continue;
 
 			/* Damage this grid */
 			map[16+yy-cy][16+xx-cx] = TRUE;
@@ -2705,7 +2997,7 @@ void earthquake(int cy, int cx, int r)
 				case 3:
 				{
 					msg_print("You are crushed between the floor and ceiling!");
-					damage = damroll(10, 4);
+					damage = damroll(10, 8);
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
 				}
@@ -2861,17 +3153,36 @@ void earthquake(int cy, int cx, int r)
 				}
 
 				/* Quartz */
-				else if (t < 70)
+				else if (t < 55)
 				{
+					/* If this was a volcanic eruption, create lava near 
+					 * center. -LM-
+					 */
+					if ((volcano) && (distance(cy, cx, yy, xx) < 3)) 
+						feat = FEAT_LAVA;
+					
 					/* Create quartz vein */
-					feat = FEAT_QUARTZ;
+					else feat = FEAT_QUARTZ;
 				}
 
 				/* Magma */
+				else if (t < 75)
+				{
+					/* If this was a volcanic eruption, create lava near 
+					 * center. -LM-
+					 */
+					if ((volcano) && (distance(cy, cx, yy, xx) < 3)) 
+						feat = FEAT_LAVA;
+
+					/* Create magma vein */
+					else feat = FEAT_MAGMA;
+				}
+
+				/* Rubble. -LM- */
 				else if (t < 100)
 				{
-					/* Create magma vein */
-					feat = FEAT_MAGMA;
+					/* Create rubble */
+					feat = FEAT_RUBBLE;
 				}
 
 				/* Change the feature */
@@ -3306,7 +3617,7 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 bool lite_line(int dir)
 {
 	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
+	return (project_hook(GF_LITE_WEAK, dir, damroll(4, 7), flg));
 }
 
 bool drain_life(int dir, int dam)
@@ -3327,10 +3638,20 @@ bool destroy_door(int dir)
 	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
 }
 
+/* This function now casts a radius 0 ball spell on the adjacent square 
+ * in whatever direction has been chosen. -LM-
+ */
 bool disarm_trap(int dir)
 {
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_TRAP, dir, 0, flg));
+	/* Use the given direction */
+	int ty = p_ptr->py + ddy[dir];
+	int tx = p_ptr->px + ddx[dir];
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM;
+
+
+	return (project(-1, 0, ty, tx, 0, GF_KILL_TRAP, flg));
+
 }
 
 bool heal_monster(int dir)
@@ -3345,22 +3666,22 @@ bool speed_monster(int dir)
 	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
 }
 
-bool slow_monster(int dir)
+bool slow_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, dam, flg));
 }
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, dam, flg));
 }
 
-bool confuse_monster(int dir, int plev)
+bool confuse_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CONF, dir, plev, flg));
+	return (project_hook(GF_OLD_CONF, dir, dam, flg));
 }
 
 bool poly_monster(int dir)
@@ -3375,10 +3696,28 @@ bool clone_monster(int dir)
 	return (project_hook(GF_OLD_CLONE, dir, 0, flg));
 }
 
-bool fear_monster(int dir, int plev)
+bool fear_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_TURN_ALL, dir, plev, flg));
+	return (project_hook(GF_TURN_ALL, dir, dam, flg));
+}
+
+bool dispel_an_undead(int dir, int dam)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_DISP_UNDEAD, dir, dam, flg));
+}
+
+bool dispel_a_demon(int dir, int dam)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_DISP_DEMON, dir, dam, flg));
+}
+
+bool dispel_a_dragon(int dir, int dam)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_DISP_DRAGON, dir, dam, flg));
 }
 
 bool teleport_monster(int dir)
@@ -3420,13 +3759,13 @@ bool destroy_doors_touch(void)
 	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
 }
 
-bool sleep_monsters_touch(void)
+bool sleep_monsters_touch(int dam)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, py, px, dam, GF_OLD_SLEEP, flg));
 }
 
 

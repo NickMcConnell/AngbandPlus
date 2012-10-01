@@ -21,18 +21,18 @@ OBJS = &
   variable.obj tables.obj util.obj cave.obj &
   object1.obj object2.obj monster1.obj monster2.obj &
   xtra1.obj xtra2.obj spells1.obj spells2.obj melee1.obj melee2.obj &
-  load1.obj load2.obj save.obj files.obj &
+  load1.obj load2.obj save.obj files.obj &  randart.obj &
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj &
   store.obj birth.obj wizard1.obj wizard2.obj &
   generate.obj dungeon.obj init1.obj init2.obj &
   main-ibm.obj main.obj
 
-all: angband.exe gredit.exe makepref.exe
+all: oangband.exe gredit.exe makepref.exe
 
 # Use whichever of these two you wish...
-angband.exe: $(OBJS) angband.lnk
-#   wlink system dos4g @angband.lnk
-   wlink system pmodew @angband.lnk
+oangband.exe: $(OBJS) oangband.lnk
+#   wlink system dos4g @oangband.lnk
+   wlink system pmodew @oangband.lnk
 
 # Use whichever of these two you wish...
 gredit.exe: gredit.obj gredit.lnk
@@ -45,12 +45,12 @@ makepref.exe: makepref.obj makepref.lnk
    wlink system pmodew @makepref.lnk
 
 angband.lnk:
-    %create  angband.lnk
-#   @%append angband.lnk debug all
-    @%append angband.lnk OPTION CASEEXACT
-    @%append angband.lnk OPTION STACK=16k
-    @%append angband.lnk name angband
-    @for %i in ($(OBJS)) do @%append angband.lnk file %i
+    %create  oangband.lnk
+#   @%append oangband.lnk debug all
+    @%append oangband.lnk OPTION CASEEXACT
+    @%append oangband.lnk OPTION STACK=16k
+    @%append oangband.lnk name oangband
+    @for %i in ($(OBJS)) do @%append oangband.lnk file %i
 
 makepref.lnk:
     %create  makepref.lnk

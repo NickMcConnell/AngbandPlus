@@ -1,6 +1,7 @@
 /* File: config.h */
 
-/*
+/* Compilation options.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -176,12 +177,12 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -201,7 +202,7 @@
 
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
+ * OPTION: Allow characters to be "auto-rolled"
  */
 #define ALLOW_AUTOROLLER
 
@@ -303,7 +304,6 @@
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
-
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
@@ -446,7 +446,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@phial.com"
+#define MAINTAINER	"leon2m@sprintmail.com"
 
 
 /*
@@ -517,3 +517,17 @@
 #endif
 
 
+/*
+ * OPTION: Repeat last command -- TNB
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy -- TNB
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy -- TNB
+ */
+#define ALLOW_EASY_DISARM

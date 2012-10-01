@@ -1,8 +1,8 @@
 
 
-              **************************************************
-              **   Angband 2.8.3   **   The Pits of Angband   **
-              **************************************************
+             ****************************************************
+             **   Oangband 0.3.1   ***   The Pits of Angband   **
+             ****************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
@@ -11,14 +11,9 @@
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
 
-               Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
+               Angband  2.8.3: Copyright (c) 1997 Ben Harrison
+               Oangband 0.3.1: Copyright (c) 1998 Leon Marrick
 
-         Send comments, bug reports, and patches, to "benh@phial.com"
-        Visit the Angband Home Page at "http://www.phial.com/angband/"
-      Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
-    Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
-
-
-
-
+      Send comments, bug reports, and patches to "leon2m@sprintmail.com".
+      Browse the Angband newsgroup at "news:rec.games.roguelike.angband".
+    Read the online help files, especially "general.txt" and "version.txt".

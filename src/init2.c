@@ -1,6 +1,9 @@
 /* File: init2.c */
 
-/*
+/* Paths, initializiation of *_info arrays from the binary files, control 
+ * of what items are sold in the stores, prepare stores, inventory, and 
+ * many other things, some error text, startup initializations.
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
@@ -334,9 +337,9 @@ static errr init_f_info(void)
 	MAKE(f_head, header);
 
 	/* Save the "version" */
-	f_head->v_major = VERSION_MAJOR;
-	f_head->v_minor = VERSION_MINOR;
-	f_head->v_patch = VERSION_PATCH;
+	f_head->v_major = O_VERSION_MAJOR;
+	f_head->v_minor = O_VERSION_MINOR;
+	f_head->v_patch = O_VERSION_PATCH;
 	f_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -587,9 +590,9 @@ static errr init_k_info(void)
 	MAKE(k_head, header);
 
 	/* Save the "version" */
-	k_head->v_major = VERSION_MAJOR;
-	k_head->v_minor = VERSION_MINOR;
-	k_head->v_patch = VERSION_PATCH;
+	k_head->v_major = O_VERSION_MAJOR;
+	k_head->v_minor = O_VERSION_MINOR;
+	k_head->v_patch = O_VERSION_PATCH;
 	k_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -840,9 +843,9 @@ static errr init_a_info(void)
 	MAKE(a_head, header);
 
 	/* Save the "version" */
-	a_head->v_major = VERSION_MAJOR;
-	a_head->v_minor = VERSION_MINOR;
-	a_head->v_patch = VERSION_PATCH;
+	a_head->v_major = O_VERSION_MAJOR;
+	a_head->v_minor = O_VERSION_MINOR;
+	a_head->v_patch = O_VERSION_PATCH;
 	a_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1093,9 +1096,9 @@ static errr init_e_info(void)
 	MAKE(e_head, header);
 
 	/* Save the "version" */
-	e_head->v_major = VERSION_MAJOR;
-	e_head->v_minor = VERSION_MINOR;
-	e_head->v_patch = VERSION_PATCH;
+	e_head->v_major = O_VERSION_MAJOR;
+	e_head->v_minor = O_VERSION_MINOR;
+	e_head->v_patch = O_VERSION_PATCH;
 	e_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1346,9 +1349,9 @@ static errr init_r_info(void)
 	MAKE(r_head, header);
 
 	/* Save the "version" */
-	r_head->v_major = VERSION_MAJOR;
-	r_head->v_minor = VERSION_MINOR;
-	r_head->v_patch = VERSION_PATCH;
+	r_head->v_major = O_VERSION_MAJOR;
+	r_head->v_minor = O_VERSION_MINOR;
+	r_head->v_patch = O_VERSION_PATCH;
 	r_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1598,9 +1601,9 @@ static errr init_v_info(void)
 	MAKE(v_head, header);
 
 	/* Save the "version" */
-	v_head->v_major = VERSION_MAJOR;
-	v_head->v_minor = VERSION_MINOR;
-	v_head->v_patch = VERSION_PATCH;
+	v_head->v_major = O_VERSION_MAJOR;
+	v_head->v_minor = O_VERSION_MINOR;
+	v_head->v_patch = O_VERSION_PATCH;
 	v_head->v_extra = 0;
 
 	/* Save the "record" information */
@@ -1646,7 +1649,7 @@ static errr init_v_info(void)
 	fake_name_size = 20 * 1024L;
 	fake_text_size = 60 * 1024L;
 
-	/* Allocate the "k_info" array */
+	/* Allocate the "v_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
 	/* Hack -- make "fake" arrays */
@@ -1770,20 +1773,20 @@ static errr init_v_info(void)
 /*** Initialize others ***/
 
 
-
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
+ * Note code for initializing the stores, below.
  */
-static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 {
 	{
-		/* General Store */
+		/* General Store. */
 
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
@@ -1841,7 +1844,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
@@ -1866,7 +1869,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_SABRE },
 		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_TULWAR },
+		{ TV_POLEARM, SV_GLAIVE },
 
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
@@ -1874,7 +1877,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_KATANA },
 		{ TV_SWORD, SV_BASTARD_SWORD },
 		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
+		{ TV_SWORD, SV_TWO_HANDED_SWORD },
 		{ TV_POLEARM, SV_TRIDENT },
 
 		{ TV_POLEARM, SV_PIKE },
@@ -1882,7 +1885,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_BROAD_AXE },
 		{ TV_POLEARM, SV_LANCE },
 		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_HAFTED, SV_WHIP },
+		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SHORT_BOW },
 
@@ -1897,13 +1900,13 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	},
 
 	{
-		/* Temple */
+		/* Temple. */
 
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL },
 		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_LUCERN_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
@@ -1918,32 +1921,32 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_HEROISM },
 
 		{ TV_POTION, SV_POTION_CURE_LIGHT },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
-		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_SCROLL, SV_SCROLL_RECHARGING },
+		{ TV_POTION, SV_POTION_RESIST_ACID_ELEC },
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
-		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_CURE_POISON },
+		{ TV_POTION, SV_POTION_SLOW_POISON },
+		{ TV_POTION, SV_POTION_RESIST_HEAT_COLD },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 2 },
-		{ TV_PRAYER_BOOK, 3 }
+		{ TV_POTION, SV_POTION_CURE_LIGHT },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_POTION, SV_POTION_CURE_SERIOUS },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP },
+		{ TV_POTION, SV_POTION_RESTORE_EXP }
 	},
 
 	{
-		/* Alchemy shop */
+		/* Alchemy shop.  All the general-purpose scrolls and potions. */
 
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT_LEVEL },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
@@ -1953,8 +1956,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_STAR_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
@@ -1966,8 +1969,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
-		{ TV_POTION, SV_POTION_RESIST_HEAT },
-		{ TV_POTION, SV_POTION_RESIST_COLD },
+		{ TV_SCROLL, SV_SCROLL_DISPEL_UNDEAD },
+		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_POTION, SV_POTION_RES_STR },
 		{ TV_POTION, SV_POTION_RES_INT },
 		{ TV_POTION, SV_POTION_RES_WIS },
@@ -1977,7 +1980,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	},
 
 	{
-		/* Magic-User store */
+		/* Magic-User store. */
 
 		{ TV_RING, SV_RING_SEARCHING },
 		{ TV_RING, SV_RING_FEATHER_FALL },
@@ -1991,9 +1994,9 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_WAND, SV_WAND_SLEEP_MONSTER },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
 		{ TV_WAND, SV_WAND_STINKING_CLOUD },
-		{ TV_WAND, SV_WAND_WONDER },
-		{ TV_STAFF, SV_STAFF_LITE },
-		{ TV_STAFF, SV_STAFF_MAPPING },
+		{ TV_WAND, SV_RING_RESIST_COLD },
+		{ TV_STAFF, SV_RING_RESIST_FIRE },
+		{ TV_STAFF, SV_RING_SLOW_DIGESTION },
 		{ TV_STAFF, SV_STAFF_DETECT_TRAP },
 		{ TV_STAFF, SV_STAFF_DETECT_DOOR },
 
@@ -2006,6 +2009,91 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
+		{ TV_WAND, SV_WAND_DOOR_DEST },
+		{ TV_WAND, SV_WAND_STONE_TO_MUD },
+		{ TV_WAND, SV_WAND_STINKING_CLOUD },
+		{ TV_WAND, SV_WAND_POLYMORPH },
+		{ TV_STAFF, SV_STAFF_LITE },
+		{ TV_STAFF, SV_STAFF_MAPPING },
+		{ TV_STAFF, SV_ROD_DETECT_TRAP },
+		{ TV_STAFF, SV_ROD_DETECT_DOOR }
+	},
+
+	{
+		/* Black Market (unused) */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+
+	{
+		/* Home (unused) */
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 },
+		{ 0, 0 }
+	},
+
+	{
+		/* Bookseller. */
+
 		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 0 },
@@ -2013,7 +2101,34 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_MAGIC_BOOK, 1 },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
+		{ TV_MAGIC_BOOK, 3 },
+
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 3 },
+
+		{ TV_DRUID_BOOK, 0 },
+		{ TV_DRUID_BOOK, 0 },
+		{ TV_DRUID_BOOK, 0 },
+		{ TV_DRUID_BOOK, 1 },
+		{ TV_DRUID_BOOK, 1 },
+		{ TV_DRUID_BOOK, 2 },
+		{ TV_DRUID_BOOK, 2 },
+		{ TV_DRUID_BOOK, 3 },
+
+		{ TV_NECRO_BOOK, 0 },
+		{ TV_NECRO_BOOK, 0 },
+		{ TV_NECRO_BOOK, 0 },
+		{ TV_NECRO_BOOK, 1 },
+		{ TV_NECRO_BOOK, 1 },
+		{ TV_NECRO_BOOK, 2 },
+		{ TV_NECRO_BOOK, 2 },
+		{ TV_NECRO_BOOK, 3 }
 	}
 };
 
@@ -2188,7 +2303,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
+	(void)format("%s (%s).", "Leon Marrick", MAINTAINER);
 
 
 	/* Success */
@@ -2315,8 +2430,8 @@ static errr init_alloc(void)
 	/* Size of "alloc_race_table" */
 	alloc_race_size = 0;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2351,8 +2466,8 @@ static errr init_alloc(void)
 	/* Access the table entry */
 	table = alloc_race_table;
 
-	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];

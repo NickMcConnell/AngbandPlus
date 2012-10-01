@@ -1,6 +1,8 @@
 /* File: variable.c */
 
-/*
+/* The copyright.  Definitions for a large number of variables, arrays,
+ * and pointers, plus the color table and sound names. 
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -25,20 +27,35 @@ cptr copyright[5] =
 
 
 /*
- * Executable version
+ * Release of standard Angband from which this version of Oangband
+ * is derived.
  */
 byte version_major = VERSION_MAJOR;
 byte version_minor = VERSION_MINOR;
 byte version_patch = VERSION_PATCH;
 byte version_extra = VERSION_EXTRA;
 
+/* Version of Oangband. */
+byte o_version_major = O_VERSION_MAJOR;
+byte o_version_minor = O_VERSION_MINOR;
+byte o_version_patch = O_VERSION_PATCH;
+
+
 /*
- * Savefile version
+ * Savefile version - Angband reckoning
  */
 byte sf_major;			/* Savefile's "version_major" */
 byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
+
+/*
+ * Savefile version - Oangband reckoning
+ */
+byte o_sf_major;			/* Savefile's "version_major" */
+byte o_sf_minor;			/* Savefile's "version_minor" */
+byte o_sf_patch;			/* Savefile's "version_patch" */
+byte o_sf_extra;			/* Savefile's "version_extra" */
 
 /*
  * Savefile information
@@ -100,6 +117,7 @@ bool opening_chest;		/* Hack -- prevent chest generation */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
+bool repair_mflag_blbr;	/* Hack -- repair monster flags (black breath) */
 bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
@@ -118,11 +136,10 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
-
+bool empty_level;			/* Is the level empty. */
 bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
-
 
 /*
  * Player info
@@ -451,6 +468,12 @@ static player_type player_type_body;
  */
 player_type *p_ptr = &player_type_body;
 
+/*
+ * Alterations to the possibility that monsters accessed in the next call to 
+ * process_monsters will be disturbed.  -LM-
+ */
+int add_wakeup_chance = 0;
+
 
 /*
  * The vault generation arrays
@@ -601,12 +624,10 @@ bool (*item_tester_hook)(object_type*);
  */
 bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
 
-
 /*
  * Current "swap" function for ang_sort()
  */
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
-
 
 
 /*
@@ -614,12 +635,60 @@ void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
  */
 bool (*get_mon_num_hook)(int r_idx);
 
-
-
 /*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
+
+
+/*
+ * The type of object the item generator should make, if specified. -LM-
+ */
+byte required_tval = 0;
+
+/*
+ * The racial type of monster that the monster generator should 
+ * make, if specified.  -LM-
+ */
+char required_race = '\0';
+
+
+/* The bones file a restored player ghost should use to collect extra 
+ * flags, a sex, and a unique name.  This also indicates that there is 
+ * a ghost active.  -LM-
+ */
+byte bones_selector;
+
+/* 
+ * The player ghost name is stored here for quick reference by the 
+ * description function.  -LM-
+ */
+char ghost_name[80];
+
+
+/*
+ * Autosave-related global variables adopted from Zangband. -LM- 
+ */
+bool is_autosave = FALSE;		/* Is the save an autosave */
+bool autosave;				/* Timed autosave */
+s16b autosave_freq;			/* Autosave frequency */
+
+
+/*
+ * Is the player partly through trees or rubble? -LM-  Monsters are handled 
+ * more simply:  They have a 33% or 50% chance of walking through.
+ */
+bool player_is_crossing;
+
+
+/*
+ * Two variables that limit rogue stealing and creation of traps.
+ */
+byte number_of_thefts_on_level;
+byte monster_trap_on_level;
+
+
+
 
 
 

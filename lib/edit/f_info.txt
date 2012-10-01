@@ -16,8 +16,11 @@
 
 # Version stamp (required)
 
-V:2.8.3
+V:0.3.1
 
+#N: index: name
+#G: ASCII char used to represent the feature: color symbol
+#M: index of the feature whose display this feature uses.
 
 # 0x00 --> nothing
 
@@ -61,125 +64,126 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> shop -- general store (perm)
+# 0x08 --> special dungeon feature -- lava
 
-N:8:General Store
-G:1:U
+N:8:lava
+G:#:r
 
-# 0x09 --> shop -- armoury (perm)
+# 0x09 --> special dungeon feature -- water
 
-N:9:Armoury
-G:2:s
+N:9:water
+G:.:b
 
-# 0x0A --> shop -- weapon shop (perm)
+# 0x0A --> special dungeon feature -- tree
 
-N:10:Weapon Smiths
-G:3:w
+N:10:trees
+G:+:g
 
-# 0x0B --> shop -- temple (perm)
+# 0x0B --> shop -- temple (old)
 
 N:11:Temple
 G:4:g
 
-# 0x0C --> shop -- alchemist (perm)
+# 0x0C --> shop -- alchemist (old)
 
 N:12:Alchemy Shop
 G:5:b
 
-# 0x0D --> shop -- magic shop (perm)
+# 0x0D --> shop -- magic shop (old)
 
 N:13:Magic Shop
 G:6:r
 
-# 0x0E --> shop -- black market (perm)
+# 0x0E --> shop -- black market (old)
 
 N:14:Black Market
 G:7:D
 
-# 0x0F --> shop -- home (perm)
+# 0x0F --> shop -- home (old)
 
 N:15:Home
 G:8:y
 
-# 0x10 --> visible trap -- trap door
+# 0x10 --> visible trap -- trap door.  Level 2 and below.
+# This location is hard-coded, to prevent trap doors on quest levels.
 
 N:16:trap door
 G:^:w
 
-# 0x11 --> visible trap -- open pit
+# 0x11 --> visible trap -- pit.  Level 2 and below.
 
 N:17:pit
+G:^:u
+
+# 0x12 --> visible trap -- stat-reducing dart.  Level 8 and below.
+
+N:18:dart trap
+G:^:r
+
+# 0x13 --> visible trap -- discolored spot.  Level 5 and below.
+
+N:19:discolored spot
 G:^:s
 
-# 0x12 --> visible trap -- spiked pit
+# 0x14 --> visible trap -- gas, with various possible effects.  Any level.
 
-N:18:pit
-G:^:s
+N:20:gas trap
+G:^:g
 
-# 0x13 --> visible trap -- poison pit
-
-N:19:pit
-G:^:s
-
-# 0x14 --> visible trap -- rune -- summon
-
-N:20:strange rune
-G:^:o
-
-# 0x15 --> visible trap -- rune -- teleport
+# 0x15 --> visible trap -- rune -- summoning.  Level 3 and below.
 
 N:21:strange rune
 G:^:o
 
-# 0x16 --> visible trap -- spot -- fire
+# 0x16 --> visible trap -- dungeon alteration.  Level 20 and below.
 
-N:22:discolored spot
-G:^:u
+N:22:strange rune
+G:^:U
 
-# 0x17 --> visible trap -- spot -- acid
+# 0x17 --> visible trap -- various (mostly rather nasty) traps.  Level 40 and below.
 
-N:23:discolored spot
-G:^:u
+N:23:hex
+G:^:v
 
-# 0x18 --> visible trap -- dart -- slow
+# 0x18 --> visible trap -- move player.  Any level.
 
-N:24:dart trap
+N:24:shimmering portal
+G:^:b
+
+# 0x19 --> visible trap -- arrow, bolt, or shot trap.  Level 4 and below.
+
+N:25:murder hole
+G:^:W
+
+# 0x1A --> visible trap -- unused
+
+N:26:????
 G:^:r
 
-# 0x19 --> visible trap -- dart -- lose str
+# 0x1B --> visible trap -- unused
 
-N:25:dart trap
+N:27:????
 G:^:r
 
-# 0x1A --> visible trap -- dart -- lose dex
+# 0x1C --> visible trap -- unused
 
-N:26:dart trap
-G:^:r
-
-# 0x1B --> visible trap -- dart -- lose con
-
-N:27:dart trap
-G:^:r
-
-# 0x1C --> visible trap -- gas -- blind
-
-N:28:gas trap
+N:28:????
 G:^:g
 
-# 0x1D --> visible trap -- gas -- confuse
+# 0x1D --> visible trap -- unused
 
-N:29:gas trap
+N:29:????
 G:^:g
 
-# 0x1E --> visible trap -- gas -- poison
+# 0x1E --> visible trap -- unused
 
-N:30:gas trap
+N:30:????
 G:^:g
 
-# 0x1F --> visible trap -- gas -- sleep
+# 0x1F --> visible trap -- Created only by Rogues.  Only one may exist at a time.
 
-N:31:gas trap
-G:^:g
+N:31:monster trap
+G:^:y
 
 # 0x2x --> locked door (power 0)
 
@@ -366,3 +370,47 @@ N:63:permanent wall
 G:#:w
 M:60
 
+# 0x40 --> shop -- general store (perm)
+
+N:64:General Store
+G:1:U
+
+# 0x41 --> shop -- armoury (perm)
+
+N:65:Armoury
+G:2:s
+
+# 0x42 --> shop -- weapon shop (perm)
+
+N:66:Weapon Smiths
+G:3:w
+
+# 0x43 --> shop -- temple (perm)
+
+N:67:Temple
+G:4:g
+
+# 0x44 --> shop -- alchemist (perm)
+
+N:68:Alchemy Shop
+G:5:b
+
+# 0x45 --> shop -- magic shop (perm)
+
+N:69:Magic Shop
+G:6:r
+
+# 0x46 --> shop -- black market (perm)
+
+N:70:Black Market
+G:7:D
+
+# 0x47 --> shop -- home (perm)
+
+N:71:Home
+G:8:y
+
+# 0x48 --> shop -- bookstore (perm)
+
+N:72:Bookstore
+G:9:o

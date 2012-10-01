@@ -1,6 +1,10 @@
 /* File: cmd4.c */
 
-/*
+/* Screen refresh, change character name, message recall, interacting 
+ * with options (inc. text of cheat options), macros, visuals, also level 
+ * feelings, screen dumps/loading, and known Uniques/Artifacts/Objects/
+ * recalling the contents of the home.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -145,10 +149,10 @@ void do_cmd_change_name(void)
 			}
 		}
 
-		/* Toggle mode */
+		/* Toggle mode.  Changed back to 2.8.2 format. */
 		else if (c == 'h')
 		{
-			mode = !mode;
+			mode++;
 		}
 
 		/* Oops */
@@ -414,7 +418,7 @@ cptr cheating_desc[CHEAT_MAX] =
 
 
 /*
- * Interact with some options
+ * Interact with some cheating options
  */
 static void do_cmd_options_cheat(cptr info)
 {
@@ -522,6 +526,145 @@ static void do_cmd_options_cheat(cptr info)
 			default:
 			{
 				bell("Illegal command for cheat options!");
+				break;
+			}
+		}
+	}
+}
+/*
+ * Autosave options -- textual names
+ */
+static cptr autosave_text[1] =
+{
+	"autosave"
+};
+
+/*
+ * Autosave options -- descriptions
+ */
+static cptr autosave_desc[1] =
+{
+	"Timed autosave"
+};
+       
+s16b toggle_frequency(s16b current)
+{
+	if (current == 0) return 50;
+	if (current == 50) return 100;
+	if (current == 100) return 250;
+	if (current == 250) return 500;
+	if (current == 500) return 1000;
+	if (current == 1000) return 2500;
+	if (current == 2500) return 5000;
+	if (current == 5000) return 10000;
+	if (current == 10000) return 25000;
+
+	else return 0;
+}
+
+
+/*
+ * Interact with autosave options.  From Zangband.
+ */
+static void do_cmd_options_autosave(cptr info)
+{
+	char	ch;
+
+	int     i, k = 0, n = 1;
+
+	char	buf[80];
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Interact with the player */
+	while (TRUE)
+	{
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "%s (RET to advance, y/n to set, 'F' for frequency, ESC to accept) ", info);
+		prt(buf, 0, 0);
+	
+		/* Display the options */
+		/* Display the options */
+		for (i = 0; i < n; i++)
+		{
+			byte a = TERM_WHITE;
+
+			/* Color current option */
+			if (i == k) a = TERM_L_BLUE;
+
+			/* Display the option text */
+			sprintf(buf, "%-48s: %s   (%s)",
+				autosave_desc[i],
+				autosave ? "yes" : "no ",
+				autosave_text[i]);
+			c_prt(a, buf, i + 2, 0);
+
+			prt(format("Timed autosave frequency: every %d turns",  autosave_freq), 5, 0);
+		}
+
+
+		/* Hilite current option */
+		move_cursor(k + 2, 50);
+
+		/* Get a key */
+		ch = inkey();
+
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return;
+			}
+
+			case '-':
+			case '8':
+			{
+				k = (n + k - 1) % n;
+				break;
+			}
+
+			case ' ':
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'y':
+			case 'Y':
+			case '6':
+			{
+
+				autosave = TRUE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'n':
+			case 'N':
+			case '4':
+			{
+				autosave = FALSE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'f':
+			case 'F':
+			{
+				autosave_freq = toggle_frequency(autosave_freq);
+				prt(format("Timed autosave frequency: every %d turns",
+				    autosave_freq), 5, 0);
+			}
+
+			default:
+			{
+				bell("Illegal command for Autosave options!");
 				break;
 			}
 		}
@@ -824,7 +967,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("Oangband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -841,6 +984,7 @@ void do_cmd_options(void)
 		/* Special choices */
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(A) Autosave Options", 15, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -946,6 +1090,15 @@ void do_cmd_options(void)
 				}
 
 				break;
+
+			case 'a':
+			case 'A':
+			{
+				do_cmd_options_autosave("Autosave");
+				break;
+			}
+
+
 			}
 
 			/* Unknown option */
@@ -1200,16 +1353,25 @@ static errr keymap_dump(cptr fname)
 		/* Skip empty keymaps */
 		if (!act) continue;
 
+		/* Start the keymap */
+		fprintf(fff, "# Keymap '%d'\n\n", i);
+
+		/* Encode the action */
+		ascii_to_text(buf, act);
+
+		/* Dump the action */
+		fprintf(fff, "A:%s\n", buf);
+
 		/* Encode the key */
 		buf[0] = i;
 		buf[1] = '\0';
 		ascii_to_text(key, buf);
 
-		/* Encode the action */
-		ascii_to_text(buf, act);
+		/* Dump the key */
+		fprintf(fff, "C:%d:%s\n", mode, key);
 
-		/* Dump the macro */
-		fprintf(fff, "M:%d  %2s  %s\n", mode, key, buf);
+		/* End the keymap */
+		fprintf(fff, "\n\n");
 	}
 
 	/* Start dumping */
@@ -2331,8 +2493,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("You are playing Oangband %d.%d.%d.  Type '?' for more info.",
+	           O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 }
 
 
@@ -2352,7 +2514,7 @@ static cptr do_cmd_feeling_text[11] =
 	"You feel your luck is turning...",
 	"You like the look of this place...",
 	"This level can't be all bad...",
-	"What a boring place..."
+	"This seems a very quiet place..."
 };
 
 
@@ -2725,9 +2887,8 @@ static void do_cmd_knowledge_artifacts(void)
 
 
 /*
- * Display known uniques
+ * Display known uniques, except player ghosts.
  *
- * Note that the player ghosts are ignored.  XXX XXX XXX
  */
 static void do_cmd_knowledge_uniques(void)
 {
@@ -2745,12 +2906,13 @@ static void do_cmd_knowledge_uniques(void)
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX-1; k++)
+	for (k = 1; k < MAX_R_IDX; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
-		/* Only print Uniques */
-		if (r_ptr->flags1 & (RF1_UNIQUE))
+		/* Only print Uniques, but never player ghosts. -LM- */
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && 
+			(!(r_ptr->flags2 & (RF2_PLAYER_GHOST))))
 		{
 			bool dead = (r_ptr->max_num == 0);
 
@@ -2836,6 +2998,57 @@ static void do_cmd_knowledge_objects(void)
 
 
 /*
+ * Display contents of the Home. Code taken from the player death interface 
+ * and the show known objects function. -LM-
+ */
+static void do_cmd_knowledge_home(void)
+{
+	int k;
+
+	FILE *fff;
+
+	object_type *o_ptr;
+	char o_name[80];
+
+	char file_name[1024];
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	/* Home -- if anything there */
+	if (st_ptr->stock_num)
+	{
+		/* Display contents of the home */
+		for (k = 0; k < st_ptr->stock_num; k++)
+		{
+			/* Acquire item */
+			o_ptr = &st_ptr->stock[k];
+
+			/* Acquire object description */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Print a message */
+			fprintf(fff, "     %s\n", o_name);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Contents of Your Home", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
  * Interact with "knowledge"
  */
 void do_cmd_knowledge(void)
@@ -2864,9 +3077,10 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display contents of your home", 7, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2894,6 +3108,14 @@ void do_cmd_knowledge(void)
 			/* Spawn */
 			do_cmd_knowledge_objects();
 		}
+
+		/* The Home. -LM- */
+		else if (i == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_home();
+		}
+
 
 		/* Unknown option */
 		else

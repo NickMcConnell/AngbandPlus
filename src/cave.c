@@ -1,6 +1,11 @@
 /* File: cave.c */
 
-/*
+/* distance, LOS (and targetting), destruction of a square, legal object
+ * and monster codes, hallucination, code for dungeon display, memorization
+ * of objects and features, small-scale dungeon maps,  and management,
+ * magic mapping, wizard light the dungeon, forget the dungeon, the pro-
+ * jection code, disturb player, check for quest level.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -41,10 +46,11 @@ sint distance(int y1, int x1, int y2, int x2)
  * This function returns TRUE if a "line of sight" can be traced from the
  * center of the grid (x1,y1) to the center of the grid (x2,y2), with all
  * of the grids along this path (except for the endpoints) being non-wall
- * grids.  Actually, the "chess knight move" situation is handled by some
- * special case code which allows the grid diagonally next to the player
- * to be obstructed, because this yields better gameplay semantics.  This
- * algorithm is totally reflexive, except for "knight move" situations.
+ * grids, that are also not trees or rubble.  Actually, the "chess knight 
+ * move" situation is handled by some special case code which allows the 
+ * grid diagonally next to the player to be obstructed, because this 
+ * yields better gameplay semantics.  This algorithm is totally reflexive, 
+ * except for "knight move" situations.
  *
  * Because this function uses (short) ints for all calculations, overflow
  * may occur if dx and dy exceed 90.
@@ -590,7 +596,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	bool image = p_ptr->image;
 
-
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
@@ -628,6 +633,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Cave flags */
 	info = cave_info[y][x];
 
+#ifndef ANGBAND_LITE
+
 	/* Hack -- rare random hallucination on non-outer walls */
 	if (image && (!rand_int(256)) && (feat < FEAT_PERM_SOLID))
 	{
@@ -636,8 +643,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 		c = PICT_C(i);
 	}
 
-	/* Boring grids (floors, etc) */
-	else if (feat <= FEAT_INVIS)
+#endif
+
+	/* Boring grids (floors and invisible squares only) */
+	else if (feat < FEAT_GLYPH)
 	{
 		/* Memorized (or seen) floor */
 		if ((info & (CAVE_MARK)) ||
@@ -723,7 +732,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite && (a == TERM_WHITE) &&
-			    (feat >= FEAT_SECRET))
+			    (feat >= FEAT_SECRET) && (feat < FEAT_SHOP_HEAD))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
@@ -1177,6 +1186,9 @@ static byte priority_table[][2] =
 	/* Floors */
 	{ FEAT_FLOOR, 5 },
 
+	/* Water. */
+	{ FEAT_WATER, 6 },
+
 	/* Walls */
 	{ FEAT_SECRET, 10 },
 
@@ -1188,6 +1200,10 @@ static byte priority_table[][2] =
 
 	/* Rubble */
 	{ FEAT_RUBBLE, 13 },
+
+	/* Trees and lava. */
+	{ FEAT_LAVA, 14 },
+	{ FEAT_TREE, 14 },
 
 	/* Open doors */
 	{ FEAT_OPEN, 15 },
@@ -2856,10 +2872,18 @@ void update_flow(void)
 	byte flow_y[FLOW_MAX];
 	byte flow_x[FLOW_MAX];
 
-
 	/* Hack -- disabled */
 	if (!flow_by_sound) return;
 
+	/* Hack -- If the level is empty, this function will go into an infinate loop.  
+	 * Since I don't know quite why (although it has something to do with 
+	 * MONSTER_FLOW_DEPTH resetting to 1 after it reaches 24), don't want to tinker 
+	 * with this code, have found out that this code slows down substantially when 
+	 * the level is empty (since there are more grids to consider) and figure that 
+	 * a monster doesn't need too much help to find the char in an empty level 
+	 * anyway, monsters don't flow in arenas. -LM-
+	 */
+	if (empty_level) return;
 
 	/*** Cycle the flow ***/
 
@@ -2899,7 +2923,6 @@ void update_flow(void)
 	/* Advance the queue */
 	++flow_tail;
 
-
 	/*** Process Queue ***/
 
 	/* Now process the queue */
@@ -2930,8 +2953,8 @@ void update_flow(void)
 			/* Ignore "pre-stamped" entries */
 			if (cave_when[y][x] == flow_n) continue;
 
-			/* Ignore "walls" and "rubble" */
-			if (cave_feat[y][x] >= FEAT_RUBBLE) continue;
+			/* Ignore walls.  Do not ignore rubble. */
+			if ((cave_feat[y][x] > FEAT_RUBBLE) && (cave_feat[y][x] < FEAT_SHOP_HEAD)) continue;
 
 			/* Save the time-stamp */
 			cave_when[y][x] = flow_n;
@@ -2986,7 +3009,7 @@ void map_area(void)
 	{
 		for (x = x1; x < x2; x++)
 		{
-			/* All non-walls are "checked" */
+			/* All non-walls, trees, and rubble are "checked" */
 			if (cave_feat[y][x] < FEAT_SECRET)
 			{
 				/* Memorize normal features */
@@ -3002,8 +3025,9 @@ void map_area(void)
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
 
-					/* Memorize walls (etc) */
-					if (cave_feat[yy][xx] >= FEAT_SECRET)
+					/* All non-walls are "checked" */
+					if ((cave_feat[y][x] < FEAT_SECRET) || 
+						(cave_feat[y][x] == FEAT_RUBBLE))
 					{
 						/* Memorize the walls */
 						cave_info[yy][xx] |= (CAVE_MARK);
@@ -3030,6 +3054,10 @@ void map_area(void)
  * standard option settings (view_perma_grids but not view_torch_grids)
  * memorizes all floor grids too.
  *
+ * In Oangband, greater and lesser vaults only become fully known if the 
+ * player has accessed this function from the debug commands.  Otherwise, 
+ * they act like magically mapped permenantly lit rooms.
+ *
  * Note that if "view_perma_grids" is not set, we do not memorize floor
  * grids, since this would defeat the purpose of "view_perma_grids", not
  * that anyone seems to play without this option.
@@ -3038,7 +3066,7 @@ void map_area(void)
  * since this would prevent the use of "view_torch_grids" as a method to
  * keep track of what grids have been observed directly.
  */
-void wiz_lite(void)
+void wiz_lite(bool wizard)
 {
 	int i, y, x;
 
@@ -3054,6 +3082,10 @@ void wiz_lite(void)
 		/* Skip held objects */
 		if (o_ptr->held_m_idx) continue;
 
+		/* Skip objects in vaults, if not a wizard. -LM- */
+		if ((wizard == FALSE) && 
+			(cave_info[o_ptr->iy][o_ptr->ix] & (CAVE_ICKY))) continue;
+
 		/* Memorize */
 		o_ptr->marked = TRUE;
 	}
@@ -3064,8 +3096,9 @@ void wiz_lite(void)
 		/* Scan all normal grids */
 		for (x = 1; x < DUNGEON_WID-1; x++)
 		{
-			/* Process all non-walls */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			/* Process all non-walls, trees, and rubble. */
+			if ((cave_feat[y][x] < FEAT_SECRET) || 
+				(cave_feat[y][x] == FEAT_RUBBLE))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)
@@ -3076,6 +3109,12 @@ void wiz_lite(void)
 					/* Perma-lite the grid */
 					cave_info[yy][xx] |= (CAVE_GLOW);
 
+					/* Skip non-wall vault features if not a wizard. -LM-*/
+					if ((wizard == FALSE) && 
+						(cave_info[yy][xx] & (CAVE_ICKY)) && 
+						(cave_feat[yy][xx] < FEAT_SECRET) && 
+						(cave_feat[yy][xx] != FEAT_RUBBLE)) continue;
+
 					/* Memorize normal features */
 					if (cave_feat[yy][xx] > FEAT_INVIS)
 					{
@@ -3083,7 +3122,7 @@ void wiz_lite(void)
 						cave_info[yy][xx] |= (CAVE_MARK);
 					}
 
-					/* Normally, memorize floors (see above) */
+					/* Normally, memorize floors (see above). */
 					if (view_perma_grids && !view_torch_grids)
 					{
 						/* Memorize the grid */
@@ -3103,6 +3142,7 @@ void wiz_lite(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
+
 
 
 /*
@@ -3243,15 +3283,15 @@ void town_illuminate(bool daytime)
 
 
 /*
- * Change the "feat" flag for a grid, and notice/redraw the grid
+ * Change the "feat" flag for a grid, and notice/redraw the grid. 
  */
 void cave_set_feat(int y, int x, int feat)
 {
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
-	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	/* Handle "wall/door" grids.  Trees are also considered walls. -LM- */
+	if (((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_SHOP_HEAD)) || (feat == FEAT_TREE))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3548,6 +3588,8 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
  * at the final destination, assuming that no monster gets in the way,
  * using the "project_path()" function to check the projection path.
  *
+ * 
+ *
  * Note that no grid is ever "projectable()" from itself.
  *
  * This function is used to determine if the player can (easily) target
@@ -3570,8 +3612,8 @@ bool projectable(int y1, int x1, int y2, int x2)
 	y = GRID_Y(grid_g[grid_n-1]);
 	x = GRID_X(grid_g[grid_n-1]);
 
-	/* May not end in a wall grid */
-	if (!cave_floor_bold(y, x)) return (FALSE);
+	/* May not end in a wall, unless a tree or rubble grid. -LM- */
+	if (!cave_passable_bold(y, x)) return (FALSE);
 
 	/* May not end in an unrequested grid */
 	if ((y != y2) || (x != x2)) return (FALSE);

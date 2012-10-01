@@ -1,6 +1,9 @@
 /* File: wizard1.c */
 
-/*
+/* Generation of object, artifact, and monster spoilers.
+ *
+ * This file has been updated to work with Oangband 0.3.0.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -108,6 +111,8 @@ static grouper group_item[] =
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_DRUID_BOOK,	"Stones (Druid)" },
+	{ TV_NECRO_BOOK,	"Books (Necro)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -454,15 +459,24 @@ static flag_desc stat_flags_desc[] =
 
 static flag_desc pval_flags1_desc[] =
 {
+	{ TR1_MAGIC_MASTERY,  "Magical Item Skill" },
 	{ TR1_STEALTH,    "Stealth" },
 	{ TR1_SEARCH,     "Searching" },
 	{ TR1_INFRA,      "Infravision" },
 	{ TR1_TUNNEL,     "Tunneling" },
 	{ TR1_SPEED,      "Speed" },
-	{ TR1_BLOWS,      "Attacks" },
-	{ TR1_SHOTS,      "Shots" },
-	{ TR1_MIGHT,      "Might" }
 };
+
+/*
+ * Missile weapon attributes. -LM-
+ */
+static flag_desc launcher_flags_desc[] = 
+{
+	{ TR1_MIGHT2,        "+2 Extra Might" },
+	{ TR1_SHOTS,         "Extra Shots" },
+	{ TR1_MIGHT1,        "+1 Extra Might" },
+};
+
 
 /*
  * Slaying preferences for weapons
@@ -478,7 +492,6 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
 };
 
 /*
@@ -490,6 +503,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
+	{ TR1_BRAND_POIS,		  "Poison Brand" },
 };
 
 /*
@@ -561,8 +575,9 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_HOLD_LIFE,          "Hold Life" },
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
+	{ TR3_TELEPORT,           "Induces random teleportation" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_DRAIN_EXP,          "Drains Experience" },
 };
 
 /*
@@ -578,17 +593,13 @@ typedef struct
 
 	/*
 	 * A list of various player traits affected by an object's pval such
-	 * as stats, speed, stealth, etc.  "Extra attacks" is NOT included in
-	 * this list since it will probably be desirable to format its
-	 * description differently.
+	 * as stats, speed, stealth, etc.
 	 *
 	 * Note that room need only be reserved for the number of stats - 1
 	 * since the description "All stats" is used if an object affects all
 	 * all stats. Also, room must be reserved for a sentinel NULL pointer.
 	 *
 	 * This will be a list such as ["STR", "DEX", "Stealth", NULL] etc.
-	 *
-	 * This list includes extra attacks, for simplicity.
 	 */
 	cptr pval_affects[N_ELEMENTS(stat_flags_desc) - 1 +
 	                  N_ELEMENTS(pval_flags1_desc) + 1];
@@ -614,6 +625,9 @@ typedef struct
 
 	/* A list of an object's slaying preferences */
 	cptr slays[N_ELEMENTS(slay_flags_desc) + 1];
+
+	/* A list of an object's missile weapon qualities. */
+	cptr launcher[N_ELEMENTS(launcher_flags_desc) + 1];
 
 	/* A list if an object's elemental brands */
 	cptr brands[N_ELEMENTS(brand_flags_desc) + 1];
@@ -712,7 +726,6 @@ static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
  * List "player traits" altered by an artifact's pval. These include stats,
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
-
 static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 {
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
@@ -762,7 +775,6 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 }
 
 /* Note the slaying specialties of a weapon */
-
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
 	u32b f1, f2, f3;
@@ -776,8 +788,21 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 	*slay_list = NULL;
 }
 
-/* Note an object's elemental brands */
+/* Note the launcher attributes of a weapon */
+static void analyze_launcher (object_type *o_ptr, cptr *launcher_list)
+{
+	u32b f1, f2, f3;
 
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	launcher_list = spoiler_flag_aux(f1, launcher_flags_desc, launcher_list,
+	                             N_ELEMENTS(launcher_flags_desc));
+
+	/* Terminate the description list */
+	*launcher_list = NULL;
+}
+
+/* Note an object's elemental brands */
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
 	u32b f1, f2, f3;
@@ -927,6 +952,15 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
+	
+	/* Oangband requires that activations be transferred to the object. -LM- */
+	if (a_ptr->activation)
+	{
+		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+		o_ptr->xtra2 = a_ptr->activation;
+	}
+
 	analyze_general(o_ptr, desc_x_ptr->description);
 
 	analyze_pval(o_ptr, &desc_x_ptr->pval_info);
@@ -934,6 +968,8 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 	analyze_brand(o_ptr, desc_x_ptr->brands);
 
 	analyze_slay(o_ptr, desc_x_ptr->slays);
+
+	analyze_launcher(o_ptr, desc_x_ptr->launcher);
 
 	analyze_immune(o_ptr, desc_x_ptr->immunities);
 
@@ -953,8 +989,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for Oangband Version %d.%d.%d",
+	        O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 	spoiler_underline(buf);
 }
 
@@ -1111,6 +1147,8 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	/* Now deal with the description lists */
 
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
+
+	spoiler_outlist("", art_ptr->launcher, LIST_SEP);
 
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
 
@@ -1296,8 +1334,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for Oangband Version %d.%d.%d\n",
+	        O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1307,8 +1345,8 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
-	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	/* Scan the monsters */
+	for (i = 1; i < MAX_R_IDX; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1513,15 +1551,15 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for Oangband Version %d.%d.%d\n",
+	        O_VERSION_MAJOR, O_VERSION_MINOR, O_VERSION_PATCH);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
 	/*
-	 * List all monsters in order (except the ghost).
+	 * List all monsters in order.
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 1; n < MAX_R_IDX; n++)
 	{
 		monster_race *r_ptr = &r_info[n];
 
@@ -1692,9 +1730,9 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
 		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX4)) vp[vn++] = "do something";
-		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
+		if (flags4 & (RF4_BOULDER)) vp[vn++] = "throw a boulder";
+		if (flags4 & (RF4_ARROW_5)) vp[vn++] = "fire seeker arrows";
+		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire small arrows";
 		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
 		if (flags4 & (RF4_ARROW_4)) vp[vn++] = "fire missiles";
@@ -1810,7 +1848,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
+		if (flags6 & (RF6_XXX9))           vp[vn++] = "do something";
 		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
@@ -1872,6 +1910,12 @@ static void spoil_mon_info(cptr fname)
 				spoil_out(vp[i]);
 			}
 			spoil_out(".  ");
+		}
+
+		if (flags2 & (RF2_PLAYER_GHOST))
+		{
+			spoil_out(wd_che[msex]);
+			spoil_out(" is a player ghost template.  ");
 		}
 
 		if (flags2 & (RF2_INVISIBLE))
@@ -2043,9 +2087,9 @@ static void spoil_mon_info(cptr fname)
 			{
 				spoil_out(" good object");
 			}
-			else if (flags1 & (RF1_DROP_USEFUL))
+			else if (flags1 & (RF1_DROP_CHEST))
 			{
-				spoil_out(" useful object");
+				spoil_out(" chest");
 			}
 			else if (flags1 & (RF1_ONLY_ITEM))
 			{
@@ -2112,8 +2156,8 @@ static void spoil_mon_info(cptr fname)
 				case RBM_XXX4:	break;
 				case RBM_BEG:	p = "beg"; break;
 				case RBM_INSULT:	p = "insult"; break;
-				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
+				case RBM_SNEER:	p = "moan"; break;
+				case RBM_REQUEST:	p = "offer to trade"; break;
 			}
 
 

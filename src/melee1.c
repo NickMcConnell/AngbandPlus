@@ -1,6 +1,9 @@
 /* File: melee1.c */
 
-/*
+/* Monster melee attacks.  Monster critical blows, whether a monster 
+ * attack hits, insult messages.  The code used when a monster attacks 
+ * an adjacent player, including descriptions and effects.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -26,13 +29,13 @@ static int monster_critical(int dice, int sides, int dam)
 	if (dam < total * 19 / 20) return (0);
 
 	/* Weak blows rarely work */
-	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
+	if ((dam < 20) && (randint(100) > dam)) return (0);
 
 	/* Perfect damage */
 	if (dam == total) max++;
 
 	/* Super-charge */
-	if (dam >= 20)
+	if (dam > 19)
 	{
 		while (rand_int(100) < 2) max++;
 	}
@@ -52,10 +55,11 @@ static int monster_critical(int dice, int sides, int dam)
 
 /*
  * Determine if a monster attack against the player succeeds.
+ * Now incorporates the effects of terrain. -LM-
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level)
+static int check_hit(int power, int level, int terrain_bonus)
 {
 	int i, k, ac;
 
@@ -69,7 +73,7 @@ static int check_hit(int power, int level)
 	i = (power + (level * 3));
 
 	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
+	ac = p_ptr->ac + p_ptr->to_a + terrain_bonus;
 
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
@@ -100,19 +104,193 @@ static cptr desc_insult[] =
 /*
  * Hack -- possible "insult" messages
  */
-static cptr desc_moan[] =
+static cptr desc_sneer[] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"offers you a pony for an outrageous sum.",
+	"waits to tell the Black Riders where you've gone.",
+	"tells you to clear out, or he'll break your neck.",
+	"sneers at the company you keep."
 };
+
+/*
+ * Mega Hack, but I don't care --- Ask for and take some survival item, 
+ * depending on what the player has, then give some money in exchange, 
+ * teleport away, and delete the monster.
+ */
+static void make_request(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	object_type *o_ptr;
+
+
+	int i;
+	int requested_slot = 0;
+	int requested_number = 0;
+	int sanity_check = 0;
+	int offer_price = 0;
+
+	byte deal = 0;
+
+	char m_name[80];
+	char o_name[80];
+
+	char answer;
+
+
+	/* Get the monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+	/* Decide what and how much to ask for. */
+	while(TRUE)
+	{
+		/* Increment the loop count. */
+		sanity_check++;
+
+		/* Select a random object in the pack. */
+		i = rand_int(INVEN_PACK);
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip anything that isn't a torch, flask of oil, food ration, 
+		 * or scroll of recall.
+		 */
+		switch(o_ptr->tval)
+		{
+			case TV_LITE:
+			{
+				if (o_ptr->sval == SV_LITE_TORCH) requested_slot = i;
+				break;
+			}
+			case TV_FLASK:
+			{
+				requested_slot = i;
+
+				break;
+			}
+			case TV_FOOD:
+			{
+				if (o_ptr->sval == SV_FOOD_RATION) 
+					requested_slot = i;
+				break;
+			}
+			case TV_SCROLL:
+			{
+				if (o_ptr->sval == SV_SCROLL_WORD_OF_RECALL) 
+					requested_slot = i;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		/* Found an appropriate item. */
+		if (requested_slot)
+		{
+			object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+			/* I know what I want.  Now I need to figure how much of it I 
+			 * can get away with.
+			 */
+			requested_number = o_ptr->number - rand_int(1);
+			if (requested_number > 10) 
+				requested_number = 9 + (requested_number / 5);
+
+			/* I must offer a fair price, plus some (I'm desperate). */
+			offer_price = (k_ptr->cost * requested_number) + 
+				((5 + randint(5)) * 100L);
+
+			/* Done. */
+			break;
+		}
+
+		/* Player doesn't have anything of interest. */
+		if (sanity_check > 50)
+		{
+			/* Let the player know. */
+			msg_format("%^s looks doleful.  You don't have anything of interest.", m_name);
+
+			/* Nothing requested. */
+			requested_slot = 0;
+
+			/* Done. */
+			break;
+		}
+	}
+
+	if (requested_slot)
+	{
+		/* Get the object. */
+		o_ptr = &inventory[requested_slot];
+
+		/* Acquire the item name. */
+		object_desc(o_name, o_ptr, FALSE, 3);
+
+
+		/* Try to make a deal for the item. */
+		msg_format("%^s looks longingly at your abundant supplies:", m_name);
+		msg_format("'Kind Sir, I desperately need %d %s.  I will gladly give %d gold in exchange.'", requested_number, o_name, offer_price);
+		msg_print(NULL);
+
+		can_you_hear_me_now:
+
+		msg_print("Accept the offer? (y/n)");
+
+		/* Listen for a reply. */
+		answer = inkey();
+		if ((answer == 'Y') || (answer == 'y')) deal = 2;
+		else if ((answer == 'N') || (answer == 'n') || (answer == ESCAPE)) deal = 1;
+		else goto can_you_hear_me_now;
+
+		/* Make the trade. */
+		if (deal == 2)
+		{
+			/* Be friendly. */
+			msg_print(NULL);
+			msg_print("May you have all your heart's desire!");
+
+			/* Take the item. */
+			inven_item_increase(i, -requested_number);
+			inven_item_describe(i);
+			inven_item_optimize(i);
+
+			/* Give gold. */
+			p_ptr->au += offer_price;
+
+			/* Redraw gold */
+			p_ptr->redraw |= (PR_GOLD);
+		}
+		/* How can you be so stingy! */
+		else if (deal == 1)
+		{
+			/* Complain bitterly. */
+			msg_print(NULL);
+			msg_print("You scummy excuse for a kobold crook!  May jackals gnaw your bones!");
+		}
+	}
+
+	/* Hack -- Teleport the monster away and delete it (to prevent the player 
+	 * getting rich).
+	 */
+	teleport_away(m_idx, 50);
+	msg_format("%^s runs off.", m_name);
+
+	/* If the monster is a unique, it will never come back. */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+
+	/* Delete the monster. */
+	delete_monster_idx(m_idx);
+}
 
 
 /*
  * Attack the player via physical attacks.
  */
-bool make_attack_normal(int m_idx)
+bool make_attack_normal(int m_idx, int y, int x)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 
@@ -123,9 +301,12 @@ bool make_attack_normal(int m_idx)
 	int i, j, k, tmp, ac, rlev;
 	int do_cut, do_stun;
 
+	int terrain_bonus = 0;
+
 	s32b gold;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	char o_name[80];
 
@@ -139,7 +320,6 @@ bool make_attack_normal(int m_idx)
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
-
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
@@ -152,6 +332,25 @@ bool make_attack_normal(int m_idx)
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x88);
+
+
+	/* Players in rubble can take advantage of cover. -LM- */
+	if (cave_feat[y][x] == FEAT_RUBBLE)
+	{
+		terrain_bonus = ac / 8 + 5;
+	}
+	/* Players in trees can take advantage of cover, especially rangers and druids. -LM- */
+	if (cave_feat[y][x] == FEAT_TREE)
+	{
+		if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID))
+			terrain_bonus = ac / 8 + 10;
+		else terrain_bonus = ac / 10 + 2;
+	}
+	/* Players in water are vulnerable. -LM- */
+	if (cave_feat[y][x] == FEAT_WATER)
+	{
+		terrain_bonus = -(ac / 3);
+	}
 
 
 	/* Assume no blink */
@@ -188,24 +387,24 @@ bool make_attack_normal(int m_idx)
 
 
 
-		/* Extract the attack "power" */
+		/* Extract the attack "power".  Elemental attacks upgraded. -LM- */
 		switch (effect)
 		{
-			case RBE_HURT: power = 60; break;
-			case RBE_POISON:	power =  5; break;
+			case RBE_HURT: 		power = 60; break;
+			case RBE_POISON:		power =  25; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
 			case RBE_EAT_GOLD:	power =  5; break;
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
 			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:		power =  0; break;
-			case RBE_ELEC:		power = 10; break;
-			case RBE_FIRE:		power = 10; break;
-			case RBE_COLD:		power = 10; break;
+			case RBE_ACID:		power = 50; break;
+			case RBE_ELEC:		power = 50; break;
+			case RBE_FIRE:		power = 50; break;
+			case RBE_COLD:		power = 50; break;
 			case RBE_BLIND:		power =  2; break;
-			case RBE_CONFUSE:	power = 10; break;
-			case RBE_TERRIFY:	power = 10; break;
+			case RBE_CONFUSE:		power = 10; break;
+			case RBE_TERRIFY:		power = 10; break;
 			case RBE_PARALYZE:	power =  2; break;
 			case RBE_LOSE_STR:	power =  0; break;
 			case RBE_LOSE_DEX:	power =  0; break;
@@ -214,26 +413,26 @@ bool make_attack_normal(int m_idx)
 			case RBE_LOSE_WIS:	power =  0; break;
 			case RBE_LOSE_CHR:	power =  0; break;
 			case RBE_LOSE_ALL:	power =  2; break;
-			case RBE_SHATTER:	power = 60; break;
-			case RBE_EXP_10:	power =  5; break;
-			case RBE_EXP_20:	power =  5; break;
-			case RBE_EXP_40:	power =  5; break;
-			case RBE_EXP_80:	power =  5; break;
+			case RBE_SHATTER:		power = 60; break;
+			case RBE_EXP_10:		power =  5; break;
+			case RBE_EXP_20:		power =  5; break;
+			case RBE_EXP_40:		power =  5; break;
+			case RBE_EXP_80:		power =  5; break;
 		}
 
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || check_hit(power, rlev, terrain_bonus))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
 
-
-			/* Hack -- Apply "protection from evil" */
+			/* Hack -- Apply "protection from evil".  Somewhat modi-
+			 * fied in Oangband. */
 			if ((p_ptr->protevil > 0) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    (3 * p_ptr->lev / 2 >= rlev) &&
+			    ((rand_int(100 + p_ptr->lev - 5 * rlev / 4)) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -394,15 +593,15 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_MOAN:
+				case RBM_SNEER:
 				{
-					act = desc_moan[rand_int(4)];
+					act = desc_sneer[rand_int(4)];
 					break;
 				}
 
-				case RBM_XXX5:
+				case RBM_REQUEST:
 				{
-					act = "XXX5's you.";
+					make_request(m_idx);
 					break;
 				}
 			}
@@ -410,11 +609,33 @@ bool make_attack_normal(int m_idx)
 			/* Message */
 			if (act) msg_format("%^s %s", m_name, act);
 
+			/* The undead can give the player the Black Breath with
+			 * a sucessful blow. Uniques have a better chance. -LM-
+			 */
+			if ((r_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
+				(r_ptr->flags1 & (RF1_UNIQUE)) && 
+					(randint(300 - r_ptr->level) == 1))
+
+			{
+				msg_print("Your foe calls upon your soul!");
+				msg_print("You feel the Black Breath slowly draining you of life...");
+				p_ptr->black_breath = TRUE;
+			}
+
+			else if ((r_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) && 
+				(randint(450 - r_ptr->level) == 1))
+			{
+				msg_print("Your foe calls upon your soul!");
+				msg_print("You feel the Black Breath slowly draining you of life...");
+				p_ptr->black_breath = TRUE;
+			}
 
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
-			/* Roll out the damage */
+			/* Roll out the damage.  Having resistances no longer reduces
+			 * elemental attacks quite so much. -LM- 
+			*/
 			damage = damroll(d_dice, d_side);
 
 			/* Apply appropriate damage */
@@ -483,12 +704,13 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* now drains rods too. -LM- */
 				case RBE_UN_POWER:
 				{
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Find an item */
+					/* Blindly hunt ten times for an item. */
 					for (k = 0; k < 10; k++)
 					{
 						/* Pick an item */
@@ -496,40 +718,87 @@ bool make_attack_normal(int m_idx)
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
+						k_ptr = &k_info[o_ptr->k_idx];
+
+						/* use "tmp" to decide if a item can 
+						 * be uncharged.  By default, assume it 
+						 * can't.
+						 */
+						tmp = 0;
 
 						/* Skip non-objects */
 						if (!o_ptr->k_idx) continue;
 
-						/* Drain charged wands/staffs */
-						if (((o_ptr->tval == TV_STAFF) ||
-						     (o_ptr->tval == TV_WAND)) &&
-						    (o_ptr->pval))
+						/* Drain charged wands/staffs/rods */
+						if ((o_ptr->tval == TV_STAFF) ||
+							(o_ptr->tval == TV_WAND) ||
+							(o_ptr->tval == TV_ROD))
 						{
-							/* Message */
-							msg_print("Energy drains from your pack!");
+							/* case of charged wands/staffs. */
+							if (((o_ptr->tval == TV_STAFF) ||
+								(o_ptr->tval == TV_WAND)) &&
+								(o_ptr->pval)) tmp = 1;
 
-							/* Obvious */
-							obvious = TRUE;
+							/* case of (at least partially) charged rods. -LM- */
+							if ((o_ptr->tval == TV_ROD) &&
+								(o_ptr->timeout < o_ptr->pval)) tmp = 1;
 
-							/* Heal */
-							j = rlev;
-							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+							if (tmp)
+							{
+								/* Message */
+								msg_print("Energy drains from your pack!");
 
-							/* Redraw (later) if needed */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+								/* Obvious */
+								obvious = TRUE;
 
-							/* Uncharge */
-							o_ptr->pval = 0;
+								/* Heal */
+								j = 5 + rlev / 10;
 
-							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+								/* Handle new-style wands correctly. -LM- */
+								if (o_ptr->tval == TV_WAND)
+								{
+									m_ptr->hp += j * o_ptr->pval;
+								}
+								/* Handle new-style rods correctly. -LM- */
+								else if (o_ptr->tval == TV_ROD)
+								{
+									m_ptr->hp += j * (o_ptr->pval - o_ptr->timeout) / 30;
+								}
+								else
+								{
+									m_ptr->hp += j * o_ptr->pval * 
+										o_ptr->number;
+								}
 
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN);
+								if (m_ptr->hp > m_ptr->maxhp) 
+									m_ptr->hp = m_ptr->maxhp;
 
-							/* Done */
-							break;
+								/* Redraw (later) if needed */
+								if (p_ptr->health_who == m_idx) 
+									p_ptr->redraw |= (PR_HEALTH);
+
+
+								/* Uncharge */
+								if ((o_ptr->tval == TV_STAFF) || 
+									(o_ptr->tval == TV_WAND)) 
+									o_ptr->pval = 0;
+
+								/* New-style rods. -LM- */
+								if (o_ptr->tval == TV_ROD) 
+									o_ptr->timeout = o_ptr->pval;
+
+
+								/* Combine / Reorder the pack */
+								p_ptr->notice |= 
+									(PN_COMBINE | PN_REORDER);
+
+								/* Window stuff */
+								p_ptr->window |= (PW_INVEN);
+
+								/* not more than one inventory 
+								 * slot effected. */
+								break;
+							}
 						}
 					}
 
@@ -559,9 +828,9 @@ bool make_attack_normal(int m_idx)
 					/* Eat gold */
 					else
 					{
-						gold = (p_ptr->au / 10) + randint(25);
+						gold = (p_ptr->au / 12) + randint(25);
 						if (gold < 2) gold = 2;
-						if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+						if (gold > 5000) gold = (p_ptr->au / 20) + randint(2000);
 						if (gold > p_ptr->au) gold = p_ptr->au;
 						p_ptr->au -= gold;
 						if (gold <= 0)
@@ -598,9 +867,8 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-					                      p_ptr->lev)))
+					if (!p_ptr->paralyzed && (rand_int(100) < 
+						(adj_dex_safe[p_ptr->stat_ind[A_DEX]] + p_ptr->lev)))
 					{
 						/* Saving throw message */
 						msg_print("You grab hold of your backpack!");
@@ -615,7 +883,7 @@ bool make_attack_normal(int m_idx)
 						break;
 					}
 
-					/* Find an item */
+					/* Blindly scrabble in the backpack ten times */
 					for (k = 0; k < 10; k++)
 					{
 						object_type *i_ptr;
@@ -647,8 +915,19 @@ bool make_attack_normal(int m_idx)
 						/* Obtain local object */
 						object_copy(i_ptr, o_ptr);
 
-						/* Modify number */
+						/* One item is stolen at a time. */
 						i_ptr->number = 1;
+
+						/* Hack -- If a rod or wand, allocate total 
+						 * maximum timeouts or charges between those 
+						 * stolen and those missed. -LM-
+						 */
+						if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+						{
+							k_ptr = &k_info[o_ptr->k_idx];
+							i_ptr->pval = o_ptr->pval / o_ptr->number;
+							o_ptr->pval -= i_ptr->pval;
+						}
 
 						/* Carry the object */
 						(void)monster_carry(m_idx, i_ptr);
@@ -749,8 +1028,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered in acid!");
 
-					/* Special damage */
-					acid_dam(damage, ddesc);
+					/* Some guaranteed damage. -LM- */
+					take_hit(damage / 3 + 1, ddesc);
+
+					/* Special damage, reduced greatly by resists. */
+					acid_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ACID);
@@ -766,8 +1048,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are struck by electricity!");
 
-					/* Take damage (special) */
-					elec_dam(damage, ddesc);
+					/* Some guaranteed damage. -LM- */
+					take_hit(damage / 3 + 1, ddesc);
+
+					/* Special damage, reduced greatly by resists. */
+					elec_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ELEC);
@@ -783,8 +1068,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are enveloped in flames!");
 
-					/* Take damage (special) */
-					fire_dam(damage, ddesc);
+					/* Some guaranteed damage. -LM- */
+					take_hit(damage / 3 + 1, ddesc);
+
+					/* Special damage, reduced greatly by resists. */
+					fire_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_FIRE);
@@ -800,8 +1088,11 @@ bool make_attack_normal(int m_idx)
 					/* Message */
 					msg_print("You are covered with frost!");
 
-					/* Take damage (special) */
-					cold_dam(damage, ddesc);
+					/* Some guaranteed damage. -LM- */
+					take_hit(damage / 3 + 1, ddesc);
+
+					/* Special damage, reduced greatly by resists. */
+					cold_dam(2 * damage / 3, ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_COLD);
@@ -809,6 +1100,7 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* Blindness is no longer fully cumulative. -LM- */
 				case RBE_BLIND:
 				{
 					/* Take damage */
@@ -817,9 +1109,19 @@ bool make_attack_normal(int m_idx)
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
 					{
-						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
+						if (p_ptr->blind)
 						{
-							obvious = TRUE;
+							if (set_blind(p_ptr->blind + 6 + randint(rlev / 2)))
+							{
+								obvious = TRUE;
+							}
+						}
+						else
+						{
+							if (set_blind(12 + randint(rlev)))
+							{
+								obvious = TRUE;
+							}
 						}
 					}
 
@@ -829,6 +1131,7 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* Confusion is no longer fully cumulative. -LM- */
 				case RBE_CONFUSE:
 				{
 					/* Take damage */
@@ -837,9 +1140,19 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
 					{
-						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
+						if (p_ptr->confused)
 						{
-							obvious = TRUE;
+							if (set_confused(p_ptr->confused + 2 + randint(rlev / 2)))
+							{
+								obvious = TRUE;
+							}
+						}
+						else
+						{
+							if (set_confused(5 + randint(rlev)))
+							{
+								obvious = TRUE;
+							}
 						}
 					}
 
@@ -849,6 +1162,7 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* Fear is no longer fully cumulative. -LM- */
 				case RBE_TERRIFY:
 				{
 					/* Take damage */
@@ -867,9 +1181,19 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint(rlev)))
+						if (p_ptr->afraid)
 						{
-							obvious = TRUE;
+							if (set_afraid(p_ptr->afraid + 2 + randint(rlev / 2)))
+							{
+								obvious = TRUE;
+							}
+						}
+						else
+						{
+							if (set_afraid(6 + randint(rlev)))
+							{
+								obvious = TRUE;
+							}
 						}
 					}
 
@@ -879,6 +1203,7 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				/* Paralyzation is no longer fully cumulative. -LM- */
 				case RBE_PARALYZE:
 				{
 					/* Hack -- Prevent perma-paralysis via damage */
@@ -900,9 +1225,19 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_paralyzed(p_ptr->paralyzed + 3 + randint(rlev)))
+						if (p_ptr->paralyzed)
 						{
-							obvious = TRUE;
+							if (set_paralyzed(p_ptr->paralyzed + 2 + randint(rlev / 2)))
+							{
+								obvious = TRUE;
+							}
+						}
+						else
+						{
+							if (set_paralyzed(4 + randint(rlev)))
+							{
+								obvious = TRUE;
+							}
 						}
 					}
 
@@ -1005,8 +1340,8 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					/* Radius 8 earthquake centered at the monster */
-					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
+					/* Radius 6 earthquake centered at the monster */
+					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 6, FALSE);
 
 					break;
 				}
@@ -1259,7 +1594,6 @@ bool make_attack_normal(int m_idx)
 	{
 		r_ptr->r_deaths++;
 	}
-
 
 	/* Assume we attacked */
 	return (TRUE);

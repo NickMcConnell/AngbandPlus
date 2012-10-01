@@ -1,6 +1,7 @@
 /* File: load1.c */
 
-/*
+/* Old savefile handling.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -352,7 +353,7 @@ static byte convert_old_names[180] =
 	EGO_ANNOYANCE,			/* 23 = SN_GREAT_MASS */
 	EGO_INTELLIGENCE,		/* 24 = SN_INTELLIGENCE */
 	EGO_WISDOM,				/* 25 = SN_WISDOM */
-	EGO_INFRAVISION,		/* 26 = SN_INFRAVISION */
+	EGO_SERENITY,		/* 26 = SN_INFRAVISION */
 	EGO_MIGHT,				/* 27 = SN_MIGHT */
 	EGO_LORDLINESS,			/* 28 = SN_LORDLINESS */
 	EGO_MAGI,				/* 29 = SN_MAGI */
@@ -429,7 +430,7 @@ static byte convert_old_names[180] =
 	ART_MORGOTH + 128,		/* 100 = SN_MORGOTH */
 	ART_BELTHRONDING + 128,	/* 101 = SN_BELTHRONDING */
 	ART_DAL + 128,			/* 102 = SN_DAL */
-	ART_PAURHACH + 128,		/* 103 = SN_PAURHACH */
+	ART_EOL + 128,		/* 103 = SN_PAURHACH */
 	ART_PAURNIMMEN + 128,	/* 104 = SN_PAURNIMMEN */
 	ART_PAURAEGEN + 128,	/* 105 = SN_PAURAEGEN */
 	ART_CAMMITHRIM + 128,	/* 106 = SN_CAMMITHRIM */
@@ -505,7 +506,7 @@ static byte convert_old_names[180] =
 	ART_BLADETURNER + 128,	/* 176 = SN_BLADETURNER */
 	0,						/* 177 = SN_SHATTERED */
 	0,						/* 178 = SN_BLASTED */
-	EGO_ATTACKS				/* 179 = SN_ATTACKS */
+	0,				/* Used to be ego_attacks */
 };
 
 
@@ -1378,6 +1379,7 @@ static errr rd_item_old(object_type *o_ptr)
 		o_ptr->pval = old_pval;
 	}
 
+
 	/* Update artifacts */
 	if (o_ptr->name1)
 	{
@@ -1400,6 +1402,7 @@ static errr rd_item_old(object_type *o_ptr)
 		/* Assume current "curse" */
 		if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 	}
+
 
 	/* Update ego-items */
 	if (o_ptr->name2)
@@ -1619,7 +1622,7 @@ static byte old_art_order[] =
 	ART_GALADRIEL,
 	ART_BELTHRONDING,
 	ART_DAL,
-	ART_PAURHACH,
+	ART_EOL,
 	ART_PAURNIMMEN,
 	ART_PAURAEGEN,
 	ART_PAURNEN,
@@ -1791,7 +1794,7 @@ static void rd_extra_old(void)
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
+	rd_s16b(&p_ptr->magicdef);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
@@ -2391,7 +2394,7 @@ static errr rd_dungeon_old(void)
 		/* Hack -- ignore "broken" monsters */
 		if (n_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "player ghosts" */
+		/* Hack -- ignore old-style "player ghosts" */
 		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
 
 
@@ -2633,6 +2636,7 @@ static errr rd_savefile_old_aux(void)
 	rd_artifacts_old();
 	note("Loaded Artifacts");
 
+
 	/* Strip "quest" data */
 	if (arg_stupid)
 	{
@@ -2673,7 +2677,7 @@ static errr rd_savefile_old_aux(void)
 		/* Only one unique monster */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
-		/* Hack -- No ghosts */
+		/* Hack -- No old-style ghosts */
 		if (i == MAX_R_IDX-1) r_ptr->max_num = 0;
 
 		/* Note death */
@@ -2724,6 +2728,10 @@ static errr rd_savefile_old_aux(void)
 	/* Read the extra stuff */
 	rd_extra_old();
 	note("Loaded extra information");
+
+
+	/* Now that player info is known, initialize the Oangband random artifacts. */
+	initialize_random_artifacts();
 
 
 	/* Initialize the sex */
@@ -2825,7 +2833,7 @@ static errr rd_savefile_old_aux(void)
 	}
 
 
-	/* Hack -- no ghosts */
+	/* Hack -- no old-style ghosts */
 	r_info[MAX_R_IDX-1].max_num = 0;
 
 

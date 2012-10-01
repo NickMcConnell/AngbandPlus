@@ -1,6 +1,7 @@
 /* File: load2.c */
 
-/*
+/* Up-to-date savefile handling.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -34,11 +35,6 @@
  * "sized" chunks of bytes, with a {size,type,data} format, so everyone
  * can know the size, interested people can know the type, and the actual
  * data is available to the parsing routines that acknowledge the type.
- *
- * Consider changing the "globe of invulnerability" code so that it
- * takes some form of "maximum damage to protect from" in addition to
- * the existing "number of turns to protect for", and where each hit
- * by a monster will reduce the shield by that amount.  XXX XXX XXX
  */
 
 
@@ -69,7 +65,7 @@ static u32b	x_check = 0L;
 
 /*
  * This function determines if the version of the savefile
- * currently being read is older than version "x.y.z".
+ * currently being read is older than Angband version "x.y.z".
  */
 static bool older_than(byte x, byte y, byte z)
 {
@@ -88,6 +84,31 @@ static bool older_than(byte x, byte y, byte z)
 	/* Identical versions */
 	return (FALSE);
 }
+
+/*
+ * This function determines if the version of the savefile
+ * currently being read is older than Oangband version "x.y.z".
+ * Note that savefiles from both Oangband version 0.1.0 and 
+ * 0.2.0 are treated as 0.2.0.
+ */
+static bool o_older_than(byte x, byte y, byte z)
+{
+	/* Much older, or much more recent */
+	if (o_sf_major < x) return (TRUE);
+	if (o_sf_major > x) return (FALSE);
+
+	/* Distinctly older, or distinctly more recent */
+	if (o_sf_minor < y) return (TRUE);
+	if (o_sf_minor > y) return (FALSE);
+
+	/* Barely older, or barely more recent */
+	if (o_sf_patch < z) return (TRUE);
+	if (o_sf_patch > z) return (FALSE);
+
+	/* Identical versions */
+	return (FALSE);
+}
+
 
 
 /*
@@ -330,7 +351,7 @@ static byte convert_ego_item[128] =
 	0,					/* 23 */
 	EGO_INTELLIGENCE,	/* 24 = EGO_INTELLIGENCE */
 	EGO_WISDOM,			/* 25 = EGO_WISDOM */
-	EGO_INFRAVISION,	/* 26 = EGO_INFRAVISION */
+	EGO_SERENITY,	/* 26 = EGO_INFRAVISION */
 	EGO_MIGHT,			/* 27 = EGO_MIGHT */
 	EGO_LORDLINESS,		/* 28 = EGO_LORDLINESS */
 	EGO_MAGI,			/* 29 = EGO_MAGI (XXX) */
@@ -364,7 +385,7 @@ static byte convert_ego_item[128] =
 	0,					/* 57 */
 	0,					/* 58 */
 	0,					/* 59 */
-	EGO_EXTRA_MIGHT,	/* 60 = EGO_EXTRA_MIGHT */
+	EGO_EXTRA_MIGHT1,	/* 60 = EGO_EXTRA_MIGHT */
 	EGO_EXTRA_SHOTS,	/* 61 = EGO_EXTRA_SHOTS */
 	0,					/* 62 */
 	0,					/* 63 */
@@ -394,7 +415,7 @@ static byte convert_ego_item[128] =
 	EGO_ELVENKIND,		/* 87 = EGO_ELVENKIND (XXX) */
 	0,					/* 88 */
 	0,					/* 89 */
-	EGO_ATTACKS,		/* 90 = EGO_ATTACKS */
+	0,				/* Was extra attacks. -LM- */
 	EGO_AMAN,			/* 91 = EGO_AMAN */
 	0,					/* 92 */
 	0,					/* 93 */
@@ -452,6 +473,11 @@ static byte convert_ego_item[128] =
  * again, including Calris, even if it is being worn at the time.  As
  * a complete hack, items which are inscribed with "uncursed" will be
  * "uncursed" when imported from pre-2.7.9 savefiles.
+ *
+ * Oangband 0.3.0 changed how rods and wands work, so old-style pvals 
+ * are converted.  It also changed how artifact and object activations 
+ * work, so code is included to properly translate old-style activatable 
+ * items. -LM-
  */
 static void rd_item(object_type *o_ptr)
 {
@@ -593,6 +619,17 @@ static void rd_item(object_type *o_ptr)
 
 		/* Done */
 		return;
+	}
+
+	/* Convert launchers with +2 or more to might, if not artifacts. -LM- */
+	if ((o_ptr->name2 == EGO_EXTRA_MIGHT1) && (o_ptr->pval > 1) && 
+		(!(o_ptr->name1))) o_ptr->name2 = EGO_EXTRA_MIGHT2;
+
+	/* Ensure that old-style rods and wands obtain appropriate pvals. -LM- */
+	if (o_older_than(0, 3, 0))
+	{
+		if (o_ptr->tval == TV_ROD) o_ptr->pval = k_ptr->pval * o_ptr->number;
+		if (o_ptr->tval == TV_WAND) o_ptr->pval *= o_ptr->number;
 	}
 
 
@@ -758,14 +795,100 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
+	/* Acquire standard fields, unless the item is blasted or shattered. */
+	if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
+		 o_ptr->ac = k_ptr->ac;
+	if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
+		 o_ptr->dd = k_ptr->dd;
+	if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
+		 o_ptr->ds = k_ptr->ds;
 
 	/* Acquire standard weight */
 	o_ptr->weight = k_ptr->weight;
+
+	/* Starting with Oangband 0.3.0, dragon scale mail activations are assigned 
+	 * to the object like any other quality.  Perform this task for old dragon 
+	 * scale mails. -LM-
+	 */
+	if ((o_older_than(0, 3, 0)) && (o_ptr->tval == TV_DRAG_ARMOR))
+	{
+		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+		switch (o_ptr->sval)
+		{
+			case SV_DRAGON_BLACK:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_BLACK;
+				break;
+			}
+			case SV_DRAGON_BLUE:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_BLUE;
+				break;
+			}
+			case SV_DRAGON_WHITE:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_WHITE;
+				break;
+			}
+			case SV_DRAGON_RED:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_RED;
+				break;
+			}
+			case SV_DRAGON_GREEN:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_GREEN;
+				break;
+			}
+			case SV_DRAGON_MULTIHUED:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_MULTIHUED;
+				break;
+			}
+			case SV_DRAGON_SHINING:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_SHINING;
+				break;
+			}
+			case SV_DRAGON_LAW:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_LAW;
+				break;
+			}
+			case SV_DRAGON_BRONZE:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_BRONZE;
+				break;
+			}
+			case SV_DRAGON_GOLD:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_GOLD;
+				break;
+			}
+			case SV_DRAGON_CHAOS:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_CHAOS;
+				break;
+			}
+			case SV_DRAGON_BALANCE:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_BALANCE;
+				break;
+			}
+			case SV_DRAGON_POWER:
+			{
+				o_ptr->xtra2 = ACT_DRAGON_POWER;
+				break;
+			}
+		}
+	}
+
+	/* Hack -- keep some old fields.  Moved from ego-item area. -LM- */
+	if ((o_ptr->ds < old_ds) && (o_ptr->dd == old_dd))
+	{
+		/* Keep old enhanced damage dice. */
+		o_ptr->ds = old_ds;
+	}
 
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -799,6 +922,20 @@ static void rd_item(object_type *o_ptr)
 			/* Hack -- assume cursed */
 			if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
 		}
+
+		/* Starting with Oangband 0.3.0, which artifacts have activations is 
+		 * no longer hard-coded, so activations need to be transferred.  
+		 * Perform this task for old-style artifacts. -LM-
+		 */
+		if (o_older_than(0, 3, 0))
+		{
+			if (a_ptr->activation)
+			{
+				o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+				o_ptr->xtra2 = a_ptr->activation;
+			}
+		}
+
 	}
 
 	/* Ego items */
@@ -808,13 +945,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
-
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
 
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -1104,8 +1234,14 @@ static void rd_options(void)
 
 	/*** Oops ***/
 
-	/* Ignore old options */
-	strip_bytes(16);
+	/* Ignore old options.  Reduced from 16 to 13 in Oangband. */
+	strip_bytes(13);
+
+
+	/*** Timed Autosave, inspired by Zangband. ***/
+	rd_byte(&b);
+	autosave = b;
+	rd_s16b(&autosave_freq);
 
 
 	/*** Special info */
@@ -1210,7 +1346,7 @@ static void rd_options(void)
 
 
 /*
- * Hack -- strip the "ghost" info
+ * Hack -- strip the old-style "player ghost" info.
  *
  * XXX XXX XXX This is such a nasty hack it hurts.
  */
@@ -1236,6 +1372,82 @@ static void rd_ghost(void)
 	}
 }
 
+
+/* String-handling function from Greg Wooledge's random artifact generator. */
+static char *my_strdup (const char *s)
+{
+	char *t = malloc (strlen (s) + 1);
+	if (t) strcpy (t, s);
+	return t;
+}
+
+
+/*
+ * Read the saved random artifacts from a savefile, and add them to the 
+ * a_name structure.  This code is adopted from Greg Wooledge's random 
+ * artifacts.
+ */
+static int convert_saved_names(void)
+{
+	size_t name_size;
+	char *a_base;
+	char *a_next;
+	char temp[64];
+
+	int i;
+
+	/* Temporary space for names, while reading and randomizing them. */
+	char *names[MAX_A_IDX];
+
+	/* Add the permanent artifact names to the temporary array. */
+	for (i = 0; i < ART_MIN_RANDOM; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		names[i] = a_name + a_ptr->name;
+	}
+
+	/* Add the random artifact names to the temporary array. */
+	for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
+	{
+		rd_string(temp, 64);
+
+		names[i] = my_strdup(temp);
+	}
+
+
+	/* Convert our names array into an a_name structure for later use. */
+	name_size = 0;
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		name_size += strlen (names[i]) + 2;	/* skip first char */
+	}
+	if ((a_base = malloc (name_size)) == NULL)
+	{
+		note("Memory allocation error");
+		return 1;
+	}
+
+
+	a_next = a_base + 1;	/* skip first char */
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		strcpy (a_next, names[i]);
+		if (a_info[i].tval > 0)		/* skip unused! */
+			a_info[i].name = a_next - a_base;
+		a_next += strlen (names[i]) + 1;
+	}
+
+
+	/* Free some of our now unneeded memory. */
+	KILL (a_name, char);
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		free (names[i]);
+	}
+	a_name = a_base;
+
+	return 0;
+}
 
 
 
@@ -1287,7 +1499,6 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
 	rd_u16b(&p_ptr->exp_frac);
-
 	rd_s16b(&p_ptr->lev);
 
 	rd_s16b(&p_ptr->mhp);
@@ -1331,7 +1542,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->poisoned);
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
-	rd_s16b(&p_ptr->invuln);
+	rd_s16b(&p_ptr->magicdef);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
@@ -1349,17 +1560,36 @@ static errr rd_extra(void)
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
 
+
+
 	rd_byte(&p_ptr->confusing);
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
+
+	rd_byte(&tmp8u);
+	p_ptr->black_breath = tmp8u; /* Status of Black Breath. */
+
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);
-	rd_byte(&tmp8u);
+
+	/* Current shapechange. */
+	rd_byte(&p_ptr->schange);
+
+	/* The number of the bone file (if any) that player ghosts should use to 
+	 * reacquire a name, sex, class, and race. -LM-
+	 */
+	rd_byte(&bones_selector);
+
+	/* Find out how many thefts have already occured on this level. -LM- */
+	rd_byte(&number_of_thefts_on_level);
+
+	/* Find out whether a monster trap exists or not. -LM- */
+	rd_byte(&monster_trap_on_level);
+
 
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 45; i++) rd_byte(&tmp8u);
 
 	/* Skip the flags */
 	strip_bytes(12);
@@ -2114,7 +2344,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		}
 	}
 
-
 	/*** Monsters ***/
 
 	/* Extract index of first monster */
@@ -2123,7 +2352,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	/* Read the monster count */
 	rd_u16b(&limit);
 
-	/* Hack -- verify */
+	/* Hack -- verify  */
 	if (limit >= 1024)
 	{
 		note(format("Too many (%d) monster entries!", limit));
@@ -2136,7 +2365,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		monster_type *n_ptr;
 		monster_type monster_type_body;
 
-
 		/* Get local monster */
 		n_ptr = &monster_type_body;
 
@@ -2146,11 +2374,10 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		/* Read the monster */
 		rd_monster(n_ptr);
 
-
 		/* Hack -- ignore "broken" monsters */
 		if (n_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "player ghosts" */
+		/* Hack -- no old-style player ghosts. */
 		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
 
 
@@ -2381,7 +2608,9 @@ static errr rd_dungeon(void)
 	{
 		monster_type *n_ptr;
 		monster_type monster_type_body;
+		monster_race *r_ptr;
 
+		int r_idx;
 
 		/* Get local monster */
 		n_ptr = &monster_type_body;
@@ -2392,6 +2621,17 @@ static errr rd_dungeon(void)
 		/* Read the monster */
 		rd_monster(n_ptr);
 
+		/* Access the "r_idx" of the chosen monster */
+		r_idx = n_ptr->r_idx;
+
+		/* Access the actual race */
+		r_ptr = &r_info[r_idx];
+
+		/* If a player ghost, some special features need to be added. -LM- */
+		if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
+		{
+			prepare_ghost(n_ptr->r_idx, n_ptr, TRUE);
+		}
 
 		/* Place monster in dungeon */
 		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
@@ -2420,6 +2660,11 @@ static errr rd_savefile_new_aux(void)
 {
 	int i;
 
+	int total_artifacts = 0;
+	int random_artifacts = 0;
+
+	bool need_random_artifacts = FALSE;
+
 	byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
@@ -2441,7 +2686,6 @@ static errr rd_savefile_new_aux(void)
 	{
 		note("Warning -- converting obsolete save file.");
 	}
-
 
 	/* Strip the version bytes */
 	strip_bytes(4);
@@ -2468,8 +2712,17 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&sf_saves);
 
 
-	/* Later use (always zero) */
-	rd_u32b(&tmp32u);
+	/* Read the Oangband version information. */
+	rd_byte(&o_sf_major);
+	rd_byte(&o_sf_minor);
+	rd_byte(&o_sf_patch);
+	rd_byte(&o_sf_extra);
+
+	/* Assign a version number of 0.2.0 to savefiles from Angband or 
+	 * before Oangband 0.3.0.
+	 */
+	if (o_sf_minor == 0) o_sf_minor = 2;
+
 
 	/* Later use (always zero) */
 	rd_u32b(&tmp32u);
@@ -2499,6 +2752,7 @@ static errr rd_savefile_new_aux(void)
 		note(format("Too many (%u) monster races!", tmp16u));
 		return (21);
 	}
+
 
 	/* Read the available records */
 	for (i = 0; i < tmp16u; i++)
@@ -2548,6 +2802,7 @@ static errr rd_savefile_new_aux(void)
 		return (22);
 	}
 
+
 	/* Read the object memory */
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -2567,7 +2822,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > 4)
+	if (tmp16u > MAX_Q_IDX)
 	{
 		note(format("Too many (%u) quests!", tmp16u));
 		return (23);
@@ -2587,30 +2842,157 @@ static errr rd_savefile_new_aux(void)
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);
+	total_artifacts = tmp16u;
+
+	/* If an Oangband 0.3.0 savefile or newer, load the random artifacts. 
+	 * Although this value is not currently used, it may be useful someday.
+	 */
+	if (!(o_older_than(0,3,0)))
+	{
+		rd_u16b(&tmp16u);
+		random_artifacts = tmp16u;
+	}
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_A_IDX)
+	if (total_artifacts > MAX_A_IDX)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
 		return (24);
 	}
 
-	/* Read the artifact flags */
-	for (i = 0; i < tmp16u; i++)
+
+	/* Reading an old savefile, with no random artifacts. */
+	if (o_older_than(0,3,0))
 	{
-		rd_byte(&tmp8u);
-		a_info[i].cur_num = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
+		/* Read the artifact flags */
+		for (i = 0; i < total_artifacts; i++)
+		{
+			rd_byte(&tmp8u);
+			a_info[i].cur_num = tmp8u;
+			rd_byte(&tmp8u);
+			rd_byte(&tmp8u);
+			rd_byte(&tmp8u);
+		}
+
+		/* Later, we need to create the random artifacts, just as if 
+		 * the player were being born.
+		 */
+		need_random_artifacts = TRUE;
+
+		if (arg_fiddle) note("Loaded artifacts, will create random artifacts.");
 	}
-	if (arg_fiddle) note("Loaded Artifacts");
+
+	/* Reading a Oangband 0.3.0+ savefile, with random artifacts. */
+	else
+	{
+		/* Read the artifact info. */
+		for (i = 0; i < total_artifacts; i++)
+		{
+			/* Most regular artifact info is stored in a_info.raw. */
+			if (i < ART_MIN_RANDOM)
+			{
+				rd_byte(&tmp8u);
+				a_info[i].cur_num = tmp8u;
+				rd_byte(&tmp8u);
+				rd_byte(&tmp8u);
+				rd_byte(&tmp8u);
+			}
+			/* But random artifacts are specific to each player. */
+			else
+			{
+				rd_u16b(&tmp16u);
+				a_info[i].name = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[i].text = tmp16u;
+
+				rd_byte(&tmp8u);
+				a_info[i].tval = tmp8u;
+				rd_byte(&tmp8u);
+				a_info[i].sval = tmp8u;
+				rd_u16b(&tmp16u);
+				a_info[i].pval = tmp16u;
+
+				rd_u16b(&tmp16u);
+				a_info[i].to_h = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[i].to_d = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[i].to_a = tmp16u;
+
+				rd_byte(&tmp8u);
+				a_info[i].dd = tmp8u;
+				rd_byte(&tmp8u);
+				a_info[i].ds = tmp8u;
+
+				rd_u16b(&tmp16u);
+				a_info[i].ac = tmp16u;
+				rd_u16b(&tmp16u);
+				a_info[i].weight = tmp16u;
+
+				rd_u32b(&tmp32u);
+				a_info[i].cost = tmp32u;
+
+				rd_u32b(&tmp32u);
+				a_info[i].flags1 = tmp32u;
+				rd_u32b(&tmp32u);
+				a_info[i].flags2 = tmp32u;
+				rd_u32b(&tmp32u);
+				a_info[i].flags3 = tmp32u;
+
+				rd_byte(&tmp8u);
+				a_info[i].level = tmp8u;
+				rd_byte(&tmp8u);
+				a_info[i].rarity = tmp8u;
+
+				rd_byte(&tmp8u);
+				a_info[i].cur_num = tmp8u;
+				rd_byte(&tmp8u);
+				a_info[i].activation = tmp8u;
+
+				/* Extra space. */
+				rd_u32b(&tmp32u);
+			}
+		}
+		if (arg_fiddle) note("Loaded artifacts.");
+	}
+
+
+	/* If random artifacts do not need to be generated, read the 
+	 * random artifact names, and add them to the a_name array.
+	 */
+	if (!need_random_artifacts)
+	{
+		u16b num_of_random_arts;
+
+		/* Find out how many random artifacts have stored names. */
+		rd_u16b(&num_of_random_arts);
+
+
+		/* Verify that number, and warn the chap who modified the game that 
+		 * he still has work to do on failure.
+		 */
+		if (num_of_random_arts != (MAX_A_IDX - ART_MIN_RANDOM))
+		{
+			note(format("Number of stored random artifact names (%d) 
+				does not match the number of random artifacts in your 
+				copy of Oangband (%d).", num_of_random_arts, 
+				MAX_A_IDX - ART_MIN_RANDOM));
+		}
+
+		/* Otherwise, add the new names to the a_name structure. */
+		else
+		{
+			int err = convert_saved_names();
+
+			/* Complain if naming fails. */
+			if (err) note("Warning - random artifact naming failed!");
+		}
+	}
 
 
 	/* Read the extra stuff */
 	if (rd_extra()) return (25);
 	if (arg_fiddle) note("Loaded extra information");
-
 
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -2622,6 +3004,15 @@ static errr rd_savefile_new_aux(void)
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];
 
+	/* Now that the player information is known, we can generate a set 
+	 * of random artifacts, if needed. -LM-
+	 */
+	if (need_random_artifacts)
+	{
+		initialize_random_artifacts();
+		if (arg_fiddle) note("Generated random artifacts");
+	}
+
 
 	/* Read the inventory */
 	if (rd_inventory())
@@ -2630,14 +3021,12 @@ static errr rd_savefile_new_aux(void)
 		return (21);
 	}
 
-
 	/* Read the stores */
 	rd_u16b(&tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
 		if (rd_store(i)) return (22);
 	}
-
 
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
@@ -2690,8 +3079,8 @@ static errr rd_savefile_new_aux(void)
 #endif
 
 
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	/* Hack -- no old-style ghosts. -LM- */
+	if (older_than(2, 8, 3)) r_info[548].max_num = 0;
 
 
 	/* Success */

@@ -1,6 +1,7 @@
 /* File: wizard2.c */
 
-/*
+/* The wizard & debugging commands and their effects.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -117,16 +118,29 @@ static void prt_binary(u32b flags, int row, int col)
 
 
 /*
- * Hack -- Teleport to the target
+ * Hack -- Teleport to the target.  Oangband asks for a target after the command.
  */
 static void do_cmd_wiz_bamf(void)
 {
-	/* Must have a target */
-	if (target_okay())
+	/* target starts at player. */
+	int ny = 0;
+	int nx = 0; 
+
+	/* Use the targeting function. */
+	if (!target_set_interactive(TARGET_LOOK)) return;
+
+	/* grab the target coords. */
+	ny = p_ptr->target_row;
+	nx = p_ptr->target_col;
+
+	/* Test for passable terrain. */
+	if (!cave_passable_bold(ny,nx))
 	{
-		/* Teleport to the target */
-		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+		msg_print("The square you are aiming for is impassable.");
 	}
+
+	/* The simple act of controlled teleport. */
+	else teleport_player_to(ny,nx);
 }
 
 
@@ -201,6 +215,9 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Save */
 	p_ptr->max_exp = tmp_long;
+
+	/* Set experience to new maximum. -LM- */
+	p_ptr->exp = p_ptr->max_exp;
 
 	/* Update */
 	check_experience();
@@ -370,7 +387,7 @@ static tval_desc tvals[] =
 	{ TV_SOFT_ARMOR,        "Soft Armor"           },
 	{ TV_RING,              "Ring"                 },
 	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
+	{ TV_LITE,              "Light"                },
 	{ TV_POTION,            "Potion"               },
 	{ TV_SCROLL,            "Scroll"               },
 	{ TV_WAND,              "Wand"                 },
@@ -378,11 +395,14 @@ static tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_DRUID_BOOK,        "Druid Stone"          },
+	{ TV_NECRO_BOOK,        "Necromantic Tome"     },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+	{ TV_GOLD,              "treasure"             },
 	{ 0,                    NULL                   }
 };
 
@@ -453,7 +473,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -466,7 +486,8 @@ static int wiz_create_itemtype(void)
 	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is illegal */
-	if ((num < 0) || (num >= max_num)) return (0);
+	if ((num < 0) || (num >= max_num))return (0);
+
 
 	/* Base object type chosen, fill in tval */
 	tval = tvals[num].tval;
@@ -505,7 +526,7 @@ static int wiz_create_itemtype(void)
 		}
 	}
 
-	/* Me need to know the maximal possible remembered object_index */
+	/* We need to know the maximal possible remembered object_index */
 	max_num = num;
 
 	/* Choose! */
@@ -515,7 +536,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 15)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -523,7 +544,6 @@ static int wiz_create_itemtype(void)
 	/* And return successful */
 	return (choice[num]);
 }
-
 
 /*
  * Tweak an item
@@ -759,7 +779,7 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great);
+			make_object(i_ptr, good, great, 0);
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
@@ -816,11 +836,11 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 /*
- * Change the quantity of a the item
+ * Change the quantity of an item
  */
 static void wiz_quantity_item(object_type *o_ptr)
 {
-	int tmp_int;
+	int tmp_int, tmp_qnt;
 
 	char tmp_val[100];
 
@@ -828,6 +848,8 @@ static void wiz_quantity_item(object_type *o_ptr)
 	/* Never duplicate artifacts */
 	if (artifact_p(o_ptr)) return;
 
+	/* Store old quantity. -LM- */
+	tmp_qnt = o_ptr->number;
 
 	/* Default */
 	sprintf(tmp_val, "%d", o_ptr->number);
@@ -844,6 +866,9 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
+
+		/* Hack -- rod pvals must change if the number in the stack does. -LM-*/
+		if (o_ptr->tval == TV_ROD) o_ptr->pval = o_ptr->pval * o_ptr->number / tmp_qnt;
 	}
 }
 
@@ -992,6 +1017,7 @@ static void wiz_create_item(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+	object_kind *k_ptr;
 
 	int k_idx;
 
@@ -1012,11 +1038,23 @@ static void wiz_create_item(void)
 	/* Get local object */
 	i_ptr = &object_type_body;
 
+	/* Wipe the object */
+	object_wipe(i_ptr);
+
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+
+	/* Hack -- Since treasure objects are not effected by apply_magic, 
+	 * they need special processing. -LM-
+	 */
+	if (i_ptr->tval == TV_GOLD) 
+	{
+		k_ptr = &k_info[i_ptr->k_idx];
+		i_ptr->pval = k_ptr->cost / 2 + randint((k_ptr->cost + 1) / 2);
+	}
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1063,6 +1101,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_stun(0);
 	(void)set_cut(0);
 	(void)set_slow(0);
+	p_ptr->black_breath = FALSE;
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1224,7 +1263,7 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 
 	/* Paranoia */
 	if (!r_idx) return;
-	if (r_idx >= MAX_R_IDX-1) return;
+	if (r_idx >= MAX_R_IDX) return;
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1240,6 +1279,93 @@ static void do_cmd_wiz_named(int r_idx, int slp)
 		/* Place it (allow groups) */
 		if (place_monster_aux(y, x, r_idx, slp, TRUE)) break;
 	}
+}
+
+/*
+ * Create the artifact with the specified index. -LM-
+ * This function's code is taken from make_artifact_special, apply_magic, and 
+ * create_named_monster.
+ * 
+ */
+static void do_cmd_wiz_artifact(int required_index)
+{
+	object_type object_type_body;
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int k_idx = 0;
+	int a_idx = required_index;
+
+	artifact_type *a_ptr = &a_info[required_index];
+
+	object_type *o_ptr;
+
+	/* Sanity check. */
+	if (!a_idx) return;
+	if (a_idx >= MAX_A_IDX) return;
+
+	/* Get local object */
+	o_ptr = &object_type_body;
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
+
+	/* Skip "empty" artifacts */
+	if (!a_ptr->name)
+	{
+		msg_print("no artifact for that index.");
+		return;
+	}
+
+	
+
+	/* Find the base object */
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Assign the template */
+	object_prep(o_ptr, k_idx);
+
+
+	/* Mega-Hack -- mark the item as an artifact */
+	o_ptr->name1 = required_index;
+
+
+	/* Hack -- analyze artifacts */
+	/**a_ptr = &a_info[o_ptr->name1];*/
+
+
+	/* Maga hack -- Do not mark the artifact as "created" */
+	a_ptr->cur_num = 0;
+
+
+	/* Extract the other fields */
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	/* Transfer the activation information. -LM- */
+	if (a_ptr->activation)
+	{
+		o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+		o_ptr->xtra2 = a_ptr->activation;
+	}
+
+
+	/* Hack -- extract the "broken" flag */
+	if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+	/* Drop the artifact from heaven */
+	drop_near(o_ptr, -1, py, px);
+
 }
 
 
@@ -1437,7 +1563,6 @@ void do_cmd_debug(void)
 
 #endif
 
-
 		/* Hack -- Help */
 		case '?':
 		{
@@ -1452,7 +1577,7 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Teleport to target */
+		/* Select a target, and teleport to it. */
 		case 'b':
 		{
 			do_cmd_wiz_bamf();
@@ -1564,6 +1689,14 @@ void do_cmd_debug(void)
 			break;
 		}
 
+
+		/* Create specified artifact. -LM- */
+		case 'r':
+		{
+			do_cmd_wiz_artifact(p_ptr->command_arg);
+			break;
+		}
+
 		/* Summon Random Monster(s) */
 		case 's':
 		{
@@ -1595,10 +1728,10 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Wizard Light the Level */
+		/* Fully wizard Light the Level */
 		case 'w':
 		{
-			wiz_lite();
+			wiz_lite(TRUE);
 			break;
 		}
 

@@ -1,6 +1,11 @@
 /* File: dungeon.c */
 
-/*
+/* Peusdo-ID, char & monster regeneration, town and dungeon management,
+ * all timed character, monster, and object states, entry into Wizard, 
+ * debug, and borg mode, definitions of user commands, process player, 
+ * the basic function for interacting with the dungeon (including what 
+ * happens when a wizard cheats death).
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -88,12 +93,15 @@ static cptr value_check_aux2(object_type *o_ptr)
 /*
  * Sense the inventory
  *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light
- *   Class 5 = Paladin --> slow but heavy
+ *   Class 0 = Warrior  --> fast and heavy
+ *   Class 1 = Mage     --> slow and light
+ *   Class 2 = Priest   --> fast but light
+ *   Class 3 = Rogue    --> okay and heavy
+ *   Class 4 = Ranger   --> slow and light
+ *   Class 5 = Paladin  --> slow but heavy
+ *   Class 6 = Druid    --> slowish and light
+ *   Class 7 = Necrom.  --> slowish and light
+ *   Class 8 = Assassin --> okay and heavy
  */
 static void sense_inventory(void)
 {
@@ -180,6 +188,37 @@ static void sense_inventory(void)
 			/* Done */
 			break;
 		}
+
+		case CLASS_DRUID:
+		{
+			/* Mediocre (light) sensing */
+			if (0 != rand_int(60000L / (plev + 5))) return;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_NECRO:
+		{
+			/* Bad (light) sensing */
+			if (0 != rand_int(180000L / (plev + 5))) return;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_ASSASSIN:
+		{
+			/* Okay sensing */
+			if (0 != rand_int(30000L / (plev * plev + 40))) return;
+
+			/* Heavy sensing */
+			heavy = TRUE;
+
+			/* Done */
+			break;
+		}
+
 	}
 
 
@@ -393,6 +432,12 @@ static void regen_monsters(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters suffering from the Black Breath cannot regenerate. -LM- */
+		if (repair_mflag_blbr)
+		{
+			continue;
+		}
+
 		/* Allow regeneration (if needed) */
 		if (m_ptr->hp < m_ptr->maxhp)
 		{
@@ -420,16 +465,16 @@ static void regen_monsters(void)
 
 
 /*
- * Handle certain things once every 10 game turns
+ * Handle certain things once every 10 game turns.
  */
 static void process_world(void)
 {
-	int i, j;
+	int i, j, temp;
 
-	int regen_amount;
-
+	int regen_amount, mana_regen_amount, chance;
+	int plev = p_ptr->lev;
 	object_type *o_ptr;
-
+	object_kind *k_ptr;
 
 
 	/* Every 10 game turns */
@@ -472,6 +517,17 @@ static void process_world(void)
 		}
 	}
 
+	/*** Attempt timed autosave.  From Zangband. ***/
+	if (autosave && autosave_freq)
+	{
+		if (!(turn % ((s32b) autosave_freq * 10 )))
+		{
+			is_autosave = TRUE;
+			msg_print("Autosaving the game...");
+			do_cmd_save_game(TRUE);
+			is_autosave = FALSE;
+		}
+	}
 
 	/*** Handle the "town" (stores and sunshine) ***/
 
@@ -490,14 +546,14 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.");
+				msg_print("The sun has risen.     ");
 			}
 
 			/* Night falls */
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				msg_print("The sun has set.       ");
 			}
 
 			/* Illuminate */
@@ -511,6 +567,7 @@ static void process_world(void)
 	{
 		/*** Update the Stores ***/
 
+
 		/* Update the stores once a day (while in dungeon) */
 		if (!(turn % (10L * STORE_TURNS)))
 		{
@@ -520,11 +577,15 @@ static void process_world(void)
 			if (cheat_xtra) msg_print("Updating Shops...");
 
 			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES - 1; n++)
+			for (n = 0; n < MAX_STORES; n++)
 			{
+				/* Ignore home */
+				if (n == STORE_HOME) continue;
+
 				/* Maintain */
 				store_maint(n);
 			}
+
 
 			/* Sometimes, shuffle the shop-keepers */
 			if (rand_int(STORE_SHUFFLE) == 0)
@@ -532,12 +593,16 @@ static void process_world(void)
 				/* Message */
 				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
 
-				/* Shuffle a random shop (except home) */
-				store_shuffle(rand_int(MAX_STORES - 1));
+				/* pick a store randomly. */
+				n = rand_int(MAX_STORES);
+
+				/* Shuffle the store, if not the home. -LM-*/
+				if (n != STORE_HOME) store_shuffle(n);
 			}
 
 			/* Message */
 			if (cheat_xtra) msg_print("Done.");
+
 		}
 	}
 
@@ -668,11 +733,6 @@ static void process_world(void)
 		}
 	}
 
-	/* Regeneration ability */
-	if (p_ptr->regenerate)
-	{
-		regen_amount = regen_amount * 2;
-	}
 
 	/* Searching or Resting */
 	if (p_ptr->searching || p_ptr->resting)
@@ -680,10 +740,20 @@ static void process_world(void)
 		regen_amount = regen_amount * 2;
 	}
 
+	/* Regeneration ability.  A lesser effect on mana in Oangband. */
+	if (p_ptr->regenerate)
+	{
+		regen_amount = regen_amount * 2;
+		mana_regen_amount = 3 * regen_amount / 2;
+	}
+
+	/* Otherwise, the basic mana regen is the same as that of HPs. */
+	else 	mana_regen_amount = regen_amount;
+
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		regenmana(regen_amount);
+		regenmana(mana_regen_amount);
 	}
 
 	/* Various things interfere with healing */
@@ -755,25 +825,27 @@ static void process_world(void)
 		(void)set_slow(p_ptr->slow - 1);
 	}
 
-	/* Protection from evil */
+	/* Protection from evil.  Priests get it permenantly at level 50. -LM- */
 	if (p_ptr->protevil)
 	{
-		(void)set_protevil(p_ptr->protevil - 1);
+		if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->lev == 50)) {;}
+
+		else (void)set_protevil(p_ptr->protevil - 1);
 	}
 
-	/* Invulnerability */
-	if (p_ptr->invuln)
+	/* Increased Magical Defences. -LM- */
+	if (p_ptr->magicdef)
 	{
-		(void)set_invuln(p_ptr->invuln - 1);
+		(void)set_extra_defences(p_ptr->magicdef - 1);
 	}
 
-	/* Heroism */
+	/* Heroism. */
 	if (p_ptr->hero)
 	{
 		(void)set_hero(p_ptr->hero - 1);
 	}
 
-	/* Super Heroism */
+	/* Berserk. */
 	if (p_ptr->shero)
 	{
 		(void)set_shero(p_ptr->shero - 1);
@@ -791,8 +863,8 @@ static void process_world(void)
 		(void)set_shield(p_ptr->shield - 1);
 	}
 
-	/* Oppose Acid */
-	if (p_ptr->oppose_acid)
+	/* Oppose Acid.  Ents always oppose acid. -LM- */
+	if ((p_ptr->oppose_acid) && (p_ptr->schange != SHAPE_ENT))
 	{
 		(void)set_oppose_acid(p_ptr->oppose_acid - 1);
 	}
@@ -806,11 +878,14 @@ static void process_world(void)
 	/* Oppose Fire */
 	if (p_ptr->oppose_fire)
 	{
-		(void)set_oppose_fire(p_ptr->oppose_fire - 1);
+		/* Ents and vampires never oppose fire. -LM- */
+		if ((p_ptr->schange == SHAPE_ENT) || 
+			(p_ptr->schange == SHAPE_VAMPIRE)) p_ptr->oppose_fire = 0;
+		else (void)set_oppose_fire(p_ptr->oppose_fire - 1);
 	}
 
-	/* Oppose Cold */
-	if (p_ptr->oppose_cold)
+	/* Oppose Cold. Ents always oppose cold. -LM- */
+	if ((p_ptr->oppose_acid) && (p_ptr->schange != SHAPE_ENT))
 	{
 		(void)set_oppose_cold(p_ptr->oppose_cold - 1);
 	}
@@ -828,6 +903,9 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+
+		/* Hobbits are sturdy. -LM- */
+		if (p_ptr->prace == RACE_HOBBIT) adjust++;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -847,6 +925,9 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Hobbits are sturdy. -LM- */
+		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
@@ -854,6 +935,38 @@ static void process_world(void)
 		(void)set_cut(p_ptr->cut - adjust);
 	}
 
+	/* Every 1500 turns, warn about any Black Breath not gotten from an equipped 
+	 * object, and stop any resting. -LM-
+	 */
+	if (!(turn % 3000) && (p_ptr->black_breath))
+	{
+		u32b f1, f2, f3;
+
+		bool be_silent = FALSE;
+
+		/* check all equipment for the Black Breath flag. */
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Extract the item flags */
+			object_flags(o_ptr, &f1, &f2, &f3);
+
+			/* No messages if object has the flag, to avoid annoyance. */
+			if (f3 & (TR3_DRAIN_EXP)) be_silent = TRUE;
+
+		}
+		/* If we are allowed to speak, warn and disturb. */
+
+		if (be_silent == FALSE)
+		{
+			msg_print("The Black Breath saps your soul!");
+			disturb(0, 0);
+		}
+	}
 
 
 	/*** Process Light ***/
@@ -906,13 +1019,19 @@ static void process_world(void)
 
 	/*** Process Inventory ***/
 
-	/* Handle experience draining */
-	if (p_ptr->exp_drain)
+	/* Handle experience draining.  In Oangband, the effect is worse, 
+	 * especially for high-level characters.  As per Tolkein, hobbits 
+	 * are resistant.
+	 */
+	if (p_ptr->black_breath)
 	{
-		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
+		if (p_ptr->prace == RACE_HOBBIT) chance = 2;
+		else chance = 5;
+
+		if ((rand_int(100) < chance) && (p_ptr->exp > 0))
 		{
-			p_ptr->exp--;
-			p_ptr->max_exp--;
+			p_ptr->exp -= 1 + plev / 5;
+			p_ptr->max_exp -= 1 + plev / 5;
 			check_experience();
 		}
 	}
@@ -944,24 +1063,38 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods */
+	/* Recharge rods.  Rods now use timeout to control charging status, 
+	 * and each charging rod in a stack decreases the stack's timeout by 
+	 * one. -LM-
+	 */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		/* Examine all charging rods or stacks of charging rods. */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-			/* Charge it */
-			o_ptr->pval--;
+			/* Determine how many rods are charging. */
+			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			if (temp > o_ptr->number) temp = o_ptr->number;
+
+			/* Decrease timeout by that number. */
+			o_ptr->timeout -= temp;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 
 			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			if (!(o_ptr->timeout)) j++;
 		}
 	}
+
+
+
 
 	/* Notice changes */
 	if (j)
@@ -989,7 +1122,14 @@ static void process_world(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			/* Charge it */
+			o_ptr->timeout -= o_ptr->number;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
 	}
 
 
@@ -1083,12 +1223,13 @@ static bool verify_debug_mode(void)
 {
 	static int verify = 1;
 
-	/* Ask first time */
-	if (verify && verify_special)
+	/* Ask first time, unless the savefile is already in debug mode. */
+	if (verify && verify_special && (!(p_ptr->noscore & 0x0008)))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
+		msg_print("Using the debug commands will also mark your savefile.");
 		msg_print(NULL);
 
 		/* Verify request */
@@ -1168,6 +1309,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -1652,6 +1800,14 @@ static void process_command(void)
 
 		/*** Misc Commands ***/
 
+		/* Stop doing a shapechange.  From Sangband. */
+		case ']':
+		{
+			do_cmd_unchange();
+			break;
+		}
+
+
 		/* Take notes */
 		case ':':
 		{
@@ -1699,7 +1855,8 @@ static void process_command(void)
 		/* Hack -- Save and don't quit */
 		case KTRL('S'):
 		{
-			do_cmd_save_game();
+			is_autosave = FALSE;
+			do_cmd_save_game(FALSE);
 			break;
 		}
 
@@ -2454,9 +2611,12 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-
 		/* Process all of the monsters */
 		process_monsters();
+
+		/* Every ten game turns, clear any modifications to the chance that 
+		 * a monster will be disturbed. -LM- */
+		if (!(turn % 10)) add_wakeup_chance = 0;
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2478,7 +2638,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Process the world */
 		process_world();
@@ -2503,7 +2662,6 @@ static void dungeon(void)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
-
 
 		/* Count game turns */
 		turn++;
@@ -2714,7 +2872,6 @@ void play_game(bool new_game)
 		/* Process the level */
 		dungeon();
 
-
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
@@ -2727,26 +2884,21 @@ void play_game(bool new_game)
 		/* Window stuff */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Cancel the target */
 		target_set_monster(0);
 
 		/* Cancel the health bar */
 		health_track(0);
 
-
 		/* Forget the view */
 		forget_view();
-
 
 		/* Handle "quit and save" */
 		if (!p_ptr->playing && !p_ptr->is_dead) break;
 
-
 		/* Erase the old cave */
 		wipe_o_list();
 		wipe_m_list();
-
 
 		/* XXX XXX XXX */
 		msg_print(NULL);
@@ -2790,6 +2942,7 @@ void play_game(bool new_game)
 				(void)set_image(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
+				p_ptr->black_breath = FALSE;	/* accounting for a new ailment. -LM- */
 
 				/* Hack -- Prevent starvation */
 				(void)set_food(PY_FOOD_MAX - 1);

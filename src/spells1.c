@@ -1,6 +1,15 @@
 /* File: spells1.c */
 
-/*
+/* Polymorph, teleport monster, teleport player, colors and ascii 
+ * graphics for spells, hurt and kill player, melting/burning/freezing/
+ * electrocuting items, effects of these attacks on the player and his 
+ * stuff, spells that increase, decrease, and restore stats, disenchant, 
+ * nexus, destroy and create terrain features, light+dark, destroy ob-
+ * jects.  handlers for beam/bolt/ball spells that do damage to a monster, 
+ * other player combat spells, special effects of monster and player 
+ * breaths and  spells to the player, monsters, and dungeon terrain.  The 
+ * projection code.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -161,6 +170,7 @@ void teleport_player(int dis)
 
 	/* Minimum distance */
 	min = dis / 2;
+
 
 	/* Look until done */
 	while (look)
@@ -421,8 +431,6 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 /*
  * Decreases players hit points and sets death flag if necessary
  *
- * Invulnerability needs to be changed into a "shield" XXX XXX XXX
- *
  * Hack -- this function allows the user to save (or quit) the game
  * when he dies, since the "You die." message is shown before setting
  * the player to "dead".
@@ -440,9 +448,6 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Disturb */
 	disturb(1, 0);
-
-	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (dam < 9000)) return;
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -562,6 +567,7 @@ static bool hates_elec(object_type *o_ptr)
 	{
 		case TV_RING:
 		case TV_WAND:
+		case TV_ROD:
 		{
 			return (TRUE);
 		}
@@ -598,6 +604,8 @@ static bool hates_fire(object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_DRUID_BOOK:
+		case TV_NECRO_BOOK:
 		{
 			return (TRUE);
 		}
@@ -709,6 +717,7 @@ typedef int (*inven_func)(object_type *);
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
  * Destruction taken from "melee.c" code for "stealing".
+ * New-style wands and rods handled correctly. -LM-
  * Returns number of items destroyed.
  */
 static int inven_damage(inven_func typ, int perc)
@@ -737,10 +746,18 @@ static int inven_damage(inven_func typ, int perc)
 		/* Give this item slot a shot at death */
 		if ((*typ)(o_ptr))
 		{
-			/* Count the casualties */
+			/* Scrolls and potions are more vulnerable. -LM- */
+			if ((o_ptr->tval == TV_POTION) || (o_ptr->tval == TV_POTION))
+			{
+				perc = 3 * perc / 2;
+			}
+			/* Rods are tough. -LM- */
+			if (o_ptr->tval == TV_ROD) perc = (perc / 4);
+
+			/* Count the casualties. */
 			for (amt = j = 0; j < o_ptr->number; ++j)
 			{
-				if (rand_int(100) < perc) amt++;
+				if (rand_int(1000) < perc) amt++;
 			}
 
 			/* Some casualities */
@@ -756,6 +773,17 @@ static int inven_damage(inven_func typ, int perc)
 				             (amt > 1 ? "Some of y" : "One of y")) : "Y"),
 				           o_name, index_to_label(i),
 				           ((amt > 1) ? "were" : "was"));
+
+				/* Hack -- If rods or wand are destroyed, the total maximum 
+				 * timeout or charges of the stack needs to be reduced, 
+				 * unless all the items are being destroyed. -LM-
+				 */
+				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+					&& (amt < o_ptr->number))
+				{
+					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+				}
+
 
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
@@ -775,7 +803,8 @@ static int inven_damage(inven_func typ, int perc)
 
 
 /*
- * Acid has hit the player, attempt to affect some armor.
+ * Acid has hit the player, attempt to affect some armor, if the armor
+ * is not melded with the player's body because of a shapechange.
  *
  * Note that the "base armor" of an object never changes.
  *
@@ -789,8 +818,13 @@ static int minus_ac(void)
 
 	char o_name[80];
 
+	/* If the player has shapechanged, their armor is part of their
+	 * body, and cannot be damaged. */
+	if (DRUID_SCHANGE)
+		return (FALSE);
 
-	/* Pick a (possibly empty) inventory slot */
+
+	/* Pick a (possibly empty) equipment slot */
 	switch (randint(6))
 	{
 		case 1: o_ptr = &inventory[INVEN_BODY]; break;
@@ -840,11 +874,12 @@ static int minus_ac(void)
 
 
 /*
- * Hurt the player with Acid
+ * Hurt the player with Acid.  Resistances now reduce inventory
+ * destruction.  Acid can reduce CHR, as in Zangband. -LM-
  */
 void acid_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv = 0;
 
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
@@ -853,8 +888,20 @@ void acid_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 
+	/* Determine the chance in 1000 of an inventory item being lost (note 
+	 * that scrolls and potions have a +50% extra chance to be lost). -LM-
+	 */
+	inv = 3 + dam / 12;
+	if (inv > 20) inv = 20;
+
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
+
+	/* Players can lose CHR to acid, if the attack is strong enough and
+       * not resisted.  Armour blocking helps reduce the chance. -LM- */
+    if ((!(p_ptr->oppose_acid || p_ptr->resist_acid))
+        && randint(HURT_CHANCE)==1 && (dam > 9))
+            (void) do_dec_stat(A_CHR);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -865,11 +912,12 @@ void acid_dam(int dam, cptr kb_str)
 
 
 /*
- * Hurt the player with electricity
+ * Hurt the player with electricity.  Resistances now reduce inventory
+ * destruction.  Electricity can reduce DEX, as in Zangband. -LM-
  */
 void elec_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv = 0;
 
 	/* Total immunity */
 	if (p_ptr->immune_elec || (dam <= 0)) return;
@@ -877,6 +925,18 @@ void elec_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+
+	/* Determine the chance in 1000 of an inventory item being lost (note 
+	 * that scrolls and potions have a +50% extra chance to be lost). -LM-
+	 */
+	inv = 3 + dam / 12;
+	if (inv > 20) inv = 20;
+
+	/* Players can lose DEX to electricity, if the attack is strong
+	 * enough and not resisted. */
+    if ((!(p_ptr->oppose_elec || p_ptr->resist_elec))
+        && randint(HURT_CHANCE)==1 && (dam > 9))
+            (void) do_dec_stat(A_DEX);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -886,14 +946,13 @@ void elec_dam(int dam, cptr kb_str)
 }
 
 
-
-
 /*
- * Hurt the player with Fire
+ * Hurt the player with Fire.  Resistances now reduce inventory
+ * destruction.  Fire can reduce STR. -LM-
  */
 void fire_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv = 0;
 
 	/* Totally immune */
 	if (p_ptr->immune_fire || (dam <= 0)) return;
@@ -901,6 +960,18 @@ void fire_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+
+	/* Determine the chance in 1000 of an inventory item being lost (note 
+	 * that scrolls and potions have a +50% extra chance to be lost). -LM-
+	 */
+	inv = 3 + dam / 12;
+	if (inv > 20) inv = 20;
+
+	/* Players can lose STR to fire, if the attack is strong enough and
+       * not resisted. */
+    if ((!(p_ptr->oppose_fire || p_ptr->resist_fire))
+        && randint(HURT_CHANCE)==1 && (dam > 9))
+            (void) do_dec_stat(A_STR);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -911,11 +982,12 @@ void fire_dam(int dam, cptr kb_str)
 
 
 /*
- * Hurt the player with Cold
+ * Hurt the player with Cold.  Resistances now reduce inventory
+ * destruction.  Cold can reduce CON. -LM-
  */
 void cold_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv = 0;
 
 	/* Total immunity */
 	if (p_ptr->immune_cold || (dam <= 0)) return;
@@ -924,14 +996,24 @@ void cold_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 
+	/* Determine the chance in 1000 of an inventory item being lost (note 
+	 * that scrolls and potions have a +50% extra chance to be lost). -LM-
+	 */
+	inv = 3 + dam / 12;
+	if (inv > 20) inv = 20;
+
+	/* Players can lose CON to cold, if the attack is strong enough and
+       * not resisted. */
+    if ((!(p_ptr->oppose_cold || p_ptr->resist_cold))
+        && randint(HURT_CHANCE)==1 && (dam > 9))
+            (void) do_dec_stat(A_CON);
+
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_cold_destroy, inv);
 }
-
-
 
 
 
@@ -1146,7 +1228,8 @@ bool res_stat(int stat)
 
 
 /*
- * Apply disenchantment to the player's stuff
+ * Apply disenchantment to the player's stuff, unless it is melded with
+ * his body because of a shapechange.
  *
  * This function is also called from the "melee" code.
  *
@@ -1163,9 +1246,13 @@ bool apply_disenchant(int mode)
 	char o_name[80];
 
 
+	/* If the player has shapechanged, their equipment is part of
+	 * their body, and cannot be disenchanted. */
+	if (DRUID_SCHANGE)
+		return (FALSE);
+
 	/* Unused */
 	mode = mode;
-
 
 	/* Pick a random slot */
 	switch (randint(8))
@@ -1349,17 +1436,55 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Ignore most effects */
 		case GF_ACID:
 		case GF_ELEC:
-		case GF_FIRE:
-		case GF_COLD:
-		case GF_PLASMA:
 		case GF_METEOR:
-		case GF_ICE:
 		case GF_SHARD:
 		case GF_FORCE:
 		case GF_SOUND:
 		case GF_MANA:
 		case GF_HOLY_ORB:
 		{
+			break;
+		}
+
+		/* Sufficiently intense cold can solidify lava. -LM- */
+		case GF_COLD:
+		case GF_ICE:
+		{
+			if (dam > randint(120) + 120)
+			{
+				if (cave_feat[y][x] == FEAT_LAVA)
+				{
+
+					/* Forget the lava */
+					cave_info[y][x] &= ~(CAVE_MARK);
+	
+					/* Destroy the lava */
+					if (randint(3) != 1) cave_set_feat(y, x, FEAT_FLOOR);
+					else cave_set_feat(y, x, FEAT_RUBBLE);
+				}
+			}
+
+			break;
+		}
+
+		/* Fire and plasma can turn water into steam, and burn trees. -LM- */
+		case GF_FIRE:
+		case GF_PLASMA:
+		{
+			if (dam > randint(200) + 100)
+			{
+				if ((cave_feat[y][x] == FEAT_WATER) || 
+					(cave_feat[y][x] == FEAT_TREE))
+				{
+
+					/* Forget the water or tree */
+					cave_info[y][x] &= ~(CAVE_MARK);
+
+					/* Destroy the water or tree */
+					cave_set_feat(y, x, FEAT_FLOOR);
+				}
+			}
+
 			break;
 		}
 
@@ -1371,21 +1496,31 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
 			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)))
 			{
-				/* Check line of sight */
-				if (player_has_los_bold(y, x))
+				/* 95% chance of success. -LM- */
+				if (randint(20) != 20)
 				{
-					msg_print("There is a bright flash of light!");
-					obvious = TRUE;
+					/* Check line of sight */
+					if (player_has_los_bold(y, x))
+					{
+						msg_print("There is a bright flash of light.");
+						obvious = TRUE;
+					}
+
+					/* Forget the trap */
+					cave_info[y][x] &= ~(CAVE_MARK);
+
+					/* Destroy the trap */
+					cave_set_feat(y, x, FEAT_FLOOR);
 				}
-
-				/* Forget the trap */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
-				/* Destroy the trap */
-				cave_set_feat(y, x, FEAT_FLOOR);
+				/* 5% chance of setting off the trap. -LM- */
+				else
+				{
+					msg_print("Your magic was too weak!");
+					(void)hit_trap(y, x);
+				} 
 			}
 
-			/* Secret / Locked doors are found and unlocked */
+			/* Secret / Locked doors are (always) found and unlocked */
 			else if ((cave_feat[y][x] == FEAT_SECRET) ||
 			         ((cave_feat[y][x] >= FEAT_DOOR_HEAD + 0x01) &&
 			          (cave_feat[y][x] <= FEAT_DOOR_HEAD + 0x07)))
@@ -1404,15 +1539,13 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Destroy Doors (and traps) */
+		/* Destroy Doors */
 		case GF_KILL_DOOR:
 		{
-			/* Destroy all doors and traps */
+			/* Destroy all doors.  Traps are not affected in Oangband. */
 			if ((cave_feat[y][x] == FEAT_OPEN) ||
 			    (cave_feat[y][x] == FEAT_BROKEN) ||
 			    (cave_feat[y][x] == FEAT_INVIS) ||
-			    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_TRAP_TAIL)) ||
 			    ((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
 			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)))
 			{
@@ -1442,13 +1575,16 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Destroy walls (and doors) */
+		/* Destroy walls, rubble, and doors */
 		case GF_KILL_WALL:
 		{
 			/* Non-walls (etc) */
 			if (cave_floor_bold(y, x)) break;
 
-			/* Permanent walls */
+			/* Trees are unaffected. -LM- */
+			if (cave_feat[y][x] == FEAT_TREE) break;
+
+			/* Permanent walls and stores. */
 			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
 
 			/* Granite */
@@ -1457,7 +1593,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
-					msg_print("The wall turns into mud!");
+					msg_print("The wall turns into mud.");
 					obvious = TRUE;
 				}
 
@@ -1474,7 +1610,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
-					msg_print("The vein turns into mud!");
+					msg_print("The vein turns into mud.");
 					msg_print("You have found something!");
 					obvious = TRUE;
 				}
@@ -1495,7 +1631,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
-					msg_print("The vein turns into mud!");
+					msg_print("The vein turns into mud.");
 					obvious = TRUE;
 				}
 
@@ -1512,7 +1648,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				if (cave_info[y][x] & (CAVE_MARK))
 				{
-					msg_print("The rubble turns into mud!");
+					msg_print("The rubble turns into mud.");
 					obvious = TRUE;
 				}
 
@@ -1522,8 +1658,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Destroy the rubble */
 				cave_set_feat(y, x, FEAT_FLOOR);
 
-				/* Hack -- place an object */
-				if (rand_int(100) < 10)
+				/* Hack -- place an object.  Chance much less in Oangband. */
+				if (rand_int(100) < 1)
 				{
 					/* Found something */
 					if (player_can_see_bold(y, x))
@@ -1532,13 +1668,13 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 						obvious = TRUE;
 					}
 
-					/* Place gold */
-					place_object(y, x, FALSE, FALSE);
+					/* Place object */
+					place_object(y, x, FALSE, FALSE, 0);
 				}
 			}
 
 			/* Destroy doors (and secret doors) */
-			else /* if (cave_feat[y][x] >= FEAT_DOOR_HEAD) */
+			else if (cave_feat[y][x] >= FEAT_DOOR_HEAD)
 			{
 				/* Hack -- special message */
 				if (cave_info[y][x] & (CAVE_MARK))
@@ -1902,6 +2038,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 
 
+
 /*
  * Helper function for "project()" below.
  *
@@ -1925,6 +2062,9 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
  * Note that "polymorph" is dangerous, since a failure in "place_monster()"'
  * may result in a dereference of an invalid pointer.  XXX XXX XXX
  *
+ * Certain terrain types affect spells. -LM-
+ *
+ *
  * Various messages are produced, and damage is applied.
  *
  * Just "casting" a substance (i.e. plasma) does not make you immune, you must
@@ -1945,6 +2085,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
  *     gives avg damage of .444, ranging from .556 to .333
  *   Note that "dam = dam * 3 / (randint(6) + 6);"
  *     gives avg damage of .327, ranging from .427 to .250
+ *   Note that "dam = dam * 2 / (randint(2) + 4);"
+ *     gives avg damage of .367, ranging from .400 to .333		-LM-
  *   Note that "dam = dam * 2 / (randint(6) + 6);"
  *     gives something simple.
  *
@@ -1963,6 +2105,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	monster_race *r_ptr;
 
 	cptr name;
+
+	/* Adjustment to damage caused by terrain, if applicable. -LM- */
+	int terrain_adjustment = 0;
 
 	/* Is the monster "seen"? */
 	bool seen = FALSE;
@@ -2003,9 +2148,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	cptr note_dies = " dies.";
 
 
-	/* Walls protect monsters */
-	if (!cave_floor_bold(y,x)) return (FALSE);
-
+	/* Walls and doors entirely protect monsters, but rubble and trees do not. -LM- */
+	if (!cave_passable_bold(y,x)) return (FALSE);
 
 	/* No monster here */
 	if (!(cave_m_idx[y][x] > 0)) return (FALSE);
@@ -2020,15 +2164,57 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	name = (r_name + r_ptr->name);
 	if (m_ptr->ml) seen = TRUE;
 
+	/* Get the monster name (BEFORE polymorphing) */
+	monster_desc(m_name, m_ptr, 0);
+
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
 
-	/* Get the monster name (BEFORE polymorphing) */
-	monster_desc(m_name, m_ptr, 0);
+	/* Determine if terrain is capable of adjusting physical damage. -LM- */
+	switch (cave_feat[y][x])
+	{
+		/* Monsters can duck behind rubble, or take only partial damage. */
+		case FEAT_RUBBLE:
+		{
+			if (randint(4) == 1)
+			{
+				msg_format("%^s ducks behind a boulder!", m_name);
+				return (FALSE);
+			}
+			else terrain_adjustment -= dam / 4;
+			break;
+		}
+		/* Fire-based spells suffer, but other spells benefit slightly (monster is easier to hit).  Water spells come into their own. */
+		case FEAT_WATER:
+		{
+			if (typ == GF_FIRE) terrain_adjustment -= dam / 2;
+			else if (typ == GF_WATER) terrain_adjustment = dam / 3;
+			else terrain_adjustment = dam / 10;
+			break;
+		}
+		/* Cold and water-based spells suffer, and fire-based spells benefit. */
+		case FEAT_LAVA:
+		{
+			if ((typ == GF_COLD) || (typ == GF_ICE) || (typ == GF_WATER)) 
+				terrain_adjustment -= dam / 2;
 
-
+			else if (typ == GF_FIRE) terrain_adjustment = dam / 4;
+			break;
+		}
+		/* Monsters can duck, or take only partial damage. */
+		case FEAT_TREE:
+		{
+			if (randint(4) == 1)
+			{
+				msg_format("%^s hides behind a tree!", m_name);
+				return(FALSE);
+			}
+			else terrain_adjustment -= dam / 4;
+			break;
+		}
+	}
 
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_DEMON)) ||
@@ -2047,6 +2233,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Magic Missile -- pure damage */
 		case GF_MISSILE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			break;
 		}
@@ -2054,6 +2243,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Acid */
 		case GF_ACID:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ACID))
 			{
@@ -2067,6 +2259,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Electricity */
 		case GF_ELEC:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ELEC))
 			{
@@ -2080,6 +2275,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Fire damage */
 		case GF_FIRE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_FIRE))
 			{
@@ -2093,6 +2291,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Cold */
 		case GF_COLD:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_COLD))
 			{
@@ -2106,6 +2307,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Poison */
 		case GF_POIS:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_POIS))
 			{
@@ -2119,19 +2323,25 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Holy Orb -- hurts Evil */
 		case GF_HOLY_ORB:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
-				dam *= 2;
+				dam = 2 * dam / 3;
 				note = " is hit hard.";
 				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
 			}
 			break;
 		}
 
-		/* Arrow -- no defense XXX */
+		/* Arrow or Boulder -- no defense XXX */
 		case GF_ARROW:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			break;
 		}
@@ -2139,6 +2349,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Plasma -- perhaps check ELEC or FIRE XXX */
 		case GF_PLASMA:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (prefix(name, "Plasma") ||
 			    (r_ptr->flags4 & (RF4_BR_PLAS)))
@@ -2152,6 +2365,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Nether -- see above */
 		case GF_NETHER:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
@@ -2166,7 +2382,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (r_ptr->flags3 & (RF3_EVIL))
 			{
-				dam /= 2;
+				dam = 2 * dam / 3;
 				note = " resists somewhat.";
 				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
 			}
@@ -2176,6 +2392,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Water (acid) damage -- Water spirits/elementals are immune */
 		case GF_WATER:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if ((r_ptr->d_char == 'E') && prefix(name, "W"))
 			{
@@ -2188,6 +2407,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Chaos -- Chaos breathers resist */
 		case GF_CHAOS:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			do_poly = TRUE;
 			do_conf = (5 + randint(11) + r) / (r + 1);
@@ -2203,6 +2425,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Shards -- Shard breathers resist */
 		case GF_SHARD:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags4 & (RF4_BR_SHAR))
 			{
@@ -2215,6 +2440,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Sound -- Sound breathers resist */
 		case GF_SOUND:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			do_stun = (10 + randint(15) + r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_SOUN))
@@ -2228,6 +2456,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Confusion */
 		case GF_CONFUSION:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			do_conf = (10 + randint(15) + r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_CONF))
@@ -2272,6 +2503,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Force */
 		case GF_FORCE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			do_stun = (randint(15) + r) / (r + 1);
 			if (r_ptr->flags4 & (RF4_BR_WALL))
@@ -2285,6 +2519,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Inertia -- breathers resist */
 		case GF_INERTIA:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags4 & (RF4_BR_INER))
 			{
@@ -2323,6 +2560,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Pure damage */
 		case GF_MANA:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			break;
 		}
@@ -2330,6 +2570,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Meteor -- powerful magic missile */
 		case GF_METEOR:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			break;
 		}
@@ -2337,6 +2580,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Ice -- Cold + Cuts + Stun */
 		case GF_ICE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (seen) obvious = TRUE;
 			do_stun = (randint(15) + 1) / (r + 1);
 			if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -2352,6 +2598,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Drain Life */
 		case GF_OLD_DRAIN:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
 			    (r_ptr->flags3 & (RF3_DEMON)) ||
@@ -2406,8 +2655,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Heal fully */
 			m_ptr->hp = m_ptr->maxhp;
 
-			/* Speed up */
-			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
+			/* Speed up.  Bonus to speed reduced in Oangband. */
+			if (m_ptr->mspeed < 150) m_ptr->mspeed += 5;
 
 			/* Attempt to clone. */
 			if (multiply_monster(cave_m_idx[y][x]))
@@ -2463,41 +2712,66 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 
-		/* Slow Monster (Use "dam" as "power") */
+		/* Slow Monster (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_OLD_SLOW:
 		{
 			if (seen) obvious = TRUE;
 
-			/* Powerful monsters can resist */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+
+			/* Sometimes super-charge the spell. */
+			if (((p_ptr->pclass == CLASS_MAGE) || 
+				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			{
+				dam += dam / 2;
+			}
+			else if (randint(6) == 1) dam += dam / 3;
+
+
+			/* Determine monster's power to resist. */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+			else tmp = r_ptr->level + 2;
+
+			/* Attempt a saving throw. -LM- */
+			if (tmp > randint(dam))
 			{
 				note = " is unaffected!";
 				obvious = FALSE;
 			}
 
-			/* Normal monsters slow down */
+			/* If it fails, slow down. */
 			else
 			{
 				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
 				note = " starts moving slower.";
 			}
 
-			/* No "real" damage */
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
 
 
-		/* Sleep (Use "dam" as "power") */
+		/* Sleep (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_OLD_SLEEP:
 		{
 			if (seen) obvious = TRUE;
 
-			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+
+			/* Sometimes super-charge the spell. */
+			if (((p_ptr->pclass == CLASS_MAGE) || 
+				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			{
+				dam += dam / 2;
+			}
+			else if (randint(6) == 1) dam += dam / 3;
+
+
+			/* Determine monster's power to resist. */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+			else tmp = r_ptr->level + 2;
+
+			/* Attempt a saving throw. */
+			if ((tmp > randint(dam)) || (r_ptr->flags3 & (RF3_NO_SLEEP)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
@@ -2509,31 +2783,43 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " is unaffected!";
 				obvious = FALSE;
 			}
+
+			/* If it fails, hit the hay.  Sleeping reduced in Oangband. */
 			else
 			{
 				/* Go to sleep (much) later */
 				note = " falls asleep!";
-				do_sleep = 500;
+				do_sleep = 350;
 			}
 
-			/* No "real" damage */
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
 
 
-		/* Confusion (Use "dam" as "power") */
+		/* Confusion (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_OLD_CONF:
 		{
 			if (seen) obvious = TRUE;
 
-			/* Get confused later */
-			do_conf = damroll(3, (dam / 2)) + 1;
 
-			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			/* Sometimes super-charge the spell. */
+			if (((p_ptr->pclass == CLASS_MAGE) || 
+				(p_ptr->pclass == CLASS_DRUID)) && (randint(3) == 1))
+			{
+				dam += dam / 2;
+			}
+			else if (randint(6) == 1) dam += dam / 3;
+
+
+			/* Determine monster's power to resist.  */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+			else if (r_ptr->flags3 & (RF3_UNDEAD)) tmp = r_ptr->level + 15;
+			else tmp = r_ptr->level + 2;
+
+			/* Attempt a saving throw.  No rescue from previous confusion. */
+			if ((tmp > randint(dam)) || (r_ptr->flags3 & (RF3_NO_CONF)))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -2541,24 +2827,31 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 
-				/* Resist */
-				do_conf = 0;
-
 				/* No obvious effect */
 				note = " is unaffected!";
 				obvious = FALSE;
 			}
 
-			/* No "real" damage */
+			/* If it fails, become confused.  Reduced in Oangband. */
+			else
+			{
+				/* Get confused later */
+				do_conf = damroll(3, (dam / 5)) + 1;
+			}
+
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
 
 
 
-		/* Lite, but only hurts susceptible creatures */
+		/* Light, but only hurts susceptible creatures */
 		case GF_LITE_WEAK:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			/* Hurt by light */
 			if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
@@ -2585,9 +2878,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 
-		/* Lite -- opposite of Dark */
+		/* Light -- opposite of Dark */
 		case GF_LITE:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags4 & (RF4_BR_LITE))
 			{
@@ -2599,7 +2895,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) r_ptr->r_flags3 |= (RF3_HURT_LITE);
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
-				dam *= 2;
+				dam = 3 * dam / 2;
 			}
 			break;
 		}
@@ -2608,6 +2904,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Dark -- opposite of Lite */
 		case GF_DARK:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags4 & (RF4_BR_DARK))
 			{
@@ -2673,7 +2972,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Teleport evil (Use "dam" as "power") */
 		case GF_AWAY_EVIL:
 		{
-			/* Only affect undead */
+			/* Only affect evil */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				if (seen) obvious = TRUE;
@@ -2709,7 +3008,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 
-		/* Turn undead (Use "dam" as "power") */
+		/* Turn undead (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_TURN_UNDEAD:
 		{
 			/* Only affect undead */
@@ -2721,36 +3020,62 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Apply some fear */
-				do_fear = damroll(3, (dam / 2)) + 1;
 
-				/* Attempt a saving throw */
-				if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+				/* Sometimes super-charge the spell. */
+				if ((p_ptr->pclass == CLASS_NECRO) && (randint(2) == 1))
 				{
+					dam += dam / 2;
+				}
+				else if ((p_ptr->pclass == CLASS_PRIEST) && (randint(4) == 1))
+				{
+					dam += dam / 2;
+				}
+				else if (randint(6) == 1) dam += dam / 3;
+
+
+				/* Determine monster's power to resist. */
+				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 10;
+				else tmp = r_ptr->level + 2;
+
+				/* Attempt a saving throw.  No rescue from previous fear.  */
+				if ((tmp > randint(dam)) || (r_ptr->flags3 & (RF3_NO_FEAR)))
+				{
+					/* Memorize a flag */
+					if (r_ptr->flags3 & (RF3_NO_FEAR))
+					{
+						if (seen) r_ptr->r_flags3 |= (RF3_NO_FEAR);
+					}
+
 					/* No obvious effect */
 					note = " is unaffected!";
 					obvious = FALSE;
-					do_fear = 0;
+				}
+
+				/* If it fails, panic. */
+				else
+				{
+					/* Apply some fear */
+					do_fear = damroll(3, (dam / 2)) + 1;
 				}
 			}
 
-			/* Others ignore */
+			/* All but undead ignore */
 			else
 			{
 				/* Irrelevant */
 				skipped = TRUE;
 			}
 
-			/* No "real" damage */
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
 
 
-		/* Turn evil (Use "dam" as "power") */
+		/* Turn evil (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_TURN_EVIL:
 		{
-			/* Only affect evil */
+			/* Only affect undead */
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				/* Learn about type */
@@ -2759,53 +3084,103 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Apply some fear */
-				do_fear = damroll(3, (dam / 2)) + 1;
 
-				/* Attempt a saving throw */
-				if (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+				/* Sometimes super-charge the spell. */
+				if ((p_ptr->pclass == CLASS_PRIEST) && (randint(3) == 1))
 				{
+					dam += dam / 2;
+				}
+				else if (((p_ptr->pclass == CLASS_PALADIN) || 
+					(p_ptr->pclass == CLASS_NECRO)) && (randint(4) == 1))
+				{
+					dam += dam / 3;
+				}
+				else if (randint(6) == 1) dam += dam / 3;
+
+
+				/* Determine monster's power to resist.  */
+				if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+				else if (r_ptr->flags3 & (RF3_UNDEAD)) tmp = r_ptr->level + 10;
+				else tmp = r_ptr->level + 2;
+
+				/* Attempt a saving throw.  No rescue from previous fear. */
+				if ((tmp > randint(dam)) || (r_ptr->flags3 & (RF3_NO_FEAR)))
+				{
+					/* Memorize a flag */
+					if (r_ptr->flags3 & (RF3_NO_FEAR))
+					{
+						if (seen) r_ptr->r_flags3 |= (RF3_NO_FEAR);
+					}
+
 					/* No obvious effect */
 					note = " is unaffected!";
 					obvious = FALSE;
-					do_fear = 0;
+				}
+
+				/* If it fails, panic. */
+				else
+				{
+					/* Apply some fear */
+					do_fear = damroll(3, (dam / 2)) + 1;
 				}
 			}
 
-			/* Others ignore */
+			/* All but evil ignore */
 			else
 			{
 				/* Irrelevant */
 				skipped = TRUE;
 			}
 
-			/* No "real" damage */
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
 
-
-		/* Turn monster (Use "dam" as "power") */
+		/* Frighten monsters (Use "dam" as "power").  Reworked in Oangband. */
 		case GF_TURN_ALL:
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
 
-			/* Apply some fear */
-			do_fear = damroll(3, (dam / 2)) + 1;
 
-			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_FEAR)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+				/* Sometimes super-charge the spell. */
+
+				if ((p_ptr->pclass == CLASS_PRIEST) && 
+					(randint(3) == 1))
+				{
+					dam += dam / 3;
+				}
+				else if (randint(6) == 1) dam += dam / 3;
+
+
+			/* Determine monster's power to resist.  */
+			if (r_ptr->flags1 & (RF1_UNIQUE)) tmp = r_ptr->level + 20;
+			else if (r_ptr->flags3 & (RF3_UNDEAD)) tmp = r_ptr->level + 20;
+			else tmp = r_ptr->level + 2;
+
+			/* Attempt a saving throw.  No rescue from previous fear.  */
+			if ((tmp > randint(dam)) || (r_ptr->flags3 & (RF3_NO_FEAR)))
 			{
+				/* Memorize a flag */
+				if (r_ptr->flags3 & (RF3_NO_FEAR))
+				{
+					if (seen) r_ptr->r_flags3 |= (RF3_NO_FEAR);
+				}
+
 				/* No obvious effect */
 				note = " is unaffected!";
 				obvious = FALSE;
-				do_fear = 0;
 			}
 
-			/* No "real" damage */
+			/* If it fails, panic. */
+			else
+			{
+				/* Apply some fear */
+				do_fear = damroll(4, (dam / 2)) + 1;
+			}
+
+			/* No physical damage. */
 			dam = 0;
 			break;
 		}
@@ -2872,6 +3247,92 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel all but evil. -LM- */
+		case GF_DISP_NOT_EVIL:
+		{
+			/* Evil is immune. */
+			if (r_ptr->flags3 & (RF3_EVIL))
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			/* Others are hit. */
+			else
+			{
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			break;
+		}
+
+		/* Dispel demons. Be stingy with this capacity. -LM- */
+		case GF_DISP_DEMON:
+		{
+			/* Only affect evil */
+			if (r_ptr->flags3 & (RF3_DEMON))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
+
+		/* Dispel dragons. Be stingy with this capacity. -LM- */
+		case GF_DISP_DRAGON:
+		{
+			/* Only affect evil */
+			if (r_ptr->flags3 & (RF3_DRAGON))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_DRAGON);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
 
 		/* Dispel monster */
 		case GF_DISP_ALL:
@@ -2886,6 +3347,25 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Spirit (hurts all but undead).  From Sangband. */
+		case GF_SPIRIT:
+		{
+			if (r_ptr->flags3 & (RF3_UNDEAD))
+			{
+				dam = 0;
+				note = " is immune.";
+
+				if (seen)
+				{
+					/* Learn about type */
+					r_ptr->r_flags3 |= (RF3_UNDEAD);
+
+					/* Obvious */
+					obvious = TRUE;
+				}
+			}
+			break;
+		}
 
 		/* Default */
 		default:
@@ -2907,6 +3387,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* "Unique" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
+
+
 
 
 	/* "Unique" monsters can only be "killed" by the player */
@@ -3115,7 +3597,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 	}
 
-
 	/* Verify this code XXX XXX XXX */
 
 	/* Update the monster */
@@ -3139,10 +3620,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	project_m_y = y;
 
 
+	/* If this is the first monster hit, and the player was the source of 
+	 * the spell, make a lot of noise. -LM-
+	 */
+	if ((project_m_n == 1) && (who <= 0)) 
+		add_wakeup_chance = p_ptr->base_wakeup_chance / 2 + 2500;
+
+
 	/* Return "Anything seen?" */
 	return (obvious);
 }
-
 
 
 
@@ -3168,6 +3655,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 static bool project_p(int who, int r, int y, int x, int dam, int typ)
 {
 	int k = 0;
+
+	/* Adjustment to damage caused by terrain, if any. */
+	int terrain_adjustment = 0;
 
 	/* Hack -- assume obvious */
 	bool obvious = TRUE;
@@ -3205,6 +3695,50 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	dam = (dam + r) / (r + 1);
 
 
+	/* Determine if terrain is capable of adjusting physical damage. -LM- */
+	switch (cave_feat[y][x])
+	{
+		/* A player behind rubble takes less damage. */
+		case FEAT_RUBBLE:
+		{
+			if (randint(10) == 1) 
+			{
+				msg_print("You duck behind a boulder!");
+				return (FALSE);
+			}
+			else terrain_adjustment -= dam / 5;
+			break;
+		}
+		/* Fire-based spells suffer, but other spells benefit slightly (player is easier to hit).  Water spells come into their own. */
+		case FEAT_WATER:
+		{
+			if (typ == GF_FIRE) terrain_adjustment -= dam / 3;
+			else if (typ == GF_WATER) terrain_adjustment = dam / 2;
+			else terrain_adjustment = dam / 5;
+			break;
+		}
+		/* Cold and water-based spells suffer, and fire-based spells benefit. */
+		case FEAT_LAVA:
+		{
+			if ((typ == GF_COLD) || (typ == GF_ICE) || (typ == GF_WATER)) 
+				terrain_adjustment -= dam / 3;
+			else if (typ == GF_FIRE) terrain_adjustment = dam / 3;
+			break;
+		}
+		/* Ranger and druids can duck, and any player will take less damage. */
+		case FEAT_TREE:
+		{
+			if ((randint(8) == 1) && ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_DRUID)))
+			{
+				msg_print("You dodge behind a tree!");
+				return (FALSE);
+			}
+			else terrain_adjustment -= dam / 5;
+			break;
+		}
+	}
+
+
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
 
@@ -3225,6 +3759,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by acid!");
 			acid_dam(dam, killer);
 			break;
@@ -3233,6 +3770,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_FIRE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by fire!");
 			fire_dam(dam, killer);
 			break;
@@ -3241,6 +3781,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_COLD:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by cold!");
 			cold_dam(dam, killer);
 			break;
@@ -3249,6 +3792,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ELEC:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by lightning!");
 			elec_dam(dam, killer);
 			break;
@@ -3257,6 +3803,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- also poisons player */
 		case GF_POIS:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
@@ -3271,6 +3820,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage */
 		case GF_MISSILE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
@@ -3279,6 +3831,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Holy Orb -- Player only takes partial damage */
 		case GF_HOLY_ORB:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			dam /= 2;
 			take_hit(dam, killer);
@@ -3288,7 +3843,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Arrow -- no dodging XXX */
 		case GF_ARROW:
 		{
-			if (fuzzy) msg_print("You are hit by something sharp!");
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
+			if (fuzzy) msg_print("You are hit by something hard!");
 			take_hit(dam, killer);
 			break;
 		}
@@ -3296,6 +3854,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Plasma -- No resist XXX */
 		case GF_PLASMA:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			if (!p_ptr->resist_sound)
@@ -3309,6 +3870,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Nether -- drain experience */
 		case GF_NETHER:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_nethr)
 			{
@@ -3338,6 +3902,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Water -- stun/confuse */
 		case GF_WATER:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
@@ -3351,15 +3918,19 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Chaos -- many effects */
+		/* Chaos -- many effects.  Because Chaos is now more powerful, 
+		 * resistance reduces damage more. -LM- */
 		case GF_CHAOS:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_chaos)
 			{
-				dam *= 6; dam /= (randint(6) + 6);
+				dam *= 2; dam /= (randint(2) + 4);
 			}
-			if (!p_ptr->resist_confu)
+			if (!p_ptr->resist_chaos)  /* changed in Oangband. */
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -3381,7 +3952,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					lose_exp(2000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 				}
 			}
 			take_hit(dam, killer);
@@ -3391,6 +3962,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Shards -- mostly cutting */
 		case GF_SHARD:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			if (p_ptr->resist_shard)
 			{
@@ -3399,6 +3973,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			else
 			{
 				(void)set_cut(p_ptr->cut + dam);
+
 			}
 			take_hit(dam, killer);
 			break;
@@ -3407,6 +3982,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Sound -- mostly stunning */
 		case GF_SOUND:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_sound)
 			{
@@ -3424,6 +4002,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Pure confusion */
 		case GF_CONFUSION:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_confu)
 			{
@@ -3472,6 +4053,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Force -- mostly stun */
 		case GF_FORCE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
@@ -3493,6 +4077,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Lite -- blinding */
 		case GF_LITE:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_lite)
 			{
@@ -3509,6 +4096,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Dark -- blinding */
 		case GF_DARK:
 		{
+			/* Slightly affected by terrain. */
+			dam += terrain_adjustment / 2;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_dark)
 			{
@@ -3567,19 +4157,30 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 					}
 					p_ptr->update |= (PU_BONUS);
 					break;
+
 				}
 			}
 			take_hit(dam, killer);
 			break;
 		}
 
-		/* Gravity -- stun plus slowness plus teleport */
+		/* Gravity -- stun plus slowness plus teleport.  Resist nexus
+		 * sometimes prevents movement, and resist sound prevents
+		 * stunning.  -LM- */
 		case GF_GRAVITY:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			msg_print("Gravity warps around you.");
-			teleport_player(5);
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			if ((p_ptr->resist_nexus) && (randint(2) == 1))
+			{
+				msg_print("You barely hold your ground.");
+			}
+			else
+			{
+				msg_print("Gravity warps around you.");
+				teleport_player(5);
+				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			}
+
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
@@ -3592,6 +4193,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Pure damage */
 		case GF_MANA:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
@@ -3600,6 +4204,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Pure damage */
 		case GF_METEOR:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
 			break;
@@ -3608,6 +4215,9 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Ice -- cold plus stun plus cuts */
 		case GF_ICE:
 		{
+			/* Affected by terrain. */
+			dam += terrain_adjustment;
+
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
 			if (!p_ptr->resist_shard)
@@ -3640,6 +4250,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Return "Anything seen?" */
 	return (obvious);
 }
+
 
 
 
@@ -3907,8 +4518,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
 
-		/* Hack -- Balls explode before reaching walls */
-		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
+		/* Hack -- Balls explode before reaching walls. */
+		if (!cave_passable_bold(ny, nx) && (rad > 0)) break;
 
 		/* Advance */
 		y = ny;
@@ -4009,7 +4620,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 					/* Enforce a "circular" explosion */
 					if (distance(y2, x2, y, x) != dist) continue;
 
-					/* Ball explosions are stopped by walls */
+					/* Ball explosions are stopped by walls, trees, and rubble. */
 					if (!los(y2, x2, y, x)) continue;
 
 					/* Save this grid */

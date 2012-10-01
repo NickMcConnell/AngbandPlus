@@ -1,6 +1,7 @@
 /* File: angband.h */
 
-/*
+/* The basic include file.
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,

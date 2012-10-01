@@ -1,8 +1,9 @@
 /* File: init1.c */
 
-/*
- * Copyright (c) 1997 Ben Harrison
- *
+/* Initialization of monsters, objects, artifacts, ego-items, and terrain.
+ * All code to handle *_info.txt files.  Lists all monster and object flags
+ * that *_info.txt files contain, translation of colors.
+ * 
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
@@ -90,7 +91,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+	"REQUEST",
 	NULL
 };
 
@@ -168,7 +169,7 @@ static cptr r_info_flags1[] =
 	"DROP_4D2",
 	"DROP_GOOD",
 	"DROP_GREAT",
-	"DROP_USEFUL",
+	"DROP_CHEST",
 	"DROP_CHOSEN"
 };
 
@@ -179,8 +180,8 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
-	"XXX2X2",
+	"SPEAKING", /* From Zangband.  Was XXX1X2 -LM- */
+	"PLAYER_GHOST",	/* Was XXX2X2 -LM- */
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
@@ -201,7 +202,7 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
+	"FLYING",	/* Was BRAIN_1 -LM- */
 	"BRAIN_2",
 	"BRAIN_3",
 	"BRAIN_4",
@@ -257,8 +258,8 @@ static cptr r_info_flags4[] =
 {
 	"SHRIEK",
 	"XXX2X4",
-	"XXX3X4",
-	"XXX4X4",
+	"BOULDER",
+	"ARROW_5",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -356,7 +357,7 @@ static cptr r_info_flags6[] =
 	"S_ANT",
 	"S_SPIDER",
 	"S_HOUND",
-	"S_HYDRA",
+	"XXX9X6",
 	"S_ANGEL",
 	"S_DEMON",
 	"S_UNDEAD",
@@ -380,15 +381,15 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"XXX1",
-	"XXX2",
+	"MAGIC_MASTERY",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
 	"TUNNEL",
 	"SPEED",
-	"BLOWS",
+	"MIGHT2",
 	"SHOTS",
-	"MIGHT",
+	"MIGHT1",
 	"SLAY_ANIMAL",
 	"SLAY_EVIL",
 	"SLAY_UNDEAD",
@@ -397,10 +398,10 @@ static cptr k_info_flags1[] =
 	"SLAY_TROLL",
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
-	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
-	"XXX7",
+	"XXX4",
+	"THROWING",
+	"PERFECT_BALANCE",
+	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
@@ -662,17 +663,22 @@ errr init_v_info_txt(FILE *fp, char *buf)
 		/* Process 'X' for "Extra info" (one line only) */
 		if (buf[0] == 'X')
 		{
-			int typ, rat, hgt, wid;
+			int typ, rat, hgt, wid, min_lev, max_lev;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			                &typ, &rat, &hgt, &wid)) return (1);
+			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+				&typ, &rat, &hgt, &wid, &min_lev, &max_lev)) return (1);
+
+			/* Correct a value. */
+			if (max_lev == 0) max_lev = MAX_DEPTH;
 
 			/* Save the values */
 			v_ptr->typ = typ;
 			v_ptr->rat = rat;
 			v_ptr->hgt = hgt;
 			v_ptr->wid = wid;
+			v_ptr->min_lev = min_lev;
+			v_ptr->max_lev = max_lev;
 
 			/* Next... */
 			continue;
@@ -1490,11 +1496,11 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		/* Hack -- Process 'P' for "power" and such */
 		if (buf[0] == 'P')
 		{
-			int ac, hd1, hd2, th, td, ta;
+			int ac, hd1, hd2, th, td, ta, act;
 
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-			                &ac, &hd1, &hd2, &th, &td, &ta)) return (1);
+			if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+			                &ac, &hd1, &hd2, &th, &td, &ta, &act)) return (1);
 
 			a_ptr->ac = ac;
 			a_ptr->dd = hd1;
@@ -1502,6 +1508,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->to_h = th;
 			a_ptr->to_d = td;
 			a_ptr->to_a =  ta;
+			a_ptr->activation = act;
 
 			/* Next... */
 			continue;
@@ -2274,44 +2281,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	++r_head->name_size;
 	++r_head->text_size;
 
-
-	/* XXX XXX XXX The ghost is unused */
-
-	/* Mega-Hack -- acquire "ghost" */
-	r_ptr = &r_info[MAX_R_IDX-1];
-
-	/* Acquire the next index */
-	r_ptr->name = r_head->name_size;
-	r_ptr->text = r_head->text_size;
-
-	/* Save some space for the ghost info */
-	r_head->name_size += 64;
-	r_head->text_size += 64;
-
-	/* Hack -- Default name/text for the ghost */
-	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
-	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
-
-	/* Hack -- set the attr/char info */
-	r_ptr->d_attr = r_ptr->x_attr = TERM_WHITE;
-	r_ptr->d_char = r_ptr->x_char = 'G';
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_UNIQUE);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->hdice = r_ptr->hside = 1;
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->mexp = 1L;
-
-
 	/* No version yet */
 	if (!okay) return (2);
-
 
 	/* Success */
 	return (0);
