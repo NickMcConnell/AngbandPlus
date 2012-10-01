@@ -180,15 +180,15 @@ have intrinsic abilities.
                other words, dwarves have a miserable stealth.  They can never
                be blinded. 
  
-          Half-Orc
-               Half-Orcs make excellent warriors and decent priests, but
+          Uruk-hai
+               Uruk-hai make excellent warriors and decent priests, but
                are terrible at magic.  They are as bad as dwarves at stealth,
                and horrible at searching, disarming, and perception.
-               Half-Orcs are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Half-Orcs do make good warriors and rogues,
-               for the simple reason that Half-Orcs tend to have great
+               Uruk-hai are, let's face it, ugly.  They tend to pay more for
+               goods in town.  Uruk-hai do make good warriors and rogues,
+               for the simple reason that Uruk-hai tend to have great
                constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, half-orcs
+               preference to living underground to on the surface, Uruk-hai
                resist darkness attacks.
  
           Half-Troll
@@ -196,7 +196,7 @@ have intrinsic abilities.
                than any other character race.  They are also very stupid and
                slow.  They will make great warriors and iffy priests.  They
                are bad at searching, disarming, perception, and stealth.
-               They are so ugly that a Half-Orc grimaces in their presence.
+               They are so ugly that an Uruk-hai grimaces in their presence.
                They also happen to be fun to run...  Half-trolls always have
                their strength sustained.
  
@@ -439,7 +439,7 @@ have intrinsic abilities.
           Hobbit        Yes      Yes      No       Yes      No       No
           Gnome         Yes      Yes      Yes      Yes      No       No
           Dwarf         Yes      No       Yes      No       No       Yes
-          Half-Orc      Yes      No       Yes      Yes      No       No
+          Uruk-hai      Yes      No       Yes      Yes      No       No
           Half-Troll    Yes      No       Yes      No       No       No
           Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
           High-Elf      Yes      Yes      Yes      Yes      Yes      No 
@@ -473,7 +473,7 @@ are listed in the following table.
            Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +25%
            Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
+           Uruc-hai    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
@@ -499,7 +499,7 @@ are listed in the following table.
            Hobbit       10     10     10      10     1    10   10  40 feet
            Gnome         9      7      9       9     2     8    9  40 feet
            Dwarf         6      8      3       5     9     5    8  50 feet
-           Half-Orc      3      5      3       2     8     3    3  30 feet
+           Uruk-hai      3      5      3       2     8     3    3  30 feet
            Half-Troll    1      1      1       1    10     1    1  30 feet
            Dunadan       9      8      7       8     7     8    7  None
            High-Elf      9      8      8       9     7    10   10  40 feet

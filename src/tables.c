@@ -3126,12 +3126,12 @@ cptr option_text[OPT_MAX] =
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"dungeon_align",			/* OPT_dungeon_align */
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"flow_by_sound",			/* OPT_flow_by_sound */
-	"flow_by_smell",			/* OPT_flow_by_smell */
+	"fast_flow",			/* OPT_fast_flow */
+	NULL,					/* xxx flow_by_smell */
 	NULL,						/* xxx track_follow */
 	NULL,						/* xxx track_target */
-	"smart_learn",				/* OPT_smart_learn */
-	"smart_cheat",				/* OPT_smart_cheat */
+	NULL,					/* xxx smart_learn */
+	NULL,					/* xxx smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
 	"hidden_player",			/* OPT_hidden_player */
 	"avoid_abort",				/* OPT_avoid_abort */
@@ -3156,8 +3156,8 @@ cptr option_text[OPT_MAX] =
 	"run_avoid_center",			/* OPT_run_avoid_center */
 	"scroll_target",			/* OPT_scroll_target */
 	"auto_more",				/* OPT_auto_more */
-	"smart_monsters",			/* OPT_smart_monsters */
-	"smart_packs",				/* OPT_smart_packs */
+	NULL,					/* xxx smart_monsters */
+	NULL,					/* xxx smart_packs */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3220,7 +3220,7 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	NULL,						/* xxx */
+	"birth_smart_cheat",		/* OPT_birth_smart_cheat */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3390,12 +3390,12 @@ cptr option_desc[OPT_MAX] =
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
-	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+	"Simplified monster path finding (faster)",	/* OPT_fast_flow */
+	NULL,								/* xxx flow_by_smell */
 	NULL,										/* xxx track_follow */
 	NULL,										/* xxx track_target */
-	"Monsters learn from their mistakes",		/* OPT_smart_learn */
-	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
+	NULL,								/* xxx smart_learn */
+	NULL,								/* xxx smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
 	"Hide player symbol when running",			/* OPT_hidden_player */
 	"Avoid checking for user abort",			/* OPT_avoid_abort */
@@ -3420,8 +3420,8 @@ cptr option_desc[OPT_MAX] =
 	"Avoid centering while running",			/* OPT_run_avoid_center */
 	"Scroll map while targetting",				/* OPT_scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
-	"Monsters behave more intelligently",		/* OPT_smart_monsters */
-	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
+	NULL,								/* xxx smart_monsters */
+	NULL,								/* xxx smart_packs */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3484,7 +3484,7 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
-	NULL,										/* xxx */
+	"Birth: Monsters exploit players weaknesses",	/* OPT_birth_smart_cheat */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3654,12 +3654,12 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
+	FALSE,		/* OPT_fast_flow */
+	FALSE,		/* xxx flow_by_smell */
 	FALSE,		/* xxx track_follow */
 	FALSE,		/* xxx track_target */
-	FALSE,		/* OPT_smart_learn */
-	FALSE,		/* OPT_smart_cheat */
+	FALSE,		/* xxx smart_learn */
+	FALSE,		/* xxx smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
@@ -3684,8 +3684,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_run_avoid_center */
 	FALSE,		/* OPT_scroll_target */
 	FALSE,		/* OPT_auto_more */
-	FALSE,		/* OPT_smart_monsters */
-	FALSE,		/* OPT_smart_packs */
+	FALSE,		/* xxx smart_monsters */
+	FALSE,		/* xxx smart_packs */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3748,7 +3748,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_smart_cheat */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3939,16 +3939,16 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_torch_grids,
 		OPT_dungeon_align,
 		OPT_dungeon_stair,
-		OPT_flow_by_sound,
-		OPT_flow_by_smell,
-		OPT_smart_monsters,
-		OPT_smart_packs,
-		OPT_smart_learn,
-		OPT_smart_cheat,
+		OPT_fast_flow,
 		OPT_easy_open,
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_show_piles,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	},
@@ -3989,7 +3989,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
-		255,
+		OPT_birth_smart_cheat,
 		255,
 		255,
 		255,

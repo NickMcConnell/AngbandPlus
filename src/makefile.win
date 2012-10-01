@@ -34,7 +34,7 @@ OBJS = \
   variable.obj tables.obj util.obj cave.obj \
   object1.obj object2.obj monster1.obj monster2.obj \
   xtra1.obj xtra2.obj spells1.obj spells2.obj \
-  melee1.obj melee2.obj save.obj files.obj \
+  melee1.obj melee2.obj melee3.obj save.obj files.obj \
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
   store.obj birth.obj load2.obj init3.obj \
   wizard1.obj wizard2.obj bldg.obj spells3.obj \
@@ -46,7 +46,7 @@ OBJS32 = \
   variable.o32 tables.o32 util.o32 cave.o32 \
   object1.o32 object2.o32 monster1.o32 monster2.o32 \
   xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 \
-  melee1.o32 melee2.o32 save.o32 files.o32 \
+  melee1.o32 melee2.o32 melee3.o32 save.o32 files.o32 \
   cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 \
   store.o32 birth.o32 load2.o32 init3.o32 \
   wizard1.o32 wizard2.o32 bldg.o32 spells3.o32 \
@@ -162,7 +162,7 @@ z-util z-virt z-form z-rand z-term +
 variable tables util cave +
 object1 object2 monster1 monster2 +
 xtra1 xtra2 spells1 spells2 +
-melee1 melee2 save files +
+melee1 melee2 melee3 save files +
 cmd1 cmd2 cmd3 cmd4 cmd5 cmd6 +
 store birth load2 init3 +
 wizard1 wizard2 bldg spells3 +
@@ -193,7 +193,7 @@ z-util.o32 z-virt.o32 z-form.o32 z-rand.o32 z-term.o32 +
 variable.o32 tables.o32 util.o32 cave.o32 +
 object1.o32 object2.o32 monster1.o32 monster2.o32 +
 xtra1.o32 xtra2.o32 spells1.o32 spells2.o32 +
-melee1.o32 melee2.o32 save.o32 files.o32 +
+melee1.o32 melee2.o32 melee3.o32 save.o32 files.o32 +
 cmd1.o32 cmd2.o32 cmd3.o32 cmd4.o32 cmd5.o32 cmd6.o32 +
 store.o32 birth.o32 load2.o32 init3.o32 +
 wizard1.o32 wizard2.o32 bldg.o32 spells3.o32 +

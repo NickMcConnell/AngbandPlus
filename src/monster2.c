@@ -1076,7 +1076,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on disappearance */
-			if (disturb_near && !m_ptr->is_pet) disturb(1, 0);
+			if (disturb_near && !m_ptr->is_friendly) disturb(1, 0);
 		}
 	}
 }
@@ -1382,7 +1382,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	if (!terrain_empty_bold(y, x)) return (FALSE);
 
 	/* Hack -- no creation on glyph of warding */
 	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
@@ -1408,14 +1408,17 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 		return (FALSE);
 	}
 
+	/* Handle water terrain */
 	if ((r_ptr->flags2 & (RF2_AQUATIC)) &&
-	    (cave_feat[y][x] != FEAT_DEEP_WATER)) /* -KMW- */
+	    (cave_feat[y][x] != FEAT_SHAL_WATER) &&
+	    (cave_feat[y][x] != FEAT_DEEP_WATER))
 	{
 		/* Cannot create */
 		return (FALSE);
 	}
 	if ((!(r_ptr->flags2 & (RF2_AQUATIC))) &&
-	    (cave_feat[y][x] == FEAT_DEEP_WATER)) /* -KMW- */
+	    (cave_feat[y][x] == FEAT_SHAL_WATER) &&
+	    (cave_feat[y][x] == FEAT_DEEP_WATER)) 
 	{
 		/* Cannot create */
 		return (FALSE);
@@ -1509,9 +1512,16 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, bool pet)
 	/* Give a random starting energy */
 	n_ptr->energy = (byte)rand_int(100);
 
+	/* Set to be friendly, if applicable */
+	if (r_ptr->flags2 & RF2_FRIENDLY)
+	{
+		n_ptr->is_friendly = TRUE;
+	}
+
 	/* Set to be a pet, if applicable (no uniques) */
 	if ((pet) && !(r_ptr->flags1 & (RF1_UNIQUE)))
 	{
+		n_ptr->is_friendly = TRUE;
 		n_ptr->is_pet = TRUE;
 	}
 
@@ -1895,6 +1905,106 @@ bool alloc_monster(int dis, bool slp)
 }
 
 
+/*
+ * Hack -- help decide if a monster race is "okay" to summon
+ */
+static bool place_aquatic_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	bool okay = ((r_ptr->d_char == 'l') &&
+	             (r_ptr->flags2 & (RF2_AQUATIC)));
+
+	/* Result */
+	return (okay);
+}
+
+
+/*
+ * Hack -- attempt to place a monster at the given location
+ *
+ * Attempt to find a monster appropriate to the "monster_level"
+ */
+bool place_aquatic_monster(int y, int x, bool slp, bool grp)
+{
+	int r_idx;
+
+	/* Require "okay" monsters */
+	get_mon_num_hook = place_aquatic_okay;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Pick a monster */
+	r_idx = get_mon_num(monster_level);
+
+	/* Remove restriction */
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Handle failure */
+	if (!r_idx) return (FALSE);
+
+	/* Attempt to place the monster */
+	if (place_monster_aux(y, x, r_idx, slp, grp, 0)) return (TRUE);
+
+	/* Oops */
+	return (FALSE);
+}
+
+
+/*
+ * Attempt to allocate a random monster in the dungeon.
+ *
+ * Place the monster at least "dis" distance from the player.
+ *
+ * Use "slp" to choose the initial "sleep" status
+ *
+ * Use "monster_level" for the monster level
+ */
+bool alloc_aquatic_monster(int dis, bool slp)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int y, x;
+	int	attempts_left = 10000;
+
+	/* Find a legal, distant, unoccupied, space */
+	while (--attempts_left)
+	{
+		/* Pick a location */
+		y = rand_int(DUNGEON_HGT);
+		x = rand_int(DUNGEON_WID);
+
+		/* Require "naked" floor grid */
+		if (!water_naked_bold(y, x)) continue;
+
+		/* Accept far away grids */
+		if (distance(y, x, py, px) > dis) break;
+	}
+
+	if (!attempts_left)
+	{
+		if (cheat_xtra || cheat_hear)
+		{
+			msg_print("Warning! Could not allocate an aquatic monster.");
+		}
+
+		return FALSE;
+	}
+
+	/* Attempt to place the monster, allow groups */
+	if (place_aquatic_monster(y, x, slp, TRUE)) return (TRUE);
+
+	/* Nope */
+	return (FALSE);
+}
+
+
+
 
 
 /*
@@ -2168,8 +2278,8 @@ bool multiply_monster(int m_idx)
 
 	bool result = FALSE;
 
-	/* Pets breed pets. (Evil grin) */
-	bool make_pets = (m_ptr->is_pet ? TRUE : FALSE);
+	/* Pets/friendlies breed pets. (Evil grin) */
+	bool make_pets = (m_ptr->is_friendly ? TRUE : FALSE);
 
 	/* Try up to 18 times */
 	for (i = 0; i < 18; i++)
@@ -2323,9 +2433,6 @@ void update_smart_learn(int m_idx, int what)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 
-	/* Not allowed to learn */
-	if (!smart_learn) return;
-
 	/* Too stupid to learn anything */
 	if (r_ptr->flags2 & (RF2_STUPID)) return;
 
@@ -2398,14 +2505,14 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_LITE:
 		{
 			if (p_ptr->resist_lite) m_ptr->smart |= (SM_RES_LITE);
-			if (p_ptr->oppose_ld) m_ptr->smart |= (SM2_OPP_LITE);
+			if (p_ptr->oppose_ld) m_ptr->smart2 |= (SM2_OPP_LITE);
 			break;
 		}
 
 		case DRS_RES_DARK:
 		{
 			if (p_ptr->resist_dark) m_ptr->smart |= (SM_RES_DARK);
-			if (p_ptr->oppose_ld) m_ptr->smart |= (SM2_OPP_DARK);
+			if (p_ptr->oppose_ld) m_ptr->smart2 |= (SM2_OPP_DARK);
 			break;
 		}
 
@@ -2418,42 +2525,42 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_CONFU:
 		{
 			if (p_ptr->resist_confu) m_ptr->smart |= (SM_RES_CONFU);
-			if (p_ptr->oppose_cc) m_ptr->smart |= (SM2_OPP_CONFU);
+			if (p_ptr->oppose_cc) m_ptr->smart2 |= (SM2_OPP_CONFU);
 			break;
 		}
 
 		case DRS_RES_SOUND:
 		{
 			if (p_ptr->resist_sound) m_ptr->smart |= (SM_RES_SOUND);
-			if (p_ptr->oppose_ss) m_ptr->smart |= (SM2_OPP_SOUND);
+			if (p_ptr->oppose_ss) m_ptr->smart2 |= (SM2_OPP_SOUND);
 			break;
 		}
 
 		case DRS_RES_SHARD:
 		{
 			if (p_ptr->resist_shard) m_ptr->smart |= (SM_RES_SHARD);
-			if (p_ptr->oppose_ss) m_ptr->smart |= (SM2_OPP_SHARD);
+			if (p_ptr->oppose_ss) m_ptr->smart2 |= (SM2_OPP_SHARD);
 			break;
 		}
 
 		case DRS_RES_NEXUS:
 		{
 			if (p_ptr->resist_nexus) m_ptr->smart |= (SM_RES_NEXUS);
-			if (p_ptr->oppose_nexus) m_ptr->smart |= (SM2_OPP_NEXUS);
+			if (p_ptr->oppose_nexus) m_ptr->smart2 |= (SM2_OPP_NEXUS);
 			break;
 		}
 
 		case DRS_RES_NETHR:
 		{
 			if (p_ptr->resist_nethr) m_ptr->smart |= (SM_RES_NETHR);
-			if (p_ptr->oppose_nethr) m_ptr->smart |= (SM2_OPP_NETHR);
+			if (p_ptr->oppose_nethr) m_ptr->smart2 |= (SM2_OPP_NETHR);
 			break;
 		}
 
 		case DRS_RES_CHAOS:
 		{
 			if (p_ptr->resist_chaos) m_ptr->smart |= (SM_RES_CHAOS);
-			if (p_ptr->oppose_cc) m_ptr->smart |= (SM2_OPP_CHAOS);
+			if (p_ptr->oppose_cc) m_ptr->smart2 |= (SM2_OPP_CHAOS);
 			break;
 		}
 

@@ -610,6 +610,11 @@ static void player_wipe(void)
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+
+	/* Default pet command settings */
+	p_ptr->pet_follow_dist = PET_FOLLOW_DIST;
+	p_ptr->pet_open_doors = FALSE;
+	p_ptr->pet_pickup_items = FALSE;
 }
 
 

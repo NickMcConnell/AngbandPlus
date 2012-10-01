@@ -7,7 +7,7 @@ information or insight is not only welcome but actively encouraged to
 do so.
 
 
-=== Standard Angband 2.9.2 vs. Kangband 2.9.2 ===
+=== Standard Angband 2.9.2 vs. Kangband 2.9.2r2 ===
 
 The main differences between Angband 2.9.2 and Kangband 2.9.2 are
 as follows:
@@ -35,21 +35,27 @@ as follows:
   on certain levels.
 
 - Kangband introduces several new monsters and items.  These are taken
-  from a variety of sources inclusding other variants and Jonathan
-  Ellis' patch for Angband 2.9.2.  There are also many monsters and
-  items that are unique to Kangband.
+  from a variety of sources including other variants (primarily 
+  Zangband, Oangband and Angband/64) and Jonathan Ellis' patch for
+  Angband 2.9.2.  There are also many monsters and items that are
+  unique to Kangband.
 
-- Kangband includes two new player races - Kobolds and Maia.  Kobolds
-  make reasonable fighters and resist poison intrinsically. Maia are
-  intended to be a training race for inexperienced players. They are
-  highly skilled, have excellent stats, gain levels quickly and
-  recover quickly when their hitpoints and spell points are depleted.
+- Kangband includes four new player races - Kobolds, Maia, Ents and
+  Wraiths.  Kobolds make reasonable fighters and resist poison
+  intrinsically. Maia are intended to be a training race for
+  inexperienced players. They are highly skilled, have excellent stats,
+  gain levels quickly and recover quickly when their hitpoints and
+  spell points are depleted. Ents are physically strong but are poor
+  at resisting fire-based attacks.  Wraiths make excellent spellcasters
+  and come with an impressive set of intrinsic abilities but aggravate
+  monsters around them.
 
 - Kangband introduces the Illusionist and Druid classes.  Illusionists
-  specialise in illusion and misdirection.  Druids are close to nature
-  and are skilled in controlling animals and are able to change the
-  surrounding terrain at their will.  Both these classes get new and
-  interesting attack and utility spells.
+  specialise in illusion and misdirection (and are similar to mages in
+  most other respects).  Druids are close to nature, are skilled in
+  controlling animals and are able to change the surrounding terrain
+  at their will.  Druids are similar to priests. Both these classes get
+  new and interesting attack and utility spells.
 
 - Traditional mages and priests in Kangband have had a reworking to
   reduce dependancy on melee and to make them play more in character.
@@ -60,9 +66,10 @@ as follows:
   nether). These work in much the same way as the temporary "low"
   resistances do.
 
-- Kangband also introduces timed levitation and timed "ghostliness"
-  which allow the player to levitate and walk through non-permanent
-  walls respectively while in effect.
+- Kangband also introduces timed levitation, timed invisibility and
+  timed "ghostliness" which allow the player to levitate, become
+  invisible and walk through non-permanent walls respectively while in
+  effect.
 
 
 

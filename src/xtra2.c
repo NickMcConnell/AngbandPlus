@@ -2567,7 +2567,7 @@ static int get_coin_type(const monster_race *r_ptr)
 	return (0);
 }
 
-#if 0
+
 /*
  * Create magical stairs after finishing a quest monster.
  */
@@ -2603,7 +2603,7 @@ static void build_quest_stairs(int y, int x)
 	/* Fully update the flow */
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 }
-#endif /* 0 */
+
 
 /*
  * Handle the "death" of a monster.
@@ -2621,11 +2621,10 @@ static void build_quest_stairs(int y, int x)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx;
-	int i2, j2;
+	int i, j, y, x;
+
 	int dump_item = 0;
 	int dump_gold = 0;
-	int number_mon;
 
 	int number = 0;
 
@@ -2643,14 +2642,14 @@ void monster_death(int m_idx)
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
-	bool create_stairs = FALSE;
-
 	int force_coin = get_coin_type(r_ptr);
-
-	int quest_num;
 
 	object_type *i_ptr;
 	object_type object_type_body;
+
+	int quest_num;
+
+	bool create_stairs = FALSE;
 
 
 	/* Get the location */
@@ -2864,7 +2863,8 @@ void monster_death(int m_idx)
 			}
 			case QUEST_TYPE_KILL_ALL:
 			{
-				number_mon = 0;
+				int i2, j2;
+				int number_mon = 0;
 
 				/* Count all hostile monsters */
 				for (i2 = 0; i2 < DUNGEON_WID; ++i2)
@@ -2958,32 +2958,8 @@ void monster_death(int m_idx)
 	/* Need some stairs */
 	if (create_stairs)
 	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+		/* Build magical stairs */
+		build_quest_stairs(y, x);
 	}
 
 
@@ -3356,11 +3332,17 @@ static void look_mon_desc(char *buf, int m_idx)
 	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
 
 
+	/* Get the attitude */
+	if (m_ptr->is_friendly)
+		strcpy(buf, "friendly, ");
+	else
+		strcpy(buf, "");
+
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		strcpy(buf, (living ? "unhurt" : "undamaged"));
+		strcat(buf, (living ? "unhurt" : "undamaged"));
 	}
 	else
 	{
@@ -3368,13 +3350,13 @@ static void look_mon_desc(char *buf, int m_idx)
 		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
 
 		if (perc >= 60)
-			strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"));
+			strcat(buf, (living ? "somewhat wounded" : "somewhat damaged"));
 		else if (perc >= 25)
-			strcpy(buf, (living ? "wounded" : "damaged"));
+			strcat(buf, (living ? "wounded" : "damaged"));
 		else if (perc >= 10)
-			strcpy(buf, (living ? "badly wounded" : "badly damaged"));
+			strcat(buf, (living ? "badly wounded" : "badly damaged"));
 		else
-			strcpy(buf, (living ? "almost dead" : "almost destroyed"));
+			strcat(buf, (living ? "almost dead" : "almost destroyed"));
 	}
 
 	if (m_ptr->csleep) strcat(buf, ", asleep");

@@ -2790,14 +2790,22 @@ void do_cmd_fire(void)
 						               "%^s flees in terror!", m_name);
 					}
 
-					if ((m_ptr->is_pet) || (m_ptr->is_friendly)) {
+					/* Handle friendly monsters */
+					if (m_ptr->is_friendly)
+					{
 						char m_name[80];
 
 						monster_desc(m_name, m_ptr, 0x80);
 
 						msg_format("%^s howls in rebellion!", m_name);
-						m_ptr->is_pet = FALSE;
-						m_ptr->is_friendly = FALSE;
+
+						/* Pets may not become hostile immediately */
+						if (m_ptr->is_pet && (randint(3) == 1))
+						{
+							m_ptr->is_pet = FALSE;
+						}
+						else
+							m_ptr->is_friendly = FALSE;
 					}
 				}
 			}
@@ -3078,17 +3086,23 @@ void do_cmd_throw(void)
 						               "%^s flees in terror!", m_name);
 					}
 
-					if ((m_ptr->is_pet) || (m_ptr->is_friendly))
+					/* Handle friendly monsters */
+					if (m_ptr->is_friendly)
 					{
 						char m_name[80];
 
 						monster_desc(m_name, m_ptr, 0x80);
 
 						msg_format("%^s howls in rebellion!", m_name);
-						m_ptr->is_pet = FALSE;
-						m_ptr->is_friendly = FALSE;
-					}
 
+						/* Pets may not become hostile immediately */
+						if (m_ptr->is_pet && (randint(3) == 1))
+						{
+							m_ptr->is_pet = FALSE;
+						}
+						else
+							m_ptr->is_friendly = FALSE;
+					}
 				}
 			}
 

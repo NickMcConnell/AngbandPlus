@@ -1397,8 +1397,6 @@ void do_cmd_debug(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x;
-
 	char cmd;
 
 
@@ -1627,20 +1625,6 @@ void do_cmd_debug(void)
 		case '_':
 		{
 			do_cmd_wiz_hack_ben();
-			break;
-		}
-
-		/* Make every dungeon square "known" to test streamers -KMW- */
-		case 'r':
-		{
-			for(y = 0; y < DUNGEON_HGT; y++)
-			{
-				for(x = 0; x < DUNGEON_WID; x++)
-				{
-					cave_info[y][x] |= (CAVE_GLOW | CAVE_MARK);
-				}
-			}
-			wiz_lite();
 			break;
 		}
 

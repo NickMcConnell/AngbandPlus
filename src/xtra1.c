@@ -1855,6 +1855,8 @@ extern void calc_bonuses(void)
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 	if (f3 & (TR3_LEVITATION)) p_ptr->levitate = TRUE;
+	if (f3 & (TR3_GHOSTLY)) p_ptr->ghostly = TRUE;
+	if (f3 & (TR3_INVISIBLE)) p_ptr->invisible = TRUE;
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
@@ -1864,6 +1866,11 @@ extern void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	if (f2 & (TR2_HURT_LITE)) p_ptr->hurt_lite = TRUE;
+	if (f2 & (TR2_HURT_ACID)) p_ptr->hurt_acid = TRUE;
+	if (f2 & (TR2_HURT_ELEC)) p_ptr->hurt_elec = TRUE;
+	if (f2 & (TR2_HURT_FIRE)) p_ptr->hurt_fire = TRUE;
+	if (f2 & (TR2_HURT_COLD)) p_ptr->hurt_cold = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -1962,6 +1969,8 @@ extern void calc_bonuses(void)
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 		if (f3 & (TR3_LEVITATION)) p_ptr->levitate = TRUE;
+		if (f3 & (TR3_GHOSTLY)) p_ptr->ghostly = TRUE;
+		if (f3 & (TR3_INVISIBLE)) p_ptr->invisible = TRUE;
 
 		/* Weird flags */
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
@@ -1971,6 +1980,11 @@ extern void calc_bonuses(void)
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+		if (f2 & (TR2_HURT_LITE)) p_ptr->hurt_lite = TRUE;
+		if (f2 & (TR2_HURT_ACID)) p_ptr->hurt_acid = TRUE;
+		if (f2 & (TR2_HURT_ELEC)) p_ptr->hurt_elec = TRUE;
+		if (f2 & (TR2_HURT_FIRE)) p_ptr->hurt_fire = TRUE;
+		if (f2 & (TR2_HURT_COLD)) p_ptr->hurt_cold = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;

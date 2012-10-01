@@ -374,6 +374,7 @@ extern void do_cmd_browse(void);
 extern void do_cmd_study();
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
+extern void do_cmd_pets(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -437,8 +438,13 @@ extern errr rd_savefile_new(void);
 extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
+extern bool clean_shot(int y1, int x1, int y2, int x2);
 extern bool make_attack_spell(int m_idx);
 extern void process_monsters(byte minimum_energy);
+
+/* melee3.c */
+extern bool mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note);
+extern bool monst_spell_monst(int m_idx);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -464,6 +470,8 @@ extern s16b monster_place(int y, int x, monster_type *n_ptr);
 extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool pet);
 extern bool place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_monster(int dis, bool slp);
+extern bool place_aquatic_monster(int y, int x, bool slp, bool grp);
+extern bool alloc_aquatic_monster(int dis, bool slp);
 extern bool summon_specific(int y1, int x1, int lev, int type, bool pet);
 extern void summon_monster(int type); /* From Kamband by Ivan Tkatchev */
 extern bool multiply_monster(int m_idx);

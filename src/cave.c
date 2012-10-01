@@ -3028,6 +3028,19 @@ void forget_flow(void)
 }
 
 
+#ifdef MONSTER_FLOW
+
+/*
+ * Hack - speed up the update_flow algorithm by only doing
+ * it everytime the player moves out of LOS of the last
+ * "way-point".
+ */
+static u16b last_flow_x = 0;
+static u16b last_flow_y = 0;
+
+#endif /* MONSTER_FLOW */
+
+
 /*
  * Hack -- fill in the "cost" field of every grid that the player can
  * "reach" with the number of steps needed to reach that grid.  This
@@ -3064,10 +3077,20 @@ void update_flow(void)
 	byte flow_y[FLOW_MAX];
 	byte flow_x[FLOW_MAX];
 
+	int max = (fast_flow ? FAST_FLOW_DEPTH : MONSTER_FLOW_DEPTH)-1;
 
-	/* Hack -- disabled */
-	if (!flow_by_sound) return;
+	/* 
+	 * The last way-point is in sight, and we are
+	 * using simple flowing, and some flow is already saved.
+	 * Skip recalculating flow this time.
+	 */
+	if ((fast_flow) && (flow_save) &&
+	    (player_has_los_bold(last_flow_y, last_flow_x)))
+	  return;
 
+	/* Save player position */
+	last_flow_y = py;
+	last_flow_x = px;
 
 	/*** Cycle the flow ***/
 
@@ -3123,9 +3146,6 @@ void update_flow(void)
 		/* Child cost */
 		n = cave_cost[ty][tx] + 1;
 
-		/* Hack -- Limit flow depth */
-		if (n == MONSTER_FLOW_DEPTH) continue;
-
 		/* Add the "children" */
 		for (d = 0; d < 8; d++)
 		{
@@ -3146,6 +3166,9 @@ void update_flow(void)
 
 			/* Save the flow cost */
 			cave_cost[y][x] = n;
+
+			/* Hack -- Limit flow depth */
+			if (n == max) continue;
 
 			/* Enqueue that entry */
 			flow_y[flow_tail] = y;
@@ -3195,7 +3218,8 @@ void map_area(void)
 		for (x = x1; x < x2; x++)
 		{
 			/* All non-walls are "checked" */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if ((cave_feat[y][x] < FEAT_SECRET) ||
+			    (cave_feat[y][x] > FEAT_PERM_SOLID))
 			{
 				/* Memorize normal features */
 				if (cave_feat[y][x] > FEAT_INVIS)
@@ -3273,7 +3297,8 @@ void wiz_lite(void)
 		for (x = 1; x < DUNGEON_WID-1; x++)
 		{
 			/* Process all non-walls */
-			if (cave_feat[y][x] < FEAT_SECRET)
+			if ((cave_feat[y][x] < FEAT_SECRET) ||
+			    (cave_feat[y][x] > FEAT_PERM_SOLID))
 			{
 				/* Scan all neighbors */
 				for (i = 0; i < 9; i++)

@@ -1832,6 +1832,22 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
+	/* Read the pet command settings */
+	if (older_than_extra(2, 9, 2, 2))
+	{
+		/* Default pet command settings */
+		p_ptr->pet_follow_dist = PET_FOLLOW_DIST;
+		p_ptr->pet_open_doors = FALSE;
+		p_ptr->pet_pickup_items = FALSE;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->pet_follow_dist);
+		rd_byte(&p_ptr->pet_open_doors);
+		rd_byte(&p_ptr->pet_pickup_items);
+	}
+
+
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
 	{

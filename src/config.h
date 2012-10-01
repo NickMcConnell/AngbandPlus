@@ -318,8 +318,7 @@
 
 
 /*
- * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
- * software options, which enable "monster flowing".
+ * OPTION: Allow use of "monster flowing".
  */
 #define MONSTER_FLOW
 
@@ -328,6 +327,13 @@
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
+
+
+/*
+ * OPTION: Maximum flow depth when using "MONSTER_FLOW" with 
+ * the 'fast_flow' option
+ */
+#define FAST_FLOW_DEPTH 20
 
 
 /*

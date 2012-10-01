@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.2r1"
+#define VERSION_STRING	"2.9.2r2"
 
 /*
  * Current version numbers
@@ -55,7 +55,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	1
+#define VERSION_EXTRA	2
 
 
 /*
@@ -372,6 +372,38 @@
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices     */
+
+
+/*** AI constants ***/
+
+#define AI_ARCHER_DIST	5
+#define AI_SAFETY_DIST	10
+
+
+/*** Pet constants ***/
+
+/*
+ * Commands
+ */
+#define PET_DISMISS					1
+#define PET_STAY_CLOSE				2
+#define PET_FOLLOW_ME				3
+#define PET_SEEK_AND_DESTROY		4
+#define PET_ALLOW_SPACE				5
+#define PET_STAY_AWAY				6
+#define PET_OPEN_DOORS           7
+#define PET_TAKE_ITEMS				8
+
+/*
+ * Follow distances
+ */
+#define PET_CLOSE_DIST				1
+#define PET_FOLLOW_DIST				6
+#define PET_SEEK_DIST				10
+#define PET_DESTROY_DIST			255
+#define PET_SPACE_DIST				(-10)
+#define PET_AWAY_DIST				(-25)
+
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -2462,12 +2494,12 @@
 #define TR2_SUST_DEX		0x00000008L	/* Sustain DEX */
 #define TR2_SUST_CON		0x00000010L	/* Sustain CON */
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
-#define TR2_XXX1			0x00000040L	/* (reserved) */
+#define TR2_HURT_LITE		0x00000040L	/* Hurt by light */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
-#define TR2_XXX3			0x00000100L	/* (reserved) */
-#define TR2_XXX4			0x00000200L	/* (reserved) */
-#define TR2_XXX5			0x00000400L	/* (reserved) */
-#define TR2_XXX6		 	0x00000800L	/* (reserved) */
+#define TR2_HURT_ACID		0x00000100L	/* Hurt by acid */
+#define TR2_HURT_ELEC		0x00000200L	/* Hurt by elec */
+#define TR2_HURT_FIRE		0x00000400L	/* Hurt by fire */
+#define TR2_HURT_COLD		0x00000800L	/* Hurt by cold */
 #define TR2_IM_ACID		0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC		0x00002000L	/* Immunity to elec */
 #define TR2_IM_FIRE		0x00004000L	/* Immunity to fire */
@@ -2509,8 +2541,8 @@
 #define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
-#define TR3_XXX5			0x00100000L	/* (reserved) */
-#define TR3_XXX6			0x00200000L	/* (reserved) */
+#define TR3_GHOSTLY		0x00100000L	/* Ghostliness */
+#define TR3_INVISIBLE		0x00200000L	/* Invisibility */
 #define TR3_BLESSED			0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
 #define TR3_INSTA_ART		0x01000000L	/* Item makes an artifact */
@@ -2653,9 +2685,9 @@
 #define RF2_BRAIN_3			0x04000000
 #define RF2_BRAIN_4			0x08000000
 #define RF2_BRAIN_5			0x10000000
-#define RF2_BRAIN_6			0x20000000
-#define RF2_BRAIN_7			0x40000000
-#define RF2_BRAIN_8			0x80000000
+#define RF2_COWARDLY		0x20000000	/* Monster will run from the player */
+#define RF2_BERSERKER		0x40000000	/* Monster will never run away */
+#define RF2_ARCHER		0x80000000  /* Monster will keep its distance */
 
 /*
  * New monster race bit flags
@@ -2839,6 +2871,25 @@
 
 #define RF6_BOLT_MASK \
 	(0L)
+
+/*
+ * Hack -- 'ball' spells that may hurt friends
+ */
+#define RF4_BALL_MASK \
+	(RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | \
+	RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | \
+	RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | \
+	RF4_BR_NEXU | RF4_BR_SHAR | RF4_BR_SOUN | RF4_BR_TIME | \
+	RF4_BR_INER | RF4_BR_GRAV | RF4_BR_PLAS | RF4_BR_WALL | \
+	RF4_BR_MANA | RF4_BR_DISE)	
+
+#define RF5_BALL_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	RF5_BA_POIS | RF5_BA_NETH | RF5_BA_DARK | RF5_BA_WATE | \
+	RF5_BA_MANA)
+
+#define RF6_BALL_MASK \
+	0L
 
 /*
  * Spells that allow the caster to escape
@@ -3032,12 +3083,12 @@
 #define OPT_view_torch_grids		39
 #define OPT_dungeon_align			40
 #define OPT_dungeon_stair			41
-#define OPT_flow_by_sound			42
-#define OPT_flow_by_smell			43
+#define OPT_fast_flow				42
+/* xxx flow_by_smell */
 /* xxx track_follow */
 /* xxx track_target */
-#define OPT_smart_learn				46
-#define OPT_smart_cheat				47
+/* xxx smart_learn */
+/* xxx smart_cheat */
 #define OPT_view_reduce_lite		48
 #define OPT_hidden_player			49
 #define OPT_avoid_abort				50
@@ -3062,8 +3113,8 @@
 #define OPT_run_avoid_center		69
 #define OPT_scroll_target			70
 #define OPT_auto_more				71
-#define OPT_smart_monsters			72
-#define OPT_smart_packs				73
+/* xxx smart_monsters */
+/* xxx smart_packs */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3081,7 +3132,7 @@
 #define OPT_birth_no_stores			(OPT_BIRTH+5)
 #define OPT_birth_no_artifacts		(OPT_BIRTH+6)
 #define OPT_birth_rand_artifacts	(OPT_BIRTH+7)
-/* xxx xxx */
+#define OPT_birth_smart_cheat		(OPT_BIRTH+8)
 #define OPT_cheat_peek				(OPT_CHEAT+0)
 #define OPT_cheat_hear				(OPT_CHEAT+1)
 #define OPT_cheat_room				(OPT_CHEAT+2)
@@ -3099,7 +3150,7 @@
 #define OPT_adult_no_stores			(OPT_ADULT+5)
 #define OPT_adult_no_artifacts		(OPT_ADULT+6)
 #define OPT_adult_rand_artifacts	(OPT_ADULT+7)
-/* xxx xxx */
+#define OPT_adult_smart_cheat		(OPT_ADULT+8)
 #define OPT_score_peek				(OPT_SCORE+0)
 #define OPT_score_hear				(OPT_SCORE+1)
 #define OPT_score_room				(OPT_SCORE+2)
@@ -3154,12 +3205,12 @@
 #define view_torch_grids		op_ptr->opt[OPT_view_torch_grids]
 #define dungeon_align			op_ptr->opt[OPT_dungeon_align]
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
-#define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
-#define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#define fast_flow				op_ptr->opt[OPT_fast_flow]
+/* xxx flow_by_smell */
 /* xxx track_follow */
 /* xxx track_target*/
-#define smart_learn				op_ptr->opt[OPT_smart_learn]
-#define smart_cheat				op_ptr->opt[OPT_smart_cheat]
+/* xxx smart_learn */
+/* xxx smart_cheat */
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
 #define hidden_player			op_ptr->opt[OPT_hidden_player]
 #define avoid_abort				op_ptr->opt[OPT_avoid_abort]
@@ -3184,8 +3235,8 @@
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
 #define scroll_target			op_ptr->opt[OPT_scroll_target]
 #define auto_more				op_ptr->opt[OPT_auto_more]
-#define smart_monsters			op_ptr->opt[OPT_smart_monsters]
-#define smart_packs				op_ptr->opt[OPT_smart_packs]
+/* xxx smart_monsters */
+/* xxx smart_packs */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3202,7 +3253,7 @@
 #define birth_no_stores			op_ptr->opt[OPT_birth_no_stores]
 #define birth_no_artifacts		op_ptr->opt[OPT_birth_no_artifacts]
 #define birth_rand_artifacts	op_ptr->opt[OPT_birth_rand_artifacts]
-/* xxx xxx */
+#define birth_smart_cheat	op_ptr->opt[OPT_birth_smart_cheat]
 #define cheat_peek				op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear				op_ptr->opt[OPT_cheat_hear]
 #define cheat_room				op_ptr->opt[OPT_cheat_room]
@@ -3219,7 +3270,7 @@
 #define adult_no_stores			op_ptr->opt[OPT_adult_no_stores]
 #define adult_no_artifacts		op_ptr->opt[OPT_adult_no_artifacts]
 #define adult_rand_artifacts	op_ptr->opt[OPT_adult_rand_artifacts]
-/* xxx xxx */
+#define adult_smart_cheat		op_ptr->opt[OPT_adult_smart_cheat]
 #define score_peek				op_ptr->opt[OPT_score_peek]
 #define score_hear				op_ptr->opt[OPT_score_hear]
 #define score_room				op_ptr->opt[OPT_score_room]
@@ -3452,6 +3503,28 @@
 	 (cave_m_idx[Y][X] == 0))
 
 /*
+ * Determine if a "legal" grid is an "empty" floor grid
+ * (used for monster placement - see "monster2.c")
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls
+ * Line 2 -- allow dirt
+ * Line 3 -- allow grass
+ * Line 4 -- allow shallow lava
+ * Line 5 -- allow deep lava
+ * Line 6 -- allow shallow water
+ * Line 7 -- allow deep water
+ * Line 8 -- forbid player/monsters
+ */
+#define terrain_empty_bold(Y,X) \
+	(((cave_floor_bold(Y,X)) || \
+	  (cave_feat[Y][X] == FEAT_DIRT) || \
+	  (cave_feat[Y][X] == FEAT_GRASS) || \
+	  (cave_feat[Y][X] == FEAT_SHAL_WATER) || \
+	  (cave_feat[Y][X] == FEAT_DEEP_WATER) || \
+	  (cave_feat[Y][X] == FEAT_FOG)) && \
+	 (cave_m_idx[Y][X] == 0))
+
+/*
  * Determine if a "legal" grid is an "naked" floor grid
  *
  * Line 1 -- forbid non-floors
@@ -3479,6 +3552,21 @@
 	 (cave_feat[Y][X] == FEAT_DIRT) || \
 	 (cave_feat[Y][X] == FEAT_GRASS) || \
 	 (cave_feat[Y][X] == FEAT_FOG)) && \
+	 (cave_o_idx[Y][X] == 0) && \
+	 (cave_m_idx[Y][X] == 0))
+
+
+/*
+ * Determine if a "legal" grid is an "naked" floor grid
+ * Currently used for placing aquatic monsters.
+ *
+ * Line 1 -- non-shallow water
+ * Line 4 -- forbid normal objects
+ * Line 5 -- forbid player/monsters
+ */
+#define water_naked_bold(Y,X) \
+	(((cave_feat[Y][X] == FEAT_SHAL_WATER) || \
+	 (cave_feat[Y][X] == FEAT_DEEP_WATER)) && \
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 

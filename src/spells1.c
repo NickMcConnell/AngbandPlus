@@ -960,7 +960,7 @@ void acid_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
+	if (p_ptr->oppose_acid && !p_ptr->hurt_acid) dam = (dam + 2) / 3;
 
 	/* If any armor gets hit, defend the player */
 	if (minus_ac()) dam = (dam + 1) / 2;
@@ -984,8 +984,8 @@ void elec_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
 	/* Resist the damage */
-	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+	if (p_ptr->oppose_elec && !p_ptr->hurt_elec) dam = (dam + 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1009,7 +1009,7 @@ void fire_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+	if (p_ptr->oppose_fire && !p_ptr->hurt_fire) dam = (dam + 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -1031,7 +1031,7 @@ void cold_dam(int dam, cptr kb_str)
 
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
-	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
+	if (p_ptr->oppose_cold && !p_ptr->hurt_cold) dam = (dam + 2) / 3;
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -3170,6 +3170,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " will attack others now!";
 				m_ptr->is_pet = TRUE;
+				m_ptr->is_friendly = TRUE;
 			}
 
 			/* No "real" damage */
@@ -3353,7 +3354,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Give detailed messages if destroyed */
-			if (note) msg_format("%^s%s", m_name, note);
+			if (note && seen) msg_format("%^s%s", m_name, note);
 		}
 
 		/* Damaged monster */
@@ -3374,9 +3375,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	else
 	{
 		bool fear = FALSE;
-		bool bypet = who ? TRUE : FALSE;
+		bool bypet = ((who > 0) ? TRUE : FALSE);
 
-		
 		/* Hurt the monster, check for fear and death */
 		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies, bypet))
 		{
@@ -3401,11 +3401,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Pet care. */
-			if (dam > 0 && (m_ptr->is_pet || m_ptr->is_friendly))
+			if (dam > 0 && m_ptr->is_friendly)
 			{
 				msg_format("%^s howls in rebellion!", m_name);
-				m_ptr->is_pet = FALSE;
-				m_ptr->is_friendly = FALSE;
+
+				if (m_ptr->is_pet && (randint(3) == 1))
+				{
+					m_ptr->is_pet = FALSE;
+				}
+				else
+					m_ptr->is_friendly = FALSE;
 			}
 
 			/* Hack -- handle sleep */
@@ -3817,13 +3822,16 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_LITE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if ((p_ptr->resist_lite) || (p_ptr->oppose_ld))
+			if (!p_ptr->hurt_lite)
 			{
-				dam *= 4; dam /= (randint(6) + 6);
-			}
-			if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
-			{
-				dam = dam / 2;
+				if ((p_ptr->resist_lite) || (p_ptr->oppose_ld))
+				{
+					dam *= 4; dam /= (randint(6) + 6);
+				}
+				if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
+				{
+					dam = dam / 2;
+				}
 			}
 			if (!p_ptr->resist_lite && !p_ptr->oppose_ld &&
 			    !blind && !p_ptr->resist_blind)

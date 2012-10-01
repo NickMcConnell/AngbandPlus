@@ -772,6 +772,9 @@ void py_pickup(int pickup)
 			int i;
 			char out_val[160];
 
+			/* Paranoia */
+			message_flush();
+
 			sprintf(out_val, "Pick up %s? [y/n/k]", o_name);
 
 			/* Prompt for it */
@@ -1260,6 +1263,19 @@ void py_attack(int y, int x)
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 
+	/* Handle friendly monsters */
+	if (m_ptr->is_friendly)
+	{
+		/* Message */
+		msg_format("You push past %s.", m_name);
+
+		/* Move past your pet */
+		monster_swap(p_ptr->py, p_ptr->px, y, x);
+
+		/* Done */
+		return;
+	}
+
 
 	/* Handle player fear */
 	if (p_ptr->afraid)
@@ -1414,15 +1430,22 @@ void py_attack(int y, int x)
 		message_format(MSG_FLEE, m_ptr->r_idx, "%^s flees in terror!", m_name);
 	}
 
-	if ((m_ptr->is_pet) || (m_ptr->is_friendly))
+	/* Handle friendly monsters */
+	if (m_ptr->is_friendly)
 	{
 		char m_name[80];
 
 		monster_desc(m_name, m_ptr, 0x80);
 
 		msg_format("%^s howls in rebellion!", m_name);
-		m_ptr->is_pet = FALSE;
-		m_ptr->is_friendly = FALSE;
+
+		/* Pets may not become hostile immediately */
+		if (m_ptr->is_pet && (randint(3) == 1))
+		{
+			m_ptr->is_pet = FALSE;
+		}
+		else
+			m_ptr->is_friendly = FALSE;
 	}
 
 	/* Mega-Hack -- apply earthquake brand */

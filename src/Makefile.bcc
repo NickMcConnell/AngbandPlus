@@ -53,7 +53,7 @@ OBJ = \
 	cmd3.obj cmd4.obj cmd5.obj cmd6.obj \
 	dungeon.obj files.obj generate.obj init1.obj \
 	init2.obj randart.obj load2.obj init3.obj \
-	melee1.obj melee2.obj monster1.obj monster2.obj \
+	melee1.obj melee2.obj melee3.obj monster1.obj monster2.obj \
 	object1.obj object2.obj save.obj spells1.obj \
 	spells2.obj spells3.obj store.obj tables.obj util.obj \
 	variable.obj wizard1.obj wizard2.obj xtra1.obj \

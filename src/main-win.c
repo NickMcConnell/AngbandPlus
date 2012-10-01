@@ -510,14 +510,15 @@ static DIBINIT infMask;
 
 #endif /* USE_TRANSPARENCY */
 
+#endif /* USE_GRAPHICS */
+
+
 /*
  * Available graphic modes
  */
 #define GRAPHICS_NONE       0
 #define GRAPHICS_ORIGINAL   1
 #define GRAPHICS_ADAM_BOLT  2
-
-#endif /* USE_GRAPHICS */
 
 
 #ifdef USE_SOUND
@@ -3107,6 +3108,9 @@ static void check_for_save_file(LPSTR cmd_line)
 
 	/* Play game */
 	play_game(FALSE);
+
+	/* Quit */
+	quit(NULL);
 }
 
 

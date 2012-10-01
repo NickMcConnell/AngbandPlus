@@ -556,6 +556,8 @@ struct monster_type
 
 	u32b smart;			/* Field for "smart_learn" */
 
+	u32b smart2;		/* Field for "smart_learn" */
+
 #endif
 
 };
@@ -1024,6 +1026,12 @@ struct player_type
 	s16b stat_add[A_MAX];	/* Equipment stat bonuses */
 	s16b stat_ind[A_MAX];	/* Indexes into stat tables */
 
+	bool hurt_lite;	/* Hurt by light */
+	bool hurt_acid;	/* Hurt by acid */
+	bool hurt_elec;	/* Hurt by elec */
+	bool hurt_fire;	/* Hurt by fire */
+	bool hurt_cold;	/* Hurt by cold */
+
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */
 	bool immune_fire;	/* Immunity to fire */
@@ -1108,6 +1116,12 @@ struct player_type
 	byte ammo_tval;		/* Ammo variety */
 
 	s16b pspeed;		/* Current speed */
+
+	/*** Pet commands ***/
+
+	s16b pet_follow_dist;	/* Length of the imaginary "leash" for pets */
+	byte pet_open_doors;	/* flag - allow pets to open doors */
+	byte pet_pickup_items;	/* flag - allow pets to pickup items */
 };
 
 

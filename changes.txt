@@ -1,3 +1,54 @@
+Kangband 2.9.2r2
+================
+
+New / Changed Features
+----------------------
+- Permanently turned on the functionality of the following options
+  (which have been removed): "flow_by_sound", "flow_by_smell",
+  "smart_monsters", "smart_packs", "smart_learn". Also, "smart_cheat"
+  is now a birth option.
+- Added a "fast_flow" option that makes the monster flow code less
+  CPU intensive (from Zangband/Oangband). 
+- Added two new flags "GOOD" and "FRIENDLY". Monsters assigned the
+  'FRIENDLY' flag will fight for the player unless he betrays them.
+  (l)ooking at a monster will tell you whether it is friendly or not.
+- "Friendly" monsters will occasionally be given "pet" status. Pets
+  have a chance of remaining "friendly" if the player damages them.
+- Added commands to control friendly monsters (accessed via '$') and
+  made friendly monsters smarter (adapted from Zangband).
+- Added HURT_LITE, HURT_ACID, HURT_ELEC, HURT_FIRE and HURT_COLD to the
+  list of available flags for items and players.  HURT_LITE prevents
+  any resistance to light attacks. The others flags prevent temporary
+  resistance to their respective attack forms. They do but not affect
+  permanent resistances.
+- Also added the "GHOSTLY" and "INVISIBLE" flags for items and players.
+  These flags make the player "ghostlike" and invisible respectively.
+- Added two new races - Ents and Wraiths. Ents are taken pretty much
+  from Oangband without the hard-coded changes to STR, DEX, etc. Ents
+  have the HURT_FIRE flag.  Wraiths may pass through walls and resist
+  cold and poison intrinsically. However, they aggravate and are hurt
+  by light.
+- The One Ring now has both the GHOSTLY and INVISIBLE flags as do
+  Amulets of Doom.
+- You can no longer regenerate mana or hitpoints when passing through
+  walls.
+- Added the "ARCHER", "BERSERKER" and "COWARDLY" flags for monsters.
+  These flags affect how the monster will move towards/from the player.
+  Archers and cowards attempt to keep some distance between them and
+  the player.  Berserkers will never run away.
+- Reworked the way AQUATIC monsters are placed. The game will now try
+  very hard to place them if a water streamer is generated.
+- Clairvoyance and Magic Mapping, will now correctly display terrain
+  streamers.
+
+Bug Fixes
+---------
+- Fixed a bug with the "smart_learn" ability of monsters.
+- Fixed a bug with the saving of the cave_special array.
+- Fixed a bug with the [y/n/k] not flushing messages properly.
+- Fixed various other quest-related bugs and oddities.
+
+
 Kangband 2.9.2r1:
 =================
 

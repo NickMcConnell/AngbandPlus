@@ -201,9 +201,9 @@ static cptr r_info_flags2[] =
 	"BRAIN_3",
 	"BRAIN_4",
 	"BRAIN_5",
-	"BRAIN_6",
-	"BRAIN_7",
-	"BRAIN_8"
+	"COWARDLY",
+	"BERSERKER",
+	"ARCHER"
 };
 
 /*
@@ -413,12 +413,12 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
+	"HURT_LITE",
 	"XXX2",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
+	"HURT_ACID",
+	"HURT_ELEC",
+	"HURT_FIRE",
+	"HURT_COLD",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -466,8 +466,8 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+	"GHOSTLY",
+	"INVISIBLE",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",

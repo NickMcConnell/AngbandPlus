@@ -474,11 +474,28 @@ void self_knowledge(void)
 	{
 		info[i++] = "You aggravate monsters.";
 	}
-	if (p_ptr->teleport)
+
+	if (p_ptr->ts_anchor)
+	{
+		info[i++] = "Your position is stable.";
+	}
+	else if (p_ptr->teleport)
 	{
 		info[i++] = "Your position is very uncertain.";
 	}
 
+	if ((p_ptr->levitate) || (p_ptr->tim_levitate))
+	{
+		info[i++] = "Your are floating just above the floor.";
+	}
+	if ((p_ptr->ghostly) || (p_ptr->tim_ghostly))
+	{
+		info[i++] = "You can pass through walls.";
+	}
+	if ((p_ptr->invisible) || (p_ptr->tim_pl_invis))
+	{
+		info[i++] = "You are invisible.";
+	}
 	if (p_ptr->blessed)
 	{
 		info[i++] = "You feel righteous.";
@@ -561,11 +578,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
+	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid && !p_ptr->hurt_acid))
 	{
 		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
+	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid && !p_ptr->hurt_acid))
 	{
 		info[i++] = "You are resistant to acid.";
 	}
@@ -574,11 +591,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
+	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec && !p_ptr->hurt_elec))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
+	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec && !p_ptr->hurt_elec))
 	{
 		info[i++] = "You are resistant to lightning.";
 	}
@@ -587,11 +604,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
+	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire && !p_ptr->hurt_fire))
 	{
 		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
+	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire && !p_ptr->hurt_fire))
 	{
 		info[i++] = "You are resistant to fire.";
 	}
@@ -600,11 +617,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
+	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold && !p_ptr->hurt_cold))
 	{
 		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
+	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold && !p_ptr->hurt_cold))
 	{
 		info[i++] = "You are resistant to cold.";
 	}
@@ -623,68 +640,112 @@ void self_knowledge(void)
 		info[i++] = "You are completely fearless.";
 	}
 
-	if (p_ptr->resist_lite)
+	if (!p_ptr->hurt_lite)
 	{
-		info[i++] = "You are resistant to bright light.";
+		if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
+		{
+			info[i++] = "You resist bright light exceptionally well.";
+		}
+		else if ((p_ptr->resist_lite) || (p_ptr->oppose_ld))
+		{
+			info[i++] = "You are resistant to bright light.";
+		}
 	}
-	if (p_ptr->resist_dark)
+
+	if ((p_ptr->resist_dark) && (p_ptr->oppose_ld))
+	{
+		info[i++] = "You resist darkness exceptionally well.";
+	}
+	else if ((p_ptr->resist_dark) || (p_ptr->oppose_ld))
 	{
 		info[i++] = "You are resistant to darkness.";
 	}
+
 	if (p_ptr->resist_blind)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
-	if (p_ptr->resist_confu)
+
+	if ((p_ptr->resist_confu) && (p_ptr->oppose_cc))
+	{
+		info[i++] = "You resist confusion exceptionally well.";
+	}
+	else if ((p_ptr->resist_confu) || (p_ptr->oppose_cc))
 	{
 		info[i++] = "You are resistant to confusion.";
 	}
-	if (p_ptr->resist_sound)
+
+	if ((p_ptr->resist_sound) && (p_ptr->oppose_ss))
+	{
+		info[i++] = "You resist sonic attacks exceptionally well.";
+	}
+	else if ((p_ptr->resist_sound) || (p_ptr->oppose_ss))
 	{
 		info[i++] = "You are resistant to sonic attacks.";
 	}
-	if (p_ptr->resist_shard)
+
+	if ((p_ptr->resist_shard) && (p_ptr->oppose_ss))
+	{
+		info[i++] = "You resistant blasts of shards exceptionally well.";
+	}
+	else if ((p_ptr->resist_shard) || (p_ptr->oppose_ss))
 	{
 		info[i++] = "You are resistant to blasts of shards.";
 	}
-	if (p_ptr->resist_nexus)
+
+	if ((p_ptr->resist_nexus) && (p_ptr->oppose_nexus))
+	{
+		info[i++] = "You resistant nexus attacks exceptionally well.";
+	}
+	else if ((p_ptr->resist_nexus) || (p_ptr->oppose_nexus))
 	{
 		info[i++] = "You are resistant to nexus attacks.";
 	}
-	if (p_ptr->resist_nethr)
+
+	if ((p_ptr->resist_nethr) && (p_ptr->oppose_nethr))
+	{
+		info[i++] = "You resist nether forces exceptionally well.";
+	}
+	else if ((p_ptr->resist_nethr) || (p_ptr->oppose_nethr))
 	{
 		info[i++] = "You are resistant to nether forces.";
 	}
-	if (p_ptr->resist_chaos)
+
+	if ((p_ptr->resist_chaos) && (p_ptr->oppose_cc))
+	{
+		info[i++] = "You resist chaos exceptionally well.";
+	}
+	else if ((p_ptr->resist_chaos) || (p_ptr->oppose_cc))
 	{
 		info[i++] = "You are resistant to chaos.";
 	}
+
 	if (p_ptr->resist_disen)
 	{
 		info[i++] = "You are resistant to disenchantment.";
 	}
 
-	if (p_ptr->sustain_str)
+	if (p_ptr->sustain_str || p_ptr->tim_sus_str)
 	{
 		info[i++] = "Your strength is sustained.";
 	}
-	if (p_ptr->sustain_int)
+	if (p_ptr->sustain_int || p_ptr->tim_sus_int)
 	{
 		info[i++] = "Your intelligence is sustained.";
 	}
-	if (p_ptr->sustain_wis)
+	if (p_ptr->sustain_wis || p_ptr->tim_sus_wis)
 	{
 		info[i++] = "Your wisdom is sustained.";
 	}
-	if (p_ptr->sustain_con)
+	if (p_ptr->sustain_con || p_ptr->tim_sus_con)
 	{
 		info[i++] = "Your constitution is sustained.";
 	}
-	if (p_ptr->sustain_dex)
+	if (p_ptr->sustain_dex || p_ptr->tim_sus_dex)
 	{
 		info[i++] = "Your dexterity is sustained.";
 	}
-	if (p_ptr->sustain_chr)
+	if (p_ptr->sustain_chr || p_ptr->tim_sus_chr)
 	{
 		info[i++] = "Your charisma is sustained.";
 	}

@@ -702,9 +702,10 @@ static void build_streamer2(int feat, int killwall)
 			y += ddy[dir];
 			x += ddx[dir];
 
+			/* Change direction */
 			if (randint(20) == 1)
 			{
-				dir = ddd[rand_int(8)]; /* change direction */
+				dir = ddd[rand_int(8)];
 			}
 
 			/* Stop at dungeon edge */
@@ -3403,6 +3404,7 @@ static void cave_gen(void)
 	{
 		for (i = 0; i < randint(DUN_STR_QUA); i++)
 		{
+			if (cheat_room) msg_print("Terrain Streamer: Trees");
 			build_streamer2(FEAT_TREES, 1);
 		}
 	}
@@ -3410,28 +3412,36 @@ static void cave_gen(void)
 	{
 		for (i = 0; i < randint(DUN_STR_QUA - 1); i++)
 		{
-			build_streamer2(FEAT_SHAL_WATER, 0);
+			if (cheat_room) msg_print("Terrain Streamer: Shallow water");
+			build_streamer2(FEAT_SHAL_WATER, 1);
 		}
 
 		if (randint(20) > 15)
 		{
 			for (i = 0; i < randint(DUN_STR_QUA); i++)
 			{
+				if (cheat_room) msg_print("Terrain Streamer: Deep water");
 				build_streamer2(FEAT_DEEP_WATER, 1);
 			}
+		}
+		for (i = 0; i < 2 + randint(8); i++)
+		{
+			alloc_aquatic_monster(0, FALSE);
 		}
 	}
 	else if ((p_ptr-> depth > 19) && (randint(20) > 15))
 	{
 		for (i = 0; i < randint(DUN_STR_QUA); i++)
 		{
-			build_streamer2(FEAT_SHAL_LAVA, 0);
+			if (cheat_room) msg_print("Terrain Streamer: Shallow lava");
+			build_streamer2(FEAT_SHAL_LAVA, 1);
 		}
 
 		if (randint(20) > 15)
 		{
 			for (i = 0; i < randint(DUN_STR_QUA - 1); i++)
 			{
+				if (cheat_room) msg_print("Terrain Streamer: Deep lava");
 				build_streamer2(FEAT_DEEP_LAVA, 1);
 			}
 		}

@@ -773,6 +773,15 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 						r_idx = get_mon_num(q_ptr->level + 4 + randint(q_ptr->level / 10));
 						r_ptr = &r_info[r_idx];
 
+						/* No random quests for aquatic monsters */
+						if (r_ptr->flags2 & RF2_AQUATIC) continue;
+
+						/* No random quests for multiplying monsters */
+						if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+
+						/* No quests to kill friendly monsters */
+						if (r_ptr->flags2 & RF2_FRIENDLY) continue;
+
 						/* Save the index if the monster is deeper than current monster */
 						if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
 						{

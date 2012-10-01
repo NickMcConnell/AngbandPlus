@@ -314,6 +314,12 @@ static void regenhp(int percent)
 	s32b new_chp, new_chp_frac;
 	int old_chp;
 
+	/* XXX Hack - no regeneration in walls */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_WALL))
+	{
+		return;
+	}
+
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
 
@@ -360,6 +366,12 @@ static void regenmana(int percent)
 {
 	s32b new_mana, new_mana_frac;
 	int old_csp;
+
+	/* XXX Hack - no regeneration in walls */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_WALL))
+	{
+		return;
+	}
 
 	old_csp = p_ptr->csp;
 	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
@@ -1913,6 +1925,13 @@ static void process_command(void)
 		case '#':
 		{
 			do_cmd_objects();
+			break;
+		}
+
+		/* Interact with pets */
+		case '$':
+		{
+			do_cmd_pets();
 			break;
 		}
 

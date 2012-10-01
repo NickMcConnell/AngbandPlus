@@ -39,6 +39,7 @@ OBJS=\
 	object1.obj \
 	monster2.obj \
 	monster1.obj \
+	melee3.obj \
 	melee2.obj \
 	melee1.obj \
 	main-win.obj \
@@ -481,6 +482,27 @@ MONSTER1_C=\
 
 monster1.obj: $(MONSTER1_C) monster1.c
 	$(CC) -c $(CFLAGS) monster1.c
+
+# Build MELEE3.C
+MELEE3_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+melee3.obj: $(MELEE3_C) melee3.c
+	$(CC) -c $(CFLAGS) melee3.c
 
 # Build MELEE2.C
 MELEE2_C=\
