@@ -998,7 +998,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
+		{ TV_ILLUSION_BOOK, 0 },
 		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},

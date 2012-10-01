@@ -77,7 +77,7 @@ s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
 
-s16b arena_monsters[MAX_ARENA_MONS]; /* -KMW- */
+/* s16b arena_monsters[MAX_ARENA_MONS]; */ /* -KMW- */
 
 s32b turn;				/* Current game turn */
 

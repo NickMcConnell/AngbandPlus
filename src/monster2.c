@@ -1707,10 +1707,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool pet)
 
 	monster_race *r_ptr = &r_info[r_idx];
 
-
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp, pet)) return (FALSE);
-
 
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
@@ -1738,10 +1736,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool pet)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
-
 			/* Set the escort index */
 			place_monster_idx = r_idx;
-
 
 			/* Set the escort hook */
 			get_mon_num_hook = place_monster_okay;
@@ -1749,17 +1745,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool pet)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-
 			/* Pick a random race */
 			z = get_mon_num(r_ptr->level);
-
 
 			/* Remove restriction */
 			get_mon_num_hook = NULL;
 
 			/* Prepare allocation table */
 			get_mon_num_prep();
-
 
 			/* Handle failure */
 			if (!z) break;

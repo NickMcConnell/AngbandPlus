@@ -1,0 +1,22 @@
+What do you want to spoil about monsters?
+
+Please choose one of the following spoiler files:
+
+    (1) mon-info.spo -- complete monster information, by index
+
+    (3) mon-desc.spo -- brief monster table, by index
+    (4) mon-name.spo -- brief monster table, by name
+    (5) mon-race.spo -- brief monster table, by level (normals)
+    (6) mon-uniq.spo -- brief monster table, by level (uniques)
+    (7) mon-view.spo -- brief monster table, by char, attr, level
+
+    (9) mon-blow.spo -- some info on monster attacks
+    
+***** [1] mon-info.spo
+***** [3] mon-desc.spo
+***** [4] mon-name.spo
+***** [5] mon-race.spo
+***** [6] mon-uniq.spo
+***** [7] mon-view.spo
+***** [9] mon-blow.spo
+

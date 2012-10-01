@@ -391,7 +391,7 @@ extern void wilderness_gen(int refresh); /* -KMW- */
 /* init1.c */
 extern errr init_v_info_txt(FILE *fp, char *buf, bool start);
 extern errr init_f_info_txt(FILE *fp, char *buf);
-extern errr init_q_info_txt(FILE *fp, char *buf); /* -KMW- */
+extern errr init_q_info_txt(FILE *fp, char *buf, bool new_game); /* -KMW- */
 extern errr init_w_info_txt(FILE *fp, char *buf); /* -KMW- */
 extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
@@ -401,7 +401,7 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 /* init2.c */
 extern void init_file_paths(char *path);
 extern errr init_v_info(void);
-extern errr init_q_info(void);
+extern errr init_q_info(bool new_game);
 extern errr init_w_info(void);
 extern void init_angband(void);
 
@@ -492,7 +492,7 @@ extern bool make_object(object_type *j_ptr, bool good, bool great);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);
 extern void drop_near(object_type *j_ptr, int chance, int y, int x);
-extern void acquirement(int y1, int x1, int num, bool great);
+extern void acquirement(int y1, int x1, int num, bool great, bool known);
 extern void place_object(int y, int x, bool good, bool great);
 extern void place_gold(int y, int x);
 extern void pick_trap(int y, int x);

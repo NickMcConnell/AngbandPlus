@@ -2245,7 +2245,6 @@ void monster_death(int m_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -2597,7 +2596,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		}
 
 		/* Gain experience */
-		if (!bypet)
+		if (bypet <= 0)
 			gain_exp(new_exp);
 
 		/* Generate treasure */
@@ -2760,7 +2759,7 @@ void verify_panel(void)
 	/* Scroll */
 	if (scroll)
 	{
-		/* Optional disturb on "panel chd.");*/
+		/* Optional disturb on "panel change" */
 		if (disturb_panel) disturb(0, 0);
 
 		/* Update stuff */
@@ -3299,7 +3298,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		/* Hack -- hallucination */
 		if (p_ptr->image)
 		{
-			cptr name = "something strd.");;
+			cptr name = "something strange";
 
 			/* Display a message */
 			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
@@ -3521,7 +3520,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
 			    ((feat >= FEAT_BLDG_HEAD) & (feat <= FEAT_BLDG_TAIL)))
 			{
-				s3 = "the entrd.ce to the ";
+				s3 = "the entrance to the ";
 			}
 
 			/* Display a message */
@@ -3959,8 +3958,8 @@ bool get_aim_dir(int *dp)
  *
  * This function should be used for all "repeatable" commands, such as
  * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
- * as all commands which must refere.ce a grid adjacent to the player,
- * and which may not refere.ce the grid under the player.
+ * as all commands which must reference a grid adjacent to the player,
+ * and which may not reference the grid under the player.
  *
  * Direction "5" (and "0") are illegal and will not be accepted.
  *

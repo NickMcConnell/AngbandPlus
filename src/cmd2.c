@@ -1886,6 +1886,8 @@ void do_cmd_spike(bool spell)
  */
 static bool do_cmd_walk_test(int y, int x)
 {
+	int wt;
+
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
@@ -1945,6 +1947,15 @@ static bool do_cmd_walk_test(int y, int x)
 		return (FALSE);
 	}
 
+	else if (cave_feat[y][x] == FEAT_DEEP_WATER)
+	{
+		wt = (adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2;
+		if (!((p_ptr->total_weight < wt) || (p_ptr->levitate))) {
+			msg_print("You can't swim with that much weight.");
+			return (FALSE);
+		} else
+			return (TRUE);
+	}
 
 	else /* Okay */
 		return (TRUE);

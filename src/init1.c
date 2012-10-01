@@ -982,7 +982,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
  * Initialize the "q_info" array, by parsing an ascii "template" file
  * -KMW-
  */
-errr init_q_info_txt(FILE *fp, char *buf)
+errr init_q_info_txt(FILE *fp, char *buf, bool new_game)
 {
 	int i;
 	int qidx;
@@ -1074,13 +1074,15 @@ errr init_q_info_txt(FILE *fp, char *buf)
 			    &qtyp, &nm, &cn, &mn, &lv, &ri, &ii, &qy, &qx, &qrvt, &vn)) return (1);
 
 			/* Save the values */
-			q_list[qidx].quest_type = qtyp;
-			q_list[qidx].num_mon = nm;
-			q_list[qidx].cur_num = cn;
-			q_list[qidx].max_num = mn;
-			q_list[qidx].level = lv;
-			q_list[qidx].r_idx = ri;
-			q_list[qidx].k_idx = ii;
+			if (new_game) {
+				q_list[qidx].quest_type = qtyp;
+				q_list[qidx].num_mon = nm;
+				q_list[qidx].cur_num = cn;
+				q_list[qidx].max_num = mn;
+				q_list[qidx].level = lv;
+				q_list[qidx].r_idx = ri;
+				q_list[qidx].k_idx = ii;
+			}
 			q_list[qidx].questy = qy;
 			q_list[qidx].questx = qx;
 			q_list[qidx].revert = qrvt;

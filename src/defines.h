@@ -39,7 +39,7 @@
 
 
 /*
- * Current version number of Kangband: 2.8.2
+ * Current version number of Kangband: 2.8.2 (partially 2.8.3)
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
@@ -48,7 +48,7 @@
 /*
  * This value is not currently used
  */
-#define VERSION_EXTRA	5 /* Kangband 2.8.2e */
+#define VERSION_EXTRA	7 /* Kangband 2.8.2g */
 
 
 /*

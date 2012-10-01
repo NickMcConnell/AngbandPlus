@@ -1363,7 +1363,7 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE);
+			acquirement(py, px, p_ptr->command_arg, FALSE, TRUE);
 			break;
 		}
 
@@ -1488,7 +1488,7 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE);
+			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
 			break;
 		}
 

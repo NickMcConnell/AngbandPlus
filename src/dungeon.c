@@ -2864,7 +2864,7 @@ void play_game(bool new_game)
 	if (init_v_info()) quit("Cannot initialize vaults");
 
 	/* Initialize quest info */
-	if (init_q_info()) quit("Cannot initialize quests");
+	if (init_q_info(new_game)) quit("Cannot initialize quests");
 
 	/* Initialize wilderness -KMW- */
 	if (init_w_info()) quit ("Cannot initialize wilderness");

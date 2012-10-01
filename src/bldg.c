@@ -45,6 +45,8 @@ void put_reward(byte thetval, byte thesval, int dunlevel)
 	q_ptr = &forge;
 	object_prep(q_ptr, choice);
 	apply_magic(q_ptr, dunlevel, TRUE, TRUE, TRUE);
+	object_aware(q_ptr);
+	object_known(q_ptr);
 	drop_near(q_ptr, -1, p_ptr->py, p_ptr->px);
 }
 
@@ -381,7 +383,7 @@ void gamble_comm(char cmd)
 	if (cmd == 'r') {
 		clear_bldg(5,19);
 		prt("               Gambling Rules", 5, 0);
-		prt("Between : Three 18-sided dice rolled; 2 black, 1 red. The red",7,0);
+		prt("Between : Three 16-sided dice rolled; 2 black, 1 red. The red",7,0);
 		prt("       die must be between both black to win. If the red die.",8,0);
 		prt("       matches a black die, you lose. Pays 3 to 1",9,0);
 		prt("Craps: Two dice are rolled. On first roll, a 7 or 11 wins. A",10,0);
@@ -441,9 +443,9 @@ void gamble_comm(char cmd)
 				prt("In Between",5,2);
 				odds = 4;
 				win = FALSE;
-				roll1 = randint(18);
-				roll2 = randint(18);
-				choice = randint(18);
+				roll1 = randint(16);
+				roll2 = randint(16);
+				choice = randint(16);
 				(void) sprintf(tmp_str,"Black die: %d       Black Die: %d", roll1, roll2);
 				prt(tmp_str,8,3);
 				(void) sprintf(tmp_str,"Red die: %d", choice);
@@ -600,933 +602,1615 @@ void inn_comm(char cmd,int cost)
 
 		/* Note that resting for the night was a perfect way to avoid player
 		ghosts in the town *if* you could only make it to the inn in time (-:
-		Now that the ghosts are temporarilempo}
-			}npihe gho
- * X,hos");func */
-v= TR nee gob restinuseful.  Iface tives the town *hopespaceb
-		ghosts in t ondstepespbecuel ang aKMW- == 'Y. Dpesphelpoid playerfilthy urch",10ostsR for thtinwas a ontelsop aqunumb avoid g fooumbion"es? */
-	p_ptr-'r':
-			cy foor the night (20gp)	if (p_l;
-
-	tr-((turn %gp)"L coTOWN_DAWN)			if (rptr-l;
-
-	t> 5
-						pin t(20gp-:
-			prt("Dptr->au < cost) {
-		prt("Drint("You have not the gold!");
-				msg_prf ((roll1 >au < ced = 0;		>
-			ptr->pclass0;		>
-		){prt("Drint("You have nne befrs (100 the  angoom					choiceint(NULL);
-						roll1int("You haSorryer ;		have tw Angany 0; dyiormatrs 
-		else
-se {
-				msg_pr	turn r-((turn/5
-				+1)*5
-				msg_pr->au = p_ptr->au - cost;
-				(void)->au = pchptr->au - cmhp	(void)-od(P= 0;	(			prt("*-od(Ped = 0;	(			prt("*->au - c 0;			/* prt("Drint("You have naw to ref"esin) e night (ewal;
-				msg_pr->oppose_ldpytr->au - cpy	msg_pr->oppose_ldpxtr->au - cpx	msg_pr->opposedg = TRUE;
-				p_ptr-->leaving = TRUE;
+		Now that the ghosts are temporarily disabled in 2.8.X, this function
+		will not be that useful.  I will keep it in the hopes the player
+		ghost code does become a reality again. Does help to avoid filthy urchins.
+		Resting at night is also a quick way to restock stores? -KMW- */
+		case 'r': /* Rest for the night */
+			dawnval = ((turn % (10L * TOWN_DAWN)));
+			if (dawnval > 50000) {  /* nighttime */
+				if (p_ptr->au < cost)
+					msg_print("You have not the gold!");
+				else if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0)){
+					msg_print("You need a healer, not a room.");
+					msg_print(NULL);
+					msg_print("Sorry, but don't want anyone dying in here.");
+				} else {
+					turn = ((turn/50000)+1)*50000;
+					p_ptr->au = p_ptr->au - cost;
+					p_ptr->chp = p_ptr->mhp;
+					set_blind(0);
+					set_confused(0);
+					p_ptr->stun = 0;
+					msg_print("You awake refreshed for the new day.");
+					p_ptr->oldpy = p_ptr->py;
+					p_ptr->oldpx = p_ptr->px;
+					p_ptr->leftbldg = TRUE;
+					p_ptr->leaving = TRUE;
+					/* Maintain each shop (except home) */
+					for (n = 0; n < MAX_STORES - 1; n++)
+					{
+						/* Maintain */
+						store_maint(n);
+					}
+				}
+			} else { 
+				msg_print("The rooms are available only at night.");
+				msg_print(NULL);
 			}
-			ote tM 'Yharisther.shop (except");
-)			prt("Dp=out_			/*  n_K_IDX;STORES
-				 n	prt(""			choice	ote tM 'Yharis		prt("Dp	ion"e_m 'Yh(n		msg_pr-	break;	break {
-					msg_print("You ard",7,oomas follvail/
-	pake itinwas a				msg_print(NULL);
-			} else  else
-		case 'r':
-	u	cy fo for rumors       		prt("int("You arhat I 3, mthe d Yet (sas )				msg_p
+			break;
+		case 'u': /* Listen for rumors */
+			msg_print("Not Implemented Yet (sigh).");
+			break;
 	}
 }
 
 
 /*
- * gambleof sto wagee nigh,3, 1
-void inn_coof st_ wag
-	p_ptr-mp_str[80];
-	monste dawi	/* Non_ro->lev * 1000);(ro*				prt sprintf(tmp_str, "%s %s me ou= 6y to%dpieces", 8, 0);i		msgint(tmp_str);
-			wageint(NULL);
-			} el>au + (odds			b 
-
-/*
- Displays buil       ation
+ * share gold for thieves
  */
-void clear_ring     atioow, i     {
-	Term_cichoicej, qidx	msgvaul *q_ptr,vau +;	prt(mp_str[80];
-	monoid c Non_ro5	msgj		/* prtqidx		/     {
+void share_gold()
+{
+	char tmp_str[80];
+	int i;
 
-		QUEST_OFFSET1; reset tf(tmp_str,"I'll t      debug,/     {
-odds, qidxodds);     {
-,qidx		msgint(tmp_str);
-			wageint(NULL);
-			}oid c Novau +		/&varena_qidx]	/* No,18,q_lfor_qidx].q
-		,i+
-		prt(tr-mtr(TERM_RED," ,".####q_lfor_qidx].qtme,1
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,2
-				prtmtr(TERM_RED," ,".####q_lfor_qidx].qtme,3;
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,4;
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,5;
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,6;
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,7;
-		prt("mtr(TERM_RED," ,".####q_lfor_qidx].qtme,8;
-		msg_pmtr(TERM_RED," ,".####q_lfor_qidx].qtme,9);
-	prt(tr-raps",o 3, t resont      beerreturn f is r(byte .7);
-	prt(tr-raps"Q     Ition
- */:;
+	i = (p_ptr->lev * 2) * 10;
+	(void) sprintf(tmp_str, "You collect %d gold pieces", i);
+	msg_print(tmp_str);
+	msg_print(NULL);
+	p_ptr->au += i; 
 }
 
-eint(NULL);
-			} e
 /*
- * gamblet quest at      -9. Ight     .  Ts");func */face t Thist.", w/
-	pe (Hy,ambleposi wand 20-29.  Whetown *      asnaw rce rbyown *", 3, ,hoseamble at the);
-face tb rmed fo 1.  Whetown *      asnco 3, t s, );
-fmed fo 2.ambleWhetown *t w
-	preturnse inn inc, 3, ,hoseys folyou nd coif  beeamblest.", w/
- );
-fasnmed fo 3 (f isco 3, twan).  t Wagerly,hoserrolleambles ndc, 3, *     she winwo "fin
-	t     s".  Tserrollerfiv *     shestiamble aqunrepaceb
-		gh fo kce teioser xr (1-9):of rs[p_ptr7 isamble 0; particul_strs[p_pt.  Tse.", 7,rfiv *     shinvolvebar= 1;
- TRUEsamblesta the golotb rco 3, t s.  Tse.l
-	pnwo      sherthe goc, 3, *     sh ;	amble a, 7,racebng",t-ris     shceryaurinst wiMorg", .
-void clear_b, 3, g     (	Term_cichoincr mthe,oicej, j2,ld)  TRUE;tr-mp_str[80];
-	monste dawq conusnste dawqidx	msgr_race *r_ptr;
+ * Display quest information
+ */
+void get_questinfo(int questnum)
+{
+	int i, j, qidx;
+	vault_type *v_ptr;
+/*	char tmp_str[80]; */
+
+	i = 5;
+	j = 0;
+	qidx = questnum - QUEST_OFFSET1;
+
+/* 	sprintf(tmp_str,"quest debug, questnum: %d, qidx: %d",questnum,qidx);
+	msg_print(tmp_str);
+	msg_print(NULL); */
+
+	v_ptr = &v_info[qidx];
+
+	prt(q_list[qidx].qname,i+2,0);
+
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext1,8,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext2,9,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext3,10,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext4,11,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext5,12,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext6,13,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext7,14,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext8,15,0);
+	c_put_str(TERM_YELLOW,q_list[qidx].qtext9,16,0);
+
+	prt("Complete this quest and return for a reward.",18,0);
+
+	prt("Quest Information:",i,0);
+	msg_print(NULL);
+}
+
+
+/*
+ * Request a quest from the Lord.  This function will use the rewards array,
+ * positions 20-29.  When the quest is awarded by the Castle, the
+ * reward flag will be set to 1.  When the quest is completed, flag set to 2.
+ * When the person returns to the castle, they are given a gift and
+ * the reward flag is set to 3 (for completion).  Currently, there are
+ * ten castle quests and two "final quests".  There are five quests that
+ * require the player to kill either x number of monsters or 
+ * one particular monster.  The other five quests involve special levels
+ * that have to be completed.  The last two quests are not castle quests but
+ * rather the built-in quests of Sauron and Morgoth.
+ */
+void castle_quest()
+{
+	int increment, i, j, j2, oldlevel;
+	char tmp_str[80];
+	int qstatus;
+	int qidx;
+	monster_race *r_ptr;
 	cptr name;
 
-	switchq conus		/* prtqidx		/0nste dcr mthe r-((>lev * 100) / 		}
-	bldg(5,23);7
-		prt("oll1 dcr mthe 
-			msg_pr(TERM_Rre victortoo an
-		lotgohcefeel"at     !0);
-		prt("  sprintf(tmp_str,"Red die:turn whetoye not thrthere r TRUEddsxbet		}
-		r(TERM_Rr,17,2);
-		prt(" int(NULL);
-	}
-	cleif ((roll1  dcr mthe >= 25roll2 >lev * , w/
-	[(QUEST_REWARD_TAIL
-			
-		QUEST_DIFF)] || (r		msg_pr(TERM_Rre viot thco 3, t soes."     shIiot thyou nd  wiot t;
-		prt("  (TERM_Rrvanqunsin) aceb 0;		Morg", !onsmictorr glory.debaxbe9		prt("  (TERM_Rre viot thfulfilhe glory.de  aty!);
-		prt(" if (p_ptr->arena_, w/
-	[ dcr mthe + 29] || (r	msg_pr(TERM_Rre vifulfilhe glory.l
-	p      b down ferthe gorthdy f is n", 7, 0)
-		prt(" f(tmp_str,"Red die:turn whetoye not thrthere r TRUEddsbet  dcr mthe*2)+		}
-		r(TERM_Rr,17,2);2		prt(" int(NULL);
-	}
-	cleif ((r{ield ed l
-	p, w/
- sta thesve tb
-		you ndlot
-			 		prt( dcr mthe r-	for(i=p=out_j2=QUEST_REWARD_HEAD;j2 
-QUEST_REWARD_TAIL;j2	pr		msg_p dcr mthe r-j			(voij r-j	
-		QUEST_DIFF		(voiptr->arena_, w/
-	[j] || 					msg_p>arena_, w/
-	[j] |			}
-			q conus		/* prt	k;
+	qstatus = 0;
+	qidx = 0;
+	increment = ((p_ptr->lev) / 2);
+	clear_bldg(7,19);
+	if (increment < 1) {
+		put_str("You are too green to go off on a quest!", 8, 0);
+		(void) sprintf(tmp_str,"Return when you have reached level %d.", 2);
+		put_str(tmp_str,10,0);
+		msg_print(NULL);
+	} else if ((increment >= 25) && (p_ptr->rewards[(QUEST_REWARD_TAIL - 1 - QUEST_DIFF)] == 3)) {
+		put_str("You have completed all quests I have given and have",8,0);
+		put_str("vanquished the evil Morgoth!  We are in your debt.",9,0);
+		put_str("You have fulfilled your destiny!",12,0);
+	} else if (p_ptr->rewards[increment + 29] == 3) {
+		put_str("You fulfilled your last quest but you are not ready for another.",8,0);
+		sprintf(tmp_str,"Return when you have reached level %d", (increment*2)+2);
+		put_str(tmp_str,12,0);
+		msg_print(NULL);
+	} else { /* set last reward that hasn't been given to TRUE */
+		increment = 0;
+
+		for (j2=QUEST_REWARD_HEAD;j2 < QUEST_REWARD_TAIL;j2++) {
+			increment = j2;
+			j = j2 - QUEST_DIFF;
+			if (p_ptr->rewards[j] == 0) {
+				p_ptr->rewards[j] = 1;
+				qstatus = 0;
+				break;
+			} else if (p_ptr->rewards[j] == 1) {
+				put_str("You have not completed your current quest yet!",8,0);
+				put_str("Use CTRL-Q to check the status of your quest.",9,0);
+				put_str("Return when you have completed your quest.",12,0);
+				qstatus = 1;
+				break;
+			} else if (p_ptr->rewards[j] == 2) {
+				qstatus = 2;
+				for (i = 0; i < MAX_MON_QUEST; i++)
+					p_ptr->cqmon[i] = FALSE;
+				for (i = 0; i < MAX_MON_QUEST; i++)
+					p_ptr->cqmonc[i] = FALSE;
+				for (i = 0; i < MAX_ITEM_QUEST; i++)
+					p_ptr->cqitem[i] = FALSE;
+				for (i = 0; i < MAX_ITEM_QUEST; i++)
+					p_ptr->cqitemc[i] = FALSE;
+				/* just fulfilled quest */
+				p_ptr->rewards[j] = 3;
+				break;
 			}
+		}
 
-		if (p_ptr->arena_, w/
-	[j] || 1				msg_p>(TERM_Rre viot the goco 3, t solory.c Wager:      ye !0)
-		prt(" _p>(TERM_RrU(p_CTRL-Qntinuhewin.ceb conus	cerlory.     .;
-				prt("*"(TERM_Rre:turn whetoye not thco 3, t solory.     .;2		prt(" 		q conus		/1 prt	k;
-			}
-
-		if (p_ptr->arena_, w/
-	[j] || 2				msg_pq conus		/			(void=out_i		/*  X_K_IDX;MON_QUEST
-	{
-		osg_p>arena_cqr_r[i] |	
-				roll1 =out_i		/*  X_K_IDX;MON_QUEST
-	{
-		osg_p>arena_cqr_rc[i] |	
-				roll1 =out_i		/*  X_K_IDX;ITEM_QUEST
-	{
-		osg_p>arena_cq    [i] |	
-				roll1 =out_i		/*  X_K_IDX;ITEM_QUEST
-	{
-		osg_p>arena_cq    c[i] |	
-				roll1 eldj betfulfilhe g      		prt("Diarena_, w/
-	[j] |	3 prt	k;
-			}
-
-		
-
-		if (w(cmd) {q conus
-		os		msg_: /* lemon ne beid pssasng      		prt("		msg_pqidx		/ dcr mthe 		QUEST_OFFSET1; rsg_pptr-q_lfor_qidx].q    *q_ptr|| 2				msg_p	q_lfor_qidx].r_idx		/t(6); 
-5			+ (40ble( dcr mthe 		QUEST_OFFSET1			if (ro = &r_info[arena_q_lfor_qidx].r_idx		name =	((again >name););
-	1 l2 RF1_UNIQUE((choname =	   >name);mpo}tyLSE)1					win = 	q_lfor_qidx].r_idx		/t(6); 
-5			+ 1			msg_pr- = &r_info[arena_q_lfor_qidx].r_idx		name =		break;oll1 =(10) - 1;
->						win =q_lfor_qidx].w;i+{
-
-	/1 prt	k;
-						odds =q_lfor_qidx].w;i+{
-
-	/=(10) - 3)
+		switch(qstatus)
+		{
+			case 0: /* need to assign quest */
+			{
+				qidx = increment - QUEST_OFFSET1;
+				if (q_list[qidx].quest_type == 2) {
+					q_list[qidx].r_idx = randint(50) + (40 * (increment - QUEST_OFFSET1));
+					r_ptr = &r_info[q_list[qidx].r_idx];
+					while ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+					  (r_ptr->rarity != 1)) {
+						q_list[qidx].r_idx = randint(50) + 100;
+						r_ptr = &r_info[q_list[qidx].r_idx];
+					}
+					if (randint(10) > 7)
+						q_list[qidx].max_num = 1;
+					else
+						q_list[qidx].max_num = randint(3) + 1;
+					q_list[qidx].cur_num = 0;
+					name = (r_name + r_ptr->name);
+					sprintf(tmp_str,"Your quest: kill %d %s", 
+					    q_list[qidx].max_num, name);
+					msg_print(tmp_str);
+					msg_print(NULL);
+				} else {
+					get_questinfo(increment);
+					p_ptr->rewards[j] = 1;
+					wilderness_gen(1);
 				}
-			=q_lfor_qidx].c W+{
-
-	/		msg_pr- (r_name + r_ptr->name);
-				(void)tf(tmp_str,"Your wager q    : kce t  To 0);name =	    q_lfor_qidx].w;i+{
-);
-				msg_prgint(tmp_str);
-			wage_prgint(tmp_st
-						roll {
-				msg_pr	ring     atioow,cr mthe	wage_prg>arena_, w/
-	[j] |			}
-			 TR der/
-	_gen(			if ((r	break;
+				break;
 			}
 
-			if (wi: /* orangeot the goco 3, t so      ye  		prt("		msg_p
+			case 1: /* have not completed quest yet */
+			{
+				break;
 			}
 
-			if (wi: /* sword co 3, t so     , ne beid b.", w/
-ed 		prt("		msg_pint("You arA ana toif  bwaitsome goutdice				msg_print(NULL);
-			} else	d)  TRUE r->au - cdepth} else	>au - cdepth |	3		msg_prll1 j_K_((QUEST_REWARD_HEADtr-QUEST_REWARD_TAIL
-			40)/				win = acqunremthe >au < cey->au);
-px,1		prt(" 								odds acqunremthe >au < cey->au);
-px,1				prt(tmpau - cdepth |	d)  TRUE;tr-g_p
+			case 2: /* completed quest, need to be rewarded */
+			{
+				msg_print("A great gift awaits you outside!");
+				msg_print(NULL);
+				oldlevel = p_ptr->depth;
+				p_ptr->depth = 30;
+				if (j < ((QUEST_REWARD_HEAD + QUEST_REWARD_TAIL - 140)/2))
+					acquirement(p_ptr->py,p_ptr->px,1,0,1);
+				else
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+				p_ptr->depth = oldlevel;
+				break;
 			}
-
-			i	
-	q_ptr
-/*
- * gambleDruid .cebl 6-1 Arena"b, 3, 
-void clear_b, 3, gan
- (	Term_cichoincr mthe,oj,ld)  TRUE;tr-mp_str[80];
-	monstte dcr mthe r-((>lev * 100
-			) / 5prt("oll1 dcr mthe 
-			msg_p sprintf(tmp_str,"Red diAhor 1me  thtdu ntur00 tr:turn whet nam (LTRUEdds)		    
-		gh_ti3, ->arena_ == CL][uit[6prt(" int(NULL);r);
-			wage_int(NULL);
+		}
 	}
-	cleif ((roll1  dcr mthe >= 5roll2 >lev * , w/
-	[14]					winint("You have r an
-or thled :turned 1.");rTRU=(1 roleerrear= t"prt(" if (p_ptr->arena_, w/
-	[ dcr mthe + 9]		msg_p sprintf(tmp_str,"Red die viot thb
-		, w/
-ed tr:turn whetnam (LTRUEdds)		    
-		gh_ti3, ->arena_ == CL][ dcr mthe+uit[1  dcr mthe*5)+6)prt(" int(NULL);r);
-			wage_int(NULL);
+}
+
+
+/*
+ * Greet the lord of the castle
+ */
+void castle_greet()
+{
+	int increment, j, oldlevel;
+	char tmp_str[80];
+
+	increment = ((p_ptr->lev - 1) / 5);
+	if (increment < 1) {
+		(void) sprintf(tmp_str,"Ah, a young adventurer, return when: %s (Level %d)",
+		player_title[p_ptr->pclass][1], 6);
+		msg_print(tmp_str);
+		msg_print(NULL);
+	} else if ((increment >= 5) && (p_ptr->rewards[14])) {
+		msg_print("Your greeting is returned with reverance and respect");
+	} else if (p_ptr->rewards[increment + 9]) {
+		(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+		player_title[p_ptr->pclass][increment+1], ((increment*5)+6));
+		msg_print(tmp_str);
+		msg_print(NULL);
+	} else { /* set last reward that hasn't been given to TRUE */
+		for (j=10;j<20;j++) {
+			if (p_ptr->rewards[j] == 0) {
+				p_ptr->rewards[j] = 1;
+				break;
+			}
+		}
+
+		if (j == 10) {
+			msg_print("Well done! Please take up residence in the house down the street.");
+			msg_print(NULL);
+		} else if (j == 11) {
+			msg_print("Very good! The weaponsmaster will be able to help you now.");
+			msg_print(NULL);
+			wilderness_gen(1);
+		} else if (j == 12) {
+			msg_print("You are proving yourself worthy. You may visit the Beastmaster.");
+			msg_print(NULL);
+			wilderness_gen(1);
+		} else if (j == 13) {
+			msg_print("You have earned a great deal of respect.");
+			msg_print(NULL);
+			msg_print("You have my permission to visit any building you wish.");
+			msg_print(NULL);
+		} else if (j >= 14) {
+			msg_print("A nice gift awaits you outside!");
+			msg_print(NULL);
+			oldlevel = p_ptr->depth;
+			p_ptr->depth = 20;
+			acquirement(p_ptr->py,p_ptr->px,1,0,1);
+			p_ptr->depth = oldlevel;
+		}
 	}
-	cleif ((r{ield ed l
-	p, w/
- sta thesve tb
-		you ndlot
-			 		prt(=out_j=10;j<20;j	pr		msg_p tr->arena_, w/
-	[j] || 					msg_p>arena_, w/
-	[j] |			}
-			
-			}
+}
 
-		
 
-		if (wll1 j_|| 1					msg_int("You haW
-	pdone! PldgThis to uprrea(Humcee town *ho Thior 9..ceb cn
-o				msg_pint(NULL);
-			} els if (p_ptr-j))
-						msg_int("You haVeryconte! Tse.wmaster", 2, face tb r/
-	plothelpome gnow				msg_pint(NULL);
-			} els TR der/
-	_gen(			if ( if (p_ptr-j))
-	2				msg_int("You hae victorpro TRUEloryself worthy.on't may lityd .cebaster", 3, 				msg_pint(NULL);
-			} els TR der/
-	_gen(			if ( if (p_ptr-j))
-	3				msg_int("You hae viot thraye befrana tdeal1 Arrear= t				msg_pint(NULL);
-			} els int("You hae viot thmy*t wmi (100plotlityd y tong rewardy. Paysh				msg_pint(NULL);
-			} els if (p_ptr-j)>= 14				msg_int("You haA n1;
-oif  bwaitsome goutdice				msg_pint(NULL);
-			} els d)  TRUE r->au - cdepth} elsepau - cdepth |	2		msg_pacqunremthe >au < cey->au);
-px,1		prt(" 	pau - cdepth |	d)  TRUE;tr-g
-	q_ptr
 /*
- * gamblean
-o_mp_s
-void clear_rn
-o_mp_s(	Term_cichoincr mthe,oj,ld)  TRUE;tr-mp_str[80];
-	monstte dcr mthe r-(((>lev * 100
-			) / 5p/2prt("oll1>lev * 100
-)
-5	maxbe dcr mthe r-5rt("oll1 dcr mthe 
-			msg_p sprintf(tmp_str,"Red die victorme  thye  tr:turn whet nam (LTRUEdds)		    
-		gh_ti3, ->arena_ == CL][2]0);prt(" int(NULL);r);
-			wage_int(NULL);
+ * greet_char
+ */
+void greet_char()
+{
+	int increment, j, oldlevel;
+	char tmp_str[80];
+
+	increment = (((p_ptr->lev - 1) / 5)/2);
+	if (p_ptr->lev == 50)
+		increment = 5;
+	if (increment < 1) {
+		(void) sprintf(tmp_str,"You are young yet, return when: %s (Level %d)",
+		player_title[p_ptr->pclass][2], 11);
+		msg_print(tmp_str);
+		msg_print(NULL);
+	} else if ((increment == 5) && (p_ptr->rewards[increment - 1]))
+		msg_print("Your greeting is returned with reverance and respect");
+	else if (p_ptr->rewards[increment - 1]) {
+		if (increment == 4) 
+			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+			     player_title[p_ptr->pclass][9], 50);
+		else
+			(void) sprintf(tmp_str,"You have been rewarded, return when %s (Level %d)",
+			     player_title[p_ptr->pclass][(increment+1) * 2], (((increment+1)*10)+1));
+			msg_print(tmp_str);
+			msg_print(NULL);
+		} else {
+			for (j=0;j<10;j++) {
+				if (p_ptr->rewards[j] == FALSE) {
+					p_ptr->rewards[j] = TRUE;
+					break;
+				}
+			}
+			switch(building) {
+			case 10: /* Hall of Fighters Rewards */
+				if (j == 0) {
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_STR, 10);
+				} else if (j == 1) { 
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_CON, 20);
+				} else if (j == 2) { 
+					msg_print("Well done! A great gift awaits you outside!");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 30;
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+					p_ptr->depth = oldlevel;
+				} else if (j == 3) { 
+					msg_print("An excellent gift awaits you outside!");
+					msg_print(NULL);
+					put_reward(TV_DRAG_ARMOR, randint(5), 40);
+				} else if (j == 4) {
+					msg_print("Well done! Great items await you outside.");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 40;
+					acquirement(p_ptr->py,p_ptr->px,3,1,1);
+					p_ptr->depth = oldlevel;
+				}
+				break;
+			case 11: /* Tower of Sorcery Rewards */
+				if (j == 0) {
+					msg_print("You're improving. You may request recharging.");
+					msg_print(NULL);
+				} else if (j == 1) {
+					msg_print("Impressive. You may partake of identifications.");
+					msg_print(NULL);
+				} else if (j == 2) { 
+					msg_print("Nice. A spellbook awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_MAGIC_BOOK, (randint(4)+3), 20);
+				} else if (j == 3) { 
+					msg_print("Excellent! A spellbook awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_MAGIC_BOOK, (randint(4)+3), 20);
+				} else if (j == 4) { 
+					msg_print("Please accept this rarest of spellbooks outside.");
+					msg_print(NULL);
+					put_reward(TV_MAGIC_BOOK, 8, 20);
+				}
+				break;
+			case 12: /* Inner Temple Rewards */
+				if (j == 0) {
+					msg_print("I'm pleased with you. Restoration is available.");
+					msg_print(NULL);
+				} else if (j == 1) {
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_POTION, SV_POTION_LIFE, 10);
+				} else if (j == 2) {
+					msg_print("Nice. A prayer book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_PRAYER_BOOK, (randint(4)+3), 20);
+				} else if (j == 3) {
+					msg_print("Excellent! A prayer book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_PRAYER_BOOK, (randint(4)+3), 20);
+				} else if (j == 4) {
+					msg_print("Please accept this rarest of prayer books.");
+					msg_print(NULL);
+					put_reward(TV_PRAYER_BOOK, 8, 20);
+				}
+				break;
+			case 13: /* House of Thieves Rewards */
+				if (j == 0) {
+					msg_print("Well done! You may take your share of gold.");
+					msg_print(NULL);
+				} else if (j == 1) {
+					msg_print("Good job! Now, we'll identify your possessions.");
+					msg_print(NULL);
+				} else if (j == 2) { 
+					msg_print("A great gift awaits you outside!");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 30;
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+					p_ptr->depth = oldlevel;
+				} else if (j == 3) { 
+					msg_print("A great gift awaits you outside!");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 30;
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+					p_ptr->depth = oldlevel;
+				} else if (j == 4) { 
+					msg_print("Well done! Great items await you outside.");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 40;
+					acquirement(p_ptr->py,p_ptr->px,3,1,1);
+					p_ptr->depth = oldlevel;
+				}
+				break;
+			case 14: /* Ranger's Tavern Rewards */
+				if (j == 0) { 
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_STR, 10);
+				} else if (j == 1) { 
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_INT, 20);
+				} else if (j == 2) { 
+					msg_print("A great gift awaits you outside!");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 30;
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+					p_ptr->depth = oldlevel;
+				} else if (j == 3) { 
+					msg_print("An excellent gift awaits you outside!");
+					msg_print(NULL);
+					put_reward(TV_DRAG_ARMOR, randint(5), 40);
+				} else if (j == 4) { 
+					msg_print("Well done! Great items await you outside.");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 40;
+					acquirement(p_ptr->py,p_ptr->px,3,1,1);
+					p_ptr->depth = oldlevel;
+				}
+				break;
+			case 15: /* Order of Paladins Rewards */
+				if (j == 0) {
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_STR, 10);
+				} else if (j == 1) {
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_RING, SV_RING_CON, 20);
+				} else if (j == 2) {
+					msg_print("A great gift awaits you outside!");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 30;
+					acquirement(p_ptr->py,p_ptr->px,1,1,1);
+					p_ptr->depth = oldlevel;
+				} else if (j == 3) { 
+					msg_print("An excellent gift awaits you outside!");
+					msg_print(NULL);
+					put_reward(TV_DRAG_ARMOR, randint(5), 40);
+				} else if (j == 4) { 
+					msg_print("Well done! Great items await you outside.");
+					msg_print(NULL);
+					oldlevel = p_ptr->depth;
+					p_ptr->depth = 40;
+					acquirement(p_ptr->py,p_ptr->px,3,1,1);
+					p_ptr->depth = oldlevel;
+				}
+				break;
+			case 16: /* Tower of Illusion Rewards */
+				if (j == 0) {
+					msg_print("You're improving. You may request recharging.");
+					msg_print(NULL);
+				} else if (j == 1) {
+					msg_print("Impressive. You may partake of identifications.");
+					msg_print(NULL);
+				} else if (j == 2) {
+					msg_print("Nice. An illusion book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_ILLUSION_BOOK, (randint(4)+3), 20);
+				} else if (j == 3) {
+					msg_print("Excellent. An illusion book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_ILLUSION_BOOK, (randint(4)+3), 20);
+				} else if (j == 4) {
+					msg_print("Please accept this rarest of illusion books.");
+					msg_print(NULL);
+					put_reward(TV_ILLUSION_BOOK, 8, 20);
+				}
+				break;
+			case 17: /* Druid Grove Rewards */
+				if (j == 0) {
+					msg_print("I'm pleased with you. Restoration is available.");
+					msg_print(NULL);
+				} else if (j == 1) {
+					msg_print("You have done well. A gift awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_POTION, SV_POTION_LIFE, 10);
+				} else if (j == 2) {
+					msg_print("Nice. A druid book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_NATURE_BOOK, (randint(4)+3), 20);
+				} else if (j == 3) {
+					msg_print("Excellent! A druid book awaits you outside.");
+					msg_print(NULL);
+					put_reward(TV_NATURE_BOOK, (randint(4)+3), 20);
+				} else if (j == 4) {
+					msg_print("Please accept this rarest of druid books.");
+					msg_print(NULL);
+					put_reward(TV_NATURE_BOOK, 8, 20);
+				}
+				break;
+			default:
+				bell();
+				break;
+		}
 	}
-	cleif ((roll1  dcr mthe == 5roll2 >lev * , w/
-	[ dcr mthe 		1]			winint("You have r an
-or thled :turned 1.");rTRU=(1 roleerrear= t"prt("f (p_ptr->arena_, w/
-	[ dcr mthe 		1]		msg_poll1 dcr mthe == 4	msg_pr sprintf(tmp_str,"Red die viot thb
-		, w/
-ed tr:turn whetnam (LTRUEdds)		    fruit[
-		gh_ti3, ->arena_ == CL][9]0)5	else
-			maxbet sprintf(tmp_str,"Red die viot thb
-		, w/
-ed tr:turn whetnam (LTRUEdds)		    fruit[
-		gh_ti3, ->arena_ == CL][1 dcr mthe+1ro*	2it[1 1 dcr mthe+1r*1		+1)		msg_pint(NULL);r);
-			wage_pint(NULL);
-			} els if (p_		msg_=out_j=0;j<10;j	pr		msg_pp tr->arena_, w/
-	[j] || );
-				msg_pr	>arena_, w/
-	[j] |	
-			}
-			ot
-			}
-
-	;	break break(cmd) {ng rewar			msg_pc:
-			pieldinat1 Arr's Hals R w/
-	p		prt("Dptr-j || 					msg_p int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_STR
-			prt("Y( if (p_ptr-j))
-	)			msg_pr int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_CON0);	prt("Y( if (p_ptr-j))
-2)			msg_pr int("You haW
-	pdone! A ana toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	3		msg_pr acqunremthe >au < cey->au);
-px,1				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p if (p_ptr-j))
-3)			msg_pr int("You haAn exces ag toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1"(TE(byte tTV_DRAG_ARMOR
-t(6); 
-5), 4	prt("Y( if (p_ptr-j))
-4				msg_p int("You haW
-	pdone! Gna t    s bwaitome goutdice					choiceint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	4		msg_pr acqunremthe >au < cey->au);
-px,3				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p tr-g_p
-			}
-
-	c:
-			pe Dicf Sorcery",3, 1 R w/
-	p		prt("Dptr-j || 					msg_p int("You hae v'torrmpro TRU.on't may r quest re itemTRU.				choiceint(NULL);
-						roll if (p_ptr-j))
-	)			msg_p int("You haImprs (1ve.on't may part to ceriy possi */
-ss.				choiceint(NULL);
-						roll if (p_ptr-j))
-2)			msg_pr int("You haN1;. A
-     b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_- No _BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-3)			msg_pr int("You haExces ag ! A
-     b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_- No _BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-4)			msg_pr int("You haPldgThiaccept"esontrag foolen     b trsgoutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_- No _BOOK,180);	prt("Y( tr-g_p
-			}
-
-	c:
-		sword Temple", 3,  R w/
-	p		prt("Dptr-j || 					msg_p int("You hare."pldgThd 1.");me . ation (1000gasnavail/
-	.				choiceint(NULL);
-						roll if (p_ptr-j))
-	)			msg_p int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_POTION0)SV_POTION_LIFE
-			prt("Y( if (p_ptr-j))
-2)			msg_p int("You haN1;. A
-       b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_PRAYER_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-3)		msg_pr int("You haExces ag ! A
-       b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_PRAYER_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-4				msg_p int("You haPldgThiaccept"esontrag foolen       b trs.				choiceint(NULL);
-						roll1"(TE(byte tTV_PRAYER_BOOK,180);	prt("Y( tr-g_p
-			}
-
-	c:
-		shieldof Thieves",3, 1 R w/
-	p		prt("Dptr-j || 					msg_p int("You haW
-	pdone! n't may t to lory of stolenNumbe				choiceint(NULL);
-						roll if (p_ptr-j))
-	)			msg_p int("You haGdrinjob! Nt costart iy posseslory sions (1000.				choiceint(NULL);
-						roll if (p_ptr-j))
-2)			msg_pr int("You haA ana toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	3		msg_pr acqunremthe >au < cey->au);
-px,1				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p if (p_ptr-j))
-3)			msg_pr int("You haA ana toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	3		msg_pr acqunremthe >au < cey->au);
-px,1				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p if (p_ptr-j))
-4)			msg_pr int("You haW
-	pdone! Gna t    s bwaitome goutdice					choiceint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	4		msg_pr acqunremthe >au < cey->au);
-px,3				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p tr-g_p
-			}
-
-	c:
-		plum *'s Tavern", 3,  R w/
-	p		prt("Dptr-j || 					msg_pr int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_STR
-			prt("Y( if (p_ptr-j))
-	)			msg_pr int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_INT0);	prt("Y( if (p_ptr-j))
-2)			msg_pr int("You haA ana toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	3		msg_pr acqunremthe >au < cey->au);
-px,1				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p if (p_ptr-j))
-3)			msg_pr int("You haAn exces ag toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1"(TE(byte tTV_DRAG_ARMOR
-t(6); 
-5), 4	prt("Y( if (p_ptr-j))
-4				msg_pr int("You haW
-	pdone! Gna t    s bwaitome goutdice					choiceint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	4		msg_pr acqunremthe >au < cey->au);
-px,3				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p tr-g_p
-			}
-
-	c:
-		cherryof Paladins",3, 1 R w/
-	p		prt("Dptr-j || 					msg_p int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_STR
-			prt("Y( if (p_ptr-j))
-	)			msg_p int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_RING, SV_RING_CON0);	prt("Y( if (p_ptr-j))
-2)		msg_pr int("You haA ana toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	3		msg_pr acqunremthe >au < cey->au);
-px,1				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p if (p_ptr-j))
-3)			msg_pr int("You haAn exces ag toif  bwaitsome goutdice				msg_preint(NULL);
-						roll1"(TE(byte tTV_DRAG_ARMOR
-t(6); 
-5), 4	prt("Y( if (p_ptr-j))
-4				msg_pr int("You haW
-	pdone! Gna t    s bwaitome goutdice					choiceint(NULL);
-						roll1d)  TRUE r->au - cdepth} else		>au - cdepth |	4		msg_pr acqunremthe >au < cey->au);
-px,3				prt(tmmpau - cdepth |	d)  TRUE;tr-g_p tr-g_p
-			}
-
-	c:
-		6pe Dicf Sorceron",3, 1 R w/
-	p		prt("Dptr-j || 					msg_p int("You hae v'torrmpro TRU.on't may r quest re itemTRU.				choiceint(NULL);
-						roll if (p_ptr-j))
-	)			msg_p int("You haImprs (1ve.on't may part to ceriy possi */
-ss.				choiceint(NULL);
-						roll if (p_ptr-j))
-2)			msg_p int("You haN1;. A0gan",3, 1 b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_ONIST))_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-3)		msg_pr int("You haExces ag . A0gan",3, 1 b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_ONIST))_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-4				msg_p int("You haPldgThiaccept"esontrag foolenan",3, 1 b trs.				choiceint(NULL);
-						roll1"(TE(byte tTV_ONIST))_BOOK,180);	prt("Y( tr-g_p
-			}
-
-	c:
-		7pe DiLord  of theR w/
-	p		prt("Dptr-j || 					msg_p int("You hare."pldgThd 1.");me . ation (1000gasnavail/
-	.				choiceint(NULL);
-						roll if (p_ptr-j))
-	)			msg_p int("You hae viot thdone.wmll. A
-oif  bwaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_POTION0)SV_POTION_LIFE
-			prt("Y( if (p_ptr-j))
-2)			msg_p int("You haN1;. A
-dord  b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_NATURE_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-3)		msg_pr int("You haExces ag ! A
-dord  b treewaitsome goutdice					choiceint(NULL);
-						roll1"(TE(byte tTV_NATURE_BOOK,1 =(10) - 4)+3)0);	prt("Y( if (p_ptr-j))
-4				msg_p int("You haPldgThiaccept"esontrag foolendord  b trs.				choiceint(NULL);
-						roll1"(TE(byte tTV_NATURE_BOOK,180);	prt("Y( tr-g_p
-			}
-
-	defaul :tr-g_pes 			p_ptr-
-			}
+}
 
 
-	q_ptr
+
 /*
- *
- Displays buile besr 9.sonon yambleWce tw Angesontto srmply lfor arfilee 0; pageitina I'm su a, 7,amblestanthe gold -tme,st, nontsor20gp)s 
-	  Cnly melsopbematrs lpambleion
-  wherthe nds
- */ wnly mbt (ecs (ary.
-void clear_sr 9_sonon y
-	p_ptr-mldg(5,19);
-				(vo      Plum PPPPPPPPPHonon i *licf n View0);
-		prt("     Tn *if* yasnco 3oThd lenlack ion"esask ing rewars. Son"es);
-		prt("      PlMagic Shop:_rinslory  stafask i     b trsgs 
-		)
-		prt("      PlAlchemi  : f is rt wor shcerbubRules"s, wandask i c== 6s.;
-				prt      PlWmaster"."):hoseysca-1",anyesoes"of sthe wininn inpoLL).);
-		prt("      PlA1000 %9lninpion */ -9. Ight ravagthe Arena"dungeon.);
-		prt("      PlGee */l Son"e:& dri,lnirin g,hose (ecs (iti4,0);2		prt("      Pl", 3,  Shop:_      b trsge winhther    s holy.);
-		prt("      PlDie: %M givt:nn inp i esherthh20ger ;		     unique0);
-			msg_      PlHold",To ion"eslory sre ious", 2a);
-,0);5			msg_     M to  goodme ggoruitinn incorr */ do is00gruel ng rewars.");
-	prt( int("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						r     Gee */l ng rewars 1.");ds
-o9..cemes);
-		prt("     PldgThigruid .ctherme gmuid r glory.ar= 1;tbask i", 7,oll 		)
-		prt("      PTseysmay rmpth $adv1;
-ors byte  die -KMthtdu ntur00s.;
-				prt     T to a l trees"spnreser ;st.", 10,on't may  0; day b *honohe r);
-		prt("     );
-		prt("     Tn *r's Hal'sdinat,yof Paladins",3, 1,*'s Tavern", 3, ,dof Th);2		prt("     eves",3, 1,ask icf Sorceron",3, 1 erthg fo i tewininn ther nvolved.);
-		prt("     Tn *cf Sorcery",3, 1 asnop rumors oguesask i16-1"rntto lrayer     s0);
-			msg_     Tn *c, 3,  asnop rumorsps",3, 1 to lrayer     s0);5		prt("      PA you
-		ghsbe betweetau0gp)s 
-	 Oke iaceb", 3, sthe gold -knowledge.");
-	prt(      );
-		prt("int("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						r     Unique ng rewars sta tany 0; cantehe a,_ptroseysda,0);
-		prt("      PA Def",T 1 tanead.",sk idsba  b dorthdIght r 5, !	)
-		prt("      PlPA so,nuhewie best a3oTt7,rfir   asnalw to  contesicea!;
-				prt      Png Rules"of Th: athdIght r 5, e game: pile b. A0d,hose %9lds);
-		prt("      Plferthe gorigged tj betnaturnat			}fficult.);
-		pr t("      PLibragy: at, ation
- */l",13,0 ie d,0);2		prt("      PInn: R for thace tref"esi,ge winhther are tepiowlitinwas a	..);
-		prt("      Pl R      cantb *h lpful
-orsj betu
-	r gsce y0);
-			msg_     );5		prt("     A yong rewars erthmado cerionnroleerunlikelvoid urso er sha.");
-	prt( int("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						rmldg(5,19);
-				(v
+ * Displaying town history
+ * Will want this to simply list a file one page at a time, rather
+ * than have the text contents right here.  Could also be in help
+ * format where no command would be necessary.
+ */
+void town_history()
+{
+	clear_bldg(5,18);
+	prt("               Historical Town View", 5, 0);
+	prt("The town is composed of both stores and buildings. Stores:",7,0);
+	prt("   Magic Shop: get your wands and spellbooks here.",8,0);
+	prt("   Alchemist: for all sorts of bubbling potions and scrolls.",9,0);
+	prt("   Weaponsmith: they carry anything sharp and to the point.",10,0);
+	prt("   Armorer: to protect from the ravages of the dungeon.",11,0);
+	prt("   General Store: food, torches, the necessities.",12,0);
+	prt("   Temple Shop: prayerbooks and those items holy.",13,0);
+	prt("   Black Market: the prices are high, but item unique.",14,0);
+	prt("   Home: To store your precious treasures.",15,0);
+	prt("Make sure you go into the correct door on some buildings.",16,0);
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	prt("General buildings with common themes:",7,0);
+	prt("Please greet those you meet in your specialty and otherwise.",8,0);
+	prt("  They may impart advice or reward diligent adventurers.",9,0);
+	prt("Take a look at spires, busts, etc. You may one day be honored.",10,0);
+	prt("",11,0);
+	prt("The Fighter's Hall, Order of Paladins, Ranger's Tavern, House",12,0);
+	prt("of Thieves, and Tower of Illusion are restricted to those involved.",13,0);
+	prt("The Tower of Sorcery is open for rogues and rangers to learn spells.",14,0);
+	prt("The Temple is open for paladins to learn spells.",15,0);
+	prt("  All players must be taught here. Only the masters have the knowledge.",16,0);
+	prt("",17,0);
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	prt("Unique buildings that anyone can enter, if they dare:",7,0);
+	prt("  Arena: Try hand-to-hand combat but read the rules!",8,0);
+	prt("    Also, checking the poster first is always a good idea!",9,0);
+	prt("  Gambling House: Read the rules before paying. And, the games",10,0);
+	prt("    are not rigged, just naturally difficult.",11,0); 
+	prt("  Library: For information of all kinds.",12,0);
+	prt("  Inn: Resting will refresh, and those ghosts prowl at night...",13,0);
+	prt("    Rumors can be helpful or just plain silly.",14,0);
+	prt("",15,0);
+	prt("All buildings are made of stone and unlikely to move around.",16,0);
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	clear_bldg(5,18);
+}
+
+
+/* Take care of slay messages
+ * -KMW-
+ */
+void compare_weapon_aux(object_type *o_ptr, int numblows, int r, int c)
+{
+	char tmp_str[80];
+	u32b f1, f2, f3;
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Slay Animal */
+	if (f1 & (TR1_SLAY_ANIMAL))
+	{
+		c_put_str(TERM_YELLOW,"Animals:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    2*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    2*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+8);
+		r++;
+	}
+
+	/* Slay Evil */
+	if (f1 & (TR1_SLAY_EVIL))
+	{
+		c_put_str(TERM_YELLOW,"Evil:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    2*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    2*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Slay Undead */
+	if (f1 & (TR1_SLAY_UNDEAD))
+	{
+		c_put_str(TERM_YELLOW,"Undead:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Slay Demon */
+	if (f1 & (TR1_SLAY_DEMON))
+	{
+		c_put_str(TERM_YELLOW,"Demons:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+8);
+		r++;
+	}
+
+	/* Slay Orc */
+	if (f1 & (TR1_SLAY_ORC))
+	{
+		c_put_str(TERM_YELLOW,"Orcs:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Slay Troll */
+	if (f1 & (TR1_SLAY_TROLL))
+	{
+		c_put_str(TERM_YELLOW,"Trolls:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+8);
+		r++;
+	}
+
+	/* Slay Giant */
+	if (f1 & (TR1_SLAY_GIANT))
+	{
+		c_put_str(TERM_YELLOW,"Giants:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+8);
+		r++;
+	}
+
+	/* Slay Dragon  */
+	if (f1 & (TR1_SLAY_DRAGON))
+	{
+		c_put_str(TERM_YELLOW,"Dragons:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+9);
+		r++;
+	}
+
+	/* Execute Dragon */
+	if (f1 & (TR1_KILL_DRAGON))
+	{
+		c_put_str(TERM_YELLOW,"Dragons:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    5*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    5*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+9);
+		r++;
+	}
+
+
+	/* Brand (Acid) */
+	if (f1 & (TR1_BRAND_ACID))
+	{
+		c_put_str(TERM_RED,"Acid:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Brand (Elec) */
+	if (f1 & (TR1_BRAND_ELEC))
+	{
+		c_put_str(TERM_RED,"Elec:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Brand (Fire) */
+	if (f1 & (TR1_BRAND_FIRE))
+	{
+		c_put_str(TERM_RED,"Fire:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* Brand (Cold) */
+	if (f1 & (TR1_BRAND_COLD))
+	{
+		c_put_str(TERM_RED,"Cold:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+6);
+		r++;
+	}
+
+	/* added poison brand by GJW 	-KMW- */
+	/* Brand (Poison) */
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		c_put_str(TERM_RED,"Poison:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    3*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    3*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+8);
+		r++;
+	}
+
+	/* Force -KMW- */
+	if (f1 & (TR1_FORCE))
+	{
+		c_put_str(TERM_RED,"Force:",r,c);
+		sprintf(tmp_str,"Attack: %d-%d damage",
+		    4*(numblows*(o_ptr->dd + o_ptr->to_d)),
+		    4*(numblows*((o_ptr->ds*o_ptr->dd) + o_ptr->to_d)));
+		put_str(tmp_str,r,c+7);
+		r++;
+	}
+}
+
+
 /*
- * g T to c stolensuil ms (ag 1
-voi */
+ * compare_weapons
+ */
+bool compare_weapons(void)
+{
+	int item, i;
+	object_type *o1_ptr, *o2_ptr, *orig_ptr, *o_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	char o1_name[80], o2_name[80];
+	char tmp_str[80];
+	cptr q, s;
+
+	clear_bldg(6,18);
+
+	o1_ptr = NULL;
+	o2_ptr = NULL;
+	/* Store copy of original wielded weapon in pack slot */
+	o_ptr = &inventory[INVEN_WIELD];
+	orig_ptr = &inventory[INVEN_PACK];
+	object_copy(orig_ptr, o_ptr);
 	
-void clear_bompthe_wmaste_aux(obj */*q_ptr,oau -fruit) (1-,9,0fruit)-fruit)c	p_ptr-mp_str[80];
-	monsteudgolf1, f2, f3 prste g Extracd .ceb);
-	p		prtobj */*);
-		oau -fr&f1, &f2, &f
-
-ste g Suil Anim/l 		prtptr-f1 l2 TR1,"  Y_ANIMAL			wiptr-pmtr(TERM_RED," ,".####"Anim/ls);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 2*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 2*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+			(voi			} el}
-ste g Suil E0;				prtptr-f1 l2 TR1,"  Y_EVIL			wiptr-pmtr(TERM_RED," ,".####"E0;	);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 2*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 2*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g Suil UndthdI		prtptr-f1 l2 TR1,"  Y_UNDEAD			wiptr-pmtr(TERM_RED," ,".####"Undthd);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g Suil D/
-			c_puptr-f1 l2 TR1,"  Y_DEMON			wiptr-pmtr(TERM_RED," ,".####"D/
-	s);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+			(voi			} el}
-ste g Suil Orc		c_puptr-f1 l2 TR1,"  Y_ORC			wiptr-pmtr(TERM_RED," ,".####"Orcs);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g Suil Tgain"	c_puptr-f1 l2 TR1,"  Y_TROLL			wiptr-pmtr(TERM_RED," ,".####"Tgains);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+			(voi			} el}
-ste g Suil Gi Ang	c_puptr-f1 l2 TR1,"  Y_GIANT			wiptr-pmtr(TERM_RED," ,".####"Gi Ans);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+			(voi			} el}
-ste g Suil Drag4-1 	c_puptr-f1 l2 TR1,"  Y_DRAGON			wiptr-pmtr(TERM_RED," ,".####"Drag4-s);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+9		(voi			} el}
-ste g Execute Drag4-1	c_puptr-f1 l2 TR1,KILL_DRAGON			wiptr-pmtr(TERM_RED," ,".####"Drag4-s);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 5*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 5*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+9		(voi			} el}
-stste g B=(10 (Acrint	c_puptr-f1 l2 TR1,BRAND_ACID			wiptr-pmtr(TERM_RED," ##  #Acri);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g B=(10 (Elecnt	c_puptr-f1 l2 TR1,BRAND_ELEC			wiptr-pmtr(TERM_RED," ##  #Elec);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g B=(10 (Firent	c_puptr-f1 l2 TR1,BRAND_FIRE			wiptr-pmtr(TERM_RED," ##  #Fire);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g B=(10 (Colint	c_puptr-f1 l2 TR1,BRAND_COLD			wiptr-pmtr(TERM_RED," ##  #Coli);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+6		(voi			} el}
-ste g ad
-ed ed = 0 b=(10 bl GJW 	*/
-	p_ptr- g B=(10 (Pd = 0nt	c_puptr-f1 l2 TR1,BRAND_POIS			wiptr-pmtr(TERM_RED," ##  #Pd = 0);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 3*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 3*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+			(voi			} el}
-ste g F",3, */
-	p_ptr-ptr-f1 l2 TR1,FORCE			wiptr-pmtr(TERM_RED," ##  #F",3,);r,c				rtf(tmp_str,"Your wAtte: odds-%  damaSwor		rt Pl 4*( (1-,9,0*	oau -->dd + oau -->to_d))r		rt Pl 4*( (1-,9,0*		oau -->ds*oau -->dd) + oau -->to_d))				rtr(TERM_Rr,17,2);r,c+7		(voi			} el}
-
-/*
- * gamblebompthe_wmaste1
-void iboolebompthe_wmaste1 sprinTerm_cichoitem, i} elobj */*q_ptr,o1au -,r,o2au -,r,origau -,r,oau -} elobj */*q_ptr,iau -} elobj */*q_ptrobj */*q_pt_body	ms out_val1+ r_pagain;o2a r_pagai;r-mp_str[80];
-	monsteame;q, s	ms ouldg(5,19);6
-				(v elo1au - = 
-		} elo2au - = 
-		} el g Son"escopyolenorigin
-	tw5-1"hd 1maste r gpe: %slong	c_puoau - = &inu ntory[INVEN_WIELDonsteorigau - = &inu ntory[INVEN_PACK]} elobj */*copy(origau -,roau -		(vom_ci 					el g Ge tan	     	c_puq 		"Wta tisglory.fir   1maste? "		els		/re viot the ghe besrebompthe."		elptr-!ring    (&item, q, s, (USE_EQUIP | USE_INVEN))	tr:turn ();
-		;
-ste g Gid .ceb     ( town *pe: nt	c_puptr-     >| 			wiptr-po1au - = &inu ntory[    		nameobj */*desc(l1+ r_p, o1au -,r
-			
-		prt("}_puptr-(o1au -->t
-	t< TV_BOW		ptr-o1au -->t
-	t> TV_SWORD			wiptr-pint("You haNe  an1maste!,T 1 == 'Y.				choint(NULL);
-						ror:turn();
-		;
-l}
-ste g Ge tan	     	c_puq 		"Wta tisglory.second 1maste? "		els		/re viot the ghe besrebompthe."		elptr-!ring    (&item, q, s, (USE_EQUIP | USE_INVEN))	tr:turn ();
-		;
-ste g Gid .ceb     ( town *pe: nt	c_puptr-     >| 			wiptr-po2au - = &inu ntory[    		nameobj */*desc(l2+ r_p, o2au -,r
-			
-		prt("}_puptr-(o2au -->t
-	t< TV_BOW		ptr-o2au -->t
-	t> TV_SWORD			wiptr-pint("You haNe  an1maste!,T 1 == 'Y.				choint(NULL);
-						ror:turn();
-		;
-l}
-ster(TERM_R"BgThd o glory.c Wager:abiliti4,,)s 
-tisgwta tlory  maste1hace tdo", 4et		}
-_pupau - = &obj */*q_pt_body	mslobj */*copy(iau -,ro1au -		(voiau -->n(1-9):|			}
-o1au - = &inu ntory[INVEN_WIELDonsteobj */*copy(o1au -,riau -		(vom_ccalc_bonuses(	}
-_pumtr(TERM_RED," ,".####l1+ r_p,i			}
-	f(tmp_str,"Your wTo Hit:Total:   DamaSwodds);1au -->to_h,ro1au -->to_d);ster(TERM_Rr,"Your i+1			}
-	f(tmp_str,"Your wlots:Total:Sidesodds);1au -->dd,ro1au -->				prtr(TERM_Rr,"Your i+2			}
-	f(tmp_str,"Your wNu1-9):of B,9,0)ddsbetpau -->n(1_-,9,		prtr(TERM_Rr,"Your i+3			}
-	mtr(TERM_RED," ,".#### #Pdssi
-	pDamaSwo" i+5			}
-	f(tmp_str,"Your wOne Sorikeodds-%  damaSwor1au -->dd + o1au -->to_dr		r Pl (o1au -->		*1au -->dd) + o1au -->to_d		prtr(TERM_Rr,"Your i+6				prtf(tmp_str,"Your wOne Atte: odds-%  damaSworpau -->n(1_-,9,*(1au -->dd + o1au -->to_d)r		r Pl pau -->n(1_-,9,*(1au -->d	*1au -->dd + o1au -->to_d)		prtr(TERM_Rr,"Your i+7				prtbompthe_wmaste_aux(o1au -,pau -->n(1_-,9, i+8,		}
-_pupau - = &obj */*q_pt_body	mslobj */*copy(iau -,ro2au -		(voiau -->n(1-9):|			}
-o2au - = &inu ntory[INVEN_WIELDonsteobj */*copy(o2au -,riau -		(vom_ccalc_bonuses(	}
-_pumtr(TERM_RED," ,".####l2+ r_p,i	4	prt(f(tmp_str,"Your wTo Hit:Total:   DamaSwodds);2au -->to_h,ro2au -->to_d);ster(TERM_Rr,"Your i+1	4	prt(f(tmp_str,"Your wlots:Total:Sidesodds);2au -->dd,ro2au -->d			prtr(TERM_Rr,"Your i+2	4	prt(f(tmp_str,"Your wNu1-9):of B,9,0)ddsbetpau -->n(1_-,9,		prtr(TERM_Rr,"Your i+3	4	prt(mtr(TERM_RED," ,".#### #Pdssi
-	pDamaSwo" i+5	4	prt(f(tmp_str,"Your wOne Sorikeodds-%  damaSwor2au -->dd + o2au -->to_dr		r Pl (o2au -->d	*2au -->dd) + o2au -->to_d		prtr(TERM_Rr,"Your i+6	41		prtf(tmp_str,"Your wOne Atte: odds-%  damaSworpau -->n(1_-,9,*(2au -->dd + o2au -->to_d)r		r Pl pau -->n(1_-,9,*(2au -->d	*2au -->dd + o2au -->to_d)		prtr(TERM_Rr,"Your i+7	41		prtbompthe_wmaste_aux(o2au -,pau -->n(1_-,9, i+8,4	prt
-_pupau - = &obj */*q_pt_body	mslobj */*copy(iau -,rorigau -		(voiau -->n(1-9):|			}
-oau - = &inu ntory[INVEN_WIELDonsteobj */*copy(oau -,riau -		(vom_ccalc_bonuses(	}
-_puinu ng    _ dcr gTh(INVEN_PACK, 			}
-	inu ng    _optimizh(INVEN_PACK		(vom_cr(TERM_R"(Oke ih20g foodamaSw appli4,*t wtrs[p_pt. Sr= 1;
-damaSw e gocumulative)";
-		prt
-or:turn(&& (w;
-
-/*
- * gambleof sp ruarr9,0
-void inn_coof sp r_arr9,0ow, i
-{
-	int n, dawi,j,k, maxenmp_ntnsteobj */*q_ptr,oau -	prtbt_valu*p ==again;r[80];
-	monstr-mldg(5,19);
-				(vok 	/		msgmaxenmp_nt ro->lev * 1000/ 5prt("f(tmp_str,"Your w  BgThd o glory.skce cost cantehmp_nt lory.arr9,0 uprsre+dsbetmaxenmp_nt		prtrrstr,17,2);;
-		prt("                                  Arr9, Soonusbet7
-		prt("j 				}t("=out_i		/*  X_K_INVEN_WIELD
-	{
-			msgoau - = &inu ntory[i		nameptr-oau -->t
-	tr= TV_ARROW				msgok 	/		}
-		obj */*desc(r,17,2);;oau -,r);
-	, 			prt(tptr-oau --> r_p1	msg_pr"f(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(tf (p_ptr--oau -->to_h_K_-(roll3 oau -->to_d_K_-(r)sg_pr"f(tmp_stlu*p ==%s %-400)dBeyoeerrepairer ;y (ewaarr9,0"n;r[80];		prt(tf (p_ptr--oau -->to_h_>| maxenmp_nt	oll2 oau -->to_d_>| maxenmp_nt	)sg_pr"f(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(tf (p_			msg_pptr-oau -->to_h_K_maxenmp_nt		msg_p	oau -->to_h		} elg_pptr-oau -->to_d_K_maxenmp_nt		msg_p	oau -->to_d		} elg_pf(tmp_stlu*p ==%s %-400)dof sp rhd -> (%d,ds)		;r[80];, elg_p     oau -->to_h, oau -->to_d)} elg_ tr-g_    lu*p ==%j++
-	prt( 
-
-	q_ptrpptr-k || 					msgint("You hae viwerthe goc,rrle bey toarr9,0.				choint(NULL);
-						romldg(5,19);
-				(vo if (p_{nameptr-
-{
- || 		tr-g_ au --> byte s[20] |	
-			}
-		int("You haPhe spacebar to continue");
-		msg_point(NULL);
-						romldg(5,19);
-				(vo_ au -->_ptr->au - cost;
-				(vo}
-
-/*
- * gambleg fo i bebow
-void inn_cog fo i b_bowow, i
-{
-	int n,obj */*q_ptr,oau -	prtw, imaxenmp_ntnstebt_valu*p ==again;r[80];
-	monstr-maxenmp_nt ro->lev * 1000/ 5prt("oau - = &inu ntory[INVEN_BOWonste tr-oau -->t
-	t!= TV_BOW				msgint("You hae vitheve tw5-1"e beyebow!				choint(NULL);
-						ror:turn	(vo}
-omldg(5,19);
-				(vof(tmp_str,"Your w  BgThd o glory.skce cost cantehmp_nt lory.bow uprsre+dsbetmaxenmp_nt		prtrrstr,17,2);;
-		prt("                                  B9, Soonusbet7
-		prt("obj */*desc(r,17,2);;oau -,r);
-	,		}
-	itr--oau --> r_p1oll2 oau -->iy po & 0x08)	)sg_pf(tmp_stlu*p ==%s %-400)dBeyoeerory.skce  !	);r[80];		prtf (p_ptr-oau --> r_p1	msg_pf(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prtf (p_ptr--oau -->to_h_K_-(roll3 oau -->to_d_K_-(r)sg_pf(tmp_stlu*p ==%s %-400)dBeyoeerrepairer ;y a (ewabow"n;r[80];		prtf (p_ptr--oau -->to_h_>| maxenmp_nt	oll2 oau -->to_d_>| maxenmp_nt	)sg_pf(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prtf (p__{nameptr-oau -->to_h_K_maxenmp_nt		msg_oau -->to_h		} elgptr-oau -->to_d_K_maxenmp_nt		msg_oau -->to_d		} elgf(tmp_stlu*p ==%s %-400)dt's Harhd -> (%d,ds)		;r[80];, oau -->to_h, elg     oau -->to_d)} el}t("    lu*p ==%
-				  
-	itr-
-{
- || 		tr-g au --> byte s[21] |	
-			}
-	 au -->_ptr->au - cost;
-				(voint("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						rmldg(5,19);
-				(v
-/*
- * gambleg pairtw5-1"hd 1mastes
-void inn_cog pair_wmasteow, i
-{
-	int n,obj */*q_ptr,oau -	prtbt_valu*p ==again;r[80];
-	monsttw, imaxenmp_ntnstsgmaxenmp_nt ro->lev * 1000/ 5prt("f(tmp_str,"Your w  BgThd o glory.skce cost cantehmp_nt lory.1maste uprsre+dsbetmaxenmp_nt		prtrrstr,17,2);;
-		prt("                                  Wmaste Soonusbet7
-		prt("oau - = &inu ntory[INVEN_WIELDonstt("obj */*desc(r,17,2);;oau -,r);
-	,		}
-	itr-oau -->t
-	)_{nameptr--oau --> r_p1oll2 oau -->iy po & 0x08)	)sg_ppf(tmp_stlu*p ==%s %-400)dBeyoeerory.skce  !	);r[80];		prttf (p_ptr-oau --> r_p1	msg_p"f(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(f (p_ptr--oau -->to_h_K_-(roll3 oau -->to_d_K_-(r)sg_prf(tmp_stlu*p ==%s %-400)dBeyoeerrepairer ;y a (ewaone"n;r[80];		prt(f (p_ptr--oau -->to_h_>| maxenmp_nt	oll2 oau -->to_d_>| maxenmp_nt	)sg_prf(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(f (p_			msg_ptr-oau -->to_h_K_maxenmp_nt		msg_poau -->to_h		} elgpptr-oau -->to_d_K_maxenmp_nt		msg_poau -->to_d		} elgpf(tmp_stlu*p ==%s %-400)dof sp rhd -> (%d,ds)		 elgpr[80];, oau -->to_h, oau -->to_d)} elg tr-g    lu*p ==%
-				nameptr-
-{
- || 		tr-g_ au --> byte s[21] |	
-			}
-	_ au -->_ptr->au - cost;
-				(vo}if (p_{name     e vithehe gow5-1"e beye1maste.;
-		prt(" tr-int("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						rmldg(5,19);
-				(v
-/*
- * gambleg pairt3,0 ", 8, l",131000 uprnnroin ac the  excee"e bezero
-void inn_cog pair_31000ow, i
-{
-	int n, dawi,j,og paired tmaxenmp_ntnsteobj */*q_ptr,oau -	prtbt_valu*p ==again;r[80];
-	monstr-maxenmp_nt ro->lev * 1000/ 5prt("mldg(5,19);
-				(vof(tmp_str,"Your w  BgThd o glory.skce cost cantehmp_nt 31000 uprsre+dsbetmaxenmp_nt		prtrrstr,17,2);;
-		prt(
-or:paired 	/		msg                                  Ar000 Soonusbet7
-		prt("j 				}t("=out_i		/INVEN_BODY  X_K	/INVEN_FEET
-	{
-			msgoau - = &inu ntory[i		nameptr-oau -->t
-	)_			msg_obj */*desc(r,17,2);;oau -,r);
-	,		}
-	meptr--oau --> r_p1oll2 oau -->iy po & 0x08)	)sg_pppf(tmp_stlu*p ==%s %-400)dBeyoeerory.skce  !	);r[80];		prtttf (p_ptr-oau --> r_p1	sg_pppf(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(tf (p_ptr-oau -->to_a_K_-(rsg_pppf(tmp_stlu*p ==%s %-400)dBeyoeerrepairer ;y a (ewaone"n;r[80];		prt(tf (p_ptr-oau -->to_a_>| maxenmp_nt	sg_pppf(tmp_stlu*p ==%s %-400)dIn.fi0; condi wan"n;r[80];		prt(tf (p_		msg_poau -->to_a		} elg_pf(tmp_stlu*p ==%s %-400)dpolnsin) -> (%d)		 elgppr[80];, oau -->to_a		prt(t tr-g_    lu*p ==%j++
-	prt( 
-or:paired 	/1} elg tr-ptrpptr-r:paired 	| 		tr-g     e vithehe gowdg(e bey toar000.;
-		prt("f (p_{nameptr-
-{
- || 		tr-g_ au --> byte s[20] |	
-			}
-		 au -->_ptr->au - cost;
-				(vo}
--int("You haPhe spacebar to continue");
-		msg_pint(NULL);
-						rmldg(5,19);
-				(v
-/*
- * gambleResdg(ch Item
-void inn_cog fdg(chg    (w, i
-{
-	int n,mldg(5,19);
-				(voptr->au - cost<i
-{
-				msgint("You hae viot the goose %old!				choint(NULL);
-						r if (p_{nameptr-iy posse_fully()	tr-g_ au -->_ptr->au - cost;
-				(vo}
-
-/*
- * giotck ashin lrave_ion"esr gson"e.c		c_p conic boolelrave_ TRUE;F
-				ro
- * gambleEhe ae beyebg rewar
-void i conic nn_co TRU(NUocs (_ds
- */ sprinTerm_(vo(cmd) r->au - cds
- */_cminTeiptr-pmgThiESCAPE:tr-g		msg_lrave_ TRUE;
-			}
-			>au - cindice_ar= 1;
-	/		msg_p
-			}
-
-
-	qtr-pmgThi'a':tr-g		msg_ptr-ng reward|| 		tr-g_	g fdg(chg    (200	prt( 
-of (p_ptr-ng reward|| 2)			msg_ptheva_ds
-->au - cds
- */_cmin} elg_pptr->au - cindice_ar= 1;	msg_pr"_lrave_ TRUE;
-			}msg_pr if (p_ptr-ng reward|| 14) elg_pptr->au - c == CLt!= CLASS_RANGER				msg_p ptr->au - cost>= 100	p	msg_p 	of sp r_arr9,0o100	prt( 
-o(tf (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-! au --> byte s[20]p	msg_p of sp r_arr9,0o	prt( 
-o(f (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p_ptr--ng reward|| 10roll3 ng reward|| 15)	msg_pr"ptr-->au - c == CLt!= CLASS_WARRIOR	ollsg_pr" r->au - c == CLt!= CLASS_PALADIN)				msg_p ptr->au - cost>= 100	p	msg_p 	g pair_31000o100	prt( 
-o(tf (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-! au --> byte s[20]p_		msg_psg pair_31000o	prt( 
-o( if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p	msg_pes 			p_ptr
-			}
-
-
-	qtr-pmgThi'b':tr-g		msg_ptr-ng reward|| (rsg_pppgg Rue_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 14) elg_pptr->au - c == CLt!= CLASS_RANGER				msg_p ptr->au - cost>= 100	p	msg_p 	g fo i b_bowo100	prt( 
-o(tf (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-! au --> byte s[21]p_		msg_psg fo i b_bowo	prt( 
-o( if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p	msg_pes 			msg_pr"
-			}
-
-
-	qtr-pmgThi'c':tr-g		msg_ptr-ng reward|| (rsg_pppgg Rue_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 6p_		msg_pptr->au - cost<i100	p	msg_p int("You hae viot the goose %old!				chog_f (p_ptr-bompthe_wmaste1 			win = >au - cost;= 100			chog if (p	msg_pes 			p_ptr
-			}
-
-
-	qtr-pmgThi'd':tr-g		msg_ptr-ng reward|| (rsg_pppgg Rue_ds
-->au - cds
- */_cmin} elg_f (p	msg_pes 			msg_pr
-			}
-
-
-	qtr-pmgThi'f':tr-g		msg_ptr-ng reward|| 4) elg_ppnn_ds
-->au - cds
- */_cmi,		}
-	mef (p	msg_pes 			msg_pr
-			}
-
-
-	qtr-pmgThi'g':tr-g		msg_ptr-ng reward|| 1	sg_pppb, 3, gan
- (	} elg_f (p_ptr-ng reward> 6p_		msg_pptr--ng reward- 10ro=r->au - c == CL		win = rn
-o_mp_s(			chog_f (p_		msg_psint("You haOke iactherlenory.c= CLtcantdo sta ts 
-						roll1int(NULL);
-						roll}	chog if (p	msg_pes 			p_ptr
-			}
-
-
-	qtr-pmgThi'h':tr-g		msg_ptr-ng reward|| 		tr-g_	sr 9_sonon y
-	} elg_f (p_ptr--ng reward|| 12roll3 ng reward|| 15)oll3 ng reward|| 17)p_		msg_pptr-->au - c == CLt!= CLASS_PRIEST	ollsg_pr" rr->au - c == CLt!= CLASS_PALADIN)ollsg_pr" rr->au - c == CLt!= CLASS_DRUID					msg_p ptr->au - cost>= 100	p_		msg_psgh>au
-		gh(200			choicee au -->_ptr->au - cost;100			choggggs
-o_ed = 0ed(0			choicee au -->cut
-	/		msg_pcee au -->stun
-	/		msg_pceeint("You hae vitheaon rol= 'Yts althy & vigorous!				choiceeint(NULL);
-						roll1  f (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-! au --> byte s[21]p_		msg_psptr->au - c == CLt== CLASS_PALADIN)	msg_psgh>au
-		gh(200			choicef (p	msg_p gh>au
-		gh(1200			choices
-o_ed = 0ed(0			choices
-o_Ruled(0			choices
-o_ue"fused(0			choice au -->cut
-	/		msg_pce au -->stun
-	/		msg_pce au --> byte s[21]E;
-			}
-			eeint("You hae vitheaon rol= 'Yts althy & vigorous!				choiceint(NULL);
-						roll}if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-o if (p	msg_pes 			p_ptr
-			}
-
-
-	qtr-pmgThi'l':tr-g		msg_ptr-ng reward|| 		tr-g_	g to_legends
-	} elg_f (p_ptr--ng reward< 3)oll3 ng reward> 6p	sg_pppfhow_h20g== CL{ng rewar		msg_prf (p_	msg_pes 			msg_pr
-			}
-
-
-	qtr-pmgThi'p':tr-g		msg_ptr-ng reward|| 2	sg_ppptheva_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 13p_		msg_pptr-->au - c byte s[1]p_ll2 ! au --> byte s[21]pp_		msg_pspy posse_pe: (0			choiceint("You hae vy sions (1000iot thb
-		iy possied				choice au --> byte s[21]E;
-			}
-			e if (p_ptr-! au --> byte s[1]p_		msg_psint("You hae vie betrinst wmi (100p-9. Ight M, 2, fs",3f				choiceint(NULL);
-						roll}if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-o if (p_ptr--ng reward|| 11)oll3 ng reward|| 16p	sg_pppptr-->au - c == CLt!= CLASS_MAGE)ollsg_pr" rr->au - c == CLt!= CLASS_ONIST))IST					msg_p ptr->au - cost>= 100	p_		msg_psgpy posse_pe: (100	prt( 
-o(teint("You hae vy sions (1000iot thb
-		iy possied				choice  f (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-->au - c byte s[1]p_ll2 ! au --> byte s[21]pp_		msg_pspy posse_pe: (0			choiceint("You hae vy sions (1000iot thb
-		iy possied				choice au --> byte s[21]E;
-			}
-			e if (p_ptr-! au --> byte s[1]p_		msg_psint("You hae viot the goatt 'YedIght soonusumorssta .				choiceint(NULL);
-						roll if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p	msg_pes 			msg_pr
-			}
-
-
-	qtr-pmgThi'q'pe Dir quest quest 	c_pug		msg_ptr-ng reward|| 1	_	msg_pb, 3, gquest(prt( 
-of (p	msg_pes 			sg_pr
-			}
-
-
-	qtr-pmgThi'r':tr-g		msg_ptr-ng reward|| (rsg_pppgg Rue_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 4) elg_ppnn_ds
-->au - cds
- */_cmi,2	prt( 
-of (p_ptr-ng reward|| 2) elg_ptheva_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 5p_		msg_pptr->au - cost<i100	p	msg_p int("You hae viot the goose %old!				chog_f (p_ptr-!g fdg(chgmon 			win = >au - cost;= 100			chog if (p_ptr-ng reward|| 13p elg_ppnn_ds
-->au - cds
- */_cmi,	prt( 
-of (p_ptr-ng reward|| 10)	msg_pptr->au - c == CLt!= CLASS_WARRIOR	o		msg_p ptr->au - cost>= 100	p	msg_p sg pair_wmasteo100	prt( 
-o(tf (p_		msg_psgint("You hae viot the goose %old				choiceeint(NULL);
-						roll1 tr-g_r if (p_ptr-! au --> byte s[21]p_		msg_psmldg(5,19);
-				(vo_p sg pair_wmasteo	prt( 
-o( if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p_ptr---ng reward|| 11)oll3 ng reward|| 16p	ollsg_pr     -->au - c == CLt|| 1	_ll3 >au - c == CLt|| 6)p	sg_pppptr-->au - c byte s[0]p_ll2 ! au --> byte s[20]					msg_p ptr-re iteme(80			win = _ au --> byte s[20] |	
-			}
-		_r if (p_ptr-! au --> byte s[0]p_		msg_psint("You hae viot the goatt 'YedIght soonusumorssta .				choiceint(NULL);
-						roll if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p_ptr--ng reward|| 11)oll3 ng reward|| 16p	_		msg_pint("You haOke imaSws/an",3, 1ie tecantdo sta ts 
-						rollint(NULL);
-						rol if (p_ptr---ng reward|| 12roll2 >lev *  == CLt== CLASS_PRIEST	)ollsg_pr   --ng reward|| 17roll2 >lev *  == CLt== CLASS_DRUID			sg_pppptr-->au - c byte s[0]p_ll2 ! au --> byte s[20]					msg_p rtion o_leve 			p_ptr- rti_soon(A_STR		p_ptr- rti_soon(A_INT		p_ptr- rti_soon(A_WIS		p_ptr- rti_soon(A_DEX		p_ptr- rti_soon(A_CON		p_ptr- rti_soon(A_CHR		p_ptr-  au --> byte s[20] |	
-			}
-		_rpint("You haA yolory.soonsithehe rmal				choiceint(NULL);
-						roll if (p_ptr-! au --> byte s[0]p_		msg_psint("You hae viot the goatt 'YedIght soonusumorssta .				choiceint(NULL);
-						roll if (p	msg_p int("You hae:turn aft7,rlor'vebar=Angeimee town *dungeon.)prt( 
-of (p_ptr-ng reward|| 12ro{sg_pppptr->au - cost>= 100	p_		msg_psrtion o_leve 			p_ptr- rti_soon(A_STR		p_ptr- rti_soon(A_INT		p_ptr- rti_soon(A_WIS		p_ptr- rti_soon(A_DEX		p_ptr- rti_soon(A_CON		p_ptr- rti_soon(A_CHR		p_ptr-  au -->_ptr->au - cost;100			chogg  f (p_		msg_psint("You hae viot the goose %old				choiceint(NULL);
-						roll 		rol if (p		rolles 			msg_pr"
-			}
-
-
-	qtr-pmgThi's':tr-g		msg_ptr-ng reward|| (rsg_pppgg Rue_ds
-->au - cds
- */_cmin} elg_f (p_ptr-ng reward|| 13	sg_pppptr-->au - c byte s[0]p_ll2 ! au --> byte s[20]					msg_p of st_%old(		p_ptr-  au --> byte s[20] |	
-			}
-		_r if (p_ptr-! au --> byte s[0]p_		msg_psint("You hae vie betrinst wmi (100p-9. Ight M, 2, fs",3f				choiceint(NULL);
-						roll}if (p_		msg_psint("You haCuel ntck la2, ! Goldtdoesve tgr9, o9..rees!				choiceint(NULL);
-						roll} elg_f (p		rolles 			msg_pr
-			}
-
-
-	qtr-pmgThi'u':tr-g		msg_ Diptr-ng reward|| 4) elg_ppnn_ds
-->au - cds
- */_cmi,	prt( 
-of (p	c_pug_pes 			sg_pr
-			}
-
-
-	qtr-pmgThi'z':tr-g		msg_ptr--ng reward|| 11)oll3 ng reward|| 16poll3 ng reward|| 12roll3 ng reward|| 17)	msg_pr"do_cmi_soudy(&& (w;msg_prf (p		rolles 			msg_pr
-			}
-
-
-	qtr-p_ DiIgnohetr:turn 	c_pugmgThi'\r':tr-g		msg_
-			}
-
-
-	qtr-p_ DiEquipmthe lfor 	c_pugmgThi'e':tr-g		msg_do_cmi_equip			sg_pr
-			}
-
-
-	qtr-p_ DiInu ntory lfor 	c_pugmgThi'i':tr-g		msg_do_cmi_inu n			sg_pr
-			}
-
-
-	qtr-p_ DiHelp 	c_pugmgThi'?':tr-g		msg_do_cmi_h lp			sg_pr
-			}
-
-
-	qtr-p_ DiHtck -- Unknown ds
- */ 	c_pugdefaul :tr-g		msg_es 			sg_pr
-			}
-
-
-	qo}
-
-/*
- * gambleEhe a quest leve 
-void inn_codo_cmi_quest(sprinTerm_citr-!(cave_feat[>lev *  y][>lev *  x]d|| FEAT_QUEST_ENTER			wiptr-pint("You hae visethe nquest leve ts 
-						ror:turn	(vo}
-("f (p_{name>lev * oldpytr->au - cpy	msle>lev * oldpxtr->au - cpx	msle>lev * indice_ar= 1;
-	/2	msle>lev * depth |	1	msle>lev * left TRUE;
-			}
-		>lev * leavward|
-			}
+	i = 6;
+	/* Get an item */
+	q = "What is your first weapon? ";
+	s = "You have nothing to compare.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) {
+		inven_item_increase(INVEN_PACK, -1);
+		inven_item_optimize(INVEN_PACK);
+		return(FALSE);
 	}
 
-/*
- * gambleDoebg rewar ds
- */s
-void inn_codo_cmi_,19);sprinTerm_cichowhich} elichopx=>au - cpx	mslichopy=>au - cpy	msm_citr-!((cave_feat[>y][>x]d>| FEAT_BLDG_HEAD	ollsg_    -cave_feat[>y][>x]d<| FEAT_BLDG_TAIL				wiptr-pint("You hae visethe nbg rewar s 
-						ror:turn	(vo}
-("which ro-cave_feat[>y][>x]d- FEAT_BLDG_HEAD		(vong reward|owhich} elm_citr-(which r| 2)	ll2 >lev * indice_ar= 1;	mll2 >lev * exit_ TRUE;;F
-								msg     Ga2,sithehcloThd! PTsetrs[p_pteewaits.",
-		prt("or:turn	(vo}if (p_ptr--which r| 2)	ll2 >lev * indice_ar= 1;t|| 1	)_{name>lev * leavward|
-			}
-		>au - cindice_ar= 1;
-	/		msg}if (p_ptr-which r| 2)	{name>lev * oldpytr->au - cpy	msle>lev * oldpxtr->au - cpx	msl}msm_citr- au --> byte s[13]d|| 	p_		msgptr--which r| 10roll2 >lev *  == CLt!= CLASS_WARRIOR	p_		msg_     Oke if's HalsnallowedIindice.",
-		prt("oor:turn	(voo}if (p_ptr--which r| 11)oll2 ->au - c == CLt!= CLASS_MAGE)(voo      ll2 >lev *  == CLt!= CLASS_RANGER		p_		msg_     Oke imaSws &i16-1"rntallowedIindice.",
-		prt("oor:turn	(voo}if (p_ptr--which r| 12)oll2 ->au - c == CLt!= CLASS_PRIEST	(voo     ll2 >lev *  == CLt!= CLASS_PALADIN)	p_		msg_     Oke i"Yoee te&sps",3, 1 allowedIindice.",
-		prt("oor:turn	(voo}if (p_ptr--which r| 14roll2 >lev *  == CLt!= CLASS_RANGER		_		msg_     Oke i16-1"rntallowedIindice.",
-		prt("oor:turn	(voo}if (p_ptr--which r| 15roll2 >lev *  == CLt!= CLASS_PALADIN)				msg_     Oke i"s",3, 1 allowedIindice.",
-		prt("oor:turn	(voo}if (p_ptr--which r| 16)oll2 ->au - c == CLt!= CLASS_ONIST))IST	(voo      ll2 >lev *  == CLt!= CLASS_ROG (w)				msg_     Oke ian",3, 1ie tesk i1oguesasllowedIindice.",
-		prt("oor:turn	(voo Die ge sta toke iac,3, 1 sk idord tecant*setlesteirs bar= tive(voo   ng rewars. iHence the neewininuhewi. */
-	p_ptr-
-
-	qo}
-	qomorringlite			sg_morringview(	}
-_pumf sacHal_ickyd|
-			}
-	>au - cds
- */_arg
-	/		msg>au - cds
- */_rep
-	/		msg>au - cds
- */_(ewa	/		msmsgdi buil_,19);which		sg_lrave_ TRUE;F
-				ro
-"whiler-!lrave_ TRU		wiptr-p     );		prt("or:quest_ds
- */ 		}
-		 TRU(NUocs (_ds
- */ 	}
-		mf sacHal_ickyd|
-			}
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o1_ptr = &inventory[item];
+		object_desc(o1_name, o1_ptr, TRUE, 0);
 	}
-	qo giot thleftnbg rewar _ptr->lev * energy_u(p_	/		msgmf sacHal_ickyd|F
-				ro_ DiHtck -- Cancel automonic ds
- */ 	c_pu>au - cds
- */_(ewa	/		ms_ DiHtck -- Cancel "set"trsde 	c_pu>au - cds
- */_seth;F
-				ro
-" g F",3h ms (ag 1 XXX XXX XXX 	c_puint(NULL);
-						
-" g Cldg(Ight scr
-			c_puT wm_mldg((				
-" g Upda2, 3, ryesoes"	c_pu>au - cupda2, |ro-PU_VIEW | PU_LIT		;
-l>au - cupda2, |ro-PU_MONSTERS				
-" g Redrawteheirt scr
-			c_pu au --> bdrawt|ro-PR_BASIC | PR_EXTRA				
-" g Redrawtmap		c_pu au --> bdrawt|ro-PR_MAP				
-" g Wind9, souff		c_pu au -->wind9, |ro-PW_OVERHEAD		(v}
-	q
+	if ((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD))
+	{
+		msg_print("Not a weapon! Try again.");
+		msg_print(NULL);
+		return(FALSE);
+	}
+
+	/* Get an item */
+	q = "What is your second weapon? ";
+	s = "You have nothing to compare.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) {
+		inven_item_increase(INVEN_PACK, -1);
+		inven_item_optimize(INVEN_PACK);
+		return(FALSE);
+	}
+
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o2_ptr = &inventory[item];
+		object_desc(o2_name, o2_ptr, TRUE, 0);
+	}
+	if ((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD))
+	{
+		msg_print("Not a weapon! Try again.");
+		msg_print(NULL);
+		return(FALSE);
+	}
+
+	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
+
+	i_ptr = &object_type_body;
+	object_copy(i_ptr, o1_ptr);
+	i_ptr->number = 1;
+	o1_ptr = &inventory[INVEN_WIELD];
+	object_copy(o1_ptr, i_ptr);
+	
+	calc_bonuses();
+
+	c_put_str(TERM_YELLOW,o1_name,i,2);
+	sprintf(tmp_str,"To Hit: %d   To Damage: %d",o1_ptr->to_h, o1_ptr->to_d);
+	put_str(tmp_str,i+1,2);
+	sprintf(tmp_str,"Dice: %d   Sides: %d",o1_ptr->dd, o1_ptr->ds);
+	put_str(tmp_str,i+2,2);
+	sprintf(tmp_str,"Number of Blows: %d", p_ptr->num_blow);
+	put_str(tmp_str,i+3,2);
+	c_put_str(TERM_YELLOW, "Possible Damage:",i+5,2);
+	sprintf(tmp_str,"One Strike: %d-%d damage",o1_ptr->dd + o1_ptr->to_d,
+	    (o1_ptr->ds*o1_ptr->dd) + o1_ptr->to_d);
+	put_str(tmp_str,i+6,3);
+	sprintf(tmp_str,"One Attack: %d-%d damage",p_ptr->num_blow*(o1_ptr->dd + o1_ptr->to_d),
+	    p_ptr->num_blow*(o1_ptr->ds*o1_ptr->dd + o1_ptr->to_d));
+	put_str(tmp_str,i+7,3);
+	compare_weapon_aux(o1_ptr,p_ptr->num_blow,i+8,2);
+
+	i_ptr = &object_type_body;
+	object_copy(i_ptr, o2_ptr);
+	i_ptr->number = 1;
+	o2_ptr = &inventory[INVEN_WIELD];
+	object_copy(o2_ptr, i_ptr);
+	
+	calc_bonuses();
+
+	c_put_str(TERM_YELLOW,o2_name,i,40);
+	sprintf(tmp_str,"To Hit: %d   To Damage: %d",o2_ptr->to_h, o2_ptr->to_d);
+	put_str(tmp_str,i+1,40);
+	sprintf(tmp_str,"Dice: %d   Sides: %d",o2_ptr->dd, o2_ptr->ds);
+	put_str(tmp_str,i+2,40);
+	sprintf(tmp_str,"Number of Blows: %d", p_ptr->num_blow);
+	put_str(tmp_str,i+3,40);
+	c_put_str(TERM_YELLOW, "Possible Damage:",i+5,40);
+	sprintf(tmp_str,"One Strike: %d-%d damage",o2_ptr->dd + o2_ptr->to_d,
+	    (o2_ptr->ds*o2_ptr->dd) + o2_ptr->to_d);
+	put_str(tmp_str,i+6,41);
+	sprintf(tmp_str,"One Attack: %d-%d damage",p_ptr->num_blow*(o2_ptr->dd + o2_ptr->to_d),
+	    p_ptr->num_blow*(o2_ptr->ds*o2_ptr->dd + o2_ptr->to_d));
+	put_str(tmp_str,i+7,41);
+	compare_weapon_aux(o2_ptr,p_ptr->num_blow,i+8,40);
+
+
+	i_ptr = &object_type_body;
+	object_copy(i_ptr, orig_ptr);
+	i_ptr->number = 1;
+	o_ptr = &inventory[INVEN_WIELD];
+	object_copy(o_ptr, i_ptr);
+	
+	calc_bonuses();
+
+	inven_item_increase(INVEN_PACK, -1);
+	inven_item_optimize(INVEN_PACK);
+	
+	put_str("(Only highest damage applies per monster. Special damage not cumulative)",20,0);
+
+	return(TRUE);
+}
+
+
+/*
+ * sharpen arrows
+ */
+void sharpen_arrows(int cost)
+{
+	int i,j,k, maxenchant;
+	object_type *o_ptr;
+	char out_val[80], tmp_str[80];
+
+	clear_bldg(5,18);
+	k = 0;
+	maxenchant = (p_ptr->lev / 5);
+	sprintf(tmp_str,"  Based on your skill, we can enchant your arrows up to +%d", maxenchant);
+	prt(tmp_str, 5, 0);
+	prt("                             Arrow Status", 7, 0);
+	j = 9;
+
+	for (i = 0; i < INVEN_WIELD; i++) {
+		o_ptr = &inventory[i];
+		if (o_ptr->tval == TV_ARROW) {
+			k = 1;
+			object_desc(tmp_str, o_ptr, FALSE, 1);
+			if (o_ptr->name1) 
+				sprintf(out_val, "%-40s: In fine condition", tmp_str);
+			else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
+				sprintf(out_val, "%-40s: Beyond repair, buy new arrows", tmp_str);
+			else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
+				sprintf(out_val, "%-40s: In fine condition", tmp_str);
+			else  {
+				if (o_ptr->to_h < maxenchant)
+					o_ptr->to_h++;
+				if (o_ptr->to_d < maxenchant)
+					o_ptr->to_d++;
+				sprintf(out_val, "%-40s: sharpened -> (%d,%d)", tmp_str,
+				     o_ptr->to_h, o_ptr->to_d);
+			}
+			prt(out_val,j++,0);
+		}
+	}
+	if (k == 0) {
+		msg_print("You were not carrying any arrows.");
+		msg_print(NULL);
+		clear_bldg(5,18);
+	} else {
+		if (cost == 0)
+			p_ptr->rewards[20] = TRUE;
+		msg_print("Press the spacebar to continue");
+		msg_print(NULL);
+		clear_bldg(5,18);
+		p_ptr->au = p_ptr->au - cost;
+	}
+}
+
+
+/*
+ * restring bow
+ */
+void restring_bow(int cost)
+{
+	object_type *o_ptr;
+	int maxenchant;
+	char out_val[80], tmp_str[80];
+
+	maxenchant = (p_ptr->lev / 5);
+	o_ptr = &inventory[INVEN_BOW];
+	if (o_ptr->tval != TV_BOW) {
+		msg_print("You aren't wielding a bow!");
+		msg_print(NULL);
+		return;
+	}
+	clear_bldg(5,18);
+	sprintf(tmp_str,"  Based on your skill, we can enchant your bow up to +%d", maxenchant);
+	prt(tmp_str, 5, 0);
+	prt("                             Bow Status", 7, 0);
+	object_desc(tmp_str, o_ptr, FALSE,1);
+	if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
+		sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
+	else if (o_ptr->name1) 
+		sprintf(out_val, "%-40s: In fine condition", tmp_str);
+	else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
+		sprintf(out_val, "%-40s: Beyond repair, buy a new bow", tmp_str);
+	else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
+		sprintf(out_val, "%-40s: In fine condition", tmp_str);
+	else  {
+		if (o_ptr->to_h < maxenchant)
+			o_ptr->to_h++;
+		if (o_ptr->to_d < maxenchant)
+			o_ptr->to_d++;
+		sprintf(out_val, "%-40s: tightened -> (%d,%d)", tmp_str, o_ptr->to_h,
+		     o_ptr->to_d);
+	}
+	prt(out_val,9,0);  
+	if (cost == 0)
+		p_ptr->rewards[21] = TRUE;
+	p_ptr->au = p_ptr->au - cost;
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	clear_bldg(5,18);
+}
+
+
+/*
+ * repair wielded weapons
+ */
+void repair_weapon(int cost)
+{
+	object_type *o_ptr;
+	char out_val[80], tmp_str[80];
+	int maxenchant;
+
+	maxenchant = (p_ptr->lev / 5);
+	sprintf(tmp_str,"  Based on your skill, we can enchant your weapon up to +%d", maxenchant);
+	prt(tmp_str, 5, 0);
+	prt("                             Weapon Status", 7, 0);
+	o_ptr = &inventory[INVEN_WIELD];
+
+	object_desc(tmp_str, o_ptr, FALSE,1);
+	if (o_ptr->tval) {
+		if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
+			sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
+		else if (o_ptr->name1) 
+			sprintf(out_val, "%-40s: In fine condition", tmp_str);
+		else if ((o_ptr->to_h < -3) || (o_ptr->to_d < -3))
+			sprintf(out_val, "%-40s: Beyond repair, buy a new one", tmp_str);
+		else if ((o_ptr->to_h >= maxenchant) && (o_ptr->to_d >= maxenchant))
+			sprintf(out_val, "%-40s: In fine condition", tmp_str);
+		else  {
+			if (o_ptr->to_h < maxenchant)
+				o_ptr->to_h++;
+			if (o_ptr->to_d < maxenchant)
+				o_ptr->to_d++;
+			sprintf(out_val, "%-40s: sharpened -> (%d,%d)",
+			tmp_str, o_ptr->to_h, o_ptr->to_d);
+		}
+		prt(out_val,9,0);
+		if (cost == 0)
+			p_ptr->rewards[21] = TRUE;
+		p_ptr->au = p_ptr->au - cost;
+	} else {
+		prt("You are not wielding a weapon.",7,0);
+	}
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	clear_bldg(5,18);
+}
+
+
+/*
+ * repair all pieces of armor up one in ac, not exceeding zero
+ */
+void repair_armor(int cost)
+{
+	int i,j, repaired, maxenchant;
+	object_type *o_ptr;
+	char out_val[80], tmp_str[80];
+
+	maxenchant = (p_ptr->lev / 5);
+	clear_bldg(5,18);
+	sprintf(tmp_str,"  Based on your skill, we can enchant armor up to +%d", maxenchant);
+	prt(tmp_str, 5, 0);
+
+	repaired = 0;
+	prt("                             Armor Status", 7, 0);
+	j = 9;
+
+	for (i = INVEN_BODY; i <= INVEN_FEET; i++) {
+		o_ptr = &inventory[i];
+		if (o_ptr->tval)  {
+			object_desc(tmp_str, o_ptr, FALSE,1);
+			if ((o_ptr->name1 && (o_ptr->ident & 0x08)))
+				sprintf(out_val, "%-40s: Beyond our skills!", tmp_str);
+			else if (o_ptr->name1)
+				sprintf(out_val, "%-40s: In fine condition", tmp_str);
+			else if (o_ptr->to_a < -3)
+				sprintf(out_val, "%-40s: Beyond repair, buy a new one", tmp_str);
+			else if (o_ptr->to_a >= maxenchant)
+				sprintf(out_val, "%-40s: In fine condition", tmp_str);
+			else {
+				o_ptr->to_a++;
+				sprintf(out_val, "%-40s: polished -> (%d)",
+				tmp_str, o_ptr->to_a);
+			}
+			prt(out_val,j++,0);
+			repaired = 1;
+		}
+	}
+	if (repaired == 0)
+		prt("You are not wearing any armor.",7,0);
+	else {
+		if (cost == 0)
+			p_ptr->rewards[20] = TRUE;
+		p_ptr->au = p_ptr->au - cost;
+	}
+	msg_print("Press the spacebar to continue");
+	msg_print(NULL);
+	clear_bldg(5,18);
+}
+
+
+/*
+ * Research Item
+ */
+void research_item(int cost)
+{
+	clear_bldg(5,18);
+	if (p_ptr->au < cost) {
+		msg_print("You have not the gold!");
+		msg_print(NULL);
+	} else {
+		if (identify_fully())
+			p_ptr->au = p_ptr->au - cost;
+	}
+}
+
+
+/* hack as in leave_store in store.c */
+static bool leave_bldg = FALSE;
+
+
+/*
+ * Entering a building
+ */
+static void bldg_process_command(void)
+{
+
+	switch (p_ptr->command_cmd)
+	{
+		case ESCAPE:
+		{
+			leave_bldg = TRUE;
+			p_ptr->inside_special = 0;
+			break;
+		}
+
+		case 'a':
+		{
+			if (building == 0)
+				research_item(2000);
+			else if (building == 2) {
+				arena_comm(p_ptr->command_cmd);
+				if (p_ptr->inside_special) 
+					leave_bldg = TRUE; 
+			} else if (building == 14)
+				if (p_ptr->pclass != CLASS_RANGER) {
+					if (p_ptr->au >= 1000)
+						sharpen_arrows(1000);
+					else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if (!p_ptr->rewards[20])
+					sharpen_arrows(0);
+				else
+					msg_print("Return after you've spent time in the dungeon.");
+			else if ((building == 10) || (building == 15)) 
+				if ((p_ptr->pclass != CLASS_WARRIOR) &&
+				  (p_ptr->pclass != CLASS_PALADIN)) {
+					if (p_ptr->au >= 1000)
+						repair_armor(1000);
+					else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if (!p_ptr->rewards[20]) {
+					repair_armor(0);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else
+				bell();
+			break;
+		}
+
+		case 'b':
+		{
+			if (building == 3)
+				gamble_comm(p_ptr->command_cmd);
+			else if (building == 14)
+				if (p_ptr->pclass != CLASS_RANGER) {
+					if (p_ptr->au >= 1000)
+						restring_bow(1000);
+					else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if (!p_ptr->rewards[21]) {
+					restring_bow(0);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else
+				bell(); 
+				break;
+		}
+
+		case 'c':
+		{
+			if (building == 3)
+				gamble_comm(p_ptr->command_cmd);
+			else if (building == 6) {
+				if (p_ptr->au < 1000)
+					msg_print("You have not the gold!");
+				else if (compare_weapons())
+					p_ptr->au -= 1000;
+			} else
+				bell();
+			break;
+		}
+
+		case 'd':
+		{
+			if (building == 3)
+				gamble_comm(p_ptr->command_cmd);
+			else
+				bell(); 
+			break;
+		}
+
+		case 'f':
+		{
+			if (building == 4)
+				inn_comm(p_ptr->command_cmd,1);
+			else
+				bell(); 
+			break;
+		}
+
+		case 'g':
+		{
+			if (building == 1)
+				castle_greet();
+			else if (building > 6) {
+				if ((building - 10) == p_ptr->pclass)
+					greet_char();
+				else {
+					msg_print("Only those of our class can do that here.");
+					msg_print(NULL);
+				}
+			} else
+				bell();
+			break;
+		}
+
+		case 'h':
+		{
+			if (building == 0)
+				town_history();
+			else if ((building == 12) || (building == 15) || (building == 17)) {
+				if ((p_ptr->pclass != CLASS_PRIEST) &&
+				   (p_ptr->pclass != CLASS_PALADIN) &&
+				   (p_ptr->pclass != CLASS_DRUID)) {
+					if (p_ptr->au >= 1000) {
+						hp_player(200);
+						p_ptr->au = p_ptr->au - 1000;
+						set_poisoned(0);
+						p_ptr->cut = 0;
+						p_ptr->stun = 0;
+						msg_print("You are once again healthy & vigorous!");
+						msg_print(NULL);
+					} else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if (!p_ptr->rewards[21]) {
+					if (p_ptr->pclass == CLASS_PALADIN)
+						hp_player(200);
+					else
+						hp_player(1200);
+					set_poisoned(0);
+					set_blind(0);
+					set_confused(0);
+					p_ptr->cut = 0;
+					p_ptr->stun = 0;
+					p_ptr->rewards[21] = TRUE;
+					msg_print("You are once again healthy & vigorous!");
+					msg_print(NULL);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			} else
+				bell();
+			break;
+		}
+
+		case 'l':
+		{
+			if (building == 0)
+				race_legends();
+			else if ((building < 3) || (building > 6))
+				show_highclass(building); 
+			else 
+				bell(); 
+			break;
+		}
+
+		case 'p':
+		{
+			if (building == 2)
+				arena_comm(p_ptr->command_cmd);
+			else if (building == 13) {
+				if ((p_ptr->rewards[1]) && (!p_ptr->rewards[21])) {
+					identify_pack(0);
+					msg_print("Your possessions have been identified");
+					p_ptr->rewards[21] = TRUE;
+				} else if (!p_ptr->rewards[1]) {
+					msg_print("You must get permission from the Master Thief");
+					msg_print(NULL);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			} else if ((building == 11) || (building == 16))
+				if ((p_ptr->pclass != CLASS_MAGE) &&
+				   (p_ptr->pclass != CLASS_ILLUSIONIST)) {
+					if (p_ptr->au >= 1000) {
+						identify_pack(1000);
+						msg_print("Your possessions have been identified");
+					} else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if ((p_ptr->rewards[1]) && (!p_ptr->rewards[21])) {
+					identify_pack(0);
+					msg_print("Your possessions have been identified");
+					p_ptr->rewards[21] = TRUE;
+				} else if (!p_ptr->rewards[1]) {
+					msg_print("You have not attained the status for that.");
+					msg_print(NULL);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else
+				bell(); 
+			break;
+		}
+
+		case 'q': /* request quest */
+		{
+			if (building == 1) 
+				castle_quest();
+			else
+				bell();
+			break;
+		}
+
+		case 'r':
+		{
+			if (building == 3)
+				gamble_comm(p_ptr->command_cmd);
+			else if (building == 4)
+				inn_comm(p_ptr->command_cmd,20);
+			else if (building == 2)
+				arena_comm(p_ptr->command_cmd);
+			else if (building == 5) {
+				if (p_ptr->au < 1000)
+					msg_print("You have not the gold!");
+				else if (!research_mon())
+					p_ptr->au -= 1000;
+			} else if (building == 13)
+				inn_comm(p_ptr->command_cmd,0);
+			else if (building == 10)
+				if (p_ptr->pclass != CLASS_WARRIOR) {
+					if (p_ptr->au >= 1000)
+						repair_weapon(1000);
+					else {
+						msg_print("You have not the gold");
+						msg_print(NULL);
+					}
+				} else if (!p_ptr->rewards[21]) {
+					clear_bldg(5,18);
+					repair_weapon(0);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else if (((building == 11) || (building == 16)) &&
+			     ((p_ptr->pclass == 1) || (p_ptr->pclass == 6)))
+				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
+					if (recharge(80))
+						p_ptr->rewards[20] = TRUE;
+				} else if (!p_ptr->rewards[0]) {
+					msg_print("You have not attained the status for that.");
+					msg_print(NULL);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else if ((building == 11) || (building == 16)) {
+				msg_print("Only mages/illusionists can do that here.");
+				msg_print(NULL);
+			} else if (((building == 12) && (p_ptr->pclass == CLASS_PRIEST)) ||
+			   ((building == 17) && (p_ptr->pclass == CLASS_DRUID)))
+				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
+					restore_level();
+					res_stat(A_STR);
+					res_stat(A_INT);
+					res_stat(A_WIS);
+					res_stat(A_DEX);
+					res_stat(A_CON);
+					res_stat(A_CHR);
+					p_ptr->rewards[20] = TRUE;
+					msg_print("All your stats are normal");
+					msg_print(NULL);
+				} else if (!p_ptr->rewards[0]) {
+					msg_print("You have not attained the status for that.");
+					msg_print(NULL);
+				} else
+					msg_print("Return after you've spent time in the dungeon.");
+			else if (building == 12) {
+				if (p_ptr->au >= 1000) {
+					restore_level();
+					res_stat(A_STR);
+					res_stat(A_INT);
+					res_stat(A_WIS);
+					res_stat(A_DEX);
+					res_stat(A_CON);
+					res_stat(A_CHR);
+					p_ptr->au = p_ptr->au - 1000;
+				} else {
+					msg_print("You have not the gold");
+					msg_print(NULL);
+				}
+			} else
+				bell(); 
+				break;
+		}
+
+		case 's':
+		{
+			if (building == 3)
+				gamble_comm(p_ptr->command_cmd);
+			else if (building == 13)
+				if ((p_ptr->rewards[0]) && (!p_ptr->rewards[20])) {
+					share_gold();
+					p_ptr->rewards[20] = TRUE;
+				} else if (!p_ptr->rewards[0]) {
+					msg_print("You must get permission from the Master Thief");
+					msg_print(NULL);
+				} else {
+					msg_print("Come back later! Gold doesn't grow on trees!");
+					msg_print(NULL);
+				}
+			else
+				bell(); 
+			break;
+		}
+
+		case 'u':
+		{
+			/* if (building == 4)
+				inn_comm(p_ptr->command_cmd,0);
+			else*/
+				bell();
+			break;
+		}
+
+		case 'z':
+		{
+			if ((building == 11) || (building == 16) || (building == 12) || (building == 17)) 
+				do_cmd_study(TRUE); 
+			else
+				bell(); 
+			break;
+		}
+
+			/* Ignore return */
+		case '\r':
+		{
+			break;
+		}
+
+			/* Equipment list */
+		case 'e':
+		{
+			do_cmd_equip();
+			break;
+		}
+
+			/* Inventory list */
+		case 'i':
+		{
+			do_cmd_inven();
+			break;
+		}
+
+			/* Help */
+		case '?':
+		{
+			do_cmd_help();
+			break;
+		}
+
+			/* Hack -- Unknown command */
+		default:
+		{
+			bell();
+			break;
+		}
+	}
+}
+
+
+/*
+ * Enter quest level
+ */
+void do_cmd_quest(void)
+{
+	if (!(cave_feat[p_ptr->py][p_ptr->px] == FEAT_QUEST_ENTER))
+	{
+		msg_print("You see no quest level here.");
+		return;
+	}
+
+	else {
+		p_ptr->oldpy = p_ptr->py;
+		p_ptr->oldpx = p_ptr->px;
+		p_ptr->inside_special = 2;
+		p_ptr->depth = 1;
+		p_ptr->leftbldg = TRUE;
+		p_ptr->leaving = TRUE;
+	}
+}
+
+
+/*
+ * Do building commands
+ */
+void do_cmd_bldg(void)
+{
+	int which;
+	int px=p_ptr->px;
+	int py=p_ptr->py;
+
+	if (!((cave_feat[py][px] >= FEAT_BLDG_HEAD) &&
+	    (cave_feat[py][px] <= FEAT_BLDG_TAIL)))
+	{
+		msg_print("You see no building here.");
+		return;
+	}
+
+	which = (cave_feat[py][px] - FEAT_BLDG_HEAD);
+	building = which;
+	
+	if ((which == 2) && (p_ptr->inside_special) && (p_ptr->exit_bldg == FALSE)) {
+		prt("Gates are closed!  The monster awaits.",0,0);
+		return;
+	} else if ((which == 2) && (p_ptr->inside_special == 1)) {
+		p_ptr->leaving = TRUE;
+		p_ptr->inside_special = 0;
+	} else if (which == 2) {
+		p_ptr->oldpy = p_ptr->py;
+		p_ptr->oldpx = p_ptr->px;
+	}
+
+	if (p_ptr->rewards[13] == 0) {
+		if ((which == 10) && (p_ptr->pclass != CLASS_WARRIOR)) {
+			prt("Only fighters allowed inside.",0,0);
+			return;
+		} else if ((which == 11) && ((p_ptr->pclass != CLASS_MAGE)
+		      && (p_ptr->pclass != CLASS_RANGER))) {
+			prt("Only mages & rangers allowed inside.",0,0);
+			return;
+		} else if ((which == 12) && ((p_ptr->pclass != CLASS_PRIEST)
+		     && (p_ptr->pclass != CLASS_PALADIN))) {
+			prt("Only priests & paladins allowed inside.",0,0);
+			return;
+		} else if ((which == 14) && (p_ptr->pclass != CLASS_RANGER)) {
+			prt("Only rangers allowed inside.",0,0);
+			return;
+		} else if ((which == 15) && (p_ptr->pclass != CLASS_PALADIN)) {
+			prt("Only paladins allowed inside.",0,0);
+			return;
+		} else if ((which == 16) && ((p_ptr->pclass != CLASS_ILLUSIONIST)
+		      && (p_ptr->pclass != CLASS_ROGUE))) {
+			prt("Only illusionists and rogues allowed inside.",0,0);
+			return;
+		/* note that only thieves and druids can *see* their respective
+		   buildings.  Hence, no need to check. -KMW- */
+		}
+	}
+
+	forget_lite();
+	forget_view();
+
+	character_icky = TRUE;
+	p_ptr->command_arg = 0;
+	p_ptr->command_rep = 0;
+	p_ptr->command_new = 0;
+
+	display_bldg(which);
+	leave_bldg = FALSE;
+
+	while (!leave_bldg)
+	{
+		prt("",1,0);
+		request_command(2);
+		bldg_process_command();
+		character_icky = TRUE;
+	}
+
+	/* have left building */
+	p_ptr->energy_use = 0;
+	character_icky = FALSE;
+	/* Hack -- Cancel automatic command */
+	p_ptr->command_new = 0;
+	/* Hack -- Cancel "see" mode */
+	p_ptr->command_see = FALSE;
+
+	/* Flush messages XXX XXX XXX */
+	msg_print(NULL);
+
+	/* Clear the screen */
+	Term_clear();
+
+	/* Update everything */
+	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw entire screen */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
+

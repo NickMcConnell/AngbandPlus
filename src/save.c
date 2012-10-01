@@ -217,7 +217,6 @@ static errr wr_savefile(void)
 
 	u32b now;
 
-	byte tmp8u;
 	u16b tmp16u;
 
 	errr err;
@@ -1337,7 +1336,6 @@ static bool wr_savefile_new(void)
 
 	u32b now;
 
-	byte tmp8u;
 	u16b tmp16u;
 
 

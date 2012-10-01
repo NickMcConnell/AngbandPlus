@@ -2391,7 +2391,7 @@ void calc_bonuses(void)
 			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage  Modified by GJW -KMW- */
-			case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; div *= 2; break;
+			case CLASS_MAGE:    num = 4; wgt = 35; mul = 3; div = 2; break;
 
 			/* Priest  Modified by GJW -KMW- */
 			case CLASS_PRIEST:  num = 5; wgt = 40; mul = 2; break;
@@ -2406,7 +2406,7 @@ void calc_bonuses(void)
 			case CLASS_PALADIN: num = 5; wgt = 35; mul = 4; break;
 
 			/* Illusionist -KMW- */
- 			case CLASS_ILLUSIONIST:    num = 4; wgt = 35; mul = 3; div *= 2; break;
+ 			case CLASS_ILLUSIONIST:    num = 4; wgt = 35; mul = 3; div = 2; break;
 
 			/* Druid -KMW- */
 			case CLASS_DRUID:  num = 5; wgt = 40; mul = 2; break;

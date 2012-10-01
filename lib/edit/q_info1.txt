@@ -1,0 +1,386 @@
+# File: q_info.txt
+# Plot: Miscellaneous
+
+# This file is used to initialize the quests array (q_list), which is
+# used to handle all player quests in the Kangband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# If quests need a special area, then that must be defined in v_info.txt
+# with the corresponding number. In other words, if the last value
+# for the field vaultused is true (1), then you must have a corresponding
+# entry in the v_info.txt file.
+
+# Q:questtype:nummon:curnum:maxnum:level:r_idx:k_idx:y:x:revert:vaultused
+# Can have lines T1 through T9
+# -KMW-
+
+# Version stamp (required)
+
+V:2.8.3
+
+N:100:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:101:Thieves Hideout
+T1:There are thieves robbing my people! They live in a small
+T2:burrow outside the city walls robbing people as they pass
+T3:on the roads. They even sneak inside the town to mug and
+T4:pillage! Your task is to go to the burrow and kill these
+T5:ruffians.
+Q:6:0:0:0:5:0:0:28:137:49:1
+Y:36:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:10:15
+D:XXXXXXXXXXXXXXX
+D:XT...a....X..TX
+D:XT........D..TX
+D:X.........Xa..X
+D:XXXXX.....XXXXX
+D:XT..D.........X
+D:XTa.X.........X
+D:XXXXX.........X
+D:X<P.D.........X
+D:XXXXXXXXXXXXXXX
+
+N:102:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:103:The Sewer
+T1:The sewer underneath the city has been acting strange
+T2:lately. There are rumors of monsters living beneath our
+T3:fair city. I need you to exterminate the vermin and
+T4:bring the sewer back to its normal, if dirty, self.
+Q:6:0:0:0:5:0:0:23:112:1:1
+Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:24:69
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.P.<.............%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XVVVVVVVVVVVVVVVV.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:X...............VVVVVVVVV.....................%%%%%%%%%%%%%%%%%%%%%%X
+D:X%%%%%%%%%%%%%%.........VVVVVVVVVVVVVVVVVVVVV...........WWWWW%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..V.%................VVVVVVVV...WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V.%%%%%%%%%%%%%%%%........VVVVWWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.V...........%%%%%%%%%%%%%9....WWWWWWW%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVV.%%%%%%%%%%%%%%%%%%WWWWW%%%%%%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%%.......WWWWV.%%%%%%WWWWW%%%%%%%%%%%%%%%%W%%%X
+D:X%%%%%.V9%%%%%%%%%%%%%.........WWWWV9%%%%%%WWWWW%%%%%%%%%%%%..WWW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%%.VVVVVVVVVVVVV.%%%%%%%WWWW%%%%%%%%%%%%9..WW.%%X
+D:X%%%%%.V.%%%%%%%%%%%%..V.............%%%%%%%.WW9%%%%%%%%%%%.......%%X
+D:X%%%%%%V%%%%%%%%%%%%%.VV.%%%%%%%%%%%%%%%%%%%%...%%%%%%%%%%%%.%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%...V..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%V%%%%%%%%%%%.VVV.%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVVVVV.................9%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%%%%%%%..V............VVVVVVVVVVVVVVVVVV.%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%..................V............%%%%X
+D:X%%%%%%%%%%..%%%%%%%%V%%%%%%%%%%%%%%%%%%%%%%%%%%%%.VVVVVVVVVVVV.....X
+D:X%%%%%%%%%%VVVVVVVVVVV%%%%%%%%%%%%%%%%%%%%%%%%%%%%............VVVVV.X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:104:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:105:Volcano
+T1:A volcano has been rumbling in the southeast part of our
+T2:territory. I need you to enter the volcano and find the
+T3:exit, which will in turn plug it up. Watch for creatures
+T4:trying to make a home for themselves. Just get to the exit!
+Q:4:0:0:0:10:0:0:57:189:49:1
+Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:18:55
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLX
+D:XX...........X.............XXXXX9.......KKLLLLLKKKKLLLX
+D:XX..........................X........KKKKKKKKLLLKKKLLLX
+D:XXX.................................KKKKKKKKKKLLLKLLLLX
+D:XX................................KKKKKKKKKKKELLLLLLLLX
+D:XX...................................KKKKLLLLLLLLLLLLLX
+D:XX..................................KKKKKKKKKKLLLLLLLLX
+D:X...................................KKKKKKKKKLLLKKKLLLX
+D:X.....................................KKKKKKLLLKKKKLLLX
+D:XX....................................KKKKKLKKKKKKKKKKX
+D:XX......................................KKKKKKKKKKKKKKX
+D:XX.........................................KKKKKKKKKKKX
+D:XXX............................................KKKKKK.X
+D:XX.................X..................................X
+D:X<P.............XXXXX9...XXX..........................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:106:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:107:Master Thief
+T1:A master thief has been robbing my people on the roads.
+T2:Find him and eliminate him! He could be in the town or
+T3:on the roads but he is here.
+Q:1:0:0:1:0:354:0:0:0:0:0
+
+N:108:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:109:Druid's Shop
+T1:There is a new shop that has opened up in town. But,
+T2:due to political reasons, we cannot have a druid setting
+T3:up shop in town.  We also cannot act directly against him
+T4:without alarming the other shopkeepers.
+T6:I need you to take him out.
+Q:1:0:0:1:20:177:0:28:74:60:1
+Y:177:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:10:15
+D:XXXXXXXXXXXXXXX
+D:X.............X
+D:X.........a...X
+D:X.............X
+D:X....XXXXXXXXXX
+D:X.............X
+D:X.............X
+D:X.............X
+D:X<P...........X
+D:XXXXXXXXXXXXXXX
+
+N:110:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+N:111:Poisoning of Water
+T1:Water trolls are poisoning the lake outside the town. As this
+T2:is the primary source of water for our fair city, you can
+T3:see the dire consequences! Hurry and eliminate at least 24 trolls
+T4:so the water can return to a normal state naturally.
+T5:Be prepared, rumor has it there approximately 20 water trolls
+T6:at the lake.
+Q:5:24:0:0:20:0:0:54:9:96:1
+Y:348:552:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:18:74
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X........................................................................X
+D:X................................VVVV....................................X
+D:X................X.............VVVWWVVVV......VVVV.......................X
+D:X.............................VVWWWWWWWVVVV.VVVWWVV......................X
+D:X................X........a...VWWWWWWWWWWWVVVWWWWWVVV....................X
+D:X.......................aa...VVWWWWWWWWWWWWWWWWWWWWWVVV..................X
+D:X................Xa........VVVWWWWWWWWWWWWWWWWWWWWWWWWVVV................X
+D:X.........................VVWWWWWW..aaaaa......WWWWWWVV..................X
+D:X................Xa.....a.VVWWWW.....aWW.aa.....WWWWVV...................X
+D:X..........................VVVWW...a..WWaa.....WWVVVV....................X
+D:X................X...........VVWWW...aaaa....WWWWV.......................X
+D:X.......................a.....VVWWW.......WWWWVVVV.......................X
+D:X................Xa.......a....VVWWWWWWWWWWWVVV..........................X
+D:X.<P.....b.......................VVWWWWWWWVVV............................X
+D:X..................................VVVVVVVV..............................X
+D:X........................................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:112:Red Dragon Nest
+T1:A family of red dragons has set up their home in the northeast
+T2:mountains. They have been swooping down on farms and feeding
+T3:on our livestock.
+T5:Please eliminate this threat and kill all the dragons.
+T7:Scouts have reported that the dragons are of ALL ages.
+Q:6:0:0:0:25:0:0:5:150:110:1
+Y:131:387:402:444:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:10:31
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.......................cca...X
+D:X...bb..................caaa..X
+D:X....b.........bbb.....ddcaa..X
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X.............XXXXXXXXXXXXXXXXX
+D:X<P...........XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:113:The Gauntlet
+T1:Consider this a quest to determine the full extent of your
+T2:valor, courage, and cunning. You must pass this test before
+T3:we entrust you with the most important quests.  There is a
+T4:cave to the east filled with vile monsters. There is also
+T5:an exit on the other side of the cave.
+T7:This highly dangerous quest requires you to run the gauntlet
+T8:and make it to the exit alive.
+Q:4:0:0:0:25:0:0:30:194:49:1
+Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:20:60
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....T....................................................X
+D:X......................................&...............E...X
+D:X...........T....T.........................................X
+D:X...T......................................&...............X
+D:X..........................................................X
+D:X.....&................T............9..........&...........X
+D:X..........................................................X
+D:X.........&..........................................&.....X
+D:X.........................T................................X
+D:X...9..........&............................9..............X
+D:X..............................T...........................X
+D:X.......9..................................................X
+D:X...................&......................................X
+D:X...........9.......................T......................X
+D:X..............................................T...........X
+D:X...............9........&.................................X
+D:X.<P.....................................T............T....X
+D:X..........................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:114:The Vault
+T1:The vault was used outside the town as a minor fortress and
+T2:stored many valuable items.  It has since been overrun.  Please
+T3:find the short sword known as Sting and return it to us!
+T4:The moment you find the sword, your quest will be complete.
+T5:While the sword could be in any of the chambers, only look
+T6:through one at a time. The monsters here are strong and there are
+T7:traps to be concerned with as well.
+Q:3:0:0:0:30:0:88:4:107:49:1
+Y:0:0:0:0:0:0:0:0:0:0:88:0:0:0:0
+X:99:110:36:52
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX........****....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX..........***.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX..........***.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX........%.%.%.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX...........**.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX...........*....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX.....****1XXXXXXXXXX..XXXXXXXXXX.....*****XXXXX
+D:XX.......*********XXXXXXX..XXXXXXX............****XX
+D:XX...........9....XXXXXXX..XXXXXXX.....%......****XX
+D:X..........%.......XXXXX....XXXXX.......%.......***X
+D:X.........%........D.....<P.....D........%......***X
+D:X..........%.......D............D.........%.....***X
+D:X...........%......XXXXX....XXXXX........%.........X
+D:XX................XXXXXXX..XXXXXXX................XX
+D:XX................XXXXXXX..XXXXXXX................XX
+D:XXXXX..........XXXXXXXXXX..XXXXXXXXXX..........XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX...........@..@...XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX........@.........XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.....@............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.........****.....XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX..........**....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX....********....XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX.*****....XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:115:Volcano II
+T1:The volcano is acting up again.  But, we do not think
+T2:it is natural. Now, it is time to eliminate all creatures
+T3:that are making their home at the volcano. You must exterminate
+T4:them all if we are to avoid having lava ruin our crops!
+Q:6:0:0:0:30:0:0:57:189:98:1
+Y:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:18:70
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX..XX..XXXXX..XX....XXXXXXXXXXX..........KKKKKKKLLKKKKKKK......XXX
+D:XX...........X.............XXXXX9.......KKLLLLLKKKKLLLKKKKKKKK......XX
+D:XX..........................X........KKKKKKKKLLLKKKLLLKKKKKKKKKK9...XX
+D:XXX.................................KKKKKKKKKKLLLKLLLLKKKKKKKKKKKK...X
+D:XX................................KKKKKKKKKKKLLLLLLLLLLKKKKKKKKKKK...X
+D:XX...................................KKKKLLLLLLLLLLLLLKKKKKKKKKKK....X
+D:XX..................................KKKKKKKKKKLLLLLLLLKKKKKKKKKK.....X
+D:X...................................KKKKKKKKKLLLKKKLLLKKKKKKKKK9....XX
+D:X.....................................KKKKKKLLLKKKKLLLKKKKKKKKKK.....X
+D:XX....................................KKKKKLKKKKKKKLLLKKKKKKK........X
+D:XX......................................KKKKKKKKKKLLLKKKKKKK........XX
+D:XX.........................................KKKKKKKLLLKKKKKK.........XX
+D:XXX............................................KKLLKKKKKKK...........X
+D:XX.................X..............................KKKKKKK............X
+D:X<P.............XXXXX9...XXX........................................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9..XXXX...XXXXX....XXXXXXXXXX9......XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:116:Graveyard
+T1:There is a crypt to the east where we have buried all of our
+T2:past rulers and heroes. Now, it is being overrun by undead!
+T3:Is nothing sacred to Morgoth?! You must travel through the passageways
+T4:of this underground and find the exit. The exit will trigger a
+T5:powerful dispel undead spell which will free this holy spot from
+T6:the undead. The spell must have dissapated over time. You can
+T7:reactivate it!
+Q:4:0:0:0:30:0:0:41:194:49:1
+Y:338:356:451:476:324:337:346:347:377:378:0:0:0:0:0
+X:99:0:52:127
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X XXXXXXXXXXXX                                                                                                                X
+D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
+D:X X...dEd....X        XTXTXTXjXjXjX.X.X...X.X.XcXcX.XTXTX.+.X                                                                 X
+D:X X..........X        XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDXXX      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX          X
+D:X XXXXXDXXXXXX        X...............D...D...............X        X.........aaa........XXXXX.......fff..........+TX          X
+D:X     X.X             XDXDXDXDXDXDXDXDX...XDXDXDXDXDXDXDXDX        X...............TT...XXXXX..TT................XXX          X
+D:X     X.X             XeXeXeXTXTXTX.X.X...X.XcXTXTXTX^X^X.X        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X             XXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXX        XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X     X.X                XXX          X...X                        X.........ggg........XXXXX............gg......X            X
+D:X    XX.XX               X.XXXXXXXXXXXXDDDXXXXX                    X..........hh...TT...XXXXX..TT................X            X
+D:X   XX...XX            XXXDXXXXXXXXX.........XX                    XXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXX            X
+D:X  XX.....XX           X.D........D....bbb....X                    X.............................................X            X
+D:X XX.......XX          XXXDXXXXXXXX....bbb....X                    X............iii..............................X            X
+D:X X.........X            X.X      XX.........XX                    X.............................................X            X
+D:X XXXXX.XXXXX            X.X       XXXXDDDXXXX                     X.............................................X            X
+D:X     X.X                X.X          X...X                        XXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXX            X
+D:X     X.X                X.X          X...X                                            X...X                                  X
+D:X     X.X                X.X         XX...XX                                           X...X                                  X
+D:X     X.X                X.X        XX.....XX                                          X...X                                  X
+D:X    XXDXX  XXXX         X.X       XX.......XX                                         X...X                                  X
+D:X    X...XXXX..X         X.X      XX.........XX                                        X...X                                  X
+D:X    X...+..Dc.X         X.X     XX.....aaa...XX                                       X...X                                  X
+D:X    X...XXXX..X         X.X    XX.......b.....XX                          XXXXXXXXXXXXXDDDXXXXXXXXXXXX                       X
+D:X    XX.XX  XXXX         X.X   XX.......aaa.....XX                        XX..........................XX                      X
+D:X     X.X                X.X  XX.................XX                     XXX............................XX            XXXXX    X
+D:X     X.X                X.X  X...................X                    XX...............................XX           Xj..X    X
+D:X     X.X                X.X  XXXX..XXXXXXX..XXXXXX                   XX.................................XX          X...X    X
+D:X     X.X                X.X     X..X     X..X                 XXXXXXXX...................Tccc............XX         XDXXX    X
+D:X     X.X                X.X     X..XXXXXXX..XXXXXXX           X.....D...................TTccc.............XXXXXXXXXXX.X      X
+D:X     X.X                X.X     X...........D.....X           X.....D..................TTTcdc.............D...........X      X
+D:X     X.X                X.X     X...........D.....X           X...XXXX.................TTTccc............XXXXXXXXXXXX.X      X
+D:X  XXXX.XXXX             X.X     XXXXXXXXXXXXXXXX..XXXXXXX     X...X  XX.................TT..............XX          X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X   XX.................T.............XX           X.X      X
+D:X  XXX...XXX             X.X                    X..................X    XX.............................XX            X.X      X
+D:X  X.......X             X.X                    X........XXXXXXX...X     XX...........................XX             X.X      X
+D:X  XXXX.XXXX             X.X                    XXXXXXXXXX     XXXXX      XXXXXXXXXXXXDDDDDXXXXXXXXXXXX              X.X      X
+D:X     X.X                XDXXXXXXXXXXXXXXX                                           X.....X                         X.X      X
+D:X     X.X                X...............XXXXXXXXXXX      XXXXXXXXXXXX               X.....X                         X.X      X
+D:X     X.X                X.....bb........D.........X      X..........X             XXX.....XX                        X.X      X
+D:X     X.X         XXXXX  X.....cc........XXXXXXXXDDXXXXXXXX....fff...XXXXX        XX...XXX..XXX                 XXXXXXDXX     X
+D:X     X.X         XghiX  XDXXXXXXXXXXXXXXX  X..........D.T.....fff....+.+%       XX....XXXj...XXXXXX          XXX...Dff.X     X
+D:X     X.X         X..XX XX.XX               X..eeeee...D.T.....fff....XXX%       X.............X...X          X.D...Xff.X     X
+D:X  XXXX.XXX       XX+XXXX...X               X..eeeee...XXXX..........XX  % XXXXX XXXXXXXXXXXX..D...X          XXX...X...X     X
+D:X  X......X        XX.......X            XXXX.....T....XXXX..........X   % X...X     XX..j..D..XXXXXX           XXXXXXXDXX    X
+D:X  X.a.a.aX         X.......XXXXXX       X..D.......T..DTTXXXXXXXXXXXX   % XXXDXX    X......X..Xhhi.X                X...X    X
+D:X  X......X         X...T...DTTTjX       X..XXXXXXXXXXXXTTX              +  X...X    XXXXXXXX..X....X                X...X    X
+D:X  X......X         X.....T.XXXXXX       XXXX          XXXX              %  X.j.XXXXXX X....D..D....X         XXXXXXXXDXDXXXX X
+D:X  XXXDDXXXXXXXXXXXXXX+XXXXXX                                            %  X....X...X X..XXX..XXXXXXXXX      X..Te....X....X X
+D:X    X.................X                                                 %+%%....D...XXXXXX.D..D.....+.X      X..T.....X..P<X X
+D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:117:Kamul
+T1:Khamul the Easterling has been spotted around town and is
+T2:terrorizing everyone!  Defeat him!
+Q:1:0:0:1:0:494:0:0:0:0:0
+
+N:118:Sauron
+T1:It is time to take the battle to Morgoth. But, before you can
+T2:reach him, you must find and kill Sauron.  Only after defeating
+T3:this powerful wizard, will the stairs leading to Morgoth's lair
+T4:be opened.
+Q:1:0:0:1:99:546:0:0:0:0:0
+
+N:119:Morgoth
+T1:Your final quest is the ultimate quest that has always been
+T2:required of you. There are no other goals for you to strive for.
+T3:You must enter Morgoth's dungeon, travel deep, and defeat this
+T4:source of all our problems. Be prepared, be patient, and good luck.
+T6:May the light shine on you.
+Q:1:0:0:1:100:547:0:0:0:0:0
+

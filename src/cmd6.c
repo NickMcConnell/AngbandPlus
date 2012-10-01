@@ -1399,14 +1399,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE);
+			acquirement(py, px, 1, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE);
+			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
 			ident = TRUE;
 			break;
 		}

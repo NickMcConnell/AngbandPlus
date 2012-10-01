@@ -2566,12 +2566,17 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data, int q
 	s16b o_idx;
 	int k_idx;
 	int c = 0;
-	int mcount = 1;
+	int mcount[MAX_MON_QUEST];
 	int icount = 0;
+
+	bool placedmon = FALSE;
 
 	v_ptr = &v_info[qt];
 	i = 0;
 	j = 0;
+
+	for(i=0;i < MAX_MON_QUEST;i++)
+		mcount[i] = 1;
 
 	if (p_ptr->inside_special == 2) {
 		for (i = 0; i < MAX_MON_QUEST; i++)
@@ -2807,8 +2812,8 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data, int q
 					}
 					r_ptr = &r_info[i];
 					p_ptr->cqmon[c] = i;
-					if (p_ptr->cqmonc[c] >= mcount) {
-						mcount++;
+					if (p_ptr->cqmonc[c] >= mcount[c]) {
+						mcount[c]++;
 						continue;
 					}
 					if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
@@ -2817,7 +2822,8 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data, int q
 					}
 					
 					r_ptr->max_num++;  /* make alive again */
-					place_monster_aux(y,x,i,FALSE,FALSE, 0);
+					place_monster_aux(y,x,i,FALSE,TRUE, 0);
+					placedmon = TRUE;
 					break;
 				}
 
@@ -2972,6 +2978,21 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data, int q
 					}
 					cave_feat[i][j] = FEAT_QUEST_EXIT;
 				}
+			}
+		}
+	}
+
+	/* must have at least one creature left */
+	if (!placedmon) {
+		for(c=0; c< MAX_MON_QUEST; c++) {
+			if (p_ptr->cqmon[c] != 0) {
+				while (1) {
+					i = rand_int(DUNGEON_HGT);
+					j = rand_int(DUNGEON_WID);
+					if (!cave_naked_bold(i,j)) continue;
+					else break;
+				}
+				place_monster_aux(i,j,p_ptr->cqmon[c],FALSE,TRUE, 0);
 			}
 		}
 	}
@@ -4063,7 +4084,7 @@ void wilderness_gen(int refresh)
 				if (distance(y, x, p_ptr->py, p_ptr->px) < 10) continue;
 				else break;
 			}
-			place_monster_aux(y,x,q_list[i-QUEST_OFFSET1].r_idx,FALSE,FALSE, 0);
+			place_monster_aux(y,x,q_list[i-QUEST_OFFSET1].r_idx,FALSE,TRUE, 0);
 		}
 	}
 
@@ -4236,7 +4257,7 @@ static void quest_gen(void)
 			break;
 	}
 
-	p_ptr->depth = (i - 29) * 3;
+	p_ptr->depth = q_list[i].level;
 	build_type2x(i2);
 
 	p_ptr->leftbldg = TRUE;

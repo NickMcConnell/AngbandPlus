@@ -1990,7 +1990,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 					case 35:  /* -KMW- */
 					{
-						o_ptr->name2 = EGO_VORPAL;
+						if (o_ptr->tval == TV_HAFTED)
+							o_ptr->name2 = EGO_BLESS_BLADE;
+						else
+							o_ptr->name2 = EGO_VORPAL;
 						break;
 					}
 
@@ -3855,7 +3858,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 /*
  * Scatter some "great" objects near the player
  */
-void acquirement(int y1, int x1, int num, bool great)
+void acquirement(int y1, int x1, int num, bool great, bool known)
 {
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -3871,6 +3874,11 @@ void acquirement(int y1, int x1, int num, bool great)
 
 		/* Make a good (or great) object (if possible) */
 		if (!make_object(i_ptr, TRUE, great)) continue;
+
+		if (known) {
+			object_aware(i_ptr);
+			object_known(i_ptr);
+		}
 
 		/* Drop the object */
 		drop_near(i_ptr, -1, y1, x1);
@@ -5032,9 +5040,6 @@ void spell_info(char *p, int spell)
 	if (mp_ptr->spell_book == TV_NATURE_BOOK)
 	{
 		int plev = p_ptr->lev;
-
-		/* See below */
-		int orb = (plev / 2);
 
 		/* Analyze the spell */
 		switch (spell)

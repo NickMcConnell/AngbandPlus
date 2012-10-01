@@ -2472,7 +2472,6 @@ static errr rd_savefile_new_aux(void)
 	u32b tmp32u;
 	s16b tmp16sb;
 
-
 #ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
 	u32b o_x_check, o_v_check;
@@ -2630,15 +2629,20 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_s16b(&tmp16sb);
+		q_list[i].quest_type = tmp16sb;
 		rd_s16b(&tmp16sb);
+		q_list[i].level = tmp16sb;
 		rd_s16b(&tmp16sb);
 		q_list[i].r_idx = tmp16sb;
 		rd_s16b(&tmp16sb);
-		q_list[i].cur_num = tmp16sb; 
+		q_list[i].cur_num = tmp16sb;
 		rd_s16b(&tmp16sb);
 		q_list[i].max_num = tmp16sb;
 		rd_s16b(&tmp16sb);
+		q_list[i].k_idx = tmp16sb;
 		rd_s16b(&tmp16sb);
+		q_list[i].num_mon = tmp16sb;
+
 	}
 	if (arg_fiddle) note("Loaded Quests");
 

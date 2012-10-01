@@ -812,7 +812,7 @@ void do_cmd_cast(void)
 		{
 			case 0:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* confusion bolt -KMW- */
 	 				if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_CONFUSION, dir,
@@ -853,7 +853,7 @@ void do_cmd_cast(void)
 
 			case 5:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* fear -KMW- */
 					(void)do_fear_monster(dir, plev);
 					break;
@@ -887,7 +887,7 @@ void do_cmd_cast(void)
 
 			case 9:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* infravision */
 					if (p_ptr->tim_infra == 0)
 					set_tim_infra(p_ptr->tim_infra + 200 + randint(100));
@@ -901,7 +901,7 @@ void do_cmd_cast(void)
 
 			case 10:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
@@ -921,7 +921,7 @@ void do_cmd_cast(void)
 
 			case 12:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* fog cloud -KMW- */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FOG, dir,
@@ -943,7 +943,7 @@ void do_cmd_cast(void)
 
 			case 14:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* satisfy hunger */
 					(void)set_food(PY_FOOD_MAX - 1);
 					break;
@@ -955,7 +955,7 @@ void do_cmd_cast(void)
 
 			case 15:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow door */
 					(void)door_creation();
 					break;
@@ -971,7 +971,7 @@ void do_cmd_cast(void)
 
 			case 16:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow monster */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_FORCE, dir,
@@ -994,7 +994,7 @@ void do_cmd_cast(void)
 
 			case 18:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* detect invisible */
 					(void)set_tim_s_invis(p_ptr->tim_s_invis + randint(24) + 24);
 					break;
@@ -1012,7 +1012,7 @@ void do_cmd_cast(void)
 
 			case 20: /* brand ammo */
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					(void)brand_ammo(1,0);
 					break;
 				} else { /* fetch item */
@@ -1024,7 +1024,7 @@ void do_cmd_cast(void)
 
 			case 21:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* spear of light */
 					if (!get_aim_dir(&dir)) return;
 					msg_print("A line of blue shimmering light appears.");
@@ -1041,7 +1041,7 @@ void do_cmd_cast(void)
 
 			case 22:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* chaos */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
@@ -1055,7 +1055,7 @@ void do_cmd_cast(void)
 
 			case 23:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* mental barrier */
 					p_ptr->tim_sus_int = p_ptr->tim_sus_int + 100;
 					p_ptr->tim_sus_wis = p_ptr->tim_sus_wis + 100;
@@ -1070,7 +1070,7 @@ void do_cmd_cast(void)
 
 			case 24:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* true sight */
 					map_area();
 					break;
@@ -1091,7 +1091,7 @@ void do_cmd_cast(void)
 
 			case 26:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir, 35 + (plev), 2);
@@ -1105,7 +1105,7 @@ void do_cmd_cast(void)
 
 			case 27:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* bolt of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_DARK, dir,
@@ -1119,7 +1119,7 @@ void do_cmd_cast(void)
 
 			case 28:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadowform */
 					(void)set_tim_ghost(p_ptr->tim_ghostly + plev + randint(24));
 					break;
@@ -1145,7 +1145,7 @@ void do_cmd_cast(void)
 
 			case 30:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* prismatic wall */
 					warding_glyph();
 					break;
@@ -1159,7 +1159,7 @@ void do_cmd_cast(void)
 
 			case 31:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* prismatic spray */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, 5, 40 + (plev), 2);
@@ -1174,7 +1174,7 @@ void do_cmd_cast(void)
 
 			case 32:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* chromatic shield */
 					(void)set_shield(p_ptr->shield + randint(30) + 30);
 					break;
@@ -1186,7 +1186,7 @@ void do_cmd_cast(void)
 
 			case 33:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* wizard lock */
 					do_cmd_spike(TRUE);
 					break;
@@ -1198,7 +1198,7 @@ void do_cmd_cast(void)
 
 			case 34:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* bedlam */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
@@ -1212,7 +1212,7 @@ void do_cmd_cast(void)
 
 			case 35:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* word of recall */
 					if (!p_ptr->word_recall)
 					{
@@ -1237,7 +1237,7 @@ void do_cmd_cast(void)
 
 			case 36:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* detect enchantment */
 					(void)detect_objects_magic();
 					break;
@@ -1249,7 +1249,7 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* probing */
 					(void)probing();
 					break;
@@ -1275,7 +1275,7 @@ void do_cmd_cast(void)
 
 			case 38:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sunfire */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
@@ -1297,7 +1297,7 @@ void do_cmd_cast(void)
 
 			case 39: /* the bigbys that are duplicates - warding, slow etc. shoudl act all aroundplayer */
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Interposing Hand */
 					warding_glyph();
 					break;
@@ -1311,7 +1311,7 @@ void do_cmd_cast(void)
 
 			case 40:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Phantom Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_CONFUSION, dir,
@@ -1327,7 +1327,7 @@ void do_cmd_cast(void)
 
 			case 41:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Forceful Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_FORCE, dir,
@@ -1343,7 +1343,7 @@ void do_cmd_cast(void)
 
 			case 42:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Grasping Hand */
 					if (!get_aim_dir(&dir)) return;
 					(void)slow_monster(dir);
@@ -1358,7 +1358,7 @@ void do_cmd_cast(void)
 
 			case 43:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Clenched Fist */
 					if (!get_aim_dir(&dir)) return;
 					fire_beam(GF_FORCE, dir,
@@ -1374,7 +1374,7 @@ void do_cmd_cast(void)
 
 			case 44:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Bigby's Crushing Hand */
 					/* want to have this last two turns */
 					if (!get_aim_dir(&dir)) return;
@@ -1391,7 +1391,7 @@ void do_cmd_cast(void)
 
 			case 45:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* force blast */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, 5,
@@ -1407,7 +1407,7 @@ void do_cmd_cast(void)
 
 			case 46:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Sphere of Light */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
@@ -1421,7 +1421,7 @@ void do_cmd_cast(void)
 
 			case 47:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sphere of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
@@ -1435,7 +1435,7 @@ void do_cmd_cast(void)
 
 			case 48:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sphere of confusion */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CONFUSION, dir,
@@ -1449,7 +1449,7 @@ void do_cmd_cast(void)
 
 			case 49:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sphere of chaos */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
@@ -1463,7 +1463,7 @@ void do_cmd_cast(void)
 
 			case 50:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* sphere of sound */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_SOUND, dir,
@@ -1477,7 +1477,7 @@ void do_cmd_cast(void)
 
 			case 51:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* explosion */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_SHARD, dir,
@@ -1491,7 +1491,7 @@ void do_cmd_cast(void)
 
 			case 52:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* remove fear */
 					(void)set_afraid(0);
 					break;
@@ -1503,7 +1503,7 @@ void do_cmd_cast(void)
 
 			case 53:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* resist light & dark */
 					(void)set_oppose_ld(p_ptr->oppose_ld + randint(20) + 20);
 					break;
@@ -1515,7 +1515,7 @@ void do_cmd_cast(void)
 
 			case 54:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* resist poison */
 					(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 					break;
@@ -1527,7 +1527,7 @@ void do_cmd_cast(void)
 
 			case 55:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* resist chaos & confusion */
 					(void)set_oppose_cc(p_ptr->oppose_cc + randint(20) + 20);
 					break;
@@ -1539,7 +1539,7 @@ void do_cmd_cast(void)
 
 			case 56:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* resist sound & shards */
 					(void)set_oppose_ss(p_ptr->oppose_ss + randint(20) + 20);
 					break;
@@ -1551,7 +1551,7 @@ void do_cmd_cast(void)
 
 			case 57:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* resist nexus */
 					(void)set_oppose_nex(p_ptr->oppose_nex + randint(20) + 20);
 					break;
@@ -1571,7 +1571,7 @@ void do_cmd_cast(void)
 
 			case 58:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* Invisibility */
 					(void)set_tim_invis(p_ptr->tim_invis + randint(24));
 					break;
@@ -1585,7 +1585,7 @@ void do_cmd_cast(void)
 
 			case 59:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow monsters */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, 5, 30 + (plev), 2);
@@ -1600,7 +1600,7 @@ void do_cmd_cast(void)
 
 			case 60:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
@@ -1635,7 +1635,7 @@ void do_cmd_cast(void)
 
 			case 62:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* shadow gate */
 					teleport_player(plev * 7);
 					break;
@@ -1651,7 +1651,7 @@ void do_cmd_cast(void)
 
 			case 63:
 			{
-				if (p_ptr->pclass == CLASS_ILLUSIONIST) {
+				if (mp_ptr->spell_type == 2) {
 					/* summon shadows */
 					summon_monster(SUMMON_SHADOWS);
 					break;
@@ -1939,6 +1939,7 @@ void do_cmd_pray(void)
 					break;
 				} else { /* chant */
 					(void)set_blessed(p_ptr->blessed + randint(24) + 24);
+					break;
 				}
 			}
 
@@ -1951,6 +1952,7 @@ void do_cmd_pray(void)
 					break;
 				} else { /* sanctuary */
 					(void)do_sleep_monster();
+					break;
 				}
 			}
 
@@ -1992,6 +1994,7 @@ void do_cmd_pray(void)
 					fire_ball(GF_HOLY_ORB, dir, (damroll(3, 6) + plev +
 					     (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
 					     ((plev < 30) ? 2 : 3));
+					break;
 				}
 			}
 

@@ -1805,7 +1805,7 @@ errr init_v_info(void)
  *
  * Note that we let each entry have a unique "name".
  */
-errr init_q_info(void)
+errr init_q_info(bool new_game)
 {
 	errr err;
 	char tmp_str[80];
@@ -1830,7 +1830,7 @@ errr init_q_info(void)
 	if (!fp) quit(tmp_str);
 
 	/* Parse the file */
-	err = init_q_info_txt(fp, buf);
+	err = init_q_info_txt(fp, buf, new_game);
 
 	/* Close it */
 	my_fclose(fp);
