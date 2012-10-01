@@ -47,6 +47,14 @@ something you are more comfortable with.
   +   A locked door                   *   A mineral vein with treasure
   +   A jammed door                   :   A pile of rubble
 
+                           Other Terrain
+
+  ~   (light blue) Shallow water      #   (black)  Chasm
+  ~   (dark blue)  Deep water         #   (grey)   Fog
+  ~   (light red)  Shallow Lava       #   (green)  Tree
+  ~   (dark red)   Deep Lava          ^   Mountain
+  .   (green)      Grass
+  .   (brown)      Dirt
 
                              Objects
  

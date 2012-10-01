@@ -849,6 +849,9 @@ bool set_oppose_acid(int v)
 {
 	bool notice = FALSE;
 
+	/* Suceptibility */
+	if (p_ptr->hurt_acid) return (FALSE);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -895,6 +898,9 @@ bool set_oppose_acid(int v)
 bool set_oppose_elec(int v)
 {
 	bool notice = FALSE;
+
+	/* Suceptibility */
+	if (p_ptr->hurt_elec) return (FALSE);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -943,6 +949,9 @@ bool set_oppose_fire(int v)
 {
 	bool notice = FALSE;
 
+	/* Suceptibility */
+	if (p_ptr->hurt_fire) return (FALSE);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -989,6 +998,9 @@ bool set_oppose_fire(int v)
 bool set_oppose_cold(int v)
 {
 	bool notice = FALSE;
+
+	/* Suceptibility */
+	if (p_ptr->hurt_cold) return (FALSE);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1599,6 +1611,9 @@ bool set_tim_sus_chr(int v)
 bool set_oppose_ld(int v)
 {
 	bool notice = FALSE;
+
+	/* Suceptibility */
+	if (p_ptr->hurt_lite) return (FALSE);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2853,7 +2868,8 @@ void monster_death(int m_idx)
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-						msg_print("You have completed your quest!");
+						message(MSG_QUEST_COMPLETE, 0,
+						        "You have completed your quest!");
 						message_flush();
 					}
 
@@ -2892,7 +2908,8 @@ void monster_death(int m_idx)
 					else
 					{
 						quest[i].status = QUEST_STATUS_COMPLETED;
-						msg_print("You just completed your quest!");
+						message(MSG_QUEST_COMPLETE, 0,
+						        "You have completed your quest!");
 						message_flush();
 					}
 				}
@@ -2916,7 +2933,8 @@ void monster_death(int m_idx)
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-						msg_print("You just completed your quest!");
+						message(MSG_QUEST_COMPLETE, 0,
+						        "You have completed your quest!");
 						message_flush();
 					}
 
@@ -2938,7 +2956,8 @@ void monster_death(int m_idx)
 
 					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
-						msg_print("You just completed your quest!");
+						message(MSG_QUEST_COMPLETE, 0,
+						        "You just completed your quest!");
 						message_flush();
 					}
 					quest[i].cur_num = 0;
@@ -3061,8 +3080,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = p_ptr->max_lev;
+		/* Player level */
+		div = p_ptr->lev;
 
 		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
@@ -3142,7 +3161,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
 		int percentage;
 
@@ -3153,7 +3172,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
+		if ((randint(10) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
 		{
 			/* Hack -- note fear */
@@ -3166,7 +3185,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note, bool bypet)
 		}
 	}
 
-#endif
+#endif /* ALLOW_FEAR */
 
 
 	/* Not dead yet */
@@ -3854,19 +3873,6 @@ static bool target_set_interactive_accept(int y, int x)
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
 		if (cave_feat[y][x] == FEAT_QUARTZ_K) return (TRUE);
-
-		/* Notice water & lava -KMW- */
-		if (cave_feat[y][x] == FEAT_DEEP_WATER) return (TRUE);
-		if (cave_feat[y][x] == FEAT_SHAL_WATER) return (TRUE);
-		if (cave_feat[y][x] == FEAT_DEEP_LAVA) return (TRUE);
-		if (cave_feat[y][x] == FEAT_SHAL_LAVA) return (TRUE);
-		if (cave_feat[y][x] == FEAT_GRASS) return (TRUE);
-		if (cave_feat[y][x] == FEAT_DIRT) return (TRUE);
-		if (cave_feat[y][x] == FEAT_FOG) return (TRUE);
-		if (cave_feat[y][x] == FEAT_CHASM) return (TRUE);
-		if (cave_feat[y][x] == FEAT_TREES) return (TRUE);
-		if (cave_feat[y][x] == FEAT_MOUNTAIN) return (TRUE);
-
 	}
 
 	/* Nope */

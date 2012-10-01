@@ -1,0 +1,20 @@
+# q0000137.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:137:N:The Assault
+
+# Definition
+Q:137:Q:1:0:0:1:0:297:0
+
+# Description for quest
+?:[LEQ $QUEST137 2]
+Q:137:T:King->Morgoth is getting desperate and launching attacks against
+Q:137:T:the castle! Lokkak the Ogre has been sent to attack us. Help us
+Q:137:T:defeat him!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST137 3]
+Q:137:T:Congratulations.  You are a true hero of the people.
+?:1

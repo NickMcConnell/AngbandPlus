@@ -533,15 +533,20 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			}
 			else if (monster_index)
 			{
+				bool group = FALSE;
+
 				/* Make alive again */
 				if (r_info[monster_index].flags1 & RF1_UNIQUE)
 				{
 					r_info[monster_index].cur_num = 0;
 					r_info[monster_index].max_num = 1;
+
+					/* Allow the escort to be generated */
+					group = TRUE;
 				}
 
 				/* Place it */
-				place_monster_aux(*y, *x, monster_index, TRUE, FALSE, FALSE);
+				place_monster_aux(*y, *x, monster_index, TRUE, group, FALSE);
 			}
 
 			/* Random artifact */
@@ -1088,7 +1093,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Class */
 			else if (streq(b+1, "CLASS"))
 			{
-				v = cp_ptr->title;
+				v = c_name + cp_ptr->name;
 			}
 #if 0
 			/* Player name */
@@ -1194,7 +1199,7 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
+	path_build(buf, 1024, ANGBAND_DIR_QEST, name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");

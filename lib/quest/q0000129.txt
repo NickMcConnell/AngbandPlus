@@ -1,0 +1,71 @@
+# q0000129.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:129:N:Shopkeepers Secret
+
+
+# Definition
+Q:129:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST129 2]
+Q:129:T:Well Done! As we speak, one of my best leagons is preparing to move 
+Q:129:T:through the Dwarven Mines. While you were gone, I had a visit form
+Q:129:T:a Dwarven clan elder and he was reminissing about the infamous store
+Q:129:T:keeper from the ancient city. My Dwarven friend always got the better
+Q:129:T:end of the bargan when it came to haggling, but he met his match
+Q:129:T:whenever he encountered this storekeeper. My advisor believes that
+Q:129:T:the storekeeper used magic to charm his clients. Why don't you search
+Q:129:T:the ruins and see if you can shed some light on the matter.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST129 3]
+Q:129:T:Once again, we are in your debt.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST129 5]
+Q:129:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Gelatinous cube
+F:a:1:8:207
+
+# Floor with Potion of Charisma
+F:k:1:8:0:234
+
+# Floor with Potion of Experience
+F:l:1:8:0:244
+
+# Floor with Potion of Constitution
+F:m:1:8:0:243
+
+# Floor with Potion of Strength
+F:n:1:8:0:225
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.@.XXXX
+D:X..............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXX
+D:X......&.......D..................................................D@.X
+D:X..............X.XXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..............X.XX.................................XXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXX.XX.......9.......9......9..........XXXXXXXXXXXXXXkklX
+D:X..............X.XX.................................XXXXXXXXXXXXXX..mX
+D:X.<............D.XX...XXXXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXX......mX
+D:X..............X.XX...XXXXXXXXXXXXXXXXXXXXXXXXXXX...XXXXXXXXXX.8.XXnnX
+D:XXXXXXXXXXXXXXXX.XX.................................+...^..^.D..XXXXXX
+D:XXXXXXXX......XX.XX^^^^^XX^^^^^XX^^^^^XX^^^^^XX^^^^^XXXXXXXXXXXXXXXXXX
+D:XXXXXXXX..&....D.XX..a..XX..a..XX..a..XX..a..XX..a..XXXXXXXXXXXXXXXXXX
+D:XXXXXXXX......XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:8:2
+

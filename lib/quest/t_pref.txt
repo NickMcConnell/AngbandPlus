@@ -1,0 +1,119 @@
+# File: t_pref.txt
+
+# Defines the preferences for the town features
+
+# F:letter:feature:cave_info:monster:object:ego:artifact:trap:special
+
+# Dungeon entrance
+F:>:7:8
+
+# Mountain chain
+F:^:100:8
+
+# Floor
+F:.:1:8
+
+# Door
+F:D:33:8
+
+# Trees
+F:T:96:8
+
+# Deep water
+F:W:104:8
+
+# Shallow water
+F:V:105:8
+
+# Deep Lava
+F:L:106:3
+
+# Shallow Lava
+F:K:107:3
+
+# Chasm
+F:C:108:8
+
+# Dirt
+F:,:109:8
+
+# Rubble
+F:;:49:136
+
+# Grass
+F:-:103:8
+
+# Permanent wall
+F:#:61:136
+
+# General Store
+F:1:8:3
+
+# Armoury
+F:2:9:3
+
+# Weapons Smith
+F:3:10:3
+
+# Temple
+F:4:11:3
+
+# Alchemy Shop
+F:5:12:3
+
+# Magic Shop
+F:6:13:3
+
+# Black Market
+F:7:14:3
+
+# Home
+F:8:15:3
+
+# Bookstore
+F:9:16:3
+
+# Library
+F:a:64:3
+
+# Castle
+F:b:65:3
+
+# Arena
+F:c:66:3
+
+# Gambling Den
+F:d:67:3
+
+# Inn
+F:e:68:3
+
+# Beastmaster
+F:f:69:3
+
+#Weaponsmaster
+F:g:70:3
+
+# Fighter's Hall
+F:h:74:3
+
+#Tower of Sorcery
+F:i:75:3
+
+# Inner Temple
+F:j:76:3
+
+# House of Thieves
+F:k:77:3
+
+#Ranger's Tavern
+F:l:78:3
+
+#Order of Paladins
+F:m:79:3
+
+# Tower of Ilussion
+F:n:80:3
+
+#Druid's Grove
+F:o:81:3

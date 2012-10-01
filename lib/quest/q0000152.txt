@@ -1,0 +1,63 @@
+# q0000152.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:152:N:Abandoned Mine
+
+# Definition
+Q:152:Q:3:0:0:0:20:0:23:6
+
+# Description for quest
+?:[LEQ $QUEST152 2]
+Q:152:T:King->We have put an end to the siege. Morgoth suffered great
+Q:152:T:losses during the battle at Whitewall Castle. The lord of
+Q:152:T:Whitewall Castle gave me some interesting information. It
+Q:152:T:seems that there is an abandoned mine to the north that is
+Q:152:T:rumored to be the resting place of some unique armor. This
+Q:152:T:will be of great use to you in the commong trials. 
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST152 3]
+Q:152:T:You may keep the armour and anything else you found
+Q:152:T:as a reward.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST152 5]
+Q:152:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Mithril Plate Mail of Celeborn
+F:1:1:8:0:0:0:23
+
+# Floor with Scimitar 'Haradekket'
+F:2:1:8:0:0:0:89
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...XX
+D:XXXXXXXXXXXX.............XXXXXXXXXX....XXXXXXX.............D..82XX
+D:XXXXXXXXX..........XXXXXX.XXXXXXX....9.........XXXXXXXXXXXXXX...XX
+D:XXXXX...............XXXXXX.XXXX..XX....XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX...................XXXX.XX..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XX.......8.8.8.8.......XXX.X.XXXXXXXXXXXXXXXX.........XXXXXXXXXXXX
+D:XX....................*XXX.,XXXXXXXXXXXXXXX.....9......XXXXXXXXXXX
+D:XX....................*XXX.XXXXXXXXX............9.....*XXXXXXXXXXX
+D:XXX....8......XXXXXXXXXXXX.XXXXXXXX.XXXXXXX..........XXXXXXXXXXXXX
+D:XXXXX.....XXXXXXX.....XXXX.XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXX.......D..8.1XXXX.XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX.....XXXX....XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXX...XXXXXXXXXXXXXXXXX...........XXXXX
+D:X---------,-,-...........X.XXXXXX.........XXXXX........9.......XXX
+D:X-----,--XXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX.......................X
+D:X--------XXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX........9...9....XX
+D:X--,-----------XXXXXXXXXXXX......XXXXXXXXXXXXXX................*XX
+D:X<------------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:18:1
+

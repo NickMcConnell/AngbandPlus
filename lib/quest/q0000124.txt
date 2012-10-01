@@ -1,0 +1,75 @@
+# q0000124.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:124:N:The Underground City
+
+
+# Definition
+Q:124:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST124 2]
+Q:124:T:Our own spies have informed us that one of the buildings
+Q:124:T:in the ruins is actually the entrence to an underground
+Q:124:T:city. Morgoth plans to use this as his base camp in the
+Q:124:T:comming war. I need you to infiltrate the underground
+Q:124:T:city and find the secret exit. Once you find it, we will
+Q:124:T:be able to seal the exits and prevent him from using it
+Q:124:T:as a base camp. Morgoth will surely have advanced troops
+Q:124:T:occupying the underground city, so be carefull. 
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST124 3]
+Q:124:T:I hear you are doing rather well for yourself from all
+Q:124:T:items you have been `liberating` from the ruins. Just
+Q:124:T:remember I'm not charging you any taxes.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST124 5]
+Q:124:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Shadow Cloak of Protection
+F:k:1:8:0:124:40
+
+# Floor with Ring of Protection
+F:l:1:8:0:153
+
+# Floor with Small Leather Shield of Resistance
+F:m:1:8:0:128:20
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X............................%......................................X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%.%.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...X
+D:X..........................%.%.....X......................X....*X...X
+D:X.XXXXXXXXX........................X.........&&...........D....*X...X
+D:X.X.......D...............XXDXX....X......................X.....X...X
+D:X.X..9....X...............X*9.X....XXXDXXXXXXXXXXXXXXDXXXXXXXXXXX...X
+D:X.X*......X...............XXXXX...................X.....D......lX...X
+D:X.XXXXXXXXX.......................................X...&.X..9....X...X
+D:X..................................::::...........X.....X......*X...X
+D:X................................::VVVV::.........XXXXXXXXXXXXXXX...X
+D:X.....XXXXXXXX...XXXXXXXX........:VVWWVV:...........................X
+D:X.....X......X...X......X........::VVVV::...........................X
+D:X.....X......XXDXX..&...X..........::::.........................%%%%X
+D:X.....X..9...X...X......X.......................................%...X
+D:X.....X......D...D......X.......XXXXXXDXXXXXXXXXXXXXXXXXXXX.....%.%.X
+D:X.....Xk.....X...X......X.......X.............D....&.....*X.....%:%.X
+D:X.....XXXXXXXXXXXXXXXXXXX.......X.............X...........X.....%:%.X
+D:X...............................X...&..&..&...XXXXXXXXXXXXX.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......X.............X...........X.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......X.............D....&.....mX.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......XXXXXXXXXXXXXXXXXXXXXXXXXXX.......%.X
+D:X.................................................................%<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:1:1
+

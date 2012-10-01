@@ -1,3 +1,41 @@
+Kangband 2.9.3
+================
+
+Codebase Updates
+----------------
+- Updated Kangband to the Angband 2.9.3 code base and applied latest
+  bug fixes where applicable.
+- Moved some Kangband-specific code to different, more appropriate
+  locations.
+
+New / Changed Features
+----------------------
+- Added the quests for the four empty plots included in 2.9.2r2.
+  These need additional play testing.  This addition should allow
+  players to  properly import characters started in KangbandTk.
+- Updated the help files for the new races, classes, terrain and
+  added some other corrections.  The help files still need more work.
+- Removed the [y/n/k] pickup prompt.  Players should use the command
+  command to access the auto-destroy/auto-pickup menus available from
+  the main options screen to get this functionality for individual
+  object types.
+- Added some color to quest-related messages so that they are more
+  visible to the player.
+
+Bug Fixes
+---------
+- Fixed a bug with the Sauron and Morgoth quests which made it
+  impossible to win the game.
+- Fixed a bug preventing unique's escorts from being generated inside
+  quest levels under certain circumstances.
+- Fixed bug with the town lighting code keeping certain terrain types
+  illuminated at night.
+- Fixed a bug with being able to run across chasm terrain under
+  certain circumstances.
+- Fixed a bug with the "Compare weapons" service .. this still needs
+  more work.
+
+
 Kangband 2.9.2r2
 ================
 
@@ -19,7 +57,7 @@ New / Changed Features
 - Added HURT_LITE, HURT_ACID, HURT_ELEC, HURT_FIRE and HURT_COLD to the
   list of available flags for items and players.  HURT_LITE prevents
   any resistance to light attacks. The others flags prevent temporary
-  resistance to their respective attack forms. They do but not affect
+  resistance to their respective attack forms. They do not affect the
   permanent resistances.
 - Also added the "GHOSTLY" and "INVISIBLE" flags for items and players.
   These flags make the player "ghostlike" and invisible respectively.
@@ -43,9 +81,11 @@ New / Changed Features
 
 Bug Fixes
 ---------
+- Patches for the latest bug fixes for Angband 2.9.2 applied where
+  aplicable.
 - Fixed a bug with the "smart_learn" ability of monsters.
 - Fixed a bug with the saving of the cave_special array.
-- Fixed a bug with the [y/n/k] not flushing messages properly.
+- Fixed a bug with the [y/n/k] prompt not flushing messages properly.
 - Fixed various other quest-related bugs and oddities.
 
 

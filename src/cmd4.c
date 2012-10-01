@@ -839,6 +839,267 @@ static errr option_dump(cptr fname)
 
 
 /*
+ * Hack -- title for each column
+ *
+ * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
+ */
+static const char head[3] =
+{ 'a', 'A', '0' };
+
+
+/*
+ * A list of tvals and their textual names
+ */
+static const tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword"                },
+	{ TV_POLEARM,           "Polearm"              },
+	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_BOW,               "Bow"                  },
+	{ TV_ARROW,             "Arrows"               },
+	{ TV_BOLT,              "Bolts"                },
+	{ TV_SHOT,              "Shots"                },
+	{ TV_SHIELD,            "Shield"               },
+	{ TV_CROWN,             "Crown"                },
+	{ TV_HELM,              "Helm"                 },
+	{ TV_GLOVES,            "Gloves"               },
+	{ TV_BOOTS,             "Boots"                },
+	{ TV_CLOAK,             "Cloak"                },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_RING,              "Ring"                 },
+	{ TV_AMULET,            "Amulet"               },
+	{ TV_LITE,              "Lite"                 },
+	{ TV_POTION,            "Potion"               },
+	{ TV_SCROLL,            "Scroll"               },
+	{ TV_WAND,              "Wand"                 },
+	{ TV_STAFF,             "Staff"                },
+	{ TV_ROD,               "Rod"                  },
+	{ TV_PRAYER_BOOK,       "Priest Book"          },
+	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_ILLUSION_BOOK,     "Illusion Book"        }, /* -KMW- */
+	{ TV_NATURE_BOOK,       "Druid Book"           }, /* -KMW- */
+	{ TV_SPIKE,             "Spikes"               },
+	{ TV_DIGGING,           "Digger"               },
+	{ TV_CHEST,             "Chest"                },
+	{ TV_FOOD,              "Food"                 },
+	{ TV_FLASK,             "Flask"                },
+	{ TV_SKELETON,          "Skeletons"            },
+	{ TV_BOTTLE,            "Empty Bottle"         },
+	{ TV_JUNK,              "Junk"                 },
+	{ 0,                    NULL                   }
+};
+
+
+/*
+ * Strip an "object name" into a buffer
+ */
+static void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+
+/*
+ * Interact with "objects" (set auto_dest and auto_pick flags)
+ */
+static void do_cmd_objects(void)
+{
+	int i, num, max_num;
+	int col, row;
+	int tval;
+
+	cptr tval_desc;
+	char ch;
+
+	int choice[60];
+
+	object_kind *k_ptr;
+
+	char buf[160];
+
+	byte a;
+	cptr c;
+
+
+	/* Save screen */
+	screen_save();
+
+	while (TRUE)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Print all tval's and their descriptions */
+		for (num = 0; (num < 57) && tvals[num].tval; num++)
+		{
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			ch = head[num/20] + (num%20);
+			prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		}
+
+		/* We need to know the maximal possible tval_index */
+		max_num = num;
+
+		/* Choose! */
+		if (!get_com("Interact with which type of object? (Press ESC to exit)",
+		              &ch)) break;
+
+		/* Analyze choice */
+		num = -1;
+		if ((ch >= head[0]) && (ch < head[0] + 20))
+			num = ch - head[0];
+		if ((ch >= head[1]) && (ch < head[1] + 20))
+			num = ch - head[1] + 20;
+		if ((ch >= head[2]) && (ch < head[2] + 17))
+			num = ch - head[2] + 40;
+
+		/* Bail out if choice is illegal */
+		if ((num < 0) || (num >= max_num))
+		{
+			msg_print("Invalid selection");
+			message_flush();
+			continue;
+		}
+
+		/* Base object type chosen, fill in tval */
+		tval = tvals[num].tval;
+		tval_desc = tvals[num].desc;
+
+
+		/*** And now we go for k_idx ***/
+
+
+		while (TRUE)
+		{
+			/* Clear screen */
+			Term_clear();
+
+			/* We have to search the whole itemlist. */
+			for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+			{
+				object_kind *k_ptr = &k_info[i];
+
+				/* Analyze matching items */
+				if (k_ptr->tval == tval)
+				{
+					/* Hack -- Skip instant artifacts */
+					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+					/* Skip if unaware */
+					if (!k_ptr->aware) continue;
+
+					/* Prepare it */
+					row = 3 + (num % 20);
+					col = 30 * (num / 20);
+					ch = head[num/20] + (num%20);
+
+					/* Get the "name" of object "i" */
+					strip_name(buf, i);
+
+					/* Determine attr/char */
+					a = TERM_WHITE;
+					c = "  ";
+
+					if (k_ptr->auto_dest)
+					{
+						a = TERM_RED;
+						c = ">k";
+					}
+					if (k_ptr->auto_pick)
+					{
+						a = TERM_L_GREEN;
+						c = ">g";
+					}
+
+					/* Print it */
+					prt(format("[%c%s] ", ch, c), row, col);
+					c_put_str(a, buf, row, col + 6);
+
+					/* Print the legend */
+					prt("'>k': auto_destroy   '>g': auto_pick", 1, 0);
+
+					/* Remember the object index */
+					choice[num++] = i;
+				}
+			}
+
+			/* We need to know the maximal possible */
+			/* remembered object_index */
+			max_num = num;
+
+			/* Choose! */
+			if (!get_com(format("What Kind of %s? (Press ESC to exit)",
+			                     tval_desc), &ch)) break;
+
+			/* Analyze choice */
+			num = -1;
+			if ((ch >= head[0]) && (ch < head[0] + 20))
+				num = ch - head[0];
+			if ((ch >= head[1]) && (ch < head[1] + 20))
+				num = ch - head[1] + 20;
+			if ((ch >= head[2]) && (ch < head[2] + 17))
+				num = ch - head[2] + 40;
+
+			/* Bail out if choice is "illegal" */
+			if ((num < 0) || (num >= max_num))
+			{
+				msg_print("Invalid selection.");
+				message_flush();
+				continue;
+			}
+
+			/* Get the object kind */
+			k_ptr = &k_info[choice[num]];
+
+			/* Set the new values */
+			if (k_ptr->auto_dest)
+			{
+				k_ptr->auto_dest = FALSE;
+				k_ptr->auto_pick = TRUE;
+			}
+			else if (k_ptr->auto_pick)
+			{
+				k_ptr->auto_pick = FALSE;
+			}
+			else
+			{
+				k_ptr->auto_dest = TRUE;
+			}
+		}
+	}
+
+	/* Load screen */
+	screen_load();
+
+	/* None chosen */
+	return;
+}
+
+
+/*
  * Set or unset various options.
  *
  * After using this command, a complete redraw should be performed,
@@ -881,8 +1142,11 @@ void do_cmd_options(void)
 		prt("(D) Base Delay Factor", 16, 5);
 		prt("(H) Hitpoint Warning", 17, 5);
 
+		/* Auto-destroy and auto-pickup menus */
+		prt("(S) Austo-destroy and auto-pickup menus", 19, 5);
+
 		/* Prompt */
-		prt("Command: ", 19, 0);
+		prt("Command: ", 21, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -1010,6 +1274,12 @@ void do_cmd_options(void)
 				if (isdigit(cx)) op_ptr->hitpoint_warn = D2I(cx);
 				else bell("Illegal hitpoint warning!");
 			}
+		}
+
+		/* Append options to a file */
+		else if ((ch == 'S') || (ch == 's'))
+		{
+			do_cmd_objects();
 		}
 
 		/* Unknown option */
@@ -1650,210 +1920,6 @@ void do_cmd_macros(void)
 
 	/* Load screen */
 	screen_load();
-}
-
-
-/*
- * Strip an "object name" into a buffer
- */
-void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-
-/*
- * Interact with "objects" (set auto_dest and auto_pick flags)
- */
-void do_cmd_objects(void)
-{
-	int i, num, max_num;
-	int col, row;
-	int tval;
-
-	cptr tval_desc;
-	char ch;
-
-	int choice[60];
-
-	object_kind *k_ptr;
-
-	char buf[160];
-
-	byte a;
-	cptr c;
-
-
-	/* Save screen */
-	screen_save();
-
-	while (TRUE)
-	{
-		/* Clear screen */
-		Term_clear();
-
-		/* Print all tval's and their descriptions */
-		for (num = 0; (num < 57) && tvals[num].tval; num++)
-		{
-			row = 2 + (num % 20);
-			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
-			prt(format("[%c] %s", ch, tvals[num].desc), row, col);
-		}
-
-		/* We need to know the maximal possible tval_index */
-		max_num = num;
-
-		/* Choose! */
-		if (!get_com("Interact with which type of object? (Press ESC to exit)",
-		              &ch)) break;
-
-		/* Analyze choice */
-		num = -1;
-		if ((ch >= head[0]) && (ch < head[0] + 20))
-			num = ch - head[0];
-		if ((ch >= head[1]) && (ch < head[1] + 20))
-			num = ch - head[1] + 20;
-		if ((ch >= head[2]) && (ch < head[2] + 17))
-			num = ch - head[2] + 40;
-
-		/* Bail out if choice is illegal */
-		if ((num < 0) || (num >= max_num))
-		{
-			msg_print("Invalid selection");
-			message_flush();
-			continue;
-		}
-
-		/* Base object type chosen, fill in tval */
-		tval = tvals[num].tval;
-		tval_desc = tvals[num].desc;
-
-
-		/*** And now we go for k_idx ***/
-
-
-		while (TRUE)
-		{
-			/* Clear screen */
-			Term_clear();
-
-			/* We have to search the whole itemlist. */
-			for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
-			{
-				object_kind *k_ptr = &k_info[i];
-
-				/* Analyze matching items */
-				if (k_ptr->tval == tval)
-				{
-					/* Hack -- Skip instant artifacts */
-					if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
-
-					/* Skip if unaware */
-					if (!k_ptr->aware) continue;
-
-					/* Prepare it */
-					row = 3 + (num % 20);
-					col = 30 * (num / 20);
-					ch = head[num/20] + (num%20);
-
-					/* Get the "name" of object "i" */
-					strip_name(buf, i);
-
-					/* Determine attr/char */
-					a = TERM_WHITE;
-					c = "  ";
-
-					if (k_ptr->auto_dest)
-					{
-						a = TERM_RED;
-						c = ">k";
-					}
-					if (k_ptr->auto_pick)
-					{
-						a = TERM_L_GREEN;
-						c = ">g";
-					}
-
-					/* Print it */
-					prt(format("[%c%s] ", ch, c), row, col);
-					c_put_str(a, buf, row, col + 6);
-
-					/* Print the legend */
-					prt("'>k': auto_destroy   '>g': auto_pick", 1, 0);
-
-					/* Remember the object index */
-					choice[num++] = i;
-				}
-			}
-
-			/* We need to know the maximal possible */
-			/* remembered object_index */
-			max_num = num;
-
-			/* Choose! */
-			if (!get_com(format("What Kind of %s? (Press ESC to exit)",
-			                     tval_desc), &ch)) break;
-
-			/* Analyze choice */
-			num = -1;
-			if ((ch >= head[0]) && (ch < head[0] + 20))
-				num = ch - head[0];
-			if ((ch >= head[1]) && (ch < head[1] + 20))
-				num = ch - head[1] + 20;
-			if ((ch >= head[2]) && (ch < head[2] + 17))
-				num = ch - head[2] + 40;
-
-			/* Bail out if choice is "illegal" */
-			if ((num < 0) || (num >= max_num))
-			{
-				msg_print("Invalid selection.");
-				message_flush();
-				continue;
-			}
-
-			/* Get the object kind */
-			k_ptr = &k_info[choice[num]];
-
-			/* Set the new values */
-			if (k_ptr->auto_dest)
-			{
-				k_ptr->auto_dest = FALSE;
-				k_ptr->auto_pick = TRUE;
-			}
-			else if (k_ptr->auto_pick)
-			{
-				k_ptr->auto_pick = FALSE;
-			}
-			else
-			{
-				k_ptr->auto_dest = TRUE;
-			}
-		}
-	}
-
-	/* Load screen */
-	screen_load();
-
-	/* None chosen */
-	return;
 }
 
 
@@ -3004,7 +3070,7 @@ static void do_cmd_knowledge_artifacts(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	show_file(file_name, "Known artifacts", 0, 0);
+	show_file(file_name, "Known (or lost) artifacts", 0, 0);
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -3069,7 +3135,7 @@ static void do_cmd_knowledge_uniques(void)
 		if (dead) killed++;
 
 		/* Print a message */
-		fprintf(fff, "     %s is %s\n",
+		fprintf(fff, "     %-30s is %s\n",
 			    (r_name + r_ptr->name),
 			    (dead ? "dead" : "alive"));
 	}

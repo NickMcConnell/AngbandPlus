@@ -93,9 +93,9 @@ can always, for example, use "\" + "." + "6", to specify "run east".
  k  Destroy an item                      K  (unused)
  l  Look around                          L  Locate player on map
  m  Cast a spell                         M  Full dungeon map
- n  (unused)                             N  (unused)
+ n  Repeat last command                  N  (unused)
  o  Open a door or chest                 O  (unused)
- p  Pray a prayer                        P  (unused)
+ p  Pray a prayer                        P  Pet commands
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode

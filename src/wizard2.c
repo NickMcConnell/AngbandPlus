@@ -157,7 +157,7 @@ static void do_cmd_wiz_change_aux(void)
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
 
 		/* Query */
-		if (!get_string(ppp, tmp_val, 3)) return;
+		if (!get_string(ppp, tmp_val, 4)) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -175,7 +175,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 9)) return;
+	if (!get_string("Gold: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -191,7 +191,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	if (!get_string("Experience: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -209,7 +209,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Max Exp: ", tmp_val, 9)) return;
+	if (!get_string("Max Exp: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -291,7 +291,7 @@ static void do_cmd_wiz_change(void)
 /*
  * Display an item's properties
  */
-static void wiz_display_item(object_type *o_ptr)
+static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
@@ -329,31 +329,121 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
-	prt("                ae      x qpaefc", 12, j); /* Added flag for poison -KMW- */
-	prt("siwdcc  ssidsa  nvudotgdd uoclio", 13, j); /* Added flag for venom -KMW- */
-	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
+	prt("                ae      xvfpaefc", 12, j);
+	prt("siwdcc  ssidsasmnvudotgddrroclio", 13, j);
+	prt("tnieoh  trnipthgiinmrrnrrpciierl", 14, j);
+	prt("rtsxna..lcfgdkttmldncltgglesdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcp psaefcp ldbc sn   ", 19, j);
-	prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
-	prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
-	prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
+	prt("SUST..HURT..IMM.RESIST..........", 18, j);
+	prt("      l aefcaefcaefcpfldbc sn   ", 19, j);
+	prt("siwdcci cliocliocliooeialoshtncd", 20, j);
+	prt("tnieoht ierlierlierliatrnnnrhehi", 21, j);
+	prt("rtsxnae dceddceddcedsrekdfddrxss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("        ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("        aihnf ee    ggggcregb vr", 12, j+32);
-	prt("        sdose eld   nnnntalrl ym", 13, j+32);
-	prt("        yewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("        ktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("        nyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("        opdretitsehtierltxrtesss", 17, j+32);
-	prt("        westreshtntsdcedeptedeee", 18, j+32);
+	prt("s   ts h vol tadiiii i aiehs  hp", 11, j+32);
+	prt("lf  eefo ace egrgggggnbcnaih  vr", 12, j+32);
+	prt("we  lerl mhvilgannnnhvltssdo  ym", 13, j+32);
+	prt("da reied paimerirrrroieityew ccc", 14, j+32);
+	prt("itlepnel iotppanaefcsssvaktm uuu", 15, j+32);
+	prt("ghigavai rtaaovecliotbsaanyo rrr", 16, j+32);
+	prt("seteticf iitcraxierllletropd sss", 17, j+32);
+	prt("trenhste ccetttpdcedyedetwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
+
+
+/*
+ * A structure to hold a tval and its description
+ */
+typedef struct tval_desc
+{
+	int tval;
+	cptr desc;
+} tval_desc;
+
+/*
+ * A list of tvals and their textual names
+ */
+static const tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword"                },
+	{ TV_POLEARM,           "Polearm"              },
+	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_BOW,               "Bow"                  },
+	{ TV_ARROW,             "Arrows"               },
+	{ TV_BOLT,              "Bolts"                },
+	{ TV_SHOT,              "Shots"                },
+	{ TV_SHIELD,            "Shield"               },
+	{ TV_CROWN,             "Crown"                },
+	{ TV_HELM,              "Helm"                 },
+	{ TV_GLOVES,            "Gloves"               },
+	{ TV_BOOTS,             "Boots"                },
+	{ TV_CLOAK,             "Cloak"                },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_RING,              "Ring"                 },
+	{ TV_AMULET,            "Amulet"               },
+	{ TV_LITE,              "Lite"                 },
+	{ TV_POTION,            "Potion"               },
+	{ TV_SCROLL,            "Scroll"               },
+	{ TV_WAND,              "Wand"                 },
+	{ TV_STAFF,             "Staff"                },
+	{ TV_ROD,               "Rod"                  },
+	{ TV_PRAYER_BOOK,       "Priest Book"          },
+	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_SPIKE,             "Spikes"               },
+	{ TV_DIGGING,           "Digger"               },
+	{ TV_CHEST,             "Chest"                },
+	{ TV_FOOD,              "Food"                 },
+	{ TV_FLASK,             "Flask"                },
+	{ TV_SKELETON,          "Skeletons"            },
+	{ TV_BOTTLE,            "Empty bottle"         },
+	{ TV_JUNK,              "Junk"                 },
+	{ 0,                    NULL                   }
+};
+
+
+/*
+ * Strip an "object name" into a buffer
+ */
+static void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+
+/*
+ * Hack -- title for each column
+ *
+ * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
+ */
+static char head[3] =
+{ 'a', 'A', '0' };
 
 
 /*
@@ -387,7 +477,7 @@ static int wiz_create_itemtype(void)
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -473,25 +563,25 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -772,7 +862,7 @@ static void wiz_quantity_item(object_type *o_ptr, bool carried)
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 2))
+	if (get_string("Quantity: ", tmp_val, 3))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -1084,7 +1174,7 @@ static void do_cmd_wiz_jump(void)
 		sprintf(tmp_val, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
+		if (!get_string(ppp, tmp_val, 11)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);

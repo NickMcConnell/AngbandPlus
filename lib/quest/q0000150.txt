@@ -1,0 +1,57 @@
+# q0000150.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:150:N:The Dwarven Pillars
+
+# Definition
+Q:150:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST150 2]
+Q:150:T:King->Morgoth has sent Ufthak to blockade the pass through
+Q:150:T:the Dwarven Pillers. Because this is one of our major supply
+Q:150:T:routes, I suspect that he is getting ready to lay siege to
+Q:150:T:our castle. I need you to take out Ufthak and his escorts
+Q:150:T:and reopen the pass.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST150 3]
+Q:150:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST150 5]
+Q:150:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Ufthak of Cirith Ungol
+F:a:1:8:181
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X############################################-------X
+D:X###########################################--------X
+D:X#########################################----------X
+D:X###################################----------------X
+D:X##########################-------------------------X
+D:X##########-----------------------------------......X
+D:X----------------------------------.................X
+D:X..............................................-----X
+D:X.......a...........................----------------X
+D:X---------------------------------------------------X
+D:X---------------------------------------------------X
+D:X##########################-------------------------X
+D:X#################################------------------X
+D:X####################################---------------X
+D:X######################################-------------X
+D:X###################################,,,,------------X
+D:X########################################----------<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:51
+

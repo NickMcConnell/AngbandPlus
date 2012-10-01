@@ -1,0 +1,21 @@
+# q0000136.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:136:N:Morgoths Spies
+
+# Definition
+Q:136:Q:1:0:0:1:0:274:0
+
+# Description for quest
+?:[LEQ $QUEST136 2]
+Q:136:T:King->Morgoth has spies trying to discover all our plans.
+Q:136:T:Angamaite has been spotted around town and I need you to take him
+Q:136:T:out before he unlocks any of our secrets! Those umbarites are a
+Q:136:T:venomous people.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST136 3]
+Q:136:T:Congratulations! You have returned victorious once again.
+?:1

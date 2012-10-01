@@ -1,0 +1,63 @@
+# q0000146.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:146:N:The Dwarven Vaults
+
+# Definition
+Q:146:Q:3:0:0:0:15:0:117:6
+
+# Description for quest
+?:[LEQ $QUEST146 2]
+Q:146:T:King->the Queen is pleased with your success, and that in turn
+Q:146:T:makes me happy. The Dwarves have informed me that their vaults
+Q:146:T:have been invaded by Mughash. The Dwarven chief is worried that
+Q:146:T:Mughash might find the War Hammer of Aule, a powerful artifact.
+Q:146:T:We cannot afford to let this weapon fall into the hands of
+Q:146:T:Morgoth. Go quickly to the Dwarves and help them defeat Mughash.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST146 3]
+Q:146:T:You can keep the warhammer as a reward for your good work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST146 5]
+Q:146:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with the Warhammer of Aule
+F:1:1:8:0:0:0:117
+
+# Floor with Mughash, the Kobold Lord
+F:a:1:8:110
+
+# Floor with Large Steel Chest
+F:k:1:8:0:343
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX..................................................XX
+D:XXX..................................................XX
+D:XXX...XXX...XXX..........................XXX...XXX...XX
+D:XXX...X1D...D*X............a.............X*D...D8X...XX
+D:XXX...XXX...XXX..........................XXX...XXX...XX
+D:XXX..................................................XX
+D:XXX..................................................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X...k.....D......D......D.....D......D......D.....k...X
+D:X........XXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXX........X
+D:X........XXXXXXXXXXXXXXXX..<..XXXXXXXXXXXXXXXX........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:16:27
+

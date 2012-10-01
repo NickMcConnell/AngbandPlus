@@ -1,0 +1,65 @@
+# q0000174.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:174:N:All That Rhymes
+
+# Definition
+Q:174:Q:3:0:0:0:40:0:60:6
+
+# Description for quest
+?:[LEQ $QUEST174 2]
+Q:174:T:Search under-foot where tunnels abound. For what makes haste of another
+Q:174:T:mans waste. A circus of goods that go unused, are useless trinkets that
+Q:174:T:keep men amused. If you were a jester who lost his way, you would be
+Q:174:T:a jester with nothing to say! Your footsteps echo through the empty
+Q:174:T:halls, as the torchlite flickers over rough stone walls. The darkness
+Q:174:T:knows, where you must go, to find treasure enough for all. Once you are
+Q:174:T:in, for you to win, all of your foes must fall.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST174 3]
+Q:174:T:I hear you found some valuable treasure. Keep it as a reward.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST174 5]
+Q:174:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with The Hard Leather Boots of Feanor
+F:1:1:8:0:0:0:60
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<............^...............*XXX...............................XXX.XXX
+D:XXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX.XXXXXX.XXXXXX.XXX
+D:XXXXXX.XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX.XXXXXX.XXXXXX.XXX
+D:XXXXXX.XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX.X...*XXX..*XXX.XXXXXX.XXXXXX.XXX
+D:XXXXXX.XXXXXXXXXXXX.XXXX*...............+.&&*+...9.XXX.XXXXXX.XXXXXX.XXX
+D:XXXXXX..............XXXXXXXXXXXXXXXXXXX.X...*XXX..*XXX.XXXXXX........XXX
+D:XXXXXX.XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXX
+D:XX.....XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXX.XX*...XXXXXXXXXXX
+D:XX.XXX.XXX*.*.*XXXX............................*XXXXXX.XX1.9.++........X
+D:XX.XXX.XXX..9..XXX:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XX*...XXXXXXXXX.X
+D:XX.XXX.XXX..9..XX:XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXXXXXXXXX.X
+D:XX.XXXXXXX*......XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXX....XX....XX.X
+D:XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXX.XX.XX.XX.XX.X
+D:XX.....XXXXXXXXXXXXXXXXXXX......XXXXXXXXXX.XXXXXXXXXXX.XXX.XX.XX.XX.XX.X
+D:XX..&..D....................&&..D..........XXXXXXXXXXX.+...XX....XX....X
+D:XX.....XXXXXXXXXXXXXXXXXXX......XXXXXXXXXX.XXXXXXXXXXX.XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXX.XXXXXX.XXXXXXXXXX
+D:XVVV***.............................XXXXXX.............XXXXXX.XXXXX...XX
+D:XVVVVVV............^.....&..........XXXXXXXXXXXX.XXXXXXXXXXXX.+.....&.XX
+D:XVVVVVVVV................&..........XXXXXXXXXXXX.XXXXXXXXXXXX.XXXXX...XX
+D:X..VVVVVVVVVVVVV.........&.....^....D............XXXXXXXXXXXX.XXXXXXXXXX
+D:X**.VVVVVVVVVVVVVVV.................XXXXXXXXXXXX..............XXXXXXXXXX
+D:X**..VVVVVVVVVVVVVVVVVVVV..^........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1

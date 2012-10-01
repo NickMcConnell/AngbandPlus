@@ -1,0 +1,56 @@
+# q0000173.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:173:N:The Phantom Palace
+
+# Definition
+Q:173:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST173 2]
+Q:173:T:There have been a number of reports of a phantom palace in the south
+Q:173:T:eastern region of the wastelands. I need you to investigate these
+Q:173:T:strange reports and see if there is any truth to the matter.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST173 3]
+Q:173:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST173 5]
+Q:173:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,;,,,,,X
+D:X,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,XXXXXXXXXX,,;,,,,,,,,,,,;,,,,,,,,;,,,,,,,,,,,,,,;,,,,,,,,,XXXXXXXXXX,,X
+D:X,,X*.......X,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,X.....***X,,X
+D:X,,X..9.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...&...*X,,X
+D:X,,X........+.......................XX.......................+........X,,X
+D:X,,XXXXXXXXXXXXXXXXXXXXXXXXXXXX+XXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXXDXXXX,,X
+D:X,,,,X...XXXXXXXXXXXXXXXXXXXXX.....XXXX.....XXXXXXXXXXXXXXXXXXXXX...X,,,,X
+D:X,,,,X...+....&..............X.....X**X.....X...&...D...D...&...X...X,,,,X
+D:X,,,,X...XXXXXXXXXXXXDXXXXXXXX.X.X......X.X.XXXXXXXXXXDXXXXXXXXXX...X,,,,X
+D:X,,,,X...X.......+**X........D..............D...................X.&.X,,,,X
+D:X,,,,X.9.X.......XXXXDXXXXXXXX.X.X..&&..X.X.XXXXXXXXXXDXXXXXXXXXX...X,,,,X
+D:X,,,,X...X...&.....X.........X..............X...................X...X,,,,X
+D:X,,,,X...X.........+....9....X.X.X......X.X.X..X...X..&..X...X..X...X,,,,X
+D:X,,,,X***X.........X.........X..............X..X.*.X.....X.*.X..X.*.X,,,,X
+D:X,,XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,,X
+D:X,,X*.......D................................................D........X,,X
+D:X,,X........XXXXXXXXXXXXXXXXXXXXXXXDDDDXXXXXXXXXXXXXXXXXXXXXXX..&....*X,,X
+D:X,,X*......*X,,,,,,,,,,,,,,,,,,;,,,....,,,,,,,,,,,,,,,,,,;,,,X......**X,,X
+D:X,,XXXXXXXXXX,,,,,,,,;,,,,,,,,,,,,,....,;,,,,,,,,,,,,,,,,,,,,XXXXXXXXXX,,X
+D:X,,,,,,,,,;,,,,,,,,,,,,,,,,;,,,,,,,....,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,;,X
+D:X,,;,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,.<..,,,,,,,;,,,,,,,,,,,;,,,,,,,,,,,,,,X
+D:X,,,,,,,,,,,;,,,,,;,,,,,,,,,,,;,,,,....,,,,;,,,,,,,,,,,,,,,,,,,,,,:,,,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:22:36

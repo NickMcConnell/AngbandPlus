@@ -1011,7 +1011,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, y, x, GF_MANA,
-					((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)), 0, TRUE);
+					((m_ptr->hp / 4) > 250 ? 250 : (m_ptr->hp / 4)), 0, TRUE);
 
 				break;
 			}
@@ -1034,7 +1034,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX8X4 -> Breathe Disintegration */
+			/* RF4_XXX8X4 */
 			case 96+31:
 			{
 				break;

@@ -270,16 +270,6 @@ static const int enchant_table[16] =
 };
 
 
-/* Added by GJW -KMW- */
-static int enchant_table_dam[20] =
-{
-	0, 10, 50, 100, 100,
-	100, 200, 300, 400, 500,
-	600, 700, 700, 700, 800,
-	800, 850, 900, 950, 975
-};
-
-
 /*
  * Hack -- Removes curse from an object.
  */
@@ -578,11 +568,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid && !p_ptr->hurt_acid))
+	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
 	{
 		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid && !p_ptr->hurt_acid))
+	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
 	{
 		info[i++] = "You are resistant to acid.";
 	}
@@ -591,11 +581,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec && !p_ptr->hurt_elec))
+	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec && !p_ptr->hurt_elec))
+	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
 	{
 		info[i++] = "You are resistant to lightning.";
 	}
@@ -604,11 +594,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire && !p_ptr->hurt_fire))
+	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
 	{
 		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire && !p_ptr->hurt_fire))
+	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
 	{
 		info[i++] = "You are resistant to fire.";
 	}
@@ -617,11 +607,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold && !p_ptr->hurt_cold))
+	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
 	{
 		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold && !p_ptr->hurt_cold))
+	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
 	{
 		info[i++] = "You are resistant to cold.";
 	}
@@ -640,16 +630,13 @@ void self_knowledge(void)
 		info[i++] = "You are completely fearless.";
 	}
 
-	if (!p_ptr->hurt_lite)
+	if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
 	{
-		if ((p_ptr->resist_lite) && (p_ptr->oppose_ld))
-		{
-			info[i++] = "You resist bright light exceptionally well.";
-		}
-		else if ((p_ptr->resist_lite) || (p_ptr->oppose_ld))
-		{
-			info[i++] = "You are resistant to bright light.";
-		}
+		info[i++] = "You resist bright light exceptionally well.";
+	}
+	else if ((p_ptr->resist_lite) || (p_ptr->oppose_ld))
+	{
+		info[i++] = "You are resistant to bright light.";
 	}
 
 	if ((p_ptr->resist_dark) && (p_ptr->oppose_ld))
@@ -1020,7 +1007,7 @@ bool lose_all_info(void)
 
 
 /*
- *  Set word of recall as appropriate
+ * Set word of recall as appropriate
  */
 void set_recall(void)
 {
@@ -1655,13 +1642,15 @@ void stair_creation(void)
 
 	/* Create a staircase */
 	/* in arena or quest -KMW- */
-	if(p_ptr->inside_arena || p_ptr->inside_quest)
+	if (p_ptr->inside_arena || p_ptr->inside_quest)
+	{
 		msg_print("There is no effect!");
+	}
 	else if (!p_ptr->depth)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (quest_number(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
@@ -1823,22 +1812,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			/* Generally limit +to-dam to weapon's natural damage
-			   limitation.  E.g., a tulwar (2d4) can go to +8.
-			   Note the effect upon missiles.  From GJW -KMW- */
-			else if (o_ptr->to_d > 19) chance = 1000;
-			else
-			{
-				if (o_ptr->tval == TV_BOW)
-					chance = enchant_table[o_ptr->to_d];
-				else
-				{
-					chance = enchant_table_dam[o_ptr->to_d];
-					if ((o_ptr->dd * o_ptr->ds <= o_ptr->to_d) &&
-						(chance < 995))
-							chance = 995;
-				}
-			}
+			else if (o_ptr->to_d > 15) chance = 1000;
+			else chance = enchant_table[o_ptr->to_d];
 
 			/* Attempt to enchant */
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
@@ -2649,6 +2624,9 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	bool flag = FALSE;
 
+
+	/* Unused parameter */
+	(void)full;
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)

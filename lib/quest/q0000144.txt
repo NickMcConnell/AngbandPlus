@@ -1,0 +1,58 @@
+# q0000144.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:144:N:Southbank Woods
+
+# Definition
+Q:144:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST144 2]
+Q:144:T:You tell the King that the Innkeeper has sent a case of his
+Q:144:T:finest wine in gratitude for his help. King->My good man, you
+Q:144:T:did all the work. Will you join the Queen and I at dinner this
+Q:144:T:evening and help us sample this fine wine. You graciously
+Q:144:T:accept. During dinner the Queen tells you about her and the
+Q:144:T:Druids concerns over a band of Snagas that have been setting
+Q:144:T:fires in the Southbank Woods. You offer to look into it in the
+Q:144:T:morning. She thanks you with a warm smile.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST144 3]
+Q:144:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST144 5]
+Q:144:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Snaga
+F:a:1:8:96
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X------T-T------.T-----T-----T-T---,-X
+D:X-T-,-T---......---T--T--TTT----T-aa-X
+D:X--aaT-T..-T-T-T-aa-T--aaa----*--,--TX
+D:X--TT-..T-T-T-,----T----aa--T----T---X
+D:X----.--T-aa-----T--,T-,--T---T-a-T--X
+D:X--T.---T-a--T-----*-----T-------T---X
+D:X<..---T-T----T-T-aa--T---aa--T-,----X
+D:X;;-T-T-----T-T---a-T--T----T-------TX
+D:X--,,--T-T--T---TT-----T,-T---T-aa---X
+D:X--,----aa-T-T----aa--T-,----*--T--T-X
+D:X--TT-T----T--T--TT--T---,-------T---X
+D:X---,T----T----T----T-----T-T--aaa---X
+D:X--,T--,--T--,,---aa---TT--a-T-,T-T--X
+D:XT-aa-T-,T---*-T--aa--,--T-a-T-T-----X
+D:X--aa--T---aa----T-T-T----,TT-----TT-X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:7:1
+

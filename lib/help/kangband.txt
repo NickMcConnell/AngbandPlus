@@ -1,4 +1,4 @@
-=== Kangband 2.9.2 ===
+=== Kangband 2.9.3 ===
 
 This file contains basic information about Kangband.  Unfortunately,
 earlier versions of Kangband did not include similar documents so this
@@ -7,9 +7,9 @@ information or insight is not only welcome but actively encouraged to
 do so.
 
 
-=== Standard Angband 2.9.2 vs. Kangband 2.9.2r2 ===
+=== Standard Angband 2.9.3 vs. Kangband 2.9.3 ===
 
-The main differences between Angband 2.9.2 and Kangband 2.9.2 are
+The main differences between Angband 2.9.2 and Kangband 2.9.3 are
 as follows:
 
 - Kangband introduces an extended town level which includes additional
@@ -35,15 +35,13 @@ as follows:
   on certain levels.
 
 - Kangband introduces several new monsters and items.  These are taken
-  from a variety of sources including other variants (primarily 
-  Zangband, Oangband and Angband/64) and Jonathan Ellis' patch for
-  Angband 2.9.2.  There are also many monsters and items that are
-  unique to Kangband.
+  from a variety of sources including other variants.  There are also
+  many monsters and items that are unique to Kangband.
 
 - Kangband includes four new player races - Kobolds, Maia, Ents and
   Wraiths.  Kobolds make reasonable fighters and resist poison
   intrinsically. Maia are intended to be a training race for
-  inexperienced players. They are highly skilled, have excellent stats,
+  inexperienced players and are highly skilled, have excellent stats,
   gain levels quickly and recover quickly when their hitpoints and
   spell points are depleted. Ents are physically strong but are poor
   at resisting fire-based attacks.  Wraiths make excellent spellcasters
@@ -66,10 +64,10 @@ as follows:
   nether). These work in much the same way as the temporary "low"
   resistances do.
 
-- Kangband also introduces timed levitation, timed invisibility and
-  timed "ghostliness" which allow the player to levitate, become
-  invisible and walk through non-permanent walls respectively while in
-  effect.
+- Kangband also introduces levitation, invisibility and "ghostliness"
+  in both permanent and temporary forms which allow the player to
+  levitate, become invisible and walk through non-permanent walls
+  respectively while in effect.
 
 
 
@@ -82,14 +80,15 @@ features from other variants. Of particular note are the following:
 From GWAngband (by Greg Wooledge)
 ---------------------------------
 The Kobold race and numerous minor changes to the combat code, the
-magic code and the mage and priest spell lists.
+magic code and the mage and priest spell lists. Many of the combat
+changes were reversed in later versions of Kangband.
 
 From Zangband (by Topi Ylinen and Robert Ruehlmann)
 ---------------------------------------------------
 Various spells and vaults. The extended town and quest code developed
 originally by Ken Wigle for Kangband was imported into Zangband and
 then extended and refined. This refined code was imported back into
-Kangband in version 2.9.2.  
+Kangband in version 2.9.2.  Pet AI and commands.
 
 From Kamband (by Ivan Tkatchev)
 -------------------------------
@@ -107,7 +106,7 @@ The original Kangband was produced by Ken Wigle who went on to release
 several follow-up versions through to Kangband 2.8.3i. At that point
 real life concerns forced Ken to step down and Mark Howson took over
 as Kangband's maintainer.  Mark released version 2.8.3j which was
-primarily a bigfix (and later a patch to that version) and then
+primarily a bugfix (and later a patch to that version) and then
 anounced the 2.8.3 branch to be dead.
 
 With the help of Ken Wigle and others, Mark then embarked on an
@@ -116,7 +115,7 @@ the C core and introduce major new features.  Unfortunately version
 3.0.0 never went beyond alpha testing and when Real Life claimed Mark
 Howson too Kangband was left dormant for eight months.
 
-At that point I volunteered to take over and in the absence of more
+At that point I volunteered to take over and, in the absence of more
 qualified candidates, Mark Howson agreed.  I have had to reluctantly
 admit that I am not up to the task of continuing with 3.0.0 and so the
 future of Kangband for the time being lies in the old 2.8.3 branch.
@@ -130,12 +129,18 @@ was released. Version 2.9.1r1 was released a week or so later and was
 essentially a bugfix although certain game mechanics did undergo some
 minor modification.
 
-Version 2.9.2 is the first version I have released which introduces
-major change to Kangband although this will be largely transparent to
-the player.  2.9.2 includes several more bugfixes and minor game
-mechanics changes (see changes.txt for details) but contains a major
-reworking of the town, building and quest handling resulting in a far
-more powerful (if somewhat esoteric) system.
+Version 2.9.2 was the first version I released which introduced major
+change to Kangband although was largely transparent to the player.  It
+included several more bugfixes and minor game mechanics changes (see
+changes.txt for details) but contained a major reworking of the town,
+building and quest handling resulting in a far more powerful (if
+somewhat esoteric) system.
+
+Version 2.9.3 introduced further refinements to the quest system as
+well as including four new plots that were previously avaialable only
+as add-ins (or as part of the KangbandTk variant of Kangband) as well
+as several other chamges inherent in the codebase update to standard
+Angband 2.9.3.
 
 My vision of the future of Kangband is to keep the code base as close
 to Standard Angband as possible while continuing to develop Kangband

@@ -1,0 +1,65 @@
+# q0000172.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:172:N:The Ancient City
+
+# Definition
+Q:172:Q:6:0:0:0:35:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST172 2]
+Q:172:T:Our archeologists have discovered an anciant underground city. They
+Q:172:T:have asked that you help them in clearing out any would be dangers.
+Q:172:T:It stands to reason that you might find some interesting items in
+Q:172:T:the process.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST172 3]
+Q:172:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST172 5]
+Q:172:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with a Shadow Cloak of Protection
+F:k:1:8:0:124:40
+
+# Floor with a Ring of Protection
+F:l:1:8:0:153
+
+# Floor with a Small Leather Shield
+F:m:1:8:0:128
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X............................%......................................X
+D:X%%%%%%%%%%%%%%%%%%%%%%%%%%%.%.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...X
+D:X..........................%.%.....X******+...............X....*X...X
+D:X.XXXXXXXXX........................XXXXXXXX..&&...........D....*X...X
+D:X.X*......D...............XXDXX....X......................X....*X...X
+D:X.X..9....X...............X*9*X....XXXDXXXXXXXXXXXXXXDXXXXXXXXXXX...X
+D:X.X*......X...............XXXXX...................X.....D......lX...X
+D:X.XXXXXXXXX.......................................X...&.X..9....X...X
+D:X..................................::::...........X.....X......*X...X
+D:X................................::VVVV::.........XXXXXXXXXXXXXXX...X
+D:X.....XXXXXXXX...XXXXXXXX........:VVWWVV:...........................X
+D:X.....X*.....X...X.....*X........::VVVV::...........................X
+D:X.....X......XXDXX..&...X..........::::.........................%%%%X
+D:X.....X..9...X...X......X.......................................%...X
+D:X.....X......D...D......X.......XXXXXXDXXXXXXXXXXXXXXXXXXXX.....%.%.X
+D:X.....Xk.....X...X.....*X.......X.............D....&.....*X.....%:%.X
+D:X.....XXXXXXXXXXXXXXXXXXX.......X.............X..........*X.....%:%.X
+D:X...............................X...&..&..&...XXXXXXXXXXXXX.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......X.............X..........*X.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......X.............D....&.....mX.......%.X
+D:X....WWWWWWWWWWWWWWWWWWWWW......XXXXXXXXXXXXXXXXXXXXXXXXXXX.......%.X
+D:X.................................................................%<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1

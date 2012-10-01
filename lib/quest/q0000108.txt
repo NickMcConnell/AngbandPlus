@@ -1,0 +1,85 @@
+# q0000108.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:108:N:Dwarven Mines
+
+
+# Definition
+Q:108:Q:4:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST108 2]
+Q:108:T:We need you to find a passage through the Dwarven Mines. Should
+Q:108:T:you succeed we will be able to send a leagon behind Morgoth's
+Q:108:T:army and attack from both sides. Can anybody say Custard?
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST108 3]
+Q:108:T:I'm guessing that you looted those mines rather effectively so
+Q:108:T:I hope you were not expecting anything else.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST108 5]
+Q:108:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Dwarven Shovel
+F:k:1:8:0:86
+
+# Floor with Dwarven Pick
+F:l:1:8:0:89
+
+# Floor with Adamantite Platemail of Elvenkind
+F:m:1:8:0:118:9
+
+# Floor with Rubies
+F:n:1:8:0:493
+
+# Floor with Diamonds
+F:o:1:8:0:494
+
+# Floor with Emeralds
+F:p:1:8:0:495
+
+# Floor with Mithril
+F:q:1:8:0:496
+
+# Floor with Adamantite
+F:r:1:8:0:497
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.................%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%X
+D:XXXXXXXXXXXXXXXXX.........%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%nn...k%%%X
+D:X...............XXXXXXXXX.....................%%%%%%%%%;;D...9..n%%%X
+D:X%%%%%%%%%%%%%%.........XXXXXXXXXXXXXXXXXXXXX...........%%%....nn%%%X
+D:X%%%%%%%%%%%%%%%%%%%%%%..X..................XXXXXXXX.....%%%%%%%%%%%X
+D:X%%r.q%%%%%%%%%%%%%%%%%%.X.%%%%%%%%%%%%%%%%........XXXXX..%%%%%%%%%%X
+D:X%%.<..D..........p%%%%%.X.%%%%%%%%%%%%%%%%%%%%%%%9......%%%%oo..l%%X
+D:X%%r.q%%%%%%...9...r%%%%.X...........%%%%%%%%%%%%%%%%%%%%%%%%o9...%%X
+D:X%%%%%%%%%%%.......r%%%%.XXXXXXXXXXX.%%%%%%pppp%%%%%%%%%%%%%%%%D%%%%X
+D:X%%%%%...%%%%....p%%%%.............X.%%%%%......%%%p.....%%%.....p%%X
+D:X%r....V.%%%%%.%%%%%%%.XXXXXX.XXXXXX.%%%%%...9..%%%p..9...D.9.....%%X
+D:X%%%%%.V.%%%%%D%%%%%%..X.............%%%%%......%%%......%%%......%%X
+D:X%%%%%.V.......%%%%%%.XX.%%%%%%%%%%%%%%%%%%.....%%%%%%%%%%%%%%%.%%%%X
+D:X%%%%%.V%%%%%%%%%%%...X..%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%.%%%%X
+D:X%r....V%%%%%%%%%%%.XXX.%%%%%%%%%%%%%%%%%%%%%%D%%%%%%%%%q...%%%.%%%%X
+D:X%%%%%.VVVVVVVVVVVVVV...............%%%%%%%%%%.%%%%%%%%%q.9..D..%%%%X
+D:X%%%%%..............XXXXXXXXXXXXXXX..................%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%.%%%%%...............XXXXXXXXXXXXXXXXXX.%%%%%%%%%%.%%%%X
+D:X%%%%%%%%%%%%.%%%%%%%%%%%.%%%%%%%..................X............%%%%X
+D:X%%m......%%%.%%%%%%%%%%...%%%%%%%%%%%%%%%%%%%%%%%.XXXXXXXXXXXX.....X
+D:X%%r..9....D..%%%%%%%G...9...r%%%%%%%%%%%%%%%%%%%%............XXXXX.X
+D:X%%%%%%%%%%%%%%%%%%%%%.......r%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:1:4
+

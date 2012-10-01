@@ -11,22 +11,22 @@
 # M:<message-type>:<color>
 #
 # Possible colors:
-# d = Dark
+# d = Black
 # w = White
-# s = Slate
+# s = Gray
 # o = Orange
 # r = Red
 # g = Green
 # b = Blue
-# u = Umber
-# D = Light Dark
-# W = Light Slate
+# u = Brown
+# D = Dark Gray
+# W = Light Gray
 # v = Violet
 # y = Yellow
 # R = Light Red
 # G = Light Green
 # B = Light Blue
-# U = Light Umber
+# U = Light Brown
 
 
 # MSG_GENERIC
@@ -118,6 +118,15 @@ M:28:w
 
 # MSG_HITPOINT_WARN
 M:29:o
+
+# MSG_QUEST_DISCOVER
+M:30:y
+
+# MSG_QUEST_COMPLETE
+M:31:y
+
+# MSG_QUEST_FAILED
+M:32:y
 
 ?:1
 

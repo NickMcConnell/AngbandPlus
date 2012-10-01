@@ -1,0 +1,57 @@
+# q0000122.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:122:N:I Hate Snakes!
+
+# Definition
+Q:122:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST122 2]
+Q:122:T:Now that you retrieved your stuff we can begin a more thorough
+Q:122:T:examination of the Ruins. (The King listens to his advisor,..)
+Q:122:T:...What is that you say? One of the buildings seems to be over
+Q:122:T:run with snakes! You might be interested to know that not long
+Q:122:T:ago, a local adventurer dropped,... (the kings advisor gives
+Q:122:T:his lord a stern look),... I mean "Lost" his prized leather
+Q:122:T:Whip among the ruins when he came face to face with a thousand
+Q:122:T:snakes. Advisor->"He hates Snakes!" Perhaps you could perform
+Q:122:T:a little house cleaning in the ruins.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST122 3]
+Q:122:T:I will sleep easier now I do not have to think about those
+Q:122:T:snakes. If you found my whip, you may keep it as a reward.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST122 5]
+Q:122:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Large Brown Snake
+F:a:1:8:22
+
+# Floor with Whip of Westernesse and Large Brown Snake
+F:k:1:8:22:49:68
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX-,,,,------,,,,-----------XX
+D:XX-,,,,a----XXXX;;;XX;;;;XX-;-XX
+D:X---;;------XaaaaaaaaaaaaaX--a-X
+D:X------;;;--;aaaaaakaaaaaa;--;-X
+D:X-,,--------XaaaaaaaaaaaaaX--;-X
+D:X---;;;;----;XX;;;XDX;;XX;X-;;-X
+D:X--a,,------,,,,,--a--,,,---a--X
+D:X-------:::::-:::---;-----;;---X
+D:X----------,,,--------;;a-----XX
+D:X<-----;;;;-------------;;;;-XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:10:1
+

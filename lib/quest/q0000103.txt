@@ -1,0 +1,69 @@
+# q0000103.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:103:N:The Old Barracks
+
+
+# Definition
+Q:103:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST103 2]
+Q:103:T:Next door to the Armory is what we believe to be the old barraks.
+Q:103:T:We heard rumors that Morgoth has a group of spies using it as a
+Q:103:T:base of opperations. We need you to investigate and deal with
+Q:103:T:any unwanted "Guests" that are occupying the building.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST103 3]
+Q:103:T:I hear there were some valuable items in the barracks. You can
+Q:103:T:keep anything you found as your reward.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST103 5]
+Q:103:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Snaga
+F:a:1:8:96
+
+# Floor with Wood spider
+F:b:1:8:120
+
+# Floor with Novice rogue
+F:c:1:8:36
+
+
+# Floor with Leather Scale Mail of Elvenkind
+F:k:1:8:0:107:9
+
+# Floor with Hard Leather Boots of Speed
+F:l:1:8:0:92:59
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.................X.......Xl*.b..*kXXX
+D:X.XXXXXXXDXXXXXXXXX...c...X......a..XX
+D:X.X..a.......X....D...c...X..........X
+D:X.X..........X....X.......X...a...a..X
+D:X.XXDXXXXXXXXX....XXXXXXXXXXXXXXDXXXXX
+D:X.X..........X....X.......a..........X
+D:X.X...a..a...D....X....a.............X
+D:X.X..........X....X.........c...c....X
+D:X.XXXXXXXXXXXX....X..................X
+D:X............X.c..X.........&........X
+D:X..a...a.....X....X..................X
+D:X............X....D....c...c.....a...X
+D:XXXXXXXXXDXXXX....X...........a.....*X
+D:X............X....X................*XX
+D:X<...........X....X...............*XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:15:1
+

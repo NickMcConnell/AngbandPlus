@@ -1,0 +1,20 @@
+# q0000038.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:38:N:Castle Siege II
+
+# Definition
+Q:38:Q:1:0:0:1:0:343:0
+
+# Description for quest
+?:[LEQ $QUEST38 2]
+Q:38:T:King->Morgoth has sent more creatures to attack us lead by Bert,
+Q:38:T:the Stone Troll  But, we will never surrender!  Defeat the
+Q:38:T:invaders!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST38 3]
+Q:38:T:A reward for your good work awaits you outside.
+?:1

@@ -139,13 +139,6 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->resist_nethr) smart |= (SM_RES_NETHR);
 		if (p_ptr->resist_chaos) smart |= (SM_RES_CHAOS);
 		if (p_ptr->resist_disen) smart |= (SM_RES_DISEN);
-
-		/* Know susceptabilities */
-		if (p_ptr->hurt_lite) smart2 &= ~(SM2_OPP_LITE);
-		if (p_ptr->hurt_acid) smart &= ~(SM_OPP_ACID);
-		if (p_ptr->hurt_elec) smart &= ~(SM_OPP_ELEC);
-		if (p_ptr->hurt_fire) smart &= ~(SM_OPP_FIRE);
-		if (p_ptr->hurt_cold) smart &= ~(SM_OPP_COLD);
 	}
 
 
@@ -776,9 +769,12 @@ bool make_attack_spell(int m_idx)
 
 	/* Cannot cast spells at invisible targets */
 	if ((p_ptr->invisible) &&
+	    (!(r_ptr->flags3 & (RF3_DRAGON))) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
 	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
-	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
+	    (!(r_ptr->flags2 & (RF2_SMART))) &&
+	    (!(r_ptr->flags2 & (RF2_INVISIBLE))) &&
+	    (!(r_ptr->flags1 & (RF1_UNIQUE))))
 	{
 		return FALSE;
 	}
@@ -1239,7 +1235,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes mana.", m_name);
 			breath(m_idx, GF_MANA,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)));
+			       ((m_ptr->hp / 6) > 250 ? 250 : (m_ptr->hp / 6)));
 			break;
 			break;
 		}
@@ -2440,9 +2436,12 @@ static int mon_will_run(int m_idx)
 
 	/* Not scared of the player if we can't see him */
 	if ((p_ptr->invisible) &&
+	    (!(r_ptr->flags3 & (RF3_DRAGON))) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
 	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
-	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
+	    (!(r_ptr->flags2 & (RF2_SMART))) &&
+	    (!(r_ptr->flags2 & (RF2_INVISIBLE))) &&
+	    (!(r_ptr->flags1 & (RF1_UNIQUE))))
 		return(FALSE);
 
 	/* Examine player power (level) */
@@ -3063,11 +3062,10 @@ static bool get_moves(int m_idx, int mm[5])
 		/* Try to find safe place */
 		if (find_safety(m_idx, &y, &x))
 		{
-#if 0
 			/* This is not a very "smart" method XXX XXX */
 			y = (-y);
 			x = (-x);
-#endif
+
 			done = TRUE;
 		}
 
@@ -3803,8 +3801,8 @@ static void process_monster(int m_idx)
 			}
 		}
 
-		/* Still stunned -- but not helpless!! From GJW 	-KMW-*/
-		if (m_ptr->stunned && (rand_int(100) < 40)) return;
+		/* Still stunned */
+		if (m_ptr->stunned) return;
 	}
 
 
@@ -3986,9 +3984,12 @@ static void process_monster(int m_idx)
 
 	/* Handle player invisibility */
 	if ((p_ptr->invisible) &&
+	    (!(r_ptr->flags3 & (RF3_DRAGON))) &&
 	    (!(r_ptr->flags3 & (RF3_UNDEAD))) &&
 	    (!(r_ptr->flags3 & (RF3_DEMON))) &&
-	    (!(r_ptr->flags2 & (RF2_INVISIBLE))))
+	    (!(r_ptr->flags2 & (RF2_SMART))) &&
+	    (!(r_ptr->flags2 & (RF2_INVISIBLE))) &&
+	    (!(r_ptr->flags1 & (RF1_UNIQUE))))
 	{
 		stagger = TRUE;
 	}

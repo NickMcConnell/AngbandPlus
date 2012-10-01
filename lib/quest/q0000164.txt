@@ -1,0 +1,66 @@
+# q0000164.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:164:N:Waste Watchers
+
+# Definition
+Q:164:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST164 2]
+Q:164:T:There is nothing quite like a cool glass of clear water. Thank
+Q:164:T:you for restoring the cities water supply. The watchers in our
+Q:164:T:lookout towers have reported that a small band of orcs have
+Q:164:T:set up a blockade at the edge of the wasteland near the city
+Q:164:T:entrence. I need you to help us clear the blockade and get rid
+Q:164:T:of the band of orcs. The spoils are yours to keep, good luck.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST164 3]
+Q:164:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST164 5]
+Q:164:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with a Snaga
+F:a:1:8:96
+
+# Floor with a Hill Orc
+F:b:1:8:120
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XCCCC.............................--TT-CCCWCC,,,,,,,,,,,,,,,,,,,,,,,X
+D:XWWWCCCCCCCCC....................--T-CCCWWCC,,,,,;,,,,,,,,,,,,,,,,,,X
+D:XCCCWWWWWWWWCCCCCCCCCCCCCCC...CCCCCCCCWWCCC,,,,,,,,,,,b,,,,,,,,,,,,,X
+D:X;;CCCCCCCCCWWWWWWWWWWWWWWW.<.WWWWWWWWCCC,,,,,,,,,,,,,,,,,,,,,,,,,;,X
+D:X,;,,,,,,,,CCCCCCCCCCCCCCCC...CCCCCCCCC,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,,;,,,,,,,,;;,,,,;,,,,.,,,,,,,,;;,,,,,,,,,,,,,,,,,,,,b,,,,,,,,,X
+D:X,,,b,,,,,,,,,;,,;;;,,,,,.,,,,,,,;;;;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XX,,,,:,,,,b,,,,,,,;;;;,.,,,,,,,;;;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XX,,,,,,,,,,,,,b:,,,,;;;;;;,,,;;;;,,,,b,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XXX,,,,,,,,,,,,,,,,,,,.b,b;;;;;,,,,,,,,,,,,,,,,,,,,,;;;;;;;,,,,,,,,,X
+D:XXX,,,,,,,,,,,,,,,,,,.b,,,b,,b;,,,;,,,,,,,,,,,,,,,,,;*b,,,,,,,,,,,,,X
+D:XXX,,,,,,,,,,b,;,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;*,*,,,,,,,,,,,,X
+D:XXXX,,,,;,,,,,,,,,,.,,,,,,,,,,b,,;,,,,,,,,,,,,,,,,,,;*b*,,,,,,,,,,,,X
+D:XXXXX,,,,,,,,,,,;,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;*,b,,,,,,,,,,,,X
+D:XXXXX,,,,,,,,,,,,.,,,,,,,b,,,,,,,,,,,,,,,,,,,,,,,,,,;;;;;;;,,,,,,;,,X
+D:XXXX,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XXXX,,,,,,,,,,,,.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XXX,,,,,,,;,,,,,.,,,,,;,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XXX,,,,b,,,,,,,,.,,,,,,,,,,,;,,,,,,,,,,,,,,,,;;;;;;;;;,,,,,,,,,,,,,,X
+D:XX,,,;,,,,,,,,,,,,,,,,,,,,,,,,,b,,,,,,,,,,,,,;**b,b**;,,,,,,,,,,,,,,X
+D:XX,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;;;;;;;;;,,,,,,,,,,,,,,X
+D:X,,,,,;,,,,,.,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:4:28
+

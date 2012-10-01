@@ -15,109 +15,6 @@
 
 #include "angband.h"
 
-/* Array of places to find an inscription */
-static cptr find_quest[] =
-{
-	"You find the following inscription in the floor",
-	"You see a message inscribed in the wall",
-	"There is a sign saying",
-	"Something is written on the staircase",
-	"You find a scroll with the following message",
-};
-
-
-/*
- * Discover quest
- */
-void quest_discovery(int q_idx)
-{
-	quest_type		*q_ptr = &quest[q_idx];
-	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
-	int			q_num = q_ptr->max_num - q_ptr->cur_num;
-	char			name[80];
-
-	/* No quest index */
-	if (!q_idx) return;
-
-	strcpy(name, (r_name + r_ptr->name));
-
-	msg_print(find_quest[rand_range(0, 4)]);
-	message_flush();
-
-	/* Uniques */
-	if (r_ptr->flags1 & RF1_UNIQUE)
-	{
-		/* Unique */
-		msg_format("Beware, this level is protected by %s!", name);
-	}
-
-	/* Normal monsters */
-	else
-	{
-		/* Multiple monsters remaining? */
-		if (q_num > 1)
-			plural_aux(name);
-
-		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
-	}
-}
-
-
-/*
- * Hack -- Check if a level is a "quest" level
- */
-int quest_number(int level)
-{
-	int i;
-
-	/* Check quests */
-	if (p_ptr->inside_quest)
-	{
-		return (p_ptr->inside_quest);
-	}
-
-	for (i = 0; i < MAX_Q_IDX; i++)
-	{
-		if (quest[i].status != QUEST_STATUS_TAKEN)
-		{
-			continue;
-		}
-
-		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-		    !(quest[i].flags & QUEST_FLAG_PRESET) &&
-		    (quest[i].level == level))
-		{
-			return (i);
-		}
-	}
-
-	/* Check for random quest */
-	return (random_quest_number(level));
-}
-
-
-/*
- * Return the index of the random quest on this level
- * (or zero)
- */
-int random_quest_number(int level)
-{
-	int i;
-
-	for (i = 0; i < MAX_Q_IDX + 1; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-		    (quest[i].level == level))
-		{
-			return i;
-		}
-	}
-
-	/* Nope */
-	return 0;
-}
-
 
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
@@ -1049,7 +946,7 @@ static void show_highclass(int building)
 	if (highscore_fd < 0)
 	{
 		msg_print("Score file unavailable.");
-		msg_print(NULL);
+		message_flush();
 		return;
 	}
 
@@ -1068,7 +965,7 @@ static void show_highclass(int building)
 		if (highscore_read(&the_score)) break;
 		clev = atoi(the_score.cur_lev);
 		pc = atoi(the_score.p_c);
-		al = atoi(the_score.arena_number);
+		al = p_ptr->arena_number;
 		if (((pc == (building - 10)) && (building != 1) && (building != 2)) ||
 		    ((building == 1) && (clev >= PY_MAX_LEVEL)) ||
 		    ((building == 2) && (al > MAX_ARENA_MONS)))
@@ -1109,7 +1006,7 @@ static void show_highclass(int building)
 	(void)fd_close(highscore_fd);
 	highscore_fd = -1;
 	msg_print("Hit any key to continue");
-	msg_print(NULL);
+	message_flush();
 	for (j = 5; j < 18; j++)
 	{
 		prt("", j, 0);
@@ -1143,7 +1040,7 @@ static void race_score(int race_num)
 	if (highscore_fd < 0)
 	{
 		msg_print("Score file unavailable.");
-		msg_print(NULL);
+		message_flush();
 		return;
 	}
 
@@ -1372,92 +1269,78 @@ static bool item_tester_hook_ammo(const object_type *o_ptr)
  */
 static bool compare_weapons(void)
 {
-	int item, item2, i;
-	object_type *o1_ptr, *o2_ptr, *orig_ptr;
+	int item, item2;
+	object_type *o1_ptr, *o2_ptr;
+	object_type orig_weapon;
 	object_type *i_ptr;
 	cptr q, s;
+	int row = 6;
 
-	clear_bldg(6,18);
+	/* Clear the screen */
+	clear_bldg(6, 18);
 
-	/* Added this to avoid warning - remove if necessary */
-	orig_ptr = NULL;
-
-	o1_ptr = NULL; o2_ptr = NULL; i_ptr = NULL;
-
-	/* Store copy of original wielded weapon in pack slot */
+	/* Store copy of original wielded weapon */
 	i_ptr = &inventory[INVEN_WIELD];
-	object_copy(orig_ptr, i_ptr);
+	object_copy(&orig_weapon, i_ptr);
 
-	i = 6;
-	/* Get an item */
+	/* Only compare melee weapons */
+	item_tester_hook = item_tester_hook_melee_weapon;
+
+	/* Get the first weapon */
 	q = "What is your first weapon? ";
 	s = "You have nothing to compare.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN)))
-		return(FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
 
 	/* Get the item (in the pack) */
-	if (item >= 0)
-		o1_ptr = &inventory[item];
+	o1_ptr = &inventory[item];
 
-	if ((o1_ptr->tval < TV_BOW) || (o1_ptr->tval > TV_SWORD))
-	{
-		msg_print("Not a weapon! Try again.");
-		message_flush();
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
-		return(FALSE);
-	}
+	/* Only compare melee weapons */
+	item_tester_hook = item_tester_hook_melee_weapon;
 
-	/* Get an item */
+	/* Get the second weapon */
 	q = "What is your second weapon? ";
 	s = "You have nothing to compare.";
-	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN)))
-	{
-		return(FALSE);
-	}
+	if (!get_item(&item2, q, s, (USE_EQUIP | USE_INVEN))) return (FALSE);
 
 	/* Get the item (in the pack) */
-	if (item2 >= 0)
-		o2_ptr = &inventory[item2];
-
-	if ((o2_ptr->tval < TV_BOW) || (o2_ptr->tval > TV_SWORD))
-	{
-		msg_print("Not a weapon! Try again.");
-		message_flush();
-		inven_item_increase(INVEN_PACK, -1);
-		inven_item_optimize(INVEN_PACK);
-		return(FALSE);
-	}
+	o2_ptr = &inventory[item2];
 
 	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
 
-	i_ptr = &inventory[INVEN_WIELD];
-	object_copy(i_ptr, o1_ptr);
+	/* Copy first weapon into the weapon slot (if it's not already there) */
+	if (o1_ptr != i_ptr)
+		object_copy(i_ptr, o1_ptr);
+
+	/* Get the new values */
 	calc_bonuses();
 
-	list_weapon(o1_ptr,i,2);
-	compare_weapon_aux1(o1_ptr, 2, i+8);
+	/* List the new values */
+	list_weapon(o1_ptr, row, 2);
+	compare_weapon_aux1(o1_ptr, 2, row + 8);
 
-	i_ptr = &inventory[INVEN_WIELD];
-	if (item2 == INVEN_WIELD)
-		object_copy(i_ptr, orig_ptr);
-	else
+	/* Copy second weapon into the weapon slot (if it's not already there) */
+	if (o2_ptr != i_ptr)
 		object_copy(i_ptr, o2_ptr);
+	else
+		object_copy(i_ptr, &orig_weapon);
+
+	/* Get the new values */
 	calc_bonuses();
 
-	list_weapon(o2_ptr,i,40);
-	compare_weapon_aux1(o2_ptr, 40, i+8);
+	/* List the new values */
+	list_weapon(o2_ptr, row, 40);
+	compare_weapon_aux1(o2_ptr, 40, row + 8);
 
-	i_ptr = &inventory[INVEN_WIELD];
-	object_copy(i_ptr, orig_ptr);
+	/* Copy back the original weapon into the weapon slot */
+	object_copy(i_ptr, &orig_weapon);
+
+	/* Reset the values for the old weapon */
 	calc_bonuses();
 
-	inven_item_increase(INVEN_PACK, -1);
-	inven_item_optimize(INVEN_PACK);
+	put_str("(Only highest damage applies per monster. Special damage not cumulative.)", 20, 0);
 
-	put_str("(Only highest damage applies per monster. Special damage not cumulative)",20,0);
-
-	return(TRUE);
+	/* Done */
+	return (TRUE);
 }
 
 
@@ -1716,66 +1599,6 @@ static void bldg_process_command(building_type *bldg, int i)
 	{
 		p_ptr->au -= bcost;
 	}
-}
-
-
-/*
- * Enter quest level
- */
-void do_cmd_quest(void)
-{
-	/* Player enters a new quest */
-	p_ptr->oldpy = 0;
-	p_ptr->oldpx = 0;
-
-	leaving_quest = p_ptr->inside_quest;
-
-	/* Leaving an 'only once' quest marks it as failed */
-      /* Used for multi-level quests */
-	if (leaving_quest &&
-		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-	{
-		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-	}
-
-	p_ptr->inside_quest = cave_special[p_ptr->py][p_ptr->px];
-	p_ptr->depth = 1;
-	p_ptr->leftbldg = TRUE;
-	p_ptr->leaving = TRUE;
-}
-
-
-/*
- * Exit quest level
- */
-void do_cmd_exit_quest(void)
-{
-	int q_index = p_ptr->inside_quest;
-
-	/* Was quest completed? */
-	if (quest[q_index].type == QUEST_TYPE_FIND_EXIT)
-	{
-		quest[q_index].status = QUEST_STATUS_COMPLETED;
-		msg_print("You have completed your quest!");
-		message_flush();
-	}
-
-	leaving_quest = p_ptr->inside_quest;
-
-	/* Leaving an 'only once' quest marks it as failed */
-	if (leaving_quest &&
-		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-	{
-		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-	}
-
-	p_ptr->inside_quest = cave_special[p_ptr->py][p_ptr->px];
-	p_ptr->depth = 0;
-	p_ptr->oldpx = 0;
-	p_ptr->oldpy = 0;
-	p_ptr->leaving = TRUE;
 }
 
 

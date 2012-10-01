@@ -1,0 +1,57 @@
+# q0000163.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:163:N:Waste Water!
+
+# Definition
+Q:163:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST163 2]
+Q:163:T:So, how was your excursion into the mines? I hope that you
+Q:163:T:managed to turn a profit. While you were gone spelunking,
+Q:163:T:Someone has been tampering with our water supply, I need you
+Q:163:T:to investigate upriver and put a stop to the vile actions. 
+Q:163:T:Report back here when you have taken care of the problem.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST163 3]
+Q:163:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST163 5]
+Q:163:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with a Snaga
+F:a:1:8:96
+
+# Floor with a Hill Orc
+F:b:1:8:120
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCX
+D:XWWWWVVVVVWWWWWWWVVaaa**CCCCCCCCCCCCCX
+D:XWWWWWWWWWWWWWWWWVV*,,,;;;;,,,CCCCCCCX
+D:XVVVVVVWWWWWWWWWWVV,ab;;,,,,;,,,,,,,,X
+D:XWWWWWWWWWWWWWWWWVV**a,;,,,,,a,,,,,a,X
+D:XWWWWWWWWWWWWWWWWVV;;;;;,,,,,,,,,,,,,X
+D:XVVVVVVVVVVVVWWWWWWVV,,,,,,,,,,,;,,,,X
+D:XWWWWWWWWWWWWWWWWWWVV,,,a,,;,,,,,,,,,X
+D:XWWWWWWWWWWWWWWWWWVV,;,,,*,,,,,,,,,,,X
+D:XVVVVWWWWWWWWWWWWVV,,;,,,,,,,,,,,,;;,X
+D:XWWWWWWWWWWWWWWVV*,,,,,,,::,,,,,,,;,,X
+D:XWWWWWWWWWWWWWVV,,a,,,,,;,,a,,,,,,;,<X
+D:XVVVVVVVVVVWWWVV,,,,,;,a,,,,,*CCCCCCCX
+D:XWWWWWWWWWWWWWVV,;*;;,,,,CCCCCCCCCCCCX
+D:XCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCX
+
+# Starting position
+P:12:36
+

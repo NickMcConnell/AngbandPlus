@@ -1,0 +1,48 @@
+# q0000101.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:101:N:Scout the Ruins
+
+# Definition
+Q:101:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST101 2]
+Q:101:T:Before we can begin the exploration of the ancient city ruins,
+Q:101:T:I need you to scout the entrence to the site and eliminate any
+Q:101:T:dangers in the area. You might find some wolves or Kobolds, so
+Q:101:T:be carefull.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST101 3]
+Q:101:T:Thank you for your hard work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST101 5]
+Q:101:T:You have failed me, beware you do not do so again!
+?:1
+
+# Grass with Small kobold
+F:a:103:8:24
+
+# Floor with wolf
+F:b:1:8:147
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXX
+D:X---;;;---------;;;...b*X
+D:X--------a-------a;;....X
+D:X----a-::----------;;...X
+D:X-----------;;;;----;;;.X
+D:X----------a----------;;X
+D:X;;;;;----------;;;;--a-X
+D:X----;;;--;-a-----------X
+D:X<-----------------;;;--X
+D:XXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1
+

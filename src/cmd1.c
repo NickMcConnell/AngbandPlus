@@ -269,7 +269,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Dragon  */
+			/* Slay Dragon */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
@@ -567,8 +567,8 @@ static void py_pickup_aux(int o_idx)
 			   (quest[i].k_idx == o_ptr->name1))
 		{
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You have completed your quest!");
-			msg_print(NULL);
+			message(MSG_QUEST_COMPLETE, 0, "You have completed your quest!");
+			message_flush();
 		}
 	}
 	
@@ -769,69 +769,13 @@ void py_pickup(int pickup)
 		/* Query before picking up */
 		if (carry_query_flag)
 		{
-			int i;
 			char out_val[160];
-
-			/* Paranoia */
-			message_flush();
-
-			sprintf(out_val, "Pick up %s? [y/n/k]", o_name);
-
-			/* Prompt for it */
-			prt(out_val, 0, 0);
-
-			/* Get an acceptable answer */
-			while (TRUE)
-			{
-				i = inkey();
-				if (quick_messages) break;
-				if (i == ESCAPE) break;
-				if (strchr("YyNnKk", i)) break;
-				bell(NULL);
-			}
-
-			/* Erase the prompt */
-			prt("", 0, 0);
-
-			if ((i == 'Y') || (i == 'y'))
-			{
-				/* Pick up the object */
-				py_pickup_aux(this_o_idx);
-			}
-					
-			if ((i == 'K') || (i == 'k'))
-			{
-				/* Can the player destroy the object? */
-				if (!can_player_destroy_object(o_ptr))
-				{
-					/* Describe the object (with inscription) */
-					object_desc(o_name, o_ptr, TRUE, 3);
-
-					/* Message */
-					msg_format("You cannot destroy %s.", o_name);
-
-					/* Get the next object */
-					continue;
-				}
-
-				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
-
-				/* Message */
-				msg_format("You destroy %s.", o_name);
-
-				/* Actually destroy the object */
-				delete_object_idx(this_o_idx);
-
-				/* Get the next object */
-				continue;
-			}
+			sprintf(out_val, "Pick up %s? ", o_name);
+			if (!get_check(out_val)) continue;
 		}
-		else
-		{
-			/* Pick up the object */
-			py_pickup_aux(this_o_idx);
-		}
+
+		/* Pick up the object */
+		py_pickup_aux(this_o_idx);
 	}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -1483,6 +1427,27 @@ void move_player(int dir, int jumping)
 		py_attack(y, x);
 	}
 
+	/* Chasm -KMW- */
+	else if (cave_feat[y][x] == FEAT_CHASM)
+	{
+		/* Disturb the player */
+		disturb(0, 0);
+
+		/* Notice unknown obstacles */
+		if (!(cave_info[y][x] & (CAVE_MARK)))
+		{
+			message(MSG_HITWALL, 0, "The chasm can't be crossed.");
+			cave_info[y][x] |= (CAVE_MARK);
+			lite_spot(y, x);
+		}
+
+		/* Mention known obstacles */
+		else
+		{
+			message(MSG_HITWALL, 0, "There is a chasm in your way.");
+		}
+	}
+
 #ifdef ALLOW_EASY_ALTER
 
 	/* Optionally alter known traps/doors on (non-jumping) movement */
@@ -1564,7 +1529,7 @@ void move_player(int dir, int jumping)
 			/* Wall (or secret door) */
 			else
 			{
-				message(MSG_HITWALL, 0, "There is a damn wall blocking your way.");
+				message(MSG_HITWALL, 0, "There is a wall blocking your way.");
 			}
 		}
 	}
@@ -1893,7 +1858,7 @@ static const byte chome[] =
  *
  * Blunt Corridor -- If there is a wall two spaces ahead and
  * we seem to be in a corridor, then force a turn into the side
- * corridor, must be moving straight into a corridor here. ???
+ * corridor, must be moving straight into a corridor here. (?)
  *
  * Diagonal Corridor    Blunt Corridor (?)
  *       # #                  #

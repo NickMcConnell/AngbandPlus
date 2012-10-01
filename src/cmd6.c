@@ -637,7 +637,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_BESERK_STRENGTH:
+		case SV_POTION_BERSERK_STRENGTH:
 		{
 			if (hp_player(30)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
@@ -699,7 +699,6 @@ void do_cmd_quaff_potion(void)
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
-			hp_player(5000);
 			(void)set_poisoned(0);
 			(void)set_blind(0);
 			(void)set_confused(0);
@@ -712,6 +711,11 @@ void do_cmd_quaff_potion(void)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+
+			/* Recalculate max. hitpoints */
+			update_stuff();
+
+			hp_player(5000);
 			ident = TRUE;
 			break;
 		}
@@ -1512,8 +1516,6 @@ void do_cmd_use_staff(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-	if (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_DRUID)
-		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1550,6 +1552,8 @@ void do_cmd_use_staff(void)
 		if (flush_failure) flush();
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -1932,8 +1936,6 @@ void do_cmd_aim_wand(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_ILLUSIONIST)
-		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1970,6 +1972,8 @@ void do_cmd_aim_wand(void)
 		if (flush_failure) flush();
 		msg_print("The wand has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		p_ptr->window |= (PW_INVEN);
 		return;
 	}
 
@@ -2335,8 +2339,6 @@ void do_cmd_zap_rod(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
-	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_ILLUSIONIST)
-		p_ptr->energy_use = 100 - (p_ptr->skill_dev / 4);
 
 	/* Not identified yet */
 	ident = FALSE;

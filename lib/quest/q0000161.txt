@@ -1,0 +1,54 @@
+# q0000161.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:161:N:The Dig!
+
+# Definition
+Q:161:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST161 2]
+Q:161:T:A group of our kingdom archeologists have reported that a small
+Q:161:T:group of Kobolds have been reaking havok at their current dig
+Q:161:T:site. They are worried that many of the new-found relics will
+Q:161:T:be damaged or destroyed in the attacks. Go to their camp and
+Q:161:T:take care of the problem.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST161 3]
+Q:161:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST161 5]
+Q:161:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with a Small Kobold
+F:a:1:8:24
+
+# Floor with a Dwarven Shovel of Digging
+F:k:1:8:0:86:100
+
+# Floor with a Shard of Pottery
+F:l:1:8:0:389
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXX
+D:X;;;l,,,,,,a,,,,;,,;;;kX
+D:X,,,,,,,,l;;,,,,,,a,;;;X
+D:X,;,,,,,,,,,,,a,,,,;;,,X
+D:X,l,,,,,,;,,,,,,a,,,,l;X
+D:X,,,,;,,,,,,,,,,,,,,a,,X
+D:X,,,a,,,,l,,;;l,,,,;,,,X
+D:X,,,,,,,,,,;,,,,,,a,;a,X
+D:X<,;;,l,,,,,,,,,l;;,,,lX
+D:XXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:7:1
+

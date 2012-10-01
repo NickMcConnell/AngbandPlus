@@ -1,0 +1,58 @@
+# q0000153.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:153:N:The Elven Way Pass
+
+# Definition
+Q:153:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST153 2]
+Q:153:T:King->You cut a fine figure in your new armor,.. is that a 
+Q:153:T:new sword you are carrying? 
+Q:153:T:Morgoth is up to his old tricks, this time he has set up a
+Q:153:T:blockade in the Elven Way Pass. Once again I need you to
+Q:153:T:restore the trade route.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST153 3]
+Q:153:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST153 5]
+Q:153:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Lagduf, the Snaga
+F:a:1:8:112
+
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X###################----..----######################X
+D:X###################----..-----#####################X
+D:X####################---..------####################X
+D:X####################----a.------###################X
+D:X####################----..------###################X
+D:X###################------...------#################X
+D:X###################--------..-----------###########X
+D:X###################---------...------------########X
+D:X###################----------...------------#######X
+D:X###################------------..-----------#######X
+D:X####################------------..-----------######X
+D:X######################-----------..----------######X
+D:X########################---------...----;;;;-######X
+D:X###########################-------..----;--;--#####X
+D:X############################-------..---;;;;---####X
+D:X##############################------...---------###X
+D:X###############################-------...--------<-X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:17:50
+

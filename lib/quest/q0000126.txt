@@ -1,0 +1,71 @@
+# q0000126.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:126:N:The Dark Market
+
+
+# Definition
+Q:126:Q:3:0:0:0:10:0:42:6
+
+# Description for quest
+?:[LEQ $QUEST126 2]
+Q:126:T:I trust you found some usefull items!,... good, I have some news
+Q:126:T:from my historian, he has been going over documents pertaining to
+Q:126:T:the old "Dark Market" activities in the old city. He has found an
+Q:126:T:interesting account of a powerful artifact that was comissioned by
+Q:126:T:the old king. It seems that although the artifact was completed,
+Q:126:T:he never sent a regent to pick it up. The historian believes it
+Q:126:T:could very well be burried within the ruins of the old "Dark
+Q:126:T:Market". Finding it will be no easy task, the ruins in that area
+Q:126:T:are overridden with rubble. You'll need a good pick and shovel!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST126 3]
+Q:126:T:As a reward for your good work you may keep the crown.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST126 5]
+Q:126:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Potion of Strength
+F:k:1:8:0:225
+
+# Floor with Potion of Intelligence
+F:l:1:8:0:228
+
+# Floor with Potion of Dexterity
+F:m:1:8:0:251
+
+# Floor with Goldon Crown of Gondor
+F:1:1:8:0:0:0:42
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX*&*&*&*&*XXXXXXXXXXXXXXXXXXXX;;;;;;;;;;;..XX;;&XXX
+D:XXXXX;;;;;;;;;XXXXXXXXXXXX;;;;;;D;;;;;;;;;;;;&.D;;;*XXX
+D:XXXXX;;;;;;;;;XXXXXXXXXXXX;XXXXXXX;;;;;;;;;;;..XX;;&XXX
+D:XXXXXXXXX;XXXXXXXXXXXXXXXX;XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXDXXXXXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;XXXXXXXXXX
+D:XXX;XXXXXXXXXXXXDXXXXXXXXXXXXXXXXDXXXXXXXXXX;XXXXXXXXXX
+D:XXX;XXXXXXXXX;;;;;;;XXXXXXXXXXXXX;XXXXXXXXXX;XXXXXXXXXX
+D:XXX;XXXXXXXXX;;;;;;;XXXXXXXXX;;;;;;;;;XXXXXX;X:::::::XX
+D:XXX;XXXXXXXXX*.9.9.*XXXXXXXXX;;;;;;;;;XXXXXX;D:::::::XX
+D:XXX;XXXXXXXXXXXXXXXXXXXXXXXXX.k9.l.9m.XXXXXX;X:::::::XX
+D:XXX;XXXXXXXXXXXXX;;XXXXXXXXXXXXXXXXXXXXXXXXX;XXXXXDXXXX
+D:XX...XXXXXXXX1.@.;;XXXXXXXXXXXXXXXXXXXXXXXXXDXXXX;;;XXX
+D:X<....XXXXXXXXX.@;;;D;;;;D;;;;D;;;;D;;;;D;;;;XXXX...XXX
+D:XXXXXXXXXXXXXXXXX;;XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:15:1
+

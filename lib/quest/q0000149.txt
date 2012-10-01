@@ -1,0 +1,56 @@
+# q0000149.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:149:N:Pinewood Forest
+
+# Definition
+Q:149:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST149 2]
+Q:149:T:King->A group of bandits have made Pinewood Forest their new
+Q:149:T:home. I will not have their kind terrorizing our good citizens.
+Q:149:T:Clear the woods and bring me the head of their leader.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST149 3]
+Q:149:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST149 5]
+Q:149:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Bandit
+F:a:1:8:121
+
+# Floor with Master Rogue
+F:b:1:8:263
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:Xb-;---T-T--;;;--T--;--T---;;T-T---,-X
+D:X-T-,-T---TT--T----T--T--TTT-;--T-aa-X
+D:X--aaT-T---T-T-T-aa-T--aaa---;*--,--TX
+D:X--TT---T-T-T-,----T----aa--T----T---X
+D:X-*-----T-aa-----T--,T-;--T---T-a-T--X
+D:X--T----T-a--T---;;*-----T--;;---T---X
+D:X-T-aa-T-T----T-T-aa--T---aa--T-,----X
+D:X---T-T-;;--T-T---a-T--T----T-------TX
+D:X--,,--T-T--T----T-----T,-T---T--a---X
+D:X-T,----aa-T-T----aa--T-,----*--T--T-X
+D:X---T-T----T--T---T--T---,-------T---X
+D:X---,T----T----T----T----aT-T-----;;;X
+D:X--,CCCCCCCCCCCCCCCCCCCCCCCCCT-,T---<X
+D:XCCCCWWWWWWWWWWWWWWWWWWWWWWWCCCCCCCCCX
+D:XWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:13:36
+

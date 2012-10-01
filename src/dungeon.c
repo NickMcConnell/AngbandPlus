@@ -84,15 +84,6 @@ static int value_check_aux2(const object_type *o_ptr)
 
 /*
  * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light
- *   Class 5 = Paladin --> slow but heavy
- *   Class 6 = Illusionist --> slow and light -KMW-
- *   Class 7 = Druid   --> fast but light
  */
 static void sense_inventory(void)
 {
@@ -100,7 +91,7 @@ static void sense_inventory(void)
 
 	int plev = p_ptr->lev;
 
-	bool heavy = FALSE;
+	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 
 	int feel;
 
@@ -114,90 +105,15 @@ static void sense_inventory(void)
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-	/* Analyze the class */
-	switch (p_ptr->pclass)
+	if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
 	{
-		case CLASS_WARRIOR:
-		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ILLUSIONIST: /* Added -KMW- */
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_DRUID:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
+		if (0 != rand_int(cp_ptr->sense_base / (plev * plev + cp_ptr->sense_div)))
+			return;
+	}
+	else
+	{
+		if (0 != rand_int(cp_ptr->sense_base / (plev + cp_ptr->sense_div)))
+			return;
 	}
 
 
@@ -1239,6 +1155,7 @@ static void process_world(void)
 			{
 				msg_print("You feel yourself yanked upwards!");
 
+				/* New depth */
 				p_ptr->depth = 0;
 
 				leaving_quest = p_ptr->inside_quest;
@@ -1249,9 +1166,13 @@ static void process_world(void)
 					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 				{
 					quest[leaving_quest].status = QUEST_STATUS_FAILED;
+					message(MSG_QUEST_FAILED, 0,
+					        "You have failed your quest!");
+					message_flush();
 				}
-
 				p_ptr->inside_quest = 0;
+
+				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -1281,7 +1202,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-	if (verify_special || !(p_ptr->noscore & 0x0002))
+	if (verify_special && !(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
@@ -1921,13 +1842,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Interact with objects */
-		case '#':
-		{
-			do_cmd_objects();
-			break;
-		}
-
 		/* Interact with pets */
 		case '$':
 		{
@@ -2524,6 +2438,56 @@ static void process_player(void)
 }
 
 
+/* Array of places to find an inscription */
+static cptr find_quest[] =
+{
+	"You find the following inscription in the floor",
+	"You see a message inscribed in the wall",
+	"There is a sign saying",
+	"Something is written on the staircase",
+	"You find a scroll with the following message",
+};
+
+
+/*
+ * Discover quest
+ */
+static void quest_discovery(int q_idx)
+{
+	quest_type		*q_ptr = &quest[q_idx];
+	monster_race	*r_ptr = &r_info[q_ptr->r_idx];
+	int			q_num = q_ptr->max_num - q_ptr->cur_num;
+	char			name[80];
+
+	/* No quest index */
+	if (!q_idx) return;
+
+	strcpy(name, (r_name + r_ptr->name));
+
+	message(MSG_QUEST_DISCOVER, 0, find_quest[rand_range(0, 4)]);
+	message_flush();
+
+	/* Uniques */
+	if (r_ptr->flags1 & RF1_UNIQUE)
+	{
+		/* Unique */
+		message_format(MSG_QUEST_DISCOVER, 0,
+		               "Beware, this level is protected by %s!", name);
+	}
+
+	/* Normal monsters */
+	else
+	{
+		/* Multiple monsters remaining? */
+		if (q_num > 1)
+			plural_aux(name);
+
+		message_format(MSG_QUEST_DISCOVER, 0,
+		               "Be warned, this level is guarded by %d %s!", q_num, name);
+	}
+}
+
+
 
 /*
  * Interact with the current dungeon level.
@@ -2581,7 +2545,7 @@ static void dungeon(void)
 
 
 	/* Get index of current quest (if any) */
-	quest_num = quest_number(p_ptr->depth);
+	quest_num = is_quest(p_ptr->depth);
 
 	/* Inside a quest? */
 	if (quest_num)
@@ -2605,7 +2569,7 @@ static void dungeon(void)
 
 
 	/* No stairs down from Quest */
-	if (quest_number(p_ptr->depth))
+	if (is_quest(p_ptr->depth))
 	{
 		p_ptr->create_down_stair = FALSE;
 	}
@@ -2730,7 +2694,7 @@ static void dungeon(void)
 
 	/* Print quest message if appropriate */
 	if (!p_ptr->inside_quest)
-		quest_discovery(random_quest_number(p_ptr->depth));
+		quest_discovery(is_quest(p_ptr->depth));
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();
@@ -3022,7 +2986,7 @@ void play_game(bool new_game)
 		/* Hack -- seed for random artifacts */
 		seed_randart = rand_int(0x10000000);
 
-#endif
+#endif /* GJW_RANDART */
 
 		/* Roll up a new character */
 		player_birth();
@@ -3032,10 +2996,15 @@ void play_game(bool new_game)
 		/* Randomize the artifacts */
 		if (adult_rand_artifacts)
 		{
-			do_randart(seed_randart);
+			do_randart(seed_randart, TRUE);
 		}
 
-#endif
+#else /* GJW_RANDART */
+
+		/* Make sure random artifacts are turned off if not available */
+		adult_rand_artifacts = FALSE;
+
+#endif /* GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -3221,7 +3190,6 @@ void play_game(bool new_game)
 				strcpy(p_ptr->died_from, "Cheating death");
 
 				/* New depth */
-				/* p_ptr->depth = 0; */
 				p_ptr->inside_arena = 0;
 
 				/* Leaving */

@@ -1,0 +1,65 @@
+# q0000169.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:169:N:Desert Caravan
+
+# Definition
+Q:169:Q:6:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST169 2]
+Q:169:T:We are expecting some very important supplies from a caravan in the
+Q:169:T:eastern desert. I need you to go and make sure that the caravan does
+Q:169:T:not encounter any problems. Be careful, you never know what dangers
+Q:169:T:might be lurking near the desert.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST169 3]
+Q:169:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST169 5]
+Q:169:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with a Canine Skeleton
+F:k:1:8:0:393
+
+# Floor with a Rodent Skeleton
+F:l:1:8:0:394
+
+# Floor with a Human Skeleton
+F:m:1:8:0:395
+
+# Floor with a Dwarf Skeleton
+F:n:1:8:0:396
+
+# Floor with a Elf Skeleton
+F:o:1:8:0:397
+
+# Floor with a Gnome Skeleton
+F:p:1:8:0:398
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXn,,XXXXXXXXXXXXXXXXXXXo,,,,,,,,,,,,,,,p,,,,,,,,,,,,X
+D:XXXXXXXXXXXXXXXk,,,,m,,,,,,,XXXXXXX,,,,,,,,,,,,;,,,,,,,,,,,,,,,,o,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXX,,,,,p,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;;,,,,,,X
+D:XXXXXXXXXXXXXXXXX,,,,;;,,,,,,,,,,,,,,l,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,X
+D:XXXXXXX,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,;,,,,,,,,,p,,,,,,,,,,o,,,,,,,,X
+D:XXX,,l,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,;,X
+D:X,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,,,,m,,,,,,k,,,,,,,,,,,,p,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,n,,X
+D:X,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,n,,,,,,,,,,,,,9X
+D:X,;,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,;,,,,,8,,,,9,X
+D:X,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,l,,,,,,,,,,,,,,,,,,,,,9,9X
+D:X,<,,,,;,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,;,,9,,,9,9,X
+D:X,,,,,,,,,m,,;,,,,,,;,,,,,,,,,,k,,,,,,,,;,,,,,,,,m,,,,,,,,,,,,,,9,9,9X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:12:2

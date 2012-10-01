@@ -1,0 +1,18 @@
+# q0000099.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:99:N:Morgoth
+
+# Definition
+Q:99:Q:1:0:0:1:100:547:0
+
+# Description for quest
+?:[LEQ $QUEST99 2]
+Q:99:T:Your final quest is the ultimate quest that has always been
+Q:99:T:required of you. There are no other goals for you to strive for.
+Q:99:T:You must enter Morgoth's dungeon, travel deep, and defeat this
+Q:99:T:source of all our problems. Be prepared, be patient, and good luck.
+Q:99:T:May the light shine on you.
+?:1
+

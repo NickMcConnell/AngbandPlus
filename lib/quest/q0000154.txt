@@ -1,0 +1,72 @@
+# q0000154.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:154:N:The Elven Way Pass
+
+# Definition
+Q:154:Q:6:0:0:0:25:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST154 2]
+Q:154:T:King->Morgoth has sent an assassin to kill the Dwarven
+Q:154:T:Leader. I cannot allow this to happen, the Dwarves are
+Q:154:T:our allies. You must find the assassin before he can
+Q:154:T:carry out his work.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST154 3]
+Q:154:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST154 5]
+Q:154:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Khamul, the Easterling
+F:a:1:8:494
+
+# Floor with a Dwarf Skeleton
+F:k:1:8:0:396
+
+# Floor with a Shard of Pottery
+F:l:1:8:0:389
+
+# Floor with a Broken Stick
+F:m:1:8:0:390
+
+# Floor with a Broken Skull
+F:n:1:8:0:391
+
+# Floor with a Ruined Chest
+F:o:1:8:0:344
+
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXXXXX
+D:XXXXXX......mXXXXXXXXXXXXXXXXXXX.....XXXk.......kXXXX
+D:XXXXXXk......XXXXXXXXXXXXXXXXX.....XXXXX.........XXXX
+D:XXXXXX.......D......XXXXXXXX....XXXXXXXX......n..XXXX
+D:XXXXXX.......XXXXXX...........XXXXXXXXXXXXXXDXXXXXXXX
+D:XXXXXX.......XXXXXXXXXXXXXX...XXXXXXXXXXXXXX.XXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX..................XXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXXXXX
+D:X....lXXXXXXXXXXXXXXXXX....XXXX..XXX.XXXXXX.XXXXX..XX
+D:X.....D..................XX;XX.XX.X.X..XXX.X..XX.X.XX
+D:Xk....XXXXXXXXXXX.....XXXXXX...XXX.XXXX...XXXX..XX.XX
+D:XXXXXXXXXXXXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XX
+D:XXXXXXXXXXX......XXXXXXXXXXX............kXXXXXXXXX.XX
+D:XXXXXXXX.....XX.XXXXXXXXXXXX.....l.......XXXXXXXXX;XX
+D:XXXXX.....XXXXX............D.............XXXXXXXXXDXX
+D:X......XXXXXXXXXXXXXXXXXXXXX.............XXXXXXXX.a.X
+D:X<...XXXXXXXXXXXXXXXXXXXXXXX......m.....oXXXXXXXX...X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:16:1
+

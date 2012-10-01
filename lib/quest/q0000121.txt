@@ -1,0 +1,82 @@
+# q0000121.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:121:N:Kobolds Stole Your Gear!
+
+# Definition
+Q:121:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST121 2]
+Q:121:T:King: Thank you for your swift reply to my summons. I am happy to 
+Q:121:T:see that you are still in good health. Times are hard and Morgoth
+Q:121:T:is back and up to his vile old tricks. I need you to come out of
+Q:121:T:retirement and help us put an end to his Evil ways. I hope that
+Q:121:T:you didn't get rid of all your old equipment and supplies. You're
+Q:121:T:going to need them if you hope to succeed. You do know where you
+Q:121:T:stashed them,.. don't you?
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST121 3]
+Q:121:T:Thank you for your hard work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST121 5]
+Q:121:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with Phial of Galadrial
+F:1:1:8:24:0:0:1
+
+# Floor with Small kobold
+F:a:1:8:24
+
+# Floor with Leather Scale Mail
+F:k:1:8:0:107
+
+# Floor with Cloak
+F:l:1:8:0:123
+
+# Floor with Hard Leather Boots
+F:m:1:8:0:92
+
+# Floor with Small Leather Shield
+F:n:1:8:0:128
+
+# Floor with Hard Leather Cap
+F:o:1:8:0:94
+
+# Floor with Scroll of Acquirement
+F:p:1:8:0:198
+
+# Floor with Large Wooden Chest
+F:q:1:8:0:339
+
+# Floor with Potion of Strength
+F:r:1:8:0:225
+
+# Floor with Potion of Experience
+F:s:1:8:0:244
+
+# Floor with Potion of Dexterity
+F:t:1:8:0:251
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXX
+D:X1knp.aXq***rrX
+D:Xlmo...Xq.&.ssX
+D:XXXXXXDXq...ttX
+D:X.a..a.XXXDXXXX
+D:X.a.a...a...a.X
+D:X....a........X
+D:XXXXXXXDXXXXXXX
+D:X<............X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1
+

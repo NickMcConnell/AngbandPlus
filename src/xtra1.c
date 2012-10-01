@@ -162,7 +162,7 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev-1)/5];
+		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
 	}
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
@@ -289,7 +289,7 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-	if (!mp_ptr->spell_book) return;
+	if (!cp_ptr->spell_book) return;
 
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
@@ -615,7 +615,7 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", ROW_STUDY, 64);
+		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
 	else
 	{
@@ -787,7 +787,7 @@ static void prt_frame_basic(void)
 
 	/* Race and Class */
 	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
-	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+	prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
 
 	/* Title */
 	prt_title();
@@ -1154,11 +1154,11 @@ static void calc_spells(void)
 
 	const magic_type *s_ptr;
 
-	cptr p = (((mp_ptr->spell_book == TV_MAGIC_BOOK)|| (mp_ptr->spell_book == TV_ILLUSION_BOOK)) ? "spell" : "prayer");
+	cptr p = (((cp_ptr->spell_book == TV_MAGIC_BOOK)|| (cp_ptr->spell_book == TV_ILLUSION_BOOK)) ? "spell" : "prayer");
 
 
 	/* Hack -- must be literate */
-	if (!mp_ptr->spell_book) return;
+	if (!cp_ptr->spell_book) return;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1168,13 +1168,13 @@ static void calc_spells(void)
 
 
 	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - mp_ptr->spell_first + 1;
+	levels = p_ptr->lev - cp_ptr->spell_first + 1;
 
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] *
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[cp_ptr->spell_stat]] *
 	               levels / 2);
 
 	/* Assume none known */
@@ -1198,7 +1198,7 @@ static void calc_spells(void)
 
 
 	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
+	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
 	{
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
@@ -1242,7 +1242,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_type][j]);
+			           spell_names[cp_ptr->spell_type][j]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1251,7 +1251,7 @@ static void calc_spells(void)
 
 
 	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
+	for (i = PY_MAX_SPELLS - 1; i >= 0; i--)
 	{
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
@@ -1292,7 +1292,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[mp_ptr->spell_type][j]);
+			           spell_names[cp_ptr->spell_type][j]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1348,7 +1348,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[mp_ptr->spell_type][j]);
+			           p, spell_names[cp_ptr->spell_type][j]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1421,25 +1421,24 @@ static void calc_mana(void)
 
 
 	/* Hack -- Must be literate */
-	if (!mp_ptr->spell_book) return;
+	if (!cp_ptr->spell_book) return;
 
 
 	/* Extract "effective" player level */
-	levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
+	levels = (p_ptr->lev - cp_ptr->spell_first) + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
+	msp = adj_mag_mana[p_ptr->stat_ind[cp_ptr->spell_stat]] * levels / 2;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
 
-	/* Only mages and illusionists are affected -KMW- */
-	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) |
-		(mp_ptr->spell_book == TV_ILLUSION_BOOK)) /* -KMW- */
+	/* Process gloves for those disturbed by them */
+	if (cp_ptr->flags & CF_CUMBER_GLOVE)
 	{
 		u32b f1, f2, f3;
 
@@ -1479,7 +1478,7 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-	max_wgt = mp_ptr->spell_weight;
+	max_wgt = cp_ptr->spell_weight;
 
 	/* Heavy armor penalizes mana */
 	if (((cur_wgt - max_wgt) / 10) > 0)
@@ -1904,12 +1903,6 @@ extern void calc_bonuses(void)
 	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
-	/* Warrior */
-	if (p_ptr->pclass == CLASS_WARRIOR)
-	{
-		if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
-	}
-
 
 	/*** Analyze equipment ***/
 
@@ -2137,7 +2130,7 @@ extern void calc_bonuses(void)
 		p_ptr->dis_to_h += 12;
 	}
 
-	/* Temporary "Beserk" */
+	/* Temporary "Berserk" */
 	if (p_ptr->shero)
 	{
 		p_ptr->to_h += 24;
@@ -2397,7 +2390,7 @@ extern void calc_bonuses(void)
 			p_ptr->ammo_mult += extra_might;
 
 			/* Hack -- Rangers love Bows */
-			if ((p_ptr->pclass == CLASS_RANGER) &&
+			if ((cp_ptr->flags & CF_EXTRA_SHOT) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
 				/* Extra shot at level 20 */
@@ -2437,42 +2430,13 @@ extern void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0;
 		int div;
 
-		/* Analyze the class */
-		switch (p_ptr->pclass)
-		{
-			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
-
-			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
-
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
-
-			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
-
-			/* Illusionist */
- 			case CLASS_ILLUSIONIST: num = 4; wgt = 40; mul = 2; break;
-
-			/* Druid */
-			case CLASS_DRUID:  num = 5; wgt = 35; mul = 3; break;
-		}
-
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
 
 		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
@@ -2487,7 +2451,7 @@ extern void calc_bonuses(void)
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
 		/* Maximal value */
-		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
+		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
@@ -2503,7 +2467,7 @@ extern void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_DRUID)) && (!p_ptr->bless_blade) &&
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */
@@ -2513,24 +2477,6 @@ extern void calc_bonuses(void)
 		/* Reduce the mental bonuses */
 		p_ptr->dis_to_h -= 2;
 		p_ptr->dis_to_d -= 2;
-
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
-	}
-
-	/* Mage/Illusionist weapon penalty for non-applicable weapons -KMW-*/
-	if (((p_ptr->pclass == 1) || (p_ptr->pclass == 6)) &&
-	    ((o_ptr->sval != SV_DAGGER) && (o_ptr->sval != SV_MAIN_GAUCHE) &&
-	    (o_ptr->sval != SV_QUARTERSTAFF) &&
-	    (o_ptr->tval)))
-	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 5;
-		p_ptr->to_d -= 5;
-
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 5;
-		p_ptr->dis_to_d -= 5;
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
@@ -2574,7 +2520,7 @@ extern void calc_bonuses(void)
 			/* Change in INT may affect Mana/Spells */
 			else if (i == A_INT)
 			{
-				if (mp_ptr->spell_stat == A_INT)
+				if (cp_ptr->spell_stat == A_INT)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
@@ -2583,7 +2529,7 @@ extern void calc_bonuses(void)
 			/* Change in WIS may affect Mana/Spells */
 			else if (i == A_WIS)
 			{
-				if (mp_ptr->spell_stat == A_WIS)
+				if (cp_ptr->spell_stat == A_WIS)
 				{
 					p_ptr->update |= (PU_MANA | PU_SPELLS);
 				}
@@ -2851,7 +2797,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_MISC);
 		prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
-		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
+		prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))

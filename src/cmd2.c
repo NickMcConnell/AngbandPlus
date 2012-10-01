@@ -12,6 +12,41 @@
 
 
 /*
+ * Exit quest level
+ */
+static void do_cmd_exit_quest(void)
+{
+	int q_index = p_ptr->inside_quest;
+
+	/* Was quest completed? */
+	if (quest[q_index].type == QUEST_TYPE_FIND_EXIT)
+	{
+		quest[q_index].status = QUEST_STATUS_COMPLETED;
+		message(MSG_QUEST_COMPLETE, 0, "You have completed your quest!");
+		message_flush();
+	}
+
+	leaving_quest = p_ptr->inside_quest;
+
+	/* Leaving an 'only once' quest marks it as failed */
+	if (leaving_quest &&
+		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+	{
+		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		message(MSG_QUEST_FAILED, 0, "You have failed your quest!");
+		message_flush();
+	}
+
+	p_ptr->inside_quest = cave_special[p_ptr->py][p_ptr->px];
+	p_ptr->depth = 0;
+	p_ptr->oldpx = 0;
+	p_ptr->oldpy = 0;
+	p_ptr->leaving = TRUE;
+}
+
+
+/*
  * Go up one level
  */
 void do_cmd_go_up(void)
@@ -62,6 +97,35 @@ void do_cmd_go_up(void)
 	p_ptr->oldpx = 0;
 
 	/* Leaving */
+	p_ptr->leaving = TRUE;
+}
+
+
+/*
+ * Enter quest level
+ */
+static void do_cmd_quest(void)
+{
+	/* Player enters a new quest */
+	p_ptr->oldpy = 0;
+	p_ptr->oldpx = 0;
+
+	leaving_quest = p_ptr->inside_quest;
+
+	/* Leaving an 'only once' quest marks it as failed */
+      /* Used for multi-level quests */
+	if (leaving_quest &&
+		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+	{
+		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		message(MSG_QUEST_FAILED, 0, "You have failed your quest!");
+		message_flush();
+	}
+
+	p_ptr->inside_quest = cave_special[p_ptr->py][p_ptr->px];
+	p_ptr->depth = 1;
+	p_ptr->leftbldg = TRUE;
 	p_ptr->leaving = TRUE;
 }
 
@@ -2383,7 +2447,7 @@ void do_cmd_rest(void)
 		strcpy(out_val, "&");
 
 		/* Ask for duration */
-		if (!get_string(p, out_val, 4)) return;
+		if (!get_string(p, out_val, 5)) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')

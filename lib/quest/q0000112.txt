@@ -1,0 +1,73 @@
+# q0000112.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:112:N:The Assassin
+
+
+# Definition
+Q:112:Q:6:0:0:0:35:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST112 2]
+Q:112:T:The Healers are delighted that you found the Arkenstone of Thrain. They
+Q:112:T:asked that you be entrusted with its care until the upcomming war.
+Q:112:T:I share their trust and hope that it will serve you well. Morgoth has
+Q:112:T:heard of your great deeds and has sent Uldor the Accursed to deal with 
+Q:112:T:you. Uldor sent a messenger to the captain of the guard and issued a
+Q:112:T:challenge to you. He has made camp in the old Guardhouse in the ruins.
+Q:112:T:You should accept his challenge and send his head back to Morgoth.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST112 3]
+Q:112:T:Thank goodness we found out about the assasin in time. You must watch
+Q:112:T:your back carefully from now on.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST112 5]
+Q:112:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Uldor, the Uccursed
+F:a:1:8:304
+
+# Floor with Human Skeleton
+F:k:1:8:0:395
+
+# Floor with Dwarf Skeleton
+F:l:1:8:0:396
+
+# Floor with Elf Skeleton
+F:m:1:8:0:397
+
+# Floor with Gnome Skeleton
+F:n:1:8:0:398
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:Xk...............*X..<....X.........kX
+D:XXXXX....a....XXXXX.......X..........X
+D:Xn...............mX.......D..........X
+D:XXXXX.........XXXXX.......X.......k..X
+D:Xl...............kX.......XXXXXXDXXXXX
+D:XXXXX.........XXXXX.......X*.......l.X
+D:X*...............nX.......Xl........lX
+D:XXXXX.........XXXXX.......XXXXXXXXXXXX
+D:Xn...............nX............m.....X
+D:XXXXX.........XXXXX.........XXXXXXX..X
+D:Xl................X.............m.m..X
+D:XXXXX.............D.........XXXXXXX..X
+D:Xk................X...........m......X
+D:XXXXX.............X.........XXXXXXX..X
+D:Xk................X............mm....X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:1:21
+

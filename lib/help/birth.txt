@@ -180,15 +180,15 @@ have intrinsic abilities.
                other words, dwarves have a miserable stealth.  They can never
                be blinded. 
  
-          Uruk-hai
-               Uruk-hai make excellent warriors and decent priests, but
+          Half-Orc
+               Half-Orcs make excellent warriors and decent priests, but
                are terrible at magic.  They are as bad as dwarves at stealth,
                and horrible at searching, disarming, and perception.
-               Uruk-hai are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Uruk-hai do make good warriors and rogues,
-               for the simple reason that Uruk-hai tend to have great
+               Half-Orcs are, let's face it, ugly.  They tend to pay more for
+               goods in town.  Half-Orcs do make good warriors and rogues,
+               for the simple reason that Half-Orcs tend to have great
                constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, Uruk-hai
+               preference to living underground to on the surface, half-orcs
                resist darkness attacks.
  
           Half-Troll
@@ -196,7 +196,7 @@ have intrinsic abilities.
                than any other character race.  They are also very stupid and
                slow.  They will make great warriors and iffy priests.  They
                are bad at searching, disarming, perception, and stealth.
-               They are so ugly that an Uruk-hai grimaces in their presence.
+               They are so ugly that a Half-Orc grimaces in their presence.
                They also happen to be fun to run...  Half-trolls always have
                their strength sustained.
  
@@ -221,7 +221,43 @@ have intrinsic abilities.
                still a little suspect. And like normal Elves, they resist
                attacks involving bright light.
 
-=== Classes (outdated) ===
+          Kobold
+               Kobolds are a weak goblin race.  They are inherently resistant
+               to poison, and can become adequate fighters, although they are
+               not one of the more powerful races.
+
+          Maia
+               The Maiar, lesser deities of the created world, often take
+               tangible form and mingle among earthly beings.  They can be
+               found among the ranks of wise counselors, peerless warriors,
+               mighty wizards and deadly necromancers; indeed they can play
+               any class with credit.  Their vital statistics put all other
+               races to shame, their standard abilities are always good and
+               sometimes superlative, and they recover divinely quickly from
+               all sorts of wounds and ailments. Despite all these qualities,
+               Maiar advance fairly quickly, making them the perfect race 
+               for those desiring a character able to survive the perils of
+               an un-familiar game.
+
+          Ent
+               Clad in bark-like skin, and with bodies like the trunks of
+               trees, Ents can nevertheless move about perfectly well.  They
+               have poor dungeon survival skills, and are bad at archery but
+               handle other weapons well.  As long as they stay away from
+               fire, Ents will find themselves well capable of surviving many
+               a bitter fight.
+
+          Wraith
+               A powerful undead creature, the wraith is a ghastly apparition,
+               surrounded by an aura of evil. They exist only partially on our
+               plane of existence and can pass through walls. They can see
+               invisible things and resist poison and cold. Wraiths make good
+               spellcasters, but their physical form is fairly weak. Wraiths
+               do not like bright light and their aura of evil is such that
+               aggravate the monsters around them.
+
+
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some
@@ -302,6 +338,20 @@ have intrinsic abilities.
                saving throw due to his divine alliance.  His primary  stats
                are Strength and Charisma,  although Wisdom is necessary for 
                his spells.
+
+          Illusionist
+               Illusionists  are  similar  to  mages in all respects except 
+               that they cast spells from  a different set of spells books. 
+               Illusionists relay far more on tricks to decieve and confuse
+               their enemies and in the use of light and dark.
+
+          Druid
+               Druids are similar to  priests in all  respects  except that
+               they use a different set of prayer books. Druids learn to be
+               in tune with the natural world and to befriend the creatures 
+               they meet.  A Druid can change the world around  themself in
+               various ways by using the forces of nature.
+
  
 
 === Stats ===
@@ -431,18 +481,22 @@ have intrinsic abilities.
 
 === Combinations of Race and Class (not enforced) ===
 
-                      Warrior   Mage    Priest    Rogue   Ranger   Paladin
+                Warrior  Mage  Priest  Rogue  Ranger  Paladin  Illusionist Druid
 
-          Human         Yes      Yes      Yes      Yes      Yes      Yes
-          Half-Elf      Yes      Yes      Yes      Yes      Yes      Yes
-          Elf           Yes      Yes      No       Yes      Yes      No
-          Hobbit        Yes      Yes      No       Yes      No       No
-          Gnome         Yes      Yes      Yes      Yes      No       No
-          Dwarf         Yes      No       Yes      No       No       Yes
-          Uruk-hai      Yes      No       Yes      Yes      No       No
-          Half-Troll    Yes      No       Yes      No       No       No
-          Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
-          High-Elf      Yes      Yes      Yes      Yes      Yes      No 
+     Human        Yes    Yes    Yes     Yes    Yes      Yes        Yes      Yes
+     Half-Elf     Yes    Yes    Yes     Yes    Yes      Yes        Yes      Yes
+     Elf          Yes    Yes    No      Yes    Yes      No         Yes      Yes
+     Hobbit       Yes    Yes    No      Yes    No       No         Yes      No
+     Gnome        Yes    Yes    Yes     Yes    No       No         Yes      Yes
+     Dwarf        Yes    No     Yes     No     No       Yes        No       Yes
+     Half-Orc     Yes    No     Yes     Yes    No       No         No       Yes
+     Half-Troll   Yes    No     Yes     No     No       No         No       Yes
+     Dunadan      Yes    Yes    Yes     Yes    Yes      Yes        Yes      Yes
+     High-Elf     Yes    Yes    Yes     Yes    Yes      No         Yes      Yes
+     Kobold       Yes    No     Yes     Yes    No       No         No       Yes
+     Maia         Yes    Yes    Yes     Yes    Yes      Yes        Yes      Yes
+     Ent          Yes    No     Yes     No     Yes      No         No       Yes
+     Wraith       Yes    Yes    No      Yes    No       No         Yes      No
 
 
 === Miscellaneous (outdated) ===
@@ -461,57 +515,69 @@ have intrinsic abilities.
                enhanced.
  
  
-=== Stat Bonus Tables (outdated) ===
+=== Stat Bonus Tables ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
  
-                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
-           Human        0    0    0    0    0    0      10          +0%
-           Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
-           Elf         -1   +2   +1   +1   -2   +1       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +25%
-           Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
-           Uruc-hai    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
-           High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+                         STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
+           Human          0    0    0    0    0    0      10          +0%
+           Half-Elf      -1   +1    0   +1   -1   +1       9         +10%
+           Elf           -1   +2   +1   +1   -2   +1       8         +20%
+           Hobbit        -2   +2   +1   +3   +2   +1       7         +10%
+           Gnome         -1   +2    0   +2   +1   -2       8         +25%
+           Dwarf         +2   -3   +2   -2   +2   -3      11         +20%
+           Half-Orc      +2   -1    0    0   +1   -4      10         +10%
+           Half-Troll    +4   -4   -2   -4   +3   -6      12         +20%
+           Dunadan       +1   +2   +2   +2   +3   +2      10         +80%
+           High-Elf      +1   +3   -1   +3   +1   +5      10        +100%
+           Kobold        -2   -1    0   +2   +2   -1       9         +15%
+           Maia          +2   +3   +3   +2   +4   +4      12         +25%
+           Ent           +2    0   +2   -3   +2    0      11         +30%
+           Wraith         0   +3   +3   +2   -2   -3       8         +50%
 
-                         STR     INT     WIS     DEX     CON     CHR
-           Warrior       +5      -2      -2      +2      +2      -1
-           Mage          -5      +3       0      +1      -2      +1
-           Priest        -1      -3      +3      -1       0      +2
-           Rogue         +2      +1      -2      +3      +1      -1
-           Ranger        +2      +2       0      +1      +1      +1
-           Paladin       +3      -3      +1       0      +2      +2
+                         STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
+           Warrior       +5   -2   -2   +2   +2   -1       9          +0%
+           Mage          -5   +3    0   +1   -2   +1       0         +30%
+           Priest        -1   -3   +3   -1    0   +2       2         +20%
+           Rogue         +2   +1   -2   +3   +1   -1       6         +25%
+           Ranger        +2   +2    0   +1   +1   +1       4         +30%
+           Paladin       +3   -3   +1    0   +2   +2       6         +35%
+           Illusionist   -5   +3    0   +1   -2   +1       0         +30%
+           Druid         -1   -3   +3   -1    0   +2       2         +20%
  
  
  
-=== Ability Tables (outdated) ===
+=== Ability Tables ===
 
  
-                      Disarm Search Stealth Percep Fight Bows Save Infra
+                             Magic  Save
+                      Disarm Device Throw Stealth Search Percep Fight  Bows Infra
  
-           Human         5      5      5       5     5     5    5  None
-           Half-Elf      6      7      7       6     4     6    6  20 feet
-           Elf           8      9      7       7     3     9    7  30 feet
-           Hobbit       10     10     10      10     1    10   10  40 feet
-           Gnome         9      7      9       9     2     8    9  40 feet
-           Dwarf         6      8      3       5     9     5    8  50 feet
-           Uruk-hai      3      5      3       2     8     3    3  30 feet
-           Half-Troll    1      1      1       1    10     1    1  30 feet
-           Dunadan       9      8      7       8     7     8    7  None
-           High-Elf      9      8      8       9     7    10   10  40 feet
+          Human          0      0      0      0      0     10     0      0  None
+          Half-Elf       2      3      3      1      6     11    -1      5  20 feet
+          Elf            5      6      6      1      8     12    -5     15  30 feet
+          Hobbit        15     18     18      4     12     15   -10     20  40 feet
+          Gnome         10     12     12      3      6     13    -8     12  40 feet
+          Dwarf          2      9      9     -1      7     10    15      0  50 feet
+          Half-Orc      -3     -3     -3     -1      0      7    12     -5  30 feet
+          Half-Troll    -5     -8     -8     -2     -1      5    20    -10  30 feet
+          Dunadan        4      5      5      2      3     13    15     10  None
+          High-Elf       4     20     20      3      3     14    10     25  40 feet
+          Kobold        10      5     10      4     15     15    -5     15  50 feet
+          Maia          10     15     16      1      5     15     4      4  30 feet
+          Ent           -5     -2      5      1     -5     10     2     -2  None
+          Wraith         0     10     16     -5     15     15    10     10  30 feet
  
 
-                             Save  Stea-        Magic                 Extra
-                  Fight Bows Throw  lth  Disarm Device Percep Search Exp/lev
+                             Magic  Save
+                      Disarm Device Throw Stealth Search Percep Fight  Bows Infra
  
-          Warrior  10     6    3     2      4      3      2      2       +0%
-          Mage      2     1   10     5      6     10      8      5      +30%
-          Priest    4     3    6     5      3      8      4      4      +20%
-          Rogue     8     9    7    10     10      6     10     10      +25%
-          Ranger    6    10    8     7      6      7      6      6      +30%
-          Paladin   9     5    4     2      2      4      2      2      +35%
-
+          Warrior      25+10  18+7  18+10   1+0    14+0    2+0  70+45 55+45 None
+          Mage         30+7   36+13 30+9    2+0    16+0   20+0  34+15 20+15 None
+          Priest       25+7   30+10 32+12   2+0    16+0    8+0  48+20 35+20 None
+          Rogue        45+15  32+10 28+10   5+0    32+0   24+0  60+40 66+30 None
+          Ranger       30+8   32+10 28+10   3+0    23+0   16+0  56+30 72+45 None
+          Paladin      20+7   24+10 25+11   1+0    12+0    2+0  68+25 40+30 None
+          Illusionist  30+7   36+13 30+9    2+0    16+0   20+0  34+15 20+15 None
+          Druid        25+7   30+10 32+12   2+0    16+0    8+0  48+20 35+20 None

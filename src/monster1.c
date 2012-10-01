@@ -274,8 +274,7 @@ static void roff_aux(int r_idx)
 			/* But we've also killed it */
 			if (dead)
 			{
-				roff(format(", but you have avenged %s!  ",
-				            plural(l_ptr->r_deaths, "him", "them")));
+				roff(", but you have taken revenge!  ");
 			}
 
 			/* Unavenged (ever) */
@@ -557,7 +556,7 @@ static void roff_aux(int r_idx)
 		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
 
 		/* calculate the fractional exp part scaled by 100, */
-		/* must use long arithmetic to avoid overflow  */
+		/* must use long arithmetic to avoid overflow */
 		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
 			  (long)1000 / p_ptr->lev + 5) / 10);
 

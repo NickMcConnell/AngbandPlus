@@ -1,0 +1,16 @@
+# q0000098.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:98:N:Sauron
+
+# Definition
+Q:98:Q:1:0:0:1:99:546:0
+
+# Description for quest
+?:[LEQ $QUEST98 2]
+Q:98:T:It is time to take the battle to Morgoth. But, before you can
+Q:98:T:reach him, you must find and kill Sauron.  Only after defeating
+Q:98:T:this powerful wizard, will the stairs leading to Morgoth's lair
+Q:98:T:be opened.
+?:1

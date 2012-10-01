@@ -1223,7 +1223,6 @@ bool make_attack_normal(int m_idx)
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:
-				case RBM_XXX2:
 
 				/* Visible monsters */
 				if (m_ptr->ml)

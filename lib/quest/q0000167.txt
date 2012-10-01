@@ -1,0 +1,22 @@
+# q0000167.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:167:N:The Bounty
+
+# Definition
+Q:167:Q:1:0:0:1:0:211:0
+
+# Description for quest
+?:[LEQ $QUEST167 2]
+Q:167:T:While you were gone, Ulfast has been spotted terrorizing
+Q:167:T:our people. Find him and eliminate him! He could be in
+Q:167:T:the town or camped out in the wastelands. Go quickly and
+Q:167:T:put an end to his vile ways.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST167 3]
+Q:167:T:I have built a fine home for you to reward you for your
+Q:167:T:on our behalf.
+?:1

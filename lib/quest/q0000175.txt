@@ -1,0 +1,20 @@
+# q00000175.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:175:N:Spies (Part 1)
+
+# Definition
+Q:175:Q:1:0:0:1:0:273:0
+
+# Description for quest
+?:[LEQ $QUEST175 2]
+Q:175:T:King->Morgoth has spies trying to discover all our plans.
+Q:175:T:Sangahyando has been spotted around town and I need you to take him
+Q:175:T:out before he unlocks any of our secrets!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST175 3]
+Q:175:T:A reward for your good work awaits you outside.
+?:1

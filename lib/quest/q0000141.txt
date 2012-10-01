@@ -1,0 +1,49 @@
+# q0000141.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:141:N:Dwarven Allergies
+
+# Definition
+Q:141:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST141 2]
+Q:141:T:King->The Dwarves are having a little trouble with a section of
+Q:141:T:their tunnels that is infested with Rock Lizards. As you know,
+Q:141:T:Dwarves are allergic to Rock Lizards and Werewolves. They asked 
+Q:141:T:if I could spare them some grief and send someone over to help.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST141 3]
+Q:141:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST141 5]
+Q:141:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Rock Lizard
+F:a:1:8:28
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.....a....XXXXXXXX
+D:XXXXXX.......a........XXXXXXXXXX.aa.XXXX
+D:XXXXX.XXXXXX...XXXXXXXXXXXXXXXXXX.aXXXXX
+D:XXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXX
+D:X<...XXXXXXXXXXXX*aaa*XXXXXXXXXXXXX.XXXX
+D:XXXXXXXXXaaa.aa.aaa..aaaXXXXXXXXXXX.XXXX
+D:XXXXXXaaaa.....aaaa..aa.aa.a..a....XXXXX
+D:XXXX*aaaaaa..aa.aa...a.aaa..aaXXXXXXXXXX
+D:XXXXXXaaa..........aa.a.aaaaXXXXXXXXXXXX
+D:XXXXXXXXXaa.aaaa.a.aaa..XXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:5:1
+

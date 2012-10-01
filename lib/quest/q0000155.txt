@@ -1,0 +1,26 @@
+# q0000155.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:155:N:Protect the King!
+
+# Definition
+Q:155:Q:1:0:0:1:0:215:0
+
+# Description for quest
+?:[LEQ $QUEST155 2]
+Q:155:T:Advisor->The King is in terrible danger, Morgoth has
+Q:155:T:sent an assassin to kill him. 
+Q:155:T:King->Morgoth is unhappy about our Dwarven allience, and
+Q:155:T:has managed to bribe a Dwarf named Nar to do this dirty
+Q:155:T:deed. The irony of using a Dwarf to assassinate me is
+Q:155:T:just the kind of vile cunning that I should have expected
+Q:155:T:from Morgoth. The Dwarven Leader has sent his own men to
+Q:155:T:hunt down Nar. It seems that the Dwarven Leader holds you
+Q:155:T:in high regard,.. he has asked that you join the search.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST155 3]
+Q:155:T:A reward for your good work awaits you outside.
+?:1

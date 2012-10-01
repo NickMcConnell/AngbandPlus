@@ -1,0 +1,93 @@
+# q0000151.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:151:N:Whitewall Castle
+
+# Definition
+Q:151:Q:4:0:0:0:20:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST151 2]
+Q:151:T:King->Congratulations on a glorious victory. The supply
+Q:151:T:lines through the Dwarven Pillers has been restored.
+Q:151:T:Whitewall Castle is under siege, I need you to sneak
+Q:151:T:through the enemy lines and bring a message to the castle
+Q:151:T:Lord. Tell him that in two days hence at dawn, I will attempt
+Q:151:T:to break the siege. My army will attack the strongest camps
+Q:151:T:from the south and west. When the attack is under way he 
+Q:151:T:should send his army to attack the east camp.
+Q:151:T:Use the secret entrence through the mountains.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST151 3]
+Q:151:T:Thank you once again for your good work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST151 5]
+Q:151:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Rock Lizard
+F:a:1:8:28
+
+# Floor with Potion of Strength
+F:k:1:8:0:225
+
+# Floor with Potion of Intelligence
+F:l:1:8:0:228
+
+# Floor with Potion of Wisdom
+F:m:1:8:0:231
+
+# Floor with Potion of Charisma
+F:n:1:8:0:234
+
+# Floor with Potion of Constitution
+F:o:1:8:0:243
+
+# Floor with Potion of Dexterity
+F:p:1:8:0:251
+
+# Floor with Potion of Healing
+F:q:1:8:0:242
+
+# Floor with Potion of Experience
+F:r:1:8:0:244
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X*....XX.XXXXXq...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXX
+D:X*.8..XX.XXXX..&.&..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XXXX..XX
+D:X*....D..XXXXq..&....D............................XXXXXXXX.X
+D:X*....XX.XXXXXX......XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXX.X
+D:XXXXXXXX.XXXXXXXXXXXXXXXXXp.XXXaaaaXXX.mXXXXXXXXX.XXXXXXXX.X
+D:XXXXXXXX.XXXXXXXXXXXXXXXXkr..DaaaaaaD..qlXXXXXXXX.XXXXXXXX.X
+D:X*.*.*XX.XXXXXXXXXXXXXXXXXn.XXXXXaXXXX.oXXXXXXXXX.XXXXXXX.XX
+D:X..9..XX.XXXXXXXXXXXXXXXXXXXXXXXXXDXXXXXXXXXXXX..XXXXXXX.XXX
+D:X.....XX.XXXXXXXXXXXXX.........................XXXXXXXXX.XXX
+D:XXXDXXXX.XXXXXX.......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XX
+D:XX.XXXX.X......XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XX
+D:XX.XXX.XXXXXXXXXXXXXXXX.................D.....XXXXXXXXXXX.XX
+D:XX.XXX.XXXXXXXXXXXXXXXXXXX,XXXXXXXXXXXXXX.......XXXXXXXXX.XX
+D:XXX.X.XXXXXXXX.....XXXXXXXX.XXXXXXXXXXXX.........XXXXXXXXX.X
+D:X....XXXXXXX..aaaaaa.XXXXX.XXXXXXXXXXXXX....8....XXXXXXXXX.X
+D:X.XXXXXXXXX.aaaaaaaaa...XXDXX...XXXXXXXX.........XXXXXXXXX.X
+D:X.XXXXXXXXX.aaaaaaaaaaa.......a.XXXXXXXXX.......XXXXXXXXXX.X
+D:X.XXXXXXXXX..aaaaaaaaaaaaa9aaa..XXXXXXXXXXX*r*XXXXXXXXXXXX.X
+D:X.XXXXXXXXXXX....aaaaaaaaaa...XXXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+D:X.X....XXXXXXXXX...........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX,XX
+D:XX.XXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-X-X-X--,X
+D:XXXXX........XXXXXXXXXXXXXXXX....*XXXXXXXXXXXXXX---XXXXX--,X
+D:XXXX,XXXXXXXX.XXXXXXXXXXXXXXX..9.*XXXXXXXXXXX------XXXXXXX<X
+D:X---XXXXXXXXXX..............D....*XXXXXXXX-----------XXXXXXX
+D:X------XXXXXXXXXXXXXXXXXXXXXXXXXXXXX-----------------XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:25:1
+

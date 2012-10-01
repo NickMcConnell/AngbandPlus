@@ -1,0 +1,65 @@
+# q0000143.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:143:N:The Barfly Inn
+
+# Definition
+Q:143:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST143 2]
+Q:143:T:After all that digging, you smell like you could use a good
+Q:143:T:bath. You wash up and change before reporting to the king.
+Q:143:T:King->While you were gone a group of mercenaries have taken
+Q:143:T:over the Barfly Inn on the road to Whitewall castle. I need
+Q:143:T:you to go and restore order to the Inn. Be sure to send the
+Q:143:T:Innkeeper my greetings while you are there.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST143 3]
+Q:143:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST143 5]
+Q:143:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Mean Looking Mercenary
+F:a:1:8:13
+
+# Floor with Singing, Happy Drunk
+F:b:1:8:11
+
+# Floor with Piece of Elvish Waybread
+F:k:1:8:0:25
+
+# Floor with Pint of Fine Wine
+F:l:1:8:0:27
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X*...........X....X....kklX.........*X
+D:X..b.........D....D....kklX..........X
+D:X............X....XXXXXXXXX..........X
+D:XXXXXXXXXXXXXX....X..................X
+D:X............X....XXXXXXXXXXXXXDDDDXXX
+D:X..b.........D.......................X
+D:X............X.......................X
+D:XXXXXXXXXXXXXX.....XXa....XXa....XXa.X
+D:X............X.....XXb....XX.....XXb.X
+D:X*....&......D.......................X
+D:X............X.......................X
+D:XXXXXXXXXXXXXX.....XX....bXXa...bXXa.X
+D:X............X.....XX.....XXb....XX..X
+D:X............D.......................X
+D:X............X...........<...........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:15:25
+

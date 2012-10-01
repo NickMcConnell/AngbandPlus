@@ -1,0 +1,81 @@
+# q0000133.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:133:N:The Tower of Magi
+
+
+# Definition
+Q:133:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST133 2]
+Q:133:T:Our Wizards have reported strange magical activity comming from the
+Q:133:T:old Tower of Magi within the ruins. We suspect Morgoth is behind it.
+Q:133:T:I need you to investigate the tower ruins. We cannot afford to let
+Q:133:T:Morgoth gain control of the tower. He must be stopped at all costs.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST133 3]
+Q:133:T:Again you have won our thanks.  At this rate, I'll have to give you
+Q:133:T:a medal.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST133 5]
+Q:133:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Novice Mage
+F:a:1:8:38
+
+# Floor with Dark Elven Mage
+F:b:1:8:136
+
+# Floor with Gnome Mage
+F:c:1:8:154
+
+# Floor with Ogre Mage
+F:d:1:8:296
+
+# Floor with Mage
+F:d:1:8:305
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX......<......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX.......................XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX...........................XXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX.............................XXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX............XXXX...........XXXXXXXXX...........XXXXX.....c.....*XXXXXX
+D:XXXX...XXXXXX...XXXX....&.....XX%%%%%%%XX....&.....XXXXX...XXXXXX...XXXXXX
+D:XXXX............XXX..........XX%%%%%%%%%XX..........XXXX...XXXXXX...XXXXXX
+D:XXXX............XXX..........X%%%%%%%%%%%X..........XXXX............XXXXXX
+D:XXXX.d.XXXXXX...D.D..........X%%%%%%%%%%%X..........D..D............XXXXXX
+D:XXXX............XXX..........X%%%%%%%%%%%X..........XXXXXXXXXDXXXXXXXXXXXX
+D:XXXX............XXX..........XX%%%%%%%%%XX..........XXXXXXXXX.XXXXXXXXXXXX
+D:XXXX...XXXXXX...XXXX..........XX%%%%%%%XX..........XXXXXXXXXX.XXXXXXXXXXXX
+D:XXXX............XXXX....&......XXXXXXXXX.....&.....XXXXXXXXXX.XXXXXXXXXXXX
+D:XXXXXXXXXXXXXDXXXXXXX.............................XXXXXXXXXXX.XXXXXXXXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXX...........................XXXXXXXXXXXX.XX.a.*XXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXXXX.......................XXXXXXXXXXXXXX.D..a.*XXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXX.............XXXXXXXXXXXXXXXXXXX.XX.a.*XXXXXX
+D:XXXXXXXXXXXXXDXXXXXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX***XX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXX...XX.XXXXXXXXXXXX
+D:XXXX...........XXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXDXXXDXXXXXXXXXXXX
+D:XXXX...........X......*XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXX............XXXXXXX
+D:XXXX...XXXXX...D......*XXXXXXXXXXXX...................D.....b.b....XXXXXXX
+D:XXXX.....e.....X......*XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:2:35
+

@@ -1,0 +1,552 @@
+# File: terrain.txt
+
+
+# This file is used to initialize the "lib/data/terrain.raw" file, which is
+# used to initialize the "terrain feature" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/terrain.raw" file.
+
+# Note that the terrain feature are grouped into very regular groups,
+# such that each of the bits in the feature type conveys information.
+
+# Note that terrain feature zero contains the "darkness" picture.
+
+# === Understanding terrain.txt ===
+
+# N : serial number : terrain name
+# G : symbol : color
+# M : feature to mimic
+
+# N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'M' is the index of a feature to mimic.
+
+
+# Version stamp (required)
+
+V:2.9.3
+
+
+# 0x00 --> <darkness>
+
+N:0:<darkness>
+G: :w
+
+
+# 0x01 --> open floor
+
+N:1:open floor
+G:.:w
+
+# 0x02 --> invisible trap (drawn as open floor)
+
+N:2:invisible trap
+G:.:w
+M:1
+
+# 0x03 --> glyph of warding
+
+N:3:glyph of warding
+G:;:y
+
+# 0x04 --> open door
+
+N:4:open door
+G:':U
+
+# 0x05 --> broken door
+
+N:5:broken door
+G:':U
+
+# 0x06 --> up stairs (perm)
+
+N:6:up staircase
+G:<:w
+
+# 0x07 --> down stairs (perm)
+
+N:7:down staircase
+G:>:w
+
+# 0x08 --> shop -- general store (perm)
+
+N:8:General Store
+G:1:U
+
+# 0x09 --> shop -- armoury (perm)
+
+N:9:Armoury
+G:2:s
+
+# 0x0A --> shop -- weapon shop (perm)
+
+N:10:Weapon Smiths
+G:3:w
+
+# 0x0B --> shop -- temple (perm)
+
+N:11:Temple
+G:4:g
+
+# 0x0C --> shop -- alchemist (perm)
+
+N:12:Alchemy Shop
+G:5:b
+
+# 0x0D --> shop -- magic shop (perm)
+
+N:13:Magic Shop
+G:6:r
+
+# 0x0E --> shop -- black market (perm)
+
+N:14:Black Market
+G:7:D
+
+# 0x0F --> shop -- home (perm)
+
+N:15:Home
+G:8:y
+
+# 0x10 --> shop -- bookstore (perm)
+
+N:16:Bookstore
+G:9:o
+
+# 0x11 --> visible trap -- trap door
+
+N:17:trap door
+G:^:w
+
+# 0x12 --> visible trap -- open pit
+
+N:18:pit
+G:^:s
+
+# 0x13 --> visible trap -- spiked pit
+
+N:19:pit
+G:^:s
+
+# 0x14 --> visible trap -- poison pit
+
+N:20:pit
+G:^:s
+
+# 0x15 --> visible trap -- rune -- summon
+
+N:21:strange rune
+G:^:o
+
+# 0x16 --> visible trap -- rune -- teleport
+
+N:22:strange rune
+G:^:o
+
+# 0x17 --> visible trap -- spot -- fire
+
+N:23:discolored spot
+G:^:u
+
+# 0x18 --> visible trap -- spot -- acid
+
+N:24:discolored spot
+G:^:u
+
+# 0x19 --> visible trap -- dart -- slow
+
+N:25:dart trap
+G:^:r
+
+# 0x1A --> visible trap -- dart -- lose str
+
+N:26:dart trap
+G:^:r
+
+# 0x1B --> visible trap -- dart -- lose dex
+
+N:27:dart trap
+G:^:r
+
+# 0x1C --> visible trap -- dart -- lose con
+
+N:28:dart trap
+G:^:r
+
+# 0x1D --> visible trap -- gas -- blind
+
+N:29:gas trap
+G:^:g
+
+# 0x1E --> visible trap -- gas -- confuse
+
+N:30:gas trap
+G:^:g
+
+# 0x1F --> visible trap -- gas -- poison
+
+N:31:gas trap
+G:^:g
+
+# 0x20 --> visible trap -- gas -- sleep
+
+N:32:gas trap
+G:^:g
+
+# 0x21 --> locked door (power 0)
+
+N:33:door
+G:+:U
+M:33
+
+# 0x22 --> locked door (power 1)
+
+N:34:locked door
+G:+:U
+M:33
+
+# 0x23 --> locked door (power 2)
+
+N:35:locked door
+G:+:U
+M:33
+
+# 0x24 --> locked door (power 3)
+
+N:36:locked door
+G:+:U
+M:33
+
+# 0x25 --> locked door (power 4)
+
+N:37:locked door
+G:+:U
+M:33
+
+# 0x26 --> locked door (power 5)
+
+N:38:locked door
+G:+:U
+M:33
+
+# 0x27 --> locked door (power 6)
+
+N:39:locked door
+G:+:U
+M:33
+
+# 0x28 --> locked door (power 7)
+
+N:40:locked door
+G:+:U
+M:33
+
+# 0x29 --> jammed door (power 0)
+
+N:41:jammed door
+G:+:U
+M:33
+
+# 0x2A --> jammed door (power 1)
+
+N:42:jammed door
+G:+:U
+M:33
+
+# 0x2B --> jammed door (power 2)
+
+N:43:jammed door
+G:+:U
+M:33
+
+# 0x2C --> jammed door (power 3)
+
+N:44:jammed door
+G:+:U
+M:33
+
+# 0x2D --> jammed door (power 4)
+
+N:45:jammed door
+G:+:U
+M:33
+
+# 0x2E --> jammed door (power 5)
+
+N:46:jammed door
+G:+:U
+M:33
+
+# 0x2F --> jammed door (power 6)
+
+N:47:jammed door
+G:+:U
+M:33
+
+# 0x30 --> secret door
+
+N:48:secret door
+G:#:w
+M:56
+
+# 0x31 --> pile of rubble
+
+N:49:pile of rubble
+G:::w
+
+# 0x32 --> magma vein
+
+N:50:magma vein
+G:%:s
+
+# 0x33 --> quartz vein
+
+N:51:quartz vein
+G:%:w
+
+# 0x34 --> magma vein + treasure
+
+N:52:magma vein
+G:%:s
+M:50
+
+# 0x35 --> quartz vein + treasure
+
+N:53:quartz vein
+G:%:w
+M:51
+
+# 0x36 --> magma vein + known treasure
+
+N:54:magma vein with treasure
+G:*:o
+
+# 0x37 --> quartz vein + known treasure
+
+N:55:quartz vein with treasure
+G:*:o
+
+# 0x38 --> granite wall -- basic
+
+N:56:granite wall
+G:#:w
+
+# 0x39 --> granite wall -- inner
+
+N:57:granite wall
+G:#:w
+M:56
+
+# 0x3A --> granite wall -- outer
+
+N:58:granite wall
+G:#:w
+M:56
+
+# 0x3B --> granite wall -- solid
+
+N:59:granite wall
+G:#:w
+M:56
+
+# 0x3C --> permanent wall -- basic (perm)
+
+N:60:permanent wall
+G:#:w
+
+# 0x3D --> permanent wall -- inner (perm)
+
+N:61:permanent wall
+G:#:w
+M:60
+
+# 0x3E --> permanent wall -- outer (perm)
+
+N:62:permanent wall
+G:#:w
+M:60
+
+# 0x3F --> permanent wall -- solid (perm)
+
+N:63:permanent wall
+G:#:w
+M:60
+
+# Adding building doors -KMW-
+# Note that 0x40 through 0x49 are reserved for non-class specific
+# buildings.  Class-specific go from 0x4A through 0x50.
+
+# 0x40 --> building -- Library (perm)
+
+N:64:Library
+G:+:U
+
+# 0x41 --> building -- Castle (perm)
+
+N:65:Castle
+G:+:U
+
+# 0x42 --> building -- Arena (perm)
+
+N:66:Arena
+G:+:U
+
+# 0x43 --> building -- Gambling House (perm)
+
+N:67:Gambling Den
+G:+:U
+
+# 0x44 --> building -- Inn (perm)
+
+N:68:Inn
+G:+:U
+
+# 0x45 --> beast master (perm)
+
+N:69:Beastmaster
+G:+:U
+
+# 0x46 --> weapons master (perm)
+
+N:70:Weaponsmaster
+G:+:U
+
+# End of non-class specific buildings
+# 0x47 through 0x49 unused for now.
+
+# 0x4A --> building -- Fighter's Hall (perm)
+
+N:74:Fighter's Hall
+G:+:o
+
+# 0x4B --> building -- Tower of Sorcery (perm)
+
+N:75:Tower of Sorcery
+G:+:R
+
+# 0x4C --> building -- Inner Temple (perm)
+
+N:76:Inner Temple
+G:+:g
+
+# 0x4D --> building -- House of Thieves (perm)
+
+N:77:House of Thieves
+G:+:v
+
+# 0x4E --> building -- Ranger's Tavern (perm)
+
+N:78:Ranger's Tavern
+G:+:u
+
+# 0x4F --> building -- Order of Paladins (perm)
+
+N:79:Order of Paladins
+G:+:w
+
+# 0x50 --> building -- Tower of Illusion (perm)
+
+N:80:Tower of Illusion
+G:+:B
+
+# 0x51 --> building -- Grove of the Druids (perm)
+
+N:81:Grove of the Druids
+G:+:G
+
+# Numbers 0x52 through 0x59 reserved for future buildings
+
+# New terrain features -KMW-
+# Numbers 0x60 - 0x64 are for terrains that block line of sight
+# Numbers 0x62 and 0x63 are available (unused)
+
+# 0x60 --> terrain -- trees
+
+N:96:tree
+G:#:G
+
+# 0x61 --> terrain -- fog
+
+N:97:dense fog
+G:#:s
+
+# 0x64 --> terrain -- mountains
+
+N:100:mountain
+G:^:U
+
+# Numbers 0x65 - 0x6F are for terrains that do not block line of sight
+# Numbers 0x65, 0x66, 0x6E, 0x6F are available (unused)
+
+# 0x67 --> terrain -- grass
+
+N:103:patch of grass
+G:.:g
+
+# 0x68 --> terrain -- deep water
+
+N:104:pool of deep water
+G:~:b
+
+# 0x69 --> terrain -- shallow water
+
+N:105:stream of shallow water
+G:~:B
+
+# 0x6A --> terrain -- deep lava
+
+N:106:pool of deep lava
+G:~:r
+
+# 0x6B --> terrain -- shallow lava
+
+N:107:stream of shallow lava
+G:~:U
+
+# 0x6C --> terrain -- chasm
+
+N:108:chasm
+G:#:D
+
+# 0x6D --> terrain -- dirt
+
+N:109:patch of dirt
+G:.:u
+
+
+# Using 112 - 114 for quest entrances/exits -KMW-
+
+# 0x70 --> terrain -- quest entrance
+
+N:112:quest entrance
+G:>:y
+
+# 0x71 --> terrain -- quest exit
+
+N:113:quest exit
+G:<:y
+
+# 0x72 --> terrain -- quest down level
+
+N:114:quest down level
+G:>:r
+
+# 0x73 --> terrain -- quest up level
+
+N:115:quest up level
+G:<:r
+
+# Numbers through to 127 are unused for now.
+

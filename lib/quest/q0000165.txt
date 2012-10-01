@@ -1,0 +1,52 @@
+# q0000165.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:165:N:The Standing Stones
+
+# Definition
+Q:165:Q:6:0:0:0:15:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST165 2]
+Q:165:T:Now that the blockage is lifted, we can resume trade with our
+Q:165:T:allies. I need you to investigate the strange things going on
+Q:165:T:near the "Standing Stones" in the middle of the waste. We have
+Q:165:T:very little info regarding the dangers you will face within the
+Q:165:T:mysterious standing stones. So be careful.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST165 3]
+Q:165:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST165 5]
+Q:165:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with a Dagger of Westernesse
+F:k:1:8:0:43:68
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X,,,<,,,,,;,,,,,,,,,,,,,,,;,,,&,X
+D:X,,,,,,,,,,,,,,,,;,,,,,,;,,,,,,,X
+D:X,;,,,,,,;,,;,,;,,,,,,,,,,,,,,,,X
+D:X,,,,,,;,,,,,,,,,;,,,,,,,&,,,,,,X
+D:X,,;,,,,,,,;,;,,,,,,,,,,,,,;,,,,X
+D:X,,,,,,;,,,;k;,,,;,,,,,,,,,,,,,,X
+D:X,,,,,,,,,,;,;,,,,,,,,;,,,,,,,&,X
+D:X,,,,,,;,,,,,,,,,;,,,,,,,,,,,,,,X
+D:X;;,,,,,,;,,;,,;,,,,,,,,,,,,,,,,X
+D:X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,,,,;,,,,,,,,,,;,,,,,,;,,,,;;9X
+D:X,;&,,,,,,,;,,,,,,,,,&,,,&,,,,,;X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:4
+

@@ -1,0 +1,22 @@
+# q0000107.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:107:N:Ulfast
+
+# Definition
+Q:107:Q:1:0:0:1:0:211:0
+
+# Description for quest
+?:[LEQ $QUEST107 2]
+Q:107:T:While we have been concentrating abroad, Ulfast
+Q:107:T:has been spotted terrorizing our people.
+Q:107:T:Find him and eliminate him! He could be in the town or
+Q:107:T:on the roads but he is here.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST107 3]
+Q:107:T:As a reward for your good work I have constructed a beautiful
+Q:107:T:town home which awaits you.
+?:1

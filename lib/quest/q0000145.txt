@@ -1,0 +1,55 @@
+# q0000145.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:145:N:The Teaching Academy
+
+# Definition
+Q:145:Q:6:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST145 2]
+Q:145:T:King-> Morgoth has sent a small force to disrupt the teachings
+Q:145:T:at the Academy. The Scholors require your aid to deal with the
+Q:145:T:distractions.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST145 3]
+Q:145:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST145 5]
+Q:145:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Rock Lizard
+F:a:1:8:28
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X---------------------.-------------<---------------X
+D:X--a-----------------.--------------.---------------X
+D:X-------------------.--------WWWWWWW.WWWWWWW--------X
+D:X...................------WWWW#####-.-#####WWWW-----X
+D:X-----------------,,----WWW########-.-########WWW---X
+D:X--------------,,-------W#########--.--#########W---X
+D:X-----------,,---------WW######-----.-----######WW--X
+D:X----------------------W######----##D##----######W--X
+D:X---------,---9--------W#####--&-#######----#####W--X
+D:X------,,,-------------W#####----#######-&--#####W--X
+D:X----,,----------------W######----#####----######W--X
+D:X-,,-------------------WW######-----------######WW--X
+D:X-----------------------W#########--9--#########W---X
+D:X-----------------------WWW###################WWW---X
+D:X---------------&---------WWWW#############WWWW-----X
+D:X----------------------------WWWWWWWWWWWWWWW------9-X
+D:X---------------------------------------------------X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:36
+

@@ -51,12 +51,9 @@ extern const byte blows_table[12][12];
 extern const byte extract_energy[200];
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
-extern const player_class class_info[MAX_CLASS];
-extern const player_magic magic_info[MAX_CLASS];
-extern u32b spell_flags[4][9][2];
+extern const u32b spell_flags[4][9][2];
 extern cptr spell_names[4][PY_MAX_SPELLS];
 extern const byte chest_traps[64];
-extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[A_MAX];
 extern cptr stat_names_reduced[A_MAX];
@@ -66,11 +63,9 @@ extern cptr option_desc[OPT_MAX];
 extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
-extern const char head[3];
-extern const tval_desc tvals[];
 
 /* variable.c */
-extern cptr copyright[5];
+extern cptr copyright;
 extern byte version_major;
 extern byte version_minor;
 extern byte version_patch;
@@ -138,16 +133,6 @@ extern char savefile[1024];
 extern s16b macro__num;
 extern cptr *macro__pat;
 extern cptr *macro__act;
-extern s16b quark__num;
-extern cptr *quark__str;
-extern u16b message__next;
-extern u16b message__last;
-extern u16b message__head;
-extern u16b message__tail;
-extern u16b *message__ptr;
-extern char *message__buf;
-extern u16b *message__type;
-extern byte message__color[MSG_MAX];
 extern term *angband_term[ANGBAND_TERM_MAX];
 extern char angband_term_name[ANGBAND_TERM_MAX][16];
 extern byte angband_color_table[256][4];
@@ -209,6 +194,9 @@ extern char *r_text;
 extern player_race *p_info;
 extern char *p_name;
 extern char *p_text;
+extern player_class *c_info;
+extern char *c_name;
+extern char *c_text;
 extern hist_type *h_info;
 extern char *h_text;
 extern owner_type *b_info;
@@ -229,6 +217,7 @@ extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_PREF;
+extern cptr ANGBAND_DIR_QEST;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
 extern bool item_tester_full;
@@ -293,6 +282,7 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
+extern int is_quest(int level);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -355,8 +345,6 @@ extern void do_cmd_messages(void);
 extern void do_cmd_options(void);
 extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
-extern void strip_name(char *buf, int k_idx);
-extern void do_cmd_objects(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
 extern void do_cmd_note(void);
@@ -371,7 +359,7 @@ extern void do_cmd_time(void); /* -KMW- */
 
 /* cmd5.c */
 extern void do_cmd_browse(void);
-extern void do_cmd_study();
+extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_pets(void);
@@ -477,7 +465,6 @@ extern void summon_monster(int type); /* From Kamband by Ivan Tkatchev */
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
-extern bool monster_saves (int mlev, int plev); /* -KMW- */
 
 /* object1.c */
 extern void flavor_init(void);
@@ -485,7 +472,7 @@ extern void reset_visuals(bool prefs);
 extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_desc(char *buf, const object_type *o_ptr, int pref, int mode);
-extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
+extern void object_desc_store(char *buf, const object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(const object_type *o_ptr);
 extern int identify_random_gen(const object_type *o_ptr, cptr *info, int len);
 extern bool identify_fully_aux(const object_type *o_ptr);
@@ -677,14 +664,7 @@ extern void store_maint(int which);
 extern void store_init(int which);
 
 /* bldg.c -KMW- */
-extern void put_reward(byte thetval, byte thesval, int dunlevel);
-extern void reset_tim_flags(void);
 extern void do_cmd_bldg(void);
-extern void do_cmd_quest(void);
-extern void do_cmd_exit_quest(void);
-extern void quest_discovery(int q_idx);
-extern int quest_number(int level);
-extern int random_quest_number(int level);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
@@ -716,13 +696,16 @@ extern void bell(cptr reason);
 extern void sound(int val);
 extern s16b quark_add(cptr str);
 extern cptr quark_str(s16b i);
-extern errr quark_init(void);
+extern errr quarks_init(void);
+extern errr quarks_free(void);
 extern s16b message_num(void);
 extern cptr message_str(s16b age);
 extern u16b message_type(s16b age);
 extern byte message_color(s16b age);
+extern errr message_color_define(u16b type, byte color);
 extern void message_add(cptr str, u16b type);
-extern errr message_init(void);
+extern errr messages_init(void);
+extern void messages_free(void);
 extern void move_cursor(int row, int col);
 extern void msg_print(cptr msg);
 extern void msg_format(cptr fmt, ...);
@@ -831,60 +814,32 @@ extern bool confuse_dir(int *dp);
  * Hack -- conditional (or "bizarre") externs
  */
 
-#ifdef OLD_CRUFT
-#ifndef HAS_MEMSET
-/* util.c */
-extern char *memset(char*, int, huge);
-#endif /* HAS_MEMSET */
-#endif /* OLD_CRUFT */
-
-#ifndef HAS_STRICMP
-/* util.c */
-extern int stricmp(cptr a, cptr b);
-#endif
-
 #ifdef SET_UID
 # ifndef HAS_USLEEP
 /* util.c */
 extern int usleep(huge usecs);
-# endif
+# endif /* HAS_USLEEP */
 extern void user_name(char *buf, int id);
 extern errr user_home(char *buf, int len);
-#endif
-
-#ifdef MACINTOSH
-/* main-mac.c */
-/* extern int main(void); */
-#endif
-
-#ifdef WINDOWS
-/* main-win.c */
-/* extern int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, ...); */
-#endif
-
-/* main.c */
-/* extern int main(int argc, char *argv[]); */
+#endif /* SET_UID */
 
 
 #ifdef ALLOW_REPEAT
-
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
 extern void repeat_check(void);
-
 #endif /* ALLOW_REPEAT */
 
-#ifdef ALLOW_EASY_FLOOR
 
+#ifdef ALLOW_EASY_FLOOR
 /* object1.c */
 extern void show_floor(const int *floor_list, int floor_num);
-
 #endif /* ALLOW_EASY_FLOOR */
 
+
 #ifdef GJW_RANDART
-
 /* randart.c */
-extern errr do_randart(u32b randart_seed);
-
+extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
+

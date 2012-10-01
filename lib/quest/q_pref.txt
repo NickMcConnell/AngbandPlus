@@ -1,0 +1,75 @@
+# File: q_pref.txt
+
+# Preferences for quest features
+
+# F:letter:feature:cave_info:monster:object:ego:artifact:trap:special
+
+# Permanent wall
+F:X:61:136
+
+# Granite wall
+F:%:57:136
+
+# Floor
+F:.:1:8
+
+# Door
+F:D:33:8
+
+# Hidden Door
+F:+:48:8
+
+# Hidden Trap
+F:^:2:8:0:0:0:0:*
+
+# Quest exit
+F:<:113:8
+
+# Trees
+F:T:96:8
+
+# Deep water
+F:W:104:8
+
+# Shallow water
+F:V:105:8
+
+# Deep lava
+F:L:106:8
+
+# Shallow lava
+F:K:107:8
+
+# Chasm
+F:C:108:8
+
+# Mountain
+F:M:100:136
+
+# Dirt
+F:,:109:8
+
+# Rubble
+F:;:49:136
+
+# Grass
+F:-:103:8
+
+# Floor with monster (5 levels out of depth)
+F:&:1:8:*5
+
+# Floor with monster (11 levels out of depth)
+F:@:1:8:*11
+
+# Floor with monster (9 levels out of depth)
+# and object (7 levels out of depth)
+F:9:1:8:*9:*7
+
+# Floor with monster (40 levels out of depth)
+# and object (20 levels out of depth)
+F:8:1:8:*40:*20
+
+# Floor with random object
+F:*:1:8:0:*
+
+

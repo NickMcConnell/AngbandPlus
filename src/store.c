@@ -903,10 +903,10 @@ static int home_carry(object_type *o_ptr)
 		j_ptr = &st_ptr->stock[slot];
 
 		/* Hack -- readable books always come first */
-		if ((o_ptr->tval == mp_ptr->spell_book) &&
-		    (j_ptr->tval != mp_ptr->spell_book)) break;
-		if ((j_ptr->tval == mp_ptr->spell_book) &&
-		    (o_ptr->tval != mp_ptr->spell_book)) continue;
+		if ((o_ptr->tval == cp_ptr->spell_book) &&
+		    (j_ptr->tval != cp_ptr->spell_book)) break;
+		if ((j_ptr->tval == cp_ptr->spell_book) &&
+		    (o_ptr->tval != cp_ptr->spell_book)) continue;
 
 		/* Objects sort by decreasing type */
 		if (o_ptr->tval > j_ptr->tval) break;

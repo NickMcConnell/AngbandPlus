@@ -1,0 +1,94 @@
+# q0000114.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:114:N:Dragonspine Pass
+
+
+# Definition
+Q:114:Q:3:0:0:0:40:0:114:6
+
+# Description for quest
+?:[LEQ $QUEST114 2]
+Q:114:T:The Dwarven King has pledged his alliance to us in the upcomming war.
+Q:114:T:He sent word that he was sending us the artifact "Bloodspike" as a
+Q:114:T:gift to seal our alliance. His emmissary was ambushed en route at
+Q:114:T:Dragonspine Pass. I'm sending you to recover the artifact and clear
+Q:114:T:the Pass for our Dwarven allies.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST114 3]
+Q:114:T:As a reward for your good work you may keep the morning star.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST114 5]
+Q:114:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Bloodspike
+F:1:1:8:0:0:0:114
+
+# Floor with Potion of Strength
+F:k:1:8:0:225
+
+# Floor with Potion of Intelligence
+F:l:1:8:0:228
+
+# Floor with Potion of Wisdom
+F:m:1:8:0:231
+
+# Floor with Potion of Charisma
+F:n:1:8:0:234
+
+# Floor with Potion of Healing
+F:o:1:8:0:242
+
+# Floor with Potion of Constitution
+F:p:1:8:0:243
+
+# Floor with Potion of Experience
+F:q:1:8:0:244
+
+# Floor with Potion of Dexterity
+F:r:1:8:0:251
+
+# Floor with Elf Skeleton
+F:s:1:8:0:396
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....XXXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXXXXXXXXXqr.......kXXXXXXX
+D:X.X.....XXXXXXXXXXXXXXXX................XXXXXXXXXXXXXXXXX...8...pmlXXXXX
+D:X.XX.....XXXXXXXXXXXXXXX.......9........D.............D.........onXXXXXX
+D:X.XX......XXXXXXXXXXXXXXX..............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.XXXX......XXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.XXXXXXX........XXXXXXXXXXXX....9...........................XXXXXXXXXXX
+D:X.XXXXXXXXX...............XXXX.........XXXXXXXXXXXXXXXXXXXXXX..XXXXXXXXX
+D:X.XXXXXXXXXXXX......8......XXX....9...........XXXXXXXXXXXXXXXXX..XXXXXXX
+D:X.XXXXXXXXXXXXXX...........XXXX.............XXXXXXXXXXX..*XXXXXX...XXXXX
+D:X.XXXXXX..................XXXXXXXXXXXXXXX...D...........9.*XXXXXXX.XXXXX
+D:X.XXXXX..XXXXXXXXXXXXX..s...XXXXXXXXXXXXXXXXXXXXXXXXXXX..*XXXXXXXX.XXXXX
+D:X.XXXX..XXXXXXXXXXXXXXXXXX...........s.XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXX
+D:X.XX...XXXXXXXXXXXXXXXXXXXXXXXX...9...s.sXXXXXXX...............XXXDXXXXX
+D:X.XX.XXXXXX..........XXXXXXXXXXXs...9...XXXXXXX..XXXXXXXXXXXXX.......XXX
+D:X.XX..........9......XXXXXXXXXXXXs.s......s.XXX.XXXXXXXXXXX.....8.....XX
+D:X.XXXXX......9......XXXXXXXXXXXXXXXXXXX...........XXXXXXXXXX..........XX
+D:X.XXXXXXX.........XXXXXXXXXXXXXXXXXXXXXXXX........,,..XXXXXXXXXX...qXXXX
+D:X..XXXXXXXXXXXDXXXXXXXXXXXX..........XXXXXXXXXXX....,..,,,XXXXXXXXXXXXXX
+D:XX..XXXXXXXXXX.XXXXXXXXXG.....9...9.....XXXXXXXXXXXXXXXXX-,,-,XXXXXXXXXX
+D:XXX....XXXXXXX.XXXXXXXXXXX..................*XXXXXXXXXXXXX-,,-----XXXXXX
+D:XXXXXXDXXXXXXX..XXXXXXXXXXXXXXXXDXXX....9...*XXXXXXXXXXXXX-----------XXX
+D:XXXX.....XXXXXX......XXXXXXXXXX..XXXXX*...*XXXXXXXXXXXXXX----9---------X
+D:XXX...1...XXXXXXXXXX............XXXXXXXXXXXXXXXXXXXXXX-----------------X
+D:XXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:24:70
+

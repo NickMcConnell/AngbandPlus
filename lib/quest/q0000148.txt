@@ -1,0 +1,22 @@
+# q0000148.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:148:N:The Bounty
+
+# Definition
+Q:148:Q:1:0:0:1:0:211:0
+
+# Description for quest
+?:[LEQ $QUEST148 2]
+Q:148:T:King->Morgoth has put a 25,000AU bounty on your head.
+Q:148:T:Ulfast has been spotted in the vacinity and has been
+Q:148:T:boasting about just how he aims to collect. You 
+Q:148:T:should watch your back.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST148 3]
+Q:148:T:As a reward for your good work, I have had a fine home
+Q:148:T:constructed for you.
+?:1

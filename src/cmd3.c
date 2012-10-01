@@ -272,7 +272,7 @@ void do_cmd_wield(void)
 		    (quest[i].k_idx == o_ptr->name1))
 		{
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You have completed your quest!");
+			message(MSG_QUEST_COMPLETE, 0, "You have completed your quest!");
 			message_flush();
 		}
 	}
@@ -1255,6 +1255,9 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 	u16b *who = (u16b*)(u);
 
 	u16b holder;
+
+	/* Unused parameter */
+	(void)v;
 
 	/* Swap */
 	holder = who[a];

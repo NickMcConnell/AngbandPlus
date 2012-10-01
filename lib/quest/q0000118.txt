@@ -1,0 +1,21 @@
+# q0000118.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:118:N:Morgoth Attacks!
+
+# Definition
+Q:118:Q:1:0:0:1:0:343:0
+
+# Description for quest
+?:[LEQ $QUEST118 2]
+Q:118:T:King->Morgoth has sent more creatures to attack us lead by Bert,
+Q:118:T:the Stone Troll  But, we will never surrender!  Defeat the
+Q:118:T:invaders!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST118 3]
+Q:118:T:Well done! Who would have thought that one person could have
+Q:118:T:accomplished so much for our city.
+?:1

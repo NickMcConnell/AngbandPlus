@@ -20,7 +20,7 @@ int template_race;
  * This entire file is only needed for generating levels.
  * This may allow smart compilers to only load it when needed.
  *
- * Consider the "v_info.txt" file for vault generation.
+ * Consider the "vault.txt" file for vault generation.
  *
  * In this file, we use the "special" granite and perma-wall sub-types,
  * where "basic" is normal, "inner" is inside a room, "outer" is the
@@ -404,7 +404,7 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if((quest_number(p_ptr->depth) && (p_ptr->depth > 1)) ||
+	else if((is_quest(p_ptr->depth) && (p_ptr->depth > 1)) ||
  	    (p_ptr->depth >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
@@ -431,10 +431,7 @@ static void alloc_stairs(int feat, int num, int walls)
 	/* Quests - must go up */
 	if (feat == FEAT_MORE)
 	{
-		if (quest_number(p_ptr->depth) && (p_ptr->depth > 1))
-			return;
-
-		else if (random_quest_number(p_ptr->depth))
+		if (is_quest(p_ptr->depth) && (p_ptr->depth > 1))
 			return;
 	}
 
@@ -2551,7 +2548,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 
 
 /*
- * Type 7 -- simple vaults (see "v_info.txt")
+ * Type 7 -- simple vaults (see "vault.txt")
  */
 static void build_type7(int y0, int x0)
 {
@@ -2568,7 +2565,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
+	if (cheat_room) msg_format("Lesser vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2587,7 +2584,7 @@ static void build_type7(int y0, int x0)
 
 
 /*
- * Type 8 -- greater vaults (see "v_info.txt")
+ * Type 8 -- greater vaults (see "vault.txt")
  */
 static void build_type8(int y0, int x0)
 {
@@ -2604,7 +2601,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
+	if (cheat_room) msg_format("Greater vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3209,7 +3206,7 @@ static void cave_gen(void)
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
-	if (quest_number(p_ptr->depth)) destroyed = FALSE;
+	if (is_quest(p_ptr->depth)) destroyed = FALSE;
 
 
 	/* Actual maximum number of rooms on this level */
@@ -3486,7 +3483,7 @@ static void cave_gen(void)
 	}
 
 	/* Ensure quest monsters */
-	if (quest_number(p_ptr->depth))
+	if (is_quest(p_ptr->depth))
 	{
 		/* Ensure quest monsters */
 		for (i = 1; i < z_info->r_max; i++)

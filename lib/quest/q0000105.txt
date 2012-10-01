@@ -1,0 +1,76 @@
+# q0000105.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:105:N:The Elven Embassy
+
+
+# Definition
+Q:105:Q:4:0:0:0:10:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST105 2]
+Q:105:T:Good work! You serve me well. While my men take care of sealing
+Q:105:T:the underground city, you might be interested in exploring the
+Q:105:T:the old Elven Embassy amoung the ruins. The Elves are known to
+Q:105:T:have stored many excellent items within those walls, perchance
+Q:105:T:there are still some left hidden among the embassy ruins.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST105 3]
+Q:105:T:You have our undying gratitude for your heroic efforts.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST105 5]
+Q:105:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Cave Spider
+F:a:1:8:50
+
+
+# Floor with Iron Crown of Might
+F:k:1:8:0:98:28
+
+# Floor with Set of Leather Gloves of Power
+F:l:1:8:0:125:51
+
+# Floor with Ring of Speed
+F:m:1:8:0:136
+
+# Floor with Potion of Wisdom
+F:n:1:8:0:231
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X*..............X....aa....kX...<...Xn...aa.....X..................*X
+D:X...............D....aa....lX.......Xm...aa.....D...................X
+D:X......&........XXXXXXXXXXXXX.......XXXXXXXXXXXXX.........&.........X
+D:X......9........X...............................X.........@.........X
+D:X......&........X...............................X.........&.........X
+D:X...............D.............XXXXX.............X...................X
+D:X*..............X.............X.@.X.............X..................*X
+D:XXXXXXXXXXXXXXXXX...............................XXXXXXXXXXDXXXXXXXXXX
+D:X*..............X............-------............X...................X
+D:X...............X..........----XXX----..........X...................X
+D:X...............X..........-%-XWWWX-%-..........X...................X
+D:X...............X..........-%-XWWWX-%-..........D..........@........X
+D:X.....@.........X..........----XXX----..........X...................X
+D:X...............X............-------............X...................X
+D:X..............*X...............................X...................X
+D:X..........XXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXX..............X
+D:X..........X..............*X.........X*..............X..............X
+D:X..........X...............X.........X...............X..............X
+D:X..........X...............XXXXXDXXXXX...............X..............X
+D:X.....&....D.........9........................9......X.....&........X
+D:X..........X.........................................X..............X
+D:X..........X.........................................X.............*X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Starting position
+P:1:32
+

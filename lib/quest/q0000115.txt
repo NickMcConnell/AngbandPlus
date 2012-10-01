@@ -1,0 +1,61 @@
+# q0000115.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:115:N:Lookout Tower
+
+
+# Definition
+Q:115:Q:6:0:0:0:40:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST115 2]
+Q:115:T:Morgoth has sent Sangahyando to destroy our Lookout Tower. I need
+Q:115:T:you to stop him before he succeeds. 
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST115 3]
+Q:115:T:Thank you for saving our lookout tower.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST115 5]
+Q:115:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Sangahyando
+F:a:1:8:273
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X--T-------------------------------------------------T---X
+D:X---------T-TTT-------------XXXXXXXXXXXXXXX------TTT--T--X
+D:X---T--T-T-------------XXXXXX.............XXXXXX---------X
+D:X------------T-------XXX.......................XXX---TT--X
+D:X------T------------XX...........................XX------X
+D:X----TTT--TT-------XX.............................XX-----X
+D:X------------------X...........XXXXXXXXX...........X-----X
+D:X-----T-----TT----XX..........XX%%%%%%%XX..........XX----X
+D:X------T-T-T------X..........XX%%%%%%%%%XX..........X----X
+D:X-----------------X..........X%%%%%%%%%%%X..........X----X
+D:X<................D.....&....X%%%%%%%%%%%X....a.....X----X
+D:X-----------------X..........X%%%%%%%%%%%X..........X----X
+D:X-----------------X..........XX%%%%%%%%%XX..........X----X
+D:X-----------------XX..........XX%%%%%%%XX..........XX----X
+D:X------------------X...........XXXXXXXXX...........X-----X
+D:X----T---T--T------XX.............................XX-----X
+D:X-T-----------TTT---XX...........................XX------X
+D:X-----TT--T----T-----XXX.......................XXX-----T-X
+D:X-------T--T------T----XXXXXX.............XXXXXX--TT-----X
+D:X--T----T-----TT-T----------XXXXXXXXXXXXXXX----------T-T-X
+D:X---T-TT-------------------------------------------------X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:11:1
+

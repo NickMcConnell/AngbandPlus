@@ -1,0 +1,58 @@
+# q0000162.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:162:N:Abandoned Mine
+
+# Definition
+Q:162:Q:6:0:0:0:5:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST162 2]
+Q:162:T:The archeologists send their thanks for your aid in making
+Q:162:T:the dig site safe again. You seem to be a bit discouraged
+Q:162:T:in that there were little if any spoils of victory. You 
+Q:162:T:must not be disapointed, quests after all are a good way
+Q:162:T:to sharpen your skills and improve your standing within
+Q:162:T:your guild. If you are looking to pad your pockets a little,
+Q:162:T:you might try exploring the abandoned mine!
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST162 3]
+Q:162:T:A reward for your good work awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST162 5]
+Q:162:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with a Small Kobold
+F:a:1:8:24
+
+# Floor with a Kobold
+F:b:1:8:25
+
+# Floor with a Large Kobold
+F:c:1:8:82
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X;*;;aXXXXXXXX**;;;;;XXXX;;;;*;X
+D:X;..;;;XXXb.;;;.XXXXX.a;;;;;a;;X
+D:XXX;;;aaXXXXXc.;.;;XX:XXX...;;;X
+D:XXX:XXXXXXXXX;;;;XXXX;XXXXXXXXXX
+D:XXX.XXXXXXb;;XXXXX.;;.XX;.;;;;*X
+D:XXX;XXX..;;XX.XXXX;XXXXX..a;;;*X
+D:X;.a;;;XXXXXaa.XXX;XXXXXXX.XXXXX
+D:X*.;;;aXXXXX*..XXXX..;;;..;;;XXX
+D:XXXXXXXXXXXXXXXXXXX;XXXXXXXX;a.X
+D:X<..;;;;;a;;.;;;;..;;XXXX*;;;;;X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:10:1
+

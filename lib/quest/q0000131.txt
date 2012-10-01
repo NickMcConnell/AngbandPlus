@@ -1,0 +1,70 @@
+# q0000131.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:131:N:Healers Request
+
+
+# Definition
+Q:131:Q:3:0:0:0:30:0:3:6
+
+# Description for quest
+?:[LEQ $QUEST131 2]
+Q:131:T:Hail and well met, you are proving yourself to be a true champion.
+Q:131:T:Our healers have been worried about the upcomming campaign against
+Q:131:T:Morgoth. They feel that they will be overwhelmed by the number of
+Q:131:T:wounded soldiers that are sure to be a rusult of this war. They have
+Q:131:T:requested that I send you to find the famed Arkenstone of Thrain.
+Q:131:T:They say it can help heal the sick. Legends say that it rests in the
+Q:131:T:fire ridden belly of the mountains. Maybe you should try searching
+Q:131:T:the caves near the volcano.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST131 3]
+Q:131:T:You may keep the Arkenstone as a reward for your service.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST131 5]
+Q:131:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with Arkenstone
+F:1:1:8:0:0:0:3
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX1.9.XXXXXXXXXXXKKKKKKKXXXXXXXXXXXX....XXXXXXXXX.<.XXXXXXXXXXXXXXXXXX
+D:XXKKKKKKKKXXXXXXXKKKLLLLLKKKXXXXXXXX........XXXXXXX...XXXXXXXXXXXXXXXXXX
+D:XXKKKKKKKKXXXXXKKKLLLLLLLLLKKXXXXXX....8......XXXXXX.XXXXXXXXXXXXXXXXXXX
+D:XXXXKKKKXXXXXKKKKLLLLLLLLLLLKXXXXXX............XXXXX..XXXXXXXXX*...XXXXX
+D:XXXXXKKKKKKKKKKKKLLLLLLLLLLLKXXXXXX.........XX..XXXXX...XXXXXX.......XXX
+D:XXXXXXXXXXXXXKKKKKLLLLLLLLLKKXXXXXXX.......XXXX.XXXXXXX..XXXXX...9....XX
+D:XXXXXXXXXXXXXXXXKKKKLLLLLKKKXXXXXXXXXX***XXXXXX.XXXXXXXX...XXXX.......XX
+D:XXXX.......XXXXXXXXKKKKKKKXXXXXXXXXXXXXXXXXXXX..XXXXXXXXXX..XXXXXX....XX
+D:XX...........XXXXXXXXX.XXXXXX.....XXXXXXXXXXX..XXXX....XXXX.XXXXXXXX..XX
+D:XX...&..XX.............XXXX..........XXXXXXXX........9..XXX..XXXX....XXX
+D:XX*.....XX.....XXXXXXX.XXX.............XXXXX..XXXXX....XXXXX......XXXXXX
+D:XXX.............XXXXXX.XX....&&&......XXXXXX.XXXXXXXXXXXXXXX..XXXXXXXXXX
+D:XXXXX.....&.....XXXXXX................XXXXX..XXXXXXXXXXXXXXXX..XXXXXXXXX
+D:XXXXXXX.......*XXXXXXXXXX............XXXXXX.XXXXXXXXXX...*XXXX..XXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXX........XXXXXXXX.XXXXXXXXX..9..XXXXX.......XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXX.XXXXXXX.......XXXXX.XXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXX.............XXXXXXX..XXXXXXXX
+D:X*..........XXXXXXXXXXXXXXXXX.XXXXXXXXXX...XXXXXXXX.XXXXXXXXXX.XXXXXXXXX
+D:X.....9.....XXXXXXXXXXXXXXXXX.XXXXXX.....XXXXXXXXXX.XXXXXXXXX..XXXXXXXXX
+D:X*..........XXXXXXXXXXXXX............XXXXXXXXXXXXXX.XXXXXXX...XXXXXXXXXX
+D:X.....8.....D............XXXXXXXX.XXXXXXXXXXXXXXXXX.XXXX....XXXXX*9.XXXX
+D:X*..........XXXXXXXXXXXXXXXXXX........*XXXXXXXXXX........XX...XX.....XXX
+D:X.....9.....XXXXXXXXXXXXXXXX....9......XXXX.......XXXXXXXXXXX........XXX
+D:X*..........XXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+# Starting position
+P:1:52
+

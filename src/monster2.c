@@ -2576,15 +2576,3 @@ void update_smart_learn(int m_idx, int what)
 }
 
 
-/*
- * Determine a monster's saving throw.  For simplicity, for now, assume that
- * the monster's chance is based only on its level.  Return TRUE if the monster
- * succeeds, and FALSE if the monster bites it.  From GJW  -KMW-
- */
-bool monster_saves (int mlev, int plev)
-{
-	int prob = 50 + 3 * (mlev - plev);
-	if (prob < 5) prob = 5;		/* always has a chance */
-	else if (prob > 95) prob = 95;	/* so does the player */
-	return (rand_int(100) < prob);
-}

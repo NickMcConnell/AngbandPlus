@@ -1,0 +1,57 @@
+# q0000147.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:147:N:The Dragon's Nest
+
+# Definition
+Q:147:Q:6:0:0:0:15:0:3:6
+
+# Description for quest
+?:[LEQ $QUEST147 2]
+Q:147:T:King->Production in one of the Dwarven mines has ground
+Q:147:T:to a halt. I need you to investigate. We must restore
+Q:147:T:production as fast as possible.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST147 3]
+Q:147:T:You can keep any treasure you found as a reward for your
+Q:147:T:good work.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST147 5]
+Q:147:T:You have failed me, beware you do not do so again!
+?:1
+
+
+# Floor with the Arkenstone of Thrain
+F:1:1:8:0:0:0:3
+
+# Floor with Baby Blue Dragon
+F:a:1:8:127
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX,,,,,,...............XXXXXXXXXXXX
+D:XXX,,,,;;;,,...............XXXXXXXXXXX
+D:XX..,,;1*a;,,..............XXXXXXXXXXX
+D:XX..,,;*aa;,,...a.........XXXXXXXXXXXX
+D:XX..,,;aaa;,,..........XXXXXXXXXXXXXXX
+D:XX...,,;;;,,,.........XXXXXXXXXXXXXXXX
+D:XXX...,,,,,,.......XXX.XXXXXXXXXXXXXXX
+D:XXXXX............XXXXXX..XXXX...XXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX.XX.XXX.XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX.X.XXXXX.XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXX.XXXX
+D:X.....XXXXXXXXXXXXXXXXX...XXXXX...XXXX
+D:X.<....................XXXXXXXX.....XX
+D:X.....XXXXXXXXXXXXXXXXXXXXXXXXX*****XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:14:2
+

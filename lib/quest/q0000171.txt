@@ -1,0 +1,63 @@
+# q0000171.txt
+# Q:quest_num:Q:type:num_mon:cur_num:max_num:level:r_idx:k_idx:silent
+
+# Name
+Q:171:N:Siege Camp
+
+# Definition
+Q:171:Q:6:0:0:0:35:0:0:6
+
+# Description for quest
+?:[LEQ $QUEST171 2]
+Q:171:T:Morgoth has sent some advanced troops to set up a siege camp
+Q:171:T:just outside our city to the east. We can not allow his troops
+Q:171:T:to build siege weapons right in our back yard. You must sneak
+Q:171:T:into their camp and cause as much damage as you can.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST171 3]
+Q:171:T:I hear there was some valuable treasure in the camp. You may
+Q:171:T:keep anything you found as a reward for your services.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST171 5]
+Q:171:T:You have failed me, beware you do not do so again!
+?:1
+
+# Floor with The Arkenstone of Thrain
+F:1:1:8:0:0:0:3
+
+# Floor with a Hill Orc
+F:a:1:8:120
+
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XCCWWCC,,,,,,,,,,,,,;,,,,,,,,,;,,,,,,,,,,,;,,,,,,,,,,,,,,,,,;,,,,,,,,,,X
+D:XCCWWCC,,,,,,,,,,,X,,,,,,,,,,,;,X,,,,,,,,,X,,,,,,,,,X,,,,,,,;,X,,,,,,,,X
+D:XCWWCC,,,,;,,,,,,XXX,,,;,,,,,,,XXX,,,,,,,XXX,,,,,,,XXX,,,,,,,XXX,,,,,,,X
+D:XCWWCC,,,,,,,;,,XX.XX,,,,,,,,,XX.XX,,,,,XX.XX,,,,,XX.XX,,,,,XX.XX,,,,,,X
+D:XCWWCC,,,,,,,,,XX.9.XX,,,,,,,XX.a.XX,,,XX.a.XX,,,XX.a.XX,,,XX.a.XX,,,,,X
+D:XCWWCC,,,,,,,,XXXXDXXXX,,,,,XXXXDXXXX,XXXXDXXXX,XXXXDXXXX,XXXXDXXXX,,,,X
+D:XCWWCC,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XWWCC,,,;,,,,,;,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,;,,,X
+D:XWWCC,,,,,,,,,,,,,,,,;L;,,,,,,,;L;,,,,,,,;L;,,,,,,,;L;,,,,,,,;L;,,,,,,,X
+D:XWWCC,,,,,,,,,,,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,,,,,,;,,,,,,,,X
+D:XWWCC,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:XWCC,,,,,,,,,,,,,,XXXXDXXXX,XXXXDXXXX,XXXXDXXXX,XXXXDXXXX,XXXXDXXXX,,,,X
+D:XWCC,;,,,,,,,,,,,,,XX.a.XX,,,XX.a.XX,,,XX.a.XX,;,XX.a.XX,,,XX.a.XX,,,,,X
+D:XCC,,,,,,,;;,,,,,,,,XX.XX,,;,,XX.XX,,,,,XX.XX,,,,,XX.XX,,;,,XX.XX,,,,,,X
+D:XC,,,,,,,,,,,,,,,,,,,XXX,,,,,,,XXX,,,,,,,XXX,,,,,,,XXX,,,,,,,XXX,,,;,,,X
+D:X,,,,,,,,,,,,,,,,,,,,,X,,,,,,,,,X,,,,,,,,,X,,,,,,,,,X,,,,,,,,,X,,,,,,,,X
+D:X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,X
+D:X,,,,;,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,,,,,,;,XXXXXXXXXXXDXX,,,X
+D:X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,X***.&...&...X,,,X
+D:X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,X1**..*..*..*X,,,X
+D:X,<,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,XXXXXXXXXXXXXX,,,X
+D:X,,,,,,,,,;,,,,,,,,,,,,,,,;,,,,,,,,,,,,,,,,,,,;,,,,,;,,,,,,,,,,,,,,,,,,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:21:2
