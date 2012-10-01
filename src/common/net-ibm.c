@@ -36,7 +36,7 @@
  *
  * This software is provided "as is" without any express or implied warranty.
  *
- * RCS:      $Id: net-ibm.c,v 1.1.1.1 1999/10/26 19:20:49 root Exp $
+ * RCS:      $Id: net-ibm.c,v 1.3 2000/08/05 20:18:14 mangadm Exp $
  *
  * Revision 1.1.1.1  1992/05/11  12:32:34  bjoerns
  * XPilot v1.0
@@ -52,7 +52,7 @@
 
 #ifndef lint
 static char sourceid[] =
-    "@(#)$Id: net-ibm.c,v 1.1.1.1 1999/10/26 19:20:49 root Exp $";
+    "@(#)$Id: net-ibm.c,v 1.3 2000/08/05 20:18:14 mangadm Exp $";
 #endif
 
 /* _SOCKLIB_LIBSOURCE must be defined int this file */

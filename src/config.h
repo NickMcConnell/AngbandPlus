@@ -98,7 +98,7 @@
  * Currently used whenever available, if you get a warning about
  * "nodelay()" undefined, then make sure to undefine this.
  */
-#if defined(SYS_V) || defined(AMIGA) || defined(linux)
+#if defined(SYS_V) || defined(AMIGA)
 # define USE_GETCH
 #endif
 
@@ -107,7 +107,7 @@
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
  * Hack -- This option will not work on most BSD machines
  */
-#if defined(SYS_V) || defined(linux)
+#ifdef SYS_V
 # define USE_CURS_SET
 #endif
 
@@ -200,6 +200,9 @@
  * players on.  Define this to be an empty string if you don't want to
  * report to a metaserver.
  */
+/* #define META_ADDRESS "mangband.mit.edu" */
+//#define	META_ADDRESS "mangband.mit.edu"  
+//#define		META_ADDRESS ""
 #define	META_ADDRESS "mangband.org"  
 
 /*
@@ -214,6 +217,38 @@
 #define	BIND_NAME "mangband.org" 
 #define	BIND_IP "198.252.166.15" 
 */
+
+
+/* Define the password for the server console, used if NEW_SERVER_CONSOLE
+ * is defined below.  Provides authentication for the mangconsole program.
+ */
+#define		CONSOLE_PASSWORD	"testingabc"
+
+
+/* Define the name of a special administration character who gets
+ * special powers, and will hopefully eventually get wizard mode.
+ * Better documentation of this feature is needed.
+ * In the future these two characters will probably be combined.
+ */
+
+#define 	ADMIN_WIZARD	"Serverchez"
+#define		DUNGEON_MASTER	"DungeonMaster"
+
+/* for the unique respawn... */
+#define COME_BACK_TIME 480
+
+/* Base probability of a level unstaticing */
+/* Roughly once an hour (10 fps, 3600 seconds in an hour) */
+#define LEVEL_UNSTATIC_PROB 36000
+
+
+/* OPTION : Keep the town backwards compatible with some previous development
+ * versions, specifically those that have a broken auction house.  You probably
+ * don't want to enable this unless you have been running a development version of
+ * the code that has a 'store 9' in it.
+ */
+ /* #define	DEVEL_TOWN_COMPATIBILITY */ 
+
 
 /*
  * OPTION: Use wider corrdiors (room for two people abreast).

@@ -4078,7 +4078,7 @@ static void town_gen_hack(void)
  
 static void town_gen(void)
 { 
-	int	y, x;
+	int        i, y, x;
 	cave_type *c_ptr;
 
 

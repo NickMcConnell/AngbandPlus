@@ -132,7 +132,7 @@ int has_colors(void)
 	/* Setup emulated colors */
 	if (SLtt_Use_Ansi_Colors)
 	{
-		/* init_pair (REVERSE, "black", "white"); */
+		/*init_pair (REVERSE, "black", "white");*/
 	}
 
 	/* Setup bizarre colors */

@@ -32,7 +32,7 @@
  */
 
 /*
- * Current version number of MAngband: 0.7.0
+ * Current version number of MAngband: 0.6.0
  */
  
 #define VERSION_MAJOR	0
@@ -47,7 +47,7 @@
  * 2 - "beta"
  * 3 - "development"
  */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	2
 
 
 /*
@@ -351,7 +351,6 @@
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
-///#define STORE_OBJ_LEVEL	25		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
 #define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
@@ -363,7 +362,7 @@
  * Misc constants
  */
 #define SERVER_SAVE	2		/* Minutes between server saves */
-#define TOWN_DAWN		50000	/* Number of turns from dawn to dawn XXX */
+#define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
 #define GROW_TREE	5000		/* How often to grow a new tree in town */
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */

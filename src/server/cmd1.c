@@ -84,6 +84,7 @@ s16b critical_shot(int Ind, int weight, int plus, int dam)
 	player_type *p_ptr = Players[Ind];
 
 	int i, k;
+	if (Players[Ind]->conn == NOT_CONNECTED) return 0;
 
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
@@ -125,6 +126,7 @@ s16b critical_norm(int Ind, int weight, int plus, int dam)
 	player_type *p_ptr = Players[Ind];
 
 	int i, k;
+	if (Players[Ind]->conn == NOT_CONNECTED) return 0;
 
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
@@ -363,6 +365,7 @@ s16b tot_dam_aux_player(object_type *o_ptr, int tdam, player_type *p_ptr)
 	int mult = 1;
 
 	u32b f1, f2, f3;
+	if (p_ptr->conn == NOT_CONNECTED) return 0;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -460,6 +463,7 @@ void search(int Ind)
 
 	cave_type    *c_ptr;
 	object_type  *o_ptr;
+	if (Players[Ind]->conn == NOT_CONNECTED) return 0;
 
 
 	/* Start with base search ability */
@@ -556,6 +560,7 @@ void carry(int Ind, int pickup, int confirm)
 
 	char	o_name[80];
 
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 	/* Hack -- nothing here to pick up */
 	if (!(c_ptr->o_idx)) return;
@@ -671,6 +676,7 @@ static int check_hit(int Ind, int power)
 	player_type *p_ptr = Players[Ind];
 
 	int k, ac;
+	if (Players[Ind]->conn == NOT_CONNECTED) return FALSE;
 
 	/* Percentile dice */
 	k = rand_int(100);
@@ -707,6 +713,8 @@ static void hit_trap(int Ind)
 	byte			*w_ptr;
 
 	cptr		name = "a trap";
+
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 
 	/* Ghosts ignore traps */
@@ -1017,6 +1025,7 @@ void py_attack_player(int Ind, int y, int x)
 	char p_name[80];
 
 	bool do_quake = FALSE;
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 	/* Disturb both players */
 	disturb(Ind, 0, 0);
@@ -1182,6 +1191,8 @@ void py_attack_mon(int Ind, int y, int x)
 	bool		do_quake = FALSE;
 
 	bool		backstab = FALSE, stab_fleeing = FALSE;
+
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 	/* Disturb the player */
 	disturb(Ind, 0, 0);
@@ -1368,6 +1379,7 @@ void py_attack(int Ind, int y, int x)
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 	cave_type *c_ptr = &cave[Depth][y][x];
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 	/* Check for monster */
 	if (c_ptr->m_idx > 0)
@@ -1411,6 +1423,7 @@ void move_player(int Ind, int dir, int do_pickup)
 	object_type		*o_ptr;
 	monster_type	*m_ptr;
 	byte			*w_ptr;
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 
 	/* Find the result of moving */
@@ -1812,6 +1825,8 @@ int see_wall(int Ind, int dir, int y, int x)
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 
+	if (Players[Ind]->conn == NOT_CONNECTED) return FALSE;
+
 	/* Get the new location */
 	y += ddy[dir];
 	x += ddx[dir];
@@ -1843,6 +1858,7 @@ static int see_nothing(int dir, int Ind, int y, int x)
 {
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
+	if (Players[Ind]->conn == NOT_CONNECTED) return (FALSE);
 
 	/* Get the new location */
 	y += ddy[dir];
@@ -2054,6 +2070,7 @@ static void run_init(int Ind, int dir)
 
 	int		row, col, deepleft, deepright;
 	int		i, shortleft, shortright;
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 
 	/* Save the direction */
@@ -2175,6 +2192,7 @@ static bool run_test(int Ind)
 	cave_type		*c_ptr;
 	byte			*w_ptr;
 
+	if (Players[Ind]->conn == NOT_CONNECTED) return (TRUE);
 
 	/* XXX -- Ghosts never stop running */
 	if (p_ptr->ghost) return (FALSE);
@@ -2528,6 +2546,7 @@ void run_step(int Ind, int dir)
 {
 	player_type *p_ptr = Players[Ind];
 	cave_type *c_ptr;
+	if (Players[Ind]->conn == NOT_CONNECTED) return;
 
 	/* Check for just changed level */
 	if (p_ptr->new_level_flag) return;

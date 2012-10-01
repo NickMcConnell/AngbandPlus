@@ -646,16 +646,9 @@ int	fd;
 {
     int		retval;
 
-    /* Added this loop to prevent accept from failing when
-     * interrupted by MAngbands alarm handler. -APD
-     */
-    do
-    {
-	    cmw_priv_assert_netaccess();
-	    retval = accept(fd, NULL, 0);
-	    cmw_priv_deassert_netaccess();
-    }
-    while ((errno == EINTR) && (retval == -1));
+    cmw_priv_assert_netaccess();
+    retval = accept(fd, NULL, 0);
+    cmw_priv_deassert_netaccess();
 
     return retval;
 } /* SocketAccept */
@@ -698,6 +691,7 @@ SocketLinger(fd)
 int	fd;
 #endif /* __STDC__ */
 {
+    int option=1;
 #if defined(LINUX0) || !defined(SO_LINGER)
     /*
      * As of 0.99.12 Linux doesn't have LINGER stuff.
@@ -2498,7 +2492,11 @@ void GetLocalHostName(name, size)
 #ifdef UNIX_SOCKETS
    strcpy(name, "localhost");
 #else
-    struct hostent	*he;
+    struct hostent	*he, *xpilot_he, tmp;
+    int			xpilot_len;
+    char		*alias, *dot;
+    char		xpilot_hostname[MAXHOSTNAMELEN];
+    static const char	xpilot[] = "xpilot";
 #ifdef VMS
     char                vms_inethost[MAXHOSTNAMELEN]   = "UCX$INET_HOST";
     char                vms_inetdomain[MAXHOSTNAMELEN] = "UCX$INET_DOMAIN";
@@ -2506,6 +2504,17 @@ void GetLocalHostName(name, size)
     char                vms_domain[MAXHOSTNAMELEN];
     int                 namelen;
 #endif
+
+    xpilot_len = strlen(xpilot);
+
+    /* Make a wild guess that a "xpilot" hostname or alias is in this domain */
+    if ((xpilot_he = gethostbyname(xpilot)) != NULL) {
+	if (strcmp(xpilot_he->h_name, "prince.mc.bio.uva.nl")) {
+	    strcpy(xpilot_hostname, xpilot_he->h_name);	/* copy data to buffer */
+	    tmp = *xpilot_he;
+	    xpilot_he = &tmp;
+	}
+    }
 
     gethostname(name, size);
     if ((he = gethostbyname(name)) == NULL) {
@@ -2555,6 +2564,45 @@ void GetLocalHostName(name, size)
 #endif
 	    return;
 	}
+    }
+
+    /*
+     * If a "xpilot" host is found compare if it's this one.
+     * and if so, make the local name as "xpilot.*"
+     */
+    if (xpilot_he != NULL) {               /* host xpilot was found */
+	if (strcmp(he->h_name, xpilot_hostname) == 0) {
+	   /*
+	    * Identical official names. Can they be different hosts after this?
+	    * Find out the name which starts with "xpilot" and use it:
+	    */
+	    xpilot_he = gethostbyname(xpilot); /* read again the aliases info */
+	    if (xpilot_he == NULL)       /* shouldn't happen */
+		return;
+
+	    if (strncmp(xpilot, xpilot_he->h_name, xpilot_len) != 0) {
+		/*
+		 * the official hostname doesn't begin "xpilot"
+		 * so we'll find the alias:
+		 */
+		int i;
+		for (i = 0; xpilot_he->h_aliases[i] != NULL; i++) {
+		    alias = xpilot_he->h_aliases[i];
+		    if (!strncmp(xpilot, alias, xpilot_len)) {
+			strcpy(xpilot_hostname, alias);
+			if (!strchr(alias, '.') && (dot = strchr(name, '.'))) {
+			    strcat(xpilot_hostname + strlen(xpilot_hostname), dot);
+			}
+			strncpy(name, xpilot_hostname, size);
+			return;
+		    }
+		}
+	    } else {
+		strncpy(name, xpilot_he->h_name, size);
+		return;
+	    }
+	}
+	/* NOT REATCHED */
     }
 #endif
 } /* GetLocalHostName */

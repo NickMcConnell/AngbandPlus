@@ -1050,12 +1050,18 @@ static bool curse_weapon(int Ind)
  * cancelled before use.  XXX Reading them still takes a turn, though.
  */
  
-
+ /*
+ 
+ Added scroll of Life... uses vars x,y
+-AD-
+ */
+ 
 void do_cmd_read_scroll(int Ind, int item)
 {
 	player_type *p_ptr = Players[Ind];
+	cave_type * c_ptr;
 
-	int			k, used_up, ident, lev;
+	int			k, used_up, ident, lev, x,y;
 
 	object_type		*o_ptr;
 

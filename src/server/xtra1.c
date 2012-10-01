@@ -475,6 +475,10 @@ static void health_redraw(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
+	if( Players[Ind]->conn == NOT_CONNECTED) {
+		return;
+	}
+
 #ifdef DRS_SHOW_HEALTH_BAR
 
 	/* Not tracking */
@@ -494,18 +498,20 @@ static void health_redraw(int Ind)
 	/* Tracking a player */
 	else if (p_ptr->health_who < 0)
 	{
-		player_type *q_ptr;
-		/* Make sure we have a valid index */
-		if (0 - p_ptr->health_who > NumPlayers)
-		{
-			/* Invalid index -- erase the health bar */
+                /* Paranoia check -- require a valid connected player */
+
+		player_type *q_ptr = Players[0 - p_ptr->health_who];
+
+		if( Players[(0-p_ptr->health_who)]->conn == NOT_CONNECTED) {
 			Send_monster_health(Ind, 0, 0);
-			/* Reset the index */
-			p_ptr->health_who = 0;
-			return;
+		};
+			
+
+		/*  Faulty.
+                if ((0 - p_ptr->health_who) >= MAX_PLAYERS) {
+			Send_monster_health(Ind, 0, 0);
 		}
-		
-		q_ptr = Players[0 - p_ptr->health_who];
+		*/
 
 		/* Tracking a bad player (?) */
 		if (!q_ptr)

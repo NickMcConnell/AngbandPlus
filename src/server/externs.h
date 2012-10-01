@@ -161,14 +161,12 @@ extern s32b m_top;
 
 extern bool cfg_report_to_meta;
 extern char * cfg_meta_address;
-extern char * cfg_report_address;
 extern char * cfg_console_password;
 extern char * cfg_admin_wizard;
 extern char * cfg_dungeon_master;
 extern bool cfg_secret_dungeon_master;
 extern s16b cfg_fps;
 extern bool cfg_mage_hp_bonus;
-extern bool cfg_no_steal;
 extern bool cfg_newbies_cannot_drop;
 extern bool cfg_door_bump_open;
 extern s32b cfg_unique_respawn_time;
@@ -567,7 +565,6 @@ extern void kingly(int Ind);
 extern void alloc_dungeon_level(int Depth);
 extern void dealloc_dungeon_level(int Depth);
 extern void generate_cave(int Depth);
-extern void build_vault(int Depth, int yval, int xval, int ymax, int xmax, cptr data);
 
 /* wilderness.c */
 extern int world_index(int world_x, int world_y);
@@ -999,7 +996,7 @@ extern bool target_able(int Ind, int m_idx);
 extern bool target_okay(int Ind);
 extern s16b target_pick(int Ind, int y1, int x1, int dy, int dx);
 extern bool target_set(int Ind, int dir);
-extern bool target_set_friendly(int Ind, int dir);
+extern bool target_friendly(int Ind, int dir);
 extern bool get_aim_dir(int Ind/*, int *dp*/);
 extern bool get_item(int Ind);
 extern bool do_scroll_life(int Ind);

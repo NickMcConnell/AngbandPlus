@@ -689,7 +689,7 @@ void do_cmd_open(int Ind, int dir)
 
 				/* Take CHR into account */
 				factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-				price = (unsigned long long) houses[i].price * factor / 100;
+				price = houses[i].price * factor / 100;
 
 				/* Tell him the price */
 				msg_format(Ind, "This house costs %ld gold.", price);
@@ -1759,6 +1759,7 @@ int do_cmd_run(int Ind, int dir)
 {
 	player_type *p_ptr = Players[Ind];
 	cave_type *c_ptr;
+	int i;
 
 	/* Get a "repeated" direction */
 	if (dir)
@@ -2249,11 +2250,9 @@ void do_cmd_fire(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
-#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
-#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2626,6 +2625,7 @@ void do_cmd_throw(int Ind, int dir, int item)
 		x = nx;
 		y = ny;
 
+
 		/* Save the old "player pointer" */
 		q_ptr = p_ptr;
 
@@ -2637,11 +2637,9 @@ void do_cmd_throw(int Ind, int dir, int item)
 			/* Use this player */
 			p_ptr = Players[i];
 
-#if 0
 			/* If he's not playing, skip him */
 			if (p_ptr->conn == NOT_CONNECTED)
 				continue;
-#endif
 
 			/* If he's not here, skip him */
 			if (p_ptr->dun_depth != Depth)
@@ -2870,7 +2868,9 @@ void do_cmd_purchase_house(int Ind, int dir)
 	player_type *p_ptr = Players[Ind];
 	int Depth = p_ptr->dun_depth;
 
-	int y, x, i, j, factor, price;
+	int y, x, i, j;
+	int factor;
+	long long price; // I'm hoping this will be 64 bits.  I dont know if it will be portable.
 	cave_type *c_ptr;
 	object_type key;
 
@@ -2903,12 +2903,22 @@ void do_cmd_purchase_house(int Ind, int dir)
 
 		/* Take player's CHR into account */
 		factor = adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-		price = (unsigned long long) houses[i].price * factor / 100;
+		//if (houses[i].price < 3000000)
+			price = houses[i].price * factor / 100;
+		/* Hack -- ignore CHR to prevent overflow */
+		//else price = houses[i].price;
 
 		/* Check for already-owned house */
 		if (houses[i].owned)
 		{
-			/* See if he has the key in his inventory */
+			/*
+			
+			NO MORE DUPLICATE KEYS HAHAHHA
+			
+			OK, so now this sells the house
+			*/
+			
+			 /* See if he has the key in his inventory */
 			for (j = 0; j < INVEN_PACK; j++)
 			{
 				object_type *o_ptr = &p_ptr->inventory[j];

@@ -173,14 +173,12 @@ s32b m_top = 0;			/* Monster top size */
 
 bool cfg_report_to_meta = 0;
 char * cfg_meta_address;
-char * cfg_report_address = NULL;
 char * cfg_console_password = "change_me";
 char * cfg_admin_wizard = "Serverchez";
 char * cfg_dungeon_master = "DungeonMaster";
 bool cfg_secret_dungeon_master = 0;
 s16b cfg_fps = 12;
 bool cfg_mage_hp_bonus = 1;
-bool cfg_no_steal = 0;
 bool cfg_newbies_cannot_drop = 0;
 bool cfg_door_bump_open = 1;
 s32b cfg_unique_respawn_time = 300;

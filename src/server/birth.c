@@ -850,7 +850,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Priest */
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_CURE_CRITICAL }
+		{ TV_POTION, SV_POTION_HEALING }
 	},
 
 	{
@@ -888,6 +888,9 @@ static void player_outfit(int Ind)
 	int		i, tv, sv;
 
 	object_type	forge;
+	artifact_type	* a_ptr; // APD XXX FOR WARRIOR 
+	int		k_idx;	// APD XXX FOR WARRIOR
+
 	object_type	*o_ptr = &forge;
 
 
@@ -905,21 +908,18 @@ static void player_outfit(int Ind)
 	object_known(o_ptr);
 	(void)inven_carry(Ind, o_ptr);
 
+#if 0
 	/* 
 	 * Give the cfg_admin_wizard some interesting stuff.
 	 */
-#if 0
 	 if (!strcmp(p_ptr->name,cfg_admin_wizard))
 	{ 
-		artifact_type	* a_ptr;
-		int		k_idx;
-
-		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_LIFE));
+		invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_INC_INT));
 		o_ptr->number = 99;
 		o_ptr->discount = 100;
 		object_known(o_ptr);
 		(void)inven_carry(Ind, o_ptr);
-	}
+
 		invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
 		o_ptr->number = 99;
 		o_ptr->discount = 100;
@@ -1234,11 +1234,9 @@ static void player_setup(int Ind)
 		/* Skip this player */
 		if (i == Ind) continue;
 
-#if 0
 		/* Skip disconnected players */
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Count */
 		if (Players[i]->dun_depth == Depth)
@@ -1464,7 +1462,9 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 	p_ptr->conn = conn;
 
 	/* Verify his name and create a savefile name */
-	if (!process_player_name(Ind, TRUE)) return FALSE;
+	if (!process_player_name(Ind, TRUE)) {
+		return FALSE;
+	}
 
 	/* Attempt to load from a savefile */
 	character_loaded = FALSE;
@@ -1533,8 +1533,8 @@ bool player_birth(int Ind, cptr name, cptr pass, int conn, int race, int class, 
 	/* Set his location, panel, etc. */
 	player_setup(Ind);
 
-	/* Success */
-	return TRUE;
+	return  TRUE;
+
 }
 
 

@@ -348,11 +348,14 @@ void teleport_player_level(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 	wilderness_type *w_ptr;
-	int Depth = p_ptr->dun_depth, new_depth, new_world_x = 0, new_world_y = 0;
+	int Depth = p_ptr->dun_depth; 
+	int new_depth; 
+	int new_world_x = 0; 
+	int new_world_y = 0;
 	char *msg;
 
 	/* sometimes go down */
-	if ((!Depth) || ((rand_int(100) < 50) && (Depth < MAX_DEPTH-1)))
+	if ((!Depth) || ((rand_int(100) < 51) && (Depth < MAX_DEPTH-1)))
 	{
 		new_depth = Depth+1;
 		msg = "You sink through the floor.";
@@ -4357,10 +4360,8 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				int dispx, dispy;
 				byte attr;
 
-#if 0
 				if (p_ptr->conn == NOT_CONNECTED)
 					continue;
-#endif
 
 				if (p_ptr->dun_depth != Depth)
 					continue;
@@ -4435,10 +4436,8 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 				char ch;
 				byte attr;
 
-#if 0
 				if (p_ptr->conn == NOT_CONNECTED)
 					continue;
-#endif
 
 				if (p_ptr->dun_depth != Depth)
 					continue;
@@ -4550,10 +4549,8 @@ bool project(int who, int rad, int Depth, int y, int x, int dam, int typ, int fl
 					int k;
 					bool flag = TRUE;
 
-#if 0
 					if (p_ptr->conn == NOT_CONNECTED)
 						continue;
-#endif
 
 					if (p_ptr->dun_depth != Depth)
 						continue;

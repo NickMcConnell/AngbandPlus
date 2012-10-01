@@ -24,6 +24,5 @@
 /* Basic networking stuff */
 #include "h-net.h"
 
-
 #endif
 

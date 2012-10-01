@@ -366,7 +366,6 @@ extern void do_cmd_messages(void);
 /* client.c */
 
 /* netclient.c */
-extern sockbuf_t rbuf, cbuf, wbuf, qbuf;
 extern int ticks;
 extern void update_ticks();
 extern void do_keepalive();
@@ -378,7 +377,6 @@ extern int Net_flush(void);
 extern int Net_fd(void);
 extern int Net_start(void);
 extern int Net_input(void);
-extern int Net_packet(void);
 extern int Flush_queue(void);
 
 extern int Send_search(void);

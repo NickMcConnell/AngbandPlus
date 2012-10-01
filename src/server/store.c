@@ -1169,22 +1169,6 @@ static void store_create(int st)
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
-	/* Hack -- BM should 'Normally' carry Healing pots and
-	 * *ID* scrolls.
-	 */
-
-        if(store_num==6) {
-                invcopy(o_ptr, lookup_kind(TV_POTION, SV_POTION_HEALING));
-                o_ptr->number=1;
-                object_known(o_ptr);
-                (void)store_carry(st, o_ptr);
-
-                invcopy(o_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_IDENTIFY));
-                o_ptr->number=1;
-                object_known(o_ptr);
-                (void)store_carry(st, o_ptr);
-        };                                                                                    
-
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
@@ -1194,7 +1178,6 @@ static void store_create(int st)
 		{
 			/* Pick a level for object/magic */
 			level = 25 + rand_int(25);
-			//level = 25;
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1242,7 +1225,6 @@ static void store_create(int st)
 
 			/* Hack -- No "cheap" items */
 			if (object_value(0, o_ptr) < 10) continue;
-			//if (object_value(0, o_ptr) < 3000) continue;
 
 			/* No "worthless" items */
 			/* if (object_value(o_ptr) <= 0) continue; */
@@ -1458,7 +1440,10 @@ static void display_store(int Ind)
 	/* Clear screen */
 	/*Term_clear();*/
 
-	/* Send the inventory */
+	/* Display the current gold */
+	store_prt_gold(Ind);
+
+	/* Draw in the inventory */
 	display_inventory(Ind);
 
 	/* The "Home" is special */

@@ -322,10 +322,8 @@ void party_msg(int party_id, cptr msg)
 	/* Check for this guy */
 	for (i = 1; i <= NumPlayers; i++)
 	{
-#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Check this guy */
 		if (player_in_party(party_id, i))
@@ -400,10 +398,8 @@ void party_gain_exp(int Ind, int party_id, s32b amount)
 	{
 		p_ptr = Players[i];
 
-#if 0
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Check for his existance in the party */
 		if (player_in_party(party_id, i) && p_ptr->dun_depth == Depth)
@@ -419,10 +415,8 @@ void party_gain_exp(int Ind, int party_id, s32b amount)
 	{
 		p_ptr = Players[i];
 
-#if 0
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Check for existance in the party */
 		if (player_in_party(party_id, i) && p_ptr->dun_depth == Depth)

@@ -23,7 +23,7 @@
 int			ticks = 0; // Keeps track of time in 100ms "ticks"
 static bool		request_redraw;
 
-sockbuf_t	rbuf, cbuf, wbuf, qbuf;
+static sockbuf_t	rbuf, cbuf, wbuf, qbuf;
 static int		(*receive_tbl[256])(void),
 			(*reliable_tbl[256])(void);
 static unsigned		magic;
@@ -116,7 +116,7 @@ static void Receive_init(void)
 
 int Net_setup(void)
 {
-	int n, len, done = 0;
+	int n, len, done = 0, retries;
 	long todo = sizeof(setup_t);
 	char *ptr;
 
@@ -230,106 +230,145 @@ int Net_setup(void)
  */
 int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class)
 {
-	int	i, n, type, result;
+	int	i, n,
+		type,
+		result,
+		retries;
+	time_t	last;
 
-	Sockbuf_clear(&wbuf);
-	n = Packet_printf(&wbuf, "%c%s%s%s%hd%hd%hd", PKT_VERIFY, real, nick, pass, sex, race, class);
+	//for (retries = 0;;retries++)
+	//{
+	//	if (retries == 0 || time(NULL) - last >= 3)
+	//	{
+	//		if (retries++ >= 100) // wait for a VERY LONG time
+	//		{
+	//			errno = 0;
+	//			plog(format("Can't connect to server after %d retries",
+	//				retries));
+	//			return -1;
+	//		}
+			Sockbuf_clear(&wbuf);
+			n = Packet_printf(&wbuf, "%c%s%s%s%hd%hd%hd", PKT_VERIFY, real, nick, pass, sex, race, class);
 
-	/* Send the desired stat order */
-	for (i = 0; i < 6; i++)
-	{
-		Packet_printf(&wbuf, "%hd", stat_order[i]);
-	}
+			/* Send the desired stat order */
+			for (i = 0; i < 6; i++)
+			{
+				Packet_printf(&wbuf, "%hd", stat_order[i]);
+			}
 
-	/* Send the options */
-	for (i = 0; i < 64; i++)
-	{
-		Packet_printf(&wbuf, "%c", Client_setup.options[i]);
-	}
+			/* Send the options */
+			for (i = 0; i < 64; i++)
+			{
+				Packet_printf(&wbuf, "%c", Client_setup.options[i]);
+			}
 
 #ifndef BREAK_GRAPHICS
-	/* Send the "unknown" redefinitions */
-	for (i = 0; i < TV_MAX; i++)
-	{
-		Packet_printf(&wbuf, "%c%c", Client_setup.u_attr[i], Client_setup.u_char[i]);
-	}
+			/* Send the "unknown" redefinitions */
+			for (i = 0; i < TV_MAX; i++)
+			{
+				Packet_printf(&wbuf, "%c%c", Client_setup.u_attr[i], Client_setup.u_char[i]);
+			}
 
-	/* Send the "feature" redefinitions */
-	for (i = 0; i < MAX_F_IDX; i++)
-	{
-		Packet_printf(&wbuf, "%c%c", Client_setup.f_attr[i], Client_setup.f_char[i]);
-	}
+			/* Send the "feature" redefinitions */
+			for (i = 0; i < MAX_F_IDX; i++)
+			{
+				Packet_printf(&wbuf, "%c%c", Client_setup.f_attr[i], Client_setup.f_char[i]);
+			}
 
-	/* Send the "object" redefinitions */
-	for (i = 0; i < MAX_K_IDX; i++)
-	{
-		Packet_printf(&wbuf, "%c%c", Client_setup.k_attr[i], Client_setup.k_char[i]);
-	}
+			/* Send the "object" redefinitions */
+			for (i = 0; i < MAX_K_IDX; i++)
+			{
+				Packet_printf(&wbuf, "%c%c", Client_setup.k_attr[i], Client_setup.k_char[i]);
+			}
 
-	/* Send the "monster" redefinitions */
-	for (i = 0; i < MAX_R_IDX; i++)
-	{
-		Packet_printf(&wbuf, "%c%c", Client_setup.r_attr[i], Client_setup.r_char[i]);
-	}
+			/* Send the "monster" redefinitions */
+			for (i = 0; i < MAX_R_IDX; i++)
+			{
+				Packet_printf(&wbuf, "%c%c", Client_setup.r_attr[i], Client_setup.r_char[i]);
+			}
 #endif
 
-	if (n <= 0 || Sockbuf_flush(&wbuf) <= 0)
-	{
-		plog("Can't send verify packet");
-		//return -1;
-	}
+			if (n <= 0 || Sockbuf_flush(&wbuf) <= 0)
+			{
+				plog("Can't send verify packet");
+				//return -1;
+			}
 	//		time(&last);
 
 	//		if (retries > 1)
 	//			printf("Waiting for verify response\n");
 	//	}
-	SetTimeout(5, 0);
-	if (!SocketReadable(rbuf.sock))
-	{
+		SetTimeout(5, 0);
+		if (!SocketReadable(rbuf.sock))
+		{
 
-		errno = 0;
-		plog("No verify response");
-		return -1;
+			errno = 0;
+			plog("No verify response");
+			return -1;
 
-	}
-	Sockbuf_clear(&rbuf);
-	if (Sockbuf_read(&rbuf) == -1)
-	{
-		plog("Can't read verify reply packet");
-		return -1;
-	}
-	//if (rbuf.len <= 0)
-	//	continue;
-	
-	if (Receive_reliable() == -1)
-		return -1;
-	if (Sockbuf_flush(&wbuf) == -1)
-		return -1;
-	//if (cbuf.len == 0)
-	//	continue;
-	if (Receive_reply(&type, &result) <= 0)
-	{
-		errno = 0;	
-		plog("Can't receive verify reply packet");
-		return -1;
-	}
-	if (type != PKT_VERIFY)
-	{
-		errno = 0;
-		plog(format("Verify wrong reply type (%d)", type));
-		return -1;
-	}
-	if (result != PKT_SUCCESS)
-	{
-		errno = 0;
-		plog(format("Verification failed (%d)", result));
-		return -1;
-	}
-	if (Receive_magic() <= 0)
-	{
-		plog("Can't receive magic packet after verify");
-		return -1;
-	}
+		}
+		Sockbuf_clear(&rbuf);
+		if (Sockbuf_read(&rbuf) == -1)
+		{
+			plog("Can't read verify reply packet");
+			return -1;
+		}
+		//if (rbuf.len <= 0)
+		//	continue;
+	#if 0
+		// UDP reliable receive stuff
+		if (rbuf.ptr[0] != PKT_RELIABLE)
+		{
+			if (rbuf.ptr[0] == PKT_QUIT)
+			{
+				errno = 0;
+				plog("Server closed connection");	
+				plog(&rbuf.ptr[1]);
+				return -1;
+			}
+			else
+			{
+				errno = 0;
+				plog(format("Bad packet type when verifying (%d)",
+					rbuf.ptr[0]));
+				return -1;
+			}
+		}
+	#endif
+		if (Receive_reliable() == -1)
+			return -1;
+		if (Sockbuf_flush(&wbuf) == -1)
+			return -1;
+		//if (cbuf.len == 0)
+		//	continue;
+		if (Receive_reply(&type, &result) <= 0)
+		{
+			errno = 0;	
+			plog("Can't receive verify reply packet");
+			return -1;
+		}
+		if (type != PKT_VERIFY)
+		{
+			errno = 0;
+			plog(format("Verify wrong reply type (%d)", type));
+			return -1;
+		}
+		if (result != PKT_SUCCESS)
+		{
+			errno = 0;
+			plog(format("Verification failed (%d)", result));
+			return -1;
+		}
+		if (Receive_magic() <= 0)
+		{
+			plog("Can't receive magic packet after verify");
+			return -1;
+		}
+	//	break;
+//	}
+
+//	if (retries > 1)
+//		printf("Verifies correctly\n");
 
 	return 0;
 }
@@ -354,19 +393,31 @@ int Net_init(char *server, int fd)
 
 	sock = fd;
 
+#if 0
+	//UDP stuff
+	if ((sock = CreateDgramSocket(0)) == -1)
+	{
+		plog("Can't create datagram socket");
+		return -1;
+	}
+	if (DgramConnect(sock, server, port) == -1)
+	{
+		plog(format("Can't connect to server %s on port %d", server, port));
+		DgramClose(sock);
+		return -1;
+	}
+#endif
 	wbuf.sock = sock;
 	//if (SetSocketNonBlocking(sock, 1) == -1)
 	//{
 	//	plog("Can't make socket non-blocking");
 	//	return -1;
 	//}
-	
 	if (SetSocketNoDelay(sock, 1) == -1)
 	{
 		plog("Can't set TCP_NODELAY on socket");
 		return -1;
 	}
-
 	if (SetSocketSendBufferSize(sock, CLIENT_SEND_SIZE + 256) == -1)
 		plog(format("Can't set send buffer size to %d: error %d", CLIENT_SEND_SIZE + 256, errno));
 	if (SetSocketReceiveBufferSize(sock, CLIENT_RECV_SIZE + 256) == -1)
@@ -505,83 +556,127 @@ int Net_fd(void)
  */
 int Net_start(void)
 {
-	int	type, result;
+	int		retries,
+			type,
+			result;
+	time_t		last;
 
-	Sockbuf_clear(&wbuf);
-	if (Packet_printf(&wbuf, "%c", PKT_PLAY) <= 0
-		|| Sockbuf_flush(&wbuf) == -1)
-	{
-		quit("Can't send start play packet");
-	}
+	// No use for repetition since we are using TCP
+//	for (retries = 0;;)
+//	{
+//		if (retries == 0 || (time(NULL) - last) > 1)
+//		{
+//			if (retries++ >= 10)
+//			{
+//				errno = 0;
+//				quit(format("Can't start play after %d retries",
+//					retries));
+//				return -1;
+//			}
+			Sockbuf_clear(&wbuf);
+			if (Packet_printf(&wbuf, "%c", PKT_PLAY) <= 0
+				|| Sockbuf_flush(&wbuf) == -1)
+			{
+				quit("Can't send start play packet");
+			}
+//			time(&last);
+//		}
+//		if (cbuf.ptr > cbuf.buf)
+//			Sockbuf_advance(&cbuf, cbuf.ptr - cbuf.buf);
+		// Wait for data to arrive
+		SetTimeout(5, 0);	
+		if (!SocketReadable(rbuf.sock))
+		{
+			errno = 0;
+			quit("No play packet reply received.");
+		}
 
-	// Wait for data to arrive
-	SetTimeout(5, 0);	
-	if (!SocketReadable(rbuf.sock))
-	{
-		errno = 0;
-		quit("No play packet reply received.");
-	}
+		//while (cbuf.len <= 0 && SocketReadable(rbuf.sock) != 0)
+		//{
+			Sockbuf_clear(&rbuf);
+			if (Sockbuf_read(&rbuf) == -1)
+			{
+				quit("Error reading play reply");
+				return -1;
+			}
 
-	Sockbuf_clear(&rbuf);
-	if (Sockbuf_read(&rbuf) == -1)
-	{
-		quit("Error reading play reply");
-		return -1;
-	}
+		//	if (rbuf.len <= 0)
+		//		continue;
+			/*
+			if (rbuf.ptr[0] != PKT_RELIABLE)
+			{
+				if (rbuf.ptr[0] == PKT_QUIT)
+				{
+					errno = 0;
+					quit(&rbuf.ptr[1]);
+					return -1;
+				}
+				else if (rbuf.ptr[0] == PKT_END)
+				{
+					Sockbuf_clear(&rbuf);
+					continue;
+				}
+				else
+				{
+					printf("strange packet type while starting (%d)\n", rbuf.ptr[0]);
+					Sockbuf_clear(&rbuf);
+					continue;
+				}
+			}
+			*/
+			if (Receive_reliable() == -1)
+				return -1;
+			//if (Sockbuf_flush(&wbuf) == -1)
+			//	return -1;
+		//}
 
-	if (Receive_reliable() == -1)
-		return -1;
-		//if (Sockbuf_flush(&wbuf) == -1)
-		//	return -1;
-	//}
-
-	//if (cbuf.ptr - cbuf.buf >= cbuf.len)
-	//{
-	//	continue;
-	//}
+		//if (cbuf.ptr - cbuf.buf >= cbuf.len)
+		//{
+		//	continue;
+		//}
 		
-	/* If our connection wasn't accepted, quit */
-	if (cbuf.ptr[0] == PKT_QUIT)
-	{
-		errno = 0;
-		quit(&rbuf.ptr[1]);
-		return -1;
-	}
-	if (cbuf.ptr[0] != PKT_REPLY)
-	{
-		errno = 0;
-		quit(format("Not a reply packet after play (%d,%d,%d)",
-			cbuf.ptr[0], cbuf.ptr - cbuf.buf, cbuf.len));
-		return -1;
-	}
-	if (Receive_reply(&type, &result) <= 0)
-	{
-		errno = 0;
-		quit("Can't receive reply packet after play");
-		return -1;
-	}
-	if (type != PKT_PLAY)
-	{
-		errno = 0;
-		quit("Can't receive reply packet after play");
-		return -1;
-	}
-	if (result != PKT_SUCCESS)
-	{
-		errno = 0;
-		quit(format("Start play not allowed (%d)", result));
-		return -1;
-	}
-	// Finish processing any commands that were sent to us along with
-	// the PKT_PLAY packet.
-	
-	// Advance past our PKT_PLAY data
-	//Sockbuf_advance(&rbuf, 3);
-	// Actually process any leftover commands in rbuf
-	if (Net_packet() == -1)
-	{
-		return -1;
-	}
+		/* If our connection wasn't accepted, quit */
+		if (cbuf.ptr[0] == PKT_QUIT)
+		{
+			errno = 0;
+			quit(&rbuf.ptr[1]);
+			return -1;
+		}
+		if (cbuf.ptr[0] != PKT_REPLY)
+		{
+			errno = 0;
+			quit(format("Not a reply packet after play (%d,%d,%d)",
+				cbuf.ptr[0], cbuf.ptr - cbuf.buf, cbuf.len));
+			return -1;
+		}
+		if (Receive_reply(&type, &result) <= 0)
+		{
+			errno = 0;
+			quit("Can't receive reply packet after play");
+			return -1;
+		}
+		if (type != PKT_PLAY)
+		{
+			errno = 0;
+			quit("Can't receive reply packet after play");
+			return -1;
+		}
+		if (result != PKT_SUCCESS)
+		{
+			errno = 0;
+			quit(format("Start play not allowed (%d)", result));
+			return -1;
+		}
+		// Finish processing any commands that were sent to us along with
+		// the PKT_PLAY packet.
+		
+		// Advance past our PKT_PLAY data
+		//Sockbuf_advance(&rbuf, 3);
+		// Actually process any leftover commands in rbuf
+		if (Net_packet() == -1)
+		{
+			return -1;
+		}
 
 	errno = 0;
 	return 0;
@@ -592,11 +687,13 @@ int Net_start(void)
  * Process a packet which most likely is a frame update,
  * perhaps with some reliable data in it.
  */
-int Net_packet(void)
+static int Net_packet(void)
 {
 	int		type,
 			prev_type = 0,
-			result;
+			result,
+			replyto,
+			status;
 
 	/* Hack -- copy cbuf to rbuf since this is where this function
 	 * expects the data to be.
@@ -764,6 +861,8 @@ int Flush_queue(void)
 
 	len = qbuf.len;
 
+	Net_packet();
+
 	if (cbuf.ptr > cbuf.buf)
 		Sockbuf_advance(&cbuf, cbuf.ptr - cbuf.buf);
 	if (Sockbuf_write(&cbuf, qbuf.ptr, len) != len)
@@ -774,15 +873,12 @@ int Flush_queue(void)
 		Sockbuf_advance(&qbuf, qbuf.ptr - qbuf.buf);
 		return -1;
 	}
-	Sockbuf_clear(&qbuf);
-
-	Net_packet();
-
-#if 0
 /*	reliable_offset += len; */
 	qbuf.ptr += len;
 	Sockbuf_advance(&qbuf, qbuf.ptr - qbuf.buf);
-#endif
+
+	Sockbuf_clear(&qbuf);
+
 	/* If a redraw has been requested, send the request */
 	if (request_redraw)
 	{
@@ -2195,9 +2291,6 @@ int Receive_pause(void)
 
 	/* Flush queue */
 	Flush_queue();
-
-	/* Show the most recent changes to the screen */
-	Term_fresh();
 
 	return 1;
 }

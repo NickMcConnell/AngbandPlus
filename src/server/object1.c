@@ -2274,20 +2274,25 @@ cptr item_activation(object_type *o_ptr)
 bool identify_fully_aux(int Ind, object_type *o_ptr)
 {
 	player_type *p_ptr = Players[Ind];
-	int i = 0;
+	int			i = 0;
 
 	u32b f1, f2, f3;
 
 	cptr		*info = p_ptr->info;
 
-	/* Clear the info area first. */
-	memset(p_ptr->info,0,sizeof(p_ptr->info));
+	/* Clear info Area First. */
+
+	for(i=0;i<128;i++) {
+		p_ptr->info[i]=0;
+	};
+	i=0;
 
 	/* Let the player scroll through this info */
 	p_ptr->special_file_type = TRUE;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
+
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & TR3_ACTIVATE)

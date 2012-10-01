@@ -66,6 +66,7 @@ static void read_mangrc(void)
 	}
 #endif
 
+
 	/* Attempt to open file */
 	if ((config = fopen(config_name, "r")))
 	{

@@ -429,10 +429,14 @@ static void process_world(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
-	int		x, y;
+	int		x, y, i, j, new_depth, new_world_x, new_world_y;
+
+	int		regen_amount, NumPlayers_old=NumPlayers;
 
 	cave_type		*c_ptr;
 	byte			*w_ptr;
+
+	object_type		*o_ptr;
 
 
 	/* Every 50 game turns */
@@ -709,7 +713,8 @@ static void process_command(void)
 static int auto_retaliate(int Ind)
 {
 	player_type *p_ptr = Players[Ind], *q_ptr, *p_target_ptr = NULL, *prev_p_target_ptr = NULL;
-	int i;
+	int i, tmp;
+	char friends = 0;
 	monster_type *m_ptr, *m_target_ptr = NULL, *prev_m_target_ptr = NULL;
 
 	/* Check each player */
@@ -717,10 +722,8 @@ static int auto_retaliate(int Ind)
 	{
 		q_ptr = Players[i];
 
-#if 0
 		/* Skip non-connected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Skip players not at this depth */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -914,6 +917,10 @@ static void process_player_begin(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
+	int			i;
+
+	object_type		*o_ptr;
+
 
 	/* Give the player some energy */
 	p_ptr->energy += extract_energy[p_ptr->pspeed];
@@ -958,10 +965,12 @@ static void process_player_end(int Ind)
 {
 	player_type *p_ptr = Players[Ind];
 
-	int	i, j, new_depth, new_world_x, new_world_y;
-	int	regen_amount, NumPlayers_old=NumPlayers;
-	char	attackstatus;
+	int		x, y, i, j, new_depth, new_world_x, new_world_y;
+	int		regen_amount, NumPlayers_old=NumPlayers;
+	char		attackstatus;
 
+	cave_type		*c_ptr;
+	byte			*w_ptr;
 	object_type		*o_ptr;
 
 	/* Try to execute any commands on the command queue. */
@@ -1081,7 +1090,7 @@ static void process_player_end(int Ind)
 			if (p_ptr->food < PY_FOOD_MAX)
 			{
 				/* Every 50/6 level turns */
-			        if (!(turn%((level_speed(p_ptr->dun_depth)/12)*10)))
+			        if (!(turn%((level_speed((p_ptr->dun_depth))*10)/12)))
 				{
 					/* Basic digestion rate based on speed */
 					i = extract_energy[p_ptr->pspeed] * 2;
@@ -1595,7 +1604,7 @@ static void process_various(void)
 	char buf[1024];
 
 	/* Save the server state occasionally */
-	if (!(turn % (cfg_fps * 60 * SERVER_SAVE)))
+	if (!(turn % (6000L * SERVER_SAVE)))
 	{
 		save_server_info();
 
@@ -1825,7 +1834,7 @@ static void process_various(void)
  * Main loop --KLJ--
  *
  * This is main loop; it is called every 1/FPS seconds.  Usually FPS is about
- * 50, so that a normal unhasted unburdened character gets 1 player turn per
+ * 10, so that a normal unhasted unburdened character gets 1 player turn per
  * second.  Note that we process every player and the monsters, then quit.
  * The "scheduling" code (see sched.c) is the REAL main loop, which handles
  * various inputs and timings.
@@ -1843,11 +1852,9 @@ void dungeon(void)
 	/* Check for death.  Go backwards (very important!) */
 	for (i = NumPlayers; i > 0; i--)
 	{
-#if 0
 		/* Check connection first */
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Check for death */
 		if (Players[i]->death)
@@ -1864,10 +1871,8 @@ void dungeon(void)
 		int Depth = p_ptr->dun_depth;
 		int j, x, y, startx, starty;
 
-#if 0
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		if (!p_ptr->new_level_flag)
 			continue;
@@ -2080,10 +2085,8 @@ void dungeon(void)
 	/* Do final end of turn processing for each player */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Actually process that player */
 		process_player_end(i);
@@ -2092,11 +2095,9 @@ void dungeon(void)
 	/* Check for death.  Go backwards (very important!) */
 	for (i = NumPlayers; i > 0; i--)
 	{
-#if 0
 		/* Check connection first */
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Check for death */
 		if (Players[i]->death)
@@ -2114,10 +2115,8 @@ void dungeon(void)
 	/* Do some beginning of turn processing for each player */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Actually process that player */
 		process_player_begin(i);
@@ -2132,10 +2131,8 @@ void dungeon(void)
 	/* Probess the world */
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
-#if 0
 		if (Players[i]->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Process the world of that player */
 		process_world(i);
@@ -2151,10 +2148,9 @@ void dungeon(void)
 	for (i = 1; i < NumPlayers + 1; i++)
 	{
 		player_type *p_ptr = Players[i];
-#if 0
+
 		if (p_ptr->conn == NOT_CONNECTED)
 			continue;
-#endif
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff(i);

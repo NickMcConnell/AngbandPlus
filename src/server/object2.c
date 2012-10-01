@@ -84,13 +84,6 @@ void delete_object(int Depth, int y, int x)
 	/* Refuse "illegal" locations */
 	if (!in_bounds(Depth, y, x)) return;
 
-	/* Paranoia -- make sure the level has been allocated */
-	if (!cave[Depth])
-	{
-		printf("Error : tried to delete object on unallocated level %d",Depth);
-		return;
-	}
-
 	/* Find where it was */
 	c_ptr = &cave[Depth][y][x];
 
@@ -223,9 +216,7 @@ void compact_objects(int size)
 			/* Copy the visiblity flags for each player */
 			for (Ind = 1; Ind < NumPlayers + 1; Ind++)
 			{
-#if 0
 				if (Players[Ind]->conn == NOT_CONNECTED) continue;
-#endif
 
 				Players[Ind]->obj_vis[i] = Players[Ind]->obj_vis[o_max];
 			}
@@ -262,7 +253,7 @@ void compact_objects(int size)
 
 void wipe_o_list(int Depth)
 {
-	int i, x, y, house_depth;
+	int i, x, y;
 
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
@@ -298,26 +289,14 @@ void wipe_o_list(int Depth)
 			/* delete the objects inside it. -APD*/
 			if (houses[o_ptr->pval].owned)
 			{
-				/* First, make sure that the wilderness level
-				 * that the house is on is currently allocated.
-				 * If neccecary, allocate it.
-				 */
-				house_depth = houses[o_ptr->pval].depth;
-				if (!cave[house_depth])
-				{
-					/* Allocate the wilderness level.  It will
-					 * be automatically deallocated in dungeon. */
-					alloc_dungeon_level(house_depth);
-					generate_cave(house_depth);
-				}
 				for (y = houses[o_ptr->pval].y_1; y <= houses[o_ptr->pval].y_2; y++)
 				{
 					for (x = houses[o_ptr->pval].x_1; x <= houses[o_ptr->pval].x_2; x++)
 					{
-						delete_object(house_depth,y,x); 
+						delete_object(houses[o_ptr->pval].depth,y,x); 
 					}
 				}
-				houses[o_ptr->pval].owned--;
+			houses[o_ptr->pval].owned--;			
 			}			
 			
 		}
@@ -3446,10 +3425,8 @@ void place_object(int Depth, int y, int x, bool good, bool great)
 		/* Make sure no one sees it at first */
 		for (i = 1; i < NumPlayers + 1; i++)
 		{
-#if 0
 			if (Players[i]->conn == NOT_CONNECTED)
 				continue;
-#endif
 
 			/* He can't see it */
 			Players[i]->obj_vis[o_idx] = FALSE;
@@ -3603,9 +3580,7 @@ void place_gold(int Depth, int y, int x)
 		/* No one can see it */
 		for (j = 1; j <= NumPlayers; j++)
 		{
-#if 0
 			if (Players[j]->conn == NOT_CONNECTED) continue;
-#endif
 
 			/* This player can't see it */
 			Players[j]->obj_vis[o_idx] = FALSE;

@@ -1331,7 +1331,7 @@ void keymap_init(void)
 	int i, k;
 
 	/* Notice changes in the "rogue_like_commands" flag */
-	static char old_rogue_like = -1;
+	static old_rogue_like = -1;
 
 	/* Hack -- notice changes in "rogue_like_commands" */
 	if (old_rogue_like == rogue_like_commands) return;
@@ -2475,11 +2475,9 @@ void msg_broadcast(int Ind, cptr msg)
 	/* Tell every player */
 	for (i = 1; i <= NumPlayers; i++)
 	{
-#if 0
 		/* Skip disconnected players */
 		if (Players[i]->conn == NOT_CONNECTED) 
 			continue;
-#endif
 			
 		/* Skip the specified player */
 		if (i == Ind)
@@ -2538,10 +2536,8 @@ void msg_print_near(int Ind, cptr msg)
 		/* Check this player */
 		p_ptr = Players[i];
 
-#if 0
 		/* Make sure this player is in the game */
 		if (p_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Don't send the message to the player who caused it */
 		if (Ind == i) continue;
@@ -2589,7 +2585,7 @@ void msg_format_near(int Ind, cptr fmt, ...)
  */
 void player_talk_aux(int Ind, cptr message)
 {
-	int i, j, len, target = 0;
+	int i, len, target = 0;
 	char search[80], sender[80];
 	player_type *p_ptr = Players[Ind], *q_ptr;
 	cptr colon, problem = "";
@@ -2645,31 +2641,40 @@ void player_talk_aux(int Ind, cptr message)
 			/* Check name */
 			if (!strncasecmp(parties[i].name, search, len))
 			{
-				/* Make sure one of the party members is actually
-				 * logged on. */
-				for (j = 1; j <= NumPlayers; j++)
+				/* Set target if not set already */
+				if (!target)
 				{
-					if (Players[j]->conn == NOT_CONNECTED)
-						continue;
+					target = 0 - i;
+				}
+				else
+				{
+					/* Matching too many parties */
+					problem = "parties";
+				}
 
-					/* Check this guy */
-					if (player_in_party(i, j))
+				/* Check for exact match */
+				if (len == strlen(parties[i].name))
+				{
+					int x;
+					/* 
+					   Note here, one of the party
+					   members should be on!
+					*/
+
+					problem = "parties";
+
+					for (x = 1; x <= NumPlayers; x++)
 					{
-						/* Set target if not set already or an exact match */
-						if ((!target) || (len == strlen(parties[i].name)))
-						{
-							target = 0 - i;
+						if (Players[x]->conn == NOT_CONNECTED)
+							continue;
+
+						/* Check this guy */
+						if (player_in_party(i, x))
 							problem = "";
-						}
-						else
-						{
-							/* Matching too many parties */
-							/* Make sure we don't already have an exact match */
-							if (len != strlen(parties[0 - target].name))
-								problem = "parties";
-						}
-						break;
 					}
+
+					/* Finished looking */
+					break;
 				}
 			}
 		}
@@ -2680,26 +2685,31 @@ void player_talk_aux(int Ind, cptr message)
 			/* Check this one */
 			q_ptr = Players[i];
 
-#if 0
 			/* Skip if disconnected */
 			if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 			/* Check name */
 			if (!strncasecmp(q_ptr->name, search, len))
 			{
-				/* Set target if not set already or an exact match */
-				if ((!target) || (len == strlen(q_ptr->name)))
+				/* Set target if not set already */
+				if (!target)
 				{
 					target = i;
-					problem = "";
 				}
 				else
 				{
 					/* Matching too many people */
-					/* Make sure we don't already have an exact match */
-					if (len != strlen(Players[target]->name))
-						problem = "players or parties";
+					problem = "players";
+				}
+
+				/* Check for exact match */
+				if (len == strlen(q_ptr->name))
+				{
+					/* Never a problem */
+					problem = "";
+
+					/* Finished looking */
+					break;
 				}
 			}
 		}
@@ -2716,6 +2726,9 @@ void player_talk_aux(int Ind, cptr message)
 		   otherwise detecting if he's logged in.  --Crimson
 		 */
 		if(strcmp( search, cfg_dungeon_master)) {
+			/* Bounce message to player who sent it */
+			msg_format(Ind, "[%s] %s", p_ptr->name, colon);
+
 			/* Send an error message */
 			msg_format(Ind, "Could not match name '%s'.", search);
 		};
@@ -2727,6 +2740,9 @@ void player_talk_aux(int Ind, cptr message)
 	/* Check for multiple recipients found */
 	if (strlen(problem))
 	{
+		/* Bounce message to player who sent it */
+		msg_format(Ind, "[%s] %s", p_ptr->name, colon);
+
 		/* Send an error message */
 		msg_format(Ind, "'%s' matches too many %s.", search, problem);
 
@@ -2757,11 +2773,9 @@ void player_talk_aux(int Ind, cptr message)
 		party_msg_format(0 - target, "[%s:%s] %s",
 		                 parties[0 - target].name, sender, colon);
 
-		/* Also send back to sender if the sender is not in
-		 * the party being messaged. */
-		if (p_ptr->party != 0 - target)
-			msg_format(Ind, "[%s:%s] %s",
-				   parties[0 - target].name, sender, colon);
+		/* Also send back to sender */
+		msg_format(Ind, "[%s:%s] %s",
+		           parties[0 - target].name, sender, colon);
 
 		/* Done */
 		return;

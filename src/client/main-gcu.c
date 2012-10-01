@@ -904,7 +904,7 @@ errr init_gcu(void)
 	/* Do we have color, and enough color, available? */
 	can_use_color = ((start_color() != ERR) && has_colors() &&
 	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));	             
-	// APD test
+	  can_use_color = TRUE;
 	  COLORS=16;
 	  COLOR_PAIRS=16;
 

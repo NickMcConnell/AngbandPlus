@@ -1028,6 +1028,11 @@ int cmd_target(void)
 
 int cmd_target_friendly(void)
 {
+	bool done = FALSE;
+	bool position = FALSE;
+	int d;
+	char ch;
+
 	/* Tell the server to init targetting */
 	Send_target_friendly(0);
 	return TRUE;

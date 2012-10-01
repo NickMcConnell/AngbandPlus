@@ -1,23 +1,23 @@
-                         **********************
-                         **  MAngband 0.7.0  **
-                         **********************
 
-         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
+                    :::!~!!!!!:.
+                  .xUHWH!! !!?M88WHX:.               Mangband 0.7.0b
+                .X*#M@$!!  !X!M$$$$$$WWx:.     
+               :!!!!!!?H! :!$!$$$$$$$$$$8X:    Developer and Server Admin :
+              !!~  ~:~!! :~!$!#$$$$$$$$$$8X:        adingle@crud.net
+             :!~::!H!<   ~.U$X!?R$$$$$$$$MM!  
+             ~!~!!!!~~ .:XW$$$U!!?$$$$$$RMM!  See Code for other Copyrights!
+               !:~~~ .:!M"T#$$$$WX??#MRRMMM!   
+               ~?WuxiW*`   `"#$$$$8!!!!??!!!   Added recently : 
+             :X- M$$$$       `"T#$T~!8$WUXU~     New Ego Items. 
+            :  ~#$$$m:        ~!~ ?$$$$$$        All New Networking Code.
+          :!`.-   ~T$$$$8xx.  .xWW- ~""##*"      Many Bug Fixes.
+.....   -~~:<` !    ~?T#$$@@W@*?$$      /`       
+W$@@M!!! .!~~ !!     .:XUW$W!~ `"~:    :     	
+:::~:!!`:X~ .: ?H.!u "$$$B$$$!W:U!T$$M~         
+.~~   :X@!.-~   ?@WTWo("*$$$W$TH$! `
+Wi.~!X$?!-~    : ?$$$B$Wu("**$RM!               Newbies : Hit '?' for help
+$R@i.~~ !     :   ~$$$$$B$$en:``                          Hit ':' to talk
+?MXT@Wx.~    :     ~"##*$$$$M~			    
+                                               /*/*/* We miss you Oqo! */*/*/
 
-        Angband 2.0 - 2.4: Alex Cutler, Andy Astrand, Sean Marsh, 
-                           Geoff Hill, Charles Teague, and others
-        Angband 2.5 - 2.6: Charles Swiger (cs4w+@andrew.cmu.edu)
- 
-        Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
- 
-        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
- 
-       MAngband 0.1 - 0.5: Keldon Jones (keldon@umr.edu)
 
-       MAngband 0.6 - 0.7: Alex Dingle (adingle@crud.net) 	   
-
-       NEW in MAngband 0.7.0 -- Revised networking, new ego items.
-
-       Visit the MAngband Home Page at "http://www.mangband.org/".
-   Send all comments, bug reports, patches, etc, to "adingle@crud.net".

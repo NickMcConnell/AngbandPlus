@@ -4,7 +4,7 @@
 extern int	receive_window_size;
 //extern long	last_turns;
 
-int Net_packet();
+static int Net_packet();
 int Net_setup(void);
 int Net_verify(char *real, char *nick, char *pass, int sex, int race, int class);
 int Net_init(char *server, int fd);

@@ -514,8 +514,10 @@ int main(int argc, char *argv[])
 
 
 	/* Catch nasty signals */
+#if 0
 	if (catch_signals == TRUE)
 		signals_init();
+#endif
 
 	/* Display the 'news' file */
 	show_news();

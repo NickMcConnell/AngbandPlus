@@ -457,8 +457,12 @@ void self_knowledge(int Ind)
 
 	cptr	*info = p_ptr->info;
 
-	/* Clear the info area first. */
-	memset(p_ptr->info,0,sizeof(p_ptr->info));
+        /* Clear info Area First. */
+
+        for(i=0;i<128;i++) {
+                p_ptr->info[i]=0;
+        };
+        i=0;
 
 	/* Let the player scroll through the info */
 	p_ptr->special_file_type = TRUE;
@@ -1143,10 +1147,8 @@ bool detect_invisible(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
-#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Skip visible players */
 		if (p_ptr->dun_depth != q_ptr->dun_depth) continue;
@@ -1291,10 +1293,8 @@ bool detect_creatures(int Ind)
 		int py = q_ptr->py;
 		int px = q_ptr->px;
 
-#if 0
 		/* Skip disconnected players */
 		if (q_ptr->conn == NOT_CONNECTED) continue;
-#endif
 
 		/* Skip visible players */
 		if (p_ptr->play_vis[i]) continue;

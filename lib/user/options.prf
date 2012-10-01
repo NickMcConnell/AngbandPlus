@@ -4,7 +4,7 @@
 # Remember that "X" turns an option OFF, while "Y" turns an option ON.
 # Also remember that not all options are used.
 
-X:rogue_like_commands
+Y:rogue_like_commands
 X:quick_messages
 X:other_query_flag
 X:carry_query_flag
@@ -66,3 +66,4 @@ Y:view_yellow_lite
 Y:view_bright_lite
 X:view_granite_lite
 Y:view_special_lite
+
