@@ -1,0 +1,24 @@
+# All lines beginning with a '#' are comments
+#
+# Configuration for the Graphics Editor
+#
+# Colors in the editor
+#
+# Colors available:  black, blue, green, cyan, red, magenta, brown, light gray
+#                    dark gray, light blue, light green, light cyan, light red
+#                    light magenta, yellow, white
+#
+#border: color of the border in the grid
+border=cyan
+
+#cursor: color of the selecting cursor box
+cursor=white
+
+#fill: color of the filled in squares in the grid
+fill=blue
+
+#text: color of the printed words
+text=yellow
+
+#tile: color of the miniature tiles
+tile=red

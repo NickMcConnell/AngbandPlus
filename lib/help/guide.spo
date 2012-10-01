@@ -1,0 +1,1778 @@
+Subject: Angband Strategy Guide repost
+Updated: 29th November 1993
+
+
+
+                Angband Strategy Guide:  version 3.181
+                --------------------------------------
+
+Note:  This all relates only to Angband.  Due to the new version, some of this
+might be out of date, inaccurate, or unwise.  I haven't done any editing, but
+figured this would be a good time for a repost.
+
+I do not include any hints for Bangband, Fangband, or any thing else besides
+PC Angband.  
+
+Please mail all corrections, advice, comments, criticisms, compliments,
+        rutabagas or cash to:  fwang@sbcs.sunysb.edu
+
+
+                        Table of contents
+                        -----------------
+0.  Introduction and Disclaimer
+1.  Character Generation
+        a. Warriors
+        b. Mages
+        c. Priests
+        d. Rogues
+        e. Rangers
+        f. Paladins
+2.  General hints for each character class
+        a. Warriors
+        b. Mages
+        c. Priests
+        d. Rogues
+        e. Rangers
+        f. Paladins
+3.  Shopping
+        a. First time
+        b. Should almost always buy 
+        c. Descents below 150 feet
+        d. Descents below 300 feet
+        e. Descents below 1000 feet
+        f. Other shopping tips
+4.  Techniques for 'regions'
+        a. How fast is too fast?
+        b. Basic Pointers
+        c. Skills for all levels
+        d. Techniques for 0-1000 feet.  
+        e. Techniques for 1000-1700 feet.  
+        f. Analysis of levels > 1700 feet.
+        g. Strategies of various winners
+        h. Things to do if you're about to die.  (i.e. last ditch efforts)
+5.  Fighting....dealing with groups/ pits/ uniques
+        a. Monster Rooms
+        b. Spiffy Rooms
+        c. Uniques
+        d. Rough Monsters
+        e. Invisibles
+6.  Classic, simple, and useful tips.
+7.  Noteworthy things.
+8.  Contributor list.
+
+
+0.                              Introduction
+                                ------------
+
+Greetings, fellow Angbanders.  It occurred to me that it would be a very
+interesting idea to gather all the neat tricks, tips, and hints that 
+experienced players use in one giant strategy list.  
+
+So began the Angband Strategy Guide.  It began as a thought, but with support
+has grown into a pretty useful document.  I can't say "a definitive guide to
+winning angband", since most of the hints are for early levels, but hopefully
+this will change.
+
+I'm trying to get this organized, and could probably use all the help I can
+get.  All comments are welcome, -especially- criticisms.  (Well, constructive
+ones).  What don't you like, what do you like, what you'd like to see more of.
+
+If you have any tips that you don't see, please e-mail them to me.  I will add
+the tip and your name to the Contributors list (unless you don't want me to).
+
+
+Also, keep in mind a few things.  Some tricks don't work on some versions of
+Angband.  (For example, some Angbands don't have autorolling or targetting 
+code).  So, keep that in mind when you read.  Also, no strategy is any good
+unless the player is careful.  -The- fastest way to die is by not watching
+your hit points, and no strategy will help you at all if you don't watch out
+for yourself.
+
+                                Disclaimer
+                                ----------
+
+This guide is not a step by step method of how to win.
+It is not a inventory list of what your characters should carry at what parts
+of the game, in order to win.
+
+Rather, it is a list of all things that are considered useful, and what tricks
+are used by players.  I doubt there is a single player that carries -all- 
+objects mentioned, and follows -all- strategies mentioned.  It is simply not
+realistic. Some ideas may be good at some times and not others. 
+
+What you, the player, need to do, is to find a tempo of playing that makes
+you comfortable.  If you like to play safer, ditch the offensive options and
+buy more armor.  If you like to play rougher, then go down levels faster, and
+choose better weapons over better armor.  It's your game.
+
+I add this disclaimer because I seem to be receiving mail with things like 
+'I don't think you need xxxxx'.  If you don't want it, don't use it.  It is
+listed for those who haven't considered that possiblity.  
+
+In the rare event that there is a statement that says, "I think....." or
+is in first person, that was likely an accidental inclusion from someone's
+e-mail.  It should be changed - notify me.  The 'I' could be from any one
+of the contributors and does not necessarily express my opinions.
+
+Down with Morgoth!
+
+                        - Frank Wang
+                          fwang@sbcs.sunysb.edu
+
+
+1.                      Character generation
+                        --------------------
+
+Basically, Warriors are easier at the beginning and hardest to win with.
+Mages are hardest to start with, and easiest to win with.  Priests have 
+less offensive spells than mages, but do get really cool heal spells later.  
+While a mage can begin with an offensive spell, a priest will not get an 
+offensive spell until level 9 - Orb of Draining (a very good spell).
+
+Rangers are easy to start and play when first learning the game. You get
+the toughness and durability of Warriors, with a few mage spells to help
+out along the way. You might like to try a Half-Elf or Elf Ranger to start.
+
+High elves and Dunedain (yes, it's plural - Dunadan is singular) make 
+good characters of any class, but they have the slowest rate of going 
+up levels. They are good when you are first learning the game, but 
+are very slow to win with.
+
+Gnomes : Their free action intrinsic more than compensates for the lousy 
+hitdice, at least for spell casters.  They get good racial adjustments to 
+most stats except hand-to-hand melee. 
+
+Dwarves are reasonable characters as well, especially as Priests or Warriors.
+
+If you use the autoroller, then remember that 18/01 is entered as 19, 18/50
+as 68 (i.e. 18+50) and so on. Generally, you can put two stats close to 
+their maximum on the autoroller with little trouble. Three is much more
+difficult (essentially the other three stats have to be close to their 
+minimum), so you can wait days. If you want to set minimums on three stats,
+you should make at least two of them several points below their maximum
+(above 18 you should drop by about 20 - or perhaps just a bit less - to
+count as a point). If it takes more than a couple of minutes, hit ^C and
+try again with lower values.
+
+Also, when considering Autorolling, recognize the fact that there are only
+certain 'ranges' that make a difference.  A starting Intelligence of
+18/89 is the same as a starting Intelligence of 18/70 in terms of mana.
+Of course, since 18/90 is the next 'step up', you could go for 18/80 and
+then try to buy a ring of intelligence (+1).  But a starting constitution 
+of 9 isn't much different from of 14.  So don't waste your autoroller's 
+time trying to reach a maximum for a stat that won't make a difference.  
+This of course depends on your version of Angband.  Check the spoiler sheets 
+for your version.
+
+The lower stat will make it take longer to max out your stats, but it really
+shouldn't make any difference in the long run.  
+
+
+1.a.  Warriors
+
+Warriors get through the early levels easily, and make a good choice
+if you want to learn the game.  This will be frustrating until you get a
+good intuition of where hidden doors are, so your first character should
+be a Ranger.
+
+If you are trying to go as a Warrior, then Half-trolls, Dunedain or High-
+elves are good choices...You can almost guarantee a STR > 18/50 with one 
+of these, and the last two can give you a DEX > 18/50 with luck, thus 
+giving you TWO swings with that broadsword at the start of the game.
+This extra advantage makes up for the slow advancment of the last two 
+races. 
+
+A High Elf warrior with 18/57 Str and 18/50 Dex can get _four_ hits with
+a 5lb weapon. 
+
+A Human warrior goes up levels _fast_. Take a high dex and strength for 
+multiple hits with light weapons.
+
+Enchant your weapon as quickly as you can and look for rings of damage or 
+slaying, etc.
+
+Also, look for high CON (no less than 14), and not too low WIS or INT (you 
+will need to use wands and staffs)...Furthermore, these last two will help 
+your pseudo-ID work faster.
+
+
+1.b.  Mages
+
+High-elves make good Mages.  They generally have better abilities, and a high
+stealth.   Starting attributes: 18/80 intelligence, and 10 strength.
+Less than 10 strength really puts a limit on what you can carry.  With a 18/80
+intelligence, a single ring of intelligence (+1) can put you into the big 
+bonus mana region.
+
+Gnome mages are really good too, since they can still get the highest starting
+mana ratio with 18/70 intelligence, and best of all, have innate free action.
+
+
+1.c.  Priests
+
+Priests are somewhat easier because of their heal spells (especially the 
+200hp and the full heal).  By healing 200 hp whenever you lose this many 
+you are less likely to die from any big breath attack (cf. mage with potions 
+thinking how much can so and so breath for if I have this, this and that?). 
+A priest can get a lot of heals out of one lot of mana!  
+
+        Suggestion 1: Play a dwarf priest with 18/50 wisdom, other stats 
+don't really matter - go for a decent strength and/or con. You could
+also try a Dunadan with similar stats.
+
+        Suggestion 2: Play a Half-Troll priest.  Seriously.  Those extra
+hit points come in -handy-.  Try either: a) 18/12 Str, 14 Wis, 10 Dex, 18 Con
+and wield a whip (2 hits - double the plus!); b) 18 Wis and 18 Con and 
+wield the heaviest damage weapon you can use; or c) 18/?? Str and 18 Wis.
+
+In either case play the early levels like a (weak!) warrior. 
+
+
+1.d.  Rogues
+
+Rogues are among the best fighters and are experts at the Art of Not
+Being Seen. If the monster doesn't see you (/wake up), it won't hit you.
+
+        Suggestion 1: Hobbit Rogue. Infravision is very nice and you
+can sneak around well.  Monsters often won't even notice you until you
+tap them with your sword (very hard of course).  Also, being able to 
+disarm traps and locked doors is handy.  
+
+        Suggestion 2: Half-Orc Rogue.  This is really a totally different 
+character than the Hobbit Burglar: a Half-Orc Rogue has lower Stealth, but 
+good fighting, and some limited spellcasting. In a way, the character is a bit
+more like a Warrior with some spellcasting ability.
+
+
+1.e.  Rangers 
+
+Rangers have good bow skill, and have reasonable magic device, disarm, etc,
+and fight better than mages and priests. They get all but the most powerful
+magic spells. Because they are reasonably effective fighters, they gain
+levels more quickly than mages early on (mages need to run away more often).
+They make an excellent compromise between the early might of the warrior,
+and later power of a mage. Rangers should take advantage of their missile
+weapon skill.
+
+        Suggestion 1: High Elf Ranger. This is one of the slowest characters
+to advance, but See Invisible, combined with high Str, Int, Dex make their
+survival during early levels very good. 
+        Try:    a) Str 18/02 Int 18/50 Dex 18/01, which makes a more
+'mage-like' Ranger, for 2 x mana and 2 hits with a Sabre (18/10 for 2 hits 
+with a Trident);  
+                b) Str 18/32 Int 18 Dex 18/01, for a ranger that fights better
+- 1.5 x mana and 3 hits with a Sabre. If you are a little more patient you may
+be able to get both the higher Str and Int.
+
+        Suggestion 2: Human Ranger. This is a much faster character, and
+you'll have spells by the time you finish your first trip down. 
+Try: Str 18/12, Int 18, Dex 10. Two hits with a Sabre, and 1.5 x mana make
+quite a powerful character.
+
+
+1.f.  Paladins
+
+Paladins fight almost as well as Warriors. They get spells right from the
+first level as well. 
+
+        Suggestion: Dunedain Paladin.  Try: Str 18/12, Wis 18, Dex 10, for the
+same benefits as the Human Ranger above.  Find a light weapon to wield for
+for multiple attacks / round.
+
+        Half-Elves make excellent Paladins, since they have slightly improved
+Stealth and Searching---the weaknesses Paladins have.
+
+Humans make playable paladins as well.  If you have not played a human 
+before, a Paladin might be a good one to try.
+
+
+
+2.0.            General Character hints for each class
+                ---------------------------------------
+
+For all characters:
+
+        Watch your hit points.  Don't let them get too low.  Rest as soon 
+as possible after every fight, to get your hit points and mana (if any) to 
+maximum.  You have nothing to gain by running around with your guns half 
+loaded.  If you need more convincing, try counting the number of times 
+you've survived with zero hit points, or cast your last spell with just 
+enough mana.  It shouldn't happen, but it does.
+
+        Also, missile weapons (aka bows/crossbows) are a pain, take a lot of 
+inventory space, and are heavy (including ammo), but they are also very 
+devastating weapons that can dish out a -lot- of damage.  They are very handy.
+Also, you can use flasks of oil as relatively cheap and effective missile 
+weapons.
+
+
+For Spellcasters:
+
+Don't take every spell the moment you are allowed to. If you 'G' to learn 
+a spell and there is nothing you really need right now, press <Esc>. You 
+can learn an extra one later. If you get in a spot, and need a spell you 
+might have learned but didn't, it only costs a turn to learn - you have a 
+lot more flexibility if you have an unlearned spell or two up your sleeve. 
+Sometimes you have more than one spell you would like to learn at once - 
+if you 'save up' a couple, you can get them all right away. It is also 
+handy to have a couple spare for when you find the special books - e.g. 
+Resistance of Scarabtarices as they have some handy lower level spells. 
+
+If you are a mage with 18/50 or higher Intelligence, you may be better
+off learning the spells and getting the experience for casting them 
+while still at low levels. Even for a character like this, however,
+getting all three 7th level mage spells at 7th level might be 
+worthwhile for survivability.
+
+
+For pseudo spellcasters - (rangers/rogues/paladins)
+
+Until you are VERY high level, do NOT rely on your magic to get you out of 
+tight spots, since their failure rate will be too high for emergency usage, 
+and you won't have enough mana to really cast them more than once.
+
+
+2.a.  Warriors
+
+        Really easy - Go in and kill.  Rest after every battle (if necessary).
+You *should* be able to get down to 200' on the first trip without problems 
+(assuming no out of place monsters), but returning to town may be tough.  
+A possibility is to start with two complete trips to 100', collecting 
+everything, digging out all treasure.  By this time, The character is around
+5-6th level...all depends on what you find.
+
+Most Warriors should have multiple hits (often a lighter weapon can do more 
+damage *per turn* than a heavy one, if it gets more hits). Watch for anything
+to increase your damage. A Strength of 18 gives you +3 immediately. Enchant-
+to-Dam scrolls can take your damage up further and are readily available. 
+Watch carefully for rings of damage, rings of slaying, gloves of
+slaying, etc (I once got all 3, and a total of +33 to damage for each of 
+three hits before going down as far as Wormtongue!). Even a total of +10 to 
+damage (when counted three or four times) makes most uniques on the low 
+levels easy. Jellies usually don't get a hit in.
+
+        Use the Warriors' pseudo-ID all the time.  After the first few levels,
+drop any weapon or armor that you don't need that gives you a Average or Cursed
+id.  NOTE that if the p-ID message says "You feel that [  ] is terrible." then
+this is a SPECIAL cursed item, possibly a cursed artifact.  KEEP THIS until 
+you have complete ID.  
+
+        Collect all wands that are beneficial to you.  After 500', start
+carrying a ranged weapon with you.  Remember that you are the worst class at 
+high levels...always have a WoR and some ability to ID items (Staff of 
+Perceptions) at these deep levels.
+
+DO keep magic items onhand--but you should prefer the more obvious
+Scrolls and Potions---since these can't fail due to low Int (I think).
+Useful Rods are Recall, Illumination, and Restoration.  These may
+(and probably will) fail a lot, but use them when in a "bare" area
+cleared out by yourself (of monsters).
+
+DO get a bow/arrow quickly---this is your ONLY reliable distance
+attack, and you'll NEED it against acid-breathers/spitters (e.g.
+Green Naga/Worm).  Actually, a crossbow (especially a heavy crossbow)
+is probably more reliable.
+
+
+2.b.  Mages
+         
+        In general, keep your mana up.  Don't run out of mana.
+
+        Cast Detect Monster and Find Hidden Traps/Doors everytime you sneeze.
+(turning on the 'stop between screens' option guarantees that you don't walk 
+into any offscreen traps, if you cast detect traps as soon as the screen 
+changes.  It is pretty safe to disable that option to speed gameplay, but it
+is recommended to avoid Murphy's Law and re-enable it if you are on a special
+level, lest you be running down some corridor and fall into an offscreen trap
+door)  Avoid or prepare for large groups of monsters.
+
+        Learn escape spells as soon as possible. (i.e. Phase Door and 
+Teleport) learn to use them efficiently.  
+
+        Stinking cloud is a very handy spell.  Fantastic for taking out flies
+or fleas.  It is a pretty powerful early spell, and it's a ball spell, so
+you can do very handy things with it.  You may do more raw damage with 
+Lightning bolt (which has the -highest- damage/mana ratio of almost all the
+spells) but can only affect one at a time, and you can't shoot -over- anything
+with a bolt spell.
+
+        Also, learn to use Sleep and Spear of Light, as mentioned in various
+parts of this document.  They are very useful relatively low level spells.
+
+
+2.c.  Priests
+
+If you've played Moria before, the first 9 or so levels of the priestly 
+life in Angband play very similarly.
+
+Many of the same rules for mages apply.  Watch your mana.  Cast Detect 
+prayers, especially Evil and Traps, whenever the screen changes.  These 
+prayers cost a fair amount of mana, compared to the mage spells, (Detect 
+Doors and Detect Traps are two different prayers, for one thing), and so 
+you will want to take it fairly slowly.
+
+At low levels, melee bites, even though your mace is much better than a
+mage's dagger.  Be prepared to phase door around a lot.
+
+Don't count on Cure Light Wounds to work, especially below level 10.  
+Carry a few potions of same at all times.  You can't cast Cure Light 
+Wounds while you are blind - but you can quaff the potion. Of course, 
+if you can retreat to a safe spot, Cure Light Wounds is a good prayer.  
+Once you get above level 10 or so, you can reasonably cast it "on the 
+fly", so to speak, but still be careful.
+
+Aside from the Detect and Cure prayers, most of the low level prayers 
+are pretty useless.  Create Food and Portal are notable exceptions.  
+Basically, below level 9 you will be playing like a warrior, but a 
+damn wimpy one.  Don't overexert yourself.  At level 9 you can get
+... Orb of Draining!  Then life becomes much easier.
+
+
+When you get to level 7, *stop* taking prayers when you gain levels. 
+[If you have 18/50 Wisdom you can stop at level 8.] You want to do 
+this because you can "force" your gods to give you Orb of Draining.
+You want this prayer.  Badly.  It does 3d6 plus your level damage, 
+double to evil (which is good), is a ball spell (very good), and 
+(best of all) there are no monsters that resist it, unlike with the 
+mage spells.  Here's how:
+
+1)  Get a copy of Chants and Blessings, the prayer book with OoD in it.
+2)  When you get to level 9, do the following:
+        a)  Go up to town and drop all your copies of the first two books 
+(Beginners' and Words of Wisdom) in your home.  You could do this in the 
+dungeon, but this way they won't get stolen or inadvertently lost.
+        b) Take your copy of Chants and Blessings.
+        c)  Hit 'G'.  Voila!  You should now have all three 9th-level 
+spells: Neutralize Poison, Orb of Draining and Cure Serious Wounds.
+
+Use Detect Evil to find hidden Ghosts (its only advantage is that it DOES 
+detect invisible critters), and if you're not high enough level, RUN AWAY 
+(some low-level ghosts drain Wisdom). 
+
+
+To save ID scrolls, use the priest's ID, Remove Curse.  Try on any
+armor, rings, or amulets you find lying around.  If they're cursed, you can
+de-curse them and drop them, thus keeping you from burning ID scrolls on 
+useless stuff. Note that priests eventually get Identify as a prayer, but 
+it's in Godly Insights, which is pretty rare above 2000'.
+
+Caveats.  1)  Don't try this with weapons.  Morgul weapons cannot be uncursed
+with the standard grade Remove Curse.  In most current versions of Angband, 
+reading a scroll of enchant to-hit or to-dam will zap any curse on a weapon, 
+allowing you to take it off.  This at least allows you to get rid of it.  
+However, this seems to be a bug, and it may be removed from later ports or 
+versions. 
+          2)  Wait a few levels after getting Remove Curse before
+using this.  That way, if you have a high WIS, allowing you to gain more
+than one prayer/level, and you put on an Iron Helm of Wisdom (-5) or 
+something, you won't lose the Remove Curse prayer when your WIS plummets...
+
+In theory, one could get the One Ring of Power, which cannot be de-cursed by
+any means, this way.  However, this is so unlikely at pre-Godly-Insights 
+levels that I've neglected that possibility. [Some people think
+that the One Ring could be very useful back then....]
+
+The very high level prayer Elemental Brand can be used to make very deadly
+bolts/arrows by wielding the bolts and branding them. 
+
+2.d.  Rogues
+
+There are two kinds of rogues, the tough rogues (like a Half-Orc) and
+the sneaky rogues (like a Hobbit). The 'standard' rogue is the 'sneak'.
+They are often able to walk right through a room without waking things
+up. Rogues get some good detection spells (but essentially no offensive
+spells), and combined with the ability not to be noticed, they can
+often avoid damage. If you see something nasty when you peek in a room,
+you can often quietly close the door without waking it up. 
+
+If you do fight, try to do it from a distance when you can.
+
+Rogues can also fight well in the conventional sense.  You will want 
+to use the spell Detect Traps heavily, and probably won't need to use 
+many other spells all that much (until you get Identify and Recharge spells).
+
+The 'tough' Rogues are essentially played like Warriors in the early levels,
+but later they get some helpful spells as well.
+
+Play these guys a bit more cautiously than a Warrior.  Be sure to
+have a starting Dex of 18/50 (AT LEAST) and a starting Int of 18 (so
+you can cast more of your key spells).  Also, beware of FUN group
+monsters---use the Mage strategy at high levels---you need to rely
+HIGHLY on your Stealth and a few scrolls of Teleport to get you out
+of messy situations, since your spells aren't that reliable for quite
+awhile.  Halflings tend to make superb Rogues---the Rogue abilities
+compliment the Halfling's ones beautifully (also Halflings get Dex
+sustained---a Rogue's prime stat).
+
+Also, gain the spells soon---and cast Detect Treasure/Objects on
+every screen.  These two lovely spells will let you find the treasures
+buried on levels (MASSIVE amounts of cash you can dig up when you get a 
+nice Pick).  Use these detection spells A LOT, since they give you the subtle
+edge in combat.  Also, you should get a Bow as soon as possible---as with 
+Rangers, you're excellent with Bows, and you should be using Bows as your 
+distance attack.
+
+2.e.  Rangers
+
+Play a Ranger like a warrior at the start, but don't forget you are 
+weaker - stand back and use your good bow skill more. Keep plenty
+of Phase Door scrolls and Cure Light Wounds potions handy, and Flasks 
+of Oil are especially useful until level 3 or 4. You won't need oil as 
+a weapon after that.
+
+DO get some enchant-weapon scrolls and make your Bow more deadly---
+that should be first thing to buy after the first major trip down (
+around level 5 or so), since Rangers are excellent with Bows/Arrows
+they should rely on THESE for the primary effects---their magic isn't
+as powerful as a Mage, and hardly ANYTHING can resist a
+missile attack outright.  
+
+Keep your mana up. Use spells to complement your fighting ability - 
+for example, cast a Magic Missile or two before closing for the final
+blows. If you time it right, the opponent will be killed by your
+first turn (so you often won't get hit by weaker creatures). This
+way you don't have to swap weapons like you do with a missile weapon.
+
+At later levels you start getting some really good spells. However, you
+don't get identify and recharge until _much_ later than a mage, so you
+need to carry scrolls and staves for longer, and you only get the
+weaker pseudo-ID, and it is very slow, so more cleverness is needed.
+Don't ID everything the second you get it. Pseudo ID might still kick in.
+Wait until you have to drop something. Don't ID something underground
+just to find out its charges if you aren't about to drop it - that can
+wait for the town. If you are careful, a single Staff of Perceptions
+and just a few scrolls of Identification (not too many, as reading the
+last one frees a slot) should be enough, since you'll pick up some ID scrolls
+while you are down there. Read the scrolls _first_.
+
+
+2.f.  Paladins
+
+Basically, you are ALMOST as good a fighter as a Warrior (without ANY
+special bonuses--REMEMBER THAT).  You should be relying on your good 
+hand-to-hand fighting, rather than bows/arrows, since you're not that good 
+at them.  Use a hit-and-run technique, since you don't have the special 
+bonuses Warriors get which enable them to stay in a fight with even 
+dangerous critters for a decent amount of time.  
+
+Play like a Warrior to begin with. You get Orb of Draining _much_ later
+than a Priest (not until level 17), but you should be tough enough to make
+it until then. As with a Priest, you can force OoD by not learning spells
+for a level or two before, and dropping the earlier books (*DON'T FORGET
+TO PICK THEM UP AGAIN*). Use detection spells a lot - they help you make
+the most of your fighting ability. A Paladin with OoD is a formidable 
+sight. Also Protection from Evil is extremely useful.
+
+
+
+3.0                             Shopping
+                                --------
+
+
+3.a.                    First time in the stores  
+                        ------------------------
+                Oil / lantern(?).  Not essential, but refilling your lantern 
+get much less annoying than re-wielding torches.  Also, oil makes a good,
+cheap missile weapon.  The torches you start with can usually last long
+enough until you find a lantern in the dungeon.  However, if you are the type
+of player that likes to go down levels fast, you won't necessarily find one. 
+Buy one if you need to.
+                
+                Shovel/Pick.  A necessity of life.  Without a shovel, you will
+have to work -much- harder than necessary for cash, because a large porportion
+of the money is embedded in walls, and requires a 'digging implement' to get
+(the only exception is a very strong character can tunnel fairly quickly
+for embedded metals - but for granite you really need an implement).
+
+This should be your first purchase.  Since you have the repeat command, buy a
+shovel since it is cheaper and lighter.  Just go in the dungeon, rest a while
+come back up and check the stores again.
+
+Note that non-mages will still want a digging tool once they get down to 
+greater-vault depth, since they will have to tunnel around to get at the one
+portion of wall that isn't permanent rock.  This is VERY different from 
+Moria, where once you got deep enough to find mithril lying around on the 
+floor, you could ditch your pick.
+
+		Phase Door Scrolls - get a good number of these for your 
+first trip or two. (At 50' I've run into baby MHD's, Tengu, pseudo-dragons,
+and many other things far too deadly to take on right at the start - an 
+escape route is essential - and one Phase Door is not enough. They work
+best from a corridor.
+
+		Cure Light Wounds potions - restores hit points and cures
+blindness. If you can afford it get a Cure Serious Wounds or two. (After
+the first few levels, you will want to go for at least Cure Serious.)
+
+
+                Armor - This depends on your class, and playing style.  Long
+range fighters don't need them for a while (especially mages who can phase
+door away from melee).  Spend your spare money on cheap items, for now. Helms, 
+boots and cloaks are very cheap per point of armour.
+
+
+                Weapons - Even the weakest player should consider changing to
+a damaging light weapon like a Trident or Sabre.  These are two of the most 
+important weapons for characters with high Strength and/or Dexterity as well,
+since they can get multiple attacks with light weapons.  Multiple attacks 
+make every plus on an enchanted weapon that much more powerful, and mutiple
+attacks with one weapon can do more damage/round than single attacks with
+heavy weapons.
+
+If you can only get one hit with the Sabre, you will probably be best
+off with the biggest damage weapon you can wield, unless you are so
+weak that carrying capacity is a major issue (say STR<10). If you only 
+get single hits but have reasonable strength (>10 say), a Battle Axe 
+is a good choice, or a Two-Handed Sword if you can get/wield it.
+
+Any time you have more than one hit, watch out for rings of damage, etc -
+anything that will increase your damage.
+
+
+3.b.            Should probably buy whenever you get a chance
+                ---------------------------------------------
+        From the Black Market:  Potions of Speed - Handy things to have
+                                        to kill off those speed 2 uniques.
+                                Potions of Healing - Good stuff.
+                                Potions of Experience - easy experience levels
+                                       (if you can afford them!)
+
+        Some form of teleportation if you can't cast the spell.  
+                (a) Scrolls of teleport/Phase Door are cheap, and you can 
+carry multiple scrolls without hassle (in case one burns).  However, you can't
+use them if you are blind or confused.  Potions of Cure Serious cures either 
+situation.  
+                (b) Staffs of teleport - Carrying multiple staves will eat up
+a lot of inventory.  You run the risk of it getting burnt and destroyed.  
+However, you can -always- use it, even if confused or blind.  Recharge scrolls
+will extend the life of your staff collection (but there is a small risk - 
+only recharge when empty so you don't waste charges). 
+
+        It's probably a good idea to stock up on Cure Serious potions, 
+Potions of Restore Life Levels, Potions of Restore Mana (if applicable) and 
+any Mushrooms of Restoring you find or buy from the Black Market.  They are
+good to have when you need them.
+
+
+3.c.                    For trips more than 150 feet 
+                        ----------------------------  
+        A bunch of Cure Serious Wounds potions.  They cure blindness,
+cure wounds, cure confusion, and are cheap - get a dozen.  Cure light wounds
+are cheaper, but don't cure the bigger danger of confusion and are not that
+much cheaper.  A quick way to die is to get blinded and then wander randomly,
+and get beat on by multiple monsters at the same time.  Or, get confused, and
+then get whaled on by some bad thing. Starving to death while blind is no fun
+(you can't Create Food if you're blind - and sometimes you are blind for a 
+long time).  These scenarios are easily avoided and should not happen if you
+are careful.
+
+        A Staff of Perceptions seems expensive compared to identify scrolls, 
+but if you sell the empty staff before you buy the next one, an identify
+from a staff is about half (or even less!) of the cost of a scroll.
+They usually work out at about 25 gold per ID from the staff.
+
+
+3.d.                    For trips more than 300 feet
+                        ----------------------------
+
+        A scroll of Word of Recall or two.  To make your trips up and down 
+into the dungeon much saner.  You might buy these earlier dependent on how 
+patient you are doing down and up.  You could use the only for going up since
+down staircases are easier to find.  Keep extras in case they get destroyed by
+something.  
+
+        Light Crossbow, and bolts.  Enough enchant scrolls to get to (+8,+8).
+The chances of enchanting higher are pretty small, and get smaller the higher
+you enchant.  +9 is possible but not likely.  +10 almost impossible.  A quick
+way of buying large numbers of enchant scrolls is to buy all you can, then go
+down to 50 feet.  Rest for a thousand turns to allow the stores to reset their
+inventories.  Go back up.  etc.  This is also a good way to stock up on bolts.
+Missile weapons are often overlooked due to the hassle.  But they are great.
+Try them and decide for yourself.
+
+        It's a very good idea to buy a Staff of Teleportation the first 
+chance you get.  It can be used anytime at all.  Good for getting out of very
+bad situations.
+
+        One of the handiest items is the Rod/Wand of Teleport Monster.  It 
+teleports all monsters in a straight line, much like a Spear of Light.  
+Getting rid of a monster (or a bunch of them) is much safer than teleporting
+to a random location.
+
+        See Invisible - You can get this from a variety of sources.  You 
+should get this before you start encountering invisible creatures that drain
+(drain stats or drain experience).
+
+
+3.e.                    For trips below 1000 feet
+                        -------------------------
+        Potions of Restore life levels - You'll need these around
+1000 feet and below - pesky Ghosts.
+
+        Resistance things - You will need to get the four standard
+resistances.  In order of usefulness:  Fire, Lightning, Acid, Cold.  Rings, 
+amulets, artifacts all grant resistance.  You can also sometimes buy armor 'of
+resistance' which is resistant to all four.  It costs a lot, but saves ring
+space, which will be quickly filled.  You will need to buy poison resistance 
+later, too, or face a quick death via breath weapon/stinking cloud.
+
+        Free Action - You will need free action to prevent instant death by
+paralyzation.   If you keep searching the Black Market, you can usually buy
+Boots of Free Action.  At higher levels you will be getting See Invisible from
+at least a few items.  Free action is usually harder to use, since free action
+is harder to get.  This results in having to shuffle other objects around 
+whatever is giving free action.  (Gnomes are very nice in that free action is
+innate).  An Amulet of the Magi is very expensive, but gives free action AND
+see invisible, and also boosts your perception, searching, and armor class.
+
+3.f.                    Other shopping tips
+                        -------------------
+
+        Selling unidentified scrolls and potions are a cheap and easy way to
+identify low level potions and scrolls.  You should identify staffs and 
+wands before selling, since you get more if you know how many charges an 
+object has.  In the early game, buying identify scrolls and identifying wands
+before selling is very profitable (even if the first few are unsellable).
+If you sell a wand with an unknown number of charges, you'll get offered 
+the same money as if it had none.
+
+Note that in the UNIX version selling unidifentified scrolls and potions is 
+a quick and easy way to get barter in the shops. (Any version where you
+leave haggling on.)  This also works on the Macintosh.
+
+        If you want to save on ID's, here's a neat trick for missile weapons:
+drop one of a group, put the rest in your house, pick the single one
+back up again, and sell it. If it was cursed, you can sell the others
+still. If it was enchanted, then it is usually worthwhile to buy it back,
+because as soon as you pick up the rest from your home, they all get
+ID'd as well. If you want to use the rest and don't want to buy the one
+back, you can inscribe the rest to tell you what they are. But it is usually
+worthwhile to buy the single one back, and a lot cheaper than an ID
+from scroll or staff of perceptions. [This is best for characters without
+a fast pseudo-ID.]
+
+If you have an amulet/ ring/ whatever that raises your charisma, it is
+useless to you downstairs. However, on the town level it pays to wear one.
+Keep anything that increases your charisma in your home, unless you are
+desperate for cash - the price difference a good charisma can make is
+huge. Sometimes an amulet of charisma can pay for itself after only a
+few purchases.  However, this depends on how close your Charisma is to the
+'key' points.  Increasing a Charisma of 18/01 doesn't do anything until 
+you go above 18/50.  Then the next marker is 18/70.  So, if you have an 18 
+charisma, don't bother.  On the other hand, raising a charisma from 17
+to 18/10 can make quite a difference. Every point below 18 is a key point.
+Likewise, buy potions of charisma from the black market whenever possible.
+
+        A good idea is saving money for buying a great object from various 
+shops.  These items include Holy Avengers, defenders, weapons of westernesse 
+and elven armor that ocasionally show up in the weapon and armor shops.  
+Armor of resistance is great to buy from the armor shop, if you have money.
+Some of these weapons are better than almost any artifact the player is likely
+to find  down to 1000 ft.  However, most of these cost around 50,000 gold 
+pieces so start saving up soon.  This is a fairly consistent way to get Free
+action / See Invisible.  A Crown of the Magi is worth almost any price...
+
+
+4.                      General Survival tips
+                        ---------------------
+
+4.a.            "Going down the dungeon - how fast is too fast?
+                ----------------------------------------------
+
+Different people play differently, so there is no one answer, but
+here are some suggestions for different styles of play. If you are
+less familiar with the game, the risk is higher, if you are more
+familiar with the game, the risk is lower.  
+
+In other words, people who have played longer can go down faster and still
+die less.  So, find the speed that is right for you.
+
+The fastest reported player plays at 50 feet per level + 100 feet, which can 
+be safely done for the first 1000 feet with mages - with proper care, of 
+course.  
+
+But other speeds have been recommended, ranging all the way down to 
+5 experience levels per 50'.  
+
+
+If you aren't sure, then I suggest the following method:
+
+For each level, follow the border of the dungeon and explore each room on the
+outside of the dungeon.  (i.e. not the middle).  If you had no problem, then
+go down a level.  If you did, stick around. 
+
+This is still pretty slow, but is still reasonable for first timers.
+
+
+4.b.                    Basic Pointers
+                        --------------
+
+Okay, let's start with basics.
+
+(1)  Don't even so much as sneeze unless you have full hit points and full
+        mana.  There's just no reason to explore without full health.
+
+(2)  Don't invite trouble.  That is, when in a room with two sleeping monsters
+       attack one, kill it, then the other.  Sounds stupid, but there is a
+        very close scenario:  When fighting groups of monsters, fight them 
+        -one- at a time.  don't run in the room and invite group beatings.
+
+        An elaboration on this: if you are being attacked by a group, get into
+       a hallway and fight from there.  That way, you -can- only be attacked 
+        by one at a time:
+                                    #.....CCC..........#
+                                    #....CCCC..........#
+                                    #######C############
+                                          #@#
+                                          # #
+
+        In fact, you should almost never be beat on by more than one monster
+        at once.  you can always run into a tunnel, or attack from around a
+        corner if the monsters you are fighting have breath weapons.
+
+(3)  If you see a monster you're not sure if you can beat,then -don't- 
+        attack it.  Why take the chance?  Also, put your ego aside, and 
+        run away if you start losing a fight.  Try not to run away at the
+        very last minute, in case your teleport spell happens to pick a
+        bad time to fail.  Also, be ready to run if you attack a fire type
+        monster - and don't have any fire resistances.  Same for many others.
+
+(4)  Probably the quickest way to die can be summarized in one thought.
+        "All right, I've been hitting this guy a few times, he should
+         be almost dead... OH NO!  I have no more (hit points/mana)!
+         *dies about 5 turns later*.
+
+        Don't run out of mana.  Don't run out of hit points.  If  you start
+        running pretty low, then leave.  Don't say 'Well, I'll just save
+        my last 6 mana points to teleport away' cuz if you roll badly, and
+        are stuck in a fight with no mana, you die.  (Mages, anyway).
+
+        Note, though, that panic spell casting can save your hide.  You have
+        nothing to lose if you're gong to die anyway.  See section 4.e.
+
+(5)  It is wise to kill all the easy monsters you can before taking on the
+        harder monsters, i.e. kill any monster you see.  If you clear out
+        lots of area, then if you have to run from a fight, you will have
+        more clear areas to run to.  (and teleport to.  A troll may be
+        no big deal when you are at full strength, but if some unique is
+        beating on you, and you teleport to a room with a troll in it, 
+        odds are you'll have to run from the troll in this case).
+
+(6)  Check stores often.  Check all stores everytime you are on the town
+        level.  You never know when something will be on sale. It pays 
+        to keep valuables in your home rather than selling them right
+        off - you never know when a 'bargain' could turn up.
+        (has anyone seen a ring of speed +1 {to clear}?  how much was it?)
+
+(7)  When you're going to attack something, you can always get first blow
+        if you are careful. If your opponent is also moving (and at the same 
+        speed), then if there is a single space between you, don't move into
+        it. Wait on the spot for one turn (if you search rather than do 
+        nothing you may pick up an adjacent trap at the same time). Your 
+        opponent will move next to you, giving you the first blow.
+
+         @.R    <-- wait!
+         @R     <-- hit!  =)
+
+        If your opponent moves at double speed (like a cave spider), you
+        would move away from it if there was only one square between you,
+        and stay still if there were two squares. 
+
+        Using Fang as the example : 
+        @..C   <-- wait!   
+        @C..   <-- Hit!              
+
+        @.C    <---if you waited, Fang moves and bites.  So, take a step back,
+      @C..    <--- hit!  
+
+        Of course, if you are using a spell or missile weapon, you can shoot
+        at any time.  But you can always know whether or not your opponent
+        will be able to hit you on the next turn and act appropriately.
+
+(8)  When you find a chest, don't open it in a corridor. If it isn't in one 
+        already, take it to a big room. Make sure the floor isn't all 
+        cluttered with rubbish. Always search chests for traps. If you don't 
+        find any, search some more. Disarm the trap before opening the chest.
+        (Note: if you just cast disarm trap, you don't need to even search for
+       the trap in the first place.)
+
+        If you are just about ready to go down another level when you are
+        thinking of opening a chest, wait, and take it downstairs with
+        you. You will improve your chances of getting good stuff, since the
+        value of the stuff in the chest is related to the depth of the
+        level that you open the chest on.  Don't open a chest in the town.
+
+(9)  Common locations of secret doors.
+
+When you see either of these two patterns, search for secret doors at
+the place marked ".":
+
+ ##########            ############
+    '.'                         '.#  (in any orientation, of course)
+ ##########            ##########'#
+                                # #
+
+Also, almost all 'dead' ends have secret doors.  In general, there are 
+usually doors near doors when in corridors.
+
+
+Common dead ends which are a waste of time to search:
+
+        # #
+        # #
+        # #                                  ####
+        # #              ###                    ###
+        # #              # #                    # #
+  ####### ###   ########## ###########       r  #'########
+            #                                o  '
+  ###########   ########## ###########       o  #'########
+                         # #                 m  # #
+                         # #                    # #
+                         # #                    # #
+                         # #                 #### #
+                         ###                    ###
+
+
+                Some quick short tips from rec.games.moria
+                ------------------------------------------
+
+(10)  Summon Monster/ Polymorph Other will eventually pull up something you
+        can't handle unless you can handle anything.
+ 
+(11) Your Glyph of Warding / Rune of Protection will break.
+ 
+(12) Just 'cause you teleported away does not mean you're out of danger.
+ 
+(13) It is better not to be breathed upon.  (Most all the time.)
+ 
+(14) Your Detect Monsters/Evil spell does not pick up all your opponents.
+ 
+(15) It is better not to be touched.
+
+(16) Always have some form of healing.
+
+(17) Always leave yourself a way out.
+
+(18) Give yourself some form of long range attack.
+
+                        --- end of moria list ---
+
+(19)  Look at creatures A LOT, since you get "strength" information that
+        tells you how close the critter is to death.  This is ESSENTIAL for
+        Priests/Mages as well---since if you're running low on mana, you need
+        to know if it's about to die, or you are.
+
+
+4.c.                    Skills for all levels
+                        ---------------------
+
+Okay, you're fighting a bunch of monsters, and the room is getting filled 
+with garbage!  This is bad - a monster surrounded by junk can't drop new
+treasures.  (don't kill Wormtongue if he's surrounded by arrows!  Wait 'til
+he takes a few steps into free space).  There are a few techniques for getting
+rid of treasure:
+        (1)  Quaff any useless potions, read any useless scrolls (if safe).
+        (2)  Keep retreating as you fight, so the monster you kill next is 
+                over 'blank' areas.
+        (3)  Take the treasure, and throw it in a corner of the room.  In 
+                fact, stand either in the corner or a square away from it, 
+                and throw items towards that corner, like so:
+
+                #jj  where the j means some junk object.
+                #@j
+                #### 
+
+An item thrown towards the corner will fall onto another object, and 
+dissapear.  So, you can get rid of as many objects as you want by just 
+throwing them into this self-made garbage disposal.
+
+        (4)  If you have the Create Door spell, stand in the middle of a 
+pile of treasures, cast Create Door (a door will destroy any object on the 
+space that it was created on), and then cast remove door.  Any object adjacent
+to you is now gone.  Repeat for the rest of the pile.
+
+Don't forget that traps take up space just like treasures.
+
+
+If you run into a fire or acid breathing monster and there is a good scroll,
+staff, or whatever nearby that you can't pick up right away then move
+away from it!!  
+
+If you have a WOR scroll and run short on room to carry things then 
+ditch food if you have any (after eating).  You won't starve as long 
+as you can get back to town. However if you only have _one_ Word of Recall
+you are taking a big risk. What if it gets fried or stolen?
+
+Stinking Cloud is great for Filthy Urchins, but not absolutely necessary:
+If two can attack you at once, back around the corner of a building. 
+They only come around one at a time (don't walk into them!!). If you
+suddenly get two together, don't risk it, just back away ('round the next
+corner). If you get in a real jam, Phase Door. Better than losing about
+10% of your cash.
+
+If you are a spellcaster with a recharge and an identify spell (eg mage,
+ranger), or the priestly equivalents, and you have a couple of wands
+or staves of the same kind, and you can't carry both, then rather than
+just dropping the one with the fewest charges, recharge it. It does
+not matter if the recharge has a high chance of failure. If successful,
+identify it. Keep going until it has more charges than the other wand
+of the same type. Now recharge the other wand. Keep recharging and IDing
+the one with the lowest charges until one is destroyed. You can often
+get a great many charges on a wand this way. A character who does this
+will have really full wands, and so a better survival chance.
+Of course, you must be in a relatively safe place to do this.
+
+Useless items aren't always useless:
+
+        The power of junk: If monsters that steal objects annoy you a lot, 
+fill your inventory free space with junk. Once in a while, you'll just lose 
+rubbish.  This can be quite a pain, however.  Learn to kill thieves from a 
+distance.
+
+        Don't throw that Wand of Clone Monster away! Instead, search for a 
+monster you can destroy fairly easy and which drops some nice treasure. 
+Choices are '$' for low-level characters, 'd' for mid-level and 'D' for 
+high-level ones (no Dracoliches of course, but perhaps Ancient Blues or 
+Whites...). 
+
+Great Storm Wyrms, Ice Worms, or Hell Wyrms drop better treasure. This is
+especially nice when you have immunity to whatever they breathe (e.g. if 
+you've got Narya, clone Hell Wyrms etc).
+
+Then, when you are alone in a room with that monster, hit it until it 
+is nearly dead, clone it and kill the one you hit before. Hit the new 
+monster until nearly dead and so on until the wand is exhausted. The Wand 
+of Clone Monster is recharged very easily (low chance of losing it).
+You will get lots of money, some nice items and many experience points.
+
+There is ONE major time it's useful to let a critter breathe on you:
+If there are a slew of weaker critters that are picking at you, AND
+you are resistant to its type of attack, encourage it to breathe.  This
+will wipe out all of these weaker critters, so you can thank the
+breathing critter by destroying it.  (that's gratitude for ya)
+
+There are times when a Wand of Wonder can be used quite safely (two 
+illustrations from recent encounters):
+
+                    # #
+          ###########@############
+          #                      #              #       
+          #                      #        #######    d    
+          #                      #          @        .   
+          #                      #        ################
+          #         n.o          #
+          ########################
+    
+If you don't actually target any of the creatures, but off to one side,
+then they can't be hasted, healed, or (worse!) polymorphed. Targetting
+is a major help, but the idea still works without targetting. In the above
+diagrams, you would aim at the dot. You miss out on line-of-sight effects 
+like lightning bolts, but all the ball effects still work - and there
+don't seem to be any bad (for you, at least) ball effects. About the worst 
+that will happen is nothing. There is a vanishingly small risk that you 
+have an invisible creature lined up - though High Elves should be safe from 
+this as well.
+
+[Also see Section 6, #10 for uses for Heal Monster and Haste Monster wands!]
+
+
+
+4.d.    Survival at low level (0-1000 feet)
+        -----------------------------------
+
+If you are willing to save up for a Wand of Drain Life (via the black
+market), it can make many monsters much easier, but you might not get
+enough charges to make this worthwhile.  This wand doesn't work on 
+undead, though.
+
+Once you get the hang of it, the first 1000 feet is a fairly safe area.
+It can be played as fast as one experience level per 50'. This is pretty 
+fast, however.  
+  
+You stand a chance of dying a few times if you play this way:
+         level 2 - Fang and Grip can be a pain if you're only level 2. 
+If you stay at full health you shouldn't be at much risk.  Use Magic Missiles,
+potions of oil, and/or missile weapons.  
+        level 8 - Wormtongue is easy to handle if you buy yourself a light
+crossbow, reasonably enchanted, and quaff a potion of speed before you attack
+him.  Kill him with room around him so he has room to drop his stuff.
+Flasks of oil can also be used effectively against Wormy.
+
+(Again, don't be dumb.  If the first thing Wormtongue does is frost bolt you,
+LEAVE.  You haven't done any damage yet, and you're not at full strength 
+anymore - why bother?)  Wormtongue can dish out a -lot- of damage quickly if
+you get unlucky.  Just leave before he kills you, and try again.
+
+If you are fighting things like baby dragons, where you can take one breath
+weapon, but not 3-4, then you are often better off fighting toe-to-toe than 
+from a distance.  At least getting clawed and bitten won't fry your potion of
+speed.  They breathe much less often when they also have the choice of
+biting and clawing you.
+
+Besides that, the first 1000 feet isn't too bad.  Most uniques can easily be 
+taken out with a few phase doors, the (+8,+8) light crossbow, and bolts.
+
+
+4.e.            Survival at mid level (1000-1700 feet)
+                --------------------------------------
+
+Things get progressively harder and harder from here on.
+
+Expect more and more groups of monsters.  Especially hounds.  Take out all 
+that you can, then teleport away, heal, then come back and kill as many more 
+as possible.  It's nice to keep beating on the same group of monsters, rather
+than waking up a number of groups of monsters (it becomes very hard without a
+unique weapon to kill a group in one attempt, but a good missile weapon can
+do the trick).
+
+Keep Potions of Speed at all times - there are a lot of speed 2 monsters,
+who can -really- dish out the damage. 
+
+   Stay the same, keep scanning with Detect type spells before you go forth
+into uncharted areas.  Learn as much as you can about where you're going
+before you actually go there.  Retreat if you drop to 1/3 hp or Mana and still
+haven't taken out the same creature you started fighting.  If a creature drops
+you more than half your HP in one `turn', retreat and re-think strategy or
+better prepare.
+
+Teleport Away items are no longer optional, they're essential.  Save an
+inventory slot for a Rod of Teleport Away.  Two or three if you're a 
+warrior. Keep an eye out for Wands of same.  If you're a priest, keep your 
+eyes open for the prayer book Ethereal Openings -- it's the first of the 
+"special" prayerbooks, is reasonably common below around 1200', and has a 
+Teleport Away prayer in it.
+
+The failure rate is a bit high when you first get it to rely on this spell.
+
+4.f.                    Analysis of levels > 1700 feet
+                        ------------------------------
+
+There seems to be a substantial jump in nastiness at around 1750-2000'.
+Sort of like in Moria.  By here you'll want at least the elemental 
+resistances (fire/frost/acid/lightning, and poison if possible)
+
+2000 - 2500 ft.  Like 1000 - 1500 it seems; progressively nastier but no real
+sudden onset of nastiness. Watch for speed items and good armor, e.g., DSMs.
+They're uncommon, but, with the general increase in treasure here, quite 
+possible.  Spiffy rooms, of varying degrees of spiffiness, become common 
+here.  That's where you'll see most of the really nasty monsters.
+
+2500 - 3500.  Over this 1000 feet or so, there is a big jump in general
+nastiness.  Hell Wyrms (and worse), Chaos/Nether/Ether Hounds, high level
+undead (Nightcrawlers, Black Reavers, etc).  These monsters will frequently
+appear outside of spiffy rooms (aka vaults).  Undead pits, VERY difficult
+and dangerous even for high level players, become common about here.
+
+Undead pits are probably best avoided, especially when you first enounter 
+them. They are usually not worth the hassle. However, there are some hints
+for tackling them elsewhere in this guide.  The unique angels also appear 
+around this depth and are probably worth avoiding.
+
+3500 - 4950.  Except for high level uniques, pretty much anything that can 
+happen in the 4000's can happen in the high 3000's.  This is because the 
+highest level non-unique monsters are about level 75.  So it doesn't get 
+wildly nastier, although nasty monsters get progressively more numerous as 
+you descend.
+
+
+4.g.                    Strategies of various winners
+                        -----------------------------
+
+
+~From: Guy Evans <Guy.Evans@brunel.ac.uk> :
+
+Having hung around at 1000ft for free action I am usually around level 25 odd.
+I then tend to dive fairly rapidly to around 1500-1600ft for the gain stat
+potions.  This is when the game gets hard and interesting :-)  I stay at
+around this depth till all my stats are maxed - I find this a very boring
+part of the game.  
+
+Once my stats are maxed I dive again, this time to around 2500ft making
+money by selling extra gain stat potions and  any dragon scale mails etc.
+Once I have around 1.3 million buy a ring of speed.  Don't go below 2500
+without a speed item.  Usually by now the character is fairly gross and can 
+drop at a reasonable rate to 4950ft.  Note my last 2 completions didn't find 
+boots of speed till they had hung around at 4950ft for a _long_ time (you need
+to have 2 to kill Morgorth as a gnome mage).  That is it's easily possible to
+survive with only 1 speed item for the majority of the game (slowing down to 
+fast when killing Tiamat is always interesting though!).
+
+
+4.h.            Things to do if you're going to die the next turn
+                -------------------------------------------------
+These are things you shouldn't do on a regular basis.  But, if you're about
+to die, the rules change.  
+        
+        (1)  Cast a teleport/phase door spell, even if you don't have the 
+mana.  You might pass out and die, but more likely, you'll teleport out, and
+maybe lose a constitution point.  Much better than dying.
+        (2) Do a last minute Bash.  You might even stun the monster. 
+        (3) Shoot the monster with a Wand of Polymorph. 
+        (4) Shoot the monster with a Wand of Wonder (risk of Clone or Heal).
+        (5) Read some unidentified scroll/potion in hopes that it is a 
+teleport scroll or healing potion.
+        (6) Put on a teleport ring.  Teleport rings don't work instantly, but
+you could put it on and hope it teleports you away -soon-.  You can even 
+carry an uncursed teleport ring around for such circumstances.
+
+
+5.              Fighting....dealing with groups/ pits/ uniques
+                ----------------------------------------------
+
+
+5.a.                    Monster Rooms / Monster Pits
+                        ----------------------------
+        
+                        Generic Tactic
+                        --------------
+
+Most monster rooms can be approached from the side or behind (behind meaning
+'near the wall opposite the wall with the door').  But if you are forced to
+approach the room via the entrance side, then here is one method:
+
+        Monsters have a limited detection range - roughly 15 spaces.  Assume
+it is.  The basic strategy is this.  Come within 15 spaces of the door.  take
+one step forward, and 5 steps back.  Then, only the closest few monsters 
+noticed your presence, and they will come out of the room, and attack you.  
+You can dispose of them, and then come back to wake up the next closest ones.
+
+
+                        Specific rooms
+                        --------------
+
+Jelly pits - Probably safest to leave them alone.  They can eat through
+        armor, and are worth little experience.  Very easy to take out if you
+        have resist acid armor, though.  (hide your weapons first)
+
+
+Orc/Troll pits - 
+
+        (1)  Rod of Light / Spear of Light is a good way to do lots of damage
+to many orcs at once.
+        (2)  Sleep III can be used to put almost all the orcs to sleep at
+once.  (multiple casts might be necessary).  You can then take out row by
+row via light damage in (1).  Most trolls are immune to sleep, but a few
+are not (e.g. I think Forest Trolls aren't), so while you can't do this 
+for a whole pit, the sleep trick (see below) will work if you do it right.
+
+
+Priest trick -
+
+Orc, troll, and giant pits (and, at higher levels, demon and dragon pits) 
+are among the best of priest's friends, once they get:
+i)  Dispel Evil (from either Exorcisms and Dispelling or Wrath of God)
+ii)  Some form of speed (temp. or permanent),
+iii)  Protection from Evil.
+
+a) Find a pit, by casting Detect Evil.  Get as close to it as you can.  
+Cast Protection from Evil a couple of times.  If you can get to the door, 
+great, go to step c) below and open it.
+Otherwise, try to work your way to part of the pit's wall. 
+
+b) Make a hole in the wall (dig or Stone to Mud).  A monster will probably
+block the hole, unless you hasted yourself first and were able to time it
+right.
+
+c) Using your speed (temporary or permanent), kill the monster in the 
+hole/doorway, or perhaps just teleport it away.  Step into the hole with 
+your haste to see all the monsters in the room.
+
+d) Cast Dispel Evil repeatedly.  The Protection from Evil will reduce 
+or stop melee attacks.  This should allow you to easily kill almost all of
+the monsters.  (you might have to go in and clean up).
+
+
+If you have only speed 1, or can't get close enough to dig a hole, but do 
+have Ethereal Openings, do this:
+
+Kill or (better) teleport away about 1/3 to 1/2 of the monsters first.
+Teleport away is best since it removes more monsters at a time.  Then you can
+use Blink to try to get into the pit.  Once inside, you can dispell
+at will.  Note that you will want to cast Protection from Evil before
+Blinking around, and that the killing/teleport steps are required to free up
+some space in the pit.  This will probably take several tries, but it is
+worth it.
+
+
+At high levels, Demon and Dragon pits can be handled the same way.  You 
+should prepare by having the appropriate resistance.  MultiHued Dragons 
+just do too much damage compared to the others, and you might want to 
+take them on one by one. It is probably not worth the bother of trying 
+to take out a multihued pit. 
+
+This is NOT a good technique to use against graveyards (undead pits)!  
+You can easily die if several drujs decide to cast nasty spells at you at
+once.
+
+Undead pits are hard, but kind of fun.  Don't try them without some way to
+get to speed 3, some form of Hold Life or Nether Resistance, Free Action,
+and lots of heal items.  A Helm of Telepathy or some other source of ESP
+is also very helpful.  A good general procedure:  a)  kill all the monsters
+that phase through walls.  They'll be the first to escape.  Then kill b) the
+others (wraiths, wights, skeletons, vampires, etc.) One or two at a time --
+lure them 'round a corner.  Really nasty guys like Black Reavers, 
+Nightcrawlers, etc. should probably be teleported away and fought elsewhere.
+Finally, when all of the mobile guys are dead, c) kill the drujs (they don't
+move).  The ball-against-the-wall works, as does a direct target through
+a hole, but try to avoid being in their line of sight unless you have at
+least speed 3.  Also try not to let more than one or two see you at any
+given time.
+
+Note that Black Reavers can "eat" walls, so when fighting an undead pit
+be *very* careful not to walk near any such holes and into the line of sight
+of the drujs before you're ready to go after the drujs.
+
+Undead pits can be so dangerous as to make it worth your while to avoid
+them. Think (and prepare) very carefully before even thinking of taking
+one on.
+
+
+
+5.b.                    Spiffy rooms (aka vaults) 
+                        -------------------------
+a)  Lesser vaults.  These are things like the round rooms, "inner rooms" with
+oddly-shaped inner rooms, and (probably the most common) the squarish rooms
+with two large diagonal walls.  These contain good treasures and monsters, 
+but usually they are not wildly out of depth -- i.e., the monsters are 
+created as normal for the level, although the large concentration of monsters
+makes the odds of finding a fairly nasty one (or three :-) quite good.
+
+b)  Greater vaults.  These are the huge rooms that fill half the screen and
+contain lots of very good objects and lots of out-of-depth monsters.
+Many of these are deliberately created out of depth.
+
+c)  Incredible vaults.  This is a subset of b).  It's the "graph paper" room
+of crypts with one monster+treasure per crypt.  These make type b) vaults seem
+like a piece of cake.  Unless you've killed most of the uniques -- unlikely
+except near the very end -- expect to find LOTS of uniques, at least 6 or 8,
+with essentially no restriction on level.  The treasure is equally incredible.
+I guess that about half of them contain at least one artifact when they're
+created.
+
+One of the simplest ways to deal with these rooms is by using a wand of 
+teleport monster to get rid of the really tough ones.  However, a really 
+tough monster would probably be faster than you are, which means they could 
+also breathe on you the same turn you dig through the wall.  You have been 
+warned.  These rooms are -very- dangerous.
+
+The simplest way by far to deal with these rooms is to avoid them.
+Much better to be alive and without _ANY_ artifact than dead.
+
+To give you an idea of how dangerous, the source code states that monster in
+these rooms can be up to -40- levels out of depth.  That's 2000 feet! 
+
+        
+5.c.                    Uniques
+                        -------
+
+By far the best way to deal with most of the uniques is the pillar trick.  
+Indeed, this is so effective I think it's a bit unbalancing.  Fighting Tiamat
+at speed 3 in an open space is difficult.  Fighting Tiamat at speed 4 by 
+chasing her around a pillar turns out to be pathetic. Perhaps this should 
+be reworked.  
+
+At higher levels, when you have multiple attacks, big plusses to damage
+and possibly some other advantanges, just beating on the monster can
+be effective. But not all uniques are killed by these two approaches:
+
+In the early going, I don't think there's a single unique other than 
+Farmer Maggot who a player who's slightly aggressive will be able to 
+beat by just whaling on. I subscribe to the pummel them and then retreat 
+(phase door, teleport, whatever) rest and hit again - it takes longer 
+since uniques regenerate quickly, but it's much more successful. At 
+high levels, just straight forward pummeling works much better - that's 
+what my 45th level priest does. And I've yet to use the pillar trick 
+on _any_ unique. Again, if you drop levels at any sort of a decent 
+rate, you're rarely going to have speed advantage on the uniques. 
+Everything else, yes, but I can only get temporarily faster than 
+uniques, and that's not enough for the pillar trick. I'm usually 
+the same speed or, if anything, slower.
+
+
+
+5.d.                    Rough Monsters
+                        --------------
+
+An emperor lich has 1520 hit points, plus anything additional that it
+gains by draining mana (6 points per mana point drained) and charges (40
+points per charge).  Never let it attack you in melee, because it can
+destroy your wands, healing itself in the process, as well as draining
+your experience and dexterity.
+
+If you can get to speed 3, faster than the lich, it is easy to kill;
+just fight, move back, fight, move back, and so on.  You will still need
+a lot of cure wounds potions, unless you let it chase you around a
+pillar, as in the AMHD technique.
+
+Note (for people familiar with Moria) that an emperor lich is (relatively) 
+less nasty than in Moria.
+
+
+5.e.                    Invisibles
+                        ----------
+
+One tactic, which is dangerous but still worth thinking about is fighting
+an invisible creature, and a group of monsters at the same time.  Since only
+one monster can be in a position at a time, suspicious 'gaps' in the middle of
+groups of monsters can show you where these annoying pests are.
+
+        
+
+6.              Classic, simple, and very useful tricks
+                ---------------------------------------
+
+***** Useful Trick #1 :  Running in a circle. *****
+        Find an area with a relatively small path that goes in a circle.
+The path should be smaller than 1/3 of the screen (like one of those large
+room in a room rooms).  If you are fighting, you can run in a circle, and
+they will happily chase after you, and your hit points and mana will slowly
+creep up.  You can then beat on whoever, and start running again.  This 
+doesn't work if the monster is faster than you are, or can do damage from a
+distance.
+
+
+***** Useful Trick #2 : The pillar trick. *****
+        Find a monster slower than you are.  Find or make a pillar.  A pillar
+would be a single block of wall with one open space on all four sides.  When 
+the monster is right next to you, hit the monster.  Then next turn, move to 
+the other side of the wall.  The monster will follow you.  Hit the monster.  
+Move to the other side of the wall.  Continue till the monster is dead.  This
+doesn't work with two monsters at once, btw.
+
+Example of pillar:
+
+   .
+  .#.
+   .
+
+***** Useful Trick #3 : taking advantage of stupid monsters. *****
+
+        Monsters always attempt to take the straight path towards you.  So,
+if there is a wall between you, the monsters won't move, cuz they're trying
+to move straight towards you (towards the wall).  This makes it easy to
+take out a group of monsters.
+
+        An example is best.  Let's say you're fighting a bunch of Ogres.
+
+        OOOOOOOOO
+        ##############'###
+             @
+
+The O's will stay right where they are, since they're all trying to stay as
+close to you as they can.  Notice the door off to the right.  If you walk 
+towards the door, you will reach this point:
+
+              OOOOOOOO
+        ##############O###
+                  @
+
+Where one ogre has gone far enough right to go through the door.  Now go
+left again:
+        
+         OOOOOOOO
+        ##############'###
+             @   O     
+
+The one ogre that made it through the door will follow you, the rest will
+stay on their side (duh).  You can take out that single ogre, and repeat
+as many times as you want.  You can vary this a bit, and let two ogres 'out'
+if you can take on two at a time with no problem.  
+
+The only annoying thing with this method is that the dead monsters tend to 
+leave a lot of treasure you need to clean up, to give the other monsters a
+chance to drop treasure too, but it's a good safe method.  Works really well
+with telepathy, too.
+
+
+Subnote:  corridors like this make phase door a lot safer, since if you
+          end up on the other side of the wall, you're (usually) completely
+          safe, unless the other monster can go through walls or something.
+
+
+***** Useful Trick #4  : The sleep spell in the corridor trick *****
+
+A sleep monster wand or "Sleep I" spell is required for this tactic
+effective against group monsters. It has been used to deadly effect
+against orc pits and troll pits, but is handy before then at times:
+
+  In a room:            In a corridor:
+  ####+### # #        #################
+  #  oooo### #          ppppppppxppp@ #
+  # ooxooo @ #        ############### #
+  #  oooo#####                      # #
+  ########
+
+These represent some typical situations. In either case you sleep the
+first creature in the corridor. You then cast a ball spell (or use a
+wand of stinking cloud/frost ball/...) over their head and past by
+three or more spaces (at least to the 'x' marked in each case). This
+prevents the damage spell waking up the slept creature. If you run out
+of mana, duck around the corner to rest. Periodically the slept 
+creature will awaken, so you may need to sleep it again.
+
+If you don't have ball spells, you can always just beat on the first guy, and
+then sleep the 2nd, rest, then beat... etc.
+
+You can often destroy large numbers of creatures with little risk this way.
+
+If you have lots of hit points, the sleep spell itself may be unnecessary.
+Just let the one creature hit you - but then you don't need to be careful
+not to wake the front guy up either.  You can always sleep the first creature
+and rest.
+
+Note - for monsters that shoot some sort of missile/ball weapon (like rangers
+or dragons), you need to do it so only the first creature can see you -
+
+       #p#
+       #p#
+       #p#
+       #p#
+       #p##########
+       # @
+       ############
+
+If you stood in the corner, the creatures behind the slept monster would shoot
+some weapon, which would wake up that monster, and screw it all up.  
+
+variation : using a Rune of Protection to block the first monster.
+
+
+***** Useful Trick # 5:  The easy way to kill any non-moving creature *****
+
+        To start, a little background info. Playing around with the
+        targeting option in Angband (e.g. PC version 1.31 and later)  
+        I noticed that I could aim for a particular spot on the floor.
+        Ball type spells affect an area, not just that spot on the floor.
+        Now, if you cant see the monster, but you can target a spot next to
+        the monster, the ball spell's area of effect will encompass the 
+        little sucker, and damage it. I'll show you a pretty usual setup.
+
+
+        ##########################
+        #........................#
+        #.######################.#
+        #.#                    #.#
+        #.#                    #.#
+        #.#   s. <-target that #.#
+        #.,        dot!!       #.#
+        #.#                    #.#
+        #.##### ################.#
+        #........................#
+        ####### ##################
+              # #
+              # #
+              # #
+              #@# <- You are here. 
+              # #
+        
+        Now, through experience, Korash the Dwarven Priest (who is my 
+        alter personality!) knows where the Druj is (detect monster)
+        and he knows that the monster can't see him! But, he also knows
+        that by targeting the spot marked, Orb of Draining or whatever
+        you choose to use will hit the Druj!. This way, you can kill them
+        off, your mana will recover quicker than its hitpoints. And for
+        a high level character the Druj dies while you still have some
+        mana left. I know that for Korash, about 10-15 Orb of Draining
+        shots and a Hand or Eye Druj is dead. That works out to be about 
+        70-100 mana. A bit .. but not too much.
+
+        This of course, require detection, ball spells, and likely a digging
+        tool to make the tunnel to shoot through, so might not be easy for 
+        the warrior types to use.
+
+
+***** Useful Trick #6 :  The Close the door trick: *****
+
+When low on hit points and being pursued, you can't always set up the
+'go round in a circle' trick, but wandering around can be dangerous.
+
+Here is the alternative to the 'run in a circle' trick:
+
+    ##########
+         ooo 
+    ####'#####
+       #@#
+
+If you can get 1 space ahead of your pursuer(s), and on the other side
+of a door, then close it. Yes, the pursuer is just going to open it 
+again, so you don't seem to have gained much - but you have - you
+have gained one free turn of rest. Close it again...and again. Soon you'll 
+see your hp (and mana if you have it) going up.
+
+If they don't open it for a turn, you have to decide whether to steal the
+extra breathing space by running, or wait. In the arrangement above,
+if the front orc moves left at some stage, they will have a chance of
+getting through after you. Some other arrangements are safer, like this one:
+
+     ### 
+  ####
+    o'@
+  ####
+     ###
+
+Note:  This won't work at all against monsters that are faster than you are.
+
+
+***** Useful Trick #7 : Keeping a tight lid on possible explosions. *****
+
+If you ever encounter a swarm of exploding somethings that you can't 
+kill, one simple way to take care of it is to simply close a few doors, and
+lock them in a room.  Since they can't multiply outside of this room, you
+can leave.  This works well for Giant Fleas that run rampant, too.
+
+
+        ##################
+        #w ww ww w w w w
+#########w ww ww wwww
+.......@+www ww ww w www
+######### wwww ww www w
+        #w w  w   w
+        ################
+
+In addition, this is an easy way to get easy experience at early levels.
+Since worms are easy to kill, they are easy experience.  You can let worms
+multiply, and then open the door, kill a few, and then close the door at
+little to no risk.  
+
+Be sure not to lock yourself in a dead end - trying to run through a room of
+white worms can kill a character quite easily.  
+
+
+***** Useful Trick #8:  Death by Rune of Protection. *****
+
+Runes of Protection are portable walls (almost).
+If you have Rune of Protection scrolls (or the Glyph of Warding prayer), you 
+can set up a configuration like this:
+
+        # #
+        # #
+#########N#
+....@...^^#
+###########
+
+where N is a generic Nasty and the ^'s are Runes.
+
+First, you place Runes in a corner as shown.  Then, you find some way to
+lure N into the corner.  Perhaps tossing a spell at it, then running away.
+Even better, ironically, is an item of Aggravate Monster, because then you
+can cause a distant monster to wake up, start pursuing you, and walk right
+into the corner.  Remember to take the damn thing OFF after a couple of
+turns (unless it's Deathwreaker/Zarcuthra/The One Ring...).
+
+Here, in this setup, N:
+a) cannot cast spells/breaths.  It can't see you.
+b) is pinned between a rock (its move algorithm that tries to move it
+towards you) and a hard place (the Runes).
+
+In other words, it's stuck.  So just use the splash-the-ball-spell-
+off-the-wall trick, previously described, to kill it.  This is a natural
+for priests, as they have the Glyph/Orb combo.; other classes will have
+to scrape around for the Rune of Protection scrolls.
+
+**BIG CAVEAT**  Remember that Runes can break!  There is a LEVEL/550 chance
+(LEVEL is the monster's level; the 550 is specified in CONSTANTS.H in the
+source) that a monster can break a Rune on any given move.  If either rune,
+especially the one nearest you, breaks, then you may want to leave.
+Thus, you shouldn't use this technique unless you (a) have a good escape
+spell/item and (b) can handle one attack of whatever the monster can throw
+at you.  Note that this is not a good thing to use against high-level, 
+high-speed monsters. . .
+
+
+***** Userful Trick #9:  Dealing with monsters that summon. *****
+
+This is restricted to relatively high-level characters.
+
+Monsters that summon - quylthulgs, many higher-level uniques, etc - summon 
+monsters in spaces adjacent to you.  As a result, if these spaces are 
+already filled, the summoner can't summon any more.  If summoning is the
+monster's main attack, as with Quylthulgs, then you can wait for the 
+summoner to summon ONCE, then target the summoner and toss ball spells 
+at it.  You need ball spells or wands/rods to do this, since the summoned 
+monsters will block bolts, and prevent melee attacks against the summoner.  
+A gnome priest winner killed Qlzqqlzuup this way - its only spells are 
+summons, and so he simply Orbed it to death.
+
+Of course, this only works if the first summon gives relatively harmless
+monsters.  Ant, reptile, spider, and hound summons often give relatively easy
+to deal with monsters, especially if you have lots of resistances and a
+reasonable way to heal yourself.  In any event, eyeball the summoned
+critters before plunging in.  If you find yourself surrounded by Chaos
+Hounds or Greater Undead, it's a good time to teleport out and try again
+later.
+
+Alternatively just telport them away as soon as you seem them!
+(targetting is useful here).  I killed one of the uniqe Q's when it
+was in a large pit:-
+    
+ ###########
+ # @
+ ###########
+ #Q
+ ##########
+
+Dug diagonally then orb of drained it to death.  These pits are nice for
+killing monsters that summon since you can also just telport them away
+with one spell..only problem is they have limited space to drop items.
+
+
+***** Useful trick #10: Using an immobile/weak monster as armor *****
+ 
+     Heal monster allows you to hit a fairly weak creature with an
+area effect rod or spell without killing that creature.  This is handy
+when there is a much more dangerous monster behind the weaker one.
+
+               ##########
+                  @ mp
+               ##########
+
+     For example:  You are in a hallway with a brown mold and a ninja.
+The mold is two spaces to your right.  The ninja is behind the mold,
+three spaces to your right.  You can cast heal monster on the mold a few
+times, then hit the mold with fireballs from your rod until the
+adjacent ninja dies.
+     This tactic is, of course, not always useful.  Spellcasting and
+breathing monsters will ignore your barricade.  Harmless monsters do
+not always appear when needed (though they can be encouraged with speed
+monster).  Your blocking monster may die on you, if you aren't careful.
+Also, you need a reusable area-effect attack.
+
+     Haste monster can be used on a relatively weak monster so as to
+block a much nastier creature.  Here's an example:
+     You are in a room with a kobold and a night mare.  By casting Haste
+Monster on the kobold two or three times, you may (depending on their
+locations) be able to get the kobold, rather than the night mare, next
+to you when you run from the room.
+
+   ###########
+   #  q      #
+   #      k  #
+   #         #
+   #####@#####
+       # #    
+       # #    
+
+     This buys you time to run up some stairs or get some mana back.  If
+you have a rod of light, you can blast the night mare repeatedly, without
+needing to face its attack.  Slow Monster can be used if the kobold
+is doing significant damage.
+     There are many limitations on this tactic.  Breathing and
+spell-casting monsters are best dealt with in other ways.  You need a
+conveniently placed wimpy monster.  And you do, of course, end up with a
+kobold on your trail.
+
+7. Levels where object X becomes common and other noteworthy things.
+   -----------------------------------------------------------------
+There are spoiler sheets for this, but remember the standard levels for
+gain stat potions:
+
+1500 - 1600 feet - the other stats besides Charisma.  Charisma potions
+aren't particularly necessary, and are cheap, so don't hang around 1000
+feet merely for Charisma.
+        1500 are physical stat potions - STR, DEX, CON
+        1600 are mental   stat potions - INT, WIS
+
+At 2000 or so (I forget) there are Augmentation potions, but it's a pretty
+rough jungle down there.
+
+

@@ -1,0 +1,177 @@
+- clean up bldg.c.  make efficient - ugly code right now.
+
+- For the illusionist spell "shadow monster(s)": Instead of using "-" when displaying the spell, use a monsters letter and "shoot" that at the creature.  Can also use randint and pick either "D", "T", etc.. This should be a simple addition, though may need to duplicate some code.
+
+- Need to implement "rumors" command in the inn.  This should display a ramdom quote from a file (rumors in lib subdirectory) with the max rumors set in constants.h.  This is obviously fluff and could contain some humor.(Update: not sure if I want to do this yet)
+
+- Need to make better use of screen for rewards (not just msg_print) Quest descriptions are good right now. make building messages fill screen rather than always using msg_print
+	castle:			library:
+	fight hall:			ranger tavern:
+	gambling:			tower of ill:
+	tower of sor:		thief house:
+	order of pal.:		arena:
+	inn temple:		
+
+- More building commands. Have room in the rewards array to add flags without  changing the save file code.
+
+- Add more spells to fill up books.  Still don't like spells showing "illegible" for mages.  I know they are rogue spells but a mage should be able to read anything.
+
+- Do more work to flush out wilderness, add small town somewhere, other special  levels which castle would send you to. class-bldg quests?
+
+- Only create aquatic monsters if water available.  Need to define some aquatic monsters.
+
+- use questitem flag on artifacts that are included in quests so they do NOT get generated in the dungeon or elsewhere. [this flag has been defined in defines.h and added to sting in a_info.txt] code is not included yet
+
+- implement the questor2 flag so that uniques placed in quest level are not generated elsewhere before the quest level. [this is defined in defines.h - not attached to any uniques yet since they are not in a quest yet]  code is not included yet.
+
+- would be cool to be able to define multiple level quests for a specifc quest. (i.e. two levels of the volcano with working stairs)
+
+- would like to have ALL castle greets result in buildings.  Already give house, other plans: (see done list labeled castle greets)
+DONE(some)	weaponsmaster - can compare weapons in terms of damage, blows based 	  on char need to complete and use all info from calc_weapon
+	  have done initial work and can compare standard damage, blows etc.
+	  have not yet included info for slays and other attributes.
+	
+	could also get a key to a town outside the castle where an alchemist lives
+	who can be paid to make potions.  Also has rare stuff?
+
+- Would like to create help files for the files in the kangdocs directory
+  so they could be accessed via the game. Would also like to revise the
+  current help files to include Kangband changes.  Have started this.
+  complete help files (have started on this - see the following)
+	complete/updated			updated (did not need changes)
+	---------------------			------------
+	ability.spo (check tables)		attack.txt
+	birth.txt (check tables)		help.hlp
+	books.spo			option.txt
+	command.txt			rumors.spo
+	dungeon.txt			spoiler.hlp
+	general.txt
+	playing.txt
+	version.txt
+
+	Not done
+	-----------
+	attack.spo	dungeon.spo	extra.hlp		guide.spo	artifact.spo
+	hints.spo	magic.spo	misc.spo		mon-blow.spo	mon-desc.spo
+	mon-info.spo	mon-name.spo	mon-race.spo	mon-uniq.spo	mon-view.spo
+	monsters.hlp	obj-desc.spo	obj-good.spo	obj-long.spo	objects.hlp
+	stats.spo		store.spo	user.hlp		various.hlp
+
+
+- less kill monster x and more quest levels?  Maybe just more quests in general like one/level instead of two/level
+
+- eventually upgrade to 2.8.3
+
+- Change the terrain range so it would be quicker in cave_floor_bold to check another bit. adjust terrain numbers into range of "see over" and "block sight"?  Can be quicker response in game. Quicker routines for cave_floor_bold and such.  Maybe - maybe not?
+
+- clear any potion or scroll effects that may be in effect before entering arean so no unfair advantage.  Give message stating as such to player.
+
+- combat penalty when in deep water?  alter speed or affect to hit? Want to alter speed at this point. - 2
+
+- Make terrains interactive - if use wand of fire, evaporate shallow water, make deep shallow, etc.
+
+- some creatures shouldn't be allowed to swim such as worm masses.
+
+- maybe have a cross water field so fire creatures won't cross shallow water.
+
+- add guild related quests.  could be a red > while castle is a yellow >
+
+- arena too easy to gain xp with fighter? I don;t know if I want to change this yet.  Maybe make a higher difficulty curve.  could use more non-magic monsters of strength and power to add to the arena.  don't forget, arena spot for everyone - fighters just have an advantage.
+
+- don't want symbol appearing on screen after get reward.  ugly
+
+- add more monsters (see zangband)
+
+- more items?  vampiric weapons (zangband) anyone?
+
+- illusionist may need mana storm to balance out with mage
+
+- spell work needed.  Maybe reduce GOI as in jangband.  Max spells out  Also, apells need to be more powerful to make up for the weaker combat skills which have been implemented.
+
+- mage should see all spells - no illegibles.  Same with illusionist
+
+- updated graphic tiles for my building doors, terrains, etc.?? Probably last thing to look at
+
+- add random artifact code but wait til it evolves.  at version .6 now
+
+- fix illusionist - should not have any illegible  since no other class can read the books!
+
+- add options and code for monsters and items to have a light radius if applicable.  See code snippet from 
+the newsgroup.  use two fields for radius and color instead of HAS_LIGHT.  Use as option! (or two options - one for object lights, one for monster lights?)  i.e. phial could glow before being picked up.  Same goes for green slime?
+
+- want guaranteed great items when complete complex quests.  Make the rewards better as quests go on with artifacts a must at the end.  could also reward money?  Maybe this would be part of q_info?  sounds like a good idea..  the reward spot
+
+- add more regular rooms (not vault)- you have pit layout, some round, etc.
+  Add variety here.
+
+- fix when quest assign you to kill novie ranger, mage, etc.  There are
+  two in the r_info file and only one would count so it is confusing.
+  Either disdallow that random choice or change the name in the r_info  file.  
+
+- can quests be somewhat randomized at birth or customized by class?  Maybe the quests stay the same but the goal for some is randomize for either find exit, or clear all monsters, find artifact.
+
+- Idea: make a folder labeled Quests.  Inside, put the q_info and v_info files. Include a map of the entire wilderness.  Now, when you start a char, can randomly choos a "set" of v_info, q_info, and map.  In this way, you could have "plots" and swap various storylines with each other.  Roads and doors would be defined in the map with numbers that correspond to when they become available - so you can have a changing map over time.
+
+- related todo - want to read the wilderness from file.  Will be able to make a more realistic map without lots of code to do it interanlly.
+
+- long-term todo: build a larger universe where the castle is the center.  When a player exits the screen - draw the next "area" of the map.  Include other towns, quests.  In fact, the player should start at a town, and fulfil something before being able to go to the castle?  Or, guild quests use the rest of the map?  Just some things to think about.  Maybe can't descend into the dungeon past xxxft. until get a key from a quest?
+
+DONE- set default settings for the options to a state I normally use.
+
+DONE- document needed on how to add quests using q and v_info.txt   Also include 	sample, define what the roadtypes are, etc.
+
+DONE- change the streamers.  shallow water and lava to fit in walls.  but deep 	water and deep lava can go
+DONE  past walls.  Also, first random chance of shallow.  Then , IF shallow 	water, random chance of also having deep water.  same w/ lava. don't 	always want to have both. Also, make rarer chance to occur.
+
+DONE- change the costs in buildings to reflect other costs.  i.e. identify in 	library should cost more than the potion.  Now, costs $2000.
+
+DONE- fix odds in inbetween so player do not have edge.
+
+DONE- fix rest of game with how many command.  works in stores but not for 	destroy, etc.
+
+DONE- larger quest levels - i.e. volcano too small
+
+DONE- bigger, better looking lake on wilderness level.
+
+DONE- save spells.doc in a more universal format.
+
+DONE- create file with list of bug fixes.
+
+DONE- more vaults.  may borrow from other variants.  Added vaults from Zangband
+	as well as creating some of my own using terrains.
+
+DONE - Research monsters needs to be implemented and available in the library 
+for a fee. Update: added beastmaster door but the research monster 
+function is not written.  STATUS: works in beastmaster, will not be 
+included in library.
+
+DONE - quest type 5 where you have to clear out a level is not working right.  
+it works but if by chance the level is generated with a "pack" of 
+creatures such as wolves then the number needed no longer matches.  The 
+same goes for breeders. WANT to check if there are monsters still alive
+after each kill.  If the check is 0, THEN the quets is completed.  No 
+longer need to sstore the number to kill for quest types 5.  In other 
+words, num_mon would disappeer.
+DONE need to differ quest 5.  5 could be "kill 6 monsters in the sewer - where 6 
+is the value in q_info" Quest 6 could be "kill all monsters in sewer" 
+where a routine would be needed to check if any creatures exist (this would fix groups of monsters, breeders etc.)
+
+DONE - when place monster, stairs from quest - place at least x amount from 
+player.  Look at existing code.
+
+DONE (for now) - Examine other 2.8.1 variants to see if there are good ideas to 
+borrow. Maybe PSIAngband, Zangband, Jangband features?...
+
+DONE - restock stores after resting in inn.
+
+DONE - Keep kill monsters quests BUT do not allow rare creatures.
+
+	CASTLE GREETS
+DONE	beast master of all monster lore - can pay to learn (would be recommended 	 for tarrasque)
+DONE	could visit the normally restricted other buildings and request some 	 	 services for fees. i.e. visit temple, pay 2000 and get restoration 
+	 service.  But, only get access if high enough level.  Also let them see 	 lists of high scores. 
+
+DONE - in race_legends, your char shows on screen through all races instead of 
+	just the appropriate one - need to fix this.
+
+

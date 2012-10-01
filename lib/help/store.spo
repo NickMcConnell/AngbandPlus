@@ -1,0 +1,89 @@
+Spoiler File -- Store Owners (with 2.7.8 source)
+
+
+/*
+ * Store owners (several possible owners per store)
+ * { name, purse, max greed, min greed, haggle_per, race, tolerance }
+ */
+owner_type owners[MAX_STORES][MAX_OWNERS] = {
+
+  {
+    /* General store */
+    { "Bilbo the Friendly",     200,    170,  108,    5,  3, 15},
+    { "Rincewind the Chicken",  200,    175,  108,    4,  0, 12},
+    { "Sultan the Midget",      300,    170,  107,    5,  4, 15},
+    { "Lyar-el the Comely",     300,    165,  107,    6,  2, 18},
+  },
+  {
+    /* Armoury */
+    { "Kon-Dar the Ugly",       5000,   210,  115,    5,  6,  7},
+    { "Darg-Low the Grim",      10000,  190,  111,    4,  0,  9},
+    { "Decado the Handsome",    25000,  200,  112,    4,  8, 10},
+    { "Mauglin the Grumpy",     30000,  200,  112,    4,  5,  5},
+  },
+  {
+    /* Weapon Smith */
+    { "Ithyl-Mak the Beastly",  5000,   210,  115,    6,  7,  8},
+    { "Arndal Beast-Slayer",    10000,  185,  110,    5,  1,  8},
+    { "Tarl Beast-Master",      25000,  190,  115,    5,  3,  8},
+    { "Oglign Dragon-Slayer",   30000,  195,  112,    4,  5,  8},
+  },
+  {
+    /* Temple */
+    { "Ludwig the Humble",      5000,   175,  109,    6,  0, 15},
+    { "Gunnar the Paladin",     10000,  185,  110,    5,  0, 23},
+    { "Delilah the Pure",       25000,  180,  107,    6,  2, 20},
+    { "Bosk the Wise",          30000,  185,  109,    5,  5, 15},
+  },
+  {
+    { "Mauser the Chemist",     10000,  190,  111,    5,  1,  8},
+    { "Wizzle the Chaotic",     10000,  190,  110,    6,  3,  8},
+    { "Ga-nat the Greedy",      15000,  200,  116,    6,  4,  9},
+    { "Sasha the Slender",      15000,  220,  111,    4,  2,  9},
+  },
+  {
+    /* Magic Shop */
+    { "Ariel the Sorceress",    20000,  200,  110,    7,  1, 8},
+    { "Buggerby the Great",     20000,  215,  113,    6,  4, 10},
+    { "Inglorian the Mage",     30000,  200,  110,    7,  0, 10},
+    { "Luthien Starshine",      30000,  175,  110,    5,  9, 11},
+  },
+  {
+    /* Black Market */
+    { "Lo-Hak the Awful",       20000,  250,  150,   10,  7,  5},
+    { "Histor the Goblin",      20000,  250,  150,   10,  6,  5},
+    { "Durwin the Shifty",      30000,  250,  150,   10,  0,  5},
+    { "Drago the Fair",         30000,  250,  150,   10,  2,  5},
+  },
+  {
+    /* Home */
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99}
+  }
+};
+
+
+/*
+ * Buying and selling adjustments for race combinations.
+ * Entry[owner][player] gives the basic "cost inflation".
+ */
+byte rgold_adj[MAX_RACES][MAX_RACES] = {
+
+                        /*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
+
+/* Human         */     { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
+/* Half-Elf      */     { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
+/* Elf           */     { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
+/* Halfling      */     { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
+/* Gnome         */     { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
+/* Dwarf         */     { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
+/* Half-Orc      */     { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
+/* Half-Troll    */     { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
+/* Dunedain      */     { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
+/* High_Elf      */     { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
+
+};
+
+

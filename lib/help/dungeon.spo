@@ -1,0 +1,391 @@
+DUNGEON.SPO, version 1.22, for Angband 2.7.9v6 (all systems)
+Release Date : September 2, 1996
+Author       : Stephen S. Lee (lee9@fas.harvard.edu)
+
+This spoiler describes dungeon layout -- including sections on vaults,
+feelings, the autoscummer, and traps.
+
+Please notify the author of any errors (however minor) that you find.
+Suggestions to improve the format or readability of this spoiler are also
+welcome.
+
+NOTICE
+This spoiler was written for Angband version 2.7.9v6.  There are enough
+changes from even 2.7.8 so that it will be inaccurate; you may wish to get
+an older version of the spoilers if you are playing an older version of
+Angband.
+
+
+The notation "XdY" indicates a number obtained by rolling an Y-sided
+die X times.  (Thus 4d6 indicates a number from 4 to 24.)
+
+LEVEL GENERATION
+----------------
+
+Every dungeon level will have roughly 50 rooms.  These rooms are almost
+always connected by passageways, but very rarely there will be an isolated
+room or rooms on a level.
+
+If you are at level 11 (550') or deeper, there is a 1 in 15 chance that
+a newly generated level that is not a quest level will be a destroyed
+level.  A destroyed level is like a normal one but with areas destroyed by
+the Word of Destruction spell.
+
+The chance that a given room on a level will be lit is 100% at level 1
+(50') and drops by 4% every level until it reaches 0% at level 26 (1300').
+
+When a room is created, the room will be unusual if 1d200 is less than or
+equal to the current dungeon level.  Unusual rooms include the rooms
+constructed of two overlapping normal rooms, the various cross-shaped
+rooms, and the various large rectangular rooms that have a narrow corridor
+encircling a center rectangular structure.  The latter two types of unusual
+rooms can only appear at dungeon level 3 (150') or deeper; they tend to
+contain dense concentrations of traps, monsters, and objects.
+
+An unusual room can attempt another check to become a special room; this
+check is similar to the standard unusual room check except that it is only
+half as likely to succeed.  If this check is passed, the game will attempt
+to build a greater vault (20% probability), a lesser vault (30%), a monster
+pit (30%), or a monster nest (20%).  Should there be insufficient space to
+place the special room (most likely in the case of a greater vault), an
+ordinary unusual room is created.
+
+
+LEVEL RATINGS
+-------------
+
+An important feature of Angband is the level feeling, which your character
+can get every time he or she enters a new dungeon level.  You will get a
+feeling only if you have stayed on the previous level for at least 1000
+game turns (so at speed +0 you must spend 100 moves, at speed +10 200 moves,
+etc.)  If you have not spent this much time on the previous level, you will
+not get a feeling (regardless of what is on the level) and you will get the
+message "Looks like any other level."
+
+If you are playing in preserve mode, you can never get a special feeling.
+If you are not playing in preserve mode (i.e. standard mode), artifacts
+will always cause a special feeling, and monster pits/nests and vaults may
+cause a special feeling.
+
+If a level is not felt as special, various valuable objects will contribute
+to a level's rating (values for these are enumerated in OBJ-GOOD.SPO).
+
+If you are playing in preserve mode, artifacts will add 10 points to a
+level's rating (20 if the cash value of the artifact is more than 50000
+gold).
+
+Monster pits or vaults that do not cause a special feeling will add to a
+level's rating as well; these are given later in this file.
+
+Finally, out of depth monsters or out of depth non-cursed objects will add
+to the rating of a level.  Uniques add twice the difference between the
+normal level of the unique and the current dungeon level to the ratinig.
+Non-unique monsters and objects also add to the rating in a similar
+fashion, except that the difference is not multiplied by two.  A group of
+out-of-depth normal monsters (outside a nest or pit) counts as a single
+monster for rating purposes.
+
+Bear in mind that any monsters or objects generated/dropped after the
+initial creation of a level have no impact on the level's rating; this
+includes uniques and artifacts.
+
+The final calculated rating is conveyed as one of the following messages:
+
+Rating Message
+  101+ "You have a superb feeling about this level."
+81-100 "You have an excellent feeling..."
+ 61-80 "You have a very good feeling..."
+ 41-60 "You have a good feeling..."
+ 31-40 "You feel strangely lucky..."
+ 21-30 "You feel your luck is turning..."
+ 11-20 "You like the look of this place..."
+  1-10 "This level can't be all bad..."
+     0 "What a boring place..."
+
+
+THE AUTOSCUMMER
+---------------
+
+The autoscummer is a game option that will automatically create levels
+until an "interesting" one is generated.  Autoscumming "sometimes"
+will only try to generate 100 levels; if none of them are sufficiently
+interesting, you get the 101st level regardless of how boring it is.
+Autoscumming "always" will generate levels forever, until a
+sufficiently interesting one appears.  (This may take a very long time
+on slower systems.)
+
+A level is interesting to the autoscummer if it is special, if it
+"Looks like any other level" (i.e. you didn't spend enough time on the
+last level), or if its level rating is greater than or equal to the
+rating shown on the following chart:
+
+Dungeon
+Level   Rating req.
+  1-4             1
+  5-9            11
+10-19            21
+20-39            31
+  40+            41
+
+Note that in preserve mode, an artifact will not necessarily be considered
+interesting at level 5 (250') or deeper, since an artifact is worth at most
+20 points with preserve mode on.
+
+
+MONSTER NESTS
+-------------
+
+There are three kinds of monster nests: jelly, animal, and undead.  (These
+are sometimes called slime pits, zoos, and graveyards respectively.)  Nests
+can only appear at dungeon level 5 (250') or deeper.
+
+When a monster nest is generated, a random integer is chosen from between 1
+and the current dungeon level.  The type of nest constructed depends on the
+number selected:
+
+ 1-29: Jelly nest (contains only monsters represented by "i", "j", "m", and
+            ",")
+30-49: Animal nest (contains only natural creatures)
+  50+: Undead nest (contains only undead monsters)
+
+In all cases, monsters are generated 10 levels out of depth and may not be
+unique.  A maximum of 16 different types of monsters may occur in a nest.
+
+Monster nests can cause a special feeling, but only if you are at dungeon
+level 40 (2000') or shallower.  If this criterion is met, a special feeling
+occurs if 1d(level^2+1) is less than 300.  Here is a table showing the
+probabilities:
+
+   Level Chance that a special feeling will result from a monster nest/pit
+---------------
+up to 17 100.0%
+      18  92.0%
+      20  74.6%
+      22  61.6%
+      25  47.8%
+      28  38.1%
+      30  33.2%
+      32  29.2%
+      35  24.4%
+      40  18.7%
+     41+   0.0%
+
+If a monster nest does not cause a special feeling, or if you are playing
+in preserve mode, each monster nest adds 10 points to the rating of a
+level.  Individual out-of-depth monsters in a nest also contribute to a
+level's rating in the normal fashion.
+
+
+MONSTER PITS
+------------
+
+There are ten types of monster pits: orc, troll, giant, blue dragon, white
+dragon, green dragon, black dragon, red dragon, multi-hued dragon, and
+demon.  Pits can only appear at dungeon level 5 (250') or deeper.
+
+When a monster pit is generated, a random integer is chosen from between 1
+and the current dungeon level.  The type of pit constructed depends on the
+number selected:
+
+ 1-19: Orc pit (contains orcs)
+20-39: Troll pit (contains trolls)
+40-59: Giant pit (contains giants, but only those which are represented by
+            "P")
+60-62: Blue dragon pit (contains blue dragons, possibly including Great
+            Storm Wyrms)
+63-65: White dragon pit (contains white dragons, possibly including Great
+            Ice Wyrms)
+66-68: Green dragon pit (contains green dragons)
+69-71: Black dragon pit (contains black dragons)
+72-74: Red dragon pit (contains red dragons, possibly including Great Hell
+            Wyrms)
+75-79: Multi-hued dragon pit (contains multi-hued dragons)
+  80+: Demon pit (contains greater demons, i.e. those represented by "U")
+
+Monsters in a pit are generated as if 10 levels out of depth, and may not
+be unique.  There can be at most 8 different monster types in a pit; they
+will be arranged such that the easiest monsters are on the outside and the
+most difficult are on the inside.
+
+Monster pits affect the rating of a level in exactly the same manner as
+monster nests.
+
+
+LESSER VAULTS
+-------------
+
+Lesser vaults come in seven flavors and take up roughly as much space as
+a large normal room.  A lesser vault will have objects generated up to 7
+levels out of depth, and monsters generated up to 4 levels out of depth.
+
+A lesser vault will always cause a special feeling if you are at dungeon
+level 59 (2950') or shallower.  Deeper than that, a special feeling
+occurs if 1d((level-40)^2+1) is less than 400.  Here is a table showing the
+probability that a vault on a given level will cause a special feeling:
+
+    Vault  Probability of a
+on level:   special feeling
+---------------------------
+ up to 59            100.0%
+       60             99.5%
+       62             82.3%
+       65             63.7%
+       67             54.7%
+       70             44.3%
+       75             32.5%
+       80             24.9%
+       90             16.0%
+      100             11.1%
+      110              8.1%
+
+If the lesser vault does not cause a special feeling, or you are playing
+in preserve mode, each lesser vault adds 5 to the rating of a level.
+
+The richest type of lesser vault features a parallelogram-shaped room with
+ingress available via doors on the slanted left and right walls.  The room,
+which has a divider running down the middle that is broken in the center,
+is completely full of monsters and objects (which are out-of-depth as
+described above).  There is a 2 in 7 chance that a lesser vault will be of
+this sort (sometimes called a "diagonal vault").
+
+
+GREATER VAULTS
+--------------
+
+Greater vaults are many times larger than the largest possible normal
+room.  Objects can be generated up to 20 levels out of depth, and monsters
+can be generated up to 40 levels out of depth.  Also, some objects are
+guaranteed to be of good quality or better, and in three of the four
+possible vaults some objects are guaranteed to be of great quality or
+artifacts.  (For the definitions of what makes a good or great item, see
+OBJ-GOOD.SPO.)
+
+A greater vault may cause a special feeling in exactly the same manner as
+a lesser vault (see above for details).
+
+The four possible greater vaults have equal probabilities of appearing and
+are as follows:
+
+Type 1: This greater vault has alternating walls and monsters arranged in a
+        tortuous, snaking path extending throughout the vault except for a
+        short clear stretch in the center.  The entrances are at the top
+        left and lower right.  Every other empty cell and the clear area in
+        the center are filled with guaranteed great objects.  This vault
+        adds 45 to the rating of a level if not special.  In the lingo of
+        Angband veterans, this is often called a "checkerboard vault".
+
+Type 2: This greater vault has alternating walls and monsters at the top
+        and bottom rows, and in the center has a 2 by 2 room completely
+        enclosed by a circular wall.  Each space in the 2 by 2 central room
+        has a guaranteed great object.  This vault adds 35 to the rating of
+        a level if not special.
+
+Type 3: This vault has two large trapezoidal regions in the top central and
+        bottom central areas of the vault.  These regions are completely
+        filled with traps.  All four corners of the vault are walled off.
+        The four walled off corners and the vault's center contain
+        guaranteed good objects.  This vault adds 25 to the rating of a
+        level if not special.  It is sometimes referred to as a "butterfly
+        vault".
+
+Type 4: This greater vault is characterized by a trap-filled rectangular
+        corridor encircling a rectangular structure.  The structure
+        contains a maze-like series of small rooms connected by doors.
+        There is a guaranteed great object in the 3 by 5 room near the
+        center.  This vault adds 25 to the rating of a level if not
+        special.
+
+
+TRAPS
+-----
+
+Morgoth's minions have set up numerous traps designed to cause trouble to
+those intrepid adventurers foolish enough to venture into his domain.
+These traps come in 16 different varieties, and any one of them may be
+disarmed by magic (which always works) or by the player's own hands
+(success here depends on the player's disarming skill).  A successful detect
+trap spell of any sort (spell, rod, etc.) will always detect nearby traps.
+
+Dart traps fire darts which whizz out of nowhere and attempt to strike
+the character to cause some unwanted effect.  These darts do not always
+hit the character; to determine the probability of a dart hit, let K be
+equal to 1d125.  Then calculate as if the dart trap is a monster attempting
+to hit the player in melee (see MON-BLOW.SPO for details on the precise
+calculations).  A dart that hits will cause 1d4 damage in addition to the
+effects described below.
+
+The traps are as follows:
+
+ 1. Trap Door
+    This trap is probably the most disliked trap of all (it can cause you
+    to miss a vault or an artifact on a level).  It causes the player to
+    fall down to the next dungeon level; the fall inflicts 2d8 damage unless
+    the player has feather fall.
+
+ 2. Pit
+    Falling into a pit will cause 2d6 damage, unless the player has
+    feather fall.
+
+ 3. Spiked Pit
+    Falling into a spiked pit will cause 2d6 damage; half of the time, the
+    spikes will slice into your character for double damage and wounds the
+    character (1d(damage done) is added to the cut counter).  If your
+    character has feather fall, no harm is done (it's not hard to maneuver
+    out of the spikes' way).
+
+ 4. Pit with Poisoned Spikes
+    Falling into one of these is like falling into an ordinary spiked pit,
+    except that if your character gets spiked, he or she will take double
+    damage and be poisoned (1d(damage done) done is added to the poison
+    counter), unless your character has some sort of poison resistance.
+
+ 5. Summoning Runes
+    These runes, which disappear once activated, cause 2+1d3 monsters to
+    materialize about the player.  (A "monster" may consist of a group of
+    monsters if the summoned monster can appear in groups; also, if a
+    unique is summoned, it may appear complete with escorts.)
+
+ 6. Teleport Trap
+    This will teleport the player randomly up to 100 squares away.
+
+ 7. Fire Trap
+    This will inflict 4d6 points of fire damage (see MON-BLOW.SPO for
+    details on fire damage).
+
+ 8. Acid Trap
+    This will inflict 4d6 points of acid damage (see MON-BLOW.SPO for
+    details on acid damage).
+
+ 9. Dart Trap (slow)
+    The darts from this trap will cause the player to be slowed (-10 to
+    speed) for 19+1d20 turns.
+
+10. Dart Trap (weakness)
+    The darts from this trap will reduce the player's strength (unless he
+    or she has sustain strength).
+
+11. Dart Trap (clumsiness)
+    The darts from this trap will reduce the player's dexterity (unless he
+    or she has sustain dexterity).
+
+12. Dart Trap (illness)
+    The darts from this trap will reduce the player's constitution (unless
+    he or she has sustain constitution).
+
+13. Gas Trap (blindness)
+    This trap releases a black gas which will blind the character for
+    24+1d50 turns, unless he or she has resist blindness.
+
+14. Gas Trap (confusion)
+    This trap releases a gas of many scintillating colors to materialize
+    about the player, confusing him or her for 9+1d20 turns unless he or
+    she has confusion or chaos resistance.
+
+15. Gas Trap (poison)
+    This trap surrounds the player with a toxic greenish gas, poisoning the
+    player (9+1d20 is added to the poison counter) unless he or she has
+    poison resistance of some sort.
+
+16. Gas Trap (sleep)
+    This trap releases a gas that puts the player to sleep for 4+1d10
+    turns, unless he or she has free action.

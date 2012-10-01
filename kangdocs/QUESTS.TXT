@@ -1,0 +1,143 @@
+How to Design a Quest:
+
+You wil have to modify both the v_info.txt and q_info.txt files located 
+in the LIB\EDIT folder.
+
+Step 1:
+=======
+Edit the v_info.txt file.  This file contains vault information as well 
+as quest levels. The following is one of the quest levels:
+
+N:31:Thieves Hideout
+Y:36:0:0:0:0:0:0:0:0:0:0:0:0:0:0
+X:99:0:10:15
+D:XXXXXXXXXXXXXXX
+D:XT...a....X..TX
+D:XT........D..TX
+D:X.........Xa..X
+D:XXXXX.....XXXXX
+D:XT..D.........X
+D:XTa.X.........X
+D:XXXXX.........X
+D:X<P.D.........X
+D:XXXXXXXXXXXXXXX
+
+The format of the quest level MUST be N:, Y:, X:, and then D:.
+The number after the N: denotes the quest number and must correspond
+to the same number in the q_info.txt file. Quest numbers range from
+30 to 49 with quests 48 and 49 reserved for Sauron and Morgoth.
+After the number follows the short quest description. This short
+description is used with CTRL-Q to get the quest status.
+
+The values following Y: are for ten specific monsters and five 
+artifacts. The monster numbers relate to the values in r_info.txt and
+the item numbers relate to the values in a_info.txt. When placing
+monsters in the quest level description, use the letters 'a' through
+'j'. The items are placed with '1' through '5'.
+
+The X: line denotes the type of vault (99 being quest types), the rating
+of the level, the height, and the width of the description.
+
+The D: lines are for the quest layout. There need to be as many D:
+lines as defined in the height. The characters must go the length
+of the width. So, in the above example, there are ten D: lines 
+since the height is 10 and there are 15 'X' going across the first
+line as the width is 15.
+
+When putting in characters on the D: lines, the following symbols
+apply:
+
+X - permanent wall		< - stair up		E - quest exit
+. - floor				D - door			P - player position
+% - granite (outer wall)	E - quest exit		w - shallow water
+# - granite (inner wall)	W - deep water		l - shallow lava
+L - deep lava			* - treasure/trap		T - treasure
++ - secret door			^ - trap
+a - monster 1			b - monster 2		c - monster 3
+(same for letters 'd' through 'j')
+1 - artifact 1			2 - artifact 2		3 - artifact 3
+(same for numbers '4' through '5')
+& - monster				@ - meaner monster	
+9 - meaner monster + treas.	8 - nasty monster + treas.
+, - monster and/or object	R - random quest exit
+
+Note: there cannot be any spaces at the end of the D: lines.
+
+After changing the v_info.txt file, delete the v_info.raw file in
+LIB\DATA. The next time angband is started, v_info.raw will be
+reinitialized.
+
+
+Step 2:
+=======
+Now that you've created the design for the quest level, you must
+insert it into the quest order.  Edit the q_info.txt file. The following
+is the corresponding entry in the q_info.txt file that matches the
+above v_info.txt entry for the Thieves Hideout.
+
+N:31:Thieves Hideout
+T1:There are thieves robbing my people! They live in a small
+T2:burrow outside the city walls robbing people as they pass
+T3:on the roads. They even sneak inside the town to mug and
+T4:pillage! Your task is to go to the burrow and kill these
+T5:ruffians.
+Q:5:3:0:0:0:0:0:28:137:0:1
+
+Again, after the N: is the quest number - this needs to be the same
+as what was used in v_info.txt.  The description is also the same as
+in v_info.txt. There can be nine text lines (T1: through T9:) and each
+line can be up to 80 characters long. This is the description you will
+see when getting this quest from the Lord of the Castle.
+
+Now for the fun part, the Q: line is all the details and configuration
+of the quest level. The first number is the quest type where 1 = kill
+monster [x] on level [y]. The only quests that use this currently
+are the Tarrasque, Sauron and Morgoth. A type of 2 means kill [#] 
+monster(s) [x] on any level. Currently, this is only used when you want
+the standard quest to kill a monster or two... Example:
+
+N:32:Random Monster
+Q:2:0:0:0:1:0:0:0:0:0:0
+
+A quest of type 3 = get a special artifact. The vault quest uses this
+style. The artifact must be included in the v_info.txt file or the
+quest will obviously not work.  Type 4 quests = find the exit. The
+volcano quest is an example. In v_info.txt, the quest exit (E) must be
+placed somewhere. A type 5 quest is to kill [x] monsters
+regardless of type on the level. This is used in the sewer quest. And,
+finally, the type 6 is to kill all monsters in level (regardless of
+breeders, summoned monsters, etc.).
+
+Ok, that was the first value, the rest are: nummon, curnum, maxnum,
+level, r_idx, k_idx, y, x, road, vaultused.  Nummon is the number of
+monsters to kill and only currently applies to quest type 5.  Curnum
+is the current number killed and is used to initialize values for the
+quests - always keep this zero.  Maxnum is the maximum number to be
+killed and this is used when facing one creature such as the Tarrasque.
+Level is for quest types 1 and only currently applies to Sauron and
+Morgoth.  R_idx is the monster index that must be killed for quest
+type 1.  K_idx is the artifact index for quest type 3 that must be 
+found.  The values of y and x are for the placement of the quest
+entrance.  Road is whether you want a road (>0) and which road you want.
+Currently, there are six roads defined that you could pick from.
+These are described last.  Finally, vaultused is the flag to tell
+kangband that there is a corresponding quest level in the v_info.txt
+file.  Notice that the random monster quests do not have a special level
+but the rest do in q_info.txt.
+
+The roads are as follows:
+1 - road to the volcano
+2 - road to the lake
+3 - road to upper mountains
+4 - road to gauntlet
+5 - road to the vault
+6 - road to the graveyard
+
+Ok, I think that is it.  There is no file in LIB\DATA to delete for the
+q_info.txt. (i.e. no q_info.raw)  Feel free to change any of the
+existing quests - perhaps less random monsters and more special levels.
+If you design anything that you think would make a great addition to
+Kangband, send me the file - I may include it in the official game and
+will credit you in the v_info/q_info files.
+
+Ken

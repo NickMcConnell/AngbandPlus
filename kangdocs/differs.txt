@@ -1,0 +1,43 @@
+This file has been updated for Kangband 282c
+
+This variant of Angband is based on the Unix version 2.8.2.  This files lists
+all changes in the play between that version and this variant.  In other
+words, only inherent changes not major additions.
+
+- "G" does not learn spells anymore.  Must instead visit the tower or temple
+  in order to be taught spells.
+
+- Savefiles are not compatible with other versions of angband since new
+  character flags were needed for town level.  Savefiles are also not compatible
+  with Kangband 281 or Kangband 282a since quests changed the file significantly.
+  Savefiles ARE compatible with Kangband 282b.
+
+- Ghosts only appear on the town level when it is night.  Therefore, when 
+  running into a tough ghost - make for the inn!  (But, ghosts are no 
+  longer being implmented in standard 281 or 282.)
+
+- mages and illusionists can only wield daggers & quarterstaffs comfortably.
+  This is similar to the priest restriction on sharp weapons.
+
+- Can't enter house until awarded by Lord.  Must greet him when you are
+  of a sufficient level of experience.
+
+- Trees may appear on early levels and can be chopped down via
+  the tunnel/dig command.  They can also be chopped down in the
+  wilderness.
+
+- both shallow and deep water will appear in the dungeons.  Shallow
+  water can simply be walked over.  The player can swim in deep 
+  water provided they are not carrying too much weight.
+
+- shallow lava appears which can be crossed if the player has fire resistance.
+  deep lava cannot be crossed at all - think of deep lava as a permanent boundary
+  that cannot be crossed by player but can be seen over, teleported over, 
+  certain fire immune monsters can cross, etc.
+
+- you can request quests from the castle which may require you to kill certain
+  monsters or may require exploring a special quest levels.  The special quest
+  levels will appear in the wilderness as yellow ">" characters.
+
+- There is a new command - Ctrl-Q which will display the status of your
+  quest.

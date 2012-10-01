@@ -1,0 +1,482 @@
+Subject: Angband: Frequently Questioned Answers
+
+
+  Okay folks, until a real Angband FAQ file is built, here's a lot of
+info to try to cut down on traffic on rec.games.moria.  I've tried to
+organize it loosely into categories.  Some of the information contained
+below is definitely "Spoilers", so read on at risk of your own thrill of
+discovery...
+
+	Where to get Angband
+* For anyone looking to get the game, it's available for anonymous ftp
+  from ftp.cis.ksu.edu (aka procyon.cis.ksu.edu or 129.130.10.80).  The
+  Unix source is in pub/Games/Angband and ports for the PC, Amiga,
+  Mac, Atari ST are available in subdirectories.
+* Angband Docs: ftp ftp.cis.ksu.edu  /pub/games/angband
+
+	Public Service Announcements
+* There is a new, Angband-specific newsgroup, rec.games.roguelike.angband.
+  If your site carries this newsgroup, please try to use it instead of rec.
+  games.moria for Angband discussions.
+* When posting a message to rec.games.moria about something that relates
+  to Angband, please include the word 'Angband' in your subject.  If
+  your posting is specific to some version of angband, try to mention
+  that as well.  For example, if you're asking a question about PC
+  Angband, put 'Angband (PC)' in the subject.  This simple courtesy will
+  be greatly appreciated by all the moria fans on rec.games.moria. 
+  After all, the group is primarily for Moria, and offshoots like
+  Angband, Morgul, Druid Moria, etc. are secondary.
+* About (backup) savefiles:
+	Some people use (backup) savefiles.
+	Some people don't.
+	Others would, but can't.
+  Please leave it at that.  I'd hate for the flamewar to restart...
+
+	Artifacts
+* Artifacts don't appear in stores (unless you sell it to them).
+* The artifact list in the angband.doc file is incomplete ON PURPOSE.
+  It's only meant to tell you a little info about some "legendary" items.
+* In some places, the artifact description is (slightly) wrong.  This
+  reflects the "legend and rumor" basis for the descriptions (It also
+  reflects the fact that the angband.doc file is slightly out-of-date).
+  If you want a complete, up-to-date list, ask for the spoiler file.
+* Unique items, once missed, are gone forever...  If you get a "special"
+  message, I suggest you use that Staff of Trap Detection, so you don't
+  fall through a trap door!
+* Unique items should resist destruction by fire/frost/lightning/etc, and
+  shouldn't be picked up by monsters, so you don't have to worry too much
+  about some *&%&^ing green glutton ghost picking up an awesome item.
+  Ditto with thieves stealing them...
+* Artifacts CAN appear on a level that doesn't give you the "special"
+  message.  The "special" message only lets you know if there is an artifact
+  (or other special feature) on the level when it's first generated.  If a
+  monster is killed and drops an artifact, the only way you'll know about it
+  is to ID it (or carry it a while, and hope for the "pseudo-ID" to tell you).
+  However, if there is an artifact on the level at the time of creation, you
+  will get the "special" message (see below on feelings, though).
+* Many (but not all!) artifact weapons can be identified as artifacts
+  just by looking at them, because they do non-standard damage.  For
+  example, if you see a longsword (normally does 2d5), that says 4d5, you
+  know it's an artifact.  (In fact, it's Ringil, the best weapon in the
+  game.) 
+* Artifacts CAN be disenchanted, just like any other item. 
+  Disenchantment only affects your weapon, and any armor you are using,
+  so your spare weapon is safe.  If you have an item which gives you
+  disenchantment resistance, then ALL of your items are protected.
+  There are very few items which grant disench. res.  They are:
+	Chaos Dragon Armor
+	Balance Dragon Armor
+	Power Dragon Armor
+	Calris (3d7 bastard sword, initially cursed)
+	Deathwreaker (HEAVY 4d12 mace of disruption)
+	Rilia (2d4 dagger)
+	Celeborn (Mithril Plate)
+* Curse Weapon and Curse Armor scrolls CAN DESTROY artifacts.  In PC
+  Angband 1.3 or newer (and maybe the other ports as well) artifacts do
+  get a saving throw against this destruction, but it's less than 50/50
+  that they survive.  In general, it is not a good idea to read unIDed
+  scrolls found on "lucky" levels or deep in the dungeon until you know
+  which scrolls these two are, unless you aren't using any equipment you
+  care about and have remove curse (spell/scroll/staff/rod) to get rid
+  of the (newly) cursed item.  You have been warned...
+
+	Feelings
+* About "special about this level", or "good feeling", or "luck is turning",
+  etc messages:  You will only get them when you enter a level IF you've
+  been on the previous 2 levels "long enough".  This is to prevent people
+  from standing on a stairway, and going up and down until they get a
+  "special" message.  "Long enough" is a couple hundred turns or so, if
+  I remember right.  This means that the 1st time you go to 50' into
+  dungeon, you will never get a message, because you can't have been on
+  the previous TWO levels yet.  NOTE ALSO:  If you are in wizard mode,
+  you don't get the "something special" message, because it tells you
+  exactly what is on the level.
+* Another note on the "something special about this level" message: 
+  There are three things that could cause it... Artifacts, monster pits,
+  and player ghosts.  As you get deeper in the dungeon, the game
+  considers monster pits to be less special.  At 2500', only 1 pit in 5
+  or 6 is likely to trigger a "special" message.  So there is no
+  guarantee that you can stop looking for an artifact just because you
+  found a monster pit.  In fact, a monster pit, or a player ghost, or
+  an artifact on the level doesn't prevent another artifact from
+  appearing on the level, although the odds are slim at shallow depths.
+* The other "feelings" you can get relate to the general 'rating' of the
+  level.  Many things can contribute to the 'rating' of a level:  Out
+  of depth monsters, out of depth items, some excellent items (DF, HA,
+  of Westernesse, RA, R, etc), and special rooms (vaults, round rooms,
+  giant vaults, etc).  If you get one of these messages, you should be
+  fairly careful, in case there's some out of depth monsters around, but
+  you should also try to grab everything you can, in hopes of getting
+  some better items.
+* There has been many ideas proposed on rec.games.moria for changing
+  these feelings, or otherwise making the tactic of simply going up and
+  down levels with resting in between unprofitable.  Many of them have
+  either been unfeasible, or would be *nasty* to code.  But many others
+  have sounded reasonable, and would not be too hard to code.  (I, for
+  one, am waiting until a really great idea comes along before I alter
+  something so basic about the game as these messages, and how artifacts
+  are distributed. -CFT)
+
+	Spellcasting
+* All spellcasters are penalized for high ACs.  This is based on true AC,
+  w/o any magical bonuses.  This simulates the general encumbering effects
+  of heavy armor.
+* Mages, and other mage-type spell caster, lose mana for wearing gloves (or
+  gauntlets or cestus).  This simulates the interference they cause with
+  the intricate gestures required for spellcasting.  Priests and paladins
+  don't have this problem, as they invoke the power of their diety...
+* The minimum spell failure chance depends both on your class and on
+  your spell stat.  Only pure spellcasters (mage and priest) can get
+  really low failure rates.
+* Many duration spells don't provide much duration if cast again while the
+  effects still last.  For example, casting haste self 10 times in a row
+  isn't a very good use of mana...
+* There are 9 spells books for mages, and 9 for priests.  The new 5
+  books can be found deeper in the dungeon.  Or you could get lucky and
+  see them at the Black Market.  These books are not artifacts. 
+* Monster spell resistances have been changed from Moria...  In Moria, a
+  white dragon took extra damage from a fire bolt/ball, and partial
+  (1/4th) damage from a frost bolt/ball.  In Angband, a white dragon
+  takes normal damage from a fire bolt/ball, and almost no (1/9th)
+  damage from a frost bolt/ball.  Basically, there are no more
+  "susceptibilities".  There are a couple of exceptions to this...
+  Monsters can be susceptible to bright light (ie, wand of light, not
+  lightning), and holy orb does extra damage vs evil creatures.
+  (I was totally wrong when I had said holy orb does less than normal
+   damage against non-evil creatures, sorry.  I must have been tired
+   when I looked at the source code. -CFT)
+* Many of the mage spells are now adjusted by your level.  However, a
+  lot more monsters are immune to frost/fire/lightning, so either you
+  need a LOT of magic missiles, a good bow, or haste up and hack-n-slash.
+* Priests and paladins now need the right prayer book to learn spells. 
+  In Moria, they didn't. (Moria did it that way to prevent players from
+  dropping all but the 3rd book to "force" Orb of Draining.)  Angband does
+  it this way so that the new spells in the extra books wouldn't be
+  given to a low level character (who then couldn't cast it until he
+  journeys deep in the dungeon and finds the right book).  This means you
+  can "force" the spells you want, if you drop all but 1 book at home
+  before learning new spells.  (Don't forget to pick the books up again
+  afterwards!  I lost a half-troll priest to a bunch of water trolls,
+  since he forgot the book with 'portal' in it!)
+* "You seem to be missing a book" means that you have the capacity to
+   learn more spells than you happen to have available to you at the
+   moment.  This might mean that you are level 50, and already know all
+   the spells, but could learn more if there were any.  It might mean
+   that you are a 6th level rogue, who could learn a second spell, but
+   the normal books only have one spell below level 7.  (In this case,
+   you really are missing a book).  The wording of the message may be
+   a little confusing, but, to be honest, I can't think of a relatively
+   short message that applies to both situations and sounds good.
+
+	Combat
+* Group monster can be DANGEROUS!  Even if you can kill a single orc/
+  troll/novice whatever/whatever hound/etc without too much trouble,
+  it's easy to get overwhelmed by sheer numbers.  My advice: Make sure
+  only 1 can attack you at a time, and for any spell-casting or
+  breathing groups, ambush them from around a corner so that only 1 can
+  see you at a time.  A possible exception to this is novice rangers;
+  they can only cast magic missile, and missile spells (as opposed to
+  ball spells or breath weapons) cannot "jump" other monsters in
+  Angband.  So, if you're having trouble with novice rangers, get them
+  all lined up in a corridor, and then some of them will be wounded/
+  killed by M.M.s from other rangers.  Of course, you don't get
+  experience for anything that you don't kill, but you might survive
+  a bit longer...
+* Another major piece of advice is that you should always try to carry
+  some cure serious wound (or better) potions (to cure some HPs, and
+  remove blindness and confusion).  This will allow spell casters to
+  cast their escape spells, and allow others to read their escape
+  scrolls.  Scrolls of phase door or teleport are important for
+  characters who don't have an escape spell.  Staves of teleportation
+  work also, but a thief can only steal 1 scroll at a time, or a fire
+  trap can only burn up 1 scroll at a time...  On the other hand, you
+  can use a staff while blinded and confused.
+  
+* The to-hit bonuses for using a "bow" can come from any source; rings,
+  DEX, gauntlets of slaying, the "bow", the "arrows".  But the to-dam
+  bonus for shooting a "bow" come only from the "arrows" and the "bow",
+  so a Ring of Damage (+18) won't help your bow damage (unless you're
+  hitting a monster over the head with your longbow).
+  
+* Damage from "ego" weapons/artifacts is calculated as follows:
+  damage = (weapon-base * weapon-mult) * hit-mult
+           + hit-bonus + weapon-bonus + player-bonus
+  weapon-base is the base damage rolled (i.e. "3d4" or "1d10")
+  weapon-mult is for special weapons (i.e. "of fire", see below).
+  hit-mult is the multiplier granted from a "good" hit (see below).
+  hit-bonus is the bonus damage granted from a "good" hit (see below).
+  weapon-bonus is the "plusses" (if any) on the weapon itself
+  player-bonus is the player's bonus damage (from rings, strength, etc).
+
+  Note that bonus-damage is NOT multiplied in.  This means that a
+  dagger (1d4), even if it does x5 damage, is not as good as a two-handed
+  sword (3d6) that does x2 damage, unless you get more swings with the
+  dagger.  Of course, if the T-H-sword had +0 to damage, and the dagger
+  had +20 to damage, you would probably want to use the dagger anyways.
+
+  There is an exception to the above equation:  missile weapons, when
+  used in conjunction with the appropriate ammo.  This helps warriors
+  survive without spells.  For this case, the formula is:
+  damage = (ammo-base + ammo-bonus + bow-bonus)
+	   * bow-mult * ammo-mult * hit-mult + hit-bonus
+  bow-mult is the multiplier from the missile launcher (i.e. x2,x3,x4).
+  ammo-mult is for special ammo (i.e. "of Fire", "of Dragon Slaying")
+  hit-mult and hit-bonus are as above (i.e. "good hit", etc).
+
+  Note that, unlike with normal weapons, bow-bonus's ARE multiplied in.
+  This makes a heavy crossbow (x4) with a high bow-bonus-damage very
+  powerful...  If you have some bolts.
+  
+  Note also that "player-bonus" does not apply to missile weapons, unless
+  the player actually hits the monster with the bow.
+  
+* A quick note about "bows" and to-hit and to-damage bonuses.  If you
+  are wielding a "bow", and you show the info screen, the to-hit and
+  to-dam bonuses for the bow are not added in.  This is because these
+  values reflect the extra to-hit and to-dam bonuses you get for hitting
+  a monster over the head with your "bow".  The code uses the correct
+  values when you shoot "arrows" with your "bow".  As for what happens
+  when you actually hit a monster with the bow, I do not know...
+  
+* Multipliers for various weapon powers are:
+	L   -  x5	XD  -  x5	FB  -  x3	FT  -  x3
+	SD  -  x3	SDm -  x3	SU  -  x3	SO  -  x3
+	SG  -  x3	ST  -  x3	SE  -  x2	SA  -  x2
+  Abbreviations used above are: (self knowledge mesg. in parenthesis)
+    L   - Lightning, unless res. ("electrocutes your foes")
+    XD  - Execute Dragon ("great bane of dragons")
+    FB  - Frost (Brand), unless res. ("freezes your foes")
+    FT  - Flame (Tongue), unless res. ("burns your foes")
+    SD  - Slay Dragon ("especially deadly against dragons")
+	NOTE: SD is x3 in Angband, not x4 like it was in Moria...
+    SDm - Slay Demon ("strikes at demons with holy wrath")
+    SU  - Slay Undead ("strikes at undead with holy wrath")
+    SO  - Slay Orcs ("especially deadly against orcs")
+    SG  - Slay Giants ("especially deadly against giants")
+    ST  - Slay Trolls ("especially deadly against trolls")
+    SE  - Slay Evil ("fights against evil with holy fury")
+    SA  - Slay Animals ("especially deadly against Nature's creatures")
+  Note that only the highest applicable multiplier is used, if several
+  apply.  For example, a weapon with XD, SU, SE used against a Dracolich
+  will only do the x5 from XD, NOT x5x3x2 == x30 from all three.
+
+* Damage bonuses for special hits are:
+  "good hit"		x2 + 5
+  "excellent hit"	x2 + 10
+  "superb hit"		x3 + 15
+  "*GREAT* hit"		x3 + 20
+  The odds of getting a special hit are influenced by your plusses to
+  hit, your combat skill, and the weight of your weapon (Heavier weapons
+  are more likely to deliver an extra-hard hit).
+
+* Priests are penalized for wielding "non-priestly" weapons.  This
+  penalty comes from D&D.  Priests are basically restricted to maces,
+  clubs, and other blunt weapons.   They should get a message ("You are
+  not comfortable with your weapon" or something like that) if they
+  wield a non-priestly weapon.  But this is only -2 to hit and
+  damage...  If you find Ringil, WIELD IT!
+* For those who have examined the "blows" table (which tells how many
+  swings you can get, based on your strength, your DEX, and the weight
+  of your weapon), be warned:  When calculating your STR to weapon
+  weight ratio, the code considers any weapon lighter than 5 pounds to
+  weigh 5 pounds.  So there is no longer any advantage gained by
+  wielding really light weapons (ie a Stilleto no longer gives two
+  swings even to a character with moderate stats.)
+* PC Angband (and probably the other ports as well, soon) now has Chris
+  Wilde's targetting code to aim spells, wands, rods, and missiles at
+  monsters which at not "in line" with you.  You activate it by using the
+  '*' key.  To turn off targetting when you are finished, (it's turned
+  off automatically if you kill the monster you were targetting), use
+  the '*' command, and then hit the ESC key to abort targetting.
+
+
+	Items
+	
+* Weapons "of Flame" are (FT).  "of Frost" is (FB).  "of Fire" does x3 fire
+  damage like a (FT), but doesn't give you fire resistance.
+* Calris:  To uncurse it, either use a scroll of *remove curse*, or
+  just read a scroll of enchant weapon to-hit (a scroll of enchant
+  weapon to-dam would also work, but Calris' +20 makes it infinitely
+  improbable that it will successfully enchant it).  It will still say
+  '{cursed}', and it will still aggravate monsters, but you will be
+  able to switch to another weapon until you can get enough enchant
+  to-hit scrolls to remove Calris's penalty to-hit.
+* A Potion of Life restores lost experience, restores any drained stats,
+  cures poison, confusion, blindness, hallucination, removes fear and
+  stunning, heals cuts and fully heals you.  It's a very nice potion to
+  have around.
+* A staff or rod of Enlightenment acts as the priest spell of sense
+  surroundings (basically, it maps one screen, without detecting
+  anything).  A potion of Enlightenment lights the entire level, like
+  the wizard mode light command.  A potion of *Enlightenment* wizard-
+  lights the level, identifies all your items, restores your INT and
+  WIS if they were drained or increases them otherwise, and, on the
+  newest PC Angband (maybe also in Unix/etc versions) grants self-
+  knowledge.
+* Don't drink a potion of Death, Ruination or Detonations!  The potion
+  of Detonations makes a good thrown weapon, though.
+* A weapon of Morgul cannot be uncursed with a normal remove curse
+  spell.  See the note on 'Calris' for how to uncurse one of these.
+* Dragon Scale Mail (DSM) powers: (ALL DSMs have RA, and the breath is
+     appropriate for the type of dragon)
+  Blue DSM:	RL  (breathe for 100 hp)
+  White DSM:	RC  (breathe for 110 hp)
+  Black DSM:	just RA  (breathe for 130 hp)
+  Green DSM:	RPoi  (breathe for 150 hp)
+  Red DSM:	RF  (breathe for 200 hp)
+  Multi-Hued DSM:  RL, RC, RF, RPoi  (breathe for 250 hp)
+  Bronze DSM:	RConf  (breathe for 120 hp)
+  Gold DSM:	RSound  (breathe for 130 hp)
+  Chaos DSM:	RDisench, RChaos  (breathe for 220 hp)
+  Law DSM:	RShards, RSound  (breathe for 230 hp)
+  Balance DSM:	RDisench, RChaos, RShards, RSound  (breathe for 250 hp)
+  Shining DSM:	RLight, RDark  (breathe light/dark for 200 hp)
+  Power DSM:	RDisench, RChaos, RShards, RLight, RDark, RNexus,
+		RNether, RL, RC, RF, RPoi  (breathe "elements" for 300 hp)
+  NOTE: RChaos resists both chaos and confusion.
+* A Cloak of Aman is not an artifact, it is just a cloak with RA, stealth,
+  and a very large bonus to AC.
+
+	General
+* You don't get any extra speed from wearing a second speed ring.  You
+  can still get extra speed by wearing a speed ring with some other
+  source of speed, like boots of speed.  This is not a bug.
+* If you kill Sauron out-of-depth (not on level 99 (4950')), then you
+  will have to fall through a trap door to get beyond level 99.  This
+  is a bug, caused by an oversight in the quest code.  Sorry, folks...
+  By now, this has probably been fixed in most versions of Angband, but
+  I'm including it here just in case.
+* There is a Potion of Self Knowledge, much like the potion from
+  Nethack, which can tell you what your resistances etc. are.  With
+  judicious use of these potions, you should be able to tell what powers
+  various artifacts grant you.  This should reduce people's reliance on
+  spoilers to decide which of 2 weapons, or 2 armors, etc. to use.
+  Some often asked about messages:  "hard to find" is stealth, "land gently"
+  is feather fall, "appetite is small" is slow digestion, and "will not
+  become out of shape" is sustain constitution.
+* Farmer Maggot CAN be killed.  Just hit him a lot...
+* Infravision allows you to see SOME invisible monsters (if they aren't
+  cold-blooded).  This is not a bug.
+* Orcs and trolls can be fun to line up in a long corridor, and then
+  blast with a wand of light!  (Not all types are susceptible...)  A rod
+  of light can be a mid-level character's best friend, doing good damage
+  against a whole line of susceptible monsters, with a really fast (~8
+  rounds) recharge.
+* Unique monsters, once missed, come back again (until killed).  If you are
+  having a LOT of trouble with one of them, run and read a WoR scroll.  Maybe
+  he won't be on the level next time...  You can kill him later, when you're
+  tougher.  I especially recommend this with "Mim, betrayer of Turin" for
+  mages...  (You'll see why  :-)
+* Some advice on identifying items:  How you go about it depends on your
+  class and level.  For warriors, paladins and rogues, carry everything
+  you find (weapons + armor; this doesn't work for potions, etc) for a
+  while.  Your 'pseudo-identify' should kick in and give you some idea
+  how good/bad the item is.  For anyone with the 'remove curse' spell,
+  try on any armor you find.  If it's cursed, uncurse it, and drop it.
+  That way you don't have to carry cursed items at least.  But DO NOT
+  do this with weapons.  There are some really bad weapons that can
+  laugh off your feeble attempts to uncurse!  For mages and rangers
+  who have the identify spell and know it well enough to cast fairly
+  often, ID everything you can.  If you've got some really nice Mithril
+  Plate, you don't have to ID things like studded leather armor, but you
+  should try to get everything you can.  Besides, you should be on the
+  lookout for light armor artifacts, to avoid the mana penalty of heavy
+  armor.  For priests, and low levels mages and rangers, you have to
+  depend on ID scrolls, staves of perceptions, etc.  Even priests do get
+  some feeling of 'cursed' items if they carry things long enough.  Try
+  not to waste ID spells on cursed items.  At high levels, priests can
+  get the ID spell, but it's in one of the deeper books.
+* Warriors, paladins, and rogues get an improved 'pseudo-identify', which
+  is much better than the simply 'magik'/'cursed' version from Moria.
+  Mages, priests, and rangers are stuck with just noticing 'blessed'/
+  'cursed', and not noticing it too quickly.  But warriors, rogues,
+  and paladins can notice:
+	'worthless'	cursed item
+	'terrible'	cursed ego item or artifact
+	'average'	uncursed, but nonmagic item, maybe with minuses
+	'good'		item with plusses
+	'excellent'	ego item
+	'special'	artifact
+  Warriors notice items most quickly, followed by rogues and then paladins.  
+* Damage messages when you cast a spell, or fire a missile, are
+  dependant on the amount of damage done relative to the current HPs of
+  the monster.  There are a number of messages, depending on how
+  severe the attack was, and on what type of monster it is (for example,
+  monsters without mouths don't "scream in pain", they "draw back in
+  pain").  Note that throwing many items (like food rations) does NO
+  DAMAGE.
+* The monster memory does show more than one description for some
+  monsters.  Some examples are filthy street urchins, novice mages/
+  priests/warriors/rangers, mimics, gnome mages, etc.  There are two or
+  more entries because there are actually two or more different types
+  of these monsters.  Often the difference between them is that one is
+  found solo and the other is found in groups, at a slightly deeper level.
+* Also note that the monster memory doesn't give you credit for killing
+  a monster if you cannot see the monster (if you are blind, or the
+  monster is in a dark area beyond your infravision range, etc).  The
+  recall code for uniques is slightly different, and the monster memory
+  will note their deaths, unless you never saw them, even by an 'ancestor'
+* To use rods with the "non-rogue" command set, use the 'z' key.  This
+  IS documented in the help screen, but it doesn't fit on the first
+  screen.  If you hit ESC instead of space, you'll never see the second
+  (and following) help screens, so you wouldn't know this.
+* Monster "pits" are rectangular rooms, about 20 by 5, (they look like
+  some of the rooms which have an "inside wall") filled with monsters.
+  Slime pits are filled with jellies, molds, icky things, oozes, etc.
+  Orc, Troll, Dragon and Demon pits are filled with different types of
+  those monsters (Dragon pits are filled with the same color dragons).
+  Undead pits (aka Graveyards) are filled with some nasty undead. 
+  Inside monster pits, there can be monsters that are VERY far out of
+  depth, so you should be very careful around them.
+  Monster "vaults" are unusually shaped and sized rooms, filled with
+  monsters, treasures, and traps.  The 'greater' vaults are huge (about
+  60x20), with outside walls of impenetrable rock except for a couple
+  of granite walls in the corners.  Monster vaults are filled with all
+  different kinds of monsters, and often have some really nice treasure
+  to go along with some out-of-depth monsters.  Greater vaults are
+  filled with all different kinds of out-of-depth monsters, with
+  excellent treasure (often more than 1 artifact), and some REALLY
+  out-of-depth monsters.  Taking on a greater vault is amazingly
+  dangerous unless you have some speed, lots of resistances, and a
+  teleport away spell/wand/rod.  You have been warned.  "Monster vaults"
+  (as opposed to "monster pits") do not cause a "special" feeling, but
+  they do greatly improve the 'rating' of the level, so you will often
+  get some form of "your luck is turning" message.  Of course, if the
+  "vault" happens to contain an artifact, you should get the "special"
+  message as usual.
+* Nexus "stat-shuffling" attack can be prevented by Resist Nexus, which
+  is quite rare. (PDSM, Aule, Bloodspkike, Soulkeeper, Bladeturner, and
+  Feanor).  If your stats do get "shuffled", there is no way to restore
+  them, short of getting them shuffled again (and again and again) until
+  they get restored.  Of course, if all your stats are maxed up to 18/100,
+  then it doesn't matter if they get shuffled.
+  
+  
+* About the name 'Angband': (with thanks to David M. Tate (dtate+@pitt.edu),
+  who posted the article from which I extracted this. -CFT)
+---------------------------------------------------------------------------
+  When Melkor sought to establish himself as Lord of Middle-Earth, he
+built for himself a giant fortress, Utumno, in the far north of Middle-
+Earth.  Being afraid of possible interference by the other Ainur from
+Valinor, he also constructed a strongly fortified outpost, Angband, near
+the western shores of Middle-Earth, north of Beleriand.  Sauron (also
+called Gorthaur) was its captain.
+
+  When the Valar, for the sake of the Elves, came and put Melkor (now
+called Morgoth) into captivity in the halls of Mandos for three ages,
+they destroyed most of Utumno.  When Morgoth finally returned to Middle-
+Earth, after having destroyed the Two Trees, he rebuilt Angband anew,
+and made it the seat of his power.  He caused to be raised above its gates
+the mighty towers Thangorodrim, and ruled there until finally defeated
+by the final incursion of the Might of the Ainur into Middle-Earth.
+
+  "Angband" means "Hell (or prison) of Iron" in (I believe) Sindarin.  The
+prefix 'ang-' denotes iron, which is why it occurs in the names of so many
+swords and other weapons (e.g. Angcrist, "Iron-cleaver", the dagger of
+Beren).
+
+  The complete story is layed out in exquisite detail in Tolkien's 
+_Silmarillion_.
+---------------------------------------------------------------------------
+
+

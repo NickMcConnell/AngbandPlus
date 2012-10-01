@@ -1,0 +1,708 @@
+
+Well glad to see there has been a lot of response (nearly all good it
+seems) about the Angband game. For those who might want to know and
+for those who might have missed it before here is a list of
+improvements and so on above the original moria game....
+
+As an aside, a few people here at warwick have mastered it, i myself
+have completed it the most with 15 genuine character completions (lots
+of different classes.. i posted some of my completions here before)
+but i just can't seem to complete the grossest class that everyone
+else can.. MAGE! *smirk*. And we have a lot of games per completion.
+it IS harder than moria.. we have a genuine untampered scoreboard here
+where you need a good level 20+ character to get in the top 250.
+
+Someone mentioned we told too much about the artifact and other unique
+items in the .doc file released with the game.. WRONG! It is only
+about half and the spoiler says that it is "a few that you remember".
+Plus if i was you i wouldn't take what it says about artifacts
+abilities strictly... i.e. don't whinge if it doesn't work quite like
+you expect *cackle*.
+
+Well the armor mana thing isn't a bug. As you wear more mana it
+affects your abilities to cast spells so that you lose max mana...
+I.E. for every point your basic unplussed armor exceeds 35 you lose
+one point of max mana. Further more any spell casting (rather than
+prayer) class such as mage ranger or rogue that wears anything on
+their hands.. gloves gauntlets etc. has its spell casting ability
+reduced by a 1/3,... this isn't a bug! It is an attempt to balance the
+classes in what we feel is a realistic fashion!
+
+Changes file
+------------
+Monsters
+--------
+Quest if to kill Morgoth (not morgoroth as Mr. Teague misspelled it..)
+at 5000' (dungeon level 100). That is the only quest. BUT there are
+about a hundred unique monsters that all appear at their own depths
+and can only be killed once.... and morgoth can summon unique
+creatures so it is advisable to get them out of their way. The unique
+creatures are designed to present a challenge for the depth they are
+met.. i.e. they are just a little harder than a typical monster for
+that depth. Examples include Smeagol, Bullroarer the Hobbit, Glauring
+Father of Dragons, Sauron, Saruman, all the ringwraiths including the
+WitchKing... etc.  Most monsters have been changed... any monster that
+would realistically be gregarious appears in groups (e.g. orcs usually
+appear in groups.. except for orc captains of course) and so do wood
+spiders, mumakil, trolls etc. Monsters have different letters too e.g.
+'h' is demi humanoids (e.g. hobbits, dark elves etc.)
+
+Monsters have many many more spells and abilities than in basic moria
+e.g.  a Great Wyrm of Balance has the following breath weapons : sound
+chaos shards and disenchantment... all do big damage (sound stuns you
+or knocks you out in extreme cases, chaos mass polymorphs monsters and
+confuses you, shards wound you and disenchantment reduces the plusses
+on your equipment). This is just an example - Sauron's spells fill
+nearly a page... including mass summoning of major undead, mind
+blasting, mind searing, brain smash, teleport prey's level etc etc.
+please read the monster descriptions- they took me days of boredom
+slaving over a hot computer i hope someone appreciates them!
+
+The Dungeon
+-----------
+Moving on, levels have been tweaked a little map wise... They have
+slightly more rooms.. Treasure pits have been added .. i.e. they can
+be almost as big as a standard screen and have several shapes, and
+present a big challenge to an adventurer... they contain monsters and
+treasures far better than is normally found at that depth. (in extreme
+cases watch out for D's at 1000 feet in a weird shaped room)
+Also when you go down the stairs in the dungeon it leaves an up
+staircase you can escape up into should the need arise. (in nethack
+fashion).
+
+Items
+-----
+"Ordinary" items
+--------------
+Items have seen a massive expansion in depth and usefulness. "ordinary
+items" now range into the league of such things as dragonscale armor
+(e.g. multi hued which resists acid lightning cold fire poison,
+shining (resist dark and light), power dragonscale(resist just about
+everything very rare)), newer weapon types (blades of chaos,scythes of
+slicing, scythes, mace of disruption etc. and newer flags such as
+weapons of westernesse (+1 str dex con,free action see invis slay orcs
+undead and evil),slay giant, slay troll to go with such old moria
+favourites as holy avengers defenders etc. flametongues etc. Plus some
+really BAD weapons called morgul weapons (they are hideous.. don't
+wield them :)). Only one ring of speed will work now... but boots of
+speed are *slightly* more common - plus their are hastes available in
+other sources (e.g. a mace called taratol which activates for a haste
+from time to time, Boots of Feanor (unique boots of speed which
+activate for a permananent haste just like a potion of speed) and best
+of all a 4d5 Longsword named Ringil which gives you a permanent haste
+and does just about everything else you might want - i just got it
+myself with a character at 1000 feet off of a player ghost :))
+Speaking of ghosts, it remembers players who have died and will
+sometimes place them on a level to attack you (or even on the home
+level, where they get mad at you having interrupted their shopping
+:)).. these will appear as say Geoff the Human warrior on the home
+level (or whatever the class was) and down in the dungeon as Geoff the
+mummified human or if high level will come back as a spirit
+skeleton ,zombie ,poltergeist, ghost, wraith, vampire, master vampire,
+lich with abilities appropriate to the type of 'ghost'.
+Oh, back to items, sorry i rambled on i am writing this off the top of
+my head. New armours are metal shod boots, shields of deflections,
+steel helms, shadow cloaks, cestus, mithril chainmail, mithril plate,
+adamantite plate mail and dragonscale armors (see earlier note). new
+armor flags are telepathy (e.g. as in wiz mode) or light (permanent
+light source), wisdom or intelligence bonus on headgear along with
+cursed ones such as helms of weakness etc. Gloves gauntlets and cestus
+can now be of Strength or Agility(plus dex) or of Power(big plus to
+Str and a bonus to hit and damage) or slaying (as in moria). Shields
+and body armor can be of elvenkind (basically like an armor of
+resistance but with a bigger ac plus and a bonus to stealth). New
+rings abound, e.g. rings of poison resistance, elemental rings such as
+flames which give +15 ac and resist fire, slaying (e.g. about +8 to
+hit and damage would be typical), ring of see invisible, ring of free
+action, Rings of Damage (up to about +20), Ring of Accuracy (up to
+about +20), Ring of Protection (up to about +20 AC). Amulets are
+pretty unchanged, Wands, staffs and scrolls have been massively
+expanded (e.g. staff of perceptions which activates for identify, wand
+of annihiliation which does a LOT of damage to living creatures,
+scroll of *acquirement* which creates a handful of very good
+treasure! and many many more than i can be bothered to recount). Rods
+are a new invention, they are like a staff(but cannot be burnt) but do
+not have charges, instead they can be activated once every so often in
+the same way as a wand or staff and then take time to recharge) e.g. a
+rod of illumination activates for light room once every 30 turns,
+right up to a rod of restoration which restores stats or life energies
+but only once every 1000 turns. Potions, yet again have been expanded
+- e.g. potions of life which heal everything and restore stat drains
+and many many more new potions. Stat gain potions are commoner at 1500
+ft Str, Dex, Con and 1600 ft for Int and Wis and 1000ft for Cha (note
+this well stat gainers!) and furthermore Stat gains add 1 or 2 stat
+points per potion and above 18 are now much more effective. becoming
+less effective as you get nearer 18/100 where a potion will only add 1
+or 2 percentiles each. A potion of self knowledge also exists which
+will list your intrinsics and abilities (e.g. Your eyes are sensitive
+to Infrared, Your weapon strikes at undead with holy wrath etc etc.).
+
+Spell books - The standard spell books have been tweaked a little. new
+spell books also exist which can only be found by adventuring in the
+dungeon. I will not give away the fun of finding them , just list
+their names for you here. 
+
+Spell books : Resistance of Scarabtarices,
+Mordenkaine's Escapes, Kelek's Grimoire of Power, Tenser's
+Transformations, Raal's Tome of Destruction.
+
+Prayer books : Ethereal Openings, Godly insights (it's got identify in
+it btw), Purifications and Healing, Holy infusions, Wrath of God.
+
+These books have some fun fun fun spells/prayers in them and are found
+at differing depths and rarity ratings... Wrath of God and Raal's Tome
+are as rare as a ring of speed if not rarer.
+
+
+Artifacts
+---------
+
+There are many many unique items to be found.. They are only ever
+found once per game, and if created on a level and not found by the
+adventurer they will never occur again that game. They cannot be
+destroyed by any ordinary means, being immune to monster's pick up,
+fireballs dragonbreath and other mortal means of destruction - short
+of throwing them at a monster (been done before!) or a wall.
+
+They all do fun things, some good some bad, and only about half are
+listed in the .doc file. Some are little better than ordinary but
+others are truly awesome...
+
+Rumours also exist of The One Ring, the ring to rule them all.
+
+
+Artifacts have a chance of being created when ever an object of the
+appropriate type is created by the game, SO to find deathwreaker you
+need to find a high number of maces of disruption, thus it is very
+rare except for at extreme depths....
+
+
+Level Feelings
+--------------
+
+Sometimes when you enter a level you will be given a message such as:
+You feel your luck is turning, You feel there is something very good
+about this level and some others..
+
+Every level when created is given a rating based on the number of
+out of depth monsters and objects that are created on the level. The
+higher the rating the better the feeling. A superb feeling is always
+worth searching out as it will contain a number of very good items -
+or monsters of course *cackle*.
+
+If you get a special feeling it means an artifact has been created, or
+a player ghost, or a pit of monsters (e.g. slime pits full of jellys
+molds and so forth or a pit full of dragons demons or trolls, or a
+graveyard (very dangerous indeed - black reavers, undead beholders
+Dracolich's.... ) depending on the depth you are at).
+
+So remember unless dropped by a monster you won't usually find an artifact
+unless the feeling you have for a level is a special one - these are
+the most fun levels, dangerous, and with the highest potential for
+finding a _nice_ item.
+
+Races
+-----
+
+I'll just list them..... 
+
+Human - unchanged
+Half-elf - unchanged
+Elf - same but with Resist Light as an intrinsic
+Hobbit - same but with sustain dex as an intrinsic and 7 sided hitdice
+Gnome - same but with free action and 8 sided hitdice (awesome mages)
+Dwarf - same but can never be blinded
+Half-orc - same but resist dark
+Half-troll - same but with sustain str
+Dunedain - good fighting stats 10 sided hit dice, +80% exp per level
+and sustain con
+High elves - good stats (especially Int) 10 sided hit dice, +80% per
+level, see invis and feather falling as intrinsics and infravision
+
+For more details see the race notes in the man pages for the game.
+
+
+Classes
+-------
+
+Fighter
+-------
+Unchanged except for inbuilt identify - this works that after a time
+carrying a weapon or armor you get a feeling about it. I.e. if you
+carry a sword in your backpack for a while it will say you feel there
+is something good about the sword you are carrying in your backpack
+This ability becomes faster as you raise levels and the feelings
+correspond as follows :
+
+Terrible:  cursed/broken artifact
+Worthless: cursed/broken ego-item
+Special:   good artifact
+Excellent: good ego-item
+Good:      normal item, with plusses
+Average:   normal item, no plusses
+Cursed:    cursed item
+Broken:    broken item
+
+This makes fighters a playable class as you know which items to
+identify - and with staffs and rods of perception the lack of identify
+is less of a problem.
+
+Mage
+----
+Unchanged except for the spell changes (see elsewhere)
+
+Priest
+-----
+Unchanged (but note, identify is available in a special spell book)
+
+Rogue
+-----
+Now needs more experience per level, but has fighters in built
+identify (but slower in use) Otherwise unchanged
+
+Ranger
+------ 
+Ranger reduced to need same experience as mage, but has no identify
+(until learned as a spell at about level 23)
+
+Paladin
+-------
+Priest prayers plus inbuilt fighter identify (again slower), Awesome
+(try a dunedain one).
+
+
+
+A flask of oil is every low level character's friend.. 
+
+You can throw it at a monster for 2d6 damage (no fire critical!)
+
+
+Armor does not reduce mana until it exceeds 35 _WITHOUT PLUSSES_ and
+the only real restriction is that you shouldn't wear antyhung on your
+hands (which reduces your mana by 1/3 if you are a mage)
+
+Armor now reduces mana based on weight
+
+With the new max stats 18/100 bodily and 18/*** including item plusses
+(18/*** corresponds to 18/220+)  Your max mana can be truly gross..
+All monsters are damaged by meteor swam, hellfire etc.  Furthermore,
+at high levels, mages can fight pretty damn good.. and with very high
+fighting stats they can get a nice and friendly 6 attacks a round with
+about 900+ max hp even for a hobbit mage.
+
+Note, gnomes and hobbits both get a larger hit dice than in umoria.
+
+By the way potions of invulnerability do not exist.  BUT mages can
+get (in a special spell book) the spell globe of invulnerability,
+which gives, for a short term, invulnerability (a very high level
+spell.. 45th level in fact) which even further unbalances the game on
+the sides of a mage, IMHO. Anyway you complained about AMHD etc. -
+well mages can get more resists than any other class due to the
+existence of a certain other spell book.. and in any case all classes
+can obtain poision resistance fairly easily, negating many insta-deaths
+from the old umoria game.
+
+Oh and orb of draining is still gross... but at very high levels just
+about every class including mages revert to hack and slash, with their
+spells as backup.. i.e. a mage will go into a fight having cast
+resistance, heroism, berserk strength, mystic shield, essence of speed
+which tends to make them a good fighter....
+
+Thing is... monsters have too many hp to spell attack them to death
+except for with something huge like a priest annihilation or a mage
+hellfire spell.... AMHD are way down the list now.. monsters exist in
+ordinary play deep in the dungeon with an excess of 4000 hp
+
+Hope this answers your questions
+
+  Okay, folks, to avoid a lot of miscellaneous questions, here's some info:
+
+* First, the artifact list in the angband.doc file is incomplete ON PURPOSE.
+  It's only meant to tell you a little info about some "legendary" items.
+* Second, in some places, the artifact description is (slightly) wrong.
+  This reflects the "legend and rumor" basis for the descriptions (also
+  reflects the fact that the angband.doc file is slightly out-of-date).
+* Third, artifacts CAN appear on a level that doesn't give you the "special"
+  message.  The "special" message only lets you know if there is an artifact
+  (or other special feature) on the level when it's first generated.  If a
+  monster is killed and drops an artifact, the only way you'll know about it
+  is to ID it (or carry it a while, and hope for the "pseudo-ID" to tell you).
+* Forth, there is now a Potion of Self Knowledge, much like the potion from
+  Nethack, which can tell you what your resistances etc. are.  With judicious
+  use of these potions, you should be able to tell what powers various
+  artifacts grant you.  This should reduce people's reliance on spoilers to
+  decide which of 2 weapons or 2 armors etc to use.
+* Infravision allows you to see SOME invisible monsters (if they aren't
+  cold-blooded).  This is not a bug.
+* Mages, and other mage-type spell caster, lose mana for wearing gloves (or
+  gauntlets or cestus).  This simulates the interference they cause with
+  the intricate gestures required for spellcasting.  Priests and paladins
+  don't have this problem, as they only invoke the power of their diety...
+* All spellcasters are penalized for high ACs.  This is based on true AC,
+  w/o any magical bonuses.  This simulates the general encumbering effects
+  of heavy armor.
+* Priests are penalized for wielding "non-priestly" weapons.  This comes
+  from D&D.  Priests are basically restricted to maces, clubs, and
+  other blunt weapons.   They should get a message ("You are not comfortable
+  with your weapon" or something like that) if they wield a non-priestly
+  weapon.  But this is a relatively minor penalty...   If you find Ringil,
+  WIELD IT!
+* Many duration spells don't provide much duration if cast again while the
+  effects still last.  For example, casting haste self 10 times in a row
+  isn't a very good use of mana...
+* Many of mage spells are now adjusted by your level.  However, a lot more
+  monsters are immune to frost/fire/lightning, so either you need a LOT
+  of magic missiles, or haste up and hack-n-slash...
+* Priests and paladins now need the right prayer book to learn spells.  In
+  Moria, they didn't.  This was done so that the more powerful spells in the
+  extra books wouldn't be given to a low level character (who can't cast it
+  until he journeys deep in the dungeon and find the right book).  This can
+  help you to learn the spells you want, if you drop all but 1 book at home
+  before learning new spells.  (Don't forget to pick the books up again
+  afterwards!  I lost a half-troll priest to a bunch of water trolls, since he
+  forgot the book with 'portal' in it!)
+* For all those PC people, I AM still looking into the tombstone problem.
+  If you haven't already done so, please send me a description of your
+  problem, and a brief description of you system configuration.  My email
+  address is in the .sig, below)
+* Farmer Maggot CAN be killed.  Just hit him a lot...
+* Weapons "of Flame" are (FT).  "of Frost" is (FB).  "of Fire" does x3 fire
+  damage like a (FT), but doesn't give you fire resistance.
+* Orcs and troll can be fun to line up in a long corridor, and then blast
+  with a wand of light!  (Not all types are susceptable...)
+* Unique items, once missed, are gone forever...  If you get a "special"
+  message, I suggest you use that Staff of Trap Detection, so you don't
+  fall through a pit!
+* Unique items should resist destruction by fire/frost/lightning/etc, and
+  shouldn't be picked up by monsters, so you don't have to worry too much
+  about some *&%&^ing green glutton ghost picking up an awesome item.
+  Ditto with thieves stealing them...
+* Unique mosters, once missed, come back again (until killed).  If you are
+  having a LOT of trouble with one of them, run and read a WoR scroll.  Maybe
+  he won't be on the level next time...  You can kill him later, when you're
+  tougher.  I especially recommend this with "Mim, betrayer of Turin" for
+  mages...  (You'll see why  :-)
+* Oh, for anyone looking to get the game, it's available for anonymous ftp
+  from ftp.cis.ksu.edu  The Unix source is in pub/Games/Moria/Angband and
+  the PC src and exe are in pub/Games/Moria/Angband/PC
+* PC users: "Abnormal program termination" means that you do not have enough
+  free memory to run angband.  Try to free up as much memory as possible.
+  If you need help doing so, I can email you a brief info file.  Just let
+  me know you want it by emailing me at the address below...
+
+Somebody posted a question about what races and classes do we play at
+angband or whatever. At the moment i tend to play combinations i
+haven't completed to try and get a full set (note: i have never used a
+backup or fiddled anything to date) but here are a few hints you might
+appreciate, or maybe not :)
+
+Warrior : Half troll seems the obvious choice because of hp, but
+dunedain is very playable as dex is so much higher, saving throws much
+better, and the additional exp is not a problem as a level 34 warrior
+is as good as a level 35 one basically (no levels for spells or
+whatever). Aim here for an 18/70 str and a dex above 14 so as to get 2
+attacks a round with a broadsword. High elves are not really worth it,
+their str dex and con is not as good as a dunedain, but cost the same
+exp.
+
+
+
+Paladin :
+Two options here, human or dunedain. Human is good because exp is low.
+Try persevering for a couple of good 18's... e.g. 18 str and wisdowm
+with good other stats. If you get 18/07 str then you can purchase a
+lance and get good fighting for your efforts. Otherwise , try (again)
+a Dunedain. Exp becomes a problem, but worth it because you can fairly
+easily get an 18/20 str and 18 dex.. If you do, purchase a whip or
+trident and rock the monsters with a nice 2 attacks a round. High
+elves have a penatly to wisdom, so forget it. All the other classes
+are restricted from paladin, or are crap hp wise.
+
+
+Rogue
+-----
+Lots of options here. Personal favourites are humans (low exp).
+Half-orc (high stats and hp - try for 18/20 str and a good dex but
+don't worry about int) or High elf (try for an 18/50 int and good
+fighting stats). I would mention Dunedain, but i completed 5 dunedain
+rogues already....
+
+
+Mage
+----
+Again 3 feasible options, human, gnome or high elf.
+Human - try for 18 int with high str - low stats, need something useful
+like cap of thranduil early or they are hard...
+Gnome - Far better than the more obvious elf, same stats but better
+str, intrinsic free action is an awesome advantage - try for str 8 and
+18/50 int.
+High elf - Another great option. Forget dunedain, go the whole way for
+high elf if you want an awesome one, don't play anything less than
+18/70 int with a str and con above 9.
+
+Priest
+------
+
+Human - Not worth it except for the low exp.
+Half-Troll - playing a half troll as a warrior until medium/high
+levels is cool as they hit monsters hard, but wisdom above 16 with
+good stats is rare, and this means minimum failure rates for prayers
+will be about 10+ % until wisdowm is increased, making them hard.
+Dwarf - By far the best option,good fighting and hp, don't take a
+wisdom below 18/50. Dwarves in angband were born to be priests. Take
+flasks of oil along with you to throw at monsters at low levels tho.
+Dunedain - Too much exp, but worth it if you want a high dex.
+High elf - -2 wisdom -> forget it!
+
+By the way in angband, we made priests have a lesser penalty to str
+than in moria. I managed to roll a dwarf priest with starting stats of
+18/26 str, 18/52 wisdom, 10 dex and 18 con. Rather unsurprisingly he
+died a rich old dwarf, with the crown of morgoth on his head.
+
+
+
+   As I have had requests for the spell damages in Angband, here is a full
+list (spoiler follows):
+
+
+
+  A list of spells damage:
+        Spell name              Attack type     Damage
+
+    Mage spells:
+        Magic Missile           Missile         2d6
+        Stinking Cloud          Poison          10+(level/2)
+        Lightning Bolt          Lightning       (3+((level-5)/4))d8
+        Frost Bolt              Frost           (5+((level-5)/4))d8
+        Spear of Light          Light           6d8
+        Stone to Mud            Rock remover    20+randint(30)
+        Fire Bolt               Fire            (8+((level-5)/4))d8
+        Frost Ball              Frost           30+level
+        Fire Ball               Fire            55+level
+        Acid Bolt               Acid            (6+((level-5)/4))d8
+        Cloud Kill              Poison          40+(level/2)
+        Acid Ball               Acid            40+level
+        Ice Storm               Frost           70+level
+        Meteor Swarm            Missile         65+level
+        Hellfire                Holy orb        300
+
+    Priest spells:
+        Orb of Draining         Holy orb        3d6+level
+        Dispel Undead           Dispel undead   3*level
+        Dispel Evil             Dispel evil     3*level
+        Holy Word               Dispel evil     4*level
+        Dispel Undead (WOG)     Dispel undead   4*level
+        Dispel Evil (WOG)       Dispel evil     4*level
+        Annihilation            Drain life      200
+
+    Wands:
+        Light                   Light           6d8
+        Dragon's Fire           Fire            100
+        Dragon's Frost          Frost           80
+        Dragon's Breath         Fire/Frost/Acid 100/80/90
+                                Lighning/Poison 70/70
+        Acid Bolts              Acid            5d8
+        Lightning Bolts         Lightning       3d8
+        Frost Bolts             Frost           4d8
+        Fire Bolts              Fire            6d8
+        Stone to Mud            Rock remover    20+randint(30)
+        Drain Life              Drain life      75
+        Annihilation            Drain life      125
+        Magic Missiles          Missile         2d6
+        Lightning Balls         Lightning       32
+        Frost Balls             Frost           48
+        Fire Balls              Fire            72
+        Stinking Cloud          Poison          12
+        Acid Balls              Acid            60
+        
+    Rods:
+        Light                   Light           6d8
+        Acid Bolts              Acid            6d8
+        Lightning Bolts         Lightning       3d8
+        Frost Bolts             Frost           5d8
+        Fire Bolts              Fire            8d8
+        Drain Life              Drain life      75
+        Lightning Balls         Lightning       32
+        Frost Balls             Frost           48
+        Fire Balls              Fire            72
+        Acid Balls              Acid            60
+
+    Staffs:
+        Holiness                Dispel evil     120
+        Power                   Dispel creature 120
+        Dispel Evil             Dispel evil     60
+        Starlight               Light           6d8
+
+    Items/Artifacts:
+        Blue Dragon Scale Mail  Lightning       100
+        White Dragon Scale Mail Frost           110
+        Black Dragon Scale Mail Acid            130
+        Green Dragon Scale Mail Poison          150
+        Red Dragon Scale Mail   Fire            200
+        Multi-Hued Dragon SM    All of above    250
+        Bronze Dragon SM        Missile         120
+        Gold Dragon Scale Mail  Missile         130
+        Chaos Dragon Scale Mail Missile         220
+        Law Dragon Scale Mail   Missile         230
+        Balance Dragon SM       Missile         250
+        Shining Dragon SM       Missile         200
+        Power dragon Scale Mail Missile         300
+        Amulet of Ingwe         Dispel evil     5*level
+        Narthanc                Fire Bolt       9d8
+        Nimthanc                Frost Bolt      6d8
+        Dethanc                 Lightning Bolt  4d8
+        Rilia                   Stinking Cloud  12
+        Belangil                Frost Ball      48
+        Ringil                  Ice Storm       100
+        Anduril                 Fire Ball       72
+        Firestar                Fire Ball       72
+        Theoden                 Drain Life      120
+        Turmil                  Drain Life      90
+        Arunruth                Frost Bolt      12d8
+        Aeglos                  Frost Ball      100
+        Orome                   Stone to Mud    20+randint(30)
+        Cammithrim              Magic Missile   2d6
+        Paurhach                Fire Bolt       9d8
+        Paurnimmen              Frost Bolt      6d8
+        Pauraegen               Lightning Bolt  4d8
+        Paurnen                 Acid Bolt       5d8
+        Fingolfin               Magic Missile   150
+        Narya                   Fire Ball       120
+        Nenya                   Frost Ball      200
+        Vilya                   Lightning Ball  250
+        
+
+        Attack types light, rock remover, fire, lightning, acid, poison and
+frost are all obvious.
+        Holy orb does the damage given above *1.5 against evil or /9 against
+anything else.
+        Missile does the damage given against everything.
+        Drain Life doen't work against demons or undead.
+
+
+
+
+
+Just to tidy up a couple of points.. Someone said they found a halberd
+{special} , identified it and it was a Holy avenger. Not so, holy
+avengers are only {excellent} and not a named weapon (good tho they
+are) - maybe they got confused but i just wanted to make it clear that
+if you had a special feeling about a level and found boots of speed,
+ring of speed, prayerbook of wrath of god, rod of healing, potion of
+augmentation, power dragonscale armor, holy avenger mace of disruption
+etc. NONE OF THOSE have any relation to the special feeling - as they
+are NOT artifacts (altho you;d have one hell of a character with that
+lot).
+
+Secondly someone mentioned having a cursed thengel (it is a metal cap)
+- it will not be cursed when you find it.. you must read curse armor
+if you want to curse it.
+
+And gorlim is not exactly a tragedy to have missed, it IS a cursed
+helm, and a piece of shit too. I think the guy got mixed up - i just
+wanted to clear things up for anyone who might be confused.
+
+By the way at about 1500 feet nearly every special feeling will be an
+orc or troll pit, but they ARE very nice experience, especially if you
+get in the door way and cast dispel evil/use a staff of dispel evil..
+instant 30k exp for a troll pit in about 10 dispel evils.
+
+The Phial of Galadriel is what Sam(?) used to fatally(?) wound Shelob
+when she attacked frodo, on Angband it's a light source, and once you've
+identified it properly (with the spell or staff etc) you can activate it
+to cast light room spells.
+
+Btw, no, it doesn't do crap to shelob on angband!
+
+
+A weapon artifact won't recharge as a secondary weapon...  This is
+intentional, to stop abuse of artifacts... also if you have items
+in your backpack they do not recharge either (except rods of course)
+
+
+
+     There was a nice moria.man for all the Umoria games, and it listed in 
+   brief form the type, object, and command arguments for the list.  I couldn't
+   find a similar file for Angband, and the only info that I have gotten has
+   come from the one-line display 'Usage: angband [-afnor] [-s<num>] [-u<name>]
+   [-w<uid>] [-d<num>]' and from looking at the source itself.
+
+I was wondering some of the same things myself (along with how to get it
+to let me into wizard mode) and Sean helped me out.  I don't know where
+any of the authors find the time for all of this...
+
+Anyway, here's what I have heard/figured out:
+
+ -a  Peek mode.  Tells you all object created on the level as well as
+     uniques, artifacts, and pits.  Wizards only.
+
+ -f  Fiddle mode.  Allows you to recreate characters and make them
+     playable again.  Wizards only.
+
+ -n  New character???  Not sure exactly, but it allows you to create a
+     new character that will replace the one you were using.  Once you
+     enter this option you are stuck with it.  You can't Ctrl-C out of
+     the character generation process.
+
+ -o  Original commands.  Toggles your prefered keyboard definitions to
+     the original style.  Will stay in original mode until -r option is
+     used.
+
+ -r  Rogue-like commands.  Toggles your prefered keyboard definitions
+     to Rogue-like style.  Again, will stay until -o option is used.
+
+ -s<num>
+     Show only top-<num> scores in score list.
+
+ -u<name>
+     Use character named <name>.  Allows for multiple characters to be
+     played by the same userid (I think)
+
+ -w<uid>
+     Wizard mode.  The -w option, alone, puts you into user mode if your
+     userid matches one of those in the /lib/files/wizards file.  The
+     <uid> argument can be used to specify a different save file from
+     your default save file.  Wizards only.
+
+ -d<num>
+     Delete score.  Deletes score number <num> from the scores file.
+     Wizards only.
+
+
+     Just half an hour taken off for one of the authors of the game to create
+   such a file(based on moria.man) would make it a lot easier for many people.
+
+
+That's what rec.games.moria is for ;).  Seriously, I'm sure all the authors
+are constantly busy.  After all, look at how many people all over the world
+are playing their games and have many questions to ask them.  Like I said
+before, I don't know where the get the time for all of this.  Do any of
+you sleep?
+
+
+>1.	Does the One True Ring exist in the game?  Has anyone found it and
+>found out what it does?
+
+There seems to be some evidence that it may actually be a real artifact,
+though it is of course very rare. Those who find it wield great power, but of
+course they may not be able to control it, and if they get greedy and try
+to gain too much power from it, it may turn against them and destroy them
+utterly. It is rumoured to give the wearer the power to see those things of
+the spirit realm which are usually invisible to the human eye, and to protect
+its wearer from the paralysing spells of the more powerful wizards. The wearer
+will find that all his wounds magically heal and that he can withstand the
+breath of many of the great dragons without batting an eyelid. It is said that
+so great is the desire it inspires in all who see it that no creature can
+stand to see it on anyone's finger but his own, and it sometimes betrays
+its wearers presence to his enemies at the most inconvenient moments. Once it
+is worn, it is said that it can only be removed by cutting it from the finger
+of its wearers corpse. It bestows upon its wearer the incredible combat skills
+and wisdom of the mightiest of kings. Also it gives its wearer the power to
+call down storms of pure magical energy to smite his opponents, and sometimes
+in time of dire need, it can drive away all its masters enemies. But
+beware, for if your thirst for power and destruction becomes too great the
+ring will overwhelm you and turn its power against you, and once this happens
+no power known to the races of Good can save you from its wrath.
+
+
+

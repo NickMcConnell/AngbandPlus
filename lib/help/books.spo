@@ -1,0 +1,294 @@
+
+                         MAGE               RANGER               ROGUE
+			 * Beginners Magic *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Magic Missile        1     1    22       3     1    30      XXXXXXXXXXXXXX
+Detect Monsters      1     1    23       3     2    35       5     1    50
+Phase Door           1     2    24       3     2    35       7     2    55
+Light Area           1     2    26       5     3    35       9     3    60
+Treasure Detection  XXXXXXXXXXXXXX      XXXXXXXXXXXXXX      10     3    60
+Cure Light Wounds    3     3    25       5     3    40      11     4    65
+Object Detection    XXXXXXXXXXXXXX      XXXXXXXXXXXXXX      12     4    65
+Find Traps/Doors     3     3    25       5     4    45      13     5    70
+Stinking Cloud       3     3    27       7     5    40      XXXXXXXXXXXXXX
+ 
+		       * Conjuring and Tricks *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Confusion            3     4    30       7     6    40      15     6    75
+Lightning Bolt       5     4    30       9     7    40      XXXXXXXXXXXXXX
+Trap/Door Destruct   5     5    30       9     8    45      17     7    80
+Sleep I              5     5    30      11     8    40      19     8    85
+Cure Poison          5     5    35      11     9    45      21     9    90
+Teleport Self        7     6    35      13    10    45      22     9    50
+Spear of Light       7     6    35      13    11    55      23    10    95
+Frost Bolt           7     6    40      15    12    50      XXXXXXXXXXXXXX
+Turn Stone to Mud    9     7    44      15    13    50      24    11    70
+ 
+		    * Incantations and Illusions *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Create Food          9     7    45      17    17    55      25    12    95
+Recharge Item I      9     7    75      17    17    90      27    15    99
+Sleep II             9     7    45      21    17    55      XXXXXXXXXXXXXX
+Polymorph Other     11     7    45      21    19    60      XXXXXXXXXXXXXX
+Identify            11     7    75      23    25    90      28    18    50
+Sleep III           13     7    50      23    20    60      XXXXXXXXXXXXXX
+Fire Bolt           15     9    50      25    20    60      XXXXXXXXXXXXXX
+Slow Monster        17     9    50      25    21    65      XXXXXXXXXXXXXX
+ 
+		      * Sorcery and Evocations *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Frost Ball          19    12    55      27    21    65      XXXXXXXXXXXXXX
+Recharge Item II    21    12    90      29    23    95      XXXXXXXXXXXXXX
+Teleport Other      23    12    60      31    25    70      XXXXXXXXXXXXXX
+Haste Self          25    12    65      33    25    75      32    25    70
+Fire Ball           29    18    65      35    25    80      XXXXXXXXXXXXXX
+Destruction         33    21    80      37    30    95      XXXXXXXXXXXXXX
+Genocide            37    25    95      XXXXXXXXXXXXXX      XXXXXXXXXXXXXX
+ 
+		   * Resistance of Scarabtarices *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Resist Fire          4     5    50       8    15    50      10    12    50
+Resist Cold          4     5    50       8    15    50      10    12    50
+Resist Acid          4     5    50       8    15    50      10    12    50
+Resist Poison        8    10    75      16    25    75      15    20    75
+Resistance          15    20    85      25    40    85      25    30    85
+ 
+		      * Mordenkainen's Escapes *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Door Creation        7     7    20       8    17    20       7     7    20
+Stair Creation       9    12    40      19    22    40       9    12    40
+Teleport Level      15    17    60      25    27    60      15    17    60
+Earthquake          20    18    60      30    28    60      XXXXXXXXXXXXXX
+Word of Recall      25    25    75      35    35    75      30    35    75
+ 
+		    * Kelek's Grimoire of Power *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Detect Evil          5     5    50      10    15    50       5     5    50
+Detect Enchantment  10    10    70      15    20    70      10    10    70
+Recharge Item III   25    30    95      35    60    95      35    40    95
+Genocide            30    50    70      XXXXXXXXXXXXXX      XXXXXXXXXXXXXX
+Mass Genocide       40    50    80      XXXXXXXXXXXXXX      XXXXXXXXXXXXXX
+ 
+		     * Tenser's Transformations *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Heroism              5     5    50      10    15    50      10    11    50
+Shield              10    12    75      15    20    75      15    20    75
+Berserker           15    20    80      25    30    80      20    25    80
+Essence of Speed    22    30    50      32    50    50      26    30    50
+Invulnerability     45    70    75      XXXXXXXXXXXXXX      XXXXXXXXXXXXXX
+ 
+		    * Raal's Tome of Destruction *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------    ----------------
+Acid Bolt           10     6    50      20    16    50      13    16    50
+Cloudkill           12     9    60      22    19    60      18    20    60
+Acid Ball           20    15    70      30    25    70      XXXXXXXXXXXXXX
+Ice Storm           27    25    75      37    35    75      XXXXXXXXXXXXXX
+Meteor Swarm        35    35    85      35    45    85      XXXXXXXXXXXXXX
+Hellfire            42    45    95      XXXXXXXXXXXXXX      XXXXXXXXXXXXXX
+ 
+
+ 
+                      PRIEST                PALADIN
+                          * Beginners Handbook *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Detect Evil          1     1    10       1     1    30
+Cure Light Wounds    1     2    15       2     2    35
+Bless                1     2    20       3     3    35
+Remove Fear          1     2    25       5     3    35
+Call Light           3     2    25       5     4    35
+Find Traps           3     3    27       7     5    40
+Det. Doors/Stairs    3     3    27       7     5    40
+Slow Poison          3     3    28       9     7    40
+ 
+                            * Words of Wisdom *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Blind Creature       5     4    29       9     7    40
+Portal               5     4    30       9     8    40
+Cure Medium Wounds   5     4    32      11     9    40
+Chant                5     5    34      11    10    45
+Sanctuary            7     5    36      11    10    45
+Create Food          7     5    38      13    10    45
+Remove Curse         7     6    38      13    11    45
+Resist Heat/Cold     7     7    38      15    13    45
+ 
+                          * Chants and Blessings *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Neutralize Poison    9     6    38      15    15    50
+Orb of Draining      9     7    38      17    15    50
+Cure Ser. Wounds     9     7    40      17    15    50
+Sense Invisible     11     8    42      19    15    50
+Prot. from Evil     11     8    42      19    15    50
+Earthquake          11     9    55      21    17    50
+Sense Surroundings  13    10    45      23    17    50
+Cure Crit. Wounds   13    11    45      25    20    50
+Turn Undead         15    12    50      27    21    50
+ 
+                       * Exorcisms and Dispellings *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Prayer              15    14    50      29    22    50
+Dispel Undead       17    14    55      31    24    60
+Heal                21    16    60      33    28    60
+Dispel Evil         25    20    70      35    32    70
+Glyph of Warding    33    55    90      37    70    90
+Holy Word           39    32    99      39    38    95
+ 
+                           * Ethereal Openings *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Blink                3     3    50       7     7    50
+Teleport            10    10    50      20    20    50
+Teleport Away       20    20    50      25    25    80
+Teleport Level      30    40    75      35    50    75
+Word of Recall      35    50    75      40    60    75
+Alter Reality       40    60    75      45    70    75
+ 
+                             * Godly Insights *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Detect Monsters      3     3    50       5     5    50
+Detection           10    10    80      15    15    80
+Perception          20    20    80      25    25    80
+Probing             25    10    80      30    15    80
+Clairvoyance        35    50    80      37    55    80
+ 
+                       * Purifications and Healing *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Cure Ser. Wounds    15     5    50      17    15    50
+Cure Crit. Wounds   17     7    60      23    25    60
+Healing             30    50    80      35    60    80
+Restoration         35    70    90      40    80    90
+Remembrance         35    70    90      40    80    90
+ 
+                             * Holy Infusions *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ ----------------    ----------------
+Unbarring Ways       5     6    50      10    16    50
+Recharging          15    20    80      25    30    80
+Dispel Curse        25    40    80      30    50    80
+Enchant Weapon      35    50    80      40    70    80
+Enchant Armour      37    60    85      42    80    85
+Elemental Brand     45    95    85      47    95    85
+ 
+                              * Wrath of God *
+Spell              Lvl  Mana  %fail    Lvl  Mana  %fail
+------------------ -----------------    -----------------
+Dispel Undead       15     7    70      20    13    70
+Dispel Evil         20    10    75      30    20    75
+Banishment          25    25    80      30    35    80
+Destruction         35    35    80      40    40    80
+Annihilation        45    60    75      47    70    75
+
+
+
+                      ILLUSIONIST
+               * Illusions for Beginners*
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Confusion            1     1     9
+Detect Monsters      1     1     9
+Phase Door           1     2     9
+Light Area           1     2     9
+Treasure Detect      ?     ?     ?
+Paranoia             3     3     9
+Object Detect        ?     ?     ?
+Find Traps/Doors     3     3     9
+Poisonous Orb        3     3     9
+
+                * Tricks and Visions*
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Infravision          3     4     9
+Sleep                5     4     9
+Trap/Door Destruct   5     5     9
+Fog Cloud            5     5     9
+Fear                 5     5     9
+Remove Curse         7     6     9
+Shadow Door          7     6     9
+Shadow Monster       7     6     9
+Turn Stone to Mud    9     7     9
+
+             * Phantasms and Illusions *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Detect Invisible     9     7     9
+Recharge Item I      9     7     9
+Hypnosis             9     7     9
+Cure Body & Mind    11     7     9
+Chaos               11     7     9
+Resist Heat & Cold  13     7     9
+True Sight          15     9     9
+Slow Monster        17     9     9
+
+                * Shadows and Prisms *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Shadow Ball         19    12     9
+Terror              21    12    45
+Resist Poison/Acid  23    12    21
+Shadow Dust         25    12    32
+Prismatic Wall      29    18    74
+Prismatic Spray     33    21    95
+Chromatic Shield    37    25    95
+
+               * Knowledge of Kenault *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Detect Door/Stairs   7     7     9
+Detect Treasure      9    12     9
+Detect Monsters     15    17    22
+Detect Enchantment  20    18    42
+Probing             25    25    95
+
+                 * Bigby's Handbook *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Bigby's Inter Hand  10     6     9
+Bigby's Phant Hand  12     9     9
+Bigby's Force Hand  20    15    37
+Bigby's Grasp Hand  27    25    95
+Bigby's Clench Fist 35    35    95
+Bigby's Crush Hand  42    45    95
+
+
+                 * Otiluke's Spheres *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Sphere of Light      5     5     9
+Sphere of Dark      10    10     9
+Sphere of Confusion 25    30    95
+Sphere of Chaos     30    50    95
+Sphere of Sound     40    75    95
+
+                * Serten's Immunities *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Protect f/ Fire      4     5     9
+Protect f/ Cold      4     5     9
+Protect f/ Acid      4     5     9
+Protect f/ Poison    8    10     9
+Protect f/ Evil     15    20    62
+
+             * Boccob's Book of Shadows *
+Spell              Lvl  Mana  %fail
+------------------ ---------------- 
+Shadow Doors         5     5     9
+Shadow Monsters     10    12     9
+Shadow Ball         15    20    57
+Shadow Dust         22    30    95
+Shadow Gate         45    70    95
+
+

@@ -1,0 +1,425 @@
+Spoiler File -- Magic and Spells (out of date)
+
+
+What is in this file:
+
+  Effects of every mage and priest spell
+  Effects of every staff/wand/rod
+
+For a listing of mana costs and failure rates, see "books.spo"
+To see how intelligence/wisdom affect spells, see "stats.spo"
+
+For a complete listing of objects, see "obj-long.spo"
+
+
+MAGICAL SPELLS 
+--------------
+
+SPELL EFFECTS
+
+Mage
+
+Spell              | Effect
+-------------------|------------------------------------------------------------
+Magic Missile      | Magic, no resistance; Damage 2d6
+Detect Monsters    | Displays all non-invisible monsters on screen for one move
+Phase Door         | Teleport - Range 10 squares
+Light Area         | Lights area around player
+Treasure Detection | Displays all treasure on screen
+Cure Light Wounds  | Heals 4d4 and light cuts
+Object Detection   | Displays all objects on screen
+Find Traps/Doors   | Displays all secret doors, traps, and staircases on screen
+Stinking Cloud     | Poison Ball; Damage 10 + (level/2)
+-------------------|------------------------------------------------------------
+Confusion          | Attempts to confuse one non-unique monster
+Lightning Bolt     | Lightning; Damage (3+((level-5)/4))d8
+Trap/Door Destruct | Destroys all doors and traps within one square of player
+Sleep I            | Attempts sleeping one non-unique monster
+Cure Poison        | Cures poison
+Teleport Self      | Teleport - Range level*5 squares
+Spear of Light     | Lights up a line; Damage 6d8 to light-sensitive creatures
+Frost Bolt         | Cold; Damage (5+((level-5)/4))d8
+Turn Stone to Mud  | Turns one rock (or door) square to a floor square
+-------------------|------------------------------------------------------------
+Create Food        | Creates one pint of fine grade mush; Nutrition 7/10 Ration
+Recharge Item I    | 1/((105-(wand level)-(10*num charges left))/15) failure
+Sleep II           | Attempts sleeping non-uniques adjacent to player
+Polymorph Other    | Polymorphs one monster into another one
+Identify           | Identifies one object in pack or equipment
+Sleep III          | Attempts sleeping all non-uniques in sight
+Fire Bolt          | Fire; Damage (8+((level-5)/4))d8
+Slow Monster       | May slow one non-unique; (target level) < (level+10)
+-------------------|------------------------------------------------------------
+Frost Ball         | Cold Ball; Damage (30+level)
+Recharge Item II   | 1/((140-(wand level)-(10*num charges left))/15) failure
+Teleport Other     | Teleports all creatures in a given direction away
+Haste Self         | +1 Speed for (level+d20) turns
+Fire Ball          | Fire Ball; Damage (55+level)
+Word of Destruction| Destroys everything within 15 squares; blinds player
+Genocide           | Removes one monster type from level; TAKE 1d4 hp/monster
+-------------------|------------------------------------------------------------
+Resist Fire        | Resistance to Fire for 20+d20 turns
+Resist Cold        | Resistance to Cold for 20+d20 turns
+Resist Acid        | Resistance to Acid for 20+d20 turns
+Resist Poison      | Resistance to Poison for 20+d20 turns
+Resistance         | Resistance to the four above+Lightning for d20+20 turns
+-------------------|------------------------------------------------------------
+Door Creation      | Creates doors in every empty space adjacent to player
+Stair Creation     | Creates a staircase (up/down random) on player square
+Teleport Level     | Teleports player one level up/down (random)
+Earthquake         | Rearranges rock and floor within 8 squares; Damage 4d8
+Word of Recall     | Recalls player to town/deepest level in 25+d30 turns
+-------------------|------------------------------------------------------------
+Detect Evil        | Displays all evil creatures on screen for one turn
+Detect Enchantment | Displays all enchanted objects on screen
+Recharge Item III  | 1/((200-(wand level)-(10*num charges left))/15) failure
+Genocide           | Same as the other one but easier to cast
+Mass Genocide      | Removes all monsters within 20 squares; TAKE 1d3 hp/monster
+-------------------|------------------------------------------------------------
+Heroism            | +12 to hit/+10 HP for 25+d25 turns
+Shield             | +50 AC for 30+d20 turns
+Berserker          | +24 to hit/+30 HP/-10 AC for 25+d25 turns
+Essence of Speed   | +1 to Speed for 30+d30+level turns
+Invulnerability    | +100 AC/Immune to all attacks under 9000 hp for 6+d8 turns
+-------------------|------------------------------------------------------------
+Acid Bolt          | Acid; Damage (6+((level-5)/4))d8
+Cloudkill          | Poison Ball; Damage 40 + level/2
+Acid Ball          | Acid Ball; Damage 40 + level
+Ice Storm          | Cold Ball; Damage 70 + level
+Meteor Swarm       | Magic Ball, no resistance; Damage 65 + level
+Hellfire           | Holy Orb; Damage 600 vs Evil / 300 vs non-Evil
+-------------------|------------------------------------------------------------
+
+Priest
+
+Spell              | Effect
+-------------------|------------------------------------------------------------
+Detect Evil        | Displays all evil creatures on screen for one turn
+Cure Light Wounds  | Heals 3d3 and grazes
+Bless              | +10 to hit/+5 AC for 12+d12 turns
+Remove Fear        | Removes "Afraid" from status line
+Call Light         | Lights area around player
+Find Traps         | Displays all traps on screen
+Det. Doors/Stairs  | Displays all secret doors/stairs on screen
+Slow Poison        | Halves the time the poison lasts, rounding down
+-------------------|------------------------------------------------------------
+Blind Creature     | Attempts to confuse one non-unique monster
+Portal             | Teleport - Range level*3
+Cure Medium Wounds | Heals 4d4 and light cuts
+Chant              | +10 to hit/+5 AC for 24+d24 turns
+Sanctuary          | Attempts sleeping adjacent non-unique monsters
+Create Food        | Creates one pint of fine grade mush; Nutrition 7/10 Ration
+Remove Curse       | Removes non-heavily cursed items
+Resist Heat/Cold   | Resistance to Fire/Cold for 10+d10 turns
+-------------------|------------------------------------------------------------
+Neutralize Poison  | Cures poison
+Orb of Draining    | Holy Orb; Damage (3d6+level) (double damage vs Evil)
+Cure Ser. Wounds   | Heals 8d4 and all wounds
+Sense Invisible    | Displays invisible creatures for 24+d24 turns
+Prot. from Evil    | Affects evil creatures<=player level for 3*level+d25 turns
+Earthquake         | Rearranges rock and floor within 8 squares; Damage 4d8
+Sense Surroundings | Maps the current screen and up to 20 squares in each dir
+Cure Crit. Wounds  | Heals 16d4 and all wounds
+Turn Undead        | Attempts to confuse all undead creatures within sight
+-------------------|------------------------------------------------------------
+Prayer             | +10 to hit/+5 AC for 48+d48 turns
+Dispel Undead      | Damage 1 to (3*level) to all undead within sight
+Heal               | Heals 200, stunning, and all wounds
+Dispel Evil        | Damage 1 to (3*level) to all evil within sight
+Glyph of Warding   | Creates a glyph which monsters must break to walk over
+Holy Word          | Heal(1000)/Remove Fear/Cure Poison/Dispel Evil(4*level)
+-------------------|------------------------------------------------------------
+Blink              | Teleport - Range 10 squares
+Teleport           | Teleport - Range 8*level
+Teleport Away      | Teleports all creatures in a given direction away
+Teleport Level     | Teleports player one level up/down (random)
+Word of Recall     | Recalls player to town/deepest level in 25+d30 turns
+Alter Reality      | Recreates the current level
+-------------------|------------------------------------------------------------
+Detect Monsters    | Displays all non-invisible monsters on screen for one move
+Detection          | Detects Traps/Objects/Doors/Stairs/Monsters/Evil/Invisible
+Perception         | Identifies one item in pack or equipment
+Probing            | Displays exact health status of all monsters in sight
+Clairvoyance       | Maps and lights up the whole level (wizard light)
+-------------------|------------------------------------------------------------
+Cure Ser. Wounds   | Same as before but cheaper to cast
+Cure Crit. Wounds  | Same as before but cheaper to cast
+Healing            | Heals 2000, stunning and all wounds
+Restoration        | Restores all drained stats to original values
+Remembrance        | Restores XP drained
+-------------------|------------------------------------------------------------
+Unbarring Ways     | Destroys all traps/doors adjacent to player
+Recharging         | 1/((115-(wand level)-(10*num of charges left))/15) failure
+Dispel Curse       | Removes all Cursed and Heavily Cursed items
+Enchant Weapon     | Enchants wielded weapon to-hit and to-damage 4 times each
+Enchant Armour     | Enchants one worn piece of armor once (as the scroll)
+Elemental Brand    | Enchants wielded, ordinary weapon to be a Flame/Frost Brand
+-------------------|------------------------------------------------------------
+Dispel Undead      | Same as before but cheaper and Damage 1 to 4*level
+Dispel Evil        | Same as before but cheaper and Damage 1 to 4*level
+Banishment         | Teleports all evil in sight up to 100 squares away
+Word of Destruction| Destroys everything within 15 squares/blinds player
+Annihilation       | Drain life, undead resist; Damage 200 hp 
+-------------------|------------------------------------------------------------
+
+Note : level = player level unless otherwise stated
+
+Casting a spell without enough mana has a 1/3 chance of damaging your health.
+
+
+
+MAGICAL DEVICES
+---------------
+
+Order of the magical devices is based not on depth, recharge time, or power, 
+but in the code.  This is necessary for certain items such as the Wand of 
+Wonder, which will not reproduce certain wand effects.
+
+In addition, some items appear frequently at more than one depth.  When such a
+conflict occurs, the minimum depth is given.  The other depths may be found
+in Tom Swingle's item spoiler.
+
+When the device effect is similar to a spell, the class and spell will be given,
+with damage/duration filling in the numbers applicable to the spell.
+
+Example: Staff of Holiness -> Priest - Holy Word(60/50) + Prot f Evil
+	 means throws the equivalent of a priestly holy word which Heals (60)
+	 and Dispel Evil (50).  Heal is a priest spell which cures stunning and
+	 wounds.  Dispel Evil is another priest spell which does 50 damage to
+	 all evil in sight.  The other effects of Holy Word are Remove Fear and
+	 Cure Poison, also priest spells which are indexed.  So, the staff does
+	 all of the above when activated, plus the priest spell Protection from
+	 Evil.
+
+RODS
+
+Rods are activated by "z"ap (original keys) or "a"ctivate (rogue-like keys).
+
+--------------------------------------------------------------------------------
+| Rod Type           | Depth  | R Time | Spell Effect (damage or duration)
+--------------------------------------------------------------------------------
+| Trap Location      |   ???  |   ??   | Priest - Detect Traps
+| Door/Stair Location|   ???  |   ??   | Priest - Detect Doors/Stairs
+| Light              |   600  |    9   | Mage - Spear of Light (6d8)
+| Lightning Bolts    |  1000  |   11   | Mage - Lightning Bolt (3d8)
+| Frost Bolts        |  1150  |   13   | Mage - Frost Bolt (5d8)
+| Fire Bolts         |  1450  |   15   | Mage - Fire Bolt (8d8)
+| Polymorph          |  1750  |   25   | Mage - Polymorph Other
+| Slow Monster       |  1600  |   20   | Mage - Slow Monster
+| Sleep Monster      |  1650  |   18   | Mage - Sleep I
+| Drain Life         |  3750  |   23   | Priest - Annihilation (75)
+| Teleport Away      |  2250  |   25   | Mage - Teleport Other
+| Disarming          |  2250  |   30   | Mage - Trap/Door Destruction(one dir)
+| Lightning Balls    |  2750  |   23   | Ball of Lightning (32)
+| Cold Balls         |  3000  |   25   | Mage - Frost Ball (48)
+| Fire Balls         |  3750  |   30   | Mage - Fire Ball (72)
+| Acid Balls         |  3500  |   27   | Mage - Acid Ball (60)
+| Acid Bolts         |  1900  |   12   | Mage - Acid Bolt (6d8)
+| Enlightenment      |  3150  |   99   | Priest - Sense Surroundings.
+| Perceptions        |  2450  |   10   | Priest - Perceptions / Mage - Identify
+| Curing             |  3250  |  888   | Cure Blind, Poison, Conf, Stun, Cuts
+| Healing            |  3850  |  888   | Priest - Healing(500)
+| Detection          |  1500  |   99   | Priest - Detection
+| Restoration        |  4000  |  999   | Priest - Restoration
+| Speed              |  4950  |   99   | Mage - Haste Self (d30 + 15 turns)
+| Illumination       |  1000  |   30   | Mage - Light Area / Priest - Call Light
+| Probing            |  2000  |   50   | Priest - Probing
+| Recall             |  1500  |   60   | Mage/Priest - Word of Recall 
+--------------------------------------------------------------------------------
+
+
+STAVES
+
+Staves are activated by "u"sing (original keys) or "Z"apping (rogue keys).
+
+--------------------------------------------------------------------------------
+| Staff Type         | Depth  | Charge | Spell Effect (damage or duration)
+--------------------------------------------------------------------------------
+| Light              |   250  | 12+d20 | Mage - Light Area / Priest - Call Light
+| Door/Stair Location|   500  |  6+d8  | Priest - Detect Doors/Stairs
+| Trap Location      |   500  |  6+d5  | Priest - Find Traps
+| Treasure Location  |   250  | 12+d20 | Rogue - Treasure Detection
+| Object Location    |   250  |  6+d15 | Rogue - Object Detection
+| Teleportation      |  1000  |  5+d4  | Mage - Teleport Self (100 squares)
+| Earthquakes        |  2000  |  3+d5  | Priest/Mage - Earthquake
+| Summoning          |   500  |  1+d3  | Summons 1 to 4 monsters
+| *Destruction*      |  2500  |  1+d3  | Priest/Mage - Word of Destruction
+| Starlight          |  1000  |  6+d5  | Mage - Spear of Light (6d8) in all dir
+| Haste Monsters     |   500  | 12+d10 | +1 Speed to all monsters nearby
+| Slow Monsters      |   500  |  6+d5  | -1 Speed to all monsters nearby
+| Sleep Monsters     |   500  |  6+d5  | Mage - Sleep III
+| Cure Light Wounds  |   250  |  6+d5  | Priest - Cure Light Wounds(1d8)
+| Detect Invisible   |   250  | 12+d10 | Priest - Sense Invisible
+| Speed              |  2000  |  4+d3  | Mage - Haste Self (d30+15 | d5)
+| Slowness           |  2000  |  6+d5  | -1 Speed for (d30+15) turns
+| Remove Curse       |  2350  |  4+d3  | Priest - Remove Curse
+| Detect Evil        |  1000  | 12+d10 | Priest/Mage - Detect Evil
+| Curing             |  1250  |  4+d3  | Cure Blind, Poison, Conf, Stun, Cuts
+| Dispel Evil        |  2450  |  4+d3  | Priest - Dispel Evil (60)
+| Darkness           |   250  |  6+d10 | Darkens area
+| Genocide           |  3500  |  1+d2  | Mage - Genocide
+| Power              |  3500  |  1+d3  | Dispel all in sight for 120 hp damage
+| the Magi           |  3500  |  2+d2  | Restore Mana and INT
+| Perceptions        |   500  | 15+d5  | Priest - Perception / Mage - Identify
+| Holiness           |  3500  |  2+d2  | Priest - Holy Word(60/50) + Prot f Evil
+| Enlightenment      |  1100  |  5+d5  | Priest - Sense Surroundings
+| Healing            |  3500  |  1+d2  | Priest - Healing(300)
+| Probing            |  1500  |  2+d6  | Priest - Probing
+--------------------------------------------------------------------------------
+
+
+WANDS
+
+Wands are activated by "a"iming (original keys) or "z"apping (rogue keys).
+
+--------------------------------------------------------------------------------
+| Wand Type          | Depth  | Charge | Spell Effect (damage or duration)
+--------------------------------------------------------------------------------
+| Light              |   100  |  6+d10 | Mage - Spear of Light (6d8)
+| Lightning Bolts    |   750  |  6+d8  | Mage - Lightning Bolt (3d8)
+| Frost Bolts        |  1000  |  6+d5  | Mage - Frost Bolt (4d8)
+| Fire Bolts         |  1500  |  6+d8  | Mage - Fire Bolt (6d8)
+| Stone to Mud       |   600  |  3+d4  | Mage - Stone to Mud
+| Polymorph          |  1000  |  6+d8  | Mage - Polymorph Other
+| Heal Monster       |   100  | 12+d20 | Heals monster (4d6)
+| Haste Monster      |   100  | 12+d20 | +1 speed to monster
+l Slow Monster       |   100  |  6+d10 | Mage - Slow Monster
+| Confuse Monster    |   100  |  6+d12 | Mage - Confusion
+| Sleep Monster      |   350  | 12+d10 | Mage - Sleep I
+| Drain Life         |  2500  |  3+d3  | Priest - Annihilation (75)
+| Trap/Door Destruct |   600  |  6+d8  | Mage - Trap/Door Destruction
+| Magic Missile      |   100  |  6+d10 | Mage - Magic Missile (2d6)
+| Clone Monster      |   750  |  3+d5  | Clones monster
+| Teleport Away      |  1000  |  6+d5  | Mage - Teleport Other
+| Disarming          |  1000  |  4+d5  | Mage - Trap/Door Destruction (line)
+| Lightning Balls    |  1750  |  4+d8  | Ball of Lightning (32)
+| Cold Balls         |  2000  |  2+d6  | Mage - Frost Ball (48)
+| Fire Balls         |  2500  |  2+d4  | Mage - Fire Ball (72)
+| Stinking Cloud     |   250  |  6+d8  | Mage - Stinking Cloud (12)
+| Acid Balls         |  2400  |  2+d5  | Mage - Acid Ball (60)
+| Wonder             |   100  | 12+d12 | Any wand effect above, at random
+| Dragon's Flame     |  2500  |  1+d3  | Mage - Fire Ball (100)
+| Dragon's Frost     |  2500  |  1+d3  | Mage - Ice Storm (80)
+| Dragon's Breath    |  2500  |  1+d3  | Ball of Fire(100)/Ice(80)/Acid(90)/
+|                    |        |        | Lightning(70)/Poison(70), at random
+| Annihilation       |  2500  |  1+d2  | Priest - Annihilation (125)
+| Acid Bolts         |  1500  |  6+d8  | Mage - Acid Bolt (5d8)
+--------------------------------------------------------------------------------
+
+
+
+
+=== Another Version of the Damage Listing ===
+
+        Spell name              Attack type     Damage
+
+    Mage spells:
+        Magic Missile           Missile         2d6
+        Stinking Cloud          Poison          10+(level/2)
+        Lightning Bolt          Lightning       (3+((level-5)/4))d8
+        Frost Bolt              Frost           (5+((level-5)/4))d8
+        Spear of Light          Light           6d8
+        Stone to Mud            Rock remover    20+randint(30)
+        Fire Bolt               Fire            (8+((level-5)/4))d8
+        Frost Ball              Frost           30+level
+        Fire Ball               Fire            55+level
+        Acid Bolt               Acid            (6+((level-5)/4))d8
+        Cloud Kill              Poison          40+(level/2)
+        Acid Ball               Acid            40+level
+        Ice Storm               Frost           70+level
+        Meteor Swarm            Missile         65+level
+        Hellfire                Holy orb        300
+
+    Priest spells:
+        Orb of Draining         Holy orb        3d6+level
+        Dispel Undead           Dispel undead   3*level
+        Dispel Evil             Dispel evil     3*level
+        Holy Word               Dispel evil     4*level
+        Dispel Undead (WOG)     Dispel undead   4*level
+        Dispel Evil (WOG)       Dispel evil     4*level
+        Annihilation            Drain life      200
+
+    Wands:
+        Light                   Light           6d8
+        Dragon's Fire           Fire            100
+        Dragon's Frost          Frost           80
+        Dragon's Breath         Fire/Frost/Acid 100/80/90
+                                Lighning/Poison 70/70
+        Acid Bolts              Acid            5d8
+        Lightning Bolts         Lightning       3d8
+        Frost Bolts             Frost           4d8
+        Fire Bolts              Fire            6d8
+        Stone to Mud            Rock remover    20+randint(30)
+        Drain Life              Drain life      75
+        Annihilation            Drain life      125
+        Magic Missiles          Missile         2d6
+        Lightning Balls         Lightning       32
+        Frost Balls             Frost           48
+        Fire Balls              Fire            72
+        Stinking Cloud          Poison          12
+        Acid Balls              Acid            60
+        
+    Rods:
+        Light                   Light           6d8
+        Acid Bolts              Acid            6d8
+        Lightning Bolts         Lightning       3d8
+        Frost Bolts             Frost           5d8
+        Fire Bolts              Fire            8d8
+        Drain Life              Drain life      75
+        Lightning Balls         Lightning       32
+        Frost Balls             Frost           48
+        Fire Balls              Fire            72
+        Acid Balls              Acid            60
+
+    Staffs:
+        Holiness                Dispel evil     120
+        Power                   Dispel creature 120
+        Dispel Evil             Dispel evil     60
+        Starlight               Light           6d8
+
+    Items/Artifacts:
+        Blue Dragon Scale Mail  Lightning       100
+        White Dragon Scale Mail Frost           110
+        Black Dragon Scale Mail Acid            130
+        Green Dragon Scale Mail Poison          150
+        Red Dragon Scale Mail   Fire            200
+        Multi-Hued Dragon SM    All of above    250
+        Bronze Dragon SM        Missile         120
+        Gold Dragon Scale Mail  Missile         130
+        Chaos Dragon Scale Mail Missile         220
+        Law Dragon Scale Mail   Missile         230
+        Balance Dragon SM       Missile         250
+        Shining Dragon SM       Missile         200
+        Power dragon Scale Mail Missile         300
+        Amulet of Ingwe         Dispel evil     5*level
+        Narthanc                Fire Bolt       9d8
+        Nimthanc                Frost Bolt      6d8
+        Dethanc                 Lightning Bolt  4d8
+        Rilia                   Stinking Cloud  12
+        Belangil                Frost Ball      48
+        Ringil                  Ice Storm       100
+        Anduril                 Fire Ball       72
+        Firestar                Fire Ball       72
+        Theoden                 Drain Life      120
+        Turmil                  Drain Life      90
+        Arunruth                Frost Bolt      12d8
+        Aeglos                  Frost Ball      100
+        Orome                   Stone to Mud    20+randint(30)
+        Cammithrim              Magic Missile   2d6
+        Paurhach                Fire Bolt       9d8
+        Paurnimmen              Frost Bolt      6d8
+        Pauraegen               Lightning Bolt  4d8
+        Paurnen                 Acid Bolt       5d8
+        Fingolfin               Magic Missile   150
+        Narya                   Fire Ball       120
+        Nenya                   Frost Ball      200
+        Vilya                   Lightning Ball  250
+        
+
+        Attack types light, rock remover, fire, lightning, acid, poison and
+frost are all obvious.
+        Holy orb does the damage given above *1.5 against evil or /9 against
+anything else.
+        Missile does the damage given against everything.
+        Drain Life doen't work against demons or undead.
+

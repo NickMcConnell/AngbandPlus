@@ -1,0 +1,13 @@
+Bug and/or Fixes as of Kangband282c
+
+- Problem in Kang281a where gambling house would mess up your gold depending on
+size of wager.  This has been fixed.
+
+- Problem in Kang281a and Kang282b where you would sometimes end up trapped in a
+wall after exiting a level or the arena.  This has been fixed.
+
+- Problem in Kang281a and Kang282b where the gambling hall game "In-between" was
+rigged in favor of player.  This has been tweaked so it is more in line with traditional
+gambling - i.e. you may win but you will lose more often unless very lucky.
+
+- The quest depth would affect the word of recall depth - this has been fixed.

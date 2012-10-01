@@ -1,0 +1,561 @@
+OBJ-GOOD.SPO, version 2.30, for Angband 2.7.9v6 (all systems)
+Release Date : September 2, 1996
+
+The authors of this spoiler file are:
+Original 2.7.8 spoilers: Stephen S. Lee (lee9@fas.harvard.edu)
+2.7.9 Update: Leonard Dickens (leonard@alw.nih.gov)
+
+Note: This spoiler was written for Angband version 2.7.9v6.  This spoiler
+may be inaccurate for older versions of Angband.  If you are using a
+version older than 2.7.9v1, there are better spoilers available.
+
+
+(1) THE GENERATION OF GOOD ITEMS, GREAT ITEMS, AND ARTIFACTS
+    --------------------------------------------------------
+
+(1.0) Definitions
+
+The "object generation level" (ObGenLev) is generally equal to the current
+dungeon level (if the object is generated during the generation of a new
+dungeon level) or the average of the current dungeon level and the level of
+the monster (if the object is part of the treasure carried by a monster your
+character has slain).  Exceptions to this rule include objects in chests and
+in vaults; chests have their ObGenLev set at the time of the creation of the
+chest, and objects generated in vaults get bonuses to their ObGenLev.  For
+more details see OBJ-LONG.SPO and DUNGEON.SPO respectively.  (Another
+exception is objects that are guaranteed to be of at least good quality; see
+below for details on this.)
+
+A "good" item is a weapon or armor item with a small magical boost to its
+primary function.  A good weapon has from +1 to +10 to hit and +1 to +10 to
+damage above the base enchantment level for its type (which is almost always
+(+0,+0).  Good armor has +1 to +10 to AC above its base enchantment level,
+which again is almost always +0.
+
+A "great" item is a weapon or armor item with special properties in
+addition to magical enhancements to its base function.  Great items are also
+referred to in this document as "excellent", and you may also see them called
+"ego items" in various other places.
+
+
+(1.1) The normal creation sequence
+
+When a weapon or a piece of armor is generated, it may pass a "goodness roll"
+to become a good item.  This is a percentage roll with the percent chance of
+success being equal to 10+ObGenLev, with a maximum of 75.
+
+If an object passes its goodness roll, it may then attempt a "greatness roll"
+to become a great item.  This is a second percentage roll with the percent
+chance of success being equal to the goodness chance divided by 2, with a
+maximum of 20.
+
+Here is a table showing the probability of an object being good, and the
+probability of it being great, at various object generation levels.
+
+ObGenLev    % good        % great
+------------------------------------------
+     0         10%         0.5
+     5         15%         1.05
+    10         20%         2.0
+    15         25%         3.0
+    20         30%         4.5
+    25         35%         5.95
+    30         40%         8.0
+    35         45%         9.0
+    40         50%        10.0
+    45         65%        11.0
+    50         60%        12.0
+    55         65%        13.0
+    60         70%        14.0
+   65+         75%        15.0
+
+If an object passes the greatness roll, and it is not being generated in the
+town, and there exists an artifact (of the same type of object) that does not
+yet exist, it then has a chance to become an artifact.  To do this, it must
+first pass the artifact rarity roll, which succeeds 1 time in the artifact's
+rarity rating.  Each artifact also has a "minimum level" for creation; if the
+current dungeon level is less than this value, then to become an artifact the
+object must pass a second rarity roll with a success rate of 1 in two times
+the difference between the current dungeon level and the artifact minimum
+level.  If it passes both tests, the object subsequently becomes the chosen
+artifact.  (For more information on artifacts, including the rarity ratings
+and minimum level for each individual artifact, see ARTIFACT.SPO.)
+
+
+(1.2) Generation of guaranteed good objects
+
+Sometimes the game generates an object that is guaranteed to be good.  This is
+true of the treasure of most uniques and some powerful monsters, and also some
+objects created in greater vaults.  Good object creation uses an ObGenLev
+equal to the normal ObGenLev for that circumstance, plus 10.  When a good
+object is created, the game first attempts to create one of the special
+artifacts 10% of the time (see below for more details).  If no special
+artifact is created, the game will randomly generate objects until it creates
+a good object.  Good objects include only weapons/ammo and armor (excluding
+sling ammo, rusty chain mail, filthy rags, and broken daggers/swords), the ten
+advanced spellbooks, rings of speed, and amulets of the magi.  The item then
+proceeds through the normal item creation sequence, automatically passing the
+goodness roll (for weapons/armor) and retaining the boosted ObGenLev.
+
+
+(1.3) Generation of guaranteed great objects
+
+Additionally, sometimes an object will be created that will automatically be
+either a great item or an artifact.  This occurs for the treasure drops of the
+uniques Wormtongue, Tiamat, Cantoras, Feagwath, Gothmog, Sauron, and Morgoth;
+for the treasure drops of powerful ghosts [needs checking]; for objects
+created by a Scroll of Acquirement or *Acquirement*; and for some objects
+created in greater vaults.  In this case, the game will follow the same
+procedure as for the creation of a guaranteed good object, with two
+differences: (1) the object will automatically pass the greatness roll as well
+as the goodness roll; (2) the object has an increased chance of becoming an
+artifact, making four rarity rolls of which only one must succeed.
+
+
+(1.4) Generation of the special artifacts
+
+The "special" artifacts comprise the artifact light sources, rings, and
+amulets.  When the game attempts to create a special artifact, it runs through
+a list of all the special artifacts that do not yet exist; each item in the
+list undergoes a rarity check and a minimum depth check similar to that of the
+normal weapon and armor artifacts.  If these checks succeed then that artifact
+is created; otherwise the game then goes to the next artifact in the list
+until the list is exhausted or a special artifact is created.
+
+
+(2) A LISTING OF EXCELLENT OBJECT TYPES
+    -----------------------------------
+
+(2.0) NOTES AND DEFINITIONS
+
+In the listing for great items which follows, keep in mind that all great
+items get all the bonuses that good items get.  If a bonus to-hit, to-dam or
+to AC is given for a great item, that bonus is in addition to the good item
+bonus.
+
+All artifacts, all great items, and certain other items can affect the rating
+of a level.  The ratings for all objects that increase a dungeon level's
+rating are given below.  How this works is discussed at length in the
+DUNGEON.SPO spoiler file.
+
+A "sustain" is one of the following: sustain strength, sustain intelligence,
+sustain wisdom, sustain dexterity, sustain constitution, or sustain charisma;
+all with equal probability.
+
+A "high resist" (or sometimes, "power") is resistance to one of the following:
+blindness, chaos, confusion, disenchantment, nether, nexus, poison, shards, or
+sound; all with equal probability.
+
+An "ability" is one of the following: feather falling, free action, hold life,
+permanent light (radius 1), regeneration, see invisible, slow digestion, or
+telepathy; all with equal probability.
+
+An item that has resist fire/cold/acid/lightning always has ignore
+fire/cold/acid/lightning as well.  An item with "ignore X" cannot be affected
+by X attacks, but offers no extra protection to the user.
+
+The notation "XdY" indicates a number obtained by rolling an Y-sided die X
+times.  (Thus 4d6 indicates a number from 4 to 24.)
+
+The notation MB(M) indicates an integer between 0 and M inclusive that
+is dependent on dungeon depth and has a normal distribution that is
+centered about M*(Object Generation Level/127), and a standard deviation
+of M/4 (subject to the range constraints).
+
+The notation "xdY(1 in Z)" indicates a number obtained by rolling a Y-sided
+die x times.  x is equal to the number of times the 1 in Z is chance is made,
+until failure.  Thus xd4(1 in 10) translates to: 0 (90% chance), 1d4 (9%
+chance), 2d4 (0.9% chance), 3d4 (0.09% chance) ... There is no limit, so
+theoretically it is possible to get maxint, but don't count on it :-).
+
+
+(2.1) GOOD AND GREAT ARMOR
+      --------------------
+
+(2.1.0) General
+
+"Armor" consists of body armor (including dragon scale mail), shields, crowns,
+helmets, cloaks, gloves, and boots.  All good armor items get a bonus to AC of
++1d5+MB(5).  All great armor items get an additional bonus of +MB(10).
+
+
+(2.1.1) Dragon Scale Mail
+
+Dragon Scale Mail (DSM) has a base enchantment of +10 to AC (or +15 if the
+armor is Power DSM).  Good and great DSM add to this normally, so that a great
+Power DSM could theoretically be found with +35 to AC.
+
+Each suit of dragon armor always adds 30 to the rating of a level.
+
+
+(2.1.2) Body Armor
+
+If the item is a robe, it has a 1 in 10 chance of being a Robe of Permanence.
+
+Robe of Permanence [2,+1d10]
+  Rating +30; Price Bonus +30000
+  One High Resist; Resist Acid, Lightning, Fire, Cold
+  Hold Life; Sustain All Stats
+
+Otherwise:
+
+Armor of Resist Acid [X,+0]                                    Prob: 4 in 19
+  Rating +16; Price Bonus +1000
+  Resist Acid; Ignore Acid
+
+Armor of Resist Lightning [X,+0]                               Prob: 4 in 19
+  Rating +10; Price Bonus +400
+  Resist Lightning; Ignore Lightning
+
+Armor of Resist Fire [X,+0]                                    Prob: 4 in 19
+  Rating +14; Price Bonus +800
+  Resist Fire; Ignore Fire
+
+Armor of Resist Cold [X,+0]                                    Prob: 4 in 19
+  Rating +12; Price Bonus +600
+  Resist Cold; Ignore Cold
+
+Armor of Resistance [X,+1d10]                                  Prob: 2 in 19
+  Rating +20; Price Bonus +12500
+  Resist Acid, Lightning, Fire, Cold
+
+Armor of Elvenkind [X,+1d10] (+1d3)                            Prob: 1 in 19
+  Rating +25; Price Bonus +15000
+  Stealth
+  One High Resist; Resist Acid, Lightning, Fire, Cold
+
+
+(2.1.3) Shields
+
+Shield of Resist Acid [X,+0]                                   Prob: 1 in 10
+  Rating +16; Price Bonus +1000
+  Resist Acid; Ignore Acid
+
+Shield of Resist Lightning [X,+0]                              Prob: 3 in 10
+  Rating +10; Price Bonus +400
+  Resist Lightning; Ignore Lightning
+
+Shield of Resist Fire [X,+0]                                   Prob: 2 in 10
+  Rating +14; Price Bonus +800
+  Resist Fire; Ignore Fire
+
+Shield of Resist Cold [X,+0]                                   Prob: 3 in 10
+  Rating +12; Price Bonus +600
+  Resist Cold; Ignore Cold
+
+Shield of Resistance [X,+1d10]                                 Prob: 1 in 10
+  Rating +20; Price Bonus +12500
+  Resist Acid, Lightning, Fire, Cold
+
+
+(2.1.4) Crowns
+
+Crown of the Magi [X,+0] (+1d3)                                Prob: 1 in 8
+  Rating +15; Price Bonus +7500
+  Intelligence; Sustain Int
+  One Ability; Resist Acid, Lightning, Fire, Cold
+
+Crown of Might [X,+0] (+1d3)                                   Prob: 1 in 8
+  Rating +19; Price Bonus +2000
+  Strength; Dexterity; Constitution
+  Free Action; Sustain Str, Dex, Con
+
+Crown of Lordliness [X,+0] (+1d3)                              Prob: 2 in 8
+  Rating +17; Price Bonus +2000
+  Wisdom; Charisma; Sustain Wis, Chr
+
+Crown of Telepathy [X,+0]                                      Prob: 1 in 8
+  Rating +20; Price Bonus +50000
+  Telepathy
+
+Crown of Regeneration [X,+0]                                   Prob: 1 in 8
+  Rating +10; Price Bonus +1500
+  Regeneration
+
+Helmet of Seeing [X,+0] (+1d5)                                 Prob: 2 in 8
+  Rating +8; Price Bonus +1000
+  Resist Blindness; See Invisible
+
+
+(2.1.5) Helmets
+
+Helmet of Intelligence [X,+0] (+1d2)                           Prob: 1 in 7
+  Rating +13; Price Bonus +500
+  Intelligence; Sustain Int
+
+Helmet of Wisdom [X,+0] (+1d2)                                 Prob: 1 in 7
+  Rating +13; Price Bonus +500
+  Wisdom; Sustain Wis
+
+Helmet of Beauty [X,+0] (+1d4)                                 Prob: 1 in 7
+  Rating +8; Price Bonus +1000
+  Charisma; Sustain Chr
+
+Helmet of Seeing [X,+0] (+1d5)                                 Prob: 1 in 7
+  Rating +8; Price Bonus +1000
+  Resist Blindness; See Invisible
+
+Helmet of Infravision [X,+0] (+1d5)                            Prob: 2 in 7
+  Rating +11; Price Bonus +500
+  Infravision
+
+Helmet of Light [X,+0]                                         Prob: 1 in 7
+  Rating +6; Price Bonus +500
+  Permanent Light; Resist Light
+
+
+(2.1.6) Cloaks
+
+Shadow cloaks have a base enchantment level of +4.
+
+Cloak of Protection [X,+1d10]                                  Prob: 8 in 17
+  Rating +10; Price Bonus +500
+  Ignore Acid, Lightning, Fire, Cold
+
+Cloak of Stealth [X,+0] (+1d3)                                 Prob: 8 in 17
+  Rating +10; Price Bonus +500
+  Stealth
+
+Cloak of Aman [X,+1d20] (+1d3)                                 Prob: 1 in 17
+  Rating +20; Price Bonus +4000
+  Stealth
+  One High Resist; Ignore Acid, Lightning, Fire, Cold
+
+
+(2.1.7) Gloves
+
+Gloves of Free Action [X,+0]                                   Prob: 4 in 10
+  Rating +11; Price Bonus +1000
+  Free Action
+
+Gloves of Slaying (+1d5,+1d5) [X,+0]                           Prob: 3 in 10
+  Rating +17; Price Bonus +1500
+
+Gloves of Agility [X,+0] (+1d5)                                Prob: 2 in 10
+  Rating +14; Price Bonus +1000
+  Dexterity
+
+Gloves of Power (+1d5,+1d5) [X,+0] (+1d5)                      Prob: 1 in 10
+  Rating +22; Price Bonus +2500
+  Strength
+
+
+(2.1.8) Boots
+
+Boots of Slow Descent [X,+0]                                   Prob: 11 in 24
+  Rating +7; Price Bonus +250
+  Feather fall
+
+Boots of Stealth [X,+0] (+1d3)                                 Prob: 8 in 24
+  Rating +16; Price Bonus +500
+  Stealth
+
+Boots of Free Action [X,+0]                                    Prob: 4 in 24
+  Rating +15; Price Bonus +1000
+  Free Action
+
+Boots of Speed [X,+0] (+1d10)                                  Prob: 1 in 24
+  Rating +25; Price Bonus +200000
+  Speed
+
+
+
+(2.2) GOOD AND GREAT WEAPONS
+      ----------------------
+
+(2.2.0) General
+
+Weapons include melee weapons (edged/hafted weapons and polearms), diggers,
+missile weapons, and ammunition.  Good weapons get a bonus of +1d5+MB(5)
+to-hit and a bonus of +1d5+MB(5) to-dam.  Excellent weapons receive an
+additional bonus of +MB(10) to-hit and +MB(10) to-dam.
+
+In addition, excellent melee weapons and ammunition have a small chance to
+receive boosted damage dice.  For a weapon with a damage roll (NdM), the
+chance of getting improved dice is 1 in 10*N*M, with each success adding 1 to
+N, and then the process repeating until the item fails an attempt.  The damage
+dice for all weapons is capped at 9 dice.
+
+Example: an excellent dagger (1d4) is generated.  There is a 1 in 40 (10*1*4)
+chance for it to get another damage die.  Assume this dagger is lucky, and
+succeeds.  Now it is (2d4).  Then it can try again, with a 1 in 80 chance to
+become (3d4).  If this succeeds, the dagger can try for 4d4, then 5d4, etc.
+
+
+(2.2.1) Melee Weapons
+
+Weapon (Holy Avenger) (+1d6,+1d6) [+1d4] (+1d4)                Prob: 5 in 145
+  Rating +30; Price Bonus +20000
+  Wisdom
+  Slay Demon; Slay Evil; Slay Undead
+  One Sustain; Blessed; See Invisible
+
+Weapon (Defender) (+1d4,+1d4) [+1d8] (+1d4)                    Prob: 5 in 145
+  Rating +25; Price Bonus +15000
+  Stealth
+  Resist Acid, Lightning, Fire, Cold
+  One Sustain; Free Action; See Invisible; Regeneration; Feather fall
+
+Weapon (Blessed) (+0,+0) (+1d3)                                Prob: 5 in 145
+  Rating +20; Price Bonus +5000
+  Wisdom
+  One Ability; Blessed
+
+Weapon of Westernesse (+1d5,+1d5) (+1d2)                       Prob: 5 in 145
+  Rating +20; Price Bonus +20000
+  Strength; Dexterity; Constitution
+  Slay Orc; Slay Giant; Slay Troll
+  Free Action; See Invisible
+
+Weapon of Extra Attacks (+0,+0) (+1d2)                         Prob: 5 in 145
+  Rating +20; Price Bonus +10000
+  Extra Attacks
+
+Weapon of Melting (+0,+0)                                      Prob: 5 in 145
+  Rating +15; Price Bonus +8000
+  Acid Brand; Resist Acid
+
+Weapon of Shocking (+0,+0)                                     Prob: 5 in 145
+  Rating +20; Price Bonus +4500
+  Electric Brand; Resist Lightning
+
+Weapon of Burning (+0,+0)                                      Prob: 5 in 145
+  Rating +20; Price Bonus +3000
+  Fire Brand; Resist Fire
+
+Weapon of Freezing (+0,+0)                                     Prob: 5 in 145
+  Rating +15; Price Bonus +2500
+  Frost Brand; Resist Cold
+
+Weapon of Slay Animal (+0,+0)                                  Prob: 8 in 145
+  Rating +18; Price Bonus +3500
+  Slay Animal
+
+Weapon of Slay Evil (+0,+0)                                    Prob: 8 in 145
+  Rating +18; Price Bonus +3500
+  Slay Evil
+
+Weapon of Slay Undead (+0,+0)                                  Prob: 8 in 145
+  Rating +18; Price Bonus +3500
+  Slay Undead
+
+Weapon of Slay Demon (+0,+0)                                   Prob: 12 in 145
+  Rating +14; Price Bonus +2500
+  Slay Demon
+
+Weapon of Slay Orc (+0,+0)                                     Prob: 12 in 145
+  Rating +10; Price Bonus +2500
+  Slay Orc
+
+Weapon of Slay Troll (+0,+0)                                   Prob: 12 in 145
+  Rating +10; Price Bonus +2500
+  Slay Troll
+
+Weapon of Slay Giant (+0,+0)                                   Prob: 12 in 145
+  Rating +14; Price Bonus +2500
+  Slay Giant
+
+Weapon of Slay Dragon (+0,+0)                                  Prob: 8 in 145
+  Rating +18; Price Bonus +3500
+  Slay Dragon
+
+Weapon of *Slay* Animal (+0,+0) (+1d2)                         Prob: 2 in 145
+  Rating +20; Price Bonus +6000
+  Intelligence
+  Slay Animal; Regeneration
+
+Weapon of *Slay* Evil (+0,+0) (+1d2)                           Prob: 2 in 145
+  Rating +20; Price Bonus +5000
+  Wisdom
+  Slay Evil; Blessed
+
+Weapon of *Slay* Undead (+0,+0) (+1d2)                         Prob: 2 in 145
+  Rating +24; Price Bonus +8000
+  Wisdom
+  Slay Undead; See Invisible
+
+Weapon of *Slay* Demon (+0,+0) (+1d2)                          Prob: 3 in 145
+  Rating +16; Price Bonus +4000
+  Intelligence
+  Slay Demon
+
+Weapon of *Slay* Orc (+0,+0) (+1d2)                            Prob: 3 in 145
+  Rating +14; Price Bonus +4000
+  Dexterity
+
+Weapon of *Slay* Troll (+0,+0) (+1d2)                          Prob: 3 in 145
+  Rating +14; Price Bonus +4000
+  Strength
+  Slay Troll
+
+Weapon of *Slay* Giant (+0,+0) (+1d2)                          Prob: 3 in 145
+  Rating +16; Price Bonus +4000
+  Strength
+  Slay Giant
+
+Weapon of *Slay* Dragon (+0,+0) (+1)                           Prob: 2 in 145
+  Rating +24; Price Bonus +6000
+  Constitution
+  XDragon
+
+
+(2.2.2) Diggers
+
+Digger of Digging (+0,+0) (+1d5)                               Prob: 1 in 1
+  Rating +4; Price Bonus +500
+  Tunneling
+  Acid Brand; Ignore Lightning; Ignore Fire; Ignore Cold
+
+
+(2.2.3) Missile Weapons
+
+Missile Weapon of Accuracy (+1d15,+1d5)                        Prob: 4 in 10
+  Rating +10; Price Bonus +1000
+
+Missile Weapon of Velocity (+1d5,+1d15)                        Prob: 4 in 10
+  Rating +10; Price Bonus +1000
+
+Missile Weapon of Extra Might (+1d5,+1d10)                     Prob: 1 in 10
+  Rating +20; Price Bonus +10000
+  Extra Might
+
+Missile Weapon of Extra Shots (+1d10,+1d5)                     Prob: 1 in 10
+  Rating +20; Price Bonus +10000
+  Extra Shots
+
+
+(2.2.4) Ammunition
+
+Ammunition of Hurt Animal (+0,+0)                              Prob: 2 in 10
+  Rating +10; Price Bonus +25
+  Slay Animal
+
+Ammunition of Hurt Evil (+0,+0)                                Prob: 2 in 10
+  Rating +10; Price Bonus +25
+  Slay Evil
+
+Ammunition of Hurt Dragon (+0,+0)                              Prob: 1 in 10
+  Rating +10; Price Bonus +35
+  Slay Dragon
+
+Ammunition of Flame (+0,+0)                                    Prob: 1 in 10
+  Rating +10; Price Bonus +30
+  Fire Brand
+
+Ammunition of Frost (+0,+0)                                    Prob: 1 in 10
+  Rating +10; Price Bonus +25
+  Frost Brand
+
+Ammunition of Wounding (+1d5,+1d5)                             Prob: 3 in 10
+  Rating +5; Price Bonus +20
+
+
+(3) OTHER ITEMS WHICH CAUSE FEELINGS
+    --------------------------------
+
+Amulet of the Magi [+1d5+MB(5) to AC] (+1d5+MB(5) to searching)
+  Rating +25
+  Free Action, See Invisible; Ignore Fire, Cold, Acid, Lightning
+
+Ring of Speed (+1d5+MB(5)+xd1(1 in 2) to speed)
+  Rating +25
