@@ -1,0 +1,86 @@
+Version 0.1.1 (bugfixes)
+
+fixed: names of killed uniques didn't appear in notes file if player was blind, unique was invisible 
+	or out of LOS when killed
+fixed: player notes didn't properly indicate player depth
+fixed: artifacts made it to the notes patch multiple times, and
+ after the first time the depth is indicated as "255"
+fixed: when using tiles, the player was shown as a blank square
+fixed: the notes file identified a greater vault redundantly
+fixed: the player options were not properly aligned
+fixed: the lite radius around creatures didn't always update correctly
+
+
+Version 0.1.0 
+
+*	Added support for describing monsters speed at +5 (somewhat quickly), +15 
+(exceedingly quickly), and +25 (extremely quickly). 
+*	Added patch to change player's color as their hit-points drop. This is an option 
+found under "display options". 
+*	Increased chance of increased damage dice and to hit dice on weapons, and 
+increased changes in increased damage dice on ammunition. 
+*	Decreased level boost from dragon scale mail to +10. 
+*	Reduced level boost from powerful amulets to +10. 
+*	Amulets & spell books are generated as a guaranteed "good" only if out of depth. 
+*	Added option to go up or down additional flight of stairs some of the time (from 
+Oangband). 
+*	Added "themed chests", similar to Oangband. There are 16 themes, and may 
+frequently contain guaranteed good or great objects. 
+*	Chests now increase level rating by +5. 
+*	Added different templates for "great items" rather than good items. There are 
+several things in the good list aren't in the great list (such as spellbooks).   
+*	Changed the object generation code so that the "great" flag no longer needs the 
+"good" flag to produce a great item. The "great" flag without the "good" flag will 
+produce a great item, but it only gets one chance instead of four to become an 
+artifact. This was done as a way to keep the new style chests from becoming too 
+powerful. 
+*	Added Dr. Whites Monster Lite patch. 
+*	Added Eytan Zwieg's vault flipping patch. 
+*	Added a note taking patch, this is a birth option (birth_take_notes), and needs to be 
+specified before the character is started. I did a significant re-write of this patch. 
+Comments can be written to a file, and they will automatically print out in a 
+character dump. In addition, it automatically records the turn, level of char, and 
+dungeon level of certain events, such as: the killing of uniques, finding of artifacts, 
+and greater vaults created, when a player is killed or wins the game, and every time 
+the character gains a new level, but only if it is divisible by 5 (level 5, 10, 15, 20, 
+etc…). These notes automatically print out with the character dump. The formatting 
+on this feature isn't perfect yet, but I plan on finishing it after I incorporate 
+EYAngband's resistance system. 
+*	Added rod-wand-stacking based on Oangband 0.6.0. 
+*	Reduced delay when using the autoroller to create a character. Should be 10 times 
+faster. 
+*	Added DarkGod's html screen dump patch. 
+*	Dropped Items may now be specified by theme. Code is mostly in place to create 
+themed monster drops. Currently, the themed drops are used in chest opening & 
+vault creation (chests w/ monster 40 levels OOD).  
+*	Added the autosquelch patch. I made some minor changes to the sub-quality 
+squelching menu. For rings and amulets, there are only three levels (none, cursed, 
+and all but artifact). I also added in the option to automatically squelch chests after 
+they are opened.
+ 
+*	I deliberately made almost no changes to the edit files, so the first version will give 
+almost the the exact same playability as Angband v 3.0.3. with some nice options 
+that Angband, IMHO, should contain, such as rod/wand stacking, screen dumps 
+and autosquelch. The only changes in the edit files are:
+*  Added rods re-charge time to the PVAL flag (without this updated file, the 
+game WILL crash almost instantly due to divide by zero errors) 
+*  Increased the rarity of chests, to compensate for them being loaded with 
+so many good & great items 
+*  Added the has_lite flag to the appropriate creatures, so the Lite Patch will 
+work 
+*  Removed the good flag from many of the creatures who have the great 
+flag, to balance out all the great items that are now in the chests. Mostly only 
+those who got the great flag added in the JLE-patch. 
+*  Modified some of the greater vaults so they include chests in certain areas. 
+*  Five new types of monster vaults and pits. The ogre pits are a little bland 
+right now. I plan on adding more types of Ogres, but I am deliberately 
+holding that until the next version of NPP Angband so this one keeps as 
+close as possible to 100% Angband 3.0.3 playability. 
+
+*  Six new types of monster vaults and pits. The ogre pits are a little bland right 
+now. I plan on adding more types of Ogres, but I am deliberately holding that until 
+the next version of NPP Angband so this one keeps as close as possible to 100% 
+Angband 3.0.3 playability. 
+*  There is a minimum depth enforcer when selecting the type of Monster Pit or 
+Next, so the weaker ones, such as Jelly Pits, don't appear at higher depths. 
+.

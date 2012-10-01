@@ -1029,7 +1029,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			TERM_VIOLET		-% of HP remaining
 		*/
 
-		if (hp_changes_color)
+		if ((hp_changes_color) && (arg_graphics == GRAPHICS_NONE))
 		{
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
 				{
@@ -1043,12 +1043,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				case  3:	a = TERM_L_RED  ;	break;
 				case  2:
 				case  1:
-				default:	a = TERM_RED    ;	break;
+				case  0:	a = TERM_RED    ;	break;
+				default:	a = TERM_WHITE  ;	break;
 				}
 		}
 
-		/*paranoia*/
-		else a = TERM_WHITE;
+		else a = r_ptr->x_attr;
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
@@ -3006,7 +3006,7 @@ void update_view(void)
 
 	int pg = GRID(py,px);
 
-	int i, g, o2;
+	int i, j, g, o2, d;
 
 	int radius;
 
@@ -3075,149 +3075,46 @@ void update_view(void)
         /* Skip dead monsters */
         if (!m_ptr->r_idx) continue;
 
-        /* Access the location */
+		/* Access the location */
         fx = m_ptr->fx;
         fy = m_ptr->fy;
 
         /* Carrying lite */
         if (r_ptr->flags2 & (RF2_HAS_LITE))
-        {
-            /* monster grid */
-            if (los(py,px,fy,fx))
-            {
-                g = GRID(fy,fx);
-                info = fast_cave_info[g];
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
+		{
+			for (i = -1; i <= 1; i++)
+			{
+				for (j = -1; j <= 1; j++)
+				{
+					/* Compute distance, so you don't have an empty lite
+				     * floating around past the max_site range.
+					 * */
 
-                /* Save cave info */
-                fast_cave_info[g] = info;
+					int dy = (p_ptr->py > (fy+i)) ? (p_ptr->py - (fy+i)) : ((fy+i) - p_ptr->py);
+					int dx = (p_ptr->px > (fx+j)) ? (p_ptr->px - (fx+j)) : ((fx+j) - p_ptr->px);
 
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
+					/* Approximate distance */
+					d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
 
-            /* Radius 1 -- torch radius */
+					if ((los(p_ptr->py,p_ptr->px,fy+i,fx+j)) && (d <= MAX_SIGHT))
+					{
+						g = GRID(fy+i,fx+j);
+						info = fast_cave_info[g];
 
-            /* Adjacent grid */
-            if (los(py,px,fy+1,fx))
-            {
-                g = GRID(fy+1,fx);
-                info = fast_cave_info[g];
+						info |= (CAVE_VIEW);
+						info |= (CAVE_SEEN);
 
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
+						/* Save cave info */
+						fast_cave_info[g] = info;
 
-                /* Save cave info */
-                fast_cave_info[g] = info;
+						/* Save in array */
+						fast_view_g[fast_view_n++] = g;
+					}
 
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
+				}
+			}
 
-
-            if (los(py,px,fy-1,fx))
-            {
-                g = GRID(fy-1,fx);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-            if (los(py,px,fy,fx+1))
-            {
-                g = GRID(fy,fx+1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-              if (los(py,px,fy,fx-1))
-            {
-                g = GRID(fy,fx-1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-
-            /* Diagonal grids */
-            if (los(py,px,fy+1,fx+1))
-            {
-                g = GRID(fy+1,fx+1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-            if (los(py,px,fy+1,fx-1))
-            {
-                g = GRID(fy+1,fx-1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-            if (los(py,px,fy-1,fx+1))
-            {
-                g = GRID(fy-1,fx+1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-            if (los(py,px,fy-1,fx-1))
-            {
-                g = GRID(fy-1,fx-1);
-                info = fast_cave_info[g];
-
-                info |= (CAVE_VIEW);
-                info |= (CAVE_SEEN);
-
-                /* Save cave info */
-                fast_cave_info[g] = info;
-
-                /* Save in array */
-                fast_view_g[fast_view_n++] = g;
-            }
-
-        }
+		}
 
     }
 

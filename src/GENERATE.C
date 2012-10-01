@@ -2581,9 +2581,9 @@ static void build_type8(int y0, int x0)
         	char note[80];
 
            	/* Build note and write */
-           	sprintf(note, "Greater vault (%s)", v_name + v_ptr->name);
+           	sprintf(note, "%s", v_name + v_ptr->name);
 
-           	do_cmd_note(note, 0 - 1);
+           	do_cmd_note(note, p_ptr->depth);
 
          }
 

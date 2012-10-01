@@ -1724,7 +1724,7 @@ void check_experience(void)
                    sprintf(buf, "Reached level %d", p_ptr->lev);
 
                    /* Write message */
-                   do_cmd_note(buf,  0 - 1);
+                   do_cmd_note(buf,  p_ptr->depth);
 
            	}
 
@@ -2203,11 +2203,15 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 
        		char note[80];
+			char real_name[80];
+
+			/* Get the monster's real name for the notes file */
+			monster_desc(real_name, sizeof(real_name), m_ptr, 0x80);
 
             /* Write note */
-            sprintf(note, "Killed %s", m_name);
+            sprintf(note, "Killed %s", real_name);
 
- 		  	do_cmd_note(note, 0 - 1);
+ 		  	do_cmd_note(note, p_ptr->depth);
 		}
 
 

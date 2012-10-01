@@ -1,9 +1,9 @@
 
 
            **************************************************
-           **   NPPAngband 0.1.0    A Variant of Angband   **
+           **   NPPAngband 0.1.1    A Variant of Angband   **
            **************************************************
-	    NPPAngband 0.1.0 Copyright (c) 2003 Jeff Greene
+	NPPAngband 0.1.0 and 0.1.1 Copyright (c) 2003 Jeff Greene
 		
     Based on: 	Moria:   Copyright (c) 1985 Robert Alan Koeneke
         	Umoria:   Copyright (c) 1989 James E. Wilson

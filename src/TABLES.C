@@ -1619,6 +1619,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
+	NULL,						/* xxx */
 	"score_peek",				/* OPT_score_peek */
 	"score_hear",				/* OPT_score_hear */
 	"score_room",				/* OPT_score_room */
@@ -2254,7 +2255,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_smart_packs,
 		OPT_smart_learn,
 		OPT_smart_cheat,
-
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

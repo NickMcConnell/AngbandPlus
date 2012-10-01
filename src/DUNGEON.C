@@ -1676,7 +1676,7 @@ static void process_command(void)
 		/* Take notes */
 		case ':':
 		{
-			do_cmd_note("",  0 - 1);
+			do_cmd_note("",  p_ptr->depth);
 			break;
 		}
 

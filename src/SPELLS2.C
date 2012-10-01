@@ -1955,7 +1955,7 @@ bool ident_spell(void)
 	}
 
 	/* If the item was an artifact, and if the auto-note is selected, write a message. */
-    if ((birth_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 0))
+    if ((birth_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 1))
 	{
 		int artifact_depth;
         char note[80];
@@ -1968,12 +1968,11 @@ bool ident_spell(void)
 
         do_cmd_note(note, artifact_depth);
 
-		/*mark item creation depth as -1, which will indicate the artifact
+		/*mark item creation depth 0, which will indicate the artifact
 		 *has been previously identified.  This prevents an artifact from showing
-		 *up on the notes list twice if; a players mind has been blanked and
-		 *then player re-identifies an artifact.  JG
+		 *up on the notes list twice ifthe artifact had been previously identified.  JG
 		 */
-		o_ptr->xtra1 = (0 - 1);
+		o_ptr->xtra1 = 0 ;
 	}
 
 	/* Now squelch it if needed */
@@ -2070,7 +2069,7 @@ bool identify_fully(void)
 	}
 
 	/* If the item was an artifact, and if the auto-note is selected, write a message. */
-    if ((birth_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 0))
+    if ((birth_take_notes) && artifact_p(o_ptr) && (o_ptr->xtra1 >= 1))
 
 		{
 			int artifact_depth;
@@ -2084,12 +2083,11 @@ bool identify_fully(void)
 
            	do_cmd_note(note, artifact_depth);
 
-			/*mark item creation depth as -1, which will indicate the artifact
+			/*mark item creation depth as 0, which will indicate the artifact
 			 *has been previously identified.  This prevents an artifact from showing
-			 *up on the notes list twice if; a players mind has been blanked and
-			 *then player re-identifies an artifact.  JG
+			 *up on the notes list twice ifit has been previously identified.  JG
 			 */
-			o_ptr->xtra1 = (0 - 1);
+			o_ptr->xtra1 = 0;
 
          }
 

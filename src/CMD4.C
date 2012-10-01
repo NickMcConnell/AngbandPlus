@@ -2536,41 +2536,34 @@ void do_cmd_colors(void)
  	/* Ignore empty notes */
  	if (!buf[0] || (buf[0] == ' ')) return;
 
- 	/* If the note taking option is on, write it to the file, otherwise write to
+	/* If the note taking option is on, write it to the file, otherwise write to
  	 * the message recall.
  	 */
  	if (birth_take_notes)
 	{
 
-        char final_note[80];
+        char final_note[120];
  	  	char depths[32];
 
-		/*get depth of artifact creation, rather than player depth.
-	 	 *If not is not for an artifact, use player depth.
+		/*Artifacts use depth artifact created.  All others
+	 	 *use player depth.
 	 	 */
-		if (what_depth < 0) what_depth = p_ptr->depth;
 
-		/* Get depth if note is program native */
- 		if (!streq(note, ""))
-		{
-			/*get depth for recording*/
- 	    	if (!what_depth)
- 	      	{
- 				strcpy(depths, "Town");
- 	      	}
- 	    	else if (depth_in_feet)
- 	      	{
+		/*get depth for recording*/
+ 	    if (what_depth == 0)
+ 	    {
+ 			strcpy(depths, "Town");
+ 	    }
+ 	    else if (depth_in_feet)
+ 	    {
  			sprintf(depths, "%4d", what_depth * 50);
- 	      	}
- 	    	else
- 	      	{
- 			sprintf(depths, "%4d", what_depth);
- 	      	}
+ 	    }
+ 	    else
+ 	    {
+ 		sprintf(depths, "%4d", what_depth);
+ 	    }
 
- 	 	}
- 	 	else (strcpy(depths, ""));
-
-     	/* Make note */
+ 	  	/* Make note */
      	sprintf(final_note, "%9d|  %s |   %2d    | %s \n", turn, depths,
 	 						p_ptr->lev, buf);
 

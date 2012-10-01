@@ -972,8 +972,9 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
-			/* Use "lite carriers" */
-            if (r_ptr->flags2 & (RF2_HAS_LITE)) easy=flag=TRUE;
+	        /* Use "lite carriers" */
+		    if ((r_ptr->flags2 & (RF2_HAS_LITE)) &&
+				!(r_ptr->flags2 & (RF2_INVISIBLE))) easy=flag=TRUE;
 
 			/* Use "illumination" */
 			if (player_can_see_bold(fy, fx))

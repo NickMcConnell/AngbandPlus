@@ -2686,13 +2686,6 @@ void update_stuff(void)
 		update_monsters(FALSE);
 	}
 
-	else
-	{
-        /* Monster lites must be updated each time */
-        update_monsters(TRUE);
-        update_view();
-	}
-
 	if (p_ptr->update & (PU_PANEL))
 	{
 		p_ptr->update &= ~(PU_PANEL);
@@ -2785,9 +2778,14 @@ void redraw_stuff(void)
 
 		/*
 		 * hack:  redraw player, since the player's color
-		 *	now indicates approximate health
+		 * now indicates approximate health.  Note that
+		 * using this command when graphics mode is on
+		 * causes the character to be a black square.
 		 */
-		 lite_spot(p_ptr->py, p_ptr->px);
+		if ((hp_changes_color) && (arg_graphics == GRAPHICS_NONE))
+		{
+		 	lite_spot(p_ptr->py, p_ptr->px);
+		}
 
 	}
 
