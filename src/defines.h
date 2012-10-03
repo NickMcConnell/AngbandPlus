@@ -48,14 +48,14 @@
 /* Savefile version for Hengband 1.1.1 and later */
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 5
-#define H_VER_PATCH 3
+#define H_VER_PATCH 4
 #define H_VER_EXTRA 0
 
 /* Added for ZAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_PATCH 4
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -1141,6 +1141,10 @@
 #define ART_MAGATAMA             149
 #define ART_INROU                166
 #define ART_NIGHT                215
+#define ART_SACRED_KNIGHTS       217
+#define ART_HELL                 218
+#define ART_CHARMED              219
+#define ART_GOGO                 220
 
 /* Rings */
 #define ART_FRAKIR               8

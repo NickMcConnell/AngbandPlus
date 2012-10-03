@@ -6439,8 +6439,8 @@ S:1_IN_8 |
 S:HEAL | HASTE | BO_FIRE
 D:$Alberich's son, born of a mortal woman won with gold.
 D:アルベリヒの息子で、金で買われた人間の女性との間に生まれた。
-D:グンター王の異父弟にあたり、奸計にってジークフリードを殺害し、
-D:環を奪った犯人。
+D:グンター王の異父弟にあたり、奸計によってジークフリードを殺害し、
+D:指環を奪った犯人。
 
 #JZ#
 N:384:疾翼『メネルドール』
@@ -7526,7 +7526,7 @@ F:EAT_INSANITY | RES_CHAO
 S:1_IN_3
 S:SHRIEK | CONF | S_HYDRA | SLOW | BLIND | DRAIN_MANA
 S:BA_POIS | BR_CHAO | FORGET | DARKNESS | BR_NUKE
-D:$The lovable purple reptile is making a guest appearance here.
+D:$The lovable green reptile is making a guest appearance here.
 D:あのカワイイ緑の恐竜ちゃんがゲスト出演です。
 
 #J0#
@@ -20101,7 +20101,7 @@ W:22:6:0:120:0:0
 B:CLAW:HURT:2d6
 B:BITE:HURT:2d6
 B:WAIL:TERRIFY
-F:ESCORTS | FORCE_MAXHP | IM_COLD | IM_ACID | 
+F:ESCORTS | FORCE_MAXHP | IM_COLD | IM_ACID | ANIMAL |
 F:SMART | ESCORT | FEMALE | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_FEAR
