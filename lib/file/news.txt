@@ -1,7 +1,7 @@
 
-                ******************************************
-                **  Hengband 1.1.0 Release Candidate 2  **
-                ******************************************
+                  ****************************************
+                  **          Hengband 1.1.0b           **
+                  ****************************************
 
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -18,5 +18,5 @@
            Hengband: Mr.Hoge (echizen @ s5.xrea.com) & Many others
                        http://echizen.s5.xrea.com/heng/
 
-                 Send bug report to "echizen @ s5.xrea.com"
-                     or "mogami @ het.ph.tsukuba.ac.jp".
+                  Send bug report to "heng-ml@kmc.gr.jp"
+ 

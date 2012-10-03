@@ -652,7 +652,7 @@ static void prt_title(void)
 	char str[14];
 
 	/* Wizard */
-	if (wizard)
+	if (p_ptr->wizard)
 	{
 #ifdef JP
                 /* 英日切り替え機能 称号 */
@@ -664,7 +664,7 @@ static void prt_title(void)
 	}
 
 	/* Winner */
-	else if (total_winner || (p_ptr->lev > PY_MAX_LEVEL))
+	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
 		if ((p_ptr->arena_number > MAX_ARENA_MONS+2) && (p_ptr->arena_number < 99))
 		{
@@ -1330,7 +1330,7 @@ static void prt_mane(void)
 
 	if (p_ptr->pclass == CLASS_IMITATOR)
 	{
-		if (mane_num)
+		if (p_ptr->mane_num)
 		{
 			byte attr;
 			if (new_mane) attr = TERM_L_RED;
@@ -2062,8 +2062,6 @@ static void calc_spells(void)
 	int                     num_boukyaku = 0;
 
 	magic_type		*s_ptr;
-	int use_realm1 = p_ptr->realm1 - 1;
-	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
 	int bonus = 0;
 
@@ -2123,8 +2121,8 @@ static void calc_spells(void)
 	{
 		/* Count known spells */
 		if ((j < 32) ?
-                    (spell_forgotten1 & (1L << j)) :
-                    (spell_forgotten2 & (1L << (j - 32))))
+                    (p_ptr->spell_forgotten1 & (1L << j)) :
+                    (p_ptr->spell_forgotten2 & (1L << (j - 32))))
 		{
 			num_boukyaku++;
                 }
@@ -2137,67 +2135,67 @@ static void calc_spells(void)
 	for (i = 63; i >= 0; i--)
 	{
 		/* Efficiency -- all done */
-		if (!spell_learned1 && !spell_learned2) break;
+		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
 		/* Access the spell */
-		j = spell_order[i];
+		j = p_ptr->spell_order[i];
 
 		/* Skip non-spells */
 		if (j >= 99) continue;
 
 
 		/* Get the spell */
-		if (!is_magic(((j < 32) ? use_realm1 : use_realm2)+1))
+		if (!is_magic((j < 32) ? p_ptr->realm1 : p_ptr->realm2))
 		{
 			if (j < 32)
-				s_ptr = &technic_info[use_realm1 - MIN_TECHNIC][j];
+				s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][j];
 			else
-				s_ptr = &technic_info[use_realm2 - MIN_TECHNIC][j%32];
+				s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][j%32];
 		}
 		else if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
+			s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
 
 		/* Skip spells we are allowed to know */
 		if (s_ptr->slevel <= p_ptr->lev) continue;
 
 		/* Is it known? */
 		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
+		    (p_ptr->spell_learned1 & (1L << j)) :
+		    (p_ptr->spell_learned2 & (1L << (j - 32))))
 		{
 			/* Mark as forgotten */
 			if (j < 32)
 			{
-				spell_forgotten1 |= (1L << j);
-				which = use_realm1;
+				p_ptr->spell_forgotten1 |= (1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_forgotten2 |= (1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_forgotten2 |= (1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* No longer known */
 			if (j < 32)
 			{
-				spell_learned1 &= ~(1L << j);
-				which = use_realm1;
+				p_ptr->spell_learned1 &= ~(1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_learned2 &= ~(1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_learned2 &= ~(1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* Message */
 #ifdef JP
                         msg_format("%sの%sを忘れてしまった。",
-				   spell_names[technic2magic(which+1)-1][j%32], p );
+				   spell_names[technic2magic(which)-1][j%32], p );
 #else
 			msg_format("You have forgotten the %s of %s.", p,
-			spell_names[technic2magic(which+1)-1][j%32]);
+			spell_names[technic2magic(which)-1][j%32]);
 #endif
 
 
@@ -2214,50 +2212,50 @@ static void calc_spells(void)
 		if (p_ptr->new_spells >= 0) break;
 
 		/* Efficiency -- all done */
-		if (!spell_learned1 && !spell_learned2) break;
+		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
 		/* Get the (i+1)th spell learned */
-		j = spell_order[i];
+		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
 		if (j >= 99) continue;
 
 		/* Forget it (if learned) */
 		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
+		    (p_ptr->spell_learned1 & (1L << j)) :
+		    (p_ptr->spell_learned2 & (1L << (j - 32))))
 		{
 			/* Mark as forgotten */
 			if (j < 32)
 			{
-				spell_forgotten1 |= (1L << j);
-				which = use_realm1;
+				p_ptr->spell_forgotten1 |= (1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_forgotten2 |= (1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_forgotten2 |= (1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* No longer known */
 			if (j < 32)
 			{
-				spell_learned1 &= ~(1L << j);
-				which = use_realm1;
+				p_ptr->spell_learned1 &= ~(1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_learned2 &= ~(1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_learned2 &= ~(1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* Message */
 #ifdef JP
                         msg_format("%sの%sを忘れてしまった。",
-				   spell_names[technic2magic(which+1)-1][j%32], p );
+				   spell_names[technic2magic(which)-1][j%32], p );
 #else
 			msg_format("You have forgotten the %s of %s.", p,
-			           spell_names[technic2magic(which+1)-1][j%32]);
+			           spell_names[technic2magic(which)-1][j%32]);
 #endif
 
 
@@ -2274,66 +2272,66 @@ static void calc_spells(void)
 		if (p_ptr->new_spells <= 0) break;
 
 		/* Efficiency -- all done */
-		if (!spell_forgotten1 && !spell_forgotten2) break;
+		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
 
 		/* Get the next spell we learned */
-		j = spell_order[i];
+		j = p_ptr->spell_order[i];
 
 		/* Skip unknown spells */
 		if (j >= 99) break;
 
 		/* Access the spell */
-		if (!is_magic(((j < 32) ? use_realm1 : use_realm2)+1))
+		if (!is_magic((j < 32) ? p_ptr->realm1 : p_ptr->realm2))
 		{
 			if (j < 32)
-				s_ptr = &technic_info[use_realm1 - MIN_TECHNIC][j];
+				s_ptr = &technic_info[p_ptr->realm1 - MIN_TECHNIC][j];
 			else
-				s_ptr = &technic_info[use_realm2 - MIN_TECHNIC][j%32];
+				s_ptr = &technic_info[p_ptr->realm2 - MIN_TECHNIC][j%32];
 		}
 		else if (j<32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
+			s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
 		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+			s_ptr = &mp_ptr->info[p_ptr->realm2-1][j%32];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
 
 		/* First set of spells */
 		if ((j < 32) ?
-		    (spell_forgotten1 & (1L << j)) :
-		    (spell_forgotten2 & (1L << (j - 32))))
+		    (p_ptr->spell_forgotten1 & (1L << j)) :
+		    (p_ptr->spell_forgotten2 & (1L << (j - 32))))
 		{
 			/* No longer forgotten */
 			if (j < 32)
 			{
-				spell_forgotten1 &= ~(1L << j);
-				which = use_realm1;
+				p_ptr->spell_forgotten1 &= ~(1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_forgotten2 &= ~(1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_forgotten2 &= ~(1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* Known once more */
 			if (j < 32)
 			{
-				spell_learned1 |= (1L << j);
-				which = use_realm1;
+				p_ptr->spell_learned1 |= (1L << j);
+				which = p_ptr->realm1;
 			}
 			else
 			{
-				spell_learned2 |= (1L << (j - 32));
-				which = use_realm2;
+				p_ptr->spell_learned2 |= (1L << (j - 32));
+				which = p_ptr->realm2;
 			}
 
 			/* Message */
 #ifdef JP
                         msg_format("%sの%sを思い出した。",
-				   spell_names[technic2magic(which+1)-1][j%32], p );
+				   spell_names[technic2magic(which)-1][j%32], p );
 #else
 			msg_format("You have remembered the %s of %s.",
-			           p, spell_names[technic2magic(which+1)-1][j%32]);
+			           p, spell_names[technic2magic(which)-1][j%32]);
 #endif
 
 
@@ -2349,14 +2347,14 @@ static void calc_spells(void)
 		/* Count spells that can be learned */
 		for (j = 0; j < 32; j++)
 		{
-			if (!is_magic(use_realm1+1)) s_ptr = &technic_info[use_realm1-MIN_TECHNIC][j];
-			else s_ptr = &mp_ptr->info[use_realm1][j];
+			if (!is_magic(p_ptr->realm1)) s_ptr = &technic_info[p_ptr->realm1-MIN_TECHNIC][j];
+			else s_ptr = &mp_ptr->info[p_ptr->realm1-1][j];
 
 			/* Skip spells we cannot remember */
 			if (s_ptr->slevel > p_ptr->lev) continue;
 
 			/* Skip spells we already know */
-			if (spell_learned1 & (1L << j))
+			if (p_ptr->spell_learned1 & (1L << j))
 			{
 				continue;
 			}
@@ -2749,7 +2747,7 @@ static void calc_hitpoints(void)
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128) * p_ptr->lev / 4;
 
 	/* Calculate hitpoints */
-	mhp = player_hp[p_ptr->lev - 1];
+	mhp = p_ptr->player_hp[p_ptr->lev - 1];
 
 	if (p_ptr->mimic_form)
 	{
@@ -4437,15 +4435,15 @@ void calc_bonuses(void)
 
 	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
 	{
-		p_ptr->to_h[0] += (skill_exp[GINOU_SUDE]-4000)/200;
-		p_ptr->dis_to_h[0] += (skill_exp[GINOU_SUDE]-4000)/200;
+		p_ptr->to_h[0] += (p_ptr->skill_exp[GINOU_SUDE]-4000)/200;
+		p_ptr->dis_to_h[0] += (p_ptr->skill_exp[GINOU_SUDE]-4000)/200;
 	}
 
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
 		int penalty1, penalty2;
-		penalty1 = ((100-skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_RARM].weight)/8);
-		penalty2 = ((100-skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_LARM].weight)/8);
+		penalty1 = ((100-p_ptr->skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_RARM].weight)/8);
+		penalty2 = ((100-p_ptr->skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_LARM].weight)/8);
 		if ((inventory[INVEN_RARM].name1 == ART_QUICKTHORN) && (inventory[INVEN_LARM].name1 == ART_TINYTHORN))
 		{
 			penalty1 = penalty1 / 2 - 5;
@@ -4497,7 +4495,7 @@ void calc_bonuses(void)
 		int speed = m_list[p_ptr->riding].mspeed;
 		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + (s16b)((speed-110)*(skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
+			p_ptr->pspeed = 110 + (s16b)((speed-110)*(p_ptr->skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
@@ -4509,7 +4507,7 @@ void calc_bonuses(void)
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
-		if (skill_exp[GINOU_RIDING] < 2000) j += (p_ptr->wt*3*(2000 - skill_exp[GINOU_RIDING]))/2000;
+		if (p_ptr->skill_exp[GINOU_RIDING] < 2000) j += (p_ptr->wt*3*(2000 - p_ptr->skill_exp[GINOU_RIDING]))/2000;
 
 		i = 3000 + r_info[m_list[p_ptr->riding].r_idx].level * 50;
 	}
@@ -4899,7 +4897,7 @@ void calc_bonuses(void)
 				}
 				else
 				{
-					penalty = r_info[m_list[p_ptr->riding].r_idx].level - skill_exp[GINOU_RIDING] / 80;
+					penalty = r_info[m_list[p_ptr->riding].r_idx].level - p_ptr->skill_exp[GINOU_RIDING] / 80;
 					penalty += 30;
 					if (penalty < 30) penalty = 30;
 				}
@@ -4925,7 +4923,7 @@ void calc_bonuses(void)
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->riding].r_idx].level - skill_exp[GINOU_RIDING] / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - p_ptr->skill_exp[GINOU_RIDING] / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -5031,8 +5029,8 @@ void calc_bonuses(void)
 			int tval = inventory[INVEN_RARM+i].tval - TV_BOW;
 			int sval = inventory[INVEN_RARM+i].sval;
 
-			p_ptr->to_h[i] += (weapon_exp[tval][sval]-4000)/200;
-			p_ptr->dis_to_h[i] += (weapon_exp[tval][sval]-4000)/200;
+			p_ptr->to_h[i] += (p_ptr->weapon_exp[tval][sval]-4000)/200;
+			p_ptr->dis_to_h[i] += (p_ptr->weapon_exp[tval][sval]-4000)/200;
 			if ((p_ptr->pclass == CLASS_MONK) && !(s_info[CLASS_MONK].w_max[tval][sval]))
 			{
 				p_ptr->to_h[i] -= 40;

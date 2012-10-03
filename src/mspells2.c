@@ -416,7 +416,7 @@ bool monst_spell_monst(int m_idx)
 		if (!num) return (FALSE);
 
 		/* Stop if player is dead or gone */
-		if (!alive || death) return (FALSE);
+		if (!p_ptr->playing || p_ptr->is_dead) return (FALSE);
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) return (FALSE);
@@ -3512,18 +3512,28 @@ msg_format("%^sが何かをつぶやいた。", m_name);
 			/* RF6_RAISE_DEAD */
 			case 160+15:
 			{
-				disturb(1, 0);
+				if (known)
+				{
+					if (see_either)
+					{
+						disturb(1, 0);
 #ifdef JP
-				if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
+						if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
 #else
-				if (blind) msg_format("%^s mumbles.", m_name);
+						if (blind) msg_format("%^s mumbles.", m_name);
 #endif
 
 #ifdef JP
-				else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
+						else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 #else
-				else msg_format("%^s casts a spell to revive corpses.", m_name);
+						else msg_format("%^s casts a spell to revive corpses.", m_name);
 #endif
+					}
+					else
+					{
+                                                mon_fight = TRUE;
+					}
+				}
 				animate_dead(m_idx, m_ptr->fy, m_ptr->fx);
 				break;
 			}
@@ -4183,19 +4193,19 @@ msg_format("%^sは恐怖して逃げ出した！", t_name);
 		{
 			if (thrown_spell != 167)
 			{
-				if (mane_num == MAX_MANE)
+				if (p_ptr->mane_num == MAX_MANE)
 				{
 					int i;
-					mane_num--;
-					for (i = 0;i < mane_num-1;i++)
+					p_ptr->mane_num--;
+					for (i = 0;i < p_ptr->mane_num-1;i++)
 					{
-						mane_spell[i] = mane_spell[i+1];
-						mane_dam[i] = mane_dam[i+1];
+						p_ptr->mane_spell[i] = p_ptr->mane_spell[i+1];
+						p_ptr->mane_dam[i] = p_ptr->mane_dam[i+1];
 					}
 				}
-				mane_spell[mane_num] = thrown_spell - 96;
-				mane_dam[mane_num] = dam;
-				mane_num++;
+				p_ptr->mane_spell[p_ptr->mane_num] = thrown_spell - 96;
+				p_ptr->mane_dam[p_ptr->mane_num] = dam;
+				p_ptr->mane_num++;
 				new_mane = TRUE;
 
 				p_ptr->redraw |= (PR_MANE);
@@ -4228,7 +4238,7 @@ msg_format("%^sは恐怖して逃げ出した！", t_name);
 		}
 
 		/* Always take note of monsters that kill you */
-		if (death && (r_ptr->r_deaths < MAX_SHORT) && !p_ptr->inside_arena)
+		if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT) && !p_ptr->inside_arena)
 		{
 			r_ptr->r_deaths++;
 		}

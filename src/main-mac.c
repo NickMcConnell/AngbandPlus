@@ -502,6 +502,7 @@ static int soundchoice[] = {
 
 static int			soundmode[8];
 
+static int ext_graf = 0;
 
 
 
@@ -2722,6 +2723,70 @@ static void init_sound( void )
 	}
 }
 
+static void init_graf( void )
+{
+	int err, i;
+	DirInfo pb;
+	SignedByte		permission = fsRdPerm;
+	pascal short	ret;
+	
+	Handle handle;
+	Str255 graf;
+
+	/* Descend into "lib" folder */
+	pb.ioCompletion = NULL;
+	pb.ioNamePtr = "\plib";
+	pb.ioVRefNum = app_vol;
+	pb.ioDrDirID = app_dir;
+	pb.ioFDirIndex = 0;
+
+	/* Check for errors */
+	err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+
+	/* Success */
+	if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+	{
+		/* Descend into "lib/xtra" folder */
+		pb.ioCompletion = NULL;
+		pb.ioNamePtr = "\pxtra";
+		pb.ioVRefNum = app_vol;
+		pb.ioDrDirID = pb.ioDrDirID;
+		pb.ioFDirIndex = 0;
+
+		/* Check for errors */
+		err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+			
+		/* Success */
+		if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+		{
+			/* Descend into "lib/xtra/graf" folder */
+			pb.ioCompletion = NULL;
+			pb.ioNamePtr = "\pgraf";
+			pb.ioVRefNum = app_vol;
+			pb.ioDrDirID = pb.ioDrDirID;
+			pb.ioFDirIndex = 0;
+
+			/* Check for errors */
+			err = PBGetCatInfo((CInfoPBPtr)&pb, FALSE);
+
+			/* Success */
+			if ((err == noErr) && (pb.ioFlAttrib & 0x10))
+			{
+				ret = HOpenResFile( app_vol , pb.ioDrDirID , "\pgraf.rsrc" , permission );
+				if (ret != -1)
+				{
+					ext_graf = 1;
+					
+					/* Obtain resource XXX XXX XXX */
+					handle = Get1NamedResource('PICT', graf);
+					if ( handle == NULL || ext_graf )
+						handle = GetNamedResource('PICT', graf);
+				}
+			}
+		}
+	}
+}
+
 #ifdef CHUUKEI
 /*
 
@@ -3864,8 +3929,10 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-//						do_cmd_save_game(FALSE);
-						Term_key_push(KTRL('X'));
+#if 0
+						do_cmd_save_game(FALSE);
+#endif
+						Term_key_push(SPECIAL_KEY_QUIT);
 						break;
 					}
 
@@ -5281,6 +5348,8 @@ BackColor(blackColor);
 
 	init_sound();
 
+	init_graf();
+	
 	/* Hack -- process all events */
 	while (CheckEvents(TRUE)) /* loop */;
 

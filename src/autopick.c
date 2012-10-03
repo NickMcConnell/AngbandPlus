@@ -166,7 +166,8 @@
 
 #define ADD_FLG(FLG) (entry->flag[FLG / 32] |= (1L << (FLG % 32)))
 #define REM_FLG(FLG) (entry->flag[FLG / 32] &= ~(1L << (FLG % 32)))
-#define ADD_FLG2(FLG) (entry->flag[FLG / 32] |= (1L << (FLG % 32)), prev_flg = FLG)
+#define ADD_FLG_ADJ(FLG) (ADD_FLG(FLG), prev_flg = -1)
+#define ADD_FLG_NOUN(FLG) (ADD_FLG(FLG), prev_flg = FLG)
 #define IS_FLG(FLG) (entry->flag[FLG / 32] & (1L << (FLG % 32)))
 
 #ifdef JP
@@ -348,12 +349,12 @@ bool autopick_new_entry(autopick_type *entry, cptr str)
 	/* Found flags */
 	prev_ptr = ptr = buf;
 	prev_flg = -1;
-	if (MATCH_KEY(KEY_ALL)) ADD_FLG(FLG_ALL);
-	if (MATCH_KEY(KEY_COLLECTING)) ADD_FLG(FLG_COLLECTING);
-	if (MATCH_KEY(KEY_UNIDENTIFIED)) ADD_FLG(FLG_UNIDENTIFIED);
-	if (MATCH_KEY(KEY_IDENTIFIED)) ADD_FLG(FLG_IDENTIFIED);
-	if (MATCH_KEY(KEY_STAR_IDENTIFIED)) ADD_FLG(FLG_STAR_IDENTIFIED);
-	if (MATCH_KEY(KEY_BOOSTED)) ADD_FLG(FLG_BOOSTED);
+	if (MATCH_KEY(KEY_ALL)) ADD_FLG_ADJ(FLG_ALL);
+	if (MATCH_KEY(KEY_COLLECTING)) ADD_FLG_ADJ(FLG_COLLECTING);
+	if (MATCH_KEY(KEY_UNIDENTIFIED)) ADD_FLG_ADJ(FLG_UNIDENTIFIED);
+	if (MATCH_KEY(KEY_IDENTIFIED)) ADD_FLG_ADJ(FLG_IDENTIFIED);
+	if (MATCH_KEY(KEY_STAR_IDENTIFIED)) ADD_FLG_ADJ(FLG_STAR_IDENTIFIED);
+	if (MATCH_KEY(KEY_BOOSTED)) ADD_FLG_ADJ(FLG_BOOSTED);
 
 	/*** Weapons whose dd*ds is more than nn ***/
 	if (MATCH_KEY(KEY_MORE_THAN))
@@ -375,7 +376,7 @@ bool autopick_new_entry(autopick_type *entry, cptr str)
 		if (k > 0 && k <= 2)
 		{
 			(void)MATCH_KEY(KEY_DICE);
-			ADD_FLG(FLG_MORE_THAN);
+			ADD_FLG_ADJ(FLG_MORE_THAN);
 		}
 		else
 			ptr = prev_ptr;
@@ -401,65 +402,68 @@ bool autopick_new_entry(autopick_type *entry, cptr str)
 		if (k > 0 && k <= 2)
 		{
 			(void)MATCH_KEY(KEY_MORE_BONUS2);
-			ADD_FLG(FLG_MORE_BONUS);
+			ADD_FLG_ADJ(FLG_MORE_BONUS);
 		}
 		else
 			ptr = prev_ptr;
 	}
 
-	if (MATCH_KEY(KEY_WORTHLESS)) ADD_FLG(FLG_WORTHLESS);
-	if (MATCH_KEY(KEY_ARTIFACT)) ADD_FLG(FLG_ARTIFACT);
-	if (MATCH_KEY(KEY_EGO)) ADD_FLG(FLG_EGO);
-	if (MATCH_KEY(KEY_NAMELESS)) ADD_FLG(FLG_NAMELESS);
-	if (MATCH_KEY(KEY_UNAWARE)) ADD_FLG(FLG_UNAWARE);
-	if (MATCH_KEY(KEY_WANTED)) ADD_FLG(FLG_WANTED);
-	if (MATCH_KEY(KEY_UNIQUE)) ADD_FLG(FLG_UNIQUE);
-	if (MATCH_KEY(KEY_HUMAN)) ADD_FLG(FLG_HUMAN);
-	if (MATCH_KEY(KEY_UNREADABLE)) ADD_FLG(FLG_UNREADABLE);
-	if (MATCH_KEY(KEY_REALM1)) ADD_FLG(FLG_REALM1);
-	if (MATCH_KEY(KEY_REALM2)) ADD_FLG(FLG_REALM2);
-	if (MATCH_KEY(KEY_FIRST)) ADD_FLG(FLG_FIRST);
-	if (MATCH_KEY(KEY_SECOND)) ADD_FLG(FLG_SECOND);
-	if (MATCH_KEY(KEY_THIRD)) ADD_FLG(FLG_THIRD);
-	if (MATCH_KEY(KEY_FOURTH)) ADD_FLG(FLG_FOURTH);
+	if (MATCH_KEY(KEY_WORTHLESS)) ADD_FLG_ADJ(FLG_WORTHLESS);
+	if (MATCH_KEY(KEY_ARTIFACT)) ADD_FLG_NOUN(FLG_ARTIFACT);
+	if (MATCH_KEY(KEY_EGO)) ADD_FLG_ADJ(FLG_EGO);
+	if (MATCH_KEY(KEY_NAMELESS)) ADD_FLG_ADJ(FLG_NAMELESS);
+	if (MATCH_KEY(KEY_UNAWARE)) ADD_FLG_ADJ(FLG_UNAWARE);
+	if (MATCH_KEY(KEY_WANTED)) ADD_FLG_ADJ(FLG_WANTED);
+	if (MATCH_KEY(KEY_UNIQUE)) ADD_FLG_ADJ(FLG_UNIQUE);
+	if (MATCH_KEY(KEY_HUMAN)) ADD_FLG_ADJ(FLG_HUMAN);
+	if (MATCH_KEY(KEY_UNREADABLE)) ADD_FLG_ADJ(FLG_UNREADABLE);
+	if (MATCH_KEY(KEY_REALM1)) ADD_FLG_ADJ(FLG_REALM1);
+	if (MATCH_KEY(KEY_REALM2)) ADD_FLG_ADJ(FLG_REALM2);
+	if (MATCH_KEY(KEY_FIRST)) ADD_FLG_ADJ(FLG_FIRST);
+	if (MATCH_KEY(KEY_SECOND)) ADD_FLG_ADJ(FLG_SECOND);
+	if (MATCH_KEY(KEY_THIRD)) ADD_FLG_ADJ(FLG_THIRD);
+	if (MATCH_KEY(KEY_FOURTH)) ADD_FLG_ADJ(FLG_FOURTH);
 
-	/* Reset previous word location */
-	prev_ptr = ptr;
-
-	if (MATCH_KEY(KEY_ITEMS)) ADD_FLG2(FLG_ITEMS);
-	else if (MATCH_KEY(KEY_WEAPONS)) ADD_FLG2(FLG_WEAPONS);
-	else if (MATCH_KEY(KEY_ARMORS)) ADD_FLG2(FLG_ARMORS);
-	else if (MATCH_KEY(KEY_MISSILES)) ADD_FLG2(FLG_MISSILES);
-	else if (MATCH_KEY(KEY_DEVICES)) ADD_FLG2(FLG_DEVICES);
-	else if (MATCH_KEY(KEY_LIGHTS)) ADD_FLG2(FLG_LIGHTS);
-	else if (MATCH_KEY(KEY_JUNKS)) ADD_FLG2(FLG_JUNKS);
-	else if (MATCH_KEY(KEY_SPELLBOOKS)) ADD_FLG2(FLG_SPELLBOOKS);
-	else if (MATCH_KEY(KEY_HAFTED)) ADD_FLG2(FLG_HAFTED);
-	else if (MATCH_KEY(KEY_SHIELDS)) ADD_FLG2(FLG_SHIELDS);
-	else if (MATCH_KEY(KEY_BOWS)) ADD_FLG2(FLG_BOWS);
-	else if (MATCH_KEY(KEY_RINGS)) ADD_FLG2(FLG_RINGS);
-	else if (MATCH_KEY(KEY_AMULETS)) ADD_FLG2(FLG_AMULETS);
-	else if (MATCH_KEY(KEY_SUITS)) ADD_FLG2(FLG_SUITS);
-	else if (MATCH_KEY(KEY_CLOAKS)) ADD_FLG2(FLG_CLOAKS);
-	else if (MATCH_KEY(KEY_HELMS)) ADD_FLG2(FLG_HELMS);
-	else if (MATCH_KEY(KEY_GLOVES)) ADD_FLG2(FLG_GLOVES);
-	else if (MATCH_KEY(KEY_BOOTS)) ADD_FLG2(FLG_BOOTS);
+	if (MATCH_KEY(KEY_ITEMS)) ADD_FLG_NOUN(FLG_ITEMS);
+	else if (MATCH_KEY(KEY_WEAPONS)) ADD_FLG_NOUN(FLG_WEAPONS);
+	else if (MATCH_KEY(KEY_ARMORS)) ADD_FLG_NOUN(FLG_ARMORS);
+	else if (MATCH_KEY(KEY_MISSILES)) ADD_FLG_NOUN(FLG_MISSILES);
+	else if (MATCH_KEY(KEY_DEVICES)) ADD_FLG_NOUN(FLG_DEVICES);
+	else if (MATCH_KEY(KEY_LIGHTS)) ADD_FLG_NOUN(FLG_LIGHTS);
+	else if (MATCH_KEY(KEY_JUNKS)) ADD_FLG_NOUN(FLG_JUNKS);
+	else if (MATCH_KEY(KEY_SPELLBOOKS)) ADD_FLG_NOUN(FLG_SPELLBOOKS);
+	else if (MATCH_KEY(KEY_HAFTED)) ADD_FLG_NOUN(FLG_HAFTED);
+	else if (MATCH_KEY(KEY_SHIELDS)) ADD_FLG_NOUN(FLG_SHIELDS);
+	else if (MATCH_KEY(KEY_BOWS)) ADD_FLG_NOUN(FLG_BOWS);
+	else if (MATCH_KEY(KEY_RINGS)) ADD_FLG_NOUN(FLG_RINGS);
+	else if (MATCH_KEY(KEY_AMULETS)) ADD_FLG_NOUN(FLG_AMULETS);
+	else if (MATCH_KEY(KEY_SUITS)) ADD_FLG_NOUN(FLG_SUITS);
+	else if (MATCH_KEY(KEY_CLOAKS)) ADD_FLG_NOUN(FLG_CLOAKS);
+	else if (MATCH_KEY(KEY_HELMS)) ADD_FLG_NOUN(FLG_HELMS);
+	else if (MATCH_KEY(KEY_GLOVES)) ADD_FLG_NOUN(FLG_GLOVES);
+	else if (MATCH_KEY(KEY_BOOTS)) ADD_FLG_NOUN(FLG_BOOTS);
 
 	/* Last 'keyword' must be at the correct location */
 	if (*ptr == ':')
 		ptr++;
-	else if (*ptr == '\0')
-		; /* nothing to do */
 #ifdef JP
 	else if (ptr[0] == kanji_colon[0] && ptr[1] == kanji_colon[1])
 		ptr += 2;
 #endif
+	else if (*ptr == '\0')
+		; /* nothing to do */
 	else
 	{
+		/* Noun type? */
 		if (prev_flg != -1)
+		{
+			/* A noun type keyword didn't end correctly */
 			entry->flag[prev_flg/32] &= ~(1L<< (prev_flg%32));
-		ptr = prev_ptr;
+			ptr = prev_ptr;
+		}
 	}
+
+	/* Save this auto-picker entry line */
 	entry->name = string_make(ptr);
 	entry->action = act;
 	entry->insc = string_make(insc);
@@ -964,8 +968,8 @@ bool auto_destroy_item(int item, int autopick_idx, bool wait_optimize)
 		inven_item_increase(item, -(o_ptr->number));
 
 		/*
-		 * Optimize equipment when wait_optimize is TRUE.
-		 * Optimize inventry later.
+		 * always optimize equipment.
+		 * optimize inventry only when wait_optimize is FALSE.
 		 */
 		if (!wait_optimize || item > INVEN_PACK)
 			inven_item_optimize(item);
@@ -1981,6 +1985,117 @@ void init_autopicker(void)
 
 
 /*
+ * Get a trigger key and insert ASCII string for the trigger
+ */
+static bool insert_macro_line(cptr *lines_list, int cy)
+{
+	char tmp[1024];
+	char buf[1024];
+	int i, n = 0;
+
+	/* Flush */
+	flush();
+
+	/* Do not process macros */
+	inkey_base = TRUE;
+
+	/* First key */
+	i = inkey();
+
+	/* Read the pattern */
+	while (i)
+	{
+		/* Save the key */
+		buf[n++] = i;
+
+		/* Do not process macros */
+		inkey_base = TRUE;
+
+		/* Do not wait for keys */
+		inkey_scan = TRUE;
+
+		/* Attempt to read a key */
+		i = inkey();
+	}
+
+	/* Terminate */
+	buf[n] = '\0';
+
+	/* Flush */
+	flush();
+
+	/* Convert the trigger */
+	ascii_to_text(tmp, buf);
+
+	/* Null */
+	if(!tmp[0]) return FALSE;
+
+	/* Insert preference string */
+	insert_return_code(lines_list, 0, cy);
+	string_free(lines_list[cy]);
+	lines_list[cy] = string_make(format("P:%s", tmp));
+
+	/* Insert blank action preference line */
+	insert_return_code(lines_list, 0, cy);
+	string_free(lines_list[cy]);
+	lines_list[cy] = string_make("A:");
+
+	return TRUE;
+}
+
+
+/*
+ * Get a command key and insert ASCII string for the key
+ */
+static bool insert_keymap_line(cptr *lines_list, int cy)
+{
+	char tmp[1024];
+	char buf[2];
+	int mode;
+
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+	}
+
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+	}
+
+	/* Flush */
+	flush();
+
+	/* Get a key */
+	buf[0] = inkey();
+	buf[1] = '\0';
+
+	/* Flush */
+	flush();
+
+	/* Convert the trigger */
+	ascii_to_text(tmp, buf);
+
+	/* Null */
+	if(!tmp[0]) return FALSE;
+
+	/* Insert preference string */
+	insert_return_code(lines_list, 0, cy);
+	string_free(lines_list[cy]);
+	lines_list[cy] = string_make(format("C:%d:%s", mode, tmp));
+
+	/* Insert blank action preference line */
+	insert_return_code(lines_list, 0, cy);
+	string_free(lines_list[cy]);
+	lines_list[cy] = string_make("A:");
+
+	return TRUE;
+}
+
+
+/*
  * Description of control commands
  */
 
@@ -2497,6 +2612,61 @@ void do_cmd_edit_autopick(void)
 					cy--;
 				while (0 < upper && cy + 1 < upper + hgt - 4)
 					upper--;
+				break;
+
+			case 'g':
+				cy = 0;
+				break;
+
+			case 'G':
+				while (lines_list[cy + 1])
+					cy++;
+				break;
+
+			case 'm':
+				/* Erase line */
+				Term_erase(0, cy - upper + 1, wid - WID_DESC);
+
+				/* Prompt */
+#ifdef JP
+				Term_putstr(0, cy - upper + 1, wid - WID_DESC - 1, TERM_YELLOW, "P:<トリガーキー>: ");
+#else
+				Term_putstr(0, cy - upper + 1, wid - WID_DESC - 1, TERM_YELLOW, "P:<Trigger key>: ");
+#endif
+				if (insert_macro_line(lines_list, cy))
+				{
+					/* Prepare to input action */
+					cx = 2;
+					edit_mode = TRUE;
+
+					/* Now dirty */
+					dirty_flags |= DIRTY_ALL;
+					dirty_flags |= DIRTY_MODE;
+				}
+
+				break;
+
+			case 'c':
+				/* Erase line */
+				Term_erase(0, cy - upper + 1, wid - WID_DESC);
+
+				/* Prompt */
+#ifdef JP
+				Term_putstr(0, cy - upper + 1, wid - WID_DESC - 1, TERM_YELLOW, format("C:%d:<コマンドキー>: ", (rogue_like_commands ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG)));
+#else
+				Term_putstr(0, cy - upper + 1, wid - WID_DESC - 1, TERM_YELLOW, format("C:%d:<Keypress>: ", (rogue_like_commands ? KEYMAP_MODE_ROGUE : KEYMAP_MODE_ORIG)));
+#endif
+
+				if (insert_keymap_line(lines_list, cy))
+				{
+					/* Prepare to input action */
+					cx = 2;
+					edit_mode = TRUE;
+
+					/* Now dirty */
+					dirty_flags |= DIRTY_ALL;
+					dirty_flags |= DIRTY_MODE;
+				}				
 				break;
 			}
 		}

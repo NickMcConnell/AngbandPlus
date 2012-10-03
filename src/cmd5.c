@@ -78,7 +78,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	if (repeat_pull(sn))
 	{
 		/* Verify the spell */
-		if (spell_okay(*sn, learned, FALSE, use_realm - 1))
+		if (spell_okay(*sn, learned, FALSE, use_realm))
 		{
 			/* Success */
 			return (TRUE);
@@ -110,7 +110,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	for (i = 0; i < num; i++)
 	{
 		/* Look for "okay" spells */
-		if (spell_okay(spells[i], learned, FALSE, use_realm - 1)) okay = TRUE;
+		if (spell_okay(spells[i], learned, FALSE, use_realm)) okay = TRUE;
 	}
 
 	/* No "okay" spells */
@@ -195,7 +195,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			}
 			if (menu_line > num) menu_line -= num;
 			/* Display a list of spells */
-			print_spells(menu_line, spells, num, 1, 15, use_realm - 1);
+			print_spells(menu_line, spells, num, 1, 15, use_realm);
 			if (ask) continue;
 		}
 		else
@@ -213,7 +213,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 					screen_save();
 
 					/* Display a list of spells */
-					print_spells(menu_line, spells, num, 1, 15, use_realm - 1);
+					print_spells(menu_line, spells, num, 1, 15, use_realm);
 				}
 
 				/* Hide the list */
@@ -254,7 +254,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 		spell = spells[i];
 
 		/* Require "okay" spells */
-		if (!spell_okay(spell, learned, FALSE, use_realm - 1))
+		if (!spell_okay(spell, learned, FALSE, use_realm))
 		{
 			bell();
 #ifdef JP
@@ -274,7 +274,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			/* Access the spell */
 			if (!is_magic(use_realm))
 			{
-				s_ptr = &technic_info[use_realm - MIN_TECHNIC - 1][spell];
+				s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
 			}
 			else
 			{
@@ -287,12 +287,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			}
 			else
 			{
-				if (p_ptr->pclass == CLASS_SORCERER)
-					shouhimana = s_ptr->smana*2200 + 2399;
-				else if (p_ptr->pclass == CLASS_RED_MAGE)
-					shouhimana = s_ptr->smana*2600 + 2399;
-				else
-					shouhimana = (s_ptr->smana*(3800-spell_exp[spell])+2399);
+				/* Extract mana consumption rate */
+				shouhimana = s_ptr->smana*(3800 - experience_of_spell(spell, use_realm)) + 2399;
 				if(p_ptr->dec_mana)
 					shouhimana *= 3;
 				else shouhimana *= 4;
@@ -306,11 +302,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
                         /* 英日切り替え機能に対応 */
                         (void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
                                 spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
-				       spell_chance(spell, use_realm -1),jverb_buf);
+				       spell_chance(spell, use_realm),jverb_buf);
 #else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
 				prompt, spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
-				spell_chance(spell, use_realm - 1));
+				spell_chance(spell, use_realm));
 #endif
 
 
@@ -513,7 +509,7 @@ s = "読める本がない。";
 			if (spell == -1) break;
 
 			/* Display a list of spells */
-			print_spells(0, spells, num, 1, 15, use_realm - 1);
+			print_spells(0, spells, num, 1, 15, use_realm);
 
 			/* Notify that there's nothing to see, and wait. */
 			if (use_realm == REALM_HISSATSU)
@@ -546,7 +542,7 @@ s = "読める本がない。";
 		/* Access the spell */
 		if (!is_magic(use_realm))
 		{
-			s_ptr = &technic_info[use_realm - MIN_TECHNIC - 1][spell];
+			s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
 		}
 		else
 		{
@@ -573,19 +569,19 @@ static void change_realm2(int next_realm)
 
 	for (i = 0; i < 64; i++)
 	{
-		spell_order[j] = spell_order[i];
-		if(spell_order[i] < 32) j++;
+		p_ptr->spell_order[j] = p_ptr->spell_order[i];
+		if(p_ptr->spell_order[i] < 32) j++;
 	}
 	for (; j < 64; j++)
-		spell_order[j] = 99;
+		p_ptr->spell_order[j] = 99;
 
 	for (i = 32; i < 64; i++)
 	{
-		spell_exp[i] = 0;
+		p_ptr->spell_exp[i] = 0;
 	}
-	spell_learned2 = 0L;
-	spell_worked2 = 0L;
-	spell_forgotten2 = 0L;	
+	p_ptr->spell_learned2 = 0L;
+	p_ptr->spell_worked2 = 0L;
+	p_ptr->spell_forgotten2 = 0L;	
 
 #ifdef JP
 	sprintf(tmp,"魔法の領域を%sから%sに変更した。", realm_names[p_ptr->realm2], realm_names[next_realm]);
@@ -768,7 +764,7 @@ s = "読める本がない。";
 			{
 				/* Skip non "okay" prayers */
 				if (!spell_okay(spell, FALSE, TRUE,
-					(increment ? p_ptr->realm2 - 1 : p_ptr->realm1 - 1))) continue;
+					(increment ? p_ptr->realm2 : p_ptr->realm1))) continue;
 
 				/* Hack -- Prepare the randomizer */
 				k++;
@@ -803,19 +799,19 @@ msg_format("その本には学ぶべき%sがない。", p);
 	/* Learn the spell */
 	if (spell < 32)
 	{
-		if (spell_learned1 & (1L << spell)) learned = TRUE;
-		else spell_learned1 |= (1L << spell);
+		if (p_ptr->spell_learned1 & (1L << spell)) learned = TRUE;
+		else p_ptr->spell_learned1 |= (1L << spell);
 	}
 	else
 	{
-		if (spell_learned2 & (1L << (spell - 32))) learned = TRUE;
-		else spell_learned2 |= (1L << (spell - 32));
+		if (p_ptr->spell_learned2 & (1L << (spell - 32))) learned = TRUE;
+		else p_ptr->spell_learned2 |= (1L << (spell - 32));
 	}
 
 	if (learned)
 	{
 		int max_exp = (spell < 32) ? 1600 : 1400;
-		int old_exp = spell_exp[spell];
+		int old_exp = p_ptr->spell_exp[spell];
 		int new_rank = 0;
 		cptr name = spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell%32];
 
@@ -838,23 +834,23 @@ msg_format("その本には学ぶべき%sがない。", p);
 		}
 		else if (old_exp >= 1400)
 		{
-			spell_exp[spell] = 1600;
+			p_ptr->spell_exp[spell] = 1600;
 			new_rank = 4;
 		}
 		else if (old_exp >= 1200)
 		{
-			if (spell >= 32) spell_exp[spell] = 1400;
-			else spell_exp[spell] += 200;
+			if (spell >= 32) p_ptr->spell_exp[spell] = 1400;
+			else p_ptr->spell_exp[spell] += 200;
 			new_rank = 3;
 		}
 		else if (old_exp >= 900)
 		{
-			spell_exp[spell] = 1200+(old_exp-900)*2/3;
+			p_ptr->spell_exp[spell] = 1200+(old_exp-900)*2/3;
 			new_rank = 2;
 		}
 		else
 		{
-			spell_exp[spell] = 900+(old_exp)/3;
+			p_ptr->spell_exp[spell] = 900+(old_exp)/3;
 			new_rank = 1;
 		}
 #ifdef JP
@@ -865,15 +861,15 @@ msg_format("その本には学ぶべき%sがない。", p);
 	}
 	else
 	{
-		/* Find the next open entry in "spell_order[]" */
+		/* Find the next open entry in "p_ptr->spell_order[]" */
 		for (i = 0; i < 64; i++)
 		{
 			/* Stop at the first empty space */
-			if (spell_order[i] == 99) break;
+			if (p_ptr->spell_order[i] == 99) break;
 		}
 
 		/* Add the spell to the known list */
-		spell_order[i++] = spell;
+		p_ptr->spell_order[i++] = spell;
 
 		/* Mention the result */
 #ifdef JP
@@ -3971,7 +3967,7 @@ static bool cast_crusade_spell(int spell)
 		(void)sleep_monsters_touch();
 		break;
 	case 5:
-		teleport_player(plev*3);
+		teleport_player(25+plev/2);
 		break;
 	case 6:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -4224,7 +4220,7 @@ msg_print("神聖な力が邪悪を打ち払った！");
 				if (cave_empty_bold2(my, mx)) break;
 			}
 			if (attempt < 0) continue;
-			summon_specific(-1, my, mx, plev, SUMMON_KNIGHTS, (PM_ALLOW_GROUP | PM_FORCE_PET));
+			summon_specific(-1, my, mx, plev, SUMMON_KNIGHTS, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
 		}
 		(void)set_hero(randint1(25) + 25, FALSE);
 		(void)set_blessed(randint1(25) + 25, FALSE);
@@ -4837,19 +4833,15 @@ s = "呪文書がない！";
 
 	if (!is_magic(use_realm))
 	{
-		s_ptr = &technic_info[use_realm - MIN_TECHNIC - 1][spell];
+		s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
 	}
 	else
 	{
 		s_ptr = &mp_ptr->info[realm - 1][spell];
 	}
 
-	if (p_ptr->pclass == CLASS_SORCERER)
-		shouhimana = s_ptr->smana*2200 + 2399;
-	else if (p_ptr->pclass == CLASS_RED_MAGE)
-		shouhimana = s_ptr->smana*2600 + 2399;
-	else
-		shouhimana = (s_ptr->smana*(3800-spell_exp[(increment ? spell+32 : spell)])+2399);
+	/* Extract mana consumption rate */
+	shouhimana = s_ptr->smana*(3800 - experience_of_spell(spell, realm)) + 2399;
 	if(p_ptr->dec_mana)
 		shouhimana *= 3;
 	else shouhimana *= 4;
@@ -4883,7 +4875,7 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 
 
 	/* Spell failure chance */
-	chance = spell_chance(spell, use_realm - 1);
+	chance = spell_chance(spell, use_realm);
 
 	/* Failed spell */
 	if (randint0(100) < chance)
@@ -5033,8 +5025,8 @@ msg_print("An infernal sound echoed.");
 
 		/* A spell was cast */
 		if (!(increment ?
-		    (spell_worked2 & (1L << spell)) :
-		    (spell_worked1 & (1L << spell)))
+		    (p_ptr->spell_worked2 & (1L << spell)) :
+		    (p_ptr->spell_worked1 & (1L << spell)))
 		    && (p_ptr->pclass != CLASS_SORCERER)
 		    && (p_ptr->pclass != CLASS_RED_MAGE))
 		{
@@ -5043,11 +5035,11 @@ msg_print("An infernal sound echoed.");
 			/* The spell worked */
 			if (realm == p_ptr->realm1)
 			{
-				spell_worked1 |= (1L << spell);
+				p_ptr->spell_worked1 |= (1L << spell);
 			}
 			else
 			{
-				spell_worked2 |= (1L << spell);
+				p_ptr->spell_worked2 |= (1L << spell);
 			}
 
 			/* Gain experience */
@@ -5124,14 +5116,27 @@ msg_print("An infernal sound echoed.");
 		}
 		if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
 		{
-			if (spell_exp[(increment ? 32 : 0)+spell] < 900)
-				spell_exp[(increment ? 32 : 0)+spell]+=60;
-			else if(spell_exp[(increment ? 32 : 0)+spell] < 1200)
-				{if ((dun_level > 4) && ((dun_level + 10) > p_ptr->lev)) spell_exp[(increment ? 32 : 0)+spell]+=8;}
-			else if(spell_exp[(increment ? 32 : 0)+spell] < 1400)
-				{if (((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel)) spell_exp[(increment ? 32 : 0)+spell]+=2;}
-			else if((spell_exp[(increment ? 32 : 0)+spell] < 1600) && !increment)
-				{if (((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) spell_exp[(increment ? 32 : 0)+spell]+=1;}
+			s16b cur_exp = p_ptr->spell_exp[(increment ? 32 : 0)+spell];
+			s16b exp_gain = 0;
+
+			if (cur_exp < 900)
+				exp_gain+=60;
+			else if(cur_exp < 1200)
+			{
+				if ((dun_level > 4) && ((dun_level + 10) > p_ptr->lev))
+					exp_gain = 8;
+			}
+			else if(cur_exp < 1400)
+			{
+				if (((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel))
+					exp_gain = 2;
+			}
+			else if((cur_exp < 1600) && !increment)
+			{
+				if (((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel))
+					exp_gain = 1;
+			}
+			p_ptr->spell_exp[(increment ? 32 : 0)+spell] += exp_gain;
 		}
 	}
 
@@ -5483,16 +5488,16 @@ bool rakuba(int dam, bool force)
 		{
 			int level = r_ptr->level;
 			if (p_ptr->riding_ryoute) level += 20;
-			if ((dam/2 + r_ptr->level) > (skill_exp[GINOU_RIDING]/30+10))
+			if ((dam/2 + r_ptr->level) > (p_ptr->skill_exp[GINOU_RIDING]/30+10))
 			{
-				if((skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && s_info[p_ptr->pclass].s_max[GINOU_RIDING] > 1000)
+				if((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && s_info[p_ptr->pclass].s_max[GINOU_RIDING] > 1000)
 				{
-					if (r_ptr->level*100 > (skill_exp[GINOU_RIDING] + 1500))
-						skill_exp[GINOU_RIDING] += (1+(r_ptr->level - skill_exp[GINOU_RIDING]/100 - 15));
-					else skill_exp[GINOU_RIDING]++;
+					if (r_ptr->level*100 > (p_ptr->skill_exp[GINOU_RIDING] + 1500))
+						p_ptr->skill_exp[GINOU_RIDING] += (1+(r_ptr->level - p_ptr->skill_exp[GINOU_RIDING]/100 - 15));
+					else p_ptr->skill_exp[GINOU_RIDING]++;
 				}
 			}
-			if (randint0(dam/2 + level*2) < (skill_exp[GINOU_RIDING]/30+10))
+			if (randint0(dam/2 + level*2) < (p_ptr->skill_exp[GINOU_RIDING]/30+10))
 			{
 				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
@@ -5695,7 +5700,7 @@ msg_print("その場所にはモンスターはいません。");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint1((skill_exp[GINOU_RIDING]/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint1((p_ptr->skill_exp[GINOU_RIDING]/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
 msg_print("うまく乗れなかった。");

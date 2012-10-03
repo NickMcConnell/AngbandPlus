@@ -50,8 +50,8 @@
 /* Added for ZAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
-#define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 99
+#define FAKE_VER_MINOR 1
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -474,6 +474,14 @@
 #define MAX_NLEN        160
 
 /*
+ * Special internal key
+ */
+#define SPECIAL_KEY_QUEST    255
+#define SPECIAL_KEY_BUILDING 254
+#define SPECIAL_KEY_STORE    253
+#define SPECIAL_KEY_QUIT     252
+
+/*
  * Store constants
  */
 #define STORE_INVEN_MAX 24              /* Max number of discrete objs in inven */
@@ -685,17 +693,17 @@
 #define REALM_DAEMON       9
 #define REALM_CRUSADE      10
 #define MAX_MAGIC          10
-#define MIN_TECHNIC        15
+#define MIN_TECHNIC        16
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
 #define MAX_REALM          17
 
-#define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC)
-#define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC)
+#define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC + 1)
+#define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC + 1)
 
 #define is_magic(A) ((A) < MAX_MAGIC + 1 ? TRUE : FALSE)
 #define tval2realm(A) ((A) - TV_LIFE_BOOK + 1)
-#define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + MAX_MAGIC)
+#define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + 1 + MAX_MAGIC)
 #define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE)
 
 /*
@@ -2573,6 +2581,8 @@
 #define PM_NO_KAGE        0x00000010
 #define PM_NO_PET         0x00000020
 #define PM_ALLOW_UNIQUE   0x00000040
+#define PM_IGNORE_TERRAIN 0x00000080
+#define PM_HASTE          0x00000100
 
 
 /*

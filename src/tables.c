@@ -4505,10 +4505,10 @@ cptr spell_names[VALID_REALM][32] =
 
 	{
 		/* Common Crusade Spellbooks */
-"ÅÅ·â",
+"Ä¨È³",
 "¼Ù°­Â¸ºß´¶ÃÎ",
 "¶²ÉÝ½üµî",
-"¥â¥ó¥¹¥¿¡¼¶²¹²",
+"°Ò°µ",
 "À»°è",
 "Æþ¸ý",
 "¥¹¥¿¡¼¥À¥¹¥È",
@@ -5015,7 +5015,7 @@ cptr spell_names[VALID_REALM][32] =
 
 	{
 		/* Common Crusade Spellbooks */
-		"Zap",
+		"Punishment",
 		"Detect Evil",
 		"Remove Fear",
 		"Scare Monster",
@@ -5031,7 +5031,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Sense Unseen",
 		"Protection from Evil",
 		"Judgment Thunder",
-		"Warding True",
+		"Holy Word",
 
 		/* Rare Crusade Spellbooks */
 		"Unbarring Ways",

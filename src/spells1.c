@@ -5731,8 +5731,21 @@ note_dies = "は光を受けてしぼんでしまった！";
 				if (r_ptr->flags3 & (RF3_NO_CONF)) dam -= 50;
 				if (dam < 1) dam = 1;
 
+				/* No need to tame your pet */
+				if (is_pet(m_ptr))
+				{
+#ifdef JP
+					note = "の動きが速くなった。";
+#else
+					note = " starts moving faster.";
+#endif
+
+					m_ptr->fast = MIN(200, m_ptr->fast + 100);
+					success = TRUE;
+				}
+
 				/* Attempt a saving throw */
-				if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
+				else if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 				    (r_ptr->flags1 & (RF1_UNIQUE)) ||
 				    (m_ptr->mflag2 & MFLAG_NOPET) ||
 				    (p_ptr->cursed & TRC_AGGRAVATE) ||
@@ -7465,7 +7478,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 		}
 	}
 
-	if (p_ptr->tim_eyeeye && get_damage > 0 && !death)
+	if (p_ptr->tim_eyeeye && get_damage > 0 && !p_ptr->is_dead)
 	{
 #ifdef JP
 		msg_format("攻撃が%s自身を傷つけた！", m_name);
