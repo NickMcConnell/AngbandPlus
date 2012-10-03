@@ -2056,7 +2056,7 @@ act = "%sにむかって歌った。";
 				if (!explode)
 				{
 					project(m_idx, 0, t_ptr->fy, t_ptr->fx,
-						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 				}
 
 				if (heal_effect)
@@ -2110,7 +2110,7 @@ msg_format("%^sは突然熱くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 					/* Aura cold */
@@ -2133,7 +2133,7 @@ msg_format("%^sは突然寒くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 					/* Aura elec */
@@ -2156,7 +2156,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 				}
@@ -2481,6 +2481,82 @@ msg_print("地面に落とされた。");
 			
 	}
 
+	/* Handle Invulnerability */
+	if (m_ptr->invulner)
+	{
+		/* Reduce by one, note if expires */
+		m_ptr->invulner--;
+
+		if (!(m_ptr->invulner) && m_ptr->ml)
+		{
+			char m_name[80];
+
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0);
+
+			/* Dump a message */
+#ifdef JP
+msg_format("%^sはもう無敵でない。", m_name);
+#else
+			msg_format("%^s is no longer invulnerable.", m_name);
+#endif
+
+			m_ptr->energy_need += ENERGY_NEED();
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		}
+	}
+
+	/* Handle fast */
+	if (m_ptr->fast)
+	{
+		/* Reduce by one, note if expires */
+		m_ptr->fast--;
+
+		if (!(m_ptr->fast) && m_ptr->ml)
+		{
+			char m_name[80];
+
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0);
+
+			/* Dump a message */
+#ifdef JP
+msg_format("%^sはもう加速されていない。", m_name);
+#else
+			msg_format("%^s is no longer fast.", m_name);
+#endif
+
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		}
+	}
+
+	/* Handle slow */
+	if (m_ptr->slow)
+	{
+		/* Reduce by one, note if expires */
+		m_ptr->slow--;
+
+		if (!(m_ptr->slow) && m_ptr->ml)
+		{
+			char m_name[80];
+
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0);
+
+			/* Dump a message */
+#ifdef JP
+msg_format("%^sはもう減速されていない。", m_name);
+#else
+			msg_format("%^s is no longer slow.", m_name);
+#endif
+
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		}
+	}
+
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
 	{
@@ -2651,82 +2727,6 @@ msg_format("%^sは混乱から立ち直った。", m_name);
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 			}
-		}
-	}
-
-	/* Handle Invulnerability */
-	if (m_ptr->invulner)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->invulner--;
-
-		if (!(m_ptr->invulner) && m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-			/* Dump a message */
-#ifdef JP
-msg_format("%^sはもう無敵でない。", m_name);
-#else
-			msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-
-			m_ptr->energy_need += ENERGY_NEED();
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-		}
-	}
-
-	/* Handle fast */
-	if (m_ptr->fast)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->fast--;
-
-		if (!(m_ptr->fast) && m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-			/* Dump a message */
-#ifdef JP
-msg_format("%^sはもう加速されていない。", m_name);
-#else
-			msg_format("%^s is no longer fast.", m_name);
-#endif
-
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-		}
-	}
-
-	/* Handle slow */
-	if (m_ptr->slow)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->slow--;
-
-		if (!(m_ptr->slow) && m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-			/* Dump a message */
-#ifdef JP
-msg_format("%^sはもう減速されていない。", m_name);
-#else
-			msg_format("%^s is no longer slow.", m_name);
-#endif
-
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 
@@ -3327,7 +3327,7 @@ msg_print("ルーンが爆発した！");
 						msg_print("The rune explodes!");
 #endif
 
-						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
+						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
 					}
 				}
 				else
@@ -3572,7 +3572,7 @@ msg_print("爆発のルーンは解除された。");
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
 					 (!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS)))
 				{
-					u32b f1, f2, f3;
+					u32b flgs[TR_FLAG_SIZE];
 
 					u32b flg2 = 0L;
 					u32b flg3 = 0L;
@@ -3581,7 +3581,7 @@ msg_print("爆発のルーンは解除された。");
 					char o_name[MAX_NLEN];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, flgs);
 
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);
@@ -3590,16 +3590,24 @@ msg_print("爆発のルーンは解除された。");
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_TROLL)  flg3 |= (RF3_TROLL);
-					if (f1 & TR1_SLAY_GIANT)  flg3 |= (RF3_GIANT);
-					if (f1 & TR1_SLAY_ORC)    flg3 |= (RF3_ORC);
-					if (f1 & TR1_SLAY_DEMON)  flg3 |= (RF3_DEMON);
-					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
-					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
-					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
-					if (f3 & TR3_SLAY_HUMAN)  flg2 |= (RF2_HUMAN);
+					if (have_flag(flgs, TR_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (have_flag(flgs, TR_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (have_flag(flgs, TR_SLAY_TROLL))  flg3 |= (RF3_TROLL);
+					if (have_flag(flgs, TR_KILL_TROLL))  flg3 |= (RF3_TROLL);
+					if (have_flag(flgs, TR_KILL_GIANT))  flg3 |= (RF3_GIANT);
+					if (have_flag(flgs, TR_SLAY_GIANT))  flg3 |= (RF3_GIANT);
+					if (have_flag(flgs, TR_SLAY_ORC))    flg3 |= (RF3_ORC);
+					if (have_flag(flgs, TR_KILL_ORC))    flg3 |= (RF3_ORC);
+					if (have_flag(flgs, TR_SLAY_DEMON))  flg3 |= (RF3_DEMON);
+					if (have_flag(flgs, TR_KILL_DEMON))  flg3 |= (RF3_DEMON);
+					if (have_flag(flgs, TR_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (have_flag(flgs, TR_KILL_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (have_flag(flgs, TR_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (have_flag(flgs, TR_KILL_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (have_flag(flgs, TR_SLAY_EVIL))   flg3 |= (RF3_EVIL);
+					if (have_flag(flgs, TR_KILL_EVIL))   flg3 |= (RF3_EVIL);
+					if (have_flag(flgs, TR_SLAY_HUMAN))  flg2 |= (RF2_HUMAN);
+					if (have_flag(flgs, TR_KILL_HUMAN))  flg2 |= (RF2_HUMAN);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) || (r_ptr->flags2 & flg2) ||
@@ -3646,7 +3654,7 @@ msg_format("%^sが%sを拾った。", m_name, o_name);
 						excise_object_idx(this_o_idx);
 
 						/* Forget mark */
-						o_ptr->marked = FALSE;
+						o_ptr->marked = 0;
 
 						/* Forget location */
 						o_ptr->iy = o_ptr->ix = 0;

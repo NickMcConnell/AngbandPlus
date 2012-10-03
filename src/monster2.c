@@ -855,6 +855,13 @@ static bool summon_specific_aux(int r_idx)
 				(r_idx == MON_KNI_TEMPLAR));
 			break;
 		}
+		case SUMMON_EAGLES:
+		{
+			okay = (r_ptr->d_char == 'B' &&
+                                (r_ptr->flags8 & RF8_WILD_MOUNTAIN) &&
+                                (r_ptr->flags8 & RF8_WILD_ONLY));
+			break;
+		}
 	}
 
 	/* Result */
@@ -2301,6 +2308,105 @@ void update_mon(int m_idx, bool full)
 					if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
 				}
 			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_animal) && (r_ptr->flags3 & (RF3_ANIMAL)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_ANIMAL);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_undead) && (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_UNDEAD);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_demon) && (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_DEMON);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_orc) && (r_ptr->flags3 & (RF3_ORC)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_ORC);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_troll) && (r_ptr->flags3 & (RF3_TROLL)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_TROLL);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_giant) && (r_ptr->flags3 & (RF3_GIANT)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_GIANT);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_dragon) && (r_ptr->flags3 & (RF3_DRAGON)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_DRAGON);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_human) && (r_ptr->flags2 & (RF2_HUMAN)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags2 |= (RF2_HUMAN);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_evil) && (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_EVIL);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_good) && (r_ptr->flags3 & (RF3_GOOD)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_GOOD);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_nonliving) && 
+			    (r_ptr->flags3 & (RF3_NONLIVING)) &&
+			    !(r_ptr->flags3 & (RF3_DEMON)) &&
+			    !(r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags3 |= (RF3_NONLIVING);
+
+			}
+
+			/* Magical sensing */
+			if ((p_ptr->esp_unique) && (r_ptr->flags1 & (RF1_UNIQUE)))
+			{
+				flag = TRUE;
+				r_ptr->r_flags1 |= (RF1_UNIQUE);
+
+			}
 		}
 
 		/* Normal line of sight, and not blind */
@@ -2748,10 +2854,10 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	/* Require empty space (if not ghostly) */
 	if (!(!dun_level && (cave[y][x].feat == FEAT_MOUNTAIN) && ((r_ptr->flags8 & RF8_WILD_MOUNTAIN) || (r_ptr->flags7 & RF7_CAN_FLY))) &&
-	    !cave_empty_bold2(y, x) &&
+	    !(cave_empty_bold2(y, x) || (mode & PM_IGNORE_TERRAIN)) &&
 	    !((r_ptr->flags2 & RF2_PASS_WALL) &&
-	    !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
-	    ((y == py) && (x == px))))) return (FALSE);
+              !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
+                ((y == py) && (x == px))))) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -3117,7 +3223,7 @@ msg_print("守りのルーンが壊れた！");
 #ifdef JP
 				color = "紫色に";
 #else
-				color = "perple";
+				color = "purple";
 #endif
 			else if (r_ptr->level > p_ptr->lev + 5)
 #ifdef JP
@@ -3168,7 +3274,7 @@ msg_print("ルーンが爆発した！");
 				msg_print("The rune explodes!");
 #endif
 
-				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
+				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
 			}
 		}
 		else

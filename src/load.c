@@ -67,29 +67,32 @@ static u32b	x_check = 0L;
 
 
 
-#if 0
 /*
  * This function determines if the version of the savefile
- * currently being read is older than version "x.y.z".
+ * currently being read is older than version "major.minor.patch.extra".
  */
-static bool older_than(byte x, byte y, byte z)
+static bool h_older_than(byte major, byte minor, byte patch, byte extra)
 {
 	/* Much older, or much more recent */
-	if (sf_major < x) return (TRUE);
-	if (sf_major > x) return (FALSE);
+	if (h_ver_major < major) return (TRUE);
+	if (h_ver_major > major) return (FALSE);
 
 	/* Distinctly older, or distinctly more recent */
-	if (sf_minor < y) return (TRUE);
-	if (sf_minor > y) return (FALSE);
+	if (h_ver_minor < minor) return (TRUE);
+	if (h_ver_minor > minor) return (FALSE);
 
 	/* Barely older, or barely more recent */
-	if (sf_patch < z) return (TRUE);
-	if (sf_patch > z) return (FALSE);
+	if (h_ver_patch < patch) return (TRUE);
+	if (h_ver_patch > patch) return (FALSE);
+
+	/* Barely older, or barely more recent */
+	if (h_ver_extra < extra) return (TRUE);
+	if (h_ver_extra > extra) return (FALSE);
 
 	/* Identical versions */
 	return (FALSE);
 }
-#endif
+
 
 /*
  * The above function, adapted for Zangband
@@ -292,10 +295,12 @@ static void rd_item(object_type *o_ptr)
 
 	rd_byte(&o_ptr->marked);
 
-	/* Old flags */
-	rd_u32b(&o_ptr->art_flags1);
-	rd_u32b(&o_ptr->art_flags2);
-	rd_u32b(&o_ptr->art_flags3);
+	/* Object flags */
+	rd_u32b(&o_ptr->art_flags[0]);
+	rd_u32b(&o_ptr->art_flags[1]);
+	rd_u32b(&o_ptr->art_flags[2]);
+	if (h_older_than(1, 3, 0, 0)) o_ptr->art_flags[3] = 0L;
+        else rd_u32b(&o_ptr->art_flags[3]);
 
 	if (z_older_than(11, 0, 11))
 	{
@@ -303,8 +308,8 @@ static void rd_item(object_type *o_ptr)
 		if (o_ptr->ident & 0x40)
 		{
 			o_ptr->curse_flags |= TRC_CURSED;
-			if (o_ptr->art_flags3 & 0x40000000L) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
-			if (o_ptr->art_flags3 & 0x80000000L) o_ptr->curse_flags |= TRC_PERMA_CURSE;
+			if (o_ptr->art_flags[2] & 0x40000000L) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+			if (o_ptr->art_flags[2] & 0x80000000L) o_ptr->curse_flags |= TRC_PERMA_CURSE;
 			if (o_ptr->name1)
 			{
 				artifact_type *a_ptr = &a_info[o_ptr->name1];
@@ -318,7 +323,7 @@ static void rd_item(object_type *o_ptr)
 				if (e_ptr->gen_flags & (TRG_PERMA_CURSE)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
 			}
 		}
-		o_ptr->art_flags3 &= (0x1FFFFFFFL);
+		o_ptr->art_flags[2] &= (0x1FFFFFFFL);
 	}
 	else
 	{
@@ -338,12 +343,12 @@ static void rd_item(object_type *o_ptr)
 		{
 			switch (o_ptr->xtra2 % 6)
 			{
-			case 0: o_ptr->art_flags2 |= (TR2_SUST_STR); break;
-			case 1: o_ptr->art_flags2 |= (TR2_SUST_INT); break;
-			case 2: o_ptr->art_flags2 |= (TR2_SUST_WIS); break;
-			case 3: o_ptr->art_flags2 |= (TR2_SUST_DEX); break;
-			case 4: o_ptr->art_flags2 |= (TR2_SUST_CON); break;
-			case 5: o_ptr->art_flags2 |= (TR2_SUST_CHR); break;
+			case 0: add_flag(o_ptr->art_flags, TR_SUST_STR); break;
+			case 1: add_flag(o_ptr->art_flags, TR_SUST_INT); break;
+			case 2: add_flag(o_ptr->art_flags, TR_SUST_WIS); break;
+			case 3: add_flag(o_ptr->art_flags, TR_SUST_DEX); break;
+			case 4: add_flag(o_ptr->art_flags, TR_SUST_CON); break;
+			case 5: add_flag(o_ptr->art_flags, TR_SUST_CHR); break;
 			}
 			o_ptr->xtra2 = 0;
 		}
@@ -351,17 +356,17 @@ static void rd_item(object_type *o_ptr)
 		{
 			switch (o_ptr->xtra2 % 11)
 			{
-			case  0: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
-			case  1: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
-			case  2: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
-			case  3: o_ptr->art_flags2 |= (TR2_RES_SHARDS); break;
-			case  4: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
-			case  5: o_ptr->art_flags2 |= (TR2_RES_NEXUS);  break;
-			case  6: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
-			case  7: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
-			case  8: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
-			case  9: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
-			case 10: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
+			case  0: add_flag(o_ptr->art_flags, TR_RES_BLIND);  break;
+			case  1: add_flag(o_ptr->art_flags, TR_RES_CONF);   break;
+			case  2: add_flag(o_ptr->art_flags, TR_RES_SOUND);  break;
+			case  3: add_flag(o_ptr->art_flags, TR_RES_SHARDS); break;
+			case  4: add_flag(o_ptr->art_flags, TR_RES_NETHER); break;
+			case  5: add_flag(o_ptr->art_flags, TR_RES_NEXUS);  break;
+			case  6: add_flag(o_ptr->art_flags, TR_RES_CHAOS);  break;
+			case  7: add_flag(o_ptr->art_flags, TR_RES_DISEN);  break;
+			case  8: add_flag(o_ptr->art_flags, TR_RES_POIS);   break;
+			case  9: add_flag(o_ptr->art_flags, TR_RES_DARK);   break;
+			case 10: add_flag(o_ptr->art_flags, TR_RES_LITE);   break;
 			}
 			o_ptr->xtra2 = 0;
 		}		
@@ -369,14 +374,14 @@ static void rd_item(object_type *o_ptr)
 		{
 			switch (o_ptr->xtra2 % 8)
 			{
-			case 0: o_ptr->art_flags3 |= (TR3_FEATHER);     break;
-			case 1: o_ptr->art_flags3 |= (TR3_LITE);        break;
-			case 2: o_ptr->art_flags3 |= (TR3_SEE_INVIS);   break;
-			case 3: o_ptr->art_flags3 |= (TR3_WARNING);     break;
-			case 4: o_ptr->art_flags3 |= (TR3_SLOW_DIGEST); break;
-			case 5: o_ptr->art_flags3 |= (TR3_REGEN);       break;
-			case 6: o_ptr->art_flags2 |= (TR2_FREE_ACT);    break;
-			case 7: o_ptr->art_flags2 |= (TR2_HOLD_LIFE);   break;
+			case 0: add_flag(o_ptr->art_flags, TR_FEATHER);     break;
+			case 1: add_flag(o_ptr->art_flags, TR_LITE);        break;
+			case 2: add_flag(o_ptr->art_flags, TR_SEE_INVIS);   break;
+			case 3: add_flag(o_ptr->art_flags, TR_WARNING);     break;
+			case 4: add_flag(o_ptr->art_flags, TR_SLOW_DIGEST); break;
+			case 5: add_flag(o_ptr->art_flags, TR_REGEN);       break;
+			case 6: add_flag(o_ptr->art_flags, TR_FREE_ACT);    break;
+			case 7: add_flag(o_ptr->art_flags, TR_HOLD_LIFE);   break;
 			}
 			o_ptr->xtra2 = 0;
 		}
@@ -409,6 +414,12 @@ static void rd_item(object_type *o_ptr)
 	else
 	{
 		rd_byte(&o_ptr->xtra3);
+                if (h_older_than(1, 3, 0, 1))
+                {
+                        if (o_ptr->tval > TV_CAPTURE && o_ptr->xtra3 >= 1+96)
+                                o_ptr->xtra3 += -96 + MIN_SPECIAL_ESSENCE;
+                }
+
 		rd_s16b(&o_ptr->xtra4);
 		rd_s16b(&o_ptr->xtra5);
 	}
@@ -419,40 +430,15 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->pval = 0;
 	}
 
-	/* Feeling - from 2.3.1, "savefile version 1" */
-	if (sf_version >= 1)
-	{
-		rd_byte(&o_ptr->feeling);
-	}
+        rd_byte(&o_ptr->feeling);
 
 	/* Inscription */
-	rd_string(buf, 128);
-
-	/* If this savefile is old, maybe we need to translate the feeling */
-	if (sf_version < 1)
-	{
-		byte i;
-
-		for (i = 0; i <= FEEL_MAX; i++)
-		{
-			if (game_inscriptions[i] == NULL)
-			{
-				continue;
-			}
-
-			if (streq(buf, game_inscriptions[i]))
-			{
-				o_ptr->feeling = i;
-				buf[0] = 0;
-				break;
-			}
-		}
-	}
+	rd_string(buf, sizeof(buf));
 
 	/* Save the inscription */
 	if (buf[0]) o_ptr->inscription = quark_add(buf);
 
-	rd_string(buf, 128);
+	rd_string(buf, sizeof(buf));
 	if (buf[0]) o_ptr->art_name = quark_add(buf);
 
 	/* The Python object */
@@ -470,10 +456,10 @@ static void rd_item(object_type *o_ptr)
 
 	if (z_older_than(10, 4, 9))
 	{
-		if (o_ptr->art_flags1 & TR1_MAGIC_MASTERY)
+		if (have_flag(o_ptr->art_flags, TR_MAGIC_MASTERY))
 		{
-			o_ptr->art_flags1 &= ~(TR1_MAGIC_MASTERY);
-			o_ptr->art_flags3 |= (TR3_DEC_MANA);
+			remove_flag(o_ptr->art_flags, TR_MAGIC_MASTERY);
+			add_flag(o_ptr->art_flags, TR_DEC_MANA);
 		}
 	}
 
@@ -588,11 +574,7 @@ static void rd_monster(monster_type *m_ptr)
 		rd_s16b(&m_ptr->target_x);
 	}
 
-	/* Monster invulnerability introduced from 2.3.2+ */
-	if (sf_version < 2)
-		m_ptr->invulner = 0;
-	else
-		rd_byte(&m_ptr->invulner);
+        rd_byte(&m_ptr->invulner);
 
 	if (!(z_major == 2 && z_minor == 0 && z_patch == 6))
 		rd_u32b(&m_ptr->smart);
@@ -629,7 +611,7 @@ static void rd_monster(monster_type *m_ptr)
 	}
 	else
 	{
-		rd_string(buf, 128);
+		rd_string(buf, sizeof(buf));
 		if (buf[0]) m_ptr->nickname = quark_add(buf);
 	}
 
@@ -1097,7 +1079,7 @@ static void rd_ghost(void)
 	char buf[64];
 
 	/* Strip name */
-	rd_string(buf, 64);
+	rd_string(buf, sizeof(buf));
 
 	/* Strip old data */
 	strip_bytes(60);
@@ -1140,7 +1122,7 @@ static void load_quick_start(void)
 
 	for (i = 0; i < 8; i++) rd_s16b(&previous_char.vir_types[i]);
 
-	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], 60);
+	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], sizeof(previous_char.history[i]));
 
 	rd_byte(&previous_char.quests);
 
@@ -1158,15 +1140,15 @@ static void rd_extra(void)
 	byte tmp8u;
 	s16b tmp16s;
 
-	rd_string(player_name, 32);
+	rd_string(player_name, sizeof(player_name));
 
-	rd_string(p_ptr->died_from, 80);
+	rd_string(p_ptr->died_from, sizeof(p_ptr->died_from));
 
 	load_quick_start();
 
 	for (i = 0; i < 4; i++)
 	{
-		rd_string(p_ptr->history[i], 60);
+		rd_string(p_ptr->history[i], sizeof(p_ptr->history[i]));
 	}
 
 	/* Class/Race/Seikaku/Gender/Spells */
@@ -1234,6 +1216,16 @@ static void rd_extra(void)
 	{
 		for (i = 0; i < 108; i++) rd_s32b(&p_ptr->magic_num1[i]);
 		for (i = 0; i < 108; i++) rd_byte(&p_ptr->magic_num2[i]);
+                if (h_older_than(1, 3, 0, 1))
+                {
+                        if (p_ptr->pclass == CLASS_SMITH)
+                        {
+                                p_ptr->magic_num1[TR_ES_ATTACK] = p_ptr->magic_num1[96];
+                                p_ptr->magic_num1[96] = 0;
+                                p_ptr->magic_num1[TR_ES_AC] = p_ptr->magic_num1[97];
+                                p_ptr->magic_num1[97] = 0;
+                        }
+                }
 	}
 	if ((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0]) p_ptr->action = ACTION_SING;
 
@@ -1840,7 +1832,7 @@ static void rd_messages(void)
 	for (i = 0; i < num; i++)
 	{
 		/* Read the message */
-		rd_string(buf, 128);
+		rd_string(buf, sizeof(buf));
 
 		/* Save the message */
 		message_add(buf);
@@ -1949,12 +1941,6 @@ static errr rd_dungeon(void)
 			/* Access the cave */
 			c_ptr = &cave[y][x];
 
-			if (c_ptr->feat == FEAT_INVIS)
-			{
-				c_ptr->feat = FEAT_FLOOR;
-				c_ptr->info |= CAVE_TRAP;
-			}
-
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
 
@@ -1969,6 +1955,39 @@ static errr rd_dungeon(void)
 			}
 		}
 	}
+
+        /* Convert cave data */
+        if (z_older_than(11, 0, 99))
+        {
+                for (y = 0; y < ymax; y++) for (x = 0; x < xmax; x++)
+                {
+			/* Wipe old unused flags */
+			cave[y][x].info &= ~(CAVE_MASK);
+                }
+        }
+
+        if (h_older_than(1, 1, 1, 0))
+        {
+                for (y = 0; y < ymax; y++) for (x = 0; x < xmax; x++)
+                {
+			/* Access the cave */
+			c_ptr = &cave[y][x];
+
+                        /* Very old */
+                        if (c_ptr->feat == FEAT_INVIS)
+                        {
+                                c_ptr->feat = FEAT_FLOOR;
+                                c_ptr->info |= CAVE_TRAP;
+                        }
+                
+                        /* Older than 1.1.1 */
+                        if (c_ptr->feat == FEAT_MIRROR)
+                        {
+                                c_ptr->feat = FEAT_FLOOR;
+                                c_ptr->info |= CAVE_IN_MIRROR;
+                        }
+                }
+        }
 
 	/*** Run length decoding ***/
 
@@ -2210,13 +2229,13 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Mention the savefile version */
+        note(format(
 #ifdef JP
-note(format("バージョン %d.%d.%d のセーブ・ファイルをロード中...",
+                     "バージョン %d.%d.%d のセーブ・ファイルをロード中...",
 #else
-	note(format("Loading a %d.%d.%d savefile...",
+                     "Loading a %d.%d.%d savefile...",
 #endif
-
-		(z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
+                     (z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
 
 	/* Strip the version bytes */
@@ -2230,13 +2249,15 @@ note(format("バージョン %d.%d.%d のセーブ・ファイルをロード中...",
 	v_check = 0L;
 	x_check = 0L;
 
-#if SAVEFILE_VERSION
 	/* Read the version number of the savefile */
-	rd_u32b(&sf_version);
-#endif /* SAVEFILE_VERSION */
+        /* Old savefile will be version 0.0.0.3 */
+        rd_byte(&h_ver_extra);
+        rd_byte(&h_ver_patch);
+        rd_byte(&h_ver_minor);
+        rd_byte(&h_ver_major);
 
 	/* Operating system info */
-	rd_u32b(&sf_xtra);
+	rd_u32b(&sf_system);
 
 	/* Time of savefile creation */
 	rd_u32b(&sf_when);
@@ -2807,7 +2828,7 @@ note("持ち物情報を読み込むことができません");
 	if (!z_older_than(11, 0, 9))
 	{
 		char buf[SCREEN_BUF_SIZE];
-		rd_string(buf, SCREEN_BUF_SIZE);
+		rd_string(buf, sizeof(buf));
 		if (buf[0]) screen_dump = string_make(buf);
 	}
 

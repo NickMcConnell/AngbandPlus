@@ -28,7 +28,6 @@ extern int level_up;
  */
 extern int max_autopick;
 extern autopick_type autopick_list[MAX_AUTOPICK];
-extern autopick_type autopick_entry_last_destroyed;
 
 /* tables.c */
 extern s16b ddd[9];
@@ -107,16 +106,12 @@ extern monster_power monster_powers[MAX_MONSPELLS];
 
 /* variable.c */
 extern cptr copyright[5];
-extern byte version_major;
-extern byte version_minor;
-extern byte version_patch;
-extern byte version_extra;
-extern byte sf_major;
-extern byte sf_minor;
-extern byte sf_patch;
+extern byte h_ver_major;
+extern byte h_ver_minor;
+extern byte h_ver_patch;
+extern byte h_ver_extra;
 extern byte sf_extra;
-extern u32b sf_version;
-extern u32b sf_xtra;
+extern u32b sf_system;
 extern byte z_major;
 extern byte z_minor;
 extern byte z_patch;
@@ -287,6 +282,8 @@ extern bool use_command;
 extern bool center_player;
 extern bool center_running;
 extern bool destroy_items;
+extern bool destroy_feeling;
+extern bool destroy_identify;
 extern bool leave_worth;
 extern bool leave_equip;
 extern bool leave_wanted;
@@ -528,6 +525,7 @@ extern void optimize_inventry_auto_destroy(void);
 extern void auto_pickup_items(cave_type *c_ptr);
 extern void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr);
 extern void init_autopicker(void);
+extern errr process_pickpref_file_line(char *buf);
 extern void do_cmd_edit_autopick(void);
 
 /* birth.c */
@@ -571,6 +569,7 @@ extern void map_area(int range);
 extern void wiz_lite(bool wizard, bool ninja);
 extern void wiz_dark(void);
 extern void cave_set_feat(int y, int x, int feat);
+extern void remove_mirror(int y, int x);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern bool projectable(int y1, int x1, int y2, int x2);
 extern void scatter(int *yp, int *xp, int y, int x, int d, int mode);
@@ -683,7 +682,7 @@ extern void do_cmd_activate(void);
 extern void do_cmd_rerate(bool display);
 extern void ring_of_power(int dir);
 extern void do_cmd_use(void);
-extern void do_cmd_magic_eater(void);
+extern void do_cmd_magic_eater(bool only_browse);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
@@ -745,11 +744,12 @@ extern byte color_char_to_attr(char c);
 extern errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax);
 
 /* init2.c */
+extern void init_file_paths(char *path);
 extern cptr err_str[PARSE_ERROR_MAX];
 extern errr init_v_info(void);
-extern void init_file_paths(char *path);
-extern void init_angband(void);
 extern errr init_buildings(void);
+extern void init_angband(void);
+extern cptr get_check_sum(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -831,8 +831,8 @@ extern void monster_drop_carried_objects(monster_type *m_ptr);
 extern s16b m_bonus(int max, int level);
 
 extern void reset_visuals(void);
-extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
+extern void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
 extern bool identify_fully_aux(object_type *o_ptr);
@@ -929,7 +929,7 @@ extern void seal_of_mirror(int dam);
 /* spells2.c */
 extern void message_pain(int m_idx, int dam);
 extern void self_knowledge(void);
-extern bool detect_traps(int range);
+extern bool detect_traps(int range, bool known);
 extern bool detect_doors(int range);
 extern bool detect_stairs(int range);
 extern bool detect_treasure(int range);
@@ -1085,10 +1085,10 @@ extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
 extern int inven_damage(inven_func typ, int perc);
-extern void acid_dam(int dam, cptr kb_str, int monspell);
-extern void elec_dam(int dam, cptr kb_str, int monspell);
-extern void fire_dam(int dam, cptr kb_str, int monspell);
-extern void cold_dam(int dam, cptr kb_str, int monspell);
+extern int acid_dam(int dam, cptr kb_str, int monspell);
+extern int elec_dam(int dam, cptr kb_str, int monspell);
+extern int fire_dam(int dam, cptr kb_str, int monspell);
+extern int cold_dam(int dam, cptr kb_str, int monspell);
 extern bool rustproof(void);
 extern bool curse_armor(void);
 extern bool curse_weapon(bool force, int slot);
@@ -1181,6 +1181,10 @@ extern void tag_sort(tag_type elements[], int number);
 extern byte gamma_table[256];
 extern void build_gamma_table(int gamma);
 #endif /* SUPPORT_GAMMA */
+
+extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
+extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
+
 
 /* xtra1.c */
 extern bool is_daytime(void);
@@ -1311,6 +1315,7 @@ extern void one_high_resistance(object_type *o_ptr);
 extern void one_lordly_high_resistance(object_type *o_ptr);
 extern void one_ele_resistance(object_type *o_ptr);
 extern void one_dragon_ele_resistance(object_type *o_ptr);
+extern void one_low_esp(object_type *o_ptr);
 extern void one_resistance(object_type *o_ptr);
 extern void one_ability(object_type *o_ptr);
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);
@@ -1484,7 +1489,6 @@ extern void jverb2( const char *in , char *out);
 extern void jverb3( const char *in , char *out);
 extern void jverb( const char *in , char *out , int flag);
 extern char* strstr_j(cptr str1, cptr str2);
-extern size_t mb_strlcpy(char *dst, const char *src, size_t size);
 extern void codeconv(char *str);
 extern bool iskanji2(cptr s, int x);
 #endif

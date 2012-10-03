@@ -1138,6 +1138,8 @@ msg_print("ランダムアーティファクトは値引きなし。");
  */
 static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 {
+	int i;
+
 	/* Hack -- Identical items cannot be stacked */
 	if (o_ptr == j_ptr) return (0);
 
@@ -1162,10 +1164,8 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->art_name || j_ptr->art_name) return (0);
 
 	/* Hack -- Identical art_flags! */
-	if ((o_ptr->art_flags1 != j_ptr->art_flags1) ||
-		(o_ptr->art_flags2 != j_ptr->art_flags2) ||
-		(o_ptr->art_flags3 != j_ptr->art_flags3))
-			return (0);
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		if (o_ptr->art_flags[i] != j_ptr->art_flags[i]) return (0);
 
 	/* Hack -- Never stack "powerful" items */
 	if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
@@ -1281,9 +1281,9 @@ static int store_check_num(object_type *o_ptr)
 
 static bool is_blessed(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_BLESSED) return (TRUE);
+	u32b flgs[TR_FLAG_SIZE];
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_BLESSED)) return (TRUE);
 	else return (FALSE);
 }
 
@@ -1485,6 +1485,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_ARCANE_BOOK:
 				case TV_ENCHANT_BOOK:
 				case TV_DAEMON_BOOK:
+				case TV_CRUSADE_BOOK:
 				case TV_MUSIC_BOOK:
 					break;
 				default:
@@ -2213,10 +2214,11 @@ static void display_inventory(void)
 
 
 		/* Indicate the "current page" */
+		/* Trailing spaces are to display (Page xx) and (Page x) */
 #ifdef JP
-		put_str(format("(%dページ)", store_top/12 + 1), 5, 20);
+		put_str(format("(%dページ)  ", store_top/12 + 1), 5, 20);
 #else
-		put_str(format("(Page %d)", store_top/12 + 1), 5, 20);
+		put_str(format("(Page %d)  ", store_top/12 + 1), 5, 20);
 #endif
 
 	}
@@ -2936,6 +2938,12 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	/* No need to haggle */
 	if (noneed || !manual_haggle || (final_ask >= purse))
 	{
+		/* Apply Sales Tax (if needed) */
+		if (!manual_haggle && !noneed)
+		{
+			final_ask -= final_ask / 10;
+		}
+
 		/* No reason to haggle */
 		if (final_ask >= purse)
 		{
@@ -2976,9 +2984,6 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 #endif
 
 			msg_print(NULL);
-
-			/* Apply Sales Tax */
-			final_ask -= final_ask / 10;
 		}
 
 		/* Final price */

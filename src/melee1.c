@@ -1065,7 +1065,7 @@ bool make_attack_normal(int m_idx)
 							}
 							
 							/* Forget mark */
-							j_ptr->marked = FALSE;
+							j_ptr->marked = 0;
 							
 							/* Memorize monster */
 							j_ptr->held_m_idx = m_idx;
@@ -1196,7 +1196,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					acid_dam(damage, ddesc, -1);
+					get_damage += acid_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ACID);
@@ -1219,7 +1219,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					elec_dam(damage, ddesc, -1);
+					get_damage += elec_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_ELEC);
@@ -1242,7 +1242,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					fire_dam(damage, ddesc, -1);
+					get_damage += fire_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_FIRE);
@@ -1265,7 +1265,7 @@ bool make_attack_normal(int m_idx)
 
 
 					/* Special damage */
-					cold_dam(damage, ddesc, -1);
+					get_damage += cold_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_COLD);
@@ -2148,7 +2148,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 							alive = FALSE;
 						}
 					}
-					if( cave[py][px].feat == FEAT_MIRROR ){
+					if( (cave[py][px].info & CAVE_IN_MIRROR)){
 						teleport_player(10);
 					}
 				}
@@ -2298,7 +2298,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
-		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL | PROJECT_NO_REF, -1);
+		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
 		set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 

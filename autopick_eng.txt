@@ -23,6 +23,10 @@
 #      ^I  : Choose an item from inventry/equipment, then insert its name
 #      ^S  : Rotates action (pick up / destroy / leave on floor)
 #      ^U  : Rotates idendify state (identified / unidentified / ...)
+#      ^L  : Insert name of the last auto-destroyed item.
+#      '/' : Search string, or search an item specified by ^I or ^L.
+#      'n' : Search next
+#      'N' : Search previous
 #
 #      The preference will be saved in a file named
 #      "pickpref-<<name>>.prf" in your user directory; This will be
@@ -45,11 +49,14 @@
 #    ---------
 #
 #    Command letter:
-#           Each line determines the actions taken when you step over a kind 
-#      of object.  Starting a line with '!' indicates that you wish to destroy 
-#      this kind of object.  Starting a line with '~' indicates that you wish 
-#      to leave this kind of object on the floor.  Otherwise, your character 
-#      will automatically attempt to pick up the object.
+#           Each line determines the actions taken when you step over
+#      a kind of object.  Starting a line with '!' indicates that you
+#      wish to destroy this kind of object.  Starting a line with '~'
+#      indicates that you wish to leave this kind of object on the
+#      floor.  Starting a line with ';' indicates that you wish to
+#      force the game to ask you if you want to pick the item up or
+#      not.  Otherwise, your character will automatically attempt to
+#      pick up the object.
 #           There is an additional command letter '('.  It indicates that 
 #      you don't wish this item to be displayed in full map. see below.
 #
@@ -63,6 +70,7 @@
 #
 #      all               : All items match.
 #      collecting        : Matches if you already have that same item.
+#      unaware           : Items with unknown effects match.
 #      unidentified      : Unidentified items match.
 #      identified        : Identified items match.
 #      *identified*      : *Identified* items match.
@@ -73,7 +81,6 @@
 #      artifacts         : Artifacts items match.
 #      ego               : Ego items match.
 #      nameless          : Non ego/non artifact items match.
-#      unaware           : Items with unknown effects match.
 #      wanted            : Wanted monster's corpses or skeletons match.
 #      unique monster's  : Unique monster's corpses, skeletons or statues match.
 #      human             : Human corpses or skeletons match.
@@ -165,10 +172,11 @@
 #
 #      Strict syntax of each line is below.
 #      
-#      [! ~ (]
-#      [[all] [collecting] [unidentified] [identified] [*identified*] 
+#      [! ~ ; (]
+#      [[all] [collecting]
+#       [unaware] [unidentified] [identified] [*identified*] 
 #       [dice boosted] [more than N dice] [more bonus than N] 
-#       [worthless] [artifact] [ego] [nameless] [unaware] 
+#       [worthless] [artifact] [ego] [nameless] 
 #       [wanted] [unique monster's] [human] [unreadable] 
 #       [first realm's] [second realm's] [first] [second] [third] [fourth] 
 #       [items | weapons | armors | missiles | magical devices | 
@@ -231,7 +239,7 @@
 #         Returns player name.
 #        $REALM1
 #         Returns player's first magic realm
-#          none, Life, Sorcery, Nature, Chaos, Death, Trump Arcane,
+#          none, Life, Sorcery, Nature, Chaos, Death, Trump, Arcane,
 #          Craft, Daemon, Crusade, Music, Kendo
 #        $REALM2
 #         Returns player's second magic realm

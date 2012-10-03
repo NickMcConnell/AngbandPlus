@@ -62,7 +62,7 @@ static void remove_auto_dump(cptr orig_file, cptr mark)
 	
 	while (1)
 	{
-		if (my_fgets(orig_fff, buf, 1024))
+		if (my_fgets(orig_fff, buf, sizeof(buf)))
 		{
 			if (between_mark)
 			{
@@ -120,7 +120,7 @@ static void remove_auto_dump(cptr orig_file, cptr mark)
 		tmp_fff = my_fopen(tmp_file, "r");
 		orig_fff = my_fopen(orig_file, "w");
 		
-		while (!my_fgets(tmp_fff, buf, 1024))
+		while (!my_fgets(tmp_fff, buf, sizeof(buf)))
 			fprintf(orig_fff, "%s\n", buf);
 		
 		my_fclose(orig_fff);
@@ -261,7 +261,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -583,6 +583,29 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #endif
 			break;
 		}
+		case NIKKI_PAT_TELE:
+		{
+			cptr to;
+			if (!dun_level)
+#ifdef JP
+				to = "地上";
+#else
+				to = "the surface";
+#endif
+			else
+#ifdef JP
+				to = format("%d階(%s)", dun_level, d_name+d_info[dungeon_type].name);
+#else
+				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
+#endif
+				
+#ifdef JP
+			fprintf(fff, " %2d:%02d %20s %sへとパターンの力で移動した。\n", hour, min, note_level, to);
+#else
+			fprintf(fff, " %2d:%02d %20s use Pattern to teleport to %s.\n", hour, min, note_level, to);
+#endif
+			break;
+		}
 		case NIKKI_LEVELUP:
 		{
 #ifdef JP
@@ -770,7 +793,7 @@ static void do_cmd_disp_nikki(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
 	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_BERSERKER)
 		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)]);
@@ -857,7 +880,7 @@ static void do_cmd_erase_nikki(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, file_name);
 
 	/* Remove the file */
 	fd_kill(buf);
@@ -1077,7 +1100,7 @@ void do_cmd_change_name(void)
 		/* Display the player */
 		display_player(mode);
 
-		if (mode == 6)
+		if (mode == 4)
 		{
 			mode = 0;
 			display_player(mode);
@@ -1408,51 +1431,51 @@ static option_type cheat_info[CHEAT_MAX] =
 {
 	{ &cheat_peek,		FALSE,	255,	0x01, 0x00,
 #ifdef JP
-	"cheat_peek",		"アイテムの生成をのぞき見る" },
+	"cheat_peek",		"アイテムの生成をのぞき見る"
 #else
-	"cheat_peek",		"Peek into object creation" },
+	"cheat_peek",		"Peek into object creation"
 #endif
-
+        },
 
 	{ &cheat_hear,		FALSE,	255,	0x02, 0x00,
 #ifdef JP
-	"cheat_hear",		"モンスターの生成をのぞき見る" },
+	"cheat_hear",		"モンスターの生成をのぞき見る"
 #else
-	"cheat_hear",		"Peek into monster creation" },
+	"cheat_hear",		"Peek into monster creation"
 #endif
-
+        },
 
 	{ &cheat_room,		FALSE,	255,	0x04, 0x00,
 #ifdef JP
-	"cheat_room",		"ダンジョンの生成をのぞき見る" },
+	"cheat_room",		"ダンジョンの生成をのぞき見る"
 #else
-	"cheat_room",		"Peek into dungeon creation" },
+	"cheat_room",		"Peek into dungeon creation"
 #endif
-
+        },
 
 	{ &cheat_xtra,		FALSE,	255,	0x08, 0x00,
 #ifdef JP
-	"cheat_xtra",		"その他の事をのぞき見る" },
+	"cheat_xtra",		"その他の事をのぞき見る"
 #else
-	"cheat_xtra",		"Peek into something else" },
+	"cheat_xtra",		"Peek into something else"
 #endif
-
+        },
 
 	{ &cheat_know,		FALSE,	255,	0x10, 0x00,
 #ifdef JP
-	"cheat_know",		"完全なモンスターの思い出を知る" },
+	"cheat_know",		"完全なモンスターの思い出を知る"
 #else
-	"cheat_know",		"Know complete monster info" },
+	"cheat_know",		"Know complete monster info"
 #endif
-
+        },
 
 	{ &cheat_live,		FALSE,	255,	0x20, 0x00,
 #ifdef JP
-	"cheat_live",		"死を回避することを可能にする" }
+	"cheat_live",		"死を回避することを可能にする"
 #else
-	"cheat_live",		"Allow player to avoid death" }
+	"cheat_live",		"Allow player to avoid death"
 #endif
-
+        }
 };
 
 /*
@@ -1473,6 +1496,8 @@ static void do_cmd_options_cheat(cptr info)
 	/* Interact with the player */
 	while (TRUE)
 	{
+                int dir;
+
 		/* Prompt XXX XXX XXX */
 #ifdef JP
 		sprintf(buf, "%s ( リターンで次へ, y/n でセット, ESC で決定 )", info);
@@ -1515,6 +1540,14 @@ static void do_cmd_options_cheat(cptr info)
 
 		/* Get a key */
 		ch = inkey();
+
+		/*
+		 * HACK - Try to translate the key into a direction
+		 * to allow using the roguelike keys for navigation.
+		 */
+		dir = get_keymap_dir(ch);
+		if ((dir == 2) || (dir == 4) || (dir == 6) || (dir == 8))
+			ch = I2D(dir);
 
 		/* Analyze */
 		switch (ch)
@@ -1564,6 +1597,20 @@ static void do_cmd_options_cheat(cptr info)
 				k = (k + 1) % n;
 				break;
 			}
+
+                        case '?':
+                        {
+#ifdef JP
+                                strnfmt(buf, sizeof(buf), "joption.txt#%s", cheat_info[k].o_text);
+#else
+                                strnfmt(buf, sizeof(buf), "option.txt#%s", cheat_info[k].o_text);
+#endif
+                                /* Peruse the help file */
+                                (void)show_file(TRUE, buf, NULL, 0, 0);
+
+				Term_clear(); 
+                                break;
+                        }
 
 			default:
 			{
@@ -1729,6 +1776,19 @@ static void do_cmd_options_autosave(cptr info)
 				    autosave_freq), 5, 0);
 			}
 
+                        case '?':
+                        {
+#ifdef JP
+                                (void)show_file(TRUE, "joption.txt#Autosave", NULL, 0, 0);
+#else
+                                (void)show_file(TRUE, "option.txt#Autosave", NULL, 0, 0);
+#endif
+
+
+				Term_clear(); 
+                                break;
+                        }
+
 			default:
 			{
 				bell();
@@ -1766,23 +1826,27 @@ void do_cmd_options_aux(int page, cptr info)
 	/* Clear screen */
 	Term_clear();
 
-#ifdef JP
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 4, 6);
-#else
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 4, 3);
-#endif
-
 	/* Interact with the player */
 	while (TRUE)
 	{
+                int dir;
+
 		/* Prompt XXX XXX XXX */
 #ifdef JP
-		sprintf(buf, "%s ( リターンで次へ, y/n でセット, ESC で決定 ) ", info);
+		sprintf(buf, "%s (リターン:次, y/n:変更, ESC:終了, ?:ヘルプ) ", info);
 #else
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		sprintf(buf, "%s (RET:next, y/n:change, ESC:accept, ?:help) ", info);
 #endif
 
 		prt(buf, 0, 0);
+
+
+                /* HACK -- description for easy-auto-destroy options */
+#ifdef JP
+                if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
+#else
+                if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
+#endif
 
 		/* Display the options */
 		for (i = 0; i < n; i++)
@@ -1802,17 +1866,26 @@ void do_cmd_options_aux(int page, cptr info)
 #endif
 
 			        option_info[opt[i]].o_text);
-			if ((page == PAGE_AUTODESTROY) && i > 0) c_prt(a, buf, i + 5, 0);
+			if ((page == PAGE_AUTODESTROY) && i > 2) c_prt(a, buf, i + 5, 0);
 			else c_prt(a, buf, i + 2, 0);
 		}
 
-		if ((page == PAGE_AUTODESTROY) && (k > 0)) l = 3;
+		if ((page == PAGE_AUTODESTROY) && (k > 2)) l = 3;
 		else l = 0;
+
 		/* Hilite current option */
 		move_cursor(k + 2 + l, 50);
 
 		/* Get a key */
 		ch = inkey();
+
+		/*
+		 * HACK - Try to translate the key into a direction
+		 * to allow using the roguelike keys for navigation.
+		 */
+		dir = get_keymap_dir(ch);
+		if ((dir == 2) || (dir == 4) || (dir == 6) || (dir == 8))
+			ch = I2D(dir);
 
 		/* Analyze */
 		switch (ch)
@@ -1824,8 +1897,6 @@ void do_cmd_options_aux(int page, cptr info)
 
 			case '-':
 			case '8':
-			case 'k':
-			case 'K':
 			{
 				k = (n + k - 1) % n;
 				break;
@@ -1835,8 +1906,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case '\n':
 			case '\r':
 			case '2':
-			case 'j':
-			case 'J':
 			{
 				k = (k + 1) % n;
 				break;
@@ -1845,8 +1914,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'y':
 			case 'Y':
 			case '6':
-			case 'l':
-			case 'L':
 			{
 				(*option_info[opt[k]].o_var) = TRUE;
 				k = (k + 1) % n;
@@ -1856,8 +1923,6 @@ void do_cmd_options_aux(int page, cptr info)
 			case 'n':
 			case 'N':
 			case '4':
-			case 'h':
-			case 'H':
 			{
 				(*option_info[opt[k]].o_var) = FALSE;
 				k = (k + 1) % n;
@@ -1870,6 +1935,20 @@ void do_cmd_options_aux(int page, cptr info)
 				(*option_info[opt[k]].o_var) = !(*option_info[opt[k]].o_var);
 				break;
 			}
+
+                        case '?':
+                        {
+#ifdef JP
+                                strnfmt(buf, sizeof(buf), "joption.txt#%s", option_info[opt[k]].o_text);
+#else
+                                strnfmt(buf, sizeof(buf), "option.txt#%s", option_info[opt[k]].o_text);
+#endif
+                                /* Peruse the help file */
+                                (void)show_file(TRUE, buf, NULL, 0, 0);
+
+				Term_clear(); 
+                                break;
+                        }
 
 			default:
 			{
@@ -2025,6 +2104,19 @@ static void do_cmd_options_win(void)
 				break;
 			}
 
+                        case '?':
+                        {
+#ifdef JP
+                                (void)show_file(TRUE, "joption.txt#Window", NULL, 0, 0);
+#else
+                                (void)show_file(TRUE, "option.txt#Window", NULL, 0, 0);
+#endif
+
+
+				Term_clear(); 
+                                break;
+                        }
+
 			default:
 			{
 				d = get_keymap_dir(ch);
@@ -2079,12 +2171,11 @@ void do_cmd_options(void)
 	/* Save the screen */
 	screen_save();
 
-
 	/* Interact */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
+                /* Clear screen */
+                Term_clear();
 
 		/* Why are we here */
 #ifdef JP
@@ -2297,11 +2388,12 @@ void do_cmd_options(void)
 					int msec = delay_factor * delay_factor * delay_factor;
 #ifdef JP
 					prt(format("現在のウェイト: %d (%dミリ秒)",
+					           delay_factor, msec), 22, 0);
 #else
 					prt(format("Current base delay factor: %d (%d msec)",
+					           delay_factor, msec), 22, 0);
 #endif
 
-					           delay_factor, msec), 22, 0);
 #ifdef JP
 					prt("ウェイト (0-9) ESCで決定: ", 20, 0);
 #else
@@ -2310,7 +2402,16 @@ void do_cmd_options(void)
 
 					k = inkey();
 					if (k == ESCAPE) break;
-					if (isdigit(k)) delay_factor = D2I(k);
+                                        else if (k == '?')
+                                        {
+#ifdef JP
+                                                (void)show_file(TRUE, "joption.txt#BaseDelay", NULL, 0, 0);
+#else
+                                                (void)show_file(TRUE, "option.txt#BaseDelay", NULL, 0, 0);
+#endif
+                                                Term_clear(); 
+                                        }
+					else if (isdigit(k)) delay_factor = D2I(k);
 					else bell();
 				}
 
@@ -2333,27 +2434,45 @@ void do_cmd_options(void)
 				while (1)
 				{
 #ifdef JP
-	    prt(format("現在の低ヒットポイント警告: %d0%%",
-		       hitpoint_warn), 22, 0);
+                                        prt(format("現在の低ヒットポイント警告: %d0%%",
+                                                   hitpoint_warn), 22, 0);
 #else
 					prt(format("Current hitpoint warning: %d0%%",
 					           hitpoint_warn), 22, 0);
 #endif
 
 #ifdef JP
-			prt("低ヒットポイント警告 (0-9) ESCで決定: ", 20, 0);
+                                        prt("低ヒットポイント警告 (0-9) ESCで決定: ", 20, 0);
 #else
 					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
 #endif
 
 					k = inkey();
 					if (k == ESCAPE) break;
-					if (isdigit(k)) hitpoint_warn = D2I(k);
+                                        else if (k == '?')
+                                        {
+#ifdef JP
+                                                (void)show_file(TRUE, "joption.txt#Hitpoint", NULL, 0, 0);
+#else
+                                                (void)show_file(TRUE, "option.txt#Hitpoint", NULL, 0, 0);
+#endif
+                                                Term_clear(); 
+                                        }
+					else if (isdigit(k)) hitpoint_warn = D2I(k);
 					else bell();
 				}
 
 				break;
 			}
+
+                        case '?':
+#ifdef JP
+                                (void)show_file(TRUE, "joption.txt", NULL, 0, 0);
+#else
+                                (void)show_file(TRUE, "option.txt", NULL, 0, 0);
+#endif
+				Term_clear(); 
+                                break;
 
 			/* Unknown option */
 			default:
@@ -2478,7 +2597,7 @@ static errr macro_dump(cptr fname)
 	char buf[1024];
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2643,7 +2762,7 @@ static errr keymap_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -3459,7 +3578,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -3532,7 +3651,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -3605,7 +3724,7 @@ void do_cmd_visuals(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -4155,7 +4274,7 @@ void do_cmd_colors(void)
 			if (!askfor_aux(tmp, 70)) continue;
 
 			/* Build the filename */
-			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+			path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 			/* Append to the file */
 			fff = open_auto_dump(buf, mark, &line_num);
@@ -4366,10 +4485,6 @@ void do_cmd_version(void)
 {
 
 	/* Silly message */
-#ifndef FAKE_VERSION
-	msg_format("You are playing Angband %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
 #ifdef JP
 	msg_format("変愚蛮怒(Hengband) %d.%d.%d",
 	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
@@ -4377,9 +4492,6 @@ void do_cmd_version(void)
 	msg_format("You are playing Hengband %d.%d.%d.",
 	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
-
-#endif
-
 }
 
 
@@ -4743,7 +4855,7 @@ void do_cmd_load_screen(void)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");
@@ -4782,7 +4894,7 @@ void do_cmd_load_screen(void)
 	}
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	if (my_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 
 	/* Dump the screen */
@@ -4811,7 +4923,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+	if (my_fgets(fff, buf, sizeof(buf))) okay = FALSE;
 
 
 	/* Close it */
@@ -4851,7 +4963,7 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 				       int *j, byte tval, char *where)
 {
   char o_name[MAX_NLEN];
-  u32b    f[3];
+  u32b flgs[TR_FLAG_SIZE];
 
   if (!o_ptr->k_idx)return;
   if (o_ptr->tval != tval)return;
@@ -4891,159 +5003,159 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 #endif
 	}
       else {
-	object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
+	object_flags_known(o_ptr, flgs);
       
 #ifdef JP
-	if (f[1] & TR2_IM_ACID) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_ACID) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_IM_ACID)) fprintf(fff,"＊");
+	else if (have_flag(flgs, TR_RES_ACID)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[1] & TR2_IM_ELEC) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_ELEC) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_IM_ELEC)) fprintf(fff,"＊");
+	else if (have_flag(flgs, TR_RES_ELEC)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[1] & TR2_IM_FIRE) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_FIRE) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_IM_FIRE)) fprintf(fff,"＊");
+	else if (have_flag(flgs, TR_RES_FIRE)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[1] & TR2_IM_COLD) fprintf(fff,"＊");
-	else if (f[1] & TR2_RES_COLD) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_IM_COLD)) fprintf(fff,"＊");
+	else if (have_flag(flgs, TR_RES_COLD)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_POIS) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_POIS)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_LITE) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_LITE)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_DARK) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_DARK)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_SHARDS) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_SHARDS)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_SOUND) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_SOUND)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_NETHER) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_NETHER)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_NEXUS) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_NEXUS)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_CHAOS) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_CHAOS)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_DISEN) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_DISEN)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
 	fprintf(fff," ");
 	
-	if (f[1] & TR2_RES_BLIND) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_BLIND)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_FEAR) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_FEAR)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_RES_CONF) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_RES_CONF)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_FREE_ACT) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_FREE_ACT)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[2] & TR3_SEE_INVIS) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_SEE_INVIS)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 	
-	if (f[1] & TR2_HOLD_LIFE) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_HOLD_LIFE)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[2] & TR3_TELEPATHY) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_TELEPATHY)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[2] & TR3_SLOW_DIGEST) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_SLOW_DIGEST)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
 
-	if (f[2] & TR3_REGEN) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_REGEN)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 
-	if (f[2] & TR3_FEATHER) fprintf(fff,"＋");
+	if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"＋");
 	else fprintf(fff,"・");
 #else
-	if (f[1] & TR2_IM_ACID) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_ACID) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_IM_ACID)) fprintf(fff,"* ");
+	else if (have_flag(flgs, TR_RES_ACID)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[1] & TR2_IM_ELEC) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_ELEC) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_IM_ELEC)) fprintf(fff,"* ");
+	else if (have_flag(flgs, TR_RES_ELEC)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[1] & TR2_IM_FIRE) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_FIRE) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_IM_FIRE)) fprintf(fff,"* ");
+	else if (have_flag(flgs, TR_RES_FIRE)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[1] & TR2_IM_COLD) fprintf(fff,"* ");
-	else if (f[1] & TR2_RES_COLD) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_IM_COLD)) fprintf(fff,"* ");
+	else if (have_flag(flgs, TR_RES_COLD)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_POIS) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_POIS)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_LITE) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_LITE)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_DARK) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_DARK)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_SHARDS) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_SHARDS)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_SOUND) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_SOUND)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_NETHER) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_NETHER)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_NEXUS) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_NEXUS)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_CHAOS) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_CHAOS)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_DISEN) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_DISEN)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
 	fprintf(fff," ");
 	
-	if (f[1] & TR2_RES_BLIND) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_BLIND)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_FEAR) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_FEAR)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_RES_CONF) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_RES_CONF)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_FREE_ACT) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_FREE_ACT)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[2] & TR3_SEE_INVIS) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_SEE_INVIS)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 	
-	if (f[1] & TR2_HOLD_LIFE) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_HOLD_LIFE)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[2] & TR3_TELEPATHY) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_TELEPATHY)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[2] & TR3_SLOW_DIGEST) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_SLOW_DIGEST)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
 
-	if (f[2] & TR3_REGEN) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_REGEN)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 
-	if (f[2] & TR3_FEATHER) fprintf(fff,"+ ");
+	if (have_flag(flgs, TR_FEATHER)) fprintf(fff,"+ ");
 	else fprintf(fff,". ");
 #endif	
 	fprintf(fff,"\n");
@@ -5209,7 +5321,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 		screen_save();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "htmldump.prf");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "htmldump.prf");
 	tmpfff = my_fopen(buf, "r");
 	if (!tmpfff) {
 		for (i = 0; html_head[i]; i++)
@@ -5217,7 +5329,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	}
 	else {
 		yomikomu = 0;
-		while (!my_fgets(tmpfff, buf, 1024)) {
+		while (!my_fgets(tmpfff, buf, sizeof(buf))) {
 			if (!yomikomu) {
 				if (strncmp(buf, tags[0], strlen(tags[0])) == 0)
 					yomikomu = 1;
@@ -5280,7 +5392,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	else {
 		rewind(tmpfff);
 		yomikomu = 0;
-		while (!my_fgets(tmpfff, buf, 1024)) {
+		while (!my_fgets(tmpfff, buf, sizeof(buf))) {
 			if (!yomikomu) {
 				if (strncmp(buf, tags[2], strlen(tags[2])) == 0)
 					yomikomu = 1;
@@ -5330,7 +5442,7 @@ static void do_cmd_save_screen_html(void)
 		return;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, tmp);
 
 	msg_print(NULL);
 
@@ -5356,8 +5468,31 @@ void (*screendump_aux)(void) = NULL;
 void do_cmd_save_screen(void)
 {
 	bool old_use_graphics = use_graphics;
+	bool html_dump = FALSE;
 
 	int wid, hgt;
+
+#ifdef JP
+	prt("記念撮影しますか？ [(y)es/(h)tml/(n)o] ", 0, 0);
+#else
+	prt("Save screen dump? [(y)es/(h)tml/(n)o] ", 0, 0);
+#endif
+	while(TRUE)
+	{
+		char c = inkey();
+		if (c == 'Y' || c == 'y')
+			break;
+		else if (c == 'H' || c == 'h')
+		{
+			html_dump = TRUE;
+			break;
+		}
+		else
+		{
+			prt("", 0, 0);
+			return;
+		}
+	}
 
 	Term_get_size(&wid, &hgt);
 
@@ -5373,11 +5508,7 @@ void do_cmd_save_screen(void)
 		handle_stuff();
 	}
 
-#ifdef JP
-	if (get_check_strict("HTMLで出力しますか？", CHECK_NO_HISTORY))
-#else
-	if (get_check_strict("Save screen dump as HTML? ", CHECK_NO_HISTORY))
-#endif
+	if (html_dump)
 	{
 		do_cmd_save_screen_html();
 		do_cmd_redraw();
@@ -5405,7 +5536,7 @@ void do_cmd_save_screen(void)
 		safe_setuid_drop();
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "dump.txt");
 
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
@@ -7144,13 +7275,30 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			if ((i >= MIN_RANDOM_QUEST) && quest[i].r_idx)
 			{
 				/* Print the quest info */
-#ifdef JP
-				sprintf(tmp_str, "%s (%d階) - レベル%d\n",
-#else
-				sprintf(tmp_str, "%s (Dungeon level: %d) - level %d\n",
-#endif
 
-					r_name+r_info[quest[i].r_idx].name, quest[i].level, quest[i].complev);
+                                if (quest[i].complev == 0)
+                                {
+                                        sprintf(tmp_str, 
+#ifdef JP
+                                                "%s (%d階) - 不戦勝\n",
+#else
+                                                "%s (Dungeon level: %d) - (Cancelled)\n",
+#endif
+                                                r_name+r_info[quest[i].r_idx].name,
+                                                quest[i].level);
+                                }
+                                else
+                                {
+                                        sprintf(tmp_str, 
+#ifdef JP
+                                                "%s (%d階) - レベル%d\n",
+#else
+                                                "%s (Dungeon level: %d) - level %d\n",
+#endif
+                                                r_name+r_info[quest[i].r_idx].name,
+                                                quest[i].level,
+                                                quest[i].complev);
+                                }
 			}
 			else
 			{
@@ -7440,12 +7588,20 @@ static void do_cmd_knowledge_autopick(void)
 			tmp = "Destroy";
 #endif
 		}
-		else
+		else if (act & DO_AUTOPICK)
 		{
 #ifdef JP
 			tmp = "拾う";
 #else
 			tmp = "Pickup";
+#endif
+		}
+		else if (act & DO_QUERY_AUTOPICK)
+		{
+#ifdef JP
+			tmp = "確認";
+#else
+			tmp = "Query";
 #endif
 		}
 
@@ -7695,18 +7851,18 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 	if (!randint0(10) || p_ptr->image)
 		{
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun_j.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timefun_j.txt");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timefun.txt");
 #endif
 
 		}
 		else
 		{
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm_j.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timenorm_j.txt");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "timenorm.txt");
 #endif
 
 		}
@@ -7718,7 +7874,7 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 	if (!fff) return;
 
 	/* Find this time */
-	while (!my_fgets(fff, buf, 1024))
+	while (!my_fgets(fff, buf, sizeof(buf)))
 	{
 		/* Ignore comments */
 		if (!buf[0] || (buf[0] == '#')) continue;

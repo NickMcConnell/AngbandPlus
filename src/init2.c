@@ -173,7 +173,7 @@ void init_file_paths(char *path)
 #ifdef PRIVATE_USER_PATH
 
 	/* Build the path to the user specific directory */
-	path_build(buf, 1024, PRIVATE_USER_PATH, VERSION_NAME);
+	path_build(buf, sizeof(buf), PRIVATE_USER_PATH, VERSION_NAME);
 
 	/* Build a relative path name */
 	ANGBAND_DIR_USER = string_make(buf);
@@ -300,7 +300,7 @@ static errr check_modification_date(int fd, cptr template_file)
 	struct stat txt_stat, raw_stat;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, template_file);
 
 	/* Access stats on text file */
 	if (stat(buf, &txt_stat))
@@ -344,7 +344,6 @@ static errr init_info_raw(int fd, header *head)
 	    (test.v_major != head->v_major) ||
 	    (test.v_minor != head->v_minor) ||
 	    (test.v_patch != head->v_patch) ||
-	    (test.v_extra != head->v_extra) ||
 	    (test.info_num != head->info_num) ||
 	    (test.info_len != head->info_len) ||
 	    (test.head_size != head->head_size) ||
@@ -439,9 +438,9 @@ static errr init_info(cptr filename, header *head,
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-	path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -486,7 +485,7 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 
-		path_build(buf, 1024, ANGBAND_DIR_EDIT, format("%s_j.txt", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s_j.txt", filename));
 
 		/* Open the file */
 		fp = my_fopen(buf, "r");
@@ -546,9 +545,9 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -594,9 +593,9 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s_j.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s_j.raw", filename));
 #else
-		path_build(buf, 1024, ANGBAND_DIR_DATA, format("%s.raw", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, format("%s.raw", filename));
 #endif
 
 
@@ -1986,9 +1985,9 @@ void init_angband(void)
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news_j.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news_j.txt");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 #endif
 
 
@@ -2023,9 +2022,9 @@ void init_angband(void)
 
 	/* Build the filename */
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news_j.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news_j.txt");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "news.txt");
 #endif
 
 
@@ -2038,7 +2037,7 @@ void init_angband(void)
 		int i = 0;
 
 		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
+		while (0 == my_fgets(fp, buf, sizeof(buf)))
 		{
 			/* Display and advance */
 			Term_putstr(0, i++, -1, TERM_WHITE, buf);
@@ -2055,7 +2054,7 @@ void init_angband(void)
 	/*** Verify (or create) the "high score" file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Attempt to open the high score file */
 	fd = fd_open(buf, O_RDONLY);
@@ -2298,3 +2297,21 @@ note("[ユーザー設定ファイルを初期化しています...]");
 #endif
 
 }
+
+/*
+ *  Get check sum in string form
+ */
+cptr get_check_sum(void)
+{
+        return format("%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+                      f_head.v_extra, 
+                      k_head.v_extra, 
+                      a_head.v_extra, 
+                      e_head.v_extra, 
+                      r_head.v_extra, 
+                      d_head.v_extra, 
+                      m_head.v_extra, 
+                      s_head.v_extra, 
+                      v_head.v_extra);
+}
+

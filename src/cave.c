@@ -58,6 +58,7 @@ bool is_trap(int feat)
 {
 	switch (feat)
 	{
+		case FEAT_INVIS:
 		case FEAT_TRAP_TRAPDOOR:
 		case FEAT_TRAP_PIT:
 		case FEAT_TRAP_SPIKED_PIT:
@@ -76,6 +77,7 @@ bool is_trap(int feat)
 		case FEAT_TRAP_SLEEP:
 		case FEAT_TRAP_TRAPS:
 		case FEAT_TRAP_ALARM:
+                case FEAT_TRAP_OPEN:
 		{
 			/* A trap */
 			return (TRUE);
@@ -878,6 +880,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	/* Feature code */
 	feat = c_ptr->mimic ? c_ptr->mimic : c_ptr->feat;
+	feat = (c_ptr->info & CAVE_IN_MIRROR) ? FEAT_MIRROR : feat;
 
 	/* Floors (etc) */
 	if ((feat <= FEAT_INVIS) || (feat == FEAT_DIRT) || (feat == FEAT_GRASS))
@@ -1924,7 +1927,7 @@ void note_spot(int y, int x)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorize objects */
-		o_ptr->marked = TRUE;
+		o_ptr->marked |= OM_FOUND;
 	}
 
 
@@ -1939,7 +1942,7 @@ void note_spot(int y, int x)
 		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
 		{
 			/* Option -- memorize all torch-lit floors */
-			if (view_torch_grids && (c_ptr->info & (CAVE_LITE)))
+			if (view_torch_grids && (c_ptr->info & (CAVE_LITE | CAVE_MNLT)))
 			{
 				/* Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -1961,7 +1964,7 @@ void note_spot(int y, int x)
 		}
 
 		/* Memorize torch-lit walls */
-		else if (c_ptr->info & (CAVE_LITE))
+		else if (c_ptr->info & (CAVE_LITE | CAVE_MNLT))
 		{
 			/* Memorize */
 			c_ptr->info |= (CAVE_MARK);
@@ -2755,13 +2758,13 @@ prt("お待ち下さい...", 0, 0);
 			i = inkey();
 
 			if ('M' == i)
-				flag = DO_AUTOPICK;
+				flag = (DO_AUTOPICK | DO_QUERY_AUTOPICK);
 			else if ('N' == i)
 				flag = DONT_AUTOPICK;
 			else if ('K' == i)
 				flag = DO_AUTODESTROY;
 			else if ('D' == i)
-				flag = (DO_AUTOPICK | DONT_AUTOPICK);
+				flag = (DO_AUTOPICK | DO_QUERY_AUTOPICK | DONT_AUTOPICK);
 			else
 				break;
 
@@ -4693,7 +4696,7 @@ void wiz_lite(bool wizard, bool ninja)
 #endif
 
 		/* Memorize */
-		o_ptr->marked = TRUE;
+		o_ptr->marked |= OM_FOUND;
 	}
 
 	/* Scan all normal grids */
@@ -4791,7 +4794,7 @@ void wiz_dark(void)
 		if (o_ptr->held_m_idx) continue;
 
 		/* Forget the object */
-		o_ptr->marked = FALSE;
+		o_ptr->marked = 0;
 	}
 
 	/* Mega-Hack -- Forget the view and lite */
@@ -4831,7 +4834,23 @@ void cave_set_feat(int y, int x, int feat)
 	lite_spot(y, x);
 }
 
+/* Remove a mirror */
+void remove_mirror(int y, int x)
+{
+	/* Remove the mirror */
+	cave[y][x].info &= ~(CAVE_IN_MIRROR);
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS)
+	{
+		cave[y][x].info &= ~(CAVE_GLOW);
+		if( !view_torch_grids )cave[y][x].info &= ~(CAVE_MARK);
+	}
+	/* Notice */
+	note_spot(y, x);
+
+	/* Redraw */
+	lite_spot(y, x);
+}
 
 /*
  * Calculate "incremental motion". Used by project() and shoot().

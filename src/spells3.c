@@ -1684,9 +1684,16 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 		return FALSE;
 	}
 
-	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MIRROR);
+	/* Create a mirror */
+	cave[py][px].info |= CAVE_IN_MIRROR;
+
+	/* Turn on the light */
+	cave[py][px].info |= CAVE_GLOW;
+
+	/* Notice */
 	note_spot(py, px);
+	
+	/* Redraw */
 	lite_spot(py, px);
 
 	return TRUE;
@@ -2695,7 +2702,8 @@ s = "鑑定するべきアイテムがない。";
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
-	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
+	if (destroy_identify && !old_known)
+                auto_destroy_item(item, idx, wait_optimize);
 
 	/* Something happened */
 	return (TRUE);
@@ -2877,7 +2885,8 @@ s = "鑑定するべきアイテムがない。";
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
-	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
+	if (destroy_identify && !old_known)
+                auto_destroy_item(item, idx, wait_optimize);
 
 	/* Success */
 	return (TRUE);
@@ -3257,7 +3266,7 @@ bool bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 
@@ -3294,7 +3303,7 @@ s = "祝福できる武器がありません。";
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	if (cursed_p(o_ptr))
 	{
@@ -3345,7 +3354,7 @@ msg_format("%s から邪悪なオーラが消えた。",
 	 * artifact weapon they find. Ego weapons and normal weapons
 	 * can be blessed automatically.
 	 */
-	if (f3 & TR3_BLESSED)
+	if (have_flag(flgs, TR_BLESSED))
 	{
 #ifdef JP
 msg_format("%s は既に祝福されている。",
@@ -3371,7 +3380,7 @@ msg_format("%sは輝いた！",
 		    ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
-		o_ptr->art_flags3 |= TR3_BLESSED;
+		add_flag(o_ptr->art_flags, TR_BLESSED);
 		o_ptr->discount = 99;
 	}
 	else
@@ -3451,7 +3460,7 @@ bool pulish_shield(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 
@@ -3488,7 +3497,7 @@ s = "磨く盾がありません。";
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	if (o_ptr->k_idx && !artifact_p(o_ptr) && !ego_item_p(o_ptr) &&
 	    !o_ptr->art_name && !cursed_p(o_ptr) && (o_ptr->sval != SV_SHIELD_OF_DEFLECTION))
@@ -4816,10 +4825,10 @@ bool hates_cold(object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ACID) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4829,10 +4838,10 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4842,10 +4851,10 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4855,10 +4864,10 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_COLD) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4969,7 +4978,7 @@ o_name, index_to_label(i),
 static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
-	u32b        f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char        o_name[MAX_NLEN];
 
 
@@ -4998,10 +5007,10 @@ static int minus_ac(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	/* Object resists */
-	if (f3 & TR3_IGNORE_ACID)
+	if (have_flag(flgs, TR_IGNORE_ACID))
 	{
 #ifdef JP
 msg_format("しかし%sには効果がなかった！", o_name);
@@ -5040,8 +5049,9 @@ msg_format("%sがダメージを受けた！", o_name);
 /*
  * Hurt the player with Acid
  */
-void acid_dam(int dam, cptr kb_str, int monspell)
+int acid_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_acid  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5049,7 +5059,7 @@ void acid_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_acid || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5068,19 +5078,21 @@ void acid_dam(int dam, cptr kb_str, int monspell)
 	if (minus_ac()) dam = (dam + 1) / 2;
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_acid))
 		inven_damage(set_acid_destroy, inv);
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with electricity
  */
-void elec_dam(int dam, cptr kb_str, int monspell)
+int elec_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_elec  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5088,7 +5100,7 @@ void elec_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_elec || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5105,19 +5117,22 @@ void elec_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_DEX);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_elec))
 		inven_damage(set_elec_destroy, inv);
+
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, cptr kb_str, int monspell)
+int fire_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_fire  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5125,7 +5140,7 @@ void fire_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_fire || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5142,19 +5157,22 @@ void fire_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_fire))
 		inven_damage(set_fire_destroy, inv);
+
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with Cold
  */
-void cold_dam(int dam, cptr kb_str, int monspell)
+int cold_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_cold  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5162,7 +5180,7 @@ void cold_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_cold || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5178,11 +5196,13 @@ void cold_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_cold))
 		inven_damage(set_cold_destroy, inv);
+
+	return get_damage;
 }
 
 
@@ -5224,7 +5244,7 @@ s = "錆止めできるものがありません。";
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-	o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+	add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
 
 	if ((o_ptr->to_a < 0) && !cursed_p(o_ptr))
 	{
@@ -5259,6 +5279,7 @@ msg_format("%sは腐食しなくなった。", o_name);
  */
 bool curse_armor(void)
 {
+	int i;
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5309,9 +5330,9 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-		o_ptr->art_flags1 = 0;
-		o_ptr->art_flags2 = 0;
-		o_ptr->art_flags3 = 0;
+
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 		/* Curse it */
 		o_ptr->curse_flags = TRC_CURSED;
@@ -5338,6 +5359,8 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
  */
 bool curse_weapon(bool force, int slot)
 {
+	int i;
+
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5388,9 +5411,9 @@ if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-		o_ptr->art_flags1 = 0;
-		o_ptr->art_flags2 = 0;
-		o_ptr->art_flags3 = 0;
+
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 
 		/* Curse it */
@@ -5566,8 +5589,8 @@ bool polymorph_monster(int y, int x)
 		else
 		{
 			/* Placing the new monster failed */
-			place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN));
-			m_list[hack_m_idx_ii] = back_m;
+			if (place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN)))
+                                m_list[hack_m_idx_ii] = back_m;
 		}
 
 		if (targeted) target_who = hack_m_idx_ii;

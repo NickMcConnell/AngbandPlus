@@ -6735,15 +6735,6 @@ option_type option_info[] =
 	/*** Game-Play ***/
 
 #ifdef JP
-	{ &manual_haggle,               FALSE, 3, 1, 0,
-        "manual_haggle",                "店で値切り交渉をする" },
-#else
-	{ &manual_haggle,               FALSE, 3, 1, 0,
-	"manual_haggle",                "Manually haggle in stores" },
-#endif
-
-
-#ifdef JP
 	{ &auto_scum,                   FALSE, 3, 1, 1,
         "auto_scum",                    "階の雰囲気自動選り好み" },
 #else
@@ -7102,6 +7093,15 @@ option_type option_info[] =
 	/*** Birth Options ***/
 
 #ifdef JP
+	{ &manual_haggle,               FALSE, 6, 1, 0,
+        "manual_haggle",                "店で値切り交渉をする" },
+#else
+	{ &manual_haggle,               FALSE, 6, 1, 0,
+	"manual_haggle",                "Manually haggle in stores" },
+#endif
+
+
+#ifdef JP
 	{ &easy_band,                   FALSE, 6, 6, 31,
         "easy_band",                    "初心者用簡単モード(*)" },
 #else
@@ -7290,6 +7290,22 @@ option_type option_info[] =
 #else
         { &destroy_items,               FALSE, 7, 7, 0,
         "destroy_items",                "Use easy auto-destroyer" },
+#endif
+
+#ifdef JP
+        { &destroy_feeling,               FALSE, 7, 7, 8,
+        "destroy_feeling",                "簡易鑑定したとき自動破壊を適用する" },
+#else
+        { &destroy_feeling,               FALSE, 7, 7, 8,
+        "destroy_feeling",                "Apply auto-destroy as sense feeling" },
+#endif
+
+#ifdef JP
+        { &destroy_identify,               FALSE, 7, 7, 9,
+        "destroy_identify",                "鑑定したとき自動破壊を適用する" },
+#else
+        { &destroy_identify,               FALSE, 7, 7, 9,
+        "destroy_identify",                "Apply auto-destroy as identify an item" },
 #endif
 
 #ifdef JP

@@ -222,10 +222,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -239,7 +239,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) &&
+			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
 				if (m_ptr->ml)
@@ -250,8 +250,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 25) mult = 25;
 			}
 
+			/* Execute Animal */
+			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
+			    (r_ptr->flags3 & RF3_ANIMAL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ANIMAL;
+				}
+
+				if (mult < 40) mult = 40;
+			}
+
 			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) &&
+			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
 				if (m_ptr->ml)
@@ -262,8 +274,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 20) mult = 20;
 			}
 
+			/* Execute Evil */
+			if ((have_flag(flgs, TR_KILL_EVIL)) &&
+			    (r_ptr->flags3 & RF3_EVIL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_EVIL;
+				}
+
+				if (mult < 35) mult = 35;
+			}
+
 			/* Slay Human */
-			if ((f3 & TR3_SLAY_HUMAN) &&
+			if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
 			    (r_ptr->flags2 & RF2_HUMAN))
 			{
 				if (m_ptr->ml)
@@ -274,8 +298,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 25) mult = 25;
 			}
 
+			/* Execute Human */
+			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
+			    (r_ptr->flags2 & RF2_HUMAN))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags2 |= RF2_HUMAN;
+				}
+
+				if (mult < 40) mult = 40;
+			}
+
 			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) &&
+			if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
 				if (m_ptr->ml)
@@ -286,8 +322,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Undead */
+			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & RF3_UNDEAD))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_UNDEAD;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) &&
+			if ((have_flag(flgs, TR_SLAY_DEMON)) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
 				if (m_ptr->ml)
@@ -298,8 +346,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Demon */
+			if ((have_flag(flgs, TR_KILL_DEMON)) &&
+			    (r_ptr->flags3 & RF3_DEMON))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_DEMON;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) &&
+			if ((have_flag(flgs, TR_SLAY_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
 				if (m_ptr->ml)
@@ -310,8 +370,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Orc */
+			if ((have_flag(flgs, TR_KILL_ORC)) &&
+			    (r_ptr->flags3 & RF3_ORC))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_ORC;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) &&
+			if ((have_flag(flgs, TR_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
 				if (m_ptr->ml)
@@ -322,8 +394,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult < 30) mult = 30;
 			}
 
+			/* Execute Troll */
+			if ((have_flag(flgs, TR_KILL_TROLL)) &&
+			    (r_ptr->flags3 & RF3_TROLL))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_TROLL;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) &&
+			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
 				if (m_ptr->ml)
@@ -336,8 +420,20 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 					mult *= 3;
 			}
 
+			/* Execute Giant */
+			if ((have_flag(flgs, TR_KILL_GIANT)) &&
+			    (r_ptr->flags3 & RF3_GIANT))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags3 |= RF3_GIANT;
+				}
+
+				if (mult < 50) mult = 50;
+			}
+
 			/* Slay Dragon  */
-			if ((f1 & TR1_SLAY_DRAGON) &&
+			if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -349,7 +445,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) &&
+			if ((have_flag(flgs, TR_KILL_DRAGON)) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
 				if (m_ptr->ml)
@@ -364,7 +460,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Acid) */
-			if ((f1 & TR1_BRAND_ACID) || (p_ptr->special_attack & (ATTACK_ACID)))
+			if ((have_flag(flgs, TR_BRAND_ACID)) || (p_ptr->special_attack & (ATTACK_ACID)))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ACID)
@@ -383,7 +479,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Elec) */
-			if ((f1 & TR1_BRAND_ELEC) || (p_ptr->special_attack & (ATTACK_ELEC)) || (mode == HISSATSU_ELEC))
+			if ((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & (ATTACK_ELEC)) || (mode == HISSATSU_ELEC))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ELEC)
@@ -395,7 +491,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_ELEC) || (p_ptr->special_attack & (ATTACK_ELEC))) && (mode == HISSATSU_ELEC))
+				else if (((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & (ATTACK_ELEC))) && (mode == HISSATSU_ELEC))
 				{
 					if (mult < 70) mult = 70;
 				}
@@ -411,7 +507,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Fire) */
-			if ((f1 & TR1_BRAND_FIRE) || (p_ptr->special_attack & (ATTACK_FIRE)) || (mode == HISSATSU_FIRE))
+			if ((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & (ATTACK_FIRE)) || (mode == HISSATSU_FIRE))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_FIRE)
@@ -423,7 +519,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_FIRE) || (p_ptr->special_attack & (ATTACK_FIRE))) && (mode == HISSATSU_FIRE))
+				else if (((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & (ATTACK_FIRE))) && (mode == HISSATSU_FIRE))
 				{
 					if (r_ptr->flags3 & RF3_HURT_FIRE)
 					{
@@ -450,7 +546,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Cold) */
-			if ((f1 & TR1_BRAND_COLD) || (p_ptr->special_attack & (ATTACK_COLD)) || (mode == HISSATSU_COLD))
+			if ((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & (ATTACK_COLD)) || (mode == HISSATSU_COLD))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_COLD)
@@ -461,7 +557,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 					}
 				}
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_COLD) || (p_ptr->special_attack & (ATTACK_COLD))) && (mode == HISSATSU_COLD))
+				else if (((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & (ATTACK_COLD))) && (mode == HISSATSU_COLD))
 				{
 					if (r_ptr->flags3 & RF3_HURT_COLD)
 					{
@@ -488,7 +584,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 			}
 
 			/* Brand (Poison) */
-			if ((f1 & TR1_BRAND_POIS) || (p_ptr->special_attack & (ATTACK_POIS)) || (mode == HISSATSU_POISON))
+			if ((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & (ATTACK_POIS)) || (mode == HISSATSU_POISON))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_POIS)
@@ -500,7 +596,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				}
 
 				/* Otherwise, take the damage */
-				else if (((f1 & TR1_BRAND_POIS) || (p_ptr->special_attack & (ATTACK_POIS))) && (mode == HISSATSU_POISON))
+				else if (((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & (ATTACK_POIS))) && (mode == HISSATSU_POISON))
 				{
 					if (mult < 35) mult = 35;
 				}
@@ -542,7 +638,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 			{
 				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
 				p_ptr->redraw |= (PR_MANA);
@@ -601,6 +697,23 @@ void search(void)
 					msg_print("You have found a trap.");
 #endif
 
+
+					/* Disturb */
+					disturb(0, 0);
+				}
+
+				/* Invisible wall opening trap */
+				if (c_ptr->feat == FEAT_INVIS)
+				{
+                                        /* Activate the trap */
+                                        cave_set_feat(y, x, FEAT_TRAP_OPEN);
+
+					/* Message */
+#ifdef JP
+					msg_print("トラップを発見した。");
+#else
+					msg_print("You have found a trap.");
+#endif
 
 					/* Disturb */
 					disturb(0, 0);
@@ -873,8 +986,14 @@ void carry(int pickup)
 		/* Pick up objects */
 		else
 		{
+			/* Hack - some objects were handled in auto_pickup_items(). */
+			if (o_ptr->marked & OM_NOMSG)
+			{
+				/* Clear the flag. */
+				o_ptr->marked &= ~OM_NOMSG;
+			}
 			/* Describe the object */
-			if (!pickup)
+			else if (!pickup)
 
 			{
 #ifdef JP
@@ -1246,9 +1365,9 @@ static void hit_trap(bool break_trap)
 
 			dam = damroll(4, 6);
 #ifdef JP
-			fire_dam(dam, "炎のトラップ", -1);
+			(void)fire_dam(dam, "炎のトラップ", -1);
 #else
-			fire_dam(dam, "a fire trap", -1);
+			(void)fire_dam(dam, "a fire trap", -1);
 #endif
 
 			break;
@@ -1264,9 +1383,9 @@ static void hit_trap(bool break_trap)
 
 			dam = damroll(4, 6);
 #ifdef JP
-			acid_dam(dam, "酸のトラップ", -1);
+			(void)acid_dam(dam, "酸のトラップ", -1);
 #else
-			acid_dam(dam, "an acid trap", -1);
+			(void)acid_dam(dam, "an acid trap", -1);
 #endif
 
 			break;
@@ -1506,6 +1625,21 @@ msg_print("まばゆい閃光が走った！");
 
 			break;
 		}
+
+                case FEAT_TRAP_OPEN:
+                {
+#ifdef JP
+                        msg_print("大音響と共にまわりの壁が崩れた！");
+#else
+                        msg_print("Suddenly, surrounding walls are opened!");
+#endif
+                        (void)project(0, 3, y, x, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
+                        (void)project(0, 3, y, x - 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
+                        (void)project(0, 3, y, x + 4, 0, GF_DISINTEGRATE, PROJECT_GRID | PROJECT_HIDE, -1);
+                        aggravate_monsters(0);
+
+                        break;
+                }
 	}
 	if (break_trap && is_trap(c_ptr->feat))
 	{
@@ -1737,7 +1871,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		switch (attack)
 		{
 			case MUT2_SCOR_TAIL:
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL | PROJECT_NO_REF, -1);
+				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL, -1);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
 			case MUT2_HORNS:
@@ -1808,7 +1942,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            can_drain = FALSE;
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
-	u32b            f1, f2, f3; /* A massive hack -- life-draining weapons */
+	u32b flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
 	bool            is_human = (r_ptr->d_char == 'p');
 	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
 	bool            zantetsu_mukou, e_j_mukou;
@@ -1977,10 +2111,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 
 			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && one_in_(2))
+			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
 			{
 				if (one_in_(10))
 				chg_virtue(V_CHANCE, 1);
@@ -2013,7 +2147,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Vampiric drain */
-			if ((f1 & TR1_VAMPIRIC) || (chaos_effect == 1) || (mode == HISSATSU_DRAIN))
+			if ((have_flag(flgs, TR_VAMPIRIC)) || (chaos_effect == 1) || (mode == HISSATSU_DRAIN))
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
@@ -2022,7 +2156,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					can_drain = FALSE;
 			}
 
-			if ((f1 & TR1_VORPAL) && (randint1(vorpal_chance*3/2) == 1) && !zantetsu_mukou)
+			if ((have_flag(flgs, TR_VORPAL)) && (randint1(vorpal_chance*3/2) == 1) && !zantetsu_mukou)
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
@@ -2747,7 +2881,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 
 					object_desc(o_name, q_ptr, TRUE, 0);
 					q_ptr->held_m_idx = 0;
-					q_ptr->marked = FALSE;
+					q_ptr->marked = 0;
 					m_ptr->hold_o_idx = q_ptr->next_o_idx;
 					q_ptr->next_o_idx = 0;
 #ifdef JP
@@ -2768,7 +2902,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 
 			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{
-				u32b f1, f2, f3;
+				u32b flgs[TR_FLAG_SIZE];
 
 				/* Sound */
 				sound(SOUND_HIT);
@@ -2787,7 +2921,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 #endif
 
 				/* Extract the flags */
-				object_flags(o_ptr, &f1, &f2, &f3);
+				object_flags(o_ptr, flgs);
 
 				k = damroll(o_ptr->dd, o_ptr->ds);
 				{
@@ -2799,7 +2933,6 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 						{
 							case RACE_YEEK:
 							case RACE_KLACKON:
-								mult = 20;break;
 							case RACE_HUMAN:
 							case RACE_AMBERITE:
 							case RACE_DUNADAN:
@@ -2811,17 +2944,15 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 							case RACE_HALF_TITAN:
 							case RACE_CYCLOPS:
 							case RACE_IMP:
-							case RACE_GOLEM:
 							case RACE_SKELETON:
 							case RACE_ZOMBIE:
 							case RACE_VAMPIRE:
 							case RACE_SPECTRE:
 							case RACE_DEMON:
-								mult = 30;break;
 							case RACE_DRACONIAN:
-								mult = 50;break;
+								mult = 30;break;
 							default:
-								mult = 1;break;
+								mult = 10;break;
 						}
 						break;
 					case MIMIC_DEMON:
@@ -2845,7 +2976,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
 						mult = 25;
 
-					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (p_ptr->msp / 30)))
+					if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);
@@ -2873,6 +3004,8 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					k *= mult;
 				}
 				k += (p_ptr->to_d[hand] + o_ptr->to_d);
+
+                                if (k < 0) k = 0;
 
 #ifdef JP
 				take_hit(DAMAGE_FORCE, k, "死の大鎌", -1);
@@ -4078,6 +4211,25 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			/* Hit the trap */
 			hit_trap(break_trap);
 		}
+
+		/* Discover invisible wall opening trap */
+                else if (c_ptr->feat == FEAT_INVIS)
+                {
+                        c_ptr->feat = FEAT_TRAP_OPEN;
+
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Message */
+#ifdef JP
+			msg_print("トラップだ！");
+#else
+			msg_print("You found a trap!");
+#endif
+
+			/* Hit the trap */
+			hit_trap(break_trap);
+                }
 
 		/* Set off an visible trap */
 		else if (is_trap(c_ptr->feat))

@@ -278,7 +278,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			}
 			else
 			{
-				s_ptr = &mp_ptr->info[use_realm - 1][spell % 32];
+				s_ptr = &mp_ptr->info[use_realm - 1][spell];
 			}
 
 			if (use_realm == REALM_HISSATSU)
@@ -301,11 +301,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			jverb1( prompt, jverb_buf );
                         /* 英日切り替え機能に対応 */
                         (void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
-                                spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
+                                spell_names[technic2magic(use_realm)-1][spell], shouhimana,
 				       spell_chance(spell, use_realm),jverb_buf);
 #else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-				prompt, spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
+				prompt, spell_names[technic2magic(use_realm)-1][spell], shouhimana,
 				spell_chance(spell, use_realm));
 #endif
 
@@ -930,6 +930,9 @@ msg_format("その本には学ぶべき%sがない。", p);
 	/* Update Study */
 	p_ptr->update |= (PU_SPELLS);
 	update_stuff();
+
+        /* Redraw object recall */
+        p_ptr->window |= (PW_OBJECT);
 }
 
 
@@ -1056,7 +1059,7 @@ static bool cast_life_spell(int spell)
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		break;
 	case 4: /* Detect Traps + Secret Doors */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -1208,7 +1211,7 @@ static bool cast_sorcery_spell(int spell)
 		teleport_player(10);
 		break;
 	case 2: /* Detect Doors and Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -1364,7 +1367,7 @@ static bool cast_nature_spell(int spell)
 			damroll(3 + ((plev - 1) / 5), 4));
 		break;
 	case 2: /* Detect Doors & Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -1416,7 +1419,7 @@ take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "日の光", -1);
 		break;
 	case 10: /* Nature Awareness -- downgraded */
 		map_area(DETECT_RAD_MAP);
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
@@ -3336,7 +3339,7 @@ static bool cast_arcane_spell(int spell)
 		(void)set_cut(p_ptr->cut - 10);
 		break;
 	case 8: /* Detect Doors & Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -4851,6 +4854,8 @@ s = "呪文書がない！";
 	/* Verify "dangerous" spells */
 	if (shouhimana > p_ptr->csp)
 	{
+		if (flush_failure) flush();
+
 		/* Warning */
 #ifdef JP
 msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
@@ -5044,6 +5049,9 @@ msg_print("An infernal sound echoed.");
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+                        /* Redraw object recall */
+                        p_ptr->window |= (PW_OBJECT);
 
 			if (realm == REALM_LIFE)
 			{
@@ -5466,7 +5474,11 @@ void do_cmd_pet_dismiss(void)
 		   (Dismissed == 1 ? "" : "s"));
 #endif
 	if (Dismissed == 0 && all_pets)
+#ifdef JP
 		msg_print("'U'nnamed は、乗馬以外の名前のないペットだけを全て解放します。");
+#else
+		msg_print("'U'nnamed means all your pets except named pets and your mount.");
+#endif
 
 	p_ptr->update |= (PU_MON_LITE);
 }

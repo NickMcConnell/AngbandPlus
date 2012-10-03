@@ -668,7 +668,7 @@ static bool init_sound(void)
          sprintf(wav, "%s.wav", angband_sound_name[i]);
 
          /* Access the sound */
-         path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, wav);
+         path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, wav);
 
          /* Save the sound filename, if it exists */
          if (check_file(buf)) sound_file[i] = string_make(buf);
@@ -1174,6 +1174,14 @@ static errr term_data_init(term_data *td, int rows, int cols, int y, int x)
    return (0);
 }
 
+
+static void hook_quit(cptr str)
+{
+       /* Exit curses */
+       endwin();
+}
+
+
 /*
  * Prepare "curses" for use by the file "term.c"
  *
@@ -1192,7 +1200,7 @@ errr init_gcu(int argc, char *argv[])
 #ifdef USE_SOUND
 
    /* Build the "sound" path */
-   path_build(path, 1024, ANGBAND_DIR_XTRA, "sound");
+   path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
 
    /* Allocate the path */
    ANGBAND_DIR_XTRA_SOUND = string_make(path);
@@ -1209,6 +1217,10 @@ errr init_gcu(int argc, char *argv[])
    /* Initialize for others systems */
    if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
+
+   /* Activate hooks */
+   quit_aux = hook_quit;
+   core_aux = hook_quit;
 
    /* Hack -- Require large screen, or Quit with message */
    i = ((LINES < 24) || (COLS < 80));

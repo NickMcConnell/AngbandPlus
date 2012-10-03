@@ -267,11 +267,12 @@ static void roff_aux(int r_idx, int mode)
 			/* Killed ancestors */
 #ifdef JP
 			hooked_roff(format("%^sはあなたの先祖を %d 人葬っている",
+                                           wd_he[msex], r_ptr->r_deaths));
 #else
 			hooked_roff(format("%^s has slain %d of your ancestors",
+                                           wd_he[msex], r_ptr->r_deaths));
 #endif
 
-			            wd_he[msex], r_ptr->r_deaths));
 
 			/* But we've also killed it */
 			if (dead)
@@ -296,6 +297,9 @@ static void roff_aux(int r_idx, int mode)
 #endif
 
 			}
+
+                        /* Start a new line */
+                        hooked_roff("\n");
 		}
 
 		/* Dead unique who never hurt us */
@@ -307,6 +311,8 @@ static void roff_aux(int r_idx, int mode)
 			hooked_roff("You have slain this foe.  ");
 #endif
 
+                        /* Start a new line */
+                        hooked_roff("\n");
 		}
 	}
 
@@ -327,12 +333,11 @@ static void roff_aux(int r_idx, int mode)
 		if (r_ptr->r_pkills)
 		{
 #ifdef JP
-			hooked_roff(format("が、あなたはこのモンスターを少なくとも %d 体は倒している。",
+			hooked_roff(format("が、あなたはこのモンスターを少なくとも %d 体は倒している。", r_ptr->r_pkills));
 #else
-			hooked_roff(format("and you have exterminated at least %d of the creatures.  ",
+			hooked_roff(format("and you have exterminated at least %d of the creatures.  ", r_ptr->r_pkills));
 #endif
 
-			            r_ptr->r_pkills));
 		}
 
 		/* Some kills past lives */
@@ -352,13 +357,15 @@ static void roff_aux(int r_idx, int mode)
 		else
 		{
 #ifdef JP
-			hooked_roff(format("が、まだ%sを倒したことはない。",
+			hooked_roff(format("が、まだ%sを倒したことはない。", wd_he[msex]));
 #else
-			hooked_roff(format("and %s is not ever known to have been defeated.  ",
+			hooked_roff(format("and %s is not ever known to have been defeated.  ", wd_he[msex]));
 #endif
 
-			            wd_he[msex]));
 		}
+
+                /* Start a new line */
+                hooked_roff("\n");
 	}
 
 	/* Normal monsters */
@@ -368,24 +375,22 @@ static void roff_aux(int r_idx, int mode)
 		if (r_ptr->r_pkills)
 		{
 #ifdef JP
-			hooked_roff(format("あなたはこのモンスターを少なくとも %d 体は殺している。",
+			hooked_roff(format("あなたはこのモンスターを少なくとも %d 体は殺している。", r_ptr->r_pkills));
 #else
-			hooked_roff(format("You have killed at least %d of these creatures.  ",
+			hooked_roff(format("You have killed at least %d of these creatures.  ", r_ptr->r_pkills));
 #endif
 
-			            r_ptr->r_pkills));
 		}
 
 		/* Killed some last life */
 		else if (r_ptr->r_tkills)
 		{
 #ifdef JP
-			hooked_roff(format("あなたの先祖はこのモンスターを少なくとも %d 体は殺している。",
+			hooked_roff(format("あなたの先祖はこのモンスターを少なくとも %d 体は殺している。", r_ptr->r_tkills));
 #else
-			hooked_roff(format("Your ancestors have killed at least %d of these creatures.  ",
+			hooked_roff(format("Your ancestors have killed at least %d of these creatures.  ", r_ptr->r_tkills));
 #endif
 
-			            r_ptr->r_tkills));
 		}
 
 		/* Killed none */
@@ -396,10 +401,11 @@ static void roff_aux(int r_idx, int mode)
 #else
 			hooked_roff("No battles to the death are recalled.  ");
 #endif
-
 		}
-	}
 
+                /* Start a new line */
+                hooked_roff("\n");
+	}
 
 	/* Descriptions */
 	if (1)
@@ -412,9 +418,9 @@ static void roff_aux(int r_idx, int mode)
 
 		/* Build the filename */
 #ifdef JP
-path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info_j.raw");
+path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "r_info_j.raw");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "r_info.raw");
 #endif
 
 
@@ -451,11 +457,14 @@ path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info_j.raw");
 
 #endif
 
-		/* Dump it */
-		hooked_roff(buf);
-#ifndef JP
-		hooked_roff("  ");
-#endif
+                if (buf[0])
+                {
+                        /* Dump it */
+                        hooked_roff(buf);
+
+                        /* Start a new line */
+                        hooked_roff("\n");
+                }
 	}
 
 	if (r_idx == MON_KAGE)
@@ -602,12 +611,12 @@ path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info_j.raw");
 			else if (speed < 120) hook_c_roff(TERM_L_UMBER, "やや");
 			hook_c_roff(TERM_L_RED, "素早く");
 #else
-			if (speed > 139) hook_c_roff(TERM_RED, "incredibly ");
-			else if (speed > 134) hook_c_roff(TERM_ORANGE, "extremely ");
-			else if (speed > 129) hook_c_roff(TERM_ORANGE, "very ");
-			else if (speed > 124) hook_c_roff(TERM_UMBER, "fairly ");
-			else if (speed < 120) hook_c_roff(TERM_L_UMBER, "somewhat ");
-			hook_c_roff(TERM_L_RED, "quickly");
+			if (speed > 139) hook_c_roff(TERM_RED, " incredibly");
+			else if (speed > 134) hook_c_roff(TERM_ORANGE, " extremely");
+			else if (speed > 129) hook_c_roff(TERM_ORANGE, " very");
+			else if (speed > 124) hook_c_roff(TERM_UMBER, " fairly");
+			else if (speed < 120) hook_c_roff(TERM_L_UMBER, " somewhat");
+			hook_c_roff(TERM_L_RED, " quickly");
 #endif
 
 		}
@@ -620,11 +629,11 @@ path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info_j.raw");
 			else if (speed > 104) hook_c_roff(TERM_GREEN, "やや");
 			hook_c_roff(TERM_L_BLUE, "ゆっくりと");
 #else
-			if (speed < 90) hook_c_roff(TERM_L_GREEN, "incredibly ");
-			else if (speed < 95) hook_c_roff(TERM_BLUE, "very ");
-			else if (speed < 100) hook_c_roff(TERM_BLUE, "fairly ");
-			else if (speed > 104) hook_c_roff(TERM_GREEN, "somewhat ");
-			hook_c_roff(TERM_L_BLUE, "slowly");
+			if (speed < 90) hook_c_roff(TERM_L_GREEN, " incredibly");
+			else if (speed < 95) hook_c_roff(TERM_BLUE, " very");
+			else if (speed < 100) hook_c_roff(TERM_BLUE, " fairly");
+			else if (speed > 104) hook_c_roff(TERM_GREEN, " somewhat");
+			hook_c_roff(TERM_L_BLUE, " slowly");
 #endif
 
 		}
@@ -3222,7 +3231,12 @@ bool monster_dungeon(int r_idx)
 	if (!(r_ptr->flags8 & RF8_WILD_ONLY))
 		return TRUE;
 	else
+        {
+                dungeon_info_type *d_ptr = &d_info[dungeon_type];
+                if ((d_ptr->mflags8 & RF8_WILD_MOUNTAIN) &&
+                    (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
 		return FALSE;
+        }
 }
 
 
@@ -3467,6 +3481,14 @@ msg_format("%^sは怒った！", m_name);
  */
 bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 {
+	/* Pit */
+	if (feat == FEAT_DARK_PIT)
+	{
+		if (r_ptr->flags7 & RF7_CAN_FLY)
+			return TRUE;
+		else
+			return FALSE;
+	}
 	/* Deep water */
 	if (feat == FEAT_DEEP_WATER)
 	{

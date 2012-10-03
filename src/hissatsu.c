@@ -353,7 +353,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 0:
 		project_length = 2;
 		if (!get_aim_dir(&dir)) return FALSE;
-		project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF);
+		project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
 
 		break;
 	case 1:
@@ -782,7 +782,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 18:
 		project_length = 5;
 		if (!get_aim_dir(&dir)) return FALSE;
-		project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF);
+		project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL);
 
 		break;
 	case 19: /* Whirlwind Attack */
@@ -841,7 +841,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 21:
 	{
 		int total_damage = 0, basedam, i;
-		u32b f1, f2, f3;
+		u32b flgs[TR_FLAG_SIZE];
 		object_type *o_ptr;
 		if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
@@ -857,14 +857,14 @@ static bool cast_hissatsu_spell(int spell)
 			o_ptr = &inventory[INVEN_RARM+i];
 			basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
 			damage = o_ptr->to_d * 100;
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 			if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
 			{
 				/* vorpal blade */
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -1028,7 +1028,7 @@ static bool cast_hissatsu_spell(int spell)
 			else
 				p_ptr->csp -= 8;
 			new = FALSE;
-			if (!project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF)) break;
+			if (!project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL)) break;
 			count++;
 			command_dir = 0;
 			p_ptr->redraw |= PR_MANA;
@@ -1065,7 +1065,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 
 			break;
 		}
-		project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL | PROJECT_NO_REF, -1);
+		project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, -1);
 		teleport_player_to(y, x, TRUE);
 		break;
 	}
@@ -1100,7 +1100,7 @@ msg_print("その方向にはモンスターはいません。");
 	{
 		int total_damage = 0, basedam, i;
 		int y, x;
-		u32b f1, f2, f3;
+		u32b flgs[TR_FLAG_SIZE];
 		object_type *o_ptr;
 
 		if (!get_rep_dir2(&dir)) return FALSE;
@@ -1128,14 +1128,14 @@ msg_print("その方向にはモンスターはいません。");
 			o_ptr = &inventory[INVEN_RARM+i];
 			basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
 			damage = o_ptr->to_d * 100;
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 			if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
 			{
 				/* vorpal blade */
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
 			{
 				/* vorpal flag only */
 				basedam *= 11;

@@ -78,7 +78,7 @@ int recv(int s, char *buffer, size_t buflen, int flags)
 #endif
 
 /* ANSI Cによればstatic変数は0で初期化されるが一応初期化する */
-static errr init_chuukei()
+static errr init_chuukei(void)
 {
 	fresh_queue.next = fresh_queue.tail = 0;
 	ring.wptr = ring.rptr = ring.inlen = 0;
@@ -249,7 +249,7 @@ static int read_chuukei_prf(cptr prf_name)
 	char buf[1024];
 	FILE *fp;
 
-	path_build(buf, 1024, ANGBAND_DIR_XTRA, prf_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, prf_name);
 	fp = my_fopen(buf, "r");
 
 	if (!fp) return (-1);
@@ -259,7 +259,7 @@ static int read_chuukei_prf(cptr prf_name)
 	server_name[0] = 0;
 	browse_delay = DEFAULT_DELAY;
 
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* サーバ名 */
 		if (!strncmp(buf, "server:", 7))
@@ -703,7 +703,7 @@ static int read_sock(void)
 
 #ifndef WINDOWS
 /* Win版の床の中点と壁の豆腐をピリオドとシャープにする。 */
-void win2unix(int col, char *buf)
+static void win2unix(int col, char *buf)
 {
 	char kabe;
 	if ( col == 9 ) kabe = '%';

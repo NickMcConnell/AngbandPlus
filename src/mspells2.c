@@ -44,14 +44,14 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
  */
 static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp, int monspell, bool learnable)
 {
-	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MONSTER;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_MONSTER | PROJECT_REFLECTABLE;
 
 	(void)project(m_idx, 0, y, x, dam_hp, typ, flg, (learnable ? monspell : -1));
 }
 
 static void monst_beam_monst(int m_idx, int y, int x, int typ, int dam_hp, int monspell, bool learnable)
 {
-	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_MONSTER | PROJECT_NO_REF;
+	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_THRU | PROJECT_MONSTER;
 
 	(void)project(m_idx, 0, y, x, dam_hp, typ, flg, (learnable ? monspell : -1));
 }
@@ -169,9 +169,6 @@ bool monst_spell_monst(int m_idx)
 	monster_race *tr_ptr;
 
 	u32b f4, f5, f6;
-
-	/* Expected ball spell radius */
-	int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
 
 	bool wake_up = FALSE;
 	bool fear = FALSE;
@@ -318,11 +315,22 @@ bool monst_spell_monst(int m_idx)
 		/* Prevent collateral damage */
 		if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && pet && (m_idx != p_ptr->riding))
 		{
-			if(distance(py, px, y, x) <= rad)
+                        int dist = distance(py, px, y, x);
+
+                        /* Expected breath radius */
+                        int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+
+			if (dist <= 2)
 			{
 				f4 &= ~(RF4_BALL_MASK);
 				f5 &= ~(RF5_BALL_MASK);
 				f6 &= ~(RF6_BALL_MASK);
+			}
+			else if(dist <= 4)
+			{
+				f4 &= ~(RF4_BIG_BALL_MASK);
+				f5 &= ~(RF5_BIG_BALL_MASK);
+				f6 &= ~(RF6_BIG_BALL_MASK);
 			}
 
 			if (((f4 & RF4_BEAM_MASK) ||
@@ -3244,7 +3252,7 @@ msg_format("%^sが瞬時に消えた。", m_name);
 			case 160+5:
 			{
 				int i, oldfy, oldfx;
-				u32b f1 = 0 , f2 = 0 , f3 = 0;
+				u32b flgs[TR_FLAG_SIZE];
 				object_type *o_ptr;
 
 				oldfy = m_ptr->fy;
@@ -3269,9 +3277,9 @@ msg_format("%^sがテレポートした。", m_name);
 						o_ptr = &inventory[i];
 						if(!cursed_p(o_ptr))
 						{
-							object_flags(o_ptr, &f1, &f2, &f3);
+							object_flags(o_ptr, flgs);
 
-							if((f3 & TR3_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR))
+							if((have_flag(flgs, TR_TELEPORT)) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR))
 							{
 #ifdef JP
 								if(get_check_strict("ついていきますか？", CHECK_OKAY_CANCEL))
@@ -3312,7 +3320,7 @@ msg_format("%^sがテレポートした。", m_name);
 				return FALSE;
 			}
 
-			/* RF6_XXX4X6 */
+                        /* RF6_SPECIAL */
 			case 160+7:
 			{
 				int k;
@@ -3327,10 +3335,38 @@ msg_format("%^sがテレポートした。", m_name);
 						}
 						return FALSE;
 					}
-					default: return FALSE;
-				}
-			}
+                                default:
+                                        if (r_ptr->d_char == 'B')
+                                        {
+                                                if (one_in_(3))
+                                                {
+                                                        if (see_m)
+                                                        {
+#ifdef JP
+                                                                msg_format("%^sは突然急上昇して視界から消えた!", m_name);
+#else
+                                                                msg_format("%^s suddenly go out of your sight!", m_name);
+#endif
+                                                        }
+                                                        teleport_away(m_idx, 10, FALSE);
+                                                        p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+                                                        break;
+                                                }
+                                                else
+                                                {
+                                                        /* Not implemented */
+                                                        return FALSE;
+                                                }
+                                                break;
+                                        }
+                                        
+                                        /* Something is wrong */
+                                        else return FALSE;
+                                }
 
+                                /* done */
+                                break;
+                        }
 			/* RF6_TELE_TO */
 			case 160+8:
 			{
@@ -3591,6 +3627,16 @@ msg_format("%sが魔法で%sを召喚した。", m_name,
 						count += summon_named_creature(m_idx, y, x, MON_SHURYUUDAN, p_mode);
 					}
 				}
+                                else if(m_ptr->r_idx == MON_THORONDOR ||
+                                        m_ptr->r_idx == MON_GWAIHIR ||
+                                        m_ptr->r_idx == MON_MENELDOR)
+                                {
+                                        int num = 4 + randint1(3);
+                                        for (k = 0; k < num; k++)
+                                        {
+                                                count += summon_specific(m_idx, y, x, rlev, SUMMON_EAGLES, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | p_mode));
+                                        }
+                                }
 				else if(m_ptr->r_idx == MON_LOUSY)
 				{
 					int num = 2 + randint1(3);

@@ -137,8 +137,17 @@ static bool alloc_stairs(int feat, int num, int walls)
 	}
 	else if (feat == FEAT_MORE)
 	{
+                int q_idx = quest_number(dun_level);
+
 		/* No downstairs on quest levels */
-		if ((dun_level > 1) && quest_number(dun_level)) return TRUE;
+		if (dun_level > 1 && q_idx)
+                {
+			monster_race *r_ptr = &r_info[quest[q_idx].r_idx];
+
+			/* The quest monster(s) is still alive? */
+			if (!(r_ptr->flags1 & RF1_UNIQUE) || 0 < r_ptr->max_num)
+                                return TRUE;
+                }
 
 		/* No downstairs at the bottom */
 		if (dun_level >= d_info[dungeon_type].maxdepth) return TRUE;
@@ -168,6 +177,9 @@ static bool alloc_stairs(int feat, int num, int walls)
 
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(y, x) < walls) continue;
+
+                                /* No hidden trap on stairs */
+                                c_ptr->info &= ~CAVE_TRAP;
 
 				/* Clear previous contents, add stairs */
 				if (i < more_num) c_ptr->feat = feat+0x07;
@@ -677,6 +689,9 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 
 				/* Type 6 -- Monster pit (10%) */
 				if ((k < 32) && room_build(y, x, 6)) continue;
+
+				/* Type 13 -- Trapped monster pit (5%) */
+				if ((k < 37) && room_build(y, x, 13)) continue;
 #endif
 
 			}
@@ -955,7 +970,6 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 			    (r_ptr->cur_num >= r_ptr->max_num))
 			{
 				/* The unique is already dead */
-				quest[i].status = QUEST_STATUS_FINISHED;
 			}
 			else
 			{
@@ -1493,6 +1507,7 @@ static void place_pet(void)
 			cave[cy][cx].m_idx = m_idx;
 			m_ptr->r_idx = party_mon[i].r_idx;
 			m_ptr->ap_r_idx = party_mon[i].ap_r_idx;
+			m_ptr->sub_align = party_mon[i].sub_align;
 			m_ptr->fy = cy;
 			m_ptr->fx = cx;
 			m_ptr->cdis = party_mon[i].cdis;
