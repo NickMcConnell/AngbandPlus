@@ -311,7 +311,7 @@ if (get_check("本当にこの階を去りますか？"))
 			/* Go down */
 			if (c_ptr->feat == FEAT_MORE_MORE) down_num += 2;
 			else down_num += 1;
-			if (!quest_number(dun_level+down_num) && (dun_level < d_info[dungeon_type].maxdepth - 1 - down_num) && one_in_(13) && !fall_trap && dun_level)
+			if (!quest_number(dun_level+down_num) && (dun_level < d_info[dungeon_type].maxdepth - 1 - down_num) && one_in_(13) && !fall_trap && dun_level && !ironman_downward)
 			{
 				down_num++;
 #ifdef JP
@@ -656,7 +656,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			if (randint1(100)<dun_level)
 				activate_hi_summon(py, px, FALSE);
 			else
-				(void)summon_specific(0, y, x, mon_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, mon_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 		}
 	}
 
@@ -670,7 +670,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 #endif
 		for (i = 0; i < randint1(3) + 5; i++)
 		{
-			(void)summon_specific(0, y, x, mon_level, SUMMON_ELEMENTAL, TRUE, FALSE, FALSE, TRUE, TRUE);
+			(void)summon_specific(0, y, x, mon_level, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 		}
 	}
 
@@ -688,7 +688,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		for (i = 0; i < randint1(5) + o_ptr->pval / 5; i++)
 		{
-			(void)summon_specific(0, y, x, mon_level, SUMMON_BIRD, TRUE, FALSE, FALSE, TRUE, TRUE);
+			(void)summon_specific(0, y, x, mon_level, SUMMON_BIRD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 		}
 	}
 
@@ -707,7 +707,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 			for (i = 0; i < randint1(3) + 2; i++)
 			{
 				(void)fire_meteor(-1, GF_FIRE, y, x, 10, 5);
-				(void)summon_specific(0, y, x, mon_level, SUMMON_DEMON, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, mon_level, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 		}
 
@@ -722,7 +722,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 			for (i = 0; i < randint1(3) + 2; i++)
 			{
-				(void)summon_specific(0, y, x, mon_level, SUMMON_DRAGON, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, mon_level, SUMMON_DRAGON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 		}
 
@@ -737,7 +737,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 			for (i = 0; i < randint1(5) + 3; i++)
 			{
-				(void)summon_specific(0, y, x, mon_level, SUMMON_HYBRID, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, mon_level, SUMMON_HYBRID, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 		}
 
@@ -752,7 +752,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 			for (i = 0; i < randint1(3) + 2; i++)
 			{
-				(void)summon_specific(0, y, x, mon_level, SUMMON_VORTEX, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, mon_level, SUMMON_VORTEX, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 		}
 	}
@@ -1502,8 +1502,6 @@ static bool twall(int y, int x, byte feat)
 
 	/* Forget the wall */
 	c_ptr->info &= ~(CAVE_MARK);
-	c_ptr->info &= ~(CAVE_MASK);
-	c_ptr->info |= (CAVE_FLOOR);
 
 	/* Remove the feature */
 	cave_set_feat(y, x, feat);
@@ -2251,8 +2249,6 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 
 		/* Remove the trap */
 		c_ptr->feat = floor_type[randint0(100)];
-		c_ptr->info &= ~(CAVE_MASK);
-		c_ptr->info |= CAVE_FLOOR;
 		note_spot(y, x);
 		lite_spot(y, x);
 
@@ -3243,7 +3239,7 @@ static int breakage_chance(object_type *o_ptr)
 }
 
 
-s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
+static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 10;
 
@@ -3815,7 +3811,7 @@ note_dies = "は爆発して粉々になった。";
 
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+					if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -4133,11 +4129,25 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		msg_print("Hmmm, it seems to be cursed.");
 #endif
 
-
 		/* Nope */
 		return FALSE;
 	}
 
+	if (p_ptr->inside_arena)
+	{
+		if (o_ptr->tval != 5)
+		{
+#ifdef JP
+			msg_print("アリーナではアイテムを使えない！");
+#else
+			msg_print("You're in the arena now. This is hand-to-hand!");
+#endif
+			msg_print(NULL);
+
+			/* Nope */
+			return FALSE;
+		}
+	}
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -4381,7 +4391,7 @@ note_dies = "は爆発して粉々になった。";
 
 
 					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+					if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -4486,8 +4496,8 @@ note_dies = "は爆発して粉々になった。";
 	{
 		j = 100;
 
-		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE, FALSE,
-		      (bool)!(cursed_p(q_ptr)))))
+		if (!(summon_named_creature(0, y, x, q_ptr->pval,
+					    !(cursed_p(q_ptr)) ? PM_FORCE_PET : 0L)))
 #ifdef JP
 msg_print("人形は捻じ曲がり砕け散ってしまった！");
 #else

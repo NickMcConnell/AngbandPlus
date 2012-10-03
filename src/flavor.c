@@ -399,6 +399,7 @@ static bool object_easy_know(int i)
 		case TV_ARCANE_BOOK:
 		case TV_ENCHANT_BOOK:
 		case TV_DAEMON_BOOK:
+		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		{
@@ -872,7 +873,7 @@ static char *object_desc_num(char *t, uint n)
  *（cmd1.c で流用するために object_desc_japanese から移動した。）
  */
 
-extern char *object_desc_kosuu(char *t, object_type *o_ptr)
+char *object_desc_kosuu(char *t, object_type *o_ptr)
 {
     t = object_desc_num(t, o_ptr->number);
 
@@ -908,6 +909,7 @@ extern char *object_desc_kosuu(char *t, object_type *o_ptr)
       case  TV_ARCANE_BOOK:
       case  TV_ENCHANT_BOOK:
       case  TV_DAEMON_BOOK:
+      case  TV_CRUSADE_BOOK:
       case  TV_MUSIC_BOOK:
       case  TV_HISSATSU_BOOK:
       {
@@ -1577,6 +1579,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			break;
 		}
+		case TV_CRUSADE_BOOK:
+		{
+			modstr = basenm;
+#ifdef JP
+				basenm = "& 破邪の魔法書#";
+#else
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				basenm = "& Book~ of Crusade Magic #";
+			else
+				basenm = "& Crusade Spellbook~ #";
+#endif
+
+			break;
+		}
 		case TV_MUSIC_BOOK:
 		{
 			modstr = basenm;
@@ -1639,7 +1655,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 	else if (o_ptr->number > 1)
 	{
-		if ( old_way_of_kaz == FALSE ){
+		if ( change_numeral == FALSE ){
 			t = object_desc_num(t, o_ptr->number);
 			if (o_ptr->number > 9)
 				t = object_desc_str(t, "個の ");
@@ -2540,20 +2556,8 @@ t = object_desc_str(t, "(充填中)");
 	/* No inscription yet */
 	tmp_val2[0] = '\0';
 
-	/* Use the standard inscription if available */
-	if (o_ptr->inscription)
-	{
-		char *u = tmp_val2;
-
-		strcpy(tmp_val2, quark_str(o_ptr->inscription));
-
-		for (; *u && (*u != '#'); u++);
-
-		*u = '\0';
-	}
-
 	/* Use the game-generated "feeling" otherwise, if available */
-	else if (o_ptr->feeling)
+	if (o_ptr->feeling)
 	{
 		strcpy(tmp_val2, game_inscriptions[o_ptr->feeling]);
 	}
@@ -2604,12 +2608,26 @@ strcpy(tmp_val2, "未判明");
 
 	}
 
+	/* Use the standard inscription if available */
+	if (o_ptr->inscription)
+	{
+		char *u = tmp_val2;
+
+		if (tmp_val2[0]) strcat(tmp_val2, ", ");
+
+		strcat(tmp_val2, quark_str(o_ptr->inscription));
+
+		for (; *u && (*u != '#'); u++);
+
+		*u = '\0';
+	}
+
 	/* Note the discount, if any */
-	else if (o_ptr->discount)
+	else if (o_ptr->discount && !(tmp_val2[0]))
 	{
 		(void)object_desc_num(tmp_val2, o_ptr->discount);
 #ifdef JP
-strcat(tmp_val2, "%引き");
+		strcat(tmp_val2, "%引き");
 #else
 		strcat(tmp_val2, "% off");
 #endif

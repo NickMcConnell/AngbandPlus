@@ -428,7 +428,7 @@ static int terrain_table[MAX_WILDERNESS][18] =
 };
 
 
-void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
+static void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
 {
 	int x1, y1;
 	int table_size = sizeof(terrain_table[0]) / sizeof(int);
@@ -639,7 +639,6 @@ static border_type border;
 void wilderness_gen(void)
 {
 	int i, y, x, lim;
-	bool daytime;
 	cave_type *c_ptr;
 
    	/* Big town */
@@ -753,13 +752,6 @@ void wilderness_gen(void)
 	/* South east corner */
 	cave[MAX_HGT - 1][MAX_WID - 1].mimic = border.south_east;
 
-
-	/* Day time */
-	if ((turn % (20L * TOWN_DAWN)) < ((20L * TOWN_DAWN) / 2))
-		daytime = TRUE;
-	else
-		daytime = FALSE;
-
 	/* Light up or darken the area */
 	for (y = 0; y < cur_hgt; y++)
 	{
@@ -768,7 +760,7 @@ void wilderness_gen(void)
 			/* Get the cave grid */
 			c_ptr = &cave[y][x];
 
-			if (daytime)
+			if (is_daytime())
 			{
 				/* Assume lit */
 				c_ptr->info |= (CAVE_GLOW);
@@ -781,7 +773,7 @@ void wilderness_gen(void)
 				/* Darken "boring" features */
 				if ((c_ptr->feat <= FEAT_INVIS) ||
 				    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-					(c_ptr->feat <= FEAT_TREES) &&
+					(c_ptr->feat <= FEAT_MOUNTAIN) &&
 				     (c_ptr->feat != FEAT_MUSEUM)) ||
 				    (x == 0) || (x == cur_wid-1) ||
 				    (y == 0) || (y == cur_hgt-1))

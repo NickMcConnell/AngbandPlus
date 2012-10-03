@@ -1576,7 +1576,7 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint1(3); k++)
 			{
-				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE))
+				if (summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 				{
 					ident = TRUE;
 				}
@@ -1588,7 +1588,7 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint1(3); k++)
 			{
-				if (summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE, TRUE, TRUE))
+				if (summon_specific(0, py, px, dun_level, SUMMON_UNDEAD, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 				{
 					ident = TRUE;
 				}
@@ -1598,7 +1598,7 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_SUMMON_PET:
 		{
-			if (summon_specific(-1, py, px, dun_level, 0, TRUE, TRUE, TRUE, FALSE, FALSE))
+			if (summon_specific(-1, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_FORCE_PET)))
 			{
 				ident = TRUE;
 			}
@@ -1607,7 +1607,7 @@ static void do_cmd_read_scroll_aux(int item)
 
 		case SV_SCROLL_SUMMON_KIN:
 		{
-			if (summon_kin_player(TRUE, p_ptr->lev, py, px, TRUE))
+			if (summon_kin_player(p_ptr->lev, py, px, (PM_FORCE_PET | PM_ALLOW_GROUP)))
 			{
 				ident = TRUE;
 			}
@@ -1651,14 +1651,14 @@ static void do_cmd_read_scroll_aux(int item)
 		case SV_SCROLL_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell(FALSE)) used_up = FALSE;
+			if (!ident_spell(FALSE, TRUE)) used_up = FALSE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!identify_fully(FALSE)) used_up = FALSE;
+			if (!identify_fully(FALSE, TRUE)) used_up = FALSE;
 			break;
 		}
 
@@ -2140,7 +2140,8 @@ msg_print("巻物は煙を立てて消え去った！");
 		floor_item_optimize(0 - item);
 	}
 
-	/* Can save again */
+	/* Delayed optimization */
+	optimize_inventry_auto_destroy();
 }
 
 
@@ -2252,7 +2253,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic)
 		{
 			for (k = 0; k < randint1(4); k++)
 			{
-				if (summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE))
+				if (summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 				{
 					ident = TRUE;
 				}
@@ -2269,7 +2270,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic)
 
 		case SV_STAFF_IDENTIFY:
 		{
-			if (!ident_spell(FALSE)) *use_charge = FALSE;
+			if (!ident_spell(FALSE, TRUE)) *use_charge = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -2739,6 +2740,9 @@ static void do_cmd_use_staff_aux(int item)
 	{
 		floor_item_charges(0 - item);
 	}
+
+	/* Delayed optimization */
+	optimize_inventry_auto_destroy();
 }
 
 
@@ -3290,7 +3294,7 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 		case SV_ROD_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell(FALSE)) *use_charge = FALSE;
+			if (!ident_spell(FALSE, FALSE)) *use_charge = FALSE;
 			break;
 		}
 
@@ -4748,7 +4752,7 @@ msg_print("暁の師団を召喚した。");
 				msg_print("You summon the Legion of the Dawn.");
 #endif
 
-				(void)summon_specific(-1, py, px, dun_level, SUMMON_DAWN, TRUE, TRUE, TRUE, FALSE, FALSE);
+				(void)summon_specific(-1, py, px, dun_level, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET));
 				o_ptr->timeout = 500 + randint1(500);
 				break;
 			}
@@ -4965,7 +4969,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your quarterstaff glows yellow...");
 #endif
 
-				if (!ident_spell(FALSE)) return;
+				if (!ident_spell(FALSE, FALSE)) return;
 				o_ptr->timeout = 10;
 				break;
 			}
@@ -4980,7 +4984,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 				detect_all(DETECT_RAD_DEFAULT);
 				probing();
-				identify_fully(FALSE);
+				identify_fully(FALSE, TRUE);
 				o_ptr->timeout = 1000;
 				break;
 			}
@@ -5096,7 +5100,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("The stone reveals hidden mysteries...");
 #endif
-				if (!ident_spell(FALSE)) return;
+				if (!ident_spell(FALSE, FALSE)) return;
 
 				if (mp_ptr->spell_book)
 				{
@@ -5320,9 +5324,12 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 			case ART_ARRYU:
 			{
+				u32b mode = PM_ALLOW_GROUP;
 				bool pet = !one_in_(5);
+				if (pet) mode |= PM_FORCE_PET;
+				else mode |= PM_NO_PET;
 
-				if (summon_specific((pet ? -1 : 0), py, px, ((p_ptr->lev * 3) / 2), SUMMON_HOUND, TRUE, FALSE, pet, FALSE, (bool)(!pet)))
+				if (summon_specific((pet ? -1 : 0), py, px, ((p_ptr->lev * 3) / 2), SUMMON_HOUND, mode))
 				{
 
 					if (pet)
@@ -5367,7 +5374,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				cptr kakusan = "";
 #endif
 
-				if (summon_named_creature(py, px, MON_SUKE, FALSE, FALSE, TRUE, TRUE))
+				if (summon_named_creature(0, py, px, MON_SUKE, PM_FORCE_PET))
 				{
 #ifdef JP
 					msg_print("『助さん』が現れた。");
@@ -5377,7 +5384,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 					count++;
 				}
-				if (summon_named_creature(py, px, MON_KAKU, FALSE, FALSE, TRUE, TRUE))
+				if (summon_named_creature(0, py, px, MON_KAKU, PM_FORCE_PET))
 				{
 #ifdef JP
 					msg_print("『格さん』が現れた。");
@@ -5551,9 +5558,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 			case ART_JIZO:
 			{
+				u32b mode = PM_ALLOW_GROUP;
 				bool pet = !one_in_(5);
+				if (pet) mode |= PM_FORCE_PET;
 
-				if (summon_named_creature(py, px, MON_JIZOTAKO, FALSE, TRUE, FALSE, pet))
+				if (summon_named_creature(0, py, px, MON_JIZOTAKO, mode))
 				{
 					if (pet)
 #ifdef JP
@@ -6113,7 +6122,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			switch (o_ptr->name2)
 			{
 			case EGO_AMU_IDENT:
-				if (!ident_spell(FALSE)) return;
+				if (!ident_spell(FALSE, FALSE)) return;
 				o_ptr->timeout = 10;
 				break;
 			case EGO_AMU_CHARM:
@@ -6271,7 +6280,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			if (!get_rep_dir2(&dir)) return;
 			if (cave_floor_bold(py+ddy[dir],px+ddx[dir]))
 			{
-				if (place_monster_aux(py + ddy[dir], px + ddx[dir], o_ptr->pval, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE))
+				if (place_monster_aux(0, py + ddy[dir], px + ddx[dir], o_ptr->pval, (PM_FORCE_PET | PM_NO_KAGE)))
 				{
 					if (o_ptr->xtra3) m_list[hack_m_idx_ii].mspeed = o_ptr->xtra3;
 					if (o_ptr->xtra5) m_list[hack_m_idx_ii].max_maxhp = o_ptr->xtra5;
@@ -7123,6 +7132,9 @@ msg_print("呪文をうまく唱えられなかった！");
 		{
 			staff_effect(sval, &use_charge, TRUE);
 			if (!use_charge) return;
+
+			/* Delayed optimization */
+			optimize_inventry_auto_destroy();
 		}
 		if (randint1(100) < chance)
 			chg_virtue(V_CHANCE,1);

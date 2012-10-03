@@ -598,7 +598,7 @@ info[i++] = "あなたはアイテムの魔力を吸収することができる。(1 MP)";
 			}
 			break;
 		case CLASS_PRIEST:
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (is_good_realm(p_ptr->realm1))
 			{
 				if (plev > 34)
 				{
@@ -642,7 +642,7 @@ info[i++] = "あなたは怪物を調査することができる。(20 MP)";
 			}
 			break;
 		case CLASS_PALADIN:
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (is_good_realm(p_ptr->realm1))
 			{
 				if (plev > 29)
 				{
@@ -841,7 +841,7 @@ info[i++] = "あなたは鏡を割ることができる。(0 MP)";
 #endif
 			break;
 		case CLASS_NINJA:
-			if (plev > 7)
+			if (plev > 19)
 			{
 #ifdef JP
 info[i++] = "あなたは素早く移動することができる。";
@@ -2197,6 +2197,24 @@ info[i++] = "あなたは冷気のオーラに包まれている。";
 #endif
 
 	}
+	if (p_ptr->tim_sh_holy)
+	{
+#ifdef JP
+info[i++] = "あなたは聖なるオーラに包まれている。";
+#else
+		info[i++] = "You are surrounded with a holy aura.";
+#endif
+
+	}
+	if (p_ptr->tim_sh_touki)
+	{
+#ifdef JP
+info[i++] = "あなたは闘気のオーラに包まれている。";
+#else
+		info[i++] = "You are surrounded with a energy aura.";
+#endif
+
+	}
 	if (p_ptr->anti_magic)
 	{
 #ifdef JP
@@ -3323,10 +3341,23 @@ bool detect_traps(int range)
 	{
 		for (x = 1; x <= cur_wid - 1; x++)
 		{
-			if (distance(py, px, y, x) > range) continue;
+			int dist = distance(py, px, y, x);
+			if (dist > range) continue;
 
 			/* Access the grid */
 			c_ptr = &cave[y][x];
+
+			/* Mark as detected */
+			if (dist <= range)
+			{
+				if (dist <= range - 1)
+					c_ptr->info |= (CAVE_IN_DETECT);
+
+				c_ptr->info &= ~(CAVE_UNSAFE);
+
+				/* Redraw */
+				lite_spot(y, x);
+			}
 
 			/* Detect invisible traps */
 			if (c_ptr->info & CAVE_TRAP)
@@ -3349,6 +3380,8 @@ bool detect_traps(int range)
 			}
 		}
 	}
+
+	p_ptr->dtrap = TRUE;
 
 	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
 
@@ -3752,6 +3785,7 @@ bool detect_objects_magic(int range)
 			(tv == TV_ARCANE_BOOK) ||
 			(tv == TV_ENCHANT_BOOK) ||
 			(tv == TV_DAEMON_BOOK) ||
+			(tv == TV_CRUSADE_BOOK) ||
 			(tv == TV_MUSIC_BOOK) ||
 			(tv == TV_HISSATSU_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
@@ -4467,6 +4501,15 @@ bool dispel_demons(int dam)
 
 
 /*
+ * Crusade
+ */
+bool crusade(void)
+{
+	return (project_hack(GF_CRUSADE, p_ptr->lev*4));
+}
+
+
+/*
  * Wake up all monsters, and speed up "los" monsters.
  */
 void aggravate_monsters(int who)
@@ -4933,6 +4976,7 @@ bool probing(void)
 	int cu, cv;
 	bool    probe = FALSE;
 	char buf[256];
+	cptr align;
 
 	cu = Term->scr->cu;
 	cv = Term->scr->cv;
@@ -4963,9 +5007,12 @@ bool probing(void)
 			if (!probe) {msg_print("Probing...");msg_print(NULL);}
 #endif
 
-			if (m_ptr->mflag2 & MFLAG_KAGE)
+			if (m_ptr->ap_r_idx != m_ptr->r_idx)
 			{
-				m_ptr->mflag2 &= ~(MFLAG_KAGE);
+				if (m_ptr->mflag2 & MFLAG_KAGE)
+					m_ptr->mflag2 &= ~(MFLAG_KAGE);
+
+				m_ptr->ap_r_idx = m_ptr->r_idx;
 				lite_spot(m_ptr->fy, m_ptr->fx);
 			}
 			/* Get "the monster" or "something" */
@@ -4974,11 +5021,31 @@ bool probing(void)
 			speed = m_ptr->mspeed - 110;
 			if(m_ptr->fast) speed += 10;
 			if(m_ptr->slow) speed -= 10;
+
+			/* Get the monster's alignment */
+#ifdef JP
+			if ((r_ptr->flags3 & RF3_EVIL) && (r_ptr->flags3 & RF3_GOOD)) align = "善悪";
+			else if (r_ptr->flags3 & RF3_EVIL) align = "邪悪";
+			else if (r_ptr->flags3 & RF3_GOOD) align = "善良";
+			else if ((m_ptr->sub_align & SUB_ALIGN_EVIL) && (m_ptr->sub_align & SUB_ALIGN_GOOD)) align = "中立(善悪)";
+			else if (m_ptr->sub_align & SUB_ALIGN_EVIL) align = "中立(邪悪)";
+			else if (m_ptr->sub_align & SUB_ALIGN_GOOD) align = "中立(善良)";
+			else align = "中立";
+#else
+			if ((r_ptr->flags3 & RF3_EVIL) && (r_ptr->flags3 & RF3_GOOD)) align = "good&evil";
+			else if (r_ptr->flags3 & RF3_EVIL) align = "evil";
+			else if (r_ptr->flags3 & RF3_GOOD) align = "good";
+			else if ((m_ptr->sub_align & SUB_ALIGN_EVIL) && (m_ptr->sub_align & SUB_ALIGN_GOOD)) align = "neutral(good&evil)";
+			else if (m_ptr->sub_align & SUB_ALIGN_EVIL) align = "neutral(evil)";
+			else if (m_ptr->sub_align & SUB_ALIGN_GOOD) align = "neutral(good)";
+			else align = "neutral";
+#endif
+
 			/* Describe the monster */
 #ifdef JP
-sprintf(buf,"%s ... HP:%d/%d AC:%d 速度:%s%d 経験:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+sprintf(buf,"%s ... 属性:%s HP:%d/%d AC:%d 速度:%s%d 経験:", m_name, align, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
 #else
-sprintf(buf, "%s ... HP:%d/%d AC:%d speed:%s%d exp:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
 #endif
 			if (r_ptr->next_r_idx)
 			{
@@ -5090,7 +5157,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
@@ -5193,8 +5260,6 @@ bool destroy_area(int y1, int x1, int r, int full)
 				{
 					/* Create floor */
 					c_ptr->feat = floor_type[randint0(100)];
-					c_ptr->info &= ~(CAVE_MASK);
-					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 		}
@@ -5307,7 +5372,7 @@ bool earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -5700,8 +5765,6 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 				{
 					/* Create floor */
 					c_ptr->feat = floor_type[randint0(100)];
-					c_ptr->info &= ~(CAVE_MASK);
-					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 		}
@@ -6223,6 +6286,59 @@ bool fire_meteor(int who, int typ, int y, int x, int dam, int rad)
 }
 
 
+bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
+{
+	int ly, lx, ld;
+	int ty, tx, y, x;
+	int i;
+
+	int flg = PROJECT_FAST | PROJECT_THRU | PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
+
+	/* Assume okay */
+	bool result = TRUE;
+
+	/* Use the given direction */
+	if (dir != 5)
+	{
+		ly = ty = py + 20 * ddy[dir];
+		lx = tx = px + 20 * ddx[dir];
+	}
+
+	/* Use an actual "target" */
+	else if (dir == 5)
+	{
+		tx = target_col;
+		ty = target_row;
+
+		lx = 20 * (tx - px) + px;
+		ly = 20 * (ty - py) + py;
+	}
+
+	ld = distance(py, px, ly, lx);
+
+	/* Blast */
+	for (i = 0; i < num; i++)
+	{
+		while (1)
+		{
+			/* Get targets for some bolts */
+			y = rand_spread(ly, ld * dev / 20);
+			x = rand_spread(lx, ld * dev / 20);
+
+			if (distance(ly, lx, y, x) <= ld * dev / 20) break;
+		}
+
+		/* Analyze the "dir" and the "target". */
+		if (!project(0, 0, y, x, damroll(dd, ds), typ, flg, -1))
+		{
+			result = FALSE;
+		}
+	}
+
+	return (result);
+}
+
+
 /*
  * Switch position with a monster.
  */
@@ -6512,6 +6628,12 @@ bool stasis_monster(int dir)
 }
 
 
+bool stasis_evil(int dir)
+{
+	return (fire_ball_hide(GF_STASIS_EVIL, dir, p_ptr->lev*2, 0));
+}
+
+
 bool confuse_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
@@ -6769,7 +6891,7 @@ msg_print("エネルギーのうねりを感じた！");
 			(*count) += activate_hi_summon(py, px, FALSE);
 			if (!one_in_(6)) break;
 		case 7: case 8: case 9: case 18:
-			(*count) += summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
+			(*count) += summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			if (!one_in_(6)) break;
 		case 10: case 11: case 12:
 #ifdef JP
@@ -6846,21 +6968,24 @@ int activate_hi_summon(int y, int x, bool can_pet)
 {
 	int i;
 	int count = 0;
-	bool pet = FALSE, friendly = FALSE, not_pet;
 	int summon_lev;
+	u32b mode = PM_ALLOW_GROUP;
+	bool pet = FALSE;
 
 	if (can_pet)
 	{
 		if (one_in_(4))
 		{
-			friendly = TRUE;
+			mode |= PM_FORCE_FRIENDLY;
 		}
 		else
 		{
+			mode |= PM_FORCE_PET;
 			pet = TRUE;
 		}
 	}
-	not_pet = (bool)(!pet);
+
+	if (!pet) mode |= PM_NO_PET;
 
 	summon_lev = (pet ? p_ptr->lev * 2 / 3 + randint1(p_ptr->lev / 2) : dun_level);
 
@@ -6869,48 +6994,51 @@ int activate_hi_summon(int y, int x, bool can_pet)
 		switch (randint1(25) + (dun_level / 20))
 		{
 			case 1: case 2:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, mode);
 				break;
 			case 3: case 4:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, mode);
 				break;
 			case 5: case 6:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, mode);
 				break;
 			case 7: case 8:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HYDRA, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HYDRA, mode);
 				break;
 			case 9: case 10:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, mode);
 				break;
 			case 11: case 12:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, mode);
 				break;
 			case 13: case 14:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, mode);
 				break;
 			case 15: case 16:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, mode);
 				break;
 			case 17:
-				if (pet || friendly) break;
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITES, TRUE, friendly, pet, TRUE, not_pet);
+				if (can_pet) break;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITES, (mode | PM_ALLOW_UNIQUE));
 				break;
 			case 18: case 19:
-				if (pet || friendly) break;
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, TRUE, friendly, pet, TRUE, not_pet);
+				if (can_pet) break;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, (mode | PM_ALLOW_UNIQUE));
 				break;
 			case 20: case 21:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, TRUE, friendly, pet, (bool)(!friendly && !pet), not_pet);
+				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, mode);
 				break;
 			case 22: case 23:
-				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, TRUE, friendly, pet, (bool)(!friendly && !pet), not_pet);
+				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, mode);
 				break;
 			case 24:
-				count += summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, TRUE, friendly, pet, FALSE, not_pet);
+				count += summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, mode);
 				break;
 			default:
-				count += summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, TRUE, friendly, pet, (bool)(!friendly && !pet), not_pet);
+				if (!can_pet) mode |= PM_ALLOW_UNIQUE;
+				count += summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, mode);
 		}
 	}
 
@@ -6924,23 +7052,20 @@ int summon_cyber(int who, int y, int x)
 	int i;
 	int max_cyber = (easy_band ? 1 : (dun_level / 50) + randint1(2));
 	int count = 0;
-
-	bool friendly = FALSE;
-	bool pet = FALSE;
+	u32b mode = PM_ALLOW_GROUP;
 
 	/* Summoned by a monster */
 	if (who > 0)
 	{
 		monster_type *m_ptr = &m_list[who];
-		friendly = is_friendly(m_ptr);
-		pet = is_pet(m_ptr);
+		if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
 	}
 
 	if (max_cyber > 4) max_cyber = 4;
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		count += summon_specific(who, y, x, 100, SUMMON_CYBER, TRUE, friendly, pet, FALSE, FALSE);
+		count += summon_specific(who, y, x, 100, SUMMON_CYBER, mode);
 	}
 
 	return count;

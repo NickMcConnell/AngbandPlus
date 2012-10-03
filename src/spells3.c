@@ -866,8 +866,6 @@ msg_format("%sの帰還レベルを %d 階にセット。", d_name+d_info[select_dungeon].nam
  *
  * XXX XXX XXX This function is also called from the "melee" code
  *
- * The "mode" is currently unused.
- *
  * Return "TRUE" if the player notices anything
  */
 bool apply_disenchant(int mode)
@@ -876,11 +874,6 @@ bool apply_disenchant(int mode)
 	object_type     *o_ptr;
 	char            o_name[MAX_NLEN];
 	int to_h, to_d, to_a, pval;
-
-
-	/* Unused */
-	mode = mode;
-
 
 	/* Pick a random slot */
 	switch (randint1(8))
@@ -951,7 +944,8 @@ msg_format("%s(%c)は劣化を跳ね返した！",o_name, index_to_label(t) );
 	if ((o_ptr->to_a > 5) && (randint0(100) < 20)) o_ptr->to_a--;
 
 	/* Disenchant pval (occasionally) */
-	if ((o_ptr->pval > 1) && one_in_(13)) o_ptr->pval--;
+	/* Unless called from wild_magic() */
+	if ((o_ptr->pval > 1) && one_in_(13) && !(mode & 0x01)) o_ptr->pval--;
 
 	if ((to_h != o_ptr->to_h) || (to_d != o_ptr->to_d) ||
 	    (to_a != o_ptr->to_a) || (pval != o_ptr->pval))
@@ -1145,7 +1139,7 @@ msg_print("照明用アイテムは満タンになった。");
 }
 
 
-bool item_tester_hook_weapon_nobow(object_type *o_ptr)
+static bool item_tester_hook_weapon_nobow(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -1787,7 +1781,12 @@ static int remove_curse_aux(int all)
 		if (!all && (o_ptr->curse_flags & TRC_HEAVY_CURSE)) continue;
 
 		/* Perma-Cursed Items can NEVER be uncursed */
-		if (o_ptr->curse_flags & TRC_PERMA_CURSE) continue;
+		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+		{
+			/* Uncurse it */
+			o_ptr->curse_flags &= (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE);
+			continue;
+		}
 
 		/* Uncurse it */
 		o_ptr->curse_flags = 0L;
@@ -1906,32 +1905,14 @@ sprintf(out_val, "本当に%sを金に変えますか？", o_name);
 	}
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (!can_player_destroy_object(o_ptr))
 	{
-		byte feel = FEEL_SPECIAL;
-
 		/* Message */
 #ifdef JP
-msg_format("%sを金に変えることに失敗した。", o_name);
+		msg_format("%sを金に変えることに失敗した。", o_name);
 #else
 		msg_format("You fail to turn %s to gold!", o_name);
 #endif
-
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return FALSE;
@@ -2070,7 +2051,7 @@ bool item_tester_hook_weapon(object_type *o_ptr)
 	return (FALSE);
 }
 
-bool item_tester_hook_weapon2(object_type *o_ptr)
+static bool item_tester_hook_weapon2(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2116,7 +2097,7 @@ bool item_tester_hook_armour(object_type *o_ptr)
 }
 
 
-bool item_tester_hook_corpse(object_type *o_ptr)
+static bool item_tester_hook_corpse(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2166,7 +2147,7 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 /*
  * Check if an object is nameless weapon or armour
  */
-bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
+static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
 	if (o_ptr->name1 || o_ptr->art_name || o_ptr->name2 || o_ptr->xtra3)
 		return FALSE;
@@ -2566,16 +2547,16 @@ msg_print("強化に失敗した。");
 /*
  * Identify an object
  */
-void identify_item(object_type *o_ptr)
+bool identify_item(object_type *o_ptr)
 {
-	bool motoart = TRUE;
+	bool old_known = FALSE;
 	char o_name[MAX_NLEN];
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
-	if ((artifact_p(o_ptr) || o_ptr->art_name) && !(o_ptr->ident & IDENT_KNOWN))
-		motoart = FALSE;
+	if (o_ptr->ident & IDENT_KNOWN)
+		old_known = TRUE;
 
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
@@ -2602,19 +2583,21 @@ void identify_item(object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 0);
 
-	if(record_fix_art && !motoart && artifact_p(o_ptr))
+	if(record_fix_art && !old_known && artifact_p(o_ptr))
 		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
-	if(record_rand_art && !motoart && o_ptr->art_name)
+	if(record_rand_art && !old_known && o_ptr->art_name)
 		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
+
+	return old_known;
 }
 
 
-bool item_tester_hook_identify(object_type *o_ptr)
+static bool item_tester_hook_identify(object_type *o_ptr)
 {
 	return (bool)!object_known_p(o_ptr);
 }
 
-bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
+static bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -2626,12 +2609,14 @@ bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
  */
-bool ident_spell(bool only_equip)
+bool ident_spell(bool only_equip, bool wait_optimize)
 {
 	int             item;
 	object_type     *o_ptr;
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
+	bool old_known;
+	int idx;
 
 	item_tester_no_ryoute = TRUE;
 
@@ -2676,7 +2661,7 @@ s = "鑑定するべきアイテムがない。";
 	}
 
 	/* Identify it */
-	identify_item(o_ptr);
+	old_known = identify_item(o_ptr);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -2685,33 +2670,32 @@ s = "鑑定するべきアイテムがない。";
 	if (item >= INVEN_RARM)
 	{
 #ifdef JP
-msg_format("%^s: %s(%c)。",
+		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
 #else
-		msg_format("%^s: %s (%c).",
+		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
 #endif
-
-			   describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
 #ifdef JP
-msg_format("ザック中: %s(%c)。",
+		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
 #else
-		msg_format("In your pack: %s (%c).",
+		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
 #endif
-
-			   o_name, index_to_label(item));
 	}
 	else
 	{
 #ifdef JP
-msg_format("床上: %s。",
+		msg_format("床上: %s。", o_name);
 #else
-		msg_format("On the ground: %s.",
+		msg_format("On the ground: %s.", o_name);
 #endif
-
-			   o_name);
 	}
+
+	/* Auto-inscription/destroy */
+	idx = is_autopick(o_ptr);
+	auto_inscribe_item(item, idx);
+	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
 
 	/* Something happened */
 	return (TRUE);
@@ -2785,12 +2769,12 @@ msg_print("まばゆい閃光が走った！");
 
 
 
-bool item_tester_hook_identify_fully(object_type *o_ptr)
+static bool item_tester_hook_identify_fully(object_type *o_ptr)
 {
 	return (bool)(!object_known_p(o_ptr) || !(o_ptr->ident & IDENT_MENTAL));
 }
 
-bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
+static bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
 {
 	if (!item_tester_hook_identify_fully(o_ptr))
 		return FALSE;
@@ -2801,12 +2785,14 @@ bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
  */
-bool identify_fully(bool only_equip)
+bool identify_fully(bool only_equip, bool wait_optimize)
 {
 	int             item;
 	object_type     *o_ptr;
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
+	bool old_known;
+	int idx;
 
 	item_tester_no_ryoute = TRUE;
 	if (only_equip)
@@ -2846,7 +2832,7 @@ s = "鑑定するべきアイテムがない。";
 	}
 
 	/* Identify it */
-	identify_item(o_ptr);
+	old_known = identify_item(o_ptr);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
@@ -2861,36 +2847,37 @@ s = "鑑定するべきアイテムがない。";
 	if (item >= INVEN_RARM)
 	{
 #ifdef JP
-msg_format("%^s: %s(%c)。",
+		msg_format("%^s: %s(%c)。", describe_use(item), o_name, index_to_label(item));
 #else
-		msg_format("%^s: %s (%c).",
+		msg_format("%^s: %s (%c).", describe_use(item), o_name, index_to_label(item));
 #endif
 
-			   describe_use(item), o_name, index_to_label(item));
+
 	}
 	else if (item >= 0)
 	{
 #ifdef JP
-msg_format("ザック中: %s(%c)。",
+		msg_format("ザック中: %s(%c)。", o_name, index_to_label(item));
 #else
-		msg_format("In your pack: %s (%c).",
+		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
 #endif
-
-			   o_name, index_to_label(item));
 	}
 	else
 	{
 #ifdef JP
-msg_format("床上: %s。",
+		msg_format("床上: %s。", o_name);
 #else
-		msg_format("On the ground: %s.",
+		msg_format("On the ground: %s.", o_name);
 #endif
-
-			   o_name);
 	}
 
 	/* Describe it fully */
 	(void)identify_fully_aux(o_ptr);
+
+	/* Auto-inscription/destroy */
+	idx = is_autopick(o_ptr);
+	auto_inscribe_item(item, idx);
+	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
 
 	/* Success */
 	return (TRUE);
@@ -3999,7 +3986,7 @@ s16b spell_chance(int spell, int realm)
 	else if (p_ptr->dec_mana) chance-=2;
 
 	if ((realm+1 == REALM_NATURE) && ((p_ptr->align > 50) || (p_ptr->align < -50))) chance += penalty;
-	if ((realm+1 == REALM_LIFE) && (p_ptr->align < -20)) chance += penalty;
+	if (((realm+1 == REALM_LIFE) || (realm+1 == REALM_CRUSADE)) && (p_ptr->align < -20)) chance += penalty;
 	if (((realm+1 == REALM_DEATH) || (realm+1 == REALM_DAEMON)) && (p_ptr->align > 20)) chance += penalty;
 
 	/* Minimum failure rate */
@@ -4121,31 +4108,19 @@ static void spell_info(char *p, int spell, int realm)
 	case 0: /* Life */
 		switch (spell)
 		{
-		case  1: sprintf(p, " %s2d10", s_heal); break;
-		case  2: sprintf(p, " %s12+d12", s_dur); break;
-		case  4: sprintf(p, " %s%d", s_dam, 10 + (plev / 2)); break;
-		case  6: sprintf(p, " %s4d10", s_heal); break;
+		case  0: sprintf(p, " %s2d10", s_heal); break;
+		case  1: sprintf(p, " %s12+d12", s_dur); break;
+		case  2: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
+		case  3: sprintf(p, " %s%d", s_dam, 10 + (plev / 2)); break;
+		case  5: sprintf(p, " %s4d10", s_heal); break;
+		case  9: sprintf(p, " %s%dd8", s_dam, 8 + ((plev - 1) / 5)); break;
 		case 10: sprintf(p, " %s8d10", s_heal); break;
-		case 11: sprintf(p, " %s24+d24", s_dur); break;
-		case 12: sprintf(p, " %s3d6+%d", s_dam, orb); break;
-		case 13: sprintf(p, " %sd25+%d", s_dur, 3 * plev); break;
+		case 11: sprintf(p, " %s20+d20", s_dur); break;
 		case 14: sprintf(p, " %s300", s_heal); break;
-		case 16: sprintf(p, " %sd%d", s_dam, plev); break;
-		case 18: sprintf(p, " %sd%d", s_dam, 3 * plev); break;
-		case 20: sprintf(p, " %sd%d", s_dam, 4 * plev); break;
-#ifdef JP
-		case 22: sprintf(p, " 損:d%d/回:1000", 4 * plev); break;
-#else
-		case 22: sprintf(p, " d %d/h 1000", 4 * plev); break;
-#endif
-		case 24: sprintf(p, " %s25+d25", s_dur); break;
-		case 25: sprintf(p, " %s48+d48", s_dur); break;
-		case 28: sprintf(p, " %s2000", s_heal); break;
-#ifdef JP
-		case 30: sprintf(p, " 回300/損%d+250", plev * 4); break;
-#else
-		case 30: sprintf(p, " h300/d%d+250", plev * 4); break;
-#endif
+		case 18: sprintf(p, " %sd%d", s_dam, 5 * plev); break;
+		case 20: sprintf(p, " %s%dd15", s_dam, 5 + ((plev - 1) / 3)); break;
+		case 21: sprintf(p, " %s15+d21", s_delay); break;
+		case 29: sprintf(p, " %s2000", s_heal); break;
 		case 31: sprintf(p, " %s%d+d%d", s_dur,(plev/2), (plev/2)); break;
 		}
 		break;
@@ -4278,7 +4253,7 @@ static void spell_info(char *p, int spell, int realm)
 #ifdef JP
 		case 28: sprintf(p, " %s各%d", s_dam, plev * 2); break;
 #else
-		case 28: sprintf(p, " dam %d each", plev * 2); break;
+		case 28: sprintf(p, " %s%d each", s_dam, plev * 2); break;
 #endif
 		}
 		break;
@@ -4357,6 +4332,45 @@ static void spell_info(char *p, int spell, int realm)
 		}
 		break;
 		
+	case 9: /* Crusade */
+		switch (spell)
+		{
+		case  0: sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5)); break;
+		case  5: sprintf(p, " %s%d", s_range, plev*3); break;
+#ifdef JP
+		case  6: sprintf(p, " %s各%dd2", s_dam, 3+((plev-1)/9)); break;
+#else
+		case  6: sprintf(p, " %s%dd2 each", s_dam, 3+((plev-1)/9)); break;
+#endif
+		case  9: sprintf(p, " %s3d6+%d", s_dam, orb); break;
+		case 10: sprintf(p, " %sd%d", s_dam, plev); break;
+		case 12: sprintf(p, " %s24+d24", s_dur); break;
+		case 13: sprintf(p, " %sd25+%d", s_dur, 3 * plev); break;
+		case 14: sprintf(p, " %s%d", s_dam, plev*5); break;
+#ifdef JP
+		case 15: sprintf(p, " 損:d%d/回:100", 6 * plev); break;
+#else
+		case 15: sprintf(p, " dam:d%d/h100", 6 * plev); break;
+#endif
+		case 18: sprintf(p, " %s18+d18", s_dur); break;
+		case 19: sprintf(p, " %sd%d", s_dam, 4 * plev); break;
+		case 20: sprintf(p, " %sd%d", s_dam, 4 * plev); break;
+		case 22: sprintf(p, " %s%d", s_dam, 2 * plev+100); break;
+		case 24: sprintf(p, " %s25+d25", s_dur); break;
+		case 28: sprintf(p, " %s10+d10", s_dur); break;
+#ifdef JP
+		case 29: sprintf(p, " %s各%d", s_dam, plev*3+25); break;
+#else
+		case 29: sprintf(p, " %s%d each", s_dam, plev*3+25); break;
+#endif
+#ifdef JP
+		case 30: sprintf(p, " 回100/損%d+%d", plev * 4, plev*11/2); break;
+#else
+		case 30: sprintf(p, " h100/dm%d+%d", plev * 4, plev*11/2); break;
+#endif
+		}
+		break;
+
 	case 15: /* Music */
 		switch (spell)
 		{
@@ -4726,6 +4740,7 @@ bool hates_fire(object_type *o_ptr)
 		case TV_ARCANE_BOOK:
 		case TV_ENCHANT_BOOK:
 		case TV_DAEMON_BOOK:
+		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		{
@@ -5485,18 +5500,19 @@ bool polymorph_monster(int y, int x)
 {
 	cave_type *c_ptr = &cave[y][x];
 	monster_type *m_ptr = &m_list[c_ptr->m_idx];
-	bool friendly, pet;
 	bool polymorphed = FALSE;
 	int new_r_idx;
 	int old_r_idx = m_ptr->r_idx;
+	bool targeted = (target_who == c_ptr->m_idx) ? TRUE : FALSE;
+	bool health_tracked = (p_ptr->health_who == c_ptr->m_idx) ? TRUE : FALSE;
+	monster_type back_m;
 
 	if (p_ptr->inside_arena || p_ptr->inside_battle) return (FALSE);
 
 	if ((p_ptr->riding == c_ptr->m_idx) || (m_ptr->mflag2 & MFLAG_KAGE)) return (FALSE);
 
-	/* Get the monsters attitude */
-	friendly = is_friendly(m_ptr);
-	pet = is_pet(m_ptr);
+	/* Memorize the monster before polymorphing */
+	back_m = *m_ptr;
 
 	/* Pick a "new" monster race */
 	new_r_idx = poly_r_idx(old_r_idx);
@@ -5504,11 +5520,18 @@ bool polymorph_monster(int y, int x)
 	/* Handle polymorph */
 	if (new_r_idx != old_r_idx)
 	{
+		u32b mode = 0L;
+
+		/* Get the monsters attitude */
+		if (is_friendly(m_ptr)) mode |= PM_FORCE_FRIENDLY;
+		if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
+		if (m_ptr->mflag2 & MFLAG_NOPET) mode |= PM_NO_PET;
+
 		/* "Kill" the "old" monster */
 		delete_monster_idx(c_ptr->m_idx);
 
 		/* Create a new monster (no groups) */
-		if (place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet, FALSE, (bool)(m_ptr->mflag2 & MFLAG_NOPET)))
+		if (place_monster_aux(0, y, x, new_r_idx, mode))
 		{
 			/* Success */
 			polymorphed = TRUE;
@@ -5518,10 +5541,14 @@ bool polymorph_monster(int y, int x)
 			monster_terrain_sensitive = FALSE;
 
 			/* Placing the new monster failed */
-			place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet, TRUE, (bool)(m_ptr->mflag2 & MFLAG_NOPET));
+			place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE));
+			m_list[hack_m_idx_ii] = back_m;
 
 			monster_terrain_sensitive = TRUE;
 		}
+
+		if (targeted) target_who = hack_m_idx_ii;
+		if (health_tracked) health_track(hack_m_idx_ii);
 	}
 
 	return polymorphed;
@@ -5538,30 +5565,32 @@ bool dimension_door(void)
 
 	if (!tgt_pt(&x, &y)) return FALSE;
 
-	p_ptr->energy -= 60 - plev;
+	p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 
 	if (!cave_empty_bold(y, x) || (cave[y][x].info & CAVE_ICKY) ||
 		(distance(y, x, py, px) > plev / 2 + 10) ||
 		(!randint0(plev / 10 + 10)))
 	{
-	  if( p_ptr->pclass != CLASS_MIRROR_MASTER ){
+		if( p_ptr->pclass != CLASS_MIRROR_MASTER ){
 #ifdef JP
-msg_print("精霊界から物質界に戻る時うまくいかなかった！");
+			msg_print("精霊界から物質界に戻る時うまくいかなかった！");
 #else
-		msg_print("You fail to exit the astral plane correctly!");
+			msg_print("You fail to exit the astral plane correctly!");
 #endif
-	  }
-	  else {
+		}
+		else
+		{
 #ifdef JP
-msg_print("鏡の世界をうまく通れなかった！");
+			msg_print("鏡の世界をうまく通れなかった！");
 #else
-		msg_print("You fail to exit the astral plane correctly!");
+			msg_print("You fail to exit the astral plane correctly!");
 #endif
-	  }
-		p_ptr->energy -= 60 - plev;
+		}
+		p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 		teleport_player((plev+2)*2);
 	}
-	else teleport_player_to(y, x, TRUE);
+	else
+		teleport_player_to(y, x, TRUE);
 
 	return (TRUE);
 }
@@ -5891,8 +5920,11 @@ msg_format("乱暴な魔法のために%sが壊れた！", o_name);
 }
 
 
-bool summon_kin_player(bool pet, int level, int y, int x, bool group)
+bool summon_kin_player(int level, int y, int x, u32b mode)
 {
+	bool pet = (bool)(mode & PM_FORCE_PET);
+	if (!pet) mode |= PM_NO_PET;
+
 	switch (p_ptr->mimic_form)
 	{
 	case MIMIC_NONE:
@@ -5993,5 +6025,5 @@ bool summon_kin_player(bool pet, int level, int y, int x, bool group)
 		summon_kin_type = 'V';
 		break;
 	}	
-	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, group, FALSE, pet, FALSE, (bool)(!pet));
+	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
 }

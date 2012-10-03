@@ -1550,9 +1550,9 @@ return "魔法の地図と光 : 50+d50 ターン毎";
 		case ART_JUDGE:
 		{
 #ifdef JP
-return "体力と引き替えに千里眼と帰還";
+return "体力と引き替えに千里眼と帰還 : 20+d20 ターン毎";
 #else
-			return "clairvoyance and recall, draining you";
+			return "clairvoyance and recall, draining you every 20+d20 turns";
 #endif
 
 		}
@@ -1644,9 +1644,9 @@ return "信じ難いこと : 450+d450 ターン毎";
 		case ART_DOR: case ART_TERROR: case ART_STONEMASK:
 		{
 #ifdef JP
-return "全方向への恐怖の光線";
+			return "全方向への恐怖の光線 : 3*(レベル+10) ターン毎";
 #else
-			return "rays of fear in every direction";
+			return "rays of fear in every direction every 3*(level+10) turns";
 #endif
 
 		}
@@ -2051,9 +2051,9 @@ return "魔力の嵐 (250) : 300 ターン毎";
 			case EGO_RING_DRAGON_F:
 				if (o_ptr->sval == SV_RING_FLAMES)
 #ifdef JP
-return "火炎のブレスと火への耐性";
+return "火炎のブレス (200) と火への耐性 : 200 ターン毎";
 #else
-					return "breath of fire and resist fire";
+					return "breath of fire (200) and resist fire every 200 turns";
 #endif
 				else
 #ifdef JP
@@ -2064,9 +2064,9 @@ return "火炎のブレス (200) : 250 ターン毎";
 			case EGO_RING_DRAGON_C:
 				if (o_ptr->sval == SV_RING_ICE)
 #ifdef JP
-return "冷気のブレスと冷気への耐性";
+return "冷気のブレス (200) と冷気への耐性 : 200 ターン毎";
 #else
-					return "breath of cold and resist cold";
+					return "breath of cold (200) and resist cold every 200 turns";
 #endif
 				else
 #ifdef JP
@@ -2100,9 +2100,9 @@ return "テレポート・アウェイ : 150 ターン毎";
 #endif
 			case EGO_RING_TRUE:
 #ifdef JP
-return "士気高揚、祝福、究極の耐性";
+return "士気高揚、祝福、究極の耐性 : 777 ターン毎";
 #else
-			return "hero, bless, and ultimate resistance";
+			return "hero, bless, and ultimate resistance every 777 turns";
 #endif
 			}
 		}
@@ -2110,30 +2110,30 @@ return "士気高揚、祝福、究極の耐性";
 		{
 			case SV_RING_FLAMES:
 #ifdef JP
-return "ファイア・ボールと火への耐性";
+return "ファイア・ボール (100) と火への耐性 : 50+d50 ターン毎";
 #else
-				return "ball of fire and resist fire";
+				return "ball of fire (100) and resist fire every 50+d50 turns";
 #endif
 
 			case SV_RING_ICE:
 #ifdef JP
-return "コールド・ボールと冷気への耐性";
+return "コールド・ボール (100) と冷気への耐性 : 50+d50 ターン毎";
 #else
-				return "ball of cold and resist cold";
+				return "ball of cold (100) and resist cold every 50+d50 turns";
 #endif
 
 			case SV_RING_ACID:
 #ifdef JP
-return "アシッド・ボールと酸への耐性";
+return "アシッド・ボール (100) と酸への耐性 : 50+d50 ターン毎";
 #else
-				return "ball of acid and resist acid";
+				return "ball of acid (100) and resist acid every 50+d50 turns";
 #endif
 
 			case SV_RING_ELEC:
 #ifdef JP
-return "サンダー・ボールと電撃への耐性";
+return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
 #else
-				return "ball of elec and resist elec";
+				return "ball of elec (100) and resist elec every 50+d50 turns";
 #endif
 
 			default:
@@ -2641,13 +2641,13 @@ info[i++] = "それは長いターン明かりを授ける。";
 #ifdef JP
 info[i++] = "それは乗馬中は非常に使いやすい。";
 #else
-			info[i++] = "It is made for riding.";
+			info[i++] = "It is made for use while riding.";
 #endif
 		else
 #ifdef JP
 info[i++] = "それは乗馬中でも使いやすい。";
 #else
-			info[i++] = "It is suitable for riding.";
+			info[i++] = "It is suitable for use while riding.";
 #endif
 
 	}
@@ -3546,7 +3546,7 @@ info[i++] = "それは攻撃を受けやすい。";
 #ifdef JP
 info[i++] = "それは魔法を唱えにくくする。";
 #else
-		info[i++] = "It is unsuitable for spellcasting.";
+		info[i++] = "It encumbers you while spellcasting.";
 #endif
 
 	}
@@ -4509,7 +4509,7 @@ int show_inven(int target_item)
 			{
 				cur_col++;
 				if (a & 0x80)
-					Term_draw(cur_col, j + 1, 255, 255);
+					Term_draw(cur_col, j + 1, 255, -1);
 			}
 			cur_col += 2;
 		}
@@ -4711,7 +4711,7 @@ int show_equip(int target_item)
 			{
 				cur_col++;
 				if (a & 0x80)
-					Term_draw(cur_col, j + 1, 255, 255);
+					Term_draw(cur_col, j + 1, 255, -1);
 			}
 			cur_col += 2;
 		}
@@ -5019,7 +5019,7 @@ bool can_get_item(void)
 		if (item_tester_okay(&inventory[j]))
 			return TRUE;
 
-	(void)scan_floor(floor_list, &floor_num, py, px, 0x01);
+	floor_num = scan_floor(floor_list, py, px, 0x01);
 	if (floor_num)
 		return TRUE;
 
@@ -5109,7 +5109,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 #ifdef ALLOW_EASY_FLOOR /* TNB */
 
-	if (easy_floor) return get_item_floor(cp, pmt, str, mode);
+	if (easy_floor || use_menu) return get_item_floor(cp, pmt, str, mode);
 
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
@@ -5235,7 +5235,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (item_tester_okay(o_ptr)) allow_floor = TRUE;
 		}
 	}
-
 
 	/* Require at least one legal choice */
 	if (!allow_floor && (i1 > i2) && (e1 > e2))
@@ -5449,7 +5448,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 #ifdef JP
 if (inven) strcat(out_val, format(" %s 持ち物,", use_menu ? "'4'or'6'" : "'/'"));
 #else
-			if (inven) strcat(out_val, " / for Inven,");
+if (inven) strcat(out_val, format(" %s for Inven,", use_menu ? "4 or 6" : "'/'"));
 #endif
 
 		}
@@ -5543,22 +5542,31 @@ if (allow_floor) strcat(out_val, " '-'床上,");
 			case '\r':
 			case '\n':
 			{
-				/* Validate the item */
-				if (!get_item_okay(get_item_label))
+				if (command_wrk == USE_FLOOR)
 				{
-					bell();
-					break;
+					/* Special index */
+					(*cp) = -get_item_label;
+				}
+				else
+				{
+					/* Validate the item */
+					if (!get_item_okay(get_item_label))
+					{
+						bell();
+						break;
+					}
+
+					/* Allow player to "refuse" certain actions */
+					if (!get_item_allow(get_item_label))
+					{
+						done = TRUE;
+						break;
+					}
+
+					/* Accept that choice */
+					(*cp) = get_item_label;
 				}
 
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(get_item_label))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = get_item_label;
 				item = TRUE;
 				done = TRUE;
 				break;
@@ -5922,16 +5930,14 @@ if (ver && !verify("本当に", k))
  *		mode & 0x02 -- Marked items only
  *		mode & 0x04 -- Stop after first
  */
-bool scan_floor(int *items, int *item_num, int y, int x, int mode)
+int scan_floor(int *items, int y, int x, int mode)
 {
 	int this_o_idx, next_o_idx;
 
 	int num = 0;
 
-	(*item_num) = 0;
-
 	/* Sanity */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(y, x)) return 0;
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = cave[y][x].o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -5951,26 +5957,24 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 		if ((mode & 0x02) && !o_ptr->marked) continue;
 
 		/* Accept this item */
-		items[num++] = this_o_idx;
+		/* XXX Hack -- Enforce limit */
+		if (num <= 23)
+			items[num] = this_o_idx;
+
+		num++;
 
 		/* Only one */
 		if (mode & 0x04) break;
-
-		/* XXX Hack -- Enforce limit */
-		if (num == 23) break;
 	}
 
-	/* Number of items */
-	(*item_num) = num;
-
 	/* Result */
-	return (num != 0);
+	return num;
 }
 
 /*
  * Display a list of the items on the floor at the given location.
  */
-int show_floor(int target_item, int y, int x)
+int show_floor(int target_item, int y, int x, int *min_width)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -5993,7 +5997,7 @@ int show_floor(int target_item, int y, int x)
 	Term_get_size(&wid, &hgt);
 
 	/* Default length */
-	len = 20;
+	len = MAX((*min_width), 20);
 
 	/* Maximum space allowed for descriptions */
 	lim = wid - 4;
@@ -6002,10 +6006,10 @@ int show_floor(int target_item, int y, int x)
 	if (show_weights) lim -= 9;
 
 	/* Scan for objects in the grid, using item_tester_okay() */
-	(void) scan_floor(floor_list, &floor_num, y, x, 0x01);
+	floor_num = scan_floor(floor_list, y, x, 0x01);
 
 	/* Display the inventory */
-	for (k = 0, i = 0; i < floor_num; i++)
+	for (k = 0, i = 0; i < floor_num && i < 23; i++)
 	{
 		o_ptr = &o_list[floor_list[i]];
 
@@ -6036,6 +6040,9 @@ int show_floor(int target_item, int y, int x)
 		/* Advance to next "line" */
 		k++;
 	}
+
+	/* Save width */
+	*min_width = len;
 
 	/* Find the column to start in */
 	col = (len > wid - 4) ? 0 : (wid - len - 1);
@@ -6123,6 +6130,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	char out_val[160];
 
 	int floor_num, floor_list[23], floor_top = 0;
+	int min_width = 0;
 
 	extern bool select_spellbook;
 	extern bool select_the_force;
@@ -6241,7 +6249,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	if (floor)
 	{
 		/* Scan all objects in the grid */
-		(void) scan_floor(floor_list, &floor_num, py, px, 0x01);
+		floor_num = scan_floor(floor_list, py, px, 0x01);
 	}
 
 	/* Accept inventory */
@@ -6387,7 +6395,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 			n2 = I2A(k - floor_top);
 
 			/* Redraw if needed */
-			if (command_see) get_item_label = show_floor(menu_line, py, px);
+			if (command_see) get_item_label = show_floor(menu_line, py, px, &min_width);
 		}
 
 		/* Viewing inventory */
@@ -6425,51 +6433,50 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 
 			/* Append */
 #ifdef JP
-if (allow_equip)
-{
-	if (use_menu)
-	{
-		if (allow_floor)
-			strcat(out_val, " '6' 装備品,");
-		else
-			strcat(out_val, " '4'or'6' 装備品,");
-	}
-	else strcat(out_val, " '/' 装備品,");
-}
-else if (select_the_force)
-	strcat(out_val, " 'w'練気術,");
+			if (allow_equip)
+			{
+				if (!use_menu)
+					strcat(out_val, " '/' 装備品,");
+				else if (allow_floor)
+					strcat(out_val, " '6' 装備品,");
+				else
+					strcat(out_val, " '4'or'6' 装備品,");
+			}
+			else if (select_the_force)
+				strcat(out_val, " 'w'練気術,");
 #else
-if (allow_equip)
-{
-	if (use_menu)
-	{
-		if (allow_floor)
-			strcat(out_val, " 6 for Equip,");
-		else
-			strcat(out_val, " 4 or 6 for Equip,");
-	}
-	else strcat(out_val, " / for Equip,");
-}
-else if (select_the_force)
-	strcat(out_val, " w for the Force,");
+			if (allow_equip)
+			{
+				if (!use_menu)
+					strcat(out_val, " / for Equip,");
+				else if (allow_floor)
+					strcat(out_val, " 6 for Equip,");
+				else
+					strcat(out_val, " 4 or 6 for Equip,");
+			}
+			else if (select_the_force)
+				strcat(out_val, " w for the Force,");
 #endif
 
 			/* Append */
+			if (allow_floor)
+			{
 #ifdef JP
-if (allow_floor)
-{
-	if (use_menu)
-	{
-		if (allow_equip)
-			strcat(out_val, " '4' 床上,");
-		else
-			strcat(out_val, " '4'or'6' 床上,");
-	}
-	else strcat(out_val, " '-'床上,");
-}
+				if (!use_menu)
+					strcat(out_val, " '-'床上,");
+				if (allow_equip)
+					strcat(out_val, " '4' 床上,");
+				else
+					strcat(out_val, " '4'or'6' 床上,");
 #else
-			if (allow_floor) strcat(out_val, " - for floor,");
+				if (!use_menu)
+					strcat(out_val, " - for floor,");
+				if (allow_equip)
+					strcat(out_val, " 4 for floor,");
+				else
+					strcat(out_val, " 4 or 6 for floor,");
 #endif
+			}
 
 		}
 
@@ -6508,40 +6515,45 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 
 
 			/* Append */
+			if (allow_inven)
+			{
 #ifdef JP
-if (allow_inven)
-{
-	if (use_menu)
-	{
-		if (allow_floor)
-			strcat(out_val, " '4' 持ち物,");
-		else
-			strcat(out_val, " '4'or'6' 持ち物,");
-	}
-	else strcat(out_val, " '/' 持ち物,");
-}
+				if (!use_menu)
+					strcat(out_val, " '/' 持ち物,");
+				else if (allow_floor)
+					strcat(out_val, " '4' 持ち物,");
+				else
+					strcat(out_val, " '4'or'6' 持ち物,");
 #else
-			if (allow_inven) strcat(out_val, " / for Inven,");
-#endif
 
+				if (!use_menu)
+					strcat(out_val, " / for Inven,");
+				else if (allow_floor)
+					strcat(out_val, " 4 for Inven,");
+				else
+					strcat(out_val, " 4 or 6 for Inven,");
+#endif
+			}
 
 			/* Append */
+			if (allow_floor)
+			{
 #ifdef JP
-if (allow_floor)
-{
-	if (use_menu)
-	{
-		if (allow_floor)
-			strcat(out_val, " '6' 床上,");
-		else
-			strcat(out_val, " '4'or'6' 床上,");
-	}
-	else strcat(out_val, " '-'床上,");
-}
+				if (!use_menu)
+					strcat(out_val, " '-'床上,");
+				else if (allow_inven)
+					strcat(out_val, " '6' 床上,");
+				else
+					strcat(out_val, " '4'or'6' 床上,");
 #else
-			if (allow_floor) strcat(out_val, " - for floor,");
+				if (!use_menu)
+					strcat(out_val, " - for floor,");
+				else if (allow_inven)
+					strcat(out_val, " 6 for floor,");
+				else
+					strcat(out_val, " 4 or 6 for floor,");
 #endif
-
+			}
 		}
 
 		/* Viewing floor */
@@ -6582,27 +6594,27 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 				if (allow_inven && allow_equip)
 				{
 #ifdef JP
-strcat(out_val, " '4' 装備品,  '6' 持ち物,");
+					strcat(out_val, " '4' 装備品, '6' 持ち物,");
 #else
-					strcat(out_val, " / for Inven,");
+					strcat(out_val, " 4 for Equip, 6 for Inven,");
 #endif
 
 				}
 				else if (allow_inven)
 				{
 #ifdef JP
-strcat(out_val, " '4'or'6' 持ち物,");
+					strcat(out_val, " '4'or'6' 持ち物,");
 #else
-					strcat(out_val, " / for Inven,");
+					strcat(out_val, " 4 or 6 for Inven,");
 #endif
 
 				}
 				else if (allow_equip)
 				{
 #ifdef JP
-strcat(out_val, " '4'or'6' 装備品,");
+					strcat(out_val, " '4'or'6' 装備品,");
 #else
-					strcat(out_val, " / for Equip,");
+					strcat(out_val, " 4 or 6 for Equip,");
 #endif
 
 				}
@@ -6611,7 +6623,7 @@ strcat(out_val, " '4'or'6' 装備品,");
 			else if (allow_inven)
 			{
 #ifdef JP
-strcat(out_val, " '/' 持ち物,");
+				strcat(out_val, " '/' 持ち物,");
 #else
 				strcat(out_val, " / for Inven,");
 #endif
@@ -6620,11 +6632,21 @@ strcat(out_val, " '/' 持ち物,");
 			else if (allow_equip)
 			{
 #ifdef JP
-strcat(out_val, " '/'装備品,");
+				strcat(out_val, " '/'装備品,");
 #else
 				strcat(out_val, " / for Equip,");
 #endif
 
+			}
+
+			/* Append */
+			if (command_see && !use_menu)
+			{
+#ifdef JP
+				strcat(out_val, " Enter 次,");
+#else
+				strcat(out_val, " Enter for scroll down,");
+#endif
 			}
 		}
 
@@ -6645,7 +6667,7 @@ strcat(out_val, " '/'装備品,");
 		int max_line = 1;
 		if (command_wrk == USE_INVEN) max_line = max_inven;
 		else if (command_wrk == USE_EQUIP) max_line = max_equip;
-		else if (command_wrk == USE_FLOOR) max_line = floor_num;
+		else if (command_wrk == USE_FLOOR) max_line = MIN(23, floor_num);
 		switch (which)
 		{
 			case ESCAPE:
@@ -6727,7 +6749,7 @@ strcat(out_val, " '/'装備品,");
 				/* Switch inven/equip */
 				if (command_wrk == USE_INVEN) max_line = max_inven;
 				else if (command_wrk == USE_EQUIP) max_line = max_equip;
-				else if (command_wrk == USE_FLOOR) max_line = floor_num;
+				else if (command_wrk == USE_FLOOR) max_line = MIN(23, floor_num);
 				if (menu_line > max_line) menu_line = max_line;
 
 				/* Need to redraw */
@@ -6788,7 +6810,7 @@ strcat(out_val, " '/'装備品,");
 				/* Switch inven/equip */
 				if (command_wrk == USE_INVEN) max_line = max_inven;
 				else if (command_wrk == USE_EQUIP) max_line = max_equip;
-				else if (command_wrk == USE_FLOOR) max_line = floor_num;
+				else if (command_wrk == USE_FLOOR) max_line = MIN(23, floor_num);
 				if (menu_line > max_line) menu_line = max_line;
 
 				/* Need to redraw */
@@ -6800,22 +6822,31 @@ strcat(out_val, " '/'装備品,");
 			case '\r':
 			case '\n':
 			{
-				/* Validate the item */
-				if (!get_item_okay(get_item_label))
+				if (command_wrk == USE_FLOOR)
 				{
-					bell();
-					break;
+					/* Special index */
+					(*cp) = -get_item_label;
+				}
+				else
+				{
+					/* Validate the item */
+					if (!get_item_okay(get_item_label))
+					{
+						bell();
+						break;
+					}
+
+					/* Allow player to "refuse" certain actions */
+					if (!get_item_allow(get_item_label))
+					{
+						done = TRUE;
+						break;
+					}
+
+					/* Accept that choice */
+					(*cp) = get_item_label;
 				}
 
-				/* Allow player to "refuse" certain actions */
-				if (!get_item_allow(get_item_label))
-				{
-					done = TRUE;
-					break;
-				}
-
-				/* Accept that choice */
-				(*cp) = get_item_label;
 				item = TRUE;
 				done = TRUE;
 				break;
@@ -6866,6 +6897,48 @@ strcat(out_val, " '/'装備品,");
 					/* Flip flag */
 					command_see = TRUE;
 				}
+				break;
+			}
+
+			case '\n':
+			case '\r':
+			case '+':
+			{
+				int i, o_idx;
+				cave_type *c_ptr = &cave[py][px];
+ 
+				if (command_wrk != (USE_FLOOR)) break;
+
+				/* Get the object being moved. */
+				o_idx =	c_ptr->o_idx;
+ 
+				/* Only rotate a pile of two or more objects. */
+				if (!(o_idx && o_list[o_idx].next_o_idx)) break;
+
+				/* Remove the first object from the list. */
+				excise_object_idx(o_idx);
+ 	
+				/* Find end of the list. */
+				i = c_ptr->o_idx;
+				while (o_list[i].next_o_idx)
+					i = o_list[i].next_o_idx;
+ 	
+				/* Add after the last object. */
+				o_list[i].next_o_idx = o_idx;
+ 	
+				/* Re-scan floor list */ 
+				floor_num = scan_floor(floor_list, py, px, 0x01);
+
+				/* Hack -- Fix screen */
+				if (command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
+				}
+
 				break;
 			}
 
@@ -7013,10 +7086,9 @@ strcat(out_val, " '/'装備品,");
 				break;
 			}
 
-			case '\n':
 #if 0
+			case '\n':
 			case '\r':
-#endif
 			{
 				/* Choose "default" inventory item */
 				if (command_wrk == (USE_INVEN))
@@ -7073,6 +7145,7 @@ strcat(out_val, " '/'装備品,");
 				done = TRUE;
 				break;
 			}
+#endif
 
 		        case 'w':
 			{
@@ -7137,7 +7210,7 @@ strcat(out_val, " '/'装備品,");
 				else if (command_wrk == USE_FLOOR)
 				{
 					k = islower(which) ? A2I(which) : -1;
-					if (k < 0 || k >= floor_num)
+					if (k < 0 || k >= floor_num || k >= 23)
 					{
 						bell();
 						break;
@@ -7230,7 +7303,7 @@ if (ver && !verify("本当に", k))
 }
 
 
-bool py_pickup_floor_aux(void)
+static bool py_pickup_floor_aux(void)
 {
 	s16b this_o_idx;
 
@@ -7342,12 +7415,11 @@ void py_pickup_floor(int pickup)
 		}
 
 		/* Remember this object index */
-		floor_list[floor_num] = this_o_idx;
+		if (floor_num <= 23)
+			floor_list[floor_num] = this_o_idx;
 
 		/* Count non-gold objects */
 		floor_num++;
-
-		if (floor_num == 23) break;
 
 		/* Remember this index */
 		floor_o_idx = this_o_idx;

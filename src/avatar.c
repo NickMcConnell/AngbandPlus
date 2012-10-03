@@ -181,7 +181,7 @@ int virtue_number(int type)
 
 /* Aux function */
 
-void get_random_virtue(int which)
+static void get_random_virtue(int which)
 {
   int type = 0;
 
@@ -227,7 +227,7 @@ void get_random_virtue(int which)
 
 /* Select virtues & reset values for a new character */
 
-void get_virtues()
+void get_virtues(void)
 {
    int i = 0, j = 0;
 
@@ -408,9 +408,9 @@ void get_virtues()
     switch(p_ptr->realm1)
     {
         case REALM_LIFE:
-         if (virtue_number(V_FAITH))
-          p_ptr->vir_types[i++] = V_VITALITY;
-         else p_ptr->vir_types[i++] = V_FAITH;
+         if (virtue_number(V_VITALITY))
+          p_ptr->vir_types[i++] = V_TEMPERANCE;
+         else p_ptr->vir_types[i++] = V_VITALITY;
         break;
         case REALM_SORCERY:
          if (virtue_number(V_KNOWLEDGE))
@@ -445,6 +445,11 @@ void get_virtues()
           p_ptr->vir_types[i++] = V_FAITH;
          else p_ptr->vir_types[i++] = V_JUSTICE;
         break;
+        case REALM_CRUSADE:
+         if (virtue_number(V_JUSTICE))
+          p_ptr->vir_types[i++] = V_HONOUR;
+         else p_ptr->vir_types[i++] = V_JUSTICE;
+        break;
      };
     }
 
@@ -455,9 +460,9 @@ void get_virtues()
     switch(p_ptr->realm2)
     {
         case REALM_LIFE:
-         if (virtue_number(V_FAITH))
-          p_ptr->vir_types[i++] = V_VITALITY;
-         else p_ptr->vir_types[i++] = V_FAITH;
+         if (virtue_number(V_VITALITY))
+          p_ptr->vir_types[i++] = V_TEMPERANCE;
+         else p_ptr->vir_types[i++] = V_VITALITY;
         break;
         case REALM_SORCERY:
          if (virtue_number(V_ENCHANT))
@@ -490,6 +495,11 @@ void get_virtues()
         case REALM_DAEMON:
          if (virtue_number(V_JUSTICE))
           p_ptr->vir_types[i++] = V_FAITH;
+         else p_ptr->vir_types[i++] = V_JUSTICE;
+        break;
+        case REALM_CRUSADE:
+         if (virtue_number(V_JUSTICE))
+          p_ptr->vir_types[i++] = V_HONOUR;
          else p_ptr->vir_types[i++] = V_JUSTICE;
         break;
      };

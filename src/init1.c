@@ -7,11 +7,11 @@
 
 #ifdef JP
 #undef strchr
-char* _strchr(char* ptr, char ch)
+static char *_strchr(const char *ptr, char ch)
 {
 	for ( ; *ptr != '\0'; ++ptr)
 	{
-		if (*ptr == ch)	return ptr;
+		if (*ptr == ch)	return (char *)ptr;
 		if (iskanji(*ptr)) ++ptr;
 	}
 
@@ -388,7 +388,7 @@ static cptr r_info_flags7[] =
 	"GUARDIAN",
 	"CHAMELEON",
 	"KILL_EXP",
-	"XXX7X15",
+	"TANUKI",
 	"XXX7X16",
 	"XXX7X17",
 	"XXX7X18",
@@ -747,7 +747,7 @@ static bool add_name(u32b *offset, header *head, cptr buf)
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
  */
-static int color_char_to_attr(char c)
+byte color_char_to_attr(char c)
 {
 	switch (c)
 	{
@@ -770,7 +770,7 @@ static int color_char_to_attr(char c)
 		case 'U': return (TERM_L_UMBER);
 	}
 
-	return (-1);
+	return (255);
 }
 
 
@@ -1074,7 +1074,7 @@ errr parse_m_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (4 != sscanf(s, "%x:%d:%d:%d",
-				&xtra, &type, &first, &weight))	return (1);
+				(uint *)&xtra, &type, &first, &weight))	return (1);
 
 		m_ptr->spell_xtra = xtra;
 		m_ptr->spell_type = type;
@@ -1225,7 +1225,7 @@ errr parse_f_info(char *buf, header *head)
 	/* Process 'G' for "Graphics" (one line only) */
 	else if (buf[0] == 'G')
 	{
-		int tmp;
+		byte tmp;
 
 		/* Paranoia */
 		if (!buf[2]) return (1);
@@ -1236,7 +1236,7 @@ errr parse_f_info(char *buf, header *head)
 		tmp = color_char_to_attr(buf[4]);
 
 		/* Paranoia */
-		if (tmp < 0) return (1);
+		if (tmp > 127) return (1);
 
 		/* Save the values */
 		f_ptr->d_attr = tmp;
@@ -1407,7 +1407,7 @@ errr parse_k_info(char *buf, header *head)
 	else if (buf[0] == 'G')
 	{
 		char sym;
-		int tmp;
+		byte tmp;
 
 		/* Paranoia */
 		if (!buf[2]) return (1);
@@ -1421,7 +1421,7 @@ errr parse_k_info(char *buf, header *head)
 		tmp = color_char_to_attr(buf[4]);
 
 		/* Paranoia */
-		if (tmp < 0) return (1);
+		if (tmp > 127) return (1);
 
 		/* Save the values */
 		k_ptr->d_attr = tmp;
@@ -2239,7 +2239,7 @@ errr parse_r_info(char *buf, header *head)
 	else if (buf[0] == 'G')
 	{
 		char sym;
-		int tmp;
+		byte tmp;
 
 		/* Paranoia */
 		if (!buf[2]) return (1);
@@ -2253,7 +2253,7 @@ errr parse_r_info(char *buf, header *head)
 		tmp = color_char_to_attr(buf[4]);
 
 		/* Paranoia */
-		if (tmp < 0) return (1);
+		if (tmp > 127) return (1);
 
 		/* Save the values */
 		r_ptr->d_char = sym;
@@ -3323,7 +3323,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				monster_level = base_level + monster_index;
 
-				place_monster(*y, *x, TRUE, TRUE);
+				place_monster(*y, *x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 
 				monster_level = base_level;
 			}
@@ -3357,7 +3357,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				/* Place it */
-				place_monster_aux(*y, *x, monster_index, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE);
+				place_monster_aux(0, *y, *x, monster_index, (PM_ALLOW_SLEEP | PM_NO_KAGE));
 				if (clone)
 				{
 					/* clone */

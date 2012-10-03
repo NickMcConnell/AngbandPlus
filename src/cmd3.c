@@ -385,7 +385,7 @@ s = "¤ª¤Ã¤È¡£";
 		return;
 	}
 
-	if (cursed_p(o_ptr) && wear_confirm &&
+	if (cursed_p(o_ptr) && confirm_wear &&
 	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
 		char dummy[MAX_NLEN+80];
@@ -908,6 +908,7 @@ static bool high_level_book(object_type *o_ptr)
 	    (o_ptr->tval == TV_TRUMP_BOOK) ||
 	    (o_ptr->tval == TV_ENCHANT_BOOK) ||
 	    (o_ptr->tval == TV_DAEMON_BOOK) ||
+	    (o_ptr->tval == TV_CRUSADE_BOOK) ||
 	    (o_ptr->tval == TV_MUSIC_BOOK))
 	{
 		if (o_ptr->sval > 1)
@@ -1010,10 +1011,8 @@ void do_cmd_destroy(void)
 	energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (!can_player_destroy_object(o_ptr))
 	{
-		byte feel = FEEL_SPECIAL;
-
 		energy_use = 0;
 
 		/* Message */
@@ -1022,24 +1021,6 @@ void do_cmd_destroy(void)
 #else
 		msg_format("You cannot destroy %s.", o_name);
 #endif
-
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 		/* Done */
 		return;
@@ -1088,13 +1069,13 @@ void do_cmd_destroy(void)
 		}
 		else if (p_ptr->pclass == CLASS_PALADIN)
 		{
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (is_good_realm(p_ptr->realm1))
 			{
-				if (q_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+				if (!is_good_realm(tval2realm(q_ptr->tval))) gain_expr = TRUE;
 			}
 			else
 			{
-				if (q_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+				if (is_good_realm(tval2realm(q_ptr->tval))) gain_expr = TRUE;
 			}
 		}
 
@@ -1290,9 +1271,9 @@ void do_cmd_uninscribe(void)
 typedef struct flag_insc_table
 {
 #ifdef JP
-	char *japanese;
+	cptr japanese;
 #endif
-	char *english;
+	cptr english;
 	u32b flag;
 	int num;
 	u32b except_flag;
@@ -1313,7 +1294,7 @@ static flag_insc_table flag_insc_plus[] =
 	{ "Ãµ", "Sr", TR1_SEARCH, 1, 0 },
 	{ "ÀÖ", "If", TR1_INFRA, 1, 0 },
 	{ "·¡", "Dg", TR1_TUNNEL, 1, 0 },
-	{ NULL, 0, 0, 0 }
+	{ NULL, NULL, 0, 0, 0 }
 };
 
 static flag_insc_table flag_insc_immune[] =
@@ -1322,7 +1303,7 @@ static flag_insc_table flag_insc_immune[] =
 	{ "ÅÅ", "El", TR2_IM_ELEC, 2, 0 },
 	{ "²Ð", "Fi", TR2_IM_FIRE, 2, 0 },
 	{ "Îä", "Co", TR2_IM_COLD, 2, 0 },
-	{ NULL, 0, 0, 0 }
+	{ NULL, NULL, 0, 0, 0 }
 };
 
 static flag_insc_table flag_insc_resistance[] =
@@ -1343,7 +1324,7 @@ static flag_insc_table flag_insc_resistance[] =
 	{ "ÆÙ", "Ca", TR2_RES_CHAOS, 2, 0 },
 	{ "Îô", "Di", TR2_RES_DISEN, 2, 0 },
 	{ "¶²", "Fe", TR2_RES_FEAR, 2, 0 },
-	{ NULL, 0, 0, 0 }
+	{ NULL, NULL, 0, 0, 0 }
 };
 
 static flag_insc_table flag_insc_misc[] =
@@ -1369,7 +1350,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "¼ö", "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
 	{ "´÷", "Ty", TR3_TY_CURSE, 3, 0 },
 #endif
-	{ NULL, 0, 0, 0 }
+	{ NULL, NULL, 0, 0, 0 }
 };
 
 static flag_insc_table flag_insc_aura[] =
@@ -1379,7 +1360,7 @@ static flag_insc_table flag_insc_aura[] =
 	{ "Îä", "C", TR3_SH_COLD, 3, 0 },
 	{ "Ëâ", "M", TR3_NO_MAGIC, 3, 0 },
 	{ "½Ö", "T", TR3_NO_TELE, 3, 0 },
-	{ NULL, 0, 0, 0 }
+	{ NULL, NULL, 0, 0, 0 }
 };
 
 static flag_insc_table flag_insc_brand[] =
@@ -1400,7 +1381,7 @@ static flag_insc_table flag_insc_brand[] =
 static flag_insc_table flag_insc_slay[] =
 {
 	{ "¼Ù", "*", TR1_SLAY_EVIL, 1, 0 },
-	{ "¿Í", "H", TR3_SLAY_HUMAN, 3, 0 },
+	{ "¿Í", "p", TR3_SLAY_HUMAN, 3, 0 },
 	{ "Î¶", "D", TR1_KILL_DRAGON, 1, 0 },
 	{ "Îµ", "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
 	{ "¥ª", "o", TR1_SLAY_ORC, 1, 0 },
@@ -1528,7 +1509,7 @@ static flag_insc_table flag_insc_brand[] =
 static flag_insc_table flag_insc_slay[] =
 {
   	{ "*", TR1_SLAY_EVIL, 1, 0 },
-	{ "H", TR3_SLAY_HUMAN, 3, 0 },
+	{ "p", TR3_SLAY_HUMAN, 3, 0 },
   	{ "D", TR1_KILL_DRAGON, 1, 0 },
   	{ "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
   	{ "o", TR1_SLAY_ORC, 1, 0 },
@@ -2840,7 +2821,7 @@ void do_cmd_query_symbol(void)
 		r_idx = who[i];
 
 		/* Hack -- Auto-recall */
-		monster_race_track(FALSE, r_idx);
+		monster_race_track(r_idx);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();

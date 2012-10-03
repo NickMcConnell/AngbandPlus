@@ -566,8 +566,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("ident = %04x  xtra1 = %-4d  xtra2 = %-4d  timeout = %-d",
 	           o_ptr->ident, o_ptr->xtra1, o_ptr->xtra2, o_ptr->timeout), 8, j);
 
-	prt(format("xtra3 = %-4d  xtra4 = %-4d  xtra5 = %-4d",
-	           o_ptr->xtra3, o_ptr->xtra4, o_ptr->xtra5), 9, j);
+	prt(format("xtra3 = %-4d  xtra4 = %-4d  xtra5 = %-4d  cursed  = %-d",
+	           o_ptr->xtra3, o_ptr->xtra4, o_ptr->xtra5, o_ptr->curse_flags), 9, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT........SLAY........BRAND.", 11, j);
@@ -642,6 +642,7 @@ static tval_desc tvals[] =
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
 	{ TV_ENCHANT_BOOK,      "Craft Spellbook"},
 	{ TV_DAEMON_BOOK,       "Daemon Spellbook"},
+	{ TV_CRUSADE_BOOK,         "Crusade Spellbook"},
 	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
 	{ TV_HISSATSU_BOOK,     "Book of Kendo" },
 	{ TV_PARCHEMENT,        "Parchement" },
@@ -980,7 +981,7 @@ static void wiz_statistics(object_type *o_ptr)
 	u32b test_roll = 1000000;
 
 	char ch;
-	char *quality;
+	cptr quality;
 
 	bool good, great;
 
@@ -1381,9 +1382,6 @@ static void wiz_create_item(void)
  */
 static void do_cmd_wiz_cure_all(void)
 {
-	/* Remove curses */
-//	(void)remove_all_curse();
-
 	/* Restore stats */
 	(void)res_stat(A_STR);
 	(void)res_stat(A_INT);
@@ -1532,7 +1530,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, FALSE);
+		(void)summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
 	}
 }
 
@@ -1542,7 +1540,7 @@ static void do_cmd_wiz_summon(int num)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named(int r_idx, bool slp)
+static void do_cmd_wiz_named(int r_idx)
 {
 	int i, x, y;
 
@@ -1564,7 +1562,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE, FALSE, FALSE)) break;
+		if (place_monster_aux(0, y, x, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP))) break;
 	}
 }
 
@@ -1574,9 +1572,9 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  *
  * XXX XXX XXX This function is rather dangerous
  */
-static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
+static void do_cmd_wiz_named_friendly(int r_idx)
 {
-	(void) summon_named_creature(py, px, r_idx, slp, TRUE, TRUE, TRUE);
+	(void) summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP | PM_FORCE_PET));
 }
 
 
@@ -1742,7 +1740,7 @@ void do_cmd_debug(void)
 
 		/* View item info */
 		case 'f':
-		identify_fully(FALSE);
+		identify_fully(FALSE, FALSE);
 		break;
 
 		/* Good Objects */
@@ -1762,7 +1760,7 @@ void do_cmd_debug(void)
 
 		/* Identify */
 		case 'i':
-		(void)ident_spell(FALSE);
+		(void)ident_spell(FALSE, FALSE);
 		break;
 
 		/* Go up or down in the dungeon */
@@ -1797,12 +1795,12 @@ void do_cmd_debug(void)
 
 		/* Summon _friendly_ named monster */
 		case 'N':
-			do_cmd_wiz_named_friendly(command_arg, TRUE);
+			do_cmd_wiz_named_friendly(command_arg);
 			break;
 
 		/* Summon Named Monster */
 		case 'n':
-			do_cmd_wiz_named(command_arg, TRUE);
+			do_cmd_wiz_named(command_arg);
 			break;
 
 		/* Object playing routines */

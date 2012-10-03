@@ -850,8 +850,19 @@ static void term_data_check_font(term_data *td)
 static void term_data_check_size(term_data *td)
 {
 	/* Minimal window size */
-	if (td->cols < 1) td->cols = 1;
-	if (td->rows < 1) td->rows = 1;
+	if (td == &data[0])
+	{
+		/* Enforce minimal size */
+		if (td->cols < 80) td->cols = 80;
+		if (td->rows < 24) td->rows = 24;
+	}
+
+	/* Allow small windows for the rest */
+	else
+	{
+		if (td->cols < 1) td->cols = 1;
+		if (td->rows < 1) td->rows = 1;
+	}
 
 	/* Minimal tile size */
 	if (td->tile_wid < 4) td->tile_wid = 4;
@@ -902,6 +913,7 @@ static void term_data_check_size(term_data *td)
 	td->r.bottom = td->r.top + td->size_hgt;
 
 	/* Assume no graphics */
+	td->t->higher_pict = FALSE;
 	td->t->always_pict = FALSE;
 
 #ifdef ANGBAND_LITE_MAC
@@ -911,9 +923,26 @@ static void term_data_check_size(term_data *td)
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle graphics */
-	td->t->higher_pict = TRUE;
+	if (use_graphics)
+	{
+		/* Use higher_pict whenever possible */
+		if (td->font_mono) td->t->higher_pict = TRUE;
+
+		/* Use always_pict only when necessary */
+		else td->t->always_pict = TRUE;
+	}
 
 #endif /* ANGBAND_LITE_MAC */
+
+	/* Fake mono-space */
+	if (!td->font_mono ||
+	    (td->font_wid != td->tile_wid) ||
+		(td->font_hgt != td->tile_hgt))
+	{
+		/* Handle fake monospace -- this is SLOW */
+		if (td->t->higher_pict) td->t->higher_pict = FALSE;
+		td->t->always_pict = TRUE;
+	}
 }
 
 static OSErr XDDSWUpDateGWorldFromPict( term_data *td );
@@ -971,10 +1000,10 @@ static void term_data_redraw(term_data *td)
  * Constants
  */
 
-static int pictID = 1001;						/* 8x8 tiles; 16x16 tiles are 1002 */
+static int pictID = 1001;	/* 8x8 tiles; 16x16 tiles are 1002 */
 
-static int grafWidth = 8;						/* Always equal to grafHeight */
-static int grafHeight = 8;						/* Either 8 or 16 */
+static int grafWidth = 8;	/* Always equal to grafHeight */
+static int grafHeight = 8;	/* Either 8 or 16 */
 
 static bool arg_newstyle_graphics;
 static bool use_newstyle_graphics;
@@ -1217,21 +1246,23 @@ static OSErr XDDSWUpDateGWorldFromPict( term_data *td )
 		//SysBeep(0);
 		return;
 	}
-	
+
+#if 0	
 	/* Save GWorld */
-/*	GetGWorld(&saveGWorld, &saveGDevice); */
+	GetGWorld(&saveGWorld, &saveGDevice);
 
 	/* Activate */
-/*	SetGWorld(td->bufferPort, nil); */
+	SetGWorld(td->bufferPort, nil);
 
 	/* Dump the pict into the GWorld */
-/*	(void)LockPixels(GetGWorldPixMap(td->bufferPort)); */
-/*	EraseRect(&td->bufferPort->portRect); */
+	(void)LockPixels(GetGWorldPixMap(td->bufferPort));
+	EraseRect(&td->bufferPort->portRect);
 	
-/*	UnlockPixels(GetGWorldPixMap(td->bufferPort)); */
+	UnlockPixels(GetGWorldPixMap(td->bufferPort));
 
 	/* Restore GWorld */
-/*	SetGWorld(saveGWorld, saveGDevice); */
+	SetGWorld(saveGWorld, saveGDevice);
+#endif
 	
 }
 
@@ -1761,7 +1792,9 @@ static errr Term_curs_mac(int x, int y)
 	r.bottom = r.top + td->tile_hgt;
 
 #ifdef JP
-	if (use_bigtile && x + 1 < Term->wid && (Term->old->a[y][x+1] == 255 || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
+	if (x + 1 < Term->wid &&
+	    ((use_bigtile && Term->old->a[y][x+1] == 255)
+	     || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
 #else
 	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
 #endif
@@ -1834,7 +1867,12 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
+#ifdef USE_TRANSPARENCY
+static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
+                          const byte *tap, const char *tcp)
+#else
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
+#endif
 {
 	int i;
 	Rect r2;
@@ -1880,7 +1918,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		/* Destination rectangle */
 		r2.left = x * td->tile_wid + td->size_ow1;
-		r2.right = r2.left + td->tile_wid;
 		r2.top = y * td->tile_hgt + td->size_oh1;
 		r2.bottom = r2.top + td->tile_hgt;
 		
@@ -1897,18 +1934,55 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		byte a = ap[i];
 		char c = cp[i];
 
+		/* Second byte of bigtile */
+		if (use_bigtile && a == 255)
+		{
+			/* Advance */
+			r2.left += td->tile_wid;
+
+			continue;
+		}
+
+		/* Prepare right of rectangle now */
+		r2.right = r2.left + td->tile_wid;
+
 #ifdef ANGBAND_LITE_MAC
 
-		/* Nothing */
+		/* No graphics */
 
 #else /* ANGBAND_LITE_MAC */
 
 		/* Graphics -- if Available and Needed */
-		if (use_graphics &&
-		    ((byte)a & 0x80) && ((byte)c & 0x80))
+		if (use_graphics && ((byte)a & 0x80) && ((byte)c & 0x80))
 		{
+			BitMapPtr srcBitMap = (BitMapPtr)(frameP->framePix);
+			BitMapPtr destBitMap;
+				
 			int col, row;
 			Rect r1;
+
+#ifdef USE_TRANSPARENCY
+			Rect terrain_r;
+			bool terrain_flag = FALSE;
+			byte ta = tap[i];
+			char tc = tcp[i];
+
+			if ((a != ta || c != tc) &&
+			    ((byte)ta & 0x80) && ((byte)tc & 0x80))
+			{
+				/* Row and Col */
+				row = ((byte)ta & 0x7F);
+				col = ((byte)tc & 0x7F);
+
+				/* Terrain Source rectangle */
+				terrain_r.left = col * grafWidth;
+				terrain_r.top = row * grafHeight;
+				terrain_r.right = terrain_r.left + grafWidth;
+				terrain_r.bottom = terrain_r.top + grafHeight;
+
+				terrain_flag = TRUE;
+			}
+#endif
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F);
@@ -1925,28 +1999,44 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			ForeColor(blackColor);
 
 			/* Draw the picture */
+
+			if (use_buffer)
+				destBitMap = (BitMapPtr)(td->bufferPix);
+			else
+				destBitMap = (BitMapPtr)&(td->w->portBits);
+				
+			if (use_bigtile) r2.right += td->tile_wid;
+
+#ifdef USE_TRANSPARENCY
+			if (terrain_flag)
 			{
-				BitMapPtr	srcBitMap = (BitMapPtr)(frameP->framePix);
-				BitMapPtr	destBitMap;
+				/*
+				 * Source mode const = srcCopy:
+				 *
+				 * determine how close the color of the source
+				 * pixel is to black, and assign this relative
+				 * amount of foreground color to the
+				 * destination pixel; determine how close the
+				 * color of the source pixel is to white, and
+				 * assign this relative amount of background
+				 * color to the destination pixel
+				 */
+				CopyBits( srcBitMap, destBitMap, &terrain_r, &r2, srcCopy, NULL );
 				
-				if( use_buffer )
-				{
-					destBitMap = (BitMapPtr)(td->bufferPix);
-				}
-				else
-				{
-					destBitMap = (BitMapPtr)&(td->w->portBits);
-				}
-				
-				/* draw transparent tile */
-				/* BackColor is ignored and the destination is left untouched */
+				/*
+				 * Draw transparent tile
+				 * BackColor is ignored and the destination is
+				 * left untouched
+				 */
 				BackColor(blackColor);
-
-				if (use_bigtile) r2.right += td->tile_wid;
-
 				CopyBits( srcBitMap, destBitMap, &r1, &r2, transparent, NULL );
-				if (use_bigtile) r2.right -= td->tile_wid;
 			}
+			else
+#endif /* USE_TRANSPARENCY */
+			{
+				CopyBits( srcBitMap, destBitMap, &r1, &r2, srcCopy, NULL );
+			}
+
 			/* Restore colors */
 			BackColor(blackColor);
 			ForeColor(whiteColor);
@@ -1964,51 +2054,46 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		if (!done)
 		{
 			int xp, yp;
-#ifndef JP
-			/* Erase */
-			EraseRect(&r2);
 
-			/* Set the color */
-			term_data_color(td, (a & 0x0F));
-
-			/* Starting pixel */
-			xp = r2.left + td->tile_o_x;
-			yp = r2.top + td->tile_o_y;
-
-			/* Move to the correct location */
-			MoveTo(xp, yp);
-			
-			/* Draw the character */
-			DrawChar(c);
-#else
 			/* Set the color */
 			term_data_color(td, (a & 0x0F));
 			
 			/* Starting pixel */
 			xp = r2.left + td->tile_o_x;
-			yp = td->tile_o_y;
+			yp = r2.top + td->tile_o_y;
 			
 			/* Move to the correct location */
 			MoveTo(xp, yp);
 
-			if(iskanji(c)){
+#ifdef JP
+			if (iskanji(c))
+			{
+				/* Double width rectangle */
+				r2.right += td->tile_wid;
+
+				/* Erase */
+				EraseRect(&r2);
+
 				/* Draw the character */
 				DrawText(cp, i, 2);
 				
 				i++;
 				
 				r2.left += td->tile_wid;
-				r2.right += td->tile_wid;
-			} else {
+			}
+			else
+#endif
+			{
+				/* Erase */
+				EraseRect(&r2);
+
 				/* Draw the character */
 				DrawChar(c);
 			}
-#endif
 		}
 
 		/* Advance */
 		r2.left += td->tile_wid;
-		r2.right += td->tile_wid;
 	}
 	
 	if( use_buffer )
@@ -2032,6 +2117,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		destRect.top = y * td->tile_hgt + td->size_oh1;
 		destRect.bottom = destRect.top + td->tile_hgt;
 
+		/* Double width rectangle */
 		if (use_bigtile)
 		{
 			srcRect.right += td->tile_wid * n;
@@ -2047,9 +2133,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		BackColor(whiteColor);
 		ForeColor(blackColor);
 		
-		//CopyBits( srcBitMap, destBitMap, &srcRect, &destRect, srcCopy, NULL );
-		CopyBits( (BitMapPtr)(td->bufferPix) 
-			, &(td->w->portBits), &srcRect, &destRect, srcCopy, NULL );
+		CopyBits( srcBitMap, destBitMap, &srcRect, &destRect, srcCopy, NULL );
 		
 		/* Restore colors */
 		BackColor(blackColor);
@@ -3387,7 +3471,6 @@ static void setup_menus(void)
 	if (TRUE)
 	{
 		EnableItem(m, 7);
-/*		EnableItem(m, 8); */
 	}
 
 
@@ -3557,9 +3640,6 @@ static void setup_menus(void)
 	/* Item Bigtile Mode */
 	EnableItem(m, 9);
 	CheckItem(m, 9, arg_bigtile);
-
-	/* Item "Hack" */
-	/* EnableItem(m, 9); */
 
 
 	/* TileWidth menu */
@@ -3784,7 +3864,9 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-						do_cmd_save_game(FALSE);
+//						do_cmd_save_game(FALSE);
+						Term_key_push(KTRL('X'));
+						break;
 					}
 
 					/* Quit */
@@ -4449,9 +4531,6 @@ static bool CheckEvents(bool wait)
 				/* Hack -- Prepare the menus */
 				setup_menus();
 
-				/* Mega-Hack -- allow easy exit if nothing to save */
-/*				if (!character_generated && (ch=='Q' || ch=='q')) ch = 'e'; */
-
 				/* Run the Menu-Handler */
 				menu(MenuKey(ch));
 
@@ -4604,7 +4683,7 @@ static bool CheckEvents(bool wait)
 
 				case inGrow:
 				{
-					int x, y;
+					s16b x, y;
 
 					term *old = Term;
 
@@ -4613,9 +4692,9 @@ static bool CheckEvents(bool wait)
 
 					/* Fake rectangle */
 					r.left = 20 * td->tile_wid + td->size_ow1;
-					r.right = 80 * td->tile_wid + td->size_ow1 + td->size_ow2 + 1;
+					r.right = qd.screenBits.bounds.right;
 					r.top = 1 * td->tile_hgt + td->size_oh1;
-					r.bottom = 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+					r.bottom = qd.screenBits.bounds.bottom;
 
 					/* Grow the rectangle */
 					newsize = GrowWindow(w, event.where, &r);
@@ -4633,7 +4712,6 @@ static bool CheckEvents(bool wait)
 
 					/* Apply and Verify */
 					term_data_check_size(td);
-
 					/* Activate */
 					Term_activate(td->t);
 
@@ -5215,11 +5293,6 @@ BackColor(blackColor);
 
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";
-/* #if 0
-	ANGBAND_GRAF = "new";
-#else
-	ANGBAND_GRAF = "old";
-#endif */
 
 	/* Initialize */
 	init_stuff();

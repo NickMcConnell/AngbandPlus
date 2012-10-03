@@ -120,20 +120,13 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
-#ifdef JP
+		/* HPとMPの上昇量を表示 */
                 level_up = 1;
-#endif
+
 		/* Handle stuff */
 		handle_stuff();
 
-#ifdef JP
                 level_up = 0;
-#endif
-		if (level_reward)
-		{
-			gain_level_reward(0);
-			level_reward = FALSE;
-		}
 
 		if (level_inc_stat)
 		{
@@ -208,6 +201,16 @@ msg_print("あなたは変わった気がする...");
 
 			(void)gain_random_mutation(0);
 			level_mutation = FALSE;
+		}
+
+		/*
+		 * 報酬でレベルが上ると再帰的に check_experience() が
+		 * 呼ばれるので順番を最後にする。
+		 */
+		if (level_reward)
+		{
+			gain_level_reward(0);
+			level_reward = FALSE;
 		}
 
 		/* Update some stuff */
@@ -316,7 +319,7 @@ static bool kind_is_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_DAEMON_BOOK))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_CRUSADE_BOOK))
 	{
 		return (TRUE);
 	}
@@ -334,7 +337,7 @@ static bool kind_is_good_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_DAEMON_BOOK) && (k_ptr->tval != TV_ARCANE_BOOK) && (k_ptr->sval > 1))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_CRUSADE_BOOK) && (k_ptr->tval != TV_ARCANE_BOOK) && (k_ptr->sval > 1))
 	{
 		return (TRUE);
 	}
@@ -880,7 +883,10 @@ msg_print("地面に落とされた。");
 
 			if (attempts > 0)
 			{
-				if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_DAWN, FALSE, is_friendly(m_ptr), pet, FALSE, FALSE))
+				u32b mode = 0L;
+				if (pet) mode |= PM_FORCE_PET;
+
+				if (summon_specific((pet ? -1 : m_idx), wy, wx, 100, SUMMON_DAWN, mode))
 				{
 					if (player_can_see_bold(wy, wx))
 #ifdef JP
@@ -904,8 +910,11 @@ msg_print("地面に落とされた。");
 		{
 			int wy = y, wx = x;
 			bool pet = is_pet(m_ptr);
+			u32b mode = 0L;
 
-			if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_BLUE_HORROR, FALSE, is_friendly(m_ptr), pet, FALSE, FALSE))
+			if (pet) mode |= PM_FORCE_PET;
+
+			if (summon_specific((pet ? -1 : m_idx), wy, wx, 100, SUMMON_BLUE_HORROR, mode))
 			{
 				if (player_can_see_bold(wy, wx))
 					notice = TRUE;
@@ -1717,6 +1726,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 		char m_name[80];
 
+		if (r_info[m_ptr->r_idx].flags7 & RF7_TANUKI)
+		{
+			r_ptr = &r_info[m_ptr->r_idx];
+			m_ptr->ap_r_idx = m_ptr->r_idx;
+			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
+		}
+
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0x100);
 
@@ -1997,7 +2013,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 			else if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
-			monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			monster_race_track(m_ptr->ap_r_idx);
 		}
 
 		if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
@@ -2023,13 +2039,14 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		{
 			int dummy_y = m_ptr->fy;
 			int dummy_x = m_ptr->fx;
-			bool friend = is_friendly(m_ptr);
-			bool pet = is_pet(m_ptr);
+			u32b mode = 0L;
+
+			if (is_pet(m_ptr)) mode |= PM_FORCE_PET;
 
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
 
-			if (summon_named_creature(dummy_y, dummy_x, MON_BIKETAL, FALSE, FALSE, friend, pet))
+			if (summon_named_creature(0, dummy_y, dummy_x, MON_BIKETAL, mode))
 			{
 #ifdef JP
 				msg_print("「ハァッハッハッハ！！私がバイケタルだ！！」");
@@ -2197,6 +2214,12 @@ void resize_map(void)
 	
 	/* Redraw */
 	Term_redraw();
+
+	/*
+	 * Waiting command;
+	 * Place the cursor on the player
+	 */
+	if (can_save) move_cursor_relative(py, px);
 
 	/* Refresh */
 	Term_fresh();
@@ -2409,64 +2432,82 @@ cptr look_mon_desc(int m_idx)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	bool         living;
 	int          perc;
-
+	cptr desc = NULL;
 
 	/* Determine if the monster is "living" */
 	living = monster_living(r_ptr);
 
+	/* Calculate a health "percentage" */
+	perc = 100L * m_ptr->hp / m_ptr->maxhp;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
 #ifdef JP
-return (living ? "無傷" : "無ダメージ");
+		desc = living ? "無傷" : "無ダメージ";
 #else
-		return (living ? "unhurt" : "undamaged");
+		desc = living ? "unhurt" : "undamaged";
 #endif
 
 	}
 
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else if (perc >= 60)
 	{
 #ifdef JP
-return (living ? "軽傷" : "小ダメージ");
+		desc = living ? "軽傷" : "小ダメージ";
 #else
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		desc = living ? "somewhat wounded" : "somewhat damaged";
 #endif
 
 	}
 
-	if (perc >= 25)
+	else if (perc >= 25)
 	{
 #ifdef JP
-return (living ? "負傷" : "中ダメージ");
+		desc = living ? "負傷" : "中ダメージ";
 #else
-		return (living ? "wounded" : "damaged");
+		desc = living ? "wounded" : "damaged";
 #endif
 
 	}
 
-	if (perc >= 10)
+	else if (perc >= 10)
 	{
 #ifdef JP
-return (living ? "重傷" : "大ダメージ");
+		desc = living ? "重傷" : "大ダメージ";
 #else
-		return (living ? "badly wounded" : "badly damaged");
+		desc = living ? "badly wounded" : "badly damaged";
 #endif
 
 	}
 
+	else 
+	{
 #ifdef JP
-return (living ? "半死半生" : "倒れかけ");
+		desc = living ? "半死半生" : "倒れかけ";
 #else
-	return (living ? "almost dead" : "almost destroyed");
+		desc = living ? "almost dead" : "almost destroyed";
 #endif
+	}
 
+	/* Display monster's level --- idea borrowed from ToME */
+	if (r_ptr->r_tkills)
+	{
+#ifdef JP
+		return format("レベル%d, %s", r_ptr->level, desc);
+#else
+		return format("Level %d, %s", r_ptr->level, desc);
+#endif
+	}
+	else 
+	{
+#ifdef JP
+		return format("レベル???, %s", desc);
+#else
+		return format("Level ???, %s", desc);
+#endif
+	}
 }
 
 
@@ -3025,7 +3066,7 @@ cptr name = "何か奇妙な物";
 				monster_desc(m_name, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
-				monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+				monster_race_track(m_ptr->ap_r_idx);
 
 				/* Hack -- health bar for this monster */
 				health_track(c_ptr->m_idx);
@@ -3043,8 +3084,7 @@ cptr name = "何か奇妙な物";
 						screen_save();
 
 						/* Recall on screen */
-						if (m_ptr->mflag2 & MFLAG_KAGE) screen_roff(MON_KAGE,0);
-						else screen_roff(m_ptr->r_idx, 0);
+						screen_roff(m_ptr->ap_r_idx, 0);
 
 						/* Hack -- Complete the prompt (again) */
 #ifdef JP
@@ -3283,8 +3323,11 @@ s2 = "をまた";
 		if (easy_floor)
 		{
 			int floor_list[23], floor_num;
+			int min_width = 0;
 
-			if (scan_floor(floor_list, &floor_num, y, x, 0x02))
+			floor_num = scan_floor(floor_list, y, x, 0x02);
+
+			if (floor_num)
 			{
 				/* Not boring */
 				boring = FALSE;
@@ -3333,32 +3376,57 @@ s1, o_name, s2, s3, info);
 					query = inkey();
 
 					/* Display list of items (query == "el", not "won") */
-					if ((floor_num > 1) && (query == 'x'))
+					if (floor_num == 1 || query != 'x')
 					{
+						/* Stop */
+						break;
+					}
+					else while (1)
+					{
+						int i, o_idx;
+						cave_type *c_ptr;
+
 						/* Save screen */
 						screen_save();
 
 						/* Display */
-						(void)show_floor(0, y, x);
+						(void)show_floor(0, y, x, &min_width);
 
 						/* Prompt */
 #ifdef JP
-prt("何かキーを押すとゲームに戻ります", 0, 0);
+						prt("Enterで次へ、他のキーを押すとゲームに戻ります", 0, 0);
 #else
-						prt("Hit any key to continue", 0, 0);
+						prt("Hit Enter to scroll, Hit any other key to continue", 0, 0);
 #endif
 
-
 						/* Wait */
-						(void) inkey();
+						query = inkey();
 
 						/* Load screen */
 						screen_load();
-					}
-					else
-					{
-						/* Stop */
-						break;
+
+						/* Exit unless 'Enter' */
+						if (query != '\n' && query != '\r') break;
+
+						/* Get the object being moved. */
+						c_ptr = &cave[y][x];
+						o_idx =	c_ptr->o_idx;
+ 
+						/* Only rotate a pile of two or more objects. */
+						if (o_idx && o_list[o_idx].next_o_idx)
+						{
+
+							/* Remove the first object from the list. */
+							excise_object_idx(o_idx);
+ 	
+							/* Find end of the list. */
+							i = c_ptr->o_idx;
+							while (o_list[i].next_o_idx)
+								i = o_list[i].next_o_idx;
+ 	
+							/* Add after the last object. */
+							o_list[i].next_o_idx = o_idx;
+						}
 					}
 				}
 
@@ -3489,13 +3557,6 @@ if (o_ptr->number != 1) s1 = "それらは";
 			{
 				name = f_name + f_info[feat].name;
 			}
-
-			/* Hack -- handle unknown grids */
-#ifdef JP
-if (feat == FEAT_NONE) name = "未知の地形";
-#else
-			if (feat == FEAT_NONE) name = "unknown grid";
-#endif
 
 
 			/* Pick a prefix */
@@ -4341,7 +4402,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	else if (p_ptr->riding)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
 
 		if (m_ptr->confused)
 		{
@@ -4918,7 +4979,7 @@ msg_print("「我が下僕たちよ、かの傲慢なる者を倒すべし！」");
 
 			for (dummy = 0; dummy < randint1(5) + 1; dummy++)
 			{
-				(void)summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, py, px, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 #ifdef JP
 			reward = "モンスターを召喚された。";
@@ -5379,7 +5440,7 @@ msg_format("%sは褒美として悪魔の使いをよこした！",chaos_patrons[p_ptr->chaos_pat
 			msg_format("%s rewards you with a demonic servant!",chaos_patrons[p_ptr->chaos_patron]);
 #endif
 
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_DEMON, FALSE, TRUE, TRUE, FALSE, FALSE))
+			if (!summon_specific(-1, py, px, dun_level, SUMMON_DEMON, PM_FORCE_PET))
 #ifdef JP
 msg_print("何も現れなかった...");
 #else
@@ -5400,7 +5461,7 @@ msg_format("%sは褒美として使いをよこした！",chaos_patrons[p_ptr->chaos_patron]);
 			msg_format("%s rewards you with a servant!",chaos_patrons[p_ptr->chaos_patron]);
 #endif
 
-			if (!summon_specific(-1, py, px, dun_level, 0, FALSE, TRUE, TRUE, FALSE, FALSE))
+			if (!summon_specific(-1, py, px, dun_level, 0, PM_FORCE_PET))
 #ifdef JP
 msg_print("何も現れなかった...");
 #else
@@ -5421,7 +5482,7 @@ msg_format("%sは褒美としてアンデッドの使いをよこした。",chaos_patrons[p_ptr->cha
 			msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
 #endif
 
-			if (!summon_specific(-1, py, px, dun_level, SUMMON_UNDEAD, FALSE, TRUE, TRUE, FALSE, FALSE))
+			if (!summon_specific(-1, py, px, dun_level, SUMMON_UNDEAD, PM_FORCE_PET))
 #ifdef JP
 msg_print("何も現れなかった...");
 #else

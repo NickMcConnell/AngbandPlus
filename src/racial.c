@@ -869,7 +869,7 @@ msg_print("攻撃が空をきった。");
 		}
 		case CLASS_PRIEST:
 		{
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (is_good_realm(p_ptr->realm1))
 			{
 				if (racial_aux(35, 70, A_WIS, 50))
 				{
@@ -936,7 +936,7 @@ msg_print("敵を調査した...");
 		}
 		case CLASS_PALADIN:
 		{
-			if (p_ptr->realm1 == REALM_LIFE)
+			if (is_good_realm(p_ptr->realm1))
 			{
 				if (racial_aux(30, 30, A_WIS, 20))
 				{
@@ -960,14 +960,15 @@ msg_print("敵を調査した...");
 			{
 				if (racial_aux(25, 0, A_INT, 10))
 				{
-					if (take_hit(DAMAGE_USELIFE, p_ptr->lev, 
+					int gain_sp;
+					if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, 
 #ifdef JP
-"ＨＰからＭＰへの無謀な変換", -1))
+"ＨＰからＭＰへの無謀な変換", -1)))
 #else
-"thoughtless convertion from HP to SP", -1))
+"thoughtless convertion from HP to SP", -1)))
 #endif
 					{
-						p_ptr->csp += p_ptr->lev / 5;
+						p_ptr->csp += gain_sp / 5;
 						if (p_ptr->csp > p_ptr->msp)
 						{
 							p_ptr->csp = p_ptr->msp;
@@ -1077,7 +1078,7 @@ msg_print("Oraoraoraoraoraoraoraoraoraoraoraoraoraoraoraoraora!!!!");
 							handle_stuff();
 							py_attack(y, x, 0);
 						}
-						p_ptr->energy -= 100;
+						p_ptr->energy_need += ENERGY_NEED();
 					}
 					else
 					{
@@ -1137,7 +1138,7 @@ msg_print("少し頭がハッキリした。");
 			{
 				if (racial_aux(25, 20, A_INT, 20))
 				{
-					if (!identify_fully(FALSE)) return FALSE;
+					if (!identify_fully(FALSE, FALSE)) return FALSE;
 				}
 			}
 			break;
@@ -1361,11 +1362,11 @@ msg_print("武器を持たないといけません。");
 			{
 				if (p_ptr->lev > 29)
 				{
-					if (!identify_fully(TRUE)) return FALSE;
+					if (!identify_fully(TRUE, FALSE)) return FALSE;
 				}
 				else
 				{
-					if (!ident_spell(TRUE)) return FALSE;
+					if (!ident_spell(TRUE, FALSE)) return FALSE;
 				}
 			}
 			break;
@@ -1461,6 +1462,15 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 			}
 			break;
 		case MIMIC_VAMPIRE:
+			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+			{
+#ifdef JP
+				msg_print("なぜか攻撃することができない。");
+#else
+				msg_print("Something prevent you from attacking.");
+#endif
+				return FALSE;
+			}
 			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
 			{
 				int y, x, dummy = 0;
@@ -2103,6 +2113,15 @@ msg_print("あなたは失ったエネルギーを取り戻そうと試みた。");
 			break;
 
 		case RACE_VAMPIRE:
+			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+			{
+#ifdef JP
+				msg_print("なぜか攻撃することができない。");
+#else
+				msg_print("Something prevent you from attacking.");
+#endif
+				return FALSE;
+			}
 			if (racial_aux(2, (1 + (plev / 3)), A_CON, 9))
 			{
 				int y, x, dummy = 0;
@@ -2384,7 +2403,7 @@ strcpy(power_desc[num].name, "魔力食い");
 	}
 	case CLASS_PRIEST:
 	{
-		if (p_ptr->realm1 == REALM_LIFE)
+		if (is_good_realm(p_ptr->realm1))
 		{
 #ifdef JP
 strcpy(power_desc[num].name, "武器祝福");
@@ -2442,7 +2461,7 @@ strcpy(power_desc[num].name, "モンスター調査");
 	}
 	case CLASS_PALADIN:
 	{
-		if (p_ptr->realm1 == REALM_LIFE)
+		if (is_good_realm(p_ptr->realm1))
 		{
 #ifdef JP
 strcpy(power_desc[num].name, "ホーリー・ランス");
@@ -2518,7 +2537,7 @@ strcpy(power_desc[num].name, "構える");
 
 		power_desc[num].level = 25;
 		power_desc[num].cost = 0;
-		power_desc[num].fail = 100 - racial_chance(20, A_DEX, 0);
+		power_desc[num].fail = 100 - racial_chance(25, A_DEX, 0);
 		power_desc[num++].number = -3;
 #ifdef JP
 strcpy(power_desc[num].name, "百裂拳");
@@ -2528,7 +2547,7 @@ strcpy(power_desc[num].name, "百裂拳");
 
 		power_desc[num].level = 30;
 		power_desc[num].cost = 30;
-		power_desc[num].fail = 100 - racial_chance(20, A_STR, 20);
+		power_desc[num].fail = 100 - racial_chance(30, A_STR, 20);
 		power_desc[num++].number = -4;
 		break;
 	}

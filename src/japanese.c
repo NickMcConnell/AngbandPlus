@@ -220,7 +220,7 @@ void codeconv(char *str)
 				tmp[i] = c1;
 		}
 		tmp[i] = '\0';
-		strcpy(str, tmp);
+		strcpy(str, (char *)tmp);
 
 		C_KILL(tmp, len, byte);
 	}
@@ -260,6 +260,20 @@ void codeconv(char *str)
 		C_KILL(tmp, len, byte);
 	}
 #endif
+}
+
+/* 文字列sのxバイト目が漢字の1バイト目かどうか判定する */
+bool iskanji2(cptr s, int x)
+{
+	int i;
+
+	for (i = 0; i < x; i++)
+	{
+		if (iskanji(s[i])) i++;
+	}
+	if ((x == i) && iskanji(s[x])) return TRUE;
+
+	return FALSE;
 }
 
 #endif /* JP */

@@ -35,10 +35,13 @@ char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
-int max_autopick=0;
-cptr autopick_name[MAX_AUTOPICK];
-cptr autopick_insc[MAX_AUTOPICK];
-byte autopick_action[MAX_AUTOPICK];
+
+/* 
+ *  List for auto-picker/destroyer entries
+ */
+int max_autopick = 0;
+autopick_type autopick_list[MAX_AUTOPICK];
+autopick_type autopick_entry_last_destroyed;
 
 /*
  * Executable version
@@ -153,6 +156,7 @@ bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
 bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
+bool inkey_special;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */
 
@@ -233,6 +237,8 @@ bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
 
 bool alert_hitpoint;		/* Alert user to critical hitpoints */
+bool disturb_trap_detect;       /* Disturb when leaving trap detected area */
+bool alert_trap_detect;         /* Alert when leaving trap detected area */
 bool last_words;		/* Get last words upon dying */
 bool over_exert;
 bool small_levels;		/* Allow unusually small dungeon levels */
@@ -240,12 +246,12 @@ bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
-bool skip_mutations;		/* Skip mutations screen even if we have it */
+bool display_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
-bool wear_confirm;		/* Confirm before putting on known cursed items */
+bool confirm_wear;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 
 
@@ -263,6 +269,7 @@ bool expand_list;			/* Expand the power of the list commands */
 
 bool view_perma_grids;		/* Map remembers all perma-lit grids */
 bool view_torch_grids;		/* Map remembers all torch-lit grids */
+bool view_unsafe_grids;		/* Map marked by detect traps */
 
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
 bool dungeon_stair;			/* Generate dungeons with connected stairs */
@@ -279,7 +286,7 @@ bool smart_cheat;			/* Monsters exploit player weaknesses */
 bool view_reduce_lite;		/* Reduce lite-radius when running */
 bool view_reduce_view;		/* Reduce view-radius in town */
 
-bool avoid_abort;			/* Avoid checking for user abort */
+bool check_abort;			/* Avoid checking for user abort */
 
 bool flush_failure;			/* Flush input on any failure */
 bool flush_disturb;			/* Flush input on disturbance */
@@ -304,7 +311,7 @@ bool plain_pickup;
 
 bool always_show_list;
 bool powerup_home;
-bool old_way_of_kaz;
+bool change_numeral;
 bool send_score;
 
 /* Cheating options */
@@ -748,6 +755,13 @@ byte spell_order[64];	/* order spells learned/remembered/forgotten */
  * savefiles for hitpoint acquirement.
  */
 s16b player_hp[PY_MAX_LEVEL];
+
+
+/*
+ * The last character rolled,
+ * holded for quick start
+ */
+birther previous_char;
 
 
 /*

@@ -38,8 +38,8 @@ V:2.8.1
 
 # 0x00 --> nothing
 
-N:0:²¿¤â¤Ê¤¤
-E:nothing
+N:0:Ì¤ÃÎ¤ÎÃÏ·Á
+E:unknown grid
 G: :w
 
 
@@ -408,27 +408,27 @@ M:56
 
 N:60:±Êµ×´ä¤ÎÊÉ
 E:permanent wall
-G:#:w
+G:#:U
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:±Êµ×´ä¤ÎÊÉ
 E:permanent wall
-G:#:w
+G:#:U
 M:60
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:±Êµ×´ä¤ÎÊÉ
 E:permanent wall
-G:#:w
+G:#:U
 M:60
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:±Êµ×´ä¤ÎÊÉ
 E:permanent wall
-G:#:w
+G:#:U
 M:60
 
 N:64:ÇúÈ¯¥ë¡¼¥ó
@@ -572,7 +572,7 @@ E:brake
 G:::g
 
 N:95:ÇîÊª´Û
-E:museum
+E:Museum
 G:0:v
 
 N:96:ÌÚ
@@ -726,3 +726,9 @@ G:.:B
 N:195:¶À
 E:Mirror
 G:*:v
+
+# Used by view_unsafe_grids option
+
+N:196:Ì¤ÃÎ¤ÎÃÏ·Á (Ì¤´¶ÃÎ)
+E:unknown grid (not detected)
+G:x:D

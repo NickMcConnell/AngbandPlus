@@ -51,7 +51,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 11
+#define FAKE_VER_PATCH 99
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -391,10 +391,10 @@
 
 /*
  * Maximum size of the "lite" array (see "cave.c")
- * Note that the "lite radius" will NEVER exceed 5, and even if the "lite"
- * was rectangular, we would never require more than 128 entries in the array.
+ * Note that the "lite radius" will NEVER exceed 14, and we would
+ * never require more than 581 entries in the array for circular "lite".
  */
-#define LITE_MAX 512
+#define LITE_MAX 600
 
 /*
  * Maximum size of the "view" array (see "cave.c")
@@ -487,16 +487,22 @@
 
 
 /*
+ * Random energy
+ */
+#define ENERGY_NEED() (randnor(100, 31))
+
+/*
  * Misc constants
  */
-#define TOWN_DAWN               10000   /* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH             550             /* Rune of protection resistance */
-#define BREAK_MINOR_GLYPH       299             /* For explosive runes */
-#define BTH_PLUS_ADJ    3       /* Adjust BTH per plus-to-hit */
-#define MON_MULT_ADJ    8               /* High value slows multiplication */
-#define MON_SUMMON_ADJ  2               /* Adjust level of summoned creatures */
-#define MON_DRAIN_LIFE  2               /* Percent of player exp drained per hit */
-#define USE_DEVICE      3               /* x> Harder devices x< Easier devices     */
+#define TOWN_DAWN         10000    /* Number of ticks from dawn to dawn XXX */
+#define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
+#define BREAK_GLYPH       550      /* Rune of protection resistance */
+#define BREAK_MINOR_GLYPH 299      /* For explosive runes */
+#define BTH_PLUS_ADJ       3       /* Adjust BTH per plus-to-hit */
+#define MON_MULT_ADJ  	   8       /* High value slows multiplication */
+#define MON_SUMMON_ADJ	   2       /* Adjust level of summoned creatures */
+#define MON_DRAIN_LIFE	   2       /* Percent of player exp drained per hit */
+#define USE_DEVICE    	   3       /* x> Harder devices x< Easier devices     */
 
 
 /* "Biases" for random artifact gen */
@@ -658,6 +664,7 @@
 #define CH_ARCANE       0x40
 #define CH_ENCHANT      0x80
 #define CH_DAEMON       0x100
+#define CH_CRUSADE      0x200
 
 #define CH_MUSIC        0x10000
 #define CH_HISSATSU     0x20000
@@ -676,7 +683,8 @@
 #define REALM_ARCANE       7
 #define REALM_ENCHANT      8
 #define REALM_DAEMON       9
-#define MAX_MAGIC          9
+#define REALM_CRUSADE      10
+#define MAX_MAGIC          10
 #define MIN_TECHNIC        15
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
@@ -688,6 +696,7 @@
 #define is_magic(A) ((A) < MAX_MAGIC + 1 ? TRUE : FALSE)
 #define tval2realm(A) ((A) - TV_LIFE_BOOK + 1)
 #define technic2magic(A)      (is_magic(A) ? (A) : (A) - MIN_TECHNIC + MAX_MAGIC)
+#define is_good_realm(REALM)   ((REALM) == REALM_LIFE || (REALM) == REALM_CRUSADE)
 
 /*
  * Magic-books for the realms
@@ -922,17 +931,18 @@
 #define ROW_STATE               20
 #define COL_STATE                7      /* <state> */
 
-//#define ROW_SPEED               23
-#define COL_SPEED               58      /* "Slow (-NN)" or "Fast (+NN)" */
+#define ROW_SPEED               (-1)
+#define COL_SPEED               (-24)      /* "Slow (-NN)" or "Fast (+NN)" */
 
-//#define ROW_STUDY               23
-#define COL_STUDY               68      /* "Study" */
+#define ROW_STUDY               (-1)
+#define COL_STUDY               (-13)      /* "Study" */
 
-//#define ROW_DEPTH               23
-#define COL_DEPTH               72      /* "Lev NNN" / "NNNN ft" */
+#define ROW_DEPTH               (-1)
+#define COL_DEPTH               (-8)      /* "Lev NNN" / "NNNN ft" */
 
-//#define ROW_STATBAR             23
+#define ROW_STATBAR             (-1)
 #define COL_STATBAR              0
+#define MAX_COL_STATBAR         (-26)
 
 
 /*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
@@ -1057,6 +1067,8 @@
 /* for mirror master */
 #define FEAT_MIRROR             0xc3
 
+/* unknown grid (not detected)  */
+#define FEAT_UNDETECTD          0xc4
 
 /*
  * Wilderness terrains
@@ -1452,7 +1464,7 @@
 #define EGO_DIGGING             100
 #define EGO_SLAY_HUMAN          101
 #define EGO_MORGUL              102
-/* xxx */
+#define EGO_KILL_HUMAN          103
 
 /* Bows */
 #define EGO_ACCURACY            104
@@ -1706,6 +1718,7 @@
 #define TV_ARCANE_BOOK  96
 #define TV_ENCHANT_BOOK 97
 #define TV_DAEMON_BOOK  98
+#define TV_CRUSADE_BOOK 99
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
 #define TV_GOLD         127     /* Gold can only be picked up by players */
@@ -2340,17 +2353,23 @@
 #define CAVE_VIEW       0x0020    /* view flag */
 #define CAVE_TEMP       0x0040    /* temp flag */
 #define CAVE_XTRA       0x0080    /* misc flag */
-
 #define CAVE_MNLT	0x0100	/* Illuminated by monster */
+
+#define CAVE_TRAP       0x8000
+
+/* Used only while cave generation */
 #define CAVE_FLOOR      0x0200
 #define CAVE_EXTRA      0x0400
 #define CAVE_INNER      0x0800
 #define CAVE_OUTER      0x1000
 #define CAVE_SOLID      0x2000
 #define CAVE_VAULT      0x4000
-#define CAVE_TRAP       0x8000
+#define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID | CAVE_VAULT)
 
-#define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID)
+/* Used only after cave generation */
+#define CAVE_UNSAFE     0x2000    /* Might have trap */
+#define CAVE_IN_DETECT  0x4000    /* trap detected area (inner circle only) */
+
 
 /*
  * Bit flags for the "project()" function
@@ -2378,6 +2397,7 @@
 #define PROJECT_NO_REF     0x800
 #define PROJECT_NO_HANGEKI 0x1000
 #define PROJECT_PATH       0x2000
+#define PROJECT_FAST       0x4000
 
 /*
  * Bit flags for the "enchant()" function
@@ -2543,6 +2563,16 @@
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
 
+/*
+ * Bit flags for the place_monster_???() (etc)
+ */
+#define PM_ALLOW_SLEEP    0x00000001
+#define PM_ALLOW_GROUP    0x00000002
+#define PM_FORCE_FRIENDLY 0x00000004
+#define PM_FORCE_PET      0x00000008
+#define PM_NO_KAGE        0x00000010
+#define PM_NO_PET         0x00000020
+#define PM_ALLOW_UNIQUE   0x00000040
 
 
 /*
@@ -2647,6 +2677,7 @@
 #define SUMMON_MANES                60
 #define SUMMON_LOUSE                61
 #define SUMMON_GUARDIANS            62
+#define SUMMON_KNIGHTS              63
 
 
 /*
@@ -2750,8 +2781,11 @@
 #define GF_SUPER_RAY 111
 #define GF_STAR_HEAL 112
 #define GF_WATER_FLOW   113
+#define GF_CRUSADE     114
+#define GF_STASIS_EVIL 115
+#define GF_WOUNDS      116
 
-#define MAX_GF				113
+#define MAX_GF				117
 
 /*
  * Some things which induce learning
@@ -3055,9 +3089,12 @@
 #define TRC_TELEPORT_SELF       0x00000001L
 #define TRC_CHAINSWORD          0x00000002L
 
+#define TRC_SPECIAL_MASK \
+	(TRC_TY_CURSE | TRC_AGGRAVATE)
+
 #define TRC_HEAVY_MASK   \
 	(TRC_TY_CURSE | TRC_AGGRAVATE | TRC_DRAIN_EXP | TRC_ADD_H_CURSE | \
-	 TRC_CALL_DEMON | TRC_CALL_DRAGON)
+	 TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_TELEPORT)
 
 #define TRC_P_FLAG_MASK  \
 	(TRC_TY_CURSE | TRC_DRAIN_EXP | TRC_ADD_L_CURSE | TRC_ADD_H_CURSE | \
@@ -3363,16 +3400,17 @@
 #define RF7_CAN_FLY             0x00000004  /* Monster can fly */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
 #define RF7_UNIQUE_7            0x00000010  /* Is a "Nazgul" unique */
-#define RF7_UNIQUE2             0x00000020  /* uso unique */
-#define RF7_RIDING               0x00000040  /* Can riding */
+#define RF7_UNIQUE2             0x00000020  /* Fake unique */
+#define RF7_RIDING              0x00000040  /* Good for riding */
 #define RF7_KAGE                0x00000080  /* Is kage */
 #define RF7_HAS_LITE_1          0x00000100  /* Monster carries light */
 #define RF7_SELF_LITE_1         0x00000200  /* Monster lights itself */
 #define RF7_HAS_LITE_2          0x00000400  /* Monster carries light */
 #define RF7_SELF_LITE_2         0x00000800  /* Monster lights itself */
-#define RF7_GUARDIAN            0x00001000
-#define RF7_CHAMELEON           0x00002000
-#define RF7_KILL_EXP            0x00004000
+#define RF7_GUARDIAN            0x00001000  /* Guardian of a dungeon */
+#define RF7_CHAMELEON           0x00002000  /* Chameleon can change */
+#define RF7_KILL_EXP            0x00004000  /* No exp until you kill it */
+#define RF7_TANUKI              0x00008000  /* Tanuki disguise */
 
 /*
  * Monster race flags
@@ -3602,6 +3640,9 @@
 
 #define is_friendly(A) \
 	 (bool)(((A)->smart & SM_FRIENDLY) ? TRUE : FALSE)
+
+#define is_friendly_idx(IDX) \
+	 (bool)((IDX) > 0 && is_friendly(&m_list[(IDX)]))
 
 #define is_pet(A) \
 	 (bool)(((A)->smart & SM_PET) ? TRUE : FALSE)
@@ -3979,6 +4020,20 @@
 
 #define pattern_tile(Y,X) \
      ((cave[Y][X].feat <= FEAT_PATTERN_XTRA2) && (cave[Y][X].feat >= FEAT_PATTERN_START))
+
+/*
+ * Does the grid stop disintegration?
+ */
+#define cave_stop_disintegration(Y,X) \
+	(((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
+	  (cave[Y][X].feat <= FEAT_PERM_SOLID)) || \
+	  (cave[Y][X].feat == FEAT_MOUNTAIN) || \
+	 ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
+	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
+	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
+	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
+	  (cave[Y][X].feat == FEAT_MUSEUM))
+
 
 /*
  * Determine if a "legal" grid is within "los" of the player
@@ -4595,6 +4650,7 @@ extern int PlayerUID;
 #define MON_BANOR         933
 #define MON_LUPART        934
 #define MON_KENSHIROU     936
+#define MON_W_KNIGHT      938
 #define MON_PLANETAR      942
 #define MON_SOLAR         943
 #define MON_BIKETAL       945
@@ -4630,6 +4686,7 @@ extern int PlayerUID;
 #define MON_TOPAZ_MONK    1047
 #define MON_LOUSY         1063
 #define MON_JIZOTAKO      1065
+#define MON_TANUKI        1067
 
 #define MAX_AUTOPICK 1009
 #define DO_AUTOPICK    0x01
@@ -4773,8 +4830,10 @@ extern int PlayerUID;
 #define ESSENCE_RES_DISEN     64
 #define ESSENCE__SH__FIRE     65
 #define ESSENCE__SH__ELEC     66
+#define ESSENCE_S_HUMAN       67
 #define ESSENCE__SH__COLD     68
 #define ESSENCE_NO_MAGIC      70
+#define ESSENCE_WARNING       73
 #define ESSENCE_FEATHER       77
 #define ESSENCE_LITE          78
 #define ESSENCE_SEE_INVIS     79
@@ -4875,6 +4934,10 @@ extern int PlayerUID;
 
 #define prace_is_(A) (!p_ptr->mimic_form && (p_ptr->prace == A))
 
+/* Sub-alignment flags for neutral monsters */
+#define SUB_ALIGN_NEUTRAL 0x0000
+#define SUB_ALIGN_EVIL    0x0001
+#define SUB_ALIGN_GOOD    0x0002
 
 /*
  * World Score -- internet resource value

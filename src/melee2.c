@@ -21,8 +21,6 @@
 #define GRINDNOISE 20
 #define CYBERNOISE 20
 
-extern cptr silly_attacks[MAX_SILLY_ATTACK];
-
 /*
  * Calculate the direction to the next enemy
  */
@@ -2676,7 +2674,7 @@ msg_format("%^sはもう無敵でない。", m_name);
 			msg_format("%^s is no longer invulnerable.", m_name);
 #endif
 
-			m_ptr->energy -= 100;
+			m_ptr->energy_need += ENERGY_NEED();
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
@@ -2833,7 +2831,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
 		{
 			/* Try to multiply */
-			if (multiply_monster(m_idx, FALSE, is_friendly(m_ptr), is_pet(m_ptr)))
+			if (multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
 			{
 				/* Take note if visible */
 				if (m_ptr->ml)
@@ -2851,7 +2849,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 	if (!p_ptr->inside_battle)
 	{
 		/* Hack! "Cyber" monster makes noise... */
-		if (m_ptr->r_idx == MON_CYBER &&
+		if (m_ptr->ap_r_idx == MON_CYBER &&
 		    one_in_(CYBERNOISE) &&
 		    !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 		{
@@ -2865,7 +2863,7 @@ msg_print("重厚な足音が聞こえた。");
 		}
 
 		/* Some monsters can speak */
-		if ((r_ptr->flags2 & RF2_CAN_SPEAK) && aware &&
+		if ((r_info[m_ptr->ap_r_idx].flags2 & RF2_CAN_SPEAK) && aware &&
 			one_in_(SPEAK_CHANCE) &&
 			player_has_los_bold(oy, ox))
 		{
@@ -2915,7 +2913,7 @@ filename = "monfrien_j.txt";
 
 
 			/* Get the monster line */
-			if (get_rnd_line(filename, m_ptr->r_idx, monmessage) == 0)
+			if (get_rnd_line(filename, m_ptr->ap_r_idx, monmessage) == 0)
 			{
 				/* Say something */
 #ifdef JP
@@ -3169,8 +3167,6 @@ msg_print("ギシギシいう音が聞こえる。");
 
 			/* Notice */
 			c_ptr->feat = floor_type[randint0(100)];
-			c_ptr->info &= ~(CAVE_MASK);
-			c_ptr->info |= CAVE_FLOOR;
 
 			/* Note changes to viewable region */
 			if (player_has_los_bold(ny, nx)) do_view = TRUE;
@@ -3302,8 +3298,6 @@ msg_print("守りのルーンが壊れた！");
 
 				/* Break the rune */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 
 				/* Allow movement */
 				do_move = TRUE;
@@ -3350,8 +3344,6 @@ msg_print("爆発のルーンは解除された。");
 
 				/* Break the rune */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 				note_spot(ny, nx);
 				lite_spot(ny, nx);
 
@@ -3487,12 +3479,10 @@ msg_print("爆発のルーンは解除された。");
 				if (r_ptr->flags2 & RF2_KILL_WALL)
 				{
 					c_ptr->feat = FEAT_GRASS;
-					c_ptr->info &= ~(CAVE_MASK);
-					c_ptr->info |= CAVE_FLOOR;
 				}
 				if (!(r_ptr->flags7 & RF7_CAN_FLY) && !(r_ptr->flags8 & RF8_WILD_WOOD))
 				{
-					m_ptr->energy -= 100;
+					m_ptr->energy_need += ENERGY_NEED();
 				}
 			}
 
@@ -3701,7 +3691,7 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 	}
 
 	/*
-	 *  Forward movements failed, but now recieved LOS attack!
+	 *  Forward movements failed, but now received LOS attack!
 	 *  Try to flow by smell.
 	 */
 	if (p_ptr->no_flowed && i > 2 &&  m_ptr->target_y)
@@ -3817,7 +3807,7 @@ msg_format("%^sは戦いを決意した！", m_name);
  */
 void process_monsters(void)
 {
-	int             i, e;
+	int             i;
 	int             fx, fy;
 
 	bool            test;
@@ -3973,18 +3963,14 @@ void process_monsters(void)
 			if (m_ptr->slow) speed = MAX(0, speed - 10);
 		}
 
-		e = extract_energy[speed];
-
 		/* Give this monster some energy */
-		if(randint0(60) < e)
-		m_ptr->energy += gain_energy();
-
+		m_ptr->energy_need -= extract_energy[speed];
 
 		/* Not enough energy to move */
-		if (m_ptr->energy < 100) continue;
+		if (m_ptr->energy_need > 0) continue;
 
 		/* Use up "some" energy */
-		m_ptr->energy -= 100;
+		m_ptr->energy_need += ENERGY_NEED();
 
 
 		/* Save global index */
@@ -4146,6 +4132,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 
 		monster_desc(m_name, m_ptr, 0);
 		m_ptr->r_idx = r_ptr->next_r_idx;
+		m_ptr->ap_r_idx = m_ptr->r_idx;
 		r_ptr = &r_info[m_ptr->r_idx];
 		if (r_ptr->flags1 & RF1_FORCE_MAXHP)
 		{

@@ -1664,9 +1664,6 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
                                  Infokfnt->info, Infofnt->wid * 2);
 #else
 #ifdef USE_FONTSET
-		/* Delete rectangle first */
-		XClearArea(Metadpy->dpy, Infowin->win, x, y - Infofnt->asc, len * Infofnt->wid, Infofnt->hgt, FALSE);
-
 		XmbDrawImageString(Metadpy->dpy, Infowin->win, Infofnt->info,
 		                   Infoclr->gc, x, y, str, len);
 #else
@@ -1898,6 +1895,10 @@ static void react_keypress(XKeyEvent *xev)
 		}
 
 		case XK_Delete:
+		{
+			Term_keypress(0x7f);
+			return;
+		}
 		case XK_BackSpace:
 		{
 			Term_keypress('\010');
@@ -2256,7 +2257,7 @@ static bool check_file(cptr s)
 /*
  * Initialize sound
  */
-static void init_sound()
+static void init_sound(void)
 {
 	int i;
 	char wav[128];
@@ -2432,7 +2433,9 @@ static errr Term_curs_x11(int x, int y)
 	Infoclr_set(xor);
 
 #ifdef JP
-	if (use_bigtile && x + 1 < Term->wid && (Term->old->a[y][x+1] == 255 || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
+	if (x + 1 < Term->wid &&
+	    ((use_bigtile && Term->old->a[y][x+1] == 255) ||
+	     (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
 #else
 	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
 #endif
@@ -2532,7 +2535,8 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		y2 = (ta&0x7F) * td->fnt->hgt;
 		
 		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
+		if (((x1 == x2) && (y1 == y2)) ||
+		    !(((byte)ta & 0x80) && ((byte)tc & 0x80)))
 		{
 			/* Draw object / terrain */
 			XPutImage(Metadpy->dpy, td->win->win,

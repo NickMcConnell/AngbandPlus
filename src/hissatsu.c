@@ -645,11 +645,11 @@ static bool cast_hissatsu_spell(int spell)
 	{
 		if (p_ptr->lev > 44)
 		{
-			if (!identify_fully(TRUE)) return FALSE;
+			if (!identify_fully(TRUE, FALSE)) return FALSE;
 		}
 		else
 		{
-			if (!ident_spell(TRUE)) return FALSE;
+			if (!ident_spell(TRUE, FALSE)) return FALSE;
 		}
 		break;
 	}
@@ -675,8 +675,6 @@ static bool cast_hissatsu_spell(int spell)
 
 		/* Destroy the feature */
 		cave[y][x].feat = floor_type[randint0(100)];
-		cave[y][x].info &= ~(CAVE_MASK);
-		cave[y][x].info |= CAVE_FLOOR;
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
@@ -1025,6 +1023,7 @@ static bool cast_hissatsu_spell(int spell)
 			project_length = 5;
 			if (!get_aim_dir(&dir)) break;
 			if (new)
+				/* Reserve needed mana point */
 				p_ptr->csp -= technic_info[TECHNIC_HISSATSU][26].smana;
 			else
 				p_ptr->csp -= 8;
@@ -1036,6 +1035,10 @@ static bool cast_hissatsu_spell(int spell)
 			handle_stuff();
 		} while (p_ptr->csp > 8);
 		if (new) return FALSE;
+
+		/* Restore reserved mana */
+		p_ptr->csp += technic_info[TECHNIC_HISSATSU][26].smana;
+
 		break;
 	}
 	case 27:
@@ -1166,7 +1169,7 @@ msg_print("その方向にはモンスターはいません。");
 #ifdef JP
 		take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "慶雲鬼忍剣を使った衝撃", -1);
 #else
-		take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "reaction of your attack", -1); /*nanka*/
+		take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "exhaustion on using Keiun-Kininken", -1);
 #endif
 		break;
 	}

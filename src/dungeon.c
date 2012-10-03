@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-#define TY_CURSE_CHANCE 100
+#define TY_CURSE_CHANCE 200
 #define CHAINSWORD_NOISE 100
 
 static bool load = TRUE;
@@ -96,6 +96,7 @@ static void sense_inventory_aux(int slot, bool heavy)
 	byte        feel;
 	object_type *o_ptr = &inventory[slot];
 	char        o_name[MAX_NLEN];
+	int idx;
 
 	/* We know about it already, do not tell us again */
 	if (o_ptr->ident & (IDENT_SENSE))return;
@@ -193,6 +194,11 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
 
 	/* Set the "inscription" */
 	o_ptr->feeling = feel;
+
+	/* Auto-inscription/destroy */
+	idx = is_autopick(o_ptr);
+	auto_inscribe_item(slot, idx);
+	auto_destroy_item(slot, idx, FALSE);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1085,7 +1091,8 @@ msg_print("ÌÀ¤«¤ê¤¬¾Ã¤¨¤Æ¤·¤Þ¤Ã¤¿¡ª");
 	/* The light is getting dim */
 	else if (o_ptr->name2 == EGO_LITE_LONG)
 	{
-		if ((o_ptr->xtra4 < 50) && (!(o_ptr->xtra4 % 5)) && (turn % 40))
+		if ((o_ptr->xtra4 < 50) && (!(o_ptr->xtra4 % 5))
+		    && (turn % (TURNS_PER_TICK*2)))
 		{
 			if (disturb_minor) disturb(0, 0);
 #ifdef JP
@@ -1378,7 +1385,7 @@ else msg_format("%s¤ÏºÆ½¼Å¶¤µ¤ì¤¿¡£", o_name);
 }
 
 
-static void check_music()
+static void check_music(void)
 {
         magic_type *s_ptr;
 	u32b shouhimana;
@@ -1396,16 +1403,16 @@ static void check_music()
 	shouhimana /= 9600;
 	if(shouhimana < 1) shouhimana = 1;
         shouhimana *= 0x8000;
-        if ((p_ptr->csp < shouhimana / 0x10000) || (p_ptr->anti_magic))
+        if (((u16b)(p_ptr->csp) < (shouhimana / 0x10000)) || (p_ptr->anti_magic))
         {
                 stop_singing();
 		return;
         }
         else
         {
-                p_ptr->csp -= shouhimana / 0x10000;
-		shouhimana = (shouhimana & 0xffff);
-		if (p_ptr->csp_frac < shouhimana)
+			p_ptr->csp -= (u16b) (shouhimana / 0x10000);
+			shouhimana = (shouhimana & 0xffff);
+			if (p_ptr->csp_frac < shouhimana)
 		{
 			p_ptr->csp--;
 			p_ptr->csp_frac += (u16b)(0x10000L - shouhimana);
@@ -1447,7 +1454,7 @@ static void check_music()
 }
 
 /* Choose one of items that have cursed flag */
-object_type *choose_cursed_obj_name(u32b flag)
+static object_type *choose_cursed_obj_name(u32b flag)
 {
 	int i;
 	int choices[INVEN_TOTAL-INVEN_RARM];
@@ -1488,15 +1495,16 @@ static void process_world(void)
 	object_kind *k_ptr;
 	const int dec_count = (easy_band ? 2 : 1);
 
-	int hour, min, prev_min;
-	s32b len = 20L * TOWN_DAWN;
+	int day, hour, min, prev_min;
+
+	s32b len = TURNS_PER_TICK * TOWN_DAWN;
 	s32b tick = turn % len + len / 4;
 
-	hour = (24 * tick / len) % 24;
-	min = (1440 * tick / len) % 60;
+	extract_day_hour_min(&day, &hour, &min);
 	prev_min = (1440 * (tick - 20) / len) % 60;
 
-        if ((turn - old_turn == (3000 - dun_level*20)) && (dun_level) &&
+        if ((turn - old_turn == (150 - dun_level) * TURNS_PER_TICK)
+	    && (dun_level) &&
 	    !(quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT || !(quest[quest_number(dun_level)].flags & QUEST_FLAG_PRESET)))) &&
 	    !(p_ptr->inside_battle))
 		do_cmd_feeling();
@@ -1525,7 +1533,7 @@ msg_print("ÁêÂÇ¤Á¤Ë½ª¤ï¤ê¤Þ¤·¤¿¡£");
 			msg_print("They have kill each other at the same time.");
 #endif
 			msg_print(NULL);
-			p_ptr->energy = 100;
+			p_ptr->energy_need = 0;
 			battle_monsters();
 		}
 		else if ((number_mon-1) == 0)
@@ -1553,7 +1561,7 @@ msg_print("¤ª¤á¤Ç¤È¤¦¤´¤¶¤¤¤Þ¤¹¡£");
 #ifdef JP
 msg_format("%d¡ð¤ò¼õ¤±¼è¤Ã¤¿¡£", battle_odds);
 #else
-				msg_format("You recieved %d gold.", battle_odds);
+				msg_format("You received %d gold.", battle_odds);
 #endif
 			p_ptr->au += battle_odds;
 			}
@@ -1566,10 +1574,10 @@ msg_print("»ÄÇ°¤Ç¤·¤¿¡£");
 #endif
 			}
 			msg_print(NULL);
-			p_ptr->energy = 100;
+			p_ptr->energy_need = 0;
 			battle_monsters();
 		}
-		else if(turn - old_turn == 3000L)
+		else if(turn - old_turn == 150*TURNS_PER_TICK)
 		{
 #ifdef JP
 msg_print("¿½¤·Ê¬¤±¤¢¤ê¤Þ¤»¤ó¤¬¡¢¤³¤Î¾¡Éé¤Ï°ú¤­Ê¬¤±¤È¤µ¤»¤Æ¤¤¤¿¤À¤­¤Þ¤¹¡£");
@@ -1578,17 +1586,17 @@ msg_print("¿½¤·Ê¬¤±¤¢¤ê¤Þ¤»¤ó¤¬¡¢¤³¤Î¾¡Éé¤Ï°ú¤­Ê¬¤±¤È¤µ¤»¤Æ¤¤¤¿¤À¤­¤Þ¤¹¡£");
 #endif
 			p_ptr->au += kakekin;
 			msg_print(NULL);
-			p_ptr->energy = 100;
+			p_ptr->energy_need = 0;
 			battle_monsters();
 		}
 	}
 
 	/* Every 20 game turns */
-	if (turn % 20) return;
+	if (turn % TURNS_PER_TICK) return;
 
 	/*** Check the Time and Load ***/
 
-	if (!(turn % 1000))
+	if (!(turn % (50*TURNS_PER_TICK)))
 	{
 		/* Check time and load */
 		if ((0 != check_time()) || (0 != check_load()))
@@ -1636,7 +1644,7 @@ msg_print("º£¡¢¥¢¥ó¥°¥Ð¥ó¥É¤Ø¤ÎÌç¤¬ÊÄ¤¶¤µ¤ì¤Þ¤·¤¿¡£");
 	/*** Attempt timed autosave ***/
 	if (autosave_t && autosave_freq && !p_ptr->inside_battle)
 	{
-		if (!(turn % ((s32b)autosave_freq * 20)))
+		if (!(turn % ((s32b)autosave_freq * TURNS_PER_TICK)))
 			do_cmd_save_game(TRUE);
 	}
 
@@ -1655,12 +1663,12 @@ msg_print("º£¡¢¥¢¥ó¥°¥Ð¥ó¥É¤Ø¤ÎÌç¤¬ÊÄ¤¶¤µ¤ì¤Þ¤·¤¿¡£");
 	if (!dun_level && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena && !p_ptr->wild_mode)
 	{
 		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((20L * TOWN_DAWN) / 2)))
+		if (!(turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
 		{
 			bool dawn;
 
 			/* Check for dawn */
-			dawn = (!(turn % (20L * TOWN_DAWN)));
+			dawn = (!(turn % (TURNS_PER_TICK * TOWN_DAWN)));
 
 			/* Day breaks */
 			if (dawn)
@@ -1715,8 +1723,10 @@ msg_print("Æü¤¬ÄÀ¤ó¤À¡£");
 						/* Darken "boring" features */
 						if ((c_ptr->feat <= FEAT_INVIS) ||
 						    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-							(c_ptr->feat <= FEAT_TREES) &&
-						    (c_ptr->feat != FEAT_MUSEUM)))
+							(c_ptr->feat <= FEAT_MOUNTAIN) &&
+						     (c_ptr->feat != FEAT_MUSEUM)) ||
+						    (x == 0) || (x == cur_wid-1) ||
+						    (y == 0) || (y == cur_hgt-1))
 						{
 							/* Forget the grid */
 							c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -1740,7 +1750,7 @@ msg_print("Æü¤¬ÄÀ¤ó¤À¡£");
 	}
 
 	/* Set back the rewards once a day */
-	if (!(turn % (200L * STORE_TURNS)))
+	if (!(turn % (TURNS_PER_TICK*10 * STORE_TURNS)))
 	{
 		int n;
 
@@ -1771,8 +1781,8 @@ if (cheat_xtra) msg_print("Êó½·¤ò¥ê¥»¥Ã¥È");
 	}
 
 	/* Hack -- Check for creature regeneration */
-	if (!(turn % 200) && !p_ptr->inside_battle) regen_monsters();
-	if (!(turn % 60)) regen_captured_monsters();
+	if (!(turn % (TURNS_PER_TICK*10)) && !p_ptr->inside_battle) regen_monsters();
+	if (!(turn % (TURNS_PER_TICK*3))) regen_captured_monsters();
 
 
 	/*** Damage over Time ***/
@@ -1793,8 +1803,7 @@ take_hit(DAMAGE_NOESCAPE, 1, "ÆÇ", -1);
 	/* (Vampires) Take damage from sunlight */
 	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
-		if (!dun_level && !p_ptr->resist_lite && !p_ptr->invuln &&
-		    (!((turn / ((20L * TOWN_DAWN) / 2)) % 2)))
+		if (!dun_level && !p_ptr->resist_lite && !p_ptr->invuln && is_daytime())
 		{
 			if (cave[py][px].info & CAVE_GLOW)
 			{
@@ -2197,7 +2206,7 @@ take_hit(DAMAGE_NOESCAPE, i, "Ã×Ì¿½ý", -1);
 		if (p_ptr->food < PY_FOOD_MAX)
 		{
 			/* Every 100 game turns */
-			if (!(turn % 100))
+			if (!(turn % (TURNS_PER_TICK*5)))
 			{
 				/* Basic digestion rate based on speed */
 				i = /* extract_energy[p_ptr->pspeed] * 2;*/
@@ -2482,6 +2491,18 @@ msg_print("¤³¤ó¤Ê¤ËÂ¿¤¯¤Î¥Ú¥Ã¥È¤òÀ©¸æ¤Ç¤­¤Ê¤¤¡ª");
 		(void)set_tim_sh_fire(p_ptr->tim_sh_fire - 1, TRUE);
 	}
 
+	/* Timed sh_holy */
+	if (p_ptr->tim_sh_holy)
+	{
+		(void)set_tim_sh_holy(p_ptr->tim_sh_holy - 1, TRUE);
+	}
+
+	/* Timed eyeeye */
+	if (p_ptr->tim_eyeeye)
+	{
+		(void)set_tim_eyeeye(p_ptr->tim_eyeeye - 1, TRUE);
+	}
+
 	/* Timed resist-magic */
 	if (p_ptr->resist_magic)
 	{
@@ -2703,7 +2724,7 @@ msg_print("¤³¤ó¤Ê¤ËÂ¿¤¯¤Î¥Ú¥Ã¥È¤òÀ©¸æ¤Ç¤­¤Ê¤¤¡ª");
 			/* Decrease life-span */
 			if (o_ptr->name2 == EGO_LITE_LONG)
 			{
-				if (turn % 40) o_ptr->xtra4--;
+				if (turn % (TURNS_PER_TICK*2)) o_ptr->xtra4--;
 			}
 			else o_ptr->xtra4--;
 
@@ -2865,10 +2886,13 @@ msg_print("ËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤¬ÆÍÁ³¤¢¤Ê¤¿¤ÎÃæ¤ËÎ®¤ì¹þ¤ó¤Ç¤­¤¿¡ª¥¨¥Í¥ë¥®¡¼¤ò²òÊü¤·¤
 		    !p_ptr->anti_magic && (randint1(6666) == 666))
 		{
 			bool pet = one_in_(6);
-			bool not_pet = (bool)(!pet);
+			u32b mode = PM_ALLOW_GROUP;
+
+			if (pet) mode |= PM_FORCE_PET;
+			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
 			if (summon_specific((pet ? -1 : 0), py, px,
-				    dun_level, SUMMON_DEMON, TRUE, FALSE, pet, not_pet, not_pet))
+				    dun_level, SUMMON_DEMON, mode))
 			{
 #ifdef JP
 msg_print("¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -2997,10 +3021,12 @@ msg_print("¸÷¸»¤«¤é¥¨¥Í¥ë¥®¡¼¤òµÛ¼ý¤·¤¿¡ª");
 		   !p_ptr->anti_magic && one_in_(7000))
 		{
 			bool pet = one_in_(3);
-			bool not_pet = (bool)(!pet);
+			u32b mode = PM_ALLOW_GROUP;
 
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, pet, not_pet, not_pet))
+			if (pet) mode |= PM_FORCE_PET;
+			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+
+			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
 			{
 #ifdef JP
 msg_print("Æ°Êª¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -3103,10 +3129,12 @@ msg_print("¼«Ê¬¤¬¿ê¼å¤·¤Æ¤¤¤¯¤Î¤¬Ê¬¤«¤ë¡ª");
 		   !p_ptr->anti_magic && one_in_(3000))
 		{
 			bool pet = one_in_(5);
-			bool not_pet = (bool)(!pet);
+			u32b mode = PM_ALLOW_GROUP;
 
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, pet, not_pet, not_pet))
+			if (pet) mode |= PM_FORCE_PET;
+			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+
+			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
 			{
 #ifdef JP
 msg_print("¥É¥é¥´¥ó¤ò°ú¤­´ó¤»¤¿¡ª");
@@ -3323,7 +3351,7 @@ msg_print("Éð´ï¤òÍî¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 		 * can actually be useful!
 		 */
-		if ((p_ptr->cursed & TRC_TELEPORT_SELF) && one_in_(100))
+		if ((p_ptr->cursed & TRC_TELEPORT_SELF) && one_in_(200))
 		{
 #ifdef JP
 if (get_check_strict("¥Æ¥ì¥Ý¡¼¥È¤·¤Þ¤¹¤«¡©", CHECK_OKAY_CANCEL))
@@ -3417,10 +3445,10 @@ msg_format("°­°Õ¤ËËþ¤Á¤¿¹õ¤¤¥ª¡¼¥é¤¬%s¤ò¤È¤ê¤Þ¤¤¤¿...", o_name);
 			}
 		}
 		/* Call animal */
-		if ((p_ptr->cursed & TRC_CALL_ANIMAL) && one_in_(1500))
+		if ((p_ptr->cursed & TRC_CALL_ANIMAL) && one_in_(2500))
 		{
 			if (summon_specific(0, py, px, dun_level, SUMMON_ANIMAL,
-			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			    (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 			{
 				char o_name[MAX_NLEN];
 
@@ -3435,10 +3463,9 @@ msg_format("%s¤¬Æ°Êª¤ò°ú¤­´ó¤»¤¿¡ª", o_name);
 			}
 		}
 		/* Call demon */
-		if ((p_ptr->cursed & TRC_CALL_DEMON) && one_in_(666))
+		if ((p_ptr->cursed & TRC_CALL_DEMON) && one_in_(1111))
 		{
-			if (summon_specific(0, py, px, dun_level, SUMMON_DEMON,
-			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			if (summon_specific(0, py, px, dun_level, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 			{
 				char o_name[MAX_NLEN];
 
@@ -3453,10 +3480,10 @@ msg_format("%s¤¬°­Ëâ¤ò°ú¤­´ó¤»¤¿¡ª", o_name);
 			}
 		}
 		/* Call dragon */
-		if ((p_ptr->cursed & TRC_CALL_DRAGON) && one_in_(400))
+		if ((p_ptr->cursed & TRC_CALL_DRAGON) && one_in_(800))
 		{
 			if (summon_specific(0, py, px, dun_level, SUMMON_DRAGON,
-			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			    (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET)))
 			{
 				char o_name[MAX_NLEN];
 
@@ -3485,7 +3512,7 @@ msg_print("¤È¤Æ¤â°Å¤¤... ¤È¤Æ¤â¶²¤¤¡ª");
 			}
 		}
 		/* Teleport player */
-		if ((p_ptr->cursed & TRC_TELEPORT) && one_in_(100) && !p_ptr->anti_tele)
+		if ((p_ptr->cursed & TRC_TELEPORT) && one_in_(200) && !p_ptr->anti_tele)
 		{
 			disturb(0, 0);
 
@@ -4496,18 +4523,7 @@ msg_print("¥¢¥ê¡¼¥Ê¤¬ËâË¡¤òµÛ¼ý¤·¤¿¡ª");
 		{
 			if (!p_ptr->wild_mode)
 			{
-			if (!p_ptr->inside_arena)
 				do_cmd_throw();
-			else
-			{
-#ifdef JP
-msg_print("¥¢¥ê¡¼¥Ê¤Ç¤Ï¥¢¥¤¥Æ¥à¤ò»È¤¨¤Ê¤¤¡ª");
-#else
-				msg_print("You're in the arena now. This is hand-to-hand!");
-#endif
-
-				msg_print(NULL);
-			}
 			}
 			break;
 		}
@@ -4713,6 +4729,12 @@ msg_print("¥¢¥ê¡¼¥Ê¤¬ËâË¡¤òµÛ¼ý¤·¤¿¡ª");
 			break;
 		}
 
+		case '_':
+		{
+			do_cmd_edit_autopick();
+			break;
+		}
+
 		/* Interact with macros */
 		case '@':
 		{
@@ -4894,7 +4916,7 @@ prt(" '?' ¤Ç¥Ø¥ë¥×¤¬É½¼¨¤µ¤ì¤Þ¤¹¡£", 0, 0);
 
 
 
-bool monster_tsuri(int r_idx)
+static bool monster_tsuri(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -4948,11 +4970,13 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 	}
 
 	/* Give the player some energy */
-	else if((randint0(60) < ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ? 1 : extract_energy[p_ptr->pspeed]))) && !(load && p_ptr->energy >= 100))
-		p_ptr->energy += gain_energy();
+	else if (!(load && p_ptr->energy_need <= 0))
+	{
+		p_ptr->energy_need -= (p_ptr->pspeed > 199 ? 49 : (p_ptr->pspeed < 0 ? 1 : extract_energy[p_ptr->pspeed]));
+	}
 
 	/* No turn yet */
-	if (p_ptr->energy < 100) return;
+	if (p_ptr->energy_need > 0) return;
 	if (!command_rep) prt_time();
 
 	/*** Check for interupts ***/
@@ -5004,7 +5028,7 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 				int y, x;
 				y = py+ddy[tsuri_dir];
 				x = px+ddx[tsuri_dir];
-				if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
+				if (place_monster_aux(0, y, x, r_idx, PM_NO_KAGE))
 				{
 					char m_name[80];
 					monster_desc(m_name, &m_list[cave[y][x].m_idx], 0);
@@ -5029,7 +5053,7 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 	}
 
 	/* Handle "abort" */
-	if (avoid_abort)
+	if (check_abort)
 	{
 		/* Check for "player abort" (semi-efficiently for resting) */
 		if (running || command_rep || (p_ptr->action == ACTION_REST) || (p_ptr->action == ACTION_FISH))
@@ -5264,7 +5288,7 @@ msg_format("%^s¤ò¶²ÉÝ¤«¤éÎ©¤ÁÄ¾¤é¤»¤¿¡£", m_name);
 	/*** Handle actual user input ***/
 
 	/* Repeat until out of energy */
-	while (p_ptr->energy >= 100)
+	while (p_ptr->energy_need <= 0)
 	{
 		p_ptr->window |= PW_PLAYER;
 		p_ptr->sutemi = FALSE;
@@ -5450,8 +5474,10 @@ msg_format("%s(%c)¤òÍî¤È¤·¤¿¡£", o_name, index_to_label(item));
 		if (energy_use)
 		{
 			/* Use some energy */
-			p_ptr->energy -= energy_use;
-
+			if (!world_player)
+				p_ptr->energy_need += (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
+			else
+				p_ptr->energy_need += energy_use * TURNS_PER_TICK / 10;
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
@@ -5568,7 +5594,7 @@ msg_format("%s(%c)¤òÍî¤È¤·¤¿¡£", o_name, index_to_label(item));
 				p_ptr->redraw |= (PR_STATE);
 			}
 
-			if (world_player && (p_ptr->energy < 1000))
+			if (world_player && (p_ptr->energy_need > - 1000))
 			{
 				/* Redraw map */
 				p_ptr->redraw |= (PR_MAP);
@@ -5586,7 +5612,7 @@ msg_format("%s(%c)¤òÍî¤È¤·¤¿¡£", o_name, index_to_label(item));
 #endif
 				msg_print(NULL);
 				world_player = FALSE;
-				p_ptr->energy = 0;
+				p_ptr->energy_need = ENERGY_NEED();
 
 				handle_stuff();
 			}
@@ -5802,7 +5828,7 @@ static void dungeon(bool load_game)
 	{
 		if (load_game)
 		{
-			p_ptr->energy = 100;
+			p_ptr->energy_need = 0;
 			battle_monsters();
 		}
 		else
@@ -5853,7 +5879,10 @@ msg_print("»î¹ç³«»Ï¡ª");
 
 	hack_mind = TRUE;
 
-	if (p_ptr->energy < 100 && !p_ptr->inside_battle && (dun_level || p_ptr->leaving_dungeon || p_ptr->inside_arena)) p_ptr->energy = 100;
+	if (p_ptr->energy_need > 0 && !p_ptr->inside_battle &&
+	    (dun_level || p_ptr->leaving_dungeon || p_ptr->inside_arena))
+		p_ptr->energy_need = 0;
+
 	/* Not leaving dungeon */
 	p_ptr->leaving_dungeon = FALSE;
 
@@ -6043,6 +6072,7 @@ msg_print("»î¹ç³«»Ï¡ª");
 static void load_all_pref_files(void)
 {
 	char buf[1024];
+	errr err;
 
 	/* Access the "user" pref file */
 	sprintf(buf, "user.prf");
@@ -6074,17 +6104,26 @@ static void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
+	/* Free old entries */
+	init_autopicker();
+
 #ifdef JP
         sprintf(buf, "picktype-%s.prf", player_base);
 #else
         sprintf(buf, "pickpref-%s.prf", player_base);
 #endif
-	process_pickpref_file(buf);
+
+	err = process_pickpref_file(buf);
+
+	/* Process 'pick????.prf' if 'pick????-<name>.prf' doesn't exist */
+	if (0 > err)
+	{
 #ifdef JP
-	process_pickpref_file("picktype.prf");
+		process_pickpref_file("picktype.prf");
 #else
-	process_pickpref_file("pickpref.prf");
+		process_pickpref_file("pickpref.prf");
 #endif
+	}
 
 	/* Access the "realm 1" pref file */
 	if (p_ptr->realm1 != REALM_NONE)
@@ -6195,9 +6234,9 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 		bool success;
 
 #ifdef JP
-		if (!get_check("ÂÔµ¡¤·¤Æ¤¤¤¿¥¹¥³¥¢ÅÐÏ¿¤òº£¹Ô¤Ê¤¤¤Þ¤¹¤«¡©"))
+		if (!get_check_strict("ÂÔµ¡¤·¤Æ¤¤¤¿¥¹¥³¥¢ÅÐÏ¿¤òº£¹Ô¤Ê¤¤¤Þ¤¹¤«¡©", CHECK_NO_HISTORY))
 #else
-		if (!get_check("Do you register score now? "))
+		if (!get_check_strict("Do you register score now? ", CHECK_NO_HISTORY))
 #endif
 			quit(0);
 
@@ -6227,9 +6266,9 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 		success = send_world_score(TRUE);
 
 #ifdef JP
-		if (!success && !get_check("¥¹¥³¥¢ÅÐÏ¿¤òÄü¤á¤Þ¤¹¤«¡©"))
+		if (!success && !get_check_strict("¥¹¥³¥¢ÅÐÏ¿¤òÄü¤á¤Þ¤¹¤«¡©", CHECK_NO_HISTORY))
 #else
-		if (!success && !get_check("Do you give up score registration? "))
+		if (!success && !get_check_strict("Do you give up score registration? ", CHECK_NO_HISTORY))
 #endif
 		{
 #ifdef JP
@@ -6554,14 +6593,14 @@ if (init_v_info()) quit("·úÃÛÊª½é´ü²½ÉÔÇ½");
 		monster_type *m_ptr;
 		int pet_r_idx = ((p_ptr->pclass == CLASS_CAVALRY) ? MON_HORSE : MON_YASE_HORSE);
 		monster_race *r_ptr = &r_info[pet_r_idx];
-		place_monster_aux(py, px - 1, pet_r_idx,
-				  FALSE, FALSE, TRUE, TRUE, TRUE, FALSE);
+		place_monster_aux(0, py, px - 1, pet_r_idx,
+				  (PM_FORCE_PET | PM_NO_KAGE));
 		m_ptr = &m_list[hack_m_idx_ii];
 		m_ptr->mspeed = r_ptr->speed;
 		m_ptr->maxhp = r_ptr->hdice*(r_ptr->hside+1)/2;
 		m_ptr->max_maxhp = m_ptr->maxhp;
 		m_ptr->hp = r_ptr->hdice*(r_ptr->hside+1)/2;
-		m_ptr->energy = -100;
+		m_ptr->energy_need = ENERGY_NEED() + ENERGY_NEED();
 	}
 
 	/* Process */
@@ -6780,7 +6819,7 @@ s32b turn_real(s32b hoge)
 	    (p_ptr->prace == RACE_SKELETON) ||
 	    (p_ptr->prace == RACE_ZOMBIE) ||
 	    (p_ptr->prace == RACE_SPECTRE))
-		return hoge-(60L * TOWN_DAWN) / 4;
+		return hoge-(TURNS_PER_TICK * TOWN_DAWN *3/ 4);
 	else
 		return hoge;
 }

@@ -1423,6 +1423,39 @@ s32b object_value(object_type *o_ptr)
 
 
 /*
+ * Determines whether an object can be destroyed, and makes fake inscription.
+ */
+bool can_player_destroy_object(object_type *o_ptr)
+{
+	/* Artifacts cannot be destroyed */
+	if (artifact_p(o_ptr) || o_ptr->art_name)
+	{
+		byte feel = FEEL_SPECIAL;
+
+		/* Hack -- Handle icky artifacts */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
+
+		/* Hack -- inscribe the artifact */
+		o_ptr->feeling = feel;
+
+		/* We have "felt" it (again) */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Done */
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+/*
  * Distribute charges of rods or wands.
  *
  * o_ptr = source item
@@ -1497,7 +1530,7 @@ void reduce_charges(object_type *o_ptr, int amt)
 /*
  *  Determine if an item can partly absorb a second item.
  */
-bool object_similar_part(object_type *o_ptr, object_type *j_ptr)
+static bool object_similar_part(object_type *o_ptr, object_type *j_ptr)
 {
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
@@ -3201,7 +3234,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_RING_REGEN;
 						break;
 					case 5: case 6:
-						if (k_ptr->flags3 & TR3_LITE)
+						if (k_ptr->flags3 & TR3_LITE) break;
 						o_ptr->name2 = EGO_RING_LITE;
 						break;
 					case 7: case 8:
@@ -4387,6 +4420,7 @@ static bool kind_is_good(int k_idx)
 		case TV_TRUMP_BOOK:
 		case TV_ENCHANT_BOOK:
 		case TV_DAEMON_BOOK:
+		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		{
@@ -6450,13 +6484,13 @@ static essence_type essence_info[MAX_ESSENCE] = {
 {"ÂÑÎô²½","ÂÑÎô²½", 64, 2, 20},
 {"","", -1, 0, 0},
 {"","", -1, 0, 0},
-{"","", 0, 0, 0},
+{"¿Í´ÖÇÜÂÇ","¿Í´ÖÇÜÂÇ", 67, 1, 20},
 {"","", -1, 0, 0},
 {"","", 0, 0, 0},
 {"È¿ËâË¡","È¿ËâË¡", 70, 3, 15},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
-{"","", 0, 0, 0},
+{"·Ù¹ð","·Ù¹ð", 73, 3, 20},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
@@ -6561,13 +6595,13 @@ static essence_type essence_info[MAX_ESSENCE] = {
 {"res. disen.","resistance to disenchantment", 64, 2, 20},
 {"","", -1, 0, 0},
 {"","", -1, 0, 0},
-{"","", 0, 0, 0},
+{"slay human","slay human", 67, 1, 20},
 {"","", -1, 0, 0},
 {"","", 0, 0, 0},
 {"anti magic","anti magic", 70, 3, 15},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
-{"","", 0, 0, 0},
+{"warning","warning", 73, 3, 20},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
 {"","", 0, 0, 0},
@@ -6606,7 +6640,7 @@ static essence_type essence_info[MAX_ESSENCE] = {
 };
 #endif
 
-bool item_tester_hook_melee_ammo(object_type *o_ptr)
+static bool item_tester_hook_melee_ammo(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -6882,7 +6916,7 @@ static void drain_essence(void)
 
 
 
-static int choose_essence()
+static int choose_essence(void)
 {
 	int mode = 0;
 	char choice;
@@ -7586,7 +7620,7 @@ static void add_essence(int mode)
 }
 
 
-bool item_tester_hook_kaji(object_type *o_ptr)
+static bool item_tester_hook_kaji(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -7616,7 +7650,7 @@ bool item_tester_hook_kaji(object_type *o_ptr)
 }
 
 
-void erase_essence(void)
+static void erase_essence(void)
 {
 	int item;
 	cptr q, s;

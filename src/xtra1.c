@@ -113,15 +113,47 @@ static void prt_field(cptr info, int row, int col)
 
 
 /*
+ *  Whether daytime or not
+ */
+bool is_daytime(void)
+{
+	s32b len = TURNS_PER_TICK * TOWN_DAWN;
+	if ((turn % len) < (len / 2))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+/*
+ * Extract day, hour, min
+ */
+void extract_day_hour_min(int *day, int *hour, int *min)
+{
+	s32b len = TURNS_PER_TICK * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	if ((p_ptr->prace == RACE_VAMPIRE) ||
+	    (p_ptr->prace == RACE_SKELETON) ||
+	    (p_ptr->prace == RACE_ZOMBIE) ||
+	    (p_ptr->prace == RACE_SPECTRE))
+		*day = (turn - (TURNS_PER_TICK * TOWN_DAWN *3/4)) / len + 1;
+	else
+		*day = (turn + (TURNS_PER_TICK * TOWN_DAWN /4))/ len + 1;
+	*hour = (24 * tick / len) % 24;
+	*min = (1440 * tick / len) % 60;
+}
+
+/*
  * Print time
  */
 void prt_time(void)
 {
-	s32b len = 20L * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
+	int day, hour, min;
 
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", ROW_DAY, COL_DAY);
+
+	extract_day_hour_min(&day, &hour, &min);
 
 	/* Dump the info itself */
 	c_put_str(TERM_WHITE, format(
@@ -130,18 +162,9 @@ void prt_time(void)
 #else
 		"Day %-2d",
 #endif
-		((p_ptr->prace == RACE_VAMPIRE) ||
-		 (p_ptr->prace == RACE_SKELETON) ||
-		 (p_ptr->prace == RACE_ZOMBIE) ||
-		 (p_ptr->prace == RACE_SPECTRE))
-		? (turn - (15L * TOWN_DAWN)) / len + 1
-		: (turn + (5L * TOWN_DAWN))/ len + 1),
-		  ROW_DAY, COL_DAY);
+		day), ROW_DAY, COL_DAY);
 	
-	c_put_str(TERM_WHITE, format("%2d:%02d",
-				      (24 * tick / len) % 24,
-				      (1440 * tick / len) % 60),
-		  ROW_DAY, COL_DAY+7);
+	c_put_str(TERM_WHITE, format("%2d:%02d", hour, min), ROW_DAY, COL_DAY+7);
 }
 
 
@@ -239,598 +262,382 @@ static void prt_stat(int stat)
 }
 
 
-/* Show status bar */
+/*
+ *  Data structure for status bar
+ */
+#define BAR_TSUYOSHI 0
+#define BAR_HALLUCINATION 1
+#define BAR_BLINDNESS 2
+#define BAR_PARALYZE 3
+#define BAR_CONFUSE 4
+#define BAR_POISONED 5
+#define BAR_AFRAID 6
+#define BAR_LEVITATE 7
+#define BAR_REFLECTION 8
+#define BAR_PASSWALL 9
+#define BAR_WRAITH 10
+#define BAR_PROTEVIL 11
+#define BAR_KAWARIMI 12
+#define BAR_MAGICDEFENSE 13
+#define BAR_EXPAND 14
+#define BAR_STONESKIN 15
+#define BAR_MULTISHADOW 16
+#define BAR_REGMAGIC 17
+#define BAR_ULTIMATE 18
+#define BAR_INVULN 19
+#define BAR_IMMACID 20
+#define BAR_RESACID 21
+#define BAR_IMMELEC 22
+#define BAR_RESELEC 23
+#define BAR_IMMFIRE 24
+#define BAR_RESFIRE 25
+#define BAR_IMMCOLD 26
+#define BAR_RESCOLD 27
+#define BAR_RESPOIS 28
+#define BAR_RESNETH 29
+#define BAR_RESTIME 30
+#define BAR_DUSTROBE 31
+#define BAR_SHFIRE 32
+#define BAR_TOUKI 33
+#define BAR_SHHOLY 34
+#define BAR_EYEEYE 35
+#define BAR_BLESSED 36
+#define BAR_HEROISM 37
+#define BAR_BERSERK 38
+#define BAR_ATTKFIRE 39
+#define BAR_ATTKCOLD 40
+#define BAR_ATTKELEC 41
+#define BAR_ATTKACID 42
+#define BAR_ATTKPOIS 43
+#define BAR_ATTKCONF 44
+#define BAR_SENSEUNSEEN 45
+#define BAR_TELEPATHY 46
+#define BAR_REGENERATION 47
+#define BAR_INFRAVISION 48
+#define BAR_STEALTH 49
+#define BAR_SUPERSTEALTH 50
+#define BAR_RECALL 51
 
+
+static struct {
+	byte attr;
+	cptr sstr;
+	cptr lstr;
+} bar[]
+#ifdef JP
+= {
+	{TERM_YELLOW, "§ƒ", "§ƒ§Ë§∑"},
+	{TERM_VIOLET, "∏∏", "∏∏≥–"},
+	{TERM_L_DARK, "Ã’", "Ã’Ã‹"},
+	{TERM_RED, "·„", "À„·„"},
+	{TERM_VIOLET, "Õ", "∫ÆÕ"},
+	{TERM_GREEN, "∆«", "∆«"},
+	{TERM_BLUE, "∂≤", "∂≤…›"},
+	{TERM_L_BLUE, "…‚", "…‚Õ∑"},
+	{TERM_SLATE, "»ø", "»øºÕ"},
+	{TERM_SLATE, " …", " …»¥§±"},
+	{TERM_L_DARK, "Õ©", "Õ©¬Œ"},
+	{TERM_SLATE, "ºŸ", "À…ºŸ"},
+	{TERM_VIOLET, " —", " —§Ô§Íø»"},
+	{TERM_YELLOW, "À‚", "À‚À°≥ª"},
+	{TERM_L_UMBER, "ø≠", "ø≠§”"},
+	{TERM_WHITE, "¿–", "¿–»©"},
+	{TERM_L_BLUE, " ¨", " ¨ø»"},
+	{TERM_SLATE, "À…", "À‚À°À…∏Ê"},
+	{TERM_YELLOW, "µÊ", "µÊ∂À"},
+	{TERM_YELLOW, "Ãµ", "Ãµ≈®"},
+	{TERM_L_GREEN, "ª¿", "ª¿Ã»±÷"},
+	{TERM_GREEN, "ª¿", "¬—ª¿"},
+	{TERM_L_BLUE, "≈≈", "≈≈Ã»±÷"},
+	{TERM_BLUE, "≈≈", "¬—≈≈"},
+	{TERM_L_RED, "≤–", "≤–Ã»±÷"},
+	{TERM_RED, "≤–", "¬—≤–"},
+	{TERM_WHITE, "Œ‰", "Œ‰Ã»±÷"},
+	{TERM_SLATE, "Œ‰", "¬—Œ‰"},
+	{TERM_GREEN, "∆«", "¬—∆«"},
+	{TERM_L_DARK, "πˆ", "¬—√œπˆ"},
+	{TERM_L_BLUE, "ª˛", "¬—ª˛¥÷"},
+	{TERM_L_DARK, "∂¿", "∂¿•™°º•È"},
+	{TERM_L_RED, "•™", "≤–•™°º•È"},
+	{TERM_WHITE, "∆Æ", "∆Æµ§"},
+	{TERM_WHITE, "¿ª", "¿ª•™°º•È"},
+	{TERM_VIOLET, "Ã‹", "Ã‹§À§œÃ‹"},
+	{TERM_WHITE, "ΩÀ", "ΩÀ °"},
+	{TERM_WHITE, "Õ¶", "Õ¶"},
+	{TERM_RED, "∂∏", "∂∏Õ"},
+	{TERM_L_RED, "≤–", "À‚∑ı≤–"},
+	{TERM_WHITE, "Œ‰", "À‚∑ıŒ‰"},
+	{TERM_L_BLUE, "≈≈", "À‚∑ı≈≈"},
+	{TERM_SLATE, "ª¿", "À‚∑ıª¿"},
+	{TERM_L_GREEN, "∆«", "À‚∑ı∆«"},
+	{TERM_RED, "Õ", "∫ÆÕ¬«∑‚"},
+	{TERM_L_BLUE, "ªÎ", "∆©Ã¿ªÎ"},
+	{TERM_ORANGE, "•∆", "•∆•Ï•—•∑"},
+	{TERM_L_BLUE, "≤Û", "≤Û…¸"},
+	{TERM_L_RED, "¿÷", "¿÷≥∞"},
+	{TERM_UMBER, "±£", "±£Ã©"},
+	{TERM_YELLOW, "±£", "ƒ∂±£Ã©"},
+	{TERM_WHITE, "µ¢", "µ¢¥‘"},
+	{0, NULL, NULL}
+};
+#else
+= {
+	{TERM_YELLOW, "Ts", "Tsuyoshi"},
+	{TERM_VIOLET, "Hu", "Hullc"},
+	{TERM_L_DARK, "Bl", "Blind"},
+	{TERM_RED, "Pa", "Paralyzed"},
+	{TERM_VIOLET, "Cf", "Confused"},
+	{TERM_GREEN, "Po", "Poisoned"},
+	{TERM_BLUE, "Af", "Afraid"},
+	{TERM_L_BLUE, "Lv", "Levit"},
+	{TERM_SLATE, "Rf", "Reflect"},
+	{TERM_SLATE, "Pw", "PassWall"},
+	{TERM_L_DARK, "Wr", "Wraith"},
+	{TERM_SLATE, "Ev", "PrtEvl"},
+	{TERM_VIOLET, "Kw", "Kawarimi"},
+	{TERM_YELLOW, "Md", "MgcArm"},
+	{TERM_L_UMBER, "Eh", "Expand"},
+	{TERM_WHITE, "Ss", "StnSkn"},
+	{TERM_L_BLUE, "Ms", "MltShdw"},
+	{TERM_SLATE, "Rm", "ResMag"},
+	{TERM_YELLOW, "Ul", "Ultima"},
+	{TERM_YELLOW, "Iv", "Invuln"},
+	{TERM_L_GREEN, "IAc", "ImmAcid"},
+	{TERM_GREEN, "Ac", "Acid"},
+	{TERM_L_BLUE, "IEl", "ImmElec"},
+	{TERM_BLUE, "El", "Elec"},
+	{TERM_L_RED, "IFi", "ImmFire"},
+	{TERM_RED, "Fi", "Fire"},
+	{TERM_WHITE, "ICo", "ImmCold"},
+	{TERM_SLATE, "Co", "Cold"},
+	{TERM_GREEN, "Po", "Pois"},
+	{TERM_L_DARK, "Nt", "Nthr"},
+	{TERM_L_BLUE, "Ti", "Time"},
+	{TERM_L_DARK, "Mr", "Mirr"},
+	{TERM_L_RED, "SFi", "SFire"},
+	{TERM_WHITE, "Fo", "Force"},
+	{TERM_WHITE, "Ho", "Holy"},
+	{TERM_VIOLET, "Ee", "EyeEye"},
+	{TERM_WHITE, "Bs", "Bless"},
+	{TERM_WHITE, "He", "Hero"},
+	{TERM_RED, "Br", "Berserk"},
+	{TERM_L_RED, "BFi", "BFire"},
+	{TERM_WHITE, "BCo", "BCold"},
+	{TERM_L_BLUE, "BEl", "BElec"},
+	{TERM_SLATE, "BAc", "BAcid"},
+	{TERM_L_GREEN, "BPo", "BPois"},
+	{TERM_RED, "TCf", "TchCnf"},
+	{TERM_L_BLUE, "Se", "SInv"},
+	{TERM_ORANGE, "Te", "Telepa"},
+	{TERM_L_BLUE, "Rg", "Regen"},
+	{TERM_L_RED, "If", "Infr"},
+	{TERM_UMBER, "Sl", "Stealth"},
+	{TERM_YELLOW, "Stlt", "Stealth"},
+	{TERM_WHITE, "Rc", "Recall"},
+	{0, NULL, NULL}
+};
+#endif
+
+#define ADD_FLG(FLG) (bar_flags[FLG / 32] |= (1L << (FLG % 32)))
+#define IS_FLG(FLG) (bar_flags[FLG / 32] & (1L << (FLG % 32)))
+
+
+/*
+ *  Show status bar
+ */
 static void prt_status(void)
 {
-	int wid, hgt, row_statbar;
+	u32b bar_flags[2];
+	int wid, hgt, row_statbar, max_col_statbar;
+	int i, col = 0, num = 0;
+	int space = 2;
 
 	Term_get_size(&wid, &hgt);
-	row_statbar = hgt - 1;
+	row_statbar = hgt + ROW_STATBAR;
+	max_col_statbar = wid + MAX_COL_STATBAR;
+
+	Term_erase(0, row_statbar, max_col_statbar);
+
+	bar_flags[0] = bar_flags[1] = 0L;
 
 	/* Tsuyoshi  */
-	if (p_ptr->tsuyoshi)
-	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "§ƒ", row_statbar, COL_STATBAR);
-#else
-		c_put_str(TERM_YELLOW, "Ts", row_statbar, COL_STATBAR);
-#endif
-	}
+	if (p_ptr->tsuyoshi) ADD_FLG(BAR_TSUYOSHI);
 
 	/* Hallucinating */
-	else if (p_ptr->image)
-	{
-#ifdef JP
-		c_put_str(TERM_VIOLET, "∏∏", row_statbar, COL_STATBAR);
-#else
-		c_put_str(TERM_VIOLET, "Hu", row_statbar, COL_STATBAR);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR);
-	}
+	if (p_ptr->image) ADD_FLG(BAR_HALLUCINATION);
 
 	/* Blindness */
-	if (p_ptr->blind)
-	{
-#ifdef JP
-		c_put_str(TERM_L_DARK, "Ã’", row_statbar, COL_STATBAR+2);
-#else
-		c_put_str(TERM_L_DARK, "Bl", row_statbar, COL_STATBAR+2);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+2);
-	}
+	if (p_ptr->blind) ADD_FLG(BAR_BLINDNESS);
 
 	/* Paralysis */
-	if (p_ptr->paralyzed)
-	{
-#ifdef JP
-		c_put_str(TERM_RED, "·„", row_statbar, COL_STATBAR+4);
-#else
-		c_put_str(TERM_RED, "Pa", row_statbar, COL_STATBAR+4);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+4);
-	}
+	if (p_ptr->paralyzed) ADD_FLG(BAR_PARALYZE);
 
 	/* Confusion */
-	if (p_ptr->confused)
-	{
-#ifdef JP
-		c_put_str(TERM_VIOLET, "Õ", row_statbar, COL_STATBAR+6);
-#else
-		c_put_str(TERM_VIOLET, "Cf", row_statbar, COL_STATBAR+6);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+6);
-	}
+	if (p_ptr->confused) ADD_FLG(BAR_CONFUSE);
 
-	/* Afraid */
-	if (p_ptr->poisoned)
-	{
-#ifdef JP
-		c_put_str(TERM_GREEN, "∆«", row_statbar, COL_STATBAR+8);
-#else
-		c_put_str(TERM_GREEN, "Po", row_statbar, COL_STATBAR+8);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+8);
-	}
+	/* Posioned */
+	if (p_ptr->poisoned) ADD_FLG(BAR_POISONED);
 
 	/* Times see-invisible */
-	if (p_ptr->tim_invis)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "ªÎ", row_statbar, COL_STATBAR+10);
-#else
-		c_put_str(TERM_L_BLUE, "Se", row_statbar, COL_STATBAR+10);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+10);
-	}
+	if (p_ptr->tim_invis) ADD_FLG(BAR_SENSEUNSEEN);
 
 	/* Timed esp */
-	if (p_ptr->tim_esp || music_singing(MUSIC_MIND))
-	{
-#ifdef JP
-		c_put_str(TERM_ORANGE, "•∆", row_statbar, COL_STATBAR+12);
-#else
-		c_put_str(TERM_ORANGE, "Te", row_statbar, COL_STATBAR+12);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+12);
-	}
+	if (p_ptr->tim_esp || music_singing(MUSIC_MIND)) ADD_FLG(BAR_TELEPATHY);
 
 	/* Timed regenerate */
-	if (p_ptr->tim_regen)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "≤Û", row_statbar, COL_STATBAR+14);
-#else
-		c_put_str(TERM_L_BLUE, "Rg", row_statbar, COL_STATBAR+14);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+14);
-	}
+	if (p_ptr->tim_regen) ADD_FLG(BAR_REGENERATION);
 
 	/* Timed infra-vision */
-	if (p_ptr->tim_infra)
-	{
-#ifdef JP
-		c_put_str(TERM_L_RED, "¿÷", row_statbar, COL_STATBAR+16);
-#else
-		c_put_str(TERM_L_RED, "If", row_statbar, COL_STATBAR+16);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+16);
-	}
+	if (p_ptr->tim_infra) ADD_FLG(BAR_INFRAVISION);
 
 	/* Protection from evil */
-	if (p_ptr->protevil)
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, "ºŸ", row_statbar, COL_STATBAR+18);
-#else
-		c_put_str(TERM_SLATE, "Ev", row_statbar, COL_STATBAR+18);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+18);
-	}
+	if (p_ptr->protevil) ADD_FLG(BAR_PROTEVIL);
 
 	/* Invulnerability */
-	if (p_ptr->invuln || music_singing(MUSIC_INVULN))
-	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "Ãµ", row_statbar, COL_STATBAR+20);
-#else
-		c_put_str(TERM_YELLOW, "Iv", row_statbar, COL_STATBAR+20);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+20);
-	}
+	if (p_ptr->invuln || music_singing(MUSIC_INVULN)) ADD_FLG(BAR_INVULN);
 
 	/* Wraith form */
-	if (p_ptr->wraith_form)
-	{
-#ifdef JP
-		c_put_str(TERM_L_DARK, "Õ©", row_statbar, COL_STATBAR+22);
-#else
-		c_put_str(TERM_L_DARK, "Gh", row_statbar, COL_STATBAR+22);
-#endif
-	}
+	if (p_ptr->wraith_form) ADD_FLG(BAR_WRAITH);
+
 	/* Kabenuke */
-	else if (p_ptr->kabenuke)
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, " …", row_statbar, COL_STATBAR+22);
-#else
-		c_put_str(TERM_SLATE, "Wp", row_statbar, COL_STATBAR+22);
-#endif
-	}
-	else if (p_ptr->tim_reflect)
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, "»ø", row_statbar, COL_STATBAR+22);
-#else
-		c_put_str(TERM_SLATE, "Rf", row_statbar, COL_STATBAR+22);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+22);
-	}
+	if (p_ptr->kabenuke) ADD_FLG(BAR_PASSWALL);
+
+	if (p_ptr->tim_reflect) ADD_FLG(BAR_REFLECTION);
 
 	/* Heroism */
-	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "Õ¶", row_statbar, COL_STATBAR+24);
-#else
-		c_put_str(TERM_WHITE, "He", row_statbar, COL_STATBAR+24);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+24);
-	}
+	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO)) ADD_FLG(BAR_HEROISM);
 
 	/* Super Heroism / berserk */
-	if (p_ptr->shero)
-	{
-#ifdef JP
-		c_put_str(TERM_RED, "∂∏", row_statbar, COL_STATBAR+26);
-#else
-		c_put_str(TERM_RED, "Br", row_statbar, COL_STATBAR+26);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+26);
-	}
+	if (p_ptr->shero) ADD_FLG(BAR_BERSERK);
 
 	/* Blessed */
-	if (p_ptr->blessed || music_singing(MUSIC_BLESS))
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "ΩÀ", row_statbar, COL_STATBAR+28);
-#else
-		c_put_str(TERM_WHITE, "Bs", row_statbar, COL_STATBAR+28);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+28);
-	}
+	if (p_ptr->blessed || music_singing(MUSIC_BLESS)) ADD_FLG(BAR_BLESSED);
 
 	/* Shield */
-	if (p_ptr->magicdef)
-	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "À‚", row_statbar, COL_STATBAR+30);
-#else
-		c_put_str(TERM_YELLOW, "Md", row_statbar, COL_STATBAR+30);
-#endif
-	}
-	else if (p_ptr->tsubureru)
-	{
-#ifdef JP
-		c_put_str(TERM_L_UMBER, "ø≠", row_statbar, COL_STATBAR+30);
-#else
-		c_put_str(TERM_L_UMBER, "Eh", row_statbar, COL_STATBAR+30);
-#endif
-	}
-	else if (p_ptr->shield)
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "¿–", row_statbar, COL_STATBAR+30);
-#else
-		c_put_str(TERM_WHITE, "Ss", row_statbar, COL_STATBAR+30);
-#endif
-	}
-	else if (p_ptr->special_defense & NINJA_KAWARIMI)
-	{
-#ifdef JP
-		c_put_str(TERM_VIOLET, " —", row_statbar, COL_STATBAR+30);
-#else
-		c_put_str(TERM_VIOLET, "Qa", row_statbar, COL_STATBAR+30);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+30);
-	}
+	if (p_ptr->magicdef) ADD_FLG(BAR_MAGICDEFENSE);
+
+	if (p_ptr->tsubureru) ADD_FLG(BAR_EXPAND);
+
+	if (p_ptr->shield) ADD_FLG(BAR_STONESKIN);
+	
+	if (p_ptr->special_defense & NINJA_KAWARIMI) ADD_FLG(BAR_KAWARIMI);
 
 	/* Oppose Acid */
-	if (p_ptr->special_defense & DEFENSE_ACID)
-	{
-#ifdef JP
-		c_put_str(TERM_L_GREEN, "ª¿", row_statbar, COL_STATBAR+32);
-#else
-		c_put_str(TERM_L_GREEN, "Ac", row_statbar, COL_STATBAR+32);
-#endif
-	}
-	else if (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-	{
-#ifdef JP
-		c_put_str(TERM_GREEN, "ª¿", row_statbar, COL_STATBAR+32);
-#else
-		c_put_str(TERM_GREEN, "Ac", row_statbar, COL_STATBAR+32);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+32);
-	}
+	if (p_ptr->special_defense & DEFENSE_ACID) ADD_FLG(BAR_IMMACID);
+	if (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESACID);
 
 	/* Oppose Lightning */
-	if (p_ptr->special_defense & DEFENSE_ELEC)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "≈≈", row_statbar, COL_STATBAR+34);
-#else
-		c_put_str(TERM_L_BLUE, "El", row_statbar, COL_STATBAR+34);
-#endif
-	}
-	else if (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-	{
-#ifdef JP
-		c_put_str(TERM_BLUE, "≈≈", row_statbar, COL_STATBAR+34);
-#else
-		c_put_str(TERM_BLUE, "El", row_statbar, COL_STATBAR+34);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+34);
-	}
+	if (p_ptr->special_defense & DEFENSE_ELEC) ADD_FLG(BAR_IMMELEC);
+	if (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESELEC);
 
 	/* Oppose Fire */
-	if (p_ptr->special_defense & DEFENSE_FIRE)
-	{
-#ifdef JP
-		c_put_str(TERM_L_RED, "≤–", row_statbar, COL_STATBAR+36);
-#else
-		c_put_str(TERM_L_RED, "Fi", row_statbar, COL_STATBAR+36);
-#endif
-	}
-	else if (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-	{
-#ifdef JP
-		c_put_str(TERM_RED, "≤–", row_statbar, COL_STATBAR+36);
-#else
-		c_put_str(TERM_RED, "Fi", row_statbar, COL_STATBAR+36);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+36);
-	}
+	if (p_ptr->special_defense & DEFENSE_FIRE) ADD_FLG(BAR_IMMFIRE);
+	if (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESFIRE);
 
 	/* Oppose Cold */
-	if (p_ptr->special_defense & DEFENSE_COLD)
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "Œ‰", row_statbar, COL_STATBAR+38);
-#else
-		c_put_str(TERM_WHITE, "Co", row_statbar, COL_STATBAR+38);
-#endif
-	}
-	else if (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, "Œ‰", row_statbar, COL_STATBAR+38);
-#else
-		c_put_str(TERM_SLATE, "Co", row_statbar, COL_STATBAR+38);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+38);
-	}
+	if (p_ptr->special_defense & DEFENSE_COLD) ADD_FLG(BAR_IMMCOLD);
+	if (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESCOLD);
 
 	/* Oppose Poison */
-	if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-	{
-#ifdef JP
-		c_put_str(TERM_GREEN, "∆«", row_statbar, COL_STATBAR+40);
-#else
-		c_put_str(TERM_GREEN, "Po", row_statbar, COL_STATBAR+40);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+40);
-	}
+	if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESPOIS);
 
 	/* Word of Recall */
-	if (p_ptr->word_recall)
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "µ¢", row_statbar, COL_STATBAR+42);
-#else
-		c_put_str(TERM_WHITE, "Wr", row_statbar, COL_STATBAR+42);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+42);
-	}
+	if (p_ptr->word_recall) ADD_FLG(BAR_RECALL);
 
 	/* Afraid */
-	if (p_ptr->afraid)
-	{
-#ifdef JP
-		c_put_str(TERM_BLUE, "∂≤", row_statbar, COL_STATBAR+44);
-#else
-		c_put_str(TERM_BLUE, "Fe", row_statbar, COL_STATBAR+44);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+44);
-	}
+	if (p_ptr->afraid) ADD_FLG(BAR_AFRAID);
 
-	/* Blindness */
-	if (p_ptr->tim_res_time)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "ª˛", row_statbar, COL_STATBAR+46);
-#else
-		c_put_str(TERM_L_BLUE, "Ti", row_statbar, COL_STATBAR+46);
-#endif
-	}
-	else if (p_ptr->multishadow)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, " ¨", row_statbar, COL_STATBAR+46);
-#else
-		c_put_str(TERM_L_BLUE, "Ms", row_statbar, COL_STATBAR+46);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+46);
-	}
+	/* Resist time */
+	if (p_ptr->tim_res_time) ADD_FLG(BAR_RESTIME);
+
+	if (p_ptr->multishadow) ADD_FLG(BAR_MULTISHADOW);
 
 	/* Confusing Hands */
-	if (p_ptr->special_attack & ATTACK_CONFUSE)
-	{
-#ifdef JP
-		c_put_str(TERM_RED, "Õ", row_statbar, COL_STATBAR+48);
-#else
-		c_put_str(TERM_RED, "Cf", row_statbar, COL_STATBAR+48);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+48);
-	}
+	if (p_ptr->special_attack & ATTACK_CONFUSE) ADD_FLG(BAR_ATTKCONF);
 
-	if (p_ptr->resist_magic)
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, "À…", row_statbar, COL_STATBAR+50);
-#else
-		c_put_str(TERM_SLATE, "Rm", row_statbar, COL_STATBAR+50);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+50);
-	}
+	if (p_ptr->resist_magic) ADD_FLG(BAR_REGMAGIC);
 
 	/* Ultimate-resistance */
-	if (p_ptr->ult_res)
-	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "µÊ", row_statbar, COL_STATBAR+52);
-#else
-		c_put_str(TERM_YELLOW, "Ul", row_statbar, COL_STATBAR+52);
-#endif
-	}
+	if (p_ptr->ult_res) ADD_FLG(BAR_ULTIMATE);
+
 	/* tim levitation */
-	else if (p_ptr->tim_ffall)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "…‚", row_statbar, COL_STATBAR+52);
-#else
-		c_put_str(TERM_L_BLUE, "Lv", row_statbar, COL_STATBAR+52);
-#endif
-	}
-	else if (p_ptr->tim_res_nether)
-	{
-#ifdef JP
-		c_put_str(TERM_L_DARK, "πˆ", row_statbar, COL_STATBAR+52);
-#else
-		c_put_str(TERM_L_DARK, "Nt", row_statbar, COL_STATBAR+52);
-#endif
-	}
-	else if (p_ptr->dustrobe)
-	{
-#ifdef JP
-		c_put_str(TERM_L_DARK, "∂¿", row_statbar, COL_STATBAR+52);
-#else
-		c_put_str(TERM_L_DARK, "Am", row_statbar, COL_STATBAR+52);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+52);
-	}
+	if (p_ptr->tim_ffall) ADD_FLG(BAR_LEVITATE);
+
+ 	if (p_ptr->tim_res_nether) ADD_FLG(BAR_RESNETH);
+
+	if (p_ptr->dustrobe) ADD_FLG(BAR_DUSTROBE);
 
 	/* Mahouken */
-	if (p_ptr->special_attack & ATTACK_FIRE)
-	{
-#ifdef JP
-		c_put_str(TERM_L_RED, "≤–", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_L_RED, "Fi", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else if (p_ptr->special_attack & ATTACK_COLD)
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "Œ‰", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_WHITE, "Co", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else if (p_ptr->special_attack & ATTACK_ELEC)
-	{
-#ifdef JP
-		c_put_str(TERM_L_BLUE, "≈≈", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_L_BLUE, "El", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else if (p_ptr->special_attack & ATTACK_ACID)
-	{
-#ifdef JP
-		c_put_str(TERM_SLATE, "ª¿", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_SLATE, "Ac", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else if (p_ptr->special_attack & ATTACK_POIS)
-	{
-#ifdef JP
-		c_put_str(TERM_L_GREEN, "∆«", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_L_GREEN, "Po", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else if (p_ptr->special_defense & NINJA_S_STEALTH)
-	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "ƒ∂", row_statbar, COL_STATBAR+54);
-#else
-		c_put_str(TERM_YELLOW, "St", row_statbar, COL_STATBAR+54);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+54);
-	}
+	if (p_ptr->special_attack & ATTACK_FIRE) ADD_FLG(BAR_ATTKFIRE);
+	if (p_ptr->special_attack & ATTACK_COLD) ADD_FLG(BAR_ATTKCOLD);
+	if (p_ptr->special_attack & ATTACK_ELEC) ADD_FLG(BAR_ATTKELEC);
+	if (p_ptr->special_attack & ATTACK_ACID) ADD_FLG(BAR_ATTKACID);
+	if (p_ptr->special_attack & ATTACK_POIS) ADD_FLG(BAR_ATTKPOIS);
+	if (p_ptr->special_defense & NINJA_S_STEALTH) ADD_FLG(BAR_SUPERSTEALTH);
 
 	/* tim stealth */
-	if (p_ptr->tim_sh_fire)
+	if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
+
+	if (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH)) ADD_FLG(BAR_STEALTH);
+
+	if (p_ptr->tim_sh_touki) ADD_FLG(BAR_TOUKI);
+
+	/* Holy aura */
+	if (p_ptr->tim_sh_holy) ADD_FLG(BAR_SHHOLY);
+
+	/* An Eye for an Eye */
+	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
+
+	/* Calcurate length */
+	for (i = 0; bar[i].sstr; i++)
 	{
-#ifdef JP
-		c_put_str(TERM_L_RED, "•™", row_statbar, COL_STATBAR+56);
-#else
-		c_put_str(TERM_L_RED, "Sf", row_statbar, COL_STATBAR+56);
-#endif
+		if (IS_FLG(i))
+		{
+			col += strlen(bar[i].lstr) + 1;
+			num++;
+		}
 	}
-	else if (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
+
+	/* If there are not excess spaces for long strings, use short one */
+	if (col - 1 > max_col_statbar)
 	{
-#ifdef JP
-		c_put_str(TERM_UMBER, "±£", row_statbar, COL_STATBAR+56);
-#else
-		c_put_str(TERM_UMBER, "Sl", row_statbar, COL_STATBAR+56);
-#endif
+		space = 0;
+		col = 0;
+
+		for (i = 0; bar[i].sstr; i++)
+		{
+			if (IS_FLG(i))
+			{
+				col += strlen(bar[i].sstr);
+			}
+		}
+
+		/* If there are excess spaces for short string, use more */
+		if (col - 1 <= max_col_statbar - (num-1))
+		{
+			space = 1;
+			col += num - 1;
+		}
 	}
-	else if (p_ptr->special_defense & NINJA_S_STEALTH)
+
+
+	/* Centering display column */
+	col = (max_col_statbar - col) / 2;
+
+	/* Display status bar */
+	for (i = 0; bar[i].sstr; i++)
 	{
-#ifdef JP
-		c_put_str(TERM_YELLOW, "±£", row_statbar, COL_STATBAR+56);
-#else
-		c_put_str(TERM_YELLOW, "lt", row_statbar, COL_STATBAR+56);
-#endif
-	}
-	else if (p_ptr->tim_sh_touki)
-	{
-#ifdef JP
-		c_put_str(TERM_WHITE, "∆Æ", row_statbar, COL_STATBAR+56);
-#else
-		c_put_str(TERM_WHITE, "Ae", row_statbar, COL_STATBAR+56);
-#endif
-	}
-	else
-	{
-		put_str("  ", row_statbar, COL_STATBAR+56);
+		if (IS_FLG(i))
+		{
+			cptr str;
+			if (space == 2) str = bar[i].lstr;
+			else str = bar[i].sstr;
+
+			c_put_str(bar[i].attr, str, row_statbar, col);
+			col += strlen(str);
+			if (space > 0) col++;
+			if (col > max_col_statbar) break;
+		}
 	}
 }
 
@@ -1119,10 +926,11 @@ static void prt_sp(void)
 static void prt_depth(void)
 {
 	char depths[32];
-	int wid, hgt, row_depth;
+	int wid, hgt, row_depth, col_depth;
 
 	Term_get_size(&wid, &hgt);
-	row_depth = hgt - 1;
+	col_depth = wid + COL_DEPTH;
+	row_depth = hgt + ROW_DEPTH;
 
 	if (!dun_level)
 	{
@@ -1161,7 +969,7 @@ sprintf(depths, "%d ≥¨", dun_level);
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), row_depth, COL_DEPTH);
+	prt(format("%7s", depths), row_depth, col_depth);
 }
 
 
@@ -1426,10 +1234,11 @@ static void prt_speed(void)
 
 	byte attr = TERM_WHITE;
 	char buf[32] = "";
-	int wid, hgt, row_speed;
+	int wid, hgt, row_speed, col_speed;
 
 	Term_get_size(&wid, &hgt);
-	row_speed = hgt - 1;
+	col_speed = wid + COL_SPEED;
+	row_speed = hgt + ROW_SPEED;
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
 	if (p_ptr->action == ACTION_SEARCH) i += 10;
@@ -1483,39 +1292,41 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-9s", buf), row_speed, COL_SPEED);
+	c_put_str(attr, format("%-9s", buf), row_speed, col_speed);
 }
 
 
 static void prt_study(void)
 {
-	int wid, hgt, row_study;
+	int wid, hgt, row_study, col_study;
 
 	Term_get_size(&wid, &hgt);
-	row_study = hgt - 1;
+	col_study = wid + COL_STUDY;
+	row_study = hgt + ROW_STUDY;
 
 	if (p_ptr->new_spells)
 	{
 #ifdef JP
-		put_str("≥ÿΩ¨", row_study, COL_STUDY);
+		put_str("≥ÿΩ¨", row_study, col_study);
 #else
-		put_str("Stud", row_study, COL_STUDY);
+		put_str("Stud", row_study, col_study);
 #endif
 
 	}
 	else
 	{
-		put_str("    ", row_study, COL_STUDY);
+		put_str("    ", row_study, col_study);
 	}
 }
 
 
 static void prt_mane(void)
 {
-	int wid, hgt, row_study;
+	int wid, hgt, row_study, col_study;
 
 	Term_get_size(&wid, &hgt);
-	row_study = hgt - 1;
+	col_study = wid + COL_STUDY;
+	row_study = hgt + ROW_STUDY;
 
 	if (p_ptr->pclass == CLASS_IMITATOR)
 	{
@@ -1525,14 +1336,14 @@ static void prt_mane(void)
 			if (new_mane) attr = TERM_L_RED;
 			else attr = TERM_WHITE;
 #ifdef JP
-			c_put_str(attr, "§ﬁ§Õ", row_study, COL_STUDY);
+			c_put_str(attr, "§ﬁ§Õ", row_study, col_study);
 #else
-			c_put_str(attr, "Mane", row_study, COL_STUDY);
+			c_put_str(attr, "Mane", row_study, col_study);
 #endif
 		}
 		else
 		{
-			put_str("    ", row_study, COL_STUDY);
+			put_str("    ", row_study, col_study);
 		}
 	}
 }
@@ -2110,6 +1921,7 @@ static void fix_overhead(void)
 	for (j = 0; j < 8; j++)
 	{
 		term *old = Term;
+		int wid, hgt;
 
 		/* No window */
 		if (!angband_term[j]) continue;
@@ -2120,11 +1932,16 @@ static void fix_overhead(void)
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-		/* Redraw map */
-		display_map(&cy, &cx);
+		/* Full map in too small window is useless  */
+		Term_get_size(&wid, &hgt);
+		if (wid > COL_MAP + 2 && hgt > ROW_MAP + 2)
+		{
+			/* Redraw map */
+			display_map(&cy, &cx);
 
-		/* Fresh */
-		Term_fresh();
+			/* Fresh */
+			Term_fresh();
+		}
 
 		/* Restore */
 		Term_activate(old);
@@ -3086,7 +2903,7 @@ static void calc_torch(void)
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
 	if (d_info[dungeon_type].flags1 & DF1_DARKNESS && p_ptr->cur_lite > 1)
 		p_ptr->cur_lite = 1;
-	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
+	if (p_ptr->cur_lite > 14) p_ptr->cur_lite = 14;
 	if (p_ptr->cur_lite < 0) p_ptr->cur_lite = 0;
 
 	/* check if the player doesn't have a lite source, */
@@ -5448,7 +5265,7 @@ void calc_bonuses(void)
 #ifdef JP
 				msg_print("§≥§Œ…¥Ô§œæË«œ√Ê§Àª»§¶§À§œ§‡§´§ §§§Ë§¶§¿°£");
 #else
-				msg_print("This weapon is not suitable for riding.");
+				msg_print("This weapon is not suitable for use while riding.");
 #endif
 
 			}
@@ -5457,7 +5274,7 @@ void calc_bonuses(void)
 #ifdef JP
 				msg_print("§≥§Œ…¥Ô§œ≈Ã ‚§«ª»§§§‰§π§§°£");
 #else
-				msg_print("This weapon was not suitable for riding.");
+				msg_print("This weapon was not suitable for use while riding.");
 #endif
 
 			}
@@ -5466,7 +5283,7 @@ void calc_bonuses(void)
 #ifdef JP
 				msg_print("§≥§Ï§ §ÈæË«œ√Ê§À§‘§√§ø§Í§¿°£");
 #else
-				msg_print("This weapon is suitable for riding.");
+				msg_print("This weapon is suitable for use while riding.");
 #endif
 
 			}
@@ -5577,6 +5394,9 @@ msg_print("•–•È•Û•π§¨§»§Ï§Î§Ë§¶§À§ §√§ø°£");
 		else if (p_ptr->vir_types[i] == V_JUSTICE) p_ptr->align += (p_ptr->virtues[i]*2);
 		else if (p_ptr->vir_types[i] != V_CHANCE) p_ptr->align += p_ptr->virtues[i];
         }
+	if ((inventory[INVEN_RARM].name1 == ART_IRON_BALL) || (inventory[INVEN_LARM].name1 == ART_IRON_BALL)) p_ptr->align -= 1000;
+	if (prace_is_(RACE_ANGEL)) p_ptr->align += 200;
+	if ((prace_is_(RACE_DEMON)) || (p_ptr->mimic_form == MIMIC_DEMON_LORD) || (p_ptr->mimic_form == MIMIC_DEMON)) p_ptr->align -= 200;
 	while (j)
 	{
 		j--;
@@ -5591,9 +5411,6 @@ msg_print("•–•È•Û•π§¨§»§Ï§Î§Ë§¶§À§ §√§ø°£");
 			if (p_ptr->align > 0) p_ptr->align = 0;
 		}
 	}
-	if ((inventory[INVEN_RARM].name1 == ART_IRON_BALL) || (inventory[INVEN_LARM].name1 == ART_IRON_BALL)) p_ptr->align -= 1000;
-	if (prace_is_(RACE_ANGEL)) p_ptr->align += 200;
-	if ((prace_is_(RACE_DEMON)) || (p_ptr->mimic_form == MIMIC_DEMON_LORD) || (p_ptr->mimic_form == MIMIC_DEMON)) p_ptr->align -= 200;
 
 	have_dd_s = FALSE;
 	have_dd_t = FALSE;

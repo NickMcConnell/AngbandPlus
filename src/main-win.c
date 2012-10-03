@@ -359,8 +359,8 @@ struct _term_data
 
 	uint keys;
 
-	int rows;
-	int cols;
+	uint rows;	/* int -> uint */
+	uint cols;
 
 	uint pos_x;
 	uint pos_y;
@@ -999,9 +999,11 @@ static void term_getsize(term_data *td)
 	if (td->cols < 1) td->cols = 1;
 	if (td->rows < 1) td->rows = 1;
 
+#if 0
 	/* Paranoia */
 	if (td->cols > 80) td->cols = 80;
 	if (td->rows > 24) td->rows = 24;
+#endif
 
 	/* Window sizes */
 	wid = td->cols * td->tile_wid + td->size_ow1 + td->size_ow2;
@@ -2218,7 +2220,9 @@ static errr Term_curs_win(int x, int y)
 	rc.bottom = rc.top + tile_hgt;
 
 #ifdef JP
-	if (use_bigtile && x + 1 < Term->wid && (Term->old->a[y][x+1] == 255 || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
+	if (x + 1 < Term->wid && 
+	    ((use_bigtile && Term->old->a[y][x+1] == 255)
+	    || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
 #else
 	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
 #endif
@@ -2353,12 +2357,32 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 		for (i = 0; i < n; i++)
 		{
 #ifdef JP
-			if ( iskanji(*(s+i)) )  /*  ２バイト文字  */
+			if (use_bigtile && *(s+i)=="■"[0] && *(s+i+1)=="■"[1])
+			{
+				rc.right += td->font_wid;
+
+				oldBrush = SelectObject(hdc, myBrush);
+				oldPen = SelectObject(hdc, GetStockObject(NULL_PEN) );
+
+				/* Dump the wall */
+				Rectangle(hdc, rc.left, rc.top, rc.right+1, rc.bottom+1);
+
+				SelectObject(hdc, oldBrush);
+				SelectObject(hdc, oldPen);
+				rc.right -= td->font_wid;
+
+				/* Advance */
+				i++;
+				rc.left += 2 * td->tile_wid;
+				rc.right += 2 * td->tile_wid;
+			}
+			else if ( iskanji(*(s+i)) )  /*  ２バイト文字  */
 			{
 				rc.right += td->font_wid;
 				/* Dump the text */
 				ExtTextOut(hdc, rc.left, rc.top, ETO_CLIPPED, &rc,
 		    		       s+i, 2, NULL);
+				rc.right -= td->font_wid;
 
 				/* Advance */
 				i++;
@@ -2608,13 +2632,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	/* Success */
 	return 0;
 }
-
-
-#ifdef USE_TRANSPARENCY
-extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
-#else /* USE_TRANSPARENCY */
-extern void map_info(int y, int x, byte *ap, char *cp);
-#endif /* USE_TRANSPARENCY */
 
 
 static void windows_map(void)
@@ -3322,7 +3339,7 @@ static void process_menus(WORD wCmd)
 				if (!can_save)
 				{
 #ifdef JP
-				plog("今は終了できません。");
+					plog("今は終了できません。");
 #else
 					plog("You may not do that right now.");
 #endif
@@ -3339,10 +3356,12 @@ static void process_menus(WORD wCmd)
 
 				/* Save the game */
 #ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
+				/* do_cmd_save_game(FALSE); */
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				/* do_cmd_save_game(); */
 #endif /* ZANGBAND */
+				Term_key_push(KTRL('X'));
+				break;
 			}
 			quit(NULL);
 			break;
@@ -3786,7 +3805,6 @@ static void process_menus(WORD wCmd)
 
 			if (GetSaveFileName(&ofn))
 			{
-				extern void do_cmd_save_screen_html_aux(char *filename, int message);
 				do_cmd_save_screen_html_aux(buf, 0);
 			}
 			break;
@@ -3927,16 +3945,18 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
+			MINMAXINFO FAR *lpmmi;
+			RECT rc;
+
 			lpmmi = (MINMAXINFO FAR *)lParam;
 
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 
-			/* Minimum window size is 8x2 */
+			/* Minimum window size is 80x24 */
 			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
+			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
 
 			/* Adjust */
 			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
@@ -3945,26 +3965,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
 			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
 
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right  += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif
 			return 0;
 		}
 
@@ -4037,7 +4037,11 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			{
 				if (!can_save)
 				{
+#ifdef JP
+					plog("今は終了できません。");
+#else
 					plog("You may not do that right now.");
+#endif
 					return 0;
 				}
 
@@ -4050,10 +4054,12 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 				/* Save the game */
 #ifdef ZANGBAND
-				do_cmd_save_game(FALSE);
+				/* do_cmd_save_game(FALSE); */
 #else /* ZANGBAND */
-				do_cmd_save_game();
+				/* do_cmd_save_game(); */
 #endif /* ZANGBAND */
+				Term_key_push(KTRL('X'));
+				return 0;
 			}
 			quit(NULL);
 			return 0;
@@ -4229,44 +4235,26 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case WM_GETMINMAXINFO:
 		{
-#if 0
-			/* this message was sent before WM_NCCREATE */
-			if (!td) return 1;
+			MINMAXINFO FAR *lpmmi;
+			RECT rc;
 
 			lpmmi = (MINMAXINFO FAR *)lParam;
 
-			/* Minimum size */
+			/* this message was sent before WM_NCCREATE */
+			if (!td) return 1;
+
+			/* Minimum window size is 80x24 */
 			rc.left = rc.top = 0;
-			rc.right = rc.left + 8 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 2 * td->tile_hgt + td->size_oh1 + td->size_oh2;
+			rc.right = rc.left + 20 * td->tile_wid + td->size_ow1 + td->size_ow2;
+			rc.bottom = rc.top + 3 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
 
 			/* Adjust */
 			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
 
-			/* Save the minimum size */
+			/* Save minimum size */
 			lpmmi->ptMinTrackSize.x = rc.right - rc.left;
 			lpmmi->ptMinTrackSize.y = rc.bottom - rc.top;
 
-			/* Maximum window size */
-			rc.left = rc.top = 0;
-			rc.right = rc.left + 80 * td->tile_wid + td->size_ow1 + td->size_ow2;
-			rc.bottom = rc.top + 24 * td->tile_hgt + td->size_oh1 + td->size_oh2;
-
-			/* Paranoia */
-			rc.right += (td->tile_wid - 1);
-			rc.bottom += (td->tile_hgt - 1);
-
-			/* Adjust */
-			AdjustWindowRectEx(&rc, td->dwStyle, TRUE, td->dwExStyle);
-
-			/* Save maximum size */
-			lpmmi->ptMaxSize.x = rc.right - rc.left;
-			lpmmi->ptMaxSize.y = rc.bottom - rc.top;
-
-			/* Save the maximum size */
-			lpmmi->ptMaxTrackSize.x = rc.right - rc.left;
-			lpmmi->ptMaxTrackSize.y = rc.bottom - rc.top;
-#endif
 			return 0;
 		}
 

@@ -517,6 +517,22 @@ static void rd_monster(monster_type *m_ptr)
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
+	if (z_older_than(11, 0, 12))
+		m_ptr->ap_r_idx = m_ptr->r_idx;
+	else
+		rd_s16b(&m_ptr->ap_r_idx);
+
+	if (z_older_than(11, 0, 14))
+	{
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
+		if (r_ptr->flags3 & RF3_EVIL) m_ptr->sub_align |= SUB_ALIGN_EVIL;
+		if (r_ptr->flags3 & RF3_GOOD) m_ptr->sub_align |= SUB_ALIGN_GOOD;
+	}
+	else
+		rd_byte(&m_ptr->sub_align);
+
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
 	rd_byte(&m_ptr->fx);
@@ -535,9 +551,13 @@ static void rd_monster(monster_type *m_ptr)
 	if (z_older_than(10, 4, 2))
 	{
 		rd_byte(&tmp8u);
-		m_ptr->energy = (s16b)tmp8u;
+		m_ptr->energy_need = (s16b)tmp8u;
 	}
-	else rd_s16b(&m_ptr->energy);
+	else rd_s16b(&m_ptr->energy_need);
+
+	if (z_older_than(11, 0, 13))
+		m_ptr->energy_need = 100 - m_ptr->energy_need;
+
 	if (z_older_than(10,0,7))
 	{
 		m_ptr->fast = 0;
@@ -595,6 +615,12 @@ static void rd_monster(monster_type *m_ptr)
 	else
 	{
 		rd_byte(&m_ptr->mflag2);
+	}
+
+	if (z_older_than(11, 0, 12))
+	{
+		if (m_ptr->mflag2 & MFLAG_KAGE)
+			m_ptr->ap_r_idx = MON_KAGE;
 	}
 
 	if (z_older_than(10, 1, 3))
@@ -1078,7 +1104,49 @@ static void rd_ghost(void)
 }
 
 
+/*
+ * Save quick start data
+ */
+static void load_quick_start(void)
+{
+	byte tmp8u;
+	int i;
 
+	if (z_older_than(11, 0, 13))
+	{
+		previous_char.quick_ok = FALSE;
+		return;
+	}
+
+	rd_byte(&previous_char.psex);
+	rd_byte(&previous_char.prace);
+	rd_byte(&previous_char.pclass);
+	rd_byte(&previous_char.pseikaku);
+	rd_byte(&previous_char.realm1);
+	rd_byte(&previous_char.realm2);
+
+	rd_s16b(&previous_char.age);
+	rd_s16b(&previous_char.ht);
+	rd_s16b(&previous_char.wt);
+	rd_s16b(&previous_char.sc);
+	rd_s32b(&previous_char.au);
+
+	for (i = 0; i < 6; i++) rd_s16b(&previous_char.stat_max[i]);
+	for (i = 0; i < 6; i++) rd_s16b(&previous_char.stat_max_max[i]);
+
+	for (i = 0; i < PY_MAX_LEVEL; i++) rd_s16b(&previous_char.player_hp[i]);
+
+	rd_s16b(&previous_char.chaos_patron);
+
+	for (i = 0; i < 8; i++) rd_s16b(&previous_char.vir_types[i]);
+
+	for (i = 0; i < 4; i++) rd_string(previous_char.history[i], 60);
+
+	rd_byte(&previous_char.quests);
+
+	rd_byte(&tmp8u);
+	previous_char.quick_ok = (bool)tmp8u;
+}
 
 /*
  * Read the "extra" information
@@ -1093,6 +1161,8 @@ static void rd_extra(void)
 	rd_string(player_name, 32);
 
 	rd_string(died_from, 80);
+
+	load_quick_start();
 
 	for (i = 0; i < 4; i++)
 	{
@@ -1361,7 +1431,11 @@ note(format("の中", tmp16s));
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
 	strip_bytes(4); /* Old "food_digested" / "protection" */
-	rd_s16b(&p_ptr->energy);
+
+	rd_s16b(&p_ptr->energy_need);
+	if (z_older_than(11, 0, 13))
+		p_ptr->energy_need = 100 - p_ptr->energy_need;
+
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
 	rd_s16b(&p_ptr->afraid);
@@ -1458,6 +1532,17 @@ note(format("の中", tmp16s));
 			rd_byte(&p_ptr->mimic_form);
 			rd_s16b(&p_ptr->tim_mimic);
 			rd_s16b(&p_ptr->tim_sh_fire);
+		}
+
+		if (z_older_than(11, 0, 99))
+		{
+			p_ptr->tim_sh_holy = 0;
+			p_ptr->tim_eyeeye = 0;
+		}
+		else
+		{
+			rd_s16b(&p_ptr->tim_sh_holy);
+			rd_s16b(&p_ptr->tim_eyeeye);
 		}
 
 		/* by henkma */
@@ -1558,6 +1643,13 @@ note(format("の中", tmp16s));
 		dungeon_turn = turn;
 	}
 	else rd_s32b(&dungeon_turn);
+
+	if (z_older_than(11, 0, 13))
+	{
+		old_turn /= 2;
+		turn /= 2;
+		dungeon_turn /= 2;
+	}
 
 	if (z_older_than(10, 3, 13))
 	{
@@ -2545,7 +2637,8 @@ if (arg_fiddle) note("伝説のアイテムをロードしました");
 
 	/* Read the extra stuff */
 	rd_extra();
-	if (p_ptr->energy > 999) world_player = TRUE;
+	if (p_ptr->energy_need < -999) world_player = TRUE;
+
 #ifdef JP
 if (arg_fiddle) note("特別情報をロードしました");
 #else

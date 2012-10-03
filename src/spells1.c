@@ -666,8 +666,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			msg_format("A tree %s", message);
 #endif
 			c_ptr->feat = (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS);
-			c_ptr->info &= ~(CAVE_MASK);
-			c_ptr->info |= CAVE_FLOOR;
 
 			/* Observe */
 			if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
@@ -755,8 +753,6 @@ msg_print("まばゆい閃光が走った！");
 				else
 				{
 					c_ptr->feat = floor_type[randint0(100)];
-					c_ptr->info &= ~(CAVE_MASK);
-					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 
@@ -826,8 +822,6 @@ msg_print("まばゆい閃光が走った！");
 				else
 				{
 					c_ptr->feat = floor_type[randint0(100)];
-					c_ptr->info &= ~(CAVE_MASK);
-					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 
@@ -893,8 +887,6 @@ msg_print("壁が溶けて泥になった！");
 
 				/* Destroy the wall */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 			}
 
 			/* Quartz / Magma with treasure */
@@ -919,8 +911,6 @@ msg_print("何かを発見した！");
 
 				/* Destroy the wall */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 
 				/* Place some gold */
 				place_gold(y, x);
@@ -946,8 +936,6 @@ msg_print("鉱脈が溶けて泥になった！");
 
 				/* Destroy the wall */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 			}
 
 			/* Rubble */
@@ -970,8 +958,6 @@ msg_print("岩石が溶けて泥になった！");
 
 				/* Destroy the rubble */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 
 				/* Hack -- place an object */
 				if (randint0(100) < 10)
@@ -1013,8 +999,6 @@ msg_print("ドアが溶けて泥になった！");
 
 				/* Destroy the feature */
 				c_ptr->feat = floor_type[randint0(100)];
-				c_ptr->info &= ~(CAVE_MASK);
-				c_ptr->info |= CAVE_FLOOR;
 			}
 
 			/* Notice */
@@ -1574,8 +1558,11 @@ msg_print("カチッと音がした！");
 				if (o_ptr->tval == TV_CORPSE)
 				{
 					int i;
-					bool friendly = (!who || is_friendly(&m_list[who]));
-					bool pet = (!who || is_pet(&m_list[who]));
+					u32b mode = 0L;
+
+					if (!who || is_pet(&m_list[who]))
+						mode |= PM_FORCE_PET;
+
 					for (i = 0; i < o_ptr->number ; i++)
 					{
 						if (((o_ptr->sval == SV_CORPSE) && (randint1(100) > 80)) ||
@@ -1591,7 +1578,7 @@ note_kill = "灰になった。";
 							}
 							continue;
 						}
-						else if (summon_named_creature(y, x, o_ptr->pval, FALSE, FALSE, friendly, pet))
+						else if (summon_named_creature(who, y, x, o_ptr->pval, mode))
 						{
 #ifdef JP
 note_kill = "生き返った。";
@@ -1967,7 +1954,7 @@ note = "にはかなり耐性がある！";
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_FIRE);
 			}
-			if (r_ptr->flags3 & (RF3_HURT_FIRE))
+			else if (r_ptr->flags3 & (RF3_HURT_FIRE))
 			{
 #ifdef JP
 note = "はひどい痛手をうけた。";
@@ -2007,7 +1994,7 @@ note = "にはかなり耐性がある！";
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
 			}
-			if (r_ptr->flags3 & (RF3_HURT_COLD))
+			else if (r_ptr->flags3 & (RF3_HURT_COLD))
 			{
 #ifdef JP
 note = "はひどい痛手をうけた。";
@@ -3275,6 +3262,17 @@ note = "にはかなり耐性がある。";
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
 			}
+			else if (r_ptr->flags3 & (RF3_HURT_COLD))
+			{
+#ifdef JP
+note = "はひどい痛手をうけた。";
+#else
+				note = " is hit hard.";
+#endif
+
+				dam *= 2;
+				if (seen) r_ptr->r_flags3 |= (RF3_HURT_COLD);
+			}
 			break;
 		}
 
@@ -3416,9 +3414,6 @@ note = "には効果がなかった。";
 		/* Clone monsters (Ignore "dam") */
 		case GF_OLD_CLONE:
 		{
-			bool friendly = FALSE;
-			bool pet = FALSE;
-
 			if (seen) obvious = TRUE;
 
 			if (is_pet(m_ptr) || (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE_7 | RF7_UNIQUE2)))
@@ -3435,7 +3430,7 @@ note = "には効果がなかった。";
 				m_ptr->hp = m_ptr->maxhp;
 
 				/* Attempt to clone. */
-				if (multiply_monster(c_ptr->m_idx, TRUE, friendly, pet))
+				if (multiply_monster(c_ptr->m_idx, TRUE, 0L))
 				{
 #ifdef JP
 note = "が分裂した！";
@@ -3690,6 +3685,52 @@ note = "は眠り込んでしまった！";
 			break;
 		}
 
+
+		/* Sleep (Use "dam" as "power") */
+		case GF_STASIS_EVIL:
+		{
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flags3 & (RF3_RES_ALL))
+			{
+#ifdef JP
+				note = "には効果がなかった！";
+#else
+				note = " is immune.";
+#endif
+				dam = 0;
+				if (seen) r_ptr->r_flags3 |= (RF3_RES_ALL);
+				break;
+			}
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & RF1_UNIQUE) ||
+			    !(r_ptr->flags3 & RF3_EVIL) ||
+			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			{
+#ifdef JP
+note = "には効果がなかった！";
+#else
+				note = " is unaffected!";
+#endif
+
+				obvious = FALSE;
+			}
+			else
+			{
+				/* Go to sleep (much) later */
+#ifdef JP
+note = "は動けなくなった！";
+#else
+				note = " is suspended!";
+#endif
+
+				do_sleep = 500;
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
 
 		/* Sleep (Use "dam" as "power") */
 		case GF_STASIS:
@@ -5680,6 +5721,90 @@ note_dies = "は光を受けてしぼんでしまった！";
 			break;
 		}
 
+		case GF_CRUSADE:
+		{
+			bool success = FALSE;
+			if (seen) obvious = TRUE;
+
+			if ((r_ptr->flags3 & (RF3_GOOD)) && !p_ptr->inside_arena)
+			{
+				if (r_ptr->flags3 & (RF3_NO_CONF)) dam -= 50;
+				if (dam < 1) dam = 1;
+
+				/* Attempt a saving throw */
+				if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
+				    (r_ptr->flags1 & (RF1_UNIQUE)) ||
+				    (m_ptr->mflag2 & MFLAG_NOPET) ||
+				    (p_ptr->cursed & TRC_AGGRAVATE) ||
+					 ((r_ptr->level+10) > randint1(dam)))
+				{
+					/* Resist */
+					if (one_in_(4)) m_ptr->mflag2 |= MFLAG_NOPET;
+				}
+				else
+				{
+#ifdef JP
+note = "を支配した。";
+#else
+					note = " is tamed!";
+#endif
+
+					set_pet(m_ptr);
+					m_ptr->fast = MIN(200, m_ptr->fast + 100);
+
+					/* Learn about type */
+					if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
+					success = TRUE;
+				}
+			}
+
+			if (!success)
+			{
+				if (!(r_ptr->flags3 & RF3_NO_FEAR))
+				{
+					do_fear = randint1(90)+10;
+				}
+				else if (seen)
+				{
+					r_ptr->r_flags3 |= (RF3_NO_FEAR);
+				}
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+
+		case GF_WOUNDS:
+		{
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flags3 & (RF3_RES_ALL))
+			{
+#ifdef JP
+				note = "には完全な耐性がある！";
+#else
+				note = " is immune.";
+#endif
+				skipped = TRUE;
+				if (seen) r_ptr->r_flags3 |= (RF3_RES_ALL);
+				break;
+			}
+
+			/* Attempt a saving throw */
+			if (randint0(100 + dam) < (r_ptr->level + 50))
+			{
+
+#ifdef JP
+note = "には効果がなかった。";
+#else
+				note = "is unaffected!";
+#endif
+				dam = 0;
+			}
+			break;
+		}
+
 		/* Default */
 		default:
 		{
@@ -6020,7 +6145,7 @@ msg_format("%s%s", m_name, note);
 
 
 			/* Hack -- Pain message */
-			else if (known)
+			else if (known && (dam || !do_fear))
 			{
 				message_pain(c_ptr->m_idx, dam);
 			}
@@ -6112,17 +6237,13 @@ msg_print("エネルギーのうねりを感じた！");
 				if (!one_in_(6)) break;
 			case 19: case 20: case 21: case 22:
 			{
-				bool pet = FALSE, friendly = FALSE;
+				bool pet = !one_in_(3);
+				u32b mode = PM_ALLOW_GROUP;
 
-				if (one_in_(3))
-				{
-					friendly = TRUE;
-				}
-				else
-				{
-					pet = TRUE;
-				}
-				count += summon_specific((pet ? -1 : 0), py, px, (pet ? p_ptr->lev*2/3+randint1(p_ptr->lev/2) : dun_level), 0, TRUE, friendly, pet, FALSE, (bool)(!pet));
+				if (pet) mode |= PM_FORCE_PET;
+				else mode |= (PM_NO_PET | PM_FORCE_FRIENDLY);
+
+				count += summon_specific((pet ? -1 : 0), py, px, (pet ? p_ptr->lev*2/3+randint1(p_ptr->lev/2) : dun_level), 0, mode);
 				if (!one_in_(6)) break;
 			}
 			case 23: case 24: case 25:
@@ -6282,6 +6403,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Hack -- messages */
 	cptr act = NULL;
 
+	int get_damage = 0;
+
 
 	/* Player is not here */
 	if ((x != px) || (y != py)) return (FALSE);
@@ -6428,7 +6551,7 @@ if (fuzzy) msg_print("毒で攻撃された！");
 				do_dec_stat(A_CON);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
 			if (!(double_resist || p_ptr->resist_pois))
 			{
@@ -6449,7 +6572,7 @@ if (fuzzy) msg_print("放射能で攻撃された！");
 
 			if (p_ptr->resist_pois) dam = (2 * dam + 2) / 5;
 			if (double_resist) dam = (2 * dam + 2) / 5;
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			if (!(double_resist || p_ptr->resist_pois))
 			{
 				set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
@@ -6485,7 +6608,7 @@ if (fuzzy) msg_print("何かで攻撃された！");
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6502,7 +6625,7 @@ if (fuzzy) msg_print("何かで攻撃された！");
 				dam /= 2;
 			else if (p_ptr->align < -10)
 				dam *= 2;
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6516,7 +6639,7 @@ if (fuzzy) msg_print("何かで攻撃された！");
 
 			if (p_ptr->align > 10)
 				dam *= 2;
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6538,7 +6661,7 @@ if (fuzzy) msg_print("何か鋭いもので攻撃された！");
 #endif
 				break;
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6551,7 +6674,7 @@ if (fuzzy) msg_print("何かとても熱いものでで攻撃された！");
 			if (fuzzy) msg_print("You are hit by something *HOT*!");
 #endif
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
 			if (!p_ptr->resist_sound)
 			{
@@ -6631,7 +6754,7 @@ msg_print("気分がよくなった。");
 			}
 			else
 			{
-				take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			}
 
 			break;
@@ -6660,7 +6783,7 @@ if (fuzzy) msg_print("何か湿ったもので攻撃された！");
 				inven_damage(set_cold_destroy, 3);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6735,7 +6858,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 				inven_damage(set_elec_destroy, 2);
 				inven_damage(set_fire_destroy, 2);
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6762,7 +6885,7 @@ if (fuzzy) msg_print("何か鋭いもので攻撃された！");
 				inven_damage(set_cold_destroy, 2);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6790,7 +6913,7 @@ if (fuzzy) msg_print("轟音で攻撃された！");
 				inven_damage(set_cold_destroy, 2);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6811,7 +6934,7 @@ if (fuzzy) msg_print("何か混乱するもので攻撃された！");
 			{
 				(void)set_confused(p_ptr->confused + randint1(20) + 10);
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6832,7 +6955,7 @@ if (fuzzy) msg_print("何かさえないものでで攻撃された！");
 			{
 				(void)apply_disenchant(0);
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6853,7 +6976,7 @@ if (fuzzy) msg_print("何か奇妙なもので攻撃された！");
 			{
 				apply_nexus(m_ptr);
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6870,7 +6993,7 @@ if (fuzzy) msg_print("運動エネルギーで攻撃された！");
 			{
 				(void)set_stun(p_ptr->stun + randint1(20));
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6902,7 +7025,7 @@ if (fuzzy) msg_print("爆発があった！");
 				inven_damage(set_cold_destroy, 3);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6916,7 +7039,7 @@ if (fuzzy) msg_print("何か遅いもので攻撃された！");
 #endif
 
 			(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -6952,7 +7075,7 @@ msg_print("光で肉体が焦がされた！");
 				dam = dam * 4 / 3;
 			}
 			if (p_ptr->wraith_form) dam *= 2;
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
 			if (p_ptr->wraith_form)
 			{
@@ -6996,7 +7119,7 @@ if (fuzzy) msg_print("何かで攻撃された！");
 			{
 				(void)set_blind(p_ptr->blind + randint1(5) + 2);
 			}
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -7092,7 +7215,7 @@ msg_print("あなたは以前ほど力強くなくなってしまった...。");
 				}
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -7125,7 +7248,7 @@ msg_print("周辺の重力がゆがんだ。");
 				inven_damage(set_cold_destroy, 2);
 			}
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -7138,7 +7261,7 @@ if (fuzzy) msg_print("純粋なエネルギーで攻撃された！");
 			if (fuzzy) msg_print("You are hit by pure energy!");
 #endif
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -7225,7 +7348,7 @@ if (fuzzy) msg_print("魔法のオーラで攻撃された！");
 			if (fuzzy) msg_print("You are hit by an aura of magic!");
 #endif
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
 		}
 
@@ -7238,7 +7361,7 @@ if (fuzzy) msg_print("エネルギーの塊で攻撃された！");
 			if (fuzzy) msg_print("You are hit by an energy!");
 #endif
 
-			take_hit(DAMAGE_FORCE, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_FORCE, dam, killer, monspell);
 			break;
 		}
 
@@ -7251,7 +7374,7 @@ if (fuzzy) msg_print("何かが空からあなたの頭上に落ちてきた！");
 			if (fuzzy) msg_print("Something falls from the sky on you!");
 #endif
 
-			take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			if (!p_ptr->resist_shard || one_in_(13))
 			{
 				if (!p_ptr->immune_fire) inven_damage(set_fire_destroy, 2);
@@ -7301,7 +7424,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 			if (p_ptr->mimic_form)
 			{
 				if (!(mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING))
-					take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+					get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			}
 			else
 			{
@@ -7322,7 +7445,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 				/* Hurt a lot */
 				default:
 				{
-					take_hit(DAMAGE_ATTACK, dam, killer, monspell);
+					get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 					break;
 				}
 			}
@@ -7340,6 +7463,22 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 
 			break;
 		}
+	}
+
+	if (p_ptr->tim_eyeeye && get_damage > 0 && !death)
+	{
+#ifdef JP
+		msg_format("攻撃が%s自身を傷つけた！", m_name);
+#else
+		char m_name_self[80];
+		
+		/* hisself */
+		monster_desc(m_name_self, m_ptr, 0x23);
+
+		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
+#endif
+		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL | PROJECT_NO_REF, -1);
+		set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 
 	if (p_ptr->riding && dam > 0)
@@ -7670,8 +7809,6 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 							else
 							{
 								cave[y][x].feat = floor_type[randint0(100)];
-								cave[y][x].info &= ~(CAVE_MASK);
-								cave[y][x].info |= CAVE_FLOOR;
 							}
 						}
 						/* Update some things -- similar to GF_KILL_WALL */
@@ -8115,7 +8252,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 					    monster_type *m_ptr = &m_list[cave[project_m_y][project_m_x].m_idx];
 
 					    /* Hack -- auto-recall */
-					    if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+					    if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 					    /* Hack - auto-track */
 					    if (m_ptr->ml) health_track(cave[project_m_y][project_m_x].m_idx);
@@ -8138,7 +8275,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			    monster_type *m_ptr = &m_list[cave[project_m_y][project_m_x].m_idx];
 			    
 			    /* Hack -- auto-recall */
-			    if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			    if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 			    
 			    /* Hack - auto-track */
 			    if (m_ptr->ml) health_track(cave[project_m_y][project_m_x].m_idx);
@@ -8271,7 +8408,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			    monster_type *m_ptr = &m_list[cave[project_m_y][project_m_x].m_idx];
 			    
 			    /* Hack -- auto-recall */
-			    if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			    if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 			    
 			    /* Hack - auto-track */
 			    if (m_ptr->ml) health_track(cave[project_m_y][project_m_x].m_idx);
@@ -8315,7 +8452,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		}
 
 		/* Only do visuals if requested */
-		if (!blind && !(flg & (PROJECT_HIDE)))
+		if (!blind && !(flg & (PROJECT_HIDE)) && !(flg & PROJECT_FAST))
 		{
 			/* Only do visuals if the player can "see" the bolt */
 			if (panel_contains(y, x) && player_has_los_bold(y, x))
@@ -8451,8 +8588,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 								else
 								{
 									cave[y][x].feat = floor_type[randint0(100)];
-									cave[y][x].info &= ~(CAVE_MASK);
-									cave[y][x].info |= CAVE_FLOOR;
 								}
 							}
 
@@ -8743,7 +8878,7 @@ else msg_print("攻撃は跳ね返った！");
 				monster_type *m_ptr = &m_list[cave[y][x].m_idx];
 
 				/* Hack -- auto-recall */
-				if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+				if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 				/* Hack - auto-track */
 				if (m_ptr->ml) health_track(cave[y][x].m_idx);

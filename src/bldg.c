@@ -571,7 +571,7 @@ static void reset_deck(int deck[])
 	}
 }
 
-static bool have_joker()
+static bool have_joker(void)
 {
 	int i;
 
@@ -589,7 +589,7 @@ static bool find_card_num(int num)
 	return FALSE;
 }
 
-static bool yaku_check_flush()
+static bool yaku_check_flush(void)
 {
 	int i, suit;
 	bool joker_is_used = FALSE;
@@ -607,7 +607,7 @@ static bool yaku_check_flush()
 	return TRUE;
 }
 
-static int yaku_check_straight()
+static int yaku_check_straight(void)
 {
 	int i, lowest = 99;
 	bool joker_is_used = FALSE;
@@ -663,7 +663,7 @@ static int yaku_check_straight()
 /*
  * 0:nopair 1:1 pair 2:2 pair 3:3 cards 4:full house 6:4cards
  */
-static int yaku_check_pair()
+static int yaku_check_pair(void)
 {
 	int i, i2, matching = 0;
 
@@ -714,7 +714,7 @@ static int yaku_check_pair()
 #define ODDS_3C 1
 #define ODDS_2P 1
 
-static int yaku_check()
+static int yaku_check(void)
 {
 	prt("                            ", 4, 3);
 
@@ -853,7 +853,7 @@ static void display_kaeruka(int hoge, int kaeruka[])
 }
 
 
-static void display_cards()
+static void display_cards(void)
 {
 	int i, j;
 	char suitcolor[4] = {TERM_YELLOW, TERM_L_RED, TERM_L_BLUE, TERM_L_GREEN};
@@ -1100,7 +1100,7 @@ static void display_cards()
 	}
 }
 
-static int do_poker()
+static int do_poker(void)
 {
 	int i, k = 2;
 	char cmd;
@@ -1921,7 +1921,7 @@ static bool kakutoujou(void)
 	char out_val[160], tmp_str[80];
 	cptr p;
 
-	if ((turn - old_battle) > 5000)
+	if ((turn - old_battle) > TURNS_PER_TICK*250)
 	{
 		battle_monsters();
 		old_battle = turn;
@@ -2186,7 +2186,7 @@ static bool kankin(void)
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
-			sprintf(buf, "Convert %s into maney? ",o_name);
+			sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 			if (get_check(buf))
 			{
@@ -2214,7 +2214,7 @@ static bool kankin(void)
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
-			sprintf(buf, "Convert %s into maney? ",o_name);
+			sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 			if (get_check(buf))
 			{
@@ -2242,7 +2242,7 @@ static bool kankin(void)
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
-			sprintf(buf, "Convert %s into maney? ",o_name);
+			sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 			if (get_check(buf))
 			{
@@ -2271,7 +2271,7 @@ static bool kankin(void)
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
-			sprintf(buf, "Convert %s into maney? ",o_name);
+			sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 			if (get_check(buf))
 			{
@@ -2299,7 +2299,7 @@ static bool kankin(void)
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
-			sprintf(buf, "Convert %s into maney? ",o_name);
+			sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 			if (get_check(buf))
 			{
@@ -2330,7 +2330,7 @@ static bool kankin(void)
 #ifdef JP
 				sprintf(buf, "%s を換金しますか？",o_name);
 #else
-				sprintf(buf, "Convert %s into maney? ",o_name);
+				sprintf(buf, "Convert %s into money? ",o_name);
 #endif
 				if (get_check(buf))
 				{
@@ -2685,8 +2685,8 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 			break;
 
 		case BACT_REST: /* Rest for the night */
-			dawnval = ((turn % (20L * TOWN_DAWN)));
-			if (dawnval > 50000)
+			dawnval = ((turn % (TURNS_PER_TICK * TOWN_DAWN)));
+			if (dawnval > (TURNS_PER_TICK * TOWN_DAWN)/4)
 			{  /* nighttime */
 				if ((p_ptr->poisoned) || (p_ptr->cut))
 				{
@@ -2712,11 +2712,11 @@ msg_print("すみません、でもうちで誰かに死なれちゃ困りますんで。");
 #else
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over night at the inn");
 #endif
-					turn = ((turn / 100000) + 1) * 100000;
-					if (((oldturn + 5L * TOWN_DAWN) % (20L * TOWN_DAWN)) > 50000L) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+					turn = (turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);
+					if (((oldturn + TURNS_PER_TICK * TOWN_DAWN / 4) % (TURNS_PER_TICK * TOWN_DAWN)) > TURNS_PER_TICK * TOWN_DAWN/4) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
 					p_ptr->chp = p_ptr->mhp;
 
-					dungeon_turn += MIN(turn - oldturn, 5000);
+					dungeon_turn += MIN(turn - oldturn, TURNS_PER_TICK*250);
 
 					if (ironman_nightmare)
 					{
@@ -3034,7 +3034,7 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows,
-                                int r, int c, int mult, char attr[80],
+                                int r, int c, int mult, cptr attr,
                                 u32b f1, u32b f2, u32b f3, byte color)
 {
 	char tmp_str[80];
@@ -4081,7 +4081,7 @@ msg_print("お金が足りません！");
 				/* Do nothing */
 		break;
 	case BACT_RESEARCH_ITEM:
-		paid = identify_fully(FALSE);
+		paid = identify_fully(FALSE, FALSE);
 		break;
 	case BACT_TOWN_HISTORY:
 		town_history();
@@ -4149,7 +4149,7 @@ msg_print("お金が足りません！");
 		paid = TRUE;
 		break;
 	case BACT_IDENT_ONE: /* needs work */
-		paid = ident_spell(FALSE);
+		paid = ident_spell(FALSE, FALSE);
 		break;
 	case BACT_LEARN:
 		do_cmd_study();

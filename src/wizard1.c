@@ -180,6 +180,7 @@ static grouper group_item[] =
 { TV_ARCANE_BOOK,   "À‚À°ΩÒ° »ÎΩ—°À" },
 { TV_ENCHANT_BOOK,  "À‚À°ΩÒ° æ¢°À" },
 { TV_DAEMON_BOOK,   "À‚À°ΩÒ° ∞≠À‚°À" },
+{ TV_CRUSADE_BOOK,     "À‚À°ΩÒ° «ÀºŸ°À" },
 { TV_MUSIC_BOOK,    "≤ŒΩ∏" },
 { TV_HISSATSU_BOOK, "…∑›§ŒΩÒ" },
 #else
@@ -192,6 +193,7 @@ static grouper group_item[] =
 	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
 	{ TV_ENCHANT_BOOK,  "Books (Craft)" },
 	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
+	{ TV_CRUSADE_BOOK,     "Books (Crusade)" },
 	{ TV_MUSIC_BOOK,    "Song Books" },
 	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
 #endif
@@ -1903,7 +1905,7 @@ static void spoil_out(cptr str)
 /*
  *  Hook function used in spoil_mon_info()
  */
-void roff_func(byte attr, cptr str)
+static void roff_func(byte attr, cptr str)
 {
 	spoil_out(str);
 }

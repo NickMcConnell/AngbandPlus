@@ -3983,12 +3983,14 @@ s32b realm_choices1[] =
 	(CH_NONE),				/* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Mage */
-	(CH_LIFE | CH_DEATH | CH_DAEMON),       /* Priest */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Mage */
+	(CH_LIFE | CH_DEATH | CH_DAEMON |
+	 CH_CRUSADE),                              /* Priest */
 	(CH_SORCERY | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT),               /* Rogue */
 	(CH_NATURE),                            /* Ranger */
-	(CH_LIFE | CH_DEATH),                   /* Paladin */
+	(CH_CRUSADE | CH_DEATH),                   /* Paladin */
 	(CH_ARCANE),                            /* Warrior-Mage */
 	(CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
 	(CH_LIFE | CH_NATURE | CH_DEATH |
@@ -3996,7 +3998,8 @@ s32b realm_choices1[] =
 	(CH_NONE),                              /* Mindcrafter */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* High-Mage */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* High-Mage */
 	(CH_ARCANE),                            /* Tourist */
 	(CH_NONE),                              /* Imitation */
 	(CH_TRUMP),                             /* Beastmaster */
@@ -4007,7 +4010,7 @@ s32b realm_choices1[] =
 	(CH_NONE),                              /* Red Mage */
 	(CH_HISSATSU),                          /* Samurai */
 	(CH_LIFE | CH_NATURE | CH_DEATH |
-	 CH_ENCHANT),                           /* ForceTrainer */
+	 CH_ENCHANT | CH_CRUSADE),                 /* ForceTrainer */
 	(CH_NONE),                              /* Blue Mage */
 	(CH_NONE),				/* Kihei */
 	(CH_NONE),				/* Berserker */
@@ -4021,17 +4024,20 @@ s32b realm_choices2[] =
 	(CH_NONE),                              /* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Mage */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Mage */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Priest */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Priest */
 	(CH_NONE),                              /* Rogue */
 	(CH_SORCERY | CH_CHAOS | CH_DEATH |
 	 CH_TRUMP | CH_ARCANE | CH_DAEMON),     /* Ranger */
 	(CH_NONE),                              /* Paladin */
 	(CH_LIFE | CH_NATURE | CH_CHAOS |
 	 CH_DEATH | CH_TRUMP | CH_ARCANE |
-	 CH_SORCERY | CH_ENCHANT | CH_DAEMON),  /* Warrior-Mage */
+	 CH_SORCERY | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Warrior-Mage */
 	(CH_NONE),                              /* Chaos-Warrior */
 	(CH_NONE),                              /* Monk */
 	(CH_NONE),                              /* Mindcrafter */
@@ -4067,7 +4073,7 @@ cptr realm_names[] =
 	"秘術",
 	"匠",
 	"悪魔",
-	"不明",
+	"破邪",
 	"不明",
 	"不明",
 	"不明",
@@ -4095,7 +4101,7 @@ cptr realm_names[]
 	"Arcane",
 	"Craft",
 	"Daemon",
-	"unknown",
+	"Crusade",
 	"unknown",
 	"unknown",
 	"unknown",
@@ -4115,41 +4121,41 @@ cptr spell_names[VALID_REALM][32] =
 	/*** Life Spells ***/
 	{
 		/* Common Life Spellbooks */
-"邪悪存在感知",
 "軽傷の治癒",
 "祝福",
-"恐怖除去",
+"軽傷",
 "光の召喚",
 "罠 & 隠し扉感知",
 "重傷の治癒",
+"解毒",
 "空腹充足",
 
 "解呪",
-"解毒",
+"重傷",
 "致命傷の治癒",
-"透明視認",
-"聖なる光球",
-"対邪悪結界",
+"耐熱耐寒",
+"周辺感知",
+"パニック・アンデッド",
 "体力回復",
 "結界の紋章",
 
 		/* Rare Life Spellbooks */
-"悪魔払い",
 "*解呪*",
-"アンデッド & 悪魔退散",
+"鑑識",
+"アンデッド退散",
 "凪の刻",
-"邪悪退散",
-"邪悪追放",
-"聖なる御言葉",
+"致命傷",
+"帰還の詔",
+"真実の祭壇",
 "真・結界",
 
-"士気高揚",
-"祈り",
+"不毛化",
+"全感知",
 "アンデッド消滅",
+"千里眼",
 "全復活",
 "*体力回復*",
 "聖なるビジョン",
-"神威",
 "究極の耐性"
 	},
 
@@ -4495,6 +4501,49 @@ cptr spell_names[VALID_REALM][32] =
 
 	},
 
+	/*** Crusade Spells ***/
+
+	{
+		/* Common Crusade Spellbooks */
+"電撃",
+"邪悪存在感知",
+"恐怖除去",
+"モンスター恐慌",
+"聖域",
+"入口",
+"スターダスト",
+"身体浄化",
+
+"邪悪飛ばし",
+"聖なる光球",
+"悪魔払い",
+"解呪",
+"透明視認",
+"対邪悪結界",
+"裁きの雷",
+"聖なる御言葉",
+
+		/* Rare Crusade Spellbooks */
+"開かれた道",
+"封魔",
+"聖なるオーラ",
+"アンデッド&悪魔退散",
+"邪悪退散",
+"聖なる刃",
+"スターバースト",
+"天使召喚",
+
+"士気高揚",
+"呪い退散",
+"邪悪追放",
+"ハルマゲドン",
+"目には目を",
+"神の怒り",
+"神威",
+"聖戦",
+
+	},
+
 	/*** Music Spells ***/
 
 	/* 訳語
@@ -4590,41 +4639,41 @@ cptr spell_names[VALID_REALM][32] =
 	/*** Life Spells ***/
 	{
 		/* Common Life Spellbooks */
-		"Detect Evil",
 		"Cure Light Wounds",
 		"Bless",
-		"Remove Fear",
+		"Cause Light Wounds",
 		"Call Light",
 		"Detect Doors & Traps",
 		"Cure Medium Wounds",
+		"Cure Poison",   
 		"Satisfy Hunger",
 
 		"Remove Curse",
-		"Cure Poison",   
+		"Cause Medium Wounds",
 		"Cure Critical Wounds",
-		"Sense Unseen",
-		"Holy Orb",
-		"Protection from Evil",
+		"Resist Heat and Cold",
+		"Sense Surroundings",
+		"Turn Undead",
 		"Healing",
 		"Glyph of Warding",
 
 		/* Rare Life Spellbooks */
-		"Exorcism",
 		"Dispel Curse",
-		"Dispel Undead & Demons",
+		"Perception",
+		"Dispel Undead",
 		"Day of the Dove",
-		"Dispel Evil",
-		"Banishment",
-		"Holy Word",
+		"Cause Critical Wounds",
+		"Word of Recall",
+		"Alter Reality",
 		"Warding True",
 
-		"Heroism",
-		"Prayer",
-		"Turn Undead",
+		"Sterilization",
+		"Detection",
+		"Annihilate Undead",
+		"Clairvoyance",
 		"Restoration",
 		"Healing True",
 		"Holy Vision",
-		"Divine Intervention",
 		"Ultimate Resistance",
 	},
 
@@ -4960,6 +5009,48 @@ cptr spell_names[VALID_REALM][32] =
 		"Nether Storm",
 		"Bloody Curse",
 		"Polymorph Demonlord",
+	},
+
+	/*** Crusade Spells ***/
+
+	{
+		/* Common Crusade Spellbooks */
+		"Zap",
+		"Detect Evil",
+		"Remove Fear",
+		"Scare Monster",
+		"Sanctuary",
+		"Portal",
+		"Star Dust",
+		"Purify",
+
+		"Scatter Evil",
+		"Holy Orb",
+		"Exorcism",
+		"Remove Curse",
+		"Sense Unseen",
+		"Protection from Evil",
+		"Judgment Thunder",
+		"Warding True",
+
+		/* Rare Crusade Spellbooks */
+		"Unbarring Ways",
+		"Arrest",
+		"Holy Aura",
+		"Dispel Undead & Demons",
+		"Dispel Evil",
+		"Holy Blade",
+		"Star Burst",
+		"Summon Angel",
+
+		"Heroism",
+		"Dispel Curse",
+		"Banish Evil",
+		"Armageddon",
+		"An Eye for an Eye",
+		"Wrath of the God",
+		"Divine Intervention",
+		"Crusade",
 	},
 
 	/*** Music Spells ***/
@@ -6384,10 +6475,10 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &wear_confirm,                TRUE, 1, 5, 4,
+	{ &confirm_wear,                TRUE, 1, 5, 4,
 	"confirm_wear",                 "呪われた物を装備する時確認する" },
 #else
-	{ &wear_confirm,                TRUE, 1, 5, 4,
+	{ &confirm_wear,                TRUE, 1, 5, 4,
 	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 #endif
 
@@ -6402,10 +6493,10 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &target_pet,                  TRUE,  1, 2, 5,
+	{ &target_pet,                  FALSE,  1, 2, 5,
         "target_pet",                   "ペットをターゲットにする" },
 #else
-	{ &target_pet,                  TRUE,  1, 2, 5,
+	{ &target_pet,                  FALSE,  1, 2, 5,
 	"target_pet",                   "Allow targetting pets" },
 #endif
 
@@ -6536,11 +6627,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &skip_mutations,              FALSE, 2, 5, 0,
-	"skip_mutations",               "'C'コマンドで突然変異を表示する" },
+	{ &display_mutations,              FALSE, 2, 5, 0,
+	"display_mutations",               "'C'コマンドで突然変異を表示する" },
 #else
-	{ &skip_mutations,              FALSE, 2, 5, 0,
-	"skip_mutations",               "Display mutations in 'C'haracter Display" },
+	{ &display_mutations,              FALSE, 2, 5, 0,
+	"display_mutations",               "Display mutations in 'C'haracter Display" },
 #endif
 
 
@@ -6633,11 +6724,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &old_way_of_kaz,              TRUE,  2, 4, 5,
-        "old_way_of_kaz",               "アイテムの種類によって数え方を変える" },
+	{ &change_numeral,              TRUE,  2, 4, 5,
+        "change_numeral",               "アイテムの種類によって数え方を変える" },
 #else
-	{ &old_way_of_kaz,              TRUE,  99, 4, 5,
-        "old_way_of_kaz",               "Change a way to counting (japanese only)" },
+	{ &change_numeral,              TRUE,  99, 4, 5,
+        "change_numeral",               "Change a way to counting (japanese only)" },
 #endif
 
 
@@ -6725,6 +6816,15 @@ option_type option_info[] =
 
 
 #ifdef JP
+	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
+        "view_unsafe_grids",             "トラップ感知済みでない場所を表示する" },
+#else
+	{ &view_unsafe_grids,            FALSE, 3, 1, 8,
+	"view_unsafe_grids",             "Map marked by detect traps" },
+#endif
+
+
+#ifdef JP
 	{ &dungeon_stair,               TRUE,  3, 1, 9,
         "dungeon_stair",                "階段をつなげてダンジョンを生成する" },
 #else
@@ -6761,10 +6861,10 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &last_words,                  FALSE, 3, 0, 28,
+	{ &last_words,                  TRUE, 3, 0, 28,
 	"last_words",                   "キャラクターが死んだ時遺言をのこす" },
 #else
-	{ &last_words,                  FALSE, 3, 0, 28,
+	{ &last_words,                  TRUE, 3, 0, 28,
 	"last_words",                   "Leave last words when your character dies" },
 #endif
 
@@ -6802,7 +6902,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &find_cut,                    FALSE, 4, 0, 18,
-	"find_cut",                     "既知の曲り角は通過する" },
+	"find_cut",                     "曲り角を斜めに最短距離で通過する" },
 #else
 	{ &find_cut,                    FALSE, 4, 0, 18,
 	"find_cut",                     "Run past known corners" },
@@ -6811,7 +6911,7 @@ option_type option_info[] =
 
 #ifdef JP
 	{ &find_examine,                TRUE,  4, 0, 19,
-	"find_examine",                 "曲り角かもしれない場合通過する" },
+	"find_examine",                 "通路が暗い時になるべく曲り角と仮定して通過する" },
 #else
 	{ &find_examine,                TRUE,  4, 0, 19,
 	"find_examine",                 "Run into potential corners" },
@@ -6819,10 +6919,10 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &disturb_move,                TRUE,  4, 0, 20,
+	{ &disturb_move,                FALSE,  4, 0, 20,
         "disturb_move",                 "どこのモンスターが動いても行動を中止する" },
 #else
-	{ &disturb_move,                TRUE,  4, 0, 20,
+	{ &disturb_move,                FALSE,  4, 0, 20,
 	"disturb_move",                 "Disturb whenever any monster moves" },
 #endif
 
@@ -6882,11 +6982,28 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &alert_hitpoint,              FALSE, 4, 0, 26,
+	{ &alert_hitpoint,              TRUE, 4, 0, 26,
         "alert_hitpoint",               "低ヒットポイントの警告時にビープを鳴らす" },
 #else
-	{ &alert_hitpoint,              FALSE, 4, 0, 26,
+	{ &alert_hitpoint,              TRUE, 4, 0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
+        "disturb_trap_detect",          "トラップ感知範囲外に出る直前に行動を中止する" },
+#else
+	{ &disturb_trap_detect,         TRUE, 4, 0, 27,
+	"disturb_trap_detect",          "Disturb when leaving trap detected area"},
+#endif
+
+#ifdef JP
+	{ &alert_trap_detect,           FALSE, 4, 0, 25,
+        "alert_trap_detect",            "トラップ感知範囲外に出る直前に警告する" },
+#else
+	{ &alert_trap_detect,           FALSE, 4, 0, 25,
+	"alert_trap_detect",            "Alert when leaving trap detected area"},
 #endif
 
 
@@ -6911,11 +7028,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &avoid_abort,                 TRUE,  5, 1, 18,
-        "avoid_abort",                  "連続コマンドはキー入力で中断する" },
+	{ &check_abort,                 TRUE,  5, 1, 18,
+        "check_abort",                  "連続コマンドはキー入力で中断する" },
 #else
-	{ &avoid_abort,                 TRUE,  5, 1, 18,
-	"avoid_abort",                  "Check for user abort while continuous command" },
+	{ &check_abort,                 TRUE,  5, 1, 18,
+	"check_abort",                  "Check for user abort while continuous command" },
 #endif
 
 
@@ -6974,10 +7091,10 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &hilite_player,               TRUE,  5, 1, 27,
+	{ &hilite_player,               FALSE,  5, 1, 27,
 	"hilite_player",                "プレイヤーにカーソルを合わせる" },
 #else
-	{ &hilite_player,               TRUE,  5, 1, 27,
+	{ &hilite_player,               FALSE,  5, 1, 27,
 	"hilite_player",                "Hilite the player with the cursor" },
 #endif
 
@@ -7176,10 +7293,10 @@ option_type option_info[] =
 #endif
 
 #ifdef JP
-        { &leave_worth,                 FALSE, 7, 7, 2,
+        { &leave_worth,                 TRUE, 7, 7, 2,
         "leave_worth",                  "価値があるアイテムは壊さない" },
 #else
-        { &leave_worth,                 FALSE, 7, 7, 2,
+        { &leave_worth,                 TRUE, 7, 7, 2,
         "leave_worth",                  "Auto-destroyer leaves known worthy items" },
 #endif
 
@@ -7192,18 +7309,18 @@ option_type option_info[] =
 #endif
 
 #ifdef JP
-        { &leave_chest,                 FALSE, 7, 7, 7,
+        { &leave_chest,                 TRUE, 7, 7, 7,
         "leave_chest",                  "開封されていない箱は壊さない" },
 #else
-        { &leave_chest,                 FALSE, 7, 7, 7,
+        { &leave_chest,                 TRUE, 7, 7, 7,
         "leave_chest",                  "Auto-destroyer leaves closed chests" },
 #endif
 
 #ifdef JP
-        { &leave_wanted,                FALSE, 7, 7, 4,
+        { &leave_wanted,                TRUE, 7, 7, 4,
         "leave_wanted",                 "賞金首の死体/骨は壊さない" },
 #else
-        { &leave_wanted,                FALSE, 7, 7, 4,
+        { &leave_wanted,                TRUE, 7, 7, 4,
         "leave_wanted",                 "Auto-destroyer leaves wanted corpses" },
 #endif
 

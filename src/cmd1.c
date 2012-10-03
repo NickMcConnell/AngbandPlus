@@ -247,7 +247,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 					r_ptr->r_flags3 |= RF3_ANIMAL;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 25) mult = 25;
 			}
 
 			/* Slay Evil */
@@ -271,7 +271,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 					r_ptr->r_flags2 |= RF2_HUMAN;
 				}
 
-				if (mult < 20) mult = 20;
+				if (mult < 25) mult = 25;
 			}
 
 			/* Slay Undead */
@@ -688,7 +688,6 @@ void py_pickup_aux(int o_idx)
 	char old_name[MAX_NLEN];
 	char kazu_str[80];
 	int hirottakazu;
-	extern char *object_desc_kosuu(char *t, object_type *o_ptr);
 #else
 	char o_name[MAX_NLEN];
 #endif
@@ -766,666 +765,6 @@ void py_pickup_aux(int o_idx)
 #endif
 
 			msg_print(NULL);
-		}
-	}
-}
-
-
-bool can_player_destroy_object(object_type *o_ptr)
-{
-	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
-	{
-		byte feel = FEEL_SPECIAL;
-
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
-
-		/* Hack -- inscribe the artifact */
-		o_ptr->feeling = feel;
-
-		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Redraw equippy chars */
-		p_ptr->redraw |= (PR_EQUIPPY);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-		/* Done */
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-/** 自動拾い判定 **/
-
-int is_autopick(object_type *o_ptr)
-{
-	int i;
-	char o_name[MAX_NLEN];
-	cptr str;
-#ifdef JP
-	static char kanji_colon[] = "：";
-#endif
-
-	if (o_ptr->tval == TV_GOLD) return -1;
-	
-	object_desc(o_name, o_ptr, FALSE, 3);
-	for (i = 0; o_name[i]; i++)
-	{
-#ifdef JP
-		if (iskanji(o_name[i]))
-			i++;
-		else
-#endif
-		if (isupper(o_name[i]))
-			o_name[i] = tolower(o_name[i]);
-	}
-	
-	for (i=0; i<max_autopick; i++)
-	{
-		int len = 0;
-		bool collectable = FALSE;
-		bool flag = FALSE;
-
-		str = autopick_name[i];
-
-#ifdef JP		
-		/*** すべての... ***/
-		if (!strncmp(str, "すべての", 8)) str+= 8;
-
-		/*** 既に持っているアイテム ***/
-		if (!strncmp(str, "収集中の", 8))
-		{
-			collectable = TRUE;
-			str+= 8;
-		}
-
-		/*** 未鑑定の... ***/
-		if (!strncmp(str, "未鑑定の",8) &&
-		    !object_known_p(o_ptr) && !( (o_ptr->ident)&IDENT_SENSE)) str+= 8;
-		
-		/*** 鑑定済みの... ***/
-		if (!strncmp(str, "鑑定済みの",10) &&
-		    object_known_p(o_ptr) ) str+= 10;
-
-		/*** *鑑定*済みの... ***/
-		if (!strncmp(str, "*鑑定*済みの",12) &&
-		    object_known_p(o_ptr) && (o_ptr->ident & IDENT_MENTAL) ) str+= 12;
-		
-		/*** 無銘の... ***/
-		if (!strncmp(str, "無銘の", 6)
-		    && (object_known_p(o_ptr)) && !o_ptr->inscription
-		    && (!o_ptr->name1 && !o_ptr->name2 && !o_ptr->art_name))
-		{
-			switch (o_ptr->tval)
-			{
-			case TV_SHOT: case TV_ARROW: case TV_BOLT: case TV_BOW:
-			case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD: 
-			case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
-			case TV_SHIELD: case TV_CLOAK:
-			case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
-			case TV_LITE: case TV_AMULET: case TV_RING: case TV_CARD:
-				str += 6;
-			}
-		}
-		
-		/*** 未判明の...  ***/
-		if (!strncmp(str, "未判明の",8) && 
-		    !object_aware_p(o_ptr)) str+= 8;
-		
-		/*** 無価値の... ***/
-		if (!strncmp(str, "無価値の", 8)
-		    && object_value(o_ptr) <= 0) str+= 8;
-		
-		/*** ダイス目2 ***/
-		if (o_ptr->tval != TV_BOW && !strncmp(str, "ダイス目の違う", 14))
-		{
-			object_kind *k_ptr = &k_info[o_ptr->k_idx];
-			
-			if ((o_ptr->dd != k_ptr->dd) || (o_ptr->ds != k_ptr->ds))
-			{
-				str += 14;
-			}
-		}
-		
-		/*** ダイス目 ***/
-		if (!strncmp(str, "ダイス目", 8) && isdigit(*(str + 8)) && isdigit(*(str + 9))){
-			if ( (o_ptr->dd) * (o_ptr->ds) >= (*(str+8)-'0') * 10 + (*(str + 9)-'0')) str+= 10;
-			if (!strncmp(str, "以上の", 6)) str+= 6;
-		}
-		
-		/*** 賞金首の死体/骨 ***/
-		if (!strncmp(str, "賞金首の", 8) &&
-		    (o_ptr->tval == TV_CORPSE) &&
-		    object_is_shoukinkubi(o_ptr)) str+= 8;
-		
-		/*** ユニーク・モンスターの死体/骨 ***/
-		if (!strncmp(str, "ユニーク・モンスターの", 22) &&
-		    ((o_ptr->tval == TV_CORPSE) || (o_ptr->tval == TV_STATUE)) &&
-		    (r_info[o_ptr->pval].flags1 & RF1_UNIQUE)) str+= 22;
-		
-		/*** 人間の死体/骨 (for Daemon) ***/
-		if (!strncmp(str, "人間の", 6) &&
-		    (o_ptr->tval == TV_CORPSE) &&
-		    (strchr("pht", r_info[o_ptr->pval].d_char))) str+= 6;
-		
-		/*** 今の職業で使えない魔法書 ***/
-		if (!strncmp(str, "読めない", 8) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    !check_book_realm(o_ptr->tval, o_ptr->sval)) str += 8;
-		
-		/*** 第一領域の魔法書 ***/
-		if (!strncmp(str, "第一領域の", 10) &&
-		    !(p_ptr->pclass == CLASS_SORCERER) &&
-		    !(p_ptr->pclass == CLASS_RED_MAGE) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (REALM1_BOOK == o_ptr->tval) ) str += 10;
-		
-		/*** 第二領域の魔法書 ***/
-		if (!strncmp(str, "第二領域の", 10) &&
-		    !(p_ptr->pclass == CLASS_SORCERER) &&
-		    !(p_ptr->pclass == CLASS_RED_MAGE) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (REALM2_BOOK == o_ptr->tval) ) str += 10;
-		
-		/*** n冊目の魔法書 ***/
-		if (!strncmp(str + 1, "冊目の", 6) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (*str == '1' + o_ptr->sval) ) str += 6 + 1;
-		
-		
-		/*** アイテムのカテゴリ指定予約語 ***/
-		if (!strncmp(str, "アイテム",8)) len = 8;
-		
-		else if (!strncmp(str, "アーティファクト", 16)){
-			if (object_known_p(o_ptr)
-			    && (artifact_p(o_ptr) || o_ptr->art_name))
-				len = 16;
-		}
-
-		else if (!strncmp(str, "武器", 4)){
-			switch( o_ptr->tval ){
-			case TV_BOW:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_DIGGING:
-			{len =  4; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "防具", 4)){
-			switch( o_ptr->tval ){
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_CLOAK:
-			case TV_CROWN:
-			case TV_HELM:
-			case TV_SHIELD:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{len =  4; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "矢", 2)){
-			switch( o_ptr->tval ){
-			case TV_SHOT:
-			case TV_BOLT:
-			case TV_ARROW:
-			{len =  2;break;}
-			}
-		}
-		
-		else if (!strncmp(str, "魔法アイテム", 12)){
-			switch( o_ptr->tval ){
-			case TV_SCROLL:
-			case TV_STAFF:
-			case TV_WAND:
-			case TV_ROD:
-			{len =  12; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "光源", 4)){
-			switch( o_ptr->tval ){
-			case TV_LITE:
-			{len =  4; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "がらくた", 8)){
-			switch( o_ptr->tval ){
-			case TV_SKELETON:
-			case TV_BOTTLE:
-			case TV_JUNK:
-			case TV_STATUE:
-			{len =  8; break;}
-			}
-		}
-		else if (!strncmp(str, "魔法書", 6) &&
-			 o_ptr->tval >= TV_LIFE_BOOK) len = 6;
-		else if (!strncmp(str, "鈍器", 4) &&
-			 o_ptr->tval == TV_HAFTED) len = 4;
-		else if (!strncmp(str, "盾", 2) &&
-			 o_ptr->tval == TV_SHIELD) len = 2;
-		else if (!strncmp(str, "弓", 2) &&
-			 o_ptr->tval == TV_BOW) len = 2;
-		else if (!strncmp(str, "指輪", 4) &&
-			 o_ptr->tval == TV_RING) len = 4;
-		else if (!strncmp(str, "アミュレット", 12) &&
-			 o_ptr->tval == TV_AMULET) len = 12;
-		else if (!strncmp(str, "鎧", 2) &&
-			 (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_HARD_ARMOR ||
-			  o_ptr->tval == TV_SOFT_ARMOR)) len = 2;
-		else if (!strncmp(str, "クローク", 8) &&
-			 o_ptr->tval == TV_CLOAK) len = 8;
-		else if (!strncmp(str, "兜", 2) &&
-			 (o_ptr->tval == TV_CROWN || o_ptr->tval == TV_HELM)) len = 2;
-		else if (!strncmp(str, "籠手", 4) &&
-			 o_ptr->tval == TV_GLOVES) len = 4;
-		else if (!strncmp(str, "靴", 2) &&
-			 o_ptr->tval == TV_BOOTS) len = 2;
-
-		str += len;
-		if (*str == 0)
-			flag = TRUE;
-		else if (*str == ':')
-			str += 1;
-		else if (*str == kanji_colon[0] && *(str+1) == kanji_colon[1])
-			str += 2;
-		else if (len)
-			continue;
-#else
-#define NEXT_WORD(len) (void)(str += len, str += (' '==*str)?1:0)
-
-		/*** すべての... ***/
-		if (!strncmp(str, "all", 3)) NEXT_WORD(3);
-
-		/*** 既に持っているアイテム ***/
-		if (!strncmp(str, "collecting", 10))
-		{
-			collectable = TRUE;
-			NEXT_WORD(10);
-		}
-
-		/*** 未鑑定の... ***/
-		if (!strncmp(str, "unidentified",12) &&
-		    !object_known_p(o_ptr) && !( (o_ptr->ident)&IDENT_SENSE)) NEXT_WORD(12);
-		
-		/*** 鑑定済みの... ***/
-		if (!strncmp(str, "identified",10) &&
-		    object_known_p(o_ptr) ) NEXT_WORD(10);
-
-		/*** *鑑定*済みの... ***/
-		if (!strncmp(str, "*identified*",12) &&
-		    object_known_p(o_ptr) && (o_ptr->ident & IDENT_MENTAL) ) NEXT_WORD(12);
-		
-		/*** 無銘の... ***/
-		if (!strncmp(str, "nameless", 8)
-		    && (object_known_p(o_ptr)) && !o_ptr->inscription
-		    && (!o_ptr->name1 && !o_ptr->name2 && !o_ptr->art_name))
-		{
-			switch (o_ptr->tval)
-			{
-			case TV_SHOT: case TV_ARROW: case TV_BOLT: case TV_BOW:
-			case TV_DIGGING: case TV_HAFTED: case TV_POLEARM: case TV_SWORD: 
-			case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
-			case TV_SHIELD: case TV_CLOAK:
-			case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
-			case TV_LITE: case TV_AMULET: case TV_RING: case TV_CARD:
-				str += 9;
-			}
-		}
-		
-		/*** 未判明の...  ***/
-		if (!strncmp(str, "unaware",7) && 
-		    !object_aware_p(o_ptr)) NEXT_WORD(7);
-		
-		/*** 無価値の... ***/
-		if (!strncmp(str, "worthless", 9)
-		    && object_value(o_ptr) <= 0) NEXT_WORD(9);
-		
-		/*** ダイス目2 ***/
-		if (o_ptr->tval != TV_BOW && !strncmp(str, "dice boosted", 12))
-		{
-			object_kind *k_ptr = &k_info[o_ptr->k_idx];			
-			if ((o_ptr->dd != k_ptr->dd) || (o_ptr->ds != k_ptr->ds))
-				str += 13;
-		}
-		
-		/*** ダイス目 ***/
-		if (!strncmp(str, "more than ", 10) &&
-		    !strncmp(str+2+10, " dice ", 6) &&
-		    isdigit(str[10]) && isdigit(str[11]) &&
-		    o_ptr->dd * o_ptr->ds >= (str[10]-'0') * 10 + (str[11]-'0'))
-			NEXT_WORD(10+2+6);
-		
-		/*** 賞金首の死体/骨 ***/
-		if (!strncmp(str, "wanted", 6) &&
-		    (o_ptr->tval == TV_CORPSE) &&
-		    object_is_shoukinkubi(o_ptr)) NEXT_WORD(6);
-		
-		/*** ユニーク・モンスターの死体/骨 ***/
-		if (!strncmp(str, "unique monster's", 16) &&
-		    ((o_ptr->tval == TV_CORPSE) || (o_ptr->tval == TV_STATUE)) &&
-		    (r_info[o_ptr->pval].flags1 & RF1_UNIQUE)) NEXT_WORD(16);
-		
-		/*** 人間の死体/骨 (for Daemon) ***/
-		if (!strncmp(str, "human", 5) &&
-		    (o_ptr->tval == TV_CORPSE) &&
-		    (strchr("pht", r_info[o_ptr->pval].d_char))) NEXT_WORD(5);
-		
-		/*** 今の職業で使えない魔法書 ***/
-		if (!strncmp(str, "unreadable", 10) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    !check_book_realm(o_ptr->tval, o_ptr->sval)) NEXT_WORD(10);
-		
-		/*** 第一領域の魔法書 ***/
-		if (!strncmp(str, "first realm's", 13) &&
-		    !(p_ptr->pclass == CLASS_SORCERER) &&
-		    !(p_ptr->pclass == CLASS_RED_MAGE) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (REALM1_BOOK == o_ptr->tval) ) NEXT_WORD(13);
-		
-		/*** 第二領域の魔法書 ***/
-		if (!strncmp(str, "second realm's", 14) &&
-		    !(p_ptr->pclass == CLASS_SORCERER) &&
-		    !(p_ptr->pclass == CLASS_RED_MAGE) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (REALM2_BOOK == o_ptr->tval) ) NEXT_WORD(14);
-		
-		/*** n冊目の魔法書 ***/
-		if (!strncmp(str, "first", 5) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (0 == o_ptr->sval) ) NEXT_WORD(5);
-		if (!strncmp(str, "second", 6) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (1 == o_ptr->sval) ) NEXT_WORD(6);
-		if (!strncmp(str, "third", 5) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (2 == o_ptr->sval) ) NEXT_WORD(5);
-		if (!strncmp(str, "fourth", 6) &&
-		    (o_ptr->tval >= TV_LIFE_BOOK) &&
-		    (3 == o_ptr->sval) ) NEXT_WORD(6);
-		
-		/*** アイテムのカテゴリ指定予約語 ***/
-		if (!strncmp(str, "items",5)) len = 5;
-		
-		else if (!strncmp(str, "artifacts", 9)){
-			if (object_known_p(o_ptr)
-			    && (artifact_p(o_ptr) || o_ptr->art_name))
-				len = 9;
-		}
-
-		else if (!strncmp(str, "weapons", 7)){
-			switch( o_ptr->tval ){
-			case TV_BOW:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_DIGGING:
-			{len =  7; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "armors", 6)){
-			switch( o_ptr->tval ){
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_CLOAK:
-			case TV_CROWN:
-			case TV_HELM:
-			case TV_SHIELD:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{len =  6; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "missiles", 8)){
-			switch( o_ptr->tval ){
-			case TV_SHOT:
-			case TV_BOLT:
-			case TV_ARROW:
-			{len =  8;break;}
-			}
-		}
-		
-		else if (!strncmp(str, "magical devices", 15)){
-			switch( o_ptr->tval ){
-			case TV_SCROLL:
-			case TV_STAFF:
-			case TV_WAND:
-			case TV_ROD:
-			{len =  15; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "lights", 6)){
-			switch( o_ptr->tval ){
-			case TV_LITE:
-			{len =  6; break;}
-			}
-		}
-		
-		else if (!strncmp(str, "junks", 5)){
-			switch( o_ptr->tval ){
-			case TV_SKELETON:
-			case TV_BOTTLE:
-			case TV_JUNK:
-			case TV_STATUE:
-			{len =  5; break;}
-			}
-		}
-		else if (!strncmp(str, "spellbooks", 10) &&
-			 o_ptr->tval >= TV_LIFE_BOOK) len = 10;
-		else if (!strncmp(str, "hafted weapons", 14) &&
-			 o_ptr->tval == TV_HAFTED) len = 14;
-		else if (!strncmp(str, "shields", 7) &&
-			 o_ptr->tval == TV_SHIELD) len = 7;
-		else if (!strncmp(str, "bows", 4) &&
-			 o_ptr->tval == TV_BOW) len = 4;
-		else if (!strncmp(str, "rings", 5) &&
-			 o_ptr->tval == TV_RING) len = 5;
-		else if (!strncmp(str, "amulets", 7) &&
-			 o_ptr->tval == TV_AMULET) len = 7;
-		else if (!strncmp(str, "suits", 5) &&
-			 (o_ptr->tval == TV_DRAG_ARMOR || o_ptr->tval == TV_HARD_ARMOR ||
-			  o_ptr->tval == TV_SOFT_ARMOR)) len = 5;
-		else if (!strncmp(str, "cloaks", 6) &&
-			 o_ptr->tval == TV_CLOAK) len = 6;
-		else if (!strncmp(str, "helms", 5) &&
-			 (o_ptr->tval == TV_CROWN || o_ptr->tval == TV_HELM)) len = 5;
-		else if (!strncmp(str, "gloves", 6) &&
-			 o_ptr->tval == TV_GLOVES) len = 6;
-		else if (!strncmp(str, "boots", 5) &&
-			 o_ptr->tval == TV_BOOTS) len = 5;
-
-		str += len;
-		if (*str == 0)
-			flag = TRUE;
-		else if (*str == ':')
-			str += 1;
-		else if (len)
-			continue;
-#endif
-
-		if (*str == '^')
-		{
-			str++;
-			if (!strncmp(o_name, str, strlen(str)))
-				flag = TRUE;
-		}
-		else
-#ifdef JP
-			if (strstr_j(o_name, str))
-#else
-			if (strstr(o_name, str))
-#endif
-		{
-			flag = TRUE;
-		}
-
-		if (flag)
-		{
-			int j;
-			if (!collectable)
-				return i;
-			/* Check if there is a same item */
-			for (j = 0; j < INVEN_PACK; j++)
-			{
-				if (object_similar(&inventory[j], o_ptr))
-					return i;
-			}
-		}
-	}/* for */
-
-	return -1;
-}
-
-
-static bool is_autopick2( object_type *o_ptr) {
-      cptr s;
-
-      /* No inscription */
-      if (!o_ptr->inscription) return (FALSE);
-
-      /* Find a '=' */
-      s = strchr(quark_str(o_ptr->inscription), '=');
-
-      /* Process inscription */
-      while (s)
-      {
-              /* Auto-pickup on "=g" */
-              if (s[1] == 'g') return (TRUE);
-
-              /* Find another '=' */
-              s = strchr(s + 1, '=');
-      }
-
-      /* Don't auto pickup */
-      return (FALSE);
-}
-
-/*
- * Automatically destroy items in this grid.
- */
-static bool is_opt_confirm_destroy(object_type *o_ptr)
-{
-	if (!destroy_items) return FALSE;
-
-	/* Known to be worthless? */
-	if (leave_worth)
-		if (object_value(o_ptr) > 0) return FALSE;
-	
-	if (leave_equip)
-		if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_DRAG_ARMOR)) return FALSE;
-	
-	if (leave_chest)
-		if ((o_ptr->tval == TV_CHEST) && o_ptr->pval) return FALSE;
-	
-	if (leave_wanted)
-	{
-		if (o_ptr->tval == TV_CORPSE
-		    && object_is_shoukinkubi(o_ptr)) return FALSE;
-	}
-	
-	if (leave_corpse)
-		if (o_ptr->tval == TV_CORPSE) return FALSE;
-	
-	if (leave_junk)
-		if ((o_ptr->tval == TV_SKELETON) || (o_ptr->tval == TV_BOTTLE) || (o_ptr->tval == TV_JUNK) || (o_ptr->tval == TV_STATUE)) return FALSE;
-	
-	if (o_ptr->tval == TV_GOLD) return FALSE;
-	
-	return TRUE;
-}
-
-/*
- * Automatically pickup/destroy items in this grid.
- */
-static void auto_pickup_items(cave_type *c_ptr)
-{
-	s16b this_o_idx, next_o_idx = 0;
-	s16b inscribe_flags(object_type *o_ptr, cptr out_val);
-	
-	char o_name[MAX_NLEN];
-	int idx;
-	
-	/* Scan the pile of objects */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		/* Acquire object */
-		object_type *o_ptr = &o_list[this_o_idx];
-		
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-		idx = is_autopick(o_ptr);
-
-		if (idx >= 0 && autopick_insc[idx] && !o_ptr->inscription)
-			o_ptr->inscription = inscribe_flags(o_ptr, autopick_insc[idx]);
-
-		if (is_autopick2(o_ptr) ||
-		   (idx >= 0 && (autopick_action[idx] & DO_AUTOPICK)))
-		{
-			disturb(0,0);
-
-			if (!inven_carry_okay(o_ptr)){
-				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
-				/* Message */
-#ifdef JP
-				msg_format("ザックには%sを入れる隙間がない。", o_name);
-#else
-				msg_format("You have no room for %s.", o_name);
-#endif
-				continue;
-			}
-			py_pickup_aux(this_o_idx);
-
-			continue;
-		}
-		
-		else if ((idx == -1 && is_opt_confirm_destroy(o_ptr)) ||
-			 (!always_pickup && (idx != -1 && (autopick_action[idx] & DO_AUTODESTROY))))
-		{
-			disturb(0,0);
-			/* Describe the object (with {terrible/special}) */
-			object_desc(o_name, o_ptr, TRUE, 3);
-			/* Artifact? */
-			if (!can_player_destroy_object(o_ptr))
-			{
-				/* Message */
-#ifdef JP
-				msg_format("%sは破壊不能だ。", o_name);
-#else
-				msg_format("You cannot auto-destroy %s.", o_name);
-#endif
-				
-				/* Done */
-				continue;
-			}
-			/* Destroy the item */
-			delete_object_idx(this_o_idx);
-			
-			/* Print a message */
-#ifdef JP
-			msg_format("%sを自動破壊します。", o_name);
-#else
-			msg_format("Auto-destroying %s.", o_name);
-#endif
-			
-			continue;
 		}
 	}
 }
@@ -1868,7 +1207,7 @@ static void hit_trap(bool break_trap)
 			num = 2 + randint1(3);
 			for (i = 0; i < num; i++)
 			{
-				(void)summon_specific(0, y, x, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
+				(void)summon_specific(0, y, x, dun_level, 0, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_NO_PET));
 			}
 
 			if (dun_level > randint1(100)) /* No nasty effect for low levels */
@@ -2180,7 +1519,7 @@ msg_print("まばゆい閃光が走った！");
 }
 
 
-void touch_zap_player(monster_type *m_ptr)
+static void touch_zap_player(monster_type *m_ptr)
 {
 	int aura_damage = 0;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2277,7 +1616,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	int             dss, ddd;
 
-	char            *atk_desc;
+	cptr            atk_desc;
 
 	switch (attack)
 	{
@@ -3460,7 +2799,11 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 						{
 							case RACE_YEEK:
 							case RACE_KLACKON:
-							mult = 2;break;
+								mult = 20;break;
+							case RACE_HUMAN:
+							case RACE_AMBERITE:
+							case RACE_DUNADAN:
+								mult = 25;break;
 							case RACE_HALF_ORC:
 							case RACE_HALF_TROLL:
 							case RACE_HALF_OGRE:
@@ -3474,9 +2817,9 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 							case RACE_VAMPIRE:
 							case RACE_SPECTRE:
 							case RACE_DEMON:
-								mult = 3;break;
+								mult = 30;break;
 							case RACE_DRACONIAN:
-								mult = 5;break;
+								mult = 50;break;
 							default:
 								mult = 1;break;
 						}
@@ -3484,31 +2827,32 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					case MIMIC_DEMON:
 					case MIMIC_DEMON_LORD:
 					case MIMIC_VAMPIRE:
-						mult = 3;break;
+						mult = 30;break;
 					default:
-						mult = 1;break;
+						mult = 10;break;
 					}
 
-					if (p_ptr->align < 0 && mult < 2)
-						mult = 2;
-					if (!(p_ptr->resist_acid || p_ptr->oppose_acid) && (mult < 3))
-						mult = mult * 5 / 2;
-					if (!(p_ptr->resist_elec || p_ptr->oppose_elec) && (mult < 3))
-						mult = mult * 5 / 2;
-					if (!(p_ptr->resist_fire || p_ptr->oppose_fire) && (mult < 3))
-						mult = mult * 5 / 2;
-					if (!(p_ptr->resist_cold || p_ptr->oppose_cold) && (mult < 3))
-						mult = mult * 5 / 2;
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 3))
-						mult = mult * 5 / 2;
+					if (p_ptr->align < 0 && mult < 20)
+						mult = 20;
+					if (!(p_ptr->resist_acid || p_ptr->oppose_acid) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_elec || p_ptr->oppose_elec) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_fire || p_ptr->oppose_fire) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_cold || p_ptr->oppose_cold) && (mult < 25))
+						mult = 25;
+					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
+						mult = 25;
 
 					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);
-						mult = mult * 7 / 2;
+						mult = mult * 35;
 					}
 					k *= mult;
+					k /= 10;
 				}
 
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
@@ -3604,7 +2948,7 @@ bool py_attack(int y, int x, int mode)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+	if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -3638,14 +2982,8 @@ bool py_attack(int y, int x, int mode)
 	    !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
 	    p_ptr->shero || !m_ptr->ml))
 	{
-		if (inventory[INVEN_RARM].art_name)
-		{
-			if (inventory[INVEN_RARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
-		}
-		if (inventory[INVEN_LARM].art_name)
-		{
-			if (inventory[INVEN_LARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
-		}
+		if (inventory[INVEN_RARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
+		if (inventory[INVEN_LARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
 		if (stormbringer)
 		{
 #ifdef JP
@@ -4117,16 +3455,8 @@ void move_player(int dir, int do_pickup, bool break_trap)
 	m_ptr = &m_list[c_ptr->m_idx];
 
 
-	if (inventory[INVEN_RARM].art_name)
-	{
-		if (inventory[INVEN_RARM].name1 == ART_STORMBRINGER)
-			stormbringer = TRUE;
-	}
-	else if (inventory[INVEN_LARM].art_name)
-	{
-		if (inventory[INVEN_LARM].name1 == ART_STORMBRINGER)
-			stormbringer = TRUE;
-	}
+	if (inventory[INVEN_RARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
+	if (inventory[INVEN_LARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
@@ -4161,7 +3491,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 			monster_desc(m_name, m_ptr, 0);
 
 			/* Auto-Recall if possible and visible */
-			if (m_ptr->ml) monster_race_track((bool)(m_ptr->mflag2 & MFLAG_KAGE), m_ptr->r_idx);
+			if (m_ptr->ml) monster_race_track(m_ptr->ap_r_idx);
 
 			/* Track a new monster */
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
@@ -4594,8 +3924,6 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 				else
 				{
 					cave[py][px].feat = floor_type[randint0(100)];
-					cave[py][px].info &= ~(CAVE_MASK);
-					cave[py][px].info |= CAVE_FLOOR;
 				}
 			}
 				/* Update some things -- similar to GF_KILL_WALL */
@@ -4760,7 +4088,34 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			/* Hit the trap */
 			hit_trap(break_trap);
 		}
+
+		/* Warn when leaving trap detected region */
+		if ((disturb_trap_detect || alert_trap_detect)
+		    && p_ptr->dtrap && !(cave[py][px].info & CAVE_IN_DETECT))
+		{
+			/* No duplicate warning */
+			p_ptr->dtrap = FALSE;
+
+			/* You are just on the edge */
+			if (!(cave[py][px].info & CAVE_UNSAFE))
+			{
+				if (alert_trap_detect)
+				{
+#ifdef JP
+					msg_print("* 注意:この先はトラップの感知範囲外です！ *");
+#else
+					msg_print("*Leaving trap detect region!*");
+#endif
+				}
+				
+				if (disturb_trap_detect)
+				{
+					disturb(0, 0);
+				}
+			}
+		}
 	}
+
 	if (p_ptr->riding)
 	{
 		m_list[p_ptr->riding].fy = py;
@@ -4907,11 +4262,11 @@ static int see_nothing(int dir, int y, int x)
  * stop at 1. Another run right and down will enter the corridor
  * and make the corner, stopping at the 2.
  *
- * #@x    1
+ * ##################
+ * o@x       1
  * ########### ######
- * 2        #
+ * #2          #
  * #############
- * #
  *
  * After any move, the function area_affect is called to
  * determine the new surroundings, and the direction of
@@ -4924,10 +4279,10 @@ static int see_nothing(int dir, int y, int x)
  * respectively) to which you were not previously adjacent,
  * marked as '!' in the diagrams below.
  *
- * ...!   ...
- * .o@!   .o.!
- * ...!   ..@!
- * !!!
+ *   ...!              ...
+ *   .o@!  (normal)    .o.!  (diagonal)
+ *   ...!  (east)      ..@!  (south east)
+ *                      !!!
  *
  * You STOP if any of the new squares are interesting in any way:
  * for example, if they contain visible monsters or treasure.
@@ -4954,20 +4309,21 @@ static int see_nothing(int dir, int y, int x)
  * We assign "option" to the straight-on grid, and "option2" to the
  * diagonal grid, and "check_dir" to the grid marked 's'.
  *
- * .s
+ * ##s
  * @x?
- * #?
+ * #.?
  *
- * If they are both seen to be closed, then it is seen that no
- * benefit is gained from moving straight. It is a known corner.
- * To cut the corner, go diagonally, otherwise go straight, but
- * pretend you stepped diagonally into that next location for a
- * full view next time. Conversely, if one of the ? squares is
- * not seen to be closed, then there is a potential choice. We check
- * to see whether it is a potential corner or an intersection/room entrance.
- * If the square two spaces straight ahead, and the space marked with 's'
- * are both blank, then it is a potential corner and enter if find_examine
- * is set, otherwise must stop because it is not a corner.
+ * If they are both seen to be closed, then it is seen that no benefit
+ * is gained from moving straight. It is a known corner.  To cut the
+ * corner, go diagonally, otherwise go straight, but pretend you
+ * stepped diagonally into that next location for a full view next
+ * time. Conversely, if one of the ? squares is not seen to be closed,
+ * then there is a potential choice. We check to see whether it is a
+ * potential corner or an intersection/room entrance.  If the square
+ * two spaces straight ahead, and the space marked with 's' are both
+ * unknown space, then it is a potential corner and enter if
+ * find_examine is set, otherwise must stop because it is not a
+ * corner.
  */
 
 
@@ -5133,6 +4489,32 @@ static bool run_test(void)
 	/* Range of newly adjacent grids */
 	max = (prev_dir & 0x01) + 1;
 
+	/* break run when leaving trap detected region */
+	if ((disturb_trap_detect || alert_trap_detect)
+	    && p_ptr->dtrap && !(cave[py][px].info & CAVE_IN_DETECT))
+	{
+		/* No duplicate warning */
+		p_ptr->dtrap = FALSE;
+
+		/* You are just on the edge */
+		if (!(cave[py][px].info & CAVE_UNSAFE))
+		{
+			if (alert_trap_detect)
+			{
+#ifdef JP
+				msg_print("* 注意:この先はトラップの感知範囲外です！ *");
+#else
+				msg_print("*Leaving trap detect region!*");
+#endif
+			}
+
+			if (disturb_trap_detect)
+			{
+				/* Break Run */
+				return(TRUE);
+			}
+		}
+	}
 
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
@@ -5204,7 +4586,12 @@ static bool run_test(void)
 				case FEAT_MAGMA_H:
 				case FEAT_QUARTZ_H:
 
+				/* Known treasure (almost uninteresting) */
+				case FEAT_MAGMA_K:
+				case FEAT_QUARTZ_K:
+
 				/* Walls */
+				case FEAT_RUBBLE:
 				case FEAT_WALL_EXTRA:
 				case FEAT_WALL_INNER:
 				case FEAT_WALL_OUTER:

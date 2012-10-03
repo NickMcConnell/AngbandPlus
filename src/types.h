@@ -569,19 +569,21 @@ typedef struct monster_type monster_type;
 
 struct monster_type
 {
-	s16b r_idx;			/* Monster race index */
+	s16b r_idx;		/* Monster race index */
+	s16b ap_r_idx;		/* Monster race appearance index */
+	byte sub_align;		/* Sub-alignment for a neutral monster */
 
-	byte fy;			/* Y location on map */
-	byte fx;			/* X location on map */
+	byte fy;		/* Y location on map */
+	byte fx;		/* X location on map */
 
-	s16b hp;			/* Current Hit points */
-	s16b maxhp;			/* Max Hit points */
-	s16b max_maxhp;			/* Max Max Hit points */
+	s16b hp;		/* Current Hit points */
+	s16b maxhp;		/* Max Hit points */
+	s16b max_maxhp;		/* Max Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
 
-	byte mspeed;		/* Monster "speed" */
-	s16b energy;		/* Monster "energy" */
+	byte mspeed;	        /* Monster "speed" */
+	s16b energy_need;	/* Monster "energy" */
 
 	byte fast;		/* Monster is stunned */
 	byte slow;		/* Monster is stunned */
@@ -590,12 +592,12 @@ struct monster_type
 	byte monfear;		/* Monster is afraid */
 	byte invulner;          /* Monster is temporarily invulnerable */
 
-	byte cdis;			/* Current dis from player */
+	byte cdis;		/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
-	byte mflag2;			/* Extra monster flags */
+	byte mflag;		/* Extra monster flags */
+	byte mflag2;		/* Extra monster flags */
 
-	bool ml;			/* Monster is "visible" */
+	bool ml;		/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
@@ -1066,6 +1068,8 @@ struct player_type
 	byte mimic_form;
 	s16b tim_mimic;
 	s16b tim_sh_fire;
+	s16b tim_sh_holy;
+	s16b tim_eyeeye;
 
         /* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */
@@ -1083,17 +1087,17 @@ struct player_type
 	s16b word_recall;	/* Word of recall counter */
 	byte recall_dungeon;
 
-	s16b energy;		/* Current energy */
+	s16b energy_need;	/* Energy needed for next move */
 
-	s16b food;			/* Current nutrition */
+	s16b food;		/* Current nutrition */
 
-	u32b total_weight;		/* Total weight being carried */
+	u32b total_weight;	/* Total weight being carried */
 
 	u32b special_attack;	/* Special attack capacity -LM- */
 	u32b special_defense;	/* Special block capacity -LM- */
 	byte action;		/* Currently action */
 
-	s16b health_who;		/* Health bar trackee */
+	s16b health_who;	/* Health bar trackee */
 
 	s16b monster_race_idx;	/* Monster race trackee */
 
@@ -1280,6 +1284,44 @@ struct player_type
 
 	s16b run_py;
 	s16b run_px;
+
+	bool dtrap;
+};
+
+
+/*
+ * A structure to hold "rolled" information
+ */
+typedef struct birther birther;
+
+struct birther
+{
+	byte psex;         /* Sex index */
+	byte prace;        /* Race index */
+	byte pclass;       /* Class index */
+	byte pseikaku;     /* Seikaku index */
+	byte realm1;       /* First magic realm */
+	byte realm2;       /* Second magic realm */
+
+	s16b age;
+	s16b ht;
+	s16b wt;
+	s16b sc;
+
+	s32b au;
+
+	s16b stat_max[6];	/* Current "maximal" stat values */
+	s16b stat_max_max[6];	/* Maximal "maximal" stat values */
+	s16b player_hp[PY_MAX_LEVEL];
+
+	s16b chaos_patron;
+
+	s16b vir_types[8];
+
+	char history[4][60];
+
+	byte quests;
+	bool quick_ok;
 };
 
 
@@ -1537,5 +1579,15 @@ struct dungeon_info_type {
 };
 
 
-
+/*
+ *  A structure type for entry of auto-picker/destroyer
+ */
+typedef struct {
+	cptr name;          /* Items which have 'name' as part of its name match */
+	cptr insc;          /* Items will be auto-inscribed as 'insc' */
+	u32b flag[2];       /* Misc. keyword to be matched */
+	byte action;        /* Auto-pickup or Destroy or Leave items */
+	byte dice;          /* Weapons which have more than 'dice' dice match */
+	byte bonus;         /* Items which have more than 'bonus' magical bonus match */
+} autopick_type;
 

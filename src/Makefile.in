@@ -79,7 +79,7 @@ hengband_SOURCES = \
 	wizard1.c wizard2.c grid.c streams.c rooms.c \
 	generate.c dungeon.c init1.c init2.c \
 	effects.c racial.c inet.c report.c\
-	artifact.c mutation.c flavor.c spells3.c \
+	artifact.c autopick.c mutation.c flavor.c spells3.c \
 	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c \
 	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c \
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c \
@@ -115,8 +115,8 @@ monster2.o xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o save.o \
 files.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o store.o birth.o \
 load.o wizard1.o wizard2.o grid.o streams.o rooms.o generate.o \
 dungeon.o init1.o init2.o effects.o racial.o inet.o report.o artifact.o \
-mutation.o flavor.o spells3.o mspells1.o mspells2.o scores.o mind.o \
-mane.o hissatsu.o bldg.o obj_kind.o wild.o avatar.o japanese.o \
+autopick.o mutation.o flavor.o spells3.o mspells1.o mspells2.o scores.o \
+mind.o mane.o hissatsu.o bldg.o obj_kind.o wild.o avatar.o japanese.o \
 mspells3.o main-cap.o main-gcu.o main-x11.o main-xaw.o main.o chuukei.o
 hengband_LDADD = $(LDADD)
 hengband_DEPENDENCIES = 
@@ -267,6 +267,9 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 artifact.o: artifact.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+autopick.o: autopick.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h
 avatar.o: avatar.c angband.h h-basic.h autoconf.h h-config.h h-system.h \

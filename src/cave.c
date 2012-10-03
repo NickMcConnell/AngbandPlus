@@ -699,7 +699,7 @@ static byte lighting_colours[16][2] =
 	{TERM_WHITE, TERM_L_DARK},
 
 	/* TERM_ORANGE */
-	{TERM_YELLOW, TERM_UMBER},
+	{TERM_L_UMBER, TERM_UMBER},
 
 	/* TERM_RED */
 	{TERM_RED, TERM_RED},
@@ -735,7 +735,7 @@ static byte lighting_colours[16][2] =
 	{TERM_L_BLUE, TERM_L_BLUE},
 
 	/* TERM_L_UMBER */
-	{TERM_YELLOW, TERM_UMBER}
+	{TERM_L_UMBER, TERM_UMBER}
 };
 
 /*
@@ -877,7 +877,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	c_ptr = &cave[y][x];
 
 	/* Feature code */
-	feat = c_ptr->feat;
+	feat = c_ptr->mimic ? c_ptr->mimic : c_ptr->feat;
 
 	/* Floors (etc) */
 	if ((feat <= FEAT_INVIS) || (feat == FEAT_DIRT) || (feat == FEAT_GRASS))
@@ -994,7 +994,11 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Unknown */
 		else
 		{
-			feat = FEAT_NONE;
+			/* Unsafe cave grid -- idea borrowed from Unangband */
+			if (view_unsafe_grids && (c_ptr->info & (CAVE_UNSAFE)))
+				feat = FEAT_UNDETECTD;
+			else
+				feat = FEAT_NONE;
 
 			/* Access darkness */
 			f_ptr = &f_info[feat];
@@ -1198,7 +1202,11 @@ void map_info(int y, int x, byte *ap, char *cp)
                         /* Handle "blind" */
                         if (!(c_ptr->info & CAVE_MARK))
                         {
-                                feat = FEAT_NONE;
+				/* Unsafe cave grid -- idea borrowed from Unangband */
+				if (view_unsafe_grids && (c_ptr->info & (CAVE_UNSAFE)))
+					feat = FEAT_UNDETECTD;
+				else
+					feat = FEAT_NONE;
                         }
 
                         /* Access feature */
@@ -1316,13 +1324,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 	}
 
-	/* Hack -- rare random hallucination, except on outer dungeon walls */
-	if (p_ptr->image && (c_ptr->feat < FEAT_PERM_SOLID) && !randint0(256))
-	{
-		/* Hallucinate */
-		image_random(ap, cp);
-	}
-
 #ifdef USE_TRANSPARENCY
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
@@ -1332,6 +1333,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Save the info */
 	(*ap) = a;
 	(*cp) = c;
+
+	/* Hack -- rare random hallucination, except on outer dungeon walls */
+	if (p_ptr->image && (c_ptr->feat < FEAT_PERM_SOLID) && !randint0(256))
+	{
+		/* Hallucinate */
+		image_random(ap, cp);
+	}
 
 	/* Objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1355,7 +1363,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				if(match_autopick == -1)
 					continue;
 
-				act = autopick_action[match_autopick];
+				act = autopick_list[match_autopick].action;
 
 				if ((act & DO_DISPLAY) && (act & display_autopick))
 				{
@@ -1393,8 +1401,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if (m_ptr->ml)
 		{
 			monster_race *r_ptr;
-			if (m_ptr->mflag2 & MFLAG_KAGE) r_ptr = &r_info[MON_KAGE];
-			else r_ptr = &r_info[m_ptr->r_idx];
+			r_ptr = &r_info[m_ptr->ap_r_idx];
 
 			/* Desired attr */
 			a = r_ptr->x_attr;
@@ -1748,6 +1755,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 #ifdef JP
 /*
  * Table of Ascii-to-Zenkaku
+ * ¡Ö¢£¡×¤ÏÆóÇÜÉýÆ¦Éå¤ÎÆâÉô¥³¡¼¥É¤Ë»ÈÍÑ¡£
  */
 static char ascii_to_zenkaku[2*128+1] =  "\
 ¡¡¡ª¡É¡ô¡ð¡ó¡õ¡Ç¡Ê¡Ë¡ö¡Ü¡¤¡Ý¡¥¡¿\
@@ -1755,7 +1763,7 @@ static char ascii_to_zenkaku[2*128+1] =  "\
 ¡÷£Á£Â£Ã£Ä£Å£Æ£Ç£È£É£Ê£Ë£Ì£Í£Î£Ï\
 £Ð£Ñ£Ò£Ó£Ô£Õ£Ö£×£Ø£Ù£Ú¡Î¡À¡Ï¡°¡²\
 ¡Æ£á£â£ã£ä£å£æ£ç£è£é£ê£ë£ì£í£î£ï\
-£ð£ñ£ò£ó£ô£õ£ö£÷£ø£ù£ú¡Ð¡Ã¡Ñ¡Á¡¡";
+£ð£ñ£ò£ó£ô£õ£ö£÷£ø£ù£ú¡Ð¡Ã¡Ñ¡Á¢£";
 #endif
 
 /*
@@ -1766,14 +1774,14 @@ static void bigtile_attr(char *cp, byte *ap, char *cp2, byte *ap2)
 	if (*ap & 0x80)
 	{
 		*ap2 = 255;
-		*cp2 = 255;
+		*cp2 = -1;
 		return;
 	}
 
 #ifdef JP
-	if (isprint(*cp))
+	if (isprint(*cp) || *cp == 127)
 	{
-		*ap2 = *ap;
+		*ap2 = (*ap) | 0xf0;
 		*cp2 = ascii_to_zenkaku[2*(*cp-' ') + 1];
 		*cp = ascii_to_zenkaku[2*(*cp-' ')];
 		return;
@@ -2082,8 +2090,9 @@ void lite_spot(int y, int x)
 		}
 
 #ifdef JP
-		if (use_bigtile && !(a & 0x80) && isprint(c))
+		if (use_bigtile && !(a & 0x80) && (isprint(c) || c == 127))
 		{
+			/* Term_queue_chars ¤ÏÁ´³ÑASCIIÃÏ·Á¤òÀµ¤·¤¯update¤¹¤ë¡£ */
 			Term_queue_chars(panel_col_of(x), y-panel_row_prt, 2, a, &ascii_to_zenkaku[2*(c-' ')]);
 			return;
 		}
@@ -2093,12 +2102,12 @@ void lite_spot(int y, int x)
 		/* Hack -- Queue it */
 		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc);
 		if (use_bigtile)
-			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, 255, 0, 0);
+			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, -1, 0, 0);
 #else /* USE_TRANSPARENCY */
 		/* Hack -- Queue it */
 		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c);
 		if (use_bigtile)
-			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, 255);
+			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, -1);
 #endif /* USE_TRANSPARENCY */
 	}
 }
@@ -2634,7 +2643,7 @@ void display_map(int *cy, int *cx)
 #else
 	  {
 		  char buf[13] = "\0";
-		  strncpy(buf,autopick_name[match_autopick],12);
+		  strncpy(buf,autopick_list[match_autopick].name,12);
 		  buf[12] = '\0';
 		  put_str(buf,y,0); 
 	  }
@@ -3059,9 +3068,6 @@ void forget_lite(void)
  * list the "nearby" grids before the more "distant" ones in the
  * array of torch-lit grids.
  *
- * We will correctly handle "large" radius lites, though currently,
- * it is impossible for the player to have more than radius 3 lite.
- *
  * We assume that "radius zero" lite is in fact no lite at all.
  *
  *     Torch     Lantern     Artifacts
@@ -3179,7 +3185,7 @@ void update_lite(void)
 		int d;
 
 		/* Paranoia -- see "LITE_MAX" */
-		if (p > 5) p = 5;
+		if (p > 14) p = 14;
 
 		/* South-East of the player */
 		if (cave_floor_bold(py+1, px+1))
@@ -3342,8 +3348,6 @@ void update_mon_lite(void)
 
 	s16b end_temp;
 
-	bool daytime = ((turn % (20L * TOWN_DAWN)) < ((20L * TOWN_DAWN) / 2));
-
 	/* Clear all monster lit squares */
 	for (i = 0; i < mon_lite_n; i++)
 	{
@@ -3381,7 +3385,7 @@ void update_mon_lite(void)
 
 		/* Exit if has no light */
 		if (!rad) continue;
-		if (!(r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) && (m_ptr->csleep || (!dun_level && daytime) || p_ptr->inside_battle)) continue;
+		if (!(r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) && (m_ptr->csleep || (!dun_level && is_daytime()) || p_ptr->inside_battle)) continue;
 
 		if (world_monster) continue;
 
@@ -4975,10 +4979,8 @@ void health_track(int m_idx)
 /*
  * Hack -- track the given monster race
  */
-void monster_race_track(bool kage, int r_idx)
+void monster_race_track(int r_idx)
 {
-	if (kage) r_idx = MON_KAGE;
-
 	/* Save this monster ID */
 	p_ptr->monster_race_idx = r_idx;
 

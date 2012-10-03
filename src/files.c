@@ -327,6 +327,10 @@ static named_num gf_desc[] =
 	{"GF_SEEKER",			GF_SEEKER			},
 	{"GF_SUPER_RAY",		GF_SUPER_RAY			},
 	{"GF_STAR_HEAL",		GF_STAR_HEAL			},
+	{"GF_WATER_FLOW",		GF_WATER_FLOW			},
+	{"GF_CRUSADE",		GF_CRUSADE			},
+	{"GF_STASIS_EVIL",			GF_STASIS_EVIL		},
+	{"GF_WOUNDS",			GF_WOUNDS		},
 	{NULL, 						0						}
 };
 
@@ -1040,10 +1044,12 @@ static cptr process_pref_file_expr(char **sp, char *fp)
  */
 static errr process_pickpref_file_line(char *buf)
 {
-	char *s, *s2;
+	autopick_type entry;
 	int i;
-	byte act = 0;
 
+	if (max_autopick == MAX_AUTOPICK)
+		return 1;
+	
 	/* Nuke illegal char */
 	for(i = 0; buf[i]; i++)
 	{
@@ -1059,71 +1065,15 @@ static errr process_pickpref_file_line(char *buf)
 	}
 	buf[i] = 0;
 	
-	s = buf;
+	if (!autopick_new_entry(&entry, buf)) return 0;
 
-	act = DO_AUTOPICK | DO_DISPLAY;
-	while (1)
-	{
-		if (*s == '!')
-		{
-			act &= ~DO_AUTOPICK;
-			act |= DO_AUTODESTROY;
-			s++;
-		}
-		else if (*s == '~')
-		{
-			act &= ~DO_AUTOPICK;
-			act |= DONT_AUTOPICK;
-			s++;
-		}
-		else if (*s == '(')
-		{
-			act &= ~DO_DISPLAY;
-			s++;
-		}
-		else
-			break;
-	}
-
-	/* don't mind upper or lower case */
-	s2 = NULL;
-	for (i = 0; s[i]; i++)
-	{
-#ifdef JP
-		if (iskanji(s[i]))
-		{
-			i++;
-			continue;
-		}
-#endif
-		if (isupper(s[i]))
-			s[i] = tolower(s[i]);
-
-		/* Auto-inscription? */
-		if (s[i] == '#')
-		{
-			s[i] = '\0';
-			s2 = s + i + 1;
-			break;
-		}
-	}
-	
-	/* Skip empty line */
-	if (*s == 0)
-		return 0;
-	if (max_autopick == MAX_AUTOPICK)
-		return 1;
-	
 	/* Already has the same entry? */ 
 	for(i = 0; i < max_autopick; i++)
-		if(!strcmp(s, autopick_name[i]))
-			return 0;
+		if(!strcmp(entry.name, autopick_list[i].name)
+		   && entry.flag[0] == autopick_list[i].flag[0]
+		   && entry.flag[1] == autopick_list[i].flag[1]) return 0;
 
-	autopick_name[max_autopick] = string_make(s);
-	autopick_action[max_autopick] = act;
-
-	autopick_insc[max_autopick] = string_make(s2);
-	max_autopick++;
+	autopick_list[max_autopick++] = entry;
 	return 0;
 }
 
@@ -1932,23 +1882,16 @@ static void display_player_middle(void)
 
 	/* Dump Day */
 	{
-		s32b len = 20L * TOWN_DAWN;
-		s32b tick = turn % len + len / 4;
+		int day, hour, min;
+		extract_day_hour_min(&day, &hour, &min);
 
 		sprintf(buf, 
 #ifdef JP
-			"%ld日目 %2ld:%02ld", 
+			"%d日目 %2d:%02d", 
 #else
-			"Day %ld %2ld:%02ld", 
+			"Day %d %2d:%02d", 
 #endif
-			((p_ptr->prace == RACE_VAMPIRE) ||
-			 (p_ptr->prace == RACE_SKELETON) ||
-			 (p_ptr->prace == RACE_ZOMBIE) ||
-			 (p_ptr->prace == RACE_SPECTRE))
-			? (turn - (15L * TOWN_DAWN)) / len + 1
-			: (turn + (5L * TOWN_DAWN))/ len + 1,
-			(24 * tick / len) % 24,
-			(1440 * tick / len) % 60);
+			day, hour, min);
 	}
 	display_player_one_line(ENTRY_DAY, buf, TERM_L_GREEN);
 
@@ -2966,7 +2909,7 @@ static void player_vuln_flags(u32b *f1, u32b *f2, u32b *f3)
 /*
  * Helper function, see below
  */
-static void display_player_flag_aux(int row, int col, char *header,
+static void display_player_flag_aux(int row, int col, cptr header,
 				    int n, u32b flag1, u32b flag2,
 				    u32b im_f[], u32b vul_f)
 {
@@ -4023,7 +3966,7 @@ void display_player(int mode)
 
 
 	/* XXX XXX XXX */
-	if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && skip_mutations)
+	if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && display_mutations)
 		mode = (mode % 7);
 	else
 		mode = (mode % 6);
@@ -4055,7 +3998,7 @@ void display_player(int mode)
 			display_player_one_line(ENTRY_REALM, tmp, TERM_L_BLUE);
 		}
 
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
 			display_player_one_line(ENTRY_PATRON, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
@@ -4159,6 +4102,11 @@ void display_player(int mode)
 				{
 					if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
 					{
+						/* Get the quest text */
+						init_flags = INIT_ASSIGN;
+
+						process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+
 #ifdef JP
 						sprintf(statmsg, "…あなたは、クエスト「%s」で%sに殺された。", quest[p_ptr->inside_quest].name, died_from);
 #else
@@ -4187,6 +4135,11 @@ void display_player(int mode)
 				{
 					if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
 					{
+						/* Get the quest text */
+						init_flags = INIT_ASSIGN;
+
+						process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+
 #ifdef JP
 						sprintf(statmsg, "…あなたは現在、 クエスト「%s」を遂行中だ。", quest[p_ptr->inside_quest].name);
 #else
@@ -4381,10 +4334,10 @@ errr make_character_dump(FILE *fff)
 		fprintf(fff, "%s\n", buf);
 	}
 
-	for (i = 0; i < p_ptr->count / 80; i++)
+	for (i = 0; (unsigned int) i < (p_ptr->count / 80); i++)
 		fprintf(fff, " ");
 	fprintf(fff, "\n");
-	for (i = 0; i < p_ptr->count % 80; i++)
+	for (i = 0; (unsigned int) i < (p_ptr->count % 80); i++)
 		fprintf(fff, " ");
 
 	{
@@ -5058,6 +5011,9 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* Backup value for "line" */
 	int back = 0;
 
+	/* Color of the next line */
+	byte color = TERM_WHITE;
+
 	/* Loop counter */
 	int cnt;
 
@@ -5237,35 +5193,41 @@ msg_format("'%s'をオープンできません。", name);
 	/* Pre-Parse the file */
 	while (TRUE)
 	{
+		char *str;
+
 		/* Read a line or stop */
 		if (my_fgets(fff, buf, 1024)) break;
 
+		/* Get a color */
+		if (prefix(buf, "#####")) str = &buf[6];
+		else str = buf;
+
 		/* XXX Parse "menu" items */
-		if (prefix(buf, "***** "))
+		if (prefix(str, "***** "))
 		{
 			/* Notice "menu" requests */
-			if ((buf[6] == '[') && (isdigit(buf[7]) || isalpha(buf[7])))
+			if ((str[6] == '[') && isalpha(str[7]))
 			{
 				/* This is a menu file */
 				menu = TRUE;
 
 				/* Extract the menu item */
-				k = isdigit(buf[7]) ? D2I(buf[7]) : buf[7] - 'A' + 10;
+				k = str[7] - 'A';
 
-				if ((buf[8] == ']') && (buf[9] == ' '))
+				if ((str[8] == ']') && (str[9] == ' '))
 				{
 					/* Extract the menu item */
-					strncpy(hook[k], buf + 10, 31);
+					strncpy(hook[k], str + 10, 31);
 
 					/* Make sure it's null-terminated */
 					hook[k][31] = '\0';
 				}
 			}
 			/* Notice "tag" requests */
-			else if (buf[6] == '<')
+			else if (str[6] == '<')
 			{
-				buf[strlen(buf) - 1] = '\0';
-				add_tag(&tags, buf + 7, next);
+				str[strlen(str) - 1] = '\0';
+				add_tag(&tags, str + 7, next);
 			}
 
 			/* Skip this */
@@ -5292,8 +5254,8 @@ msg_format("'%s'をオープンできません。", name);
 		Term_clear();
 
 		/* Restart when necessary */
-		if (line >= size) line = 0;
-
+		if (line >= size - rows) line = size - rows;
+		if (line < 0) line = 0;
 
 		/* Re-open the file if needed */
 		if (next > line)
@@ -5324,9 +5286,12 @@ msg_format("'%s'をオープンできません。", name);
 			next++;
 		}
 
-		/* Dump the next rows lines of the file */
+		/* Dump the next 20, or rows, lines of the file */
 		for (i = 0; i < rows; )
 		{
+			int print_x, x;
+			cptr str;
+
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
 
@@ -5336,11 +5301,23 @@ msg_format("'%s'をオープンできません。", name);
 			/* Hack -- skip "special" lines */
 			if (prefix(buf, "***** ")) continue;
 
+			/* Get a color */
+			if (prefix(buf, "#####"))
+			{
+				color = color_char_to_attr(buf[5]);
+				str = &buf[6];
+			}
+			else
+			{
+				color = TERM_WHITE;
+				str = buf;
+			}
+
 			/* Count the "real" lines */
 			next++;
 
-			/* Make a lower case version of buf for searching */
-			strcpy(lc_buf, buf);
+			/* Make a lower case version of str for searching */
+			strcpy(lc_buf, str);
 
 			for (lc_buf_ptr = lc_buf; *lc_buf_ptr != 0; lc_buf_ptr++)
 			{
@@ -5359,23 +5336,48 @@ msg_format("'%s'をオープンできません。", name);
 			find = NULL;
 
 			/* Dump the line */
-			Term_putstr(0, i+2, -1, TERM_WHITE, buf);
+			x = 0;
+			print_x = 0;
+			while (str[x])
+			{
+				/* Color ? */
+				if (prefix(str + x, "[[[[["))
+				{
+					byte c = color_char_to_attr(str[x + 5]);
+					x += 6;
+
+					/* Ok print the link name */
+					while (str[x] != ']')
+					{
+						Term_putch(print_x, i + 2, c, str[x]);
+						x++;
+						print_x++;
+					}
+				}
+				else
+				{
+					Term_putch(print_x, i + 2, color, str[x]);
+					print_x++;
+				}
+
+				x++;
+			}
 
 			/* Hilite "shower" */
 			if (shower[0])
 			{
-				cptr str = lc_buf;
+				cptr s2 = lc_buf;
 
 				/* Display matches */
-				while ((str = strstr(str, shower)) != NULL)
+				while ((s2 = strstr(s2, shower)) != NULL)
 				{
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-lc_buf, i+2, len, TERM_YELLOW, &buf[str-lc_buf]);
+					Term_putstr(s2-lc_buf, i+2, len, TERM_YELLOW, &str[s2-lc_buf]);
 
 					/* Advance */
-					str += len;
+					s2 += len;
 				}
 			}
 
@@ -5417,20 +5419,8 @@ msg_format("'%s'をオープンできません。", name);
 				caption, line, size), 0, 0);
 		}
 
-		/* Prompt -- menu screen */
-		if (menu)
-		{
-			/* Wait for it */
-#ifdef JP
-prt("[ 番号を入力して下さい( ESCで終了 ) ]", hgt - 1, 0);
-#else
-			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
-#endif
-
-		}
-
 		/* Prompt -- small files */
-		else if (size <= rows)
+		if (size <= rows)
 		{
 			/* Wait for it */
 #ifdef JP
@@ -5557,19 +5547,29 @@ strcpy(tmp, "jhelp.hlp");
 			}
 		}
 
-		/* Hack -- Allow backing up */
+		/* Allow backing up */
 		if (k == '-')
 		{
 			line = line + (reverse ? rows : -rows);
-			if (line < 0) line = ((size-1)/rows)*rows;
+			if (line < 0) line = 0;
 		}
 
-		/* Hack -- Advance a single line */
+		/* Advance a single line */
 		if ((k == '\n') || (k == '\r'))
 		{
 			line = line + (reverse ? -1 : 1);
-			if (line < 0) line = ((size-1)/rows)*rows;
+			if (line < 0) line = 0;
 		}
+
+
+		/* Move up / down */
+		if (k == '8')
+		{
+			line--;
+			if (line < 0) line = 0;
+		}
+
+		if (k == '2') line++;
 
 		/* Advance one page */
 		if (k == ' ')
@@ -5583,8 +5583,8 @@ strcpy(tmp, "jhelp.hlp");
 		{
 			int key = -1;
 
-			if (isdigit(k)) key = D2I(k);
-			else if (isalpha(k)) key = k - 'A' + 10;
+			if (isalpha(k))
+				key = k - 'A';
 
 			if ((key > -1) && hook[key][0])
 			{
@@ -5913,6 +5913,7 @@ void get_name(void)
 	strcat(tmp,player_name);
 
 	/* Re-Draw the name (in light blue) */
+	Term_erase(34, 1, 255);
 	c_put_str(TERM_L_BLUE, tmp, 1, 34);
 
 	/* Erase the prompt, etc */

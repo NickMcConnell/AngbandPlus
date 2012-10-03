@@ -174,6 +174,8 @@ void reset_tim_flags(void)
 	p_ptr->tim_ffall = 0;
 	p_ptr->tim_sh_touki = 0;
 	p_ptr->tim_sh_fire = 0;
+	p_ptr->tim_sh_holy = 0;
+	p_ptr->tim_eyeeye = 0;
 	p_ptr->resist_magic = 0;
 	p_ptr->tsuyoshi = 0;
 	p_ptr->kabenuke = 0;
@@ -201,7 +203,7 @@ void reset_tim_flags(void)
 	p_ptr->special_attack = 0L;
 	p_ptr->special_defense = 0L;
 
-	while(p_ptr->energy > 99) p_ptr->energy -= 100;
+	while(p_ptr->energy_need < 0) p_ptr->energy_need += ENERGY_NEED();
 	world_player = FALSE;
 
 	if (prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) p_ptr->oppose_fire = 1;
@@ -1623,7 +1625,7 @@ msg_print("無敵ではなくなった。");
 			/* Window stuff */
 			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-			p_ptr->energy -= 100;
+			p_ptr->energy_need += ENERGY_NEED();
 		}
 	}
 
@@ -2275,6 +2277,146 @@ msg_print("炎のオーラが消えた。");
 	/* Result */
 	return (TRUE);
 }
+
+
+/*
+ * Set "p_ptr->tim_sh_holy", notice observable changes
+ */
+bool set_tim_sh_holy(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sh_holy && !do_dec)
+		{
+			if (p_ptr->tim_sh_holy > v) return FALSE;
+		}
+		else if (!p_ptr->tim_sh_holy)
+		{
+#ifdef JP
+msg_print("体が聖なるオーラで覆われた。");
+#else
+			msg_print("You have enveloped by holy aura!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_holy)
+		{
+#ifdef JP
+msg_print("聖なるオーラが消えた。");
+#else
+			msg_print("Holy aura disappeared.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_holy = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->tim_eyeeye", notice observable changes
+ */
+bool set_tim_eyeeye(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_eyeeye && !do_dec)
+		{
+			if (p_ptr->tim_eyeeye > v) return FALSE;
+		}
+		else if (!p_ptr->tim_eyeeye)
+		{
+#ifdef JP
+msg_print("法の守り手になった気がした！");
+#else
+			msg_print("You feel like a keeper of commandments!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_eyeeye)
+		{
+#ifdef JP
+msg_print("懲罰を執行することができなくなった。");
+#else
+			msg_print("You no longer feel like a keeper.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_eyeeye = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 
 
 /*
@@ -3908,7 +4050,7 @@ msg_print("やっとお腹がきつくなくなった。");
 		{
 			p_ptr->wilderness_x = px;
 			p_ptr->wilderness_y = py;
-			p_ptr->energy = 100;
+			p_ptr->energy_need = 0;
 			change_wild_mode();
 		}
 
@@ -4825,7 +4967,7 @@ take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異",
  * the game when he dies, since the "You die." message is shown before
  * setting the player to "dead".
  */
-bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
+int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 {
 	int old_chp = p_ptr->chp;
 
@@ -4835,7 +4977,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
 	/* Paranoia */
-	if (death) return FALSE;
+	if (death) return 0;
 
 	if (p_ptr->sutemi) damage *= 2;
 	if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
@@ -4877,7 +5019,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			}
 			else
 			{
-				return FALSE;
+				return 0;
 			}
 		}
  
@@ -4899,7 +5041,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #else
 				msg_print("The attack hits Shadow, you are unharmed!");
 #endif
-				return FALSE;
+				return 0;
 			}
 		}
 		    
@@ -4931,6 +5073,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	p_ptr->chp -= damage;
 	if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)
 	{
+		damage += p_ptr->chp;
 		p_ptr->chp = 0;
 	}
 
@@ -4990,7 +5133,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 			/* Note cause of death */
 #ifdef JP
-			sprintf(died_from, "%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で":"麻痺状態で", hit_from);
+			sprintf(died_from, "%s%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で":"麻痺状態で", p_ptr->image ? "幻覚に歪んだ" : "", hit_from);
 #else
 			sprintf(died_from, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
 #endif
@@ -5143,7 +5286,7 @@ get_rnd_line("death_j.txt", 0, death_message);
 		}
 
 		/* Dead */
-		return TRUE;
+		return damage;
 	}
 
 	/* Hitpoint warning */
@@ -5191,10 +5334,10 @@ msg_print("*** 警告:低ヒット・ポイント！ ***");
 	{
 		p_ptr->wilderness_x = px;
 		p_ptr->wilderness_y = py;
-		p_ptr->energy = 100;
+		p_ptr->energy_need = 0;
 		change_wild_mode();
 	}
-	return TRUE;
+	return damage;
 }
 
 

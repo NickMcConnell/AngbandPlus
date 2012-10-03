@@ -959,7 +959,7 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 			}
 			else
 			{
-				bool group;
+				u32b mode = (PM_NO_KAGE | PM_NO_PET);
 
 				for (j = 0; j < (quest[i].max_num - quest[i].cur_num); j++)
 				{
@@ -979,13 +979,11 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 							else break;
 						}
 
-						if (r_ptr->flags1 & RF1_FRIENDS)
-							group = FALSE;
-						else
-							group = TRUE;
+						if (!(r_ptr->flags1 & RF1_FRIENDS))
+							mode |= PM_ALLOW_GROUP;
 
 						/* Try to place the monster */
-						if (place_monster_aux(y, x, quest[i].r_idx, FALSE, group, FALSE, FALSE, TRUE, TRUE))
+						if (place_monster_aux(0, y, x, quest[i].r_idx, mode))
 						{
 							/* Success */
 							break;
@@ -1070,7 +1068,7 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
                         if (cave_empty_bold2(oy, ox) && monster_can_cross_terrain(cave[oy][ox].feat, &r_info[d_info[dungeon_type].final_guardian]))
 			{
 				/* Place the guardian */
-				if (place_monster_aux(oy, ox, d_info[dungeon_type].final_guardian, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE)) break;
+				if (place_monster_aux(0, oy, ox, d_info[dungeon_type].final_guardian, (PM_ALLOW_GROUP | PM_NO_KAGE | PM_NO_PET))) break;
 			}
                         /* One less try */
                         try--;
@@ -1107,10 +1105,10 @@ static void build_arena(void)
 
 	yval = SCREEN_HGT / 2;
 	xval = SCREEN_WID / 2;
-	y_height = yval - 10 + SCREEN_HGT;
-	y_depth = yval + 10 + SCREEN_HGT;
-	x_left = xval - 32 + SCREEN_WID;
-	x_right = xval + 32 + SCREEN_WID;
+	y_height = yval - 10;
+	y_depth = yval + 10;
+	x_left = xval - 32;
+	x_right = xval + 32;
 
 	for (i = y_height; i <= y_height + 5; i++)
 		for (j = x_left; j <= x_right; j++)
@@ -1147,7 +1145,7 @@ static void build_arena(void)
 	cave[y_depth-6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
 
 	i = y_height + 5;
-	j = xval + SCREEN_WID;
+	j = xval;
 	cave[i][j].feat = FEAT_BLDG_HEAD + 2;
 	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
 	player_place(i + 1, j);
@@ -1160,17 +1158,12 @@ static void build_arena(void)
 static void arena_gen(void)
 {
 	int y, x;
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-	bool daytime;
+	int qy = 0;
+	int qx = 0;
 
-	/* Day time */
-	if ((turn % (20L * TOWN_DAWN)) < ((20L * TOWN_DAWN) / 2))
-		daytime = TRUE;
-
-	/* Night time */
-	else
-		daytime = FALSE;
+	/* Smallest area */
+	cur_hgt = SCREEN_HGT;
+	cur_wid = SCREEN_WID;
 
 	/* Start with solid walls */
 	for (y = 0; y < MAX_HGT; y++)
@@ -1197,8 +1190,8 @@ static void arena_gen(void)
 
 	build_arena();
 
-	place_monster_aux(py + 5, px, arena_monsters[p_ptr->arena_number],
-	    FALSE, FALSE, FALSE, FALSE, TRUE, TRUE);
+	place_monster_aux(0, py + 5, px, arena_monsters[p_ptr->arena_number],
+	    (PM_NO_KAGE | PM_NO_PET));
 }
 
 
@@ -1213,10 +1206,10 @@ static void build_battle(void)
 
 	yval = SCREEN_HGT / 2;
 	xval = SCREEN_WID / 2;
-	y_height = yval - 10 + SCREEN_HGT;
-	y_depth = yval + 10 + SCREEN_HGT;
-	x_left = xval - 32 + SCREEN_WID;
-	x_right = xval + 32 + SCREEN_WID;
+	y_height = yval - 10;
+	y_depth = yval + 10;
+	x_left = xval - 32;
+	x_right = xval + 32;
 
 	for (i = y_height; i <= y_height + 5; i++)
 		for (j = x_left; j <= x_right; j++)
@@ -1253,7 +1246,7 @@ static void build_battle(void)
 	cave[y_depth-4][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
 
 	i = y_height + 4;
-	j = xval + SCREEN_WID;
+	j = xval;
 	cave[i][j].feat = FEAT_BLDG_HEAD + 3;
 	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
 	player_place(i, j);
@@ -1266,8 +1259,8 @@ static void build_battle(void)
 static void battle_gen(void)
 {
 	int y, x, i;
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
+	int qy = 0;
+	int qx = 0;
 
 	/* Start with solid walls */
 	for (y = 0; y < MAX_HGT; y++)
@@ -1296,8 +1289,8 @@ static void battle_gen(void)
 
 	for(i=0;i<4;i++)
 	{
-		place_monster_aux(py + 5 + (i/2)*4, px - 2 + (i%2)*4, battle_mon[i],
-				  FALSE, FALSE, FALSE, FALSE, TRUE, TRUE);
+		place_monster_aux(0, py + 5 + (i/2)*4, px - 2 + (i%2)*4, battle_mon[i],
+				  (PM_NO_KAGE | PM_NO_PET));
 		set_friendly(&m_list[cave[py+5+(i/2)*4][px-2+(i%2)*4].m_idx]);
 	}
 	for(i = 1; i < m_max; i++)
@@ -1440,7 +1433,7 @@ static byte extract_feeling(void)
 	if (rating > 10) return 8;
 	if (rating > 0) return 9;
 
-	if((turn - old_turn) > 100000L)
+	if((turn - old_turn) > TURNS_PER_TICK * TOWN_DAWN /2)
 		chg_virtue(V_PATIENCE, 1);
 
 	return 10;
@@ -1499,6 +1492,7 @@ static void place_pet(void)
 			
 			cave[cy][cx].m_idx = m_idx;
 			m_ptr->r_idx = party_mon[i].r_idx;
+			m_ptr->ap_r_idx = party_mon[i].ap_r_idx;
 			m_ptr->fy = cy;
 			m_ptr->fx = cx;
 			m_ptr->cdis = party_mon[i].cdis;
@@ -1518,7 +1512,7 @@ static void place_pet(void)
 			m_ptr->smart = party_mon[i].smart;
 			m_ptr->csleep = 0;
 			m_ptr->nickname = party_mon[i].nickname;
-			m_ptr->energy = party_mon[i].energy;
+			m_ptr->energy_need = party_mon[i].energy_need;
 			m_ptr->exp = party_mon[i].exp;
 			set_pet(m_ptr);
 
@@ -1563,6 +1557,35 @@ static void place_pet(void)
 }
 
 /*
+ * Wipe all unnecessary flags after cave generation
+ */
+static void wipe_generate_cave_flags(void)
+{
+	int x, y;
+
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Wipe unused flags */
+			cave[y][x].info &= ~(CAVE_MASK);
+		}
+	}
+
+	if (dun_level)
+	{
+		for (y = 1; y < cur_hgt - 1; y++)
+		{
+			for (x = 1; x < cur_wid - 1; x++)
+			{
+				/* There might be trap */
+				cave[y][x].info |= CAVE_UNSAFE;
+			}
+		}
+	}
+}
+
+/*
  * Generates a random dungeon level			-RAK-
  *
  * Hack -- regenerate any "overflow" levels
@@ -1576,6 +1599,9 @@ void generate_cave(void)
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
+
+	/* No longer in the trap detecteded region */
+	p_ptr->dtrap = FALSE;
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
@@ -1797,6 +1823,8 @@ if (why) msg_format("生成やり直し(%s)", why);
 			}
 		}
 	}
+
+	wipe_generate_cave_flags();
 
 	place_pet();
 

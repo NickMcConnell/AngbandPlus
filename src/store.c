@@ -992,6 +992,7 @@ static void mass_produce(object_type *o_ptr)
 			if (cost <= 60L) size += damroll(3, 5);
 			if (cost <= 240L) size += damroll(1, 5);
 			if (o_ptr->sval == SV_SCROLL_STAR_IDENTIFY) size += damroll(3, 5);
+			if (o_ptr->sval == SV_SCROLL_STAR_REMOVE_CURSE) size += damroll(1, 4);
 			break;
 		}
 
@@ -1004,6 +1005,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_ARCANE_BOOK:
 		case TV_ENCHANT_BOOK:
 		case TV_DAEMON_BOOK:
+		case TV_CRUSADE_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		{
@@ -1383,6 +1385,7 @@ static bool store_will_buy(object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_LIFE_BOOK:
+				case TV_CRUSADE_BOOK:
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -2062,7 +2065,7 @@ static void display_entry(int pos)
 		{
 			cur_col++;
 			if (a & 0x80)
-				Term_draw(cur_col, i + 6, 255, 255);
+				Term_draw(cur_col, i + 6, 255, -1);
 		}
 		cur_col += 2;
 	}
@@ -2465,7 +2468,7 @@ static int increase_insults(void)
 		st_ptr->bad_buy = 0;
 
 		/* Open tomorrow */
-		st_ptr->store_open = turn + 25000 + randint1(25000);
+		st_ptr->store_open = turn + TURNS_PER_TICK*TOWN_DAWN/8 + randint1(TURNS_PER_TICK*TOWN_DAWN/8);
 
 		/* Closed */
 		return (TRUE);
@@ -3349,6 +3352,8 @@ msg_format("%s(%c)を購入する。", o_name, I2A(item));
 			/* Player can afford it */
 			if (p_ptr->au >= price)
 			{
+				int idx;
+
 				/* Say "okay" */
 				say_comment_1();
 
@@ -3413,6 +3418,9 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 						   o_name, index_to_label(item_new));
 #endif
 
+				/* Auto-inscription */
+				idx = is_autopick(&inventory[item_new]);
+				auto_inscribe_item(item_new, idx);
 
 				/* Now, reduce the original stack's pval. */
 				if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
@@ -4485,7 +4493,7 @@ void do_cmd_store(void)
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
-	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (20L * STORE_TURNS);
+	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TURNS);
 
 	/* Maintain the store max. 10 times */
 	if (maintain_num > 10) maintain_num = 10;

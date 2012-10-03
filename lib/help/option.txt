@@ -149,7 +149,7 @@ Display 'equippy' chars    [equippy_chars]
     equipment on the main screen.  The 'equippy' chars will use the
     standard symbols of the respective items.
 
-Display mutations in 'C'haracter Display    [skip_mutations]
+Display mutations in 'C'haracter Display    [display_mutations]
     Normally, if your character has gained mutations, they will be
     displayed in an extra 'h' mode window under the 'C'haracter
     Description command. Some players may wish to view mutations only
@@ -297,6 +297,14 @@ Map remembers all torch-lit grids    [view_torch_grids]
     the "view_yellow_lite" option is set, in which case they are drawn
     in "yellow".
 
+Map marked by detect traps    [view_unsafe_grids]
+    Unknown grids that have not been traversed previously, or had a
+    detect trap spell cast on them are marked with a grey 'x'. This
+    allows you to determine where in the dungeon you have cast detect
+    traps, but does not ensure that grids not marked with a grey 'x'
+    are trap free. This option has no effect on surface grids, but
+    outdoor locations cannot be trapped.
+
 Generate dungeons with connected stairs    [dungeon_stair]
     Always generate a staircase back to the level you came from, if you
     used a staircase to get to the level. This is more "realistic", and
@@ -393,22 +401,31 @@ Alert user to critical hitpoints    [alert_hitpoint]
     hitpoints reach the "critical point" chosen elsewhere, preventing
     stupid deaths.
 
+Disturb when leaving trap detected area    [disturb_trap_detect]
+    This option causes you to be disturbed when the player is running
+    out of trap-detected area.
+
+Alert when leaving trap detected area    [alert_trap_detect]
+    This option alerts you with message when the player is moving out
+    of the trap-detected area.
+
+
+***** <Efficiency>
+=== Option set 5 -- Efficiency ===
+
 Reduce lite-radius when running    [view_reduce_lite]
     Reduce the "radius" of the player's "lite" to that of a "torch"
     when the player is "running", which makes running more "efficient",
     but is extremely annoying.  Certain older versions of Angband used
     this behavior always, so "purists" should turn it on.
     
-***** <Efficiency>
-=== Option set 5 -- Efficiency ===
-
 Reduce view-radius in town    [view_reduce_view]
     Reduce the "radius" of the player's "view" by half when the player
     is in town.  This makes running faster in town, and also allows the
     player to ignore monsters in town which are more than ten grids
     away, which is usually safe, since none have distance attacks.
 
-Check for user abort while continuous command    [avoid_abort]
+Check for user abort while continuous command    [check_abort]
     Avoid checking to see if the user has pressed a key during resting
     or running or repeated commands.  This not only makes the game much
     more efficient (on many systems), but also allows the use of

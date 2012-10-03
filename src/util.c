@@ -91,10 +91,12 @@ int usleep(huge usecs)
 
 
 /*
-* Hack -- External functions
-*/
-extern struct passwd *getpwuid();
-extern struct passwd *getpwnam();
+ * Hack -- External functions
+ */
+#ifdef SET_UID
+extern struct passwd *getpwuid(uid_t uid);
+extern struct passwd *getpwnam(const char *name);
+#endif
 
 
 /*
@@ -791,9 +793,6 @@ errr fd_seek(int fd, huge n)
 	p = lseek(fd, n, SEEK_SET);
 
 	/* Failure */
-	if (p < 0) return (1);
-
-	/* Failure */
 	if (p != n) return (1);
 
 	/* Success */
@@ -1260,7 +1259,7 @@ void text_to_ascii(char *buf, cptr str)
 }
 
 
-bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
+static bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 {
 	char *s = *bufptr;
 	cptr str = *strptr;
@@ -1610,21 +1609,6 @@ errr macro_add(cptr pat, cptr act)
 
 
 /*
- * Initialize the "macro" package
- */
-errr macro_init(void)
-{
-	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-
-	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-
-	/* Success */
-	return (0);
-}
-
-/*
  * Local variable -- we are inside a "macro action"
  *
  * Do not match any macros until "ascii 30" is found.
@@ -1729,6 +1713,8 @@ static char inkey_aux(void)
 	/* Inside "macro trigger" */
 	if (parse_under) return (ch);
 
+	/* Parse special key only */
+	if (inkey_special && ch != 31) return (ch);
 
 	/* Save the first key, advance */
 	buf[p++] = ch;
@@ -1940,7 +1926,7 @@ char inkey(void)
 		ch = *inkey_next++;
 
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1956,7 +1942,7 @@ char inkey(void)
 	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -2141,7 +2127,7 @@ char inkey(void)
 
 
 	/* Cancel the various "global parameters" */
-	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+	inkey_base = inkey_xtra = inkey_flag = inkey_scan = inkey_special = FALSE;
 
 	/* Return the keypress */
 	return (ch);
@@ -4815,43 +4801,63 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 	int write_pt = 0;
 	int line_len = 0;
 	int word_punct = 0;
-	unsigned char ch[3];
+	char ch[3];
 	ch[2] = '\0';
 
 	while (str[read_pt])
 	{
 #ifdef JP
+		bool kinsoku = FALSE;
 		bool kanji;
 #endif
+		int ch_len = 1;
+
+		/* Prepare one character */
 		ch[0] = str[read_pt];
 		ch[1] = '\0';
 #ifdef JP
 		kanji  = iskanji(ch[0]);
+
 		if (kanji)
+		{
 			ch[1] = str[read_pt+1];
-		if (!kanji && !isprint(ch[0]))
+			ch_len = 2;
+
+			if (strcmp(ch, "。") == 0 ||
+			    strcmp(ch, "、") == 0 ||
+			    strcmp(ch, "ィ") == 0 ||
+			    strcmp(ch, "ー") == 0)
+				kinsoku = TRUE;
+		}
+		else if (!isprint(ch[0]))
 			ch[0] = ' ';
 #else
 		if (!isprint(ch[0]))
 			ch[0] = ' ';
 #endif
 
-		if (line_len >= maxlen - 1 || str[read_pt] == '\n')
+		if (line_len + ch_len > maxlen - 1 || str[read_pt] == '\n')
 		{
 			int word_len;
 
 			/* return to better wrapping point. */
 			/* Space character at the end of the line need not to be printed. */
 			word_len = read_pt - word_punct;
-			if (ch[0] != ' ' && word_len < line_len/2)
+#ifdef JP
+			if (kanji && !kinsoku)
+				/* nothing */ ;
+			else
+#endif
+			if (ch[0] == ' ' || word_len >= line_len/2)
+				read_pt++;
+			else
 			{
 				read_pt = word_punct;
 				if (str[word_punct] == ' ')
 					read_pt++;
 				write_pt -= word_len;
 			}
-			else
-				read_pt++;
+
 			tbuf[write_pt++] = '\0';
 			line_len = 0;
 			word_punct = read_pt;
@@ -4860,10 +4866,7 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 		if (ch[0] == ' ')
 			word_punct = read_pt;
 #ifdef JP
-		if (kanji &&
-		    strcmp((char *)ch, "。") != 0 && strcmp((char *)ch, "、") != 0 &&
-		    strcmp((char *)ch, "ィ") != 0 && strcmp((char *)ch, "ー") != 0)
-			word_punct = read_pt;
+		if (!kinsoku) word_punct = read_pt;
 #endif
 		tbuf[write_pt++] = ch[0];
 		line_len++;

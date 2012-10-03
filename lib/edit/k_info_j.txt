@@ -555,7 +555,7 @@ A:10/1
 P:0:2d6:0:0:0
 F:SHOW_MODS | RIDING
 
-N:51:& ヘビィ・フレイル
+N:51:& ヘヴィ・フレイル
 E:& Two-Handed Flail~
 G:\:y
 I:21:18:0
@@ -782,7 +782,7 @@ W:10:0:110:140
 A:10/1
 F:SHOW_MODS
 
-N:76:& ヘビィ・クロスボウ
+N:76:& ヘヴィ・クロスボウ
 E:& Heavy Crossbow~
 G:}:s
 I:19:24:0
@@ -1797,14 +1797,14 @@ G:?:d
 I:70:38:0
 W:50:0:5:500
 A:50/4:90/2
-D:$It create a glyph on the floor you stand when you read it.
+D:$It creates a glyph on the floor you stand when you read it.
 D:それは読むと自分の足元の床に回避の彫像を作り出す。
 
 N:191:*解呪*
 E:*Remove Curse*
 G:?:d
 I:70:15:0
-W:50:0:5:8000
+W:50:0:5:4000
 A:50/2:75/2
 D:$It removes normal and heavy curses from equipped items when you read it.
 D:それは読むと装備しているアイテムにかかった弱い呪いと重い呪いを解く。
@@ -1941,9 +1941,9 @@ G:?:d
 I:70:52:0
 W:90:0:5:200000
 A:90/16
-D:$It creates an artifact from normal weapon or armour when you read it. In 
+D:$It creates an artifact from nameless weapon or armour when you read it. In 
 D:$this process, extra stack of the equipment will be destroyed.
-D:それは読むと並の武器・防具からアーティファクトを作り出す。装備品が
+D:それは読むと無銘の武器・防具からアーティファクトを作り出す。装備品が
 D:積み重なっていた場合は1個を残して壊れる。
 
 N:206:魔力充填
@@ -2018,8 +2018,8 @@ G:?:d
 I:70:3:0
 W:50:0:5:0
 A:50/1
-D:$It makes your weapon in right hand (Shattered) when you read it.
-D:それは読むと右手に装備中の武器を(不良品)に変える。
+D:$It makes your weapon in strong hand (Shattered) when you read it.
+D:それは読むと利き腕に装備中の武器を(不良品)に変える。
 
 N:214:*防具強化*
 E:*Enchant Armor*
@@ -3148,9 +3148,9 @@ I:55:23:9
 W:30:0:50:2000
 A:30/1
 P:0:1d2:0:0:0
-D:$It probes all monsters' HP, AC, speed, current experience and true 
-D:$character in sight when you use it.
-D:それは使うと視界内のモンスターのHP・AC・スピード・現在の経験値・正体を
+D:$It probes all monsters' alignment, HP, AC, speed, current experience and 
+D:$true character in sight when you use it.
+D:それは使うと視界内のモンスターの属性・HP・AC・スピード・現在の経験値・正体を
 D:表示する。
 
 N:322:暗闇
@@ -3192,8 +3192,9 @@ I:55:19:5
 W:100:0:50:100000
 A:100/255
 P:0:1d2:0:0:0
-D:$It restores mana to full and cures berserk when you use it.
-D:それは使うと魔力が最大まで回復し、狂戦士化を癒す。
+D:$It restores mana to full, restores your intelligence and cures berserk when 
+D:$you use it.
+D:それは使うと魔力が最大まで回復し、知能を回復し、狂戦士化を癒す。
 
 N:326:鑑定
 E:Perception
@@ -3462,9 +3463,9 @@ I:66:7:50
 W:40:0:15:4000
 A:20/16:40/4
 P:0:1d1:0:0:0
-D:$It probes all monsters' HP, AC, speed, current experience and true 
-D:$character in sight when you zap it.
-D:それは振ると視界内のモンスターのHP・AC・スピード・現在の経験値・正体を
+D:$It probes all monsters' alignment, HP, AC, speed, current experience and 
+D:$true character in sight when you zap it.
+D:それは振ると視界内のモンスターの属性・HP・AC・スピード・現在の経験値・正体を
 D:表示する。
 
 N:354:帰還
@@ -5024,7 +5025,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS
 
 #JZ#
-N:553:& 重ランサー
+N:553:& ヘヴィ・ランス
 E:& Heavy Lance~
 G:/:s
 I:22:29:0
@@ -5876,7 +5877,7 @@ G:?:d
 I:70:54:0
 W:30:0:5:1000
 A:30/2
-D:$It summons a monster corrensonds to your race as your pet when you read it.
+D:$It summons a monster corresponds to your race as your pet when you read it.
 D:それは読むと自分の種族に対応したモンスター1体をペットとして召喚する。
 
 N:651:& 魔法の笛
@@ -5902,3 +5903,37 @@ W:15:0:80:5000
 A:40/4
 P:4:1d1:0:0:12
 F:STEALTH | IGNORE_FIRE
+
+N:654:[徒弟読本]
+E:[Rites of Initiation]
+G:?:W
+I:99:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:655:[戦術指南]
+E:[Ways of War]
+G:?:W
+I:99:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:656:[退魔払邪]
+E:[Exorcism and Dispelling]
+G:?:w
+I:99:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:657:[天神怒罰]
+E:[Wrath of God]
+G:?:w
+I:99:3:0
+W:95:0:30:100000
+A:95/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD

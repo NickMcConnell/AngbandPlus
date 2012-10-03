@@ -614,6 +614,8 @@ static void wr_item(object_type *o_ptr)
 static void wr_monster(monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
+	wr_s16b(m_ptr->ap_r_idx);
+	wr_byte(m_ptr->sub_align);
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -621,7 +623,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_s16b(m_ptr->max_maxhp);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
-	wr_s16b(m_ptr->energy);
+	wr_s16b(m_ptr->energy_need);
 	wr_byte(m_ptr->fast);
 	wr_byte(m_ptr->slow);
 	wr_byte(m_ptr->stunned);
@@ -886,6 +888,45 @@ static void wr_ghost(void)
 
 
 /*
+ * Save quick start data
+ */
+static void save_quick_start(void)
+{
+	int i;
+
+	wr_byte(previous_char.psex);
+	wr_byte(previous_char.prace);
+	wr_byte(previous_char.pclass);
+	wr_byte(previous_char.pseikaku);
+	wr_byte(previous_char.realm1);
+	wr_byte(previous_char.realm2);
+
+	wr_s16b(previous_char.age);
+	wr_s16b(previous_char.ht);
+	wr_s16b(previous_char.wt);
+	wr_s16b(previous_char.sc);
+	wr_s32b(previous_char.au);
+
+	for (i = 0; i < 6; i++) wr_s16b(previous_char.stat_max[i]);
+	for (i = 0; i < 6; i++) wr_s16b(previous_char.stat_max_max[i]);
+
+	for (i = 0; i < PY_MAX_LEVEL; i++) wr_s16b(previous_char.player_hp[i]);
+
+	wr_s16b(previous_char.chaos_patron);
+
+	for (i = 0; i < 8; i++) wr_s16b(previous_char.vir_types[i]);
+
+	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
+
+	wr_byte(previous_char.quests);
+
+	/* No quick start after using debug mode or cheat options */
+	if (noscore || munchkin_death) previous_char.quick_ok = FALSE;
+
+	wr_byte((byte)previous_char.quick_ok);
+}
+
+/*
  * Write some "extra" info
  */
 static void wr_extra(void)
@@ -896,6 +937,8 @@ static void wr_extra(void)
 	wr_string(player_name);
 
 	wr_string(died_from);
+
+	save_quick_start();
 
 	for (i = 0; i < 4; i++)
 	{
@@ -1010,7 +1053,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->food);
 	wr_s16b(0);     /* old "food_digested" */
 	wr_s16b(0);     /* old "protection" */
-	wr_s16b(p_ptr->energy);
+	wr_s16b(p_ptr->energy_need);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
 	wr_s16b(p_ptr->afraid);
@@ -1052,6 +1095,8 @@ static void wr_extra(void)
 	wr_byte(p_ptr->mimic_form);
 	wr_s16b(p_ptr->tim_mimic);
 	wr_s16b(p_ptr->tim_sh_fire);
+	wr_s16b(p_ptr->tim_sh_holy);
+	wr_s16b(p_ptr->tim_eyeeye);
 
 	/* by henkma */
 	wr_s16b(p_ptr->tim_reflect);

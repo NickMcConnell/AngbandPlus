@@ -224,23 +224,11 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 	cptr note_level = "";
 	bool do_level = TRUE;
 
-	s32b len = 20L * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
-
 	static bool disable_nikki = FALSE;
 
+	extract_day_hour_min(&day, &hour, &min);
+
 	if (disable_nikki) return(-1);
-
-	if ((p_ptr->prace == RACE_VAMPIRE) ||
-	    (p_ptr->prace == RACE_SKELETON) ||
-	    (p_ptr->prace == RACE_ZOMBIE) ||
-	    (p_ptr->prace == RACE_SPECTRE))
-		day = (turn - (15L * TOWN_DAWN))/ len + 1;
-	else
-		day = (turn + (5L * TOWN_DAWN))/ len + 1;
-
-	hour = (24 * tick / len) % 24;
-	min = (1440 * tick / len) % 60;
 
 	if (type == NIKKI_FIX_QUEST_C ||
 	    type == NIKKI_FIX_QUEST_F ||
@@ -2417,20 +2405,16 @@ void do_cmd_pref(void)
 void do_cmd_pickpref(void)
 {
 	char buf[80];
-	errr err = -1; 
-	int i;
+	errr err;
 
 #ifdef JP
 	if(!get_check("自動拾い設定ファイルをロードしますか? ")) return;
 #else
 	if(!get_check("Reload auto-pick preference file? ")) return;
 #endif
-	/* いままで使っていたメモリ解放 */
-	for( i = 0; i < max_autopick; i++){
-		string_free(autopick_name[i]);
-		string_free(autopick_insc[i]);
-	}
-	max_autopick = 0;
+
+	/* Free old entries */
+	init_autopicker();
 
 	/* キャラ毎の設定ファイルの読み込み */
 #ifdef JP
@@ -2438,8 +2422,10 @@ void do_cmd_pickpref(void)
 #else
 	sprintf(buf, "pickpref-%s.prf", player_name);
 #endif
-	if( process_pickpref_file(buf) == 0 ){
-		err = 0;
+	err = process_pickpref_file(buf);
+
+	if(err == 0)
+	{
 #ifdef JP
 		msg_format("%sを読み込みました。", buf);
 #else
@@ -2448,19 +2434,26 @@ void do_cmd_pickpref(void)
 	}
 
 	/* 共通の設定ファイル読み込み */
-#ifdef JP
-	if( process_pickpref_file("picktype.prf") == 0 )
-#else
-	if( process_pickpref_file("pickpref.prf") == 0 )
-#endif
+
+	/* Process 'pick????.prf' if 'pick????-<name>.prf' doesn't exist */
+	if (0 > err)
 	{
-		err = 0;
 #ifdef JP
-		msg_print("picktype.prfを読み込みました。");
+		err = process_pickpref_file("picktype.prf");
 #else
-		msg_print("loaded 'pickpref.prf'.");
+		err = process_pickpref_file("pickpref.prf");
 #endif
+
+		if(err == 0)
+		{
+#ifdef JP
+			msg_print("picktype.prfを読み込みました。");
+#else
+			msg_print("loaded 'pickpref.prf'.");
+#endif
+		}
 	}
+
 
 #ifdef JP
 	if(err) msg_print("自動拾い設定ファイルの読み込みに失敗しました。");
@@ -3295,7 +3288,7 @@ void do_cmd_macros(void)
 }
 
 
-static void cmd_visuals_aux(char i, int *num, int max)
+static void cmd_visuals_aux(int i, int *num, int max)
 {
 	if (iscntrl(i))
 	{
@@ -3707,7 +3700,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (da & 0x80)
-						Term_putch(44, 19, 255, 255);
+						Term_putch(44, 19, 255, -1);
 					else
 						Term_putch(44, 19, 0, ' ');
 				}
@@ -3726,7 +3719,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (ca & 0x80)
-						Term_putch(44, 20, 255, 255);
+						Term_putch(44, 20, 255, -1);
 					else
 						Term_putch(44, 20, 0, ' ');
 				}
@@ -3820,7 +3813,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (da & 0x80)
-						Term_putch(44, 19, 255, 255);
+						Term_putch(44, 19, 255, -1);
 					else
 						Term_putch(44, 19, 0, ' ');
 				}
@@ -3839,7 +3832,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (ca & 0x80)
-						Term_putch(44, 20, 255, 255);
+						Term_putch(44, 20, 255, -1);
 					else
 						Term_putch(44, 20, 0, ' ');
 				}
@@ -3933,7 +3926,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (da & 0x80)
-						Term_putch(44, 19, 255, 255);
+						Term_putch(44, 19, 255, -1);
 					else
 						Term_putch(44, 19, 0, ' ');
 				}
@@ -3952,7 +3945,7 @@ void do_cmd_visuals(void)
 				if (use_bigtile)
 				{
 					if (ca & 0x80)
-						Term_putch(44, 20, 255, 255);
+						Term_putch(44, 20, 255, -1);
 					else
 						Term_putch(44, 20, 0, ' ');
 				}
@@ -4627,7 +4620,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-        if (turn - old_turn >= (3000 - dun_level*20) || cheat_xtra)
+        if (turn - old_turn >= (150 - dun_level)*TURNS_PER_TICK || cheat_xtra)
         {
                 if (p_ptr->muta3 & MUT3_GOOD_LUCK) msg_print(do_cmd_feeling_text_lucky[feeling]);
                 else {
@@ -5132,7 +5125,7 @@ static void do_cmd_knowledge_inven(void)
 #ifdef JP
 	  strcpy(where, "家");
 #else
-	  strcpy(where, "H ");/*nanka*/
+	  strcpy(where, "H ");
 #endif
 	      
 	  /* Dump all available items */
@@ -5169,19 +5162,19 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	char buf[2048];
 
 	int yomikomu = 0;
-	char *tags[4] = {
+	cptr tags[4] = {
 		"HEADER_START:",
 		"HEADER_END:",
 		"FOOTER_START:",
 		"FOOTER_END:",
 	};
 
-	char *html_head[] = {
+	cptr html_head[] = {
 		"<html>\n<body text=\"#ffffff\" bgcolor=\"#000000\">\n",
 		"<pre>",
 		0,
 	};
-	char *html_foot[] = {
+	cptr html_foot[] = {
 		"</pre>\n",
 		"</body>\n</html>\n",
 		0,
@@ -5248,7 +5241,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 		for (x = 0; x < wid - 1; x++)
 		{
 			int rv, gv, bv;
-			char *cc = NULL;
+			cptr cc = NULL;
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
 
@@ -5325,7 +5318,7 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 /*
  * Hack -- save a screen dump to a file
  */
-void do_cmd_save_screen_html(void)
+static void do_cmd_save_screen_html(void)
 {
 	char buf[1024], tmp[256] = "screen.html";
 
@@ -5605,7 +5598,7 @@ static void ang_sort_art_swap(vptr u, vptr v, int a, int b)
 /*
  * Check the status of "artifacts"
  */
-void do_cmd_knowledge_artifacts(void)
+static void do_cmd_knowledge_artifacts(void)
 {
 	int i, k, z, x, y, n = 0;
 	u16b why = 3;
@@ -6680,7 +6673,7 @@ static void do_cmd_knowledge_objects(void)
 * List virtues & status
 *
 */
-void do_cmd_knowledge_kubi(void)
+static void do_cmd_knowledge_kubi(void)
 {
 	int i;
 	FILE *fff;
@@ -6744,7 +6737,7 @@ show_file(TRUE, file_name, "賞金首の一覧", 0, 0);
 * List virtues & status
 *
 */
-void do_cmd_knowledge_virtues(void)
+static void do_cmd_knowledge_virtues(void)
 {
 	FILE *fff;
 	
@@ -6792,7 +6785,7 @@ show_file(TRUE, file_name, "八つの徳", 0, 0);
 * Dungeon
 *
 */
-void do_cmd_knowledge_dungeon(void)
+static void do_cmd_knowledge_dungeon(void)
 {
 	FILE *fff;
 	
@@ -7298,7 +7291,7 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 * List my home
 *
 */
-void do_cmd_knowledge_home(void)
+static void do_cmd_knowledge_home(void)
 {
 	FILE *fff;
 	
@@ -7429,8 +7422,8 @@ static void do_cmd_knowledge_autopick(void)
 
 	for (k = 0; k < max_autopick; k++)
 	{
-		char *tmp;
-		byte act = autopick_action[k];
+		cptr tmp;
+		byte act = autopick_list[k].action;
 		if (act & DONT_AUTOPICK)
 		{
 #ifdef JP
@@ -7461,9 +7454,9 @@ static void do_cmd_knowledge_autopick(void)
 		else
 			fprintf(fff, "%11s", format("(%s)", tmp));
 
-		fprintf(fff, " %s", autopick_name[k]);
-		if(autopick_insc[k] != NULL)
-			fprintf(fff, " {%s}", autopick_insc[k]);
+		tmp = autopick_line_from_entry(&autopick_list[k]);
+		fprintf(fff, " %s", tmp);
+		string_free(tmp);
 		fprintf(fff, "\n");
 	}
 	/* Close the file */
@@ -7478,7 +7471,6 @@ static void do_cmd_knowledge_autopick(void)
 	/* Remove the file */
 	fd_kill(file_name);
 }
-
 
 
 /*
@@ -7673,18 +7665,8 @@ void do_cmd_time(void)
 
 	FILE *fff;
 
-	s32b len = 20L * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
+	extract_day_hour_min(&day, &hour, &min);
 
-	if ((p_ptr->prace == RACE_VAMPIRE) ||
-	    (p_ptr->prace == RACE_SKELETON) ||
-	    (p_ptr->prace == RACE_ZOMBIE) ||
-	    (p_ptr->prace == RACE_SPECTRE))
-		day = (turn - (15L * TOWN_DAWN))/ len + 1;
-	else
-		day = (turn + (5L * TOWN_DAWN))/ len + 1;
-	hour = (24 * tick / len) % 24;
-	min = (1440 * tick / len) % 60;
 	full = hour * 100 + min;
 
 	start = 9999;
