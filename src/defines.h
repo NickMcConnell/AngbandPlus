@@ -51,7 +51,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 9
+#define FAKE_VER_PATCH 10
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -377,7 +377,7 @@
 /*
  * Maximum number of high scores in the high score file
  */
-#define MAX_HISCORES    100
+#define MAX_HISCORES    999
 
 
 /*
@@ -1082,7 +1082,7 @@
 /* Lites */
 #define ART_GALADRIEL            1
 #define ART_ELENDIL              2
-#define ART_THRAIN               3
+#define ART_JUDGE                3
 #define ART_EDISON               7
 #define ART_PALANTIR             15
 #define ART_STONE_LORE           17
@@ -1099,7 +1099,7 @@
 #define ART_NIGHT                215
 
 /* Rings */
-#define ART_BARAHIR              8
+#define ART_FRAKIR               8
 #define ART_TULKAS               9
 #define ART_NARYA               10
 #define ART_NENYA               11
@@ -1116,10 +1116,11 @@
 #define ART_SOULKEEPER          19
 #define ART_ISILDUR             20
 #define ART_ROHIRRIM            21
-#define ART_BELEGENNON          22
-#define ART_CELEBORN            23
+#define ART_LOHENGRIN           22
+#define ART_JULIAN              23
 #define ART_ARVEDUI             24
 #define ART_CASPANION           25
+#define ART_GILES               168
 #define ART_MORLOK              203
 #define ART_VETERAN             206
 
@@ -1142,10 +1143,11 @@
 #define ART_YENDOR              141
 #define ART_YATA                151
 #define ART_EARENDIL            186
-#define ART_HERCULES            197
+#define ART_PERSEUS             197
 
 /* Helms and Crowns */
-#define ART_MORGOTH             34
+#define ART_INDRA               33
+#define ART_CHAOS               34
 #define ART_BERUTHIEL           35
 #define ART_THRANDUIL           36
 #define ART_THENGEL             37
@@ -1153,7 +1155,7 @@
 #define ART_DOR                 39
 #define ART_HOLHENNETH          40
 #define ART_TERROR              41
-#define ART_GONDOR              42
+#define ART_AMBER               42
 #define ART_NUMENOR             132
 #define ART_STONEMASK           146
 
@@ -1175,15 +1177,16 @@
 #define ART_CORWIN              55
 #define ART_PAURAEGEN           56
 #define ART_PAURNEN             57
-#define ART_CAMLOST             58
+#define ART_THANOS              58
 #define ART_FINGOLFIN           59
 #define ART_PAURNIMMEN          185
 
 /* Boots */
 #define ART_FEANOR              60
-#define ART_DAL                 61
+#define ART_FLORA               61
 #define ART_THROR               62
 #define ART_SHIVA_BOOTS         63
+#define ART_GLASS               165
 #define ART_GETA                210
 
 /* Digging */
@@ -1191,34 +1194,35 @@
 
 /* Swords */
 #define ART_MAEDHROS            64
-#define ART_ANGRIST             65
+#define ART_CAINE               65
 #define ART_NARTHANC            66
 #define ART_NIMTHANC            67
 #define ART_DETHANC             68
 #define ART_RILIA               69
-#define ART_BELANGIL            70
+#define ART_FIONA               70
 #define ART_CALRIS              71
 #define ART_GRAYSWANDIR         72
 #define ART_GLAMDRING           73
-#define ART_AEGLIN              74
+#define ART_NOTHUNG             74
 #define ART_ORCRIST             75
 #define ART_GURTHANG            76
 #define ART_ZARCUTHRA           77
-#define ART_MORMEGIL            78
+#define ART_TWILIGHT            78
 #define ART_GONDRICAM           79
 #define ART_CRISDURIAN          80
-#define ART_GROO                81
+#define ART_AGLARANG            81
 #define ART_RINGIL              82
 #define ART_ANDURIL             83
-#define ART_ANGUIREL            84
+#define ART_WEREWINDLE          84
 #define ART_CHAINSWORD          85
 #define ART_FORASGIL            86
 #define ART_CARETH              87
 #define ART_STING               88
-#define ART_HARADEKKET          89
-#define ART_GILETTAR            90
+#define ART_SOULSWORD           89
+#define ART_MERLIN              90
 #define ART_DOOMCALLER          91
 #define ART_VORPAL_BLADE        92
+#define ART_SLAYER              123
 #define ART_KUSANAGI            128
 #define ART_HURIN               133
 #define ART_AZAGHAL             135
@@ -1231,6 +1235,8 @@
 #define ART_FALIS               155
 #define ART_HRUNTING            156
 #define ART_ANUBIS              158
+#define ART_GURENKI             160
+#define ART_TAILBITER           167
 #define ART_MUSASI_KATANA       171
 #define ART_MUSASI_WAKIZASI     172
 #define ART_QUICKTHORN          174
@@ -1241,10 +1247,12 @@
 #define ART_ARUNRUTH            184
 #define ART_HAKABUSA            189
 #define ART_STORMBRINGER        190
+#define ART_NARSIL              191
 #define ART_KANNU               193
 #define ART_GRIMTOOTH           196
 #define ART_KAMUI               198
 #define ART_GOURYU              207
+#define ART_EOWYN               216
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1252,14 +1260,14 @@
 #define ART_OSONDIR             95
 #define ART_TIL                 96
 #define ART_RUNESPEAR           97
-#define ART_OROME               98
-#define ART_NIMLOTH             99
+#define ART_DESTINY             98
+#define ART_HAGEN               99
 #define ART_EORLINGAS           100
 #define ART_DURIN               101
 #define ART_EONWE               102
 #define ART_BALLI               103
 #define ART_LOTHARANG           104
-#define ART_MUNDWINE            105
+#define ART_DWARVES_AXE         105
 #define ART_BARUKKHELED         106
 #define ART_WRATH               107
 #define ART_ULMO                108
@@ -1286,7 +1294,7 @@
 #define ART_AULE                117
 #define ART_NAR                 118
 #define ART_ERIRIL              119
-#define ART_OLORIN              120
+#define ART_GANDALF             120
 #define ART_DEATHWREAKER        121
 #define ART_TURMIL              122
 #define ART_MJOLLNIR            136
@@ -1303,7 +1311,7 @@
 #define ART_SHUTEN_DOJI         194
 #define ART_G_HAMMER            195
 #define ART_AEGISFANG           208
-#define ART_VIOLET              209
+#define ART_HERMIT              209
 #define ART_GOTHMOG             212
 #define ART_JIZO                213
 #define ART_FUNDIN              214
@@ -1388,7 +1396,7 @@
 #define EGO_SLAYING             49
 #define EGO_AGILITY             50
 #define EGO_POWER               51
-#define EGO_2HAND               52
+#define EGO_2WEAPON             52
 #define EGO_MAGIC_MASTERY       53
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
@@ -1411,7 +1419,7 @@
 #define EGO_WEST                68
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
-#define EGO_FORCE_WEPON             71
+#define EGO_FORCE_WEAPON        71
 #define EGO_BRAND_ACID          72
 #define EGO_BRAND_ELEC          73
 #define EGO_BRAND_FIRE          74
@@ -2629,6 +2637,7 @@
 #define SUMMON_KAMIKAZE_LIVING      59
 #define SUMMON_MANES                60
 #define SUMMON_LOUSE                61
+#define SUMMON_GUARDIANS            62
 
 
 /*
@@ -2731,6 +2740,7 @@
 #define GF_SEEKER 110
 #define GF_SUPER_RAY 111
 #define GF_STAR_HEAL 112
+#define GF_WATER_FLOW   113
 
 #define MAX_GF				113
 
@@ -2887,7 +2897,7 @@
 #define TR1_CON                 0x00000010L     /* CON += "pval" */
 #define TR1_CHR                 0x00000020L     /* CHR += "pval" */
 #define TR1_MAGIC_MASTERY       0x00000040L     /* Later */
-#define TR1_FORCE_WEPON             0x00000080L     /* Later */
+#define TR1_FORCE_WEAPON        0x00000080L     /* Later */
 #define TR1_STEALTH             0x00000100L     /* Stealth += "pval" */
 #define TR1_SEARCH              0x00000200L     /* Search += "pval" */
 #define TR1_INFRA               0x00000400L     /* Infra += "pval" */
@@ -2955,7 +2965,7 @@
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
 #define TR3_DEC_MANA            0x00000040L     /* ??? */
 #define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
-#define TR3_XXX1                0x00000100L
+#define TR3_WARNING             0x00000100L     /* Warning */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
 #define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
 #define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
@@ -3023,6 +3033,7 @@
 #define RBM_INSULT      22
 #define RBM_MOAN        23
 #define RBM_SHOW        24
+#define RBM_SHOOT       25
 
 
 /*
@@ -3181,10 +3192,10 @@
 #define RF4_XXX1            0x00000002  /* XXX */
 #define RF4_DISPEL          0x00000004  /* Dispel magic */
 #define RF4_ROCKET          0x00000008  /* TY: Rocket */
-#define RF4_ARROW_1         0x00000010  /* Fire an arrow (light) */
-#define RF4_ARROW_2         0x00000020  /* Fire an arrow (heavy) */
-#define RF4_ARROW_3         0x00000040  /* Fire missiles (light) */
-#define RF4_ARROW_4         0x00000080  /* Fire missiles (heavy) */
+#define RF4_SHOOT           0x00000010  /* Fire missiles */
+#define RF4_XXX2            0x00000020
+#define RF4_XXX3            0x00000040
+#define RF4_XXX4            0x00000080
 #define RF4_BR_ACID         0x00000100  /* Breathe Acid */
 #define RF4_BR_ELEC         0x00000200  /* Breathe Elec */
 #define RF4_BR_FIRE         0x00000400  /* Breathe Fire */
@@ -3387,7 +3398,7 @@
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
 #define RF4_BOLT_MASK \
-  (RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+  (RF4_ROCKET | RF4_SHOOT)
 
 #define RF5_BOLT_MASK \
    (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
@@ -3463,8 +3474,8 @@
  * Hack -- "attack" spells
  */
 #define RF4_ATTACK_MASK \
-  (RF4_SHRIEK | RF4_DISPEL | RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | \
-   RF4_ARROW_3 | RF4_ARROW_4 | RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | \
+  (RF4_SHRIEK | RF4_DISPEL | RF4_ROCKET | RF4_SHOOT | \
+   RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | \
    RF4_BR_COLD | RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | \
    RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | \
    RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | \
@@ -3490,7 +3501,7 @@
  * Hack -- "indirect" spells
  */
 #define RF4_INDIRECT_MASK \
-  (RF4_SHRIEK | RF4_XXX1)
+  (RF4_SHRIEK | RF4_XXX1 | RF4_XXX2 | RF4_XXX3 | RF4_XXX4)
 
 #define RF5_INDIRECT_MASK \
   0L
@@ -3508,8 +3519,8 @@
  * Hack -- "no magic" spells
  */
 #define RF4_NOMAGIC_MASK \
-	(RF4_SHRIEK | RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | \
-	 RF4_ARROW_3 | RF4_ARROW_4 | RF4_BR_ACID | RF4_BR_ELEC | \
+	(RF4_SHRIEK | RF4_ROCKET | RF4_SHOOT | \
+	 RF4_BR_ACID | RF4_BR_ELEC | \
 	 RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | RF4_BR_NETH | \
 	 RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_SHAR | \
@@ -4263,10 +4274,10 @@ extern int PlayerUID;
 #define MS_XXX1           1
 #define MS_DISPEL         2
 #define MS_ROCKET         3
-#define MS_ARROW_1        4
-#define MS_ARROW_2        5
-#define MS_ARROW_3        6
-#define MS_ARROW_4        7
+#define MS_SHOOT          4
+#define MS_XXX2           5
+#define MS_XXX3           6
+#define MS_XXX4           7
 #define MS_BR_ACID        8
 #define MS_BR_ELEC        9
 #define MS_BR_FIRE        10
@@ -4483,6 +4494,7 @@ extern int PlayerUID;
 #define MON_CYBER_KING    843
 #define MON_WYRM_POWER    847
 #define MON_NODENS        849
+#define MON_JORMUNGAND    854
 #define MON_DESTROYER     855
 #define MON_GOTHMOG       856
 #define MON_G_CTHULHU     857
@@ -4502,6 +4514,7 @@ extern int PlayerUID;
 #define MON_DIO           878
 #define MON_OHMU          879
 #define MON_WONG          880
+#define MON_ZOMBI_SERPENT 883
 #define MON_D_ELF_SHADE   886
 #define MON_MANA_HOUND    887
 #define MON_VENOM_WYRM    890

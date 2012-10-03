@@ -238,7 +238,7 @@ E:'Frakir'
 I:45:32:1
 W:50:40:2:75000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
-F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | INSTA_ART
+F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | WARNING | INSTA_ART
 D:混沌の王子マーリンがログルスから生み出した意思を持った腕輪だ。
 D:普段は目に見えないが脈動して危険を知らせてくれる。装備するものが
 D:命ずると形を変えて敵の首を締めることができる。
@@ -274,7 +274,7 @@ F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
 F:INSTA_ART
 D:$The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
-D:$Morgoth.
+D:$Sauron.
 D:炎のように輝くルビーがはめられた火の指輪で、
 D:エルフにより作られサウロンから隠された三つの力の指輪のうちの一つだ。
 D:中つ国ではキアダンとガンダルフが所有していた。
@@ -293,7 +293,7 @@ F:SUST_INT | SUST_WIS | IM_COLD |
 F:INSTA_ART
 D:$The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
-D:$Morgoth.
+D:$Sauron.
 D:冷気の凝縮した真っ白な宝石がはめられた指輪だ。
 D:エルフにより作られサウロンから隠された三つの力の指輪のうちの一つだ。
 D:中つ国ではガラドリエルが所有していた。
@@ -313,7 +313,7 @@ F:INSTA_ART
 D:$The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:$glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
 D:$one of the three Rings of Power created by the Elves and hidden by them 
-D:$from Morgoth.
+D:$from Sauron.
 D:星の様に輝く透き通ったサファイアの指輪だ。
 D:エルフにより作られサウロンから隠された三つの力の指輪のうちの一つだ。
 D:中つ国ではエルロンドが所有していた。
@@ -2230,7 +2230,7 @@ E:of Gandalf
 I:21:21:4
 W:30:50:40:140000
 P:0:3d2:10:13:0
-F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE | FORCE_WEPON |
+F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE | FORCE_WEAPON |
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | LITE | DEC_MANA |
 F:HOLD_LIFE | RES_FIRE | RES_NETHER | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:$The staff of the great wizard Gandalf.  
@@ -2316,7 +2316,7 @@ D:淡い金色の輝きを微かに放つエルフの髪を弦に張ってある。
 N:125:射手バルド王の
 E:of Bard
 I:19:13:3
-W:30:20:40:20000
+W:30:20:40:40000
 P:0:0d0:17:19:0
 F:DEX | HIDE_TYPE | FREE_ACT | XTRA_MIGHT | SHOW_MODS
 D:$The great yew bow of grim-faced Bard, who shot the mightiest arrow that 
@@ -2505,7 +2505,7 @@ E:'Goln Nova'
 I:23:16:2
 W:30:50:150:100000
 P:0:2d5:15:15:0
-F:STR | DEX | HIDE_TYPE | FORCE_WEPON |
+F:STR | DEX | HIDE_TYPE | FORCE_WEAPON |
 F:SHOW_MODS | RIDING | SLAY_DEMON
 D:かつて魔導都市サイラーグを破壊つくした魔獣、ザナッファー。
 D:それを滅ぼしたといわれるのが、この伝説の武器である。
@@ -2551,7 +2551,7 @@ W:127:1:2:1000000
 P:0:1d1:15:15:25
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | STEALTH | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | TELEPATHY |
-F:FEATHER | SLOW_DIGEST | REGEN | SEARCH | LITE |
+F:FEATHER | SLOW_DIGEST | REGEN | SEARCH | LITE | WARNING |
 F:INSTA_ART | QUESTITEM
 
 N:142:『ウォーパルブレード』
@@ -3313,7 +3313,7 @@ E:'hermit's purple'
 I:21:2:2
 W:40:40:30:40000
 P:0:1d6:10:5:0
-F:INT | WIS | FORCE_WEPON |
+F:INT | WIS | FORCE_WEAPON |
 F:SEE_INVIS | TELEPATHY
 D:半幽体化した不思議な茨の鞭だ。所有者の精神力を攻撃力に変換し、
 D:波紋の力で身を守ることができる。
@@ -3390,11 +3390,11 @@ F:SLAY_EVIL | SLAY_UNDEAD |
 F:RES_FIRE | RES_ELEC | RES_NETHER | HOLD_LIFE | 
 F:ACTIVATE
 D:$The weapon of one of the great dwarven priests, with powers 
-D:$to preserve body, soul and enchantments, and the bane of those 
+D:$to preserve body and soul, and the bane of those 
 D:$who seek life beyond death.
-D:The weapon of one of the great dwarven priests, with powers 
-D:to preserve body, soul and enchantments, and the bane of those 
-D:who seek life beyond death.
+D:もっとも偉大なドワーフの司祭のひとり、青き衣の『フンディン』の
+D:武器である。所有者の肉体と魂魄を
+D:護り抜き、死してなお生にすがりつこうとする者どもを打ち滅ぼす。
 
 N:215:宵闇の
 E:of The Pitch Dark Night
@@ -3404,3 +3404,14 @@ P:0:0d0:0:0:5
 F:STEALTH | SEARCH | HIDE_TYPE | SEE_INVIS |
 F:RES_DARK | ACTIVATE | LITE |
 F:INSTA_ART
+
+# The Bastard Sword of Eowyn
+
+N:216:エオウィン姫の
+E:of Eowyn
+I:23:21:4
+W:30:50:140:120000
+P:0:4d4:12:16:0
+F:STR | CHR | STEALTH | SPEED | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_GIANT | SLAY_ANIMAL | 
+F:RES_NETHER | RES_FEAR | RES_DARK | RES_COLD

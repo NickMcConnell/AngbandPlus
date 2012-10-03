@@ -686,7 +686,9 @@
  * Check the modification time of *_info.raw files
  * (by Keldon Jones)
  */
+#ifndef MAC_MPW
 #define CHECK_MODIFICATION_TIME
+#endif
 
 /*
  * Use the new sorting routines for creation
@@ -706,11 +708,6 @@
 # define STATIC_PYTHON
 /* # define SCRIPT_OBJ_KIND */
 #endif /* USE_SCRIPT */
-
-/*
- * The Frakir can predict danger when equipped
- */
-#define USE_FRAKIR
 
 #ifndef HAVE_CONFIG_H
 #ifndef MSDOS

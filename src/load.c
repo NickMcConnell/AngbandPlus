@@ -232,10 +232,6 @@ static void rd_string(char *str, int max)
 {
 	int i;
 
-#ifdef JP
-        int    kanji, iseuc,l;
-	unsigned char c1,c2;
-#endif
 	/* Read the string */
 	for (i = 0; TRUE; i++)
 	{
@@ -254,64 +250,7 @@ static void rd_string(char *str, int max)
 	/* Terminate */
 	str[max-1] = '\0';
 #ifdef JP
-        kanji = 0;
-        iseuc = 1;
-	l=strlen(str);
-        for (i = 0; i < l; i++) {
-                c1 = str[i];
-                if (c1 & 0x80)  kanji = 1;
-                if ( c1>=0x80 && (c1 < 0xa1 || c1 > 0xfe)) iseuc = 0;
-                }
-#ifdef EUC
-		if (kanji && !iseuc) {
-			unsigned char   tmp[256];
-			for (i = 0; i < l; i++) {
-				c1 = str[i];
-				if (c1 & 0x80) {
-					i++;
-					c2 = str[i];
-					if (c2 >= 0x9f) {
-						c1 = c1 * 2 - (c1 >= 0xe0 ? 0xe0 : 0x60);
-						c2 += 2;
-					} else {
-						c1 = c1 * 2 - (c1 >= 0xe0 ? 0xe1 : 0x61);
-						c2 += 0x60 + (c2 < 0x7f);
-					}
-					tmp[i - 1] = c1;
-					tmp[i] = c2;
-				} else
-					tmp[i] = c1;
-			}
-			tmp[l] = 0;
-			strcpy(str, (char *)tmp);
-		}
-#endif
-
-#ifdef SJIS
-		if (kanji && iseuc) {
-			unsigned char   tmp[256];
-			for (i = 0; i < l; i++) {
-				c1 = str[i];
-				if (c1 & 0x80) {
-					i++;
-					c2 = str[i];
-					if (c1 % 2) {
-						c1 = (c1 >> 1) + (c1 < 0xdf ? 0x31 : 0x71);
-						c2 -= 0x60 + (c2 < 0xe0);
-					} else {
-						c1 = (c1 >> 1) + (c1 < 0xdf ? 0x30 : 0x70);
-						c2 -= 2;
-					}
-					tmp[i - 1] = c1;
-					tmp[i] = c2;
-				} else
-					tmp[i] = c1;
-			}
-			tmp[l] = 0;
-			strcpy(str, tmp);
-		}
-#endif
-
+	codeconv(str);
 #endif
 }
 
@@ -411,6 +350,58 @@ static void rd_item(object_type *o_ptr)
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
+
+	if (z_older_than(11, 0, 10))
+	{
+		if (o_ptr->xtra1 == EGO_XTRA_SUSTAIN)
+		{
+			switch (o_ptr->xtra2 % 6)
+			{
+			case 0: o_ptr->art_flags2 |= (TR2_SUST_STR); break;
+			case 1: o_ptr->art_flags2 |= (TR2_SUST_INT); break;
+			case 2: o_ptr->art_flags2 |= (TR2_SUST_WIS); break;
+			case 3: o_ptr->art_flags2 |= (TR2_SUST_DEX); break;
+			case 4: o_ptr->art_flags2 |= (TR2_SUST_CON); break;
+			case 5: o_ptr->art_flags2 |= (TR2_SUST_CHR); break;
+			}
+			o_ptr->xtra2 = 0;
+		}
+		else if (o_ptr->xtra1 == EGO_XTRA_POWER)
+		{
+			switch (o_ptr->xtra2 % 11)
+			{
+			case  0: o_ptr->art_flags2 |= (TR2_RES_BLIND);  break;
+			case  1: o_ptr->art_flags2 |= (TR2_RES_CONF);   break;
+			case  2: o_ptr->art_flags2 |= (TR2_RES_SOUND);  break;
+			case  3: o_ptr->art_flags2 |= (TR2_RES_SHARDS); break;
+			case  4: o_ptr->art_flags2 |= (TR2_RES_NETHER); break;
+			case  5: o_ptr->art_flags2 |= (TR2_RES_NEXUS);  break;
+			case  6: o_ptr->art_flags2 |= (TR2_RES_CHAOS);  break;
+			case  7: o_ptr->art_flags2 |= (TR2_RES_DISEN);  break;
+			case  8: o_ptr->art_flags2 |= (TR2_RES_POIS);   break;
+			case  9: o_ptr->art_flags2 |= (TR2_RES_DARK);   break;
+			case 10: o_ptr->art_flags2 |= (TR2_RES_LITE);   break;
+			}
+			o_ptr->xtra2 = 0;
+		}		
+		else if (o_ptr->xtra1 == EGO_XTRA_ABILITY)
+		{
+			switch (o_ptr->xtra2 % 8)
+			{
+			case 0: o_ptr->art_flags3 |= (TR3_FEATHER);     break;
+			case 1: o_ptr->art_flags3 |= (TR3_LITE);        break;
+			case 2: o_ptr->art_flags3 |= (TR3_SEE_INVIS);   break;
+			case 3: o_ptr->art_flags3 |= (TR3_WARNING);     break;
+			case 4: o_ptr->art_flags3 |= (TR3_SLOW_DIGEST); break;
+			case 5: o_ptr->art_flags3 |= (TR3_REGEN);       break;
+			case 6: o_ptr->art_flags2 |= (TR2_FREE_ACT);    break;
+			case 7: o_ptr->art_flags2 |= (TR2_HOLD_LIFE);   break;
+			}
+			o_ptr->xtra2 = 0;
+		}
+		o_ptr->xtra1 = 0;
+	}
+
 	if (z_older_than(10, 2, 3))
 	{
 		o_ptr->xtra3 = 0;
@@ -681,15 +672,13 @@ static void rd_monster(monster_type *m_ptr)
 
 	if (z_older_than(10,0,10))
 	{
-		m_ptr->target_y = 0;
-		m_ptr->target_x = 0;
+		reset_target(m_ptr);
 	}
 	else if (z_older_than(10,0,11))
 	{
 		s16b tmp16s;
 		rd_s16b(&tmp16s);
-		m_ptr->target_y = 0;
-		m_ptr->target_x = 0;
+		reset_target(m_ptr);
 	}
 	else
 	{
@@ -2435,7 +2424,7 @@ if (arg_fiddle) note("アイテムの記録をロードしました");
 	{
 		for (j = 0; j < max_wild_y; j++)
 		{
-			wilderness[j][i].seed = rand_int(0x10000000);
+			wilderness[j][i].seed = randint0(0x10000000);
 		}
 	}
 
@@ -2522,7 +2511,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 							 * Random monster 5 - 10 levels out of depth
 							 * (depending on level)
 							 */
-							r_idx = get_mon_num(quest[i].level + 5 + randint(quest[i].level / 10));
+							r_idx = get_mon_num(quest[i].level + 5 + randint1(quest[i].level / 10));
 							r_ptr = &r_info[r_idx];
 
 							if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;

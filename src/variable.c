@@ -165,7 +165,6 @@ bool repair_objects;	/* Hack -- optimize detect objects */
 s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
 bool hack_mutation;
-int artifact_bias;
 
 s16b inven_cnt;			/* Number of items in inventory */
 s16b equip_cnt;			/* Number of items in equipment */
@@ -1141,9 +1140,7 @@ bool autoroller;
 bool autochara;
 
 
-bool use_transparency = FALSE; /* Use transparent tiles */
-
-bool can_save = FALSE;         /* Game can be saved */
+bool can_save = FALSE;        /* Game can be saved */
 
 s16b spell_exp[64];           /* mahou keikenchi */
 
@@ -1176,8 +1173,7 @@ int riding_t_m_idx;
 s16b kubi_r_idx[MAX_KUBI];
 s16b today_mon;
 
-monster_type riding_mon;
-monster_type party_mon[20];
+monster_type party_mon[21];
 
 bool write_level;
 

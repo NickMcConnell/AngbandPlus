@@ -357,7 +357,7 @@ s = "魔力を取り込めるアイテムがない。";
 			if (p_ptr->magic_num2[o_ptr->sval + ext])
 			{
 				gain_num *= 256;
-				gain_num = (gain_num/3 + rand_int(gain_num/3)) / 256;
+				gain_num = (gain_num/3 + randint0(gain_num/3)) / 256;
 				if (gain_num < 1) gain_num = 1;
 			}
 			p_ptr->magic_num2[o_ptr->sval + ext] += gain_num;
@@ -776,17 +776,17 @@ if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
 		if (use_hp)
 		{
 #ifdef JP
-			take_hit(DAMAGE_USELIFE, (cost / 2) + randint(cost / 2),
+			take_hit(DAMAGE_USELIFE, (cost / 2) + randint1(cost / 2),
 				 "過度の集中", -1);
 #else
-			take_hit(DAMAGE_USELIFE, (cost / 2) + randint(cost / 2),
+			take_hit(DAMAGE_USELIFE, (cost / 2) + randint1(cost / 2),
 				 "concentrating too hard", -1);
 #endif
 
 		}
 		else
 		{
-			p_ptr->csp -= (cost / 2) + randint(cost / 2);
+			p_ptr->csp -= (cost / 2) + randint1(cost / 2);
 		}
 	}
 
@@ -798,8 +798,8 @@ if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
 	p_ptr->window |= (PW_PLAYER | PW_SPELL);
 
 	/* Success? */
-	if (randint(p_ptr->stat_cur[use_stat]) >=
-	    ((difficulty / 2) + randint(difficulty / 2)))
+	if (randint1(p_ptr->stat_cur[use_stat]) >=
+	    ((difficulty / 2) + randint1(difficulty / 2)))
 	{
 		return TRUE;
 	}
@@ -834,7 +834,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 				for (i = 0; i < 6; i++)
 				{
-					dir = rand_int(8);
+					dir = randint0(8);
 					y = py + ddy_ddd[dir];
 					x = px + ddx_ddd[dir];
 					c_ptr = &cave[y][x];
@@ -899,7 +899,7 @@ msg_print("攻撃が空をきった。");
 				if (cave[y][x].m_idx)
 				{
 					py_attack(y, x, 0);
-					if (rand_int(p_ptr->skill_dis) < 7)
+					if (randint0(p_ptr->skill_dis) < 7)
 #ifdef JP
 msg_print("うまく逃げられなかった。");
 #else
@@ -1199,7 +1199,7 @@ msg_print("少し頭がハッキリした。");
 		}
 		case CLASS_RED_MAGE:
 		{
-			if (racial_aux(48, 60, A_INT, 25))
+			if (racial_aux(48, 20, A_INT, 0))
 			{
 				handle_stuff();
 				do_cmd_cast();
@@ -1316,7 +1316,7 @@ msg_print("武器を持たないといけません。");
 				rlev = r_ptr->level;
 				if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 				if (rlev > 60) rlev = 60+(rlev-60)/2;
-				if ((randint(skill_exp[GINOU_RIDING]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+rand_int(p_ptr->lev/5)))
+				if ((randint1(skill_exp[GINOU_RIDING]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+randint0(p_ptr->lev/5)))
 				{
 #ifdef JP
 					msg_format("%sを手なずけた。",m_name);
@@ -1489,7 +1489,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 				msg_print("You grin and bare your fangs...");
 #endif
 
-				dummy = plev + randint(plev) * MAX(1, plev / 10);   /* Dmg */
+				dummy = plev + randint1(plev) * MAX(1, plev / 10);   /* Dmg */
 				if (drain_life(dir, dummy))
 				{
 					if (p_ptr->food < PY_FOOD_FULL)
@@ -1605,7 +1605,7 @@ msg_print("うがぁぁ！");
 
 				(void)set_afraid(0);
 
-				(void)set_shero(10 + randint(plev), FALSE);
+				(void)set_shero(10 + randint1(plev), FALSE);
 				(void)hp_player(30);
 			}
 			break;
@@ -1680,7 +1680,7 @@ msg_print("うぉぉおお！");
 
 				(void)set_afraid(0);
 
-				(void)set_shero(10 + randint(plev), FALSE);
+				(void)set_shero(10 + randint1(plev), FALSE);
 				(void)hp_player(30);
 			}
 			break;
@@ -1817,7 +1817,7 @@ msg_print("マジック・ミサイルを放った。");
 		case RACE_DRACONIAN:
 			if (racial_aux(1, plev, A_CON, 12))
 			{
-				int  Type = ((randint(3) == 1) ? GF_COLD : GF_FIRE);
+				int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
 #ifdef JP
 cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
 #else
@@ -1825,7 +1825,7 @@ cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
 #endif
 
 
-				if (randint(100) < plev)
+				if (randint1(100) < plev)
 				{
 					switch (p_ptr->pclass)
 					{
@@ -1836,7 +1836,7 @@ cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
 						case CLASS_IMITATOR:
 						case CLASS_ARCHER:
 						case CLASS_SMITH:
-							if (randint(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_MISSILE;
 #ifdef JP
@@ -1865,7 +1865,7 @@ Type_desc = "破片";
 						case CLASS_RED_MAGE:
 						case CLASS_BLUE_MAGE:
 						case CLASS_MIRROR_MASTER:
-							if (randint(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_MANA;
 #ifdef JP
@@ -1887,7 +1887,7 @@ Type_desc = "劣化";
 							}
 							break;
 						case CLASS_CHAOS_WARRIOR:
-							if (randint(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 #ifdef JP
@@ -1911,7 +1911,7 @@ Type_desc = "カオス";
 						case CLASS_MONK:
 						case CLASS_SAMURAI:
 						case CLASS_FORCETRAINER:
-							if (randint(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 #ifdef JP
@@ -1933,7 +1933,7 @@ Type_desc = "轟音";
 							}
 							break;
 						case CLASS_MINDCRAFTER:
-							if (randint(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_CONFUSION;
 #ifdef JP
@@ -1956,7 +1956,7 @@ Type_desc = "精神エネルギー";
 							break;
 						case CLASS_PRIEST:
 						case CLASS_PALADIN:
-							if (randint(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_HELL_FIRE;
 #ifdef JP
@@ -1979,7 +1979,7 @@ Type_desc = "聖なる炎";
 							break;
 						case CLASS_ROGUE:
 						case CLASS_NINJA:
-							if (randint(3) == 1)
+							if (one_in_(3))
 							{
 								Type = GF_DARK;
 #ifdef JP
@@ -2001,7 +2001,7 @@ Type_desc = "毒";
 							}
 							break;
 						case CLASS_BARD:
-							if (randint(3) != 1)
+							if (!one_in_(3))
 							{
 								Type = GF_SOUND;
 #ifdef JP
@@ -2084,7 +2084,7 @@ msg_print("ファイアーボルトを放った。");
 		case RACE_GOLEM:
 			if (racial_aux(20, 15, A_CON, 8))
 			{
-				(void)set_shield(randint(20) + 30, FALSE);
+				(void)set_shield(randint1(20) + 30, FALSE);
 			}
 			break;
 
@@ -2131,7 +2131,7 @@ msg_print("あなたはニヤリとして牙をむいた...");
 				msg_print("You grin and bare your fangs...");
 #endif
 
-				dummy = plev + randint(plev) * MAX(1, plev / 10);   /* Dmg */
+				dummy = plev + randint1(plev) * MAX(1, plev / 10);   /* Dmg */
 				if (drain_life(dir, dummy))
 				{
 					if (p_ptr->food < PY_FOOD_FULL)
@@ -2211,7 +2211,7 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 		case RACE_KUTA:
 			if (racial_aux(20, 15, A_CHR, 8))
 			{
-				(void)set_tsubureru(randint(20) + 30, FALSE);
+				(void)set_tsubureru(randint1(20) + 30, FALSE);
 			}
 			break;
 
@@ -2373,7 +2373,7 @@ strcpy(power_desc[num].name, "剣の舞い");
 #ifdef JP
 strcpy(power_desc[num].name, "魔力食い");
 #else
-		strcpy(power_desc[num].name, "eat magic");
+		strcpy(power_desc[num].name, "Eat Magic");
 #endif
 
 		power_desc[num].level = 25;
@@ -2389,7 +2389,7 @@ strcpy(power_desc[num].name, "魔力食い");
 #ifdef JP
 strcpy(power_desc[num].name, "武器祝福");
 #else
-			strcpy(power_desc[num].name, "bless weapon");
+			strcpy(power_desc[num].name, "Bless Weapon");
 #endif
 
 			power_desc[num].level = 35;
@@ -2417,7 +2417,7 @@ strcpy(power_desc[num].name, "召魂");
 #ifdef JP
 strcpy(power_desc[num].name, "ヒット＆アウェイ");
 #else
-		strcpy(power_desc[num].name, "hit and away");
+		strcpy(power_desc[num].name, "Hit and Away");
 #endif
 
 		power_desc[num].level = 8;
@@ -2431,7 +2431,7 @@ strcpy(power_desc[num].name, "ヒット＆アウェイ");
 #ifdef JP
 strcpy(power_desc[num].name, "モンスター調査");
 #else
-		strcpy(power_desc[num].name, "probe monster");
+		strcpy(power_desc[num].name, "Probe Monster");
 #endif
 
 		power_desc[num].level = 15;
@@ -2447,7 +2447,7 @@ strcpy(power_desc[num].name, "モンスター調査");
 #ifdef JP
 strcpy(power_desc[num].name, "ホーリー・ランス");
 #else
-			strcpy(power_desc[num].name, "holy lance");
+			strcpy(power_desc[num].name, "Holy Lance");
 #endif
 
 			power_desc[num].level = 30;
@@ -2460,7 +2460,7 @@ strcpy(power_desc[num].name, "ホーリー・ランス");
 #ifdef JP
 strcpy(power_desc[num].name, "ヘル・ランス");
 #else
-			strcpy(power_desc[num].name, "hell lance");
+			strcpy(power_desc[num].name, "Hell Lance");
 #endif
 
 			power_desc[num].level = 30;
@@ -2475,7 +2475,7 @@ strcpy(power_desc[num].name, "ヘル・ランス");
 #ifdef JP
 strcpy(power_desc[num].name, "変換: ＨＰ→ＭＰ");
 #else
-		strcpy(power_desc[num].name, "convert HP to SP");
+		strcpy(power_desc[num].name, "Convert HP to SP");
 #endif
 
 		power_desc[num].level = 25;
@@ -2485,7 +2485,7 @@ strcpy(power_desc[num].name, "変換: ＨＰ→ＭＰ");
 #ifdef JP
 strcpy(power_desc[num].name, "変換: ＭＰ→ＨＰ");
 #else
-		strcpy(power_desc[num].name, "convert SP to HP");
+		strcpy(power_desc[num].name, "Convert SP to HP");
 #endif
 
 		power_desc[num].level = 25;
@@ -2513,7 +2513,7 @@ strcpy(power_desc[num].name, "幻惑の光");
 #ifdef JP
 strcpy(power_desc[num].name, "構える");
 #else
-		strcpy(power_desc[num].name, "asuume a posture");
+		strcpy(power_desc[num].name, "Asuume a Posture");
 #endif
 
 		power_desc[num].level = 25;
@@ -2552,7 +2552,7 @@ strcpy(power_desc[num].name, "明鏡止水");
 #ifdef JP
 strcpy(power_desc[num].name, "写真撮影");
 #else
-		strcpy(power_desc[num].name, "take a photograph");
+		strcpy(power_desc[num].name, "Take a Photograph");
 #endif
 
 		power_desc[num].level = 1;
@@ -2590,7 +2590,7 @@ strcpy(power_desc[num].name, "倍返し");
 #ifdef JP
 strcpy(power_desc[num].name, "生物支配");
 #else
-		strcpy(power_desc[num].name, "dominate a living thing");
+		strcpy(power_desc[num].name, "Dominate a Living Thing");
 #endif
 
 		power_desc[num].level = 1;
@@ -2600,7 +2600,7 @@ strcpy(power_desc[num].name, "生物支配");
 #ifdef JP
 strcpy(power_desc[num].name, "真・生物支配");
 #else
-		strcpy(power_desc[num].name, "dominate living things");
+		strcpy(power_desc[num].name, "Dominate Living Things");
 #endif
 
 		power_desc[num].level = 30;
@@ -2614,7 +2614,7 @@ strcpy(power_desc[num].name, "真・生物支配");
 #ifdef JP
 strcpy(power_desc[num].name, "弾/矢の製造");
 #else
-		strcpy(power_desc[num].name, "create ammo");
+		strcpy(power_desc[num].name, "Create Ammo");
 #endif
 
 		power_desc[num].level = 1;
@@ -2628,7 +2628,7 @@ strcpy(power_desc[num].name, "弾/矢の製造");
 #ifdef JP
 strcpy(power_desc[num].name, "魔力の取り込み");
 #else
-		strcpy(power_desc[num].name, "absorb magic");
+		strcpy(power_desc[num].name, "Absorb Magic");
 #endif
 
 		power_desc[num].level = 1;
@@ -2642,7 +2642,7 @@ strcpy(power_desc[num].name, "魔力の取り込み");
 #ifdef JP
 strcpy(power_desc[num].name, "歌を止める");
 #else
-		strcpy(power_desc[num].name, "stop singing");
+		strcpy(power_desc[num].name, "Stop Singing");
 #endif
 
 		power_desc[num].level = 1;
@@ -2660,8 +2660,8 @@ strcpy(power_desc[num].name, "連続魔");
 #endif
 
 		power_desc[num].level = 48;
-		power_desc[num].cost = 60;
-		power_desc[num].fail = 100 - racial_chance(48, A_INT, 25);
+		power_desc[num].cost = 20;
+		power_desc[num].fail = 100 - racial_chance(48, A_INT, 0);
 		power_desc[num++].number = -3;
 		break;
 	}
@@ -2680,7 +2680,7 @@ strcpy(power_desc[num].name, "気合いため");
 #ifdef JP
 strcpy(power_desc[num].name, "型");
 #else
-		strcpy(power_desc[num].name, "assume a posture");
+		strcpy(power_desc[num].name, "Assume a Posture");
 #endif
 
 		power_desc[num].level = 25;
@@ -2722,7 +2722,7 @@ strcpy(power_desc[num].name, "荒馬ならし");
 #ifdef JP
 strcpy(power_desc[num].name, "空腹充足");
 #else
-		strcpy(power_desc[num].name, "satisfy hunger");
+		strcpy(power_desc[num].name, "Satisfy Hunger");
 #endif
 
 		power_desc[num].level = 5;
@@ -2746,7 +2746,7 @@ strcpy(power_desc[num].name, "帰還");
 #ifdef JP
 strcpy(power_desc[num].name, "鏡割り");
 #else
-		strcpy(power_desc[num].name, "break mirrors");
+		strcpy(power_desc[num].name, "Break Mirrors");
 #endif
 
 		power_desc[num].level = 1;
@@ -2756,7 +2756,7 @@ strcpy(power_desc[num].name, "鏡割り");
 #ifdef JP
 strcpy(power_desc[num].name, "静水");
 #else
-		strcpy(power_desc[num].name, "Clear mind");
+		strcpy(power_desc[num].name, "Clear Mind");
 #endif
 
 		power_desc[num].level = 30;
@@ -2811,7 +2811,7 @@ strcpy(power_desc[0].name, "(なし)");
 #ifdef JP
 sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
 #else
-			sprintf(power_desc[num].name, "nether or fire breath (dam %d)", lvl * 3);
+			sprintf(power_desc[num].name, "Nether or Fire Breath (dam %d)", lvl * 3);
 #endif
 
 			power_desc[num].level = 15;
@@ -2823,7 +2823,7 @@ sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
 #ifdef JP
 strcpy(power_desc[num].name, "生命力吸収");
 #else
-			strcpy(power_desc[num].name, "drain life");
+			strcpy(power_desc[num].name, "Drain Life");
 #endif
 
 			power_desc[num].level = 2;
@@ -2841,7 +2841,7 @@ strcpy(power_desc[num].name, "生命力吸収");
 #ifdef JP
 strcpy(power_desc[num].name, "ドアと罠 感知");
 #else
-			strcpy(power_desc[num].name, "detect doors+traps");
+			strcpy(power_desc[num].name, "Detect Doors+Traps");
 #endif
 
 			power_desc[num].level = 5;
@@ -2853,7 +2853,7 @@ strcpy(power_desc[num].name, "ドアと罠 感知");
 #ifdef JP
 strcpy(power_desc[num].name, "ドアと罠 感知");
 #else
-			strcpy(power_desc[num].name, "detect doors+traps");
+			strcpy(power_desc[num].name, "Detect Doors+Traps");
 #endif
 
 			power_desc[num].level = 10;
@@ -2865,7 +2865,7 @@ strcpy(power_desc[num].name, "ドアと罠 感知");
 #ifdef JP
 strcpy(power_desc[num].name, "食糧生成");
 #else
-			strcpy(power_desc[num].name, "create food");
+			strcpy(power_desc[num].name, "Create Food");
 #endif
 
 			power_desc[num].level = 15;
@@ -2889,7 +2889,7 @@ sprintf(power_desc[num].name, "ショート・テレポート");
 #ifdef JP
 strcpy(power_desc[num].name, "恐怖除去");
 #else
-			strcpy(power_desc[num].name, "remove fear");
+			strcpy(power_desc[num].name, "Remove Fear");
 #endif
 
 			power_desc[num].level = 3;
@@ -2901,7 +2901,7 @@ strcpy(power_desc[num].name, "恐怖除去");
 #ifdef JP
 strcpy(power_desc[num].name, "狂戦士化");
 #else
-			strcpy(power_desc[num].name, "berserk");
+			strcpy(power_desc[num].name, "Berserk");
 #endif
 
 			power_desc[num].level = 10;
@@ -2913,7 +2913,7 @@ strcpy(power_desc[num].name, "狂戦士化");
 #ifdef JP
 strcpy(power_desc[num].name, "狂戦士化");
 #else
-			strcpy(power_desc[num].name, "berserk");
+			strcpy(power_desc[num].name, "Berserk");
 #endif
 
 			power_desc[num].level = 8;
@@ -2947,7 +2947,7 @@ strcpy(power_desc[num].name, "パターン・ウォーク");
 #ifdef JP
 strcpy(power_desc[num].name, "爆発のルーン");
 #else
-			strcpy(power_desc[num].name, "explosive rune");
+			strcpy(power_desc[num].name, "Explosive Rune");
 #endif
 
 			power_desc[num].level = 25;
@@ -2959,7 +2959,7 @@ strcpy(power_desc[num].name, "爆発のルーン");
 #ifdef JP
 strcpy(power_desc[num].name, "岩石溶解");
 #else
-			strcpy(power_desc[num].name, "stone to mud");
+			strcpy(power_desc[num].name, "Stone to Mud");
 #endif
 
 			power_desc[num].level = 20;
@@ -2971,7 +2971,7 @@ strcpy(power_desc[num].name, "岩石溶解");
 #ifdef JP
 strcpy(power_desc[num].name, "スキャン・モンスター");
 #else
-			strcpy(power_desc[num].name, "probing");
+			strcpy(power_desc[num].name, "Probing");
 #endif
 
 			power_desc[num].level = 15;
@@ -2983,7 +2983,7 @@ strcpy(power_desc[num].name, "スキャン・モンスター");
 #ifdef JP
 sprintf(power_desc[num].name, "岩石投げ（ダメージ %d）", (3 * lvl) / 2);
 #else
-			sprintf(power_desc[num].name, "throw boulder (dam %d)", (3 * lvl) / 2);
+			sprintf(power_desc[num].name, "Throw Boulder (dam %d)", (3 * lvl) / 2);
 #endif
 
 			power_desc[num].level = 20;
@@ -2995,7 +2995,7 @@ sprintf(power_desc[num].name, "岩石投げ（ダメージ %d）", (3 * lvl) / 2);
 #ifdef JP
 strcpy(power_desc[num].name, "モンスター恐慌");
 #else
-			strcpy(power_desc[num].name, "scare monster");
+			strcpy(power_desc[num].name, "Scare Monster");
 #endif
 
 			power_desc[num].level = 15;
@@ -3007,7 +3007,7 @@ strcpy(power_desc[num].name, "モンスター恐慌");
 #ifdef JP
 strcpy(power_desc[num].name, "モンスター恐慌");
 #else
-			strcpy(power_desc[num].name, "scare monster");
+			strcpy(power_desc[num].name, "Scare Monster");
 #endif
 
 			power_desc[num].level = 4;
@@ -3019,7 +3019,7 @@ strcpy(power_desc[num].name, "モンスター恐慌");
 #ifdef JP
 sprintf(power_desc[num].name, "酸の唾 (ダメージ %d)", lvl);
 #else
-			sprintf(power_desc[num].name, "spit acid (dam %d)", lvl);
+			sprintf(power_desc[num].name, "Spit Acid (dam %d)", lvl);
 #endif
 
 			power_desc[num].level = 9;
@@ -3031,7 +3031,7 @@ sprintf(power_desc[num].name, "酸の唾 (ダメージ %d)", lvl);
 #ifdef JP
 sprintf(power_desc[num].name, "毒のダーツ (ダメージ %d)", lvl);
 #else
-			sprintf(power_desc[num].name, "poison dart (dam %d)", lvl);
+			sprintf(power_desc[num].name, "Poison Dart (dam %d)", lvl);
 #endif
 
 			power_desc[num].level = 12;
@@ -3043,7 +3043,7 @@ sprintf(power_desc[num].name, "毒のダーツ (ダメージ %d)", lvl);
 #ifdef JP
 sprintf(power_desc[num].name, "マジック・ミサイル (ダメージ %dd%d)", 3 + ((lvl - 1) / 5), 4);
 #else
-			sprintf(power_desc[num].name, "magic missile (dm %dd%d)", 3 + ((lvl - 1) / 5), 4);
+			sprintf(power_desc[num].name, "Magic Missile (dm %dd%d)", 3 + ((lvl - 1) / 5), 4);
 #endif
 
 			power_desc[num].level = 2;
@@ -3055,7 +3055,7 @@ sprintf(power_desc[num].name, "マジック・ミサイル (ダメージ %dd%d)", 3 + ((lvl -
 #ifdef JP
 sprintf(power_desc[num].name, "ブレス (ダメージ %d)", lvl * 2);
 #else
-			sprintf(power_desc[num].name, "breath weapon (dam %d)", lvl * 2);
+			sprintf(power_desc[num].name, "Breath Weapon (dam %d)", lvl * 2);
 #endif
 
 			power_desc[num].level = 1;
@@ -3067,7 +3067,7 @@ sprintf(power_desc[num].name, "ブレス (ダメージ %d)", lvl * 2);
 #ifdef JP
 sprintf(power_desc[num].name, "精神攻撃 (ダメージ %d)", lvl);
 #else
-			sprintf(power_desc[num].name, "mind blast (dam %d)", lvl);
+			sprintf(power_desc[num].name, "Mind Blast (dam %d)", lvl);
 #endif
 
 			power_desc[num].level = 15;
@@ -3079,7 +3079,7 @@ sprintf(power_desc[num].name, "精神攻撃 (ダメージ %d)", lvl);
 #ifdef JP
 sprintf(power_desc[num].name, "ファイア・ボルト/ボール (ダメージ %d)", lvl);
 #else
-			sprintf(power_desc[num].name, "fire bolt/ball (dam %d)", lvl);
+			sprintf(power_desc[num].name, "Fire Bolt/Ball (dam %d)", lvl);
 #endif
 
 			power_desc[num].level = 9;
@@ -3091,7 +3091,7 @@ sprintf(power_desc[num].name, "ファイア・ボルト/ボール (ダメージ %d)", lvl);
 #ifdef JP
 strcpy(power_desc[num].name, "肌石化 (期間 1d20+30)");
 #else
-			strcpy(power_desc[num].name, "stone skin (dur 1d20+30)");
+			strcpy(power_desc[num].name, "Stone Skin (dur 1d20+30)");
 #endif
 
 			power_desc[num].level = 20;
@@ -3104,7 +3104,7 @@ strcpy(power_desc[num].name, "肌石化 (期間 1d20+30)");
 #ifdef JP
 strcpy(power_desc[num].name, "経験値復活");
 #else
-			strcpy(power_desc[num].name, "restore life");
+			strcpy(power_desc[num].name, "Restore Life");
 #endif
 
 			power_desc[num].level = 30;
@@ -3116,7 +3116,7 @@ strcpy(power_desc[num].name, "経験値復活");
 #ifdef JP
 strcpy(power_desc[num].name, "生命力吸収");
 #else
-			strcpy(power_desc[num].name, "drain life");
+			strcpy(power_desc[num].name, "Drain Life");
 #endif
 
 			power_desc[num].level = 2;
@@ -3128,7 +3128,7 @@ strcpy(power_desc[num].name, "生命力吸収");
 #ifdef JP
 strcpy(power_desc[num].name, "眠り粉");
 #else
-			strcpy(power_desc[num].name, "sleeping dust");
+			strcpy(power_desc[num].name, "Sleeping Dust");
 #endif
 
 			power_desc[num].level = 12;
@@ -3140,7 +3140,7 @@ strcpy(power_desc[num].name, "眠り粉");
 #ifdef JP
 sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
 #else
-			sprintf(power_desc[num].name, "nether or fire breath (dam %d)", lvl * 3);
+			sprintf(power_desc[num].name, "Nether or Fire Breath (dam %d)", lvl * 3);
 #endif
 
 			power_desc[num].level = 15;
@@ -3152,7 +3152,7 @@ sprintf(power_desc[num].name, "地獄/火炎のブレス (ダメージ %d)", lvl * 3);
 #ifdef JP
 strcpy(power_desc[num].name, "横に伸びる");
 #else
-			strcpy(power_desc[num].name, "expand horizontally (dur 30+1d20)");
+			strcpy(power_desc[num].name, "Expand Horizontally (dur 30+1d20)");
 #endif
 
 			power_desc[num].level = 20;
@@ -3166,7 +3166,7 @@ strcpy(power_desc[num].name, "横に伸びる");
 #ifdef JP
 strcpy(power_desc[num].name, "レイガン");
 #else
-				strcpy(power_desc[num].name, "ray gun");
+				strcpy(power_desc[num].name, "Ray Gun");
 #endif
 
 				power_desc[num].level = 1;
@@ -3178,7 +3178,7 @@ strcpy(power_desc[num].name, "レイガン");
 #ifdef JP
 strcpy(power_desc[num].name, "ブラスター");
 #else
-				strcpy(power_desc[num].name, "blaster");
+				strcpy(power_desc[num].name, "Blaster");
 #endif
 
 				power_desc[num].level = 10;
@@ -3190,7 +3190,7 @@ strcpy(power_desc[num].name, "ブラスター");
 #ifdef JP
 strcpy(power_desc[num].name, "バズーカ");
 #else
-				strcpy(power_desc[num].name, "bazooka");
+				strcpy(power_desc[num].name, "Bazooka");
 #endif
 
 				power_desc[num].level = 25;
@@ -3202,7 +3202,7 @@ strcpy(power_desc[num].name, "バズーカ");
 #ifdef JP
 strcpy(power_desc[num].name, "ビームキャノン");
 #else
-				strcpy(power_desc[num].name, "beam cannon");
+				strcpy(power_desc[num].name, "Beam Cannon");
 #endif
 
 				power_desc[num].level = 35;
@@ -3214,7 +3214,7 @@ strcpy(power_desc[num].name, "ビームキャノン");
 #ifdef JP
 strcpy(power_desc[num].name, "ロケット");
 #else
-				strcpy(power_desc[num].name, "rocket");
+				strcpy(power_desc[num].name, "Rocket");
 #endif
 
 				power_desc[num].level = 45;
@@ -3237,7 +3237,7 @@ strcpy(power_desc[num].name, "ロケット");
 #ifdef JP
 strcpy(power_desc[num].name, "酸の唾");
 #else
-			strcpy(power_desc[num].name, "spit acid");
+			strcpy(power_desc[num].name, "Spit Acid");
 #endif
 
 			power_desc[num].level = 9;
@@ -3251,7 +3251,7 @@ strcpy(power_desc[num].name, "酸の唾");
 #ifdef JP
 strcpy(power_desc[num].name, "炎のブレス");
 #else
-			strcpy(power_desc[num].name, "fire breath");
+			strcpy(power_desc[num].name, "Fire Breath");
 #endif
 
 			power_desc[num].level = 20;
@@ -3265,7 +3265,7 @@ strcpy(power_desc[num].name, "炎のブレス");
 #ifdef JP
 strcpy(power_desc[num].name, "催眠睨み");
 #else
-			strcpy(power_desc[num].name, "hypnotic gaze");
+			strcpy(power_desc[num].name, "Hypnotic Gaze");
 #endif
 
 			power_desc[num].level = 12;
@@ -3279,7 +3279,7 @@ strcpy(power_desc[num].name, "催眠睨み");
 #ifdef JP
 strcpy(power_desc[num].name, "念動力");
 #else
-			strcpy(power_desc[num].name, "telekinesis");
+			strcpy(power_desc[num].name, "Telekinesis");
 #endif
 
 			power_desc[num].level = 9;
@@ -3293,7 +3293,7 @@ strcpy(power_desc[num].name, "念動力");
 #ifdef JP
 strcpy(power_desc[num].name, "テレポート");
 #else
-			strcpy(power_desc[num].name, "teleport");
+			strcpy(power_desc[num].name, "Teleport");
 #endif
 
 			power_desc[num].level = 7;
@@ -3307,7 +3307,7 @@ strcpy(power_desc[num].name, "テレポート");
 #ifdef JP
 strcpy(power_desc[num].name, "精神攻撃");
 #else
-			strcpy(power_desc[num].name, "mind blast");
+			strcpy(power_desc[num].name, "Mind Blast");
 #endif
 
 			power_desc[num].level = 5;
@@ -3321,7 +3321,7 @@ strcpy(power_desc[num].name, "精神攻撃");
 #ifdef JP
 strcpy(power_desc[num].name, "放射能");
 #else
-			strcpy(power_desc[num].name, "emit radiation");
+			strcpy(power_desc[num].name, "Emit Radiation");
 #endif
 
 			power_desc[num].level = 15;
@@ -3335,7 +3335,7 @@ strcpy(power_desc[num].name, "放射能");
 #ifdef JP
 strcpy(power_desc[num].name, "吸血ドレイン");
 #else
-			strcpy(power_desc[num].name, "vampiric drain");
+			strcpy(power_desc[num].name, "Vampiric Drain");
 #endif
 
 			power_desc[num].level = 2;
@@ -3349,7 +3349,7 @@ strcpy(power_desc[num].name, "吸血ドレイン");
 #ifdef JP
 strcpy(power_desc[num].name, "金属嗅覚");
 #else
-			strcpy(power_desc[num].name, "smell metal");
+			strcpy(power_desc[num].name, "Smell Metal");
 #endif
 
 			power_desc[num].level = 3;
@@ -3363,7 +3363,7 @@ strcpy(power_desc[num].name, "金属嗅覚");
 #ifdef JP
 strcpy(power_desc[num].name, "敵臭嗅覚");
 #else
-			strcpy(power_desc[num].name, "smell monsters");
+			strcpy(power_desc[num].name, "Smell Monsters");
 #endif
 
 			power_desc[num].level = 5;
@@ -3377,7 +3377,7 @@ strcpy(power_desc[num].name, "敵臭嗅覚");
 #ifdef JP
 strcpy(power_desc[num].name, "ショート・テレポート");
 #else
-			strcpy(power_desc[num].name, "blink");
+			strcpy(power_desc[num].name, "Blink");
 #endif
 
 			power_desc[num].level = 3;
@@ -3391,7 +3391,7 @@ strcpy(power_desc[num].name, "ショート・テレポート");
 #ifdef JP
 strcpy(power_desc[num].name, "岩食い");
 #else
-			strcpy(power_desc[num].name, "eat rock");
+			strcpy(power_desc[num].name, "Eat Rock");
 #endif
 
 			power_desc[num].level = 8;
@@ -3405,7 +3405,7 @@ strcpy(power_desc[num].name, "岩食い");
 #ifdef JP
 strcpy(power_desc[num].name, "位置交換");
 #else
-			strcpy(power_desc[num].name, "swap position");
+			strcpy(power_desc[num].name, "Swap Position");
 #endif
 
 			power_desc[num].level = 15;
@@ -3419,7 +3419,7 @@ strcpy(power_desc[num].name, "位置交換");
 #ifdef JP
 strcpy(power_desc[num].name, "叫び");
 #else
-			strcpy(power_desc[num].name, "shriek");
+			strcpy(power_desc[num].name, "Shriek");
 #endif
 
 			power_desc[num].level = 20;
@@ -3433,7 +3433,7 @@ strcpy(power_desc[num].name, "叫び");
 #ifdef JP
 strcpy(power_desc[num].name, "照明");
 #else
-			strcpy(power_desc[num].name, "illuminate");
+			strcpy(power_desc[num].name, "Illuminate");
 #endif
 
 			power_desc[num].level = 3;
@@ -3447,7 +3447,7 @@ strcpy(power_desc[num].name, "照明");
 #ifdef JP
 strcpy(power_desc[num].name, "呪い感知");
 #else
-			strcpy(power_desc[num].name, "detect curses");
+			strcpy(power_desc[num].name, "Detect Curses");
 #endif
 
 			power_desc[num].level = 7;
@@ -3461,7 +3461,7 @@ strcpy(power_desc[num].name, "呪い感知");
 #ifdef JP
 strcpy(power_desc[num].name, "狂戦士化");
 #else
-			strcpy(power_desc[num].name, "berserk");
+			strcpy(power_desc[num].name, "Berserk");
 #endif
 
 			power_desc[num].level = 8;
@@ -3475,7 +3475,7 @@ strcpy(power_desc[num].name, "狂戦士化");
 #ifdef JP
 strcpy(power_desc[num].name, "変身");
 #else
-			strcpy(power_desc[num].name, "polymorph");
+			strcpy(power_desc[num].name, "Polymorph");
 #endif
 
 			power_desc[num].level = 18;
@@ -3489,7 +3489,7 @@ strcpy(power_desc[num].name, "変身");
 #ifdef JP
 strcpy(power_desc[num].name, "ミダスの手");
 #else
-			strcpy(power_desc[num].name, "midas touch");
+			strcpy(power_desc[num].name, "Midas Touch");
 #endif
 
 			power_desc[num].level = 10;
@@ -3503,7 +3503,7 @@ strcpy(power_desc[num].name, "ミダスの手");
 #ifdef JP
 strcpy(power_desc[num].name, "カビ発生");
 #else
-			strcpy(power_desc[num].name, "grow mold");
+			strcpy(power_desc[num].name, "Grow Mold");
 #endif
 
 			power_desc[num].level = 1;
@@ -3517,7 +3517,7 @@ strcpy(power_desc[num].name, "カビ発生");
 #ifdef JP
 strcpy(power_desc[num].name, "エレメント耐性");
 #else
-			strcpy(power_desc[num].name, "resist elements");
+			strcpy(power_desc[num].name, "Resist Elements");
 #endif
 
 			power_desc[num].level = 10;
@@ -3531,7 +3531,7 @@ strcpy(power_desc[num].name, "エレメント耐性");
 #ifdef JP
 strcpy(power_desc[num].name, "地震");
 #else
-			strcpy(power_desc[num].name, "earthquake");
+			strcpy(power_desc[num].name, "Earthquake");
 #endif
 
 			power_desc[num].level = 12;
@@ -3545,7 +3545,7 @@ strcpy(power_desc[num].name, "地震");
 #ifdef JP
 strcpy(power_desc[num].name, "魔力食い");
 #else
-			strcpy(power_desc[num].name, "eat magic");
+			strcpy(power_desc[num].name, "Eat Magic");
 #endif
 
 			power_desc[num].level = 17;
@@ -3559,7 +3559,7 @@ strcpy(power_desc[num].name, "魔力食い");
 #ifdef JP
 strcpy(power_desc[num].name, "魔力感知");
 #else
-			strcpy(power_desc[num].name, "weigh magic");
+			strcpy(power_desc[num].name, "Weigh Magic");
 #endif
 
 			power_desc[num].level = 6;
@@ -3573,7 +3573,7 @@ strcpy(power_desc[num].name, "魔力感知");
 #ifdef JP
 strcpy(power_desc[num].name, "増殖阻止");
 #else
-			strcpy(power_desc[num].name, "sterilize");
+			strcpy(power_desc[num].name, "Sterilize");
 #endif
 
 			power_desc[num].level = 12;
@@ -3587,7 +3587,7 @@ strcpy(power_desc[num].name, "増殖阻止");
 #ifdef JP
 strcpy(power_desc[num].name, "ヒット＆アウェイ");
 #else
-			strcpy(power_desc[num].name, "panic hit");
+			strcpy(power_desc[num].name, "Panic Hit");
 #endif
 
 			power_desc[num].level = 10;
@@ -3601,7 +3601,7 @@ strcpy(power_desc[num].name, "ヒット＆アウェイ");
 #ifdef JP
 strcpy(power_desc[num].name, "眩惑");
 #else
-			strcpy(power_desc[num].name, "dazzle");
+			strcpy(power_desc[num].name, "Dazzle");
 #endif
 
 			power_desc[num].level = 7;
@@ -3615,7 +3615,7 @@ strcpy(power_desc[num].name, "眩惑");
 #ifdef JP
 strcpy(power_desc[num].name, "レーザー・アイ");
 #else
-			strcpy(power_desc[num].name, "laser eye");
+			strcpy(power_desc[num].name, "Laser Eye");
 #endif
 
 			power_desc[num].level = 7;
@@ -3629,7 +3629,7 @@ strcpy(power_desc[num].name, "レーザー・アイ");
 #ifdef JP
 strcpy(power_desc[num].name, "帰還");
 #else
-			strcpy(power_desc[num].name, "recall");
+			strcpy(power_desc[num].name, "Recall");
 #endif
 
 			power_desc[num].level = 17;
@@ -3643,7 +3643,7 @@ strcpy(power_desc[num].name, "帰還");
 #ifdef JP
 strcpy(power_desc[num].name, "邪悪消滅");
 #else
-			strcpy(power_desc[num].name, "banish evil");
+			strcpy(power_desc[num].name, "Banish Evil");
 #endif
 
 			power_desc[num].level = 25;
@@ -3657,7 +3657,7 @@ strcpy(power_desc[num].name, "邪悪消滅");
 #ifdef JP
 strcpy(power_desc[num].name, "凍結の手");
 #else
-			strcpy(power_desc[num].name, "cold touch");
+			strcpy(power_desc[num].name, "Cold Touch");
 #endif
 
 			power_desc[num].level = 2;
@@ -3671,7 +3671,7 @@ strcpy(power_desc[num].name, "凍結の手");
 #ifdef JP
 strcpy(power_desc[num].name, "アイテム投げ");
 #else
-			strcpy(power_desc[num].name, "throw object");
+			strcpy(power_desc[num].name, "Throw Object");
 #endif
 
 			power_desc[num].level = 1;

@@ -169,6 +169,7 @@ cptr            p = "É¬»¦·õ";
 				case 'x':
 				case 'X':
 				case '\r':
+				case '\n':
 				{
 					i = menu_line - 1;
 					ask = FALSE;
@@ -673,7 +674,7 @@ static bool cast_hissatsu_spell(int spell)
 		cave[y][x].info &= ~(CAVE_MARK);
 
 		/* Destroy the feature */
-		cave[y][x].feat = floor_type[rand_int(100)];
+		cave[y][x].feat = floor_type[randint0(100)];
 		cave[y][x].info &= ~(CAVE_MASK);
 		cave[y][x].info |= CAVE_FLOOR;
 
@@ -886,7 +887,7 @@ static bool cast_hissatsu_spell(int spell)
 #else
 		msg_print("You roar out!");
 #endif
-		project_hack(GF_SOUND, randint(p_ptr->lev * 3));
+		project_hack(GF_SOUND, randint1(p_ptr->lev * 3));
 		aggravate_monsters(0);
 		break;
 	}
@@ -1163,9 +1164,9 @@ msg_print("¤½¤ÎÊý¸þ¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 			return FALSE;
 		}
 #ifdef JP
-		take_hit(DAMAGE_NOESCAPE, 100 + randint(100), "·Ä±Àµ´Ç¦·õ¤ò»È¤Ã¤¿¾×·â", -1);
+		take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "·Ä±Àµ´Ç¦·õ¤ò»È¤Ã¤¿¾×·â", -1);
 #else
-		take_hit(DAMAGE_NOESCAPE, 100 + randint(100), "reaction of your attack", -1); /*nanka*/
+		take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "reaction of your attack", -1); /*nanka*/
 #endif
 		break;
 	}

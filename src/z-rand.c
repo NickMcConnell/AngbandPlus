@@ -24,7 +24,7 @@
  * and is much less subject to low-bit-non-randomness problems.
  *
  * You can select your favorite flavor by proper definition of the
- * "rand_int()" macro in the "defines.h" file.
+ * "randint0()" macro in the "defines.h" file.
  *
  * Note that, in Angband 2.8.0, the "state" table will be saved in the
  * savefile, so a special "initialization" phase will be necessary.
@@ -93,52 +93,6 @@ void Rand_state_init(u32b seed)
 		/* Advance the index */
 		Rand_place = j;
 	}
-}
-
-
-/*
- * Extract a "random" number from 0 to m-1, via "modulus"
- *
- * Note that "m" should probably be less than 500000, or the
- * results may be rather biased towards low values.
- */
-s32b Rand_mod(s32b m)
-{
-	int j;
-	u32b r;
-
-	/* Hack -- simple case */
-	if (m <= 1) return (0);
-
-	/* Use the "simple" RNG */
-	if (Rand_quick)
-	{
-		/* Cycle the generator */
-		r = (Rand_value = LCRNG(Rand_value));
-
-		/* Mutate a 28-bit "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the "complex" RNG */
-	else
-	{
-		/* Acquire the next index */
-		j = Rand_place + 1;
-		if (j == RAND_DEG) j = 0;
-
-		/* Update the table, extract an entry */
-		r = (Rand_state[j] += Rand_state[Rand_place]);
-
-		/* Advance the index */
-		Rand_place = j;
-
-		/* Extract a "random" number */
-		r = ((r >> 4) % m);
-	}
-
-	/* Use the value */
-	return (r);
 }
 
 
@@ -298,7 +252,7 @@ s16b randnor(int mean, int stand)
 	if (stand < 1) return (mean);
 
 	/* Roll for probability */
-	tmp = (s16b)rand_int(32768);
+	tmp = (s16b)randint0(32768);
 
 	/* Binary Search */
 	while (low < high)
@@ -322,7 +276,7 @@ s16b randnor(int mean, int stand)
 	offset = (long)stand * (long)low / RANDNOR_STD;
 
 	/* One half should be negative */
-	if (rand_int(100) < 50) return (mean - offset);
+	if (randint0(100) < 50) return (mean - offset);
 
 	/* One half should be positive */
 	return (mean + offset);
@@ -336,7 +290,7 @@ s16b randnor(int mean, int stand)
 s16b damroll(int num, int sides)
 {
 	int i, sum = 0;
-	for (i = 0; i < num; i++) sum += randint(sides);
+	for (i = 0; i < num; i++) sum += randint1(sides);
 	return (sum);
 }
 

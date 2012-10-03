@@ -14,6 +14,7 @@
 static byte display_autopick;
 static int match_autopick;
 static object_type *autopick_obj;
+static int feat_priority;
 
 /*
  * Distance between two points via Newton-Raphson technique
@@ -533,26 +534,26 @@ static void image_monster(byte *ap, char *cp)
 		/* Normal graphics */
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = r_info[randint(max_r_idx-1)].x_char;
-			(*ap) = r_info[randint(max_r_idx-1)].x_attr;
+			(*cp) = r_info[randint1(max_r_idx-1)].x_char;
+			(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
 		}
 		else
 		/* IBM-pseudo graphics */
 		{
 			n = strlen(image_monster_hack_ibm);
-			(*cp) = (image_monster_hack_ibm[rand_int(n)]);
+			(*cp) = (image_monster_hack_ibm[randint0(n)]);
 
 			/* Random color */
-			(*ap) = randint(15);
+			(*ap) = randint1(15);
 		}
 	}
 	else
 	/* Text mode */
 	{
-		(*cp) = (image_monster_hack[rand_int(n)]);
+		(*cp) = (image_monster_hack[randint0(n)]);
 
 		/* Random color */
-		(*ap) = randint(15);
+		(*ap) = randint1(15);
 	}
 }
 
@@ -578,24 +579,24 @@ static void image_object(byte *ap, char *cp)
 	{
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = k_info[randint(max_k_idx-1)].x_char;
-			(*ap) = k_info[randint(max_k_idx-1)].x_attr;
+			(*cp) = k_info[randint1(max_k_idx-1)].x_char;
+			(*ap) = k_info[randint1(max_k_idx-1)].x_attr;
 		}
 		else
 		{
 			n = strlen(image_object_hack_ibm);
-			(*cp) = (image_object_hack_ibm[rand_int(n)]);
+			(*cp) = (image_object_hack_ibm[randint0(n)]);
 
 			/* Random color */
-			(*ap) = randint(15);
+			(*ap) = randint1(15);
 		}
 	}
 	else
 	{
-		(*cp) = (image_object_hack[rand_int(n)]);
+		(*cp) = (image_object_hack[randint0(n)]);
 
 		/* Random color */
-		(*ap) = randint(15);
+		(*ap) = randint1(15);
 	}
 }
 
@@ -607,7 +608,7 @@ static void image_object(byte *ap, char *cp)
 static void image_random(byte *ap, char *cp)
 {
 	/* Normally, assume monsters */
-	if (rand_int(100) < 75)
+	if (randint0(100) < 75)
 	{
 		image_monster(ap, cp);
 	}
@@ -634,44 +635,45 @@ static bool feat_supports_lighting(byte feat)
 
 	switch (feat)
 	{
-		case FEAT_FLOOR:
-		case FEAT_INVIS:
-		case FEAT_GLYPH:
-		case FEAT_LESS:
-		case FEAT_MORE:
-		case FEAT_LESS_LESS:
-		case FEAT_MORE_MORE:
-		case FEAT_SECRET:
-		case FEAT_RUBBLE:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_MAGMA_K:
-		case FEAT_QUARTZ_K:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-		case FEAT_MINOR_GLYPH:
-		case FEAT_DEEP_WATER:
-		case FEAT_SHAL_WATER:
-		case FEAT_DEEP_LAVA:
-		case FEAT_SHAL_LAVA:
-		case FEAT_DARK_PIT:
-		case FEAT_DIRT:
-		case FEAT_GRASS:
-		case FEAT_FLOWER:
-		case FEAT_DEEP_GRASS:
-		case FEAT_TREES:
-		case FEAT_MOUNTAIN:
-			return TRUE;
-		default:
-			return FALSE;
+	case FEAT_FLOOR:
+	case FEAT_INVIS:
+	case FEAT_GLYPH:
+	case FEAT_LESS:
+	case FEAT_MORE:
+	case FEAT_LESS_LESS:
+	case FEAT_MORE_MORE:
+	case FEAT_SECRET:
+	case FEAT_RUBBLE:
+	case FEAT_MAGMA:
+	case FEAT_QUARTZ:
+	case FEAT_MAGMA_H:
+	case FEAT_QUARTZ_H:
+	case FEAT_MAGMA_K:
+	case FEAT_QUARTZ_K:
+	case FEAT_WALL_EXTRA:
+	case FEAT_WALL_INNER:
+	case FEAT_WALL_OUTER:
+	case FEAT_WALL_SOLID:
+	case FEAT_PERM_EXTRA:
+	case FEAT_PERM_INNER:
+	case FEAT_PERM_OUTER:
+	case FEAT_PERM_SOLID:
+	case FEAT_MINOR_GLYPH:
+	case FEAT_DEEP_WATER:
+	case FEAT_SHAL_WATER:
+	case FEAT_DEEP_LAVA:
+	case FEAT_SHAL_LAVA:
+	case FEAT_DARK_PIT:
+	case FEAT_DIRT:
+	case FEAT_GRASS:
+	case FEAT_FLOWER:
+	case FEAT_DEEP_GRASS:
+	case FEAT_TREES:
+	case FEAT_MOUNTAIN:
+	case FEAT_MIRROR:
+		return TRUE;
+	default:
+		return FALSE;
 	}
 }
 
@@ -896,7 +898,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->x_attr;
 
 			/* Special lighting effects */
-			if (view_special_lite && (!p_ptr->wild_mode) && ((a == TERM_WHITE) || use_transparency))
+			if (view_special_lite && (!p_ptr->wild_mode) && ((a == TERM_WHITE) || use_graphics))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -908,7 +910,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							/* Use darkened colour */
 							a = lighting_colours[a][1];
 						}
-						else if (use_transparency && feat_supports_lighting(feat))
+						else if (use_graphics && feat_supports_lighting(feat))
 						{
 							/* Use a dark tile */
 							c++;
@@ -916,7 +918,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					}
 					else
 					{
-						if (use_transparency)
+						if (use_graphics)
 						{
 							/* Use a dark tile */
 							c++;
@@ -942,7 +944,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								/* Use lightened colour */
 								a = lighting_colours[a][0];
 							}
-							else if (use_transparency &&
+							else if (use_graphics &&
 								 feat_supports_lighting(feat))
 							{
 								/* Use a brightly lit tile */
@@ -954,7 +956,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							/* Torch lite */
 							if (view_yellow_lite)
 							{
-								if (use_transparency)
+								if (use_graphics)
 								{
 									/* Use a brightly lit tile */
 									c += 2;
@@ -979,7 +981,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							/* Use darkened colour */
 							a = lighting_colours[a][1];
 						}
-						else if (use_transparency && feat_supports_lighting(feat))
+						else if (use_graphics && feat_supports_lighting(feat))
 						{
 							/* Use a dark tile */
 							c++;
@@ -987,7 +989,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					}
 					else
 					{
-						if (use_transparency)
+						if (use_graphics)
 						{
 							/* Use a dark tile */
 							c++;
@@ -1013,7 +1015,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								/* Use darkened colour */
 								a = lighting_colours[a][1];
 							}
-							else if (use_transparency && feat_supports_lighting(feat))
+							else if (use_graphics && feat_supports_lighting(feat))
 							{
 								/* Use a dark tile */
 								c++;
@@ -1021,7 +1023,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						}
 						else
 						{
-							if (use_transparency)
+							if (use_graphics)
 							{
 								/* Use a dark tile */
 								c++;
@@ -1040,8 +1042,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Unknown */
 		else
 		{
+			feat = FEAT_NONE;
+
 			/* Access darkness */
-			f_ptr = &f_info[FEAT_NONE];
+			f_ptr = &f_info[feat];
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
@@ -1082,7 +1086,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						/* Use darkened colour */
 						a = lighting_colours[a][1];
 					}
-					else if (use_transparency && feat_supports_lighting(feat))
+					else if (use_graphics && feat_supports_lighting(feat))
 					{
 						/* Use a dark tile */
 						c++;
@@ -1093,14 +1097,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (c_ptr->info & (CAVE_LITE | CAVE_MNLT))
 				{
 					/* Torch lite */
-					if (view_yellow_lite && !p_ptr->wild_mode && (!use_transparency || feat_supports_lighting(feat) || is_ascii_graphics(c,a)))
+					if (view_yellow_lite && !p_ptr->wild_mode && ((use_graphics && feat_supports_lighting(feat)) || is_ascii_graphics(c,a)))
 					{
 						if (is_ascii_graphics(c,a))
 						{
 							/* Use lightened colour */
 							a = lighting_colours[a][0];
 						}
-						else if (use_transparency &&
+						else if (use_graphics &&
 								feat_supports_lighting(c_ptr->feat))
 						{
 							/* Use a brightly lit tile */
@@ -1110,7 +1114,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				}
 
 				/* Handle "view_bright_lite" */
-				else if (view_bright_lite && !p_ptr->wild_mode && (!use_transparency || feat_supports_lighting(feat) || is_ascii_graphics(c,a)))
+				else if (view_bright_lite && !p_ptr->wild_mode && ((use_graphics && feat_supports_lighting(feat)) || is_ascii_graphics(c,a)))
 				{
 					/* Not viewable */
 					if (!(c_ptr->info & CAVE_VIEW))
@@ -1120,7 +1124,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							/* Use darkened colour */
 							a = lighting_colours[a][1];
 						}
-						else if (use_transparency && feat_supports_lighting(feat))
+						else if (use_graphics && feat_supports_lighting(feat))
 						{
 							/* Use a dark tile */
 							c++;
@@ -1140,13 +1144,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 			/* Special lighting effects */
 			else if (view_granite_lite && !p_ptr->wild_mode &&
-			   (((a == TERM_WHITE) && !use_transparency) ||
-			   (use_transparency && feat_supports_lighting(c_ptr->feat))))
+			   (((a == TERM_WHITE) && !use_graphics) ||
+			   (use_graphics && feat_supports_lighting(c_ptr->feat))))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
 				{
-					if (use_transparency)
+					if (use_graphics)
 					{
 						/* Use a dark tile */
 						c++;
@@ -1164,7 +1168,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Torch lite */
 					if (view_yellow_lite && !p_ptr->wild_mode)
 					{
-						if (use_transparency)
+						if (use_graphics)
 						{
 							/* Use a brightly lit tile */
 							c += 2;
@@ -1183,7 +1187,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Not viewable */
 					if (!(c_ptr->info & CAVE_VIEW))
 					{
-						if (use_transparency)
+						if (use_graphics)
 						{
 							/* Use a dark tile */
 							c++;
@@ -1198,7 +1202,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Not glowing */
 					else if (!(c_ptr->info & CAVE_GLOW))
 					{
-						if (use_transparency)
+						if (use_graphics)
 						{
 							/* Use a lit tile */
 						}
@@ -1221,7 +1225,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						/* Check for "local" illumination */
 						if (!(cave[yy][xx].info & CAVE_GLOW))
 						{
-							if (use_transparency)
+							if (use_graphics)
 							{
 								/* Use a lit tile */
 							}
@@ -1239,15 +1243,14 @@ void map_info(int y, int x, byte *ap, char *cp)
                 /* "Simple Lighting" */
                 else
                 {
-                        /* Access feature */
-                        f_ptr = &f_info[feat];
-
                         /* Handle "blind" */
                         if (!(c_ptr->info & CAVE_MARK))
                         {
-                                /* Access darkness */
-                                f_ptr = &f_info[FEAT_NONE];
+                                feat = FEAT_NONE;
                         }
+
+                        /* Access feature */
+                        f_ptr = &f_info[feat];
 
                         /* Normal attr */
                         a = f_ptr->x_attr;
@@ -1257,8 +1260,111 @@ void map_info(int y, int x, byte *ap, char *cp)
                 }
         }
 
+	if (feat_priority == -1)
+	{
+		switch (feat)
+		{
+		case FEAT_NONE:
+		case FEAT_DARK_PIT:
+			feat_priority = 1;
+			break;
+
+		case FEAT_FLOOR:
+		case FEAT_INVIS:
+		case FEAT_TRAP_TRAPDOOR:
+		case FEAT_TRAP_PIT:
+		case FEAT_TRAP_SPIKED_PIT:
+		case FEAT_TRAP_POISON_PIT:
+		case FEAT_TRAP_TY_CURSE:
+		case FEAT_TRAP_TELEPORT:
+		case FEAT_TRAP_FIRE:
+		case FEAT_TRAP_ACID:
+		case FEAT_TRAP_SLOW:
+		case FEAT_TRAP_LOSE_STR:
+		case FEAT_TRAP_LOSE_DEX:
+		case FEAT_TRAP_LOSE_CON:
+		case FEAT_TRAP_BLIND:
+		case FEAT_TRAP_CONFUSE:
+		case FEAT_TRAP_POISON:
+		case FEAT_TRAP_SLEEP:
+		case FEAT_TRAP_TRAPS:
+		case FEAT_DIRT:
+		case FEAT_GRASS:
+		case FEAT_FLOWER:
+		case FEAT_DEEP_GRASS:
+		case FEAT_SWAMP:
+		case FEAT_TREES:
+		case FEAT_SECRET:
+		case FEAT_RUBBLE:
+		case FEAT_MAGMA:
+		case FEAT_QUARTZ:
+		case FEAT_MAGMA_H:
+		case FEAT_QUARTZ_H:
+		case FEAT_WALL_EXTRA:
+		case FEAT_WALL_INNER:
+		case FEAT_WALL_OUTER:
+		case FEAT_WALL_SOLID:
+		case FEAT_DEEP_WATER:
+		case FEAT_SHAL_WATER:
+		case FEAT_DEEP_LAVA:
+		case FEAT_SHAL_LAVA:
+			feat_priority = 2;
+			break;
+			
+		case FEAT_MAGMA_K:
+		case FEAT_QUARTZ_K:
+			feat_priority = 3;
+			break;
+			
+		case FEAT_MOUNTAIN:
+		case FEAT_PERM_EXTRA:
+		case FEAT_PERM_INNER:
+		case FEAT_PERM_OUTER:
+		case FEAT_PERM_SOLID:
+			feat_priority = 5;
+			break;
+			
+			/* default is feat_priority = 20; (doors and stores) */ 
+			
+		case FEAT_GLYPH:
+		case FEAT_MINOR_GLYPH:
+		case FEAT_MIRROR:
+		case FEAT_PATTERN_START:
+		case FEAT_PATTERN_1:
+		case FEAT_PATTERN_2:
+		case FEAT_PATTERN_3:
+		case FEAT_PATTERN_4:
+		case FEAT_PATTERN_END:
+		case FEAT_PATTERN_OLD:
+		case FEAT_PATTERN_XTRA1:
+		case FEAT_PATTERN_XTRA2:
+			feat_priority = 16;
+			break;
+			
+			/* objects have feat_priority = 20 */ 
+			/* monsters have feat_priority = 30 */ 
+			
+		case FEAT_LESS:
+		case FEAT_MORE:
+		case FEAT_QUEST_ENTER:
+		case FEAT_QUEST_EXIT:
+		case FEAT_QUEST_DOWN:
+		case FEAT_QUEST_UP:
+		case FEAT_LESS_LESS:
+		case FEAT_MORE_MORE:
+		case FEAT_TOWN:
+		case FEAT_ENTRANCE:
+			feat_priority = 35;
+			break;
+			
+		default:
+			feat_priority = 10;
+			break;
+		}
+	}
+
 	/* Hack -- rare random hallucination, except on outer dungeon walls */
-	if (p_ptr->image && (c_ptr->feat < FEAT_PERM_SOLID) && !rand_int(256))
+	if (p_ptr->image && (c_ptr->feat < FEAT_PERM_SOLID) && !randint0(256))
 	{
 		/* Hallucinate */
 		image_random(ap, cp);
@@ -1314,6 +1420,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Normal attr */
 			(*ap) = object_attr(o_ptr);
 
+			feat_priority = 20;
+
 			/* Hack -- hallucination */
 			if (p_ptr->image) image_object(ap, cp);
 
@@ -1340,6 +1448,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Desired char */
 			c = r_ptr->x_char;
+
+			feat_priority = 30;
 
 			/* Mimics' colors vary */
 			if (strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
@@ -1371,23 +1481,23 @@ void map_info(int y, int x, byte *ap, char *cp)
 					{
 						if (!(streq(ANGBAND_SYS, "ibm")))
 						{
-							(*cp) = r_info[randint(max_r_idx-1)].x_char;
-							(*ap) = r_info[randint(max_r_idx-1)].x_attr;
+							(*cp) = r_info[randint1(max_r_idx-1)].x_char;
+							(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
 						}
 						else
 						{
 							int n =  strlen(image_monster_hack_ibm);
-							(*cp) = (image_monster_hack_ibm[rand_int(n)]);
+							(*cp) = (image_monster_hack_ibm[randint0(n)]);
 
 							/* Random color */
-							(*ap) = randint(15);
+							(*ap) = randint1(15);
 						}
 					}
 					else
 					{
-						(*cp) = (randint(25) == 1 ?
-							image_object_hack[rand_int(strlen(image_object_hack))] :
-							image_monster_hack[rand_int(strlen(image_monster_hack))]);
+						(*cp) = (one_in_(25) ?
+							image_object_hack[randint0(strlen(image_object_hack))] :
+							image_monster_hack[randint0(strlen(image_monster_hack))]);
 					}
 				}
 				else
@@ -1395,8 +1505,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (r_ptr->flags2 & RF2_ATTR_ANY)
-					(*ap) = randint(15);
-				else switch (randint(7))
+					(*ap) = randint1(15);
+				else switch (randint1(7))
 				{
 					case 1:
 						(*ap) = TERM_RED;
@@ -1474,6 +1584,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		monster_race *r_ptr = &r_info[0];
 
+		feat_priority = 31;
+
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
 
@@ -1508,7 +1620,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case CLASS_CHAOS_WARRIOR:
 							do
 							{
-								a = randint(15);
+								a = randint1(15);
 							}
 							while (a == TERM_DARK);
 							break;
@@ -2142,112 +2254,6 @@ void prt_path(int y, int x)
 }
 
 
-
-
-/*
- * Display highest priority object in the RATIO by RATIO area
- */
-#define RATIO 3
-
-
-/*
- * Hack -- priority array (see below)
- *
- * Note that all "walls" always look like "secret doors" (see "map_info()").
- */
-static byte priority_table[][2] =
-{
-	/* Dark */
-	{ FEAT_NONE, 2 },
-
-	/* Floors */
-	{ FEAT_FLOOR, 5 },
-
-	/* Walls */
-	{ FEAT_SECRET, 10 },
-
-	/* Quartz */
-	{ FEAT_QUARTZ, 11 },
-
-	/* Magma */
-	{ FEAT_MAGMA, 12 },
-
-	/* Rubble */
-	{ FEAT_RUBBLE, 13 },
-
-	/* Open doors */
-	{ FEAT_OPEN, 15 },
-	{ FEAT_BROKEN, 15 },
-
-	/* Closed doors */
-	{ FEAT_DOOR_HEAD + 0x00, 17 },
-
-	/* Hidden gold */
-	{ FEAT_QUARTZ_K, 19 },
-	{ FEAT_MAGMA_K, 19 },
-
-	/* water, lava, & trees */
-	{ FEAT_DEEP_WATER, 20 },
-	{ FEAT_SHAL_WATER, 20 },
-	{ FEAT_DEEP_LAVA, 20 },
-	{ FEAT_SHAL_LAVA, 20 },
-	{ FEAT_DIRT, 6 },
-	{ FEAT_GRASS, 6 },
-	{ FEAT_FLOWER, 6 },
-	{ FEAT_DEEP_GRASS, 6 },
-	{ FEAT_DARK_PIT, 20 },
-	{ FEAT_TREES, 6 },
-	{ FEAT_MOUNTAIN, 20 },
-
-	/* Stairs */
-	{ FEAT_LESS, 25 },
-	{ FEAT_MORE, 25 },
-	{ FEAT_LESS_LESS, 25 },
-	{ FEAT_MORE_MORE, 25 },
-	{ FEAT_ENTRANCE, 25 },
-
-	{ FEAT_QUEST_ENTER, 25 },
-	{ FEAT_QUEST_EXIT, 25 },
-	{ FEAT_QUEST_DOWN, 25 },
-	{ FEAT_QUEST_UP, 25 },
-
-	/* End */
-	{ 0, 0 }
-};
-
-
-/*
- * Hack -- a priority function (see below)
- */
-static byte priority(byte a, char c)
-{
-	int i, p0, p1;
-
-	feature_type *f_ptr;
-
-	/* Scan the table */
-	for (i = 0; TRUE; i++)
-	{
-		/* Priority level */
-		p1 = priority_table[i][1];
-
-		/* End of table */
-		if (!p1) break;
-
-		/* Feature index */
-		p0 = priority_table[i][0];
-
-		/* Access the feature */
-		f_ptr = &f_info[p0];
-
-		/* Check character and attribute, accept matches */
-		if ((f_ptr->x_char == c) && (f_ptr->x_attr == a)) return (p1);
-	}
-
-	/* Default */
-	return (20);
-}
-
 static cptr simplify_list[][2] =
 {
 #ifdef JP
@@ -2336,16 +2342,6 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term
- *
- * Note that the "map_info()" function must return fully colorized
- * data or this function will not work correctly.
- *
- * Note that this function must "disable" the special lighting
- * effects so that the "priority" function will work.
- *
- * Note the use of a specialized "priority" function to allow this
- * function to work with any graphic attr/char mappings, and the
- * attempts to optimize this function where possible.
  */
 void display_map(int *cy, int *cx)
 {
@@ -2355,6 +2351,10 @@ void display_map(int *cy, int *cx)
 	char tc;
 
 	byte tp;
+
+	byte bigma[MAX_HGT+2][MAX_WID+2];
+	char bigmc[MAX_HGT+2][MAX_WID+2];
+	byte bigmp[MAX_HGT+2][MAX_WID+2];
 
 	byte ma[SCREEN_HGT + 2][SCREEN_WID + 2];
 	char mc[SCREEN_HGT + 2][SCREEN_WID + 2];
@@ -2398,6 +2398,19 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
+	for (j = 0; j < cur_hgt + 2; ++j)
+	{
+		for (i = 0; i < cur_wid + 2; ++i)
+		{
+			/* Nothing here */
+			bigma[j][i] = TERM_WHITE;
+			bigmc[j][i] = ' ';
+
+			/* No priority */
+			bigmp[j][i] = 0;
+		}
+	}
+
 	/* Fill in the map */
 	for (i = 0; i < cur_wid; ++i)
 	{
@@ -2409,6 +2422,7 @@ void display_map(int *cy, int *cx)
 
 			match_autopick=-1;
 			autopick_obj=NULL;
+			feat_priority = -1;
 
 			/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
@@ -2417,8 +2431,8 @@ void display_map(int *cy, int *cx)
 			map_info(j, i, &ta, &tc);
 #endif /* USE_TRANSPARENCY */
 
-			/* Extract the priority of that attr/char */
-			tp = priority(ta, tc);
+			/* Extract the priority */
+			tp = feat_priority;
 
 			if(match_autopick!=-1
 			   && (match_autopick_yx[y][x] == -1
@@ -2429,16 +2443,47 @@ void display_map(int *cy, int *cx)
 				tp = 0x7f;
 			}
 
-			/* Save "best" */
-			if (mp[y][x] <= tp)
+			/* Save the char, attr and priority */
+			bigmc[j+1][i+1] = tc;
+			bigma[j+1][i+1] = ta;
+			bigmp[j+1][i+1] = tp;
+		}
+	}
+
+	for (j = 0; j < cur_hgt; ++j)
+	{
+		for (i = 0; i < cur_wid; ++i)
+		{
+			/* Location */
+			x = i / xrat + 1;
+			y = j / yrat + 1;
+
+			tc = bigmc[j+1][i+1];
+			ta = bigma[j+1][i+1];
+			tp = bigmp[j+1][i+1];
+
+			/* rare feature has more priority */
+			if (mp[y][x] == tp)
 			{
-				/* Save the char */
+				int t;
+				int cnt = 0;
+
+				for (t = 0; t < 8; t++)
+				{
+					if (tc == bigmc[j+1+ddy_cdd[t]][i+1+ddx_cdd[t]] &&
+					    ta == bigma[j+1+ddy_cdd[t]][i+1+ddx_cdd[t]])
+						cnt++;
+				}
+				if (cnt <= 4)
+					tp++;
+			}
+
+			/* Save "best" */
+			if (mp[y][x] < tp)
+			{
+				/* Save the char, attr and priority */
 				mc[y][x] = tc;
-
-				/* Save the attr */
 				ma[y][x] = ta;
-
-				/* Save priority */
 				mp[y][x] = tp;
 			}
 		}
@@ -4364,17 +4409,17 @@ void update_smell(void)
 	int y, x;
 
 	/* Create a table that controls the spread of scent */
-	int scent_adjust[5][5] = 
+	const int scent_adjust[5][5] = 
 	{
-		{ 250,  0,  0,  0, 250 },
-		{   0,  1,  1,  1,   0 },
-		{   0,  1,  2,  1,   0 },
-		{   0,  1,  1,  1,   0 },
-		{ 250,  0,  0,  0, 250 },
+		{ -1, 0, 0, 0,-1 },
+		{  0, 1, 1, 1, 0 },
+		{  0, 1, 2, 1, 0 },
+		{  0, 1, 1, 1, 0 },
+		{ -1, 0, 0, 0,-1 },
 	};
 
 	/* Loop the age and adjust scent values when necessary */
-	if (scent_when++ == 250)
+	if (++scent_when == 254)
 	{
 		/* Scan the entire dungeon */
 		for (y = 0; y < cur_hgt; y++)
@@ -4387,7 +4432,7 @@ void update_smell(void)
 		}
 
 		/* Restart */
-		scent_when = 127;
+		scent_when = 126;
 	}
 
 
@@ -4414,7 +4459,7 @@ void update_smell(void)
 			if (!player_has_los_bold(y, x)) continue;
 
 			/* Note grids that are too far away */
-			if (scent_adjust[i][j] == 250) continue;
+			if (scent_adjust[i][j] == -1) continue;
 
 			/* Mark the grid with new scent */
 			c_ptr->when = scent_when + scent_adjust[i][j];
@@ -4879,6 +4924,9 @@ void disturb(int stop_search, int unused_flag)
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
+
+		/* Update monster flow */
+		p_ptr->update |= (PU_FLOW);
 	}
 
 	/* Flush the input if requested */

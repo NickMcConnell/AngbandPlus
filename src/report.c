@@ -33,7 +33,9 @@
 #endif
 
 /* for debug */
-/*#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/scoretest/score.cgi" */
+#if 0
+#define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/scoretest/score.cgi"
+#endif
 
 /*
  * simple buffer library
@@ -121,6 +123,15 @@ static int buf_sprintf(BUF *buf, const char *fmt, ...)
 
 	if(!tmpbuf) return -1;
 
+#ifdef MAC_MPW
+	{
+		/* '\n' is 0x0D and '\r' is 0x0A in MPW. Swap back these. */
+		char *ptr;
+		for (ptr = tmpbuf; *ptr; ptr++)
+			if ('\n' == *ptr) *ptr = '\r';
+	}
+#endif
+
 	ret = buf_append(buf, tmpbuf, strlen(tmpbuf));
 
 	free(tmpbuf);
@@ -187,14 +198,14 @@ static void http_post(int sd, char *url, BUF *buf)
 	BUF *output;
 
 	output = buf_new();
-	buf_sprintf(output, "POST %s HTTP/1.0\r\n", url);
-	buf_sprintf(output, "User-Agent: Hengband %d.%d.%d\r\n",
+	buf_sprintf(output, "POST %s HTTP/1.0\n", url);
+	buf_sprintf(output, "User-Agent: Hengband %d.%d.%d\n",
 		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
-	buf_sprintf(output, "Content-Length: %d\r\n", buf->size);
-	buf_sprintf(output, "Content-Encoding: binary\r\n");
-	buf_sprintf(output, "Content-Type: application/octet-stream\r\n");
-	buf_sprintf(output, "\r\n");
+	buf_sprintf(output, "Content-Length: %d\n", buf->size);
+	buf_sprintf(output, "Content-Encoding: binary\n");
+	buf_sprintf(output, "Content-Type: application/octet-stream\n");
+	buf_sprintf(output, "\n");
 	buf_append(output, buf->data, buf->size);
 
 	soc_write(sd, output->data, output->size);
@@ -234,7 +245,7 @@ static errr make_dump(BUF* dumpbuf)
 
 	while (fgets(buf, 1024, fff))
 	{
-		(void)buf_append(dumpbuf, buf, strlen(buf));
+		(void)buf_sprintf(dumpbuf, "%s", buf);
 	}
 
 	/* Close the file */
@@ -270,12 +281,23 @@ cptr make_screen_dump(void)
 		0,
 	};
 
-	if (use_graphics)
-		return NULL;
+	bool old_use_graphics = use_graphics;
 
 	/* Alloc buffer */
 	screen_buf = buf_new();
 	if (screen_buf == NULL) return (NULL);
+
+	if (old_use_graphics)
+	{
+		use_graphics = FALSE;
+		reset_visuals();
+
+		/* Redraw everything */
+		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+		/* Hack -- update */
+		handle_stuff();
+	}
 
 	for (i = 0; html_head[i]; i++)
 		buf_sprintf(screen_buf, html_head[i]);
@@ -329,17 +351,30 @@ cptr make_screen_dump(void)
 	/* Screen dump size is too big ? */
 	if (screen_buf->size + 1> SCREEN_BUF_SIZE)
 	{
-		buf_delete(screen_buf);
-		return (NULL);
+		ret = NULL;
 	}
+	else
+	{
+		/* Terminate string */
+		buf_append(screen_buf, "", 1);
 
-	/* Terminate string */
-	buf_append(screen_buf, "", 1);
-
-	ret = string_make(screen_buf->data);
+		ret = string_make(screen_buf->data);
+	}
 
 	/* Free buffer */
 	buf_delete(screen_buf);
+
+	if (old_use_graphics)
+	{
+		use_graphics = TRUE;
+		reset_visuals();
+
+		/* Redraw everything */
+		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+		/* Hack -- update */
+		handle_stuff();
+	}
 
 	return ret;
 }

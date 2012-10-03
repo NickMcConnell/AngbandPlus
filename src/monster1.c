@@ -962,27 +962,9 @@ roff(format("%^sは矢の呪文を跳ね返す。", wd_he[msex]));
 #endif
 
 #ifdef JP
-	if (flags4 & RF4_ARROW_1) {vp[vn] = "矢を撃つ";color[vn++] = TERM_L_UMBER;}
+	if (flags4 & RF4_SHOOT) {vp[vn] = "射撃をする";color[vn++] = TERM_UMBER;}
 #else
-	if (flags4 & RF4_ARROW_1) {vp[vn] = "fire an arrow";color[vn++] = TERM_L_UMBER;}
-#endif
-
-#ifdef JP
-	if (flags4 & RF4_ARROW_2) {vp[vn] = "強力な矢を撃つ";color[vn++] = TERM_L_UMBER;}
-#else
-	if (flags4 & RF4_ARROW_2) {vp[vn] = "fire arrows";color[vn++] = TERM_L_UMBER;}
-#endif
-
-#ifdef JP
-	if (flags4 & RF4_ARROW_3) {vp[vn] = "射撃をする";color[vn++] = TERM_UMBER;}
-#else
-	if (flags4 & RF4_ARROW_3) {vp[vn] = "fire a missile";color[vn++] = TERM_UMBER;}
-#endif
-
-#ifdef JP
-	if (flags4 & RF4_ARROW_4) {vp[vn] = "強力な射撃をする";color[vn++] = TERM_UMBER;}
-#else
-	if (flags4 & RF4_ARROW_4) {vp[vn] = "fire missiles";color[vn++] = TERM_UMBER;}
+	if (flags4 & RF4_SHOOT) {vp[vn] = "fire an arrow";color[vn++] = TERM_UMBER;}
 #endif
 
 #ifdef JP
@@ -1592,7 +1574,7 @@ if (flags6 & (RF6_S_CYBER))         {vp[vn] = "サイバーデーモン召喚";color[vn++]
 #endif
 
 #ifdef JP
-if (flags6 & (RF6_S_AMBERITES))     {vp[vn] = "アンバーの王召喚";color[vn++] = TERM_VIOLET;}
+if (flags6 & (RF6_S_AMBERITES))     {vp[vn] = "アンバーの王族召喚";color[vn++] = TERM_VIOLET;}
 #else
 	if (flags6 & (RF6_S_AMBERITES))     {vp[vn] = "summon Lords of Amber";color[vn++] = TERM_VIOLET;}
 #endif
@@ -2563,6 +2545,7 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "テレポー
 	{
 		/* Skip non-attacks */
 		if (!r_ptr->blow[m].method) continue;
+		if (r_ptr->blow[m].method == RBM_SHOOT) continue;
 
 		/* Count known attacks */
 		if (r_ptr->r_blows[m]) n++;
@@ -2575,17 +2558,16 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "テレポー
 
 		/* Skip non-attacks */
 		if (!r_ptr->blow[m].method) continue;
+		if (r_ptr->blow[m].method == RBM_SHOOT) continue;
 
 		/* Skip unknown attacks */
 		if (!r_ptr->r_blows[m]) continue;
-
 
 		/* Extract the attack info */
 		method = r_ptr->blow[m].method;
 		effect = r_ptr->blow[m].effect;
 		d1 = r_ptr->blow[m].d_dice;
 		d2 = r_ptr->blow[m].d_side;
-
 
 		/* No method yet */
 		p = NULL;
@@ -3710,34 +3692,34 @@ void create_name(int type, char *name)
 	{
 		/* Create the monster name */
 		case NAME_DWARF:
-			strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
-			strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
-			strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
+			strcpy(name, dwarf_syllable1[randint0(sizeof(dwarf_syllable1) / sizeof(char*))]);
+			strcat(name, dwarf_syllable2[randint0(sizeof(dwarf_syllable2) / sizeof(char*))]);
+			strcat(name, dwarf_syllable3[randint0(sizeof(dwarf_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_ELF:
-			strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
-			strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
-			strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+			strcpy(name, elf_syllable1[randint0(sizeof(elf_syllable1) / sizeof(char*))]);
+			strcat(name, elf_syllable2[randint0(sizeof(elf_syllable2) / sizeof(char*))]);
+			strcat(name, elf_syllable3[randint0(sizeof(elf_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_GNOME:
-			strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
-			strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
-			strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
+			strcpy(name, gnome_syllable1[randint0(sizeof(gnome_syllable1) / sizeof(char*))]);
+			strcat(name, gnome_syllable2[randint0(sizeof(gnome_syllable2) / sizeof(char*))]);
+			strcat(name, gnome_syllable3[randint0(sizeof(gnome_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_HOBBIT:
-			strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
-			strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
-			strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+			strcpy(name, hobbit_syllable1[randint0(sizeof(hobbit_syllable1) / sizeof(char*))]);
+			strcat(name, hobbit_syllable2[randint0(sizeof(hobbit_syllable2) / sizeof(char*))]);
+			strcat(name, hobbit_syllable3[randint0(sizeof(hobbit_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_HUMAN:
-			strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
-			strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
-			strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+			strcpy(name, human_syllable1[randint0(sizeof(human_syllable1) / sizeof(char*))]);
+			strcat(name, human_syllable2[randint0(sizeof(human_syllable2) / sizeof(char*))]);
+			strcat(name, human_syllable3[randint0(sizeof(human_syllable3) / sizeof(char*))]);
 			break;
 		case NAME_ORC:
-			strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
-			strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
-			strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+			strcpy(name, orc_syllable1[randint0(sizeof(orc_syllable1) / sizeof(char*))]);
+			strcat(name, orc_syllable2[randint0(sizeof(orc_syllable2) / sizeof(char*))]);
+			strcat(name, orc_syllable3[randint0(sizeof(orc_syllable3) / sizeof(char*))]);
 			break;
 		/* Create an empty name */
 		default:

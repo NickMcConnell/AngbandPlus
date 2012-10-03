@@ -505,7 +505,9 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "刀剣" },
 	{ TV_POLEARM,           "槍/斧" },
 	{ TV_HAFTED,            "鈍器" },
+	{ TV_DIGGING,           "シャベル/つるはし" },
 	{ TV_BOW,               "飛び道具" },
+	{ TV_ARROW,             "矢" },
 
 	{ TV_SOFT_ARMOR,        "鎧" },
 	{ TV_HARD_ARMOR,        NULL },
@@ -513,6 +515,7 @@ static grouper group_artifact[] =
 
 	{ TV_CLOAK,             "クローク" },
 	{ TV_SHIELD,            "盾" },
+	{ TV_CARD,              NULL },
 	{ TV_HELM,              "兜/冠" },
 	{ TV_CROWN,             NULL },
 	{ TV_GLOVES,            "籠手" },
@@ -525,7 +528,9 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
+	{ TV_DIGGING,           "Shovels/Picks" },
 	{ TV_BOW,               "Bows" },
+	{ TV_ARROW,             "Ammo" },
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },
@@ -533,6 +538,7 @@ static grouper group_artifact[] =
 
 	{ TV_CLOAK,             "Cloaks" },
 	{ TV_SHIELD,            "Shields" },
+	{ TV_CARD,              NULL },
 	{ TV_HELM,              "Helms/Crowns" },
 	{ TV_CROWN,             NULL },
 	{ TV_GLOVES,            "Gloves" },
@@ -665,7 +671,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_COLD,         "凍結" },
 	{ TR1_BRAND_POIS,         "毒殺" },
 
-	{ TR1_FORCE_WEPON,            "理力" },
+	{ TR1_FORCE_WEAPON,       "理力" },
 	{ TR1_CHAOTIC,            "混沌" },
 	{ TR1_VAMPIRIC,           "吸血" },
 	{ TR1_IMPACT,             "地震" },
@@ -677,7 +683,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_COLD,         "Frost Brand" },
 	{ TR1_BRAND_POIS,         "Poisoned" },
 
-	{ TR1_FORCE_WEPON,            "Force" },
+	{ TR1_FORCE_WEAPON,       "Force" },
 	{ TR1_CHAOTIC,            "Mark of Chaos" },
 	{ TR1_VAMPIRIC,           "Vampiric" },
 	{ TR1_IMPACT,             "Earthquake impact on hit" },
@@ -809,6 +815,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,          "テレパシー" },
 	{ TR3_SLOW_DIGEST,        "遅消化" },
 	{ TR3_REGEN,              "急速回復" },
+	{ TR3_WARNING,            "警告" },
 /*	{ TR3_XTRA_MIGHT,         "強力射撃" }, */
 	{ TR3_XTRA_SHOTS,         "追加射撃" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "経験値吸収" },
@@ -826,6 +833,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_REGEN,              "Regeneration" },
+	{ TR3_WARNING,            "Warning" },
 /*	{ TR3_XTRA_MIGHT,         "Extra Might" }, */
 	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
@@ -2243,18 +2251,12 @@ spoil_out("が、侵入者を追跡しない");
 #ifdef JP
 if (flags4 & RF4_SHRIEK)  vp[vn++] = "悲鳴で助けを求める";
 if (flags4 & RF4_ROCKET)  vp[vn++] = "ロケットを発射する";
-if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
-if (flags4 & RF4_ARROW_2) vp[vn++] = "数回矢を撃つ";
-if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
-if (flags4 & RF4_ARROW_4) vp[vn++] = "数回射撃をする";
+if (flags4 & RF4_SHOOT) vp[vn++] = "射撃をする";
 if (flags6 & (RF6_SPECIAL)) vp[vn++] = "特別な行動をする";
 #else
 		if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
 		if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
-		if (flags4 & RF4_ARROW_1) vp[vn++] = "fire arrows";
-		if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";
-		if (flags4 & RF4_ARROW_3) vp[vn++] = "fire missiles";
-		if (flags4 & RF4_ARROW_4) vp[vn++] = "fire missiles";
+		if (flags4 & RF4_SHOOT) vp[vn++] = "fire missiles";
 		if (flags6 & (RF6_SPECIAL)) vp[vn++] = "do something";
 #endif
 
@@ -2465,7 +2467,7 @@ if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "一体のドラゴンを召喚する";
 if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "強力なアンデッドを召喚する";
 if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "古代ドラゴンを召喚する";
 if (flags6 & (RF6_S_CYBER))         vp[vn++] = "サイバーデーモンを召喚する";
-if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "アンバーの王を召喚する";
+if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "アンバーの王族を召喚する";
 if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "ユニーク・モンスターを召喚する";
 #else
 		if (flags6 & (RF6_HAND_DOOM))         vp[vn++] = "invoke the Hand of Doom";
@@ -2943,6 +2945,8 @@ sprintf(buf, " %d フィート先から侵入者に気付くことがある。",
 		for (k = 0, j = 0; j < 4; j++)
 		{
 			if (!r_ptr->blow[j].method) continue;
+
+			if (r_ptr->blow[j].method == RBM_SHOOT) continue;
 
 			/* No method yet */
 			p = "???";

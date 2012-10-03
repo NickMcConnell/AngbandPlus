@@ -23,7 +23,7 @@ bool test_hit_fire(int chance, int ac, int vis)
 	int k;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
@@ -38,7 +38,7 @@ bool test_hit_fire(int chance, int ac, int vis)
 	if (!vis) chance = (chance + 1) / 2;
 
 	/* Power competes against armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
+	if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
 
 	/* Assume hit */
 	return (TRUE);
@@ -56,10 +56,13 @@ bool test_hit_norm(int chance, int ac, int vis)
 	int k;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
+
+	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+		if (one_in_(20)) return (FALSE);
 
 	/* Wimpy attack never hits */
 	if (chance <= 0) return (FALSE);
@@ -68,7 +71,7 @@ bool test_hit_norm(int chance, int ac, int vis)
 	if (!vis) chance = (chance + 1) / 2;
 
 	/* Power must defeat armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
+	if (randint0(chance) < (ac * 3 / 4)) return (FALSE);
 
 	/* Assume hit */
 	return (TRUE);
@@ -88,9 +91,9 @@ s16b critical_shot(int weight, int plus, int dam)
 	i = (weight + ((p_ptr->to_h_b + plus) * 4) + (p_ptr->lev * 2));
 
 	/* Critical hit */
-	if (randint(5000) <= i)
+	if (randint1(5000) <= i)
 	{
-		k = weight + randint(500);
+		k = weight + randint1(500);
 
 		if (k < 500)
 		{
@@ -142,10 +145,10 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if ((randint((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
+	if ((randint1((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
 	{
-		k = weight + randint(650);
-		if ((mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN)) k+= randint(650);
+		k = weight + randint1(650);
+		if ((mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN)) k+= randint1(650);
 
 		if (k < 400)
 		{
@@ -344,7 +347,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 
 				if (mult < 50) mult = 50;
 
-				if ((o_ptr->name1 == ART_AEGLIN) && (m_ptr->r_idx == MON_FAFNER))
+				if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
 					mult *= 3;
 			}
 
@@ -527,7 +530,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 			{
 				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
 				p_ptr->redraw |= (PR_MANA);
@@ -568,7 +571,7 @@ void search(void)
 		for (x = (px - 1); x <= (px + 1); x++)
 		{
 			/* Sometimes, notice things */
-			if (rand_int(100) < chance)
+			if (randint0(100) < chance)
 			{
 				/* Access the grid */
 				c_ptr = &cave[y][x];
@@ -1582,13 +1585,13 @@ static int check_hit(int power)
 	int k, ac;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	/* Hack -- 5% hit, 5% miss */
 	if (k < 10) return (k < 5);
 
 	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
-		if (one_in_(20)) return (FALSE);
+		if (one_in_(20)) return (TRUE);
 
 	/* Paranoia -- No power */
 	if (power <= 0) return (FALSE);
@@ -1597,7 +1600,7 @@ static int check_hit(int power)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Power competes against Armor */
-	if (randint(power) > ((ac * 3) / 4)) return (TRUE);
+	if (randint1(power) > ((ac * 3) / 4)) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -1741,7 +1744,7 @@ static void hit_trap(bool break_trap)
 				dam = damroll(2, 6);
 
 				/* Extra spike damage */
-				if (rand_int(100) < 50)
+				if (randint0(100) < 50)
 				{
 #ifdef JP
 					msg_print("スパイクが刺さった！");
@@ -1757,7 +1760,7 @@ static void hit_trap(bool break_trap)
 #endif
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)set_cut(p_ptr->cut + randint1(dam));
 				}
 
 				/* Take the damage */
@@ -1797,7 +1800,7 @@ static void hit_trap(bool break_trap)
 
 
 				/* Extra spike damage */
-				if (rand_int(100) < 50)
+				if (randint0(100) < 50)
 				{
 #ifdef JP
 					msg_print("毒を塗られたスパイクが刺さった！");
@@ -1814,7 +1817,7 @@ static void hit_trap(bool break_trap)
 
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint(dam));
+					(void)set_cut(p_ptr->cut + randint1(dam));
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
@@ -1829,7 +1832,7 @@ static void hit_trap(bool break_trap)
 					else
 					{
 						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint(dam));
+						(void)set_poisoned(p_ptr->poisoned + randint1(dam));
 					}
 				}
 
@@ -1849,14 +1852,14 @@ static void hit_trap(bool break_trap)
 #endif
 
 			c_ptr->info &= ~(CAVE_MARK);
-			cave_set_feat(y, x, floor_type[rand_int(100)]);
-			num = 2 + randint(3);
+			cave_set_feat(y, x, floor_type[randint0(100)]);
+			num = 2 + randint1(3);
 			for (i = 0; i < num; i++)
 			{
 				(void)summon_specific(0, y, x, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
 			}
 
-			if (dun_level > randint(100)) /* No nasty effect for low levels */
+			if (dun_level > randint1(100)) /* No nasty effect for low levels */
 			{
 				bool stop_ty = FALSE;
 				int count = 0;
@@ -1865,7 +1868,7 @@ static void hit_trap(bool break_trap)
 				{
 					stop_ty = activate_ty_curse(stop_ty, &count);
 				}
-				while (randint(6) == 1);
+				while (one_in_(6));
 			}
 			break;
 		}
@@ -1930,7 +1933,7 @@ static void hit_trap(bool break_trap)
 
 				dam = damroll(1, 4);
 				take_hit(DAMAGE_ATTACK, dam, name, -1);
-				(void)set_slow(p_ptr->slow + rand_int(20) + 20, FALSE);
+				(void)set_slow(p_ptr->slow + randint0(20) + 20, FALSE);
 			}
 			else
 			{
@@ -2047,7 +2050,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
+				(void)set_blind(p_ptr->blind + randint0(50) + 25);
 			}
 			break;
 		}
@@ -2062,7 +2065,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				(void)set_confused(p_ptr->confused + randint0(20) + 10);
 			}
 			break;
 		}
@@ -2077,7 +2080,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
 			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
+				(void)set_poisoned(p_ptr->poisoned + randint0(20) + 10);
 			}
 			break;
 		}
@@ -2117,7 +2120,7 @@ msg_print("身の毛もよだつ光景が頭に浮かんだ。");
 					/* Remove the monster restriction */
 					get_mon_num_prep(NULL, NULL);
 				}
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
+				(void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5);
 			}
 			break;
 		}
@@ -2132,7 +2135,7 @@ msg_print("まばゆい閃光が走った！");
 
 
 			/* Destroy this trap */
-			cave_set_feat(y, x, floor_type[rand_int(100)]);
+			cave_set_feat(y, x, floor_type[randint0(100)]);
 
 			/* Make some new traps */
 			project(0, 1, y, x, 0, GF_MAKE_TRAP, PROJECT_HIDE | PROJECT_JUMP | PROJECT_GRID, -1);
@@ -2142,7 +2145,7 @@ msg_print("まばゆい閃光が走った！");
 	}
 	if (break_trap && is_trap(c_ptr->feat))
 	{
-		cave_set_feat(y, x, floor_type[rand_int(100)]);
+		cave_set_feat(y, x, floor_type[randint0(100)]);
 #ifdef JP
 		msg_print("トラップを粉砕した。");
 #else
@@ -2166,7 +2169,7 @@ void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x288);
 
 #ifdef JP
 			msg_print("突然とても熱くなった！");
@@ -2193,7 +2196,7 @@ void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x288);
 
 #ifdef JP
 			msg_print("突然とても寒くなった！");
@@ -2220,7 +2223,7 @@ void touch_zap_player(monster_type *m_ptr)
 			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
 
 			/* Hack -- Get the "died from" name */
-			monster_desc(aura_dam, m_ptr, 0x88);
+			monster_desc(aura_dam, m_ptr, 0x288);
 
 			if (p_ptr->oppose_elec) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
@@ -2328,7 +2331,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 	/* Test for hit */
-	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !rand_int(2)) && test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) && test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 	{
 		/* Sound */
 		sound(SOUND_HIT);
@@ -2435,6 +2438,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            stab_fleeing = FALSE;
 	bool            fuiuchi = FALSE;
 	bool            do_quake = FALSE;
+	bool            weak = FALSE;
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
 	bool            can_drain = FALSE;
@@ -2458,7 +2462,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
 		}
-		else if ((p_ptr->special_defense & NINJA_S_STEALTH) && (rand_int(tmp) > (r_ptr->level+20)) && m_ptr->ml && !(r_ptr->flags3 & RF3_RES_ALL))
+		else if ((p_ptr->special_defense & NINJA_S_STEALTH) && (randint0(tmp) > (r_ptr->level+20)) && m_ptr->ml && !(r_ptr->flags3 & RF3_RES_ALL))
 		{
 			fuiuchi = TRUE;
 		}
@@ -2545,7 +2549,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			if (p_ptr->migite && p_ptr->hidarite)
 			{
-				success_hit = (randint(2) == 1);
+				success_hit = one_in_(2);
 			}
 			else success_hit = TRUE;
 		}
@@ -2610,27 +2614,27 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			object_flags(o_ptr, &f1, &f2, &f3);
 
 			/* Select a chaotic effect (50% chance) */
-			if ((f1 & TR1_CHAOTIC) && (randint(2) == 1))
+			if ((f1 & TR1_CHAOTIC) && one_in_(2))
 			{
-				if (randint(10)==1)
+				if (one_in_(10))
 				chg_virtue(V_CHANCE, 1);
 
-				if (randint(5) < 3)
+				if (randint1(5) < 3)
 				{
 					/* Vampiric (20%) */
 					chaos_effect = 1;
 				}
-				else if (randint(250) == 1)
+				else if (one_in_(250))
 				{
 					/* Quake (0.12%) */
 					chaos_effect = 2;
 				}
-				else if (randint(10) != 1)
+				else if (!one_in_(10))
 				{
 					/* Confusion (26.892%) */
 					chaos_effect = 3;
 				}
-				else if (randint(2) == 1)
+				else if (one_in_(2))
 				{
 					/* Teleport away (1.494%) */
 					chaos_effect = 4;
@@ -2652,7 +2656,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					can_drain = FALSE;
 			}
 
-			if ((f1 & TR1_VORPAL) && (randint((o_ptr->name1 == ART_VORPAL_BLADE) ? 3 : 6) == 1) && !zantetsu_mukou)
+			if ((f1 & TR1_VORPAL) && (randint1((o_ptr->name1 == ART_VORPAL_BLADE) ? 3 : 6) == 1) && !zantetsu_mukou)
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
@@ -2662,6 +2666,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				int min_level = 1;
 				martial_arts *ma_ptr = &ma_blows[0], *old_ptr = &ma_blows[0];
 				int resist_stun = 0;
+				int weight = 8;
 
 				if (r_ptr->flags1 & RF1_UNIQUE) resist_stun += 88;
 				if (r_ptr->flags3 & RF3_NO_STUN) resist_stun += 66;
@@ -2683,12 +2688,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					do
 					{
-						ma_ptr = &ma_blows[rand_int(MAX_MA)];
+						ma_ptr = &ma_blows[randint0(MAX_MA)];
 						if ((p_ptr->pclass == CLASS_FORCETRAINER) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
 						else min_level = ma_ptr->min_level;
 					}
 					while ((min_level > p_ptr->lev) ||
-					       (randint(p_ptr->lev) < ma_ptr->chance));
+					       (randint1(p_ptr->lev) < ma_ptr->chance));
 
 					/* keep the highest level attack available we found */
 					if ((ma_ptr->min_level > old_ptr->min_level) &&
@@ -2753,13 +2758,20 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (ma_ptr->effect)
 					{
-						stun_effect = (ma_ptr->effect / 2) + randint(ma_ptr->effect / 2);
+						stun_effect = (ma_ptr->effect / 2) + randint1(ma_ptr->effect / 2);
 					}
 
 					msg_format(ma_ptr->desc, m_name);
 				}
 
-				k = critical_norm(p_ptr->lev * randint((p_ptr->special_defense & KAMAE_SUZAKU) ? 5 : 10), min_level, k, p_ptr->to_h[0], 0);
+				if (p_ptr->special_defense & KAMAE_SUZAKU) weight = 4;
+				if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
+				{
+					weight += (p_ptr->magic_num1[0]/30);
+					if (weight > 20) weight = 20;
+				}
+
+				k = critical_norm(p_ptr->lev * weight, min_level, k, p_ptr->to_h[0], 0);
 
 				if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
 				{
@@ -2769,14 +2781,14 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					msg_format("%^s moans in agony!", m_name);
 #endif
 
-					stun_effect = 7 + randint(13);
+					stun_effect = 7 + randint1(13);
 					resist_stun /= 3;
 				}
 
 				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-					    (randint(p_ptr->lev) > r_ptr->level) &&
+					    (randint1(p_ptr->lev) > r_ptr->level) &&
 					    m_ptr->mspeed > 60)
 					{
 #ifdef JP
@@ -2791,7 +2803,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (stun_effect && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
 				{
-					if (p_ptr->lev > randint(r_ptr->level + resist_stun + 10))
+					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 					{
 						if (m_ptr->stunned)
 #ifdef JP
@@ -2840,7 +2852,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					k = (3 * k) / 2;
 				}
 
-				if ((p_ptr->impact[hand] && ((k > 50) || randint(7) == 1)) ||
+				if ((p_ptr->impact[hand] && ((k > 50) || one_in_(7))) ||
 					 (chaos_effect == 2) || (mode == HISSATSU_QUAKE))
 				{
 					do_quake = TRUE;
@@ -2857,7 +2869,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 					int inc_chance = (o_ptr->name1 == ART_VORPAL_BLADE) ? 2 : 4;
 
-					if ((o_ptr->name1 == ART_CHAINSWORD) && (randint(2) != 1))
+					if ((o_ptr->name1 == ART_CHAINSWORD) && !one_in_(2))
 					{
 						char chainsword_noise[1024];
 #ifdef JP
@@ -3001,7 +3013,7 @@ default:	msg_format("%sを細切れにした！", m_name);		break;
 
 			if (mode == HISSATSU_MINEUCHI)
 			{
-				int tmp = (10 + randint(15) + p_ptr->lev / 5);
+				int tmp = (10 + randint1(15) + p_ptr->lev / 5);
 
 				k = 0;
 				anger_monster(m_ptr);
@@ -3045,7 +3057,7 @@ msg_format("%s には効果がなかった。", m_name);
 			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
 			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 			{
-				if ((randint(randint(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
+				if ((randint1(randint1(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
 				{
 					k = m_ptr->hp + 1;
 #ifdef JP
@@ -3069,7 +3081,7 @@ msg_format("刃が%sに深々と突き刺さった！", m_name);
 					msg_format("You critically injured %s!", m_name);
 #endif
 				}
-				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || (((one_in_(666)) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
+				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || ((one_in_(666) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
 				{
 					if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
 					{
@@ -3220,11 +3232,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 				}
 				m_ptr->maxhp -= (k+7)/8;
 				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-#ifdef JP
-				msg_format("%sは弱くなったようだ。", m_name);
-#else
-				msg_format("%^s seems weakened.", m_name);
-#endif
+				weak = TRUE;
 			}
 			can_drain = FALSE;
 			drain_result = 0;
@@ -3260,7 +3268,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 #endif
 
 				}
-				else if (rand_int(100) < r_ptr->level)
+				else if (randint0(100) < r_ptr->level)
 				{
 #ifdef JP
 					msg_format("%^sには効果がなかった。", m_name);
@@ -3277,7 +3285,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					msg_format("%^s appears confused.", m_name);
 #endif
 
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
+					m_ptr->confused += 10 + randint0(p_ptr->lev) / 5;
 				}
 			}
 
@@ -3298,7 +3306,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 
 						resists_tele = TRUE;
 					}
-					else if (r_ptr->level > randint(100))
+					else if (r_ptr->level > randint1(100))
 					{
 						if (m_ptr->ml) r_ptr->r_flags3 |= RF3_RES_TELE;
 #ifdef JP
@@ -3326,7 +3334,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 			}
 
 			else if ((chaos_effect == 5) && cave_floor_bold(y, x) &&
-			         (randint(90) > r_ptr->level))
+			         (randint1(90) > r_ptr->level))
 			{
 				if (!(r_ptr->flags1 & RF1_UNIQUE) &&
 				    !(r_ptr->flags4 & RF4_BR_CHAO) &&
@@ -3351,6 +3359,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 						r_ptr = &r_info[m_ptr->r_idx];
 
 						*fear = FALSE;
+						weak = FALSE;
 					}
 					else
 					{
@@ -3393,7 +3402,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 			backstab = FALSE; /* Clumsy! */
 			fuiuchi = FALSE; /* Clumsy! */
 
-			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && (randint(3) == 1))
+			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{
 				u32b f1, f2, f3;
 
@@ -3468,7 +3477,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 3))
 						mult = mult * 5 / 2;
 
-					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (p_ptr->msp / 30)))
+					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);
@@ -3478,7 +3487,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 				}
 
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
-				if (randint(6) == 1)
+				if (one_in_(6))
 				{
 					int mult = 2;
 #ifdef JP
@@ -3522,9 +3531,17 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 	}
 
 
+	if (weak && !(*mdeath))
+	{
+#ifdef JP
+		msg_format("%sは弱くなったようだ。", m_name);
+#else
+		msg_format("%^s seems weakened.", m_name);
+#endif
+	}
 	if (drain_left != MAX_VAMPIRIC_DRAIN)
 	{
-		if (randint(4)==1)
+		if (one_in_(4))
 		{
 			chg_virtue(V_UNLIFE, 1);
 		}
@@ -4125,7 +4142,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 			if (m_ptr->ml) health_track(c_ptr->m_idx);
 
 			/* displace? */
-			if ((stormbringer && (randint(1000) > 666)) || (p_ptr->pclass == CLASS_BERSERKER))
+			if ((stormbringer && (randint1(1000) > 666)) || (p_ptr->pclass == CLASS_BERSERKER))
 			{
 				py_attack(y, x, 0);
 				oktomove = FALSE;
@@ -4480,15 +4497,14 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 	{
 		int oy, ox;
 
-#ifdef USE_FRAKIR
-                if (p_ptr->warning)
-		  {
-		    if(!process_frakir(x,y))
-		      {
-			energy_use = 25;return;
-		      }
-		  }
-#endif
+		if (p_ptr->warning)
+		{
+			if(!process_frakir(x,y))
+			{
+				energy_use = 25;
+				return;
+			}
+		}
 
 		if (do_past)
 		{
@@ -4532,7 +4548,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 				cave[py][px].info &= ~(CAVE_MARK);
 
 				/* Notice */
-				cave_set_feat(py, px, floor_type[rand_int(100)]);
+				cave_set_feat(py, px, floor_type[randint0(100)]);
 			}
 		}
 		if (music_singing(MUSIC_WALL))
@@ -4552,7 +4568,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 					cave_set_feat(py, px, FEAT_GRASS);
 				else
 				{
-					cave[py][px].feat = floor_type[rand_int(100)];
+					cave[py][px].feat = floor_type[randint0(100)];
 					cave[py][px].info &= ~(CAVE_MASK);
 					cave[py][px].info |= CAVE_FLOOR;
 				}
@@ -4605,7 +4621,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
+		    (0 == randint0(50 - p_ptr->skill_fos)))
 		{
 			search();
 		}
@@ -4680,22 +4696,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 				msg_print(NULL);
 			}
 
-			leaving_quest = p_ptr->inside_quest;
-
-			/* Leaving an 'only once' quest marks it as failed */
-			if (leaving_quest &&
-				((quest[leaving_quest].flags & QUEST_FLAG_ONCE) || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
-				(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-			{
-				if ((quest[leaving_quest].type == QUEST_TYPE_RANDOM) && record_rand_quest)
-					do_cmd_write_nikki(NIKKI_RAND_QUEST_F, leaving_quest, NULL);
-				else if (record_fix_quest)
-					do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
-				quest[leaving_quest].status = QUEST_STATUS_FAILED;
-				quest[leaving_quest].complev = (byte)p_ptr->lev;
-				if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
-					r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
-			}
+			leave_quest_check();
 
 			p_ptr->inside_quest = cave[y][x].special;
 			dun_level = 0;

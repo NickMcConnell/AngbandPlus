@@ -133,7 +133,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 		if (ironman_downward || !dun_level) return TRUE;
 
 		if (dun_level > d_info[dungeon_type].mindepth)
-			more_num = (randint(num+1))/2;
+			more_num = (randint1(num+1))/2;
 	}
 	else if (feat == FEAT_MORE)
 	{
@@ -144,7 +144,7 @@ static bool alloc_stairs(int feat, int num, int walls)
 		if (dun_level >= d_info[dungeon_type].maxdepth) return TRUE;
 
 		if ((dun_level < d_info[dungeon_type].maxdepth-1) && !quest_number(dun_level+1))
-			more_num = (randint(num)+1)/2;
+			more_num = (randint1(num)+1)/2;
 	}
 
 	/* Place "num" stairs */
@@ -157,8 +157,8 @@ static bool alloc_stairs(int feat, int num, int walls)
 			for (j = 0; !flag && j <= 3000; j++)
 			{
 				/* Pick a random grid */
-				y = randint(cur_hgt-2);
-				x = randint(cur_wid-2);
+				y = randint1(cur_hgt-2);
+				x = randint1(cur_wid-2);
 
 				/* Access the grid */
 				c_ptr = &cave[y][x];
@@ -206,8 +206,8 @@ static void alloc_object(int set, int typ, int num)
 			dummy++;
 
 			/* Location */
-			y = rand_int(cur_hgt);
-			x = rand_int(cur_wid);
+			y = randint0(cur_hgt);
+			x = randint0(cur_wid);
 
 			c_ptr = &cave[y][x];
 
@@ -365,7 +365,7 @@ static void try_door(int y, int x)
 	if (cave[y][x].info & (CAVE_ROOM)) return;
 
 	/* Occasional door (if allowed) */
-	if ((rand_int(100) < dun_tun_jct) && possible_doorway(y, x) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
+	if ((randint0(100) < dun_tun_jct) && possible_doorway(y, x) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
 	{
 		/* Place a door */
 		place_random_door(y, x);
@@ -446,7 +446,7 @@ static bool cave_gen(void)
 	dun_tun_jct = rand_range(DUN_TUN_JCT_MIN, DUN_TUN_JCT_MAX);
 
 	/* Empty arena levels */
-	if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && (randint(EMPTY_LEVEL) == 1))))
+	if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL))))
 	{
 		empty_level = TRUE;
 
@@ -481,16 +481,16 @@ msg_print("アリーナレベル");
 
 #ifdef ALLOW_CAVERNS_AND_LAKES
 	/* Possible "destroyed" level */
-	if ((dun_level > 30) && (rand_int(DUN_DEST*2) == 0) && (small_levels) && (d_info[dungeon_type].flags1 & DF1_DESTROY))
+	if ((dun_level > 30) && one_in_(DUN_DEST*2) && (small_levels) && (d_info[dungeon_type].flags1 & DF1_DESTROY))
 	{
 		destroyed = TRUE;
 
 		/* extra rubble around the place looks cool */
-		build_lake(3+rand_int(2));
+		build_lake(3+randint0(2));
 	}
 
 	/* Make a lake some of the time */
-	if ((rand_int(LAKE_LEVEL) == 0) && !empty_level && !destroyed &&
+	if (one_in_(LAKE_LEVEL) && !empty_level && !destroyed &&
 	    (d_info[dungeon_type].flags1 & DF1_LAKE_MASK))
 	{
 		int count = 0;
@@ -502,7 +502,7 @@ msg_print("アリーナレベル");
 		if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA)
 		{
 			/* Lake of Lava */
-			if ((dun_level > 80) && (rand_int(count) < 2)) laketype = 1;
+			if ((dun_level > 80) && (randint0(count) < 2)) laketype = 1;
 			count -= 2;
 
 			/* Lake of Lava2 */
@@ -513,7 +513,7 @@ msg_print("アリーナレベル");
 		if ((d_info[dungeon_type].flags1 & DF1_LAKE_WATER) && !laketype)
 		{
 			/* Lake of Water */
-			if ((dun_level > 50) && rand_int(count) < 2) laketype = 2;
+			if ((dun_level > 50) && randint0(count) < 2) laketype = 2;
 			count -= 2;
 
 			/* Lake of Water2 */
@@ -524,7 +524,7 @@ msg_print("アリーナレベル");
 		if ((d_info[dungeon_type].flags1 & DF1_LAKE_RUBBLE) && !laketype)
 		{
 			/* Lake of rubble */
-			if ((dun_level > 35) && (rand_int(count) < 2)) laketype = 3;
+			if ((dun_level > 35) && (randint0(count) < 2)) laketype = 3;
 			count -= 2;
 
 			/* Lake of rubble2 */
@@ -550,7 +550,7 @@ msg_print("湖を生成。");
 
 	if ((dun_level > DUN_CAVERN) && !empty_level &&
 	    (d_info[dungeon_type].flags1 & DF1_CAVERN) &&
-	    (laketype == 0) && !destroyed && (randint(1000) < dun_level))
+	    (laketype == 0) && !destroyed && (randint1(1000) < dun_level))
 	{
 		cavern = TRUE;
 
@@ -601,8 +601,8 @@ msg_print("洞窟を生成。");
 		bool force_rooms = (ironman_rooms && !((d_info[dungeon_type].flags1 & DF1_BEGINNER) || (d_info[dungeon_type].flags1 & DF1_CHAMELEON)));
 
 		/* Pick a block for the room */
-		y = rand_int(dun->row_rooms);
-		x = rand_int(dun->col_rooms);
+		y = randint0(dun->row_rooms);
+		x = randint0(dun->col_rooms);
 
 		/* Align dungeon rooms */
 		if (d_info[dungeon_type].flags1 & DF1_NO_CAVE)
@@ -615,19 +615,19 @@ msg_print("洞窟を生成。");
 		}
 
 		/* Attempt an "unusual" room */
-		if (force_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+		if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
 		{
 			/* Roll for room type */
 			while(1)
 			{
-				k = (force_rooms ? 0 : rand_int(100));
+				k = (force_rooms ? 0 : randint0(100));
 				if (force_rooms) break;
 				if ((d_info[dungeon_type].flags1 & DF1_NO_VAULT) && (k < 14)) continue;
 				break;
 			}
 
 			/* Attempt a very unusual room */
-			if (force_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+			if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
 			{
 #ifdef FORCE_V_IDX
 				if (room_build(y, x, 8)) continue;
@@ -705,7 +705,7 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 		}
 
 		/* The deeper you are, the more cavelike the rooms are */
-		k = randint(100);
+		k = randint1(100);
 
 		/* No caves when a cavern exists: they look bad */
 		if (((k < dun_level) || (d_info[dungeon_type].flags1 & DF1_CAVE)) && (!cavern) && (!empty_level) && (laketype == 0) && !(d_info[dungeon_type].flags1 & DF1_NO_CAVE))
@@ -723,9 +723,9 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 	/* Make a hole in the dungeon roof sometimes at level 1 */
 	if ((dun_level == 1) && terrain_streams)
 	{
-		while (randint(DUN_MOS_DEN) == 1)
+		while (one_in_(DUN_MOS_DEN))
 		{
-			place_trees(randint(cur_wid - 2), randint(cur_hgt - 2));
+			place_trees(randint1(cur_wid - 2), randint1(cur_hgt - 2));
 		}
 	}
 
@@ -733,10 +733,10 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 	if (destroyed) destroy_level();
 
 	/* Hack -- Add some rivers */
-	if ((randint(3) == 1) && (randint(dun_level) > 5) && terrain_streams)
+	if (one_in_(3) && (randint1(dun_level) > 5) && terrain_streams)
 	{
 	 	/* Choose water or lava */
-		if ((randint(MAX_DEPTH * 2) - 1 > dun_level) && (d_info[dungeon_type].flags1 & DF1_WATER_RIVER))
+		if ((randint1(MAX_DEPTH * 2) - 1 > dun_level) && (d_info[dungeon_type].flags1 & DF1_WATER_RIVER))
 		{
 			feat1 = FEAT_DEEP_WATER;
 			feat2 = FEAT_SHAL_WATER;
@@ -815,8 +815,8 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 	/* Hack -- Scramble the room order */
 	for (i = 0; i < dun->cent_n; i++)
 	{
-		int pick1 = rand_int(dun->cent_n);
-		int pick2 = rand_int(dun->cent_n);
+		int pick1 = randint0(dun->cent_n);
+		int pick2 = randint0(dun->cent_n);
 		y1 = dun->cent[pick1].y;
 		x1 = dun->cent[pick1].x;
 		dun->cent[pick1].y = dun->cent[pick2].y;
@@ -841,7 +841,7 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 		dun->wall_n = 0;
 
 		/* Connect the room to the previous room */
-		if (randint(dun_level) > d_info[dungeon_type].tunnel_percent)
+		if (randint1(dun_level) > d_info[dungeon_type].tunnel_percent)
 		{
 			/* make cave-like tunnel */
 			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
@@ -884,7 +884,7 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 			place_floor_grid(c_ptr);
 
 			/* Occasional doorway */
-			if ((rand_int(100) < dun_tun_pen) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
+			if ((randint0(100) < dun_tun_pen) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
 			{
 				/* Place a random door */
 				place_random_door(y, x);
@@ -968,8 +968,8 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 						/* Find an empty grid */
 						while (TRUE)
 						{
-							y = rand_int(cur_hgt);
-							x = rand_int(cur_wid);
+							y = randint0(cur_hgt);
+							x = randint0(cur_wid);
 
 							/* Access the grid */
 							c_ptr = &cave[y][x];
@@ -1031,7 +1031,7 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 		}
 	}
 
-	i += randint(8);
+	i += randint1(8);
 
 	/* Put some monsters in the dungeon */
 	for (i = i + k; i > 0; i--)
@@ -1040,10 +1040,10 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 	}
 
 	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint1(k));
 
 	/* Put some rubble in corridors */
-	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(k));
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
@@ -1063,8 +1063,8 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
                 while(try)
                 {
                         /* Get a random spot */
-                        oy = randint(cur_hgt - 4) + 2;
-                        ox = randint(cur_wid - 4) + 2;
+                        oy = randint1(cur_hgt - 4) + 2;
+                        ox = randint1(cur_wid - 4) + 2;
 
                         /* Is it a good spot ? */
                         if (cave_empty_bold2(oy, ox) && monster_can_cross_terrain(cave[oy][ox].feat, &r_info[d_info[dungeon_type].final_guardian]))
@@ -1077,7 +1077,7 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
                 }
 	}
 
-	if ((empty_level && ((randint(DARK_EMPTY) != 1) || (randint(100) > dun_level))) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS))
+	if ((empty_level && (!one_in_(DARK_EMPTY) || (randint1(100) > dun_level))) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS))
 	{
 		/* Lite the cave */
 		for (y = 0; y < cur_hgt; y++)
@@ -1354,7 +1354,7 @@ static bool level_gen(cptr *why)
 	int level_height, level_width;
 
 	if ((always_small_levels || ironman_small_levels ||
-	    ((randint(SMALL_LEVEL) == 1) && small_levels) ||
+	    (one_in_(SMALL_LEVEL) && small_levels) ||
 	     (d_info[dungeon_type].flags1 & DF1_BEGINNER) ||
 	    (d_info[dungeon_type].flags1 & DF1_SMALLEST)) &&
 	    !(d_info[dungeon_type].flags1 & DF1_BIG))
@@ -1381,8 +1381,8 @@ msg_print("小さなフロア");
 		{
 			do
 			{
-				level_height = randint(MAX_HGT/SCREEN_HGT);
-				level_width = randint(MAX_WID/SCREEN_WID);
+				level_height = randint1(MAX_HGT/SCREEN_HGT);
+				level_width = randint1(MAX_WID/SCREEN_WID);
 			}
 			while ((level_height == MAX_HGT/SCREEN_HGT) &&
 				   (level_width == MAX_WID/SCREEN_WID));
@@ -1457,108 +1457,34 @@ static byte extract_feeling(void)
 
 static void place_pet(void)
 {
-	int i;
+	int i, max_num;
 
-	if (p_ptr->riding)
+	if (p_ptr->wild_mode)
+		max_num = 1;
+	else
+		max_num = 21;
+
+	for (i = 0; i < max_num; i++)
 	{
-		p_ptr->riding = m_pop();
-		if (p_ptr->riding)
+		int cy, cx, m_idx;
+
+		if (!(party_mon[i].r_idx)) continue;
+
+
+		if (i == 0)
 		{
-			monster_type *m_ptr = &m_list[p_ptr->riding];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			cave[py][px].m_idx = p_ptr->riding;
-			m_ptr->r_idx = riding_mon.r_idx;
-			m_ptr->fy = py;
-			m_ptr->fx = px;
-			m_ptr->cdis = riding_mon.cdis;
-			m_ptr->mflag = riding_mon.mflag;
-			m_ptr->mflag2 = riding_mon.mflag2;
-			m_ptr->ml = TRUE;
-			m_ptr->hp = riding_mon.hp;
-			m_ptr->maxhp = riding_mon.maxhp;
-			m_ptr->max_maxhp = riding_mon.max_maxhp;
-			m_ptr->mspeed = riding_mon.mspeed;
-			m_ptr->fast = riding_mon.fast;
-			m_ptr->slow = riding_mon.slow;
-			m_ptr->stunned = riding_mon.stunned;
-			m_ptr->confused = riding_mon.confused;
-			m_ptr->monfear = riding_mon.monfear;
-			m_ptr->invulner = riding_mon.invulner;
-			m_ptr->smart = riding_mon.smart;
-			m_ptr->csleep = 0;
-			m_ptr->nickname = riding_mon.nickname;
-			m_ptr->energy = riding_mon.energy;
-			m_ptr->exp = riding_mon.exp;
-			set_pet(m_ptr);
-
-			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
+			m_idx = m_pop();
+			p_ptr->riding = m_idx;
+			if (m_idx)
 			{
-				/* Monster is still being nice */
-				m_ptr->mflag |= (MFLAG_NICE);
-
-				/* Must repair monsters */
-				repair_monsters = TRUE;
+				cy = py;
+				cx = px;
 			}
-
-			/* Update the monster */
-			update_mon(p_ptr->riding, TRUE);
-
-			r_ptr->cur_num++;
-
-			/* Hack -- Count the number of "reproducers" */
-			if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
-
-			/* Hack -- Notice new multi-hued monsters */
-			if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
 		}
 		else
 		{
-			char m_name[80];
+			int j, d;
 
-			monster_desc(m_name, &riding_mon, 0);
-#ifdef JP
-msg_format("%sとはぐれてしまった。", m_name);
-#else
-			msg_format("You have lost sight of %s.", m_name);
-#endif
-			if (record_named_pet && riding_mon.nickname)
-			{
-				monster_desc(m_name, &riding_mon, 0x08);
-				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
-			}
-			p_ptr->riding = 0;
-		}
-	}
-
-	if (p_ptr->wild_mode)
-	{
-		for (i = 0; i < 20; i++)
-		{
-			if (party_mon[i].r_idx)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, &party_mon[i], 0);
-#ifdef JP
-msg_format("%sとはぐれてしまった。", m_name);
-#else
-				msg_format("You have lost sight of %s.", m_name);
-#endif
-				if (record_named_pet && party_mon[i].nickname)
-				{
-					monster_desc(m_name, &party_mon[i], 0x08);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
-				}
-			}
-		}
-		return;
-	}
-	for (i = 0; i < 20; i++)
-	{
-		if (party_mon[i].r_idx)
-		{
-			int cy, cx, m_idx, j, d;
 			for(d = 1; d < 6; d++)
 			{
 				for(j = 1000; j > 0; j--)
@@ -1569,90 +1495,76 @@ msg_format("%sとはぐれてしまった。", m_name);
 				if (j) break;
 			}
 			if (d == 6 || p_ptr->inside_arena || p_ptr->inside_battle)
-			{
-				char m_name[80];
-
-				monster_desc(m_name, &party_mon[i], 0);
-#ifdef JP
-msg_format("%sとはぐれてしまった。", m_name);
-#else
-				msg_format("You have lost sight of %s.", m_name);
-#endif
-				if (record_named_pet && party_mon[i].nickname)
-				{
-					monster_desc(m_name, &party_mon[i], 0x08);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
-				}
-				continue;
-			}
-			m_idx = m_pop();
-
-			if (m_idx)
-			{
-				monster_type *m_ptr = &m_list[m_idx];
-				monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-				cave[cy][cx].m_idx = m_idx;
-				m_ptr->r_idx = party_mon[i].r_idx;
-				m_ptr->fy = cy;
-				m_ptr->fx = cx;
-				m_ptr->cdis = party_mon[i].cdis;
-				m_ptr->mflag = party_mon[i].mflag;
-				m_ptr->mflag2 = party_mon[i].mflag2;
-				m_ptr->ml = TRUE;
-				m_ptr->hp = party_mon[i].hp;
-				m_ptr->maxhp = party_mon[i].maxhp;
-				m_ptr->max_maxhp = party_mon[i].max_maxhp;
-				m_ptr->mspeed = party_mon[i].mspeed;
-				m_ptr->fast = party_mon[i].fast;
-				m_ptr->slow = party_mon[i].slow;
-				m_ptr->stunned = party_mon[i].stunned;
-				m_ptr->confused = party_mon[i].confused;
-				m_ptr->monfear = party_mon[i].monfear;
-				m_ptr->invulner = party_mon[i].invulner;
-				m_ptr->smart = party_mon[i].smart;
-				m_ptr->csleep = 0;
-				m_ptr->nickname = party_mon[i].nickname;
-				m_ptr->energy = party_mon[i].energy;
-				m_ptr->exp = party_mon[i].exp;
-				set_pet(m_ptr);
-
-				if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
-				{
-					/* Monster is still being nice */
-					m_ptr->mflag |= (MFLAG_NICE);
-
-					/* Must repair monsters */
-					repair_monsters = TRUE;
-				}
-
-				/* Update the monster */
-				update_mon(m_idx, TRUE);
-				lite_spot(cy, cx);
-
-				r_ptr->cur_num++;
-
-				/* Hack -- Count the number of "reproducers" */
-				if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
-
-				/* Hack -- Notice new multi-hued monsters */
-				if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
-			}
+				m_idx = 0;
 			else
-			{
-				char m_name[80];
+				m_idx = m_pop();
+		}
+		
+		if (m_idx)
+		{
+			monster_type *m_ptr = &m_list[m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			
+			cave[cy][cx].m_idx = m_idx;
+			m_ptr->r_idx = party_mon[i].r_idx;
+			m_ptr->fy = cy;
+			m_ptr->fx = cx;
+			m_ptr->cdis = party_mon[i].cdis;
+			m_ptr->mflag = party_mon[i].mflag;
+			m_ptr->mflag2 = party_mon[i].mflag2;
+			m_ptr->ml = TRUE;
+			m_ptr->hp = party_mon[i].hp;
+			m_ptr->maxhp = party_mon[i].maxhp;
+			m_ptr->max_maxhp = party_mon[i].max_maxhp;
+			m_ptr->mspeed = party_mon[i].mspeed;
+			m_ptr->fast = party_mon[i].fast;
+			m_ptr->slow = party_mon[i].slow;
+			m_ptr->stunned = party_mon[i].stunned;
+			m_ptr->confused = party_mon[i].confused;
+			m_ptr->monfear = party_mon[i].monfear;
+			m_ptr->invulner = party_mon[i].invulner;
+			m_ptr->smart = party_mon[i].smart;
+			m_ptr->csleep = 0;
+			m_ptr->nickname = party_mon[i].nickname;
+			m_ptr->energy = party_mon[i].energy;
+			m_ptr->exp = party_mon[i].exp;
+			set_pet(m_ptr);
 
-				monster_desc(m_name, &party_mon[i], 0);
+			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
+			{
+				/* Monster is still being nice */
+				m_ptr->mflag |= (MFLAG_NICE);
+				
+				/* Must repair monsters */
+				repair_monsters = TRUE;
+			}
+			
+			/* Update the monster */
+			update_mon(m_idx, TRUE);
+			lite_spot(cy, cx);
+			
+			r_ptr->cur_num++;
+			
+			/* Hack -- Count the number of "reproducers" */
+			if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
+			
+			/* Hack -- Notice new multi-hued monsters */
+			if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
+		}
+		else
+		{
+			char m_name[80];
+			
+			monster_desc(m_name, &party_mon[i], 0);
 #ifdef JP
-msg_format("%sとはぐれてしまった。", m_name);
+			msg_format("%sとはぐれてしまった。", m_name);
 #else
-				msg_format("You have lost sight of %s.", m_name);
+			msg_format("You have lost sight of %s.", m_name);
 #endif
-				if (record_named_pet && party_mon[i].nickname)
-				{
-					monster_desc(m_name, &party_mon[i], 0x08);
-					do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
-				}
+			if (record_named_pet && party_mon[i].nickname)
+			{
+				monster_desc(m_name, &party_mon[i], 0x08);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
 			}
 		}
 	}

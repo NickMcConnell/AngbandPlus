@@ -67,15 +67,31 @@ void reset_visuals(void)
 
 	if (use_graphics)
 	{
+		char buf[1024];
+
 		/* Process "graf.prf" */
 		process_pref_file("graf.prf");
+
+		/* Access the "character" pref file */
+		sprintf(buf, "graf-%s.prf", player_base);
+
+		/* Process "graf-<playername>.prf" */
+		process_pref_file(buf);
 	}
 
 	/* Normal symbols */
 	else
 	{
+		char buf[1024];
+
 		/* Process "font.prf" */
 		process_pref_file("font.prf");
+
+		/* Access the "character" pref file */
+		sprintf(buf, "font-%s.prf", player_base);
+
+		/* Process "font-<playername>.prf" */
+		process_pref_file(buf);
 	}
 }
 
@@ -136,68 +152,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f1) |= o_ptr->art_flags1;
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
-	}
-
-	/* Extra powers */
-	if (!(o_ptr->art_name))
-	{
-		switch (o_ptr->xtra1)
-		{
-			case EGO_XTRA_SUSTAIN:
-			{
-				/* Choose a sustain */
-				switch (o_ptr->xtra2 % 6)
-				{
-					case 0: (*f2) |= (TR2_SUST_STR); break;
-					case 1: (*f2) |= (TR2_SUST_INT); break;
-					case 2: (*f2) |= (TR2_SUST_WIS); break;
-					case 3: (*f2) |= (TR2_SUST_DEX); break;
-					case 4: (*f2) |= (TR2_SUST_CON); break;
-					case 5: (*f2) |= (TR2_SUST_CHR); break;
-				}
-
-				break;
-			}
-
-			case EGO_XTRA_POWER:
-			{
-				/* Choose a power */
-				switch (o_ptr->xtra2 % 11)
-				{
-					case  0: (*f2) |= (TR2_RES_BLIND);  break;
-					case  1: (*f2) |= (TR2_RES_CONF);   break;
-					case  2: (*f2) |= (TR2_RES_SOUND);  break;
-					case  3: (*f2) |= (TR2_RES_SHARDS); break;
-					case  4: (*f2) |= (TR2_RES_NETHER); break;
-					case  5: (*f2) |= (TR2_RES_NEXUS);  break;
-					case  6: (*f2) |= (TR2_RES_CHAOS);  break;
-					case  7: (*f2) |= (TR2_RES_DISEN);  break;
-					case  8: (*f2) |= (TR2_RES_POIS);   break;
-					case  9: (*f2) |= (TR2_RES_DARK);   break;
-					case 10: (*f2) |= (TR2_RES_LITE);   break;
-				}
-
-				break;
-			}
-
-			case EGO_XTRA_ABILITY:
-			{
-				/* Choose an ability */
-				switch (o_ptr->xtra2 % 8)
-				{
-					case 0: (*f3) |= (TR3_FEATHER);     break;
-					case 1: (*f3) |= (TR3_LITE);        break;
-					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-					case 3: (*f3) |= (TR3_TELEPATHY);   break;
-					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-					case 5: (*f3) |= (TR3_REGEN);       break;
-					case 6: (*f2) |= (TR2_FREE_ACT);    break;
-					case 7: (*f2) |= (TR2_HOLD_LIFE);   break;
-				}
-
-				break;
-			}
-		}
 	}
 
 	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
@@ -335,68 +289,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 			(*f1) |= o_ptr->art_flags1;
 			(*f2) |= o_ptr->art_flags2;
 			(*f3) |= o_ptr->art_flags3;
-		}
-
-		if (!(o_ptr->art_name))
-		{
-			/* Extra powers */
-			switch (o_ptr->xtra1)
-			{
-				case EGO_XTRA_SUSTAIN:
-				{
-					/* Choose a sustain */
-					switch (o_ptr->xtra2 % 6)
-					{
-						case 0: (*f2) |= (TR2_SUST_STR); break;
-						case 1: (*f2) |= (TR2_SUST_INT); break;
-						case 2: (*f2) |= (TR2_SUST_WIS); break;
-						case 3: (*f2) |= (TR2_SUST_DEX); break;
-						case 4: (*f2) |= (TR2_SUST_CON); break;
-						case 5: (*f2) |= (TR2_SUST_CHR); break;
-					}
-
-					break;
-				}
-
-				case EGO_XTRA_POWER:
-				{
-					/* Choose a power */
-					switch (o_ptr->xtra2 % 11)
-					{
-						case  0: (*f2) |= (TR2_RES_BLIND);  break;
-						case  1: (*f2) |= (TR2_RES_CONF);   break;
-						case  2: (*f2) |= (TR2_RES_SOUND);  break;
-						case  3: (*f2) |= (TR2_RES_SHARDS); break;
-						case  4: (*f2) |= (TR2_RES_NETHER); break;
-						case  5: (*f2) |= (TR2_RES_NEXUS);  break;
-						case  6: (*f2) |= (TR2_RES_CHAOS);  break;
-						case  7: (*f2) |= (TR2_RES_DISEN);  break;
-						case  8: (*f2) |= (TR2_RES_POIS);   break;
-						case  9: (*f2) |= (TR2_RES_DARK);   break;
-						case 10: (*f2) |= (TR2_RES_LITE);   break;
-					}
-
-					break;
-				}
-
-				case EGO_XTRA_ABILITY:
-				{
-					/* Choose an ability */
-					switch (o_ptr->xtra2 % 8)
-					{
-						case 0: (*f3) |= (TR3_FEATHER);     break;
-						case 1: (*f3) |= (TR3_LITE);        break;
-						case 2: (*f3) |= (TR3_SEE_INVIS);   break;
-						case 3: (*f3) |= (TR3_TELEPATHY);   break;
-						case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
-						case 5: (*f3) |= (TR3_REGEN);       break;
-						case 6: (*f2) |= (TR2_FREE_ACT);    break;
-						case 7: (*f2) |= (TR2_HOLD_LIFE);   break;
-					}
-
-					break;
-				}
-			}
 		}
 	}
 
@@ -1246,7 +1138,7 @@ return "悪臭雲(12) : 4+d4 ターン毎";
 #endif
 
 		}
-		case ART_BELANGIL:
+		case ART_FIONA:
 		{
 #ifdef JP
 return "アイス・ボール(48) : 5+d5 ターン毎";
@@ -1255,7 +1147,7 @@ return "アイス・ボール(48) : 5+d5 ターン毎";
 #endif
 
 		}
-		case ART_DAL:
+		case ART_FLORA:
 		{
 #ifdef JP
 return "恐怖除去/毒消し : 5 ターン毎";
@@ -1373,7 +1265,7 @@ return "鑑定 : 10 ターン毎";
 #endif
 
 		}
-		case ART_OLORIN:
+		case ART_GANDALF:
 		{
 #ifdef JP
 return "探索、全感知、全鑑定 : 1000 ターン毎";
@@ -1419,7 +1311,7 @@ return "ファイア！ : 15 ターン毎";
 
 		}
 		case ART_KUSANAGI:
-		case ART_ANGUIREL:
+		case ART_WEREWINDLE:
 		{
 #ifdef JP
 return "逃走 : 35 ターン毎";
@@ -1455,7 +1347,7 @@ return "アイス・ボール (100) : 200 ターン毎";
 #endif
 
 		}
-		case ART_OROME:
+		case ART_DESTINY:
 		{
 #ifdef JP
 return "岩石溶解 : 5 ターン毎";
@@ -1482,7 +1374,7 @@ return "体力回復(1000) : 888 ターン毎";
 #endif
 
 		}
-		case ART_BELEGENNON:
+		case ART_LOHENGRIN:
 		{
 #ifdef JP
 return ("回復 (777)、癒し、士気高揚 : 300 ターン毎");
@@ -1491,7 +1383,7 @@ return ("回復 (777)、癒し、士気高揚 : 300 ターン毎");
 #endif
 
 		}
-		case ART_CELEBORN:
+		case ART_JULIAN:
 		{
 #ifdef JP
 return "抹殺 : 500 ターン毎";
@@ -1627,7 +1519,7 @@ return "全感知 : 55+d55 ターン毎";
 #endif
 
 		}
-		case ART_GONDOR:
+		case ART_AMBER:
 		{
 #ifdef JP
 return "体力回復(500) : 500 ターン毎";
@@ -1672,7 +1564,7 @@ return "魔法の地図と光 : 50+d50 ターン毎";
 #endif
 
 		}
-		case ART_THRAIN:
+		case ART_JUDGE:
 		{
 #ifdef JP
 return "体力と引き替えに千里眼と帰還";
@@ -1701,7 +1593,7 @@ return "邪悪退散(x5) : 100+d100 ターン毎";
 
 		}
 		case ART_CARLAMMAS:
-		case ART_VIOLET:
+		case ART_HERMIT:
 		{
 #ifdef JP
 return "対邪悪結界 : 225+d225 ターン毎";
@@ -1710,7 +1602,7 @@ return "対邪悪結界 : 225+d225 ターン毎";
 #endif
 
 		}
-		case ART_BARAHIR:
+		case ART_FRAKIR:
 		{
 #ifdef JP
 return "窒息攻撃(100) : 100+d100 ターン毎";
@@ -2515,6 +2407,7 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	cptr            info[128];
 	u32b flag;
+	char o_name[MAX_NLEN];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -2593,7 +2486,7 @@ info[i++] = "それは無敵のバリアを切り裂く。";
 #endif
 	}
 
-	if (o_ptr->name2 == EGO_2HAND)
+	if (o_ptr->name2 == EGO_2WEAPON)
 	{
 #ifdef JP
 info[i++] = "それは二刀流での命中率を向上させる。";
@@ -3067,7 +2960,7 @@ info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
 
 	}
 
-	if (f1 & (TR1_FORCE_WEPON))
+	if (f1 & (TR1_FORCE_WEAPON))
 	{
 #ifdef JP
 info[i++] = "それは使用者の魔力を使って攻撃する。";
@@ -3413,6 +3306,15 @@ info[i++] = "それは体力回復力を強化する。";
 #endif
 
 	}
+	if (f3 & (TR3_WARNING))
+	{
+#ifdef JP
+info[i++] = "それは危険に対して警告を発する。";
+#else
+		info[i++] = "It warns you of danger";
+#endif
+
+	}
 	if (f2 & (TR2_REFLECT))
 	{
 #ifdef JP
@@ -3620,6 +3522,10 @@ info[i++] = "それは冷気では傷つかない。";
 
 	/* Save the screen */
 	screen_save();
+
+	/* Display Item name */
+	object_desc(o_name, o_ptr, TRUE, 3);
+	prt(format("%s", o_name), 0, 0);
 
 	/* Erase the screen */
 	for (k = 1; k < 24; k++) prt("", k, 13);
@@ -5487,6 +5393,7 @@ if (allow_floor) strcat(out_val, " '-'床上,");
 			case 'x':
 			case 'X':
 			case '\r':
+			case '\n':
 			{
 				/* Validate the item */
 				if (!get_item_okay(get_item_label))
@@ -5672,8 +5579,8 @@ if (other_query_flag && !verify("本当に", k)) continue;
 				break;
 			}
 
-			case '\n':
 #if 0
+			case '\n':
 			case '\r':
 #endif
 			{
@@ -6739,6 +6646,7 @@ strcat(out_val, " '/'装備品,");
 			case 'x':
 			case 'X':
 			case '\r':
+			case '\n':
 			{
 				/* Validate the item */
 				if (!get_item_okay(get_item_label))

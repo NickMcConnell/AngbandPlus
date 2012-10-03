@@ -28,7 +28,7 @@ static int monster_critical(int dice, int sides, int dam)
 	if (dam < total * 19 / 20) return (0);
 
 	/* Weak blows rarely work */
-	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
+	if ((dam < 20) && (randint0(100) >= dam)) return (0);
 
 	/* Perfect damage */
 	if (dam == total && dam >= 40) max++;
@@ -36,7 +36,7 @@ static int monster_critical(int dice, int sides, int dam)
 	/* Super-charge */
 	if (dam >= 20)
 	{
-		while (rand_int(100) < 2) max++;
+		while (randint0(100) < 2) max++;
 	}
 
 	/* Critical damage */
@@ -62,7 +62,7 @@ static int check_hit(int power, int level, int stun)
 	int i, k, ac;
 
 	/* Percentile dice */
-	k = rand_int(100);
+	k = randint0(100);
 
 	if (stun && one_in_(2)) return FALSE;
 
@@ -77,7 +77,7 @@ static int check_hit(int power, int level, int stun)
 	if (p_ptr->special_attack & ATTACK_SUIKEN) ac += (p_ptr->lev * 2);
 
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
+	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -110,6 +110,8 @@ static cptr desc_insult[] =
 	"dances around you!",
 	"makes obscene gestures!",
 	"moons you!!!"
+	"calls you a parasite!",
+	"calls you a cyborg!"
 #endif
 
 };
@@ -188,7 +190,7 @@ bool make_attack_normal(int m_idx)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x88);
+	monster_desc(ddesc, m_ptr, 0x288);
 
 	if (p_ptr->special_defense & KATA_IAI)
 	{
@@ -200,7 +202,7 @@ bool make_attack_normal(int m_idx)
 		if (py_attack(m_ptr->fy, m_ptr->fx, HISSATSU_IAI)) return TRUE;
 	}
 
-	if ((p_ptr->special_defense & NINJA_KAWARIMI) && (rand_int(55) < (p_ptr->lev*3/5+20)))
+	if ((p_ptr->special_defense & NINJA_KAWARIMI) && (randint0(55) < (p_ptr->lev*3/5+20)))
 	{
 		kawarimi(TRUE);
 		return TRUE;
@@ -244,6 +246,8 @@ bool make_attack_normal(int m_idx)
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
+
+		if (method == RBM_SHOOT) continue;
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
@@ -298,7 +302,7 @@ bool make_attack_normal(int m_idx)
 			if ((p_ptr->protevil > 0) &&
 			    (r_ptr->flags3 & RF3_EVIL) &&
 			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    ((randint0(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -607,7 +611,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_INSULT:
 				{
 				        syouryaku = -1;
-					act = desc_insult[rand_int(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
+					act = desc_insult[randint0(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
 					sound(SOUND_MOAN);
 					break;
 				}
@@ -615,7 +619,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_MOAN:
 				{
 				        syouryaku = -1;
-					act = desc_moan[rand_int(4)];
+					act = desc_moan[randint0(4)];
 					sound(SOUND_MOAN);
 					break;
 				}
@@ -626,7 +630,7 @@ bool make_attack_normal(int m_idx)
 					if (m_ptr->r_idx == MON_JAIAN)
 					{
 #ifdef JP
-						switch(randint(15))
+						switch(randint1(15))
 						{
 						  case 1:
 						  case 6:
@@ -676,7 +680,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (randint(3) == 1)
+						if (one_in_(3))
 #ifdef JP
 							act = "は♪僕らは楽しい家族♪と歌っている。";
 						else
@@ -699,7 +703,7 @@ bool make_attack_normal(int m_idx)
 				if (do_silly_attack)
 				{
 					syouryaku = -1;
-					act = silly_attacks[rand_int(MAX_SILLY_ATTACK)];
+					act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
 				}
 #ifdef JP
 				if(syouryaku==0)
@@ -743,7 +747,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_SUPERHURT:
 				{
 					int ac = p_ptr->ac+p_ptr->to_a;
-					if ((randint(rlev*2+300) > (ac+200)) || one_in_(13)) {
+					if ((randint1(rlev*2+300) > (ac+200)) || one_in_(13)) {
 						int tmp_damage = damage-(damage*((ac < 150) ? ac : 150)/250);
 #ifdef JP
 						msg_print("痛恨の一撃！");
@@ -779,7 +783,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
 						{
 							obvious = TRUE;
 						}
@@ -825,7 +829,7 @@ bool make_attack_normal(int m_idx)
 					for (k = 0; k < 10; k++)
 					{
 						/* Pick an item */
-						i = rand_int(INVEN_PACK);
+						i = randint0(INVEN_PACK);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -896,7 +900,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+					    (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 					                      p_ptr->lev)))
 					{
 						/* Saving throw message */
@@ -908,15 +912,15 @@ bool make_attack_normal(int m_idx)
 
 
 						/* Occasional blink anyway */
-						if (rand_int(3)) blinked = TRUE;
+						if (randint0(3)) blinked = TRUE;
 					}
 
 					/* Eat gold */
 					else
 					{
-						gold = (p_ptr->au / 10) + randint(25);
+						gold = (p_ptr->au / 10) + randint1(25);
 						if (gold < 2) gold = 2;
-						if (gold > 5000) gold = (p_ptr->au / 20) + randint(3000);
+						if (gold > 5000) gold = (p_ptr->au / 20) + randint1(3000);
 						if (gold > p_ptr->au) gold = p_ptr->au;
 						p_ptr->au -= gold;
 						if (gold <= 0)
@@ -977,7 +981,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
-					    (rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+					    (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 					                      p_ptr->lev)))
 					{
 						/* Saving throw message */
@@ -1004,7 +1008,7 @@ bool make_attack_normal(int m_idx)
 						s16b o_idx;
 
 						/* Pick an item */
-						i = rand_int(INVEN_PACK);
+						i = randint0(INVEN_PACK);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -1101,7 +1105,7 @@ bool make_attack_normal(int m_idx)
 					for (k = 0; k < 10; k++)
 					{
 						/* Pick an item from the pack */
-						i = rand_int(INVEN_PACK);
+						i = randint0(INVEN_PACK);
 
 						/* Get the item */
 						o_ptr = &inventory[i];
@@ -1155,7 +1159,7 @@ bool make_attack_normal(int m_idx)
 					if ((o_ptr->xtra4 > 0) && (!artifact_p(o_ptr)))
 					{
 						/* Reduce fuel */
-						o_ptr->pval -= (250 + randint(250));
+						o_ptr->pval -= (250 + randint1(250));
 						if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 						/* Notice */
@@ -1279,7 +1283,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
 					{
-						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
+						if (set_blind(p_ptr->blind + 10 + randint1(rlev)))
 						{
 #ifdef JP
 							if(m_ptr->r_idx == MON_DIO) msg_print("どうだッ！この血の目潰しはッ！");
@@ -1307,7 +1311,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_conf)
 					{
-						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
+						if (set_confused(p_ptr->confused + 3 + randint1(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -1337,7 +1341,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (rand_int(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 						msg_print("しかし恐怖に侵されなかった！");
@@ -1349,7 +1353,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint(rlev)))
+						if (set_afraid(p_ptr->afraid + 3 + randint1(rlev)))
 						{
 							obvious = TRUE;
 						}
@@ -1379,7 +1383,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (rand_int(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");
@@ -1393,7 +1397,7 @@ bool make_attack_normal(int m_idx)
 					{
 						if (!p_ptr->paralyzed)
 						{
-							if (set_paralyzed(3 + randint(rlev)))
+							if (set_paralyzed(3 + randint1(rlev)))
 							{
 								obvious = TRUE;
 							}
@@ -1535,7 +1539,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->prace == RACE_ANDROID)
 					{
 					}
-					else if (p_ptr->hold_life && (rand_int(100) < 95))
+					else if (p_ptr->hold_life && (randint0(100) < 95))
 					{
 #ifdef JP
 						msg_print("しかし自己の生命力を守りきった！");
@@ -1584,7 +1588,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->prace == RACE_ANDROID)
 					{
 					}
-					else if (p_ptr->hold_life && (rand_int(100) < 90))
+					else if (p_ptr->hold_life && (randint0(100) < 90))
 					{
 #ifdef JP
 						msg_print("しかし自己の生命力を守りきった！");
@@ -1633,7 +1637,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->prace == RACE_ANDROID)
 					{
 					}
-					else if (p_ptr->hold_life && (rand_int(100) < 75))
+					else if (p_ptr->hold_life && (randint0(100) < 75))
 					{
 #ifdef JP
                                                 msg_print("しかし自己の生命力を守りきった！");
@@ -1682,7 +1686,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->prace == RACE_ANDROID)
 					{
 					}
-					else if (p_ptr->hold_life && (rand_int(100) < 50))
+					else if (p_ptr->hold_life && (randint0(100) < 50))
 					{
 #ifdef JP
                                                 msg_print("しかし自己の生命力を守りきった！");
@@ -1728,18 +1732,18 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
 						{
 							obvious = TRUE;
 						}
 					}
 
 					/* Damage CON (10% chance)*/
-					if ((randint(100) < 11) && (p_ptr->prace != RACE_ANDROID))
+					if ((randint1(100) < 11) && (p_ptr->prace != RACE_ANDROID))
 					{
 						/* 1% chance for perm. damage */
-						bool perm = (randint(10) == 1);
-						if (dec_stat(A_CON, randint(10), perm)) obvious = TRUE;
+						bool perm = one_in_(10);
+						if (dec_stat(A_CON, randint1(10), perm)) obvious = TRUE;
 					}
 
 					break;
@@ -1749,7 +1753,7 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 					if (!p_ptr->resist_time)
 					{
-						switch (randint(10))
+						switch (randint1(10))
 						{
 							case 1: case 2: case 3: case 4: case 5:
 							{
@@ -1766,7 +1770,7 @@ bool make_attack_normal(int m_idx)
 
 							case 6: case 7: case 8: case 9:
 							{
-								int stat = rand_int(6);
+								int stat = randint0(6);
 
 								switch (stat)
 								{
@@ -1837,7 +1841,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->prace == RACE_ANDROID)
 					{
 					}
-					else if (p_ptr->hold_life && (rand_int(100) < 50))
+					else if (p_ptr->hold_life && (randint0(100) < 50))
 					{
 #ifdef JP
 msg_print("しかし自己の生命力を守りきった！");
@@ -1938,7 +1942,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			if (do_cut && do_stun)
 			{
 				/* Cancel cut */
-				if (rand_int(100) < 50)
+				if (randint0(100) < 50)
 				{
 					do_cut = 0;
 				}
@@ -1962,11 +1966,11 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				switch (tmp)
 				{
 					case 0: k = 0; break;
-					case 1: k = randint(5); break;
-					case 2: k = randint(5) + 5; break;
-					case 3: k = randint(20) + 20; break;
-					case 4: k = randint(50) + 50; break;
-					case 5: k = randint(100) + 100; break;
+					case 1: k = randint1(5); break;
+					case 2: k = randint1(5) + 5; break;
+					case 3: k = randint1(20) + 20; break;
+					case 4: k = randint1(50) + 50; break;
+					case 5: k = randint1(100) + 100; break;
 					case 6: k = 300; break;
 					default: k = 500; break;
 				}
@@ -1987,11 +1991,11 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				switch (tmp)
 				{
 					case 0: k = 0; break;
-					case 1: k = randint(5); break;
-					case 2: k = randint(5) + 10; break;
-					case 3: k = randint(10) + 20; break;
-					case 4: k = randint(15) + 30; break;
-					case 5: k = randint(20) + 40; break;
+					case 1: k = randint1(5); break;
+					case 2: k = randint1(5) + 10; break;
+					case 3: k = randint1(10) + 20; break;
+					case 4: k = randint1(15) + 30; break;
+					case 5: k = randint1(20) + 40; break;
 					case 6: k = 80; break;
 					default: k = 150; break;
 				}
@@ -2276,7 +2280,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 
 
 	/* Always notice cause of death */
-	if (death && (r_ptr->r_deaths < MAX_SHORT))
+	if (death && (r_ptr->r_deaths < MAX_SHORT) && !p_ptr->inside_arena)
 	{
 		r_ptr->r_deaths++;
 	}

@@ -1358,6 +1358,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "³è", "Rg", TR3_REGEN, 3, 0 },
 	{ "Éâ", "Lv", TR3_FEATHER, 3, 0 },
 	{ "ÌÀ", "Lu", TR3_LITE, 3, 0 },
+	{ "·Ù", "Wr", TR3_WARNING, 3, 0 },
         { "ÇÜ", "Xm", TR3_XTRA_MIGHT, 3, 0 },
 	{ "¼Í", "Xs", TR3_XTRA_SHOTS, 3, 0 },
 	{ "ÅÜ", "Ag", TR3_AGGRAVATE, 3, 0 },
@@ -1389,7 +1390,7 @@ static flag_insc_table flag_insc_brand[] =
 	{ "µÛ", "V", TR1_VAMPIRIC, 1, 0 },
 	{ "¿Ì", "Q", TR1_IMPACT, 1, 0 },
 	{ "ÀÚ", "S", TR1_VORPAL, 1, 0 },
-	{ "Íý", "M", TR1_FORCE_WEPON, 1, 0 },
+	{ "Íý", "M", TR1_FORCE_WEAPON, 1, 0 },
 	{ NULL, NULL, 0, 0, 0 }
 };
 
@@ -1479,6 +1480,7 @@ static flag_insc_table flag_insc_misc[] =
   	{ "Rg", TR3_REGEN, 3, 0 },
   	{ "Lv", TR3_FEATHER, 3, 0 },
   	{ "Lu", TR3_LITE, 3, 0 },
+	{ "Wr", TR3_WARNING, 3, 0 },
 	{ "Xm", TR3_XTRA_MIGHT, 3, 0 },
   	{ "Xs", TR3_XTRA_SHOTS, 3, 0 },
   	{ "Ag", TR3_AGGRAVATE, 3, 0 },
@@ -1513,7 +1515,7 @@ static flag_insc_table flag_insc_brand[] =
   	{ "V", TR1_VAMPIRIC, 1, 0 },
   	{ "Q", TR1_IMPACT, 1, 0 },
   	{ "S", TR1_VORPAL, 1, 0 },
-  	{ "M", TR1_FORCE_WEPON, 1, 0 },
+  	{ "M", TR1_FORCE_WEAPON, 1, 0 },
   	{ NULL, 0, 0, 0 }
 };
 
@@ -1599,6 +1601,7 @@ s16b inscribe_flags(object_type *o_ptr, cptr out_val)
 	{
 		if ('%' == out_val[i] )
 		{
+			cptr start_percent = ptr;
 #ifdef JP
 			if ('%' == out_val[i+1])
 			{
@@ -1726,6 +1729,9 @@ s16b inscribe_flags(object_type *o_ptr, cptr out_val)
 				ADD_INSC("(");
 			}
 			ptr = inscribe_flags_aux(flag_insc_sust, flag, kanji, ptr);
+
+			if (ptr == start_percent)
+				ADD_INSC(" ");
 		}
 		else
 		{

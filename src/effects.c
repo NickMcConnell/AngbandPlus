@@ -3326,7 +3326,7 @@ msg_print("頭がクラクラして意識が遠のいてきた。");
 			break;
 		}
 
-		if (randint(1000) < v || randint(16) == 1)
+		if (randint1(1000) < v || one_in_(16))
 		{
 #ifdef JP
 msg_print("割れるような頭痛がする。");
@@ -3334,12 +3334,12 @@ msg_print("割れるような頭痛がする。");
 			msg_print("A vicious blow hits your head.");
 #endif
 
-			if (randint(3) == 1)
+			if (one_in_(3))
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
 			}
-			else if (randint(2) == 1)
+			else if (one_in_(2))
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
 			}
@@ -3610,7 +3610,7 @@ msg_print("致命的な傷を負ってしまった。");
 		/* Notice */
 		notice = TRUE;
 
-		if (randint(1000) < v || randint(16) == 1)
+		if (randint1(1000) < v || one_in_(16))
 		{
 			if (!p_ptr->sustain_chr)
 			{
@@ -3957,7 +3957,7 @@ bool inc_stat(int stat)
 		/* Gain one (sometimes two) points */
 		if (value < 18)
 		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
+			gain = ((randint0(100) < 75) ? 1 : 2);
 			value += gain;
 		}
 
@@ -3971,7 +3971,7 @@ bool inc_stat(int stat)
 			if (gain < 1) gain = 1;
 
 			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
+			value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
 			if (value > (p_ptr->stat_max_max[stat]-1)) value = p_ptr->stat_max_max[stat]-1;
@@ -4053,7 +4053,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			if (loss < 1) loss = 1;
 
 			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
+			loss = ((randint1(loss) + loss) * amount) / 100;
 
 			/* Maximal loss */
 			if (loss < amount/2) loss = amount/2;
@@ -4095,7 +4095,7 @@ bool dec_stat(int stat, int amount, int permanent)
 			/* and one-half of the stat bonus times the percentage, with a */
 			/* minimum damage of half the percentage. -CWS */
 			loss = (((max-18) / 2 + 1) / 2 + 1);
-			loss = ((randint(loss) + loss) * amount) / 100;
+			loss = ((randint1(loss) + loss) * amount) / 100;
 			if (loss < amount/2) loss = amount/2;
 
 			/* Lose some points */
@@ -4323,7 +4323,7 @@ bool do_dec_stat(int stat)
 	}
 
 	/* Sustain */
-	if (sust && (!ironman_nightmare || rand_int(13)))
+	if (sust && (!ironman_nightmare || randint0(13)))
 	{
 		/* Message */
 #ifdef JP
@@ -4339,7 +4339,7 @@ msg_format("%sなった気がしたが、すぐに元に戻った。",
 	}
 
 	/* Attempt to reduce the stat */
-	if (dec_stat(stat, 10, (ironman_nightmare && !rand_int(13))))
+	if (dec_stat(stat, 10, (ironman_nightmare && !randint0(13))))
 	{
 		/* Message */
 #ifdef JP
@@ -4529,7 +4529,7 @@ void do_poly_wounds(void)
 	s16b wounds = p_ptr->cut;
 	s16b hit_p = (p_ptr->mhp - p_ptr->chp);
 	s16b change = damroll(p_ptr->lev, 5);
-	bool Nasty_effect = (randint(5) == 1);
+	bool Nasty_effect = one_in_(5);
 
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
@@ -4571,7 +4571,7 @@ msg_print("あなたは変化の訪れを感じた...");
 
 	chg_virtue(V_CHANCE, 1);
 
-	if ((power > rand_int(20)) && (rand_int(3) == 1) && (p_ptr->prace != RACE_ANDROID))
+	if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID))
 	{
 		char effect_msg[80] = "";
 		int new_race, expfact, goalexpfact, h_percent;
@@ -4579,7 +4579,7 @@ msg_print("あなたは変化の訪れを感じた...");
 		/* Some form of racial polymorph... */
 		power -= 10;
 
-		if ((power > rand_int(5)) && (rand_int(4) == 1))
+		if ((power > randint0(5)) && one_in_(4))
 		{
 			/* sex change */
 			power -= 2;
@@ -4608,7 +4608,7 @@ sprintf(effect_msg, "男性の");
 			}
 		}
 
-		if ((power > rand_int(30)) && (rand_int(5) == 1))
+		if ((power > randint0(30)) && one_in_(5))
 		{
 			int tmp = 0;
 
@@ -4617,16 +4617,16 @@ sprintf(effect_msg, "男性の");
 
 			while (tmp < 6)
 			{
-				if (rand_int(2) == 1)
+				if (one_in_(2))
 				{
-					(void)dec_stat(tmp, randint(6) + 6, (randint(3) == 1));
+					(void)dec_stat(tmp, randint1(6) + 6, one_in_(3));
 					power -= 1;
 				}
 				tmp++;
 			}
 
 			/* Deformities are discriminated against! */
-			(void)dec_stat(A_CHR, randint(6), TRUE);
+			(void)dec_stat(A_CHR, randint1(6), TRUE);
 
 			if (effect_msg[0])
 			{
@@ -4651,7 +4651,7 @@ sprintf(effect_msg, "男性の");
 			}
 		}
 
-		while ((power > rand_int(20)) && (rand_int(10) == 1))
+		while ((power > randint0(20)) && one_in_(10))
 		{
 			/* Polymorph into a less mutated form */
 			power -= 10;
@@ -4672,11 +4672,11 @@ msg_print("奇妙なくらい普通になった気がする。");
 		if (power < 0)
 			goalexpfact = 100;
 		else
-			goalexpfact = 100 + 3 * rand_int(power);
+			goalexpfact = 100 + 3 * randint0(power);
 
 		do
 		{
-			new_race = rand_int(MAX_RACES);
+			new_race = randint0(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
 		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
@@ -4755,7 +4755,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		lite_spot(py, px);
 	}
 
-	if ((power > rand_int(30)) && (rand_int(6) == 1))
+	if ((power > randint0(30)) && one_in_(6))
 	{
 		int tmp = 0;
 
@@ -4770,24 +4770,24 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 
 		while (tmp < 6)
 		{
-			(void)dec_stat(tmp, randint(6) + 6, (randint(3) == 1));
+			(void)dec_stat(tmp, randint1(6) + 6, one_in_(3));
 			tmp++;
 		}
-		if (randint(6) == 1)
+		if (one_in_(6))
 		{
 #ifdef JP
 msg_print("現在姿で生きていくのは困難なようだ！");
-take_hit(DAMAGE_LOSELIFE, damroll(randint(10), p_ptr->lev), "致命的な突然変異", -1);
+take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異", -1);
 #else
 			msg_print("You find living difficult in your present form!");
-			take_hit(DAMAGE_LOSELIFE, damroll(randint(10), p_ptr->lev), "a lethal mutation", -1);
+			take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "a lethal mutation", -1);
 #endif
 
 			power -= 10;
 		}
 	}
 
-	if ((power > rand_int(20)) && (rand_int(4) == 1))
+	if ((power > randint0(20)) && one_in_(4))
 	{
 		power -= 10;
 
@@ -4795,13 +4795,13 @@ take_hit(DAMAGE_LOSELIFE, damroll(randint(10), p_ptr->lev), "致命的な突然変異", 
 		do_cmd_rerate(FALSE);
 	}
 
-	while ((power > rand_int(15)) && (rand_int(3) == 1))
+	while ((power > randint0(15)) && one_in_(3))
 	{
 		power -= 7;
 		(void)gain_random_mutation(0);
 	}
 
-	if (power > rand_int(5))
+	if (power > randint0(5))
 	{
 		power -= 5;
 		do_poly_wounds();
@@ -4867,7 +4867,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 				msg_print("The attack cuts your shield of invulnerability open!");
 #endif
 			}
-			else if (randint(PENETRATE_INVULNERABILITY) == 1)
+			else if (one_in_(PENETRATE_INVULNERABILITY))
 			{
 #ifdef JP
 				msg_print("無敵のバリアを破って攻撃された！");
@@ -4916,14 +4916,14 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			else
 			{
 				damage /= 2;
-				if ((damage == 0) && (randint(2) == 1)) damage = 1;
+				if ((damage == 0) && one_in_(2)) damage = 1;
 			}
 		}
 
 		if ((p_ptr->special_defense & KATA_MUSOU))
 		{
 			damage /= 2;
-			if ((damage == 0) && (randint(2) == 1)) damage = 1;
+			if ((damage == 0) && one_in_(2)) damage = 1;
 		}
 	} /* not if LOSELIFE USELIFE */
 
@@ -4972,22 +4972,24 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 		if (p_ptr->inside_arena)
 		{
+			cptr m_name = r_name+r_info[arena_monsters[p_ptr->arena_number]].name;
 #ifdef JP
-msg_format("あなたは%sの前に敗れ去った。", r_name+r_info[arena_monsters[p_ptr->arena_number]].name);
+			msg_format("あなたは%sの前に敗れ去った。", m_name);
 #else
-msg_format("You are beaten by %s.", r_name+r_info[arena_monsters[p_ptr->arena_number]].name);
+			msg_format("You are beaten by %s.", m_name);
 #endif
 			msg_print(NULL);
+			if (record_arena) do_cmd_write_nikki(NIKKI_ARENA, 99, m_name);
 		}
 		else
 		{
+#ifdef WORLD_SCORE
 			/* Make screen dump */
 			screen_dump = make_screen_dump();
+#endif
 
 			/* Note cause of death */
 			(void)strcpy(died_from, hit_from);
-
-			if (p_ptr->image) strcat(died_from,"(?)");
 
 			/* No longer a winner */
 			total_winner = FALSE;
@@ -5073,11 +5075,11 @@ get_rnd_line("death_j.txt", 0, death_message);
 #endif
 				}
 #ifdef JP
-			        if (!get_string(streq(died_from, "Seppuku") ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024))
+			        while (!get_string(streq(died_from, "Seppuku") ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024)) ;
 #else
-				if (!get_string("Last word: ", death_message, 1024))
+				while (!get_string("Last word: ", death_message, 1024)) ;
 #endif
-
+				if (death_message[0] == '\0')
 				{
 #ifdef JP
 					strcpy(death_message, format("あなたは%sました。", android ? "壊れ" : "死に"));
@@ -5100,7 +5102,7 @@ get_rnd_line("death_j.txt", 0, death_message);
 
 				  /* 桜散る */
 				  for (i = 0; i < 40; i++) 
-				    Term_putstr(rand_int(w / 2) * 2, rand_int(h), 2, TERM_VIOLET, "υ");
+				    Term_putstr(randint0(w / 2) * 2, randint0(h), 2, TERM_VIOLET, "υ");
 
 				  str = death_message;
 				  if (strncmp(str, "「", 2) == 0) str += 2;
@@ -5556,15 +5558,15 @@ bool choose_ele_attack(void)
 	choice = inkey();
 
 	if ((choice == 'a') || (choice == 'A')) 
-		set_ele_attack(ATTACK_FIRE, p_ptr->lev/2 + randint(p_ptr->lev/2));
+		set_ele_attack(ATTACK_FIRE, p_ptr->lev/2 + randint1(p_ptr->lev/2));
 	else if (((choice == 'b') || (choice == 'B')) && (num >= 2))
-		set_ele_attack(ATTACK_COLD, p_ptr->lev/2 + randint(p_ptr->lev/2));
+		set_ele_attack(ATTACK_COLD, p_ptr->lev/2 + randint1(p_ptr->lev/2));
 	else if (((choice == 'c') || (choice == 'C')) && (num >= 3))
-		set_ele_attack(ATTACK_POIS, p_ptr->lev/2 + randint(p_ptr->lev/2));
+		set_ele_attack(ATTACK_POIS, p_ptr->lev/2 + randint1(p_ptr->lev/2));
 	else if (((choice == 'd') || (choice == 'D')) && (num >= 4))
-		set_ele_attack(ATTACK_ACID, p_ptr->lev/2 + randint(p_ptr->lev/2));
+		set_ele_attack(ATTACK_ACID, p_ptr->lev/2 + randint1(p_ptr->lev/2));
 	else if (((choice == 'e') || (choice == 'E')) && (num >= 5))
-		set_ele_attack(ATTACK_ELEC, p_ptr->lev/2 + randint(p_ptr->lev/2));
+		set_ele_attack(ATTACK_ELEC, p_ptr->lev/2 + randint1(p_ptr->lev/2));
 	else
 	{
 #ifdef JP

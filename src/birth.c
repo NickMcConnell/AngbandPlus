@@ -1541,7 +1541,7 @@ static hist_type bg[] =
 	{"You have come from the twenty-second century ", 100, 155, 156, 100},
 
 	{"as a project prototype. ", 10, 156, 157, 50},
-	{"to educate children. ", 30, 157, 157, 60},
+	{"to educate children. ", 30, 156, 157, 60},
 	{"to look after someone. ", 50, 156, 157, 70},
 	{"as a substitute for a dead child. ", 60, 156, 157, 10},
 	{"as a combat trooper. ", 90, 156, 157, 20},
@@ -1775,7 +1775,7 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "鏡使いは、魔力の込められた鏡を作り出して、それを触媒として攻撃を行なうことができる鏡魔法を使います。鏡使いは鏡の上で実力を発揮し、鏡の上では素早いテレポートが可能となります。魔法の鏡は、レベルによって一度に制御できる数が制限されます。鏡魔法に必要な能力は知能です。",
 
-"忍者は暗闇に潜む恐るべき暗殺者であり、光源を持たずに行動し、相手の不意をつき一撃で息の根を止めます。また、相手を惑わすための忍術も身につけます。罠やドアを見つける能力に優れ、罠の解除や鍵開けに熟達しています。軽装を好み、重い鎧や武器を装備すると著しく動きが制限され、また、盾を装備しようとはしません。軽装ならば、レベルが上がるにつれより速くより静かに行動できます。さらに忍者は恐怖せず、成長すれば毒がほとんど効かなくなり、透明なものを見ること見ることができるようになります。忍術に必要な能力は器用さです。"
+"忍者は暗闇に潜む恐るべき暗殺者であり、光源を持たずに行動し、相手の不意をつき一撃で息の根を止めます。また、相手を惑わすための忍術も身につけます。罠やドアを見つける能力に優れ、罠の解除や鍵開けに熟達しています。軽装を好み、重い鎧や武器を装備すると著しく動きが制限され、また、盾を装備しようとはしません。軽装ならば、レベルが上がるにつれより速くより静かに行動できます。さらに忍者は恐怖せず、成長すれば毒がほとんど効かなくなり、透明なものを見ることができるようになります。忍術に必要な能力は器用さです。"
 
 #else
 
@@ -2179,11 +2179,11 @@ static byte choose_realm(s32b choices, int *count)
 		c = inkey();
 		if (c == 'Q') birth_quit();
 		if (c == 'S') return 255;
-		if (c == ' ' || c == '\r')
+		if (c == ' ' || c == '\r' || c == '\n')
 		{
 			if(cs == n)
 			{
-				k = rand_int(n);
+				k = randint0(n);
 				break;
 			}
 			else
@@ -2194,7 +2194,7 @@ static byte choose_realm(s32b choices, int *count)
 		}
 		if (c == '*')
 		{
-			k = rand_int(n);
+			k = randint0(n);
 			break;
 		}
 		if (c == '8')
@@ -2603,7 +2603,7 @@ static void get_stats(void)
 		for (j = i = 0; i < 18; i++)
 		{
 			/* Roll the dice */
-			dice[i] = randint(3 + i % 3);
+			dice[i] = randint1(3 + i % 3);
 
 			/* Collect the maximum */
 			j += dice[i];
@@ -2648,7 +2648,7 @@ void get_max_stats(void)
 		for (j = i = 0; i < 6; i++)
 		{
 			/* Roll the dice */
-			dice[i] = randint(7);
+			dice[i] = randint1(7);
 
 			/* Collect the maximum */
 			j += dice[i];
@@ -2757,14 +2757,14 @@ static void get_extra(void)
 
 		for (i = 1; i < 4; i++)
 		{
-			j = randint(p_ptr->hitdie);
+			j = randint1(p_ptr->hitdie);
 			player_hp[0] += j;
 		}
 
 		/* Roll the hitpoint values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			j = randint(p_ptr->hitdie);
+			j = randint1(p_ptr->hitdie);
 			player_hp[i] = player_hp[i - 1] + j;
 		}
 
@@ -2801,7 +2801,7 @@ static void get_history(void)
 	buf[0] = '\0';
 
 	/* Initial social class */
-	social_class = randint(4);
+	social_class = randint1(4);
 
 	/* Starting place */
 	switch (p_ptr->prace)
@@ -2994,7 +2994,7 @@ static void get_history(void)
 		i = 0;
 
 		/* Roll for nobility */
-		roll = randint(100);
+		roll = randint1(100);
 
 
 		/* Access the proper entry in the table */
@@ -3051,7 +3051,7 @@ static void get_ahw(void)
 
 
   /* Calculate the age */
-  p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+  p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
   
   /* Calculate the height/weight for males */
   if (p_ptr->psex == SEX_MALE)
@@ -3080,7 +3080,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
+	gold = (p_ptr->sc * 6) + randint1(100) + 300;
 	if (p_ptr->pclass == CLASS_TOURIST)
 	  gold += 2000;
 
@@ -3419,7 +3419,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Archer */
-		{ TV_BOW, SV_LONG_BOW },
+		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL},
 		{ TV_SWORD, SV_SHORT_SWORD },
 	},
@@ -3864,11 +3864,11 @@ static bool get_player_race(void)
 		c = inkey();
 		if (c == 'Q') birth_quit();
 		if (c == 'S') return (FALSE);
-		if (c == ' ' || c == '\r')
+		if (c == ' ' || c == '\r' || c == '\n')
 		{
 			if(cs == MAX_RACES)
 			{
-				k = rand_int(MAX_RACES);
+				k = randint0(MAX_RACES);
 				cs = k;
 				continue;
 			}
@@ -3880,7 +3880,7 @@ static bool get_player_race(void)
 		}
 		if (c == '*')
 		{
-			k = rand_int(MAX_RACES);
+			k = randint0(MAX_RACES);
 			cs = k;
 			continue;
 		}
@@ -4076,11 +4076,11 @@ static bool get_player_class(void)
 		c = inkey();
 		if (c == 'Q') birth_quit();
 		if (c == 'S') return (FALSE);
-		if (c == ' ' || c == '\r')
+		if (c == ' ' || c == '\r' || c == '\n')
 		{
 			if(cs == MAX_CLASS_CHOICE)
 			{
-				k = rand_int(MAX_CLASS_CHOICE);
+				k = randint0(MAX_CLASS_CHOICE);
 				cs = k;
 				continue;
 			}
@@ -4092,7 +4092,7 @@ static bool get_player_class(void)
 		}
 		if (c == '*')
 		{
-			k = rand_int(MAX_CLASS_CHOICE);
+			k = randint0(MAX_CLASS_CHOICE);
 			cs = k;
 			continue;
 		}
@@ -4269,13 +4269,13 @@ static bool get_player_seikaku(void)
 		c = inkey();
 		if (c == 'Q') birth_quit();
 		if (c == 'S') return (FALSE);
-		if (c == ' ' || c == '\r')
+		if (c == ' ' || c == '\r' || c == '\n')
 		{
 			if(cs == MAX_SEIKAKU)
 			{
 				do
 				{
-					k = rand_int(MAX_SEIKAKU);
+					k = randint0(MAX_SEIKAKU);
 				}
 				while(seikaku_info[k].sex && (seikaku_info[k].sex != (p_ptr->psex+1)));
 				cs = k;
@@ -4291,7 +4291,7 @@ static bool get_player_seikaku(void)
 		{
 			do
 			{
-				k = rand_int(n);
+				k = randint0(n);
 			}
 			while(seikaku_info[k].sex && (seikaku_info[k].sex != (p_ptr->psex+1)));
 			cs = k;
@@ -4567,6 +4567,7 @@ static bool get_stat_limits(void)
 		        break;
 		case ' ':
 		case '\r':
+		case '\n':
 			if(cs == 6) break;
 			cs++;
 			c = '2';
@@ -4644,7 +4645,7 @@ static bool get_stat_limits(void)
 		        bell();
 			break;
 		}
-		if(c == ESCAPE || ((c == ' ' || c == '\r') && cs == 6))break;
+		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == 6))break;
 	}
 	
 	for (i = 0; i < 6; i++)
@@ -4809,6 +4810,7 @@ static bool get_chara_limits(void)
 			break; /*後でもう一回breakせんと*/
 		case ' ':
 		case '\r':
+		case '\n':
 			if(cs == 6) break;
 			cs++;
 			c = '6';
@@ -4933,7 +4935,7 @@ static bool get_chara_limits(void)
 			bell();
 			break;
 		}
-		if(c == ESCAPE || ((c == ' ' || c == '\r') && cs == 6))break;
+		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == 6))break;
 	}
 
 	/* Input the minimum stats */
@@ -5097,17 +5099,17 @@ static bool player_birth_aux(void)
 		c = inkey();
 		if (c == 'Q') birth_quit();
 		if (c == 'S') return (FALSE);
-		if (c == ' ' || c == '\r')
+		if (c == ' ' || c == '\r' || c == '\n')
 		{
 			if(cs == MAX_SEXES)
-				k = rand_int(MAX_SEXES);
+				k = randint0(MAX_SEXES);
 			else
 				k = cs;
 			break;
 		}
 		if (c == '*')
 		{
-			k = rand_int(MAX_SEXES);
+			k = randint0(MAX_SEXES);
 			break;
 		}
 		if (c == '4')
@@ -5333,7 +5335,7 @@ static bool player_birth_aux(void)
 			strcpy(inp, "10");
 
 			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 2)) inp[0] = '\0';
+			if (!askfor_aux(inp, 2)) strcpy(inp, "10");
 
 			/* Quit */
 			if (inp[0] == 'Q') birth_quit();
@@ -5345,7 +5347,7 @@ static bool player_birth_aux(void)
 			if (inp[0] == '*')
 			{
 				/* 0 to 49 random quests */
-				v = rand_int(11);
+				v = randint0(11);
 			}
 			else
 			{
@@ -5388,7 +5390,7 @@ static bool player_birth_aux(void)
 			 * Random monster 5 - 10 levels out of depth
 			 * (depending on level)
 			 */
-			r_idx = get_mon_num(q_ptr->level + 5 + randint(q_ptr->level / 10));
+			r_idx = get_mon_num(q_ptr->level + 5 + randint1(q_ptr->level / 10));
 			r_ptr = &r_info[r_idx];
 
 			if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
@@ -5657,7 +5659,7 @@ static bool player_birth_aux(void)
 		get_money();
 
 		/* Hack -- get a chaos patron even if you are not a chaos warrior */
-		p_ptr->chaos_patron = (s16b)rand_int(MAX_PATRON);
+		p_ptr->chaos_patron = (s16b)randint0(MAX_PATRON);
 
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
@@ -5726,7 +5728,7 @@ static bool player_birth_aux(void)
 			if (c == 'S') return (FALSE);
 
 			/* Escape accepts the roll */
-			if (c == '\r' || c == ESCAPE) break;
+			if (c == '\r' || c == '\n' || c == ESCAPE) break;
 
 			/* Reroll this character */
 			if ((c == ' ') || (c == 'r')) break;
@@ -5774,7 +5776,7 @@ static bool player_birth_aux(void)
 		}
 
 		/* Are we done? */
-		if (c == '\r' || c == ESCAPE) break;
+		if (c == '\r' || c == '\n' || c == ESCAPE) break;
 
 		/* Save this for the "previous" character */
 		save_prev_data();
@@ -5842,6 +5844,12 @@ void player_birth(void)
 	char buf[80];
 
         playtime = 0;
+
+	/* 
+	 * Wipe monsters in old dungeon
+	 * This wipe destroys value of m_list[].cur_num .
+	 */
+	wipe_m_list();
 
 	/* Create a new character */
 	while (1)

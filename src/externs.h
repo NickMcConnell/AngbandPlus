@@ -197,7 +197,6 @@ extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
 extern bool hack_mutation;
-extern int artifact_bias;
 extern bool show_item_graph;
 extern bool rogue_like_commands;
 extern bool quick_messages;
@@ -491,7 +490,6 @@ extern bool left_hander;
 extern bool preserve_mode;
 extern bool autoroller;
 extern bool autochara;
-extern bool use_transparency;
 extern bool can_save;
 extern s16b spell_exp[64];
 extern s16b weapon_exp[5][64];
@@ -515,8 +513,7 @@ extern int pet_t_m_idx;
 extern int riding_t_m_idx;
 extern s16b kubi_r_idx[MAX_KUBI];
 extern s16b today_mon;
-extern monster_type riding_mon;
-extern monster_type party_mon[20];
+extern monster_type party_mon[21];
 extern bool write_level;
 extern u32b playtime;
 extern u32b start_time;
@@ -692,6 +689,7 @@ extern void do_cmd_use(void);
 extern void do_cmd_magic_eater(void);
 
 /* dungeon.c */
+extern void leave_quest_check(void);
 extern void play_game(bool new_game);
 extern bool psychometry(void);
 extern void leave_level(int level);
@@ -770,6 +768,8 @@ extern void create_name(int type, char *name);
 extern cptr horror_desc[MAX_SAN_HORROR];
 extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
+extern void set_target(monster_type *m_ptr, int y, int x);
+extern void reset_target(monster_type *m_ptr);
 extern void sanity_blast(monster_type *m_ptr, bool necro);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
@@ -890,10 +890,8 @@ extern cptr item_activation(object_type *o_ptr);
 extern void combine_pack(void);
 extern void reorder_pack(void);
 extern void display_koff(int k_idx);
-
-#ifdef USE_FRAKIR
+extern object_type *choose_warning_item(void);
 extern bool process_frakir(int xx, int yy);
-#endif
 extern void do_cmd_kaji(bool only_browse);
 
 /* racial.c */
@@ -1288,8 +1286,14 @@ extern bool summon_possible(int y1, int x1);
 extern bool monst_spell_monst(int m_idx);
 
 /* artifact.c */
+extern void one_sustain(object_type *o_ptr);
+extern void one_high_resistance(object_type *o_ptr);
+extern void one_loadly_high_resistance(object_type *o_ptr);
+extern void one_ele_resistance(object_type *o_ptr);
+extern void one_dragon_ele_resistance(object_type *o_ptr);
+extern void one_resistance(object_type *o_ptr);
+extern void one_ability(object_type *o_ptr);
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);
-extern void random_resistance(object_type * q_ptr, bool is_scroll, int specific);
 extern bool activate_random_artifact(object_type * o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr);
 extern void create_named_art(int a_idx, int y, int x);
@@ -1363,6 +1367,12 @@ extern int usleep(huge usecs);
 #ifdef MACINTOSH
 /* main-mac.c */
 /* extern void main(void); */
+#endif
+
+#if defined(MAC_MPW)
+/* Globals needed */
+extern  u32b _ftype;
+extern  u32b _fcreator;
 #endif
 
 #ifdef WINDOWS
@@ -1460,11 +1470,14 @@ extern void jverb3( const char *in , char *out);
 extern void jverb( const char *in , char *out , int flag);
 extern char* strstr_j(cptr str1, cptr str2);
 extern size_t mb_strlcpy(char *dst, const char *src, size_t size);
+extern void codeconv(char *str);
 #endif
 
+#ifdef WORLD_SCORE
 /* report.c */
 extern errr report_score(void);
 extern cptr make_screen_dump(void);
+#endif
 
 /* inet.c */
 extern int soc_write(int sd, char *buf, size_t sz);

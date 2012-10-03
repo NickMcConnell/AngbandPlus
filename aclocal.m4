@@ -1,4 +1,4 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4
+dnl aclocal.m4 generated automatically by aclocal 1.4-p4
 
 dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -9,6 +9,16 @@ dnl This program is distributed in the hope that it will be useful,
 dnl but WITHOUT ANY WARRANTY, to the extent permitted by law; without
 dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 dnl PARTICULAR PURPOSE.
+
+AC_DEFUN(MY_EXPAND_DIR, [
+  $1=$2
+  $1=`(
+       test "x$prefix" = xNONE && prefix="$ac_default_prefix"
+       test "x$exec_prefix" = xNONE && exec_prefix="${prefix}"
+       eval echo \""[$]$1"\"
+      )`
+])
+
 
 # Like AC_CONFIG_HEADER, but automatically create stamp file.
 
@@ -124,4 +134,17 @@ else
    AC_MSG_RESULT(missing)
 fi
 AC_SUBST($1)])
+
+# Define a conditional.
+
+AC_DEFUN(AM_CONDITIONAL,
+[AC_SUBST($1_TRUE)
+AC_SUBST($1_FALSE)
+if $2; then
+  $1_TRUE=
+  $1_FALSE='#'
+else
+  $1_TRUE='#'
+  $1_FALSE=
+fi])
 

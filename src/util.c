@@ -363,8 +363,22 @@ FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
 
+#if defined(MACINTOSH) && defined(MAC_MPW)
+	FILE *tempfff;
+#endif
+
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
+
+#if defined(MACINTOSH) && defined(MAC_MPW)
+	if (strchr(mode, 'w'))
+	{
+		/* setting file type/creator */
+		tempfff = fopen(buf, mode);
+		fsetfileinfo(file, _fcreator, _ftype);
+		fclose(tempfff);
+	}
+#endif
 
 	/* Attempt to fopen the file anyway */
 	return (fopen(buf, mode));
@@ -397,7 +411,7 @@ FILE *my_fopen_temp(char *buf, int max)
 	int fd;
 
 	/* Prepare the buffer for mkstemp */
-	strncpy(buf, "/tmp/anXXXXXX", max);
+	(void)strnfmt(buf, max, "%s", "/tmp/anXXXXXX");
 
 	/* Secure creation of a temporary file */
 	fd = mkstemp(buf);
@@ -685,8 +699,17 @@ int fd_make(cptr file, int mode)
 
 #else /* BEN_HACK */
 
+# if defined(MACINTOSH) && defined(MAC_MPW)
+
+	/* setting file type and creator -- AR */
+	errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+	fsetfileinfo(file, _fcreator, _ftype);
+	return(errr_tmp);
+
+# else
 	/* Create the file, fail if exists, write-only, binary */
 	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+# endif
 
 #endif /* BEN_HACK */
 
@@ -1084,7 +1107,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 		if (str)
 		{
 			*s++ = (char)31;
-			*s++ = (char)13;
+			*s++ = '\r';
 			*bufptr = s;
 			*strptr = str; /* where **strptr == ']' */
 		}
@@ -1116,7 +1139,7 @@ static void trigger_text_to_ascii(char **bufptr, cptr *strptr)
 			break;
 		}
 	}
-	*s++ = (char)13;
+	*s++ = '\r';
 
 	*bufptr = s;
 	*strptr = str; /* where **strptr == ']' */
@@ -1288,7 +1311,7 @@ bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 			}
 			break;
 		case '#':
-			for (j = 0; *str && *str != (char)13; j++)
+			for (j = 0; *str && *str != '\r'; j++)
 				key_code[j] = *str++;
 			key_code[j] = '\0';
 			break;
@@ -1297,7 +1320,7 @@ bool trigger_ascii_to_text(char **bufptr, cptr *strptr)
 			str++;
 		}
 	}
-	if (*str++ != (char)13) return FALSE;
+	if (*str++ != '\r') return FALSE;
 
 	for (i = 0; i < max_macrotrigger; i++)
 	{
@@ -3300,6 +3323,7 @@ bool get_check(cptr prompt)
  * mode & 0x01 : force user to answer "YES" or "N"
  * mode & 0x02 : don't allow ESCAPE key
  */
+#define CHECK_STRICT 0
 bool get_check_strict(cptr prompt, int mode)
 {
 	int i;
@@ -3322,6 +3346,7 @@ bool get_check_strict(cptr prompt, int mode)
 	/* Hack -- Build a "useful" prompt */
 	if (mode & 1)
 	{
+#if CHECK_STRICT
 #ifdef JP
 		/* (79-8)バイトの指定, promptが長かった場合, 
 		   (79-9)文字の後終端文字が書き込まれる.     
@@ -3334,6 +3359,21 @@ bool get_check_strict(cptr prompt, int mode)
 		buf[79-8]='\0';
 #endif
 		strcat(buf, "[yes/no]");
+#else
+#ifdef JP
+		/* (79-8)バイトの指定, promptが長かった場合, 
+		   (79-9)文字の後終端文字が書き込まれる.     
+		   英語の方のstrncpyとは違うので注意.
+		   elseの方の分岐も同様. --henkma
+		*/
+		mb_strlcpy(buf, prompt, 80-15);
+#else
+		strncpy(buf, prompt, 79-15);
+		buf[79-8]='\0';
+#endif
+		strcat(buf, "[(O)k/(C)ancel]");
+
+#endif
 	}
 	else
 	{
@@ -3353,7 +3393,7 @@ bool get_check_strict(cptr prompt, int mode)
 	while (TRUE)
 	{
 		i = inkey();
-
+#if CHECK_STRICT /* ここから(ちょっと長いのでコメント) */
 		if (i == 'y' || i == 'Y')
 		{
 			if (!(mode & 1))
@@ -3385,7 +3425,51 @@ bool get_check_strict(cptr prompt, int mode)
 			}
 		}
 		if (!(mode & 2) && (i == ESCAPE)) break;
-		if (strchr("Nn", i)) break;
+		if (i == 'N' || i == 'n')
+		{
+			if (!(mode & 1))
+				break;
+			else
+			{
+#ifdef JP
+				prt("n (NOと入力してください)", 0, strlen(buf));
+#else
+				prt("n (Please answer NO.)", 0, strlen(buf));
+#endif
+				i = inkey();
+				if (i == 'o' || i == 'O')
+				{
+						break;
+				}
+				prt("", 0, strlen(buf));
+			}
+		}
+#else
+		if ( mode & 1 )
+		{
+			if ( i == 'o' || i == 'O' )
+			{
+				i = 'Y';
+				break;
+			}
+		}
+		else if (i == 'y' || i == 'Y')
+		{
+				break;
+		}
+		if (!(mode & 2) && (i == ESCAPE)) break;
+		if ( mode & 1 )
+		{
+			if ( i == 'c' || i == 'C' )
+			{
+				break;
+			}
+		}
+		else if (i == 'n' || i == 'N')
+		{
+				break;
+		}
+#endif /* ここまで(ちょっと長いのでコメント) */
 		bell();
 	}
 
@@ -3863,6 +3947,150 @@ special_menu_naiyou special_menu_info[] =
 };
 #endif
 
+static char inkey_from_menu(void)
+{
+	char cmd;
+	int basey, basex;
+	int num = 0, max_num, old_num = 0;
+	int menu = 0;
+	bool kisuu;
+
+	if (py - panel_row_min > 10) basey = 2;
+	else basey = 13;
+	basex = 15;
+
+	/* Clear top line */
+	prt("", 0, 0);
+
+	screen_save();
+
+	while(1)
+	{
+		int i;
+		char sub_cmd;
+		cptr menu_name;
+		if (!menu) old_num = num;
+		put_str("+----------------------------------------------------+", basey, basex);
+		put_str("|                                                    |", basey+1, basex);
+		put_str("|                                                    |", basey+2, basex);
+		put_str("|                                                    |", basey+3, basex);
+		put_str("|                                                    |", basey+4, basex);
+		put_str("|                                                    |", basey+5, basex);
+		put_str("+----------------------------------------------------+", basey+6, basex);
+
+		for(i = 0; i < 10; i++)
+		{
+			int hoge;
+			if (!menu_info[menu][i].cmd) break;
+			menu_name = menu_info[menu][i].name;
+			for(hoge = 0; ; hoge++)
+			{
+				if (!special_menu_info[hoge].name[0]) break;
+				if ((menu != special_menu_info[hoge].window) || (i != special_menu_info[hoge].number)) continue;
+				switch(special_menu_info[hoge].jouken)
+				{
+				case MENU_CLASS:
+					if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
+					break;
+				case MENU_WILD:
+					if (!dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
+					{
+						if ((byte)p_ptr->wild_mode == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			put_str(menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
+		}
+		max_num = i;
+		kisuu = max_num % 2;
+#ifdef JP
+		put_str("》",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
+#else
+		put_str("> ",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
+#endif
+
+		/* Place the cursor on the player */
+		move_cursor_relative(py, px);
+
+		/* Get a command */
+		sub_cmd = inkey();
+		if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r') || (sub_cmd == '\n'))
+		{
+			if (menu_info[menu][num].fin)
+			{
+				cmd = menu_info[menu][num].cmd;
+				use_menu = TRUE;
+				break;
+			}
+			else
+			{
+				menu = menu_info[menu][num].cmd;
+				num = 0;
+				basey += 2;
+				basex += 8;
+			}
+		}
+		else if ((sub_cmd == ESCAPE) || (sub_cmd == 'z') || (sub_cmd == 'Z') || (sub_cmd == '0'))
+		{
+			if (!menu)
+			{
+				cmd = ESCAPE;
+				break;
+			}
+			else
+			{
+				menu = 0;
+				num = old_num;
+				basey -= 2;
+				basex -= 8;
+				screen_load();
+				screen_save();
+			}
+		}
+		else if ((sub_cmd == '2') || (sub_cmd == 'j') || (sub_cmd == 'J'))
+		{
+			if (kisuu)
+			{
+				if (num % 2)
+					num = (num + 2) % (max_num - 1);
+				else
+					num = (num + 2) % (max_num + 1);
+			}
+			else num = (num + 2) % max_num;
+		}
+		else if ((sub_cmd == '8') || (sub_cmd == 'k') || (sub_cmd == 'K'))
+		{
+			if (kisuu)
+			{
+				if (num % 2)
+					num = (num + max_num - 3) % (max_num - 1);
+				else
+					num = (num + max_num - 1) % (max_num + 1);
+			}
+			else num = (num + max_num - 2) % max_num;
+		}
+		else if ((sub_cmd == '4') || (sub_cmd == '6') || (sub_cmd == 'h') || (sub_cmd == 'H') || (sub_cmd == 'l') || (sub_cmd == 'L'))
+		{
+			if ((num % 2) || (num == max_num - 1))
+			{
+				num--;
+			}
+			else if (num < max_num - 1)
+			{
+				num++;
+			}
+		}
+	}
+
+	screen_load();
+	if (!inkey_next) inkey_next = "";
+
+	return (cmd);
+}
+
 /*
  * Request a command from the user.
  *
@@ -3886,8 +4114,7 @@ void request_command(int shopping)
 {
 	int i;
 
-	unsigned char cmd;
-
+	char cmd;
 	int mode;
 
 	cptr act;
@@ -3930,7 +4157,7 @@ void request_command(int shopping)
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = (unsigned char)command_new;
+			cmd = command_new;
 
 			/* Forget it */
 			command_new = 0;
@@ -3939,8 +4166,6 @@ void request_command(int shopping)
 		/* Get a keypress in "command" mode */
 		else
 		{
-			char sub_cmd;
-
 			/* Hack -- no flush needed */
 			msg_flag = FALSE;
 			num_more = 0;
@@ -3949,148 +4174,11 @@ void request_command(int shopping)
 			inkey_flag = TRUE;
 
 			/* Get a command */
-			sub_cmd = inkey();
+			cmd = inkey();
 
-			if (!shopping && command_menu && ((sub_cmd == '\r') || (sub_cmd == 'x') || (sub_cmd == 'X'))
-			    && !keymap_act[mode][(byte)(sub_cmd)])
-			{
-				int basey, basex;
-				int num = 0, max_num, old_num = 0;
-				int menu = 0;
-				bool kisuu;
-
-				if (py - panel_row_min > 10) basey = 2;
-				else basey = 13;
-				basex = 15;
-
-				/* Clear top line */
-				prt("", 0, 0);
-
-				screen_save();
-
-				while(1)
-				{
-					cptr menu_name;
-					if (!menu) old_num = num;
-					put_str("+----------------------------------------------------+", basey, basex);
-					put_str("|                                                    |", basey+1, basex);
-					put_str("|                                                    |", basey+2, basex);
-					put_str("|                                                    |", basey+3, basex);
-					put_str("|                                                    |", basey+4, basex);
-					put_str("|                                                    |", basey+5, basex);
-					put_str("+----------------------------------------------------+", basey+6, basex);
-
-					for(i = 0; i < 10; i++)
-					{
-						int hoge;
-						if (!menu_info[menu][i].cmd) break;
-						menu_name = menu_info[menu][i].name;
-						for(hoge = 0; ; hoge++)
-						{
-							if (!special_menu_info[hoge].name[0]) break;
-							if ((menu != special_menu_info[hoge].window) || (i != special_menu_info[hoge].number)) continue;
-							switch(special_menu_info[hoge].jouken)
-							{
-								case MENU_CLASS:
-								if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
-								break;
-								case MENU_WILD:
-								if (!dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
-								{
-									if ((byte)p_ptr->wild_mode == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
-								}
-								break;
-								default:
-								break;
-							}
-						}
-						put_str(menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
-					}
-					max_num = i;
-					kisuu = max_num % 2;
-#ifdef JP
-					put_str("》",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
-#else
-					put_str("> ",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
-#endif
-
-					/* Place the cursor on the player */
-					move_cursor_relative(py, px);
-
-					/* Get a command */
-					sub_cmd = inkey();
-					if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r'))
-					{
-						if (menu_info[menu][num].fin)
-						{
-							cmd = menu_info[menu][num].cmd;
-							use_menu = TRUE;
-							break;
-						}
-						else
-						{
-							menu = menu_info[menu][num].cmd;
-							num = 0;
-							basey += 2;
-							basex += 8;
-						}
-					}
-					else if ((sub_cmd == ESCAPE) || (sub_cmd == 'z') || (sub_cmd == 'Z') || (sub_cmd == '0'))
-					{
-						if (!menu)
-						{
-							cmd = ESCAPE;
-							break;
-						}
-						else
-						{
-							menu = 0;
-							num = old_num;
-							basey -= 2;
-							basex -= 8;
-							screen_load();
-							screen_save();
-						}
-					}
-					else if ((sub_cmd == '2') || (sub_cmd == 'j') || (sub_cmd == 'J'))
-					{
-						if (kisuu)
-						{
-							if (num % 2)
-								num = (num + 2) % (max_num - 1);
-							else
-								num = (num + 2) % (max_num + 1);
-						}
-						else num = (num + 2) % max_num;
-					}
-					else if ((sub_cmd == '8') || (sub_cmd == 'k') || (sub_cmd == 'K'))
-					{
-						if (kisuu)
-						{
-							if (num % 2)
-								num = (num + max_num - 3) % (max_num - 1);
-							else
-								num = (num + max_num - 1) % (max_num + 1);
-						}
-						else num = (num + max_num - 2) % max_num;
-					}
-					else if ((sub_cmd == '4') || (sub_cmd == '6') || (sub_cmd == 'h') || (sub_cmd == 'H') || (sub_cmd == 'l') || (sub_cmd == 'L'))
-					{
-						if ((num % 2) || (num == max_num - 1))
-						{
-							num--;
-						}
-						else if (num < max_num - 1)
-						{
-							num++;
-						}
-					}
-				}
-
-				screen_load();
-				if (!inkey_next) inkey_next = "";
-			}
-			else cmd = sub_cmd;
+			if (!shopping && command_menu && ((cmd == '\r') || (cmd == '\n') || (cmd == 'x') || (cmd == 'X'))
+			    && !keymap_act[mode][(byte)(cmd)])
+				cmd = inkey_from_menu();
 		}
 
 		/* Clear top line */
@@ -4272,7 +4360,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 
 
 		/* Use command */
-		command_cmd = cmd;
+		command_cmd = (byte)cmd;
 
 		/* Done */
 		break;

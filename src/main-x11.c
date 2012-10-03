@@ -1606,7 +1606,6 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	/* Get the length of the string */
 	if (len < 0) len = strlen(str);
 
-
 	/*** Decide where to place the string, vertically ***/
 
 	/* Ignore Vertical Justifications */
@@ -1659,6 +1658,9 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
                                  Infokfnt->info, Infofnt->wid * 2);
 #else
 #ifdef USE_FONTSET
+		/* Delete rectangle first */
+		XClearArea(Metadpy->dpy, Infowin->win, x, y - Infofnt->asc, len * Infofnt->wid, Infofnt->hgt, FALSE);
+
 		XmbDrawImageString(Metadpy->dpy, Infowin->win, Infofnt->info,
 		                   Infoclr->gc, x, y, str, len);
 #else
@@ -2221,6 +2223,81 @@ static errr CheckEvent(bool wait)
 }
 
 
+#ifdef USE_SOUND
+
+/*
+ * An array of sound file names
+ */
+static cptr sound_file[SOUND_MAX];
+
+/*
+ * Check for existance of a file
+ */
+static bool check_file(cptr s)
+{
+	FILE *fff;
+
+	fff = fopen(s, "r");
+	if (!fff) return (FALSE);
+	
+	fclose(fff);
+	return (TRUE);
+}
+
+/*
+ * Initialize sound
+ */
+static void init_sound()
+{
+	int i;
+	char wav[128];
+	char buf[1024];
+	char dir_xtra_sound[1024];
+		
+	/* Build the "sound" path */
+	path_build(dir_xtra_sound, 1024, ANGBAND_DIR_XTRA, "sound");
+		
+	/* Prepare the sounds */
+	for (i = 1; i < SOUND_MAX; i++)
+	{
+		/* Extract name of sound file */
+		sprintf(wav, "%s.wav", angband_sound_name[i]);
+		
+		/* Access the sound */
+		path_build(buf, 1024, dir_xtra_sound, wav);
+		
+		/* Save the sound filename, if it exists */
+		if (check_file(buf)) sound_file[i] = string_make(buf);
+	}
+	use_sound = TRUE;
+	return;
+}
+
+/*
+ * Hack -- make a sound
+ */
+static errr Term_xtra_x11_sound(int v)
+{
+	char buf[1024];
+	
+	/* Sound disabled */
+	if (!use_sound) return (1);
+	
+	/* Illegal sound */
+	if ((v < 0) || (v >= SOUND_MAX)) return (1);
+	
+	/* Unknown sound */
+	if (!sound_file[v]) return (1);
+	
+	sprintf(buf,"./playwave.sh %s\n", sound_file[v]);
+	system(buf);
+	
+	return (0);
+	
+}
+#endif /* USE_SOUND */
+
+
 /*
  * Handle "activation" of a term
  */
@@ -2299,6 +2376,11 @@ static errr Term_xtra_x11(int n, int v)
 	{
 		/* Make a noise */
 		case TERM_XTRA_NOISE: Metadpy_do_beep(); return (0);
+
+#ifdef USE_SOUND
+		/* Make a special sound */
+ 	        case TERM_XTRA_SOUND: return (Term_xtra_x11_sound(v));
+#endif
 
 		/* Flush the output XXX XXX */
 		case TERM_XTRA_FRESH: Metadpy_update(1, 0, 0); return (0);
@@ -2938,7 +3020,7 @@ errr init_x11(int argc, char *argv[])
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
+	int num_term = 3;
 
 #ifdef USE_GRAPHICS
 
@@ -2970,6 +3052,18 @@ errr init_x11(int argc, char *argv[])
 			smoothRescaling = FALSE;
 			continue;
 		}
+
+		if (prefix(argv[i], "-a"))
+		{
+			arg_graphics = GRAPHICS_ADAM_BOLT;
+			continue;
+		}
+
+		if (prefix(argv[i], "-o"))
+		{
+			arg_graphics = GRAPHICS_ORIGINAL;
+			continue;
+		}
 #endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
@@ -2977,6 +3071,12 @@ errr init_x11(int argc, char *argv[])
 			num_term = atoi(&argv[i][2]);
 			if (num_term > MAX_TERM_DATA) num_term = MAX_TERM_DATA;
 			else if (num_term < 1) num_term = 1;
+			continue;
+		}
+
+		if (prefix(argv[i], "--"))
+		{
+			/* Ignore */
 			continue;
 		}
 
@@ -3080,11 +3180,34 @@ errr init_x11(int argc, char *argv[])
 	XRegisterIMInstantiateCallback(Metadpy->dpy, NULL, NULL, NULL, IMInstantiateCallback, NULL);
 #endif
 
+#ifdef USE_SOUND
+	/* initialize sound */
+	if (arg_sound) init_sound();
+#endif
+
 #ifdef USE_GRAPHICS
 
 	/* Try graphics */
-	if (arg_graphics)
+	switch (arg_graphics)
 	{
+	case GRAPHICS_ORIGINAL:
+		/* Try the "8x8.bmp" file */
+		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
+
+		/* Use the "8x8.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		{
+			/* Use graphics */
+			use_graphics = TRUE;
+
+			pict_wid = pict_hgt = 8;
+
+			ANGBAND_GRAF = "old";
+			break;
+		}
+		/* Fall through */
+
+	case GRAPHICS_ADAM_BOLT:
 		/* Try the "16x16.bmp" file */
 		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
 
@@ -3094,27 +3217,11 @@ errr init_x11(int argc, char *argv[])
 			/* Use graphics */
 			use_graphics = TRUE;
 
-			use_transparency = TRUE;
-
 			pict_wid = pict_hgt = 16;
 
 			ANGBAND_GRAF = "new";
-		}
-		else
-		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
 
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
+			break;
 		}
 	}
 

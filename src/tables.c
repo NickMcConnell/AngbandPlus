@@ -3218,7 +3218,7 @@ player_race race_info[MAX_RACES] =
 
 		{ -5, 4, -1, 2, 0, -3 },
 		10, 15, 12, 5, 5, 14, -15, -5,
-		7, 180,
+		7, 210,
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
@@ -5908,10 +5908,10 @@ monster_power monster_powers[MAX_MONSPELLS] =
 { 10,   4,  35,   89,  40, A_INT,  "何か"},
 { 40,  35,  85,    0,  40, A_INT,  "魔力消去"},
 { 35,  30,  80,  800,  70, A_STR,  "ロケット"},
-{  2,   1,  15,   10,  15, A_DEX,  "矢"},
-{  5,   2,  20,   18,  20, A_DEX,  "強力な矢"},
-{ 12,   3,  25,   30,  25, A_DEX,  "ボルト"},
-{ 16,   4,  30,   42,  30, A_DEX,  "強力なボルト"},
+{  5,   1,  20,   18,  15, A_DEX,  "射撃"},
+{ 10,   4,  35,   89,  40, A_INT,  "何か"},
+{ 10,   4,  35,   89,  40, A_INT,  "何か"},
+{ 10,   4,  35,   89,  40, A_INT,  "何か"},
 { 20,  15,  55, 1600,  95, A_CON,  "酸のブレス"},
 { 20,  15,  55, 1600,  95, A_CON,  "電撃のブレス"},
 { 20,  15,  55, 1600,  95, A_CON,  "炎のブレス"},
@@ -5998,7 +5998,7 @@ monster_power monster_powers[MAX_MONSPELLS] =
 { 39,  70,  80,    0,  40, A_INT,  "ドラゴンの召喚"},
 { 43,  85,  85,    0,  45, A_INT,  "上級アンデッドの召喚"},
 { 46,  90,  85,    0,  45, A_INT,  "古代ドラゴンの召喚"},
-{ 48, 120,  90,    0,  50, A_INT,  "アンバーの王の召喚"},
+{ 48, 120,  90,    0,  50, A_INT,  "アンバーの王族の召喚"},
 { 50, 150,  95,    0,  50, A_INT,  "ユニークモンスターの召喚"},
 #else
 {  1,   1,  10,    0,  15, A_CON,  "shriek"},
@@ -6090,7 +6090,7 @@ monster_power monster_powers[MAX_MONSPELLS] =
 { 35,  26,  75,    0,  40, A_INT,  "summon hounds"},
 { 30,  23,  70,    0,  35, A_INT,  "summon hydras"},
 { 40,  50,  85,    0,  40, A_INT,  "summon an angel"},
-{ 35,  50,  80,    0,  35, A_INT,  "summon a deamon"},
+{ 35,  50,  80,    0,  35, A_INT,  "summon a daemon"},
 { 30,  30,  75,    0,  35, A_INT,  "summon an undead"},
 { 39,  70,  80,    0,  40, A_INT,  "summon a dragon"},
 { 43,  85,  85,    0,  45, A_INT,  "summon Greater Undead"},
@@ -6155,7 +6155,7 @@ cptr stat_names[6] =
 #ifdef JP
         "腕力 :", "知能 :", "賢さ :", "器用 :", "耐久 :", "魅力 :"
 #else
-	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
+	"STR : ", "INT : ", "WIS : ", "DEX : ", "CON : ", "CHR : "
 #endif
 
 };
@@ -6168,7 +6168,7 @@ cptr stat_names_reduced[6] =
 #ifdef JP
         "腕力x:", "知能x:", "賢さx:", "器用x:", "耐久x:", "魅力x:"
 #else
-	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+	"Str : ", "Int : ", "Wis : ", "Dex : ", "Con : ", "Chr : "
 #endif
 
 };
@@ -6407,6 +6407,57 @@ option_type option_info[] =
 #else
 	{ &target_pet,                  TRUE,  1, 2, 5,
 	"target_pet",                   "Allow targetting pets" },
+#endif
+
+
+#ifdef ALLOW_EASY_OPEN
+#ifdef JP
+	{ &easy_open,                   TRUE,  1, 5, 7,
+	"easy_open",                    "自動的にドアを開ける" },
+#else
+	{ &easy_open,                   TRUE,  1, 5, 7,
+	"easy_open",                    "Automatically open doors" },
+#endif
+#endif /* ALLOW_EASY_OPEN */
+
+
+#ifdef ALLOW_EASY_DISARM
+#ifdef JP
+	{ &easy_disarm,                 TRUE,  1, 5, 8,
+	"easy_disarm",                  "自動的に罠を解除する" },
+#else
+	{ &easy_disarm,                 TRUE,  1, 5, 8,
+	"easy_disarm",                  "Automatically disarm traps" },
+#endif
+#endif /* ALLOW_EASY_DISARM */
+
+
+#ifdef ALLOW_EASY_FLOOR /* TNB */
+#ifdef JP
+	{ &easy_floor,                  FALSE, 1, 5, 9,
+	"easy_floor",                   "床上で重なったアイテムをリストする" },
+#else
+	{ &easy_floor,                  FALSE, 1, 5, 9,
+	"easy_floor",                   "Display floor stacks in a list" },
+#endif
+#endif /* ALLOW_EASY_FLOOR -- TNB */
+
+
+#ifdef JP
+	{ &use_command,                 FALSE, 1, 5, 10,
+	"use_command",                  "「使う(a)」コマンドでアイテムを何でも使える" },
+#else
+	{ &use_command,                 FALSE, 1, 5, 10,
+	"use_command",                  "Allow unified use command" },
+#endif
+
+
+#ifdef JP
+	{ &over_exert,                  FALSE,  1, 0, 29,
+	"over_exert",                   "MPが足りなくても魔法に挑戦する" },
+#else
+	{ &over_exert,                  FALSE,  1, 0, 29,
+	"over_exert",                   "Allow casting spells when short of mana" },
 #endif
 
 
@@ -6718,63 +6769,12 @@ option_type option_info[] =
 #endif
 
 
-#ifdef ALLOW_EASY_OPEN
-#ifdef JP
-	{ &easy_open,                   TRUE,  3, 5, 7,
-	"easy_open",                    "自動的にドアを開ける" },
-#else
-	{ &easy_open,                   TRUE,  3, 5, 7,
-	"easy_open",                    "Automatically open doors" },
-#endif
-#endif /* ALLOW_EASY_OPEN */
-
-
-#ifdef ALLOW_EASY_DISARM
-#ifdef JP
-	{ &easy_disarm,                 TRUE,  3, 5, 8,
-	"easy_disarm",                  "自動的に罠を解除する" },
-#else
-	{ &easy_disarm,                 TRUE,  3, 5, 8,
-	"easy_disarm",                  "Automatically disarm traps" },
-#endif
-#endif /* ALLOW_EASY_DISARM */
-
-
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-#ifdef JP
-	{ &easy_floor,                  FALSE, 3, 5, 9,
-	"easy_floor",                   "床上で重なったアイテムをリストする" },
-#else
-	{ &easy_floor,                  FALSE, 3, 5, 9,
-	"easy_floor",                   "Display floor stacks in a list" },
-#endif
-#endif /* ALLOW_EASY_FLOOR -- TNB */
-
-
-#ifdef JP
-	{ &use_command,                 FALSE, 3, 5, 10,
-	"use_command",                  "「使う(a)」コマンドでアイテムを何でも使える" },
-#else
-	{ &use_command,                 FALSE, 3, 5, 10,
-	"use_command",                  "Allow unified use command" },
-#endif
-
-
 #ifdef JP
 	{ &last_words,                  FALSE, 3, 0, 28,
 	"last_words",                   "キャラクターが死んだ時遺言をのこす" },
 #else
 	{ &last_words,                  FALSE, 3, 0, 28,
 	"last_words",                   "Leave last words when your character dies" },
-#endif
-
-
-#ifdef JP
-	{ &over_exert,                  TRUE,  3, 0, 29,
-	"over_exert",                   "MPが足りなくても魔法に挑戦する" },
-#else
-	{ &over_exert,                  TRUE,  3, 0, 29,
-	"over_exert",                   "Allow casting spells when short of mana" },
 #endif
 
 

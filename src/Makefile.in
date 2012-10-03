@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -58,6 +58,8 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
+DEFAULT_PATH = @DEFAULT_PATH@
+GAMEGROUP = @GAMEGROUP@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
@@ -69,7 +71,7 @@ bin_PROGRAMS = hengband
 hengband_SOURCES =  	z-util.c z-virt.c z-form.c z-rand.c z-term.c 	variable.c tables.c util.c cave.c 	kajitips.h object1.c object2.c monster1.c monster2.c 	xtra1.c xtra2.c spells1.c spells2.c 	melee1.c melee2.c save.c files.c 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c 	store.c birth.c load.c 	wizard1.c wizard2.c grid.c streams.c rooms.c 	generate.c dungeon.c init1.c init2.c 	effects.c racial.c inet.c report.c 	artifact.c mutation.c flavor.c spells3.c 	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c 	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c 	angband.h defines.h event.h externs.h generate.h grid.h 	h-basic.h h-config.h h-define.h h-system.h h-type.h 	mindtips.h readdib.h rooms.h spellstips.h streams.h init.h 	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
 
 
-EXTRA_hengband_SOURCES =  	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c 	main-dos.c main-ibm.c 	makefile.bcc makefile.std makefile.dos makefile.ibm 	readdib.c script.c wall.bmp
+EXTRA_hengband_SOURCES =  	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c 	main-dos.c main-ibm.c main-mac-carbon.c 	makefile.bcc makefile.std makefile.dos makefile.ibm 	readdib.c script.c wall.bmp
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = autoconf.h
@@ -106,7 +108,7 @@ DIST_COMMON =  ./stamp-h.in Makefile.am Makefile.in autoconf.h.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 SOURCES = $(hengband_SOURCES) $(EXTRA_hengband_SOURCES)
 OBJECTS = $(hengband_OBJECTS)
@@ -245,6 +247,9 @@ distdir: $(DISTFILES)
 artifact.o: artifact.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+avatar.o: avatar.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
 birth.o: birth.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
@@ -254,6 +259,9 @@ bldg.o: bldg.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 cave.o: cave.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
+chuukei.o: chuukei.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
 cmd1.o: cmd1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
@@ -288,6 +296,16 @@ generate.o: generate.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
 	generate.h grid.h rooms.h streams.h
+grid.o: grid.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h generate.h \
+	grid.h
+hissatsu.o: hissatsu.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+inet.o: inet.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
 init1.o: init1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h init.h
@@ -300,11 +318,21 @@ japanese.o: japanese.c angband.h h-basic.h autoconf.h h-config.h \
 load.o: load.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
+main-cap.o: main-cap.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+main-gcu.o: main-gcu.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
 main-x11.o: main-x11.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
 	maid-x11.c
+main-xaw.o: main-xaw.c
 main.o: main.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+mane.o: mane.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
 melee1.o: melee1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
@@ -325,7 +353,16 @@ monster2.o: monster2.c angband.h h-basic.h autoconf.h h-config.h \
 mspells1.o: mspells1.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+mspells2.o: mspells2.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
 mspells3.o: mspells3.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+mutation.o: mutation.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+obj_kind.o: obj_kind.c angband.h h-basic.h autoconf.h h-config.h \
 	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
 	z-rand.h z-term.h z-config.h defines.h types.h externs.h
 object1.o: object1.c angband.h h-basic.h autoconf.h h-config.h \
@@ -363,6 +400,10 @@ spells3.o: spells3.c angband.h h-basic.h autoconf.h h-config.h \
 store.o: store.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
+streams.o: streams.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
+	generate.h streams.h grid.h
 tables.o: tables.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
@@ -387,6 +428,17 @@ xtra1.o: xtra1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 xtra2.o: xtra2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
 	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
 	z-term.h z-config.h defines.h types.h externs.h
+z-form.o: z-form.c z-form.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h
+z-rand.o: z-rand.c z-rand.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h
+z-term.o: z-term.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+z-util.o: z-util.c z-util.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h
+z-virt.o: z-virt.c z-virt.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h
 
 info-am:
 info: info-am
@@ -400,6 +452,8 @@ all-recursive-am: autoconf.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 install-exec-am: install-binPROGRAMS
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 install-exec: install-exec-am
 
 install-data-am:
@@ -463,6 +517,10 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+install-exec-hook:
+@SET_GID_TRUE@	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/hengband"
+@SET_GID_TRUE@	chmod g+s "$(DESTDIR)$(bindir)/hengband"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -536,6 +536,17 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 		}
 		case NIKKI_ARENA:
 		{
+			if (num == 99)
+			{
+
+#ifdef JP
+				fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦で、%sの前に敗れ去った。\n", hour, min, note_level, p_ptr->arena_number + 1, note);
+#else
+				int n =  p_ptr->arena_number + 1;
+				fprintf(fff, " %2d:%02d %20s beaten by %s in the %d%s fight.\n", hour, min, note_level, note, n, (n%10==1?"st":n%10==2?"nd":n%10==3?"rd":"th"));
+#endif
+				break;
+			}
 #ifdef JP
 			fprintf(fff, " %2d:%02d %20s 闘技場の%d回戦(%s)に勝利した。\n", hour, min, note_level, num, note);
 #else
@@ -774,10 +785,10 @@ static void do_cmd_disp_nikki(void)
 	path_build(buf, 1024, ANGBAND_DIR_USER, file_name);
 
 	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_BERSERKER)
-		strcpy(tmp,subtitle[rand_int(MAX_SUBTITLE-1)]);
+		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)]);
 	else if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
-		strcpy(tmp,subtitle[rand_int(MAX_SUBTITLE-1)+1]);
-	else strcpy(tmp,subtitle[rand_int(MAX_SUBTITLE-2)+1]);
+		strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-1)+1]);
+	else strcpy(tmp,subtitle[randint0(MAX_SUBTITLE-2)+1]);
 
 #ifdef JP
 	sprintf(nikki_title, "「%s%s%sの伝説 -%s-」",
@@ -3280,6 +3291,31 @@ void do_cmd_macros(void)
 }
 
 
+static void cmd_visuals_aux(char i, int *num, int max)
+{
+	if (iscntrl(i))
+	{
+		char str[10] = "";
+		int tmp;
+
+		sprintf(str, "%d", *num);
+
+		if (!get_string(format("Input new number(0-%d): ", max-1), str, 4))
+			return;
+
+		tmp = strtol(str, NULL, 0);
+		if (tmp >= 0 && tmp < max)
+			*num = tmp;
+		return;
+	}
+	else if (isupper(i))
+		*num = (*num + max - 1) % max;
+	else
+		*num = (*num + 1) % max;
+
+	return;
+}
+
 /*
  * Interact with "visuals"
  */
@@ -3633,6 +3669,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				monster_race *r_ptr = &r_info[r];
+				char c;
+				int t;
 
 				byte da = (r_ptr->d_attr);
 				byte dc = (r_ptr->d_char);
@@ -3678,12 +3716,11 @@ void do_cmd_visuals(void)
 				/* Prompt */
 #ifdef JP
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "コマンド (n/N/a/A/c/C): ");
+				            "コマンド (n/N/^N/a/A/^A/c/C/^C): ");
 #else
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/^N/a/A/^A/c/C/^C): ");
 #endif
-
 
 				/* Get a command */
 				i = inkey();
@@ -3691,13 +3728,26 @@ void do_cmd_visuals(void)
 				/* All done */
 				if (i == ESCAPE) break;
 
-				/* Analyze */
-				if (i == 'n') r = (r + max_r_idx + 1) % max_r_idx;
-				if (i == 'N') r = (r + max_r_idx - 1) % max_r_idx;
-				if (i == 'a') r_ptr->x_attr = (byte)(ca + 1);
-				if (i == 'A') r_ptr->x_attr = (byte)(ca - 1);
-				if (i == 'c') r_ptr->x_char = (byte)(cc + 1);
-				if (i == 'C') r_ptr->x_char = (byte)(cc - 1);
+				if (iscntrl(i)) c = 'a' + i - KTRL('A');
+				else if (isupper(i)) c = 'a' + i - 'A';
+				else c = i;
+
+				switch (c)
+				{
+				case 'n':
+					cmd_visuals_aux(i, &r, max_r_idx);
+					break;
+				case 'a':
+					t = (int)r_ptr->x_attr;
+					cmd_visuals_aux(i, &t, 256);
+					r_ptr->x_attr = (byte)t;
+					break;
+				case 'c':
+					t = (int)r_ptr->x_char;
+					cmd_visuals_aux(i, &t, 256);
+					r_ptr->x_char = (byte)t;
+					break;
+				}
 			}
 		}
 
@@ -3718,6 +3768,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				object_kind *k_ptr = &k_info[k];
+				char c;
+				int t;
 
 				byte da = (byte)k_ptr->d_attr;
 				byte dc = (byte)k_ptr->d_char;
@@ -3763,12 +3815,11 @@ void do_cmd_visuals(void)
 				/* Prompt */
 #ifdef JP
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "コマンド (n/N/a/A/c/C): ");
+				            "コマンド (n/N/^N/a/A/^A/c/C/^C): ");
 #else
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/^N/a/A/^A/c/C/^C): ");
 #endif
-
 
 				/* Get a command */
 				i = inkey();
@@ -3776,13 +3827,26 @@ void do_cmd_visuals(void)
 				/* All done */
 				if (i == ESCAPE) break;
 
-				/* Analyze */
-				if (i == 'n') k = (k + max_k_idx + 1) % max_k_idx;
-				if (i == 'N') k = (k + max_k_idx - 1) % max_k_idx;
-				if (i == 'a') k_info[k].x_attr = (byte)(ca + 1);
-				if (i == 'A') k_info[k].x_attr = (byte)(ca - 1);
-				if (i == 'c') k_info[k].x_char = (byte)(cc + 1);
-				if (i == 'C') k_info[k].x_char = (byte)(cc - 1);
+				if (iscntrl(i)) c = 'a' + i - KTRL('A');
+				else if (isupper(i)) c = 'a' + i - 'A';
+				else c = i;
+
+				switch (c)
+				{
+				case 'n':
+					cmd_visuals_aux(i, &k, max_k_idx);
+					break;
+				case 'a':
+					t = (int)k_info[k].x_attr;
+					cmd_visuals_aux(i, &t, 256);
+					k_info[k].x_attr = (byte)t;
+					break;
+				case 'c':
+					t = (int)k_info[k].x_char;
+					cmd_visuals_aux(i, &t, 256);
+					k_info[k].x_char = (byte)t;
+					break;
+				}
 			}
 		}
 
@@ -3803,6 +3867,8 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				feature_type *f_ptr = &f_info[f];
+				char c;
+				int t;
 
 				byte da = (byte)f_ptr->d_attr;
 				byte dc = (byte)f_ptr->d_char;
@@ -3848,12 +3914,11 @@ void do_cmd_visuals(void)
 				/* Prompt */
 #ifdef JP
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "コマンド (n/N/a/A/c/C): ");
+				            "コマンド (n/N/^N/a/A/^A/c/C/^C): ");
 #else
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+				            "Command (n/N/^N/a/A/^A/c/C/^C): ");
 #endif
-
 
 				/* Get a command */
 				i = inkey();
@@ -3861,13 +3926,26 @@ void do_cmd_visuals(void)
 				/* All done */
 				if (i == ESCAPE) break;
 
-				/* Analyze */
-				if (i == 'n') f = (f + max_f_idx + 1) % max_f_idx;
-				if (i == 'N') f = (f + max_f_idx - 1) % max_f_idx;
-				if (i == 'a') f_info[f].x_attr = (byte)(ca + 1);
-				if (i == 'A') f_info[f].x_attr = (byte)(ca - 1);
-				if (i == 'c') f_info[f].x_char = (byte)(cc + 1);
-				if (i == 'C') f_info[f].x_char = (byte)(cc - 1);
+				if (iscntrl(i)) c = 'a' + i - KTRL('A');
+				else if (isupper(i)) c = 'a' + i - 'A';
+				else c = i;
+
+				switch (c)
+				{
+				case 'n':
+					cmd_visuals_aux(i, &f, max_f_idx);
+					break;
+				case 'a':
+					t = (int)f_info[f].x_attr;
+					cmd_visuals_aux(i, &t, 256);
+					f_info[f].x_attr = (byte)t;
+					break;
+				case 'c':
+					t = (int)f_info[f].x_char;
+					cmd_visuals_aux(i, &t, 256);
+					f_info[f].x_char = (byte)t;
+					break;
+				}
 			}
 		}
 
@@ -5231,6 +5309,20 @@ void (*screendump_aux)(void) = NULL;
  */
 void do_cmd_save_screen(void)
 {
+	bool old_use_graphics = use_graphics;
+
+	if (old_use_graphics)
+	{
+		use_graphics = FALSE;
+		reset_visuals();
+
+		/* Redraw everything */
+		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+		/* Hack -- update */
+		handle_stuff();
+	}
+
 #ifdef JP
 	if (get_check("HTMLで出力しますか？"))
 #else
@@ -5238,11 +5330,11 @@ void do_cmd_save_screen(void)
 #endif
 	{
 		do_cmd_save_screen_html();
-		return;
+		do_cmd_redraw();
 	}
 
 	/* Do we use a special screendump function ? */
-	if (screendump_aux)
+	else if (screendump_aux)
 	{
 		/* Dump the screen to a graphics file */
 		(*screendump_aux)();
@@ -5356,6 +5448,18 @@ void do_cmd_save_screen(void)
 
 		/* Restore the screen */
 		screen_load();
+	}
+
+	if (old_use_graphics)
+	{
+		use_graphics = TRUE;
+		reset_visuals();
+
+		/* Redraw everything */
+		p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
+
+		/* Hack -- update */
+		handle_stuff();
 	}
 }
 
@@ -7268,30 +7372,37 @@ static void do_cmd_knowledge_autopick(void)
 
 	for (k = 0; k < max_autopick; k++)
 	{
-		if (!(autopick_action[k] & DO_AUTOPICK))
+		char *tmp;
+		byte act = autopick_action[k];
+		if (act & DONT_AUTOPICK)
 		{
 #ifdef JP
-			fprintf(fff, "     [放置]");
+			tmp = "放置";
 #else
-			fprintf(fff, "    [Leave]");
+			tmp = "Leave";
 #endif
 		}
-		else if ((autopick_action[k] & DO_AUTODESTROY))
+		else if (act & DO_AUTODESTROY)
 		{
 #ifdef JP
-			fprintf(fff, "     [破壊]");
+			tmp = "破壊";
 #else
-			fprintf(fff, "  [Destroy]");
+			tmp = "Destroy";
 #endif
 		}
 		else
 		{
 #ifdef JP
-			fprintf(fff, "     [拾う]");
+			tmp = "拾う";
 #else
-			fprintf(fff, "   [Pickup]");
+			tmp = "Pickup";
 #endif
 		}
+
+		if (act & DO_DISPLAY)
+			fprintf(fff, "%11s", format("[%s]", tmp));
+		else
+			fprintf(fff, "%11s", format("(%s)", tmp));
 
 		fprintf(fff, " %s", autopick_name[k]);
 		if(autopick_insc[k] != NULL)
@@ -7542,7 +7653,7 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 				  min, (hour < 12) ? "AM" : "PM");
 
 	/* Find the path */
-	if (!rand_int(10) || p_ptr->image)
+	if (!randint0(10) || p_ptr->image)
 		{
 #ifdef JP
 		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun_j.txt");
@@ -7608,7 +7719,7 @@ msg_format("%d 日目,時刻は%d:%02d %sです。",
 			num++;
 
 			/* Apply the randomizer */
-			if (!rand_int(num)) strcpy(desc, buf + 2);
+			if (!randint0(num)) strcpy(desc, buf + 2);
 
 			/* Next... */
 			continue;

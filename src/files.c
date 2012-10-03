@@ -1878,7 +1878,11 @@ static void display_player_middle(void)
 			if (!p_ptr->riding)
 				sprintf(buf, "(%+d%+d)", i-tmp_speed, tmp_speed);
 			else
+#ifdef JP
 				sprintf(buf, "乗馬中 (%+d%+d)", i-tmp_speed, tmp_speed);
+#else
+				sprintf(buf, "Riding (%+d%+d)", i-tmp_speed, tmp_speed);
+#endif
 
 			if (tmp_speed > 0)
 				attr = TERM_YELLOW;
@@ -1890,7 +1894,11 @@ static void display_player_middle(void)
 			if (!p_ptr->riding)
 				sprintf(buf, "(%+d)", i);
 			else
+#ifdef JP
 				sprintf(buf, "乗馬中 (%+d)", i);
+#else
+				sprintf(buf, "Riding (%+d)", i);
+#endif
 		}
 	
 		display_player_one_line(ENTRY_SPEED, buf, attr);
@@ -2201,7 +2209,7 @@ static void display_player_various(void)
 				basedam *= 11;
 				basedam /= 9;
 			}
-			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 				basedam = basedam * 7 / 2;
 			if (p_ptr->riding && (o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 				basedam = basedam*(o_ptr->dd+2)/o_ptr->dd;
@@ -3236,7 +3244,7 @@ c_put_str(TERM_WHITE, "能力", row, stat_col+1);
 c_put_str(TERM_BLUE, "  基本", row, stat_col+7);
 c_put_str(TERM_L_BLUE, " 種 職 性 装 ", row, stat_col+13);
 c_put_str(TERM_L_GREEN, "合計", row, stat_col+28);
-c_put_str(TERM_YELLOW, "現在", row, stat_col+33);
+c_put_str(TERM_YELLOW, "現在", row, stat_col+35);
 #else
 	c_put_str(TERM_WHITE, "Stat", row, stat_col+1);
 	c_put_str(TERM_BLUE, "  Base", row, stat_col+7);
@@ -3290,12 +3298,11 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+33);
 		e_adj -= cp_ptr->c_adj[i];
 		e_adj -= ap_ptr->a_adj[i];
 
-		/* Reduced name of stat */
-#ifdef JP
-		c_put_str(TERM_WHITE, stat_names[i], row + i+1, stat_col+1);
-#else
-		c_put_str(TERM_WHITE, stat_names_reduced[i], row + i+1, stat_col+1);
-#endif
+		if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])
+			/* Reduced name of stat */
+			c_put_str(TERM_WHITE, stat_names_reduced[i], row + i+1, stat_col+1);
+		else
+			c_put_str(TERM_WHITE, stat_names[i], row + i+1, stat_col+1);
 
 
 		/* Internal "natural" max value.  Maxes at 18/100 */
@@ -3303,7 +3310,11 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+33);
 		cnv_stat(p_ptr->stat_max[i], buf);
 		if (p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
 		{
+#ifdef JP
 			c_put_str(TERM_WHITE, "!", row + i+1, stat_col + 6);
+#else
+			c_put_str(TERM_WHITE, "!", row + i+1, stat_col + 4);
+#endif
 		}
 		c_put_str(TERM_BLUE, buf, row + i+1, stat_col + 13 - strlen(buf));
 
@@ -3389,7 +3400,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 					a = TERM_RED;
 
 					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
+					if (o_ptr->pval > -10) c = '0' - o_ptr->pval;
 				}
 			}
 
@@ -3482,7 +3493,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 					a = TERM_RED;
 
 					/* Label boost */
-					if (dummy < 10) c = '0' - dummy;
+					if (dummy > -10) c = '0' - dummy;
 				}
 			}
 		}
@@ -4105,7 +4116,11 @@ void display_player(int mode)
 
 			if (p_ptr->stat_max[i] == p_ptr->stat_max_max[i])
 			{
+#ifdef JP
 				c_put_str(TERM_WHITE, "!", 3+i, 59);
+#else
+				c_put_str(TERM_WHITE, "!", 3+i, 59-2);
+#endif
 			}
 		}
 
@@ -4126,42 +4141,61 @@ void display_player(int mode)
 
 			if (death && total_winner)
 			{
-				if (dun_level)
 #ifdef JP
-					put_str(format("…あなたは %s の %d 階で引退した。", map_name(), dun_level), 5 + 12, 10);
+				put_str("…あなたは勝利の後引退した。", 5 + 12, 10);
 #else
-					put_str(format("...You retired from the adventure at level %d of %s.", dun_level, map_name()), 5 + 12, 10);
-#endif
-				else
-#ifdef JP
-					put_str(format("…あなたは %s で引退した。", map_name()), 5 + 12, 10);
-#else
-					put_str(format("...You retired from the adventure at %s.", map_name()), 5 + 12, 10);
+				put_str("...You retired from the adventure after the winning.", 5 + 12, 10);
 #endif
 			}
 			else if (death)
 			{
 				if (dun_level)
+				{
+					if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+					{
 #ifdef JP
-					put_str(format("…あなたは %s の %d 階で死んだ。", map_name(), dun_level), 5 + 12, 10);
+						put_str(format("…あなたは クエスト「%s」で死んだ。", quest[p_ptr->inside_quest].name), 5 + 12, 10);
 #else
-					put_str(format("...You were dead at level %d of %s.", dun_level, map_name()), 5 + 12, 10);
+						put_str(format("...You died in the quest '%s'.", quest[p_ptr->inside_quest].name), 5 + 12, 10);
 #endif
+					}
+					else
+					{					
+#ifdef JP
+						put_str(format("…あなたは %s の %d 階で死んだ。", map_name(), dun_level), 5 + 12, 10);
+#else
+						put_str(format("...You died on level %d of %s.", dun_level, map_name()), 5 + 12, 10);
+#endif
+					}
+				}
 				else
 #ifdef JP
 					put_str(format("…あなたは %s で死んだ。", map_name()), 5 + 12, 10);
 #else
-					put_str(format("...You were dead at %s.", map_name()), 5 + 12, 10);
+					put_str(format("...You died in %s.", map_name()), 5 + 12, 10);
 #endif
 			}
-			else
+			else if (character_dungeon)
 			{
 				if (dun_level)
+				{
+					if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+					{
 #ifdef JP
-					put_str(format("…あなたは現在、 %s の %d 階で探索している。", map_name(), dun_level), 5 + 12, 10);
+						put_str(format("…あなたは現在、 クエスト「%s」を遂行中だ。", quest[p_ptr->inside_quest].name), 5 + 12, 10);
 #else
-					put_str(format("...Now, you are exploring at level %d of %s.", dun_level, map_name()), 5 + 12, 10);
+						put_str(format("...Now, you are in the quest '%s'.", quest[p_ptr->inside_quest].name), 5 + 12, 10);
 #endif
+					}							
+					else
+					{
+#ifdef JP
+						put_str(format("…あなたは現在、 %s の %d 階で探索している。", map_name(), dun_level), 5 + 12, 10);
+#else
+						put_str(format("...Now, you are exploring level %d of %s.", dun_level, map_name()), 5 + 12, 10);
+#endif
+					}
+				}
 				else
 #ifdef JP
 					put_str(format("…あなたは現在、 %s にいる。", map_name()), 5 + 12, 10);
@@ -4328,6 +4362,7 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "\n");
 	for (i = 0; i < p_ptr->count % 80; i++)
 		fprintf(fff, " ");
+
 	{
 		bool pet = FALSE;
 
@@ -4354,7 +4389,7 @@ errr make_character_dump(FILE *fff)
 #ifdef JP
 				fprintf(fff, " 乗馬中");
 #else
-				fprintf(fff, " riding");
+				fprintf(fff, " (riding)");
 #endif
 			fprintf(fff, "\n");
 		}
@@ -7011,7 +7046,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 	if (numentries > 0)
 	{
 		/* Grab an appropriate line number */
-		line = rand_int(numentries);
+		line = randint0(numentries);
 
 		/* Get the random line */
 		for (counter = 0; counter <= line; counter++)

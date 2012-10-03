@@ -730,24 +730,24 @@ N:74:& ロング・ボウ
 E:& Long Bow~
 G:}:U
 I:19:13:0
-W:10:0:40:120
-A:10/1
+W:30:0:40:400
+A:30/2:40/2
 F:SHOW_MODS
 
 N:75:& ライト・クロスボウ
 E:& Light Crossbow~
 G:}:s
 I:19:23:0
-W:15:0:110:140
-A:15/1
+W:10:0:110:140
+A:10/1
 F:SHOW_MODS
 
 N:76:& ヘビィ・クロスボウ
 E:& Heavy Crossbow~
 G:}:s
 I:19:24:0
-W:30:0:200:300
-A:30/1
+W:30:0:200:500
+A:30/2:40/2
 F:SHOW_MODS
 
 N:77:& スリング
@@ -946,8 +946,8 @@ N:98:& 鉄冠
 E:& Iron Crown~
 G:]:s
 I:33:10:0
-W:45:0:20:500
-A:45/1
+W:40:0:20:500
+A:40/1
 P:0:1d1:0:0:0
 
 N:99:& 金の冠
@@ -4893,7 +4893,7 @@ F:BRAND_FIRE | BRAND_ELEC | BRAND_COLD | BRAND_ACID | BRAND_POIS |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RIDING
 
 N:595:ネオ・つよしスペシャル
-E:Neo Tsuyoshi Special
+E:Neo-Tsuyoshi Special
 G:!:d
 I:75:64:0
 W:15:0:4:2000
@@ -5080,6 +5080,7 @@ G:=:d
 I:45:54:0
 W:10:0:2:200
 A:10/2
+F:WARNING
 
 N:619:& 鋼鉄のクロスボウの矢
 E:& Steel Bolt~
@@ -5361,7 +5362,7 @@ F:INSTA_ART
 N:653:& 黒装束
 E:& Black Clothes
 G:(:D
-I:36:13:3
+I:36:13:0
 W:15:0:80:5000
 A:40/4
 P:4:1d1:0:0:12

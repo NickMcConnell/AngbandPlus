@@ -94,7 +94,7 @@ void check_experience(void)
 			}
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
-				if (randint(5) == 1) level_mutation = TRUE;
+				if (one_in_(5)) level_mutation = TRUE;
 			}
 			level_inc_stat = TRUE;
 
@@ -195,7 +195,7 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 				screen_load();
 			}
 			else if(!(p_ptr->max_plv % 2))
-				do_inc_stat(rand_int(6));
+				do_inc_stat(randint0(6));
 		}
 
 		if (level_mutation)
@@ -811,10 +811,10 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Drop a dead corpse? */
-	if ((randint(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) == 1) &&
+	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) &&
 	    ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
-        (r_ptr->flags9 & RF9_DROP_SKELETON)) &&
-	    !(p_ptr->inside_arena || p_ptr->inside_battle || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
+	     (r_ptr->flags9 & RF9_DROP_SKELETON)) &&
+	    !(p_ptr->inside_arena || p_ptr->inside_battle || (m_ptr->smart & SM_CLONED) || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
 	{
 		/* Assume skeleton */
 		bool corpse = FALSE;
@@ -834,18 +834,18 @@ msg_print("地面に落とされた。");
 			/* Lots of damage in one blow */
 			if ((0 - ((m_ptr->maxhp) / 4)) > m_ptr->hp)
 			{
-				if (randint(5) == 1) corpse = TRUE;
+				if (one_in_(5)) corpse = TRUE;
 			}
 			else
 			{
-				if (randint(5) != 1) corpse = TRUE;
+				if (!one_in_(5)) corpse = TRUE;
 			}
 		}
 
 		/* Get local object */
 		q_ptr = &forge;
 
-		/* Prepare to make a Blade of Chaos */
+		/* Prepare to make an object */
 		object_prep(q_ptr, lookup_kind(TV_CORPSE, (corpse ? SV_CORPSE : SV_SKELETON)));
 
 		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
@@ -866,7 +866,7 @@ msg_print("地面に落とされた。");
 	if (m_ptr->r_idx == MON_DAWN &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
-		if (randint(7) != 1)
+		if (!one_in_(7))
 		{
 			int wy = py, wx = px;
 			int attempts = 100;
@@ -931,7 +931,7 @@ msg_print("地面に落とされた。");
 	/* Bloodletters of Khorne may drop a blade of chaos */
 	else if (m_ptr->r_idx == MON_BLOODLETTER &&
 
-	         (randint(100) < 15) &&
+	         (randint1(100) < 15) &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		/* Get local object */
@@ -979,7 +979,7 @@ msg_print("地面に落とされた。");
 		q_ptr = &forge;
 
 		/* Prepare to make a Blade of Chaos */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, randint(2)));
+		object_prep(q_ptr, lookup_kind(TV_SWORD, randint1(2)));
 
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
@@ -1114,7 +1114,7 @@ msg_print("地面に落とされた。");
 			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
 
 			/* Mega-Hack -- Mark this item as "Morgoth" */
-			q_ptr->name1 = ART_MORGOTH;
+			q_ptr->name1 = ART_CHAOS;
 
 			/* Mega-Hack -- Actually create "Morgoth" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
@@ -1124,80 +1124,82 @@ msg_print("地面に落とされた。");
 		}
 		else
 		{
-			byte a_idx = 0;
+			int a_idx = 0;
 			int chance = 0;
 
-			if (m_ptr->r_idx == MON_OBERON)
+			switch (m_ptr->r_idx)
 			{
-				if (randint(3) == 1)
+			case MON_OBERON:
+				if (one_in_(3))
 				{
-					a_idx = ART_THRAIN;
+					a_idx = ART_JUDGE;
 					chance = 33;
 				}
 				else
 				{
-					a_idx = ART_GONDOR;
+					a_idx = ART_AMBER;
 					chance = 50;
 				}
-			}
-			else if ((m_ptr->r_idx == MON_UNICORN_ORD ||
-				 m_ptr->r_idx == MON_MORGOTH ||
-				 m_ptr->r_idx == MON_ONE_RING)
-				&& (p_ptr->pseikaku == SEIKAKU_NAMAKE))
-			{
-				do
+				break;
+
+			case MON_UNICORN_ORD:
+			case MON_MORGOTH:
+			case MON_ONE_RING:
+				if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
 				{
-					if (one_in_(3))
+					do
 					{
-						a_idx = ART_NAMAKE_HAMMER;
-						chance = 100;
+						switch (randint0(3))
+						{
+						case 0:
+							a_idx = ART_NAMAKE_HAMMER;
+							break;
+						case 1:
+							a_idx = ART_NAMAKE_BOW;
+							break;
+						case 2:
+							a_idx = ART_NAMAKE_ARMOR;
+							break;
+						}
 					}
-					else if (one_in_(2))
-					{
-						a_idx = ART_NAMAKE_BOW;
-						chance = 100;
-					}
-					else
-					{
-						a_idx = ART_NAMAKE_ARMOR;
-						chance = 100;
-					}
+					while (a_info[a_idx].cur_num);
+
+					chance = 100;
 				}
-				while (a_info[a_idx].cur_num);
-			}
-			else if (m_ptr->r_idx == MON_GHB)
-			{
+				break;
+
+			case MON_GHB:
 				a_idx = ART_GHB;
 				chance = 100;
-			}
-			else if (m_ptr->r_idx == MON_STORMBRINGER)
-			{
+				break;
+
+			case MON_STORMBRINGER:
 				a_idx = ART_STORMBRINGER;
 				chance = 100;
-			}
-			else if (m_ptr->r_idx == MON_ECHIZEN)
-			{
+				break;
+
+			case MON_ECHIZEN:
 				a_idx = ART_CRIMSON;
 				chance = 50;
-			}
-			else if (m_ptr->r_idx == MON_GANDALF)
-			{
+				break;
+
+			case MON_GANDALF:
 				a_idx = ART_ICANUS;
 				chance = 20;
-			}
-			else if (m_ptr->r_idx == MON_OROCHI)
-			{
+				break;
+
+			case MON_OROCHI:
 				a_idx = ART_KUSANAGI;
 				chance = 25;
-			}
-			else if (m_ptr->r_idx == MON_DWORKIN)
-			{
-				a_idx = ART_THRAIN;
+				break;
+
+			case MON_DWORKIN:
+				a_idx = ART_JUDGE;
 				chance = 20;
-			}
-			else if (m_ptr->r_idx == MON_SAURON)
-			{
-				if (randint(10) == 1)
+				break;
+
+			case MON_SAURON:
+				if (one_in_(10))
 				{
 					a_idx = ART_POWER;
 					chance = 100;
@@ -1207,23 +1209,23 @@ msg_print("地面に落とされた。");
 					a_idx = ART_AHO;
 					chance = 100;
 				}
-			}
-			else if (m_ptr->r_idx == MON_BRAND)
-			{
-				if (randint(3) != 1)
+				break;
+
+			case MON_BRAND:
+				if (!one_in_(3))
 				{
 					a_idx = ART_BRAND;
 					chance = 25;
 				}
 				else
 				{
-					a_idx = ART_ANGUIREL;
+					a_idx = ART_WEREWINDLE;
 					chance = 33;
 				}
-			}
-			else if (m_ptr->r_idx == MON_CORWIN)
-			{
-				if (randint(3) != 1)
+				break;
+
+			case MON_CORWIN:
+				if (!one_in_(3))
 				{
 					a_idx = ART_GRAYSWANDIR;
 					chance = 33;
@@ -1233,97 +1235,95 @@ msg_print("地面に落とされた。");
 					a_idx = ART_CORWIN;
 					chance = 33;
 				}
-			}
-			else if (m_ptr->r_idx == MON_SURTUR)
-			{
-				a_idx = ART_MORMEGIL;
+				break;
+
+			case MON_SURTUR:
+				a_idx = ART_TWILIGHT;
 				chance = 66;
-			}
-			else if (m_ptr->r_idx == MON_SARUMAN)
-			{
+				break;
+
+			case MON_SARUMAN:
 				a_idx = ART_ELENDIL;
 				chance = 33;
-			}
-			else if (m_ptr->r_idx == MON_FIONA)
-			{
-				a_idx = ART_BELANGIL;
+				break;
+
+			case MON_FIONA:
+				a_idx = ART_FIONA;
 				chance = 50;
-			}
-			else if (m_ptr->r_idx == MON_JULIAN)
-			{
-				a_idx = ART_CELEBORN;
+				break;
+
+			case MON_JULIAN:
+				a_idx = ART_JULIAN;
 				chance = 45;
-			}
-			else if (m_ptr->r_idx == MON_KLING)
-			{
-				a_idx = ART_OROME;
+				break;
+
+			case MON_KLING:
+				a_idx = ART_DESTINY;
 				chance = 40;
-			}
-			else if (m_ptr->r_idx == MON_GOEMON)
-			{
+				break;
+
+			case MON_GOEMON:
 				a_idx = ART_ZANTETSU;
 				chance = 75;
-			}
-			else if (m_ptr->r_idx == MON_HAGEN)
-			{
-				a_idx = ART_NIMLOTH;
+				break;
+
+			case MON_HAGEN:
+				a_idx = ART_HAGEN;
 				chance = 66;
-			}
-			else if (m_ptr->r_idx == MON_CAIN)
-			{
-				a_idx = ART_ANGRIST;
+				break;
+
+			case MON_CAIN:
+				a_idx = ART_CAINE;
 				chance = 50;
-			}
-			else if (m_ptr->r_idx == MON_BULLGATES)
-			{
+				break;
+
+			case MON_BULLGATES:
 				a_idx = ART_WINBLOWS;
 				chance = 66;
-			}
-			else if (m_ptr->r_idx == MON_LUNGORTHIN)
-			{
+				break;
+
+			case MON_LUNGORTHIN:
 				a_idx = ART_CALRIS;
 				chance = 50;
-			}
-			else if (m_ptr->r_idx == MON_JACK_SHADOWS)
-			{
+				break;
+
+			case MON_JACK_SHADOWS:
 				a_idx = ART_JACK;
 				chance = 15;
-			}
-			else if (m_ptr->r_idx == MON_DIO)
-			{
+				break;
+
+			case MON_DIO:
 				a_idx = ART_STONEMASK;
 				chance = 20;
-			}
-			else if (m_ptr->r_idx == MON_BELD)
-			{
+				break;
+
+			case MON_BELD:
 				a_idx = ART_SOULCRUSH;
 				chance = 10;
-			}
-			else if (m_ptr->r_idx == MON_PIP)
-			{
+				break;
+
+			case MON_PIP:
 				a_idx = ART_EXCALIBUR_J;
 				chance = 50;
-			}
+				break;
 
-			else if (m_ptr->r_idx == MON_SHUTEN)
-			{
+			case MON_SHUTEN:
 				a_idx = ART_SHUTEN_DOJI;
 				chance = 33;
-			}
+				break;
 
-			else if (m_ptr->r_idx == MON_GOTHMOG)
-			{
+			case MON_GOTHMOG:
 				a_idx = ART_GOTHMOG;
 				chance = 33;
-			}
+				break;
 
-			else if (m_ptr->r_idx == MON_FUNDIN)
-			{
+			case MON_FUNDIN:
 				a_idx = ART_FUNDIN;
 				chance = 5;
+				break;
 			}
 
-			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
+			if ((a_idx > 0) && ((randint0(100) < chance) || (wizard)))
 			{
 				if (a_info[a_idx].cur_num == 0)
 				{
@@ -1337,14 +1337,14 @@ msg_print("地面に落とされた。");
 	}
 	if ((r_ptr->flags7 & RF7_GUARDIAN) && !p_ptr->inside_battle && (d_info[dungeon_type].final_guardian == m_ptr->r_idx))
 	{
-		s16b k_idx = 198; /* Acquirement */;
+		int k_idx = 198; /* Acquirement */;
 
 		if (d_info[dungeon_type].final_object)
 			k_idx = d_info[dungeon_type].final_object;
 
 		if (d_info[dungeon_type].final_artifact)
 		{
-			byte a_idx = d_info[dungeon_type].final_artifact;
+			int a_idx = d_info[dungeon_type].final_artifact;
 			if (a_info[a_idx].cur_num == 0)
 			{
 				/* Create the artifact */
@@ -1376,15 +1376,18 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & RF1_DROP_60) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & RF1_DROP_90) && (rand_int(100) < 90)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_90) && (randint0(100) < 90)) number++;
 	if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
 	if  (r_ptr->flags1 & RF1_DROP_2D2) number += damroll(2, 2);
 	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
 	if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
 
-	if (cloned) number = 0; /* Clones drop no stuff */
-	if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena) number = 0; /* Pets drop no stuff */
+	if (cloned && !(r_ptr->flags1 & RF1_UNIQUE))
+		number = 0; /* Clones drop no stuff unless Cloning Pits */
+
+	if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
+		number = 0; /* Pets drop no stuff */
 	if (!drop_item && (r_ptr->d_char != '$')) number = 0;
 
 	/* Hack -- handle creeping coins */
@@ -1403,7 +1406,7 @@ msg_print("地面に落とされた。");
 		object_wipe(q_ptr);
 
 		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		if (do_gold && (!do_item || (randint0(100) < 50)))
 		{
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
@@ -1508,7 +1511,7 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 	if ((r_ptr->flags3 & RF3_RES_ALL) && dam > 0)
 	{
 		dam /= 100;
-		if((dam == 0) && (randint(3) == 1)) dam = 1;
+		if((dam == 0) && one_in_(3)) dam = 1;
 	}
 
 	if (m_ptr->invulner)
@@ -1524,7 +1527,7 @@ msg_print("バリアを切り裂いた！");
 #endif
 			}
 		}
-		else if (!(randint(PENETRATE_INVULNERABILITY) == 1))
+		else if (!one_in_(PENETRATE_INVULNERABILITY))
 		{
 			return (0);
 		}
@@ -1718,9 +1721,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_desc(m_name, m_ptr, 0x100);
 
 		/* Don't kill Amberites */
-		if ((r_ptr->flags3 & RF3_AMBERITE) && (randint(2) == 1))
+		if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))
 		{
-			int curses = 1 + randint(3);
+			int curses = 1 + randint1(3);
 			bool stop_ty = FALSE;
 			int count = 0;
 
@@ -1752,11 +1755,13 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 
 				msg_format("%^s %s", m_name, line_got);
 
+#ifdef WORLD_SCORE
 			if (m_ptr->r_idx == MON_SERPENT)
 			{
 				/* Make screen dump */
 				screen_dump = make_screen_dump();
 			}
+#endif
 		}
 
 		if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -1767,7 +1772,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			}
 			else if (r_ptr->level > dun_level)
 			{
-				if (randint(10) <= (r_ptr->level - dun_level))
+				if (randint1(10) <= (r_ptr->level - dun_level))
 					chg_virtue(V_VALOUR, 1);
 			}
 			if (r_ptr->level > 60)
@@ -1789,7 +1794,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			chg_virtue(V_VITALITY, -2);
 		}
 
-		if ((r_ptr->flags1 & RF1_UNIQUE) & (randint(3)==1))
+		if ((r_ptr->flags1 & RF1_UNIQUE) && one_in_(3))
 			chg_virtue(V_INDIVIDUALISM, -1);
 
 		if (m_ptr->r_idx == MON_BEGGAR || m_ptr->r_idx == MON_LEPER)
@@ -1798,7 +1803,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 		}
 
 		if ((r_ptr->flags3 & RF3_GOOD) &&
-			((r_ptr->level) / 10 + (3 * dun_level) >= randint(100)))
+			((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100)))
 			
 			chg_virtue(V_UNLIFE, 1);
 
@@ -1806,7 +1811,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_FAITH, -2);
-			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100))
 			{
 				if (r_ptr->flags3 & RF3_GOOD) chg_virtue(V_FAITH, -1);
 				else chg_virtue(V_FAITH, 1);
@@ -1816,7 +1821,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 		{
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_FAITH, 2);
-			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100))
 				chg_virtue(V_FAITH, 1);
 		}
 
@@ -1829,7 +1834,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			{
 				chg_virtue(V_HONOUR, 10);
 			}
-			else if ((r_ptr->level) / 10 + (2 * dun_level) >= randint(100))
+			else if ((r_ptr->level) / 10 + (2 * dun_level) >= randint1(100))
 			{
 				chg_virtue(V_HONOUR, 1);
 			}
@@ -1857,7 +1862,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			if (r_ptr->flags1 & RF1_UNIQUE)
 				chg_virtue(V_JUSTICE, 3);
 			else if (1+((r_ptr->level) / 10 + (2 * dun_level))
-				>= randint(100))
+				>= randint1(100))
 				
 				chg_virtue(V_JUSTICE, 1);
 		}
@@ -1868,7 +1873,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 
 		if ((r_ptr->flags3 & RF3_ANIMAL) && !(r_ptr->flags3 & RF3_EVIL) && !(r_ptr->flags4 & ~(RF4_NOMAGIC_MASK))  && !(r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) && !(r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)))
 		{
-			if (randint(4)==1) chg_virtue(V_NATURE, -1);
+			if (one_in_(4)) chg_virtue(V_NATURE, -1);
 		}
 
 		if((r_ptr->flags1 & RF1_UNIQUE) && record_destroy_uniq)
@@ -1941,7 +1946,7 @@ msg_format("%sを葬り去った。", m_name);
 #endif
 
 		}
-		if (r_ptr->flags1 & RF1_UNIQUE)
+		if (r_ptr->flags1 & RF1_UNIQUE && !(m_ptr->smart & SM_CLONED))
 		{
 			for (i = 0; i < MAX_KUBI; i++)
 			{
@@ -1974,7 +1979,8 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		}
 
 		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
+		if (r_ptr->flags1 & RF1_UNIQUE && !(m_ptr->smart & SM_CLONED))
+			r_ptr->max_num = 0;
 
 		/* When the player kills a Nazgul, it stays dead */
 		if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num--;
@@ -2051,7 +2057,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
-		int tmp = randint(dam);
+		int tmp = randint1(dam);
 
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
@@ -2083,14 +2089,14 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		if (((percentage <= 10) && (randint0(10) < percentage)) ||
+		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
 			/* Hack -- note fear */
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear = (randint(10) +
+			m_ptr->monfear = (randint1(10) +
 			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
 		}
@@ -3433,7 +3439,9 @@ s2 = "の入口";
 			}
 			else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER))
 			{
+#ifndef JP
 				s3 ="";
+#endif
 			}
 			else
 			{
@@ -4115,7 +4123,7 @@ p = "方向 ('5'でターゲットへ, '*'でターゲット再選択, ESCで中断)? ";
 	{
 		/* XXX XXX XXX */
 		/* Random direction */
-		dir = ddd[rand_int(8)];
+		dir = ddd[randint0(8)];
 	}
 
 	/* Notice confusion */
@@ -4215,10 +4223,10 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	if (p_ptr->confused)
 	{
 		/* Standard confusion */
-		if (rand_int(100) < 75)
+		if (randint0(100) < 75)
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[randint0(8)];
 		}
 	}
 	else if (p_ptr->riding)
@@ -4229,21 +4237,21 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 		if (m_ptr->confused)
 		{
 			/* Standard confusion */
-			if (rand_int(100) < 75)
+			if (randint0(100) < 75)
 			{
 				/* Random direction */
-				dir = ddd[rand_int(8)];
+				dir = ddd[randint0(8)];
 			}
 		}
-		else if ((r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) && (rand_int(100) < 50))
+		else if ((r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) && (randint0(100) < 50))
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[randint0(8)];
 		}
-		else if ((r_ptr->flags1 & RF1_RAND_50) && (rand_int(100) < 25))
+		else if ((r_ptr->flags1 & RF1_RAND_50) && (randint0(100) < 25))
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[randint0(8)];
 		}
 	}
 
@@ -4353,10 +4361,10 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	if (p_ptr->confused)
 	{
 		/* Standard confusion */
-		if (rand_int(100) < 75)
+		if (randint0(100) < 75)
 		{
 			/* Random direction */
-			dir = ddd[rand_int(8)];
+			dir = ddd[randint0(8)];
 		}
 	}
 
@@ -4417,10 +4425,10 @@ void gain_level_reward(int chosen_reward)
 	else if (!(p_ptr->lev % 13)) nasty_chance = 3;
 	else if (!(p_ptr->lev % 14)) nasty_chance = 12;
 
-	if (randint(nasty_chance) == 1)
-		type = randint(20); /* Allow the 'nasty' effects */
+	if (one_in_(nasty_chance))
+		type = randint1(20); /* Allow the 'nasty' effects */
 	else
-		type = randint(15) + 5; /* Or disallow them */
+		type = randint1(15) + 5; /* Or disallow them */
 
 	if (type < 1) type = 1;
 	if (type > 20) type = 20;
@@ -4438,7 +4446,7 @@ sprintf(wrath_reason, "%sの怒り",
 
 	effect = chaos_rewards[p_ptr->chaos_patron][type];
 
-	if ((randint(6) == 1) && !chosen_reward)
+	if (one_in_(6) && !chosen_reward)
 	{
 #ifdef JP
 msg_format("%^sは褒美としてあなたを突然変異させた。",
@@ -4617,7 +4625,7 @@ msg_print("「汝の行いは貴き剣に値せり。」");
 			/* Get local object */
 			q_ptr = &forge;
 			dummy = TV_SWORD;
-			switch (randint(p_ptr->lev))
+			switch (randint1(p_ptr->lev))
 			{
 				case 0: case 1:
 					dummy2 = SV_DAGGER;
@@ -4705,9 +4713,9 @@ msg_print("「汝の行いは貴き剣に値せり。」");
 			}
 
 			object_prep(q_ptr, lookup_kind(dummy, dummy2));
-			q_ptr->to_h = 3 + randint(dun_level) % 10;
-			q_ptr->to_d = 3 + randint(dun_level) % 10;
-			random_resistance(q_ptr, FALSE, randint(34) + 4);
+			q_ptr->to_h = 3 + randint1(dun_level) % 10;
+			q_ptr->to_d = 3 + randint1(dun_level) % 10;
+			one_resistance(q_ptr);
 			q_ptr->name2 = EGO_CHAOTIC;
 
 			/* Drop it in the dungeon */
@@ -4733,7 +4741,7 @@ msg_print("「汝の行いは貴き報いに値せり。」");
 			msg_print("'Thy deed hath earned thee a worthy reward.'");
 #endif
 
-			acquirement(py, px, randint(2) + 1, FALSE, FALSE);
+			acquirement(py, px, randint1(2) + 1, FALSE, FALSE);
 #ifdef JP
 			reward = "上質なアイテムを手に入れた。";
 #else
@@ -4755,7 +4763,7 @@ msg_print("「下僕よ、汝の献身への我が惜しみ無き報いを見るがよい。」");
 			msg_print("'Behold, mortal, how generously I reward thy loyalty.'");
 #endif
 
-			acquirement(py, px, randint(2) + 1, TRUE, FALSE);
+			acquirement(py, px, randint1(2) + 1, TRUE, FALSE);
 #ifdef JP
 			reward = "高級品のアイテムを手に入れた。";
 #else
@@ -4799,7 +4807,7 @@ msg_print("「我が下僕たちよ、かの傲慢なる者を倒すべし！」");
 			msg_print("'My pets, destroy the arrogant mortal!'");
 #endif
 
-			for (dummy = 0; dummy < randint(5) + 1; dummy++)
+			for (dummy = 0; dummy < randint1(5) + 1; dummy++)
 			{
 				(void)summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
 			}
@@ -4868,10 +4876,10 @@ msg_print("「留まるのだ、下僕よ。余が汝の肉体を鍛えん。」");
 			msg_print("'Stay, mortal, and let me mold thee.'");
 #endif
 
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
+			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
 				do_inc_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
-				do_inc_stat(rand_int(6));
+				do_inc_stat(randint0(6));
 #ifdef JP
 			reward = "能力値が上がった。";
 #else
@@ -4893,10 +4901,10 @@ msg_print("「下僕よ、余は汝に飽みたり。」");
 			msg_print("'I grow tired of thee, mortal.'");
 #endif
 
-			if ((randint(3) == 1) && !(chaos_stats[p_ptr->chaos_patron] < 0))
+			if (one_in_(3) && !(chaos_stats[p_ptr->chaos_patron] < 0))
 				do_dec_stat(chaos_stats[p_ptr->chaos_patron]);
 			else
-				(void)do_dec_stat(rand_int(6));
+				(void)do_dec_stat(randint0(6));
 #ifdef JP
 			reward = "能力値が下がった。";
 #else
@@ -4922,7 +4930,7 @@ msg_print("あなたは以前より弱くなった！");
 
 			for (dummy = 0; dummy < 6; dummy++)
 			{
-				(void)dec_stat(dummy, 10 + randint(15), TRUE);
+				(void)dec_stat(dummy, 10 + randint1(15), TRUE);
 			}
 #ifdef JP
 			reward = "全能力値が下がった。";
@@ -5089,7 +5097,7 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 			msg_print("'Now thou shalt pay for annoying me.'");
 #endif
 
-			switch (randint(4))
+			switch (randint1(4))
 			{
 				case 1:
 					(void)activate_ty_curse(FALSE, &count);
@@ -5108,7 +5116,7 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 #endif
 					break;
 				case 3:
-					if (randint(2) == 1)
+					if (one_in_(2))
 					{
 						if (!buki_motteruka(INVEN_RARM)) break;
 						object_desc(o_name, &inventory[INVEN_RARM], TRUE, 0);
@@ -5134,7 +5142,7 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 				default:
 					for (dummy = 0; dummy < 6; dummy++)
 					{
-						(void)dec_stat(dummy, 10 + randint(15), TRUE);
+						(void)dec_stat(dummy, 10 + randint1(15), TRUE);
 					}
 #ifdef JP
 					reward = "全能力値が下がった。";
@@ -5161,12 +5169,12 @@ msg_print("「死ぬがよい、下僕よ！」");
 			take_hit(DAMAGE_LOSELIFE, p_ptr->lev * 4, wrath_reason, -1);
 			for (dummy = 0; dummy < 6; dummy++)
 			{
-				(void)dec_stat(dummy, 10 + randint(15), FALSE);
+				(void)dec_stat(dummy, 10 + randint1(15), FALSE);
 			}
 			activate_hi_summon(py, px, FALSE);
 			(void)activate_ty_curse(FALSE, &count);
-			if (randint(2) == 1) (void)curse_weapon(FALSE, INVEN_RARM);
-			if (randint(2) == 1) (void)curse_armor();
+			if (one_in_(2)) (void)curse_weapon(FALSE, INVEN_RARM);
+			if (one_in_(2)) (void)curse_armor();
 			break;
 		case REW_DESTRUCT:
 #ifdef JP
@@ -5564,7 +5572,7 @@ p = "方向 ('5'でターゲットへ, '*'でターゲット再選択, ESCで中断)? ";
 	{
 		/* XXX XXX XXX */
 		/* Random direction */
-		dir = ddd[rand_int(8)];
+		dir = ddd[randint0(8)];
 	}
 
 	/* Notice confusion */
@@ -5599,7 +5607,7 @@ s16b gain_energy(void)
 	s32b energy_result = 10;
 	s32b tmp;
 
-	tmp = rand_int(Go_no_JuuJou);
+	tmp = randint0(Go_no_JuuJou);
 
 	for (i = 0; i < 9; i ++){
 		energy_result += tmp % 5;

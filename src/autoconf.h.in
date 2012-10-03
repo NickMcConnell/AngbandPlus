@@ -1,4 +1,4 @@
-/* src/autoconf.h.in.  Generated automatically from configure.in by autoheader.  */
+/* src/autoconf.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
 
 /* Define to empty if the keyword does not work.  */
 #undef const
@@ -46,6 +46,8 @@
 #undef X_LOCALE
 #undef CHUUKEI
 #undef WORLD_SCORE
+#undef USE_TRANSPARENCY
+#undef DEFAULT_PATH
 
 /* Define if you have the gethostname function.  */
 #undef HAVE_GETHOSTNAME

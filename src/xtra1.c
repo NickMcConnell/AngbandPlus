@@ -837,6 +837,7 @@ static void prt_status(void)
 static void prt_title(void)
 {
 	cptr p = "";
+	char str[14];
 
 	/* Wizard */
 	if (wizard)
@@ -878,9 +879,13 @@ static void prt_title(void)
 	/* Normal */
 	else
 	{
-		p = player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5];
-
-
+#ifdef JP
+		mb_strlcpy(str, player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5], 14);
+#else
+		strncpy(str, player_title[p_ptr->pclass][(p_ptr->lev - 1) / 5], 13);
+		str[13] = '\0';
+#endif
+		p = str;
 	}
 
 	prt_field(p, ROW_TITLE, COL_TITLE);
@@ -1810,7 +1815,15 @@ static void prt_frame_basic(void)
 	if (p_ptr->mimic_form)
 		prt_field(mimic_info[p_ptr->mimic_form].title, ROW_RACE, COL_RACE);
 	else
+	{
+#ifdef JP
+		char str[14];
+		mb_strlcpy(str, rp_ptr->title, 14);
+		prt_field(str, ROW_RACE, COL_RACE);
+#else
 		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+#endif
+	}
 /*	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
 /*	prt_field(ap_ptr->title, ROW_SEIKAKU, COL_SEIKAKU); */
 
@@ -3142,7 +3155,7 @@ void calc_bonuses(void)
 	bool            yoiyami = FALSE;
 	bool            down_saving = FALSE;
 	bool            have_dd_s, have_dd_t, have_sw, have_kabe;
-	bool            easy_2hand = FALSE;
+	bool            easy_2weapon = FALSE;
 	s16b this_o_idx, next_o_idx = 0;
 	player_race *tmp_rp_ptr;
 
@@ -3716,6 +3729,13 @@ void calc_bonuses(void)
 		p_ptr->to_a += 100;
 		p_ptr->dis_to_a += 100;
 	}
+	/* Temporary shield */
+	else if (p_ptr->tsubureru || p_ptr->shield || p_ptr->magicdef)
+	{
+		p_ptr->to_a += 50;
+		p_ptr->dis_to_a += 50;
+	}
+
 	if (p_ptr->tim_res_nether)
 	{
 		p_ptr->resist_neth = TRUE;
@@ -3954,8 +3974,6 @@ void calc_bonuses(void)
 		/* Extract the item flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
-		if (((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_WARNING)) || (o_ptr->name1 == ART_BARAHIR)) p_ptr->warning = TRUE;
-
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
 		if (f1 & (TR1_INT)) p_ptr->stat_add[A_INT] += o_ptr->pval;
@@ -4012,6 +4030,7 @@ void calc_bonuses(void)
 		if (f3 & (TR3_FEATHER))     p_ptr->ffall = TRUE;
 		if (f2 & (TR2_FREE_ACT))    p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE))   p_ptr->hold_life = TRUE;
+		if (f3 & (TR3_WARNING))     p_ptr->warning = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -4053,7 +4072,7 @@ void calc_bonuses(void)
 		if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		if (o_ptr->name2 == EGO_YOIYAMI) yoiyami = TRUE;
-		if (o_ptr->name2 == EGO_2HAND) easy_2hand = TRUE;
+		if (o_ptr->name2 == EGO_2WEAPON) easy_2weapon = TRUE;
 		if (o_ptr->name2 == EGO_RING_RES_TIME) p_ptr->resist_time = TRUE;
 		if (o_ptr->name2 == EGO_RING_THROW) p_ptr->mighty_throw = TRUE;
 		if (o_ptr->name2 == EGO_RING_WIZARD) p_ptr->easy_spell = TRUE;
@@ -4079,66 +4098,68 @@ void calc_bonuses(void)
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;
 
+		bonus_to_h = o_ptr->to_h;
+		bonus_to_d = o_ptr->to_d;
+
 		if (p_ptr->pclass == CLASS_NINJA)
 		{
 			if (o_ptr->to_h > 0) bonus_to_h = (o_ptr->to_h+1)/2;
-			else bonus_to_h = o_ptr->to_h;
 			if (o_ptr->to_d > 0) bonus_to_d = (o_ptr->to_d+1)/2;
-			else bonus_to_d = o_ptr->to_d;
-		}
-		else
-		{
-			bonus_to_h = o_ptr->to_h;
-			bonus_to_d = o_ptr->to_d;
 		}
 
+		/* To Bow and Natural attack */
+
+		/* Apply the bonuses to hit/damage */
+		p_ptr->to_h_b += bonus_to_h;
+		p_ptr->to_h_m += bonus_to_h;
+		p_ptr->to_d_m += bonus_to_d;
+
+		/* Apply the mental bonuses tp hit/damage, if known */
+		if (object_known_p(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
+
+		/* To Melee */
 		if ((i == INVEN_LEFT || i == INVEN_RIGHT) && !p_ptr->ryoute)
 		{
+			/* Apply the bonuses to hit/damage */
 			p_ptr->to_h[i-INVEN_RIGHT] += bonus_to_h;
-			p_ptr->to_h_b += bonus_to_h;
-			p_ptr->to_h_m += bonus_to_h;
 			p_ptr->to_d[i-INVEN_RIGHT] += bonus_to_d;
-			p_ptr->to_d_m += bonus_to_d;
 
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h[i-INVEN_RIGHT] += bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_d[i-INVEN_RIGHT] += bonus_to_d;
+			/* Apply the mental bonuses tp hit/damage, if known */
+			if (object_known_p(o_ptr))
+			{
+				p_ptr->dis_to_h[i-INVEN_RIGHT] += bonus_to_h;
+				p_ptr->dis_to_d[i-INVEN_RIGHT] += bonus_to_d;
+			}
 		}
 		else if (p_ptr->migite && p_ptr->hidarite)
 		{
 			/* Apply the bonuses to hit/damage */
 			p_ptr->to_h[0] += (bonus_to_h > 0) ? (bonus_to_h+1)/2 : bonus_to_h;
 			p_ptr->to_h[1] += (bonus_to_h > 0) ? bonus_to_h/2 : bonus_to_h;
-			p_ptr->to_h_b  += bonus_to_h;
-			p_ptr->to_h_m  += bonus_to_h;
 			p_ptr->to_d[0] += (bonus_to_d > 0) ? (bonus_to_d+1)/2 : bonus_to_d;
 			p_ptr->to_d[1] += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
-			p_ptr->to_d_m  += bonus_to_d;
 
 			/* Apply the mental bonuses tp hit/damage, if known */
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h[0] += (bonus_to_h > 0) ? (bonus_to_h+1)/2 : bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h[1] += (bonus_to_h > 0) ? bonus_to_h/2 : bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h_b  += bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_d[0] += (bonus_to_d > 0) ? (bonus_to_d+1)/2 : bonus_to_d;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_d[1] += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
+			if (object_known_p(o_ptr))
+			{
+				p_ptr->dis_to_h[0] += (bonus_to_h > 0) ? (bonus_to_h+1)/2 : bonus_to_h;
+				p_ptr->dis_to_h[1] += (bonus_to_h > 0) ? bonus_to_h/2 : bonus_to_h;
+				p_ptr->dis_to_d[0] += (bonus_to_d > 0) ? (bonus_to_d+1)/2 : bonus_to_d;
+				p_ptr->dis_to_d[1] += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
+			}
 		}
 		else
 		{
 			/* Apply the bonuses to hit/damage */
-			if(i != INVEN_LEFT || p_ptr->ryoute) p_ptr->to_h[0] += bonus_to_h;
-			if(i != INVEN_RIGHT) p_ptr->to_h[1] += bonus_to_h;
-			p_ptr->to_h_b  += bonus_to_h;
-			p_ptr->to_h_m  += bonus_to_h;
-			if(i != INVEN_LEFT || p_ptr->ryoute) p_ptr->to_d[0] += bonus_to_d;
-			if(i != INVEN_RIGHT) p_ptr->to_d[1] += bonus_to_d;
-			p_ptr->to_d_m  += bonus_to_d;
+			p_ptr->to_h[0] += bonus_to_h;
+			p_ptr->to_d[0] += bonus_to_d;
 
 			/* Apply the mental bonuses tp hit/damage, if known */
-			if ((i != INVEN_LEFT || p_ptr->ryoute) && object_known_p(o_ptr)) p_ptr->dis_to_h[0] += bonus_to_h;
-			if ((i != INVEN_RIGHT) && object_known_p(o_ptr)) p_ptr->dis_to_h[1] += bonus_to_h;
-			if (object_known_p(o_ptr)) p_ptr->dis_to_h_b  += bonus_to_h;
-			if ((i != INVEN_LEFT || p_ptr->ryoute) && object_known_p(o_ptr)) p_ptr->dis_to_d[0] += bonus_to_d;
-			if ((i != INVEN_RIGHT) && object_known_p(o_ptr)) p_ptr->dis_to_d[1] += bonus_to_d;
+			if (object_known_p(o_ptr))
+			{
+				p_ptr->dis_to_h[0] += bonus_to_h;
+				p_ptr->dis_to_d[0] += bonus_to_d;
+			}
 		}
 	}
 
@@ -4372,12 +4393,6 @@ void calc_bonuses(void)
 		p_ptr->dis_to_h_b += 10;
 	}
 
-	/* Temporary shield */
-	if (p_ptr->tsubureru || p_ptr->shield || p_ptr->magicdef)
-	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
-	}
 	if (p_ptr->magicdef)
 	{
 		p_ptr->resist_blind = TRUE;
@@ -4522,7 +4537,7 @@ void calc_bonuses(void)
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 		}
-		if (easy_2hand)
+		if (easy_2weapon)
 		{
 			if (penalty1 > 0) penalty1 /= 2;
 			if (penalty2 > 0) penalty2 /= 2;
@@ -4683,7 +4698,7 @@ void calc_bonuses(void)
 			if (p_ptr->pclass == CLASS_ARCHER)
 			{
 				if (p_ptr->tval_ammo == TV_ARROW)
-					p_ptr->num_fire += (p_ptr->lev * 6);
+					p_ptr->num_fire += ((p_ptr->lev * 5)+50);
 				else if ((p_ptr->tval_ammo == TV_BOLT) || (p_ptr->tval_ammo == TV_SHOT))
 					p_ptr->num_fire += (p_ptr->lev * 4);
 			}
@@ -5005,6 +5020,11 @@ void calc_bonuses(void)
 			if (blow_base > 31) p_ptr->num_blow[0]++;
 			if (blow_base > 44) p_ptr->num_blow[0]++;
 			if (blow_base > 58) p_ptr->num_blow[0]++;
+			if (p_ptr->magic_num1[0])
+			{
+				p_ptr->to_d[0] += (p_ptr->magic_num1[0]/5);
+				p_ptr->dis_to_d[0] += (p_ptr->magic_num1[0]/5);
+			}
 		}
 		else
 		{
@@ -5450,17 +5470,17 @@ msg_print("バランスがとれるようになった。");
         }
 	while (j)
 	{
+		j--;
 		if (p_ptr->align > 0)
 		{
-			p_ptr->align -= (p_ptr->virtues[j]/2);
+			p_ptr->align -= (p_ptr->virtues[neutral[j]]/2);
 			if (p_ptr->align < 0) p_ptr->align = 0;
 		}
 		else if (p_ptr->align < 0)
 		{
-			p_ptr->align += (p_ptr->virtues[j]/2);
+			p_ptr->align += (p_ptr->virtues[neutral[j]]/2);
 			if (p_ptr->align > 0) p_ptr->align = 0;
 		}
-		j--;
 	}
 	if ((inventory[INVEN_RARM].name1 == ART_IRON_BALL) || (inventory[INVEN_LARM].name1 == ART_IRON_BALL)) p_ptr->align -= 1000;
 	if (prace_is_(RACE_ANGEL)) p_ptr->align += 200;

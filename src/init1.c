@@ -9,18 +9,13 @@
 #undef strchr
 char* _strchr(char* ptr, char ch)
 {
-  int k_flag = 0;
+	for ( ; *ptr != '\0'; ++ptr)
+	{
+		if (*ptr == ch)	return ptr;
+		if (iskanji(*ptr)) ++ptr;
+	}
 
-  for ( ; *ptr != '\0'; ++ptr)
-    if (k_flag == 0) {
-      if (*ptr == ch)
-	return ptr;
-      if (iskanji(*ptr))
-	k_flag = 1;
-    } else
-      k_flag = 0;
-
-  return NULL;
+	return NULL;
 }
 #define strchr _strchr
 #endif
@@ -90,6 +85,7 @@ static cptr r_info_blow_method[] =
 	"INSULT",
 	"MOAN",
 	"SHOW",
+	"SHOOT",
 	NULL
 };
 
@@ -263,10 +259,10 @@ static cptr r_info_flags4[] =
 	"XXX1",
 	"DISPEL",
 	"ROCKET",
-	"ARROW_1",
-	"ARROW_2",
-	"ARROW_3",
-	"ARROW_4",
+	"SHOOT",
+	"XXX2",
+	"XXX3",
+	"XXX4",
 	"BR_ACID",
 	"BR_ELEC",
 	"BR_FIRE",
@@ -504,7 +500,7 @@ static cptr k_info_flags1[] =
 	"CON",
 	"CHR",
 	"MAGIC_MASTERY",
-	"FORCE_WEPON",
+	"FORCE_WEAPON",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
@@ -583,7 +579,7 @@ static cptr k_info_flags3[] =
 	"NO_MAGIC",
 	"DEC_MANA",
 	"TY_CURSE",
-	"XXX1",
+	"WARNING",
 	"HIDE_TYPE",
 	"SHOW_MODS",
 	"INSTA_ART",
@@ -2989,6 +2985,10 @@ static errr parse_line_feature(char *buf)
 						letter[index].monster = atoi(zz[3]);
 					}
 				}
+				else if (zz[3][0] == 'c')
+				{
+					letter[index].monster = - atoi(zz[3]+1);
+				}
 				else
 				{
 					letter[index].monster = atoi(zz[3]);
@@ -3257,6 +3257,17 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			}
 			else if (monster_index)
 			{
+				int old_cur_num, old_max_num;
+				bool clone = FALSE;
+
+				if (monster_index < 0)
+				{
+					monster_index = -monster_index;
+					clone = TRUE;
+				}
+				old_cur_num = r_info[monster_index].cur_num;
+				old_max_num = r_info[monster_index].max_num;
+
 				/* Make alive again */
 				if (r_info[monster_index].flags1 & RF1_UNIQUE)
 				{
@@ -3275,6 +3286,15 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				/* Place it */
 				place_monster_aux(*y, *x, monster_index, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE);
+				if (clone)
+				{
+					/* clone */
+					m_list[hack_m_idx_ii].smart |= SM_CLONED;
+
+					/* Make alive again for real unique monster */
+					r_info[monster_index].cur_num = old_cur_num;
+					r_info[monster_index].max_num = old_max_num;
+				}
 			}
 
 			/* Object (and possible trap) */
@@ -3286,7 +3306,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				 * Random trap and random treasure defined
 				 * 25% chance for trap and 75% chance for object
 				 */
-				if (rand_int(100) < 75)
+				if (randint0(100) < 75)
 				{
 					place_object(*y, *x, FALSE, FALSE);
 				}
@@ -3302,9 +3322,9 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				object_level = base_level + object_index;
 
 				/* Create an out of deep object */
-				if (rand_int(100) < 75)
+				if (randint0(100) < 75)
 					place_object(*y, *x, FALSE, FALSE);
-				else if (rand_int(100) < 80)
+				else if (randint0(100) < 80)
 					place_object(*y, *x, TRUE, FALSE);
 				else
 					place_object(*y, *x, TRUE, TRUE);
@@ -3342,7 +3362,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				if (a_info[artifact_index].cur_num)
 				{
-					s16b k_idx = 198;
+					int k_idx = 198;
 					object_type forge;
 					object_type *q_ptr = &forge;
 

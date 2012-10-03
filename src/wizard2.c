@@ -33,14 +33,14 @@ void do_cmd_rerate(bool display)
 
 		for (i = 1; i < 4; i++)
 		{
-			j = randint(p_ptr->hitdie);
+			j = randint1(p_ptr->hitdie);
 			player_hp[0] += j;
 		}
 
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
-			player_hp[i] = randint(p_ptr->hitdie);
+			player_hp[i] = randint1(p_ptr->hitdie);
 			player_hp[i] += player_hp[i - 1];
 		}
 
@@ -185,18 +185,19 @@ static void prt_binary(u32b flags, int row, int col)
 }
 
 
+#define K_MAX_DEPTH 110
+
 /*
  * Output a rarity graph for a type of object.
  */
 static void prt_alloc(byte tval, byte sval, int row, int col)
 {
 	int i, j;
-	int lev;
 	int home = 0;
-	u32b maxd = 1, maxr = 1, maxt = 1;
-	u32b rarity[MAX_DEPTH];
-	u32b total[MAX_DEPTH];
-	u32b display[20];
+	u32b maxr = 1, maxt = 1, ratio;
+	u32b rarity[K_MAX_DEPTH];
+	u32b total[K_MAX_DEPTH];
+	s32b maxd = 1, display[22];
 	byte c = TERM_WHITE;
 	cptr r = "+--common--+";
 	object_kind *k_ptr;
@@ -206,89 +207,114 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 	alloc_entry *table = alloc_kind_table;
 
 	/* Wipe the tables */
-	(void)C_WIPE(rarity, MAX_DEPTH, u32b);
-	(void)C_WIPE(total, MAX_DEPTH, u32b);
-	(void)C_WIPE(display, 20, u32b);
+	(void)C_WIPE(rarity, K_MAX_DEPTH, u32b);
+	(void)C_WIPE(total, K_MAX_DEPTH, u32b);
+	(void)C_WIPE(display, 22, s32b);
 
 	/* Scan all entries */
-	for (i = 0; i < MAX_DEPTH; i++)
+	for (i = 0; i < K_MAX_DEPTH; i++)
 	{
-		/* Base level */
-		lev = ((i * (GREAT_OBJ - 1)) + (1 + i * 5433L / 1000)) / GREAT_OBJ;
-
+		int total_frac = 0;
 		for (j = 0; j < alloc_kind_size; j++)
 		{
-			/* Objects are sorted by depth */
-			if (table[j].level > lev) break;
+			int prob = 0;
+
+			if (table[j].level <= i)
+			{
+				prob = table[j].prob1 * GREAT_OBJ * K_MAX_DEPTH;
+			}
+			else if (table[j].level - 1 > 0)
+			{
+				prob = table[j].prob1 * i * K_MAX_DEPTH / (table[j].level - 1);
+			}
 
 			/* Acquire this kind */
 			k_ptr = &k_info[table[j].index];
 
 			/* Accumulate probabilities */
-			total[i] += table[j].prob1;
+			total[i] += prob / (GREAT_OBJ * K_MAX_DEPTH);
+			total_frac += prob % (GREAT_OBJ * K_MAX_DEPTH);
 
 			/* Accumulate probabilities */
 			if ((k_ptr->tval == tval) && (k_ptr->sval == sval))
 			{
 				home = k_ptr->level;
-				rarity[i] += table[j].prob1;
+				rarity[i] += prob;
 			}
 		}
+		total[i] += total_frac / (GREAT_OBJ * K_MAX_DEPTH);
 	}
 
 	/* Find maxima */
-	for (i = 0; i < MAX_DEPTH; i++)
+	for (i = 0; i < K_MAX_DEPTH; i++)
 	{
 		if (rarity[i] > maxr) maxr = rarity[i];
 		if (total[i] > maxt) maxt = total[i];
 	}
 
+	if (maxr / (GREAT_OBJ * K_MAX_DEPTH) != 0)
+		ratio = maxt / (maxr / (GREAT_OBJ * K_MAX_DEPTH));
+	else
+		ratio = 99999L;
+
 	/* Simulate a log graph */
-	if (maxt / maxr > 32)
+	if (ratio > 1000)
 	{
 		c = TERM_L_WHITE;
 		r = "+-uncommon-+";
 	}
-	if (maxt / maxr > 1024)
+	if (ratio > 3000)
 	{
 		c = TERM_SLATE;
 		r = "+---rare---+";
 	}
-	if (maxt / maxr > 32768L)
+	if (ratio > 32768L)
 	{
 		c = TERM_L_DARK;
-		r = "+--unique--+";
+		r = "+-VeryRare-+";
 	}
 
 	/* Calculate probabilities for each range */
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < 22; i++)
 	{
 		/* Shift the values into view */
-		for (j = i * MAX_DEPTH / 20; j < (i + 1) * MAX_DEPTH / 20; j++)
-		{
-			display[i] += rarity[j] * maxt * 10 / total[j];
-		}
 
-		/* Correct proportions */
-		display[i] /= maxr;
+		int possibility = 0;
+		for (j = i * K_MAX_DEPTH / 22; j < (i + 1) * K_MAX_DEPTH / 22; j++)
+			possibility += rarity[j] * (100 * maxt / total[j]);
+
+		possibility = possibility / maxr;
+
+		/* display[i] = log_{sqrt(2)}(possibility) */
+		display[i] = 0;
+		while (possibility)
+		{
+			display[i]++;
+			possibility = possibility * 1000 / 1414;
+		}
 
 		/* Track maximum */
 		if (display[i] > maxd) maxd = display[i];
 	}
 
 	/* Normalize */
-	for (i = 0; i < 20; i++)
+	if (maxd > 10) for (i = 0; i < 22; i++)
 	{
-		display[i] = display[i] * 10 / maxd;
+		display[i] = display[i] - maxd + 10;
 	}
 
 	/* Graph the rarities */
-	for (i = 0; i < 20; i++)
+	for (i = 0; i < 22; i++)
 	{
 		Term_putch(col, row + i + 1, TERM_WHITE,  '|');
 
+		prt(format("%d", (i * K_MAX_DEPTH / 220) % 10), row + i + 1, col);
+
+		if (display[i] <= 0) 
+			continue;
+
 		/* Note the level */
-		if ((i * MAX_DEPTH / 20 <= home) && (home < (i + 1) * MAX_DEPTH / 20))
+		if ((i * K_MAX_DEPTH / 22 <= home) && (home < (i + 1) * K_MAX_DEPTH / 22))
 		{
 			c_prt(TERM_RED, format("%.*s", display[i], "**********"), row + i + 1, col + 1);
 		}
@@ -300,16 +326,6 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 
 	/* Make it look nice */
 	prt(r, row, col);
-
-	Term_putch(col, row + 2, TERM_WHITE,  '6');
-
-	Term_putch(col, row + 8, TERM_WHITE,  'A');
-	Term_putch(col, row + 9, TERM_WHITE,  'L');
-	Term_putch(col, row + 10, TERM_WHITE, 'L');
-	Term_putch(col, row + 11, TERM_WHITE, 'O');
-	Term_putch(col, row + 12, TERM_WHITE, 'C');
-
-	prt("+", row + 21, col);
 }
 
 
@@ -526,7 +542,7 @@ static void wiz_display_item(object_type *o_ptr)
 	/* Clear the screen */
 	for (i = 1; i <= 23; i++) prt("", i, j - 2);
 
-	prt_alloc(o_ptr->tval, o_ptr->sval, 2, 0);
+	prt_alloc(o_ptr->tval, o_ptr->sval, 1, 0);
 
 	/* Describe fully */
 	object_desc_store(buf, o_ptr, TRUE, 3);
@@ -1462,18 +1478,8 @@ static void do_cmd_wiz_jump(void)
 
 	if (!dun_level) dungeon_type = 0;
 	p_ptr->inside_arena = FALSE;
-	leaving_quest = p_ptr->inside_quest;
 
-	/* Leaving an 'only once' quest marks it as failed */
-	if (leaving_quest &&
-		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-	{
-		quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		quest[leaving_quest].complev = (byte)p_ptr->lev;
-		if (record_fix_quest)
-			do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
-	}
+	leave_quest_check();
 
 	if (record_stair) do_cmd_write_nikki(NIKKI_WIZ_TELE,0,NULL);
 

@@ -295,7 +295,7 @@ static bool use_mane(int spell)
 	int             dir;
 	int             plev = p_ptr->lev;
 	bool    unique_okay = FALSE;
-	if (randint(50+plev) < plev/10) unique_okay = TRUE;
+	if (randint1(50+plev) < plev/10) unique_okay = TRUE;
 
 
 	/* spell code */
@@ -364,8 +364,7 @@ else msg_print("ロケットを発射した。");
 		
 			fire_rocket(GF_ROCKET, dir, damage, 2);
 		break;
-	case MS_ARROW_1:
-	case MS_ARROW_2:
+	case MS_SHOOT:
 		if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
 else msg_print("矢を放った。");
@@ -375,16 +374,11 @@ else msg_print("矢を放った。");
 		
 			fire_bolt(GF_ARROW, dir, damage);
 		break;
-	case MS_ARROW_3:
-	case MS_ARROW_4:
-		if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-else msg_print("ボルトを撃った。");
-#else
-			else msg_print("You fires a bolt.");
-#endif
-		
-			fire_bolt(GF_ARROW, dir, damage);
+	case MS_XXX2:
+		break;
+	case MS_XXX3:
+		break;
+	case MS_XXX4:
 		break;
 	case MS_BR_ACID:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -718,7 +712,7 @@ else msg_print("暗黒の嵐の呪文を念じた。");
 		break;
 	case MS_DRAIN_MANA:
 		if (!get_aim_dir(&dir)) return FALSE;
-		fire_ball_hide(GF_DRAIN_MANA, dir, randint(plev*3)+plev, 0);
+		fire_ball_hide(GF_DRAIN_MANA, dir, randint1(plev*3)+plev, 0);
 		break;
 	case MS_MIND_BLAST:
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -887,7 +881,7 @@ else msg_print("誘惑的な幻覚をつくり出した。");
 		sleep_monster(dir);
 		break;
 	case MS_SPEED:
-		(void)set_fast(randint(20 + plev) + plev, FALSE);
+		(void)set_fast(randint1(20 + plev) + plev, FALSE);
 		break;
 	case MS_HAND_DOOM:
 	{
@@ -917,7 +911,7 @@ msg_print("無傷の球の呪文を唱えた。");
 #else
 			msg_print("You casts a Globe of Invulnerability.");
 #endif
-		(void)set_invuln(randint(7) + 7, FALSE);
+		(void)set_invuln(randint1(7) + 7, FALSE);
 		break;
 	case MS_BLINK:
 		teleport_player(10);
@@ -943,7 +937,7 @@ msg_print("無傷の球の呪文を唱えた。");
 			msg_print("hek!");
 		msg_print(NULL);
 
-		p_ptr->energy += (randint(200)+1200);
+		p_ptr->energy += (randint1(200)+1200);
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -1000,7 +994,7 @@ msg_format("%sの足を指さした。", m_name);
 			msg_format("You gestures at %s's feet.", m_name);
 #endif
 
-		if ((r_ptr->flags3 & RF3_RES_TELE) || (r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint(50) > plev + randint(60)))
+		if ((r_ptr->flags3 & RF3_RES_TELE) || (r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
 		{
 #ifdef JP
 msg_print("しかし効果がなかった！");
@@ -1009,7 +1003,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 		}
-		else if (randint(2) == 1)
+		else if (one_in_(2))
 		{
 #ifdef JP
 msg_format("%sは床を突き破って沈んでいった。", m_name);
@@ -1090,7 +1084,7 @@ msg_print("援軍を召喚した。");
 	case MS_S_CYBER:
 	{
 		int k;
-		int max_cyber = (dun_level / 50) + randint(3);
+		int max_cyber = (dun_level / 50) + randint1(3);
 		if (!target_set(TARGET_KILL)) return FALSE;
 #ifdef JP
 msg_print("サイバーデーモンを召喚した！");
@@ -1263,7 +1257,7 @@ msg_print("古代ドラゴンを召喚した！");
 		int k;
 		if (!target_set(TARGET_KILL)) return FALSE;
 #ifdef JP
-msg_print("アンバーの王を召喚した！");
+msg_print("アンバーの王族を召喚した！");
 #else
 			msg_print("You summons Lords of Amber!");
 #endif
@@ -1364,7 +1358,7 @@ msg_print("まねられるものが何もない！");
 	if (chance > 95) chance = 95;
 
 	/* Failed spell */
-	if (rand_int(100) < chance)
+	if (randint0(100) < chance)
 	{
 		if (flush_failure) flush();
 #ifdef JP

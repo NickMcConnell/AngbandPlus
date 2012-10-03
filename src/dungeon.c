@@ -110,7 +110,7 @@ static void sense_inventory_aux(int slot, bool heavy)
 	if (!feel) return;
 
 	/* Bad luck */
-	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !rand_int(13))
+	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !randint0(13))
 	{
 		switch (feel)
 		{
@@ -126,17 +126,17 @@ static void sense_inventory_aux(int slot, bool heavy)
 			}
 			case FEEL_CURSED:
 			{
-				feel = rand_int(3) ? FEEL_GOOD : FEEL_AVERAGE;
+				feel = randint0(3) ? FEEL_GOOD : FEEL_AVERAGE;
 				break;
 			}
 			case FEEL_AVERAGE:
 			{
-				feel = rand_int(2) ? FEEL_CURSED : FEEL_GOOD;
+				feel = randint0(2) ? FEEL_CURSED : FEEL_GOOD;
 				break;
 			}
 			case FEEL_GOOD:
 			{
-				feel = rand_int(3) ? FEEL_CURSED : FEEL_AVERAGE;
+				feel = randint0(3) ? FEEL_CURSED : FEEL_AVERAGE;
 				break;
 			}
 			case FEEL_EXCELLENT:
@@ -235,7 +235,7 @@ static void sense_inventory1(void)
 		case CLASS_CAVALRY:
 		{
 			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			if (0 != randint0(9000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -247,7 +247,7 @@ static void sense_inventory1(void)
 		case CLASS_SMITH:
 		{
 			/* Good sensing */
-			if (0 != rand_int(6000L / (plev * plev + 50))) return;
+			if (0 != randint0(6000L / (plev * plev + 50))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -262,7 +262,7 @@ static void sense_inventory1(void)
 		case CLASS_MAGIC_EATER:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
+			if (0 != randint0(240000L / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -272,7 +272,7 @@ static void sense_inventory1(void)
 		case CLASS_BARD:
 		{
 			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
+			if (0 != randint0(10000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -282,7 +282,7 @@ static void sense_inventory1(void)
 		case CLASS_NINJA:
 		{
 			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(20000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -294,7 +294,7 @@ static void sense_inventory1(void)
 		case CLASS_RANGER:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(95000L / (plev * plev + 40))) return;
+			if (0 != randint0(95000L / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -306,7 +306,7 @@ static void sense_inventory1(void)
 		case CLASS_PALADIN:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(77777L / (plev * plev + 40))) return;
+			if (0 != randint0(77777L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -319,7 +319,7 @@ static void sense_inventory1(void)
 		case CLASS_RED_MAGE:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(75000L / (plev * plev + 40))) return;
+			if (0 != randint0(75000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -329,7 +329,7 @@ static void sense_inventory1(void)
 		case CLASS_MIRROR_MASTER:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(55000L / (plev * plev + 40))) return;
+			if (0 != randint0(55000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -338,7 +338,7 @@ static void sense_inventory1(void)
 		case CLASS_CHAOS_WARRIOR:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
+			if (0 != randint0(80000L / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -351,7 +351,7 @@ static void sense_inventory1(void)
 		case CLASS_FORCETRAINER:
 		{
 			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(20000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -360,7 +360,7 @@ static void sense_inventory1(void)
 		case CLASS_TOURIST:
 		{
 			/* Good sensing */
-			if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
+			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -373,7 +373,7 @@ static void sense_inventory1(void)
 		case CLASS_BLUE_MAGE:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(55000L / (plev * plev + 40))) return;
+			if (0 != randint0(55000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -382,7 +382,7 @@ static void sense_inventory1(void)
 		case CLASS_BEASTMASTER:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(65000L / (plev * plev + 40))) return;
+			if (0 != randint0(65000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -441,10 +441,10 @@ static void sense_inventory1(void)
 		if (!okay) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_RARM) && (0 != rand_int(5))) continue;
+		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
 
 		/* Good luck */
-		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !rand_int(13))
+		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !randint0(13))
 		{
 			heavy = TRUE;
 		}
@@ -486,7 +486,7 @@ static void sense_inventory2(void)
 		case CLASS_NINJA:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
+			if (0 != randint0(240000L / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -498,7 +498,7 @@ static void sense_inventory2(void)
 		case CLASS_MONK:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(95000L / (plev * plev + 40))) return;
+			if (0 != randint0(95000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -511,7 +511,7 @@ static void sense_inventory2(void)
 		case CLASS_MINDCRAFTER:
 		{
 			/* Good sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(20000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -525,7 +525,7 @@ static void sense_inventory2(void)
 		case CLASS_BLUE_MAGE:
 		{
 			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			if (0 != randint0(9000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -534,7 +534,7 @@ static void sense_inventory2(void)
 		case CLASS_TOURIST:
 		{
 			/* Good sensing */
-			if (0 != rand_int(20000L / ((plev+50)*(plev+50)))) return;
+			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
 
 			/* Done */
 			break;
@@ -570,7 +570,7 @@ static void sense_inventory2(void)
 		if (!okay) continue;
 
 		/* Occasional failure on inventory items */
-		if ((i < INVEN_RARM) && (0 != rand_int(5))) continue;
+		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
 
 		sense_inventory_aux(i, TRUE);
 	}
@@ -694,7 +694,7 @@ take_hit(DAMAGE_NOESCAPE, damroll(10, 8), "¥Ñ¥¿¡¼¥óÂ»²õ", -1);
 #endif
 
 
-	to_ruin = randint(45) + 35;
+	to_ruin = randint1(45) + 35;
 
 	while (to_ruin--)
 	{
@@ -719,7 +719,7 @@ static bool pattern_effect(void)
 		return FALSE;
 
 	if ((prace_is_(RACE_AMBERITE)) &&
-	    (p_ptr->cut > 0) && (randint(10) == 1))
+	    (p_ptr->cut > 0) && one_in_(10))
 	{
 		wreck_the_pattern();
 	}
@@ -777,7 +777,7 @@ take_hit(DAMAGE_NOESCAPE, 200, "²õ¤ì¤¿¡Ö¥Ñ¥¿¡¼¥ó¡×¤òÊâ¤¤¤¿¥À¥á¡¼¥¸", -1);
 	}
 	else
 	{
-		if ((prace_is_(RACE_AMBERITE)) && (randint(2) != 1))
+		if ((prace_is_(RACE_AMBERITE)) && !one_in_(2))
 			return TRUE;
 		else if (!p_ptr->invuln)
 #ifdef JP
@@ -978,7 +978,7 @@ static void regen_monsters(void)
 			frac = m_ptr->maxhp / 100;
 
 			/* Hack -- Minimal regeneration rate */
-			if (!frac) if (randint(2) == 1) frac = 1;
+			if (!frac) if (one_in_(2)) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
 			if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
@@ -1028,7 +1028,7 @@ static void regen_captured_monsters(void)
 			frac = o_ptr->xtra5 / 100;
 
 			/* Hack -- Minimal regeneration rate */
-			if (!frac) if (randint(2) == 1) frac = 1;
+			if (!frac) if (one_in_(2)) frac = 1;
 
 			/* Hack -- Some monsters regenerate quickly */
 			if (r_ptr->flags2 & RF2_REGENERATE) frac *= 2;
@@ -1107,6 +1107,30 @@ msg_print("ÌÀ¤«¤ê¤¬Èù¤«¤Ë¤Ê¤Ã¤Æ¤­¤Æ¤¤¤ë¡£");
 		msg_print("Your light is growing faint.");
 #endif
 
+	}
+}
+
+
+void leave_quest_check(void)
+{
+	/* Save quset number for dungeon pref file ($LEAVING_QUEST) */
+	leaving_quest = p_ptr->inside_quest;
+
+	/* Leaving an 'only once' quest marks it as failed */
+	if (leaving_quest &&
+	    ((quest[leaving_quest].flags & QUEST_FLAG_ONCE)  || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
+	    (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+	{
+		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		quest[leaving_quest].complev = (byte)p_ptr->lev;
+		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
+		{
+			r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
+			if (record_rand_quest)
+				do_cmd_write_nikki(NIKKI_RAND_QUEST_F, leaving_quest, NULL);
+		}
+		else if (record_fix_quest)
+			do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 	}
 }
 
@@ -1230,7 +1254,7 @@ static void gere_music(s32b music)
                         project_hack(GF_TURN_ALL, p_ptr->lev);
                         break;
                 case MUSIC_PSI:
-                        project_hack(GF_PSI, randint(p_ptr->lev * 3 / 2));
+                        project_hack(GF_PSI, randint1(p_ptr->lev * 3 / 2));
                         break;
                 case MUSIC_ID:
                         project(0, 1, py, px, 0, GF_IDENTIFY, PROJECT_ITEM, -1);
@@ -1249,8 +1273,8 @@ static void gere_music(s32b music)
 				0, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE, -1);
                         break;
                 case MUSIC_DISPEL:
-                        dispel_monsters(randint(p_ptr->lev * 3));
-                        dispel_evil(randint(p_ptr->lev * 3));
+                        dispel_monsters(randint1(p_ptr->lev * 3));
+                        dispel_evil(randint1(p_ptr->lev * 3));
                         break;
                 case MUSIC_SARUMAN:
                         slow_monsters();
@@ -1263,7 +1287,7 @@ static void gere_music(s32b music)
                         stasis_monsters(p_ptr->lev * 4);
                         break;
                 case MUSIC_SHERO:
-                        dispel_monsters(randint(p_ptr->lev * 3));
+                        dispel_monsters(randint1(p_ptr->lev * 3));
                         break;
                 case MUSIC_H_LIFE:
                         hp_player(damroll(15,10));
@@ -1713,7 +1737,7 @@ if (cheat_xtra) msg_print("Êó½·¤ò¥ê¥»¥Ã¥È");
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-	if ((rand_int(d_info[dungeon_type].max_m_alloc_chance) == 0) &&
+	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
 	    !p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
 	{
 		/* Make a new monster */
@@ -1796,13 +1820,13 @@ sprintf(ouch, "%s¤òÁõÈ÷¤·¤¿¥À¥á¡¼¥¸", o_name);
 	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
 		!p_ptr->invuln && !p_ptr->immune_fire && !p_ptr->ffall)
 	{
-		int damage = 3000 + rand_int(2000);
+		int damage = 3000 + randint0(2000);
 
 		if (prace_is_(RACE_ENT)) damage += damage/3;
 
 		if (p_ptr->resist_fire) damage = damage / 3;
 		if (p_ptr->oppose_fire) damage = damage / 3;
-		damage = damage / 100 + (rand_int(100) < (damage % 100));
+		damage = damage / 100 + (randint0(100) < (damage % 100));
 
 		if (damage)
 		{
@@ -1822,7 +1846,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "Àõ¤¤ÍÏ´äÎ®", -1);
 	else if ((cave[py][px].feat == FEAT_DEEP_LAVA) &&
 		!p_ptr->invuln && !p_ptr->immune_fire)
 	{
-		int damage = 6000 + rand_int(4000);
+		int damage = 6000 + randint0(4000);
 
 		cptr message;
 		cptr hit_from;
@@ -1855,7 +1879,7 @@ hit_from = "¿¼¤¤ÍÏ´äÎ®";
 
 		}
 
-		damage = damage / 100 + (rand_int(100) < (damage % 100));
+		damage = damage / 100 + (randint0(100) < (damage % 100));
 		if (damage)
 		{
 			/* Take damage */
@@ -1873,10 +1897,10 @@ hit_from = "¿¼¤¤ÍÏ´äÎ®";
 			/* Take damage */
 #ifdef JP
 msg_print("Å®¤ì¤Æ¤¤¤ë¡ª");
-take_hit(DAMAGE_NOESCAPE, randint(p_ptr->lev), "Å®¤ì", -1);
+take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "Å®¤ì", -1);
 #else
 			msg_print("You are drowning!");
-			take_hit(DAMAGE_NOESCAPE, randint(p_ptr->lev), "drowning", -1);
+			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "drowning", -1);
 #endif
 
 			cave_no_regen = TRUE;
@@ -2216,7 +2240,7 @@ if (!p_ptr->invuln) take_hit(DAMAGE_LOSELIFE, i, "¶õÊ¢", -1);
 		if ((p_ptr->food < PY_FOOD_FAINT) && !p_ptr->inside_battle)
 		{
 			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (rand_int(100) < 10))
+			if (!p_ptr->paralyzed && (randint0(100) < 10))
 			{
 				/* Message */
 #ifdef JP
@@ -2228,7 +2252,7 @@ msg_print("¤¢¤Þ¤ê¤Ë¤â¶õÊ¢¤Çµ¤Àä¤·¤Æ¤·¤Þ¤Ã¤¿¡£");
 				disturb(1, 0);
 
 				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
 			}
 		}
 	}
@@ -2302,6 +2326,7 @@ msg_print("¤³¤ó¤Ê¤ËÂ¿¤¯¤Î¥Ú¥Ã¥È¤òÀ©¸æ¤Ç¤­¤Ê¤¤¡ª");
 #else
 			msg_print("Such much pets cannot be controled at once!");
 #endif
+			msg_print(NULL);
 			do_cmd_pet_dismiss();
 
 			upkeep_factor = calculate_upkeep();
@@ -2661,7 +2686,7 @@ msg_print("¤³¤ó¤Ê¤ËÂ¿¤¯¤Î¥Ú¥Ã¥È¤òÀ©¸æ¤Ç¤­¤Ê¤¤¡ª");
 	/*** Process mutation effects ***/
 	if (p_ptr->muta2 && !p_ptr->inside_battle && !p_ptr->wild_mode)
 	{
-		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000) == 1))
+		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
 		{
 			disturb(0, 0);
 #ifdef JP
@@ -2672,10 +2697,10 @@ msg_print("·ãÅÜ¤ÎÈ¯ºî¤Ë½±¤ï¤ì¤¿¡ª");
 			msg_print("You feel a fit of rage coming over you!");
 #endif
 
-			(void)set_shero(10 + randint(p_ptr->lev), FALSE);
+			(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
 		}
 
-		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint(3000) == 13))
+		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
 		{
 			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
 			{
@@ -2686,11 +2711,11 @@ msg_print("¤È¤Æ¤â°Å¤¤... ¤È¤Æ¤â¶²¤¤¡ª");
 				msg_print("It's so dark... so scary!");
 #endif
 
-				set_afraid(p_ptr->afraid + 13 + randint(26));
+				set_afraid(p_ptr->afraid + 13 + randint1(26));
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint(5000) == 88))
+		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint1(5000) == 88))
 		{
 			if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
 			    !p_ptr->anti_tele)
@@ -2709,7 +2734,7 @@ msg_print("¤¢¤Ê¤¿¤Î°ÌÃÖ¤ÏÆÍÁ³¤Ò¤¸¤ç¤¦¤ËÉÔ³ÎÄê¤Ë¤Ê¤Ã¤¿...");
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint(6400) == 321))
+		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint1(6400) == 321))
 		{
 			if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
 			{
@@ -2725,7 +2750,7 @@ msg_print("¤¤¤Ò¤­¤¬¤â¡¼¤í¡¼¤È¤Ò¤Æ¤­¤¿¤­¤¬¤Õ¤ë...¥Ò¥Ã¥¯¡ª");
 
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 15);
+				(void)set_confused(p_ptr->confused + randint0(20) + 15);
 			}
 
 			if (!p_ptr->resist_chaos)
@@ -2756,23 +2781,23 @@ msg_print("¤­¡Á¤ì¤¤¤Ê¤Á¤ç¤ª¤Á¤ç¤é¤È¤ó¤ì¤¤¤ë¡Á");
 						msg_print("Thishcischs GooDSChtuff!");
 #endif
 
-						(void)set_image(p_ptr->image + rand_int(150) + 150);
+						(void)set_image(p_ptr->image + randint0(150) + 150);
 					}
 				}
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_HALLU) && (randint(6400) == 42))
+		if ((p_ptr->muta2 & MUT2_HALLU) && (randint1(6400) == 42))
 		{
 			if (!p_ptr->resist_chaos)
 			{
 				disturb(0, 0);
 				p_ptr->redraw |= PR_EXTRA;
-				(void)set_image(p_ptr->image + rand_int(50) + 20);
+				(void)set_image(p_ptr->image + randint0(50) + 20);
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint(3000) == 13))
+		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint1(3000) == 13))
 		{
 			disturb(0, 0);
 
@@ -2787,7 +2812,7 @@ msg_print("¥Ö¥¥¡¼¡¼¥Ã¡ª¤ª¤Ã¤È¡£");
 		}
 
 		if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
-		    !p_ptr->anti_magic && (randint(9000) == 1))
+		    !p_ptr->anti_magic && one_in_(9000))
 		{
 			int dire = 0;
 			disturb(0, 0);
@@ -2804,9 +2829,9 @@ msg_print("ËâË¡¤Î¥¨¥Í¥ë¥®¡¼¤¬ÆÍÁ³¤¢¤Ê¤¿¤ÎÃæ¤ËÎ®¤ì¹þ¤ó¤Ç¤­¤¿¡ª¥¨¥Í¥ë¥®¡¼¤ò²òÊü¤·¤
 		}
 
 		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
-		    !p_ptr->anti_magic && (randint(6666) == 666))
+		    !p_ptr->anti_magic && (randint1(6666) == 666))
 		{
-			bool pet = (randint(6) == 1);
+			bool pet = one_in_(6);
 			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px,
@@ -2822,10 +2847,10 @@ msg_print("¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤ò°ú¤­´ó¤»¤¿¡ª");
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && (randint(6000) == 1))
+		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && one_in_(6000))
 		{
 			disturb(0, 0);
-			if (randint(2) == 1)
+			if (one_in_(2))
 			{
 #ifdef JP
 msg_print("ÀºÎÏÅª¤Ç¤Ê¤¯¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
@@ -2839,7 +2864,7 @@ msg_print("ÀºÎÏÅª¤Ç¤Ê¤¯¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
 				}
 				else
 				{
-					set_slow(randint(30) + 10, FALSE);
+					set_slow(randint1(30) + 10, FALSE);
 				}
 			}
 			else
@@ -2856,12 +2881,12 @@ msg_print("ÀºÎÏÅª¤Ë¤Ê¤Ã¤¿µ¤¤¬¤¹¤ë¡£");
 				}
 				else
 				{
-					set_fast(randint(30) + 10, FALSE);
+					set_fast(randint1(30) + 10, FALSE);
 				}
 			}
 			msg_print(NULL);
 		}
-		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && (randint(9000) == 1))
+		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && one_in_(9000))
 		{
 			disturb(0, 0);
 #ifdef JP
@@ -2879,7 +2904,7 @@ msg_print("Å¹¤Î¼ç¿Í¤¬µÖ¤Ë¸þ¤«¤Ã¤ÆÁö¤Ã¤Æ¤¤¤ë¡ª");
 				msg_print("You see one of the shopkeepers running for the hills!");
 #endif
 
-				store_shuffle(rand_int(MAX_STORES));
+				store_shuffle(randint0(MAX_STORES));
 			}
 			msg_print(NULL);
 		}
@@ -2938,7 +2963,7 @@ msg_print("¸÷¸»¤«¤é¥¨¥Í¥ë¥®¡¼¤òµÛ¼ý¤·¤¿¡ª");
 		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
 		   !p_ptr->anti_magic && one_in_(7000))
 		{
-			bool pet = (randint(3) == 1);
+			bool pet = one_in_(3);
 			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL,
@@ -2987,7 +3012,7 @@ msg_print("ÈóÊª¼Á²½¤·¤¿¡ª");
 #endif
 
 			msg_print(NULL);
-			set_wraith_form(randint(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+			set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
 		}
 		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
 		{
@@ -2995,7 +3020,7 @@ msg_print("ÈóÊª¼Á²½¤·¤¿¡ª");
 		}
 		if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
 		{
-			int which_stat = rand_int(6);
+			int which_stat = randint0(6);
 			int sustained = FALSE;
 
 			switch (which_stat)
@@ -3038,13 +3063,13 @@ msg_print("¼«Ê¬¤¬¿ê¼å¤·¤Æ¤¤¤¯¤Î¤¬Ê¬¤«¤ë¡ª");
 #endif
 
 				msg_print(NULL);
-				(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+				(void)dec_stat(which_stat, randint1(6) + 6, one_in_(3));
 			}
 		}
 		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
 		   !p_ptr->anti_magic && one_in_(3000))
 		{
-			bool pet = (randint(5) == 1);
+			bool pet = one_in_(5);
 			bool not_pet = (bool)(!pet);
 
 			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON,
@@ -3176,7 +3201,7 @@ msg_print("ÌµÅ¨¤Êµ¤¤¬¤¹¤ë¡ª");
 #endif
 
 			msg_print(NULL);
-			(void)set_invuln(randint(8) + 8, FALSE);
+			(void)set_invuln(randint1(8) + 8, FALSE);
 		}
 		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
 		{
@@ -3225,10 +3250,10 @@ take_hit(DAMAGE_LOSELIFE, healing, "Æ¬¤Ë¾º¤Ã¤¿·ì", -1);
 			disturb(0, 0);
 #ifdef JP
 msg_print("Â­¤¬¤â¤Ä¤ì¤ÆÅ¾¤ó¤À¡ª");
-take_hit(DAMAGE_NOESCAPE, randint(p_ptr->wt / 6), "Å¾ÅÝ", -1);
+take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "Å¾ÅÝ", -1);
 #else
 			msg_print("You trip over your own feet!");
-			take_hit(DAMAGE_NOESCAPE, randint(p_ptr->wt / 6), "tripping", -1);
+			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "tripping", -1);
 #endif
 
 
@@ -3262,7 +3287,7 @@ msg_print("Éð´ï¤òÍî¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 	/* Handle experience draining */
 	if (p_ptr->exp_drain)
 	{
-		if (rand_int(100) < 25)
+		if (randint0(100) < 25)
 		{
 			p_ptr->exp -= (p_ptr->lev+1)/2;
 			if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -3273,7 +3298,7 @@ msg_print("Éð´ï¤òÍî¤·¤Æ¤·¤Þ¤Ã¤¿¡ª");
 	}
 
 	/* Rarely, take damage from the Jewel of Judgement */
-	if ((randint(999) == 1) && !p_ptr->anti_magic)
+	if (one_in_(999) && !p_ptr->anti_magic)
 	{
 		if ((inventory[INVEN_LITE].tval) &&
 		    (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
@@ -3304,7 +3329,7 @@ take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "¿³È½¤ÎÊõÀÐ", -1);
 		if (!p_ptr->inside_battle)
 		{
 			/* TY Curse */
-			if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE) == 1))
+			if ((f3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
 			{
 				int count = 0;
 
@@ -3312,7 +3337,7 @@ take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "¿³È½¤ÎÊõÀÐ", -1);
 			}
 
 			/* Make a chainsword noise */
-			if ((o_ptr->name1 == ART_CHAINSWORD) && randint(CHAINSWORD_NOISE) == 1)
+			if ((o_ptr->name1 == ART_CHAINSWORD) && one_in_(CHAINSWORD_NOISE))
 			{
 				char noise[1024];
 #ifdef JP
@@ -3329,7 +3354,7 @@ if (!get_rnd_line("chainswd_j.txt", 0, noise))
 			 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
 			 * can actually be useful!
 			 */
-			if ((f3 & TR3_TELEPORT) && (rand_int(100) < 1))
+			if ((f3 & TR3_TELEPORT) && (randint0(100) < 1))
 			{
 				if ((o_ptr->ident & IDENT_CURSED) && !p_ptr->anti_tele)
 				{
@@ -3497,24 +3522,7 @@ msg_print("¾å¤Ë°ú¤ÃÄ¥¤ê¤¢¤²¤é¤ì¤ë´¶¤¸¤¬¤¹¤ë¡ª");
 				dun_level = 0;
 				dungeon_type = 0;
 
-				leaving_quest = p_ptr->inside_quest;
-
-				/* Leaving an 'only once' quest marks it as failed */
-				if (leaving_quest &&
-					((quest[leaving_quest].flags & QUEST_FLAG_ONCE)  || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
-					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-				{
-					quest[leaving_quest].status = QUEST_STATUS_FAILED;
-					quest[leaving_quest].complev = (byte)p_ptr->lev;
-					if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
-					{
-						r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
-						if (record_rand_quest)
-							do_cmd_write_nikki(NIKKI_RAND_QUEST_F, leaving_quest, NULL);
-					}
-					else if (record_fix_quest)
-						do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
-				}
+				leave_quest_check();
 
 				p_ptr->inside_quest = 0;
 				p_ptr->leaving = TRUE;
@@ -3537,7 +3545,7 @@ msg_print("²¼¤Ë°ú¤­¤º¤ê¹ß¤í¤µ¤ì¤ë´¶¤¸¤¬¤¹¤ë¡ª");
 				if (dun_level < 1) dun_level = 1;
 
 				/* Nightmare mode makes recall more dangerous */
-				if (ironman_nightmare && !rand_int(666) && (dungeon_type == DUNGEON_ANGBAND))
+				if (ironman_nightmare && !randint0(666) && (dungeon_type == DUNGEON_ANGBAND))
 				{
 					if (dun_level < 50)
 					{
@@ -3765,6 +3773,7 @@ static void process_command(void)
 
 		/* Ignore return */
 		case '\r':
+		case '\n':
 		{
 			break;
 		}
@@ -4688,7 +4697,7 @@ msg_print("¥¢¥ê¡¼¥Ê¤¬ËâË¡¤òµÛ¼ý¤·¤¿¡ª");
 		default:
 		{
 			if (flush_failure) flush();
-			if (randint(2) == 1)
+			if (one_in_(2))
 			{
 				char error_m[1024];
 				sound(SOUND_ILLEGAL);
@@ -4771,7 +4780,7 @@ msg_print("²¿¤«ÊÑ¤ï¤Ã¤¿µ¤¤¬¤¹¤ë¡ª");
 	}
 
 	/* Give the player some energy */
-	else if((rand_int(60) < ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ? 1 : extract_energy[p_ptr->pspeed]))) && !(load && p_ptr->energy >= 100))
+	else if((randint0(60) < ((p_ptr->pspeed > 199) ? 49 : ((p_ptr->pspeed < 0) ? 1 : extract_energy[p_ptr->pspeed]))) && !(load && p_ptr->energy >= 100))
 		p_ptr->energy += gain_energy();
 
 	/* No turn yet */
@@ -4907,7 +4916,7 @@ msg_format("%^s¤òµ¯¤³¤·¤¿¡£", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
+			if (randint0(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -4947,7 +4956,7 @@ msg_format("%^s¤òÛ¯Û°¾õÂÖ¤«¤éÎ©¤ÁÄ¾¤é¤»¤¿¡£", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
+			if (randint0(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -4987,7 +4996,7 @@ msg_format("%^s¤òº®Íð¾õÂÖ¤«¤éÎ©¤ÁÄ¾¤é¤»¤¿¡£", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
+			if (randint0(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;
@@ -5042,6 +5051,7 @@ msg_format("%^s¤ò¶²ÉÝ¤«¤éÎ©¤ÁÄ¾¤é¤»¤¿¡£", m_name);
 			p_ptr->magic_num1[0] = 0;
 		}
 		else p_ptr->magic_num1[0] -= 40;
+		p_ptr->update |= (PU_BONUS);
 	}
 	if (p_ptr->action == ACTION_LEARN)
 	{
@@ -5808,26 +5818,27 @@ msg_print("»î¹ç³«»Ï¡ª");
 		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
 	}
 
-	if (alive) {
-		if (p_ptr->riding)
-		{
-			COPY(&riding_mon, &m_list[p_ptr->riding], monster_type);
-		}
-		else
-		{
-			riding_mon.r_idx = 0;
-		}
-		for(num = 0; num < 20; num++)
+	/* Not save-and-quit and not dead? */
+	if (alive && !death)
+	{
+		for(num = 0; num < 21; num++)
 		{
 			party_mon[num].r_idx = 0;
 		}
-		for(i = m_max - 1, num = 0; (i >= 1 && num < 20); i--)
+
+		if (p_ptr->riding)
+		{
+			COPY(&party_mon[0], &m_list[p_ptr->riding], monster_type);
+		}
+
+		for(i = m_max - 1, num = 1; (i >= 1 && num < 21); i--)
 		{
 			monster_type *m_ptr = &m_list[i];
 			
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
 			if (i == p_ptr->riding) continue;
+
 			if (m_ptr->nickname && (player_has_los_bold(m_ptr->fy, m_ptr->fx) || los(m_ptr->fy, m_ptr->fx, py, px)))
 			{
 				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 3) continue;
@@ -5837,6 +5848,7 @@ msg_print("»î¹ç³«»Ï¡ª");
 				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 1) continue;
 			}
 			if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+
 			COPY(&party_mon[num], &m_list[i], monster_type);
 			delete_monster_idx(i);
 			num++;
@@ -5858,7 +5870,6 @@ msg_print("»î¹ç³«»Ï¡ª");
 			}
 		}
 	}
-	if (p_ptr->riding) p_ptr->riding = -1;
 
 	write_level = TRUE;
 }
@@ -6122,10 +6133,10 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 		write_level = TRUE;
 
 		/* Hack -- seed for flavors */
-		seed_flavor = rand_int(0x10000000);
+		seed_flavor = randint0(0x10000000);
 
 		/* Hack -- seed for town layout */
-		seed_town = rand_int(0x10000000);
+		seed_town = randint0(0x10000000);
 
 		/* Roll up a new character */
 		player_birth();
@@ -6202,7 +6213,11 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "                            ---- Restart Game ----");
 #endif
 
-		if (p_ptr->riding)
+/*
+ * 1.0.9 °ÊÁ°¤Ï¥»¡¼¥ÖÁ°¤Ë p_ptr->riding = -1 ¤È¤·¤Æ¤¤¤¿¤Î¤Ç¡¢ºÆÀßÄê¤¬É¬Í×¤À¤Ã¤¿¡£
+ * ¤â¤¦ÉÔÍ×¤À¤¬¡¢°ÊÁ°¤Î¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤È¤Î¸ß´¹¤Î¤¿¤á¤Ë»Ä¤·¤Æ¤ª¤¯¡£
+ */
+		if (p_ptr->riding == -1)
 		{
 			p_ptr->riding = 0;
 			for(i = m_max; i > 0; i--)
@@ -6260,7 +6275,6 @@ quit("¥»¡¼¥Ö¥Õ¥¡¥¤¥ë¤¬²õ¤ì¤Æ¤¤¤Þ¤¹");
 	if (new_game)
 	{
 		wipe_o_list();
-		wipe_m_list();
 		player_outfit();
 	}
 

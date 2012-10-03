@@ -25,7 +25,7 @@ static void perturb_point_mid(int x1, int x2, int x3, int x4,
 	 * tmp is a random int +/- rough
 	 */
 	int tmp2 = rough*2 + 1;
-	int tmp = randint(tmp2) - (rough + 1);
+	int tmp = randint1(tmp2) - (rough + 1);
 
 	int avg = ((x1 + x2 + x3 + x4) / 4) + tmp;
 
@@ -50,7 +50,7 @@ static void perturb_point_end(int x1, int x2, int x3,
 	 * tmp is a random int +/- rough
 	 */
 	int tmp2 = rough * 2 + 1;
-	int tmp = rand_int(tmp2) - rough;
+	int tmp = randint0(tmp2) - rough;
 
 	int avg = ((x1 + x2 + x3) / 3) + tmp;
 
@@ -474,10 +474,10 @@ void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
 	 * ToDo: calculate the medium height of the adjacent
 	 * terrains for every corner.
 	 */
-	cave[1][1].feat = (byte)rand_int(table_size);
-	cave[MAX_HGT-2][1].feat = (byte)rand_int(table_size);
-	cave[1][MAX_WID-2].feat = (byte)rand_int(table_size);
-	cave[MAX_HGT-2][MAX_WID-2].feat = (byte)rand_int(table_size);
+	cave[1][1].feat = (byte)randint0(table_size);
+	cave[MAX_HGT-2][1].feat = (byte)randint0(table_size);
+	cave[1][MAX_WID-2].feat = (byte)randint0(table_size);
+	cave[MAX_HGT-2][MAX_WID-2].feat = (byte)randint0(table_size);
 
 	if (!corner)
 	{
@@ -1098,7 +1098,7 @@ void seed_wilderness(void)
 	{
 		for (y = 0; y < max_wild_y; y++)
 		{
-			wilderness[y][x].seed = rand_int(0x10000000);
+			wilderness[y][x].seed = randint0(0x10000000);
 			wilderness[y][x].entrance = 0;
 		}
 	}
@@ -1134,6 +1134,7 @@ errr init_wilderness(void)
 bool change_wild_mode(void)
 {
 	int i;
+	bool have_pet = FALSE;
 
 	if (lite_town || vanilla_town)
 	{
@@ -1151,6 +1152,7 @@ bool change_wild_mode(void)
 			monster_type *m_ptr = &m_list[i];
 
 			if (!m_ptr->r_idx) continue;
+			if (is_pet(m_ptr) && i != p_ptr->riding) have_pet = TRUE;
 			if (m_ptr->csleep) continue;
 			if (m_ptr->cdis > MAX_SIGHT) continue;
 			if (!is_hostile(m_ptr)) continue;
@@ -1162,6 +1164,20 @@ bool change_wild_mode(void)
 			energy_use = 0;
 			return FALSE;
 		}
+
+		if (have_pet)
+		{
+#ifdef JP
+			if(!get_check_strict("ペットを置いて広域マップに入りますか？", 1))
+#else
+			if(!get_check_strict("Do you leave your pets behind? ", 1))
+#endif
+			{
+				energy_use = 0;
+				return FALSE;
+			}
+		}
+			
 		energy_use = 1000;
 	}
 

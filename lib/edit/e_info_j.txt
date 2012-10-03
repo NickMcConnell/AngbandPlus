@@ -271,7 +271,7 @@ F:LITE | RES_LITE
 N:33:テレパシーの
 E:of Telepathy
 X:33:20
-W:0:36:0:15000
+W:0:18:0:15000
 F:TELEPATHY
 
 N:34:急速回復の
@@ -570,7 +570,7 @@ X:24:15
 W:0:18:0:12000
 C:3:3:0:2
 F:INT | WIS |
-F:FORCE_WEPON | SEE_INVIS
+F:FORCE_WEAPON | SEE_INVIS
 
 # The "Elemental" brands (4) (6)
 
@@ -620,11 +620,10 @@ W:0:18:0:5000
 F:VORPAL | TUNNEL
 
 #JZ#
-# rarity is 0, hard coded in object2.c
 N:79:地震の
 E:of Earthquakes
 X:24:20
-W:0:0:0:4000
+W:0:18:0:4000
 C:0:0:0:3
 F:TUNNEL | IMPACT | ACTIVATE
 
@@ -843,7 +842,13 @@ X:23:10
 W:0:18:0:25
 F:SLAY_EVIL
 
-# 114 (unused)
+N:114:聖なる
+E:of Holy Might
+X:23:20
+W:0:36:0:60
+C:5:5:0:0
+F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
+F:IGNORE_FIRE | IGNORE_ACID
 
 # 115 (unused)
 

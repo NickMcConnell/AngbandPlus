@@ -995,30 +995,30 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SHORT_BOW },
 
-		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
 		{ TV_SHOT, SV_AMMO_NORMAL },
 		{ TV_SHOT, SV_AMMO_NORMAL },
-
 		{ TV_ARROW, SV_AMMO_NORMAL },
+
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-
-		{ TV_BOW, SV_LONG_BOW },
 		{ TV_BOW, SV_LIGHT_XBOW },
+
 		{ TV_ARROW, SV_AMMO_NORMAL },
 		{ TV_BOLT, SV_AMMO_NORMAL },
-
 		{ TV_BOW, SV_SHORT_BOW },
+		{ TV_BOW, SV_LIGHT_XBOW },
+
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_TANTO },
 		{ TV_SWORD, SV_RAPIER },
-
 		{ TV_SWORD, SV_SMALL_SWORD },
+
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
+		{ TV_SWORD, SV_BROAD_SWORD },
 
 		{ TV_HISSATSU_BOOK, 0 },
 		{ TV_HISSATSU_BOOK, 0 },
@@ -1686,6 +1686,14 @@ static errr init_other(void)
 			}
 		}
 	}
+
+	/*
+         *  Set the "default" window flags
+	 *  Window 1 : Display messages
+	 *  Window 2 : Display inven/equip
+	 */
+        window_flag[1] = 1L << 6;
+        window_flag[2] = 1L << 0;
 
 
 	/*** Pre-allocate space for the "format()" buffer ***/

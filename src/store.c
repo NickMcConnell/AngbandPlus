@@ -309,17 +309,17 @@ static void say_comment_1(void)
 #ifdef JP
         /* ブラックマーケットのときは別のメッセージを出す */
         if ( cur_store_num == STORE_BLACK ) {
-                msg_print(comment_1_B[rand_int(MAX_COMMENT_1)]);
+                msg_print(comment_1_B[randint0(MAX_COMMENT_1)]);
         }
         else{
-                msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
+                msg_print(comment_1[randint0(MAX_COMMENT_1)]);
         }
 #else
-	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
+	msg_print(comment_1[randint0(MAX_COMMENT_1)]);
 #endif
 
 
-	if (randint(RUMOR_CHANCE) == 1)
+	if (one_in_(RUMOR_CHANCE))
 	{
 #ifdef JP
 msg_print("店主は耳うちした:");
@@ -353,7 +353,7 @@ static void say_comment_2(s32b value, int annoyed)
 	if (annoyed > 0)
 	{
 		/* Formatted message */
-		msg_format(comment_2a[rand_int(MAX_COMMENT_2A)], tmp_val);
+		msg_format(comment_2a[randint0(MAX_COMMENT_2A)], tmp_val);
 	}
 
 	/* Normal offer */
@@ -363,13 +363,13 @@ static void say_comment_2(s32b value, int annoyed)
 #ifdef JP
 		/* ブラックマーケットの時は別のメッセージを出す */
 		if ( cur_store_num == STORE_BLACK ){
-			msg_format(comment_2b_B[rand_int(MAX_COMMENT_2B)], tmp_val);
+			msg_format(comment_2b_B[randint0(MAX_COMMENT_2B)], tmp_val);
 		}
 		else{
-		msg_format(comment_2b[rand_int(MAX_COMMENT_2B)], tmp_val);
+		msg_format(comment_2b[randint0(MAX_COMMENT_2B)], tmp_val);
 	}
 #else
-		msg_format(comment_2b[rand_int(MAX_COMMENT_2B)], tmp_val);
+		msg_format(comment_2b[randint0(MAX_COMMENT_2B)], tmp_val);
 #endif
 
 	}
@@ -390,7 +390,7 @@ static void say_comment_3(s32b value, int annoyed)
 	if (annoyed > 0)
 	{
 		/* Formatted message */
-		msg_format(comment_3a[rand_int(MAX_COMMENT_3A)], tmp_val);
+		msg_format(comment_3a[randint0(MAX_COMMENT_3A)], tmp_val);
 	}
 
 	/* Normal offer */
@@ -400,13 +400,13 @@ static void say_comment_3(s32b value, int annoyed)
 #ifdef JP
 		/* ブラックマーケットの時は別のメッセージを出す */
 		if ( cur_store_num == STORE_BLACK ){
-			msg_format(comment_3b_B[rand_int(MAX_COMMENT_3B)], tmp_val);
+			msg_format(comment_3b_B[randint0(MAX_COMMENT_3B)], tmp_val);
 		}
 		else{
-		msg_format(comment_3b[rand_int(MAX_COMMENT_3B)], tmp_val);
+		msg_format(comment_3b[randint0(MAX_COMMENT_3B)], tmp_val);
 	}
 #else
-		msg_format(comment_3b[rand_int(MAX_COMMENT_3B)], tmp_val);
+		msg_format(comment_3b[randint0(MAX_COMMENT_3B)], tmp_val);
 #endif
 
 	}
@@ -421,16 +421,16 @@ static void say_comment_4(void)
 #ifdef JP
         /* ブラックマーケットの時は別のメッセージを出す */
         if ( cur_store_num == STORE_BLACK ){
-                msg_print(comment_4a_B[rand_int(MAX_COMMENT_4A)]);
-                msg_print(comment_4b_B[rand_int(MAX_COMMENT_4B)]);
+                msg_print(comment_4a_B[randint0(MAX_COMMENT_4A)]);
+                msg_print(comment_4b_B[randint0(MAX_COMMENT_4B)]);
         }
         else{
-                msg_print(comment_4a[rand_int(MAX_COMMENT_4A)]);
-                msg_print(comment_4b[rand_int(MAX_COMMENT_4B)]);
+                msg_print(comment_4a[randint0(MAX_COMMENT_4A)]);
+                msg_print(comment_4b[randint0(MAX_COMMENT_4B)]);
         }
 #else
-	msg_print(comment_4a[rand_int(MAX_COMMENT_4A)]);
-	msg_print(comment_4b[rand_int(MAX_COMMENT_4B)]);
+	msg_print(comment_4a[randint0(MAX_COMMENT_4A)]);
+	msg_print(comment_4b[randint0(MAX_COMMENT_4B)]);
 #endif
 
 }
@@ -444,13 +444,13 @@ static void say_comment_5(void)
 #ifdef JP
         /* ブラックマーケットの時は別のメッセージを出す */
         if ( cur_store_num == STORE_BLACK ){
-                msg_print(comment_5_B[rand_int(MAX_COMMENT_5)]);
+                msg_print(comment_5_B[randint0(MAX_COMMENT_5)]);
         }
         else{
-                msg_print(comment_5[rand_int(MAX_COMMENT_5)]);
+                msg_print(comment_5[randint0(MAX_COMMENT_5)]);
         }
 #else
-	msg_print(comment_5[rand_int(MAX_COMMENT_5)]);
+	msg_print(comment_5[randint0(MAX_COMMENT_5)]);
 #endif
 
 }
@@ -461,7 +461,7 @@ static void say_comment_5(void)
  */
 static void say_comment_6(void)
 {
-	msg_print(comment_6[rand_int(MAX_COMMENT_6)]);
+	msg_print(comment_6[randint0(MAX_COMMENT_6)]);
 }
 
 
@@ -554,7 +554,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	if ((value <= 0) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7a[rand_int(MAX_COMMENT_7A)]);
+		msg_print(comment_7a[randint0(MAX_COMMENT_7A)]);
 
 		chg_virtue(V_HONOUR, -1);
 		chg_virtue(V_JUSTICE, -1);
@@ -567,10 +567,10 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value < guess) && (price > value))
 	{
 		/* Comment */
-		msg_print(comment_7b[rand_int(MAX_COMMENT_7B)]);
+		msg_print(comment_7b[randint0(MAX_COMMENT_7B)]);
 
 		chg_virtue(V_JUSTICE, -1);
-		if (randint(4)==1)
+		if (one_in_(4))
 			chg_virtue(V_HONOUR, -1);
 
 		/* Sound */
@@ -581,11 +581,11 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value > guess) && (value < (4 * guess)) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7c[rand_int(MAX_COMMENT_7C)]);
+		msg_print(comment_7c[randint0(MAX_COMMENT_7C)]);
 
-		if (randint(4)==1)
+		if (one_in_(4))
 			chg_virtue(V_HONOUR, -1);
-		else if (randint(4)==1)
+		else if (one_in_(4))
 			chg_virtue(V_HONOUR, 1);
 
 		/* Sound */
@@ -596,11 +596,11 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	else if ((value > guess) && (price < value))
 	{
 		/* Comment */
-		msg_print(comment_7d[rand_int(MAX_COMMENT_7D)]);
+		msg_print(comment_7d[randint0(MAX_COMMENT_7D)]);
 
-		if (randint(2)==1)
+		if (one_in_(2))
 			chg_virtue(V_HONOUR, -1);
-		if (randint(4)==1)
+		if (one_in_(4))
 			chg_virtue(V_HONOUR, 1);
 
 		if (10 * price < value)
@@ -1067,7 +1067,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_WAND:
 		case TV_STAFF:
 		{
-			if ((cur_store_num == STORE_BLACK) && (randint(3) == 1))
+			if ((cur_store_num == STORE_BLACK) && one_in_(3))
 			{
 				if (cost < 1601L) size += damroll(1, 5);
 				else if (cost < 3201L) size += damroll(1, 3);
@@ -1088,19 +1088,19 @@ static void mass_produce(object_type *o_ptr)
 	{
 		discount = 0;
 	}
-	else if (rand_int(25) == 0)
+	else if (one_in_(25))
 	{
 		discount = 25;
 	}
-	else if (rand_int(150) == 0)
+	else if (one_in_(150))
 	{
 		discount = 50;
 	}
-	else if (rand_int(300) == 0)
+	else if (one_in_(300))
 	{
 		discount = 75;
 	}
-	else if (rand_int(500) == 0)
+	else if (one_in_(500))
 	{
 		discount = 90;
 	}
@@ -1824,16 +1824,16 @@ static void store_delete(void)
 	int what, num;
 
 	/* Pick a random slot */
-	what = rand_int(st_ptr->stock_num);
+	what = randint0(st_ptr->stock_num);
 
 	/* Determine how many items are here */
 	num = st_ptr->stock[what].number;
 
 	/* Hack -- sometimes, only destroy half the items */
-	if (rand_int(100) < 50) num = (num + 1) / 2;
+	if (randint0(100) < 50) num = (num + 1) / 2;
 
 	/* Hack -- sometimes, only destroy a single item */
-	if (rand_int(100) < 50) num = 1;
+	if (randint0(100) < 50) num = 1;
 
 	/* Hack -- decrement the maximum timeouts and total charges of rods and wands. -LM- */
 	if ((st_ptr->stock[what].tval == TV_ROD) || (st_ptr->stock[what].tval == TV_WAND))
@@ -1877,7 +1877,7 @@ static void store_create(void)
 		if (cur_store_num == STORE_BLACK)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 25 + randint0(25);
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1890,7 +1890,7 @@ static void store_create(void)
 		else
 		{
 			/* Hack -- Pick an item to sell */
-			i = st_ptr->table[rand_int(st_ptr->table_num)];
+			i = st_ptr->table[randint0(st_ptr->table_num)];
 
 			/* Hack -- fake level for apply_magic() */
 			level = rand_range(1, STORE_OBJ_LEVEL);
@@ -2452,7 +2452,7 @@ static int increase_insults(void)
 		st_ptr->bad_buy = 0;
 
 		/* Open tomorrow */
-		st_ptr->store_open = turn + 25000 + randint(25000);
+		st_ptr->store_open = turn + 25000 + randint1(25000);
 
 		/* Closed */
 		return (TRUE);
@@ -3421,7 +3421,7 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 				if (st_ptr->stock_num == 0)
 				{
 					/* Shuffle */
-					if (rand_int(STORE_SHUFFLE) == 0)
+					if (one_in_(STORE_SHUFFLE))
 					{
 						char buf[80];
 						/* Message */
@@ -4805,7 +4805,7 @@ void store_shuffle(int which)
 	/* Pick a new owner */
 	while(1)
 	{
-		st_ptr->owner = (byte)rand_int(MAX_OWNERS);
+		st_ptr->owner = (byte)randint0(MAX_OWNERS);
 		if (j == st_ptr->owner) continue;
 		for (i = 1;i < max_towns; i++)
 		{
@@ -4899,7 +4899,7 @@ void store_maint(int town_num, int store_num)
 	j = st_ptr->stock_num;
 
 	/* Sell a few items */
-	j = j - randint(STORE_TURNOVER);
+	j = j - randint1(STORE_TURNOVER);
 
 	/* Never keep more than "STORE_MAX_KEEP" slots */
 	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
@@ -4918,7 +4918,7 @@ void store_maint(int town_num, int store_num)
 	j = st_ptr->stock_num;
 
 	/* Buy some more items */
-	j = j + randint(STORE_TURNOVER);
+	j = j + randint1(STORE_TURNOVER);
 
 	/* Never keep more than "STORE_MAX_KEEP" slots */
 	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
@@ -4956,7 +4956,7 @@ void store_init(int town_num, int store_num)
 	{
 		int i;
 
-		st_ptr->owner = (byte)rand_int(MAX_OWNERS);
+		st_ptr->owner = (byte)randint0(MAX_OWNERS);
 		for (i = 1;i < max_towns; i++)
 		{
 			if (i == town_num) continue;
