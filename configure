@@ -1465,7 +1465,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=hengband
- VERSION=1.5.0
+ VERSION=1.5.1
 
 
 cat >>confdefs.h <<_ACEOF

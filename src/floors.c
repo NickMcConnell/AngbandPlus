@@ -722,18 +722,8 @@ void leave_floor(void)
 		}
 
 		/* Extract level movement number */
-		if (change_floor_mode & CFM_DOWN)
-		{
-			move_num = 1;
-			if (!dun_level)
-				move_num = d_info[c_ptr->special].mindepth;
-		}
-		else if (change_floor_mode & CFM_UP)
-		{
-			move_num = -1;
-			if (dun_level + move_num < d_info[dungeon_type].mindepth)
-				move_num = -dun_level;
-		}
+		if (change_floor_mode & CFM_DOWN) move_num = 1;
+		else if (change_floor_mode & CFM_UP) move_num = -1;
 		
 		/* Mark shaft up/down */
 		if (c_ptr->feat == FEAT_LESS_LESS ||
@@ -743,6 +733,18 @@ void leave_floor(void)
 			move_num += SGN(move_num);
 		}
 
+		/* Get out from or Enter the dungeon */
+		if (change_floor_mode & CFM_DOWN)
+		{
+			if (!dun_level)
+				move_num = d_info[c_ptr->special].mindepth;
+		}
+		else if (change_floor_mode & CFM_UP)
+		{
+			if (dun_level + move_num < d_info[dungeon_type].mindepth)
+				move_num = -dun_level;
+		}
+		
 		dun_level += move_num;
 	}
 
@@ -967,9 +969,6 @@ void change_floor(void)
 					/* Remove slow status */
 					m_ptr->slow = 0;
 
-					/* Remove sleep */
-					m_ptr->csleep = 0;
-
 					/* Remove stun */
 					m_ptr->stunned = 0;
 
@@ -1187,7 +1186,6 @@ void stair_creation(void)
 	bool up = TRUE;
 	bool down = TRUE;
 	s16b dest_floor_id = 0;
-	int i;
 
 
 	/* Forbid up staircases on Ironman mode */

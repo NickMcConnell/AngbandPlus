@@ -549,7 +549,7 @@ s = "読める本がない。";
 			s_ptr = &mp_ptr->info[use_realm - 1][spell];
 		}
 
-		roff_to_buf( spell_tips[technic2magic(use_realm)-1][spell] ,62,temp);
+		roff_to_buf(spell_tips[technic2magic(use_realm)-1][spell] ,62, temp, sizeof(temp));
 		for(j=0, line = 11;temp[j];j+=(1+strlen(&temp[j])))
 		{
 			prt(&temp[j], line, 15);
@@ -5754,6 +5754,9 @@ msg_format("%sを起こした。", m_name);
 		}
 
 		p_ptr->riding = c_ptr->m_idx;
+
+		/* Hack -- remove tracked monster */
+		if (p_ptr->riding == p_ptr->health_who) health_track(0);
 	}
 
 	/* Save the old location */

@@ -547,6 +547,7 @@ extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
 #else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
 #endif /* USE_TRANSPARENCY */
+extern void bigtile_attr(char *cp, byte *ap, char *cp2, byte *ap2);
 extern void move_cursor_relative(int row, int col);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -1189,7 +1190,7 @@ extern void pause_line(int row);
 extern void request_command(int shopping);
 extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch);
-extern void roff_to_buf(cptr str, int wlen, char *tbuf);
+extern void roff_to_buf(cptr str, int wlen, char *tbuf, size_t bufsize);
 
 #ifdef SORT_R_INFO
 extern void tag_sort(tag_type elements[], int number);

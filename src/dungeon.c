@@ -1378,7 +1378,8 @@ static void gere_music(s32b music)
 		case MUSIC_DETECT+8:
 		case MUSIC_DETECT+9:
 		case MUSIC_DETECT+10:
-			detect_treasure(DETECT_RAD_DEFAULT);
+			/* There are too many hidden treasure.  So... */
+			/* detect_treasure(DETECT_RAD_DEFAULT); */
 			detect_objects_gold(DETECT_RAD_DEFAULT);
 			detect_objects_normal(DETECT_RAD_DEFAULT);
 			if ((p_ptr->lev > 24) && (music < MUSIC_DETECT+11)) p_ptr->magic_num1[0] = music+1;
@@ -1425,15 +1426,16 @@ static void recharged_notice(object_type *o_ptr)
 			object_desc(o_name, o_ptr, FALSE, 0);
 
 			/* Notify the player */
-			if (o_ptr->number > 1)
 #ifdef JP
-msg_format("%sは再充填された。", o_name);
-else msg_format("%sは再充填された。", o_name);
+			msg_format("%sは再充填された。", o_name);
 #else
+			if (o_ptr->number > 1)
 				msg_format("Your %s are recharged.", o_name);
-			else msg_format("Your %s is recharged.", o_name);
+			else
+				msg_format("Your %s is recharged.", o_name);
 #endif
 
+			disturb(1, 0);
 
 			/* Done. */
 			return;
@@ -3405,7 +3407,7 @@ msg_print("武器を落してしまった！");
 
 	/*** Process Inventory ***/
 
-	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->wild_mode)
+	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->inside_battle && !p_ptr->wild_mode)
 	{
 		/*
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
@@ -5784,7 +5786,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
  */
 static void dungeon(bool load_game)
 {
-	int quest_num = 0, i;
+	int quest_num = 0;
 
 	/* Set the base level */
 	base_level = dun_level;
@@ -5977,8 +5979,6 @@ msg_print("試合開始！");
 	/* Main loop */
 	while (TRUE)
 	{
-		int i;
-
 		/* Hack -- Compact the monster list occasionally */
 		if ((m_cnt + 32 > max_m_idx) && !p_ptr->inside_battle) compact_monsters(64);
 

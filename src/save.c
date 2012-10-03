@@ -208,7 +208,6 @@ static void wr_monster(monster_type *m_ptr)
 
 	/* Monster race index of its appearance */
 	if (flags & SAVE_MON_AP_R_IDX) wr_s16b(m_ptr->ap_r_idx);
-	else m_ptr->ap_r_idx = m_ptr->r_idx;
 
 	if (flags & SAVE_MON_SUB_ALIGN) wr_byte(m_ptr->sub_align);
 	if (flags & SAVE_MON_CSLEEP) wr_s16b(m_ptr->csleep);
@@ -807,14 +806,10 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 
 	int i, y, x;
 
-	byte tmp8u;
 	u16b tmp16u;
 
 	byte count;
-	byte prev_char;
 	u16b prev_u16b;
-
-	cave_type *c_ptr;
 
 
 	/*** Basic info ***/
@@ -1046,10 +1041,26 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 /*
  * Write the current dungeon (new method)
  */
-static void wr_dungeon(void)
+static bool wr_dungeon(void)
 {
 	saved_floor_type *cur_sf_ptr;
 	int i;
+
+	/* Forget the lite */
+	forget_lite();
+
+	/* Forget the view */
+	forget_view();
+
+	/* Forget the view */
+	clear_mon_lite();
+
+	/* Update lite/view */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
+
+	/* Update monsters */
+	p_ptr->update |= (PU_MONSTERS | PU_DISTANCE | PU_FLOW);
+
 
 	/*** Meta info ***/
 
@@ -1069,7 +1080,8 @@ static void wr_dungeon(void)
 		/* Write the current floor data */
 		wr_saved_floor(NULL);
 
-		return;
+		/* Success */
+		return TRUE;
 	}
 
 
@@ -1095,16 +1107,8 @@ static void wr_dungeon(void)
 	/* Extract pointer to current floor */
 	cur_sf_ptr = get_sf_ptr(p_ptr->floor_id);
 
-
 	/* Save current floor to temporal file */
-	if (!save_floor(cur_sf_ptr, (SLF_SECOND)))
-	{
-		/* Error */
-		/* Hack -- fflush(fff) will notice this error */
-		fclose(fff);
-
-		return;
-	}
+	if (!save_floor(cur_sf_ptr, (SLF_SECOND))) return FALSE;
 
 	/* Move data in temporal files to the savefile */
 	for (i = 0; i < MAX_SAVED_FLOORS; i++)
@@ -1131,14 +1135,10 @@ static void wr_dungeon(void)
 	}
 
 	/* Restore current floor */
-	if (!load_floor(cur_sf_ptr, (SLF_SECOND)))
-	{
-		/* Error */
-		/* Hack -- fflush(fff) will notice this error */
-		fclose(fff);
+	if (!load_floor(cur_sf_ptr, (SLF_SECOND))) return FALSE;
 
-		return;
-	}
+	/* Success */
+	return TRUE;
 }
 
 
@@ -1401,7 +1401,7 @@ static bool wr_savefile_new(void)
 	if (!p_ptr->is_dead)
 	{
 		/* Dump the dungeon */
-		wr_dungeon();
+		if (!wr_dungeon()) return FALSE;
 
 		/* Dump the ghost */
 		wr_ghost();
@@ -2043,6 +2043,9 @@ bool save_floor(saved_floor_type *sf_ptr, u32b mode)
 
 	/* New savefile */
 	sprintf(floor_savefile, "%s.F%02d", savefile, (int)sf_ptr->savefile_id);
+
+	/* Remove it */
+	fd_kill(floor_savefile);
 
 	/* Attempt to save the player */
 

@@ -3423,7 +3423,7 @@ static bool eval_ac(int iAC)
 
 	int protection;
 	int col, row = 2;
-	int lvl, i;
+	int lvl;
 	char buf[80*20], *t;
 
 	/* AC lower than zero has no effect */
@@ -3471,7 +3471,7 @@ static bool eval_ac(int iAC)
 	}
 
 	/* Display note */
-	roff_to_buf(memo, 70, buf);
+	roff_to_buf(memo, 70, buf, sizeof(buf));
 	for (t = buf; t[0]; t += strlen(t) + 1)
 		put_str(t, (row++) + 4, 4);
 
