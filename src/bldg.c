@@ -19,8 +19,6 @@ static bool leave_bldg = FALSE;
 /* remember building location */
 static int building_loc = 0;
 
-static bool reinit_wilderness = FALSE;
-
 static bool is_owner(building_type *bldg)
 {
 	if (bldg->member_class[p_ptr->pclass] == BUILDING_OWNER)
@@ -4098,7 +4096,7 @@ msg_print("お金が足りません！");
 				/* Do nothing */
 		break;
 	case BACT_RESEARCH_ITEM:
-		paid = identify_fully(FALSE, FALSE);
+		paid = identify_fully(FALSE);
 		break;
 	case BACT_TOWN_HISTORY:
 		town_history();
@@ -4166,7 +4164,7 @@ msg_print("お金が足りません！");
 		paid = TRUE;
 		break;
 	case BACT_IDENT_ONE: /* needs work */
-		paid = ident_spell(FALSE, FALSE);
+		paid = ident_spell(FALSE);
 		break;
 	case BACT_LEARN:
 		do_cmd_study();

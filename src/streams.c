@@ -116,6 +116,9 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						else
 							c_ptr->feat = feat1;
 
+                                                /* Clear garbage of hidden trap or door */
+                                                c_ptr->mimic = 0;
+
 						/* Lava terrain glows */
 						if ((feat1 == FEAT_DEEP_LAVA) ||  (feat1 == FEAT_SHAL_LAVA))
 						{
@@ -247,7 +250,7 @@ void build_streamer(int feat, int chance)
 			if ((feat >= FEAT_MAGMA) && (feat <= FEAT_WALL_SOLID))
 			{
 				if (!is_extra_grid(c_ptr) && !is_inner_grid(c_ptr) && !is_outer_grid(c_ptr) && !is_solid_grid(c_ptr)) continue;
-				if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_SECRET)) continue;
+				if (is_closed_door(c_ptr->feat)) continue;
 				if ((feat == FEAT_MAGMA) || (feat == FEAT_QUARTZ)) treasure = TRUE;
 			}
 			else
@@ -257,6 +260,9 @@ void build_streamer(int feat, int chance)
 
 			/* Clear previous contents, add proper vein type */
 			c_ptr->feat = feat;
+
+                        /* Paranoia: Clear mimic field */
+                        c_ptr->mimic = 0;
 
 			/* Hack -- Add some (known) treasure */
 			if (treasure && one_in_(chance)) c_ptr->feat += 0x04;
@@ -305,7 +311,6 @@ void place_trees(int x, int y)
 			c_ptr = &cave[j][i];
 
 			if (c_ptr->info & CAVE_ICKY) continue;
-			if (c_ptr->info & CAVE_TRAP) continue;
 			if (c_ptr->o_idx) continue;
 
 			/* Want square to be in the circle and accessable. */
@@ -324,6 +329,9 @@ void place_trees(int x, int y)
 				{
 					cave[j][i].feat = FEAT_RUBBLE;
 				}
+
+                                /* Clear garbage of hidden trap or door */
+                                c_ptr->mimic = 0;
 
 				/* Light area since is open above */
 				cave[j][i].info |= (CAVE_GLOW | CAVE_ROOM);
@@ -420,6 +428,9 @@ if (cheat_room) msg_print("ÇË²õ¤µ¤ì¤¿³¬");
 						/* Create floor */
 						place_floor_grid(c_ptr);
 					}
+
+                                        /* Clear garbage of hidden trap or door */
+                                        c_ptr->mimic = 0;
 
 					/* No longer part of a room or vault */
 					c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);

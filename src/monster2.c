@@ -16,7 +16,6 @@
 #define HORDE_NOEVIL 0x02
 
 bool is_kage = FALSE;
-u16b horde_align = 0;
 
 cptr horror_desc[MAX_SAN_HORROR] =
 {
@@ -862,6 +861,11 @@ static bool summon_specific_aux(int r_idx)
                                 (r_ptr->flags8 & RF8_WILD_ONLY));
 			break;
 		}
+		case SUMMON_PIRANHAS:
+		{
+			okay = (r_idx == MON_PIRANHA);
+			break;
+		}
 	}
 
 	/* Result */
@@ -889,10 +893,12 @@ static bool restrict_monster_to_dungeon(int r_idx)
 	}
 	if (d_ptr->flags1 & DF1_NO_MAGIC)
 	{
-		if (r_idx == MON_CHAMELEON) return TRUE;
-		if (r_ptr->freq_spell && !(r_ptr->flags4 & RF4_NOMAGIC_MASK) && !(r_ptr->flags5 & RF5_NOMAGIC_MASK) && !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
+		if (r_idx != MON_CHAMELEON &&
+                    r_ptr->freq_spell && 
+                    !(r_ptr->flags4 & RF4_NOMAGIC_MASK) &&
+                    !(r_ptr->flags5 & RF5_NOMAGIC_MASK) &&
+                    !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
 			return FALSE;
-		else return TRUE;
 	}
 	if (d_ptr->flags1 & DF1_NO_MELEE)
 	{
@@ -901,13 +907,11 @@ static bool restrict_monster_to_dungeon(int r_idx)
 		    !(r_ptr->flags5 & (RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_MIND_BLAST | RF5_BRAIN_SMASH)) &&
 		    !(r_ptr->flags6 & (RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK)))
 			return FALSE;
-		else return TRUE;
 	}
 	if (d_ptr->flags1 & DF1_BEGINNER)
 	{
 		if (r_ptr->level > dun_level)
 			return FALSE;
-		else return TRUE;
 	}
 
 	if (d_ptr->special_div == 64) return TRUE;
@@ -2865,12 +2869,6 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
-#if 0
-	/* Hack -- no creation on glyph of warding */
-	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
-	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
-#endif
-
 	/* Nor on the Pattern */
 	if ((cave[y][x].feat >= FEAT_PATTERN_START)
 	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
@@ -2939,7 +2937,7 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	/* Access the location */
 	c_ptr = &cave[y][x];
 
-	if (c_ptr->feat == FEAT_GLYPH)
+	if (is_glyph_grid(c_ptr))
 	{
 		if (randint1(BREAK_GLYPH) < (r_ptr->level+20))
 		{
@@ -2958,7 +2956,8 @@ msg_print("守りのルーンが壊れた！");
 			c_ptr->info &= ~(CAVE_MARK);
 
 			/* Break the rune */
-			c_ptr->feat = floor_type[randint0(100)];
+                        c_ptr->info &= ~(CAVE_OBJECT);
+                        c_ptr->mimic = 0;
 
 			/* Notice */
 			note_spot(y, x);
@@ -3260,7 +3259,7 @@ msg_print("守りのルーンが壊れた！");
 		}
 	}
 
-	if (c_ptr->feat == FEAT_MINOR_GLYPH)
+	if (is_explosive_rune_grid(c_ptr))
 	{
 		/* Break the ward */
 		if (randint1(BREAK_MINOR_GLYPH) > r_ptr->level)
@@ -3290,7 +3289,9 @@ msg_print("爆発のルーンは解除された。");
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Break the rune */
-		c_ptr->feat = floor_type[randint0(100)];
+                c_ptr->info &= ~(CAVE_OBJECT);
+                c_ptr->mimic = 0;
+
 		note_spot(y, x);
 		lite_spot(y, x);
 	}
@@ -3333,13 +3334,7 @@ static bool mon_scatter(int *yp, int *xp, int y, int x, int max_dist)
 			if (!cave_empty_bold2(ny, nx)) continue;
 			if (cave[ny][nx].m_idx) continue;
 			if ((ny == py) && (nx == px)) continue;
-			
-#if 0
-			/* Hack -- no summon on glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-#endif
-			
+						
 			/* ... nor on the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
 			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2))
@@ -3668,9 +3663,6 @@ bool alloc_horde(int y, int x)
 	}
 	if (attempts < 1) return FALSE;
 
-	if (r_ptr->flags3 & RF3_GOOD) horde_align |= HORDE_NOEVIL;
-	if (r_ptr->flags3 & RF3_EVIL) horde_align |= HORDE_NOGOOD;
-
 	attempts = 1000;
 
 	while (--attempts)
@@ -3679,7 +3671,7 @@ bool alloc_horde(int y, int x)
 		if (place_monster_aux(0, y, x, r_idx, 0L)) break;
 	}
 
-	if (attempts < 1) {horde_align = 0;return FALSE;}
+	if (attempts < 1) return FALSE;
 
 	m_idx = cave[y][x].m_idx;
 
@@ -3696,7 +3688,6 @@ bool alloc_horde(int y, int x)
 		x = cx;
 	}
 
-	horde_align = 0;
 	return TRUE;
 }
 
@@ -3870,9 +3861,6 @@ static bool summon_specific_okay(int r_idx)
 	    (((p_ptr->align > 9) && (r_ptr->flags3 & RF3_EVIL)) ||
 	     ((p_ptr->align < -9) && (r_ptr->flags3 & RF3_GOOD))))
 		return FALSE;
-
-	if ((horde_align & HORDE_NOGOOD) && (r_ptr->flags3 & RF3_GOOD)) return FALSE;
-	if ((horde_align & HORDE_NOEVIL) && (r_ptr->flags3 & RF3_EVIL)) return FALSE;
 
 	if ((r_ptr->flags7 & RF7_CHAMELEON) && (d_info[dungeon_type].flags1 & DF1_CHAMELEON)) return TRUE;
 

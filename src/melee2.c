@@ -551,7 +551,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 		if (!(((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall)) || (r_ptr->flags2 & RF2_KILL_WALL)))
 		{
 			if (cost == 0) continue;
-			if (!can_open_door && (c_ptr->feat >= FEAT_DOOR_HEAD && c_ptr->feat <= FEAT_SECRET)) continue;
+			if (!can_open_door && is_closed_door(c_ptr->feat)) continue;
 		}
 
 		/* Hack -- for kill or pass wall monster.. */
@@ -722,7 +722,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 {
 	int y, x, y1, x1, fy, fx, gy = 0, gx = 0;
-	int dist = 0, score = -1;
+	int score = -1;
 	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -750,7 +750,8 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 		/* Ignore locations off of edge */
 		if (!in_bounds2(y, x)) continue;
 
-		if (cave[y][x].dist < dist) continue;
+		/* Don't move toward player */
+		/* if (cave[y][x].dist < 3) continue; */ /* Hmm.. Need it? */
 
 		/* Calculate distance of this grid from our destination */
 		dis = distance(y, x, y1, x1);
@@ -765,7 +766,6 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 		if (s < score) continue;
 
 		/* Save the score and time */
-		dist = cave[y][x].dist;
 		score = s;
 
 		/* Save the location */
@@ -944,7 +944,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 
 	sint *y_offsets;
 	sint *x_offsets;
-	
+
 	cave_type *c_ptr;
 
 	/* Start with adjacent locations, spread further */
@@ -953,7 +953,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 		/* Get the lists of points with a distance d from (fx, fy) */
 		y_offsets = dist_offsets_y[d];
 		x_offsets = dist_offsets_x[d];
-		
+
 		/* Check the locations */
 		for (i = 0, dx = x_offsets[0], dy = y_offsets[0];
 		     dx != 0 || dy != 0;
@@ -961,7 +961,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 		{
 			y = fy + dy;
 			x = fx + dx;
-			
+
 			/* Skip illegal locations */
 			if (!in_bounds(y, x)) continue;
 
@@ -974,16 +974,16 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!stupid_monsters && !(m_ptr->mflag2 & MFLAG_NOFLOW))
 			{
 				/* Ignore grids very far from the player */
-				if (c_ptr->when < cave[py][px].when) continue;
+				if (c_ptr->dist == 0) continue;
 
 				/* Ignore too-distant grids */
 				if (c_ptr->dist > cave[fy][fx].dist + 2 * d) continue;
 			}
 			
 			/* Check for absence of shot (more or less) */
-			if (clean_shot(fy, fx, y, x, FALSE))
+			if (!player_has_los_grid(c_ptr))
 			{
-							
+
 				/* Calculate distance from player */
 				dis = distance(y, x, py, px);
 
@@ -992,20 +992,13 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 				{
 					gy = y;
 					gx = x;
-					if (!player_has_los_grid(c_ptr))
-					{
-						gdis = dis * 5;
-					}
-					else
-					{
-						gdis = dis;
-					}
+					gdis = dis;
 				}
 			}
 		}
 
 		/* Check for success */
-		if (gdis > d + m_ptr->cdis)
+		if (gdis > 0)
 		{
 			/* Good location */
 			(*yp) = fy - gy;
@@ -1017,13 +1010,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 	}
 
 	/* No safe place */
-	
-	/* Save farthest location from player in LOS of monster */
-	(*yp) = fy - gy;
-	(*xp) = fx - gx;
-	
-	/* Hack - return TRUE anyway. */
-	return (TRUE);
+	return (FALSE);
 }
 
 
@@ -1232,21 +1219,25 @@ static bool get_moves(int m_idx, int *mm)
 	{
 		if (!done && will_run)
 		{
+			int tmp_x = (-x);
+			int tmp_y = (-y);
+
 			/* Try to find safe place */
-			if (!find_safety(m_idx, &y, &x))
-			{
-				/* This is not a very "smart" method XXX XXX */
-				y = (-y);
-				x = (-x);
-			}
-			else
+			if (find_safety(m_idx, &y, &x))
 			{
 				/* Attempt to avoid the player */
 				if (!stupid_monsters && !no_flow)
 				{
 					/* Adjust movement */
-					(void)get_fear_moves_aux(m_idx, &y, &x);
+					if (get_fear_moves_aux(m_idx, &y, &x)) done = TRUE;
 				}
+			}
+
+			if (!done)
+			{
+				/* This is not a very "smart" method XXX XXX */
+				y = tmp_y;
+				x = tmp_x;
 			}
 		}
 	}
@@ -3166,16 +3157,14 @@ msg_print("ギシギシいう音が聞こえる。");
 			c_ptr->info &= ~(CAVE_MARK);
 
 			/* Notice */
-			c_ptr->feat = floor_type[randint0(100)];
+                        cave_set_feat(ny, nx, floor_type[randint0(100)]);
 
 			/* Note changes to viewable region */
 			if (player_has_los_bold(ny, nx)) do_view = TRUE;
 		}
 
 		/* Handle doors and secret doors */
-		else if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		          (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-		          (c_ptr->feat == FEAT_SECRET))
+		else if (is_closed_door(c_ptr->feat))
 		{
 			bool may_bash = TRUE;
 
@@ -3186,9 +3175,8 @@ msg_print("ギシギシいう音が聞こえる。");
 			if ((r_ptr->flags2 & RF2_OPEN_DOOR) &&
 				 (!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_OPEN_DOORS)))
 			{
-				/* Closed doors and secret doors */
-				if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
-					(c_ptr->feat == FEAT_SECRET))
+				/* Closed doors */
+				if (c_ptr->feat == FEAT_DOOR_HEAD)
 				{
 					/* The door is open */
 					did_open_door = TRUE;
@@ -3273,7 +3261,7 @@ msg_print("ドアを叩き開ける音がした！");
 		}
 
 		/* Hack -- check for Glyph of Warding */
-		if (do_move && (c_ptr->feat == FEAT_GLYPH) &&
+		if (do_move && is_glyph_grid(c_ptr) &&
 		    !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
 		{
 			/* Assume no move allowed */
@@ -3297,7 +3285,8 @@ msg_print("守りのルーンが壊れた！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Break the rune */
-				c_ptr->feat = floor_type[randint0(100)];
+                                c_ptr->info &= ~(CAVE_OBJECT);
+                                c_ptr->mimic = 0;
 
 				/* Allow movement */
 				do_move = TRUE;
@@ -3306,7 +3295,7 @@ msg_print("守りのルーンが壊れた！");
 				note_spot(ny, nx);
 			}
 		}
-		else if (do_move && (c_ptr->feat == FEAT_MINOR_GLYPH) &&
+		else if (do_move && is_explosive_rune_grid(c_ptr) &&
 		         !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
 		{
 			/* Assume no move allowed */
@@ -3343,7 +3332,9 @@ msg_print("爆発のルーンは解除された。");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Break the rune */
-				c_ptr->feat = floor_type[randint0(100)];
+                                c_ptr->info &= ~(CAVE_OBJECT);
+                                c_ptr->mimic = 0;
+
 				note_spot(ny, nx);
 				lite_spot(ny, nx);
 
@@ -3478,7 +3469,8 @@ msg_print("爆発のルーンは解除された。");
 			{
 				if (r_ptr->flags2 & RF2_KILL_WALL)
 				{
-					c_ptr->feat = FEAT_GRASS;
+                                        cave_set_feat(ny, nx, FEAT_GRASS);
+
 				}
 				if (!(r_ptr->flags7 & RF7_CAN_FLY) && !(r_ptr->flags8 & RF8_WILD_WOOD))
 				{
@@ -3773,6 +3765,9 @@ msg_format("%^sは戦いを決意した！", m_name);
 #else
 			msg_format("%^s turns to fight!", m_name);
 #endif
+
+			/* Redraw (later) if needed */
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			chg_virtue(V_COMPASSION, -1);
 		}

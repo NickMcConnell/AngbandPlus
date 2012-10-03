@@ -178,8 +178,8 @@ static bool alloc_stairs(int feat, int num, int walls)
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(y, x) < walls) continue;
 
-                                /* No hidden trap on stairs */
-                                c_ptr->info &= ~CAVE_TRAP;
+                                /* Clear possible garbage of hidden trap */
+                                c_ptr->mimic = 0;
 
 				/* Clear previous contents, add stairs */
 				if (i < more_num) c_ptr->feat = feat+0x07;
@@ -371,7 +371,7 @@ static void try_door(int y, int x)
 	if (!in_bounds(y, x)) return;
 
 	/* Ignore walls */
-	if (cave[y][x].feat >= FEAT_MAGMA) return;
+	if (!cave_floor_bold(y, x)) return;
 
 	/* Ignore room grids */
 	if (cave[y][x].info & (CAVE_ROOM)) return;
@@ -692,6 +692,9 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 
 				/* Type 13 -- Trapped monster pit (5%) */
 				if ((k < 37) && room_build(y, x, 13)) continue;
+
+				/* Type 14 -- Trapped room (5%) */
+				if ((k < 42) && room_build(y, x, 14)) continue;
 #endif
 
 			}
@@ -1502,10 +1505,13 @@ static void place_pet(void)
 		if (m_idx)
 		{
 			monster_type *m_ptr = &m_list[m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *r_ptr;
 			
 			cave[cy][cx].m_idx = m_idx;
+
 			m_ptr->r_idx = party_mon[i].r_idx;
+                        r_ptr = &r_info[m_ptr->r_idx];
+
 			m_ptr->ap_r_idx = party_mon[i].ap_r_idx;
 			m_ptr->sub_align = party_mon[i].sub_align;
 			m_ptr->fy = cy;

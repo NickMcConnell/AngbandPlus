@@ -572,7 +572,7 @@ msg_print("クエストを達成した！");
 	if (create_stairs)
 	{
 		/* Stagger around */
-		while (cave_perma_bold(y, x) || cave[y][x].o_idx || (cave[y][x].info & CAVE_IN_MIRROR) )
+		while (cave_perma_bold(y, x) || cave[y][x].o_idx || (cave[y][x].info & CAVE_OBJECT) )
 		{
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, 1, 0);
@@ -591,9 +591,6 @@ msg_print("魔法の階段が現れた...");
 
 		/* Create stairs down */
 		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Delete invisible trap */
-		cave[y][x].info &= ~(CAVE_TRAP);
 
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
@@ -2813,59 +2810,62 @@ static bool target_set_accept(int y, int x)
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
+                byte feat;
+
+                /* Feature code (applying "mimic" field) */
+                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+
 		/* Notice glyphs */
-		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
-		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-		if ((c_ptr->info & CAVE_IN_MIRROR)) return (TRUE);
+		if (c_ptr->info & CAVE_OBJECT) return (TRUE);
 
 		/* Notice the Pattern */
-		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-		    (c_ptr->feat >= FEAT_PATTERN_START))
+		if ((feat <= FEAT_PATTERN_XTRA2) &&
+		    (feat >= FEAT_PATTERN_START))
 			return (TRUE);
 
 		/* Notice doors */
-		if (c_ptr->feat == FEAT_OPEN) return (TRUE);
-		if (c_ptr->feat == FEAT_BROKEN) return (TRUE);
+		if (feat == FEAT_OPEN) return (TRUE);
+		if (feat == FEAT_BROKEN) return (TRUE);
 
 		/* Notice stairs */
-		if (c_ptr->feat == FEAT_LESS) return (TRUE);
-		if (c_ptr->feat == FEAT_MORE) return (TRUE);
-		if (c_ptr->feat == FEAT_LESS_LESS) return (TRUE);
-		if (c_ptr->feat == FEAT_MORE_MORE) return (TRUE);
+		if (feat == FEAT_LESS) return (TRUE);
+		if (feat == FEAT_MORE) return (TRUE);
+		if (feat == FEAT_LESS_LESS) return (TRUE);
+		if (feat == FEAT_MORE_MORE) return (TRUE);
 
 		/* Notice shops */
-		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-		    (c_ptr->feat <= FEAT_SHOP_TAIL)) return (TRUE);
+		if ((feat >= FEAT_SHOP_HEAD) &&
+		    (feat <= FEAT_SHOP_TAIL)) return (TRUE);
 
-		if (c_ptr->feat == FEAT_MUSEUM) return (TRUE);
+		if (feat == FEAT_MUSEUM) return (TRUE);
 
 		/* Notice buildings -KMW- */
-		if ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
-		    (c_ptr->feat <= FEAT_BLDG_TAIL)) return (TRUE);
+		if ((feat >= FEAT_BLDG_HEAD) &&
+		    (feat <= FEAT_BLDG_TAIL)) return (TRUE);
 
 		/* Notice traps */
-		if (is_trap(c_ptr->feat)) return (TRUE);
+		if (is_trap(feat)) return (TRUE);
 
 		/* Notice doors */
-		if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		    (c_ptr->feat <= FEAT_DOOR_TAIL)) return (TRUE);
+		if ((feat >= FEAT_DOOR_HEAD) &&
+		    (feat <= FEAT_DOOR_TAIL)) return (TRUE);
 
 		/* Notice rubble */
 		/* I think FEAT_RUBBLEs should not be "interesting" */
 #if 0
-		if (c_ptr->feat == FEAT_RUBBLE) return (TRUE);
+		if (feat == FEAT_RUBBLE) return (TRUE);
 #endif
 		/* Notice veins with treasure */
-		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
-		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
+		if (feat == FEAT_MAGMA_K) return (TRUE);
+		if (feat == FEAT_QUARTZ_K) return (TRUE);
 
 		/* Notice quest features */
-		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_EXIT) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_DOWN) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_UP) return (TRUE);
-		if (c_ptr->feat == FEAT_TOWN) return (TRUE);
-		if (c_ptr->feat == FEAT_ENTRANCE) return (TRUE);
+		if (feat == FEAT_QUEST_ENTER) return (TRUE);
+		if (feat == FEAT_QUEST_EXIT) return (TRUE);
+		if (feat == FEAT_QUEST_DOWN) return (TRUE);
+		if (feat == FEAT_QUEST_UP) return (TRUE);
+		if (feat == FEAT_TOWN) return (TRUE);
+		if (feat == FEAT_ENTRANCE) return (TRUE);
 	}
 
 	/* Nope */
@@ -2964,7 +2964,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 	bool boring;
 
-	int feat;
+	byte feat;
 
 	int query;
 
@@ -3505,14 +3505,8 @@ if (o_ptr->number != 1) s1 = "それらは";
 		/* Double break */
 		if (this_o_idx) break;
 
-		if (c_ptr->mimic)
-		{
-			feat = c_ptr->mimic;
-		}
-		else
-		{
-			feat = f_info[c_ptr->feat].mimic;
-		}
+                /* Feature code (applying "mimic" field) */
+                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* Require knowledge about grid, or ability to see grid */
 		if (!(c_ptr->info & CAVE_MARK) && !player_can_see_bold(y, x))
@@ -3522,7 +3516,7 @@ if (o_ptr->number != 1) s1 = "それらは";
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS) || (c_ptr->info & CAVE_IN_MIRROR))
+		if (boring || (feat > FEAT_INVIS))
 		{
 			cptr name;
 
@@ -3549,14 +3543,6 @@ if (o_ptr->number != 1) s1 = "それらは";
 				name = "道";
 #else
 				name = "road";
-#endif
-			}
-			else if ( (c_ptr->info & CAVE_IN_MIRROR) )
-			{
-#ifdef JP
-				name = "鏡";
-#else
-				name = "a mirror";
 #endif
 			}
 			else
@@ -3609,7 +3595,7 @@ s2 = "の入口";
 #endif
 
 			}
-			else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER) || (c_ptr->info & CAVE_IN_MIRROR))
+			else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER))
 			{
 #ifndef JP
 				s3 ="";
@@ -3628,7 +3614,7 @@ s2 = "の入口";
 #ifdef JP
 			sprintf(out_val, "%s%s%s%s[%s] %x %d %d %d %d (%d,%d)", s1, name, s2, s3, info, c_ptr->info, c_ptr->feat, c_ptr->dist, c_ptr->cost, c_ptr->when, x, y);
 #else
-			sprintf(out_val, "%s%s%s%s [%s] %x %d %d %d %d", s1, s2, s3, name, info, c_ptr->info, c_ptr->feat, c_ptr->dist, c_ptr->cost, c_ptr->when);
+			sprintf(out_val, "%s%s%s%s [%s] %x %d %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, c_ptr->feat, c_ptr->dist, c_ptr->cost, c_ptr->when, x, y);
 #endif
 			else
 #ifdef JP

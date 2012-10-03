@@ -74,16 +74,16 @@ static byte value_check_aux2(object_type *o_ptr)
 	if (broken_p(o_ptr)) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_GOOD;
+	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_UNCURSED;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return FEEL_GOOD;
+	if (ego_item_p(o_ptr)) return FEEL_UNCURSED;
 
 	/* Good armor bonus */
-	if (o_ptr->to_a > 0) return FEEL_GOOD;
+	if (o_ptr->to_a > 0) return FEEL_UNCURSED;
 
 	/* Good weapon bonuses */
-	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+	if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_UNCURSED;
 
 	/* No feeling */
 	return FEEL_NONE;
@@ -127,7 +127,10 @@ static void sense_inventory_aux(int slot, bool heavy)
 			}
 			case FEEL_CURSED:
 			{
-				feel = randint0(3) ? FEEL_GOOD : FEEL_AVERAGE;
+                                if (heavy)
+                                        feel = randint0(3) ? FEEL_GOOD : FEEL_AVERAGE;
+                                else
+                                        feel = FEEL_UNCURSED;
 				break;
 			}
 			case FEEL_AVERAGE:
@@ -137,7 +140,10 @@ static void sense_inventory_aux(int slot, bool heavy)
 			}
 			case FEEL_GOOD:
 			{
-				feel = randint0(3) ? FEEL_CURSED : FEEL_AVERAGE;
+                                if (heavy)
+                                        feel = randint0(3) ? FEEL_CURSED : FEEL_AVERAGE;
+                                else
+                                        feel = FEEL_CURSED;
 				break;
 			}
 			case FEEL_EXCELLENT:
@@ -199,7 +205,7 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(slot, idx);
         if (destroy_feeling)
-                auto_destroy_item(slot, idx, FALSE);
+                auto_destroy_item(slot, idx);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1287,7 +1293,7 @@ msg_format("%sは%sという感じがする...",
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (okay && destroy_feeling)
-                auto_destroy_item(item, idx, FALSE);
+                auto_destroy_item(item, idx);
 
 	/* Something happened */
 	return (TRUE);
@@ -1779,7 +1785,7 @@ msg_print("日が沈んだ。");
 						    (y == 0) || (y == cur_hgt-1))
 						{
 							/* Forget the grid */
-							if (!(c_ptr->info & CAVE_IN_MIRROR)) c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
+							if (!is_mirror_grid(c_ptr)) c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
 
 							/* Hack -- Notice spot */
 							note_spot(y, x);
@@ -5438,7 +5444,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 			/* Place the cursor on the player */
 			move_cursor_relative(py, px);
 
-			command_cmd = 254;
+			command_cmd = SPECIAL_KEY_BUILDING;
 
 			/* Process the command */
 			process_command();
@@ -5930,7 +5936,7 @@ msg_print("試合開始！");
 	/* Main loop */
 	while (TRUE)
 	{
-		int i, correct_inven_cnt = 0;
+		int i;
 
 		/* Hack -- Compact the monster list occasionally */
 		if ((m_cnt + 32 > max_m_idx) && !p_ptr->inside_battle) compact_monsters(64);
@@ -5951,17 +5957,6 @@ msg_print("試合開始！");
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
-
-		/* Similar slot? */
-		for (i = 0; i < INVEN_PACK; i++)
-		{
-			object_type *j_ptr = &inventory[i];
-
-			/* Skip non-objects */
-			if (!j_ptr->k_idx) continue;
-
-			correct_inven_cnt++;
-		}
 
 		/* Update stuff */
 		if (p_ptr->update) update_stuff();
@@ -6068,20 +6063,41 @@ msg_print("試合開始！");
 			if (!is_pet(m_ptr)) continue;
 			if (i == p_ptr->riding) continue;
 
-			if (m_ptr->nickname && (player_has_los_bold(m_ptr->fy, m_ptr->fx) || los(m_ptr->fy, m_ptr->fx, py, px)))
-			{
-				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 3) continue;
-			}
-			else
-			{
-				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 1) continue;
-			}
-			if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+                        if (reinit_wilderness)
+                        {
+                                /* Don't lose sight of pets when getting a Quest */
+                        }
+                        else
+                        {
+                                int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+
+                                /*
+                                 * Pets with nickname will follow even from 3 blocks away
+                                 * when you or the pet can see the other.
+                                 */
+                                if (m_ptr->nickname && 
+                                    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
+                                     los(m_ptr->fy, m_ptr->fx, py, px)))
+                                {
+                                        if (dis > 3) continue;
+                                }
+                                else
+                                {
+                                        if (dis > 1) continue;
+                                }
+                                if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+                        }
 
 			COPY(&party_mon[num], &m_list[i], monster_type);
-			delete_monster_idx(i);
 			num++;
+
+                        /* Mark as followed */
+			delete_monster_idx(i);
 		}
+
+                /* Forget the flag */
+                reinit_wilderness = FALSE;
+
 		if (record_named_pet)
 		{
 			for (i = m_max - 1; i >=1; i--)

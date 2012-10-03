@@ -1293,9 +1293,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_AMULET:
 		{
 			/* Hack -- negative bonuses are bad */
-			if (o_ptr->to_a < 0) return (0L);
-			if (o_ptr->to_h < 0) return (0L);
-			if (o_ptr->to_d < 0) return (0L);
+			if (o_ptr->to_h + o_ptr->to_d + o_ptr->to_a < 0) return (0L);
 
 			/* Give credit for bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 200L);
@@ -2927,7 +2925,11 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case EGO_INFRAVISION:
 						break;
 					case EGO_SEEING:
-						if (one_in_(7)) add_flag(o_ptr->art_flags, TR_TELEPATHY);
+						if (one_in_(7))
+						{
+							if (one_in_(2)) add_esp_strong(o_ptr);
+							else add_esp_weak(o_ptr);
+						}
 						break;
 					default:/* not existing helm (Magi, Might, etc...)*/
 						ok_flag = FALSE;
@@ -3388,11 +3390,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 							{
 								o_ptr->name2 = EGO_RING_BERSERKER;
 								o_ptr->to_h -= 2+randint1(4);
+								o_ptr->to_d += 2+randint1(4);
 							}
 							break;
 						case SV_RING_PROTECTION:
 							o_ptr->name2 = EGO_RING_SUPER_AC;
-							o_ptr->to_a += m_bonus(5, level);
+							o_ptr->to_a += 7 + m_bonus(5, level);
 							break;
 						case SV_RING_RES_FEAR:
 							o_ptr->name2 = EGO_RING_HERO;
@@ -4934,8 +4937,8 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			    (c_ptr->feat != FEAT_FLOWER) &&
 			    (c_ptr->feat != FEAT_DEEP_GRASS) &&
 			    (c_ptr->feat != FEAT_SHAL_LAVA) &&
-				(c_ptr->feat != FEAT_TREES)) continue;
-			if (c_ptr->info & (CAVE_TRAP | CAVE_IN_MIRROR)) continue;
+                            (c_ptr->feat != FEAT_TREES)) continue;
+			if (c_ptr->info & (CAVE_OBJECT)) continue;
 
 			/* No objects */
 			k = 0;
@@ -5226,22 +5229,16 @@ static int trap_num[MAX_TRAPS] =
 
 
 /*
- * Hack -- instantiate a trap
+ * Get random trap
  *
  * XXX XXX XXX This routine should be redone to reflect trap "level".
  * That is, it does not make sense to have spiked pits at 50 feet.
  * Actually, it is not this routine, but the "trap instantiation"
  * code, which should also check for "trap doors" on quest levels.
  */
-void pick_trap(int y, int x)
+byte choose_random_trap(void)
 {
-	int feat;
-
-	cave_type *c_ptr = &cave[y][x];
-
-	/* Paranoia */
-	if (!(c_ptr->info & CAVE_TRAP)) return;
-	c_ptr->info &= ~(CAVE_TRAP);
+	byte feat;
 
 	/* Pick a trap */
 	while (1)
@@ -5261,8 +5258,27 @@ void pick_trap(int y, int x)
 		break;
 	}
 
-	/* Activate the trap */
-	cave_set_feat(y, x, feat);
+        return feat;
+}
+
+/*
+ * Disclose an invisible trap
+ */
+void disclose_grid(int y, int x)
+{
+	cave_type *c_ptr = &cave[y][x];
+
+	/* Paranoia */
+	if (!c_ptr->mimic) return;
+
+        /* No longer hidden */
+        c_ptr->mimic = 0;
+
+	/* Notice */
+	note_spot(y, x);
+
+	/* Redraw */
+	lite_spot(y, x);
 }
 
 
@@ -5277,6 +5293,8 @@ void pick_trap(int y, int x)
  */
 void place_trap(int y, int x)
 {
+	cave_type *c_ptr = &cave[y][x];
+
 	/* Paranoia -- verify location */
 	if (!in_bounds(y, x)) return;
 
@@ -5284,7 +5302,8 @@ void place_trap(int y, int x)
 	if (!cave_naked_bold(y, x)) return;
 
 	/* Place an invisible trap */
-	cave[y][x].info |= CAVE_TRAP;
+        c_ptr->mimic = c_ptr->feat;
+        c_ptr->feat = choose_random_trap();
 }
 
 
@@ -6471,7 +6490,8 @@ bool process_frakir(int xx, int yy)
 	else old_damage = old_damage/2;
 
 	c_ptr = &cave[yy][xx];
-	if (((is_trap(c_ptr->feat) && !easy_disarm) || (c_ptr->info & CAVE_TRAP)) && !one_in_(13))
+	if (((!easy_disarm && (is_trap(c_ptr->feat) || c_ptr->feat == FEAT_INVIS))
+            || (c_ptr->mimic && is_trap(c_ptr->feat))) && !one_in_(13))
 	{
 		object_type *o_ptr = choose_warning_item();
 
@@ -6657,15 +6677,6 @@ static essence_type essence_info[] =
         {TR_BLOWS, "extra attack", 1, TR_BLOWS, 20},
         {TR_CHAOTIC, "chaos brand", 1, TR_CHAOTIC, 15},
         {TR_VAMPIRIC, "vampiric brand", 1, TR_VAMPIRIC, 60},
-        {TR_SLAY_ANIMAL, "slay animal", 5, TR_SLAY_ANIMAL, 20},
-        {TR_SLAY_EVIL, "slay evil", 5, TR_SLAY_EVIL, 100},
-        {TR_SLAY_UNDEAD, "slay undead", 5, TR_SLAY_UNDEAD, 20},
-        {TR_SLAY_DEMON, "slay demon", 5, TR_SLAY_DEMON, 20},
-        {TR_SLAY_ORC, "slay orc", 5, TR_SLAY_ORC, 15},
-        {TR_SLAY_TROLL, "slay troll", 5, TR_SLAY_TROLL, 15},
-        {TR_SLAY_GIANT, "slay giant", 5, TR_SLAY_GIANT, 20},
-        {TR_SLAY_DRAGON, "slay dragon", 5, TR_SLAY_DRAGON, 20},
-        {TR_KILL_DRAGON, "kill dragon", 5, TR_SLAY_DRAGON, 60},
         {TR_IMPACT, "quake activation", 7, TR_IMPACT, 15},
         {TR_BRAND_POIS, "poison brand", 1, TR_BRAND_POIS, 20},
         {TR_BRAND_ACID, "acid brand", 1, TR_BRAND_ACID, 20},
@@ -6703,7 +6714,6 @@ static essence_type essence_info[] =
         {TR_RES_DISEN, "resistance to disenchantment", 2, TR_RES_DISEN, 20},
         {TR_SH_FIRE, "", 0, -2, 0},
         {TR_SH_ELEC, "", 0, -2, 0},
-        {TR_SLAY_HUMAN, "slay human", 5, TR_SLAY_HUMAN, 20},
         {TR_SH_COLD, "", 0, -2, 0},
         {TR_NO_MAGIC, "anti magic", 3, TR_NO_MAGIC, 15},
         {TR_WARNING, "warning", 3, TR_WARNING, 20},
@@ -6714,14 +6724,26 @@ static essence_type essence_info[] =
         {TR_SLOW_DIGEST, "slow digestion", 3, TR_SLOW_DIGEST, 15},
         {TR_REGEN, "regeneration", 3, TR_REGEN, 20},
         {TR_TELEPORT, "teleport", 3, TR_TELEPORT, 25},
+
+        {TR_SLAY_EVIL, "slay evil", 5, TR_SLAY_EVIL, 100},
+        {TR_SLAY_ANIMAL, "slay animal", 5, TR_SLAY_ANIMAL, 20},
         {TR_KILL_ANIMAL, "kill animal", 5, TR_SLAY_ANIMAL, 60},
         {TR_KILL_EVIL, "kill evil", 0, TR_SLAY_EVIL, 60},
+        {TR_SLAY_UNDEAD, "slay undead", 5, TR_SLAY_UNDEAD, 20},
         {TR_KILL_UNDEAD, "kill undead", 5, TR_SLAY_UNDEAD, 60},
+        {TR_SLAY_DEMON, "slay demon", 5, TR_SLAY_DEMON, 20},
         {TR_KILL_DEMON, "kill demon", 5, TR_SLAY_DEMON, 60},
+        {TR_SLAY_ORC, "slay orc", 5, TR_SLAY_ORC, 15},
         {TR_KILL_ORC, "kill orc", 5, TR_SLAY_ORC, 60},
+        {TR_SLAY_TROLL, "slay troll", 5, TR_SLAY_TROLL, 15},
         {TR_KILL_TROLL, "kill troll", 5, TR_SLAY_TROLL, 60},
+        {TR_SLAY_GIANT, "slay giant", 5, TR_SLAY_GIANT, 20},
         {TR_KILL_GIANT, "kill giant", 5, TR_SLAY_GIANT, 60},       
+        {TR_SLAY_DRAGON, "slay dragon", 5, TR_SLAY_DRAGON, 20},
+        {TR_KILL_DRAGON, "kill dragon", 5, TR_SLAY_DRAGON, 60},
+        {TR_SLAY_HUMAN, "slay human", 5, TR_SLAY_HUMAN, 20},
         {TR_KILL_HUMAN, "kill human", 5, TR_SLAY_HUMAN, 60},
+
         {TR_ESP_ANIMAL, "sense animal", 6, TR_SLAY_ANIMAL, 40},
         {TR_ESP_UNDEAD, "sense undead", 6, TR_SLAY_UNDEAD, 40}, 
         {TR_ESP_DEMON, "sense demon", 6, TR_SLAY_DEMON, 40},       

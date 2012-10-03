@@ -3369,6 +3369,12 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				place_trap(*y, *x);
 			}
+                        /* Hidden trap (or door) */
+                        else if (letter[idx].trap)
+                        {
+                                c_ptr->mimic = c_ptr->feat;
+                                c_ptr->feat = letter[idx].trap;
+                        }
 			else if (object_index)
 			{
 				/* Get local object */

@@ -3523,24 +3523,22 @@ bool detect_traps(int range, bool known)
 				lite_spot(y, x);
 			}
 
-			/* Detect invisible traps */
-			if (c_ptr->info & CAVE_TRAP)
-			{
-				/* Pick a trap */
-				pick_trap(y, x);
-			}
-
 			/* Detect traps */
 			if (is_trap(c_ptr->feat))
 			{
-                                if (c_ptr->feat == FEAT_INVIS)
-                                        c_ptr->feat = FEAT_TRAP_OPEN;
-
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
 
-				/* Redraw */
-				lite_spot(y, x);
+                                if (c_ptr->mimic)
+                                {
+                                        /* Disclose a hidden trap */
+                                        disclose_grid(y, x);
+                                }
+                                else
+                                {
+                                        /* Redraw */
+                                        lite_spot(y, x);
+                                }
 
 				/* Obvious */
 				detect = TRUE;
@@ -3592,10 +3590,10 @@ bool detect_doors(int range)
 			c_ptr = &cave[y][x];
 
 			/* Detect secret doors */
-			if (c_ptr->feat == FEAT_SECRET)
+			if (is_hidden_door(c_ptr))
 			{
 				/* Pick a door */
-				place_closed_door(y, x);
+				disclose_grid(y, x);
 			}
 
 			/* Detect doors */
@@ -5324,7 +5322,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE | CAVE_IN_MIRROR);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_UNSAFE | CAVE_OBJECT);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
@@ -5342,11 +5340,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 			/* Hack -- Skip the epicenter */
 			if ((y == y1) && (x == x1)) continue;
 
-#if 0
-			if ((r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->flags7 & RF7_GUARDIAN) || ((m_ptr->mflag2 & MFLAG_CHAMELEON) && (r_ptr->flags1 & RF1_UNIQUE)))
-#else
 			if ((r_ptr->flags1 & RF1_QUESTOR))
-#endif
 			{
 				/* Heal the monster */
 				m_list[c_ptr->m_idx].hp = m_list[c_ptr->m_idx].maxhp;
@@ -5405,28 +5399,28 @@ bool destroy_area(int y1, int x1, int r, int full)
 				if (t < 20)
 				{
 					/* Create granite wall */
-					c_ptr->feat = FEAT_WALL_EXTRA;
+                                        cave_set_feat(y, x, FEAT_WALL_EXTRA);
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					c_ptr->feat = FEAT_QUARTZ;
+                                        cave_set_feat(y, x, FEAT_QUARTZ);
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					c_ptr->feat = FEAT_MAGMA;
+                                        cave_set_feat(y, x, FEAT_MAGMA);
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = floor_type[randint0(100)];
+                                        cave_set_feat(y, x, floor_type[randint0(100)]);
 				}
 			}
 		}
@@ -5539,7 +5533,7 @@ bool earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE | CAVE_IN_MIRROR );
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_UNSAFE);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -5774,8 +5768,8 @@ if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
 							if (!cave_empty_bold(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
-							if (cave[y][x].feat == FEAT_GLYPH) continue;
-							if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
+							if (is_glyph_grid(&cave[y][x])) continue;
+							if (is_explosive_rune_grid(&cave[y][x])) continue;
 
 							/* ... nor on the Pattern */
 							if ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
@@ -5903,6 +5897,9 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 				/* Delete objects */
 				delete_object(yy, xx);
 
+                                /* Clear mirror, runes flag */
+                                c_ptr->info &= ~CAVE_OBJECT;
+
 				/* Wall (or floor) type */
 				t = (floor ? randint0(100) : 200);
 
@@ -5910,28 +5907,28 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 				if (t < 20)
 				{
 					/* Create granite wall */
-					c_ptr->feat = FEAT_WALL_EXTRA;
+                                        cave_set_feat(yy, xx, FEAT_WALL_EXTRA);
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					c_ptr->feat = FEAT_QUARTZ;
+                                        cave_set_feat(yy, xx, FEAT_QUARTZ);
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					c_ptr->feat = FEAT_MAGMA;
+                                        cave_set_feat(yy, xx, FEAT_MAGMA);
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = floor_type[randint0(100)];
+                                        cave_set_feat(yy, xx, floor_type[randint0(100)]);
 				}
 			}
 		}
@@ -6137,7 +6134,7 @@ static void cave_temp_room_unlite(void)
 		c_ptr->info &= ~(CAVE_TEMP);
 
 		/* Darken the grid */
-		if (!(c_ptr->info & CAVE_IN_MIRROR ))c_ptr->info &= ~(CAVE_GLOW);
+		if (!is_mirror_grid(c_ptr)) c_ptr->info &= ~(CAVE_GLOW);
 
 		/* Hack -- Forget "boring" grids */
 		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))

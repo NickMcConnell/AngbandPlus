@@ -1138,7 +1138,7 @@ msg_print("少し頭がハッキリした。");
 			{
 				if (racial_aux(25, 20, A_INT, 20))
 				{
-					if (!identify_fully(FALSE, FALSE)) return FALSE;
+					if (!identify_fully(FALSE)) return FALSE;
 				}
 			}
 			break;
@@ -1362,11 +1362,11 @@ msg_print("武器を持たないといけません。");
 			{
 				if (p_ptr->lev > 29)
 				{
-					if (!identify_fully(TRUE, FALSE)) return FALSE;
+					if (!identify_fully(TRUE)) return FALSE;
 				}
 				else
 				{
-					if (!ident_spell(TRUE, FALSE)) return FALSE;
+					if (!ident_spell(TRUE)) return FALSE;
 				}
 			}
 			break;
@@ -1379,7 +1379,7 @@ msg_print("武器を持たないといけません。");
 			    int x,y;
 			      for( x=0 ; x < cur_wid ;x++){
 				for( y=0 ; y < cur_hgt ;y++){
-				  if( (cave[y][x].info & CAVE_IN_MIRROR)){
+				  if( is_mirror_grid(&cave[y][x])) {
 				    remove_mirror(y,x);
 				    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_HANGEKI),-1);
 				  }
@@ -1399,7 +1399,7 @@ msg_print("今はペットを操ることに集中していないと。");
 				  return FALSE;
 			  }
 			  if (racial_aux(30, 0, A_INT, 20)){
-			        if( (cave[py][px].info & CAVE_IN_MIRROR))
+			        if( is_mirror_grid(&cave[py][px]))
 				{
 #ifdef JP
 msg_print("少し頭がハッキリした。");

@@ -1792,14 +1792,33 @@ static errr Term_curs_mac(int x, int y)
 	r.top = y * td->tile_hgt + td->size_oh1;
 	r.bottom = r.top + td->tile_hgt;
 
-#ifdef JP
-	if (x + 1 < Term->wid &&
-	    ((use_bigtile && Term->old->a[y][x+1] == 255)
-	     || (iskanji(Term->old->c[y][x]) && !(Term->old->a[y][x] & 0x80))))
-#else
-	if (use_bigtile && x + 1 < Term->wid && Term->old->a[y][x+1] == 255)
-#endif
-		r.right += td->tile_wid;
+	FrameRect(&r);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Low level graphics (Assumes valid input).
+ * Draw a "big cursor" at (x,y), using a "yellow box".
+ * We are allowed to use "Term_grab()" to determine
+ * the current screen contents (for inverting, etc).
+ */
+static errr Term_bigcurs_mac(int x, int y)
+{
+	Rect r;
+
+	term_data *td = (term_data*)(Term->data);
+
+	/* Set the color */
+	term_data_color(td, TERM_YELLOW);
+
+	/* Frame the grid */
+	r.left = x * td->tile_wid + td->size_ow1;
+	r.right = r.left + 2 * td->tile_wid;
+	r.top = y * td->tile_hgt + td->size_oh1;
+	r.bottom = r.top + td->tile_hgt;
 
 	FrameRect(&r);
 
@@ -2187,6 +2206,7 @@ static void term_data_link(int i)
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
+	td->t->bigcurs_hook = Term_bigcurs_mac;
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
 
@@ -2271,7 +2291,7 @@ static int getshort(void)
 {
 	int x = 0;
 	char buf[256];
-	if (0 == my_fgets(fff, buf, sizeof(buf))) x = atoi(buf);
+	if (0 == my_fgets(fff, buf, 256)) x = atoi(buf);
 	return (x);
 }
 
@@ -2797,7 +2817,7 @@ static void init_chuukei( void )
 	char tmp[1024];
 	FILE *fp;
 	
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "chuukei.txt");
+	path_build(path, 1024, ANGBAND_DIR_XTRA, "chuukei.txt");
 
 	fp = fopen(path, "r");
 	if(!fp)
@@ -4153,7 +4173,12 @@ static void menu(long mc)
 				{
 					/* Toggle arg_graphics */
 					arg_graphics = !arg_graphics;
-
+					if( arg_graphics == true ){
+						ANGBAND_GRAF = "old";
+						arg_newstyle_graphics = false;
+						grafWidth = grafHeight = 8;
+						pictID = 1001;
+					}
 					/* Hack -- Force redraw */
 					Term_key_push(KTRL('R'));
 
@@ -4458,11 +4483,11 @@ static pascal OSErr AEH_Open(AppleEvent *theAppleEvent,
  * F7: 98
  * F3:99
  * F8:100
- * F10:101
+ * F10:109
  * F11:103
  * F13:105
  * F14:107
- * F9:109
+ * F9:101
  * F12:111
  * F15:113
  * Help:114
@@ -5098,9 +5123,9 @@ static void init_stuff(void)
 
 		/* Build the filename */
 		#ifdef JP
-			path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news_j.txt");
+			path_build(path, 1024, ANGBAND_DIR_FILE, "news_j.txt");
 		#else
-			path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
+			path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
 		#endif
 
 		/* Attempt to open and close that file */

@@ -187,13 +187,13 @@ cptr map_name(void)
 #ifdef JP
 		return "アリーナ";
 #else
-		return "Monster Arena";
+		return "Arena";
 #endif
 	else if (p_ptr->inside_battle)
 #ifdef JP
 		return "闘技場";
 #else
-		return "Arena";
+		return "Monster Arena";
 #endif
 	else if (!dun_level && p_ptr->town_num)
 		return town[p_ptr->town_num].name;
@@ -2470,7 +2470,7 @@ static void calc_mana(void)
 		if (o_ptr->k_idx &&
 		    !(have_flag(flgs, TR_FREE_ACT)) &&
 		    !(have_flag(flgs, TR_MAGIC_MASTERY)) &&
-		    !(have_flag(flgs, TR_DEX)) && (o_ptr->pval > 0))
+		    !((have_flag(flgs, TR_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -2890,16 +2890,19 @@ static void calc_torch(void)
 
 	}
 
-	/* max radius is 5 without rewriting other code -- */
+	/* max radius is 14 (was 5) without rewriting other code -- */
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
 	if (d_info[dungeon_type].flags1 & DF1_DARKNESS && p_ptr->cur_lite > 1)
 		p_ptr->cur_lite = 1;
+
+	/*
+         * check if the player doesn't have light radius, 
+	 * but does weakly glow as an intrinsic.
+         */
+	if (p_ptr->cur_lite <= 0 && p_ptr->lite) p_ptr->cur_lite++;
+
 	if (p_ptr->cur_lite > 14) p_ptr->cur_lite = 14;
 	if (p_ptr->cur_lite < 0) p_ptr->cur_lite = 0;
-
-	/* check if the player doesn't have a lite source, */
-	/* but does glow as an intrinsic.                  */
-	if (p_ptr->cur_lite == 0 && p_ptr->lite) p_ptr->cur_lite = 1;
 
 	/* end experimental mods */
 
@@ -3924,8 +3927,24 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_TELEPORT))
 		{
 			if (cursed_p(o_ptr)) p_ptr->cursed |= TRC_TELEPORT;
-			else if (!o_ptr->inscription || !(strchr(quark_str(o_ptr->inscription),'.')))
-				p_ptr->cursed |= TRC_TELEPORT_SELF;
+			else
+                        {
+                                cptr insc = quark_str(o_ptr->inscription);
+
+                                if (o_ptr->inscription &&
+                                    (strchr(insc, '.') || strchr(insc, '%')))
+                                {
+                                        /*
+                                         * {.} will stop random teleportation.
+                                         * {%} includes '.' after conversion.
+                                         */
+                                }
+                                else
+                                {
+                                        /* Controlled random teleportation */
+                                        p_ptr->cursed |= TRC_TELEPORT_SELF;
+                                }
+                        }
 		}
 
 		/* Immunity flags */
@@ -5475,7 +5494,7 @@ msg_print("バランスがとれるようになった。");
 	have_kabe = FALSE;
 	for (i = 0; i < INVEN_PACK; i++)
 	{
-		if ((inventory[i].tval == TV_SORCERY_BOOK) && (inventory[i].sval == 3)) have_dd_s = TRUE;
+		if ((inventory[i].tval == TV_SORCERY_BOOK) && (inventory[i].sval == 2)) have_dd_s = TRUE;
 		if ((inventory[i].tval == TV_TRUMP_BOOK) && (inventory[i].sval == 1)) have_dd_t = TRUE;
 		if ((inventory[i].tval == TV_NATURE_BOOK) && (inventory[i].sval == 2)) have_sw = TRUE;
 		if ((inventory[i].tval == TV_ENCHANT_BOOK) && (inventory[i].sval == 2)) have_kabe = TRUE;
@@ -5533,6 +5552,13 @@ void notice_stuff(void)
 	/* Notice stuff */
 	if (!p_ptr->notice) return;
 
+
+	/* Actually do auto-destroy */
+	if (p_ptr->notice & (PN_AUTODESTROY))
+	{
+		p_ptr->notice &= ~(PN_AUTODESTROY);
+		delayed_auto_destroy();
+	}
 
 	/* Combine the pack */
 	if (p_ptr->notice & (PN_COMBINE))

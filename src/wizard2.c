@@ -1225,8 +1225,7 @@ static void do_cmd_wiz_play(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
+        
 	/* The item was not changed */
 	changed = FALSE;
 
@@ -1293,8 +1292,16 @@ static void do_cmd_wiz_play(void)
 		/* Message */
 		msg_print("Changes accepted.");
 
+                /* Recalcurate object's weight */
+                if (item >= 0)
+                {
+                        p_ptr->total_weight += (q_ptr->weight * q_ptr->number)
+                                - (o_ptr->weight * o_ptr->number);
+                }
+
 		/* Change */
 		object_copy(o_ptr, q_ptr);
+
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1491,6 +1498,9 @@ static void do_cmd_wiz_jump(void)
 	p_ptr->inside_quest = 0;
 	p_ptr->leftbldg = FALSE;
 	energy_use = 0;
+
+        /* Prevent energy_need from being too lower than 0 */
+        p_ptr->energy_need = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1747,7 +1757,7 @@ void do_cmd_debug(void)
 
 		/* View item info */
 		case 'f':
-		identify_fully(FALSE, FALSE);
+		identify_fully(FALSE);
 		break;
 
 		/* Good Objects */
@@ -1767,7 +1777,7 @@ void do_cmd_debug(void)
 
 		/* Identify */
 		case 'i':
-		(void)ident_spell(FALSE, FALSE);
+		(void)ident_spell(FALSE);
 		break;
 
 		/* Go up or down in the dungeon */

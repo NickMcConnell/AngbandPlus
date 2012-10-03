@@ -81,8 +81,8 @@ bool teleport_away(int m_idx, int dis, bool dec_valour)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (is_glyph_grid(&cave[ny][nx])) continue;
+			if (is_explosive_rune_grid(&cave[ny][nx])) continue;
 
 			/* ...nor onto the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
@@ -193,8 +193,8 @@ void teleport_to_player(int m_idx, int power)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (is_glyph_grid(&cave[ny][nx])) continue;
+			if (is_explosive_rune_grid(&cave[ny][nx])) continue;
 
 			/* ...nor onto the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
@@ -1665,7 +1665,14 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_GLYPH);
+	cave[py][px].info |= CAVE_OBJECT;
+        cave[py][px].mimic = FEAT_GLYPH;
+
+	/* Notice */
+	note_spot(py, px);
+	
+	/* Redraw */
+	lite_spot(py, px);
 
 	return TRUE;
 }
@@ -1685,7 +1692,8 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a mirror */
-	cave[py][px].info |= CAVE_IN_MIRROR;
+	cave[py][px].info |= CAVE_OBJECT;
+        cave[py][px].mimic = FEAT_MIRROR;
 
 	/* Turn on the light */
 	cave[py][px].info |= CAVE_GLOW;
@@ -1718,7 +1726,14 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MINOR_GLYPH);
+	cave[py][px].info |= CAVE_OBJECT;
+        cave[py][px].mimic = FEAT_MINOR_GLYPH;
+
+	/* Notice */
+	note_spot(py, px);
+	
+	/* Redraw */
+	lite_spot(py, px);
 
 	return TRUE;
 }
@@ -2616,7 +2631,7 @@ static bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
  */
-bool ident_spell(bool only_equip, bool wait_optimize)
+bool ident_spell(bool only_equip)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -2703,7 +2718,7 @@ s = "鑑定するべきアイテムがない。";
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx, wait_optimize);
+                auto_destroy_item(item, idx);
 
 	/* Something happened */
 	return (TRUE);
@@ -2793,7 +2808,7 @@ static bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
  */
-bool identify_fully(bool only_equip, bool wait_optimize)
+bool identify_fully(bool only_equip)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -2886,7 +2901,7 @@ s = "鑑定するべきアイテムがない。";
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx, wait_optimize);
+                auto_destroy_item(item, idx);
 
 	/* Success */
 	return (TRUE);

@@ -1126,6 +1126,9 @@ void do_cmd_change_name(void)
 		if (c == 'c')
 		{
 			get_name();
+
+                        /* Process the player name */
+                        process_player_name(FALSE);
 		}
 
 		/* File dump */
@@ -1769,11 +1772,12 @@ static void do_cmd_options_autosave(cptr info)
 				autosave_freq = toggle_frequency(autosave_freq);
 #ifdef JP
 				prt(format("自動セーブの頻度： %d ターン毎", 
+                                           autosave_freq), 5, 0);
 #else
 				prt(format("Timed autosave frequency: every %d turns",
+                                           autosave_freq), 5, 0);
 #endif
-
-				    autosave_freq), 5, 0);
+                                break;
 			}
 
                         case '?':
@@ -5757,7 +5761,7 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Allocate the "who" array */
-	C_MAKE(who, max_r_idx, s16b);
+	C_MAKE(who, max_a_idx, s16b);
 
 	/* Allocate the "okay" array */
 	C_MAKE(okay, max_a_idx, bool);
@@ -5887,7 +5891,7 @@ strcpy(base_name, "未知の伝説のアイテム");
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, max_r_idx, s16b);
+	C_KILL(who, max_a_idx, s16b);
 
 	/* Free the "okay" array */
 	C_KILL(okay, max_a_idx, bool);
@@ -7069,9 +7073,6 @@ static void do_cmd_knowledge_quests(void)
 
 	for (i = 1; i < max_quests; i++)
 	{
-		/* No info from "silent" quests */
-		if (quest[i].flags & QUEST_FLAG_SILENT) continue;
-
 		if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_COMPLETED)
 		{
 			int old_quest;
@@ -7085,8 +7086,6 @@ static void do_cmd_knowledge_quests(void)
 
 			quest_text_line = 0;
 
-			total++;
-
 			/* Set the quest number temporary */
 			old_quest = p_ptr->inside_quest;
 			p_ptr->inside_quest = i;
@@ -7098,6 +7097,11 @@ static void do_cmd_knowledge_quests(void)
 
 			/* Reset the old quest number */
 			p_ptr->inside_quest = old_quest;
+
+                        /* No info from "silent" quests */
+                        if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+
+			total++;
 
 			if (quest[i].type != QUEST_TYPE_RANDOM)
 			{
@@ -7248,17 +7252,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
-		/* No info from "silent" quests */
-		if (quest[i].flags & QUEST_FLAG_SILENT) continue;
-
 		if (quest[i].status == QUEST_STATUS_FINISHED)
 		{
-			int old_quest;
-
-			total++;
-
 			if (i < MIN_RANDOM_QUEST)
 			{
+                                int old_quest;
+
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
 				p_ptr->inside_quest = i;
@@ -7270,7 +7269,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 
 				/* Reset the old quest number */
 				p_ptr->inside_quest = old_quest;
+
+                                /* No info from "silent" quests */
+                                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 			}
+
+			total++;
 
 			if ((i >= MIN_RANDOM_QUEST) && quest[i].r_idx)
 			{
@@ -7329,17 +7333,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
-		/* No info from "silent" quests */
-		if (quest[i].flags & QUEST_FLAG_SILENT) continue;
-
 		if ((quest[i].status == QUEST_STATUS_FAILED_DONE) || (quest[i].status == QUEST_STATUS_FAILED))
 		{
-			int old_quest;
-
-			total++;
-
 			if (i < MIN_RANDOM_QUEST)
 			{
+                                int old_quest;
+
 				/* Set the quest number temporary */
 				old_quest = p_ptr->inside_quest;
 				p_ptr->inside_quest = i;
@@ -7351,7 +7350,12 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 
 				/* Reset the old quest number */
 				p_ptr->inside_quest = old_quest;
+
+                                /* No info from "silent" quests */
+                                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 			}
+
+			total++;
 
 			if ((i >= MIN_RANDOM_QUEST) && quest[i].r_idx)
 			{
