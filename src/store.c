@@ -936,6 +936,10 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		/* Mega-Hack -- Black market sucks */
 		if (cur_store_num == STORE_BLACK)
 			price = price / 2;
+
+		/* Compute the final price (with rounding) */
+		/* Hack -- prevent undefflow */
+		price = (price * adjust + 50L) / 100L;
 	}
 
 	/* Shop is selling */
@@ -950,11 +954,11 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		/* Mega-Hack -- Black market sucks */
 		if (cur_store_num == STORE_BLACK)
 			price = price * 2;
-	}
 
-	/* Compute the final price (with rounding) */
-	/* Hack -- prevent overflow */
-	price = (s32b)(((u32b)price * (u32b)adjust + 50UL) / 100UL);
+		/* Compute the final price (with rounding) */
+		/* Hack -- prevent overflow */
+		price = (s32b)(((u32b)price * (u32b)adjust + 50UL) / 100UL);
+	}
 
 	/* Note -- Never become "free" */
 	if (price <= 0L) return (1L);
@@ -4339,28 +4343,36 @@ static void store_process_command(void)
 		/* Single line from a pref file */
 		case '"':
 		{
+			p_ptr->town_num = old_town_num;
 			do_cmd_pref();
+			p_ptr->town_num = inner_town_num;
 			break;
 		}
 
 		/* Interact with macros */
 		case '@':
 		{
+			p_ptr->town_num = old_town_num;
 			do_cmd_macros();
+			p_ptr->town_num = inner_town_num;
 			break;
 		}
 
 		/* Interact with visuals */
 		case '%':
 		{
+			p_ptr->town_num = old_town_num;
 			do_cmd_visuals();
+			p_ptr->town_num = inner_town_num;
 			break;
 		}
 
 		/* Interact with colors */
 		case '&':
 		{
+			p_ptr->town_num = old_town_num;
 			do_cmd_colors();
+			p_ptr->town_num = inner_town_num;
 			break;
 		}
 

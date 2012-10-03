@@ -979,6 +979,10 @@ static bool cmd_racial_power_aux(s32b command)
 					msg_print("You failed to convert.");
 #endif
 			}
+
+			/* Redraw mana and hp */
+			p_ptr->redraw |= (PR_HP | PR_MANA);
+
 			break;
 		}
 		case CLASS_CHAOS_WARRIOR:
@@ -1076,6 +1080,9 @@ static bool cmd_racial_power_aux(s32b command)
 				p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 			}
+
+			/* Redraw mana */
+			p_ptr->redraw |= (PR_MANA);
 			break;
 		}
 		case CLASS_TOURIST:
@@ -1173,6 +1180,9 @@ static bool cmd_racial_power_aux(s32b command)
 					p_ptr->csp = max_csp;
 					p_ptr->csp_frac = 0;
 				}
+
+				/* Redraw mana */
+				p_ptr->redraw |= (PR_MANA);
 			}
 			else if (command == -4)
 			{
@@ -1318,6 +1328,9 @@ static bool cmd_racial_power_aux(s32b command)
 						p_ptr->csp = p_ptr->msp;
 						p_ptr->csp_frac = 0;
 					}
+
+					/* Redraw mana */
+					p_ptr->redraw |= (PR_MANA);
 				}
 				else
 				{
