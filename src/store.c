@@ -1485,6 +1485,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_ARCANE_BOOK:
 				case TV_ENCHANT_BOOK:
 				case TV_DAEMON_BOOK:
+				case TV_CRUSADE_BOOK:
 				case TV_MUSIC_BOOK:
 					break;
 				default:
@@ -2213,10 +2214,11 @@ static void display_inventory(void)
 
 
 		/* Indicate the "current page" */
+		/* Trailing spaces are to display (Page xx) and (Page x) */
 #ifdef JP
-		put_str(format("(%dページ)", store_top/12 + 1), 5, 20);
+		put_str(format("(%dページ)  ", store_top/12 + 1), 5, 20);
 #else
-		put_str(format("(Page %d)", store_top/12 + 1), 5, 20);
+		put_str(format("(Page %d)  ", store_top/12 + 1), 5, 20);
 #endif
 
 	}
@@ -2936,6 +2938,12 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	/* No need to haggle */
 	if (noneed || !manual_haggle || (final_ask >= purse))
 	{
+		/* Apply Sales Tax (if needed) */
+		if (!manual_haggle && !noneed)
+		{
+			final_ask -= final_ask / 10;
+		}
+
 		/* No reason to haggle */
 		if (final_ask >= purse)
 		{
@@ -2976,9 +2984,6 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 #endif
 
 			msg_print(NULL);
-
-			/* Apply Sales Tax */
-			final_ask -= final_ask / 10;
 		}
 
 		/* Final price */

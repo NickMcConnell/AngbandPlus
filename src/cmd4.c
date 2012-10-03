@@ -583,6 +583,29 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #endif
 			break;
 		}
+		case NIKKI_PAT_TELE:
+		{
+			cptr to;
+			if (!dun_level)
+#ifdef JP
+				to = "地上";
+#else
+				to = "the surface";
+#endif
+			else
+#ifdef JP
+				to = format("%d階(%s)", dun_level, d_name+d_info[dungeon_type].name);
+#else
+				to = format("level %d of %s", dun_level, d_name+d_info[dungeon_type].name);
+#endif
+				
+#ifdef JP
+			fprintf(fff, " %2d:%02d %20s %sへとパターンの力で移動した。\n", hour, min, note_level, to);
+#else
+			fprintf(fff, " %2d:%02d %20s use Pattern to teleport to %s.\n", hour, min, note_level, to);
+#endif
+			break;
+		}
 		case NIKKI_LEVELUP:
 		{
 #ifdef JP
@@ -1767,9 +1790,9 @@ void do_cmd_options_aux(int page, cptr info)
 	Term_clear();
 
 #ifdef JP
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 4, 6);
+	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、簡易自動破壊を使用するときのみ有効", 6, 6);
 #else
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 4, 3);
+	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 6, 3);
 #endif
 
 	/* Interact with the player */
@@ -1802,11 +1825,11 @@ void do_cmd_options_aux(int page, cptr info)
 #endif
 
 			        option_info[opt[i]].o_text);
-			if ((page == PAGE_AUTODESTROY) && i > 0) c_prt(a, buf, i + 5, 0);
+			if ((page == PAGE_AUTODESTROY) && i > 2) c_prt(a, buf, i + 5, 0);
 			else c_prt(a, buf, i + 2, 0);
 		}
 
-		if ((page == PAGE_AUTODESTROY) && (k > 0)) l = 3;
+		if ((page == PAGE_AUTODESTROY) && (k > 2)) l = 3;
 		else l = 0;
 		/* Hilite current option */
 		move_cursor(k + 2 + l, 50);
@@ -4366,10 +4389,6 @@ void do_cmd_version(void)
 {
 
 	/* Silly message */
-#ifndef FAKE_VERSION
-	msg_format("You are playing Angband %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
 #ifdef JP
 	msg_format("変愚蛮怒(Hengband) %d.%d.%d",
 	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
@@ -4377,9 +4396,6 @@ void do_cmd_version(void)
 	msg_format("You are playing Hengband %d.%d.%d.",
 	            FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
-
-#endif
-
 }
 
 
@@ -5356,8 +5372,31 @@ void (*screendump_aux)(void) = NULL;
 void do_cmd_save_screen(void)
 {
 	bool old_use_graphics = use_graphics;
+	bool html_dump = FALSE;
 
 	int wid, hgt;
+
+#ifdef JP
+	prt("記念撮影しますか？ [(y)es/(h)tml/(n)o] ", 0, 0);
+#else
+	prt("Save screen dump? [(y)es/(h)tml/(n)o] ", 0, 0);
+#endif
+	while(TRUE)
+	{
+		char c = inkey();
+		if (c == 'Y' || c == 'y')
+			break;
+		else if (c == 'H' || c == 'h')
+		{
+			html_dump = TRUE;
+			break;
+		}
+		else
+		{
+			prt("", 0, 0);
+			return;
+		}
+	}
 
 	Term_get_size(&wid, &hgt);
 
@@ -5373,11 +5412,7 @@ void do_cmd_save_screen(void)
 		handle_stuff();
 	}
 
-#ifdef JP
-	if (get_check_strict("HTMLで出力しますか？", CHECK_NO_HISTORY))
-#else
-	if (get_check_strict("Save screen dump as HTML? ", CHECK_NO_HISTORY))
-#endif
+	if (html_dump)
 	{
 		do_cmd_save_screen_html();
 		do_cmd_redraw();

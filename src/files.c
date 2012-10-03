@@ -1040,46 +1040,6 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 
 
 /*
- *  Process line for auto picker/destroyer.
- */
-static errr process_pickpref_file_line(char *buf)
-{
-	autopick_type entry;
-	int i;
-
-	if (max_autopick == MAX_AUTOPICK)
-		return 1;
-	
-	/* Nuke illegal char */
-	for(i = 0; buf[i]; i++)
-	{
-#ifdef JP
-		if (iskanji(buf[i]))
-		{
-			i++;
-			continue;
-		}
-#endif
-		if (isspace(buf[i]) && buf[i] != ' ')
-			break;
-	}
-	buf[i] = 0;
-	
-	if (!autopick_new_entry(&entry, buf)) return 0;
-
-	/* Already has the same entry? */ 
-	for(i = 0; i < max_autopick; i++)
-		if(!strcmp(entry.name, autopick_list[i].name)
-		   && entry.flag[0] == autopick_list[i].flag[0]
-		   && entry.flag[1] == autopick_list[i].flag[1]) return 0;
-
-	autopick_list[max_autopick++] = entry;
-	return 0;
-}
-
-
-
-/*
  * Open the "user pref file" and parse it.
  */
 static errr process_pref_file_aux(cptr name, bool read_pickpref)
@@ -4230,19 +4190,12 @@ errr make_character_dump(FILE *fff)
 	char		buf[1024];
 
 
-#ifndef FAKE_VERSION
-	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
 #ifdef JP
 	fprintf(fff, "  [変愚蛮怒 %d.%d.%d キャラクタ情報]\n\n",
 	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
 	fprintf(fff, "  [Hengband %d.%d.%d Character Dump]\n\n",
 	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
-
 #endif
 
 	update_playtime();

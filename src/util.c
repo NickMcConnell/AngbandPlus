@@ -3340,7 +3340,7 @@ bool get_check_strict(cptr prompt, int mode)
 	/* Prompt for it */
 	prt(buf, 0, 0);
 
-	if (!(mode & CHECK_NO_HISTORY))
+	if (!(mode & CHECK_NO_HISTORY) && p_ptr->playing)
 	{
 		/* HACK : Add the line to message buffer */
 		message_add(buf);
@@ -4464,28 +4464,50 @@ static bool insert_str(char *buf, cptr target, cptr insert)
  */
 int get_keymap_dir(char ch)
 {
-	cptr act, s;
 	int d = 0;
 
-	if (rogue_like_commands)
+	/* Already a direction? */
+	if (isdigit(ch))
 	{
-		act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
+		d = D2I(ch);
 	}
 	else
 	{
-		act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
-	}
+                int mode;
+                cptr act, s;
 
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
-	return d;
+
+	/* Paranoia */
+	if (d == 5) d = 0;
+
+	/* Return direction */
+	return (d);
 }
 
 

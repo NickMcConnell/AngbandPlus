@@ -198,7 +198,8 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(slot, idx);
-	auto_destroy_item(slot, idx, FALSE);
+        if (destroy_feeling)
+                auto_destroy_item(slot, idx, FALSE);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -615,7 +616,11 @@ if (get_check("他の階にテレポートしますか？"))
 			else if (dun_level == 100)
 				max_level = 100;
 		}
-		else max_level = d_info[dungeon_type].maxdepth;
+		else
+                {
+                        max_level = d_info[dungeon_type].maxdepth;
+                        min_level = d_info[dungeon_type].mindepth;
+                }
 
 		/* Prompt */
 #ifdef JP
@@ -667,6 +672,14 @@ msg_format("%d 階にテレポートしました。", command_arg);
 
 	/* Change level */
 	dun_level = command_arg;
+
+	leave_quest_check();
+
+	if (record_stair) do_cmd_write_nikki(NIKKI_PAT_TELE,0,NULL);
+
+	p_ptr->inside_quest = 0;
+	p_ptr->leftbldg = FALSE;
+	energy_use = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1729,7 +1742,7 @@ msg_print("日が沈んだ。");
 						    (y == 0) || (y == cur_hgt-1))
 						{
 							/* Forget the grid */
-							c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
+							if (!(c_ptr->info & CAVE_IN_MIRROR)) c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
 
 							/* Hack -- Notice spot */
 							note_spot(y, x);
@@ -3382,7 +3395,8 @@ if (!get_rnd_line("chainswd_j.txt", 0, noise))
 			(void)activate_ty_curse(FALSE, &count);
 		}
 		/* Handle experience draining */
-		if ((p_ptr->cursed & TRC_DRAIN_EXP) && one_in_(4))
+		if (p_ptr->prace != RACE_ANDROID && 
+			((p_ptr->cursed & TRC_DRAIN_EXP) && one_in_(4)))
 		{
 			p_ptr->exp -= (p_ptr->lev+1)/2;
 			if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -4340,6 +4354,8 @@ msg_print("ウィザードモード突入。");
 			     ) do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
+			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
+				do_cmd_magic_eater(TRUE);
 			else do_cmd_browse();
 			break;
 		}
@@ -4363,7 +4379,7 @@ msg_print("ウィザードモード突入。");
 #ifdef JP
 					msg_print("ダンジョンが魔法を吸収した！");
 #else
-					msg_print("The arena absorbs all attempted magic!");
+					msg_print("The dungeon absorbs all attempted magic!");
 #endif
 					msg_print(NULL);
 				}
@@ -4439,7 +4455,7 @@ msg_print("ウィザードモード突入。");
 					else if (p_ptr->pclass == CLASS_IMITATOR)
 						do_cmd_mane(FALSE);
 					else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-						do_cmd_magic_eater();
+						do_cmd_magic_eater(FALSE);
 					else if (p_ptr->pclass == CLASS_SAMURAI)
 						do_cmd_hissatsu();
 					else if (p_ptr->pclass == CLASS_BLUE_MAGE)
@@ -5046,7 +5062,7 @@ msg_print("何か変わった気がする！");
 #ifdef JP
 				msg_print("餌だけ食われてしまった！くっそ〜！");
 #else
-				msg_print("Damn! The fish took a bait away!");
+				msg_print("Damn!  The fish stole your bait!");
 #endif
 			}
 			disturb(0, 0);
@@ -5760,10 +5776,7 @@ static void dungeon(bool load_game)
 	character_xtra = TRUE;
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER | PW_MONSTER | PW_OVERHEAD | PW_DUNGEON);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -5771,14 +5784,14 @@ static void dungeon(bool load_game)
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
+	/* Update lite/view */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE | PU_TORCH);
+
+	/* Update monsters */
+	p_ptr->update |= (PU_MONSTERS | PU_DISTANCE | PU_FLOW);
 
 	/* Update stuff */
 	update_stuff();
@@ -5788,16 +5801,6 @@ static void dungeon(bool load_game)
 
 	/* Redraw stuff */
 	window_stuff();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE | PU_MON_LITE);
-	p_ptr->update |= (PU_MONSTERS);/*自分で光っているモンスターの為 */
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
 
 	/* Leave "xtra" mode */
 	character_xtra = FALSE;
@@ -6522,7 +6525,11 @@ prt("お待ち下さい...", 0, 0);
 
 
 	/* Hack -- Enter wizard mode */
-	if (arg_wizard && enter_wizard_mode()) p_ptr->wizard = TRUE;
+	if (arg_wizard)
+        {
+                if (enter_wizard_mode()) p_ptr->wizard = TRUE;
+                else if (p_ptr->is_dead) quit("Already dead.");
+        }
 
 	/* Initialize the town-buildings if necessary */
 	if (!dun_level && !p_ptr->inside_quest)

@@ -28,7 +28,6 @@ extern int level_up;
  */
 extern int max_autopick;
 extern autopick_type autopick_list[MAX_AUTOPICK];
-extern autopick_type autopick_entry_last_destroyed;
 
 /* tables.c */
 extern s16b ddd[9];
@@ -107,16 +106,12 @@ extern monster_power monster_powers[MAX_MONSPELLS];
 
 /* variable.c */
 extern cptr copyright[5];
-extern byte version_major;
-extern byte version_minor;
-extern byte version_patch;
-extern byte version_extra;
-extern byte sf_major;
-extern byte sf_minor;
-extern byte sf_patch;
+extern byte h_ver_major;
+extern byte h_ver_minor;
+extern byte h_ver_patch;
+extern byte h_ver_extra;
 extern byte sf_extra;
-extern u32b sf_version;
-extern u32b sf_xtra;
+extern u32b sf_system;
 extern byte z_major;
 extern byte z_minor;
 extern byte z_patch;
@@ -287,6 +282,8 @@ extern bool use_command;
 extern bool center_player;
 extern bool center_running;
 extern bool destroy_items;
+extern bool destroy_feeling;
+extern bool destroy_identify;
 extern bool leave_worth;
 extern bool leave_equip;
 extern bool leave_wanted;
@@ -528,6 +525,7 @@ extern void optimize_inventry_auto_destroy(void);
 extern void auto_pickup_items(cave_type *c_ptr);
 extern void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr);
 extern void init_autopicker(void);
+extern errr process_pickpref_file_line(char *buf);
 extern void do_cmd_edit_autopick(void);
 
 /* birth.c */
@@ -571,6 +569,7 @@ extern void map_area(int range);
 extern void wiz_lite(bool wizard, bool ninja);
 extern void wiz_dark(void);
 extern void cave_set_feat(int y, int x, int feat);
+extern void remove_mirror(int y, int x);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern bool projectable(int y1, int x1, int y2, int x2);
 extern void scatter(int *yp, int *xp, int y, int x, int d, int mode);
@@ -683,7 +682,7 @@ extern void do_cmd_activate(void);
 extern void do_cmd_rerate(bool display);
 extern void ring_of_power(int dir);
 extern void do_cmd_use(void);
-extern void do_cmd_magic_eater(void);
+extern void do_cmd_magic_eater(bool only_browse);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
@@ -1085,10 +1084,10 @@ extern int set_elec_destroy(object_type *o_ptr);
 extern int set_fire_destroy(object_type *o_ptr);
 extern int set_cold_destroy(object_type *o_ptr);
 extern int inven_damage(inven_func typ, int perc);
-extern void acid_dam(int dam, cptr kb_str, int monspell);
-extern void elec_dam(int dam, cptr kb_str, int monspell);
-extern void fire_dam(int dam, cptr kb_str, int monspell);
-extern void cold_dam(int dam, cptr kb_str, int monspell);
+extern int acid_dam(int dam, cptr kb_str, int monspell);
+extern int elec_dam(int dam, cptr kb_str, int monspell);
+extern int fire_dam(int dam, cptr kb_str, int monspell);
+extern int cold_dam(int dam, cptr kb_str, int monspell);
 extern bool rustproof(void);
 extern bool curse_armor(void);
 extern bool curse_weapon(bool force, int slot);

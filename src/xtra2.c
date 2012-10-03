@@ -58,7 +58,6 @@ void check_experience(void)
 	{
 		/* Lose a level */
 		p_ptr->lev--;
-		lite_spot(py, px);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -80,7 +79,6 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
-		lite_spot(py, px);
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_plv)
@@ -518,7 +516,7 @@ msg_print("クエストを達成した！");
 						p_ptr->inside_quest = 0;
 					}
 
-					if (!quest[i].flags & QUEST_FLAG_SILENT)
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
 #ifdef JP
 msg_print("クエストを達成した！");
@@ -553,7 +551,7 @@ msg_print("クエストを達成した！");
 					quest[i].status = QUEST_STATUS_COMPLETED;
 					quest[i].complev = (byte)p_ptr->lev;
 
-					if (!quest[i].flags & QUEST_FLAG_SILENT)
+					if (!(quest[i].flags & QUEST_FLAG_SILENT))
 					{
 #ifdef JP
 msg_print("クエストを達成した！");
@@ -574,7 +572,7 @@ msg_print("クエストを達成した！");
 	if (create_stairs)
 	{
 		/* Stagger around */
-		while (cave_perma_bold(y, x) || cave[y][x].o_idx)
+		while (cave_perma_bold(y, x) || cave[y][x].o_idx || (cave[y][x].info & CAVE_IN_MIRROR) )
 		{
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, 1, 0);
@@ -2429,13 +2427,13 @@ void verify_panel(void)
 cptr look_mon_desc(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
 	bool         living;
 	int          perc;
 	cptr desc = NULL;
 
 	/* Determine if the monster is "living" */
-	living = monster_living(r_ptr);
+	living = monster_living(ap_r_ptr);
 
 	/* Calculate a health "percentage" */
 	perc = 100L * m_ptr->hp / m_ptr->maxhp;
@@ -2492,12 +2490,12 @@ cptr look_mon_desc(int m_idx)
 	}
 
 	/* Display monster's level --- idea borrowed from ToME */
-	if (r_ptr->r_tkills)
+	if (ap_r_ptr->r_tkills && !(m_ptr->mflag2 & MFLAG_KAGE))
 	{
 #ifdef JP
-		return format("レベル%d, %s", r_ptr->level, desc);
+		return format("レベル%d, %s", ap_r_ptr->level, desc);
 #else
-		return format("Level %d, %s", r_ptr->level, desc);
+		return format("Level %d, %s", ap_r_ptr->level, desc);
 #endif
 	}
 	else 
@@ -2818,7 +2816,7 @@ static bool target_set_accept(int y, int x)
 		/* Notice glyphs */
 		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
 		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-		if (c_ptr->feat == FEAT_MIRROR) return (TRUE);
+		if ((c_ptr->info & CAVE_IN_MIRROR)) return (TRUE);
 
 		/* Notice the Pattern */
 		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
@@ -3050,7 +3048,7 @@ cptr name = "何か奇妙な物";
 		if (c_ptr->m_idx)
 		{
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
 
 			/* Visible */
 			if (m_ptr->ml)
@@ -3153,7 +3151,7 @@ attitude = " ";
 	char acount[10];
 	u32b tmp_h,tmp_l;
 	int bit,result;
-	u32b exp_mon= (r_ptr->mexp)*(r_ptr->level);
+	u32b exp_mon= (ap_r_ptr->mexp)*(ap_r_ptr->level);
 	u32b exp_mon_h= exp_mon / (p_ptr->max_plv+2);
 	u32b exp_mon_l= ((exp_mon % (p_ptr->max_plv+2))*0x10000/(p_ptr->max_plv+2))&0xFFFF;
 	
@@ -3163,7 +3161,7 @@ attitude = " ";
 	M_INT_SUB(exp_adv_h, exp_adv_l, p_ptr->exp, p_ptr->exp_frac);
 	if ((p_ptr->lev>=PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
 		sprintf(acount,"[**]");
-	else if (!r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG_KAGE))
+	else if (!ap_r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG_KAGE))
 		sprintf(acount,"[??]");
 	else if (M_INT_GREATER(exp_mon_h, exp_mon_l, exp_adv_h, exp_adv_l))
 		sprintf(acount,"[001]");
@@ -3239,15 +3237,15 @@ s1 = "それは";
 
 				/* Hack -- take account of gender */
 #ifdef JP
-if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "彼女は";
+if (ap_r_ptr->flags1 & (RF1_FEMALE)) s1 = "彼女は";
 #else
-				if (r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
+				if (ap_r_ptr->flags1 & (RF1_FEMALE)) s1 = "She is ";
 #endif
 
 #ifdef JP
-else if (r_ptr->flags1 & (RF1_MALE)) s1 = "彼は";
+else if (ap_r_ptr->flags1 & (RF1_MALE)) s1 = "彼は";
 #else
-				else if (r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
+				else if (ap_r_ptr->flags1 & (RF1_MALE)) s1 = "He is ";
 #endif
 
 
@@ -3524,7 +3522,7 @@ if (o_ptr->number != 1) s1 = "それらは";
 		}
 
 		/* Terrain feature if needed */
-		if (boring || (feat > FEAT_INVIS))
+		if (boring || (feat > FEAT_INVIS) || (c_ptr->info & CAVE_IN_MIRROR))
 		{
 			cptr name;
 
@@ -3551,6 +3549,14 @@ if (o_ptr->number != 1) s1 = "それらは";
 				name = "道";
 #else
 				name = "road";
+#endif
+			}
+			else if ( (c_ptr->info & CAVE_IN_MIRROR) )
+			{
+#ifdef JP
+				name = "鏡";
+#else
+				name = "a mirror";
 #endif
 			}
 			else
@@ -3603,7 +3609,7 @@ s2 = "の入口";
 #endif
 
 			}
-			else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER))
+			else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER) || (c_ptr->info & CAVE_IN_MIRROR))
 			{
 #ifndef JP
 				s3 ="";
@@ -4402,7 +4408,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 	else if (p_ptr->riding)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];
-		monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		if (m_ptr->confused)
 		{

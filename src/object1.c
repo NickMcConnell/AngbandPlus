@@ -167,18 +167,22 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		else if (o_ptr->xtra3 == ESSENCE_TMP_RES_ACID)
 		{
 			(*f2) |= TR2_RES_ACID;
+                        (*f3) |= TR3_ACTIVATE;
 		}
 		else if (o_ptr->xtra3 == ESSENCE_TMP_RES_ELEC)
 		{
 			(*f2) |= TR2_RES_ELEC;
+                        (*f3) |= TR3_ACTIVATE;
 		}
 		else if (o_ptr->xtra3 == ESSENCE_TMP_RES_FIRE)
 		{
 			(*f2) |= TR2_RES_FIRE;
+                        (*f3) |= TR3_ACTIVATE;
 		}
 		else if (o_ptr->xtra3 == ESSENCE_TMP_RES_COLD)
 		{
 			(*f2) |= TR2_RES_COLD;
+                        (*f3) |= TR3_ACTIVATE;
 		}
 		else if (o_ptr->xtra3 == ESSENCE_SH_FIRE)
 		{
@@ -198,6 +202,10 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		else if (o_ptr->xtra3 == ESSENCE_RESISTANCE)
 		{
 			(*f2) |= (TR2_RES_ACID | TR2_RES_ELEC | TR2_RES_FIRE | TR2_RES_COLD);;
+		}
+		else if (o_ptr->xtra3 == ESSENCE_EARTHQUAKE)
+		{
+                        (*f3) |= TR3_ACTIVATE;
 		}
 	}
 }
@@ -2452,7 +2460,7 @@ info[i++] = "それを装備した者は吸血鬼になる。";
 #ifdef JP
 info[i++] = "それは相手を一撃で倒すことがある。";
 #else
-		info[i++] = "It will attempts to kill a monster instantly.";
+		info[i++] = "It will attempt to kill a monster instantly.";
 #endif
 
 	}
@@ -3342,7 +3350,7 @@ info[i++] = "それは電気のバリアを張る。";
 #ifdef JP
 info[i++] = "それは冷気のバリアを張る。";
 #else
-		info[i++] = "It produces a coldly sheath.";
+		info[i++] = "It produces a sheath of coldness.";
 #endif
 
 	}
@@ -4375,7 +4383,7 @@ int show_inven(int target_item)
 	char            out_desc[23][MAX_NLEN];
 	int             target_item_label = 0;
 	int             wid, hgt;
-	char inven_spellbook_label[24];
+	char inven_spellbook_label[52+1];
 
 	/* See cmd5.c */
 	extern bool select_spellbook;
@@ -4418,13 +4426,18 @@ int show_inven(int target_item)
 	{
 		int index;
 
-		strcpy(inven_spellbook_label, "abcdefghijklmnopqrstuvw");
-		for (i = 0; i < INVEN_PACK; i++)
+		strcpy(inven_spellbook_label, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		for (i = 0; i < 52; i++)
 		{
-			if (get_tag(&index, (char)('a' + i)))
+                        char c;
+                        if (i < 26) c = (char)('a' + i);
+                        else c = (char)('A' + i - 26);
+
+			if (get_tag(&index, c))
 			{
-				inven_spellbook_label[i] = ' ';
-				inven_spellbook_label[index] = (char)('a' + i);
+				if (inven_spellbook_label[i] == c)
+                                        inven_spellbook_label[i] = ' ';
+				inven_spellbook_label[index] = c;
 			}
 		}
 	}
@@ -5401,9 +5414,9 @@ sprintf(out_val, "持ち物:");
 			{
 				/* Build the prompt */
 #ifdef JP
-sprintf(tmp_val, "%c-%c,",
+sprintf(tmp_val, "%c-%c,'(',')',",
 #else
-				sprintf(tmp_val, " %c-%c,",
+				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
 				        index_to_label(i1), index_to_label(i2));
@@ -5449,9 +5462,9 @@ sprintf(out_val, "装備品:");
 			{
 				/* Build the prompt */
 #ifdef JP
-sprintf(tmp_val, "%c-%c,",
+sprintf(tmp_val, "%c-%c,'(',')',",
 #else
-				sprintf(tmp_val, " %c-%c,",
+				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
 				        index_to_label(e1), index_to_label(e2));
@@ -5810,7 +5823,6 @@ if (other_query_flag && !verify("本当に", k)) continue;
 			default:
 			{
 				int ver;
-
 				if(select_spellbook){
                                     bool not_found = FALSE;
                                     /* Look up the tag */
@@ -5847,13 +5859,17 @@ if (other_query_flag && !verify("本当に", k)) continue;
 				/* Convert letter to inventory index */
 				if (!command_wrk)
 				{
-					k = label_to_inven(which);
+                                        if (which == '(') k = i1;
+                                        else if (which == ')') k = i2;
+                                        else k = label_to_inven(which);
 				}
 
 				/* Convert letter to equipment index */
 				else
 				{
-					k = label_to_equip(which);
+                                        if (which == '(') k = e1;
+                                        else if (which == ')') k = e2;
+					else k = label_to_equip(which);
 				}
 
 				/* Validate the item */
@@ -6436,9 +6452,9 @@ sprintf(out_val, "持ち物:");
 			{
 				/* Build the prompt */
 #ifdef JP
-sprintf(tmp_val, "%c-%c,",
+sprintf(tmp_val, "%c-%c,'(',')',",
 #else
-				sprintf(tmp_val, " %c-%c,",
+				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
 				        index_to_label(i1), index_to_label(i2));
@@ -6519,9 +6535,9 @@ sprintf(out_val, "装備品:");
 			{
 				/* Build the prompt */
 #ifdef JP
-sprintf(tmp_val, "%c-%c,",
+sprintf(tmp_val, "%c-%c,'(',')',",
 #else
-				sprintf(tmp_val, " %c-%c,",
+				sprintf(tmp_val, " %c-%c,'(',')',",
 #endif
 
 				        index_to_label(e1), index_to_label(e2));
@@ -6595,9 +6611,9 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			{
 				/* Build the prompt */
 #ifdef JP
-sprintf(tmp_val, "%c-%c,", n1, n2);
+sprintf(tmp_val, "%c-%c,'(',')',", n1, n2);
 #else
-				sprintf(tmp_val, " %c-%c,", n1, n2);
+				sprintf(tmp_val, " %c-%c,'(',')',", n1, n2);
 #endif
 
 
@@ -7221,19 +7237,25 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 				/* Convert letter to inventory index */
 				if (command_wrk == (USE_INVEN))
 				{
-					k = label_to_inven(which);
+                                        if (which == '(') k = i1;
+                                        else if (which == ')') k = i2;
+					else k = label_to_inven(which);
 				}
 
 				/* Convert letter to equipment index */
 				else if (command_wrk == (USE_EQUIP))
 				{
-					k = label_to_equip(which);
+                                        if (which == '(') k = e1;
+                                        else if (which == ')') k = e2;
+					else k = label_to_equip(which);
 				}
 
 				/* Convert letter to floor index */
 				else if (command_wrk == USE_FLOOR)
 				{
-					k = islower(which) ? A2I(which) : -1;
+                                        if (which == '(') k = 0;
+                                        else if (which == ')') k = floor_num - 1;
+					else k = islower(which) ? A2I(which) : -1;
 					if (k < 0 || k >= floor_num || k >= 23)
 					{
 						bell();

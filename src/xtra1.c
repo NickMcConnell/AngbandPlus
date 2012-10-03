@@ -2778,8 +2778,8 @@ static void calc_hitpoints(void)
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
 	/* Factor in the hero / superhero settings */
-	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
-	if (p_ptr->shero) mhp += 30;
+	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO)) mhp += 10;
+	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
 	if (p_ptr->tsuyoshi) mhp += 50;
 
 	/* New maximum hitpoints */
@@ -5570,17 +5570,20 @@ void update_stuff(void)
 		update_flow();
 	}
 
+	if (p_ptr->update & (PU_DISTANCE))
+	{
+		p_ptr->update &= ~(PU_DISTANCE);
+
+                /* Still need to call update_monsters(FALSE) after update_mon_lite() */ 
+		/* p_ptr->update &= ~(PU_MONSTERS); */
+
+		update_monsters(TRUE);
+	}
+
 	if (p_ptr->update & (PU_MON_LITE))
 	{
 		p_ptr->update &= ~(PU_MON_LITE);
 		update_mon_lite();
-	}
-
-	if (p_ptr->update & (PU_DISTANCE))
-	{
-		p_ptr->update &= ~(PU_DISTANCE);
-		p_ptr->update &= ~(PU_MONSTERS);
-		update_monsters(TRUE);
 	}
 
 	if (p_ptr->update & (PU_MONSTERS))

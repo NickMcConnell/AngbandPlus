@@ -278,7 +278,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			}
 			else
 			{
-				s_ptr = &mp_ptr->info[use_realm - 1][spell % 32];
+				s_ptr = &mp_ptr->info[use_realm - 1][spell];
 			}
 
 			if (use_realm == REALM_HISSATSU)
@@ -301,11 +301,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			jverb1( prompt, jverb_buf );
                         /* 英日切り替え機能に対応 */
                         (void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
-                                spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
+                                spell_names[technic2magic(use_realm)-1][spell], shouhimana,
 				       spell_chance(spell, use_realm),jverb_buf);
 #else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-				prompt, spell_names[technic2magic(use_realm)-1][spell % 32], shouhimana,
+				prompt, spell_names[technic2magic(use_realm)-1][spell], shouhimana,
 				spell_chance(spell, use_realm));
 #endif
 
@@ -4851,6 +4851,8 @@ s = "呪文書がない！";
 	/* Verify "dangerous" spells */
 	if (shouhimana > p_ptr->csp)
 	{
+		if (flush_failure) flush();
+
 		/* Warning */
 #ifdef JP
 msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
@@ -5466,7 +5468,11 @@ void do_cmd_pet_dismiss(void)
 		   (Dismissed == 1 ? "" : "s"));
 #endif
 	if (Dismissed == 0 && all_pets)
+#ifdef JP
 		msg_print("'U'nnamed は、乗馬以外の名前のないペットだけを全て解放します。");
+#else
+		msg_print("'U'nnamed means all your pets except named pets and your mount.");
+#endif
 
 	p_ptr->update |= (PU_MON_LITE);
 }

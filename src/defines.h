@@ -37,20 +37,16 @@
  */
 #define VERSION_NAME "Hengband"
 
-
-/*
- * Current version number of Angband: 2.8.1
- */
-#define VERSION_MAJOR   2
-#define VERSION_MINOR   8
-#define VERSION_PATCH   1
-
-#define SAVEFILE_VERSION 3
+/* Savefile version for Hengband 1.1.1 and later */
+#define H_VER_MAJOR 1
+#define H_VER_MINOR 1
+#define H_VER_PATCH 1
+#define H_VER_EXTRA 0
 
 /* Added for ZAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
-#define FAKE_VER_MINOR 1
+#define FAKE_VER_MINOR 2
 #define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
@@ -62,16 +58,6 @@
 #define VERSION_EXTRA   0
 
 
-#ifdef JP
- /*
-  * 日本語版のバージョン
-  */
-#define JVERSION_MAJOR 0
-#define JVERSION_MINOR 9
-#define JVERSION_PATCH 4
-#define JVERSION_EXTRA 0
-
-#endif
 /*
  * Number of grids in each block (vertically)
  * Probably hard-coded to 11, see "generate.c"
@@ -2375,6 +2361,10 @@
 #define CAVE_MASK (CAVE_FLOOR | CAVE_EXTRA | CAVE_INNER | CAVE_OUTER | CAVE_SOLID | CAVE_VAULT)
 
 /* Used only after cave generation */
+#define CAVE_XXXX1      0x0200
+#define CAVE_XXXX2      0x0400
+#define CAVE_XXXX3      0x0800
+#define CAVE_IN_MIRROR  0x1000    /* mirror */
 #define CAVE_UNSAFE     0x2000    /* Might have trap */
 #define CAVE_IN_DETECT  0x4000    /* trap detected area (inner circle only) */
 
@@ -2688,6 +2678,7 @@
 #define SUMMON_LOUSE                61
 #define SUMMON_GUARDIANS            62
 #define SUMMON_KNIGHTS              63
+#define SUMMON_EAGLES               64
 
 
 /*
@@ -3107,7 +3098,8 @@
 	 TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_TELEPORT)
 
 #define TRC_P_FLAG_MASK  \
-	(TRC_TY_CURSE | TRC_DRAIN_EXP | TRC_ADD_L_CURSE | TRC_ADD_H_CURSE | \
+        (TRC_TELEPORT_SELF | TRC_CHAINSWORD | \
+	 TRC_TY_CURSE | TRC_DRAIN_EXP | TRC_ADD_L_CURSE | TRC_ADD_H_CURSE | \
 	 TRC_CALL_ANIMAL | TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_COWARDICE | \
 	 TRC_TELEPORT | TRC_DRAIN_HP | TRC_DRAIN_MANA)
 
@@ -3548,6 +3540,19 @@
 
 
 /*
+ * Hack -- 'ball' spells with radius 4 that may hurt friends
+ */
+#define RF4_BIG_BALL_MASK \
+	(RF4_BA_CHAO)
+
+#define RF5_BIG_BALL_MASK \
+	(RF5_BA_LITE | RF5_BA_DARK | RF5_BA_WATE | RF5_BA_MANA)
+
+#define RF6_BIG_BALL_MASK \
+	0L
+
+
+/*
  * Hack -- 'breath' spells that may hurt friends
  */
 #define RF4_BREATH_MASK \
@@ -3892,6 +3897,7 @@
 	  (cave[Y][X].feat == FEAT_GRASS) || \
 	  (cave[Y][X].feat == FEAT_DIRT)) && \
 	  !(cave[Y][X].info & CAVE_TRAP) && \
+	  !(cave[Y][X].info & CAVE_IN_MIRROR) && \
 	  (cave[Y][X].o_idx == 0))
 
 
@@ -4386,6 +4392,7 @@ extern int PlayerUID;
 #define NIKKI_GAMESTART   19
 #define NIKKI_WIZ_TELE    20
 #define NIKKI_NAMED_PET   21
+#define NIKKI_PAT_TELE    22
 
 #define MAX_MANE 16
 #define MAX_MONSPELLS 96
@@ -4535,11 +4542,14 @@ extern int PlayerUID;
 #define MON_ENERGY_VOR    359
 #define MON_JADE_MONK     370
 #define MON_HAGEN         383
+#define MON_MENELDOR      384
 #define MON_PHANTOM_B     385
+#define MON_GWAIHIR       410
 #define MON_ANGEL         417
 #define MON_ADAMANT_COINS 423
 #define MON_BARNEY        441
 #define MON_ARCHANGEL     456
+#define MON_THORONDOR     468
 #define MON_GHOST         477
 #define MON_NINJA         485
 #define MON_IVORY_MONK    492

@@ -2043,24 +2043,6 @@ info[i++] = "あなたの手は毒に覆われている。";
 #endif
 
 	}
-	if (p_ptr->special_attack & ATTACK_CONFUSE)
-	{
-#ifdef JP
-info[i++] = "あなたの手は赤く輝いている。";
-#else
-		info[i++] = "Your hands are glowing dull red.";
-#endif
-
-	}
-	if (p_ptr->special_attack & ATTACK_CONFUSE)
-	{
-#ifdef JP
-info[i++] = "あなたの手は赤く輝いている。";
-#else
-		info[i++] = "Your hands are glowing dull red.";
-#endif
-
-	}
 	switch (p_ptr->action)
 	{
 		case ACTION_SEARCH:
@@ -2193,7 +2175,7 @@ info[i++] = "あなたは電気に包まれている。";
 #ifdef JP
 info[i++] = "あなたは冷気のオーラに包まれている。";
 #else
-		info[i++] = "You are surrounded with a coldly aura.";
+		info[i++] = "You are surrounded with an aura of coldness.";
 #endif
 
 	}
@@ -5157,7 +5139,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE | CAVE_IN_MIRROR);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
@@ -5372,7 +5354,7 @@ bool earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP | CAVE_UNSAFE | CAVE_IN_MIRROR );
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -5970,7 +5952,7 @@ static void cave_temp_room_unlite(void)
 		c_ptr->info &= ~(CAVE_TEMP);
 
 		/* Darken the grid */
-		c_ptr->info &= ~(CAVE_GLOW);
+		if (!(c_ptr->info & CAVE_IN_MIRROR ))c_ptr->info &= ~(CAVE_GLOW);
 
 		/* Hack -- Forget "boring" grids */
 		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
@@ -6060,7 +6042,7 @@ static int next_to_walls_adj(int cy, int cx)
 /*
  * Aux function -- see below
  */
-static void cave_temp_room_aux(int y, int x)
+static void cave_temp_room_aux(int y, int x, bool only_room)
 {
 	cave_type *c_ptr;
 
@@ -6073,11 +6055,10 @@ static void cave_temp_room_aux(int y, int x)
 	/* Do not "leave" the current room */
 	if (!(c_ptr->info & (CAVE_ROOM)))
 	{
-		/* Verify */
-		if (!in_bounds(y, x)) return;
+		if (only_room) return;
 
-		/* If a wall, exit */
-		if (!cave_floor_bold(y, x)) return;
+		/* Verify */
+		if (!in_bounds2(y, x)) return;
 
 		/* Do not exceed the maximum spell range */
 		if (distance(py, px, y, x) > MAX_RANGE) return;
@@ -6091,7 +6072,8 @@ static void cave_temp_room_aux(int y, int x)
 		 * properly.
 		 * This leaves only a check for 6 bounding walls!
 		 */
-		if ((next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
+		if (in_bounds(y, x) && cave_floor_bold(y, x) &&
+                    (next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
 	}
 
 	/* Paranoia -- verify space */
@@ -6106,6 +6088,22 @@ static void cave_temp_room_aux(int y, int x)
 	temp_n++;
 }
 
+/*
+ * Aux function -- see below
+ */
+static void cave_temp_lite_room_aux(int y, int x)
+{
+	cave_temp_room_aux(y, x, FALSE);
+}
+
+/*
+ * Aux function -- see below
+ */
+static void cave_temp_unlite_room_aux(int y, int x)
+{
+	cave_temp_room_aux(y, x, TRUE);
+}
+
 
 
 
@@ -6117,7 +6115,7 @@ void lite_room(int y1, int x1)
 	int i, x, y;
 
 	/* Add the initial grid */
-	cave_temp_room_aux(y1, x1);
+	cave_temp_lite_room_aux(y1, x1);
 
 	/* While grids are in the queue, add their neighbors */
 	for (i = 0; i < temp_n; i++)
@@ -6128,16 +6126,16 @@ void lite_room(int y1, int x1)
 		if (!cave_floor_bold(y, x)) continue;
 
 		/* Spread adjacent */
-		cave_temp_room_aux(y + 1, x);
-		cave_temp_room_aux(y - 1, x);
-		cave_temp_room_aux(y, x + 1);
-		cave_temp_room_aux(y, x - 1);
+		cave_temp_lite_room_aux(y + 1, x);
+		cave_temp_lite_room_aux(y - 1, x);
+		cave_temp_lite_room_aux(y, x + 1);
+		cave_temp_lite_room_aux(y, x - 1);
 
 		/* Spread diagonal */
-		cave_temp_room_aux(y + 1, x + 1);
-		cave_temp_room_aux(y - 1, x - 1);
-		cave_temp_room_aux(y - 1, x + 1);
-		cave_temp_room_aux(y + 1, x - 1);
+		cave_temp_lite_room_aux(y + 1, x + 1);
+		cave_temp_lite_room_aux(y - 1, x - 1);
+		cave_temp_lite_room_aux(y - 1, x + 1);
+		cave_temp_lite_room_aux(y + 1, x - 1);
 	}
 
 	/* Now, lite them all up at once */
@@ -6153,7 +6151,7 @@ void unlite_room(int y1, int x1)
 	int i, x, y;
 
 	/* Add the initial grid */
-	cave_temp_room_aux(y1, x1);
+	cave_temp_unlite_room_aux(y1, x1);
 
 	/* Spread, breadth first */
 	for (i = 0; i < temp_n; i++)
@@ -6164,16 +6162,16 @@ void unlite_room(int y1, int x1)
 		if (!cave_floor_bold(y, x)) continue;
 
 		/* Spread adjacent */
-		cave_temp_room_aux(y + 1, x);
-		cave_temp_room_aux(y - 1, x);
-		cave_temp_room_aux(y, x + 1);
-		cave_temp_room_aux(y, x - 1);
+		cave_temp_unlite_room_aux(y + 1, x);
+		cave_temp_unlite_room_aux(y - 1, x);
+		cave_temp_unlite_room_aux(y, x + 1);
+		cave_temp_unlite_room_aux(y, x - 1);
 
 		/* Spread diagonal */
-		cave_temp_room_aux(y + 1, x + 1);
-		cave_temp_room_aux(y - 1, x - 1);
-		cave_temp_room_aux(y - 1, x + 1);
-		cave_temp_room_aux(y + 1, x - 1);
+		cave_temp_unlite_room_aux(y + 1, x + 1);
+		cave_temp_unlite_room_aux(y - 1, x - 1);
+		cave_temp_unlite_room_aux(y - 1, x + 1);
+		cave_temp_unlite_room_aux(y + 1, x - 1);
 	}
 
 	/* Now, darken them all at once */

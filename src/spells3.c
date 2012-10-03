@@ -1684,9 +1684,16 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 		return FALSE;
 	}
 
-	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MIRROR);
+	/* Create a mirror */
+	cave[py][px].info |= CAVE_IN_MIRROR;
+
+	/* Turn on the light */
+	cave[py][px].info |= CAVE_GLOW;
+
+	/* Notice */
 	note_spot(py, px);
+	
+	/* Redraw */
 	lite_spot(py, px);
 
 	return TRUE;
@@ -2695,7 +2702,8 @@ s = "鑑定するべきアイテムがない。";
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
-	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
+	if (destroy_identify && !old_known)
+                auto_destroy_item(item, idx, wait_optimize);
 
 	/* Something happened */
 	return (TRUE);
@@ -2877,7 +2885,8 @@ s = "鑑定するべきアイテムがない。";
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
-	if (!old_known) auto_destroy_item(item, idx, wait_optimize);
+	if (destroy_identify && !old_known)
+                auto_destroy_item(item, idx, wait_optimize);
 
 	/* Success */
 	return (TRUE);
@@ -5040,8 +5049,9 @@ msg_format("%sがダメージを受けた！", o_name);
 /*
  * Hurt the player with Acid
  */
-void acid_dam(int dam, cptr kb_str, int monspell)
+int acid_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_acid  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5049,7 +5059,7 @@ void acid_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_acid || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5068,19 +5078,21 @@ void acid_dam(int dam, cptr kb_str, int monspell)
 	if (minus_ac()) dam = (dam + 1) / 2;
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_acid))
 		inven_damage(set_acid_destroy, inv);
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with electricity
  */
-void elec_dam(int dam, cptr kb_str, int monspell)
+int elec_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_elec  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5088,7 +5100,7 @@ void elec_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_elec || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5105,19 +5117,22 @@ void elec_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_DEX);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_elec))
 		inven_damage(set_elec_destroy, inv);
+
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, cptr kb_str, int monspell)
+int fire_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_fire  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5125,7 +5140,7 @@ void fire_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_fire || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5142,19 +5157,22 @@ void fire_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_fire))
 		inven_damage(set_fire_destroy, inv);
+
+	return get_damage;
 }
 
 
 /*
  * Hurt the player with Cold
  */
-void cold_dam(int dam, cptr kb_str, int monspell)
+int cold_dam(int dam, cptr kb_str, int monspell)
 {
+	int get_damage;  
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 	bool double_resist = (p_ptr->oppose_cold  || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU));
 
@@ -5162,7 +5180,7 @@ void cold_dam(int dam, cptr kb_str, int monspell)
 	if (p_ptr->immune_cold || (dam <= 0))
 	{
 		learn_spell(monspell);
-		return;
+		return 0;
 	}
 
 	/* Vulnerability (Ouch!) */
@@ -5178,11 +5196,13 @@ void cold_dam(int dam, cptr kb_str, int monspell)
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
-	take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
+	get_damage=take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
 	if (!(double_resist && p_ptr->resist_cold))
 		inven_damage(set_cold_destroy, inv);
+
+	return get_damage;
 }
 
 
@@ -5566,8 +5586,8 @@ bool polymorph_monster(int y, int x)
 		else
 		{
 			/* Placing the new monster failed */
-			place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN));
-			m_list[hack_m_idx_ii] = back_m;
+			if (place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN)))
+                                m_list[hack_m_idx_ii] = back_m;
 		}
 
 		if (targeted) target_who = hack_m_idx_ii;

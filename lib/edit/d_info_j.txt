@@ -13,7 +13,7 @@
 
 # N:<index>:<name>
 # D:<long name>
-# W:<min depth>:<min depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance>
+# W:<min depth>:<min depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance> <obj good> <obj great> <pit> <nest>
 # L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>
 # A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>:<stream1>:<stream2>
 # F:<flags>
@@ -66,7 +66,7 @@ F:MONSTER_DIV_64
 
 N:2:イークの洞穴
 E:Yeek cave
-D:$the entrace to the cave leading to the Yeek's den
+D:$the entrance to the cave leading to the Yeek's den
 D:イークの住みかへと続く小さな洞穴
 P:48:5
 W:1:13:1:0:14:240:75:20:0x0000:0x0000
@@ -218,6 +218,7 @@ P:46:76
 W:25:50:20:3:14:160:75:20:0x00b7:0x00df
 L:89:100:89:0:89:0:0
 A:97:100:56:0:56:0:97:56:0:0
+F:FINAL_GUARDIAN_468 | FINAL_OBJECT_239 |
 F:MONSTER_DIV_16 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
 M:TROLL | GIANT | CAN_FLY | ANIMAL | WILD_MOUNTAIN | R_CHAR_O | R_CHAR_Y
 M:R_CHAR_H
