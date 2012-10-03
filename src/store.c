@@ -1,14 +1,14 @@
 /* File: store.c */
 
-/* Purpose: Store commands */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Store commands */
 
 #include "angband.h"
 
@@ -938,7 +938,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 			price = price / 2;
 
 		/* Compute the final price (with rounding) */
-		/* Hack -- prevent undefflow */
+		/* Hack -- prevent underflow */
 		price = (price * adjust + 50L) / 100L;
 	}
 
@@ -1928,7 +1928,7 @@ static void store_create(void)
 		object_prep(q_ptr, i);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, level, AM_NO_FIXED_ART);
 
 		/* Require valid object */
 		if (!store_will_buy(q_ptr)) continue;
@@ -4477,9 +4477,9 @@ void do_cmd_store(void)
 {
 	int         which;
 	int         maintain_num;
-	int         tmp_chr;
 	int         i;
 	cave_type   *c_ptr;
+	bool        need_redraw_store_inv; /* To redraw missiles damage and prices in store */
 
 
 	/* Access the player grid */
@@ -4523,7 +4523,7 @@ void do_cmd_store(void)
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
-	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TURNS);
+	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TICKS);
 
 	/* Maintain the store max. 10 times */
 	if (maintain_num > 10) maintain_num = 10;
@@ -4581,9 +4581,6 @@ void do_cmd_store(void)
 	{
 		/* Hack -- Clear line 1 */
 		prt("", 1, 0);
-
-		/* Hack -- Check the charisma */
-		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
 		clear_from(20);
@@ -4691,6 +4688,12 @@ void do_cmd_store(void)
 
 		/* Process the command */
 		store_process_command();
+
+		/*
+		 * Hack -- To redraw missiles damage and prices in store
+		 * If player's charisma changes, or if player changes a bow, PU_BONUS is set
+		 */
+		need_redraw_store_inv = (p_ptr->update & PU_BONUS) ? TRUE : FALSE;
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -4801,7 +4804,8 @@ void do_cmd_store(void)
 		}
 
 		/* Hack -- Redisplay store prices if charisma changes */
-		if (tmp_chr != p_ptr->stat_use[A_CHR]) display_inventory();
+		/* Hack -- Redraw missiles damage if player changes bow */
+		if (need_redraw_store_inv) display_inventory();
 
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
@@ -5048,7 +5052,7 @@ void store_init(int town_num, int store_num)
 	 * MEGA-HACK - Last visit to store is
 	 * BEFORE player birth to enable store restocking
 	 */
-	st_ptr->last_visit = -200L * STORE_TURNS;
+	st_ptr->last_visit = -10L * TURNS_PER_TICK * STORE_TICKS;
 
 	/* Clear any old items */
 	for (k = 0; k < st_ptr->stock_size; k++)

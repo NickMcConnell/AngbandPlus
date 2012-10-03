@@ -3,11 +3,11 @@
 /* Purpose: Monster attacks */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -155,8 +155,6 @@ bool make_attack_normal(int m_idx)
 
 	object_type *o_ptr;
 
-	object_kind *k_ptr;
-
 	char o_name[MAX_NLEN];
 
 	char m_name[80];
@@ -166,10 +164,11 @@ bool make_attack_normal(int m_idx)
 	bool blinked;
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 	bool explode = FALSE;
-	bool resist_drain = FALSE;
 	bool do_silly_attack = (one_in_(2) && p_ptr->image);
-	int syouryaku = 0;
 	int get_damage = 0;
+#ifdef JP
+	int abbreviate = 0;
+#endif
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -187,7 +186,7 @@ bool make_attack_normal(int m_idx)
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
-	monster_desc(ddesc, m_ptr, 0x288);
+	monster_desc(ddesc, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 
 	if (p_ptr->special_defense & KATA_IAI)
 	{
@@ -250,43 +249,7 @@ bool make_attack_normal(int m_idx)
 		if (m_ptr->ml) visible = TRUE;
 
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-			case RBE_HURT:      power = 60; break;
-			case RBE_POISON:    power =  5; break;
-			case RBE_UN_BONUS:  power = 20; break;
-			case RBE_UN_POWER:  power = 15; break;
-			case RBE_EAT_GOLD:  power =  5; break;
-			case RBE_EAT_ITEM:  power =  5; break;
-			case RBE_EAT_FOOD:  power =  5; break;
-			case RBE_EAT_LITE:  power =  5; break;
-			case RBE_ACID:      power =  0; break;
-			case RBE_ELEC:      power = 10; break;
-			case RBE_FIRE:      power = 10; break;
-			case RBE_COLD:      power = 10; break;
-			case RBE_BLIND:     power =  2; break;
-			case RBE_CONFUSE:   power = 10; break;
-			case RBE_TERRIFY:   power = 10; break;
-			case RBE_PARALYZE:  power =  2; break;
-			case RBE_LOSE_STR:  power =  0; break;
-			case RBE_LOSE_DEX:  power =  0; break;
-			case RBE_LOSE_CON:  power =  0; break;
-			case RBE_LOSE_INT:  power =  0; break;
-			case RBE_LOSE_WIS:  power =  0; break;
-			case RBE_LOSE_CHR:  power =  0; break;
-			case RBE_LOSE_ALL:  power =  2; break;
-			case RBE_SHATTER:   power = 60; break;
-			case RBE_EXP_10:    power =  5; break;
-			case RBE_EXP_20:    power =  5; break;
-			case RBE_EXP_40:    power =  5; break;
-			case RBE_EXP_80:    power =  5; break;
-			case RBE_DISEASE:   power =  5; break;
-			case RBE_TIME:      power =  5; break;
-			case RBE_EXP_VAMP:  power =  5; break;
-			case RBE_DR_MANA:   power =  5; break;
-			case RBE_SUPERHURT: power = 60; break;
-		}
-
+		power = mbe_info[effect].power;
 
 		/* Total armor */
 		ac = p_ptr->ac + p_ptr->to_a;
@@ -305,18 +268,18 @@ bool make_attack_normal(int m_idx)
 			    ((randint0(100) + p_ptr->lev) > 50))
 			{
 				/* Remember the Evil-ness */
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_EVIL;
 				}
 
 				/* Message */
 #ifdef JP
-				if (syouryaku)
+				if (abbreviate)
 				    msg_format("撃退した。");
 				else
 				    msg_format("%^sは撃退された。", m_name);
-				syouryaku = 1;/*２回目以降は省略 */
+				abbreviate = 1;/*２回目以降は省略 */
 #else
 				msg_format("%^s is repelled.", m_name);
 #endif
@@ -487,7 +450,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CHARGE:
 				{
 #ifdef JP
-					syouryaku = -1;
+					abbreviate = -1;
 					act = "は請求書をよこした。";
 #else
 					act = "charges you.";
@@ -501,7 +464,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CRAWL:
 				{
 #ifdef JP
-					syouryaku = -1;
+					abbreviate = -1;
 					act = "が体の上を這い回った。";
 #else
 					act = "crawls on you.";
@@ -538,8 +501,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_EXPLODE:
 				{
-					syouryaku = -1;
 #ifdef JP
+					abbreviate = -1;
 					act = "は爆発した。";
 #else
 					act = "explodes.";
@@ -586,8 +549,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_XXX4:
 				{
-					syouryaku = -1;
 #ifdef JP
+					abbreviate = -1;
 					act = "が XXX4 を発射した。";
 #else
 					act = "projects XXX4's at you.";
@@ -610,7 +573,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_INSULT:
 				{
-					syouryaku = -1;
+#ifdef JP
+					abbreviate = -1;
+#endif
 					act = desc_insult[randint0(m_ptr->r_idx == MON_DEBBY ? 10 : 8)];
 					sound(SOUND_MOAN);
 					break;
@@ -618,7 +583,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_MOAN:
 				{
-					syouryaku = -1;
+#ifdef JP
+					abbreviate = -1;
+#endif
 					act = desc_moan[randint0(4)];
 					sound(SOUND_MOAN);
 					break;
@@ -626,7 +593,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_SHOW:
 				{
-					syouryaku = -1;
+#ifdef JP
+					abbreviate = -1;
+#endif
 					if (m_ptr->r_idx == MON_JAIAN)
 					{
 #ifdef JP
@@ -702,17 +671,19 @@ bool make_attack_normal(int m_idx)
 			{
 				if (do_silly_attack)
 				{
-					syouryaku = -1;
+#ifdef JP
+					abbreviate = -1;
+#endif
 					act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
 				}
 #ifdef JP
-				if(syouryaku==0)
+				if (abbreviate == 0)
 				    msg_format("%^sに%s", m_name, act);
-				else if(syouryaku==1)
+				else if (abbreviate == 1)
 				    msg_format("%s", act);
-				else /*if(syouryaku==-1)*/
+				else /* if (abbreviate == -1) */
 				    msg_format("%^s%s", m_name, act);
-				syouryaku = 1;/*２回目以降は省略 */
+				abbreviate = 1;/*２回目以降は省略 */
 #else
 				msg_format("%^s %s%s", m_name, act, do_silly_attack ? " you." : "");
 #endif
@@ -780,7 +751,7 @@ bool make_attack_normal(int m_idx)
 					if (explode) break;
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
 						{
@@ -1063,7 +1034,6 @@ bool make_attack_normal(int m_idx)
 							 */
 							if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 							{
-								k_ptr = &k_info[o_ptr->k_idx];
 								j_ptr->pval = o_ptr->pval / o_ptr->number;
 								o_ptr->pval -= j_ptr->pval;
 							}
@@ -1535,6 +1505,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EXP_10:
 				{
+					s32b d = damroll(10, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1543,47 +1515,14 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead) break;
 
-					if (p_ptr->prace == RACE_ANDROID)
-					{
-					}
-					else if (p_ptr->hold_life && (randint0(100) < 95))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_exp(d/10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_exp(d);
-						}
-					}
+					(void)drain_exp(d, d / 10, 95);
 					break;
 				}
 
 				case RBE_EXP_20:
 				{
+					s32b d = damroll(20, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1592,47 +1531,14 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead) break;
 
-					if (p_ptr->prace == RACE_ANDROID)
-					{
-					}
-					else if (p_ptr->hold_life && (randint0(100) < 90))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b d = damroll(20, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_exp(d/10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_exp(d);
-						}
-					}
+					(void)drain_exp(d, d / 10, 90);
 					break;
 				}
 
 				case RBE_EXP_40:
 				{
+					s32b d = damroll(40, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1641,47 +1547,14 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead) break;
 
-					if (p_ptr->prace == RACE_ANDROID)
-					{
-					}
-					else if (p_ptr->hold_life && (randint0(100) < 75))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_exp(d/10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_exp(d);
-						}
-					}
+					(void)drain_exp(d, d / 10, 75);
 					break;
 				}
 
 				case RBE_EXP_80:
 				{
+					s32b d = damroll(80, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1690,42 +1563,7 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead) break;
 
-					if (p_ptr->prace == RACE_ANDROID)
-					{
-					}
-					else if (p_ptr->hold_life && (randint0(100) < 50))
-					{
-#ifdef JP
-						msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-					}
-					else
-					{
-						s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-							msg_print("生命力を少し吸い取られた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_exp(d/10);
-						}
-						else
-						{
-#ifdef JP
-							msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_exp(d);
-						}
-					}
+					(void)drain_exp(d, d / 10, 50);
 					break;
 				}
 
@@ -1737,7 +1575,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->is_dead) break;
 
 					/* Take "poison" effect */
-					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 					{
 						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
 						{
@@ -1846,6 +1684,9 @@ bool make_attack_normal(int m_idx)
 				}
 				case RBE_EXP_VAMP:
 				{
+					s32b d = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
+					bool resist_drain;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1854,43 +1695,7 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead) break;
 
-					if (p_ptr->prace == RACE_ANDROID)
-					{
-					}
-					else if (p_ptr->hold_life && (randint0(100) < 50))
-					{
-#ifdef JP
-msg_print("しかし自己の生命力を守りきった！");
-#else
-						msg_print("You keep hold of your life force!");
-#endif
-
-						resist_drain = TRUE;
-					}
-					else
-					{
-						s32b d = damroll(60, 6) + (p_ptr->exp / 100) * MON_DRAIN_LIFE;
-						if (p_ptr->hold_life)
-						{
-#ifdef JP
-msg_print("生命力が少し体から抜け落ちた気がする！");
-#else
-							msg_print("You feel your life slipping away!");
-#endif
-
-							lose_exp(d / 10);
-						}
-						else
-						{
-#ifdef JP
-msg_print("生命力が体から吸い取られた気がする！");
-#else
-							msg_print("You feel your life draining away!");
-#endif
-
-							lose_exp(d);
-						}
-					}
+					resist_drain = !drain_exp(d, d / 10, 50);
 
 					/* Heal the attacker? */
 					if (p_ptr->mimic_form)
@@ -1929,7 +1734,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 						if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 						/* Special message */
-						if ((m_ptr->ml) && (did_heal))
+						if (m_ptr->ml && did_heal)
 						{
 #ifdef JP
 msg_format("%sは体力を回復したようだ。", m_name);
@@ -1944,8 +1749,6 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				}
 				case RBE_DR_MANA:
 				{
-					bool did_heal = FALSE;
-
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1958,8 +1761,6 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						p_ptr->csp = 0;
 						p_ptr->csp_frac = 0;
 					}
-
-					if (m_ptr->hp < m_ptr->maxhp) did_heal = TRUE;
 
 					p_ptr->redraw |= (PR_MANA);
 
@@ -2048,7 +1849,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				if (p_ptr->sh_fire && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_FIRE))
+					if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
 					{
 						int dam = damroll(2, 6);
 
@@ -2073,14 +1874,14 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 					else
 					{
-						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_FIRE;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
 					}
 				}
 
 				if (p_ptr->sh_elec && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_ELEC))
+					if (!(r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
 					{
 						int dam = damroll(2, 6);
 
@@ -2105,14 +1906,14 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 					else
 					{
-						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_ELEC;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
 					}
 				}
 
 				if (p_ptr->sh_cold && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					if (!(r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
 					{
 						int dam = damroll(2, 6);
 
@@ -2137,15 +1938,15 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 					else
 					{
-						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_IM_COLD;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
 					}
 				}
 
 				/* by henkma */
 				if (p_ptr->dustrobe && alive && !p_ptr->is_dead)
 				{
-					if (!(r_ptr->flags4 & RF4_BR_SHAR))
+					if (!(r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK))
 					{
 						int dam = damroll(2, 6);
 
@@ -2162,12 +1963,17 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
 						    " had torn to pieces."))
 #endif
-						  
 						{
 							blinked = FALSE;
 							alive = FALSE;
 						}
 					}
+					else
+					{
+						if (m_ptr->ml && is_original_ap(m_ptr))
+							r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK);
+					}
+
 					if (is_mirror_grid(&cave[py][px])) {
 						teleport_player(10);
 					}
@@ -2177,17 +1983,53 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (r_ptr->flags3 & RF3_EVIL)
 					{
+						if (!(r_ptr->flagsr & RFR_RES_ALL))
+						{
+							int dam = damroll(2, 6);
+
+							/* Modify the damage */
+							dam = mon_damage_mod(m_ptr, dam, FALSE);
+
+#ifdef JP
+							msg_format("%^sは聖なるオーラで傷ついた！", m_name);
+							if (mon_take_hit(m_idx, dam, &fear,
+							    "は倒れた。"))
+#else
+							msg_format("%^s is injured by holy power!", m_name);
+
+							if (mon_take_hit(m_idx, dam, &fear,
+							    " is destroyed."))
+#endif
+							{
+								blinked = FALSE;
+								alive = FALSE;
+							}
+							if (m_ptr->ml && is_original_ap(m_ptr))
+								r_ptr->r_flags3 |= RF3_EVIL;
+						}
+						else
+						{
+							if (m_ptr->ml && is_original_ap(m_ptr))
+								r_ptr->r_flagsr |= RFR_RES_ALL;
+						}
+					}
+				}
+
+				if (p_ptr->tim_sh_touki && alive && !p_ptr->is_dead)
+				{
+					if (!(r_ptr->flagsr & RFR_RES_ALL))
+					{
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
 
 #ifdef JP
-						msg_format("%^sは聖なるオーラで傷ついた！", m_name);
+						msg_format("%^sが鋭い闘気のオーラで傷ついた！", m_name);
 						if (mon_take_hit(m_idx, dam, &fear,
 						    "は倒れた。"))
 #else
-						msg_format("%^s is injured by holy power!", m_name);
+						msg_format("%^s is injured by the Force", m_name);
 
 						if (mon_take_hit(m_idx, dam, &fear,
 						    " is destroyed."))
@@ -2197,32 +2039,11 @@ msg_format("%sは体力を回復したようだ。", m_name);
 							blinked = FALSE;
 							alive = FALSE;
 						}
-						if (m_ptr->ml)
-							r_ptr->r_flags3 |= RF3_EVIL;
 					}
-				}
-
-				if (p_ptr->tim_sh_touki && alive && !p_ptr->is_dead)
-				{
-					int dam = damroll(2, 6);
-
-					/* Modify the damage */
-					dam = mon_damage_mod(m_ptr, dam, FALSE);
-
-#ifdef JP
-					msg_format("%^sが鋭い闘気のオーラで傷ついた！", m_name);
-					if (mon_take_hit(m_idx, dam, &fear,
-					    "は倒れた。"))
-#else
-					msg_format("%^s is injured by the Force", m_name);
-
-					if (mon_take_hit(m_idx, dam, &fear,
-					    " is destroyed."))
-#endif
-
+					else
 					{
-						blinked = FALSE;
-						alive = FALSE;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+							r_ptr->r_flagsr |= RFR_RES_ALL;
 					}
 				}
 			}
@@ -2255,11 +2076,11 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 					/* Message */
 #ifdef JP
-					if (syouryaku)
+					if (abbreviate)
 					    msg_format("%sかわした。", (p_ptr->special_attack & ATTACK_SUIKEN) ? "奇妙な動きで" : "");
 					else
 					    msg_format("%s%^sの攻撃をかわした。", (p_ptr->special_attack & ATTACK_SUIKEN) ? "奇妙な動きで" : "", m_name);
-					syouryaku = 1;/*２回目以降は省略 */
+					abbreviate = 1;/*２回目以降は省略 */
 #else
 					msg_format("%^s misses you.", m_name);
 #endif
@@ -2312,9 +2133,9 @@ msg_format("%^sから落ちてしまった！", m_name);
 		msg_format("攻撃が%s自身を傷つけた！", m_name);
 #else
 		char m_name_self[80];
-		
+
 		/* hisself */
-		monster_desc(m_name_self, m_ptr, 0x23);
+		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif

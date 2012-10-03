@@ -1,14 +1,14 @@
 /* File: melee2.c */
 
-/* Purpose: Monster spells and movement */
-
 /*
-* Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
-*
-* This software may be copied and distributed for educational, research, and
-* not for profit purposes provided that this copyright and statement are
-* included in all such copies.
-*/
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
+/* Purpose: Monster spells and movement */
 
 /*
 * This file has several additions to it by Keldon Jones (keldon@umr.edu)
@@ -37,7 +37,7 @@ static bool get_enemy_dir(int m_idx, int *mm)
 
 	monster_type *t_ptr;
 
-	if (riding_t_m_idx && (m_ptr->fx == px) && (m_ptr->fy == py))
+	if (riding_t_m_idx && player_bold(m_ptr->fy, m_ptr->fx))
 	{
 		y = m_list[riding_t_m_idx].fy;
 		x = m_list[riding_t_m_idx].fx;
@@ -190,7 +190,7 @@ static bool get_enemy_dir(int m_idx, int *mm)
  * Hack, based on mon_take_hit... perhaps all monster attacks on
  * other monsters should use this?
  */
-void mon_take_hit_mon(bool is_psy_spear, int m_idx, int dam, bool *fear, cptr note, int who)
+void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 
@@ -213,7 +213,7 @@ void mon_take_hit_mon(bool is_psy_spear, int m_idx, int dam, bool *fear, cptr no
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+	if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 
 	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
@@ -232,7 +232,7 @@ msg_format("%^sはダメージを受けない。", m_name);
 		return;
 	}
 
-	if (r_ptr->flags3 & RF3_RES_ALL)
+	if (r_ptr->flagsr & RFR_RES_ALL)
 	{
 		if(dam > 0)
 		{
@@ -260,9 +260,8 @@ msg_format("%^sはダメージを受けない。", m_name);
 	/* It is dead now... or is it? */
 	if (m_ptr->hp < 0)
 	{
-		if (((r_ptr->flags1 & RF1_UNIQUE) ||
-			(r_ptr->flags7 & RF7_UNIQUE_7) ||
-			(r_ptr->flags1 & RF1_QUESTOR)) &&
+		if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) ||
+		    (r_ptr->flags7 & RF7_NAZGUL)) &&
 		    !p_ptr->inside_battle)
 		{
 			m_ptr->hp = 1;
@@ -281,7 +280,7 @@ msg_format("%^sはダメージを受けない。", m_name);
 
 			if (known)
 			{
-				monster_desc(m_name, m_ptr, 0x100);
+				monster_desc(m_name, m_ptr, MD_TRUE_NAME);
 				/* Unseen death by normal attack */
 				if (!seen)
 				{
@@ -389,7 +388,7 @@ msg_format("%^sは殺された。", m_name);
 
 	if ((dam > 0) && !is_pet(m_ptr) && !is_friendly(m_ptr) && (who != m_idx))
 	{
-		if (is_pet(&m_list[who]) && ((m_ptr->target_y != py) || (m_ptr->target_x != px)))
+		if (is_pet(&m_list[who]) && !player_bold(m_ptr->target_y, m_ptr->target_x))
 		{
 			set_target(m_ptr, m_list[who].fy, m_list[who].fx);
 		}
@@ -543,7 +542,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 		if (!in_bounds2(y, x)) continue;
 
 		/* Simply move to player */
-		if ((y == py) && (x == px)) return (FALSE);
+		if (player_bold(y, x)) return (FALSE);
 
 		c_ptr = &cave[y][x];
 
@@ -606,7 +605,6 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 	int i, y, x, y1, x1, best;
 
 	cave_type *c_ptr;
-	bool use_sound = FALSE;
 	bool use_scent = FALSE;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -642,7 +640,6 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 	/* If we can hear noises, advance towards them */
 	if (c_ptr->cost)
 	{
-		use_sound = TRUE;
 		best = 999;
 	}
 
@@ -967,7 +964,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!cave_floor_grid(c_ptr)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
-			if (!(m_ptr->mflag2 & MFLAG_NOFLOW))
+			if (!(m_ptr->mflag2 & MFLAG2_NOFLOW))
 			{
 				/* Ignore grids very far from the player */
 				if (c_ptr->dist == 0) continue;
@@ -1101,20 +1098,28 @@ static bool get_moves(int m_idx, int *mm)
 	int          x2 = px;
 	bool         done = FALSE;
 	bool         will_run = mon_will_run(m_idx);
-	cave_type	*c_ptr;
-	bool         no_flow = ((m_ptr->mflag2 & MFLAG_NOFLOW) && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
-	bool         can_pass_wall;
+	cave_type    *c_ptr;
+	bool         no_flow = ((m_ptr->mflag2 & MFLAG2_NOFLOW) && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
+	bool         can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
-	/* Flow towards the player */
-	(void)get_moves_aux(m_idx, &y2, &x2, no_flow);
+	/* Counter attack to an enemy monster */
+	if (!will_run && m_ptr->target_y)
+	{
+		int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
 
-	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
+		/* The monster must be an enemy, and in LOS */
+		if (t_m_idx &&
+		    are_enemies(m_ptr, &m_list[t_m_idx]) &&
+		    los(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+		{
+			/* Extract the "pseudo-direction" */
+			y = m_ptr->fy - m_ptr->target_y;
+			x = m_ptr->fx - m_ptr->target_x;
+			done = TRUE;
+		}
+	}
 
-	/* Extract the "pseudo-direction" */
-	y = m_ptr->fy - y2;
-	x = m_ptr->fx - x2;
-
-	if (!will_run && is_hostile(m_ptr) &&
+	if (!done && !will_run && is_hostile(m_ptr) &&
 	    (r_ptr->flags1 & RF1_FRIENDS) &&
 	    (los(m_ptr->fy, m_ptr->fx, py, px) ||
 	    (cave[m_ptr->fy][m_ptr->fx].dist < MAX_SIGHT / 2)))
@@ -1131,14 +1136,12 @@ static bool get_moves(int m_idx, int *mm)
 			/* Count room grids next to player */
 			for (i = 0; i < 8; i++)
 			{
-				int x = px + ddx_ddd[i];
-				int y = py + ddy_ddd[i];
-				
-				cave_type *c_ptr;
+				int xx = px + ddx_ddd[i];
+				int yy = py + ddy_ddd[i];
 
-				if (!in_bounds2(y, x)) continue;
-				
-				c_ptr = &cave[y][x];
+				if (!in_bounds2(yy, xx)) continue;
+
+				c_ptr = &cave[yy][xx];
 
 				/* Check grid */
 				if (((cave_floor_grid(c_ptr)) || ((c_ptr->feat & 0x60) == 0x60)) &&
@@ -1201,6 +1204,18 @@ static bool get_moves(int m_idx, int *mm)
 		}
 	}
 
+	if (!done)
+	{
+		/* Flow towards the player */
+		(void)get_moves_aux(m_idx, &y2, &x2, no_flow);
+
+		/* Extract the "pseudo-direction" */
+		y = m_ptr->fy - y2;
+		x = m_ptr->fx - x2;
+
+		/* Not done */
+	}
+
 	/* Apply fear if possible and necessary */
 	if (is_pet(m_ptr) && will_run)
 	{
@@ -1248,15 +1263,8 @@ static bool get_moves(int m_idx, int *mm)
 	if (x > 0) move_val += 4;
 
 	/* Prevent the diamond maneuvre */
-	if (ay > (ax << 1))
-	{
-		move_val++;
-		move_val++;
-	}
-	else if (ax > (ay << 1))
-	{
-		move_val++;
-	}
+	if (ay > (ax << 1)) move_val += 2;
+	else if (ax > (ay << 1)) move_val++;
 
 	/* Extract some directions */
 	switch (move_val)
@@ -1465,11 +1473,6 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 	if (d_info[dungeon_type].flags1 & DF1_NO_MELEE) return (FALSE);
 
-	/* Wake it up */
-	t_ptr->csleep = 0;
-
-	if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
-
 	/* Total armor */
 	ac = tr_ptr->ac;
 
@@ -1525,47 +1528,16 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		if (method == RBM_SHOOT) continue;
 
 		/* Extract the attack "power" */
-		switch (effect)
-		{
-		case RBE_HURT:          power = 60; break;
-		case RBE_POISON:        power =  5; break;
-		case RBE_UN_BONUS:      power = 20; break;
-		case RBE_UN_POWER:      power = 15; break;
-		case RBE_EAT_GOLD:      power =  5; break;
-		case RBE_EAT_ITEM:      power =  5; break;
-		case RBE_EAT_FOOD:      power =  5; break;
-		case RBE_EAT_LITE:      power =  5; break;
-		case RBE_ACID:          power =  0; break;
-		case RBE_ELEC:          power = 10; break;
-		case RBE_FIRE:          power = 10; break;
-		case RBE_COLD:          power = 10; break;
-		case RBE_BLIND:         power =  2; break;
-		case RBE_CONFUSE:       power = 10; break;
-		case RBE_TERRIFY:       power = 10; break;
-		case RBE_PARALYZE:      power =  2; break;
-		case RBE_LOSE_STR:      power =  0; break;
-		case RBE_LOSE_DEX:      power =  0; break;
-		case RBE_LOSE_CON:      power =  0; break;
-		case RBE_LOSE_INT:      power =  0; break;
-		case RBE_LOSE_WIS:      power =  0; break;
-		case RBE_LOSE_CHR:      power =  0; break;
-		case RBE_LOSE_ALL:      power =  2; break;
-		case RBE_SHATTER:       power = 60; break;
-		case RBE_EXP_10:        power =  5; break;
-		case RBE_EXP_20:        power =  5; break;
-		case RBE_EXP_40:        power =  5; break;
-		case RBE_EXP_80:        power =  5; break;
-		case RBE_DISEASE:       power =  5; break;
-		case RBE_TIME:          power =  5; break;
-		case RBE_EXP_VAMP:      power =  5; break;
-		case RBE_DR_MANA:       power =  5; break;
-		case RBE_SUPERHURT:     power = 60; break;
-		}
-
+		power = mbe_info[effect].power;
 
 		/* Monster hits */
 		if (!effect || check_hit2(power, rlev, ac, m_ptr->stunned))
 		{
+			/* Wake it up */
+			t_ptr->csleep = 0;
+
+			if (tr_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
 			/* Describe the attack method */
 			switch (method)
 			{
@@ -2076,74 +2048,85 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				if (touched)
 				{
 					/* Aura fire */
-					if ((tr_ptr->flags2 & RF2_AURA_FIRE) &&
-						!(r_ptr->flags3 & RF3_IM_FIRE) &&
-						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+					if ((tr_ptr->flags2 & RF2_AURA_FIRE) && m_ptr->r_idx)
 					{
-						if (see_either)
+						if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
 						{
-							blinked = FALSE;
+							if (see_either)
+							{
+								blinked = FALSE;
 #ifdef JP
-msg_format("%^sは突然熱くなった！", m_name);
+								msg_format("%^sは突然熱くなった！", m_name);
 #else
-							msg_format("%^s is suddenly very hot!", m_name);
+								msg_format("%^s is suddenly very hot!", m_name);
 #endif
 
-							if (t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
+								if (see_t && is_original_ap(t_ptr)) tr_ptr->r_flags2 |= RF2_AURA_FIRE;
+							}
+							project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+								damroll (1 + ((tr_ptr->level) / 26),
+								1 + ((tr_ptr->level) / 17)),
+								GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+						else
+						{
+							if (see_m && is_original_ap(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
+						}
 					}
 
 					/* Aura cold */
-					if ((tr_ptr->flags3 & RF3_AURA_COLD) &&
-						!(r_ptr->flags3 & RF3_IM_COLD) &&
-						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+					if ((tr_ptr->flags3 & RF3_AURA_COLD) && m_ptr->r_idx)
 					{
-						if (see_either)
+						if (!(r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
 						{
-							blinked = FALSE;
+							if (see_either)
+							{
+								blinked = FALSE;
 #ifdef JP
-msg_format("%^sは突然寒くなった！", m_name);
+								msg_format("%^sは突然寒くなった！", m_name);
 #else
-							msg_format("%^s is suddenly very cold!", m_name);
+								msg_format("%^s is suddenly very cold!", m_name);
 #endif
 
-							if (t_ptr->ml)
-								tr_ptr->r_flags3 |= RF3_AURA_COLD;
+								if (see_t && is_original_ap(t_ptr)) tr_ptr->r_flags3 |= RF3_AURA_COLD;
+							}
+							project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+								damroll (1 + ((tr_ptr->level) / 26),
+								1 + ((tr_ptr->level) / 17)),
+								GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+						else
+						{
+							if (see_m && is_original_ap(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
+						}
 					}
 
 					/* Aura elec */
-					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) &&
-						!(r_ptr->flags3 & (RF3_IM_ELEC)) &&
-						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+					if ((tr_ptr->flags2 & RF2_AURA_ELEC) && m_ptr->r_idx)
 					{
-						if (see_either)
+						if (!(r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
 						{
-							blinked = FALSE;
+							if (see_either)
+							{
+								blinked = FALSE;
 #ifdef JP
-msg_format("%^sは電撃を食らった！", m_name);
+								msg_format("%^sは電撃を食らった！", m_name);
 #else
-							msg_format("%^s gets zapped!", m_name);
+								msg_format("%^s gets zapped!", m_name);
 #endif
 
-							if (t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
+								if (see_t && is_original_ap(t_ptr)) tr_ptr->r_flags2 |= RF2_AURA_ELEC;
+							}
+							project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+								damroll (1 + ((tr_ptr->level) / 26),
+								1 + ((tr_ptr->level) / 17)),
+								GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
+						else
+						{
+							if (see_m && is_original_ap(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
+						}
 					}
-
 				}
 			}
 		}
@@ -2167,6 +2150,11 @@ msg_format("%^sは電撃を食らった！", m_name);
 			case RBM_ENGULF:
 			case RBM_CHARGE:
 				{
+					/* Wake it up */
+					t_ptr->csleep = 0;
+
+					if (tr_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
 					/* Visible monsters */
 					if (see_m)
 					{
@@ -2208,9 +2196,9 @@ msg_format("%sは%^sの攻撃をかわした。", t_name,m_name);
 		if (m_ptr->invulner) m_ptr->invulner = 0;
 
 #ifdef JP
-mon_take_hit_mon(FALSE, m_idx, m_ptr->hp + 1, &fear, "は爆発して粉々になった。", m_idx);
+mon_take_hit_mon(m_idx, m_ptr->hp + 1, &fear, "は爆発して粉々になった。", m_idx);
 #else
-		mon_take_hit_mon(FALSE, m_idx, m_ptr->hp + 1, &fear, " explodes into tiny shreds.", m_idx);
+		mon_take_hit_mon(m_idx, m_ptr->hp + 1, &fear, " explodes into tiny shreds.", m_idx);
 #endif
 
 
@@ -2240,12 +2228,6 @@ msg_print("泥棒は笑って逃げた！");
 
 	return TRUE;
 }
-
-
-/*
- * Hack -- local "player stealth" value (see below)
- */
-static u32b noise = 0L;
 
 
 /*
@@ -2319,7 +2301,7 @@ static void process_monster(int m_idx)
 		}
 	}
 
-	if ((m_ptr->mflag2 & MFLAG_CHAMELEON) && one_in_(13) && !m_ptr->csleep)
+	if ((m_ptr->mflag2 & MFLAG2_CHAMELEON) && one_in_(13) && !m_ptr->csleep)
 	{
 		choose_new_monster(m_idx, FALSE, 0);
 		r_ptr = &r_info[m_ptr->r_idx];
@@ -2388,12 +2370,12 @@ msg_print("少しの間悲しい気分になった。");
 
 	if (m_ptr->r_idx == MON_SHURYUUDAN)
 #ifdef JP
-		mon_take_hit_mon(FALSE, m_idx, 1, &fear, "は爆発して粉々になった。", m_idx);
+		mon_take_hit_mon(m_idx, 1, &fear, "は爆発して粉々になった。", m_idx);
 #else
-		mon_take_hit_mon(FALSE, m_idx, 1, &fear, " explodes into tiny shreds.", m_idx);
+		mon_take_hit_mon(m_idx, 1, &fear, " explodes into tiny shreds.", m_idx);
 #endif
 
-	if ((is_pet(m_ptr) || is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7)) && !p_ptr->inside_battle)
+	if ((is_pet(m_ptr) || is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) && !p_ptr->inside_battle)
 	{
 		static int riding_pinch = 0;
 
@@ -2474,255 +2456,51 @@ msg_print("少しの間悲しい気分になった。");
 		}
 	}
 
-	/* Handle Invulnerability */
-	if (m_ptr->invulner)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->invulner--;
-
-		if (!m_ptr->invulner)
-		{
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-				msg_format("%^sはもう無敵でない。", m_name);
-#else
-				msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-			}
-			m_ptr->energy_need += ENERGY_NEED();
-		}
-	}
-
-	/* Handle fast */
-	if (m_ptr->fast)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->fast--;
-
-		if (!(m_ptr->fast) && m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-			/* Dump a message */
-#ifdef JP
-msg_format("%^sはもう加速されていない。", m_name);
-#else
-			msg_format("%^s is no longer fast.", m_name);
-#endif
-
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-		}
-	}
-
-	/* Handle slow */
-	if (m_ptr->slow)
-	{
-		/* Reduce by one, note if expires */
-		m_ptr->slow--;
-
-		if (!(m_ptr->slow) && m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-			/* Dump a message */
-#ifdef JP
-msg_format("%^sはもう減速されていない。", m_name);
-#else
-			msg_format("%^s is no longer slow.", m_name);
-#endif
-
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-		}
-	}
-
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
 	{
-		u32b notice = 0;
+		/* Handle non-aggravation - Still sleeping */
+		if (!(p_ptr->cursed & TRC_AGGRAVATE)) return;
 
-		/* Hack -- handle non-aggravation */
-		if (!(p_ptr->cursed & TRC_AGGRAVATE)) notice = randint0(1024);
+		/* Handle aggravation */
 
-		/* Nightmare monsters are more alert */
-		if (ironman_nightmare) notice /= 2;
+		/* Reset sleep counter */
+		m_ptr->csleep = 0;
 
-		/* Hack -- See if monster "notices" player */
-		if ((notice * notice * notice) <= noise)
+		if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
+		/* Notice the "waking up" */
+		if (m_ptr->ml)
 		{
-			/* Hack -- amount of "waking" */
-			int d = 1;
+			char m_name[80];
 
-			/* Wake up faster near the player */
-			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
+			/* Acquire the monster name */
+			monster_desc(m_name, m_ptr, 0);
 
-			/* Hack -- handle aggravation */
-			if (p_ptr->cursed & TRC_AGGRAVATE) d = m_ptr->csleep;
-
-			/* Still asleep */
-			if (m_ptr->csleep > d)
-			{
-				/* Monster wakes up "a little bit" */
-				m_ptr->csleep -= d;
-
-				/* Notice the "not waking up" */
-				if (m_ptr->ml)
-				{
-					/* Hack -- Count the ignores */
-					if (r_ptr->r_ignore < MAX_UCHAR)
-					{
-						r_ptr->r_ignore++;
-					}
-				}
-			}
-
-			/* Just woke up */
-			else
-			{
-				/* Reset sleep counter */
-				m_ptr->csleep = 0;
-
-				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
-
-				/* Notice the "waking up" */
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Dump a message */
+			/* Dump a message */
 #ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
+			msg_format("%^sが目を覚ました。", m_name);
 #else
-					msg_format("%^s wakes up.", m_name);
+			msg_format("%^s wakes up.", m_name);
 #endif
 
+			/* Redraw the health bar */
+			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
-					/* Redraw the health bar */
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-					/* Hack -- Count the wakings */
-					if (r_ptr->r_wake < MAX_UCHAR)
-					{
-						r_ptr->r_wake++;
-					}
-				}
+			/* Hack -- Count the wakings */
+			if (r_ptr->r_wake < MAX_UCHAR)
+			{
+				r_ptr->r_wake++;
 			}
 		}
-
-		/* Still sleeping */
-		if (m_ptr->csleep) return;
 	}
-
 
 	/* Handle "stun" */
 	if (m_ptr->stunned)
 	{
-		int d = 1;
-
-		/* Make a "saving throw" against stun */
-		if (randint0(10000) <= r_ptr->level * r_ptr->level)
-		{
-			/* Recover fully */
-			d = m_ptr->stunned;
-		}
-
-		/* Hack -- Recover from stun */
-		if (m_ptr->stunned > d)
-		{
-			/* Recover somewhat */
-			m_ptr->stunned -= d;
-		}
-
-		/* Fully recover */
-		else
-		{
-			/* Recover fully */
-			m_ptr->stunned = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-msg_format("%^sは朦朧状態から立ち直った。", m_name);
-#else
-				msg_format("%^s is no longer stunned.", m_name);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-			}
-		}
-
-		/* Still stunned */
-		if (m_ptr->stunned && one_in_(2)) return;
-	}
-
-
-	/* Handle confusion */
-	if (m_ptr->confused)
-	{
-		/* Amount of "boldness" */
-		int d = randint1(r_ptr->level / 20 + 1);
-
-		/* Still confused */
-		if (m_ptr->confused > d)
-		{
-			/* Reduce the confusion */
-			m_ptr->confused -= d;
-		}
-
-		/* Recovered */
-		else
-		{
-			/* No longer confused */
-			m_ptr->confused = 0;
-
-			/* Message if visible */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-msg_format("%^sは混乱から立ち直った。", m_name);
-#else
-				msg_format("%^s is no longer confused.", m_name);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-			}
-		}
+		/* Sometimes skip move */
+		if (one_in_(2)) return;
 	}
 
 	if (p_ptr->riding == m_idx)
@@ -2736,12 +2514,11 @@ msg_format("%^sは混乱から立ち直った。", m_name);
 
 	/* Paranoia... no pet uniques outside wizard mode -- TY */
 	if (is_pet(m_ptr) &&
-	    ((((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7)) &&
-	      ((p_ptr->align > 9 && (r_ptr->flags3 & RF3_EVIL)) ||
-	      (p_ptr->align < -9 && (r_ptr->flags3 & RF3_GOOD))))
-	     || (r_ptr->flags3 & RF3_RES_ALL)))
+	    ((((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL)) &&
+	      monster_has_hostile_align(NULL, 10, -10, r_ptr))
+	     || (r_ptr->flagsr & RFR_RES_ALL)))
 	{
-			gets_angry = TRUE;
+		gets_angry = TRUE;
 	}
 
 	if (p_ptr->inside_battle) gets_angry = FALSE;
@@ -2757,47 +2534,6 @@ msg_format("%^sは突然敵にまわった！", m_name);
 #endif
 
 		set_hostile(m_ptr);
-	}
-
-	/* Handle "fear" */
-	if (m_ptr->monfear)
-	{
-		/* Amount of "boldness" */
-		int d = randint1(r_ptr->level / 20 + 1);
-
-		/* Still afraid */
-		if (m_ptr->monfear > d)
-		{
-			/* Reduce the fear */
-			m_ptr->monfear -= d;
-		}
-
-		/* Recover from fear, take note if seen */
-		else
-		{
-			/* No longer afraid */
-			m_ptr->monfear = 0;
-
-			/* Visual note */
-			if (m_ptr->ml)
-			{
-				char m_name[80];
-				char m_poss[80];
-
-				/* Acquire the monster name/poss */
-				monster_desc(m_name, m_ptr, 0);
-				monster_desc(m_poss, m_ptr, 0x22);
-
-				/* Dump a message */
-#ifdef JP
-msg_format("%^sは勇気を取り戻した。", m_name);
-#else
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			}
-		}
 	}
 
 	/* Get the origin */
@@ -2829,13 +2565,41 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 			if (multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
 			{
 				/* Take note if visible */
-				if (m_ptr->ml && m_list[hack_m_idx_ii].ml)
+				if (m_ptr->ml && m_list[hack_m_idx_ii].ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags2 |= (RF2_MULTIPLY);
 				}
 
 				/* Multiplying takes energy */
 				return;
+			}
+		}
+	}
+
+
+	if (r_ptr->flags6 & RF6_SPECIAL)
+	{
+		/* Hack -- Ohmu scatters molds! */
+		if (m_ptr->r_idx == MON_OHMU)
+		{
+			if (!p_ptr->inside_arena && !p_ptr->inside_battle)
+			{
+				if (r_ptr->freq_spell && (randint1(100) <= r_ptr->freq_spell))
+				{
+					int  k, count = 0;
+					int  rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+					u32b p_mode = is_pet(m_ptr) ? PM_FORCE_PET : 0L;
+
+					for (k = 0; k < 6; k++)
+					{
+						if (summon_specific(m_idx, m_ptr->fy, m_ptr->fx, rlev, SUMMON_BIZARRE1, (PM_ALLOW_GROUP | p_mode)))
+						{
+							if (m_list[hack_m_idx_ii].ml) count++;
+						}
+					}
+
+					if (count && m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags6 |= (RF6_SPECIAL);
+				}
 			}
 		}
 	}
@@ -2921,14 +2685,44 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 	}
 
-	/* Attempt to cast a spell */
-	if (aware && make_attack_spell(m_idx)) return;
+	/* Try to cast spell occasionally */
+	if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
+	{
+		bool counterattack = FALSE;
 
-	/*
-	 * Attempt to cast a spell at an enemy other than the player
-	 * (may slow the game a smidgeon, but I haven't noticed.)
-	 */
-	if (monst_spell_monst(m_idx)) return;
+		/* Give priority to counter attack? */
+		if (m_ptr->target_y)
+		{
+			int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
+
+			/* The monster must be an enemy, and projectable */
+			if (t_m_idx &&
+			    are_enemies(m_ptr, &m_list[t_m_idx]) &&
+			    projectable(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+			{
+				counterattack = TRUE;
+			}
+		}
+
+		if (!counterattack)
+		{
+			/* Attempt to cast a spell */
+			if (aware && make_attack_spell(m_idx)) return;
+
+			/*
+			 * Attempt to cast a spell at an enemy other than the player
+			 * (may slow the game a smidgeon, but I haven't noticed.)
+			 */
+			if (monst_spell_monst(m_idx)) return;
+		}
+		else
+		{
+			/* Attempt to do counter attack at first */
+			if (monst_spell_monst(m_idx)) return;
+
+			if (aware && make_attack_spell(m_idx)) return;
+		}
+	}
 
 	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
@@ -2945,13 +2739,11 @@ msg_format("%^s%s", m_name, monmessage);
 	}
 
 	/* 75% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) &&
-				(r_ptr->flags1 & RF1_RAND_25) &&
+	else if (((r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25)) == (RF1_RAND_50 | RF1_RAND_25)) &&
 		 (randint0(100) < 75))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
+		if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags1 |= (RF1_RAND_50 | RF1_RAND_25);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -2962,7 +2754,7 @@ msg_format("%^s%s", m_name, monmessage);
 				(randint0(100) < 50))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
+		if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags1 |= (RF1_RAND_50);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -2973,7 +2765,7 @@ msg_format("%^s%s", m_name, monmessage);
 				(randint0(100) < 25))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
+		if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags1 |= RF1_RAND_25;
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
@@ -3092,7 +2884,7 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 
 		/* Hack -- player 'in' wall */
-		else if ((ny == py) && (nx == px))
+		else if (player_bold(ny, nx))
 		{
 			do_move = TRUE;
 		}
@@ -3261,7 +3053,7 @@ msg_print("ドアを叩き開ける音がした！");
 
 		/* Hack -- check for Glyph of Warding */
 		if (do_move && is_glyph_grid(c_ptr) &&
-		    !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
+		    !((r_ptr->flags1 & RF1_NEVER_BLOW) && player_bold(ny, nx)))
 		{
 			/* Assume no move allowed */
 			do_move = FALSE;
@@ -3295,7 +3087,7 @@ msg_print("守りのルーンが壊れた！");
 			}
 		}
 		else if (do_move && is_explosive_rune_grid(c_ptr) &&
-			 !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
+			 !((r_ptr->flags1 & RF1_NEVER_BLOW) && player_bold(ny, nx)))
 		{
 			/* Assume no move allowed */
 			do_move = FALSE;
@@ -3342,71 +3134,97 @@ msg_print("爆発のルーンは解除された。");
 				do_move = TRUE;
 			}
 		}
-		if (do_move && (ny == py) && (nx == px) && (d_info[dungeon_type].flags1 & DF1_NO_MELEE))
-		{
-			do_move = FALSE;
-		}
 
-		/* Some monsters never attack */
-		if (do_move && (ny == py) && (nx == px) &&
-			(r_ptr->flags1 & RF1_NEVER_BLOW))
+		/* The player is in the way */
+		if (do_move && player_bold(ny, nx))
 		{
-			/* Hack -- memorize lack of attacks */
-			if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_BLOW);
-
-			/* Do not move */
-			do_move = FALSE;
-		}
-
-		/* The player is in the way.  Attack him. */
-		if (do_move && (ny == py) && (nx == px))
-		{
-			if (!p_ptr->riding || one_in_(2))
+			/* Some monsters never attack */
+			if (r_ptr->flags1 & RF1_NEVER_BLOW)
 			{
-				/* Do the attack */
-				(void)make_attack_normal(m_idx);
+				/* Hack -- memorize lack of attacks */
+				if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags1 |= (RF1_NEVER_BLOW);
 
 				/* Do not move */
 				do_move = FALSE;
+			}
 
-				/* Took a turn */
-				do_turn = TRUE;
+			/* In anti-melee dungeon, stupid or confused monster takes useless turn */
+			if (do_move && (d_info[dungeon_type].flags1 & DF1_NO_MELEE))
+			{
+				if (!m_ptr->confused)
+				{
+					if (!(r_ptr->flags2 & RF2_STUPID)) do_move = FALSE;
+					else
+					{
+						if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags2 |= (RF2_STUPID);
+					}
+				}
+			}
+
+			/* The player is in the way.  Attack him. */
+			if (do_move)
+			{
+				if (!p_ptr->riding || one_in_(2))
+				{
+					/* Do the attack */
+					(void)make_attack_normal(m_idx);
+
+					/* Do not move */
+					do_move = FALSE;
+
+					/* Took a turn */
+					do_turn = TRUE;
+				}
+			}
+
+			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
+				(c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
+				!do_turn && !(r_ptr->flags7 & RF7_CAN_FLY))
+			{
+				do_move = FALSE;
 			}
 		}
-
-		if ((c_ptr->feat >= FEAT_PATTERN_START) &&
-			(c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-			!do_turn && !(r_ptr->flags7 & RF7_CAN_FLY))
-		{
-			do_move = FALSE;
-		}
-
 
 		/* A monster is in the way */
 		if (do_move && c_ptr->m_idx)
 		{
 			monster_race *z_ptr = &r_info[y_ptr->r_idx];
-			monster_type *m2_ptr = &m_list[c_ptr->m_idx];
 
 			/* Assume no movement */
 			do_move = FALSE;
 
 			/* Attack 'enemies' */
-			if (((r_ptr->flags2 & (RF2_KILL_BODY)) &&
-				  (r_ptr->mexp * r_ptr->level > z_ptr->mexp * z_ptr->level) &&
-				  (cave_floor_grid(c_ptr)) &&
-			     (c_ptr->m_idx != p_ptr->riding)) ||
-				 are_enemies(m_ptr, m2_ptr) || m_ptr->confused)
+			if (((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW) &&
+				 (r_ptr->mexp * r_ptr->level > z_ptr->mexp * z_ptr->level) &&
+				 cave_floor_grid(c_ptr) &&
+				 (c_ptr->m_idx != p_ptr->riding)) ||
+				are_enemies(m_ptr, y_ptr) || m_ptr->confused)
 			{
 				do_move = FALSE;
 
-				if (r_ptr->flags2 & RF2_KILL_BODY) r_ptr->r_flags2 |= (RF2_KILL_BODY);
-
-				/* attack */
-				if ((m2_ptr->r_idx) && (m2_ptr->hp >= 0))
+				if (!(r_ptr->flags1 & RF1_NEVER_BLOW))
 				{
-					if (monst_attack_monst(m_idx, cave[ny][nx].m_idx))
-					return;
+					if (r_ptr->flags2 & RF2_KILL_BODY)
+					{
+						if (is_original_ap(m_ptr)) r_ptr->r_flags2 |= (RF2_KILL_BODY);
+					}
+
+					/* attack */
+					if (y_ptr->r_idx && (y_ptr->hp >= 0))
+					{
+						if (monst_attack_monst(m_idx, c_ptr->m_idx)) return;
+
+						/* In anti-melee dungeon, stupid or confused monster takes useless turn */
+						else if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
+						{
+							if (m_ptr->confused) return;
+							else if (r_ptr->flags2 & RF2_STUPID)
+							{
+								if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags2 |= (RF2_STUPID);
+								return;
+							}
+						}
+					}
 				}
 			}
 
@@ -3442,7 +3260,7 @@ msg_print("爆発のルーンは解除された。");
 		if (do_move && (r_ptr->flags1 & RF1_NEVER_MOVE))
 		{
 			/* Hack -- memorize lack of attacks */
-			if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_MOVE);
+			if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flags1 |= (RF1_NEVER_MOVE);
 
 			/* Do not move */
 			do_move = FALSE;
@@ -3464,7 +3282,7 @@ msg_print("爆発のルーンは解除された。");
 			/* Hack -- Update the old location */
 			cave[oy][ox].m_idx = c_ptr->m_idx;
 
-			if (cave[ny][nx].feat == FEAT_TREES)
+			if (c_ptr->feat == FEAT_TREES)
 			{
 				if (r_ptr->flags2 & RF2_KILL_WALL)
 				{
@@ -3490,7 +3308,7 @@ msg_print("爆発のルーンは解除された。");
 				/* Wake up the moved monster */
 				y_ptr->csleep = 0;
 
-				if (r_info[y_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+				if (r_info[y_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 					p_ptr->update |= (PU_MON_LITE);
 			}
 
@@ -3582,7 +3400,7 @@ msg_print("爆発のルーンは解除された。");
 					object_desc(o_name, o_ptr, TRUE, 3);
 
 					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0x04);
+					monster_desc(m_name, m_ptr, MD_INDEF_HIDDEN);
 
 					/* React to objects that hurt the monster */
 					if (have_flag(flgs, TR_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
@@ -3698,13 +3516,16 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 	 *  Try to flow by smell.
 	 */
 	if (p_ptr->no_flowed && i > 2 &&  m_ptr->target_y)
-		m_ptr->mflag2 &= ~MFLAG_NOFLOW;
+		m_ptr->mflag2 &= ~MFLAG2_NOFLOW;
 
 	/* If we haven't done anything, try casting a spell again */
 	if (!do_turn && !do_move && !m_ptr->monfear && !(p_ptr->riding == m_idx) && aware)
 	{
-		/* Cast spell */
-		if (make_attack_spell(m_idx)) return;
+		/* Try to cast spell again */
+		if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
+		{
+			if (make_attack_spell(m_idx)) return;
+		}
 	}
 
 
@@ -3713,17 +3534,21 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 	}
 
 	/* Notice changes in view */
-	if (do_move && ((r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2)) || ((r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) && !p_ptr->inside_battle)))
+	if (do_move && ((r_ptr->flags7 & (RF7_SELF_LD_MASK | RF7_HAS_DARK_1 | RF7_HAS_DARK_2))
+		|| ((r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) && !p_ptr->inside_battle)))
 	{
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
 	}
 
 	/* Learn things from observable monster */
-	if (m_ptr->ml)
+	if (m_ptr->ml && is_original_ap(m_ptr))
 	{
 		/* Monster opened a door */
 		if (did_open_door) r_ptr->r_flags2 |= (RF2_OPEN_DOOR);
@@ -3829,13 +3654,13 @@ void process_monsters(void)
 	u32b    old_r_flags4 = 0L;
 	u32b    old_r_flags5 = 0L;
 	u32b    old_r_flags6 = 0L;
+	u32b    old_r_flagsr = 0L;
 
 	byte    old_r_blows0 = 0;
 	byte    old_r_blows1 = 0;
 	byte    old_r_blows2 = 0;
 	byte    old_r_blows3 = 0;
 
-	byte    old_r_cast_inate = 0;
 	byte    old_r_cast_spell = 0;
 
 	int speed;
@@ -3859,6 +3684,7 @@ void process_monsters(void)
 		old_r_flags4 = r_ptr->r_flags4;
 		old_r_flags5 = r_ptr->r_flags5;
 		old_r_flags6 = r_ptr->r_flags6;
+		old_r_flagsr = r_ptr->r_flagsr;
 
 		/* Memorize blows */
 		old_r_blows0 = r_ptr->r_blows[0];
@@ -3867,13 +3693,8 @@ void process_monsters(void)
 		old_r_blows3 = r_ptr->r_blows[3];
 
 		/* Memorize castings */
-		old_r_cast_inate = r_ptr->r_cast_inate;
 		old_r_cast_spell = r_ptr->r_cast_spell;
 	}
-
-
-	/* Hack -- calculate the "player noise" */
-	noise = (1L << (30 - p_ptr->skill_stl));
 
 
 	/* Process the monsters (backwards) */
@@ -3903,7 +3724,7 @@ void process_monsters(void)
 		}
 
 		/* Hack -- Require proximity */
-		if (m_ptr->cdis >= 100) continue;
+		if (m_ptr->cdis >= AAF_LIMIT) continue;
 
 
 		/* Access the location */
@@ -3913,14 +3734,14 @@ void process_monsters(void)
 		/* Flow by smell is allowed */
 		if (!p_ptr->no_flowed)
 		{
-			m_ptr->mflag2 &= ~MFLAG_NOFLOW;
+			m_ptr->mflag2 &= ~MFLAG2_NOFLOW;
 		}
 
 		/* Assume no move */
 		test = FALSE;
 
 		/* Handle "sensing radius" */
-		if (m_ptr->cdis <= (is_pet(m_ptr) ? (r_ptr->aaf > 20 ? 20 : r_ptr->aaf) : r_ptr->aaf))
+		if (m_ptr->cdis <= (is_pet(m_ptr) ? (r_ptr->aaf > MAX_SIGHT ? MAX_SIGHT : r_ptr->aaf) : r_ptr->aaf))
 		{
 			/* We can "sense" the player */
 			test = TRUE;
@@ -3937,7 +3758,7 @@ void process_monsters(void)
 #if 0 /* (cave[py][px].when == cave[fy][fx].when) is always FALSE... */
 		/* Hack -- Monsters can "smell" the player from far away */
 		/* Note that most monsters have "aaf" of "20" or so */
-		else if (!(m_ptr->mflag2 & MFLAG_NOFLOW) &&
+		else if (!(m_ptr->mflag2 & MFLAG2_NOFLOW) &&
 			(cave_floor_bold(py, px) || (cave[py][px].feat == FEAT_TREES)) &&
 			(cave[py][px].when == cave[fy][fx].when) &&
 			(cave[fy][fx].dist < MONSTER_FLOW_DEPTH) &&
@@ -3957,20 +3778,17 @@ void process_monsters(void)
 			speed = p_ptr->pspeed;
 		else
 		{
-			speed = MIN(199, m_ptr->mspeed);
+			speed = m_ptr->mspeed;
 
 			/* Monsters move quickly in Nightmare mode */
-			if (ironman_nightmare)
-			{
-				speed = MIN(199, m_ptr->mspeed + 5);
-			}
+			if (ironman_nightmare) speed += 5;
 
-			if (m_ptr->fast) speed = MIN(199, speed + 10);
-			if (m_ptr->slow) speed = MAX(0, speed - 10);
+			if (m_ptr->fast) speed += 10;
+			if (m_ptr->slow) speed -= 10;
 		}
 
 		/* Give this monster some energy */
-		m_ptr->energy_need -= extract_energy[speed];
+		m_ptr->energy_need -= SPEED_TO_ENERGY(speed);
 
 		/* Not enough energy to move */
 		if (m_ptr->energy_need > 0) continue;
@@ -3989,7 +3807,7 @@ void process_monsters(void)
 
 		/* Give up flow_by_smell when it might useless */
 		if (p_ptr->no_flowed && one_in_(3))
-			m_ptr->mflag2 |= MFLAG_NOFLOW;
+			m_ptr->mflag2 |= MFLAG2_NOFLOW;
 
 		/* Hack -- notice death or departure */
 		if (!p_ptr->playing || p_ptr->is_dead) break;
@@ -4015,11 +3833,11 @@ void process_monsters(void)
 			(old_r_flags4 != r_ptr->r_flags4) ||
 			(old_r_flags5 != r_ptr->r_flags5) ||
 			(old_r_flags6 != r_ptr->r_flags6) ||
+			(old_r_flagsr != r_ptr->r_flagsr) ||
 			(old_r_blows0 != r_ptr->r_blows[0]) ||
 			(old_r_blows1 != r_ptr->r_blows[1]) ||
 			(old_r_blows2 != r_ptr->r_blows[2]) ||
 			(old_r_blows3 != r_ptr->r_blows[3]) ||
-			(old_r_cast_inate != r_ptr->r_cast_inate) ||
 			(old_r_cast_spell != r_ptr->r_cast_spell))
 		{
 			/* Window stuff */
@@ -4127,7 +3945,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 	if (m_idx == p_ptr->riding) new_exp = (new_exp + 1) / 2;
 	if (!dun_level) new_exp /= 5;
 	m_ptr->exp += new_exp;
-	if (m_ptr->mflag2 & MFLAG_CHAMELEON) return;
+	if (m_ptr->mflag2 & MFLAG2_CHAMELEON) return;
 
 	if (m_ptr->exp >= r_ptr->next_exp)
 	{
@@ -4135,40 +3953,19 @@ void monster_gain_exp(int m_idx, int s_idx)
 		int old_hp = m_ptr->hp;
 		int old_maxhp = m_ptr->max_maxhp;
 		int old_r_idx = m_ptr->r_idx;
-		int i;
 		byte old_sub_align = m_ptr->sub_align;
 
 		/* Hack -- Reduce the racial counter of previous monster */
-		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				r_info[MON_CHAMELEON_K].cur_num--;
-			else
-				r_info[MON_CHAMELEON].cur_num--;
-		}
-		else
-		{
-			r_ptr->cur_num--;
-		}
+		real_r_ptr(m_ptr)->cur_num--;
 
 		monster_desc(m_name, m_ptr, 0);
 		m_ptr->r_idx = r_ptr->next_r_idx;
-		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Count the monsters on the level */
-		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				r_info[MON_CHAMELEON_K].cur_num++;
-			else
-				r_info[MON_CHAMELEON].cur_num++;
-		}
-		else
-		{
-			r_ptr->cur_num++;
-		}
+		real_r_ptr(m_ptr)->cur_num++;
 
 		m_ptr->ap_r_idx = m_ptr->r_idx;
+		r_ptr = &r_info[m_ptr->r_idx];
 
 		if (r_ptr->flags1 & RF1_FORCE_MAXHP)
 		{
@@ -4188,23 +3985,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 		m_ptr->hp = old_hp * m_ptr->maxhp / old_maxhp;
 
 		/* Extract the monster base speed */
-		m_ptr->mspeed = r_ptr->speed;
-
-		/* Hack -- small racial variety */
-		if (!(r_ptr->flags1 & RF1_UNIQUE) && !p_ptr->inside_arena)
-		{
-			/* Allow some small variation per monster */
-		  if(one_in_(4)){
-			i = extract_energy[r_ptr->speed] / 3;
-			if (i) m_ptr->mspeed += rand_spread(0, i);
-		  }
-		  else{
-			i = extract_energy[r_ptr->speed] / 10;
-			if (i) m_ptr->mspeed += rand_spread(0, i);
-		  }
-		}
-
-		if (m_ptr->mspeed > 199) m_ptr->mspeed = 199;
+		m_ptr->mspeed = get_mspeed(r_ptr);
 
 		/* Sub-alignment of a monster */
 		if (!is_pet(m_ptr) && !(r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)))

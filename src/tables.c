@@ -1,14 +1,14 @@
 /* File: tables.c */
 
-/* Purpose: Angband Tables */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Angband Tables */
 
 #include "angband.h"
 
@@ -1163,28 +1163,50 @@ byte blows_table[12][12] =
 
 };
 
-s16b arena_monsters[MAX_ARENA_MONS+2] =
+
+arena_type arena_info[MAX_ARENA_MONS + 2] =
 {
-	1059,  1060,	230,	241,	255,	270,	285,
-	293,	321,	348,	367,	395,	396,	403,
-	417,	436,	453,	464,	471,	479,	490,
-	504,	539,	569,	593,	621,	623,	1061,
-	1062,	657,	666,	702,	720,	768,	786,
-	798,	988,	847,	  0,	871
+	{ MON_NOBORTA,       0,         0                             },
+	{ MON_MORI_TROLL,    0,         0                             },
+	{ MON_TIGER,         0,         0                             },
+	{ MON_DRUID,         0,         0                             },
+	{ MON_HILL_GIANT,    TV_POTION, SV_POTION_SPEED               },
+	{ MON_WERERAT,       0,         0                             },
+	{ MON_ORC_CAPTAIN,   0,         0                             },
+	{ MON_BERSERKER,     0,         0                             },
+	{ MON_STONE_GIANT,   0,         0                             },
+	{ MON_D_ELF_LORD,    TV_POTION, SV_POTION_HEALING             },
+	{ MON_IRON_GOLEM,    0,         0                             },
+	{ MON_C_CRAWLER,     0,         0                             },
+	{ MON_XICLOTLAN,     0,         0                             },
+	{ MON_TROLL_PRIEST,  0,         0                             },
+	{ MON_ANGEL,         TV_ROD,    SV_ROD_STONE_TO_MUD           },
+	{ MON_SPIRIT_NAGA,   0,         0                             },
+	{ MON_BASILISK,      0,         0                             },
+	{ MON_MITHRIL_GOLEM, 0,         0                             },
+	{ MON_SHADOW_DRAKE,  0,         0                             },
+	{ MON_OGRE_SHAMAN,   TV_SCROLL, SV_SCROLL_ACQUIREMENT         },
+	{ MON_BICLOPS,       0,         0                             },
+	{ MON_ETHER_DRAKE,   TV_SCROLL, SV_SCROLL_RUNE_OF_PROTECTION  },
+	{ MON_HALFLING_S,    0,         0                             },
+	{ MON_ELDER_THING,   TV_ROD,    SV_ROD_DRAIN_LIFE             },
+	{ MON_M_MH_DRAGON,   0,         0                             },
+	{ MON_ETTIN,         TV_SCROLL, SV_SCROLL_STAR_ENCHANT_WEAPON },
+	{ MON_VAMPIRE_LORD,  0,         0                             },
+	{ MON_BARNEY,        TV_SCROLL, SV_SCROLL_GENOCIDE            },
+	{ MON_GROO,          0,         0                             },
+	{ MON_D_ELF_SORC,    TV_WAND,   SV_WAND_STRIKING              },
+	{ MON_IRON_LICH,     0,         0                             },
+	{ MON_G_TITAN,       TV_POTION, SV_POTION_STAR_ENLIGHTENMENT  },
+	{ MON_G_BALROG,      0,         0                             },
+	{ MON_NIGHTWALKER,   TV_ROD,    SV_ROD_IDENTIFY               },
+	{ MON_SHAMBLER,      TV_STAFF,  SV_STAFF_HOLINESS             },
+	{ MON_BLACK_REAVER,  TV_SCROLL, SV_SCROLL_STAR_ACQUIREMENT    },
+	{ MON_FENGHUANG,     TV_STAFF,  SV_STAFF_THE_MAGI             },
+	{ MON_WYRM_POWER,    TV_ROD,    SV_ROD_HEALING                },
+	{ 0,                 0,         0                             }, /* Victory prizing */
+	{ MON_HAGURE,        TV_SCROLL, SV_SCROLL_ARTIFACT            },
 };
-
-
-
-s16b arena_shouhin[MAX_ARENA_MONS+2] =
-{
-	  0,	  0,	  0,	  0,	249,	  0,	  0,
-	  0,	  0,	242,	  0,	  0,	  0,	  0,
-	583,	  0,	  0,	  0,	  0,	198,	  0,
-	190,	  0,	363,	  0,	212,	  0,	207,
-	  0,	628,	  0,	422,	  0,	372,	327,
-	199,	325,	374,	  0,	205
-};
-
 
 
 /*
@@ -6195,6 +6217,44 @@ monster_power monster_powers[MAX_MONSPELLS] =
 };
 
 
+cptr monster_powers_short[MAX_MONSPELLS] = {
+#ifdef JP
+
+	"叫ぶ", "何か", "魔力消去", "ロケット", "射撃", "何か", "何か", "何か",
+	"酸", "電撃", "火炎", "冷気", "毒", "地獄", "閃光", "暗黒",
+	"混乱", "轟音", "カオス", "劣化", "因果混乱", "時間逆転", "遅鈍", "重力",
+	"破片", "プラズマ", "フォース", "魔力", "放射能球", "放射性廃棄物", "純ログルス", "分解",
+
+	"酸", "電撃", "火炎", "冷気", "悪臭雲", "地獄球", "ウォーター", "魔力の嵐",
+	"暗黒の嵐", "魔力吸収", "精神攻撃", "脳攻撃", "軽傷", "重傷", "致命傷", "秘孔を突く",
+	"酸", "電撃", "火炎", "冷気", "スターバースト", "地獄の矢", "ウォーター", "魔力の矢",
+	"プラズマ", "極寒", "マジックミサイル", "恐慌", "盲目", "混乱", "減速", "睡眠",
+
+	"加速", "破滅の手", "体力回復", "無傷の球", "ショートテレポート", "テレポート", "時を止める", "何か",
+	"引きよせる", "テレポートアウェイ", "テレポートレベル", "光の剣", "暗闇", "トラップ創造", "記憶喪失", "死者復活",
+	"援軍", "サイバーデーモン", "モンスター", "複数のモンスター", "蟻", "蜘蛛", "ハウンド", "ヒドラ",
+	"天使", "悪魔", "アンデッド", "ドラゴン", "上級アンデッド", "古代ドラゴン", "アンバーの王族", "ユニーク"
+
+#else
+
+	"Shriek", "Something", "Dispel-magic", "Rocket", "Arrow", "Arrows", "Missile", "Missiles",
+	"Acid", "Lightning", "Fire", "Cold", "Poison", "Nether", "Light", "Dark",
+	"Confusion", "Sound", "Chaos", "Disenchantment", "Nexus", "Time", "Inertia", "Gravity",
+	"Shards", "Plasma", "Force", "Mana", "Nuke", "Nuke", "Logrus", "Disintergrate",
+
+	"Acid", "Lightning", "Fire", "Frost", "Stinking Cloud", "Nether", "Water", "Mana storm",
+	"Darkness storm", "Drain mana", "Mind blast", "Brain smash", "Cause Light Wound", "Cause Serious Wound", "Cause Critical Wound", "Cause Mortal Wound",
+	"Acid", "Lightning", "Fire", "Frost", "Starburst", "Nether", "Water", "Mana",
+	"Plasm", "Ice", "Magic missile", "Scare", "Blind", "Confuse", "Slow", "Sleep",
+
+	"Speed", "Hand of doom", "Heal-self", "Invulnerable", "Blink", "Teleport", "The world", "Something",
+	"Teleport to", "Teleport away", "Teleport level", "Psycho-spear", "Create darkness", "Create traps", "Amnesia", "Raise dead",
+	"Aid", "Cyberdeamons", "A monster", "Monsters", "Ants", "Spiders", "Hounds", "Hydras",
+	"Angel", "Daemon", "Undead", "Dragon", "Greater Undead", "Ancient Dragon", "Lords of Amber", "Unique monsters"
+
+#endif
+};
+
 
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
@@ -6486,11 +6546,11 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &confirm_stairs,              FALSE, 1, 5, 5,
-	"confirm_stairs",               "別の階に行く時確認する" },
+	{ &confirm_quest,               TRUE, 1, 1, 9,
+	"confirm_quest",                "クエストを諦めて階段で逃げる前に確認する" },
 #else
-	{ &confirm_stairs,              FALSE, 1, 5, 5,
-	"confirm_stairs",               "Prompt before exiting a dungeon level" },
+	{ &confirm_quest,               TRUE, 1, 1, 9,
+	"confirm_quest",                "Prompt before exiting a quest level" },
 #endif
 
 
@@ -6818,15 +6878,6 @@ option_type option_info[] =
 
 
 #ifdef JP
-	{ &dungeon_stair,               TRUE,  3, 1, 9,
-	"dungeon_stair",                "階段をつなげてダンジョンを生成する" },
-#else
-	{ &dungeon_stair,               TRUE,  3, 1, 9,
-	"dungeon_stair",                "Generate dungeons with connected stairs" },
-#endif
-
-
-#ifdef JP
 	{ &small_levels,                TRUE,  3, 0, 30,
 	"small_levels",                 "非常に小さいフロアの生成を可能にする" },
 #else
@@ -6850,6 +6901,15 @@ option_type option_info[] =
 #else
 	{ &empty_levels,                TRUE,  3, 0, 31,
 	"empty_levels",                 "Allow empty 'arena' levels" },
+#endif
+
+
+#ifdef JP
+	{ &bound_walls_perm,            FALSE,  3, 2, 1,
+	"bound_walls_perm",             "ダンジョンの外壁を永久岩にする" },
+#else
+	{ &bound_walls_perm,            FALSE,  3, 2, 1,
+	"bound_walls_perm",             "Boundary walls become 'permanent wall'" },
 #endif
 
 
@@ -7838,7 +7898,7 @@ kamae kata_shurui[MAX_KATA] =
 #endif
 };
 
-cptr shougou_moji[5]=
+cptr exp_level_str[5]=
 #ifdef JP
 {"[初心者]", "[入門者]", "[熟練者]", "[エキスパート]", "[達人]"};
 #else
@@ -7992,3 +8052,249 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"pusupusu",
 };
 #endif
+
+
+/*
+ * The table of "symbol info" -- each entry is a string of the form
+ * "X:desc" where "X" is the trigger, and "desc" is the "info".
+ */
+cptr ident_info[] =
+{
+#ifdef JP
+	" :暗闇",
+	"!:薬, オイル",
+	"\":アミュレット, 頸飾り",
+	"#:壁(隠しドア)/植物/気体",
+	"$:財宝(金か宝石)",
+	"%:鉱脈(溶岩か石英)",
+	"&:箱",
+	"':開いたドア",
+	"(:軟らかい防具",
+	"):盾",
+	"*:財宝を含んだ鉱脈または球形の怪物",
+	"+:閉じたドア",
+	",:食べ物, おばけキノコ",
+	"-:魔法棒, ロッド",
+	".:床",
+	"/:竿状武器(アックス/パイク/等)",
+	"0:博物館の入口",
+	"1:雑貨屋の入口",
+	"2:防具屋の入口",
+	"3:武器専門店の入口",
+	"4:寺院の入口",
+	"5:錬金術の店の入口",
+	"6:魔法の店の入口",
+	"7:ブラックマーケットの入口",
+	"8:我が家の入口",
+	"9:書店の入口",
+	"::岩石",
+	";:回避の彫像/爆発のルーン",
+	"<:上り階段",
+	"=:指輪",
+	">:下り階段",
+	"?:巻物",
+	"@:プレイヤー",
+	"A:天使",
+	"B:鳥",
+	"C:犬",
+	"D:古代ドラゴン/ワイアーム",
+	"E:エレメンタル",
+	"F:トンボ",
+	"G:ゴースト",
+	"H:雑種",
+	"I:昆虫",
+	"J:ヘビ",
+	"K:キラー・ビートル",
+	"L:リッチ",
+	"M:多首の爬虫類",
+	"N:謎の生物",
+	"O:オーガ",
+	"P:巨大人間型生物",
+	"Q:クイルスルグ(脈打つ肉塊)",
+	"R:爬虫類/両生類",
+	"S:蜘蛛/サソリ/ダニ",
+	"T:トロル",
+	"U:上級デーモン",
+	"V:バンパイア",
+	"W:ワイト/レイス/等",
+	"X:ゾーン/ザレン/等",
+	"Y:イエティ",
+	"Z:ハウンド",
+	"[:堅いアーマー",
+	"\\:鈍器(メイス/ムチ/等)",
+	"]:種々の防具",
+	"^:トラップ",
+	"_:杖",
+	"`:人形，彫像",
+	"a:アリ",
+	"b:コウモリ",
+	"c:ムカデ",
+	"d:ドラゴン",
+	"e:目玉",
+	"f:ネコ",
+	"g:ゴーレム",
+	"h:ホビット/エルフ/ドワーフ",
+	"i:ベトベト",
+	"j:ゼリー",
+	"k:コボルド",
+	"l:水棲生物",
+	"m:モルド",
+	"n:ナーガ",
+	"o:オーク",
+	"p:人間",
+	"q:四足獣",
+	"r:ネズミ",
+	"s:スケルトン",
+	"t:町の人",
+	"u:下級デーモン",
+	"v:ボルテックス",
+	"w:イモムシ/大群",
+	/* "x:unused", */
+	"y:イーク",
+	"z:ゾンビ/ミイラ",
+	"{:飛び道具の弾(矢/弾)",
+	"|:刀剣類(ソード/ダガー/等)",
+	"}:飛び道具(弓/クロスボウ/スリング)",
+	"~:水/溶岩流(種々のアイテム)",
+#else
+	" :A dark grid",
+	"!:A potion (or oil)",
+	"\":An amulet (or necklace)",
+	"#:A wall (or secret door) / a plant / a gas",
+	"$:Treasure (gold or gems)",
+	"%:A vein (magma or quartz)",
+	"&:A chest",
+	"':An open door",
+	"(:Soft armor",
+	"):A shield",
+	"*:A vein with treasure or a ball monster",
+	"+:A closed door",
+	",:Food (or mushroom patch)",
+	"-:A wand (or rod)",
+	".:Floor",
+	"/:A polearm (Axe/Pike/etc)",
+	"0:Entrance to Museum",
+	"1:Entrance to General Store",
+	"2:Entrance to Armory",
+	"3:Entrance to Weaponsmith",
+	"4:Entrance to Temple",
+	"5:Entrance to Alchemy shop",
+	"6:Entrance to Magic store",
+	"7:Entrance to Black Market",
+	"8:Entrance to your home",
+	"9:Entrance to the bookstore",
+	"::Rubble",
+	";:A glyph of warding / an explosive rune",
+	"<:An up staircase",
+	"=:A ring",
+	">:A down staircase",
+	"?:A scroll",
+	"@:You",
+	"A:Angel",
+	"B:Bird",
+	"C:Canine",
+	"D:Ancient Dragon/Wyrm",
+	"E:Elemental",
+	"F:Dragon Fly",
+	"G:Ghost",
+	"H:Hybrid",
+	"I:Insect",
+	"J:Snake",
+	"K:Killer Beetle",
+	"L:Lich",
+	"M:Multi-Headed Reptile",
+	"N:Mystery Living",
+	"O:Ogre",
+	"P:Giant Humanoid",
+	"Q:Quylthulg (Pulsing Flesh Mound)",
+	"R:Reptile/Amphibian",
+	"S:Spider/Scorpion/Tick",
+	"T:Troll",
+	"U:Major Demon",
+	"V:Vampire",
+	"W:Wight/Wraith/etc",
+	"X:Xorn/Xaren/etc",
+	"Y:Yeti",
+	"Z:Zephyr Hound",
+	"[:Hard armor",
+	"\\:A hafted weapon (mace/whip/etc)",
+	"]:Misc. armor",
+	"^:A trap",
+	"_:A staff",
+	"`:A figurine or statue",
+	"a:Ant",
+	"b:Bat",
+	"c:Centipede",
+	"d:Dragon",
+	"e:Floating Eye",
+	"f:Feline",
+	"g:Golem",
+	"h:Hobbit/Elf/Dwarf",
+	"i:Icky Thing",
+	"j:Jelly",
+	"k:Kobold",
+	"l:Aquatic monster",
+	"m:Mold",
+	"n:Naga",
+	"o:Orc",
+	"p:Person/Human",
+	"q:Quadruped",
+	"r:Rodent",
+	"s:Skeleton",
+	"t:Townsperson",
+	"u:Minor Demon",
+	"v:Vortex",
+	"w:Worm/Worm-Mass",
+	/* "x:unused", */
+	"y:Yeek",
+	"z:Zombie/Mummy",
+	"{:A missile (arrow/bolt/shot)",
+	"|:An edged weapon (sword/dagger/etc)",
+	"}:A launcher (bow/crossbow/sling)",
+	"~:Fluid terrain (or miscellaneous item)",
+#endif
+
+	NULL
+};
+
+
+/*
+ * The table of monsters' blow effects
+ */
+mbe_info_type mbe_info[] =
+{
+	{  0, 0,             }, /* None      */
+	{ 60, GF_MISSILE,    }, /* HURT      */
+	{  5, GF_POIS,       }, /* POISON    */
+	{ 20, GF_DISENCHANT, }, /* UN_BONUS  */
+	{ 15, GF_MISSILE,    }, /* UN_POWER  */ /* ToDo: Apply the correct effects */
+	{  5, GF_MISSILE,    }, /* EAT_GOLD  */
+	{  5, GF_MISSILE,    }, /* EAT_ITEM  */
+	{  5, GF_MISSILE,    }, /* EAT_FOOD  */
+	{  5, GF_MISSILE,    }, /* EAT_LITE  */
+	{  0, GF_ACID,       }, /* ACID      */
+	{ 10, GF_ELEC,       }, /* ELEC      */
+	{ 10, GF_FIRE,       }, /* FIRE      */
+	{ 10, GF_COLD,       }, /* COLD      */
+	{  2, GF_MISSILE,    }, /* BLIND     */
+	{ 10, GF_CONFUSION,  }, /* CONFUSE   */
+	{ 10, GF_MISSILE,    }, /* TERRIFY   */
+	{  2, GF_MISSILE,    }, /* PARALYZE  */
+	{  0, GF_MISSILE,    }, /* LOSE_STR  */
+	{  0, GF_MISSILE,    }, /* LOSE_INT  */
+	{  0, GF_MISSILE,    }, /* LOSE_WIS  */
+	{  0, GF_MISSILE,    }, /* LOSE_DEX  */
+	{  0, GF_MISSILE,    }, /* LOSE_CON  */
+	{  0, GF_MISSILE,    }, /* LOSE_CHR  */
+	{  2, GF_MISSILE,    }, /* LOSE_ALL  */
+	{ 60, GF_ROCKET,     }, /* SHATTER   */
+	{  5, GF_MISSILE,    }, /* EXP_10    */
+	{  5, GF_MISSILE,    }, /* EXP_20    */
+	{  5, GF_MISSILE,    }, /* EXP_40    */
+	{  5, GF_MISSILE,    }, /* EXP_80    */
+	{  5, GF_POIS,       }, /* DISEASE   */
+	{  5, GF_TIME,       }, /* TIME      */
+	{  5, GF_MISSILE,    }, /* EXP_VAMP  */
+	{  5, GF_MANA,       }, /* DR_MANA   */
+	{ 60, GF_MISSILE,    }, /* SUPERHURT */
+};

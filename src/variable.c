@@ -1,14 +1,14 @@
 /* File: variable.c */
 
-/* Purpose: Angband variables */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Angband variables */
 
 #include "angband.h"
 
@@ -27,11 +27,11 @@ cptr copyright[5] =
 
 
 int max_macrotrigger = 0;
-char *macro_template = NULL;
-char *macro_modifier_chr;
-char *macro_modifier_name[MAX_MACRO_MOD];
-char *macro_trigger_name[MAX_MACRO_TRIG];
-char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIG];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
@@ -104,9 +104,6 @@ s16b command_gap = 999;         /* See "object1.c" */
 s16b command_new;		/* Command chaining from inven/equip view */
 
 s16b energy_use;		/* Energy use this turn */
-
-byte create_up_stair;	/* Auto-create "up stairs" */
-byte create_down_stair;	/* Auto-create "down stairs" */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -226,12 +223,13 @@ bool over_exert;
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
+bool bound_walls_perm;		/* Boundary walls are created by permanent wall */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool display_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
-bool confirm_stairs;		/* Prompt before staircases... */
+bool confirm_quest;		/* Prompt before staircases... */
 bool confirm_wear;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 
@@ -253,7 +251,6 @@ bool view_torch_grids;		/* Map remembers all torch-lit grids */
 bool view_unsafe_grids;		/* Map marked by detect traps */
 
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
-bool dungeon_stair;			/* Generate dungeons with connected stairs */
 
 bool track_follow;			/* Monsters follow the player */
 bool track_target;			/* Monsters target the player */
@@ -404,6 +401,13 @@ byte view_x[VIEW_MAX];
 s16b temp_n;
 byte temp_y[TEMP_MAX];
 byte temp_x[TEMP_MAX];
+
+/*
+ * Array of grids for delayed visual updating (see "cave.c")
+ */
+s16b redraw_n = 0;
+byte redraw_y[REDRAW_MAX];
+byte redraw_x[REDRAW_MAX];
 
 
 /*
@@ -613,6 +617,26 @@ char angband_sound_name[SOUND_MAX][16] =
  * Not completely hardcoded, that would overflow memory
  */
 cave_type *cave[MAX_HGT];
+
+
+/*
+ * The array of saved floors
+ */
+saved_floor_type saved_floors[MAX_SAVED_FLOORS];
+
+
+/*
+ * Number of floor_id used from birth
+ */
+s16b max_floor_id;
+
+
+/*
+ * Sign for current process used in temporal files.
+ * Actually it is the start time of current process.
+ */
+u32b saved_floor_file_sign;
+
 
 /*
  * The array of dungeon items [max_o_idx]

@@ -1,14 +1,14 @@
 /* File: monster1.c */
 
-/* Purpose: describe monsters (using monster memory) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Christopher J. Stuart
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: describe monsters (using monster memory) */
 
 #include "angband.h"
 
@@ -134,7 +134,6 @@ static void roff_aux(int r_idx, int mode)
 	monster_race    *r_ptr = &r_info[r_idx];
 
 	bool            old = FALSE;
-	bool            sin = FALSE;
 
 	int             m, n, r;
 
@@ -142,6 +141,8 @@ static void roff_aux(int r_idx, int mode)
 
 #ifdef JP
 	char            jverb_buf[64];
+#else
+	bool            sin = FALSE;
 #endif
 	int             msex = 0;
 
@@ -157,6 +158,7 @@ static void roff_aux(int r_idx, int mode)
 	u32b		flags5;
 	u32b		flags6;
 	u32b		flags7;
+	u32b		flagsr;
 
 	byte drop_gold, drop_item;
 
@@ -178,8 +180,9 @@ static void roff_aux(int r_idx, int mode)
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
 	flags7 = (r_ptr->flags7 & r_ptr->flags7);
+	flagsr = (r_ptr->flagsr & r_ptr->r_flagsr);
 
-	/* cheat_know or reserch_mon() */
+	/* cheat_know or research_mon() */
 	if (cheat_know || (mode & 0x01))
 		know_everything = TRUE;
 
@@ -206,6 +209,7 @@ static void roff_aux(int r_idx, int mode)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flagsr = r_ptr->flagsr;
 	}
 
 
@@ -408,7 +412,6 @@ static void roff_aux(int r_idx, int mode)
 	}
 
 	/* Descriptions */
-	if (1)
 	{
 		char buf[2048];
 
@@ -809,7 +812,6 @@ else                            hooked_roff("¥â¥ó¥¹¥¿¡¼");
 		hooked_roff("¤òÅÝ¤¹¤³¤È¤Ï");
 #endif
 		/* Group some variables */
-		if (TRUE)
 		{
 			long i, j;
 
@@ -1479,7 +1481,7 @@ if (flags6 & (RF6_TELE_LEVEL))      {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È¡¦¥ì¥Ù¥ë";color[vn++] =
 
 	if (flags6 & (RF6_DARKNESS))
 	{
-		if ((p_ptr->pclass != CLASS_NINJA) || (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+		if ((p_ptr->pclass != CLASS_NINJA) || (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)) || (r_ptr->flags7 & RF7_DARK_MASK))
 		{
 #ifdef JP
 			vp[vn] =  "°Å°Ç"; color[vn++] = TERM_L_DARK;
@@ -1679,10 +1681,10 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "¥æ¥Ë¡¼¥¯¡¦¥â¥ó¥¹¥¿¡¼¾¤´­";color[v
 	if (breath || magic)
 	{
 		/* Total casting */
-		m = r_ptr->r_cast_inate + r_ptr->r_cast_spell;
+		m = r_ptr->r_cast_spell;
 
 		/* Average frequency */
-		n = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
+		n = r_ptr->freq_spell;
 
 		/* Describe the spell frequency */
 		if (m > 100 || know_everything)
@@ -1758,57 +1760,63 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "¥æ¥Ë¡¼¥¯¡¦¥â¥ó¥¹¥¿¡¼¾¤´­";color[v
 	/* Collect special abilities. */
 	vn = 0;
 #ifdef JP
-if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "¥À¥ó¥¸¥ç¥ó¤ò¾È¤é¤¹";
+	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) { vp[vn] = "¥À¥ó¥¸¥ç¥ó¤ò¾È¤é¤¹";     color[vn++] = TERM_WHITE; }
 #else
-	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) vp[vn++] = "illuminate the dungeon";
+	if (flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) { vp[vn] = "illuminate the dungeon"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "¥É¥¢¤ò³«¤±¤ë";
+	if (flags7 & (RF7_HAS_DARK_1 | RF7_HAS_DARK_2)) { vp[vn] = "¥À¥ó¥¸¥ç¥ó¤ò°Å¤¯¤¹¤ë";   color[vn++] = TERM_L_DARK; }
 #else
-	if (flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
+	if (flags7 & (RF7_HAS_DARK_1 | RF7_HAS_DARK_2)) { vp[vn] = "darken the dungeon";     color[vn++] = TERM_L_DARK; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_BASH_DOOR) vp[vn++] = "¥É¥¢¤òÂÇ¤ÁÇË¤ë";
+	if (flags2 & RF2_OPEN_DOOR) { vp[vn] = "¥É¥¢¤ò³«¤±¤ë"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
+	if (flags2 & RF2_OPEN_DOOR) { vp[vn] = "open doors"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_PASS_WALL) vp[vn++] = "ÊÉ¤ò¤¹¤êÈ´¤±¤ë";
+	if (flags2 & RF2_BASH_DOOR) { vp[vn] = "¥É¥¢¤òÂÇ¤ÁÇË¤ë"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
+	if (flags2 & RF2_BASH_DOOR) { vp[vn] = "bash down doors"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_WALL) vp[vn++] = "ÊÉ¤ò·¡¤ê¿Ê¤à";
+	if (flags2 & RF2_PASS_WALL) { vp[vn] = "ÊÉ¤ò¤¹¤êÈ´¤±¤ë"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
+	if (flags2 & RF2_PASS_WALL) { vp[vn] = "pass through walls"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_MOVE_BODY) vp[vn++] = "¼å¤¤¥â¥ó¥¹¥¿¡¼¤ò²¡¤·¤Î¤±¤ë";
+	if (flags2 & RF2_KILL_WALL) { vp[vn] = "ÊÉ¤ò·¡¤ê¿Ê¤à"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_MOVE_BODY) vp[vn++] = "push past weaker monsters";
+	if (flags2 & RF2_KILL_WALL) { vp[vn] = "bore through walls"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_BODY) vp[vn++] = "¼å¤¤¥â¥ó¥¹¥¿¡¼¤òÅÝ¤¹";
+	if (flags2 & RF2_MOVE_BODY) { vp[vn] = "¼å¤¤¥â¥ó¥¹¥¿¡¼¤ò²¡¤·¤Î¤±¤ë"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
+	if (flags2 & RF2_MOVE_BODY) { vp[vn] = "push past weaker monsters"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "¥¢¥¤¥Æ¥à¤ò½¦¤¦";
+	if (flags2 & RF2_KILL_BODY) { vp[vn] = "¼å¤¤¥â¥ó¥¹¥¿¡¼¤òÅÝ¤¹"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
+	if (flags2 & RF2_KILL_BODY) { vp[vn] = "destroy weaker monsters"; color[vn++] = TERM_WHITE; }
 #endif
 
 #ifdef JP
-if (flags2 & RF2_KILL_ITEM) vp[vn++] = "¥¢¥¤¥Æ¥à¤ò²õ¤¹";
+	if (flags2 & RF2_TAKE_ITEM) { vp[vn] = "¥¢¥¤¥Æ¥à¤ò½¦¤¦"; color[vn++] = TERM_WHITE; }
 #else
-	if (flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
+	if (flags2 & RF2_TAKE_ITEM) { vp[vn] = "pick up objects"; color[vn++] = TERM_WHITE; }
+#endif
+
+#ifdef JP
+	if (flags2 & RF2_KILL_ITEM) { vp[vn] = "¥¢¥¤¥Æ¥à¤ò²õ¤¹"; color[vn++] = TERM_WHITE; }
+#else
+	if (flags2 & RF2_KILL_ITEM) { vp[vn] = "destroy objects"; color[vn++] = TERM_WHITE; }
 #endif
 
 
@@ -1828,19 +1836,20 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "¥¢¥¤¥Æ¥à¤ò²õ¤¹";
 		{
 			/* Intro */
 #ifdef JP
-			if(n!=vn-1){
-			  jverb(vp[n],jverb_buf,JVERB_AND);
-			  hooked_roff(jverb_buf);
-			  hooked_roff("¡¢");
+			if (n != vn - 1)
+			{
+				jverb(vp[n], jverb_buf, JVERB_AND);
+				hook_c_roff(color[n], jverb_buf);
+				hooked_roff("¡¢");
 			}
-			else  hooked_roff(vp[n]);
+			else hook_c_roff(color[n], vp[n]);
 #else
 			if (n == 0) hooked_roff(" can ");
-			else if (n < vn-1) hooked_roff(", ");
+			else if (n < vn - 1) hooked_roff(", ");
 			else hooked_roff(" and ");
 
 			/* Dump */
-			hooked_roff(vp[n]);
+			hook_c_roff(color[n], vp[n]);
 #endif
 
 		}
@@ -1862,6 +1871,15 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "¥¢¥¤¥Æ¥à¤ò²õ¤¹";
 		hooked_roff(format("%^s¤Ï¸÷¤Ã¤Æ¤¤¤ë¡£", wd_he[msex]));
 #else
 		hooked_roff(format("%^s illuminate the dungeon.  ", wd_he[msex]));
+#endif
+
+	}
+	if (flags7 & (RF7_SELF_DARK_1 | RF7_SELF_DARK_2))
+	{
+#ifdef JP
+		hook_c_roff(TERM_L_DARK, format("%^s¤Ï°Å¹õ¤ËÊñ¤Þ¤ì¤Æ¤¤¤ë¡£", wd_he[msex]));
+#else
+		hook_c_roff(TERM_L_DARK, format("%^s is surrounded by darkness.  ", wd_he[msex]));
 #endif
 
 	}
@@ -1998,180 +2016,135 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "¥¢¥¤¥Æ¥à¤ò²õ¤¹";
 	/* Collect immunities */
 	vn = 0;
 #ifdef JP
-	if (flags3 & RF3_IM_ACID) {vp[vn] = "»À";color[vn++] = TERM_GREEN;}
+	if (flagsr & RFR_IM_ACID) {vp[vn] = "»À";color[vn++] = TERM_GREEN;}
 #else
-	if (flags3 & RF3_IM_ACID) {vp[vn] = "acid";color[vn++] = TERM_GREEN;}
+	if (flagsr & RFR_IM_ACID) {vp[vn] = "acid";color[vn++] = TERM_GREEN;}
 #endif
 
 #ifdef JP
-	if (flags3 & RF3_IM_ELEC) {vp[vn] = "°ðºÊ";color[vn++] = TERM_BLUE;}
+	if (flagsr & RFR_IM_ELEC) {vp[vn] = "°ðºÊ";color[vn++] = TERM_BLUE;}
 #else
-	if (flags3 & RF3_IM_ELEC) {vp[vn] = "lightning";color[vn++] = TERM_BLUE;}
+	if (flagsr & RFR_IM_ELEC) {vp[vn] = "lightning";color[vn++] = TERM_BLUE;}
 #endif
 
 #ifdef JP
-	if (flags3 & RF3_IM_FIRE) {vp[vn] = "±ê";color[vn++] = TERM_RED;}
+	if (flagsr & RFR_IM_FIRE) {vp[vn] = "±ê";color[vn++] = TERM_RED;}
 #else
-	if (flags3 & RF3_IM_FIRE) {vp[vn] = "fire";color[vn++] = TERM_RED;}
+	if (flagsr & RFR_IM_FIRE) {vp[vn] = "fire";color[vn++] = TERM_RED;}
 #endif
 
 #ifdef JP
-	if (flags3 & RF3_IM_COLD) {vp[vn] = "Îäµ¤";color[vn++] = TERM_L_WHITE;}
+	if (flagsr & RFR_IM_COLD) {vp[vn] = "Îäµ¤";color[vn++] = TERM_L_WHITE;}
 #else
-	if (flags3 & RF3_IM_COLD) {vp[vn] = "cold";color[vn++] = TERM_L_WHITE;}
+	if (flagsr & RFR_IM_COLD) {vp[vn] = "cold";color[vn++] = TERM_L_WHITE;}
 #endif
 
 #ifdef JP
-	if (flags3 & RF3_IM_POIS) {vp[vn] = "ÆÇ";color[vn++] = TERM_L_GREEN;}
+	if (flagsr & RFR_IM_POIS) {vp[vn] = "ÆÇ";color[vn++] = TERM_L_GREEN;}
 #else
-	if (flags3 & RF3_IM_POIS) {vp[vn] = "poison";color[vn++] = TERM_L_GREEN;}
+	if (flagsr & RFR_IM_POIS) {vp[vn] = "poison";color[vn++] = TERM_L_GREEN;}
 #endif
-
-
-	/* Describe immunities */
-	if (vn)
-	{
-		/* Intro */
-#ifdef JP
-		hooked_roff(format("%^s¤Ï", wd_he[msex]));
-#else
-		hooked_roff(format("%^s", wd_he[msex]));
-#endif
-
-
-		/* Scan */
-		for (n = 0; n < vn; n++)
-		{
-			/* Intro */
-#ifdef JP
-			if ( n != 0 ) hooked_roff("¤È");
-#else
-			if (n == 0) hooked_roff(" resists ");
-			else if (n < vn-1) hooked_roff(", ");
-			else hooked_roff(" and ");
-#endif
-
-
-			/* Dump */
-			hook_c_roff(color[n], vp[n]);
-		}
-
-		/* End */
-#ifdef JP
-		hooked_roff("¤ÎÂÑÀ­¤ò»ý¤Ã¤Æ¤¤¤ë¡£");
-#else
-		hooked_roff(".  ");
-#endif
-
-	}
 
 
 	/* Collect resistances */
-	vn = 0;
 #ifdef JP
-if (flags4 & RF4_BR_LITE) {vp[vn] = "Á®¸÷";color[vn++] = TERM_YELLOW;}
+	if (flagsr & RFR_RES_LITE) {vp[vn] = "Á®¸÷";color[vn++] = TERM_YELLOW;}
 #else
- if (flags4 & RF4_BR_LITE) {vp[vn] = "light";color[vn++] = TERM_YELLOW;}
+	if (flagsr & RFR_RES_LITE) {vp[vn] = "light";color[vn++] = TERM_YELLOW;}
 #endif
 
 #ifdef JP
-if ((flags4 & RF4_BR_DARK) || (flags3 & RF3_ORC)) {vp[vn] = "°Å¹õ";color[vn++] = TERM_L_DARK;}
+	if (flagsr & RFR_RES_DARK) {vp[vn] = "°Å¹õ";color[vn++] = TERM_L_DARK;}
 #else
- if (flags4 & RF4_BR_DARK  || (flags3 & RF3_ORC)) {vp[vn] = "dark";color[vn++] = TERM_L_DARK;}
+	if (flagsr & RFR_RES_DARK) {vp[vn] = "dark";color[vn++] = TERM_L_DARK;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_NETH) {vp[vn] = "ÃÏ¹ö";color[vn++] = TERM_L_DARK;}
+	if (flagsr & RFR_RES_NETH) {vp[vn] = "ÃÏ¹ö";color[vn++] = TERM_L_DARK;}
 #else
- if (flags3 & RF3_RES_NETH) {vp[vn] = "nether";color[vn++] = TERM_L_DARK;}
+	if (flagsr & RFR_RES_NETH) {vp[vn] = "nether";color[vn++] = TERM_L_DARK;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_WATE) {vp[vn] = "¿å";color[vn++] = TERM_BLUE;}
+	if (flagsr & RFR_RES_WATE) {vp[vn] = "¿å";color[vn++] = TERM_BLUE;}
 #else
-if (flags3 & RF3_RES_WATE) {vp[vn] = "water";color[vn++] = TERM_BLUE;}
+	if (flagsr & RFR_RES_WATE) {vp[vn] = "water";color[vn++] = TERM_BLUE;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_PLAS) {vp[vn] = "¥×¥é¥º¥Þ";color[vn++] = TERM_L_RED;}
+	if (flagsr & RFR_RES_PLAS) {vp[vn] = "¥×¥é¥º¥Þ";color[vn++] = TERM_L_RED;}
 #else
- if (flags3 & RF3_RES_PLAS) {vp[vn] = "plasma";color[vn++] = TERM_L_RED;}
+	if (flagsr & RFR_RES_PLAS) {vp[vn] = "plasma";color[vn++] = TERM_L_RED;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_SHAR) {vp[vn] = "ÇËÊÒ";color[vn++] = TERM_L_UMBER;}
+	if (flagsr & RFR_RES_SHAR) {vp[vn] = "ÇËÊÒ";color[vn++] = TERM_L_UMBER;}
 #else
- if (flags4 & RF4_BR_SHAR) {vp[vn] = "shards";color[vn++] = TERM_L_UMBER;}
+	if (flagsr & RFR_RES_SHAR) {vp[vn] = "shards";color[vn++] = TERM_L_UMBER;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_SOUN) {vp[vn] = "¹ì²»";color[vn++] = TERM_ORANGE;}
+	if (flagsr & RFR_RES_SOUN) {vp[vn] = "¹ì²»";color[vn++] = TERM_ORANGE;}
 #else
- if (flags4 & RF4_BR_SOUN) {vp[vn] = "sound";color[vn++] = TERM_ORANGE;}
+	if (flagsr & RFR_RES_SOUN) {vp[vn] = "sound";color[vn++] = TERM_ORANGE;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_CONF) {vp[vn] = "º®Íð";color[vn++] = TERM_L_UMBER;}
+	if (flagsr & RFR_RES_CHAO) {vp[vn] = "¥«¥ª¥¹";color[vn++] = TERM_VIOLET;}
 #else
- if (flags4 & RF4_BR_CONF) {vp[vn] = "conf";color[vn++] = TERM_L_UMBER;}
+	if (flagsr & RFR_RES_CHAO) {vp[vn] = "chaos";color[vn++] = TERM_VIOLET;}
 #endif
 
 #ifdef JP
-if ((flags4 & RF4_BR_CHAO) || (r_idx == MON_STORMBRINGER)) {vp[vn] = "¥«¥ª¥¹";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_NEXU) {vp[vn] = "°ø²Ìº®Íð";color[vn++] = TERM_VIOLET;}
 #else
-if ((flags4 & RF4_BR_CHAO) || (r_idx == MON_STORMBRINGER)) {vp[vn] = "chaos";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_NEXU) {vp[vn] = "nexus";color[vn++] = TERM_VIOLET;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_NEXU) {vp[vn] = "°ø²Ìº®Íð";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_DISE) {vp[vn] = "Îô²½";color[vn++] = TERM_VIOLET;}
 #else
- if (flags3 & RF3_RES_NEXU) {vp[vn] = "nexus";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_DISE) {vp[vn] = "disenchantment";color[vn++] = TERM_VIOLET;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_DISE) {vp[vn] = "Îô²½";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_WALL) {vp[vn] = "¥Õ¥©¡¼¥¹";color[vn++] = TERM_UMBER;}
 #else
- if (flags3 & RF3_RES_DISE) {vp[vn] = "disenchantment";color[vn++] = TERM_VIOLET;}
+	if (flagsr & RFR_RES_WALL) {vp[vn] = "force";color[vn++] = TERM_UMBER;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_WALL) {vp[vn] = "¥Õ¥©¡¼¥¹";color[vn++] = TERM_UMBER;}
+	if (flagsr & RFR_RES_INER) {vp[vn] = "ÃÙÆß";color[vn++] = TERM_SLATE;}
 #else
- if (flags4 & RF4_BR_WALL) {vp[vn] = "force";color[vn++] = TERM_UMBER;}
+	if (flagsr & RFR_RES_INER) {vp[vn] = "inertia";color[vn++] = TERM_SLATE;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_INER) {vp[vn] = "ÃÙÆß";color[vn++] = TERM_SLATE;}
+	if (flagsr & RFR_RES_TIME) {vp[vn] = "»þ´ÖµÕÅ¾";color[vn++] = TERM_L_BLUE;}
 #else
- if (flags4 & RF4_BR_INER) {vp[vn] = "inertia";color[vn++] = TERM_SLATE;}
+	if (flagsr & RFR_RES_TIME) {vp[vn] = "time";color[vn++] = TERM_L_BLUE;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_TIME) {vp[vn] = "»þ´ÖµÕÅ¾";color[vn++] = TERM_L_BLUE;}
+	if (flagsr & RFR_RES_GRAV) {vp[vn] = "½ÅÎÏ";color[vn++] = TERM_SLATE;}
 #else
- if (flags4 & RF4_BR_TIME) {vp[vn] = "time";color[vn++] = TERM_L_BLUE;}
+	if (flagsr & RFR_RES_GRAV) {vp[vn] = "gravity";color[vn++] = TERM_SLATE;}
 #endif
 
 #ifdef JP
-if (flags4 & RF4_BR_GRAV) {vp[vn] = "½ÅÎÏ";color[vn++] = TERM_SLATE;}
+	if (flagsr & RFR_RES_ALL) {vp[vn] = "¤¢¤é¤æ¤ë¹¶·â";color[vn++] = TERM_YELLOW;}
 #else
- if (flags4 & RF4_BR_GRAV) {vp[vn] = "gravity";color[vn++] = TERM_SLATE;}
+	if (flagsr & RFR_RES_ALL) {vp[vn] = "all";color[vn++] = TERM_YELLOW;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_RES_ALL) {vp[vn] = "¤¢¤é¤æ¤ë¹¶·â";color[vn++] = TERM_YELLOW;}
+	if ((flagsr & RFR_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È";color[vn++] = TERM_ORANGE;}
 #else
- if (flags3 & RF3_RES_ALL) {vp[vn] = "all";color[vn++] = TERM_YELLOW;}
-#endif
-
-#ifdef JP
-if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È";color[vn++] = TERM_ORANGE;}
-#else
- if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "teleportation";color[vn++] = TERM_ORANGE;}
+	if ((flagsr & RFR_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "teleportation";color[vn++] = TERM_ORANGE;}
 #endif
 
 
-	/* Describe resistances */
+	/* Describe immunities and resistances */
 	if (vn)
 	{
 		/* Intro */
@@ -2238,33 +2211,33 @@ if ((flags3 & RF3_RES_TELE) && !(r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡
 	/* Collect non-effects */
 	vn = 0;
 #ifdef JP
-if (flags3 & RF3_NO_STUN)  {vp[vn] = "Û¯Û°¤È¤·¤Ê¤¤";color[vn++] = TERM_ORANGE;}
+	if (flags3 & RF3_NO_STUN)  {vp[vn] = "Û¯Û°¤È¤·¤Ê¤¤";color[vn++] = TERM_ORANGE;}
 #else
- if (flags3 & RF3_NO_STUN)  {vp[vn] = "stunned";color[vn++] = TERM_ORANGE;}
+	if (flags3 & RF3_NO_STUN)  {vp[vn] = "stunned";color[vn++] = TERM_ORANGE;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_NO_FEAR)  {vp[vn] = "¶²ÉÝ¤ò´¶¤¸¤Ê¤¤";color[vn++] = TERM_SLATE;}
+	if (flags3 & RF3_NO_FEAR)  {vp[vn] = "¶²ÉÝ¤ò´¶¤¸¤Ê¤¤";color[vn++] = TERM_SLATE;}
 #else
- if (flags3 & RF3_NO_FEAR)  {vp[vn] = "frightened";color[vn++] = TERM_SLATE;}
+	if (flags3 & RF3_NO_FEAR)  {vp[vn] = "frightened";color[vn++] = TERM_SLATE;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_NO_CONF)  {vp[vn] = "º®Íð¤·¤Ê¤¤";color[vn++] = TERM_L_UMBER;}
+	if (flags3 & RF3_NO_CONF)  {vp[vn] = "º®Íð¤·¤Ê¤¤";color[vn++] = TERM_L_UMBER;}
 #else
- if (flags3 & RF3_NO_CONF)  {vp[vn] = "confused";color[vn++] = TERM_L_UMBER;}
+	if (flags3 & RF3_NO_CONF)  {vp[vn] = "confused";color[vn++] = TERM_L_UMBER;}
 #endif
 
 #ifdef JP
-if (flags3 & RF3_NO_SLEEP) {vp[vn] = "Ì²¤é¤µ¤ì¤Ê¤¤";color[vn++] = TERM_BLUE;}
+	if (flags3 & RF3_NO_SLEEP) {vp[vn] = "Ì²¤é¤µ¤ì¤Ê¤¤";color[vn++] = TERM_BLUE;}
 #else
- if (flags3 & RF3_NO_SLEEP) {vp[vn] = "slept";color[vn++] = TERM_BLUE;}
+	if (flags3 & RF3_NO_SLEEP) {vp[vn] = "slept";color[vn++] = TERM_BLUE;}
 #endif
 
 #ifdef JP
-if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È¤µ¤ì¤Ê¤¤";color[vn++] = TERM_ORANGE;}
+	if ((flagsr & RFR_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È¤µ¤ì¤Ê¤¤";color[vn++] = TERM_ORANGE;}
 #else
- if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "teleported";color[vn++] = TERM_ORANGE;}
+	if ((flagsr & RFR_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "teleported";color[vn++] = TERM_ORANGE;}
 #endif
 
 	/* Describe non-effects */
@@ -2426,14 +2399,14 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼
 	/* Drops gold and/or items */
 	if (drop_gold || drop_item)
 	{
-		/* No "n" needed */
-		sin = FALSE;
-
 		/* Intro */
 #ifdef JP
 		hooked_roff(format("%^s¤Ï", wd_he[msex]));
 #else
 		hooked_roff(format("%^s may carry", wd_he[msex]));
+
+		/* No "n" needed */
+		sin = FALSE;
 #endif
 
 
@@ -2447,9 +2420,8 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼
 			hooked_roff("°ì¤Ä¤Î");
 #else
 			hooked_roff(" a");
-#endif
-
 			sin = TRUE;
+#endif
 		}
 
 		/* Two drops */
@@ -2493,9 +2465,8 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼
 			p = "¾å¼Á¤Ê";
 #else
 			p = " good";
-#endif
-
 			sin = FALSE;
+#endif
 		}
 
 		/* Okay */
@@ -2511,8 +2482,8 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼
 			/* Handle singular "an" */
 #ifndef JP
 			if (sin) hooked_roff("n");
-#endif
 			sin = FALSE;
+#endif
 
 			/* Dump "object(s)" */
 			if (p) hooked_roff(p);
@@ -2536,14 +2507,14 @@ if ((flags3 & RF3_RES_TELE) && (r_ptr->flags1 & RF1_UNIQUE)) {vp[vn] = "¥Æ¥ì¥Ý¡¼
 		/* Treasures */
 		if (drop_gold)
 		{
+#ifndef JP
 			/* Cancel prefix */
 			if (!p) sin = FALSE;
 
 			/* Handle singular "an" */
-#ifndef JP
 			if (sin) hooked_roff("n");
-#endif
 			sin = FALSE;
+#endif
 
 			/* Dump "treasure(s)" */
 			if (p) hooked_roff(p);
@@ -3116,16 +3087,13 @@ void roff_top(int r_idx)
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
+#ifndef JP
 	/* A title (use "The" for non-uniques) */
-#ifdef JP
-	if (0)
-#else
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
-#endif
-
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
+#endif
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
@@ -3356,7 +3324,7 @@ static bool mon_hook_lava(int r_idx)
 
 	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
-	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
+	if (((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
 	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
 	    !(r_ptr->flags3 & RF3_AURA_COLD))
 		return TRUE;
@@ -3528,7 +3496,7 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	else if ((feat == FEAT_SHAL_LAVA) ||
 	    (feat == FEAT_DEEP_LAVA))
 	{
-		if ((r_ptr->flags3 & RF3_IM_FIRE) ||
+		if ((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
 		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else
@@ -3548,7 +3516,7 @@ bool monster_can_enter(int y, int x, monster_race *r_ptr)
 	byte feat = c_ptr->feat;
 
 	/* Player or other monster */
-	if ((y == py) && (x == px)) return FALSE;
+	if (player_bold(y, x)) return FALSE;
 	if (c_ptr->m_idx) return FALSE;
 
 	/* Permanent wall */
@@ -3620,7 +3588,7 @@ bool monster_can_enter(int y, int x, monster_race *r_ptr)
 	else if ((feat == FEAT_SHAL_LAVA) ||
 	    (feat == FEAT_DEEP_LAVA))
 	{
-		if ((r_ptr->flags3 & RF3_IM_FIRE) ||
+		if ((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
 		    (r_ptr->flags7 & RF7_CAN_FLY))
 			return TRUE;
 		else
@@ -3630,6 +3598,22 @@ bool monster_can_enter(int y, int x, monster_race *r_ptr)
 	return TRUE;
 }
 
+
+/*
+ * Check if this monster has "hostile" alignment (aux)
+ */
+static bool check_hostile_align(byte sub_align1, byte sub_align2)
+{
+	if (sub_align1 != sub_align2)
+	{
+		if (((sub_align1 & SUB_ALIGN_EVIL) && (sub_align2 & SUB_ALIGN_GOOD)) ||
+			((sub_align1 & SUB_ALIGN_GOOD) && (sub_align2 & SUB_ALIGN_EVIL)))
+			return TRUE;
+	}
+
+	/* Non-hostile alignment */
+	return FALSE;
+}
 
 
 /*
@@ -3653,15 +3637,9 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 	}
 
 	/* Friendly vs. opposite aligned normal or pet */
-	if (m_ptr->sub_align != n_ptr->sub_align)
+	if (check_hostile_align(m_ptr->sub_align, n_ptr->sub_align))
 	{
-		if (((m_ptr->sub_align & SUB_ALIGN_EVIL) &&
-			  (n_ptr->sub_align & SUB_ALIGN_GOOD)) ||
-			 ((m_ptr->sub_align & SUB_ALIGN_GOOD) &&
-			  (n_ptr->sub_align & SUB_ALIGN_EVIL)))
-		{
-			if (!(m_ptr->mflag2 & MFLAG_CHAMELEON) || !(n_ptr->mflag2 & MFLAG_CHAMELEON)) return TRUE;
-		}
+		if (!(m_ptr->mflag2 & MFLAG2_CHAMELEON) || !(n_ptr->mflag2 & MFLAG2_CHAMELEON)) return TRUE;
 	}
 
 	/* Hostile vs. non-hostile */
@@ -3671,6 +3649,36 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 	}
 
 	/* Default */
+	return FALSE;
+}
+
+
+/*
+ * Check if this monster race has "hostile" alignment
+ * If user is player, m_ptr == NULL.
+ */
+bool monster_has_hostile_align(monster_type *m_ptr, int pa_good, int pa_evil, monster_race *r_ptr)
+{
+	byte sub_align1 = SUB_ALIGN_NEUTRAL;
+	byte sub_align2 = SUB_ALIGN_NEUTRAL;
+
+	if (m_ptr) /* For a monster */
+	{
+		sub_align1 = m_ptr->sub_align;
+	}
+	else /* For player */
+	{
+		if (p_ptr->align >= pa_good) sub_align1 |= SUB_ALIGN_GOOD;
+		if (p_ptr->align <= pa_evil) sub_align1 |= SUB_ALIGN_EVIL;
+	}
+
+	/* Racial alignment flags */
+	if (r_ptr->flags3 & RF3_EVIL) sub_align2 |= SUB_ALIGN_EVIL;
+	if (r_ptr->flags3 & RF3_GOOD) sub_align2 |= SUB_ALIGN_GOOD;
+
+	if (check_hostile_align(sub_align1, sub_align2)) return TRUE;
+
+	/* Non-hostile alignment */
 	return FALSE;
 }
 
@@ -3688,4 +3696,25 @@ bool monster_living(monster_race *r_ptr)
 		return FALSE;
 	else
 		return TRUE;
+}
+
+
+/*
+ * Is this monster declined to be questor or bounty?
+ */
+bool no_questor_or_bounty_uniques(int r_idx)
+{
+	switch (r_idx)
+	{
+	/*
+	 * Decline them to be questor or bounty because they use
+	 * special motion "split and combine"
+	 */
+	case MON_BANORLUPART:
+	case MON_BANOR:
+	case MON_LUPART:
+		return TRUE;
+	default:
+		return FALSE;
+	}
 }

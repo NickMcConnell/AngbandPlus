@@ -1,14 +1,14 @@
 /* File: mutation.c */
 
-/* Purpose: Mutation effects (and racial powers) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Mutation effects (and racial powers) */
 
 #include "angband.h"
 
@@ -3464,7 +3464,7 @@ bool mutation_power_aux(u32b power)
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
-				if (cave_floor_bold(y, x))
+				if (cave_floor_bold(y, x) || boundary_floor_grid(c_ptr))
 				{
 #ifdef JP
 					msg_print("何もない場所に噛みついた！");
@@ -3479,9 +3479,9 @@ bool mutation_power_aux(u32b power)
 					(c_ptr->feat == FEAT_MOUNTAIN))
 				{
 #ifdef JP
-					msg_print("いてっ！この壁はあなたの歯より硬い！");
+					msg_format("いてっ！この%sはあなたの歯より硬い！", (c_ptr->mimic == FEAT_TREES) ? "木" : "壁");
 #else
-					msg_print("Ouch!  This wall is harder than your teeth!");
+					msg_format("Ouch!  This %s is harder than your teeth!", (c_ptr->mimic == FEAT_TREES) ? "tree" : "wall");
 #endif
 
 					break;
@@ -3758,7 +3758,7 @@ bool mutation_power_aux(u32b power)
 				    !(r_ptr->flags1 & RF1_UNIQUE) &&
 				    !p_ptr->inside_arena && !p_ptr->inside_quest &&
 					(r_ptr->level < randint1(p_ptr->lev+50)) &&
-					!(m_ptr->mflag2 & MFLAG_NOGENO))
+					!(m_ptr->mflag2 & MFLAG2_NOGENO))
 				{
 					/* Delete the monster, rather than killing it. */
 					delete_monster_idx(c_ptr->m_idx);
@@ -3777,7 +3777,7 @@ bool mutation_power_aux(u32b power)
 					msg_print("Your invocation is ineffectual!");
 #endif
 
-					if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+					if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 				}
 			}
 			break;

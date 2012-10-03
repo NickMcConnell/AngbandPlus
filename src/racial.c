@@ -1,14 +1,14 @@
 /* File: racial.c */
 
-/* Purpose: Racial powers (and mutations) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Racial powers (and mutations) */
 
 #include "angband.h"
 
@@ -124,7 +124,7 @@ static bool do_cmd_archer(void)
 			q_ptr->number = (byte)rand_range(15,30);
 			object_aware(q_ptr);
 			object_known(q_ptr);
-			apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
+			apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
 			q_ptr->discount = 99;
 
 			(void)inven_carry(q_ptr);
@@ -185,10 +185,10 @@ static bool do_cmd_archer(void)
 
 		/* Hack -- Give the player some small firestones */
 		object_prep(q_ptr, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
-		q_ptr->number = (byte)rand_range(5,10);
+		q_ptr->number = (byte)rand_range(5, 10);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
 
 		q_ptr->discount = 99;
 
@@ -242,17 +242,17 @@ static bool do_cmd_archer(void)
 		else
 		{
 			q_ptr = &o_list[0 - item];
-		}       
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
 
 		/* Hack -- Give the player some small firestones */
 		object_prep(q_ptr, lookup_kind(TV_BOLT, m_bonus(1, p_ptr->lev)+1));
-		q_ptr->number = (byte)rand_range(4,8);
+		q_ptr->number = (byte)rand_range(4, 8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		apply_magic(q_ptr, p_ptr->lev, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
 
 		q_ptr->discount = 99;
 
@@ -728,7 +728,6 @@ static int racial_chance(power_desc_type *pd_ptr)
 
 
 static int  racial_cost;
-static bool racial_use_hp;
 
 /*
  * Note: return value indicates that we have succesfully used the power
@@ -739,12 +738,12 @@ static int racial_aux(power_desc_type *pd_ptr)
 	s16b min_level  = pd_ptr->level;
 	int  use_stat   = pd_ptr->stat;
 	int  difficulty = pd_ptr->fail;
+	int  use_hp = 0;
 
-	racial_cost   = pd_ptr->cost;
-	racial_use_hp = FALSE;
+	racial_cost = pd_ptr->cost;
 
 	/* Not enough mana - use hp */
-	if (p_ptr->csp < racial_cost) racial_use_hp = TRUE;
+	if (p_ptr->csp < racial_cost) use_hp = racial_cost - p_ptr->csp;
 
 	/* Power is not available yet */
 	if (p_ptr->lev < min_level)
@@ -773,7 +772,7 @@ static int racial_aux(power_desc_type *pd_ptr)
 	}
 
 	/* Risk death? */
-	else if (racial_use_hp && (p_ptr->chp < racial_cost))
+	else if (p_ptr->chp < use_hp)
 	{
 #ifdef JP
 		if (!get_check("本当に今の衰弱した状態でこの能力を使いますか？"))
@@ -838,7 +837,6 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			int y = 0, x = 0, i;
 			cave_type       *c_ptr;
-			monster_type    *m_ptr;
 
 			for (i = 0; i < 6; i++)
 			{
@@ -846,9 +844,6 @@ static bool cmd_racial_power_aux(s32b command)
 				y = py + ddy_ddd[dir];
 				x = px + ddx_ddd[dir];
 				c_ptr = &cave[y][x];
-
-				/* Get the monster */
-				m_ptr = &m_list[c_ptr->m_idx];
 
 				/* Hack -- attack monsters */
 				if (c_ptr->m_idx)
@@ -937,14 +932,14 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			if (command == -3)
 			{
-				int gain_sp;
 #ifdef JP
-				if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "ＨＰからＭＰへの無謀な変換", -1)))
+				int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "ＨＰからＭＰへの無謀な変換", -1) / 5;
 #else
-				if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP", -1)))
+				int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP", -1) / 5;
 #endif
+				if (gain_sp)
 				{
-					p_ptr->csp += gain_sp / 5;
+					p_ptr->csp += gain_sp;
 					if (p_ptr->csp > p_ptr->msp)
 					{
 						p_ptr->csp = p_ptr->msp;
@@ -960,7 +955,7 @@ static bool cmd_racial_power_aux(s32b command)
 			}
 			else if (command == -4)
 			{
-				if (p_ptr->csp >= p_ptr->lev/5)
+				if (p_ptr->csp >= p_ptr->lev / 5)
 				{
 					p_ptr->csp -= p_ptr->lev / 5;
 					hp_player(p_ptr->lev);
@@ -1239,7 +1234,10 @@ static bool cmd_racial_power_aux(s32b command)
 			rlev = r_ptr->level;
 			if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 			if (rlev > 60) rlev = 60+(rlev-60)/2;
-			if ((randint1(p_ptr->skill_exp[GINOU_RIDING]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+randint0(p_ptr->lev/5)))
+			if ((randint1(p_ptr->skill_exp[GINOU_RIDING] / 120 + p_ptr->lev * 2 / 3) > rlev)
+			    && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle
+			    && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR))
+			    && (rlev < p_ptr->lev * 3 / 2 + randint0(p_ptr->lev / 5)))
 			{
 #ifdef JP
 				msg_format("%sを手なずけた。",m_name);
@@ -1284,19 +1282,8 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			if (command == -3)
 			{
-				int x, y;
-				for (x = 0; x < cur_wid; x++)
-				{
-					for (y = 0; y < cur_hgt; y++)
-					{
-						if (is_mirror_grid(&cave[y][x]))
-						{
-							remove_mirror(y, x);
-							project(0, 2, y, x, p_ptr->lev / 2 + 5, GF_SHARDS,
-								(PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-						}
-					}
-				}
+				/* Explode all mirrors */
+				remove_all_mirrors(TRUE);
 			}
 			else if (command == -4)
 			{
@@ -1462,7 +1449,7 @@ static bool cmd_racial_power_aux(s32b command)
 				q_ptr = &forge;
 
 				/* Create the food ration */
-				object_prep(q_ptr, 21);
+				object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 
 				/* Drop the object from heaven */
 				(void)drop_near(q_ptr, -1, py, px);
@@ -1510,30 +1497,12 @@ static bool cmd_racial_power_aux(s32b command)
 		case RACE_AMBERITE:
 			if (command == -1)
 			{
-				/* No effect in arena or quest */
-				if (p_ptr->inside_arena || p_ptr->inside_quest)
-				{
 #ifdef JP
-					msg_print("効果がなかった。");
+				msg_print("あなたは歩き周り始めた。");
 #else
-					msg_print("There is no effect.");
+				msg_print("You start walking around. ");
 #endif
-
-				}
-				else
-				{
-#ifdef JP
-					msg_print("あなたは歩き周り始めた。周囲が変化している。");
-#else
-					msg_print("You start walking around. Your surroundings change.");
-#endif
-
-
-					if (autosave_l) do_cmd_save_game(TRUE);
-
-					/* Leaving */
-					p_ptr->leaving = TRUE;
-				}
+				alter_reality();
 			}
 			else if (command == -2)
 			{
@@ -3804,20 +3773,20 @@ prt("                            Lv   MP 失率                            Lv   MP
 	{
 		if (racial_cost)
 		{
-			if (racial_use_hp)
+			int actual_racial_cost = racial_cost / 2 + randint1(racial_cost / 2);
+
+			/* If mana is not enough, player consumes hit point! */
+			if (p_ptr->csp < actual_racial_cost)
 			{
+				actual_racial_cost -= p_ptr->csp;
+				p_ptr->csp = 0;
 #ifdef JP
-				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
-					 "過度の集中", -1);
+				take_hit(DAMAGE_USELIFE, actual_racial_cost, "過度の集中", -1);
 #else
-				take_hit(DAMAGE_USELIFE, (racial_cost / 2) + randint1(racial_cost / 2),
-					 "concentrating too hard", -1);
+				take_hit(DAMAGE_USELIFE, actual_racial_cost, "concentrating too hard", -1);
 #endif
 			}
-			else
-			{
-				p_ptr->csp -= (racial_cost / 2) + randint1(racial_cost / 2);
-			}
+			else p_ptr->csp -= actual_racial_cost;
 
 			/* Redraw mana and hp */
 			p_ptr->redraw |= (PR_HP | PR_MANA);

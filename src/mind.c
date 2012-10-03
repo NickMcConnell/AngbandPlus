@@ -1,14 +1,14 @@
 /* File: mind.c */
 
-/* Purpose: Mindcrafter code */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Mindcrafter code */
 
 #include "angband.h"
 #include "mindtips.h"
@@ -527,8 +527,8 @@ void mindcraft_info(char *p, int use_mind, int power)
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
-		/* Hack -- If requested 1111, pull again */
-		if (*sn == 1111) repeat_pull(sn);
+		/* Hack -- If requested INVEN_FORCE(1111), pull again */
+		if (*sn == INVEN_FORCE) repeat_pull(sn);
 
 		/* Verify the spell */
 		if (mind_ptr->info[*sn].min_lev <= plev)
@@ -591,7 +591,6 @@ void mindcraft_info(char *p, int use_mind, int power)
 				{
 					if (!only_browse) screen_load();
 					return (FALSE);
-					break;
 				}
 
 				case '8':
@@ -854,7 +853,7 @@ static bool cast_mindcrafter_spell(int spell)
 		{
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 1);
-			wiz_lite(FALSE, FALSE);
+			wiz_lite(FALSE);
 		}
 		else if (plev > 19)
 			map_area(DETECT_RAD_MAP);
@@ -935,7 +934,6 @@ if (!b) msg_print("安全な気がする。");
 			return psychometry();
 		else
 			return ident_spell(FALSE);
-		break;
 	case 8:
 		/* Mindwave */
 #ifdef JP
@@ -959,7 +957,7 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 		 * Only heal when Adrenalin Channeling is not active. We check
 		 * that by checking if the player isn't fast and 'heroed' atm.
 		 */
-		if (!p_ptr->fast || !p_ptr->hero)
+		if (!IS_FAST() || !IS_HERO())
 		{
 			hp_player(plev);
 		}
@@ -1159,7 +1157,7 @@ static bool cast_force_spell(int spell)
 					lite_spot(oy, ox);
 					lite_spot(ty, tx);
 
-					if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+					if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 						p_ptr->update |= (PU_MON_LITE);
 				}
 			}
@@ -1415,8 +1413,7 @@ msg_format("There are too many mirrors to control!");
 	  return dimension_door();
 	/* mirror of recall */
 	case 17:
-	  if(!word_of_recall())return FALSE;
-	  break;
+		return word_of_recall();
 	/* multi-shadow */
 	case 18:
 	  set_multishadow(6+randint1(6),FALSE);
@@ -1600,7 +1597,7 @@ static bool cast_ninja_spell(int spell)
 	case 1:
 		if (plev > 44)
 		{
-			wiz_lite(FALSE, TRUE);
+			wiz_lite(TRUE);
 		}
 		detect_monsters_normal(DETECT_RAD_DEFAULT);
 		if (plev > 4)
@@ -1684,7 +1681,6 @@ msg_print("その方向にはモンスターはいません。");
 	}
 	case 7:
 		return ident_spell(FALSE);
-		break;
 	case 8:
 		set_tim_ffall(randint1(20) + 20, FALSE);
 		break;
@@ -1788,7 +1784,7 @@ msg_print("その方向にはモンスターはいません。");
 		/* Redraw the new grid */
 		lite_spot(ty, tx);
 
-		if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 			p_ptr->update |= (PU_MON_LITE);
 
 		break;
@@ -1833,11 +1829,11 @@ msg_print("その方向にはモンスターはいません。");
 			int typ = one_in_(2) ? GF_FIRE : one_in_(3) ? GF_NETHER : GF_PLASMA;
 			int attempts = 1000;
 
-			while(attempts--)
+			while (attempts--)
 			{
 				scatter(&y, &x, py, px, 4, 0);
 
-				if ((y != py) || (x != px)) break;
+				if (!player_bold(y, x)) break;
 			}
 			project(0, 0, y, x, damroll(6 + plev / 8, 10), typ,
 				(PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_KILL), -1);
@@ -2305,6 +2301,4 @@ void do_cmd_mind_browse(void)
 		  (void)inkey();
 		}
 	}
-
-	screen_load();
 }

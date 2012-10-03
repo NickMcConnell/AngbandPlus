@@ -1,5 +1,13 @@
 /* File: init2.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
 /* Purpose: Initialization (part 2) -BEN- */
 
 #include "angband.h"
@@ -551,11 +559,17 @@ static errr init_info(cptr filename, header *head,
 #endif
 
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Kill the old file */
 		(void)fd_kill(buf);
 
 		/* Attempt to create the raw file */
 		fd = fd_make(buf, mode);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Dump to the file */
 		if (fd >= 0)
@@ -563,7 +577,7 @@ static errr init_info(cptr filename, header *head,
 			/* Dump it */
 			fd_write(fd, (cptr)(head), head->head_size);
 
-		/* Dump the "*_info" array */
+			/* Dump the "*_info" array */
 			fd_write(fd, head->info_ptr, head->info_size);
 
 			/* Dump the "*_name" array */
@@ -1598,47 +1612,6 @@ static errr init_other(void)
 	C_MAKE(inventory, INVEN_TOTAL, object_type);
 
 
-	/*** Pre-allocate the basic "auto-inscriptions" ***/
-
-	/* The "basic" feelings */
-#ifdef JP
-	(void)quark_add("呪われている");
-	(void)quark_add("壊れている");
-	(void)quark_add("並");
-	(void)quark_add("上質");
-#else
-	(void)quark_add("cursed");
-	(void)quark_add("broken");
-	(void)quark_add("average");
-	(void)quark_add("good");
-#endif
-
-
-	/* The "extra" feelings */
-#ifdef JP
-	(void)quark_add("高級品");
-	(void)quark_add("無価値");
-	(void)quark_add("特別製");
-	(void)quark_add("恐ろしい");
-#else
-	(void)quark_add("excellent");
-	(void)quark_add("worthless");
-	(void)quark_add("special");
-	(void)quark_add("terrible");
-#endif
-
-
-	/* Some extra strings */
-#ifdef JP
-	(void)quark_add("呪いなし");
-	(void)quark_add("売出中");
-#else
-	(void)quark_add("uncursed");
-	(void)quark_add("on sale");
-#endif
-
-
-
 	/*** Prepare the options ***/
 
 	/* Scan the options */
@@ -1975,7 +1948,7 @@ void init_angband(void)
 {
 	int fd = -1;
 
-	int mode = 0644;
+	int mode = 0664;
 
 	FILE *fp;
 
@@ -2066,8 +2039,14 @@ void init_angband(void)
 		/* File type is "DATA" */
 		FILE_TYPE(FILE_TYPE_DATA);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Create a new high score file */
 		fd = fd_make(buf, mode);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Failure */
 		if (fd < 0)

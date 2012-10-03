@@ -1,14 +1,14 @@
 /* File: mind.c */
 
-/* Purpose: Mane code */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Mane code */
 
 #include "angband.h"
 
@@ -966,11 +966,11 @@ msg_print("無傷の球の呪文を唱えた。");
 		m_ptr = &m_list[cave[target_row][target_col].m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
-		if (r_ptr->flags3 & (RF3_RES_TELE))
+		if (r_ptr->flagsr & RFR_RES_TELE)
 		{
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_RES_ALL)))
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
 			{
-				r_ptr->r_flags3 |= RF3_RES_TELE;
+				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
 				msg_format("%sには効果がなかった！", m_name);
 #else
@@ -981,7 +981,7 @@ msg_print("無傷の球の呪文を唱えた。");
 			}
 			else if (r_ptr->level > randint1(100))
 			{
-				r_ptr->r_flags3 |= RF3_RES_TELE;
+				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
 				msg_format("%sには耐性がある！", m_name);
 #else
@@ -997,7 +997,7 @@ msg_format("%sを引き戻した。", m_name);
 		msg_format("You command %s to return.", m_name);
 #endif
 
-		teleport_to_player(cave[target_row][target_col].m_idx, 100);
+		teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100);
 		break;
 	}
 	case MS_TELE_AWAY:
@@ -1007,49 +1007,34 @@ msg_format("%sを引き戻した。", m_name);
 		break;
 	case MS_TELE_LEVEL:
 	{
+		int target_m_idx;
 		monster_type *m_ptr;
 		monster_race *r_ptr;
 		char m_name[80];
 
 		if (!target_set(TARGET_KILL)) return FALSE;
-		if (!cave[target_row][target_col].m_idx) break;
+		target_m_idx = cave[target_row][target_col].m_idx;
+		if (!target_m_idx) break;
 		if (!los(py, px, target_row, target_col)) break;
-		m_ptr = &m_list[cave[target_row][target_col].m_idx];
+		m_ptr = &m_list[target_m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-			msg_format("%sの足を指さした。", m_name);
+		msg_format("%^sの足を指さした。", m_name);
 #else
-			msg_format("You gesture at %s's feet.", m_name);
+		msg_format("You gesture at %^s's feet.", m_name);
 #endif
 
-		if ((r_ptr->flags3 & RF3_RES_NEXU) || (r_ptr->flags3 & RF3_RES_TELE) ||
+		if ((r_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE)) ||
 			(r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
 		{
 #ifdef JP
 			msg_print("しかし効果がなかった！");
 #else
-			msg_format("%s are unaffected!", m_name);
+			msg_format("%^s is unaffected!", m_name);
 #endif
 		}
-		else if (!dun_level || one_in_(2))
-		{
-#ifdef JP
-			msg_format("%sは床を突き破って沈んでいった。", m_name);
-#else
-			msg_format("%s sink through the floor.", m_name);
-#endif
-			delete_monster_idx(cave[target_row][target_col].m_idx);
-		}
-		else
-		{
-#ifdef JP
-			msg_format("%sは天井を突き破って宙へ浮いていった。",m_name);
-#else
-			msg_format("%s rise up through the ceiling.", m_name);
-#endif
-			delete_monster_idx(cave[target_row][target_col].m_idx);
-		}
+		else teleport_level(target_m_idx);
 		break;
 	}
 	case MS_PSY_SPEAR:

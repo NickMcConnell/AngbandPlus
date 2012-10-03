@@ -1,15 +1,15 @@
 
 /* File: misc.c */
 
-/* Purpose: misc code */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: misc code */
 
 #include "angband.h"
 
@@ -175,7 +175,7 @@ void prt_time(void)
 
 cptr map_name(void)
 {
-	if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)
+	if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)
 	    && (quest[p_ptr->inside_quest].flags & QUEST_FLAG_PRESET))
 #ifdef JP
 		return "クエスト";
@@ -322,6 +322,7 @@ static void prt_stat(int stat)
 #define BAR_STEALTH 49
 #define BAR_SUPERSTEALTH 50
 #define BAR_RECALL 51
+#define BAR_ALTER 52
 
 
 static struct {
@@ -383,6 +384,7 @@ static struct {
 	{TERM_UMBER, "隠", "隠密"},
 	{TERM_YELLOW, "隠", "超隠密"},
 	{TERM_WHITE, "帰", "帰還"},
+	{TERM_WHITE, "現", "現実変容"},
 	{0, NULL, NULL}
 };
 #else
@@ -439,6 +441,7 @@ static struct {
 	{TERM_UMBER, "Sl", "Stealth"},
 	{TERM_YELLOW, "Stlt", "Stealth"},
 	{TERM_WHITE, "Rc", "Recall"},
+	{TERM_WHITE, "Al", "Alter"},
 	{0, NULL, NULL}
 };
 #endif
@@ -487,7 +490,7 @@ static void prt_status(void)
 	if (p_ptr->tim_invis) ADD_FLG(BAR_SENSEUNSEEN);
 
 	/* Timed esp */
-	if (p_ptr->tim_esp || music_singing(MUSIC_MIND)) ADD_FLG(BAR_TELEPATHY);
+	if (IS_TIM_ESP()) ADD_FLG(BAR_TELEPATHY);
 
 	/* Timed regenerate */
 	if (p_ptr->tim_regen) ADD_FLG(BAR_REGENERATION);
@@ -499,7 +502,7 @@ static void prt_status(void)
 	if (p_ptr->protevil) ADD_FLG(BAR_PROTEVIL);
 
 	/* Invulnerability */
-	if (p_ptr->invuln || music_singing(MUSIC_INVULN)) ADD_FLG(BAR_INVULN);
+	if (IS_INVULN()) ADD_FLG(BAR_INVULN);
 
 	/* Wraith form */
 	if (p_ptr->wraith_form) ADD_FLG(BAR_WRAITH);
@@ -510,13 +513,13 @@ static void prt_status(void)
 	if (p_ptr->tim_reflect) ADD_FLG(BAR_REFLECTION);
 
 	/* Heroism */
-	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO)) ADD_FLG(BAR_HEROISM);
+	if (IS_HERO()) ADD_FLG(BAR_HEROISM);
 
 	/* Super Heroism / berserk */
 	if (p_ptr->shero) ADD_FLG(BAR_BERSERK);
 
 	/* Blessed */
-	if (p_ptr->blessed || music_singing(MUSIC_BLESS)) ADD_FLG(BAR_BLESSED);
+	if (IS_BLESSED()) ADD_FLG(BAR_BLESSED);
 
 	/* Shield */
 	if (p_ptr->magicdef) ADD_FLG(BAR_MAGICDEFENSE);
@@ -529,25 +532,28 @@ static void prt_status(void)
 
 	/* Oppose Acid */
 	if (p_ptr->special_defense & DEFENSE_ACID) ADD_FLG(BAR_IMMACID);
-	if (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESACID);
+	if (IS_OPPOSE_ACID()) ADD_FLG(BAR_RESACID);
 
 	/* Oppose Lightning */
 	if (p_ptr->special_defense & DEFENSE_ELEC) ADD_FLG(BAR_IMMELEC);
-	if (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESELEC);
+	if (IS_OPPOSE_ELEC()) ADD_FLG(BAR_RESELEC);
 
 	/* Oppose Fire */
 	if (p_ptr->special_defense & DEFENSE_FIRE) ADD_FLG(BAR_IMMFIRE);
-	if (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESFIRE);
+	if (IS_OPPOSE_FIRE()) ADD_FLG(BAR_RESFIRE);
 
 	/* Oppose Cold */
 	if (p_ptr->special_defense & DEFENSE_COLD) ADD_FLG(BAR_IMMCOLD);
-	if (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESCOLD);
+	if (IS_OPPOSE_COLD()) ADD_FLG(BAR_RESCOLD);
 
 	/* Oppose Poison */
-	if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU)) ADD_FLG(BAR_RESPOIS);
+	if (IS_OPPOSE_POIS()) ADD_FLG(BAR_RESPOIS);
 
 	/* Word of Recall */
 	if (p_ptr->word_recall) ADD_FLG(BAR_RECALL);
+
+	/* Alter realiry */
+	if (p_ptr->alter_reality) ADD_FLG(BAR_ALTER);
 
 	/* Afraid */
 	if (p_ptr->afraid) ADD_FLG(BAR_AFRAID);
@@ -580,10 +586,10 @@ static void prt_status(void)
 	if (p_ptr->special_attack & ATTACK_POIS) ADD_FLG(BAR_ATTKPOIS);
 	if (p_ptr->special_defense & NINJA_S_STEALTH) ADD_FLG(BAR_SUPERSTEALTH);
 
-	/* tim stealth */
 	if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
 
-	if (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH)) ADD_FLG(BAR_STEALTH);
+	/* tim stealth */
+	if (IS_TIM_STEALTH()) ADD_FLG(BAR_STEALTH);
 
 	if (p_ptr->tim_sh_touki) ADD_FLG(BAR_TOUKI);
 
@@ -671,12 +677,11 @@ static void prt_title(void)
 	/* Winner */
 	else if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 	{
-		if ((p_ptr->arena_number > MAX_ARENA_MONS+2) && (p_ptr->arena_number < 99))
+		if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
 		{
 #ifdef JP
 			/* 英日切り替え機能 称号 */
 			p = "*真・勝利者*";
-
 #else
 			p = "*TRUEWINNER*";
 #endif
@@ -686,7 +691,6 @@ static void prt_title(void)
 #ifdef JP
 			/* 英日切り替え機能 称号 */
 			p = "***勝利者***";
-
 #else
 			p = "***WINNER***";
 #endif
@@ -897,7 +901,7 @@ static void prt_sp(void)
 	{
 		color = TERM_L_GREEN;
 	}
-	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
+	else if (p_ptr->csp > p_ptr->msp / 5)
 	{
 		color = TERM_YELLOW;
 	}
@@ -1229,7 +1233,7 @@ sprintf(text, "  %2d", command_rep);
 static void prt_speed(void)
 {
 	int i = p_ptr->pspeed;
-	bool is_fast = (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO));
+	bool is_fast = IS_FAST();
 
 	byte attr = TERM_WHITE;
 	char buf[32] = "";
@@ -1476,159 +1480,97 @@ static void prt_stun(void)
  * Auto-track current target monster when bored.  Note that the
  * health-bar stops tracking any monster that "disappears".
  */
-static void health_redraw(void)
+static void health_redraw(bool riding)
 {
 
 #ifdef DRS_SHOW_HEALTH_BAR
 
+	s16b health_who;
+	int row, col;
+	monster_type *m_ptr;
+
+	if (riding)
+	{
+		health_who = p_ptr->riding;
+		row = ROW_RIDING_INFO;
+		col = COL_RIDING_INFO;
+	}
+	else
+	{
+		health_who = p_ptr->health_who;
+		row = ROW_INFO;
+		col = COL_INFO;
+	}
+
+	m_ptr = &m_list[health_who];
+
 	/* Not tracking */
-	if (!p_ptr->health_who)
+	if (!health_who)
 	{
 		/* Erase the health bar */
-		Term_erase(COL_INFO, ROW_INFO, 12);
+		Term_erase(col, row, 12);
 	}
 
 	/* Tracking an unseen monster */
-	else if (!m_list[p_ptr->health_who].ml)
+	else if (!m_ptr->ml)
 	{
 		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 	}
 
 	/* Tracking a hallucinatory monster */
 	else if (p_ptr->image)
 	{
 		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 	}
 
 	/* Tracking a dead monster (???) */
-	else if (!m_list[p_ptr->health_who].hp < 0)
+	else if (m_ptr->hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 	}
 
 	/* Tracking a visible monster */
 	else
 	{
-		int pct, pct2, len;
+		/* Extract the "percent" of health */
+		int pct = 100L * m_ptr->hp / m_ptr->maxhp;
+		int pct2 = 100L * m_ptr->hp / m_ptr->max_maxhp;
 
-		monster_type *m_ptr = &m_list[p_ptr->health_who];
+		/* Convert percent into "health" */
+		int len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
 
-		/* Extract the "percent" of health */
-		pct = 100L * m_ptr->hp / m_ptr->maxhp;
-		pct2 = 100L * m_ptr->hp / m_ptr->max_maxhp;
-
-		/* Badly wounded */
-		if (pct >= 10) attr = TERM_L_RED;
-
-		/* Wounded */
-		if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Somewhat Wounded */
-		if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Healthy */
-		if (pct >= 100) attr = TERM_L_GREEN;
-
-		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
-
-		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
-
 		/* Invulnerable */
 		if (m_ptr->invulner) attr = TERM_WHITE;
 
-		/* Convert percent into "health" */
-		len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
-
-		/* Default to "unknown" */
-		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
-
-		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
-	}
-
-#endif
-
-}
-
-
-
-static void riding_health_redraw(void)
-{
-
-#ifdef DRS_SHOW_HEALTH_BAR
-
-	/* Not tracking */
-	if (!p_ptr->riding)
-	{
-		/* Erase the health bar */
-		Term_erase(COL_RIDING_INFO, ROW_RIDING_INFO, 12);
-	}
-
-	/* Tracking a hallucinatory monster */
-	else if (p_ptr->image)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
-	/* Tracking a dead monster (???) */
-	else if (!m_list[p_ptr->health_who].hp < 0)
-	{
-		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
-	}
-
-	/* Tracking a visible monster */
-	else
-	{
-		int pct, pct2, len;
-
-		monster_type *m_ptr = &m_list[p_ptr->riding];
-
-		/* Default to almost dead */
-		byte attr = TERM_RED;
-
-		/* Extract the "percent" of health */
-		pct = 100L * m_ptr->hp / m_ptr->maxhp;
-		pct2 = 100L * m_ptr->hp / m_ptr->max_maxhp;
-
-		/* Badly wounded */
-		if (pct >= 10) attr = TERM_L_RED;
-
-		/* Wounded */
-		if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Somewhat Wounded */
-		if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Healthy */
-		if (pct >= 100) attr = TERM_L_GREEN;
+		/* Asleep */
+		else if (m_ptr->csleep) attr = TERM_BLUE;
 
 		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
+		else if (m_ptr->monfear) attr = TERM_VIOLET;
 
-		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		/* Healthy */
+		else if (pct >= 100) attr = TERM_L_GREEN;
 
-		/* Invulnerable */
-		if (m_ptr->invulner) attr = TERM_WHITE;
+		/* Somewhat Wounded */
+		else if (pct >= 60) attr = TERM_YELLOW;
 
-		/* Convert percent into "health" */
-		len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
+		/* Wounded */
+		else if (pct >= 25) attr = TERM_ORANGE;
+
+		/* Badly wounded */
+		else if (pct >= 10) attr = TERM_L_RED;
 
 		/* Default to "unknown" */
-		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 
 		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_RIDING_INFO + 1, ROW_RIDING_INFO, len, attr, "**********");
+		Term_putstr(col + 1, row, len, attr, "**********");
 	}
 
 #endif
@@ -1683,8 +1625,8 @@ static void prt_frame_basic(void)
 	prt_depth();
 
 	/* Special */
-	health_redraw();
-	riding_health_redraw();
+	health_redraw(FALSE);
+	health_redraw(TRUE);
 }
 
 
@@ -2776,7 +2718,7 @@ static void calc_hitpoints(void)
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
 	/* Factor in the hero / superhero settings */
-	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO)) mhp += 10;
+	if (IS_HERO()) mhp += 10;
 	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
 	if (p_ptr->tsuyoshi) mhp += 50;
 
@@ -2922,7 +2864,8 @@ static void calc_torch(void)
 	if (p_ptr->old_lite != p_ptr->cur_lite)
 	{
 		/* Update the lite */
-		p_ptr->update |= (PU_LITE);
+		/* Hack -- PU_MON_LITE for monsters' darkness */
+		p_ptr->update |= (PU_LITE | PU_MON_LITE);
 
 		/* Update the monsters */
 		p_ptr->update |= (PU_MONSTERS);
@@ -2988,24 +2931,7 @@ bool buki_motteruka(int i)
 void calc_bonuses(void)
 {
 	int             i, j, hold, neutral[2];
-	int             old_speed;
-	bool old_telepathy;
-	bool old_esp_animal;
-	bool old_esp_undead;
-	bool old_esp_demon;
-	bool old_esp_orc;
-	bool old_esp_troll;
-	bool old_esp_giant;
-	bool old_esp_dragon;
-	bool old_esp_human;
-	bool old_esp_evil;
-	bool old_esp_good;
-	bool old_esp_nonliving;
-	bool old_esp_unique;
-	bool old_mighty_throw = p_ptr->mighty_throw;
-	int             old_see_inv;
-	int             old_dis_ac;
-	int             old_dis_to_a;
+	int             new_speed;
 	int             extra_blows[2];
 	int             extra_shots;
 	object_type     *o_ptr;
@@ -3013,35 +2939,34 @@ void calc_bonuses(void)
 	bool            omoi = FALSE;
 	bool            yoiyami = FALSE;
 	bool            down_saving = FALSE;
-	bool            have_dd_s, have_dd_t, have_sw, have_kabe;
+#if 0
+	bool            have_dd_s = FALSE, have_dd_t = FALSE;
+#endif
+	bool            have_sw = FALSE, have_kabe = FALSE;
 	bool            easy_2weapon = FALSE;
 	s16b this_o_idx, next_o_idx = 0;
 	player_race *tmp_rp_ptr;
 
-
-	/* Save the old speed */
-	old_speed = p_ptr->pspeed;
-
 	/* Save the old vision stuff */
-	old_telepathy = p_ptr->telepathy;
-	old_esp_animal = p_ptr->esp_animal;
-	old_esp_undead = p_ptr->esp_undead;
-	old_esp_demon = p_ptr->esp_demon;
-	old_esp_orc = p_ptr->esp_orc;
-	old_esp_troll = p_ptr->esp_troll;
-	old_esp_giant = p_ptr->esp_giant;
-	old_esp_dragon = p_ptr->esp_dragon;
-	old_esp_human = p_ptr->esp_human;
-	old_esp_evil = p_ptr->esp_evil;
-	old_esp_good = p_ptr->esp_good;
-	old_esp_nonliving = p_ptr->esp_nonliving;
-	old_esp_unique = p_ptr->esp_unique;
-
-	old_see_inv = p_ptr->see_inv;
+	bool old_telepathy = p_ptr->telepathy;
+	bool old_esp_animal = p_ptr->esp_animal;
+	bool old_esp_undead = p_ptr->esp_undead;
+	bool old_esp_demon = p_ptr->esp_demon;
+	bool old_esp_orc = p_ptr->esp_orc;
+	bool old_esp_troll = p_ptr->esp_troll;
+	bool old_esp_giant = p_ptr->esp_giant;
+	bool old_esp_dragon = p_ptr->esp_dragon;
+	bool old_esp_human = p_ptr->esp_human;
+	bool old_esp_evil = p_ptr->esp_evil;
+	bool old_esp_good = p_ptr->esp_good;
+	bool old_esp_nonliving = p_ptr->esp_nonliving;
+	bool old_esp_unique = p_ptr->esp_unique;
+	bool old_see_inv = p_ptr->see_inv;
+	bool old_mighty_throw = p_ptr->mighty_throw;
 
 	/* Save the old armor class */
-	old_dis_ac = p_ptr->dis_ac;
-	old_dis_to_a = p_ptr->dis_to_a;
+	bool old_dis_ac = p_ptr->dis_ac;
+	bool old_dis_to_a = p_ptr->dis_to_a;
 
 
 	/* Clear extra blows/shots */
@@ -3066,8 +2991,12 @@ void calc_bonuses(void)
 
 	p_ptr->to_m_chance = 0;
 
+	/* Clear the Extra Dice Bonuses */
+	p_ptr->to_dd[0] = p_ptr->to_ds[0] = 0;
+	p_ptr->to_dd[1] = p_ptr->to_ds[1] = 0;
+
 	/* Start with "normal" speed */
-	p_ptr->pspeed = 110;
+	new_speed = 110;
 
 	/* Start with a single blow per turn */
 	p_ptr->num_blow[0] = 1;
@@ -3145,6 +3074,7 @@ void calc_bonuses(void)
 	p_ptr->anti_tele = FALSE;
 	p_ptr->warning = FALSE;
 	p_ptr->mighty_throw = FALSE;
+	p_ptr->see_nocto = FALSE;
 
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
@@ -3234,7 +3164,7 @@ void calc_bonuses(void)
 				if (!(prace_is_(RACE_KLACKON) ||
 				      prace_is_(RACE_SPRITE) ||
 				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-					p_ptr->pspeed += (p_ptr->lev) / 10;
+					new_speed += (p_ptr->lev) / 10;
 
 				/* Free action if unencumbered at level 25 */
 				if  (p_ptr->lev > 24)
@@ -3258,11 +3188,11 @@ void calc_bonuses(void)
 			p_ptr->sustain_con = TRUE;
 			p_ptr->regenerate = TRUE;
 			p_ptr->free_act = TRUE;
-			p_ptr->pspeed += 2;
-			if (p_ptr->lev > 29) p_ptr->pspeed++;
-			if (p_ptr->lev > 39) p_ptr->pspeed++;
-			if (p_ptr->lev > 44) p_ptr->pspeed++;
-			if (p_ptr->lev > 49) p_ptr->pspeed++;
+			new_speed += 2;
+			if (p_ptr->lev > 29) new_speed++;
+			if (p_ptr->lev > 39) new_speed++;
+			if (p_ptr->lev > 44) new_speed++;
+			if (p_ptr->lev > 49) new_speed++;
 			p_ptr->to_a += 10+p_ptr->lev/2;
 			p_ptr->dis_to_a += 10+p_ptr->lev/2;
 			p_ptr->skill_dig += (100+p_ptr->lev*8);
@@ -3273,19 +3203,19 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 39) p_ptr->reflect = TRUE;
 			break;
 		case CLASS_NINJA:
-			/* Unencumbered Monks become faster every 10 levels */
+			/* Unencumbered Ninjas become faster every 10 levels */
 			if (heavy_armor())
 			{
-				p_ptr->pspeed -= (p_ptr->lev) / 10;
+				new_speed -= (p_ptr->lev) / 10;
 				p_ptr->skill_stl -= (p_ptr->lev)/10;
 			}
 			else if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
 			{
-				p_ptr->pspeed += 3;
+				new_speed += 3;
 				if (!(prace_is_(RACE_KLACKON) ||
 				      prace_is_(RACE_SPRITE) ||
 				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-					p_ptr->pspeed += (p_ptr->lev) / 10;
+					new_speed += (p_ptr->lev) / 10;
 				p_ptr->skill_stl += (p_ptr->lev)/10;
 
 				/* Free action if unencumbered at level 25 */
@@ -3307,6 +3237,7 @@ void calc_bonuses(void)
 				p_ptr->oppose_pois = 1;
 				p_ptr->redraw |= PR_STATUS;
 			}
+			p_ptr->see_nocto = TRUE;
 			break;
 	}
 
@@ -3322,7 +3253,7 @@ void calc_bonuses(void)
 			p_ptr->resist_fire=TRUE;
 			p_ptr->oppose_fire = 1;
 			p_ptr->see_inv=TRUE;
-			p_ptr->pspeed += 3;
+			new_speed += 3;
 			p_ptr->redraw |= PR_STATUS;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
@@ -3346,7 +3277,7 @@ void calc_bonuses(void)
 			p_ptr->telepathy = TRUE;
 			p_ptr->ffall = TRUE;
 			p_ptr->kill_wall = TRUE;
-			p_ptr->pspeed += 5;
+			new_speed += 5;
 			p_ptr->to_a += 20;
 			p_ptr->dis_to_a += 20;
 			break;
@@ -3357,7 +3288,7 @@ void calc_bonuses(void)
 			p_ptr->resist_cold = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->see_inv = TRUE;
-			p_ptr->pspeed += 3;
+			new_speed += 3;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 			if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
@@ -3436,7 +3367,7 @@ void calc_bonuses(void)
 			p_ptr->resist_acid = TRUE;
 
 			/* Klackons become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
+			new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_KOBOLD:
 			p_ptr->resist_pois = TRUE;
@@ -3514,7 +3445,7 @@ void calc_bonuses(void)
 			p_ptr->resist_lite = TRUE;
 
 			/* Sprites become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10;
+			new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
@@ -3651,7 +3582,7 @@ void calc_bonuses(void)
 
 		if ((p_ptr->prace != RACE_KLACKON) && (p_ptr->prace != RACE_SPRITE))
 			/* Munchkin become faster */
-			p_ptr->pspeed += (p_ptr->lev) / 10 + 5;
+			new_speed += (p_ptr->lev) / 10 + 5;
 	}
 
 	if (p_ptr->riding)
@@ -3711,7 +3642,7 @@ void calc_bonuses(void)
 		if (p_ptr->muta3 & MUT3_XTRA_FAT)
 		{
 			p_ptr->stat_add[A_CON] += 2;
-			p_ptr->pspeed -= 2;
+			new_speed -= 2;
 		}
 
 		if (p_ptr->muta3 & MUT3_ALBINO)
@@ -3760,12 +3691,12 @@ void calc_bonuses(void)
 
 		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
 		{
-			p_ptr->pspeed += 3;
+			new_speed += 3;
 		}
 
 		if (p_ptr->muta3 & MUT3_SHORT_LEG)
 		{
-			p_ptr->pspeed -= 3;
+			new_speed -= 3;
 		}
 
 		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
@@ -3889,7 +3820,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
 
 		/* Affect speed */
-		if (have_flag(flgs, TR_SPEED)) p_ptr->pspeed += o_ptr->pval;
+		if (have_flag(flgs, TR_SPEED)) new_speed += o_ptr->pval;
 
 		/* Affect blows */
 		if (have_flag(flgs, TR_BLOWS))
@@ -4141,7 +4072,7 @@ void calc_bonuses(void)
 			p_ptr->to_h[0] += bonus_to_h;
 			p_ptr->to_d[0] += bonus_to_d;
 
-			/* Apply the mental bonuses tp hit/damage, if known */
+			/* Apply the mental bonuses to hit/damage, if known */
 			if (object_known_p(o_ptr))
 			{
 				p_ptr->dis_to_h[0] += bonus_to_h;
@@ -4376,7 +4307,7 @@ void calc_bonuses(void)
 	}
 
 	/* Temporary blessing */
-	if (p_ptr->blessed || music_singing(MUSIC_BLESS))
+	if (IS_BLESSED())
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
@@ -4399,7 +4330,7 @@ void calc_bonuses(void)
 	}
 
 	/* Temporary "Hero" */
-	if (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
+	if (IS_HERO())
 	{
 		p_ptr->to_h[0] += 12;
 		p_ptr->to_h[1] += 12;
@@ -4436,20 +4367,20 @@ void calc_bonuses(void)
 		p_ptr->skill_dig += 30;
 	}
 
-/* Temporary "fast" */
-	if (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO))
+	/* Temporary "fast" */
+	if (IS_FAST())
 	{
-		p_ptr->pspeed += 10;
+		new_speed += 10;
 	}
 
 	/* Temporary "slow" */
 	if (p_ptr->slow)
 	{
-		p_ptr->pspeed -= 10;
+		new_speed -= 10;
 	}
 
 	/* Temporary "telepathy" */
-	if (p_ptr->tim_esp || music_singing(MUSIC_MIND))
+	if (IS_TIM_ESP())
 	{
 		p_ptr->telepathy = TRUE;
 	}
@@ -4490,8 +4421,14 @@ void calc_bonuses(void)
 		p_ptr->ffall = TRUE;
 	}
 
+	/* Temporary reflection */
+	if (p_ptr->tim_reflect)
+	{
+		p_ptr->reflect = TRUE;
+	}
+
 	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
+	if (IS_HERO() || p_ptr->shero)
 	{
 		p_ptr->resist_fear = TRUE;
 	}
@@ -4526,26 +4463,26 @@ void calc_bonuses(void)
 	}
 
 	/* Bloating slows the player down (a little) */
-	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
+	if (p_ptr->food >= PY_FOOD_MAX) new_speed -= 10;
 
-	if (p_ptr->special_defense & KAMAE_SUZAKU) p_ptr->pspeed += 10;
+	if (p_ptr->special_defense & KAMAE_SUZAKU) new_speed += 10;
 
 	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
 	{
-		p_ptr->to_h[0] += (p_ptr->skill_exp[GINOU_SUDE]-4000)/200;
-		p_ptr->dis_to_h[0] += (p_ptr->skill_exp[GINOU_SUDE]-4000)/200;
+		p_ptr->to_h[0] += (p_ptr->skill_exp[GINOU_SUDE] - WEAPON_EXP_BEGINNER) / 200;
+		p_ptr->dis_to_h[0] += (p_ptr->skill_exp[GINOU_SUDE] - WEAPON_EXP_BEGINNER) / 200;
 	}
 
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
 		int penalty1, penalty2;
-		penalty1 = ((100-p_ptr->skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_RARM].weight)/8);
-		penalty2 = ((100-p_ptr->skill_exp[GINOU_NITOURYU]/160) - (130-inventory[INVEN_LARM].weight)/8);
+		penalty1 = ((100 - p_ptr->skill_exp[GINOU_NITOURYU] / 160) - (130 - inventory[INVEN_RARM].weight) / 8);
+		penalty2 = ((100 - p_ptr->skill_exp[GINOU_NITOURYU] / 160) - (130 - inventory[INVEN_LARM].weight) / 8);
 		if ((inventory[INVEN_RARM].name1 == ART_QUICKTHORN) && (inventory[INVEN_LARM].name1 == ART_TINYTHORN))
 		{
 			penalty1 = penalty1 / 2 - 5;
 			penalty2 = penalty2 / 2 - 5;
-			p_ptr->pspeed += 7;
+			new_speed += 7;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 		}
@@ -4592,28 +4529,28 @@ void calc_bonuses(void)
 		int speed = m_list[p_ptr->riding].mspeed;
 		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + (s16b)((speed-110)*(p_ptr->skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
-			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
+			new_speed = 110 + (s16b)((speed - 110) * (p_ptr->skill_exp[GINOU_RIDING] * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
+			if (new_speed < 110) new_speed = 110;
 		}
 		else
 		{
-			p_ptr->pspeed = speed;
+			new_speed = speed;
 		}
-		if (m_list[p_ptr->riding].fast) p_ptr->pspeed += 10;
-		if (m_list[p_ptr->riding].slow) p_ptr->pspeed -= 10;
+		if (m_list[p_ptr->riding].fast) new_speed += 10;
+		if (m_list[p_ptr->riding].slow) new_speed -= 10;
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
 		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
-		if (p_ptr->skill_exp[GINOU_RIDING] < 2000) j += (p_ptr->wt*3*(2000 - p_ptr->skill_exp[GINOU_RIDING]))/2000;
+		if (p_ptr->skill_exp[GINOU_RIDING] < RIDING_EXP_SKILLED) j += (p_ptr->wt * 3 * (RIDING_EXP_SKILLED - p_ptr->skill_exp[GINOU_RIDING])) / RIDING_EXP_SKILLED;
 
 		i = 3000 + r_info[m_list[p_ptr->riding].r_idx].level * 50;
 	}
 
 	/* XXX XXX XXX Apply "encumbrance" from weight */
-	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
+	if (j > i/2) new_speed -= ((j - (i/2)) / (i / 10));
 
 	/* Searching slows the player down */
-	if (p_ptr->action == ACTION_SEARCH) p_ptr->pspeed -= 10;
+	if (p_ptr->action == ACTION_SEARCH) new_speed -= 10;
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
@@ -4984,6 +4921,7 @@ void calc_bonuses(void)
 			{
 				p_ptr->to_h[i] +=15;
 				p_ptr->dis_to_h[i] +=15;
+				p_ptr->to_dd[i] += 2;
 			}
 			else if (!(have_flag(flgs, TR_RIDING)))
 			{
@@ -5121,13 +5059,13 @@ void calc_bonuses(void)
 
 	for (i = 0 ; i < 2 ; i++)
 	{
-		if(buki_motteruka(INVEN_RARM+i))
+		if (buki_motteruka(INVEN_RARM+i))
 		{
 			int tval = inventory[INVEN_RARM+i].tval - TV_BOW;
 			int sval = inventory[INVEN_RARM+i].sval;
 
-			p_ptr->to_h[i] += (p_ptr->weapon_exp[tval][sval]-4000)/200;
-			p_ptr->dis_to_h[i] += (p_ptr->weapon_exp[tval][sval]-4000)/200;
+			p_ptr->to_h[i] += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
+			p_ptr->dis_to_h[i] += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
 			if ((p_ptr->pclass == CLASS_MONK) && !(s_info[CLASS_MONK].w_max[tval][sval]))
 			{
 				p_ptr->to_h[i] -= 40;
@@ -5142,7 +5080,7 @@ void calc_bonuses(void)
 			}
 			else if (p_ptr->pclass == CLASS_NINJA)
 			{
-				if ((s_info[CLASS_NINJA].w_max[tval][sval] <= 4000) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
+				if ((s_info[CLASS_NINJA].w_max[tval][sval] <= WEAPON_EXP_BEGINNER) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
 				{
 					p_ptr->to_h[i] -= 40;
 					p_ptr->dis_to_h[i] -= 40;
@@ -5154,15 +5092,22 @@ void calc_bonuses(void)
 		}
 	}
 
-	/* Temporary lightspeed */
-	if ((p_ptr->lightspeed && !p_ptr->riding) || (p_ptr->pspeed > 209))
+	/* Maximum speed is (+99). (internally it's 110 + 99) */
+	/* Temporary lightspeed forces to be maximum speed */
+	if ((p_ptr->lightspeed && !p_ptr->riding) || (new_speed > 209))
 	{
-		p_ptr->pspeed = 209;
+		new_speed = 209;
 	}
-	if (p_ptr->pspeed < 11) p_ptr->pspeed = 11;
+
+	/* Minimum speed is (-99). (internally it's 110 - 99) */
+	if (new_speed < 11) new_speed = 11;
 
 	/* Display the speed (if needed) */
-	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
+	if (p_ptr->pspeed != (byte)new_speed)
+	{
+		p_ptr->pspeed = (byte)new_speed;
+		p_ptr->redraw |= (PR_SPEED);
+	}
 
 	if (yoiyami)
 	{
@@ -5200,8 +5145,7 @@ void calc_bonuses(void)
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
 
-	if (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
-		p_ptr->skill_stl += 99;
+	if (IS_TIM_STEALTH()) p_ptr->skill_stl += 99;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
@@ -5264,6 +5208,12 @@ void calc_bonuses(void)
 	if ((p_ptr->ult_res || p_ptr->resist_magic || p_ptr->magicdef) && (p_ptr->skill_sav < (95 + p_ptr->lev))) p_ptr->skill_sav = 95 + p_ptr->lev;
 
 	if (down_saving) p_ptr->skill_sav /= 2;
+
+	/* Hack -- Each elemental immunity includes resistance */
+	if (p_ptr->immune_acid) p_ptr->resist_acid = TRUE;
+	if (p_ptr->immune_elec) p_ptr->resist_elec = TRUE;
+	if (p_ptr->immune_fire) p_ptr->resist_fire = TRUE;
+	if (p_ptr->immune_cold) p_ptr->resist_cold = TRUE;
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
@@ -5507,14 +5457,12 @@ msg_print("バランスがとれるようになった。");
 		}
 	}
 
-	have_dd_s = FALSE;
-	have_dd_t = FALSE;
-	have_sw = FALSE;
-	have_kabe = FALSE;
 	for (i = 0; i < INVEN_PACK; i++)
 	{
+#if 0
 		if ((inventory[i].tval == TV_SORCERY_BOOK) && (inventory[i].sval == 2)) have_dd_s = TRUE;
 		if ((inventory[i].tval == TV_TRUMP_BOOK) && (inventory[i].sval == 1)) have_dd_t = TRUE;
+#endif
 		if ((inventory[i].tval == TV_NATURE_BOOK) && (inventory[i].sval == 2)) have_sw = TRUE;
 		if ((inventory[i].tval == TV_ENCHANT_BOOK) && (inventory[i].sval == 2)) have_kabe = TRUE;
 	}
@@ -5528,8 +5476,10 @@ msg_print("バランスがとれるようになった。");
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
+#if 0
 		if ((o_ptr->tval == TV_SORCERY_BOOK) && (o_ptr->sval == 3)) have_dd_s = TRUE;
 		if ((o_ptr->tval == TV_TRUMP_BOOK) && (o_ptr->sval == 1)) have_dd_t = TRUE;
+#endif
 		if ((o_ptr->tval == TV_NATURE_BOOK) && (o_ptr->sval == 2)) have_sw = TRUE;
 		if ((o_ptr->tval == TV_ENCHANT_BOOK) && (o_ptr->sval == 2)) have_kabe = TRUE;
 	}
@@ -5690,6 +5640,16 @@ void update_stuff(void)
 		update_mon_lite();
 	}
 
+	/*
+	 * Mega-Hack -- Delayed visual update
+	 * Only used if update_view(), update_lite() or update_mon_lite() was called
+	 */
+	if (p_ptr->update & (PU_DELAY_VIS))
+	{
+		p_ptr->update &= ~(PU_DELAY_VIS);
+		delayed_visual_update();
+	}
+
 	if (p_ptr->update & (PU_MONSTERS))
 	{
 		p_ptr->update &= ~(PU_MONSTERS);
@@ -5742,11 +5702,6 @@ void redraw_stuff(void)
 		prt_frame_basic();
 		prt_time();
 		prt_dungeon();
-	}
-
-	if (p_ptr->redraw & (PR_DUNGEON))
-	{
-		p_ptr->redraw &= ~(PR_DUNGEON);
 	}
 
 	if (p_ptr->redraw & (PR_EQUIPPY))
@@ -5831,13 +5786,13 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_HEALTH))
 	{
 		p_ptr->redraw &= ~(PR_HEALTH);
-		health_redraw();
+		health_redraw(FALSE);
 	}
 
 	if (p_ptr->redraw & (PR_UHEALTH))
 	{
 		p_ptr->redraw &= ~(PR_UHEALTH);
-		riding_health_redraw();
+		health_redraw(TRUE);
 	}
 
 

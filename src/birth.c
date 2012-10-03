@@ -1,11 +1,11 @@
 /* Purpose: create a player character */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1815,7 +1815,7 @@ static cptr class_jouhou[MAX_CLASS] =
   
 "騎兵は馬に乗り戦場を駆け抜けるエリート戦士です。魔法は使えませんが、馬上からの圧倒的な攻撃力を誇る上に、高い機動力を生かした射撃をも得意としています。レベルが上がれば、野生のモンスターにまたがり無理矢理手なずけることができます。彼らは己の肉体と精神に誇りを持ち、魔法道具にはあまり頼ろうとはしません。",
   
-"狂戦士は怒り狂って武器を振るう恐るべき戦士です。全職業中最高の肉体能力を誇り、恐怖と麻痺に対する耐性を持ち、レベルが上がればその強靭な肉体で矢の呪文を跳ね返すことができます。さらに武器なしで戦うことや、呪いのかけられた装備を力づくで剥がすことができ、いくつかの技を(反魔法状態でも)使うことができます。しかし、巻物や魔法道具は全く使うことができず、罠の解除や隠密行動、探索、魔法防御、飛び道具の技能に関しては絶望的です。ひたすら殴って道を開くしかありません。アンバライトと幽霊は非常に勝利しやすいですがスコアがかなり低く修正されます。",
+"狂戦士は怒り狂って武器を振るう恐るべき戦士です。全職業中最高の肉体能力を誇り、恐怖と麻痺に対する耐性を持ち、レベルが上がればその強靭な肉体で矢の呪文を跳ね返すことができます。さらに武器なしで戦うことや、呪いのかけられた装備を力づくで剥がすことができ、いくつかの技を(反魔法状態でも)使うことができます。しかし、巻物や魔法道具は全く使うことができず、罠の解除や隠密行動、探索、魔法防御、飛び道具の技能に関しては絶望的です。ひたすら殴って道を開くしかありません。幽霊は非常に勝利しやすいですがスコアがかなり低く修正されます。",
 
 "鍛冶師は武器や防具を自分で強化することができます。特殊効果を持つ武器や防具から特殊効果の元となるエッセンスを取り出し、別の武器や防具にエッセンスを付加することによってその特殊効果を付加できます。ある程度の戦闘能力も持ちますが、魔法は一切使用できず、隠密や魔法防御の技能も低くなります。",
 
@@ -1871,7 +1871,7 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "Cavalry ride on horses into battle.  Although they cannot cast spells, they are proud of their overwhelming offensive strength on horseback.  They are good at shooting.  At high levels, they learn to forcibly saddle and tame wild monsters.  Since they take pride in the body and the soul, they don't use magical devices well.",
 
-"A Berserker is a fearful fighter indeed, immune to fear and paralysis.  At high levels, Berserkers can reflect bolt spells with their tough flesh.  Furthermore, they can fight without weapons, can remove cursed equipment by force, and can even use their special combat techniques when surrounded by an anti-magic barrier.  Berserkers, however, cannot use any magical devices or read any scrolls, and are hopeless at all non-combat skills.  Since Berserker Amberite or Spectres are quite easy to *win* with, their scores are lowered.",
+"A Berserker is a fearful fighter indeed, immune to fear and paralysis.  At high levels, Berserkers can reflect bolt spells with their tough flesh.  Furthermore, they can fight without weapons, can remove cursed equipment by force, and can even use their special combat techniques when surrounded by an anti-magic barrier.  Berserkers, however, cannot use any magical devices or read any scrolls, and are hopeless at all non-combat skills.  Since Berserker Spectres are quite easy to *win* with, their scores are lowered.",
 
 "A Weaponsmith can improve weapons and armors for him or herself.  They can extract the essences of special effects from weapons or armors which have various special abilities, and can add these essences to another weapon or armor.  They are good at fighting, but cannot cast spells, and are poor at skills such as stealth or magic defense.",
 
@@ -2381,9 +2381,9 @@ static bool get_player_realms(void)
 		}
 else
 #ifdef JP
-		if (get_check("よろしいですか？")) break;
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
 #else
-		if (get_check("Are you sure? ")) break;
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
 #endif
 	}
 
@@ -2443,9 +2443,9 @@ else
 				break;
 			}
 #ifdef JP
-			else if (get_check("よろしいですか？")) break;
+			else if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
 #else
-			else if (get_check("Are you sure? ")) break;
+			else if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
 #endif
 		}
 		if (p_ptr->realm2)
@@ -2576,11 +2576,8 @@ static void load_prev_data(bool swap)
 
 /*
  * Returns adjusted stat -JK-  Algorithm by -JWT-
- *
- * auto_roll is boolean and states maximum changes should be used rather
- * than random ones to allow specification of higher values to wait for
  */
-static int adjust_stat(int value, int amount, int auto_roll)
+static int adjust_stat(int value, int amount)
 {
 	int i;
 
@@ -2729,7 +2726,7 @@ void get_max_stats(void)
  */
 static void get_extra(bool roll_hitdie)
 {
-	int		i, j, min_value, max_value;
+	int i, j;
 
 	/* Experience factor */
 	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
@@ -2746,17 +2743,17 @@ static void get_extra(bool roll_hitdie)
 
 	for (i = 0; i < 64; i++)
 	{
-		if (p_ptr->pclass == CLASS_SORCERER) p_ptr->spell_exp[i] = 1600;
-		else if (p_ptr->pclass == CLASS_RED_MAGE) p_ptr->spell_exp[i] = 1200;
-		else p_ptr->spell_exp[i] = 0;
+		if (p_ptr->pclass == CLASS_SORCERER) p_ptr->spell_exp[i] = SPELL_EXP_MASTER;
+		else if (p_ptr->pclass == CLASS_RED_MAGE) p_ptr->spell_exp[i] = SPELL_EXP_SKILLED;
+		else p_ptr->spell_exp[i] = SPELL_EXP_UNSKILLED;
 	}
 
 	for (i = 0; i < 5; i++)
 		for (j = 0; j < 64; j++)
 			p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
-	if(p_ptr->pseikaku == SEIKAKU_SEXY)
+	if ((p_ptr->pseikaku == SEIKAKU_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_BOW][SV_WHIP] < WEAPON_EXP_BEGINNER))
 	{
-		p_ptr->weapon_exp[TV_HAFTED-TV_BOW][SV_WHIP] = 4000;
+		p_ptr->weapon_exp[TV_HAFTED-TV_BOW][SV_WHIP] = WEAPON_EXP_BEGINNER;
 	}
 
 	for (i = 0; i < 10; i++)
@@ -2769,45 +2766,7 @@ static void get_extra(bool roll_hitdie)
 		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
 	/* Roll for hit point unless quick-start */
-	if (roll_hitdie)
-	{
-		/* Minimum hitpoints at highest level */
-		min_value = ((PY_MAX_LEVEL+2) * (p_ptr->hitdie + 1)) * 3 / 8;
-		min_value += p_ptr->hitdie;
-
-		/* Maximum hitpoints at highest level */
-		max_value = ((PY_MAX_LEVEL+2) * (p_ptr->hitdie + 1)) * 5 / 8;
-		max_value += p_ptr->hitdie;
-
-		/* Roll out the hitpoints */
-		while (TRUE)
-		{
-			/* Pre-calculate level 1 hitdice */
-			p_ptr->player_hp[0] = p_ptr->hitdie;
-
-			for (i = 1; i < 4; i++)
-			{
-				j = randint1(p_ptr->hitdie);
-				p_ptr->player_hp[0] += j;
-			}
-
-			/* Roll the hitpoint values */
-			for (i = 1; i < PY_MAX_LEVEL; i++)
-			{
-				j = randint1(p_ptr->hitdie);
-				p_ptr->player_hp[i] = p_ptr->player_hp[i - 1] + j;
-			}
-
-			/* XXX Could also require acceptable "mid-level" hitpoints */
-
-			/* Require "valid" hitpoints at highest level */
-			if (p_ptr->player_hp[PY_MAX_LEVEL - 1] < min_value) continue;
-			if (p_ptr->player_hp[PY_MAX_LEVEL - 1] > max_value) continue;
-
-			/* Acceptable */
-			break;
-		}
-	}
+	if (roll_hitdie) do_cmd_rerate_aux();
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->player_hp[0];
@@ -3163,7 +3122,7 @@ static void birth_put_stats(void)
 			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 			/* Obtain the current stat */
-			m = adjust_stat(p_ptr->stat_max[i], j, TRUE);
+			m = adjust_stat(p_ptr->stat_max[i], j);
 
 			/* Put the stat */
 			cnv_stat(m, buf);
@@ -3269,7 +3228,9 @@ static void player_wipe(void)
 
 		/* Hack -- Reset the max counter */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-		if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num = 5;
+
+		/* Hack -- Non-unique Nazguls are semi-unique */
+		else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
 
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
@@ -3361,12 +3322,6 @@ static void player_wipe(void)
 	p_ptr->mane_num = 0;
 	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
 
-	/* Reset rewards */
-	for (i = 0; i < MAX_BACT; i++)
-	{
-		p_ptr->rewards[i] = 0;
-	}
-
 	/* Bounty */
 	p_ptr->today_mon = 0;
 
@@ -3419,6 +3374,51 @@ static bool mon_hook_quest(int r_idx)
 
 
 /*
+ * Determine the random quest uniques
+ */
+void determine_random_questor(quest_type *q_ptr)
+{
+	int          r_idx;
+	monster_race *r_ptr;
+
+	/* Prepare allocation table */
+	get_mon_num_prep(mon_hook_quest, NULL);
+
+	while (1)
+	{
+		/*
+		 * Random monster 5 - 10 levels out of depth
+		 * (depending on level)
+		 */
+		r_idx = get_mon_num(q_ptr->level + 5 + randint1(q_ptr->level / 10));
+		r_ptr = &r_info[r_idx];
+
+		if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+
+		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+
+		if (r_ptr->rarity > 100) continue;
+
+		if (r_ptr->flags7 & RF7_FRIENDLY) continue;
+
+		if (r_ptr->flags7 & RF7_AQUATIC) continue;
+
+		if (r_ptr->flags8 & RF8_WILD_ONLY) continue;
+
+		if (no_questor_or_bounty_uniques(r_idx)) continue;
+
+		/*
+		 * Accept monsters that are 2 - 6 levels
+		 * out of depth depending on the quest level
+		 */
+		if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20))) break;
+	}
+
+	q_ptr->r_idx = r_idx;
+}
+
+
+/*
  *  Initialize random quests and final quests
  */
 static void init_dungeon_quests(int number_of_quests)
@@ -3434,9 +3434,6 @@ static void init_dungeon_quests(int number_of_quests)
 
 	p_ptr->inside_quest = 0;
 
-	/* Prepare allocation table */
-	get_mon_num_prep(mon_hook_quest, NULL);
-
 	/* Remove QUESTOR flag */
 	for (i = 1; i < max_r_idx; i++)
 	{
@@ -3449,42 +3446,12 @@ static void init_dungeon_quests(int number_of_quests)
 	{
 		quest_type      *q_ptr = &quest[i];
 		monster_race    *quest_r_ptr;
-		int             r_idx;
 
 		q_ptr->status = QUEST_STATUS_TAKEN;
-
-		while (1)
-		{
-			/*
-			 * Random monster 5 - 10 levels out of depth
-			 * (depending on level)
-			 */
-			r_idx = get_mon_num(q_ptr->level + 5 + randint1(q_ptr->level / 10));
-			r_ptr = &r_info[r_idx];
-
-			if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-
-			if(r_ptr->flags1 & RF1_QUESTOR) continue;
-
-			if(r_ptr->flags6 & RF6_SPECIAL) continue;
-
-			if(r_ptr->flags7 & RF7_FRIENDLY) continue;
-
-			if(r_ptr->flags7 & RF7_AQUATIC) continue;
-
-			if(r_ptr->flags8 & RF8_WILD_ONLY) continue;
-
-			/*
-			 * Accept monsters that are 2 - 6 levels
-			 * out of depth depending on the quest level
-			 */
-			if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20))) break;
-		}
-
-		q_ptr->r_idx = r_idx;
-		quest_r_ptr = &r_info[q_ptr->r_idx];
+		determine_random_questor(q_ptr);
 
 		/* Mark uniques */
+		quest_r_ptr = &r_info[q_ptr->r_idx];
 		quest_r_ptr->flags1 |= RF1_QUESTOR;
 
 		q_ptr->max_num = 1;
@@ -3814,7 +3781,7 @@ void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(TV_FLASK, SV_ANY));
 
 		/* Fuel with oil (move pval to xtra4) */
-		apply_magic(q_ptr, 1, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, 1, AM_NO_FIXED_ART);
 
 		q_ptr->number = (byte)rand_range(7, 12);
 		object_aware(q_ptr);
@@ -4732,7 +4699,7 @@ static bool get_stat_limits(void)
 		j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 		/* Obtain the "maximal" stat */
-		m = adjust_stat(17, j, TRUE);
+		m = adjust_stat(17, j);
 
 		/* Save the maximum */
 		mval[i] = m;
@@ -4758,7 +4725,7 @@ static bool get_stat_limits(void)
 		}
 
 		/* Obtain the current stat */
-		m = adjust_stat(cval[i], j, TRUE);
+		m = adjust_stat(cval[i], j);
 
 		/* Above 18 */
 		if (m > 18)
@@ -4822,7 +4789,7 @@ static bool get_stat_limits(void)
 				j = rp_ptr->r_adj[cs] + cp_ptr->c_adj[cs] + ap_ptr->a_adj[cs];
 
 				/* Obtain the current stat */
-				m = adjust_stat(cval[cs], j, TRUE);
+				m = adjust_stat(cval[cs], j);
 				
 				/* Above 18 */
 				if (m > 18)
@@ -4858,10 +4825,8 @@ static bool get_stat_limits(void)
 		switch ( c ){
 		case 'Q':
 			birth_quit();
-			break;
 		case 'S':
-			return (FALSE); 
-			break;
+			return FALSE;
 		case ESCAPE:
 			break;
 		case ' ':
@@ -5108,7 +5073,6 @@ static bool get_chara_limits(void)
 		switch (c){
 		case 'Q':
 			birth_quit();
-			break;
 		case 'S':
 			return (FALSE);
 		case ESCAPE:
@@ -5257,6 +5221,125 @@ static bool get_chara_limits(void)
 }
 #endif
 
+static char histpref_buf[240];
+
+void add_history_from_pref_line(cptr t)
+{
+	int  limit = (sizeof histpref_buf) - 1;
+	int  i;
+
+	for (i = strlen(histpref_buf); *t && (i < limit); t++)
+	{
+#ifdef JP
+		if (iskanji(*t) || isprint(*t))
+#else
+		if (isprint(*t))
+#endif
+		{
+#ifdef JP
+			if (iskanji(*t))
+			{
+				if (i + 1 >= limit) break;
+				histpref_buf[i++] = *(t++);
+			}
+#endif
+			histpref_buf[i++] = *t;
+		}
+	}
+
+	/* Terminate */
+	histpref_buf[(i < limit) ? i : limit] = '\0';
+}
+
+
+static bool do_cmd_histpref(void)
+{
+	char buf[80];
+	errr err;
+	int i, j, n;
+	char *s, *t;
+	char temp[64 * 4];
+
+#ifdef JP
+	if (!get_check("生い立ち設定ファイルをロードしますか? ")) return FALSE;
+#else
+	if (!get_check("Load background history preference file? ")) return FALSE;
+#endif
+
+	/* Init buffer */
+	histpref_buf[0] = '\0';
+
+#ifdef JP
+	sprintf(buf, "histedit-%s.prf", player_name);
+#else
+	sprintf(buf, "histpref-%s.prf", player_name);
+#endif
+	err = process_histpref_file(buf);
+
+	/* Process 'hist????.prf' if 'hist????-<name>.prf' doesn't exist */
+	if (0 > err)
+	{
+#ifdef JP
+		strcpy(buf, "histedit.prf");
+#else
+		strcpy(buf, "histpref.prf");
+#endif
+		err = process_histpref_file(buf);
+	}
+
+	if (err)
+	{
+#ifdef JP
+		msg_print("生い立ち設定ファイルの読み込みに失敗しました。");
+#else
+		msg_print("Failed to load background history preference.");
+#endif
+		msg_print(NULL);
+
+		/* Terminate buffer */
+		histpref_buf[0] = '\0';
+		return FALSE;
+	}
+
+	/* Clear the previous history strings */
+	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
+
+	/* Skip leading spaces */
+	for (s = histpref_buf; *s == ' '; s++) /* loop */;
+
+	/* Get apparent length */
+	n = strlen(s);
+
+	/* Kill trailing spaces */
+	while ((n > 0) && (s[n - 1] == ' ')) s[--n] = '\0';
+
+	roff_to_buf(s, 60, temp, sizeof(temp));
+	t = temp;
+	for (i = 0; i < 4; i++)
+	{
+		if (t[0] == 0) break;
+		else
+		{
+			strcpy(p_ptr->history[i], t);
+			t += strlen(t) + 1;
+		}
+	}
+
+	/* Turn 0 to space */
+	for (i = 0; i < 4; i++)
+	{
+		for (j = 0; p_ptr->history[i][j]; j++) /* loop */;
+
+		for (; j < 59; j++) p_ptr->history[i][j] = ' ';
+		p_ptr->history[i][59] = '\0';
+	}
+
+	/* Terminate buffer */
+	histpref_buf[0] = '\0';
+
+	return TRUE;
+}
+
 /*
  *  Character background edit-mode
  */
@@ -5283,8 +5366,10 @@ static void edit_history(void)
 	display_player(1);
 #ifdef JP
 	c_put_str(TERM_L_GREEN, "(キャラクターの生い立ち - 編集モード)", 11, 20);
+	put_str("[ 2/4/6/8で移動、Enterで終了、Ctrl-Fでファイル読み込み ]", 17, 10);
 #else
 	c_put_str(TERM_L_GREEN, "(Character Background - Edit Mode)", 11, 20);
+	put_str("[ 2/4/6/8 for Move, Enter for End, Ctrl-F for Read pref ]", 17, 10);
 #endif
 
 	while (TRUE)
@@ -5352,16 +5437,39 @@ static void edit_history(void)
 		}
 		else if (c == '\r' || c == '\n')
 		{
+			Term_erase(0, 11, 255);
+			Term_erase(0, 17, 255);
+#ifdef JP
+			put_str("(キャラクターの生い立ち - 編集済み)", 11, 20);
+#else
+			put_str("(Character Background - Edited)", 11, 20);
+#endif
 			break;
 		}
 		else if (c == ESCAPE)
 		{
+			clear_from(11);
+#ifdef JP
+			put_str("(キャラクターの生い立ち)", 11, 25);
+#else
+			put_str("(Character Background)", 11, 25);
+#endif
+
 			for (i = 0; i < 4; i++)
 			{
 				sprintf(p_ptr->history[i], "%s", old_history[i]);
 				put_str(p_ptr->history[i], i + 12, 10);
 			}
 			break;
+		}
+		else if (c == KTRL('F'))
+		{
+			if (do_cmd_histpref())
+			{
+#ifdef JP
+				if ((x > 0) && (iskanji2(p_ptr->history[y], x - 1))) x--;
+#endif
+			}
 		}
 		else if (c == '\010')
 		{
@@ -5661,9 +5769,9 @@ static bool player_birth_aux(void)
 			}
 		}
 #ifdef JP
-		if (get_check("よろしいですか？")) break;
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
 #else
-		if (get_check("Are you sure? ")) break;
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
 #endif
 		clear_from(10);
 		c_put_str(TERM_WHITE, "              ", 4, 15);
@@ -5697,9 +5805,9 @@ static bool player_birth_aux(void)
 		}
 
 #ifdef JP
-		if (get_check("よろしいですか？")) break;
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
 #else
-		if (get_check("Are you sure? ")) break;
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
 #endif
 		c_put_str(TERM_WHITE, "              ", 5, 15);
 	}
@@ -5731,9 +5839,9 @@ static bool player_birth_aux(void)
 			}
 		}
 #ifdef JP
-		if (get_check("よろしいですか？")) break;
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
 #else
-		if (get_check("Are you sure? ")) break;
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
 #endif
 		c_put_str(TERM_L_BLUE, player_name, 1, 34);
 		prt("", 1, 34+strlen(player_name));
@@ -5938,7 +6046,7 @@ static bool player_birth_aux(void)
 				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 				/* Obtain the current stat */
-				m = adjust_stat(stat_limit[i], j, TRUE);
+				m = adjust_stat(stat_limit[i], j);
 
 				/* Put the stat */
 				cnv_stat(m, buf);
@@ -6263,9 +6371,9 @@ static bool ask_quick_start(void)
 		char c;
 
 #ifdef JP
-		put_str("クイック・スタートを使いますか？[y/n]", 14, 10);
+		put_str("クイック・スタートを使いますか？[y/N]", 14, 10);
 #else
-		put_str("Use quick start? [y/n]", 14, 10);
+		put_str("Use quick start? [y/N]", 14, 10);
 #endif
 		c = inkey();
 

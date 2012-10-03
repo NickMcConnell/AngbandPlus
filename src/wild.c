@@ -1,17 +1,58 @@
 /* File: wild.c */
 
-/* Purpose: Wilderness generation */
-
 /*
- * Copyright (c) 1989, 1999 James E. Wilson, Robert A. Koeneke,
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke,
  * Robert Ruehlmann
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* Purpose: Wilderness generation */
+
 #include "angband.h"
+
+
+/*
+ * Fill the arrays of floors and walls in the good proportions
+ */
+void set_floor_and_wall(byte type)
+{
+	static byte cur_type = 255;
+	int i;
+
+	/* Already filled */
+	if (cur_type == type) return;
+
+	cur_type = type;
+
+	for (i = 0; i < 100; i++)
+	{
+		int lim1, lim2, lim3;
+
+		lim1 = d_info[type].floor_percent1;
+		lim2 = lim1 + d_info[type].floor_percent2;
+		lim3 = lim2 + d_info[type].floor_percent3;
+
+		if (i < lim1)
+			floor_type[i] = d_info[type].floor1;
+		else if (i < lim2)
+			floor_type[i] = d_info[type].floor2;
+		else if (i < lim3)
+			floor_type[i] = d_info[type].floor3;
+
+		lim1 = d_info[type].fill_percent1;
+		lim2 = lim1 + d_info[type].fill_percent2;
+		lim3 = lim2 + d_info[type].fill_percent3;
+		if (i < lim1)
+			fill_type[i] = d_info[type].fill_type1;
+		else if (i < lim2)
+			fill_type[i] = d_info[type].fill_type2;
+		else if (i < lim3)
+			fill_type[i] = d_info[type].fill_type3;
+	}
+}
 
 
 /*
@@ -434,6 +475,9 @@ static void generate_wilderness_area(int terrain, u32b seed, bool border, bool c
 	int table_size = sizeof(terrain_table[0]) / sizeof(int);
 	int roughness = 1; /* The roughness of the level. */
 
+	/* Unused */
+	(void)border;
+
 	/* The outer wall is easy */
 	if (terrain == TERRAIN_EDGE)
 	{
@@ -770,18 +814,25 @@ void wilderness_gen(void)
 			}
 			else
 			{
-				/* Darken "boring" features */
-				if ((c_ptr->feat <= FEAT_INVIS) ||
-				    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-					(c_ptr->feat <= FEAT_MOUNTAIN) &&
-				     (c_ptr->feat != FEAT_MUSEUM)) ||
-				    (x == 0) || (x == cur_wid-1) ||
-				    (y == 0) || (y == cur_hgt-1))
+				/* Feature code (applying "mimic" field) */
+				byte feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
+
+				if (!is_mirror_grid(c_ptr) && (feat != FEAT_QUEST_ENTER) && (feat != FEAT_ENTRANCE))
 				{
-					/* Forget the grid */
-					c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
+					/* Assume dark */
+					c_ptr->info &= ~(CAVE_GLOW);
+
+					/* Darken "boring" features */
+					if ((feat <= FEAT_INVIS) ||
+					   ((feat >= FEAT_DEEP_WATER) &&
+					    (feat <= FEAT_MOUNTAIN) &&
+					    (feat != FEAT_MUSEUM)))
+					{
+						/* Forget the grid */
+						c_ptr->info &= ~(CAVE_MARK);
+					}
 				}
-				else if (c_ptr->feat == FEAT_ENTRANCE)
+				else if (feat == FEAT_ENTRANCE)
 				{
 					/* Assume lit */
 					c_ptr->info |= (CAVE_GLOW);
@@ -848,11 +899,8 @@ void wilderness_gen(void)
 	if(generate_encounter) ambush_flag = TRUE;
 	generate_encounter = FALSE;
 
-	for (i = 0; i < 100; i++)
-	{
-		floor_type[i] = FEAT_FLOOR;
-		fill_type[i] = FEAT_WALL_EXTRA;
-	}
+	/* Fill the arrays of floors and walls in the good proportions */
+	set_floor_and_wall(0);
 
 	/* Set rewarded quests to finished */
 	for (i = 0; i < max_quests; i++)
@@ -901,8 +949,8 @@ void wilderness_gen_small()
 		cave[j][i].info |= (CAVE_GLOW | CAVE_MARK);
 	}
 
-	cur_hgt = max_wild_y;
-	cur_wid = max_wild_x;
+	cur_hgt = (s16b) max_wild_y;
+	cur_wid = (s16b) max_wild_x;
 
 	if (cur_hgt > MAX_HGT) cur_hgt = MAX_HGT;
 	if (cur_wid > MAX_WID) cur_wid = MAX_WID;
@@ -942,6 +990,9 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
 	int i, num;
 	char *zz[33];
 
+	/* Unused */
+	(void)ymin;
+	(void)ymax;
 
 	/* Paranoia */
 	if (!(buf[0] == 'W')) return (PARSE_ERROR_GENERIC);

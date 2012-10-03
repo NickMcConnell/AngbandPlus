@@ -1,6 +1,6 @@
 
                   ****************************************
-                  **           Hengband 1.4.5           **
+                  **           Hengband 1.6.0           **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -18,5 +18,5 @@
            Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
                        http://hengband.sourceforge.jp/
 
-                  Send bug report to "heng-ml@kmc.gr.jp"
+            Send bug report to "hengband-dev@lists.sourceforge.jp"
  

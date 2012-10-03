@@ -3,11 +3,11 @@
 /* Purpose: Mindcrafter code */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -108,7 +108,6 @@ cptr            p = "必殺剣";
 				{
 					screen_load();
 					return (FALSE);
-					break;
 				}
 
 				case '8':
@@ -638,7 +637,7 @@ static bool cast_hissatsu_spell(int spell)
 				lite_spot(oy, ox);
 				lite_spot(ty, tx);
 
-				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+				if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 					p_ptr->update |= (PU_MON_LITE);
 			}
 		}
@@ -805,11 +804,11 @@ static bool cast_hissatsu_spell(int spell)
 			/* Hack -- attack monsters */
 			if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
 			{
-				if (r_info[m_list[c_ptr->m_idx].r_idx].flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING))
+				if (!monster_living(&r_info[m_ptr->r_idx]))
 				{
 					char m_name[80];
 
-					monster_desc(m_name, &m_list[c_ptr->m_idx], 0);
+					monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 					msg_format("%sには効果がない！", m_name);
 #else

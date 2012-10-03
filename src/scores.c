@@ -1,14 +1,14 @@
 /* File: scores.c */
 
-/* Purpose: Highscores handling */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Highscores handling */
 
 #include "angband.h"
 
@@ -480,6 +480,8 @@ errr top_twenty(void)
 
 	time_t ct = time((time_t*)0);
 
+	errr err;
+
 	/* Clear the record */
 	(void)WIPE(&the_score, high_score);
 
@@ -541,14 +543,30 @@ errr top_twenty(void)
 		strcpy(the_score.how, p_ptr->died_from);
 	}
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Lock (for writing) the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
+	err = fd_lock(highscore_fd, F_WRLCK);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	if (err) return (1);
 
 	/* Add a new entry to the score list, see where it went */
 	j = highscore_add(&the_score);
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Unlock the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
+	err = fd_lock(highscore_fd, F_UNLCK);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	if (err) return (1);
 
 
 	/* Hack -- Display the top fifteen scores */
@@ -669,11 +687,11 @@ strcpy(the_score.day, "今日");
  * show_highclass - selectively list highscores based on class
  * -KMW-
  */
-void show_highclass(int building)
+void show_highclass(void)
 {
 
 	register int i = 0, j, m = 0;
-	int pr, pc, pa, clev/*, al*/;
+	int pr, clev/*, al*/;
 	high_score the_score;
 	char buf[1024], out_val[256];
 
@@ -710,8 +728,6 @@ msg_print("スコア・ファイルが使用できません。");
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		pa = atoi(the_score.p_a);
 		clev = atoi(the_score.cur_lev);
 
 #ifdef JP
@@ -759,7 +775,7 @@ msg_print("スコア・ファイルが使用できません。");
 void race_score(int race_num)
 {
 	register int i = 0, j, m = 0;
-	int pr, pc, pa, clev, lastlev;
+	int pr, clev, lastlev;
 	high_score the_score;
 	char buf[1024], out_val[256], tmp_str[80];
 
@@ -806,8 +822,6 @@ msg_print("スコア・ファイルが使用できません。");
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;
 		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-		pa = atoi(the_score.p_a);
 		clev = atoi(the_score.cur_lev);
 
 		if (pr == race_num)
@@ -877,6 +891,9 @@ msg_print("何かキーを押すとゲームに戻ります");
  */
 void kingly(void)
 {
+	int wid, hgt;
+	int cx, cy;
+
 	/* Hack -- retire in town */
 	dun_level = 0;
 
@@ -896,6 +913,10 @@ void kingly(void)
 	/* Restore the level */
 	p_ptr->lev = p_ptr->max_plv;
 
+	Term_get_size(&wid, &hgt);
+	cy = hgt / 2;
+	cx = wid / 2;
+
 	/* Hack -- Instant Gold */
 	p_ptr->au += 10000000L;
 
@@ -903,28 +924,28 @@ void kingly(void)
 	Term_clear();
 
 	/* Display a crown */
-	put_str("#", 1, 34);
-	put_str("#####", 2, 32);
-	put_str("#", 3, 34);
-	put_str(",,,  $$$  ,,,", 4, 28);
-	put_str(",,=$   \"$$$$$\"   $=,,", 5, 24);
-	put_str(",$$        $$$        $$,", 6, 22);
-	put_str("*>         <*>         <*", 7, 22);
-	put_str("$$         $$$         $$", 8, 22);
-	put_str("\"$$        $$$        $$\"", 9, 22);
-	put_str("\"$$       $$$       $$\"", 10, 23);
-	put_str("*#########*#########*", 11, 24);
-	put_str("*#########*#########*", 12, 24);
+	put_str("#", cy - 11, cx - 1);
+	put_str("#####", cy - 10, cx - 3);
+	put_str("#", cy - 9, cx - 1);
+	put_str(",,,  $$$  ,,,", cy - 8, cx - 7);
+	put_str(",,=$   \"$$$$$\"   $=,,", cy - 7, cx - 11);
+	put_str(",$$        $$$        $$,", cy - 6, cx - 13);
+	put_str("*>         <*>         <*", cy - 5, cx - 13);
+	put_str("$$         $$$         $$", cy - 4, cx - 13);
+	put_str("\"$$        $$$        $$\"", cy - 3, cx - 13);
+	put_str("\"$$       $$$       $$\"", cy - 2, cx - 12);
+	put_str("*#########*#########*", cy - 1, cx - 11);
+	put_str("*#########*#########*", cy, cx - 11);
 
 	/* Display a message */
 #ifdef JP
-put_str("Veni, Vidi, Vici!", 15, 26);
-put_str("来た、見た、勝った！", 16, 25);
-put_str(format("偉大なる%s万歳！", sp_ptr->winner), 17, 22);
+	put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
+	put_str("来た、見た、勝った！", cy + 4, cx - 10);
+	put_str(format("偉大なる%s万歳！", sp_ptr->winner), cy + 5, cx - 11);
 #else
-	put_str("Veni, Vidi, Vici!", 15, 26);
-	put_str("I came, I saw, I conquered!", 16, 21);
-	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), 17, 22);
+	put_str("Veni, Vidi, Vici!", cy + 3, cx - 9);
+	put_str("I came, I saw, I conquered!", cy + 4, cx - 14);
+	put_str(format("All Hail the Mighty %s!", sp_ptr->winner), cy + 5, cx - 13);
 #endif
 
 #ifdef JP
@@ -940,5 +961,5 @@ put_str(format("偉大なる%s万歳！", sp_ptr->winner), 17, 22);
 	flush();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(hgt - 1);
 }
