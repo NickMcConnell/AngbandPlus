@@ -795,12 +795,13 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 	/*
 	 * 全角文字の左半分で表示を終了する場合、
 	 * 重なった文字の右部分を消去。
+	 * (条件追加：タイルの1文字目でない事を確かめるように。)
 	 */
 	{
 
 		int w, h;
 		Term_get_size(&w, &h);
-		if (x != w && (scr_aa[x] & KANJI2))
+		if (x != w && !(scr_aa[x] & 0x80) && (scr_aa[x] & KANJI2))
 		{
 			scr_cc[x] = ' ';
                         scr_aa[x] &= KANJIC;
@@ -1151,6 +1152,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 
 #endif /* USE_TRANSPARENCY */
 
+		/* 2nd byte of bigtile */
+		if (na == 255) continue;
+
 		/* Handle high-bit attr/chars */
 		if ((na & 0x80) && (nc & 0x80))
 		{
@@ -1301,26 +1305,18 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 #ifdef JP
 	/* 全角文字の２バイト目かどうか */
 	int kanji = 0;
-#ifdef USE_IBM
-        byte kmark[80];
 
-	for (x = 0; x < 80; x++) kmark[x] = 0;
-	for (x = 0; x <= x1; x++) {
-              if (iskanji(old_cc[x])) {
-                      kmark[x] = 1;
-                      x++;
-              }
-	}
-	for (x = x1; x >= 0; x--) {
-              if (x < x1 - 2) {
-                      break;
-              }
-              if (kmark[x] && x >= x1 - 2) {
-                      x1 = x;
-              }
-	}
-
-#endif
+	for (x = 0; x < x1; x++)
+		if (!(old_aa[x] & 0x80) && iskanji(old_cc[x]))
+		{
+			if (x == x1 - 1)
+			{
+				x1--;
+				break;
+			}
+			else
+				x++;
+		}
 #endif
 	/* Scan "modified" columns */
 	for (x = x1; x <= x2; x++)
@@ -1732,9 +1728,15 @@ errr Term_fresh(void)
 			{
 
 #ifdef CHUUKEI
-			send_text_to_chuukei_server(tx, ty, 1, oa, &oc);
+				send_text_to_chuukei_server(tx, ty, 1, oa, &oc);
 #endif
-				(void)((*Term->text_hook)(tx, ty, 1, oa, &oc));
+#ifdef JP
+				if (tx + 1 < Term->wid && !(old_aa[tx] & 0x80) && (iskanji(old_cc[tx])))
+					/* Redraw a Kanji */
+					(void)((*Term->text_hook)(tx, ty, 2, oa, &old_cc[tx]));
+				else
+#endif
+					(void)((*Term->text_hook)(tx, ty, 1, oa, &oc));
 			}
 
 			/* Hack -- erase the grid */
@@ -2186,11 +2188,14 @@ errr Term_erase(int x, int y, int n)
          * 重なった文字の左部分を消去。
          */
         if (n > 0 && (scr_aa[x] & KANJI2))
+#else
+        if (n > 0 && (byte)scr_cc[x] == 255 && scr_aa[x] == 255)
+#endif
         {
                 x--;
                 n++;
         }
-#endif
+
 	/* Scan every column */
 	for (i = 0; i < n; i++, x++)
 	{
@@ -2751,8 +2756,10 @@ errr Term_resize(int w, int h)
 
 
 	/* Ignore non-changes */
-	if ((Term->wid == w) && (Term->hgt == h)) return (1);
+	if ((Term->wid == w) && (Term->hgt == h) && (arg_bigtile == use_bigtile))
+		return (1);
 
+	use_bigtile = arg_bigtile;
 
 	/* Minimum dimensions */
 	wid = MIN(Term->wid, w);
@@ -2893,6 +2900,11 @@ errr Term_resize(int w, int h)
 	Term->y1 = 0;
 	Term->y2 = h - 1;
 
+	/* Execute the "resize_hook" hook, if available */
+	if (Term->resize_hook)
+	{
+		Term->resize_hook();
+	}
 
 	/* Success */
 	return (0);

@@ -1193,7 +1193,11 @@ void do_cmd_messages(int num_now)
 
 	char shower[80];
 	char finder[80];
+	int wid, hgt;
 
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Wipe finder */
 	strcpy(finder, "");
@@ -1221,7 +1225,7 @@ void do_cmd_messages(int num_now)
 		Term_clear();
 
 		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < 20) && (i + j < n); j++)
+		for (j = 0; (j < hgt - 4) && (i + j < n); j++)
 		{
 			cptr msg = message_str(i+j);
 
@@ -1229,7 +1233,7 @@ void do_cmd_messages(int num_now)
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, (bool)(i+j < num_now ? TERM_WHITE : TERM_SLATE), msg);
+			Term_putstr(0, hgt-j-3, -1, (bool)(i+j < num_now ? TERM_WHITE : TERM_SLATE), msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -1242,7 +1246,7 @@ void do_cmd_messages(int num_now)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+					Term_putstr(str-msg, hgt-j-3, len, TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -1263,9 +1267,9 @@ void do_cmd_messages(int num_now)
 
 		/* Display prompt (not very informative) */
 #ifdef JP
-		prt("[ 'p' で更に古いもの, 'n' で更に新しいもの, '/' で検索, ESC で中断 ]", 23, 0);
+		prt("[ 'p' で更に古いもの, 'n' で更に新しいもの, '/' で検索, ESC で中断 ]", hgt - 1, 0);
 #else
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
 #endif
 
 
@@ -1303,9 +1307,9 @@ void do_cmd_messages(int num_now)
 		{
 			/* Prompt */
 #ifdef JP
-			prt("強調: ", 23, 0);
+			prt("強調: ", hgt - 1, 0);
 #else
-			prt("Show: ", 23, 0);
+			prt("Show: ", hgt - 1, 0);
 #endif
 
 
@@ -1323,9 +1327,9 @@ void do_cmd_messages(int num_now)
 
 			/* Prompt */
 #ifdef JP
-			prt("検索: ", 23, 0);
+			prt("検索: ", hgt - 1, 0);
 #else
-			prt("Find: ", 23, 0);
+			prt("Find: ", hgt - 1, 0);
 #endif
 
 
@@ -3700,6 +3704,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, 255);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
 
 				/* Label the Current values */
 #ifdef JP
@@ -3712,6 +3723,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, 255);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 #ifdef JP
@@ -3799,6 +3817,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, 255);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
 
 				/* Label the Current values */
 #ifdef JP
@@ -3811,6 +3836,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, 255);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 #ifdef JP
@@ -3898,6 +3930,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
+				if (use_bigtile)
+				{
+					if (da & 0x80)
+						Term_putch(44, 19, 255, 255);
+					else
+						Term_putch(44, 19, 0, ' ');
+				}
 
 				/* Label the Current values */
 #ifdef JP
@@ -3910,6 +3949,13 @@ void do_cmd_visuals(void)
 
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
+				if (use_bigtile)
+				{
+					if (ca & 0x80)
+						Term_putch(44, 20, 255, 255);
+					else
+						Term_putch(44, 20, 0, ' ');
+				}
 
 				/* Prompt */
 #ifdef JP
@@ -4696,6 +4742,9 @@ void do_cmd_load_screen(void)
 
 	char buf[1024];
 
+	int wid, hgt;
+
+	Term_get_size(&wid, &hgt);
 
 	/* Hack -- drop permissions */
 	safe_setuid_drop();
@@ -4726,13 +4775,13 @@ void do_cmd_load_screen(void)
 
 
 	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; okay && (y < hgt); y++)
 	{
 		/* Get a line of data */
 		if (photo_fgets(fff, buf, 1024)) okay = FALSE;
 
 		/* Show each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < wid - 1; x++)
 		{
 			/* Put the attr/char */
 			Term_draw(x, y, TERM_WHITE, buf[x]);
@@ -4744,13 +4793,13 @@ void do_cmd_load_screen(void)
 
 
 	/* Dump the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; okay && (y < hgt); y++)
 	{
 		/* Get a line of data */
 		if (photo_fgets(fff, buf, 1024)) okay = FALSE;
 
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < wid - 1; x++)
 		{
 			/* Get the attr/char */
 			(void)(Term_what(x, y, &a, &c));
@@ -5138,6 +5187,10 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 		0,
 	};
 
+	int wid, hgt;
+
+	Term_get_size(&wid, &hgt);
+
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
@@ -5185,14 +5238,14 @@ void do_cmd_save_screen_html_aux(char *filename, int message)
 	}
 
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < hgt; y++)
 	{
 		/* Start the row */
 		if (y != 0)
 			fprintf(fff, "\n");
 
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < wid - 1; x++)
 		{
 			int rv, gv, bv;
 			char *cc = NULL;
@@ -5311,6 +5364,10 @@ void do_cmd_save_screen(void)
 {
 	bool old_use_graphics = use_graphics;
 
+	int wid, hgt;
+
+	Term_get_size(&wid, &hgt);
+
 	if (old_use_graphics)
 	{
 		use_graphics = FALSE;
@@ -5324,9 +5381,9 @@ void do_cmd_save_screen(void)
 	}
 
 #ifdef JP
-	if (get_check("HTMLで出力しますか？"))
+	if (get_check_strict("HTMLで出力しますか？", CHECK_NO_HISTORY))
 #else
-	if (get_check("Save screen dump as HTML? "))
+	if (get_check_strict("Save screen dump as HTML? ", CHECK_NO_HISTORY))
 #endif
 	{
 		do_cmd_save_screen_html();
@@ -5383,10 +5440,10 @@ void do_cmd_save_screen(void)
 
 
 		/* Dump the screen */
-		for (y = 0; y < 24; y++)
+		for (y = 0; y < hgt; y++)
 		{
 			/* Dump each row */
-			for (x = 0; x < 79; x++)
+			for (x = 0; x < wid - 1; x++)
 			{
 				/* Get the attr/char */
 				(void)(Term_what(x, y, &a, &c));
@@ -5407,10 +5464,10 @@ void do_cmd_save_screen(void)
 
 
 		/* Dump the screen */
-		for (y = 0; y < 24; y++)
+		for (y = 0; y < hgt; y++)
 		{
 			/* Dump each row */
-			for (x = 0; x < 79; x++)
+			for (x = 0; x < wid - 1; x++)
 			{
 				/* Get the attr/char */
 				(void)(Term_what(x, y, &a, &c));
@@ -6581,7 +6638,7 @@ static void do_cmd_knowledge_objects(void)
 		object_kind *k_ptr = &k_info[k];
 
 		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		if (k_ptr->gen_flags & (TRG_INSTA_ART)) continue;
 
 		/* List known flavored objects */
 		if (k_ptr->flavor && k_ptr->aware)

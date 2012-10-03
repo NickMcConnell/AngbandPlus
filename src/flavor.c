@@ -1256,7 +1256,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
-			if ((k_ptr->flags3 & TR3_INSTA_ART) && aware) break;
+			if ((k_ptr->gen_flags & TRG_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = amulet_adj[indexx];
@@ -1283,7 +1283,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
-			if ((k_ptr->flags3 & TR3_INSTA_ART) && aware) break;
+			if ((k_ptr->gen_flags & TRG_INSTA_ART) && aware) break;
 
 			/* Color the object */
 			modstr = ring_adj[indexx];
@@ -2087,6 +2087,16 @@ t = object_desc_str(t, "(召喚のルーン)");
 t = object_desc_str(t, "(邪悪なルーン)");
 #else
 					t = object_desc_str(t, " (Gleaming Black Runes)");
+#endif
+
+					break;
+				}
+				case CHEST_ALARM:
+				{
+#ifdef JP
+t = object_desc_str(t, "(警報装置)");
+#else
+					t = object_desc_str(t, " (Alarm)");
 #endif
 
 					break;

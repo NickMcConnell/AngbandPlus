@@ -116,10 +116,6 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f1) = a_ptr->flags1;
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
-		if (!cursed_p(o_ptr))
-		{
-			(*f3) &= ~(TR3_HEAVY_CURSE | TR3_CURSED);
-		}
 	}
 
 	/* Ego-item */
@@ -276,11 +272,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
-
-			if (!cursed_p(o_ptr))
-			{
-				(*f3) &= ~(TR3_HEAVY_CURSE | TR3_CURSED);
-			}
 		}
 
 		/* Random artifact ! */
@@ -341,14 +332,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= (TR2_RES_ACID | TR2_RES_ELEC | TR2_RES_FIRE | TR2_RES_COLD);;
 		}
-	}
-
-	if (cursed_p(o_ptr))
-	{
-		if (o_ptr->art_flags3 & TR3_CURSED)
-			(*f3) |= (TR3_CURSED);
-		if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
-			(*f3) |= (TR3_HEAVY_CURSE);
 	}
 }
 
@@ -2408,17 +2391,20 @@ bool identify_fully_aux(object_type *o_ptr)
 	cptr            info[128];
 	u32b flag;
 	char o_name[MAX_NLEN];
+	int wid, hgt;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	if( o_ptr->name1)
+	/* Extract the description */
 	{
-		char temp[70*20];
+		char temp[70 * 20];
 
-		roff_to_buf( a_text + a_info[ o_ptr->name1 ].text ,77-15,temp);
-		for(j=0;temp[j];j+=1+strlen(&temp[j]))
-		{ info[i]=&temp[j];i++;}
+		roff_to_buf(o_ptr->name1 ? (a_text + a_info[o_ptr->name1].text) :
+		            (k_text + k_info[lookup_kind(o_ptr->tval, o_ptr->sval)].text),
+		            77 - 15, temp);
+		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
+		{ info[i] = &temp[j]; i++;}
 	}
 
 	/* Mega-Hack -- describe activation */
@@ -2959,6 +2945,15 @@ info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
 #endif
 
 	}
+	if (f3 & (TR3_SLAY_HUMAN))
+	{
+#ifdef JP
+info[i++] = "それは人間に対して特に恐るべき力を発揮する。";
+#else
+		info[i++] = "It is especially deadly against humans.";
+#endif
+
+	}
 
 	if (f1 & (TR1_FORCE_WEAPON))
 	{
@@ -3388,34 +3383,6 @@ info[i++] = "それは矢／ボルト／弾を非常に早く発射することができる。";
 
 	}
 
-	if (f3 & (TR3_DRAIN_EXP))
-	{
-#ifdef JP
-info[i++] = "それは経験値を吸い取る。";
-#else
-		info[i++] = "It drains experience.";
-#endif
-
-	}
-	if (f3 & (TR3_TELEPORT))
-	{
-#ifdef JP
-info[i++] = "それはランダムなテレポートを引き起こす。";
-#else
-		info[i++] = "It induces random teleportation.";
-#endif
-
-	}
-	if (f3 & TR3_AGGRAVATE)
-	{
-#ifdef JP
-info[i++] = "それは付近のモンスターを怒らせる。";
-#else
-		info[i++] = "It aggravates nearby creatures.";
-#endif
-
-	}
-
 	if (f3 & TR3_BLESSED)
 	{
 #ifdef JP
@@ -3428,7 +3395,7 @@ info[i++] = "それは神に祝福されている。";
 
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & TR3_PERMA_CURSE)
+		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 		{
 #ifdef JP
 info[i++] = "それは永遠の呪いがかけられている。";
@@ -3437,7 +3404,7 @@ info[i++] = "それは永遠の呪いがかけられている。";
 #endif
 
 		}
-		else if (f3 & TR3_HEAVY_CURSE)
+		else if (o_ptr->curse_flags & TRC_HEAVY_CURSE)
 		{
 #ifdef JP
 info[i++] = "それは強力な呪いがかけられている。";
@@ -3457,12 +3424,156 @@ info[i++] = "それは呪われている。";
 		}
 	}
 
-	if (f3 & TR3_TY_CURSE)
+	if ((f3 & TR3_TY_CURSE) || (o_ptr->curse_flags & TRC_TY_CURSE))
 	{
 #ifdef JP
 info[i++] = "それは太古の禍々しい怨念が宿っている。";
 #else
 		info[i++] = "It carries an ancient foul curse.";
+#endif
+
+	}
+	if ((f3 & TR3_AGGRAVATE) || (o_ptr->curse_flags & TRC_AGGRAVATE))
+	{
+#ifdef JP
+info[i++] = "それは付近のモンスターを怒らせる。";
+#else
+		info[i++] = "It aggravates nearby creatures.";
+#endif
+
+	}
+	if ((f3 & (TR3_DRAIN_EXP)) || (o_ptr->curse_flags & TRC_DRAIN_EXP))
+	{
+#ifdef JP
+info[i++] = "それは経験値を吸い取る。";
+#else
+		info[i++] = "It drains experience.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_SLOW_REGEN)
+	{
+#ifdef JP
+info[i++] = "それは回復力を弱める。";
+#else
+		info[i++] = "It slows your regenerative powers.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_ADD_L_CURSE)
+	{
+#ifdef JP
+info[i++] = "それは弱い呪いを増やす。";
+#else
+		info[i++] = "It adds weak curses.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_ADD_H_CURSE)
+	{
+#ifdef JP
+info[i++] = "それは強力な呪いを増やす。";
+#else
+		info[i++] = "It adds heavy curses.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_CALL_ANIMAL)
+	{
+#ifdef JP
+info[i++] = "それは動物を呼び寄せる。";
+#else
+		info[i++] = "It attracts animals.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_CALL_DEMON)
+	{
+#ifdef JP
+info[i++] = "それは悪魔を呼び寄せる。";
+#else
+		info[i++] = "It attracts demons.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_CALL_DRAGON)
+	{
+#ifdef JP
+info[i++] = "それはドラゴンを呼び寄せる。";
+#else
+		info[i++] = "It attracts dragons.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_COWARDICE)
+	{
+#ifdef JP
+info[i++] = "それは恐怖感を引き起こす。";
+#else
+		info[i++] = "It makes you subject to cowardice.";
+#endif
+
+	}
+	if ((f3 & (TR3_TELEPORT)) || (o_ptr->curse_flags & TRC_TELEPORT))
+	{
+#ifdef JP
+info[i++] = "それはランダムなテレポートを引き起こす。";
+#else
+		info[i++] = "It induces random teleportation.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_LOW_MELEE)
+	{
+#ifdef JP
+info[i++] = "それは攻撃を外しやすい。";
+#else
+		info[i++] = "It causes you miss blows.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_LOW_AC)
+	{
+#ifdef JP
+info[i++] = "それは攻撃を受けやすい。";
+#else
+		info[i++] = "It helps your enemys' blows.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_LOW_MAGIC)
+	{
+#ifdef JP
+info[i++] = "それは魔法を唱えにくくする。";
+#else
+		info[i++] = "It is unsuitable for spellcasting.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_FAST_DIGEST)
+	{
+#ifdef JP
+info[i++] = "それはあなたの新陳代謝を速くする。";
+#else
+		info[i++] = "It speeds your metabolism.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_DRAIN_HP)
+	{
+#ifdef JP
+info[i++] = "それはあなたの体力を吸い取る。";
+#else
+		info[i++] = "It drains you.";
+#endif
+
+	}
+	if (o_ptr->curse_flags & TRC_DRAIN_MANA)
+	{
+#ifdef JP
+info[i++] = "それはあなたの魔力を吸い取る。";
+#else
+		info[i++] = "It drains your mana.";
 #endif
 
 	}
@@ -3523,12 +3634,15 @@ info[i++] = "それは冷気では傷つかない。";
 	/* Save the screen */
 	screen_save();
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Display Item name */
 	object_desc(o_name, o_ptr, TRUE, 3);
 	prt(format("%s", o_name), 0, 0);
 
 	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", k, 13);
+	for (k = 1; k < hgt; k++) prt("", k, 13);
 
 	/* Label the information */
 	if ((o_ptr->tval == TV_STATUE) && (o_ptr->sval == SV_PHOTO))
@@ -3553,7 +3667,7 @@ prt("     アイテムの能力:", 1, 15);
 		prt(info[j], k++, 15);
 
 		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j+1 < i))
+		if ((k == hgt - 2) && (j+1 < i))
 		{
 #ifdef JP
 prt("-- 続く --", k, 15);
@@ -4252,30 +4366,38 @@ void display_equip(void)
 int show_inven(int target_item)
 {
 	int             i, j, k, l, z = 0;
-	int             col, len, lim;
+	int             col, cur_col, len, lim;
 	object_type     *o_ptr;
 	char            o_name[MAX_NLEN];
 	char            tmp_val[80];
 	int             out_index[23];
 	byte            out_color[23];
-	char            out_desc[23][80];
+	char            out_desc[23][MAX_NLEN];
 	int             target_item_label = 0;
+	int             wid, hgt;
 
 
 	/* Starting column */
 	col = command_gap;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Default "max-length" */
-	len = 79 - col;
+	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
 
 	/* Require space for icon */
-	if (show_item_graph) lim -= 2;
+	if (show_item_graph)
+	{
+		lim -= 2;
+		if (use_bigtile) lim--;
+	}
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4322,7 +4444,11 @@ int show_inven(int target_item)
 		if (show_weights) l += 9;
 
 		/* Account for icon if displayed */
-		if (show_item_graph) l += 2;
+		if (show_item_graph)
+		{
+			l += 2;
+			if (use_bigtile) l++;
+		}
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -4332,7 +4458,7 @@ int show_inven(int target_item)
 	}
 
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -4366,6 +4492,8 @@ int show_inven(int target_item)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j + 1, col);
 
+		cur_col = col + 3;
+
 		/* Display graphics for object, if desired */
 		if (show_item_graph)
 		{
@@ -4376,12 +4504,19 @@ int show_inven(int target_item)
 			if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_draw(cur_col, j + 1, a, c);
+			if (use_bigtile)
+			{
+				cur_col++;
+				if (a & 0x80)
+					Term_draw(cur_col, j + 1, 255, 255);
+			}
+			cur_col += 2;
 		}
 
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, show_item_graph ? (col + 5) : (col + 3));
+		c_put_str(out_color[j], out_desc[j], j + 1, cur_col);
 
 		/* Display the weight if needed */
 		if (show_weights)
@@ -4393,7 +4528,7 @@ int show_inven(int target_item)
 			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -4414,24 +4549,28 @@ int show_inven(int target_item)
 int show_equip(int target_item)
 {
 	int             i, j, k, l;
-	int             col, len, lim;
+	int             col, cur_col, len, lim;
 	object_type     *o_ptr;
 	char            tmp_val[80];
 	char            o_name[MAX_NLEN];
 	int             out_index[23];
 	byte            out_color[23];
-	char            out_desc[23][80];
+	char            out_desc[23][MAX_NLEN];
 	int             target_item_label = 0;
+	int             wid, hgt;
 
 
 	/* Starting column */
 	col = command_gap;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
 	/* Maximal length */
-	len = 79 - col;
+	len = wid - col - 1;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for labels (if needed) */
 #ifdef JP
@@ -4517,9 +4656,9 @@ int show_equip(int target_item)
 
 	/* Hack -- Find a column to start in */
 #ifdef JP
-        col = (len > 74) ? 0 : (79 - len);
+        col = (len > wid - 6) ? 0 : (wid - len - 1);
 #else
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
 #endif
 
 
@@ -4555,6 +4694,9 @@ int show_equip(int target_item)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
+		cur_col = col + 3;
+
+		/* Display graphics for object, if desired */
 		if (show_item_graph)
 		{
 			byte a = object_attr(o_ptr);
@@ -4564,7 +4706,14 @@ int show_equip(int target_item)
 			if (a & 0x80) a |= 0x40;
 #endif
 
-			Term_draw(col + 3, j + 1, a, c);
+			Term_draw(cur_col, j + 1, a, c);
+			if (use_bigtile)
+			{
+				cur_col++;
+				if (a & 0x80)
+					Term_draw(cur_col, j + 1, 255, 255);
+			}
+			cur_col += 2;
 		}
 
 		/* Use labels */
@@ -4577,22 +4726,21 @@ int show_equip(int target_item)
 			(void)sprintf(tmp_val, "%-14s: ", mention_use(i));
 #endif
 
-			put_str(tmp_val, j+1, show_item_graph ? col + 5 : col + 3);
+			put_str(tmp_val, j+1, cur_col);
 
 			/* Display the entry itself */
 #ifdef JP
-			c_put_str(out_color[j], out_desc[j], j+1, show_item_graph ? col + 14 : col + 12);
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 9);
 #else
-			c_put_str(out_color[j], out_desc[j], j+1, show_item_graph ? col + 21 : col + 19);
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col + 16);
 #endif
-
 		}
 
 		/* No labels */
 		else
 		{
 			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, show_item_graph ? col + 5 : col + 3);
+			c_put_str(out_color[j], out_desc[j], j+1, cur_col);
 		}
 
 		/* Display the weight if needed */
@@ -4605,7 +4753,7 @@ int show_equip(int target_item)
 			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j+1, 71);
+			put_str(tmp_val, j+1, wid - 9);
 		}
 	}
 
@@ -5835,16 +5983,20 @@ int show_floor(int target_item, int y, int x)
 
 	int out_index[23];
 	byte out_color[23];
-	char out_desc[23][80];
+	char out_desc[23][MAX_NLEN];
 	int target_item_label = 0;
 
 	int floor_list[23], floor_num;
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Default length */
-	len = 79 - 50;
+	len = 20;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = wid - 4;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -5886,7 +6038,7 @@ int show_floor(int target_item, int y, int x)
 	}
 
 	/* Find the column to start in */
-	col = (len > 76) ? 0 : (79 - len);
+	col = (len > wid - 4) ? 0 : (wid - len - 1);
 
 	/* Output each entry */
 	for (j = 0; j < k; j++)
@@ -5933,7 +6085,7 @@ int show_floor(int target_item, int y, int x)
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j + 1, 71);
+			put_str(tmp_val, j + 1, wid - 9);
 		}
 	}
 

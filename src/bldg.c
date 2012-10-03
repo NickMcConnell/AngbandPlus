@@ -2765,7 +2765,7 @@ msg_print("あなたは絶叫して目を覚ました。");
 							int i;
 							for (i = 0; i < 72; i++)
 							{
-								p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*0x10000;
+								p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
 							}
 							for (; i < 108; i++)
 							{
@@ -3015,7 +3015,7 @@ static void town_history(void)
 
 	/* Peruse the building help file */
 #ifdef JP
-(void)show_file(TRUE, "bldg_j.txt", NULL, 0, 0);
+(void)show_file(TRUE, "jbldg.txt", NULL, 0, 0);
 #else
 	(void)show_file(TRUE, "bldg.txt", NULL, 0, 0);
 #endif
@@ -3083,6 +3083,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 if (f1 & TR1_FORCE_WEAPON)     compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 1*mult, "理力:", f1, f2, f3, TERM_L_BLUE);
 if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "動物:", f1, f2, f3, TERM_YELLOW);
 if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "邪悪:", f1, f2, f3, TERM_YELLOW);
+if (f3 & TR3_SLAY_HUMAN)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "人間:", f1, f2, f3, TERM_YELLOW);
 if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "不死:", f1, f2, f3, TERM_YELLOW);
 if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "悪魔:", f1, f2, f3, TERM_YELLOW);
 if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "オーク:", f1, f2, f3, TERM_YELLOW);
@@ -3099,6 +3100,7 @@ if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, co
 	if (f1 & TR1_FORCE_WEAPON)     compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 1*mult, "Force  :", f1, f2, f3, TERM_L_BLUE);
 	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "Animals:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "Evil:", f1, f2, f3, TERM_YELLOW);
+	if (f3 & TR3_SLAY_HUMAN)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "Human:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Undead:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Demons:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Orcs:", f1, f2, f3, TERM_YELLOW);

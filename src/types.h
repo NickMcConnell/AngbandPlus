@@ -108,6 +108,8 @@ struct object_kind
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
 
+	u32b gen_flags;		/* flags for generate */
+
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
 
@@ -171,6 +173,8 @@ struct artifact_type
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
 
+	u32b gen_flags;		/* flags for generate */
+
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
@@ -207,6 +211,8 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+
+	u32b gen_flags;		/* flags for generate */
 };
 
 
@@ -519,6 +525,8 @@ struct object_type
 	u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
 	u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
 	u32b art_flags3;        /* Flags, set 3  Zangband */
+
+	u32b curse_flags;        /* Flags for curse */
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
@@ -1174,12 +1182,9 @@ struct player_type
 	bool sustain_con;	/* Keep constitution */
 	bool sustain_chr;	/* Keep charisma */
 
-	bool aggravate;		/* Aggravate monsters */
-	bool teleport;		/* Random teleporting */
+	u32b cursed;            /* Player is cursed */
 	bool sutemi;
 	bool counter;
-
-	bool exp_drain;		/* Experience draining */
 
 	bool can_swim;			/* No damage falling */
 	bool ffall;			/* No damage falling */
@@ -1214,6 +1219,8 @@ struct player_type
 	s16b to_d[2];			/* Bonus to dam (wield) */
 	s16b to_d_m;			/* Bonus to dam (misc) */
 	s16b to_a;			/* Bonus to ac */
+
+	s16b to_m_chance;		/* Minusses to cast chance */
 
 	bool ryoute;
 	bool migite;

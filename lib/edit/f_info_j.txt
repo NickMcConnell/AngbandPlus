@@ -559,13 +559,17 @@ N:90:コンパクトルーン
 E:compact rune
 G:^:D
 
+N:91:警報装置
+E:alarm
+G:^:R
+
 N:93:花
 E:flower
 G:::G
 
 N:94:草むら
 E:brake
-G:#:g
+G:::g
 
 N:95:博物館
 E:museum

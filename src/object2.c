@@ -774,7 +774,7 @@ void object_aware(object_type *o_ptr)
 	o_ptr->aware = TRUE;
 #endif /* SCRIPT_OBJ_KIND */
 
-	if(mihanmei && !(k_info[o_ptr->k_idx].flags3 & TR3_INSTA_ART) && record_ident &&
+	if(mihanmei && !(k_info[o_ptr->k_idx].gen_flags & TRG_INSTA_ART) && record_ident &&
 	   !death && ((o_ptr->tval >= TV_AMULET && o_ptr->tval <= TV_POTION) || (o_ptr->tval == TV_FOOD)))
 	{
 		object_type forge;
@@ -931,6 +931,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f1 & TR1_FORCE_WEAPON) {tmp_cost += 2500;count++;}
 	if (f1 & TR1_SLAY_ANIMAL) {tmp_cost += 1800;count++;}
 	if (f1 & TR1_SLAY_EVIL) {tmp_cost += 2300;count++;}
+	if (f3 & TR3_SLAY_HUMAN) {tmp_cost += 1800;count++;}
 	if (f1 & TR1_SLAY_UNDEAD) {tmp_cost += 1800;count++;}
 	if (f1 & TR1_SLAY_DEMON) {tmp_cost += 1800;count++;}
 	if (f1 & TR1_SLAY_ORC) {tmp_cost += 1500;count++;}
@@ -988,13 +989,11 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
 	if (f3 & TR3_SH_COLD) total += 5000;
-	if (f3 & TR3_QUESTITEM) total += 0;
 	if (f3 & TR3_NO_TELE) total -= 10000;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
-	if (f3 & TR3_INSTA_ART) total += 0;
 	if (f3 & TR3_FEATHER) total += 1250;
 	if (f3 & TR3_LITE) total += 1250;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
@@ -1012,16 +1011,16 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_DRAIN_EXP) total -= 12500;
 	if (f3 & TR3_TELEPORT)
 	{
-		if (o_ptr->ident & IDENT_CURSED)
+		if (cursed_p(o_ptr))
 			total -= 7500;
 		else
 			total += 250;
 	}
 	if (f3 & TR3_AGGRAVATE) total -= 10000;
 	if (f3 & TR3_BLESSED) total += 750;
-	if (f3 & TR3_CURSED) total -= 5000;
-	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
-	if (f3 & TR3_PERMA_CURSE) total -= 15000;
+	if (o_ptr->curse_flags & TRC_CURSED) total -= 5000;
+	if (o_ptr->curse_flags & TRC_HEAVY_CURSE) total -= 12500;
+	if (o_ptr->curse_flags & TRC_PERMA_CURSE) total -= 15000;
 
 	/* Also, give some extra for activatable powers... */
 	if (o_ptr->art_name && (o_ptr->art_flags3 & TR3_ACTIVATE))
@@ -1041,7 +1040,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		else if (type == ACT_BA_COLD_2) total += 1250;
 		else if (type == ACT_BA_ELEC_2) total += 1500;
 		else if (type == ACT_DRAIN_2) total += 750;
-		else if (type == ACT_VAMPIRE_1) total = 1000;
+		else if (type == ACT_VAMPIRE_1) total += 1000;
 		else if (type == ACT_BO_MISS_2) total += 1000;
 		else if (type == ACT_BA_FIRE_2) total += 1750;
 		else if (type == ACT_BA_COLD_3) total += 2500;
@@ -1058,6 +1057,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		else if (type == ACT_QUAKE) total += 600;
 		else if (type == ACT_TERROR) total += 2500;
 		else if (type == ACT_TELE_AWAY) total += 2000;
+		else if (type == ACT_BANISH_EVIL) total += 2000;
 		else if (type == ACT_GENOCIDE) total += 10000;
 		else if (type == ACT_MASS_GENO) total += 10000;
 		else if (type == ACT_CHARM_ANIMAL) total += 7500;
@@ -1072,6 +1072,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		else if (type == ACT_SUMMON_UNDEAD) total += 20000;
 		else if (type == ACT_CURE_LW) total += 500;
 		else if (type == ACT_CURE_MW) total += 750;
+		else if (type == ACT_CURE_POISON) total += 1000;
 		else if (type == ACT_REST_LIFE) total += 7500;
 		else if (type == ACT_REST_ALL) total += 15000;
 		else if (type == ACT_CURE_700) total += 10000;
@@ -1311,11 +1312,9 @@ s32b object_value_real(object_type *o_ptr)
 			/* Factor in the bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
 
-			/* Hack -- Factor in extra damage dice */
-			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
-			{
-				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
-			}
+			/* Hack -- Factor in extra damage dice and sides */
+			value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 250L;
+			value += (o_ptr->ds - k_ptr->ds) * o_ptr->dd * 250L;
 
 			/* Done */
 			break;
@@ -1332,11 +1331,9 @@ s32b object_value_real(object_type *o_ptr)
 			/* Factor in the bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
 
-			/* Hack -- Factor in extra damage dice */
-			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
-			{
-				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 5L;
-			}
+			/* Hack -- Factor in extra damage dice and sides */
+			value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 5L;
+			value += (o_ptr->ds - k_ptr->ds) * o_ptr->dd * 5L;
 
 			/* Done */
 			break;
@@ -1679,7 +1676,7 @@ bool object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		return (0);
 
 	/* Hack -- Require identical "cursed" status */
-	if ((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) return (0);
+	if (o_ptr->curse_flags != j_ptr->curse_flags) return (0);
 
 	/* Hack -- Require identical "broken" status */
 	if ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) return (0);
@@ -1881,7 +1878,12 @@ void object_prep(object_type *o_ptr, int k_idx)
 	if (get_object_cost(o_ptr) <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Hack -- cursed items are always "cursed" */
-	if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
+	if (k_ptr->gen_flags & (TRG_CURSED)) o_ptr->curse_flags |= (TRC_CURSED);
+	if (k_ptr->gen_flags & (TRG_HEAVY_CURSE)) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+	if (k_ptr->gen_flags & (TRG_PERMA_CURSE)) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+	if (k_ptr->gen_flags & (TRG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
+	if (k_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
+	if (k_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
 }
 
 
@@ -2057,8 +2059,8 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
 
-		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
-		if (!(a_ptr->flags3 & TR3_INSTA_ART)) continue;
+		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
+		if (!(a_ptr->gen_flags & TRG_INSTA_ART)) continue;
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > dun_level)
@@ -2093,7 +2095,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		o_ptr->name1 = i;
 
 		/* Hack: Some artifacts get random extra powers */
-		random_artifact_resistance(o_ptr);
+		random_artifact_resistance(o_ptr, a_ptr);
 
 		/* Success */
 		return (TRUE);
@@ -2133,9 +2135,9 @@ static bool make_artifact(object_type *o_ptr)
 		/* Cannot make an artifact twice */
 		if (a_ptr->cur_num) continue;
 
-		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
+		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
 
-		if (a_ptr->flags3 & TR3_INSTA_ART) continue;
+		if (a_ptr->gen_flags & TRG_INSTA_ART) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -2158,7 +2160,7 @@ static bool make_artifact(object_type *o_ptr)
 		o_ptr->name1 = i;
 
 		/* Hack: Some artifacts get random extra powers */
-		random_artifact_resistance(o_ptr);
+		random_artifact_resistance(o_ptr, a_ptr);
 
 		/* Success */
 		return (TRUE);
@@ -2264,7 +2266,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
 
 		/* Cursed (if "bad") */
-		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->ident |= (IDENT_CURSED);
+		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->curse_flags |= TRC_CURSED;
 	}
 
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return;
@@ -2330,28 +2332,20 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				case EGO_HA:
 					if (one_in_(4) && (level > 40))
 						o_ptr->art_flags1 |= TR1_BLOWS;
-					one_sustain(o_ptr);
 					break;
 				case EGO_DF:
 					if (one_in_(3))
 						o_ptr->art_flags2 |= TR2_RES_POIS;
-					one_high_resistance(o_ptr);
-					one_sustain(o_ptr);
-					break;
-				case EGO_SLAY_DRAGON:
-					one_ele_resistance(o_ptr);
+					if (one_in_(3))
+						o_ptr->art_flags3 |= TR3_WARNING;
 					break;
 				case EGO_KILL_DRAGON:
-					one_ele_resistance(o_ptr);
 					if (one_in_(3))
 						o_ptr->art_flags2 |= TR2_RES_POIS;
-					one_dragon_ele_resistance(o_ptr);
+					break;
 				case EGO_WEST:
 					if (one_in_(3))
 						o_ptr->art_flags2 |= TR2_RES_FEAR;
-					break;
-				case EGO_CHAOTIC:
-					one_resistance(o_ptr);
 					break;
 				case EGO_SLAYING_WEAPON:
 					if (one_in_(3)) /* double damage */
@@ -2381,7 +2375,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 					break;
 				case EGO_TRUMP:
-					one_high_resistance(o_ptr);
 					if (one_in_(5))
 						o_ptr->art_flags1 |= TR1_SLAY_DEMON;
 					if (one_in_(7))
@@ -2394,7 +2387,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->art_flags1 |= TR1_DEX;
 					if (one_in_(5))
 						o_ptr->art_flags2 |= TR2_RES_FEAR;
-					one_high_resistance(o_ptr);
 					break;
 				case EGO_SHARPNESS:
 					o_ptr->pval = m_bonus(5, level) + 1;
@@ -2405,8 +2397,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					else
 						o_ptr->pval = m_bonus(3, level);
 					break;
-				case EGO_BLESS_BLADE:
-					one_ability(o_ptr);
+				case EGO_VAMPIRIC:
+					if (one_in_(5))
+						o_ptr->art_flags3 |= TR3_SLAY_HUMAN;
 					break;
 				}
 
@@ -2450,13 +2443,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					break;
 				}
 				o_ptr->name2 = get_random_ego(INVEN_BOW, TRUE, level);
-
-				switch (o_ptr->name2)
-				{
-				case EGO_EXTRA_MIGHT:
-					one_resistance(o_ptr);
-					break;
-				}
 			}
 
 			break;
@@ -2555,7 +2541,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		}
 
 		/* Cursed (if "bad") */
-		if (o_ptr->to_a < 0) o_ptr->ident |= (IDENT_CURSED);
+		if (o_ptr->to_a < 0) o_ptr->curse_flags |= TRC_CURSED;
 	}
 
 
@@ -2597,7 +2583,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					else
 					{
 						o_ptr->name2 = EGO_PERMANENCE;
-						one_high_resistance(o_ptr);
 					}
 					break;
 				}
@@ -2619,10 +2604,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case EGO_RESISTANCE:
 						if (one_in_(4))
 							o_ptr->art_flags2 |= TR2_RES_POIS;
-						one_high_resistance(o_ptr);
 						break;
 					case EGO_ELVENKIND:
-						one_high_resistance(o_ptr);
 						break;
 					case EGO_DWARVEN:
 						if (o_ptr->tval != TV_HARD_ARMOR)
@@ -2707,13 +2690,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					break;
 				}
 				o_ptr->name2 = get_random_ego(INVEN_HANDS, TRUE, level);
-
-				switch (o_ptr->name2)
-				{
-				case EGO_POWER:
-					one_high_resistance(o_ptr);
-					break;
-				}
 			}
 			
 			/* Very cursed */
@@ -2784,17 +2760,10 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					switch (o_ptr->name2)
 					{
 					case EGO_MAGI:
-						one_high_resistance(o_ptr);
-						one_ability(o_ptr);
-						break;
 					case EGO_MIGHT:
-						one_high_resistance(o_ptr);
-						break;
 					case EGO_TELEPATHY:
 					case EGO_REGENERATION:
-						break;
 					case EGO_LORDLINESS:
-						one_high_resistance(o_ptr);
 						break;
 					case EGO_SEEING:
 						if (one_in_(3)) o_ptr->art_flags3 |= TR3_TELEPATHY;
@@ -2884,9 +2853,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 				switch (o_ptr->name2)
 				{
-				case EGO_AMAN:
-					one_high_resistance(o_ptr);
-					break;
 				case EGO_BAT:
 					o_ptr->to_d -= 6;
 					o_ptr->to_h -= 6;
@@ -2939,7 +2905,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -2968,7 +2934,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -2993,7 +2959,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3014,7 +2980,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				{
 					do
 					{
-						one_loadly_high_resistance(o_ptr);
+						one_lordly_high_resistance(o_ptr);
 					}
 					while (one_in_(4));
 
@@ -3037,7 +3003,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3065,7 +3031,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->ident |= (IDENT_BROKEN);
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->curse_flags |= TRC_CURSED;
 
 					/* Penalize */
 					o_ptr->pval = 0 - (1 + m_bonus(5, level));
@@ -3081,7 +3047,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->ident |= (IDENT_BROKEN);
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->curse_flags |= TRC_CURSED;
 
 					/* Penalize */
 					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
@@ -3104,7 +3070,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse bonus */
 						o_ptr->to_d = 0 - o_ptr->to_d;
@@ -3126,7 +3092,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse tohit */
 						o_ptr->to_h = 0 - o_ptr->to_h;
@@ -3148,7 +3114,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse toac */
 						o_ptr->to_a = 0 - o_ptr->to_a;
@@ -3171,7 +3137,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse bonuses */
 						o_ptr->to_h = 0 - o_ptr->to_h;
@@ -3193,7 +3159,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= TRC_CURSED;
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - o_ptr->pval;
@@ -3207,13 +3173,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->ident |= (IDENT_BROKEN);
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->curse_flags |= TRC_CURSED;
 
 					if (power > 0) power = 0 - power;
 					break;
 				}
 			}
-			if (one_in_(400) && (power > 0) && !(o_ptr->ident & IDENT_CURSED) && (level > 79))
+			if (one_in_(400) && (power > 0) && !cursed_p(o_ptr) && (level > 79))
 			{
 				o_ptr->pval = MIN(o_ptr->pval,4);
 				/* Randart amulet */
@@ -3337,8 +3303,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 							break;
 						case SV_RING_LORDLY:
 							if (!one_in_(20)) break;
-							one_loadly_high_resistance(o_ptr);
-							one_loadly_high_resistance(o_ptr);
+							one_lordly_high_resistance(o_ptr);
+							one_lordly_high_resistance(o_ptr);
 							o_ptr->name2 = EGO_RING_TRUE;
 							break;
 						case SV_RING_SUSTAIN:
@@ -3364,13 +3330,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					}
 				}
 				/* Uncurse it */
-				o_ptr->ident &= ~(IDENT_CURSED);
-
-				if (o_ptr->art_flags3 & TR3_CURSED)
-					o_ptr->art_flags3 &= ~(TR3_CURSED);
-
-				if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
-					o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+				o_ptr->curse_flags = 0L;
 			}
 			else if ((power == -2) && one_in_(2))
 			{
@@ -3409,7 +3369,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				o_ptr->ident |= (IDENT_BROKEN);
 
 				/* Cursed */
-				o_ptr->ident |= (IDENT_CURSED);
+				o_ptr->curse_flags |= (TRC_CURSED | TRC_HEAVY_CURSE);
 			}
 			break;
 		}
@@ -3433,7 +3393,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= (TRC_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - o_ptr->pval;
@@ -3455,7 +3415,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= (TRC_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - o_ptr->pval;
@@ -3468,7 +3428,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				{
 					if (power < 0)
 					{
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= (TRC_CURSED);
 					}
 					break;
 				}
@@ -3492,7 +3452,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= (TRC_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3523,7 +3483,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->ident |= (IDENT_BROKEN);
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->curse_flags |= (TRC_CURSED);
 
 					/* Penalize */
 					o_ptr->pval = 0 - (randint1(5) + m_bonus(5, level));
@@ -3544,7 +3504,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->ident |= (IDENT_BROKEN);
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->curse_flags |= (TRC_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - o_ptr->pval;
@@ -3553,7 +3513,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 			}
-			if (one_in_(150) && (power > 0) && !(o_ptr->ident & IDENT_CURSED) && (level > 79))
+			if (one_in_(150) && (power > 0) && !cursed_p(o_ptr) && (level > 79))
 			{
 				o_ptr->pval = MIN(o_ptr->pval,4);
 				/* Randart amulet */
@@ -3655,13 +3615,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					}
 				}
 				/* Uncurse it */
-				o_ptr->ident &= ~(IDENT_CURSED);
-
-				if (o_ptr->art_flags3 & TR3_CURSED)
-					o_ptr->art_flags3 &= ~(TR3_CURSED);
-
-				if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
-					o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+				o_ptr->curse_flags = 0L;
 			}
 			else if ((power == -2) && one_in_(2))
 			{
@@ -3700,7 +3654,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				o_ptr->ident |= (IDENT_BROKEN);
 
 				/* Cursed */
-				o_ptr->ident |= (IDENT_CURSED);
+				o_ptr->curse_flags |= (TRC_CURSED | TRC_HEAVY_CURSE);
 			}
 			break;
 		}
@@ -3750,7 +3704,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				o_ptr->ident |= (IDENT_BROKEN);
 
 				/* Cursed */
-				o_ptr->ident |= (IDENT_CURSED);
+				o_ptr->curse_flags |= (TRC_CURSED);
 			}
 #endif
 			break;
@@ -3869,7 +3823,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			o_ptr->pval = i;
 
 			/* Some figurines are cursed */
-			if (one_in_(6)) o_ptr->ident |= IDENT_CURSED;
+			if (one_in_(6)) o_ptr->curse_flags |= TRC_CURSED;
 
 			if (cheat_peek)
 			{
@@ -3880,7 +3834,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 #endif
 
 							  r_name + r_ptr->name, check - 1,
-							  !(o_ptr->ident & IDENT_CURSED) ? "" : " {cursed}");
+							  !cursed_p(o_ptr) ? "" : " {cursed}");
 			}
 
 			break;
@@ -4153,7 +4107,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- extract the "cursed" flag */
-		if (a_ptr->flags3 & TR3_CURSED) o_ptr->ident |= (IDENT_CURSED);
+		if (a_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
+		if (a_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+		if (a_ptr->gen_flags & TRG_PERMA_CURSE) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
 
 		/* Mega-Hack -- increase the rating */
 		rating += 10;
@@ -4263,7 +4222,20 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- acquire "cursed" flag */
-		if (e_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
+		if (e_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
+		if (e_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+		if (e_ptr->gen_flags & TRG_PERMA_CURSE) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+		if (e_ptr->gen_flags & (TRG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
+		if (e_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
+		if (e_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
+
+		if (e_ptr->gen_flags & (TRG_ONE_SUSTAIN)) one_sustain(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_POWER)) one_ability(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_H_RES)) one_high_resistance(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_E_RES)) one_ele_resistance(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_D_RES)) one_dragon_ele_resistance(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_L_RES)) one_lordly_high_resistance(o_ptr);
+		if (e_ptr->gen_flags & (TRG_XTRA_RES)) one_resistance(o_ptr);
 
 		/* Hack -- apply extra penalties if needed */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
@@ -4352,7 +4324,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 		if (!get_object_cost(o_ptr)) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- acquire "cursed" flag */
-		if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
+		if (k_ptr->gen_flags & (TRG_CURSED)) o_ptr->curse_flags |= (TRC_CURSED);
+		if (k_ptr->gen_flags & (TRG_HEAVY_CURSE)) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+		if (k_ptr->gen_flags & (TRG_PERMA_CURSE)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
+		if (k_ptr->gen_flags & (TRG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
+		if (k_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
+		if (k_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
 	}
 }
 
@@ -5103,7 +5080,7 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 }
 
 
-#define MAX_TRAPS		17
+#define MAX_TRAPS		18
 
 static int trap_num[MAX_TRAPS] =
 {
@@ -5124,6 +5101,7 @@ static int trap_num[MAX_TRAPS] =
 	FEAT_TRAP_POISON,
 	FEAT_TRAP_SLEEP,
 	FEAT_TRAP_TRAPS,
+	FEAT_TRAP_ALARM,
 };
 
 
@@ -6746,7 +6724,7 @@ static void drain_essence(void)
 	old_dd = o_ptr->dd;
 	old_pval = o_ptr->pval;
 	old_name2 = o_ptr->name2;
-	if (old_f3 & (TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)) dec--;
+	if (o_ptr->curse_flags & (TRC_CURSED | TRC_HEAVY_CURSE | TRC_PERMA_CURSE)) dec--;
 	if (old_f3 & (TR3_AGGRAVATE)) dec--;
 	if (old_f3 & (TR3_NO_TELE)) dec--;
 	if (old_f3 & (TR3_DRAIN_EXP)) dec--;

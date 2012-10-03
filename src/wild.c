@@ -646,13 +646,9 @@ void wilderness_gen(void)
 	cur_hgt = MAX_HGT;
 	cur_wid = MAX_WID;
 
-	/* Determine number of panels */
-	max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-	max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-
 	/* Assume illegal panel */
-	panel_row = max_panel_rows;
-	panel_col = max_panel_cols;
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
 
 	/* Init the wilderness */
 
@@ -914,13 +910,9 @@ void wilderness_gen_small()
 	if (cur_hgt > MAX_HGT) cur_hgt = MAX_HGT;
 	if (cur_wid > MAX_WID) cur_wid = MAX_WID;
 
-	/* Determine number of panels */
-	max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-	max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-
 	/* Assume illegal panel */
-	panel_row = max_panel_rows;
-	panel_col = max_panel_cols;
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
 
         /* Place the player */
         px = p_ptr->wilderness_x;
@@ -1168,9 +1160,9 @@ bool change_wild_mode(void)
 		if (have_pet)
 		{
 #ifdef JP
-			if(!get_check_strict("ペットを置いて広域マップに入りますか？", 1))
+			if(!get_check_strict("ペットを置いて広域マップに入りますか？", CHECK_OKAY_CANCEL))
 #else
-			if(!get_check_strict("Do you leave your pets behind? ", 1))
+			if(!get_check_strict("Do you leave your pets behind? ", CHECK_OKAY_CANCEL))
 #endif
 			{
 				energy_use = 0;

@@ -4906,7 +4906,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Resistance",
 		"Haste Self",
 		"Walk through Wall",
-		"Pulish Shield",
+		"Polish Shield",
 		"Create Golem",
 		"Magical armor",
 
@@ -4949,7 +4949,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Plasma Ball",
 		"Polymorph Demon",
 		"Nather Wave",
-		"Kiss of Saccubus",
+		"Kiss of Succubus",
 		"Doom Hand",
 
 		"Raise the Morale",
@@ -4990,7 +4990,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Finrod's Resistance", /* 元素耐性 */
 		"Hobbit Melodies", /* ホビットのメロディ */
 		"World Contortion", /* 歪んだ世界 */
-		"Dispeling chant", /* 退散の歌 */
+		"Dispelling chant", /* 退散の歌 */
 		"The Voice of Saruman", /* サルマンの甘言 */
 		"Song of the Tempest", /* 嵐の音色 */
 		"Ambarkanta", /* もう一つの世界 */
@@ -4999,7 +4999,7 @@ cptr spell_names[VALID_REALM][32] =
 		"Wrecking Pattern", /* 破壊の旋律 */
 		"Stationary Shriek", /* 停滞の歌 */
 		"Endurance", /* 守りの歌 */
-		"The Helo's Poem", /* 英雄の詩 */
+		"The Hero's Poem", /* 英雄の詩 */
 		"Relief of Yavanna", /* "ヤヴァンナの助け" */
 		"Goddess' rebirth", /* "再生の歌" */
 		"Wizardry of Sauron", /* "サウロンの魔術", */
@@ -5063,8 +5063,8 @@ int chest_traps[64] =
 	(CHEST_LOSE_STR),
 	(CHEST_LOSE_CON),                       /* 5 == best small wooden */
 	0,
-	(CHEST_POISON),
-	(CHEST_POISON),
+	(CHEST_ALARM),
+	(CHEST_ALARM),
 	(CHEST_LOSE_STR),
 	(CHEST_LOSE_CON),
 	(CHEST_POISON),
@@ -5073,7 +5073,7 @@ int chest_traps[64] =
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_SUMMON),                 /* 15 == best large wooden */
 	0,
-	(CHEST_LOSE_STR),
+	(CHEST_ALARM),
 	(CHEST_SCATTER),
 	(CHEST_PARALYZE),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
@@ -5089,28 +5089,28 @@ int chest_traps[64] =
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_BIRD_STORM),
 	(CHEST_POISON | CHEST_SUMMON),
-	(CHEST_E_SUMMON),
+	(CHEST_E_SUMMON | CHEST_ALARM),
 	(CHEST_EXPLODE),
 	(CHEST_EXPLODE | CHEST_SUMMON), /* 35 == best large iron */
 	0,
-	(CHEST_SUMMON),
+	(CHEST_SUMMON | CHEST_ALARM),
 	(CHEST_EXPLODE),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_POISON | CHEST_PARALYZE),
 	(CHEST_EXPLODE),
 	(CHEST_BIRD_STORM),
-	(CHEST_EXPLODE | CHEST_E_SUMMON),
+	(CHEST_EXPLODE | CHEST_E_SUMMON | CHEST_ALARM),
 	(CHEST_H_SUMMON),        /* 45 == best small steel */
 	0,
-	(CHEST_EXPLODE | CHEST_SUMMON),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_ALARM),
 	(CHEST_BIRD_STORM),
 	(CHEST_RUNES_OF_EVIL),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_BIRD_STORM),
-	(CHEST_H_SUMMON),
+	(CHEST_EXPLODE | CHEST_SUMMON | CHEST_ALARM),
+	(CHEST_BIRD_STORM | CHEST_ALARM),
+	(CHEST_H_SUMMON | CHEST_ALARM),
 	(CHEST_RUNES_OF_EVIL),
-	(CHEST_H_SUMMON | CHEST_SCATTER),
+	(CHEST_H_SUMMON | CHEST_SCATTER | CHEST_ALARM),
 	(CHEST_RUNES_OF_EVIL | CHEST_EXPLODE),  /* 55 == best large steel */
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
@@ -6648,7 +6648,7 @@ option_type option_info[] =
         "manual_haggle",                "店で値切り交渉をする" },
 #else
 	{ &manual_haggle,               FALSE, 3, 1, 0,
-	"manual_haggle",                "Manualy haggle in stores" },
+	"manual_haggle",                "Manually haggle in stores" },
 #endif
 
 
@@ -6685,15 +6685,6 @@ option_type option_info[] =
 #else
 	{ &stack_allow_items,           TRUE,  3, 1, 2,
 	"stack_allow_items",            "Allow weapons and armor to stack" },
-#endif
-
-
-#ifdef JP
-	{ &stack_allow_wands,           TRUE,  3, 1, 3,
-	"stack_allow_wands",            "同種のロッド/杖/魔法棒をまとめる" },
-#else
-	{ &stack_allow_wands,           TRUE,  3, 1, 3,
-	"stack_allow_wands",            "Allow wands/staffs/rods to stack" },
 #endif
 
 
@@ -7160,7 +7151,7 @@ option_type option_info[] =
         "autochara",                   "体格/地位にオートローラー使用" },
 #else
 	{ &autochara,                   FALSE, 6, 6, 16,
-	"autochara",                    "Autorole for weight, height and social status" },
+	"autochara",                    "Autoroll for weight, height and social status" },
 #endif
 
 
@@ -7229,7 +7220,7 @@ option_type option_info[] =
         "leave_junk",                   "がらくたは壊さない" },
 #else
         { &leave_junk,                  FALSE, 7, 7, 6,
-        "leave_junk",                   "Auto-destroyer leaves junks" },
+        "leave_junk",                   "Auto-destroyer leaves junk" },
 #endif
 
 
@@ -7336,7 +7327,7 @@ option_type option_info[] =
         "record_named_pet",             "名前つきペットの情報を記録する" },
 #else
         { &record_named_pet,            FALSE, 10, 4, 23,
-        "record_named_pet",             "Record infomations of named pets" },
+        "record_named_pet",             "Record informations of named pets" },
 #endif
 
 
@@ -7716,7 +7707,7 @@ cptr shougou_moji[5]=
 #ifdef JP
 {"[初心者]", "[入門者]", "[熟練者]", "[エキスパート]", "[達人]"};
 #else
-{"[Unskilled]", "[Beginer]", "[Skilled]", "[Expert]", "[Master]"};
+{"[Unskilled]", "[Beginner]", "[Skilled]", "[Expert]", "[Master]"};
 #endif
 
 byte conv_terrain2feat[MAX_WILDERNESS] =

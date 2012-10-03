@@ -10,24 +10,6 @@
 
 static int num_more = 0;
 
-#ifndef HAS_MEMSET
-
-/*
- * For those systems that don't have "memset()"
- *
- * Set the value of each of 'n' bytes starting at 's' to 'c', return 's'
- * If 'n' is negative, you will erase a whole lot of memory.
- */
-char *memset(char *s, int c, huge n)
-{
-	char *t;
-	for (t = s; len--; ) *t++ = c;
-	return (s);
-}
-
-#endif
-
-
 #if 0
 #ifndef HAS_STRICMP
 
@@ -57,7 +39,7 @@ int stricmp(cptr a, cptr b)
 
 #ifdef SET_UID
 
-# ifndef HAS_USLEEP
+# ifndef HAVE_USLEEP
 
 /*
  * For those systems that don't have "usleep()" but need it.
@@ -120,7 +102,6 @@ extern struct passwd *getpwnam();
  */
 void user_name(char *buf, int id)
 {
-#ifdef SET_UID
 	struct passwd *pw;
 
 	/* Look up the user name */
@@ -140,7 +121,6 @@ void user_name(char *buf, int id)
 
 		return;
 	}
-#endif /* SET_UID */
 
 	/* Oops.  Hack -- default to "PLAYER" */
 	strcpy(buf, "PLAYER");
@@ -411,7 +391,7 @@ FILE *my_fopen_temp(char *buf, int max)
 	int fd;
 
 	/* Prepare the buffer for mkstemp */
-	(void)strnfmt(buf, max, "%s", "/tmp/anXXXXXX");
+	strncpy(buf, "/tmp/anXXXXXX", max);
 
 	/* Secure creation of a temporary file */
 	fd = mkstemp(buf);
@@ -3320,10 +3300,10 @@ bool get_check(cptr prompt)
 /*
  * Verify something with the user strictly
  *
- * mode & 0x01 : force user to answer "YES" or "N"
- * mode & 0x02 : don't allow ESCAPE key
+ * mode & CHECK_OKAY_CANCEL : force user to answer 'O'kay or 'C'ancel
+ * mode & CHECK_NO_ESCAPE   : don't allow ESCAPE key
+ * mode & CHECK_NO_HISTORY  : no message_add
  */
-#define CHECK_STRICT 0
 bool get_check_strict(cptr prompt, int mode)
 {
 	int i;
@@ -3340,26 +3320,12 @@ bool get_check_strict(cptr prompt, int mode)
 	msg_print(NULL);
 
 	if (!rogue_like_commands)
-		mode &= ~1;
+		mode &= ~CHECK_OKAY_CANCEL;
 
 
 	/* Hack -- Build a "useful" prompt */
-	if (mode & 1)
+	if (mode & CHECK_OKAY_CANCEL)
 	{
-#if CHECK_STRICT
-#ifdef JP
-		/* (79-8)バイトの指定, promptが長かった場合, 
-		   (79-9)文字の後終端文字が書き込まれる.     
-		   英語の方のstrncpyとは違うので注意.
-		   elseの方の分岐も同様. --henkma
-		*/
-		mb_strlcpy(buf, prompt, 80-8);
-#else
-		strncpy(buf, prompt, 79-8);
-		buf[79-8]='\0';
-#endif
-		strcat(buf, "[yes/no]");
-#else
 #ifdef JP
 		/* (79-8)バイトの指定, promptが長かった場合, 
 		   (79-9)文字の後終端文字が書き込まれる.     
@@ -3373,7 +3339,6 @@ bool get_check_strict(cptr prompt, int mode)
 #endif
 		strcat(buf, "[(O)k/(C)ancel]");
 
-#endif
 	}
 	else
 	{
@@ -3389,63 +3354,19 @@ bool get_check_strict(cptr prompt, int mode)
 	/* Prompt for it */
 	prt(buf, 0, 0);
 
+	if (!(mode & CHECK_NO_HISTORY))
+	{
+		/* HACK : Add the line to message buffer */
+		message_add(buf);
+		p_ptr->window |= (PW_MESSAGE);
+		window_stuff();
+	}
+
 	/* Get an acceptable answer */
 	while (TRUE)
 	{
 		i = inkey();
-#if CHECK_STRICT /* ここから(ちょっと長いのでコメント) */
-		if (i == 'y' || i == 'Y')
-		{
-			if (!(mode & 1))
-				break;
-			else
-			{
-#ifdef JP
-				prt("y (YESと入力してください)", 0, strlen(buf));
-#else
-				prt("y (Please answer YES.)", 0, strlen(buf));
-#endif
-				i = inkey();
-				if (i == 'e' || i == 'E')
-				{
-#ifdef JP
-					prt("e (YESと入力してください)", 0, strlen(buf)+1);
-#else
-					prt("e (Please answer YES.)", 0, strlen(buf)+1);
-#endif
-					i = inkey();
-					if (i == 's' || i == 'S')
-					{
-						i = 'y';
-						break;
-					}
-					prt("", 0, strlen(buf)+1);
-				}
-				prt("", 0, strlen(buf));
-			}
-		}
-		if (!(mode & 2) && (i == ESCAPE)) break;
-		if (i == 'N' || i == 'n')
-		{
-			if (!(mode & 1))
-				break;
-			else
-			{
-#ifdef JP
-				prt("n (NOと入力してください)", 0, strlen(buf));
-#else
-				prt("n (Please answer NO.)", 0, strlen(buf));
-#endif
-				i = inkey();
-				if (i == 'o' || i == 'O')
-				{
-						break;
-				}
-				prt("", 0, strlen(buf));
-			}
-		}
-#else
-		if ( mode & 1 )
+		if (mode & CHECK_OKAY_CANCEL)
 		{
 			if ( i == 'o' || i == 'O' )
 			{
@@ -3457,8 +3378,8 @@ bool get_check_strict(cptr prompt, int mode)
 		{
 				break;
 		}
-		if (!(mode & 2) && (i == ESCAPE)) break;
-		if ( mode & 1 )
+		if (!(mode & CHECK_NO_ESCAPE) && (i == ESCAPE)) break;
+		if ( mode & CHECK_OKAY_CANCEL )
 		{
 			if ( i == 'c' || i == 'C' )
 			{
@@ -3469,7 +3390,6 @@ bool get_check_strict(cptr prompt, int mode)
 		{
 				break;
 		}
-#endif /* ここまで(ちょっと長いのでコメント) */
 		bell();
 	}
 

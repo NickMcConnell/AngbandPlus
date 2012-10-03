@@ -3583,7 +3583,7 @@ msg_print("ゴーレムを作った。");
 		return enchant_spell(0, 0, randint0(3) + 2);
 		break;
 	case 29: /* Brand Weapon */
-		brand_weapon(randint0(17));
+		brand_weapon(randint0(18));
 		break;
 	case 30: /* Living Trump */
 		if (one_in_(7))
@@ -4548,9 +4548,9 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 
 		/* Verify */
 #ifdef JP
-if (!get_check_strict("それでも挑戦しますか? ", 1)) return;
+		if (!get_check_strict("それでも挑戦しますか? ", CHECK_OKAY_CANCEL)) return;
 #else
-		if (!get_check("Attempt it anyway? ")) return;
+		if (!get_check_strict("Attempt it anyway? ", CHECK_OKAY_CANCEL)) return;
 #endif
 
 	}

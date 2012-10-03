@@ -134,46 +134,6 @@ static void note(cptr msg)
 
 
 /*
- * Hack -- determine if an item is "wearable" (or a missile)
- */
-static bool wearable_p(object_type *o_ptr)
-{
-	/* Valid "tval" codes */
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_LITE:
-		case TV_AMULET:
-		case TV_RING:
-		case TV_CAPTURE:
-		case TV_CARD:
-		{
-			return (TRUE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
-}
-
-
-/*
  * The following functions are used to load the basic building blocks
  * of savefiles.  They also maintain the "checksum" info for 2.7.0+
  */
@@ -287,13 +247,6 @@ static void strip_bytes(int n)
  */
 static void rd_item(object_type *o_ptr)
 {
-	byte old_dd;
-	byte old_ds;
-
-	u32b f1, f2, f3;
-
-	object_kind *k_ptr;
-
 	char buf[128];
 
 
@@ -332,8 +285,8 @@ static void rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->ac);
 
-	rd_byte(&old_dd);
-	rd_byte(&old_ds);
+	rd_byte(&o_ptr->dd);
+	rd_byte(&o_ptr->ds);
 
 	rd_byte(&o_ptr->ident);
 
@@ -343,6 +296,34 @@ static void rd_item(object_type *o_ptr)
 	rd_u32b(&o_ptr->art_flags1);
 	rd_u32b(&o_ptr->art_flags2);
 	rd_u32b(&o_ptr->art_flags3);
+
+	if (z_older_than(11, 0, 11))
+	{
+		o_ptr->curse_flags = 0L;
+		if (o_ptr->ident & 0x40)
+		{
+			o_ptr->curse_flags |= TRC_CURSED;
+			if (o_ptr->art_flags3 & 0x40000000L) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+			if (o_ptr->art_flags3 & 0x80000000L) o_ptr->curse_flags |= TRC_PERMA_CURSE;
+			if (o_ptr->name1)
+			{
+				artifact_type *a_ptr = &a_info[o_ptr->name1];
+				if (a_ptr->gen_flags & (TRG_HEAVY_CURSE)) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+				if (a_ptr->gen_flags & (TRG_PERMA_CURSE)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
+			}
+			else if (o_ptr->name2)
+			{
+				ego_item_type *e_ptr = &e_info[o_ptr->name2];
+				if (e_ptr->gen_flags & (TRG_HEAVY_CURSE)) o_ptr->curse_flags |= TRC_HEAVY_CURSE;
+				if (e_ptr->gen_flags & (TRG_PERMA_CURSE)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
+			}
+		}
+		o_ptr->art_flags3 &= (0x1FFFFFFFL);
+	}
+	else
+	{
+		rd_u32b(&o_ptr->curse_flags);
+	}
 
 	/* Monster holding object */
 	rd_s16b(&o_ptr->held_m_idx);
@@ -487,44 +468,6 @@ static void rd_item(object_type *o_ptr)
 
 	if (z_older_than(10, 4, 10) && (o_ptr->name2 == EGO_YOIYAMI)) o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_YOIYAMI_ROBE);
 
-	/* Obtain the "kind" template */
-	k_ptr = &k_info[o_ptr->k_idx];
-
-	/* Obtain tval/sval from k_info */
-	o_ptr->tval = k_ptr->tval;
-	o_ptr->sval = k_ptr->sval;
-
-	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
-
-	/* Repair non "wearable" items */
-	if (!wearable_p(o_ptr))
-	{
-		/* Acquire correct fields */
-		o_ptr->to_h = k_ptr->to_h;
-		o_ptr->to_d = k_ptr->to_d;
-		o_ptr->to_a = k_ptr->to_a;
-
-		/* Acquire correct fields */
-		o_ptr->ac = k_ptr->ac;
-		o_ptr->dd = k_ptr->dd;
-		o_ptr->ds = k_ptr->ds;
-
-		/* Acquire correct weight */
-		o_ptr->weight = k_ptr->weight;
-
-		/* Paranoia */
-		o_ptr->name1 = o_ptr->name2 = 0;
-
-		/* All done */
-		return;
-	}
-
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
 	if (z_older_than(10, 4, 9))
 	{
 		if (o_ptr->art_flags1 & TR1_MAGIC_MASTERY)
@@ -557,67 +500,6 @@ static void rd_item(object_type *o_ptr)
 		/* Verify that ego-item */
 		if (!e_ptr->name) o_ptr->name2 = 0;
 
-	}
-
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
-
-	/* Acquire standard weight */
-	o_ptr->weight = k_ptr->weight;
-
-	/* Hack -- extract the "broken" flag */
-	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
-	/* Artifacts */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Acquire new artifact "pval" */
-		o_ptr->pval = a_ptr->pval;
-
-		/* Acquire new artifact fields */
-		o_ptr->ac = a_ptr->ac;
-		o_ptr->dd = a_ptr->dd;
-		o_ptr->ds = a_ptr->ds;
-
-		/* Acquire new artifact weight */
-		o_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "broken" flag */
-		if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-	}
-
-	/* Ego items */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-		o_ptr->dd = old_dd;
-		o_ptr->ds = old_ds;
-
-		if (o_ptr->name2 == EGO_DWARVEN)
-		{
-			o_ptr->ac += 5;
-			o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
-		}
-
-		/* Hack -- extract the "broken" flag */
-		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-	}
-
-	if (o_ptr->art_name) /* A random artifact */
-	{
-		o_ptr->dd = old_dd;
-		o_ptr->ds = old_ds;
 	}
 }
 
@@ -1912,8 +1794,8 @@ static errr rd_dungeon(void)
 	if (z_older_than(10, 3, 13) && !dun_level && !p_ptr->inside_arena) {py = 33;px = 131;}
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
-	rd_s16b(&max_panel_rows);
-	rd_s16b(&max_panel_cols);
+	rd_s16b(&tmp16s); /* max_panel_rows */
+	rd_s16b(&tmp16s); /* max_panel_cols */
 
 #if 0
 	if (!py || !px) {py = 10;px = 10;}/* ダンジョン生成に失敗してセグメンテったときの復旧用 */
@@ -2538,7 +2420,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 					rd_s16b(&quest[i].k_idx);
 
 					if (quest[i].k_idx)
-						a_info[quest[i].k_idx].flags3 |= TR3_QUESTITEM;
+						a_info[quest[i].k_idx].gen_flags |= TRG_QUESTITEM;
 
 					rd_byte(&quest[i].flags);
 

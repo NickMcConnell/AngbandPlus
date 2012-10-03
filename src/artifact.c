@@ -74,7 +74,7 @@ void one_high_resistance(object_type *o_ptr)
 /*
  * Choose one random high resistance ( except poison and disenchantment )
  */
-void one_loadly_high_resistance(object_type *o_ptr)
+void one_lordly_high_resistance(object_type *o_ptr)
 {
 	switch (randint0(10))
 	{
@@ -165,9 +165,10 @@ static void curse_artifact(object_type * o_ptr)
 	if (o_ptr->to_h > 0) o_ptr->to_h = 0 - (o_ptr->to_h + randint1(4));
 	if (o_ptr->to_d > 0) o_ptr->to_d = 0 - (o_ptr->to_d + randint1(4));
 
-	o_ptr->art_flags3 |= (TR3_HEAVY_CURSE | TR3_CURSED);
+	o_ptr->curse_flags |= (TRC_HEAVY_CURSE | TRC_CURSED);
+	o_ptr->art_flags3 &= ~(TR3_BLESSED);
 
-	if (one_in_(4)) o_ptr->art_flags3 |= TR3_PERMA_CURSE;
+	if (one_in_(4)) o_ptr->curse_flags |= TRC_PERMA_CURSE;
 	if (one_in_(3)) o_ptr->art_flags3 |= TR3_TY_CURSE;
 	if (one_in_(2)) o_ptr->art_flags3 |= TR3_AGGRAVATE;
 	if (one_in_(3)) o_ptr->art_flags3 |= TR3_DRAIN_EXP;
@@ -176,8 +177,6 @@ static void curse_artifact(object_type * o_ptr)
 
 	if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_CAVALRY) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH) && one_in_(3))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
-
-	o_ptr->ident |= IDENT_CURSED;
 }
 
 
@@ -776,7 +775,7 @@ static void random_misc(object_type * o_ptr)
 		break;
 	}
 
-	switch (randint1(31))
+	switch (randint1(32))
 	{
 		case 1:
 			o_ptr->art_flags2 |= TR2_SUST_STR;
@@ -882,6 +881,9 @@ static void random_misc(object_type * o_ptr)
 			break;
 		case 31:
 			o_ptr->art_flags3 |= TR3_NO_TELE;
+			break;
+		case 32:
+			o_ptr->art_flags3 |= TR3_WARNING;
 			break;
 	}
 }
@@ -1026,7 +1028,7 @@ static void random_slay(object_type *o_ptr)
 		break;
 	}
 
-	switch (randint1(34))
+	switch (randint1(36))
 	{
 		case 1:
 		case 2:
@@ -1128,6 +1130,10 @@ static void random_slay(object_type *o_ptr)
 			o_ptr->art_flags1 |= TR1_FORCE_WEAPON;
 			if (!artifact_bias)
 				artifact_bias = (one_in_(2) ? BIAS_MAGE : BIAS_PRIESTLY);
+			break;
+		case 33:
+		case 34:
+			o_ptr->art_flags3 |= TR3_SLAY_HUMAN;
 			break;
 		default:
 			o_ptr->art_flags1 |= TR1_CHAOTIC;
@@ -1749,6 +1755,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		o_ptr->art_flags1 &= ~(TR1_SLAY_GIANT);
 		o_ptr->art_flags1 &= ~(TR1_SLAY_DRAGON);
 		o_ptr->art_flags1 &= ~(TR1_KILL_DRAGON);
+		o_ptr->art_flags3 &= ~(TR3_SLAY_HUMAN);
 		o_ptr->art_flags1 &= ~(TR1_VORPAL);
 		o_ptr->art_flags1 &= ~(TR1_BRAND_POIS);
 		o_ptr->art_flags1 &= ~(TR1_BRAND_ACID);
@@ -2898,7 +2905,7 @@ bool activate_random_artifact(object_type * o_ptr)
 }
 
 
-void random_artifact_resistance(object_type * o_ptr)
+void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
 
@@ -2912,8 +2919,10 @@ void random_artifact_resistance(object_type * o_ptr)
 		else
 		{
 			o_ptr->art_flags3 |=
-			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
-			o_ptr->ident |= IDENT_CURSED;
+			    (TR3_AGGRAVATE | TR3_TY_CURSE);
+			o_ptr->curse_flags |=
+			    (TRC_CURSED | TRC_HEAVY_CURSE);
+			o_ptr->curse_flags |= get_curse(2, o_ptr);
 			return;
 		}
 	}
@@ -2921,8 +2930,8 @@ void random_artifact_resistance(object_type * o_ptr)
 	{
 		if (p_ptr->pclass != CLASS_SAMURAI)
 		{
-			o_ptr->art_flags3 |= (TR3_NO_TELE | TR3_NO_MAGIC | TR3_HEAVY_CURSE);
-			o_ptr->ident |= IDENT_CURSED;
+			o_ptr->art_flags3 |= (TR3_NO_MAGIC);
+			o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
 		}
 	}
 
@@ -2937,7 +2946,11 @@ void random_artifact_resistance(object_type * o_ptr)
 		int dummy, i;
 		dummy = randint1(2)+randint1(2);
 		for (i = 0; i < dummy; i++)
-			o_ptr->art_flags1 |= (TR1_CHAOTIC << randint0(18));
+		{
+			int flag = randint0(19);
+			if (flag == 18) o_ptr->art_flags3 |= TR3_SLAY_HUMAN;
+			else o_ptr->art_flags1 |= (TR1_CHAOTIC << flag);
+		}
 		dummy = randint1(2);
 		for (i = 0; i < dummy; i++)
 			one_resistance(o_ptr);
@@ -2950,69 +2963,13 @@ void random_artifact_resistance(object_type * o_ptr)
 		}
 	}
 
-	switch (o_ptr->name1)
+	if (a_ptr->gen_flags & (TRG_XTRA_POWER)) give_power = TRUE;
+	if (a_ptr->gen_flags & (TRG_XTRA_H_RES)) give_resistance = TRUE;
+	if (a_ptr->gen_flags & (TRG_XTRA_RES_OR_POWER))
 	{
-		case ART_JULIAN:
-		case ART_ARVEDUI:
-		case ART_CASPANION:
-		case ART_HITHLOMIR:
-		case ART_ROHIRRIM:
-		case ART_CELEGORM:
-		case ART_ANARION:
-		case ART_THRANDUIL:
-		case ART_LUTHIEN:
-		case ART_THROR:
-		case ART_THORIN:
-		case ART_NIMTHANC:
-		case ART_DETHANC:
-		case ART_NARTHANC:
-		case ART_STING:
-		case ART_TURMIL:
-		case ART_THALKETTOTH:
-		case ART_JIZO:
-			{
-				/* Give a resistance */
-				give_resistance = TRUE;
-			}
-			break;
-		case ART_MAEDHROS:
-		case ART_GLAMDRING:
-		case ART_ORCRIST:
-		case ART_ANDURIL:
-		case ART_ZARCUTHRA:
-		case ART_GURTHANG:
-		case ART_SOULSWORD:
-		case ART_BRAND:
-		case ART_DAWN:
-		case ART_BUCKLAND:
-		case ART_AZAGHAL:
-			{
-				/* Give a resistance OR a power */
-				if (one_in_(2)) give_resistance = TRUE;
-				else give_power = TRUE;
-			}
-			break;
-		case ART_NENYA:
-		case ART_VILYA:
-		case ART_BERUTHIEL:
-		case ART_THINGOL:
-		case ART_ULMO:
-		case ART_GANDALF:
-			{
-				/* Give a power */
-				give_power = TRUE;
-			}
-			break;
-		case ART_CRIMSON:
-		case ART_POWER:
-		case ART_AMBER:
-		case ART_AULE:
-			{
-				/* Give both */
-				give_power = TRUE;
-				give_resistance = TRUE;
-			}
-			break;
+		/* Give a resistance OR a power */
+		if (one_in_(2)) give_resistance = TRUE;
+		else give_power = TRUE;
 	}
 
 	if (give_power)
@@ -3066,10 +3023,15 @@ void create_named_art(int a_idx, int y, int x)
 	q_ptr->to_d = a_ptr->to_d;
 	q_ptr->weight = a_ptr->weight;
 
-	/* Hack -- acquire "cursed" flag */
-	if (a_ptr->flags3 & TR3_CURSED) q_ptr->ident |= (IDENT_CURSED);
+	/* Hack -- extract the "cursed" flag */
+	if (a_ptr->gen_flags & TRG_CURSED) q_ptr->curse_flags |= (TRC_CURSED);
+	if (a_ptr->gen_flags & TRG_HEAVY_CURSE) q_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+	if (a_ptr->gen_flags & TRG_PERMA_CURSE) q_ptr->curse_flags |= (TRC_PERMA_CURSE);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) q_ptr->curse_flags |= get_curse(0, q_ptr);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) q_ptr->curse_flags |= get_curse(1, q_ptr);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) q_ptr->curse_flags |= get_curse(2, q_ptr);
 
-	random_artifact_resistance(q_ptr);
+	random_artifact_resistance(q_ptr, a_ptr);
 
 	/* Drop the artifact from heaven */
 	(void)drop_near(q_ptr, -1, y, x);

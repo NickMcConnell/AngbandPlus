@@ -75,6 +75,7 @@ bool is_trap(int feat)
 		case FEAT_TRAP_POISON:
 		case FEAT_TRAP_SLEEP:
 		case FEAT_TRAP_TRAPS:
+		case FEAT_TRAP_ALARM:
 		{
 			/* A trap */
 			return (TRUE);
@@ -903,31 +904,20 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Handle "blind" */
 				if (p_ptr->blind)
 				{
-                                        if (new_ascii_graphics)
+					if (use_graphics)
 					{
-						if (is_ascii_graphics(c,a))
-						{
-							/* Use darkened colour */
-							a = lighting_colours[a][1];
-						}
-						else if (use_graphics && feat_supports_lighting(feat))
-						{
-							/* Use a dark tile */
-							c++;
-						}
+						/*
+						 * feat_supports_lighting(feat)
+						 * is always TRUE here
+						 */
+						
+						/* Use a dark tile */
+						c++;
 					}
 					else
 					{
-						if (use_graphics)
-						{
-							/* Use a dark tile */
-							c++;
-						}
-						else
-						{
-							/* Use "dark gray" */
-							a = TERM_L_DARK;
-						}
+						/* Use "dark gray" */
+						a = TERM_L_DARK;
 					}
                                 }
 
@@ -937,36 +927,20 @@ void map_info(int y, int x, byte *ap, char *cp)
                                         /* Torch lite */
                                         if (view_yellow_lite && !p_ptr->wild_mode)
                                         {
-						if (new_ascii_graphics)
+						if (use_graphics)
 						{
-                                                	if (is_ascii_graphics(c,a))
-							{
-								/* Use lightened colour */
-								a = lighting_colours[a][0];
-							}
-							else if (use_graphics &&
-								 feat_supports_lighting(feat))
-							{
-								/* Use a brightly lit tile */
-								c += 2;
-							}
+							/*
+							 * feat_supports_lighting(feat)
+							 * is always TRUE here
+							 */
+
+							/* Use a brightly lit tile */
+							c += 2;
 						}
 						else
 						{
-							/* Torch lite */
-							if (view_yellow_lite)
-							{
-								if (use_graphics)
-								{
-									/* Use a brightly lit tile */
-									c += 2;
-								}
-								else
-								{
-								  	/* Use "yellow" */
-									a = TERM_YELLOW;
-								}
-							}
+							/* Use "yellow" */
+							a = TERM_YELLOW;
 						}
 					}
 				}
@@ -974,31 +948,20 @@ void map_info(int y, int x, byte *ap, char *cp)
                                 /* Handle "dark" grids */
                                 else if (!(c_ptr->info & CAVE_GLOW))
                                 {
-					if (new_ascii_graphics)
+					if (use_graphics)
 					{
-						if (is_ascii_graphics(c,a))
-						{
-							/* Use darkened colour */
-							a = lighting_colours[a][1];
-						}
-						else if (use_graphics && feat_supports_lighting(feat))
-						{
-							/* Use a dark tile */
-							c++;
-						}
+						/*
+						 * feat_supports_lighting(feat)
+						 * is always TRUE here
+						 */
+
+						/* Use a dark tile */
+						c++;
 					}
 					else
 					{
-						if (use_graphics)
-						{
-							/* Use a dark tile */
-							c++;
-						}
-						else
-						{
-							/* Use "dark gray" */
-							a = TERM_L_DARK;
-						}
+						/* Use "dark gray" */
+						a = TERM_L_DARK;
 					}
                                 }
 
@@ -1008,31 +971,20 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Special flag */
 					if (view_bright_lite && !p_ptr->wild_mode)
 					{
-						if (new_ascii_graphics)
+						if (use_graphics)
 						{
-							if (is_ascii_graphics(c,a))
-							{
-								/* Use darkened colour */
-								a = lighting_colours[a][1];
-							}
-							else if (use_graphics && feat_supports_lighting(feat))
-							{
-								/* Use a dark tile */
-								c++;
-							}
+							/*
+							 * feat_supports_lighting(feat)
+							 * is always TRUE here
+							 */
+
+							/* Use a dark tile */
+							c++;
 						}
 						else
 						{
-							if (use_graphics)
-							{
-								/* Use a dark tile */
-								c++;
-							}
-							else
-							{
-								/* Use "gray" */
-								a = TERM_SLATE;
-							}
+							/* Use "gray" */
+							a = TERM_SLATE;
 						}
 					}
 				}
@@ -1059,7 +1011,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	else
 	{
 		/* Memorized grids */
-		if ((c_ptr->info & CAVE_MARK) && (view_granite_lite || !new_ascii_graphics))
+		if ((c_ptr->info & CAVE_MARK) && (view_granite_lite || new_ascii_graphics))
 		{
 			/* Apply "mimic" field */
 			if (c_ptr->mimic)
@@ -1288,6 +1240,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		case FEAT_TRAP_POISON:
 		case FEAT_TRAP_SLEEP:
 		case FEAT_TRAP_TRAPS:
+		case FEAT_TRAP_ALARM:
 		case FEAT_DIRT:
 		case FEAT_GRASS:
 		case FEAT_FLOWER:
@@ -1792,6 +1745,56 @@ void map_info(int y, int x, byte *ap, char *cp)
 }
 
 
+#ifdef JP
+/*
+ * Table of Ascii-to-Zenkaku
+ */
+static char ascii_to_zenkaku[2*128+1] =  "\
+¡¡¡ª¡É¡ô¡ð¡ó¡õ¡Ç¡Ê¡Ë¡ö¡Ü¡¤¡Ý¡¥¡¿\
+£°£±£²£³£´£µ£¶£·£¸£¹¡§¡¨¡ã¡á¡ä¡©\
+¡÷£Á£Â£Ã£Ä£Å£Æ£Ç£È£É£Ê£Ë£Ì£Í£Î£Ï\
+£Ð£Ñ£Ò£Ó£Ô£Õ£Ö£×£Ø£Ù£Ú¡Î¡À¡Ï¡°¡²\
+¡Æ£á£â£ã£ä£å£æ£ç£è£é£ê£ë£ì£í£î£ï\
+£ð£ñ£ò£ó£ô£õ£ö£÷£ø£ù£ú¡Ð¡Ã¡Ñ¡Á¡¡";
+#endif
+
+/*
+ * Prepare Bigtile or 2-bytes character attr/char pairs
+ */
+static void bigtile_attr(char *cp, byte *ap, char *cp2, byte *ap2)
+{
+	if (*ap & 0x80)
+	{
+		*ap2 = 255;
+		*cp2 = 255;
+		return;
+	}
+
+#ifdef JP
+	if (isprint(*cp))
+	{
+		*ap2 = *ap;
+		*cp2 = ascii_to_zenkaku[2*(*cp-' ') + 1];
+		*cp = ascii_to_zenkaku[2*(*cp-' ')];
+		return;
+	}
+#endif
+
+	*ap2 = TERM_WHITE;
+	*cp2 = ' ';
+}
+
+
+/*
+ * Calculate panel colum of a location in the map
+ */
+static int panel_col_of(int col)
+{
+	col -= panel_col_min;
+	if (use_bigtile) col *= 2;
+	return col + 13; 
+}
+
 
 /*
  * Moves the cursor to a given MAP (y,x) location
@@ -1800,10 +1803,9 @@ void move_cursor_relative(int row, int col)
 {
 	/* Real co-ords convert to screen positions */
 	row -= panel_row_prt;
-	col -= panel_col_prt;
 
 	/* Go there */
-	Term_gotoxy(col, row);
+	Term_gotoxy(panel_col_of(col), row);
 }
 
 
@@ -1813,6 +1815,9 @@ void move_cursor_relative(int row, int col)
  */
 void print_rel(char c, byte a, int y, int x)
 {
+	char c2;
+	byte a2;
+
 	/* Only do "legal" locations */
 	if (panel_contains(y, x))
 	{
@@ -1825,8 +1830,12 @@ void print_rel(char c, byte a, int y, int x)
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
+		if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
 		/* Draw the char using the attr */
-		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
+		Term_draw(panel_col_of(x), y-panel_row_prt, a, c);
+		if (use_bigtile)
+			Term_draw(panel_col_of(x)+1, y-panel_row_prt, a2, c2);
 	}
 }
 
@@ -2047,7 +2056,7 @@ void display_dungeon(void)
 void lite_spot(int y, int x)
 {
 	/* Redraw if on screen */
-	if (panel_contains(y, x))
+	if (panel_contains(y, x) && in_bounds2(y, x))
 	{
 		byte a;
 		char c;
@@ -2072,12 +2081,24 @@ void lite_spot(int y, int x)
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
+#ifdef JP
+		if (use_bigtile && !(a & 0x80) && isprint(c))
+		{
+			Term_queue_chars(panel_col_of(x), y-panel_row_prt, 2, a, &ascii_to_zenkaku[2*(c-' ')]);
+			return;
+		}
+#endif
+
 #ifdef USE_TRANSPARENCY
 		/* Hack -- Queue it */
-		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
+		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc);
+		if (use_bigtile)
+			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, 255, 0, 0);
 #else /* USE_TRANSPARENCY */
 		/* Hack -- Queue it */
-		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
+		Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c);
+		if (use_bigtile)
+			Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, 255, 255);
 #endif /* USE_TRANSPARENCY */
 	}
 }
@@ -2094,8 +2115,20 @@ void prt_map(void)
 {
 	int     x, y;
 	int     v;
+
+	/* map bounds */
+	s16b xmin, xmax, ymin, ymax;
+
+	int wid, hgt;
+
 	bool    fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm"));
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Remove map offset */
+	wid -= COL_MAP + 2;
+	hgt -= ROW_MAP + 2;
 
 	/* Access the cursor state */
 	(void)Term_get_cursor(&v);
@@ -2103,14 +2136,34 @@ void prt_map(void)
 	/* Hide the cursor */
 	(void)Term_set_cursor(0);
 
+	/* Get bounds */
+	xmin = (0 < panel_col_min) ? panel_col_min : 0;
+	xmax = (cur_wid - 1 > panel_col_max) ? panel_col_max : cur_wid - 1;
+	ymin = (0 < panel_row_min) ? panel_row_min : 0;
+	ymax = (cur_hgt - 1 > panel_row_max) ? panel_row_max : cur_hgt - 1;
+
+	/* Bottom section of screen */
+	for (y = 1; y <= ymin - panel_row_prt; y++)
+	{
+		/* Erase the section */
+		Term_erase(COL_MAP, y, wid);
+	}
+
+	/* Top section of screen */
+	for (y = ymax - panel_row_prt; y <= hgt; y++)
+	{
+		/* Erase the section */
+		Term_erase(COL_MAP, y, wid);
+	}
+
 	/* Dump the map */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = ymin; y <= ymax; y++)
 	{
 		/* Scan the columns of row "y" */
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = xmin; x <= xmax; x++)
 		{
-			byte a;
-			char c;
+			byte a, a2;
+			char c, c2;
 
 #ifdef USE_TRANSPARENCY
 			byte ta;
@@ -2118,21 +2171,10 @@ void prt_map(void)
 
 			/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
-
-			/* Hack -- fake monochrome */
-			if (fake_monochrome)
-			{
-				if (world_monster) a = TERM_DARK;
-				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-			}
-
-			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
-#else /* USE_TRANSPARENCY */
+#else
 			/* Determine what is there */
 			map_info(y, x, &a, &c);
+#endif
 
 			/* Hack -- fake monochrome */
 			if (fake_monochrome)
@@ -2143,9 +2185,16 @@ void prt_map(void)
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
+			if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
 			/* Efficiency -- Redraw that grid of the map */
-			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
-#endif /* USE_TRANSPARENCY */
+#ifdef USE_TRANSPARENCY
+			Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c, ta, tc);
+			if (use_bigtile) Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2, 0, 0);
+#else
+			Term_queue_char(panel_col_of(x), y-panel_row_prt, a, c);
+			if (use_bigtile) Term_queue_char(panel_col_of(x)+1, y-panel_row_prt, a2, c2);
+#endif
 		}
 	}
 
@@ -2190,43 +2239,25 @@ void prt_path(int y, int x)
 
 		if (panel_contains(ny, nx))
 		{
-			byte a = default_color;
-			char c;
+			byte a2, a = default_color;
+			char c, c2;
 
 #ifdef USE_TRANSPARENCY
 			byte ta;
 			char tc;
+#endif
 
 			if (cave[ny][nx].m_idx && m_list[cave[ny][nx].m_idx].ml)
 			{
 				/* Determine what is there */
+#ifdef USE_TRANSPARENCY
 				map_info(ny, nx, &a, &c, &ta, &tc);
-			
-				if (c == '.' && (a == TERM_WHITE || a == TERM_L_WHITE))
-					a = default_color;
-				else if (a == default_color)
-					a = TERM_WHITE;
-			}
-
-			if (fake_monochrome)
-			{
-				if (world_monster) a = TERM_DARK;
-				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-			}
-
-
-			/* Hack -- Queue it */
-			Term_queue_char(nx-panel_col_prt, ny-panel_row_prt, a, '*', ta, tc);
-#else /* USE_TRANSPARENCY */
-
-			if (cave[ny][nx].m_idx && m_list[cave[ny][nx].m_idx].ml)
-			{
-				/* Determine what is there */
+#else
 				map_info(ny, nx, &a, &c);
-				
-				if (c == '.' && (a == TERM_WHITE || a == TERM_L_WHITE))
+#endif
+				if (a & 0x80)
+					a = default_color;
+				else if (c == '.' && (a == TERM_WHITE || a == TERM_L_WHITE))
 					a = default_color;
 				else if (a == default_color)
 					a = TERM_WHITE;
@@ -2240,9 +2271,17 @@ void prt_path(int y, int x)
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
+			c = '*';
+			if (use_bigtile) bigtile_attr(&c, &a, &c2, &a2);
+
 			/* Hack -- Queue it */
-			Term_queue_char(nx-panel_col_prt, ny-panel_row_prt, a, '*');
-#endif /* USE_TRANSPARENCY */
+#ifdef USE_TRANSPARENCY
+			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c, ta, tc);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2, 0, 0);
+#else
+			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2);
+#endif
 		}
 
 		/* Known Wall */
@@ -2284,8 +2323,20 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 	char buf[MAX_NLEN];
 	char *c = buf;
 	int len = 0;
+	byte attr;
 
 	object_desc(buf, o_ptr, FALSE, 0);
+	attr = tval_to_attr[o_ptr->tval % 128];
+
+	if (p_ptr->image)
+	{
+		attr = TERM_WHITE;
+#ifdef JP
+		strcpy(buf, "²¿¤«´ñÌ¯¤ÊÊª");
+#else
+		strcpy(buf, "something strange");
+#endif
+	}
 
 	for (c = buf; *c; c++)
 	{
@@ -2337,7 +2388,7 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 		}
 	}
 	*c='\0';
-	Term_putstr(0, y, 12, tval_to_attr[o_ptr->tval % 128], buf);
+	Term_putstr(0, y, 12, attr, buf);
 }
 
 /*
@@ -2347,44 +2398,61 @@ void display_map(int *cy, int *cx)
 {
 	int i, j, x, y;
 
-	byte ta;
-	char tc;
+	byte ta, a2;
+	char tc, c2;
 
 	byte tp;
 
-	byte bigma[MAX_HGT+2][MAX_WID+2];
-	char bigmc[MAX_HGT+2][MAX_WID+2];
-	byte bigmp[MAX_HGT+2][MAX_WID+2];
+	byte **bigma;
+	char **bigmc;
+	byte **bigmp;
 
-	byte ma[SCREEN_HGT + 2][SCREEN_WID + 2];
-	char mc[SCREEN_HGT + 2][SCREEN_WID + 2];
+	byte **ma;
+	char **mc;
+	byte **mp;
 
-	byte mp[SCREEN_HGT + 2][SCREEN_WID + 2];
-
-	bool old_view_special_lite;
-	bool old_view_granite_lite;
+	/* Save lighting effects */
+	bool old_view_special_lite = view_special_lite;
+	bool old_view_granite_lite = view_granite_lite;
 
 	bool fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm"));
 
-	int yrat = cur_hgt / SCREEN_HGT;
-	int xrat = cur_wid / SCREEN_WID;
+	int hgt, wid, yrat, xrat;
 
+        int **match_autopick_yx;
+	object_type ***object_autopick_yx;
 
-        int match_autopick_yx[SCREEN_HGT+2][SCREEN_WID+2];
-	object_type *object_autopick_yx[SCREEN_HGT+2][SCREEN_WID+2];
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+	hgt -= 2;
+	wid -= 14;
+	if (use_bigtile) wid /= 2;
 
-	/* Save lighting effects */
-	old_view_special_lite = view_special_lite;
-	old_view_granite_lite = view_granite_lite;
+	yrat = (cur_hgt + hgt - 1) / hgt;
+	xrat = (cur_wid + wid - 1) / wid;
 
 	/* Disable lighting effects */
 	view_special_lite = FALSE;
 	view_granite_lite = FALSE;
 
-	/* Clear the chars and attributes */
-	for (y = 0; y < SCREEN_HGT + 2; ++y)
+	/* Allocate the maps */
+	C_MAKE(ma, (hgt + 2), byte_ptr);
+	C_MAKE(mc, (hgt + 2), char_ptr);
+	C_MAKE(mp, (hgt + 2), byte_ptr);
+	C_MAKE(match_autopick_yx, (hgt + 2), sint_ptr);
+	C_MAKE(object_autopick_yx, (hgt + 2), object_type **);
+
+	/* Allocate and wipe each line map */
+	for (y = 0; y < (hgt + 2); y++)
 	{
-		for (x = 0; x < SCREEN_WID + 2; ++x)
+		/* Allocate one row each array */
+		C_MAKE(ma[y], (wid + 2), byte);
+		C_MAKE(mc[y], (wid + 2), char);
+		C_MAKE(mp[y], (wid + 2), byte);
+		C_MAKE(match_autopick_yx[y], (wid + 2), int);
+		C_MAKE(object_autopick_yx[y], (wid + 2), object_type *);
+
+		for (x = 0; x < wid + 2; ++x)
 		{
 			match_autopick_yx[y][x] = -1;
 			object_autopick_yx[y][x] = NULL;
@@ -2398,16 +2466,27 @@ void display_map(int *cy, int *cx)
 		}
 	}
 
-	for (j = 0; j < cur_hgt + 2; ++j)
+	/* Allocate the maps */
+	C_MAKE(bigma, (cur_hgt + 2), byte_ptr);
+	C_MAKE(bigmc, (cur_hgt + 2), char_ptr);
+	C_MAKE(bigmp, (cur_hgt + 2), byte_ptr);
+
+	/* Allocate and wipe each line map */
+	for (y = 0; y < (cur_hgt + 2); y++)
 	{
-		for (i = 0; i < cur_wid + 2; ++i)
+		/* Allocate one row each array */
+		C_MAKE(bigma[y], (cur_wid + 2), byte);
+		C_MAKE(bigmc[y], (cur_wid + 2), char);
+		C_MAKE(bigmp[y], (cur_wid + 2), byte);
+
+		for (x = 0; x < cur_wid + 2; ++x)
 		{
 			/* Nothing here */
-			bigma[j][i] = TERM_WHITE;
-			bigmc[j][i] = ' ';
+			bigma[y][x] = TERM_WHITE;
+			bigmc[y][x] = ' ';
 
 			/* No priority */
-			bigmp[j][i] = 0;
+			bigmp[y][x] = 0;
 		}
 	}
 
@@ -2491,27 +2570,27 @@ void display_map(int *cy, int *cx)
 
 
 	/* Corners */
-	x = SCREEN_WID + 1;
-	y = SCREEN_HGT + 1;
+	x = wid + 1;
+	y = hgt + 1;
 
 	/* Draw the corners */
 	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
 
 	/* Draw the horizontal edges */
-	for (x = 1; x <= SCREEN_WID; x++) mc[0][x] = mc[y][x] = '-';
+	for (x = 1; x <= wid; x++) mc[0][x] = mc[y][x] = '-';
 
 	/* Draw the vertical edges */
-	for (y = 1; y <= SCREEN_HGT; y++) mc[y][0] = mc[y][x] = '|';
+	for (y = 1; y <= hgt; y++) mc[y][0] = mc[y][x] = '|';
 
 
 	/* Display each map line in order */
-	for (y = 0; y < SCREEN_HGT+2; ++y)
+	for (y = 0; y < hgt + 2; ++y)
 	{
 		/* Start a new line */
 		Term_gotoxy(COL_MAP, y);
 
 		/* Display the line */
-		for (x = 0; x < SCREEN_WID+2; ++x)
+		for (x = 0; x < wid + 2; ++x)
 		{
 			ta = ma[y][x];
 			tc = mc[y][x];
@@ -2525,16 +2604,19 @@ void display_map(int *cy, int *cx)
 				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
 			}
 
+			if (use_bigtile) bigtile_attr(&tc, &ta, &c2, &a2);
+
 			/* Add the character */
 			Term_addch(ta, tc);
+			if (use_bigtile) Term_addch(a2, c2);
 		}
 	}
 
 
-        for (y = 1; y < SCREEN_HGT+1; ++y)
+        for (y = 1; y < hgt + 1; ++y)
 	{
 	  match_autopick = -1;
-	  for (x = 1; x <= SCREEN_WID; x++){
+	  for (x = 1; x <= wid; x++){
 	    if (match_autopick_yx[y][x] != -1 &&
 		(match_autopick > match_autopick_yx[y][x] ||
 		 match_autopick == -1)){
@@ -2561,13 +2643,47 @@ void display_map(int *cy, int *cx)
 	}
 
 	/* Player location */
-	(*cy) = py / yrat + 1 + ROW_MAP;
-	(*cx) = px / xrat + 1 + COL_MAP;
-
+		(*cy) = py / yrat + 1 + ROW_MAP;
+	if (!use_bigtile)
+		(*cx) = px / xrat + 1 + COL_MAP;
+	else
+		(*cx) = (px / xrat + 1) * 2 + COL_MAP;
 
 	/* Restore lighting effects */
 	view_special_lite = old_view_special_lite;
 	view_granite_lite = old_view_granite_lite;
+
+	/* Free each line map */
+	for (y = 0; y < (hgt + 2); y++)
+	{
+		/* Free one row each array */
+		C_FREE(ma[y], (wid + 2), byte);
+		C_FREE(mc[y], (wid + 2), char);
+		C_FREE(mp[y], (wid + 2), byte);
+		C_FREE(match_autopick_yx[y], (wid + 2), int);
+		C_FREE(object_autopick_yx[y], (wid + 2), object_type **);
+	}
+
+	/* Free each line map */
+	C_FREE(ma, (hgt + 2), byte_ptr);
+	C_FREE(mc, (hgt + 2), char_ptr);
+	C_FREE(mp, (hgt + 2), byte_ptr);
+	C_FREE(match_autopick_yx, (hgt + 2), sint_ptr);
+	C_FREE(object_autopick_yx, (hgt + 2), object_type **);
+
+	/* Free each line map */
+	for (y = 0; y < (cur_hgt + 2); y++)
+	{
+		/* Free one row each array */
+		C_FREE(bigma[y], (cur_wid + 2), byte);
+		C_FREE(bigmc[y], (cur_wid + 2), char);
+		C_FREE(bigmp[y], (cur_wid + 2), byte);
+	}
+
+ 	/* Free each line map */
+	C_FREE(bigma, (cur_hgt + 2), byte_ptr);
+	C_FREE(bigmc, (cur_hgt + 2), char_ptr);
+	C_FREE(bigmp, (cur_hgt + 2), byte_ptr);
 }
 
 
@@ -2612,10 +2728,15 @@ prt("¤ªÂÔ¤Á²¼¤µ¤¤...", 0, 0);
 			int i;
 			byte flag;
 
+			int wid, hgt, row_message;
+
+			Term_get_size(&wid, &hgt);
+			row_message = hgt - 1;
+
 #ifdef JP
-			put_str("²¿¤«¥­¡¼¤ò²¡¤·¤Æ¤¯¤À¤µ¤¤('M':½¦¤¦ 'N':ÊüÃÖ 'D':M+N 'K':²õ¤¹¥¢¥¤¥Æ¥à¤òÉ½¼¨)", 23, 1);
+			put_str("²¿¤«¥­¡¼¤ò²¡¤·¤Æ¤¯¤À¤µ¤¤('M':½¦¤¦ 'N':ÊüÃÖ 'D':M+N 'K':²õ¤¹¥¢¥¤¥Æ¥à¤òÉ½¼¨)", row_message, 1);
 #else
-			put_str(" Hit M, N(for ~), K(for !), or D(same as M+N) to display auto-picker items.", 23, 1);
+			put_str(" Hit M, N(for ~), K(for !), or D(same as M+N) to display auto-picker items.", row_message, 1);
 #endif
 
 			/* Hilite the player */
@@ -3531,6 +3652,8 @@ void forget_view(void)
 
 		/* Forget that the grid is viewable */
 		c_ptr->info &= ~(CAVE_VIEW);
+
+		if (!panel_contains(y, x)) continue;
 
 		/* Update the screen */
 		lite_spot(y, x);

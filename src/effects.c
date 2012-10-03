@@ -4989,7 +4989,11 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #endif
 
 			/* Note cause of death */
-			(void)strcpy(died_from, hit_from);
+#ifdef JP
+			sprintf(died_from, "%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で":"麻痺状態で", hit_from);
+#else
+			sprintf(died_from, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
+#endif
 
 			/* No longer a winner */
 			total_winner = FALSE;
@@ -5034,9 +5038,9 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			flush();
 
 #ifdef JP
-if (get_check("画面を保存しますか？"))
+if (get_check_strict("画面を保存しますか？", CHECK_NO_HISTORY))
 #else
-			if (get_check("Dump the screen? "))
+			if (get_check_strict("Dump the screen? ", CHECK_NO_HISTORY))
 #endif
 
 			{
@@ -5152,6 +5156,13 @@ get_rnd_line("death_j.txt", 0, death_message);
 
 		if (record_danger && (old_chp > warning))
 		{
+			if (p_ptr->image && damage_type == DAMAGE_ATTACK)
+#ifdef JP
+				hit_from = "何か";
+#else
+				hit_from = "something";
+#endif
+
 #ifdef JP
 			sprintf(tmp,"%sによってピンチに陥いった。",hit_from);
 #else
@@ -5235,13 +5246,12 @@ void calc_android_exp(void)
 
 		object_copy(q_ptr, o_ptr);
 		q_ptr->discount = 0;
-		q_ptr->ident &= ~(IDENT_CURSED);
-		q_ptr->art_flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_TY_CURSE);
+		q_ptr->curse_flags = 0L;
 
 		if (o_ptr->name1)
 		{
 			level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
-			level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].flags3 & TR3_INSTA_ART ? 10 : 3));
+			level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].gen_flags & TRG_INSTA_ART ? 10 : 3));
 		}
 		else if (o_ptr->name2) level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
 		value = object_value_real(q_ptr);

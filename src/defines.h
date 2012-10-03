@@ -51,7 +51,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 10
+#define FAKE_VER_PATCH 11
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -922,16 +922,16 @@
 #define ROW_STATE               20
 #define COL_STATE                7      /* <state> */
 
-#define ROW_SPEED               23
+//#define ROW_SPEED               23
 #define COL_SPEED               58      /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY               23
+//#define ROW_STUDY               23
 #define COL_STUDY               68      /* "Study" */
 
-#define ROW_DEPTH               23
+//#define ROW_DEPTH               23
 #define COL_DEPTH               72      /* "Lev NNN" / "NNNN ft" */
 
-#define ROW_STATBAR             23
+//#define ROW_STATBAR             23
 #define COL_STATBAR              0
 
 
@@ -1032,6 +1032,7 @@
 #define FEAT_GRASS              0x59
 
 #define FEAT_TRAP_TRAPS         0x5A
+#define FEAT_TRAP_ALARM         0x5B
 
 #define FEAT_FLOWER             0x5D
 #define FEAT_DEEP_GRASS         0x5E
@@ -1449,7 +1450,7 @@
 #define EGO_TRUMP               98
 #define EGO_PATTERN             99
 #define EGO_DIGGING             100
-/* xxx */
+#define EGO_SLAY_HUMAN          101
 #define EGO_MORGUL              102
 /* xxx */
 
@@ -2401,6 +2402,14 @@
 
 
 /*
+ * Bit flags for control of get_check_strict()
+ */
+#define CHECK_OKAY_CANCEL 0x01
+#define CHECK_NO_ESCAPE   0x02
+#define CHECK_NO_HISTORY  0x04
+
+
+/*
  * Some bit-flags for the "smart" field
  */
 #define SM_RES_ACID             0x00000001
@@ -2832,7 +2841,7 @@
 #define CHEST_BIRD_STORM        0x0100
 #define CHEST_H_SUMMON          0x0200
 #define CHEST_RUNES_OF_EVIL     0x0400
-
+#define CHEST_ALARM             0x0800
 
 
 /*
@@ -2844,7 +2853,9 @@
 #define IDENT_KNOWN     0x08    /* Item abilities are known */
 #define IDENT_STOREB    0x10    /* Item is storebought !!!! */
 #define IDENT_MENTAL    0x20    /* Item information is known */
+#if 0
 #define IDENT_CURSED    0x40    /* Item is temporarily cursed */
+#endif
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */
 
 
@@ -2929,7 +2940,7 @@
 #define TR2_SUST_DEX            0x00000008L
 #define TR2_SUST_CON            0x00000010L
 #define TR2_SUST_CHR            0x00000020L
-#define TR2_RIDING               0x00000040L     /* Later */
+#define TR2_RIDING              0x00000040L     /* Later */
 #define TR2_XXX2                0x00000080L     /* Later */
 #define TR2_IM_ACID             0x00000100L
 #define TR2_IM_ELEC             0x00000200L
@@ -2959,7 +2970,7 @@
 
 #define TR3_SH_FIRE             0x00000001L     /* Immolation (Fire) */
 #define TR3_SH_ELEC             0x00000002L     /* Electric Sheath */
-#define TR3_QUESTITEM           0x00000004L     /* quest level item -KMW- */
+#define TR3_SLAY_HUMAN          0x00000004L     /* Slay human */
 #define TR3_SH_COLD             0x00000008L     /* cold aura */
 #define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
@@ -2968,7 +2979,7 @@
 #define TR3_WARNING             0x00000100L     /* Warning */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
 #define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
-#define TR3_INSTA_ART           0x00000800L     /* Item must be an artifact */
+#define TR3_XXX1                0x00000800L     /* XXX1 */
 #define TR3_FEATHER             0x00001000L     /* Feather Falling */
 #define TR3_LITE                0x00002000L     /* Permanent Light */
 #define TR3_SEE_INVIS           0x00004000L     /* See Invisible */
@@ -2986,9 +2997,24 @@
 #define TR3_TELEPORT            0x04000000L     /* Item teleports player */
 #define TR3_AGGRAVATE           0x08000000L     /* Item aggravates monsters */
 #define TR3_BLESSED             0x10000000L     /* Item is Blessed */
-#define TR3_CURSED              0x20000000L     /* Item is Cursed */
-#define TR3_HEAVY_CURSE         0x40000000L     /* Item is Heavily Cursed */
-#define TR3_PERMA_CURSE         0x80000000L     /* Item is Perma Cursed */
+
+
+#define TRG_INSTA_ART           0x00000001L     /* Item must be an artifact */
+#define TRG_QUESTITEM           0x00000002L     /* quest level item -KMW- */
+#define TRG_XTRA_POWER          0x00000004L     /* Extra power */
+#define TRG_ONE_SUSTAIN         0x00000008L     /* One sustain */
+#define TRG_XTRA_RES_OR_POWER   0x00000010L     /* Extra resistance or power */
+#define TRG_XTRA_H_RES          0x00000020L     /* Extra high resistance */
+#define TRG_XTRA_E_RES          0x00000040L     /* Extra element resistance */
+#define TRG_XTRA_L_RES          0x00000080L     /* Extra lordly resistance */
+#define TRG_XTRA_D_RES          0x00000100L     /* Extra dragon resistance */
+#define TRG_XTRA_RES            0x00000200L     /* Extra resistance */
+#define TRG_CURSED              0x00000400L     /* Item is Cursed */
+#define TRG_HEAVY_CURSE         0x00000800L     /* Item is Heavily Cursed */
+#define TRG_PERMA_CURSE         0x00001000L     /* Item is Perma Cursed */
+#define TRG_RANDOM_CURSE0       0x00002000L     /* Item is Random Cursed */
+#define TRG_RANDOM_CURSE1       0x00004000L     /* Item is Random Cursed */
+#define TRG_RANDOM_CURSE2       0x00008000L     /* Item is Random Cursed */
 
 
 /*
@@ -3001,6 +3027,42 @@
 	 TR1_MAGIC_MASTERY | TR1_STEALTH | TR1_SEARCH | TR1_INFRA | \
 	 TR1_TUNNEL | TR1_SPEED | TR1_BLOWS)
 
+
+#define MAX_CURSE 17
+
+#define TRC_CURSED              0x00000001L
+#define TRC_HEAVY_CURSE         0x00000002L
+#define TRC_PERMA_CURSE         0x00000004L
+#define TRC_XXX1                0x00000008L
+#define TRC_TY_CURSE            0x00000010L
+#define TRC_AGGRAVATE           0x00000020L
+#define TRC_DRAIN_EXP           0x00000040L
+#define TRC_SLOW_REGEN          0x00000080L
+#define TRC_ADD_L_CURSE         0x00000100L
+#define TRC_ADD_H_CURSE         0x00000200L
+#define TRC_CALL_ANIMAL         0x00000400L
+#define TRC_CALL_DEMON          0x00000800L
+#define TRC_CALL_DRAGON         0x00001000L
+#define TRC_COWARDICE           0x00002000L
+#define TRC_TELEPORT            0x00004000L
+#define TRC_LOW_MELEE           0x00008000L
+#define TRC_LOW_AC              0x00010000L
+#define TRC_LOW_MAGIC           0x00020000L
+#define TRC_FAST_DIGEST         0x00040000L
+#define TRC_DRAIN_HP            0x00080000L
+#define TRC_DRAIN_MANA          0x00100000L
+
+#define TRC_TELEPORT_SELF       0x00000001L
+#define TRC_CHAINSWORD          0x00000002L
+
+#define TRC_HEAVY_MASK   \
+	(TRC_TY_CURSE | TRC_AGGRAVATE | TRC_DRAIN_EXP | TRC_ADD_H_CURSE | \
+	 TRC_CALL_DEMON | TRC_CALL_DRAGON)
+
+#define TRC_P_FLAG_MASK  \
+	(TRC_TY_CURSE | TRC_DRAIN_EXP | TRC_ADD_L_CURSE | TRC_ADD_H_CURSE | \
+	 TRC_CALL_ANIMAL | TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_COWARDICE | \
+	 TRC_TELEPORT | TRC_DRAIN_HP | TRC_DRAIN_MANA)
 
 
 /*** Monster blow constants ***/
@@ -3092,7 +3154,7 @@
 #define RF1_FORCE_MAXHP         0x00000200  /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400  /* Start out sleeping */
 #define RF1_FORCE_EXTRA         0x00000800  /* Start out something */
-#define RF1_FRIEND              0x00001000  /* Arrive with a friend */
+#define RF1_XXX1                0x00001000  /* XXX */
 #define RF1_FRIENDS             0x00002000  /* Arrive with some friends */
 #define RF1_ESCORT              0x00004000  /* Arrive with an escort */
 #define RF1_ESCORTS             0x00008000  /* Arrive with some escorts */
@@ -3110,8 +3172,8 @@
 #define RF1_DROP_4D2            0x08000000  /* Drop 4d2 items/gold */
 #define RF1_DROP_GOOD           0x10000000  /* Drop good items */
 #define RF1_DROP_GREAT          0x20000000  /* Drop great items */
-#define RF1_DROP_USEFUL         0x40000000  /* Drop "useful" items */
-#define RF1_DROP_CHOSEN         0x80000000  /* Drop "chosen" items */
+#define RF1_XXX2                0x40000000  /* XXX */
+#define RF1_XXX3                0x80000000  /* XXX */
 
 /*
  * New monster race bit flags
@@ -3146,7 +3208,7 @@
 #define RF2_BRAIN_4         0x08000000
 #define RF2_BRAIN_5         0x10000000
 #define RF2_BRAIN_6         0x20000000
-#define RF2_BRAIN_7         0x40000000
+#define RF2_HUMAN           0x40000000
 #define RF2_QUANTUM         0x80000000  /* Monster has quantum behavior */
 
 /*
@@ -3676,7 +3738,7 @@
  * Cursed items.
  */
 #define cursed_p(T) \
-	((T)->ident & (IDENT_CURSED))
+	((T)->curse_flags)
 
 
 /*
@@ -4262,6 +4324,10 @@ extern int PlayerUID;
 
 #define MAX_MANE 16
 #define MAX_MONSPELLS 96
+
+#define EATER_EXT 36
+#define EATER_CHARGE 0x10000L
+#define EATER_ROD_CHARGE 0x10L
 
 #define MAX_KUBI 20
 

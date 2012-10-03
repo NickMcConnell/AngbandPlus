@@ -79,6 +79,7 @@ byte arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+bool arg_bigtile = FALSE;	/* Command arg -- Request big tile mode */
 
 /*
  * Various things
@@ -138,6 +139,7 @@ bool wizard;			/* Is the player currently in Wizard mode? */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_bigtile = FALSE;
 
 u16b total_winner;		/* Semi-Hack -- Game has been won */
 
@@ -255,7 +257,6 @@ bool manual_haggle;			/* Auto-haggle in stores */
 bool auto_scum;				/* Auto-scum for good levels */
 
 bool stack_allow_items;		/* Allow weapons and armor to stack */
-bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
 
 bool expand_look;			/* Expand the power of the look command */
 bool expand_list;			/* Expand the power of the list commands */
@@ -343,8 +344,6 @@ bool closing_flag;		/* Dungeon is closing */
  * Dungeon size info
  */
 
-s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;

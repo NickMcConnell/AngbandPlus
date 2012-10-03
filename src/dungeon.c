@@ -921,7 +921,7 @@ static void regenmagic(int percent)
 	s32b        new_mana;
 	int i;
 
-	for (i = 0; i < 72; i++)
+	for (i = 0; i < EATER_EXT*2; i++)
 	{
 		if (!p_ptr->magic_num2[i]) continue;
 		if (p_ptr->magic_num1[i] == ((long)p_ptr->magic_num2[i] << 16)) continue;
@@ -935,11 +935,11 @@ static void regenmagic(int percent)
 		}
 		wild_regen = 20;
 	}
-	for (i = 72; i < 108; i++)
+	for (i = EATER_EXT*2; i < EATER_EXT*3; i++)
 	{
 		if (!p_ptr->magic_num1[i]) continue;
 		if (!p_ptr->magic_num2[i]) continue;
-		p_ptr->magic_num1[i] -= (long)(p_ptr->magic_num2[i] * (adj_mag_mana[A_INT] + 10)) * 0x1000;
+		p_ptr->magic_num1[i] -= (long)(p_ptr->magic_num2[i] * (adj_mag_mana[A_INT] + 10)) * EATER_ROD_CHARGE/16;
 		if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
 		wild_regen = 20;
 	}
@@ -1446,6 +1446,33 @@ static void check_music()
         gere_music(p_ptr->magic_num1[0]);
 }
 
+/* Choose one of items that have cursed flag */
+object_type *choose_cursed_obj_name(u32b flag)
+{
+	int i;
+	int choices[INVEN_TOTAL-INVEN_RARM];
+	int number = 0;
+
+	/* Paranoia -- Player has no warning-item */
+	if (!(p_ptr->cursed & flag)) return NULL;
+
+	/* Search Inventry */
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		if (o_ptr->curse_flags & flag)
+		{
+			choices[number] = i;
+			number++;
+		}
+	}
+
+	/* Choice one of them */
+	return (&inventory[choices[randint0(number)]]);
+}
+
+
 /*
  * Handle certain things once every 10 game turns
  */
@@ -1457,7 +1484,6 @@ static void process_world(void)
 	int upkeep_factor = 0;
 	cave_type *c_ptr;
 	object_type *o_ptr;
-	u32b f1 = 0 , f2 = 0 , f3 = 0;
 	int temp;
 	object_kind *k_ptr;
 	const int dec_count = (easy_band ? 2 : 1);
@@ -2181,12 +2207,15 @@ take_hit(DAMAGE_NOESCAPE, i, "致命傷", -1);
 				/* Regeneration takes more food */
 				if (p_ptr->regenerate) i += 20;
 				if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK)) i+= 20;
+				if (p_ptr->cursed & TRC_FAST_DIGEST) i += 30;
 
 				/* Slow digestion takes less food */
 				if (p_ptr->slow_digest) i -= 5;
 
 				/* Minimal digestion */
 				if (i < 1) i = 1;
+				/* Maximal digestion */
+				if (i > 100) i = 100;
 
 				/* Digest some food */
 				(void)set_food(p_ptr->food - i);
@@ -2273,6 +2302,10 @@ msg_print("あまりにも空腹で気絶してしまった。");
 		if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK))
 		{
 			regen_amount /= 2;
+		}
+		if (p_ptr->cursed & TRC_SLOW_REGEN)
+		{
+			regen_amount /= 5;
 		}
 	}
 
@@ -3284,16 +3317,212 @@ msg_print("武器を落してしまった！");
 
 	/*** Process Inventory ***/
 
-	/* Handle experience draining */
-	if (p_ptr->exp_drain)
+	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->wild_mode)
 	{
-		if (randint0(100) < 25)
+		/*
+		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
+		 * can actually be useful!
+		 */
+		if ((p_ptr->cursed & TRC_TELEPORT_SELF) && one_in_(100))
+		{
+#ifdef JP
+if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
+#else
+			if (get_check_strict("Teleport? ", CHECK_OKAY_CANCEL))
+#endif
+			{
+				disturb(0, 0);
+				teleport_player(50);
+			}
+		}
+		/* Make a chainsword noise */
+		if ((p_ptr->cursed & TRC_CHAINSWORD) && one_in_(CHAINSWORD_NOISE))
+		{
+			char noise[1024];
+#ifdef JP
+if (!get_rnd_line("chainswd_j.txt", 0, noise))
+#else
+			if (!get_rnd_line("chainswd.txt", 0, noise))
+#endif
+				msg_print(noise);
+			disturb(FALSE, FALSE);
+		}
+		/* TY Curse */
+		if ((p_ptr->cursed & TRC_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
+		{
+			int count = 0;
+			(void)activate_ty_curse(FALSE, &count);
+		}
+		/* Handle experience draining */
+		if ((p_ptr->cursed & TRC_DRAIN_EXP) && one_in_(4))
 		{
 			p_ptr->exp -= (p_ptr->lev+1)/2;
 			if (p_ptr->exp < 0) p_ptr->exp = 0;
 			p_ptr->max_exp -= (p_ptr->lev+1)/2;
 			if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
 			check_experience();
+		}
+		/* Add light curse (Later) */
+		if ((p_ptr->cursed & TRC_ADD_L_CURSE) && one_in_(2000))
+		{
+			u32b new_curse;
+			object_type *o_ptr;
+
+			o_ptr = choose_cursed_obj_name(TRC_ADD_L_CURSE);
+
+			new_curse = get_curse(0, o_ptr);
+			if (!(o_ptr->curse_flags & new_curse))
+			{
+				char o_name[MAX_NLEN];
+
+				object_desc(o_name, o_ptr, FALSE, 0);
+
+				o_ptr->curse_flags |= new_curse;
+#ifdef JP
+msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
+#else
+				msg_format("There is a malignant black aura surrounding %s...", o_name);
+#endif
+
+				o_ptr->feeling = FEEL_NONE;
+
+				p_ptr->update |= (PU_BONUS);
+			}
+		}
+		/* Add heavy curse (Later) */
+		if ((p_ptr->cursed & TRC_ADD_H_CURSE) && one_in_(2000))
+		{
+			u32b new_curse;
+			object_type *o_ptr;
+
+			o_ptr = choose_cursed_obj_name(TRC_ADD_H_CURSE);
+
+			new_curse = get_curse(1, o_ptr);
+			if (!(o_ptr->curse_flags & new_curse))
+			{
+				char o_name[MAX_NLEN];
+
+				object_desc(o_name, o_ptr, FALSE, 0);
+
+				o_ptr->curse_flags |= new_curse;
+#ifdef JP
+msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
+#else
+				msg_format("There is a malignant black aura surrounding %s...", o_name);
+#endif
+
+				o_ptr->feeling = FEEL_NONE;
+
+				p_ptr->update |= (PU_BONUS);
+			}
+		}
+		/* Call animal */
+		if ((p_ptr->cursed & TRC_CALL_ANIMAL) && one_in_(1500))
+		{
+			if (summon_specific(0, py, px, dun_level, SUMMON_ANIMAL,
+			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			{
+				char o_name[MAX_NLEN];
+
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_ANIMAL), FALSE, 0);
+#ifdef JP
+msg_format("%sが動物を引き寄せた！", o_name);
+#else
+				msg_format("%s have attracted an animal!", o_name);
+#endif
+
+				disturb(0, 0);
+			}
+		}
+		/* Call demon */
+		if ((p_ptr->cursed & TRC_CALL_DEMON) && one_in_(666))
+		{
+			if (summon_specific(0, py, px, dun_level, SUMMON_DEMON,
+			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			{
+				char o_name[MAX_NLEN];
+
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DEMON), FALSE, 0);
+#ifdef JP
+msg_format("%sが悪魔を引き寄せた！", o_name);
+#else
+				msg_format("%s have attracted a demon!", o_name);
+#endif
+
+				disturb(0, 0);
+			}
+		}
+		/* Call dragon */
+		if ((p_ptr->cursed & TRC_CALL_DRAGON) && one_in_(400))
+		{
+			if (summon_specific(0, py, px, dun_level, SUMMON_DRAGON,
+			    TRUE, FALSE, FALSE, TRUE, TRUE))
+			{
+				char o_name[MAX_NLEN];
+
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DRAGON), FALSE, 0);
+#ifdef JP
+msg_format("%sがドラゴンを引き寄せた！", o_name);
+#else
+				msg_format("%s have attracted an animal!", o_name);
+#endif
+
+				disturb(0, 0);
+			}
+		}
+		if ((p_ptr->cursed & TRC_COWARDICE) && one_in_(1500))
+		{
+			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
+			{
+				disturb(0, 0);
+#ifdef JP
+msg_print("とても暗い... とても恐い！");
+#else
+				msg_print("It's so dark... so scary!");
+#endif
+
+				set_afraid(p_ptr->afraid + 13 + randint1(26));
+			}
+		}
+		/* Teleport player */
+		if ((p_ptr->cursed & TRC_TELEPORT) && one_in_(100) && !p_ptr->anti_tele)
+		{
+			disturb(0, 0);
+
+			/* Teleport player */
+			teleport_player(40);
+		}
+		/* Handle HP draining */
+		if ((p_ptr->cursed & TRC_DRAIN_HP) && one_in_(666))
+		{
+			char o_name[MAX_NLEN];
+
+			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_HP), FALSE, 0);
+#ifdef JP
+msg_format("%sはあなたの体力を吸収した！", o_name);
+#else
+			msg_format("%s drains HP from you!", o_name);
+#endif
+			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev*2, 100), o_name, -1);
+		}
+		/* Handle mana draining */
+		if ((p_ptr->cursed & TRC_DRAIN_MANA) && one_in_(666))
+		{
+			char o_name[MAX_NLEN];
+
+			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_MANA), FALSE, 0);
+#ifdef JP
+msg_format("%sはあなたの魔力を吸収した！", o_name);
+#else
+			msg_format("%s drains mana from you!", o_name);
+#endif
+			p_ptr->csp -= MIN(p_ptr->lev, 50);
+			if (p_ptr->csp < 0)
+			{
+				p_ptr->csp = 0;
+				p_ptr->csp_frac = 0;
+			}
+			p_ptr->redraw |= PR_MANA;
 		}
 	}
 
@@ -3321,69 +3550,8 @@ take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "審判の宝石", -1);
 		/* Get the object */
 		o_ptr = &inventory[i];
 
-		object_flags(o_ptr, &f1, &f2, &f3);
-
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
-
-		if (!p_ptr->inside_battle)
-		{
-			/* TY Curse */
-			if ((f3 & TR3_TY_CURSE) && one_in_(TY_CURSE_CHANCE))
-			{
-				int count = 0;
-
-				(void)activate_ty_curse(FALSE, &count);
-			}
-
-			/* Make a chainsword noise */
-			if ((o_ptr->name1 == ART_CHAINSWORD) && one_in_(CHAINSWORD_NOISE))
-			{
-				char noise[1024];
-#ifdef JP
-if (!get_rnd_line("chainswd_j.txt", 0, noise))
-#else
-				if (!get_rnd_line("chainswd.txt", 0, noise))
-#endif
-
-					msg_print(noise);
-				disturb(FALSE, FALSE);
-			}
-
-			/*
-			 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
-			 * can actually be useful!
-			 */
-			if ((f3 & TR3_TELEPORT) && (randint0(100) < 1))
-			{
-				if ((o_ptr->ident & IDENT_CURSED) && !p_ptr->anti_tele)
-				{
-					disturb(0, 0);
-
-					/* Teleport player */
-					teleport_player(40);
-				}
-				else
-				{
-					if (p_ptr->wild_mode || (o_ptr->inscription &&
-					    (strchr(quark_str(o_ptr->inscription),'.'))))
-					{
-						/* Do nothing */
-						/* msg_print("Teleport aborted.") */ ;
-					}
-#ifdef JP
-else if (get_check_strict("テレポートしますか？", 1))
-#else
-					else if (get_check("Teleport? "))
-#endif
-
-					{
-						disturb(0, 0);
-						teleport_player(50);
-					}
-				}
-			}
-		}
 
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
@@ -5551,20 +5719,11 @@ static void dungeon(bool load_game)
 		create_down_stair = create_up_stair = 0;
 	}
 
+	/* Validate the panel */
+	panel_bounds_center();
 
 	/* Verify the panel */
 	verify_panel();
-
-	/* Validate the panel */
-	if (center_player)
-	{
-		panel_bounds_center();
-	}
-	else
-	{
-	panel_bounds();
-	}
-
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -5885,6 +6044,18 @@ static void load_all_pref_files(void)
 {
 	char buf[1024];
 
+	/* Access the "user" pref file */
+	sprintf(buf, "user.prf");
+
+	/* Process that file */
+	process_pref_file(buf);
+
+	/* Access the "user" system pref file */
+	sprintf(buf, "user-%s.prf", ANGBAND_SYS);
+
+	/* Process that file */
+	process_pref_file(buf);
+
 	/* Access the "race" pref file */
 	sprintf(buf, "%s.prf", rp_ptr->title);
 
@@ -5959,6 +6130,22 @@ void play_game(bool new_game)
 
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
+
+	/* Make sure main term is active */
+	Term_activate(angband_term[0]);
+
+	/* Initialise the resize hooks */
+	angband_term[0]->resize_hook = resize_map;
+	
+	for (i = 1; i < 8; i++)
+	{
+		/* Does the term exist? */
+		if (angband_term[i])
+		{
+			/* Add the redraw on resize hook */
+			angband_term[i]->resize_hook = redraw_window;
+		}
+	}
 
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
@@ -6239,6 +6426,10 @@ quit("セーブファイルが壊れています");
 	start_time = time(NULL) - 1;
 	record_o_name[0] = '\0';
 
+	/* Reset map panel */
+	panel_row_min = cur_hgt;
+	panel_col_min = cur_wid;
+
 	/* Sexy gal gets bonus to maximum weapon skill of whip */
 	if(p_ptr->pseikaku == SEIKAKU_SEXY)
 		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_BOW][SV_WHIP] = 8000;
@@ -6343,7 +6534,7 @@ if (init_v_info()) quit("建築物初期化不能");
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | PW_OBJECT);
 
 	/* Window stuff */
 	window_stuff();
@@ -6472,11 +6663,11 @@ msg_print("ウィザードモードに念を送り、死を欺いた。");
 
 					if (p_ptr->pclass == CLASS_MAGIC_EATER)
 					{
-						for (i = 0; i < 72; i++)
+						for (i = 0; i < EATER_EXT*2; i++)
 						{
-							p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*0x10000;
+							p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
 						}
-						for (; i < 108; i++)
+						for (; i < EATER_EXT*3; i++)
 						{
 							p_ptr->magic_num1[i] = 0;
 						}

@@ -1,4 +1,4 @@
-/* src/autoconf.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
+/* src/autoconf.h.in.  Generated automatically from configure.in by autoheader.  */
 
 /* Define to empty if the keyword does not work.  */
 #undef const
@@ -69,6 +69,9 @@
 
 /* Define if you have the strtol function.  */
 #undef HAVE_STRTOL
+
+/* Define if you have the usleep function.  */
+#undef HAVE_USLEEP
 
 /* Define if you have the vasprintf function.  */
 #undef HAVE_VASPRINTF

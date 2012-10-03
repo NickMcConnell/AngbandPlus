@@ -69,9 +69,14 @@ void do_cmd_inven(void)
 	/* Process "Escape" */
 	if (command_new == ESCAPE)
 	{
+		int wid, hgt;
+
+		/* Get size */
+		Term_get_size(&wid, &hgt);
+
 		/* Reset stuff */
 		command_new = 0;
-		command_gap = 50;
+		command_gap = wid - 30;
 	}
 
 	/* Process normal keys */
@@ -139,9 +144,14 @@ void do_cmd_equip(void)
 	/* Process "Escape" */
 	if (command_new == ESCAPE)
 	{
+		int wid, hgt;
+
+		/* Get size */
+		Term_get_size(&wid, &hgt);
+
 		/* Reset stuff */
 		command_new = 0;
-		command_gap = 50;
+		command_gap = wid - 30;
 	}
 
 	/* Process normal keys */
@@ -739,12 +749,7 @@ void do_cmd_takeoff(void)
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
 	{
-		u32b f1, f2, f3;
-
-		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
-
-		if ((f3 & TR3_PERMA_CURSE) || (p_ptr->pclass != CLASS_BERSERKER))
+		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_BERSERKER))
 		{
 			/* Oops */
 #ifdef JP
@@ -757,7 +762,7 @@ void do_cmd_takeoff(void)
 			return;
 		}
 
-		if (((f3 & TR3_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
+		if (((o_ptr->curse_flags & TRC_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
 		{
 #ifdef JP
 			msg_print("呪われた装備を力づくで剥がした！");
@@ -765,17 +770,10 @@ void do_cmd_takeoff(void)
 			msg_print("You teared a cursed equipment off by sheer strength!");
 #endif
 
-			/* Uncurse it */
-			o_ptr->ident &= ~(IDENT_CURSED);
-
 			/* Hack -- Assume felt */
 			o_ptr->ident |= (IDENT_SENSE);
 
-			if (o_ptr->art_flags3 & TR3_CURSED)
-				o_ptr->art_flags3 &= ~(TR3_CURSED);
-
-			if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
-			o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+			o_ptr->curse_flags = 0L;
 
 			/* Take note */
 			o_ptr->feeling = FEEL_NONE;
@@ -1204,7 +1202,6 @@ void do_cmd_observe(void)
 	msg_format("Examining %s...", o_name);
 #endif
 
-
 	/* Describe it fully */
 #ifdef JP
 	if (!identify_fully_aux(o_ptr)) msg_print("特に変わったところはないようだ。");
@@ -1280,6 +1277,10 @@ void do_cmd_uninscribe(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* .や$の関係で, 再計算が必要なはず -- henkma */
+	p_ptr->update |= (PU_BONUS);
+
 }
 
 /*
@@ -1363,9 +1364,11 @@ static flag_insc_table flag_insc_misc[] =
 	{ "射", "Xs", TR3_XTRA_SHOTS, 3, 0 },
 	{ "怒", "Ag", TR3_AGGRAVATE, 3, 0 },
 	{ "祝", "Bs", TR3_BLESSED, 3, 0 },
+#if 0
 	{ "永呪", "Pc", TR3_PERMA_CURSE, 3, 0 },
 	{ "呪", "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
 	{ "忌", "Ty", TR3_TY_CURSE, 3, 0 },
+#endif
 	{ NULL, 0, 0, 0 }
 };
 
@@ -1397,6 +1400,7 @@ static flag_insc_table flag_insc_brand[] =
 static flag_insc_table flag_insc_slay[] =
 {
 	{ "邪", "*", TR1_SLAY_EVIL, 1, 0 },
+	{ "人", "H", TR3_SLAY_HUMAN, 3, 0 },
 	{ "龍", "D", TR1_KILL_DRAGON, 1, 0 },
 	{ "竜", "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
 	{ "オ", "o", TR1_SLAY_ORC, 1, 0 },
@@ -1485,9 +1489,11 @@ static flag_insc_table flag_insc_misc[] =
   	{ "Xs", TR3_XTRA_SHOTS, 3, 0 },
   	{ "Ag", TR3_AGGRAVATE, 3, 0 },
   	{ "Bs", TR3_BLESSED, 3, 0 },
+#if 0
   	{ "Pc", TR3_PERMA_CURSE, 3, 0 },
   	{ "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
   	{ "Ty", TR3_TY_CURSE, 3, 0 },
+#endif
 #if 0
   	{ "De", TR3_DRAIN_EXP, 3, 0 },
 #endif
@@ -1522,6 +1528,7 @@ static flag_insc_table flag_insc_brand[] =
 static flag_insc_table flag_insc_slay[] =
 {
   	{ "*", TR1_SLAY_EVIL, 1, 0 },
+	{ "H", TR3_SLAY_HUMAN, 3, 0 },
   	{ "D", TR1_KILL_DRAGON, 1, 0 },
   	{ "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
   	{ "o", TR1_SLAY_ORC, 1, 0 },
@@ -1753,6 +1760,7 @@ s16b inscribe_flags(object_type *o_ptr, cptr out_val)
 		buff[MAX_NLEN-1] = '\0';
 #endif
 	}
+
 	return quark_add(buff);
 }
 
@@ -1832,6 +1840,9 @@ void do_cmd_inscribe(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* .や$の関係で, 再計算が必要なはず -- henkma */
+		p_ptr->update |= (PU_BONUS);
 	}
 }
 
@@ -2206,6 +2217,11 @@ void do_cmd_locate(void)
 
 	char	out_val[160];
 
+	int wid, hgt;
+
+	/* Get size */
+	get_screen_size(&wid, &hgt);
+
 
 	/* Start at current panel */
 	y2 = y1 = panel_row_min;
@@ -2246,8 +2262,8 @@ void do_cmd_locate(void)
 		        "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
 #endif
 
-		        y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
-		        x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
+		        y2 / (hgt / 2), y2 % (hgt / 2),
+		        x2 / (wid / 2), x2 % (wid / 2), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;
@@ -2597,59 +2613,6 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 
 /*
- * Hack -- Display the "name" and "attr/chars" of a monster race
- */
-static void roff_top(int r_idx)
-{
-	monster_race	*r_ptr = &r_info[r_idx];
-
-	byte		a1, a2;
-	char		c1, c2;
-
-
-	/* Access the chars */
-	c1 = r_ptr->d_char;
-	c2 = r_ptr->x_char;
-
-	/* Access the attrs */
-	a1 = r_ptr->d_attr;
-	a2 = r_ptr->x_attr;
-
-	/* Clear the top line */
-	Term_erase(0, 0, 255);
-
-	/* Reset the cursor */
-	Term_gotoxy(0, 0);
-
-	/* A title (use "The" for non-uniques) */
-#ifdef JP
-        /* 英日切り替え機能に非対応 */
-        if (0)
-#else
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-#endif
-
-	{
-		Term_addstr(-1, TERM_WHITE, "The ");
-	}
-
-	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
-
-
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
-
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	Term_addstr(-1, TERM_WHITE, "'):");
-}
-
-
-/*
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "multiple" monsters:
@@ -2973,17 +2936,11 @@ bool research_mon(void)
 	char sym, query;
 	char buf[128];
 
-	s16b oldkills;
-	byte oldwake;
-	bool oldcheat;
-
 	bool notpicked;
 
 	bool recall = FALSE;
 
 	u16b why = 0;
-
-	monster_race *r2_ptr;
 
 	u16b	*who;
 
@@ -2996,8 +2953,6 @@ bool research_mon(void)
 	/* XTRA HACK REMEMBER_IDX */
 	static int old_sym = '\0';
 	static int old_i = 0;
-
-	oldcheat = cheat_know;
 
 
 	/* Save the screen */
@@ -3095,8 +3050,6 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 	{
 		monster_race *r_ptr = &r_info[i];
 
-		cheat_know = TRUE;
-
 		/* XTRA HACK WHATSEARCH */
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -3137,8 +3090,6 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 	/* Nothing to recall */
 	if (!n)
 	{
-		cheat_know = oldcheat;
-
 		/* Free the "who" array */
 		C_KILL(who, max_r_idx, u16b);
 
@@ -3201,14 +3152,52 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 			if (recall)
 			{
 				/* Recall on screen */
-				r2_ptr = &r_info[r_idx];
+				monster_race *r_ptr = &r_info[r_idx];
+				int m;
 
-				oldkills = r2_ptr->r_tkills;
-				oldwake = r2_ptr->r_wake;
-				screen_roff(who[i], 1);
-				r2_ptr->r_tkills = oldkills;
-				r2_ptr->r_wake = oldwake;
-				cheat_know = oldcheat;
+				/* Hack -- Maximal info */
+				r_ptr->r_wake = r_ptr->r_ignore = MAX_UCHAR;
+				
+				/* Observe "maximal" attacks */
+				for (m = 0; m < 4; m++)
+				{
+					/* Examine "actual" blows */
+					if (r_ptr->blow[m].effect || r_ptr->blow[m].method)
+					{
+						/* Hack -- maximal observations */
+						r_ptr->r_blows[m] = MAX_UCHAR;
+					}
+				}
+				
+				/* Hack -- maximal drops */
+				r_ptr->r_drop_gold = r_ptr->r_drop_item =
+					(((r_ptr->flags1 & RF1_DROP_4D2) ? 8 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_3D2) ? 6 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_2D2) ? 4 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_1D2) ? 2 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_90)  ? 1 : 0) +
+					 ((r_ptr->flags1 & RF1_DROP_60)  ? 1 : 0));
+				
+				/* Hack -- but only "valid" drops */
+				if (r_ptr->flags1 & RF1_ONLY_GOLD) r_ptr->r_drop_item = 0;
+				if (r_ptr->flags1 & RF1_ONLY_ITEM) r_ptr->r_drop_gold = 0;
+				
+				/* Hack -- observe many spells */
+				r_ptr->r_cast_inate = MAX_UCHAR;
+				r_ptr->r_cast_spell = MAX_UCHAR;
+				
+				/* Hack -- know all the flags */
+				r_ptr->r_flags1 = r_ptr->flags1;
+				r_ptr->r_flags2 = r_ptr->flags2;
+				r_ptr->r_flags3 = r_ptr->flags3;
+				r_ptr->r_flags4 = r_ptr->flags4;
+				r_ptr->r_flags5 = r_ptr->flags5;
+				r_ptr->r_flags6 = r_ptr->flags6;
+				
+				r_ptr->r_xtra1 |= MR1_SINKA;
+			
+				/* know every thing mode */
+				screen_roff(r_idx, 0x01);
 				notpicked = FALSE;
 
 				/* XTRA HACK REMEMBER_IDX */
@@ -3253,8 +3242,6 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 
 	/* Re-display the identity */
 	/* prt(buf, 5, 5);*/
-
-	cheat_know = oldcheat;
 
 	/* Free the "who" array */
 	C_KILL(who, max_r_idx, u16b);

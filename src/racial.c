@@ -2357,7 +2357,7 @@ msg_print("混乱していて特殊能力を使えません！");
 #ifdef JP
 strcpy(power_desc[num].name, "剣の舞い");
 #else
-		strcpy(power_desc[num].name, "Whirl Strike");
+		strcpy(power_desc[num].name, "Sword Dancing");
 #endif
 
 		power_desc[num].level = 40;
@@ -2513,7 +2513,7 @@ strcpy(power_desc[num].name, "幻惑の光");
 #ifdef JP
 strcpy(power_desc[num].name, "構える");
 #else
-		strcpy(power_desc[num].name, "Asuume a Posture");
+		strcpy(power_desc[num].name, "Assume a Posture");
 #endif
 
 		power_desc[num].level = 25;
@@ -2756,7 +2756,7 @@ strcpy(power_desc[num].name, "鏡割り");
 #ifdef JP
 strcpy(power_desc[num].name, "静水");
 #else
-		strcpy(power_desc[num].name, "Clear Mind");
+		strcpy(power_desc[num].name, "Mirror Concentration");
 #endif
 
 		power_desc[num].level = 30;

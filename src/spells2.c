@@ -1773,7 +1773,16 @@ info[i++] = "あなたは幻覚を見ている。";
 #endif
 
 	}
-	if (p_ptr->aggravate)
+	if (p_ptr->cursed & TRC_TY_CURSE)
+	{
+#ifdef JP
+info[i++] = "あなたは邪悪な怨念に包まれている。";
+#else
+		info[i++] = "You carry an ancient foul curse.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_AGGRAVATE)
 	{
 #ifdef JP
 info[i++] = "あなたはモンスターを怒らせている。";
@@ -1782,12 +1791,138 @@ info[i++] = "あなたはモンスターを怒らせている。";
 #endif
 
 	}
-	if (p_ptr->teleport)
+	if (p_ptr->cursed & TRC_DRAIN_EXP)
+	{
+#ifdef JP
+info[i++] = "あなたは経験値を吸われている。";
+#else
+		info[i++] = "You are drained.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_SLOW_REGEN)
+	{
+#ifdef JP
+info[i++] = "あなたの回復力は非常に遅い。";
+#else
+		info[i++] = "You regenerate slowly.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_ADD_L_CURSE)
+	{
+#ifdef JP
+info[i++] = "あなたの弱い呪いは増える。"; /* 暫定的 -- henkma */
+#else
+		info[i++] = "Your weak curses multiply.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_ADD_H_CURSE)
+	{
+#ifdef JP
+info[i++] = "あなたの強い呪いは増える。"; /* 暫定的 -- henkma */
+#else
+		info[i++] = "Your heavy curses multiply.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_CALL_ANIMAL)
+	{
+#ifdef JP
+info[i++] = "あなたは動物に狙われている。";
+#else
+		info[i++] = "You attract animals.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_CALL_DEMON)
+	{
+#ifdef JP
+info[i++] = "あなたは悪魔に狙われている。";
+#else
+		info[i++] = "You attract demons.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_CALL_DRAGON)
+	{
+#ifdef JP
+info[i++] = "あなたはドラゴンに狙われている。";
+#else
+		info[i++] = "You attract dragons.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_COWARDICE)
+	{
+#ifdef JP
+info[i++] = "あなたは時々臆病になる。";
+#else
+		info[i++] = "You are subject to cowardice.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_TELEPORT)
 	{
 #ifdef JP
 info[i++] = "あなたの位置はひじょうに不安定だ。";
 #else
 		info[i++] = "Your position is very uncertain.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_LOW_MELEE)
+	{
+#ifdef JP
+info[i++] = "あなたの武器は攻撃を外しやすい。";
+#else
+		info[i++] = "Your weapon causes you miss blows.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_LOW_AC)
+	{
+#ifdef JP
+info[i++] = "あなたは攻撃を受けやすい。";
+#else
+		info[i++] = "You are subject to be hit.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_LOW_MAGIC)
+	{
+#ifdef JP
+info[i++] = "あなたは魔法を失敗しやすい。";
+#else
+		info[i++] = "You are subject to fail spellcasting.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_FAST_DIGEST)
+	{
+#ifdef JP
+info[i++] = "あなたはすぐお腹がへる。";
+#else
+		info[i++] = "You have a good appetite.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_DRAIN_HP)
+	{
+#ifdef JP
+info[i++] = "あなたは体力を吸われている。";
+#else
+		info[i++] = "You are drained.";
+#endif
+
+	}
+	if (p_ptr->cursed & TRC_DRAIN_MANA)
+	{
+#ifdef JP
+info[i++] = "あなたは魔力を吸われている。";
+#else
+		info[i++] = "You brain is drained.";
 #endif
 
 	}
@@ -2011,7 +2146,7 @@ info[i++] = "あなたは食欲が少ない。";
 	if (p_ptr->telepathy)
 	{
 #ifdef JP
-info[i++] = "あなたは超能力を持っている。";
+info[i++] = "あなたはテレパシー能力を持っている。";
 #else
 		info[i++] = "You have ESP.";
 #endif
@@ -2715,6 +2850,15 @@ info[i++] = "あなたの武器は邪悪なる存在に対して強い力を発揮する。";
 #endif
 
 		}
+		if (f3 & (TR3_SLAY_HUMAN))
+		{
+#ifdef JP
+info[i++] = "あなたの武器は人間に対して特に強い力を発揮する。";
+#else
+			info[i++] = "Your weapon is especially deadly against humans.";
+#endif
+
+		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
 #ifdef JP
@@ -3050,7 +3194,7 @@ info[i++] = "あなたの手は赤く輝いている。";
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
 #ifdef JP
-info[i++] = "の後帰還の詔を発動する。";
+info[i++] = "この後帰還の詔を発動する。";
 #else
 		info[i++] = "You waiting to be recalled";
 #endif

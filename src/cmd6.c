@@ -1052,15 +1052,15 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			if (p_ptr->pclass == CLASS_MAGIC_EATER)
 			{
 				int i;
-				for (i = 0; i < 72; i++)
+				for (i = 0; i < EATER_EXT*2; i++)
 				{
-					p_ptr->magic_num1[i] += (p_ptr->magic_num2[i] < 10) ? 0x30000 : p_ptr->magic_num2[i]*0x05555;
-					if (p_ptr->magic_num1[i] > p_ptr->magic_num2[i]*0x10000) p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*0x10000L;
+					p_ptr->magic_num1[i] += (p_ptr->magic_num2[i] < 10) ? EATER_CHARGE * 3 : p_ptr->magic_num2[i]*EATER_CHARGE/3;
+					if (p_ptr->magic_num1[i] > p_ptr->magic_num2[i]*EATER_CHARGE) p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
 				}
-				for (; i < 108; i++)
+				for (; i < EATER_EXT*3; i++)
 				{
-					int k_idx = lookup_kind(TV_ROD, i-72);
-					p_ptr->magic_num1[i] -= ((p_ptr->magic_num2[i] < 10) ? 0x30000 : p_ptr->magic_num2[i]*0x5555)*k_info[k_idx].pval;
+					int k_idx = lookup_kind(TV_ROD, i-EATER_EXT*2);
+					p_ptr->magic_num1[i] -= ((p_ptr->magic_num2[i] < 10) ? EATER_ROD_CHARGE*3 : p_ptr->magic_num2[i]*EATER_ROD_CHARGE/3)*k_info[k_idx].pval;
 					if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
 				}
 #ifdef JP
@@ -1181,7 +1181,6 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 
 		case SV_POTION_ENLIGHTENMENT:
 		{
-			chg_virtue(V_ENLIGHTEN, 1);
 #ifdef JP
 			msg_print("自分の置かれている状況が脳裏に浮かんできた...");
 #else
@@ -1204,7 +1203,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 #endif
 
 			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
+			chg_virtue(V_ENLIGHTEN, 2);
 			msg_print(NULL);
 			wiz_lite(TRUE, FALSE);
 			(void)do_inc_stat(A_INT);
@@ -4232,9 +4231,9 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			case ART_GOURYU:
 			{
 #ifdef JP
-				msg_print("指輪は深いブルーに輝いた...");
+				msg_format("%sは深いブルーに輝いた...", o_ptr->name1 == ART_VILYA ? "指輪" : "ソード");
 #else
-				msg_print("The ring glows deep blue...");
+				msg_format("The %s glows deep blue...", o_ptr->name1 == ART_VILYA ? "ring" : "sword");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
@@ -4303,7 +4302,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 
 				fire_ball(GF_MISSILE, dir, 300, 4);
 #ifdef JP
-				msg_print("アーマーが様々な色に輝いた...");
+				msg_print("鎧が様々な色に輝いた...");
 #else
 				msg_print("Your armor glows many colours...");
 #endif
@@ -4324,7 +4323,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			case ART_SOULKEEPER:
 			{
 #ifdef JP
-				msg_print("アーマーが白く明るく輝いた...");
+				msg_print("鎧が白く明るく輝いた...");
 				msg_print("ひじょうに気分がよい...");
 #else
 				msg_print("Your armor glows a bright white...");
@@ -4359,7 +4358,7 @@ msg_print("天国の歌が聞こえる...");
 			case ART_JULIAN:
 			{
 #ifdef JP
-				msg_print("アーマーが深いブルーに輝いた...");
+				msg_print("鎧が深いブルーに輝いた...");
 #else
 				msg_print("Your armor glows deep blue...");
 #endif
@@ -4372,7 +4371,7 @@ msg_print("天国の歌が聞こえる...");
 			case ART_CASPANION:
 			{
 #ifdef JP
-				msg_print("アーマーが赤く明るく輝いた...");
+				msg_print("鎧が赤く明るく輝いた...");
 #else
 				msg_print("Your armor glows bright red...");
 #endif
@@ -4429,7 +4428,7 @@ msg_print("天国の歌が聞こえる...");
 #ifdef JP
 				msg_format("%sが様々な色に輝いた...", o_ptr->name1 == ART_COLLUIN ? "クローク" : "鎧");
 #else
-				msg_format("Your cloak glows many colours...");
+				msg_format("Your %s glows many colours...", o_ptr->name1 == ART_COLLUIN ? "cloak" : "armor");
 #endif
 
 				(void)set_oppose_acid(randint1(20) + 20, FALSE);
@@ -5494,7 +5493,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 				o_ptr->art_flags2 = a_info[ART_BLOOD].flags2;
 				dummy = randint1(2)+randint1(2);
 				for (i = 0; i < dummy; i++)
-					o_ptr->art_flags1 |= (TR1_CHAOTIC << randint0(18));
+				{
+					int flag = randint0(19);
+					if (flag == 18) o_ptr->art_flags3 |= TR3_SLAY_HUMAN;
+					else o_ptr->art_flags1 |= (TR1_CHAOTIC << flag);
+				}
 				dummy = randint1(2);
 				for (i = 0; i < dummy; i++)
 					one_resistance(o_ptr);
@@ -6596,9 +6599,9 @@ static bool select_magic_eater(int mode)
 	if (repeat_pull(&sn))
 	{
 		/* Verify the spell */
-		if (sn > 71 && !(p_ptr->magic_num1[sn] > k_info[lookup_kind(TV_ROD, i)].pval * (p_ptr->magic_num2[sn] - 1) * 0x10000L))
+		if (sn >= EATER_EXT*2 && !(p_ptr->magic_num1[sn] > k_info[lookup_kind(TV_ROD, sn-EATER_EXT*2)].pval * (p_ptr->magic_num2[sn] - 1) * EATER_ROD_CHARGE))
 			return sn;
-		else if (sn < 72 && !(p_ptr->magic_num1[sn] < 0x10000))
+		else if (sn < EATER_EXT*2 && !(p_ptr->magic_num1[sn] < EATER_CHARGE))
 			return sn;
 	}
 	
@@ -6656,7 +6659,7 @@ static bool select_magic_eater(int mode)
 			case '\r':
 			case 'x':
 			case 'X':
-				ext = (menu_line-1)*36;
+				ext = (menu_line-1)*EATER_EXT;
 				if (menu_line == 1) tval = TV_STAFF;
 				else if (menu_line == 2) tval = TV_WAND;
 				else tval = TV_ROD;
@@ -6686,19 +6689,19 @@ static bool select_magic_eater(int mode)
 		}
 		if (choice == 'B' || choice == 'b')
 		{
-			ext = 36;
+			ext = EATER_EXT;
 			tval = TV_WAND;
 			break;
 		}
 		if (choice == 'C' || choice == 'c')
 		{
-			ext = 72;
+			ext = EATER_EXT*2;
 			tval = TV_ROD;
 			break;
 		}
 	}
 	}
-	for (i = ext; i < ext + 36; i++)
+	for (i = ext; i < ext + EATER_EXT; i++)
 	{
 		if (p_ptr->magic_num2[i])
 		{
@@ -6706,7 +6709,7 @@ static bool select_magic_eater(int mode)
 			break;
 		}
 	}
-	if (i == ext+36)
+	if (i == ext+EATER_EXT)
 	{
 #ifdef JP
 		msg_print("その種類の魔法は覚えていない！");
@@ -6755,8 +6758,8 @@ static bool select_magic_eater(int mode)
 				{
 					do
 					{
-						menu_line += 35;
-						if (menu_line > 36) menu_line -= 36;
+						menu_line += EATER_EXT - 1;
+						if (menu_line > EATER_EXT) menu_line -= EATER_EXT;
 					} while(!p_ptr->magic_num2[menu_line+ext-1]);
 					break;
 				}
@@ -6768,7 +6771,7 @@ static bool select_magic_eater(int mode)
 					do
 					{
 						menu_line++;
-						if (menu_line > 36) menu_line -= 36;
+						if (menu_line > EATER_EXT) menu_line -= EATER_EXT;
 					} while(!p_ptr->magic_num2[menu_line+ext-1]);
 					break;
 				}
@@ -6782,12 +6785,12 @@ static bool select_magic_eater(int mode)
 				{
 					bool reverse = FALSE;
 					if ((choice == '4') || (choice == 'h') || (choice == 'H')) reverse = TRUE;
-					if (menu_line > 18)
+					if (menu_line > EATER_EXT/2)
 					{
-						menu_line -= 18;
+						menu_line -= EATER_EXT/2;
 						reverse = TRUE;
 					}
-					else menu_line+=18;
+					else menu_line+=EATER_EXT/2;
 					while(!p_ptr->magic_num2[menu_line+ext-1])
 					{
 						if (reverse)
@@ -6798,7 +6801,7 @@ static bool select_magic_eater(int mode)
 						else
 						{
 							menu_line++;
-							if (menu_line > 35) reverse = TRUE;
+							if (menu_line > EATER_EXT-1) reverse = TRUE;
 						}
 					}
 					break;
@@ -6848,7 +6851,7 @@ static bool select_magic_eater(int mode)
 #endif
 
 				/* Print list */
-				for (ctr = 0; ctr < 36; ctr++)
+				for (ctr = 0; ctr < EATER_EXT; ctr++)
 				{
 					if (!p_ptr->magic_num2[ctr+ext]) continue;
 
@@ -6875,8 +6878,8 @@ static bool select_magic_eater(int mode)
 							letter = '0' + ctr - 26;
 						sprintf(dummy, "%c)",letter);
 					}
-					x1 = ((ctr < 18) ? x : x + 40);
-					y1 = ((ctr < 18) ? y + ctr : y + ctr - 18);
+					x1 = ((ctr < EATER_EXT/2) ? x : x + 40);
+					y1 = ((ctr < EATER_EXT/2) ? y + ctr : y + ctr - EATER_EXT/2);
 					level = (tval == TV_ROD ? k_info[k_idx].level * 5 / 6 - 5 : k_info[k_idx].level);
 					chance = level * 4 / 5 + 20;
 					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
@@ -6885,7 +6888,7 @@ static bool select_magic_eater(int mode)
 					{
 						chance -= 3 * (p_ptr->lev - level);
 					}
-					if (p_ptr->pseikaku == SEIKAKU_NAMAKE) chance += 10;
+					chance += p_ptr->to_m_chance;
 					if (p_ptr->heavy_spell) chance += 20;
 					if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
 					else if (p_ptr->easy_spell) chance-=3;
@@ -6914,14 +6917,14 @@ strcat(dummy, format(
 #endif
 	k_name + k_info[k_idx].name, 
 	p_ptr->magic_num1[ctr+ext] ? 
-	(p_ptr->magic_num1[ctr+ext] - 1) / (0x10000L * k_info[k_idx].pval) +1 : 0, 
+	(p_ptr->magic_num1[ctr+ext] - 1) / (EATER_ROD_CHARGE * k_info[k_idx].pval) +1 : 0, 
 	p_ptr->magic_num2[ctr+ext], chance));
-							if (p_ptr->magic_num1[ctr+ext] > k_info[k_idx].pval * (p_ptr->magic_num2[ctr+ext]-1) * 0x10000L) col = TERM_RED;
+							if (p_ptr->magic_num1[ctr+ext] > k_info[k_idx].pval * (p_ptr->magic_num2[ctr+ext]-1) * EATER_ROD_CHARGE) col = TERM_RED;
 						}
 						else
 						{
-							strcat(dummy, format(" %-22.22s    %2d/%2d %3d%%", k_name + k_info[k_idx].name, (s16b)(p_ptr->magic_num1[ctr+ext]/0x10000), p_ptr->magic_num2[ctr+ext], chance));
-							if (p_ptr->magic_num1[ctr+ext] < 0x10000L) col = TERM_RED;
+							strcat(dummy, format(" %-22.22s    %2d/%2d %3d%%", k_name + k_info[k_idx].name, (s16b)(p_ptr->magic_num1[ctr+ext]/EATER_CHARGE), p_ptr->magic_num2[ctr+ext], chance));
+							if (p_ptr->magic_num1[ctr+ext] < EATER_CHARGE) col = TERM_RED;
 						}
 					}
 					else
@@ -6966,7 +6969,7 @@ strcat(dummy, format(
 		}
 
 		/* Totally Illegal */
-		if ((i < 0) || (i > 36) || !p_ptr->magic_num2[i+ext])
+		if ((i < 0) || (i > EATER_EXT) || !p_ptr->magic_num2[i+ext])
 		{
 			bell();
 			continue;
@@ -6991,7 +6994,7 @@ strcat(dummy, format(
 			}
 			if (tval == TV_ROD)
 			{
-				if (p_ptr->magic_num1[ext+i]  > k_info[lookup_kind(tval, i)].pval * (p_ptr->magic_num2[ext+i] - 1) * 0x10000L)
+				if (p_ptr->magic_num1[ext+i]  > k_info[lookup_kind(tval, i)].pval * (p_ptr->magic_num2[ext+i] - 1) * EATER_ROD_CHARGE)
 				{
 #ifdef JP
 					msg_print("その魔法はまだ充填している最中だ。");
@@ -7005,7 +7008,7 @@ strcat(dummy, format(
 			}
 			else
 			{
-				if (p_ptr->magic_num1[ext+i] < 0x10000L)
+				if (p_ptr->magic_num1[ext+i] < EATER_CHARGE)
 				{
 #ifdef JP
 					msg_print("その魔法は使用回数が切れている。");
@@ -7057,8 +7060,8 @@ msg_print("混乱していて唱えられない！");
 		energy_use = 0;
 		return;
 	}
-	if (item > 71) {tval = TV_ROD;sval = item - 72;}
-	else if (item > 35) {tval = TV_WAND;sval = item - 36;}
+	if (item >= EATER_EXT*2) {tval = TV_ROD;sval = item - EATER_EXT*2;}
+	else if (item >= EATER_EXT) {tval = TV_WAND;sval = item - EATER_EXT;}
 	else {tval = TV_STAFF;sval = item;}
 	k_idx = lookup_kind(tval, sval);
 
@@ -7070,7 +7073,7 @@ msg_print("混乱していて唱えられない！");
 	{
 		chance -= 3 * (p_ptr->lev - level);
 	}
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE) chance += 10;
+	chance += p_ptr->to_m_chance;
 	if (p_ptr->heavy_spell) chance += 20;
 	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
 	else if (p_ptr->easy_spell) chance-=3;
@@ -7125,6 +7128,6 @@ msg_print("呪文をうまく唱えられなかった！");
 			chg_virtue(V_CHANCE,1);
 	}
 	energy_use = 100;
-	if (tval == TV_ROD) p_ptr->magic_num1[item] += k_info[k_idx].pval * 0x10000L;
-	else p_ptr->magic_num1[item] -= 0x10000L;
+	if (tval == TV_ROD) p_ptr->magic_num1[item] += k_info[k_idx].pval * EATER_ROD_CHARGE;
+	else p_ptr->magic_num1[item] -= EATER_CHARGE;
 }

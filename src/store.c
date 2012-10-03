@@ -1217,27 +1217,16 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
  * Check to see if the shop will be carrying too many objects	-RAK-
  * Note that the shop, just like a player, will not accept things
  * it cannot hold.	Before, one could "nuke" potions this way.
+ *
+ * Return value is now int:
+ *  0 : No space
+ * -1 : Can be combined to existing slot.
+ *  1 : Cannot be combined but there are empty spaces.
  */
-static bool store_check_num(object_type *o_ptr)
+static int store_check_num(object_type *o_ptr)
 {
 	int 	   i;
 	object_type *j_ptr;
-
-	/* Free space is always usable */
-	/*
-	 * オプション powerup_home が設定されていると
-	 * 我が家が 20 ページまで使える
-	 */
-	if ((cur_store_num == STORE_HOME) && ( powerup_home == FALSE )) {
-		if (st_ptr->stock_num < ((st_ptr->stock_size) / 10)) {
-			return TRUE;
-		}
-	}
-	else{
-		if (st_ptr->stock_num < st_ptr->stock_size) {
-			return TRUE;
-		}
-	}
 
 	/* The "home" acts like the player */
 	if ((cur_store_num == STORE_HOME) || (cur_store_num == STORE_MUSEUM))
@@ -1249,7 +1238,7 @@ static bool store_check_num(object_type *o_ptr)
 			j_ptr = &st_ptr->stock[i];
 
 			/* Can the new object be combined with the old one? */
-			if (object_similar(j_ptr, o_ptr)) return (TRUE);
+			if (object_similar(j_ptr, o_ptr)) return -1;
 		}
 	}
 
@@ -1263,12 +1252,28 @@ static bool store_check_num(object_type *o_ptr)
 			j_ptr = &st_ptr->stock[i];
 
 			/* Can the new object be combined with the old one? */
-			if (store_object_similar(j_ptr, o_ptr)) return (TRUE);
+			if (store_object_similar(j_ptr, o_ptr)) return -1;
+		}
+	}
+
+	/* Free space is always usable */
+	/*
+	 * オプション powerup_home が設定されていると
+	 * 我が家が 20 ページまで使える
+	 */
+	if ((cur_store_num == STORE_HOME) && ( powerup_home == FALSE )) {
+		if (st_ptr->stock_num < ((st_ptr->stock_size) / 10)) {
+			return 1;
+		}
+	}
+	else{
+		if (st_ptr->stock_num < st_ptr->stock_size) {
+			return 1;
 		}
 	}
 
 	/* But there was no room at the inn... */
-	return (FALSE);
+	return 0;
 }
 
 
@@ -2021,7 +2026,7 @@ static void updatebargain(s32b price, s32b minprice, int num)
  */
 static void display_entry(int pos)
 {
-	int 		i;
+	int 		i, cur_col;
 	object_type 	*o_ptr;
 	s32b		x;
 
@@ -2041,6 +2046,7 @@ static void display_entry(int pos)
 	(void)sprintf(out_val, "%c) ", I2A(i));
 	prt(out_val, i+6, 0);
 
+	cur_col = 3;
 	if (show_item_graph)
 	{
 		byte a = object_attr(o_ptr);
@@ -2051,7 +2057,14 @@ static void display_entry(int pos)
 			a |= 0x40;
 #endif
 
-		Term_draw(3, i + 6, a, c);
+		Term_draw(cur_col, i + 6, a, c);
+		if (use_bigtile)
+		{
+			cur_col++;
+			if (a & 0x80)
+				Term_draw(cur_col, i + 6, 255, 255);
+		}
+		cur_col += 2;
 	}
 
 	/* Describe an item in the home */
@@ -2065,7 +2078,7 @@ static void display_entry(int pos)
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
-		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, show_item_graph ? 5 : 3);
+		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, cur_col);
 
 		/* Show weights */
 		if (show_weights)
@@ -2095,7 +2108,7 @@ static void display_entry(int pos)
 		/* Describe the object (fully) */
 		object_desc_store(o_name, o_ptr, TRUE, 3);
 		o_name[maxwid] = '\0';
-		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, show_item_graph ? 5 : 3);
+		c_put_str(tval_to_attr[o_ptr->tval], o_name, i+6, cur_col);
 
 		/* Show weights */
 		if (show_weights)
@@ -3855,11 +3868,26 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 	{
 		char o2_name[MAX_NLEN];
 		object_desc(o2_name, q_ptr, TRUE, 0);
+
+		if (-1 == store_check_num(q_ptr))
+		{
 #ifdef JP
-		msg_print("博物館に寄贈したものは取り出すことができません！！");
+			msg_print("それと同じ品物は既に博物館にあるようです。");
+#else
+			msg_print("The same object as it is already in the Museum.");
+#endif
+		}
+		else
+		{
+#ifdef JP
+			msg_print("博物館に寄贈したものは取り出すことができません！！");
+#else
+			msg_print("You cannot take items which is given to the Museum back!!");
+#endif
+		}
+#ifdef JP
 		if (!get_check(format("本当に%sを寄贈しますか？", o2_name))) return;
 #else
-		msg_print("You cannot take items which is given to the Museum back!!");
 		if (!get_check(format("Really give %s to the Museum? ", o2_name))) return;
 #endif
 
