@@ -7,6 +7,12 @@ typedef int sint;
 
 /***** Constants *****/
 
+/*See defines.h*/
+#define POWER_WAND	10
+#define POWER_STAFF	20
+#define POWER_ROD	30
+#define POWER_ART	100
+
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
 
 #define ART_POWER			13
@@ -19,7 +25,6 @@ typedef int sint;
  * rings, amulets), and the ones from 16 to 127 are "normal".
  */
 #define ART_MIN_NORMAL		16
-
 
 /*
  * Number of tval/min-sval/max-sval slots per ego_item
@@ -481,6 +486,7 @@ typedef int sint;
 #define SV_STAFF_GENOCIDE		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
+#define SV_STAFF_VISIT_HOME     30
 
 
 /* The "sval" codes for TV_WAND */
@@ -527,22 +533,24 @@ typedef int sint;
 #define SV_ROD_HEALING			9
 #define SV_ROD_RESTORATION		10
 #define SV_ROD_SPEED			11
+#define SV_ROD_STAR_DETECTION			12
 /* xxx (aimed) */
-#define SV_ROD_TELEPORT_AWAY	13
-#define SV_ROD_DISARMING		14
-#define SV_ROD_LITE				15
-#define SV_ROD_SLEEP_MONSTER	16
-#define SV_ROD_SLOW_MONSTER		17
-#define SV_ROD_DRAIN_LIFE		18
-#define SV_ROD_POLYMORPH		19
-#define SV_ROD_ACID_BOLT		20
-#define SV_ROD_ELEC_BOLT		21
-#define SV_ROD_FIRE_BOLT		22
-#define SV_ROD_COLD_BOLT		23
-#define SV_ROD_ACID_BALL		24
-#define SV_ROD_ELEC_BALL		25
-#define SV_ROD_FIRE_BALL		26
-#define SV_ROD_COLD_BALL		27
+#define SV_ROD_TELEPORT_AWAY	14
+#define SV_ROD_DISARMING		15
+#define SV_ROD_LITE				16
+#define SV_ROD_SLEEP_MONSTER	17
+#define SV_ROD_SLOW_MONSTER		18
+#define SV_ROD_DRAIN_LIFE		19
+#define SV_ROD_POLYMORPH		20
+#define SV_ROD_ACID_BOLT		21
+#define SV_ROD_ELEC_BOLT		22
+#define SV_ROD_FIRE_BOLT		23
+#define SV_ROD_COLD_BOLT		24
+#define SV_ROD_ACID_BALL		25
+#define SV_ROD_ELEC_BALL		26
+#define SV_ROD_FIRE_BALL		27
+#define SV_ROD_COLD_BALL		28
+
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -587,10 +595,10 @@ typedef int sint;
 #define SV_SCROLL_PROTECTION_FROM_EVIL	37
 #define SV_SCROLL_RUNE_OF_PROTECTION	38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION	39
-/* xxx */
+#define SV_SCROLL_CREATE_EGO			40
 #define SV_SCROLL_STAR_DESTRUCTION		41
 #define SV_SCROLL_DISPEL_UNDEAD			42
-/* xxx */
+#define SV_SCROLL_CREATE_ARTIFACT			43
 #define SV_SCROLL_GENOCIDE				44
 #define SV_SCROLL_MASS_GENOCIDE			45
 #define SV_SCROLL_ACQUIREMENT			46
@@ -697,7 +705,7 @@ typedef int sint;
 /*
  * Special "sval" limit -- first "aimed" rod
  */
-#define SV_ROD_MIN_DIRECTION	12
+#define SV_ROD_MIN_DIRECTION	13
 
 /*
  * Special "sval" limit -- first "large" chest
@@ -1074,6 +1082,7 @@ struct artifact_type
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
 
+        s16b force_depth;	/* Alex: forced depth + 1 of this artifact */
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
 	u16b randtime;		/* Activation time dice */
@@ -1182,7 +1191,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
-extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great);
+extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, bool force_new_art,  bool force_ego);
 extern bool make_object(object_type *j_ptr, bool good, bool great);
 extern bool make_gold(object_type *j_ptr);
 extern s16b floor_carry(int y, int x, object_type *j_ptr);

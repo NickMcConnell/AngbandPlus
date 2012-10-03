@@ -3578,6 +3578,15 @@ static int toluaI_get_player_player_type_num_blow(lua_State* tolua_S)
  return 1;
 }
 
+/* get function: num_blow2 of class  player_type */
+static int toluaI_get_player_player_type_num_blow2(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->num_blow2);
+ return 1;
+}
+
 /* set function: num_blow of class  player_type */
 static int toluaI_set_player_player_type_num_blow(lua_State* tolua_S)
 {
@@ -3586,6 +3595,17 @@ static int toluaI_set_player_player_type_num_blow(lua_State* tolua_S)
  if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
   self->num_blow = ((s16b)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
+/* set function: num_blow2 of class  player_type */
+static int toluaI_set_player_player_type_num_blow2(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->num_blow2 = ((s16b)  tolua_getnumber(tolua_S,2,0));
  return 0;
 }
 
@@ -6104,15 +6124,17 @@ static int toluaI_player_take_hit00(lua_State* tolua_S)
  if (
  !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
  !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
- !tolua_isnoobj(tolua_S,3)
+ !tolua_istype(tolua_S,3,LUA_TSTRING,0) ||
+ !tolua_isnoobj(tolua_S,4)
  )
  goto tolua_lerror;
  else
  {
   int dam = ((int)  tolua_getnumber(tolua_S,1,0));
-  cptr kb_str = ((cptr)  tolua_getstring(tolua_S,2,0));
+  cptr msg = ((cptr)  tolua_getstring(tolua_S,2,0));
+  cptr kb_str = ((cptr)  tolua_getstring(tolua_S,3,0));
  {
-  take_hit(dam,kb_str);
+  take_hit(dam,msg,kb_str);
  }
  }
  return 0;
@@ -6424,6 +6446,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_tablevar(tolua_S,"player_type","skill_dig",toluaI_get_player_player_type_skill_dig,toluaI_set_player_player_type_skill_dig);
  tolua_tablevar(tolua_S,"player_type","noise",toluaI_get_player_player_type_noise,toluaI_set_player_player_type_noise);
  tolua_tablevar(tolua_S,"player_type","num_blow",toluaI_get_player_player_type_num_blow,toluaI_set_player_player_type_num_blow);
+ tolua_tablevar(tolua_S,"player_type","num_blow2",toluaI_get_player_player_type_num_blow,toluaI_set_player_player_type_num_blow2);
  tolua_tablevar(tolua_S,"player_type","num_fire",toluaI_get_player_player_type_num_fire,toluaI_set_player_player_type_num_fire);
  tolua_tablevar(tolua_S,"player_type","ammo_mult",toluaI_get_player_player_type_ammo_mult,toluaI_set_player_player_type_ammo_mult);
  tolua_tablevar(tolua_S,"player_type","ammo_tval",toluaI_get_player_player_type_ammo_tval,toluaI_set_player_player_type_ammo_tval);

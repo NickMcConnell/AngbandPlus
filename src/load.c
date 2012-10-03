@@ -250,6 +250,8 @@ static errr rd_item(object_type *o_ptr)
 
 	char buf[128];
 
+        /*int k;*/
+
 
 	/* Kind */
 	rd_s16b(&o_ptr->k_idx);
@@ -266,16 +268,25 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 
+        /*if (o_ptr->tval == TV_ROD && o_ptr->sval>=SV_ROD_MIN_DIRECTION)
+                o_ptr->sval++;*/
+
+        /*k = lookup_kind(o_ptr->tval, o_ptr->sval);
+        if (k != o_ptr->k_idx)
+        {
+                o_ptr->k_idx = k;
+                msg_print("Wrong object k_idx.");
+        }*/
+
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
-
 
 	rd_byte(&o_ptr->discount);
 
 	rd_byte(&o_ptr->number);
 	rd_s16b(&o_ptr->weight);
 
-	rd_byte(&o_ptr->name1);
+	rd_u16b(&o_ptr->name1);
 	rd_byte(&o_ptr->name2);
 
 	rd_s16b(&o_ptr->timeout);
@@ -400,6 +411,9 @@ static errr rd_item(object_type *o_ptr)
 		/* Obtain the artifact info */
 		a_ptr = &a_info[o_ptr->name1];
 
+		o_ptr->tval = a_ptr->tval;
+		o_ptr->sval = a_ptr->sval;
+
 		/* Get the new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
 
@@ -467,6 +481,11 @@ static void rd_monster(monster_type *m_ptr)
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
+
+        /*Alex*/
+	rd_s16b(&m_ptr->total_items);
+        rd_byte(&tmp8u);
+        m_ptr->ancestor_inventory = (bool)tmp8u;
 
 	/* Read the other information */
 	rd_byte(&m_ptr->fy);
@@ -567,6 +586,7 @@ static errr rd_store(int n)
 
 
 	/* Read the basic info */
+	rd_s32b(&st_ptr->current_gold);/* Alex */
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
 	rd_byte(&own);
@@ -1081,6 +1101,40 @@ static errr rd_extra(void)
 	return (0);
 }
 
+/* Alex:
+ * Read one artifact
+ */
+static void rd_art(artifact_type *a_ptr ){
+                                rd_u32b(&a_ptr->name);
+                                rd_u32b(&a_ptr->text);
+
+				rd_byte(&a_ptr->tval);
+				rd_byte(&a_ptr->sval);
+				rd_s16b(&a_ptr->pval);
+
+				rd_s16b(&a_ptr->to_h);
+				rd_s16b(&a_ptr->to_d);
+				rd_s16b(&a_ptr->to_a);
+				rd_s16b(&a_ptr->ac);
+
+				rd_byte(&a_ptr->dd);
+				rd_byte(&a_ptr->ds);
+
+				rd_s16b(&a_ptr->weight);
+
+				rd_s32b(&a_ptr->cost);
+
+				rd_u32b(&a_ptr->flags1);
+				rd_u32b(&a_ptr->flags2);
+				rd_u32b(&a_ptr->flags3);
+
+				rd_byte(&a_ptr->level);
+				rd_byte(&a_ptr->rarity);
+
+				rd_byte(&a_ptr->activation);
+				rd_u16b(&a_ptr->time);
+				rd_u16b(&a_ptr->randtime);
+}
 
 /*
  * Read the random artifacts
@@ -1148,34 +1202,7 @@ static errr rd_randarts(void)
 			/* Read the artifacts */
 			for (i = 0; i < artifact_count; i++)
 			{
-				artifact_type *a_ptr = &a_info[i];
-
-				rd_byte(&a_ptr->tval);
-				rd_byte(&a_ptr->sval);
-				rd_s16b(&a_ptr->pval);
-
-				rd_s16b(&a_ptr->to_h);
-				rd_s16b(&a_ptr->to_d);
-				rd_s16b(&a_ptr->to_a);
-				rd_s16b(&a_ptr->ac);
-
-				rd_byte(&a_ptr->dd);
-				rd_byte(&a_ptr->ds);
-
-				rd_s16b(&a_ptr->weight);
-
-				rd_s32b(&a_ptr->cost);
-
-				rd_u32b(&a_ptr->flags1);
-				rd_u32b(&a_ptr->flags2);
-				rd_u32b(&a_ptr->flags3);
-
-				rd_byte(&a_ptr->level);
-				rd_byte(&a_ptr->rarity);
-
-				rd_byte(&a_ptr->activation);
-				rd_u16b(&a_ptr->time);
-				rd_u16b(&a_ptr->randtime);
+				rd_art(&a_info[i]);
 			}
 		}
 		else
@@ -1183,6 +1210,9 @@ static errr rd_randarts(void)
 			/* Read the artifacts */
 			for (i = 0; i < artifact_count; i++)
 			{
+                                rd_u32b(&tmp32u);/* a_ptr->name */
+                                rd_u32b(&tmp32u);/* a_ptr->text */
+
 				rd_byte(&tmp8u); /* a_ptr->tval */
 				rd_byte(&tmp8u); /* a_ptr->sval */
 				rd_s16b(&tmp16s); /* a_ptr->pval */
@@ -1272,7 +1302,7 @@ static errr rd_inventory(void)
 		/* Verify slot */
 		if (n >= INVEN_TOTAL) return (-1);
 
-		/* Wield equipment */
+		/* Wield equipment/belt */
 		if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
@@ -1393,6 +1423,7 @@ static errr rd_dungeon(void)
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
 	rd_u16b(&tmp16u);
+        storm_level = tmp16u;
 	rd_u16b(&tmp16u);
 
 
@@ -1654,6 +1685,7 @@ static errr rd_savefile_new_aux(void)
 	byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
+        s16b tmp16s;
 
 
 #ifdef VERIFY_CHECKSUMS
@@ -1785,8 +1817,10 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > z_info->a_max)
 	{
-		note(format("Too many (%u) artifacts!", tmp16u));
-		return (-1);
+                if (!realloc_art(tmp16u - z_info->a_max))
+                        return (-1);/* not enough memory */
+		/*note(format("Too many (%u) artifacts!", tmp16u));
+		return (-1);*/
 	}
 
 	/* Read the artifact flags */
@@ -1794,10 +1828,15 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&tmp8u);
 		a_info[i].cur_num = tmp8u;
-		rd_byte(&tmp8u);
-		rd_byte(&tmp8u);
+		/*rd_byte(&tmp8u);
+		rd_byte(&tmp8u);*/
+                rd_s16b(&tmp16s);
+                /*Alex*/
+		a_info[i].force_depth = tmp16s;
 		rd_byte(&tmp8u);
 	}
+	for (i = 0; i < tmp16u; i++)
+                rd_art(&a_info[i]);
 	if (arg_fiddle) note("Loaded Artifacts");
 
 
@@ -2153,7 +2192,7 @@ bool load_player(void)
 	}
 #endif /* VERIFY_TIMESTAMP */
 
-
+        load_ag();
 	/* Okay */
 	if (!err)
 	{
@@ -2235,6 +2274,503 @@ bool load_player(void)
 
 	/* Message */
 	msg_format("Error (%s) reading %d.%d.%d savefile.",
+	           what, sf_major, sf_minor, sf_patch);
+	message_flush();
+
+	/* Oops */
+	return (FALSE);
+}
+
+/* Alex: Actually read the savefile */
+static errr rd_ag_file_new_aux(void)
+{
+	int i;
+
+	byte tmp8u;
+	u16b tmp16u;
+        s16b tmp16s;
+
+
+#ifdef VERIFY_CHECKSUMS
+	u32b n_x_check, n_v_check;
+	u32b o_x_check, o_v_check;
+#endif
+
+
+	/* Mention the savefile version */
+	note(format("Loading a %d.%d.%d AG file...",
+	            sf_major, sf_minor, sf_patch));
+
+	/* Strip the version bytes */
+	strip_bytes(4);
+
+	/* Hack -- decrypt */
+	xor_byte = sf_extra;
+
+
+	/* Clear the checksums */
+	v_check = 0L;
+	x_check = 0L;
+
+
+	/* Operating system info */
+	rd_u32b(&sf_xtra);
+
+	/* Time of savefile creation */
+	rd_u32b(&sf_when);
+
+	/* Monster Memory */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > z_info->r_max)
+	{
+		note(format("Too many (%u) monster races!", tmp16u));
+		return (-1);
+	}
+
+	/* Read the available records */
+	for (i = 0; i < tmp16u; i++)
+	{
+		/* Read the lore */
+		rd_lore(i);
+	}
+	if (arg_fiddle) note("Loaded Monster Memory");
+
+
+	/* Object Memory */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > z_info->k_max)
+	{
+		note(format("Too many (%u) object kinds!", tmp16u));
+		return (-1);
+	}
+
+	/* Read the object memory */
+	for (i = 0; i < tmp16u; i++)
+	{
+		byte tmp8u;
+
+		object_kind *k_ptr = &k_info[i];
+
+		rd_byte(&tmp8u);
+
+		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
+		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+	}
+	if (arg_fiddle) note("Loaded Object Memory");
+
+
+	/* Load the Quests */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > MAX_Q_IDX)
+	{
+		note(format("Too many (%u) quests!", tmp16u));
+		return (-1);
+	}
+
+	/* Load the Quests */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		q_list[i].level = tmp8u;
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+		rd_byte(&tmp8u);
+	}
+	if (arg_fiddle) note("Loaded Quests");
+
+
+	/* Load the Artifacts */
+	rd_u16b(&tmp16u);
+
+	/* Incompatible save files */
+	if (tmp16u > z_info->a_max)
+	{
+                if (!realloc_art(tmp16u - z_info->a_max))
+                        return (-1);/* not enough memory */
+		/*note(format("Too many (%u) artifacts!", tmp16u));
+		return (-1);*/
+	}
+
+	/* Read the artifact flags */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		a_info[i].cur_num = tmp8u;
+		/*rd_byte(&tmp8u);
+		rd_byte(&tmp8u);*/
+                rd_s16b(&tmp16s);
+                /*Alex*/
+		a_info[i].force_depth = tmp16s;
+		rd_byte(&tmp8u);
+	}
+	for (i = 0; i < tmp16u; i++)
+                rd_art(&a_info[i]);
+
+	if (arg_fiddle) note("Loaded Artifacts");
+
+
+	/* Read the AGs */
+        store_init(STORE_HOME);
+        store_init(STORE_A_G_1);
+        store_init(STORE_A_G_2);
+	if (rd_store(STORE_HOME)) return (-1);
+	if (rd_store(STORE_A_G_1)) return (-1);
+	if (rd_store(STORE_A_G_2)) return (-1);
+
+
+        if (dead_objects_depth)
+                free(dead_objects_depth);
+        dead_objects_depth = NULL;
+        if (dead_inventory)
+                free(dead_inventory);
+        dead_inventory = NULL;
+
+        rd_s16b(&dead_objects);
+
+        if (dead_objects>0)
+        {
+                dead_objects_depth = malloc(dead_objects * sizeof(s16b));
+                dead_inventory = malloc(dead_objects * sizeof(object_type));
+
+                for(i = 0; i<dead_objects; i++)
+                {
+                        object_type object_body;
+                        object_type* i_ptr = &object_body;
+
+                        rd_s16b(&dead_objects_depth[i]);
+
+		        /* Wipe the object */
+		        object_wipe(i_ptr);
+
+		        /* Read the item */
+		        if (rd_item(i_ptr))
+		        {
+			        note("Error reading item");
+			        return (-1);
+		        }
+
+		        /* Hack -- verify item */
+		        if (!i_ptr->k_idx) return (-1);
+
+                        /* Copy object */
+	        	object_copy(&dead_inventory[i], i_ptr);
+                }
+        }
+
+
+#ifdef VERIFY_CHECKSUMS
+
+	/* Save the checksum */
+	n_v_check = v_check;
+
+	/* Read the old checksum */
+	rd_u32b(&o_v_check);
+
+	/* Verify */
+	if (o_v_check != n_v_check)
+	{
+		note("Invalid checksum");
+		return (-1);
+	}
+
+	/* Save the encoded checksum */
+	n_x_check = x_check;
+
+	/* Read the checksum */
+	rd_u32b(&o_x_check);
+
+	/* Verify */
+	if (o_x_check != n_x_check)
+	{
+		note("Invalid encoded checksum");
+		return (-1);
+	}
+
+#endif
+
+	/* Success */
+	return (0);
+}
+
+/* Alex: Actually read the AG file */
+static errr rd_ag_file(void)
+{
+	errr err;
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	/* The savefile is a binary file */
+	fff = my_fopen(ag_file, "rb");
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* Paranoia */
+	if (!fff) return (-1);
+
+	/* Call the sub-function */
+	err = rd_ag_file_new_aux();
+
+	/* Check for errors */
+	if (ferror(fff)) err = -1;
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Result */
+	return (err);
+}
+
+/* Alex */
+bool load_ag(void)
+{
+	int fd = -1;
+
+	errr err = 0;
+
+	byte vvv[4];
+
+        byte a;
+
+#ifdef VERIFY_TIMESTAMP
+	struct stat	statbuf;
+#endif /* VERIFY_TIMESTAMP */
+
+	cptr what = "generic";
+
+	path_build(ag_file, 1024, ANGBAND_DIR_SAVE, "AG");
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	/* Open the savefile */
+	fd = fd_open(ag_file, O_RDONLY);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* No file */
+	if (fd < 0)
+	{
+		/* Give a message */
+		msg_print("AG file does not exist.");
+		message_flush();
+
+                for (a = 0; a<z_info->a_max; a++)
+                        a_info[a].force_depth = 0;
+
+		/* Allow this */
+		return (TRUE);
+	}
+
+	/* Close the file */
+	fd_close(fd);
+
+
+#ifdef VERIFY_SAVEFILE
+
+	/* Verify savefile usage */
+	if (!err)
+	{
+		FILE *fkk;
+
+		char temp[1024];
+
+		/* Extract name of lock file */
+		strcpy(temp, ag_file);
+		strcat(temp, ".lok");
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Check for lock */
+		fkk = my_fopen(temp, "r");
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* Oops, lock exists */
+		if (fkk)
+		{
+			/* Close the file */
+			my_fclose(fkk);
+
+			/* Message */
+			msg_print("AG file is currently in use.");
+			message_flush();
+
+			/* Oops */
+			return (FALSE);
+		}
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Create a lock file */
+		fkk = my_fopen(temp, "w");
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* Dump a line of info */
+		fprintf(fkk, "Lock file for AG file '%s'\n", ag_file);
+
+		/* Close the lock file */
+		my_fclose(fkk);
+	}
+
+#endif /* VERIFY_SAVEFILE */
+
+
+	/* Okay */
+	if (!err)
+	{
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Open the savefile */
+		fd = fd_open(ag_file, O_RDONLY);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* No file */
+		if (fd < 0) err = -1;
+
+		/* Message (below) */
+		if (err) what = "Cannot open AG file";
+	}
+
+	/* Process file */
+	if (!err)
+	{
+
+#ifdef VERIFY_TIMESTAMP
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Get the timestamp */
+		(void)fstat(fd, &statbuf);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+#endif /* VERIFY_TIMESTAMP */
+
+		/* Read the first four bytes */
+		if (fd_read(fd, (char*)(vvv), sizeof(vvv))) err = -1;
+
+		/* What */
+		if (err) what = "Cannot read AG file";
+
+		/* Close the file */
+		fd_close(fd);
+	}
+
+	/* Process file */
+	if (!err)
+	{
+		/* Extract version */
+		sf_major = vvv[0];
+		sf_minor = vvv[1];
+		sf_patch = vvv[2];
+		sf_extra = vvv[3];
+
+		/* Clear screen */
+		Term_clear();
+
+		if (older_than(OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH))
+		{
+			err = -1;
+			what = "AG file is too old";
+		}
+		else if (!older_than(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH + 1))
+		{
+			err = -1;
+			what = "AG file is from the future";
+		}
+		else
+		{
+			/* Attempt to load */
+			err = rd_ag_file();
+
+			/* Message (below) */
+			if (err) what = "Cannot parse AG file";
+		}
+	}
+
+
+#ifdef VERIFY_TIMESTAMP
+	/* Verify timestamp */
+	if (!err && !arg_wizard)
+	{
+		/* Hack -- Verify the timestamp */
+		if (sf_when > (statbuf.st_ctime + 100) ||
+		    sf_when < (statbuf.st_ctime - 100))
+		{
+			/* Message */
+			what = "Invalid timestamp";
+
+			/* Oops */
+			err = -1;
+		}
+	}
+#endif /* VERIFY_TIMESTAMP */
+
+
+	/* Okay */
+	if (!err)
+	{
+		/* Give a conversion warning */
+		if ((version_major != sf_major) ||
+		    (version_minor != sf_minor) ||
+		    (version_patch != sf_patch))
+		{
+			/* Message */
+			msg_format("Converted a %d.%d.%d AG file.",
+			           sf_major, sf_minor, sf_patch);
+			message_flush();
+		}
+
+		/* Success */
+		return (TRUE);
+	}
+
+
+#ifdef VERIFY_SAVEFILE
+
+	/* Verify savefile usage */
+	if (TRUE)
+	{
+		char temp[1024];
+
+		/* Extract name of lock file */
+		strcpy(temp, ag_file);
+		strcat(temp, ".lok");
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Remove lock */
+		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+	}
+
+#endif /* VERIFY_SAVEFILE */
+
+
+	/* Message */
+	msg_format("Error (%s) reading %d.%d.%d AG file.",
 	           what, sf_major, sf_minor, sf_patch);
 	message_flush();
 

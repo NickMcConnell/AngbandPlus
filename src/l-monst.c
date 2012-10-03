@@ -2002,7 +2002,8 @@ static int toluaI_monster_mon_take_hit00(lua_State* tolua_S)
  !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
  !tolua_istype(tolua_S,3,tolua_tag(tolua_S,"bool"),0) ||
  !tolua_istype(tolua_S,4,LUA_TSTRING,0) ||
- !tolua_isnoobj(tolua_S,5)
+ !tolua_istype(tolua_S,5,tolua_tag(tolua_S,"bool"),0) ||
+ !tolua_isnoobj(tolua_S,6)
  )
  goto tolua_lerror;
  else
@@ -2011,8 +2012,9 @@ static int toluaI_monster_mon_take_hit00(lua_State* tolua_S)
   int dam = ((int)  tolua_getnumber(tolua_S,2,0));
   bool fear = ((bool)  tolua_getbool(tolua_S,3,0));
   cptr note = ((cptr)  tolua_getstring(tolua_S,4,0));
+  bool show_msg_dam = ((bool)  tolua_getbool(tolua_S,5,0));
  {
-  bool toluaI_ret = (bool)  mon_take_hit(m_idx,dam,&fear,note);
+  bool toluaI_ret = (bool)  mon_take_hit(m_idx,&dam,&fear,note,show_msg_dam);
  tolua_pushbool(tolua_S,(int)toluaI_ret);
  tolua_pushbool(tolua_S,(int)fear);
  }
@@ -2163,9 +2165,9 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF2_XXX3",RF2_XXX3);
  tolua_constant(tolua_S,NULL,"RF2_XXX4",RF2_XXX4);
  tolua_constant(tolua_S,NULL,"RF2_POWERFUL",RF2_POWERFUL);
- tolua_constant(tolua_S,NULL,"RF2_XXX5",RF2_XXX5);
- tolua_constant(tolua_S,NULL,"RF2_XXX7",RF2_XXX7);
- tolua_constant(tolua_S,NULL,"RF2_XXX6",RF2_XXX6);
+ tolua_constant(tolua_S,NULL,"RF2_LOUD_CRY",RF2_LOUD_CRY);
+ tolua_constant(tolua_S,NULL,"RF2_WAKE_FRIENDS",RF2_WAKE_FRIENDS);
+ tolua_constant(tolua_S,NULL,"RF2_WAKE_ALL",RF2_WAKE_ALL);
  tolua_constant(tolua_S,NULL,"RF2_OPEN_DOOR",RF2_OPEN_DOOR);
  tolua_constant(tolua_S,NULL,"RF2_BASH_DOOR",RF2_BASH_DOOR);
  tolua_constant(tolua_S,NULL,"RF2_PASS_WALL",RF2_PASS_WALL);
@@ -2548,9 +2550,9 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX3");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX4");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_POWERFUL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX5");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX7");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_XXX6");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_LOUD_CRY");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_WAKE_FRIENDS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_WAKE_ALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_OPEN_DOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_BASH_DOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_PASS_WALL");

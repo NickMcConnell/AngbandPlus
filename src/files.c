@@ -1257,13 +1257,14 @@ static cptr likert(int x, int y)
 static void display_player_xtra_info(void)
 {
 	int col;
-	int hit, dam;
+	int hit, dam, hit2, dam2;
 	int base, plus;
 	int i, tmp;
-	int xthn, xthb, xfos, xsrh;
+	int xthn, xthn2, xthb, xfos, xsrh;
 	int xdis, xdev, xsav, xstl;
 
 	object_type *o_ptr;
+	object_type *o2_ptr;
 
 	cptr desc;
 
@@ -1360,9 +1361,9 @@ static void display_player_xtra_info(void)
 
 
 	/* Burden */
-	sprintf(buf, "%ld.%ld lbs",
+	sprintf(buf, "%ld.%ld/%ld lbs",
 	        p_ptr->total_weight / 10L,
-	        p_ptr->total_weight % 10L);
+	        p_ptr->total_weight % 10L, weight_limit()/10);
 	Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
 	Term_putstr(col+8, 17, -1, TERM_L_GREEN,
 	            format("%10s", buf));
@@ -1402,9 +1403,30 @@ static void display_player_xtra_info(void)
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+	o2_ptr = &inventory[INVEN_ARM];
+        if (is_weapon(o2_ptr->tval))
+        {
+        	hit2 = p_ptr->dis_to_h;
+	        dam2 = p_ptr->dis_to_d;
+	        if (object_known_p(o2_ptr)) hit2 += o2_ptr->to_h;
+	        if (object_known_p(o2_ptr)) dam2 += o2_ptr->to_d;
+        }
+        else
+        {
+        	hit2 = 0;
+	        dam2 = 0;
+        }
 
 	/* Melee attacks */
-	sprintf(buf, "(%+d,%+d)", hit, dam);
+        if (p_ptr->weapon_mode == WEAPON_TWO ||
+             p_ptr->weapon_mode == WEAPON_TWO_SIMILAR)
+	        sprintf(buf, "(%+d/%+d,%+d/%+d)", hit, hit2, dam, dam2);
+        else if(!hit2)
+                /*Weapon at WIELD slot*/
+	        sprintf(buf, "(%+d,%+d)", hit, dam);
+        else
+                /*Weapon at ARM slot*/
+	        sprintf(buf, "(%+d,%+d)", hit2, dam2);
 	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
 	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
 
@@ -1427,7 +1449,7 @@ static void display_player_xtra_info(void)
 
 
 	/* Blows */
-	sprintf(buf, "%d/turn", p_ptr->num_blow);
+	sprintf(buf, "%d(%d)/turn", p_ptr->num_blow, p_ptr->num_blow2);
 	Term_putstr(col, 14, -1, TERM_WHITE, "Blows");
 	Term_putstr(col+5, 14, -1, TERM_L_BLUE, format("%13s", buf));
 
@@ -1452,6 +1474,16 @@ static void display_player_xtra_info(void)
 	o_ptr = &inventory[INVEN_WIELD];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
+	xthn -= xthn*std_hp_pen(p_ptr->chp, p_ptr->mhp)/100;
+	o_ptr = &inventory[INVEN_ARM];
+        if (is_weapon(o_ptr->tval))
+        {
+	        tmp = p_ptr->to_h + o_ptr->to_h;
+	        xthn2 = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
+		xthn2 -= xthn2*std_hp_pen(p_ptr->chp, p_ptr->mhp)/100;
+        }
+        else
+                xthn2 = 0;
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
@@ -1469,35 +1501,43 @@ static void display_player_xtra_info(void)
 
 	put_str("Saving Throw", 10, col);
 	desc = likert(xsav, 6);
-	c_put_str(likert_color, format("%9s", desc), 10, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xsav), 10, col+14);
 
 	put_str("Stealth", 11, col);
 	desc = likert(xstl, 1);
-	c_put_str(likert_color, format("%9s", desc), 11, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xstl), 11, col+14);
 
 	put_str("Fighting", 12, col);
 	desc = likert(xthn, 12);
-	c_put_str(likert_color, format("%9s", desc), 12, col+14);
+        if (p_ptr->weapon_mode == WEAPON_TWO ||
+             p_ptr->weapon_mode == WEAPON_TWO_SIMILAR)
+        	c_put_str(likert_color, format("%9s(%d/%d)", desc, xthn, xthn2), 12, col+14);
+        else if(!hit2)
+                /*Weapon at WIELD slot*/
+        	c_put_str(likert_color, format("%9s (%d)", desc, xthn), 12, col+14);
+        else
+                /*Weapon at ARM slot*/
+        	c_put_str(likert_color, format("%9s (%d)", desc, xthn2), 12, col+14);
 
 	put_str("Shooting", 13, col);
 	desc = likert(xthb, 12);
-	c_put_str(likert_color, format("%9s", desc), 13, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xthb), 13, col+14);
 
 	put_str("Disarming", 14, col);
 	desc = likert(xdis, 8);
-	c_put_str(likert_color, format("%9s", desc), 14, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xdis), 14, col+14);
 
 	put_str("Magic Device", 15, col);
 	desc = likert(xdev, 6);
-	c_put_str(likert_color, format("%9s", desc), 15, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xdev), 15, col+14);
 
 	put_str("Perception", 16, col);
 	desc = likert(xfos, 6);
-	c_put_str(likert_color, format("%9s", desc), 16, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xfos), 16, col+14);
 
 	put_str("Searching", 17, col);
 	desc = likert(xsrh, 6);
-	c_put_str(likert_color, format("%9s", desc), 17, col+14);
+	c_put_str(likert_color, format("%9s (%d)", desc, xsrh), 17, col+14);
 
 
 	/* Bottom */
@@ -1546,7 +1586,7 @@ static void display_player_equippy(int y, int x)
 
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < INVEN_BELT_MIN; ++i)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1683,7 +1723,7 @@ static void display_player_flag_info(void)
 			c_put_str(TERM_WHITE, name, row, col);
 
 			/* Check equipment */
-			for (n = 6, i = INVEN_WIELD; i < INVEN_TOTAL; ++i, ++n)
+			for (n = 6, i = INVEN_WIELD; i < INVEN_BELT_MIN; ++i, ++n)
 			{
 				byte attr = TERM_SLATE;
 
@@ -1927,7 +1967,7 @@ static void display_player_sust_info(void)
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
 
 	/* Process equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < INVEN_BELT_MIN; ++i)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -2179,7 +2219,7 @@ errr file_character(cptr name, bool full)
 	if (p_ptr->equip_cnt)
 	{
 		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		for (i = INVEN_WIELD; i < INVEN_BELT_MIN; i++)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
@@ -3324,7 +3364,7 @@ static void death_examine(void)
 
 	while (TRUE)
 	{
-		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_BELT))) return;
 
 		/* Get the item */
 		o_ptr = &inventory[item];
@@ -3995,12 +4035,30 @@ static void kingly(void)
 static void close_game_aux(void)
 {
 	int ch;
+        int a_idx = 0;
 	bool wants_to_quit = FALSE;
 	cptr p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
+        byte i;
+        object_type* o_ptr;
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
+
+        /*Alex*/
+        /*Set force_depth for artifacts*/
+        for (i = 0; i<INVEN_TOTAL; i++)
+        {
+                o_ptr = &inventory[i];
+                a_idx = o_ptr->name1;
+                /*if artifact*/
+                if (a_idx){
+                        artifact_type* a_ptr = &a_info[a_idx];
+                        a_ptr->force_depth = p_ptr->depth + 1;
+                        a_ptr->cur_num = 0;
+                }
+        }
+
 
 	/* Save dead player */
 	if (!save_player())
@@ -4232,6 +4290,11 @@ void close_game(void)
 
 	/* Shut the high score file */
 	fd_close(highscore_fd);
+
+        /* Free some memory */
+        done_randart();
+        free(dead_objects_depth);
+        free(dead_inventory);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;

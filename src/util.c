@@ -2039,7 +2039,7 @@ static s16b message_age2idx(s16b age)
 s16b message_num(void)
 {
 	/* Determine how many messages are "available" */
-	return (message_age2idx(message__last - 1));
+	return (message_age2idx((s16b)(message__last - 1)));
 }
 
 

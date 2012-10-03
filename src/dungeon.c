@@ -216,7 +216,7 @@ static void sense_inventory(void)
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 	}
 }
 
@@ -363,6 +363,35 @@ static void regen_monsters(void)
 }
 
 
+void storm_hit_monsters()
+{
+	int i;
+
+	for (i = 1; i < m_max; i++)
+	{
+		/* Check the i'th monster */
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+                if (!rand_int(STORM_HIT_CHANCE_MONSTER))
+                {
+                        bool unique = (bool)(r_ptr->flags1 & (RF1_UNIQUE));
+                        /* Unique monsters often avoid */
+                	if (!unique || !rand_int(STORM_HIT_CHANCE_UNIQUE))
+                        {
+                                /* i<>who */
+                                int who = (i == 1) ? 2 : 1;
+                                project(who, 0, m_ptr->fy, m_ptr->fx,
+                                           damroll(STORM_HIT_DD + p_ptr->depth, STORM_HIT_DS),
+                                           storm_typ[storm_level],
+                                           PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE);
+                        }
+		}
+	}
+}
 
 /*
  * Handle certain things once every 10 game turns
@@ -503,7 +532,8 @@ static void process_world(void)
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+                /* Alex: it was FALSE */
+		(void)alloc_monster(MAX_SIGHT + 5, TRUE);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -516,7 +546,7 @@ static void process_world(void)
 	if (p_ptr->poisoned)
 	{
 		/* Take damage */
-		take_hit(1, "poison");
+		take_hit(1, "poison", "poison");
 	}
 
 	/* Take damage from cuts */
@@ -541,8 +571,74 @@ static void process_world(void)
 		}
 
 		/* Take damage */
-		take_hit(i, "a fatal wound");
+		take_hit(i, "Wound", "a fatal wound");
 	}
+
+        /* Alex: process storm levels */
+        if (storm_level)
+        {
+                storm_hit_monsters();
+                if (!rand_int(STORM_HIT_CHANCE_PLAYER))
+                {
+                        if (storm_level >= STORM_MAX)
+                                {
+                                        msg_print("Invalid storm.");
+                                        storm_level = STORM_NONE;
+                                }
+                        else
+                        {
+                                char storm_name[80];
+                                strcpy(storm_name, storm_description[storm_level]);
+                                strcat(storm_name, " storm");
+                                storm_function[storm_level](
+                                        damroll(STORM_HIT_DD + p_ptr->depth, STORM_HIT_DS),
+                                        storm_name,
+                                        storm_name);
+                                disturb(1, 0);
+                        }
+                }
+                else
+                {
+                        bool immune = FALSE;
+                        if (storm_level == STORM_ACID && p_ptr->immune_acid)
+                                immune = TRUE;
+                        else if (storm_level == STORM_ELEC && p_ptr->immune_elec)
+                                immune = TRUE;
+                        else if (storm_level == STORM_FIRE && p_ptr->immune_fire)
+                                immune = TRUE;
+                        else if (storm_level == STORM_COLD && p_ptr->immune_cold)
+                                immune = TRUE;
+                        else if (storm_level == STORM_POIS && p_ptr->oppose_pois)
+                                immune = TRUE;
+                        /*No immunity to Mana Storm*/
+                        if (!immune)
+                        {
+                                if (p_ptr->chp > STORM_LEAK)
+                                        p_ptr->chp -= STORM_LEAK;
+                                else
+                                        p_ptr->chp = 0;
+                                if (p_ptr->chp <= p_ptr->mhp / 10)
+                                        disturb(1, 0);
+
+                                /* Redraw */
+        	        	p_ptr->redraw |= (PR_HP);
+
+	        	        /* Window stuff */
+		                p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+                                if (storm_level == STORM_MANA)
+                                {
+                                        if (p_ptr->csp > STORM_LEAK)
+                                                p_ptr->csp -= STORM_LEAK;
+                                        else
+                                                p_ptr->csp = 0;
+
+                	                /* Redraw */
+        	        	        p_ptr->redraw |= (PR_MANA);
+                                }
+                        }
+                }
+        }
 
 
 	/*** Check the Food, and Regenerate ***/
@@ -584,7 +680,7 @@ static void process_world(void)
 		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
 
 		/* Take damage */
-		take_hit(i, "starvation");
+		take_hit(i, "Starvation", "starvation");
 	}
 
 	/* Default regeneration */
@@ -873,7 +969,7 @@ static void process_world(void)
 	}
 
 	/* Process equipment */
-	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (j = 0, i = INVEN_WIELD; i < INVEN_BELT_MIN; i++)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -900,7 +996,7 @@ static void process_world(void)
 	}
 
 	/* Recharge rods */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
+	for (j = 0, i = INVEN_BELT_MIN; i < INVEN_BELT_MAX; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -913,6 +1009,9 @@ static void process_world(void)
 			/* Charge it */
 			o_ptr->pval--;
 
+        		/* Window stuff */
+	        	p_ptr->window |= (PW_BELT);
+
 			/* Notice changes */
 			if (!(o_ptr->pval)) j++;
 		}
@@ -923,9 +1022,6 @@ static void process_world(void)
 	{
 		/* Combine pack */
 		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
 	}
 
 	/* Feel the inventory */
@@ -988,8 +1084,10 @@ static void process_world(void)
 				msg_print("You feel yourself yanked downwards!");
 
 				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
+                                /* Alex: add + 1 */
+				p_ptr->depth = p_ptr->max_depth + 1;
 				if (p_ptr->depth < 1) p_ptr->depth = 1;
+				if (p_ptr->depth > 99) p_ptr->depth = 99;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1230,6 +1328,12 @@ static void process_command(void)
 			break;
 		}
 
+		/* Belt list */
+		case 'y':
+		{
+			do_cmd_belt();
+			break;
+		}
 
 		/*** Various commands ***/
 
@@ -1329,7 +1433,7 @@ static void process_command(void)
 		/* Enter store */
 		case '_':
 		{
-			do_cmd_store();
+			do_cmd_store(FALSE);
 			break;
 		}
 
@@ -1957,7 +2061,7 @@ static void process_player(void)
 		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
 		{
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->energy_use = ENERGY_TURN;
 		}
 
 		/* Resting */
@@ -1974,7 +2078,7 @@ static void process_player(void)
 			}
 
 			/* Take a turn */
-			p_ptr->energy_use = 100;
+			p_ptr->energy_use = ENERGY_TURN;
 		}
 
 		/* Running */
@@ -2305,7 +2409,7 @@ static void dungeon(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
@@ -2402,7 +2506,7 @@ static void dungeon(void)
 
 
 		/* Can the player move? */
-		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
+		while ((p_ptr->energy >= ENERGY_TURN) && !p_ptr->leaving)
 		{
 			/* process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
@@ -2564,6 +2668,7 @@ void play_game(bool new_game)
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
 
+        init_randart();
 
 	/* Attempt to load */
 	if (!load_player())
@@ -2685,7 +2790,7 @@ void play_game(bool new_game)
 
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);

@@ -6,6 +6,13 @@ typedef int errr;
 
 /***** Constants *****/
 
+/*See defines.h*/
+#define POWER_WAND	10
+#define POWER_STAFF	20
+#define POWER_ROD	30
+#define POWER_ART	100
+
+
 /*
  * Legal restrictions for "summon_specific()"
  */
@@ -106,11 +113,11 @@ extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
-extern void take_hit(int dam, cptr kb_str);
-extern void acid_dam(int dam, cptr kb_str);
-extern void elec_dam(int dam, cptr kb_str);
-extern void fire_dam(int dam, cptr kb_str);
-extern void cold_dam(int dam, cptr kb_str);
+void take_hit(int dam, cptr msg, cptr kb_str);
+extern void acid_dam(int dam, cptr msg, cptr kb_str);
+extern void elec_dam(int dam, cptr msg, cptr kb_str);
+extern void fire_dam(int dam, cptr msg, cptr kb_str);
+extern void cold_dam(int dam, cptr msg, cptr kb_str);
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
@@ -137,13 +144,13 @@ extern bool detect_monsters_evil(void);
 extern bool detect_all(void);
 extern void stair_creation(void);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
-extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool enchant_spell(int num_hit, int num_dam, int num_ac, bool force_new_art, bool force_ego);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool speed_monsters(void);
-extern bool slow_monsters(void);
-extern bool sleep_monsters(void);
+extern bool slow_monsters(int power);
+extern bool sleep_monsters(int power);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);
@@ -172,10 +179,10 @@ extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
 extern bool heal_monster(int dir);
 extern bool speed_monster(int dir);
-extern bool slow_monster(int dir);
-extern bool sleep_monster(int dir);
+extern bool slow_monster(int dir, int power);
+extern bool sleep_monster(int dir, int power);
 extern bool confuse_monster(int dir, int plev);
-extern bool poly_monster(int dir);
+extern bool poly_monster(int dir, int power);
 extern bool clone_monster(int dir);
 extern bool fear_monster(int dir, int plev);
 extern bool teleport_monster(int dir);

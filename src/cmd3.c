@@ -106,6 +106,50 @@ void do_cmd_equip(void)
 	}
 }
 
+/*
+ * Display belt
+ */
+void do_cmd_belt(void)
+{
+	/* Hack -- Start in "belt" mode */
+	p_ptr->command_wrk = (USE_BELT);
+
+	/* Save screen */
+	screen_save();
+
+	/* Hack -- show empty slots */
+	item_tester_full = TRUE;
+
+	/* Display the equipment */
+	show_belt();
+
+	/* Hack -- undo the hack above */
+	item_tester_full = FALSE;
+
+	/* Prompt for a command */
+	prt("(Belt) Command: ", 0, 0);
+
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
+
+	/* Load screen */
+	screen_load();
+
+
+	/* Hack -- Process "Escape" */
+	if (p_ptr->command_new == ESCAPE)
+	{
+		/* Reset stuff */
+		p_ptr->command_new = 0;
+	}
+
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Enter "display" mode */
+		p_ptr->command_see = TRUE;
+	}
+}
 
 /*
  * The "wearable" tester
@@ -120,6 +164,78 @@ static bool item_tester_hook_wear(const object_type *o_ptr)
 }
 
 
+/*Alex: wear/wield object *i_ptr */
+do_wield_aux(int equip_slot, object_type* i_ptr)
+{
+	char o_name[80];
+        cptr act;
+        object_type* o_ptr = &inventory[equip_slot];
+
+	/* Wear the new stuff */
+	object_copy(o_ptr, i_ptr);
+
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight;
+
+	/* Increment the equip counter by hand */
+	p_ptr->equip_cnt++;
+
+	/* Where is the item now */
+	if (equip_slot == INVEN_WIELD)
+	{
+		act = "You are wielding";
+	}
+	else if (equip_slot == INVEN_BOW)
+	{
+		act = "You are shooting with";
+	}
+	else if (equip_slot == INVEN_LITE)
+	{
+		act = "Your light source is";
+	}
+	else
+	{
+		act = "You are wearing";
+	}
+
+	/* Describe the result */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+	msg_format("%s %s (%c).", act, o_name, index_to_label(equip_slot));
+
+	/* Cursed! */
+	if (cursed_p(o_ptr))
+	{
+		/* Warn the player */
+		msg_print("Oops! It feels deathly cold!");
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
+
+	p_ptr->redraw |= (PR_EQUIPPY);
+}
+
+
 /*
  * Wield or wear a single item from the pack or floor
  */
@@ -131,8 +247,6 @@ void do_cmd_wield(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
-	cptr act;
 
 	cptr q, s;
 
@@ -179,7 +293,7 @@ void do_cmd_wield(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -214,68 +328,7 @@ void do_cmd_wield(void)
 		(void)inven_takeoff(slot, 255);
 	}
 
-	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
-
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
-
-	/* Increment the equip counter by hand */
-	p_ptr->equip_cnt++;
-
-	/* Where is the item now */
-	if (slot == INVEN_WIELD)
-	{
-		act = "You are wielding";
-	}
-	else if (slot == INVEN_BOW)
-	{
-		act = "You are shooting with";
-	}
-	else if (slot == INVEN_LITE)
-	{
-		act = "Your light source is";
-	}
-	else
-	{
-		act = "You are wearing";
-	}
-
-	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
-
-	/* Cursed! */
-	if (cursed_p(o_ptr))
-	{
-		/* Warn the player */
-		msg_print("Oops! It feels deathly cold!");
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_CURSED;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
-	}
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Recalculate mana */
-	p_ptr->update |= (PU_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	p_ptr->redraw |= (PR_EQUIPPY);
+        do_wield_aux(slot, i_ptr);
 }
 
 
@@ -295,7 +348,8 @@ void do_cmd_takeoff(void)
 	/* Get an item */
 	q = "Take off which item? ";
 	s = "You are not wearing anything to take off.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_BELT)))
+                return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -322,7 +376,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->energy_use = ENERGY_TURN / 2;
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -344,7 +398,7 @@ void do_cmd_drop(void)
 	/* Get an item */
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -375,7 +429,7 @@ void do_cmd_drop(void)
 	}
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->energy_use = ENERGY_TURN / 2;
 
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
@@ -437,7 +491,7 @@ void do_cmd_destroy(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
@@ -467,7 +521,7 @@ void do_cmd_destroy(void)
 		p_ptr->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 
 		p_ptr->redraw |= (PR_EQUIPPY);
 
@@ -513,7 +567,7 @@ void do_cmd_observe(void)
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -555,7 +609,7 @@ void do_cmd_uninscribe(void)
 	/* Get an item */
 	q = "Un-inscribe which item? ";
 	s = "You have nothing to un-inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -586,7 +640,7 @@ void do_cmd_uninscribe(void)
 	p_ptr->notice |= (PN_COMBINE);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 }
 
 
@@ -609,7 +663,7 @@ void do_cmd_inscribe(void)
 	/* Get an item */
 	q = "Inscribe which item? ";
 	s = "You have nothing to inscribe.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -650,7 +704,7 @@ void do_cmd_inscribe(void)
 		p_ptr->notice |= (PN_COMBINE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 	}
 }
 
@@ -712,7 +766,7 @@ static void do_cmd_refill_lamp(void)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->energy_use = ENERGY_TURN / 2;
 
 	/* Get the lantern */
 	j_ptr = &inventory[INVEN_LITE];
@@ -817,7 +871,7 @@ static void do_cmd_refill_torch(void)
 
 
 	/* Take a partial turn */
-	p_ptr->energy_use = 50;
+	p_ptr->energy_use = ENERGY_TURN / 2;
 
 	/* Get the primary torch */
 	j_ptr = &inventory[INVEN_LITE];
@@ -1049,7 +1103,7 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
+	"0:Entrance to Adventurer's Guild 2",
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",
@@ -1058,7 +1112,7 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Entrance to Adventurer's Guild 1",
 	"::Rubble",
 	";:A glyph of warding",
 	"<:An up staircase",

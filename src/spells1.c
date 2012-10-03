@@ -273,56 +273,92 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
-	if (adult_ironman)
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
+        /* Alex */
+        if (p_ptr->lev == PY_MAX_LEVEL)
+        {
+                cptr p = "Enter new level: ";
+
+	        char out_val[80];
+
+                itoa(p_ptr->depth, out_val, 10);
+
+	        /* Default */
+	        strcpy(out_val, out_val);
+
+        	/* Ask for level */
+	        if (!get_string(p, out_val, 3)) return;
+
+	        p_ptr->command_arg = atoi(out_val);
+	        if (p_ptr->command_arg <= 0 || 
+                     p_ptr->command_arg>99 ||
+                     p_ptr->command_arg ==p_ptr->depth) return;
+	
+                /* New depth */
+	        p_ptr->depth = p_ptr->command_arg;
+        }
+        else
+        {
+                p_ptr->depth = rand_int(p_ptr->lev) + p_ptr->max_depth + 1;
+                if (p_ptr->depth>99)
+                        p_ptr->depth = 99;
+        }
 
 
-	if (!p_ptr->depth)
-	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+        /* Leaving */
+	p_ptr->leaving = TRUE;
+/*        else
+       {
+        	if (adult_ironman)
+	        {
+		        msg_print("Nothing happens.");
+		        return;
+	        }
 
-		/* New depth */
-		p_ptr->depth++;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+	        if (!p_ptr->depth)
+	        {
+	        	message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
-	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		        /* New depth 
+	        	p_ptr->depth++;
 
-		/* New depth */
-		p_ptr->depth--;
+		        /* Leaving 
+	        	p_ptr->leaving = TRUE;
+	        }
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+	        else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	        {
+	        	message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
-	else if (rand_int(100) < 50)
-	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		        /* New depth 
+                      	p_ptr->depth--;
 
-		/* New depth */
-		p_ptr->depth--;
+		        /* Leaving 
+	        	p_ptr->leaving = TRUE;
+	        }
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+	        else if (rand_int(100) < 50)
+	        {
+	        	message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
-	else
-	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+		        /* New depth 
+	        	p_ptr->depth--;
 
-		/* New depth */
-		p_ptr->depth++;
+		        /* Leaving 
+	        	p_ptr->leaving = TRUE;
+	        }
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
-	}
+	        else
+	        {
+	        	message(MSG_TPLEVEL, 0, "You sink through the floor.");
+
+        		/* New depth 
+	        	p_ptr->depth++;
+
+		        /* Leaving 
+	        	p_ptr->leaving = TRUE;
+	        }
+       }*/
 }
 
 
@@ -431,7 +467,8 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
  * when he dies, since the "You die." message is shown before setting
  * the player to "dead".
  */
-void take_hit(int dam, cptr kb_str)
+/* Alex: msg string describes how hps are lost */
+void take_hit(int dam, cptr msg, cptr kb_str)
 {
 	int old_chp = p_ptr->chp;
 
@@ -450,6 +487,9 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
+
+        /*Alex: player's HP loss*/
+        msg_dam(msg, -dam);
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -843,7 +883,7 @@ static int minus_ac(void)
 /*
  * Hurt the player with Acid
  */
-void acid_dam(int dam, cptr kb_str)
+void acid_dam(int dam, cptr msg, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -858,7 +898,7 @@ void acid_dam(int dam, cptr kb_str)
 	if (minus_ac()) dam = (dam + 1) / 2;
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, msg,  kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_acid_destroy, inv);
@@ -868,7 +908,7 @@ void acid_dam(int dam, cptr kb_str)
 /*
  * Hurt the player with electricity
  */
-void elec_dam(int dam, cptr kb_str)
+void elec_dam(int dam, cptr msg, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -880,7 +920,7 @@ void elec_dam(int dam, cptr kb_str)
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, msg, kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_elec_destroy, inv);
@@ -892,7 +932,7 @@ void elec_dam(int dam, cptr kb_str)
 /*
  * Hurt the player with Fire
  */
-void fire_dam(int dam, cptr kb_str)
+void fire_dam(int dam, cptr msg, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -904,7 +944,7 @@ void fire_dam(int dam, cptr kb_str)
 	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, msg, kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_fire_destroy, inv);
@@ -914,7 +954,7 @@ void fire_dam(int dam, cptr kb_str)
 /*
  * Hurt the player with Cold
  */
-void cold_dam(int dam, cptr kb_str)
+void cold_dam(int dam, cptr msg, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
@@ -926,12 +966,27 @@ void cold_dam(int dam, cptr kb_str)
 	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 
 	/* Take damage */
-	take_hit(dam, kb_str);
+	take_hit(dam, msg, kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_cold_destroy, inv);
 }
 
+/*
+ * Hurt the player with Poison
+ */
+void poison_dam(int dam, cptr msg, cptr kb_str)
+{
+	/* Total immunity */
+	if (dam <= 0) return;
+
+	/* Resist the damage */
+	if (p_ptr->resist_pois) dam = (dam + 2) / 3;
+        else set_poisoned(rand_int(dam));
+
+	/* Take damage */
+	take_hit(dam, msg, kb_str);
+}
 
 
 
@@ -2166,12 +2221,23 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_PLASMA:
 		{
 			if (seen) obvious = TRUE;
+			break;
 			if (prefix(name, "Plasma") ||
 			    (r_ptr->flags4 & (RF4_BR_PLAS)))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+                        if (r_ptr->flags3 & (RF3_IM_FIRE))
+                        {
+                                dam /= 2;
+			        if (seen) l_ptr->flags3 |= (RF3_IM_FIRE);
+                        }
+                        if (r_ptr->flags3 & (RF3_IM_ELEC))
+                        {
+                                dam /= 2;
+				if (seen) l_ptr->flags3 |= (RF3_IM_ELEC);
+                        }
 			break;
 		}
 
@@ -2494,9 +2560,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
+                        /*Alex*/
+			if ((r_ptr->flags1 & (RF1_UNIQUE))) dam -= 5;
 			/* Powerful monsters can resist */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			if ((r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -2505,7 +2572,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Normal monsters slow down */
 			else
 			{
-				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+                                /*Alex*/
+                                m_ptr->mspeed -= dam;
+				if (m_ptr->mspeed < 30)
+                                        m_ptr->mspeed  = 30;
 				note = " starts moving slower.";
 			}
 
@@ -2520,9 +2590,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
+                        /*Alex*/
+			if ((r_ptr->flags1 & (RF1_UNIQUE))) dam -= 5;
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
+			if ((r_ptr->flags3 & (RF3_NO_SLEEP)) ||
 			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				/* Memorize a flag */
@@ -2539,7 +2610,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				/* Go to sleep (much) later */
 				note = " falls asleep!";
-				do_sleep = 500;
+                                /*Alex: increase sleep*/
+				do_sleep = m_ptr->csleep + dam * 50;
 			}
 
 			/* No "real" damage */
@@ -2556,9 +2628,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Get confused later */
 			do_conf = damroll(3, (dam / 2)) + 1;
 
+                        /*Alex*/
+			if ((r_ptr->flags1 & (RF1_UNIQUE))) dam -= 5;
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)) ||
+			if  ((r_ptr->flags3 & (RF3_NO_CONF)) ||
 			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
 			{
 				/* Memorize a flag */
@@ -3073,8 +3146,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
 
+                /* Alex */
+                if (m_ptr->csleep) dam *= 2;
+
 		/* Wake the monster up */
-		m_ptr->csleep = 0;
+                if (dam>0)
+		        m_ptr->csleep = 0;
 
 		/* Hurt the monster */
 		m_ptr->hp -= dam;
@@ -3089,7 +3166,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Give detailed messages if destroyed */
-			if (note) msg_format("%^s%s", m_name, note);
+			if (note && m_ptr->cdis<MAX_SIGHT) msg_format("%^s%s", m_name, note);
 		}
 
 		/* Damaged monster */
@@ -3099,7 +3176,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (note && seen) msg_format("%^s%s", m_name, note);
 
 			/* Hack -- Pain message */
-			else if (dam > 0) message_pain(cave_m_idx[y][x], dam);
+			else if (dam > 0  && m_ptr->cdis<MAX_SIGHT) message_pain(cave_m_idx[y][x], dam);
 
 			/* Hack -- handle sleep */
 			if (do_sleep) m_ptr->csleep = do_sleep;
@@ -3112,7 +3189,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		bool fear = FALSE;
 
 		/* Hurt the monster, check for fear and death */
-		if (mon_take_hit(cave_m_idx[y][x], dam, &fear, note_dies))
+		if (mon_take_hit(cave_m_idx[y][x], &dam, &fear, note_dies, FALSE))
 		{
 			/* Dead monster */
 		}
@@ -3121,7 +3198,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		else
 		{
 			/* Give detailed messages if visible or destroyed */
-			if (note && seen) msg_format("%^s%s", m_name, note);
+                        /* note != note_dies to prevent "dies" message while
+                         * unique is alive (see mon_take_hit()) */
+			if (note && note != note_dies && seen) msg_format("%^s%s", m_name, note);
 
 			/* Hack -- Pain message */
 			else if (dam > 0) message_pain(cave_m_idx[y][x], dam);
@@ -3250,7 +3329,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_ACID:
 		{
 			if (fuzzy) msg_print("You are hit by acid!");
-			acid_dam(dam, killer);
+			acid_dam(dam, "", killer);
 			break;
 		}
 
@@ -3258,7 +3337,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_FIRE:
 		{
 			if (fuzzy) msg_print("You are hit by fire!");
-			fire_dam(dam, killer);
+			fire_dam(dam, "", killer);
 			break;
 		}
 
@@ -3266,7 +3345,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_COLD:
 		{
 			if (fuzzy) msg_print("You are hit by cold!");
-			cold_dam(dam, killer);
+			cold_dam(dam, "", killer);
 			break;
 		}
 
@@ -3274,7 +3353,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_ELEC:
 		{
 			if (fuzzy) msg_print("You are hit by lightning!");
-			elec_dam(dam, killer);
+			elec_dam(dam, "", killer);
 			break;
 		}
 
@@ -3284,7 +3363,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
@@ -3296,7 +3375,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_MISSILE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3305,7 +3384,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something!");
 			dam /= 2;
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3313,7 +3392,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_ARROW:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3321,7 +3400,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_PLASMA:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			take_hit(dam, killer);
+			if (p_ptr->immune_fire) dam = (dam + 1) / 2;
+                        else if (p_ptr->resist_fire) dam = (dam * 2) / 3;
+			if (p_ptr->immune_elec) dam = (dam + 1) / 2;
+                        else if (p_ptr->resist_elec) dam = (dam * 2) / 3;
+			take_hit(dam, "", killer);
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
@@ -3355,7 +3438,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 				}
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3371,7 +3454,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3408,7 +3491,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 				}
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3424,7 +3507,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_cut(p_ptr->cut + dam);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3441,7 +3524,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3457,7 +3540,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3473,7 +3556,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)apply_disenchant(0);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3489,7 +3572,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				apply_nexus(m_ptr);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3501,7 +3584,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_stun(p_ptr->stun + randint(20));
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3510,7 +3593,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3526,7 +3609,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3542,7 +3625,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3593,7 +3676,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 					break;
 				}
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3609,7 +3692,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
 			}
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3617,7 +3700,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_MANA:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3625,7 +3708,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_METEOR:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			take_hit(dam, killer);
+			take_hit(dam, "", killer);
 			break;
 		}
 
@@ -3633,7 +3716,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_ICE:
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
-			cold_dam(dam, killer);
+			cold_dam(dam, "", killer);
 			if (!p_ptr->resist_shard)
 			{
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
@@ -3849,6 +3932,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 	/* Encoded "radius" info (see above) */
 	byte gm[16];
+
+        last_hit = 0; /* see msg_dam()*/
 
 
 	/* Hack -- Jump to target */

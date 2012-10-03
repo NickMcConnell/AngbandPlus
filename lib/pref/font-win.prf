@@ -15,39 +15,39 @@
 ### Terrain features ###
 
 
-# Floors (white / centered dot)
+# Floors (white/point)
+# Under Win95/98, use 31 instead of 46 (centered dot)
+F:1:1/46
 
-F:1:1/31
-
-# Invis traps (white / centered dot)
-
-F:2:1/31
+# Invis traps (white/point)
+# Under Win95/98, use 31 instead of 46 (centered dot)
+F:2:1/46
 
 
 # Magma (slate / solid block)
 
-F:50:2/127
 F:52:2/127
+F:54:2/127
 
 
 # Quartz (light slate / solid block)
 
-F:51:9/127
 F:53:9/127
+F:55:9/127
 
 
 # Secret door (white / solid block)
 
-F:48:1/127
+F:50:1/127
 
 # Granite walls & permanent rock (white / solid block)
 
-F:56:1/127
-F:57:1/127
 F:58:1/127
 F:59:1/127
 F:60:1/127
-F:61:1/127
+F:62:1/127
 F:62:1/127
 F:63:1/127
+F:64:1/127
+F:65:1/127
 

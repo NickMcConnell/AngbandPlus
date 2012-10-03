@@ -170,9 +170,9 @@ typedef int errr;
 #define RF2_XXX3			0x00000400	/* (?) */
 #define RF2_XXX4			0x00000800	/* (?) */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
-#define RF2_XXX5			0x00002000	/* (?) */
-#define RF2_XXX7			0x00004000	/* (?) */
-#define RF2_XXX6			0x00008000	/* (?) */
+#define RF2_LOUD_CRY			0x00002000	/* Alex: can cry loudly */
+#define RF2_WAKE_FRIENDS			0x00004000	/* Alex: can wake up friends; also must be able to cry loudly */
+#define RF2_WAKE_ALL			0x00008000	/* Alex: can wake up all monsters; also must can be able to loudly */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
 #define RF2_PASS_WALL		0x00040000	/* Monster can pass walls */
@@ -415,6 +415,9 @@ struct monster_lore
 
 struct monster_type
 {
+        s16b total_items;               /* Alex: Total amount of treasure and items monster drops after death; not including objects carried*/
+        bool ancestor_inventory;    /* Alex: TRUE if monster carries ancestor's inventory*/
+
 	s16b r_idx;			/* Monster race index */
 
 	byte fy;			/* Y location on map */
@@ -487,5 +490,5 @@ extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
 
 extern void monster_death(int m_idx);
-extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
+extern bool mon_take_hit(int m_idx, int* dam, bool *fear, cptr note, bool show_msg_dam);
 

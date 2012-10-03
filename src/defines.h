@@ -142,7 +142,8 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES	8
+/* Alex: it was 8 */
+#define MAX_STORES	10
 
 
 /*
@@ -156,6 +157,9 @@
 #define STORE_MAGIC		5
 #define STORE_B_MARKET	6
 #define STORE_HOME		7
+/* Alex */
+#define STORE_A_G_1		8       /* Adventurer's Guild 1 */
+#define STORE_A_G_2		9       /* Adventurer's Guild 2 */
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -253,14 +257,26 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_CHOICES	32		/* Number of items to choose stock from */
-#define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
-#define STORE_TURNOVER	9		/* Normal shop turnover, per day */
-#define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
-#define STORE_MAX_KEEP	18		/* Max slots to "always" keep full */
-#define STORE_SHUFFLE	25		/* 1/Chance (per day) of an owner changing */
+/* It was 24 */
+#define STORE_INVEN_MAX	52		/* Max number of discrete objs in inven */
+/*Alex: it was 32 */
+#define STORE_CHOICES	48		/* Number of items to choose stock from */
+/*Alex: it was 5 */
+#define STORE_OBJ_LEVEL	40		/* Magic Level for normal stores */
+/*Alex: it was 9 */
+#define STORE_TURNOVER	20		/* Normal shop turnover, per day */
+/*Alex: it was 6 */
+#define STORE_MIN_KEEP	20		/* Min slots to "always" keep full */
+/*Alex: it was 18 */
+#define STORE_MAX_KEEP	35		/* Max slots to "always" keep full */
+/*Alex: it was 25 */
+#define STORE_SHUFFLE	3		/* 1/Chance (per day) of an owner changing */
 #define STORE_TURNS		1000	/* Number of turns between turnovers */
+enum
+{
+	/*Alex: chance of random object, see store_create()*/
+	STORE_RND_OBJECT = 30
+};
 
 
 /*
@@ -289,11 +305,17 @@
 #define GREAT_EGO	20
 
 /*
+ * There is a 1/100 (~ 1%) chance that additional random artifact will be generated
+ */
+#define RAND_ART	100
+
+/*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
+ * Alex: 1/10 chance
  */
-#define NASTY_MON	50		/* 1/chance of inflated monster level */
+#define NASTY_MON	10		/* 1/chance of inflated monster level */
 
 
 
@@ -371,8 +393,9 @@
 
 /*
  * Maximum number of players spells
+ * Alex: it was 64
  */
-#define PY_MAX_SPELLS 64
+#define PY_MAX_SPELLS 66
 
 
 /*
@@ -409,10 +432,17 @@
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
 
+/* Alex: Rods, Staves, Wands now usable only from the belt */
+enum
+{
+        INVEN_BELT_MIN = 36,
+        INVEN_BELT_MAX = 46
+};
+
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL	36
+#define INVEN_TOTAL	INVEN_BELT_MAX
 
 
 /*
@@ -551,6 +581,7 @@
 #define SUMMON_WRAITH       31
 #define SUMMON_UNIQUE       32
 #define SUMMON_KIN          33
+#define SUMMON_UNIQUE_ASLEEP       34   /* Alex: see cave_gen() */
 
 
 /*
@@ -674,37 +705,37 @@
 
 /* Shops */
 #define FEAT_SHOP_HEAD	0x08
-#define FEAT_SHOP_TAIL	0x0F
+#define FEAT_SHOP_TAIL	0x11
 
 /* Traps */
-#define FEAT_TRAP_HEAD	0x10
-#define FEAT_TRAP_TAIL	0x1F
+#define FEAT_TRAP_HEAD	0x12
+#define FEAT_TRAP_TAIL	0x21
 
 /* Doors */
-#define FEAT_DOOR_HEAD	0x20
-#define FEAT_DOOR_TAIL	0x2F
+#define FEAT_DOOR_HEAD	0x22
+#define FEAT_DOOR_TAIL	0x31
 
 /* Extra */
-#define FEAT_SECRET		0x30
-#define FEAT_RUBBLE		0x31
+#define FEAT_SECRET		0x32
+#define FEAT_RUBBLE		0x33
 
 /* Seams */
-#define FEAT_MAGMA		0x32
-#define FEAT_QUARTZ		0x33
-#define FEAT_MAGMA_H	0x34
-#define FEAT_QUARTZ_H	0x35
-#define FEAT_MAGMA_K	0x36
-#define FEAT_QUARTZ_K	0x37
+#define FEAT_MAGMA		0x34
+#define FEAT_QUARTZ		0x35
+#define FEAT_MAGMA_H	0x36
+#define FEAT_QUARTZ_H	0x37
+#define FEAT_MAGMA_K	0x38
+#define FEAT_QUARTZ_K	0x39
 
 /* Walls */
-#define FEAT_WALL_EXTRA	0x38
-#define FEAT_WALL_INNER	0x39
-#define FEAT_WALL_OUTER	0x3A
-#define FEAT_WALL_SOLID	0x3B
-#define FEAT_PERM_EXTRA	0x3C
-#define FEAT_PERM_INNER	0x3D
-#define FEAT_PERM_OUTER	0x3E
-#define FEAT_PERM_SOLID	0x3F
+#define FEAT_WALL_EXTRA	0x3A
+#define FEAT_WALL_INNER	0x3B
+#define FEAT_WALL_OUTER	0x3C
+#define FEAT_WALL_SOLID	0x3D
+#define FEAT_PERM_EXTRA	0x3E
+#define FEAT_PERM_INNER	0x3F
+#define FEAT_PERM_OUTER	0x40
+#define FEAT_PERM_SOLID	0x41
 
 
 
@@ -1042,6 +1073,7 @@
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
 #define SV_LEATHER_SCALE_MAIL		11
+#define SV_BLENDING		12	/*Alex*/
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
@@ -1081,6 +1113,7 @@
 #define SV_LITE_ELENDIL		5
 #define SV_LITE_THRAIN		6
 #define SV_LITE_PALANTIR	7
+#define SV_LITE_MAX		        8 /* Alex: for new make_artifact_special() */
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM			0
@@ -1106,6 +1139,7 @@
 #define SV_AMULET_TRICKERY		20
 #define SV_AMULET_INFRAVISION		21
 #define SV_AMULET_RESIST_LIGHTNING  22
+#define SV_AMULET_MAX		        23 /* Alex: for new make_artifact_special() */
 
 
 /* The sval codes for TV_RING */
@@ -1148,6 +1182,7 @@
 #define SV_RING_VILYA			36
 #define SV_RING_POWER			37
 #define SV_RING_LIGHTNING		38
+#define SV_RING_MAX		        39 /* Alex: for new make_artifact_special()*/
 
 
 /* The "sval" codes for TV_STAFF */
@@ -1181,7 +1216,7 @@
 #define SV_STAFF_GENOCIDE		27
 #define SV_STAFF_EARTHQUAKES	28
 #define SV_STAFF_DESTRUCTION	29
-
+#define SV_STAFF_VISIT_HOME     30
 
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER	0
@@ -1227,22 +1262,23 @@
 #define SV_ROD_HEALING			9
 #define SV_ROD_RESTORATION		10
 #define SV_ROD_SPEED			11
+#define SV_ROD_STAR_DETECTION			12
 /* xxx (aimed) */
-#define SV_ROD_TELEPORT_AWAY	13
-#define SV_ROD_DISARMING		14
-#define SV_ROD_LITE				15
-#define SV_ROD_SLEEP_MONSTER	16
-#define SV_ROD_SLOW_MONSTER		17
-#define SV_ROD_DRAIN_LIFE		18
-#define SV_ROD_POLYMORPH		19
-#define SV_ROD_ACID_BOLT		20
-#define SV_ROD_ELEC_BOLT		21
-#define SV_ROD_FIRE_BOLT		22
-#define SV_ROD_COLD_BOLT		23
-#define SV_ROD_ACID_BALL		24
-#define SV_ROD_ELEC_BALL		25
-#define SV_ROD_FIRE_BALL		26
-#define SV_ROD_COLD_BALL		27
+#define SV_ROD_TELEPORT_AWAY	14
+#define SV_ROD_DISARMING		15
+#define SV_ROD_LITE				16
+#define SV_ROD_SLEEP_MONSTER	17
+#define SV_ROD_SLOW_MONSTER		18
+#define SV_ROD_DRAIN_LIFE		19
+#define SV_ROD_POLYMORPH		20
+#define SV_ROD_ACID_BOLT		21
+#define SV_ROD_ELEC_BOLT		22
+#define SV_ROD_FIRE_BOLT		23
+#define SV_ROD_COLD_BOLT		24
+#define SV_ROD_ACID_BALL		25
+#define SV_ROD_ELEC_BALL		26
+#define SV_ROD_FIRE_BALL		27
+#define SV_ROD_COLD_BALL		28
 
 
 /* The "sval" codes for TV_SCROLL */
@@ -1287,10 +1323,14 @@
 #define SV_SCROLL_PROTECTION_FROM_EVIL	37
 #define SV_SCROLL_RUNE_OF_PROTECTION	38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION	39
-/* xxx */
+
+#define SV_SCROLL_CREATE_EGO			40      /* Alex */
+
 #define SV_SCROLL_STAR_DESTRUCTION		41
 #define SV_SCROLL_DISPEL_UNDEAD			42
-/* xxx */
+
+#define SV_SCROLL_CREATE_ARTIFACT			43      /* Alex */
+
 #define SV_SCROLL_GENOCIDE				44
 #define SV_SCROLL_MASS_GENOCIDE			45
 #define SV_SCROLL_ACQUIREMENT			46
@@ -1397,7 +1437,7 @@
 /*
  * Special "sval" limit -- first "aimed" rod
  */
-#define SV_ROD_MIN_DIRECTION	12
+#define SV_ROD_MIN_DIRECTION	13
 
 /*
  * Special "sval" limit -- first "large" chest
@@ -1449,7 +1489,7 @@
 #define RBM_XXX5	24
 
 
-/*
+ /*
  * New monster blow effects
  */
 #define RBE_HURT		1
@@ -1508,13 +1548,6 @@
 #define PROJECT_HIDE	0x80
 
 
-/*
- * Bit flags for the "enchant()" function
- */
-#define ENCH_TOHIT   0x01
-#define ENCH_TODAM   0x02
-#define ENCH_TOAC    0x04
-
 
 /*
  * Bit flags for the "target_set" function
@@ -1549,6 +1582,7 @@
 #define USE_EQUIP		0x01	/* Allow equip items */
 #define USE_INVEN		0x02	/* Allow inven items */
 #define USE_FLOOR		0x04	/* Allow floor items */
+#define USE_BELT		0x08	/* Allow belt items (Rods/Staves/Wands) */
 
 
 
@@ -1625,7 +1659,7 @@
 #define PW_EQUIP            0x00000002L /* Display equip/inven */
 #define PW_PLAYER_0         0x00000004L /* Display player (basic) */
 #define PW_PLAYER_1         0x00000008L /* Display player (extra) */
-/* xxx */
+#define PW_BELT                 0x00000010L /* Display belt */
 /* xxx */
 #define PW_MESSAGE          0x00000040L /* Display messages */
 #define PW_OVERHEAD         0x00000080L /* Display overhead view */
@@ -2010,9 +2044,9 @@
 #define RF2_XXX3			0x00000400	/* (?) */
 #define RF2_XXX4			0x00000800	/* (?) */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
-#define RF2_XXX5			0x00002000	/* (?) */
-#define RF2_XXX7			0x00004000	/* (?) */
-#define RF2_XXX6			0x00008000	/* (?) */
+#define RF2_LOUD_CRY			0x00002000	/* Alex: can cry loudly */
+#define RF2_WAKE_FRIENDS			0x00004000	/* Alex: can wake up friends; also must be able to cry loudly */
+#define RF2_WAKE_ALL			0x00008000	/* Alex: can wake up all monsters; also must can be able to loudly */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
 #define RF2_PASS_WALL		0x00040000	/* Monster can pass walls */
@@ -3046,3 +3080,144 @@ extern int PlayerUID;
  * Given an array, determine how many elements are in the array.
  */
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
+
+
+/*Alex*/
+#define POWER_WAND      10
+#define POWER_STAFF      20
+#define POWER_ROD      30
+#define POWER_ART      100
+
+
+/* Alex: see process_world() */
+enum StormLevel
+{
+        STORM_NONE,
+        STORM_ACID,
+        STORM_ELEC,
+        STORM_FIRE,
+        STORM_COLD,
+        STORM_POIS,
+        STORM_MANA,
+        STORM_MAX
+};
+
+enum
+{
+        STORM_MIN_DEPTH = 20,
+        /* Storm chance = (depth - STORM_MIN_DEPTH) / STORM_CHANCE */
+        STORM_CHANCE = 200,
+        /* chance to be hit by storm (player) */
+        STORM_HIT_CHANCE_PLAYER = 20,
+        /* chance to be hit by storm (monster) */
+        STORM_HIT_CHANCE_MONSTER = 50,
+        /* chance to hit uniques - in addition to  STORM_HIT_CHANCE_MONSTER */
+        STORM_HIT_CHANCE_UNIQUE = 10,
+        /* damroll(dd + depth, ds) */
+        STORM_HIT_DD = 20,
+        STORM_HIT_DS = 8,
+        /* every 10 turns player lost STORM_LEAK hp (and sp if Mana Storm) */
+        STORM_LEAK = 5,
+};
+
+typedef void (*take_damage_function)(int dam, cptr msg, cptr kb_str);
+
+enum WeaponMode
+{
+        WEAPON_NO,
+        WEAPON_ONE,
+        WEAPON_TWO,
+        WEAPON_TWO_SIMILAR,     /*Less penalties*/
+        WEAPON_TWO_HANDED,
+        WEAPON_LAST
+};
+
+enum
+{
+        TWO_WEAPON_PEN_THN = 50,
+        TWO_WEAPON_PEN_BLOW = 2
+};
+
+enum
+{
+        /* p_ptr->energy_use = ENERGY_TURN for most actions */
+        ENERGY_TURN = 100,
+        /* energy use when using item from the belt */
+        ENERGY_BELT = ENERGY_TURN/2,
+        /* energy use penalty when using item from the pack */
+        ENERGY_INVEN_PENALTY = ENERGY_TURN
+};
+
+enum
+{
+/*
+ * Bit flags for the "enchant()" function
+ */
+        ENCH_TOHIT = 0x01,
+        ENCH_TODAM = 0x02,
+        ENCH_TOAC = 0x04,
+/*Maximum attainable "plus" via enchant armor/weapon*/
+        ENCH_MAX = 25
+};
+
+enum
+{
+        /*Total number of pain degries*/
+        PAIN_LAST = 7
+};
+
+/* Noise constants - see wake_monsters() */
+enum
+{
+        /*noise level = NOISE_DAMAGE*damage;*/
+        NOISE_DAMAGE = 5,
+        /*noise level = NOISE_DIG*p_ptr->skill_dig*/
+        NOISE_DIG = 1,
+	/*Maximum distance for waking friends (see appropriate_monsters_near())*/
+	WAKE_DISTANCE = 5,
+        /*local_noise = noise_level - dist * NOISE_DISTANCE_DEC;*/
+        NOISE_DISTANCE_DEC = 10,
+        /*noise level = NOISE_CRY*monster_level*/
+        NOISE_CRY = 5
+};
+
+enum
+{
+	/* Determines amount of exps gained for identification by trying (see gain_object_exp() in "xtra2.c") */
+	EXP_ITEM = 10
+};
+
+/*Constants for artifacts construction*/
+enum
+{
+	/*art power = Rand_normal(levels_sacrifice * ART_LEVEL_MUL, ART_RND);*/
+	ART_LEVEL_MUL = 2,
+	ART_RND = 20,
+	/*Constants for choosing rarity of new ability, see add_ability()*/
+	ART_R_1 = 25,
+	ART_R_2 = 50,
+	ART_R_3 = 100,
+	/*art power = depth / ART_STORM_DIV + Rand_normal(0, ART_RND),
+	 *double depth for Mana Storm, see generate_storm_artifacts()*/
+	ART_STORM_DIV = 2,
+	/*Maximum possible a_ptr->ac increase*/
+	ART_MAX_EXTRA_AC = 10,
+	/*Determine weapon artifact power increase with to_hit, to_dam, see artifact_power()*/
+	ART_W_1 = 10,
+	ART_W_2 = 20,
+	ART_W_3 = 30,/*Maximum possible for new weapon artifacts*/
+	/*Determine armor artifact power increase with to_ac, see artifact_power()*/
+	ART_A_1 = 20,
+	ART_A_2 = 30,
+	ART_A_3 = 40,/*Maximum possible for new armor artifacts*/
+	/*Determine artifact power increase for:
+	* non-weapon with to_hit, to_dam, and non-armor for to_ac, see artifact_power()*/
+	ART_1 = 5,
+	ART_2 = 10,
+	ART_3 = 15/*Maximum possible*/
+};
+
+enum
+{
+	SPELL_MAX_INDEX = 25
+};

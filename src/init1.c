@@ -179,9 +179,9 @@ static cptr r_info_flags2[] =
 	"XXX3X2",
 	"XXX4X2",
 	"POWERFUL",
-	"XXX5X2",
-	"XXX7X2",
-	"XXX6X2",
+	"LOUD_CRY",
+	"WAKE_FRIENDS",
+	"WAKE_ALL",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -760,6 +760,7 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->a_max = max;
+		z_info->file_a_max = max;
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */

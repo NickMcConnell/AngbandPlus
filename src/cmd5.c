@@ -12,6 +12,11 @@
 
 #include "script.h"
 
+/*Alex: returns penalty for hp<max_hp, from 0 to 50*/
+s16b std_hp_pen(s16b hp, s16b max_hp)
+{
+        return ((int)(max_hp) - hp) * 50 / max_hp;
+}
 
 /*
  * Returns chance of failure for a spell
@@ -59,12 +64,16 @@ s16b spell_chance(int spell)
 		chance += 25;
 	}
 
-	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
-
-	/* Stunning makes spells harder (after minfail) */
+	/* Stunning makes spells harder (before minfail) */
+        /* Alex: it was after minfall */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
+
+        /* Alex: penalty for hit points loss */
+        chance += std_hp_pen(p_ptr->chp, p_ptr->mhp);
+
+	/* Minimum failure rate */
+	if (chance < minfail) chance = minfail;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -247,7 +256,7 @@ void display_koff(int k_idx)
 
 
 		/* Extract spells */
-		for (i = 0; i < 9; i++)
+		for (i = 0; i < SPELL_MAX_INDEX; i++)
 		{
 			spell = get_spell_index(i_ptr, i);
 
@@ -315,7 +324,8 @@ static int get_spell(const object_type *o_ptr, cptr prompt, bool known)
 #endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
-	for (i = 0; i < 9; i++)
+        /* Alex: it was i < 9 */
+	for (i = 0; i < SPELL_MAX_INDEX; i++)
 	{
 		spell = get_spell_index(o_ptr, i);
 
@@ -468,7 +478,8 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	handle_stuff();
 
 	/* Extract spells */
-	for (i = 0; i < 9; i++)
+        /* Alex: it was i < 9 */
+	for (i = 0; i < SPELL_MAX_INDEX; i++)
 	{
 		spell = get_spell_index(o_ptr, i);
 
@@ -550,7 +561,7 @@ void do_cmd_browse(void)
 	/* Get an item */
 	q = "Browse which book? ";
 	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -618,7 +629,7 @@ void do_cmd_study(void)
 	/* Get an item */
 	q = "Study which book? ";
 	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -656,7 +667,7 @@ void do_cmd_study(void)
 		int gift = -1;
 
 		/* Extract spells */
-		for (i = 0; i < 9; i++)
+		for (i = 0; i < SPELL_MAX_INDEX; i++)
 		{
 			spell = get_spell_index(o_ptr, i);
 
@@ -688,8 +699,11 @@ void do_cmd_study(void)
 	}
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take one turn from equip, two turns from the pack/floor*/
+        if (item>=INVEN_WIELD)
+	        p_ptr->energy_use = ENERGY_TURN;
+        else
+	        p_ptr->energy_use = ENERGY_TURN + ENERGY_INVEN_PENALTY;
 
 	/* Learn the spell */
 	p_ptr->spell_flags[spell] |= PY_SPELL_LEARNED;
@@ -772,7 +786,7 @@ void do_cmd_cast(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -854,8 +868,11 @@ void do_cmd_cast(void)
 		}
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take one turn from equip, two turns from the pack/floor*/
+        if (item>=INVEN_WIELD)
+	        p_ptr->energy_use = ENERGY_TURN;
+        else
+	        p_ptr->energy_use = ENERGY_TURN + ENERGY_INVEN_PENALTY;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)
@@ -942,7 +959,7 @@ void do_cmd_pray(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no prayer books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1023,8 +1040,11 @@ void do_cmd_pray(void)
 		}
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take one turn from equip, two turns from the pack/floor*/
+        if (item>=INVEN_WIELD)
+	        p_ptr->energy_use = ENERGY_TURN;
+        else
+	        p_ptr->energy_use = ENERGY_TURN + ENERGY_INVEN_PENALTY;
 
 	/* Sufficient mana */
 	if (s_ptr->smana <= p_ptr->csp)

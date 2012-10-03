@@ -33,25 +33,25 @@
 M:0:w
 
 # MSG_HIT
-M:1:w
+M:1:r
 
 # MSG_MISS
-M:2:w
+M:2:g
 
 # MSG_FLEE
-M:3:w
+M:3:v
 
 # MSG_DROP
 M:4:w
 
 # MSG_KILL
-M:5:w
+M:5:G
 
 # MSG_LEVEL
-M:6:w
+M:6:B
 
 # MSG_DEATH
-M:7:w
+M:7:R
 
 # MSG_STUDY
 M:8:w

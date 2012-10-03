@@ -611,6 +611,8 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 
 	/* Can we "see" it (forced, or not hidden + visible) */
 	seen = ((mode & (0x80)) || (!(mode & (0x40)) && m_ptr->ml));
+        /* Alex */
+        seen |= m_ptr->ancestor_inventory;
 
 	/* Sexed Pronouns (seen and forced, or unseen and allowed) */
 	pron = ((seen && (mode & (0x20))) || (!seen && (mode & (0x10))));
@@ -726,6 +728,9 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode)
 			strcat(desc, " (offscreen)");
 		}
 	}
+        /* Alex*/
+        if (mode && m_ptr->ancestor_inventory)
+                strcat(desc, " (carries ancestor's inventory)");
 }
 
 
@@ -1495,7 +1500,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Give a random starting energy */
-	n_ptr->energy = (byte)rand_int(100);
+	n_ptr->energy = (byte)rand_int(ENERGY_TURN);
 
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
@@ -1513,6 +1518,18 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Optimize -- Repair flags */
 	repair_mflag_born = TRUE;
 
+
+        n_ptr->total_items = 0;
+        /*Alex: copy from monster_death()*/
+	/* Determine how much we can drop */
+	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) n_ptr->total_items++;
+	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) n_ptr->total_items++;
+	if (r_ptr->flags1 & (RF1_DROP_1D2)) n_ptr->total_items += damroll(1, 2);
+	if (r_ptr->flags1 & (RF1_DROP_2D2)) n_ptr->total_items += damroll(2, 2);
+	if (r_ptr->flags1 & (RF1_DROP_3D2)) n_ptr->total_items += damroll(3, 2);
+	if (r_ptr->flags1 & (RF1_DROP_4D2)) n_ptr->total_items += damroll(4, 2);
+
+        n_ptr->ancestor_inventory = FALSE;
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
@@ -2015,6 +2032,8 @@ static bool summon_specific_okay(int r_idx)
  * Note: SUMMON_UNIQUE and SUMMON_WRAITH (XXX) will summon Uniques
  * Note: SUMMON_HI_UNDEAD and SUMMON_HI_DRAGON may summon Uniques
  * Note: None of the other summon codes will ever summon Uniques.
+ * Note: (Alex): SUMMON_UNIQUE_ASLEEP used in cave_gen() to place
+ * at least one Unique (100 tries).
  *
  * This function has been changed.  We now take the "monster level"
  * of the summoning monster as a parameter, and use that, along with
@@ -2059,7 +2078,10 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 	/* Save the "summon" type */
-	summon_specific_type = type;
+        if (type != SUMMON_UNIQUE_ASLEEP)
+	        summon_specific_type = type;
+        else
+	        summon_specific_type = SUMMON_UNIQUE;
 
 
 	/* Require "okay" monsters */
@@ -2083,9 +2105,16 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
-	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
-
+        if (type != SUMMON_UNIQUE_ASLEEP)
+        {
+        	/* Attempt to place the monster (awake, allow groups) */
+	        if (!place_monster_aux(y, x, r_idx, FALSE, TRUE)) return (FALSE);
+        }
+        else
+        {
+        	/* Attempt to place the monster (asleep, allow groups) */
+	        if (!place_monster_aux(y, x, r_idx, TRUE, TRUE)) return (FALSE);
+        }
 	/* Success */
 	return (TRUE);
 }
@@ -2131,7 +2160,58 @@ bool multiply_monster(int m_idx)
 
 
 
+/* Jelly's, Mold's, Vortex's, Quthl's */
+const char* jelly_pain[PAIN_LAST] = {
+        "barely notices",
+        "flinches",
+        "squelches",
+        "quivers in pain",
+        "writhes about",
+        "writhes in agony",
+        " jerks limply"
+};
 
+/* Dogs and Hounds */
+const char* dog_pain[PAIN_LAST] = {
+        "shrugs off the attack",
+        "snarls with pain",
+        "yelps in pain",
+        "howls in pain",
+        "howls in agony",
+        "writhes in agony",
+        "yelps feebly"
+};
+
+/* One type of monsters (ignore,squeal,shriek) */
+const char* mon_pain[PAIN_LAST] = {
+        "ignores the attack",
+        "grunts with pain",
+        "squeals in pain",
+        "shrieks in pain",
+        "shrieks in agony",
+        "writhes in agony",
+        "cries out feebly",
+};
+
+/* Another type of monsters (shrug,cry,scream) */
+const char* another_mon_pain[PAIN_LAST] = {
+        "shrugs off the attack",
+        "grunts with pain",
+        "cries out in pain",
+        "screams in pain",
+        "screams in agony",
+        "writhes in agony",
+        "cries out feebly",
+};
+
+/*Alex*/
+int pain_level(int new_hp, int dam)
+{
+	int percentage = ((long)new_hp * 100L) / (new_hp + dam);
+        int i = 0;
+        while (i < PAIN_LAST-1 && percentage <= pain_percent[i]) i++;
+        return i;
+}
 
 /*
  * Dump a message describing a monster's reaction to damage
@@ -2140,13 +2220,17 @@ bool multiply_monster(int m_idx)
  */
 void message_pain(int m_idx, int dam)
 {
-	long oldhp, newhp, tmp;
-	int percentage;
+	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	char m_name[80];
+
+        const char** pain_messages;
+
+        const char* msg;
 
 
 	/* Get the monster name */
@@ -2159,88 +2243,42 @@ void message_pain(int m_idx, int dam)
 		return;
 	}
 
-	/* Note -- subtle fix -CFT */
-	newhp = (long)(m_ptr->hp);
-	oldhp = newhp + (long)(dam);
-	tmp = (newhp * 100L) / oldhp;
-	percentage = (int)(tmp);
-
-
 	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
-	{
-		if (percentage > 95)
-			msg_format("%^s barely notices.", m_name);
-		else if (percentage > 75)
-			msg_format("%^s flinches.", m_name);
-		else if (percentage > 50)
-			msg_format("%^s squelches.", m_name);
-		else if (percentage > 35)
-			msg_format("%^s quivers in pain.", m_name);
-		else if (percentage > 20)
-			msg_format("%^s writhes about.", m_name);
-		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
-		else
-			msg_format("%^s jerks limply.", m_name);
-	}
-
+	if (strchr("jmvQ", r_ptr->d_char)) pain_messages = jelly_pain;
 	/* Dogs and Hounds */
-	else if (strchr("CZ", r_ptr->d_char))
-	{
-		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
-		else if (percentage > 75)
-			msg_format("%^s snarls with pain.", m_name);
-		else if (percentage > 50)
-			msg_format("%^s yelps in pain.", m_name);
-		else if (percentage > 35)
-			msg_format("%^s howls in pain.", m_name);
-		else if (percentage > 20)
-			msg_format("%^s howls in agony.", m_name);
-		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
-		else
-			msg_format("%^s yelps feebly.", m_name);
-	}
-
+	else if (strchr("CZ", r_ptr->d_char)) pain_messages = dog_pain;
 	/* One type of monsters (ignore,squeal,shriek) */
-	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char))
-	{
-		if (percentage > 95)
-			msg_format("%^s ignores the attack.", m_name);
-		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
-		else if (percentage > 50)
-			msg_format("%^s squeals in pain.", m_name);
-		else if (percentage > 35)
-			msg_format("%^s shrieks in pain.", m_name);
-		else if (percentage > 20)
-			msg_format("%^s shrieks in agony.", m_name);
-		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
-		else
-			msg_format("%^s cries out feebly.", m_name);
-	}
-
+	else if (strchr("FIKMRSXabclqrst", r_ptr->d_char)) pain_messages = mon_pain;
 	/* Another type of monsters (shrug,cry,scream) */
-	else
-	{
-		if (percentage > 95)
-			msg_format("%^s shrugs off the attack.", m_name);
-		else if (percentage > 75)
-			msg_format("%^s grunts with pain.", m_name);
-		else if (percentage > 50)
-			msg_format("%^s cries out in pain.", m_name);
-		else if (percentage > 35)
-			msg_format("%^s screams in pain.", m_name);
-		else if (percentage > 20)
-			msg_format("%^s screams in agony.", m_name);
-		else if (percentage > 10)
-			msg_format("%^s writhes in agony.", m_name);
-		else
-			msg_format("%^s cries out feebly.", m_name);
-	}
+	else pain_messages = another_mon_pain;
+
+        /*if (percentage > PAIN_0)
+                msg = pain_messages[0];
+        else if (percentage > PAIN_1)
+                msg = pain_messages[1];
+        else if (percentage > PAIN_2)
+                msg = pain_messages[2];
+        else if (percentage > PAIN_3)
+                msg = pain_messages[3];
+        else if (percentage > PAIN_4)
+                msg = pain_messages[4];
+        else if (percentage > PAIN_5)
+                msg = pain_messages[5];
+        else
+                msg = pain_messages[6];*/
+
+        i = pain_level(m_ptr->hp, dam);
+        msg = pain_messages[i];
+
+        strcat(m_name, " ");
+        strcat(m_name, msg);
+        msg_dam(m_name, dam);
+
+        if (r_ptr->flags2 & (RF2_LOUD_CRY) && pain_noise[i] > 0)
+        {
+                wake_monsters(m_idx, pain_noise[i] * r_ptr->level, FALSE);
+		l_ptr->flags2 |= RF2_LOUD_CRY;
+        }
 }
 
 

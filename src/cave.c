@@ -3727,7 +3727,8 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 		nx = rand_spread(x, d);
 
 		/* Ignore annoying locations */
-		if (!in_bounds_fully(y, x)) continue;
+                /* Alex: it was !in_bounds_fully(y, x) - a bug! */
+		if (!in_bounds_fully(ny, nx)) continue;
 
 		/* Ignore "excessively distant" locations */
 		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;

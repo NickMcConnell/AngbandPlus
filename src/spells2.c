@@ -250,7 +250,7 @@ void identify_pack(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 }
 
 
@@ -261,12 +261,13 @@ void identify_pack(void)
 /*
  * Used by the "enchant" function (chance of failure)
  */
+/* Alex */
 static const int enchant_table[16] =
 {
 	0, 10,  50, 100, 200,
-	300, 400, 500, 700, 950,
-	990, 992, 995, 997, 999,
-	1000
+	300, 400, 500, 600, 650,
+	700, 750, 800, 850, 900,
+	950
 };
 
 
@@ -313,11 +314,24 @@ static int remove_curse_aux(int all)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Uncursed already */
-		if (!cursed_p(o_ptr)) continue;
-
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
+
+                o_ptr->ident &= ~(IDENT_BROKEN);
+
+                /* Alex: remove bad flags from artifacts*/
+                if(o_ptr->name1 && all)
+                {
+                        artifact_type* a_ptr = &a_info[o_ptr->name1];
+			if (!rand_int(3)) a_ptr->flags3 &= ~(TR3_TELEPORT);
+			if (!rand_int(2)) a_ptr->flags3 &= ~(TR3_AGGRAVATE);
+			if (!rand_int(4)) a_ptr->flags3 &= ~(TR3_DRAIN_EXP);
+			a_ptr->flags3 &= ~(TR3_LIGHT_CURSE);
+			if (!rand_int(5)) a_ptr->flags3 &= ~(TR3_HEAVY_CURSE);
+                }
+
+		/* Uncursed already */
+		if (!cursed_p(o_ptr)) continue;
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -412,7 +426,7 @@ void self_knowledge(void)
 
 
 	/* Get item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = INVEN_WIELD; k < INVEN_BELT_MIN; k++)
 	{
 		u32b t1, t2, t3;
 
@@ -914,7 +928,7 @@ bool lose_all_info(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -1615,6 +1629,14 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Hook to specify "weapon" that can be enchanted
+ */
+static bool item_tester_hook_weapon_to_enchant(const object_type *o_ptr)
+{
+        return item_tester_hook_weapon(o_ptr) && 
+                  (o_ptr->to_d < ENCH_MAX || o_ptr->to_h < ENCH_MAX);
+}
 
 /*
  * Hook to specify "armour"
@@ -1640,7 +1662,29 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Hook to specify "weapon" that can be enchanted
+ */
+static bool item_tester_hook_armour_to_enchant(const object_type *o_ptr)
+{
+        return item_tester_hook_armour(o_ptr) && 
+                  o_ptr->to_a < ENCH_MAX;
+}
 
+static bool item_tester_hook_weapon_and_armour(const object_type *o_ptr)
+{
+        return item_tester_hook_armour(o_ptr) || item_tester_hook_weapon(o_ptr);
+}
+
+static bool item_tester_hook_for_ego(const object_type *o_ptr)
+{
+        return !o_ptr->name1 && !o_ptr->name2 && item_tester_hook_weapon_and_armour(o_ptr);
+}
+
+static bool item_tester_hook_for_artifact(const object_type *o_ptr)
+{
+        return is_special(o_ptr->tval) || item_tester_hook_weapon_and_armour(o_ptr);
+}
 static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
@@ -1709,7 +1753,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOHIT))
 		{
 			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
+                        /* Alex */
+			else if (o_ptr->to_h > 15) chance = 1000+5*(o_ptr->to_h - ENCH_MAX);
 			else chance = enchant_table[o_ptr->to_h];
 
 			/* Attempt to enchant */
@@ -1737,7 +1782,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
+                        /* Alex */
+			else if (o_ptr->to_d > 15) chance = 1000+5*(o_ptr->to_d - ENCH_MAX);
 			else chance = enchant_table[o_ptr->to_d];
 
 			/* Attempt to enchant */
@@ -1765,7 +1811,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TOAC))
 		{
 			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
+                        /* Alex */
+			else if (o_ptr->to_a > 15) chance = 1000+5*(o_ptr->to_a - ENCH_MAX);
 			else chance = enchant_table[o_ptr->to_a];
 
 			/* Attempt to enchant */
@@ -1807,15 +1854,49 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 }
 
 
+/*Alex: decrease player level by levels_sacrifice. */
+void sacrifice_exp(int levels_sacrifice)
+{
+        int new_level = p_ptr->lev - levels_sacrifice;
+        int exp_base = player_exp[p_ptr->lev - 2]; /*100*difference between lev+1 and lev*/
+        int extra_exp = p_ptr->exp - exp_base * p_ptr->expfact / 100L;
+        int exp_delta;
+        int next_level_percent;
+
+        if (p_ptr->lev < PY_MAX_LEVEL)
+                /* Exp difference between lev+1 and lev */
+                exp_delta = (player_exp[p_ptr->lev - 1] - exp_base) * p_ptr->expfact / 100L;
+        else
+                /*We have to use previous (49) level */
+                exp_delta = (exp_base - player_exp[p_ptr->lev - 3]) * p_ptr->expfact / 100L;
+
+        next_level_percent = extra_exp*100L / exp_delta;
+
+        if (new_level>1)
+                exp_base = player_exp[new_level - 2];
+        else
+                /*First level*/
+                exp_base = 0;
+        exp_delta = (player_exp[new_level - 1] - exp_base) * p_ptr->expfact / 100L;
+        extra_exp = next_level_percent * exp_delta / 100L;
+        p_ptr->exp = p_ptr->max_exp = exp_base * p_ptr->expfact / 100L + extra_exp;
+
+        check_experience();
+}
 
 /*
  * Enchant an item (in the inventory or on the floor)
  * Note that "num_ac" requires armour, else weapon
  * Returns TRUE if attempted, FALSE if cancelled
  */
-bool enchant_spell(int num_hit, int num_dam, int num_ac)
+/* Alex:
+ * force_new_art: Create Artifact spell (num_hit == 0) / *Enchant Item* scroll (num_hit < 0)
+ * force_ego: Create Ego spell (num_hit == 0)/ Enchant Item scroll (num_hit < 0)
+ */
+bool enchant_spell(int num_hit, int num_dam, int num_ac, bool force_new_art, bool force_ego)
 {
 	int item;
+        int levels_sacrifice = 0;
 	bool okay = FALSE;
 
 	object_type *o_ptr;
@@ -1825,16 +1906,27 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	cptr q, s;
 
 
-	/* Assume enchant weapon */
-	item_tester_hook = item_tester_hook_weapon;
-
-	/* Enchant armor if requested */
-	if (num_ac) item_tester_hook = item_tester_hook_armour;
-
 	/* Get an item */
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+        if (force_new_art || force_ego)
+        {
+                if (force_new_art)
+        	        item_tester_hook = item_tester_hook_for_artifact;
+                else
+	                item_tester_hook = item_tester_hook_for_ego;
+	        if (!get_item(&item, q, s, (USE_EQUIP))) return (FALSE);
+        }
+        else
+        {
+        	/* Assume enchant weapon */
+	        item_tester_hook = item_tester_hook_weapon_to_enchant;
+
+	        /* Enchant armor if requested */
+	        if (num_ac) item_tester_hook = item_tester_hook_armour_to_enchant;
+
+	        if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+        }
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1848,6 +1940,97 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		o_ptr = &o_list[0 - item];
 	}
 
+        if (force_new_art)
+        {
+                if (num_hit < 0)
+                {
+                        /* Scroll */
+                        levels_sacrifice = 10;
+                }
+                else
+                {
+	                char out_val[80];
+                        char def[80];
+                        char msg[80];
+
+                        strcpy(msg, "Enter how many experience levels you will sacrifice (10-");
+                        itoa(p_ptr->lev - 1, def, 10);
+                        strcat(msg, def);
+                        strcat(msg, "): ");
+
+	                /* Default */
+                        strcpy(out_val, def);
+
+        	        /* Ask for level */
+	                if (!get_string(msg, out_val, 3)) return FALSE;
+
+	                p_ptr->command_arg = atoi(out_val);
+	                if (p_ptr->command_arg < 10 || 
+                                p_ptr->command_arg>=p_ptr->lev)
+                                return FALSE;
+
+                        levels_sacrifice = p_ptr->command_arg;
+                }
+
+                object_level = Rand_normal(levels_sacrifice * ART_LEVEL_MUL, ART_RND);
+
+                if (o_ptr->name1)
+                {
+                        artifact_type *a_ptr = &a_info[o_ptr->name1];
+                        okay = enchant_artifact(a_ptr, object_level, TRUE);
+                        o_ptr->ac = a_ptr->ac;
+	                o_ptr->dd = a_ptr->dd;
+        		o_ptr->ds = a_ptr->ds;
+		        o_ptr->weight = a_ptr->weight;
+        		o_ptr->pval = a_ptr->pval;
+	        	o_ptr->to_a = a_ptr->to_a;
+		        o_ptr->to_h = a_ptr->to_h;
+		        o_ptr->to_d = a_ptr->to_d;
+
+		        /* Hack -- extract the "broken" flag */
+		        if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+
+		        /* Hack -- extract the "cursed" flag */
+		        if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+                }
+                else
+                {
+                        if (o_ptr->tval == TV_LITE && 
+                             (o_ptr->sval == SV_LITE_TORCH || o_ptr->sval == SV_LITE_LANTERN))
+                                o_ptr->pval = 0;
+                        apply_magic(o_ptr, object_level, TRUE, TRUE, TRUE, TRUE, FALSE);
+                        okay = (o_ptr->name1 != 0);
+                }
+
+                /* Restore object_level */
+                object_level = p_ptr->depth;
+
+                if (!okay)
+                        msg_format("Need at least power of %d", last_power);
+        }
+        else if (force_ego)
+        {
+                object_level = Rand_normal(p_ptr->lev, 20);
+                levels_sacrifice = 1;
+                apply_magic(o_ptr, object_level, FALSE, TRUE, TRUE, FALSE, TRUE);
+                /* Restore object_level */
+                object_level = p_ptr->depth;
+                okay = o_ptr->name2;
+        }
+        else
+        {
+        	/* Enchant */
+	        if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
+	        if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
+	        if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
+                if (o_ptr->name1)
+                {
+                        artifact_type* a_ptr = &a_info[o_ptr->name1];
+                        a_ptr->to_a = o_ptr->to_a;
+                        a_ptr->to_d = o_ptr->to_d;
+                        a_ptr->to_h = o_ptr->to_h;
+                }
+        }
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
@@ -1856,11 +2039,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	msg_format("%s %s glow%s brightly!",
 	           ((item >= 0) ? "Your" : "The"), o_name,
 	           ((o_ptr->number > 1) ? "" : "s"));
-
-	/* Enchant */
-	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
-	if (enchant(o_ptr, num_dam, ENCH_TODAM)) okay = TRUE;
-	if (enchant(o_ptr, num_ac, ENCH_TOAC)) okay = TRUE;
 
 	/* Failure */
 	if (!okay)
@@ -1871,6 +2049,59 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
+
+        if (okay && (force_new_art || force_ego))
+        {
+                o_ptr->discount = 0;
+
+        	/* Identify it fully */
+	        object_aware(o_ptr);
+	        object_known(o_ptr);
+
+	        /* Mark the item as fully known */
+	        o_ptr->ident |= (IDENT_MENTAL);
+
+	        /* Recalculate bonuses */
+	        p_ptr->update |= (PU_BONUS);
+
+	        /* Combine / Reorder the pack (later) */
+	        p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	        /* Window stuff */
+	        p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	        /* Handle stuff */
+	        handle_stuff();
+
+	        /* Description */
+	        object_desc(o_name, o_ptr, TRUE, 3);
+
+	        /* Describe */
+	        if (item >= INVEN_WIELD)
+	        {
+		        msg_format("%^s: %s (%c).",
+		                   describe_use(item), o_name, index_to_label(item));
+	        }
+	        else if (item >= 0)
+	        {
+		        msg_format("In your pack: %s (%c).",
+		                   o_name, index_to_label(item));
+	        }
+	        else
+	        {
+		        msg_format("On the ground: %s.",
+		                   o_name);
+	        }
+
+	        /* Describe it fully */
+	        identify_fully_aux(o_ptr);
+
+                /* Sacrifice levels */
+                if (okay && (num_hit >= 0))
+                {
+                        sacrifice_exp(levels_sacrifice);
+                }
+        }
 
 	/* Something happened */
 	return (TRUE);
@@ -1896,10 +2127,12 @@ bool ident_spell(void)
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unknown;
 
+        p_ptr->command_wrk = USE_INVEN;
+
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BELT))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1925,7 +2158,7 @@ bool ident_spell(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1975,7 +2208,7 @@ bool identify_fully(void)
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BELT))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2004,7 +2237,7 @@ bool identify_fully(void)
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2100,7 +2333,7 @@ bool recharge(int num)
 	/* Get an item */
 	q = "Recharge which item? ";
 	s = "You have nothing to recharge.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_BELT))) return (FALSE);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -2193,7 +2426,9 @@ bool recharge(int num)
 			if (t > 0) o_ptr->pval += 2 + randint(t);
 
 			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
+                        /* Alex: unless we *know* it */
+        		if (!(o_ptr->ident & IDENT_MENTAL))
+	        		o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -2266,17 +2501,17 @@ bool speed_monsters(void)
 /*
  * Slow monsters
  */
-bool slow_monsters(void)
+bool slow_monsters(int power)
 {
-	return (project_los(GF_OLD_SLOW, p_ptr->lev));
+	return (project_los(GF_OLD_SLOW, power));
 }
 
 /*
  * Sleep monsters
  */
-bool sleep_monsters(void)
+bool sleep_monsters(int power)
 {
-	return (project_los(GF_OLD_SLEEP, p_ptr->lev));
+	return (project_los(GF_OLD_SLEEP, power));
 }
 
 
@@ -2323,6 +2558,77 @@ bool dispel_monsters(int dam)
 }
 
 
+/*
+ * Try to wake up nearby monsters.
+ * who == 0 if player is a noise source, else who == monster index (m_idx).
+ * use_distance_from_player == TRUE means that noise source is near player,
+ * so m_ptr->cdis is used as a distance to noise. Else distance is calculated.
+ */
+void wake_monsters(int who, int noise_level, bool use_distance_from_player)
+{
+	int i, x0, y0;
+        monster_type *noise_monster;/*noise maker*/
+        /* Extract the player blindness */
+	bool blind = (p_ptr->blind ? TRUE : FALSE);
+	bool sleep = FALSE;
+
+
+        if (!use_distance_from_player)
+        {
+                noise_monster = &m_list[who];
+                if (!noise_monster->r_idx)
+                {
+                        msg_print("Dead monster can not produce noise!");
+                        return;
+                }
+                x0 = noise_monster->fx;
+                y0 = noise_monster->fy;
+        }
+
+	/* Wake up everyone nearby */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+                int dist, local_noise;
+                bool seen;
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+		/* Skip awaken monsters */
+		if (!m_ptr->csleep) continue;
+
+		/* Skip noise producing monster (or player) */
+		if (i == who) continue;
+
+                if (use_distance_from_player)
+                        dist = m_ptr->cdis;
+                else
+                        dist = distance(y0, x0, m_ptr->fy, m_ptr->fx);
+
+                local_noise = noise_level - dist * NOISE_DISTANCE_DEC;
+
+		/* Wake up nearby sleeping monsters */
+		if (local_noise > 0)
+		{
+			if (m_ptr->csleep > local_noise)
+				m_ptr->csleep -= local_noise;
+                        else
+			{
+                                char m_name[80];
+				/* Wake up */
+				m_ptr->csleep = 0;
+				sleep = TRUE;
+                        	/* Extract the "see-able-ness" */
+	                        seen = (!blind && m_ptr->ml);
+                                if (seen)
+                                {
+                                	monster_desc(m_name, m_ptr, 0);
+                                        msg_format("%s wakes up!", m_name);
+                                }
+			}
+		}
+	}
+}
 
 
 
@@ -2414,7 +2720,7 @@ bool genocide(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(4), "the strain of casting Genocide");
+		take_hit(randint(4), "", "the strain of casting Genocide");
 
 		/* Take note */
 		result = TRUE;
@@ -2453,7 +2759,7 @@ bool mass_genocide(void)
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		take_hit(randint(3), "the strain of casting Mass Genocide");
+		take_hit(randint(3), "", "the strain of casting Mass Genocide");
 
 		/* Note effect */
 		result = TRUE;
@@ -2804,7 +3110,7 @@ void earthquake(int cy, int cx, int r)
 		}
 
 		/* Take some damage */
-		if (damage) take_hit(damage, "an earthquake");
+		if (damage) take_hit(damage, "", "an earthquake");
 	}
 
 
@@ -3477,16 +3783,16 @@ bool speed_monster(int dir)
 	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
 }
 
-bool slow_monster(int dir)
+bool slow_monster(int dir, int power)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLOW, dir, power, flg));
 }
 
-bool sleep_monster(int dir)
+bool sleep_monster(int dir, int power)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, power, flg));
 }
 
 bool confuse_monster(int dir, int plev)
@@ -3495,10 +3801,10 @@ bool confuse_monster(int dir, int plev)
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
 }
 
-bool poly_monster(int dir)
+bool poly_monster(int dir, int power)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	return (project_hook(GF_OLD_POLY, dir, power, flg));
 }
 
 bool clone_monster(int dir)
@@ -3531,6 +3837,9 @@ bool door_creation(void)
 	int px = p_ptr->px;
 
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+
+        do_cmd_store(TRUE);
+
 	return (project(-1, 1, py, px, 0, GF_MAKE_DOOR, flg));
 }
 
@@ -3558,7 +3867,7 @@ bool sleep_monsters_touch(void)
 	int px = p_ptr->px;
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(-1, 1, py, px, POWER_ART, GF_OLD_SLEEP, flg));
 }
 
 

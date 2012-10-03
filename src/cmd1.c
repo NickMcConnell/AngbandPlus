@@ -10,7 +10,8 @@
 
 #include "angband.h"
 
-
+/* Alex: see test_hit below */
+int last_hit;
 
 /*
  * Determine if the player "hits" a monster.
@@ -25,13 +26,21 @@ bool test_hit(int chance, int ac, int vis)
 	k = rand_int(100);
 
 	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
+        /* Alex: it was not good */
+	/*if (k < 10)
+        {
+                last_hit = (k<5) ? 300 : 0;
+                return (k < 5);
+        }*/
 
 	/* Penalize invisible targets */
 	if (!vis) chance = chance / 2;
 
+        /*Alex*/
+        last_hit = rand_int(chance);
+
 	/* Power competes against armor */
-	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
+	if ((chance > 0) && (last_hit >= (ac * 3 / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -803,15 +812,16 @@ void hit_trap(int y, int x)
 	{
 		case FEAT_TRAP_HEAD + 0x00:
 		{
-			msg_print("You fall through a trap door!");
+                        cptr msg = "You fall through a trap door!";
 			if (p_ptr->ffall)
 			{
+        			msg_print(msg);
 				msg_print("You float gently down to the next level.");
 			}
 			else
 			{
 				dam = damroll(2, 8);
-				take_hit(dam, name);
+				take_hit(dam, msg, name);
 			}
 
 			/* New depth */
@@ -825,25 +835,26 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x01:
 		{
-			msg_print("You fall into a pit!");
+                        cptr msg = "You fall into a pit!";
 			if (p_ptr->ffall)
 			{
+        			msg_print(msg);
 				msg_print("You float gently to the bottom of the pit.");
 			}
 			else
 			{
 				dam = damroll(2, 6);
-				take_hit(dam, name);
+				take_hit(dam, msg, name);
 			}
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x02:
 		{
-			msg_print("You fall into a spiked pit!");
-
+                        cptr msg = "You fall into a spiked pit!";
 			if (p_ptr->ffall)
 			{
+        			msg_print(msg);
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
@@ -856,24 +867,25 @@ void hit_trap(int y, int x)
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
-					msg_print("You are impaled!");
-
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
+	        			/* Take the damage */
+        				take_hit(dam, "You are impaled!", name);
 				}
-
+                                else
 				/* Take the damage */
-				take_hit(dam, name);
+				take_hit(dam, msg, name);
+
 			}
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x03:
 		{
-			msg_print("You fall into a spiked pit!");
-
+                        cptr msg = "You fall into a spiked pit!";
 			if (p_ptr->ffall)
 			{
+        			msg_print(msg);
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
@@ -886,14 +898,16 @@ void hit_trap(int y, int x)
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
-					msg_print("You are impaled on poisonous spikes!");
+                                        msg_print(msg);
+					msg = "You are impaled on poisonous spikes!";
 
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
 
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
-						msg_print("The poison does not affect you!");
+                                                msg_print(msg);
+						msg = "The poison does not affect you!";
 					}
 					else
 					{
@@ -903,7 +917,7 @@ void hit_trap(int y, int x)
 				}
 
 				/* Take the damage */
-				take_hit(dam, name);
+				take_hit(dam, msg, name);
 			}
 
 			break;
@@ -931,17 +945,15 @@ void hit_trap(int y, int x)
 
 		case FEAT_TRAP_HEAD + 0x06:
 		{
-			msg_print("You are enveloped in flames!");
 			dam = damroll(4, 6);
-			fire_dam(dam, "a fire trap");
+			fire_dam(dam, "You are enveloped in flames!", "a fire trap");
 			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x07:
 		{
-			msg_print("You are splashed with acid!");
 			dam = damroll(4, 6);
-			acid_dam(dam, "an acid trap");
+			acid_dam(dam, "You are splashed with acid!", "an acid trap");
 			break;
 		}
 
@@ -949,9 +961,8 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, name);
+				take_hit(dam, "A small dart hits you!", name);
 				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
 			}
 			else
@@ -965,9 +976,8 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, name);
+				take_hit(dam, "A small dart hits you!", name);
 				(void)do_dec_stat(A_STR);
 			}
 			else
@@ -981,9 +991,8 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, name);
+				take_hit(dam, "A small dart hits you!", name);
 				(void)do_dec_stat(A_DEX);
 			}
 			else
@@ -997,9 +1006,8 @@ void hit_trap(int y, int x)
 		{
 			if (check_hit(125))
 			{
-				msg_print("A small dart hits you!");
 				dam = damroll(1, 4);
-				take_hit(dam, name);
+				take_hit(dam, "A small dart hits you!", name);
 				(void)do_dec_stat(A_CON);
 			}
 			else
@@ -1051,22 +1059,126 @@ void hit_trap(int y, int x)
 	}
 }
 
-
-
-/*
- * Attack the monster at the given location
- *
- * If no "weapon" is available, then "punch" the monster one time.
- */
-void py_attack(int y, int x)
+/* Alex: get 1/div of experience for monster n times */
+void get_monster_exp(int m_idx, int div, int n)
 {
-	int num = 0, k, bonus, chance;
+        s32b new_exp, new_exp_frac;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	monster_type *m_ptr;
-	monster_race *r_ptr;
-	monster_lore *l_ptr;
+	/* Alex: use max_lev instead of lev.
+	 * (Consider the tactics: mage/priest makes artifact, becomes 1st level adventurer,
+	 * then kills strong monster and gets 2 000 000 exps.
+	 * Now it is possible to receive ~100 000 exps.)
+	*/
+        div *= p_ptr->max_lev;
 
-	object_type *o_ptr;
+        /* Give some experience */
+	new_exp = ((long)r_ptr->mexp * exp_mul(r_ptr) / 10 * r_ptr->level * n) / div;
+
+	/* Handle fractional experience */
+	new_exp_frac = ((((long)r_ptr->mexp * exp_mul(r_ptr) / 10 * r_ptr->level * n) % div)
+		                * 0x10000L / div) + p_ptr->exp_frac;
+
+        /* Keep track of experience */
+	if (new_exp_frac >= 0x10000L)
+        {
+	        new_exp++;
+		p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
+	}
+	else
+	{
+	        p_ptr->exp_frac = (u16b)new_exp_frac;
+	}
+
+	/* Gain experience */
+        gain_exp(new_exp);
+}
+
+/*Alex*/
+void steal(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	char m_name[80];
+        int prob;
+
+        if (rand_int(20)<(p_ptr->skill_stl + p_ptr->lev / 5))
+        {
+                /* Monster does not notice */
+                prob = p_ptr->lev - r_ptr->level + adj_dex_safe[p_ptr->stat_ind[A_DEX]];
+                 if (rand_int(100) < prob)
+                {/*Steal smth*/
+                        object_type obj;
+                        object_type *o_ptr = &obj;
+                         if (get_monster_item(m_idx, o_ptr))
+                         {
+                                msg_print("You have stolen something!");
+                                /*Alex: 5% of monster exps for stealing */
+                                get_monster_exp(m_idx, 20, 1);
+                                if (o_ptr->tval != TV_GOLD)
+                                        do_wield_aux(INVEN_WIELD, o_ptr);
+                                else
+                                {
+                                        /*Code from py_pickup()*/
+                                        char o_name[80];
+
+                        		/* Describe the object */
+		                        object_desc(o_name, o_ptr, TRUE, 3);
+			                msg_format("You have found %ld gold pieces worth of %s.",
+			                        (long)o_ptr->pval, o_name);
+
+                			/* Collect the gold */
+			                p_ptr->au += o_ptr->pval;
+
+                			/* Redraw gold */
+			                p_ptr->redraw |= (PR_GOLD);
+
+			                /* Window stuff */
+			                p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+                                }
+                         }
+                         else
+                                 msg_print("You found nothing.");
+                }
+                else
+                {
+                        msg_print("You failed to steal something.");
+                }
+        }
+        else
+        {/*Monster notices */
+	        /* Extract monster name (or "it") */
+	        monster_desc(m_name, m_ptr, 0);
+
+                msg_format("%s wakes up!",m_name);
+                m_ptr->csleep = 0;
+        }
+}/*steal*/
+
+int calc_attack(object_type* o_ptr)
+{
+        int chance;
+	int bonus = p_ptr->to_h;
+        if (o_ptr && o_ptr->k_idx)
+                bonus += o_ptr->to_h;
+	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+        chance -= chance*std_hp_pen(p_ptr->chp, p_ptr->mhp)/100;
+        if (chance < 0) chance = 0;
+        return chance;
+}
+
+/*Returns TRUE if monster is dead*/
+/*Alex: now ALWAYS allow to kill uniques*/
+bool py_attack_aux(int m_idx, object_type* o_ptr, int num_blows, bool allow_kill_unique)
+{
+        bool dead = FALSE;
+
+	int num = 0, k, chance;
+
+        monster_type* m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	char m_name[80];
 
@@ -1074,59 +1186,28 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
-
-	/* Get the monster */
-	m_ptr = &m_list[cave_m_idx[y][x]];
-	r_ptr = &r_info[m_ptr->r_idx];
-	l_ptr = &l_list[m_ptr->r_idx];
-
-
-	/* Disturb the player */
-	disturb(0, 0);
-
-
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
-
+	allow_kill_unique = TRUE;/*Alex: now ALWAYS allow to kill uniques*/
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-
-	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
-
-	/* Track a new monster */
-	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
-
-
-	/* Handle player fear */
-	if (p_ptr->afraid)
-	{
-		/* Message */
-		msg_format("You are too afraid to attack %s!", m_name);
-
-		/* Done */
-		return;
-	}
-
-
-	/* Get the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
 	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
+        chance = calc_attack(o_ptr);
 
 	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	while (num++ < num_blows)
 	{
+                /*Alex: let unique monsters flee... */
+                if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+                     (m_ptr->hp <= m_ptr->maxhp/100) &&
+                     !allow_kill_unique)
+                        break;
 		/* Test for hit */
-		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+		if (test_hit(chance, r_ptr->ac, m_ptr->ml) || m_ptr->csleep )
 		{
 			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+                        /*Alex
+			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);*/
 
 			/* Hack -- bare hands do one damage */
 			k = 1;
@@ -1144,6 +1225,10 @@ void py_attack(int y, int x)
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
+                        /*Alex: rogue: backstab*/
+                        if ((p_ptr->pclass == 3) && m_ptr->csleep)
+                                k *= (p_ptr->lev / 10) + 2;
+
 			/* No negative damage */
 			if (k < 0) k = 0;
 
@@ -1151,10 +1236,14 @@ void py_attack(int y, int x)
 			if (p_ptr->wizard)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
+                        }
 
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+                        dead = mon_take_hit(m_idx, &k, &fear, NULL, TRUE);
+                        /* Alex 
+                        message_format(MSG_HIT, m_ptr->r_idx, "[%d](%d).", last_hit*4/3, k);*/
+
+			if (dead) break;
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1191,7 +1280,9 @@ void py_attack(int y, int x)
 		else
 		{
 			/* Message */
-			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+			/*message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);*/
+                        /*Alex */
+			message_format(MSG_MISS, 0, "Miss [%d].", last_hit*4/3);
 		}
 	}
 
@@ -1206,6 +1297,112 @@ void py_attack(int y, int x)
 
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
+
+        /*A problem - earthquake can kill the monster*/
+        return dead;
+}
+
+
+bool is_weapon(byte tval)
+{
+        switch (tval)
+        {
+        case TV_DIGGING:
+        case TV_HAFTED:
+        case TV_SWORD:
+        case TV_POLEARM:
+                return TRUE;
+        default:
+                return FALSE;
+        }
+}
+
+/*
+ * Attack the monster at the given location
+ *
+ * If no "weapon" is available, then "punch" the monster one time.
+ * Alex: rogues can steal smth if no weapon
+ */
+void py_attack(int y, int x)
+{
+        bool dead = FALSE;
+        bool unique;
+        bool allow_kill_unique;
+        int m_idx = cave_m_idx[y][x];
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	object_type *o_ptr;
+
+	char m_name[80];
+
+	bool fear = FALSE;
+
+	bool do_quake = FALSE;
+
+
+        unique = (bool)(r_ptr->flags1 & (RF1_UNIQUE));
+        if (unique && (m_ptr->hp <= m_ptr->maxhp/100))
+                allow_kill_unique = TRUE;
+        else
+                allow_kill_unique = FALSE;
+
+
+	/* Disturb the player */
+	disturb(0, 0);
+
+
+	/* Disturb the monster */
+        /* Alex: disturb in mon_take_hit() */
+	/* m_ptr->csleep = 0; */
+
+
+	/* Extract monster name (or "it") */
+	monster_desc(m_name, m_ptr, 0);
+
+
+	/* Auto-Recall if possible and visible */
+	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+
+	/* Track a new monster */
+	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+
+
+	/* Handle player fear */
+	if (p_ptr->afraid)
+	{
+		/* Message */
+		msg_format("You are too afraid to attack %s!", m_name);
+
+		/* Done */
+		return;
+	}
+
+
+	/* Get the (primary) weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+
+        /* Alex: rogues try to steal something if monster is asleep and no weapon in hands */
+        if ((p_ptr->pclass == 3) &&  m_ptr->csleep && !o_ptr->k_idx)
+        {
+                steal(cave_m_idx[y][x]);
+                return;
+        }
+
+        if (py_attack_aux(m_idx, o_ptr, p_ptr->num_blow, allow_kill_unique))
+                /*Monster is dead*/
+                return;
+        /*If eqrthquake kill the monster, py_attack_aux returns FALSE*/
+        if (!cave_m_idx[y][x])
+                return;
+
+	/* Get the secondary weapon */
+	o_ptr = &inventory[INVEN_ARM];
+        if (is_weapon(o_ptr->tval))
+        {
+                py_attack_aux(m_idx, o_ptr, p_ptr->num_blow2, allow_kill_unique);
+        }
 }
 
 
@@ -2116,7 +2313,7 @@ void run_step(int dir)
 	p_ptr->running--;
 
 	/* Take time */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);

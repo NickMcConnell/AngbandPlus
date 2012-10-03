@@ -33,7 +33,7 @@ function eat_food(object)
 	elseif object.sval == SV_FOOD_RESTORE_STR then
 		if do_res_stat(A_STR) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_SERIOUS then
-		if hp_player(damroll(4, 8)) then ident = TRUE end
+		if hp_player(damroll(8, 8)) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_CONFUSION then
 		if set_confused(0) then ident = TRUE end
 	elseif object.sval == SV_FOOD_CURE_PARANOIA then
@@ -43,27 +43,27 @@ function eat_food(object)
 	elseif object.sval == SV_FOOD_CURE_POISON then
 		if set_poisoned(0) then ident = TRUE end
 	elseif object.sval == SV_FOOD_DISEASE then
-		take_hit(damroll(10, 10), "poisonous food")
+		take_hit(damroll(10, 10), "poisonous food", "poisonous food")
 		do_dec_stat(A_STR)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_UNHEALTH then
-		take_hit(damroll(10, 10), "poisonous food")
+		take_hit(damroll(10, 10), "poisonous food", "poisonous food")
 		do_dec_stat(A_CON)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_NAIVETY then
-		take_hit(damroll(8, 8), "poisonous food")
+		take_hit(damroll(8, 8), "poisonous food", "poisonous food")
 		do_dec_stat(A_WIS)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_STUPIDITY then
-		take_hit(damroll(8, 8), "poisonous food")
+		take_hit(damroll(8, 8), "poisonous food", "poisonous food")
 		do_dec_stat(A_INT)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_SICKNESS then
-		take_hit(damroll(6, 6), "poisonous food")
+		take_hit(damroll(6, 6), "poisonous food", "poisonous food")
 		do_dec_stat(A_CON)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_WEAKNESS then
-		take_hit(damroll(6, 6), "poisonous food")
+		take_hit(damroll(6, 6), "poisonous food", "poisonous food")
 		do_dec_stat(A_STR)
 		ident = TRUE
 	elseif object.sval == SV_FOOD_PARALYSIS then
@@ -159,7 +159,7 @@ function quaff_potion(object)
 		end
 	elseif object.sval == SV_POTION_RUINATION then
 		msg_print("Your nerves and muscles feel weak and lifeless!")
-		take_hit(damroll(10, 10), "a potion of Ruination")
+		take_hit(damroll(10, 10), "Ruination", "a potion of Ruination")
 		dec_stat(A_DEX, 25, TRUE)
 		dec_stat(A_WIS, 25, TRUE)
 		dec_stat(A_CON, 25, TRUE)
@@ -181,13 +181,13 @@ function quaff_potion(object)
 		if do_dec_stat(A_CHR) then ident = TRUE end
 	elseif object.sval == SV_POTION_DETONATIONS then
 		msg_print("Massive explosions rupture your body!")
-		take_hit(damroll(50, 20), "a potion of Detonation")
+		take_hit(damroll(50, 20), "Detonation", "a potion of Detonation")
 		set_stun(player.stun + 75)
 		set_cut(player.cut + 5000)
 		ident = TRUE
 	elseif object.sval == SV_POTION_DEATH then
 		msg_print("A feeling of Death flows through your body.")
-		take_hit(5000, "a potion of Death")
+		take_hit(5000, "Death poison", "a potion of Death")
 		ident = TRUE
 	elseif object.sval == SV_POTION_INFRAVISION then
 		if set_tim_infra(player.tim_infra + 100 + randint(100)) then
@@ -226,16 +226,16 @@ function quaff_potion(object)
 		if set_afraid(0) then ident = TRUE end
 		if set_shero(player.shero + randint(25) + 25) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_LIGHT then
-		if hp_player(damroll(2, 8)) then ident = TRUE end
+		if hp_player(damroll(4, 8)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_cut(player.cut - 10) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_SERIOUS then
-		if hp_player(damroll(4, 8)) then ident = TRUE end
+		if hp_player(damroll(8, 8)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_cut((player.cut / 2) - 50) then ident = TRUE end
 	elseif object.sval == SV_POTION_CURE_CRITICAL then
-		if hp_player(damroll(6, 8)) then ident = TRUE end
+		if hp_player(damroll(16, 8)) then ident = TRUE end
 		if set_blind(0) then ident = TRUE end
 		if set_confused(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
@@ -421,18 +421,18 @@ function read_scroll(object)
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_ENCHANT_ARMOR then
 		ident = TRUE
-		if not enchant_spell(0, 0, 1) then used_up = FALSE end
+		if not enchant_spell(0, 0, 1, FALSE, FALSE) then used_up = FALSE end
 	elseif object.sval == SV_SCROLL_ENCHANT_WEAPON_TO_HIT then
-		if not enchant_spell(1, 0, 0) then used_up = FALSE end
+		if not enchant_spell(1, 0, 0, FALSE, FALSE) then used_up = FALSE end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_ENCHANT_WEAPON_TO_DAM then
-		if not enchant_spell(0, 1, 0) then used_up = FALSE end
+		if not enchant_spell(0, 1, 0, FALSE, FALSE) then used_up = FALSE end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_STAR_ENCHANT_ARMOR then
-		if not enchant_spell(0, 0, randint(3) + 2) then used_up = FALSE end
+		if not enchant_spell(0, 0, randint(3) + 2, FALSE, FALSE) then used_up = FALSE end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_STAR_ENCHANT_WEAPON then
-		if not enchant_spell(randint(3), randint(3), 0) then used_up = FALSE end
+		if not enchant_spell(randint(3), randint(3), 0, FALSE, FALSE) then used_up = FALSE end
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_RECHARGING then
 		if not recharge(60) then used_up = FALSE end
@@ -476,11 +476,15 @@ function read_scroll(object)
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_TRAP_DOOR_DESTRUCTION then
 		if destroy_doors_touch() then ident = TRUE end
+	elseif object.sval == SV_SCROLL_CREATE_EGO then
+		if enchant_spell(-1, 0, 0, FALSE, TRUE) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_STAR_DESTRUCTION then
 		destroy_area(player.py, player.px, 15, TRUE)
 		ident = TRUE
 	elseif object.sval == SV_SCROLL_DISPEL_UNDEAD then
 		if dispel_undead(60) then ident = TRUE end
+	elseif object.sval == SV_SCROLL_CREATE_ARTIFACT then
+		if enchant_spell(-1, 0, 0, TRUE, FALSE) then ident = TRUE end
 	elseif object.sval == SV_SCROLL_GENOCIDE then
 		genocide()
 		ident = TRUE
@@ -560,7 +564,7 @@ function use_staff(object)
 	elseif object.sval == SV_STAFF_DETECT_EVIL then
 		if detect_monsters_evil() then ident = TRUE end
 	elseif object.sval == SV_STAFF_CURE_LIGHT then
-		if hp_player(randint(8)) then ident = TRUE end
+		if hp_player(damroll(4, 8)) then ident = TRUE end
 	elseif object.sval == SV_STAFF_CURING then
 		if set_blind(0) then ident = TRUE end
 		if set_poisoned(0) then ident = TRUE end
@@ -583,9 +587,9 @@ function use_staff(object)
 			ident = TRUE
 		end
 	elseif object.sval == SV_STAFF_SLEEP_MONSTERS then
-		if sleep_monsters() then ident = TRUE end
+		if sleep_monsters(POWER_STAFF) then ident = TRUE end
 	elseif object.sval == SV_STAFF_SLOW_MONSTERS then
-		if slow_monsters() then ident = TRUE end
+		if slow_monsters(POWER_STAFF) then ident = TRUE end
 	elseif object.sval == SV_STAFF_SPEED then
 		if player.fast == 0 then
 			if set_fast(randint(30) + 15) then ident = TRUE end
@@ -618,6 +622,9 @@ function use_staff(object)
 	elseif object.sval == SV_STAFF_DESTRUCTION then
 		destroy_area(player.py, player.px, 15, TRUE)
 		ident = TRUE
+	elseif object.sval == SV_STAFF_VISIT_HOME then
+		door_creation()
+		ident = TRUE
 	end
 
 	return ident, used_charge
@@ -632,10 +639,11 @@ function aim_wand(object)
 
 	-- Allow direction to be cancelled for free
 	success, dir = get_aim_dir()
-	if not success then return FALSE, FALSE end
+	if not success then
+		player.energy_use = 0
+		return FALSE, FALSE
+	end
 
-	-- Take a turn
-	player.energy_use = 100
 
 	-- Get the object level
 	local lev = k_info[object.k_idx + 1].level
@@ -704,17 +712,17 @@ function aim_wand(object)
 		lite_line(dir)
 		ident = TRUE
 	elseif sval == SV_WAND_SLEEP_MONSTER then
-		if sleep_monster(dir) then ident = TRUE end
+		if sleep_monster(dir, POWER_WAND) then ident = TRUE end
 	elseif sval == SV_WAND_SLOW_MONSTER then
-		if slow_monster(dir) then ident = TRUE end
+		if slow_monster(dir, POWER_WAND) then ident = TRUE end
 	elseif sval == SV_WAND_CONFUSE_MONSTER then
-		if confuse_monster(dir, 10) then ident = TRUE end
+		if confuse_monster(dir, POWER_WAND) then ident = TRUE end
 	elseif sval == SV_WAND_FEAR_MONSTER then
-		if fear_monster(dir, 10) then ident = TRUE end
+		if fear_monster(dir, POWER_WAND) then ident = TRUE end
 	elseif sval == SV_WAND_DRAIN_LIFE then
 		if drain_life(dir, 150) then ident = TRUE end
 	elseif sval == SV_WAND_POLYMORPH then
-		if poly_monster(dir) then ident = TRUE end
+		if poly_monster(dir,POWER_WAND) then ident = TRUE end
 	elseif sval == SV_WAND_STINKING_CLOUD then
 		fire_ball(GF_POIS, dir, 12, 2)
 		ident = TRUE
@@ -782,17 +790,24 @@ function zap_rod(object)
 
 	local dir
 
+	-- Still charging
+	if object.pval > 0 then
+		if flush_failure then flush() end
+		msg_print("The rod is still charging.")
+		return FALSE, FALSE
+	end
+
 	-- Get a direction (unless KNOWN not to need it)
 	if (object.sval >= SV_ROD_MIN_DIRECTION) or not object_aware_p(object) then
 		local success
 
 		-- Allow direction to be cancelled for free
 		success, dir = get_aim_dir()
-		if not success then return FALSE, FALSE end
+		if not success then
+			player.energy_use = 0
+			return FALSE, FALSE
+		end
 	end
-
-	-- Take a turn
-	player.energy_use = 100
 
 	-- Get the object level
 	local lev = k_info[object.k_idx + 1].level
@@ -822,13 +837,6 @@ function zap_rod(object)
 		return FALSE, FALSE
 	end
 
-	-- Still charging
-	if object.pval > 0 then
-		if flush_failure then flush() end
-		msg_print("The rod is still charging.")
-		return FALSE, FALSE
-	end
-
 	-- Sound
 	sound(MSG_ZAP)
 
@@ -843,14 +851,15 @@ function zap_rod(object)
 		object.pval = 70
 	elseif sval == SV_ROD_IDENTIFY then
 		ident = TRUE
-		if ident_spell() then object.pval = 10 end
+		if identify_fully() then object.pval = 10 end
 	elseif sval == SV_ROD_RECALL then
 		set_recall()
 		ident = TRUE
 		object.pval = 60
 	elseif sval == SV_ROD_ILLUMINATION then
-		if lite_area(damroll(2, 8), 2) then ident = TRUE end
-		object.pval = 30
+		wiz_lite()
+		ident = TRUE
+		object.pval = 999
 	elseif sval == SV_ROD_MAPPING then
 		map_area()
 		ident = TRUE
@@ -859,6 +868,10 @@ function zap_rod(object)
 		detect_all()
 		ident = TRUE
 		object.pval = 99
+	elseif sval == SV_ROD_STAR_DETECTION then
+		detect_all()
+		ident = TRUE
+		object.pval = 9
 	elseif sval == SV_ROD_PROBING then
 		probing()
 		ident = TRUE
@@ -869,12 +882,12 @@ function zap_rod(object)
 		if set_confused(0) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
-		object.pval = 999
+		object.pval = 199
 	elseif sval == SV_ROD_HEALING then
 		if hp_player(500) then ident = TRUE end
 		if set_stun(0) then ident = TRUE end
 		if set_cut(0) then ident = TRUE end
-		object.pval = 999
+		object.pval = 199
 	elseif sval == SV_ROD_RESTORATION then
 		if restore_level() then ident = TRUE end
 		if do_res_stat(A_STR) then ident = TRUE end
@@ -903,16 +916,16 @@ function zap_rod(object)
 		ident = TRUE
 		object.pval = 9
 	elseif sval == SV_ROD_SLEEP_MONSTER then
-		if sleep_monster(dir) then ident = TRUE end
+		if sleep_monster(dir,POWER_ROD) then ident = TRUE end
 		object.pval = 18
 	elseif sval == SV_ROD_SLOW_MONSTER then
-		if slow_monster(dir) then ident = TRUE end
+		if slow_monster(dir, POWER_ROD) then ident = TRUE end
 		object.pval = 20
 	elseif sval == SV_ROD_DRAIN_LIFE then
 		if drain_life(dir, 150) then ident = TRUE end
 		object.pval = 23
 	elseif sval == SV_ROD_POLYMORPH then
-		if poly_monster(dir) then ident = TRUE end
+		if poly_monster(dir, POWER_ROD) then ident = TRUE end
 		object.pval = 25
 	elseif sval == SV_ROD_ACID_BOLT then
 		fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8))
@@ -1167,7 +1180,7 @@ function activate_object(object)
 			msg_print(format("Your %s glows in scintillating colours...", o_name))
 			success, dir = get_aim_dir()
 			if not success then return FALSE, FALSE end
-			confuse_monster(dir, 20)
+			confuse_monster(dir, POWER_ART)
 		elseif artifact.activation == ACT_IDENTIFY then
 			msg_print(format("Your %s glows yellow...", o_name))
 			if not ident_spell() then return FALSE, FALSE end
@@ -1205,7 +1218,10 @@ function activate_object(object)
 		-- Window stuff
 		player.window = bOr(player.window, PW_INVEN, PW_EQUIP)
 
-		return FALSE, FALSE
+		if artifact.activation == ACT_MAX then
+		else
+			return FALSE, FALSE
+		end
 	end
 
 
@@ -1285,6 +1301,14 @@ function activate_object(object)
 			object.timeout = rand_int(300) + 300
 		end
 
+		if object.name1 > 0 then
+			local artifact = a_info[object.name1 + 1]
+			if artifact.randtime then
+				object.timeout = artifact.time + randint(artifact.randtime)
+			else
+				object.timeout = artifact.time
+			end
+		end
 		-- Window stuff
 		player.window = bOr(player.window, PW_INVEN, PW_EQUIP)
 
@@ -1316,6 +1340,14 @@ function activate_object(object)
 			object.timeout = rand_int(50) + 50
 		end
 
+		if object.name1 > 0 then
+			local artifact = a_info[object.name1 + 1]
+			if artifact.randtime then
+				object.timeout = artifact.time + randint(artifact.randtime)
+			else
+				object.timeout = artifact.time
+			end
+		end
 		-- Window stuff
 		player.window = bOr(player.window, PW_EQUIP)
 
@@ -1408,54 +1440,104 @@ function describe_item_activation_hook(object)
 
 		local artifact = a_info[object.name1 + 1]
 
-		-- Paranoia
-		if artifact.activation >= ACT_MAX then return "" end
+		if artifact.activation < ACT_MAX then
 
-		-- Some artifacts can be activated
-		local description = act_description[artifact.activation + 1]
+			-- Some artifacts can be activated
+			local description = act_description[artifact.activation + 1]
 
-		-- Output the number of turns
-		if (artifact.time > 0) and (artifact.randtime > 0) then
-			description = format("%s every %d+d%d turns", description, artifact.time, artifact.randtime)
-		elseif (artifact.time > 0) then
-			description = format("%s every %d turns", description, artifact.time)
-		elseif (artifact.randtime > 0) then
-			description = format("%s every d%d turns", description, artifact.randtime)
+			-- Output the number of turns
+			if (artifact.time > 0) and (artifact.randtime > 0) then
+				description = format("%s every %d+d%d turns", description, artifact.time, artifact.randtime)
+			elseif (artifact.time > 0) then
+				description = format("%s every %d turns", description, artifact.time)
+			elseif (artifact.randtime > 0) then
+				description = format("%s every d%d turns", description, artifact.randtime)
+			end
+			return description
 		end
-
-		return description
 	end
 
 	-- Dragon scale mail
 	if object.tval == TV_DRAG_ARMOR then
-		local activations = {
-			[SV_DRAGON_BLUE] = "breathe lightning (100) every 450+d450 turns",
-			[SV_DRAGON_WHITE] = "breathe frost (110) every 450+d450 turns",
-			[SV_DRAGON_BLACK] = "breathe acid (130) every 450+d450 turns",
-			[SV_DRAGON_GREEN] = "breathe poison gas (150) every 450+d450 turns",
-			[SV_DRAGON_RED] = "breathe fire (200) every 450+d450 turns",
-			[SV_DRAGON_MULTIHUED] = "breathe multi-hued (250) every 225+d225 turns",
-			[SV_DRAGON_BRONZE] = "breathe confusion (120) every 450+d450 turns",
-			[SV_DRAGON_GOLD] = "breathe sound (130) every 450+d450 turns",
-			[SV_DRAGON_CHAOS] = "breathe chaos/disenchant (220) every 300+d300 turns",
-			[SV_DRAGON_LAW] = "breathe sound/shards (230) every 300+d300 turns",
-			[SV_DRAGON_BALANCE] = "breathe balance (250) every 300+d300 turns",
-			[SV_DRAGON_SHINING] = "breathe light/darkness (200) every 300+d300 turns",
-			[SV_DRAGON_POWER] = "breathe the elements (300) every 300+d300 turns",
+		local description = {
+			[SV_DRAGON_BLUE] = "lightning (100)",
+			[SV_DRAGON_WHITE] = "frost (110)",
+			[SV_DRAGON_BLACK] = "acid (130)",
+			[SV_DRAGON_GREEN] = "poison gas (150)",
+			[SV_DRAGON_RED] = "fire (200)",
+			[SV_DRAGON_MULTIHUED] = "multi-hued (250)",
+			[SV_DRAGON_BRONZE] = "confusion (120)",
+			[SV_DRAGON_GOLD] = "sound (130)",
+			[SV_DRAGON_CHAOS] = "chaos/disenchant (220)",
+			[SV_DRAGON_LAW] = "sound/shards (230)",
+			[SV_DRAGON_BALANCE] = "balance (250)",
+			[SV_DRAGON_SHINING] = "light/darkness (200)",
+			[SV_DRAGON_POWER] = "the elements (300)",
 		}
 
-		return activations[object.sval]
+		local time = {
+			[SV_DRAGON_BLUE] = "450+d450",
+			[SV_DRAGON_WHITE] = "450+d450",
+			[SV_DRAGON_BLACK] = "450+d450",
+			[SV_DRAGON_GREEN] = "450+d450",
+			[SV_DRAGON_RED] = "450+d450",
+			[SV_DRAGON_MULTIHUED] = "225+d225",
+			[SV_DRAGON_BRONZE] = "450+d450",
+			[SV_DRAGON_GOLD] = "450+d450",
+			[SV_DRAGON_CHAOS] = "300+d300",
+			[SV_DRAGON_LAW] = "300+d300",
+			[SV_DRAGON_BALANCE] = "300+d300",
+			[SV_DRAGON_SHINING] = "300+d300",
+			[SV_DRAGON_POWER] = "300+d300",
+		}
+		local full_descr
+		if object.name1 > 0 then
+			local artifact = a_info[object.name1 + 1]
+
+			if (artifact.time > 0) and (artifact.randtime > 0) then
+				full_descr = format("breathe %s every %d+d%d turns", description[object.sval], artifact.time, artifact.randtime)
+			elseif (artifact.time > 0) then
+				full_descr = format("breathe %s every %d turns", description[object.sval], artifact.time)
+			elseif (artifact.randtime > 0) then
+				full_descr = format("breathe %s every d%d turns", description[object.sval], artifact.randtime)
+			end
+		else
+			full_descr = format("breathe %s every %s turns", description[object.sval], time[object.sval])
+		end
+
+		return full_descr
 	end
 
 	-- Elemental rings
 	if object.tval == TV_RING then
-		local activations = {
-			[SV_RING_ACID] = "acid resistance (20+d20 turns) and acid ball (70) every 50+d50 turns",
-			[SV_RING_FLAMES] = "fire resistance (20+d20 turns) and fire ball (80) every 50+d50 turns",
-			[SV_RING_ICE] = "cold resistance (20+d20 turns) and cold ball (75) every 50+d50 turns",
-			[SV_RING_LIGHTNING] = "electricity resistance (20+d20 turns) and electricity ball (85) every 50+d50 turns"}
+		local description = {
+			[SV_RING_ACID] = "acid resistance (20+d20 turns) and acid ball (70)",
+			[SV_RING_FLAMES] = "fire resistance (20+d20 turns) and fire ball (80)",
+			[SV_RING_ICE] = "cold resistance (20+d20 turns) and cold ball (75)",
+			[SV_RING_LIGHTNING] = "electricity resistance (20+d20 turns) and electricity ball (85)"}
 	
-		return activations[object.sval]
+		local time = {
+			[SV_RING_ACID] = "50+d50",
+			[SV_RING_FLAMES] = "50+d50",
+			[SV_RING_ICE] = "50+d50",
+			[SV_RING_LIGHTNING] = "50+d50"}
+
+		local full_descr
+		if object.name1 > 0 then
+			local artifact = a_info[object.name1 + 1]
+
+			if (artifact.time > 0) and (artifact.randtime > 0) then
+				full_descr = format("%s every %d+d%d turns", description[object.sval], artifact.time, artifact.randtime)
+			elseif (artifact.time > 0) then
+				full_descr = format("%s every %d turns", description[object.sval], artifact.time)
+			elseif (artifact.randtime > 0) then
+				full_descr = format("%s every d%d turns", description[object.sval], artifact.randtime)
+			end
+		else
+			full_descr = format("%s every %s turns", description[object.sval], time[object.sval])
+		end
+
+		return full_descr
 	end
 
 	-- No activation

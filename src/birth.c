@@ -1523,7 +1523,7 @@ void player_birth(void)
 
 
 	/* Shops */
-	for (n = 0; n < MAX_STORES; n++)
+	for (n = 0; n < MAX_STORES-2; n++)
 	{
 		/* Initialize */
 		store_init(n);
@@ -1534,6 +1534,11 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+        if (!load_ag())
+        {
+		store_init(STORE_A_G_1);
+		store_init(STORE_A_G_2);
+        }
 }
 
 

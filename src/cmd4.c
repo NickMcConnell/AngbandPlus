@@ -58,7 +58,7 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_BELT);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
@@ -2495,6 +2495,8 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+        int i;
+
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
 
@@ -2507,6 +2509,20 @@ void do_cmd_feeling(void)
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);
+
+        if (storm_level)
+                msg_format("%s storm.", storm_description[storm_level]);
+
+	for (i = 1; i < m_max; i++)
+        {
+                if (m_list[i].ancestor_inventory)
+                {
+                        char m_name[80];
+                        monster_desc(m_name, &m_list[i], 0);
+                        msg_format("Ancestor's inventory (%s).", m_name);
+                        break;
+                }
+        }
 }
 
 
@@ -2710,7 +2726,7 @@ void do_cmd_save_screen(void)
 }
 
 
-
+bool knowledge_artifacts = FALSE;
 
 /*
  * Display known artifacts
@@ -2749,10 +2765,9 @@ static void do_cmd_knowledge_artifacts(void)
 		if (!a_ptr->name) continue;
 
 		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
+		if (a_ptr->cur_num || a_ptr->force_depth)
+			/* Assume okay */
+			okay[k] = TRUE;
 	}
 
 	/* Check the dungeon */
@@ -2795,6 +2810,8 @@ static void do_cmd_knowledge_artifacts(void)
 		okay[o_ptr->name1] = FALSE;
 	}
 
+        knowledge_artifacts = TRUE;
+
 	/* Scan the artifacts */
 	for (k = 0; k < z_info->a_max; k++)
 	{
@@ -2825,12 +2842,14 @@ static void do_cmd_knowledge_artifacts(void)
 			i_ptr->name1 = k;
 
 			/* Describe the artifact */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
+			object_desc_store(o_name, i_ptr, TRUE, 0);
 		}
 
 		/* Hack -- Build the artifact name */
-		fprintf(fff, "     The %s\n", o_name);
+		fprintf(fff, "     %s\n", o_name);
 	}
+
+        knowledge_artifacts = FALSE;
 
 	/* Free the "okay" array */
 	FREE(okay);

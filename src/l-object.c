@@ -3157,7 +3157,9 @@ static int toluaI_object_apply_magic00(lua_State* tolua_S)
  !tolua_istype(tolua_S,3,tolua_tag(tolua_S,"bool"),0) ||
  !tolua_istype(tolua_S,4,tolua_tag(tolua_S,"bool"),0) ||
  !tolua_istype(tolua_S,5,tolua_tag(tolua_S,"bool"),0) ||
- !tolua_isnoobj(tolua_S,6)
+ !tolua_istype(tolua_S,6,tolua_tag(tolua_S,"bool"),0) ||
+ !tolua_istype(tolua_S,7,tolua_tag(tolua_S,"bool"),0) ||
+ !tolua_isnoobj(tolua_S,8)
  )
  goto tolua_lerror;
  else
@@ -3167,8 +3169,10 @@ static int toluaI_object_apply_magic00(lua_State* tolua_S)
   bool okay = ((bool)  tolua_getbool(tolua_S,3,0));
   bool good = ((bool)  tolua_getbool(tolua_S,4,0));
   bool great = ((bool)  tolua_getbool(tolua_S,5,0));
+  bool force_new_art = ((bool)  tolua_getbool(tolua_S,6,0));
+  bool force_ego = ((bool)  tolua_getbool(tolua_S,7,0));
  {
-  apply_magic(o_ptr,lev,okay,good,great);
+  apply_magic(o_ptr,lev,okay,good,great,force_new_art,force_ego);
  }
  }
  return 0;
@@ -3974,6 +3978,10 @@ int tolua_object_open (lua_State* tolua_S)
 {
  tolua_open(tolua_S);
  toluaI_reg_types(tolua_S);
+ tolua_constant(tolua_S,NULL,"POWER_WAND",POWER_WAND);
+ tolua_constant(tolua_S,NULL,"POWER_STAFF",POWER_STAFF);
+ tolua_constant(tolua_S,NULL,"POWER_ROD",POWER_ROD);
+ tolua_constant(tolua_S,NULL,"POWER_ART",POWER_ART);
  tolua_constant(tolua_S,NULL,"ART_POWER",ART_POWER);
  tolua_constant(tolua_S,NULL,"ART_MORGOTH",ART_MORGOTH);
  tolua_constant(tolua_S,NULL,"ART_GROND",ART_GROND);
@@ -4337,6 +4345,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_STAFF_GENOCIDE",SV_STAFF_GENOCIDE);
  tolua_constant(tolua_S,NULL,"SV_STAFF_EARTHQUAKES",SV_STAFF_EARTHQUAKES);
  tolua_constant(tolua_S,NULL,"SV_STAFF_DESTRUCTION",SV_STAFF_DESTRUCTION);
+ tolua_constant(tolua_S,NULL,"SV_STAFF_VISIT_HOME",SV_STAFF_VISIT_HOME);
  tolua_constant(tolua_S,NULL,"SV_WAND_HEAL_MONSTER",SV_WAND_HEAL_MONSTER);
  tolua_constant(tolua_S,NULL,"SV_WAND_HASTE_MONSTER",SV_WAND_HASTE_MONSTER);
  tolua_constant(tolua_S,NULL,"SV_WAND_CLONE_MONSTER",SV_WAND_CLONE_MONSTER);
@@ -4373,6 +4382,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_ROD_ILLUMINATION",SV_ROD_ILLUMINATION);
  tolua_constant(tolua_S,NULL,"SV_ROD_MAPPING",SV_ROD_MAPPING);
  tolua_constant(tolua_S,NULL,"SV_ROD_DETECTION",SV_ROD_DETECTION);
+ tolua_constant(tolua_S,NULL,"SV_ROD_STAR_DETECTION",SV_ROD_STAR_DETECTION);
  tolua_constant(tolua_S,NULL,"SV_ROD_PROBING",SV_ROD_PROBING);
  tolua_constant(tolua_S,NULL,"SV_ROD_CURING",SV_ROD_CURING);
  tolua_constant(tolua_S,NULL,"SV_ROD_HEALING",SV_ROD_HEALING);
@@ -4429,8 +4439,10 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SV_SCROLL_PROTECTION_FROM_EVIL",SV_SCROLL_PROTECTION_FROM_EVIL);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_RUNE_OF_PROTECTION",SV_SCROLL_RUNE_OF_PROTECTION);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_TRAP_DOOR_DESTRUCTION",SV_SCROLL_TRAP_DOOR_DESTRUCTION);
+ tolua_constant(tolua_S,NULL,"SV_SCROLL_CREATE_EGO",SV_SCROLL_CREATE_EGO);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_STAR_DESTRUCTION",SV_SCROLL_STAR_DESTRUCTION);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_DISPEL_UNDEAD",SV_SCROLL_DISPEL_UNDEAD);
+ tolua_constant(tolua_S,NULL,"SV_SCROLL_CREATE_ARTIFACT",SV_SCROLL_CREATE_ARTIFACT);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_GENOCIDE",SV_SCROLL_GENOCIDE);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_MASS_GENOCIDE",SV_SCROLL_MASS_GENOCIDE);
  tolua_constant(tolua_S,NULL,"SV_SCROLL_ACQUIREMENT",SV_SCROLL_ACQUIREMENT);
@@ -4901,6 +4913,10 @@ int tolua_object_open (lua_State* tolua_S)
 /* Close function */
 void tolua_object_close (lua_State* tolua_S)
 {
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"POWER_WAND");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"POWER_STAFF");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"POWER_ROD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"POWER_ART");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ART_POWER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ART_MORGOTH");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ART_GROND");
@@ -5264,6 +5280,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_GENOCIDE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_EARTHQUAKES");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_DESTRUCTION");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_STAFF_VISIT_HOME");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_HEAL_MONSTER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_HASTE_MONSTER");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_WAND_CLONE_MONSTER");
@@ -5300,6 +5317,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_ILLUMINATION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_MAPPING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_DETECTION");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_STAR_DETECTION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_PROBING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_CURING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_ROD_HEALING");
@@ -5356,8 +5374,10 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_PROTECTION_FROM_EVIL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_RUNE_OF_PROTECTION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_TRAP_DOOR_DESTRUCTION");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_CREATE_EGO");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_STAR_DESTRUCTION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_DISPEL_UNDEAD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_CREATE_ARTIFACT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_GENOCIDE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_MASS_GENOCIDE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SV_SCROLL_ACQUIREMENT");

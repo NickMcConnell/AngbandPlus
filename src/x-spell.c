@@ -77,6 +77,8 @@
 #define SPELL_MASS_GENOCIDE             61
 #define SPELL_RIFT                      62
 #define SPELL_MANA_STORM                63
+#define SPELL_CREATE_ARTIFACT                64
+#define SPELL_CREATE_EGO                65
 
 /* Beginners Handbook */
 #define PRAYER_DETECT_EVIL              0
@@ -257,8 +259,8 @@ static const u32b spell_flags[2][10][2] =
 	     SPELL_ENCHANT_WEAPON,
 	     SPELL_RECHARGE_ITEM_II,
 	     SPELL_ELEMENTAL_BRAND,
-	     -1,
-	     -1,
+	     SPELL_CREATE_EGO,
+	     SPELL_CREATE_ARTIFACT,
 	     -1),
 
 	/* Kelek's Grimoire of Power */
@@ -592,7 +594,7 @@ cptr get_spell_info(int tval, int spell)
 			sprintf(p, " range 10");
 			break;
 		case SPELL_CURE_LIGHT_WOUNDS:
-			sprintf(p, " heal 2d8");
+			sprintf(p, " heal 4d8");
 			break;
 		case SPELL_STINKING_CLOUD:
 			sprintf(p, " dam %d", 10 + (plev / 2));
@@ -675,6 +677,12 @@ cptr get_spell_info(int tval, int spell)
 		case SPELL_MANA_STORM:
 			sprintf(p, " dam %d", 300 + plev * 2);
 			break;
+		case SPELL_CREATE_EGO:
+			sprintf(p, " Create Ego Item");
+			break;
+		case SPELL_CREATE_ARTIFACT:
+			sprintf(p, " Create Artifact");
+			break;
 
 		}
 	}
@@ -688,7 +696,7 @@ cptr get_spell_info(int tval, int spell)
 		switch (spell)
 		{
 			case PRAYER_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d10");
+				strcpy(p, " heal 4d10");
 				break;
 			case PRAYER_BLESS:
 				strcpy(p, " dur 12+d12");
@@ -697,7 +705,7 @@ cptr get_spell_info(int tval, int spell)
 				sprintf(p, " range %d", 3 * plev);
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 8d10");
 				break;
 			case PRAYER_CHANT:
 				strcpy(p, " dur 24+d24");
@@ -710,7 +718,7 @@ cptr get_spell_info(int tval, int spell)
 				        (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
 				break;
 			case PRAYER_CURE_CRITICAL_WOUNDS:
-				strcpy(p, " heal 6d10");
+				strcpy(p, " heal 16d10");
 				break;
 			case PRAYER_SENSE_INVISIBLE:
 				strcpy(p, " dur 24+d24");
@@ -719,7 +727,7 @@ cptr get_spell_info(int tval, int spell)
 				sprintf(p, " dur %d+d25", 3 * plev);
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 32d10");
 				break;
 			case PRAYER_PRAYER:
 				strcpy(p, " dur 48+d48");
@@ -737,10 +745,10 @@ cptr get_spell_info(int tval, int spell)
 				strcpy(p, " heal 1000");
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS2:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 8d10");
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS2:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 32d10");
 				break;
 			case PRAYER_HEALING:
 				strcpy(p, " heal 2000");
@@ -826,7 +834,7 @@ static void spell_wonder(int dir)
 	{
 		dispel_monsters(150);
 		slow_monsters();
-		sleep_monsters();
+		sleep_monsters(p_ptr->lev);
 		hp_player(300);
 	}
 }
@@ -884,7 +892,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_CURE_LIGHT_WOUNDS:
 		{
 
-			(void)hp_player(damroll(2, 8));
+			(void)hp_player(damroll(4, 8));
 			(void)set_cut(p_ptr->cut - 15);
 			break;
 		}
@@ -934,7 +942,7 @@ static bool cast_mage_spell(int spell)
 		case SPELL_SLEEP_MONSTER:
 		{
 			if (!get_aim_dir(&dir)) return (FALSE);
-			(void)sleep_monster(dir);
+			(void)sleep_monster(dir, p_ptr->lev);
 			break;
 		}
 
@@ -1007,7 +1015,7 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_MASS_SLEEP:
 		{
-			(void)sleep_monsters();
+			(void)sleep_monsters(p_ptr->lev);
 			break;
 		}
 
@@ -1143,6 +1151,16 @@ static bool cast_mage_spell(int spell)
 			fire_ball(GF_MANA, dir, 300 + (plev * 2), 3);
 			break;
 		}
+		case SPELL_CREATE_ARTIFACT:
+		{
+                        enchant_spell(0, 0, 0, TRUE, FALSE);
+			break;
+		}
+		case SPELL_CREATE_EGO:
+		{
+                        enchant_spell(0, 0, 0, FALSE, TRUE);
+			break;
+		}
 		case SPELL_DETECT_INVISIBLE:
 		{
 			(void)detect_monsters_invis();
@@ -1274,14 +1292,14 @@ static bool cast_mage_spell(int spell)
 
 		case SPELL_ENCHANT_ARMOR: /* enchant armor */
 		{
-			(void)enchant_spell(0, 0, rand_int(3) + plev / 20);
+			(void)enchant_spell(0, 0, rand_int(3) + plev / 20, FALSE, FALSE);
 			break;
 		}
 
 		case SPELL_ENCHANT_WEAPON: /* enchant weapon */
 		{
 			(void)enchant_spell(rand_int(4) + plev / 20,
-			                    rand_int(4) + plev / 20, 0);
+			                    rand_int(4) + plev / 20, 0, FALSE, FALSE);
 			break;
 		}
 	}
@@ -1310,7 +1328,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_LIGHT_WOUNDS:
 		{
-			(void)hp_player(damroll(2, 10));
+			(void)hp_player(damroll(4, 10));
 			(void)set_cut(p_ptr->cut - 10);
 			break;
 		}
@@ -1367,7 +1385,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(damroll(8, 10));
 			(void)set_cut((p_ptr->cut / 2) - 20);
 			break;
 		}
@@ -1421,7 +1439,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_CRITICAL_WOUNDS:
 		{
-			(void)hp_player(damroll(6, 10));
+			(void)hp_player(damroll(16, 10));
 			(void)set_cut(0);
 			break;
 		}
@@ -1452,7 +1470,7 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_MORTAL_WOUNDS:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(damroll(32, 10));
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
@@ -1539,14 +1557,14 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_CURE_SERIOUS_WOUNDS2:
 		{
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(damroll(8, 10));
 			(void)set_cut(0);
 			break;
 		}
 
 		case PRAYER_CURE_MORTAL_WOUNDS2:
 		{
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(damroll(32, 10));
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
@@ -1631,13 +1649,13 @@ static bool cast_priest_spell(int spell)
 
 		case PRAYER_ENCHANT_WEAPON:
 		{
-			(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
+			(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0, FALSE, FALSE);
 			break;
 		}
 
 		case PRAYER_ENCHANT_ARMOUR:
 		{
-			(void)enchant_spell(0, 0, rand_int(3) + 2);
+			(void)enchant_spell(0, 0, rand_int(3) + 2, FALSE, FALSE);
 			break;
 		}
 

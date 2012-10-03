@@ -31,7 +31,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -60,7 +60,7 @@ void do_cmd_go_down(void)
 	}
 
 	/* Hack -- take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
@@ -96,7 +96,7 @@ void do_cmd_search(void)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Search */
 	search();
@@ -272,16 +272,14 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Lose strength */
 	if (trap & (CHEST_LOSE_STR))
 	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "A small needle has pricked you!", "a poison needle");
 		(void)do_dec_stat(A_STR);
 	}
 
 	/* Lose constitution */
 	if (trap & (CHEST_LOSE_CON))
 	{
-		msg_print("A small needle has pricked you!");
-		take_hit(damroll(1, 4), "a poison needle");
+		take_hit(damroll(1, 4), "A small needle has pricked you!", "a poison needle");
 		(void)do_dec_stat(A_CON);
 	}
 
@@ -319,10 +317,9 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Explode */
 	if (trap & (CHEST_EXPLODE))
 	{
-		msg_print("There is a sudden explosion!");
-		msg_print("Everything inside the chest is destroyed!");
 		o_ptr->pval = 0;
-		take_hit(damroll(5, 8), "an exploding chest");
+		take_hit(damroll(5, 8), "There is a sudden explosion!", "an exploding chest");
+		msg_print("Everything inside the chest is destroyed!");
 	}
 }
 
@@ -783,7 +780,7 @@ void do_cmd_open(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -947,7 +944,7 @@ void do_cmd_close(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1243,6 +1240,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		}
 	}
 
+        wake_monsters(0, NOISE_DIG*p_ptr->skill_dig, TRUE);
+
 	/* Result */
 	return (more);
 }
@@ -1274,7 +1273,7 @@ void do_cmd_tunnel(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1486,7 +1485,7 @@ void do_cmd_disarm(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1687,7 +1686,7 @@ void do_cmd_bash(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1771,7 +1770,7 @@ void do_cmd_alter(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1951,7 +1950,7 @@ void do_cmd_spike(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Confuse direction */
 	if (confuse_dir(&dir))
@@ -2072,7 +2071,7 @@ static void do_cmd_walk_or_jump(int jumping)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Confuse direction */
 	if (confuse_dir(&dir))
@@ -2181,7 +2180,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	}
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Spontaneous Searching */
 	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
@@ -2278,7 +2277,7 @@ void do_cmd_rest(void)
 
 
 	/* Take a turn XXX XXX XXX (?) */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Save the rest code */
 	p_ptr->resting = p_ptr->command_arg;
@@ -2314,6 +2313,7 @@ void do_cmd_rest(void)
  */
 static int breakage_chance(const object_type *o_ptr)
 {
+        int chance = 10; /* Rarely break by default */
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
@@ -2324,7 +2324,8 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_FOOD:
 		case TV_JUNK:
 		{
-			return (100);
+			chance = 100;
+                        break;
 		}
 
 		/* Often break */
@@ -2332,13 +2333,15 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_SCROLL:
 		case TV_SKELETON:
 		{
-			return (50);
+			chance = 50;
+                        break;
 		}
 
 		/* Sometimes break */
 		case TV_ARROW:
 		{
-			return (35);
+			chance = 35;
+                        break;
 		}
 
 		/* Sometimes break */
@@ -2347,12 +2350,13 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_BOLT:
 		case TV_SPIKE:
 		{
-			return (25);
+			chance = 25;
+                        break;
 		}
 	}
+        chance -= o_ptr->to_a + o_ptr->to_d + o_ptr->to_h;
 
-	/* Rarely break */
-	return (10);
+        return (chance>0) ? chance : 0;
 }
 
 
@@ -2398,6 +2402,7 @@ void do_cmd_fire(void)
 	object_type object_type_body;
 
 	bool hit_body = FALSE;
+        bool dead = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -2492,6 +2497,9 @@ void do_cmd_fire(void)
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
+        /*Alex*/
+        chance -= chance*std_hp_pen(p_ptr->chp, p_ptr->mhp)/100;
+        if (chance < 0) chance = 0;
 
 	/* Assume a base multiplier */
 	tmul = p_ptr->ammo_mult;
@@ -2504,7 +2512,7 @@ void do_cmd_fire(void)
 
 
 	/* Take a (partial) turn */
-	p_ptr->energy_use = (100 / thits);
+	p_ptr->energy_use = (ENERGY_TURN / thits);
 
 
 	/* Start at the player */
@@ -2608,8 +2616,8 @@ void do_cmd_fire(void)
 					/* Get "the monster" or "it" */
 					monster_desc(m_name, m_ptr, 0);
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					/* Alex: hide the message */
+					/*msg_format("The %s hits %s.", o_name, m_name);*/
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2633,8 +2641,11 @@ void do_cmd_fire(void)
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+                                dead = mon_take_hit(cave_m_idx[y][x], &tdam, &fear, note_dies, FALSE);
+				if (dead)
 				{
+                                        /* Alex 
+                                        message_format(MSG_HIT, m_ptr->r_idx, "[%d](%d).", last_hit*4/3, tdam);*/
 					/* Dead monster */
 				}
 
@@ -2665,6 +2676,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Chance of breakage (during attacks) */
+        /* Alex: enchanted missiles break rarely */
 	j = (hit_body ? breakage_chance(i_ptr) : 0);
 
 	/* Drop (or break) near that location */
@@ -2782,7 +2794,7 @@ void do_cmd_throw(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 
 	/* Start at the player */
@@ -2911,7 +2923,7 @@ void do_cmd_throw(void)
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				if (mon_take_hit(cave_m_idx[y][x], &tdam, &fear, note_dies, FALSE))
 				{
 					/* Dead monster */
 				}

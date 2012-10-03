@@ -103,6 +103,7 @@ struct maxima
 
 	u16b f_max;		/* Max size for "f_info[]" */
 	u16b k_max;		/* Max size for "k_info[]" */
+	u16b file_a_max;		/* Max size for "a_info[]" except new artifacts */
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
 	u16b r_max;		/* Max size for "r_info[]" */
@@ -201,7 +202,7 @@ struct object_kind
 /*
  * Information about "artifacts".
  *
- * Note that the save-file only writes "cur_num" to the savefile.
+ * Note that the save-file only writes "cur_num" and "force_depth" to the savefile.
  *
  * Note that "max_num" is always "1" (if that artifact "exists")
  */
@@ -236,6 +237,12 @@ struct artifact_type
 
 	byte cur_num;		/* Number created (0 or 1) */
 	byte max_num;		/* Unused (should be "1") */
+
+        /*Alex*/
+        /* If player with this artifact dies on depth, force_depth = (depth + 1);
+        artifact then must be generated on depth (force_level-1);
+        0 at first*/
+        s16b force_depth;
 
 	byte activation;	/* Activation to use */
 	u16b time;			/* Activation time */
@@ -460,7 +467,7 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
+	u16b name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
 
 	byte xtra1;			/* Extra info type */
@@ -499,6 +506,10 @@ struct object_type
  */
 struct monster_type
 {
+        /*Alex*/
+        s16b total_items;               /*Total amount of treasure and items monster drops after death; not including objects carried*/
+        bool ancestor_inventory;    /* TRUE if monster carries ancestor's inventory*/
+
 	s16b r_idx;			/* Monster race index */
 
 	byte fy;			/* Y location on map */
@@ -586,7 +597,7 @@ struct owner_type
 {
 	u32b owner_name;	/* Name (offset) */
 
-	s16b max_cost;		/* Purse limit */
+	s32b max_cost;		/* Alex: now this is the starting money (Was: Purse limit) */
 
 	byte max_inflate;	/* Inflation (max) */
 	byte min_inflate;	/* Inflation (min) */
@@ -608,6 +619,8 @@ struct owner_type
 struct store_type
 {
 	byte owner;				/* Owner index */
+
+	s32b current_gold;		/* Alex: current amount of money */
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -631,7 +644,8 @@ struct magic_type
 	byte slevel;		/* Required level (to learn) */
 	byte smana;			/* Required mana (to cast) */
 	byte sfail;			/* Minimum chance of failure */
-	byte sexp;			/* Encoded experience bonus */
+	/*Alex: it was byte*/
+	s16b sexp;			/* Encoded experience bonus */
 };
 
 
@@ -925,7 +939,7 @@ struct player_type
 	s32b total_weight;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
-	s16b equip_cnt;			/* Number of items in equipment */
+	s16b equip_cnt;			/* Number of items in equipment and on the belt */
 
 	s16b target_set;		/* Target flag */
 	s16b target_who;		/* Target identity */
@@ -967,6 +981,9 @@ struct player_type
 	bool heavy_wield;	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield;	/* Icky weapon */
+
+        enum WeaponMode weapon_mode;         /* Alex: one weapon, two weapons, 
+                                                                          * or one weapon at two hands */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
@@ -1057,6 +1074,7 @@ struct player_type
 	u32b noise;			/* Derived from stealth */
 
 	s16b num_blow;		/* Number of blows */
+	s16b num_blow2;		/* Number of blows by secondary weapon */
 	s16b num_fire;		/* Number of shots */
 
 	byte ammo_mult;		/* Ammo multiplier */

@@ -57,6 +57,24 @@
 
 
 
+void destroy_item(int item)
+{
+	/* Destroy an item in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Destroy an item on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+}
 
 /*
  * Eat some food (from the pack or floor)
@@ -97,7 +115,7 @@ void do_cmd_eat_food(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -118,32 +136,14 @@ void do_cmd_eat_food(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		gain_object_exp(lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
-	/* Destroy a food in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a food on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+        destroy_item(item);
 }
-
-
-
 
 /*
  * Quaff a potion (from the pack or the floor)
@@ -162,7 +162,7 @@ void do_cmd_quaff_potion(void)
 	/* Get an item */
 	q = "Quaff which potion? ";
 	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -181,8 +181,11 @@ void do_cmd_quaff_potion(void)
 	sound(MSG_QUAFF);
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take a half of a turn from the belt, 1.5 turns from the pack/floor*/
+        if (item>=INVEN_BELT_MIN)
+	        p_ptr->energy_use = ENERGY_BELT;
+        else
+	        p_ptr->energy_use = ENERGY_BELT + ENERGY_INVEN_PENALTY;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -203,29 +206,14 @@ void do_cmd_quaff_potion(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		gain_object_exp(lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	/* Destroy a potion in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a potion on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+        destroy_item(item);
 }
-
 
 /*
  * Read a scroll (from the pack or floor).
@@ -267,8 +255,8 @@ void do_cmd_read_scroll(void)
 
 	/* Get an item */
 	q = "Read which scroll? ";
-	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+   	s = "You have no scrolls to read.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_BELT))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -283,8 +271,11 @@ void do_cmd_read_scroll(void)
 	}
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take a half of a turn from the belt, 1.5 turns from the pack/floor*/
+        if (item>=INVEN_BELT_MIN)
+	        p_ptr->energy_use = ENERGY_BELT;
+        else
+	        p_ptr->energy_use = ENERGY_BELT + ENERGY_INVEN_PENALTY;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -305,39 +296,80 @@ void do_cmd_read_scroll(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		gain_object_exp(lev);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 
-	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return;
 
-
-	/* Destroy a scroll in the pack */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Destroy a scroll on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+        destroy_item(item);
 }
 
 
 
 
+/*Alex*/
+void use_staff_charge_aux(int item, object_type* o_ptr, bool use_charge, bool ident)
+{
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
+	/* Tried the item */
+	object_tried(o_ptr);
 
+	/* An identification was made */
+	if (ident && !object_aware_p(o_ptr))
+	{
+	        /* Extract the item level */
+        	int lev = k_info[o_ptr->k_idx].level;
+		object_aware(o_ptr);
+		gain_object_exp(lev);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
+
+	/* Hack -- some uses are "free" */
+	if (!use_charge)
+             return;
+
+        /* Use a single charge */
+	o_ptr->pval--;
+
+	/* XXX Hack -- unstack if necessary */
+	if ((item >= 0) && (o_ptr->number > 1))
+	{
+		        object_type object_type_body;
+        		/* Get local object */
+		        object_type *i_ptr = &object_type_body;
+
+		        /* Obtain a local object */
+        		object_copy(i_ptr, o_ptr);
+
+	        	/* Modify quantity */
+		        i_ptr->number = 1;
+
+		        /* Restore the charges */
+		        o_ptr->pval++;
+
+		        /* Unstack the used item */
+		        o_ptr->number--;
+		        p_ptr->total_weight -= i_ptr->weight;
+		        item = inven_carry(i_ptr);
+
+		        /* Message */
+		        msg_print("You unstack your staff.");
+	}
+        /* Describe charges in the pack */
+	if (item >= 0)
+	        inven_item_charges(item);
+        /* Describe charges on the floor */
+	else
+	        floor_item_charges(0 - item);
+}
 
 /*
  * Use a staff
@@ -358,6 +390,8 @@ void do_cmd_use_staff(void)
 
 	cptr q, s;
 
+        bool staff_visit_home;
+
 
 	/* Restrict choices to staves */
 	item_tester_tval = TV_STAFF;
@@ -365,7 +399,7 @@ void do_cmd_use_staff(void)
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_BELT | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -388,8 +422,11 @@ void do_cmd_use_staff(void)
 	}
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+        /*Alex: take a half of a turn from the belt, 1.5 turns from the pack/floor*/
+        if (item>=INVEN_BELT_MIN)
+	        p_ptr->energy_use = ENERGY_BELT;
+        else
+	        p_ptr->energy_use = ENERGY_BELT + ENERGY_INVEN_PENALTY;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -427,7 +464,7 @@ void do_cmd_use_staff(void)
 		msg_print("The staff has no charges left.");
 		o_ptr->ident |= (IDENT_EMPTY);
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
+		p_ptr->window |= (PW_BELT);
 		return;
 	}
 
@@ -435,73 +472,22 @@ void do_cmd_use_staff(void)
 	/* Sound */
 	sound(MSG_ZAP);
 
+        /*Alex: we have to use a charge BEFORE visit the home.
+         * In other case player can drop the staff at home... so
+         * o_ptr and item will point to another item in the pack OR
+         * TO NOTHING
+        */
+        if (staff_visit_home = (o_ptr->sval == SV_STAFF_VISIT_HOME))
+                /* Always use one charge, always identified by effect */
+                use_staff_charge_aux(item, o_ptr, TRUE, TRUE);
 
 	/* Use the staff */
 	use_charge = use_object(o_ptr, &ident);
 
+	if (staff_visit_home)
+             return;
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Tried the item */
-	object_tried(o_ptr);
-
-	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
-	{
-		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
-	}
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-
-	/* Hack -- some uses are "free" */
-	if (!use_charge) return;
-
-
-	/* Use a single charge */
-	o_ptr->pval--;
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your staff.");
-	}
-
-	/* Describe charges in the pack */
-	if (item >= 0)
-	{
-		inven_item_charges(item);
-	}
-
-	/* Describe charges on the floor */
-	else
-	{
-		floor_item_charges(0 - item);
-	}
+        use_staff_charge_aux(item, o_ptr, use_charge, ident);
 }
 
 
@@ -542,7 +528,7 @@ void do_cmd_aim_wand(void)
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_BELT | USE_FLOOR | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -565,7 +551,14 @@ void do_cmd_aim_wand(void)
 	}
 
 
+        /*Alex: take a half of a turn from the belt, 1.5 turns from the pack/floor*/
+        if (item>=INVEN_BELT_MIN)
+	        p_ptr->energy_use = ENERGY_BELT;
+        else
+	        p_ptr->energy_use = ENERGY_BELT + ENERGY_INVEN_PENALTY;
+
 	/* Aim the wand */
+	/* aim_wand() or script must set  energy_use to zero if direction is canceled */
 	if (!use_object(o_ptr, &ident)) return;
 
 
@@ -582,11 +575,11 @@ void do_cmd_aim_wand(void)
 	if (ident && !object_aware_p(o_ptr))
 	{
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		gain_object_exp(lev);
 	}
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 
 
 	/* Use a single charge */
@@ -660,7 +653,7 @@ void do_cmd_zap_rod(void)
 	/* Get an item */
 	q = "Zap which rod? ";
 	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_BELT | USE_FLOOR | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -682,6 +675,13 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
+        /*Alex: take a half of a turn from the belt, 1.5 turns from the pack/floor*/
+        if (item>=INVEN_BELT_MIN)
+	        p_ptr->energy_use = ENERGY_BELT;
+        else
+	        p_ptr->energy_use = ENERGY_BELT + ENERGY_INVEN_PENALTY;
+
+	/* zap_rod() or script must set  energy_use to zero if direction is canceled */
 	/* Zap the rod */
 	use_object(o_ptr, &ident);
 
@@ -698,11 +698,11 @@ void do_cmd_zap_rod(void)
 		int lev = k_info[o_ptr->k_idx].level;
 
 		object_aware(o_ptr);
-		gain_exp((lev + (p_ptr->lev / 2)) / p_ptr->lev);
+		gain_object_exp(lev);
 	}
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_BELT);
 
 	/* XXX Hack -- unstack if necessary */
 	if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->pval > 0))
@@ -794,7 +794,7 @@ void do_cmd_activate(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = ENERGY_TURN;
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;

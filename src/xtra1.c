@@ -241,7 +241,7 @@ static void prt_equippy(void)
 
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_BELT_MIN; i++)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -944,6 +944,37 @@ static void fix_equip(void)
 	}
 }
 
+/*
+ * Hack -- display belt in sub-windows
+ */
+static void fix_belt(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_BELT))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display equipment */
+		display_belt();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
 
 /*
  * Hack -- display player in sub-windows (mode 0)
@@ -1444,7 +1475,7 @@ static void calc_mana(void)
 	cur_wgt = 0;
 	cur_wgt += inventory[INVEN_BODY].weight;
 	cur_wgt += inventory[INVEN_HEAD].weight;
-	cur_wgt += inventory[INVEN_ARM].weight;
+        if (is_armour(inventory[INVEN_ARM].tval)) cur_wgt += inventory[INVEN_ARM].weight;
 	cur_wgt += inventory[INVEN_OUTER].weight;
 	cur_wgt += inventory[INVEN_HANDS].weight;
 	cur_wgt += inventory[INVEN_FEET].weight;
@@ -1580,7 +1611,7 @@ static void calc_torch(void)
 	p_ptr->cur_lite = 0;
 
 	/* Loop through all wielded items */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_BELT_MIN; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -1645,7 +1676,7 @@ static void calc_torch(void)
 /*
  * Computes current weight limit.
  */
-static int weight_limit(void)
+int weight_limit(void)
 {
 	int i;
 
@@ -1656,7 +1687,79 @@ static int weight_limit(void)
 	return (i);
 }
 
+void apply_weapon(object_type* o_ptr, s16b* num_blows)
+{
+        int str_index, dex_index;
+	int div;
+        u32b f1, f2, f3;
 
+	/* Priest weapon penalty for non-blessed edged weapons */
+	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
+	     ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+        {
+		/* Reduce the real bonuses */
+		p_ptr->to_h -= 2;
+		p_ptr->to_d -= 2;
+
+		/* Reduce the mental bonuses */
+		p_ptr->dis_to_h -= 2;
+		p_ptr->dis_to_d -= 2;
+
+		/* Icky weapon */
+		p_ptr->icky_wield = TRUE;
+	}
+
+        if (p_ptr->heavy_wield)
+                return;
+
+        /* Enforce a minimum "weight" (tenth pounds) */
+	div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+
+        /*Alex: apply weight bonus for two handed weapon*/
+        if (p_ptr->weapon_mode == WEAPON_TWO_HANDED)
+                div /= 2;
+
+	/* Get the strength vs weight */
+	str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
+
+	/* Maximal value */
+	if (str_index > 11) str_index = 11;
+
+        /* Index by dexterity */
+	dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+	/* Maximal value */
+	if (dex_index > 11) dex_index = 11;
+
+	/* Use the blows table */
+	*num_blows = blows_table[str_index][dex_index];
+
+        /*Alex: apply penalty for two weapons*/
+        if (p_ptr->weapon_mode == WEAPON_TWO)
+                *num_blows -= TWO_WEAPON_PEN_BLOW;
+        if (p_ptr->weapon_mode == WEAPON_TWO_SIMILAR)
+                *num_blows -= (TWO_WEAPON_PEN_BLOW - 1);
+
+        /* Maximal value */
+	if (*num_blows > cp_ptr->max_attacks) *num_blows = cp_ptr->max_attacks;
+
+	/* Extract the item flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (f1 & (TR1_BLOWS))
+        /* Add in the "bonus blows" */
+                *num_blows += o_ptr->pval;
+
+        /* Boost digging skill by weapon weight */
+	p_ptr->skill_dig += (o_ptr->weight / 10);
+}
+cptr weapon_mode_name[WEAPON_LAST] = 
+{
+        "no weapon",
+        "weapon in one hand",
+        "two weapons in both hands",
+        "two similar weapons in both hands",
+        "one weapon in two hands"
+};
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -1700,8 +1803,12 @@ static void calc_bonuses(void)
 	bool old_heavy_shoot;
 	bool old_heavy_wield;
 	bool old_icky_wield;
+	bool old_weapon_mode;
 
 	object_type *o_ptr;
+	object_type *o2_ptr;
+
+        int weight;
 
 	u32b f1, f2, f3;
 
@@ -1730,7 +1837,7 @@ static void calc_bonuses(void)
 	old_heavy_shoot = p_ptr->heavy_shoot;
 	old_heavy_wield = p_ptr->heavy_wield;
 	old_icky_wield = p_ptr->icky_wield;
-
+        old_weapon_mode = p_ptr->weapon_mode;
 
 	/*** Reset ***/
 
@@ -1739,6 +1846,7 @@ static void calc_bonuses(void)
 
 	/* Reset "blow" info */
 	p_ptr->num_blow = 1;
+	p_ptr->num_blow2 = 1;
 	extra_blows = 0;
 
 	/* Reset "fire" info */
@@ -1896,7 +2004,7 @@ static void calc_bonuses(void)
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_WIELD; i < INVEN_BELT_MIN; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -1931,9 +2039,6 @@ static void calc_bonuses(void)
 
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
-
-		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
 
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
@@ -2009,6 +2114,13 @@ static void calc_bonuses(void)
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;
 
+		/* Alex: do not apply "secondary weapon" bonuses */
+                if (i == INVEN_ARM && is_weapon(o_ptr->tval)) continue;
+
+		/* Affect blows: items except weapon increase both blows */
+		if (f1 & (TR1_BLOWS))
+                        extra_blows += o_ptr->pval;
+
 		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h += o_ptr->to_h;
 		p_ptr->to_d += o_ptr->to_d;
@@ -2017,7 +2129,6 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
-
 
 	/*** Handle stats ***/
 
@@ -2345,80 +2456,89 @@ static void calc_bonuses(void)
 
 	/*** Analyze weapon ***/
 
-	/* Examine the "current weapon" */
+	/* Examine the "primary weapon" */
 	o_ptr = &inventory[INVEN_WIELD];
+	/* Examine the "primary weapon" */
+	o2_ptr = &inventory[INVEN_ARM];
+
+        if (!is_weapon(o_ptr->tval) && !is_weapon(o2_ptr->tval))
+                p_ptr->weapon_mode = WEAPON_NO;
+        /*Alex: apply penalty for two weapons*/
+        else if (is_weapon(o_ptr->tval) && is_weapon(o2_ptr->tval))
+        {
+                p_ptr->skill_thn /= 2;
+                if(o_ptr->tval == o2_ptr->tval &&
+                    o_ptr->sval == o2_ptr->sval
+                    /*Alex: does weight important? */
+                    /*o_ptr->weight == o2_ptr->weight*/)
+                {
+                        p_ptr->weapon_mode = WEAPON_TWO_SIMILAR;
+                        p_ptr->skill_thn -= TWO_WEAPON_PEN_THN/2;
+                }
+                else
+                {
+                        p_ptr->weapon_mode = WEAPON_TWO;
+                        p_ptr->skill_thn -= TWO_WEAPON_PEN_THN;
+                }
+        }
+        /* Alex: apply extra bonus for two-handed weapon */
+        else if (is_weapon(o_ptr->tval) && !o2_ptr->k_idx)
+        {
+                int bonus = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+        	p_ptr->to_d += bonus;
+        	p_ptr->dis_to_d += bonus;
+                p_ptr->weapon_mode = WEAPON_TWO_HANDED;
+        }
+        else
+                p_ptr->weapon_mode = WEAPON_ONE;
 
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
+	/* Assume okay */
+	p_ptr->icky_wield = FALSE;
+
+        if (is_weapon(o_ptr->tval))
+                weight = o_ptr->weight;
+        else
+                weight = 0;
+        if (is_weapon(o2_ptr->tval))
+                weight += o2_ptr->weight;
+        weight /= 10;
 
 	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
+	if (hold < weight)
 	{
 		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->to_h += 2 * (hold - weight);
+		p_ptr->dis_to_h += 2 * (hold - weight);
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
 	}
 
-	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
-	{
-		int str_index, dex_index;
+        /* Normal weapons */
+        if (is_weapon(o_ptr->tval))
+                apply_weapon(o_ptr, &p_ptr->num_blow);
 
-		int div;
+        if (is_weapon(o2_ptr->tval))
+                apply_weapon(o2_ptr, &p_ptr->num_blow2);
 
-		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < cp_ptr->min_weight) ? cp_ptr->min_weight : o_ptr->weight);
+        p_ptr->num_blow += extra_blows;
+        p_ptr->num_blow2 += extra_blows;
 
-		/* Get the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * cp_ptr->att_multiply / div);
-
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Maximal value */
-		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
-
-		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
-
-		/* Require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill_dig += (o_ptr->weight / 10);
-	}
-
-	/* Assume okay */
-	p_ptr->icky_wield = FALSE;
-
-	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
-	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
-
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
-
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
-	}
-
+        if (!p_ptr->heavy_wield)
+        {
+                /* Require at least one blow */
+	        if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+                if (p_ptr->num_blow2 < 1) p_ptr->num_blow2 = 1;
+        }
+        else
+        {
+                p_ptr->num_blow = 1;
+                p_ptr->num_blow2 = 1;
+        }
+        if (!is_weapon(o2_ptr->tval))
+                p_ptr->num_blow2 = 0;
 
 	/*** Notice changes ***/
 
@@ -2542,6 +2662,12 @@ static void calc_bonuses(void)
 		{
 			msg_print("You feel relieved to put down your heavy weapon.");	
 		}
+	}
+
+	/* Take note when "weapon mode" changes */
+	if (old_weapon_mode != p_ptr->weapon_mode)
+	{
+                msg_format("New weapon mode is %s.", weapon_mode_name[p_ptr->weapon_mode]);
 	}
 
 	/* Take note when "illegal weapon" changes */
@@ -2916,6 +3042,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_EQUIP);
 		fix_equip();
+	}
+
+	/* Display equipment */
+	if (p_ptr->window & (PW_BELT))
+	{
+		p_ptr->window &= ~(PW_BELT);
+		fix_belt();
 	}
 
 	/* Display player (mode 0) */

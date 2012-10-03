@@ -59,6 +59,7 @@ static bool check_hit(int power, int level)
 
 	/* Calculate the "attack quality" */
 	chance = (power + (level * 3));
+        if (chance < 0) chance = 0;
 
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
@@ -158,10 +159,14 @@ bool make_attack_normal(int m_idx)
 		bool visible = FALSE;
 		bool obvious = FALSE;
 
+                /* Alex: monster produces loud noise */
+                bool loud_noise = FALSE;
+
 		int power = 0;
 		int damage = 0;
 
 		cptr act = NULL;
+                char hit_message[80];
 
 		/* Extract the attack infomation */
 		int effect = r_ptr->blow[ap_cnt].effect;
@@ -217,6 +222,8 @@ bool make_attack_normal(int m_idx)
 			case RBE_HALLU:     power = 10; break;
 		}
 
+                /* Alex */
+                power -= power*std_hp_pen(m_ptr->hp, m_ptr->maxhp)/100;
 
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
@@ -403,15 +410,19 @@ bool make_attack_normal(int m_idx)
 				}
 			}
 
-			/* Message */
-			if (act) msg_format("%^s %s", m_name, act);
-
-
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+
+			/* Message */
+                        /*if (act) msg_format("%^s %s", m_name, act);*/
+                        /*Alex */
+                        strcpy(hit_message, m_name);
+                        strcat(hit_message, " ");
+                        strcat(hit_message, act);
+
 
 			/* Apply appropriate damage */
 			switch (effect)
@@ -436,7 +447,7 @@ bool make_attack_normal(int m_idx)
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					break;
 				}
@@ -444,7 +455,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_POISON:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
@@ -464,7 +475,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_UN_BONUS:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Allow complete resist */
 					if (!p_ptr->resist_disen)
@@ -482,13 +493,13 @@ bool make_attack_normal(int m_idx)
 				case RBE_UN_POWER:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
 						/* Pick an item */
-						i = rand_int(INVEN_PACK);
+						i = rand_range(INVEN_BELT_MIN, INVEN_BELT_MAX - 1);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -540,7 +551,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_GOLD:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Obvious */
 					obvious = TRUE;
@@ -596,7 +607,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_ITEM:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
@@ -674,7 +685,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_FOOD:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Steal some food */
 					for (k = 0; k < 10; k++)
@@ -716,7 +727,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_EAT_LITE:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Get the lite */
 					o_ptr = &inventory[INVEN_LITE];
@@ -747,11 +758,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are covered in acid!");
-
 					/* Special damage */
-					acid_dam(damage, ddesc);
+					acid_dam(damage, "You are covered in acid!", ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ACID);
@@ -764,11 +772,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are struck by electricity!");
-
 					/* Take damage (special) */
-					elec_dam(damage, ddesc);
+					elec_dam(damage, "You are struck by electricity!", ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_ELEC);
@@ -781,11 +786,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are enveloped in flames!");
-
 					/* Take damage (special) */
-					fire_dam(damage, ddesc);
+					fire_dam(damage, "You are enveloped in flames!", ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_FIRE);
@@ -798,11 +800,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					/* Message */
-					msg_print("You are covered with frost!");
-
 					/* Take damage (special) */
-					cold_dam(damage, ddesc);
+					cold_dam(damage, "You are covered with frost!", ddesc);
 
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_COLD);
@@ -813,7 +812,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_BLIND:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind)
@@ -833,7 +832,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_CONFUSE:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Increase "confused" */
 					if (!p_ptr->resist_confu)
@@ -853,7 +852,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_TERRIFY:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Increase "afraid" */
 					if (p_ptr->resist_fear)
@@ -886,7 +885,7 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Increase "paralyzed" */
 					if (p_ptr->free_act)
@@ -916,7 +915,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_STR:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -927,7 +926,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_INT:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_INT)) obvious = TRUE;
@@ -938,7 +937,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_WIS:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_WIS)) obvious = TRUE;
@@ -949,7 +948,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_DEX:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_DEX)) obvious = TRUE;
@@ -960,7 +959,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_CON:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CON)) obvious = TRUE;
@@ -971,7 +970,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_CHR:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stat) */
 					if (do_dec_stat(A_CHR)) obvious = TRUE;
@@ -982,7 +981,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_LOSE_ALL:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Damage (stats) */
 					if (do_dec_stat(A_STR)) obvious = TRUE;
@@ -1004,7 +1003,7 @@ bool make_attack_normal(int m_idx)
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Radius 8 earthquake centered at the monster */
 					if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
@@ -1018,7 +1017,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					if (p_ptr->hold_life && (rand_int(100) < 95))
 					{
@@ -1047,7 +1046,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					if (p_ptr->hold_life && (rand_int(100) < 90))
 					{
@@ -1077,7 +1076,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					if (p_ptr->hold_life && (rand_int(100) < 75))
 					{
@@ -1107,7 +1106,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					if (p_ptr->hold_life && (rand_int(100) < 50))
 					{
@@ -1134,7 +1133,7 @@ bool make_attack_normal(int m_idx)
 				case RBE_HALLU:
 				{
 					/* Take damage */
-					take_hit(damage, ddesc);
+					take_hit(damage, hit_message, ddesc);
 
 					/* Increase "image" */
 					if (!p_ptr->resist_chaos)
@@ -1218,6 +1217,12 @@ bool make_attack_normal(int m_idx)
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
+                        /* Alex: check for noise */
+                        if (noise_chance[method] && !rand_int(noise_chance[method]))
+                        {
+        			msg_format("%^s produces especially loud noise.", m_name);
+	        		wake_monsters(m_idx, NOISE_DAMAGE*damage, TRUE);
+                        }
 		}
 
 		/* Monster missed player */
@@ -1246,7 +1251,7 @@ bool make_attack_normal(int m_idx)
 					disturb(1, 0);
 
 					/* Message */
-					msg_format("%^s misses you.", m_name);
+					message_format(MSG_MISS, 0, "%^s misses you [%d].", m_name, last_hit*4/3);
 				}
 
 				break;

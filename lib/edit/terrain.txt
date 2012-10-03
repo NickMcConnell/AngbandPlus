@@ -120,268 +120,278 @@ G:7:D
 N:15:Home
 G:8:y
 
-# 0x10 --> visible trap -- trap door
+# 0x10 --> shop -- AG1 (perm)
 
-N:16:trap door
+N:16:Adventurer's Guild 1
+G:9:G
+
+# 0x11 --> shop -- AG2 (perm)
+
+N:17:Adventurer's Guild 2
+G:0:G
+
+# 0x12 --> visible trap -- trap door
+
+N:18:trap door
 G:^:w
 
-# 0x11 --> visible trap -- open pit
-
-N:17:pit
-G:^:s
-
-# 0x12 --> visible trap -- spiked pit
-
-N:18:pit
-G:^:s
-
-# 0x13 --> visible trap -- poison pit
+# 0x13 --> visible trap -- open pit
 
 N:19:pit
 G:^:s
 
-# 0x14 --> visible trap -- rune -- summon
+# 0x14 --> visible trap -- spiked pit
 
-N:20:strange rune
+N:20:pit
+G:^:s
+
+# 0x15 --> visible trap -- poison pit
+
+N:21:pit
+G:^:s
+
+# 0x16 --> visible trap -- rune -- summon
+
+N:22:strange rune
 G:^:o
 
-# 0x15 --> visible trap -- rune -- teleport
+# 0x17 --> visible trap -- rune -- teleport
 
-N:21:strange rune
+N:23:strange rune
 G:^:o
 
-# 0x16 --> visible trap -- spot -- fire
+# 0x18 --> visible trap -- spot -- fire
 
-N:22:discolored spot
+N:24:discolored spot
 G:^:u
 
-# 0x17 --> visible trap -- spot -- acid
+# 0x19 --> visible trap -- spot -- acid
 
-N:23:discolored spot
+N:25:discolored spot
 G:^:u
 
-# 0x18 --> visible trap -- dart -- slow
-
-N:24:dart trap
-G:^:r
-
-# 0x19 --> visible trap -- dart -- lose str
-
-N:25:dart trap
-G:^:r
-
-# 0x1A --> visible trap -- dart -- lose dex
+# 0x1A --> visible trap -- dart -- slow
 
 N:26:dart trap
 G:^:r
 
-# 0x1B --> visible trap -- dart -- lose con
+# 0x1B --> visible trap -- dart -- lose str
 
 N:27:dart trap
 G:^:r
 
-# 0x1C --> visible trap -- gas -- blind
+# 0x1C --> visible trap -- dart -- lose dex
 
-N:28:gas trap
-G:^:g
+N:28:dart trap
+G:^:r
 
-# 0x1D --> visible trap -- gas -- confuse
+# 0x1D --> visible trap -- dart -- lose con
 
-N:29:gas trap
-G:^:g
+N:29:dart trap
+G:^:r
 
-# 0x1E --> visible trap -- gas -- poison
+# 0x1E --> visible trap -- gas -- blind
 
 N:30:gas trap
 G:^:g
 
-# 0x1F --> visible trap -- gas -- sleep
+# 0x1F --> visible trap -- gas -- confuse
 
 N:31:gas trap
 G:^:g
 
+# 0x20 --> visible trap -- gas -- poison
+
+N:32:gas trap
+G:^:g
+
+# 0x21 --> visible trap -- gas -- sleep
+
+N:33:gas trap
+G:^:g
+
 # 0x2x --> locked door (power 0)
 
-N:32:door
+N:34:door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 1)
 
-N:33:locked door
+N:35:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 2)
 
-N:34:locked door
+N:36:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 3)
 
-N:35:locked door
+N:37:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 4)
 
-N:36:locked door
+N:38:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 5)
 
-N:37:locked door
+N:39:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 6)
 
-N:38:locked door
+N:40:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> locked door (power 7)
 
-N:39:locked door
+N:41:locked door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 0)
 
-N:40:jammed door
+N:42:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 1)
 
-N:41:jammed door
+N:43:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 2)
 
-N:42:jammed door
+N:44:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 3)
 
-N:43:jammed door
+N:45:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 4)
 
-N:44:jammed door
+N:46:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 5)
 
-N:45:jammed door
+N:47:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 6)
 
-N:46:jammed door
+N:48:jammed door
 G:+:U
-M:32
+M:34
 
 # 0x2x --> jammed door (power 7)
 
-N:47:jammed door
+N:49:jammed door
 G:+:U
-M:32
+M:34
 
-# 0x30 --> secret door
+# 0x32 --> secret door
 
-N:48:secret door
+N:50:secret door
 G:#:w
-M:56
+M:58
 
-# 0x31 --> pile of rubble
+# 0x33 --> pile of rubble
 
-N:49:pile of rubble
+N:51:pile of rubble
 G:::w
 
-# 0x32 --> magma vein
-
-N:50:magma vein
-G:%:s
-
-# 0x33 --> quartz vein
-
-N:51:quartz vein
-G:%:w
-
-# 0x34 --> magma vein + treasure
+# 0x34 --> magma vein
 
 N:52:magma vein
 G:%:s
-M:50
 
-# 0x35 --> quartz vein + treasure
+# 0x35 --> quartz vein
 
 N:53:quartz vein
 G:%:w
-M:51
 
-# 0x36 --> magma vein + known treasure
+# 0x36 --> magma vein + treasure
 
-N:54:magma vein with treasure
+N:54:magma vein
+G:%:s
+M:52
+
+# 0x37 --> quartz vein + treasure
+
+N:55:quartz vein
+G:%:w
+M:53
+
+# 0x38 --> magma vein + known treasure
+
+N:56:magma vein with treasure
 G:*:o
 
-# 0x37 --> quartz vein + known treasure
+# 0x39 --> quartz vein + known treasure
 
-N:55:quartz vein with treasure
+N:57:quartz vein with treasure
 G:*:o
 
-# 0x38 --> granite wall -- basic
-
-N:56:granite wall
-G:#:w
-
-# 0x39 --> granite wall -- inner
-
-N:57:granite wall
-G:#:w
-M:56
-
-# 0x3A --> granite wall -- outer
+# 0x3A --> granite wall -- basic
 
 N:58:granite wall
 G:#:w
-M:56
 
-# 0x3B --> granite wall -- solid
+# 0x3B --> granite wall -- inner
 
 N:59:granite wall
 G:#:w
-M:56
+M:58
 
-# 0x3C --> permanent wall -- basic (perm)
+# 0x3C --> granite wall -- outer
 
-N:60:permanent wall
+N:60:granite wall
 G:#:w
+M:58
 
-# 0x3D --> permanent wall -- inner (perm)
+# 0x3D --> granite wall -- solid
 
-N:61:permanent wall
+N:61:granite wall
 G:#:w
-M:60
+M:58
 
-# 0x3E --> permanent wall -- outer (perm)
+# 0x3E --> permanent wall -- basic (perm)
 
 N:62:permanent wall
 G:#:w
-M:60
 
-# 0x3F --> permanent wall -- solid (perm)
+# 0x3F --> permanent wall -- inner (perm)
 
 N:63:permanent wall
 G:#:w
-M:60
+M:62
+
+# 0x40 --> permanent wall -- outer (perm)
+
+N:64:permanent wall
+G:#:w
+M:62
+
+# 0x41 --> permanent wall -- solid (perm)
+
+N:65:permanent wall
+G:#:w
+M:62
 

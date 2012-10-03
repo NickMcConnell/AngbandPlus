@@ -609,6 +609,7 @@ int tolua_ui_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"PW_EQUIP",PW_EQUIP);
  tolua_constant(tolua_S,NULL,"PW_PLAYER_0",PW_PLAYER_0);
  tolua_constant(tolua_S,NULL,"PW_PLAYER_1",PW_PLAYER_1);
+ tolua_constant(tolua_S,NULL,"PW_BELT",PW_BELT);
  tolua_constant(tolua_S,NULL,"PW_MESSAGE",PW_MESSAGE);
  tolua_constant(tolua_S,NULL,"PW_OVERHEAD",PW_OVERHEAD);
  tolua_constant(tolua_S,NULL,"PW_MONSTER",PW_MONSTER);
@@ -736,6 +737,7 @@ void tolua_ui_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_EQUIP");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_PLAYER_0");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_PLAYER_1");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_BELT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_MESSAGE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_OVERHEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"PW_MONSTER");

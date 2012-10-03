@@ -348,8 +348,10 @@ static errr wr_savefile(void)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
+                /*Alex*/
+		wr_s16b(a_ptr->force_depth);
+		/*wr_byte(0);*/
+		/*wr_byte(0);*/
 		wr_byte(0);
 	}
 
@@ -702,7 +704,7 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->number);
 	wr_s16b(o_ptr->weight);
 
-	wr_byte(o_ptr->name1);
+	wr_u16b(o_ptr->name1);
 	wr_byte(o_ptr->name2);
 
 	wr_s16b(o_ptr->timeout);
@@ -748,6 +750,10 @@ static void wr_item(const object_type *o_ptr)
 static void wr_monster(const monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
+        /*Alex*/
+	wr_s16b(m_ptr->total_items);
+        wr_byte((byte)m_ptr->ancestor_inventory);
+
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -839,6 +845,9 @@ static void wr_xtra(int k_idx)
 static void wr_store(const store_type *st_ptr)
 {
 	int j;
+
+	/* Alex: save the current gold */
+	wr_s32b(st_ptr->current_gold);
 
 	/* Save the "open" counter */
 	wr_u32b(st_ptr->store_open);
@@ -1145,19 +1154,10 @@ static void wr_extra(void)
 	wr_s32b(turn);
 }
 
-
-/*
- * Dump the random artifacts
- */
-static void wr_randarts(void)
-{
-	int i;
-
-	wr_u16b(z_info->a_max);
-
-	for (i = 0; i < z_info->a_max; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
+/* Alex: write one artifact */
+static void wr_art(artifact_type* a_ptr){
+                wr_u32b(a_ptr->name);
+                wr_u32b(a_ptr->text);
 
 		wr_byte(a_ptr->tval);
 		wr_byte(a_ptr->sval);
@@ -1185,7 +1185,19 @@ static void wr_randarts(void)
 		wr_byte(a_ptr->activation);
 		wr_u16b(a_ptr->time);
 		wr_u16b(a_ptr->randtime);
-	}
+}
+
+/*
+ * Dump the random artifacts
+ */
+static void wr_randarts(void)
+{
+	int i;
+
+	wr_u16b(z_info->a_max);
+
+	for (i = 0; i < z_info->a_max; i++)
+                wr_art(&a_info[i]);
 }
 
 
@@ -1217,7 +1229,8 @@ static void wr_dungeon(void)
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-	wr_u16b(0);
+	/*wr_u16b(0);*/
+        wr_u16b((u16b)storm_level);
 	wr_u16b(0);
 
 
@@ -1454,10 +1467,16 @@ static bool wr_savefile_new(void)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
+                /*Alex*/
+		wr_s16b(a_ptr->force_depth);
+		/*wr_byte(0);*/
+		/*wr_byte(0);*/
 		wr_byte(0);
 	}
+
+	/* Dump ALL artifacts (full data) */
+	for (i = 0; i < z_info->a_max; i++)
+                wr_art(&a_info[i]);
 
 
 	/* Write the "extra" information */
@@ -1515,7 +1534,8 @@ static bool wr_savefile_new(void)
 
 
 	/* Note the stores */
-	tmp16u = MAX_STORES;
+        /* Alex: except AGs */
+	tmp16u = MAX_STORES-2;
 	wr_u16b(tmp16u);
 
 	/* Dump the stores */
@@ -1708,6 +1728,355 @@ bool save_player(void)
 
 		/* Lock on savefile */
 		strcpy(temp, savefile);
+		strcat(temp, ".lok");
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Remove lock file */
+		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+#endif /* VERIFY_SAVEFILE */
+
+		/* Success */
+		result = TRUE;
+	}
+
+
+#ifdef SET_UID
+
+# ifdef SECURE
+
+	/* Drop "games" permissions */
+	bePlayer();
+
+# endif /* SECURE */
+
+#endif /* SET_UID */
+
+
+	/* Return the result */
+	return (result && save_ag());
+}
+
+/*Alex: Actually write an AG file */
+static bool wr_ag_file_new(void)
+{
+	int i;
+
+	u32b now;
+
+	u16b tmp16u;
+
+        s16b total_objects = 0;
+
+	/* Guess at the current time */
+	now = time((time_t *)0);
+
+
+	/* Note the operating system */
+	sf_xtra = 0L;
+
+	/* Note when the file was saved */
+	sf_when = now;
+
+	/*** Actually write the file ***/
+
+	/* Dump the file header */
+	xor_byte = 0;
+	wr_byte(VERSION_MAJOR);
+	xor_byte = 0;
+	wr_byte(VERSION_MINOR);
+	xor_byte = 0;
+	wr_byte(VERSION_PATCH);
+	xor_byte = 0;
+	wr_byte(VERSION_EXTRA);
+
+
+	/* Reset the checksum */
+	v_stamp = 0L;
+	x_stamp = 0L;
+
+
+	/* Operating system */
+	wr_u32b(sf_xtra);
+
+	/* Time file last saved */
+	wr_u32b(sf_when);
+
+	/* Dump the monster lore */
+	tmp16u = z_info->r_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++) wr_lore(i);
+
+	/* Dump the object memory */
+	tmp16u = z_info->k_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+
+	/* Hack -- Dump the quests */
+	tmp16u = MAX_Q_IDX;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		wr_byte(q_list[i].level);
+		wr_byte(0);
+		wr_byte(0);
+		wr_byte(0);
+	}
+	/* Hack -- Dump the artifacts cur_num and force_depth */
+	tmp16u = z_info->a_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		wr_byte(a_ptr->cur_num);
+                /*Alex*/
+		wr_s16b(a_ptr->force_depth);
+		/*wr_byte(0);*/
+		/*wr_byte(0);*/
+		wr_byte(0);
+	}
+
+	/* Dump ALL artifacts (full data) */
+	for (i = 0; i < z_info->a_max; i++)
+                wr_art(&a_info[i]);
+
+
+	/* Dump the AGs */
+	wr_store(&store[STORE_HOME]);
+	wr_store(&store[STORE_A_G_1]);
+	wr_store(&store[STORE_A_G_2]);
+
+        /* total_objects = 0 in initialization */
+        /* Dump dead players objects */
+        for (i = 0; i < dead_objects; i++)
+        {
+                if (dead_objects_depth[i])
+                        total_objects++;
+        }
+        if (p_ptr->is_dead)
+        {
+        	for (i = 0; i < INVEN_TOTAL; i++)
+                {
+                        if (inventory[i].k_idx)
+                                total_objects++;
+                }
+		/* Gold */
+		if (p_ptr->au)
+		{
+			/* Max. worth of single "gold" item is MAX_SHORT */
+			total_objects += p_ptr->au/MAX_SHORT;
+			if (p_ptr->au % MAX_SHORT) total_objects++;
+		}
+        }
+        wr_s16b(total_objects);
+
+        for (i = 0; i < dead_objects; i++)
+        {
+                if (dead_objects_depth[i])
+                {
+                        wr_s16b(dead_objects_depth[i]);
+                        wr_item(&dead_inventory[i]);
+                }
+        }
+
+        if (p_ptr->is_dead)
+        {
+                /* Player is dead, write his inventory */
+        	for (i = 0; i < INVEN_TOTAL; i++)
+	        {
+		        object_type *o_ptr = &inventory[i];
+
+		        /* Skip non-objects */
+		        if (!o_ptr->k_idx) continue;
+
+		        /* Dump depth */
+		        wr_s16b((s16b)(p_ptr->depth + 1));
+
+		        /* Dump object */
+		        wr_item(o_ptr);
+	        }
+		while (p_ptr->au > 0)
+		{
+			object_type gold;
+			make_gold(&gold);
+			if (p_ptr->au >= MAX_SHORT) gold.pval = MAX_SHORT;
+			else gold.pval = (s16b)p_ptr->au;
+			p_ptr->au -= gold.pval;
+			wr_s16b((s16b)(p_ptr->depth + 1));
+			wr_item(&gold);
+		}
+        }
+
+
+
+	/* Write the "value check-sum" */
+	wr_u32b(v_stamp);
+
+	/* Write the "encoded checksum" */
+	wr_u32b(x_stamp);
+
+
+	/* Error in save */
+	if (ferror(fff) || (fflush(fff) == EOF)) return FALSE;
+
+	/* Successful save */
+	return TRUE;
+}
+
+/* Alex: Medium level AG saver */
+static bool save_ag_aux(cptr name)
+{
+	bool ok = FALSE;
+
+	int fd;
+
+	int mode = 0644;
+
+
+	/* No file yet */
+	fff = NULL;
+
+
+	/* File type is "SAVE" */
+	FILE_TYPE(FILE_TYPE_SAVE);
+
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	/* Create the savefile */
+	fd = fd_make(name, mode);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* File is okay */
+	if (fd >= 0)
+	{
+		/* Close the "fd" */
+		fd_close(fd);
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Open the savefile */
+		fff = my_fopen(name, "wb");
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* Successful open */
+		if (fff)
+		{
+			/* Write the savefile */
+			if (wr_ag_file_new()) ok = TRUE;
+
+			/* Attempt to close it */
+			if (my_fclose(fff)) ok = FALSE;
+		}
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Remove "broken" files */
+		if (!ok) fd_kill(name);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+	}
+
+
+	/* Failure */
+	if (!ok) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
+/* Alex: save information about AGs and artifacts */
+bool save_ag(void)
+{
+	int result = FALSE;
+
+	char safe[1024];
+
+
+#ifdef SET_UID
+
+# ifdef SECURE
+
+	/* Get "games" permissions */
+	beGames();
+
+# endif
+
+#endif
+
+
+	/* New savefile */
+	strcpy(safe, ag_file);
+	strcat(safe, ".new");
+
+#ifdef VM
+	/* Hack -- support "flat directory" usage on VM/ESA */
+	strcpy(safe, ag_file);
+	strcat(safe, "n");
+#endif /* VM */
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	/* Remove it */
+	fd_kill(safe);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* Attempt to save info */
+	if (save_ag_aux(safe))
+	{
+		char temp[1024];
+
+		/* Old savefile */
+		strcpy(temp, ag_file);
+		strcat(temp, ".old");
+
+#ifdef VM
+		/* Hack -- support "flat directory" usage on VM/ESA */
+		strcpy(temp, ag_file);
+		strcat(temp, "o");
+#endif /* VM */
+
+		/* Grab permissions */
+		safe_setuid_grab();
+
+		/* Remove it */
+		fd_kill(temp);
+
+		/* Preserve old savefile */
+		fd_move(ag_file, temp);
+
+		/* Activate new savefile */
+		fd_move(safe, ag_file);
+
+		/* Remove preserved savefile */
+		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
+
+		/* Hack -- Pretend the character was loaded */
+		/* character_loaded = TRUE; */
+
+#ifdef VERIFY_SAVEFILE
+
+		/* Lock on savefile */
+		strcpy(temp, ag_file);
 		strcat(temp, ".lok");
 
 		/* Grab permissions */

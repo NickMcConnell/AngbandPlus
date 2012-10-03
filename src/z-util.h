@@ -51,6 +51,89 @@ extern void quit(cptr str);
 extern void core(cptr str);
 
 
+/* Alex: the following macros was in object1.c */
+/*
+ * Efficient version of '(T) += strfmt((T), "%c", (C))'
+ */
+#define object_desc_chr_macro(T,C) do { \
+ \
+	/* Copy the char */ \
+	*(T)++ = (C); \
+ \
+} while (0)
+
+
+/*
+ * Efficient version of '(T) += strfmt((T), "%s", (S))'
+ */
+#define object_desc_str_macro(T,S) do { \
+ \
+	cptr s = (S); \
+ \
+	/* Copy the string */ \
+	while (*s) *(T)++ = *s++; \
+ \
+} while (0)
+
+
+
+/*
+ * Efficient version of '(T) += strfmt((T), "%u", (N))'
+ */
+#define object_desc_num_macro(T,N) do { \
+ \
+	uint n = (N); \
+ \
+	uint p; \
+ \
+	/* Find "size" of "n" */ \
+	for (p = 1; n >= p * 10; p = p * 10) /* loop */; \
+ \
+	/* Dump each digit */ \
+	while (p >= 1) \
+	{ \
+		/* Dump the digit */ \
+		*(T)++ = I2D(n / p); \
+ \
+		/* Remove the digit */ \
+		n = n % p; \
+ \
+		/* Process next digit */ \
+		p = p / 10; \
+	} \
+ \
+} while (0)
+
+
+
+/*
+ * Efficient version of '(T) += strfmt((T), "%+d", (I))'
+ */
+#define object_desc_int_macro(T,I) do { \
+ \
+	sint i = (I); \
+ \
+	/* Negative */ \
+	if (i < 0) \
+	{ \
+		/* Take the absolute value */ \
+		i = 0 - i; \
+ \
+		/* Use a "minus" sign */ \
+		*(T)++ = '-'; \
+	} \
+ \
+	/* Positive (or zero) */ \
+	else \
+	{ \
+		/* Use a "plus" sign */ \
+		*(T)++ = '+'; \
+	} \
+ \
+	/* Dump the number itself */ \
+	object_desc_num_macro(T, i); \
+ \
+} while (0)
 
 #endif
 

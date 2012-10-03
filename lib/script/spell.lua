@@ -151,10 +151,10 @@ SPELL_CURE_LIGHT_WOUNDS = add_magic_spell
 {
 	name = "Cure Light Wounds",
 	info = function()
-			return " heal 2d8"
+			return " heal 4d8"
 		end,
 	effect = function()
-			hp_player(damroll(2, 8))
+			hp_player(damroll(4, 8))
 			set_cut(player.cut - 15)
 			return TRUE
 		end,
@@ -172,9 +172,9 @@ SPELL_TREASURE_DETECTION = add_magic_spell
 
 SPELL_OBJECT_DETECTION = add_magic_spell
 {
-	name = "Detect Objects",
+	name = "Detection",
 	effect = function()
-			detect_objects_normal()
+			detect_all()
 			return TRUE
 		end,
 }
@@ -199,9 +199,9 @@ SPELL_DETECT_INVISIBLE = add_magic_spell
 
 SPELL_DETECT_ENCHANTMENT = add_magic_spell
 {
-	name = "Detect Enchantment",
+	name = "Illumination",
 	effect = function()
-			detect_objects_magic()
+			wiz_lite()
 			return TRUE
 		end,
 }
@@ -255,7 +255,7 @@ SPELL_SLEEP_MONSTER = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			sleep_monster(dir)
+			sleep_monster(dir, player.lev)
 			return TRUE
 		end,
 }
@@ -326,7 +326,7 @@ SPELL_WONDER = add_magic_spell
 			else -- RARE
 				dispel_monsters(150)
 				slow_monsters()
-				sleep_monsters()
+				sleep_monsters(plev)
 				hp_player(300)
 			end
 
@@ -421,7 +421,7 @@ SPELL_TURN_STONE_TO_MUD = add_magic_spell
 
 SPELL_DOOR_CREATION = add_magic_spell
 {
-	name = "Door Creation",
+	name = "Door Creation (Visit the Home)",
 	effect = function()
 			door_creation()
 			return TRUE
@@ -527,7 +527,7 @@ SPELL_SLOW_MONSTER = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			slow_monster(dir)
+			slow_monster(dir, player.lev)
 			return TRUE
 		end,
 }
@@ -569,7 +569,7 @@ SPELL_POLYMORPH_OTHER = add_magic_spell
 			local success, dir = get_aim_dir()
 			if not success then return FALSE end
 
-			poly_monster(dir)
+			poly_monster(dir, player.lev)
 			return TRUE
 		end,
 }
@@ -623,7 +623,7 @@ SPELL_MASS_SLEEP = add_magic_spell
 {
 	name = "Mass Sleep",
 	effect = function()
-			sleep_monsters()
+			sleep_monsters(player.lev)
 			return TRUE
 		end,
 }
@@ -768,7 +768,7 @@ SPELL_ENCHANT_ARMOR = add_magic_spell
 {
 	name = "Enchant Armor",
 	effect = function()
-			enchant_spell(0, 0, rand_int(3) + player.lev / 20)
+			enchant_spell(0, 0, rand_int(3) + player.lev / 20, FALSE, FALSE)
 			return TRUE
 		end,
 }
@@ -778,7 +778,7 @@ SPELL_ENCHANT_WEAPON = add_magic_spell
 	name = "Enchant Weapon",
 	effect = function()
 			enchant_spell(rand_int(4) + player.lev / 20,
-			              rand_int(4) + player.lev / 20, 0)
+			              rand_int(4) + player.lev / 20, 0, FALSE, FALSE)
 			return TRUE
 		end,
 }
@@ -927,7 +927,23 @@ SPELL_MANA_STORM = add_magic_spell
 		end,
 }
 
+SPELL_CREATE_ARTIFACT = add_magic_spell
+{
+	name = "Create Artifact",
+	effect = function()
+			enchant_spell(0, 0, 0, TRUE, FALSE)
+			return TRUE
+		end,
+}
 
+SPELL_CREATE_EGO = add_magic_spell
+{
+	name = "Create Ego Item",
+	effect = function()
+			enchant_spell(0, 0, 0, FALSE, TRUE)
+			return TRUE
+		end,
+}
 -----------------------------------------------------------
 -- Add spells to the spell-books
 
@@ -1009,7 +1025,9 @@ add_book(magic_spells, 7,
           SPELL_ENCHANT_ARMOR,
           SPELL_ENCHANT_WEAPON,
           SPELL_RECHARGE_ITEM_II,
-          SPELL_ELEMENTAL_BRAND})
+          SPELL_ELEMENTAL_BRAND,
+	  SPELL_CREATE_EGO,
+	  SPELL_CREATE_ARTIFACT})
 
 -- Kelek's Grimoire of Power
 add_book(magic_spells, 8,
@@ -1022,6 +1040,51 @@ add_book(magic_spells, 8,
           SPELL_CHAOS_STRIKE,
           SPELL_MANA_STORM})
 
+-- Great Book of Rogues
+add_book(magic_spells, 9,
+         {SPELL_PHASE_DOOR,
+	  SPELL_TELEPORT_SELF,
+	  SPELL_OBJECT_DETECTION,
+	  SPELL_SATISFY_HUNGER,
+          SPELL_IDENTIFY,
+	  SPELL_TURN_STONE_TO_MUD,
+          SPELL_HASTE_SELF,
+          SPELL_SLOW_MONSTER,
+          SPELL_TELEPORT_OTHER,
+          SPELL_SLEEP_MONSTER,
+          SPELL_MASS_SLEEP,
+          SPELL_WORD_OF_RECALL,
+          SPELL_DOOR_CREATION,
+          SPELL_DETECT_ENCHANTMENT})
+
+-- Great Book of Mages
+add_book(magic_spells, 10,
+         {SPELL_MAGIC_MISSILE,
+          SPELL_PHASE_DOOR,
+          SPELL_CURE_POISON,
+          SPELL_SLEEP_MONSTER,
+          SPELL_TELEPORT_SELF,
+          SPELL_SPEAR_OF_LIGHT,
+          SPELL_SATISFY_HUNGER,
+          SPELL_TURN_STONE_TO_MUD,
+          SPELL_IDENTIFY,
+          SPELL_SLOW_MONSTER,
+          SPELL_HASTE_SELF,
+          SPELL_MASS_SLEEP,
+          SPELL_SHIELD,
+          SPELL_METEOR_SWARM,
+          SPELL_RIFT,
+          SPELL_DOOR_CREATION,
+          SPELL_TELEPORT_LEVEL,
+          SPELL_WORD_OF_RECALL,
+          SPELL_HEROISM,
+          SPELL_BERSERKER,
+          SPELL_RECHARGE_ITEM_II,
+          SPELL_REND_SOUL,
+          SPELL_GENOCIDE,
+          SPELL_MASS_GENOCIDE,
+          SPELL_CHAOS_STRIKE,
+          SPELL_MANA_STORM})
 
 -----------------------------------------------------------
 -- Prayers
@@ -1046,10 +1109,10 @@ PRAYER_CURE_LIGHT_WOUNDS = add_prayer
 {
 	name = "Cure Light Wounds",
 	info = function()
-			return " heal 2d10"
+			return " heal 4d10"
 		end,
 	effect = function()
-			hp_player(damroll(2, 10))
+			hp_player(damroll(4, 10))
 			set_cut(player.cut - 10)
 			return TRUE
 		end,
@@ -1141,10 +1204,10 @@ PRAYER_CURE_SERIOUS_WOUNDS = add_prayer
 {
 	name = "Cure Serious Wounds",
 	info = function()
-			return " heal 4d10"
+			return " heal 8d10"
 		end,
 	effect = function()
-			hp_player(damroll(4, 10))
+			hp_player(damroll(8, 10))
 			set_cut((player.cut / 2) - 20)
 			return TRUE
 		end,
@@ -1248,10 +1311,10 @@ PRAYER_CURE_CRITICAL_WOUNDS = add_prayer
 {
 	name = "Cure Critical Wounds",
 	info = function()
-			return " heal 6d10"
+			return " heal 16d10"
 		end,
 	effect = function()
-			hp_player(damroll(6, 10))
+			hp_player(damroll(16, 10))
 			set_cut(0)
 			return TRUE
 		end,
@@ -1303,10 +1366,10 @@ PRAYER_CURE_MORTAL_WOUNDS = add_prayer
 {
 	name = "Cure Mortal Wounds",
 	info = function()
-			return " heal 8d10"
+			return " heal 32d10"
 		end,
 	effect = function()
-			hp_player(damroll(8, 10))
+			hp_player(damroll(32, 10))
 			set_stun(0)
 			set_cut(0)
 			return TRUE
@@ -1447,10 +1510,10 @@ PRAYER_CURE_SERIOUS_WOUNDS2 = add_prayer
 {
 	name = "Cure Serious Wounds",
 	info = function()
-			return " heal 4d10"
+			return " heal 8d10"
 		end,
 	effect = function()
-			hp_player(damroll(4, 10))
+			hp_player(damroll(8, 10))
 			set_cut(0)
 			return TRUE
 		end,
@@ -1460,10 +1523,10 @@ PRAYER_CURE_MORTAL_WOUNDS2 = add_prayer
 {
 	name = "Cure Mortal Wounds",
 	info = function()
-			return " heal 8d10"
+			return " heal 32d10"
 		end,
 	effect = function()
-			hp_player(damroll(8, 10))
+			hp_player(damroll(32, 10))
 			set_stun(0)
 			set_cut(0)
 			return TRUE
@@ -1597,7 +1660,7 @@ PRAYER_ENCHANT_WEAPON = add_prayer
 {
 	name = "Enchant Weapon",
 	effect = function()
-			enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0)
+			enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0, FALSE, FALSE)
 			return TRUE
 		end,
 }
@@ -1606,7 +1669,7 @@ PRAYER_ENCHANT_ARMOUR = add_prayer
 {
 	name = "Enchant Armour",
 	effect = function()
-			enchant_spell(0, 0, rand_int(3) + 2)
+			enchant_spell(0, 0, rand_int(3) + 2, FALSE, FALSE)
 			return TRUE
 		end,
 }
@@ -1684,6 +1747,32 @@ PRAYER_ALTER_REALITY = add_prayer
 		end,
 }
 
+PRAYER_CREATE_ARTIFACT = add_prayer
+{
+	name = "Create Artifact",
+	effect = function()
+			enchant_spell(0, 0, 0, TRUE, FALSE)
+			return TRUE
+		end,
+}
+
+PRAYER_CREATE_EGO = add_prayer
+{
+	name = "Create Ego Item",
+	effect = function()
+			enchant_spell(0, 0, 0, FALSE, TRUE)
+			return TRUE
+		end,
+}
+
+PRAYER_DOOR_CREATION = add_prayer
+{
+	name = "Door Creation (Visit the Home)",
+	effect = function()
+			door_creation()
+			return TRUE
+		end,
+}
 
 -----------------------------------------------------------
 -- Add spells to the prayer books
@@ -1738,6 +1827,7 @@ add_book(prayers, 4,
           PRAYER_TELEPORT_OTHER,
           PRAYER_TELEPORT_LEVEL,
           PRAYER_WORD_OF_RECALL,
+	  PRAYER_DOOR_CREATION,
           PRAYER_ALTER_REALITY})
 
 -- Godly Insights
@@ -1763,7 +1853,9 @@ add_book(prayers, 7,
           PRAYER_DISPEL_CURSE,
           PRAYER_ENCHANT_WEAPON,
           PRAYER_ENCHANT_ARMOUR,
-          PRAYER_ELEMENTAL_BRAND})
+          PRAYER_ELEMENTAL_BRAND,
+	  PRAYER_CREATE_ARTIFACT,
+	  PRAYER_CREATE_EGO})
 
 -- Wrath of God
 add_book(prayers, 8,
@@ -1773,6 +1865,29 @@ add_book(prayers, 8,
           PRAYER_WORD_OF_DESTRUCTION,
           PRAYER_ANNIHILATION})
 
+-- Great Book of Priests
+add_book(prayers, 9,
+         {PRAYER_BLINK,
+          PRAYER_TELEPORT_SELF,
+          PRAYER_TELEPORT_OTHER,
+          PRAYER_PERCEPTION,
+          PRAYER_SATISFY_HUNGER,
+          PRAYER_DETECTION,
+	  PRAYER_SANCTUARY,
+          PRAYER_PRAYER,
+          PRAYER_PROTECTION_FROM_EVIL,
+          PRAYER_GLYPH_OF_WARDING,
+          PRAYER_CURE_MORTAL_WOUNDS2,
+          PRAYER_HEALING,
+          PRAYER_HOLY_WORD,
+	  PRAYER_DISPEL_UNDEAD2,
+          PRAYER_DISPEL_EVIL2,
+          PRAYER_ANNIHILATION,
+	  PRAYER_DOOR_CREATION,
+          PRAYER_WORD_OF_RECALL,
+          PRAYER_CLAIRVOYANCE,
+          PRAYER_RESTORATION,
+          PRAYER_REMEMBRANCE})
 
 -----------------------------------------------------------
 -- Hooks for spellcasting

@@ -631,7 +631,9 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect special abilities. */
 	vn = 0;
-	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
+	if (l_ptr->flags2 & RF2_LOUD_CRY) vp[vn++] = "cry loudly";
+	if (l_ptr->flags2 & RF2_WAKE_ALL) vp[vn++] = "wake monsters";
+	else if (l_ptr->flags2 & RF2_WAKE_FRIENDS) vp[vn++] = "wake friends";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
 	if (l_ptr->flags2 & RF2_KILL_WALL) vp[vn++] = "bore through walls";
@@ -1030,6 +1032,24 @@ static void describe_monster_toughness(int r_idx, const monster_lore *l_ptr)
 }
 
 
+/* Alex: returns exp mul for given monster race (then divide it by 10) */
+int exp_mul(const monster_race *r_ptr)
+{
+        int mul = 10;/*Default*/
+        /* Alex: Undead monster worth 2x for Priest and 1.5x for Paladin */
+        if (r_ptr->flags3 & (RF3_UNDEAD))
+        {
+                /*Priest*/
+                if (p_ptr->pclass == 2)
+                        mul = 20;
+                else
+                /*Paladin*/
+                if (p_ptr->pclass == 5)
+                        mul = 15;
+        }
+        return mul;
+}
+
 static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
@@ -1038,12 +1058,15 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 
 	long i, j;
 
+        bool unique = (r_ptr->flags1 & (RF1_UNIQUE)) != 0;
+
 
 	/* Describe experience if known */
-	if (l_ptr->tkills)
+        /* Alex: always describe exps for uniques */
+	if (l_ptr->tkills || unique)
 	{
 		/* Introduction */
-		if (l_ptr->flags1 & RF1_UNIQUE)
+		if (unique)
 			text_out("Killing");
 		else
 			text_out("A kill of");
@@ -1051,12 +1074,12 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 		text_out(" this creature");
 
 		/* calculate the integer exp part */
-		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+		i = (long)r_ptr->mexp * exp_mul(r_ptr) / 10 * r_ptr->level / p_ptr->max_lev;/*Alex: max_lev instead of lev*/
 
 		/* calculate the fractional exp part scaled by 100, */
 		/* must use long arithmetic to avoid overflow */
-		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			  (long)1000 / p_ptr->lev + 5) / 10);
+		j = ((((long)r_ptr->mexp * exp_mul(r_ptr) / 10 * r_ptr->level % p_ptr->max_lev) *
+			  (long)1000 / p_ptr->max_lev + 5) / 10);
 
 		/* Mention the experience */
 		text_out(format(" is worth %ld.%02ld point%s",
@@ -1065,15 +1088,15 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 
 		/* Take account of annoying English */
 		p = "th";
-		i = p_ptr->lev % 10;
-		if ((p_ptr->lev / 10) == 1) /* nothing */;
+		i = p_ptr->max_lev % 10;
+		if ((p_ptr->max_lev / 10) == 1) /* nothing */;
 		else if (i == 1) p = "st";
 		else if (i == 2) p = "nd";
 		else if (i == 3) p = "rd";
 
 		/* Take account of "leading vowels" in numbers */
 		q = "";
-		i = p_ptr->lev;
+		i = p_ptr->max_lev;
 		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 		/* Mention the dependance on the player's level */

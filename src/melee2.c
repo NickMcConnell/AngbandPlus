@@ -873,6 +873,9 @@ bool make_attack_spell(int m_idx)
 	/* Hack -- Stupid monsters will never fail (for jellies and such) */
 	if (!smart_monsters || r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
 
+        /*Alex*/
+        failrate += std_hp_pen(m_ptr->hp, m_ptr->maxhp);
+
 	/* Check for spell failure (innate attacks never fail) */
 	if ((thrown_spell >= RF5_OFFSET) && (rand_int(100) < failrate))
 	{
@@ -896,19 +899,19 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX2X4 */
+		/* RF4_XXX2 */
 		case RF4_OFFSET+1:
 		{
 			break;
 		}
 
-		/* RF4_XXX3X4 */
+		/* RF4_XXX3 */
 		case RF4_OFFSET+2:
 		{
 			break;
 		}
 
-		/* RF4_XXX4X4 */
+		/* RF4_XXX4 */
 		case RF4_OFFSET+3:
 		{
 			break;
@@ -1398,12 +1401,11 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				msg_print("Your mind is blasted by psionic energy.");
 				if (!p_ptr->resist_confu)
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
-				take_hit(damroll(8, 8), ddesc);
+				take_hit(damroll(8, 8), "Your mind is blasted by psionic energy.", ddesc);
 			}
 			break;
 		}
@@ -1427,8 +1429,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				msg_print("Your mind is blasted by psionic energy.");
-				take_hit(damroll(12, 15), ddesc);
+				take_hit(damroll(12, 15), "Your mind is blasted by psionic energy.", ddesc);
 				if (!p_ptr->resist_blind)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
@@ -1459,7 +1460,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				take_hit(damroll(3, 8), ddesc);
+				take_hit(damroll(3, 8), "", ddesc);
 			}
 			break;
 		}
@@ -1477,7 +1478,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				take_hit(damroll(8, 8), ddesc);
+				take_hit(damroll(8, 8), "", ddesc);
 			}
 			break;
 		}
@@ -1495,7 +1496,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				take_hit(damroll(10, 15), ddesc);
+				take_hit(damroll(10, 15), "", ddesc);
 			}
 			break;
 		}
@@ -1513,7 +1514,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				take_hit(damroll(15, 15), ddesc);
+				take_hit(damroll(15, 15), "", ddesc);
 				(void)set_cut(p_ptr->cut + damroll(10, 10));
 			}
 			break;
@@ -3267,6 +3268,37 @@ static int compare_monsters(const monster_type *m_ptr, const monster_type *n_ptr
 	return (0);
 }
 
+/*Alex: check for sleeping monsters nearby*/
+bool appropriate_monsters_near(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_type *mon_ptr;
+	monster_race *race_ptr;
+	int x,y;
+	int fx = m_ptr->fx;
+	int fy = m_ptr->fy;
+	int mon_idx;
+	for (y = fy - WAKE_DISTANCE; y <= fy + WAKE_DISTANCE; y++)
+		for (x = fx - WAKE_DISTANCE; x <= fx + WAKE_DISTANCE; x++)
+		{
+			/*Monster itself*/
+			if (y == fy && x == fx) continue;
+			/*Inside dungeon?*/
+			if (!in_bounds_fully(y,x)) continue;
+			mon_idx = cave_m_idx[y][x];
+			if (!mon_idx) continue;
+			mon_ptr = &m_list[mon_idx];
+			race_ptr = &r_info[mon_ptr->r_idx];
+			if (distance(y, x, fy, fx) > WAKE_DISTANCE) continue;
+			if (!mon_ptr->csleep) continue;
+			if (r_ptr->flags2 & RF2_WAKE_ALL)
+				return TRUE;
+			else if ((r_ptr->flags2 & RF2_WAKE_FRIENDS) && (r_ptr->d_char == race_ptr->d_char))
+				return TRUE;
+		}
+	return FALSE;
+}
 
 /*
  * Process a monster
@@ -3528,6 +3560,23 @@ static void process_monster(int m_idx)
 		}
 	}
 
+
+	/*Alex: wake up nearby monsters*/
+	if (los(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) &&
+	    ((r_ptr->flags2 & RF2_SMART) || (!rand_int(5))) &&
+	    (r_ptr->flags2 & RF2_LOUD_CRY) &&
+	    (r_ptr->flags2 & (RF2_WAKE_ALL | RF2_WAKE_FRIENDS)) &&
+	     appropriate_monsters_near(m_idx))
+	{
+		char m_name[80];
+		/* Get the monster name (or "it") */
+		monster_desc(m_name, m_ptr, 0x00);
+		msg_format("%^s cries to wake up friends!!!", m_name);
+	        wake_monsters(m_idx, NOISE_CRY*r_ptr->level, TRUE);
+		l_ptr->flags2 |= RF2_LOUD_CRY;
+		if (r_ptr->flags2 & RF2_WAKE_ALL) l_ptr->flags2 |= RF2_WAKE_ALL;
+		else l_ptr->flags2 |= RF2_WAKE_FRIENDS;
+	}
 
 	/* Get the origin */
 	oy = m_ptr->fy;
@@ -4221,7 +4270,7 @@ void process_monsters(byte minimum_energy)
 		if (m_ptr->energy < minimum_energy) continue;
 
 		/* Use up "some" energy */
-		m_ptr->energy -= 100;
+		m_ptr->energy -= ENERGY_TURN;
 
 
 		/* Heal monster? XXX XXX XXX */

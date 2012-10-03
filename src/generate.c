@@ -129,9 +129,12 @@
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
+/* Alex: objects are rare (it was 9); generated Gauss(-1,3) objects */
+#define DUN_AMT_ROOM	-1	/* Amount of objects for rooms */
+/* Not used (it was 3) */
+#define DUN_AMT_ITEM	0	/* Amount of objects for rooms/corridors */
+/* Alex: gold less rare (it was 3) */
+#define DUN_AMT_GOLD	8	/* Amount of treasure for rooms/corridors */
 
 /*
  * Hack -- Dungeon allocation "places"
@@ -712,7 +715,8 @@ static void vault_objects(int y, int x, int num)
 			if (!cave_clean_bold(j, k)) continue;
 
 			/* Place an item */
-			if (rand_int(100) < 75)
+                        /* Alex: it was 75*/
+			if (rand_int(100) < 20)
 			{
 				place_object(j, k, FALSE, FALSE);
 			}
@@ -1173,7 +1177,9 @@ static void build_type3(int y0, int x0)
 			generate_hole(y1b, x1a, y2b, x2a, FEAT_SECRET);
 
 			/* Place a treasure in the vault */
-			place_object(y0, x0, FALSE, FALSE);
+                        /* Alex */
+                        if (rand_int(100)<20)
+			        place_object(y0, x0, FALSE, FALSE);
 
 			/* Let's guard the treasure well */
 			vault_monsters(y0, x0, rand_int(2) + 3);
@@ -1313,7 +1319,11 @@ static void build_type4(int y0, int x0)
 			/* Object (80%) */
 			if (rand_int(100) < 80)
 			{
-				place_object(y0, x0, FALSE, FALSE);
+                                /* Alex: 20% */
+                                if (rand_int(100)<20)
+				        place_object(y0, x0, FALSE, FALSE);
+                                else
+                                        place_gold(y0, x0);
 			}
 
 			/* Stairs (20%) */
@@ -1377,8 +1387,9 @@ static void build_type4(int y0, int x0)
 				vault_monsters(y0, x0 + 2, randint(2));
 
 				/* Objects */
-				if (rand_int(3) == 0) place_object(y0, x0 - 2, FALSE, FALSE);
-				if (rand_int(3) == 0) place_object(y0, x0 + 2, FALSE, FALSE);
+                                /* Alex: it was rand_int(3)*/
+				if (rand_int(6) == 0) place_object(y0, x0 - 2, FALSE, FALSE);
+				if (rand_int(6) == 0) place_object(y0, x0 + 2, FALSE, FALSE);
 			}
 
 			break;
@@ -2192,7 +2203,8 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				/* Treasure/trap */
 				case '*':
 				{
-					if (rand_int(100) < 75)
+                                        /* Alex: it was 75 */
+					if (rand_int(100) < 25)
 					{
 						place_object(y, x, FALSE, FALSE);
 					}
@@ -2260,9 +2272,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					monster_level = p_ptr->depth + 9;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 7;
-					place_object(y, x, TRUE, FALSE);
-					object_level = p_ptr->depth;
+                                        /* Alex: 20% */
+                                        if (rand_int(100)<20)
+                                        {
+        					object_level = p_ptr->depth + 7;
+					        place_object(y, x, TRUE, FALSE);
+	        				object_level = p_ptr->depth;
+                                        }
 					break;
 				}
 
@@ -2272,9 +2288,13 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					monster_level = p_ptr->depth + 40;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = p_ptr->depth + 20;
-					place_object(y, x, TRUE, TRUE);
-					object_level = p_ptr->depth;
+                                        /* Alex: 20% */
+                                        if (rand_int(100)<20)
+                                        {
+        					object_level = p_ptr->depth + 20;
+        					place_object(y, x, TRUE, TRUE);
+	        				object_level = p_ptr->depth;
+                                        }
 					break;
 				}
 
@@ -2287,10 +2307,11 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 						place_monster(y, x, TRUE, TRUE);
 						monster_level = p_ptr->depth;
 					}
-					if (rand_int(100) < 50)
+                                        /* Alex: it was 50 */
+					if (rand_int(100) < 20)
 					{
 						object_level = p_ptr->depth + 7;
-						place_object(y, x, FALSE, FALSE);
+		        			place_object(y, x, FALSE, FALSE);
 						object_level = p_ptr->depth;
 					}
 					break;
@@ -2807,6 +2828,78 @@ static bool room_build(int by0, int bx0, int typ)
 }
 
 
+void generate_storm_artifacts()
+{
+                int i;
+                int power = Rand_normal(0, ART_RND);
+                if (storm_level == STORM_MANA)
+                        power += p_ptr->depth * 2 / ART_STORM_DIV;
+                else
+                        power += p_ptr->depth / ART_STORM_DIV;
+                for(i = 0; i < 10000; i++)
+                {
+                        int y, x, a_idx;
+                        char o_name[80];
+
+                        object_type obj;
+                        object_type* o_ptr = &obj;
+
+                        object_wipe(o_ptr);
+                        if (!make_object(o_ptr, TRUE, TRUE)) continue;
+
+                        if (!(is_weapon(o_ptr->tval) ||
+                               is_armour(o_ptr->tval) ||
+                               is_special(o_ptr->tval)))
+                               continue;
+
+                	/* Identify it fully */
+	                object_aware(o_ptr);
+	                object_known(o_ptr);
+	                /* Mark the item as fully known */
+        	        o_ptr->ident |= (IDENT_MENTAL);
+        	        object_desc(o_name, o_ptr, TRUE, 3);
+                        msg_format("Generating storm artifact: %s.", o_name);
+        	        /* Describe it fully */
+	                identify_fully_aux(o_ptr);
+
+			a_idx = o_ptr->name1;
+
+                        if (a_idx)
+                        {
+				power += artifact_power(a_idx, &a_info[a_idx]);
+                                if (!enchant_artifact(&a_info[a_idx], power, TRUE)) continue;
+                        }
+                        else
+                        {
+                                apply_magic(o_ptr, power, TRUE, TRUE, TRUE, TRUE, FALSE);
+                                if (!o_ptr->name1) continue;
+                        }
+
+                        /*Storm artifacts are rare - don't miss them!*/
+                        a_info[o_ptr->name1].rarity *= 2;
+
+		        /* Pick a "legal" spot */
+		        while (1)
+		        {
+        			/* Location */
+	        		y = rand_int(DUNGEON_HGT);
+		        	x = rand_int(DUNGEON_WID);
+
+			        /* Require "naked" floor grid */
+			        if (!cave_naked_bold(y, x)) continue;
+
+        			/* Must be "room" */
+			        if (!(cave_info[y][x] & (CAVE_ROOM))) continue;
+
+                                /* Accept the location */
+        			break; /*while(1)*/
+		        }
+                        drop_near(o_ptr, -1, y, x);
+                        break;/*for i*/
+                }
+}
+
+
 /*
  * Generate a new dungeon level
  *
@@ -2902,17 +2995,18 @@ static void cave_gen(void)
 			/* Attempt a very unusual room */
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
+                                /* Alex: all probs * */
 				/* Type 8 -- Greater vault (10%) */
-				if ((k < 10) && room_build(by, bx, 8)) continue;
+				if ((k < 20) && room_build(by, bx, 8)) continue;
 
 				/* Type 7 -- Lesser vault (15%) */
-				if ((k < 25) && room_build(by, bx, 7)) continue;
+				if ((k < 50) && room_build(by, bx, 7)) continue;
 
 				/* Type 6 -- Monster pit (15%) */
-				if ((k < 40) && room_build(by, bx, 6)) continue;
+				if ((k < 80) && room_build(by, bx, 6)) continue;
 
 				/* Type 5 -- Monster nest (10%) */
-				if ((k < 50) && room_build(by, bx, 5)) continue;
+				if ((k < 100) && room_build(by, bx, 5)) continue;
 			}
 
 			/* Type 4 -- Large room (25%) */
@@ -3060,6 +3154,31 @@ static void cave_gen(void)
 		(void)alloc_monster(0, TRUE);
 	}
 
+	/* Alex: I remove this as it leads to very deep uniques at small depths*/
+        /*Alex: be sure there is at least one Unique at this dungeon level */
+        /*for (i = 0; i < 100; i++)
+        {
+                /*Code from alloc_monster()
+        	int y, x;
+	        int	attempts_left = 10000;
+
+	        /*Find a legal, distant, unoccupied, space
+	        while (--attempts_left)
+	        {
+		        /* Pick a location 
+		        y = rand_int(DUNGEON_HGT);
+		        x = rand_int(DUNGEON_WID);
+
+		        /* Require "naked" floor grid
+		        if (!cave_naked_bold(y, x)) continue;
+
+		        /* Accept far away grids 
+		        if (distance(y, x, p_ptr->py, p_ptr->px) > MAX_SIGHT) break;
+	        }
+                if (summon_specific(y, x, p_ptr->depth, SUMMON_UNIQUE_ASLEEP))
+                        break;
+        }*/
+
 	/* Ensure quest monsters */
 	if (is_quest(p_ptr->depth))
 	{
@@ -3090,12 +3209,20 @@ static void cave_gen(void)
 		}
 	}
 
+        /* Alex */
+        if (rand_int(STORM_CHANCE) < (p_ptr->depth - STORM_MIN_DEPTH))
+        {
+                storm_level = rand_int(STORM_MAX - 1) + 1;
+                generate_storm_artifacts();
+        }
+        else
+                storm_level = STORM_NONE;
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
 
 	/* Put some objects/gold in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
+	/* alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3)); */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
 }
 
@@ -3116,20 +3243,21 @@ static void cave_gen(void)
  * Note the use of "town_illuminate()" to handle all "illumination"
  * and "memorization" issues.
  */
+/* Alex */
 static void build_store(int n, int yy, int xx)
 {
 	int y, x, y0, x0, y1, x1, y2, x2, tmp;
 
 
 	/* Find the "center" of the store */
-	y0 = yy * 9 + 6;
-	x0 = xx * 14 + 12;
+	y0 = yy * 10 + 6;
+	x0 = xx * 11 + 10;
 
 	/* Determine the store boundaries */
 	y1 = y0 - randint((yy == 0) ? 3 : 2);
 	y2 = y0 + randint((yy == 1) ? 3 : 2);
-	x1 = x0 - randint(5);
-	x2 = x0 + randint(5);
+	x1 = x0 - randint(4);
+	x2 = x0 + randint(4);
 
 	/* Build an invulnerable rectangular building */
 	for (y = y1; y <= y2; y++)
@@ -3225,7 +3353,8 @@ static void town_gen_hack(void)
 	for (y = 0; y < 2; y++)
 	{
 		/* Place four stores per row */
-		for (x = 0; x < 4; x++)
+                /* Alex: five */
+		for (x = 0; x < 5; x++)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));
@@ -3287,6 +3416,8 @@ static void town_gen(void)
 	int residents;
 	bool daytime;
 
+        storm_level = STORM_NONE;
+
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
@@ -3342,6 +3473,95 @@ static void town_gen(void)
 	}
 }
 
+/*Alex: generates artifacts that must be here; currently not used*/
+void force_art_gen(){
+        object_type object_type_body;
+        object_type* i_ptr; 
+        byte a;
+	char o_name[80];
+		
+        for (a = 0; a<z_info->a_max; a++)
+        {
+		if (a_info[a].cur_num) continue;
+
+                if (a_info[a].force_depth != (p_ptr->depth + 1)) continue;
+
+                /* Get local object */
+                i_ptr = &object_type_body;
+        
+                /* Mega-Hack -- Prepare to make the artifact */
+		object_prep(i_ptr, lookup_kind(a_info[a].tval, a_info[a].sval));
+
+		/* Mega-Hack -- Mark this item as the artifact */
+		i_ptr->name1 = a;
+
+                /* Mega-Hack -- Actually create the artifact */
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE, FALSE);
+
+                /* Drop it in the dungeon NEAR PLAYER*/
+		drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+
+        	/* Describe */
+	        object_desc_store(o_name, i_ptr, FALSE, 0);
+
+                msg_format("Ancestor artifact! (%s)", o_name);
+        }
+
+}
+
+/*Alex: place dead objects with this depth to a monster with maximum level */
+void dead_objects_gen()
+{
+        bool ancestor_level = FALSE;
+        /* Alex: monster that bears ancestor's inventory*/
+        monster_type *ancestor_carrier = 0;
+        byte max_lev = 0;
+        
+        s16b i;
+        for (i = 0; i<dead_objects; i++)
+        {
+                if (p_ptr->depth + 1 == dead_objects_depth[i])
+                {
+                        ancestor_level = TRUE;
+                        break;
+                }
+        }
+        if (!ancestor_level)
+                return;
+
+        /* Find the "strongest" monster*/
+	for (i = 1; i < m_max; i++)
+	{
+        	monster_type *m_ptr = &m_list[i];
+                int r_idx = m_ptr->r_idx;
+                monster_race* r_ptr = 0;
+                bool unique;
+
+		/* Skip dead monsters */
+		if (!r_idx) continue;
+
+                r_ptr = &r_info[r_idx];
+                unique = ((r_ptr->flags1 & (RF1_UNIQUE))!=0);
+
+                if (!unique && r_ptr->level >= max_lev) /* Alex: if (>) then always false in the Town */
+                {
+                        max_lev = r_ptr->level;
+                        ancestor_carrier = m_ptr;
+                }
+        }
+
+        if (!ancestor_carrier)
+        {
+                if ( p_ptr->depth > 0) msg_print("No monster for ancestor's inventory!");
+        }
+        else
+        {
+                /*char m_name[80];*/
+                ancestor_carrier->ancestor_inventory = TRUE;
+                /*monster_desc(m_name, ancestor_carrier, 0x04);
+                msg_format("Ancestor's inventory (%s).", m_name);*/
+        }
+}
 
 /*
  * Generate a random dungeon level
@@ -3437,6 +3657,8 @@ void generate_cave(void)
 			cave_gen();
 		}
 
+                /*Alex: place dead objects with this depth to a monster with maximum level */
+                dead_objects_gen();
 
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;

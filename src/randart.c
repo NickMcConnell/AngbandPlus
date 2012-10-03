@@ -21,6 +21,11 @@
 
 #ifdef GJW_RANDART
 
+int last_power = 0;
+int names_list_len = 0;
+/*bool art_cursed = FALSE;*/
+char* new_art_names = 0;
+
 static cptr names_list =
 "adanedhel\n"
 "adurant\n"
@@ -625,7 +630,7 @@ static cptr names_list =
 "yavanna\n"
 ;
 
-#define MAX_TRIES 200
+#define MAX_TRIES 50
 #define BUFLEN 1024
 
 #define MIN_NAME_LEN 5
@@ -643,7 +648,7 @@ static unsigned short ltotal[S_WORD+1][S_WORD+1];
  * Cache the results of lookup_kind(), which is expensive and would
  * otherwise be called much too often.
  */
-static s16b *kinds;
+static s16b *kinds = 0;
 
 /* Global just for convenience. */
 static int randart_verbose = 0;
@@ -858,17 +863,18 @@ static int bow_multiplier(int sval)
 
 /*
  * Evaluate the artifact's overall power level.
+ * Alex: a_idx = 0 if artifact does not yet added by add_artifact()
  */
-static s32b artifact_power(int a_idx)
+s32b artifact_power(int a_idx, const artifact_type *a_ptr)
 {
-	const artifact_type *a_ptr = &a_info[a_idx];
 	s32b p = 0;
-	s16b k_idx;
+	s16b k_idx = 0;
 	object_kind *k_ptr;
 	int immunities = 0;
 
 	/* Try to use the cache */
-	k_idx = kinds[a_idx];
+        if (a_idx)
+	        k_idx = kinds[a_idx];
 
 	/* Lookup the item if not yet cached */
 	if (!k_idx)
@@ -876,7 +882,8 @@ static s32b artifact_power(int a_idx)
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 
 		/* Cache the object index */
-		kinds[a_idx] = k_idx;
+                if (a_idx)
+		        kinds[a_idx] = k_idx;
 
 		/* Paranoia */
 		if (!k_idx)
@@ -887,11 +894,11 @@ static s32b artifact_power(int a_idx)
 
 	k_ptr = &k_info[k_idx];
 
-	if (a_idx >= ART_MIN_NORMAL)
+        /* Start with a "power" rating derived from the base item's level. */
+	/*if (!is_special(a_ptr->tval))
 	{
-		/* Start with a "power" rating derived from the base item's level. */
 		p = (k_ptr->level + 7) / 8;
-	}
+	}*/
 
 	/* Evaluate certain abilities based on type of object. */
 	switch (a_ptr->tval)
@@ -913,6 +920,11 @@ static s32b artifact_power(int a_idx)
 					mult += a_ptr->pval;
 			}
 			p *= mult;
+
+			if (a_ptr->to_d > ART_W_1) p += (a_ptr->to_d - ART_W_1 + 1) / 2;/*Alex*/
+			if (a_ptr->to_d > ART_W_2) p += (a_ptr->to_d - ART_W_2 + 1) / 2;/*Alex*/
+			if (a_ptr->to_d > ART_W_3) p += 20000;/*Alex*/
+
 			if (a_ptr->flags1 & TR1_SHOTS)
 			{
 				if (a_ptr->pval > 3)
@@ -920,7 +932,11 @@ static s32b artifact_power(int a_idx)
 				else if (a_ptr->pval > 0)
 					p *= (2 * a_ptr->pval);
 			}
+
 			p += (a_ptr->to_h + 3 * sign(a_ptr->to_h)) / 4;
+			if (a_ptr->to_h > ART_W_1) p += (a_ptr->to_h - ART_W_1 + 1) / 2;/*Alex*/
+			if (a_ptr->to_h > ART_W_2) p += (a_ptr->to_h - ART_W_2 + 1) / 2;/*Alex*/
+			if (a_ptr->to_h > ART_W_3) p += 20000;/*Alex*/
 			if (a_ptr->weight < k_ptr->weight) p++;
 			break;
 		}
@@ -929,7 +945,9 @@ static s32b artifact_power(int a_idx)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
-			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
+			/*p += (a_ptr->dd * a_ptr->ds + 1) / 2; - wrong*/
+                        /* Alex: this is right (according to mean value) */
+			p += a_ptr->dd * (a_ptr->ds + 1) / 2;
 			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
@@ -938,9 +956,9 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_SLAY_UNDEAD) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DRAGON) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
+			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 6) / 5;/*Alex: was 5/4*/
+			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 6) / 5;/*Alex: was 5/4*/
+			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 7) / 6;/*Alex: was 6/5*/
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
 			if (a_ptr->flags1 & TR1_BRAND_ELEC) p = (p * 3) / 2;
@@ -948,7 +966,9 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_BRAND_COLD) p = (p * 4) / 3;
 
 			p += (a_ptr->to_d + 2 * sign(a_ptr->to_d)) / 3;
-			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 14) / 2;
+			if (a_ptr->to_d > ART_W_1) p += (a_ptr->to_d - ART_W_1 + 1) / 2;
+			if (a_ptr->to_d > ART_W_2) p += (a_ptr->to_d - ART_W_2 + 1) / 2;/*Alex*/
+			if (a_ptr->to_d > ART_W_3) p += 20000;/*Alex*/
 
 			if (a_ptr->flags1 & TR1_BLOWS)
 			{
@@ -963,6 +983,9 @@ static s32b artifact_power(int a_idx)
 				p += a_ptr->pval * 3;
 
 			p += (a_ptr->to_h + 3 * sign(a_ptr->to_h)) / 4;
+			if (a_ptr->to_h > ART_W_1) p += (a_ptr->to_h - ART_W_1 + 1) / 2;/*Alex*/
+			if (a_ptr->to_h > ART_W_2) p += (a_ptr->to_h - ART_W_2 + 1) / 2;/*Alex*/
+			if (a_ptr->to_h > ART_W_3) p += 20000;/*Alex*/
 
 			/* Remember, weight is in 0.1 lb. units. */
 			if (a_ptr->weight != k_ptr->weight)
@@ -978,14 +1001,23 @@ static s32b artifact_power(int a_idx)
 		case TV_CLOAK:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
+		case TV_DRAG_ARMOR:
 		{
+			int delta_ac = a_ptr->ac - k_ptr->ac;
+			int delta_w = k_ptr->weight - a_ptr->weight;
 			p += (a_ptr->ac + 4 * sign(a_ptr->ac)) / 5;
-			p += (a_ptr->to_h + sign(a_ptr->to_h)) / 2;
-			p += (a_ptr->to_d + sign(a_ptr->to_d)) / 2;
-			if (a_ptr->weight != k_ptr->weight)
-				p += (k_ptr->weight - a_ptr->weight) / 30;
+                        if (delta_ac>ART_MAX_EXTRA_AC)
+				p+= 20000;
+			else
+				p += delta_ac;
+			if (delta_w)
+				p += (delta_w) / 30;
+			if (a_ptr->to_a > ART_A_1) p += (a_ptr->to_a - ART_A_1 + 1) / 2;
+			if (a_ptr->to_a > ART_A_2) p += (a_ptr->to_a - ART_A_2 + 1) / 2;
+			if (a_ptr->to_a > ART_A_3) p += 20000;	/* inhibit */
 			break;
 		}
+		/*Alex: it was p + for nothing
 		case TV_LITE:
 		{
 			p += 10;
@@ -996,14 +1028,37 @@ static s32b artifact_power(int a_idx)
 		{
 			p += 20;
 			break;
-		}
+		}*/
 	}
 
+        /*Alex*/
+        if (!is_weapon(a_ptr->tval))
+        {
+                if (a_ptr->flags1 & TR1_BLOWS)
+                {
+		        if (a_ptr->pval > 3)		
+			        p += 20000;	/* inhibit */		
+		        else if (a_ptr->pval > 0)		
+			        p +=  10 + 10 * a_ptr->pval * a_ptr->pval;/*20 - 50 - 100*/
+                }
+		p += (a_ptr->to_h + sign(a_ptr->to_h)) / 2;
+                if (a_ptr->to_h > ART_1) p += (a_ptr->to_h - ART_1);
+                if (a_ptr->to_h > ART_2) p += (a_ptr->to_h - ART_2);
+                if (a_ptr->to_h > ART_3) p += 20000;
+		p += (a_ptr->to_d + sign(a_ptr->to_d)) / 2;
+                if (a_ptr->to_d > ART_1) p += (a_ptr->to_d - ART_1);
+                if (a_ptr->to_d > ART_2) p += (a_ptr->to_d - ART_2);
+                if (a_ptr->to_d > ART_3) p += 20000;
+	}
+
+        if (!is_armour(a_ptr->tval))
+        {
+		if (a_ptr->to_a > ART_1) p += (a_ptr->to_a - ART_1);
+		if (a_ptr->to_a > ART_2) p += (a_ptr->to_a - ART_2);
+		if (a_ptr->to_a > ART_3) p += 20000;	/* inhibit */
+	}
 	/* Other abilities are evaluated independent of the object type. */
 	p += (a_ptr->to_a + 3 * sign(a_ptr->to_a)) / 4;
-	if (a_ptr->to_a > 20) p += (a_ptr->to_a - 19) / 2;
-	if (a_ptr->to_a > 30) p += (a_ptr->to_a - 29) / 2;
-	if (a_ptr->to_a > 40) p += 20000;	/* inhibit */
 
 	if (a_ptr->pval > 0)
 	{
@@ -1058,6 +1113,7 @@ static s32b artifact_power(int a_idx)
 	if (immunities > 3) p += 20000;		/* inhibit */
 	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
 	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
+	if (a_ptr->flags2 & TR2_RES_FEAR) p += 1;/*Alex*/
 	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
 	if (a_ptr->flags2 & TR2_RES_ELEC) p += 6;
 	if (a_ptr->flags2 & TR2_RES_FIRE) p += 6;
@@ -1095,8 +1151,9 @@ static s32b artifact_power(int a_idx)
 /*
  * Randomly select a base item type (tval,sval).  Assign the various fields
  * corresponding to that choice.
+ * Alex: if (!base){tval and sval from base} 
  */
-static void choose_item(int a_idx)
+static void choose_item(int a_idx, const object_type* base)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
 	int tval, sval;
@@ -1298,6 +1355,11 @@ static void choose_item(int a_idx)
 		else sval = SV_SHADOW_CLOAK;
 	}
 
+        if (base){
+                tval = base->tval;
+                sval = base->sval;
+        }
+
 	k_idx = lookup_kind(tval, sval);
 	k_ptr = &k_info[k_idx];
 	kinds[a_idx] = k_idx;
@@ -1374,6 +1436,19 @@ static void choose_item(int a_idx)
 	}
 }
 
+/* Alex: do_pval can increase pval<0 when cursed_art = FALSE */
+bool cursed_art = FALSE;
+/* Alex: string with new artifact property */
+enum {LPROP = 80};
+char new_property[LPROP];
+
+/* Alex: string concatenation with range checking */
+static void strcat_check(char* s, const char* t, int max_length){
+        char* max_chr = &(s[max_length-1]);
+        while (*s && s!= max_chr) s++;/* Now s points to '\0' or to last buffer symbol */
+        while (*t && s != max_chr) *s++ = *t++;
+        *s = '\0';
+}
 
 /*
  * We've just added an ability which uses the pval bonus.  Make sure it's
@@ -1381,12 +1456,19 @@ static void choose_item(int a_idx)
  */
 static void do_pval(artifact_type *a_ptr)
 {
-	if (a_ptr->pval == 0) a_ptr->pval = (s16b)(1 + rand_int(3));
-	else if (a_ptr->pval < 0)
+	if (!a_ptr->pval) a_ptr->pval = (s16b)(1 + rand_int(3));
+	else if (a_ptr->pval < 0 && cursed_art)
 	{
 		if (rand_int(2) == 0) a_ptr->pval--;
 	}
-	else if (rand_int(3) > 0) a_ptr->pval++;
+	else if (rand_int(3) == 0)
+        {
+                if (a_ptr->pval != -1)
+                        a_ptr->pval++;
+                else
+                        /* Alex: make sure it's not zero. */
+                        a_ptr->pval = 1;
+        }
 }
 
 
@@ -1416,38 +1498,575 @@ static void remove_contradictory(artifact_type *a_ptr)
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
 }
 
-
-/*
- * Randomly select an extra ability to be added to the artifact in question.
- * XXX - This function is way too large.
- *
- * ToDo: Add the KILL_UNDEAD and KILL_DEMON flags.
- */
-static void add_ability(artifact_type *a_ptr)
+static void add_search(artifact_type *a_ptr)
 {
-	int r;
+        if (!a_ptr->pval) a_ptr->pval = (s16b)(1 + rand_int(3));
+        /*Alex: do_pval() often leads to pval == 2000 or so
+        when artifact has only searching pval
+	do_pval(a_ptr);*/
+        if (a_ptr->flags1 & TR1_SEARCH) return;
+        a_ptr->flags1 |= TR1_SEARCH;
+        strcat_check(new_property, " Searching", LPROP);
+}
+static void add_res_fear(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_FEAR) return;
+        a_ptr->flags2 |= TR2_RES_FEAR;
+        strcat_check(new_property, " Resist Fear", LPROP);
+}
+static void add_infra(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_INFRA) return;
+        a_ptr->flags1 |= TR1_INFRA;
+        strcat_check(new_property, " Infravision", LPROP);
+}
+static void add_sust_str(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_STR) return;
+        a_ptr->flags2 |= TR2_SUST_STR;
+        strcat_check(new_property, " Sustain Strength", LPROP);
+}
+static void add_sust_int(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_INT) return;
+        a_ptr->flags2 |= TR2_SUST_INT;
+        strcat_check(new_property, " Sustain Intelligence", LPROP);
+}
+static void add_sust_wis(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_WIS) return;
+        a_ptr->flags2 |= TR2_SUST_WIS;
+        strcat_check(new_property, " Sustain Wisdom", LPROP);
+}
+static void add_sust_dex(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_DEX) return;
+        a_ptr->flags2 |= TR2_SUST_DEX;
+        strcat_check(new_property, " Sustain Dexterity", LPROP);
+}
+static void add_sust_con(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_CON) return;
+        a_ptr->flags2 |= TR2_SUST_CON;
+        strcat_check(new_property, " Sustain Constitution", LPROP);
+}
+static void add_sust_chr(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_SUST_CHR) return;
+        a_ptr->flags2 |= TR2_SUST_CHR;
+        strcat_check(new_property, " Sustain Charisma", LPROP);
+}
+static void add_res_acid(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_ACID) return;
+        a_ptr->flags2 |= TR2_RES_ACID;
+        strcat_check(new_property, " Resist Acid", LPROP);
+}
+static void add_res_elec(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_ELEC) return;
+        a_ptr->flags2 |= TR2_RES_ELEC;
+        strcat_check(new_property, " Resist Electricity", LPROP);
+}
+static void add_res_fire(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_FIRE) return;
+        a_ptr->flags2 |= TR2_RES_FIRE;
+        strcat_check(new_property, " Resist Fire", LPROP);
+}
+static void add_res_cold(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_COLD) return;
+        a_ptr->flags2 |= TR2_RES_COLD;
+        strcat_check(new_property, " Resist Cold", LPROP);
+}
+static void add_feather(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_FEATHER) return;
+        a_ptr->flags3 |= TR3_FEATHER;
+        strcat_check(new_property, " Feather falling", LPROP);
+}
+static void add_lite(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_LITE) return;
+        a_ptr->flags3 |= TR3_LITE;
+        strcat_check(new_property, " Lite", LPROP);
+}
+static void add_see_invis(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_SEE_INVIS) return;
+        a_ptr->flags3 |= TR3_SEE_INVIS;
+        strcat_check(new_property, " See invisible", LPROP);
+}
+static void add_slow_digest(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_SLOW_DIGEST) return;
+        a_ptr->flags3 |= TR3_SLOW_DIGEST;
+        strcat_check(new_property, " Slow digestion", LPROP);
+}
 
-	r = rand_int(10);
-	if (r < 5)		/* Pick something dependent on item type. */
-	{
-		r = rand_int(100);
+static void remove_drain_exp(artifact_type *a_ptr)
+{
+        if (!(a_ptr->flags3 & TR3_DRAIN_EXP)) return;
+        a_ptr->flags3 &= ~(TR3_DRAIN_EXP);
+        strcat_check(new_property, " Removed experience drain", LPROP);
+}
+static void remove_teleport(artifact_type *a_ptr)
+{
+        if (!(a_ptr->flags3 & TR3_TELEPORT)) return;
+        a_ptr->flags3 &= ~(TR3_TELEPORT);
+        strcat_check(new_property, " Removed random teleportation", LPROP);
+}
+static void add_drain_exp(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_DRAIN_EXP) return;
+        a_ptr->flags3 |= TR3_DRAIN_EXP;
+        strcat_check(new_property, " Experience drain", LPROP);
+}
+static void add_teleport(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_TELEPORT) return;
+        a_ptr->flags3 |= TR3_TELEPORT;
+        strcat_check(new_property, " Random teleportation", LPROP);
+}
+
+static void add_common_ability(artifact_type *a_ptr)
+{
+		int r = rand_int(21);
+		switch (r)
+		{
+			case 0:add_search(a_ptr);break;
+			case 1: add_infra(a_ptr);break;
+
+			case 2: add_sust_str(a_ptr); break;
+			case 3: add_sust_int(a_ptr); break;
+			case 4: add_sust_wis(a_ptr); break;
+			case 5: add_sust_dex(a_ptr); break;
+			case 6: add_sust_con(a_ptr); break;
+			case 7: add_sust_chr(a_ptr); break;
+
+			case 8: add_res_acid(a_ptr); break;
+			case 9: add_res_elec(a_ptr); break;
+			case 10: add_res_fire(a_ptr); break;
+			case 11: add_res_cold(a_ptr); break;
+
+			case 12: add_feather(a_ptr); break;
+			case 13: add_lite(a_ptr); break;
+			case 14: add_see_invis(a_ptr); break;
+			case 15: add_slow_digest(a_ptr); break;
+
+			case 16: if (!rand_int(5)) add_drain_exp(a_ptr);break;
+			case 17: if (!rand_int(10)) remove_drain_exp(a_ptr);break;
+			case 18: if (!rand_int(5)) add_teleport(a_ptr);break;
+			case 19: if (!rand_int(10)) remove_teleport(a_ptr);break;
+
+			case 20: add_res_fear(a_ptr); break;
+		}/*switch (r)*/
+}
+
+static void add_blessed(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_BLESSED) return;
+        a_ptr->flags3 |= TR3_BLESSED;
+        strcat_check(new_property, " Blessed", LPROP);
+}
+static void add_str(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_str(a_ptr);
+        if (a_ptr->flags1 & TR1_STR) return;
+        a_ptr->flags1 |= TR1_STR;
+        strcat_check(new_property, " Strength", LPROP);
+}
+static void add_int(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_int(a_ptr);
+        if (a_ptr->flags1 & TR1_INT) return;
+        a_ptr->flags1 |= TR1_INT;
+        strcat_check(new_property, " Intelligence", LPROP);
+}
+static void add_wis(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_wis(a_ptr);
+        if ((a_ptr->tval == TV_SWORD) || (a_ptr->tval == TV_POLEARM))
+                add_blessed(a_ptr);
+        if (a_ptr->flags1 & TR1_WIS) return;
+        a_ptr->flags1 |= TR1_WIS;
+        strcat_check(new_property, " Wisdom", LPROP);
+}
+static void add_dex(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_dex(a_ptr);
+        if (a_ptr->flags1 & TR1_DEX) return;
+        a_ptr->flags1 |= TR1_DEX;
+        strcat_check(new_property, " Dexterity", LPROP);
+}
+static void add_con(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_con(a_ptr);
+        if (a_ptr->flags1 & TR1_CON) return;
+        a_ptr->flags1 |= TR1_CON;
+        strcat_check(new_property, " Constitution", LPROP);
+}
+static void add_chr(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (rand_int(3) == 0) add_sust_chr(a_ptr);
+        if (a_ptr->flags1 & TR1_CHR) return;
+        a_ptr->flags1 |= TR1_CHR;
+        strcat_check(new_property, " Charisma", LPROP);
+}
+static void add_stealth(artifact_type *a_ptr)
+{
+	do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_STEALTH) return;
+        a_ptr->flags1 |= TR1_STEALTH;
+        strcat_check(new_property, " Stealth", LPROP);
+}
+static void add_res_pois(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_POIS) return;
+        a_ptr->flags2 |= TR2_RES_POIS;
+        strcat_check(new_property, " Resist Poison", LPROP);
+}
+static void add_res_lite(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_LITE) return;
+        a_ptr->flags2 |= TR2_RES_LITE;
+        strcat_check(new_property, " Resist Lite", LPROP);
+}
+static void add_res_dark(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_DARK) return;
+        a_ptr->flags2 |= TR2_RES_DARK;
+        strcat_check(new_property, " Resist Darkness", LPROP);
+}
+static void add_res_blind(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_BLIND) return;
+        a_ptr->flags2 |= TR2_RES_BLIND;
+        strcat_check(new_property, " Resist Blindness", LPROP);
+}
+static void add_regen(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_REGEN) return;
+        a_ptr->flags3 |= TR3_REGEN;
+        strcat_check(new_property, " Regeneration", LPROP);
+}
+static void add_sust_all(artifact_type *a_ptr)
+{
+        if ((a_ptr->flags2 & TR2_SUST_STR) &&
+             (a_ptr->flags2 & TR2_SUST_INT) &&
+             (a_ptr->flags2 & TR2_SUST_WIS) &&
+             (a_ptr->flags2 & TR2_SUST_DEX) &&
+             (a_ptr->flags2 & TR2_SUST_CON) &&
+             (a_ptr->flags2 & TR2_SUST_CHR))
+                return;
+        a_ptr->flags2 |= TR2_SUST_STR;
+        a_ptr->flags2 |= TR2_SUST_INT;
+        a_ptr->flags2 |= TR2_SUST_WIS;
+        a_ptr->flags2 |= TR2_SUST_DEX;
+        a_ptr->flags2 |= TR2_SUST_CON;
+        a_ptr->flags2 |= TR2_SUST_CHR;
+        strcat_check(new_property, " Sustain all", LPROP);
+}
+static void add_uncommon_ability(artifact_type *a_ptr)
+{
+		int r = rand_int(13);
+		switch (r)
+		{
+			case 0: add_str(a_ptr); break;
+			case 1: add_int(a_ptr); break;
+			case 2: add_wis(a_ptr); break;
+			case 3: add_dex(a_ptr); break;
+			case 4: add_con(a_ptr); break;
+			case 5: add_chr(a_ptr); break;
+
+			case 6: add_stealth(a_ptr); break;
+			case 7: add_res_pois(a_ptr); break;
+			case 8: add_res_lite(a_ptr); break;
+			case 9: add_res_dark(a_ptr); break;
+			case 10: add_res_blind(a_ptr); break;
+			case 11: add_regen(a_ptr); break;
+                        case 12: add_sust_all(a_ptr); break;
+		}/*switch (r)*/
+}
+
+static void add_speed(artifact_type *a_ptr, int val)
+{
+        if (a_ptr->pval == 0) a_ptr->pval = val;
+	else do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_SPEED) return;
+        a_ptr->flags1 |= TR1_SPEED;
+        strcat_check(new_property, " Speed", LPROP);
+}
+static void add_free_act(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_FREE_ACT) return;
+        a_ptr->flags3 |= TR3_FREE_ACT;
+        strcat_check(new_property, " Free Action", LPROP);
+}
+static void add_hold_life(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_HOLD_LIFE) return;
+        a_ptr->flags3 |= TR3_HOLD_LIFE;
+        strcat_check(new_property, " Hold Life", LPROP);
+}
+static void add_res_confu(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_CONFU) return;
+        a_ptr->flags2 |= TR2_RES_CONFU;
+        strcat_check(new_property, " Resist Confusion", LPROP);
+}
+static void add_res_sound(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_SOUND) return;
+        a_ptr->flags2 |= TR2_RES_SOUND;
+        strcat_check(new_property, " Resist Sound", LPROP);
+}
+static void add_res_shard(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_SHARD) return;
+        a_ptr->flags2 |= TR2_RES_SHARD;
+        strcat_check(new_property, " Resist Shards", LPROP);
+}
+static void add_res_nexus(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_NEXUS) return;
+        a_ptr->flags2 |= TR2_RES_NEXUS;
+        strcat_check(new_property, " Resist Nexus", LPROP);
+}
+static void add_res_chaos(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_CHAOS) return;
+        a_ptr->flags2 |= TR2_RES_CHAOS;
+        strcat_check(new_property, " Resist Chaos", LPROP);
+}
+static void add_resistance(artifact_type *a_ptr)
+{
+        if ((a_ptr->flags2 & TR2_RES_ACID) &&
+             (a_ptr->flags2 & TR2_RES_ELEC) &&
+             (a_ptr->flags2 & TR2_RES_FIRE) &&
+             (a_ptr->flags2 & TR2_RES_COLD) &&
+             (a_ptr->flags2 & TR2_RES_POIS))
+              return;
+        a_ptr->flags2 |= TR2_RES_ACID;
+        a_ptr->flags2 |= TR2_RES_ELEC;
+        a_ptr->flags2 |= TR2_RES_FIRE;
+        a_ptr->flags2 |= TR2_RES_COLD;
+        a_ptr->flags2 |= TR2_RES_POIS;
+        strcat_check(new_property, " Resistance", LPROP);
+}
+
+static void add_rare_ability(artifact_type *a_ptr)
+{
+		int r = rand_int(9);
+		switch (r)
+		{
+			case 0: add_speed(a_ptr, 3+ rand_int(3)); break;
+			case 1: add_free_act(a_ptr); break;
+			case 2: add_hold_life(a_ptr); break;
+			case 3: add_res_confu(a_ptr); break;
+			case 4: add_res_sound(a_ptr); break;
+			case 5: add_res_shard(a_ptr); break;
+			case 6: add_res_nexus(a_ptr); break;
+			case 7: add_res_chaos(a_ptr); break;
+                        case 8: add_resistance(a_ptr); break;
+		}/*switch (r)*/
+}
+
+static void add_im_acid(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_IM_ACID) return;
+        a_ptr->flags2 |= TR2_IM_ACID;
+        strcat_check(new_property, " Immunity to Acid", LPROP);
+}
+static void add_im_elec(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_IM_ELEC) return;
+        a_ptr->flags2 |= TR2_IM_ELEC;
+        strcat_check(new_property, " Immunity to Electricity", LPROP);
+}
+static void add_im_fire(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_IM_FIRE) return;
+        a_ptr->flags2 |= TR2_IM_FIRE;
+        strcat_check(new_property, " Immunity to Fire", LPROP);
+}
+static void add_im_cold(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_IM_COLD) return;
+        a_ptr->flags2 |= TR2_IM_COLD;
+        strcat_check(new_property, " Immunity to Cold", LPROP);
+}
+static void add_res_nether(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_NETHR) return;
+        a_ptr->flags2 |= TR2_RES_NETHR;
+        strcat_check(new_property, " Resist Nether", LPROP);
+}
+static void add_res_disen(artifact_type *a_ptr)
+{
+        if (a_ptr->flags2 & TR2_RES_DISEN) return;
+        a_ptr->flags2 |= TR2_RES_DISEN;
+        strcat_check(new_property, " Resist Disenchantment", LPROP);
+}
+static void add_telepathy(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_TELEPATHY) return;
+        a_ptr->flags3 |= TR3_TELEPATHY;
+        strcat_check(new_property, " Telepathy", LPROP);
+}
+static void add_blow(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_BLOWS) return;
+        a_ptr->flags1 |= TR1_BLOWS;
+        strcat_check(new_property, " Blows", LPROP);
+}
+static void add_to_h_to_d(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by (+xxx,+xxx) */
+        char buf[80];
+        char *t = buf;
+	a_ptr->to_d += plus;
+	a_ptr->to_h += plus;
+	a_ptr->flags3 |= TR3_SHOW_MODS;
+        object_desc_str_macro(t, " (");
+        object_desc_int_macro(t, plus);
+        object_desc_chr_macro(t, ',');
+        object_desc_int_macro(t, plus);
+        object_desc_chr_macro(t, ')');
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_all_stats(artifact_type *a_ptr)
+{
+        do_pval(a_ptr);
+        if ((a_ptr->flags1 & TR1_STR) &&
+	    (a_ptr->flags1 & TR1_INT) &&
+	    (a_ptr->flags1 & TR1_WIS) &&
+	    (a_ptr->flags1 & TR1_DEX) &&
+	    (a_ptr->flags1 & TR1_CON) &&
+	    (a_ptr->flags1 & TR1_CHR)) return;
+        a_ptr->flags1 |= TR1_STR;
+        a_ptr->flags1 |= TR1_INT;
+        a_ptr->flags1 |= TR1_WIS;
+        a_ptr->flags1 |= TR1_DEX;
+        a_ptr->flags1 |= TR1_CON;
+        a_ptr->flags1 |= TR1_CHR;
+        strcat_check(new_property, " All Stats", LPROP);
+}
+static void add_very_rare_ability(artifact_type *a_ptr)
+{
+		int r = rand_int(10);
+		switch (r)
+		{
+			case 0: add_im_acid(a_ptr); break;
+			case 1: add_im_elec(a_ptr); break;
+			case 2: add_im_fire(a_ptr); break;
+			case 3: add_im_cold(a_ptr); break;
+			case 4: add_res_nether(a_ptr);break;
+			case 5: add_res_disen(a_ptr); break;
+			case 6: add_telepathy(a_ptr);break;
+			case 7: if (!rand_int(3)) add_blow(a_ptr); break;
+                        case 8: if (!rand_int(3)) add_to_h_to_d(a_ptr, (3 + rand_int(3) + rand_int(3) + rand_int(3))); break;
+			case 9: if (!rand_int(2)) add_all_stats(a_ptr); break;
+		}/*switch (r)*/
+}
+
+static void add_to_h(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by (+xxx,+0) */
+        char buf[80];
+        char *t = buf;
+	a_ptr->to_h += plus;
+	a_ptr->flags3 |= TR3_SHOW_MODS;
+        object_desc_str_macro(t, " (");
+        object_desc_int_macro(t, plus);
+        object_desc_str_macro(t, ",+0)");
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_to_d(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by (+0,+xxx) */
+        char buf[80];
+        char *t = buf;
+	a_ptr->to_d += plus;
+	a_ptr->flags3 |= TR3_SHOW_MODS;
+        object_desc_str_macro(t, " (+0,");
+        object_desc_int_macro(t, plus);
+        object_desc_chr_macro(t, ')');
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_to_a(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by [+0,+xxx] */
+        char buf[80];
+        char *t = buf;
+	a_ptr->to_a += plus;
+        object_desc_str_macro(t, " [+0,");
+        object_desc_int_macro(t, plus);
+        object_desc_chr_macro(t, ']');
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_slay_orc(artifact_type *a_ptr);
+static void add_slay_troll(artifact_type *a_ptr);
+static void add_slay_giant(artifact_type *a_ptr);
+
+static void add_slay_orc(artifact_type *a_ptr)
+{
+	if (rand_int(2) == 0) add_slay_troll(a_ptr);
+	if (rand_int(2) == 0) add_slay_giant(a_ptr);
+        if (a_ptr->flags1 & TR1_SLAY_ORC) return;
+        a_ptr->flags1 |= TR1_SLAY_ORC;
+        strcat_check(new_property, " Slay Orks", LPROP);
+}
+static void add_slay_troll(artifact_type *a_ptr)
+{
+	if (rand_int(2) == 0) add_slay_orc(a_ptr);
+	if (rand_int(2) == 0) add_slay_giant(a_ptr);
+        if (a_ptr->flags1 & TR1_SLAY_TROLL) return;
+        a_ptr->flags1 |= TR1_SLAY_TROLL;
+        strcat_check(new_property, " Slay Trolls", LPROP);
+}
+static void add_slay_giant(artifact_type *a_ptr)
+{
+	if (rand_int(2) == 0) add_slay_troll(a_ptr);
+	if (rand_int(2) == 0) add_slay_orc(a_ptr);
+        if (a_ptr->flags1 & TR1_SLAY_GIANT) return;
+        a_ptr->flags1 |= TR1_SLAY_GIANT;
+        strcat_check(new_property, " Slay Giants", LPROP);
+}
+static void add_low_weight(artifact_type *a_ptr)
+{
+        a_ptr->weight = (a_ptr->weight * 9) / 10;
+        strcat_check(new_property, " 90% Weight", LPROP);
+}
+static void add_tunnel(artifact_type *a_ptr)
+{
+	do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_TUNNEL) return;
+        a_ptr->flags1 |= TR1_TUNNEL;
+        strcat_check(new_property, " Tunneling", LPROP);
+}
+static void add_common_specific(artifact_type *a_ptr)
+{
+		int r = rand_int(100);
 		switch (a_ptr->tval)
 		{
 			case TV_BOW:
 			{
-				if (r < 15)
-				{
-					a_ptr->flags1 |= TR1_SHOTS;
-					do_pval(a_ptr);
-				}
-				else if (r < 35)
-				{
-					a_ptr->flags1 |= TR1_MIGHT;
-					do_pval(a_ptr);
-				}
-				else if (r < 65) a_ptr->to_h += (s16b)(2 + rand_int(2));
-				else a_ptr->to_d += (s16b)(2 + rand_int(3));
-
+				if (r < 50) add_to_h(a_ptr, 2 + rand_int(2));
+				else add_to_d(a_ptr, 2 + rand_int(3));
 				break;
 			}
 			case TV_DIGGING:
@@ -1455,372 +2074,567 @@ static void add_ability(artifact_type *a_ptr)
 			case TV_POLEARM:
 			case TV_SWORD:
 			{
-				if (r < 4)
-				{
-					a_ptr->flags1 |= TR1_WIS;
-					do_pval(a_ptr);
-					if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
-					if ((a_ptr->tval == TV_SWORD) ||
-					    (a_ptr->tval == TV_POLEARM))
-						a_ptr->flags3 |= TR3_BLESSED;
-				}
-				else if (r < 7)
-				{
-					a_ptr->flags1 |= TR1_BRAND_ACID;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ACID;
-				}
-				else if (r < 10)
-				{
-					a_ptr->flags1 |= TR1_BRAND_ELEC;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ELEC;
-				}
-				else if (r < 15)
-				{
-					a_ptr->flags1 |= TR1_BRAND_FIRE;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_FIRE;
-				}
-				else if (r < 20)
-				{
-					a_ptr->flags1 |= TR1_BRAND_COLD;
-					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_COLD;
-				}
-				else if (r < 28)
-				{
-					a_ptr->dd += (byte)(1 + rand_int(2) + rand_int(2));
-					if (a_ptr->dd > 9) a_ptr->dd = 9;
-				}
-				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
-				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
-				else if (r < 40) a_ptr->flags1 |= TR1_SLAY_EVIL;
-
-				else if (r < 45) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
-				else if (r < 50)
-				{
-					a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_DEMON;
-				}
-				else if (r < 54)
-				{
-					a_ptr->flags1 |= TR1_SLAY_DEMON;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_UNDEAD;
-				}
-				else if (r < 59)
-				{
-					a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
-				}
-				else if (r < 63)
-				{
-					a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
-				}
-				else if (r < 67)
-				{
-					a_ptr->flags1 |= TR1_SLAY_GIANT;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
-				}
-				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;
-				else if (r < 76)
-				{
-					if (a_ptr->pval < 0) break;
-					a_ptr->flags1 |= TR1_BLOWS;
-					do_pval(a_ptr);
-				}
-				else if (r < 89)
-				{
-					a_ptr->to_d += (s16b)(3 + rand_int(4));
-					a_ptr->to_h += (s16b)(3 + rand_int(4));
-				}
-				else if (r < 92) a_ptr->to_a += (s16b)(3 + rand_int(3));
-				else if (r < 98)
-					a_ptr->weight = (a_ptr->weight * 9) / 10;
-				else
-					if (a_ptr->tval != TV_DIGGING)
-					{
-						a_ptr->flags1 |= TR1_TUNNEL;
-						do_pval(a_ptr);
-					}
-
+				if (r < 6) add_blessed(a_ptr);
+				else if (r < 19) add_slay_orc(a_ptr);
+				else if (r < 32) add_slay_troll(a_ptr);
+				else if (r < 45) add_slay_giant(a_ptr);
+				else if (r < 60) add_to_h(a_ptr, 3 + rand_int(4));
+				else if (r < 80) add_to_d(a_ptr, 3 + rand_int(4));
+				else if (r < 90) add_low_weight(a_ptr);
+				else add_tunnel(a_ptr);
 				break;
 			}
 			case TV_BOOTS:
 			{
-				if (r < 10)
-				{
-					a_ptr->flags3 |= TR3_FEATHER;
-				}
-				else if (r < 50)
-				{
-					a_ptr->to_a += (s16b)(2 + rand_int(4));
-				}
-				else if (r < 80)
-				{
-					a_ptr->flags1 |= TR1_STEALTH;
-					do_pval(a_ptr);
-				}
-				else if (r < 90)
-				{
-					a_ptr->flags1 |= TR1_SPEED;
-
-					if (a_ptr->pval < 0) break;
-
-					if (a_ptr->pval == 0)
-						a_ptr->pval = (s16b)(3 + rand_int(8));
-					else if (rand_int(2) == 0)
-						a_ptr->pval++;
-				}
-				else
-				{
-					a_ptr->weight = (a_ptr->weight * 9) / 10;
-				}
+				if (r < 35) add_feather(a_ptr);
+				else if (r < 85) add_to_a(a_ptr, 2 + rand_int(4));
+				else add_low_weight(a_ptr);
 				break;
 			}
 			case TV_GLOVES:
 			{
-				if (r < 25) a_ptr->flags3 |= TR3_FREE_ACT;
-				else if (r < 50)
-				{
-					a_ptr->flags1 |= TR1_DEX;
-					do_pval(a_ptr);
-				}
-				else if (r < 75) a_ptr->to_a += (s16b)(3 + rand_int(3));
-				else
-				{
-					a_ptr->to_h += (s16b)(2 + rand_int(3));
-					a_ptr->to_d += (s16b)(2 + rand_int(3));
-					a_ptr->flags3 |= TR3_SHOW_MODS;
-				}
+				add_to_a(a_ptr, 3 + rand_int(3));
 				break;
 			}
 			case TV_HELM:
 			case TV_CROWN:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_BLIND;
-				else if (r < 45) a_ptr->flags3 |= TR3_TELEPATHY;
-				else if (r < 65) a_ptr->flags3 |= TR3_SEE_INVIS;
-				else if (r < 75)
-				{
-					a_ptr->flags1 |= TR1_WIS;
-					do_pval(a_ptr);
-				}
-				else if (r < 85)
-				{
-					a_ptr->flags1 |= TR1_INT;
-					do_pval(a_ptr);
-				}
-				else a_ptr->to_a += (s16b)(3 + rand_int(3));
+				if (r < 20) add_res_blind(a_ptr);
+				else if (r < 50) add_see_invis(a_ptr);
+				else add_to_a(a_ptr, 3 + rand_int(3));
 				break;
 			}
 			case TV_SHIELD:
 			{
-				if (r < 20) a_ptr->flags2 |= TR2_RES_ACID;
-				else if (r < 40) a_ptr->flags2 |= TR2_RES_ELEC;
-				else if (r < 60) a_ptr->flags2 |= TR2_RES_FIRE;
-				else if (r < 80) a_ptr->flags2 |= TR2_RES_COLD;
-				else a_ptr->to_a += (s16b)(3 + rand_int(3));
+				if (r < 20) add_res_acid(a_ptr);
+				else if (r < 40) add_res_elec(a_ptr);
+				else if (r < 60) add_res_fire(a_ptr);
+				else if (r < 80) add_res_cold(a_ptr);
+				else add_to_a(a_ptr, 3 + rand_int(3));
 				break;
 			}
 			case TV_CLOAK:
 			{
-				if (r < 50)
-				{
-					a_ptr->flags1 |= TR1_STEALTH;
-					do_pval(a_ptr);
-				}
-				else a_ptr->to_a += (s16b)(3 + rand_int(3));
+				add_to_a(a_ptr, 3 + rand_int(3));
 				break;
 			}
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
 			{
-				if (r < 8)
-				{
-					a_ptr->flags1 |= TR1_STEALTH;
-					do_pval(a_ptr);
-				}
-				else if (r < 16) a_ptr->flags3 |= TR3_HOLD_LIFE;
-				else if (r < 22)
-				{
-					a_ptr->flags1 |= TR1_CON;
-					do_pval(a_ptr);
-					if (rand_int(2) == 0)
-						a_ptr->flags2 |= TR2_SUST_CON;
-				}
-				else if (r < 34) a_ptr->flags2 |= TR2_RES_ACID;
-				else if (r < 46) a_ptr->flags2 |= TR2_RES_ELEC;
-				else if (r < 58) a_ptr->flags2 |= TR2_RES_FIRE;
-				else if (r < 70) a_ptr->flags2 |= TR2_RES_COLD;
-				else if (r < 80)
-					a_ptr->weight = (a_ptr->weight * 9) / 10;
-				else a_ptr->to_a += (s16b)(3 + rand_int(3));
+				if (r < 15) add_res_acid(a_ptr);
+				else if (r < 30) add_res_elec(a_ptr);
+				else if (r < 45) add_res_fire(a_ptr);
+				else if (r < 60) add_res_cold(a_ptr);
+				else if (r < 70) add_low_weight(a_ptr);
+				else add_to_a(a_ptr, 3 + rand_int(3));
 				break;
 			}
-		}
+			case TV_RING:
+			case TV_AMULET:
+                        {
+				if (r < 10) add_res_acid(a_ptr);
+				else if (r < 20) add_res_elec(a_ptr);
+				else if (r < 30) add_res_fire(a_ptr);
+				else if (r < 40) add_res_cold(a_ptr);
+                                else if (r < 50) add_sust_str(a_ptr);
+                                else if (r < 60) add_sust_int(a_ptr);
+                                else if (r < 70) add_sust_wis(a_ptr);
+                                else if (r < 80) add_sust_dex(a_ptr);
+                                else if (r < 90) add_sust_con(a_ptr);
+                                else add_sust_chr(a_ptr);
+                                break;
+                        }
+			case TV_LITE:
+                        {
+                                if (r<40) add_lite(a_ptr);
+                                else if (r<70) add_res_lite(a_ptr);
+                                else add_res_dark(a_ptr);
+                                break;
+                        }
+		}/*switch (a_ptr->tval)*/
+}
+static void add_might(artifact_type *a_ptr)
+{
+	do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_MIGHT) return;
+        a_ptr->flags1 |= TR1_MIGHT;
+        strcat_check(new_property, " Might", LPROP);
+}
+static void add_acid(artifact_type *a_ptr)
+{
+        if (rand_int(4) > 0) add_res_acid(a_ptr);
+        if (a_ptr->flags1 & TR1_BRAND_ACID) return;
+        a_ptr->flags1 |= TR1_BRAND_ACID;
+        strcat_check(new_property, " Acid", LPROP);
+}
+static void add_elec(artifact_type *a_ptr)
+{
+        if (rand_int(4) > 0) add_res_elec(a_ptr);
+        if (a_ptr->flags1 & TR1_BRAND_ELEC) return;
+        a_ptr->flags1 |= TR1_BRAND_ELEC;
+        strcat_check(new_property, " Lightning", LPROP);
+}
+static void add_fire(artifact_type *a_ptr)
+{
+        if (rand_int(4) > 0) add_res_fire(a_ptr);
+        if (a_ptr->flags1 & TR1_BRAND_FIRE) return;
+        a_ptr->flags1 |= TR1_BRAND_FIRE;
+        strcat_check(new_property, " Fire", LPROP);
+}
+static void add_cold(artifact_type *a_ptr)
+{
+        if (rand_int(4) > 0) add_res_cold(a_ptr);
+        if (a_ptr->flags1 & TR1_BRAND_COLD) return;
+        a_ptr->flags1 |= TR1_BRAND_COLD;
+        strcat_check(new_property, " Frost", LPROP);
+}
+static void add_slay_dragon(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_SLAY_DRAGON) return;
+        a_ptr->flags1 |= TR1_SLAY_DRAGON;
+        strcat_check(new_property, " Slay Dragons", LPROP);
+}
+static void add_slay_evil(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_SLAY_EVIL) return;
+        a_ptr->flags1 |= TR1_SLAY_EVIL;
+        strcat_check(new_property, " Slay Evil", LPROP);
+}
+static void add_slay_animal(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_SLAY_ANIMAL) return;
+        a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+        strcat_check(new_property, " Slay Animals", LPROP);
+}
+static void add_slay_undead(artifact_type *a_ptr);
+static void add_slay_demon(artifact_type *a_ptr);
+static void add_slay_undead(artifact_type *a_ptr)
+{
+        if (rand_int(2) == 0) add_slay_demon(a_ptr);
+        if (a_ptr->flags1 & TR1_SLAY_UNDEAD) return;
+        a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+        strcat_check(new_property, " Slay Undeads", LPROP);
+}
+static void add_slay_demon(artifact_type *a_ptr)
+{
+        if (rand_int(2) == 0) add_slay_undead(a_ptr);
+        if (a_ptr->flags1 & TR1_SLAY_DEMON) return;
+        a_ptr->flags1 |= TR1_SLAY_DEMON;
+        strcat_check(new_property, " Slay Demons", LPROP);
+}
+static void add_uncommon_specific(artifact_type *a_ptr)
+{
+		int r = rand_int(100);
+		switch (a_ptr->tval)
+		{
+			case TV_BOW:
+			{
+                                add_might(a_ptr);
+				break;
+			}
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			{
+				if (r < 3) add_str(a_ptr);
+				else if (r < 5) add_dex(a_ptr);
+				else if (r < 13) add_acid(a_ptr);
+				else if (r < 21) add_elec(a_ptr);
+				else if (r < 33) add_fire(a_ptr);
+				else if (r < 45) add_cold(a_ptr);
+				else if (r < 55) add_slay_dragon(a_ptr);
+				else if (r < 67) add_slay_evil(a_ptr);
+				else if (r < 72) add_slay_animal(a_ptr);
+				else if (r < 82) add_slay_undead(a_ptr);
+				else if (r < 87) add_slay_demon(a_ptr);
+				else if (r < 92) add_see_invis(a_ptr);
+				else add_to_a(a_ptr, 3 + rand_int(3));
+				break;
+			}
+			case TV_BOOTS:
+			{
+			        add_stealth(a_ptr);
+                                break;
+			}
+			case TV_GLOVES:
+			{
+				if (r < 25) add_free_act(a_ptr);
+				else if (r < 50) add_dex(a_ptr);
+				else add_to_h_to_d(a_ptr, 2 + rand_int(3));
+				break;
+			}
+			case TV_HELM:
+			case TV_CROWN:
+			{
+				if (r < 40) add_wis(a_ptr);
+				else if (r < 80) add_int(a_ptr);
+				else add_chr(a_ptr);
+				break;
+			}
+			case TV_SHIELD:
+			{
+                                add_to_a(a_ptr, 10);
+				break;
+			}
+			case TV_CLOAK:
+			{
+                                add_stealth(a_ptr);
+				break;
+			}
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				if (r < 40) add_stealth(a_ptr);
+				else add_con(a_ptr);
+				break;
+			}
+			case TV_RING:
+			case TV_AMULET:
+			case TV_LITE:
+                        {
+				if (r < 60) add_to_a(a_ptr, 3 + rand_int(3) + rand_int(3) + rand_int(3));
+				else add_to_h_to_d(a_ptr, 3 + rand_int(3) + rand_int(3) + rand_int(3));
+                                break;
+                        }
+		}/*switch (a_ptr->tval)*/
+}
+static void add_shots(artifact_type *a_ptr)
+{
+	do_pval(a_ptr);
+        if (a_ptr->flags1 & TR1_SHOTS) return;
+        a_ptr->flags1 |= TR1_SHOTS;
+        strcat_check(new_property, " Shots", LPROP);
+}
+static void add_dd(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by +5d5 or so */
+        char buf[80];
+        char *t = buf;
+        int old_dd = a_ptr->dd;
+        a_ptr->dd += plus;
+        if (a_ptr->dd > 9) a_ptr->dd = 9;
+        plus = a_ptr->dd - old_dd;
+
+        if (plus<=0) return;
+
+        object_desc_str_macro(t, " +");
+        object_desc_num_macro(t, plus);
+        object_desc_chr_macro(t, 'd');
+        object_desc_num_macro(t, a_ptr->ds);
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_ac(artifact_type *a_ptr, int plus)
+{
+        /* Alex: it is impossible to overflow 80-char array by [+xxx,+0] */
+        char buf[80];
+        char *t = buf;
+	a_ptr->ac += plus;
+        object_desc_str_macro(t, " [");
+        object_desc_int_macro(t, plus);
+        object_desc_str_macro(t, ",+0]");
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void remove_to_h_pen(artifact_type *a_ptr)
+{
+        /* Alex: it is impossible to overflow 80-char array by (+xxx,+0) */
+        char buf[80];
+        char *t = buf;
+	int tmp = a_ptr->to_h;
+	if (a_ptr->to_h<0) a_ptr->to_h++;
+	while(rand_int(2) && a_ptr->to_h<0) a_ptr->to_h++;
+	tmp = a_ptr->to_h - tmp;
+	if (!tmp) return;
+        object_desc_str_macro(t, " (");
+        object_desc_int_macro(t, tmp);
+        object_desc_str_macro(t, ",+0)");
+        object_desc_chr_macro(t, '\0');
+        strcat_check(new_property, buf, LPROP);
+}
+static void add_kill_dragon(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_KILL_DRAGON) return;
+        a_ptr->flags1 |= TR1_KILL_DRAGON;
+        strcat_check(new_property, " Kill Dragons", LPROP);
+}
+static void add_kill_undead(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_KILL_UNDEAD) return;
+        a_ptr->flags1 |= TR1_KILL_UNDEAD;
+        strcat_check(new_property, " Kill Undeads", LPROP);
+}
+static void add_kill_demon(artifact_type *a_ptr)
+{
+        if (a_ptr->flags1 & TR1_KILL_DEMON) return;
+        a_ptr->flags1 |= TR1_KILL_DEMON;
+        strcat_check(new_property, " Kill Demons", LPROP);
+}
+static void add_rare_specific(artifact_type *a_ptr)
+{
+		int r = rand_int(100);
+		switch (a_ptr->tval)
+		{
+			case TV_BOW:
+			{
+				add_shots(a_ptr);
+				break;
+			}
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			{
+				if (r < 30) add_dd(a_ptr, 1 + rand_int(2) + rand_int(2) + rand_int(2));
+				else if (r < 55) add_kill_dragon(a_ptr);
+				else if (r < 80) add_kill_undead(a_ptr);
+				else add_kill_demon(a_ptr);
+				break;
+			}
+			case TV_BOOTS:
+			{
+                                if (r<10) add_ac(a_ptr, 5);
+                                else 
+                                {
+					if (a_ptr->pval >= 0) add_speed(a_ptr, 3 + rand_int(8));
+                                        else add_speed(a_ptr, 0);
+                                }
+				break;
+			}
+			case TV_GLOVES:
+			{
+                                if (r<10) add_ac(a_ptr, 5);
+                                else if (r<70) add_to_a(a_ptr, 10);
+                                else add_to_h_to_d(a_ptr, 10);
+				break;
+			}
+			case TV_HELM:
+			case TV_CROWN:
+			{
+                                if (r<10) add_ac(a_ptr, 5);
+				else if (r < 50) add_telepathy(a_ptr);
+				else add_to_a(a_ptr, 10);
+				break;
+			}
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+                                if (r<10) add_ac(a_ptr, 5);
+			        else if (r<18) add_hold_life(a_ptr);
+			        else if (r<26) add_res_confu(a_ptr);
+			        else if (r<34) add_res_sound(a_ptr);
+			        else if (r<42) add_res_shard(a_ptr);
+			        else if (r<50) add_res_nexus(a_ptr);
+			        else if (r<58) add_res_chaos(a_ptr);
+                                else if (r<66) add_resistance(a_ptr);
+                                else if (r<74) add_sust_all(a_ptr);
+                                else if (r<80) remove_to_h_pen(a_ptr);
+                                else add_to_a(a_ptr, 10);
+				break;
+			}
+			case TV_RING:
+			case TV_AMULET:
+                        {
+			        if (r<8) add_hold_life(a_ptr);
+			        else if (r<16) add_res_confu(a_ptr);
+			        else if (r<24) add_res_sound(a_ptr);
+			        else if (r<32) add_res_shard(a_ptr);
+			        else if (r<40) add_res_nexus(a_ptr);
+			        else if (r<48) add_res_chaos(a_ptr);
+                                else if (r<56) add_resistance(a_ptr);
+                                else if (r<64) add_sust_all(a_ptr);
+                                else if (r<82) add_to_a(a_ptr, 10);
+				else add_to_h_to_d(a_ptr, 10);
+				break;
+                        }
+			case TV_LITE:
+                        {
+				if (r < 50) add_telepathy(a_ptr);
+				else add_to_a(a_ptr, 10);
+				break;
+                        }
+		}/*switch (a_ptr->tval)*/
+}
+static void add_might_shots(artifact_type *a_ptr)
+{
+	do_pval(a_ptr);
+        if ((a_ptr->flags1 & TR1_MIGHT) &&
+             (a_ptr->flags1 & TR1_SHOTS))
+                return;
+        a_ptr->flags1 |= TR1_MIGHT;
+        a_ptr->flags1 |= TR1_SHOTS;
+        strcat_check(new_property, " Might and Shots", LPROP);
+}
+static void add_impact(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_IMPACT) return;
+        a_ptr->flags3 |= TR3_IMPACT;
+        strcat_check(new_property, " Earthquake", LPROP);
+}
+static void add_kill_all(artifact_type *a_ptr)
+{
+        if ((a_ptr->flags1 & TR1_KILL_DRAGON) &&
+             (a_ptr->flags1 & TR1_KILL_UNDEAD) &&
+             (a_ptr->flags1 & TR1_KILL_DEMON))
+                return;
+        a_ptr->flags1 |= TR1_KILL_DRAGON;
+        a_ptr->flags1 |= TR1_KILL_UNDEAD;
+        a_ptr->flags1 |= TR1_KILL_DEMON;
+        strcat_check(new_property, " Kill Dragons, Undeads, and Demons", LPROP);
+}
+static void add_very_rare_specific(artifact_type *a_ptr)
+{
+		int r = rand_int(100);
+		switch (a_ptr->tval)
+		{
+			case TV_BOW:
+			{
+                                if (r<50) add_might_shots(a_ptr);
+				else add_to_h_to_d(a_ptr, 10);
+				break;
+			}
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			{
+                                if (r<10 && a_ptr->tval == TV_DIGGING) add_impact(a_ptr);
+				else if (r< 20) add_dd(a_ptr, 9);
+				else if (r < 50) add_kill_all(a_ptr);
+				else if (r < 80)
+				{
+					if (a_ptr->pval < 0) break;
+					add_blow(a_ptr);
+				}
+				else if (r < 90) add_to_h_to_d(a_ptr, 10);
+				else add_to_a(a_ptr, 10);
+				break;
+			}
+			case TV_BOOTS:
+			{
+				if (r < 70)
+				{
+					if (a_ptr->pval < 0) break;
+					add_speed(a_ptr, 10);
+				}
+				else add_to_a(a_ptr, 20);
+				break;
+			}
+			case TV_GLOVES:
+			{
+				if (r < 20)
+				{
+					if (a_ptr->pval < 0) break;
+					add_speed(a_ptr, 0);
+				}
+				else add_to_a(a_ptr, 20);
+				break;
+			}
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			case TV_RING:
+			case TV_AMULET:
+			case TV_LITE:
+			{
+			        if (r < 10) add_im_acid(a_ptr);
+			        else if (r < 20) add_im_elec(a_ptr);
+			        else if (r < 30) add_im_fire(a_ptr);
+			        else if (r < 40) add_im_cold(a_ptr);
+			        else if (r < 50) add_res_nether(a_ptr);
+			        else if (r < 60) add_res_disen(a_ptr);
+				else add_to_a(a_ptr, 20);
+				break;
+			}
+		}/*switch (a_ptr->tval)*/
+}
+/*
+ * Randomly select an extra ability to be added to the artifact in question.
+ * XXX - This function is way too large.
+ *
+ * Alex: tends to add rare abilities to powerful artifacts.
+ * Delta is the difference between required power and current power
+ *
+ * ToDo: Add the KILL_UNDEAD and KILL_DEMON flags.
+ * Alex: done
+ */
+static void add_ability(artifact_type *a_ptr, int delta)
+{
+        int r, limit, rarity;
+
+        if (!rand_int(10) && a_ptr->pval)
+        {
+                do_pval(a_ptr);
+                return;
+        }
+
+        /* Alex: weapon should have more specific abilities */
+        switch (a_ptr->tval)
+        {
+                case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+                case TV_BOW:
+                        limit = 8;
+                        break;
+                default:
+                        limit = 6;
+        }
+        r = rand_int(10);
+        if (delta<ART_R_1)
+        {
+                if (r<6) rarity = 0;/*The most probable*/
+                else rarity = 1;
+        }
+        else if (delta <ART_R_2)
+        {
+                if (r<1) rarity = 0;
+                else if (r<7) rarity = 1;/*The most probable*/
+                else rarity = 2;
+        }
+        else if (delta <ART_R_3)
+        {
+                if (r<1) rarity = 1;
+                else if (r<7) rarity = 2;/*The most probable*/
+                else rarity = 3;
+        }
+        else
+        {
+                if (r<2) rarity = 2;
+                else rarity = 3;/*The most probable*/
+        }
+
+	r = rand_int(10);
+	if (r < limit)		/* Pick something dependent on item type. */
+	{
+                switch (rarity)
+                {
+                        case 0: add_common_specific(a_ptr); break;
+                        case 1: add_uncommon_specific(a_ptr); break;
+                        case 2: add_rare_specific(a_ptr); break;
+                        case 3: add_very_rare_specific(a_ptr); break;
+                }
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
-		switch (r)
-		{
-			case 0:
-				a_ptr->flags1 |= TR1_STR;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_STR;
-				break;
-			case 1:
-				a_ptr->flags1 |= TR1_INT;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_INT;
-				break;
-			case 2:
-				a_ptr->flags1 |= TR1_WIS;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
-				if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
-					a_ptr->flags3 |= TR3_BLESSED;
-				break;
-			case 3:
-				a_ptr->flags1 |= TR1_DEX;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_DEX;
-				break;
-			case 4:
-				a_ptr->flags1 |= TR1_CON;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_CON;
-				break;
-			case 5:
-				a_ptr->flags1 |= TR1_CHR;
-				do_pval(a_ptr);
-				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_CHR;
-				break;
-
-			case 6:
-				a_ptr->flags1 |= TR1_STEALTH;
-				do_pval(a_ptr);
-				break;
-			case 7:
-				a_ptr->flags1 |= TR1_SEARCH;
-				do_pval(a_ptr);
-				break;
-			case 8:
-				a_ptr->flags1 |= TR1_INFRA;
-				do_pval(a_ptr);
-				break;
-			case 9:
-				a_ptr->flags1 |= TR1_SPEED;
-				if (a_ptr->pval == 0) a_ptr->pval = (s16b)(3 + rand_int(3));
-				else do_pval(a_ptr);
-				break;
-
-			case 10:
-				a_ptr->flags2 |= TR2_SUST_STR;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_STR;
-					do_pval(a_ptr);
-				}
-				break;
-			case 11:
-				a_ptr->flags2 |= TR2_SUST_INT;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_INT;
-					do_pval(a_ptr);
-				}
-				break;
-			case 12:
-				a_ptr->flags2 |= TR2_SUST_WIS;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_WIS;
-					do_pval(a_ptr);
-					if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
-						a_ptr->flags3 |= TR3_BLESSED;
-				}
-				break;
-			case 13:
-				a_ptr->flags2 |= TR2_SUST_DEX;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_DEX;
-					do_pval(a_ptr);
-				}
-				break;
-			case 14:
-				a_ptr->flags2 |= TR2_SUST_CON;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_CON;
-					do_pval(a_ptr);
-				}
-				break;
-			case 15:
-				a_ptr->flags2 |= TR2_SUST_CHR;
-				if (rand_int(2) == 0)
-				{
-					a_ptr->flags1 |= TR1_CHR;
-					do_pval(a_ptr);
-				}
-				break;
-
-			case 16:
-			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ACID;
-				break;
-			}
-			case 17:
-			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_ELEC;
-				break;
-			}
-			case 18:
-			{
-				if (rand_int(4) == 0) a_ptr->flags2 |= TR2_IM_FIRE;
-				break;
-			}
-			case 19:
-			{
-				if (rand_int(3) == 0) a_ptr->flags2 |= TR2_IM_COLD;
-				break;
-			}
-			case 20: a_ptr->flags3 |= TR3_FREE_ACT; break;
-			case 21: a_ptr->flags3 |= TR3_HOLD_LIFE; break;
-			case 22: a_ptr->flags2 |= TR2_RES_ACID; break;
-			case 23: a_ptr->flags2 |= TR2_RES_ELEC; break;
-			case 24: a_ptr->flags2 |= TR2_RES_FIRE; break;
-			case 25: a_ptr->flags2 |= TR2_RES_COLD; break;
-
-			case 26: a_ptr->flags2 |= TR2_RES_POIS; break;
-			case 27: a_ptr->flags2 |= TR2_RES_LITE; break;
-			case 28: a_ptr->flags2 |= TR2_RES_DARK; break;
-			case 29: a_ptr->flags2 |= TR2_RES_BLIND; break;
-			case 30: a_ptr->flags2 |= TR2_RES_CONFU; break;
-			case 31: a_ptr->flags2 |= TR2_RES_SOUND; break;
-			case 32: a_ptr->flags2 |= TR2_RES_SHARD; break;
-			case 33:
-				if (rand_int(2) == 0)
-					a_ptr->flags2 |= TR2_RES_NETHR;
-				break;
-			case 34: a_ptr->flags2 |= TR2_RES_NEXUS; break;
-			case 35: a_ptr->flags2 |= TR2_RES_CHAOS; break;
-			case 36:
-				if (rand_int(2) == 0)
-					a_ptr->flags2 |= TR2_RES_DISEN;
-				break;
-			case 37: a_ptr->flags3 |= TR3_FEATHER; break;
-			case 38: a_ptr->flags3 |= TR3_LITE; break;
-			case 39: a_ptr->flags3 |= TR3_SEE_INVIS; break;
-			case 40:
-				if (rand_int(3) == 0)
-					a_ptr->flags3 |= TR3_TELEPATHY;
-				break;
-			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-			case 42: a_ptr->flags3 |= TR3_REGEN; break;
-		}
+                switch (rarity)
+                {
+                        case 0: add_common_ability(a_ptr); break;
+                        case 1: add_uncommon_ability(a_ptr); break;
+                        case 2: add_rare_ability(a_ptr); break;
+                        case 3: add_very_rare_ability(a_ptr); break;
+                }
 	}
 
 	/* Now remove contradictory or redundant powers. */
@@ -1862,7 +2676,7 @@ static void do_curse(artifact_type *a_ptr)
 }
 
 
-static void scramble_artifact(int a_idx)
+static void scramble_artifact(int a_idx, const object_type* base)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
@@ -1882,8 +2696,14 @@ static void scramble_artifact(int a_idx)
 	if (a_ptr->tval == 0) return;
 
 	/* Evaluate the original artifact to determine the power level. */
-	power = artifact_power(a_idx);
-	if (power < 0) curse_me = TRUE;
+	power = artifact_power(a_idx, a_ptr);
+	if (power < 0)
+        {
+                curse_me = TRUE;
+                cursed_art = TRUE;/* Alex: for do_pval()*/
+        }
+        else
+                cursed_art = FALSE;/* Alex: for do_pval()*/
 
 	if (randart_verbose)
 		msg_format("Artifact %d: power = %d", a_idx, power);
@@ -1907,8 +2727,8 @@ static void scramble_artifact(int a_idx)
 
 		do
 		{
-			choose_item(a_idx);
-			ap2 = artifact_power(a_idx);
+			choose_item(a_idx, base);
+			ap2 = artifact_power(a_idx, a_ptr);
 			count++;
 		} while ((count < MAX_TRIES) &&
 			   ((ap2 > (power * 8) / 10 + 1) ||
@@ -1931,13 +2751,15 @@ static void scramble_artifact(int a_idx)
 	/* First draft: add two abilities, then curse it three times. */
 	if (curse_me)
 	{
-		add_ability(a_ptr);
-		add_ability(a_ptr);
+                strcpy(new_property, "");
+		add_ability(a_ptr, power - artifact_power(a_idx, a_ptr));
+                strcpy(new_property, "");
+		add_ability(a_ptr, power - artifact_power(a_idx, a_ptr));
 		do_curse(a_ptr);
 		do_curse(a_ptr);
 		do_curse(a_ptr);
 		remove_contradictory(a_ptr);
-		ap = artifact_power(a_idx);
+		ap = artifact_power(a_idx, a_ptr);
 	}
 	else
 	{
@@ -1951,8 +2773,9 @@ static void scramble_artifact(int a_idx)
 
 			/* Copy artifact info temporarily. */
 			a_old = *a_ptr;
-			add_ability(a_ptr);
-			ap = artifact_power(a_idx);
+                        strcpy(new_property, "");
+			add_ability(a_ptr, power - artifact_power(a_idx, a_ptr));
+			ap = artifact_power(a_idx, a_ptr);
 
 			if (ap > (power * 11) / 10 + 1)
 			{
@@ -1977,7 +2800,7 @@ static void scramble_artifact(int a_idx)
 		{
 			a_ptr->flags3 |= TR3_AGGRAVATE;
 			remove_contradictory(a_ptr);
-			ap = artifact_power(a_idx);
+			ap = artifact_power(a_idx, a_ptr);
 		}
 	}
 
@@ -2004,6 +2827,8 @@ static void scramble_artifact(int a_idx)
 	 */
 	if (a_ptr->pval)
 		a_ptr->flags3 |= TR3_HIDE_TYPE;
+
+        last_power = ap;
 }
 
 
@@ -2091,7 +2916,7 @@ static errr scramble(void)
 		/* Generate all the artifacts. */
 		for (a_idx = 1; a_idx < z_info->a_max; a_idx++)
 		{
-			scramble_artifact(a_idx);
+			scramble_artifact(a_idx, NULL);
 		}
 
 		if (artifacts_acceptable()) break;
@@ -2099,6 +2924,7 @@ static errr scramble(void)
 
 	/* Free the "kinds" array */
 	FREE(kinds);
+        kinds = NULL;
 
 	/* Success */
 	return (0);
@@ -2144,6 +2970,447 @@ errr do_randart(u32b randart_seed, bool full)
 	Rand_quick = FALSE;
 
 	return (err);
+}
+
+/* Alex */
+/* Adds memory for n artifacts; memory is not wiped */
+/* Returns TRUE if success */
+bool realloc_art(int n){
+        int new_size = z_info->a_max + n;
+        artifact_type* a = realloc(a_info, sizeof(artifact_type)*new_size);
+        s16b* k = realloc(kinds, sizeof(s16b)*new_size);
+        if (a && k){
+                int i;
+                z_info->a_max = new_size;
+                a_head.info_ptr = a;
+                a_head.info_num = z_info->a_max;
+                a_head.info_size = z_info->a_max * sizeof(artifact_type);
+                a_info = a;
+                kinds = k;
+                for (i = z_info->a_max - n; i< z_info->a_max; i++)
+                        kinds[i] = 0;
+                return TRUE;
+        }
+        else
+                return FALSE;
+}
+
+/* Returns TRUE if success */
+bool add_artifact(const artifact_type* a_ptr /*, const char* name*/)
+{
+        int name_index = 0;
+        int text_index = rand_int(z_info->a_max-1) + 1;
+        artifact_type* a;
+        /*int name_len = 0;
+        char* names = 0;*/
+
+        /* realloc() is supposed to reserve more than one to reduce number of reallocations */
+        if (!realloc_art(1))
+                return FALSE;
+        a = &a_info[z_info->a_max-1];
+        *a = *a_ptr;
+        /*COPY(&a_info[z_info->a_max-1], a_ptr, artifact_type);*/
+        name_index = rand_int(names_list_len - 10);
+
+        while(names_list[name_index] != '\n')
+                name_index++;
+        if (name_index == names_list_len - 1)
+                /*It is impossible - "Yavanna" will be the last name*/
+                a->name = 0;
+        else
+                a->name = name_index + 1;
+
+        a->text = a_info[text_index].text;
+
+        a->cur_num = 0;
+        a->force_depth = 0;
+
+        if (!a->tval)
+                message_format(MSG_KILL, 0, "ZERO ARTIFACT TVAL!");
+
+        return TRUE;
+}
+
+/* Alex: adds extra random artifact based on old artifact number a_idx */
+/* Not used now */
+bool add_random_art(int a_idx, const object_type* base){
+        artifact_type a_old;
+        artifact_type a_new;
+
+	if ((a_idx == 1) ||             /* Alex: The Phial is the same */
+	    (a_idx == ART_POWER) ||
+	    (a_idx == ART_GROND) ||
+	    (a_idx == ART_MORGOTH))
+		return FALSE;
+
+        a_old = a_info[a_idx];
+        Rand_quick = TRUE;
+        if (base->tval)
+                scramble_artifact(a_idx, base);
+        else
+                scramble_artifact(a_idx, NULL);
+	Rand_quick = FALSE;
+        a_new = a_info[a_idx];
+        a_info[a_idx] = a_old;
+
+        msg_format("Artifact base: %d!", a_idx);
+
+        return add_artifact(&a_new);
+}
+
+void init_randart(){
+        if (!kinds)
+        {
+	        /* Allocate the "kinds" array */
+                /* FREE in done_randart() */
+	        C_MAKE(kinds, z_info->a_max, s16b);
+        }
+        if (!names_list_len) names_list_len = strlen(names_list);
+        if (!new_art_names)
+        {
+                char* cp;
+                new_art_names = malloc(names_list_len+1);
+                strcpy(new_art_names, names_list);
+                cp = new_art_names;
+                *cp = toupper(*cp);
+                while (*cp)
+                {
+                        if (*cp == '\n')
+                        {
+                                *cp = 0;
+                                cp++;
+                                if (*cp)
+                                        *cp = toupper(*cp);
+                        }
+                        else
+                                cp++;
+                }
+        }
+}
+
+void done_randart()
+{
+        if (kinds)
+        {
+                FREE(kinds);
+                kinds = NULL;
+        }
+        if (new_art_names)
+        {
+                free(new_art_names);
+                new_art_names = NULL;
+        }
+}
+
+/*base must not be NULL*/
+void make_base(artifact_type *a_ptr, const object_type* base)
+{
+        s16b k_idx;
+	object_kind *k_ptr;
+
+        k_idx = lookup_kind(base->tval, base->sval);
+        k_ptr = &k_info[k_idx];
+
+        /* Create artifact based on base */
+	a_ptr->tval = base->tval;
+	a_ptr->sval = base->sval;
+	a_ptr->pval = base->pval;
+	a_ptr->to_h = base->to_h;
+	a_ptr->to_d = base->to_d;
+	a_ptr->to_a = base->to_a;
+	a_ptr->ac = base->ac;
+	a_ptr->dd = base->dd;
+	a_ptr->ds = base->ds;
+	a_ptr->weight = base->weight;
+	a_ptr->flags1 = k_ptr->flags1;
+	a_ptr->flags2 = k_ptr->flags2;
+	a_ptr->flags3 = k_ptr->flags3;
+
+	switch (base->xtra1)
+	{
+		case OBJECT_XTRA_TYPE_SUSTAIN:
+		{
+			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
+			a_ptr->flags2 |= (OBJECT_XTRA_BASE_SUSTAIN << base->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_RESIST:
+		{
+			/* OBJECT_XTRA_WHAT_RESIST == 2 */
+			a_ptr->flags2 |= (OBJECT_XTRA_BASE_RESIST << base->xtra2);
+			break;
+		}
+
+		case OBJECT_XTRA_TYPE_POWER:
+		{
+			/* OBJECT_XTRA_WHAT_POWER == 3 */
+			a_ptr->flags3 |= (OBJECT_XTRA_BASE_POWER << base->xtra2);
+			break;
+		}
+	}
+
+        if (base->name2)
+        {
+                ego_item_type* e_ptr = &e_info[base->name2];
+                a_ptr->level = e_ptr->level;
+                a_ptr->rarity = e_ptr->rarity;
+        	a_ptr->flags1 |= e_ptr->flags1;
+	        a_ptr->flags2 |= e_ptr->flags2;
+	        a_ptr->flags3 |= e_ptr->flags3;
+        }
+        else
+        {
+        	a_ptr->level = k_ptr->level;
+	        a_ptr->rarity = k_ptr->chance[0];
+        }
+
+	/* Artifacts ignore everything */
+	a_ptr->flags3 |= TR3_IGNORE_MASK;
+
+	/* Assign basic stats to the artifact based on its artifact level. */
+                        /*
+			 * Make sure armor gets some resists!  Hard body armor
+			 * is generally high-level stuff, with good ac and
+			 * to_a.  That sucks up all the points....
+			 */
+        switch (a_ptr->tval)
+	{
+                case TV_SOFT_ARMOR:
+	        case TV_HARD_ARMOR:
+	                if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ACID;
+		        if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ELEC;
+		        if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_COLD;
+		        if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_FIRE;
+		        break;
+        }
+        if (a_ptr->rarity <1)
+                a_ptr->rarity = 1;
+}
+
+/* Alex: adds extra random artifact begining from base object) */
+bool add_new_art(int power, const object_type* base, bool player_choose)
+{
+        artifact_type art_body;
+        artifact_type* a_ptr = &art_body;
+        s32b initial_cost = 0;
+
+        if (!base)
+        {
+                last_power = 0;
+                return FALSE;
+        }
+
+        initial_cost = object_value_real(base);
+
+        make_base(a_ptr, base);
+
+        if (!enchant_artifact(a_ptr, power, player_choose))
+                return FALSE;
+
+	a_ptr->cost += initial_cost;
+
+        if (!rand_int(3))
+                a_ptr->flags3 |= TR3_ACTIVATE; /*This flag might be set in make_base() */
+
+
+        /* Note that ACT_MAX means "activation as a base object kind"
+         * (see script object.lua)
+        */
+        if (a_ptr->flags3 & TR3_ACTIVATE)
+        {
+                a_ptr->time = 0;
+                a_ptr->randtime = 0;
+                switch (a_ptr->tval)
+                {
+                case TV_RING:
+                        {
+                                switch (a_ptr->sval)
+                                {
+                                case SV_RING_ACID:
+                                case SV_RING_FLAMES:
+                                case SV_RING_ICE:
+                                case SV_RING_LIGHTNING:
+                                        a_ptr->activation = ACT_MAX;
+                                        a_ptr->time = 25;
+                                        a_ptr->randtime = 25;
+                                        break;
+                                default:
+                                        a_ptr->activation = (byte)rand_int(ACT_MAX);
+                                }/*TV_RING, switch (a_ptr->sval)*/
+                                break;
+                        }
+                case TV_LITE:
+                        {
+                                if (rand_int(3))
+                                {
+                                        a_ptr->activation = ACT_ILLUMINATION;
+                                        a_ptr->time = (u16b)rand_int(11);
+                                        a_ptr->randtime = 10;
+                                }
+                                else
+                                        a_ptr->activation = (byte)rand_int(ACT_MAX);
+                                break;
+                        }
+                case TV_DRAG_ARMOR:
+                                a_ptr->activation = ACT_MAX;
+                                a_ptr->time = 200;
+                                a_ptr->randtime = 200;
+                                break;
+                default:
+                        a_ptr->activation = (byte)rand_int(ACT_MAX);
+                }/*switch (a_ptr->tval)*/
+                if (!a_ptr->time && !a_ptr->randtime)
+                {
+                        a_ptr->time = (u16b)(10*(4 + rand_int(10) + rand_int(10) + rand_int(10) + rand_int(10)));
+                        a_ptr->randtime = (u16b)(10*rand_int(a_ptr->time/10));
+                }
+
+        }
+        else
+        {
+                a_ptr->activation = ACT_MAX;
+                a_ptr->time = a_ptr->randtime = 0;
+        }
+
+        if (is_special(a_ptr->tval))
+                a_ptr->flags3 |= TR3_INSTA_ART;
+
+        a_ptr->cur_num = 0;
+        a_ptr->force_depth = 0;
+        a_ptr->max_num = 1;
+        
+        return add_artifact(a_ptr);
+}
+
+/* Alex: enchant an existing artifact */
+bool enchant_artifact(artifact_type* a_ptr, int power, bool player_choose)
+{
+        artifact_type art_try;
+        int original_power = 0;
+        int prev_power = 0;
+
+        if (power >= 0)
+        {
+                cursed_art = FALSE;
+                while (!rand_int(GREAT_OBJ))
+                        power += 50;
+        }
+        else
+                cursed_art = TRUE;
+
+        if (power >= 0)
+        {
+                int i;
+
+
+                original_power = prev_power = artifact_power(0, a_ptr);
+                if (original_power > power)
+		{
+			last_power = original_power;
+                        return FALSE;
+		}
+
+                art_try = *a_ptr;
+                if (player_choose) msg_format("Maximum artifact power: %d", power);
+
+                for (i = 0; i < MAX_TRIES; i++)
+                {
+                        if (player_choose) msg_format("Try: %d of %d.", i + 1, MAX_TRIES);
+                        while(1)
+                        {
+                                bool accept = FALSE;
+                                int old_pval = art_try.pval;
+                                strcpy(new_property, "");
+                                add_ability(&art_try, power - prev_power);
+                                last_power = artifact_power(0, &art_try);
+                                if (last_power <= power)
+                                {
+                                        if (player_choose)
+                                        {
+                                                if (last_power != prev_power)
+                                                {
+                                                        /*  Something changes */
+                                                        if (old_pval != art_try.pval) msg_format("New pval: %d.", art_try.pval);
+							else msg_format("pval: %d.", art_try.pval);
+                                                        if (new_property[0] != '\0') msg_format("New ablity:%s.", new_property);
+                                                        msg_format("New power: %d (%+d) of %d.", last_power, last_power-prev_power, power);
+                                                }
+                                                if (last_power > prev_power)
+                                                {
+                                                        /* Good change - ask player */
+                                                        char out_val[2] = "n";
+                                	                if (get_string("Do you accept new ability? (y/n)", out_val, 2) && out_val[0] == 'y')
+                                                                accept = TRUE;
+                                                        else
+                                                                accept = FALSE;
+                                                }
+                                                /* Automatically accept bad changes */
+                                                else if (last_power < prev_power)
+                                                                accept = TRUE;
+                                                        else
+                                                                accept = FALSE;
+                                        }
+                                        else
+                                                accept = TRUE;
+                                        if (accept)
+                                        {
+                                                *a_ptr = art_try;
+                                                prev_power = last_power;
+                                        }
+                                        else
+                                        {
+                                                art_try = *a_ptr;
+                                        }
+                                }
+                                else
+                                {
+                                        art_try = *a_ptr;
+                                        break;
+                                }
+                        }
+                        prev_power = artifact_power(0, a_ptr);
+                        if (prev_power == power)
+                                break;
+                }
+		last_power = prev_power;
+                if (prev_power > power)
+                        return FALSE;
+        }
+        else
+        {
+                original_power = last_power = artifact_power(0, a_ptr);
+                while(last_power > power)
+                {
+                        strcpy(new_property, "");
+                        add_ability(a_ptr, power - last_power);
+                        do_curse(a_ptr);
+                        remove_contradictory(a_ptr);
+                        last_power = artifact_power(0, a_ptr);
+                }
+                if (!rand_int(4))
+		{
+			a_ptr->flags3 |= TR3_HEAVY_CURSE;
+			if (!rand_int(4))
+				a_ptr->flags3 |= TR3_PERMA_CURSE;
+		}
+        }
+
+	a_ptr->cost = last_power * 1000L;
+
+	if (a_ptr->cost < 0) a_ptr->cost = 0;
+
+	if (abs(last_power / 8) > a_ptr->rarity)
+		a_ptr->rarity = abs(last_power / 8);
+
+	/*
+	 * Add TR3_HIDE_TYPE to all artifacts with nonzero pval because we're
+	 * too lazy to find out which ones need it and which ones don't.
+	 */
+	if (a_ptr->pval)
+		a_ptr->flags3 |= TR3_HIDE_TYPE;
+
+        return original_power != last_power;
 }
 
 #else /* GJW_RANDART */

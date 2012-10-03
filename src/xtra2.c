@@ -1753,6 +1753,7 @@ void gain_exp(s32b amount)
 {
 	/* Gain some experience */
 	p_ptr->exp += amount;
+        message_format(MSG_LEVEL, 0, "{%d}.", amount);
 
 	/* Slowly recover from experience drainage */
 	if (p_ptr->exp < p_ptr->max_exp)
@@ -1765,6 +1766,13 @@ void gain_exp(s32b amount)
 	check_experience();
 }
 
+/*
+ * Alex: get exps for object identification by trying
+ */
+void gain_object_exp(s32b obj_lev)
+{
+	gain_exp(EXP_ITEM * obj_lev + 1);
+}
 
 /*
  * Lose experience
@@ -1828,7 +1836,7 @@ static void build_quest_stairs(int y, int x)
 	/* Stagger around */
 	while (!cave_valid_bold(y, x))
 	{
-		int d = 1;
+		int d = 2;
 
 		/* Pick a location */
 		scatter(&ny, &nx, y, x, d, 0);
@@ -1854,6 +1862,190 @@ static void build_quest_stairs(int y, int x)
 }
 
 
+/*Alex: returns true if item exists
+ * Code is taken from monster_death
+ */
+bool get_monster_item(int m_idx, object_type* o_ptr)
+{
+	int dump_item = 0;
+	int dump_gold = 0;
+
+	s16b this_o_idx = 0;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
+
+	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
+	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
+
+	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
+	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+
+	int force_coin = get_coin_type(r_ptr);
+
+	/*object_type object_type_body;
+	object_type *i_ptr;*/
+
+        int i;
+
+        /* Alex */
+        int gold_prob = 0;
+        bool unique = ((r_ptr->flags1 & (RF1_UNIQUE))!=0);
+
+        object_wipe(o_ptr);
+
+        /* Alex: get ancestor inventory*/
+        if(m_ptr->ancestor_inventory)
+        {
+                for (i = 0; i<dead_objects; i++)
+                {
+                        if (p_ptr->depth + 1 == dead_objects_depth[i])
+                        {
+                                int a_idx = 0;
+                		/*drop_near(&dead_inventory[i], -1, y, x);*/
+                                object_copy(o_ptr, &dead_inventory[i]);
+                                dead_objects_depth[i] = 0;
+                                a_idx = dead_inventory[i].name1;
+                                if (a_idx)
+                                {
+                                        char o_name[80];
+                                        a_info[a_idx].cur_num = 1;
+                                        a_info[a_idx].force_depth = 0;
+                        	        object_desc_store(o_name, &dead_inventory[i], FALSE, 0);
+                                        msg_format("Ancestor artifact! (%s)", o_name);
+                                }
+                                return TRUE;
+                        }
+                }
+                m_ptr->ancestor_inventory = FALSE;
+        }
+
+        this_o_idx = m_ptr->hold_o_idx;
+
+        if (this_o_idx)
+        {
+                /* First object being carried */
+	        object_type *i_ptr = &o_list[this_o_idx];
+
+        	/* Copy the object */
+		object_copy(o_ptr, i_ptr);
+
+        	/* Delete the object */
+		delete_object_idx(this_o_idx);
+                
+		o_ptr->held_m_idx = 0;
+
+		/* Drop it in the dungeon */
+		/*drop_near(i_ptr, -1, y, x);*/
+
+                return TRUE;
+        }
+
+        /*Check for no more objects*/
+        if (!m_ptr->total_items) return FALSE;
+
+	/* Hack -- handle creeping coins */
+	coin_type = force_coin;
+
+	/* Average dungeon and monster levels */
+	object_level = (p_ptr->depth + r_ptr->level) / 2;
+
+        /* Alex: if great before unique, +20 */
+        if (great) object_level += 20;
+        /* great |= unique; */
+
+        /* Alex */
+        if (do_gold)
+                gold_prob = 99;
+        else
+                gold_prob = 95;
+        if (unique)
+                gold_prob = 0;
+        else
+                gold_prob -= r_ptr->level / 5;
+
+        do_gold = do_gold | !unique;
+
+	/* Make Gold */
+	if (do_gold && (!do_item || (rand_int(100) < gold_prob)))
+	{
+	        /* Make some gold */
+		if (!make_gold(o_ptr)) return FALSE;
+
+		/* Assume seen XXX XXX XXX */
+		dump_gold++;
+	}
+
+	/* Make Object */
+	else
+	{
+		/* Make an object */
+		if (!make_object(o_ptr, good, great)) return FALSE;
+
+		/* Assume seen XXX XXX XXX */
+		dump_item++;
+	}
+
+	/* Drop it in the dungeon */
+	/*drop_near(i_ptr, -1, y, x);*/
+
+
+	/* Reset the object level */
+	object_level = p_ptr->depth;
+
+	/* Reset "coin" type */
+	coin_type = 0;
+
+
+	/* Take note of any dropped treasure */
+	if (visible && (dump_item || dump_gold))
+	{
+		/* Take notes on treasure */
+		lore_treasure(m_idx, dump_item, dump_gold);
+	}
+
+        /*Alex*/
+        m_ptr->total_items--;
+        return TRUE;
+}/*get_monster_item*/
+
+/* Alex: monster in fear drops his items */
+/* Return number of items that monster drops */
+int drop_some_monster_items(int m_idx, cptr msg)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+        int item_number = 0;
+        int total_items = m_ptr->total_items;
+        char m_name[80];
+        object_type obj;
+        while (rand_int(100)<80)
+        {
+                if (get_monster_item(m_idx, &obj))
+                {
+                        drop_near(&obj, -1, m_ptr->fy, m_ptr->fx);
+                        item_number++;
+                }
+        }
+        if (item_number>0)
+        {
+                /*Monster can drop more than his race total
+                 * (he can pick up items or carries ancestor inventory) */
+                int lore_no = MIN(item_number, total_items);
+                bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+                if (do_item)
+                        lore_treasure(m_idx, lore_no, 0);
+                else
+                        lore_treasure(m_idx, 0, lore_no);
+
+        	monster_desc(m_name, m_ptr, 0);
+                msg_format("%s %s", m_name, msg);
+        }
+        return item_number;
+}
+
 /*
  * Handle the "death" of a monster.
  *
@@ -1870,65 +2062,75 @@ static void build_quest_stairs(int y, int x)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x;
+	int i, y, x;
 
-	int dump_item = 0;
+	/*int dump_item = 0;
 	int dump_gold = 0;
 
-	int number = 0;
+	int number = 0;*/
 	int total = 0;
 
-	s16b this_o_idx, next_o_idx = 0;
+	/*s16b this_o_idx, next_o_idx = 0;*/
 
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
+	/*bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
 	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
 	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
 
-	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
+        bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
-	int force_coin = get_coin_type(r_ptr);
+	int force_coin = get_coin_type(r_ptr);*/
 
 	object_type *i_ptr;
 	object_type object_type_body;
+
+        /* Alex */
+        /*int gold_prob = 0;*/
+
+        /* Alex */
+        /*bool unique = ((r_ptr->flags1 & (RF1_UNIQUE))!=0);*/
 
 
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+        while (get_monster_item(m_idx, &object_type_body))
+        {
+                drop_near(&object_type_body, -1, y, x);
+        }
 
 	/* Drop objects being carried */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	/*for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
 
-		/* Get the object */
+		/* Get the object 
 		o_ptr = &o_list[this_o_idx];
 
-		/* Get the next object */
+		/* Get the next object 
 		next_o_idx = o_ptr->next_o_idx;
 
-		/* Paranoia */
+		/* Paranoia 
 		o_ptr->held_m_idx = 0;
 
-		/* Get local object */
+		/* Get local object 
 		i_ptr = &object_type_body;
 
-		/* Copy the object */
+		/* Copy the object 
 		object_copy(i_ptr, o_ptr);
 
-		/* Delete the object */
+		/* Delete the object 
 		delete_object_idx(this_o_idx);
 
-		/* Drop it */
+		/* Drop it 
 		drop_near(i_ptr, -1, y, x);
-	}
+	}*/
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
@@ -1947,7 +2149,7 @@ void monster_death(int m_idx)
 		i_ptr->name1 = ART_GROND;
 
 		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE, FALSE);
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -1963,7 +2165,7 @@ void monster_death(int m_idx)
 		i_ptr->name1 = ART_MORGOTH;
 
 		/* Mega-Hack -- Actually create "Morgoth" */
-		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE, FALSE, FALSE);
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -1971,65 +2173,76 @@ void monster_death(int m_idx)
 
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
+	/*if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
 	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
 	if (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
 	if (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+        */
+        /*Alex*/
+        /*number = m_ptr->total_items;*/
 
 	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
+	/*coin_type = force_coin;*/
 
 	/* Average dungeon and monster levels */
-	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	/*object_level = (p_ptr->depth + r_ptr->level) / 2;*/
 
+        /* Alex: if great before unique, +20 */
+        /*if (great) object_level += 20;*/
+        /* great |= unique; */
+        /* Alex */
+        /*if (do_gold)
+                gold_prob = unique ? 0 : 95;
+        else
+                gold_prob = 0;*/
 	/* Drop some objects */
-	for (j = 0; j < number; j++)
+	/*for (j = 0; j < number; j++)
 	{
-		/* Get local object */
+		/* Get local object 
 		i_ptr = &object_type_body;
 
-		/* Wipe the object */
+		/* Wipe the object 
 		object_wipe(i_ptr);
 
-		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		/* Make Gold 
+		if (do_gold && (!do_item || (rand_int(100) < gold_prob)))
 		{
-			/* Make some gold */
+			/* Make some gold 
 			if (!make_gold(i_ptr)) continue;
 
-			/* Assume seen XXX XXX XXX */
+			/* Assume seen XXX XXX XXX 
 			dump_gold++;
 		}
 
-		/* Make Object */
+		/* Make Object 
 		else
 		{
-			/* Make an object */
+			/* Make an object 
 			if (!make_object(i_ptr, good, great)) continue;
 
-			/* Assume seen XXX XXX XXX */
+			/* Assume seen XXX XXX XXX 
 			dump_item++;
 		}
 
-		/* Drop it in the dungeon */
+		/* Drop it in the dungeon 
 		drop_near(i_ptr, -1, y, x);
-	}
+	}*/
 
 	/* Reset the object level */
-	object_level = p_ptr->depth;
+	/*object_level = p_ptr->depth;*/
 
 	/* Reset "coin" type */
-	coin_type = 0;
+	/*coin_type = 0;*/
 
 
 	/* Take note of any dropped treasure */
-	if (visible && (dump_item || dump_gold))
+	/*if (visible && (dump_item || dump_gold))
 	{
-		/* Take notes on treasure */
+		/* Take notes on treasure 
 		lore_treasure(m_idx, dump_item, dump_gold);
-	}
+	}*/
 
 
 	/* Only process "Quest Monsters" */
@@ -2065,6 +2278,16 @@ void monster_death(int m_idx)
 	}
 }
 
+/* Alex */
+void msg_dam(const char* msg, int dam)
+{
+        if (last_hit)
+                message_format(MSG_HIT, 0, "%^s [%d](%d).", msg, last_hit*4/3, dam);
+        else
+                message_format(MSG_HIT, 0, "%^s (%d).", msg, dam);
+        last_hit = 0;
+}
+
 
 
 
@@ -2091,45 +2314,56 @@ void monster_death(int m_idx)
  * worth more than subsequent monsters.  This would also need to
  * induce changes in the monster recall code.  XXX XXX XXX
  */
-bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
+ /*Alex: returns real damage in int* dam */
+bool mon_take_hit(int m_idx, int* dam, bool *fear, cptr note, bool show_msg_dam)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+        char m_name[80];
 
-	s32b div, new_exp, new_exp_frac;
-
+	/* Extract monster name */
+	monster_desc(m_name, m_ptr, 0);
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+        /*Alex: double damage if sleep */
+        if (m_ptr->csleep)
+                (*dam) *= 2;
+
+        /*Alex*/
+        if (show_msg_dam)
+                msg_dam("", *dam);
 
 	/* Wake it up */
-	m_ptr->csleep = 0;
+        if (*dam>0)
+	        m_ptr->csleep = 0;
+
+        /*Alex: uniques can be killed only after 1% of maxhp - 
+         * in order to give them flee in terror without killing */
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) &&
+             (*dam > m_ptr->hp) &&
+             (m_ptr->hp > m_ptr->maxhp/100))
+             *dam = m_ptr->hp;
 
 	/* Hurt it */
-	m_ptr->hp -= dam;
+        m_ptr->hp -= *dam;
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[80];
-
-		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s(%d)", m_name, note, *dam);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s (%d).", m_name, *dam);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -2138,7 +2372,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		         (r_ptr->flags2 & (RF2_STUPID)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s (%d).", m_name, *dam);
 		}
 
 		/* Death by Physical attack -- living monster */
@@ -2147,29 +2381,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
-		/* Player level */
-		div = p_ptr->lev;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
-
-		/* Gain experience */
-		gain_exp(new_exp);
+                /*Alex: full monster exps for killing */
+                get_monster_exp(m_idx, 1, 1);
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -2200,13 +2413,33 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
+        /*if (*dam > m_ptr->hp/10)
+        {
+                int items = drop_some_monster_items(m_idx, "drops something in pain!");
+                if (items) get_monster_exp(m_idx, 20, items);/*Alex: 5% of monster exps for each item
+        }*/
+        /* Pain by Physical attack */
+        if (r_ptr->flags2 & (RF2_LOUD_CRY) && !note)
+	{
+                /*Here we should call message_pain().
+                 *But in this case we receive two messages with damage.
+                 *We NEED some unification of monsters reaction on damage.*/
+                int i = pain_level(m_ptr->hp, *dam);
+                if (pain_noise[i] > 0)
+                {
+                        msg_format("%^s cries in pain!!!", m_name);
+	                wake_monsters(m_idx, pain_noise[i]*r_ptr->level, TRUE);
+		        l_ptr->flags2 |= RF2_LOUD_CRY;
+                }
+	}
+
 
 #ifdef ALLOW_FEAR
 
 	/* Mega-Hack -- Pain cancels fear */
-	if (m_ptr->monfear && (dam > 0))
+	if (m_ptr->monfear && (*dam > 0))
 	{
-		int tmp = randint(dam);
+		int tmp = randint(*dam);
 
 		/* Cure a little fear */
 		if (tmp < m_ptr->monfear)
@@ -2227,7 +2460,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
+	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (*dam > 0))
 	{
 		int percentage;
 
@@ -2239,14 +2472,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * or (usually) when hit for half its current hit points
 		 */
 		if ((randint(10) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
+		    ((*dam >= m_ptr->hp) && (rand_int(100) < 80)))
 		{
-			/* Hack -- note fear */
+                        /* Alex: monster in fear drops his items */
+                        /*int items = drop_some_monster_items(m_idx, "drops something in fear!");
+                        if (items)
+                                get_monster_exp(m_idx, 20, items);/*Alex: 5% of monster exps for each item */
+
+                        /* Hack -- note fear */
 			(*fear) = TRUE;
 
 			/* Hack -- Add some timed fear */
 			m_ptr->monfear = (randint(10) +
-			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
+			                  (((*dam >= m_ptr->hp) && (percentage > 7)) ?
 			                   20 : ((11 - percentage) * 5)));
 		}
 	}

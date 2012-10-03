@@ -94,7 +94,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_WEAKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			take_hit(damroll(6, 6), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_STR);
 			*ident = TRUE;
 			break;
@@ -102,7 +102,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_SICKNESS:
 		{
-			take_hit(damroll(6, 6), "poisonous food");
+			take_hit(damroll(6, 6), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_CON);
 			*ident = TRUE;
 			break;
@@ -110,7 +110,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_STUPIDITY:
 		{
-			take_hit(damroll(8, 8), "poisonous food");
+			take_hit(damroll(8, 8), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_INT);
 			*ident = TRUE;
 			break;
@@ -118,7 +118,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_NAIVETY:
 		{
-			take_hit(damroll(8, 8), "poisonous food");
+			take_hit(damroll(8, 8), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_WIS);
 			*ident = TRUE;
 			break;
@@ -126,7 +126,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_UNHEALTH:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
+			take_hit(damroll(10, 10), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_CON);
 			*ident = TRUE;
 			break;
@@ -134,7 +134,7 @@ static bool eat_food(object_type *o_ptr, bool *ident)
 
 		case SV_FOOD_DISEASE:
 		{
-			take_hit(damroll(10, 10), "poisonous food");
+			take_hit(damroll(10, 10), "Poison!", "poisonous food");
 			(void)do_dec_stat(A_STR);
 			*ident = TRUE;
 			break;
@@ -320,8 +320,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_RUINATION:
 		{
-			msg_print("Your nerves and muscles feel weak and lifeless!");
-			take_hit(damroll(10, 10), "a potion of Ruination");
+			take_hit(damroll(10, 10), "Your nerves and muscles feel weak and lifeless!", "a potion of Ruination");
 			(void)dec_stat(A_DEX, 25, TRUE);
 			(void)dec_stat(A_WIS, 25, TRUE);
 			(void)dec_stat(A_CON, 25, TRUE);
@@ -370,8 +369,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DETONATIONS:
 		{
-			msg_print("Massive explosions rupture your body!");
-			take_hit(damroll(50, 20), "a potion of Detonation");
+			take_hit(damroll(50, 20), "Massive explosions rupture your body!", "a potion of Detonation");
 			(void)set_stun(p_ptr->stun + 75);
 			(void)set_cut(p_ptr->cut + 5000);
 			*ident = TRUE;
@@ -380,8 +378,7 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
+			take_hit(5000, "A feeling of Death flows through your body.", "a potion of Death");
 			*ident = TRUE;
 			break;
 		}
@@ -837,34 +834,34 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_ENCHANT_ARMOR:
 		{
 			*ident = TRUE;
-			if (!enchant_spell(0, 0, 1)) used_up = FALSE;
+			if (!enchant_spell(0, 0, 1, FALSE, FALSE)) used_up = FALSE;
 			break;
 		}
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
 		{
-			if (!enchant_spell(1, 0, 0)) used_up = FALSE;
+			if (!enchant_spell(1, 0, 0, FALSE, FALSE)) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
 		{
-			if (!enchant_spell(0, 1, 0)) used_up = FALSE;
+			if (!enchant_spell(0, 1, 0, FALSE, FALSE)) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
+			if (!enchant_spell(0, 0, randint(3) + 2), FALSE, FALSE) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
+			if (!enchant_spell(randint(3), randint(3), 0), FALSE, FALSE) used_up = FALSE;
 			*ident = TRUE;
 			break;
 		}
@@ -976,7 +973,13 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_STAR_DESTRUCTION:
+		case SV_SCROLL_CREATE_EGO:
+		{
+			if (enchant_spell(-1, 0, 0, FALSE, TRUE)) *ident = TRUE;
+			break;
+		}
+
+                case SV_SCROLL_STAR_DESTRUCTION:
 		{
 			destroy_area(py, px, 15, TRUE);
 			*ident = TRUE;
@@ -989,7 +992,13 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 			break;
 		}
 
-		case SV_SCROLL_GENOCIDE:
+		case SV_SCROLL_CREATE_ARTIFACT:
+		{
+			if (enchant_spell(-1, 0, 0, TRUE, FALSE)) *ident = TRUE;
+			break;
+		}
+
+                case SV_SCROLL_GENOCIDE:
 		{
 			(void)genocide();
 			*ident = TRUE;
@@ -1198,7 +1207,7 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters()) *ident = TRUE;
+			if (sleep_monsters(POWER_STAFF)) *ident = TRUE;
 			break;
 		}
 
@@ -1273,6 +1282,13 @@ static bool use_staff(object_type *o_ptr, bool *ident)
 			*ident = TRUE;
 			break;
 		}
+
+                case SV_STAFF_VISIT_HOME:
+		{
+			door_creation();
+			*ident = TRUE;
+			break;
+		}
 	}
 
 	return (use_charge);
@@ -1285,10 +1301,12 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 
 	/* Allow direction to be cancelled for free */
-	if (!get_aim_dir(&dir)) return (FALSE);
+	if (!get_aim_dir(&dir))
+        {
+        	p_ptr->energy_use = 0;
+                return (FALSE);
+        }
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -1396,7 +1414,7 @@ static bool aim_wand(object_type *o_ptr, bool *ident)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) *ident = TRUE;
+			if (sleep_monster(dir, POWER_WAND)) *ident = TRUE;
 			break;
 		}
 
@@ -1578,12 +1596,13 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 	if ((o_ptr->sval >= SV_ROD_MIN_DIRECTION) || !object_aware_p(o_ptr))
 	{
 		/* Get a direction, allow cancel */
-		if (!get_aim_dir(&dir)) return FALSE;
+		if (!get_aim_dir(&dir))
+                {
+                	p_ptr->energy_use = 0;
+                        return (FALSE);
+                }
 	}
 
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	*ident = FALSE;
@@ -1662,8 +1681,9 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_ILLUMINATION:
 		{
-			if (lite_area(damroll(2, 8), 2)) *ident = TRUE;
-			o_ptr->pval = 30;
+			wiz_lite();
+                        *ident = TRUE;
+			o_ptr->pval = 999;
 			break;
 		}
 
@@ -1680,6 +1700,14 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 			detect_all();
 			*ident = TRUE;
 			o_ptr->pval = 99;
+			break;
+		}
+
+		case SV_ROD_STAR_DETECTION:
+		{
+			detect_all();
+			*ident = TRUE;
+			o_ptr->pval = 9;
 			break;
 		}
 
@@ -1763,7 +1791,7 @@ static bool zap_rod(object_type *o_ptr, bool *ident)
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) *ident = TRUE;
+			if (sleep_monster(dir, POWER_ROD)) *ident = TRUE;
 			o_ptr->pval = 18;
 			break;
 		}

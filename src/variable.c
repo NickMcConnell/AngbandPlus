@@ -131,6 +131,8 @@ bool good_item_flag;	/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
+enum StormLevel storm_level;         /* Alex: see process_world() */
+
 
 /*
  * Player info
@@ -144,6 +146,9 @@ int player_egid;
  * Buffer to hold the current savefile name
  */
 char savefile[1024];
+
+/* Alex: buffer to hold artifacts and AG file name */
+char ag_file[1024];/* Filled in load_ag() */
 
 
 /*
@@ -352,6 +357,19 @@ store_type *store;
  * Array[INVEN_TOTAL] of objects in the player's inventory
  */
 object_type *inventory;
+
+/* Alex: number of ancestor's objects */
+s16b dead_objects = 0;
+/* 
+ * Array [dead_objects] of object's depth+1
+ * (so dead_objects_depth[i] == 0 means that this object does not exists).
+ * dead_objects_depth allocated in rd_ag_file_new_aux()
+ */
+s16b* dead_objects_depth = NULL;
+/* 
+ * Array [dead_objects] of objects in dead players inventory
+ */
+object_type* dead_inventory = NULL;
 
 
 /*

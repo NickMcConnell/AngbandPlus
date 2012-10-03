@@ -47,7 +47,7 @@ typedef int errr;
 /*
  * Maximum number of players spells
  */
-#define PY_MAX_SPELLS 64
+#define PY_MAX_SPELLS 66
 
 
 /*
@@ -232,6 +232,8 @@ struct player_type
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield;	/* Icky weapon */
 
+        enum WeaponMode weapon_mode;         /* Alex: one weapon, two weapons, or one weapon at two hands */
+	
 	s16b cur_lite;		/* Radius of lite (if any) */
 
 	u32b notice;		/* Special Updates (bit flags) */
@@ -525,7 +527,7 @@ extern bool hp_player(int num);
 extern bool do_dec_stat(int stat);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
-extern void take_hit(int dam, cptr kb_str);
+void take_hit(int dam, cptr msg, cptr kb_str);
 extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);

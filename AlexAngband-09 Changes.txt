@@ -1,0 +1,65 @@
+Author: Alexander Pirozhkov
+pirozh@sci.lebedev.ru
+
+WARNINGS:
+1.	Unfortunately, original 3.0.0 save files are currently not supported.
+2.	I have introduced two symbols ('0' and '9') for new shops. As a result, the symbol table shifted by two symbols after numbers (shops). I have changed "font.prf" (the common file) and "font-win.prf" (the win-specific file). They are correct now. I have not changed font files for other systems as I could not test them. You have to change your system specific file yourself.
+3.	Currently source MUST be compiled with defined USE_SCRIPT (new magic books – "Great Book of Rogues", "Mages", and "Priests" are not present in the source, but in script only).
+4.	I suppose there are bugs as I was the only tester yet.
+
+List of most important changes:
+
+					"It is stealth that is the best friend of adventurer."
+
+1.	Spells/Prayers "Create Artifact" and "Create Ego Item" help casters to obtain useful items (they must sacrifice experience levels to do this). For ego items sacrifice is fixed (one level). For artifact, the more experience levels are sacrificed, the more powerful artifact will be. Player has the limited ability to choose the properties of the new artifact. EXAMPLE: with this vesrion I included a save file (Alex). Load it and try to read the scroll *Enchant Item* (like Create Artifact spell but without experience lost).
+2.	Home, Artifacts, Uniques, Objects memory, Monsters memory are saved in a separate file (named AG). All players share this file. After player death his inventory is saved (in AG file) and then can be found at the depth of death. Inventory is carried by one of the (not Unique) monsters. Explanation: to kill Morgoth is the quest for many adventurers. They act in The Same Place.
+To start a really new game, delete the file Lib\Save\AG.
+3.	Chance to hit and to cast a spell now decrease with overall damage. This affects player and monsters as well. As a consequence, CLW, CSW, CCW effects are increased.
+4.	The probability to find items in dungeon is greatly reduced. Player finds money in the dungeon and spends them in the town. Stores are updated - more items, more good and great items. Unique monsters almost always carry items. So don't kill them if you are a rogue - steal items instead. When unique is generated at another dungeon level, he carries new items.
+5.	Some actions produce loud noise that wakes up nearby monsters. These actions currently are: digging, monster's hits, and monster's cry. (This list should be expanded, of course).
+6.	Rods, Staves, Wands, Scrolls, Potions can be worn on and used from the Belt ('y' to see the Belt, 'w' to wear, 't','/' to take off ('/' toggles between Inven/Equip/Belt)). Items on the Belt cannot be stacked. It is much faster to use item from the belt (a half of a turn) then from the pack/floor (1.5 turns). Rods do not charge in the backpack.
+7.	Introduced weapon modes: one weapon (normal), two weapons (second weapon instead of shield, penalty 2 to blows number to each weapon, severe penalty to hit), one weapon in two hands (empty shield slot, double Str bonus to damage, effective weight is halved). Two weapons of the same kind induce less penalty (-1 blow, less penalty to hit) as this "configuration" allows using weapon symmetry in combat.
+8.	Books can be wielded in hands (weapon or shield slots). It takes one turn to cast/pray from book in hands and 2 turns to cast/pray from book in the backpack/on the floor. Advice: define spell macros via a book number, not a letter. Example: inscribe (command key '{') "Magic for Beginners" with @0, then define a macro m0a (magic missile). This will work with book in hands and in the pack. A question: should we allow striking monsters with a book?
+9.	Introduced storm levels. Some dungeon levels engulfed in elemental, toxic, or mana storms. Monsters (and player) without immunity loose HP (and SP in the case of mana storm). Strong regeneration still adds HP and SP. Storm level has one "Storm" artifact. "Storm" artifacts are rare and powerful - don't miss them!
+10.	Rogues can now backstab sleeping monsters (by hand weapon). (Damage multiplier is exp_level/10+2.) Rogues can also steal items by bare hands if monster is sleeping. Now rogues are weaker in combat, but with better stealth/savings/find_traps.
+11.	Random Artifacts in addition to standard ones.
+12.	Sleeping monsters takes double damage from any attack.
+13.	Unique monsters now roll saving throw vs. sleep, slow etc, no automatic immunity.
+14.	Power of sleep, slow, etc. now depends on spell source. Wand has power of 10, staff 20, rod 30, player spell has power=exp_level. Artifact power=100.
+15.	Exp for defeating monster = exp*monster_level/player_max_level (instead of player_current_level). Explanation: after Create Artifact player can receive above-30 level by killing just one monster.
+16.	Breakage chance of all items (including ammo) reduces by 1% with every "Plus" (to hit, damage, or AC).
+17.	Two new stores (Adventurers Guilds). These stores interact with players only (no new items except from player, no items sold except to player). Owners of these stores have a lot of money. These stores are saved in AG file (as Home; other stores are not).
+18.	Rod of Perception now acts as Scroll of *Identify*.
+19.	Rod of Enlightement now acts as Potion of Enlightement.
+20.	Monsters generated during the game are sleeping.
+21.	Artifact rarity check now made from random artifact number, then cycle.
+22.	Word of Recall now teleport to max_depth+1 level.
+23.	Money of shop owners now increased/decreased when they sell/buy.
+24.	Rings and Boots of Speed become 10 times cheaper.
+25.	+Speed and +Blow now cost 5000 per plus (pval).
+26.	There is at least one Unique at every dungeon level (if Unique is available).
+27.	'Enter' now chooses the first appropriate item in the backpack.
+28.	It is possible to enchant weapon and armor up to (+25,+25) and [+25]. Weapon/armor of such quality or better are not present in a list of items for enchantment.
+29.	Scrolls of Enchant Item, *Enchant Item*, Acquirement, *Acquirement* now have resistance vs. all elements.
+30.	Out-of-depth artifacts now more often (4-5 times).
+31.	Rods of Curing and Healing can be activated once per 200 rounds.
+32.	Teleport Level now teleports to max_depth + rand_int(player_exp_level). At the 50th experience level, player can choose the destination depth.
+33.	A number of changes in items, spells; several new spells.
+
+NEW ITEMS
+1.	Rod of *Detection*. As Rod of Detection, but can be activated every 10 turns.
+2.	Book of Magic Spells [Great Book of Rogues].
+3.	Book of Magic Spells [Great Book of Mages].
+4.	Book of Prayers [Great Book of Priests].
+5.	Scroll of Enchant Item (as Create Ego spell).
+6.	Scroll of *Enchant Item* (as Create Artifact spell).
+7.	Scroll of Visit the Home (as spell).
+
+There are a number of changes not listed here (find "Alex" in the source code).
+
+NOTES:
+1.	No messages for Farmer Maggot - a kind of "bug" that reduces number of "Esc"s needed.
+2.	There are no flawors for new special artifacts (amulets, rings, etc).
+
+BUG FIXES:
+1.	Bug in scatter() function (cave.c) which can cause a dead loop.

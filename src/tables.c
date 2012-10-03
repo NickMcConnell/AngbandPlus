@@ -1123,13 +1123,13 @@ const byte extract_energy[200] =
 	/* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
 	/* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	/* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-	/* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
-	/* F+30 */    38, 38, 39, 39, 40, 40, 40, 41, 41, 41,
-	/* F+40 */    42, 42, 42, 43, 43, 43, 44, 44, 44, 44,
-	/* F+50 */    45, 45, 45, 45, 45, 46, 46, 46, 46, 46,
-	/* F+60 */    47, 47, 47, 47, 47, 48, 48, 48, 48, 48,
-	/* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
-	/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+	/* F+20 */    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+	/* F+30 */    40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+	/* F+40 */    50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+	/* F+50 */    60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+	/* F+60 */    70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+	/* F+70 */    80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+	/* Fast */      90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
 };
 
 
@@ -1347,7 +1347,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
+	"Display belt",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -2369,3 +2369,79 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"indestructible"
 };
 
+/*
+ * Alex: chance to produce loud noise is 1/XXX or 0 if zero
+ */
+const s16b noise_chance[RBM_XXX5+2] =
+{
+                0,
+                4,       /* RBM_HIT */
+                0,       /* RBM_TOUCH */
+                6,       /* RBM_PUNCH */
+                8,      /* RBM_KICK */
+                16,      /* RBM_CLAW */
+                12,      /* RBM_BITE */
+                0,       /* RBM_STING */
+                0,       /* RBM_XXX1 */
+                8,      /* RBM_BUTT */
+                2,       /* RBM_CRUSH */
+                0,       /* RBM_ENGULF */
+                0,       /* RBM_XXX2 */
+                0,       /* RBM_CRAWL */
+                0,       /* RBM_DROOL */
+                0,       /* RBM_SPIT */
+                0,       /* RBM_XXX3 */
+                0,       /* RBM_GAZE */
+                0,       /* RBM_WAIL */
+                0,       /* RBM_SPORE */
+                0,       /* RBM_XXX4 */
+                0,       /* RBM_BEG */
+                0,       /* RBM_INSULT */
+                0,       /* RBM_MOAN */
+                0       /* RBM_XXX5 */
+};
+
+/*Alex*/
+cptr storm_description[STORM_MAX] =
+{
+        "",        /* STORM_NONE */
+        "Acid",
+        "Lightning",
+        "Fire",
+        "Ice",
+        "Toxic",
+        "Mana"
+};
+
+const int storm_typ[STORM_MAX] = 
+{
+        0,
+        GF_ACID,
+        GF_ELEC,
+        GF_FIRE,
+        GF_COLD,
+        GF_POIS,
+        GF_MANA
+};
+
+const take_damage_function storm_function[STORM_MAX] = 
+{
+        0,
+        acid_dam,
+        elec_dam,
+        fire_dam,
+        cold_dam,
+        poison_dam,
+        take_hit
+};
+
+/* Alex: percentage pain constants - see message_pain() */
+const int pain_percent[PAIN_LAST - 1] = 
+{
+        95, 75, 50, 35, 20, 10
+};
+/*Alex: noise_level = pain_noise[i]*monster_level*/
+const int pain_noise[PAIN_LAST - 1] = 
+{
+        0, 0, 0, 2, 5, 10
+};

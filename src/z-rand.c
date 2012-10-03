@@ -126,6 +126,9 @@ u32b Rand_div(u32b m)
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
 
+        if (m > 0x1000000)
+                return 0;
+
 	/* Partition size */
 	n = (0x10000000 / m);
 
