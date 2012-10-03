@@ -1,14 +1,14 @@
 /* File: cmd2.c */
 
-/* Purpose: Movement commands (part 2) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Movement commands (part 2) */
 
 #include "angband.h"
 
@@ -160,7 +160,7 @@ void do_cmd_go_up(void)
 #ifdef JP
 	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "階段を上った");
 #else
-	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "go up the stairs to");
+	if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "climbed up the stairs to");
 #endif
 
 	/* Success */
@@ -302,8 +302,8 @@ void do_cmd_go_down(void)
 			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "落し戸に落ちた");
 			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "階段を下りた");
 #else
-			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fall from trap door");
-			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "go down the stairs to");
+			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fell through a trap door");
+			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "climbed down the stairs to");
 #endif
 		}
 
@@ -440,7 +440,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 	int number;
 
 	bool small;
-	bool great = FALSE;
+	u32b mode = AM_GOOD;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -458,7 +458,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 	{
 		number = 5;
 		small = FALSE;
-		great = TRUE;
+		mode |= AM_GREAT;
 		object_level = o_ptr->xtra3;
 	}
 	else
@@ -493,7 +493,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 		else
 		{
 			/* Make a good object */
-			if (!make_object(q_ptr, TRUE, great)) continue;
+			if (!make_object(q_ptr, mode)) continue;
 		}
 
 		/* If chest scatters its contents, pick any floor square. */
@@ -591,7 +591,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		msg_print("A puff of green gas surrounds you!");
 #endif
 
-		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint1(20));
 		}
@@ -1298,7 +1298,7 @@ static bool do_cmd_close_aux(int y, int x)
 	c_ptr = &cave[y][x];
 
 	/* Seeing true feature code (ignore mimic) */
-		
+
 	/* Broken door */
 	if (c_ptr->feat == FEAT_BROKEN)
 	{
@@ -1545,17 +1545,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	}
 
-	/* No tunnelling through mountains */
-	else if (feat == FEAT_MOUNTAIN)
-	{
-#ifdef JP
-		msg_print("そこは掘れない!");
-#else
-		msg_print("You can't tunnel through that!");
-#endif
-
-	}
-
 	/* Map border (mimiccing Permanent wall) */
 	else if ((c_ptr->feat >= FEAT_PERM_EXTRA &&
 		  c_ptr->feat <= FEAT_PERM_SOLID) ||
@@ -1735,7 +1724,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			if (randint0(100) < (15 - dun_level/2))
 			{
 				/* Create a simple object */
-				place_object(y, x, FALSE, FALSE);
+				place_object(y, x, 0L);
 
 				/* Observe new object */
 				if (player_can_see_bold(y, x))
@@ -1994,7 +1983,7 @@ bool easy_open_door(int y, int x)
 			cave_set_feat(y, x, FEAT_OPEN);
 
 			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -2026,7 +2015,7 @@ bool easy_open_door(int y, int x)
 		cave_set_feat(y, x, FEAT_OPEN);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -2493,7 +2482,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		move_player(dir, FALSE, FALSE);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 		p_ptr->update |= (PU_DISTANCE);
 	}
 
@@ -3261,7 +3250,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_ANIMAL;
 				}
@@ -3273,7 +3262,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_ANIMAL;
 				}
@@ -3285,7 +3274,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_EVIL;
 				}
@@ -3297,7 +3286,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_EVIL)) &&
 			    (r_ptr->flags3 & RF3_EVIL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_EVIL;
 				}
@@ -3309,7 +3298,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
 			    (r_ptr->flags2 & RF2_HUMAN))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags2 |= RF2_HUMAN;
 				}
@@ -3321,7 +3310,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
 			    (r_ptr->flags2 & RF2_HUMAN))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags2 |= RF2_HUMAN;
 				}
@@ -3333,7 +3322,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_UNDEAD;
 				}
@@ -3345,7 +3334,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
 			    (r_ptr->flags3 & RF3_UNDEAD))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_UNDEAD;
 				}
@@ -3357,7 +3346,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_DEMON)) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_DEMON;
 				}
@@ -3369,7 +3358,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_DEMON)) &&
 			    (r_ptr->flags3 & RF3_DEMON))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_DEMON;
 				}
@@ -3381,7 +3370,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_ORC;
 				}
@@ -3393,7 +3382,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_ORC)) &&
 			    (r_ptr->flags3 & RF3_ORC))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_ORC;
 				}
@@ -3405,7 +3394,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_TROLL;
 				}
@@ -3417,7 +3406,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_TROLL)) &&
 			    (r_ptr->flags3 & RF3_TROLL))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_TROLL;
 				}
@@ -3429,7 +3418,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_GIANT;
 				}
@@ -3441,7 +3430,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_GIANT)) &&
 			    (r_ptr->flags3 & RF3_GIANT))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_GIANT;
 				}
@@ -3453,7 +3442,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_DRAGON;
 				}
@@ -3465,7 +3454,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((have_flag(flgs, TR_KILL_DRAGON)) &&
 			    (r_ptr->flags3 & RF3_DRAGON))
 			{
-				if (m_ptr->ml)
+				if (m_ptr->ml && is_original_ap(m_ptr))
 				{
 					r_ptr->r_flags3 |= RF3_DRAGON;
 				}
@@ -3479,14 +3468,14 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Acid) */
-			if ((have_flag(flgs, TR_BRAND_ACID)) || (p_ptr->special_attack & (ATTACK_ACID)))
+			if (have_flag(flgs, TR_BRAND_ACID))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ACID)
+				if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml && is_original_ap(m_ptr))
 					{
-						r_ptr->r_flags3 |= RF3_IM_ACID;
+						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
 					}
 				}
 
@@ -3498,14 +3487,14 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if ((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & (ATTACK_ELEC)))
+			if (have_flag(flgs, TR_BRAND_ELEC))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ELEC)
+				if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml && is_original_ap(m_ptr))
 					{
-						r_ptr->r_flags3 |= RF3_IM_ELEC;
+						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
 					}
 				}
 
@@ -3517,51 +3506,67 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if ((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & (ATTACK_FIRE)))
+			if (have_flag(flgs, TR_BRAND_FIRE))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_FIRE)
+				if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml && is_original_ap(m_ptr))
 					{
-						r_ptr->r_flags3 |= RF3_IM_FIRE;
+						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
 					}
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 17) mult = 17;
+					if (r_ptr->flags3 & RF3_HURT_FIRE)
+					{
+						if (mult < 25) mult = 25;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+						{
+							r_ptr->r_flags3 |= RF3_HURT_FIRE;
+						}
+					}
+					else if (mult < 17) mult = 17;
 				}
 			}
 
 			/* Brand (Cold) */
-			if ((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & (ATTACK_COLD)))
+			if (have_flag(flgs, TR_BRAND_COLD))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_COLD)
+				if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml && is_original_ap(m_ptr))
 					{
-						r_ptr->r_flags3 |= RF3_IM_COLD;
+						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
 					}
 				}
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 17) mult = 17;
+					if (r_ptr->flags3 & RF3_HURT_COLD)
+					{
+						if (mult < 25) mult = 25;
+						if (m_ptr->ml && is_original_ap(m_ptr))
+						{
+							r_ptr->r_flags3 |= RF3_HURT_COLD;
+						}
+					}
+					else if (mult < 17) mult = 17;
 				}
 			}
 
 			/* Brand (Poison) */
-			if ((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & (ATTACK_POIS)))
+			if (have_flag(flgs, TR_BRAND_POIS))
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_POIS)
+				if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
 				{
-					if (m_ptr->ml)
+					if (m_ptr->ml && is_original_ap(m_ptr))
 					{
-						r_ptr->r_flags3 |= RF3_IM_POIS;
+						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
 					}
 				}
 
@@ -3663,9 +3668,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
 	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval])/400 + bonus) * BTH_PLUS_ADJ);
+		chance = (p_ptr->skill_thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
 	else
-		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval]-4000)/200 + bonus) * BTH_PLUS_ADJ);
+		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
 
 	energy_use = bow_energy(j_ptr->sval);
 	tmul = bow_tmul(j_ptr->sval);
@@ -3695,7 +3700,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 		return;
 	}
-	project_length = 0; /* reset to default */
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -3745,6 +3749,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		ty = target_row;
 	}
 
+	project_length = 0; /* reset to default */
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -3821,9 +3826,9 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				if (now_exp < s_info[p_ptr->pclass].w_max[0][j_ptr->sval])
 				{
 					int amount = 0;
-					if (now_exp < 4000) amount = 80;
-					else if (now_exp <  6000) amount = 25;
-					else if ((now_exp < 7000) && (p_ptr->lev > 19)) amount = 10;
+					if (now_exp < SPELL_EXP_BEGINNER) amount = 80;
+					else if (now_exp < SPELL_EXP_SKILLED) amount = 25;
+					else if ((now_exp < SPELL_EXP_EXPERT) && (p_ptr->lev > 19)) amount = 10;
 					else if (p_ptr->lev > 34) amount = 2;
 					p_ptr->weapon_exp[0][j_ptr->sval] += amount;
 					p_ptr->update |= (PU_BONUS);
@@ -3832,9 +3837,11 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 
 			if (p_ptr->riding)
 			{
-				if (p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING] && ((p_ptr->skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_list[p_ptr->riding].r_idx].level) && one_in_(2))
+				if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING])
+					&& ((p_ptr->skill_exp[GINOU_RIDING] - (RIDING_EXP_BEGINNER * 2)) / 200 < r_info[m_list[p_ptr->riding].r_idx].level)
+					&& one_in_(2))
 				{
-					p_ptr->skill_exp[GINOU_RIDING]+=1;
+					p_ptr->skill_exp[GINOU_RIDING] += 1;
 					p_ptr->update |= (PU_BONUS);
 				}
 			}
@@ -3843,40 +3850,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
-
-				/* Assume a default death */
-#ifdef JP
-				cptr note_dies = "は死んだ。";
-#else
-				cptr note_dies = " dies.";
-#endif
-
-				/* Some monsters get "destroyed" */
-				if (!monster_living(r_ptr))
-				{
-					int i;
-					bool explode = FALSE;
-
-					for (i = 0; i < 4; i++)
-					{
-						if (r_ptr->blow[i].method == RBM_EXPLODE) explode = TRUE;
-					}
-
-					/* Special note at death */
-					if (explode)
-#ifdef JP
-note_dies = "は爆発して粉々になった。";
-#else
-						note_dies = " explodes into tiny shreds.";
-#endif
-					else
-#ifdef JP
-						note_dies = "を倒した。";
-#else
-						note_dies = " is destroyed.";
-#endif
-
-				}
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -3937,7 +3910,7 @@ note_dies = "は爆発して粉々になった。";
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{
 					/* Dead monster */
 				}
@@ -4291,8 +4264,6 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		/* Get a direction (or cancel) */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		project_length = 0;  /* reset to default */
-
 		/* Predict the "target" location */
 		tx = px + 99 * ddx[dir];
 		ty = py + 99 * ddy[dir];
@@ -4303,6 +4274,8 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			tx = target_col;
 			ty = target_row;
 		}
+
+		project_length = 0;  /* reset to default */
 	}
 
 	if ((q_ptr->name1 == ART_MJOLLNIR) ||
@@ -4317,7 +4290,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			inven_item_describe(item);
 		inven_item_optimize(item);
 	}
-	
+
 	/* Reduce and describe floor item */
 	else
 	{
@@ -4329,7 +4302,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		equiped_item = TRUE;
 		p_ptr->redraw |= (PR_EQUIPPY);
 	}
-	
+
 	/* Take a turn */
 	energy_use = 100;
 
@@ -4422,42 +4395,6 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			{
 				bool fear = FALSE;
 
-				/* Assume a default death */
-#ifdef JP
-				cptr note_dies = "は死んだ。";
-#else
-				cptr note_dies = " dies.";
-#endif
-
-
-				/* Some monsters get "destroyed" */
-				if (!monster_living(r_ptr))
-				{
-					int i;
-					bool explode = FALSE;
-
-					for (i = 0; i < 4; i++)
-					{
-						if (r_ptr->blow[i].method == RBM_EXPLODE) explode = TRUE;
-					}
-
-					/* Special note at death */
-					if (explode)
-#ifdef JP
-note_dies = "は爆発して粉々になった。";
-#else
-						note_dies = " explodes into tiny shreds.";
-#endif
-					else
-#ifdef JP
-						note_dies = "を倒した。";
-#else
-						note_dies = " is destroyed.";
-#endif
-
-				}
-
-
 				/* Handle unseen monster */
 				if (!visible)
 				{
@@ -4496,7 +4433,7 @@ note_dies = "は爆発して粉々になった。";
 				/* Hack -- Base damage from thrown object */
 				tdam = damroll(q_ptr->dd, q_ptr->ds);
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0);
+				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0, TRUE);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 				if (q_ptr->to_d > 0)
 					tdam += q_ptr->to_d;
@@ -4542,7 +4479,7 @@ note_dies = "は爆発して粉々になった。";
 				}
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{
 					/* Dead monster */
 				}

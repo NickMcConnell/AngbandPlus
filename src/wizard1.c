@@ -1,5 +1,13 @@
 /* File: wizard1.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
 /* Purpose: Spoiler generation -BEN- */
 
 #include "angband.h"
@@ -944,6 +952,9 @@ typedef struct
 			+ 1       /* type of curse */
 			+ 1];     /* sentinel NULL */
 
+	/* Additional ability or resistance */
+	char addition[80];
+
 	/* A string describing an artifact's activation */
 	cptr activation;
 
@@ -1013,7 +1024,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags[TR_FLAG_SIZE],
 /*
  * Acquire a "basic" description "The Cloak of Death [1,+10]"
  */
-static void analyze_general (object_type *o_ptr, char *desc_ptr)
+static void analyze_general(object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
 	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
@@ -1024,7 +1035,7 @@ static void analyze_general (object_type *o_ptr, char *desc_ptr)
  * List "player traits" altered by an artifact's pval. These include stats,
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
-static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
+static void analyze_pval(object_type *o_ptr, pval_info_type *p_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1079,7 +1090,7 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 
 
 /* Note the slaying specialties of a weapon */
-static void analyze_slay (object_type *o_ptr, cptr *slay_list)
+static void analyze_slay(object_type *o_ptr, cptr *slay_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1093,7 +1104,7 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 }
 
 /* Note an object's elemental brands */
-static void analyze_brand (object_type *o_ptr, cptr *brand_list)
+static void analyze_brand(object_type *o_ptr, cptr *brand_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1108,7 +1119,7 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 
 
 /* Note the resistances granted by an object */
-static void analyze_resist (object_type *o_ptr, cptr *resist_list)
+static void analyze_resist(object_type *o_ptr, cptr *resist_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1123,7 +1134,7 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 
 
 /* Note the immunities granted by an object */
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
+static void analyze_immune(object_type *o_ptr, cptr *immune_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1136,9 +1147,9 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 	*immune_list = NULL;
 }
 
-/* Note which stats an object sustains */
 
-static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
+/* Note which stats an object sustains */
+static void analyze_sustains(object_type *o_ptr, cptr *sustain_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1175,7 +1186,7 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 {
 	u32b flgs[TR_FLAG_SIZE];
 
@@ -1218,7 +1229,6 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	 */
 
 /*	if (cursed_p(o_ptr)) */
-	if (1)
 	{
 		if (have_flag(flgs, TR_TY_CURSE))
 		{
@@ -1260,13 +1270,51 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 }
 
 
+/*
+ * Note additional ability and/or resistance of fixed artifacts
+ */
+static void analyze_addition(object_type *o_ptr, char *addition)
+{
+	artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+	/* Init */
+	strcpy(addition, "");
+
+#ifdef JP
+	if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES)) strcat(addition, "Ç½ÎÏandÂÑÀ­");
+	else if (a_ptr->gen_flags & TRG_XTRA_POWER)
+	{
+		strcat(addition, "Ç½ÎÏ");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(1/2¤ÇandÂÑÀ­)");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
+	{
+		strcat(addition, "ÂÑÀ­");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(1/2¤ÇandÇ½ÎÏ)");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "Ç½ÎÏorÂÑÀ­");
+#else
+	if ((a_ptr->gen_flags & TRG_XTRA_POWER) && (a_ptr->gen_flags & TRG_XTRA_H_RES)) strcat(addition, "Ability and Resistance");
+	else if (a_ptr->gen_flags & TRG_XTRA_POWER)
+	{
+		strcat(addition, "Ability");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(plus Resistance about 1/2)");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_H_RES)
+	{
+		strcat(addition, "Resistance");
+		if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "(plus Ability about 1/2)");
+	}
+	else if (a_ptr->gen_flags & TRG_XTRA_RES_OR_POWER) strcat(addition, "Ability or Resistance");
+#endif
+}
 
 
 /*
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-static void analyze_misc (object_type *o_ptr, char *misc_desc)
+static void analyze_misc(object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1288,23 +1336,15 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 static void object_analyze(object_type *o_ptr, obj_desc_list *desc_ptr)
 {
 	analyze_general(o_ptr, desc_ptr->description);
-
 	analyze_pval(o_ptr, &desc_ptr->pval_info);
-
 	analyze_brand(o_ptr, desc_ptr->brands);
-
 	analyze_slay(o_ptr, desc_ptr->slays);
-
 	analyze_immune(o_ptr, desc_ptr->immunities);
-
 	analyze_resist(o_ptr, desc_ptr->resistances);
-
 	analyze_sustains(o_ptr, desc_ptr->sustains);
-
 	analyze_misc_magic(o_ptr, desc_ptr->misc_magic);
-
+	analyze_addition(o_ptr, desc_ptr->addition);
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
-
 	desc_ptr->activation = item_activation(o_ptr);
 }
 
@@ -1479,27 +1519,27 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 
 #ifdef JP
 	spoiler_outlist("ÂÐ:", art_ptr->slays, ITEM_SEP);
-
 	spoiler_outlist("Éð´ïÂ°À­:", art_ptr->brands, LIST_SEP);
-
 	spoiler_outlist("ÌÈ±Ö:", art_ptr->immunities, ITEM_SEP);
-
 	spoiler_outlist("ÂÑÀ­:", art_ptr->resistances, ITEM_SEP);
-
 	spoiler_outlist("°Ý»ý:", art_ptr->sustains, ITEM_SEP);
 #else
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
 	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-
 	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-
 	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
 #endif
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
 
+	if (art_ptr->addition[0])
+	{
+#ifdef JP
+		fprintf(fff, "%sÄÉ²Ã: %s\n", INDENT1, art_ptr->addition);
+#else
+		fprintf(fff, "%sAdditional %s\n", INDENT1, art_ptr->addition);
+#endif
+	}
 
 	/* Write out the possible activation at the primary indention level */
 	if (art_ptr->activation)
@@ -1717,11 +1757,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->flags7 & (RF7_KAGE)) continue;
 
 		/* Get the "name" */
-/*		if (r_ptr->flags1 & (RF1_QUESTOR)) */
-		if (0)
+		/*
+		else if (r_ptr->flags1 & (RF1_QUESTOR))
 		{
 			sprintf(nam, "[Q] %s", name);
 		}
+		*/
 		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			sprintf(nam, "[U] %s", name);
@@ -1924,6 +1965,9 @@ static void spoil_out(cptr str)
  */
 static void roff_func(byte attr, cptr str)
 {
+	/* Unused */
+	(void)attr;
+
 	spoil_out(str);
 }
 
@@ -1934,9 +1978,8 @@ static void roff_func(byte attr, cptr str)
 static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
-	int msex, i, l, n=0;
-	bool breath, magic;
-	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
+	int i, l, n = 0;
+	u32b flags1;
 
 	u16b why = 2;
 	s16b *who;
@@ -1994,20 +2037,6 @@ static void spoil_mon_info(cptr fname)
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
-		flags2 = r_ptr->flags2;
-		flags3 = r_ptr->flags3;
-		flags4 = r_ptr->flags4;
-		flags5 = r_ptr->flags5;
-		flags6 = r_ptr->flags6;
-		flags7 = r_ptr->flags7;
-		breath = FALSE;
-		magic = FALSE;
-
-		/* Extract a gender (if applicable) */
-		if (flags1 & (RF1_FEMALE)) msex = 2;
-		else if (flags1 & (RF1_MALE)) msex = 1;
-		else msex = 0;
-
 
 		/* Prefix */
 		if (flags1 & (RF1_QUESTOR))
@@ -2126,10 +2155,6 @@ void do_cmd_spoilers(void)
 	screen_save();
 
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
-
 	/* Interact */
 	while (1)
 	{
@@ -2197,10 +2222,6 @@ prt("¥³¥Þ¥ó¥É:", 18, 0);
 	}
 
 
-	/* Grab priv's */
-	safe_setuid_grab();
-
-
 	/* Restore the screen */
 	screen_load();
 }
@@ -2260,7 +2281,7 @@ static void spoiler_print_randart(object_type *o_ptr, obj_desc_list *art_ptr)
 #endif
 			spoiler_outlist(buf, pval_ptr->pval_affects, ITEM_SEP);
 		}
-	  
+
 		/* Now deal with the description lists */
 
 #ifdef JP
@@ -2322,9 +2343,6 @@ void spoil_random_artifact(cptr fname)
 	char buf[1024];
 
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
@@ -2385,9 +2403,6 @@ void spoil_random_artifact(cptr fname)
 		msg_print("Cannot close list file.");
 		return;
 	}
-
-	/* Grab priv's */
-	safe_setuid_grab();
 
 	/* Message */
 	msg_print("Successfully created a list file.");

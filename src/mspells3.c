@@ -1,14 +1,14 @@
 /* File: mspells3.c */
 
-/* Purpose: Mane code */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Mane code */
 
 #include "angband.h"
 
@@ -385,36 +385,7 @@ cptr            p = "魔法";
 	}
 	}
 
-	if (mode == 1)
-	{
-		f4 = ((RF4_BOLT_MASK | RF4_BEAM_MASK) & ~(RF4_ROCKET));
-		f5 = RF5_BOLT_MASK | RF5_BEAM_MASK;
-		f6 = RF6_BOLT_MASK | RF6_BEAM_MASK;
-	}
-	else if (mode == 2)
-	{
-		f4 = (RF4_BALL_MASK & ~(RF4_BREATH_MASK));
-		f5 = (RF5_BALL_MASK & ~(RF5_BREATH_MASK));
-		f6 = (RF6_BALL_MASK & ~(RF6_BREATH_MASK));
-	}
-	else if (mode == 3)
-	{
-		f4 = RF4_BREATH_MASK;
-		f5 = RF5_BREATH_MASK;
-		f6 = RF6_BREATH_MASK;
-	}
-	else if (mode == 4)
-	{
-		f4 = RF4_SUMMON_MASK;
-		f5 = RF5_SUMMON_MASK;
-		f6 = RF6_SUMMON_MASK;
-	}
-	else if (mode == 5)
-	{
-		f4 = ~(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_SUMMON_MASK | RF4_INDIRECT_MASK | RF4_RIDING_MASK);
-		f5 = ~(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_SUMMON_MASK | RF5_INDIRECT_MASK | RF5_RIDING_MASK);
-		f6 = (~(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_SUMMON_MASK | RF6_INDIRECT_MASK | RF6_RIDING_MASK)) | (RF6_TRAPS | RF6_DARKNESS);
-	}
+	set_rf_masks(&f4, &f5, &f6, mode);
 
 	for (i = 0, num = 0; i < 32; i++)
 	{
@@ -473,7 +444,6 @@ cptr            p = "魔法";
 				{
 					screen_load();
 					return (FALSE);
-					break;
 				}
 
 				case '8':
@@ -560,7 +530,7 @@ put_str("MP 失率 効果", y, x + 33);
 				/* Dump the spells */
 				for (i = 0; i < num; i++)
 				{
-					int shouhimana;
+					int need_mana;
 
 					prt("", y + i + 1, x);
 					if (!p_ptr->magic_num2[spellnum[i]]) continue;
@@ -584,16 +554,12 @@ put_str("MP 失率 効果", y, x + 33);
 					else if (p_ptr->easy_spell) chance-=3;
 					else if (p_ptr->dec_mana) chance-=2;
 
-					shouhimana = monster_powers[spellnum[i]].smana;
-					if (p_ptr->dec_mana)
-					{
-						shouhimana = (shouhimana + 1) * 3 / 4;
-					}
+					need_mana = mod_need_mana(monster_powers[spellnum[i]].smana, 0, REALM_NONE);
 
 					/* Not enough mana to cast */
-					if (shouhimana > p_ptr->csp)
+					if (need_mana > p_ptr->csp)
 					{
-						chance += 5 * (shouhimana - p_ptr->csp);
+						chance += 5 * (need_mana - p_ptr->csp);
 					}
 
 					/* Extract the minimum failure rate */
@@ -629,7 +595,7 @@ put_str("MP 失率 効果", y, x + 33);
 
 					/* Dump the spell --(-- */
 					strcat(psi_desc, format(" %-26s %3d %3d%%%s",
-						spell.name, shouhimana,
+						spell.name, need_mana,
 						chance, comment));
 					prt(psi_desc, y + i + 1, x);
 				}
@@ -736,7 +702,6 @@ static bool cast_learned_spell(int spell, bool success)
 	int     summon_lev = p_ptr->lev * 2 / 3 + randint1(p_ptr->lev/2);
 	int             hp = p_ptr->chp;
 	int             damage = 0;
-	bool    unique_okay = FALSE;
 	bool   pet = success;
 	bool   no_trump = FALSE;
 	u32b p_mode, u_mode = 0L, g_mode;
@@ -1435,13 +1400,13 @@ msg_print("無傷の球の呪文を唱えた。");
 		m_ptr = &m_list[cave[target_row][target_col].m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
-		if (r_ptr->flags3 & (RF3_RES_TELE))
+		if (r_ptr->flagsr & RFR_RES_TELE)
 		{
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_RES_ALL)))
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
 			{
-				r_ptr->r_flags3 |= RF3_RES_TELE;
+				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
-msg_format("%sには効果がなかった！", m_name);
+				msg_format("%sには効果がなかった！", m_name);
 #else
 				msg_format("%s is unaffected!", m_name);
 #endif
@@ -1450,9 +1415,9 @@ msg_format("%sには効果がなかった！", m_name);
 			}
 			else if (r_ptr->level > randint1(100))
 			{
-				r_ptr->r_flags3 |= RF3_RES_TELE;
+				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
-msg_format("%sには耐性がある！", m_name);
+				msg_format("%sには耐性がある！", m_name);
 #else
 				msg_format("%s resists!", m_name);
 #endif
@@ -1466,7 +1431,7 @@ msg_format("%sを引き戻した。", m_name);
 		msg_format("You command %s to return.", m_name);
 #endif
 
-		teleport_to_player(cave[target_row][target_col].m_idx, 100);
+		teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100);
 		break;
 	}
 	case MS_TELE_AWAY:
@@ -1476,49 +1441,34 @@ msg_format("%sを引き戻した。", m_name);
 		break;
 	case MS_TELE_LEVEL:
 	{
+		int target_m_idx;
 		monster_type *m_ptr;
 		monster_race *r_ptr;
 		char m_name[80];
 
 		if (!target_set(TARGET_KILL)) return FALSE;
-		if (!cave[target_row][target_col].m_idx) break;
+		target_m_idx = cave[target_row][target_col].m_idx;
+		if (!target_m_idx) break;
 		if (!los(py, px, target_row, target_col)) break;
-		m_ptr = &m_list[cave[target_row][target_col].m_idx];
+		m_ptr = &m_list[target_m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%sの足を指さした。", m_name);
+		msg_format("%^sの足を指さした。", m_name);
 #else
-			msg_format("You gesture at %s's feet.", m_name);
+		msg_format("You gesture at %^s's feet.", m_name);
 #endif
 
-		if ((r_ptr->flags3 & RF3_RES_TELE) || (r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
+		if ((r_ptr->flagsr & (RFR_EFF_RES_NEXU_MASK | RFR_RES_TELE)) ||
+			(r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->level + randint1(50) > plev + randint1(60)))
 		{
 #ifdef JP
-msg_print("しかし効果がなかった！");
+			msg_print("しかし効果がなかった！");
 #else
-			msg_format("%s are unaffected!", m_name);
+			msg_format("%^s is unaffected!", m_name);
 #endif
-
 		}
-		else if (!dun_level || one_in_(2))
-		{
-#ifdef JP
-msg_format("%sは床を突き破って沈んでいった。", m_name);
-#else
-			msg_format("%s sinks through the floor.", m_name);
-#endif
-			delete_monster_idx(cave[target_row][target_col].m_idx);
-		}
-		else
-		{
-#ifdef JP
-msg_format("%sは天井を突き破って宙へ浮いていった。",m_name);
-#else
-			msg_format("%s rises up through the ceiling.", m_name);
-#endif
-			delete_monster_idx(cave[target_row][target_col].m_idx);
-		}
+		else teleport_level(target_m_idx);
 		break;
 	}
 	case MS_PSY_SPEAR:
@@ -1578,7 +1528,7 @@ msg_print("援軍を召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還された仲間は怒っている！");
+msg_print("召喚された仲間は怒っている！");
 #else
 msg_print("Summoned fellows are angry!");
 #endif
@@ -1603,7 +1553,7 @@ msg_print("サイバーデーモンを召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたサイバーデーモンは怒っている！");
+msg_print("召喚されたサイバーデーモンは怒っている！");
 #else
 msg_print("The summoned Cyberdemon are angry!");
 #endif
@@ -1627,7 +1577,7 @@ msg_print("仲間を召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたモンスターは怒っている！");
+msg_print("召喚されたモンスターは怒っている！");
 #else
 msg_print("The summoned monster is angry!");
 #endif
@@ -1651,7 +1601,7 @@ msg_print("モンスターを召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたモンスターは怒っている！");
+msg_print("召喚されたモンスターは怒っている！");
 #else
 msg_print("Summoned monsters are angry!");
 #endif
@@ -1675,7 +1625,7 @@ msg_print("アリを召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたアリは怒っている！");
+msg_print("召喚されたアリは怒っている！");
 #else
 msg_print("Summoned ants are angry!");
 #endif
@@ -1699,7 +1649,7 @@ msg_print("蜘蛛を召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還された蜘蛛は怒っている！");
+msg_print("召喚された蜘蛛は怒っている！");
 #else
 msg_print("Summoned spiders are angry!");
 #endif
@@ -1723,7 +1673,7 @@ msg_print("ハウンドを召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたハウンドは怒っている！");
+msg_print("召喚されたハウンドは怒っている！");
 #else
 msg_print("Summoned hounds are angry!");
 #endif
@@ -1747,7 +1697,7 @@ msg_print("ヒドラを召喚した。");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたヒドラは怒っている！");
+msg_print("召喚されたヒドラは怒っている！");
 #else
 msg_print("Summoned hydras are angry!");
 #endif
@@ -1771,7 +1721,7 @@ msg_print("天使を召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還された天使は怒っている！");
+msg_print("召喚された天使は怒っている！");
 #else
 msg_print("Summoned angels are angry!");
 #endif
@@ -1795,7 +1745,7 @@ msg_print("混沌の宮廷から悪魔を召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたデーモンは怒っている！");
+msg_print("召喚されたデーモンは怒っている！");
 #else
 msg_print("Summoned demons are angry!");
 #endif
@@ -1819,7 +1769,7 @@ msg_print("アンデッドの強敵を召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたアンデッドは怒っている！");
+msg_print("召喚されたアンデッドは怒っている！");
 #else
 msg_print("Summoned undeads are angry!");
 #endif
@@ -1843,7 +1793,7 @@ msg_print("ドラゴンを召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたドラゴンは怒っている！");
+msg_print("召喚されたドラゴンは怒っている！");
 #else
 msg_print("Summoned dragons are angry!");
 #endif
@@ -1867,7 +1817,7 @@ msg_print("強力なアンデッドを召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還された上級アンデッドは怒っている！");
+msg_print("召喚された上級アンデッドは怒っている！");
 #else
 msg_print("Summoned greater undeads are angry!");
 #endif
@@ -1891,7 +1841,7 @@ msg_print("古代ドラゴンを召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還された古代ドラゴンは怒っている！");
+msg_print("召喚された古代ドラゴンは怒っている！");
 #else
 msg_print("Summoned ancient dragons are angry!");
 #endif
@@ -1915,7 +1865,7 @@ msg_print("アンバーの王族を召喚した！");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("召還されたアンバーの王族は怒っている！");
+msg_print("召喚されたアンバーの王族は怒っている！");
 #else
 msg_print("Summoned Lords of Amber are angry!");
 #endif
@@ -1940,7 +1890,7 @@ msg_print("特別な強敵を召喚した！");
 				count++;
 				if (!pet)
 #ifdef JP
-msg_print("召還されたユニーク・モンスターは怒っている！");
+msg_print("召喚されたユニーク・モンスターは怒っている！");
 #else
 msg_print("Summoned special opponents are angry!");
 #endif
@@ -1951,7 +1901,7 @@ msg_print("Summoned special opponents are angry!");
 				count++;
 				if (!pet)
 #ifdef JP
-msg_print("召還された上級アンデッドは怒っている！");
+msg_print("召喚された上級アンデッドは怒っている！");
 #else
 msg_print("Summoned greater undeads are angry!");
 #endif
@@ -1990,7 +1940,7 @@ bool do_cmd_cast_learned(void)
 	int             plev = p_ptr->lev;
 	monster_power   spell;
 	bool            cast;
-	int             shouhimana;
+	int             need_mana;
 
 
 	/* not if confused */
@@ -2010,15 +1960,10 @@ msg_print("混乱していて唱えられない！");
 
 	spell = monster_powers[n];
 
-	shouhimana = spell.smana;
-
-	if (p_ptr->dec_mana)
-	{
-		shouhimana = (shouhimana + 1) * 3 / 4;
-	}
+	need_mana = mod_need_mana(spell.smana, 0, REALM_NONE);
 
 	/* Verify "dangerous" spells */
-	if (shouhimana > p_ptr->csp)
+	if (need_mana > p_ptr->csp)
 	{
 		/* Warning */
 #ifdef JP
@@ -2057,9 +2002,9 @@ if (!get_check("それでも挑戦しますか? ")) return FALSE;
 	else if (p_ptr->dec_mana) chance-=2;
 
 	/* Not enough mana to cast */
-	if (shouhimana > p_ptr->csp)
+	if (need_mana > p_ptr->csp)
 	{
-		chance += 5 * (shouhimana - p_ptr->csp);
+		chance += 5 * (need_mana - p_ptr->csp);
 	}
 
 	/* Extract the minimum failure rate */
@@ -2106,14 +2051,14 @@ msg_print("魔法をうまく唱えられなかった。");
 	}
 
 	/* Sufficient mana */
-	if (shouhimana <= p_ptr->csp)
+	if (need_mana <= p_ptr->csp)
 	{
 		/* Use some mana */
-		p_ptr->csp -= shouhimana;
+		p_ptr->csp -= need_mana;
 	}
 	else
 	{
-		int oops = shouhimana;
+		int oops = need_mana;
 
 		/* No mana left */
 		p_ptr->csp = 0;
@@ -2182,4 +2127,46 @@ void learn_spell(int monspell)
 		new_mane = TRUE;
 		p_ptr->redraw |= (PR_STATE);
 	}
+}
+
+
+/*
+ * Extract monster spells mask for the given mode
+ */
+void set_rf_masks(s32b *f4, s32b *f5, s32b *f6, int mode)
+{
+	switch (mode)
+	{
+		case MONSPELL_TYPE_BOLT:
+			*f4 = ((RF4_BOLT_MASK | RF4_BEAM_MASK) & ~(RF4_ROCKET));
+			*f5 = RF5_BOLT_MASK | RF5_BEAM_MASK;
+			*f6 = RF6_BOLT_MASK | RF6_BEAM_MASK;
+			break;
+
+		case MONSPELL_TYPE_BALL:
+			*f4 = (RF4_BALL_MASK & ~(RF4_BREATH_MASK));
+			*f5 = (RF5_BALL_MASK & ~(RF5_BREATH_MASK));
+			*f6 = (RF6_BALL_MASK & ~(RF6_BREATH_MASK));
+			break;
+
+		case MONSPELL_TYPE_BREATH:
+			*f4 = RF4_BREATH_MASK;
+			*f5 = RF5_BREATH_MASK;
+			*f6 = RF6_BREATH_MASK;
+			break;
+
+		case MONSPELL_TYPE_SUMMON:
+			*f4 = RF4_SUMMON_MASK;
+			*f5 = RF5_SUMMON_MASK;
+			*f6 = RF6_SUMMON_MASK;
+			break;
+
+		case MONSPELL_TYPE_OTHER:
+			*f4 = RF4_ATTACK_MASK & ~(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_INDIRECT_MASK);
+			*f5 = RF5_ATTACK_MASK & ~(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_INDIRECT_MASK);
+			*f6 = RF6_ATTACK_MASK & ~(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_INDIRECT_MASK);
+			break;
+	}
+
+	return;
 }

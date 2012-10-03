@@ -3,11 +3,11 @@
 /* Purpose: Mindcrafter code */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -108,7 +108,6 @@ cptr            p = "必殺剣";
 				{
 					screen_load();
 					return (FALSE);
-					break;
 				}
 
 				case '8':
@@ -528,7 +527,7 @@ static bool cast_hissatsu_spell(int spell)
 			verify_panel();
 
 			/* Update stuff */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 			/* Update the monsters */
 			p_ptr->update |= (PU_DISTANCE);
@@ -778,11 +777,7 @@ static bool cast_hissatsu_spell(int spell)
 		break;
 	}
 	case 18:
-		project_length = 5;
-		if (!get_aim_dir(&dir)) return FALSE;
-		project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL);
-
-		break;
+		return rush_attack(NULL);
 	case 19: /* Whirlwind Attack */
 	{
 		int y = 0, x = 0;
@@ -806,11 +801,11 @@ static bool cast_hissatsu_spell(int spell)
 			/* Hack -- attack monsters */
 			if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
 			{
-				if (r_info[m_list[c_ptr->m_idx].r_idx].flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING))
+				if (!monster_living(&r_info[m_ptr->r_idx]))
 				{
 					char m_name[80];
 
-					monster_desc(m_name, &m_list[c_ptr->m_idx], 0);
+					monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 					msg_format("%sには効果がない！", m_name);
 #else
@@ -862,7 +857,7 @@ static bool cast_hissatsu_spell(int spell)
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
+			else if (have_flag(flgs, TR_VORPAL))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -978,7 +973,7 @@ static bool cast_hissatsu_spell(int spell)
 			verify_panel();
 
 			/* Update stuff */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 			/* Update the monsters */
 			p_ptr->update |= (PU_DISTANCE);
@@ -1027,30 +1022,35 @@ static bool cast_hissatsu_spell(int spell)
 	}
 	case 26:
 	{
+#define NEED_MANA_PER_MONSTER 8
 		bool new = TRUE;
-		int count = 0;
+		bool mdeath;
+		/* int count = 0; currently unused */
 		do
 		{
-			project_length = 5;
-			if (!get_aim_dir(&dir)) break;
+			if (!rush_attack(&mdeath)) break;
 			if (new)
+			{
 				/* Reserve needed mana point */
 				p_ptr->csp -= technic_info[TECHNIC_HISSATSU][26].smana;
+				new = FALSE;
+			}
 			else
-				p_ptr->csp -= 8;
-			new = FALSE;
-			if (!project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL)) break;
-			count++;
+				p_ptr->csp -= NEED_MANA_PER_MONSTER;
+			if (!mdeath) break;
+			/* count++; currently unused */
 			command_dir = 0;
 			p_ptr->redraw |= PR_MANA;
 			handle_stuff();
-		} while (p_ptr->csp > 8);
+		}
+		while (p_ptr->csp > NEED_MANA_PER_MONSTER);
 		if (new) return FALSE;
 
 		/* Restore reserved mana */
 		p_ptr->csp += technic_info[TECHNIC_HISSATSU][26].smana;
-
 		break;
+
+#undef NEED_MANA_PER_MONSTER
 	}
 	case 27:
 	{
@@ -1146,7 +1146,7 @@ msg_print("その方向にはモンスターはいません。");
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
+			else if (have_flag(flgs, TR_VORPAL))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -1271,7 +1271,7 @@ msg_print("武器を持たないと必殺技は使えない！");
 #ifdef JP
 msg_print("何も技を知らない。");
 #else
-		msg_print("You don't know any martial arts.");
+		msg_print("You don't know any special attacks.");
 #endif
 
 		return;

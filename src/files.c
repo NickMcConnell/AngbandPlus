@@ -1,14 +1,14 @@
 /* File: files.c */
 
-/* Purpose: code dealing with files (and death) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: code dealing with files (and death) */
 
 #include "angband.h"
 
@@ -412,71 +412,72 @@ errr process_pref_file_command(char *buf)
 
 
 	/* Require "?:*" format */
-	if (buf[1] != ':') return (1);
+	if (buf[1] != ':') return 1;
 
 
-	/* Process "%:<fname>" */
-	if (buf[0] == '%')
+	switch (buf[0])
 	{
+	/* Process "%:<fname>" */
+	case '%':
 		/* Attempt to Process the given file */
-		return (process_pref_file(buf + 2));
-	}
+		return process_pref_file(buf + 2);
 
+	/* Mega-Hack -- read external player's history file */
+	/* Process "H:<history>" */
+	case 'H':
+		add_history_from_pref_line(buf + 2);
+		return 0;
 
 	/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
-	if (buf[0] == 'R')
-	{
+	case 'R':
 		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
 		{
 			monster_race *r_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= max_r_idx) return (1);
+			if (i >= max_r_idx) return 1;
 			r_ptr = &r_info[i];
 			if (n1) r_ptr->x_attr = n1;
 			if (n2) r_ptr->x_char = n2;
-			return (0);
+			return 0;
 		}
-	}
+		break;
 
 	/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
-	else if (buf[0] == 'K')
-	{
+	case 'K':
 		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
 		{
 			object_kind *k_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= max_k_idx) return (1);
+			if (i >= max_k_idx) return 1;
 			k_ptr = &k_info[i];
 			if (n1) k_ptr->x_attr = n1;
 			if (n2) k_ptr->x_char = n2;
-			return (0);
+			return 0;
 		}
-	}
+		break;
 
 	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-	else if (buf[0] == 'F')
-	{
+	case 'F':
 		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
 		{
 			feature_type *f_ptr;
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= max_f_idx) return (1);
+			if (i >= max_f_idx) return 1;
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
-			return (0);
+			return 0;
 		}
-	}
+		break;
 
 	/* Process "S:<num>:<a>/<c>" -- attr/char for special things */
-	else if (buf[0] == 'S')
-	{
+	case 'S':
 		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
 		{
 			j = (byte)strtol(zz[0], NULL, 0);
@@ -484,13 +485,12 @@ errr process_pref_file_command(char *buf)
 			n2 = strtol(zz[2], NULL, 0);
 			misc_to_attr[j] = n1;
 			misc_to_char[j] = n2;
-			return (0);
+			return 0;
 		}
-	}
+		break;
 
 	/* Process "U:<tv>:<a>/<c>" -- attr/char for unaware items */
-	else if (buf[0] == 'U')
-	{
+	case 'U':
 		if (tokenize(buf+2, 3, zz, TOKENIZE_CHECKQUOTE) == 3)
 		{
 			j = (huge)strtol(zz[0], NULL, 0);
@@ -505,67 +505,60 @@ errr process_pref_file_command(char *buf)
 					if (n2) k_ptr->d_char = n2;
 				}
 			}
-			return (0);
+			return 0;
 		}
-	}
+		break;
 
 	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
-	else if (buf[0] == 'E')
-	{
+	case 'E':
 		if (tokenize(buf+2, 2, zz, TOKENIZE_CHECKQUOTE) == 2)
 		{
 			j = (byte)strtol(zz[0], NULL, 0) % 128;
 			n1 = strtol(zz[1], NULL, 0);
 			if (n1) tval_to_attr[j] = n1;
-			return (0);
+			return 0;
 		}
-	}
-
+		break;
 
 	/* Process "A:<str>" -- save an "action" for later */
-	else if (buf[0] == 'A')
-	{
+	case 'A':
 		text_to_ascii(macro__buf, buf+2);
-		return (0);
-	}
+		return 0;
 
 	/* Process "P:<str>" -- normal macro */
-	else if (buf[0] == 'P')
+	case 'P':
 	{
 		char tmp[1024];
+
 		text_to_ascii(tmp, buf+2);
 		macro_add(tmp, macro__buf);
-		return (0);
+		return 0;
 	}
 
-
 	/* Process "C:<str>" -- create keymap */
-	else if (buf[0] == 'C')
+	case 'C':
 	{
 		int mode;
-
 		char tmp[1024];
 
-		if (tokenize(buf+2, 2, zz, TOKENIZE_CHECKQUOTE) != 2) return (1);
+		if (tokenize(buf+2, 2, zz, TOKENIZE_CHECKQUOTE) != 2) return 1;
 
 		mode = strtol(zz[0], NULL, 0);
-		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
+		if ((mode < 0) || (mode >= KEYMAP_MODES)) return 1;
 
 		text_to_ascii(tmp, zz[1]);
-		if (!tmp[0] || tmp[1]) return (1);
+		if (!tmp[0] || tmp[1]) return 1;
 		i = (byte)(tmp[0]);
 
 		string_free(keymap_act[mode][i]);
 
 		keymap_act[mode][i] = string_make(macro__buf);
 
-		return (0);
+		return 0;
 	}
 
-
 	/* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
-	else if (buf[0] == 'V')
-	{
+	case 'V':
 		if (tokenize(buf+2, 5, zz, TOKENIZE_CHECKQUOTE) == 5)
 		{
 			i = (byte)strtol(zz[0], NULL, 0);
@@ -573,78 +566,47 @@ errr process_pref_file_command(char *buf)
 			angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
 			angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
 			angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
-			return (0);
+			return 0;
 		}
-	}
-
+		break;
 
 	/* Process "X:<str>" -- turn option off */
-	else if (buf[0] == 'X')
-	{
-		for (i = 0; option_info[i].o_desc; i++)
-		{
-			int os = option_info[i].o_set;
-			int ob = option_info[i].o_bit;
-
-			if (option_info[i].o_var &&
-			    option_info[i].o_text &&
-			    streq(option_info[i].o_text, buf + 2))
-			{
-				if (p_ptr->playing && 6 == option_info[i].o_page && !p_ptr->wizard)
-				{
-#ifdef JP
-					msg_format("初期オプションは変更できません! '%s'", buf);	
-#else
-					msg_format("Startup options can not changed! '%s'", buf);	
-#endif
-					msg_print(NULL);
-					return 0;
-				}
-
-				/* Clear */
-				option_flag[os] &= ~(1L << ob);
-				(*option_info[i].o_var) = FALSE;
-				return (0);
-			}
-		}
-
-		/* don't know that option. ignore it.*/
-#ifdef JP
-		msg_format("オプションの名前が正しくありません： %s", buf);
-#else
-		msg_format("Ignored invalid option: %s", buf);
-#endif
-		msg_print(NULL);
-		return 0;
-	}
-
 	/* Process "Y:<str>" -- turn option on */
-	else if (buf[0] == 'Y')
-	{
+	case 'X':
+	case 'Y':
 		for (i = 0; option_info[i].o_desc; i++)
 		{
-			int os = option_info[i].o_set;
-			int ob = option_info[i].o_bit;
-
 			if (option_info[i].o_var &&
 			    option_info[i].o_text &&
 			    streq(option_info[i].o_text, buf + 2))
 			{
+				int os = option_info[i].o_set;
+				int ob = option_info[i].o_bit;
+
 				if (p_ptr->playing && 6 == option_info[i].o_page && !p_ptr->wizard)
 				{
 #ifdef JP
-					msg_format("初期オプションは変更できません! '%s'", buf);	
+					msg_format("初期オプションは変更できません! '%s'", buf);
 #else
-					msg_format("Startup options can not changed! '%s'", buf);	
+					msg_format("Startup options can not changed! '%s'", buf);
 #endif
 					msg_print(NULL);
 					return 0;
 				}
 
-				/* Set */
-				option_flag[os] |= (1L << ob);
-				(*option_info[i].o_var) = TRUE;
-				return (0);
+				if (buf[0] == 'X')
+				{
+					/* Clear */
+					option_flag[os] &= ~(1L << ob);
+					(*option_info[i].o_var) = FALSE;
+				}
+				else
+				{
+					/* Set */
+					option_flag[os] |= (1L << ob);
+					(*option_info[i].o_var) = TRUE;
+				}
+				return 0;
 			}
 		}
 
@@ -656,16 +618,15 @@ errr process_pref_file_command(char *buf)
 #endif
 		msg_print(NULL);
 		return 0;
-	}
 
 	/* Process "Z:<type>:<str>" -- set spell color */
-	else if (buf[0] == 'Z')
+	case 'Z':
 	{
 		/* Find the colon */
 		char *t = strchr(buf + 2, ':');
 
 		/* Oops */
-		if (!t) return (1);
+		if (!t) return 1;
 
 		/* Nuke the colon */
 		*(t++) = '\0';
@@ -679,17 +640,21 @@ errr process_pref_file_command(char *buf)
 				gf_color[gf_desc[i].num] = quark_add(t);
 
 				/* Success */
-				return (0);
+				return 0;
 			}
 		}
+
+		break;
 	}
-	/* set macro trigger names and a template */
+
+	/* Initialize macro trigger names and a template */
 	/* Process "T:<trigger>:<keycode>:<shift-keycode>" */
 	/* Process "T:<template>:<modifier chr>:<modifier name>:..." */
-	else if (buf[0] == 'T')
+	case 'T':
 	{
-		int len, tok;
-		tok = tokenize(buf+2, 2+MAX_MACRO_MOD, zz, 0);
+		int tok = tokenize(buf+2, 2+MAX_MACRO_MOD, zz, 0);
+
+		/* Process "T:<template>:<modifier chr>:<modifier name>:..." */
 		if (tok >= 4)
 		{
 			int i;
@@ -697,37 +662,60 @@ errr process_pref_file_command(char *buf)
 
 			if (macro_template != NULL)
 			{
-				free(macro_template);
+				num = strlen(macro_modifier_chr);
+
+				/* Kill the template string */
+				string_free(macro_template);
 				macro_template = NULL;
+
+				/* Kill flag characters of modifier keys */
+				string_free(macro_modifier_chr);
+
+				/* Kill corresponding modifier names */
+				for (i = 0; i < num; i++)
+				{
+					string_free(macro_modifier_name[i]);
+				}
+
+				/* Kill trigger name strings */
 				for (i = 0; i < max_macrotrigger; i++)
-					free(macro_trigger_name[i]);
+				{
+					string_free(macro_trigger_name[i]);
+					string_free(macro_trigger_keycode[0][i]);
+					string_free(macro_trigger_keycode[1][i]);
+				}
+
 				max_macrotrigger = 0;
 			}
-			
+
 			if (*zz[0] == '\0') return 0; /* clear template */
+
+			/* Number of modifier flags */
 			num = strlen(zz[1]);
-			if (2 + num != tok) return 1; /* error */
 
-			len = strlen(zz[0])+1+num+1;
-			for (i = 0; i < num; i++)
-				len += strlen(zz[2+i])+1;
-			macro_template = malloc(len);
+			/* Limit the number */
+			num = MIN(MAX_MACRO_MOD, num);
 
-			strcpy(macro_template, zz[0]);
-			macro_modifier_chr =
-				macro_template + strlen(macro_template) + 1;
-			strcpy(macro_modifier_chr, zz[1]);
-			macro_modifier_name[0] =
-				macro_modifier_chr + strlen(macro_modifier_chr) + 1;
+			/* Stop if number of modifier is not correct */
+			if (2 + num != tok) return 1;
+
+			/* Get a template string */
+			macro_template = string_make(zz[0]);
+
+			/* Get flag characters of modifier keys */
+			macro_modifier_chr = string_make(zz[1]);
+
+			/* Get corresponding modifier names */
 			for (i = 0; i < num; i++)
 			{
-				strcpy(macro_modifier_name[i], zz[2+i]);
-				macro_modifier_name[i+1] = macro_modifier_name[i] + 
-					strlen(macro_modifier_name[i]) + 1;
+				macro_modifier_name[i] = string_make(zz[2+i]);
 			}
 		}
+
+		/* Process "T:<trigger>:<keycode>:<shift-keycode>" */
 		else if (tok >= 2)
 		{
+			char buf[1024];
 			int m;
 			char *t, *s;
 			if (max_macrotrigger >= MAX_MACRO_TRIG)
@@ -742,12 +730,8 @@ errr process_pref_file_command(char *buf)
 			m = max_macrotrigger;
 			max_macrotrigger++;
 
-			len = strlen(zz[0]) + 1 + strlen(zz[1]) + 1;
-			if (tok == 3)
-				len += strlen(zz[2]) + 1;
-			macro_trigger_name[m] = malloc(len);
-
-			t = macro_trigger_name[m];
+			/* Take into account the escape character  */
+			t = buf;
 			s = zz[0];
 			while (*s)
 			{
@@ -756,25 +740,30 @@ errr process_pref_file_command(char *buf)
 			}
 			*t = '\0';
 
-			macro_trigger_keycode[0][m] = macro_trigger_name[m] +
-				strlen(macro_trigger_name[m]) + 1;
-			strcpy(macro_trigger_keycode[0][m], zz[1]);
+			/* Get a trigger name */
+			macro_trigger_name[m] = string_make(buf);
+
+			/* Get the corresponding key code */
+			macro_trigger_keycode[0][m] = string_make(zz[1]);
+
 			if (tok == 3)
 			{
-				macro_trigger_keycode[1][m] = macro_trigger_keycode[0][m] +
-					strlen(macro_trigger_keycode[0][m]) + 1;
-				strcpy(macro_trigger_keycode[1][m], zz[2]);
+				/* Key code of a combination of it with the shift key */
+				macro_trigger_keycode[1][m] = string_make(zz[2]);
 			}
 			else
 			{
-				macro_trigger_keycode[1][m] = macro_trigger_keycode[0][m];
+				macro_trigger_keycode[1][m] = string_make(zz[1]);
 			}
 		}
+
+		/* No error */
 		return 0;
+	}
 	}
 
 	/* Failure */
-	return (1);
+	return 1;
 }
 
 
@@ -1038,11 +1027,14 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 }
 
 
+#define PREF_TYPE_NORMAL   0
+#define PREF_TYPE_PICKPREF 1
+#define PREF_TYPE_HISTPREF 2
 
 /*
  * Open the "user pref file" and parse it.
  */
-static errr process_pref_file_aux(cptr name, bool read_pickpref)
+static errr process_pref_file_aux(cptr name, int preftype)
 {
 	FILE *fp;
 
@@ -1113,11 +1105,19 @@ static errr process_pref_file_aux(cptr name, bool read_pickpref)
 		/* Process "%:<file>" */
 		if (buf[0] == '%')
 		{
-			/* Process that file if allowed */
-			if (read_pickpref)
+  			/* Process that file if allowed */
+			switch (preftype)
+			{
+			case PREF_TYPE_PICKPREF:
 				(void)process_pickpref_file(buf + 2);
-			else
+				break;
+			case PREF_TYPE_HISTPREF:
+				(void)process_histpref_file(buf + 2);
+				break;
+			default:
 				(void)process_pref_file(buf + 2);
+				break;
+			}
 
 			/* Continue */
 			continue;
@@ -1130,8 +1130,8 @@ static errr process_pref_file_aux(cptr name, bool read_pickpref)
 		/* This is not original pref line... */
 		if (err)
 		{
-			if (!read_pickpref)
-				break;
+			if (preftype != PREF_TYPE_PICKPREF)
+  				break;
 			err = process_pickpref_file_line(buf);
 		}
 	}
@@ -1179,23 +1179,17 @@ errr process_pref_file(cptr name)
 	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
 
 	/* Process the system pref file */
-	err1 = process_pref_file_aux(buf, FALSE);
+	err1 = process_pref_file_aux(buf, PREF_TYPE_NORMAL);
 
 	/* Stop at parser errors, but not at non-existing file */
 	if (err1 > 0) return err1;
 
 
-	/* Drop priv's */
-	safe_setuid_drop();
-	
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 	
 	/* Process the user pref file */
-	err2 = process_pref_file_aux(buf, FALSE);
-
-	/* Grab priv's */
-	safe_setuid_grab();
+	err2 = process_pref_file_aux(buf, PREF_TYPE_NORMAL);
 
 
 	/* User file does not exist, but read system pref file */
@@ -1491,6 +1485,7 @@ errr check_load_init(void)
 #define ENTRY_ALIGN 42
 
 #define ENTRY_EXP_ANDR 43
+#define ENTRY_EXP_TO_ADV_ANDR 44
 
 
 static struct
@@ -1546,6 +1541,7 @@ static struct
 	{29,  6, 21, "社会的地位"},
 	{29,  7, 21, "属性"},
 	{29, 14, 21, "強化度"},
+	{29, 16, 21, "次レベル"},
 };
 #else
 = {
@@ -1593,6 +1589,7 @@ static struct
 	{29,  6, 21, "Social Class"},
 	{29,  7, 21, "Align"},
 	{29, 14, 21, "Construction"},
+	{29, 16, 21, "Const to Adv"},
 };
 #endif
 
@@ -1719,13 +1716,13 @@ static void display_player_middle(void)
 	if (object_known_p(o_ptr)) show_todam += o_ptr->to_d;
 
 	if ((o_ptr->sval == SV_LIGHT_XBOW) || (o_ptr->sval == SV_HEAVY_XBOW))
-		show_tohit += (p_ptr->weapon_exp[0][o_ptr->sval])/400;
+		show_tohit += p_ptr->weapon_exp[0][o_ptr->sval] / 400;
 	else
-		show_tohit += (p_ptr->weapon_exp[0][o_ptr->sval]-4000)/200;
+		show_tohit += (p_ptr->weapon_exp[0][o_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200;
 
 	/* Range attacks */
 	display_player_one_line(ENTRY_SHOOT_HIT_DAM, format("(%+d,%+d)", show_tohit, show_todam), TERM_L_BLUE);
-	
+
 	if (inventory[INVEN_BOW].k_idx)
 	{
 		tmul = bow_tmul(inventory[INVEN_BOW].sval);
@@ -1744,7 +1741,6 @@ static void display_player_middle(void)
 
 	/* Dump speed */
 	{
-		bool is_fast = (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO));
 		int tmp_speed = 0;
 		byte attr;
 		int i;
@@ -1778,7 +1774,7 @@ static void display_player_middle(void)
 
 		if (!p_ptr->riding)
 		{
-			if (is_fast) tmp_speed += 10;
+			if (IS_FAST()) tmp_speed += 10;
 			if (p_ptr->slow) tmp_speed -= 10;
 			if (p_ptr->lightspeed) tmp_speed = 99;
 		}
@@ -1838,12 +1834,15 @@ static void display_player_middle(void)
 		display_player_one_line(ENTRY_MAX_EXP, format("%ld", p_ptr->max_exp), TERM_L_GREEN);
 
 	/* Dump exp to advance */
+	if (p_ptr->prace == RACE_ANDROID) e = ENTRY_EXP_TO_ADV_ANDR;
+	else e = ENTRY_EXP_TO_ADV;
+
 	if (p_ptr->lev >= PY_MAX_LEVEL)
-		display_player_one_line(ENTRY_EXP_TO_ADV, "*****", TERM_L_GREEN);
+		display_player_one_line(e, "*****", TERM_L_GREEN);
 	else if (p_ptr->prace == RACE_ANDROID)
-		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp_a[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+		display_player_one_line(e, format("%ld", (s32b)(player_exp_a[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+		display_player_one_line(e, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 
 	/* Dump gold */
 	display_player_one_line(ENTRY_GOLD, format("%ld", p_ptr->au), TERM_L_GREEN);
@@ -2082,9 +2081,9 @@ static void display_player_various(void)
 		shot_frac = 0;
 	}
 
-	for(i = 0; i< 2; i++)
+	for(i = 0; i < 2; i++)
 	{
-		damage[i] = p_ptr->dis_to_d[i]*100;
+		damage[i] = p_ptr->dis_to_d[i] * 100;
 		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER)) && (empty_hands(TRUE) > 1))
 		{
 			int level = p_ptr->lev;
@@ -2103,27 +2102,30 @@ static void display_player_various(void)
 		}
 		else
 		{
+			o_ptr = &inventory[INVEN_RARM + i];
+
 			/* Average damage per round */
-			o_ptr = &inventory[INVEN_RARM+i];
-			if (object_known_p(o_ptr)) damage[i] += o_ptr->to_d*100;
-			basedam = (o_ptr->dd * (o_ptr->ds + 1))*50;
-			object_flags(o_ptr, flgs);
-			if ((o_ptr->ident & IDENT_MENTAL) && ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)))
+			if (o_ptr->k_idx)
 			{
-				/* vorpal blade */
-				basedam *= 5;
-				basedam /= 3;
+				if (object_known_p(o_ptr)) damage[i] += o_ptr->to_d * 100;
+				basedam = ((o_ptr->dd + p_ptr->to_dd[i]) * (o_ptr->ds + p_ptr->to_ds[i] + 1)) * 50;
+				object_flags_known(o_ptr, flgs);
+				if ((o_ptr->ident & IDENT_MENTAL) && ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)))
+				{
+					/* vorpal blade */
+					basedam *= 5;
+					basedam /= 3;
+				}
+				else if (have_flag(flgs, TR_VORPAL))
+				{
+					/* vorpal flag only */
+					basedam *= 11;
+					basedam /= 9;
+				}
+				if ((p_ptr->pclass != CLASS_SAMURAI) && have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+					basedam = basedam * 7 / 2;
 			}
-			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
-			{
-				/* vorpal flag only */
-				basedam *= 11;
-				basedam /= 9;
-			}
-			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
-				basedam = basedam * 7 / 2;
-			if (p_ptr->riding && (o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
-				basedam = basedam*(o_ptr->dd+2)/o_ptr->dd;
+			else basedam = 0;
 		}
 		damage[i] += basedam;
 		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) damage[i] = 1;
@@ -2571,7 +2573,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_BLIND);
 		add_flag(flgs, TR_RES_CONF);
 		add_flag(flgs, TR_HOLD_LIFE);
-		add_flag(flgs, TR_LITE);
+		if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
 		if (p_ptr->lev > 9)
 			add_flag(flgs, TR_SPEED);
 	}
@@ -2628,7 +2630,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 }
 
 
-static void tim_player_flags(u32b flgs[TR_FLAG_SIZE], bool im_and_res)
+static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
 
@@ -2636,48 +2638,28 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE], bool im_and_res)
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (p_ptr->hero || p_ptr->shero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
+	if (IS_HERO() || p_ptr->shero)
 		add_flag(flgs, TR_RES_FEAR);
 	if (p_ptr->tim_invis)
 		add_flag(flgs, TR_SEE_INVIS);
 	if (p_ptr->tim_regen)
 		add_flag(flgs, TR_REGEN);
-	if (p_ptr->tim_esp || music_singing(MUSIC_MIND))
+	if (IS_TIM_ESP())
 		add_flag(flgs, TR_TELEPATHY);
-	if (p_ptr->fast || p_ptr->slow || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO))
+	if (IS_FAST() || p_ptr->slow)
 		add_flag(flgs, TR_SPEED);
-	if  ((p_ptr->special_defense & KATA_MUSOU) || music_singing(MUSIC_RESIST))
-	{
-		add_flag(flgs, TR_RES_FIRE);
-		add_flag(flgs, TR_RES_COLD);
+
+	if (IS_OPPOSE_ACID() && !(p_ptr->special_defense & DEFENSE_ACID) && !(prace_is_(RACE_YEEK) && (p_ptr->lev > 19)))
 		add_flag(flgs, TR_RES_ACID);
+	if (IS_OPPOSE_ELEC() && !(p_ptr->special_defense & DEFENSE_ELEC))
 		add_flag(flgs, TR_RES_ELEC);
+	if (IS_OPPOSE_FIRE() && !(p_ptr->special_defense & DEFENSE_FIRE))
+		add_flag(flgs, TR_RES_FIRE);
+	if (IS_OPPOSE_COLD() && !(p_ptr->special_defense & DEFENSE_COLD))
+		add_flag(flgs, TR_RES_COLD);
+	if (IS_OPPOSE_POIS())
 		add_flag(flgs, TR_RES_POIS);
-	}
-	if (im_and_res)
-	{
-		if (p_ptr->oppose_acid && !(p_ptr->special_defense & DEFENSE_ACID) && !((prace_is_(RACE_YEEK)) && (p_ptr->lev > 19)))
-			add_flag(flgs, TR_RES_ACID);
-		if (p_ptr->oppose_elec && !(p_ptr->special_defense & DEFENSE_ELEC))
-			add_flag(flgs, TR_RES_ELEC);
-		if (p_ptr->oppose_fire && !(p_ptr->special_defense & DEFENSE_FIRE))
-			add_flag(flgs, TR_RES_FIRE);
-		if (p_ptr->oppose_cold && !(p_ptr->special_defense & DEFENSE_COLD))
-			add_flag(flgs, TR_RES_COLD);
-	}
-	else
-	{
-		if (p_ptr->oppose_acid)
-			add_flag(flgs, TR_RES_ACID);
-		if (p_ptr->oppose_elec)
-			add_flag(flgs, TR_RES_ELEC);
-		if (p_ptr->oppose_fire)
-			add_flag(flgs, TR_RES_FIRE);
-		if (p_ptr->oppose_cold)
-			add_flag(flgs, TR_RES_COLD);
-	}
-	if (p_ptr->oppose_pois)
-		add_flag(flgs, TR_RES_POIS);
+
 	if (p_ptr->special_attack & ATTACK_ACID)
 		add_flag(flgs, TR_BRAND_ACID);
 	if (p_ptr->special_attack & ATTACK_ELEC)
@@ -2699,9 +2681,8 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE], bool im_and_res)
 	if (p_ptr->wraith_form)
 		add_flag(flgs, TR_REFLECT);
 	/* by henkma */
-	if (p_ptr->tim_reflect){
+	if (p_ptr->tim_reflect)
 		add_flag(flgs, TR_REFLECT);
-	}
 
 	if (p_ptr->magicdef)
 	{
@@ -2830,10 +2811,10 @@ static void known_obj_immunity(u32b flgs[TR_FLAG_SIZE])
 		/* Known flags */
 		object_flags_known(o_ptr, o_flgs);
 
-		if (have_flag(flgs, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
-		if (have_flag(flgs, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
-		if (have_flag(flgs, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
-		if (have_flag(flgs, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
+		if (have_flag(o_flgs, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
+		if (have_flag(o_flgs, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
+		if (have_flag(o_flgs, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
+		if (have_flag(o_flgs, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
 	}
 }
 
@@ -3007,7 +2988,7 @@ static void display_player_flag_info(void)
 
 	/* Extract flags and store */
 	player_flags(f.player_flags);
-	tim_player_flags(f.tim_player_flags, TRUE);
+	tim_player_flags(f.tim_player_flags);
 	player_immunity(f.player_imm);
 	tim_player_immunity(f.tim_player_imm);
 	known_obj_immunity(f.known_obj_imm);
@@ -3136,7 +3117,7 @@ static void display_player_other_flag_info(void)
 
 	/* Extract flags and store */
 	player_flags(f.player_flags);
-	tim_player_flags(f.tim_player_flags, TRUE);
+	tim_player_flags(f.tim_player_flags);
 	player_immunity(f.player_imm);
 	tim_player_immunity(f.tim_player_imm);
 	known_obj_immunity(f.known_obj_imm);
@@ -3206,7 +3187,7 @@ static void display_player_other_flag_info(void)
 	display_flag_aux(row+13, col, "Poison Brd:", TR_BRAND_POIS, &f, DP_WP);
 	display_flag_aux(row+14, col, "Sharpness :", TR_VORPAL, &f, DP_WP);
 	display_flag_aux(row+15, col, "Quake     :", TR_IMPACT, &f, DP_WP);
-	display_flag_aux(row+16, col, "Vampicic  :", TR_VAMPIRIC, &f, DP_WP);
+	display_flag_aux(row+16, col, "Vampiric  :", TR_VAMPIRIC, &f, DP_WP);
 	display_flag_aux(row+17, col, "Chatic    :", TR_CHAOTIC, &f, DP_WP);
 	display_flag_aux(row+18, col, "Force Wep.:", TR_FORCE_WEAPON, &f, DP_WP);
 #endif
@@ -3390,7 +3371,6 @@ static void display_player_stat_info(void)
 
 	object_type *o_ptr;
 	u32b flgs[TR_FLAG_SIZE];
-	s16b k_idx;
 
 	byte a;
 	char c;
@@ -3523,9 +3503,6 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 	{
 		/* Access object */
 		o_ptr = &inventory[i];
-
-		/* Object kind */
-		k_idx = o_ptr->k_idx;
 
 		/* Acquire "known" flags */
 		object_flags_known(o_ptr, flgs);
@@ -3840,7 +3817,7 @@ void display_player(int mode)
 					sprintf(statmsg, "...You were killed by %s in %s.", p_ptr->died_from, map_name());
 #endif
 				}
-				else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+				else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
 				{
 					/* Get the quest text */
 					/* Bewere that INIT_ASSIGN resets the cur_num. */
@@ -3855,7 +3832,7 @@ void display_player(int mode)
 #endif
 				}
 				else
-				{					
+				{
 #ifdef JP
 					sprintf(statmsg, "…あなたは、%sの%d階で%sに殺された。", map_name(), dun_level, p_ptr->died_from);
 #else
@@ -3873,7 +3850,7 @@ void display_player(int mode)
 					sprintf(statmsg, "...Now, you are in %s.", map_name());
 #endif
 				}
-				else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+				else if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))
 				{
 					/* Clear the text */
 					/* Must be done before doing INIT_SHOW_TEXT */
@@ -3893,7 +3870,7 @@ void display_player(int mode)
 #else
 					sprintf(statmsg, "...Now, you are in the quest '%s'.", quest[p_ptr->inside_quest].name);
 #endif
-				}							
+				}
 				else
 				{
 #ifdef JP
@@ -3954,27 +3931,6 @@ void display_player(int mode)
 	}
 }
 
-static bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b)
-{
-	int *q_num = (int *)u;
-	quest_type *qa = &quest[q_num[a]];
-	quest_type *qb = &quest[q_num[b]];
-
-	if (qa->complev < qb->complev) return TRUE;
-	if (qa->complev > qb->complev) return FALSE;
-	if (qa->level <= qb->level) return TRUE;
-	return FALSE;
-}
-
-static void ang_sort_swap_quest_num(vptr u, vptr v, int a, int b)
-{
-	int *q_num = (int *)u;
-	int tmp;
-
-	tmp = q_num[a];
-	q_num[a] = q_num[b];
-	q_num[b] = tmp;
-}
 
 errr make_character_dump(FILE *fff)
 {
@@ -3985,7 +3941,6 @@ errr make_character_dump(FILE *fff)
 	store_type  *st_ptr;
 	char		o_name[MAX_NLEN];
 	char		buf[1024];
-	int		total;
 	int		*quest_num;
 	int		dummy;
 
@@ -4023,7 +3978,7 @@ errr make_character_dump(FILE *fff)
 
 		/* End the row */
 #ifdef JP
-			fprintf(fff, "%s\n", buf);
+		fprintf(fff, "%s\n", buf);
 #else
 		fprintf(fff, "%s\n", buf);
 #endif
@@ -4126,11 +4081,11 @@ errr make_character_dump(FILE *fff)
 
 	{
 		bool pet = FALSE;
+		char pet_name[80];
 
 		for (i = m_max - 1; i >= 1; i--)
 		{
 			monster_type *m_ptr = &m_list[i];
-			char pet_name[80];
 
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
@@ -4144,18 +4099,169 @@ errr make_character_dump(FILE *fff)
 #endif
 				pet = TRUE;
 			}
-			monster_desc(pet_name, m_ptr, 0x88);
-			fprintf(fff, "%s", pet_name);
-			if (p_ptr->riding == i)
-#ifdef JP
-				fprintf(fff, " 乗馬中");
-#else
-				fprintf(fff, " (riding)");
-#endif
-			fprintf(fff, "\n");
+			monster_desc(pet_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+			fprintf(fff, "%s\n", pet_name);
 		}
+
+		for (i = MAX_PARTY_MON - 1; i >= 0; i--)
+		{
+			monster_type *m_ptr = &party_mon[i];
+
+			if (!m_ptr->r_idx) continue;
+			if (!m_ptr->nickname) continue;
+			if (!pet)
+			{
+#ifdef JP
+				fprintf(fff, "\n  [主なペット]\n\n");
+#else
+				fprintf(fff, "\n  [leading pets]\n\n");
+#endif
+				pet = TRUE;
+			}
+			monster_desc(pet_name, m_ptr, MD_ASSUME_OUTSIDE | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+			fprintf(fff, "%s\n", pet_name);
+		}
+
 		if (pet) fprintf(fff, "\n");
 	}
+
+
+	if (p_ptr->pclass == CLASS_BLUE_MAGE) {
+
+		int             i = 0;
+		int	            j = 0;
+		int				l1 = 0;
+		int				l2 = 0;
+		int             num = 0;
+		int             spellnum[MAX_MONSPELLS];
+		s32b            f4 = 0, f5 = 0, f6 = 0;
+		char			p[60][80];
+		int				col = 0;
+		bool			pcol = FALSE;
+
+		for (i=0;i<60;i++) { p[i][0] = '\0'; }
+
+#ifdef JP
+		strcat(p[col], "\n  [学習済みの青魔法]\n");
+#else
+		strcat(p[col], "\n  [Learned blue magic]\n");
+#endif
+
+
+		for (j=1;j<6;j++)
+		{
+			col++;
+			set_rf_masks(&f4, &f5, &f6, j);
+			switch(j)
+			{
+				case MONSPELL_TYPE_BOLT:
+#ifdef JP
+					strcat(p[col], "\n     [ボルト型]\n");
+#else
+					strcat(p[col], "\n     [Bolt  type]\n");
+#endif
+					break;
+
+				case MONSPELL_TYPE_BALL:
+#ifdef JP
+					strcat(p[col], "\n     [ボール型]\n");
+#else
+					strcat(p[col], "\n     [Ball  type]\n");
+#endif
+					break;
+
+				case MONSPELL_TYPE_BREATH:
+#ifdef JP
+					strcat(p[col], "\n     [ブレス型]\n");
+#else
+					strcat(p[col], "\n     [  Breath  ]\n");
+#endif
+					break;
+
+				case MONSPELL_TYPE_SUMMON:
+#ifdef JP
+					strcat(p[col], "\n     [召喚魔法]\n");
+#else
+					strcat(p[col], "\n     [Summonning]\n");
+#endif
+					break;
+
+				case MONSPELL_TYPE_OTHER:
+#ifdef JP
+					strcat(p[col], "\n     [ その他 ]\n");
+#else
+					strcat(p[col], "\n     [Other type]\n");
+#endif
+					break;
+			}
+
+			for (i = 0, num = 0; i < 32; i++)
+			{
+				if ((0x00000001 << i) & f4) spellnum[num++] = i;
+			}
+			for (; i < 64; i++)
+			{
+				if ((0x00000001 << (i - 32)) & f5) spellnum[num++] = i;
+			}
+			for (; i < 96; i++)
+			{
+				if ((0x00000001 << (i - 64)) & f6) spellnum[num++] = i;
+			}
+
+			col++;
+			pcol = FALSE;
+			strcat(p[col], "       ");
+
+			for (i = 0; i < num; i++)
+			{
+				if (p_ptr->magic_num2[spellnum[i]])
+				{
+					pcol = TRUE;
+					/* Dump blue magic */
+					l1 = strlen(p[col]);
+					l2 = strlen(monster_powers_short[spellnum[i]]);
+					if ((l1 + l2) >= 75)
+					{
+						strcat(p[col], "\n");
+						col++;
+						strcat(p[col], "       ");
+					}
+					strcat(p[col], monster_powers_short[spellnum[i]]);
+					strcat(p[col], ", ");
+				}
+			}
+			
+			if (!pcol)
+			{
+#ifdef JP
+				strcat(p[col], "なし");
+#else
+				strcat(p[col], "None");
+#endif
+			}
+			else
+			{
+				if (p[col][strlen(p[col])-2] == ',')
+				{
+					p[col][strlen(p[col])-2] = '\0';
+				}
+				else
+				{
+					p[col][strlen(p[col])-10] = '\0';
+				}
+			}
+			
+			strcat(p[col], "\n");
+		}
+
+		for (i=0;i<=col;i++)
+		{
+			fprintf(fff, p[i]);
+		}
+	}
+
+	fprintf(fff, "\n");
+
 
 #ifdef JP
 	fprintf(fff, "\n  [クエスト情報]\n");
@@ -4163,166 +4269,20 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "\n  [Quest information]\n");
 #endif
 
-#ifdef JP
-	fprintf(fff, "\n《達成したクエスト》\n");
-#else
-	fprintf(fff, "\n< Completed Quest >\n");
-#endif
-
 	/* Allocate Memory */
 	C_MAKE(quest_num, max_quests, int);
 
 	/* Sort by compete level */
-	for (i = 1; i < max_quests; i++)
-	{
-		quest_num[i] = i;
-	}
+	for (i = 1; i < max_quests; i++) quest_num[i] = i;
 	ang_sort_comp = ang_sort_comp_quest_num;
 	ang_sort_swap = ang_sort_swap_quest_num;
 	ang_sort(quest_num, &dummy, max_quests);
 
 	/* Dump Quest Information */
-	total = 0;
-	for (i = 1; i < max_quests; i++)
-	{
-		int num = quest_num[i];
-
-		if (quest[num].status == QUEST_STATUS_FINISHED)
-		{
-			if (num < MIN_RANDOM_QUEST)
-			{
-				int old_quest;
-			
-				/* Set the quest number temporary */
-				old_quest = p_ptr->inside_quest;
-				p_ptr->inside_quest = num;
-
-				/* Get the quest */
-				init_flags = INIT_ASSIGN;
-
-				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-				/* Reset the old quest number */
-				p_ptr->inside_quest = old_quest;
-
-				/* No info from "silent" quests */
-				if (quest[num].flags & QUEST_FLAG_SILENT) continue;
-			}
-
-			total++;
-
-			if ((num >= MIN_RANDOM_QUEST) && quest[num].r_idx)
-			{
-				/* Print the quest info */
-
-				if (quest[num].complev == 0)
-				{
-					fprintf(fff, 
-#ifdef JP
-						"  %s (%d階) - 不戦勝\n",
-#else
-						"  %s (Dungeon level: %d) - (Cancelled)\n",
-#endif
-						r_name+r_info[quest[num].r_idx].name,
-						quest[num].level);
-				}
-				else
-				{
-					fprintf(fff, 
-#ifdef JP
-						"  %s (%d階) - レベル%d\n",
-#else
-						"  %s (Dungeon level: %d) - level %d\n",
-#endif
-						r_name+r_info[quest[num].r_idx].name,
-						quest[num].level,
-						quest[num].complev);
-				}
-			}
-			else
-			{
-				/* Print the quest info */
-#ifdef JP
-				fprintf(fff, "  %s (危険度:%d階相当) - レベル%d\n",
-#else
-				fprintf(fff, "  %s (Danger level: %d) - level %d\n",
-#endif
-
-					quest[num].name, quest[num].level, quest[num].complev);
-			}
-		}
-	}
-#ifdef JP
-	if (!total) fprintf(fff, "  なし\n");
-#else
-	if (!total) fprintf(fff, "  Nothing.\n");
-#endif
-
-#ifdef JP
-	fprintf(fff, "\n《失敗したクエスト》\n");
-#else
-	fprintf(fff, "\n< Failed Quest >\n");
-#endif
-	total = 0;
-	for (i = 1; i < max_quests; i++)
-	{
-		int num = quest_num[i];
-
-		if ((quest[num].status == QUEST_STATUS_FAILED_DONE) || (quest[num].status == QUEST_STATUS_FAILED))
-		{
-			if (num < MIN_RANDOM_QUEST)
-			{
-				int old_quest;
-
-				/* Set the quest number temporary */
-				old_quest = p_ptr->inside_quest;
-				p_ptr->inside_quest = num;
-
-				/* Get the quest text */
-				init_flags = INIT_ASSIGN;
-
-				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-
-				/* Reset the old quest number */
-				p_ptr->inside_quest = old_quest;
-
-				/* No info from "silent" quests */
-				if (quest[num].flags & QUEST_FLAG_SILENT) continue;
-			}
-
-			total++;
-
-			if ((num >= MIN_RANDOM_QUEST) && quest[num].r_idx)
-			{
-				/* Print the quest info */
-#ifdef JP
-				fprintf(fff, "  %s (%d階) - レベル%d\n",
-#else
-				fprintf(fff, "  %s (Dungeon level: %d) - level %d\n",
-#endif
-
-					r_name+r_info[quest[num].r_idx].name, quest[num].level, quest[num].complev);
-			}
-			else
-			{
-				/* Print the quest info */
-#ifdef JP
-				fprintf(fff, "  %s (危険度:%d階相当) - レベル%d\n",
-#else
-				fprintf(fff, "  %s (Danger level: %d) - level %d\n",
-#endif
-
-					quest[num].name, quest[num].level, quest[num].complev);
-			}
-		}
-	}
-
-#ifdef JP
-	if (!total) fprintf(fff, "  なし\n");
-#else
-	if (!total) fprintf(fff, "  Nothing.\n");
-#endif
-	fprintf(fff, "\n");
+	fputc('\n', fff);
+	do_cmd_knowledge_quests_completed(fff, quest_num);
+	fputc('\n', fff);
+	do_cmd_knowledge_quests_failed(fff, quest_num);
 
 	/* Free Memory */
 	C_KILL(quest_num, max_quests, int);
@@ -4512,15 +4472,29 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "\n Num. Random Quests: %d", number_of_quests());
 #endif
 
-	if (p_ptr->arena_number == 99)
+	if (p_ptr->arena_number < 0)
 	{
+		if (p_ptr->arena_number <= ARENA_DEFEATED_OLD_VER)
+		{
 #ifdef JP
-		fprintf(fff, "\n 闘技場: 敗北\n");
+			fprintf(fff, "\n 闘技場: 敗北\n");
 #else
-		fprintf(fff, "\n Arena: defeated\n");
+			fprintf(fff, "\n Arena: defeated\n");
 #endif
+		}
+		else
+		{
+#ifdef JP
+			fprintf(fff, "\n 闘技場: %d回戦で%sの前に敗北\n", -p_ptr->arena_number,
+				r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name);
+#else
+			fprintf(fff, "\n Arena: defeated by %s in the %d%s fight\n",
+				r_name + r_info[arena_info[-1 - p_ptr->arena_number].r_idx].name,
+				-p_ptr->arena_number, get_ordinal_number_suffix(-p_ptr->arena_number));
+#endif
+		}
 	}
-	else if (p_ptr->arena_number > MAX_ARENA_MONS+2)
+	else if (p_ptr->arena_number > MAX_ARENA_MONS + 2)
 	{
 #ifdef JP
 		fprintf(fff, "\n 闘技場: 真のチャンピオン\n");
@@ -4528,7 +4502,7 @@ errr make_character_dump(FILE *fff)
 		fprintf(fff, "\n Arena: True Champion\n");
 #endif
 	}
-	else if (p_ptr->arena_number > MAX_ARENA_MONS-1)
+	else if (p_ptr->arena_number > MAX_ARENA_MONS - 1)
 	{
 #ifdef JP
 		fprintf(fff, "\n 闘技場: チャンピオン\n");
@@ -4547,7 +4521,7 @@ errr make_character_dump(FILE *fff)
 
 	if (p_ptr->noscore)
 #ifdef JP
-fprintf(fff, "\n 何か不正なことをしてしまってます。");
+		fprintf(fff, "\n 何か不正なことをしてしまってます。");
 #else
 		fprintf(fff, "\n You have done something illegal.");
 #endif
@@ -4584,21 +4558,21 @@ fprintf(fff, "\n 何か不正なことをしてしまってます。");
 
 		if (Total < 1)
 #ifdef JP
-fprintf(fff,"\n まだ敵を倒していません。\n");
+			fprintf(fff,"\n まだ敵を倒していません。\n");
 #else
 			fprintf(fff,"\n You have defeated no enemies yet.\n");
 #endif
 
 		else if (Total == 1)
 #ifdef JP
-fprintf(fff,"\n 一体の敵を倒しています。\n");
+			fprintf(fff,"\n 一体の敵を倒しています。\n");
 #else
 			fprintf(fff,"\n You have defeated one enemy.\n");
 #endif
 
 		else
 #ifdef JP
-fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
+			fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
 #else
 			fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
 #endif
@@ -4646,7 +4620,7 @@ fprintf(fff,"\n %lu 体の敵を倒しています。\n", Total);
 	}
 
 #ifdef JP
-fprintf(fff, "\n\n  [プレイヤーの徳]\n\n");
+	fprintf(fff, "\n\n  [プレイヤーの徳]\n\n");
 #else
 	fprintf(fff, "\n\n  [Virtues]\n\n");
 #endif
@@ -4662,7 +4636,7 @@ fprintf(fff, "\n\n  [プレイヤーの徳]\n\n");
 	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 	{
 #ifdef JP
-fprintf(fff, "\n\n  [突然変異]\n\n");
+		fprintf(fff, "\n\n  [突然変異]\n\n");
 #else
 		fprintf(fff, "\n\n  [Mutations]\n\n");
 #endif
@@ -4679,7 +4653,7 @@ fprintf(fff, "\n\n  [突然変異]\n\n");
 	if (equip_cnt)
 	{
 #ifdef JP
-fprintf(fff, "  [ キャラクタの装備 ]\n\n");
+		fprintf(fff, "  [キャラクタの装備]\n\n");
 #else
 		fprintf(fff, "  [Character Equipment]\n\n");
 #endif
@@ -4701,7 +4675,7 @@ fprintf(fff, "  [ キャラクタの装備 ]\n\n");
 
 	/* Dump the inventory */
 #ifdef JP
-fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
+	fprintf(fff, "  [キャラクタの持ち物]\n\n");
 #else
 	fprintf(fff, "  [Character Inventory]\n\n");
 #endif
@@ -4729,11 +4703,11 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 	{
 		/* Header with name of the town */
 #ifdef JP
-		fprintf(fff, "  [ 我が家のアイテム ]\n");
+		fprintf(fff, "  [我が家のアイテム]\n");
 #else
 		fprintf(fff, "  [Home Inventory]\n");
 #endif
-		x=1;
+		x = 1;
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -4761,11 +4735,11 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 	{
 		/* Header with name of the town */
 #ifdef JP
-		fprintf(fff, "  [ 博物館のアイテム ]\n");
+		fprintf(fff, "  [博物館のアイテム]\n");
 #else
 		fprintf(fff, "  [Museum]\n");
 #endif
-		x=1;
+		x = 1;
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -4801,14 +4775,11 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
  * XXX XXX XXX Allow the "full" flag to dump additional info,
  * and trigger its usage from various places in the code.
  */
-errr file_character(cptr name, bool full)
+errr file_character(cptr name)
 {
 	int		fd = -1;
 	FILE		*fff = NULL;
 	char		buf[1024];
-
-	/* Drop priv's */
-	safe_setuid_drop();
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
@@ -4863,8 +4834,6 @@ errr file_character(cptr name, bool full)
 	/* Close it */
 	my_fclose(fff);
 
-	/* Grab priv's */
-	safe_setuid_grab();
 
 	/* Message */
 #ifdef JP
@@ -5500,9 +5469,6 @@ strcpy(tmp, "jhelp.hlp");
 			/* Close it */
 			my_fclose(fff);
 
-			/* Drop priv's */
-			safe_setuid_drop();
-
 			/* Build the filename */
 			path_build(buff, sizeof(buff), ANGBAND_DIR_USER, xtmp);
 
@@ -5534,9 +5500,6 @@ msg_print("ファイルが開けません。");
 			/* Close it */
 			my_fclose(fff);
 			my_fclose(ffp);
-
-			/* Grab priv's */
-			safe_setuid_grab();
 
 			/* Hack -- Re-Open the file */
 			fff = my_fopen(path, "r");
@@ -6029,13 +5992,13 @@ long total_points(void)
 	point_l /= 100;
 
 	point = (point_h << 16) + (point_l);
-	if (p_ptr->arena_number < 99)
+	if (p_ptr->arena_number >= 0)
 		point += (arena_win * arena_win * (arena_win > 29 ? 1000 : 100));
 
 	if (ironman_downward) point *= 2;
 	if (p_ptr->pclass == CLASS_BERSERKER)
 	{
-		if ((p_ptr->prace == RACE_SPECTRE) || (p_ptr->prace == RACE_AMBERITE))
+		if ( p_ptr->prace == RACE_SPECTRE )
 			point = point / 5;
 	}
 
@@ -6111,8 +6074,14 @@ static void make_bones(void)
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
 
+			/* Grab permissions */
+			safe_setuid_grab();
+
 			/* Try to write a new "Bones File" */
 			fp = my_fopen(str, "w");
+
+			/* Drop permissions */
+			safe_setuid_drop();
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
@@ -6436,7 +6405,7 @@ put_str("ファイルネーム: ", 23, 0);
 		screen_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val, TRUE);
+		(void)file_character(out_val);
 
 		/* Load screen */
 		screen_load();
@@ -6673,9 +6642,14 @@ void close_game(void)
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
 
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Handle death */
 	if (p_ptr->is_dead)
@@ -6846,9 +6820,8 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 {
 	FILE    *fp;
 	char    buf[1024];
-	int     line, counter, test, numentries;
+	int     counter, test;
 	int     line_num = 0;
-	bool    found = FALSE;
 
 
 	/* Build the filename */
@@ -6858,7 +6831,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 	fp = my_fopen(buf, "r");
 
 	/* Failed */
-	if (!fp) return (-1);
+	if (!fp) return -1;
 
 	/* Find the entry of the monster */
 	while (TRUE)
@@ -6876,42 +6849,28 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 				if (buf[2] == '*')
 				{
 					/* Default lines */
-					found = TRUE;
 					break;
 				}
 				else if (buf[2] == 'M')
 				{
-					if (r_info[entry].flags1 & RF1_MALE)
-					{
-						found = TRUE;
-						break;
-					}
+					if (r_info[entry].flags1 & RF1_MALE) break;
 				}
 				else if (buf[2] == 'F')
 				{
-					if (r_info[entry].flags1 & RF1_FEMALE)
-					{
-						found = TRUE;
-						break;
-					}
+					if (r_info[entry].flags1 & RF1_FEMALE) break;
 				}
 				/* Get the monster number */
 				else if (sscanf(&(buf[2]), "%d", &test) != EOF)
 				{
-					/* Is it the right monster? */
-					if (test == entry)
-					{
-						found = TRUE;
-						break;
-					}
+					/* Is it the right number? */
+					if (test == entry) break;
 				}
 				else
 				{
-					/* Error while converting the monster number */
-					msg_format("Error in line %d of %s!",
-						  line_num, file_name);
+					/* Error while converting the number */
+					msg_format("Error in line %d of %s!", line_num, file_name);
 					my_fclose(fp);
-					return (-1);
+					return -1;
 				}
 			}
 		}
@@ -6919,105 +6878,60 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 		{
 			/* Reached end of file */
 			my_fclose(fp);
-			return (-1);
-		}
-
-	}
-	
-	/* Get the number of entries */
-	while (TRUE)
-	{
-		/* Get the line */
-		if (my_fgets(fp, buf, sizeof(buf)) == 0)
-		{
-			/* Count the lines */
-			line_num++;
-
-			/* Look for the number of entries */
-			if (isdigit(buf[0]))
-			{
-				/* Get the number of entries */
-				numentries = atoi(buf);
-				break;
-			}
-		}
-		else
-		{
-			/* Count the lines */
-			line_num++;
-
-			/* Reached end of file without finding the number */
-			msg_format("Error in line %d of %s!",
-				  line_num, file_name);
-
-			my_fclose(fp);
-			return (-1);
+			return -1;
 		}
 	}
 
-	if (numentries > 0)
+	/* Get the random line */
+	for (counter = 0; ; counter++)
 	{
-		/* Grab an appropriate line number */
-		line = randint0(numentries);
-
-		/* Get the random line */
-		for (counter = 0; counter <= line; counter++)
+		while (TRUE)
 		{
+			test = my_fgets(fp, buf, sizeof(buf));
+
 			/* Count the lines */
-			line_num++;
+			/* line_num++; No more needed */
 
-			while(TRUE)
+			if (!test)
 			{
-				test = my_fgets(fp, buf, sizeof(buf));
-				if(test || buf[0] != '#')
-					break;
-			}
+				/* Ignore lines starting with 'N:' */
+				if ((buf[0] == 'N') && (buf[1] == ':')) continue;
 
-			if (test==0)
-			{
-				/* Found the line */
-				if (counter == line) break;
+				if (buf[0] != '#') break;
 			}
-			else
-			{
-				/* Error - End of file */
-				msg_format("Error in line %d of %s!",
-					  line_num, file_name);
-
-				my_fclose(fp);
-				return (-1);
-			}
+			else break;
 		}
+
+		/* Abort */
+		if (!buf[0]) break;
 
 		/* Copy the line */
-		strcpy(output, buf);
-	}
-	else
-	{
-		return (-1);
+		if (one_in_(counter + 1)) strcpy(output, buf);
 	}
 
 	/* Close the file */
 	my_fclose(fp);
 
 	/* Success */
-	return (0);
+	return counter ? 0 : -1;
 }
 
 
 #ifdef JP
 errr get_rnd_line_jonly(cptr file_name, int entry, char *output, int count)
 {
-  int i,j,kanji;
-  errr result=1;
-  for (i=0;i<count;i++){
-    result=get_rnd_line(file_name, entry, output);
-    if(result)break;
-    kanji=0;
-    for(j=0; output[j]; j++) kanji |= iskanji(output[j]);
-    if(kanji)break;
-  }
-  return(result);
+	int  i, j, kanji;
+	errr result = 1;
+
+	for (i = 0; i < count; i++)
+	{
+		result = get_rnd_line(file_name, entry, output);
+		if (result) break;
+		kanji = 0;
+		for (j = 0; output[j]; j++) kanji |= iskanji(output[j]);
+		if (kanji) break;
+	}
+	return result;
 }
 #endif
 
@@ -7030,20 +6944,34 @@ errr process_pickpref_file(cptr name)
 
 	errr err = 0;
 
-	/* Drop priv's */
-	safe_setuid_drop();
-
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
-	err = process_pref_file_aux(buf, TRUE);
-
-	/* Grab priv's */
-	safe_setuid_grab();
+	err = process_pref_file_aux(buf, PREF_TYPE_PICKPREF);
 
 	/* Result */
 	return (err);
 }
+
+
+/*
+ * Process file for player's history editor.
+ */
+errr process_histpref_file(cptr name)
+{
+	char buf[1024];
+
+	errr err = 0;
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+
+	err = process_pref_file_aux(buf, PREF_TYPE_HISTPREF);
+
+	/* Result */
+	return (err);
+}
+
 
 static errr counts_seek(int fd, u32b where, bool flag)
 {
@@ -7111,13 +7039,22 @@ errr counts_write(int where, u32b count)
 {
 	int fd;
 	char buf[1024];
+	errr err;
 
 #ifdef JP
 	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info_j.raw");
 #else
 	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info.raw");
 #endif
+
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	fd = fd_open(buf, O_RDWR);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
 	if (fd < 0)
 	{
 		/* File type is "DATA" */
@@ -7127,12 +7064,28 @@ errr counts_write(int where, u32b count)
 		fd = fd_make(buf, 0644);
 	}
 
-	if (fd_lock(fd, F_WRLCK)) return 1;
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	err = fd_lock(fd, F_WRLCK);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	if (err) return 1;
 
 	counts_seek(fd, where, TRUE);
 	fd_write(fd, (char*)(&count), sizeof(u32b));
 
-	if (fd_lock(fd, F_UNLCK)) return 1;
+	/* Grab permissions */
+	safe_setuid_grab();
+
+	err = fd_lock(fd, F_UNLCK);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	if (err) return 1;
 
 	(void)fd_close(fd);
 

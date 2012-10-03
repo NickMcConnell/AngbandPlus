@@ -1,14 +1,14 @@
 /* File: types.h */
 
-/* Purpose: global type declarations */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: global type declarations */
 
 
 /*
@@ -234,6 +234,14 @@ struct monster_blow
 };
 
 
+typedef struct mbe_info_type mbe_info_type;
+
+struct mbe_info_type
+{
+	int power;        /* The attack "power" */
+	int explode_type; /* Explosion effect */
+};
+
 
 /*
  * Monster "race" information, including racial memories
@@ -279,8 +287,7 @@ struct monster_race
 
 	s16b extra;				/* Unused (for now) */
 
-	byte freq_inate;		/* Inate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte freq_spell;		/* Spell frequency */
 
 	u32b flags1;			/* Flags 1 (general) */
 	u32b flags2;			/* Flags 2 (abilities) */
@@ -291,6 +298,7 @@ struct monster_race
 	u32b flags7;			/* Flags 7 (movement related abilities) */
 	u32b flags8;			/* Flags 8 (wilderness info) */
 	u32b flags9;			/* Flags 9 (drops info) */
+	u32b flagsr;			/* Flags R (resistances info) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -331,7 +339,6 @@ struct monster_race
 	byte r_drop_gold;		/* Max number of gold dropped at once */
 	byte r_drop_item;		/* Max number of item dropped at once */
 
-	byte r_cast_inate;		/* Max number of inate spells seen */
 	byte r_cast_spell;		/* Max number of other spells seen */
 
 	byte r_blows[4];		/* Number of times each blow type was seen */
@@ -342,7 +349,8 @@ struct monster_race
 	u32b r_flags4;			/* Observed racial flags */
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
-	u32b r_flags7;			/* Observed racial flags */
+	/* u32b r_flags7; */			/* Observed racial flags */
+	u32b r_flagsr;			/* Observed racial resistance flags */
 };
 
 
@@ -1288,6 +1296,10 @@ struct player_type
 	bool heavy_spell;
 	bool warning;
 	bool mighty_throw;
+	bool see_nocto;		/* Noctovision */
+
+	s16b to_dd[2]; /* Extra dice/sides */
+	s16b to_ds[2];
 
 	s16b dis_to_h[2];	/* Known bonus to hit (wield) */
 	s16b dis_to_h_b;	/* Known bonus to hit (bow) */
@@ -1332,7 +1344,7 @@ struct player_type
 
 	byte tval_ammo;		/* Correct ammo tval */
 
-	s16b pspeed;		/* Current speed */
+	byte pspeed;		/* Current speed */
 };
 
 
@@ -1613,6 +1625,7 @@ struct dungeon_info_type {
 	u32b mflags7;
 	u32b mflags8;
 	u32b mflags9;
+	u32b mflagsr;
 
 	char r_char[5];		/* Monster race allowed */
 	int final_object;	/* The object you'll find at the bottom */
@@ -1666,3 +1679,13 @@ typedef struct
 	u16b occurrence;
 } cave_template_type;
 
+
+/*
+ * A structure type for arena entry
+ */
+typedef struct
+{
+	s16b r_idx; /* Monster (0 means victory prizing) */
+	byte tval;  /* tval of prize (0 means no prize) */
+	byte sval;  /* sval of prize */
+} arena_type;

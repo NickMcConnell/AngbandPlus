@@ -1,5 +1,13 @@
 /* File: init1.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
 /* Purpose: Initialization (part 1) -BEN- */
 
 #include "angband.h"
@@ -143,14 +151,14 @@ static cptr r_info_flags1[] =
 	"MALE",
 	"FEMALE",
 	"CHAR_CLEAR",
-	"CHAR_MULTI",
+	"SHAPECHANGER",
 	"ATTR_CLEAR",
 	"ATTR_MULTI",
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
 	"FORCE_EXTRA",
-	"XXX1",
+	"ATTR_SEMIRAND",
 	"FRIENDS",
 	"ESCORT",
 	"ESCORTS",
@@ -187,7 +195,7 @@ static cptr r_info_flags2[] =
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"SHAPECHANGER",
+	"CHAR_MULTI",
 	"ATTR_ANY",
 	"POWERFUL",
 	"ELDRITCH_HORROR",
@@ -201,12 +209,12 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
-	"BRAIN_2",
-	"BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 	"HUMAN",
 	"QUANTUM"
 };
@@ -232,18 +240,18 @@ static cptr r_info_flags3[] =
 	"HURT_ROCK",
 	"HURT_FIRE",
 	"HURT_COLD",
-	"IM_ACID",
-	"IM_ELEC",
-	"IM_FIRE",
-	"IM_COLD",
-	"IM_POIS",
-	"RES_TELE",
-	"RES_NETH",
-	"RES_WATE",
-	"RES_PLAS",
-	"RES_NEXU",
-	"RES_DISE",
-	"RES_ALL",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -389,10 +397,10 @@ static cptr r_info_flags7[] =
 	"CHAMELEON",
 	"KILL_EXP",
 	"TANUKI",
-	"XXX7X16",
-	"XXX7X17",
-	"XXX7X18",
-	"XXX7X19",
+	"HAS_DARK_1",
+	"SELF_DARK_1",
+	"HAS_DARK_2",
+	"SELF_DARK_2",
 	"XXX7X20",
 	"XXX7X21",
 	"XXX7X22",
@@ -485,6 +493,46 @@ static cptr r_info_flags9[] =
 	"EAT_LOSE_CON",
 	"EAT_LOSE_CHR",
 	"EAT_DRAIN_MANA",
+};
+
+
+/*
+ * Monster race flags - Resistances
+ */
+static cptr r_info_flagsr[] =
+{
+	"IM_ACID",
+	"IM_ELEC",
+	"IM_FIRE",
+	"IM_COLD",
+	"IM_POIS",
+	"RES_LITE",
+	"RES_DARK",
+	"RES_NETH",
+	"RES_WATE",
+	"RES_PLAS",
+	"RES_SHAR",
+	"RES_SOUN",
+	"RES_CHAO",
+	"RES_NEXU",
+	"RES_DISE",
+	"RES_WALL",
+	"RES_INER",
+	"RES_TIME",
+	"RES_GRAV",
+	"RES_ALL",
+	"RES_TELE",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 };
 
 
@@ -666,14 +714,14 @@ static cptr d_info_flags1[] =
 	"NO_DOORS",
 	"WATER_RIVER",
 	"LAVA_RIVER",
-	"WATER_RIVERS",
-	"LAVA_RIVERS",
+	"XXX",
+	"XXX",
 	"CAVE",
 	"CAVERN",
-	"NO_UP",
-	"HOT",
-	"COLD",
-	"NO_DOWN",
+	"XXX",
+	"XXX",
+	"XXX",
+	"XXX",
 	"FORGET",
 	"LAKE_WATER",
 	"LAKE_LAVA",
@@ -682,14 +730,14 @@ static cptr d_info_flags1[] =
 	"NO_VAULT",
 	"ARENA",
 	"DESTROY",
-	"XXX1",
+	"XXX",
 	"NO_CAVE",
 	"NO_MAGIC",
 	"NO_MELEE",
 	"CHAMELEON",
 	"DARKNESS",
-	"XXX1",
-	"XXX1"
+	"XXX",
+	"XXX"
 };
 
 
@@ -973,13 +1021,18 @@ errr parse_s_info(char *buf, header *head)
 	else if (buf[0] == 'W')
 	{
 		int tval, sval, start, max;
-		const s16b exp_conv_table[] = { 0, 4000, 6000, 7000, 8000 };
+		const s16b exp_conv_table[] =
+		{
+			WEAPON_EXP_UNSKILLED, WEAPON_EXP_BEGINNER, WEAPON_EXP_SKILLED,
+			WEAPON_EXP_EXPERT, WEAPON_EXP_MASTER
+		};
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
 				&tval, &sval, &start, &max)) return (1);
 
-		if (start < 0 || start > 4 || max < 0 || max > 4) return (8);
+		if (start < EXP_LEVEL_UNSKILLED || start > EXP_LEVEL_MASTER
+			|| max < EXP_LEVEL_UNSKILLED || max > EXP_LEVEL_MASTER) return (8);
 
 		/* Save the values */
 		s_ptr->w_start[tval][sval] = exp_conv_table[start];
@@ -995,7 +1048,8 @@ errr parse_s_info(char *buf, header *head)
 		if (3 != sscanf(buf+2, "%d:%d:%d",
 				&num, &start, &max)) return (1);
 
-		if (start < 0 || start > 8000 || max < 0 || max > 8000) return (8);
+		if (start < WEAPON_EXP_UNSKILLED || start > WEAPON_EXP_MASTER
+			|| max < WEAPON_EXP_UNSKILLED || max > WEAPON_EXP_MASTER) return (8);
 
 		/* Save the values */
 		s_ptr->s_start[num] = start;
@@ -2025,6 +2079,16 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		}
 	}
 
+	/* Scan flagsr (resistance) */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flagsr[i]))
+		{
+			r_ptr->flagsr |= (1L << i);
+			return (0);
+		}
+	}
+
 	/* Oops */
 #ifdef JP
 	msg_format("未知のモンスター・フラグ '%s'。", what);
@@ -2348,7 +2412,7 @@ errr parse_r_info(char *buf, header *head)
 			if (1 == sscanf(s, "1_IN_%d", &i))
 			{
 				/* Extract a "frequency" */
-				r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+				r_ptr->freq_spell = 100 / i;
 
 					/* Start at next entry */
 				s = t;
@@ -2465,6 +2529,16 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 		if (streq(what, r_info_flags9[i]))
 		{
 			d_ptr->mflags9 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flagsr (resistance) */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flagsr[i]))
+		{
+			d_ptr->mflagsr |= (1L << i);
 			return (0);
 		}
 	}
@@ -3325,7 +3399,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				 */
 				if (randint0(100) < 75)
 				{
-					place_object(*y, *x, FALSE, FALSE);
+					place_object(*y, *x, 0L);
 				}
 				else
 				{
@@ -3340,11 +3414,11 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 				/* Create an out of deep object */
 				if (randint0(100) < 75)
-					place_object(*y, *x, FALSE, FALSE);
+					place_object(*y, *x, 0L);
 				else if (randint0(100) < 80)
-					place_object(*y, *x, TRUE, FALSE);
+					place_object(*y, *x, AM_GOOD);
 				else
-					place_object(*y, *x, TRUE, TRUE);
+					place_object(*y, *x, AM_GOOD | AM_GREAT);
 
 				object_level = base_level;
 			}
@@ -3375,7 +3449,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				/* Apply magic (no messages, no artifacts) */
-				apply_magic(o_ptr, base_level, FALSE, TRUE, FALSE, FALSE);
+				apply_magic(o_ptr, base_level, AM_NO_FIXED_ART | AM_GOOD);
 
 				(void)drop_near(o_ptr, -1, *y, *x);
 			}
@@ -3385,7 +3459,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				if (a_info[artifact_index].cur_num)
 				{
-					int k_idx = 198;
+					int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
 					object_type forge;
 					object_type *q_ptr = &forge;
 
@@ -4053,10 +4127,10 @@ void write_r_info_txt(void)
 	int i, j, z, fc, bc;
 	int dlen;
 
-	cptr flags[288];
+	cptr flags[32 * 10];
 
-	u32b f_ptr[9];
-	cptr *n_ptr[9];
+	u32b f_ptr[10];
+	cptr *n_ptr[10];
 
 	monster_race *r_ptr;
 
@@ -4122,6 +4196,7 @@ void write_r_info_txt(void)
 		f_ptr[6] = r_ptr->flags7; n_ptr[6] = r_info_flags7;
 		f_ptr[7] = r_ptr->flags8; n_ptr[7] = r_info_flags8;
 		f_ptr[8] = r_ptr->flags9; n_ptr[8] = r_info_flags9;
+		f_ptr[9] = r_ptr->flagsr; n_ptr[9] = r_info_flagsr;
 
 		/* Write New/Number/Name */
 		fprintf(fff, "N:%d:%s\n", z + 1, r_name + r_ptr->name);
@@ -4151,14 +4226,14 @@ void write_r_info_txt(void)
 		}
 
 		/* Extract the flags */
-		for (fc = 0, j = 0; j < 96; j++)
+		for (fc = 0, j = 0; j < 32 * 3; j++)
 		{
 			/* Check this flag */
 			if (f_ptr[j / 32] & (1L << (j % 32))) flags[fc++] = n_ptr[j / 32][j % 32];
 		}
 
 		/* Extract the extra flags */
-		for (j = 192; j < 288; j++)
+		for (j = 32 * 6; j < 32 * 10; j++)
 		{
 			/* Check this flag */
 			if (f_ptr[j / 32] & (1L << (j % 32))) flags[fc++] = n_ptr[j / 32][j % 32];

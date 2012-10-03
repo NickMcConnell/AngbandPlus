@@ -4,11 +4,11 @@
  */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -66,11 +66,11 @@ static void place_secret_door(int y, int x)
 		/* Create secret door */
 		place_closed_door(y, x);
 
-		/* Hide */
-		c_ptr->mimic = fill_type[randint0(100)];
+		/* Hide by inner wall because this is used in rooms only */
+		c_ptr->mimic = feat_wall_inner;
 
 		/* Floor type terrain cannot hide a door */
-		if (!(c_ptr->mimic & 0x20))
+		if (feat_floor(c_ptr->mimic))
 		{
 			c_ptr->feat = c_ptr->mimic;
 			c_ptr->mimic = 0;
@@ -450,7 +450,7 @@ static void build_type1(int by0, int bx0)
 			place_solid_bold(y2 + 1, xval);
 		}
 
-		place_random_door(yval, xval);
+		place_random_door(yval, xval, TRUE);
 	}
 }
 
@@ -745,7 +745,7 @@ static void build_type3(int by0, int bx0)
 			}
 
 			/* Place a treasure in the vault */
-			place_object(yval, xval, FALSE, FALSE);
+			place_object(yval, xval, 0L);
 
 			/* Let's guard the treasure well */
 			vault_monsters(yval, xval, randint0(2) + 3);
@@ -961,7 +961,7 @@ static void build_type4(int by0, int bx0)
 			/* Object (80%) */
 			if (randint0(100) < 80)
 			{
-				place_object(yval, xval, FALSE, FALSE);
+				place_object(yval, xval, 0L);
 			}
 
 			/* Stairs (20%) */
@@ -1044,8 +1044,8 @@ static void build_type4(int by0, int bx0)
 				vault_monsters(yval, xval + 2, randint1(2));
 
 				/* Objects */
-				if (one_in_(3)) place_object(yval, xval - 2, FALSE, FALSE);
-				if (one_in_(3)) place_object(yval, xval + 2, FALSE, FALSE);
+				if (one_in_(3)) place_object(yval, xval - 2, 0L);
+				if (one_in_(3)) place_object(yval, xval + 2, 0L);
 			}
 
 			break;
@@ -1158,7 +1158,7 @@ static void build_type4(int by0, int bx0)
 	(monster_dungeon(I) && \
 	 !(r_info[I].flags1 & RF1_UNIQUE) && \
 	 !(r_info[I].flags7 & RF7_UNIQUE2) && \
-	 !(r_info[I].flags3 & RF3_RES_ALL) && \
+	 !(r_info[I].flagsr & RFR_RES_ALL) && \
 	 !(r_info[I].flags7 & RF7_AQUATIC))
 
 
@@ -1192,7 +1192,7 @@ static bool vault_aux_jelly(int r_idx)
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	if (r_ptr->flags2 & (RF2_KILL_BODY)) return (FALSE);
+	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	/* Also decline evil jellies (like death molds and shoggoths) */
 	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
@@ -1330,7 +1330,7 @@ static bool vault_aux_symbol_e(int r_idx)
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	if (r_ptr->flags2 & (RF2_KILL_BODY)) return (FALSE);
+	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	if (r_ptr->flags3 & (RF3_GOOD)) return (FALSE);
 
@@ -1352,7 +1352,7 @@ static bool vault_aux_symbol_g(int r_idx)
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	if (r_ptr->flags2 & (RF2_KILL_BODY)) return (FALSE);
+	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
 
@@ -1463,7 +1463,7 @@ static bool vault_aux_demon(int r_idx)
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	if (r_ptr->flags2 & (RF2_KILL_BODY)) return (FALSE);
+	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	/* Require demon */
 	if (!(r_ptr->flags3 & RF3_DEMON)) return (FALSE);
@@ -1483,7 +1483,7 @@ static bool vault_aux_cthulhu(int r_idx)
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
-	if (r_ptr->flags2 & (RF2_KILL_BODY)) return (FALSE);
+	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	/* Require eldritch horror */
 	if (!(r_ptr->flags2 & (RF2_ELDRITCH_HORROR))) return (FALSE);
@@ -1603,8 +1603,30 @@ static void vault_prep_dragon(void)
 }
 
 
-#define ROOM_PIT 0
-#define ROOM_NEST 1
+/*
+ * Helper function for "monster pit (dark elf)"
+ */
+static bool vault_aux_dark_elf(int r_idx)
+{
+	int i;
+	static int dark_elf_list[] =
+	{
+		MON_D_ELF, MON_D_ELF_MAGE, MON_D_ELF_WARRIOR, MON_D_ELF_PRIEST,
+		MON_D_ELF_LORD, MON_D_ELF_WARLOCK, MON_D_ELF_DRUID, MON_NIGHTBLADE,
+		MON_D_ELF_SORC, MON_D_ELF_SHADE, 0,
+	};
+
+	/* Validate the monster */
+	if (!vault_monster_okay(r_idx)) return FALSE;
+
+	/* Require dark elves */
+	for (i = 0; dark_elf_list[i]; i++)
+		if (r_idx == dark_elf_list[i]) return TRUE;
+
+	/* Assume not */
+	return FALSE;
+}
+
 
 typedef struct vault_aux_type vault_aux_type;
 
@@ -1619,7 +1641,7 @@ struct vault_aux_type
 };
 
 
-static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr, int room)
+static int pick_vault_type(vault_aux_type *l_ptr, s16b allow_flag_mask)
 {
 	int tmp, total, count;
 
@@ -1634,14 +1656,8 @@ static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr, int room)
 		/* Ignore excessive depth */
 		if (n_ptr->level > dun_level) continue;
 
-		if (room == ROOM_PIT)
-		{
-			if (!(d_info[dungeon_type].pit & (1L << count))) continue;
-		}
-		else if (room == ROOM_NEST)
-		{
-			if(!(d_info[dungeon_type].nest & (1L << count))) continue;
-		}
+		/* Not matched with pit/nest flag */
+		if (!(allow_flag_mask & (1L << count))) continue;
 
 		/* Count this possibility */
 		total += n_ptr->chance * MAX_DEPTH / (MIN(dun_level, MAX_DEPTH - 1) - n_ptr->level + 5);
@@ -1659,14 +1675,8 @@ static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr, int room)
 		/* Ignore excessive depth */
 		if (n_ptr->level > dun_level) continue;
 
-		if (room == ROOM_PIT)
-		{
-			if (!(d_info[dungeon_type].pit & (1L << count))) continue;
-		}
-		else if (room == ROOM_NEST)
-		{
-			if(!(d_info[dungeon_type].nest & (1L << count))) continue;
-		}
+		/* Not matched with pit/nest flag */
+		if (!(allow_flag_mask & (1L << count))) continue;
 
 		/* Count this possibility */
 		total += n_ptr->chance * MAX_DEPTH / (MIN(dun_level, MAX_DEPTH - 1) - n_ptr->level + 5);
@@ -1675,7 +1685,7 @@ static vault_aux_type *pick_vault_type(vault_aux_type *l_ptr, int room)
 		if (tmp < total) break;
 	}
 
-	return (n_ptr->name ? n_ptr : NULL);
+	return n_ptr->name ? count : -1;
 }
 
 static void build_type6(int by0, int bx0, bool nest);
@@ -1684,32 +1694,213 @@ static void build_type5(int by0, int bx0, bool nest);
 static vault_aux_type nest_types[] =
 {
 #ifdef JP
-	{"クローン",	vault_aux_clone,	vault_prep_clone,	5,	3},
-	{"ゼリー",	vault_aux_jelly,	NULL,			5,	6},
-	{"シンボル(善)",vault_aux_symbol_g,	vault_prep_symbol,	25,	2},
-	{"シンボル(悪)",vault_aux_symbol_e,	vault_prep_symbol,	25,	2},
-	{"ミミック",	vault_aux_mimic,	NULL,			30,	4},
-	{"狂気",	vault_aux_cthulhu,	NULL,			70,	2},
-	{"犬小屋",	vault_aux_kennel,	NULL,			45,	4},
-	{"動物園",	vault_aux_animal,	NULL,			35,	5},
-	{"教会",	vault_aux_chapel_g,	NULL,			75,	4},
-	{"アンデッド",	vault_aux_undead,	NULL,			75,	5},
-	{NULL,		NULL,			NULL,			0,	0},
+	{"クローン",     vault_aux_clone,    vault_prep_clone,   5, 3},
+	{"ゼリー",       vault_aux_jelly,    NULL,               5, 6},
+	{"シンボル(善)", vault_aux_symbol_g, vault_prep_symbol, 25, 2},
+	{"シンボル(悪)", vault_aux_symbol_e, vault_prep_symbol, 25, 2},
+	{"ミミック",     vault_aux_mimic,    NULL,              30, 4},
+	{"狂気",         vault_aux_cthulhu,  NULL,              70, 2},
+	{"犬小屋",       vault_aux_kennel,   NULL,              45, 4},
+	{"動物園",       vault_aux_animal,   NULL,              35, 5},
+	{"教会",         vault_aux_chapel_g, NULL,              75, 4},
+	{"アンデッド",   vault_aux_undead,   NULL,              75, 5},
+	{NULL,           NULL,               NULL,               0, 0},
 #else
-	{"clone",	vault_aux_clone,	vault_prep_clone,	5,	3},
-	{"jelly",	vault_aux_jelly,	NULL,			5,	6},
-	{"symbol good",vault_aux_symbol_g,	vault_prep_symbol,	25,	2},
-	{"symbol evil",vault_aux_symbol_e,	vault_prep_symbol,	25,	2},
-	{"mimic",	vault_aux_mimic,	NULL,			30,	4},
-	{"lovecraftian",vault_aux_cthulhu,	NULL,			70,	2},
-	{"kennel",	vault_aux_kennel,	NULL,			45,	4},
-	{"animal",	vault_aux_animal,	NULL,			35,	5},
-	{"chapel",	vault_aux_chapel_g,	NULL,			75,	4},
-	{"undead",	vault_aux_undead,	NULL,			75,	5},
-	{NULL,		NULL,			NULL,			0,	0},
+	{"clone",        vault_aux_clone,    vault_prep_clone,   5, 3},
+	{"jelly",        vault_aux_jelly,    NULL,               5, 6},
+	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 25, 2},
+	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 25, 2},
+	{"mimic",        vault_aux_mimic,    NULL,              30, 4},
+	{"lovecraftian", vault_aux_cthulhu,  NULL,              70, 2},
+	{"kennel",       vault_aux_kennel,   NULL,              45, 4},
+	{"animal",       vault_aux_animal,   NULL,              35, 5},
+	{"chapel",       vault_aux_chapel_g, NULL,              75, 4},
+	{"undead",       vault_aux_undead,   NULL,              75, 5},
+	{NULL,           NULL,               NULL,               0, 0},
 #endif
 };
 
+static vault_aux_type pit_types[] =
+{
+#ifdef JP
+	{"オーク",       vault_aux_orc,      NULL,               5, 6},
+	{"トロル",       vault_aux_troll,    NULL,              20, 6},
+	{"ジャイアント", vault_aux_giant,    NULL,              50, 6},
+	{"狂気",         vault_aux_cthulhu,  NULL,              80, 2},
+	{"シンボル(善)", vault_aux_symbol_g, vault_prep_symbol, 70, 1},
+	{"シンボル(悪)", vault_aux_symbol_e, vault_prep_symbol, 70, 1},
+	{"教会",         vault_aux_chapel_g, NULL,              65, 2},
+	{"ドラゴン",     vault_aux_dragon,   vault_prep_dragon, 70, 6},
+	{"デーモン",     vault_aux_demon,    NULL,              80, 6},
+	{"ダークエルフ", vault_aux_dark_elf, NULL,              45, 4},
+	{NULL,           NULL,               NULL,               0, 0},
+#else
+	{"orc",          vault_aux_orc,      NULL,               5, 6},
+	{"troll",        vault_aux_troll,    NULL,              20, 6},
+	{"giant",        vault_aux_giant,    NULL,              50, 6},
+	{"lovecraftian", vault_aux_cthulhu,  NULL,              80, 2},
+	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 70, 1},
+	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 70, 1},
+	{"chapel",       vault_aux_chapel_g, NULL,              65, 2},
+	{"dragon",       vault_aux_dragon,   vault_prep_dragon, 70, 6},
+	{"demon",        vault_aux_demon,    NULL,              80, 6},
+	{"dark elf",     vault_aux_dark_elf, NULL,              45, 4},
+	{NULL,           NULL,               NULL,               0, 0},
+#endif
+};
+
+
+/* Nest types code */
+#define NEST_TYPE_CLONE        0
+#define NEST_TYPE_JELLY        1
+#define NEST_TYPE_SYMBOL_GOOD  2
+#define NEST_TYPE_SYMBOL_EVIL  3
+#define NEST_TYPE_MIMIC        4
+#define NEST_TYPE_LOVECRAFTIAN 5
+#define NEST_TYPE_KENNEL       6
+#define NEST_TYPE_ANIMAL       7
+#define NEST_TYPE_CHAPEL       8
+#define NEST_TYPE_UNDEAD       9
+
+/* Pit types code */
+#define PIT_TYPE_ORC           0
+#define PIT_TYPE_TROLL         1
+#define PIT_TYPE_GIANT         2
+#define PIT_TYPE_LOVECRAFTIAN  3
+#define PIT_TYPE_SYMBOL_GOOD   4
+#define PIT_TYPE_SYMBOL_EVIL   5
+#define PIT_TYPE_CHAPEL        6
+#define PIT_TYPE_DRAGON        7
+#define PIT_TYPE_DEMON         8
+#define PIT_TYPE_DARK_ELF      9
+
+
+/*
+ * Hack -- Get the string describing subtype of pit/nest
+ * Determined in prepare function (some pit/nest only)
+ */
+static cptr pit_subtype_string(int type, bool nest)
+{
+	static char inner_buf[256] = "";
+
+	inner_buf[0] = '\0'; /* Init string */
+
+	if (nest) /* Nests */
+	{
+		switch (type)
+		{
+		case NEST_TYPE_CLONE:
+			sprintf(inner_buf, "(%s)", r_name + r_info[vault_aux_race].name);
+			break;
+		case NEST_TYPE_SYMBOL_GOOD:
+		case NEST_TYPE_SYMBOL_EVIL:
+			sprintf(inner_buf, "(%c)", vault_aux_char);
+			break;
+		}
+	}
+	else /* Pits */
+	{
+		switch (type)
+		{
+		case PIT_TYPE_SYMBOL_GOOD:
+		case PIT_TYPE_SYMBOL_EVIL:
+			sprintf(inner_buf, "(%c)", vault_aux_char);
+			break;
+		case PIT_TYPE_DRAGON:
+			switch (vault_aux_dragon_mask4)
+			{
+#ifdef JP
+			case RF4_BR_ACID: strcpy(inner_buf, "(酸)");   break;
+			case RF4_BR_ELEC: strcpy(inner_buf, "(稲妻)"); break;
+			case RF4_BR_FIRE: strcpy(inner_buf, "(火炎)"); break;
+			case RF4_BR_COLD: strcpy(inner_buf, "(冷気)"); break;
+			case RF4_BR_POIS: strcpy(inner_buf, "(毒)");   break;
+			case (RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS):
+				strcpy(inner_buf, "(万色)"); break;
+			default: strcpy(inner_buf, "(未定義)"); break;
+#else
+			case RF4_BR_ACID: strcpy(inner_buf, "(acid)");      break;
+			case RF4_BR_ELEC: strcpy(inner_buf, "(lightning)"); break;
+			case RF4_BR_FIRE: strcpy(inner_buf, "(fire)");      break;
+			case RF4_BR_COLD: strcpy(inner_buf, "(frost)");     break;
+			case RF4_BR_POIS: strcpy(inner_buf, "(poison)");    break;
+			case (RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS):
+				strcpy(inner_buf, "(multi-hued)"); break;
+			default: strcpy(inner_buf, "(undefined)"); break;
+#endif
+			}
+			break;
+		}
+	}
+
+	return inner_buf;
+}
+
+
+/* A struct for nest monster information with cheat_hear */
+typedef struct
+{
+	s16b r_idx;
+	bool used;
+}
+nest_mon_info_type;
+
+
+/*
+ * Comp function for sorting nest monster information
+ */
+static bool ang_sort_comp_nest_mon_info(vptr u, vptr v, int a, int b)
+{
+	nest_mon_info_type *nest_mon_info = (nest_mon_info_type *)u;
+	int w1 = nest_mon_info[a].r_idx;
+	int w2 = nest_mon_info[b].r_idx;
+	monster_race *r1_ptr = &r_info[w1];
+	monster_race *r2_ptr = &r_info[w2];
+	int z1, z2;
+
+	/* Unused */
+	(void)v;
+
+	/* Extract used info */
+	z1 = nest_mon_info[a].used;
+	z2 = nest_mon_info[b].used;
+
+	/* Compare used status */
+	if (z1 < z2) return FALSE;
+	if (z1 > z2) return TRUE;
+
+	/* Compare levels */
+	if (r1_ptr->level < r2_ptr->level) return TRUE;
+	if (r1_ptr->level > r2_ptr->level) return FALSE;
+
+	/* Compare experience */
+	if (r1_ptr->mexp < r2_ptr->mexp) return TRUE;
+	if (r1_ptr->mexp > r2_ptr->mexp) return FALSE;
+
+	/* Compare indexes */
+	return w1 <= w2;
+}
+
+
+/*
+ * Swap function for sorting nest monster information
+ */
+static void ang_sort_swap_nest_mon_info(vptr u, vptr v, int a, int b)
+{
+	nest_mon_info_type *nest_mon_info = (nest_mon_info_type *)u;
+	nest_mon_info_type holder;
+
+	/* Unused */
+	(void)v;
+
+	/* Swap */
+	holder = nest_mon_info[a];
+	nest_mon_info[a] = nest_mon_info[b];
+	nest_mon_info[b] = holder;
+}
+
+
+#define NUM_NEST_MON_TYPE 64
 
 /*
  * Type 5 -- Monster nests
@@ -1734,23 +1925,30 @@ static void build_type5(int by0, int bx0, bool pit)
 {
 	int y, x, y1, x1, y2, x2, xval, yval;
 	int i;
-	int what[64];
+	nest_mon_info_type nest_mon_info[NUM_NEST_MON_TYPE];
 
-	int align = 0;
+	monster_type align;
 
 	cave_type *c_ptr;
 
-	vault_aux_type *n_ptr = pick_vault_type(nest_types, ROOM_NEST);
+	int cur_nest_type = pick_vault_type(nest_types, d_info[dungeon_type].nest);
+	vault_aux_type *n_ptr;
 
 	/* Try to allocate space for room. */
 	if (!room_alloc(25, 11, TRUE, by0, bx0, &xval, &yval)) return;
 
 	/* No type available */
-	if (!n_ptr)
+	if (cur_nest_type < 0)
 	{
 		if (pit) return;
-		else {build_type6(by0, bx0, TRUE);return;}
+		else
+		{
+			build_type6(by0, bx0, TRUE);
+			return;
+		}
 	}
+
+	n_ptr = &nest_types[cur_nest_type];
 
 	/* Process a preparation function if necessary */
 	if (n_ptr->prep_func) (*(n_ptr->prep_func))();
@@ -1833,22 +2031,22 @@ static void build_type5(int by0, int bx0, bool pit)
 	/* Prepare allocation table */
 	get_mon_num_prep(n_ptr->hook_func, NULL);
 
+	align.sub_align = SUB_ALIGN_NEUTRAL;
+
 	/* Pick some monster types */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < NUM_NEST_MON_TYPE; i++)
 	{
 		int r_idx = 0, attempts = 100;
+		monster_race *r_ptr = NULL;
 
 		while (attempts--)
 		{
 			/* Get a (hard) monster type */
 			r_idx = get_mon_num(dun_level + 10);
+			r_ptr = &r_info[r_idx];
 
 			/* Decline incorrect alignment */
-			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
-				 ((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
-			{
-				continue;
-			}
+			if (monster_has_hostile_align(&align, 0, 0, r_ptr)) continue;
 
 			/* Accept this monster */
 			break;
@@ -1858,10 +2056,11 @@ static void build_type5(int by0, int bx0, bool pit)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
-		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+		if (r_ptr->flags3 & RF3_EVIL) align.sub_align |= SUB_ALIGN_EVIL;
+		if (r_ptr->flags3 & RF3_GOOD) align.sub_align |= SUB_ALIGN_GOOD;
 
-		what[i] = r_idx;
+		nest_mon_info[i].r_idx = r_idx;
+		nest_mon_info[i].used = FALSE;
 	}
 
 	/* Describe */
@@ -1869,13 +2068,11 @@ static void build_type5(int by0, int bx0, bool pit)
 	{
 		/* Room type */
 #ifdef JP
-msg_format("モンスター部屋(%s)", n_ptr->name);
+		msg_format("モンスター部屋(nest)(%s%s)", n_ptr->name, pit_subtype_string(cur_nest_type, TRUE));
 #else
-		msg_format("Monster nest (%s)", n_ptr->name);
+		msg_format("Monster nest (%s%s)", n_ptr->name, pit_subtype_string(cur_nest_type, TRUE));
 #endif
-
 	}
-
 
 	/* Increase the level rating */
 	rating += 10;
@@ -1891,41 +2088,37 @@ msg_format("モンスター部屋(%s)", n_ptr->name);
 	{
 		for (x = xval - 9; x <= xval + 9; x++)
 		{
-			int r_idx = what[randint0(64)];
+			int r_idx;
+
+			i = randint0(NUM_NEST_MON_TYPE);
+			r_idx = nest_mon_info[i].r_idx;
 
 			/* Place that "random" monster (no groups) */
 			(void)place_monster_aux(0, y, x, r_idx, 0L);
+
+			nest_mon_info[i].used = TRUE;
+		}
+	}
+
+	if (cheat_room && cheat_hear)
+	{
+		ang_sort_comp = ang_sort_comp_nest_mon_info;
+		ang_sort_swap = ang_sort_swap_nest_mon_info;
+		ang_sort(nest_mon_info, NULL, NUM_NEST_MON_TYPE);
+
+		/* Dump the entries (prevent multi-printing) */
+		for (i = 0; i < NUM_NEST_MON_TYPE; i++)
+		{
+			if (!nest_mon_info[i].used) break;
+			for (; i < NUM_NEST_MON_TYPE - 1; i++)
+			{
+				if (nest_mon_info[i].r_idx != nest_mon_info[i + 1].r_idx) break;
+				if (!nest_mon_info[i + 1].used) break;
+			}
+			msg_print(r_name + r_info[nest_mon_info[i].r_idx].name);
 		}
 	}
 }
-
-
-static vault_aux_type pit_types[] =
-{
-#ifdef JP
-	{"オーク",	vault_aux_orc,		NULL,			5,	6},
-	{"トロル",	vault_aux_troll,	NULL,			20,	6},
-	{"ジャイアント",vault_aux_giant,	NULL,			50,	6},
-	{"狂気",	vault_aux_cthulhu,	NULL,			80,	2},
-	{"シンボル(善)",vault_aux_symbol_g,	vault_prep_symbol,	70,	1},
-	{"シンボル(悪)",vault_aux_symbol_e,	vault_prep_symbol,	70,	1},
-	{"教会",	vault_aux_chapel_g,	NULL,			65,	2},
-	{"ドラゴン",	vault_aux_dragon,	vault_prep_dragon,	70,	6},
-	{"デーモン",	vault_aux_demon,	NULL,   		80,	6},
-	{NULL,		NULL,			NULL,			0,	0},
-#else
-	{"orc",		vault_aux_orc,		NULL,			5,	6},
-	{"troll",	vault_aux_troll,	NULL,			20,	6},
-	{"giant",	vault_aux_giant,	NULL,			50,	6},
-	{"lovecraftian",vault_aux_cthulhu,	NULL,			80,	2},
-	{"symbol good",vault_aux_symbol_g,	vault_prep_symbol,	70,	1},
-	{"symbol evil",vault_aux_symbol_e,	vault_prep_symbol,	70,	1},
-	{"chapel",	vault_aux_chapel_g,	NULL,			65,	2},
-	{"dragon",	vault_aux_dragon,	vault_prep_dragon,	70,	6},
-	{"demon",	vault_aux_demon,	NULL,   		80,	6},
-	{NULL,		NULL,			NULL,			0,	0},
-#endif
-};
 
 
 /*
@@ -1971,21 +2164,28 @@ static void build_type6(int by0, int bx0, bool nest)
 
 	int what[16];
 
-	int align = 0;
+	monster_type align;
 
 	cave_type *c_ptr;
 
-	vault_aux_type *n_ptr = pick_vault_type(pit_types, ROOM_PIT);
+	int cur_pit_type = pick_vault_type(pit_types, d_info[dungeon_type].pit);
+	vault_aux_type *n_ptr;
 
 	/* Try to allocate space for room. */
 	if (!room_alloc(25, 11, TRUE, by0, bx0, &xval, &yval)) return;
 
 	/* No type available */
-	if (!n_ptr)
+	if (cur_pit_type < 0)
 	{
 		if (nest) return;
-		else {build_type5(by0, bx0, TRUE);return;}
+		else
+		{
+			build_type5(by0, bx0, TRUE);
+			return;
+		}
 	}
+
+	n_ptr = &pit_types[cur_pit_type];
 
 	/* Process a preparation function if necessary */
 	if (n_ptr->prep_func) (*(n_ptr->prep_func))();
@@ -2065,22 +2265,22 @@ static void build_type6(int by0, int bx0, bool nest)
 	/* Prepare allocation table */
 	get_mon_num_prep(n_ptr->hook_func, NULL);
 
+	align.sub_align = SUB_ALIGN_NEUTRAL;
+
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++)
 	{
 		int r_idx = 0, attempts = 100;
+		monster_race *r_ptr = NULL;
 
 		while (attempts--)
 		{
 			/* Get a (hard) monster type */
 			r_idx = get_mon_num(dun_level + 10);
+			r_ptr = &r_info[r_idx];
 
 			/* Decline incorrect alignment */
-			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
-				 ((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
-			{
-				continue;
-			}
+			if (monster_has_hostile_align(&align, 0, 0, r_ptr)) continue;
 
 			/* Accept this monster */
 			break;
@@ -2090,8 +2290,8 @@ static void build_type6(int by0, int bx0, bool nest)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
-		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+		if (r_ptr->flags3 & RF3_EVIL) align.sub_align |= SUB_ALIGN_EVIL;
+		if (r_ptr->flags3 & RF3_GOOD) align.sub_align |= SUB_ALIGN_GOOD;
 
 		what[i] = r_idx;
 	}
@@ -2121,11 +2321,11 @@ static void build_type6(int by0, int bx0, bool nest)
 	/* Message */
 	if (cheat_room)
 	{
-#ifdef JP
-msg_format("%sの巣", n_ptr->name);
-#else
 		/* Room type */
-		msg_format("Monster pit (%s)", n_ptr->name);
+#ifdef JP
+		msg_format("モンスター部屋(pit)(%s%s)", n_ptr->name, pit_subtype_string(cur_pit_type, FALSE));
+#else
+		msg_format("Monster pit (%s%s)", n_ptr->name, pit_subtype_string(cur_pit_type, FALSE));
 #endif
 	}
 
@@ -2315,7 +2515,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 			case '*':
 				if (randint0(100) < 75)
 				{
-					place_object(y, x, FALSE, FALSE);
+					place_object(y, x, 0L);
 				}
 				else
 				{
@@ -2371,7 +2571,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 			case 'A':
 				/* Reward for Pattern walk */
 				object_level = base_level + 12;
-				place_object(y, x, TRUE, FALSE);
+				place_object(y, x, AM_GOOD | AM_GREAT);
 				object_level = base_level;
 				break;
 			}
@@ -2436,7 +2636,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 					place_monster(y, x, PM_ALLOW_SLEEP);
 					monster_level = base_level;
 					object_level = base_level + 7;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, AM_GOOD);
 					object_level = base_level;
 					break;
 				}
@@ -2448,7 +2648,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 					place_monster(y, x, PM_ALLOW_SLEEP);
 					monster_level = base_level;
 					object_level = base_level + 20;
-					place_object(y, x, TRUE, TRUE);
+					place_object(y, x, AM_GOOD | AM_GREAT);
 					object_level = base_level;
 					break;
 				}
@@ -2465,7 +2665,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 					if (randint0(100) < 50)
 					{
 						object_level = base_level + 7;
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, 0L);
 						object_level = base_level;
 					}
 					break;
@@ -3413,51 +3613,44 @@ static bool generate_lake(int y0, int x0, int xsize, int ysize, int c1, int c2, 
 	/* Get features based on type */
 	switch (type)
 	{
-		case 1: {
-				/* Lava */
-				feat1 = FEAT_DEEP_LAVA;
-				feat2 = FEAT_SHAL_LAVA;
-				feat3 = floor_type[randint0(100)];
-				}; break;
-		case 2:{
-				/* Water */
-				feat1 = FEAT_DEEP_WATER;
-				feat2 = FEAT_SHAL_WATER;
-				feat3 = floor_type[randint0(100)];
-				}; break;
-		case 3: {
-				/* Collapsed cave */
-				feat1 = floor_type[randint0(100)];
-				feat2 = floor_type[randint0(100)];
-				feat3 = FEAT_RUBBLE;
-				}; break;
-		case 4: {
-				/* Earth vault */
-				feat1 = FEAT_RUBBLE;
-				feat2 = floor_type[randint0(100)];
-				feat3 = FEAT_RUBBLE;
-				}; break;
-		case 5: {
-				/* Air vault */
-				feat1 = FEAT_GRASS;
-				feat2 = FEAT_TREES;
-				feat3 = FEAT_GRASS;
-				}; break;
-		case 6: {
-				/* Water vault */
-				feat1 = FEAT_SHAL_WATER;
-				feat2 = FEAT_DEEP_WATER;
-				feat3 = FEAT_SHAL_WATER;
-				}; break;
-		case 7: {
-				/* Fire Vault */
-				feat1 = FEAT_SHAL_LAVA;
-				feat2 = FEAT_DEEP_LAVA;
-				feat3 = FEAT_SHAL_LAVA;
-				}; break;
+	case GEN_LAKE_TYPE_LAVA: /* Lava */
+		feat1 = FEAT_DEEP_LAVA;
+		feat2 = FEAT_SHAL_LAVA;
+		feat3 = floor_type[randint0(100)];
+		break;
+	case GEN_LAKE_TYPE_WATER: /* Water */
+		feat1 = FEAT_DEEP_WATER;
+		feat2 = FEAT_SHAL_WATER;
+		feat3 = floor_type[randint0(100)];
+		break;
+	case GEN_LAKE_TYPE_CAVE: /* Collapsed cave */
+		feat1 = floor_type[randint0(100)];
+		feat2 = floor_type[randint0(100)];
+		feat3 = FEAT_RUBBLE;
+		break;
+	case GEN_LAKE_TYPE_EARTH_VAULT: /* Earth vault */
+		feat1 = FEAT_RUBBLE;
+		feat2 = floor_type[randint0(100)];
+		feat3 = FEAT_RUBBLE;
+		break;
+	case GEN_LAKE_TYPE_AIR_VAULT: /* Air vault */
+		feat1 = FEAT_GRASS;
+		feat2 = FEAT_TREES;
+		feat3 = FEAT_GRASS;
+		break;
+	case GEN_LAKE_TYPE_WATER_VAULT: /* Water vault */
+		feat1 = FEAT_SHAL_WATER;
+		feat2 = FEAT_DEEP_WATER;
+		feat3 = FEAT_SHAL_WATER;
+		break;
+	case GEN_LAKE_TYPE_FIRE_VAULT: /* Fire Vault */
+		feat1 = FEAT_SHAL_LAVA;
+		feat2 = FEAT_DEEP_LAVA;
+		feat3 = FEAT_SHAL_LAVA;
+		break;
 
-		/* Paranoia */
-		default: return FALSE;
+	/* Paranoia */
+	default: return FALSE;
 	}
 
 	/*
@@ -3465,7 +3658,7 @@ static bool generate_lake(int y0, int x0, int xsize, int ysize, int c1, int c2, 
 	 * this gets rid of alot of isolated one-sqaures that
 	 * can make teleport traps instadeaths...
 	 */
-	
+
 	/* cutoffs */
 	fill_data.c1 = c1;
 	fill_data.c2 = c2;
@@ -3544,7 +3737,7 @@ static bool generate_lake(int y0, int x0, int xsize, int ysize, int c1, int c2, 
 			if ((cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_DEEP_LAVA) ||
 				(cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_SHAL_LAVA))
 			{
-				cave[y0 + y - yhsize][x0 + x - xhsize].info |= CAVE_GLOW;
+				if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS)) cave[y0 + y - yhsize][x0 + x - xhsize].info |= CAVE_GLOW;
 			}
 		}
 	}
@@ -3563,7 +3756,7 @@ void build_lake(int type)
 	int c1, c2, c3;
 
 	/* paranoia - exit if lake type out of range. */
-	if ((type < 1) || (type > 7))
+	if ((type < GEN_LAKE_TYPE_LAVA) || (type > GEN_LAKE_TYPE_FIRE_VAULT))
 	{
 		msg_format("Invalid lake type (%d)", type);
 		return;
@@ -3699,7 +3892,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					place_monster(y, x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 					monster_level = base_level;
 					object_level = base_level + 20;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, AM_GOOD);
 					object_level = base_level;
 				}
 				else if (value < 5)
@@ -3709,7 +3902,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					place_monster(y, x, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 					monster_level = base_level;
 					object_level = base_level + 10;
-					place_object(y, x, TRUE, FALSE);
+					place_object(y, x, AM_GOOD);
 					object_level = base_level;
 				}
 				else if (value < 10)
@@ -3735,7 +3928,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					/* Object or trap */
 					if (randint0(100) < 25)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, 0L);
 					}
 					else
 					{
@@ -3762,7 +3955,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					if (randint0(100) < 50)
 					{
 						object_level = base_level + 7;
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, 0L);
 						object_level = base_level;
 					}
 				}
@@ -3786,7 +3979,7 @@ static void fill_treasure(int x1, int x2, int y1, int y2, int difficulty)
 					}
 					else if (randint0(100) < 50)
 					{
-						place_object(y, x, FALSE, FALSE);
+						place_object(y, x, 0L);
 					}
 				}
 
@@ -4690,12 +4883,12 @@ static void add_outer_wall(int x, int y, int light,
 	{
 		/* Set bounding walls */
 		place_outer_bold(y, x);
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 	else if (cave[y][x].feat == FEAT_PERM_OUTER)
 	{
 		/* Set bounding walls */
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 }
 
@@ -4876,22 +5069,22 @@ static void build_elemental_vault(int x0, int y0, int xsiz, int ysiz)
 	if (dun_level < 25)
 	{
 		/* Earth vault  (Rubble) */
-		type = 4;
+		type = GEN_LAKE_TYPE_EARTH_VAULT;
 	}
 	else if (dun_level < 50)
 	{
 		/* Air vault (Trees) */
-		type = 5;
+		type = GEN_LAKE_TYPE_AIR_VAULT;
 	}
 	else if (dun_level < 75)
 	{
 		/* Water vault (shallow water) */
-		type = 6;
+		type = GEN_LAKE_TYPE_WATER_VAULT;
 	}
 	else
 	{
 		/* Fire vault (shallow lava) */
-		type = 7;
+		type = GEN_LAKE_TYPE_FIRE_VAULT;
 	}
 
 	while (!done)
@@ -5121,7 +5314,7 @@ static void build_type12(int by0, int bx0)
 		build_small_room(x0, y0);
 
 		/* Place a treasure in the vault */
-		place_object(y0, x0, FALSE, FALSE);
+		place_object(y0, x0, 0L);
 
 		/* Let's guard the treasure well */
 		vault_monsters(y0, x0, randint0(2) + 3);
@@ -5230,11 +5423,12 @@ static void build_type13(int by0, int bx0)
 
 	int what[16];
 
-	int align = 0;
+	monster_type align;
 
 	cave_type *c_ptr;
 
-	vault_aux_type *n_ptr = pick_vault_type(pit_types, ROOM_PIT);
+	int cur_pit_type = pick_vault_type(pit_types, d_info[dungeon_type].pit);
+	vault_aux_type *n_ptr;
 
 	/* Only in Angband */
 	if (dungeon_type != 1) return;
@@ -5243,7 +5437,9 @@ static void build_type13(int by0, int bx0)
 	if (!room_alloc(25, 13, TRUE, by0, bx0, &xval, &yval)) return;
 
 	/* No type available */
-	if (!n_ptr) return;
+	if (cur_pit_type < 0) return;
+
+	n_ptr = &pit_types[cur_pit_type];
 
 	/* Process a preparation function if necessary */
 	if (n_ptr->prep_func) (*(n_ptr->prep_func))();
@@ -5351,22 +5547,22 @@ static void build_type13(int by0, int bx0)
 	/* Prepare allocation table */
 	get_mon_num_prep(n_ptr->hook_func, vault_aux_trapped_pit);
 
+	align.sub_align = SUB_ALIGN_NEUTRAL;
+
 	/* Pick some monster types */
 	for (i = 0; i < 16; i++)
 	{
 		int r_idx = 0, attempts = 100;
+		monster_race *r_ptr = NULL;
 
 		while (attempts--)
 		{
 			/* Get a (hard) monster type */
 			r_idx = get_mon_num(dun_level + 0);
+			r_ptr = &r_info[r_idx];
 
 			/* Decline incorrect alignment */
-			if (((align < 0) && (r_info[r_idx].flags3 & RF3_GOOD)) ||
-				 ((align > 0) && (r_info[r_idx].flags3 & RF3_EVIL)))
-			{
-				continue;
-			}
+			if (monster_has_hostile_align(&align, 0, 0, r_ptr)) continue;
 
 			/* Accept this monster */
 			break;
@@ -5376,8 +5572,8 @@ static void build_type13(int by0, int bx0)
 		if (!r_idx || !attempts) return;
 
 		/* Note the alignment */
-		if (r_info[r_idx].flags3 & RF3_GOOD) align++;
-		else if (r_info[r_idx].flags3 & RF3_EVIL) align--;
+		if (r_ptr->flags3 & RF3_EVIL) align.sub_align |= SUB_ALIGN_EVIL;
+		if (r_ptr->flags3 & RF3_GOOD) align.sub_align |= SUB_ALIGN_GOOD;
 
 		what[i] = r_idx;
 	}
@@ -5407,11 +5603,11 @@ static void build_type13(int by0, int bx0)
 	/* Message */
 	if (cheat_room)
 	{
-#ifdef JP
-		msg_format("%sの罠ピット", n_ptr->name);
-#else
 		/* Room type */
-		msg_format("Trapped monster pit (%s)", n_ptr->name);
+#ifdef JP
+		msg_format("%s%sの罠ピット", n_ptr->name, pit_subtype_string(cur_pit_type, FALSE));
+#else
+		msg_format("Trapped monster pit (%s%s)", n_ptr->name, pit_subtype_string(cur_pit_type, FALSE));
 #endif
 	}
 
@@ -5519,8 +5715,9 @@ static void build_type14(int by0, int bx0)
 		trap = FEAT_TRAP_ARMAGEDDON;
 
 	/* Place a special trap */
-	cave[yval][xval].mimic = cave[yval][xval].feat;
-	cave[yval][xval].feat = trap;
+	c_ptr = &cave[rand_spread(yval, ysize/4)][rand_spread(xval, xsize/4)];
+	c_ptr->mimic = c_ptr->feat;
+	c_ptr->feat = trap;
 
 	/* Message */
 	if (cheat_room)
@@ -5543,33 +5740,34 @@ static void build_type14(int by0, int bx0)
 bool room_build(int by0, int bx0, int typ)
 {
 	/* Restrict level */
-	if ((dun_level < roomdep[typ]) && !ironman_rooms) return (FALSE);
+	if ((dun_level < roomdep[typ]) && !ironman_rooms) return FALSE;
 
 	/* Restrict "crowded" rooms */
-	if ((dun->crowded >= 2) && ((typ == 5) || (typ == 6) || (typ == 13))) return (FALSE);
+	if ((dun->crowded >= 2) && ((typ == ROOM_BUILD_TYPE_NEST) ||
+		(typ == ROOM_BUILD_TYPE_PIT) || (typ == ROOM_BUILD_TYPE_TRAP_PIT))) return FALSE;
 
 	/* Build a room */
 	switch (typ)
 	{
-		/* Build an appropriate room */
-		case 14: build_type14(by0, bx0); break;
-		case 13: build_type13(by0, bx0); break;
-		case 12: build_type12(by0, bx0); break;
-		case 11: build_type11(by0, bx0); break;
-		case 10: build_type10(by0, bx0); break;
-		case 9: build_type9(by0, bx0); break;
-		case 8: build_type8(by0, bx0); break;
-		case 7: build_type7(by0, bx0); break;
-		case 6: build_type6(by0, bx0, FALSE); break;
-		case 5: build_type5(by0, bx0, FALSE); break;
-		case 4: build_type4(by0, bx0); break;
-		case 3: build_type3(by0, bx0); break;
-		case 2: build_type2(by0, bx0); break;
-		case 1: build_type1(by0, bx0); break;
+	/* Build an appropriate room */
+	case ROOM_BUILD_TYPE_NORMAL:        build_type1(by0, bx0); break;
+	case ROOM_BUILD_TYPE_OVERLAP:       build_type2(by0, bx0); break;
+	case ROOM_BUILD_TYPE_CROSS:         build_type3(by0, bx0); break;
+	case ROOM_BUILD_TYPE_INNER_FEAT:    build_type4(by0, bx0); break;
+	case ROOM_BUILD_TYPE_NEST:          build_type5(by0, bx0, FALSE); break;
+	case ROOM_BUILD_TYPE_PIT:           build_type6(by0, bx0, FALSE); break;
+	case ROOM_BUILD_TYPE_LESSER_VAULT:  build_type7(by0, bx0); break;
+	case ROOM_BUILD_TYPE_GREATER_VAULT: build_type8(by0, bx0); break;
+	case ROOM_BUILD_TYPE_FRACAVE:       build_type9(by0, bx0); break;
+	case ROOM_BUILD_TYPE_RANDOM_VAULT:  build_type10(by0, bx0); break;
+	case ROOM_BUILD_TYPE_OVAL:          build_type11(by0, bx0); break;
+	case ROOM_BUILD_TYPE_CRYPT:         build_type12(by0, bx0); break;
+	case ROOM_BUILD_TYPE_TRAP_PIT:      build_type13(by0, bx0); break;
+	case ROOM_BUILD_TYPE_TRAP:          build_type14(by0, bx0); break;
 
-		/* Paranoia */
-		default: return (FALSE);
+	/* Paranoia */
+	default: return FALSE;
 	}
 
-	return (TRUE);
+	return TRUE;
 }

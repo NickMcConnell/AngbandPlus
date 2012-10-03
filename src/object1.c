@@ -1,14 +1,14 @@
 /* File: object1.c */
 
-/* Purpose: Object code, part 1 */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Object code, part 1 */
 
 #include "angband.h"
 
@@ -144,7 +144,7 @@ void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] |= o_ptr->art_flags[i];
 
-	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
+	if (item_tester_hook_smith(o_ptr))
 	{
 		int add = o_ptr->xtra3 - 1;
 
@@ -277,7 +277,7 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 			flgs[i] |= o_ptr->art_flags[i];
 	}
 
-	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
+	if (item_tester_hook_smith(o_ptr))
 	{
 		int add = o_ptr->xtra3 - 1;
 
@@ -1496,7 +1496,7 @@ return "全感知 : 55+d55 ターン毎";
 		case ART_AMBER:
 		{
 #ifdef JP
-return "体力回復(500) : 500 ターン毎";
+return "体力回復(700) : 250 ターン毎";
 #else
 			return "heal (700) every 250 turns";
 #endif
@@ -1877,7 +1877,7 @@ return "釣りをする : いつでも";
 
 	}
 
-	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
+	if (item_tester_hook_smith(o_ptr))
 	{
 		switch (o_ptr->xtra3 - 1)
 		{
@@ -1887,7 +1887,6 @@ return "釣りをする : いつでも";
 #else
 			return "resist acid every 50+d50 turns";
 #endif
-			break;
 
 		case ESSENCE_TMP_RES_ELEC:
 #ifdef JP
@@ -1895,7 +1894,6 @@ return "釣りをする : いつでも";
 #else
 			return "resist elec every 50+d50 turns";
 #endif
-			break;
 
 		case ESSENCE_TMP_RES_FIRE:
 #ifdef JP
@@ -1903,7 +1901,6 @@ return "釣りをする : いつでも";
 #else
 			return "resist fire every 50+d50 turns";
 #endif
-			break;
 
 		case ESSENCE_TMP_RES_COLD:
 #ifdef JP
@@ -1911,7 +1908,6 @@ return "釣りをする : いつでも";
 #else
 			return "resist cold every 50+d50 turns";
 #endif
-			break;
 
 		case TR_IMPACT:
 #ifdef JP
@@ -1919,7 +1915,6 @@ return "釣りをする : いつでも";
 #else
 			return "earthquake every 100+d100 turns";
 #endif
-			break;
 		}
 	}
 
@@ -2141,74 +2136,64 @@ return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
 			{
 			case EGO_AMU_IDENT:
 #ifdef JP
-return "鑑定 : 10 ターン毎";
+				return "鑑定 : 10 ターン毎";
 #else
 				return "identify every 10 turns";
 #endif
-				break;
 			case EGO_AMU_CHARM:
 #ifdef JP
-return "モンスター魅了 : 200 ターン毎";
+				return "モンスター魅了 : 200 ターン毎";
 #else
 				return "charm monster every 200 turns";
 #endif
-				break;
 			case EGO_AMU_JUMP:
 #ifdef JP
-return "ショート・テレポート : 10+d10 ターン毎";
+				return "ショート・テレポート : 10+d10 ターン毎";
 #else
 				return "blink every 10+d10 turns";
 #endif
-				break;
 			case EGO_AMU_TELEPORT:
 #ifdef JP
-return "テレポート : 50+d50 ターン毎";
+				return "テレポート : 50+d50 ターン毎";
 #else
 				return "teleport every 50+d50 turns";
 #endif
-				break;
 			case EGO_AMU_D_DOOR:
 #ifdef JP
-return "次元の扉 : 200 ターン毎";
+				return "次元の扉 : 200 ターン毎";
 #else
 				return "dimension door every 200 turns";
 #endif
-				break;
 			case EGO_AMU_RES_FIRE_:
 #ifdef JP
-return "火炎への耐性 : 50+d50ターン毎";
+				return "火炎への耐性 : 50+d50ターン毎";
 #else
 				return "resist fire every 50+d50 turns";
 #endif
-				break;
 			case EGO_AMU_RES_COLD_:
 #ifdef JP
-return "冷気への耐性 : 50+d50ターン毎";
+				return "冷気への耐性 : 50+d50ターン毎";
 #else
 				return "resist cold every 50+d50 turns";
 #endif
-				break;
 			case EGO_AMU_RES_ELEC_:
 #ifdef JP
-return "電撃への耐性 : 50+d50ターン毎";
+				return "電撃への耐性 : 50+d50ターン毎";
 #else
 				return "resist elec every 50+d50 turns";
 #endif
-				break;
 			case EGO_AMU_RES_ACID_:
 #ifdef JP
-return "酸への耐性 : 50+d50ターン毎";
+				return "酸への耐性 : 50+d50ターン毎";
 #else
 				return "resist acid every 50+d50 turns";
 #endif
-				break;
 			case EGO_AMU_DETECTION:
 #ifdef JP
-return "全感知 : 55+d55ターン毎";
+				return "全感知 : 55+d55ターン毎";
 #else
 				return "detect all floor every 55+d55 turns";
 #endif
-				break;
 			}
 		}
 	}
@@ -4419,7 +4404,10 @@ void display_inven(void)
 	byte            attr = TERM_WHITE;
 	char            tmp_val[80];
 	char            o_name[MAX_NLEN];
+	int             wid, hgt;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4486,12 +4474,12 @@ void display_inven(void)
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			Term_putstr(71, i, -1, TERM_WHITE, tmp_val);
+			prt(tmp_val, i, wid - 9);
 		}
 	}
 
 	/* Erase the rest of the window */
-	for (i = z; i < Term->hgt; i++)
+	for (i = z; i < hgt; i++)
 	{
 		/* Erase the line */
 		Term_erase(0, i, 255);
@@ -4510,7 +4498,10 @@ void display_equip(void)
 	byte            attr = TERM_WHITE;
 	char            tmp_val[80];
 	char            o_name[MAX_NLEN];
+	int             wid, hgt;
 
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/* Display the equipment */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -4565,30 +4556,29 @@ void display_equip(void)
 		/* Erase the rest of the line */
 		Term_erase(3+n, i - INVEN_RARM, 255);
 
-		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			Term_putstr(61, i - INVEN_RARM, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_RARM, -1, TERM_WHITE, mention_use(i));
-		}
-
 		/* Display the weight (if needed) */
 		if (show_weights && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
 #ifdef JP
 			sprintf(tmp_val, "%3d.%1d kg", lbtokg1(wgt) , lbtokg2(wgt));
 #else
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			Term_putstr(col, i - INVEN_RARM, -1, TERM_WHITE, tmp_val);
+			prt(tmp_val, i - INVEN_RARM, wid - (show_labels ? 28 : 9));
+		}
+
+		/* Display the slot description (if needed) */
+		if (show_labels)
+		{
+			Term_putstr(wid - 20, i - INVEN_RARM, -1, TERM_WHITE, " <-- ");
+			prt(mention_use(i), i - INVEN_RARM, wid - 15);
 		}
 	}
 
 	/* Erase the rest of the window */
-	for (i = INVEN_TOTAL - INVEN_RARM; i < Term->hgt; i++)
+	for (i = INVEN_TOTAL - INVEN_RARM; i < hgt; i++)
 	{
 		/* Clear that line */
 		Term_erase(0, i, 255);
@@ -4597,6 +4587,107 @@ void display_equip(void)
 
 
 
+/*
+ * Find the "first" inventory object with the given "tag".
+ *
+ * A "tag" is a numeral "n" appearing as "@n" anywhere in the
+ * inscription of an object.  Alphabetical characters don't work as a
+ * tag in this form.
+ *
+ * Also, the tag "@xn" will work as well, where "n" is a any tag-char,
+ * and "x" is the "current" command_cmd code.
+ */
+static int get_tag(int *cp, char tag)
+{
+	int i;
+	cptr s;
+
+
+	/**** Find a tag in the form of {@x#} (allow alphabet tag) ***/
+
+	/* Check every object */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the special tags */
+			if ((s[1] == command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+
+	/**** Find a tag in the form of {@#} (allows only numerals)  ***/
+
+	/* Don't allow {@#} with '#' being alphabet */
+	if (tag < '0' || '9' < tag)
+	{
+		/* No such tag */
+		return FALSE;
+	}
+
+	/* Check every object */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->inscription) continue;
+
+		/* Skip non-choice */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->inscription), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the normal tags */
+			if (s[1] == tag)
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+	/* No such tag */
+	return (FALSE);
+}
 
 
 
@@ -4607,6 +4698,7 @@ void display_equip(void)
  */
 int show_inven(int target_item)
 {
+	cptr alphabet_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	int             i, j, k, l, z = 0;
 	int             col, cur_col, len;
 	object_type     *o_ptr;
@@ -4620,7 +4712,6 @@ int show_inven(int target_item)
 	char inven_spellbook_label[52+1];
 
 	/* See cmd5.c */
-	extern bool select_spellbook;
 
 	/* Starting column */
 	col = command_gap;
@@ -4644,23 +4735,26 @@ int show_inven(int target_item)
 		z = i + 1;
 	}
 
-	if (select_spellbook)
+	/*** Move around label characters with correspond tags ***/
+
+	/* Prepare normal labels */
+	strcpy(inven_spellbook_label, alphabet_chars);
+
+	/* Move each label */
+	for (i = 0; i < 52; i++)
 	{
 		int index;
+		char c = alphabet_chars[i];
 
-		strcpy(inven_spellbook_label, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-		for (i = 0; i < 52; i++)
+		/* Find a tag with this label */
+		if (get_tag(&index, c))
 		{
-			char c;
-			if (i < 26) c = (char)('a' + i);
-			else c = (char)('A' + i - 26);
+			/* Delete the over writen label */
+			if (inven_spellbook_label[i] == c)
+				inven_spellbook_label[i] = ' ';
 
-			if (get_tag(&index, c))
-			{
-				if (inven_spellbook_label[i] == c)
-					inven_spellbook_label[i] = ' ';
-				inven_spellbook_label[index] = c;
-			}
+			/* Move the label to the place of correspond tag */
+			inven_spellbook_label[index] = c;
 		}
 	}
 
@@ -4735,7 +4829,7 @@ int show_inven(int target_item)
 			}
 			else strcpy(tmp_val, "  ");
 		}
-		else if (i <= INVEN_PACK && select_spellbook)
+		else if (i <= INVEN_PACK)
 		{
 			sprintf(tmp_val, "%c)", inven_spellbook_label[i]);
 		}
@@ -4784,7 +4878,7 @@ int show_inven(int target_item)
 			(void)sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j + 1, wid - 9);
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -4986,7 +5080,7 @@ int show_equip(int target_item)
 			(void)sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j+1, wid - 9);
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -5153,94 +5247,6 @@ static bool get_item_okay(int i)
 
 
 /*
- * Find the "first" inventory object with the given "tag".
- *
- * A "tag" is a char "n" appearing as "@n" anywhere in the
- * inscription of an object.
- *
- * Also, the tag "@xn" will work as well, where "n" is a tag-char,
- * and "x" is the "current" command_cmd code.
- */
-int get_tag(int *cp, char tag)
-{
-	int i;
-	cptr s;
-
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->inscription) continue;
-
-		/* Skip non-choice */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the special tags */
-			if ((s[1] == command_cmd) && (s[2] == tag))
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip empty inscriptions */
-		if (!o_ptr->inscription) continue;
-
-		/* Skip non-choice */
-		if (!item_tester_okay(o_ptr)) continue;
-
-		/* Find a '@' */
-		s = strchr(quark_str(o_ptr->inscription), '@');
-
-		/* Process all tags */
-		while (s)
-		{
-			/* Check the normal tags */
-			if (s[1] == tag && !((s[2] >= '0' && s[2] <= '9') || (s[2] >= 'a' && s[2] <= 'z') || (s[2] >= 'A' && s[2] <= 'Z')))
-		{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Find another '@' */
-			s = strchr(s + 1, '@');
-		}
-	}
-
-	/* No such tag */
-	return (FALSE);
-}
-
-/*
  * Determine whether get_item() can get some item or not
  * assuming mode = (USE_EQUIP | USE_INVEN | USE_FLOOR).
  */
@@ -5313,7 +5319,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
-	char n1, n2, which = ' ';
+	char which = ' ';
 
 	int j, k, i1, i2, e1, e2;
 
@@ -5333,7 +5339,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	char out_val[160];
 
 	/* See cmd5.c */
-	extern bool select_spellbook;
 	extern bool select_the_force;
 
 	int menu_line = (use_menu ? 1 : 0);
@@ -5351,7 +5356,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-		if (*cp == 1111) { /* the_force */
+		if (*cp == INVEN_FORCE) { /* the_force */
 		    item_tester_tval = 0;
 		    item_tester_hook = NULL;
 		    return (TRUE);
@@ -5482,7 +5487,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		done = TRUE;
 
 		if (select_the_force) {
-		    *cp = 1111;
+		    *cp = INVEN_FORCE;
 		    item = TRUE;
 		}
 	}
@@ -5575,10 +5580,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Inventory screen */
 		if (!command_wrk)
 		{
-			/* Extract the legal requests */
-			n1 = I2A(i1);
-			n2 = I2A(i2);
-
 			/* Redraw if needed */
 			if (command_see) get_item_label = show_inven(menu_line);
 		}
@@ -5586,10 +5587,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Equipment screen */
 		else
 		{
-			/* Extract the legal requests */
-			n1 = I2A(e1 - INVEN_RARM);
-			n2 = I2A(e2 - INVEN_RARM);
-
 			/* Redraw if needed */
 			if (command_see) get_item_label = show_equip(menu_line);
 		}
@@ -5807,7 +5804,7 @@ if (allow_floor) strcat(out_val, " '-'床上,");
 			case 'w':
 			{
 				if (select_the_force) {
-					*cp = 1111;
+					*cp = INVEN_FORCE;
 					item = TRUE;
 					done = TRUE;
 					break;
@@ -5971,7 +5968,6 @@ if (other_query_flag && !verify("本当に", k)) continue;
 #if 0
 			case '\n':
 			case '\r':
-#endif
 			{
 				/* Choose "default" inventory item */
 				if (!command_wrk)
@@ -6005,48 +6001,51 @@ if (other_query_flag && !verify("本当に", k)) continue;
 				done = TRUE;
 				break;
 			}
+#endif
 
 			case 'w':
 			{
 				if (select_the_force) {
-					*cp = 1111;
+					*cp = INVEN_FORCE;
 					item = TRUE;
 					done = TRUE;
 					break;
 				}
+
+				/* Fall through */
 			}
 
 			default:
 			{
 				int ver;
-				if(select_spellbook){
-				    bool not_found = FALSE;
-				    /* Look up the tag */
-				    if (!get_tag(&k, which))
-				    {
-					not_found = TRUE;
-				    }
+				bool not_found = FALSE;
 
-				    /* Hack -- Validate the item */
-				    if ((k < INVEN_RARM) ? !inven : !equip)
-				    {
+				/* Look up the alphabetical tag */
+				if (!get_tag(&k, which))
+				{
 					not_found = TRUE;
-				    }
+				}
 
-				    /* Validate the item */
-				    if (!get_item_okay(k))
-				    {
+				/* Hack -- Validate the item */
+				if ((k < INVEN_RARM) ? !inven : !equip)
+				{
 					not_found = TRUE;
-				    }
+				}
 
-				    if( !not_found ){
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
+					not_found = TRUE;
+				}
+
+				if (!not_found)
+				{
 					/* Accept that choice */
 					(*cp) = k;
 					item = TRUE;
 					done = TRUE;
 					break;
-				    }
-				}				
+				}
 
 				/* Extract "query" setting */
 				ver = isupper(which);
@@ -6320,7 +6319,7 @@ int show_floor(int target_item, int y, int x, int *min_width)
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 #endif
 
-			put_str(tmp_val, j + 1, wid - 9);
+			prt(tmp_val, j + 1, wid - 9);
 		}
 	}
 
@@ -6360,7 +6359,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num, floor_list[23], floor_top = 0;
 	int min_width = 0;
 
-	extern bool select_spellbook;
 	extern bool select_the_force;
 
 	int menu_line = (use_menu ? 1 : 0);
@@ -6372,7 +6370,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-		if (*cp == 1111) { /* the_force */
+		if (*cp == INVEN_FORCE) { /* the_force */
 		    item_tester_tval = 0;
 		    item_tester_hook = NULL;
 		    return (TRUE);
@@ -6502,7 +6500,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 		done = TRUE;
 
 		if (select_the_force) {
-		    *cp = 1111;
+		    *cp = INVEN_FORCE;
 		    item = TRUE;
 		}
 	}
@@ -7082,7 +7080,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			case 'w':
 			{
 				if (select_the_force) {
-					*cp = 1111;
+					*cp = INVEN_FORCE;
 					item = TRUE;
 					done = TRUE;
 					break;
@@ -7378,7 +7376,7 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			case 'w':
 			{
 				if (select_the_force) {
-					*cp = 1111;
+					*cp = INVEN_FORCE;
 					item = TRUE;
 					done = TRUE;
 					break;
@@ -7388,35 +7386,34 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			default:
 			{
 				int ver;
+				bool not_found = FALSE;
 
-				if(select_spellbook){
-				    bool not_found = FALSE;
-				    /* Look up the tag */
-				    if (!get_tag(&k, which))
-				    {
+				/* Look up the alphabetical tag */
+				if (!get_tag(&k, which))
+				{
 					not_found = TRUE;
-				    }
+				}
 
-				    /* Hack -- Validate the item */
-				    if ((k < INVEN_RARM) ? !inven : !equip)
-				    {
+				/* Hack -- Validate the item */
+				if ((k < INVEN_RARM) ? !inven : !equip)
+				{
 					not_found = TRUE;
-				    }
+				}
 
-				    /* Validate the item */
-				    if (!get_item_okay(k))
-				    {
+				/* Validate the item */
+				if (!get_item_okay(k))
+				{
 					not_found = TRUE;
-				    }
+				}
 
-				    if( !not_found ){
+				if (!not_found)
+				{
 					/* Accept that choice */
 					(*cp) = k;
 					item = TRUE;
 					done = TRUE;
 					break;
-				    }
-				}				
+				}
 
 				/* Extract "query" setting */
 				ver = isupper(which);
@@ -7541,8 +7538,6 @@ static bool py_pickup_floor_aux(void)
 {
 	s16b this_o_idx;
 
-	object_type *o_ptr;
-
 	cptr q, s;
 
 	int item;
@@ -7567,9 +7562,6 @@ static bool py_pickup_floor_aux(void)
 	{
 		return (FALSE);
 	}
-
-	/* Access the object */
-	o_ptr = &o_list[this_o_idx];
 
 	/* Pick up the object */
 	py_pickup_aux(this_o_idx);

@@ -1,14 +1,14 @@
 /* File: mspells1.c */
 
-/* Purpose: Monster spells (attack player) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Monster spells (attack player) */
 
 #include "angband.h"
 
@@ -88,7 +88,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart_learn)
 	{
 		/* Hack -- Occasionally forget player status */
-		if (m_ptr->smart && (randint0(100) < 1)) m_ptr->smart = 0L;
+		/* Only save SM_FRIENDLY, SM_PET or SM_CLONED */
+		if (m_ptr->smart && (randint0(100) < 1)) m_ptr->smart &= (SM_FRIENDLY | SM_PET | SM_CLONED);
 
 		/* Use the memorized flags */
 		smart = m_ptr->smart;
@@ -100,21 +101,21 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	{
 		/* Know basic info */
 		if (p_ptr->resist_acid) smart |= (SM_RES_ACID);
-		if (p_ptr->oppose_acid) smart |= (SM_OPP_ACID);
+		if (IS_OPPOSE_ACID()) smart |= (SM_OPP_ACID);
 		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
 		if (p_ptr->resist_elec) smart |= (SM_RES_ELEC);
-		if (p_ptr->oppose_elec) smart |= (SM_OPP_ELEC);
+		if (IS_OPPOSE_ELEC()) smart |= (SM_OPP_ELEC);
 		if (p_ptr->immune_elec) smart |= (SM_IMM_ELEC);
 		if (p_ptr->resist_fire) smart |= (SM_RES_FIRE);
-		if (p_ptr->oppose_fire) smart |= (SM_OPP_FIRE);
+		if (IS_OPPOSE_FIRE()) smart |= (SM_OPP_FIRE);
 		if (p_ptr->immune_fire) smart |= (SM_IMM_FIRE);
 		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
-		if (p_ptr->oppose_cold) smart |= (SM_OPP_COLD);
+		if (IS_OPPOSE_COLD()) smart |= (SM_OPP_COLD);
 		if (p_ptr->immune_cold) smart |= (SM_IMM_COLD);
 
 		/* Know poison info */
 		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
-		if (p_ptr->oppose_pois) smart |= (SM_OPP_POIS);
+		if (IS_OPPOSE_POIS()) smart |= (SM_OPP_POIS);
 
 		/* Know special resistances */
 		if (p_ptr->resist_neth) smart |= (SM_RES_NETH);
@@ -385,9 +386,11 @@ bool summon_possible(int y1, int x1)
 }
 
 
-static bool raise_possible(int y, int x)
+bool raise_possible(monster_type *m_ptr)
 {
 	int xx, yy;
+	int y = m_ptr->fy;
+	int x = m_ptr->fx;
 	s16b this_o_idx, next_o_idx = 0;
 	cave_type *c_ptr;
 
@@ -410,7 +413,9 @@ static bool raise_possible(int y, int x)
 
 				/* Known to be worthless? */
 				if (o_ptr->tval == TV_CORPSE)
-					return TRUE;
+				{
+					if (!monster_has_hostile_align(m_ptr, 0, 0, &r_info[o_ptr->pval])) return TRUE;
+				}
 			}
 		}
 	}
@@ -467,7 +472,7 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friend)
 			}
 		}
 		/* Pets may not shoot through the character - TNB */
-		if ((y == py) && (x == px))
+		if (player_bold(y, x))
 		{
 			if (friend) return (FALSE);
 		}
@@ -826,8 +831,8 @@ static bool dispel_check(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	/* Invulnabilty */
-	if (p_ptr->invuln) return (TRUE);
+	/* Invulnabilty (including the song) */
+	if (IS_INVULN()) return (TRUE);
 
 	/* Wraith form */
 	if (p_ptr->wraith_form) return (TRUE);
@@ -847,41 +852,34 @@ static bool dispel_check(int m_idx)
 	/* Berserk Strength */
 	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) return (TRUE);
 
-	/* Invulnability song */
-	if (music_singing(MUSIC_INVULN)) return (TRUE);
-
 	/* Demon Lord */
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD) return (TRUE);
 
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
 	{
-		if (!p_ptr->immune_acid && p_ptr->oppose_acid) return (TRUE);
-
+		if (!p_ptr->immune_acid && (p_ptr->oppose_acid || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ACID) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_FIRE)
 	{
-		if (!((p_ptr->prace == RACE_DEMON) && p_ptr->lev > 44))
+		if (!(prace_is_(RACE_DEMON) && p_ptr->lev > 44))
 		{
-			if(!p_ptr->immune_fire && p_ptr->oppose_fire) return (TRUE);
-
-			if(p_ptr->special_defense & DEFENSE_FIRE) return(TRUE);
+			if (!p_ptr->immune_fire && (p_ptr->oppose_fire || music_singing(MUSIC_RESIST))) return (TRUE);
+			if (p_ptr->special_defense & DEFENSE_FIRE) return (TRUE);
 		}
 	}
 
 	if (r_ptr->flags4 & RF4_BR_ELEC)
 	{
-		if (!p_ptr->immune_elec && p_ptr->oppose_elec) return (TRUE);
-
+		if (!p_ptr->immune_elec && (p_ptr->oppose_elec || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ELEC) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_COLD)
 	{
-		if (!p_ptr->immune_cold && p_ptr->oppose_cold) return (TRUE);
-
+		if (!p_ptr->immune_cold && (p_ptr->oppose_cold || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_COLD) return (TRUE);
 	}
 
@@ -889,16 +887,9 @@ static bool dispel_check(int m_idx)
 	{
 		if (!((p_ptr->pclass == CLASS_NINJA) && p_ptr->lev > 44))
 		{
-			if (p_ptr->oppose_pois) return (TRUE);
-
+			if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST)) return (TRUE);
 			if (p_ptr->special_defense & DEFENSE_POIS) return (TRUE);
 		}
-	}
-
-	/* Elemental resist music */
-	if (music_singing(MUSIC_RESIST))
-	{
-		if (r_ptr->flags4 & (RF4_BR_ACID | RF4_BR_FIRE | RF4_BR_ELEC | RF4_BR_COLD | RF4_BR_POIS)) return (TRUE);
 	}
 
 	/* Ultimate resistance */
@@ -908,20 +899,16 @@ static bool dispel_check(int m_idx)
 	if (p_ptr->tsuyoshi) return (TRUE);
 
 	/* Elemental Brands */
-	if ((p_ptr->special_attack & ATTACK_ACID) && !(r_ptr->flags3 & RF3_IM_ACID)) return (TRUE);
-	if ((p_ptr->special_attack & ATTACK_FIRE) && !(r_ptr->flags3 & RF3_IM_FIRE)) return (TRUE);
-	if ((p_ptr->special_attack & ATTACK_ELEC) && !(r_ptr->flags3 & RF3_IM_ELEC)) return (TRUE);
-	if ((p_ptr->special_attack & ATTACK_COLD) && !(r_ptr->flags3 & RF3_IM_COLD)) return (TRUE);
-	if ((p_ptr->special_attack & ATTACK_POIS) && !(r_ptr->flags3 & RF3_IM_POIS)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_ACID) && !(r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_FIRE) && !(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_ELEC) && !(r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_COLD) && !(r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)) return (TRUE);
+	if ((p_ptr->special_attack & ATTACK_POIS) && !(r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)) return (TRUE);
 
 	/* Speed */
 	if (p_ptr->pspeed < 145)
 	{
-		if (p_ptr->fast) return (TRUE);
-
-		if (music_singing(MUSIC_SPEED)) return (TRUE);
-
-		if (music_singing(MUSIC_SHERO)) return (TRUE);
+		if (IS_FAST()) return (TRUE);
 	}
 
 	/* Light speed */
@@ -1107,14 +1094,14 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	}
 
 	/* Raise-dead if possible (sometimes) */
-	if (raise_num && (randint0(100) < 40) && raise_possible(m_ptr->fy, m_ptr->fx))
+	if (raise_num && (randint0(100) < 40))
 	{
 		/* Choose raise-dead spell */
 		return (raise[randint0(raise_num)]);
 	}
 
 	/* Attack spell (most of the time) */
-	if (p_ptr->invuln)
+	if (IS_INVULN())
 	{
 		if (psy_spe_num && (randint0(100) < 50))
 		{
@@ -1174,6 +1161,29 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 
 
 /*
+ * Return TRUE if a spell is inate spell.
+ */
+bool spell_is_inate(u16b spell)
+{
+	if (spell < 32 * 4) /* Set RF4 */
+	{
+		if ((1L << (spell - 32 * 3)) & RF4_NOMAGIC_MASK) return TRUE;
+	}
+	else if (spell < 32 * 5) /* Set RF5 */
+	{
+		if ((1L << (spell - 32 * 4)) & RF5_NOMAGIC_MASK) return TRUE;
+	}
+	else if (spell < 32 * 6) /* Set RF6 */
+	{
+		if ((1L << (spell - 32 * 5)) & RF6_NOMAGIC_MASK) return TRUE;
+	}
+
+	/* This spell is not "inate" */
+	return FALSE;
+}
+
+
+/*
  * Creatures can cast spells, shoot missiles, and breathe.
  *
  * Returns "TRUE" if a spell (or whatever) was (successfully) cast.
@@ -1229,14 +1239,15 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
  */
 bool make_attack_spell(int m_idx)
 {
-	int             k, chance, thrown_spell = 0, rlev, failrate;
+	int             k, thrown_spell = 0, rlev, failrate;
 	byte            spell[96], num = 0;
 	u32b            f4, f5, f6;
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	char            m_name[80];
+#ifndef JP
 	char            m_poss[80];
-	char            ddesc[80];
+#endif
 	bool            no_inate = FALSE;
 	bool            do_disi = FALSE;
 	int             dam = 0;
@@ -1260,11 +1271,11 @@ bool make_attack_spell(int m_idx)
 	bool maneable = player_has_los_bold(m_ptr->fy, m_ptr->fx);
 	bool learnable = (seen && maneable && !world_monster);
 
-	/* Assume "normal" target */
-	bool normal = TRUE;
+	/* Check "projectable" */
+	bool direct;
 
-	/* Assume "projectable" */
-	bool direct = TRUE;
+	bool in_no_magic_dungeon = (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && dun_level
+		&& (!p_ptr->inside_quest || is_fixed_quest_idx(p_ptr->inside_quest));
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused)
@@ -1277,18 +1288,9 @@ bool make_attack_spell(int m_idx)
 	if (m_ptr->mflag & MFLAG_NICE) return (FALSE);
 	if (!is_hostile(m_ptr)) return (FALSE);
 
-	/* Hack -- Extract the spell probability */
-	chance = (r_ptr->freq_inate + r_ptr->freq_spell) / 2;
-
-	/* Not allowed to cast spells */
-	if (!chance) return (FALSE);
-
-
-	/* Only do spells occasionally */
-	if (randint0(100) >=  chance) return (FALSE);
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (randint0(100) >= (chance * 2)) no_inate = TRUE;
+	if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -1298,94 +1300,92 @@ bool make_attack_spell(int m_idx)
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
 
-	/* Hack -- require projectable player */
-	if (normal)
+	/*** require projectable player ***/
+
+	/* Check range */
+	if ((m_ptr->cdis > MAX_RANGE) && !m_ptr->target_y) return (FALSE);
+
+	/* Check path */
+	if (projectable(m_ptr->fy, m_ptr->fx, y, x))
 	{
-		/* Check range */
-		if ((m_ptr->cdis > MAX_RANGE) && !m_ptr->target_y) return (FALSE);
+		/* Breath disintegration to the glyph if possible */
+		if ((!cave_floor_bold(y,x)) && (r_ptr->flags4 & RF4_BR_DISI) && one_in_(2)) do_disi = TRUE;
+	}
 
-		/* Check path */
-		if (projectable(m_ptr->fy, m_ptr->fx, y, x))
+	/* Check path to next grid */
+	else
+	{
+		bool success = FALSE;
+
+		if ((r_ptr->flags4 & RF4_BR_DISI) &&
+		    (m_ptr->cdis < MAX_RANGE/2) &&
+		    in_disintegration_range(m_ptr->fy, m_ptr->fx, y, x) &&
+		    (one_in_(10) || (projectable(y, x, m_ptr->fy, m_ptr->fx) && one_in_(2))))
 		{
-			/* Breath disintegration to the glyph */
-			if ((!cave_floor_bold(y,x)) && (r_ptr->flags4 & RF4_BR_DISI) && one_in_(2)) do_disi = TRUE;
+			do_disi = TRUE;
+			success = TRUE;
 		}
-
-		/* Check path to next grid */
 		else
 		{
-			bool success = FALSE;
+			int i;
+			int tonari;
+			int tonari_y[4][8] = {{-1,-1,-1,0,0,1,1,1},
+					      {-1,-1,-1,0,0,1,1,1},
+					      {1,1,1,0,0,-1,-1,-1},
+					      {1,1,1,0,0,-1,-1,-1}};
+			int tonari_x[4][8] = {{-1,0,1,-1,1,-1,0,1},
+					      {1,0,-1,1,-1,1,0,-1},
+					      {-1,0,1,-1,1,-1,0,1},
+					      {1,0,-1,1,-1,1,0,-1}};
 
-			if ((r_ptr->flags4 & RF4_BR_DISI) &&
-			    (m_ptr->cdis < MAX_RANGE/2) &&
-			    in_disintegration_range(m_ptr->fy, m_ptr->fx, y, x) &&
-			    (one_in_(10) || (projectable(y, x, m_ptr->fy, m_ptr->fx) && one_in_(2))))
+			if (m_ptr->fy < py && m_ptr->fx < px) tonari = 0;
+			else if (m_ptr->fy < py) tonari = 1;
+			else if (m_ptr->fx < px) tonari = 2;
+			else tonari = 3;
+
+			for (i = 0; i < 8; i++)
 			{
-				do_disi = TRUE;
+				int next_x = x + tonari_x[tonari][i];
+				int next_y = y + tonari_y[tonari][i];
+				cave_type *c_ptr;
+
+				/* Access the next grid */
+				c_ptr = &cave[next_y][next_x];
+
+				/* Skip door, rubble, wall */
+				if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_PERM_SOLID)) continue;
+
+				/* Skip tree */
+				if (c_ptr->feat == FEAT_TREES) continue;
+
+				/* Skip mountain */
+				if (c_ptr->feat == FEAT_MOUNTAIN) continue;
+
+				if (projectable(m_ptr->fy, m_ptr->fx, next_y, next_x))
+				{
+					y = next_y;
+					x = next_x;
+					success = TRUE;
+					break;
+				}
+			}
+		}
+
+		if (!success)
+		{
+			if (m_ptr->target_y && m_ptr->target_x)
+			{
+				y = m_ptr->target_y;
+				x = m_ptr->target_x;
+				f4 &= (RF4_INDIRECT_MASK);
+				f5 &= (RF5_INDIRECT_MASK);
+				f6 &= (RF6_INDIRECT_MASK);
 				success = TRUE;
 			}
-			else
-			{
-				int i;
-				int tonari;
-				int tonari_y[4][8] = {{-1,-1,-1,0,0,1,1,1},
-						      {-1,-1,-1,0,0,1,1,1},
-						      {1,1,1,0,0,-1,-1,-1},
-						      {1,1,1,0,0,-1,-1,-1}};
-				int tonari_x[4][8] = {{-1,0,1,-1,1,-1,0,1},
-						      {1,0,-1,1,-1,1,0,-1},
-						      {-1,0,1,-1,1,-1,0,1},
-						      {1,0,-1,1,-1,1,0,-1}};
-
-				if (m_ptr->fy < py && m_ptr->fx < px) tonari = 0;
-				else if (m_ptr->fy < py) tonari = 1;
-				else if (m_ptr->fx < px) tonari = 2;
-				else tonari = 3;
-
-				for (i = 0; i < 8; i++)
-				{
-					int next_x = x + tonari_x[tonari][i];
-					int next_y = y + tonari_y[tonari][i];
-					cave_type *c_ptr;
-
-					/* Access the next grid */
-					c_ptr = &cave[next_y][next_x];
-
-					/* Skip door, rubble, wall */
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_PERM_SOLID)) continue;
-
-					/* Skip tree */
-					if (c_ptr->feat == FEAT_TREES) continue;
-
-					/* Skip mountain */
-					if (c_ptr->feat == FEAT_MOUNTAIN) continue;
-
-					if (projectable(m_ptr->fy, m_ptr->fx, next_y, next_x))
-					{
-						y = next_y;
-						x = next_x;
-						success = TRUE;
-						break;
-					}
-				}
-			}
-
-			if (!success)
-			{
-				if (m_ptr->target_y && m_ptr->target_x)
-				{
-					y = m_ptr->target_y;
-					x = m_ptr->target_x;
-					f4 &= (RF4_INDIRECT_MASK);
-					f5 &= (RF5_INDIRECT_MASK);
-					f6 &= (RF6_INDIRECT_MASK);
-					success = TRUE;
-				}
-			}
-
-			/* No spells */
-			if (!success) return FALSE;
 		}
+
+		/* No spells */
+		if (!success) return FALSE;
 	}
 
 	reset_target(m_ptr);
@@ -1394,79 +1394,103 @@ bool make_attack_spell(int m_idx)
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
 	/* Forbid inate attacks sometimes */
-	if (no_inate) f4 &= 0x500000FF;
+	if (no_inate)
+	{
+		f4 &= ~(RF4_NOMAGIC_MASK);
+		f5 &= ~(RF5_NOMAGIC_MASK);
+		f6 &= ~(RF6_NOMAGIC_MASK);
+	}
 
 	if (!p_ptr->csp)
 	{
 		f5 &= ~(RF5_DRAIN_MANA);
 	}
-	if ((p_ptr->pclass == CLASS_NINJA) && (r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)))
+
+	if ((p_ptr->pclass == CLASS_NINJA) &&
+	    ((r_ptr->flags3 & (RF3_UNDEAD | RF3_HURT_LITE)) ||
+	     (r_ptr->flags7 & RF7_DARK_MASK)))
 	{
 		f6 &= ~(RF6_DARKNESS);
 	}
 
-	if (dun_level && (!p_ptr->inside_quest || (p_ptr->inside_quest < MIN_RANDOM_QUEST)) && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+	if (in_no_magic_dungeon && !(r_ptr->flags2 & RF2_STUPID))
 	{
 		f4 &= (RF4_NOMAGIC_MASK);
 		f5 &= (RF5_NOMAGIC_MASK);
 		f6 &= (RF6_NOMAGIC_MASK);
 	}
 
-	/* Hack -- allow "desperate" spells */
-	if ((r_ptr->flags2 & (RF2_SMART)) &&
-		(m_ptr->hp < m_ptr->maxhp / 10) &&
-		(randint0(100) < 50))
+	if (r_ptr->flags2 & RF2_SMART)
 	{
-		/* Require intelligent spells */
-		f4 &= (RF4_INT_MASK);
-		f5 &= (RF5_INT_MASK);
-		f6 &= (RF6_INT_MASK);
+		/* Hack -- allow "desperate" spells */
+		if ((m_ptr->hp < m_ptr->maxhp / 10) &&
+			(randint0(100) < 50))
+		{
+			/* Require intelligent spells */
+			f4 &= (RF4_INT_MASK);
+			f5 &= (RF5_INT_MASK);
+			f6 &= (RF6_INT_MASK);
+		}
 
-		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
+		/* Hack -- decline "teleport level" in some case */
+		if ((f6 & RF6_TELE_LEVEL) && TELE_LEVEL_IS_INEFF(0))
+		{
+			f6 &= ~(RF6_TELE_LEVEL);
+		}
 	}
+
+	/* No spells left */
+	if (!f4 && !f5 && !f6) return (FALSE);
 
 	/* Remove the "ineffective" spells */
 	remove_bad_spells(m_idx, &f4, &f5, &f6);
 
-	if (p_ptr->inside_arena)
+	if (p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		f4 &= ~(RF4_SUMMON_MASK);
 		f5 &= ~(RF5_SUMMON_MASK);
-		f6 &= ~(RF6_SUMMON_MASK);
+		f6 &= ~(RF6_SUMMON_MASK | RF6_TELE_LEVEL);
 	}
 
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
 
-	/* Check for a clean bolt shot */
-	if (((f4 & RF4_BOLT_MASK) ||
-	     (f5 & RF5_BOLT_MASK) ||
-	     (f6 & RF6_BOLT_MASK)) &&
-	    !(r_ptr->flags2 & RF2_STUPID) &&
-	    !clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
+	if (!(r_ptr->flags2 & RF2_STUPID))
 	{
-		/* Remove spells that will only hurt friends */
-		f4 &= ~(RF4_BOLT_MASK);
-		f5 &= ~(RF5_BOLT_MASK);
-		f6 &= ~(RF6_BOLT_MASK);
-	}
+		/* Check for a clean bolt shot */
+		if (((f4 & RF4_BOLT_MASK) ||
+		     (f5 & RF5_BOLT_MASK) ||
+		     (f6 & RF6_BOLT_MASK)) &&
+		    !clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
+		{
+			/* Remove spells that will only hurt friends */
+			f4 &= ~(RF4_BOLT_MASK);
+			f5 &= ~(RF5_BOLT_MASK);
+			f6 &= ~(RF6_BOLT_MASK);
+		}
 
-	/* Check for a possible summon */
-	if (((f4 & RF4_SUMMON_MASK) ||
-	     (f5 & RF5_SUMMON_MASK) ||
-	     (f6 & RF6_SUMMON_MASK)) &&
-	    !(r_ptr->flags2 & RF2_STUPID) &&
-	    !(summon_possible(y, x)))
-	{
-		/* Remove summoning spells */
-		f4 &= ~(RF4_SUMMON_MASK);
-		f5 &= ~(RF5_SUMMON_MASK);
-		f6 &= ~(RF6_SUMMON_MASK);
-	}
+		/* Check for a possible summon */
+		if (((f4 & RF4_SUMMON_MASK) ||
+		     (f5 & RF5_SUMMON_MASK) ||
+		     (f6 & RF6_SUMMON_MASK)) &&
+		    !(summon_possible(y, x)))
+		{
+			/* Remove summoning spells */
+			f4 &= ~(RF4_SUMMON_MASK);
+			f5 &= ~(RF5_SUMMON_MASK);
+			f6 &= ~(RF6_SUMMON_MASK);
+		}
 
-	/* No spells left */
-	if (!f4 && !f5 && !f6) return (FALSE);
+		/* Check for a possible raise dead */
+		if ((f6 & RF6_RAISE_DEAD) && !raise_possible(m_ptr))
+		{
+			/* Remove raise dead spell */
+			f6 &= ~(RF6_RAISE_DEAD);
+		}
+
+		/* No spells left */
+		if (!f4 && !f5 && !f6) return (FALSE);
+	}
 
 	/* Extract the "inate" spells */
 	for (k = 0; k < 32; k++)
@@ -1498,11 +1522,10 @@ bool make_attack_spell(int m_idx)
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0x00);
 
+#ifndef JP
 	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
-
-	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x288);
+	monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
+#endif
 
 	if (do_disi)
 		thrown_spell = 96+31;
@@ -1526,22 +1549,22 @@ bool make_attack_spell(int m_idx)
 	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
 
 	/* Check for spell failure (inate attacks never fail) */
-	if ((thrown_spell >= 128) && ((m_ptr->stunned && one_in_(2)) || (randint0(100) < failrate)))
+	if (!spell_is_inate(thrown_spell)
+	    && (in_no_magic_dungeon || (m_ptr->stunned && one_in_(2)) || (randint0(100) < failrate)))
 	{
 		disturb(1, 0);
 		/* Message */
-		if (thrown_spell != (160+7)) /* Not RF6_SPECIAL */
-		{
 #ifdef JP
-			msg_format("%^sは呪文を唱えようとしたが失敗した。", m_name);
+		msg_format("%^sは呪文を唱えようとしたが失敗した。", m_name);
 #else
-			msg_format("%^s tries to cast a spell, but fails.", m_name);
+		msg_format("%^s tries to cast a spell, but fails.", m_name);
 #endif
-		}
 
 		return (TRUE);
 	}
 
+	/* Projectable? */
+	direct = player_bold(y, x);
 
 	/* Cast the spell. */
 	switch (thrown_spell)
@@ -1549,7 +1572,6 @@ bool make_attack_spell(int m_idx)
 		/* RF4_SHRIEK */
 		case 96+0:
 		{
-			if (!direct) break;
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sがかん高い金切り声をあげた。", m_name);
@@ -1571,7 +1593,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 		/* RF4_DISPEL */
 		case 96+2:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 			if (blind) msg_format("%^sが何かを力強くつぶやいた。", m_name);
@@ -1658,9 +1680,14 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			}
 			if (p_ptr->riding)
 			{
-				m_list[p_ptr->riding].invulner = 0;
-				m_list[p_ptr->riding].fast = 0;
-				m_list[p_ptr->riding].slow = 0;
+				monster_type *riding_ptr = &m_list[p_ptr->riding];
+				if (riding_ptr->invulner)
+				{
+					riding_ptr->invulner = 0;
+					riding_ptr->energy_need += ENERGY_NEED();
+				}
+				riding_ptr->fast = 0;
+				riding_ptr->slow = 0;
 				p_ptr->update |= PU_BONUS;
 				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
 				p_ptr->redraw |= (PR_UHEALTH);
@@ -1674,7 +1701,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			break;
 		}
 
-		/* RF4_XXX4X4 */
+		/* RF4_ROCKET */
 		case 96+3:
 		{
 			disturb(1, 0);
@@ -1700,7 +1727,7 @@ else msg_format("%^sがロケットを発射した。", m_name);
 		/* RF4_SHOOT */
 		case 96+4:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
@@ -2499,8 +2526,7 @@ else msg_format("%^sが暗黒の嵐の呪文を念じた。", m_name);
 		/* RF5_DRAIN_MANA */
 		case 128+9:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 			if (p_ptr->csp)
 			{
@@ -2570,8 +2596,7 @@ msg_format("%^sは気分が良さそうだ。", m_name);
 		/* RF5_MIND_BLAST */
 		case 128+10:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 			if (!seen)
 			{
@@ -2600,8 +2625,7 @@ msg_format("%^sがあなたの瞳をじっとにらんでいる。", m_name);
 		/* RF5_BRAIN_SMASH */
 		case 128+11:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 			if (!seen)
 			{
@@ -2630,8 +2654,7 @@ msg_format("%^sがあなたの瞳をじっと見ている。", m_name);
 		/* RF5_CAUSE_1 */
 		case 128+12:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2653,8 +2676,7 @@ else msg_format("%^sがあなたを指さして呪った。", m_name);
 		/* RF5_CAUSE_2 */
 		case 128+13:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2676,8 +2698,7 @@ else msg_format("%^sがあなたを指さして恐ろしげに呪った。", m_name);
 		/* RF5_CAUSE_3 */
 		case 128+14:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かを大声で叫んだ。", m_name);
@@ -2699,8 +2720,7 @@ else msg_format("%^sがあなたを指さして恐ろしげに呪文を唱えた！", m_name);
 		/* RF5_CAUSE_4 */
 		case 128+15:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが「お前は既に死んでいる」と叫んだ。", m_name);
@@ -2722,7 +2742,7 @@ else msg_format("%^sがあなたの秘孔を突いて「お前は既に死んでいる」と叫んだ。", m
 		/* RF5_BO_ACID */
 		case 128+16:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2746,7 +2766,7 @@ else msg_format("%^sがアシッド・ボルトの呪文を唱えた。", m_name);
 		/* RF5_BO_ELEC */
 		case 128+17:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2770,7 +2790,7 @@ else msg_format("%^sがサンダー・ボルトの呪文を唱えた。", m_name);
 		/* RF5_BO_FIRE */
 		case 128+18:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2794,7 +2814,7 @@ else msg_format("%^sがファイア・ボルトの呪文を唱えた。", m_name);
 		/* RF5_BO_COLD */
 		case 128+19:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2840,7 +2860,7 @@ else msg_format("%^sがスターバーストの呪文を念じた。", m_name);
 		/* RF5_BO_NETH */
 		case 128+21:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2864,7 +2884,7 @@ else msg_format("%^sが地獄の矢の呪文を唱えた。", m_name);
 		/* RF5_BO_WATE */
 		case 128+22:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2887,7 +2907,7 @@ else msg_format("%^sがウォーター・ボルトの呪文を唱えた。", m_name);
 		/* RF5_BO_MANA */
 		case 128+23:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2910,7 +2930,7 @@ else msg_format("%^sが魔力の矢の呪文を唱えた。", m_name);
 		/* RF5_BO_PLAS */
 		case 128+24:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2933,7 +2953,7 @@ else msg_format("%^sがプラズマ・ボルトの呪文を唱えた。", m_name);
 		/* RF5_BO_ICEE */
 		case 128+25:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2957,7 +2977,7 @@ else msg_format("%^sが極寒の矢の呪文を唱えた。", m_name);
 		/* RF5_MISSILE */
 		case 128+26:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -2980,8 +3000,7 @@ else msg_format("%^sがマジック・ミサイルの呪文を唱えた。", m_name);
 		/* RF5_SCARE */
 		case 128+27:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやくと、恐ろしげな音が聞こえた。", m_name);
@@ -3025,8 +3044,7 @@ msg_print("しかし恐怖に侵されなかった。");
 		/* RF5_BLIND */
 		case 128+28:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -3070,8 +3088,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* RF5_CONF */
 		case 128+29:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやくと、頭を悩ます音がした。", m_name);
@@ -3115,8 +3132,7 @@ msg_print("しかし幻覚にはだまされなかった。");
 		/* RF5_SLOW */
 		case 128+30:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sがあなたの筋力を吸い取ろうとした！", m_name);
@@ -3154,8 +3170,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* RF5_HOLD */
 		case 128+31:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -3212,7 +3227,7 @@ msg_format("%^sが何かをつぶやいた。", m_name);
 			else
 			{
 #ifdef JP
-msg_format("%^sが自分の体に念を送った。", m_name, m_poss);
+msg_format("%^sが自分の体に念を送った。", m_name);
 #else
 				msg_format("%^s concentrates on %s body.", m_name, m_poss);
 #endif
@@ -3236,7 +3251,7 @@ msg_format("%^sの動きが速くなった。", m_name);
 		/* RF6_HAND_DOOM */
 		case 160+1:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sが破滅の手を放った！", m_name);
@@ -3339,7 +3354,7 @@ msg_format("%^sは体力を回復したようだ。", m_name);
 
 				/* Message */
 #ifdef JP
-msg_format("%^sは勇気を取り戻した。", m_name, m_poss);
+msg_format("%^sは勇気を取り戻した。", m_name);
 #else
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 #endif
@@ -3473,13 +3488,9 @@ msg_format("%^sがテレポートした。", m_name);
 			switch(m_ptr->r_idx)
 			{
 			case MON_OHMU:
-				if (p_ptr->inside_arena || p_ptr->inside_battle) return FALSE;
-				for (k = 0; k < 6; k++)
-				{
-					count += summon_specific(m_idx, m_ptr->fy, m_ptr->fx, rlev, SUMMON_BIZARRE1, PM_ALLOW_GROUP);
-				}
+				/* Moved to process_monster(), like multiplication */
 				return FALSE;
-				
+
 			case MON_BANORLUPART:
 				{
 					int dummy_hp = (m_ptr->hp + 1) / 2;
@@ -3543,9 +3554,8 @@ msg_format("%^sがテレポートした。", m_name);
 			default:
 				if (r_ptr->d_char == 'B')
 				{
-					if (!direct) break;
 					disturb(1, 0);
-					if (one_in_(3) || x!=px || y!=py)
+					if (one_in_(3) || !direct)
 					{
 #ifdef JP
 						msg_format("%^sは突然視界から消えた!", m_name);
@@ -3554,17 +3564,18 @@ msg_format("%^sがテレポートした。", m_name);
 #endif
 						teleport_away(m_idx, 10, FALSE);
 						p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
-						break;
 					}
 					else
 					{
-						int dam = damroll(4, 8);
 						int get_damage = 0;
+						bool fear; /* dummy */
+
 #ifdef JP
 						msg_format("%^sがあなたを掴んで空中から投げ落した。", m_name);
 #else
 						msg_format("%^s holds you, and drops from the sky.", m_name);
 #endif
+						dam = damroll(4, 8);
 						teleport_player_to(m_ptr->fy, m_ptr->fx, FALSE);
 
 						sound(SOUND_FALL);
@@ -3597,15 +3608,17 @@ msg_format("%^sがテレポートした。", m_name);
 							msg_format("攻撃が%s自身を傷つけた！", m_name);
 #else
 							char m_name_self[80];
-		
+
 							/* hisself */
-							monster_desc(m_name_self, m_ptr, 0x23);
+							monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
 							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
 							set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}
+
+						if (p_ptr->riding) mon_take_hit_mon(p_ptr->riding, dam, &fear, extract_note_dies(real_r_ptr(&m_list[p_ptr->riding])), m_idx);
 					}
 					break;
 				}
@@ -3619,8 +3632,7 @@ msg_format("%^sがテレポートした。", m_name);
 		/* RF6_TELE_TO */
 		case 160+8:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sがあなたを引き戻した。", m_name);
@@ -3636,8 +3648,7 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 		/* RF6_TELE_AWAY */
 		case 160+9:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sにテレポートさせられた。", m_name);
@@ -3655,8 +3666,7 @@ msg_format("%^sにテレポートさせられた。", m_name);
 		/* RF6_TELE_LEVEL */
 		case 160+10:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何か奇妙な言葉をつぶやいた。", m_name);
@@ -3690,7 +3700,7 @@ msg_print("しかし効力を跳ね返した！");
 			}
 			else
 			{
-				teleport_player_level();
+				teleport_level(0);
 			}
 			learn_spell(MS_TELE_LEVEL);
 			update_smart_learn(m_idx, DRS_NEXUS);
@@ -3700,7 +3710,7 @@ msg_print("しかし効力を跳ね返した！");
 		/* RF6_PSY_SPEAR */
 		case 160+11:
 		{
-			if (x!=px || y!=py) return (FALSE);
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -3722,8 +3732,7 @@ else msg_format("%^sが光の剣を放った。", m_name);
 		/* RF6_DARKNESS */
 		case 160+12:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
@@ -3751,7 +3760,6 @@ else msg_format("%^sが暗闇の中で手を振った。", m_name);
 		/* RF6_TRAPS */
 		case 160+13:
 		{
-			if (!direct) break;
 			disturb(1, 0);
 #ifdef JP
 if (blind) msg_format("%^sが何かをつぶやいて邪悪に微笑んだ。", m_name);
@@ -3773,8 +3781,7 @@ else msg_format("%^sが呪文を唱えて邪悪に微笑んだ。", m_name);
 		/* RF6_FORGET */
 		case 160+14:
 		{
-			if (x!=px || y!=py) return (FALSE);
-			if (!direct) break;
+			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
 msg_format("%^sがあなたの記憶を消去しようとしている。", m_name);
@@ -4352,7 +4359,7 @@ msg_format("「同じく%d号、ナズグル・ブラック！」", count);
 					}
 				}
 #ifdef JP
-msg_format("「%d匹そろって、リングレンジャー！」", count);
+msg_format("「%d人そろって、リングレンジャー！」", count);
 #else
 msg_format("They say 'The %d meets! We are the Ring-Ranger!'.", count);
 #endif
@@ -4509,7 +4516,7 @@ msg_print("多くの力強いものが間近に現れた音が聞こえる。");
 
 	if (seen && maneable && !world_monster && (p_ptr->pclass == CLASS_IMITATOR))
 	{
-		if (thrown_spell != 167)
+		if (thrown_spell != 167) /* Not RF6_SPECIAL */
 		{
 			if (p_ptr->mane_num == MAX_MANE)
 			{
@@ -4531,13 +4538,13 @@ msg_print("多くの力強いものが間近に現れた音が聞こえる。");
 	}
 
 	/* Remember what the monster did to us */
-	if (seen)
+	if (seen && is_original_ap(m_ptr))
 	{
 		/* Inate spell */
 		if (thrown_spell < 32 * 4)
 		{
 			r_ptr->r_flags4 |= (1L << (thrown_spell - 32 * 3));
-			if (r_ptr->r_cast_inate < MAX_UCHAR) r_ptr->r_cast_inate++;
+			if (r_ptr->r_cast_spell < MAX_UCHAR) r_ptr->r_cast_spell++;
 		}
 
 		/* Bolt or Ball */
@@ -4559,7 +4566,7 @@ msg_print("多くの力強いものが間近に現れた音が聞こえる。");
 	/* Always take note of monsters that kill you */
 	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT) && !p_ptr->inside_arena)
 	{
-		r_ptr->r_deaths++;
+		r_ptr->r_deaths++; /* Ignore appearance difference */
 	}
 
 	/* A spell was cast */

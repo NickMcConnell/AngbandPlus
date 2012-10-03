@@ -1,26 +1,28 @@
 /* File: effects.c */
 
-/* Purpose: effects of various "objects" */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: effects of various "objects" */
 
 #include "angband.h"
 
 void set_action(int typ)
 {
-	if (typ == p_ptr->action)
+	int prev_typ = p_ptr->action;
+
+	if (typ == prev_typ)
 	{
 		return;
 	}
 	else
 	{
-		switch(p_ptr->action)
+		switch (prev_typ)
 		{
 			case ACTION_SEARCH:
 			{
@@ -92,7 +94,10 @@ void set_action(int typ)
 
 	p_ptr->action = typ;
 
-	switch(p_ptr->action)
+	/* If we are requested other action, stop singing */
+	if (prev_typ == ACTION_SING) stop_singing();
+
+	switch (p_ptr->action)
 	{
 		case ACTION_SEARCH:
 		{
@@ -382,7 +387,7 @@ msg_print("やっと目が見えるようになった。");
 	if (disturb_state) disturb(0, 0);
 
 	/* Fully update the visuals */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS);
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -804,7 +809,7 @@ bool set_fast(int v, bool do_dec)
 		{
 			if (p_ptr->fast > v) return FALSE;
 		}
-		else if (!p_ptr->fast && !p_ptr->lightspeed)
+		else if (!IS_FAST() && !p_ptr->lightspeed)
 		{
 #ifdef JP
 msg_print("素早く動けるようになった！");
@@ -821,7 +826,7 @@ msg_print("素早く動けるようになった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->fast && !p_ptr->lightspeed && ((p_ptr->pclass != CLASS_BARD) || ((p_ptr->magic_num1[0] != MUSIC_SPEED) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
+		if (p_ptr->fast && !p_ptr->lightspeed && !music_singing(MUSIC_SPEED) && !music_singing(MUSIC_SHERO))
 		{
 #ifdef JP
 msg_print("動きの素早さがなくなったようだ。");
@@ -1216,7 +1221,7 @@ bool set_blessed(int v, bool do_dec)
 		{
 			if (p_ptr->blessed > v) return FALSE;
 		}
-		else if (!p_ptr->blessed)
+		else if (!IS_BLESSED())
 		{
 #ifdef JP
 msg_print("高潔な気分になった！");
@@ -1231,7 +1236,7 @@ msg_print("高潔な気分になった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->blessed && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_BLESS)))
+		if (p_ptr->blessed && !music_singing(MUSIC_BLESS))
 		{
 #ifdef JP
 msg_print("高潔な気分が消え失せた。");
@@ -1285,7 +1290,7 @@ bool set_hero(int v, bool do_dec)
 		{
 			if (p_ptr->hero > v) return FALSE;
 		}
-		else if (!p_ptr->hero)
+		else if (!IS_HERO())
 		{
 #ifdef JP
 msg_print("ヒーローになった気がする！");
@@ -1300,7 +1305,7 @@ msg_print("ヒーローになった気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->hero && ((p_ptr->pclass != CLASS_BARD) || ((p_ptr->magic_num1[0] != MUSIC_HERO) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
+		if (p_ptr->hero && !music_singing(MUSIC_HERO) && !music_singing(MUSIC_SHERO))
 		{
 #ifdef JP
 msg_print("ヒーローの気分が消え失せた。");
@@ -1591,7 +1596,7 @@ bool set_invuln(int v, bool do_dec)
 		{
 			if (p_ptr->invuln > v) return FALSE;
 		}
-		else if (!p_ptr->invuln)
+		else if (!IS_INVULN())
 		{
 #ifdef JP
 msg_print("無敵だ！");
@@ -1620,7 +1625,7 @@ msg_print("無敵だ！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_INVULN)))
+		if (p_ptr->invuln && !music_singing(MUSIC_INVULN))
 		{
 #ifdef JP
 msg_print("無敵ではなくなった。");
@@ -1685,7 +1690,7 @@ bool set_tim_esp(int v, bool do_dec)
 		{
 			if (p_ptr->tim_esp > v) return FALSE;
 		}
-		else if (!p_ptr->tim_esp)
+		else if (!IS_TIM_ESP())
 		{
 #ifdef JP
 msg_print("意識が広がった気がする！");
@@ -1700,7 +1705,7 @@ msg_print("意識が広がった気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_esp && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_MIND)))
+		if (p_ptr->tim_esp && !music_singing(MUSIC_MIND))
 		{
 #ifdef JP
 msg_print("意識は元に戻った。");
@@ -1970,7 +1975,7 @@ bool set_tim_stealth(int v, bool do_dec)
 		{
 			if (p_ptr->tim_stealth > v) return FALSE;
 		}
-		else if (!p_ptr->tim_stealth)
+		else if (!IS_TIM_STEALTH())
 		{
 #ifdef JP
 msg_print("足音が小さくなった！");
@@ -1985,7 +1990,7 @@ msg_print("足音が小さくなった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_stealth && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_STEALTH)))
+		if (p_ptr->tim_stealth && !music_singing(MUSIC_STEALTH))
 		{
 #ifdef JP
 msg_print("足音が大きくなった。");
@@ -3066,7 +3071,7 @@ bool set_oppose_acid(int v, bool do_dec)
 		{
 			if (p_ptr->oppose_acid > v) return FALSE;
 		}
-		else if (!p_ptr->oppose_acid)
+		else if (!IS_OPPOSE_ACID())
 		{
 #ifdef JP
 msg_print("酸への耐性がついた気がする！");
@@ -3081,7 +3086,7 @@ msg_print("酸への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_acid && !music_singing(MUSIC_RESIST) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("酸への耐性が薄れた気がする。");
@@ -3132,7 +3137,7 @@ bool set_oppose_elec(int v, bool do_dec)
 		{
 			if (p_ptr->oppose_elec > v) return FALSE;
 		}
-		else if (!p_ptr->oppose_elec)
+		else if (!IS_OPPOSE_ELEC())
 		{
 #ifdef JP
 msg_print("電撃への耐性がついた気がする！");
@@ -3147,7 +3152,7 @@ msg_print("電撃への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_elec && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_elec && !music_singing(MUSIC_RESIST) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("電撃への耐性が薄れた気がする。");
@@ -3199,7 +3204,7 @@ bool set_oppose_fire(int v, bool do_dec)
 		{
 			if (p_ptr->oppose_fire > v) return FALSE;
 		}
-		else if (!p_ptr->oppose_fire)
+		else if (!IS_OPPOSE_FIRE())
 		{
 #ifdef JP
 msg_print("火への耐性がついた気がする！");
@@ -3214,7 +3219,7 @@ msg_print("火への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_fire && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_fire && !music_singing(MUSIC_RESIST) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("火への耐性が薄れた気がする。");
@@ -3265,7 +3270,7 @@ bool set_oppose_cold(int v, bool do_dec)
 		{
 			if (p_ptr->oppose_cold > v) return FALSE;
 		}
-		else if (!p_ptr->oppose_cold)
+		else if (!IS_OPPOSE_COLD())
 		{
 #ifdef JP
 msg_print("冷気への耐性がついた気がする！");
@@ -3280,7 +3285,7 @@ msg_print("冷気への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_cold && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_cold && !music_singing(MUSIC_RESIST) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("冷気への耐性が薄れた気がする。");
@@ -3332,7 +3337,7 @@ bool set_oppose_pois(int v, bool do_dec)
 		{
 			if (p_ptr->oppose_pois > v) return FALSE;
 		}
-		else if (!p_ptr->oppose_pois)
+		else if (!IS_OPPOSE_POIS())
 		{
 #ifdef JP
 msg_print("毒への耐性がついた気がする！");
@@ -3347,7 +3352,7 @@ msg_print("毒への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_pois && !music_singing(MUSIC_RESIST) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("毒への耐性が薄れた気がする。");
@@ -5019,7 +5024,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if ((damage_type != DAMAGE_USELIFE) && (damage_type != DAMAGE_LOSELIFE))
 	{
-		if ((p_ptr->invuln || ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN))) && (damage < 9000))
+		if (IS_INVULN() && (damage < 9000))
 		{
 			if (damage_type == DAMAGE_FORCE)
 			{
@@ -5042,7 +5047,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 				return 0;
 			}
 		}
- 
+
 		/* Multishadow effects is determined by turn */
 		if (p_ptr->multishadow && (turn & 1))
 		{
@@ -5064,7 +5069,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 				return 0;
 			}
 		}
-		    
+
 		if (p_ptr->wraith_form)
 		{
 			if (damage_type == DAMAGE_FORCE)
@@ -5082,7 +5087,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			}
 		}
 
-		if ((p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->special_defense & KATA_MUSOU)
 		{
 			damage /= 2;
 			if ((damage == 0) && one_in_(2)) damage = 1;
@@ -5135,17 +5140,19 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 		if (p_ptr->inside_arena)
 		{
-			cptr m_name = r_name+r_info[arena_monsters[p_ptr->arena_number]].name;
+			cptr m_name = r_name+r_info[arena_info[p_ptr->arena_number].r_idx].name;
 #ifdef JP
 			msg_format("あなたは%sの前に敗れ去った。", m_name);
 #else
 			msg_format("You are beaten by %s.", m_name);
 #endif
 			msg_print(NULL);
-			if (record_arena) do_cmd_write_nikki(NIKKI_ARENA, 99, m_name);
+			if (record_arena) do_cmd_write_nikki(NIKKI_ARENA, -1 - p_ptr->arena_number, m_name);
 		}
 		else
 		{
+			int q_idx = quest_number(dun_level);
+
 #ifdef WORLD_SCORE
 			/* Make screen dump */
 			screen_dump = make_screen_dump();
@@ -5173,7 +5180,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #else
 				strcpy(buf,"on the surface");
 #endif
-			else if (quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT)))
+			else if (q_idx && (is_fixed_quest_idx(q_idx) &&
+			         !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
 #ifdef JP
 				strcpy(buf,"クエスト");
 #else
@@ -5426,7 +5434,33 @@ void calc_android_exp(void)
 			level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
 			level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].gen_flags & TRG_INSTA_ART ? 10 : 3));
 		}
-		else if (o_ptr->name2) level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
+		else if (o_ptr->name2)
+		{
+			level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
+		}
+		else if (o_ptr->art_name)
+		{
+			s32b total_flags = flag_cost(o_ptr, o_ptr->pval);
+			int fake_level;
+
+			if (o_ptr->tval >= TV_BOOTS)
+			{
+				/* For armors */
+				if (total_flags < 15000) fake_level = 10;
+				else if (total_flags < 35000) fake_level = 25;
+				else fake_level = 40;
+			}
+			else
+			{
+				/* For weapons */
+				if (total_flags < 20000) fake_level = 10;
+				else if (total_flags < 45000) fake_level = 25;
+				else fake_level = 40;
+			}
+
+			level = MAX(level, (level + MAX(fake_level - 8, 5)) / 2 + 3);
+		}
+
 		value = object_value_real(q_ptr);
 
 		if (value <= 0) continue;
@@ -5482,6 +5516,51 @@ void lose_exp(s32b amount)
 	/* Check Experience */
 	check_experience();
 }
+
+
+/*
+ * Drain experience
+ * If resisted to draining, return FALSE
+ */
+bool drain_exp(s32b drain, s32b slip, int hold_life_prob)
+{
+	/* Androids and their mimics are never drained */
+	if (p_ptr->prace == RACE_ANDROID) return FALSE;
+
+	if (p_ptr->hold_life && (randint0(100) < hold_life_prob))
+	{
+		/* Hold experience */
+#ifdef JP
+		msg_print("しかし自己の生命力を守りきった！");
+#else
+		msg_print("You keep hold of your life force!");
+#endif
+		return FALSE;
+	}
+
+	/* Hold experience failed */
+	if (p_ptr->hold_life)
+	{
+#ifdef JP
+		msg_print("生命力を少し吸い取られた気がする！");
+#else
+		msg_print("You feel your life slipping away!");
+#endif
+		lose_exp(slip);
+	}
+	else
+	{
+#ifdef JP
+		msg_print("生命力が体から吸い取られた気がする！");
+#else
+		msg_print("You feel your life draining away!");
+#endif
+		lose_exp(drain);
+	}
+
+	return TRUE;
+}
+
 
 bool set_ultimate_res(int v, bool do_dec)
 {

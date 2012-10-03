@@ -1,16 +1,17 @@
 /* File: spells2.c */
 
-/* Purpose: Spell code (part 2) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
+/* Purpose: Spell code (part 2) */
+
 #include "angband.h"
+#include "grid.h"
 
 
 /*
@@ -1920,7 +1921,7 @@ info[i++] = "あなたは魔力を吸われている。";
 #endif
 
 	}
-	if (p_ptr->blessed)
+	if (IS_BLESSED())
 	{
 #ifdef JP
 info[i++] = "あなたは公正さを感じている。";
@@ -1929,7 +1930,7 @@ info[i++] = "あなたは公正さを感じている。";
 #endif
 
 	}
-	if (p_ptr->hero)
+	if (IS_HERO())
 	{
 #ifdef JP
 info[i++] = "あなたはヒーロー気分だ。";
@@ -1965,7 +1966,7 @@ info[i++] = "あなたは神秘のシールドで守られている。";
 #endif
 
 	}
-	if (p_ptr->invuln)
+	if (IS_INVULN())
 	{
 #ifdef JP
 info[i++] = "あなたは現在傷つかない。";
@@ -2390,7 +2391,7 @@ info[i++] = "あなたは酸に対する完全なる免疫を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
+	else if (p_ptr->resist_acid && IS_OPPOSE_ACID())
 	{
 #ifdef JP
 info[i++] = "あなたは酸への強力な耐性を持っている。";
@@ -2399,7 +2400,7 @@ info[i++] = "あなたは酸への強力な耐性を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
+	else if (p_ptr->resist_acid || IS_OPPOSE_ACID())
 	{
 #ifdef JP
 info[i++] = "あなたは酸への耐性を持っている。";
@@ -2418,7 +2419,7 @@ info[i++] = "あなたは電撃に対する完全なる免疫を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
+	else if (p_ptr->resist_elec && IS_OPPOSE_ELEC())
 	{
 #ifdef JP
 info[i++] = "あなたは電撃への強力な耐性を持っている。";
@@ -2427,7 +2428,7 @@ info[i++] = "あなたは電撃への強力な耐性を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
+	else if (p_ptr->resist_elec || IS_OPPOSE_ELEC())
 	{
 #ifdef JP
 info[i++] = "あなたは電撃への耐性を持っている。";
@@ -2456,7 +2457,7 @@ info[i++] = "あなたは火に対する完全なる免疫を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
+	else if (p_ptr->resist_fire && IS_OPPOSE_FIRE())
 	{
 #ifdef JP
 info[i++] = "あなたは火への強力な耐性を持っている。";
@@ -2465,7 +2466,7 @@ info[i++] = "あなたは火への強力な耐性を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
+	else if (p_ptr->resist_fire || IS_OPPOSE_FIRE())
 	{
 #ifdef JP
 info[i++] = "あなたは火への耐性を持っている。";
@@ -2494,7 +2495,7 @@ info[i++] = "あなたは冷気に対する完全なる免疫を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
+	else if (p_ptr->resist_cold && IS_OPPOSE_COLD())
 	{
 #ifdef JP
 info[i++] = "あなたは冷気への強力な耐性を持っている。";
@@ -2503,7 +2504,7 @@ info[i++] = "あなたは冷気への強力な耐性を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
+	else if (p_ptr->resist_cold || IS_OPPOSE_COLD())
 	{
 #ifdef JP
 info[i++] = "あなたは冷気への耐性を持っている。";
@@ -2513,7 +2514,7 @@ info[i++] = "あなたは冷気への耐性を持っている。";
 
 	}
 
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
+	if (p_ptr->resist_pois && IS_OPPOSE_POIS())
 	{
 #ifdef JP
 info[i++] = "あなたは毒への強力な耐性を持っている。";
@@ -2522,7 +2523,7 @@ info[i++] = "あなたは毒への強力な耐性を持っている。";
 #endif
 
 	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
+	else if (p_ptr->resist_pois || IS_OPPOSE_POIS())
 	{
 #ifdef JP
 info[i++] = "あなたは毒への耐性を持っている。";
@@ -4021,14 +4022,13 @@ bool detect_monsters_normal(int range)
 		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect all non-invisible monsters */
-		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
-		    p_ptr->see_inv || p_ptr->tim_invis)
+		if (!(r_ptr->flags2 & RF2_INVISIBLE) || p_ptr->see_inv)
 		{
 			/* Repair visibility later */
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4097,7 +4097,7 @@ bool detect_monsters_invis(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4156,21 +4156,24 @@ bool detect_monsters_evil(int range)
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & RF3_EVIL)
 		{
-			/* Take note that they are evil */
-			r_ptr->r_flags3 |= (RF3_EVIL);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			if (is_original_ap(m_ptr))
 			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
+				/* Take note that they are evil */
+				r_ptr->r_flags3 |= (RF3_EVIL);
+
+				/* Update monster recall window */
+				if (p_ptr->monster_race_idx == m_ptr->r_idx)
+				{
+					/* Window stuff */
+					p_ptr->window |= (PW_MONSTER);
+				}
 			}
 
 			/* Repair visibility later */
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4239,7 +4242,7 @@ bool detect_monsters_nonliving(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4306,7 +4309,7 @@ bool detect_monsters_mind(int range)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4373,7 +4376,7 @@ bool detect_monsters_string(int range, cptr Match)
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4436,21 +4439,24 @@ cptr desc_monsters = "変なモンスター";
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (match_flag))
 		{
-			/* Take note that they are something */
-			r_ptr->r_flags3 |= (match_flag);
-
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			if (is_original_ap(m_ptr))
 			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
+				/* Take note that they are something */
+				r_ptr->r_flags3 |= (match_flag);
+
+				/* Update monster recall window */
+				if (p_ptr->monster_race_idx == m_ptr->r_idx)
+				{
+					/* Window stuff */
+					p_ptr->window |= (PW_MONSTER);
+				}
 			}
 
 			/* Repair visibility later */
 			repair_monsters = TRUE;
 
 			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 			/* Update the monster */
 			update_mon(i, FALSE);
@@ -4718,9 +4724,10 @@ void aggravate_monsters(int who)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
+				if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 				sleep = TRUE;
 			}
-			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOPET;
+			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOPET;
 		}
 
 		/* Speed up monsters in line of sight */
@@ -4799,7 +4806,7 @@ while(!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE));
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -4818,6 +4825,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4839,7 +4847,7 @@ msg_format("%^sが目を覚ました。", m_name);
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -4928,7 +4936,7 @@ bool mass_genocide(int power, int player_cast)
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -4947,6 +4955,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4968,7 +4977,7 @@ msg_format("%^sが目を覚ました。", m_name);
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -5060,7 +5069,7 @@ bool mass_genocide_undead(int power, int player_cast)
 
 		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
 
-		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
 
 		/* Delete the monster */
 		else delete_monster_idx(i);
@@ -5079,6 +5088,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -5100,7 +5110,7 @@ msg_format("%^sが目を覚ました。", m_name);
 				}
 				set_hostile(m_ptr);
 			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
 		}
 
 		if (player_cast)
@@ -5180,22 +5190,27 @@ bool probing(void)
 			char m_name[80];
 
 			/* Start the message */
+			if (!probe)
+			{
 #ifdef JP
-			if (!probe) {msg_print("調査中...");msg_print(NULL);}
+				msg_print("調査中...");
 #else
-			if (!probe) {msg_print("Probing...");msg_print(NULL);}
+				msg_print("Probing...");
 #endif
+			}
+
+			msg_print(NULL);
 
 			if (m_ptr->ap_r_idx != m_ptr->r_idx)
 			{
-				if (m_ptr->mflag2 & MFLAG_KAGE)
-					m_ptr->mflag2 &= ~(MFLAG_KAGE);
+				if (m_ptr->mflag2 & MFLAG2_KAGE)
+					m_ptr->mflag2 &= ~(MFLAG2_KAGE);
 
 				m_ptr->ap_r_idx = m_ptr->r_idx;
 				lite_spot(m_ptr->fy, m_ptr->fx);
 			}
 			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x204);
+			monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_INDEF_HIDDEN);
 
 			speed = m_ptr->mspeed - 110;
 			if(m_ptr->fast) speed += 10;
@@ -5203,18 +5218,18 @@ bool probing(void)
 
 			/* Get the monster's alignment */
 #ifdef JP
-			if ((r_ptr->flags3 & RF3_EVIL) && (r_ptr->flags3 & RF3_GOOD)) align = "善悪";
+			if ((r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) == (RF3_EVIL | RF3_GOOD)) align = "善悪";
 			else if (r_ptr->flags3 & RF3_EVIL) align = "邪悪";
 			else if (r_ptr->flags3 & RF3_GOOD) align = "善良";
-			else if ((m_ptr->sub_align & SUB_ALIGN_EVIL) && (m_ptr->sub_align & SUB_ALIGN_GOOD)) align = "中立(善悪)";
+			else if ((m_ptr->sub_align & (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) == (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) align = "中立(善悪)";
 			else if (m_ptr->sub_align & SUB_ALIGN_EVIL) align = "中立(邪悪)";
 			else if (m_ptr->sub_align & SUB_ALIGN_GOOD) align = "中立(善良)";
 			else align = "中立";
 #else
-			if ((r_ptr->flags3 & RF3_EVIL) && (r_ptr->flags3 & RF3_GOOD)) align = "good&evil";
+			if ((r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) == (RF3_EVIL | RF3_GOOD)) align = "good&evil";
 			else if (r_ptr->flags3 & RF3_EVIL) align = "evil";
 			else if (r_ptr->flags3 & RF3_GOOD) align = "good";
-			else if ((m_ptr->sub_align & SUB_ALIGN_EVIL) && (m_ptr->sub_align & SUB_ALIGN_GOOD)) align = "neutral(good&evil)";
+			else if ((m_ptr->sub_align & (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) == (SUB_ALIGN_EVIL | SUB_ALIGN_GOOD)) align = "neutral(good&evil)";
 			else if (m_ptr->sub_align & SUB_ALIGN_EVIL) align = "neutral(evil)";
 			else if (m_ptr->sub_align & SUB_ALIGN_GOOD) align = "neutral(good)";
 			else align = "neutral";
@@ -5256,13 +5271,32 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
 			p_ptr->window |= (PW_MESSAGE);
 			window_stuff();
 
-			/* Learn all of the non-spell, non-treasure flags */
-			lore_do_probe(i);
-
 			if (m_ptr->ml) move_cursor_relative(m_ptr->fy, m_ptr->fx);
 			inkey();
 
 			Term_erase(0, 0, 255);
+
+			/* Learn everything about this monster */
+			if (lore_do_probe(m_ptr->r_idx))
+			{
+#ifdef JP
+				/* Note that we learnt some new flags  -Mogami- */
+				msg_format("%sについてさらに詳しくなった気がする。", m_name);
+#else
+				char buf[80];
+
+				/* Get base name of monster */
+				strcpy(buf, (r_name + r_ptr->name));
+
+				/* Pluralize it */
+				plural_aux(buf);
+
+				/* Note that we learnt some new flags  -Mogami- */
+				msg_format("You now know more about %s.", buf);
+#endif
+				/* Clear -more- prompt */
+				msg_print(NULL);
+			}
 
 			/* Probe worked */
 			probe = TRUE;
@@ -5300,15 +5334,14 @@ msg_print("これで全部です。");
  * Later we may use one function for both "destruction" and
  * "earthquake" by using the "full" to select "destruction".
  */
-bool destroy_area(int y1, int x1, int r, int full)
+bool destroy_area(int y1, int x1, int r, bool in_generate)
 {
 	int       y, x, k, t;
 	cave_type *c_ptr;
 	bool      flag = FALSE;
 
-
 	/* Prevent destruction of quest levels and town */
-	if ((p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) || !dun_level)
+	if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || !dun_level)
 	{
 		return (FALSE);
 	}
@@ -5318,9 +5351,6 @@ bool destroy_area(int y1, int x1, int r, int full)
 	{
 		for (x = (x1 - r); x <= (x1 + r); x++)
 		{
-			monster_type *m_ptr;
-			monster_race *r_ptr;
-
 			/* Skip illegal grids */
 			if (!in_bounds(y, x)) continue;
 
@@ -5332,53 +5362,67 @@ bool destroy_area(int y1, int x1, int r, int full)
 
 			/* Access the grid */
 			c_ptr = &cave[y][x];
-			m_ptr = &m_list[c_ptr->m_idx];
-			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_UNSAFE | CAVE_OBJECT);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
 
-			/* Hack -- Notice player affect */
-			if ((x == px) && (y == py))
+			if (!in_generate) /* Normal */
 			{
-				/* Hurt the player later */
-				flag = TRUE;
+				/* Lose unsafety and runes/mirrors */
+				c_ptr->info &= ~(CAVE_UNSAFE | CAVE_OBJECT);
 
-				/* Do not hurt this grid */
-				continue;
+				/* Hack -- Notice player affect */
+				if (player_bold(y, x))
+				{
+					/* Hurt the player later */
+					flag = TRUE;
+
+					/* Do not hurt this grid */
+					continue;
+				}
 			}
 
 			/* Hack -- Skip the epicenter */
 			if ((y == y1) && (x == x1)) continue;
 
-			if ((r_ptr->flags1 & RF1_QUESTOR))
+			if (c_ptr->m_idx)
 			{
-				/* Heal the monster */
-				m_list[c_ptr->m_idx].hp = m_list[c_ptr->m_idx].maxhp;
+				monster_type *m_ptr = &m_list[c_ptr->m_idx];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-				/* Try to teleport away quest monsters */
-				if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TRUE)) continue;
-			}
-			else
-			{
-				if (c_ptr->m_idx)
+				if (in_generate) /* In generation */
 				{
-					if (record_named_pet && is_pet(&m_list[c_ptr->m_idx]) && m_list[c_ptr->m_idx].nickname)
+					/* Delete the monster (if any) */
+					delete_monster(y, x);
+				}
+				else if (r_ptr->flags1 & RF1_QUESTOR)
+				{
+					/* Heal the monster */
+					m_ptr->hp = m_ptr->maxhp;
+
+					/* Try to teleport away quest monsters */
+					if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TRUE)) continue;
+				}
+				else
+				{
+					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 					{
 						char m_name[80];
 
-						monster_desc(m_name, &m_list[c_ptr->m_idx], 0x08);
+						monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 						do_cmd_write_nikki(NIKKI_NAMED_PET, 6, m_name);
 					}
+
+					/* Delete the monster (if any) */
+					delete_monster(y, x);
 				}
-				/* Delete the monster (if any) */
-				delete_monster(y, x);
 			}
 
-			if (preserve_mode)
+			/* During generation, destroyed artifacts are "preserved" */
+			if (preserve_mode || in_generate)
 			{
 				s16b this_o_idx, next_o_idx = 0;
 
@@ -5394,88 +5438,133 @@ bool destroy_area(int y1, int x1, int r, int full)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Hack -- Preserve unknown artifacts */
-					if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+					if (artifact_p(o_ptr) && (!object_known_p(o_ptr) || in_generate))
 					{
 						/* Mega-Hack -- Preserve the artifact */
 						a_info[o_ptr->name1].cur_num = 0;
+
+						if (in_generate && cheat_peek)
+						{
+							char o_name[MAX_NLEN];
+							object_desc_store(o_name, o_ptr, FALSE, 0);
+#ifdef JP
+							msg_format("伝説のアイテム (%s) は生成中に*破壊*された。", o_name);
+#else
+							msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
+#endif
+						}
+					}
+					else if (in_generate && cheat_peek && o_ptr->art_name)
+					{
+#ifdef JP
+						msg_print("ランダム・アーティファクトの1つは生成中に*破壊*された。");
+#else
+						msg_print("One of the random artifacts was *destroyed* during generation.");
+#endif
 					}
 				}
 			}
+
+			/* Delete objects */
 			delete_object(y, x);
 
-			/* Destroy "valid" grids */
+			/* Destroy "non-permanent" grids */
 			if (!cave_perma_bold(y, x))
 			{
 				/* Wall (or floor) type */
 				t = randint0(200);
 
-				/* Granite */
-				if (t < 20)
+				if (!in_generate) /* Normal */
 				{
-					/* Create granite wall */
-					cave_set_feat(y, x, FEAT_WALL_EXTRA);
+					if (t < 20)
+					{
+						/* Create granite wall */
+						cave_set_feat(y, x, FEAT_WALL_EXTRA);
+					}
+					else if (t < 70)
+					{
+						/* Create quartz vein */
+						cave_set_feat(y, x, FEAT_QUARTZ);
+					}
+					else if (t < 100)
+					{
+						/* Create magma vein */
+						cave_set_feat(y, x, FEAT_MAGMA);
+					}
+					else
+					{
+						/* Create floor */
+						cave_set_feat(y, x, floor_type[randint0(100)]);
+					}
 				}
-
-				/* Quartz */
-				else if (t < 70)
+				else /* In generation */
 				{
-					/* Create quartz vein */
-					cave_set_feat(y, x, FEAT_QUARTZ);
-				}
+					if (t < 20)
+					{
+						/* Create granite wall */
+						place_extra_grid(c_ptr);
+					}
+					else if (t < 70)
+					{
+						/* Create quartz vein */
+						c_ptr->feat = FEAT_QUARTZ;
+					}
+					else if (t < 100)
+					{
+						/* Create magma vein */
+						c_ptr->feat = FEAT_MAGMA;
+					}
+					else
+					{
+						/* Create floor */
+						place_floor_grid(c_ptr);
+					}
 
-				/* Magma */
-				else if (t < 100)
-				{
-					/* Create magma vein */
-					cave_set_feat(y, x, FEAT_MAGMA);
-				}
-
-				/* Floor */
-				else
-				{
-					/* Create floor */
-					cave_set_feat(y, x, floor_type[randint0(100)]);
+					/* Clear garbage of hidden trap or door */
+					c_ptr->mimic = 0;
 				}
 			}
 		}
 	}
 
 
-	/* Hack -- Affect player */
-	if (flag)
+	if (!in_generate)
 	{
-		/* Message */
+		/* Hack -- Affect player */
+		if (flag)
+		{
+			/* Message */
 #ifdef JP
-msg_print("燃えるような閃光が発生した！");
+			msg_print("燃えるような閃光が発生した！");
 #else
-		msg_print("There is a searing blast of light!");
+			msg_print("There is a searing blast of light!");
 #endif
 
-
-		/* Blind the player */
-		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
-		{
-			/* Become blind */
-			(void)set_blind(p_ptr->blind + 10 + randint1(10));
+			/* Blind the player */
+			if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+			{
+				/* Become blind */
+				(void)set_blind(p_ptr->blind + 10 + randint1(10));
+			}
 		}
+
+		forget_flow();
+
+		/* Mega-Hack -- Forget the view and lite */
+		p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 	}
-
-	forget_flow();
-
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
 	/* Success */
 	return (TRUE);
@@ -5511,7 +5600,7 @@ bool earthquake(int cy, int cx, int r)
 
 
 	/* Prevent destruction of quest levels and town */
-	if ((p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) || !dun_level)
+	if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || !dun_level)
 	{
 		return (FALSE);
 	}
@@ -5562,12 +5651,12 @@ bool earthquake(int cy, int cx, int r)
 			map[16+yy-cy][16+xx-cx] = TRUE;
 
 			/* Hack -- Take note of player damage */
-			if ((yy == py) && (xx == px)) hurt = TRUE;
+			if (player_bold(yy, xx)) hurt = TRUE;
 		}
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt && !(p_ptr->prace == RACE_SPECTRE) && !(p_ptr->wraith_form) && !(p_ptr->kabenuke))
+	if (hurt && !prace_is_(RACE_SPECTRE) && !p_ptr->wraith_form && !p_ptr->kabenuke)
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -5794,7 +5883,7 @@ if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
 							if (map[16+y-cy][16+x-cx]) continue;
 
 							if (cave[y][x].m_idx) continue;
-							if ((y == py) && (x == px)) continue;
+							if (player_bold(y, x)) continue;
 
 							/* Count "safe" grids */
 							sn++;
@@ -5843,7 +5932,7 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 							{
 								char m2_name[80];
 
-								monster_desc(m2_name, m_ptr, 0x08);
+								monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
 								do_cmd_write_nikki(NIKKI_NAMED_PET, 7, m2_name);
 							}
 						}
@@ -5901,7 +5990,7 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 			c_ptr = &cave[yy][xx];
 
 			/* Paranoia -- never affect player */
-/*			if ((yy == py) && (xx == px)) continue; */
+/*			if (player_bold(yy, xx)) continue; */
 
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
@@ -6014,7 +6103,7 @@ void discharge_minion(void)
 			delete_monster_idx(i);
 			continue;
 		}
-		dam = m_ptr->hp / 2;
+		dam = m_ptr->maxhp / 2;
 		if (dam > 100) dam = (dam-100)/2 + 100;
 		if (dam > 400) dam = (dam-400)/2 + 400;
 		if (dam > 800) dam = 800;
@@ -6085,6 +6174,8 @@ static void cave_temp_room_lite(void)
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
+
+				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
@@ -6671,7 +6762,7 @@ msg_print("失敗した。");
 	m_ptr = &m_list[c_ptr->m_idx];
 	r_ptr = &r_info[m_ptr->r_idx];
 
-	if (r_ptr->flags3 & RF3_RES_TELE)
+	if (r_ptr->flagsr & RFR_RES_TELE)
 	{
 #ifdef JP
 msg_print("テレポートを邪魔された！");
@@ -6679,7 +6770,11 @@ msg_print("テレポートを邪魔された！");
 		msg_print("Your teleportation is blocked!");
 #endif
 
+		if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+
 		m_ptr->csleep = 0;
+		if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
 		/* Failure */
 		return FALSE;
 	}
@@ -6726,14 +6821,7 @@ msg_print("テレポートを邪魔された！");
 	verify_panel();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
-	{
-		/* Update some things */
-		p_ptr->update |= (PU_MON_LITE);
-	}
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -6993,7 +7081,7 @@ bool wall_stone(void)
 	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg, -1));
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -7350,13 +7438,13 @@ void wall_breaker(void)
 
 	if (randint1(80 + p_ptr->lev) < 70)
 	{
-		while(attempts--)
+		while (attempts--)
 		{
 			scatter(&y, &x, py, px, 4, 0);
 
 			if (!cave_floor_bold(y, x)) continue;
 
-			if ((y != py) || (x != px)) break;
+			if (!player_bold(y, x)) break;
 		}
 
 		project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
@@ -7372,11 +7460,11 @@ void wall_breaker(void)
 
 		for (i = 0; i < num; i++)
 		{
-			while(1)
+			while (1)
 			{
 				scatter(&y, &x, py, px, 10, 0);
 
-				if ((y != py) && (x != px)) break;
+				if (!player_bold(y, x)) break;
 			}
 
 			project(0, 0, y, x, 20 + randint1(30), GF_KILL_WALL,
@@ -7556,4 +7644,121 @@ void kawarimi(bool success)
 
 	p_ptr->special_defense &= ~(NINJA_KAWARIMI);
 	p_ptr->redraw |= (PR_STATUS);
+}
+
+
+/*
+ * "Rush Attack" routine for Samurai or Ninja
+ * Return value is for checking "done"
+ */
+bool rush_attack(bool *mdeath)
+{
+	int dir;
+	int tx, ty, nx, ny;
+	int tm_idx = 0;
+	u16b path_g[32];
+	int path_n, i;
+	bool tmp_mdeath = FALSE;
+
+	if (mdeath) *mdeath = FALSE;
+
+	project_length = 5;
+	if (!get_aim_dir(&dir)) return FALSE;
+
+	/* Use the given direction */
+	tx = px + project_length * ddx[dir];
+	ty = py + project_length * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+
+	if (in_bounds(ty, tx)) tm_idx = cave[ty][tx].m_idx;
+
+	path_n = project_path(path_g, project_length, py, px, ty, tx, PROJECT_STOP | PROJECT_KILL);
+	project_length = 0;
+
+	/* No need to move */
+	if (!path_n) return TRUE;
+
+	/* Use ty and tx as to-move point */
+	ty = py;
+	tx = px;
+
+	/* Project along the path */
+	for (i = 0; i < path_n; i++)
+	{
+		ny = GRID_Y(path_g[i]);
+		nx = GRID_X(path_g[i]);
+
+		if (!cave_empty_bold(ny, nx) || !player_can_enter(cave[ny][nx].feat))
+		{
+			if (cave[ny][nx].m_idx)
+			{
+				monster_type *m_ptr = &m_list[cave[ny][nx].m_idx];
+
+				if (tm_idx != cave[ny][nx].m_idx)
+				{
+#ifdef JP
+					msg_format("%s%sが立ちふさがっている！", tm_idx ? "別の" : "",
+						m_ptr->ml ? "モンスター" : "何か");
+#else
+					msg_format("There is %s in the way!", m_ptr->ml ? (tm_idx ? "another monster" : "a monster") :
+						"someone");
+#endif
+				}
+				else
+				{
+					if (!player_bold(ty, tx))
+					{
+						/* Hold the monster name */
+						char m_name[80];
+
+						/* Get the monster name (BEFORE polymorphing) */
+						monster_desc(m_name, m_ptr, 0);
+#ifdef JP
+						msg_format("素早く%sの懐に入り込んだ！", m_name);
+#else
+						msg_format("You quickly jump in and attack %s!", m_name);
+#endif
+					}
+				}
+
+				tmp_mdeath = py_attack(ny, nx, HISSATSU_NYUSIN);
+			}
+			else
+			{
+				if (tm_idx)
+				{
+#ifdef JP
+					msg_print("失敗！");
+#else
+					msg_print("Failed!");
+#endif
+				}
+				else
+				{
+#ifdef JP
+					msg_print("ここには入身では入れない。");
+#else
+					msg_print("You can't move to that place.");
+#endif
+				}
+			}
+			break;
+		}
+		else
+		{
+			ty = ny;
+			tx = nx;
+		}
+	}
+
+	if (!player_bold(ty, tx)) teleport_player_to(ty, tx, FALSE);
+
+	if (mdeath) *mdeath = tmp_mdeath;
+	return TRUE;
 }

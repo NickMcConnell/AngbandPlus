@@ -4,11 +4,11 @@
  */
 
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -107,7 +107,7 @@ void place_random_stairs(int y, int x)
 /*
  * Place a random type of door at the given location
  */
-void place_random_door(int y, int x)
+void place_random_door(int y, int x, bool room)
 {
 	int tmp;
 	cave_type *c_ptr = &cave[y][x];
@@ -144,11 +144,11 @@ void place_random_door(int y, int x)
 		/* Create secret door */
 		place_closed_door(y, x);
 
-		/* Hide */
-		c_ptr->mimic = fill_type[randint0(100)];
+		/* Hide. If on the edge of room, use outer wall. */
+		c_ptr->mimic = room ? feat_wall_outer : fill_type[randint0(100)];
 
 		/* Floor type terrain cannot hide a door */
-		if (!(c_ptr->mimic & 0x20))
+		if (feat_floor(c_ptr->mimic))
 		{
 			c_ptr->feat = c_ptr->mimic;
 			c_ptr->mimic = 0;
@@ -295,7 +295,7 @@ msg_print("警告！地下室のアイテムを配置できません！");
 			/* Place an item */
 			if (randint0(100) < 75)
 			{
-				place_object(j, k, FALSE, FALSE);
+				place_object(j, k, 0L);
 			}
 
 			/* Place gold */
@@ -1018,7 +1018,6 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 {
 	int x3, y3, dx, dy;
 	int changex, changey;
-	int midval;
 	int length;
 	int i;
 	bool retval, firstsuccede;
@@ -1050,9 +1049,8 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			x3 = (x1 + x2) / 2;
 			y3 = (y1 + y2) / 2;
 		}
-		/* cache midvalue */
+		/* cache c_ptr */
 		c_ptr = &cave[y3][x3];
-		midval = cave[y3][x3].feat;
 		if (is_solid_grid(c_ptr))
 		{
 			/* move midpoint a bit to avoid problem. */
@@ -1083,7 +1081,6 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 			y3 += dy;
 			x3 += dx;
 			c_ptr = &cave[y3][x3];
-			midval = cave[y3][x3].feat;
 		}
 
 		if (is_floor_grid(c_ptr))

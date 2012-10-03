@@ -398,11 +398,19 @@ MPが足りなくても魔法に挑戦する  [over_exert]
     つ可能性があります。中には真っ暗なアリーナレベルもありますが、通常
     は明るく照らされています。
 
+***** <bound_walls_perm>
+ダンジョンの外壁を永久岩にする  [bound_walls_perm]
+    ダンジョンの外壁は各ダンジョンで異なった外見を示しますが、それ以上
+    先に進めない境界はあります。このオプションをONにすると、そのような
+    境界が明示的な外壁となり、永久岩で生成されるようになります。一部の
+    魔法では境界が床に見えていれば床であるように扱われます。このオプ
+    ションの設定は次の新しいダンジョン生成から有効になります。
+
 ***** <last_words>
 キャラクターが死んだ時遺言をのこす  [last_words]
-    キャラクタが死んだとき、'death.txt'からランダムに一行選んで表示し、
+    キャラクタが死んだとき、'death_j.txt'からランダムに一行選んで表示し、
     さらにあなたがその場で遺言を編集できるようになります。このオプショ
-    ンを無効にすると、このかわりに'You die.'と表示されます。
+    ンを無効にすると、このかわりに"あなたは死にました。"と表示されます。
 
 ***** <send_score>
 スコアサーバにスコアを送る  [send_score]
@@ -930,6 +938,6 @@ Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.3.2
+Updated    : Hengband 1.5.2
 
 ***** [a] jpref.txt#Options

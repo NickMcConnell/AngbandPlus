@@ -1,5 +1,13 @@
 /* File: save.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
 /* Purpose: interact with savefiles */
 
 #include "angband.h"
@@ -256,7 +264,7 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_drop_item);
 
 	/* Count spells */
-	wr_byte(r_ptr->r_cast_inate);
+	wr_byte(0); /* unused now */
 	wr_byte(r_ptr->r_cast_spell);
 
 	/* Count blows of each type */
@@ -272,6 +280,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(r_ptr->r_flags4);
 	wr_u32b(r_ptr->r_flags5);
 	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(r_ptr->r_flagsr);
 
 
 	/* Monster limit per level */
@@ -754,6 +763,10 @@ static void wr_extra(void)
 	/* Current floor_id */
 	wr_s16b(p_ptr->floor_id);
 
+	/* Save temporary preserved pets */
+	wr_s16b(MAX_PARTY_MON);
+	for (i = 0; i < MAX_PARTY_MON; i++) wr_monster(&party_mon[i]);
+
 	wr_u32b(playtime);
 
 	wr_s32b(p_ptr->visit);
@@ -773,6 +786,9 @@ static bool ang_sort_comp_cave_temp(vptr u, vptr v, int a, int b)
 	u16b o1 = who[a].occurrence;
 	u16b o2 = who[b].occurrence;
 
+	/* Unused */
+	(void)v;
+
 	return o2 <= o1;
 }
 
@@ -785,6 +801,9 @@ static void ang_sort_swap_cave_temp(vptr u, vptr v, int a, int b)
 	cave_template_type *who = (cave_template_type *)(u);
 
 	cave_template_type holder;
+
+	/* Unused */
+	(void)v;
 
 	/* Swap */
 	holder = who[a];
@@ -1275,7 +1294,7 @@ static bool wr_savefile_new(void)
 		wr_byte(quest[i].complev);
 
 		/* Save quest status if quest is running */
-		if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_COMPLETED || ((i >= MIN_RANDOM_QUEST) && (i <= MAX_RANDOM_QUEST)))
+		if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_COMPLETED || !is_fixed_quest_idx(i))
 		{
 			wr_s16b(quest[i].cur_num);
 			wr_s16b(quest[i].max_num);
@@ -1448,8 +1467,14 @@ static bool save_player_aux(char *name)
 	FILE_TYPE(FILE_TYPE_SAVE);
 
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Create the savefile */
 	fd = fd_make(name, mode);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -1457,8 +1482,14 @@ static bool save_player_aux(char *name)
 		/* Close the "fd" */
 		(void)fd_close(fd);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Open the savefile */
 		fff = my_fopen(name, "wb");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Successful open */
 		if (fff)
@@ -1470,8 +1501,14 @@ static bool save_player_aux(char *name)
 			if (my_fclose(fff)) ok = FALSE;
 		}
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove "broken" files */
 		if (!ok) (void)fd_kill(name);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 
@@ -1521,8 +1558,14 @@ bool save_player(void)
 	strcat(safe, "n");
 #endif /* VM */
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Remove it */
 	fd_kill(safe);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	update_playtime();
 
@@ -1541,6 +1584,9 @@ bool save_player(void)
 		strcat(temp, "o");
 #endif /* VM */
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove it */
 		fd_kill(temp);
 
@@ -1553,6 +1599,9 @@ bool save_player(void)
 		/* Remove preserved savefile */
 		fd_kill(temp);
 
+		/* Drop permissions */
+		safe_setuid_drop();
+
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
@@ -1562,8 +1611,14 @@ bool save_player(void)
 		strcpy(temp, savefile);
 		strcat(temp, ".lok");
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove lock file */
 		fd_kill(temp);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 #endif
 

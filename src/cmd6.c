@@ -1,14 +1,14 @@
 /* File: cmd6.c */
 
-/* Purpose: Object commands */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Object commands */
 
 #include "angband.h"
 
@@ -90,7 +90,7 @@ static void do_cmd_eat_food_aux(int item)
 		{
 			case SV_FOOD_POISON:
 			{
-				if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+				if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 				{
 					if (set_poisoned(p_ptr->poisoned + randint0(10) + 10))
 					{
@@ -823,12 +823,12 @@ static void do_cmd_quaff_potion_aux(int item)
 			msg_print("The potion makes you vomit!");
 #endif
 
-			if (prace_is_(RACE_GOLEM) ||
-			    prace_is_(RACE_ZOMBIE) ||
-			    prace_is_(RACE_DEMON) ||
-			    prace_is_(RACE_ANDROID) ||
-			    prace_is_(RACE_SPECTRE) ||
-			    (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING))
+			if (!(prace_is_(RACE_GOLEM) ||
+			      prace_is_(RACE_ZOMBIE) ||
+			      prace_is_(RACE_DEMON) ||
+			      prace_is_(RACE_ANDROID) ||
+			      prace_is_(RACE_SPECTRE) ||
+			      (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING)))
 			{
 				/* Only living creatures get thirsty */
 				(void)set_food(PY_FOOD_STARVE - 1);
@@ -840,7 +840,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_POISON:
-			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 			{
 				if (set_poisoned(p_ptr->poisoned + randint0(15) + 10))
 				{
@@ -1265,7 +1265,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 1);
-			wiz_lite(FALSE, FALSE);
+			wiz_lite(FALSE);
 			ident = TRUE;
 			break;
 
@@ -1279,7 +1279,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 2);
 			msg_print(NULL);
-			wiz_lite(TRUE, FALSE);
+			wiz_lite(FALSE);
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
 			(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
@@ -1733,7 +1733,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		case SV_SCROLL_TELEPORT_LEVEL:
 		{
-			(void)teleport_player_level();
+			(void)teleport_level(0);
 			ident = TRUE;
 			break;
 		}
@@ -1945,7 +1945,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
-			if (destroy_area(py, px, 13+randint0(5), TRUE))
+			if (destroy_area(py, px, 13 + randint0(5), FALSE))
 				ident = TRUE;
 			else
 #ifdef JP
@@ -2006,7 +2006,7 @@ msg_print("ダンジョンが揺れた...");
 		{
 			fire_ball(GF_FIRE, 0, 666, 4);
 			/* Note: "Double" damage since it is centered on the player ... */
-			if (!(p_ptr->oppose_fire || p_ptr->resist_fire || p_ptr->immune_fire))
+			if (!(IS_OPPOSE_FIRE() || p_ptr->resist_fire || p_ptr->immune_fire))
 #ifdef JP
 take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物", -1);
 #else
@@ -2021,7 +2021,7 @@ take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物", -1);
 		case SV_SCROLL_ICE:
 		{
 			fire_ball(GF_ICE, 0, 777, 4);
-			if (!(p_ptr->oppose_cold || p_ptr->resist_cold || p_ptr->immune_cold))
+			if (!(IS_OPPOSE_COLD() || p_ptr->resist_cold || p_ptr->immune_cold))
 #ifdef JP
 take_hit(DAMAGE_NOESCAPE, 100+randint1(100), "氷の巻物", -1);
 #else
@@ -2425,15 +2425,15 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 			}
 			for (k = 0; k < num; k++)
 			{
-		attempts = 1000;
+				attempts = 1000;
 
-				while(attempts--)
+				while (attempts--)
 				{
 					scatter(&y, &x, py, px, 4, 0);
 
 					if (!cave_floor_bold(y, x)) continue;
 
-					if ((y != py) || (x != px)) break;
+					if (!player_bold(y, x)) break;
 				}
 
 				project(0, 0, y, x, damroll(6 + p_ptr->lev / 8, 10), GF_LITE_WEAK,
@@ -2618,7 +2618,7 @@ msg_print("ダンジョンが揺れた。");
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			if (destroy_area(py, px, 13+randint0(5), TRUE))
+			if (destroy_area(py, px, 13 + randint0(5), FALSE))
 				ident = TRUE;
 
 			break;
@@ -3398,6 +3398,9 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 {
 	int ident = FALSE;
 
+	/* Unused */
+	(void)magic;
+
 	/* Analyze the rod */
 	switch (sval)
 	{
@@ -3940,6 +3943,9 @@ static bool ang_sort_comp_pet(vptr u, vptr v, int a, int b)
 	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
 	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
 
+	/* Unused */
+	(void)v;
+
 	if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
 	if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
 
@@ -4222,7 +4228,7 @@ msg_print("その宝石は赤く明るく光った！");
 
 				chg_virtue(V_KNOWLEDGE, 1);
 				chg_virtue(V_ENLIGHTEN, 1);
-				wiz_lite(FALSE, FALSE);
+				wiz_lite(FALSE);
 #ifdef JP
 msg_print("その宝石はあなたの体力を奪った...");
 take_hit(DAMAGE_LOSELIFE, damroll(3,8), "審判の宝石", -1);
@@ -4389,15 +4395,15 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 
 				for (k = 0; k < num; k++)
 				{
-		attempts = 1000;
+					attempts = 1000;
 
-					while(attempts--)
+					while (attempts--)
 					{
 						scatter(&y, &x, py, px, 4, 0);
 
 						if (!cave_floor_bold(y, x)) continue;
 
-						if ((y != py) || (x != px)) break;
+						if (!player_bold(y, x)) break;
 					}
 
 					project(0, 3, y, x, 150, GF_ELEC,
@@ -5732,7 +5738,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 		return;
 	}
 
-	if ((o_ptr->tval > TV_CAPTURE) && (o_ptr->xtra3))
+	if (item_tester_hook_smith(o_ptr))
 	{
 		switch (o_ptr->xtra3-1)
 		{
@@ -6317,7 +6323,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			for (i = 0; i < max_pet; i++)
 			{
 				pet_ctr = who[i];
-				teleport_to_player(pet_ctr, 100);
+				teleport_monster_to(pet_ctr, py, px, 100);
 			}
 
 			/* Free the "who" array */
@@ -6702,11 +6708,11 @@ msg_print("混乱していて読めない！");
 	}
 }
 
-static bool select_magic_eater(bool only_browse)
+static int select_magic_eater(bool only_browse)
 {
 	int ext=0;
 	char choice;
-	bool flag, redraw, request_list;
+	bool flag, request_list;
 	int tval = 0;
 	int             ask = TRUE, i = 0;
 	char            out_val[160];
@@ -6841,9 +6847,6 @@ static bool select_magic_eater(bool only_browse)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
-
 	/* Build a prompt */
 #ifdef JP
 (void) strnfmt(out_val, 78, "('*'で一覧, ESCで中断) どの魔力を使いますか？");
@@ -6966,17 +6969,16 @@ static bool select_magic_eater(bool only_browse)
 			}
 		}
 
-		if(!get_com(out_val, &choice, FALSE)) break; 
+		if (!get_com(out_val, &choice, FALSE)) break;
 
 		if (use_menu && choice != ' ')
 		{
-			switch(choice)
+			switch (choice)
 			{
 				case '0':
 				{
 					screen_load();
-					return (FALSE);
-					break;
+					return 0;
 				}
 
 				case '8':

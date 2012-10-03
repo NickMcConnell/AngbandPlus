@@ -1,14 +1,14 @@
 /* File: store.c */
 
-/* Purpose: Store commands */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Store commands */
 
 #include "angband.h"
 
@@ -20,6 +20,8 @@ static int store_top = 0;
 static store_type *st_ptr = NULL;
 static owner_type *ot_ptr = NULL;
 #endif
+static s16b old_town_num = 0;
+static s16b inner_town_num = 0;
 #define RUMOR_CHANCE 8
 
 #define MAX_COMMENT_1	6
@@ -951,7 +953,8 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	}
 
 	/* Compute the final price (with rounding) */
-	price = (price * adjust + 50L) / 100L;
+	/* Hack -- prevent overflow */
+	price = (s32b)(((u32b)price * (u32b)adjust + 50UL) / 100UL);
 
 	/* Note -- Never become "free" */
 	if (price <= 0L) return (1L);
@@ -1197,21 +1200,24 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
  */
 static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
+	int max_num = (o_ptr->tval == TV_ROD) ?
+		MIN(99, MAX_SHORT / k_info[o_ptr->k_idx].pval) : 99;
 	int total = o_ptr->number + j_ptr->number;
+	int diff = (total > max_num) ? total - max_num : 0;
 
 	/* Combine quantity, lose excess items */
-	o_ptr->number = (total > 99) ? 99 : total;
+	o_ptr->number = (total > max_num) ? max_num : total;
 
 	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) together. -LM- */
 	if (o_ptr->tval == TV_ROD)
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->pval += j_ptr->pval * (j_ptr->number - diff) / j_ptr->number;
 	}
 
 	/* Hack -- if wands are stacking, combine the charges. -LM- */
 	if (o_ptr->tval == TV_WAND)
 	{
-		o_ptr->pval += j_ptr->pval;
+		o_ptr->pval += j_ptr->pval * (j_ptr->number - diff) / j_ptr->number;
 	}
 }
 
@@ -1917,7 +1923,7 @@ static void store_create(void)
 		object_prep(q_ptr, i);
 
 		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, level, AM_NO_FIXED_ART);
 
 		/* Require valid object */
 		if (!store_will_buy(q_ptr)) continue;
@@ -4313,7 +4319,9 @@ static void store_process_command(void)
 		/* Character description */
 		case 'C':
 		{
+			p_ptr->town_num = old_town_num;
 			do_cmd_change_name();
+			p_ptr->town_num = inner_town_num;
 			display_store();
 			break;
 		}
@@ -4456,10 +4464,9 @@ void do_cmd_store(void)
 {
 	int         which;
 	int         maintain_num;
-	int         tmp_chr;
 	int         i;
 	cave_type   *c_ptr;
-	s16b        old_town_num;
+	bool        need_redraw_store_inv; /* To redraw missiles damage and prices in store */
 
 
 	/* Access the player grid */
@@ -4486,6 +4493,7 @@ void do_cmd_store(void)
 	old_town_num = p_ptr->town_num;
 	if ((which == STORE_HOME) || (which == STORE_MUSEUM)) p_ptr->town_num = 1;
 	if (dun_level) p_ptr->town_num = NO_TOWN;
+	inner_town_num = p_ptr->town_num;
 
 	/* Hack -- Check the "locked doors" */
 	if ((town[p_ptr->town_num].store[which].store_open >= turn) ||
@@ -4502,7 +4510,7 @@ void do_cmd_store(void)
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
-	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TURNS);
+	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (TURNS_PER_TICK * STORE_TICKS);
 
 	/* Maintain the store max. 10 times */
 	if (maintain_num > 10) maintain_num = 10;
@@ -4560,9 +4568,6 @@ void do_cmd_store(void)
 	{
 		/* Hack -- Clear line 1 */
 		prt("", 1, 0);
-
-		/* Hack -- Check the charisma */
-		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
 		clear_from(20);
@@ -4670,6 +4675,12 @@ void do_cmd_store(void)
 
 		/* Process the command */
 		store_process_command();
+
+		/*
+		 * Hack -- To redraw missiles damage and prices in store
+		 * If player's charisma changes, or if player changes a bow, PU_BONUS is set
+		 */
+		need_redraw_store_inv = (p_ptr->update & PU_BONUS) ? TRUE : FALSE;
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -4780,7 +4791,8 @@ void do_cmd_store(void)
 		}
 
 		/* Hack -- Redisplay store prices if charisma changes */
-		if (tmp_chr != p_ptr->stat_use[A_CHR]) display_inventory();
+		/* Hack -- Redraw missiles damage if player changes bow */
+		if (need_redraw_store_inv) display_inventory();
 
 		/* Hack -- get kicked out of the store */
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
@@ -4812,7 +4824,7 @@ void do_cmd_store(void)
 
 
 	/* Update everything */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */
@@ -5027,7 +5039,7 @@ void store_init(int town_num, int store_num)
 	 * MEGA-HACK - Last visit to store is
 	 * BEFORE player birth to enable store restocking
 	 */
-	st_ptr->last_visit = -200L * STORE_TURNS;
+	st_ptr->last_visit = -10L * TURNS_PER_TICK * STORE_TICKS;
 
 	/* Clear any old items */
 	for (k = 0; k < st_ptr->stock_size; k++)

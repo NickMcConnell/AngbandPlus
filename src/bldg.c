@@ -350,7 +350,7 @@ msg_print("あなたはすべての敵に勝利した。");
 			}
 			else
 			{
-				r_ptr = &r_info[arena_monsters[p_ptr->arena_number]];
+				r_ptr = &r_info[arena_info[p_ptr->arena_number].r_idx];
 				name = (r_name + r_ptr->name);
 #ifdef JP
 msg_format("%s に挑戦するものはいないか？", name);
@@ -1752,7 +1752,7 @@ void battle_monsters(void)
 		for (i=0;i<4;i++)
 		{
 			monster_race *r_ptr = &r_info[battle_mon[i]];
-			int num_taisei = count_bits(r_ptr->flags3 & (RF3_IM_ACID | RF3_IM_ELEC | RF3_IM_FIRE | RF3_IM_COLD | RF3_IM_POIS));
+			int num_taisei = count_bits(r_ptr->flagsr & (RFR_IM_ACID | RFR_IM_ELEC | RFR_IM_FIRE | RFR_IM_COLD | RFR_IM_POIS));
 
 			if (r_ptr->flags1 & RF1_FORCE_MAXHP)
 				power[i] = r_ptr->hdice * r_ptr->hside * 2;
@@ -1806,7 +1806,7 @@ void battle_monsters(void)
 				case MON_SHADOWLORD:
 				case MON_ARCHLICH:
 				case MON_BLEYS:
-				case MON_CAIN:
+				case MON_CAINE:
 				case MON_JULIAN:
 				case MON_VENOM_WYRM:
 				case MON_MASTER_MYS:
@@ -1834,7 +1834,7 @@ void battle_monsters(void)
 				case MON_BAZOOKER:
 				case MON_GCWADL:
 				case MON_KIRIN:
-				case MON_HOUOU:
+				case MON_FENGHUANG:
 					power[i] = power[i] * 4 / 3;
 					break;
 				case MON_UMBER_HULK:
@@ -1842,7 +1842,7 @@ void battle_monsters(void)
 				case MON_WATER_VOR:
 				case MON_COLD_VOR:
 				case MON_ENERGY_VOR:
-				case MON_BARNEY:
+				case MON_GACHAPIN:
 				case MON_REVENANT:
 				case MON_NEXUS_VOR:
 				case MON_PLASMA_VOR:
@@ -2127,7 +2127,7 @@ static void shoukinkubi(void)
 	clear_bldg(4,18);
 
 #ifdef JP
-	prt("死体を持ち帰ると賞金を差し上げます。",4 ,10);
+	prt("死体を持ち帰れば報酬を差し上げます。",4 ,10);
 c_put_str(TERM_YELLOW, "現在の賞金首", 6, 10);
 #else
 	prt("Offer a prize when you bring a wanted monster's corpse",4 ,10);
@@ -2136,22 +2136,27 @@ c_put_str(TERM_YELLOW, "Wanted monsters", 6, 10);
 
 	for (i = 0; i < MAX_KUBI; i++)
 	{
-		char buf[160];
+		byte color;
+		cptr done_mark;
 		monster_race *r_ptr = &r_info[(kubi_r_idx[i] > 10000 ? kubi_r_idx[i] - 10000 : kubi_r_idx[i])];
 
-		sprintf(buf,"%-40s ---- ",r_name + r_ptr->name);
-		prt(buf, y+7, 10);
 		if (kubi_r_idx[i] > 10000)
+		{
+			color = TERM_RED;
 #ifdef JP
-			c_put_str(TERM_RED,"済", y+7, 56);
+			done_mark = "(済)";
 #else
-			c_put_str(TERM_RED,"done", y+7, 56);
+			done_mark = "(done)";
 #endif
+		}
 		else
 		{
-			sprintf(buf,"$%d", 300 * (r_ptr->level + 1));
-			prt(buf, y+7, 56);
+			color = TERM_WHITE;
+			done_mark = "";
 		}
+
+		c_prt(color, format("%s %s", r_name + r_ptr->name, done_mark), y+7, 10);
+
 		y = (y+1) % 10;
 		if (!y && (i < MAX_KUBI -1))
 		{
@@ -2167,6 +2172,40 @@ c_put_str(TERM_YELLOW, "Wanted monsters", 6, 10);
 	}
 }
 
+
+/* List of prize object */
+static struct {
+	s16b tval;
+	s16b sval;
+} prize_list[MAX_KUBI] = 
+{
+	{TV_POTION, SV_POTION_CURING},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_POTION, SV_POTION_SPEED},
+	{TV_POTION, SV_POTION_RESISTANCE},
+	{TV_POTION, SV_POTION_ENLIGHTENMENT},
+
+	{TV_POTION, SV_POTION_HEALING},
+	{TV_POTION, SV_POTION_RESTORE_MANA},
+	{TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION},
+	{TV_POTION, SV_POTION_STAR_ENLIGHTENMENT},
+	{TV_SCROLL, SV_SCROLL_SUMMON_PET},
+
+	{TV_SCROLL, SV_SCROLL_GENOCIDE},
+	{TV_POTION, SV_POTION_STAR_HEALING},
+	{TV_POTION, SV_POTION_STAR_HEALING},
+	{TV_POTION, SV_POTION_NEW_LIFE},
+	{TV_SCROLL, SV_SCROLL_MASS_GENOCIDE},
+
+	{TV_POTION, SV_POTION_LIFE},
+	{TV_POTION, SV_POTION_LIFE},
+	{TV_POTION, SV_POTION_AUGMENTATION},
+	{TV_POTION, SV_POTION_INVULNERABILITY},
+	{TV_SCROLL, SV_SCROLL_ARTIFACT},
+};
+
+
+/* Get prize */
 static bool kankin(void)
 {
 	int i, j;
@@ -2174,9 +2213,12 @@ static bool kankin(void)
 	char o_name[MAX_NLEN];
 	object_type *o_ptr;
 
-	for (i = 0;i <= INVEN_LARM; i++)
+	/* Loop for inventory and right/left arm */
+	for (i = 0; i <= INVEN_LARM; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Living Tsuchinoko worthes $1000000 */
 		if ((o_ptr->tval == TV_CAPTURE) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
@@ -2202,9 +2244,12 @@ static bool kankin(void)
 			change = TRUE;
 		}
 	}
-	for (i = 0;i <= INVEN_LARM; i++)
+
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Corpse of Tsuchinoko worthes $200000 */
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
@@ -2230,9 +2275,12 @@ static bool kankin(void)
 			change = TRUE;
 		}
 	}
-	for (i = 0;i <= INVEN_LARM; i++)
+
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
+
+		/* Bones of Tsuchinoko worthes $100000 */
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
@@ -2259,7 +2307,7 @@ static bool kankin(void)
 		}
 	}
 
-	for (i = 0;i <= INVEN_LARM; i++)
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == today_mon))
@@ -2287,7 +2335,8 @@ static bool kankin(void)
 			change = TRUE;
 		}
 	}
-	for (i = 0;i <= INVEN_LARM; i++)
+
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == today_mon))
@@ -2318,33 +2367,84 @@ static bool kankin(void)
 
 	for (j = 0; j < MAX_KUBI; j++)
 	{
-		for (i = 0;i <= INVEN_LARM; i++)
+		/* Need reverse order --- Positions will be changed in the loop */
+		for (i = INVEN_PACK-1; i >= 0; i--)
 		{
 			o_ptr = &inventory[i];
-			if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == kubi_r_idx[j]))
+			if ((o_ptr->tval == TV_CORPSE) && (o_ptr->pval == kubi_r_idx[j]))
 			{
 				char buf[MAX_NLEN+20];
+				int num, k;
+				object_type forge;
+
 				object_desc(o_name, o_ptr, TRUE, 3);
 #ifdef JP
-				sprintf(buf, "%s を換金しますか？",o_name);
+				sprintf(buf, "%sを渡しますか？",o_name);
 #else
-				sprintf(buf, "Convert %s into money? ",o_name);
+				sprintf(buf, "Hand %s over? ",o_name);
 #endif
-				if (get_check(buf))
-				{
+				if (!get_check(buf)) continue;
+
+#if 0 /* Obsorated */
 #ifdef JP
-					msg_format("賞金 %ld＄を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
+				msg_format("賞金 %ld＄を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
 #else
-					msg_format("You get %ldgp.", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
+				msg_format("You get %ldgp.", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
 #endif
-					p_ptr->au += (r_info[kubi_r_idx[j]].level+1) * 300 * o_ptr->number;
-					p_ptr->redraw |= (PR_GOLD);
-					inven_item_increase(i, -o_ptr->number);
-					inven_item_describe(i);
-					inven_item_optimize(i);
-					chg_virtue(V_JUSTICE, 5);
-					kubi_r_idx[j] += 10000;
+				p_ptr->au += (r_info[kubi_r_idx[j]].level+1) * 300 * o_ptr->number;
+				p_ptr->redraw |= (PR_GOLD);
+				inven_item_increase(i, -o_ptr->number);
+				inven_item_describe(i);
+				inven_item_optimize(i);
+				chg_virtue(V_JUSTICE, 5);
+				kubi_r_idx[j] += 10000;
+
+				change = TRUE;
+#endif /* Obsorated */
+
+				/* Hand it first */
+				inven_item_increase(i, -o_ptr->number);
+				inven_item_describe(i);
+				inven_item_optimize(i);
+
+				chg_virtue(V_JUSTICE, 5);
+				kubi_r_idx[j] += 10000;
+
+				/* Count number of unique corpses already handed */
+				for (num = 0, k = 0; k < MAX_KUBI; k++)
+				{
+					if (kubi_r_idx[k] >= 10000) num++;
 				}
+
+#ifdef JP
+				msg_format("これで合計 %d ポイント獲得しました。", num);
+#else
+				msg_format("You earned %d point%s total.", num, (num > 1 ? "s" : ""));
+#endif
+
+				/* Prepare to make a prize */
+				object_prep(&forge, lookup_kind(prize_list[num-1].tval, prize_list[num-1].sval));
+				apply_magic(&forge, object_level, AM_NO_FIXED_ART);
+
+				/* Identify it fully */
+				object_aware(&forge);
+				object_known(&forge);
+
+				/*
+				 * Hand it --- Assume there is an empty slot.
+				 * Since a corpse is handed at first,
+				 * there is at least one empty slot.
+				 */
+				(void)inven_carry(&forge);
+
+				/* Describe the object */
+				object_desc(o_name, &forge, TRUE, 3);
+#ifdef JP
+				msg_format("%s を貰った。",o_name);
+#else
+				msg_format("You get %s. ",o_name);
+#endif
+
 				change = TRUE;
 			}
 		}
@@ -2381,48 +2481,32 @@ bool get_nightmare(int r_idx)
 void have_nightmare(int r_idx)
 {
 	bool happened = FALSE;
-
-	int power = 100;
-
 	monster_race *r_ptr = &r_info[r_idx];
-
+	int power = r_ptr->level + 10;
 	char m_name[80];
 	cptr desc = r_name + r_ptr->name;
 
-
-	power = r_ptr->level + 10;
-
-#ifdef JP
-	if (0)
-#else
+	/* Describe it */
+#ifndef JP
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
-#endif
-
-	{
-		/* Describe it */
 		sprintf(m_name, "%s %s", (is_a_vowel(desc[0]) ? "an" : "a"), desc);
-
-		if (r_ptr->flags1 & RF1_FRIENDS)
-		{
-			power /= 2;
-		}
-	}
 	else
-	{
-		/* Describe it */
+#endif
 		sprintf(m_name, "%s", desc);
 
-		power *= 2;
+	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		if (r_ptr->flags1 & RF1_FRIENDS) power /= 2;
 	}
+	else power *= 2;
 
 	if (saving_throw(p_ptr->skill_sav * 100 / power))
 	{
 #ifdef JP
-	msg_format("夢の中で%sに追いかけられた。", m_name);
+		msg_format("夢の中で%sに追いかけられた。", m_name);
 #else
-	msg_format("%^s chases you through your dreams.", m_name);
+		msg_format("%^s chases you through your dreams.", m_name);
 #endif
-
 
 		/* Safe */
 		return;
@@ -2432,7 +2516,7 @@ void have_nightmare(int r_idx)
 	{
 		/* Something silly happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+		msg_format("%s%sの顔を見てしまった！",
 #else
 		msg_format("You behold the %s visage of %s!",
 #endif
@@ -2451,7 +2535,7 @@ msg_format("%s%sの顔を見てしまった！",
 
 	/* Something frightening happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+	msg_format("%s%sの顔を見てしまった！",
 #else
 	msg_format("You behold the %s visage of %s!",
 #endif
@@ -2460,19 +2544,33 @@ msg_format("%s%sの顔を見てしまった！",
 
 	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
-	switch(p_ptr->prace)
+	if (!p_ptr->mimic_form)
 	{
-		/* Imps may make a saving throw */
+		switch (p_ptr->prace)
+		{
+		/* Demons may make a saving throw */
 		case RACE_IMP:
 		case RACE_DEMON:
-		{
 			if (saving_throw(20 + p_ptr->lev)) return;
-		}
+			break;
 		/* Undead may make a saving throw */
 		case RACE_SKELETON:
 		case RACE_ZOMBIE:
 		case RACE_SPECTRE:
 		case RACE_VAMPIRE:
+			if (saving_throw(10 + p_ptr->lev)) return;
+			break;
+		}
+	}
+	else
+	{
+		/* Demons may make a saving throw */
+		if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)
+		{
+			if (saving_throw(20 + p_ptr->lev)) return;
+		}
+		/* Undead may make a saving throw */
+		else if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_UNDEAD)
 		{
 			if (saving_throw(10 + p_ptr->lev)) return;
 		}
@@ -2673,6 +2771,16 @@ static bool inn_comm(int cmd)
 	switch (cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
+			if (p_ptr->food >= PY_FOOD_FULL)
+			{
+#ifdef JP
+				msg_print("今は満腹だ。");
+#else
+				msg_print("You are full now.");
+#endif
+				return FALSE;
+			}
+
 #ifdef JP
 msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 #else
@@ -3037,6 +3145,10 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 {
 	char tmp_str[80];
 
+	/* Effective dices */
+	int eff_dd = o_ptr->dd + p_ptr->to_dd[0];
+	int eff_ds = o_ptr->ds + p_ptr->to_ds[0];
+
 	/* Print the intro text */
 	c_put_str(color, attr, r, c);
 
@@ -3047,8 +3159,8 @@ sprintf(tmp_str, "１ターン: %d-%d ダメージ",
 	sprintf(tmp_str, "Attack: %d-%d damage",
 #endif
 
-	    (numblows * (mult * o_ptr->dd /60 + o_ptr->to_d + p_ptr->to_d[0])),
-	    (numblows * (mult * o_ptr->ds * o_ptr->dd /60 + o_ptr->to_d + p_ptr->to_d[0])));
+	    (numblows * (mult * eff_dd / 60 + o_ptr->to_d + p_ptr->to_d[0])),
+	    (numblows * (mult * eff_ds * eff_dd / 60 + o_ptr->to_d + p_ptr->to_d[0])));
 
 	/* Print the damage */
 	put_str(tmp_str, r, c + 8);
@@ -3066,45 +3178,45 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	int mult = 60;
 	u32b flgs[TR_FLAG_SIZE];
 	int blow = p_ptr->num_blow[0];
+	bool print_force_weapon = FALSE;
 
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, flgs);
 
-	if (p_ptr->riding)
+	if ((p_ptr->pclass != CLASS_SAMURAI) && have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 	{
-		if ((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
-			mult = mult * (o_ptr->dd + 2) / o_ptr->dd;
+		mult = mult * 7 / 2;
+		print_force_weapon = TRUE;
 	}
-	if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5))) mult = mult * 7 / 2;
 
 	/* Print the relevant lines */
 #ifdef JP
-if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "理力:", TERM_L_BLUE);
-if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "動物:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "動物:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "邪悪:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "人間:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "不死:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "不死:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "悪魔:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "悪魔:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "オーク:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "オーク:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "トロル:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "トロル:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "巨人:", TERM_YELLOW);
- else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "巨人:", TERM_YELLOW);
-if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "竜:", TERM_YELLOW);
-else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "竜:", TERM_YELLOW);
-if (have_flag(flgs, TR_BRAND_ACID))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "酸属性:", TERM_RED);
-if (have_flag(flgs, TR_BRAND_ELEC))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "電属性:", TERM_RED);
-if (have_flag(flgs, TR_BRAND_FIRE))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "炎属性:", TERM_RED);
-if (have_flag(flgs, TR_BRAND_COLD))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "冷属性:", TERM_RED);
-if (have_flag(flgs, TR_BRAND_POIS))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "毒属性:", TERM_RED);
+	if (print_force_weapon)     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "理力:", TERM_L_BLUE);
+	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "動物:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "動物:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "邪悪:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "人間:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "不死:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "不死:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "悪魔:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "悪魔:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "オーク:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "オーク:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "トロル:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "トロル:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "巨人:", TERM_YELLOW);
+	 else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "巨人:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "竜:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "竜:", TERM_YELLOW);
+	if (have_flag(flgs, TR_BRAND_ACID))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "酸属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_ELEC))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "電属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_FIRE))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "炎属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_COLD))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "冷属性:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_POIS))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "毒属性:", TERM_RED);
 #else
-	if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "Force  :", TERM_L_BLUE);
+	if (print_force_weapon)     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "Force  :", TERM_L_BLUE);
 	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Animals:", TERM_YELLOW);
 	else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Animals:", TERM_YELLOW);
 	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Evil:", TERM_YELLOW);
@@ -3159,6 +3271,10 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	char o_name[MAX_NLEN];
 	char tmp_str[80];
 
+	/* Effective dices */
+	int eff_dd = o_ptr->dd + p_ptr->to_dd[0];
+	int eff_ds = o_ptr->ds + p_ptr->to_ds[0];
+
 	/* Print the weapon name */
 	object_desc(o_name, o_ptr, TRUE, 0);
 	c_put_str(TERM_YELLOW, o_name, row, col);
@@ -3204,8 +3320,8 @@ sprintf(tmp_str, "攻撃一回につき %d-%d",
 	sprintf(tmp_str, "One Strike: %d-%d damage",
 #endif
 
-	    o_ptr->dd + o_ptr->to_d + p_ptr->to_d[0],
-	    o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d[0]);
+	    eff_dd + o_ptr->to_d + p_ptr->to_d[0],
+	    eff_ds * eff_dd + o_ptr->to_d + p_ptr->to_d[0]);
 	put_str(tmp_str, row+6, col+1);
 
 	/* Damage for the complete attack (if all blows hit) */
@@ -3215,8 +3331,8 @@ sprintf(tmp_str, "１ターンにつき %d-%d",
 	sprintf(tmp_str, "One Attack: %d-%d damage",
 #endif
 
-	    p_ptr->num_blow[0] * (o_ptr->dd + o_ptr->to_d + p_ptr->to_d[0]),
-	    p_ptr->num_blow[0] * (o_ptr->ds * o_ptr->dd + o_ptr->to_d + p_ptr->to_d[0]));
+	    p_ptr->num_blow[0] * (eff_dd + o_ptr->to_d + p_ptr->to_d[0]),
+	    p_ptr->num_blow[0] * (eff_ds * eff_dd + o_ptr->to_d + p_ptr->to_d[0]));
 	put_str(tmp_str, row+7, col+1);
 }
 
@@ -3277,6 +3393,7 @@ static bool compare_weapons(void)
 	object_type *i_ptr;
 	cptr q, s;
 	int row = 2;
+	bool old_character_xtra = character_xtra;
 
 	screen_save();
 	/* Clear the screen */
@@ -3340,8 +3457,13 @@ s = "比べるものがありません。";
 	if (o1_ptr != i_ptr)
 		object_copy(i_ptr, o1_ptr);
 
+	/* Hack -- prevent "icky" message */
+	character_xtra = TRUE;
+
 	/* Get the new values */
 	calc_bonuses();
+
+	character_xtra = old_character_xtra;
 
 	/* List the new values */
 	list_weapon(o1_ptr, row, 2);
@@ -3353,8 +3475,13 @@ s = "比べるものがありません。";
 	else
 		object_copy(i_ptr, &orig_weapon);
 
+	/* Hack -- prevent "icky" message */
+	character_xtra = TRUE;
+
 	/* Get the new values */
 	calc_bonuses();
+
+	character_xtra = old_character_xtra;
 
 	/* List the new values */
 	list_weapon(o2_ptr, row, 40);
@@ -4147,6 +4274,306 @@ bool tele_town(void)
 
 
 /*
+ *  research_mon
+ *  -KMW-
+ */
+static bool research_mon(void)
+{
+	int i, n, r_idx;
+	char sym, query;
+	char buf[128];
+
+	bool notpicked;
+
+	bool recall = FALSE;
+
+	u16b why = 0;
+
+	u16b	*who;
+
+	/* XTRA HACK WHATSEARCH */
+	bool    all = FALSE;
+	bool    uniq = FALSE;
+	bool    norm = FALSE;
+	char temp[80] = "";
+
+	/* XTRA HACK REMEMBER_IDX */
+	static int old_sym = '\0';
+	static int old_i = 0;
+
+
+	/* Save the screen */
+	screen_save();
+
+	/* Get a character, or abort */
+#ifdef JP
+if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
+#else
+	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE))
+#endif
+
+	{
+		/* Restore */
+		screen_load();
+
+		return (FALSE);
+	}
+
+	/* Find that character info, and describe it */
+	for (i = 0; ident_info[i]; ++i)
+	{
+		if (sym == ident_info[i][0]) break;
+	}
+
+		/* XTRA HACK WHATSEARCH */
+	if (sym == KTRL('A'))
+	{
+		all = TRUE;
+#ifdef JP
+		strcpy(buf, "全モンスターのリスト");
+#else
+		strcpy(buf, "Full monster list.");
+#endif
+	}
+	else if (sym == KTRL('U'))
+	{
+		all = uniq = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク・モンスターのリスト");
+#else
+		strcpy(buf, "Unique monster list.");
+#endif
+	}
+	else if (sym == KTRL('N'))
+	{
+		all = norm = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク外モンスターのリスト");
+#else
+		strcpy(buf, "Non-unique monster list.");
+#endif
+	}
+	else if (sym == KTRL('M'))
+	{
+		all = TRUE;
+#ifdef JP
+		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
+#else
+		if (!get_string("Enter name:",temp, 70))
+#endif
+		{
+			temp[0]=0;
+
+			/* Restore */
+			screen_load();
+
+			return FALSE;
+		}
+#ifdef JP
+		sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		sprintf(buf, "Monsters with a name \"%s\"",temp);
+#endif
+	}
+	else if (ident_info[i])
+	{
+		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+	}
+	else
+	{
+#ifdef JP
+sprintf(buf, "%c - %s", sym, "無効な文字");
+#else
+		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+#endif
+
+	}
+
+	/* Display the result */
+	prt(buf, 16, 10);
+
+
+	/* Allocate the "who" array */
+	C_MAKE(who, max_r_idx, u16b);
+
+	/* Collect matching monsters */
+	for (n = 0, i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Empty monster */
+		if (!r_ptr->name) continue;
+
+		/* XTRA HACK WHATSEARCH */
+		/* Require non-unique monsters if needed */
+		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Require unique monsters if needed */
+		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* 名前検索 */
+		if (temp[0])
+		{
+			int xx;
+			char temp2[80];
+
+			for (xx = 0; temp[xx] && xx < 80; xx++)
+			{
+#ifdef JP
+				if (iskanji(temp[xx]))
+				{
+					xx++;
+					continue;
+				}
+#endif
+				if (isupper(temp[xx])) temp[xx] = tolower(temp[xx]);
+			}
+  
+#ifdef JP
+			strcpy(temp2, r_name + r_ptr->E_name);
+#else
+			strcpy(temp2, r_name + r_ptr->name);
+#endif
+			for (xx = 0; temp2[xx] && xx < 80; xx++)
+				if (isupper(temp2[xx])) temp2[xx] = tolower(temp2[xx]);
+
+#ifdef JP
+			if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp))
+#else
+			if (strstr(temp2, temp))
+#endif
+				who[n++] = i;
+		}
+		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
+	}
+
+	/* Nothing to recall */
+	if (!n)
+	{
+		/* Free the "who" array */
+		C_KILL(who, max_r_idx, u16b);
+
+		/* Restore */
+		screen_load();
+
+		return (FALSE);
+	}
+
+	/* Sort by level */
+	why = 2;
+	query = 'y';
+
+	/* Sort if needed */
+	if (why)
+	{
+		/* Select the sort method */
+		ang_sort_comp = ang_sort_comp_hook;
+		ang_sort_swap = ang_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, n);
+	}
+
+
+	/* Start at the end */
+	/* XTRA HACK REMEMBER_IDX */
+	if (old_sym == sym && old_i < n) i = old_i;
+	else i = n - 1;
+
+	notpicked = TRUE;
+
+	/* Scan the monster memory */
+	while (notpicked)
+	{
+		/* Extract a race */
+		r_idx = who[i];
+
+		/* Hack -- Begin the prompt */
+		roff_top(r_idx);
+
+		/* Hack -- Complete the prompt */
+#ifdef JP
+Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
+#else
+		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
+#endif
+
+
+		/* Interact */
+		while (1)
+		{
+			/* Recall */
+			if (recall)
+			{
+				/*** Recall on screen ***/
+
+				/* Get maximal info about this monster */
+				lore_do_probe(r_idx);
+
+				/* Save this monster ID */
+				monster_race_track(r_idx);
+
+				/* Hack -- Handle stuff */
+				handle_stuff();
+
+				/* know every thing mode */
+				screen_roff(r_idx, 0x01);
+				notpicked = FALSE;
+
+				/* XTRA HACK REMEMBER_IDX */
+				old_sym = sym;
+				old_i = i;
+			}
+
+			/* Command */
+			query = inkey();
+
+			/* Normal commands */
+			if (query != 'r') break;
+
+			/* Toggle recall */
+			recall = !recall;
+		}
+
+		/* Stop scanning */
+		if (query == ESCAPE) break;
+
+		/* Move to "prev" monster */
+		if (query == '-')
+		{
+			if (++i == n)
+			{
+				i = 0;
+				if (!expand_list) break;
+			}
+		}
+
+		/* Move to "next" monster */
+		else
+		{
+			if (i-- == 0)
+			{
+				i = n - 1;
+				if (!expand_list) break;
+			}
+		}
+	}
+
+
+	/* Re-display the identity */
+	/* prt(buf, 5, 5);*/
+
+	/* Free the "who" array */
+	C_KILL(who, max_r_idx, u16b);
+
+	/* Restore */
+	screen_load();
+
+	return (!notpicked);
+}
+
+
+/*
  * Execute a building command
  */
 static void bldg_process_command(building_type *bldg, int i)
@@ -4154,7 +4581,6 @@ static void bldg_process_command(building_type *bldg, int i)
 	int bact = bldg->actions[i];
 	int bcost;
 	bool paid = FALSE;
-	bool set_reward = FALSE;
 	int amt;
 
 	/* Flush messages XXX XXX XXX */
@@ -4191,12 +4617,10 @@ msg_print("お金が足りません！");
 		return;
 	}
 
-	if (!bcost) set_reward = TRUE;
-
 	switch (bact)
 	{
 	case BACT_NOTHING:
-				/* Do nothing */
+		/* Do nothing */
 		break;
 	case BACT_RESEARCH_ITEM:
 		paid = identify_fully(FALSE);
@@ -4213,7 +4637,7 @@ msg_print("お金が足りません！");
 	case BACT_KING_LEGENDS:
 	case BACT_ARENA_LEGENDS:
 	case BACT_LEGENDS:
-		show_highclass(building_loc);
+		show_highclass();
 		break;
 	case BACT_POSTER:
 	case BACT_ARENA_RULES:
@@ -4417,16 +4841,20 @@ msg_print("お金が足りません！");
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		paid = lose_mutation(0);
-		/* ToDo: Better message text. */
-		if (!paid)
+		if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+		{
+			while(!lose_mutation(0));
+			paid = TRUE;
+		}
+		else
+		{
 #ifdef JP
-			msg_print("奇妙なくらい普通になった気がする。");
+			msg_print("治すべき突然変異が無い。");
 #else
-		msg_print("You feel oddly normal.");
+			msg_print("You have no mutations.");
 #endif
-
-
+			msg_print(NULL);
+		}
 		break;
 	case BACT_BATTLE:
 		kakutoujou();
@@ -4561,7 +4989,7 @@ msg_print("ここには建物はない。");
 	/* Don't re-init the wilderness */
 	reinit_wilderness = FALSE;
 
-	if ((which == 2) && (p_ptr->arena_number == 99))
+	if ((which == 2) && (p_ptr->arena_number < 0))
 	{
 #ifdef JP
 msg_print("「敗者に用はない。」");

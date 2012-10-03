@@ -1,20 +1,20 @@
 /* File: cmd5.c */
 
-/* Purpose: Spell/Prayer commands */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Spell/Prayer commands */
 
 #include "angband.h"
 
 #include "spellstips.h"
 
-cptr spell_categoly_name(int tval)
+cptr spell_category_name(int tval)
 {
 	switch (tval)
 	{
@@ -51,7 +51,6 @@ cptr spell_categoly_name(int tval)
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
 
-bool select_spellbook=FALSE;
 bool select_the_force=FALSE;
 
 static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm)
@@ -60,7 +59,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	int         spell = -1;
 	int         num = 0;
 	int         ask = TRUE;
-	int         shouhimana;
+	int         need_mana;
 	byte        spells[64];
 	bool        flag, redraw, okay;
 	char        choice;
@@ -87,7 +86,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-	p = spell_categoly_name(mp_ptr->spell_book);
+	p = spell_category_name(mp_ptr->spell_book);
 
 	/* Extract spells */
 	for (spell = 0; spell < 32; spell++)
@@ -150,21 +149,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 	/* Get a spell from the user */
 
-	choice = (always_show_list || use_menu) ? ESCAPE:1;
+	choice = (always_show_list || use_menu) ? ESCAPE : 1;
 	while (!flag)
 	{
-		if( choice==ESCAPE ) choice = ' '; 
-		else if( !get_com(out_val, &choice, TRUE) )break; 
+		if (choice == ESCAPE) choice = ' '; 
+		else if (!get_com(out_val, &choice, TRUE))break;
 
 		if (use_menu && choice != ' ')
 		{
-			switch(choice)
+			switch (choice)
 			{
 				case '0':
 				{
 					screen_load();
-					return (FALSE);
-					break;
+					return FALSE;
 				}
 
 				case '8':
@@ -281,19 +279,14 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 				s_ptr = &mp_ptr->info[use_realm - 1][spell];
 			}
 
+			/* Extract mana consumption rate */
 			if (use_realm == REALM_HISSATSU)
 			{
-				shouhimana = s_ptr->smana;
+				need_mana = s_ptr->smana;
 			}
 			else
 			{
-				/* Extract mana consumption rate */
-				shouhimana = s_ptr->smana*(3800 - experience_of_spell(spell, use_realm)) + 2399;
-				if(p_ptr->dec_mana)
-					shouhimana *= 3;
-				else shouhimana *= 4;
-				shouhimana /= 9600;
-				if(shouhimana < 1) shouhimana = 1;
+				need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
 			}
 
 			/* Prompt */
@@ -301,11 +294,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			jverb1( prompt, jverb_buf );
 			/* ±ÑÆüÀÚ¤êÂØ¤¨µ¡Ç½¤ËÂÐ±þ */
 			(void) strnfmt(tmp_val, 78, "%s(MP%d, ¼ºÇÔÎ¨%d%%)¤ò%s¤Þ¤¹¤«? ",
-				spell_names[technic2magic(use_realm)-1][spell], shouhimana,
+				spell_names[technic2magic(use_realm)-1][spell], need_mana,
 				       spell_chance(spell, use_realm),jverb_buf);
 #else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-				prompt, spell_names[technic2magic(use_realm)-1][spell], shouhimana,
+				prompt, spell_names[technic2magic(use_realm)-1][spell], need_mana,
 				spell_chance(spell, use_realm));
 #endif
 
@@ -335,7 +328,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 
 	/* Abort if needed */
-	if (!flag) return (FALSE);
+	if (!flag) return FALSE;
 
 	/* Save the choice */
 	(*sn) = spell;
@@ -347,7 +340,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 #endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
-	return (TRUE);
+	return TRUE;
 }
 
 
@@ -389,13 +382,11 @@ void do_cmd_browse(void)
 	int		item, sval, use_realm = 0, j, line;
 	int		spell = -1;
 	int		num = 0;
-	int             increment = 0;
 
 	byte		spells[64];
 	char            temp[62*4];
 
 	object_type	*o_ptr;
-	magic_type      *s_ptr;
 
 	cptr q, s;
 
@@ -433,18 +424,15 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 	s = "You have no books that you can read.";
 #endif
 
-	select_spellbook=TRUE;
 	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
-	    select_spellbook = FALSE;
 	    select_the_force = FALSE;
 	    return;
 	}
-	select_spellbook = FALSE;
 	select_the_force = FALSE;
 
-	if (item == 1111) { /* the_force */
+	if (item == INVEN_FORCE) { /* the_force */
 	    do_cmd_mind_browse();
 	    return;
 	} else
@@ -464,11 +452,6 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 	sval = o_ptr->sval;
 
 	use_realm = tval2realm(o_ptr->tval);
-	if ((p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE) && is_magic(use_realm))
-	{
-		if (o_ptr->tval == REALM2_BOOK) increment = 32;
-		else if (o_ptr->tval != REALM1_BOOK) increment = 64;
-	}
 
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
@@ -525,13 +508,13 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 				prt("No spells to browse.", 0, 0);
 #endif
 			(void)inkey();
-			
+
 
 			/* Restore the screen */
 			screen_load();
 
 			return;
-		}				  
+		}
 
 		/* Clear lines, position cursor  (really should use strlen here) */
 		Term_erase(14, 14, 255);
@@ -539,18 +522,8 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 		Term_erase(14, 12, 255);
 		Term_erase(14, 11, 255);
 
-		/* Access the spell */
-		if (!is_magic(use_realm))
-		{
-			s_ptr = &technic_info[use_realm - MIN_TECHNIC][spell];
-		}
-		else
-		{
-			s_ptr = &mp_ptr->info[use_realm - 1][spell];
-		}
-
-		roff_to_buf(spell_tips[technic2magic(use_realm)-1][spell] ,62, temp, sizeof(temp));
-		for(j=0, line = 11;temp[j];j+=(1+strlen(&temp[j])))
+		roff_to_buf(spell_tips[technic2magic(use_realm) - 1][spell], 62, temp, sizeof(temp));
+		for (j = 0, line = 11; temp[j]; j += 1 + strlen(&temp[j]))
 		{
 			prt(&temp[j], line, 15);
 			line++;
@@ -564,24 +537,24 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 
 static void change_realm2(int next_realm)
 {
-	int i, j=0;
+	int i, j = 0;
 	char tmp[80];
 
 	for (i = 0; i < 64; i++)
 	{
 		p_ptr->spell_order[j] = p_ptr->spell_order[i];
-		if(p_ptr->spell_order[i] < 32) j++;
+		if (p_ptr->spell_order[i] < 32) j++;
 	}
 	for (; j < 64; j++)
 		p_ptr->spell_order[j] = 99;
 
 	for (i = 32; i < 64; i++)
 	{
-		p_ptr->spell_exp[i] = 0;
+		p_ptr->spell_exp[i] = SPELL_EXP_UNSKILLED;
 	}
 	p_ptr->spell_learned2 = 0L;
 	p_ptr->spell_worked2 = 0L;
-	p_ptr->spell_forgotten2 = 0L;	
+	p_ptr->spell_forgotten2 = 0L;
 
 #ifdef JP
 	sprintf(tmp,"ËâË¡¤ÎÎÎ°è¤ò%s¤«¤é%s¤ËÊÑ¹¹¤·¤¿¡£", realm_names[p_ptr->realm2], realm_names[next_realm]);
@@ -610,7 +583,7 @@ void do_cmd_study(void)
 	/* Spells of realm2 will have an increment of +32 */
 	int	spell = -1;
 
-	cptr p = spell_categoly_name(mp_ptr->spell_book);
+	cptr p = spell_category_name(mp_ptr->spell_book);
 
 	object_type *o_ptr;
 
@@ -665,8 +638,6 @@ msg_format("¿·¤·¤¤%s¤ò³Ð¤¨¤ë¤³¤È¤Ï¤Ç¤­¤Ê¤¤¡ª", p);
 		set_action(ACTION_NONE);
 	}
 
-	p = spell_categoly_name(mp_ptr->spell_book);
-
 #ifdef JP
 	if( p_ptr->new_spells < 10 ){
 		msg_format("¤¢¤È %d ¤Ä¤Î%s¤ò³Ø¤Ù¤ë¡£", p_ptr->new_spells, p);
@@ -698,9 +669,7 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 	s = "You have no books that you can read.";
 #endif
 
-	select_spellbook=TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-	select_spellbook=FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -810,53 +779,53 @@ msg_format("¤½¤ÎËÜ¤Ë¤Ï³Ø¤Ö¤Ù¤­%s¤¬¤Ê¤¤¡£", p);
 
 	if (learned)
 	{
-		int max_exp = (spell < 32) ? 1600 : 1400;
+		int max_exp = (spell < 32) ? SPELL_EXP_MASTER : SPELL_EXP_EXPERT;
 		int old_exp = p_ptr->spell_exp[spell];
-		int new_rank = 0;
+		int new_rank = EXP_LEVEL_UNSKILLED;
 		cptr name = spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell%32];
 
 		if (old_exp >= max_exp)
 		{
 #ifdef JP
-			msg_format("¤½¤Î%s¤Ï´°Á´¤Ë»È¤¤¤³¤Ê¤»¤ë¤Î¤Ç³Ø¤ÖÉ¬Í×¤Ï¤Ê¤¤¡£", spell_categoly_name(mp_ptr->spell_book));
+			msg_format("¤½¤Î%s¤Ï´°Á´¤Ë»È¤¤¤³¤Ê¤»¤ë¤Î¤Ç³Ø¤ÖÉ¬Í×¤Ï¤Ê¤¤¡£", p);
 #else
-			msg_format("You don't need to study this %s anymore.", spell_categoly_name(mp_ptr->spell_book));
+			msg_format("You don't need to study this %s anymore.", p);
 #endif
 			return;
 		}
 #ifdef JP
-		if (!get_check(format("%s¤Î%s¤ò¤µ¤é¤Ë³Ø¤Ó¤Þ¤¹¡£¤è¤í¤·¤¤¤Ç¤¹¤«¡©", name, spell_categoly_name(mp_ptr->spell_book))))
+		if (!get_check(format("%s¤Î%s¤ò¤µ¤é¤Ë³Ø¤Ó¤Þ¤¹¡£¤è¤í¤·¤¤¤Ç¤¹¤«¡©", name, p)))
 #else
-		if (!get_check(format("You will study a %s of %s again. Are you sure? ", spell_categoly_name(mp_ptr->spell_book), name)))
+		if (!get_check(format("You will study a %s of %s again. Are you sure? ", p, name)))
 #endif
 		{
 			return;
 		}
-		else if (old_exp >= 1400)
+		else if (old_exp >= SPELL_EXP_EXPERT)
 		{
-			p_ptr->spell_exp[spell] = 1600;
-			new_rank = 4;
+			p_ptr->spell_exp[spell] = SPELL_EXP_MASTER;
+			new_rank = EXP_LEVEL_MASTER;
 		}
-		else if (old_exp >= 1200)
+		else if (old_exp >= SPELL_EXP_SKILLED)
 		{
-			if (spell >= 32) p_ptr->spell_exp[spell] = 1400;
-			else p_ptr->spell_exp[spell] += 200;
-			new_rank = 3;
+			if (spell >= 32) p_ptr->spell_exp[spell] = SPELL_EXP_EXPERT;
+			else p_ptr->spell_exp[spell] += SPELL_EXP_EXPERT - SPELL_EXP_SKILLED;
+			new_rank = EXP_LEVEL_EXPERT;
 		}
-		else if (old_exp >= 900)
+		else if (old_exp >= SPELL_EXP_BEGINNER)
 		{
-			p_ptr->spell_exp[spell] = 1200+(old_exp-900)*2/3;
-			new_rank = 2;
+			p_ptr->spell_exp[spell] = SPELL_EXP_SKILLED + (old_exp - SPELL_EXP_BEGINNER) * 2 / 3;
+			new_rank = EXP_LEVEL_SKILLED;
 		}
 		else
 		{
-			p_ptr->spell_exp[spell] = 900+(old_exp)/3;
-			new_rank = 1;
+			p_ptr->spell_exp[spell] = SPELL_EXP_BEGINNER + old_exp / 3;
+			new_rank = EXP_LEVEL_BEGINNER;
 		}
 #ifdef JP
-		msg_format("%s¤Î½ÏÎýÅÙ¤¬%s¤Ë¾å¤¬¤Ã¤¿¡£", name, shougou_moji[new_rank]);
+		msg_format("%s¤Î½ÏÎýÅÙ¤¬%s¤Ë¾å¤¬¤Ã¤¿¡£", name, exp_level_str[new_rank]);
 #else
-		msg_format("Your proficiency of %s is now %s rank.", name, shougou_moji[new_rank]);
+		msg_format("Your proficiency of %s is now %s rank.", name, exp_level_str[new_rank]);
 #endif
 	}
 	else
@@ -893,14 +862,21 @@ msg_format("¤½¤ÎËÜ¤Ë¤Ï³Ø¤Ö¤Ù¤­%s¤¬¤Ê¤¤¡£", p);
 	/* Take a turn */
 	energy_use = 100;
 
-	if (mp_ptr->spell_book == TV_LIFE_BOOK)
+	switch (mp_ptr->spell_book)
+	{
+	case TV_LIFE_BOOK:
 		chg_virtue(V_FAITH, 1);
-	else if (mp_ptr->spell_book == TV_DEATH_BOOK)
+		break;
+	case TV_DEATH_BOOK:
 		chg_virtue(V_UNLIFE, 1);
-	else if (mp_ptr->spell_book == TV_NATURE_BOOK)
+		break;
+	case TV_NATURE_BOOK:
 		chg_virtue(V_NATURE, 1);
-	else
+		break;
+	default:
 		chg_virtue(V_KNOWLEDGE, 1);
+		break;
+	}
 
 	/* Sound */
 	sound(SOUND_STUDY);
@@ -913,17 +889,12 @@ msg_format("¤½¤ÎËÜ¤Ë¤Ï³Ø¤Ö¤Ù¤­%s¤¬¤Ê¤¤¡£", p);
 	{
 		/* Message */
 #ifdef JP
-			if( p_ptr->new_spells < 10 ){
-				msg_format("¤¢¤È %d ¤Ä¤Î%s¤ò³Ø¤Ù¤ë¡£", p_ptr->new_spells, p);
-			}else{
-				msg_format("¤¢¤È %d ¸Ä¤Î%s¤ò³Ø¤Ù¤ë¡£", p_ptr->new_spells, p);
-			}
+		if (p_ptr->new_spells < 10) msg_format("¤¢¤È %d ¤Ä¤Î%s¤ò³Ø¤Ù¤ë¡£", p_ptr->new_spells, p);
+		else msg_format("¤¢¤È %d ¸Ä¤Î%s¤ò³Ø¤Ù¤ë¡£", p_ptr->new_spells, p);
 #else
-		msg_format("You can learn %d more %s%s.",
-			p_ptr->new_spells, p,
-			(p_ptr->new_spells != 1) ? "s" : "");
+		msg_format("You can learn %d more %s%s.", p_ptr->new_spells, p,
+		           (p_ptr->new_spells != 1) ? "s" : "");
 #endif
-
 	}
 #endif
 
@@ -1133,8 +1104,7 @@ static bool cast_life_spell(int spell)
 		fire_ball_hide(GF_WOUNDS, dir, damroll(5+((plev - 5) / 3), 15), 0);
 		break;
 	case 21: /* Word of Recall */
-		if (!word_of_recall()) return FALSE;
-		break;
+		return word_of_recall();
 	case 22: /* Alter Reality */
 		alter_reality();
 		break;
@@ -1152,7 +1122,7 @@ static bool cast_life_spell(int spell)
 		(void)mass_genocide_undead(plev+50,TRUE);
 		break;
 	case 27: /* Clairvoyance */
-		wiz_lite(FALSE, FALSE);
+		wiz_lite(FALSE);
 		break;
 	case 28: /* Restoration */
 		(void)do_res_stat(A_STR);
@@ -1274,7 +1244,6 @@ static bool cast_sorcery_spell(int spell)
 		break;
 	case 19: /* Teleport to town */
 		return tele_town();
-		break;
 	case 20: /* Self knowledge */
 		(void)self_knowledge();
 		break;
@@ -1284,11 +1253,10 @@ static bool cast_sorcery_spell(int spell)
 #else
 		if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
 #endif
-		(void)teleport_player_level();
+		(void)teleport_level(0);
 		break;
 	case 22: /* Word of Recall */
-		if (!word_of_recall()) return FALSE;
-		break;
+		return word_of_recall();
 	case 23: /* Dimension Door */
 #ifdef JP
 msg_print("¼¡¸µ¤ÎÈâ¤¬³«¤¤¤¿¡£ÌÜÅªÃÏ¤òÁª¤ó¤Ç²¼¤µ¤¤¡£");
@@ -1312,7 +1280,7 @@ msg_print("¼¡¸µ¤ÎÈâ¤¬³«¤¤¤¿¡£ÌÜÅªÃÏ¤òÁª¤ó¤Ç²¼¤µ¤¤¡£");
 		chg_virtue(V_KNOWLEDGE, 1);
 		chg_virtue(V_ENLIGHTEN, 1);
 
-		wiz_lite(FALSE, FALSE);
+		wiz_lite(FALSE);
 		if (!(p_ptr->telepathy))
 		{
 			(void)set_tim_esp(randint1(30) + 25, FALSE);
@@ -1348,7 +1316,6 @@ static bool cast_nature_spell(int spell)
 	int	    dir;
 	int	    beam;
 	int	    plev = p_ptr->lev;
-	bool    no_trump = FALSE;
 
 	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER) beam = plev + 10;
@@ -1459,7 +1426,13 @@ msg_print("ÂÀÍÛ¸÷Àþ¤¬¸½¤ì¤¿¡£");
 		break;
 	case 14: /* Summon Animals */
 		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET))))
-			no_trump = TRUE;
+		{
+#ifdef JP
+			msg_print("Æ°Êª¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
+#else
+			msg_print("No animals arrive.");
+#endif
+		}
 		break;
 	case 15: /* Herbal Healing */
 		(void)hp_player(500);
@@ -1534,7 +1507,7 @@ msg_print("ÂÀÍÛ¸÷Àþ¤¬¸½¤ì¤¿¡£");
 		fire_ball(GF_LITE, 0, 150, 8);
 		chg_virtue(V_KNOWLEDGE, 1);
 		chg_virtue(V_ENLIGHTEN, 1);
-		wiz_lite(FALSE, FALSE);
+		wiz_lite(FALSE);
 		if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
 		{
 #ifdef JP
@@ -1569,14 +1542,6 @@ msg_format("¤¢¤Ê¤¿¤ÏÉÔÌÀ¤Ê¥Í¥¤¥Á¥ã¡¼¤Î¼öÊ¸ %d ¤ò¾§¤¨¤¿¡£", spell);
 
 		msg_print(NULL);
 	}
-
-	if (no_trump)
-#ifdef JP
-msg_print("Æ°Êª¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
-#else
-		msg_print("No animals arrive.");
-#endif
-
 
 	return TRUE;
 }
@@ -1713,7 +1678,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÎÏ¤¬¤ß¤Ê¤®¤ë¤Î¤ò´¶¤¸¤¿¡ª");
 			}
 			else if (die < 106)
 			{
-				destroy_area(py, px, 13+randint0(5), TRUE);
+				(void)destroy_area(py, px, 13 + randint0(5), FALSE);
 			}
 			else if (die < 108)
 			{
@@ -1727,7 +1692,6 @@ msg_print("¤¢¤Ê¤¿¤ÏÎÏ¤¬¤ß¤Ê¤®¤ë¤Î¤ò´¶¤¸¤¿¡ª");
 				sleep_monsters();
 				hp_player(300);
 			}
-			break;
 		}
 		break;
 	case 9: /* Chaos Bolt */
@@ -1762,7 +1726,7 @@ msg_print("¥É¡¼¥ó¡ªÉô²°¤¬ÍÉ¤ì¤¿¡ª");
 		(void)fire_beam(GF_AWAY_ALL, dir, plev);
 		break;
 	case 14: /* Word of Destruction */
-		destroy_area(py, px, 13+randint0(5), TRUE);
+		(void)destroy_area(py, px, 13 + randint0(5), FALSE);
 		break;
 	case 15: /* Invoke Logrus */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -2174,7 +2138,7 @@ msg_print("¤¢¤Ê¤¿¤ÎÆ¬¤ËÂçÎÌ¤ÎÍ©Îî¤¿¤Á¤ÎÁû¡¹¤·¤¤À¼¤¬²¡¤·´ó¤»¤Æ¤­¤¿...");
 			}
 			else if (die < 106)
 			{
-				destroy_area(py, px, 13+randint0(5), TRUE);
+				(void)destroy_area(py, px, 13 + randint0(5), FALSE);
 			}
 			else if (die < 108)
 			{
@@ -2288,7 +2252,6 @@ msg_print("»à¼Ô¤¬á´¤Ã¤¿¡£Ì²¤ê¤òË¸¤²¤ë¤¢¤Ê¤¿¤òÈ³¤¹¤ë¤¿¤á¤Ë¡ª");
 			return ident_spell(FALSE);
 		else
 			return identify_fully(FALSE);
-		break;
 	case 27: /* Mimic vampire */
 		(void)set_mimic(10+plev/2 + randint1(10+plev/2), MIMIC_VAMPIRE, FALSE);
 		break;
@@ -2324,17 +2287,11 @@ take_hit(DAMAGE_USELIFE, 20 + randint1(30), "ÃÏ¹ö¤Î¹å²Ð¤Î¼öÊ¸¤ò¾§¤¨¤¿ÈèÏ«", -1);
 static bool cast_trump_spell(int spell, bool success)
 {
 	int     dir;
-	int     beam;
 	int     plev = p_ptr->lev;
 	int     summon_lev = plev * 2 / 3 + randint1(plev/2);
 	int     dummy = 0;
 	bool	no_trump = FALSE;
 	bool    unique_okay = FALSE;
-
-
-	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER) beam = plev + 10;
-	else beam = plev / 2;
 
 	if (summon_lev < 1) summon_lev = 1;
 	if (!success || (randint1(50+plev) < plev/10)) unique_okay = TRUE;
@@ -2364,7 +2321,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÃØéá¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿ÃØéá¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿ÃØéá¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned spiders get angry!");
 #endif
@@ -2661,7 +2618,7 @@ msg_print("¡ÔÂÀÍÛ¡Õ¤À¡£");
 
 					chg_virtue(V_KNOWLEDGE, 1);
 					chg_virtue(V_ENLIGHTEN, 1);
-					wiz_lite(FALSE, FALSE);
+					wiz_lite(FALSE);
 				}
 				else
 				{
@@ -2791,7 +2748,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥«¥ß¥«¥¼¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 				{
 					if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥â¥ó¥¹¥¿¡¼¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥â¥ó¥¹¥¿¡¼¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 						msg_print("The summoned creatures get angry!");
 #endif
@@ -2841,7 +2798,7 @@ msg_print("¸æÍÑ¤Ç¤´¤¶¤¤¤Þ¤¹¤«¡¢¸æ¼ç¿ÍÍÍ¡©");
 #else
 				if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
 #endif
-				(void)teleport_player_level();
+				(void)teleport_level(0);
 			}
 			break;
 		case 13: /* Dimension Door */
@@ -2859,7 +2816,7 @@ msg_print("¼¡¸µ¤ÎÈâ¤¬³«¤¤¤¿¡£ÌÜÅªÃÏ¤òÁª¤ó¤Ç²¼¤µ¤¤¡£");
 		case 14: /* Word of Recall */
 			if (success)
 			{
-				if (!word_of_recall()) return FALSE;
+				return word_of_recall();
 			}
 			break;
 		case 15: /* Banish */
@@ -2903,7 +2860,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥¢¥ó¥Ç¥Ã¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥¢¥ó¥Ç¥Ã¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥¢¥ó¥Ç¥Ã¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned undead creature gets angry!");
 #endif
@@ -2935,7 +2892,7 @@ msg_print("¤¢¤Ê¤¿¤Ïà¨ÃîÎà¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿à¨ÃîÎà¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿à¨ÃîÎà¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned reptile gets angry!");
 #endif
@@ -2983,7 +2940,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥â¥ó¥¹¥¿¡¼¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 				{
 					if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥â¥ó¥¹¥¿¡¼¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥â¥ó¥¹¥¿¡¼¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 						msg_print("The summoned creatures get angry!");
 #endif
@@ -3012,7 +2969,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥Ï¥¦¥ó¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥Ï¥¦¥ó¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥Ï¥¦¥ó¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned hounds get angry!");
 #endif
@@ -3069,7 +3026,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥µ¥¤¥Ð¡¼¥Ç¡¼¥â¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥µ¥¤¥Ð¡¼¥Ç¡¼¥â¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥µ¥¤¥Ð¡¼¥Ç¡¼¥â¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned Cyberdemon gets angry!");
 #endif
@@ -3128,7 +3085,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥É¥é¥´¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥É¥é¥´¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥É¥é¥´¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned dragon gets angry!");
 #endif
@@ -3192,7 +3149,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¥Ç¡¼¥â¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¥Ç¡¼¥â¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¥Ç¡¼¥â¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned demon gets angry!");
 #endif
@@ -3226,7 +3183,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¶¯ÎÏ¤Ê¥¢¥ó¥Ç¥Ã¥É¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¾åµé¥¢¥ó¥Ç¥Ã¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¾åµé¥¢¥ó¥Ç¥Ã¥É¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned greater undead creature gets angry!");
 #endif
@@ -3270,7 +3227,7 @@ msg_print("¤¢¤Ê¤¿¤Ï¸ÅÂå¥É¥é¥´¥ó¤Î¥«¡¼¥É¤Ë½¸Ãæ¤¹¤ë...");
 			{
 				if (!pet)
 #ifdef JP
-msg_print("¾¤´Ô¤µ¤ì¤¿¸ÅÂå¥É¥é¥´¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
+msg_print("¾¤´­¤µ¤ì¤¿¸ÅÂå¥É¥é¥´¥ó¤ÏÅÜ¤Ã¤Æ¤¤¤ë¡ª");
 #else
 					msg_print("The summoned ancient dragon gets angry!");
 #endif
@@ -3313,7 +3270,6 @@ static bool cast_arcane_spell(int spell)
 	int	beam;
 	int	plev = p_ptr->lev;
 	int	dummy = 0;
-	bool	no_trump = FALSE;
 
 	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER) beam = plev + 10;
@@ -3419,7 +3375,13 @@ msg_print("¸÷Àþ¤¬Êü¤¿¤ì¤¿¡£");
 		break;
 	case 25: /* Conjure Elemental */
 		if (!summon_specific(-1, py, px, plev, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_FORCE_PET)))
-			no_trump = TRUE;
+		{
+#ifdef JP
+			msg_print("¥¨¥ì¥á¥ó¥¿¥ë¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
+#else
+			msg_print("No Elementals arrive.");
+#endif
+		}
 		break;
 	case 26: /* Teleport Level */
 #ifdef JP
@@ -3427,7 +3389,7 @@ msg_print("¸÷Àþ¤¬Êü¤¿¤ì¤¿¡£");
 #else
 		if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
 #endif
-		(void)teleport_player_level();
+		(void)teleport_level(0);
 		break;
 	case 27: /* Teleport Away */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -3450,12 +3412,11 @@ msg_print("¸÷Àþ¤¬Êü¤¿¤ì¤¿¡£");
 		(void)detect_all(DETECT_RAD_DEFAULT);
 		break;
 	case 30: /* Word of Recall */
-		if (!word_of_recall()) return FALSE;
-		break;
+		return word_of_recall();
 	case 31: /* Clairvoyance */
 		chg_virtue(V_KNOWLEDGE, 1);
 		chg_virtue(V_ENLIGHTEN, 1);
-		wiz_lite(FALSE, FALSE);
+		wiz_lite(FALSE);
 		if (!p_ptr->telepathy)
 		{
 			(void)set_tim_esp(randint1(30) + 25, FALSE);
@@ -3466,13 +3427,6 @@ msg_print("¸÷Àþ¤¬Êü¤¿¤ì¤¿¡£");
 		msg_print(NULL);
 	}
 
-	if (no_trump)
-#ifdef JP
-msg_print("¥¨¥ì¥á¥ó¥¿¥ë¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
-#else
-		msg_print("No Elementals arrive.");
-#endif
-
 	return TRUE;
 }
 
@@ -3481,7 +3435,6 @@ static bool cast_enchant_spell(int spell)
 {
 	int	plev = p_ptr->lev;
 	int	dummy = 0;
-	bool	no_trump = FALSE;
 
 	switch (spell)
 	{
@@ -3546,7 +3499,6 @@ static bool cast_enchant_spell(int spell)
 		break;
 	case 15: /* Mana Branding */
 		return choose_ele_attack();
-		break;
 	case 16: /* Telepathy */
 		(void)set_tim_esp(randint1(30) + 25, FALSE);
 		break;
@@ -3573,14 +3525,18 @@ static bool cast_enchant_spell(int spell)
 		if (summon_specific(-1, py, px, plev, SUMMON_GOLEM, PM_FORCE_PET))
 		{
 #ifdef JP
-msg_print("¥´¡¼¥ì¥à¤òºî¤Ã¤¿¡£");
+			msg_print("¥´¡¼¥ì¥à¤òºî¤Ã¤¿¡£");
 #else
-		msg_print("You make a golem.");
+			msg_print("You make a golem.");
 #endif
 		}
 		else
 		{
-			no_trump = TRUE;
+#ifdef JP
+			msg_print("¤¦¤Þ¤¯¥´¡¼¥ì¥à¤òºî¤ì¤Ê¤«¤Ã¤¿¡£");
+#else
+			msg_print("No Golems arrive.");
+#endif
 		}
 		break;
 	case 23: /* Magic armor */
@@ -3601,13 +3557,10 @@ msg_print("¥´¡¼¥ì¥à¤òºî¤Ã¤¿¡£");
 		break;
 	case 26: /* Total Knowledge */
 		return identify_fully(FALSE);
-		break;
 	case 27: /* Enchant Weapon */
 		return enchant_spell(randint0(4) + 1, randint0(4) + 1, 0);
-		break;
 	case 28: /* Enchant Armor */
 		return enchant_spell(0, 0, randint0(3) + 2);
-		break;
 	case 29: /* Brand Weapon */
 		brand_weapon(randint0(18));
 		break;
@@ -3627,19 +3580,11 @@ msg_print("¤¢¤Ê¤¿¤ÏÀ¸¤­¤Æ¤¤¤ë¥«¡¼¥É¤ËÊÑ¤ï¤Ã¤¿¡£");
 #endif
 		break;
 	case 31: /* Immune */
-		return (choose_ele_immune(13 + randint1(13)));
-		break;
+		return choose_ele_immune(13 + randint1(13));
 	default:
 		msg_format("You cast an unknown Craft spell: %d.", spell);
 		msg_print(NULL);
 	}
-
-	if (no_trump)
-#ifdef JP
-msg_print("¤¦¤Þ¤¯¥´¡¼¥ì¥à¤òºî¤ì¤Ê¤«¤Ã¤¿¡£");
-#else
-		msg_print("No Golems arrive.");
-#endif
 
 	return TRUE;
 }
@@ -3788,7 +3733,7 @@ msg_print("¡ÖÈÜ¤·¤­¼Ô¤è¡¢²æ¤ÏÆò¤Î²¼ËÍ¤Ë¤¢¤é¤º¡ª ¤ªÁ°¤Îº²¤òÄº¤¯¤¾¡ª¡×");
 #ifdef JP
 msg_print("°­Ëâ¤Ï¸½¤ì¤Ê¤«¤Ã¤¿¡£");
 #else
-			msg_print("No Greater Demon arrive.");
+			msg_print("No demons arrive.");
 #endif
 		}
 		break;
@@ -4126,7 +4071,7 @@ msg_print("¿ÀÀ»¤ÊÎÏ¤¬¼Ù°­¤òÂÇ¤ÁÊ§¤Ã¤¿¡ª");
 		}
 		break;
 	case 27: /* Word of Destruction */
-		destroy_area(py, px, 13+randint0(5), TRUE);
+		(void)destroy_area(py, px, 13 + randint0(5), FALSE);
 		break;
 	case 28: /* Eye for an Eye */
 		set_tim_eyeeye(randint1(10)+10, FALSE);
@@ -4164,7 +4109,7 @@ msg_print("¿ÀÀ»¤ÊÎÏ¤¬¼Ù°­¤òÂÇ¤ÁÊ§¤Ã¤¿¡ª");
 				mmove2(&ny, &nx, py, px, ty, tx);
 
 				/* Stop at maximum range */
-				if (MAX_SIGHT*2 < distance(py, px, ny, nx)) break;
+				if (MAX_RANGE <= distance(py, px, ny, nx)) break;
 
 				/* Stopped by walls/doors */
 				if (!cave_floor_bold(ny, nx)) break;
@@ -4273,7 +4218,8 @@ void stop_singing(void)
 	}
 	if (!p_ptr->magic_num1[0]) return;
 
-	set_action(ACTION_NONE);
+	/* Hack -- if called from set_action(), avoid recursive loop */
+	if (p_ptr->action == ACTION_SING) set_action(ACTION_NONE);
 
 	switch(p_ptr->magic_num1[0])
 	{
@@ -4715,7 +4661,7 @@ void do_cmd_cast(void)
 	int	chance;
 	int	increment = 0;
 	int	use_realm;
-	int	shouhimana;
+	int	need_mana;
 	bool cast;
 
 	cptr prayer;
@@ -4765,7 +4711,7 @@ msg_print("º®Íð¤·¤Æ¤¤¤Æ¾§¤¨¤é¤ì¤Ê¤¤¡ª");
 		return;
 	}
 
-	prayer = spell_categoly_name(mp_ptr->spell_book);
+	prayer = spell_category_name(mp_ptr->spell_book);
 
 	/* Restrict choices to spell books */
 	item_tester_tval = mp_ptr->spell_book;
@@ -4783,18 +4729,15 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 	s = "You have no spell books!";
 #endif
 
-	select_spellbook=TRUE;
 	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
-	    select_spellbook = FALSE;
 	    select_the_force = FALSE;
 	    return;
 	}
-	select_spellbook = FALSE;
 	select_the_force = FALSE;
 
-	if (item == 1111) { /* the_force */
+	if (item == INVEN_FORCE) { /* the_force */
 	    do_cmd_mind();
 	    return;
 	} else
@@ -4859,15 +4802,10 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 	}
 
 	/* Extract mana consumption rate */
-	shouhimana = s_ptr->smana*(3800 - experience_of_spell(spell, realm)) + 2399;
-	if(p_ptr->dec_mana)
-		shouhimana *= 3;
-	else shouhimana *= 4;
-	shouhimana /= 9600;
-	if(shouhimana < 1) shouhimana = 1;
+	need_mana = mod_need_mana(s_ptr->smana, spell, realm);
 
 	/* Verify "dangerous" spells */
-	if (shouhimana > p_ptr->csp)
+	if (need_mana > p_ptr->csp)
 	{
 		if (flush_failure) flush();
 
@@ -4910,34 +4848,26 @@ msg_format("%s¤ò¤¦¤Þ¤¯¾§¤¨¤é¤ì¤Ê¤«¤Ã¤¿¡ª", prayer);
 
 		sound(SOUND_FAIL);
 
-		if (realm == REALM_LIFE)
+		switch (realm)
 		{
-			if (randint1(100) < chance)
-				chg_virtue(V_VITALITY, -1);
-		}
-		else if (realm == REALM_DEATH)
-		{
-			if (randint1(100) < chance)
-				chg_virtue(V_UNLIFE, -1);
-		}
-		else if (realm == REALM_NATURE)
-		{
-			if (randint1(100) < chance)
-				chg_virtue(V_NATURE, -1);
-		}
-		else if (realm == REALM_DAEMON)
-		{
-			if (randint1(100) < chance)
-				chg_virtue(V_JUSTICE, 1);
-		}
-		if (realm == REALM_CRUSADE)
-		{
-			if (randint1(100) < chance)
-				chg_virtue(V_JUSTICE, -1);
-		}
-		else if (randint1(100) < chance)
-		{
-			chg_virtue(V_KNOWLEDGE, -1);
+		case REALM_LIFE:
+			if (randint1(100) < chance) chg_virtue(V_VITALITY, -1);
+			break;
+		case REALM_DEATH:
+			if (randint1(100) < chance) chg_virtue(V_UNLIFE, -1);
+			break;
+		case REALM_NATURE:
+			if (randint1(100) < chance) chg_virtue(V_NATURE, -1);
+			break;
+		case REALM_DAEMON:
+			if (randint1(100) < chance) chg_virtue(V_JUSTICE, 1);
+			break;
+		case REALM_CRUSADE:
+			if (randint1(100) < chance) chg_virtue(V_JUSTICE, -1);
+			break;
+		default:
+			if (randint1(100) < chance) chg_virtue(V_KNOWLEDGE, -1);
+			break;
 		}
 
 		if (realm == REALM_TRUMP)
@@ -5068,98 +4998,95 @@ msg_print("An infernal sound echoed.");
 			/* Redraw object recall */
 			p_ptr->window |= (PW_OBJECT);
 
-			if (realm == REALM_LIFE)
+			switch (realm)
 			{
+			case REALM_LIFE:
 				chg_virtue(V_TEMPERANCE, 1);
 				chg_virtue(V_COMPASSION, 1);
 				chg_virtue(V_VITALITY, 1);
 				chg_virtue(V_DILIGENCE, 1);
-			}
-			else if (realm == REALM_DEATH)
-			{
+				break;
+			case REALM_DEATH:
 				chg_virtue(V_UNLIFE, 1);
 				chg_virtue(V_JUSTICE, -1);
 				chg_virtue(V_FAITH, -1);
 				chg_virtue(V_VITALITY, -1);
-			}
-			else if (realm == REALM_DAEMON)
-			{
+				break;
+			case REALM_DAEMON:
 				chg_virtue(V_JUSTICE, -1);
 				chg_virtue(V_FAITH, -1);
 				chg_virtue(V_HONOUR, -1);
 				chg_virtue(V_TEMPERANCE, -1);
-			}
-			else if (realm == REALM_CRUSADE)
-			{
+				break;
+			case REALM_CRUSADE:
 				chg_virtue(V_FAITH, 1);
 				chg_virtue(V_JUSTICE, 1);
 				chg_virtue(V_SACRIFICE, 1);
 				chg_virtue(V_HONOUR, 1);
-			}
-			else if (realm == REALM_NATURE)
-			{
+				break;
+			case REALM_NATURE:
 				chg_virtue(V_NATURE, 1);
 				chg_virtue(V_HARMONY, 1);
-			}
-			else
+				break;
+			default:
 				chg_virtue(V_KNOWLEDGE, 1);
+				break;
+			}
 		}
-		if (realm == REALM_LIFE)
+		switch (realm)
 		{
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_TEMPERANCE, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_COMPASSION, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_VITALITY, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_DILIGENCE, 1);
-		}
-		else if (realm == REALM_DEATH)
-		{
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_UNLIFE, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_JUSTICE, -1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_FAITH, -1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_VITALITY, -1);
-		}
-		else if (realm == REALM_DAEMON)
-		{
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_JUSTICE, -1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_FAITH, -1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_HONOUR, -1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_TEMPERANCE, -1);
-		}
-		else if (realm == REALM_CRUSADE)
-		{
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_FAITH, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_JUSTICE, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_SACRIFICE, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_HONOUR, 1);
-		}
-		else if (realm == REALM_NATURE)
-		{
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_NATURE, 1);
-			if (randint1(100 + p_ptr->lev) < shouhimana) chg_virtue(V_HARMONY, 1);
+		case REALM_LIFE:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_TEMPERANCE, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_COMPASSION, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_VITALITY, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_DILIGENCE, 1);
+			break;
+		case REALM_DEATH:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_UNLIFE, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_JUSTICE, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_FAITH, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_VITALITY, -1);
+			break;
+		case REALM_DAEMON:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_JUSTICE, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_FAITH, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_HONOUR, -1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_TEMPERANCE, -1);
+			break;
+		case REALM_CRUSADE:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_FAITH, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_JUSTICE, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_SACRIFICE, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_HONOUR, 1);
+			break;
+		case REALM_NATURE:
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_NATURE, 1);
+			if (randint1(100 + p_ptr->lev) < need_mana) chg_virtue(V_HARMONY, 1);
+			break;
 		}
 		if (mp_ptr->spell_xtra & MAGIC_GAIN_EXP)
 		{
 			s16b cur_exp = p_ptr->spell_exp[(increment ? 32 : 0)+spell];
 			s16b exp_gain = 0;
 
-			if (cur_exp < 900)
-				exp_gain+=60;
-			else if(cur_exp < 1200)
+			if (cur_exp < SPELL_EXP_BEGINNER)
+				exp_gain += 60;
+			else if (cur_exp < SPELL_EXP_SKILLED)
 			{
 				if ((dun_level > 4) && ((dun_level + 10) > p_ptr->lev))
 					exp_gain = 8;
 			}
-			else if(cur_exp < 1400)
+			else if (cur_exp < SPELL_EXP_EXPERT)
 			{
 				if (((dun_level + 5) > p_ptr->lev) && ((dun_level + 5) > s_ptr->slevel))
 					exp_gain = 2;
 			}
-			else if((cur_exp < 1600) && !increment)
+			else if ((cur_exp < SPELL_EXP_MASTER) && !increment)
 			{
 				if (((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel))
 					exp_gain = 1;
 			}
-			p_ptr->spell_exp[(increment ? 32 : 0)+spell] += exp_gain;
+			p_ptr->spell_exp[(increment ? 32 : 0) + spell] += exp_gain;
 		}
 	}
 
@@ -5167,16 +5094,16 @@ msg_print("An infernal sound echoed.");
 	energy_use = 100;
 
 	/* Sufficient mana */
-	if (shouhimana <= p_ptr->csp)
+	if (need_mana <= p_ptr->csp)
 	{
 		/* Use some mana */
-		p_ptr->csp -= shouhimana;
+		p_ptr->csp -= need_mana;
 	}
 
 	/* Over-exert the player */
 	else
 	{
-		int oops = shouhimana;
+		int oops = need_mana;
 
 		/* No mana left */
 		p_ptr->csp = 0;
@@ -5193,18 +5120,27 @@ msg_print("Àº¿À¤ò½¸Ãæ¤·¤¹¤®¤Æµ¤¤ò¼º¤Ã¤Æ¤·¤Þ¤Ã¤¿¡ª");
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
 
-		if (realm == REALM_LIFE)
+		switch (realm)
+		{
+		case REALM_LIFE:
 			chg_virtue(V_VITALITY, -10);
-		else if (realm == REALM_DEATH)
+			break;
+		case REALM_DEATH:
 			chg_virtue(V_UNLIFE, -10);
-		else if (realm == REALM_DAEMON)
+			break;
+		case REALM_DAEMON:
 			chg_virtue(V_JUSTICE, 10);
-		else if (realm == REALM_NATURE)
+			break;
+		case REALM_NATURE:
 			chg_virtue(V_NATURE, -10);
-		else if (realm == REALM_CRUSADE)
+			break;
+		case REALM_CRUSADE:
 			chg_virtue(V_JUSTICE, -10);
-		else
+			break;
+		default:
 			chg_virtue(V_KNOWLEDGE, -10);
+			break;
+		}
 
 		/* Damage CON (possibly permanently) */
 		if (randint0(100) < 50)
@@ -5252,6 +5188,9 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 	monster_type *m_ptr2 = &m_list[w2];
 	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
 	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
+
+	/* Unused */
+	(void)v;
 
 	if (w1 == p_ptr->riding) return TRUE;
 	if (w2 == p_ptr->riding) return FALSE;
@@ -5310,16 +5249,10 @@ int calculate_upkeep(void)
 			}
 			else
 				total_friend_levels += r_ptr->level;
-			
+
 			/* Determine pet alignment */
-			if (r_ptr->flags3 & RF3_GOOD)
-			{
-				friend_align += r_ptr->level;
-			}
-			else if (r_ptr->flags3 & RF3_EVIL)
-			{
-				friend_align -= r_ptr->level;
-			}
+			if (r_ptr->flags3 & RF3_GOOD) friend_align += r_ptr->level;
+			if (r_ptr->flags3 & RF3_EVIL) friend_align -= r_ptr->level;
 		}
 	}
 	if (old_friend_align != friend_align) p_ptr->update |= (PU_BONUS);
@@ -5382,26 +5315,26 @@ void do_cmd_pet_dismiss(void)
 
 		delete_this = FALSE;
 		kakunin = ((pet_ctr == p_ptr->riding) || (m_ptr->nickname));
-		monster_desc(friend_name, m_ptr, 0x80);
-		
+		monster_desc(friend_name, m_ptr, MD_ASSUME_VISIBLE);
+
 		if (!all_pets)
 		{
 			/* Hack -- health bar for this monster */
 			health_track(pet_ctr);
-			
+
 			/* Hack -- handle stuff */
 			handle_stuff();
-			
+
 #ifdef JP
 			sprintf(buf, "%s¤òÊü¤·¤Þ¤¹¤«¡© [Yes/No/Unnamed (%dÉ¤)]", friend_name, max_pet-i);
 #else
 			sprintf(buf, "Dismiss %s? [Yes/No/Unnamed (%d remain)]", friend_name, max_pet-i);
 #endif
 			prt(buf, 0, 0);
-			
+
 			if (m_ptr->ml)
 				move_cursor_relative(m_ptr->fy, m_ptr->fx);
-			
+
 			while (TRUE)
 			{
 				char ch = inkey();
@@ -5409,7 +5342,7 @@ void do_cmd_pet_dismiss(void)
 				if (ch == 'Y' || ch == 'y')
 				{
 					delete_this = TRUE;
-					
+
 					if (kakunin)
 					{
 #ifdef JP
@@ -5422,30 +5355,30 @@ void do_cmd_pet_dismiss(void)
 					}
 					break;
 				}
-				
+
 				if (ch == 'U' || ch == 'u')
 				{
 					all_pets = TRUE;
 					break;
 				}
-				
+
 				if (ch == ESCAPE || ch == 'N' || ch == 'n')
 					break;
-				
+
 				bell();
 			}
 		}
-		
+
 		if ((all_pets && !kakunin) || (!all_pets && delete_this))
 		{
 			if (record_named_pet && m_ptr->nickname)
 			{
 				char m_name[80];
-				
-				monster_desc(m_name, m_ptr, 0x08);
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 2, m_name);
 			}
-			
+
 			if (pet_ctr == p_ptr->riding)
 			{
 #ifdef JP
@@ -5453,9 +5386,9 @@ void do_cmd_pet_dismiss(void)
 #else
 				msg_format("You have got off %s. ", friend_name);
 #endif
-				
+
 				p_ptr->riding = 0;
-				
+
 				/* Update the monsters */
 				p_ptr->update |= (PU_BONUS | PU_MONSTERS);
 				p_ptr->redraw |= (PR_EXTRA);
@@ -5475,7 +5408,7 @@ void do_cmd_pet_dismiss(void)
 			Dismissed++;
 		}
 	}
-	
+
 	Term->scr->cu = cu;
 	Term->scr->cv = cv;
 	Term_fresh();
@@ -5513,25 +5446,37 @@ bool rakuba(int dam, bool force)
 	{
 		if (!force)
 		{
-			int level = r_ptr->level;
-			if (p_ptr->riding_ryoute) level += 20;
-			if ((dam/2 + r_ptr->level) > (p_ptr->skill_exp[GINOU_RIDING]/30+10))
+			int cur = p_ptr->skill_exp[GINOU_RIDING];
+			int max = s_info[p_ptr->pclass].s_max[GINOU_RIDING];
+			int ridinglevel = r_ptr->level;
+
+			/* ÍîÇÏ¤Î¤·¤ä¤¹¤µ */
+			int rakubalevel = r_ptr->level;
+			if (p_ptr->riding_ryoute) rakubalevel += 20;
+
+			if ((cur < max) && (max > 1000) &&
+			    (dam / 2 + ridinglevel) > (cur / 30 + 10))
 			{
-				if((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && s_info[p_ptr->pclass].s_max[GINOU_RIDING] > 1000)
-				{
-					if (r_ptr->level*100 > (p_ptr->skill_exp[GINOU_RIDING] + 1500))
-						p_ptr->skill_exp[GINOU_RIDING] += (1+(r_ptr->level - p_ptr->skill_exp[GINOU_RIDING]/100 - 15));
-					else p_ptr->skill_exp[GINOU_RIDING]++;
-				}
+				int inc = 0;
+
+				if (ridinglevel > (cur / 100 + 15))
+					inc += 1 + (ridinglevel - cur / 100 - 15);
+				else
+					inc += 1;
+
+				p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
 			}
-			if (randint0(dam/2 + level*2) < (p_ptr->skill_exp[GINOU_RIDING]/30+10))
+
+			/* ¥ì¥Ù¥ë¤ÎÄã¤¤¾èÇÏ¤«¤é¤ÏÍîÇÏ¤·¤Ë¤¯¤¤ */
+			if (randint0(dam / 2 + rakubalevel * 2) < cur / 30 + 10)
 			{
-				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
+				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_CAVALRY)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3) + 30))
 				{
 					return FALSE;
 				}
 			}
 		}
+
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
 		{
@@ -5596,7 +5541,7 @@ msg_format("%s¤«¤é¿¶¤êÍî¤È¤µ¤ì¤½¤¦¤Ë¤Ê¤Ã¤Æ¡¢ÊÉ¤Ë¤Ö¤Ä¤«¤Ã¤¿¡£",m_name);
 	p_ptr->update |= (PU_BONUS);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -5684,7 +5629,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 #ifdef JP
 msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ï¥Ú¥Ã¥È¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó¡£");
 #else
-			msg_print("That monster is no a pet.");
+			msg_print("That monster is not a pet.");
 #endif
 
 			return FALSE;
@@ -5729,7 +5674,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint1((p_ptr->skill_exp[GINOU_RIDING]/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint1((p_ptr->skill_exp[GINOU_RIDING] / 50 + p_ptr->lev / 2 + 20)))
 		{
 #ifdef JP
 msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -5782,7 +5727,7 @@ msg_format("%s¤òµ¯¤³¤·¤¿¡£", m_name);
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -5879,7 +5824,7 @@ static void do_name_pet(void)
 				{
 					char m_name[80];
 
-					monster_desc(m_name, m_ptr, 0x08);
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 					do_cmd_write_nikki(NIKKI_NAMED_PET, 0, m_name);
 				}
 			}
@@ -5889,7 +5834,7 @@ static void do_name_pet(void)
 				{
 					char m_name[80];
 
-					monster_desc(m_name, m_ptr, 0x08);
+					monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 					do_cmd_write_nikki(NIKKI_NAMED_PET, 1, m_name);
 				}
 				m_ptr->nickname = 0;
@@ -5911,7 +5856,7 @@ void do_cmd_pet(void)
 	int			ask;
 	char			choice;
 	char			out_val[160];
-	int			pets = 0, pet_ctr;
+	int			pet_ctr;
 	monster_type	*m_ptr;
 
 	int mode = 0;
@@ -5922,16 +5867,6 @@ void do_cmd_pet(void)
 	char target_buf[160];
 
 	num = 0;
-
-	/* Calculate pets */
-	/* Process the monsters (backwards) */
-	for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
-	{
-		/* Access the monster */
-		m_ptr = &m_list[pet_ctr];
-
-		if (is_pet(m_ptr)) pets++;
-	}
 
 #ifdef JP
 	power_desc[num] = "¥Ú¥Ã¥È¤òÊü¤¹";
@@ -6328,7 +6263,14 @@ strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤
 	{
 		case PET_DISMISS: /* Dismiss pets */
 		{
-			if (!pets)
+			/* Check pets (backwards) */
+			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+			{
+				/* Player has pet */
+				if (is_pet(&m_list[pet_ctr])) break;
+			}
+
+			if (!pet_ctr)
 			{
 #ifdef JP
 				msg_print("¥Ú¥Ã¥È¤¬¤¤¤Ê¤¤¡ª");

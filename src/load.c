@@ -1,5 +1,13 @@
 /* File: load.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
+ */
+
 /* Purpose: support for loading savefiles -BEN- */
 
 #include "angband.h"
@@ -422,7 +430,7 @@ static void rd_item_old(object_type *o_ptr)
 		rd_byte(&o_ptr->xtra3);
 		if (h_older_than(1, 3, 0, 1))
 		{
-			if (o_ptr->tval > TV_CAPTURE && o_ptr->xtra3 >= 1+96)
+			if (item_tester_hook_smith(o_ptr) && o_ptr->xtra3 >= 1+96)
 				o_ptr->xtra3 += -96 + MIN_SPECIAL_ESSENCE;
 		}
 
@@ -717,7 +725,7 @@ static void rd_monster_old(monster_type *m_ptr)
 		if (m_ptr->r_idx < 0)
 		{
 			m_ptr->r_idx = (0-m_ptr->r_idx);
-			m_ptr->mflag2 |= MFLAG_KAGE;
+			m_ptr->mflag2 |= MFLAG2_KAGE;
 		}
 	}
 	else
@@ -727,7 +735,7 @@ static void rd_monster_old(monster_type *m_ptr)
 
 	if (z_older_than(11, 0, 12))
 	{
-		if (m_ptr->mflag2 & MFLAG_KAGE)
+		if (m_ptr->mflag2 & MFLAG2_KAGE)
 			m_ptr->ap_r_idx = MON_KAGE;
 	}
 
@@ -828,7 +836,49 @@ static void rd_monster(monster_type *m_ptr)
 }
 
 
+/*
+ * Old monster bit flags of racial resistances
+ */
+#define RF3_IM_ACID         0x00010000  /* Resist acid a lot */
+#define RF3_IM_ELEC         0x00020000  /* Resist elec a lot */
+#define RF3_IM_FIRE         0x00040000  /* Resist fire a lot */
+#define RF3_IM_COLD         0x00080000  /* Resist cold a lot */
+#define RF3_IM_POIS         0x00100000  /* Resist poison a lot */
+#define RF3_RES_TELE        0x00200000  /* Resist teleportation */
+#define RF3_RES_NETH        0x00400000  /* Resist nether a lot */
+#define RF3_RES_WATE        0x00800000  /* Resist water */
+#define RF3_RES_PLAS        0x01000000  /* Resist plasma */
+#define RF3_RES_NEXU        0x02000000  /* Resist nexus */
+#define RF3_RES_DISE        0x04000000  /* Resist disenchantment */
+#define RF3_RES_ALL         0x08000000  /* Resist all */
 
+#define MOVE_RF3_TO_RFR(R_PTR,RF3,RFR) \
+{\
+	if ((R_PTR)->r_flags3 & (RF3)) \
+	{ \
+		(R_PTR)->r_flags3 &= ~(RF3); \
+		(R_PTR)->r_flagsr |= (RFR); \
+	} \
+}
+
+#define RF4_BR_TO_RFR(R_PTR,RF4_BR,RFR) \
+{\
+	if ((R_PTR)->r_flags4 & (RF4_BR)) \
+	{ \
+		(R_PTR)->r_flagsr |= (RFR); \
+	} \
+}
+
+#define RF4_BR_LITE         0x00004000  /* Breathe Lite */
+#define RF4_BR_DARK         0x00008000  /* Breathe Dark */
+#define RF4_BR_CONF         0x00010000  /* Breathe Confusion */
+#define RF4_BR_SOUN         0x00020000  /* Breathe Sound */
+#define RF4_BR_CHAO         0x00040000  /* Breathe Chaos */
+#define RF4_BR_TIME         0x00200000  /* Breathe Time */
+#define RF4_BR_INER         0x00400000  /* Breathe Inertia */
+#define RF4_BR_GRAV         0x00800000  /* Breathe Gravity */
+#define RF4_BR_SHAR         0x01000000  /* Breathe Shards */
+#define RF4_BR_WALL         0x04000000  /* Breathe Force */
 /*
  * Read the monster lore
  */
@@ -857,7 +907,7 @@ static void rd_lore(int r_idx)
 	rd_byte(&r_ptr->r_drop_item);
 
 	/* Count spells */
-	rd_byte(&r_ptr->r_cast_inate);
+	rd_byte(&tmp8u);
 	rd_byte(&r_ptr->r_cast_spell);
 
 	/* Count blows of each type */
@@ -873,6 +923,46 @@ static void rd_lore(int r_idx)
 	rd_u32b(&r_ptr->r_flags4);
 	rd_u32b(&r_ptr->r_flags5);
 	rd_u32b(&r_ptr->r_flags6);
+	if (h_older_than(1, 5, 0, 3))
+	{
+		r_ptr->r_flagsr = 0L;
+
+		/* Move RF3 resistance flags to RFR */
+		MOVE_RF3_TO_RFR(r_ptr, RF3_IM_ACID,  RFR_IM_ACID);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_IM_ELEC,  RFR_IM_ELEC);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_IM_FIRE,  RFR_IM_FIRE);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_IM_COLD,  RFR_IM_COLD);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_IM_POIS,  RFR_IM_POIS);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_TELE, RFR_RES_TELE);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_NETH, RFR_RES_NETH);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_WATE, RFR_RES_WATE);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_PLAS, RFR_RES_PLAS);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_NEXU, RFR_RES_NEXU);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_DISE, RFR_RES_DISE);
+		MOVE_RF3_TO_RFR(r_ptr, RF3_RES_ALL,  RFR_RES_ALL);
+
+		/* Separate breathers resistance from RF4 to RFR */
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_LITE, RFR_RES_LITE);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_DARK, RFR_RES_DARK);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_SOUN, RFR_RES_SOUN);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_CHAO, RFR_RES_CHAO);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_TIME, RFR_RES_TIME);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_INER, RFR_RES_INER);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_GRAV, RFR_RES_GRAV);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_SHAR, RFR_RES_SHAR);
+		RF4_BR_TO_RFR(r_ptr, RF4_BR_WALL, RFR_RES_WALL);
+
+		/* Resist confusion is merged to RF3_NO_CONF */
+		if (r_ptr->r_flags4 & RF4_BR_CONF) r_ptr->r_flags3 |= RF3_NO_CONF;
+
+		/* Misc resistance hack to RFR */
+		if (r_idx == MON_STORMBRINGER) r_ptr->r_flagsr |= RFR_RES_CHAO;
+		if (r_ptr->r_flags3 & RF3_ORC) r_ptr->r_flagsr |= RFR_RES_DARK;
+	}
+	else
+	{
+		rd_u32b(&r_ptr->r_flagsr);
+	}
 
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
@@ -890,6 +980,7 @@ static void rd_lore(int r_idx)
 	r_ptr->r_flags4 &= r_ptr->flags4;
 	r_ptr->r_flags5 &= r_ptr->flags5;
 	r_ptr->r_flags6 &= r_ptr->flags6;
+	r_ptr->r_flagsr &= r_ptr->flagsr;
 }
 
 
@@ -1234,6 +1325,9 @@ static void rd_options(void)
 		else option_flag[5] |= (0x00000001 << 3);
 	}
 
+	/* Extract the options */
+	extract_option_vars();
+
 
 	/*** Window Options ***/
 
@@ -1404,7 +1498,7 @@ static void rd_extra(void)
 	for (i = 0; i < 64; i++) rd_s16b(&p_ptr->spell_exp[i]);
 	if ((p_ptr->pclass == CLASS_SORCERER) && z_older_than(10, 4, 2))
 	{
-		for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = 1600;
+		for (i = 0; i < 64; i++) p_ptr->spell_exp[i] = SPELL_EXP_MASTER;
 	}
 	if (z_older_than(10, 3, 6))
 		for (i = 0; i < 5; i++) for (j = 0; j < 60; j++) rd_s16b(&p_ptr->weapon_exp[i][j]);
@@ -1489,46 +1583,12 @@ static void rd_extra(void)
 
 	if (z_older_than(10, 0, 3))
 	{
-		get_mon_num_prep(NULL, NULL);
+		determine_bounty_uniques();
+
 		for (i = 0; i < MAX_KUBI; i++)
 		{
-			monster_race *r_ptr;
-			while (1)
-			{
-				int j;
-
-				kubi_r_idx[i] = get_mon_num(MAX_DEPTH - 1);
-				r_ptr = &r_info[kubi_r_idx[i]];
-
-				if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-
-				if(!(r_ptr->flags9 & RF9_DROP_CORPSE)) continue;
-
-				if(r_ptr->flags6 & RF6_SPECIAL) continue;
-
-				for (j = 0; j < i; j++)
-					if (kubi_r_idx[i] == kubi_r_idx[j])break;
-
-				if (j == i) break;
-			}
-		}
-		for (i = 0; i < MAX_KUBI -1; i++)
-		{
-			int j,tmp;
-			for (j = i; j < MAX_KUBI; j++)
-			{
-				if (r_info[kubi_r_idx[i]].level > r_info[kubi_r_idx[j]].level)
-				{
-					tmp = kubi_r_idx[i];
-					kubi_r_idx[i] = kubi_r_idx[j];
-					kubi_r_idx[j] = tmp;
-				}
-			}
-		}
-		for (i = 0; i < MAX_KUBI; i++)
-		{
-			if(!r_info[kubi_r_idx[i]].max_num)
-				kubi_r_idx[i] += 10000;
+			/* Is this bounty unique already dead? */
+			if (!r_info[kubi_r_idx[i]].max_num) kubi_r_idx[i] += 10000;
 		}
 	}
 	else
@@ -1561,6 +1621,11 @@ static void rd_extra(void)
 
 	/* Read arena and rewards information */
 	rd_s16b(&p_ptr->arena_number);
+	if (h_older_than(1, 5, 0, 1))
+	{
+		/* Arena loser of previous version was marked number 99 */
+		if (p_ptr->arena_number >= 99) p_ptr->arena_number = ARENA_DEFEATED_OLD_VER;
+	}
 	rd_s16b(&tmp16s);
 	p_ptr->inside_arena = (bool)tmp16s;
 	rd_s16b(&p_ptr->inside_quest);
@@ -1866,23 +1931,7 @@ note(format("の中", tmp16s));
 
 	if (z_older_than(10,0,3))
 	{
-		monster_race *r_ptr;
-
-		while (1)
-		{
-			today_mon = get_mon_num(MAX(max_dlv[DUNGEON_ANGBAND], 3));
-			r_ptr = &r_info[today_mon];
-		
-			if (r_ptr->flags1 & RF1_UNIQUE) continue;
-			if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
-			if (!(r_ptr->flags9 & RF9_DROP_CORPSE) || !(r_ptr->flags9 & RF9_DROP_SKELETON)) continue;
-			if (r_ptr->level < MIN(max_dlv[DUNGEON_ANGBAND], 40)) continue;
-			if (r_ptr->rarity > 10) continue;
-			if (r_ptr->level == 0) continue;
-			break;
-		}
-
-		p_ptr->today_mon = 0;
+		determine_today_mon(TRUE);
 	}
 	else
 	{
@@ -1907,6 +1956,51 @@ note(format("の中", tmp16s));
 	else
 	{
 		rd_s16b(&p_ptr->floor_id);
+	}
+
+	if (h_older_than(1, 5, 0, 2))
+	{
+		C_WIPE(&party_mon[i], MAX_PARTY_MON, monster_type);
+	}
+	else
+	{
+		s16b max_num;
+		monster_type dummy_mon;
+		bool removed = FALSE;
+
+		rd_s16b(&tmp16s);
+		max_num = MIN(MAX_PARTY_MON, tmp16s);
+
+		/* Load temporary preserved pets */
+		for (i = 0; i < max_num; i++)
+		{
+			rd_monster(&party_mon[i]);
+
+			/* Count */
+			real_r_ptr(&party_mon[i])->cur_num++;
+		}
+
+		/* Remove excess pets */
+		for (i = max_num; i < tmp16s; i++)
+		{
+			rd_monster(&dummy_mon);
+
+			if (dummy_mon.r_idx)
+			{
+				if (record_named_pet && dummy_mon.nickname)
+				{
+					char m_name[80];
+					monster_desc(m_name, &dummy_mon, MD_INDEF_VISIBLE);
+					do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
+				}
+				removed = TRUE;
+			}
+		}
+#ifdef JP
+		if (removed) note("一時保存ペットが多すぎるので一部削除します。");
+#else
+		if (removed) note("Temporary pets are too many, so some are removed.");
+#endif
 	}
 
 	if (z_older_than(10,1,2))
@@ -2137,7 +2231,7 @@ static errr rd_dungeon_old(void)
 			rd_u16b(&info);
 
 			/* Decline invalid flags */
-			info &= ~(CAVE_LITE | CAVE_VIEW | CAVE_MNLT);
+			info &= ~(CAVE_LITE | CAVE_VIEW | CAVE_MNLT | CAVE_MNDK);
 		}
 
 		/* Apply the RLE info */
@@ -3189,36 +3283,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 
 					if ((quest[i].type == QUEST_TYPE_RANDOM) && (!quest[i].r_idx))
 					{
-						int r_idx;
-						while (1)
-						{
-							 monster_race *r_ptr;
-
-							/*
-							 * Random monster 5 - 10 levels out of depth
-							 * (depending on level)
-							 */
-							r_idx = get_mon_num(quest[i].level + 5 + randint1(quest[i].level / 10));
-							r_ptr = &r_info[r_idx];
-
-							if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
-
-							if(r_ptr->flags6 & RF6_SPECIAL) continue;
-
-							if(r_ptr->flags7 & RF7_FRIENDLY) continue;
-
-							if(r_ptr->flags7 & RF7_AQUATIC) continue;
-
-							if(r_ptr->flags8 & RF8_WILD_ONLY) continue;
-
-							/*
-							 * Accept monsters that are 2 - 6 levels
-							 * out of depth depending on the quest level
-							 */
-							if (r_ptr->level > (quest[i].level + (quest[i].level / 20))) break;
-						}
-
-						quest[i].r_idx = r_idx;
+						determine_random_questor(&quest[i]);
 					}
 
 					/* Load quest item index */
@@ -3632,8 +3697,14 @@ errr rd_savefile_new(void)
 {
 	errr err;
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* The savefile is a binary file */
 	fff = my_fopen(savefile, "rb");
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Paranoia */
 	if (!fff) return (-1);
@@ -3747,8 +3818,14 @@ bool load_floor(saved_floor_type *sf_ptr, u32b mode)
 	/* floor savefile */
 	sprintf(floor_savefile, "%s.F%02d", savefile, (int)sf_ptr->savefile_id);
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* The savefile is a binary file */
 	fff = my_fopen(floor_savefile, "rb");
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Couldn't read */
 	if (!fff) ok = FALSE;
@@ -3765,8 +3842,14 @@ bool load_floor(saved_floor_type *sf_ptr, u32b mode)
 		/* Close the file */
 		my_fclose(fff);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Delete the file */
 		if (!(mode & SLF_NO_KILL)) (void)fd_kill(floor_savefile);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 	/* We have one file already opened */

@@ -545,11 +545,15 @@ static cptr AngList = "AngList";
 /*
  * Directory names
  */
-static cptr ANGBAND_DIR_XTRA_FONT;
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
-static cptr ANGBAND_DIR_XTRA_MUSIC;
 static cptr ANGBAND_DIR_XTRA_HELP;
+#ifndef JP
+static cptr ANGBAND_DIR_XTRA_FONT;
+#endif
+#ifdef USE_MUSIC
+static cptr ANGBAND_DIR_XTRA_MUSIC;
+#endif
 
 
 /*
@@ -701,7 +705,7 @@ static byte special_key_list[] =
 #endif
 
 /* bg */
-static void delete_bg()
+static void delete_bg(void)
 {
 	if (hBG != NULL)
 	{
@@ -710,7 +714,7 @@ static void delete_bg()
 	}
 }
 
-static int init_bg()
+static int init_bg(void)
 {
 	char * bmfile = bg_bitmap_file;
 
@@ -729,15 +733,15 @@ static int init_bg()
 	int i, j;
 
 	delete_bg();
-	
+
 	wnddc = GetDC(hwnd);
 	dcimage = CreateCompatibleDC(wnddc);
 	dcbg = CreateCompatibleDC(wnddc);
-	
+
 	bmimage = LoadImage(NULL, "bg.bmp", LR_LOADFROMFILE, 0, 0, 0);
 	if (!bmimage) quit("bg.bmpが読みこめない！");
 	bmimage_old = SelectObject(dcimage, bmimage);
-	
+
 	CreateCompatibleBitmap();
 
 	ReleaseDC(hwnd, wnddc);
@@ -781,6 +785,7 @@ static void DrawBG(HDC hdc, RECT *r)
 	DeleteDC(hdcSrc);
 }
 
+#if 0
 /*
  * Hack -- given a pathname, point at the filename
  */
@@ -797,6 +802,7 @@ static cptr extract_file_name(cptr s)
 	/* Return file name */
 	return (p+1);
 }
+#endif
 
 
 /*
@@ -1948,7 +1954,7 @@ static errr Term_xtra_win_react(void)
 		term_data *td = &data[i];
 
 		/* Update resized windows */
-		if ((td->cols != td->t.wid) || (td->rows != td->t.hgt))
+		if ((td->cols != (uint)td->t.wid) || (td->rows != (uint)td->t.hgt))
 		{
 			/* Activate */
 			Term_activate(&td->t);
@@ -2890,8 +2896,6 @@ static void init_windows(void)
 
 #ifdef JP
 		strncpy(td->lf.lfFaceName, td->font_want, LF_FACESIZE);
-		td->lf.lfHeight = td->tile_hgt;
-		td->lf.lfWidth  = td->tile_wid;
 		td->lf.lfCharSet = SHIFTJIS_CHARSET;
 		td->lf.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
 		/* Activate the chosen font */

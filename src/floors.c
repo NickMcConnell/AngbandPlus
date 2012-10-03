@@ -45,8 +45,14 @@ void init_saved_floors(void)
 		/* File name */
 		sprintf(floor_savefile, "%s.F%02d", savefile, i);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Try to create the file */
 		fd = fd_make(floor_savefile, mode);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Failed! */
 		if (fd < 0)
@@ -75,8 +81,14 @@ void init_saved_floors(void)
 			(void)fd_close(fd);
 		}
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Simply kill the temporal file */ 
 		(void)fd_kill(floor_savefile);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		sf_ptr->floor_id = 0;
 	}
@@ -114,9 +126,6 @@ void clear_saved_floor_files(void)
 {
 	char floor_savefile[1024];
 	int i;
-	int fd = -1;
-	int mode = 0644;
-	bool force = FALSE;
 
 #ifdef SET_UID
 # ifdef SECURE
@@ -136,8 +145,14 @@ void clear_saved_floor_files(void)
 		/* File name */
 		sprintf(floor_savefile, "%s.F%02d", savefile, i);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Simply kill the temporal file */ 
 		(void)fd_kill(floor_savefile);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 #ifdef SET_UID
@@ -193,8 +208,14 @@ static void kill_saved_floor(saved_floor_type *sf_ptr)
 		/* File name */
 		sprintf(floor_savefile, "%s.F%02d", savefile, (int)sf_ptr->savefile_id);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Simply kill the temporal file */ 
 		(void)fd_kill(floor_savefile);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 	/* No longer exists */
@@ -288,6 +309,9 @@ static void build_dead_end(void)
 	/* Clear and empty the cave */
 	clear_cave();
 
+	/* Fill the arrays of floors and walls in the good proportions */
+	set_floor_and_wall(0);
+
 	/* Smallest area */
 	cur_hgt = SCREEN_HGT;
 	cur_wid = SCREEN_WID;
@@ -316,59 +340,63 @@ static void build_dead_end(void)
  */
 static void preserve_pet(void)
 {
-	int num, i;
-
-	for(num = 0; num < 21; num++)
-	{
-		party_mon[num].r_idx = 0;
-	}
+	int num = 1, i;
 
 	if (p_ptr->riding)
 	{
-		COPY(&party_mon[0], &m_list[p_ptr->riding], monster_type);
+		/* Paranoia - prevent loss of rided monster */
+		for (num = 0; (num < MAX_PARTY_MON) && party_mon[num].r_idx; num++) /* Count forward */ ;
+		if (num < MAX_PARTY_MON) COPY(&party_mon[num++], &m_list[p_ptr->riding], monster_type);
 
 		/* Delete from this floor */
 		delete_monster_idx(p_ptr->riding);
 	}
 
-	for(i = m_max - 1, num = 1; (i >= 1 && num < 21); i--)
+	/*
+	 * If player is in wild mode, no pets are preserved
+	 * except a monster whom player riding
+	 */
+	if (!p_ptr->wild_mode)
 	{
-		monster_type *m_ptr = &m_list[i];
-			
-		if (!m_ptr->r_idx) continue;
-		if (!is_pet(m_ptr)) continue;
-		if (i == p_ptr->riding) continue;
-
-		if (reinit_wilderness)
+		for (i = m_max - 1; (i >= 1 && num < MAX_PARTY_MON); i--)
 		{
-			/* Don't lose sight of pets when getting a Quest */
-		}
-		else
-		{
-			int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+			monster_type *m_ptr = &m_list[i];
 
-			/*
-			 * Pets with nickname will follow even from 3 blocks away
-			 * when you or the pet can see the other.
-			 */
-			if (m_ptr->nickname && 
-			    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
-			     los(m_ptr->fy, m_ptr->fx, py, px)))
+			if (!m_ptr->r_idx) continue;
+			if (!is_pet(m_ptr)) continue;
+			if (i == p_ptr->riding) continue;
+
+			if (reinit_wilderness || p_ptr->inside_arena || p_ptr->inside_battle)
 			{
-				if (dis > 3) continue;
+				/* Don't lose sight of pets when getting a Quest */
 			}
 			else
 			{
-				if (dis > 1) continue;
+				int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+
+				/*
+				 * Pets with nickname will follow even from 3 blocks away
+				 * when you or the pet can see the other.
+				 */
+				if (m_ptr->nickname && 
+				    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
+				     los(m_ptr->fy, m_ptr->fx, py, px)))
+				{
+					if (dis > 3) continue;
+				}
+				else
+				{
+					if (dis > 1) continue;
+				}
+				if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
 			}
-			if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+
+			for (; (num < MAX_PARTY_MON) && party_mon[num].r_idx; num++) /* Count forward */ ;
+			if (num < MAX_PARTY_MON) COPY(&party_mon[num++], &m_list[i], monster_type);
+
+			/* Delete from this floor */
+			delete_monster_idx(i);
 		}
-
-		COPY(&party_mon[num], &m_list[i], monster_type);
-		num++;
-
-		/* Delete from this floor */
-		delete_monster_idx(i);
 	}
 
 	if (record_named_pet)
@@ -377,13 +405,13 @@ static void preserve_pet(void)
 		{
 			monster_type *m_ptr = &m_list[i];
 			char m_name[80];
-				
+
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
 			if (!m_ptr->nickname) continue;
 			if (p_ptr->riding == i) continue;
-				
-			monster_desc(m_name, m_ptr, 0x88);
+
+			monster_desc(m_name, m_ptr, MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
 			do_cmd_write_nikki(NIKKI_NAMED_PET, 4, m_name);
 		}
 	}
@@ -395,19 +423,14 @@ static void preserve_pet(void)
  */
 static void place_pet(void)
 {
-	int i, max_num;
-
-	if (p_ptr->wild_mode)
-		max_num = 1;
-	else
-		max_num = 21;
+	int i;
+	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
 
 	for (i = 0; i < max_num; i++)
 	{
 		int cy, cx, m_idx;
 
 		if (!(party_mon[i].r_idx)) continue;
-
 
 		if (i == 0)
 		{
@@ -423,77 +446,93 @@ static void place_pet(void)
 		{
 			int j, d;
 
-			for(d = 1; d < 6; d++)
+			/* Don't place in arena except rided one */
+			if (p_ptr->inside_arena || p_ptr->inside_battle) continue;
+
+			for (d = 1; d < 6; d++)
 			{
-				for(j = 1000; j > 0; j--)
+				for (j = 1000; j > 0; j--)
 				{
 					scatter(&cy, &cx, py, px, d, 0);
-					if ((cave_floor_bold(cy, cx) || (cave[cy][cx].feat == FEAT_TREES)) && !cave[cy][cx].m_idx && !((cy == py) && (cx == px))) break;
+					if ((cave_floor_bold(cy, cx) || (cave[cy][cx].feat == FEAT_TREES)) && !cave[cy][cx].m_idx && !player_bold(cy, cx)) break;
 				}
 				if (j) break;
 			}
-			if (d == 6 || p_ptr->inside_arena || p_ptr->inside_battle)
-				m_idx = 0;
-			else
-				m_idx = m_pop();
+			m_idx = (d == 6) ? 0 : m_pop();
 		}
-		
+
 		if (m_idx)
 		{
 			monster_type *m_ptr = &m_list[m_idx];
 			monster_race *r_ptr;
-			
+
 			cave[cy][cx].m_idx = m_idx;
 
 			m_ptr->r_idx = party_mon[i].r_idx;
-			r_ptr = real_r_ptr(m_ptr);
 
 			/* Copy all member of the structure */
 			*m_ptr = party_mon[i];
+			r_ptr = real_r_ptr(m_ptr);
 
 			m_ptr->fy = cy;
 			m_ptr->fx = cx;
 			m_ptr->ml = TRUE;
 			m_ptr->csleep = 0;
-			set_pet(m_ptr);
+
+			/* Paranoia */
+			m_ptr->hold_o_idx = 0;
+			m_ptr->target_y = 0;
 
 			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
 			{
 				/* Monster is still being nice */
 				m_ptr->mflag |= (MFLAG_NICE);
-				
+
 				/* Must repair monsters */
 				repair_monsters = TRUE;
 			}
-			
+
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
 			lite_spot(cy, cx);
-			
-			r_ptr->cur_num++;
-			
+
+			/* Pre-calculated in precalc_cur_num_of_pet() */
+			/* r_ptr->cur_num++; */
+
 			/* Hack -- Count the number of "reproducers" */
 			if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
-			
+
 			/* Hack -- Notice new multi-hued monsters */
-			if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
+			{
+				monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+				if (ap_r_ptr->flags1 & (RF1_ATTR_MULTI | RF1_SHAPECHANGER))
+					shimmer_monsters = TRUE;
+			}
 		}
 		else
 		{
+			monster_type *m_ptr = &party_mon[i];
+			monster_race *r_ptr = real_r_ptr(m_ptr);
 			char m_name[80];
-			
-			monster_desc(m_name, &party_mon[i], 0);
+
+			monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 			msg_format("%sとはぐれてしまった。", m_name);
 #else
 			msg_format("You have lost sight of %s.", m_name);
 #endif
-			if (record_named_pet && party_mon[i].nickname)
+			if (record_named_pet && m_ptr->nickname)
 			{
-				monster_desc(m_name, &party_mon[i], 0x08);
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
 			}
+
+			/* Pre-calculated in precalc_cur_num_of_pet(), but need to decrease */
+			if (r_ptr->cur_num) r_ptr->cur_num--;
 		}
+
+		/* For accuracy of precalc_cur_num_of_pet() */
+		WIPE(&party_mon[i], monster_type);
 	}
 }
 
@@ -542,6 +581,77 @@ static void update_unique_artifact(s16b cur_floor_id)
 		{
 			a_info[o_ptr->name1].floor_id = cur_floor_id;
 		}
+	}
+}
+
+
+/*
+ * When a monster is at a place where player will return,
+ * Get out of the my way!
+ */
+static void get_out_monster(void)
+{
+	int tries = 0;
+	int dis = 1;
+	int oy = py;
+	int ox = px;
+	int m_idx = cave[oy][ox].m_idx;
+
+	/* Nothing to do if no monster */
+	if (!m_idx) return;
+
+	/* Look until done */
+	while (TRUE)
+	{
+		monster_type *m_ptr;
+
+		/* Pick a (possibly illegal) location */
+		int ny = rand_spread(oy, dis);
+		int nx = rand_spread(ox, dis);
+
+		tries++;
+
+		/* Stop after 1000 tries */
+		if (tries > 10000) return;
+
+		/*
+		 * Increase distance after doing enough tries
+		 * compared to area of possible space
+		 */
+		if (tries > 20 * dis * dis) dis++;
+
+		/* Ignore illegal locations */
+		if (!in_bounds(ny, nx)) continue;
+
+		/* Require "empty" floor space */
+		if (!cave_empty_bold(ny, nx)) continue;
+
+		/* Hack -- no teleport onto glyph of warding */
+		if (is_glyph_grid(&cave[ny][nx])) continue;
+		if (is_explosive_rune_grid(&cave[ny][nx])) continue;
+
+		/* ...nor onto the Pattern */
+		if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
+		    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
+
+		/*** It's a good place ***/
+
+		m_ptr = &m_list[m_idx];
+
+		/* Update the new location */
+		cave[ny][nx].m_idx = m_idx;
+
+		/* Update the old location */
+		cave[oy][ox].m_idx = 0;
+
+		/* Move the monster */
+		m_ptr->fy = ny;
+		m_ptr->fx = nx; 
+
+		/* No need to do update_mon() */
+
+		/* Success */
+		return;
 	}
 }
 
@@ -699,7 +809,7 @@ void leave_floor(void)
 		{
 			/* Choose random one */
 			i = randint0(num);
-			
+
 			/* Point stair location */
 			py = y_table[i];
 			px = x_table[i];
@@ -817,6 +927,9 @@ void leave_floor(void)
 	/* If you can return, you need to save previous floor */
 	if (!(change_floor_mode & (CFM_NO_RETURN | CFM_CLEAR_ALL)))
 	{
+		/* Get out of the my way! */
+		get_out_monster();
+
 		/* Record the last visit turn of current floor */
 		sf_ptr->last_visit = turn;
 
@@ -902,7 +1015,7 @@ void change_floor(void)
 				if (change_floor_mode & CFM_NO_RETURN)
 				{
 					cave_type *c_ptr = &cave[py][px];
-				
+
 					/* Reset to floor */
 					place_floor_grid(c_ptr);
 					c_ptr->special = 0;
@@ -1163,7 +1276,7 @@ void change_floor(void)
 
 	/* Hack -- Munchkin characters always get whole map */
 	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
-		wiz_lite(TRUE, (bool)(p_ptr->pclass == CLASS_NINJA));
+		wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
@@ -1196,7 +1309,7 @@ void stair_creation(void)
 
 	/* No effect out of standard dungeon floor */
 	if (!dun_level || (!up && !down) ||
-	    (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) ||
+	    (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) ||
 	    p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		/* arena or quest */
@@ -1254,7 +1367,6 @@ void stair_creation(void)
 			for (x = 0; x < cur_wid; x++)
 			{
 				cave_type *c_ptr = &cave[y][x];
-				bool ok = FALSE;
 
 				if (!c_ptr->special) continue;
 				if (c_ptr->special != dest_floor_id) continue;

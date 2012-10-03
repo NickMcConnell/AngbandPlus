@@ -1,14 +1,14 @@
 /* File: generate.c */
 
-/* Purpose: Dungeon generation */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Dungeon generation */
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -227,7 +227,7 @@ static void alloc_object(int set, int typ, int num)
 			if (!is_floor_grid(c_ptr) || c_ptr->o_idx || c_ptr->m_idx) continue;
 
 			/* Avoid player location */
-			if (py == y && px == x) continue;
+			if (player_bold(y, x)) continue;
 
 			/* Check for "room" */
 			room = (cave[y][x].info & CAVE_ROOM) ? TRUE : FALSE;
@@ -282,7 +282,7 @@ msg_print("警告！アイテムを配置できません！");
 
 			case ALLOC_TYP_OBJECT:
 			{
-				place_object(y, x, FALSE, FALSE);
+				place_object(y, x, 0L);
 				break;
 			}
 		}
@@ -383,7 +383,7 @@ static void try_door(int y, int x)
 	if ((randint0(100) < dun_tun_jct) && possible_doorway(y, x) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
 	{
 		/* Place a door */
-		place_random_door(y, x);
+		place_random_door(y, x, FALSE);
 	}
 }
 
@@ -513,6 +513,25 @@ static bool cave_gen(void)
 	dun_tun_pen = rand_range(DUN_TUN_PEN_MIN, DUN_TUN_PEN_MAX);
 	dun_tun_jct = rand_range(DUN_TUN_JCT_MIN, DUN_TUN_JCT_MAX);
 
+	/* Actual maximum number of rooms on this level */
+	dun->row_rooms = cur_hgt / BLOCK_HGT;
+	dun->col_rooms = cur_wid / BLOCK_WID;
+
+	/* Initialize the room table */
+	for (y = 0; y < dun->row_rooms; y++)
+	{
+		for (x = 0; x < dun->col_rooms; x++)
+		{
+			dun->room_map[y][x] = FALSE;
+		}
+	}
+
+	/* No "crowded" rooms yet */
+	dun->crowded = 0;
+
+	/* No rooms yet */
+	dun->cent_n = 0;
+
 	/* Empty arena levels */
 	if (ironman_empty_levels || ((d_info[dungeon_type].flags1 & DF1_ARENA) && (empty_levels && one_in_(EMPTY_LEVEL))))
 	{
@@ -520,29 +539,45 @@ static bool cave_gen(void)
 
 		if (cheat_room)
 #ifdef JP
-msg_print("アリーナレベル");
+			msg_print("アリーナレベル");
 #else
 			msg_print("Arena level.");
 #endif
-
 	}
 
-
-	/* Hack -- Start with basic granite */
-	for (y = 0; y < cur_hgt; y++)
+	if (empty_level)
 	{
+		/* Start with floors */
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
+			{
+				place_floor_bold(y, x);
+			}
+		}
+
+		/* Special boundary walls -- Top and bottom */
 		for (x = 0; x < cur_wid; x++)
 		{
-			cave_type *c_ptr = &cave[y][x];
+			place_extra_bold(0, x);
+			place_extra_bold(cur_hgt - 1, x);
+		}
 
-			if (empty_level)
+		/* Special boundary walls -- Left and right */
+		for (y = 1; y < (cur_hgt - 1); y++)
+		{
+			place_extra_bold(y, 0);
+			place_extra_bold(y, cur_wid - 1);
+		}
+	}
+	else
+	{
+		/* Start with walls */
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
 			{
-				place_floor_grid(c_ptr);
-			}
-			else
-			{
-			  /* Create granite wall */
-				place_extra_grid(c_ptr);
+				place_extra_bold(y, x);
 			}
 		}
 	}
@@ -554,7 +589,7 @@ msg_print("アリーナレベル");
 		destroyed = TRUE;
 
 		/* extra rubble around the place looks cool */
-		build_lake(3+randint0(2));
+		build_lake(one_in_(2) ? GEN_LAKE_TYPE_CAVE : GEN_LAKE_TYPE_EARTH_VAULT);
 	}
 
 	/* Make a lake some of the time */
@@ -570,44 +605,44 @@ msg_print("アリーナレベル");
 		if (d_info[dungeon_type].flags1 & DF1_LAKE_LAVA)
 		{
 			/* Lake of Lava */
-			if ((dun_level > 80) && (randint0(count) < 2)) laketype = 1;
+			if ((dun_level > 80) && (randint0(count) < 2)) laketype = GEN_LAKE_TYPE_LAVA;
 			count -= 2;
 
 			/* Lake of Lava2 */
-			if (!laketype && (dun_level > 80) && one_in_(count)) laketype = 7;
-			count --;
+			if (!laketype && (dun_level > 80) && one_in_(count)) laketype = GEN_LAKE_TYPE_FIRE_VAULT;
+			count--;
 		}
 
 		if ((d_info[dungeon_type].flags1 & DF1_LAKE_WATER) && !laketype)
 		{
 			/* Lake of Water */
-			if ((dun_level > 50) && randint0(count) < 2) laketype = 2;
+			if ((dun_level > 50) && randint0(count) < 2) laketype = GEN_LAKE_TYPE_WATER;
 			count -= 2;
 
 			/* Lake of Water2 */
-			if (!laketype && (dun_level > 50) && one_in_(count)) laketype = 6;
-			count --;
+			if (!laketype && (dun_level > 50) && one_in_(count)) laketype = GEN_LAKE_TYPE_WATER_VAULT;
+			count--;
 		}
 
 		if ((d_info[dungeon_type].flags1 & DF1_LAKE_RUBBLE) && !laketype)
 		{
 			/* Lake of rubble */
-			if ((dun_level > 35) && (randint0(count) < 2)) laketype = 3;
+			if ((dun_level > 35) && (randint0(count) < 2)) laketype = GEN_LAKE_TYPE_CAVE;
 			count -= 2;
 
 			/* Lake of rubble2 */
-			if (!laketype && (dun_level > 35) && one_in_(count)) laketype = 4;
-			count --;
+			if (!laketype && (dun_level > 35) && one_in_(count)) laketype = GEN_LAKE_TYPE_EARTH_VAULT;
+			count--;
 		}
 
 		/* Lake of tree */
-		if ((dun_level > 5) && (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) && !laketype) laketype = 5;
+		if ((dun_level > 5) && (d_info[dungeon_type].flags1 & DF1_LAKE_TREE) && !laketype) laketype = GEN_LAKE_TYPE_AIR_VAULT;
 
-		if (laketype != 0)
+		if (laketype)
 		{
 			if (cheat_room)
 #ifdef JP
-msg_print("湖を生成。");
+				msg_print("湖を生成。");
 #else
 				msg_print("Lake on the level.");
 #endif
@@ -618,7 +653,7 @@ msg_print("湖を生成。");
 
 	if ((dun_level > DUN_CAVERN) && !empty_level &&
 	    (d_info[dungeon_type].flags1 & DF1_CAVERN) &&
-	    (laketype == 0) && !destroyed && (randint1(1000) < dun_level))
+	    !laketype && !destroyed && (randint1(1000) < dun_level))
 	{
 		cavern = TRUE;
 
@@ -626,11 +661,10 @@ msg_print("湖を生成。");
 
 		if (cheat_room)
 #ifdef JP
-msg_print("洞窟を生成。");
+			msg_print("洞窟を生成。");
 #else
 			msg_print("Cavern on level.");
 #endif
-
 
 		build_cavern();
 	}
@@ -639,241 +673,7 @@ msg_print("洞窟を生成。");
 	/* Hack -- No destroyed "quest" levels */
 	if (quest_number(dun_level)) destroyed = FALSE;
 
-	/* Actual maximum number of rooms on this level */
-	dun->row_rooms = cur_hgt / BLOCK_HGT;
-	dun->col_rooms = cur_wid / BLOCK_WID;
-
-	/* Initialize the room table */
-	for (y = 0; y < dun->row_rooms; y++)
-	{
-		for (x = 0; x < dun->col_rooms; x++)
-		{
-			dun->room_map[y][x] = FALSE;
-		}
-	}
-
-
-	/* No "crowded" rooms yet */
-	dun->crowded = 0;
-
-
-	/* No rooms yet */
-	dun->cent_n = 0;
-
-	
-	/* Build some rooms */
-	if (!(d_info[dungeon_type].flags1 & DF1_MAZE))
-	{
-	for (i = 0; i < dun_rooms; i++)
-	{
-		bool force_rooms = (ironman_rooms && !((d_info[dungeon_type].flags1 & DF1_BEGINNER) || (d_info[dungeon_type].flags1 & DF1_CHAMELEON)));
-
-		/* Pick a block for the room */
-		y = randint0(dun->row_rooms);
-		x = randint0(dun->col_rooms);
-
-		/* Align dungeon rooms */
-		if (d_info[dungeon_type].flags1 & DF1_NO_CAVE)
-		{
-			/* Slide some rooms right */
-			if ((x % 3) == 0) x++;
-
-			/* Slide some rooms left */
-			if ((x % 3) == 2) x--;
-		}
-
-		/* Attempt an "unusual" room */
-		if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
-		{
-			/* Roll for room type */
-			while(1)
-			{
-				k = (force_rooms ? 0 : randint0(100));
-				if (force_rooms) break;
-				if ((d_info[dungeon_type].flags1 & DF1_NO_VAULT) && (k < 14)) continue;
-				break;
-			}
-
-			/* Attempt a very unusual room */
-			if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
-			{
-#ifdef FORCE_V_IDX
-				if (room_build(y, x, 8)) continue;
-#else
-				/* Type 8 -- Greater vault (4%) */
-				if (k < 4)
-				{
-					if (max_vault_ok > 1)
-					{
-						if (room_build(y, x, 8)) continue;
-					}
-					else
-					{
-#ifdef JP
-if (cheat_room) msg_print("巨大な地下室を却下します。");
-#else
-						if (cheat_room) msg_print("Refusing a greater vault.");
-#endif
-
-					}
-				}
-
-				/* Type 7 -- Lesser vault (6%) */
-				if (k < 10)
-				{
-					if (max_vault_ok > 0)
-					{
-						if (room_build(y, x, 7)) continue;
-					}
-					else
-					{
-#ifdef JP
-if (cheat_room) msg_print("小さな地下室を却下します。");
-#else
-						if (cheat_room) msg_print("Refusing a lesser vault.");
-#endif
-
-					}
-				}
-
-
-				/* Type 10 -- Random vault (4%) */
-				if ((k < 14) && room_build(y, x, 10)) continue;
-
-				/* Type 5 -- Monster nest (8%) */
-				if ((k < 22) && room_build(y, x, 5)) continue;
-
-				/* Type 6 -- Monster pit (10%) */
-				if ((k < 32) && room_build(y, x, 6)) continue;
-
-				/* Type 13 -- Trapped monster pit (5%) */
-				if ((k < 37) && room_build(y, x, 13)) continue;
-
-				/* Type 14 -- Trapped room (5%) */
-				if ((k < 42) && room_build(y, x, 14)) continue;
-#endif
-
-			}
-
-			/* Type 2 -- Overlapping (25%) */
-			if ((k < 25) && room_build(y, x, 2)) continue;
-
-			/* Type 3 -- Cross room (25%) */
-			if ((k < 50) && room_build(y, x, 3)) continue;
-
-			if (d_info[dungeon_type].flags1 & DF1_NO_CAVE)
-			{
-				if (room_build(y, x, 4)) continue;
-			}
-			else
-			{
-				/* Type 4 -- Large room (25%) */
-				if ((k < 75) && room_build(y, x, 4)) continue;
-
-				/* Type 11 -- Circular (10%) */
-				if ((k < 85) && room_build(y, x, 11)) continue;
-
-				/* Type 12 -- Crypt (15%) */
-				if ((k < 100) && room_build(y, x, 12)) continue;
-			}
-		}
-
-		/* The deeper you are, the more cavelike the rooms are */
-		k = randint1(100);
-
-		/* No caves when a cavern exists: they look bad */
-		if (((k < dun_level) || (d_info[dungeon_type].flags1 & DF1_CAVE)) && (!cavern) && (!empty_level) && (laketype == 0) && !(d_info[dungeon_type].flags1 & DF1_NO_CAVE))
-		{
-			/* Type 9 -- Fractal cave */
-			if (room_build(y, x, 9)) continue;
-		}
-		else
-			/* Attempt a "trivial" room */
-
-		  if (room_build(y, x, 1)) continue;
-		continue;
-	}
-
-	/* Make a hole in the dungeon roof sometimes at level 1 */
-	if (dun_level == 1)
-	{
-		while (one_in_(DUN_MOS_DEN))
-		{
-			place_trees(randint1(cur_wid - 2), randint1(cur_hgt - 2));
-		}
-	}
-
-	/* Destroy the level if necessary */
-	if (destroyed) destroy_level();
-
-	/* Hack -- Add some rivers */
-	if (one_in_(3) && (randint1(dun_level) > 5))
-	{
-		/* Choose water or lava */
-		if ((randint1(MAX_DEPTH * 2) - 1 > dun_level) && (d_info[dungeon_type].flags1 & DF1_WATER_RIVER))
-		{
-			feat1 = FEAT_DEEP_WATER;
-			feat2 = FEAT_SHAL_WATER;
-		}
-		else if  (d_info[dungeon_type].flags1 & DF1_LAVA_RIVER)
-		{
-			feat1 = FEAT_DEEP_LAVA;
-			feat2 = FEAT_SHAL_LAVA;
-		}
-		else feat1 = 0;
-
-
-		/* Only add river if matches lake type or if have no lake at all */
-		if ((((laketype == 1) && (feat1 == FEAT_DEEP_LAVA)) ||
-		    ((laketype == 2) && (feat1 == FEAT_DEEP_WATER)) ||
-		     (laketype == 0)) && feat1)
-		{
-			add_river(feat1, feat2);
-		}
-	}
-	}
-
-	/* Special boundary walls -- Top */
-	for (x = 0; x < cur_wid; x++)
-	{
-		cave_type *c_ptr = &cave[0][x];
-
-		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
-		c_ptr->info &= ~(CAVE_MASK);
-	}
-
-	/* Special boundary walls -- Bottom */
-	for (x = 0; x < cur_wid; x++)
-	{
-		cave_type *c_ptr = &cave[cur_hgt-1][x];
-
-		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
-		c_ptr->info &= ~(CAVE_MASK);
-	}
-
-	/* Special boundary walls -- Left */
-	for (y = 0; y < cur_hgt; y++)
-	{
-		cave_type *c_ptr = &cave[y][0];
-
-		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
-		c_ptr->info &= ~(CAVE_MASK);
-	}
-
-	/* Special boundary walls -- Right */
-	for (y = 0; y < cur_hgt; y++)
-	{
-		cave_type *c_ptr = &cave[y][cur_wid-1];
-
-		/* Clear previous contents, add "solid" perma-wall */
-		c_ptr->feat = FEAT_PERM_SOLID;
-		c_ptr->info &= ~(CAVE_MASK);
-	}
-
-
+	/* Build maze */
 	if (d_info[dungeon_type].flags1 & DF1_MAZE)
 	{
 		build_maze_vault(cur_wid/2-1, cur_hgt/2-1, cur_wid-4, cur_hgt-4, FALSE);
@@ -884,118 +684,287 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 		/* Place 1 or 2 up stairs near some walls */
 		if (!alloc_stairs(FEAT_LESS, 1, 3)) return FALSE;
 	}
+
+	/* Build some rooms */
 	else
 	{
-	/* Hack -- Scramble the room order */
-	for (i = 0; i < dun->cent_n; i++)
-	{
-		int pick1 = randint0(dun->cent_n);
-		int pick2 = randint0(dun->cent_n);
-		y1 = dun->cent[pick1].y;
-		x1 = dun->cent[pick1].x;
-		dun->cent[pick1].y = dun->cent[pick2].y;
-		dun->cent[pick1].x = dun->cent[pick2].x;
-		dun->cent[pick2].y = y1;
-		dun->cent[pick2].x = x1;
-	}
-
-	/* Start with no tunnel doors */
-	dun->door_n = 0;
-
-	/* Hack -- connect the first room to the last room */
-	y = dun->cent[dun->cent_n-1].y;
-	x = dun->cent[dun->cent_n-1].x;
-
-	/* Connect all the rooms together */
-	for (i = 0; i < dun->cent_n; i++)
-	{
-
-		/* Reset the arrays */
-		dun->tunn_n = 0;
-		dun->wall_n = 0;
-
-		/* Connect the room to the previous room */
-		if (randint1(dun_level) > d_info[dungeon_type].tunnel_percent)
+		for (i = 0; i < dun_rooms; i++)
 		{
-			/* make cave-like tunnel */
-			build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
-		}
-		else
-		{
-			/* make normal tunnel */
-			build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
-		}
+			bool force_rooms = (ironman_rooms && !((d_info[dungeon_type].flags1 & DF1_BEGINNER) || (d_info[dungeon_type].flags1 & DF1_CHAMELEON)));
 
-		/* Turn the tunnel into corridor */
-		for (j = 0; j < dun->tunn_n; j++)
-		{
-			/* Access the grid */
-			y = dun->tunn[j].y;
-			x = dun->tunn[j].x;
+			/* Pick a block for the room */
+			y = randint0(dun->row_rooms);
+			x = randint0(dun->col_rooms);
 
-			/* Access the grid */
-			c_ptr = &cave[y][x];
-
-			/* Clear previous contents (if not a lake), add a floor */
-			if ((c_ptr->feat < FEAT_DEEP_WATER) ||
-			    (c_ptr->feat > FEAT_SHAL_LAVA))
+			/* Align dungeon rooms */
+			if (d_info[dungeon_type].flags1 & DF1_NO_CAVE)
 			{
+				/* Slide some rooms right */
+				if ((x % 3) == 0) x++;
+
+				/* Slide some rooms left */
+				if ((x % 3) == 2) x--;
+			}
+
+			/* Attempt an "unusual" room */
+			if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
+			{
+				/* Roll for room type */
+				while (1)
+				{
+					k = (force_rooms ? 0 : randint0(100));
+					if (force_rooms) break;
+					if ((d_info[dungeon_type].flags1 & DF1_NO_VAULT) && (k < 14)) continue;
+					break;
+				}
+
+				/* Attempt a very unusual room */
+				if (force_rooms || (randint0(DUN_UNUSUAL) < dun_level))
+				{
+#ifdef FORCE_V_IDX
+					if (room_build(y, x, ROOM_BUILD_TYPE_GREATER_VAULT)) continue;
+#else
+					/* Type 8 -- Greater vault (4%) */
+					if (k < 4)
+					{
+						if (max_vault_ok > 1)
+						{
+							if (room_build(y, x, ROOM_BUILD_TYPE_GREATER_VAULT)) continue;
+						}
+						else
+						{
+#ifdef JP
+							if (cheat_room) msg_print("巨大な地下室を却下します。");
+#else
+							if (cheat_room) msg_print("Refusing a greater vault.");
+#endif
+						}
+					}
+
+					/* Type 7 -- Lesser vault (6%) */
+					if (k < 10)
+					{
+						if (max_vault_ok > 0)
+						{
+							if (room_build(y, x, ROOM_BUILD_TYPE_LESSER_VAULT)) continue;
+						}
+						else
+						{
+#ifdef JP
+							if (cheat_room) msg_print("小さな地下室を却下します。");
+#else
+							if (cheat_room) msg_print("Refusing a lesser vault.");
+#endif
+						}
+					}
+
+
+					/* Type 10 -- Random vault (4%) */
+					if ((k < 14) && room_build(y, x, ROOM_BUILD_TYPE_RANDOM_VAULT)) continue;
+
+					/* Type 5 -- Monster nest (8%) */
+					if ((k < 22) && room_build(y, x, ROOM_BUILD_TYPE_NEST)) continue;
+
+					/* Type 6 -- Monster pit (10%) */
+					if ((k < 32) && room_build(y, x, ROOM_BUILD_TYPE_PIT)) continue;
+
+					/* Type 13 -- Trapped monster pit (5%) */
+					if ((k < 37) && room_build(y, x, ROOM_BUILD_TYPE_TRAP_PIT)) continue;
+
+					/* Type 14 -- Trapped room (5%) */
+					if ((k < 42) && room_build(y, x, ROOM_BUILD_TYPE_TRAP)) continue;
+#endif
+				}
+
+				/* Type 2 -- Overlapping (25%) */
+				if ((k < 25) && room_build(y, x, ROOM_BUILD_TYPE_OVERLAP)) continue;
+
+				/* Type 3 -- Cross room (25%) */
+				if ((k < 50) && room_build(y, x, ROOM_BUILD_TYPE_CROSS)) continue;
+
+				if (d_info[dungeon_type].flags1 & DF1_NO_CAVE)
+				{
+					if (room_build(y, x, ROOM_BUILD_TYPE_INNER_FEAT)) continue;
+				}
+				else
+				{
+					/* Type 4 -- Large room (25%) */
+					if ((k < 75) && room_build(y, x, ROOM_BUILD_TYPE_INNER_FEAT)) continue;
+
+					/* Type 11 -- Circular (10%) */
+					if ((k < 85) && room_build(y, x, ROOM_BUILD_TYPE_OVAL)) continue;
+
+					/* Type 12 -- Crypt (15%) */
+					if ((k < 100) && room_build(y, x, ROOM_BUILD_TYPE_CRYPT)) continue;
+				}
+			}
+
+			/* The deeper you are, the more cavelike the rooms are */
+			k = randint1(100);
+
+			/* No caves when a cavern exists: they look bad */
+			if (((k < dun_level) || (d_info[dungeon_type].flags1 & DF1_CAVE))
+			    && !cavern && !empty_level && !laketype
+			    && !(d_info[dungeon_type].flags1 & DF1_NO_CAVE))
+			{
+				/* Type 9 -- Fractal cave */
+				if (room_build(y, x, ROOM_BUILD_TYPE_FRACAVE)) continue;
+			}
+			else
+			{
+				/* Attempt a "trivial" room */
+				if (room_build(y, x, ROOM_BUILD_TYPE_NORMAL)) continue;
+			}
+
+			continue;
+		}
+
+		/* Make a hole in the dungeon roof sometimes at level 1 */
+		if (dun_level == 1)
+		{
+			while (one_in_(DUN_MOS_DEN))
+			{
+				place_trees(randint1(cur_wid - 2), randint1(cur_hgt - 2));
+			}
+		}
+
+		/* Destroy the level if necessary */
+		if (destroyed) destroy_level();
+
+		/* Hack -- Add some rivers */
+		if (one_in_(3) && (randint1(dun_level) > 5))
+		{
+			/* Choose water or lava */
+			if ((randint1(MAX_DEPTH * 2) - 1 > dun_level) && (d_info[dungeon_type].flags1 & DF1_WATER_RIVER))
+			{
+				feat1 = FEAT_DEEP_WATER;
+				feat2 = FEAT_SHAL_WATER;
+			}
+			else if  (d_info[dungeon_type].flags1 & DF1_LAVA_RIVER)
+			{
+				feat1 = FEAT_DEEP_LAVA;
+				feat2 = FEAT_SHAL_LAVA;
+			}
+			else feat1 = 0;
+
+
+			/* Only add river if matches lake type or if have no lake at all */
+			if ((((laketype == GEN_LAKE_TYPE_LAVA) && (feat1 == FEAT_DEEP_LAVA)) ||
+			     ((laketype == GEN_LAKE_TYPE_WATER) && (feat1 == FEAT_DEEP_WATER)) ||
+			      !laketype) && feat1)
+			{
+				add_river(feat1, feat2);
+			}
+		}
+
+		/* Hack -- Scramble the room order */
+		for (i = 0; i < dun->cent_n; i++)
+		{
+			int pick1 = randint0(dun->cent_n);
+			int pick2 = randint0(dun->cent_n);
+			y1 = dun->cent[pick1].y;
+			x1 = dun->cent[pick1].x;
+			dun->cent[pick1].y = dun->cent[pick2].y;
+			dun->cent[pick1].x = dun->cent[pick2].x;
+			dun->cent[pick2].y = y1;
+			dun->cent[pick2].x = x1;
+		}
+
+		/* Start with no tunnel doors */
+		dun->door_n = 0;
+
+		/* Hack -- connect the first room to the last room */
+		y = dun->cent[dun->cent_n-1].y;
+		x = dun->cent[dun->cent_n-1].x;
+
+		/* Connect all the rooms together */
+		for (i = 0; i < dun->cent_n; i++)
+		{
+			/* Reset the arrays */
+			dun->tunn_n = 0;
+			dun->wall_n = 0;
+
+			/* Connect the room to the previous room */
+			if (randint1(dun_level) > d_info[dungeon_type].tunnel_percent)
+			{
+				/* make cave-like tunnel */
+				build_tunnel2(dun->cent[i].x, dun->cent[i].y, x, y, 2, 2);
+			}
+			else
+			{
+				/* make normal tunnel */
+				build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
+			}
+
+			/* Turn the tunnel into corridor */
+			for (j = 0; j < dun->tunn_n; j++)
+			{
+				/* Access the grid */
+				y = dun->tunn[j].y;
+				x = dun->tunn[j].x;
+
+				/* Access the grid */
+				c_ptr = &cave[y][x];
+
+				/* Clear previous contents (if not a lake), add a floor */
+				if ((c_ptr->feat < FEAT_DEEP_WATER) ||
+				    (c_ptr->feat > FEAT_SHAL_LAVA))
+				{
+					/* Clear mimic type */
+					c_ptr->mimic = 0;
+
+					place_floor_grid(c_ptr);
+				}
+			}
+
+			/* Apply the piercings that we found */
+			for (j = 0; j < dun->wall_n; j++)
+			{
+				/* Access the grid */
+				y = dun->wall[j].y;
+				x = dun->wall[j].x;
+
+				/* Access the grid */
+				c_ptr = &cave[y][x];
+
 				/* Clear mimic type */
 				c_ptr->mimic = 0;
 
+				/* Clear previous contents, add up floor */
 				place_floor_grid(c_ptr);
+
+				/* Occasional doorway */
+				if ((randint0(100) < dun_tun_pen) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
+				{
+					/* Place a random door */
+					place_random_door(y, x, TRUE);
+				}
 			}
+
+			/* Remember the "previous" room */
+			y = dun->cent[i].y;
+			x = dun->cent[i].x;
 		}
 
-		/* Apply the piercings that we found */
-		for (j = 0; j < dun->wall_n; j++)
+		/* Place intersection doors */
+		for (i = 0; i < dun->door_n; i++)
 		{
-			/* Access the grid */
-			y = dun->wall[j].y;
-			x = dun->wall[j].x;
+			/* Extract junction location */
+			y = dun->door[i].y;
+			x = dun->door[i].x;
 
-			/* Access the grid */
-			c_ptr = &cave[y][x];
-
-			/* Clear mimic type */
-			c_ptr->mimic = 0;
-
-			/* Clear previous contents, add up floor */
-			place_floor_grid(c_ptr);
-
-			/* Occasional doorway */
-			if ((randint0(100) < dun_tun_pen) && !(d_info[dungeon_type].flags1 & DF1_NO_DOORS))
-			{
-				/* Place a random door */
-				place_random_door(y, x);
-			}
+			/* Try placing doors */
+			try_door(y, x - 1);
+			try_door(y, x + 1);
+			try_door(y - 1, x);
+			try_door(y + 1, x);
 		}
 
-		/* Remember the "previous" room */
-		y = dun->cent[i].y;
-		x = dun->cent[i].x;
-	}
+		/* Place 3 or 4 down stairs near some walls */
+		if (!alloc_stairs(FEAT_MORE, rand_range(3, 4), 3)) return FALSE;
 
-	/* Place intersection doors	 */
-	for (i = 0; i < dun->door_n; i++)
-	{
-		/* Extract junction location */
-		y = dun->door[i].y;
-		x = dun->door[i].x;
-
-		/* Try placing doors */
-		try_door(y, x - 1);
-		try_door(y, x + 1);
-		try_door(y - 1, x);
-		try_door(y + 1, x);
-	}
-
-	/* Place 3 or 4 down stairs near some walls */
-	if (!alloc_stairs(FEAT_MORE, rand_range(3, 4), 3)) return FALSE;
-
-	/* Place 1 or 2 up stairs near some walls */
-	if (!alloc_stairs(FEAT_LESS, rand_range(1, 2), 3)) return FALSE;
-
+		/* Place 1 or 2 up stairs near some walls */
+		if (!alloc_stairs(FEAT_LESS, rand_range(1, 2), 3)) return FALSE;
 	}
 
 	if (!laketype)
@@ -1017,6 +986,38 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 				build_streamer(d_info[dungeon_type].stream1, DUN_STR_MC);
 			}
 		}
+	}
+
+	/* Special boundary walls -- Top and bottom */
+	for (x = 0; x < cur_wid; x++)
+	{
+		cave_type *c_ptr = &cave[0][x];
+
+		/* Set boundary mimic and add "solid" perma-wall */
+		c_ptr->mimic = bound_walls_perm ? 0 : f_info[c_ptr->feat].mimic;
+		c_ptr->feat = FEAT_PERM_SOLID;
+
+		c_ptr = &cave[cur_hgt - 1][x];
+
+		/* Set boundary mimic and add "solid" perma-wall */
+		c_ptr->mimic = bound_walls_perm ? 0 : f_info[c_ptr->feat].mimic;
+		c_ptr->feat = FEAT_PERM_SOLID;
+	}
+
+	/* Special boundary walls -- Left and right */
+	for (y = 1; y < (cur_hgt - 1); y++)
+	{
+		cave_type *c_ptr = &cave[y][0];
+
+		/* Set boundary mimic and add "solid" perma-wall */
+		c_ptr->mimic = bound_walls_perm ? 0 : f_info[c_ptr->feat].mimic;
+		c_ptr->feat = FEAT_PERM_SOLID;
+
+		c_ptr = &cave[y][cur_wid - 1];
+
+		/* Set boundary mimic and add "solid" perma-wall */
+		c_ptr->mimic = bound_walls_perm ? 0 : f_info[c_ptr->feat].mimic;
+		c_ptr->feat = FEAT_PERM_SOLID;
 	}
 
 	/* Determine the character location */
@@ -1082,32 +1083,10 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
 	}
 
-	/* Put an Artifact and Artifact Guardian is requested */
-	if(d_info[dungeon_type].final_guardian && (d_info[dungeon_type].maxdepth == dun_level))
-	{
-		int oy;
-		int ox;
-		int try = 4000;
+	/* Put the Guardian */
+	(void)alloc_guardian();
 
-		/* Find a good position */
-		while(try)
-		{
-			/* Get a random spot */
-			oy = randint1(cur_hgt - 4) + 2;
-			ox = randint1(cur_wid - 4) + 2;
-
-			/* Is it a good spot ? */
-			if (cave_empty_bold2(oy, ox) && monster_can_cross_terrain(cave[oy][ox].feat, &r_info[d_info[dungeon_type].final_guardian]))
-			{
-				/* Place the guardian */
-				if (place_monster_aux(0, oy, ox, d_info[dungeon_type].final_guardian, (PM_ALLOW_GROUP | PM_NO_KAGE | PM_NO_PET))) break;
-			}
-			/* One less try */
-			try--;
-		}
-	}
-
-	if ((empty_level && (!one_in_(DARK_EMPTY) || (randint1(100) > dun_level))) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS))
+	if (empty_level && (!one_in_(DARK_EMPTY) || (randint1(100) > dun_level)) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS))
 	{
 		/* Lite the cave */
 		for (y = 0; y < cur_hgt; y++)
@@ -1218,7 +1197,7 @@ static void arena_gen(void)
 
 	build_arena();
 
-	place_monster_aux(0, py + 5, px, arena_monsters[p_ptr->arena_number],
+	place_monster_aux(0, py + 5, px, arena_info[p_ptr->arena_number].r_idx,
 	    (PM_NO_KAGE | PM_NO_PET));
 }
 
@@ -1328,7 +1307,7 @@ static void battle_gen(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Hack -- Detect monster */
-		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+		m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
 
 		/* Update the monster */
 		update_mon(i, FALSE);
@@ -1516,6 +1495,7 @@ void clear_cave(void)
 	C_WIPE(m_list, m_max, monster_type);
 	m_max = 1;
 	m_cnt = 0;
+	precalc_cur_num_of_pet();
 
 
 	/* Start with a blank cave */
@@ -1567,9 +1547,6 @@ void clear_cave(void)
 
 	/* Nothing good here yet */
 	rating = 0;
-
-	/* Fill the arrays of floors and walls in the good proportions */
-	set_floor_and_wall(0);
 }
 
 
@@ -1582,7 +1559,10 @@ void clear_cave(void)
  */
 void generate_cave(void)
 {
-	int y, x, num;
+	int num;
+
+	/* Fill the arrays of floors and walls in the good proportions */
+	set_floor_and_wall(dungeon_type);
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
@@ -1599,14 +1579,14 @@ void generate_cave(void)
 		/* Build the arena -KMW- */
 		if (p_ptr->inside_arena)
 		{
-				/* Small arena */
+			/* Small arena */
 			arena_gen();
 		}
 
 		/* Build the battle -KMW- */
 		else if (p_ptr->inside_battle)
 		{
-				/* Small arena */
+			/* Small arena */
 			battle_gen();
 		}
 
@@ -1618,7 +1598,7 @@ void generate_cave(void)
 		/* Build the town */
 		else if (!dun_level)
 		{
-				/* Make the wilderness */
+			/* Make the wilderness */
 			if (p_ptr->wild_mode) wilderness_gen_small();
 			else wilderness_gen();
 		}
@@ -1710,20 +1690,8 @@ if (why) msg_format("生成やり直し(%s)", why);
 		wipe_m_list();
 	}
 
-	for (y = 1; y < cur_hgt - 1; y++)
-	{
-		for (x = 1; x < cur_wid - 1; x++)
-		{
-			if ((cave[y][x].feat == FEAT_DEEP_LAVA))
-			{
-				int i;
-				for (i = 0; i < 9; i++)
-				{
-					cave[y+ddy_ddd[i]][x+ddx_ddd[i]].info |= CAVE_GLOW;
-				}
-			}
-		}
-	}
+	/* Glow deep lava and building entrances */
+	glow_deep_lava_and_bldg();
 
 	/* Reset flag */
 	p_ptr->enter_dungeon = FALSE;

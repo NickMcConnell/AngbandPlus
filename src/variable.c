@@ -1,14 +1,14 @@
 /* File: variable.c */
 
-/* Purpose: Angband variables */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
+
+/* Purpose: Angband variables */
 
 #include "angband.h"
 
@@ -27,11 +27,11 @@ cptr copyright[5] =
 
 
 int max_macrotrigger = 0;
-char *macro_template = NULL;
-char *macro_modifier_chr;
-char *macro_modifier_name[MAX_MACRO_MOD];
-char *macro_trigger_name[MAX_MACRO_TRIG];
-char *macro_trigger_keycode[2][MAX_MACRO_TRIG];
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIG];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIG];
 
 /* レベルアップの時に上昇量を表示するのに使う */
 int level_up = 0;
@@ -223,6 +223,7 @@ bool over_exert;
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
+bool bound_walls_perm;		/* Boundary walls are created by permanent wall */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool display_mutations;		/* Skip mutations screen even if we have it */
@@ -384,8 +385,8 @@ s16b lite_x[LITE_MAX];
  * Array of grids lit by player lite (see "cave.c")
  */
 s16b mon_lite_n;
-s16b mon_lite_y[LITE_MAX];
-s16b mon_lite_x[LITE_MAX];
+s16b mon_lite_y[MON_LITE_MAX];
+s16b mon_lite_x[MON_LITE_MAX];
 
 /*
  * Array of grids viewable to the player (see "cave.c")
@@ -400,6 +401,13 @@ byte view_x[VIEW_MAX];
 s16b temp_n;
 byte temp_y[TEMP_MAX];
 byte temp_x[TEMP_MAX];
+
+/*
+ * Array of grids for delayed visual updating (see "cave.c")
+ */
+s16b redraw_n = 0;
+byte redraw_y[REDRAW_MAX];
+byte redraw_x[REDRAW_MAX];
 
 
 /*
@@ -1136,7 +1144,7 @@ int riding_t_m_idx;
 s16b kubi_r_idx[MAX_KUBI];
 s16b today_mon;
 
-monster_type party_mon[21];
+monster_type party_mon[MAX_PARTY_MON];
 
 bool write_level;
 
