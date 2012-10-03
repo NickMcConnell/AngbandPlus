@@ -68,7 +68,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 	char        out_val[160];
 	cptr        p;
 #ifdef JP
-        char jverb_buf[128];
+	char jverb_buf[128];
 #endif
 	int menu_line = (use_menu ? 1 : 0);
 
@@ -142,7 +142,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 #ifdef JP
 	jverb1( prompt, jverb_buf );
 	(void) strnfmt(out_val, 78, "(%^s:%c-%c, '*'で一覧, ESCで中断) どの%sを%^sますか? ",
-	        p, I2A(0), I2A(num - 1), p, jverb_buf );
+		p, I2A(0), I2A(num - 1), p, jverb_buf );
 #else
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 		p, I2A(0), I2A(num - 1), prompt, p);
@@ -150,9 +150,9 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 
 	/* Get a spell from the user */
 
-        choice = (always_show_list || use_menu) ? ESCAPE:1;
-        while (!flag)
-        {
+	choice = (always_show_list || use_menu) ? ESCAPE:1;
+	while (!flag)
+	{
 		if( choice==ESCAPE ) choice = ' '; 
 		else if( !get_com(out_val, &choice, TRUE) )break; 
 
@@ -258,7 +258,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 		{
 			bell();
 #ifdef JP
-                        msg_format("その%sを%sことはできません。", p, prompt);
+			msg_format("その%sを%sことはできません。", p, prompt);
 #else
 			msg_format("You may not %s that %s.", prompt, p);
 #endif
@@ -299,9 +299,9 @@ static int get_spell(int *sn, cptr prompt, int sval, bool learned, int use_realm
 			/* Prompt */
 #ifdef JP
 			jverb1( prompt, jverb_buf );
-                        /* 英日切り替え機能に対応 */
-                        (void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
-                                spell_names[technic2magic(use_realm)-1][spell], shouhimana,
+			/* 英日切り替え機能に対応 */
+			(void) strnfmt(tmp_val, 78, "%s(MP%d, 失敗率%d%%)を%sますか? ",
+				spell_names[technic2magic(use_realm)-1][spell], shouhimana,
 				       spell_chance(spell, use_realm),jverb_buf);
 #else
 			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
@@ -433,15 +433,15 @@ s = "読める本がない。";
 	s = "You have no books that you can read.";
 #endif
 
-        select_spellbook=TRUE;
+	select_spellbook=TRUE;
 	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
-            select_spellbook = FALSE;
+	    select_spellbook = FALSE;
 	    select_the_force = FALSE;
-            return;
-        }
-        select_spellbook = FALSE;
+	    return;
+	}
+	select_spellbook = FALSE;
 	select_the_force = FALSE;
 
 	if (item == 1111) { /* the_force */
@@ -698,9 +698,9 @@ s = "読める本がない。";
 	s = "You have no books that you can read.";
 #endif
 
-        select_spellbook=TRUE;
+	select_spellbook=TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-        select_spellbook=FALSE;
+	select_spellbook=FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -740,7 +740,7 @@ s = "読める本がない。";
 	{
 		/* Ask for a spell, allow cancel */
 #ifdef JP
-                if (!get_spell(&spell, "学ぶ", sval, FALSE, o_ptr->tval - TV_LIFE_BOOK + 1)
+		if (!get_spell(&spell, "学ぶ", sval, FALSE, o_ptr->tval - TV_LIFE_BOOK + 1)
 			&& (spell == -1)) return;
 #else
 		if (!get_spell(&spell, "study", sval, FALSE, o_ptr->tval - TV_LIFE_BOOK + 1)
@@ -873,15 +873,15 @@ msg_format("その本には学ぶべき%sがない。", p);
 
 		/* Mention the result */
 #ifdef JP
-	        /* 英日切り替え機能に対応 */
+		/* 英日切り替え機能に対応 */
 		if (mp_ptr->spell_book == TV_MUSIC_BOOK)
 		{
-        	        msg_format("%sを学んだ。",
+			msg_format("%sを学んだ。",
 				    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32]);
 		}
 		else
 		{
-        	        msg_format("%sの%sを学んだ。",
+			msg_format("%sの%sを学んだ。",
 				    spell_names[technic2magic(increment ? p_ptr->realm2 : p_ptr->realm1)-1][spell % 32] ,p);
 		}
 #else
@@ -913,11 +913,11 @@ msg_format("その本には学ぶべき%sがない。", p);
 	{
 		/* Message */
 #ifdef JP
-                        if( p_ptr->new_spells < 10 ){
-                                msg_format("あと %d つの%sを学べる。", p_ptr->new_spells, p);
-                        }else{
-                                msg_format("あと %d 個の%sを学べる。", p_ptr->new_spells, p);
-                        }
+			if( p_ptr->new_spells < 10 ){
+				msg_format("あと %d つの%sを学べる。", p_ptr->new_spells, p);
+			}else{
+				msg_format("あと %d 個の%sを学べる。", p_ptr->new_spells, p);
+			}
 #else
 		msg_format("You can learn %d more %s%s.",
 			p_ptr->new_spells, p,
@@ -930,6 +930,9 @@ msg_format("その本には学ぶべき%sがない。", p);
 	/* Update Study */
 	p_ptr->update |= (PU_SPELLS);
 	update_stuff();
+
+	/* Redraw object recall */
+	p_ptr->window |= (PW_OBJECT);
 }
 
 
@@ -1056,7 +1059,7 @@ static bool cast_life_spell(int spell)
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		break;
 	case 4: /* Detect Traps + Secret Doors */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -1118,7 +1121,7 @@ static bool cast_life_spell(int spell)
 		}
 		break;
 	case 17: /* Perception */
-		return ident_spell(FALSE, FALSE);
+		return ident_spell(FALSE);
 	case 18: /* Dispel Undead */
 		(void)dispel_undead(randint1(plev * 5));
 		break;
@@ -1166,7 +1169,7 @@ static bool cast_life_spell(int spell)
 		(void)set_cut(0);
 		break;
 	case 30: /* Holy Vision */
-		return identify_fully(FALSE, FALSE);
+		return identify_fully(FALSE);
 	case 31: /* Ultimate resistance */
 	{
 		int v = randint1(plev/2)+plev/2;
@@ -1208,7 +1211,7 @@ static bool cast_sorcery_spell(int spell)
 		teleport_player(10);
 		break;
 	case 2: /* Detect Doors and Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -1234,7 +1237,7 @@ static bool cast_sorcery_spell(int spell)
 		map_area(DETECT_RAD_MAP);
 		break;
 	case 9: /* Identify */
-		return ident_spell(FALSE, FALSE);
+		return ident_spell(FALSE);
 	case 10: /* Slow Monster */
 		if (!get_aim_dir(&dir)) return FALSE;
 
@@ -1255,7 +1258,7 @@ static bool cast_sorcery_spell(int spell)
 		(void)detect_all(DETECT_RAD_DEFAULT);
 		break;
 	case 15: /* Identify True */
-		return identify_fully(FALSE, FALSE);
+		return identify_fully(FALSE);
 	case 16: /* Detect Objects and Treasure*/
 		(void)detect_objects_normal(DETECT_RAD_DEFAULT);
 		(void)detect_treasure(DETECT_RAD_DEFAULT);
@@ -1364,13 +1367,28 @@ static bool cast_nature_spell(int spell)
 			damroll(3 + ((plev - 1) / 5), 4));
 		break;
 	case 2: /* Detect Doors & Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
 	case 3: /* Produce Food */
-		(void)set_food(PY_FOOD_MAX - 1);
+	{
+		object_type forge, *q_ptr = &forge;
+
+#ifdef JP
+		msg_print("食料を生成した。");
+#else
+		msg_print("A food ration is produced.");
+#endif
+
+		/* Create the food ration */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+
+		/* Drop the object from heaven */
+		(void)drop_near(q_ptr, -1, py, px);
 		break;
+
+	}
 	case 4: /* Daylight */
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
@@ -1416,7 +1434,7 @@ take_hit(DAMAGE_NOESCAPE, damroll(2, 2), "日の光", -1);
 		break;
 	case 10: /* Nature Awareness -- downgraded */
 		map_area(DETECT_RAD_MAP);
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
@@ -1469,7 +1487,7 @@ msg_print("太陽光線が現れた。");
 		(void)charm_animals(plev * 2);
 		break;
 	case 21: /* Stone Tell */
-		return identify_fully(FALSE, FALSE);
+		return identify_fully(FALSE);
 	case 22: /* Wall of Stone */
 		(void)wall_stone();
 		break;
@@ -2267,9 +2285,9 @@ msg_print("死者が甦った。眠りを妨げるあなたを罰するために！");
 		}
 	case 26: /* Esoteria */
 		if (randint1(50) > plev)
-			return ident_spell(FALSE, FALSE);
+			return ident_spell(FALSE);
 		else
-			return identify_fully(FALSE, FALSE);
+			return identify_fully(FALSE);
 		break;
 	case 27: /* Mimic vampire */
 		(void)set_mimic(10+plev/2 + randint1(10+plev/2), MIMIC_VAMPIRE, FALSE);
@@ -2367,7 +2385,7 @@ msg_print("召還された蜘蛛は怒っている！");
 
 				if ((p_ptr->pclass == CLASS_ROGUE) ||
 					(p_ptr->pclass == CLASS_HIGH_MAGE) ||
-				        (p_ptr->pclass == CLASS_SORCERER))
+					(p_ptr->pclass == CLASS_SORCERER))
 					die = (randint1(110)) + plev / 5;
 				/* Card sharks and high mages get a level bonus */
 
@@ -3073,7 +3091,7 @@ msg_print("召還されたサイバーデーモンは怒っている！");
 		case 25: /* Trump Lore */
 			if (success)
 			{
-				return identify_fully(FALSE, FALSE);
+				return identify_fully(FALSE);
 			}
 			break;
 		case 26: /* Heal Monster */
@@ -3336,7 +3354,7 @@ static bool cast_arcane_spell(int spell)
 		(void)set_cut(p_ptr->cut - 10);
 		break;
 	case 8: /* Detect Doors & Traps */
-		(void)detect_traps(DETECT_RAD_DEFAULT);
+		(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 		(void)detect_doors(DETECT_RAD_DEFAULT);
 		(void)detect_stairs(DETECT_RAD_DEFAULT);
 		break;
@@ -3376,7 +3394,7 @@ static bool cast_arcane_spell(int spell)
 		teleport_player(plev * 5);
 		break;
 	case 20: /* Identify */
-		return ident_spell(FALSE, FALSE);
+		return ident_spell(FALSE);
 	case 21: /* Stone to Mud */
 		if (!get_aim_dir(&dir)) return FALSE;
 
@@ -3582,7 +3600,7 @@ msg_print("ゴーレムを作った。");
 		}
 		break;
 	case 26: /* Total Knowledge */
-		return identify_fully(FALSE, FALSE);
+		return identify_fully(FALSE);
 		break;
 	case 27: /* Enchant Weapon */
 		return enchant_spell(randint0(4) + 1, randint0(4) + 1, 0);
@@ -3986,11 +4004,11 @@ static bool cast_crusade_spell(int spell)
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		fire_ball(GF_HOLY_FIRE, dir,
-		          (damroll(3, 6) + plev +
-		          (plev / ((p_ptr->pclass == CLASS_PRIEST ||
-		             p_ptr->pclass == CLASS_HIGH_MAGE ||
+			  (damroll(3, 6) + plev +
+			  (plev / ((p_ptr->pclass == CLASS_PRIEST ||
+			     p_ptr->pclass == CLASS_HIGH_MAGE ||
 			     p_ptr->pclass == CLASS_SORCERER) ? 2 : 4))),
-		          ((plev < 30) ? 2 : 3));
+			  ((plev < 30) ? 2 : 3));
 
 		break;
 	case 10: /* Exorcism */
@@ -4257,18 +4275,18 @@ void stop_singing(void)
 
 	set_action(ACTION_NONE);
 
-        switch(p_ptr->magic_num1[0])
-        {
-                case MUSIC_BLESS:
-                        if (!p_ptr->blessed)
+	switch(p_ptr->magic_num1[0])
+	{
+		case MUSIC_BLESS:
+			if (!p_ptr->blessed)
 #ifdef JP
 msg_print("高潔な気分が消え失せた。");
 #else
 				msg_print("The prayer has expired.");
 #endif
-                        break;
-                case MUSIC_HERO:
-                        if (!p_ptr->hero)
+			break;
+		case MUSIC_HERO:
+			if (!p_ptr->hero)
 			{
 #ifdef JP
 msg_print("ヒーローの気分が消え失せた。");
@@ -4278,9 +4296,9 @@ msg_print("ヒーローの気分が消え失せた。");
 				/* Recalculate hitpoints */
 				p_ptr->update |= (PU_HP);
 			}
-                        break;
-                case MUSIC_MIND:
-                        if (!p_ptr->tim_esp)
+			break;
+		case MUSIC_MIND:
+			if (!p_ptr->tim_esp)
 			{
 #ifdef JP
 msg_print("意識は元に戻った。");
@@ -4290,57 +4308,57 @@ msg_print("意識は元に戻った。");
 				/* Update the monsters */
 				p_ptr->update |= (PU_MONSTERS);
 			}
-                        break;
-                case MUSIC_STEALTH:
-                        if (!p_ptr->tim_stealth)
+			break;
+		case MUSIC_STEALTH:
+			if (!p_ptr->tim_stealth)
 #ifdef JP
 msg_print("姿がはっきりと見えるようになった。");
 #else
 				msg_print("You are no longer hided.");
 #endif
-                        break;
-                case MUSIC_RESIST:
-                        if (!p_ptr->oppose_acid)
+			break;
+		case MUSIC_RESIST:
+			if (!p_ptr->oppose_acid)
 #ifdef JP
 msg_print("酸への耐性が薄れた気がする。");
 #else
 				msg_print("You feel less resistant to acid.");
 #endif
-                        if (!p_ptr->oppose_elec)
+			if (!p_ptr->oppose_elec)
 #ifdef JP
 msg_print("電撃への耐性が薄れた気がする。");
 #else
 				msg_print("You feel less resistant to elec.");
 #endif
-                        if (!p_ptr->oppose_fire)
+			if (!p_ptr->oppose_fire)
 #ifdef JP
 msg_print("火への耐性が薄れた気がする。");
 #else
 				msg_print("You feel less resistant to fire.");
 #endif
-                        if (!p_ptr->oppose_cold)
+			if (!p_ptr->oppose_cold)
 #ifdef JP
 msg_print("冷気への耐性が薄れた気がする。");
 #else
 				msg_print("You feel less resistant to cold.");
 #endif
-                        if (!p_ptr->oppose_pois)
+			if (!p_ptr->oppose_pois)
 #ifdef JP
 msg_print("毒への耐性が薄れた気がする。");
 #else
 				msg_print("You feel less resistant to pois.");
 #endif
-                        break;
-                case MUSIC_SPEED:
-                        if (!p_ptr->fast)
+			break;
+		case MUSIC_SPEED:
+			if (!p_ptr->fast)
 #ifdef JP
 msg_print("動きの素早さがなくなったようだ。");
 #else
 				msg_print("You feel yourself slow down.");
 #endif
-                        break;
-                case MUSIC_SHERO:
-                        if (!p_ptr->hero)
+			break;
+		case MUSIC_SHERO:
+			if (!p_ptr->hero)
 			{
 #ifdef JP
 msg_print("ヒーローの気分が消え失せた。");
@@ -4351,15 +4369,15 @@ msg_print("ヒーローの気分が消え失せた。");
 				p_ptr->update |= (PU_HP);
 			}
 
-                        if (!p_ptr->fast)
+			if (!p_ptr->fast)
 #ifdef JP
 msg_print("動きの素早さがなくなったようだ。");
 #else
 				msg_print("You feel yourself slow down.");
 #endif
-                        break;
-                case MUSIC_INVULN:
-                        if (!p_ptr->invuln)
+			break;
+		case MUSIC_INVULN:
+			if (!p_ptr->invuln)
 			{
 #ifdef JP
 msg_print("無敵ではなくなった。");
@@ -4375,8 +4393,8 @@ msg_print("無敵ではなくなった。");
 				/* Window stuff */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 			}
-                        break;
-        }
+			break;
+	}
 	p_ptr->magic_num1[0] = MUSIC_NONE;
 	p_ptr->magic_num2[0] = 0;
 
@@ -4393,12 +4411,12 @@ static bool cast_music_spell(int spell)
 	int	plev = p_ptr->lev;
 	int dir;
 
-        if(p_ptr->magic_num1[0])
-        {
-                stop_singing();
-        }
+	if(p_ptr->magic_num1[0])
+	{
+		stop_singing();
+	}
 
-        p_ptr->magic_num2[0] = spell;
+	p_ptr->magic_num2[0] = spell;
 
 	switch (spell)
 	{
@@ -4765,15 +4783,15 @@ s = "呪文書がない！";
 	s = "You have no spell books!";
 #endif
 
-        select_spellbook=TRUE;
+	select_spellbook=TRUE;
 	if (p_ptr->pclass == CLASS_FORCETRAINER)
 		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
-            select_spellbook = FALSE;
+	    select_spellbook = FALSE;
 	    select_the_force = FALSE;
-            return;
-        }
-        select_spellbook = FALSE;
+	    return;
+	}
+	select_spellbook = FALSE;
 	select_the_force = FALSE;
 
 	if (item == 1111) { /* the_force */
@@ -4811,13 +4829,13 @@ s = "呪文書がない！";
 
 	/* Ask for a spell */
 #ifdef JP
-        if (!get_spell(&spell,  
-		                ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "詠唱する" : (mp_ptr->spell_book == TV_MUSIC_BOOK) ? "歌う" : "唱える"), 
+	if (!get_spell(&spell,  
+				((mp_ptr->spell_book == TV_LIFE_BOOK) ? "詠唱する" : (mp_ptr->spell_book == TV_MUSIC_BOOK) ? "歌う" : "唱える"), 
 		       sval, TRUE, realm))
-        {
-                if (spell == -2) msg_format("その本には知っている%sがない。", prayer);
-                return;
-        }
+	{
+		if (spell == -2) msg_format("その本には知っている%sがない。", prayer);
+		return;
+	}
 #else
 	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
 		sval, TRUE, realm))
@@ -5046,6 +5064,9 @@ msg_print("An infernal sound echoed.");
 
 			/* Gain experience */
 			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
 
 			if (realm == REALM_LIFE)
 			{
@@ -5442,7 +5463,7 @@ void do_cmd_pet_dismiss(void)
 
 			/* HACK : Add the line to message buffer */
 #ifdef JP
-			sprintf(buf, "%s を離した。", friend_name);
+			sprintf(buf, "%s を放した。", friend_name);
 #else
 			sprintf(buf, "Dismissed %s.", friend_name);
 #endif
@@ -5585,6 +5606,9 @@ msg_format("%sから振り落とされそうになって、壁にぶつかった。",m_name);
 
 	p_ptr->redraw |= (PR_EXTRA);
 
+	/* Update health track of mount */
+	p_ptr->redraw |= (PR_UHEALTH);
+
 	if (p_ptr->ffall && !force)
 	{
 		monster_desc(m_name, m_ptr, 0);
@@ -5600,7 +5624,6 @@ msg_format("%sから落ちたが、空中でうまく体勢を立て直して着地した。",m_name);
 #else
 	take_hit(DAMAGE_NOESCAPE, r_ptr->level+3, "Falling from riding", -1);
 #endif
-	p_ptr->redraw |= (PR_UHEALTH);
 
 	return TRUE;
 }

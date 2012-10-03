@@ -1,22 +1,16 @@
 /* src/autoconf.h.in.  Generated from configure.in by autoheader.  */
-#undef USE_GCU
-#undef USE_CAP
-#undef USE_NCURSES
-#undef USE_X11
-#undef JP
-#undef EUC
-#undef USE_LOCALE
-#undef USE_XIM
-#undef USE_FONTSET
-#undef _JP
-#undef X_LOCALE
+
+/* Chuukei mode */
 #undef CHUUKEI
-#undef WORLD_SCORE
-#undef USE_TRANSPARENCY
-#undef DEFAULT_PATH
 
 /* Default Japanese Locale */
 #undef DEFAULT_LOCALE
+
+/* Path to the Hengband lib folder */
+#undef DEFAULT_PATH
+
+/* Use Extended Unix Code */
+#undef EUC
 
 /* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
 #undef HAVE_DOPRNT
@@ -99,6 +93,9 @@
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
 
+/* Enable Japanese */
+#undef JP
+
 /* Name of package */
 #undef PACKAGE
 
@@ -129,11 +126,44 @@
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 #undef TM_IN_SYS_TIME
 
+/* Allow -mCAP environment */
+#undef USE_CAP
+
+/* Use FontSet */
+#undef USE_FONTSET
+
+/* Allow -mGCU environment */
+#undef USE_GCU
+
+/* Support Locale */
+#undef USE_LOCALE
+
+/* Use ncurses */
+#undef USE_NCURSES
+
+/* Use transparency mode */
+#undef USE_TRANSPARENCY
+
+/* Allow -mX11 environment */
+#undef USE_X11
+
+/* Use X Imput Method */
+#undef USE_XIM
+
 /* Version number of package */
 #undef VERSION
 
+/* Allow the game to send scores to the score server */
+#undef WORLD_SCORE
+
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING
+
+/* Use XLocale */
+#undef X_LOCALE
+
+/* Use Kanji without FontSet */
+#undef _JP
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

@@ -684,9 +684,12 @@ int fd_make(cptr file, int mode)
 # if defined(MACINTOSH) && defined(MAC_MPW)
 
 	/* setting file type and creator -- AR */
-	errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
-	fsetfileinfo(file, _fcreator, _ftype);
-	return(errr_tmp);
+	{
+		errr errr_tmp;
+		errr_tmp = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+		fsetfileinfo(file, _fcreator, _ftype);
+		return(errr_tmp);
+	}
 
 # else
 	/* Create the file, fail if exists, write-only, binary */
@@ -1146,7 +1149,7 @@ void text_to_ascii(char *buf, cptr str)
 			/* Skip the backslash */
 			str++;
 
-                        /* Macro Trigger */
+			/* Macro Trigger */
 			if (*str == '[')
 			{
 				trigger_text_to_ascii(&s, &str);
@@ -1633,7 +1636,7 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
-        inkey_xtra = TRUE;
+	inkey_xtra = TRUE;
 }
 
 
@@ -1697,8 +1700,20 @@ static char inkey_aux(void)
 	/* Hack : キー入力待ちで止まっているので、流れた行の記憶は不要。 */
 	num_more = 0;
 
-	/* Wait for a keypress */
-	(void)(Term_inkey(&ch, TRUE, TRUE));
+	if (parse_macro)
+	{
+		/* Scan next keypress from macro action */
+		if (Term_inkey(&ch, FALSE, TRUE))
+		{
+			/* Over-flowed? Cancel macro action */
+			parse_macro = FALSE;
+		}
+	}
+	else
+	{
+		/* Wait for a keypress */
+		(void) (Term_inkey(&ch, TRUE, TRUE));
+	}
 
 
 	/* End "macro action" */
@@ -2356,7 +2371,7 @@ void message_add(cptr str)
  for (t = buf; *t && (*t != '<' || (*(t+1) != 'x' )); t++) 
      if( iskanji(*t))t++;
 #else
-                for (t = buf; *t && (*t != '<'); t++);
+		for (t = buf; *t && (*t != '<'); t++);
 #endif
 
 		if (*t)
@@ -2949,6 +2964,8 @@ void c_roff(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			break;
 		}
 
 		/* Clean up the char */
@@ -3048,7 +3065,7 @@ void c_roff(byte a, cptr str)
 
 		/* Dump */
 #ifdef JP
-                Term_addch((byte)(a|0x10), ch);
+		Term_addch((byte)(a|0x10), ch);
 #else
 		Term_addch(a, ch);
 #endif
@@ -3187,28 +3204,28 @@ bool askfor_aux(char *buf, int len)
 		default:
 #ifdef JP
        {			/* 片山さん作成 */
-                int next;
+		int next;
 
-                                if (iskanji (i)) {
-                                        inkey_base = TRUE;
-                                        next = inkey ();
-                                        if (k+1 < len) {
-                                                buf[k++] = i;
-                                                buf[k] = next;
-                                                k_flag[k++] = 1;
-                                        } else
-                                                bell();
-                                } else {
+				if (iskanji (i)) {
+					inkey_base = TRUE;
+					next = inkey ();
+					if (k+1 < len) {
+						buf[k++] = i;
+						buf[k] = next;
+						k_flag[k++] = 1;
+					} else
+						bell();
+				} else {
 #ifdef SJIS
-                    if(k<len && (isprint(i) || (0xa0<=i && i<=0xdf))){
+		    if(k<len && (isprint(i) || (0xa0<=i && i<=0xdf))){
 #else
-                    if(k<len && isprint(i)){
+		    if(k<len && isprint(i)){
 #endif
-                                                buf[k] = i;
-                                                k_flag[k++] = 0;
-                                        } else
-                                                bell();
-		               }
+						buf[k] = i;
+						k_flag[k++] = 0;
+					} else
+						bell();
+			       }
 		 }
 #else
 			if ((k < len) && (isprint(i)))
@@ -3312,28 +3329,12 @@ bool get_check_strict(cptr prompt, int mode)
 	/* Hack -- Build a "useful" prompt */
 	if (mode & CHECK_OKAY_CANCEL)
 	{
-#ifdef JP
-		/* (79-8)バイトの指定, promptが長かった場合, 
-		   (79-9)文字の後終端文字が書き込まれる.     
-		   英語の方のstrncpyとは違うので注意.
-		   elseの方の分岐も同様. --henkma
-		*/
-		mb_strlcpy(buf, prompt, 80-15);
-#else
-		strncpy(buf, prompt, 79-15);
-		buf[79-8]='\0';
-#endif
+		my_strcpy(buf, prompt, sizeof(buf)-15);
 		strcat(buf, "[(O)k/(C)ancel]");
-
 	}
 	else
 	{
-#ifdef JP
-		mb_strlcpy(buf, prompt, 80-5);
-#else
-		strncpy(buf, prompt, 79-5);
-		buf[79-5]='\0';
-#endif
+		my_strcpy(buf, prompt, sizeof(buf)-5);
 		strcat(buf, "[y/n]");
 	}
 
@@ -4026,7 +4027,7 @@ void request_command(int shopping)
 	cptr act;
 
 #ifdef JP
-        int caretcmd = 0;
+	int caretcmd = 0;
 #endif
 	/* Roguelike */
 	if (rogue_like_commands)
@@ -4301,20 +4302,20 @@ prt(format("回数: %d", command_arg), 0, 0);
 	}
 
 #ifdef JP
-        for (i = 0; i < 256; i++)
-        {
-                cptr s;
-                if ((s = keymap_act[mode][i]) != NULL)
-                {
-                        if (*s == command_cmd && *(s+1) == 0)
-                        {
-                                caretcmd = i;
-                                break;
-                        }
-                }
-        }
-        if (!caretcmd)
-                caretcmd = command_cmd;
+	for (i = 0; i < 256; i++)
+	{
+		cptr s;
+		if ((s = keymap_act[mode][i]) != NULL)
+		{
+			if (*s == command_cmd && *(s+1) == 0)
+			{
+				caretcmd = i;
+				break;
+			}
+		}
+	}
+	if (!caretcmd)
+		caretcmd = command_cmd;
 #endif
 	/* Hack -- Scan equipment */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -4340,7 +4341,7 @@ prt(format("回数: %d", command_arg), 0, 0);
 		{
 			/* Check the "restriction" character */
 #ifdef JP
-                        if ((s[1] == caretcmd) || (s[1] == '*'))
+			if ((s[1] == caretcmd) || (s[1] == '*'))
 #else
 			if ((s[1] == command_cmd) || (s[1] == '*'))
 #endif
@@ -4473,8 +4474,8 @@ int get_keymap_dir(char ch)
 	}
 	else
 	{
-                int mode;
-                cptr act, s;
+		int mode;
+		cptr act, s;
 
 		/* Roguelike */
 		if (rogue_like_commands)
@@ -4908,3 +4909,95 @@ void roff_to_buf(cptr str, int maxlen, char *tbuf)
 	return;
 }
 
+
+/*
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
+ */
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
+{
+#ifdef JP
+
+	char *d = buf;
+	const char *s = src;
+	size_t len = 0;
+
+	/* reserve for NUL termination */
+	bufsize--;
+
+	/* Copy as many bytes as will fit */
+	while (len < bufsize)
+	{
+		if (iskanji(*s))
+		{
+			if (len + 1 >= bufsize || !*(s+1)) break;
+			*d++ = *s++;
+			*d++ = *s++;
+			len += 2;
+		}
+		else
+		{
+			*d++ = *s++;
+			len++;
+		}
+	}
+	*d = '\0';
+	while(*s++) len++;
+
+	return len;
+
+#else
+
+	size_t len = strlen(src);
+	size_t ret = len;
+
+	/* Paranoia */
+	if (bufsize == 0) return ret;
+
+	/* Truncate */
+	if (len >= bufsize) len = bufsize - 1;
+
+	/* Copy the string and terminate it */
+	(void)memcpy(buf, src, len);
+	buf[len] = '\0';
+
+	/* Return strlen(src) */
+	return ret;
+
+#endif
+}
+
+
+/*
+ * The my_strcat() tries to append a string to an existing NUL-terminated string.
+ * It never writes more characters into the buffer than indicated by 'bufsize' and
+ * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
+ *
+ * my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
+ * truncation easy.  Example:
+ * if (my_strcat(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcat() function in BSD.
+ */
+size_t my_strcat(char *buf, const char *src, size_t bufsize)
+{
+	size_t dlen = strlen(buf);
+
+	/* Is there room left in the buffer? */
+	if (dlen < bufsize - 1)
+	{
+		/* Append as much as possible  */
+		return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
+	}
+	else
+	{
+		/* Return without appending */
+		return (dlen + strlen(src));
+	}
+}

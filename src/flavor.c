@@ -497,7 +497,7 @@ static bool object_flavor(int k_idx)
 void get_table_name(char *out_string)
 {
 #ifdef JP
-        char Syllable[80];
+	char Syllable[80];
 	strcpy(out_string, "『");
 	get_rnd_line("aname_j.txt", 1, Syllable);
 	strcat(out_string, Syllable);
@@ -945,7 +945,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
       case TV_FOOD:
       {
 	  if(o_ptr->sval == SV_FOOD_JERKY)
-          {
+	  {
 	      t = object_desc_str(t, "切れ");
 	      break;
 	  }
@@ -1021,6 +1021,588 @@ static char *object_desc_int(char *t, sint v)
 
 
 /*
+ * Structs and tables for Auto Inscription for flags
+ */
+
+typedef struct flag_insc_table
+{
+#ifdef JP
+	cptr japanese;
+#endif
+	cptr english;
+	int flag;
+	int except_flag;
+} flag_insc_table;
+
+#ifdef JP
+static flag_insc_table flag_insc_plus[] =
+{
+	{ "攻", "At", TR_BLOWS, -1 },
+	{ "速", "Sp", TR_SPEED, -1 },
+	{ "腕", "St", TR_STR, -1 },
+	{ "知", "In", TR_INT, -1 },
+	{ "賢", "Wi", TR_WIS, -1 },
+	{ "器", "Dx", TR_DEX, -1 },
+	{ "耐", "Cn", TR_CON, -1 },
+	{ "魅", "Ch", TR_CHR, -1 },
+	{ "道", "Md", TR_MAGIC_MASTERY, -1 },
+	{ "隠", "Sl", TR_STEALTH, -1 },
+	{ "探", "Sr", TR_SEARCH, -1 },
+	{ "赤", "If", TR_INFRA, -1 },
+	{ "掘", "Dg", TR_TUNNEL, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_immune[] =
+{
+	{ "酸", "Ac", TR_IM_ACID, -1 },
+	{ "電", "El", TR_IM_ELEC, -1 },
+	{ "火", "Fi", TR_IM_FIRE, -1 },
+	{ "冷", "Co", TR_IM_COLD, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_resistance[] =
+{
+	{ "酸", "Ac", TR_RES_ACID, TR_IM_ACID },
+	{ "電", "El", TR_RES_ELEC, TR_IM_ELEC },
+	{ "火", "Fi", TR_RES_FIRE, TR_IM_FIRE },
+	{ "冷", "Co", TR_RES_COLD, TR_IM_COLD },
+	{ "毒", "Po", TR_RES_POIS, -1 },
+	{ "閃", "Li", TR_RES_LITE, -1 },
+	{ "暗", "Dk", TR_RES_DARK, -1 },
+	{ "破", "Sh", TR_RES_SHARDS, -1 },
+	{ "盲", "Bl", TR_RES_BLIND, -1 },
+	{ "乱", "Cf", TR_RES_CONF, -1 },
+	{ "轟", "So", TR_RES_SOUND, -1 },
+	{ "獄", "Nt", TR_RES_NETHER, -1 },
+	{ "因", "Nx", TR_RES_NEXUS, -1 },
+	{ "沌", "Ca", TR_RES_CHAOS, -1 },
+	{ "劣", "Di", TR_RES_DISEN, -1 },
+	{ "恐", "Fe", TR_RES_FEAR, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_misc[] =
+{
+	{ "魔力", "Ma", TR_DEC_MANA, -1 },
+	{ "投", "Th", TR_THROW, -1 },
+	{ "反", "Rf", TR_REFLECT, -1 },
+	{ "麻", "Fa", TR_FREE_ACT, -1 },
+	{ "視", "Si", TR_SEE_INVIS, -1 },
+	{ "経", "Hl", TR_HOLD_LIFE, -1 },
+	{ "遅", "Sd", TR_SLOW_DIGEST, -1 },
+	{ "活", "Rg", TR_REGEN, -1 },
+	{ "浮", "Lv", TR_FEATHER, -1 },
+	{ "明", "Lu", TR_LITE, -1 },
+	{ "警", "Wr", TR_WARNING, -1 },
+	{ "倍", "Xm", TR_XTRA_MIGHT, -1 },
+	{ "射", "Xs", TR_XTRA_SHOTS, -1 },
+	{ "怒", "Ag", TR_AGGRAVATE, -1 },
+	{ "祝", "Bs", TR_BLESSED, -1 },
+	{ "忌", "Ty", TR_TY_CURSE, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_aura[] =
+{
+	{ "炎", "F", TR_SH_FIRE, -1 },
+	{ "電", "E", TR_SH_ELEC, -1 },
+	{ "冷", "C", TR_SH_COLD, -1 },
+	{ "魔", "M", TR_NO_MAGIC, -1 },
+	{ "瞬", "T", TR_NO_TELE, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_brand[] =
+{
+	{ "酸", "A", TR_BRAND_ACID, -1 },
+	{ "電", "E", TR_BRAND_ELEC, -1 },
+	{ "焼", "F", TR_BRAND_FIRE, -1 },
+	{ "凍", "Co", TR_BRAND_COLD, -1 },
+	{ "毒", "P", TR_BRAND_POIS, -1 },
+	{ "沌", "Ca", TR_CHAOTIC, -1 },
+	{ "吸", "V", TR_VAMPIRIC, -1 },
+	{ "震", "Q", TR_IMPACT, -1 },
+	{ "切", "S", TR_VORPAL, -1 },
+	{ "理", "M", TR_FORCE_WEAPON, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_kill[] =
+{
+	{ "邪", "*", TR_KILL_EVIL, -1 },
+	{ "人", "p", TR_KILL_HUMAN, -1 },
+	{ "龍", "D", TR_KILL_DRAGON, -1 },
+	{ "オ", "o", TR_KILL_ORC, -1 },
+	{ "ト", "T", TR_KILL_TROLL, -1 },
+	{ "巨", "P", TR_KILL_GIANT, -1 },
+	{ "デ", "U", TR_KILL_DEMON, -1 },
+	{ "死", "L", TR_KILL_UNDEAD, -1 },
+	{ "動", "Z", TR_KILL_ANIMAL, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_slay[] =
+{
+	{ "邪", "*", TR_SLAY_EVIL, TR_KILL_EVIL },
+	{ "人", "p", TR_SLAY_HUMAN, TR_KILL_HUMAN },
+	{ "竜", "D", TR_SLAY_DRAGON, TR_KILL_DRAGON },
+	{ "オ", "o", TR_SLAY_ORC, TR_KILL_ORC },
+	{ "ト", "T", TR_SLAY_TROLL, TR_KILL_TROLL },
+	{ "巨", "P", TR_SLAY_GIANT, TR_KILL_GIANT },
+	{ "デ", "U", TR_SLAY_DEMON, TR_KILL_DEMON },
+	{ "死", "L", TR_SLAY_UNDEAD, TR_KILL_UNDEAD },
+	{ "動", "Z", TR_SLAY_ANIMAL, TR_KILL_ANIMAL },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_esp1[] =
+{
+	{ "感", "Tele", TR_TELEPATHY, -1 },
+	{ "邪", "Evil", TR_ESP_EVIL, -1 },
+	{ "善", "Good", TR_ESP_GOOD, -1 },
+	{ "無", "Nolv", TR_ESP_NONLIVING, -1 },
+	{ "個", "Uniq", TR_ESP_UNIQUE, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_esp2[] =
+{
+	{ "人", "p", TR_ESP_HUMAN, -1 },
+	{ "竜", "D", TR_ESP_DRAGON, -1 },
+	{ "オ", "o", TR_ESP_ORC, -1 },
+	{ "ト", "T", TR_ESP_TROLL, -1 },
+	{ "巨", "P", TR_ESP_GIANT, -1 },
+	{ "デ", "U", TR_ESP_DEMON, -1 },
+	{ "死", "L", TR_ESP_UNDEAD, -1 },
+	{ "動", "Z", TR_ESP_ANIMAL, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_sust[] =
+{
+	{ "腕", "St", TR_SUST_STR, -1 },
+	{ "知", "In", TR_SUST_INT, -1 },
+	{ "賢", "Wi", TR_SUST_WIS, -1 },
+	{ "器", "Dx", TR_SUST_DEX, -1 },
+	{ "耐", "Cn", TR_SUST_CON, -1 },
+	{ "魅", "Ch", TR_SUST_CHR, -1 },
+	{ NULL, NULL, 0, -1 }
+};
+
+#else
+static flag_insc_table flag_insc_plus[] =
+{
+	{ "At", TR_BLOWS, -1 },
+	{ "Sp", TR_SPEED, -1 },
+	{ "St", TR_STR, -1 },
+	{ "In", TR_INT, -1 },
+	{ "Wi", TR_WIS, -1 },
+	{ "Dx", TR_DEX, -1 },
+	{ "Cn", TR_CON, -1 },
+	{ "Ch", TR_CHR, -1 },
+	{ "Md", TR_MAGIC_MASTERY, -1 },
+	{ "Sl", TR_STEALTH, -1 },
+	{ "Sr", TR_SEARCH, -1 },
+	{ "If", TR_INFRA, -1 },
+	{ "Dg", TR_TUNNEL, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_immune[] =
+{
+	{ "Ac", TR_IM_ACID, -1 },
+	{ "El", TR_IM_ELEC, -1 },
+	{ "Fi", TR_IM_FIRE, -1 },
+	{ "Co", TR_IM_COLD, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_resistance[] =
+{
+	{ "Ac", TR_RES_ACID, TR_IM_ACID },
+	{ "El", TR_RES_ELEC, TR_IM_ELEC },
+	{ "Fi", TR_RES_FIRE, TR_IM_FIRE },
+	{ "Co", TR_RES_COLD, TR_IM_COLD },
+	{ "Po", TR_RES_POIS, -1 },
+	{ "Li", TR_RES_LITE, -1 },
+	{ "Dk", TR_RES_DARK, -1 },
+	{ "Sh", TR_RES_SHARDS, -1 },
+	{ "Bl", TR_RES_BLIND, -1 },
+	{ "Cf", TR_RES_CONF, -1 },
+	{ "So", TR_RES_SOUND, -1 },
+	{ "Nt", TR_RES_NETHER, -1 },
+	{ "Nx", TR_RES_NEXUS, -1 },
+	{ "Ca", TR_RES_CHAOS, -1 },
+	{ "Di", TR_RES_DISEN, -1 },
+	{ "Fe", TR_RES_FEAR, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_misc[] =
+{
+	{ "Ma", TR_DEC_MANA, -1 },
+	{ "Th", TR_THROW, -1 },
+	{ "Rf", TR_REFLECT, -1 },
+	{ "Fa", TR_FREE_ACT, -1 },
+	{ "Si", TR_SEE_INVIS, -1 },
+	{ "Hl", TR_HOLD_LIFE, -1 },
+	{ "Sd", TR_SLOW_DIGEST, -1 },
+	{ "Rg", TR_REGEN, -1 },
+	{ "Lv", TR_FEATHER, -1 },
+	{ "Lu", TR_LITE, -1 },
+	{ "Wr", TR_WARNING, -1 },
+	{ "Xm", TR_XTRA_MIGHT, -1 },
+	{ "Xs", TR_XTRA_SHOTS, -1 },
+	{ "Ag", TR_AGGRAVATE, -1 },
+	{ "Bs", TR_BLESSED, -1 },
+	{ "Ty", TR_TY_CURSE, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_aura[] =
+{
+	{ "F", TR_SH_FIRE, -1 },
+	{ "E", TR_SH_ELEC, -1 },
+	{ "C", TR_SH_COLD, -1 },
+	{ "M", TR_NO_MAGIC, -1 },
+	{ "T", TR_NO_TELE, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_brand[] =
+{
+	{ "A", TR_BRAND_ACID, -1 },
+	{ "E", TR_BRAND_ELEC, -1 },
+	{ "F", TR_BRAND_FIRE, -1 },
+	{ "Co", TR_BRAND_COLD, -1 },
+	{ "P", TR_BRAND_POIS, -1 },
+	{ "Ca", TR_CHAOTIC, -1 },
+	{ "V", TR_VAMPIRIC, -1 },
+	{ "Q", TR_IMPACT, -1 },
+	{ "S", TR_VORPAL, -1 },
+	{ "M", TR_FORCE_WEAPON, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_kill[] =
+{
+	{ "*", TR_KILL_EVIL, -1 },
+	{ "p", TR_KILL_HUMAN, -1 },
+	{ "D", TR_KILL_DRAGON, -1 },
+	{ "o", TR_KILL_ORC, -1 },
+	{ "T", TR_KILL_TROLL, -1 },
+	{ "P", TR_KILL_GIANT, -1 },
+	{ "U", TR_KILL_DEMON, -1 },
+	{ "L", TR_KILL_UNDEAD, -1 },
+	{ "Z", TR_KILL_ANIMAL, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_slay[] =
+{
+	{ "*", TR_SLAY_EVIL, TR_KILL_EVIL },
+	{ "p", TR_SLAY_HUMAN, TR_KILL_HUMAN },
+	{ "D", TR_SLAY_DRAGON, TR_KILL_DRAGON },
+	{ "o", TR_SLAY_ORC, TR_KILL_ORC },
+	{ "T", TR_SLAY_TROLL, TR_KILL_TROLL },
+	{ "P", TR_SLAY_GIANT, TR_KILL_GIANT },
+	{ "U", TR_SLAY_DEMON, TR_KILL_DEMON },
+	{ "L", TR_SLAY_UNDEAD, TR_KILL_UNDEAD },
+	{ "Z", TR_SLAY_ANIMAL, TR_KILL_ANIMAL },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_esp1[] =
+{
+	{ "Tele", TR_TELEPATHY, -1 },
+	{ "Evil", TR_ESP_EVIL, -1 },
+	{ "Good", TR_ESP_GOOD, -1 },
+	{ "Nolv", TR_ESP_NONLIVING, -1 },
+	{ "Uniq", TR_ESP_UNIQUE, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_esp2[] =
+{
+	{ "p", TR_ESP_HUMAN, -1 },
+	{ "D", TR_ESP_DRAGON, -1 },
+	{ "o", TR_ESP_ORC, -1 },
+	{ "T", TR_ESP_TROLL, -1 },
+	{ "P", TR_ESP_GIANT, -1 },
+	{ "U", TR_ESP_DEMON, -1 },
+	{ "L", TR_ESP_UNDEAD, -1 },
+	{ "Z", TR_ESP_ANIMAL, -1 },
+	{ NULL, 0, -1 }
+};
+
+static flag_insc_table flag_insc_sust[] =
+{
+	{ "St", TR_SUST_STR, -1 },
+	{ "In", TR_SUST_INT, -1 },
+	{ "Wi", TR_SUST_WIS, -1 },
+	{ "Dx", TR_SUST_DEX, -1 },
+	{ "Cn", TR_SUST_CON, -1 },
+	{ "Ch", TR_SUST_CHR, -1 },
+	{ NULL, 0, -1 }
+};
+#endif
+
+/* Simple macro for get_inscription() */
+#define ADD_INSC(STR) (void)(ptr = object_desc_str(ptr, (STR)))
+
+/*
+ *  Helper function for get_inscription()
+ */
+static char *inscribe_flags_aux(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE], bool kanji, char *ptr)
+{
+	while (fi_ptr->english)
+	{
+		if (have_flag(flgs, fi_ptr->flag) &&
+		    (fi_ptr->except_flag == -1 || !have_flag(flgs, fi_ptr->except_flag)))
+#ifdef JP
+			ADD_INSC(kanji ? fi_ptr->japanese : fi_ptr->english);
+#else
+			ADD_INSC(fi_ptr->english);
+#endif
+		fi_ptr++;
+	}
+
+	return ptr;
+}
+
+
+/*
+ *  Special variation of have_flag for auto-inscription
+ */
+static bool have_flag_of(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE])
+{
+	while (fi_ptr->english)
+	{
+		if (have_flag(flgs, fi_ptr->flag) &&
+		   (fi_ptr->except_flag == -1 || !have_flag(flgs, fi_ptr->except_flag)))
+			return (TRUE);
+		fi_ptr++;
+	}
+
+	return (FALSE);
+}
+
+
+/*
+ *  Get object inscription with auto inscription of object flags.
+ */
+static void get_inscription(char *buff, object_type *o_ptr)
+{
+	cptr insc = quark_str(o_ptr->inscription);
+	char *ptr = buff;
+	char *prev_ptr = buff;
+
+	u32b flgs[TR_FLAG_SIZE];
+
+	/* Not fully identified */
+	if (!(o_ptr->ident & IDENT_MENTAL))
+	{
+		/* Copy until end of line or '#' */
+		while (*insc)
+		{
+			if (*insc == '#') break;
+#ifdef JP
+			if (iskanji(*insc)) *buff++ = *insc++;
+#endif
+			*buff++ = *insc++;
+		}
+
+		*buff = '\0';
+		return;
+	}
+
+	/* Extract the flags */
+	object_flags(o_ptr, flgs);
+
+
+	*buff = '\0';
+	for (; *insc; insc++)
+	{
+		bool kanji = FALSE;
+		bool all;
+
+		/* Ignore fake artifact inscription */
+		if (*insc == '#') break;
+
+		/* {%} will be automatically converted */
+		else if ('%' == *insc)
+		{
+			cptr start_percent = ptr;
+#ifdef JP
+			if ('%' == insc[1])
+			{
+				insc++;
+				kanji = FALSE;
+			}
+			else
+			{
+				kanji = TRUE;
+			}
+#endif
+			if ('a' == insc[1] && 'l' == insc[2] && 'l' == insc[3])
+			{
+				all = TRUE;
+				insc += 3;
+			}
+			else
+			{
+				all = FALSE;
+			}
+
+			/* check for too long inscription */
+			if (ptr >= buff + MAX_NLEN) continue;
+
+			/* Remove obvious flags */
+			if (!all)
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				int j;
+				
+				/* Base object */
+				for (j = 0; j < TR_FLAG_SIZE; j++)
+					flgs[j] &= ~k_ptr->flags[j];
+
+				if (o_ptr->name1)
+				{
+					artifact_type *a_ptr = &a_info[o_ptr->name1];
+					
+					for (j = 0; j < TR_FLAG_SIZE; j++)
+						flgs[j] &= ~a_ptr->flags[j];
+				}
+
+				if (o_ptr->name2)
+				{
+					bool teleport = have_flag(flgs, TR_TELEPORT);
+					ego_item_type *e_ptr = &e_info[o_ptr->name2];
+					
+					for (j = 0; j < TR_FLAG_SIZE; j++)
+						flgs[j] &= ~e_ptr->flags[j];
+
+					/* Always inscribe {.} for random teleport */
+					if (teleport) add_flag(flgs, TR_TELEPORT);
+				}
+			}
+
+
+			/* Plusses */
+			if (have_flag_of(flag_insc_plus, flgs))
+			{
+				if (kanji)
+					ADD_INSC("+");
+			}
+			ptr = inscribe_flags_aux(flag_insc_plus, flgs, kanji, ptr);
+
+			/* Immunity */
+			if (have_flag_of(flag_insc_immune, flgs))
+			{
+				if (!kanji && ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+				ADD_INSC("*");
+			}
+			ptr = inscribe_flags_aux(flag_insc_immune, flgs, kanji, ptr);
+
+			/* Resistance */
+			if (have_flag_of(flag_insc_resistance, flgs))
+			{
+				if (kanji)
+					ADD_INSC("r");
+				else if (ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+			}
+			ptr = inscribe_flags_aux(flag_insc_resistance, flgs, kanji, ptr);
+
+			/* Misc Ability */
+			if (have_flag_of(flag_insc_misc, flgs))
+			{
+				if (ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+			}
+			ptr = inscribe_flags_aux(flag_insc_misc, flgs, kanji, ptr);
+
+			/* Aura */
+			if (have_flag_of(flag_insc_aura, flgs))
+			{
+				ADD_INSC("[");
+			}
+			ptr = inscribe_flags_aux(flag_insc_aura, flgs, kanji, ptr);
+
+			/* Brand Weapon */
+			if (have_flag_of(flag_insc_brand, flgs))
+				ADD_INSC("|");
+			ptr = inscribe_flags_aux(flag_insc_brand, flgs, kanji, ptr);
+
+			/* Kill Weapon */
+			if (have_flag_of(flag_insc_kill, flgs))
+				ADD_INSC("/X");
+			ptr = inscribe_flags_aux(flag_insc_kill, flgs, kanji, ptr);
+
+			/* Slay Weapon */
+			if (have_flag_of(flag_insc_slay, flgs))
+				ADD_INSC("/");
+			ptr = inscribe_flags_aux(flag_insc_slay, flgs, kanji, ptr);
+
+			/* Esp */
+			if (kanji)
+			{
+				if (have_flag_of(flag_insc_esp1, flgs) ||
+				    have_flag_of(flag_insc_esp2, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
+				ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
+			}
+			else
+			{
+				if (have_flag_of(flag_insc_esp1, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
+				if (have_flag_of(flag_insc_esp2, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
+			}
+
+			/* Random Teleport */
+			if (have_flag(flgs, TR_TELEPORT))
+			{
+				ADD_INSC(".");
+			}
+
+			/* sustain */
+			if (have_flag_of(flag_insc_sust, flgs))
+			{
+				ADD_INSC("(");
+			}
+			ptr = inscribe_flags_aux(flag_insc_sust, flgs, kanji, ptr);
+
+			if (ptr == start_percent)
+				ADD_INSC(" ");
+		}
+		else
+		{
+			*ptr++ = *insc;
+		}
+	}
+	*ptr = '\0';
+}
+
+
+
+/*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
  * One can choose the "verbosity" of the description, including whether
@@ -1085,7 +1667,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char            tmp_val[MAX_NLEN+160];
 	char            tmp_val2[MAX_NLEN+10];
 
-	u32b            f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
 	object_type	*bow_ptr;
 
@@ -1093,7 +1675,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	/* See if the object is "aware" */
 	if (object_aware_p(o_ptr) || (o_ptr->ident & IDENT_MENTAL)) aware = TRUE;
@@ -1202,15 +1784,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 #ifdef JP
-			sprintf(tmp_val2, "& #%s", basenm + 2);
+			sprintf(tmp_val2, "#%s", basenm);
 #else
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				sprintf(tmp_val2, "%s %s", basenm, "of #");
+				sprintf(tmp_val2, "& %s %s", basenm, "of #");
 			}
 			else
 			{
-				sprintf(tmp_val2, "& # %s", basenm + 2);
+				sprintf(tmp_val2, "& # %s", basenm);
 			}
 #endif
 
@@ -1271,9 +1853,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %のアミュレット" : "& アミュレット";
+				basenm = aware ? "%のアミュレット" : "アミュレット";
 			else
-				basenm = aware ? "& #%のアミュレット" : "& #アミュレット";
+				basenm = aware ? "#%のアミュレット" : "#アミュレット";
 #else
 				basenm = "& Amulet~";
 			else
@@ -1298,9 +1880,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の指輪" : "& 指輪";
+				basenm = aware ? "%の指輪" : "指輪";
 			else
-				basenm = aware ? "& #%の指輪" : "& #指輪";
+				basenm = aware ? "#%の指輪" : "#指輪";
 #else
 				basenm = "& Ring~";
 			else
@@ -1325,9 +1907,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の杖" : "& 杖";
+				basenm = aware ? "%の杖" : "杖";
 			else
-				basenm = aware ? "& #%の杖" : "& #杖";
+				basenm = aware ? "#%の杖" : "#杖";
 #else
 				basenm = "& Staff~";
 			else
@@ -1345,9 +1927,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware? "& %の魔法棒":"& 魔法棒";
+				basenm = aware? "%の魔法棒":"魔法棒";
 			else
-				basenm = aware ? "& #%の魔法棒" : "& #魔法棒";
+				basenm = aware ? "#%の魔法棒" : "#魔法棒";
 #else
 				basenm = "& Wand~";
 			else
@@ -1365,9 +1947,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware? "& %のロッド":"& ロッド";
+				basenm = aware? "%のロッド":"ロッド";
 			else
-				basenm = aware ? "& #%のロッド" : "& #ロッド";
+				basenm = aware ? "#%のロッド" : "#ロッド";
 #else
 				basenm = "& Rod~";
 			else
@@ -1384,9 +1966,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の巻物" : "& 巻物";
+				basenm = aware ? "%の巻物" : "巻物";
 			else
-				basenm = aware ? "& 「#」と書かれた%の巻物" : "& 「#」と書かれた巻物";
+				basenm = aware ? "「#」と書かれた%の巻物" : "「#」と書かれた巻物";
 #else
 				basenm = "& Scroll~";
 			else
@@ -1404,9 +1986,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の薬" : "& 薬";
+				basenm = aware ? "%の薬" : "薬";
 			else
-				basenm = aware ? "& #%の薬" : "& #薬";
+				basenm = aware ? "#%の薬" : "#薬";
 #else
 				basenm = "& Potion~";
 			else
@@ -1427,9 +2009,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %のキノコ" : "& キノコ";
+				basenm = aware ? "%のキノコ" : "キノコ";
 			else
-				basenm = aware ? "& #%のキノコ" : "& #キノコ";
+				basenm = aware ? "#%のキノコ" : "#キノコ";
 #else
 				basenm = "& Mushroom~";
 			else
@@ -1443,9 +2025,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-                        basenm = "& 羊皮紙 - #";
+			basenm = "羊皮紙 - #";
 #else
-                        basenm = "& Parchement~ - #";
+			basenm = "& Parchement~ - #";
 #endif
 			break;
 		}
@@ -1455,7 +2037,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 生命の魔法書#";
+				basenm = "生命の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Life Magic #";
@@ -1470,7 +2052,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 仙術の魔法書#";
+				basenm = "仙術の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Sorcery #";
@@ -1485,7 +2067,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 自然の魔法書#";
+				basenm = "自然の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Nature Magic #";
@@ -1500,7 +2082,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& カオスの魔法書#";
+				basenm = "カオスの魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Chaos Magic #";
@@ -1515,7 +2097,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 暗黒の魔法書#";
+				basenm = "暗黒の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Death Magic #";
@@ -1530,7 +2112,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& トランプの魔法書#";
+				basenm = "トランプの魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Trump Magic #";
@@ -1545,7 +2127,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 秘術の魔法書#";
+				basenm = "秘術の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Arcane Magic #";
@@ -1559,7 +2141,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 匠の魔法書#";
+				basenm = "匠の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Craft Magic #";
@@ -1573,7 +2155,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 悪魔の魔法書#";
+				basenm = "悪魔の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Daemon Magic #";
@@ -1587,7 +2169,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 破邪の魔法書#";
+				basenm = "破邪の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Crusade Magic #";
@@ -1601,7 +2183,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 歌集#";
+				basenm = "歌集#";
 #else
 				basenm = "& Song Book~ #";
 #endif
@@ -1614,7 +2196,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 #ifdef JP
 				basenm = "& 武芸の書#";
 #else
-				basenm = "& Book~ of Kendo #";
+				basenm = "Book~ of Kendo #";
 #endif
 
 			break;
@@ -1633,7 +2215,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		default:
 		{
 #ifdef JP
-                        strcpy(buf, "(なし)");
+			strcpy(buf, "(なし)");
 #else
 			strcpy(buf, "(nothing)");
 #endif
@@ -1642,6 +2224,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+	/* Use full name from k_info or a_info */
+	if (aware && have_flag(flgs, TR_FULL_NAME))
+	{
+		if (known && o_ptr->name1) basenm = a_name + a_info[o_ptr->name1].name;
+		else basenm = get_object_name(o_ptr);
+	}
 
 	/* Start dumping the result */
 	t = tmp_val;
@@ -1790,40 +2378,40 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_str(t,format("鍛冶師%sの",player_name));
 	}
 
-        /* 伝説のアイテム、名のあるアイテムの名前を付加する */
-        if (known) {
-                /* ランダム・アーティファクト */
+	/* 伝説のアイテム、名のあるアイテムの名前を付加する */
+	if (known) {
+		/* ランダム・アーティファクト */
 		if (o_ptr->art_name)
 		{       char temp[256];
-		        strcpy(temp, quark_str(o_ptr->art_name));
-                        /* '『' から始まらない伝説のアイテムの名前は最初に付加する */
-                        /* 英語版のセーブファイルから来た 'of XXX' は,「XXXの」と表示する */
+			strcpy(temp, quark_str(o_ptr->art_name));
+			/* '『' から始まらない伝説のアイテムの名前は最初に付加する */
+			/* 英語版のセーブファイルから来た 'of XXX' は,「XXXの」と表示する */
 			if ( strncmp( temp , "of ",3)==0 ) {t=object_desc_str(t,&temp[3]);t=object_desc_str(t,"の");}
 			else 
-                        if ( strncmp( temp , "『" , 2 ) != 0 && temp[0]!='\'')
-                                t=object_desc_str(t,  temp);
+			if ( strncmp( temp , "『" , 2 ) != 0 && temp[0]!='\'')
+				t=object_desc_str(t,  temp);
 		}
-                /* 伝説のアイテム */
-                else if (o_ptr->name1) {
-                        artifact_type *a_ptr = &a_info[o_ptr->name1];
-                        /* '『' から始まらない伝説のアイテムの名前は最初に付加する */
-                        if ( strncmp( (a_name + a_ptr->name), "『" , 2) != 0){
-                                t=object_desc_str(t, (a_name + a_ptr->name));
-                        }
-                }
-                /* 名のあるアイテム */
-                else if (o_ptr->name2) {
-                        ego_item_type *e_ptr = &e_info[o_ptr->name2];
-                        t=object_desc_str(t, (e_name + e_ptr->name));
-                }
-        }
+		/* 伝説のアイテム */
+		else if (o_ptr->name1 && !have_flag(flgs, TR_FULL_NAME)) {
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			/* '『' から始まらない伝説のアイテムの名前は最初に付加する */
+			if ( strncmp( (a_name + a_ptr->name), "『" , 2) != 0){
+				t=object_desc_str(t, (a_name + a_ptr->name));
+			}
+		}
+		/* 名のあるアイテム */
+		else if (o_ptr->name2) {
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			t=object_desc_str(t, (e_name + e_ptr->name));
+		}
+	}
 #endif
 	/* Copy the string */
 	for (; *s; s++)
 	{
 		/* Pluralizer */
 #ifdef JP
-                if (*s == '#')
+		if (*s == '#')
 #else
 		if (*s == '~')
 		{
@@ -1882,27 +2470,27 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 #ifdef JP
-        /* '『'から始まる伝説のアイテムの名前は最後に付加する */
-        if (known) {
+	/* '『'から始まる伝説のアイテムの名前は最後に付加する */
+	if (known) {
 		/* ランダムアーティファクトの名前はセーブファイルに記録
-                   されるので、英語版の名前もそれらしく変換する */
+		   されるので、英語版の名前もそれらしく変換する */
 		if (o_ptr->art_name)
 		{       char temp[256];int itemp;
-		        strcpy(temp, quark_str(o_ptr->art_name));
+			strcpy(temp, quark_str(o_ptr->art_name));
 			/* MEGA HACK by ita*/
-                                if ( strncmp( temp , "『" , 2 ) == 0 ) t=object_desc_str(t,  temp);else
+				if ( strncmp( temp , "『" , 2 ) == 0 ) t=object_desc_str(t,  temp);else
 			 if( temp[0]=='\'' ) { itemp=strlen(temp);temp[itemp-1]=0; 
 			 t=object_desc_str(t,"『");
 			 t=object_desc_str(t,&temp[1]);
 			 t=object_desc_str(t,"』");}
-                                
+				
 		}
-                else if (o_ptr->name1) {
-                                artifact_type *a_ptr = &a_info[o_ptr->name1];
-                                if ( strncmp( (a_name + a_ptr->name) , "『" , 2 ) == 0 ){
-                                        t=object_desc_str(t, (a_name + a_ptr->name));
-                                }
-                }
+		else if (o_ptr->name1) {
+				artifact_type *a_ptr = &a_info[o_ptr->name1];
+				if ( strncmp( (a_name + a_ptr->name) , "『" , 2 ) == 0 ){
+					t=object_desc_str(t, (a_name + a_ptr->name));
+				}
+		}
 		else if (o_ptr->inscription)
 		{
 			cptr str = quark_str(o_ptr->inscription);
@@ -1928,15 +2516,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				t=object_desc_str(t,"』");
 			}
 		}
-        }
+	}
 #else
 	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
 	{
-		t = object_desc_str(t,format(" of %s the smith",player_name));
+		t = object_desc_str(t,format(" of %s the Smith",player_name));
 	}
 
 	/* Hack -- Append "Artifact" or "Special" names */
-	if (known)
+	if (known && !have_flag(flgs, TR_FULL_NAME))
 	{
 		/* Is it a new random artifact ? */
 		if (o_ptr->art_name)
@@ -2142,7 +2730,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 
 
 	/* Display the item like a weapon */
-	if (f3 & (TR3_SHOW_MODS)) show_weapon = TRUE;
+	if (have_flag(flgs, TR_SHOW_MODS)) show_weapon = TRUE;
 
 	/* Display the item like a weapon */
 	if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
@@ -2182,7 +2770,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 		power = (o_ptr->sval % 10);
 
 		/* Apply the "Extra Might" flag */
-		if (f3 & (TR3_XTRA_MIGHT)) power++;
+		if (have_flag(flgs, TR_XTRA_MIGHT)) power++;
 
 		/* Append a special "damage" string */
 		t = object_desc_chr(t, ' ');
@@ -2376,7 +2964,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 		}
 		t = object_desc_num(t, o_ptr->pval);
 #ifdef JP
-                t = object_desc_str(t, "回分");
+		t = object_desc_str(t, "回分");
 #else
 		t = object_desc_str(t, " charge");
 
@@ -2406,8 +2994,8 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 				/* Find out how many rods are charging, by dividing
 				 * current timeout by each rod's maximum timeout.
 				 * Ensure that any remainder is rounded up.  Display
-			 	 * very discharged stacks as merely fully discharged.
-			 	 */
+				 * very discharged stacks as merely fully discharged.
+				 */
 				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 				if (power > o_ptr->number) power = o_ptr->number;
 
@@ -2436,7 +3024,7 @@ t = object_desc_str(t, "(充填中)");
 	}
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if (known && (have_pval_flags(flgs)))
 	{
 		/* Start the display */
 		t = object_desc_chr(t, ' ');
@@ -2446,13 +3034,13 @@ t = object_desc_str(t, "(充填中)");
 		t = object_desc_int(t, o_ptr->pval);
 
 		/* Do not display the "pval" flags */
-		if (f3 & (TR3_HIDE_TYPE))
+		if (have_flag(flgs, TR_HIDE_TYPE))
 		{
 			/* Nothing */
 		}
 
 		/* Speed */
-		else if (f1 & (TR1_SPEED))
+		else if (have_flag(flgs, TR_SPEED))
 		{
 			/* Dump " to speed" */
 #ifdef JP
@@ -2464,7 +3052,7 @@ t = object_desc_str(t, "加速");
 		}
 
 		/* Attack speed */
-		else if (f1 & (TR1_BLOWS))
+		else if (have_flag(flgs, TR_BLOWS))
 		{
 			/* Add " attack" */
 #ifdef JP
@@ -2479,7 +3067,7 @@ t = object_desc_str(t, "攻撃");
 		}
 
 		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
+		else if (have_flag(flgs, TR_STEALTH))
 		{
 			/* Dump " to stealth" */
 #ifdef JP
@@ -2491,7 +3079,7 @@ t = object_desc_str(t, "隠密");
 		}
 
 		/* Search */
-		else if (f1 & (TR1_SEARCH))
+		else if (have_flag(flgs, TR_SEARCH))
 		{
 			/* Dump " to searching" */
 #ifdef JP
@@ -2503,7 +3091,7 @@ t = object_desc_str(t, "探索");
 		}
 
 		/* Infravision */
-		else if (f1 & (TR1_INFRA))
+		else if (have_flag(flgs, TR_INFRA))
 		{
 			/* Dump " to infravision" */
 #ifdef JP
@@ -2515,7 +3103,7 @@ t = object_desc_str(t, "赤外線視力");
 		}
 
 		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
+		else if (have_flag(flgs, TR_TUNNEL))
 		{
 			/* Nothing */
 		}
@@ -2620,15 +3208,15 @@ strcpy(tmp_val2, "未判明");
 	/* Use the standard inscription if available */
 	if (o_ptr->inscription)
 	{
-		char *u = tmp_val2;
+		char buff[1024];
 
 		if (tmp_val2[0]) strcat(tmp_val2, ", ");
 
-		strcat(tmp_val2, quark_str(o_ptr->inscription));
+		/* Get inscription and convert {%} */
+		get_inscription(buff, o_ptr);
 
-		for (; *u && (*u != '#'); u++);
-
-		*u = '\0';
+		/* strcat with correct treating of kanji */
+		my_strcat(tmp_val2, buff, sizeof(tmp_val2));
 	}
 
 	/* Note the discount, if any */

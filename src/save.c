@@ -113,9 +113,10 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-	wr_u32b(o_ptr->art_flags1);
-	wr_u32b(o_ptr->art_flags2);
-	wr_u32b(o_ptr->art_flags3);
+	wr_u32b(o_ptr->art_flags[0]);
+	wr_u32b(o_ptr->art_flags[1]);
+	wr_u32b(o_ptr->art_flags[2]);
+	wr_u32b(o_ptr->art_flags[3]);
 
 	wr_u32b(o_ptr->curse_flags);
 
@@ -361,6 +362,7 @@ static void wr_options(void)
 	if (cheat_xtra) c |= 0x0800;
 	if (cheat_know) c |= 0x1000;
 	if (cheat_live) c |= 0x2000;
+	if (cheat_save) c |= 0x4000;
 
 	wr_u16b(c);
 
@@ -470,7 +472,7 @@ static void save_quick_start(void)
 	wr_byte(previous_char.quests);
 
 	/* No quick start after using debug mode or cheat options */
-	if (p_ptr->noscore || munchkin_death) previous_char.quick_ok = FALSE;
+	if (p_ptr->noscore) previous_char.quick_ok = FALSE;
 
 	wr_byte((byte)previous_char.quick_ok);
 }
@@ -582,10 +584,10 @@ static void wr_extra(void)
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
-        tmp8u = (byte)max_d_idx;
-        wr_byte(tmp8u);
-        for (i = 0; i < tmp8u; i++)
-                wr_s16b(max_dlv[i]);
+	tmp8u = (byte)max_d_idx;
+	wr_byte(tmp8u);
+	for (i = 0; i < tmp8u; i++)
+		wr_s16b(max_dlv[i]);
 
 	/* More info */
 	wr_s16b(0);     /* oops */
@@ -619,7 +621,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->word_recall);
-        wr_s16b(p_ptr->recall_dungeon);
+	wr_s16b(p_ptr->recall_dungeon);
 	wr_s16b(p_ptr->see_infra);
 	wr_s16b(p_ptr->tim_infra);
 	wr_s16b(p_ptr->oppose_fire);
@@ -999,7 +1001,7 @@ static bool wr_savefile_new(void)
 	wr_byte(FAKE_VER_PATCH);
 	xor_byte = 0;
 
-        /* Initial value of xor_byte */
+	/* Initial value of xor_byte */
 	tmp8u = (byte)randint0(256);
 	wr_byte(tmp8u);
 
@@ -1581,8 +1583,8 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-                /* Attempt to load */
-                err = rd_savefile_new();
+		/* Attempt to load */
+		err = rd_savefile_new();
 
 		/* Message (below) */
 #ifdef JP

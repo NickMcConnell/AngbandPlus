@@ -491,7 +491,7 @@ static cptr r_info_flags9[] =
 /*
  * Object flags
  */
-static cptr k_info_flags1[] =
+static cptr k_info_flags[] =
 {
 	"STR",
 	"INT",
@@ -524,14 +524,8 @@ static cptr k_info_flags1[] =
 	"BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
-	"BRAND_COLD"
-};
+	"BRAND_COLD",
 
-/*
- * Object flags
- */
-static cptr k_info_flags2[] =
-{
 	"SUST_STR",
 	"SUST_INT",
 	"SUST_WIS",
@@ -539,7 +533,7 @@ static cptr k_info_flags2[] =
 	"SUST_CON",
 	"SUST_CHR",
 	"RIDING",
-	"XXX2",
+	"EASY_SPELL",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -563,14 +557,8 @@ static cptr k_info_flags2[] =
 	"RES_NETHER",
 	"RES_NEXUS",
 	"RES_CHAOS",
-	"RES_DISEN"
-};
+	"RES_DISEN",
 
-/*
- * Object flags
- */
-static cptr k_info_flags3[] =
-{
 	"SH_FIRE",
 	"SH_ELEC",
 	"SLAY_HUMAN",
@@ -600,9 +588,31 @@ static cptr k_info_flags3[] =
 	"TELEPORT",
 	"AGGRAVATE",
 	"BLESSED",
-	"XXX1",
-	"XXX2",
 	"XXX3",
+	"XXX4",
+	"XXX5",
+
+	"KILL_ANIMAL",
+	"KILL_EVIL",
+	"KILL_UNDEAD",
+	"KILL_DEMON",
+	"KILL_ORC",
+	"KILL_TROLL",
+	"KILL_GIANT",
+	"KILL_HUMAN",
+	"ESP_ANIMAL",
+	"ESP_UNDEAD",
+	"ESP_DEMON",
+	"ESP_ORC",
+	"ESP_TROLL",
+	"ESP_GIANT",
+	"ESP_DRAGON",
+	"ESP_HUMAN",
+	"ESP_EVIL",
+	"ESP_GOOD",
+	"ESP_NONLIVING",
+	"ESP_UNIQUE",
+	"FULL_NAME",
 };
 
 
@@ -648,38 +658,38 @@ static cptr k_info_gen_flags[] =
  */
 static cptr d_info_flags1[] =
 {
-        "WINNER",
-        "MAZE",
-        "SMALLEST",
-        "BEGINNER",
-        "BIG",
-        "NO_DOORS",
-        "WATER_RIVER",
-        "LAVA_RIVER",
-        "WATER_RIVERS",
-        "LAVA_RIVERS",
-        "CAVE",
-        "CAVERN",
-        "NO_UP",
-        "HOT",
-        "COLD",
-        "NO_DOWN",
-        "FORGET",
-        "LAKE_WATER",
-        "LAKE_LAVA",
-        "LAKE_RUBBLE",
-        "LAKE_TREE",
-        "NO_VAULT",
-        "ARENA",
-        "DESTROY",
-        "XXX1",
-        "NO_CAVE",
-        "NO_MAGIC",
-        "NO_MELEE",
-        "CHAMELEON",
-        "DARKNESS",
-        "XXX1",
-        "XXX1"
+	"WINNER",
+	"MAZE",
+	"SMALLEST",
+	"BEGINNER",
+	"BIG",
+	"NO_DOORS",
+	"WATER_RIVER",
+	"LAVA_RIVER",
+	"WATER_RIVERS",
+	"LAVA_RIVERS",
+	"CAVE",
+	"CAVERN",
+	"NO_UP",
+	"HOT",
+	"COLD",
+	"NO_DOWN",
+	"FORGET",
+	"LAKE_WATER",
+	"LAKE_LAVA",
+	"LAKE_RUBBLE",
+	"LAKE_TREE",
+	"NO_VAULT",
+	"ARENA",
+	"DESTROY",
+	"XXX1",
+	"NO_CAVE",
+	"NO_MAGIC",
+	"NO_MELEE",
+	"CHAMELEON",
+	"DARKNESS",
+	"XXX1",
+	"XXX1"
 };
 
 
@@ -782,7 +792,7 @@ byte color_char_to_attr(char c)
  * Initialize an "*_info" array, by parsing an ascii "template" file
  */
 errr init_info_txt(FILE *fp, char *buf, header *head,
-                   parse_info_txt_func parse_info_txt_line)
+		   parse_info_txt_func parse_info_txt_line)
 {
 	errr err;
 
@@ -815,6 +825,17 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 		{
 			/* ignore */
 			continue;
+		}
+
+		/* Mega Hack -- Calculate Check Sum */
+		if (buf[0] != 'N' && buf[0] != 'D')
+		{
+			int i;
+			for (i = 0; buf[i]; i++)
+			{
+				head->v_extra += (byte)buf[i];
+				head->v_extra ^= (1 << (i % 8));
+			}
 		}
 
 		/* Parse the line */
@@ -1192,20 +1213,6 @@ errr parse_f_info(char *buf, header *head)
 	}
 #endif
 
-#if 0
-
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-		/* Acquire the text */
-		s = buf+2;
-
-		/* Store the text */
-		if (!add_text(&f_ptr->text, head, s)) return (7);
-	}
-
-#endif
-
 
 	/* Process 'M' for "Mimic" (one line only) */
 	else if (buf[0] == 'M')
@@ -1259,32 +1266,12 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 {
 	int i;
 
-	/* Check flags1 */
-	for (i = 0; i < 32; i++)
+	/* Check flags */
+	for (i = 0; i < TR_FLAG_MAX; i++)
 	{
-		if (streq(what, k_info_flags1[i]))
+		if (streq(what, k_info_flags[i]))
 		{
-			k_ptr->flags1 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags2 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags2[i]))
-		{
-			k_ptr->flags2 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags3 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags3[i]))
-		{
-			k_ptr->flags3 |= (1L << i);
+			add_flag(k_ptr->flags, i);
 			return (0);
 		}
 	}
@@ -1547,32 +1534,12 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 {
 	int i;
 
-	/* Check flags1 */
-	for (i = 0; i < 32; i++)
+	/* Check flags */
+	for (i = 0; i < TR_FLAG_MAX; i++)
 	{
-		if (streq(what, k_info_flags1[i]))
+		if (streq(what, k_info_flags[i]))
 		{
-			a_ptr->flags1 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags2 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags2[i]))
-		{
-			a_ptr->flags2 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags3 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags3[i]))
-		{
-			a_ptr->flags3 |= (1L << i);
+			add_flag(a_ptr->flags, i);
 			return (0);
 		}
 	}
@@ -1646,10 +1613,10 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr = &a_info[i];
 
 		/* Ignore everything */
-		a_ptr->flags3 |= (TR3_IGNORE_ACID);
-		a_ptr->flags3 |= (TR3_IGNORE_ELEC);
-		a_ptr->flags3 |= (TR3_IGNORE_FIRE);
-		a_ptr->flags3 |= (TR3_IGNORE_COLD);
+		add_flag(a_ptr->flags, TR_IGNORE_ACID);
+		add_flag(a_ptr->flags, TR_IGNORE_ELEC);
+		add_flag(a_ptr->flags, TR_IGNORE_FIRE);
+		add_flag(a_ptr->flags, TR_IGNORE_COLD);
 #ifdef JP
 		/* Store the name */
 		if (!add_name(&a_ptr->name, head, s)) return (7);
@@ -1788,32 +1755,12 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 {
 	int i;
 
-	/* Check flags1 */
-	for (i = 0; i < 32; i++)
+	/* Check flags */
+	for (i = 0; i < TR_FLAG_MAX; i++)
 	{
-		if (streq(what, k_info_flags1[i]))
+		if (streq(what, k_info_flags[i]))
 		{
-			e_ptr->flags1 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags2 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags2[i]))
-		{
-			e_ptr->flags2 |= (1L << i);
-			return (0);
-		}
-	}
-
-	/* Check flags3 */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, k_info_flags3[i]))
-		{
-			e_ptr->flags3 |= (1L << i);
+			add_flag(e_ptr->flags, i);
 			return (0);
 		}
 	}
@@ -2437,18 +2384,18 @@ static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
 	/* Scan flags1 */
 	for (i = 0; i < 32; i++)
 	{
-                if (streq(what, d_info_flags1[i]))
+		if (streq(what, d_info_flags1[i]))
 		{
-                        d_ptr->flags1 |= (1L << i);
+			d_ptr->flags1 |= (1L << i);
 			return (0);
 		}
 	}
 
 	/* Oops */
 #ifdef JP
-        msg_format("未知のダンジョン・フラグ '%s'。", what);
+	msg_format("未知のダンジョン・フラグ '%s'。", what);
 #else
-        msg_format("Unknown dungeon type flag '%s'.", what);
+	msg_format("Unknown dungeon type flag '%s'.", what);
 #endif
 
 	/* Failure */
@@ -2465,9 +2412,9 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	/* Scan flags1 */
 	for (i = 0; i < 32; i++)
 	{
-                if (streq(what, r_info_flags1[i]))
+		if (streq(what, r_info_flags1[i]))
 		{
-                        d_ptr->mflags1 |= (1L << i);
+			d_ptr->mflags1 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2477,7 +2424,7 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags2[i]))
 		{
-                        d_ptr->mflags2 |= (1L << i);
+			d_ptr->mflags2 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2487,7 +2434,7 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags3[i]))
 		{
-                        d_ptr->mflags3 |= (1L << i);
+			d_ptr->mflags3 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2495,9 +2442,9 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	/* Scan flags7 */
 	for (i = 0; i < 32; i++)
 	{
-                if (streq(what, r_info_flags7[i]))
+		if (streq(what, r_info_flags7[i]))
 		{
-                        d_ptr->mflags7 |= (1L << i);
+			d_ptr->mflags7 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2507,7 +2454,7 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags8[i]))
 		{
-                        d_ptr->mflags8 |= (1L << i);
+			d_ptr->mflags8 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2517,7 +2464,7 @@ static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags9[i]))
 		{
-                        d_ptr->mflags9 |= (1L << i);
+			d_ptr->mflags9 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2545,7 +2492,7 @@ static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags4[i]))
 		{
-                        d_ptr->mflags4 |= (1L << i);
+			d_ptr->mflags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2555,7 +2502,7 @@ static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags5[i]))
 		{
-                        d_ptr->mflags5 |= (1L << i);
+			d_ptr->mflags5 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2565,7 +2512,7 @@ static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what)
 	{
 		if (streq(what, r_info_flags6[i]))
 		{
-                        d_ptr->mflags6 |= (1L << i);
+			d_ptr->mflags6 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2709,7 +2656,7 @@ errr parse_d_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
-                                &f1, &p1, &f2, &p2, &f3, &p3, &tunnel)) return (1);
+				&f1, &p1, &f2, &p2, &f3, &p3, &tunnel)) return (1);
 
 		/* Save the values */
 		d_ptr->floor1 = f1;
@@ -2762,7 +2709,7 @@ errr parse_d_info(char *buf, header *head)
 				while (*t == ' ' || *t == '|') t++;
 			}
 
-                                /* XXX XXX XXX Hack -- Read Final Artifact */
+				/* XXX XXX XXX Hack -- Read Final Artifact */
 			if (1 == sscanf(s, "FINAL_ARTIFACT_%d", &artif))
 			{
 				/* Extract a "Final Artifact" */
@@ -2775,7 +2722,7 @@ errr parse_d_info(char *buf, header *head)
 				continue;
 			}
 
-                                /* XXX XXX XXX Hack -- Read Final Object */
+				/* XXX XXX XXX Hack -- Read Final Object */
 			if (1 == sscanf(s, "FINAL_OBJECT_%d", &artif))
 			{
 				/* Extract a "Final Artifact" */
@@ -2788,7 +2735,7 @@ errr parse_d_info(char *buf, header *head)
 				continue;
 			}
 
-                                /* XXX XXX XXX Hack -- Read Artifact Guardian */
+				/* XXX XXX XXX Hack -- Read Artifact Guardian */
 			if (1 == sscanf(s, "FINAL_GUARDIAN_%d", &monst))
 			{
 				/* Extract a "Artifact Guardian" */
@@ -2801,7 +2748,7 @@ errr parse_d_info(char *buf, header *head)
 				continue;
 			}
 
-                                /* XXX XXX XXX Hack -- Read Special Percentage */
+				/* XXX XXX XXX Hack -- Read Special Percentage */
 			if (1 == sscanf(s, "MONSTER_DIV_%d", &monst))
 			{
 				/* Extract a "Special %" */
@@ -2840,7 +2787,7 @@ errr parse_d_info(char *buf, header *head)
 				while (*t == ' ' || *t == '|') t++;
 			}
 
-                                /* XXX XXX XXX Hack -- Read monster symbols */
+				/* XXX XXX XXX Hack -- Read monster symbols */
 			if (1 == sscanf(s, "R_CHAR_%c", &r_char))
 			{
 				/* Limited to 5 races */
@@ -3408,6 +3355,12 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				place_trap(*y, *x);
 			}
+			/* Hidden trap (or door) */
+			else if (letter[idx].trap)
+			{
+				c_ptr->mimic = c_ptr->feat;
+				c_ptr->feat = letter[idx].trap;
+			}
 			else if (object_index)
 			{
 				/* Get local object */
@@ -3651,10 +3604,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				max_e_idx = atoi(zz[1]);
 			}
 
-                        /* Maximum d_idx */
-                        else if (zz[0][0] == 'D')
+			/* Maximum d_idx */
+			else if (zz[0][0] == 'D')
 			{
-                                max_d_idx = atoi(zz[1]); 
+				max_d_idx = atoi(zz[1]); 
 			}
 
 			/* Maximum o_idx */
@@ -3872,7 +3825,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "RACE"))
 			{
 #ifdef JP
-                                v = rp_ptr->E_title;
+				v = rp_ptr->E_title;
 #else
 				v = rp_ptr->title;
 #endif
@@ -3882,7 +3835,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "CLASS"))
 			{
 #ifdef JP
-                                v = cp_ptr->E_title;
+				v = cp_ptr->E_title;
 #else
 				v = cp_ptr->title;
 #endif
@@ -3894,7 +3847,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 #ifdef JP
 				v = E_realm_names[p_ptr->realm1];
 #else
-                                v = realm_names[p_ptr->realm1];
+				v = realm_names[p_ptr->realm1];
 #endif
 			}
 
@@ -3902,7 +3855,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "REALM2"))
 			{
 #ifdef JP
-                                v = E_realm_names[p_ptr->realm2];
+				v = E_realm_names[p_ptr->realm2];
 #else
 				v = realm_names[p_ptr->realm2];
 #endif
@@ -4011,7 +3964,7 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -4021,7 +3974,7 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Count lines */
 		num++;
@@ -4059,18 +4012,6 @@ errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax)
 
 		/* Apply conditionals */
 		if (bypass) continue;
-
-
-		/* Process "%:<file>" */
-		if (buf[0] == '%')
-		{
-			/* Process that file if allowed */
-			(void)process_dungeon_file(buf + 2, ymin, xmin, ymax, xmax);
-
-			/* Continue */
-			continue;
-		}
-
 
 		/* Process the line */
 		err = process_dungeon_file_aux(buf, ymin, xmin, ymax, xmax, &y, &x);

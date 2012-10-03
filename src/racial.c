@@ -458,7 +458,7 @@ static bool choose_kamae(void)
 #ifdef JP
 				msg_print("もともと構えていない。");
 #else
-			        msg_print("You are not assuming a posture.");
+				msg_print("You are not assuming a posture.");
 #endif
 			screen_load();
 			return TRUE;
@@ -1138,7 +1138,7 @@ msg_print("少し頭がハッキリした。");
 			{
 				if (racial_aux(25, 20, A_INT, 20))
 				{
-					if (!identify_fully(FALSE, FALSE)) return FALSE;
+					if (!identify_fully(FALSE)) return FALSE;
 				}
 			}
 			break;
@@ -1342,13 +1342,6 @@ msg_print("武器を持たないといけません。");
 		{
 			if (command == -3)
 			{
-				if (racial_aux(5, 5, A_DEX, 10))
-				{
-					(void)set_food(PY_FOOD_MAX - 1);
-				}
-			}
-			else if (command == -4)
-			{
 				if (racial_aux(10, 10, A_DEX, 20))
 				{
 					if (!word_of_recall()) return FALSE;
@@ -1362,11 +1355,11 @@ msg_print("武器を持たないといけません。");
 			{
 				if (p_ptr->lev > 29)
 				{
-					if (!identify_fully(TRUE, FALSE)) return FALSE;
+					if (!identify_fully(TRUE)) return FALSE;
 				}
 				else
 				{
-					if (!ident_spell(TRUE, FALSE)) return FALSE;
+					if (!ident_spell(TRUE)) return FALSE;
 				}
 			}
 			break;
@@ -1379,9 +1372,9 @@ msg_print("武器を持たないといけません。");
 			    int x,y;
 			      for( x=0 ; x < cur_wid ;x++){
 				for( y=0 ; y < cur_hgt ;y++){
-				  if( (cave[y][x].info & CAVE_IN_MIRROR)){
+				  if( is_mirror_grid(&cave[y][x])) {
 				    remove_mirror(y,x);
-				    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_REF|PROJECT_NO_HANGEKI),-1);
+				    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_HANGEKI),-1);
 				  }
 				}
 			      }
@@ -1399,7 +1392,7 @@ msg_print("今はペットを操ることに集中していないと。");
 				  return FALSE;
 			  }
 			  if (racial_aux(30, 0, A_INT, 20)){
-			        if( (cave[py][px].info & CAVE_IN_MIRROR))
+				if( is_mirror_grid(&cave[py][px]))
 				{
 #ifdef JP
 msg_print("少し頭がハッキリした。");
@@ -1547,7 +1540,7 @@ msg_print("周囲を調べた。");
 				msg_print("You examine your surroundings.");
 #endif
 
-				(void)detect_traps(DETECT_RAD_DEFAULT);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				(void)detect_doors(DETECT_RAD_DEFAULT);
 				(void)detect_stairs(DETECT_RAD_DEFAULT);
 			}
@@ -1803,7 +1796,7 @@ msg_print("周囲を調査した。");
 				msg_print("You examine your surroundings.");
 #endif
 
-				(void)detect_traps(DETECT_RAD_DEFAULT);
+				(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				(void)detect_doors(DETECT_RAD_DEFAULT);
 				(void)detect_stairs(DETECT_RAD_DEFAULT);
 			}
@@ -2739,16 +2732,6 @@ strcpy(power_desc[num].name, "荒馬ならし");
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "空腹充足");
-#else
-		strcpy(power_desc[num].name, "Satisfy Hunger");
-#endif
-
-		power_desc[num].level = 5;
-		power_desc[num].cost = 5;
-		power_desc[num].fail = 100 - racial_chance(5, A_DEX, 10);
-		power_desc[num++].number = -3;
-#ifdef JP
 strcpy(power_desc[num].name, "帰還");
 #else
 		strcpy(power_desc[num].name, "Recall");
@@ -2757,7 +2740,7 @@ strcpy(power_desc[num].name, "帰還");
 		power_desc[num].level = 10;
 		power_desc[num].cost = 10;
 		power_desc[num].fail = 100 - racial_chance(10, A_DEX, 20);
-		power_desc[num++].number = -4;
+		power_desc[num++].number = -3;
 		break;
 	}
 	case CLASS_MIRROR_MASTER:
@@ -3722,9 +3705,9 @@ if (!repeat_pull(&i) || i<0 || i>=num) {
 	if (use_menu) screen_save();
 	 /* Get a spell from the user */
 
-        choice = (always_show_list || use_menu) ? ESCAPE:1;
-        while (!flag)
-        {
+	choice = (always_show_list || use_menu) ? ESCAPE:1;
+	while (!flag)
+	{
 		if( choice==ESCAPE ) choice = ' '; 
 		else if( !get_com(out_val, &choice, FALSE) )break; 
 

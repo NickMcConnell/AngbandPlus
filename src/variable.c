@@ -213,6 +213,7 @@ bool find_examine;			/* Run into potential corners */
 
 bool disturb_move;			/* Disturb whenever any monster moves */
 bool disturb_near;			/* Disturb whenever viewable monster moves */
+bool disturb_high;                      /* Disturb whenever high-level monster moves */
 bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
@@ -229,7 +230,6 @@ bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
 bool display_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
-bool stupid_monsters;		/* Monsters use old AI */
 bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool confirm_wear;		/* Confirm before putting on known cursed items */
@@ -294,6 +294,7 @@ bool always_show_list;
 bool powerup_home;
 bool change_numeral;
 bool send_score;
+bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 /* Cheating options */
 
@@ -303,6 +304,7 @@ bool cheat_room;		/* Peek into dungeon creation */
 bool cheat_xtra;		/* Peek into something else */
 bool cheat_know;		/* Know complete monster info */
 bool cheat_live;		/* Allow player to avoid death */
+bool cheat_save;		/* Ask for saving death */
 
 
 /* Special options */
@@ -726,22 +728,17 @@ char *v_text;
  * The skill table
  */
 skill_table *s_info;
-char *s_name;
-char *s_text;
 
 /*
  * The magic info
  */
 player_magic *m_info;
-char *m_name;
-char *m_text;
 
 /*
  * The terrain feature arrays
  */
 feature_type *f_info;
 char *f_name;
-char *f_text;
 
 /*
  * The object kind arrays
@@ -961,6 +958,7 @@ bool leave_wanted;
 bool leave_corpse;
 bool leave_junk;
 bool leave_chest;
+bool leave_special;
 
 /* Nikki */
 bool record_fix_art;
@@ -1091,8 +1089,6 @@ bool ironman_downward;        /* Don't allow climbing upwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
 bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
-bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
-bool munchkin_death;          /* Ask for saving death */
 bool ironman_rooms;           /* Always generate very unusual rooms */
 bool ironman_nightmare;			/* Play the game in Nightmare mode */
 bool left_hander;

@@ -88,15 +88,15 @@ cptr            p = "必殺剣";
 #else
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
 #endif
-        p, I2A(0), "abcdefghijklmnopqrstuvwxyz012345"[num-1], p);
+	p, I2A(0), "abcdefghijklmnopqrstuvwxyz012345"[num-1], p);
 
 	if (use_menu) screen_save();
 
 	/* Get a spell from the user */
 
-        choice= always_show_list ? ESCAPE:1 ;
-        while (!flag)
-        {
+	choice= always_show_list ? ESCAPE:1 ;
+	while (!flag)
+	{
 		if(choice==ESCAPE) choice = ' '; 
 		else if( !get_com(out_val, &choice, FALSE) )break;
 
@@ -235,8 +235,8 @@ put_str("name              Lv  SP      name              Lv  SP ", y, x + 5);
 
 					/* Dump the spell --(-- */
 					strcat(psi_desc, format(" %-18s%2d %3d",
-					        spell_names[technic2magic(REALM_HISSATSU)-1][i],
-					        spell.slevel, spell.smana));
+						spell_names[technic2magic(REALM_HISSATSU)-1][i],
+						spell.slevel, spell.smana));
 					prt(psi_desc, y + (line%17) + (line >= 17), x+(line/17)*30);
 					prt("", y + (line%17) + (line >= 17) + 1, x+(line/17)*30);
 				}
@@ -353,7 +353,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 0:
 		project_length = 2;
 		if (!get_aim_dir(&dir)) return FALSE;
-		project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF);
+		project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
 
 		break;
 	case 1:
@@ -645,11 +645,11 @@ static bool cast_hissatsu_spell(int spell)
 	{
 		if (p_ptr->lev > 44)
 		{
-			if (!identify_fully(TRUE, FALSE)) return FALSE;
+			if (!identify_fully(TRUE)) return FALSE;
 		}
 		else
 		{
-			if (!ident_spell(TRUE, FALSE)) return FALSE;
+			if (!ident_spell(TRUE)) return FALSE;
 		}
 		break;
 	}
@@ -674,12 +674,10 @@ static bool cast_hissatsu_spell(int spell)
 		cave[y][x].info &= ~(CAVE_MARK);
 
 		/* Destroy the feature */
-		cave[y][x].feat = floor_type[randint0(100)];
+		cave_set_feat(y, x, floor_type[randint0(100)]);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
-
-		lite_spot(y, x);
 
 		break;
 	}
@@ -782,7 +780,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 18:
 		project_length = 5;
 		if (!get_aim_dir(&dir)) return FALSE;
-		project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF);
+		project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL);
 
 		break;
 	case 19: /* Whirlwind Attack */
@@ -841,7 +839,7 @@ static bool cast_hissatsu_spell(int spell)
 	case 21:
 	{
 		int total_damage = 0, basedam, i;
-		u32b f1, f2, f3;
+		u32b flgs[TR_FLAG_SIZE];
 		object_type *o_ptr;
 		if (!get_aim_dir(&dir)) return FALSE;
 #ifdef JP
@@ -857,14 +855,14 @@ static bool cast_hissatsu_spell(int spell)
 			o_ptr = &inventory[INVEN_RARM+i];
 			basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
 			damage = o_ptr->to_d * 100;
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 			if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
 			{
 				/* vorpal blade */
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -894,10 +892,16 @@ static bool cast_hissatsu_spell(int spell)
 		int i;
 		if (!get_rep_dir2(&dir)) return FALSE;
 		if (dir == 5) return FALSE;
-		y = py + ddy[dir];
-		x = px + ddx[dir];
 		for (i = 0; i < 3; i++)
 		{
+			int oy, ox;
+			int ny, nx;
+			int m_idx;
+			monster_type *m_ptr;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
 			if (cave[y][x].m_idx)
 				py_attack(y, x, HISSATSU_3DAN);
 			else
@@ -909,77 +913,84 @@ static bool cast_hissatsu_spell(int spell)
 #endif
 				return FALSE;
 			}
+
 			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
 			{
 				return TRUE;
 			}
-			if (cave[y][x].m_idx)
+
+			/* Monster is dead? */
+			if (!cave[y][x].m_idx) break;
+
+			ny = y + ddy[dir];
+			nx = x + ddx[dir];
+			m_idx = cave[y][x].m_idx;
+			m_ptr = &m_list[m_idx];
+
+			/* Monster cannot move back? */
+			if (!monster_can_enter(ny, nx, &r_info[m_ptr->r_idx])) continue;
+
+			cave[y][x].m_idx = 0;
+			cave[ny][nx].m_idx = m_idx;
+			m_ptr->fy = ny;
+			m_ptr->fx = nx;
+
+			update_mon(m_idx, TRUE);
+
+			/* Player can move forward? */
+			if (player_can_enter(cave[y][x].feat))
 			{
-				int oy, ox;
-				int ny = y + ddy[dir];
-				int nx = x + ddx[dir];
-				int m_idx = cave[y][x].m_idx;
-				monster_type *m_ptr = &m_list[m_idx];
-				if (cave_empty_bold(ny, nx))
+				/* Save the old location */
+				oy = py;
+				ox = px;
+
+				/* Move the player */
+				py = y;
+				px = x;
+
+				if (p_ptr->riding)
 				{
-					cave[y][x].m_idx = 0;
-					cave[ny][nx].m_idx = m_idx;
-					m_ptr->fy = ny;
-					m_ptr->fx = nx;
-
-					update_mon(m_idx, TRUE);
-
-					/* Save the old location */
-					oy = py;
-					ox = px;
-
-					/* Move the player */
-					py = y;
-					px = x;
-
-					if (p_ptr->riding)
-					{
-						int tmp;
-						tmp = cave[py][px].m_idx;
-						cave[py][px].m_idx = cave[oy][ox].m_idx;
-						cave[oy][ox].m_idx = tmp;
-						m_list[p_ptr->riding].fy = py;
-						m_list[p_ptr->riding].fx = px;
-						update_mon(cave[py][px].m_idx, TRUE);
-					}
-
-					forget_flow();
-
-					/* Redraw the old spot */
-					lite_spot(oy, ox);
-
-					/* Redraw the new spot */
-					lite_spot(py, px);
-
-					/* Redraw the new spot */
-					lite_spot(ny, nx);
-
-					/* Check for new panel (redraw map) */
-					verify_panel();
-
-					/* Update stuff */
-					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-					/* Update the monsters */
-					p_ptr->update |= (PU_DISTANCE);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-					/* Handle stuff XXX XXX XXX */
-					handle_stuff();
-
-					if (i < 2) msg_print(NULL);
-					y += ddy[dir];
-					x += ddx[dir];
+					int tmp;
+					tmp = cave[py][px].m_idx;
+					cave[py][px].m_idx = cave[oy][ox].m_idx;
+					cave[oy][ox].m_idx = tmp;
+					m_list[p_ptr->riding].fy = py;
+					m_list[p_ptr->riding].fx = px;
+					update_mon(cave[py][px].m_idx, TRUE);
 				}
+
+				forget_flow();
+
+				/* Redraw the old spot */
+				lite_spot(oy, ox);
+
+				/* Redraw the new spot */
+				lite_spot(py, px);
 			}
-			else break;
+
+			/* Redraw the old spot */
+			lite_spot(y, x);
+
+			/* Redraw the new spot */
+			lite_spot(ny, nx);
+
+			/* Check for new panel (redraw map) */
+			verify_panel();
+
+			/* Update stuff */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+			/* Update the monsters */
+			p_ptr->update |= (PU_DISTANCE);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			/* Handle stuff */
+			handle_stuff();
+
+			/* -more- */
+			if (i < 2) msg_print(NULL);
 		}
 		break;
 	}
@@ -1028,7 +1039,7 @@ static bool cast_hissatsu_spell(int spell)
 			else
 				p_ptr->csp -= 8;
 			new = FALSE;
-			if (!project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL | PROJECT_NO_REF)) break;
+			if (!project_hook(GF_ATTACK, dir, HISSATSU_NYUSIN, PROJECT_STOP | PROJECT_KILL)) break;
 			count++;
 			command_dir = 0;
 			p_ptr->redraw |= PR_MANA;
@@ -1065,7 +1076,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 
 			break;
 		}
-		project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL | PROJECT_NO_REF, -1);
+		project(0, 0, y, x, HISSATSU_ISSEN, GF_ATTACK, PROJECT_BEAM | PROJECT_KILL, -1);
 		teleport_player_to(y, x, TRUE);
 		break;
 	}
@@ -1100,7 +1111,7 @@ msg_print("その方向にはモンスターはいません。");
 	{
 		int total_damage = 0, basedam, i;
 		int y, x;
-		u32b f1, f2, f3;
+		u32b flgs[TR_FLAG_SIZE];
 		object_type *o_ptr;
 
 		if (!get_rep_dir2(&dir)) return FALSE;
@@ -1128,14 +1139,14 @@ msg_print("その方向にはモンスターはいません。");
 			o_ptr = &inventory[INVEN_RARM+i];
 			basedam = (o_ptr->dd * (o_ptr->ds + 1)) * 50;
 			damage = o_ptr->to_d * 100;
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 			if ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD))
 			{
 				/* vorpal blade */
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -1422,12 +1433,18 @@ s = "読める書がない。";
 		p_ptr->spell_order[j] = i;
 		gain = TRUE;
 	}
+
+	/* No gain ... */
 	if (!gain)
 #ifdef JP
 		msg_print("何も覚えられなかった。");
 #else
 		msg_print("You were not able to learn any special attacks.");
 #endif
+
+	/* Take a turn */
+	else
+		energy_use = 100;
 
 	p_ptr->update |= (PU_SPELLS);
 }

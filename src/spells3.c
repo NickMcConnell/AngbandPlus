@@ -81,8 +81,8 @@ bool teleport_away(int m_idx, int dis, bool dec_valour)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (is_glyph_grid(&cave[ny][nx])) continue;
+			if (is_explosive_rune_grid(&cave[ny][nx])) continue;
 
 			/* ...nor onto the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
@@ -193,8 +193,8 @@ void teleport_to_player(int m_idx, int power)
 			if (!cave_empty_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
+			if (is_glyph_grid(&cave[ny][nx])) continue;
+			if (is_explosive_rune_grid(&cave[ny][nx])) continue;
 
 			/* ...nor onto the Pattern */
 			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
@@ -1241,7 +1241,7 @@ act = "は破壊力を増した！";
 #ifdef JP
 act = "は人間の血を求めている！";
 #else
-			act = "seems looking for human!";
+			act = "seems to be looking for humans!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_HUMAN;
@@ -1250,7 +1250,7 @@ act = "は人間の血を求めている！";
 #ifdef JP
 act = "は電撃に覆われた！";
 #else
-			act = "coverd with lightning!";
+			act = "covered with lightning!";
 #endif
 
 			o_ptr->name2 = EGO_BRAND_ELEC;
@@ -1268,7 +1268,7 @@ act = "は酸に覆われた！";
 #ifdef JP
 act = "は邪悪なる怪物を求めている！";
 #else
-			act = "seems looking for evil monster!";
+			act = "seems to be looking for evil monsters!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_EVIL;
@@ -1277,7 +1277,7 @@ act = "は邪悪なる怪物を求めている！";
 #ifdef JP
 act = "は異世界の住人の肉体を求めている！";
 #else
-			act = "seems looking for demon!";
+			act = "seems to be looking for demons!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_DEMON;
@@ -1286,7 +1286,7 @@ act = "は異世界の住人の肉体を求めている！";
 #ifdef JP
 act = "は屍を求めている！";
 #else
-			act = "seems looking for undead!";
+			act = "seems to be looking for undead!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_UNDEAD;
@@ -1295,7 +1295,7 @@ act = "は屍を求めている！";
 #ifdef JP
 act = "は動物の血を求めている！";
 #else
-			act = "seems looking for animal!";
+			act = "seems to be looking for animals!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_ANIMAL;
@@ -1304,7 +1304,7 @@ act = "は動物の血を求めている！";
 #ifdef JP
 act = "はドラゴンの血を求めている！";
 #else
-			act = "seems looking for dragon!";
+			act = "seems to be looking for dragons!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_DRAGON;
@@ -1313,7 +1313,7 @@ act = "はドラゴンの血を求めている！";
 #ifdef JP
 act = "はトロルの血を求めている！";
 #else
-			act = "seems looking for troll!";
+			act = "seems to be looking for troll!s";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_TROLL;
@@ -1322,7 +1322,7 @@ act = "はトロルの血を求めている！";
 #ifdef JP
 act = "はオークの血を求めている！";
 #else
-			act = "seems looking for orc!";
+			act = "seems to be looking for orcs!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_ORC;
@@ -1331,7 +1331,7 @@ act = "はオークの血を求めている！";
 #ifdef JP
 act = "は巨人の血を求めている！";
 #else
-			act = "seems looking for giant!";
+			act = "seems to be looking for giants!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_GIANT;
@@ -1665,7 +1665,14 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_GLYPH);
+	cave[py][px].info |= CAVE_OBJECT;
+	cave[py][px].mimic = FEAT_GLYPH;
+
+	/* Notice */
+	note_spot(py, px);
+	
+	/* Redraw */
+	lite_spot(py, px);
 
 	return TRUE;
 }
@@ -1685,7 +1692,8 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a mirror */
-	cave[py][px].info |= CAVE_IN_MIRROR;
+	cave[py][px].info |= CAVE_OBJECT;
+	cave[py][px].mimic = FEAT_MIRROR;
 
 	/* Turn on the light */
 	cave[py][px].info |= CAVE_GLOW;
@@ -1718,7 +1726,14 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	}
 
 	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MINOR_GLYPH);
+	cave[py][px].info |= CAVE_OBJECT;
+	cave[py][px].mimic = FEAT_MINOR_GLYPH;
+
+	/* Notice */
+	note_spot(py, px);
+	
+	/* Redraw */
+	lite_spot(py, px);
 
 	return TRUE;
 }
@@ -2458,8 +2473,8 @@ s = "強化できるアイテムがない。";
 msg_format("%s は眩い光を発した！",o_name);
 #else
 	msg_format("%s %s radiate%s a blinding light!",
-	          ((item >= 0) ? "Your" : "The"), o_name,
-	          ((o_ptr->number > 1) ? "" : "s"));
+		  ((item >= 0) ? "Your" : "The"), o_name,
+		  ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
 	if (o_ptr->name1 || o_ptr->art_name)
@@ -2616,7 +2631,7 @@ static bool item_tester_hook_identify_weapon_armour(object_type *o_ptr)
  * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
  */
-bool ident_spell(bool only_equip, bool wait_optimize)
+bool ident_spell(bool only_equip)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -2703,7 +2718,7 @@ s = "鑑定するべきアイテムがない。";
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx, wait_optimize);
+		auto_destroy_item(item, idx);
 
 	/* Something happened */
 	return (TRUE);
@@ -2793,7 +2808,7 @@ static bool item_tester_hook_identify_fully_weapon_armour(object_type *o_ptr)
  * Fully "identify" an object in the inventory  -BEN-
  * This routine returns TRUE if an item was identified.
  */
-bool identify_fully(bool only_equip, bool wait_optimize)
+bool identify_fully(bool only_equip)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -2880,13 +2895,13 @@ s = "鑑定するべきアイテムがない。";
 	}
 
 	/* Describe it fully */
-	(void)identify_fully_aux(o_ptr);
+	(void)screen_object(o_ptr, TRUE);
 
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx, wait_optimize);
+		auto_destroy_item(item, idx);
 
 	/* Success */
 	return (TRUE);
@@ -2901,7 +2916,10 @@ s = "鑑定するべきアイテムがない。";
 bool item_tester_hook_recharge(object_type *o_ptr)
 {
 	/* Recharge staffs */
-	if (o_ptr->tval == TV_STAFF) return (TRUE);
+	if (o_ptr->tval == TV_STAFF)
+	{
+		if (o_ptr->sval != SV_STAFF_NOTHING) return (TRUE);
+	}
 
 	/* Recharge wands */
 	if (o_ptr->tval == TV_WAND) return (TRUE);
@@ -3266,7 +3284,7 @@ bool bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 
@@ -3303,7 +3321,7 @@ s = "祝福できる武器がありません。";
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	if (cursed_p(o_ptr))
 	{
@@ -3354,7 +3372,7 @@ msg_format("%s から邪悪なオーラが消えた。",
 	 * artifact weapon they find. Ego weapons and normal weapons
 	 * can be blessed automatically.
 	 */
-	if (f3 & TR3_BLESSED)
+	if (have_flag(flgs, TR_BLESSED))
 	{
 #ifdef JP
 msg_format("%s は既に祝福されている。",
@@ -3380,7 +3398,7 @@ msg_format("%sは輝いた！",
 		    ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
-		o_ptr->art_flags3 |= TR3_BLESSED;
+		add_flag(o_ptr->art_flags, TR_BLESSED);
 		o_ptr->discount = 99;
 	}
 	else
@@ -3460,7 +3478,7 @@ bool pulish_shield(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	u32b            f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char            o_name[MAX_NLEN];
 	cptr            q, s;
 
@@ -3497,7 +3515,7 @@ s = "磨く盾がありません。";
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	if (o_ptr->k_idx && !artifact_p(o_ptr) && !ego_item_p(o_ptr) &&
 	    !o_ptr->art_name && !cursed_p(o_ptr) && (o_ptr->sval != SV_SHIELD_OF_DEFLECTION))
@@ -4825,10 +4843,10 @@ bool hates_cold(object_type *o_ptr)
  */
 int set_acid_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ACID) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4838,10 +4856,10 @@ int set_acid_destroy(object_type *o_ptr)
  */
 int set_elec_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4851,10 +4869,10 @@ int set_elec_destroy(object_type *o_ptr)
  */
 int set_fire_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4864,10 +4882,10 @@ int set_fire_destroy(object_type *o_ptr)
  */
 int set_cold_destroy(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3);
-	if (f3 & TR3_IGNORE_COLD) return (FALSE);
+	object_flags(o_ptr, flgs);
+	if (have_flag(flgs, TR_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
 
@@ -4978,7 +4996,7 @@ o_name, index_to_label(i),
 static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
-	u32b        f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	char        o_name[MAX_NLEN];
 
 
@@ -5007,10 +5025,10 @@ static int minus_ac(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	/* Object resists */
-	if (f3 & TR3_IGNORE_ACID)
+	if (have_flag(flgs, TR_IGNORE_ACID))
 	{
 #ifdef JP
 msg_format("しかし%sには効果がなかった！", o_name);
@@ -5244,7 +5262,7 @@ s = "錆止めできるものがありません。";
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-	o_ptr->art_flags3 |= TR3_IGNORE_ACID;
+	add_flag(o_ptr->art_flags, TR_IGNORE_ACID);
 
 	if ((o_ptr->to_a < 0) && !cursed_p(o_ptr))
 	{
@@ -5279,6 +5297,7 @@ msg_format("%sは腐食しなくなった。", o_name);
  */
 bool curse_armor(void)
 {
+	int i;
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5303,7 +5322,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 "恐怖の暗黒オーラ", "防具", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your armor", o_name);
+			   "terrible black aura", "surround your armor", o_name);
 #endif
 
 	}
@@ -5329,9 +5348,9 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-		o_ptr->art_flags1 = 0;
-		o_ptr->art_flags2 = 0;
-		o_ptr->art_flags3 = 0;
+
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 		/* Curse it */
 		o_ptr->curse_flags = TRC_CURSED;
@@ -5358,6 +5377,8 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
  */
 bool curse_weapon(bool force, int slot)
 {
+	int i;
+
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5382,7 +5403,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 "恐怖の暗黒オーラ", "武器", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your weapon", o_name);
+			   "terrible black aura", "surround your weapon", o_name);
 #endif
 
 	}
@@ -5408,9 +5429,9 @@ if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
-		o_ptr->art_flags1 = 0;
-		o_ptr->art_flags2 = 0;
-		o_ptr->art_flags3 = 0;
+
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			o_ptr->art_flags[i] = 0;
 
 
 		/* Curse it */
@@ -5587,7 +5608,7 @@ bool polymorph_monster(int y, int x)
 		{
 			/* Placing the new monster failed */
 			if (place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN)))
-                                m_list[hack_m_idx_ii] = back_m;
+				m_list[hack_m_idx_ii] = back_m;
 		}
 
 		if (targeted) target_who = hack_m_idx_ii;
@@ -5885,8 +5906,8 @@ msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
 #endif
 
 					/* Reduce rod stack maximum timeout, drain wands. */
-					if (o_ptr->tval == TV_ROD) o_ptr->timeout -= k_ptr->pval;
-					if (o_ptr->tval == TV_WAND) o_ptr->pval = o_ptr->pval * (o_ptr->number - 1) / o_ptr->number;
+					if (o_ptr->tval == TV_ROD) o_ptr->timeout = MIN(o_ptr->timeout, k_ptr->pval * (o_ptr->number - 1));
+					else if (o_ptr->tval == TV_WAND) o_ptr->pval = o_ptr->pval * (o_ptr->number - 1) / o_ptr->number;
 
 				}
 				else

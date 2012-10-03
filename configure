@@ -1465,7 +1465,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=hengband
- VERSION=1.2.2
+ VERSION=1.4.0
 
 
 cat >>confdefs.h <<_ACEOF
@@ -1650,6 +1650,7 @@ if test "${with_libpath+set}" = set; then
   withval="$with_libpath"
   game_datadir="$withval"
 fi;
+
 
 cat >>confdefs.h <<_ACEOF
 #define DEFAULT_PATH "$game_datadir"
@@ -2564,10 +2565,12 @@ if test "${enable_japanese+set}" = set; then
   enableval="$enable_japanese"
   use_japanese=no
 else
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define JP 1
 _ACEOF
- cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define EUC 1
 _ACEOF
 
@@ -2592,7 +2595,8 @@ if test "${enable_worldscore+set}" = set; then
   enableval="$enable_worldscore"
 
 else
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define WORLD_SCORE 1
 _ACEOF
 
@@ -2600,7 +2604,8 @@ fi;
 # Check whether --enable-chuukei or --disable-chuukei was given.
 if test "${enable_chuukei+set}" = set; then
   enableval="$enable_chuukei"
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define CHUUKEI 1
 _ACEOF
 
@@ -2667,10 +2672,12 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_ncurses_initscr" >&5
 echo "${ECHO_T}$ac_cv_lib_ncurses_initscr" >&6
 if test $ac_cv_lib_ncurses_initscr = yes; then
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_GCU 1
 _ACEOF
- cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_NCURSES 1
 _ACEOF
  LIBS="$LIBS -lncurses"
@@ -2733,7 +2740,8 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_curses_initscr" >&5
 echo "${ECHO_T}$ac_cv_lib_curses_initscr" >&6
 if test $ac_cv_lib_curses_initscr = yes; then
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_GCU 1
 _ACEOF
  LIBS="$LIBS -lcurses"
@@ -2796,7 +2804,8 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_termcap_tgetent" >&5
 echo "${ECHO_T}$ac_cv_lib_termcap_tgetent" >&6
 if test $ac_cv_lib_termcap_tgetent = yes; then
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_CAP 1
 _ACEOF
  LIBS="$LIBS -ltermcap"
@@ -4179,11 +4188,13 @@ fi
 
 if test "$have_x" = yes; then
   LIBS="$LIBS -lX11"
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_X11 1
 _ACEOF
 
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_TRANSPARENCY 1
 _ACEOF
 
@@ -4191,24 +4202,28 @@ _ACEOF
   LDFLAGS="$X_LIBS $LDFLAGS"
   if test "$use_japanese" != no; then
     if test "$use_fontset" = yes; then
-      cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_FONTSET 1
 _ACEOF
 
     else
-      cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define _JP 1
 _ACEOF
 
     fi
     if test "$use_xim" = yes; then
-      cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_XIM 1
 _ACEOF
 
     fi
     if test "$use_fontset" = yes || test "$use_xim" = yes; then
-      cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define USE_LOCALE 1
 _ACEOF
 
@@ -4273,7 +4288,8 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_lib_X11__Xsetlocale" >&5
 echo "${ECHO_T}$ac_cv_lib_X11__Xsetlocale" >&6
 if test $ac_cv_lib_X11__Xsetlocale = yes; then
-  cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define X_LOCALE 1
 _ACEOF
 

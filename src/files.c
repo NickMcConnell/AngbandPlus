@@ -946,10 +946,10 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = ANGBAND_SYS;
 			}
 
-                        else if (streq(b+1, "KEYBOARD"))
-                        {
-                                v = ANGBAND_KEYBOARD;
-                        }
+			else if (streq(b+1, "KEYBOARD"))
+			{
+				v = ANGBAND_KEYBOARD;
+			}
 
 			/* Graphics */
 			else if (streq(b+1, "GRAF"))
@@ -970,7 +970,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "RACE"))
 			{
 #ifdef JP
-                                v = rp_ptr->E_title;
+				v = rp_ptr->E_title;
 #else
 				v = rp_ptr->title;
 #endif
@@ -980,7 +980,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "CLASS"))
 			{
 #ifdef JP
-                                v = cp_ptr->E_title;
+				v = cp_ptr->E_title;
 #else
 				v = cp_ptr->title;
 #endif
@@ -998,7 +998,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 #ifdef JP
 				v = E_realm_names[p_ptr->realm1];
 #else
-                                v = realm_names[p_ptr->realm1];
+				v = realm_names[p_ptr->realm1];
 #endif
 			}
 
@@ -1006,7 +1006,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "REALM2"))
 			{
 #ifdef JP
-                                v = E_realm_names[p_ptr->realm2];
+				v = E_realm_names[p_ptr->realm2];
 #else
 				v = realm_names[p_ptr->realm2];
 #endif
@@ -1064,7 +1064,7 @@ static errr process_pref_file_aux(cptr name, bool read_pickpref)
 	if (!fp) return (-1);
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Count lines */
 		line++;
@@ -1143,8 +1143,8 @@ static errr process_pref_file_aux(cptr name, bool read_pickpref)
 		/* Print error message */
 		/* ToDo: Add better error messages */
 #ifdef JP
-              msg_format("ファイル'%s'の%d行でエラー番号%dのエラー。", name, line, err);
-              msg_format("('%s'を解析中)", old);
+	      msg_format("ファイル'%s'の%d行でエラー番号%dのエラー。", name, line, err);
+	      msg_format("('%s'を解析中)", old);
 #else
 		msg_format("Error %d in line %d of file '%s'.", err, line, name);
 		msg_format("Parsing '%s'", old);
@@ -1176,7 +1176,7 @@ errr process_pref_file(cptr name)
 	errr err1, err2;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
 
 	/* Process the system pref file */
 	err1 = process_pref_file_aux(buf, FALSE);
@@ -1189,7 +1189,7 @@ errr process_pref_file(cptr name)
 	safe_setuid_drop();
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 	
 	/* Process the user pref file */
 	err2 = process_pref_file_aux(buf, FALSE);
@@ -1275,7 +1275,7 @@ errr check_time_init(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "time.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -1287,7 +1287,7 @@ errr check_time_init(void)
 	check_time_flag = TRUE;
 
 	/* Parse the file */
-	while (0 == my_fgets(fp, buf, 80))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
@@ -1399,7 +1399,7 @@ errr check_load_init(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "load.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "load.txt");
 
 	/* Open the "load" file */
 	fp = my_fopen(buf, "r");
@@ -1414,7 +1414,7 @@ errr check_load_init(void)
 	(void)gethostname(thishost, (sizeof thishost) - 1);
 
 	/* Parse it */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		int value;
 
@@ -1490,6 +1490,8 @@ errr check_load_init(void)
 #define ENTRY_SOCIAL 41
 #define ENTRY_ALIGN 42
 
+#define ENTRY_EXP_ANDR 43
+
 
 static struct
 {
@@ -1543,6 +1545,7 @@ static struct
 	{29,  5, 21, "体重"},
 	{29,  6, 21, "社会的地位"},
 	{29,  7, 21, "属性"},
+	{29, 14, 21, "強化度"},
 };
 #else
 = {
@@ -1589,6 +1592,7 @@ static struct
 	{29,  5, 21, "Weight"},
 	{29,  6, 21, "Social Class"},
 	{29,  7, 21, "Align"},
+	{29, 14, 21, "Construction"},
 };
 #endif
 
@@ -1628,10 +1632,11 @@ static void display_player_one_line(int entry, cptr val, byte attr)
  */
 static void display_player_middle(void)
 {
-        char buf[160];
+	char buf[160];
 	int show_tohit, show_todam;
 	object_type *o_ptr;
 	int tmul = 0;
+	int e;
 
 	if(p_ptr->migite)
 	{
@@ -1818,22 +1823,25 @@ static void display_player_middle(void)
 	display_player_one_line(ENTRY_LEVEL, format("%d", p_ptr->lev), TERM_L_GREEN);
 
 	/* Dump experience */
-	if (p_ptr->prace == RACE_ANDROID)
-		display_player_one_line(ENTRY_CUR_EXP, "*****", TERM_L_GREEN);
-	else if (p_ptr->exp >= p_ptr->max_exp)
-		display_player_one_line(ENTRY_CUR_EXP, format("%ld", p_ptr->exp), TERM_L_GREEN);
+	if (p_ptr->prace == RACE_ANDROID) e = ENTRY_EXP_ANDR;
+	else e = ENTRY_CUR_EXP;
+
+	if (p_ptr->exp >= p_ptr->max_exp)
+		display_player_one_line(e, format("%ld", p_ptr->exp), TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_CUR_EXP, format("%ld", p_ptr->exp), TERM_YELLOW);
+		display_player_one_line(e, format("%ld", p_ptr->exp), TERM_YELLOW);
 
 	/* Dump max experience */
 	if (p_ptr->prace == RACE_ANDROID)
-		display_player_one_line(ENTRY_MAX_EXP, "*****", TERM_L_GREEN);
+		/* Nothing */;
 	else
 		display_player_one_line(ENTRY_MAX_EXP, format("%ld", p_ptr->max_exp), TERM_L_GREEN);
 
 	/* Dump exp to advance */
-	if ((p_ptr->lev >= PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
+	if (p_ptr->lev >= PY_MAX_LEVEL)
 		display_player_one_line(ENTRY_EXP_TO_ADV, "*****", TERM_L_GREEN);
+	else if (p_ptr->prace == RACE_ANDROID)
+		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp_a[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 	else
 		display_player_one_line(ENTRY_EXP_TO_ADV, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 
@@ -2024,7 +2032,7 @@ static void display_player_various(void)
 	int			xdis, xdev, xsav, xstl;
 	cptr		desc;
 	int         muta_att = 0;
-	u32b        f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	int		shots, shot_frac;
 
 	object_type		*o_ptr;
@@ -2099,20 +2107,20 @@ static void display_player_various(void)
 			o_ptr = &inventory[INVEN_RARM+i];
 			if (object_known_p(o_ptr)) damage[i] += o_ptr->to_d*100;
 			basedam = (o_ptr->dd * (o_ptr->ds + 1))*50;
-			object_flags(o_ptr, &f1, &f2, &f3);
+			object_flags(o_ptr, flgs);
 			if ((o_ptr->ident & IDENT_MENTAL) && ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)))
 			{
 				/* vorpal blade */
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (f1 & TR1_VORPAL))
+			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
 				basedam /= 9;
 			}
-			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 				basedam = basedam * 7 / 2;
 			if (p_ptr->riding && (o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 				basedam = basedam*(o_ptr->dd+2)/o_ptr->dd;
@@ -2181,78 +2189,81 @@ static void display_player_various(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+static void player_flags(u32b flgs[TR_FLAG_SIZE])
 {
+	int i;
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	/* Classes */
 	switch (p_ptr->pclass)
 	{
 	case CLASS_WARRIOR:
 		if (p_ptr->lev > 44)
-			(*f3) |= (TR3_REGEN);
+			add_flag(flgs, TR_REGEN);
 	case CLASS_SAMURAI:
 		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_FEAR);
+			add_flag(flgs, TR_RES_FEAR);
 		break;
 	case CLASS_PALADIN:
 		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
+			add_flag(flgs, TR_RES_FEAR);
 		break;
 	case CLASS_CHAOS_WARRIOR:
 		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CHAOS);
+			add_flag(flgs, TR_RES_CHAOS);
 		if (p_ptr->lev > 39)
-			(*f2) |= (TR2_RES_FEAR);
+			add_flag(flgs, TR_RES_FEAR);
 		break;
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
 		if ((p_ptr->lev > 9) && !heavy_armor())
-			(*f1) |= TR1_SPEED;
+			add_flag(flgs, TR_SPEED);
 		if ((p_ptr->lev>24) && !heavy_armor())
-			(*f2) |= (TR2_FREE_ACT);
+			add_flag(flgs, TR_FREE_ACT);
 		break;
 	case CLASS_NINJA:
 		if (heavy_armor())
-			(*f1) |= TR1_SPEED;
+			add_flag(flgs, TR_SPEED);
 		else
 		{
 			if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
-				(*f1) |= TR1_SPEED;
+				add_flag(flgs, TR_SPEED);
 			if (p_ptr->lev>24)
-				(*f2) |= (TR2_FREE_ACT);
+				add_flag(flgs, TR_FREE_ACT);
 		}
-		(*f3) |= TR3_SLOW_DIGEST;
-		(*f2) |= TR2_RES_FEAR;
-		if (p_ptr->lev > 19) (*f2) |= TR2_RES_POIS;
-		if (p_ptr->lev > 24) (*f2) |= TR2_SUST_DEX;
-		if (p_ptr->lev > 29) (*f3) |= TR3_SEE_INVIS;
+		add_flag(flgs, TR_SLOW_DIGEST);
+		add_flag(flgs, TR_RES_FEAR);
+		if (p_ptr->lev > 19) add_flag(flgs, TR_RES_POIS);
+		if (p_ptr->lev > 24) add_flag(flgs, TR_SUST_DEX);
+		if (p_ptr->lev > 29) add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case CLASS_MINDCRAFTER:
 		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_FEAR);
+			add_flag(flgs, TR_RES_FEAR);
 		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_SUST_WIS);
+			add_flag(flgs, TR_SUST_WIS);
 		if (p_ptr->lev > 29)
-			(*f2) |= (TR2_RES_CONF);
+			add_flag(flgs, TR_RES_CONF);
 		if (p_ptr->lev > 39)
-			(*f3) |= (TR3_TELEPATHY);
+			add_flag(flgs, TR_TELEPATHY);
 		break;
 	case CLASS_BARD:
-		(*f2) |= (TR2_RES_SOUND);
+		add_flag(flgs, TR_RES_SOUND);
 		break;
 	case CLASS_BERSERKER:
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_SUST_DEX);
-		(*f2) |= (TR2_SUST_CON);
-		(*f3) |= (TR3_REGEN);
-		(*f2) |= (TR2_FREE_ACT);
-		(*f1) |= (TR1_SPEED);
-		if (p_ptr->lev > 39) (*f2) |= (TR2_REFLECT);
+		add_flag(flgs, TR_SUST_STR);
+		add_flag(flgs, TR_SUST_DEX);
+		add_flag(flgs, TR_SUST_CON);
+		add_flag(flgs, TR_REGEN);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_SPEED);
+		if (p_ptr->lev > 39) add_flag(flgs, TR_REFLECT);
 		break;
 	case CLASS_MIRROR_MASTER:
-		if(p_ptr->lev > 39)(*f2) |= (TR2_REFLECT);
+		if(p_ptr->lev > 39)add_flag(flgs, TR_REFLECT);
 		break;
 	default:
 		break; /* Do nothing */
@@ -2264,42 +2275,42 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		switch(p_ptr->mimic_form)
 		{
 		case MIMIC_DEMON:
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_CHAOS);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_FIRE);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f1) |= (TR1_SPEED);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_CHAOS);
+			add_flag(flgs, TR_RES_NETHER);
+			add_flag(flgs, TR_RES_FIRE);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_SPEED);
 			break;
 		case MIMIC_DEMON_LORD:
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_CHAOS);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_FIRE);
-			(*f2) |= (TR2_RES_COLD);
-			(*f2) |= (TR2_RES_ELEC);
-			(*f2) |= (TR2_RES_ACID);
-			(*f2) |= (TR2_RES_POIS);
-			(*f2) |= (TR2_RES_CONF);
-			(*f2) |= (TR2_RES_DISEN);
-			(*f2) |= (TR2_RES_NEXUS);
-			(*f2) |= (TR2_RES_FEAR);
-			(*f2) |= (TR2_IM_FIRE);
-			(*f3) |= (TR3_SH_FIRE);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f3) |= (TR3_TELEPATHY);
-			(*f3) |= (TR3_FEATHER);
-			(*f1) |= (TR1_SPEED);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_CHAOS);
+			add_flag(flgs, TR_RES_NETHER);
+			add_flag(flgs, TR_RES_FIRE);
+			add_flag(flgs, TR_RES_COLD);
+			add_flag(flgs, TR_RES_ELEC);
+			add_flag(flgs, TR_RES_ACID);
+			add_flag(flgs, TR_RES_POIS);
+			add_flag(flgs, TR_RES_CONF);
+			add_flag(flgs, TR_RES_DISEN);
+			add_flag(flgs, TR_RES_NEXUS);
+			add_flag(flgs, TR_RES_FEAR);
+			add_flag(flgs, TR_IM_FIRE);
+			add_flag(flgs, TR_SH_FIRE);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_TELEPATHY);
+			add_flag(flgs, TR_FEATHER);
+			add_flag(flgs, TR_SPEED);
 			break;
 		case MIMIC_VAMPIRE:
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_DARK);
-			(*f2) |= (TR2_RES_NETHER);
-			if (p_ptr->pclass != CLASS_NINJA) (*f3) |= (TR3_LITE);
-			(*f2) |= (TR2_RES_POIS);
-			(*f2) |= (TR2_RES_COLD);
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f1) |= (TR1_SPEED);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_DARK);
+			add_flag(flgs, TR_RES_NETHER);
+			if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+			add_flag(flgs, TR_RES_POIS);
+			add_flag(flgs, TR_RES_COLD);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_SPEED);
 			break;
 		}
 	}
@@ -2308,28 +2319,28 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	switch (p_ptr->prace)
 	{
 	case RACE_ELF:
-		(*f2) |= (TR2_RES_LITE);
+		add_flag(flgs, TR_RES_LITE);
 		break;
 	case RACE_HOBBIT:
-		(*f2) |= (TR2_SUST_DEX);
+		add_flag(flgs, TR_SUST_DEX);
 		break;
 	case RACE_GNOME:
-		(*f2) |= (TR2_FREE_ACT);
+		add_flag(flgs, TR_FREE_ACT);
 		break;
 	case RACE_DWARF:
-		(*f2) |= (TR2_RES_BLIND);
+		add_flag(flgs, TR_RES_BLIND);
 		break;
 	case RACE_HALF_ORC:
-		(*f2) |= (TR2_RES_DARK);
+		add_flag(flgs, TR_RES_DARK);
 		break;
 	case RACE_HALF_TROLL:
-		(*f2) |= (TR2_SUST_STR);
+		add_flag(flgs, TR_SUST_STR);
 		if (p_ptr->lev > 14)
 		{
-			(*f3) |= (TR3_REGEN);
+			add_flag(flgs, TR_REGEN);
 			if (p_ptr->pclass == CLASS_WARRIOR)
 			{
-				(*f3) |= (TR3_SLOW_DIGEST);
+				add_flag(flgs, TR_SLOW_DIGEST);
 				/*
 				 * Let's not make Regeneration a disadvantage
 				 * for the poor warriors who can never learn
@@ -2341,160 +2352,160 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		}
 		break;
 	case RACE_AMBERITE:
-		(*f2) |= (TR2_SUST_CON);
-		(*f3) |= (TR3_REGEN); /* Amberites heal fast */
+		add_flag(flgs, TR_SUST_CON);
+		add_flag(flgs, TR_REGEN); /* Amberites heal fast */
 		break;
 	case RACE_HIGH_ELF:
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_SEE_INVIS);
+		add_flag(flgs, TR_RES_LITE);
+		add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case RACE_BARBARIAN:
-		(*f2) |= (TR2_RES_FEAR);
+		add_flag(flgs, TR_RES_FEAR);
 		break;
 	case RACE_HALF_OGRE:
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_RES_DARK);
+		add_flag(flgs, TR_SUST_STR);
+		add_flag(flgs, TR_RES_DARK);
 		break;
 	case RACE_HALF_GIANT:
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_SUST_STR);
+		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_SUST_STR);
 		break;
 	case RACE_HALF_TITAN:
-		(*f2) |= (TR2_RES_CHAOS);
+		add_flag(flgs, TR_RES_CHAOS);
 		break;
 	case RACE_CYCLOPS:
-		(*f2) |= (TR2_RES_SOUND);
+		add_flag(flgs, TR_RES_SOUND);
 		break;
 	case RACE_YEEK:
-		(*f2) |= (TR2_RES_ACID);
+		add_flag(flgs, TR_RES_ACID);
 		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_IM_ACID);
+			add_flag(flgs, TR_IM_ACID);
 		break;
 	case RACE_KLACKON:
-		(*f2) |= (TR2_RES_CONF);
-		(*f2) |= (TR2_RES_ACID);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_RES_ACID);
 		if (p_ptr->lev > 9)
-			(*f1) |= TR1_SPEED;
+			add_flag(flgs, TR_SPEED);
 		break;
 	case RACE_KOBOLD:
-		(*f2) |= (TR2_RES_POIS);
+		add_flag(flgs, TR_RES_POIS);
 		break;
 	case RACE_NIBELUNG:
-		(*f2) |= (TR2_RES_DISEN);
-		(*f2) |= (TR2_RES_DARK);
+		add_flag(flgs, TR_RES_DISEN);
+		add_flag(flgs, TR_RES_DARK);
 		break;
 	case RACE_DARK_ELF:
-		(*f2) |= (TR2_RES_DARK);
+		add_flag(flgs, TR_RES_DARK);
 		if (p_ptr->lev > 19)
-			(*f3) |= (TR3_SEE_INVIS);
+			add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case RACE_DRACONIAN:
-		(*f3) |= TR3_FEATHER;
+		add_flag(flgs, TR_FEATHER);
 		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_FIRE);
+			add_flag(flgs, TR_RES_FIRE);
 		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
+			add_flag(flgs, TR_RES_COLD);
 		if (p_ptr->lev > 14)
-			(*f2) |= (TR2_RES_ACID);
+			add_flag(flgs, TR_RES_ACID);
 		if (p_ptr->lev > 19)
-			(*f2) |= (TR2_RES_ELEC);
+			add_flag(flgs, TR_RES_ELEC);
 		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_RES_POIS);
+			add_flag(flgs, TR_RES_POIS);
 		break;
 	case RACE_MIND_FLAYER:
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
+		add_flag(flgs, TR_SUST_INT);
+		add_flag(flgs, TR_SUST_WIS);
 		if (p_ptr->lev > 14)
-			(*f3) |= (TR3_SEE_INVIS);
+			add_flag(flgs, TR_SEE_INVIS);
 		if (p_ptr->lev > 29)
-			(*f3) |= (TR3_TELEPATHY);
+			add_flag(flgs, TR_TELEPATHY);
 		break;
 	case RACE_IMP:
-		(*f2) |= (TR2_RES_FIRE);
+		add_flag(flgs, TR_RES_FIRE);
 		if (p_ptr->lev > 9)
-			(*f3) |= (TR3_SEE_INVIS);
+			add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case RACE_GOLEM:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_FREE_ACT);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_SLOW_DIGEST);
 		if (p_ptr->lev > 34)
-			(*f2) |= (TR2_HOLD_LIFE);
+			add_flag(flgs, TR_HOLD_LIFE);
 		break;
 	case RACE_SKELETON:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_POIS);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_RES_POIS);
 		if (p_ptr->lev > 9)
-			(*f2) |= (TR2_RES_COLD);
+			add_flag(flgs, TR_RES_COLD);
 		break;
 	case RACE_ZOMBIE:
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_RES_NETHER);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_SLOW_DIGEST);
 		if (p_ptr->lev > 4)
-			(*f2) |= (TR2_RES_COLD);
+			add_flag(flgs, TR_RES_COLD);
 		break;
 	case RACE_VAMPIRE:
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_RES_NETHER);
-		if (p_ptr->pclass != CLASS_NINJA) (*f3) |= (TR3_LITE);
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_COLD);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_RES_DARK);
+		add_flag(flgs, TR_RES_NETHER);
+		if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_RES_COLD);
 		break;
 	case RACE_SPECTRE:
-		(*f3) |= (TR3_FEATHER);
-		(*f2) |= (TR2_FREE_ACT);
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_RES_COLD);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_RES_NETHER);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_SLOW_DIGEST);
 		/* XXX pass_wall */
 		if (p_ptr->lev > 34)
-			(*f3) |= TR3_TELEPATHY;
+			add_flag(flgs, TR_TELEPATHY);
 		break;
 	case RACE_SPRITE:
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_FEATHER);
+		add_flag(flgs, TR_RES_LITE);
+		add_flag(flgs, TR_FEATHER);
 		if (p_ptr->lev > 9)
-			(*f1) |= (TR1_SPEED);
+			add_flag(flgs, TR_SPEED);
 		break;
 	case RACE_BEASTMAN:
-		(*f2) |= (TR2_RES_SOUND);
-		(*f2) |= (TR2_RES_CONF);
+		add_flag(flgs, TR_RES_SOUND);
+		add_flag(flgs, TR_RES_CONF);
 		break;
 	case RACE_ANGEL:
-		(*f3) |= (TR3_FEATHER);
-		(*f3) |= (TR3_SEE_INVIS);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case RACE_DEMON:
-		(*f2) |= (TR2_RES_FIRE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_HOLD_LIFE);
+		add_flag(flgs, TR_RES_FIRE);
+		add_flag(flgs, TR_RES_NETHER);
+		add_flag(flgs, TR_HOLD_LIFE);
 		if (p_ptr->lev > 9)
-			(*f3) |= (TR3_SEE_INVIS);
+			add_flag(flgs, TR_SEE_INVIS);
 		break;
 	case RACE_DUNADAN:
-		(*f2) |= (TR2_SUST_CON);
+		add_flag(flgs, TR_SUST_CON);
 		break;
 	case RACE_S_FAIRY:
-		(*f3) |= (TR3_FEATHER);
+		add_flag(flgs, TR_FEATHER);
 		break;
 	case RACE_KUTA:
-		(*f2) |= (TR2_RES_CONF);
+		add_flag(flgs, TR_RES_CONF);
 		break;
 	case RACE_ANDROID:
-		(*f2) |= (TR2_FREE_ACT);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		(*f2) |= (TR2_HOLD_LIFE);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_SLOW_DIGEST);
+		add_flag(flgs, TR_HOLD_LIFE);
 		break;
 	default:
 		; /* Do nothing */
@@ -2506,255 +2517,267 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	{
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
 		{
-			(*f3) &= ~(TR3_REGEN);
+			remove_flag(flgs, TR_REGEN);
 		}
 
 		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
 			(p_ptr->muta3 & MUT3_XTRA_LEGS) ||
 			(p_ptr->muta3 & MUT3_SHORT_LEG))
 		{
-			(*f1) |= TR1_SPEED;
+			add_flag(flgs, TR_SPEED);
 		}
 
 		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
 		{
-			(*f3) |= TR3_SH_ELEC;
+			add_flag(flgs, TR_SH_ELEC);
 		}
 
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
-			(*f3) |= TR3_SH_FIRE;
-			(*f3) |= TR3_LITE;
+			add_flag(flgs, TR_SH_FIRE);
+			add_flag(flgs, TR_LITE);
 		}
 
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
-			(*f3) |= TR3_FEATHER;
+			add_flag(flgs, TR_FEATHER);
 		}
 
 		if (p_ptr->muta3 & MUT3_FEARLESS)
 		{
-			(*f2) |= (TR2_RES_FEAR);
+			add_flag(flgs, TR_RES_FEAR);
 		}
 
 		if (p_ptr->muta3 & MUT3_REGEN)
 		{
-			(*f3) |= TR3_REGEN;
+			add_flag(flgs, TR_REGEN);
 		}
 
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
-			(*f3) |= TR3_TELEPATHY;
+			add_flag(flgs, TR_TELEPATHY);
 		}
 
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
-			(*f2) |= TR2_FREE_ACT;
+			add_flag(flgs, TR_FREE_ACT);
 		}
 	}
 
 	if (p_ptr->pseikaku == SEIKAKU_SEXY)
-		(*f3) |= TR3_AGGRAVATE;
+		add_flag(flgs, TR_AGGRAVATE);
 	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
 	{
-		(*f2) |= (TR2_RES_BLIND);
-		(*f2) |= (TR2_RES_CONF);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f3) |= (TR3_LITE);
+		add_flag(flgs, TR_RES_BLIND);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_LITE);
 		if (p_ptr->lev > 9)
-			(*f1) |= (TR1_SPEED);
+			add_flag(flgs, TR_SPEED);
 	}
 	if (p_ptr->special_defense & KATA_FUUJIN)
-		(*f2) |= TR2_REFLECT;
+		add_flag(flgs, TR_REFLECT);
 	if (p_ptr->special_defense & KAMAE_GENBU)
-		(*f2) |= TR2_REFLECT;
+		add_flag(flgs, TR_REFLECT);
 	if (p_ptr->special_defense & KAMAE_SUZAKU)
-		(*f3) |= TR3_FEATHER;
+		add_flag(flgs, TR_FEATHER);
 	if (p_ptr->special_defense & KAMAE_SEIRYU)
 	{
-		(*f2) |= (TR2_RES_FIRE);
-		(*f2) |= (TR2_RES_COLD);
-		(*f2) |= (TR2_RES_ACID);
-		(*f2) |= (TR2_RES_ELEC);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_FEATHER);
-		(*f3) |= (TR3_SH_FIRE);
-		(*f3) |= (TR3_SH_ELEC);
-		(*f3) |= (TR3_SH_COLD);
+		add_flag(flgs, TR_RES_FIRE);
+		add_flag(flgs, TR_RES_COLD);
+		add_flag(flgs, TR_RES_ACID);
+		add_flag(flgs, TR_RES_ELEC);
+		add_flag(flgs, TR_RES_POIS);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_SH_FIRE);
+		add_flag(flgs, TR_SH_ELEC);
+		add_flag(flgs, TR_SH_COLD);
 	}
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{
-		(*f2) |= TR2_RES_FEAR;
-		(*f2) |= TR2_RES_LITE;
-		(*f2) |= TR2_RES_DARK;
-		(*f2) |= TR2_RES_BLIND;
-		(*f2) |= TR2_RES_CONF;
-		(*f2) |= TR2_RES_SOUND;
-		(*f2) |= TR2_RES_SHARDS;
-		(*f2) |= TR2_RES_NETHER;
-		(*f2) |= TR2_RES_NEXUS;
-		(*f2) |= TR2_RES_CHAOS;
-		(*f2) |= TR2_RES_DISEN;
-		(*f2) |= TR2_REFLECT;
-		(*f2) |= TR2_HOLD_LIFE;
-		(*f2) |= TR2_FREE_ACT;
-		(*f3) |= TR3_SH_FIRE;
-		(*f3) |= TR3_SH_ELEC;
-		(*f3) |= TR3_SH_COLD;
-		(*f3) |= TR3_FEATHER;
-		(*f3) |= TR3_LITE;
-		(*f3) |= TR3_SEE_INVIS;
-		(*f3) |= TR3_TELEPATHY;
-		(*f3) |= TR3_SLOW_DIGEST;
-		(*f3) |= TR3_REGEN;
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
-		(*f2) |= (TR2_SUST_DEX);
-		(*f2) |= (TR2_SUST_CON);
-		(*f2) |= (TR2_SUST_CHR);
+		add_flag(flgs, TR_RES_FEAR);
+		add_flag(flgs, TR_RES_LITE);
+		add_flag(flgs, TR_RES_DARK);
+		add_flag(flgs, TR_RES_BLIND);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_RES_SOUND);
+		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_RES_NETHER);
+		add_flag(flgs, TR_RES_NEXUS);
+		add_flag(flgs, TR_RES_CHAOS);
+		add_flag(flgs, TR_RES_DISEN);
+		add_flag(flgs, TR_REFLECT);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_SH_FIRE);
+		add_flag(flgs, TR_SH_ELEC);
+		add_flag(flgs, TR_SH_COLD);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_LITE);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_TELEPATHY);
+		add_flag(flgs, TR_SLOW_DIGEST);
+		add_flag(flgs, TR_REGEN);
+		add_flag(flgs, TR_SUST_STR);
+		add_flag(flgs, TR_SUST_INT);
+		add_flag(flgs, TR_SUST_WIS);
+		add_flag(flgs, TR_SUST_DEX);
+		add_flag(flgs, TR_SUST_CON);
+		add_flag(flgs, TR_SUST_CHR);
 	}
 }
 
 
-static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3, bool im_and_res)
+static void tim_player_flags(u32b flgs[TR_FLAG_SIZE], bool im_and_res)
 {
+	int i;
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	if (p_ptr->hero || p_ptr->shero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
-		(*f2) |= TR2_RES_FEAR;
+		add_flag(flgs, TR_RES_FEAR);
 	if (p_ptr->tim_invis)
-		(*f3) |= TR3_SEE_INVIS;
+		add_flag(flgs, TR_SEE_INVIS);
 	if (p_ptr->tim_regen)
-		(*f3) |= TR3_REGEN;
+		add_flag(flgs, TR_REGEN);
 	if (p_ptr->tim_esp || music_singing(MUSIC_MIND))
-		(*f3) |= TR3_TELEPATHY;
+		add_flag(flgs, TR_TELEPATHY);
 	if (p_ptr->fast || p_ptr->slow || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO))
-		(*f1) |= TR1_SPEED;
+		add_flag(flgs, TR_SPEED);
 	if  ((p_ptr->special_defense & KATA_MUSOU) || music_singing(MUSIC_RESIST))
 	{
-		(*f2) |= (TR2_RES_FIRE);
-		(*f2) |= (TR2_RES_COLD);
-		(*f2) |= (TR2_RES_ACID);
-		(*f2) |= (TR2_RES_ELEC);
-		(*f2) |= (TR2_RES_POIS);
+		add_flag(flgs, TR_RES_FIRE);
+		add_flag(flgs, TR_RES_COLD);
+		add_flag(flgs, TR_RES_ACID);
+		add_flag(flgs, TR_RES_ELEC);
+		add_flag(flgs, TR_RES_POIS);
 	}
 	if (im_and_res)
 	{
 		if (p_ptr->oppose_acid && !(p_ptr->special_defense & DEFENSE_ACID) && !((prace_is_(RACE_YEEK)) && (p_ptr->lev > 19)))
-			(*f2) |= TR2_RES_ACID;
+			add_flag(flgs, TR_RES_ACID);
 		if (p_ptr->oppose_elec && !(p_ptr->special_defense & DEFENSE_ELEC))
-			(*f2) |= TR2_RES_ELEC;
+			add_flag(flgs, TR_RES_ELEC);
 		if (p_ptr->oppose_fire && !(p_ptr->special_defense & DEFENSE_FIRE))
-			(*f2) |= TR2_RES_FIRE;
+			add_flag(flgs, TR_RES_FIRE);
 		if (p_ptr->oppose_cold && !(p_ptr->special_defense & DEFENSE_COLD))
-			(*f2) |= TR2_RES_COLD;
+			add_flag(flgs, TR_RES_COLD);
 	}
 	else
 	{
 		if (p_ptr->oppose_acid)
-			(*f2) |= TR2_RES_ACID;
+			add_flag(flgs, TR_RES_ACID);
 		if (p_ptr->oppose_elec)
-			(*f2) |= TR2_RES_ELEC;
+			add_flag(flgs, TR_RES_ELEC);
 		if (p_ptr->oppose_fire)
-			(*f2) |= TR2_RES_FIRE;
+			add_flag(flgs, TR_RES_FIRE);
 		if (p_ptr->oppose_cold)
-			(*f2) |= TR2_RES_COLD;
+			add_flag(flgs, TR_RES_COLD);
 	}
 	if (p_ptr->oppose_pois)
-		(*f2) |= TR2_RES_POIS;
+		add_flag(flgs, TR_RES_POIS);
 	if (p_ptr->special_attack & ATTACK_ACID)
-		(*f1) |= TR1_BRAND_ACID;
+		add_flag(flgs, TR_BRAND_ACID);
 	if (p_ptr->special_attack & ATTACK_ELEC)
-		(*f1) |= TR1_BRAND_ELEC;
+		add_flag(flgs, TR_BRAND_ELEC);
 	if (p_ptr->special_attack & ATTACK_FIRE)
-		(*f1) |= TR1_BRAND_FIRE;
+		add_flag(flgs, TR_BRAND_FIRE);
 	if (p_ptr->special_attack & ATTACK_COLD)
-		(*f1) |= TR1_BRAND_COLD;
+		add_flag(flgs, TR_BRAND_COLD);
 	if (p_ptr->special_attack & ATTACK_POIS)
-		(*f1) |= TR1_BRAND_POIS;
+		add_flag(flgs, TR_BRAND_POIS);
 	if (p_ptr->special_defense & DEFENSE_ACID)
-		(*f2) |= TR2_IM_ACID;
+		add_flag(flgs, TR_IM_ACID);
 	if (p_ptr->special_defense & DEFENSE_ELEC)
-		(*f2) |= TR2_IM_ELEC;
+		add_flag(flgs, TR_IM_ELEC);
 	if (p_ptr->special_defense & DEFENSE_FIRE)
-		(*f2) |= TR2_IM_FIRE;
+		add_flag(flgs, TR_IM_FIRE);
 	if (p_ptr->special_defense & DEFENSE_COLD)
-		(*f2) |= TR2_IM_COLD;
+		add_flag(flgs, TR_IM_COLD);
 	if (p_ptr->wraith_form)
-		(*f2) |= TR2_REFLECT;
+		add_flag(flgs, TR_REFLECT);
 	/* by henkma */
 	if (p_ptr->tim_reflect){
-		(*f2) |= TR2_REFLECT;
+		add_flag(flgs, TR_REFLECT);
 	}
 
 	if (p_ptr->magicdef)
 	{
-		(*f2) |= TR2_RES_BLIND;
-		(*f2) |= TR2_RES_CONF;
-		(*f2) |= TR2_REFLECT;
-		(*f2) |= TR2_FREE_ACT;
-		(*f3) |= TR3_FEATHER;
+		add_flag(flgs, TR_RES_BLIND);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_REFLECT);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_FEATHER);
 	}
 	if (p_ptr->tim_res_nether)
 	{
-		(*f2) |= TR2_RES_NETHER;
+		add_flag(flgs, TR_RES_NETHER);
 	}
 	if (p_ptr->tim_sh_fire)
 	{
-		(*f3) |= TR3_SH_FIRE;
+		add_flag(flgs, TR_SH_FIRE);
 	}
 	if (p_ptr->ult_res)
 	{
-		(*f2) |= TR2_RES_FEAR;
-		(*f2) |= TR2_RES_LITE;
-		(*f2) |= TR2_RES_DARK;
-		(*f2) |= TR2_RES_BLIND;
-		(*f2) |= TR2_RES_CONF;
-		(*f2) |= TR2_RES_SOUND;
-		(*f2) |= TR2_RES_SHARDS;
-		(*f2) |= TR2_RES_NETHER;
-		(*f2) |= TR2_RES_NEXUS;
-		(*f2) |= TR2_RES_CHAOS;
-		(*f2) |= TR2_RES_DISEN;
-		(*f2) |= TR2_REFLECT;
-		(*f2) |= TR2_HOLD_LIFE;
-		(*f2) |= TR2_FREE_ACT;
-		(*f3) |= TR3_SH_FIRE;
-		(*f3) |= TR3_SH_ELEC;
-		(*f3) |= TR3_SH_COLD;
-		(*f3) |= TR3_FEATHER;
-		(*f3) |= TR3_LITE;
-		(*f3) |= TR3_SEE_INVIS;
-		(*f3) |= TR3_TELEPATHY;
-		(*f3) |= TR3_SLOW_DIGEST;
-		(*f3) |= TR3_REGEN;
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
-		(*f2) |= (TR2_SUST_DEX);
-		(*f2) |= (TR2_SUST_CON);
-		(*f2) |= (TR2_SUST_CHR);
+		add_flag(flgs, TR_RES_FEAR);
+		add_flag(flgs, TR_RES_LITE);
+		add_flag(flgs, TR_RES_DARK);
+		add_flag(flgs, TR_RES_BLIND);
+		add_flag(flgs, TR_RES_CONF);
+		add_flag(flgs, TR_RES_SOUND);
+		add_flag(flgs, TR_RES_SHARDS);
+		add_flag(flgs, TR_RES_NETHER);
+		add_flag(flgs, TR_RES_NEXUS);
+		add_flag(flgs, TR_RES_CHAOS);
+		add_flag(flgs, TR_RES_DISEN);
+		add_flag(flgs, TR_REFLECT);
+		add_flag(flgs, TR_HOLD_LIFE);
+		add_flag(flgs, TR_FREE_ACT);
+		add_flag(flgs, TR_SH_FIRE);
+		add_flag(flgs, TR_SH_ELEC);
+		add_flag(flgs, TR_SH_COLD);
+		add_flag(flgs, TR_FEATHER);
+		add_flag(flgs, TR_LITE);
+		add_flag(flgs, TR_SEE_INVIS);
+		add_flag(flgs, TR_TELEPATHY);
+		add_flag(flgs, TR_SLOW_DIGEST);
+		add_flag(flgs, TR_REGEN);
+		add_flag(flgs, TR_SUST_STR);
+		add_flag(flgs, TR_SUST_INT);
+		add_flag(flgs, TR_SUST_WIS);
+		add_flag(flgs, TR_SUST_DEX);
+		add_flag(flgs, TR_SUST_CON);
+		add_flag(flgs, TR_SUST_CHR);
 	}
 }
+
+
+/* Mode flags for displaying player flags */
+#define DP_CURSE   0x01
+#define DP_IMM     0x02
+#define DP_WP      0x08
 
 
 /*
  * Equippy chars
  */
-static void display_player_equippy(int y, int x)
+static void display_player_equippy(int y, int x, u16b mode)
 {
-	int i;
+	int i, max_i;
 
 	byte a;
 	char c;
 
 	object_type *o_ptr;
 
+	/* Weapon flags need only two column */
+	if (mode & DP_WP) max_i = INVEN_LARM + 1;
+	else max_i = INVEN_TOTAL;
 
 	/* Dump equippy chars */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (i = INVEN_RARM; i < max_i; i++)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -2777,24 +2800,25 @@ static void display_player_equippy(int y, int x)
 
 void print_equippy(void)
 {
-	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY);
+	display_player_equippy(ROW_EQUIPPY, COL_EQUIPPY, 0);
 }
 
 /*
  *
  */
 
-static void known_obj_immunity(u32b *f1, u32b *f2, u32b *f3)
+static void known_obj_immunity(u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
 
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	/* Check equipment */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
-		u32b    o_f1, o_f2, o_f3;
+		u32b o_flgs[TR_FLAG_SIZE];
 
 		object_type *o_ptr;
 
@@ -2804,132 +2828,167 @@ static void known_obj_immunity(u32b *f1, u32b *f2, u32b *f3)
 		if (!o_ptr->k_idx) continue;
 
 		/* Known flags */
-		object_flags_known(o_ptr, &o_f1, &o_f2, &o_f3);
+		object_flags_known(o_ptr, o_flgs);
 
-		if (o_f2 & TR2_IM_ACID) (*f2) |= TR2_RES_ACID;
-		if (o_f2 & TR2_IM_ELEC) (*f2) |= TR2_RES_ELEC;
-		if (o_f2 & TR2_IM_FIRE) (*f2) |= TR2_RES_FIRE;
-		if (o_f2 & TR2_IM_COLD) (*f2) |= TR2_RES_COLD;
+		if (have_flag(flgs, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
+		if (have_flag(flgs, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
+		if (have_flag(flgs, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
+		if (have_flag(flgs, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
 	}
 }
 
-static void player_immunity(u32b *f1, u32b *f2, u32b *f3)
+static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 {
+	int i;
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	if (prace_is_(RACE_SPECTRE))
-		(*f2) |= TR2_RES_NETHER;
+		add_flag(flgs, TR_RES_NETHER);
 	if (p_ptr->mimic_form == MIMIC_VAMPIRE || prace_is_(RACE_VAMPIRE))
-		(*f2) |= TR2_RES_DARK;
+		add_flag(flgs, TR_RES_DARK);
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD)
-		(*f2) |= TR2_RES_FIRE;
+		add_flag(flgs, TR_RES_FIRE);
 	else if (prace_is_(RACE_YEEK) && p_ptr->lev > 19)
-		(*f2) |= TR2_RES_ACID;
+		add_flag(flgs, TR_RES_ACID);
 }
 
-static void tim_player_immunity(u32b *f1, u32b *f2, u32b *f3)
+static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])
 {
+	int i;
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	if (p_ptr->special_defense & DEFENSE_ACID)
-		(*f2) |= TR2_RES_ACID;
+		add_flag(flgs, TR_RES_ACID);
 	if (p_ptr->special_defense & DEFENSE_ELEC)
-		(*f2) |= TR2_RES_ELEC;
+		add_flag(flgs, TR_RES_ELEC);
 	if (p_ptr->special_defense & DEFENSE_FIRE)
-		(*f2) |= TR2_RES_FIRE;
+		add_flag(flgs, TR_RES_FIRE);
 	if (p_ptr->special_defense & DEFENSE_COLD)
-		(*f2) |= TR2_RES_COLD;
+		add_flag(flgs, TR_RES_COLD);
 	if (p_ptr->wraith_form)
-		(*f2) |= TR2_RES_DARK;
+		add_flag(flgs, TR_RES_DARK);
 }
 
-static void player_vuln_flags(u32b *f1, u32b *f2, u32b *f3)
+static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 {
+	int i;
+
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		flgs[i] = 0L;
 
 	if ((p_ptr->muta3 & MUT3_VULN_ELEM) || (p_ptr->special_defense & KATA_KOUKIJIN))
 	{
-		(*f2) |= TR2_RES_ACID;
-		(*f2) |= TR2_RES_ELEC;
-		(*f2) |= TR2_RES_FIRE;
-		(*f2) |= TR2_RES_COLD;
+		add_flag(flgs, TR_RES_ACID);
+		add_flag(flgs, TR_RES_ELEC);
+		add_flag(flgs, TR_RES_FIRE);
+		add_flag(flgs, TR_RES_COLD);
 	}
 	if (prace_is_(RACE_ANDROID))
-		(*f2) |= TR2_RES_ELEC;
+		add_flag(flgs, TR_RES_ELEC);
 	if (prace_is_(RACE_ENT))
-		(*f2) |= TR2_RES_FIRE;
+		add_flag(flgs, TR_RES_FIRE);
 	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_S_FAIRY) ||
 	    (p_ptr->mimic_form == MIMIC_VAMPIRE))
-		(*f2) |= TR2_RES_LITE;
+		add_flag(flgs, TR_RES_LITE);
 }
+
+
+/*
+ * A struct for storing misc. flags
+ */
+typedef struct {
+	u32b player_flags[TR_FLAG_SIZE];
+	u32b tim_player_flags[TR_FLAG_SIZE];
+	u32b player_imm[TR_FLAG_SIZE];
+	u32b tim_player_imm[TR_FLAG_SIZE];
+	u32b player_vuln[TR_FLAG_SIZE];
+	u32b known_obj_imm[TR_FLAG_SIZE];
+} all_player_flags;
+
 
 /*
  * Helper function, see below
  */
-static void display_player_flag_aux(int row, int col, cptr header,
-				    int n, u32b flag1, u32b flag2,
-				    u32b im_f[], u32b vul_f)
+static void display_flag_aux(int row, int col, cptr header,
+				    int flag1, all_player_flags *f, u16b mode)
 {
 	int     i;
-	u32b    f[4];
 	bool    vuln = FALSE;
+	int max_i;
 
-	if ((vul_f & flag1) && !((im_f[0] | im_f[1] | im_f[2]) & flag1))
+	if (have_flag(f->player_vuln, flag1) &&
+	    !(have_flag(f->known_obj_imm, flag1) ||
+	      have_flag(f->player_imm, flag1) ||
+	      have_flag(f->tim_player_imm, flag1)))
 		vuln = TRUE;
 
 	/* Header */
-	c_put_str(TERM_WHITE, header, row, col);
+	if (!(mode & DP_IMM)) c_put_str(TERM_WHITE, header, row, col);
 
 	/* Advance */
 	col += strlen(header) + 1;
 
+	/* Weapon flags need only two column */
+	if (mode & DP_WP) max_i = INVEN_LARM + 1;
+	else max_i = INVEN_TOTAL;
+
 	/* Check equipment */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (i = INVEN_RARM; i < max_i; i++)
 	{
+		u32b flgs[TR_FLAG_SIZE];
 		object_type *o_ptr;
-		f[0] = f[1] = f[2] = f[3] = 0L;
 
 		/* Object */
 		o_ptr = &inventory[i];
 
 		/* Known flags */
-		object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
-		f[3] = o_ptr->curse_flags;
+		object_flags_known(o_ptr, flgs);
 
 		/* Default */
-		c_put_str((byte)(vuln ? TERM_RED : TERM_SLATE), ".", row, col);
+		if (!(mode & DP_IMM))
+			c_put_str((byte)(vuln ? TERM_RED : TERM_SLATE), ".", row, col);
 
 		/* Check flags */
-		if (f[n - 1] & flag1) c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE), "+", row, col);
-		if (f[n - 1] & flag2) c_put_str(TERM_WHITE, "*", row, col);
+		if (mode & DP_CURSE)
+		{
+			if ((mode & DP_CURSE) && (o_ptr->curse_flags & (TRC_CURSED | TRC_HEAVY_CURSE)))
+				c_put_str(TERM_WHITE, "+", row, col);
+			if ((mode & DP_CURSE) && (o_ptr->curse_flags & TRC_PERMA_CURSE))
+				c_put_str(TERM_WHITE, "*", row, col);
+		}
+		else
+		{
+			if (have_flag(flgs, flag1))
+				c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE),
+					  (mode & DP_IMM) ? "*" : "+", row, col);
+		}
 
 		/* Advance */
 		col++;
 	}
 
-	/* Player flags */
-	player_flags(&f[0], &f[1], &f[2]);
-	f[3] = 0L;
+	/* Assume that player flag is already written */
+	if (mode & DP_IMM) return;
 
 	/* Default */
 	c_put_str((byte)(vuln ? TERM_RED : TERM_SLATE), ".", row, col);
 
-	/* Check flags */
-	if (f[n-1] & flag1) c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE), "+", row, col);
+	/* Player flags */
+	if (have_flag(f->player_flags, flag1)) c_put_str((byte)(vuln ? TERM_L_RED : TERM_WHITE), "+", row, col);
 
 	/* Timed player flags */
-	tim_player_flags(&f[0], &f[1], &f[2], TRUE);
-	f[3] = 0L;
-
-	/* Check flags */
-	if (f[n-1] & flag1) c_put_str((byte)(vuln ? TERM_ORANGE : TERM_YELLOW), "#", row, col);
+	if (have_flag(f->tim_player_flags, flag1)) c_put_str((byte)(vuln ? TERM_ORANGE : TERM_YELLOW), "#", row, col);
 
 	/* Immunity */
-	if (im_f[2] & flag1) c_put_str(TERM_YELLOW, "*", row, col);
-	if (im_f[1] & flag1) c_put_str(TERM_WHITE, "*", row, col);
+	if (have_flag(f->tim_player_imm, flag1)) c_put_str(TERM_YELLOW, "*", row, col);
+	if (have_flag(f->player_imm, flag1)) c_put_str(TERM_WHITE, "*", row, col);
 
 	/* Vulnerability */
 	if (vuln) c_put_str(TERM_RED, "v", row, col + 1);
@@ -2944,44 +3003,54 @@ static void display_player_flag_info(void)
 	int row;
 	int col;
 
-	u32b im_f[3][3], vul_f[3];
+	all_player_flags f;
 
-	known_obj_immunity(&im_f[0][0], &im_f[1][0], &im_f[2][0]);
-	player_immunity(&im_f[0][1], &im_f[1][1], &im_f[2][1]);
-	tim_player_immunity(&im_f[0][2], &im_f[1][2], &im_f[2][2]);
-
-	player_vuln_flags(&vul_f[0], &vul_f[1], &vul_f[2]);
+	/* Extract flags and store */
+	player_flags(f.player_flags);
+	tim_player_flags(f.tim_player_flags, TRUE);
+	player_immunity(f.player_imm);
+	tim_player_immunity(f.tim_player_imm);
+	known_obj_immunity(f.known_obj_imm);
+	player_vuln_flags(f.player_vuln);
 
 	/*** Set 1 ***/
 
 	row = 12;
 	col = 1;
 
-	display_player_equippy(row-2, col+8);
+	display_player_equippy(row-2, col+8, 0);
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+8);
 
 #ifdef JP
-display_player_flag_aux(row+0, col, "耐酸  :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
-display_player_flag_aux(row+1, col, "耐電撃:", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
-display_player_flag_aux(row+2, col, "耐火炎:", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
-display_player_flag_aux(row+3, col, "耐冷気:", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
-display_player_flag_aux(row+4, col, "耐毒  :", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+5, col, "耐閃光:", 2, TR2_RES_LITE, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+6, col, "耐暗黒:", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+7, col, "耐破片:", 2, TR2_RES_SHARDS, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+8, col, "耐盲目:", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+9, col, "耐混乱:", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
+display_flag_aux(row+0, col, "耐酸  :", TR_RES_ACID, &f, 0);
+display_flag_aux(row+0, col, "耐酸  :", TR_IM_ACID, &f, DP_IMM);
+display_flag_aux(row+1, col, "耐電撃:", TR_RES_ELEC, &f, 0);
+display_flag_aux(row+1, col, "耐電撃:", TR_IM_ELEC, &f, DP_IMM);
+display_flag_aux(row+2, col, "耐火炎:", TR_RES_FIRE, &f, 0);
+display_flag_aux(row+2, col, "耐火炎:", TR_IM_FIRE, &f, DP_IMM);
+display_flag_aux(row+3, col, "耐冷気:", TR_RES_COLD, &f, 0);
+display_flag_aux(row+3, col, "耐冷気:", TR_IM_COLD, &f, DP_IMM);
+display_flag_aux(row+4, col, "耐毒  :", TR_RES_POIS, &f, 0);
+display_flag_aux(row+5, col, "耐閃光:", TR_RES_LITE, &f, 0);
+display_flag_aux(row+6, col, "耐暗黒:", TR_RES_DARK, &f, 0);
+display_flag_aux(row+7, col, "耐破片:", TR_RES_SHARDS, &f, 0);
+display_flag_aux(row+8, col, "耐盲目:", TR_RES_BLIND, &f, 0);
+display_flag_aux(row+9, col, "耐混乱:", TR_RES_CONF, &f, 0);
 #else
-	display_player_flag_aux(row+0, col, "Acid  :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+1, col, "Elec  :", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+2, col, "Fire  :", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+3, col, "Cold  :", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+4, col, "Poison:", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+5, col, "Light :", 2, TR2_RES_LITE, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+6, col, "Dark  :", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+7, col, "Shard :", 2, TR2_RES_SHARDS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+8, col, "Blind :", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+9, col, "Conf  :", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
+	display_flag_aux(row+0, col, "Acid  :", TR_RES_ACID, &f, 0);
+	display_flag_aux(row+0, col, "Acid  :", TR_IM_ACID, &f, DP_IMM);
+	display_flag_aux(row+1, col, "Elec  :", TR_RES_ELEC, &f, 0);
+	display_flag_aux(row+1, col, "Elec  :", TR_IM_ELEC, &f, DP_IMM);
+	display_flag_aux(row+2, col, "Fire  :", TR_RES_FIRE, &f, 0);
+	display_flag_aux(row+2, col, "Fire  :", TR_IM_FIRE, &f, DP_IMM);
+	display_flag_aux(row+3, col, "Cold  :", TR_RES_COLD, &f, 0);
+	display_flag_aux(row+3, col, "Cold  :", TR_IM_COLD, &f, DP_IMM);
+	display_flag_aux(row+4, col, "Poison:", TR_RES_POIS, &f, 0);
+	display_flag_aux(row+5, col, "Light :", TR_RES_LITE, &f, 0);
+	display_flag_aux(row+6, col, "Dark  :", TR_RES_DARK, &f, 0);
+	display_flag_aux(row+7, col, "Shard :", TR_RES_SHARDS, &f, 0);
+	display_flag_aux(row+8, col, "Blind :", TR_RES_BLIND, &f, 0);
+	display_flag_aux(row+9, col, "Conf  :", TR_RES_CONF, &f, 0);
 #endif
 
 
@@ -2990,32 +3059,32 @@ display_player_flag_aux(row+9, col, "耐混乱:", 2, TR2_RES_CONF, 0, im_f[1], vul_
 	row = 12;
 	col = 26;
 
-	display_player_equippy(row-2, col+8);
+	display_player_equippy(row-2, col+8, 0);
 
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+8);
 
 #ifdef JP
-display_player_flag_aux(row+0, col, "耐轟音:", 2, TR2_RES_SOUND, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+1, col, "耐地獄:", 2, TR2_RES_NETHER, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+2, col, "耐因混:", 2, TR2_RES_NEXUS, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+3, col, "耐カオ:", 2, TR2_RES_CHAOS, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+4, col, "耐劣化:", 2, TR2_RES_DISEN, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+5, col, "耐恐怖:", 2, TR2_RES_FEAR, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+6, col, "反射  :", 2, TR2_REFLECT, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+7, col, "火炎オ:", 3, TR3_SH_FIRE, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+8, col, "電気オ:", 3, TR3_SH_ELEC, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+9, col, "冷気オ:", 3, TR3_SH_COLD, 0, im_f[2], vul_f[2]);
+display_flag_aux(row+0, col, "耐轟音:", TR_RES_SOUND, &f, 0);
+display_flag_aux(row+1, col, "耐地獄:", TR_RES_NETHER, &f, 0);
+display_flag_aux(row+2, col, "耐因混:", TR_RES_NEXUS, &f, 0);
+display_flag_aux(row+3, col, "耐カオ:", TR_RES_CHAOS, &f, 0);
+display_flag_aux(row+4, col, "耐劣化:", TR_RES_DISEN, &f, 0);
+display_flag_aux(row+5, col, "耐恐怖:", TR_RES_FEAR, &f, 0);
+display_flag_aux(row+6, col, "反射  :", TR_REFLECT, &f, 0);
+display_flag_aux(row+7, col, "火炎オ:", TR_SH_FIRE, &f, 0);
+display_flag_aux(row+8, col, "電気オ:", TR_SH_ELEC, &f, 0);
+display_flag_aux(row+9, col, "冷気オ:", TR_SH_COLD, &f, 0);
 #else
-	display_player_flag_aux(row+0, col, "Sound :", 2, TR2_RES_SOUND, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+1, col, "Nether:", 2, TR2_RES_NETHER, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+2, col, "Nexus :", 2, TR2_RES_NEXUS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+3, col, "Chaos :", 2, TR2_RES_CHAOS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+4, col, "Disnch:", 2, TR2_RES_DISEN, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+5, col, "Fear  :", 2, TR2_RES_FEAR, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+6, col, "Reflct:", 2, TR2_REFLECT, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+7, col, "AuFire:", 3, TR3_SH_FIRE, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+8, col, "AuElec:", 3, TR3_SH_ELEC, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+9, col, "AuCold:", 3, TR3_SH_COLD, 0, im_f[2], vul_f[2]);
+	display_flag_aux(row+0, col, "Sound :", TR_RES_SOUND, &f, 0);
+	display_flag_aux(row+1, col, "Nether:", TR_RES_NETHER, &f, 0);
+	display_flag_aux(row+2, col, "Nexus :", TR_RES_NEXUS, &f, 0);
+	display_flag_aux(row+3, col, "Chaos :", TR_RES_CHAOS, &f, 0);
+	display_flag_aux(row+4, col, "Disnch:", TR_RES_DISEN, &f, 0);
+	display_flag_aux(row+5, col, "Fear  :", TR_RES_FEAR, &f, 0);
+	display_flag_aux(row+6, col, "Reflct:", TR_REFLECT, &f, 0);
+	display_flag_aux(row+7, col, "AuFire:", TR_SH_FIRE, &f, 0);
+	display_flag_aux(row+8, col, "AuElec:", TR_SH_ELEC, &f, 0);
+	display_flag_aux(row+9, col, "AuCold:", TR_SH_COLD, &f, 0);
 #endif
 
 
@@ -3024,32 +3093,223 @@ display_player_flag_aux(row+9, col, "冷気オ:", 3, TR3_SH_COLD, 0, im_f[2], vul_f
 	row = 12;
 	col = 51;
 
-	display_player_equippy(row-2, col+12);
+	display_player_equippy(row-2, col+12, 0);
 
 	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+12);
 
 #ifdef JP
-display_player_flag_aux(row+0, col, "加速      :", 1, TR1_SPEED, 0, im_f[0], vul_f[0]);
-display_player_flag_aux(row+1, col, "耐麻痺    :", 2, TR2_FREE_ACT, 0, im_f[1], vul_f[1]);
-display_player_flag_aux(row+2, col, "透明体視認:", 3, TR3_SEE_INVIS, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+3, col, "経験値保持:", 2, TR2_HOLD_LIFE, 0, im_f[2], vul_f[1]);
-display_player_flag_aux(row+4, col, "テレパシー:", 3, TR3_TELEPATHY, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+5, col, "遅消化    :", 3, TR3_SLOW_DIGEST, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+6, col, "急回復    :", 3, TR3_REGEN, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+7, col, "浮遊      :", 3, TR3_FEATHER, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+8, col, "永遠光源  :", 3, TR3_LITE, 0, im_f[2], vul_f[2]);
-display_player_flag_aux(row+9, col, "呪い      :", 4, (TRC_CURSED | TRC_HEAVY_CURSE), TRC_PERMA_CURSE, im_f[2], vul_f[2]);
+display_flag_aux(row+0, col, "加速      :", TR_SPEED, &f, 0);
+display_flag_aux(row+1, col, "耐麻痺    :", TR_FREE_ACT, &f, 0);
+display_flag_aux(row+2, col, "透明体視認:", TR_SEE_INVIS, &f, 0);
+display_flag_aux(row+3, col, "経験値保持:", TR_HOLD_LIFE, &f, 0);
+display_flag_aux(row+4, col, "警告      :", TR_WARNING, &f, 0);
+display_flag_aux(row+5, col, "遅消化    :", TR_SLOW_DIGEST, &f, 0);
+display_flag_aux(row+6, col, "急回復    :", TR_REGEN, &f, 0);
+display_flag_aux(row+7, col, "浮遊      :", TR_FEATHER, &f, 0);
+display_flag_aux(row+8, col, "永遠光源  :", TR_LITE, &f, 0);
+display_flag_aux(row+9, col, "呪い      :", 0, &f, DP_CURSE);
 #else
-	display_player_flag_aux(row+0, col, "Speed     :", 1, TR1_SPEED, 0, im_f[0], vul_f[0]);
-	display_player_flag_aux(row+1, col, "FreeAction:", 2, TR2_FREE_ACT, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+2, col, "SeeInvisi.:", 3, TR3_SEE_INVIS, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+3, col, "Hold Life :", 2, TR2_HOLD_LIFE, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+4, col, "Telepathy :", 3, TR3_TELEPATHY, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+5, col, "SlowDigest:", 3, TR3_SLOW_DIGEST, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+6, col, "Regene.   :", 3, TR3_REGEN, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+7, col, "Levitation:", 3, TR3_FEATHER, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+8, col, "Perm Lite :", 3, TR3_LITE, 0, im_f[2], vul_f[2]);
-	display_player_flag_aux(row+9, col, "Cursed    :", 4, (TRC_CURSED | TRC_HEAVY_CURSE), TRC_PERMA_CURSE, im_f[2], vul_f[2]);
+	display_flag_aux(row+0, col, "Speed     :", TR_SPEED, &f, 0);
+	display_flag_aux(row+1, col, "FreeAction:", TR_FREE_ACT, &f, 0);
+	display_flag_aux(row+2, col, "SeeInvisi.:", TR_SEE_INVIS, &f, 0);
+	display_flag_aux(row+3, col, "Hold Life :", TR_HOLD_LIFE, &f, 0);
+	display_flag_aux(row+4, col, "Warning   :", TR_WARNING, &f, 0);
+	display_flag_aux(row+5, col, "SlowDigest:", TR_SLOW_DIGEST, &f, 0);
+	display_flag_aux(row+6, col, "Regene.   :", TR_REGEN, &f, 0);
+	display_flag_aux(row+7, col, "Levitation:", TR_FEATHER, &f, 0);
+	display_flag_aux(row+8, col, "Perm Lite :", TR_LITE, &f, 0);
+	display_flag_aux(row+9, col, "Cursed    :", 0, &f, DP_CURSE);
+#endif
+
+}
+
+
+/*
+ * Special display, part 2
+ */
+static void display_player_other_flag_info(void)
+{
+	int row;
+	int col;
+
+	all_player_flags f;
+
+	/* Extract flags and store */
+	player_flags(f.player_flags);
+	tim_player_flags(f.tim_player_flags, TRUE);
+	player_immunity(f.player_imm);
+	tim_player_immunity(f.tim_player_imm);
+	known_obj_immunity(f.known_obj_imm);
+	player_vuln_flags(f.player_vuln);
+
+	/*** Set 1 ***/
+
+	row = 3;
+	col = 1;
+
+	display_player_equippy(row-2, col+12, DP_WP);
+
+	c_put_str(TERM_WHITE, "ab@", row-1, col+12);
+
+#ifdef JP
+	display_flag_aux(row+ 0, col, "邪悪 倍打 :", TR_SLAY_EVIL, &f, DP_WP);
+	display_flag_aux(row+ 0, col, "邪悪 倍打 :", TR_KILL_EVIL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 1, col, "不死 倍打 :", TR_SLAY_UNDEAD, &f, DP_WP);
+	display_flag_aux(row+ 1, col, "不死 倍打 :", TR_KILL_UNDEAD, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 2, col, "悪魔 倍打 :", TR_SLAY_DEMON, &f, DP_WP);
+	display_flag_aux(row+ 2, col, "悪魔 倍打 :", TR_KILL_DEMON, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 3, col, "龍 倍打   :", TR_SLAY_DRAGON, &f, DP_WP);
+	display_flag_aux(row+ 3, col, "龍 倍打   :", TR_KILL_DRAGON, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 4, col, "人間 倍打 :", TR_SLAY_HUMAN, &f, DP_WP);
+	display_flag_aux(row+ 4, col, "人間 倍打 :", TR_KILL_HUMAN, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 5, col, "動物 倍打 :", TR_SLAY_ANIMAL, &f, DP_WP);
+	display_flag_aux(row+ 5, col, "動物 倍打 :", TR_KILL_ANIMAL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 6, col, "オーク倍打:", TR_SLAY_ORC, &f, DP_WP);
+	display_flag_aux(row+ 6, col, "オーク倍打:", TR_KILL_ORC, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 7, col, "トロル倍打:", TR_SLAY_TROLL, &f, DP_WP);
+	display_flag_aux(row+ 7, col, "トロル倍打:", TR_KILL_TROLL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 8, col, "巨人 倍打 :", TR_SLAY_GIANT, &f, DP_WP);
+	display_flag_aux(row+ 8, col, "巨人 倍打 :", TR_KILL_GIANT, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 9, col, "溶解      :", TR_BRAND_ACID, &f, DP_WP);
+	display_flag_aux(row+10, col, "電撃      :", TR_BRAND_ELEC, &f, DP_WP);
+	display_flag_aux(row+11, col, "焼棄      :", TR_BRAND_FIRE, &f, DP_WP);
+	display_flag_aux(row+12, col, "凍結      :", TR_BRAND_COLD, &f, DP_WP);
+	display_flag_aux(row+13, col, "毒殺      :", TR_BRAND_POIS, &f, DP_WP);
+	display_flag_aux(row+14, col, "切れ味    :", TR_VORPAL, &f, DP_WP);
+	display_flag_aux(row+15, col, "地震      :", TR_IMPACT, &f, DP_WP);
+	display_flag_aux(row+16, col, "吸血      :", TR_VAMPIRIC, &f, DP_WP);
+	display_flag_aux(row+17, col, "カオス効果:", TR_CHAOTIC, &f, DP_WP);
+	display_flag_aux(row+18, col, "理力      :", TR_FORCE_WEAPON, &f, DP_WP);
+#else
+	display_flag_aux(row+ 0, col, "Slay Evil :", TR_SLAY_EVIL, &f, DP_WP);
+	display_flag_aux(row+ 0, col, "Slay Evil :", TR_KILL_EVIL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 1, col, "Slay Und. :", TR_SLAY_UNDEAD, &f, DP_WP);
+	display_flag_aux(row+ 1, col, "Slay Und. :", TR_KILL_UNDEAD, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 2, col, "Slay Demon:", TR_SLAY_DEMON, &f, DP_WP);
+	display_flag_aux(row+ 2, col, "Slay Demon:", TR_KILL_DEMON, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 3, col, "Slay Drag.:", TR_SLAY_DRAGON, &f, DP_WP);
+	display_flag_aux(row+ 3, col, "Slay Drag.:", TR_KILL_DRAGON, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 4, col, "Slay Human:", TR_SLAY_HUMAN, &f, DP_WP);
+	display_flag_aux(row+ 4, col, "Slay Human:", TR_KILL_HUMAN, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 5, col, "Slay Anim.:", TR_SLAY_ANIMAL, &f, DP_WP);
+	display_flag_aux(row+ 5, col, "Slay Anim.:", TR_KILL_ANIMAL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 6, col, "Slay Orc  :", TR_SLAY_ORC, &f, DP_WP);
+	display_flag_aux(row+ 6, col, "Slay Orc  :", TR_KILL_ORC, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 7, col, "Slay Troll:", TR_SLAY_TROLL, &f, DP_WP);
+	display_flag_aux(row+ 7, col, "Slay Troll:", TR_KILL_TROLL, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 8, col, "Slay Giant:", TR_SLAY_GIANT, &f, DP_WP);
+	display_flag_aux(row+ 8, col, "Slay Giant:", TR_KILL_GIANT, &f, (DP_WP|DP_IMM));
+	display_flag_aux(row+ 9, col, "Acid Brand:", TR_BRAND_ACID, &f, DP_WP);
+	display_flag_aux(row+10, col, "Elec Brand:", TR_BRAND_ELEC, &f, DP_WP);
+	display_flag_aux(row+11, col, "Fire Brand:", TR_BRAND_FIRE, &f, DP_WP);
+	display_flag_aux(row+12, col, "Cold Brand:", TR_BRAND_COLD, &f, DP_WP);
+	display_flag_aux(row+13, col, "Poison Brd:", TR_BRAND_POIS, &f, DP_WP);
+	display_flag_aux(row+14, col, "Sharpness :", TR_VORPAL, &f, DP_WP);
+	display_flag_aux(row+15, col, "Quake     :", TR_IMPACT, &f, DP_WP);
+	display_flag_aux(row+16, col, "Vampicic  :", TR_VAMPIRIC, &f, DP_WP);
+	display_flag_aux(row+17, col, "Chatic    :", TR_CHAOTIC, &f, DP_WP);
+	display_flag_aux(row+18, col, "Force Wep.:", TR_FORCE_WEAPON, &f, DP_WP);
+#endif
+
+
+	/*** Set 2 ***/
+
+	row = 3;
+	col = col + 12 + 7;
+
+	display_player_equippy(row-2, col+12, 0);
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+12);
+
+#ifdef JP
+	display_flag_aux(row+ 0, col, "テレパシー:", TR_TELEPATHY, &f, 0);
+	display_flag_aux(row+ 1, col, "邪悪ESP   :", TR_ESP_EVIL, &f, 0);
+	display_flag_aux(row+ 2, col, "無生物ESP :", TR_ESP_NONLIVING, &f, 0);
+	display_flag_aux(row+ 3, col, "善良ESP   :", TR_ESP_GOOD, &f, 0);
+	display_flag_aux(row+ 4, col, "不死ESP   :", TR_ESP_UNDEAD, &f, 0);
+	display_flag_aux(row+ 5, col, "悪魔ESP   :", TR_ESP_DEMON, &f, 0);
+	display_flag_aux(row+ 6, col, "龍ESP     :", TR_ESP_DRAGON, &f, 0);
+	display_flag_aux(row+ 7, col, "人間ESP   :", TR_ESP_HUMAN, &f, 0);
+	display_flag_aux(row+ 8, col, "動物ESP   :", TR_ESP_ANIMAL, &f, 0);
+	display_flag_aux(row+ 9, col, "オークESP :", TR_ESP_ORC, &f, 0);
+	display_flag_aux(row+10, col, "トロルESP :", TR_ESP_TROLL, &f, 0);
+	display_flag_aux(row+11, col, "巨人ESP   :", TR_ESP_GIANT, &f, 0);
+
+	display_flag_aux(row+13, col, "腕力維持  :", TR_SUST_STR, &f, 0);
+	display_flag_aux(row+14, col, "知力維持  :", TR_SUST_INT, &f, 0);
+	display_flag_aux(row+15, col, "賢さ維持  :", TR_SUST_WIS, &f, 0);
+	display_flag_aux(row+16, col, "器用維持  :", TR_SUST_DEX, &f, 0);
+	display_flag_aux(row+17, col, "耐久維持  :", TR_SUST_CON, &f, 0);
+	display_flag_aux(row+18, col, "魅力維持  :", TR_SUST_CHR, &f, 0);
+#else
+	display_flag_aux(row+ 0, col, "Telepathy :", TR_TELEPATHY, &f, 0);
+	display_flag_aux(row+ 1, col, "ESP Evil  :", TR_ESP_EVIL, &f, 0);
+	display_flag_aux(row+ 2, col, "ESP Noliv.:", TR_ESP_NONLIVING, &f, 0);
+	display_flag_aux(row+ 3, col, "ESP Good  :", TR_ESP_GOOD, &f, 0);
+	display_flag_aux(row+ 4, col, "ESP Undead:", TR_ESP_UNDEAD, &f, 0);
+	display_flag_aux(row+ 5, col, "ESP Demon :", TR_ESP_DEMON, &f, 0);
+	display_flag_aux(row+ 6, col, "ESP Dragon:", TR_ESP_DRAGON, &f, 0);
+	display_flag_aux(row+ 7, col, "ESP Human :", TR_ESP_HUMAN, &f, 0);
+	display_flag_aux(row+ 8, col, "ESP Animal:", TR_ESP_ANIMAL, &f, 0);
+	display_flag_aux(row+ 9, col, "ESP Orc   :", TR_ESP_ORC, &f, 0);
+	display_flag_aux(row+10, col, "ESP Troll :", TR_ESP_TROLL, &f, 0);
+	display_flag_aux(row+11, col, "ESP Giant :", TR_ESP_GIANT, &f, 0);
+
+	display_flag_aux(row+13, col, "Sust Str  :", TR_SUST_STR, &f, 0);
+	display_flag_aux(row+14, col, "Sust Int  :", TR_SUST_INT, &f, 0);
+	display_flag_aux(row+15, col, "Sust Wis  :", TR_SUST_WIS, &f, 0);
+	display_flag_aux(row+16, col, "Sust Dex  :", TR_SUST_DEX, &f, 0);
+	display_flag_aux(row+17, col, "Sust Con  :", TR_SUST_CON, &f, 0);
+	display_flag_aux(row+18, col, "Sust Chr  :", TR_SUST_CHR, &f, 0);
+#endif
+
+
+	/*** Set 3 ***/
+
+	row = 3;
+	col = col + 12 + 17;
+
+	display_player_equippy(row-2, col+14, 0);
+
+	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col+14);
+
+#ifdef JP
+	display_flag_aux(row+ 0, col, "追加攻撃    :", TR_BLOWS, &f, 0);
+	display_flag_aux(row+ 1, col, "採掘        :", TR_TUNNEL, &f, 0);
+	display_flag_aux(row+ 2, col, "赤外線視力  :", TR_INFRA, &f, 0);
+	display_flag_aux(row+ 3, col, "魔法道具支配:", TR_MAGIC_MASTERY, &f, 0);
+	display_flag_aux(row+ 4, col, "隠密        :", TR_STEALTH, &f, 0);
+	display_flag_aux(row+ 5, col, "探索        :", TR_SEARCH, &f, 0);
+
+	display_flag_aux(row+ 7, col, "乗馬        :", TR_RIDING, &f, 0);
+	display_flag_aux(row+ 8, col, "投擲        :", TR_THROW, &f, 0);
+	display_flag_aux(row+ 9, col, "祝福        :", TR_BLESSED, &f, 0);
+	display_flag_aux(row+10, col, "反テレポート:", TR_NO_TELE, &f, 0);
+	display_flag_aux(row+11, col, "反魔法      :", TR_NO_MAGIC, &f, 0);
+	display_flag_aux(row+12, col, "消費魔力減少:", TR_DEC_MANA, &f, 0);
+
+	display_flag_aux(row+14, col, "経験値減少  :", TR_DRAIN_EXP, &f, 0);
+	display_flag_aux(row+15, col, "乱テレポート:", TR_TELEPORT, &f, 0);
+	display_flag_aux(row+16, col, "反感        :", TR_AGGRAVATE, &f, 0);
+	display_flag_aux(row+17, col, "太古の怨念  :", TR_TY_CURSE, &f, 0);
+#else
+	display_flag_aux(row+ 0, col, "Add Blows   :", TR_BLOWS, &f, 0);
+	display_flag_aux(row+ 1, col, "Add Tunnel  :", TR_TUNNEL, &f, 0);
+	display_flag_aux(row+ 2, col, "Add Infra   :", TR_INFRA, &f, 0);
+	display_flag_aux(row+ 3, col, "Add Device  :", TR_MAGIC_MASTERY, &f, 0);
+	display_flag_aux(row+ 4, col, "Add Stealth :", TR_STEALTH, &f, 0);
+	display_flag_aux(row+ 5, col, "Add Search  :", TR_SEARCH, &f, 0);
+
+	display_flag_aux(row+ 7, col, "Riding      :", TR_RIDING, &f, 0);
+	display_flag_aux(row+ 8, col, "Throw       :", TR_THROW, &f, 0);
+	display_flag_aux(row+ 9, col, "Blessed     :", TR_BLESSED, &f, 0);
+	display_flag_aux(row+10, col, "No Teleport :", TR_NO_TELE, &f, 0);
+	display_flag_aux(row+11, col, "Anti Magic  :", TR_NO_MAGIC, &f, 0);
+	display_flag_aux(row+12, col, "Econom. Mana:", TR_DEC_MANA, &f, 0);
+
+	display_flag_aux(row+14, col, "Drain Exp   :", TR_DRAIN_EXP, &f, 0);
+	display_flag_aux(row+15, col, "Rnd.Teleport:", TR_TELEPORT, &f, 0);
+	display_flag_aux(row+16, col, "Aggravate   :", TR_AGGRAVATE, &f, 0);
+	display_flag_aux(row+17, col, "TY Curse    :", TR_TY_CURSE, &f, 0);
 #endif
 
 }
@@ -3129,7 +3389,7 @@ static void display_player_stat_info(void)
 	int row, col;
 
 	object_type *o_ptr;
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 	s16b k_idx;
 
 	byte a;
@@ -3268,7 +3528,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		k_idx = o_ptr->k_idx;
 
 		/* Acquire "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, flgs);
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < 6; stat++)
@@ -3278,7 +3538,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 			c = '.';
 
 			/* Boost */
-			if (f1 & 1 << stat)
+			if (have_flag(flgs, stat))
 			{
 				/* Default */
 				c = '*';
@@ -3293,7 +3553,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
 				}
 
-				if (f2 & 1 << stat)
+				if (have_flag(flgs, stat + TR_SUST_STR))
 				{
 					/* Dark green for sustained stats */
 					a = TERM_GREEN;
@@ -3311,7 +3571,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 			}
 
 			/* Sustain */
-			else if (f2 & 1 << stat)
+			else if (have_flag(flgs, stat + TR_SUST_STR))
 			{
 				/* Dark green "s" */
 				a = TERM_GREEN;
@@ -3327,7 +3587,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(flgs);
 
 	/* Check stats */
 	for (stat = 0; stat < 6; stat++)
@@ -3406,7 +3666,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 
 
 		/* Sustain */
-		if (f2 & 1<<stat)
+		if (have_flag(flgs, stat + TR_SUST_STR))
 		{
 			/* Dark green "s" */
 			a = TERM_GREEN;
@@ -3421,501 +3681,15 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 
 
 /*
- * Object flag names
- */
-static cptr object_flag_names[96] =
-{
-#ifdef JP
-"+腕力",
-"+知能",
-"+賢さ",
-"+器用",
-"+耐久",
-"+魅力",
-#else
-	"Add Str",
-	"Add Int",
-	"Add Wis",
-	"Add Dex",
-	"Add Con",
-	"Add Chr",
-#endif
-
-#ifdef JP
-	"魔道具",
-
-	"理力",
-#else
-	"M.Item-Mas",
-
-	"Force wep.",
-#endif
-
-#ifdef JP
-"+隠密行動",
-"+探索",
-"+赤外線視",
-"+掘削",
-"+スピード",
-"+打撃回数",
-"カオス効果",
-"吸血",
-"動物 倍打",
-"邪悪 倍打",
-"不死 倍打",
-"悪魔 倍打",
-"オーク倍打",
-"トロル倍打",
-"巨人 倍打",
-"龍 倍打",
-"龍 倍倍打",
-"鋭刃",
-"地震発生",
-"毒属性攻撃",
-"酸属性攻撃",
-"電属性攻撃",
-"火属性攻撃",
-"冷属性攻撃",
-#else
-	"Add Stea.",
-	"Add Sear.",
-	"Add Infra",
-	"Add Tun..",
-	"Add Speed",
-	"Add Blows",
-	"Chaotic",
-	"Vampiric",
-	"Slay Anim.",
-	"Slay Evil",
-	"Slay Und.",
-	"Slay Demon",
-	"Slay Orc",
-	"Slay Troll",
-	"Slay Giant",
-	"Slay Drag.",
-	"Kill Drag.",
-	"Sharpness",
-	"Impact",
-	"Poison Brd",
-	"Acid Brand",
-	"Elec Brand",
-	"Fire Brand",
-	"Cold Brand",
-#endif
-
-
-#ifdef JP
-"腕力 保持",
-"知能 保持",
-"賢さ 保持",
-"器用 保持",
-"耐久 保持",
-"魅力 保持",
-#else
-	"Sust Str",
-	"Sust Int",
-	"Sust Wis",
-	"Sust Dex",
-	"Sust Con",
-	"Sust Chr",
-#endif
-
-	NULL,
-	NULL,
-#ifdef JP
-"超耐酸  ",
-"超耐電撃",
-"超耐火炎",
-"超耐冷気",
-#else
-	"Imm Acid",
-	"Imm Elec",
-	"Imm Fire",
-	"Imm Cold",
-#endif
-
-	NULL,
-#ifdef JP
-"反射",
-"耐麻痺",
-"経験値保持",
-#else
-	"Reflect",
-	"Free Act",
-	"Hold Life",
-#endif
-
-#ifdef JP
-"耐酸  ",
-"耐電撃",
-"耐火炎",
-"耐冷気",
-"耐毒  ",
-"耐恐怖",
-"耐閃光",
-"耐暗黒",
-"耐盲目",
-"耐混乱",
-"耐轟音",
-"耐破片",
-"耐地獄",
-"耐因混",
-"耐カオ",
-"耐劣化",
-#else
-	"Res Acid",
-	"Res Elec",
-	"Res Fire",
-	"Res Cold",
-	"Res Pois",
-	"Res Fear",
-	"Res Lite",
-	"Res Dark",
-	"Res Blind",
-	"Res Conf",
-	"Res Sound",
-	"Res Shard",
-	"Res Neth",
-	"Res Nexus",
-	"Res Chaos",
-	"Res Disen",
-#endif
-
-
-
-
-#ifdef JP
-	"火炎オーラ",
-
-	"電気オーラ",
-#else
-	"Aura Fire",
-
-	"Aura Elec",
-#endif
-
- 	NULL,
-#ifdef JP
-	"冷気オーラ",
-#else
-	"Aura Cold",
-#endif
-#ifdef JP
-"防テレポ",
-"反魔法",
-"減消費魔力",
-"邪悪な怨念",
-NULL,
-"Hide Type",
-"Show Mods",
-"常時伝説物",
-"浮遊",
-"光源",
-"透明視認",
-"テレパシー",
-"遅消化",
-"急回復",
-"強力射撃",
-"高速射撃",
-"無傷 酸",
-"無傷 電",
-"無傷 火",
-"無傷 冷",
-"始動",
-"経験吸収",
-"テレポート",
-"反感",
-"祝福",
-NULL,
-NULL,
-NULL,
-#else
-	"NoTeleport",
-	"AntiMagic",
-	"DecMana",
-	"EvilCurse",
- 	NULL,
- 	"Hide Type",
-	"Show Mods",
-	"Insta Art",
-	"Levitate",
-	"Lite",
-	"See Invis",
-	"Telepathy",
-	"Digestion",
-	"Regen",
-	"Xtra Might",
-	"Xtra Shots",
-	"Ign Acid",
-	"Ign Elec",
-	"Ign Fire",
-	"Ign Cold",
-	"Activate",
-	"Drain Exp",
-	"Teleport",
-	"Aggravate",
-	"Blessed",
-	NULL,
-	NULL,
-	NULL,
-#endif
-
-};
-
-
-/*
- * Summarize resistances
- */
-static void display_player_ben(void)
-{
-	int i, x, y;
-
-	object_type *o_ptr;
-
-	u32b f1, f2, f3;
-
-	u16b b[6];
-	u16b color[6];
-
-
-	/* Reset */
-	for (i = 0; i < 6; i++) b[i] = 0;
-
-
-	/* Scan equipment */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-	{
-		/* Object */
-		o_ptr = &inventory[i];
-
-		/* Known object flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
-
-
-		if ((prace_is_(RACE_S_FAIRY)) && (f3 & TR3_AGGRAVATE))
-		{
-			f3 &= ~(TR3_AGGRAVATE);
-			f1 |= TR1_STEALTH;
-		}
-
-		/* Incorporate */
-		b[0] |= (f1 & 0xFFFF);
-		b[1] |= (f1 >> 16);
-		b[2] |= (f2 & 0xFFFF);
-		b[3] |= (f2 >> 16);
-		b[4] |= (f3 & 0xFFFF);
-		b[5] |= (f3 >> 16);
-	}
-
-
-	/* Player flags */
-	player_flags(&f1, &f2, &f3);
-
-	/* Incorporate */
-	b[0] |= (f1 & 0xFFFF);
-	b[1] |= (f1 >> 16);
-	b[2] |= (f2 & 0xFFFF);
-	b[3] |= (f2 >> 16);
-	b[4] |= (f3 & 0xFFFF);
-	b[5] |= (f3 >> 16);
-
-	/* Player flags */
-	tim_player_flags(&f1, &f2, &f3, FALSE);
-
-	/* Incorporate */
-	b[0] |= (f1 & 0xFFFF);
-	b[1] |= (f1 >> 16);
-	b[2] |= (f2 & 0xFFFF);
-	b[3] |= (f2 >> 16);
-	b[4] |= (f3 & 0xFFFF);
-	b[5] |= (f3 >> 16);
-	color[0] = (u16b)(f1 & 0xFFFF);
-	color[1] = (u16b)(f1 >> 16);
-	color[2] = (u16b)(f2 & 0xFFFF);
-	color[3] = (u16b)(f2 >> 16);
-	color[4] = (u16b)(f3 & 0xFFFF);
-	color[5] = (u16b)(f3 >> 16);
-
-	/* Scan cols */
-	for (x = 0; x < 6; x++)
-	{
-		/* Scan rows */
-		for (y = 0; y < 16; y++)
-		{
-			byte a = TERM_SLATE;
-			char c = '.';
-
-			cptr name = object_flag_names[16*x+y];
-
-			/* No name */
-			if (!name) continue;
-
-			/* Dump name */
-			Term_putstr(x * 13, y + 4, -1, TERM_WHITE, name);
-
-			/* Dump colon */
-			Term_putch(x * 13 + 10, y + 4, TERM_WHITE, ':');
-
-			/* Check flag */
-			if (b[x] & (1<<y))
-			{
-				if (color[x] & (1<<y))
-				{
-					a = TERM_YELLOW;
-					c = '#';
-				}
-				else
-				{
-					a = TERM_WHITE;
-					c = '+';
-				}
-			}
-
-			/* Dump flag */
-			Term_putch(x * 13 + 11, y + 4, a, c);
-		}
-	}
-}
-
-
-/*
- * Summarize resistances
- */
-static void display_player_ben_one(int mode)
-{
-	int i, n, x, y;
-
-	object_type *o_ptr;
-
-	u32b f1, f2, f3;
-
-	u16b b[13][6];
-	u16b color[6];
-
-
-	/* Scan equipment */
-	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
-	{
-		/* Index */
-		n = (i - INVEN_RARM);
-
-		/* Object */
-		o_ptr = &inventory[i];
-
-		object_flags_known(o_ptr, &f1, &f2, &f3);
-
-		if ((prace_is_(RACE_S_FAIRY)) && (f3 & TR3_AGGRAVATE))
-		{
-			f3 &= ~(TR3_AGGRAVATE);
-			f1 |= TR1_STEALTH;
-		}
-
-		/* Incorporate */
-		b[n][0] = (u16b)(f1 & 0xFFFF);
-		b[n][1] = (u16b)(f1 >> 16);
-		b[n][2] = (u16b)(f2 & 0xFFFF);
-		b[n][3] = (u16b)(f2 >> 16);
-		b[n][4] = (u16b)(f3 & 0xFFFF);
-		b[n][5] = (u16b)(f3 >> 16);
-	}
-
-
-	/* Index */
-	n = 12;
-
-	/* Player flags */
-	player_flags(&f1, &f2, &f3);
-
-	/* Incorporate */
-	b[n][0] = (u16b)(f1 & 0xFFFF);
-	b[n][1] = (u16b)(f1 >> 16);
-	b[n][2] = (u16b)(f2 & 0xFFFF);
-	b[n][3] = (u16b)(f2 >> 16);
-	b[n][4] = (u16b)(f3 & 0xFFFF);
-	b[n][5] = (u16b)(f3 >> 16);
-
-	/* Player flags */
-	tim_player_flags(&f1, &f2, &f3, FALSE);
-
-	/* Incorporate */
-	b[n][0] |= (f1 & 0xFFFF);
-	b[n][1] |= (f1 >> 16);
-	b[n][2] |= (f2 & 0xFFFF);
-	b[n][3] |= (f2 >> 16);
-	b[n][4] |= (f3 & 0xFFFF);
-	b[n][5] |= (f3 >> 16);
-	color[0] = (u16b)(f1 & 0xFFFF);
-	color[1] = (u16b)(f1 >> 16);
-	color[2] = (u16b)(f2 & 0xFFFF);
-	color[3] = (u16b)(f2 >> 16);
-	color[4] = (u16b)(f3 & 0xFFFF);
-	color[5] = (u16b)(f3 >> 16);
-
-
-	/* Scan cols */
-	for (x = 0; x < 3; x++)
-	{
-		/* Equippy */
-		display_player_equippy(2, x * 26 + 11);
-
-		/* Label */
-		Term_putstr(x * 26 + 11, 3, -1, TERM_WHITE, "abcdefghijkl@");
-
-		/* Scan rows */
-		for (y = 0; y < 16; y++)
-		{
-			cptr name = object_flag_names[48*mode+16*x+y];
-
-			/* No name */
-			if (!name) continue;
-
-			/* Dump name */
-			Term_putstr(x * 26, y + 4, -1, TERM_WHITE, name);
-
-			/* Dump colon */
-			Term_putch(x * 26 + 10, y + 4, TERM_WHITE, ':');
-
-			/* Check flags */
-			for (n = 0; n < 13; n++)
-			{
-				byte a = TERM_SLATE;
-				char c = '.';
-
-				/* Check flag */
-				if (b[n][3*mode+x] & (1<<y))
-				{
-					if ((n == 12) && (color[3*mode+x] & (1<<y)))
-					{
-						a = TERM_YELLOW;
-						c = '#';
-					}
-					else
-					{
-						a = TERM_WHITE;
-						c = '+';
-					}
-				}
-
-				/* Dump flag */
-				Term_putch(x * 26 + 11 + n, y + 4, a, c);
-			}
-		}
-	}
-}
-
-
-/*
  * Display the character on the screen (various modes)
  *
- * The top two and bottom two lines are left blank.
+ * The top one and bottom two lines are left blank.
  *
  * Mode 0 = standard display with skills
  * Mode 1 = standard display with history
  * Mode 2 = summary of various things
- * Mode 3 = current flags (combined)
- * Mode 4 = current flags (part 1)
- * Mode 5 = current flags (part 2)
- * Mode 6 = mutations
+ * Mode 3 = summary of various things (part 2)
+ * Mode 4 = mutations
  */
 void display_player(int mode)
 {
@@ -3927,9 +3701,9 @@ void display_player(int mode)
 
 	/* XXX XXX XXX */
 	if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && display_mutations)
-		mode = (mode % 7);
+		mode = (mode % 5);
 	else
-		mode = (mode % 6);
+		mode = (mode % 4);
 
 	/* Erase screen */
 	clear_from(0);
@@ -4059,35 +3833,35 @@ void display_player(int mode)
 			else if (p_ptr->is_dead)
 			{
 				if (!dun_level)
-                                {
+				{
 #ifdef JP
 					sprintf(statmsg, "…あなたは%sで%sに殺された。", map_name(), p_ptr->died_from);
 #else
 					sprintf(statmsg, "...You were killed by %s in %s.", p_ptr->died_from, map_name());
 #endif
-                                }
-                                else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
-                                {
-                                        /* Get the quest text */
-                                        /* Bewere that INIT_ASSIGN resets the cur_num. */
-                                        init_flags = INIT_ASSIGN;
+				}
+				else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+				{
+					/* Get the quest text */
+					/* Bewere that INIT_ASSIGN resets the cur_num. */
+					init_flags = INIT_ASSIGN;
 
-                                        process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+					process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 #ifdef JP
-                                        sprintf(statmsg, "…あなたは、クエスト「%s」で%sに殺された。", quest[p_ptr->inside_quest].name, p_ptr->died_from);
+					sprintf(statmsg, "…あなたは、クエスト「%s」で%sに殺された。", quest[p_ptr->inside_quest].name, p_ptr->died_from);
 #else
-                                        sprintf(statmsg, "...You were killed by %s in the quest '%s'.", p_ptr->died_from, quest[p_ptr->inside_quest].name);
+					sprintf(statmsg, "...You were killed by %s in the quest '%s'.", p_ptr->died_from, quest[p_ptr->inside_quest].name);
 #endif
-                                }
-                                else
-                                {					
+				}
+				else
+				{					
 #ifdef JP
-                                        sprintf(statmsg, "…あなたは、%sの%d階で%sに殺された。", map_name(), dun_level, p_ptr->died_from);
+					sprintf(statmsg, "…あなたは、%sの%d階で%sに殺された。", map_name(), dun_level, p_ptr->died_from);
 #else
-                                        sprintf(statmsg, "...You were killed by %s on level %d of %s.", p_ptr->died_from, dun_level, map_name());
+					sprintf(statmsg, "...You were killed by %s on level %d of %s.", p_ptr->died_from, dun_level, map_name());
 #endif
-                                }
+				}
 			}
 			else if (character_dungeon)
 			{
@@ -4096,38 +3870,38 @@ void display_player(int mode)
 #ifdef JP
 					sprintf(statmsg, "…あなたは現在、 %s にいる。", map_name());
 #else
-				        sprintf(statmsg, "...Now, you are in %s.", map_name());
+					sprintf(statmsg, "...Now, you are in %s.", map_name());
 #endif
-                                }
-                                else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
-                                {
-                                        /* Clear the text */
-                                        /* Must be done before doing INIT_SHOW_TEXT */
-                                        for (i = 0; i < 10; i++)
-                                        {
-                                                quest_text[i][0] = '\0';
-                                        }
-                                        quest_text_line = 0;
+				}
+				else if (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST))
+				{
+					/* Clear the text */
+					/* Must be done before doing INIT_SHOW_TEXT */
+					for (i = 0; i < 10; i++)
+					{
+						quest_text[i][0] = '\0';
+					}
+					quest_text_line = 0;
 
-                                        /* Get the quest text */
-                                        init_flags = INIT_SHOW_TEXT;
+					/* Get the quest text */
+					init_flags = INIT_SHOW_TEXT;
 
-                                        process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+					process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 #ifdef JP
-                                        sprintf(statmsg, "…あなたは現在、 クエスト「%s」を遂行中だ。", quest[p_ptr->inside_quest].name);
+					sprintf(statmsg, "…あなたは現在、 クエスト「%s」を遂行中だ。", quest[p_ptr->inside_quest].name);
 #else
-                                        sprintf(statmsg, "...Now, you are in the quest '%s'.", quest[p_ptr->inside_quest].name);
+					sprintf(statmsg, "...Now, you are in the quest '%s'.", quest[p_ptr->inside_quest].name);
 #endif
-                                }							
-                                else
-                                {
+				}							
+				else
+				{
 #ifdef JP
-                                        sprintf(statmsg, "…あなたは現在、 %s の %d 階で探索している。", map_name(), dun_level);
+					sprintf(statmsg, "…あなたは現在、 %s の %d 階で探索している。", map_name(), dun_level);
 #else
-                                        sprintf(statmsg, "...Now, you are exploring level %d of %s.", dun_level, map_name());
+					sprintf(statmsg, "...Now, you are exploring level %d of %s.", dun_level, map_name());
 #endif
-                                }
+				}
 			}
 
 			if (*statmsg)
@@ -4171,19 +3945,35 @@ void display_player(int mode)
 	/* Special */
 	else if (mode == 3)
 	{
-		display_player_ben();
+		display_player_other_flag_info();
 	}
 
-	else if (mode == 6)
+	else if (mode == 4)
 	{
 		do_cmd_knowledge_mutations();
 	}
+}
 
-	/* Special */
-	else
-	{
-		display_player_ben_one(mode % 2);
-	}
+static bool ang_sort_comp_quest_num(vptr u, vptr v, int a, int b)
+{
+	int *q_num = (int *)u;
+	quest_type *qa = &quest[q_num[a]];
+	quest_type *qb = &quest[q_num[b]];
+
+	if (qa->complev < qb->complev) return TRUE;
+	if (qa->complev > qb->complev) return FALSE;
+	if (qa->level <= qb->level) return TRUE;
+	return FALSE;
+}
+
+static void ang_sort_swap_quest_num(vptr u, vptr v, int a, int b)
+{
+	int *q_num = (int *)u;
+	int tmp;
+
+	tmp = q_num[a];
+	q_num[a] = q_num[b];
+	q_num[b] = tmp;
 }
 
 errr make_character_dump(FILE *fff)
@@ -4195,14 +3985,16 @@ errr make_character_dump(FILE *fff)
 	store_type  *st_ptr;
 	char		o_name[MAX_NLEN];
 	char		buf[1024];
-
+	int		total;
+	int		*quest_num;
+	int		dummy;
 
 #ifdef JP
 	fprintf(fff, "  [変愚蛮怒 %d.%d.%d キャラクタ情報]\n\n",
-	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
 	fprintf(fff, "  [Hengband %d.%d.%d Character Dump]\n\n",
-	        FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
 	update_playtime();
@@ -4231,7 +4023,7 @@ errr make_character_dump(FILE *fff)
 
 		/* End the row */
 #ifdef JP
-                        fprintf(fff, "%s\n", buf);
+			fprintf(fff, "%s\n", buf);
 #else
 		fprintf(fff, "%s\n", buf);
 #endif
@@ -4265,11 +4057,43 @@ errr make_character_dump(FILE *fff)
 	}
 
 	fprintf(fff, "\n");
-	/* Display history */
+
+	/* Display flags (part 1) */
 	display_player(2);
 
 	/* Dump part of the screen */
 	for (y = 2; y < 22; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it (Ignore equippy tile graphic) */
+			if (a < 128)
+				buf[x] = c;
+			else
+				buf[x] = ' ';
+		}
+
+		/* End the string */
+		buf[x] = '\0';
+
+		/* Kill trailing spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) buf[--x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	fprintf(fff, "\n");
+
+	/* Display flags (part 2) */
+	display_player(3);
+
+	/* Dump part of the screen */
+	for (y = 1; y < 22; y++)
 	{
 		/* Dump each row */
 		for (x = 0; x < 79; x++)
@@ -4333,6 +4157,176 @@ errr make_character_dump(FILE *fff)
 		if (pet) fprintf(fff, "\n");
 	}
 
+#ifdef JP
+	fprintf(fff, "\n  [クエスト情報]\n");
+#else
+	fprintf(fff, "\n  [Quest information]\n");
+#endif
+
+#ifdef JP
+	fprintf(fff, "\n《達成したクエスト》\n");
+#else
+	fprintf(fff, "\n< Completed Quest >\n");
+#endif
+
+	/* Allocate Memory */
+	C_MAKE(quest_num, max_quests, int);
+
+	/* Sort by compete level */
+	for (i = 1; i < max_quests; i++)
+	{
+		quest_num[i] = i;
+	}
+	ang_sort_comp = ang_sort_comp_quest_num;
+	ang_sort_swap = ang_sort_swap_quest_num;
+	ang_sort(quest_num, &dummy, max_quests);
+
+	/* Dump Quest Information */
+	total = 0;
+	for (i = 1; i < max_quests; i++)
+	{
+		int num = quest_num[i];
+
+		if (quest[num].status == QUEST_STATUS_FINISHED)
+		{
+			if (num < MIN_RANDOM_QUEST)
+			{
+				int old_quest;
+			
+				/* Set the quest number temporary */
+				old_quest = p_ptr->inside_quest;
+				p_ptr->inside_quest = num;
+
+				/* Get the quest */
+				init_flags = INIT_ASSIGN;
+
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+				/* Reset the old quest number */
+				p_ptr->inside_quest = old_quest;
+
+				/* No info from "silent" quests */
+				if (quest[num].flags & QUEST_FLAG_SILENT) continue;
+			}
+
+			total++;
+
+			if ((num >= MIN_RANDOM_QUEST) && quest[num].r_idx)
+			{
+				/* Print the quest info */
+
+				if (quest[num].complev == 0)
+				{
+					fprintf(fff, 
+#ifdef JP
+						"  %s (%d階) - 不戦勝\n",
+#else
+						"  %s (Dungeon level: %d) - (Cancelled)\n",
+#endif
+						r_name+r_info[quest[num].r_idx].name,
+						quest[num].level);
+				}
+				else
+				{
+					fprintf(fff, 
+#ifdef JP
+						"  %s (%d階) - レベル%d\n",
+#else
+						"  %s (Dungeon level: %d) - level %d\n",
+#endif
+						r_name+r_info[quest[num].r_idx].name,
+						quest[num].level,
+						quest[num].complev);
+				}
+			}
+			else
+			{
+				/* Print the quest info */
+#ifdef JP
+				fprintf(fff, "  %s (危険度:%d階相当) - レベル%d\n",
+#else
+				fprintf(fff, "  %s (Danger level: %d) - level %d\n",
+#endif
+
+					quest[num].name, quest[num].level, quest[num].complev);
+			}
+		}
+	}
+#ifdef JP
+	if (!total) fprintf(fff, "  なし\n");
+#else
+	if (!total) fprintf(fff, "  Nothing.\n");
+#endif
+
+#ifdef JP
+	fprintf(fff, "\n《失敗したクエスト》\n");
+#else
+	fprintf(fff, "\n< Failed Quest >\n");
+#endif
+	total = 0;
+	for (i = 1; i < max_quests; i++)
+	{
+		int num = quest_num[i];
+
+		if ((quest[num].status == QUEST_STATUS_FAILED_DONE) || (quest[num].status == QUEST_STATUS_FAILED))
+		{
+			if (num < MIN_RANDOM_QUEST)
+			{
+				int old_quest;
+
+				/* Set the quest number temporary */
+				old_quest = p_ptr->inside_quest;
+				p_ptr->inside_quest = num;
+
+				/* Get the quest text */
+				init_flags = INIT_ASSIGN;
+
+				process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+				/* Reset the old quest number */
+				p_ptr->inside_quest = old_quest;
+
+				/* No info from "silent" quests */
+				if (quest[num].flags & QUEST_FLAG_SILENT) continue;
+			}
+
+			total++;
+
+			if ((num >= MIN_RANDOM_QUEST) && quest[num].r_idx)
+			{
+				/* Print the quest info */
+#ifdef JP
+				fprintf(fff, "  %s (%d階) - レベル%d\n",
+#else
+				fprintf(fff, "  %s (Dungeon level: %d) - level %d\n",
+#endif
+
+					r_name+r_info[quest[num].r_idx].name, quest[num].level, quest[num].complev);
+			}
+			else
+			{
+				/* Print the quest info */
+#ifdef JP
+				fprintf(fff, "  %s (危険度:%d階相当) - レベル%d\n",
+#else
+				fprintf(fff, "  %s (Danger level: %d) - level %d\n",
+#endif
+
+					quest[num].name, quest[num].level, quest[num].complev);
+			}
+		}
+	}
+
+#ifdef JP
+	if (!total) fprintf(fff, "  なし\n");
+#else
+	if (!total) fprintf(fff, "  Nothing.\n");
+#endif
+	fprintf(fff, "\n");
+
+	/* Free Memory */
+	C_KILL(quest_num, max_quests, int);
+
 	if (p_ptr->is_dead && !p_ptr->total_winner)
 	{
 #ifdef JP
@@ -4348,7 +4342,7 @@ errr make_character_dump(FILE *fff)
 	}
 
 #ifdef JP
-	fprintf(fff, "\n  [その他の情報]        \n");
+	fprintf(fff, "\n  [その他の情報]\n");
 #else
 	fprintf(fff, "\n  [Miscellaneous information]\n");
 #endif
@@ -4356,7 +4350,7 @@ errr make_character_dump(FILE *fff)
 #ifdef JP
 	fprintf(fff, "\n 帰還場所:\n");
 #else
-        fprintf(fff, "\n Recall Depth:\n");
+	fprintf(fff, "\n Recall Depth:\n");
 #endif
 	for (y = 1; y < max_d_idx; y++)
 	{
@@ -4394,21 +4388,21 @@ errr make_character_dump(FILE *fff)
 
 	if (ironman_autoscum)
 #ifdef JP
-	        fprintf(fff, "\n 自動選り好み  :     ALWAYS");
+		fprintf(fff, "\n 自動選り好み  :     ALWAYS");
 #else
 		fprintf(fff, "\n Autoscum:           ALWAYS");
 #endif
 
 	else if (auto_scum)
 #ifdef JP
-	        fprintf(fff, "\n 自動選り好み  :     ON");
+		fprintf(fff, "\n 自動選り好み  :     ON");
 #else
 		fprintf(fff, "\n Autoscum:           ON");
 #endif
 
 	else
 #ifdef JP
-	        fprintf(fff, "\n 自動選り好み  :     OFF");
+		fprintf(fff, "\n 自動選り好み  :     OFF");
 #else
 		fprintf(fff, "\n Autoscum:           OFF");
 #endif
@@ -4506,7 +4500,7 @@ errr make_character_dump(FILE *fff)
 
 	else
 #ifdef JP
-	        fprintf(fff, "\n アリーナ:           OFF");
+		fprintf(fff, "\n アリーナ:           OFF");
 #else
 		fprintf(fff, "\n Arena Levels:       OFF");
 #endif
@@ -4558,21 +4552,6 @@ fprintf(fff, "\n 何か不正なことをしてしまってます。");
 		fprintf(fff, "\n You have done something illegal.");
 #endif
 
-
-	if (stupid_monsters)
-#ifdef JP
-fprintf(fff, "\n 敵は愚かな行動を取ります。");
-#else
-		fprintf(fff, "\n Your opponents are behaving stupidly.");
-#endif
-
-
-	if (munchkin_death)
-#ifdef JP
-fprintf(fff, "\n あなたは死を回避するインチキな力を持っています。");
-#else
-		fprintf(fff, "\n You possess munchkinish power over death.");
-#endif
 
 	fprintf(fff,"\n");
 
@@ -4740,7 +4719,7 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 	/* Add an empty line */
 	fprintf(fff, "\n\n");
 
-	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
+	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
 
 	/* Print all homes in the different towns */
 	st_ptr = &town[1].store[STORE_HOME];
@@ -4763,7 +4742,7 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 #ifdef JP
 				fprintf(fff, "\n ( %d ページ )\n", x++);
 #else
-			        fprintf(fff, "\n ( page %d )\n", x++);
+				fprintf(fff, "\n ( page %d )\n", x++);
 #endif
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
@@ -4792,11 +4771,11 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
 #ifdef JP
-                if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
+		if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #else
-                if ((i % 12) == 0) fprintf(fff, "\n ( page %d )\n", x++);
+		if ((i % 12) == 0) fprintf(fff, "\n ( page %d )\n", x++);
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #endif
@@ -4806,6 +4785,12 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 		/* Add an empty line */
 		fprintf(fff, "\n\n");
 	}
+
+#ifdef JP
+	fprintf(fff, "  [チェックサム: \"%s\"]\n\n", get_check_sum());
+#else
+	fprintf(fff, "  [Check Sum: \"%s\"]\n\n", get_check_sum());
+#endif
 
 	return 0;
 }
@@ -4826,7 +4811,7 @@ errr file_character(cptr name, bool full)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -4844,14 +4829,14 @@ errr file_character(cptr name, bool full)
 
 		/* Build query */
 #ifdef JP
-(void)sprintf(out_val, "現存するファイル %s に上書きしますか? ", buf);
+		(void)sprintf(out_val, "現存するファイル %s に上書きしますか? ", buf);
 #else
 		(void)sprintf(out_val, "Replace existing file %s? ", buf);
 #endif
 
 
 		/* Ask */
-		if (get_check(out_val)) fd = -1;
+		if (get_check_strict(out_val, CHECK_NO_HISTORY)) fd = -1;
 	}
 
 	/* Open the non-existing file */
@@ -4862,12 +4847,12 @@ errr file_character(cptr name, bool full)
 	{
 		/* Message */
 #ifdef JP
-msg_format("キャラクタ情報のファイルへの書き出しに失敗しました！");
+		prt("キャラクタ情報のファイルへの書き出しに失敗しました！", 0, 0);
 #else
-		msg_format("Character dump failed!");
+		prt("Character dump failed!", 0, 0);
 #endif
 
-		msg_print(NULL);
+		(void)inkey();
 
 		/* Error */
 		return (-1);
@@ -4892,57 +4877,6 @@ msg_print("キャラクタ情報のファイルへの書き出しに成功しました。");
 
 	/* Success */
 	return (0);
-}
-
-
-typedef struct file_tag
-{
-	char name[32];
-	int line_number;
-} file_tag;
-
-
-typedef struct file_tags
-{
-	file_tag tags[64];
-	int index;
-} file_tags;
-
-
-static void add_tag(file_tags *the_tags, cptr name, int line)
-{
-	if (the_tags->index < 64)
-	{
-		file_tag *tag = &(the_tags->tags[the_tags->index]);
-
-		/* Set the name and end it with '\0' */
-		strncpy(tag->name, name, 31);
-		tag->name[31] = '\0';
-
-		/* Set the line-number */
-		tag->line_number = line;
-
-		/* Increase the number of tags */
-		the_tags->index++;
-	}
-}
-
-
-static int get_line(file_tags *the_tags, cptr name)
-{
-	int i;
-
-	/* Search for the tag */
-	for (i = 0; i < the_tags->index; i++)
-	{
-		if (streq(the_tags->tags[i].name, name))
-		{
-			return the_tags->tags[i].line_number;
-		}
-	}
-
-	/* Not found */
-	return 0;
 }
 
 
@@ -5016,9 +4950,6 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	/* Sub-menu information */
 	char hook[68][32];
 
-	/* Tags for in-file references */
-	file_tags tags;
-
 	bool reverse = (line < 0);
 
 	int wid, hgt, rows;
@@ -5040,9 +4971,6 @@ bool show_file(bool show_version, cptr name, cptr what, int line, int mode)
 	{
 		hook[i][0] = '\0';
 	}
-
-	/* No tags yet */
-	tags.index = 0;
 
 	/* Copy the filename */
 	strcpy(filename, name);
@@ -5088,7 +5016,7 @@ sprintf(caption, "ヘルプ・ファイル'%s'", name);
 
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_HELP, name);
+		path_build(path, sizeof(path), ANGBAND_DIR_HELP, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -5106,7 +5034,7 @@ sprintf(caption, "スポイラー・ファイル'%s'", name);
 
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_INFO, name);
+		path_build(path, sizeof(path), ANGBAND_DIR_INFO, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -5116,7 +5044,7 @@ sprintf(caption, "スポイラー・ファイル'%s'", name);
 	if (!fff)
 	{
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR, name);
+		path_build(path, sizeof(path), ANGBAND_DIR, name);
 
 		for (i = 0; path[i]; i++)
 			if ('\\' == path[i])
@@ -5156,7 +5084,7 @@ msg_format("'%s'をオープンできません。", name);
 		char *str;
 
 		/* Read a line or stop */
-		if (my_fgets(fff, buf, 1024)) break;
+		if (my_fgets(fff, buf, sizeof(buf))) break;
 
 		/* Get a color */
 		if (prefix(buf, "#####")) str = &buf[6];
@@ -5187,7 +5115,7 @@ msg_format("'%s'をオープンできません。", name);
 			else if (str[6] == '<')
 			{
 				str[strlen(str) - 1] = '\0';
-				add_tag(&tags, str + 7, next);
+				if (tag && streq(str + 7, tag)) line = next;
 			}
 
 			/* Skip this */
@@ -5203,9 +5131,6 @@ msg_format("'%s'をオープンできません。", name);
 
 	/* start from bottom when reverse mode */
 	if (line == -1) line = ((size-1)/rows)*rows;
-
-	/* Go to the tagged line */
-	if (tag) line = get_line(&tags, tag);
 
 	/* Display the file */
 	while (TRUE)
@@ -5237,7 +5162,7 @@ msg_format("'%s'をオープンできません。", name);
 		while (next < line)
 		{
 			/* Get a line */
-			if (my_fgets(fff, buf, 1024)) break;
+			if (my_fgets(fff, buf, sizeof(buf))) break;
 
 			/* Skip tags/links */
 			if (prefix(buf, "***** ")) continue;
@@ -5256,7 +5181,7 @@ msg_format("'%s'をオープンできません。", name);
 			if (!i) line = next;
 
 			/* Get a line of the file or stop */
-			if (my_fgets(fff, buf, 1024)) break;
+			if (my_fgets(fff, buf, sizeof(buf))) break;
 
 			/* Hack -- skip "special" lines */
 			if (prefix(buf, "***** ")) continue;
@@ -5365,8 +5290,8 @@ msg_format("'%s'をオープンできません。", name);
 				"[Hengband %d.%d.%d, %s, Line %d/%d]",
 #endif
 
-		           FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH,
-		           caption, line, size), 0, 0);
+			   FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH,
+			   caption, line, size), 0, 0);
 		}
 		else
 		{
@@ -5575,11 +5500,11 @@ strcpy(tmp, "jhelp.hlp");
 			/* Close it */
 			my_fclose(fff);
 
-                        /* Drop priv's */
+			/* Drop priv's */
 			safe_setuid_drop();
 
 			/* Build the filename */
-			path_build(buff, 1024, ANGBAND_DIR_USER, xtmp);
+			path_build(buff, sizeof(buff), ANGBAND_DIR_USER, xtmp);
 
 			/* Hack -- Re-Open the file */
 			fff = my_fopen(path, "r");
@@ -5603,7 +5528,7 @@ msg_print("ファイルが開けません。");
 			my_fputs(ffp, xtmp, 80);
 			my_fputs(ffp, "\n", 80);
 
-			while (!my_fgets(fff, buff, 80))
+			while (!my_fgets(fff, buff, sizeof(buff)))
 				my_fputs(ffp, buff, 80);
 
 			/* Close it */
@@ -5822,7 +5747,7 @@ quit_fmt("'%s' という名前は不正なコントロールコードを含んでいます。", player_nam
 #endif /* VM */
 
 		/* Build the filename */
-		path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
+		path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, temp);
 	}
 }
 
@@ -6074,11 +5999,9 @@ long total_points(void)
 	u32b point, point_h, point_l;
 	int arena_win = MIN(p_ptr->arena_number, MAX_ARENA_MONS);
 
-	if (stupid_monsters) mult -= 70;
 	if (!preserve_mode) mult += 10;
 	if (!autoroller) mult += 10;
 	if (!smart_learn) mult -= 20;
-	if (!terrain_streams) mult -= 20;
 	if (smart_cheat) mult += 30;
 	if (ironman_shops) mult += 50;
 	if (ironman_small_levels) mult += 10;
@@ -6089,9 +6012,9 @@ long total_points(void)
 
 	if (mult < 5) mult = 5;
 
-        for (i = 0; i < max_d_idx; i++)
-                if(max_dlv[i] > max_dl)
-                        max_dl = max_dlv[i];
+	for (i = 0; i < max_d_idx; i++)
+		if(max_dlv[i] > max_dl)
+			max_dl = max_dlv[i];
 
 	point_l = (p_ptr->max_exp + (100 * max_dl));
 	point_h = point_l / 0x10000L;
@@ -6174,7 +6097,7 @@ static void make_bones(void)
 			sprintf(tmp, "bone.%03d", dun_level);
 
 			/* Build the filename */
-			path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
+			path_build(str, sizeof(str), ANGBAND_DIR_BONE, tmp);
 
 			/* Attempt to open the bones file */
 			fp = my_fopen(str, "r");
@@ -6250,9 +6173,9 @@ static void print_tomb(void)
 
 		/* Build the filename */
 #ifdef JP
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "dead_j.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "dead_j.txt");
 #else
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, "dead.txt");
 #endif
 
 
@@ -6265,7 +6188,7 @@ static void print_tomb(void)
 			int i = 0;
 
 			/* Dump the file to the screen */
-			while (0 == my_fgets(fp, buf, 1024))
+			while (0 == my_fgets(fp, buf, sizeof(buf)))
 			{
 				/* Display and advance */
 				put_str(buf, i++, 0);
@@ -6280,7 +6203,7 @@ static void print_tomb(void)
 		if (p_ptr->total_winner || (p_ptr->lev > PY_MAX_LEVEL))
 		{
 #ifdef JP
-                /* 英日切り替え */
+		/* 英日切り替え */
 		  p= "偉大なる者";
 #else
 			p = "Magnificent";
@@ -6338,57 +6261,57 @@ static void print_tomb(void)
 		put_str(buf, 13, 11);
 
 #ifdef JP
-        /* 墓に刻む言葉をオリジナルより細かく表示 */
-        if (streq(p_ptr->died_from, "途中終了"))
-        {
-                strcpy(tmp, "<自殺>");
-        }
-        else
-        {
-                if (streq(p_ptr->died_from, "ripe"))
-                {
-                        strcpy(tmp, "引退後に天寿を全う");
-                }
-                else if (streq(p_ptr->died_from, "Seppuku"))
-                {
-                        strcpy(tmp, "勝利の後、切腹");
-                }
-                else
-                {
-                        strcpy(tmp, p_ptr->died_from);
-                }
-        }
-        center_string(buf, tmp);
-        put_str(buf, 14, 11);
+	/* 墓に刻む言葉をオリジナルより細かく表示 */
+	if (streq(p_ptr->died_from, "途中終了"))
+	{
+		strcpy(tmp, "<自殺>");
+	}
+	else
+	{
+		if (streq(p_ptr->died_from, "ripe"))
+		{
+			strcpy(tmp, "引退後に天寿を全う");
+		}
+		else if (streq(p_ptr->died_from, "Seppuku"))
+		{
+			strcpy(tmp, "勝利の後、切腹");
+		}
+		else
+		{
+			strcpy(tmp, p_ptr->died_from);
+		}
+	}
+	center_string(buf, tmp);
+	put_str(buf, 14, 11);
 
-        if(!streq(p_ptr->died_from, "ripe") && !streq(p_ptr->died_from, "Seppuku"))
-        {
-                if( dun_level == 0 )
-                {
+	if(!streq(p_ptr->died_from, "ripe") && !streq(p_ptr->died_from, "Seppuku"))
+	{
+		if( dun_level == 0 )
+		{
 			cptr town = (p_ptr->town_num ? "街" : "荒野");
-                        if(streq(p_ptr->died_from, "途中終了"))
-                        {
-                                sprintf(tmp, "%sで死んだ", town);
-                        }
-                        else
-                        {
-                                sprintf(tmp, "に%sで殺された", town);
-                        }
-                }
-                else
-                {
-                        if(streq(p_ptr->died_from, "途中終了"))
-                        {
-                                sprintf(tmp, "地下 %d 階で死んだ", dun_level);
-                        }
-                        else
-                        {
-                                sprintf(tmp, "に地下 %d 階で殺された", dun_level);
-                        }
-                }
-                center_string(buf, tmp);
-                put_str(buf, 15, 11);
-        }
+			if(streq(p_ptr->died_from, "途中終了"))
+			{
+				sprintf(tmp, "%sで死んだ", town);
+			}
+			else
+			{
+				sprintf(tmp, "に%sで殺された", town);
+			}
+		}
+		else
+		{
+			if(streq(p_ptr->died_from, "途中終了"))
+			{
+				sprintf(tmp, "地下 %d 階で死んだ", dun_level);
+			}
+			else
+			{
+				sprintf(tmp, "に地下 %d 階で殺された", dun_level);
+			}
+		}
+		center_string(buf, tmp);
+		put_str(buf, 15, 11);
+	}
 #else
 		(void)sprintf(tmp, "Killed on Level %d", dun_level);
 		center_string(buf, tmp);
@@ -6748,7 +6671,7 @@ void close_game(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
@@ -6762,9 +6685,9 @@ void close_game(void)
 
 		/* Save memories */
 #ifdef JP
-		if (!munchkin_death || get_check("死んだデータをセーブしますか？ "))
+		if (!cheat_save || get_check("死んだデータをセーブしますか？ "))
 #else
-		if (!munchkin_death || get_check("Save death? "))
+		if (!cheat_save || get_check("Save death? "))
 #endif
 		{
 
@@ -6927,7 +6850,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, file_name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -6939,7 +6862,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 	while (TRUE)
 	{
 		/* Get a line from the file */
-		if (my_fgets(fp, buf, 1024) == 0)
+		if (my_fgets(fp, buf, sizeof(buf)) == 0)
 		{
 			/* Count the lines */
 			line_num++;
@@ -6984,7 +6907,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 				{
 					/* Error while converting the monster number */
 					msg_format("Error in line %d of %s!",
-					          line_num, file_name);
+						  line_num, file_name);
 					my_fclose(fp);
 					return (-1);
 				}
@@ -7003,7 +6926,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 	while (TRUE)
 	{
 		/* Get the line */
-		if (my_fgets(fp, buf, 1024) == 0)
+		if (my_fgets(fp, buf, sizeof(buf)) == 0)
 		{
 			/* Count the lines */
 			line_num++;
@@ -7023,7 +6946,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 
 			/* Reached end of file without finding the number */
 			msg_format("Error in line %d of %s!",
-			          line_num, file_name);
+				  line_num, file_name);
 
 			my_fclose(fp);
 			return (-1);
@@ -7043,12 +6966,12 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 
 			while(TRUE)
 			{
-				test = my_fgets(fp, buf, 1024);
+				test = my_fgets(fp, buf, sizeof(buf));
 				if(test || buf[0] != '#')
 					break;
 			}
 
-                        if (test==0)
+			if (test==0)
 			{
 				/* Found the line */
 				if (counter == line) break;
@@ -7057,7 +6980,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 			{
 				/* Error - End of file */
 				msg_format("Error in line %d of %s!",
-				          line_num, file_name);
+					  line_num, file_name);
 
 				my_fclose(fp);
 				return (-1);
@@ -7109,7 +7032,7 @@ errr process_pickpref_file(cptr name)
 	safe_setuid_drop();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
 	err = process_pref_file_aux(buf, TRUE);
 
@@ -7167,9 +7090,9 @@ u32b counts_read(int where)
 	char buf[1024];
 
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info_j.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info_j.raw");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info.raw");
 #endif
 	fd = fd_open(buf, O_RDONLY);
 
@@ -7188,9 +7111,9 @@ errr counts_write(int where, u32b count)
 	char buf[1024];
 
 #ifdef JP
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info_j.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info_j.raw");
 #else
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "z_info.raw");
 #endif
 	fd = fd_open(buf, O_RDWR);
 	if (fd < 0)
@@ -7411,7 +7334,7 @@ static void handle_signal_abort(int sig)
 #ifdef JP
 "恐ろしいソフトのバグが飛びかかってきた！");
 #else
-	            "A gruesome software bug LEAPS out at you!");
+		    "A gruesome software bug LEAPS out at you!");
 #endif
 
 

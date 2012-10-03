@@ -49,7 +49,7 @@ static void next_mirror( int* next_y , int* next_x , int cury, int curx)
 	{
 		for( y=0 ; y < cur_hgt ; y++ )
 		{
-			if( (cave[y][x].info & CAVE_IN_MIRROR)){
+			if( is_mirror_grid(&cave[y][x])){
 				mirror_y[mirror_num]=y;
 				mirror_x[mirror_num]=x;
 				mirror_num++;
@@ -391,8 +391,8 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if (flg & (PROJECT_STOP))
 			{
 				if ((n > 0) &&
-                                    ((y == py && x == px) || cave[y][x].m_idx != 0))
-                                        break;
+				    ((y == py && x == px) || cave[y][x].m_idx != 0))
+					break;
 			}
 
 			if (!in_bounds(y, x)) break;
@@ -476,8 +476,8 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if (flg & (PROJECT_STOP))
 			{
 				if ((n > 0) &&
-                                    ((y == py && x == px) || cave[y][x].m_idx != 0))
-                                        break;
+				    ((y == py && x == px) || cave[y][x].m_idx != 0))
+					break;
 			}
 
 			if (!in_bounds(y, x)) break;
@@ -543,8 +543,8 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			if (flg & (PROJECT_STOP))
 			{
 				if ((n > 0) &&
-                                    ((y == py && x == px) || cave[y][x].m_idx != 0))
-                                        break;
+				    ((y == py && x == px) || cave[y][x].m_idx != 0))
+					break;
 			}
 
 			if (!in_bounds(y, x)) break;
@@ -671,7 +671,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 #else
 			msg_format("A tree %s", message);
 #endif
-			c_ptr->feat = (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS);
+			cave_set_feat(y, x, (one_in_(3) ? FEAT_DEEP_GRASS : FEAT_GRASS));
 
 			/* Observe */
 			if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
@@ -724,10 +724,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_KILL_TRAP:
 		{
 			/* Reveal secret doors */
-			if (c_ptr->feat == FEAT_SECRET)
+			if (is_hidden_door(c_ptr))
 			{
 				/* Pick a door */
-				place_closed_door(y, x);
+				disclose_grid(y, x);
 
 				/* Check line of sight */
 				if (known)
@@ -737,7 +737,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Destroy traps */
-			if ((c_ptr->info & CAVE_TRAP) || is_trap(c_ptr->feat))
+			if (is_trap(c_ptr->feat))
 			{
 				/* Check line of sight */
 				if (known)
@@ -755,11 +755,7 @@ msg_print("まばゆい閃光が走った！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-				if (c_ptr->info & CAVE_TRAP) c_ptr->info &= ~(CAVE_TRAP);
-				else
-				{
-					c_ptr->feat = floor_type[randint0(100)];
-				}
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 			}
 
 			/* Locked doors are unlocked */
@@ -782,9 +778,6 @@ msg_print("カチッと音がした！");
 				}
 			}
 
-			/* Notice */
-			note_spot(y, x);
-
 			break;
 		}
 
@@ -793,11 +786,10 @@ msg_print("カチッと音がした！");
 		{
 			/* Destroy all doors and traps */
 			if ((c_ptr->feat == FEAT_OPEN) ||
-				 (c_ptr->feat == FEAT_BROKEN) ||
-				 (c_ptr->info & CAVE_TRAP) ||
-				(is_trap(c_ptr->feat)) ||
-				((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-				 (c_ptr->feat <= FEAT_DOOR_TAIL)))
+			    (c_ptr->feat == FEAT_BROKEN) ||
+			    is_trap(c_ptr->feat) ||
+			    ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+			     (c_ptr->feat <= FEAT_DOOR_TAIL)))
 			{
 				/* Check line of sight */
 				if (known)
@@ -824,11 +816,7 @@ msg_print("まばゆい閃光が走った！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
-				if (c_ptr->info & CAVE_TRAP) c_ptr->info &= ~(CAVE_TRAP);
-				else
-				{
-					c_ptr->feat = floor_type[randint0(100)];
-				}
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 			}
 
 			/* Notice */
@@ -892,7 +880,7 @@ msg_print("壁が溶けて泥になった！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
-				c_ptr->feat = floor_type[randint0(100)];
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 			}
 
 			/* Quartz / Magma with treasure */
@@ -916,7 +904,7 @@ msg_print("何かを発見した！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
-				c_ptr->feat = floor_type[randint0(100)];
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 
 				/* Place some gold */
 				place_gold(y, x);
@@ -941,7 +929,7 @@ msg_print("鉱脈が溶けて泥になった！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the wall */
-				c_ptr->feat = floor_type[randint0(100)];
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 			}
 
 			/* Rubble */
@@ -963,7 +951,7 @@ msg_print("岩石が溶けて泥になった！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the rubble */
-				c_ptr->feat = floor_type[randint0(100)];
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 
 				/* Hack -- place an object */
 				if (randint0(100) < 10)
@@ -1004,7 +992,7 @@ msg_print("ドアが溶けて泥になった！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
-				c_ptr->feat = floor_type[randint0(100)];
+				cave_set_feat(y, x, floor_type[randint0(100)]);
 			}
 
 			/* Notice */
@@ -1046,7 +1034,7 @@ msg_print("ドアが溶けて泥になった！");
 			     (cave[y][x].feat != FEAT_DIRT) &&
 			     (cave[y][x].o_idx == 0) &&
 			     (cave[y][x].m_idx == 0))
-			    || (cave[y][x].info & CAVE_IN_MIRROR) )
+			    || is_mirror_grid(&cave[y][x]) )
 				 break;
 			/* Place a trap */
 			place_trap(y, x);
@@ -1080,7 +1068,15 @@ msg_print("ドアが溶けて泥になった！");
 			/* Require a "naked" floor grid */
 			if (!cave_naked_bold(y, x)) break;
 
-			cave_set_feat(y, x, FEAT_GLYPH);
+			/* Create a glyph */
+			cave[y][x].info |= CAVE_OBJECT;
+			cave[y][x].mimic = FEAT_GLYPH;
+
+			/* Notice */
+			note_spot(y, x);
+	
+			/* Redraw */
+			lite_spot(y, x);
 
 			break;
 		}
@@ -1103,55 +1099,55 @@ msg_print("ドアが溶けて泥になった！");
 		}
 
 
-                case GF_LAVA_FLOW:
+		case GF_LAVA_FLOW:
 		{
-                        /* Shallow Lava */
-                        if(dam == 1)
-                        {
-                                /* Require a "naked" floor grid */
-                                if (!cave_naked_bold(y, x)) break;
+			/* Shallow Lava */
+			if(dam == 1)
+			{
+				/* Require a "naked" floor grid */
+				if (!cave_naked_bold(y, x)) break;
 
-                                /* Place a shallow lava */
-                                cave_set_feat(y, x, FEAT_SHAL_LAVA);
-                        }
-                        /* Deep Lava */
-                        else
-                        {
-                                /* Require a "naked" floor grid */
-                                if (cave_perma_bold(y, x) || !dam) break;
+				/* Place a shallow lava */
+				cave_set_feat(y, x, FEAT_SHAL_LAVA);
+			}
+			/* Deep Lava */
+			else
+			{
+				/* Require a "naked" floor grid */
+				if (cave_perma_bold(y, x) || !dam) break;
 
-                                /* Place a deep lava */
-                                cave_set_feat(y, x, FEAT_DEEP_LAVA);
+				/* Place a deep lava */
+				cave_set_feat(y, x, FEAT_DEEP_LAVA);
 
-                                /* Dam is used as a counter for the number of grid to convert */
-                                dam--;
-                        }
+				/* Dam is used as a counter for the number of grid to convert */
+				dam--;
+			}
 			break;
 		}
 
-                case GF_WATER_FLOW:
+		case GF_WATER_FLOW:
 		{
-                        /* Shallow Water */
-                        if(dam == 1)
-                        {
-                                /* Require a "naked" floor grid */
-                                if (!cave_naked_bold(y, x)) break;
+			/* Shallow Water */
+			if(dam == 1)
+			{
+				/* Require a "naked" floor grid */
+				if (!cave_naked_bold(y, x)) break;
 
-                                /* Place a shallow lava */
-                                cave_set_feat(y, x, FEAT_SHAL_WATER);
-                        }
-                        /* Deep Water */
-                        else
-                        {
-                                /* Require a "naked" floor grid */
-                                if (cave_perma_bold(y, x) || !dam) break;
+				/* Place a shallow lava */
+				cave_set_feat(y, x, FEAT_SHAL_WATER);
+			}
+			/* Deep Water */
+			else
+			{
+				/* Require a "naked" floor grid */
+				if (cave_perma_bold(y, x) || !dam) break;
 
-                                /* Place a deep lava */
-                                cave_set_feat(y, x, FEAT_DEEP_WATER);
+				/* Place a deep lava */
+				cave_set_feat(y, x, FEAT_DEEP_WATER);
 
-                                /* Dam is used as a counter for the number of grid to convert */
-                                dam--;
-                        }
+				/* Dam is used as a counter for the number of grid to convert */
+				dam--;
+			}
 			break;
 		}
 
@@ -1188,7 +1184,7 @@ msg_print("ドアが溶けて泥になった！");
 				if (player_can_see_bold(y, x)) obvious = TRUE;
 
 				/* Turn off the light. */
-				if(!(c_ptr->info & CAVE_IN_MIRROR))c_ptr->info &= ~(CAVE_GLOW);
+				if (!is_mirror_grid(c_ptr)) c_ptr->info &= ~(CAVE_GLOW);
 
 				/* Hack -- Forget "boring" grids */
 				if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
@@ -1214,7 +1210,7 @@ msg_print("ドアが溶けて泥になった！");
 		case GF_SHARDS:
 		case GF_ROCKET:
 		{
-			if( (cave[y][x].info & CAVE_IN_MIRROR))
+			if (is_mirror_grid(&cave[y][x]))
 			{
 #ifdef JP
 				msg_print("鏡が割れた！");
@@ -1222,13 +1218,13 @@ msg_print("ドアが溶けて泥になった！");
 				msg_print("The mirror was chashed!");
 #endif				
 				remove_mirror(y,x);
-			    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_REF|PROJECT_NO_HANGEKI),-1);
+			    project(0,2,y,x, p_ptr->lev /2 +5 ,GF_SHARDS,(PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_HANGEKI),-1);
 			}
 			break;
 		}
 		case GF_SOUND:
 		{
-			if( (cave[y][x].info & CAVE_IN_MIRROR) && p_ptr->lev < 40 )
+			if (is_mirror_grid(&cave[y][x]) && p_ptr->lev < 40 )
 			{
 #ifdef JP
 				msg_print("鏡が割れた！");
@@ -1273,7 +1269,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	bool obvious = FALSE;
 	bool known = player_has_los_bold(y, x);
 
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
 
 	char o_name[MAX_NLEN];
 
@@ -1307,7 +1303,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, flgs);
 
 		/* Get the "plural"-ness */
 		if (o_ptr->number > 1) plural = TRUE;
@@ -1330,7 +1326,7 @@ note_kill = "融けてしまった！";
 					note_kill = (plural ? " melt!" : " melts!");
 #endif
 
-					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_ACID)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1347,7 +1343,7 @@ note_kill = "壊れてしまった！";
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
 
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1364,7 +1360,7 @@ note_kill = "燃えてしまった！";
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
 
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1381,7 +1377,7 @@ note_kill = "砕け散ってしまった！";
 #endif
 
 					do_kill = TRUE;
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1398,7 +1394,7 @@ note_kill = "燃えてしまった！";
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
 
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
 				}
 				if (hates_elec(o_ptr))
 				{
@@ -1410,7 +1406,7 @@ note_kill = "壊れてしまった！";
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
 
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_ELEC)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1427,7 +1423,7 @@ note_kill = "燃えてしまった！";
 					note_kill = (plural ? " burn up!" : " burns up!");
 #endif
 
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_FIRE)) ignore = TRUE;
 				}
 				if (hates_cold(o_ptr))
 				{
@@ -1439,7 +1435,7 @@ note_kill = "砕け散ってしまった！";
 					note_kill = (plural ? " shatter!" : " shatters!");
 #endif
 
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if (have_flag(flgs, TR_IGNORE_COLD)) ignore = TRUE;
 				}
 				break;
 			}
@@ -1499,7 +1495,7 @@ note_kill = "壊れてしまった！";
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 #endif
 
-				if (f2 & (TR2_RES_CHAOS)) ignore = TRUE;
+				if (have_flag(flgs, TR_RES_CHAOS)) ignore = TRUE;
 				else if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_CHAOS)) ignore = TRUE;
 				break;
 			}
@@ -1521,11 +1517,11 @@ note_kill = "壊れてしまった！";
 				break;
 			}
 
-                        case GF_IDENTIFY:
-                        {
+			case GF_IDENTIFY:
+			{
 				identify_item(o_ptr);
 				break;
-                        }
+			}
 
 			/* Unlock chests */
 			case GF_KILL_TRAP:
@@ -1751,8 +1747,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ , int flg)
 	/* Can the player know about this effect? */
 	bool known = ((m_ptr->cdis <= MAX_SIGHT) || p_ptr->inside_battle);
 
-        /* Can the player see the source of this effect? */
-        bool see_s = ((who <= 0) || m_list[who].ml);
+	/* Can the player see the source of this effect? */
+	bool see_s = ((who <= 0) || m_list[who].ml);
 
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
@@ -2954,8 +2950,8 @@ note = "には完全な耐性がある！";
 
 			}
 			else if ((r_ptr->flags2 & RF2_STUPID) ||
-			         (r_ptr->flags2 & RF2_WEIRD_MIND) ||
-			         (r_ptr->flags3 & RF3_ANIMAL) ||
+				 (r_ptr->flags2 & RF2_WEIRD_MIND) ||
+				 (r_ptr->flags3 & RF3_ANIMAL) ||
 						(r_ptr->level > randint1(3 * dam)))
 			{
 				dam /= 3;
@@ -4154,7 +4150,7 @@ msg_format("%sを見つめた。",m_name);
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 			    (m_ptr->mflag2 & MFLAG_NOPET) ||
-			         (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)) ||
+				 (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)) ||
 				 ((r_ptr->level+10) > randint1(dam)))
 			{
 				/* Resist */
@@ -4988,7 +4984,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 msg_format("%sから精神エネルギーを吸いとった。",m_name);
 #else
-				msg_format("You draws psychic energy from %s.", m_name);
+				msg_format("You draw psychic energy from %s.", m_name);
 #endif
 
 				(void)hp_player(dam);
@@ -5013,7 +5009,7 @@ msg_format("%sには効果がなかった。",m_name);
 #ifdef JP
 msg_format("%sをじっと睨んだ。",m_name);
 #else
-			msg_format("You gazes intently at %s.", m_name);
+			msg_format("You gaze intently at %s.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5068,7 +5064,7 @@ note_dies = "の精神は崩壊し、肉体は抜け空となった。";
 #ifdef JP
 msg_format("%sをじっと睨んだ。",m_name);
 #else
-			msg_format("You gazes intently at %s.", m_name);
+			msg_format("You gaze intently at %s.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5127,7 +5123,7 @@ note_dies = "の精神は崩壊し、肉体は抜け空となった。";
 #ifdef JP
 msg_format("%sを指差して呪いをかけた。",m_name);
 #else
-			msg_format("You points at %s and curses.", m_name);
+			msg_format("You point at %s and curses.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5164,7 +5160,7 @@ note = "には効果がなかった。";
 #ifdef JP
 msg_format("%sを指差して恐ろしげに呪いをかけた。",m_name);
 #else
-			msg_format("You points at %s and curses horribly.", m_name);
+			msg_format("You point at %s and curses horribly.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5201,7 +5197,7 @@ note = "には効果がなかった。";
 #ifdef JP
 msg_format("%sを指差し、恐しげに呪文を唱えた！",m_name);
 #else
-			msg_format("You points at %s, incanting terribly!", m_name);
+			msg_format("You point at %s, incanting terribly!", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5238,7 +5234,7 @@ note = "には効果がなかった。";
 #ifdef JP
 msg_format("%sの秘孔を突いて、「お前は既に死んでいる」と叫んだ。",m_name);
 #else
-			msg_format("You points at %s, screaming th word, 'DIE!'.", m_name);
+			msg_format("You point at %s, screaming th word, 'DIE!'.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5352,7 +5348,7 @@ msg_format("もっと弱らせないと。");
 #ifdef JP
 msg_format("%sを捕えた！",m_name);
 #else
-				msg_format("You captures %^s!", m_name);
+				msg_format("You capture %^s!", m_name);
 #endif
 				cap_mon = m_list[c_ptr->m_idx].r_idx;
 				cap_mspeed = m_list[c_ptr->m_idx].mspeed;
@@ -6075,17 +6071,17 @@ note = "は弱くなったようだ。";
 
 			/* Give detailed messages if destroyed */
 			if (known && note)
-                        {
-                                monster_desc(m_name, m_ptr, 0x100);
-                                if (see_s)
-                                {
-                                        msg_format("%^s%s", m_name, note);
-                                }
-                                else
-                                {
-                                        mon_fight = TRUE;
-                                }
-                        }
+			{
+				monster_desc(m_name, m_ptr, 0x100);
+				if (see_s)
+				{
+					msg_format("%^s%s", m_name, note);
+				}
+				else
+				{
+					mon_fight = TRUE;
+				}
+			}
 
 			monster_gain_exp(who, m_ptr->r_idx);
 
@@ -6113,14 +6109,14 @@ msg_print("少し悲しい気分がした。");
 			if (note && seen) msg_format("%^s%s", m_name, note);
 
 			/* Hack -- Pain message */
-                        else if (see_s)
-                        {
-                                message_pain(c_ptr->m_idx, dam);
-                        }
-                        else
-                        {
-                                mon_fight = TRUE;
-                        }
+			else if (see_s)
+			{
+				message_pain(c_ptr->m_idx, dam);
+			}
+			else
+			{
+				mon_fight = TRUE;
+			}
 
 			/* Hack -- handle sleep */
 			if (do_sleep) m_ptr->csleep = do_sleep;
@@ -6397,9 +6393,10 @@ msg_print("生命力が体から吸い取られた気がする！");
  * We return "TRUE" if any "obvious" effects were observed.  XXX XXX Actually,
  * we just assume that the effects were obvious, for historical reasons.
  */
-static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, int a_rad, int monspell)
+static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, int flg, int monspell)
 {
 	int k = 0;
+	int rlev = 0;
 
 	/* Hack -- assume obvious */
 	bool obvious = TRUE;
@@ -6438,7 +6435,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	if (!who) return (FALSE);
 	if (who == p_ptr->riding) return (FALSE);
 
-	if ((p_ptr->reflect || p_ptr->tim_reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && !a_rad && !one_in_(10) && (typ != GF_PSY_SPEAR))
+	if ((p_ptr->reflect || p_ptr->tim_reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && (flg & PROJECT_REFLECTABLE) && !one_in_(10))
 	{
 		byte t_y, t_x;
 		int max_attempts = 10;
@@ -6469,7 +6466,7 @@ else msg_print("攻撃が跳ね返った！");
 			t_x = m_list[who].fx;
 		}
 
-		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL), monspell);
+		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL|PROJECT_REFLECTABLE), monspell);
 
 		disturb(1, 0);
 		return TRUE;
@@ -6491,6 +6488,8 @@ else msg_print("攻撃が跳ね返った！");
 	{
 		/* Get the source monster */
 		m_ptr = &m_list[who];
+		/* Extract the monster level */
+		rlev = (((&r_info[m_ptr->r_idx])->level >= 1) ? (&r_info[m_ptr->r_idx])->level : 1);
 
 		/* Get the monster name */
 		monster_desc(m_name, m_ptr, 0);
@@ -6683,7 +6682,7 @@ if (fuzzy) msg_print("何か鋭いもので攻撃された！");
 #endif
 
 			else if ((inventory[INVEN_RARM].name1 == ART_ZANTETSU) || (inventory[INVEN_LARM].name1 == ART_ZANTETSU))
-		       	{
+			{
 #ifdef JP
 				msg_print("矢を斬り捨てた！");
 #else
@@ -7484,6 +7483,207 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 			break;
 		}
 
+		/* Mind blast */
+		case GF_MIND_BLAST:
+		{
+			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
+			{
+#ifdef JP
+msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_MIND_BLAST);
+			}
+			else
+			{
+#ifdef JP
+msg_print("霊的エネルギーで精神が攻撃された。");
+#else
+				msg_print("Your mind is blasted by psyonic energy.");
+#endif
+
+				if (!p_ptr->resist_conf)
+				{
+					(void)set_confused(p_ptr->confused + randint0(4) + 4);
+				}
+
+				if (!p_ptr->resist_chaos && one_in_(3))
+				{
+					(void)set_image(p_ptr->image + randint0(250) + 150);
+				}
+
+				p_ptr->csp -= 50;
+				if (p_ptr->csp < 0)
+				{
+					p_ptr->csp = 0;
+					p_ptr->csp_frac = 0;
+				}
+				p_ptr->redraw |= PR_MANA;
+
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_MIND_BLAST);
+			}
+			break;
+		}
+		/* Brain smash */
+		case GF_BRAIN_SMASH:
+		{
+			if (randint0(100 + rlev/2) < (MAX(5, p_ptr->skill_sav)))
+			{
+#ifdef JP
+msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_BRAIN_SMASH);
+			}
+			else
+			{
+#ifdef JP
+msg_print("霊的エネルギーで精神が攻撃された。");
+#else
+				msg_print("Your mind is blasted by psionic energy.");
+#endif
+
+				p_ptr->csp -= 100;
+				if (p_ptr->csp < 0)
+				{
+					p_ptr->csp = 0;
+					p_ptr->csp_frac = 0;
+				}
+				p_ptr->redraw |= PR_MANA;
+
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_BRAIN_SMASH);
+				if (!p_ptr->resist_blind)
+				{
+					(void)set_blind(p_ptr->blind + 8 + randint0(8));
+				}
+				if (!p_ptr->resist_conf)
+				{
+					(void)set_confused(p_ptr->confused + randint0(4) + 4);
+				}
+				if (!p_ptr->free_act)
+				{
+					(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+				}
+				(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
+
+				while (randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav)))
+					(void)do_dec_stat(A_INT);
+				while (randint0(100 + rlev/2) > (MAX(5, p_ptr->skill_sav)))
+					(void)do_dec_stat(A_WIS);
+
+				if (!p_ptr->resist_chaos)
+				{
+					(void)set_image(p_ptr->image + randint0(250) + 150);
+				}
+			}
+			break;
+		}
+		/* cause 1 */
+		case GF_CAUSE_1:
+		{
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			{
+#ifdef JP
+msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_CAUSE_1);
+			}
+			else
+			{
+				curse_equipment(15, 0);
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_CAUSE_1);
+			}
+			break;
+		}
+		/* cause 2 */
+		case GF_CAUSE_2:
+		{
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			{
+#ifdef JP
+msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_CAUSE_2);
+			}
+			else
+			{
+				curse_equipment(25, MIN(rlev/2-15, 5));
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_CAUSE_2);
+			}
+			break;
+		}
+		/* cause 3 */
+		case GF_CAUSE_3:
+		{
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			{
+#ifdef JP
+msg_print("しかし効力を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_CAUSE_3);
+			}
+			else
+			{
+				curse_equipment(33, MIN(rlev/2-15, 15));
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_CAUSE_3);
+			}
+			break;
+		}
+		/* cause 4 */
+		case GF_CAUSE_4:
+		{
+			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) && !(m_ptr->r_idx == MON_KENSHIROU))
+			{
+#ifdef JP
+msg_print("しかし秘孔を跳ね返した！");
+#else
+				msg_print("You resist the effects!");
+#endif
+				learn_spell(MS_CAUSE_4);
+			}
+			else
+			{
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, MS_CAUSE_4);
+				(void)set_cut(p_ptr->cut + damroll(10, 10));
+			}
+			break;
+		}
+		/* Hand of Doom */
+		case GF_HAND_DOOM:
+		{
+			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			{
+#ifdef JP
+msg_format("しかし効力を跳ね返した！");
+#else
+				msg_format("You resist the effects!");
+#endif
+				learn_spell(MS_HAND_DOOM);
+
+			}
+			else
+			{
+#ifdef JP
+msg_print("あなたは命が薄まっていくように感じた！");
+#else
+				msg_print("Your feel your life fade away!");
+#endif
+
+				get_damage = take_hit(DAMAGE_ATTACK, dam, m_name, MS_HAND_DOOM);
+				curse_equipment(40, 20);
+
+				if (p_ptr->chp < 1) p_ptr->chp = 1;
+			}
+			break;
+		}
 
 		/* Default */
 		default:
@@ -7507,7 +7707,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 #endif
-		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL | PROJECT_NO_REF, -1);
+		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
 		set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 
@@ -7787,6 +7987,43 @@ bool in_disintegration_range(int y1, int x1, int y2, int x2)
 	return (TRUE);
 }
 
+
+/*
+ *  Do disintegration effect on the terrain
+ *  before we decide the region of the effect.
+ */
+static bool do_disintegration(int by, int bx, int y, int x)
+{
+	byte feat;
+
+	/* Disintegration balls explosions are stopped by perma-walls */
+	if (!in_disintegration_range(by, bx, y, x)) return FALSE;
+						
+	/* Permanent walls and artifacts don't get effect */
+	/* But not protect monsters and other objects */
+	if (!cave_valid_bold(y, x)) return TRUE;
+
+	/* Destroy mirror/glyph */
+	remove_mirror(y,x);
+
+	feat = cave[y][x].feat;
+
+	if ((feat < FEAT_PATTERN_START || feat > FEAT_PATTERN_XTRA2) &&
+	    (feat < FEAT_DEEP_WATER || feat > FEAT_GRASS))
+	{
+		if (feat == FEAT_TREES || feat == FEAT_FLOWER || feat == FEAT_DEEP_GRASS)
+			cave_set_feat(y, x, FEAT_GRASS);
+		else
+			cave_set_feat(y, x, floor_type[randint0(100)]);
+	}
+
+	/* Update some things -- similar to GF_KILL_WALL */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+
+	return TRUE;
+}
+
+
 /*
  * breath shape
  */ 
@@ -7825,26 +8062,17 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 					
 					if (disint_ball)
 					{
-						/* Disintegration balls explosions are stopped by perma-walls */
-						if (!in_disintegration_range(by, bx, y, x)) continue;
-						
-						/* Disintegration destroys mirrors. */
-						remove_mirror(y,x);
-						if (real_breath && cave_valid_bold(y, x) &&
-						    (cave[y][x].feat < FEAT_PATTERN_START ||
-						     cave[y][x].feat > FEAT_PATTERN_XTRA2) &&
-						    (cave[y][x].feat < FEAT_DEEP_WATER ||
-						     cave[y][x].feat > FEAT_GRASS))
+						/* Disintegration are stopped only by perma-walls */
+						if (real_breath)
 						{
-							if (cave[y][x].feat == FEAT_TREES)
-								cave_set_feat(y, x, FEAT_GRASS);
-							else
-							{
-								cave[y][x].feat = floor_type[randint0(100)];
-							}
+							/* Destroy terrains */
+							if (!do_disintegration(by, bx, y, x)) continue;
 						}
-						/* Update some things -- similar to GF_KILL_WALL */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+						else
+						{
+							/* No actual disintegration */
+							if (!in_disintegration_range(by, bx, y, x)) continue;
+						}
 					}
 					else
 					{
@@ -8096,6 +8324,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	monster_target_y=py;
 	monster_target_x=px;
 
+	/* Initialize with nul string */
+	who_name[0] = '\0';
+
 	/* Hack -- Jump to target */
 	if (flg & (PROJECT_JUMP))
 	{
@@ -8267,10 +8498,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 				}
 			}
 			if(project_o(0,0,y,x,dam,GF_SEEKER))notice=TRUE;
-			if( (cave[y][x].info & CAVE_IN_MIRROR))
+			if( is_mirror_grid(&cave[y][x]))
 			{
 			  /* The target of monsterspell becomes tha mirror(broken) */
-			        monster_target_y=(s16b)y;
+				monster_target_y=(s16b)y;
 				monster_target_x=(s16b)x;
 
 				remove_mirror(y,x);
@@ -8403,14 +8634,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			    cave[y][x].feat == FEAT_DOOR_TAIL ||
 			    (cave[y][x].feat >= FEAT_WALL_EXTRA &&
 			     cave[y][x].feat <= FEAT_PERM_SOLID ))
-       			{
+			{
 				if( second_step )continue;
 				break;
 			}
-			if( (cave[y][x].info & CAVE_IN_MIRROR) && !second_step )
+			if( is_mirror_grid(&cave[y][x]) && !second_step )
 			{
 			  /* The target of monsterspell becomes tha mirror(broken) */
-			        monster_target_y=(s16b)y;
+				monster_target_y=(s16b)y;
 				monster_target_x=(s16b)x;
 
 				remove_mirror(y,x);
@@ -8609,25 +8840,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 
 						if (typ == GF_DISINTEGRATE)
 						{
-							/* Disintegration balls explosions are stopped by perma-walls */
-							if (!in_disintegration_range(y2, x2, y, x)) continue;
-
-							if (cave_valid_bold(y, x) &&
-								(cave[y][x].feat < FEAT_PATTERN_START ||
-								 cave[y][x].feat > FEAT_PATTERN_XTRA2) &&
-								(cave[y][x].feat < FEAT_DEEP_WATER ||
-								 cave[y][x].feat > FEAT_GRASS))
-							{
-								if (cave[y][x].feat == FEAT_TREES)
-									cave_set_feat(y, x, FEAT_GRASS);
-								else
-								{
-									cave[y][x].feat = floor_type[randint0(100)];
-								}
-							}
-
-							/* Update some things -- similar to GF_KILL_WALL */
-							p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+							/* Disintegration are stopped only by perma-walls */
+							if (!do_disintegration(y2, x2, y, x)) continue;
 						}
 						else
 						{
@@ -8848,7 +9062,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			{
 				monster_race *ref_ptr = &r_info[m_list[cave[y][x].m_idx].r_idx];
 
-				if ((ref_ptr->flags2 & RF2_REFLECTING) && (!one_in_(10) && !(flg & PROJECT_NO_REF) && (!who || dist_hack > 1)))
+				if ((ref_ptr->flags2 & RF2_REFLECTING) && (!one_in_(10) && (flg & PROJECT_REFLECTABLE) && (!who || dist_hack > 1)))
 				{
 					byte t_y, t_x;
 					int max_attempts = 10;
@@ -8946,9 +9160,9 @@ else msg_print("攻撃は跳ね返った！");
 				/* Affect the player */
 				if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_MONSTER))
 				{
-					if (project_p(who, who_name, d+1, y, x, dam, typ, rad, monspell)) notice = TRUE;
+					if (project_p(who, who_name, d+1, y, x, dam, typ, flg, monspell)) notice = TRUE;
 				}
-				else if (project_p(who, who_name, d, y, x, dam, typ, rad, monspell)) notice = TRUE;
+				else if (project_p(who, who_name, d, y, x, dam, typ, flg, monspell)) notice = TRUE;
 			}
 			else
 			{
@@ -8957,10 +9171,10 @@ else msg_print("攻撃は跳ね返った！");
 				{
 					if (!((flg & PROJECT_BEAM) || (flg & PROJECT_STOP)))
 					{
-						if (project_p(who, who_name, dist+1, y, x, dam, typ, rad, monspell)) notice = TRUE;
+						if (project_p(who, who_name, dist+1, y, x, dam, typ, flg, monspell)) notice = TRUE;
 					}
 				}
-				else if (project_p(who, who_name, dist, y, x, dam, typ, rad, monspell)) notice = TRUE;
+				else if (project_p(who, who_name, dist, y, x, dam, typ, flg, monspell)) notice = TRUE;
 			}
 		}
 	}
@@ -9021,7 +9235,7 @@ bool binding_field( int dam )
 	{
 		for( y=0 ; y < cur_hgt ; y++ )
 		{
-			if( (cave[y][x].info & CAVE_IN_MIRROR) &&
+			if( is_mirror_grid(&cave[y][x]) &&
 			    distance(py,px,y,x) <= MAX_RANGE &&
 			    distance(py,px,y,x) != 0 &&
 			    player_has_los_bold(y,x)
@@ -9129,7 +9343,7 @@ bool binding_field( int dam )
 			{
 				if( player_has_los_bold(y,x) ){
 					(void)project_m(0,0,y,x,dam,GF_MANA,
-					  (PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_REF));
+					  (PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP));
 				}
 			}
 		}
@@ -9154,10 +9368,10 @@ void seal_of_mirror( int dam )
 	{
 		for( y = 0 ; y < cur_hgt ; y++ )
 		{
-			if( (cave[y][x].info & CAVE_IN_MIRROR))
+			if( is_mirror_grid(&cave[y][x]))
 			{
 				if(project_m(0,0,y,x,dam,GF_GENOCIDE,
-							 (PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP|PROJECT_NO_REF)))
+							 (PROJECT_GRID|PROJECT_ITEM|PROJECT_KILL|PROJECT_JUMP)))
 				{
 					if( !cave[y][x].m_idx )
 					{

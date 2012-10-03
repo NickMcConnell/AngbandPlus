@@ -211,6 +211,7 @@ extern bool find_ignore_doors;
 extern bool find_cut;
 extern bool find_examine;
 extern bool disturb_near;
+extern bool disturb_high;
 extern bool disturb_move;
 extern bool disturb_panel;
 extern bool disturb_state;
@@ -238,10 +239,10 @@ extern bool always_show_list;
 extern bool powerup_home;
 extern bool change_numeral;
 extern bool send_score;
+extern bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 extern bool display_mutations;     /* Skip mutations screen in 'C'haracter display */
 extern bool plain_descriptions;
-extern bool stupid_monsters;
 extern bool confirm_destroy;
 extern bool confirm_wear;
 extern bool confirm_stairs;
@@ -272,6 +273,7 @@ extern bool cheat_room;
 extern bool cheat_xtra;
 extern bool cheat_know;
 extern bool cheat_live;
+extern bool cheat_save;
 extern bool last_words;              /* Zangband options */
 extern bool over_exert;
 extern bool small_levels;
@@ -292,6 +294,7 @@ extern bool leave_corpse;
 extern bool leave_junk;
 extern bool destroy_items;
 extern bool leave_chest;
+extern bool leave_special;
 extern bool record_fix_art;
 extern bool record_rand_art;
 extern bool record_destroy_uniq;
@@ -390,14 +393,9 @@ extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
 extern skill_table *s_info;
-extern char *s_name;
-extern char *s_text;
 extern player_magic *m_info;
-extern char *m_name;
-extern char *m_text;
 extern feature_type *f_info;
 extern char *f_name;
-extern char *f_text;
 extern object_kind *k_info;
 extern char *k_name;
 extern char *k_text;
@@ -469,8 +467,6 @@ extern bool ironman_downward;
 extern bool ironman_autoscum;
 extern bool lite_town;
 extern bool ironman_empty_levels;
-extern bool terrain_streams;
-extern bool munchkin_death;
 extern bool ironman_rooms;
 extern bool ironman_nightmare;
 extern bool left_hander;
@@ -521,8 +517,8 @@ extern bool autopick_new_entry(autopick_type *entry, cptr str);
 extern void autopick_free_entry(autopick_type *entry);
 extern int is_autopick(object_type *o_ptr);
 extern void auto_inscribe_item(int item, int idx);
-extern bool auto_destroy_item(int item, int autopick_idx, bool wait_optimize);
-extern void optimize_inventry_auto_destroy(void);
+extern bool auto_destroy_item(int item, int autopick_idx);
+extern void delayed_auto_destroy(void);
 extern void auto_pickup_items(cave_type *c_ptr);
 extern void autopick_entry_from_object(autopick_type *entry, object_type *o_ptr);
 extern void init_autopicker(void);
@@ -538,6 +534,9 @@ extern void dump_yourself(FILE *fff);
 /* cave.c */
 extern int distance(int y1, int x1, int y2, int x2);
 extern bool is_trap(int feat);
+extern bool is_known_trap(cave_type *c_ptr);
+extern bool is_closed_door(int feat);
+extern bool is_hidden_door(cave_type *c_ptr);
 extern bool los(int y1, int x1, int y2, int x2);
 extern bool player_can_see_bold(int y, int x);
 extern bool cave_valid_bold(int y, int x);
@@ -571,6 +570,9 @@ extern void wiz_lite(bool wizard, bool ninja);
 extern void wiz_dark(void);
 extern void cave_set_feat(int y, int x, int feat);
 extern void remove_mirror(int y, int x);
+extern bool is_mirror_grid(cave_type *c_ptr);
+extern bool is_glyph_grid(cave_type *c_ptr);
+extern bool is_explosive_rune_grid(cave_type *c_ptr);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
 extern bool projectable(int y1, int x1, int y2, int x2);
 extern void scatter(int *yp, int *xp, int y, int x, int d, int mode);
@@ -632,7 +634,6 @@ extern bool research_mon(void);
 extern void kamaenaoshi(int item);
 extern bool ang_sort_comp_hook(vptr u, vptr v, int a, int b);
 extern void ang_sort_swap_hook(vptr u, vptr v, int a, int b);
-extern s16b inscribe_flags(object_type *o_ptr, cptr out_val);
 
 /* cmd4.c */
 extern errr do_cmd_write_nikki(int type, int num, cptr note);
@@ -745,11 +746,12 @@ extern byte color_char_to_attr(char c);
 extern errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax);
 
 /* init2.c */
+extern void init_file_paths(char *path);
 extern cptr err_str[PARSE_ERROR_MAX];
 extern errr init_v_info(void);
-extern void init_file_paths(char *path);
-extern void init_angband(void);
 extern errr init_buildings(void);
+extern void init_angband(void);
+extern cptr get_check_sum(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -791,6 +793,7 @@ extern void set_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
 extern void anger_monster(monster_type *m_ptr);
 extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
+extern bool monster_can_enter(int y, int x, monster_race *r_ptr);
 extern bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2);
 extern bool monster_living(monster_race *r_ptr);
 
@@ -831,11 +834,11 @@ extern void monster_drop_carried_objects(monster_type *m_ptr);
 extern s16b m_bonus(int max, int level);
 
 extern void reset_visuals(void);
-extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
-extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+extern void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
+extern void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
-extern bool identify_fully_aux(object_type *o_ptr);
+extern bool screen_object(object_type *o_ptr, bool real);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
@@ -883,7 +886,8 @@ extern bool make_gold(object_type *j_ptr);
 extern void place_gold(int y, int x);
 extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great, bool known);
-extern void pick_trap(int y, int x);
+extern byte choose_random_trap(void);
+extern void disclose_grid(int y, int x);
 extern void place_trap(int y, int x);
 extern void inven_item_charges(int item);
 extern void inven_item_describe(int item);
@@ -929,7 +933,7 @@ extern void seal_of_mirror(int dam);
 /* spells2.c */
 extern void message_pain(int m_idx, int dam);
 extern void self_knowledge(void);
-extern bool detect_traps(int range);
+extern bool detect_traps(int range, bool known);
 extern bool detect_doors(int range);
 extern bool detect_stairs(int range);
 extern bool detect_treasure(int range);
@@ -1063,10 +1067,10 @@ extern bool item_tester_hook_weapon_armour(object_type *o_ptr);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool artifact_scroll(void);
-extern bool ident_spell(bool only_equip, bool wait_optimize);
+extern bool ident_spell(bool only_equip);
 extern bool mundane_spell(bool only_equip);
 extern bool identify_item(object_type *o_ptr);
-extern bool identify_fully(bool only_equip, bool wait_optimize);
+extern bool identify_fully(bool only_equip);
 extern bool recharge(int num);
 extern bool bless_weapon(void);
 extern bool pulish_shield(void);
@@ -1182,6 +1186,10 @@ extern byte gamma_table[256];
 extern void build_gamma_table(int gamma);
 #endif /* SUPPORT_GAMMA */
 
+extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
+extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
+
+
 /* xtra1.c */
 extern bool is_daytime(void);
 extern void extract_day_hour_min(int *day, int *hour, int *min);
@@ -1278,7 +1286,7 @@ extern void resize_map(void);
 extern void redraw_window(void);
 extern bool change_panel(int dy, int dx);
 extern void verify_panel(void);
-extern cptr look_mon_desc(int m_idx);
+extern cptr look_mon_desc(int m_idx, u32b mode);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
 extern bool target_able(int m_idx);
@@ -1311,6 +1319,7 @@ extern void one_high_resistance(object_type *o_ptr);
 extern void one_lordly_high_resistance(object_type *o_ptr);
 extern void one_ele_resistance(object_type *o_ptr);
 extern void one_dragon_ele_resistance(object_type *o_ptr);
+extern void one_low_esp(object_type *o_ptr);
 extern void one_resistance(object_type *o_ptr);
 extern void one_ability(object_type *o_ptr);
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);
@@ -1484,7 +1493,6 @@ extern void jverb2( const char *in , char *out);
 extern void jverb3( const char *in , char *out);
 extern void jverb( const char *in , char *out , int flag);
 extern char* strstr_j(cptr str1, cptr str2);
-extern size_t mb_strlcpy(char *dst, const char *src, size_t size);
 extern void codeconv(char *str);
 extern bool iskanji2(cptr s, int x);
 #endif

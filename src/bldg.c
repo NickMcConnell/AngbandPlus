@@ -644,7 +644,7 @@ static int yaku_check_straight(void)
 	joker_is_used = FALSE;
 	for (i = 0; i < 5; i++)
 	{
-	  	if (!find_card_num(lowest + i)){
+		if (!find_card_num(lowest + i)){
 		  if( have_joker() && !joker_is_used )
 		    joker_is_used = TRUE;
 		  else
@@ -2393,7 +2393,7 @@ void have_nightmare(int r_idx)
 	power = r_ptr->level + 10;
 
 #ifdef JP
-        if (0)
+	if (0)
 #else
 	if (!(r_ptr->flags1 & RF1_UNIQUE))
 #endif
@@ -2418,9 +2418,9 @@ void have_nightmare(int r_idx)
 	if (saving_throw(p_ptr->skill_sav * 100 / power))
 	{
 #ifdef JP
-   	msg_format("夢の中で%sに追いかけられた。", m_name);
+	msg_format("夢の中で%sに追いかけられた。", m_name);
 #else
-   	msg_format("%^s chases you through your dreams.", m_name);
+	msg_format("%^s chases you through your dreams.", m_name);
 #endif
 
 
@@ -2858,7 +2858,7 @@ static void get_questinfo(int questnum)
 	/* Get the quest text */
 	init_flags = INIT_SHOW_TEXT | INIT_ASSIGN;
 
-process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 	/* Reset the old quest number */
 	p_ptr->inside_quest = old_quest;
@@ -3032,8 +3032,8 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows,
-                                int r, int c, int mult, cptr attr,
-                                u32b f1, u32b f2, u32b f3, byte color)
+				int r, int c, int mult, cptr attr,
+				byte color)
 {
 	char tmp_str[80];
 
@@ -3064,53 +3064,70 @@ sprintf(tmp_str, "１ターン: %d-%d ダメージ",
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
 	int mult = 60;
-	u32b f1, f2, f3;
+	u32b flgs[TR_FLAG_SIZE];
+	int blow = p_ptr->num_blow[0];
 
 	/* Get the flags of the weapon */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, flgs);
 
 	if (p_ptr->riding)
 	{
 		if ((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 			mult = mult * (o_ptr->dd + 2) / o_ptr->dd;
 	}
-	if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5))) mult = mult * 7 / 2;
+	if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5))) mult = mult * 7 / 2;
 
 	/* Print the relevant lines */
 #ifdef JP
-if (f1 & TR1_FORCE_WEAPON)     compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 1*mult, "理力:", f1, f2, f3, TERM_L_BLUE);
-if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "動物:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "邪悪:", f1, f2, f3, TERM_YELLOW);
-if (f3 & TR3_SLAY_HUMAN)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "人間:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "不死:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "悪魔:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "オーク:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "トロル:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "巨人:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult, "竜:", f1, f2, f3, TERM_YELLOW);
-else if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "竜:", f1, f2, f3, TERM_YELLOW);
-if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "酸属性:", f1, f2, f3, TERM_RED);
-if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "電属性:", f1, f2, f3, TERM_RED);
-if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "炎属性:", f1, f2, f3, TERM_RED);
-if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "冷属性:", f1, f2, f3, TERM_RED);
-if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "毒属性:", f1, f2, f3, TERM_RED);
+if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "理力:", TERM_L_BLUE);
+if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "動物:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "動物:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "邪悪:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "邪悪:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "人間:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "人間:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "不死:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "不死:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "悪魔:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "悪魔:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "オーク:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "オーク:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "トロル:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "トロル:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "巨人:", TERM_YELLOW);
+ else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "巨人:", TERM_YELLOW);
+if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "竜:", TERM_YELLOW);
+else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "竜:", TERM_YELLOW);
+if (have_flag(flgs, TR_BRAND_ACID))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "酸属性:", TERM_RED);
+if (have_flag(flgs, TR_BRAND_ELEC))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "電属性:", TERM_RED);
+if (have_flag(flgs, TR_BRAND_FIRE))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "炎属性:", TERM_RED);
+if (have_flag(flgs, TR_BRAND_COLD))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "冷属性:", TERM_RED);
+if (have_flag(flgs, TR_BRAND_POIS))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "毒属性:", TERM_RED);
 #else
-	if (f1 & TR1_FORCE_WEAPON)     compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 1*mult, "Force  :", f1, f2, f3, TERM_L_BLUE);
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Animals:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 2*mult, "Evil:", f1, f2, f3, TERM_YELLOW);
-	if (f3 & TR3_SLAY_HUMAN)   compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Human:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Undead:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Demons:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Orcs:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Trolls:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Giants:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult, "Dragons:", f1, f2, f3, TERM_YELLOW);
-	else if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 3*mult, "Dragons:", f1, f2, f3, TERM_YELLOW);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Acid:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Elec:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Fire:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Cold:", f1, f2, f3, TERM_RED);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow[0], r++, col, 5*mult/2, "Poison:", f1, f2, f3, TERM_RED);
+	if (have_flag(flgs, TR_FORCE_WEAPON))     compare_weapon_aux2(o_ptr, blow, r++, col, 1*mult, "Force  :", TERM_L_BLUE);
+	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Animals:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Animals:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 7*mult/2, "Evil:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 2*mult, "Evil:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 4*mult, "Human:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_HUMAN))   compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Human:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Undead:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_UNDEAD)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Undead:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Demons:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_DEMON))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Demons:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Orcs:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_ORC))    compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Orcs:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Trolls:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_TROLL))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Trolls:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Giants:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_GIANT))  compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Giants:", TERM_YELLOW);
+	if (have_flag(flgs, TR_KILL_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult, "Dragons:", TERM_YELLOW);
+	else if (have_flag(flgs, TR_SLAY_DRAGON)) compare_weapon_aux2(o_ptr, blow, r++, col, 3*mult, "Dragons:", TERM_YELLOW);
+	if (have_flag(flgs, TR_BRAND_ACID))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Acid:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_ELEC))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Elec:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_FIRE))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Fire:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_COLD))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Cold:", TERM_RED);
+	if (have_flag(flgs, TR_BRAND_POIS))  compare_weapon_aux2(o_ptr, blow, r++, col, 5*mult/2, "Poison:", TERM_RED);
 #endif
 
 }
@@ -3362,6 +3379,109 @@ msg_print("現在の技量から判断すると、あなたの武器は以下のような威力を発揮します:
 #endif
 
 
+	flush();
+	(void)inkey();
+	screen_load();
+
+	/* Done */
+	return (TRUE);
+}
+
+
+/*
+ * Evaluate AC
+ *
+ * ACから回避率、ダメージ減少率を計算し表示する
+ * Calculate and display the dodge-rate and the protection-rate
+ * based on AC
+ */
+static bool eval_ac(int iAC)
+{
+#ifdef JP
+	const char memo[] =
+		"ダメージ軽減率とは、敵の攻撃が当たった時そのダメージを\n"
+		"何パーセント軽減するかを示します。\n"
+		"ダメージ軽減は通常の直接攻撃(種類が「攻撃する」と「粉砕する」の物)\n"
+		"に対してのみ効果があります。\n \n"
+		"敵のレベルとは、その敵が通常何階に現れるかを示します。\n \n"
+		"回避率は敵の直接攻撃を何パーセントの確率で避けるかを示し、\n"
+		"敵のレベルとあなたのACによって決定されます。\n \n"
+		"ダメージ期待値とは、敵の１００ポイントの通常攻撃に対し、\n"
+		"回避率とダメージ軽減率を考慮したダメージの期待値を示します。\n";
+#else
+	const char memo[] =
+		"'Protection Rate' means how much damage is reduced by your armor.\n"
+		"Note that the Protection rate is effective only against normal "
+		"'attack' and 'shatter' type melee attacks, "
+		"and has no effect against any other types such as 'poison'.\n \n"
+		"'Dodge Rate' indicates the success rate on dodging the "
+		"monster's melee attacks.  "
+		"It is depend on the level of the monster and your AC.\n \n"
+		"'Average Damage' indicates the expected amount of damage "
+		"when you are attacked by normal melee attacks with power=100.";
+#endif
+
+	int protection;
+	int col, row = 2;
+	int lvl, i;
+	char buf[80*20], *t;
+
+	/* AC lower than zero has no effect */
+	if (iAC < 0) iAC = 0;
+
+	/* ダメージ軽減率を計算 */
+	protection = 100 * MIN(iAC, 150) / 250;
+
+	screen_save();
+	clear_bldg(0, 22);
+
+#ifdef JP
+	put_str(format("あなたの現在のAC: %3d", iAC), row++, 0);
+	put_str(format("ダメージ軽減率  : %3d%%", protection), row++, 0);
+	row++;
+
+	put_str("敵のレベル      :", row + 0, 0);
+	put_str("回避率          :", row + 1, 0);
+	put_str("ダメージ期待値  :", row + 2, 0);
+#else
+	put_str(format("Your current AC : %3d", iAC), row++, 0);
+	put_str(format("Protection rate : %3d%%", protection), row++, 0);
+	row++;
+
+	put_str("Level of Monster:", row + 0, 0);
+	put_str("Dodge Rate      :", row + 1, 0);
+	put_str("Average Damage  :", row + 2, 0);
+#endif
+    
+	for (col = 17 + 1, lvl = 0; lvl <= 100; lvl += 10, col += 5)
+	{
+		int quality = 60 + lvl * 3; /* attack quality with power 60 */
+		int dodge;   /* 回避率(%) */
+		int average; /* ダメージ期待値 */
+
+		put_str(format("%3d", lvl), row + 0, col);
+
+		/* 回避率を計算 */
+		dodge = 5 + (MIN(100, 100 * (iAC * 3 / 4) / quality) * 9 + 5) / 10;
+		put_str(format("%3d%%", dodge), row + 1, col);
+
+		/* 100点の攻撃に対してのダメージ期待値を計算 */
+		average = (100 - dodge) * (100 - protection) / 100;
+		put_str(format("%3d", average), row + 2, col);
+	}
+
+	/* Display note */
+	roff_to_buf(memo, 70, buf);
+	for (t = buf; t[0]; t += strlen(t) + 1)
+		put_str(t, (row++) + 4, 4);
+
+#ifdef JP
+	prt("現在のあなたの装備からすると、あなたの防御力は"
+		   "これくらいです:", 0, 0);
+#else
+	prt("Defense abilities from your current Armor Class are evaluated below.", 0, 0);
+#endif
+  
 	flush();
 	(void)inkey();
 	screen_load();
@@ -3735,7 +3855,7 @@ charges = get_quantity(format("一回分＄%d で何回分充填しますか？",
 		charges = get_quantity(format("Add how many charges for %d gold? ",
 #endif
 
-		              price), MIN(p_ptr->au / price, max_charges));
+			      price), MIN(p_ptr->au / price, max_charges));
 
 		/* Do nothing */
 		if (charges < 1) return;
@@ -3793,7 +3913,7 @@ static void building_recharge_all(void)
 
 
 	/* Display some info */
-        msg_flag = FALSE;
+	msg_flag = FALSE;
 	clear_bldg(4, 18);
 #ifdef JP
 	prt("  再充填の費用はアイテムの種類によります。", 6, 0);
@@ -4079,7 +4199,7 @@ msg_print("お金が足りません！");
 				/* Do nothing */
 		break;
 	case BACT_RESEARCH_ITEM:
-		paid = identify_fully(FALSE, FALSE);
+		paid = identify_fully(FALSE);
 		break;
 	case BACT_TOWN_HISTORY:
 		town_history();
@@ -4147,7 +4267,7 @@ msg_print("お金が足りません！");
 		paid = TRUE;
 		break;
 	case BACT_IDENT_ONE: /* needs work */
-		paid = ident_spell(FALSE, FALSE);
+		paid = ident_spell(FALSE);
 		break;
 	case BACT_LEARN:
 		do_cmd_study();
@@ -4352,6 +4472,9 @@ msg_print("お金が足りません！");
 		break;
 	case BACT_TELE_TOWN:
 		paid = tele_town();
+		break;
+	case BACT_EVAL_AC:
+		paid = eval_ac(p_ptr->dis_ac + p_ptr->dis_to_a);
 		break;
 	}
 
@@ -4610,12 +4733,27 @@ void quest_discovery(int q_idx)
 	if (q_num == 1)
 	{
 		/* Unique */
-#ifdef JP
-msg_format("注意せよ！この階は%sによって守られている！", name);
-#else
-		msg_format("Beware, this level is protected by %s!", name);
-#endif
 
+		/* Hack -- "unique" monsters must be "unique" */
+		if ((r_ptr->flags1 & RF1_UNIQUE) &&
+		    (0 == r_ptr->max_num))
+		{
+#ifdef JP
+			msg_print("この階は以前は誰かによって守られていたようだ…。");
+#else
+			msg_print("It seems that this level was protected by someone before...");
+#endif
+			/* The unique is already dead */
+			quest[q_idx].status = QUEST_STATUS_FINISHED;
+		}
+		else
+		{
+#ifdef JP
+			msg_format("注意せよ！この階は%sによって守られている！", name);
+#else
+			msg_format("Beware, this level is protected by %s!", name);
+#endif
+		}
 	}
 	else
 	{

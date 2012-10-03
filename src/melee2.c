@@ -551,7 +551,7 @@ static bool get_moves_aux2(int m_idx, int *yp, int *xp)
 		if (!(((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall)) || (r_ptr->flags2 & RF2_KILL_WALL)))
 		{
 			if (cost == 0) continue;
-			if (!can_open_door && (c_ptr->feat >= FEAT_DOOR_HEAD && c_ptr->feat <= FEAT_SECRET)) continue;
+			if (!can_open_door && is_closed_door(c_ptr->feat)) continue;
 		}
 
 		/* Hack -- for kill or pass wall monster.. */
@@ -609,9 +609,6 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp, bool no_flow)
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	/* Monster flowing disabled */
-	if (stupid_monsters) return (FALSE);
 
 	/* Can monster cast attack spell? */
 	if (r_ptr->flags4 & (RF4_ATTACK_MASK) ||
@@ -726,9 +723,6 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	int i;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
-	/* Monster flowing disabled */
-	if (stupid_monsters) return (FALSE);
 
 	/* Monster location */
 	fy = m_ptr->fy;
@@ -971,7 +965,7 @@ static bool find_safety(int m_idx, int *yp, int *xp)
 			if (!cave_floor_grid(c_ptr)) continue;
 
 			/* Check for "availability" (if monsters can flow) */
-			if (!stupid_monsters && !(m_ptr->mflag2 & MFLAG_NOFLOW))
+			if (!(m_ptr->mflag2 & MFLAG_NOFLOW))
 			{
 				/* Ignore grids very far from the player */
 				if (c_ptr->dist == 0) continue;
@@ -1110,11 +1104,7 @@ static bool get_moves(int m_idx, int *mm)
 	bool         can_pass_wall;
 
 	/* Flow towards the player */
-	if (!stupid_monsters)
-	{
-		/* Flow towards the player */
-		(void)get_moves_aux(m_idx, &y2, &x2, no_flow);
-	}
+	(void)get_moves_aux(m_idx, &y2, &x2, no_flow);
 
 	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
@@ -1122,7 +1112,7 @@ static bool get_moves(int m_idx, int *mm)
 	y = m_ptr->fy - y2;
 	x = m_ptr->fx - x2;
 
-	if (!stupid_monsters && !will_run && is_hostile(m_ptr) &&
+	if (!will_run && is_hostile(m_ptr) &&
 	    (r_ptr->flags1 & RF1_FRIENDS) &&
 	    (los(m_ptr->fy, m_ptr->fx, py, px) ||
 	    (cave[m_ptr->fy][m_ptr->fx].dist < MAX_SIGHT / 2)))
@@ -1210,7 +1200,7 @@ static bool get_moves(int m_idx, int *mm)
 	}
 
 	/* Apply fear if possible and necessary */
-	if ((stupid_monsters || is_pet(m_ptr)) && will_run)
+	if (is_pet(m_ptr) && will_run)
 	{
 		/* XXX XXX Not very "smart" */
 		y = (-y), x = (-x);
@@ -1226,7 +1216,7 @@ static bool get_moves(int m_idx, int *mm)
 			if (find_safety(m_idx, &y, &x))
 			{
 				/* Attempt to avoid the player */
-				if (!stupid_monsters && !no_flow)
+				if (!no_flow)
 				{
 					/* Adjust movement */
 					if (get_fear_moves_aux(m_idx, &y, &x)) done = TRUE;
@@ -1243,11 +1233,8 @@ static bool get_moves(int m_idx, int *mm)
 	}
 
 
-	if (!stupid_monsters)
-	{
-		/* Check for no move */
-		if (!x && !y) return (FALSE);
-	}
+	/* Check for no move */
+	if (!x && !y) return (FALSE);
 
 
 	/* Extract the "absolute distances" */
@@ -2047,7 +2034,7 @@ act = "%sにむかって歌った。";
 				if (!explode)
 				{
 					project(m_idx, 0, t_ptr->fy, t_ptr->fx,
-						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 				}
 
 				if (heal_effect)
@@ -2084,7 +2071,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					/* Aura fire */
 					if ((tr_ptr->flags2 & RF2_AURA_FIRE) &&
 						!(r_ptr->flags3 & RF3_IM_FIRE) &&
-					        !(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
 					{
 						if (see_either)
 						{
@@ -2101,13 +2088,13 @@ msg_format("%^sは突然熱くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 					/* Aura cold */
 					if ((tr_ptr->flags3 & RF3_AURA_COLD) &&
 						!(r_ptr->flags3 & RF3_IM_COLD) &&
-					        !(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
 					{
 						if (see_either)
 						{
@@ -2124,13 +2111,13 @@ msg_format("%^sは突然寒くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 					/* Aura elec */
 					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) &&
-					        !(r_ptr->flags3 & (RF3_IM_ELEC)) &&
-					        !(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
+						!(r_ptr->flags3 & (RF3_IM_ELEC)) &&
+						!(r_ptr->flags3 & RF3_RES_ALL) && m_ptr->r_idx)
 					{
 						if (see_either)
 						{
@@ -2147,7 +2134,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER | PROJECT_NO_REF, -1);
+							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
 					}
 
 				}
@@ -2284,6 +2271,7 @@ static void process_monster(int m_idx)
 {
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+	monster_race    *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
 
 	int             i, d, oy, ox, ny, nx;
 
@@ -2404,71 +2392,76 @@ msg_print("少しの間悲しい気分になった。");
 
 		if (m_ptr->hp < m_ptr->maxhp/3)
 		{
-			bool level_teleport = TRUE;
 			char m_name[80];
 			monster_desc(m_name, m_ptr, 0);
 
 			if (m_idx == p_ptr->riding && riding_pinch < 2)
 			{
 #ifdef JP
-msg_format("%sは傷の痛さの余りあなたの束縛から逃れようとしている。", m_name);
+				msg_format("%sは傷の痛さの余りあなたの束縛から逃れようとしている。", m_name);
 #else
-					msg_format("%^s seems to be in so much pain, and trying to escape from your restriction.", m_name);
+				msg_format("%^s seems to be in so much pain, and trying to escape from your restriction.", m_name);
 #endif
 				riding_pinch++;
-				level_teleport = FALSE;
 				disturb(1, 0);
 			}
-			else if (m_ptr->ml)
+			else 
 			{
 				if (m_idx == p_ptr->riding)
 				{
 #ifdef JP
-msg_format("%sはあなたの束縛から脱出した。", m_name);
+					msg_format("%sはあなたの束縛から脱出した。", m_name);
 #else
 					msg_format("%^s succeeded to escape from your restriction!", m_name);
 #endif
-				}
-				if ((r_ptr->flags2 & RF2_CAN_SPEAK) && (m_ptr->r_idx != MON_GRIP) && (m_ptr->r_idx != MON_WOLF) && (m_ptr->r_idx != MON_FANG))
-				{
-#ifdef JP
-msg_format("%^s「ピンチだ！退却させてもらう！」", m_name);
-#else
-					msg_format("%^s says 'It is the pinch! I will retreat'.", m_name);
-#endif
-				}
-#ifdef JP
-msg_format("%^sがテレポート・レベルの巻物を読んだ。", m_name);
-#else
-				msg_format("%^s read a scroll of teleport level.", m_name);
-#endif
-#ifdef JP
-msg_format("%^sが消え去った。", m_name);
-#else
-				msg_format("%^s disappears.", m_name);
-#endif
-			}
-
-			if (level_teleport)
-			{
-				delete_monster_idx(m_idx);
-
-				if (m_idx == p_ptr->riding)
-				{
 					if (rakuba(-1, FALSE))
 					{
 #ifdef JP
-msg_print("地面に落とされた。");
+						msg_print("地面に落とされた。");
 #else
-                                                msg_print("You have fallen from riding pet.");
+						msg_print("You have fallen from riding pet.");
 #endif
 					}
 				}
+
+				if (m_ptr->ml)
+				{
+					if ((r_ptr->flags2 & RF2_CAN_SPEAK) && (m_ptr->r_idx != MON_GRIP) && (m_ptr->r_idx != MON_WOLF) && (m_ptr->r_idx != MON_FANG))
+					{
+#ifdef JP
+						msg_format("%^s「ピンチだ！退却させてもらう！」", m_name);
+#else
+						msg_format("%^s says 'It is the pinch! I will retreat'.", m_name);
+#endif
+					}
+#ifdef JP
+					msg_format("%^sがテレポート・レベルの巻物を読んだ。", m_name);
+					msg_format("%^sが消え去った。", m_name);
+#else
+					msg_format("%^s read a scroll of teleport level.", m_name);
+					msg_format("%^s disappears.", m_name);
+#endif
+				}
+
+				if (m_idx == p_ptr->riding && rakuba(-1, FALSE))
+				{
+#ifdef JP
+					msg_print("地面に落とされた。");
+#else
+					msg_print("You have fallen from riding pet.");
+#endif
+				}
+
+				delete_monster_idx(m_idx);
+
 				return;
 			}
 		}
 		else
+		{
+			/* Reset the counter */
 			if (m_idx == p_ptr->riding) riding_pinch = 0;
+		}
 			
 	}
 
@@ -2854,7 +2847,7 @@ msg_print("重厚な足音が聞こえた。");
 		}
 
 		/* Some monsters can speak */
-		if ((r_info[m_ptr->ap_r_idx].flags2 & RF2_CAN_SPEAK) && aware &&
+		if ((ap_r_ptr->flags2 & RF2_CAN_SPEAK) && aware &&
 			one_in_(SPEAK_CHANCE) &&
 			player_has_los_bold(oy, ox))
 		{
@@ -2943,7 +2936,7 @@ msg_format("%^s%s", m_name, monmessage);
 	/* 75% random movement */
 	else if ((r_ptr->flags1 & RF1_RAND_50) &&
 				(r_ptr->flags1 & RF1_RAND_25) &&
-	         (randint0(100) < 75))
+		 (randint0(100) < 75))
 	{
 		/* Memorize flags */
 		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
@@ -3037,11 +3030,6 @@ msg_format("%^s%s", m_name, monmessage);
 		get_enemy_dir(m_idx, mm);
 	}
 	/* Normal movement */
-	else if (stupid_monsters)
-	{
-		/* Logical moves */
-		get_moves(m_idx, mm);
-	}
 	else
 	{
 		/* Logical moves, may do nothing */
@@ -3157,16 +3145,14 @@ msg_print("ギシギシいう音が聞こえる。");
 			c_ptr->info &= ~(CAVE_MARK);
 
 			/* Notice */
-			c_ptr->feat = floor_type[randint0(100)];
+			cave_set_feat(ny, nx, floor_type[randint0(100)]);
 
 			/* Note changes to viewable region */
 			if (player_has_los_bold(ny, nx)) do_view = TRUE;
 		}
 
 		/* Handle doors and secret doors */
-		else if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		          (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-		          (c_ptr->feat == FEAT_SECRET))
+		else if (is_closed_door(c_ptr->feat))
 		{
 			bool may_bash = TRUE;
 
@@ -3177,9 +3163,8 @@ msg_print("ギシギシいう音が聞こえる。");
 			if ((r_ptr->flags2 & RF2_OPEN_DOOR) &&
 				 (!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_OPEN_DOORS)))
 			{
-				/* Closed doors and secret doors */
-				if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
-					(c_ptr->feat == FEAT_SECRET))
+				/* Closed doors */
+				if (c_ptr->feat == FEAT_DOOR_HEAD)
 				{
 					/* The door is open */
 					did_open_door = TRUE;
@@ -3264,7 +3249,7 @@ msg_print("ドアを叩き開ける音がした！");
 		}
 
 		/* Hack -- check for Glyph of Warding */
-		if (do_move && (c_ptr->feat == FEAT_GLYPH) &&
+		if (do_move && is_glyph_grid(c_ptr) &&
 		    !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
 		{
 			/* Assume no move allowed */
@@ -3288,7 +3273,8 @@ msg_print("守りのルーンが壊れた！");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Break the rune */
-				c_ptr->feat = floor_type[randint0(100)];
+				c_ptr->info &= ~(CAVE_OBJECT);
+				c_ptr->mimic = 0;
 
 				/* Allow movement */
 				do_move = TRUE;
@@ -3297,8 +3283,8 @@ msg_print("守りのルーンが壊れた！");
 				note_spot(ny, nx);
 			}
 		}
-		else if (do_move && (c_ptr->feat == FEAT_MINOR_GLYPH) &&
-		         !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
+		else if (do_move && is_explosive_rune_grid(c_ptr) &&
+			 !((r_ptr->flags1 & RF1_NEVER_BLOW) && (py == ny) && (px == nx)))
 		{
 			/* Assume no move allowed */
 			do_move = FALSE;
@@ -3318,7 +3304,7 @@ msg_print("ルーンが爆発した！");
 						msg_print("The rune explodes!");
 #endif
 
-						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_REF | PROJECT_NO_HANGEKI), -1);
+						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
 					}
 				}
 				else
@@ -3334,7 +3320,9 @@ msg_print("爆発のルーンは解除された。");
 				c_ptr->info &= ~(CAVE_MARK);
 
 				/* Break the rune */
-				c_ptr->feat = floor_type[randint0(100)];
+				c_ptr->info &= ~(CAVE_OBJECT);
+				c_ptr->mimic = 0;
+
 				note_spot(ny, nx);
 				lite_spot(ny, nx);
 
@@ -3469,7 +3457,8 @@ msg_print("爆発のルーンは解除された。");
 			{
 				if (r_ptr->flags2 & RF2_KILL_WALL)
 				{
-					c_ptr->feat = FEAT_GRASS;
+					cave_set_feat(ny, nx, FEAT_GRASS);
+
 				}
 				if (!(r_ptr->flags7 & RF7_CAN_FLY) && !(r_ptr->flags8 & RF8_WILD_WOOD))
 				{
@@ -3528,9 +3517,10 @@ msg_print("爆発のルーンは解除された。");
 			}
 
 			/* Possible disturb */
-			if (m_ptr->ml && (disturb_move ||
-				((m_ptr->mflag & MFLAG_VIEW) &&
-				disturb_near)))
+			if (m_ptr->ml &&
+			    (disturb_move ||
+			     (disturb_near && (m_ptr->mflag & MFLAG_VIEW)) ||
+			     (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
 			{
 				/* Disturb */
 				if (is_hostile(m_ptr))
@@ -3563,7 +3553,7 @@ msg_print("爆発のルーンは解除された。");
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM | RF2_KILL_ITEM)) &&
 					 (!is_pet(m_ptr) || (p_ptr->pet_extra_flags & PF_PICKUP_ITEMS)))
 				{
-					u32b f1, f2, f3;
+					u32b flgs[TR_FLAG_SIZE];
 
 					u32b flg2 = 0L;
 					u32b flg3 = 0L;
@@ -3572,7 +3562,7 @@ msg_print("爆発のルーンは解除された。");
 					char o_name[MAX_NLEN];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, flgs);
 
 					/* Acquire the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);
@@ -3581,16 +3571,24 @@ msg_print("爆発のルーンは解除された。");
 					monster_desc(m_name, m_ptr, 0x04);
 
 					/* React to objects that hurt the monster */
-					if (f1 & TR1_KILL_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_DRAGON) flg3 |= (RF3_DRAGON);
-					if (f1 & TR1_SLAY_TROLL)  flg3 |= (RF3_TROLL);
-					if (f1 & TR1_SLAY_GIANT)  flg3 |= (RF3_GIANT);
-					if (f1 & TR1_SLAY_ORC)    flg3 |= (RF3_ORC);
-					if (f1 & TR1_SLAY_DEMON)  flg3 |= (RF3_DEMON);
-					if (f1 & TR1_SLAY_UNDEAD) flg3 |= (RF3_UNDEAD);
-					if (f1 & TR1_SLAY_ANIMAL) flg3 |= (RF3_ANIMAL);
-					if (f1 & TR1_SLAY_EVIL)   flg3 |= (RF3_EVIL);
-					if (f3 & TR3_SLAY_HUMAN)  flg2 |= (RF2_HUMAN);
+					if (have_flag(flgs, TR_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (have_flag(flgs, TR_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+					if (have_flag(flgs, TR_SLAY_TROLL))  flg3 |= (RF3_TROLL);
+					if (have_flag(flgs, TR_KILL_TROLL))  flg3 |= (RF3_TROLL);
+					if (have_flag(flgs, TR_KILL_GIANT))  flg3 |= (RF3_GIANT);
+					if (have_flag(flgs, TR_SLAY_GIANT))  flg3 |= (RF3_GIANT);
+					if (have_flag(flgs, TR_SLAY_ORC))    flg3 |= (RF3_ORC);
+					if (have_flag(flgs, TR_KILL_ORC))    flg3 |= (RF3_ORC);
+					if (have_flag(flgs, TR_SLAY_DEMON))  flg3 |= (RF3_DEMON);
+					if (have_flag(flgs, TR_KILL_DEMON))  flg3 |= (RF3_DEMON);
+					if (have_flag(flgs, TR_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (have_flag(flgs, TR_KILL_UNDEAD)) flg3 |= (RF3_UNDEAD);
+					if (have_flag(flgs, TR_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (have_flag(flgs, TR_KILL_ANIMAL)) flg3 |= (RF3_ANIMAL);
+					if (have_flag(flgs, TR_SLAY_EVIL))   flg3 |= (RF3_EVIL);
+					if (have_flag(flgs, TR_KILL_EVIL))   flg3 |= (RF3_EVIL);
+					if (have_flag(flgs, TR_SLAY_HUMAN))  flg2 |= (RF2_HUMAN);
+					if (have_flag(flgs, TR_KILL_HUMAN))  flg2 |= (RF2_HUMAN);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) || (r_ptr->flags2 & flg2) ||
@@ -3637,7 +3635,7 @@ msg_format("%^sが%sを拾った。", m_name, o_name);
 						excise_object_idx(this_o_idx);
 
 						/* Forget mark */
-						o_ptr->marked = FALSE;
+						o_ptr->marked = 0;
 
 						/* Forget location */
 						o_ptr->iy = o_ptr->ix = 0;
@@ -3689,7 +3687,7 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 		m_ptr->mflag2 &= ~MFLAG_NOFLOW;
 
 	/* If we haven't done anything, try casting a spell again */
-	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters && !(p_ptr->riding == m_idx) && aware)
+	if (!do_turn && !do_move && !m_ptr->monfear && !(p_ptr->riding == m_idx) && aware)
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
@@ -3828,8 +3826,8 @@ void process_monsters(void)
 
 	int speed;
 
-        /* Clear monster fighting indicator */
-        mon_fight = FALSE;
+	/* Clear monster fighting indicator */
+	mon_fight = FALSE;
 
 	/* Memorize old race */
 	old_monster_race_idx = p_ptr->monster_race_idx;
@@ -3899,7 +3897,7 @@ void process_monsters(void)
 		fy = m_ptr->fy;
 
 		/* Flow by smell is allowed */
-		if (!stupid_monsters && !p_ptr->no_flowed)
+		if (!p_ptr->no_flowed)
 		{
 			m_ptr->mflag2 &= ~MFLAG_NOFLOW;
 		}
@@ -3925,7 +3923,7 @@ void process_monsters(void)
 #if 0 /* (cave[py][px].when == cave[fy][fx].when) is always FALSE... */
 		/* Hack -- Monsters can "smell" the player from far away */
 		/* Note that most monsters have "aaf" of "20" or so */
-		else if (!stupid_monsters && !(m_ptr->mflag2 & MFLAG_NOFLOW) &&
+		else if (!(m_ptr->mflag2 & MFLAG_NOFLOW) &&
 			(cave_floor_bold(py, px) || (cave[py][px].feat == FEAT_TREES)) &&
 			(cave[py][px].when == cave[fy][fx].when) &&
 			(cave[fy][fx].dist < MONSTER_FLOW_DEPTH) &&
@@ -4039,7 +4037,7 @@ bool process_the_world(int num, int who, bool vs_player)
 #ifdef JP
 			msg_print("「時よ！」");
 #else
-		        msg_format("%s yells 'Time!'", m_name);
+			msg_format("%s yells 'Time!'", m_name);
 #endif
 		else msg_print("hek!");
 

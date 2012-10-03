@@ -71,6 +71,7 @@ X:always_small_levels
 Y:empty_levels
 Y:last_words
 Y:send_score
+X:allow_debug_opts
 
 ##### Disturbance #####
 
@@ -79,6 +80,7 @@ Y:find_ignore_doors
 X:find_cut
 Y:find_examine
 X:disturb_move
+X:disturb_high
 Y:disturb_near
 X:disturb_pets
 Y:disturb_panel
@@ -107,7 +109,6 @@ X:hilite_player
 X:easy_band
 Y:smart_learn
 X:smart_cheat
-X:stupid_monsters
 X:vanilla_town
 X:lite_town
 X:ironman_shops
@@ -115,8 +116,6 @@ X:ironman_small_levels
 X:ironman_downward
 X:ironman_autoscum
 X:ironman_empty_levels
-Y:terrain_streams
-X:munchkin_death
 X:ironman_rooms
 X:ironman_nightmare
 X:left_hander
@@ -134,6 +133,7 @@ Y:leave_chest
 Y:leave_wanted
 X:leave_corpse
 X:leave_junk
+Y:leave_special
 
 ##### Play-record Options #####
 

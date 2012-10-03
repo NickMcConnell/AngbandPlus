@@ -220,7 +220,7 @@ stamp-h1: $(srcdir)/autoconf.h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status src/autoconf.h
 
-$(srcdir)/autoconf.h.in:  $(top_srcdir)/configure.in $(ACLOCAL_M4) $(top_srcdir)/acconfig.h
+$(srcdir)/autoconf.h.in:  $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOHEADER)
 	touch $(srcdir)/autoconf.h.in
 
