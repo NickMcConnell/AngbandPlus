@@ -88,7 +88,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart_learn)
 	{
 		/* Hack -- Occasionally forget player status */
-		if (m_ptr->smart && (randint0(100) < 1)) m_ptr->smart = 0L;
+		/* Only save SM_FRIENDLY, SM_PET or SM_CLONED */
+		if (m_ptr->smart && (randint0(100) < 1)) m_ptr->smart &= (SM_FRIENDLY | SM_PET | SM_CLONED);
 
 		/* Use the memorized flags */
 		smart = m_ptr->smart;
@@ -856,8 +857,7 @@ static bool dispel_check(int m_idx)
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
 	{
-		if (!p_ptr->immune_acid && p_ptr->oppose_acid) return (TRUE);
-
+		if (!p_ptr->immune_acid && (p_ptr->oppose_acid || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ACID) return (TRUE);
 	}
 
@@ -865,23 +865,20 @@ static bool dispel_check(int m_idx)
 	{
 		if (!((p_ptr->prace == RACE_DEMON) && p_ptr->lev > 44))
 		{
-			if(!p_ptr->immune_fire && p_ptr->oppose_fire) return (TRUE);
-
-			if(p_ptr->special_defense & DEFENSE_FIRE) return(TRUE);
+			if (!p_ptr->immune_fire && (p_ptr->oppose_fire || music_singing(MUSIC_RESIST))) return (TRUE);
+			if (p_ptr->special_defense & DEFENSE_FIRE) return(TRUE);
 		}
 	}
 
 	if (r_ptr->flags4 & RF4_BR_ELEC)
 	{
-		if (!p_ptr->immune_elec && p_ptr->oppose_elec) return (TRUE);
-
+		if (!p_ptr->immune_elec && (p_ptr->oppose_elec || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_ELEC) return (TRUE);
 	}
 
 	if (r_ptr->flags4 & RF4_BR_COLD)
 	{
-		if (!p_ptr->immune_cold && p_ptr->oppose_cold) return (TRUE);
-
+		if (!p_ptr->immune_cold && (p_ptr->oppose_cold || music_singing(MUSIC_RESIST))) return (TRUE);
 		if (p_ptr->special_defense & DEFENSE_COLD) return (TRUE);
 	}
 
@@ -889,16 +886,9 @@ static bool dispel_check(int m_idx)
 	{
 		if (!((p_ptr->pclass == CLASS_NINJA) && p_ptr->lev > 44))
 		{
-			if (p_ptr->oppose_pois) return (TRUE);
-
+			if (p_ptr->oppose_pois || music_singing(MUSIC_RESIST)) return (TRUE);
 			if (p_ptr->special_defense & DEFENSE_POIS) return (TRUE);
 		}
-	}
-
-	/* Elemental resist music */
-	if (music_singing(MUSIC_RESIST))
-	{
-		if (r_ptr->flags4 & (RF4_BR_ACID | RF4_BR_FIRE | RF4_BR_ELEC | RF4_BR_COLD | RF4_BR_POIS)) return (TRUE);
 	}
 
 	/* Ultimate resistance */

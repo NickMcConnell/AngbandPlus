@@ -137,6 +137,29 @@ static bool breath_direct(int y1, int x1, int y2, int x2, int rad, bool disint_b
 }
 
 /*
+ * Get the actual center point of ball spells (originally from TOband)
+ */
+static void get_project_point(int sy, int sx, int *ty, int *tx, int flg)
+{
+	u16b path_g[128];
+	int  path_n;
+
+	path_n = project_path(path_g, MAX_RANGE, sy, sx, *ty, *tx, flg);
+
+	if (path_n)
+	{
+		/* Use final point of projection */
+		*ty = GRID_Y(path_g[path_n - 1]);
+		*tx = GRID_X(path_g[path_n - 1]);
+	}
+	else
+	{
+		*ty = sy;
+		*tx = sx;
+	}
+}
+
+/*
  * Monster tries to 'cast a spell' (or breath, etc)
  * at another monster.
  *
@@ -315,22 +338,42 @@ bool monst_spell_monst(int m_idx)
 		/* Prevent collateral damage */
 		if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && pet && (m_idx != p_ptr->riding))
 		{
-			int dist = distance(py, px, y, x);
-
-			/* Expected breath radius */
-			int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
-
-			if (dist <= 2)
+			if ((f4 & (RF4_BALL_MASK & ~(RF4_ROCKET))) ||
+			    (f5 & RF5_BALL_MASK) ||
+			    (f6 & RF6_BALL_MASK))
 			{
-				f4 &= ~(RF4_BALL_MASK);
-				f5 &= ~(RF5_BALL_MASK);
-				f6 &= ~(RF6_BALL_MASK);
+				int real_y = y;
+				int real_x = x;
+
+				get_project_point(m_ptr->fy, m_ptr->fx, &real_y, &real_x, 0L);
+
+				if (los(real_y, real_x, py, px))
+				{
+					int dist = distance(real_y, real_x, py, px);
+
+					if (dist <= 2)
+					{
+						f4 &= ~(RF4_BALL_MASK & ~(RF4_ROCKET));
+						f5 &= ~(RF5_BALL_MASK);
+						f6 &= ~(RF6_BALL_MASK);
+					}
+					else if (dist <= 4)
+					{
+						f4 &= ~(RF4_BIG_BALL_MASK);
+						f5 &= ~(RF5_BIG_BALL_MASK);
+						f6 &= ~(RF6_BIG_BALL_MASK);
+					}
+				}
 			}
-			else if(dist <= 4)
+
+			if (f4 & RF4_ROCKET)
 			{
-				f4 &= ~(RF4_BIG_BALL_MASK);
-				f5 &= ~(RF5_BIG_BALL_MASK);
-				f6 &= ~(RF6_BIG_BALL_MASK);
+				int real_y = y;
+				int real_x = x;
+
+				get_project_point(m_ptr->fy, m_ptr->fx, &real_y, &real_x, PROJECT_STOP);
+				if (los(real_y, real_x, py, px) && (distance(real_y, real_x, py, px) <= 2))
+					f4 &= ~(RF4_ROCKET);
 			}
 
 			if (((f4 & RF4_BEAM_MASK) ||
@@ -343,19 +386,24 @@ bool monst_spell_monst(int m_idx)
 				f6 &= ~(RF6_BEAM_MASK);
 			}
 
-			if (((f4 & RF4_BREATH_MASK) ||
-			  (f5 & RF5_BREATH_MASK) ||
-			  (f6 & RF6_BREATH_MASK)) &&
-			 !breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, FALSE, TRUE))
+			if ((f4 & RF4_BREATH_MASK) ||
+			    (f5 & RF5_BREATH_MASK) ||
+			    (f6 & RF6_BREATH_MASK))
 			{
-				f4 &= ~(RF4_BREATH_MASK);
-				f5 &= ~(RF5_BREATH_MASK);
-				f6 &= ~(RF6_BREATH_MASK);
-			}
-			else if ((f4 & RF4_BR_DISI) &&
-				 !breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, TRUE, TRUE))
-			{
-				f4 &= ~(RF4_BR_DISI);
+				/* Expected breath radius */
+				int rad = (r_ptr->flags2 & RF2_POWERFUL) ? 3 : 2;
+
+				if (!breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, FALSE, TRUE))
+				{
+					f4 &= ~(RF4_BREATH_MASK);
+					f5 &= ~(RF5_BREATH_MASK);
+					f6 &= ~(RF6_BREATH_MASK);
+				}
+				else if ((f4 & RF4_BR_DISI) &&
+					 !breath_direct(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx, rad, TRUE, TRUE))
+				{
+					f4 &= ~(RF4_BR_DISI);
+				}
 			}
 		}
 
@@ -2146,7 +2194,7 @@ msg_format("%^sは精神攻撃を食らった。", t_name);
 					t_ptr->confused += randint0(4) + 4;
 
 #ifdef JP
-mon_take_hit_mon(FALSE, t_idx, dam, &fear, "の精神は崩壊し、肉体は抜け空となった。", m_idx);
+mon_take_hit_mon(FALSE, t_idx, dam, &fear, "の精神は崩壊し、肉体は抜け殻となった。", m_idx);
 #else
 					mon_take_hit_mon(FALSE, t_idx, dam, &fear, " collapses, a mindless husk.", m_idx);
 #endif
@@ -2216,7 +2264,7 @@ msg_format("%^sは精神攻撃を食らった。", t_name);
 					t_ptr->stunned += randint0(4) + 4;
 
 #ifdef JP
-mon_take_hit_mon(FALSE, t_idx, dam, &fear, "の精神は崩壊し、肉体は抜け空となった。", m_idx);
+mon_take_hit_mon(FALSE, t_idx, dam, &fear, "の精神は崩壊し、肉体は抜け殻となった。", m_idx);
 #else
 					mon_take_hit_mon(FALSE, t_idx, dam, &fear, " collapses, a mindless husk.", m_idx);
 #endif

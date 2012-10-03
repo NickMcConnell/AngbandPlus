@@ -1995,6 +1995,7 @@ act = "%sにむかって歌った。";
 				}
 			case RBE_SHATTER:
 				{
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					if (damage > 23)
 					{
 						earthquake(m_ptr->fy, m_ptr->fx, 8);
@@ -2405,7 +2406,7 @@ msg_print("少しの間悲しい気分になった。");
 				riding_pinch++;
 				disturb(1, 0);
 			}
-			else 
+			else
 			{
 				if (m_idx == p_ptr->riding)
 				{
@@ -2451,6 +2452,9 @@ msg_print("少しの間悲しい気分になった。");
 					msg_print("You have fallen from riding pet.");
 #endif
 				}
+
+				/* Check for quest completion */
+				check_quest_completion(m_ptr);
 
 				delete_monster_idx(m_idx);
 
@@ -3512,7 +3516,7 @@ msg_print("爆発のルーンは解除された。");
 				/* Update the monsters */
 				p_ptr->update |= (PU_DISTANCE);
 
-				/* Window stuff */
+				/* Update sub-windows */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 			}
 
@@ -4121,6 +4125,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 		int old_maxhp = m_ptr->max_maxhp;
 		int old_r_idx = m_ptr->r_idx;
 		int i;
+		byte old_sub_align = m_ptr->sub_align;
 
 		monster_desc(m_name, m_ptr, 0);
 		m_ptr->r_idx = r_ptr->next_r_idx;
@@ -4161,6 +4166,16 @@ void monster_gain_exp(int m_idx, int s_idx)
 		}
 
 		if (m_ptr->mspeed > 199) m_ptr->mspeed = 199;
+
+		/* Sub-alignment of a monster */
+		if (!is_pet(m_ptr) && !(r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)))
+			m_ptr->sub_align = old_sub_align;
+		else
+		{
+			m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
+			if (r_ptr->flags3 & RF3_EVIL) m_ptr->sub_align |= SUB_ALIGN_EVIL;
+			if (r_ptr->flags3 & RF3_GOOD) m_ptr->sub_align |= SUB_ALIGN_GOOD;
+		}
 
 		m_ptr->exp = 0;
 

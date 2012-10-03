@@ -263,7 +263,7 @@ void teleport_player(int dis)
 	int d, i, min, ox, oy;
 	int tries = 0;
 
-	int xx = -1, yy = -1;
+	int xx, yy;
 
 	/* Initialize */
 	int y = py;
@@ -367,35 +367,29 @@ msg_print("不思議な力がテレポートを防いだ！");
 	lite_spot(oy, ox);
 
 	/* Monsters with teleport ability may follow the player */
-	while (xx < 2)
+	for (xx = -1; xx < 2; xx++)
 	{
-		yy = -1;
-
-		while (yy < 2)
+		for (yy = -1; yy < 2; yy++)
 		{
-			if (xx == 0 && yy == 0)
+			int tmp_m_idx = cave[oy+yy][ox+xx].m_idx;
+
+			/* A monster except your mount may follow */
+			if (tmp_m_idx && p_ptr->riding != tmp_m_idx)
 			{
-				/* Do nothing */
-			}
-			else
-			{
-				if (cave[oy+yy][ox+xx].m_idx)
+				monster_type *m_ptr = &m_list[tmp_m_idx];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/*
+				 * The latter limitation is to avoid
+				 * totally unkillable suckers...
+				 */
+				if ((r_ptr->flags6 & RF6_TPORT) &&
+				    !(r_ptr->flags3 & RF3_RES_TELE))
 				{
-					if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6 & RF6_TPORT) &&
-					    !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3 & RF3_RES_TELE))
-						/*
-						 * The latter limitation is to avoid
-						 * totally unkillable suckers...
-						 */
-					{
-						if (!(m_list[cave[oy+yy][ox+xx].m_idx].csleep))
-							teleport_to_player(cave[oy+yy][ox+xx].m_idx, r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].level);
-					}
+					if (!m_ptr->csleep) teleport_to_player(tmp_m_idx, r_ptr->level);
 				}
 			}
-			yy++;
 		}
-		xx++;
 	}
 
 	forget_flow();
@@ -523,7 +517,7 @@ void teleport_player_level(void)
 {
 	/* No effect in arena or quest */
 	if (p_ptr->inside_arena || (p_ptr->inside_quest && !random_quest_number(dun_level)) ||
-	    (quest_number(dun_level) && (dun_level > 1) && ironman_downward))
+	    ((quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth)) && (dun_level > 1) && ironman_downward))
 	{
 #ifdef JP
 msg_print("効果がなかった。");
@@ -2513,7 +2507,7 @@ msg_format("%sは既に強化されています！",
 #else
 		msg_format("The %s %s already %s!",
 		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "kaji items" : "an kaji item"));
+		    ((o_ptr->number > 1) ? "customized items" : "a customized item"));
 #endif
 	}
 
@@ -4051,7 +4045,8 @@ s16b spell_chance(int spell, int use_realm)
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
 
-	if ((use_realm == p_ptr->realm1) || (use_realm == p_ptr->realm2))
+	if ((use_realm == p_ptr->realm1) || (use_realm == p_ptr->realm2)
+	    || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE))
 	{
 		s16b exp = experience_of_spell(spell, use_realm);
 		if(exp > 1399) chance--;
@@ -4350,7 +4345,7 @@ static void spell_info(char *p, int spell, int use_realm)
 		case 15: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2); break;
 		case 16: sprintf(p, " %s25+d30", s_dur); break;
 		case 17: sprintf(p, " %s30+d20", s_dur); break;
-		case 19: sprintf(p, " %s%d+d%d", s_dur, plev+20, plev); break;
+		case 19: sprintf(p, " %s%d+d%d", s_dur, plev, plev+20); break;
 		case 20: sprintf(p, " %s50+d50", s_dur); break;
 		case 23: sprintf(p, " %s20+d20", s_dur); break;
 		case 31: sprintf(p, " %s13+d13", s_dur); break;
@@ -4540,9 +4535,9 @@ put_str(buf, y, x + 29);
 
 			max = FALSE;
 			if (!increment && (shougou == 4)) max = TRUE;
-			else if ((increment == 32) && (shougou == 3)) max = TRUE;
+			else if ((increment == 32) && (shougou >= 3)) max = TRUE;
 			else if (s_ptr->slevel >= 99) max = TRUE;
-			else if (p_ptr->pclass == CLASS_RED_MAGE) max = TRUE;
+			else if ((p_ptr->pclass == CLASS_RED_MAGE) && (shougou >= 2)) max = TRUE;
 
 			strncpy(ryakuji,shougou_moji[shougou],4);
 			ryakuji[3] = ']';

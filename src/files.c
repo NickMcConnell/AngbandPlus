@@ -2830,10 +2830,10 @@ static void known_obj_immunity(u32b flgs[TR_FLAG_SIZE])
 		/* Known flags */
 		object_flags_known(o_ptr, o_flgs);
 
-		if (have_flag(flgs, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
-		if (have_flag(flgs, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
-		if (have_flag(flgs, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
-		if (have_flag(flgs, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
+		if (have_flag(o_flgs, TR_IM_ACID)) add_flag(flgs, TR_RES_ACID);
+		if (have_flag(o_flgs, TR_IM_ELEC)) add_flag(flgs, TR_RES_ELEC);
+		if (have_flag(o_flgs, TR_IM_FIRE)) add_flag(flgs, TR_RES_FIRE);
+		if (have_flag(o_flgs, TR_IM_COLD)) add_flag(flgs, TR_RES_COLD);
 	}
 }
 
@@ -3206,7 +3206,7 @@ static void display_player_other_flag_info(void)
 	display_flag_aux(row+13, col, "Poison Brd:", TR_BRAND_POIS, &f, DP_WP);
 	display_flag_aux(row+14, col, "Sharpness :", TR_VORPAL, &f, DP_WP);
 	display_flag_aux(row+15, col, "Quake     :", TR_IMPACT, &f, DP_WP);
-	display_flag_aux(row+16, col, "Vampicic  :", TR_VAMPIRIC, &f, DP_WP);
+	display_flag_aux(row+16, col, "Vampiric  :", TR_VAMPIRIC, &f, DP_WP);
 	display_flag_aux(row+17, col, "Chatic    :", TR_CHAOTIC, &f, DP_WP);
 	display_flag_aux(row+18, col, "Force Wep.:", TR_FORCE_WEAPON, &f, DP_WP);
 #endif
@@ -4679,7 +4679,7 @@ fprintf(fff, "\n\n  [突然変異]\n\n");
 	if (equip_cnt)
 	{
 #ifdef JP
-fprintf(fff, "  [ キャラクタの装備 ]\n\n");
+fprintf(fff, "  [キャラクタの装備]\n\n");
 #else
 		fprintf(fff, "  [Character Equipment]\n\n");
 #endif
@@ -4701,7 +4701,7 @@ fprintf(fff, "  [ キャラクタの装備 ]\n\n");
 
 	/* Dump the inventory */
 #ifdef JP
-fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
+fprintf(fff, "  [キャラクタの持ち物]\n\n");
 #else
 	fprintf(fff, "  [Character Inventory]\n\n");
 #endif
@@ -4729,7 +4729,7 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 	{
 		/* Header with name of the town */
 #ifdef JP
-		fprintf(fff, "  [ 我が家のアイテム ]\n");
+		fprintf(fff, "  [我が家のアイテム]\n");
 #else
 		fprintf(fff, "  [Home Inventory]\n");
 #endif
@@ -4761,7 +4761,7 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 	{
 		/* Header with name of the town */
 #ifdef JP
-		fprintf(fff, "  [ 博物館のアイテム ]\n");
+		fprintf(fff, "  [博物館のアイテム]\n");
 #else
 		fprintf(fff, "  [Museum]\n");
 #endif

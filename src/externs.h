@@ -338,8 +338,8 @@ extern s16b lite_n;
 extern s16b lite_y[LITE_MAX];
 extern s16b lite_x[LITE_MAX];
 extern s16b mon_lite_n;
-extern s16b mon_lite_y[LITE_MAX];
-extern s16b mon_lite_x[LITE_MAX];
+extern s16b mon_lite_y[MON_LITE_MAX];
+extern s16b mon_lite_x[MON_LITE_MAX];
 extern s16b view_n;
 extern byte view_y[VIEW_MAX];
 extern byte view_x[VIEW_MAX];
@@ -662,7 +662,7 @@ extern void do_cmd_checkquest(void);
 extern void do_cmd_time(void);
 
 /* cmd5.c */
-extern cptr spell_categoly_name(int tval);
+extern cptr spell_category_name(int tval);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void stop_singing(void);
@@ -911,7 +911,6 @@ extern void do_cmd_kaji(bool only_browse);
 
 /* racial.c */
 extern bool gain_magic(void);
-extern bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty);
 extern void do_cmd_racial_power(void);
 
 /* save.c */
@@ -1036,6 +1035,7 @@ extern bool project_hack(int typ, int dam);
 extern bool eat_magic(int power);
 extern void discharge_minion(void);
 extern void kawarimi(bool success);
+extern bool rush_attack(bool *mdeath);
 
 /* spells3.c */
 extern bool teleport_away(int m_idx, int dis, bool dec_valour);
@@ -1365,7 +1365,7 @@ extern bool lose_mutation(int choose_mut);
 extern void dump_mutations(FILE *OutFile);
 extern void do_cmd_knowledge_mutations(void);
 extern int calc_mutant_regenerate_mod(void);
-extern void mutation_power_aux(u32b power);
+extern bool mutation_power_aux(u32b power);
 
 
 /*

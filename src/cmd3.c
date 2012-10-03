@@ -2346,17 +2346,6 @@ void do_cmd_query_symbol(void)
 		/* Hack -- Handle stuff */
 		handle_stuff();
 
-		/* Hack -- Begin the prompt */
-		roff_top(r_idx);
-
-		/* Hack -- Complete the prompt */
-#ifdef JP
-		Term_addstr(-1, TERM_WHITE, " ['r'思い出, ESC]");
-#else
-		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
-#endif
-
-
 		/* Interact */
 		while (1)
 		{
@@ -2368,15 +2357,17 @@ void do_cmd_query_symbol(void)
 
 				/* Recall on screen */
 				screen_roff(who[i], 0);
-
-				/* Hack -- Complete the prompt (again) */
-#ifdef JP
-				Term_addstr(-1, TERM_WHITE, " ['r'思い出, ESC]");
-#else
-				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
-#endif
-
 			}
+
+			/* Hack -- Begin the prompt */
+			roff_top(r_idx);
+
+			/* Hack -- Complete the prompt */
+#ifdef JP
+			Term_addstr(-1, TERM_WHITE, " ['r'思い出, ESC]");
+#else
+			Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+#endif
 
 			/* Command */
 			query = inkey();
@@ -2633,12 +2624,6 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 		/* Extract a race */
 		r_idx = who[i];
 
-		/* Save this monster ID */
-		p_ptr->monster_race_idx = r_idx;
-
-		/* Hack -- Handle stuff */
-		handle_stuff();
-
 		/* Hack -- Begin the prompt */
 		roff_top(r_idx);
 
@@ -2701,6 +2686,12 @@ Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
 				
 				r_ptr->r_xtra1 |= MR1_SINKA;
 			
+				/* Save this monster ID */
+				monster_race_track(r_idx);
+
+				/* Hack -- Handle stuff */
+				handle_stuff();
+
 				/* know every thing mode */
 				screen_roff(r_idx, 0x01);
 				notpicked = FALSE;

@@ -2780,13 +2780,13 @@ note_dies = "は蒸発した！";
 			/* PSI only works if the monster can see you! -- RG */
 			if (!(los(m_ptr->fy, m_ptr->fx, py, px)))
 			{
-				dam = 0;
 #ifdef JP
-note = "はあなたが見えないので影響されない！";
+				if (seen) msg_format("%sはあなたが見えないので影響されない！", m_name);
 #else
-				note = " can't see you, and isn't affected!";
+				if (seen) msg_format("%^s  can't see you, and isn't affected!", m_name);
 #endif
-
+				skipped = TRUE;
+				break;
 			}
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -3000,7 +3000,8 @@ msg_print("超能力パワーを吸いとられた！");
 						msg_print("Your psychic energy is drained!");
 #endif
 
-						p_ptr->csp = MAX(0, p_ptr->csp - damroll(5, dam) / 2);
+						p_ptr->csp -= damroll(5, dam) / 2;
+						if (p_ptr->csp < 0) p_ptr->csp = 0;
 						p_ptr->redraw |= PR_MANA;
 						p_ptr->window |= (PW_SPELL);
 						take_hit(DAMAGE_ATTACK, dam, killer, -1);  /* has already been /3 */
@@ -5045,7 +5046,7 @@ note = "には効果がなかった。";
 			{
 #ifdef JP
 msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け空となった。";
+note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -5100,7 +5101,7 @@ note = "には効果がなかった。";
 			{
 #ifdef JP
 msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け空となった。";
+note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -5386,60 +5387,11 @@ msg_format("うまく捕まえられなかった。");
 			break;
 		}
 
+		/* Attack (Use "dam" as attack type) */
 		case GF_ATTACK:
 		{
-			if (seen) obvious = TRUE;
-			skipped = TRUE;
-			if (dam == HISSATSU_NYUSIN)
-			{
-				int i;
-				int ny = y, nx = x;
-				bool success = FALSE;
-				for (i = 0; i < 8; i++)
-				{
-					if (cave_empty_bold(y+ddy[i], x+ddx[i]) || ((y+ddy[i] == py) && (x+ddx[i] == px)))
-					{
-						success = TRUE;
-						if (distance(py, px, ny, nx) > distance(py, px, y+ddy[i], x+ddx[i]))
-						{
-							ny = y+ddy[i];
-							nx = x+ddx[i];
-						}
-					}
-				}
-				if (success)
-				{
-					if ((ny != py) || (nx != px))
-					{
-						teleport_player_to(ny, nx, FALSE);
-#ifdef JP
-						msg_print("素早く相手の懐に入り込んだ！");
-#else
-						msg_format("You quickly jump in and attack %s!", m_name);
-#endif
-					}
-				}
-				else
-				{
-#ifdef JP
-					msg_print("失敗！");
-#else
-					msg_print("Failed!");
-#endif
-					dam = 0;
-					break;
-				}
-			}
-			if (c_ptr->m_idx)
-				return (py_attack(y, x, dam));
-			else
-#ifdef JP
-				msg_print("攻撃は空を切った。");
-#else
-				msg_print("You attack the empty air.");
-#endif
-			dam = 0;
-			break;
+			/* Return this monster's death */
+			return py_attack(y, x, dam);
 		}
 
 		/* Sleep (Use "dam" as "power") */
@@ -5843,7 +5795,7 @@ note = "には効果がなかった。";
 	/* Quest monsters cannot be polymorphed */
 	if (r_ptr->flags1 & RF1_QUESTOR) do_poly = FALSE;
 
-	if (p_ptr->riding & (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
+	if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
 
 	/* "Unique" and "quest" monsters can only be "killed" by the player. */
 	if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7) || (r_ptr->flags1 & RF1_QUESTOR)) && !p_ptr->inside_battle)
@@ -5861,7 +5813,7 @@ note = "には効果がなかった。";
 	tmp = dam;
 	dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
 #ifdef JP
-	if ((tmp > 0) && (dam == 0)) note = "はダメージを受けていない";
+	if ((tmp > 0) && (dam == 0)) note = "はダメージを受けていない。";
 #else
 	if ((tmp > 0) && (dam == 0)) note = " is unharmed.";
 #endif
@@ -8033,15 +7985,23 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 	int brad = 0;
 	int bdis = 0;
 	int cdis;
+	int path_n = 0;
+	int max_dis = distance(y1, x1, y2, x2) + rad;
 	
-	/* Not done yet */
-	bool done = FALSE;
-	
+	/* Start from origin */	
 	by = y1;
 	bx = x1;
 	
-	while (bdis <= distance(y1, x1, y2, x2) + rad)
+	while (bdis <= max_dis)
 	{
+		if ((path_n < dist) && (distance(by, bx, y1, x1) < bdis))
+		{
+			/* Get next base point */
+			by = GRID_Y(path_g[path_n]);
+			bx = GRID_X(path_g[path_n]);
+			path_n++;
+		}
+
 		/* Travel from center outward */
 		for (cdis = 0; cdis <= brad; cdis++)
 		{
@@ -8056,10 +8016,11 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 					
 					/* Enforce a circular "ripple" */
 					if (distance(y1, x1, y, x) != bdis) continue;
-					
+
 					/* Enforce an arc */
 					if (distance(by, bx, y, x) != cdis) continue;
-					
+
+
 					if (disint_ball)
 					{
 						/* Disintegration are stopped only by perma-walls */
@@ -8090,28 +8051,12 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 		
 		/* Encode some more "radius" info */
 		gm[bdis + 1] = *pgrids;
-		
-		/* Stop moving */
-		if ((by == y2) && (bx == x2)) done = TRUE;
-		
-		/* Finish */
-		if (done)
-		{
-			bdis++;
-			continue;
-		}
-		
-		/* Ripple outwards */
-/*		mmove2(&by, &bx, y1, x1, y2, x2); */
-		
-		by = GRID_Y(path_g[bdis]);
-		bx = GRID_X(path_g[bdis]);
-	
+
 		/* Find the next ripple */
 		bdis++;
 		
 		/* Increase the size */
-		brad = (rad * bdis) / dist;
+		brad = (rad * bdis) / max_dis;
 	}
 	
 	/* Store the effect size */
@@ -8267,6 +8212,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 
 	int y1, x1;
 	int y2, x2;
+	int by, bx;
 
 	int dist_hack = 0;
 
@@ -8768,18 +8714,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 				Term_xtra(TERM_XTRA_DELAY, msec);
 			}
 		}
-		if ((typ == GF_ATTACK) && (dam == HISSATSU_NYUSIN) && ((i+1) == path_n))
-		{
-			if (cave_empty_bold(y, x)) teleport_player_to(ny, nx, FALSE);
-		}
-
 	}
 
 	/* Save the "blast epicenter" */
-	y2 = y;
-	x2 = x;
+	by = y;
+	bx = x;
 
-	if (breath && (y1 == y2) && (x1 == x2))
+	if (breath && (y1 == by) && (x1 == bx))
 	{
 		breath = FALSE;
 		gm_rad = 1;
@@ -8820,7 +8761,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		{
 			flg &= ~(PROJECT_HIDE);
 
-			breath_shape(path_g, dist, &grids, gx, gy, gm, &gm_rad, rad, y1, x1, y2, x2, (bool)(typ == GF_DISINTEGRATE), TRUE);
+			breath_shape(path_g, dist, &grids, gx, gy, gm, &gm_rad, rad, y1, x1, by, bx, (bool)(typ == GF_DISINTEGRATE), TRUE);
 		}
 		else
 		{
@@ -8828,25 +8769,25 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			for (dist = 0; dist <= rad; dist++)
 			{
 				/* Scan the maximal blast area of radius "dist" */
-				for (y = y2 - dist; y <= y2 + dist; y++)
+				for (y = by - dist; y <= by + dist; y++)
 				{
-					for (x = x2 - dist; x <= x2 + dist; x++)
+					for (x = bx - dist; x <= bx + dist; x++)
 					{
 						/* Ignore "illegal" locations */
 						if (!in_bounds2(y, x)) continue;
 
 						/* Enforce a "circular" explosion */
-						if (distance(y2, x2, y, x) != dist) continue;
+						if (distance(by, bx, y, x) != dist) continue;
 
 						if (typ == GF_DISINTEGRATE)
 						{
 							/* Disintegration are stopped only by perma-walls */
-							if (!do_disintegration(y2, x2, y, x)) continue;
+							if (!do_disintegration(by, bx, y, x)) continue;
 						}
 						else
 						{
 							/* Ball explosions are stopped by walls */
-							if (!los(y2, x2, y, x)) continue;
+							if (!los(by, bx, y, x)) continue;
 						}
 
 						/* Save this grid */
@@ -8902,7 +8843,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			}
 
 			/* Hack -- center the cursor */
-			move_cursor_relative(y2, x2);
+			move_cursor_relative(by, bx);
 
 			/* Flush each "radius" seperately */
 			/*if (fresh_before)*/ Term_fresh();
@@ -8932,7 +8873,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			}
 
 			/* Hack -- center the cursor */
-			move_cursor_relative(y2, x2);
+			move_cursor_relative(by, bx);
 
 			/* Flush the explosion */
 			/*if (fresh_before)*/ Term_fresh();
@@ -8963,7 +8904,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			/* Find the closest point in the blast */
 			if (breath)
 			{
-				int d = dist_to_line(y, x, y1, x1, y2, x2);
+				int d = dist_to_line(y, x, y1, x1, by, bx);
 
 				/* Affect the grid */
 				if (project_f(who, d, y, x, dam, typ)) notice = TRUE;
@@ -8996,7 +8937,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			/* Find the closest point in the blast */
 			if (breath)
 			{
-				int d = dist_to_line(y, x, y1, x1, y2, x2);
+				int d = dist_to_line(y, x, y1, x1, by, bx);
 
 				/* Affect the object in the grid */
 				if (project_o(who, d, y, x, dam, typ)) notice = TRUE;
@@ -9024,6 +8965,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		/* Scan for monsters */
 		for (i = 0; i < grids; i++)
 		{
+			int effective_dist;
+
 			/* Hack -- Notice new "dist" values */
 			if (gm[dist + 1] == i) dist++;
 
@@ -9031,38 +8974,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 			y = gy[i];
 			x = gx[i];
 
-			if (grids > 1)
-			{
-				/* Find the closest point in the blast */
-				if (breath)
-				{
-					int d = dist_to_line(y, x, y1, x1, y2, x2);
-
-					/* Affect the monster in the grid */
-					if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_PLAYER))
-					{
-						if (project_m(who, d+1, y, x, dam, typ,flg)) notice = TRUE;
-					}
-					else if (project_m(who, d, y, x, dam, typ,flg)) notice = TRUE;
-				}
-				else
-				{
-					/* Affect the monster in the grid */
-					if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_PLAYER))
-					{
-						if (!(flg & PROJECT_BEAM))
-						{
-							if (project_m(who, dist+1, y, x, dam, typ,flg)) notice = TRUE;
-						}
-					}
-					else if (project_m(who, dist, y, x, dam, typ,flg)) notice = TRUE;
-				}
-			}
-			else
+			/* A single bolt may be reflected */
+			if (grids <= 1)
 			{
 				monster_race *ref_ptr = &r_info[m_list[cave[y][x].m_idx].r_idx];
 
-				if ((ref_ptr->flags2 & RF2_REFLECTING) && (!one_in_(10) && (flg & PROJECT_REFLECTABLE) && (!who || dist_hack > 1)))
+				if ((ref_ptr->flags2 & RF2_REFLECTING) && (flg & PROJECT_REFLECTABLE) && (!who || dist_hack > 1) && !one_in_(10))
 				{
 					byte t_y, t_x;
 					int max_attempts = 10;
@@ -9074,7 +8991,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 						t_x = x_saver - 1 + randint1(3);
 						max_attempts--;
 					}
-
 					while (max_attempts && in_bounds2u(t_y, t_x) &&
 					    !(los(y, x, t_y, t_x)));
 
@@ -9098,22 +9014,108 @@ else msg_print("攻撃は跳ね返った！");
 
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
+
+					/* Reflected bolts randomly target either one */
 					flg &= ~(PROJECT_MONSTER | PROJECT_PLAYER);
 					if (one_in_(2)) flg |= PROJECT_MONSTER;
 					else flg |= PROJECT_PLAYER;
 
-					project(cave[y][x].m_idx, 0, t_y, t_x,  dam, typ, flg, monspell);
-				}
-				else
-				{
-					if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_PLAYER))
-					{
-					}
-					else if (project_m(who, dist, y, x, dam, typ,flg)) notice = TRUE;
+					/* The bolt is reflected */
+					project(cave[y][x].m_idx, 0, t_y, t_x, dam, typ, flg, monspell);
+
+					/* Don't affect the monster any longer */
+					continue;
 				}
 			}
-		}
 
+
+			/* Find the closest point in the blast */
+			if (breath)
+			{
+				effective_dist = dist_to_line(y, x, y1, x1, by, bx);
+			}
+			else
+			{
+				effective_dist = dist;
+			}
+			
+			
+			/* There is the riding player on this monster */
+			if (p_ptr->riding && (y == py) && (x == px))
+			{
+				/* Aimed on the player */
+				if (flg & PROJECT_PLAYER)
+				{
+					if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+					{
+						/*
+						 * A beam or bolt is well aimed
+						 * at the PLAYER!
+						 * So don't affects the mount.
+						 */
+						continue;
+					}
+					else
+					{
+						/*
+						 * The spell is not well aimed, 
+						 * So partly affect the mount too.
+						 */
+						effective_dist++;
+					}
+				}
+
+				/*
+				 * This grid is the original target.
+				 */
+				else if ((y == y2) || (x == x2))
+				{
+					/* Hit the mount with full damage */
+				}
+
+				/*
+				 * Otherwise this grid is not the
+				 * original target, it means that line
+				 * of fire is obstructed by this
+				 * monster.
+				 */
+				/*
+				 * A beam or bolt will hit either
+				 * player or mount.  Choose randomly.
+				 */
+				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+				{
+					if (one_in_(2))
+					{
+						/* Hit the mount with full damage */
+					}
+					else
+					{
+						/* Hit the player later */
+						flg &= ~(PROJECT_MONSTER);
+						flg |= PROJECT_PLAYER;
+							
+						/* Don't affect the mount */
+						continue;
+					}
+				}
+
+				/*
+				 * The spell is not well aimed, so
+				 * partly affect both player and
+				 * mount.
+				 */
+				else
+				{
+					effective_dist++;
+				}
+			}
+			
+			/* Affect the monster in the grid */
+			if (project_m(who, effective_dist, y, x, dam, typ,flg)) notice = TRUE;
+		}
+		
+	
 		/* Player affected one monster (without "jumping") */
 		if (!who && (project_m_n == 1) && !jump)
 		{
@@ -9145,6 +9147,8 @@ else msg_print("攻撃は跳ね返った！");
 		/* Scan for player */
 		for (i = 0; i < grids; i++)
 		{
+			int effective_dist;
+
 			/* Hack -- Notice new "dist" values */
 			if (gm[dist+1] == i) dist++;
 
@@ -9152,30 +9156,58 @@ else msg_print("攻撃は跳ね返った！");
 			y = gy[i];
 			x = gx[i];
 
+			/* Affect the player? */
+			if (y != py || x != px) continue;
+
 			/* Find the closest point in the blast */
 			if (breath)
 			{
-				int d = dist_to_line(y, x, y1, x1, y2, x2);
-
-				/* Affect the player */
-				if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_MONSTER))
-				{
-					if (project_p(who, who_name, d+1, y, x, dam, typ, flg, monspell)) notice = TRUE;
-				}
-				else if (project_p(who, who_name, d, y, x, dam, typ, flg, monspell)) notice = TRUE;
+				effective_dist = dist_to_line(y, x, y1, x1, by, bx);
 			}
 			else
 			{
-				/* Affect the player */
-				if ((y == y2) && (x == x2) && (y == py) && (x == px) && (flg & PROJECT_MONSTER))
-				{
-					if (!((flg & PROJECT_BEAM) || (flg & PROJECT_STOP)))
-					{
-						if (project_p(who, who_name, dist+1, y, x, dam, typ, flg, monspell)) notice = TRUE;
-					}
-				}
-				else if (project_p(who, who_name, dist, y, x, dam, typ, flg, monspell)) notice = TRUE;
+				effective_dist = dist;
 			}
+
+			/* Target may be your horse */
+			if (p_ptr->riding)
+			{
+				/* Aimed on the player */
+				if (flg & PROJECT_PLAYER)
+				{
+					/* Hit the player with full damage */
+				}
+
+				/*
+				 * Hack -- When this grid was not the
+				 * original target, a beam or bolt
+				 * would hit either player or mount,
+				 * and should be choosen randomly.
+				 *
+				 * But already choosen to hit the
+				 * mount at this point.
+				 */
+				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+				{
+					/*
+					 * A beam or bolt is well aimed
+					 * at the mount!
+					 * So don't affects the player.
+					 */
+					continue;
+				}
+				else
+				{
+					/*
+					 * The spell is not well aimed, 
+					 * So partly affect the player too.
+					 */
+					effective_dist++;
+				}
+			}
+
+			/* Affect the player */
+			if (project_p(who, who_name, effective_dist, y, x, dam, typ, flg, monspell)) notice = TRUE;
 		}
 	}
 

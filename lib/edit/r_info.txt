@@ -3121,7 +3121,7 @@ F:FRIENDS |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | IM_FIRE | NO_FEAR | NO_CONF
 D:$An ugly screaming little demon servant of Tzeentch.
-D:ツィーンチのしもべの、叫ぶ醜い小型の悪魔だ。
+D:ティーンチのしもべの、叫ぶ醜い小型の悪魔だ。
 
 #J0#
 N:190:毛むくじゃらモルド
@@ -4016,7 +4016,7 @@ F:EVIL | DEMON | IM_FIRE | NO_FEAR | NO_CONF
 S:1_IN_8
 S:CONF | SCARE
 D:$An ugly screaming little demon servant of Tzeentch.
-D:ツィーンチのしもべの、叫ぶ醜い小型の悪魔だ。
+D:ティーンチのしもべの、叫ぶ醜い小型の悪魔だ。
 
 #JZ#
 N:243:クローカー
@@ -11033,7 +11033,7 @@ S:BLINK | TPORT | CONF | BA_FIRE | DRAIN_MANA | HASTE | BO_PLAS
 D:$It is a living entity of fire. Fire springs up wherever this 
 D:$creature touches.
 D:知性を持つプラズマの集合体。
-D:「クトゥグア」に奉仕しており、恒星フォマルハウトに棲息している。
+D:「クトゥグァ」に奉仕しており、恒星フォマルハウトに棲息している。
 D:一体一体は弱小だが、何千という数で襲来すれば大破壊をもたらす。
 D:（ダーレス「闇に潜むもの」）
 
@@ -20224,7 +20224,7 @@ F:OPEN_DOOR | GOOD | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | FRIENDLY | TAKE_ITEM |
 S:1_IN_5 |
 S:BA_FIRE | HOLD | BO_FIRE | HEAL
-D:かの大魔術師マーリンが異世界から召還した(と言い張っている)戦士だ。
+D:かの大魔術師マーリンが異世界から召喚した(と言い張っている)戦士だ。
 D:「若者はエクスカリバーを短くしたような怪しげな剣を持ち、
 D:稲妻だとか火の玉だとか、わけのわからぬことを呟いている。」
 D:(J.H.ブレナン、真崎義博訳 暗黒城の魔術師)
@@ -20672,7 +20672,7 @@ F:OPEN_DOOR | DEMON | CAN_SPEAK | NONLIVING |
 F:EVIL | RAND_25 | IM_COLD | IM_FIRE | IM_POIS | CAN_SWIM |
 S:1_IN_6 |
 S:BR_COLD
-D:A demon small in stature whose face you can't help but love.
+D:$A demon small in stature whose face you can't help but love.
 D:憎めない顔をした小柄な悪魔だ。
 
 #

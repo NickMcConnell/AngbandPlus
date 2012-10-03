@@ -1517,7 +1517,7 @@ P:0:8d4:0:0:0
 F:DEX | HIDE_TYPE | BLOWS | VORPAL |
 F:SUST_DEX | SHOW_MODS | SPEED
 D:$An utterly perfect, cleanly chiseled sword, with a edge that effortlessly
-D:$ slices rock and bone and spells to render the wearer lithe and nimble.　It
+D:$ slices rock and bone and spells to render the wearer lithe and nimble.  It
 D:$ is combat incarnate.
 D:シンダール語で「誉の鋼」を意味する美しい完全無欠の刀だ。
 D:の刃は岩や骨を苦もなく切り裂き、
@@ -2032,7 +2032,7 @@ D:$The awesome weapon of the Vala Ulmo, Lord of Waters. Mightest of all the
 D:$powers of good save Manwe himself, Ulmo laughs in scorn at the dread powers 
 D:$of the undead, and is utterly in command of the element of water.
 D:水の王であるヴァラ、ウルモの恐ろしい武器。マンウェ自身を除けば
-D:善き勢力の内で最強であるウルモは、アンデドッドの恐るべき力さえ
+D:善き勢力の内で最強であるウルモは、アンデッドの恐るべき力さえ
 D:嘲笑い、酸のエレメントの究極的支配力を持つ。
 
 

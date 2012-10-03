@@ -1430,7 +1430,7 @@ static void recharged_notice(object_type *o_ptr)
 				msg_format("Your %s is recharged.", o_name);
 #endif
 
-			disturb(1, 0);
+			disturb(0, 0);
 
 			/* Done. */
 			return;
@@ -1494,8 +1494,14 @@ static void check_music(void)
 			/* Recalculate bonuses */
 			p_ptr->update |= (PU_BONUS | PU_HP);
 
-			/* Redraw status bar */
-			p_ptr->redraw |= (PR_STATUS);
+			/* Redraw map and status bar */
+			p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
+
+			/* Update monsters */
+			p_ptr->update |= (PU_MONSTERS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 		}
 	}
 	if (p_ptr->spell_exp[p_ptr->magic_num2[0]] < 900)
@@ -2019,6 +2025,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "炎のオーラ", -1);
 		if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_ELEC) && !p_ptr->immune_elec)
 		{
 			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
+			if (prace_is_(RACE_ANDROID)) damage += damage / 3;
 			if (p_ptr->resist_elec) damage = damage / 3;
 			if (p_ptr->oppose_elec) damage = damage / 3;
 #ifdef JP
@@ -3875,8 +3882,8 @@ static bool enter_wizard_mode(void)
 
 		/* Mention effects */
 #ifdef JP
-msg_print("ウィザードモードはデバグと実験のためのモードです。 ");
-msg_print("一度ウィザードモードに入るとスコアは記録されません。");
+		msg_print("ウィザードモードはデバッグと実験のためのモードです。 ");
+		msg_print("一度ウィザードモードに入るとスコアは記録されません。");
 #else
 		msg_print("Wizard mode is for debugging and experimenting.");
 		msg_print("The game will not be scored if you enter wizard mode.");
@@ -3886,15 +3893,19 @@ msg_print("一度ウィザードモードに入るとスコアは記録されません。");
 
 		/* Verify request */
 #ifdef JP
-if (!get_check("本当にウィザードモードに入りたいのですか? "))
+		if (!get_check("本当にウィザードモードに入りたいのですか? "))
 #else
 		if (!get_check("Are you sure you want to enter wizard mode? "))
 #endif
-
 		{
 			return (FALSE);
 		}
 
+#ifdef JP
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ウィザードモードに突入してスコアを残せなくなった。");
+#else
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up recording score to enter wizard mode.");
+#endif
 		/* Mark savefile */
 		p_ptr->noscore |= 0x0002;
 	}
@@ -3927,8 +3938,8 @@ static bool enter_debug_mode(void)
 
 		/* Mention effects */
 #ifdef JP
-msg_print("デバグ・コマンドはデバグと実験のためのコマンドです。 ");
-msg_print("デバグ・コマンドを使うとスコアは記録されません。");
+		msg_print("デバッグ・コマンドはデバッグと実験のためのコマンドです。 ");
+		msg_print("デバッグ・コマンドを使うとスコアは記録されません。");
 #else
 		msg_print("The debug commands are for debugging and experimenting.");
 		msg_print("The game will not be scored if you use debug commands.");
@@ -3938,11 +3949,10 @@ msg_print("デバグ・コマンドを使うとスコアは記録されません。");
 
 		/* Verify request */
 #ifdef JP
-if (!get_check("本当にデバグ・コマンドを使いますか? "))
+		if (!get_check("本当にデバッグ・コマンドを使いますか? "))
 #else
 		if (!get_check("Are you sure you want to use debug commands? "))
 #endif
-
 		{
 			return (FALSE);
 		}
@@ -3980,8 +3990,8 @@ static bool enter_borg_mode(void)
 	{
 		/* Mention effects */
 #ifdef JP
-msg_print("ボーグ・コマンドはデバグと実験のためのコマンドです。 ");
-msg_print("ボーグ・コマンドを使うとスコアは記録されません。");
+		msg_print("ボーグ・コマンドはデバッグと実験のためのコマンドです。 ");
+		msg_print("ボーグ・コマンドを使うとスコアは記録されません。");
 #else
 		msg_print("The borg commands are for debugging and experimenting.");
 		msg_print("The game will not be scored if you use borg commands.");
@@ -3991,15 +4001,19 @@ msg_print("ボーグ・コマンドを使うとスコアは記録されません。");
 
 		/* Verify request */
 #ifdef JP
-if (!get_check("本当にボーグ・コマンドを使いますか? "))
+		if (!get_check("本当にボーグ・コマンドを使いますか? "))
 #else
 		if (!get_check("Are you sure you want to use borg commands? "))
 #endif
-
 		{
 			return (FALSE);
 		}
 
+#ifdef JP
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "ボーグ・コマンドを使用してスコアを残せなくなった。");
+#else
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "give up recording score to use borg commands.");
+#endif
 		/* Mark savefile */
 		p_ptr->noscore |= 0x0010;
 	}
@@ -6081,7 +6095,15 @@ msg_print("試合開始！");
 
 		if (p_ptr->riding)
 		{
-			COPY(&party_mon[0], &m_list[p_ptr->riding], monster_type);
+			if (is_pet(&m_list[p_ptr->riding]))
+			{
+				COPY(&party_mon[0], &m_list[p_ptr->riding], monster_type);
+			}
+			else
+			{
+				/* Fake riding? */
+				p_ptr->riding = 0;
+			}
 		}
 
 		for(i = m_max - 1, num = 1; (i >= 1 && num < 21); i--)
@@ -6628,13 +6650,6 @@ prt("お待ち下さい...", 0, 0);
 	}
 
 
-	/* Initialize vault info */
-#ifdef JP
-if (init_v_info()) quit("建築物初期化不能");
-#else
-	if (init_v_info()) quit("Cannot initialize vaults");
-#endif
-
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
 
@@ -6905,11 +6920,14 @@ msg_print("張りつめた大気が流れ去った...");
 
 s32b turn_real(s32b hoge)
 {
-	if ((p_ptr->prace == RACE_VAMPIRE) ||
-	    (p_ptr->prace == RACE_SKELETON) ||
-	    (p_ptr->prace == RACE_ZOMBIE) ||
-	    (p_ptr->prace == RACE_SPECTRE))
-		return hoge-(TURNS_PER_TICK * TOWN_DAWN *3/ 4);
-	else
+	switch (p_ptr->start_race)
+	{
+	case RACE_VAMPIRE:
+	case RACE_SKELETON:
+	case RACE_ZOMBIE:
+	case RACE_SPECTRE:
+		return hoge - (TURNS_PER_TICK * TOWN_DAWN * 3 / 4);
+	default:
 		return hoge;
+	}
 }

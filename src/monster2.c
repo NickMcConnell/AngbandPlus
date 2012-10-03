@@ -247,6 +247,9 @@ void delete_monster_idx(int i)
 
 	/* Visual update */
 	lite_spot(y, x);
+
+	/* Update some things */
+	p_ptr->update |= (PU_MON_LITE);
 }
 
 
@@ -3195,6 +3198,11 @@ msg_print("守りのルーンが壊れた！");
 		m_ptr->mflag |= (MFLAG_BORN);
 	}
 
+
+	if (r_ptr->flags7 & (RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
+	else if ((r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) && !m_ptr->csleep)
+		p_ptr->update |= (PU_MON_LITE);
 
 	/* Update the monster */
 	update_mon(c_ptr->m_idx, TRUE);

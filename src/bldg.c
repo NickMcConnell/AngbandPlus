@@ -3277,6 +3277,7 @@ static bool compare_weapons(void)
 	object_type *i_ptr;
 	cptr q, s;
 	int row = 2;
+	bool old_character_xtra = character_xtra;
 
 	screen_save();
 	/* Clear the screen */
@@ -3340,8 +3341,13 @@ s = "比べるものがありません。";
 	if (o1_ptr != i_ptr)
 		object_copy(i_ptr, o1_ptr);
 
+	/* Hack -- prevent "icky" message */
+	character_xtra = TRUE;
+
 	/* Get the new values */
 	calc_bonuses();
+
+	character_xtra = old_character_xtra;
 
 	/* List the new values */
 	list_weapon(o1_ptr, row, 2);
@@ -3353,8 +3359,13 @@ s = "比べるものがありません。";
 	else
 		object_copy(i_ptr, &orig_weapon);
 
+	/* Hack -- prevent "icky" message */
+	character_xtra = TRUE;
+
 	/* Get the new values */
 	calc_bonuses();
+
+	character_xtra = old_character_xtra;
 
 	/* List the new values */
 	list_weapon(o2_ptr, row, 40);

@@ -1717,6 +1717,7 @@ static void touch_zap_player(monster_type *m_ptr)
 #endif
 
 
+			if (prace_is_(RACE_ENT)) aura_damage += aura_damage / 3;
 			if (p_ptr->oppose_fire) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_fire) aura_damage = (aura_damage + 2) / 3;
 
@@ -1764,6 +1765,7 @@ static void touch_zap_player(monster_type *m_ptr)
 			/* Hack -- Get the "died from" name */
 			monster_desc(aura_dam, m_ptr, 0x288);
 
+			if (prace_is_(RACE_ANDROID)) aura_damage += aura_damage / 3;
 			if (p_ptr->oppose_elec) aura_damage = (aura_damage + 2) / 3;
 			if (p_ptr->resist_elec) aura_damage = (aura_damage + 2) / 3;
 
@@ -2425,7 +2427,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (o_ptr->name1 == ART_VORPAL_BLADE)
 					{
 #ifdef JP
-						msg_print("目にも止まらぬボーパル・ブレード、手錬の早業！");
+						msg_print("目にも止まらぬヴォーパルブレード、手錬の早業！");
 #else
 						msg_print("Your Vorpal Blade goes snicker-snack!");
 #endif
@@ -2867,7 +2869,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 #endif
 
 					teleport_away(c_ptr->m_idx, 50, FALSE);
-					num = p_ptr->num_blow[hand] + 1; /* Can't hit it anymore! */
+					num = num_blow + 1; /* Can't hit it anymore! */
 					*mdeath = TRUE;
 				}
 			}
@@ -3006,13 +3008,13 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 
 					if (p_ptr->align < 0 && mult < 20)
 						mult = 20;
-					if (!(p_ptr->resist_acid || p_ptr->oppose_acid) && (mult < 25))
+					if (!(p_ptr->resist_acid || p_ptr->oppose_acid || p_ptr->immune_acid) && (mult < 25))
 						mult = 25;
-					if (!(p_ptr->resist_elec || p_ptr->oppose_elec) && (mult < 25))
+					if (!(p_ptr->resist_elec || p_ptr->oppose_elec || p_ptr->immune_elec) && (mult < 25))
 						mult = 25;
-					if (!(p_ptr->resist_fire || p_ptr->oppose_fire) && (mult < 25))
+					if (!(p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire) && (mult < 25))
 						mult = 25;
-					if (!(p_ptr->resist_cold || p_ptr->oppose_cold) && (mult < 25))
+					if (!(p_ptr->resist_cold || p_ptr->oppose_cold || p_ptr->immune_cold) && (mult < 25))
 						mult = 25;
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 25))
 						mult = 25;
@@ -3238,18 +3240,34 @@ bool py_attack(int y, int x, int mode)
 		}
 	}
 
+	/* Gain riding experience */
 	if (p_ptr->riding)
 	{
-		int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
-		if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && ((p_ptr->skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (p_ptr->skill_exp[GINOU_RIDING]/100 - 2000 < ridinglevel))
-			p_ptr->skill_exp[GINOU_RIDING]++;
-		if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING]) && (p_ptr->skill_exp[GINOU_RIDING]/100 < ridinglevel))
+		int cur = p_ptr->skill_exp[GINOU_RIDING];
+		int max = s_info[p_ptr->pclass].s_max[GINOU_RIDING];
+
+		if (cur < max)
 		{
-			if (ridinglevel*100 > (p_ptr->skill_exp[GINOU_RIDING] + 1500))
-				p_ptr->skill_exp[GINOU_RIDING] += (1+(ridinglevel - p_ptr->skill_exp[GINOU_RIDING]/100 - 15));
-			else p_ptr->skill_exp[GINOU_RIDING]++;
+			int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+			int targetlevel = r_info[m_ptr->r_idx].level;
+			int inc = 0;
+
+			if ((cur / 200 - 5) < targetlevel)
+				inc += 1;
+
+			/* Extra experience */
+			if ((cur / 100) < ridinglevel)
+			{
+				if ((cur / 100 + 15) < ridinglevel)
+					inc += 1 + (ridinglevel - (cur / 100 + 15));
+				else
+					inc += 1;
+			}
+
+			p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
+
+			p_ptr->update |= (PU_BONUS);
 		}
-		p_ptr->update |= (PU_BONUS);
 	}
 
 	riding_t_m_idx = c_ptr->m_idx;
