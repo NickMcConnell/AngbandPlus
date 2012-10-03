@@ -1102,6 +1102,8 @@ struct player_type
 	s16b mane_dam[MAX_MANE];
 	s16b mane_num;
 
+	s16b concent;      /* Sniper's concentration level */
+
 	s16b player_hp[PY_MAX_LEVEL];
 	char died_from[80];   	  /* What killed the player */
 	cptr last_message;        /* Last message on death or retirement */
@@ -1689,3 +1691,17 @@ typedef struct
 	s16b jammed[MAX_LJ_DOORS];
 	s16b num_jammed;
 } door_type;
+
+
+#ifdef TRAVEL
+/*
+ *  A structure type for travel command
+ */
+typedef struct {
+	int run;
+	int cost[MAX_HGT][MAX_WID];
+	int x;
+	int y;
+	int dir;
+} travel_type;
+#endif

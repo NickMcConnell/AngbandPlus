@@ -293,7 +293,11 @@ static errr path_temp(char *buf, int max)
 	if (!s) return (-1);
 
 	/* Format to length */
+#ifndef WIN32
 	(void)strnfmt(buf, max, "%s", s);
+#else
+	(void)strnfmt(buf, max, ".%s", s);
+#endif
 
 	/* Success */
 	return (0);
@@ -3622,7 +3626,7 @@ bool get_com(cptr prompt, char *command, bool z_escape)
 	prt(prompt, 0, 0);
 
 	/* Get a key */
-	*command = inkey();
+	*command = inkey_special(FALSE);
 
 	/* Clear the prompt */
 	prt("", 0, 0);

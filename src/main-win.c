@@ -76,7 +76,7 @@
 
 
 #ifdef WINDOWS
-
+#include <windows.h>
 #include <direct.h>
 
 /*
@@ -196,7 +196,9 @@
 /*
  * This may need to be removed for some compilers XXX XXX XXX
  */
+#if 0
 #define STRICT
+#endif
 
 /*
  * Exclude parts of WINDOWS.H that are not needed
@@ -434,6 +436,16 @@ static term_data data[MAX_TERM_DATA];
 static term_data *my_td;
 
 /*
+ * Remember normal size of main window when maxmized
+ */
+POINT normsize;
+
+/*
+ * was main window maximized on previous playing
+ */
+bool win_maximized = FALSE;
+
+/*
  * game in progress
  */
 bool game_in_progress = FALSE;
@@ -564,6 +576,14 @@ static COLORREF win_clr[256];
  * Flag for macro trigger with dump ASCII
  */
 static bool Term_no_press = FALSE;
+
+/*
+ * Copy and paste
+ */
+static bool mouse_down = FALSE;
+static bool paint_rect = FALSE;
+static int mousex = 0, mousey = 0;
+static int oldx, oldy;
 
 
 /*
@@ -1067,18 +1087,27 @@ static void term_getsize(term_data *td)
 /*
  * Write the "prefs" for a single term
  */
-static void save_prefs_aux(term_data *td, cptr sec_name)
+static void save_prefs_aux(int i)
 {
+	term_data *td = &data[i];
+	char sec_name[128];
 	char buf[1024];
 
 	RECT rc;
+	WINDOWPLACEMENT lpwndpl;
 
 	/* Paranoia */
 	if (!td->w) return;
 
+	/* Make section name */
+	sprintf(sec_name, "Term-%d", i);
+
 	/* Visible */
-	strcpy(buf, td->visible ? "1" : "0");
-	WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
+	if (i > 0)
+	{
+		strcpy(buf, td->visible ? "1" : "0");
+		WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
+	}
 
 	/* Font */
 #ifdef JP
@@ -1113,13 +1142,29 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	wsprintf(buf, "%d", td->tile_hgt);
 	WritePrivateProfileString(sec_name, "TileHgt", buf, ini_file);
 
+	/* Get window placement and dimensions */
+	lpwndpl.length = sizeof(WINDOWPLACEMENT);
+	GetWindowPlacement(td->w, &lpwndpl);
+
+	/* Acquire position in *normal* mode (not minimized) */
+	rc = lpwndpl.rcNormalPosition;
+
 	/* Window size (x) */
-	wsprintf(buf, "%d", td->cols);
+	if (i == 0) wsprintf(buf, "%d", normsize.x);
+	else wsprintf(buf, "%d", td->cols);
 	WritePrivateProfileString(sec_name, "NumCols", buf, ini_file);
 
 	/* Window size (y) */
-	wsprintf(buf, "%d", td->rows);
+	if (i == 0) wsprintf(buf, "%d", normsize.y);
+	else wsprintf(buf, "%d", td->rows);
 	WritePrivateProfileString(sec_name, "NumRows", buf, ini_file);
+
+	/* Maxmized (only main window) */
+	if (i == 0)
+	{
+		strcpy(buf, IsZoomed(td->w) ? "1" : "0");
+		WritePrivateProfileString(sec_name, "Maximized", buf, ini_file);
+	}
 
 	/* Acquire position */
 	GetWindowRect(td->w, &rc);
@@ -1133,8 +1178,11 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "PositionY", buf, ini_file);
 
 	/* Window Z position */
-	strcpy(buf, td->posfix ? "1" : "0");
-	WritePrivateProfileString(sec_name, "PositionFix", buf, ini_file);
+	if (i > 0)
+	{
+		strcpy(buf, td->posfix ? "1" : "0");
+		WritePrivateProfileString(sec_name, "PositionFix", buf, ini_file);
+	}
 }
 
 
@@ -1170,11 +1218,7 @@ static void save_prefs(void)
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
 	{
-		term_data *td = &data[i];
-
-		sprintf(buf, "Term-%d", i);
-
-		save_prefs_aux(td, buf);
+		save_prefs_aux(i);
 	}
 }
 
@@ -1182,14 +1226,25 @@ static void save_prefs(void)
 /*
  * Load the "prefs" for a single term
  */
-static void load_prefs_aux(term_data *td, cptr sec_name)
+static void load_prefs_aux(int i)
 {
+	term_data *td = &data[i];
+	char sec_name[128];
 	char tmp[1024];
 
 	int wid, hgt;
 
+	/* Make section name */
+	sprintf(sec_name, "Term-%d", i);
+
+	/* Make section name */
+	sprintf(sec_name, "Term-%d", i);
+
 	/* Visible */
-	td->visible = (GetPrivateProfileInt(sec_name, "Visible", td->visible, ini_file) != 0);
+	if (i > 0)
+	{
+		td->visible = (GetPrivateProfileInt(sec_name, "Visible", td->visible, ini_file) != 0);
+	}
 
 	/* Desired font, with default */
 #ifdef JP
@@ -1231,13 +1286,23 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	/* Window size */
 	td->cols = GetPrivateProfileInt(sec_name, "NumCols", td->cols, ini_file);
 	td->rows = GetPrivateProfileInt(sec_name, "NumRows", td->rows, ini_file);
+	normsize.x = td->cols; normsize.y = td->rows;
+
+	/* Window size */
+	if (i == 0)
+	{
+		win_maximized = GetPrivateProfileInt(sec_name, "Maximized", win_maximized, ini_file);
+	}
 
 	/* Window position */
 	td->pos_x = GetPrivateProfileInt(sec_name, "PositionX", td->pos_x, ini_file);
 	td->pos_y = GetPrivateProfileInt(sec_name, "PositionY", td->pos_y, ini_file);
 
 	/* Window Z position */
-	td->posfix = GetPrivateProfileInt(sec_name, "PositionFix", td->posfix, ini_file);
+	if (i > 0)
+	{
+		td->posfix = GetPrivateProfileInt(sec_name, "PositionFix", td->posfix, ini_file);
+	}
 }
 
 
@@ -1247,8 +1312,6 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 static void load_prefs(void)
 {
 	int i;
-
-	char buf[1024];
 
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
@@ -1267,11 +1330,7 @@ static void load_prefs(void)
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
 	{
-		term_data *td = &data[i];
-
-		sprintf(buf, "Term-%d", i);
-
-		load_prefs_aux(td, buf);
+		load_prefs_aux(i);
 	}
 }
 
@@ -1877,6 +1936,28 @@ static void term_data_redraw(term_data *td)
 }
 
 
+void Term_inversed_area(HWND hWnd, int x, int y, int w, int h)
+{
+	HDC hdc;
+	HPEN oldPen;
+	HBRUSH myBrush, oldBrush;
+
+	term_data *td = (term_data *)GetWindowLong(hWnd, 0);
+	int tx = td->size_ow1 + x * td->tile_wid;
+	int ty = td->size_oh1 + y * td->tile_hgt;
+	int tw = w * td->tile_wid - 1;
+	int th = h * td->tile_hgt - 1;
+
+	hdc = GetDC(hWnd);
+	myBrush = CreateSolidBrush(RGB(255, 255, 255));
+	oldBrush = SelectObject(hdc, myBrush);
+	oldPen = SelectObject(hdc, GetStockObject(NULL_PEN) );
+
+	PatBlt(hdc, tx, ty, tw, th, PATINVERT);
+
+	SelectObject(hdc, oldBrush);
+	SelectObject(hdc, oldPen);
+}
 
 
 
@@ -3093,9 +3174,12 @@ static void init_windows(void)
 
 	term_data_link(td);
 	angband_term[0] = &td->t;
+	normsize.x = td->cols;
+	normsize.y = td->rows;
 
 	/* Activate the main window */
-	SetActiveWindow(td->w);
+	if (win_maximized) ShowWindow(td->w, SW_SHOWMAXIMIZED);
+	else ShowWindow(td->w, SW_SHOW);
 
 	/* Bring main window back to top */
 	SetWindowPos(td->w, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -4287,6 +4371,124 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
+		case WM_LBUTTONDOWN:
+		{
+			mousex = MIN(LOWORD(lParam) / td->tile_wid, td->cols - 1);
+			mousey = MIN(HIWORD(lParam) / td->tile_hgt, td->rows - 1);
+			mouse_down = TRUE;
+			oldx = mousex;
+			oldy = mousey;
+			return 0;
+		}
+
+		case WM_LBUTTONUP:
+		{
+			HGLOBAL hGlobal;
+			LPSTR lpStr;
+			int i, j, sz;
+			int dx = abs(oldx - mousex) + 1;
+			int dy = abs(oldy - mousey) + 1;
+			int ox = (oldx > mousex) ? mousex : oldx;
+			int oy = (oldy > mousey) ? mousey : oldy;
+
+			mouse_down = FALSE;
+			paint_rect = FALSE;
+
+#ifdef JP
+			sz = (dx + 3) * dy;
+#else
+			sz = (dx + 2) * dy;
+#endif
+			hGlobal = GlobalAlloc(GHND, sz + 1);
+			if (hGlobal == NULL) return 0;
+			lpStr = (LPSTR)GlobalLock(hGlobal);
+
+			for (i = 0; i < dy; i++)
+			{
+#ifdef JP
+				char *s;
+				char **scr = data[0].t.scr->c;
+
+				C_MAKE(s, (dx + 1), char);
+				strncpy(s, &scr[oy + i][ox], dx);
+
+				if (ox > 0)
+				{
+					if (iskanji(scr[oy + i][ox - 1])) s[0] = ' ';
+				}
+
+				if (ox + dx < data[0].cols)
+				{
+					if (iskanji(scr[oy + i][ox + dx - 1])) s[dx - 1] = ' ';
+				}
+
+				for (j = 0; j < dx; j++)
+				{
+					if (s[j] == 127) s[j] = '#';
+					*lpStr++ = s[j];
+				}
+#else
+				for (j = 0; j < dx; j++)
+				{
+					*lpStr++ = data[0].t.scr->c[oy + i][ox + j];
+				}
+#endif
+				if (dy > 1)
+				{
+					*lpStr++ = '\r';
+					*lpStr++ = '\n';
+				}
+			}
+
+			GlobalUnlock(hGlobal);
+			if (OpenClipboard(hWnd) == 0)
+			{
+				GlobalFree(hGlobal);
+				return 0;
+			}
+			EmptyClipboard();
+			SetClipboardData(CF_TEXT, hGlobal);
+			CloseClipboard();
+
+			Term_redraw();
+
+			return 0;
+		}
+
+		case WM_MOUSEMOVE:
+		{
+			if (mouse_down)
+			{
+				int dx, dy;
+				int cx = MIN(LOWORD(lParam) / td->tile_wid, td->cols - 1);
+				int cy = MIN(HIWORD(lParam) / td->tile_hgt, td->rows - 1);
+				int ox, oy;
+
+				if (paint_rect)
+				{
+					dx = abs(oldx - mousex) + 1;
+					dy = abs(oldy - mousey) + 1;
+					ox = (oldx > mousex) ? mousex : oldx;
+					oy = (oldy > mousey) ? mousey : oldy;
+					Term_inversed_area(hWnd, ox, oy, dx, dy);
+				}
+				else
+				{
+					paint_rect = TRUE;
+				}
+
+				dx = abs(cx - mousex) + 1;
+				dy = abs(cy - mousey) + 1;
+				ox = (cx > mousex) ? mousex : cx;
+				oy = (cy > mousey) ? mousey : cy;
+				Term_inversed_area(hWnd, ox, oy, dx, dy);
+
+				oldx = cx;
+				oldy = cy;
+			}
+			return 0;
+		}
+
 		case WM_INITMENU:
 		{
 			setup_menus();
@@ -4415,6 +4617,12 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 						td->cols = cols;
 						td->rows = rows;
 
+						if (!IsZoomed(td->w) && !IsIconic(td->w))
+						{
+							normsize.x = td->cols;
+							normsize.y = td->rows;
+						}
+
 						/* Activate */
 						Term_activate(&td->t);
 
@@ -4488,6 +4696,8 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_ACTIVATEAPP:
 		{
+			if (IsIconic(td->w)) break;
+
 			for (i = 1; i < MAX_TERM_DATA; i++)
 			{
 				if(data[i].visible)

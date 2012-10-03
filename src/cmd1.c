@@ -88,14 +88,18 @@ s16b critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h_b + plus) * 4) + (p_ptr->lev * 2));
+	i = ((p_ptr->to_h_b + plus) * 4) + (p_ptr->lev * 2);
+
+	/* Snipers can shot more critically with crossbows */
+	if (p_ptr->concent) i += ((i * p_ptr->concent) / 5);
+	if ((p_ptr->pclass == CLASS_SNIPER) && (p_ptr->tval_ammo == TV_BOLT)) i *= 2;
 
 	/* Critical hit */
 	if (randint1(5000) <= i)
 	{
-		k = weight + randint1(500);
+		k = weight * randint1(500);
 
-		if (k < 500)
+		if (k < 900)
 		{
 #ifdef JP
 			msg_print("手ごたえがあった！");
@@ -103,9 +107,9 @@ s16b critical_shot(int weight, int plus, int dam)
 			msg_print("It was a good hit!");
 #endif
 
-			dam = 2 * dam + 5;
+			dam += (dam / 2);
 		}
-		else if (k < 1000)
+		else if (k < 1350)
 		{
 #ifdef JP
 			msg_print("かなりの手ごたえがあった！");
@@ -113,7 +117,7 @@ s16b critical_shot(int weight, int plus, int dam)
 			msg_print("It was a great hit!");
 #endif
 
-			dam = 2 * dam + 10;
+			dam *= 2;
 		}
 		else
 		{
@@ -123,7 +127,7 @@ s16b critical_shot(int weight, int plus, int dam)
 			msg_print("It was a superb hit!");
 #endif
 
-			dam = 3 * dam + 15;
+			dam *= 3;
 		}
 	}
 
@@ -1986,7 +1990,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	char            m_name[80];
 
 	bool            success_hit = FALSE;
-	bool            old_success_hit = FALSE;
 	bool            backstab = FALSE;
 	bool            vorpal_cut = FALSE;
 	int             chaos_effect = 0;
@@ -2103,29 +2106,35 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	else if (mode == HISSATSU_COLD) num_blow = p_ptr->num_blow[hand]+2;
 	else num_blow = p_ptr->num_blow[hand];
 
+	/* Hack -- DOKUBARI always hit once */
+	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
+
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
 		if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 		{
+			int n = 1;
+
 			if (p_ptr->migite && p_ptr->hidarite)
 			{
-				success_hit = one_in_(2);
+				n *= 2;
 			}
-			else success_hit = TRUE;
-		}
-		else if (mode == HISSATSU_MAJIN)
-		{
-			if (num == 1)
+			if (mode == HISSATSU_3DAN)
 			{
-				if (one_in_(2))
-					success_hit = FALSE;
-				old_success_hit = success_hit;
+				n *= 2;
 			}
-			else success_hit = old_success_hit;
+
+			success_hit = one_in_(n);
 		}
 		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
+
+		if (mode == HISSATSU_MAJIN)
+		{
+			if (one_in_(2))
+				success_hit = FALSE;
+		}
 
 		/* Test for hit */
 		if (success_hit)
@@ -4985,3 +4994,152 @@ void run_step(int dir)
 		disturb(0, 0);
 	}
 }
+
+
+#ifdef TRAVEL
+/*
+ * Test for traveling
+ */
+static bool travel_test(void)
+{
+	int prev_dir, new_dir, check_dir = 0;
+	int row, col;
+	int i, max;
+	bool stop = TRUE;
+	cave_type *c_ptr;
+
+	/* Where we came from */
+	prev_dir = find_prevdir;
+
+	/* Range of newly adjacent grids */
+	max = (prev_dir & 0x01) + 1;
+
+	for (i = 0; i < 8; i++)
+	{
+		if (travel.cost[py+ddy_ddd[i]][px+ddx_ddd[i]] < travel.cost[py][px]) stop = FALSE;
+	}
+
+	if (stop) return (TRUE);
+
+	/* break run when leaving trap detected region */
+	if ((disturb_trap_detect || alert_trap_detect)
+	    && p_ptr->dtrap && !(cave[py][px].info & CAVE_IN_DETECT))
+	{
+		/* No duplicate warning */
+		p_ptr->dtrap = FALSE;
+
+		/* You are just on the edge */
+		if (!(cave[py][px].info & CAVE_UNSAFE))
+		{
+			if (alert_trap_detect)
+			{
+#ifdef JP
+				msg_print("* 注意:この先はトラップの感知範囲外です！ *");
+#else
+				msg_print("*Leaving trap detect region!*");
+#endif
+			}
+
+			if (disturb_trap_detect)
+			{
+				/* Break Run */
+				return(TRUE);
+			}
+		}
+	}
+
+	/* Cannot travel when blind */
+	if (p_ptr->blind || no_lite())
+	{
+#ifdef JP
+		msg_print("目が見えない！");
+#else
+		msg_print("You cannot see!");
+#endif
+		return (TRUE);
+	}
+
+	/* Look at every newly adjacent square. */
+	for (i = -max; i <= max; i++)
+	{
+		/* New direction */
+		new_dir = cycle[chome[prev_dir] + i];
+
+		/* New location */
+		row = py + ddy[new_dir];
+		col = px + ddx[new_dir];
+
+		/* Access grid */
+		c_ptr = &cave[row][col];
+
+
+		/* Visible monsters abort running */
+		if (c_ptr->m_idx)
+		{
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+
+			/* Visible monster */
+			if (m_ptr->ml) return (TRUE);
+		}
+	}
+
+	/* Failure */
+	return (FALSE);
+}
+
+
+/*
+ * Travel command
+ */
+void travel_step(void)
+{
+	int i;
+	int dir = travel.dir;
+	int old_run = travel.run;
+
+	find_prevdir = dir;
+
+	/* disturb */
+	if (travel_test())
+	{
+		if (travel.run == 255)
+		{
+#ifdef JP
+			msg_print("道筋が見つかりません！");
+#else
+			msg_print("No route is found!");
+#endif
+		}
+		disturb(0, 0);
+		return;
+	}
+
+	energy_use = 100;
+
+	for (i = 1; i <= 9; i++)
+	{
+		if (i == 5) continue;
+
+		if (travel.cost[py+ddy[i]][px+ddx[i]] < travel.cost[py+ddy[dir]][px+ddx[dir]])
+		{
+			dir = i;
+		}
+	}
+
+	/* Close door */
+	if (!easy_open && is_closed_door(cave[py+ddy[dir]][px+ddx[dir]].feat))
+	{
+		disturb(0, 0);
+		return;
+	}
+
+	travel.dir = dir;
+	move_player(dir, always_pickup, easy_disarm);
+	travel.run = old_run;
+
+	if ((py == travel.y) && (px == travel.x))
+		travel.run = 0;
+	else
+		travel.run--;
+}
+#endif

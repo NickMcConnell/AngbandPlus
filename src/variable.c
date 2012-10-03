@@ -1287,3 +1287,13 @@ bool chuukei_client;
 char *server_name;
 int server_port;
 #endif
+
+#ifdef TRAVEL
+/* for travel */
+travel_type travel;
+#endif
+
+/* for snipers */
+int snipe_type = SP_NONE;
+bool reset_concent = FALSE;   /* Concentration reset flag */
+bool is_fired = FALSE;

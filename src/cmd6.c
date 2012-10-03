@@ -1471,7 +1471,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 				set_food(p_ptr->food + ((o_ptr->pval) / 20));
 				break;
 			case RACE_ANDROID:
-				if (o_ptr->tval == TV_FLASK)
+				if (q_ptr->tval == TV_FLASK)
 				{
 #ifdef JP
 					msg_print("オイルを補給した。");
@@ -4197,7 +4197,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_GALADRIEL:
 			{
 #ifdef JP
-				msg_print("玻瑠瓶から澄んだ光があふれ出た...");
+				msg_print("玻璃瓶から澄んだ光があふれ出た...");
 #else
 				msg_print("The phial wells with clear light...");
 #endif
@@ -5127,6 +5127,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 
 			case ART_BRAND:
+			case ART_HELLFIRE:
 			{
 #ifdef JP
 				msg_print("クロスボウが深紅に輝いた...");
@@ -5706,6 +5707,25 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 				dispel_evil(p_ptr->lev * 5);
 				o_ptr->timeout = randint0(100) + 100;
+				break;
+			}
+
+			case ART_AESCULAPIUS:
+			{
+#ifdef JP
+				msg_print("六尺棒は濃緑色に輝いている...");
+#else
+				msg_print("The jo staff glows a deep green...");
+#endif
+
+				(void)do_res_stat(A_STR);
+				(void)do_res_stat(A_INT);
+				(void)do_res_stat(A_WIS);
+				(void)do_res_stat(A_DEX);
+				(void)do_res_stat(A_CON);
+				(void)do_res_stat(A_CHR);
+				(void)restore_level();
+				o_ptr->timeout = 750;
 				break;
 			}
 

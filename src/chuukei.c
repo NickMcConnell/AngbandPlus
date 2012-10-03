@@ -26,13 +26,18 @@
 #endif
 
 #define MAX_HOSTNAME 256
-#define RINGBUF_SIZE 65536*8
-#define FRESH_QUEUE_SIZE 1024
+#define RINGBUF_SIZE 1024*1024
+#define FRESH_QUEUE_SIZE 4096
+#ifdef WINDOWS
+#define WAIT 100
+#else
 #define WAIT 100*1000 /* ブラウズ側のウエイト(us単位) */
+#endif
 #define DEFAULT_DELAY 50
+#define RECVBUF_SIZE 1024
 
 static int sd; /* ソケットのファイルディスクリプタ */
-static long epoch_time;  /* 開始時刻 */
+static long epoch_time;  /* バッファ開始時刻 */
 static long time_diff;   /* プレイ側との時間のずれ(これを見ながらディレイを調整していく) */
 static int browse_delay; /* 表示するまでの時間(100ms単位)(この間にラグを吸収する) */
 static int server_port;
@@ -91,8 +96,6 @@ static void disable_chuukei_server(void)
 {
 	term *t = angband_term[0];
 
-        if (!chuukei_server) return;
-
 	chuukei_server = FALSE;
 
 	t->xtra_hook = old_xtra_hook;
@@ -104,7 +107,7 @@ static void disable_chuukei_server(void)
 
 
 /* ANSI Cによればstatic変数は0で初期化されるが一応初期化する */
-static errr init_chuukei(void)
+static errr init_buffer(void)
 {
 	fresh_queue.next = fresh_queue.tail = 0;
 	ring.wptr = ring.rptr = ring.inlen = 0;
@@ -119,7 +122,7 @@ static errr init_chuukei(void)
 static long get_current_time(void)
 {
 #ifdef WINDOWS
-	return GetTickCount() / 100;
+	return timeGetTime() / 100;
 #elif defined(MACINTOSH)
 	return TickCount();
 #else
@@ -143,7 +146,7 @@ static errr insert_ringbuf(char *buf)
 		if (chuukei_server) disable_chuukei_server();
 		else chuukei_client = FALSE;
 
-		prt("バッファが溢れました。サーバとの接続を切断します。", 0, 0);
+		prt("送受信バッファが溢れました。サーバとの接続を切断します。", 0, 0);
 		inkey();
 
 		close(sd);
@@ -179,7 +182,6 @@ void flush_ringbuf(void)
 #ifndef MACINTOSH
 	fd_set fdset;
 	struct timeval tv;
-	int writen = 0;
 
 	if (!chuukei_server) return;
 
@@ -209,7 +211,7 @@ void flush_ringbuf(void)
 		if (result <= 0)
 		{
 			/* サーバとの接続断？ */
-			disable_chuukei_server();
+			if (chuukei_server) disable_chuukei_server();
 
 			prt("サーバとの接続が切断されました。", 0, 0);
 			inkey();
@@ -220,28 +222,18 @@ void flush_ringbuf(void)
 
 		ring.rptr += result;
 		ring.inlen -= result;
-		writen += result;
 
 		if (ring.rptr == RINGBUF_SIZE) ring.rptr = 0;
 		if (ring.inlen == 0) break;
 	}
 #else
-	struct timeval tv;
-	int writen = 0;
-
 	if (!chuukei_server) return;
 
 	if (ring.inlen == 0) return;
 
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-
 	while (1)
 	{
-		struct timeval tmp_tv;
 		int result;
-
-		tmp_tv = tv;
 
 		/* ソケットにデータを書き込めるかどうか調べる */
 		result = OTSnd(ep, ring.buf + ring.rptr, ((ring.wptr > ring.rptr ) ? ring.wptr : RINGBUF_SIZE) - ring.rptr, 0);
@@ -249,7 +241,7 @@ void flush_ringbuf(void)
 		if (result <= 0)
 		{
 			/* サーバとの接続断？ */
-			disable_chuukei_server();
+			if (chuukei_server) disable_chuukei_server();
 
 			prt("サーバとの接続が切断されました。", 0, 0);
 			inkey();
@@ -260,7 +252,6 @@ void flush_ringbuf(void)
 
 		ring.rptr += result;
 		ring.inlen -= result;
-		writen += result;
 
 		if (ring.rptr == RINGBUF_SIZE) ring.rptr = 0;
 		if (ring.inlen == 0) break;
@@ -331,7 +322,7 @@ int connect_chuukei_server(char *prf_name)
 		return (-1);
 	}
 
-	if (init_chuukei() < 0)
+	if (init_buffer() < 0)
 	{
 		printf("Malloc error\n");
 		return (-1);
@@ -381,8 +372,6 @@ int connect_chuukei_server(char *prf_name)
 		return (-1);
 	}
 
-	epoch_time = get_current_time();
-
 	return (0);
 #else	/* MACINTOSH */
 	OSStatus err;
@@ -398,7 +387,7 @@ int connect_chuukei_server(char *prf_name)
 		return (-1);
 	}
 	
-	init_chuukei();
+	init_buffer();
 	
 	printf("server = %s\nport = %d\n", server_name, server_port);
 
@@ -442,11 +431,11 @@ int connect_chuukei_server(char *prf_name)
 			
 			sndCall.addr.len 	= sizeof(InetAddress);				
 			sndCall.addr.buf	= (unsigned char*) &inAddr;
-			sndCall.opt.buf 	= nil;	      /* no connection options */
+			sndCall.opt.buf 	= nil;		/* no connection options */
 			sndCall.opt.len 	= 0;
-			sndCall.udata.buf 	= nil;	      /* no connection data */
+			sndCall.udata.buf 	= nil;		/* no connection data */
 			sndCall.udata.len 	= 0;
-			sndCall.sequence 	= 0;	      /* ignored by OTConnect */
+			sndCall.sequence 	= 0;		/* ignored by OTConnect */
 			
 			err = OTConnect(ep, &sndCall, NULL);
 			
@@ -521,7 +510,11 @@ static errr send_text_to_chuukei_server(int x, int y, int len, byte col, cptr st
 	}
 	else if(string_is_repeat(buf2, len))
 	{
-		sprintf(buf, "n%c%c%c%c%c", x+1, y+1, len, col, buf2[0]);
+		int i;
+		for (i = len; i > 0; i -= 127)
+		{
+			sprintf(buf, "n%c%c%c%c%c", x+1, y+1, MIN(i, 127), col, buf2[0]);
+		}
 	}
 	else
 	{
@@ -550,8 +543,6 @@ static errr send_wipe_to_chuukei_server(int x, int y, int len)
 static errr send_xtra_to_chuukei_server(int n, int v)
 {
 	char buf[1024];
-
-	(void)v;
 
 	if (n == TERM_XTRA_CLEAR || n == TERM_XTRA_FRESH || n == TERM_XTRA_SHAPE)
 	{
@@ -618,65 +609,94 @@ void prepare_chuukei_hooks(void)
 }
 
 
+static int handle_timestamp_data(int timestamp)
+{
+	long current_time = get_current_time();
+
+	/* 描画キューは空かどうか？ */
+	if (fresh_queue.tail == fresh_queue.next)
+	{
+		/* バッファリングし始めの時間を保存しておく */
+		epoch_time = current_time;
+		epoch_time += browse_delay;
+		epoch_time -= timestamp;
+		time_diff = current_time - timestamp;
+	}
+
+	/* 描画キューに保存し、保存位置を進める */
+	fresh_queue.time[fresh_queue.tail] = timestamp;
+	fresh_queue.tail ++;
+
+	/* キューの最後尾に到達したら先頭に戻す */
+	fresh_queue.tail %= FRESH_QUEUE_SIZE;
+
+	if (fresh_queue.tail == fresh_queue.next)
+	{
+		/* 描画キュー溢れ */
+		prt("描画タイミングキューが溢れました。サーバとの接続を切断します。", 0, 0);
+		inkey();
+		close(sd);
+
+		return -1;
+	}
+
+	/* プレイ側とのディレイを調整 */
+	if (time_diff != current_time - timestamp)
+	{
+		long old_time_diff = time_diff;
+		time_diff = current_time - timestamp;
+		epoch_time -= (old_time_diff - time_diff);
+	}
+
+	/* Success */
+	return 0;
+}
+
 static int read_sock(void)
 {
-	char buf[1024];
+	static char recv_buf[RECVBUF_SIZE];
+	static int remain_bytes = 0;
+	int recv_bytes;
 	int i;
 
-	for (i = 0;; i++)
+	/* 前回残ったデータの後につづけて配信サーバからデータ受信 */
+	recv_bytes = recv(sd, recv_buf + remain_bytes, RECVBUF_SIZE - remain_bytes, 0);
+
+	if (recv_bytes <= 0)
+		return -1;
+
+	/* 前回残ったデータ量に今回読んだデータ量を追加 */
+	remain_bytes += recv_bytes;
+
+	for (i = 0; i < remain_bytes; i ++)
 	{
-		if (recv(sd, buf+i, 1, 0) <= 0) 
-			return -1;
-
-		if (buf[i] == '\0')
+		/* データのくぎり('\0')を探す */
+		if (recv_buf[i] == '\0')
 		{
-			if (buf[0] == 'd')
-			{
-				int timestamp = atoi(buf + 1);
-				long current_time = get_current_time();
-
-				/* 最初の時間を保存しておく */
-				if (!fresh_queue.time[0])
-				{
-					epoch_time = current_time;
-					epoch_time += browse_delay;
-					epoch_time -= timestamp;
-					time_diff = current_time - timestamp;
-				}
-
-				fresh_queue.time[fresh_queue.tail] = timestamp;
-				fresh_queue.tail ++;
-
-				if (fresh_queue.tail == FRESH_QUEUE_SIZE)
-					fresh_queue.tail = 0;
-
-				/* プレイ側とのディレイを調整 */
-				if (time_diff > current_time - timestamp)
-				{
-					long old_time_diff = time_diff;
-					time_diff = current_time - timestamp;
-					epoch_time -= (old_time_diff - time_diff);
-				}
-
-				if (fresh_queue.tail == fresh_queue.next)
-				{
-					/* queue溢れ */
-					close(sd);
-					exit(1);
-				}
-
-			}
-
-			if (insert_ringbuf(buf) < 0) 
+			/* 'd'で始まるデータ(タイムスタンプ)の場合は
+			   描画キューに保存する処理を呼ぶ */
+			if ((recv_buf[0] == 'd') &&
+			    (handle_timestamp_data(atoi(recv_buf + 1)) < 0))
 				return -1;
-			return (i);
+
+			/* 受信データを保存 */
+			if (insert_ringbuf(recv_buf) < 0) 
+				return -1;
+
+			/* 次のデータ移行をrecv_bufの先頭に移動 */
+			memmove(recv_buf, recv_buf + i + 1, remain_bytes - i - 1);
+
+			remain_bytes -= (i+1);
+			i = 0;
 		}
 	}
+
+	return 0;
 }
 
 
 #ifndef WINDOWS
-/* Win版の床の中点と壁の豆腐をピリオドとシャープにする。 */
+/* Win版の床の中点と壁の豆腐をピリオドとシャープにする。*/
 static void win2unix(int col, char *buf)
 {
 	char kabe;
@@ -716,6 +736,23 @@ static bool get_nextbuf(char *buf)
 	return (TRUE);
 }
 
+/* プレイホストのマップが大きいときクライアントのマップもリサイズする */
+static void update_term_size(int x, int y, int len)
+{
+	int ox, oy;
+	int nx, ny;
+	Term_get_size(&ox, &oy);
+	nx = ox;
+	ny = oy;
+
+	/* 横方向のチェック */
+	if (x + len > ox) nx = x + len;
+	/* 縦方向のチェック */
+	if (y + 1 > oy) ny = y + 1;
+
+	if (nx != ox || ny != oy) Term_resize(nx, ny);
+}
+
 static bool flush_ringbuf_client(void)
 {
 	char buf[1024];
@@ -732,7 +769,7 @@ static bool flush_ringbuf_client(void)
 		char id;
 		int x, y, len, col;
 		int i;
-		char tmp1, tmp2, tmp3, tmp4;
+		unsigned char tmp1, tmp2, tmp3, tmp4;
 		char *mesg;
 
 		sscanf(buf, "%c%c%c%c%c", &id, &tmp1, &tmp2, &tmp3, &tmp4);
@@ -753,6 +790,7 @@ static bool flush_ringbuf_client(void)
 #ifdef SJIS
 			euc2sjis(mesg);
 #endif
+			update_term_size(x, y, len);
 			(void)((*angband_term[0]->text_hook)(x, y, len, (byte)col, mesg));
 			strncpy(&Term->scr->c[y][x], mesg, len);
 			for (i = x; i < x+len; i++)
@@ -767,6 +805,7 @@ static bool flush_ringbuf_client(void)
 				mesg[i] = mesg[0];
 			}
 			mesg[i] = '\0';
+			update_term_size(x, y, len);
 			(void)((*angband_term[0]->text_hook)(x, y, len, (byte)col, mesg));
 			strncpy(&Term->scr->c[y][x], mesg, len);
 			for (i = x; i < x+len; i++)
@@ -776,12 +815,14 @@ static bool flush_ringbuf_client(void)
 			break;
 
 		case 's': /* 一文字 */
+			update_term_size(x, y, 1);
 			(void)((*angband_term[0]->text_hook)(x, y, 1, (byte)col, mesg));
 			strncpy(&Term->scr->c[y][x], mesg, 1);
 			Term->scr->a[y][x] = col;
 			break;
 
 		case 'w':
+			update_term_size(x, y, len);
 			(void)((*angband_term[0]->wipe_hook)(x, y, len));
 			break;
 
@@ -791,9 +832,11 @@ static bool flush_ringbuf_client(void)
 			break;
 
 		case 'c':
+			update_term_size(x, y, 1);
 			(void)((*angband_term[0]->curs_hook)(x, y));
 			break;
 		case 'C':
+			update_term_size(x, y, 1);
 			(void)((*angband_term[0]->bigcurs_hook)(x, y));
 			break;
 		}
@@ -847,27 +890,19 @@ void browse_chuukei()
 		if (!chuukei_client && fresh_queue.next == fresh_queue.tail ) break;
 	}
 #else
-	struct timeval tv;
-
-	tv.tv_sec = 0;
-	tv.tv_usec = WAIT;
-
 	Term_clear();
 	Term_fresh();
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 	while (1)
 	{
-		struct timeval tmp_tv;
 		UInt32	unreadData = 0;
 		int n;
-		
+
 		if (flush_ringbuf_client()) continue;
 
-		tmp_tv = tv;
-
 		/* ソケットにデータが来ているかどうか調べる */
-		
+
 		OTCountDataBytes(ep, &unreadData);
 		if(unreadData <= 0 ){
 			Term_xtra(TERM_XTRA_FLUSH, 0);

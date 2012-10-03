@@ -1821,7 +1821,9 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "鏡使いは、魔力の込められた鏡を作り出して、それを触媒として攻撃を行なうことができる鏡魔法を使います。鏡使いは鏡の上で実力を発揮し、鏡の上では素早いテレポートが可能となります。魔法の鏡は、レベルによって一度に制御できる数が制限されます。鏡魔法に必要な能力は知能です。",
 
-"忍者は暗闇に潜む恐るべき暗殺者であり、光源を持たずに行動し、相手の不意をつき一撃で息の根を止めます。また、相手を惑わすための忍術も身につけます。罠やドアを見つける能力に優れ、罠の解除や鍵開けに熟達しています。軽装を好み、重い鎧や武器を装備すると著しく動きが制限され、また、盾を装備しようとはしません。軽装ならば、レベルが上がるにつれより速くより静かに行動できます。さらに忍者は恐怖せず、成長すれば毒がほとんど効かなくなり、透明なものを見ることができるようになります。忍術に必要な能力は器用さです。"
+"忍者は暗闇に潜む恐るべき暗殺者であり、光源を持たずに行動し、相手の不意をつき一撃で息の根を止めます。また、相手を惑わすための忍術も身につけます。罠やドアを見つける能力に優れ、罠の解除や鍵開けに熟達しています。軽装を好み、重い鎧や武器を装備すると著しく動きが制限され、また、盾を装備しようとはしません。軽装ならば、レベルが上がるにつれより速くより静かに行動できます。さらに忍者は恐怖せず、成長すれば毒がほとんど効かなくなり、透明なものを見ることができるようになります。忍術に必要な能力は器用さです。",
+
+"スナイパーは一撃必殺を狙う恐るべき射手です。精神を高めることにより、射撃の威力と精度を高めます。また、魔法を使うことはできませんが、研ぎ澄まされた精神から繰り出される射撃術はさらなる威力をもたらすことでしょう。テクニックが必要とされる職業です。"
 
 #else
 
@@ -1877,7 +1879,9 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "Mirror-Masters are spell casters; like other mages, they must live by their wits.  They can create magical mirrors, and employ them in the casting of Mirror-Magic spells.  A Mirror-Master standing on a mirror has greater ability and, for example, can perform quick teleports.  The maximum number of Magical Mirrors which can be controlled simultaneously depends on the level.  Intelligence determines a Mirror-Master's spell casting ability.",
 
-"A Ninja is a fearful assassin lurking in darkness.  He or she can navigate effectively with no light source, catch enemies unawares, and kill with a single blow.  Ninjas can use Ninjutsu, and are good at locating hidden traps and doors, disarming traps and picking locks.  Since heavy armors, heavy weapons, or shields will restrict their motion greatly, they prefer light clothes, and become faster and more stealthy as they gain levels.  A Ninja knows no fear and, at high level, becomes almost immune to poison and able to see invisible things.  Dexterity determines a Ninja's ability to use Ninjutsu."
+"A Ninja is a fearful assassin lurking in darkness.  He or she can navigate effectively with no light source, catch enemies unawares, and kill with a single blow.  Ninjas can use Ninjutsu, and are good at locating hidden traps and doors, disarming traps and picking locks.  Since heavy armors, heavy weapons, or shields will restrict their motion greatly, they prefer light clothes, and become faster and more stealthy as they gain levels.  A Ninja knows no fear and, at high level, becomes almost immune to poison and able to see invisible things.  Dexterity determines a Ninja's ability to use Ninjutsu.",
+
+"Snipers are good at shooting, and they can kill targets by a few shots. After they concentrate deeply, they can demonstrate their shooting talents. You can see incredibly firepower of their shots."
 #endif
 };
 
@@ -3530,6 +3534,72 @@ static void init_turn(void)
 	dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 }
 
+
+/* 
+ * Try to wield everything wieldable in the inventory. 
+ * Code taken from Angband 3.1.0 under Angband license
+ */ 
+static void wield_all(void) 
+{ 
+	object_type *o_ptr; 
+	object_type *i_ptr; 
+	object_type object_type_body; 
+ 
+	int slot; 
+	int item; 
+ 
+	/* Scan through the slots backwards */ 
+	for (item = INVEN_PACK - 1; item >= 0; item--) 
+	{ 
+		o_ptr = &inventory[item]; 
+ 
+		/* Skip non-objects */ 
+		if (!o_ptr->k_idx) continue; 
+ 
+		/* Make sure we can wield it and that there's nothing else in that slot */ 
+		slot = wield_slot(o_ptr); 
+		if (slot < INVEN_RARM) continue; 
+		if (slot == INVEN_LITE) continue; /* Does not wield toaches because buys a lantern soon */
+		if (inventory[slot].k_idx) continue; 
+ 
+		/* Get local object */ 
+		i_ptr = &object_type_body; 
+		object_copy(i_ptr, o_ptr); 
+ 
+		/* Modify quantity */ 
+		i_ptr->number = 1; 
+ 
+		/* Decrease the item (from the pack) */ 
+		if (item >= 0) 
+		{ 
+			inven_item_increase(item, -1); 
+			inven_item_optimize(item); 
+		} 
+ 
+		/* Decrease the item (from the floor) */ 
+		else 
+		{ 
+			floor_item_increase(0 - item, -1); 
+			floor_item_optimize(0 - item); 
+		} 
+ 
+		/* Get the wield slot */ 
+		o_ptr = &inventory[slot]; 
+ 
+		/* Wear the new stuff */ 
+		object_copy(o_ptr, i_ptr); 
+ 
+		/* Increase the weight */ 
+		p_ptr->total_weight += i_ptr->weight; 
+ 
+		/* Increment the equip counter by hand */ 
+		equip_cnt++;
+
+ 	} 
+	return; 
+} 
+
+
 /*
  * Each player starts out with a few items, given as tval/sval pairs.
  * In addition, he always has some food and a few torches.
@@ -3722,6 +3792,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SWORD, SV_DAGGER }
 	},
+	{
+		/* Sniper */
+		{ TV_BOW, SV_LIGHT_XBOW },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SWORD, SV_DAGGER }
+	},
 };
 
 
@@ -3753,6 +3829,9 @@ static void add_outfit(object_type *o_ptr)
 
 	/* Auto-inscription */
 	autopick_alter_item(slot, FALSE);
+
+	/* Now try wielding everything */ 
+	wield_all(); 
 }
 
 
@@ -3950,6 +4029,14 @@ void player_outfit(void)
 	{
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_SPIKE, 0));
+		q_ptr->number = (byte)rand_range(15, 20);
+
+		add_outfit(q_ptr);
+	}
+	else if (p_ptr->pclass == CLASS_SNIPER)
+	{
+		/* Hack -- Give the player some bolts */
+		object_prep(q_ptr, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
 		add_outfit(q_ptr);
