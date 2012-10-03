@@ -105,7 +105,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						if (distance(ty, tx, y, x) > rand_spread(width, 1)) continue;
 
 						/* Do not convert permanent features */
-						if (cave_perma_grid(c_ptr) && (c_ptr->feat != FEAT_MOUNTAIN)) continue;
+						if (cave_perma_grid(c_ptr)) continue;
 
 						/*
 						 * Clear previous contents, add feature
@@ -120,7 +120,7 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						c_ptr->mimic = 0;
 
 						/* Lava terrain glows */
-						if ((feat1 == FEAT_DEEP_LAVA) ||  (feat1 == FEAT_SHAL_LAVA))
+						if (have_flag(f_info[feat1].flags, FF_LAVA))
 						{
 							if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS)) c_ptr->info |= CAVE_GLOW;
 						}
@@ -210,9 +210,13 @@ void build_streamer(int feat, int chance)
 	int		i, tx, ty;
 	int		y, x, dir;
 	int dummy = 0;
-	bool treasure = FALSE;
 
 	cave_type *c_ptr;
+	feature_type *f_ptr;
+
+	feature_type *streamer_ptr = &f_info[feat];
+	bool streamer_is_wall = have_flag(streamer_ptr->flags, FF_WALL) && !have_flag(streamer_ptr->flags, FF_PERMANENT);
+	bool streamer_may_have_gold = have_flag(streamer_ptr->flags, FF_MAY_HAVE_GOLD);
 
 	/* Hack -- Choose starting point */
 	y = rand_spread(cur_hgt / 2, cur_hgt / 6);
@@ -242,20 +246,69 @@ void build_streamer(int feat, int chance)
 
 			/* Access the grid */
 			c_ptr = &cave[ty][tx];
+			f_ptr = &f_info[c_ptr->feat];
 
-			if ((c_ptr->feat >= FEAT_DEEP_WATER) && (c_ptr->feat <= FEAT_SHAL_LAVA)) continue;
-			if ((c_ptr->feat >= FEAT_PERM_EXTRA) && (c_ptr->feat <= FEAT_PERM_SOLID)) continue;
+			if (have_flag(f_ptr->flags, FF_MOVE) && (have_flag(f_ptr->flags, FF_WATER) || have_flag(f_ptr->flags, FF_LAVA)))
+				continue;
+
+			/* Do not convert permanent features */
+			if (have_flag(f_ptr->flags, FF_PERMANENT)) continue;
 
 			/* Only convert "granite" walls */
-			if ((feat >= FEAT_MAGMA) && (feat <= FEAT_WALL_SOLID))
+			if (streamer_is_wall)
 			{
 				if (!is_extra_grid(c_ptr) && !is_inner_grid(c_ptr) && !is_outer_grid(c_ptr) && !is_solid_grid(c_ptr)) continue;
 				if (is_closed_door(c_ptr->feat)) continue;
-				if ((feat == FEAT_MAGMA) || (feat == FEAT_QUARTZ)) treasure = TRUE;
 			}
-			else
+
+			if (c_ptr->m_idx && !(have_flag(streamer_ptr->flags, FF_PLACE) && monster_can_cross_terrain(feat, &r_info[m_list[c_ptr->m_idx].r_idx], 0)))
 			{
-				if (cave_perma_grid(c_ptr) && (c_ptr->feat != FEAT_MOUNTAIN)) continue;
+				/* Delete the monster (if any) */
+				delete_monster(ty, tx);
+			}
+
+			if (c_ptr->o_idx && !have_flag(streamer_ptr->flags, FF_DROP))
+			{
+				s16b this_o_idx, next_o_idx = 0;
+
+				/* Scan all objects in the grid */
+				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+				{
+					/* Acquire object */
+					object_type *o_ptr = &o_list[this_o_idx];
+
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* Hack -- Preserve unknown artifacts */
+					if (object_is_fixed_artifact(o_ptr))
+					{
+						/* Mega-Hack -- Preserve the artifact */
+						a_info[o_ptr->name1].cur_num = 0;
+
+						if (cheat_peek)
+						{
+							char o_name[MAX_NLEN];
+							object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+#ifdef JP
+							msg_format("伝説のアイテム (%s) はストリーマーにより削除された。", o_name);
+#else
+							msg_format("Artifact (%s) was deleted by streamer.", o_name);
+#endif
+						}
+					}
+					else if (cheat_peek && o_ptr->art_name)
+					{
+#ifdef JP
+						msg_print("ランダム・アーティファクトの1つはストリーマーにより削除された。");
+#else
+						msg_print("One of the random artifacts was deleted by streamer.");
+#endif
+					}
+				}
+
+				/* Delete objects */
+				delete_object(ty, tx);
 			}
 
 			/* Clear previous contents, add proper vein type */
@@ -264,13 +317,21 @@ void build_streamer(int feat, int chance)
 			/* Paranoia: Clear mimic field */
 			c_ptr->mimic = 0;
 
-			/* Hack -- Add some known treasure */
-			if (treasure && one_in_(chance))
-				c_ptr->feat += (FEAT_MAGMA_K - FEAT_MAGMA);
+			if (streamer_may_have_gold)
+			{
+				/* Hack -- Add some known treasure */
+				if (one_in_(chance))
+				{
+					cave_alter_feat(ty, tx, FF_MAY_HAVE_GOLD);
+				}
 
-			/* Hack -- Add some hidden treasure */
-			else if (treasure && one_in_(chance/4))
-				c_ptr->feat += (FEAT_MAGMA_H - FEAT_MAGMA);
+				/* Hack -- Add some hidden treasure */
+				else if (one_in_(chance / 4))
+				{
+					cave_alter_feat(ty, tx, FF_MAY_HAVE_GOLD);
+					cave_alter_feat(ty, tx, FF_ENSECRET);
+				}
+			}
 		}
 
 		if (dummy >= SAFE_MAX_ATTEMPTS)
@@ -328,11 +389,11 @@ void place_trees(int x, int y)
 				if ((distance(j, i, y, x) > 1) || (randint1(100) < 25))
 				{
 					if (randint1(100) < 75)
-						cave[j][i].feat = FEAT_TREES;
+						cave[j][i].feat = feat_tree;
 				}
 				else
 				{
-					cave[j][i].feat = FEAT_RUBBLE;
+					cave[j][i].feat = feat_rubble;
 				}
 
 				/* Clear garbage of hidden trap or door */
@@ -348,7 +409,7 @@ void place_trees(int x, int y)
 	if (!ironman_downward && one_in_(3))
 	{
 		/* up stair */
-		cave[y][x].feat = FEAT_LESS;
+		cave[y][x].feat = feat_up_stair;
 	}
 }
 

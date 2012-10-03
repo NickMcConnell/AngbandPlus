@@ -186,22 +186,24 @@ static void wr_item(object_type *o_ptr)
 static void wr_monster(monster_type *m_ptr)
 {
 	u32b flags = 0x00000000;
+	byte tmp8u;
 
-	if (m_ptr->ap_r_idx != m_ptr->r_idx) flags |= SAVE_MON_AP_R_IDX;
+	if (!is_original_ap(m_ptr)) flags |= SAVE_MON_AP_R_IDX;
 	if (m_ptr->sub_align) flags |= SAVE_MON_SUB_ALIGN;
-	if (m_ptr->csleep) flags |= SAVE_MON_CSLEEP;
-	if (m_ptr->fast) flags |= SAVE_MON_FAST;
-	if (m_ptr->slow) flags |= SAVE_MON_SLOW;
-	if (m_ptr->stunned) flags |= SAVE_MON_STUNNED;
-	if (m_ptr->confused) flags |= SAVE_MON_CONFUSED;
-	if (m_ptr->monfear) flags |= SAVE_MON_MONFEAR;
+	if (MON_CSLEEP(m_ptr)) flags |= SAVE_MON_CSLEEP;
+	if (MON_FAST(m_ptr)) flags |= SAVE_MON_FAST;
+	if (MON_SLOW(m_ptr)) flags |= SAVE_MON_SLOW;
+	if (MON_STUNNED(m_ptr)) flags |= SAVE_MON_STUNNED;
+	if (MON_CONFUSED(m_ptr)) flags |= SAVE_MON_CONFUSED;
+	if (MON_MONFEAR(m_ptr)) flags |= SAVE_MON_MONFEAR;
 	if (m_ptr->target_y) flags |= SAVE_MON_TARGET_Y;
 	if (m_ptr->target_x) flags |= SAVE_MON_TARGET_X;
-	if (m_ptr->invulner) flags |= SAVE_MON_INVULNER;
+	if (MON_INVULNER(m_ptr)) flags |= SAVE_MON_INVULNER;
 	if (m_ptr->smart) flags |= SAVE_MON_SMART;
 	if (m_ptr->exp) flags |= SAVE_MON_EXP;
 	if (m_ptr->mflag2) flags |= SAVE_MON_MFLAG2;
 	if (m_ptr->nickname) flags |= SAVE_MON_NICKNAME;
+	if (m_ptr->parent_m_idx) flags |= SAVE_MON_PARENT;
 
 	/*** Monster save flags ***/
 	wr_u32b(flags);
@@ -218,23 +220,48 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_AP_R_IDX) wr_s16b(m_ptr->ap_r_idx);
 
 	if (flags & SAVE_MON_SUB_ALIGN) wr_byte(m_ptr->sub_align);
-	if (flags & SAVE_MON_CSLEEP) wr_s16b(m_ptr->csleep);
+	if (flags & SAVE_MON_CSLEEP) wr_s16b(m_ptr->mtimed[MTIMED_CSLEEP]);
 
 	wr_byte(m_ptr->mspeed);
 	wr_s16b(m_ptr->energy_need);
 
-	if (flags & SAVE_MON_FAST) wr_byte(m_ptr->fast);
-	if (flags & SAVE_MON_SLOW) wr_byte(m_ptr->slow);
-	if (flags & SAVE_MON_STUNNED) wr_byte(m_ptr->stunned);
-	if (flags & SAVE_MON_CONFUSED) wr_byte(m_ptr->confused);
-	if (flags & SAVE_MON_MONFEAR) wr_byte(m_ptr->monfear);
+	if (flags & SAVE_MON_FAST)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_FAST];
+		wr_byte(tmp8u);
+	}
+	if (flags & SAVE_MON_SLOW)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_SLOW];
+		wr_byte(tmp8u);
+	}
+	if (flags & SAVE_MON_STUNNED)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_STUNNED];
+		wr_byte(tmp8u);
+	}
+	if (flags & SAVE_MON_CONFUSED)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_CONFUSED];
+		wr_byte(tmp8u);
+	}
+	if (flags & SAVE_MON_MONFEAR)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_MONFEAR];
+		wr_byte(tmp8u);
+	}
 	if (flags & SAVE_MON_TARGET_Y) wr_s16b(m_ptr->target_y);
 	if (flags & SAVE_MON_TARGET_X) wr_s16b(m_ptr->target_x);
-	if (flags & SAVE_MON_INVULNER) wr_byte(m_ptr->invulner);
+	if (flags & SAVE_MON_INVULNER)
+	{
+		tmp8u = (byte)m_ptr->mtimed[MTIMED_INVULNER];
+		wr_byte(tmp8u);
+	}
 	if (flags & SAVE_MON_SMART) wr_u32b(m_ptr->smart);
 	if (flags & SAVE_MON_EXP) wr_u32b(m_ptr->exp);
 	if (flags & SAVE_MON_MFLAG2) wr_byte(m_ptr->mflag2);
 	if (flags & SAVE_MON_NICKNAME) wr_string(quark_str(m_ptr->nickname));
+	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
 }
 
 
@@ -249,6 +276,7 @@ static void wr_lore(int r_idx)
 	wr_s16b(r_ptr->r_sights);
 	wr_s16b(r_ptr->r_deaths);
 	wr_s16b(r_ptr->r_pkills);
+	wr_s16b(r_ptr->r_akills);
 	wr_s16b(r_ptr->r_tkills);
 
 	/* Count wakes and ignores */
@@ -392,6 +420,8 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte(hitpoint_warn);
 
+	/* Write "mana_warn" */
+	wr_byte(mana_warn);
 
 	/*** Cheating options ***/
 
@@ -512,7 +542,8 @@ static void save_quick_start(void)
 
 	for (i = 0; i < 4; i++) wr_string(previous_char.history[i]);
 
-	wr_byte(previous_char.quests);
+	/* UNUSED : Was number of random quests */
+	wr_byte(0);
 
 	/* No quick start after using debug mode or cheat options */
 	if (p_ptr->noscore) previous_char.quick_ok = FALSE;
@@ -531,6 +562,8 @@ static void wr_extra(void)
 	wr_string(player_name);
 
 	wr_string(p_ptr->died_from);
+
+	wr_string(p_ptr->last_message ? p_ptr->last_message : "");
 
 	save_quick_start();
 
@@ -566,8 +599,9 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->au);
 
 	wr_u32b(p_ptr->max_exp);
+	wr_u32b(p_ptr->max_max_exp);
 	wr_u32b(p_ptr->exp);
-	wr_u16b(p_ptr->exp_frac);
+	wr_u32b(p_ptr->exp_frac);
 	wr_s16b(p_ptr->lev);
 
 	for (i = 0; i < 64; i++) wr_s16b(p_ptr->spell_exp[i]);
@@ -607,23 +641,21 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->inside_quest);
 	wr_s16b(p_ptr->inside_battle);
 	wr_byte(p_ptr->exit_bldg);
-	wr_byte(p_ptr->leftbldg); /* save building leave status -KMW- */
+	wr_byte(0); /* Unused */
 
 	wr_s16b(p_ptr->oldpx);
 	wr_s16b(p_ptr->oldpy);
 
-	/* Save builing rewards */
-	wr_s16b(MAX_BACT);
+	/* Was number of p_ptr->rewards[] */
+	wr_s16b(0);
 
-	for (i = 0; i < MAX_BACT; i++) wr_s16b(p_ptr->rewards[i]);
+	wr_s32b(p_ptr->mhp);
+	wr_s32b(p_ptr->chp);
+	wr_u32b(p_ptr->chp_frac);
 
-	wr_s16b(p_ptr->mhp);
-	wr_s16b(p_ptr->chp);
-	wr_u16b(p_ptr->chp_frac);
-
-	wr_s16b(p_ptr->msp);
-	wr_s16b(p_ptr->csp);
-	wr_u16b(p_ptr->csp_frac);
+	wr_s32b(p_ptr->msp);
+	wr_s32b(p_ptr->csp);
+	wr_u32b(p_ptr->csp_frac);
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
@@ -680,7 +712,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_regen);
 	wr_s16b(p_ptr->kabenuke);
 	wr_s16b(p_ptr->tim_stealth);
-	wr_s16b(p_ptr->tim_ffall);
+	wr_s16b(p_ptr->tim_levitation);
 	wr_s16b(p_ptr->tim_sh_touki);
 	wr_s16b(p_ptr->lightspeed);
 	wr_s16b(p_ptr->tsubureru);
@@ -713,7 +745,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->ele_immune);
 	wr_u32b(p_ptr->special_defense);
 	wr_byte(p_ptr->knowledge);
-	wr_byte(0);     /* oops */
+	wr_byte(p_ptr->autopick_autoregister);
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->action);
 	wr_byte(0);
@@ -744,10 +776,13 @@ static void wr_extra(void)
 	wr_byte(p_ptr->is_dead);
 
 	/* Write feeling */
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
+
+	/* Turn when level began */
+	wr_s32b(old_turn);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(p_ptr->feeling_turn);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -763,9 +798,8 @@ static void wr_extra(void)
 	/* Current floor_id */
 	wr_s16b(p_ptr->floor_id);
 
-	/* Save temporary preserved pets */
-	wr_s16b(MAX_PARTY_MON);
-	for (i = 0; i < MAX_PARTY_MON; i++) wr_monster(&party_mon[i]);
+	/* Save temporary preserved pets (obsolated) */
+	wr_s16b(0);
 
 	wr_u32b(playtime);
 
@@ -860,7 +894,7 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 	wr_u16b((u16b)px);
 	wr_u16b(cur_hgt);
 	wr_u16b(cur_wid);
-	wr_byte(feeling);
+	wr_byte(p_ptr->feeling);
 
 
 
@@ -950,8 +984,8 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 
 		/* Dump it */
 		wr_u16b(ct_ptr->info);
-		wr_byte(ct_ptr->feat);
-		wr_byte(ct_ptr->mimic);
+		wr_s16b(ct_ptr->feat);
+		wr_s16b(ct_ptr->mimic);
 		wr_s16b(ct_ptr->special);
 	}
 
@@ -1083,14 +1117,14 @@ static bool wr_dungeon(void)
 
 	/*** Meta info ***/
 
-        /* Number of floor_id used from birth */
+	/* Number of floor_id used from birth */
 	wr_s16b(max_floor_id);
 
 	/* Current dungeon type */
 	wr_byte(dungeon_type);
 
 
-	/*** On the surface  ***/
+	/*** No saved floor (On the surface etc.) ***/
 	if (!p_ptr->floor_id)
 	{
 		/* No array elements */
@@ -1236,8 +1270,22 @@ static bool wr_savefile_new(void)
 
 	/* Space */
 	wr_u32b(0L);
-	wr_u32b(0L);
+	wr_u16b(0);
+	wr_byte(0);
 
+#ifdef JP
+# ifdef EUC
+	/* EUC kanji code */
+	wr_byte(2);
+# endif
+# ifdef SJIS
+	/* SJIS kanji code */
+	wr_byte(3);
+# endif
+#else
+	/* ASCII */
+	wr_byte(1);
+#endif
 
 	/* Write the RNG state */
 	wr_randomizer();
@@ -1920,9 +1968,6 @@ bool load_player(void)
 			/* Count lives */
 			sf_lives++;
 
-			/* Forget turns */
-			turn = old_turn = 0;
-
 			/* Done */
 			return (TRUE);
 		}
@@ -2099,8 +2144,15 @@ bool save_floor(saved_floor_type *sf_ptr, u32b mode)
 	/* New savefile */
 	sprintf(floor_savefile, "%s.F%02d", savefile, (int)sf_ptr->savefile_id);
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Remove it */
 	fd_kill(floor_savefile);
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
 
 	/* Attempt to save the player */
 
@@ -2110,8 +2162,14 @@ bool save_floor(saved_floor_type *sf_ptr, u32b mode)
 	/* File type is "SAVE" */
 	FILE_TYPE(FILE_TYPE_SAVE);
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Create the savefile */
 	fd = fd_make(floor_savefile, 0644);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -2119,8 +2177,14 @@ bool save_floor(saved_floor_type *sf_ptr, u32b mode)
 		/* Close the "fd" */
 		(void)fd_close(fd);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Open the savefile */
 		fff = my_fopen(floor_savefile, "wb");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Successful open */
 		if (fff)
@@ -2133,7 +2197,16 @@ bool save_floor(saved_floor_type *sf_ptr, u32b mode)
 		}
 
 		/* Remove "broken" files */
-		if (!ok) (void)fd_kill(floor_savefile);
+		if (!ok)
+		{
+			/* Grab permissions */
+			safe_setuid_grab();
+
+			(void)fd_kill(floor_savefile);
+
+			/* Drop permissions */
+			safe_setuid_drop();
+		}
 	}
 
 	if (!(mode & SLF_SECOND))

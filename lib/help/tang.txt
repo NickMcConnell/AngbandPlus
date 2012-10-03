@@ -119,10 +119,10 @@ Teleport Level
      ticket to safety.
 
 *Destruction*
-     this powerful spell removes everything except artifacts from the
-     area around you, blasting the surroundings and causing rock to
-     fall from the ceiling. If you're ever in deep trouble, this is the
-     safest way to escape.
+     this powerful spell removes everything (including artifacts!)
+     from the area around you, blasting the surroundings and causing
+     rock to fall from the ceiling. If you're ever in deep trouble,
+     this is the safest way to escape.
 
 --- Healing Items ---
 
@@ -441,7 +441,7 @@ An arrow (1d5) (+0, +0) (26/26)
 
 The first number is the average damage per shot, and the second is
 average damage per round.  The two numbers can differ because the
-shooting weapons have differing energy requirements per shot (unlike
+shooting weapons have different energy requirements per shot (unlike
 melee weapons.)
 
 === On Slays ===
@@ -515,17 +515,6 @@ certain things. Using this, you can set some windows to always show
 monster memory, your character's inventory and/or equipment, a dungeon
 map, and others.
  
-=== On the Autoscummer ===
-
-Available in the Preferences screen, the autoscummer keeps generating
-levels until it comes across one that is interesting, meaning that it
-has a decent level feeling. At shallow depths, it doesn't do much,
-because it's very hard to generate out of depth monsters and items.
-Some people consider it cheating, but keep in mind that, along with
-better items, the autoscummer brings nastier monsters, and the monsters
-generally outweigh the items. The autoscummer becomes more effective
-at lower depths.
- 
 === On Death ===
 
 Death in Hengband is permanent. Saving in Hengband is meant only to let
@@ -561,10 +550,10 @@ watchful for opportunities to get a double move on monsters, and be
 aware that they can do the same to you!  This rule change has a lot of 
 consequences; playing the game will teach them to you...
 
-Apart from this, things are pretty familar.  The amount of energy you 
+Apart from this, things are pretty familiar.  The amount of energy you 
 can gain each game turn is 10 for an average-speed player or monster, 
 can be almost 50 for very fast ones, and most actions you take cost 100 
-energy to perform.  The biggest exception are weapons of Extra Shots; 
+energy to perform.  The biggest exception is weapons of Extra Shots; 
 firing one of these takes less energy, making monsters appear to move 
 in slow motion.  
 

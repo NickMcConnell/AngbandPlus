@@ -80,7 +80,11 @@
 #      worthless         : Items which you cannot sell match.
 #      artifacts         : Artifact items match.
 #      ego               : Ego items match.
+#      good              : {good} items match.
 #      nameless          : Non ego/non artifact items match.
+#      average           : {average} items match.
+#      rare              : Rare equipment such as Dragon armors etc. match.
+#      common            : Any equipments except 'rare' equipment match.
 #      wanted            : Wanted monster's corpses or skeletons match.
 #      unique monster's  : Unique monster's corpses, skeletons or statues match.
 #      human             : Human corpses or skeletons match.
@@ -100,8 +104,10 @@
 #      magical devices   : Wands, staffs, rods and scrolls match.
 #      lights            : Light sources match.
 #      junks             : Junk items like Shard of Pottery or etc. match.
+#      corpses or skeletons : Corpses or skeletons of monsters match.
 #      spellbooks        : All books match.
-#      hafted weapons    : Hafted weapons match. For priests.
+#      favorite weapons  : Weapons suitable for your class (for Priest, Monk,
+#                          BeastMaster, ForceTrainer, Cavalry, and Ninja)
 #
 #      You may also use keywords which match specified kinds of equipment:
 #      weapons, armors, missiles, magical devices, lights, junks, spellbooks, 
@@ -175,13 +181,15 @@
 #      [! ~ ; (]
 #      [[all] [collecting]
 #       [unaware] [unidentified] [identified] [*identified*] 
+#       [artifact] [ego] [good] [nameless] [average]
+#       [worthless] [rare] [common]
 #       [dice boosted] [more than N dice] [more bonus than N] 
-#       [worthless] [artifact] [ego] [nameless] 
 #       [wanted] [unique monster's] [human] [unreadable] 
 #       [first realm's] [second realm's] [first] [second] [third] [fourth] 
-#       [items | weapons | armors | missiles | magical devices | 
-#        lights | junks | spellbooks | hafted weapons | shields | bows | 
-#        rings | amulets | suits | cloaks | helms | gloves | boots] :]
+#       [items | weapons | favorite weapons | armors | missiles |
+#        magical devices | lights | junks | corpses or skeletons | spellbooks |
+#        hafted weapons | shields | bows | rings | amulets | suits | cloaks |
+#        helms | gloves | boots] :]
 #      [[^]part-of-item-name] [#auto-inscription-string]
 #    
 #    
@@ -201,11 +209,10 @@
 #        %:filename
 #          Read a file named 'filename' as a new pick-pref file. The file 
 #          must be in the user directory.
-#          Caution: Avoid naming the parent file, or the game might freeze up.
 #    
 #      - usage of operators
 #        [EQU arg1 arg2 ...]
-#          If all args are same, returns "1", or else returns "0".
+#          If all args are the same as arg1, returns "1", or else returns "0".
 #        [IOR arg1 arg2 ...]
 #        [AND arg1 arg2 ...]
 #          IOR evaluates and returns all args' logical OR. AND is logical AND.
@@ -350,8 +357,7 @@ Iron Spike#@v0
 ?:1
 
 # complex example; destroy needless food items.
-?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life] [EQU $REALM2 Life] [EQU $REALM1 Nature] [EQU $REALM2 Nature] [EQU $REALM1 Craft] [EQU $REALM2 Craft]]]
-(!Satisfy Hunger
+?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life Nature Craft] [EQU $REALM2 Life Nature Craft]]]
 (!food
 (!Slime Mold
 (!of Elvish Waybread
@@ -413,15 +419,26 @@ collecting spellbooks
 ?:1
 
 # pick up for experience
-?:[IOR [EQU $CLASS Warrior] [EQU $CLASS Berserker] [AND [EQU $CLASS Paladin] [EQU $REALM1 Life]]]
-(~unreadable third spellbooks:arcane
+?:[EQU $CLASS Warrior Berserker]
 (~unreadable fourth spellbooks:arcane
 unreadable fourth spellbooks
+(~unreadable third spellbooks:arcane
+unreadable third spellbooks
+?:1
+?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade] [GEQ $LEVEL 30]]
+(~unreadable fourth spellbooks:life
+(~unreadable third spellbooks:life
+?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Crusade]]
+(~unreadable fourth spellbooks:arcane
+unreadable fourth spellbooks
+(~unreadable third spellbooks:arcane
 unreadable third spellbooks
 ?:1
 ?:[AND [EQU $CLASS Paladin] [EQU $REALM1 Death]]
 unreadable fourth spellbooks:life
+unreadable fourth spellbooks:crusade
 unreadable third spellbooks:life
+unreadable third spellbooks:crusade
 ?:1
 
 # pick up for money

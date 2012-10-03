@@ -322,9 +322,9 @@ void mindcraft_info(char *p, int use_mind, int power)
 	case 11: sprintf(p, " %s%dd6", s_dam, plev / 2);  break;
 	case 12: sprintf(p, " %sd%d+%d", s_dam, plev * 3, plev * 3); break;
 #ifdef JP
-	case 13: sprintf(p, " 行動:%d回", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
+	case 13: sprintf(p, " 行動:%ld回", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
 #else
-	case 13: sprintf(p, " %d acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
+	case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
 #endif
 	}
       break;
@@ -347,7 +347,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 	  case 8:  sprintf(p, " %s10d6+%d", s_dam, plev * 3 / 2 + boost * 3 / 5); break;
 	  case 9:  break;
 #ifdef JP
-	  case 10: sprintf(p, " 最大%d匹", 1+boost/100); break;
+	  case 10: sprintf(p, " 最大%d体", 1+boost/100); break;
 #else
 	  case 10: sprintf(p, " max %d", 1+boost/100); break;
 #endif
@@ -809,14 +809,10 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 	if (redraw && !only_browse) screen_load();
 
 	/* Show choices */
-	if (show_choices)
-	{
-		/* Update */
-		p_ptr->window |= (PW_SPELL);
+	p_ptr->window |= (PW_SPELL);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -893,11 +889,11 @@ if (!b) msg_print("安全な気がする。");
 		break;
 	case 2:
 		/* Minor displace */
-		teleport_player(10);
+		teleport_player(10, 0L);
 		break;
 	case 3:
 		/* Major displace */
-		teleport_player(plev * 5);
+		teleport_player(plev * 5, 0L);
 		break;
 	case 4:
 		/* Domination */
@@ -1060,7 +1056,7 @@ static bool cast_force_spell(int spell)
 		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		break;
 	case 2:
-		set_tim_ffall(randint1(30) + 30 + boost / 5, FALSE);
+		set_tim_levitation(randint1(30) + 30 + boost / 5, FALSE);
 		break;
 	case 3:
 		project_length = plev / 8 + 3;
@@ -1115,11 +1111,12 @@ static bool cast_force_spell(int spell)
 			int oy = y, ox = x;
 			int m_idx = cave[y][x].m_idx;
 			monster_type *m_ptr = &m_list[m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			char m_name[80];
 
 			monster_desc(m_name, m_ptr, 0);
 
-			if (randint1(r_info[m_ptr->r_idx].level * 3 / 2) > randint0(dam / 2) + dam/2)
+			if (randint1(r_ptr->level * 3 / 2) > randint0(dam / 2) + dam/2)
 			{
 #ifdef JP
 				msg_format("%sは飛ばされなかった。", m_name);
@@ -1155,6 +1152,9 @@ static bool cast_force_spell(int spell)
 					update_mon(m_idx, TRUE);
 					lite_spot(oy, ox);
 					lite_spot(ty, tx);
+
+					if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+						p_ptr->update |= (PU_MON_LITE);
 				}
 			}
 		}
@@ -1166,45 +1166,14 @@ static bool cast_force_spell(int spell)
 		break;
 	case 9:
 	{
-		monster_type *m_ptr;
-		char m_name[80];
+		int m_idx;
 
 		if (!target_set(TARGET_KILL)) return FALSE;
-		if (!cave[target_row][target_col].m_idx) break;
-		if (!los(py, px, target_row, target_col)) break;
-		m_ptr = &m_list[cave[target_row][target_col].m_idx];
-		monster_desc(m_name, m_ptr, 0);
-		if (m_ptr->invulner)
-		{
-			m_ptr->invulner = 0;
-#ifdef JP
-msg_format("%sはもう無敵ではない。", m_name);
-#else
-			msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-			m_ptr->energy_need += ENERGY_NEED();
-		}
-		if (m_ptr->fast)
-		{
-			m_ptr->fast = 0;
-#ifdef JP
-msg_format("%sはもう加速されていない。", m_name);
-#else
-			msg_format("%^s is no longer fast.", m_name);
-#endif
-		}
-		if (m_ptr->slow)
-		{
-			m_ptr->slow = 0;
-#ifdef JP
-msg_format("%sはもう減速されていない。", m_name);
-#else
-			msg_format("%^s is no longer slow.", m_name);
-#endif
-		}
-		p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->riding == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
+		m_idx = cave[target_row][target_col].m_idx;
+		if (!m_idx) break;
+		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
+		dispel_monster_status(m_idx);
 		break;
 	}
 	case 10:
@@ -1300,7 +1269,7 @@ static bool cast_mirror_spell(int spell)
 	/* drip of light */
 	case 1:
 	  if( number_of_mirrors() < 4 + plev/10 ){
-	    warding_mirror();
+	    place_mirror();
 	  }
 	  else {
 #ifdef JP
@@ -1321,7 +1290,7 @@ msg_format("There are too many mirrors to control!");
 	  break;
 	/* warped mirror */
 	case 3:
-	  teleport_player(10);
+	  teleport_player(10, 0L);
 	  break;
 	/* mirror of light */
 	case 4:
@@ -1329,7 +1298,7 @@ msg_format("There are too many mirrors to control!");
 	  break;
 	/* mirror of wandering */
 	case 5:
-	  teleport_player(plev * 5);
+	  teleport_player(plev * 5, 0L);
 	  break;
 	/* robe of dust */
 	case 6:
@@ -1406,7 +1375,8 @@ msg_format("There are too many mirrors to control!");
 #else
 	  msg_print("Go through the world of mirror...");
 #endif
-	  return dimension_door();
+	  return mirror_tunnel();
+
 	/* mirror of recall */
 	case 17:
 		return word_of_recall();
@@ -1485,48 +1455,18 @@ static bool cast_berserk_spell(int spell)
 
 		py_attack(y, x, 0);
 
-		if (!player_can_enter(cave[y][x].feat) || is_trap(cave[y][x].feat))
+		if (!player_can_enter(cave[y][x].feat, 0) || is_trap(cave[y][x].feat))
 			break;
 
 		y += ddy[dir];
 		x += ddx[dir];
 
-		if (player_can_enter(cave[y][x].feat) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
+		if (player_can_enter(cave[y][x].feat, 0) && !is_trap(cave[y][x].feat) && !cave[y][x].m_idx)
 		{
-			int oy, ox;
-
 			msg_print(NULL);
 
-			/* Save the old location */
-			oy = py;
-			ox = px;
-
 			/* Move the player */
-			py = y;
-			px = x;
-
-			forget_flow();
-
-			/* Redraw the old spot */
-			lite_spot(oy, ox);
-
-			/* Redraw the new spot */
-			lite_spot(py, px);
-
-			/* Check for new panel (redraw map) */
-			verify_panel();
-
-			/* Update stuff */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-			/* Update the monsters */
-			p_ptr->update |= (PU_DISTANCE);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-			/* Handle stuff XXX XXX XXX */
-			handle_stuff();
+			(void)move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 		}
 		break;
 	}
@@ -1556,7 +1496,7 @@ static bool cast_berserk_spell(int spell)
 			m_ptr = &m_list[c_ptr->m_idx];
 
 			/* Hack -- attack monsters */
-			if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+			if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
 				py_attack(y, x, 0);
 		}
 		break;
@@ -1609,9 +1549,7 @@ static bool cast_ninja_spell(int spell)
 		break;
 	case 2:
 	{
-		teleport_player(10);
-		if (cave[py][px].info & (CAVE_GLOW | CAVE_MNLT)) set_superstealth(FALSE);
-		else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+		teleport_player(10, 0L);
 		break;
 	}
 	case 3:
@@ -1631,9 +1569,7 @@ static bool cast_ninja_spell(int spell)
 	}
 	case 4:
 	{
-		teleport_player(p_ptr->lev*5);
-		if (cave[py][px].info & (CAVE_GLOW | CAVE_MNLT)) set_superstealth(FALSE);
-		else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+		teleport_player(p_ptr->lev * 5, 0L);
 		break;
 	}
 	case 5:
@@ -1652,9 +1588,7 @@ msg_print("うまく逃げられなかった。");
 #endif
 			else
 			{
-				teleport_player(30);
-				if (cave[py][px].info & (CAVE_GLOW | CAVE_MNLT)) set_superstealth(FALSE);
-				else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+				teleport_player(30, 0L);
 			}
 		}
 		else
@@ -1678,13 +1612,11 @@ msg_print("その方向にはモンスターはいません。");
 	case 7:
 		return ident_spell(FALSE);
 	case 8:
-		set_tim_ffall(randint1(20) + 20, FALSE);
+		set_tim_levitation(randint1(20) + 20, FALSE);
 		break;
 	case 9:
 		fire_ball(GF_FIRE, 0, 50+plev, plev/10+2);
-		teleport_player(30);
-		if (cave[py][px].info & (CAVE_GLOW | CAVE_MNLT)) set_superstealth(FALSE);
-		else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+		teleport_player(30, 0L);
 		set_oppose_fire(plev, FALSE);
 		break;
 	case 10:
@@ -1732,7 +1664,9 @@ msg_print("その方向にはモンスターはいません。");
 		if (!target_set(TARGET_KILL)) return FALSE;
 		m_idx = cave[target_row][target_col].m_idx;
 		if (!m_idx) break;
+		if (m_idx == p_ptr->riding) break;
 		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
 		m_ptr = &m_list[m_idx];
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
@@ -1751,8 +1685,7 @@ msg_print("その方向にはモンスターはいません。");
 
 			if (in_bounds(ny, nx) && cave_empty_bold(ny, nx) &&
 			    !(c_ptr->info & CAVE_OBJECT) &&
-			    !(c_ptr->feat >= FEAT_PATTERN_START &&
-			      c_ptr->feat <= FEAT_PATTERN_XTRA2))
+				!pattern_tile(ny, nx))
 			{
 				ty = ny;
 				tx = nx;
@@ -1769,7 +1702,7 @@ msg_print("その方向にはモンスターはいません。");
 		m_ptr->fx = tx;
 
 		/* Wake the monster up */
-		m_ptr->csleep = 0;
+		(void)set_monster_csleep(m_idx, 0);
 
 		/* Update the monster (new location) */
 		update_mon(m_idx, TRUE);
@@ -1780,7 +1713,17 @@ msg_print("その方向にはモンスターはいません。");
 		/* Redraw the new grid */
 		lite_spot(ty, tx);
 
-		p_ptr->update |= (PU_MON_LITE);
+		if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+			p_ptr->update |= (PU_MON_LITE);
+
+		if (m_ptr->ml)
+		{
+			/* Auto-Recall if possible and visible */
+			if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+
+			/* Track a new monster */
+			health_track(m_idx);
+		}
 
 		break;
 	}
@@ -1810,9 +1753,7 @@ msg_print("その方向にはモンスターはいません。");
 		fire_ball(GF_POIS, 0, 75+plev*2/3, plev/5+2);
 		fire_ball(GF_OLD_DRAIN, 0, 75+plev*2/3, plev/5+2);
 		fire_ball(GF_CONFUSION, 0, 75+plev*2/3, plev/5+2);
-		teleport_player(30);
-		if (cave[py][px].info & (CAVE_GLOW | CAVE_MNLT)) set_superstealth(FALSE);
-		else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);
+		teleport_player(30, 0L);
 		break;
 	case 18:
 	{
@@ -2071,7 +2012,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 					msg_print("Your mind unleashes its power in an uncontrollable storm!");
 #endif
 
-					project(1, 2 + plev / 10, py, px, plev * 2,
+					project(PROJECT_WHO_UNCTRL_POWER, 2 + plev / 10, py, px, plev * 2,
 						GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
 					p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev / 10));
 				}
@@ -2088,8 +2029,7 @@ msg_print("鏡の世界の干渉を受けた！");
 #else
 					msg_print("Weird visions seem to dance before your eyes...");
 #endif
-					teleport_player(10);
-					
+					teleport_player(10, TELEPORT_PASSIVE);
 				}
 				else if (b < 96)
 				{
@@ -2110,7 +2050,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 					msg_print("Your mind unleashes its power in an uncontrollable storm!");
 #endif
 
-					project(1, 2 + plev / 10, py, px, plev * 2,
+					project(PROJECT_WHO_UNCTRL_POWER, 2 + plev / 10, py, px, plev * 2,
 						GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
 					p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev / 10));
 				}

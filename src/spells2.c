@@ -749,7 +749,7 @@ info[i++] = "あなたは怪物の特殊攻撃をダメージ2倍でまねることができる。(100 MP)";
 			break;
 		case CLASS_BEASTMASTER:
 #ifdef JP
-info[i++] = "あなたは1匹の生命のあるモンスターを支配することができる。(レベル/4 MP)";
+info[i++] = "あなたは1体の生命のあるモンスターを支配することができる。(レベル/4 MP)";
 #else
 			info[i++] = "You can dominate a monster (cost level/4).";
 #endif
@@ -773,9 +773,9 @@ info[i++] = "あなたは杖/魔法棒/ロッドの魔力を自分のものにすることができる。";
 			if (plev > 47)
 			{
 #ifdef JP
-info[i++] = "あなたは1ターンに2回魔法を唱えることができる。(77 MP)";
+info[i++] = "あなたは1ターンに2回魔法を唱えることができる。(20 MP)";
 #else
-				info[i++] = "You can cast two spells in one time (cost 77).";
+				info[i++] = "You can cast two spells in one time (cost 20).";
 #endif
 			}
 			break;
@@ -2093,7 +2093,7 @@ info[i++] = "あなたは透明なモンスターを見ることができる。";
 #endif
 
 	}
-	if (p_ptr->ffall)
+	if (p_ptr->levitation)
 	{
 #ifdef JP
 info[i++] = "あなたは飛ぶことができる。";
@@ -3500,15 +3500,11 @@ prt("[何かキーを押すとゲームに戻ります]", k, 13);
 }
 
 
-/*
- * Detect all traps on current panel
- */
-bool detect_traps(int range, bool known)
+static bool detect_feat_flag(int range, int flag, bool known)
 {
-	int             x, y;
-	bool            detect = FALSE;
-	cave_type       *c_ptr;
-
+	int       x, y;
+	bool      detect = FALSE;
+	cave_type *c_ptr;
 
 	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
@@ -3523,34 +3519,32 @@ bool detect_traps(int range, bool known)
 			/* Access the grid */
 			c_ptr = &cave[y][x];
 
-			/* Mark as detected */
-			if (dist <= range && known)
+			/* Hack -- Safe */
+			if (flag == FF_TRAP)
 			{
-				if (dist <= range - 1)
-					c_ptr->info |= (CAVE_IN_DETECT);
-
-				c_ptr->info &= ~(CAVE_UNSAFE);
-
-				/* Redraw */
-				lite_spot(y, x);
-			}
-
-			/* Detect traps */
-			if (is_trap(c_ptr->feat))
-			{
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
-
-				if (c_ptr->mimic)
+				/* Mark as detected */
+				if (dist <= range && known)
 				{
-					/* Disclose a hidden trap */
-					disclose_grid(y, x);
-				}
-				else
-				{
+					if (dist <= range - 1) c_ptr->info |= (CAVE_IN_DETECT);
+
+					c_ptr->info &= ~(CAVE_UNSAFE);
+
 					/* Redraw */
 					lite_spot(y, x);
 				}
+			}
+
+			/* Detect flags */
+			if (cave_have_flag_grid(c_ptr, flag))
+			{
+				/* Detect secrets */
+				disclose_grid(y, x);
+
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
+
+				/* Redraw */
+				lite_spot(y, x);
 
 				/* Obvious */
 				detect = TRUE;
@@ -3558,25 +3552,35 @@ bool detect_traps(int range, bool known)
 		}
 	}
 
+	/* Result */
+	return detect;
+}
+
+
+/*
+ * Detect all traps on current panel
+ */
+bool detect_traps(int range, bool known)
+{
+	bool detect = detect_feat_flag(range, FF_TRAP, known);
+
 	if (known) p_ptr->dtrap = TRUE;
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 0) detect = FALSE;
 
 	/* Describe */
 	if (detect)
 	{
 #ifdef JP
-msg_print("トラップの存在を感じとった！");
+		msg_print("トラップの存在を感じとった！");
 #else
 		msg_print("You sense the presence of traps!");
 #endif
-
 	}
 
 	/* Result */
-	return (detect);
+	return detect;
 }
-
 
 
 /*
@@ -3584,63 +3588,22 @@ msg_print("トラップの存在を感じとった！");
  */
 bool detect_doors(int range)
 {
-	int y, x;
+	bool detect = detect_feat_flag(range, FF_DOOR, TRUE);
 
-	bool detect = FALSE;
-
-	cave_type *c_ptr;
-
-	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
-
-	/* Scan the panel */
-	for (y = 1; y < cur_hgt - 1; y++)
-	{
-		for (x = 1; x < cur_wid - 1; x++)
-		{
-			if (distance(py, px, y, x) > range) continue;
-
-			c_ptr = &cave[y][x];
-
-			/* Detect secret doors */
-			if (is_hidden_door(c_ptr))
-			{
-				/* Pick a door */
-				disclose_grid(y, x);
-			}
-
-			/* Detect doors */
-			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-			    ((c_ptr->feat == FEAT_OPEN) ||
-			     (c_ptr->feat == FEAT_BROKEN)))
-			{
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 0) detect = FALSE;
 
 	/* Describe */
 	if (detect)
 	{
 #ifdef JP
-msg_print("ドアの存在を感じとった！");
+		msg_print("ドアの存在を感じとった！");
 #else
 		msg_print("You sense the presence of doors!");
 #endif
-
 	}
 
 	/* Result */
-	return (detect);
+	return detect;
 }
 
 
@@ -3649,57 +3612,22 @@ msg_print("ドアの存在を感じとった！");
  */
 bool detect_stairs(int range)
 {
-	int y, x;
+	bool detect = detect_feat_flag(range, FF_STAIRS, TRUE);
 
-	bool detect = FALSE;
-
-	cave_type *c_ptr;
-
-	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
-
-	/* Scan the panel */
-	for (y = 1; y < cur_hgt - 1; y++)
-	{
-		for (x = 1; x < cur_wid - 1; x++)
-		{
-			if (distance(py, px, y, x) > range) continue;
-
-			c_ptr = &cave[y][x];
-
-			/* Detect stairs */
-			if ((c_ptr->feat == FEAT_LESS) ||
-			    (c_ptr->feat == FEAT_LESS_LESS) ||
-			    (c_ptr->feat == FEAT_MORE) ||
-			    (c_ptr->feat == FEAT_MORE_MORE) ||
-			    (c_ptr->feat == FEAT_ENTRANCE))
-			{
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 0) detect = FALSE;
 
 	/* Describe */
 	if (detect)
 	{
 #ifdef JP
-msg_print("階段の存在を感じとった！");
+		msg_print("階段の存在を感じとった！");
 #else
 		msg_print("You sense the presence of stairs!");
 #endif
-
 	}
 
 	/* Result */
-	return (detect);
+	return detect;
 }
 
 
@@ -3708,65 +3636,23 @@ msg_print("階段の存在を感じとった！");
  */
 bool detect_treasure(int range)
 {
-	int y, x;
+	bool detect = detect_feat_flag(range, FF_HAS_GOLD, TRUE);
 
-	bool detect = FALSE;
-
-	cave_type *c_ptr;
-
-	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
-
-	/* Scan the current panel */
-	for (y = 1; y < cur_hgt; y++)
-	{
-		for (x = 1; x < cur_wid; x++)
-		{
-			if (distance(py, px, y, x) > range) continue;
-
-			c_ptr = &cave[y][x];
-
-			/* Notice embedded gold */
-			if ((c_ptr->feat == FEAT_MAGMA_H) ||
-			    (c_ptr->feat == FEAT_QUARTZ_H))
-			{
-				/* Expose the gold */
-				c_ptr->feat += 0x02;
-			}
-
-			/* Magma/Quartz + Known Gold */
-			if ((c_ptr->feat == FEAT_MAGMA_K) ||
-			    (c_ptr->feat == FEAT_QUARTZ_K))
-			{
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Detect */
-				detect = TRUE;
-			}
-		}
-	}
-
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 6) detect = FALSE;
 
 	/* Describe */
 	if (detect)
 	{
 #ifdef JP
-msg_print("埋蔵された財宝の存在を感じとった！");
+		msg_print("埋蔵された財宝の存在を感じとった！");
 #else
 		msg_print("You sense the presence of buried treasure!");
 #endif
-
 	}
 
-
 	/* Result */
-	return (detect);
+	return detect;
 }
-
 
 
 /*
@@ -3813,7 +3699,7 @@ bool detect_objects_gold(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 6) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3880,7 +3766,7 @@ bool detect_objects_normal(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 6) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3942,9 +3828,8 @@ bool detect_objects_magic(int range)
 		tv = o_ptr->tval;
 
 		/* Artifacts, misc magic items, or enchanted wearables */
-		if (artifact_p(o_ptr) ||
-			ego_item_p(o_ptr) ||
-			o_ptr->art_name ||
+		if (object_is_artifact(o_ptr) ||
+			object_is_ego(o_ptr) ||
 		    (tv == TV_WHISTLE) ||
 		    (tv == TV_AMULET) ||
 			(tv == TV_RING) ||
@@ -3960,7 +3845,7 @@ bool detect_objects_magic(int range)
 		    (tv == TV_DEATH_BOOK) ||
 		    (tv == TV_TRUMP_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
-			(tv == TV_ENCHANT_BOOK) ||
+			(tv == TV_CRAFT_BOOK) ||
 			(tv == TV_DAEMON_BOOK) ||
 			(tv == TV_CRUSADE_BOOK) ||
 			(tv == TV_MUSIC_BOOK) ||
@@ -4038,7 +3923,7 @@ bool detect_monsters_normal(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 3) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -4107,7 +3992,7 @@ bool detect_monsters_invis(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 3) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -4363,7 +4248,7 @@ bool detect_monsters_string(int range, cptr Match)
 		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect monsters with the same symbol */
-		if (strchr(Match, r_ptr->d_char))
+		if (my_strchr(Match, r_ptr->d_char))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -4386,7 +4271,7 @@ bool detect_monsters_string(int range, cptr Match)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if (music_singing(MUSIC_DETECT) && p_ptr->magic_num1[2] > 3) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -4557,7 +4442,7 @@ bool project_hack(int typ, int dam)
 		x = m_ptr->fx;
 
 		/* Require line of sight */
-		if (!player_has_los_bold(y, x)) continue;
+		if (!player_has_los_bold(y, x) || !projectable(py, px, y, x)) continue;
 
 		/* Mark the monster */
 		m_ptr->mflag |= (MFLAG_TEMP);
@@ -4720,11 +4605,9 @@ void aggravate_monsters(int who)
 		if (m_ptr->cdis < MAX_SIGHT * 2)
 		{
 			/* Wake up */
-			if (m_ptr->csleep)
+			if (MON_CSLEEP(m_ptr))
 			{
-				/* Wake up */
-				m_ptr->csleep = 0;
-				if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(i, 0);
 				sleep = TRUE;
 			}
 			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG2_NOPET;
@@ -4735,7 +4618,7 @@ void aggravate_monsters(int who)
 		{
 			if (!is_pet(m_ptr))
 			{
-				m_ptr->fast = MIN(200, m_ptr->fast + 100);
+				(void)set_monster_fast(i, MON_FAST(m_ptr) + 100);
 				speed = TRUE;
 			}
 		}
@@ -4743,8 +4626,8 @@ void aggravate_monsters(int who)
 
 	/* Messages */
 #ifdef JP
-if (speed) msg_print("付近で何かが突如興奮したような感じを受けた！");
-else if (sleep) msg_print("何かが突如興奮したような騒々しい音が遠くに聞こえた！");
+	if (speed) msg_print("付近で何かが突如興奮したような感じを受けた！");
+	else if (sleep) msg_print("何かが突如興奮したような騒々しい音が遠くに聞こえた！");
 #else
 	if (speed) msg_print("You feel a sudden stirring nearby!");
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
@@ -4753,38 +4636,145 @@ else if (sleep) msg_print("何かが突如興奮したような騒々しい音が遠くに聞こえた！"
 }
 
 
+/*
+ * Delete a non-unique/non-quest monster
+ */
+bool genocide_aux(int m_idx, int power, bool player_cast, int dam_side, cptr spell_name)
+{
+	int          msec = delay_factor * delay_factor * delay_factor;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	bool         resist = FALSE;
+
+	if (is_pet(m_ptr) && !player_cast) return FALSE;
+
+	/* Hack -- Skip Unique Monsters or Quest Monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) resist = TRUE;
+
+	else if (r_ptr->flags7 & RF7_UNIQUE2) resist = TRUE;
+
+	else if (m_idx == p_ptr->riding) resist = TRUE;
+
+	else if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle) resist = TRUE;
+
+	else if (player_cast && (r_ptr->level > randint0(power))) resist = TRUE;
+
+	else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) resist = TRUE;
+
+	/* Delete the monster */
+	else
+	{
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+		{
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+		}
+
+		delete_monster_idx(m_idx);
+	}
+
+	if (resist && player_cast)
+	{
+		bool see_m = is_seen(m_ptr);
+		char m_name[80];
+
+		monster_desc(m_name, m_ptr, 0);
+		if (see_m)
+		{
+#ifdef JP
+			msg_format("%^sには効果がなかった。", m_name);
+#else
+			msg_format("%^s is unaffected.", m_name);
+#endif
+		}
+		if (MON_CSLEEP(m_ptr))
+		{
+			(void)set_monster_csleep(m_idx, 0);
+			if (m_ptr->ml)
+			{
+#ifdef JP
+				msg_format("%^sが目を覚ました。", m_name);
+#else
+				msg_format("%^s wakes up.", m_name);
+#endif
+			}
+		}
+		if (is_friendly(m_ptr) && !is_pet(m_ptr))
+		{
+			if (see_m)
+			{
+#ifdef JP
+				msg_format("%sは怒った！", m_name);
+#else
+				msg_format("%^s gets angry!", m_name);
+#endif
+			}
+			set_hostile(m_ptr);
+		}
+		if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
+	}
+
+	if (player_cast)
+	{
+		/* Take damage */
+#ifdef JP
+		take_hit(DAMAGE_GENO, randint1(dam_side), format("%^sの呪文を唱えた疲労", spell_name), -1);
+#else
+		take_hit(DAMAGE_GENO, randint1(dam_side), format("the strain of casting %^s", spell_name), -1);
+#endif
+	}
+
+	/* Visual feedback */
+	move_cursor_relative(py, px);
+
+	/* Redraw */
+	p_ptr->redraw |= (PR_HP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Handle */
+	handle_stuff();
+
+	/* Fresh */
+	Term_fresh();
+
+	/* Delay */
+	Term_xtra(TERM_XTRA_DELAY, msec);
+
+	return !resist;
+}
+
 
 /*
  * Delete all non-unique/non-quest monsters of a given "type" from the level
  */
-bool symbol_genocide(int power, int player_cast)
+bool symbol_genocide(int power, bool player_cast)
 {
-	int     i;
-	char    typ;
-	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
+	int  i;
+	char typ;
+	bool result = FALSE;
 
 	/* Prevent genocide in quest levels */
-	if (p_ptr->inside_quest && !random_quest_number(dun_level))
+	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		return (FALSE);
 	}
 
 	/* Mega-Hack -- Get a monster symbol */
 #ifdef JP
-while(!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE));
+	while (!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE)) ;
 #else
-	while(!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE));
+	while (!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE)) ;
 #endif
-
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4792,118 +4782,34 @@ while(!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE));
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		else delete_monster_idx(i);
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (m_ptr->csleep)
-			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Take damage */
-#ifdef JP
-take_hit(DAMAGE_GENO, randint1(4), "抹殺の呪文を唱えた疲労", -1);
-#else
-			take_hit(DAMAGE_GENO, randint1(4), "the strain of casting Genocide", -1);
-#endif
-
-		}
-
-		/* Visual feedback */
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Take note */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 4, "抹殺");
+#else
+		result |= genocide_aux(i, power, player_cast, 4, "Genocide");
+#endif
 	}
+
 	if (result)
 	{
 		chg_virtue(V_VITALITY, -2);
 		chg_virtue(V_CHANCE, -1);
 	}
 
-	return (result);
+	return result;
 }
 
 
 /*
  * Delete all nearby (non-unique) monsters
  */
-bool mass_genocide(int power, int player_cast)
+bool mass_genocide(int power, bool player_cast)
 {
-	int     i;
-	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
-
+	int  i;
+	bool result = FALSE;
 
 	/* Prevent mass genocide in quest levels */
-	if (p_ptr->inside_quest && !random_quest_number(dun_level))
+	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		return (FALSE);
 	}
@@ -4911,10 +4817,7 @@ bool mass_genocide(int power, int player_cast)
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
+		monster_type *m_ptr = &m_list[i];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -4922,94 +4825,12 @@ bool mass_genocide(int power, int player_cast)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		else delete_monster_idx(i);
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (m_ptr->csleep)
-			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Hack -- visual feedback */
-#ifdef JP
-take_hit(DAMAGE_GENO, randint1(3), "周辺抹殺の呪文を唱えた疲労", -1);
-#else
-			take_hit(DAMAGE_GENO, randint1(3), "the strain of casting Mass Genocide", -1);
-#endif
-
-		}
-
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Note effect */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 3, "周辺抹殺");
+#else
+		result |= genocide_aux(i, power, player_cast, 3, "Mass Genocide");
+#endif
 	}
 
 	if (result)
@@ -5018,7 +4839,7 @@ take_hit(DAMAGE_GENO, randint1(3), "周辺抹殺の呪文を唱えた疲労", -1);
 		chg_virtue(V_CHANCE, -1);
 	}
 
-	return (result);
+	return result;
 }
 
 
@@ -5026,15 +4847,13 @@ take_hit(DAMAGE_GENO, randint1(3), "周辺抹殺の呪文を唱えた疲労", -1);
 /*
  * Delete all nearby (non-unique) undead
  */
-bool mass_genocide_undead(int power, int player_cast)
+bool mass_genocide_undead(int power, bool player_cast)
 {
-	int     i;
-	bool    result = FALSE;
-	int     msec = delay_factor * delay_factor * delay_factor;
-
+	int  i;
+	bool result = FALSE;
 
 	/* Prevent mass genocide in quest levels */
-	if (p_ptr->inside_quest && !random_quest_number(dun_level))
+	if ((p_ptr->inside_quest && !random_quest_number(dun_level)) || p_ptr->inside_arena || p_ptr->inside_battle)
 	{
 		return (FALSE);
 	}
@@ -5042,10 +4861,8 @@ bool mass_genocide_undead(int power, int player_cast)
 	/* Delete the (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
-		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-		bool angry = FALSE;
-		char m_name[80];
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -5055,94 +4872,12 @@ bool mass_genocide_undead(int power, int player_cast)
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
-		if (is_pet(m_ptr) && !player_cast) continue;
-
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
-
-		/* Hack -- Skip Quest Monsters */
-		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
-
-		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
-
-		else if (i == p_ptr->riding) angry = TRUE;
-
-		else if (player_cast && (r_ptr->level > randint0(power))) angry = TRUE;
-
-		else if (player_cast && (m_ptr->mflag2 & MFLAG2_NOGENO)) angry = TRUE;
-
-		/* Delete the monster */
-		else delete_monster_idx(i);
-
-		if (angry && player_cast)
-		{
-			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->ml && !p_ptr->blind)
-			{
-#ifdef JP
-msg_format("%^sには効果がなかった。", m_name);
-#else
-				msg_format("%^s is unaffected.", m_name);
-#endif
-			}
-			if (m_ptr->csleep)
-			{
-				m_ptr->csleep = 0;
-				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
-#else
-					msg_format("%^s wakes up.", m_name);
-#endif
-				}
-			}
-			if (is_friendly(m_ptr) && !is_pet(m_ptr))
-			{
-				if (m_ptr->ml && !p_ptr->blind)
-				{
-#ifdef JP
-					msg_format("%sは怒った！", m_name);
-#else
-					msg_format("%^s gets angry!", m_name);
-#endif
-				}
-				set_hostile(m_ptr);
-			}
-			if (one_in_(13)) m_ptr->mflag2 |= MFLAG2_NOGENO;
-		}
-
-		if (player_cast)
-		{
-			/* Hack -- visual feedback */
-#ifdef JP
-take_hit(DAMAGE_GENO, randint1(3), "アンデッド消滅の呪文を唱えた疲労", -1);
-#else
-			take_hit(DAMAGE_GENO, randint1(3), "the strain of casting Mass Genocide", -1);
-#endif
-
-		}
-
-		move_cursor_relative(py, px);
-
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
-
-		/* Handle */
-		handle_stuff();
-
-		/* Fresh */
-		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
 		/* Note effect */
-		result = TRUE;
+#ifdef JP
+		result |= genocide_aux(i, power, player_cast, 3, "アンデッド消滅");
+#else
+		result |= genocide_aux(i, power, player_cast, 3, "Annihilate Undead");
+#endif
 	}
 
 	if (result)
@@ -5151,7 +4886,7 @@ take_hit(DAMAGE_GENO, randint1(3), "アンデッド消滅の呪文を唱えた疲労", -1);
 		chg_virtue(V_CHANCE, -1);
 	}
 
-	return (result);
+	return result;
 }
 
 
@@ -5201,7 +4936,7 @@ bool probing(void)
 
 			msg_print(NULL);
 
-			if (m_ptr->ap_r_idx != m_ptr->r_idx)
+			if (!is_original_ap(m_ptr))
 			{
 				if (m_ptr->mflag2 & MFLAG2_KAGE)
 					m_ptr->mflag2 &= ~(MFLAG2_KAGE);
@@ -5213,8 +4948,8 @@ bool probing(void)
 			monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_INDEF_HIDDEN);
 
 			speed = m_ptr->mspeed - 110;
-			if(m_ptr->fast) speed += 10;
-			if(m_ptr->slow) speed -= 10;
+			if (MON_FAST(m_ptr)) speed += 10;
+			if (MON_SLOW(m_ptr)) speed -= 10;
 
 			/* Get the monster's alignment */
 #ifdef JP
@@ -5251,17 +4986,17 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
 			}
 
 #ifdef JP
-			if (m_ptr->csleep) strcat(buf,"睡眠 ");
-			if (m_ptr->stunned) strcat(buf,"朦朧 ");
-			if (m_ptr->monfear) strcat(buf,"恐怖 ");
-			if (m_ptr->confused) strcat(buf,"混乱 ");
-			if (m_ptr->invulner) strcat(buf,"無敵 ");
+			if (MON_CSLEEP(m_ptr)) strcat(buf,"睡眠 ");
+			if (MON_STUNNED(m_ptr)) strcat(buf,"朦朧 ");
+			if (MON_MONFEAR(m_ptr)) strcat(buf,"恐怖 ");
+			if (MON_CONFUSED(m_ptr)) strcat(buf,"混乱 ");
+			if (MON_INVULNER(m_ptr)) strcat(buf,"無敵 ");
 #else
-			if (m_ptr->csleep) strcat(buf,"sleeping ");
-			if (m_ptr->stunned) strcat(buf,"stunned ");
-			if (m_ptr->monfear) strcat(buf,"scared ");
-			if (m_ptr->confused) strcat(buf,"confused ");
-			if (m_ptr->invulner) strcat(buf,"invulnerable ");
+			if (MON_CSLEEP(m_ptr)) strcat(buf,"sleeping ");
+			if (MON_STUNNED(m_ptr)) strcat(buf,"stunned ");
+			if (MON_MONFEAR(m_ptr)) strcat(buf,"scared ");
+			if (MON_CONFUSED(m_ptr)) strcat(buf,"confused ");
+			if (MON_INVULNER(m_ptr)) strcat(buf,"invulnerable ");
 #endif
 			buf[strlen(buf)-1] = '\0';
 			prt(buf,0,0);
@@ -5279,15 +5014,15 @@ sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_
 			/* Learn everything about this monster */
 			if (lore_do_probe(m_ptr->r_idx))
 			{
-#ifdef JP
-				/* Note that we learnt some new flags  -Mogami- */
-				msg_format("%sについてさらに詳しくなった気がする。", m_name);
-#else
 				char buf[80];
 
 				/* Get base name of monster */
 				strcpy(buf, (r_name + r_ptr->name));
 
+#ifdef JP
+				/* Note that we learnt some new flags  -Mogami- */
+				msg_format("%sについてさらに詳しくなった気がする。", buf);
+#else
 				/* Pluralize it */
 				plural_aux(buf);
 
@@ -5346,6 +5081,9 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 		return (FALSE);
 	}
 
+	/* Lose monster light */
+	if (!in_generate) clear_mon_lite();
+
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
 	{
@@ -5371,8 +5109,8 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 
 			if (!in_generate) /* Normal */
 			{
-				/* Lose unsafety and runes/mirrors */
-				c_ptr->info &= ~(CAVE_UNSAFE | CAVE_OBJECT);
+				/* Lose unsafety */
+				c_ptr->info &= ~(CAVE_UNSAFE);
 
 				/* Hack -- Notice player affect */
 				if (player_bold(y, x))
@@ -5404,7 +5142,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					m_ptr->hp = m_ptr->maxhp;
 
 					/* Try to teleport away quest monsters */
-					if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TRUE)) continue;
+					if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TELEPORT_DEC_VALOUR)) continue;
 				}
 				else
 				{
@@ -5413,7 +5151,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 						char m_name[80];
 
 						monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-						do_cmd_write_nikki(NIKKI_NAMED_PET, 6, m_name);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DESTROY, m_name);
 					}
 
 					/* Delete the monster (if any) */
@@ -5438,7 +5176,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Hack -- Preserve unknown artifacts */
-					if (artifact_p(o_ptr) && (!object_known_p(o_ptr) || in_generate))
+					if (object_is_fixed_artifact(o_ptr) && (!object_is_known(o_ptr) || in_generate))
 					{
 						/* Mega-Hack -- Preserve the artifact */
 						a_info[o_ptr->name1].cur_num = 0;
@@ -5446,7 +5184,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 						if (in_generate && cheat_peek)
 						{
 							char o_name[MAX_NLEN];
-							object_desc_store(o_name, o_ptr, FALSE, 0);
+							object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
 #ifdef JP
 							msg_format("伝説のアイテム (%s) は生成中に*破壊*された。", o_name);
 #else
@@ -5469,7 +5207,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 			delete_object(y, x);
 
 			/* Destroy "non-permanent" grids */
-			if (!cave_perma_bold(y, x))
+			if (!cave_perma_grid(c_ptr))
 			{
 				/* Wall (or floor) type */
 				t = randint0(200);
@@ -5479,17 +5217,17 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					if (t < 20)
 					{
 						/* Create granite wall */
-						cave_set_feat(y, x, FEAT_WALL_EXTRA);
+						cave_set_feat(y, x, feat_granite);
 					}
 					else if (t < 70)
 					{
 						/* Create quartz vein */
-						cave_set_feat(y, x, FEAT_QUARTZ);
+						cave_set_feat(y, x, feat_quartz_vein);
 					}
 					else if (t < 100)
 					{
 						/* Create magma vein */
-						cave_set_feat(y, x, FEAT_MAGMA);
+						cave_set_feat(y, x, feat_magma_vein);
 					}
 					else
 					{
@@ -5507,12 +5245,12 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					else if (t < 70)
 					{
 						/* Create quartz vein */
-						c_ptr->feat = FEAT_QUARTZ;
+						c_ptr->feat = feat_quartz_vein;
 					}
 					else if (t < 100)
 					{
 						/* Create magma vein */
-						c_ptr->feat = FEAT_MAGMA;
+						c_ptr->feat = feat_magma_vein;
 					}
 					else
 					{
@@ -5527,9 +5265,47 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 		}
 	}
 
-
 	if (!in_generate)
 	{
+		/* Process "re-glowing" */
+		for (y = (y1 - r); y <= (y1 + r); y++)
+		{
+			for (x = (x1 - r); x <= (x1 + r); x++)
+			{
+				/* Skip illegal grids */
+				if (!in_bounds(y, x)) continue;
+
+				/* Extract the distance */
+				k = distance(y1, x1, y, x);
+
+				/* Stay in the circle of death */
+				if (k > r) continue;
+
+				/* Access the grid */
+				c_ptr = &cave[y][x];
+
+				if (is_mirror_grid(c_ptr)) c_ptr->info |= CAVE_GLOW;
+				else if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS))
+				{
+					int i, yy, xx;
+					cave_type *cc_ptr;
+
+					for (i = 0; i < 9; i++)
+					{
+						yy = y + ddy_ddd[i];
+						xx = x + ddx_ddd[i];
+						if (!in_bounds2(yy, xx)) continue;
+						cc_ptr = &cave[yy][xx];
+						if (have_flag(f_info[get_feat_mimic(cc_ptr)].flags, FF_GLOW))
+						{
+							c_ptr->info |= CAVE_GLOW;
+							break;
+						}
+					}
+				}
+			}
+		}
+
 		/* Hack -- Affect player */
 		if (flag)
 		{
@@ -5554,16 +5330,18 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 		p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 		/* Update stuff */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-		/* Update the monsters */
-		p_ptr->update |= (PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+		if (p_ptr->special_defense & NINJA_S_STEALTH)
+		{
+			if (cave[py][px].info & CAVE_GLOW) set_superstealth(FALSE);
+		}
 	}
 
 	/* Success */
@@ -5589,9 +5367,9 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
  * for a single turn, unless that monster can pass_walls or kill_walls.
  * This has allowed massive simplification of the "monster" code.
  */
-bool earthquake(int cy, int cx, int r)
+bool earthquake_aux(int cy, int cx, int r, int m_idx)
 {
-	int             i, t, y, x, yy, xx, dy, dx, oy, ox;
+	int             i, t, y, x, yy, xx, dy, dx;
 	int             damage = 0;
 	int             sn = 0, sy = 0, sx = 0;
 	bool            hurt = FALSE;
@@ -5656,7 +5434,7 @@ bool earthquake(int cy, int cx, int r)
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt && !prace_is_(RACE_SPECTRE) && !p_ptr->wraith_form && !p_ptr->kabenuke)
+	if (hurt && !p_ptr->pass_wall && !p_ptr->kill_wall)
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -5689,31 +5467,28 @@ bool earthquake(int cy, int cx, int r)
 			case 1:
 			{
 #ifdef JP
-msg_print("ダンジョンの壁が崩れた！");
+				msg_print("ダンジョンの壁が崩れた！");
 #else
 				msg_print("The cave ceiling collapses!");
 #endif
-
 				break;
 			}
 			case 2:
 			{
 #ifdef JP
-msg_print("ダンジョンの床が不自然にねじ曲がった！");
+				msg_print("ダンジョンの床が不自然にねじ曲がった！");
 #else
 				msg_print("The cave floor twists in an unnatural way!");
 #endif
-
 				break;
 			}
 			default:
 			{
 #ifdef JP
-msg_print("ダンジョンが揺れた！崩れた岩が頭に降ってきた！");
+				msg_print("ダンジョンが揺れた！崩れた岩が頭に降ってきた！");
 #else
 				msg_print("The cave quakes!  You are pummeled with debris!");
 #endif
-
 				break;
 			}
 		}
@@ -5723,11 +5498,10 @@ msg_print("ダンジョンが揺れた！崩れた岩が頭に降ってきた！");
 		{
 			/* Message and damage */
 #ifdef JP
-msg_print("あなたはひどい怪我を負った！");
+			msg_print("あなたはひどい怪我を負った！");
 #else
 			msg_print("You are severely crushed!");
 #endif
-
 			damage = 200;
 		}
 
@@ -5740,22 +5514,20 @@ msg_print("あなたはひどい怪我を負った！");
 				case 1:
 				{
 #ifdef JP
-msg_print("降り注ぐ岩をうまく避けた！");
+					msg_print("降り注ぐ岩をうまく避けた！");
 #else
 					msg_print("You nimbly dodge the blast!");
 #endif
-
 					damage = 0;
 					break;
 				}
 				case 2:
 				{
 #ifdef JP
-msg_print("岩石があなたに直撃した!");
+					msg_print("岩石があなたに直撃した!");
 #else
 					msg_print("You are bashed by rubble!");
 #endif
-
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
@@ -5763,58 +5535,54 @@ msg_print("岩石があなたに直撃した!");
 				case 3:
 				{
 #ifdef JP
-msg_print("あなたは床と壁との間に挟まれてしまった！");
+					msg_print("あなたは床と壁との間に挟まれてしまった！");
 #else
 					msg_print("You are crushed between the floor and ceiling!");
 #endif
-
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint1(50));
 					break;
 				}
 			}
 
-			/* Save the old location */
-			oy = py;
-			ox = px;
-
 			/* Move the player to the safe location */
-			py = sy;
-			px = sx;
-
-			if (p_ptr->riding)
-			{
-				int tmp;
-				tmp = cave[py][px].m_idx;
-				cave[py][px].m_idx = cave[oy][ox].m_idx;
-				cave[oy][ox].m_idx = tmp;
-				m_list[p_ptr->riding].fy = py;
-				m_list[p_ptr->riding].fx = px;
-				update_mon(cave[py][px].m_idx, TRUE);
-			}
-
-			/* Redraw the old spot */
-			lite_spot(oy, ox);
-
-			/* Redraw the new spot */
-			lite_spot(py, px);
-
-			/* Check for new panel */
-			verify_panel();
+			(void)move_player_effect(sy, sx, MPE_DONT_PICKUP);
 		}
 
 		/* Important -- no wall on player */
 		map[16+py-cy][16+px-cx] = FALSE;
 
 		/* Take some damage */
+		if (damage)
+		{
+			char *killer;
+
+			if (m_idx)
+			{
+				char m_name[80];
+				monster_type *m_ptr = &m_list[m_idx];
+
+				/* Get the monster's real name */
+				monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
+
 #ifdef JP
-if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
+				killer = format("%sの起こした地震", m_name);
 #else
-		if (damage) take_hit(DAMAGE_ATTACK, damage, "an earthquake", -1);
+				killer = format("an earthquake caused by %s", m_name);
 #endif
+			}
+			else
+			{
+#ifdef JP
+				killer = "地震";
+#else
+				killer = "an earthquake";
+#endif
+			}
 
+			take_hit(DAMAGE_ATTACK, damage, killer, -1);
+		}
 	}
-
 
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
@@ -5875,9 +5643,7 @@ if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
 							if (is_explosive_rune_grid(&cave[y][x])) continue;
 
 							/* ... nor on the Pattern */
-							if ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-							    (cave[y][x].feat >= FEAT_PATTERN_START))
-								continue;
+							if (pattern_tile(y, x)) continue;
 
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
@@ -5901,17 +5667,16 @@ if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
 
 					/* Scream in pain */
 #ifdef JP
-msg_format("%^sは苦痛で泣きわめいた！", m_name);
+					if (!ignore_unview || is_seen(m_ptr)) msg_format("%^sは苦痛で泣きわめいた！", m_name);
 #else
-					msg_format("%^s wails out in pain!", m_name);
+					if (!ignore_unview || is_seen(m_ptr)) msg_format("%^s wails out in pain!", m_name);
 #endif
-
 
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
 
 					/* Monster is certainly awake */
-					m_ptr->csleep = 0;
+					(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 					/* Apply damage directly */
 					m_ptr->hp -= damage;
@@ -5921,9 +5686,9 @@ msg_format("%^sは苦痛で泣きわめいた！", m_name);
 					{
 						/* Message */
 #ifdef JP
-msg_format("%^sは岩石に埋もれてしまった！", m_name);
+						if (!ignore_unview || is_seen(m_ptr)) msg_format("%^sは岩石に埋もれてしまった！", m_name);
 #else
-						msg_format("%^s is embedded in the rock!", m_name);
+						if (!ignore_unview || is_seen(m_ptr)) msg_format("%^s is embedded in the rock!", m_name);
 #endif
 
 						if (c_ptr->m_idx)
@@ -5933,7 +5698,7 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 								char m2_name[80];
 
 								monster_desc(m2_name, m_ptr, MD_INDEF_VISIBLE);
-								do_cmd_write_nikki(NIKKI_NAMED_PET, 7, m2_name);
+								do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_EARTHQUAKE, m2_name);
 							}
 						}
 
@@ -5949,11 +5714,11 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 					{
 						int m_idx = cave[yy][xx].m_idx;
 
-						/* Update the new location */
-						cave[sy][sx].m_idx = m_idx;
-
 						/* Update the old location */
 						cave[yy][xx].m_idx = 0;
+
+						/* Update the new location */
+						cave[sy][sx].m_idx = m_idx;
 
 						/* Move the monster */
 						m_ptr->fy = sy;
@@ -5973,6 +5738,8 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 		}
 	}
 
+	/* Lose monster light */
+	clear_mon_lite();
 
 	/* Examine the quaked region */
 	for (dy = -r; dy <= r; dy++)
@@ -5995,36 +5762,31 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
 			{
-				bool floor = cave_floor_bold(yy, xx);
-
 				/* Delete objects */
 				delete_object(yy, xx);
 
-				/* Clear mirror, runes flag */
-				c_ptr->info &= ~CAVE_OBJECT;
-
 				/* Wall (or floor) type */
-				t = (floor ? randint0(100) : 200);
+				t = cave_have_flag_bold(yy, xx, FF_PROJECT) ? randint0(100) : 200;
 
 				/* Granite */
 				if (t < 20)
 				{
 					/* Create granite wall */
-					cave_set_feat(yy, xx, FEAT_WALL_EXTRA);
+					cave_set_feat(yy, xx, feat_granite);
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-					cave_set_feat(yy, xx, FEAT_QUARTZ);
+					cave_set_feat(yy, xx, feat_quartz_vein);
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-					cave_set_feat(yy, xx, FEAT_MAGMA);
+					cave_set_feat(yy, xx, feat_magma_vein);
 				}
 
 				/* Floor */
@@ -6038,14 +5800,52 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 	}
 
 
+	/* Process "re-glowing" */
+	for (dy = -r; dy <= r; dy++)
+	{
+		for (dx = -r; dx <= r; dx++)
+		{
+			/* Extract the location */
+			yy = cy + dy;
+			xx = cx + dx;
+
+			/* Skip illegal grids */
+			if (!in_bounds(yy, xx)) continue;
+
+			/* Skip distant grids */
+			if (distance(cy, cx, yy, xx) > r) continue;
+
+			/* Access the grid */
+			c_ptr = &cave[yy][xx];
+
+			if (is_mirror_grid(c_ptr)) c_ptr->info |= CAVE_GLOW;
+			else if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS))
+			{
+				int ii, yyy, xxx;
+				cave_type *cc_ptr;
+
+				for (ii = 0; ii < 9; ii++)
+				{
+					yyy = yy + ddy_ddd[ii];
+					xxx = xx + ddx_ddd[ii];
+					if (!in_bounds2(yyy, xxx)) continue;
+					cc_ptr = &cave[yyy][xxx];
+					if (have_flag(f_info[get_feat_mimic(cc_ptr)].flags, FF_GLOW))
+					{
+						c_ptr->info |= CAVE_GLOW;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+
 	/* Mega-Hack -- Forget the view and lite */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
 
 	/* Update the health bar */
 	p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);
@@ -6056,8 +5856,18 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
+	if (p_ptr->special_defense & NINJA_S_STEALTH)
+	{
+		if (cave[py][px].info & CAVE_GLOW) set_superstealth(FALSE);
+	}
+
 	/* Success */
 	return (TRUE);
+}
+
+bool earthquake(int cy, int cx, int r)
+{
+	return earthquake_aux(cy, cx, r, 0);
 }
 
 
@@ -6109,7 +5919,16 @@ void discharge_minion(void)
 		if (dam > 800) dam = 800;
 		project(i, 2+(r_ptr->level/20), m_ptr->fy,
 			m_ptr->fx, dam, GF_PLASMA, 
-			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER, -1);
+			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+
+		if (record_named_pet && m_ptr->nickname)
+		{
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_BLAST, m_name);
+		}
+
 		delete_monster_idx(i);
 	}
 }
@@ -6170,12 +5989,10 @@ static void cave_temp_room_lite(void)
 			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
 
 			/* Sometimes monsters wake up */
-			if (m_ptr->csleep && (randint0(100) < chance))
+			if (MON_CSLEEP(m_ptr) && (randint0(100) < chance))
 			{
 				/* Wake up! */
-				m_ptr->csleep = 0;
-
-				if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+				(void)set_monster_csleep(c_ptr->m_idx, 0);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
@@ -6187,14 +6004,10 @@ static void cave_temp_room_lite(void)
 
 					/* Dump a message */
 #ifdef JP
-msg_format("%^sが目を覚ました。", m_name);
+					msg_format("%^sが目を覚ました。", m_name);
 #else
 					msg_format("%^s wakes up.", m_name);
 #endif
-					/* Redraw the health bar */
-					if (p_ptr->health_who == c_ptr->m_idx)
-						p_ptr->redraw |= (PR_HEALTH);
-
 				}
 			}
 		}
@@ -6204,6 +6017,8 @@ msg_format("%^sが目を覚ました。", m_name);
 
 		/* Redraw */
 		lite_spot(y, x);
+
+		update_local_illumination(y, x);
 	}
 
 	/* None left */
@@ -6232,34 +6047,63 @@ static void cave_temp_room_unlite(void)
 	{
 		int y = temp_y[i];
 		int x = temp_x[i];
+		int j;
 
 		cave_type *c_ptr = &cave[y][x];
+		bool do_dark = !is_mirror_grid(c_ptr);
 
 		/* No longer in the array */
 		c_ptr->info &= ~(CAVE_TEMP);
 
 		/* Darken the grid */
-		if (!is_mirror_grid(c_ptr)) c_ptr->info &= ~(CAVE_GLOW);
-
-		/* Hack -- Forget "boring" grids */
-		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
+		if (do_dark)
 		{
-			/* Forget the grid */
-			if (!view_torch_grids) c_ptr->info &= ~(CAVE_MARK);
+			if (dun_level || !is_daytime())
+			{
+				for (j = 0; j < 9; j++)
+				{
+					int by = y + ddy_ddd[j];
+					int bx = x + ddx_ddd[j];
 
-			/* Notice */
-			note_spot(y, x);
+					if (in_bounds2(by, bx))
+					{
+						cave_type *cc_ptr = &cave[by][bx];
+
+						if (have_flag(f_info[get_feat_mimic(cc_ptr)].flags, FF_GLOW))
+						{
+							do_dark = FALSE;
+							break;
+						}
+					}
+				}
+
+				if (!do_dark) continue;
+			}
+
+			c_ptr->info &= ~(CAVE_GLOW);
+
+			/* Hack -- Forget "boring" grids */
+			if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_REMEMBER))
+			{
+				/* Forget the grid */
+				if (!view_torch_grids) c_ptr->info &= ~(CAVE_MARK);
+
+				/* Notice */
+				note_spot(y, x);
+			}
+
+			/* Process affected monsters */
+			if (c_ptr->m_idx)
+			{
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
+			}
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			update_local_illumination(y, x);
 		}
-
-		/* Process affected monsters */
-		if (c_ptr->m_idx)
-		{
-			/* Update the monster */
-			update_mon(c_ptr->m_idx, FALSE);
-		}
-
-		/* Redraw */
-		lite_spot(y, x);
 	}
 
 	/* None left */
@@ -6267,11 +6111,10 @@ static void cave_temp_room_unlite(void)
 }
 
 
-
 /*
  * Determine how much contiguous open space this grid is next to
  */
-static int next_to_open(int cy, int cx)
+static int next_to_open(int cy, int cx, bool (*pass_bold)(int, int))
 {
 	int i;
 
@@ -6286,7 +6129,7 @@ static int next_to_open(int cy, int cx)
 		x = cx + ddx_cdd[i % 8];
 
 		/* Found a wall, break the length */
-		if (!cave_floor_bold(y, x))
+		if (!pass_bold(y, x))
 		{
 			/* Track best length */
 			if (len > blen)
@@ -6306,7 +6149,7 @@ static int next_to_open(int cy, int cx)
 }
 
 
-static int next_to_walls_adj(int cy, int cx)
+static int next_to_walls_adj(int cy, int cx, bool (*pass_bold)(int, int))
 {
 	int i;
 
@@ -6319,7 +6162,7 @@ static int next_to_walls_adj(int cy, int cx)
 		y = cy + ddy_ddd[i];
 		x = cx + ddx_ddd[i];
 
-		if (!cave_floor_bold(y, x)) c++;
+		if (!pass_bold(y, x)) c++;
 	}
 
 	return c;
@@ -6329,7 +6172,7 @@ static int next_to_walls_adj(int cy, int cx)
 /*
  * Aux function -- see below
  */
-static void cave_temp_room_aux(int y, int x, bool only_room)
+static void cave_temp_room_aux(int y, int x, bool only_room, bool (*pass_bold)(int, int))
 {
 	cave_type *c_ptr;
 
@@ -6359,8 +6202,8 @@ static void cave_temp_room_aux(int y, int x, bool only_room)
 		 * properly.
 		 * This leaves only a check for 6 bounding walls!
 		 */
-		if (in_bounds(y, x) && cave_floor_bold(y, x) &&
-		    (next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
+		if (in_bounds(y, x) && pass_bold(y, x) &&
+		    (next_to_walls_adj(y, x, pass_bold) == 6) && (next_to_open(y, x, pass_bold) <= 1)) return;
 	}
 
 	/* Paranoia -- verify space */
@@ -6378,9 +6221,25 @@ static void cave_temp_room_aux(int y, int x, bool only_room)
 /*
  * Aux function -- see below
  */
+static bool cave_pass_lite_bold(int y, int x)
+{
+	return cave_los_bold(y, x);
+}
+
+/*
+ * Aux function -- see below
+ */
 static void cave_temp_lite_room_aux(int y, int x)
 {
-	cave_temp_room_aux(y, x, FALSE);
+	cave_temp_room_aux(y, x, FALSE, cave_pass_lite_bold);
+}
+
+/*
+ * Aux function -- see below
+ */
+static bool cave_pass_dark_bold(int y, int x)
+{
+	return cave_have_flag_bold(y, x, FF_PROJECT);
 }
 
 /*
@@ -6388,7 +6247,7 @@ static void cave_temp_lite_room_aux(int y, int x)
  */
 static void cave_temp_unlite_room_aux(int y, int x)
 {
-	cave_temp_room_aux(y, x, TRUE);
+	cave_temp_room_aux(y, x, TRUE, cave_pass_dark_bold);
 }
 
 
@@ -6410,7 +6269,7 @@ void lite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get lit, but stop light */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_pass_lite_bold(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_lite_room_aux(y + 1, x);
@@ -6427,6 +6286,11 @@ void lite_room(int y1, int x1)
 
 	/* Now, lite them all up at once */
 	cave_temp_room_lite();
+
+	if (p_ptr->special_defense & NINJA_S_STEALTH)
+	{
+		if (cave[py][px].info & CAVE_GLOW) set_superstealth(FALSE);
+	}
 }
 
 
@@ -6446,7 +6310,7 @@ void unlite_room(int y1, int x1)
 		x = temp_x[i], y = temp_y[i];
 
 		/* Walls get dark, but stop darkness */
-		if (!cave_floor_bold(y, x)) continue;
+		if (!cave_pass_dark_bold(y, x)) continue;
 
 		/* Spread adjacent */
 		cave_temp_unlite_room_aux(y + 1, x);
@@ -6501,11 +6365,6 @@ msg_print("白い光が辺りを覆った。");
 
 	/* Lite up the room */
 	lite_room(py, px);
-
-	if (p_ptr->special_defense & NINJA_S_STEALTH)
-	{
-		set_superstealth(FALSE);
-	}
 
 	/* Assume seen */
 	return (TRUE);
@@ -6666,7 +6525,7 @@ bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
 	}
 
 	/* Use an actual "target" */
-	else if (dir == 5)
+	else /* if (dir == 5) */
 	{
 		tx = target_col;
 		ty = target_row;
@@ -6762,18 +6621,17 @@ msg_print("失敗した。");
 	m_ptr = &m_list[c_ptr->m_idx];
 	r_ptr = &r_info[m_ptr->r_idx];
 
+	(void)set_monster_csleep(c_ptr->m_idx, 0);
+
 	if (r_ptr->flagsr & RFR_RES_TELE)
 	{
 #ifdef JP
-msg_print("テレポートを邪魔された！");
+		msg_print("テレポートを邪魔された！");
 #else
 		msg_print("Your teleportation is blocked!");
 #endif
 
-		if (m_ptr->ml && is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
-
-		m_ptr->csleep = 0;
-		if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+		if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 
 		/* Failure */
 		return FALSE;
@@ -6781,60 +6639,8 @@ msg_print("テレポートを邪魔された！");
 
 	sound(SOUND_TELEPORT);
 
-	cave[py][px].m_idx = c_ptr->m_idx;
-
-	/* Update the old location */
-	c_ptr->m_idx = p_ptr->riding;
-
-	/* Move the monster */
-	m_ptr->fy = py;
-	m_ptr->fx = px;
-
-	/* Move the player */
-	px = tx;
-	py = ty;
-
-	if (p_ptr->riding)
-	{
-		m_list[p_ptr->riding].fy = ty;
-		m_list[p_ptr->riding].fx = tx;
-
-		/* Update the monster (new location) */
-		update_mon(cave[ty][tx].m_idx, TRUE);
-	}
-
-	tx = m_ptr->fx;
-	ty = m_ptr->fy;
-
-	m_ptr->csleep = 0;
-
-	/* Update the monster (new location) */
-	update_mon(cave[ty][tx].m_idx, TRUE);
-
-	/* Redraw the old grid */
-	lite_spot(ty, tx);
-
-	/* Redraw the new grid */
-	lite_spot(py, px);
-
-	/* Check for new panel (redraw map) */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-	/* Redraw the health bar */
-	if (p_ptr->health_who == cave[ty][tx].m_idx)
-		p_ptr->redraw |= (PR_HEALTH);
-
-	/* Handle stuff XXX XXX XXX */
-	handle_stuff();
+	/* Swap the player and monster */
+	(void)move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 
 	/* Success */
 	return TRUE;
@@ -6868,9 +6674,9 @@ bool project_hook(int typ, int dir, int dam, int flg)
 
 
 /*
- * Cast a bolt spell
- * Stop if we hit a monster, as a "bolt"
- * Affect monsters (not grids or objects)
+ * Cast a bolt spell.
+ * Stop if we hit a monster, as a "bolt".
+ * Affect monsters and grids (not objects).
  */
 bool fire_bolt(int typ, int dir, int dam)
 {
@@ -6880,9 +6686,9 @@ bool fire_bolt(int typ, int dir, int dam)
 
 
 /*
- * Cast a beam spell
- * Pass through monsters, as a "beam"
- * Affect monsters (not grids or objects)
+ * Cast a beam spell.
+ * Pass through monsters, as a "beam".
+ * Affect monsters, grids and objects.
  */
 bool fire_beam(int typ, int dir, int dam)
 {
@@ -7081,16 +6887,10 @@ bool wall_stone(void)
 	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg, -1));
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_MONSTERS);
+	p_ptr->update |= (PU_FLOW);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
 	return dummy;
 }
@@ -7213,14 +7013,14 @@ msg_print("純粋な魔力の次元への扉が開いた！");
 			}
 		case 32: case 33:
 			if (!(*count))
-		{
+			{
 #ifdef JP
 msg_print("周囲の空間が歪んだ！");
 #else
 				msg_print("Space warps about you!");
 #endif
 
-				teleport_player(damroll(10, 10));
+				teleport_player(damroll(10, 10), TELEPORT_PASSIVE);
 				if (randint0(13)) (*count) += activate_hi_summon(py, px, FALSE);
 				if (!one_in_(6)) break;
 			}
@@ -7442,7 +7242,7 @@ void wall_breaker(void)
 		{
 			scatter(&y, &x, py, px, 4, 0);
 
-			if (!cave_floor_bold(y, x)) continue;
+			if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
 
 			if (!player_bold(y, x)) break;
 		}
@@ -7599,14 +7399,15 @@ bool charm_living(int dir, int plev)
 }
 
 
-void kawarimi(bool success)
+bool kawarimi(bool success)
 {
 	object_type forge;
 	object_type *q_ptr = &forge;
 	int y, x;
 
-	if (p_ptr->confused || p_ptr->blind || p_ptr->paralyzed || p_ptr->image) return;
-	if (randint0(200) < p_ptr->stun) return;
+	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->confused || p_ptr->blind || p_ptr->paralyzed || p_ptr->image) return FALSE;
+	if (randint0(200) < p_ptr->stun) return FALSE;
 
 	if (!success && one_in_(3))
 	{
@@ -7617,13 +7418,13 @@ void kawarimi(bool success)
 #endif
 		p_ptr->special_defense &= ~(NINJA_KAWARIMI);
 		p_ptr->redraw |= (PR_STATUS);
-		return;
+		return FALSE;
 	}
 
 	y = py;
 	x = px;
 
-	teleport_player(10+randint1(90));
+	teleport_player(10 + randint1(90), 0L);
 
 	object_wipe(q_ptr);
 
@@ -7644,6 +7445,9 @@ void kawarimi(bool success)
 
 	p_ptr->special_defense &= ~(NINJA_KAWARIMI);
 	p_ptr->redraw |= (PR_STATUS);
+
+	/* Teleported */
+	return TRUE;
 }
 
 
@@ -7654,11 +7458,12 @@ void kawarimi(bool success)
 bool rush_attack(bool *mdeath)
 {
 	int dir;
-	int tx, ty, nx, ny;
+	int tx, ty;
 	int tm_idx = 0;
 	u16b path_g[32];
 	int path_n, i;
 	bool tmp_mdeath = FALSE;
+	bool moved = FALSE;
 
 	if (mdeath) *mdeath = FALSE;
 
@@ -7691,74 +7496,107 @@ bool rush_attack(bool *mdeath)
 	/* Project along the path */
 	for (i = 0; i < path_n; i++)
 	{
-		ny = GRID_Y(path_g[i]);
-		nx = GRID_X(path_g[i]);
+		monster_type *m_ptr;
 
-		if (!cave_empty_bold(ny, nx) || !player_can_enter(cave[ny][nx].feat))
-		{
-			if (cave[ny][nx].m_idx)
-			{
-				monster_type *m_ptr = &m_list[cave[ny][nx].m_idx];
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
 
-				if (tm_idx != cave[ny][nx].m_idx)
-				{
-#ifdef JP
-					msg_format("%s%sが立ちふさがっている！", tm_idx ? "別の" : "",
-						m_ptr->ml ? "モンスター" : "何か");
-#else
-					msg_format("There is %s in the way!", m_ptr->ml ? (tm_idx ? "another monster" : "a monster") :
-						"someone");
-#endif
-				}
-				else
-				{
-					if (!player_bold(ty, tx))
-					{
-						/* Hold the monster name */
-						char m_name[80];
-
-						/* Get the monster name (BEFORE polymorphing) */
-						monster_desc(m_name, m_ptr, 0);
-#ifdef JP
-						msg_format("素早く%sの懐に入り込んだ！", m_name);
-#else
-						msg_format("You quickly jump in and attack %s!", m_name);
-#endif
-					}
-				}
-
-				tmp_mdeath = py_attack(ny, nx, HISSATSU_NYUSIN);
-			}
-			else
-			{
-				if (tm_idx)
-				{
-#ifdef JP
-					msg_print("失敗！");
-#else
-					msg_print("Failed!");
-#endif
-				}
-				else
-				{
-#ifdef JP
-					msg_print("ここには入身では入れない。");
-#else
-					msg_print("You can't move to that place.");
-#endif
-				}
-			}
-			break;
-		}
-		else
+		if (cave_empty_bold(ny, nx) && player_can_enter(cave[ny][nx].feat, 0))
 		{
 			ty = ny;
 			tx = nx;
+
+			/* Go to next grid */
+			continue;
 		}
+
+		if (!cave[ny][nx].m_idx)
+		{
+			if (tm_idx)
+			{
+#ifdef JP
+				msg_print("失敗！");
+#else
+				msg_print("Failed!");
+#endif
+			}
+			else
+			{
+#ifdef JP
+				msg_print("ここには入身では入れない。");
+#else
+				msg_print("You can't move to that place.");
+#endif
+			}
+
+			/* Exit loop */
+			break;
+		}
+
+		/* Move player before updating the monster */
+		if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+
+		/* Update the monster */
+		update_mon(cave[ny][nx].m_idx, TRUE);
+
+		/* Found a monster */
+		m_ptr = &m_list[cave[ny][nx].m_idx];
+
+		if (tm_idx != cave[ny][nx].m_idx)
+		{
+#ifdef JP
+			msg_format("%s%sが立ちふさがっている！", tm_idx ? "別の" : "",
+				   m_ptr->ml ? "モンスター" : "何か");
+#else
+			msg_format("There is %s in the way!", m_ptr->ml ? (tm_idx ? "another monster" : "a monster") : "someone");
+#endif
+		}
+		else if (!player_bold(ty, tx))
+		{
+			/* Hold the monster name */
+			char m_name[80];
+
+			/* Get the monster name (BEFORE polymorphing) */
+			monster_desc(m_name, m_ptr, 0);
+#ifdef JP
+			msg_format("素早く%sの懐に入り込んだ！", m_name);
+#else
+			msg_format("You quickly jump in and attack %s!", m_name);
+#endif
+		}
+
+		if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+		moved = TRUE;
+		tmp_mdeath = py_attack(ny, nx, HISSATSU_NYUSIN);
+
+		break;
 	}
 
-	if (!player_bold(ty, tx)) teleport_player_to(ty, tx, FALSE);
+	if (!moved && !player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
 
 	if (mdeath) *mdeath = tmp_mdeath;
 	return TRUE;
+}
+
+
+/*
+ * Remove all mirrors in this floor
+ */
+void remove_all_mirrors(bool explode)
+{
+	int x, y;
+
+	for (x = 0; x < cur_wid; x++)
+	{
+		for (y = 0; y < cur_hgt; y++)
+		{
+			if (is_mirror_grid(&cave[y][x]))
+			{
+				remove_mirror(y, x);
+				if (explode)
+					project(0, 2, y, x, p_ptr->lev / 2 + 5, GF_SHARDS,
+						(PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+			}
+		}
+	}
 }

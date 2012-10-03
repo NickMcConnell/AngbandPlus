@@ -45,17 +45,39 @@
  */
 #define VERSION_NAME "Hengband"
 
-/* Savefile version for Hengband 1.1.1 and later */
-#define H_VER_MAJOR 1
-#define H_VER_MINOR 5
-#define H_VER_PATCH 4
-#define H_VER_EXTRA 0
 
-/* Added for ZAngband */
+/*
+ * "Program Version Number" of the game
+ *
+ * FAKE_VER_MAJOR=1,2 were reserved for ZAngband version 1.x.x/2.x.x .
+ *
+ * Program Version of Hengband version is
+ *   "(FAKE_VER_MAJOR-10).(FAKE_VER_MINOR).(FAKE_VER_PATCH)".
+ */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
-#define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_MINOR 7
+#define FAKE_VER_PATCH 0
+
+
+/*
+ * "Savefile Version Number" for Hengband 1.1.1 and later
+ *
+ * First three digits may be same as the Program Version.  But not
+ * always same.  It means that newer version may preserves lower
+ * compatibility with the older version.
+ *
+ * For example, newer Hengband 1.4.4 creates savefiles marked with
+ * Savefile Version 1.4.0.0 .  It means that Hengband 1.4.0 can load a
+ * savefile of Hengband 1.4.4 (lower compatibility!).
+ *
+ * Upper compatibility is always guaranteed.
+ */
+#define H_VER_MAJOR 1
+#define H_VER_MINOR 7
+#define H_VER_PATCH 0
+#define H_VER_EXTRA 6
+
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -358,6 +380,7 @@
  */
 #define FAKE_NAME_SIZE  40 * 1024L
 #define FAKE_TEXT_SIZE 150 * 1024L
+#define FAKE_TAG_SIZE   10 * 1024L
 
 
 /*
@@ -519,6 +542,7 @@
  */
 #define TOWN_DAWN         10000    /* Number of ticks from dawn to dawn XXX */
 #define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
+#define MAX_DAYS          20000    /* Maximum days */
 #define BREAK_GLYPH       550      /* Rune of protection resistance */
 #define BREAK_MINOR_GLYPH 299      /* For explosive runes */
 #define BTH_PLUS_ADJ       3       /* Adjust BTH per plus-to-hit */
@@ -593,8 +617,7 @@
 #define PF_RYOUTE       0x0040
 
 
-/* Maximum number of preservable pets */
-#define MAX_PARTY_MON 21
+#define CAN_TWO_HANDS_WIELDING() (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))
 
 
 /*
@@ -602,7 +625,7 @@
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       20
+#define GREAT_OBJ       10
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
@@ -709,7 +732,7 @@
 #define REALM_DEATH        5
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
-#define REALM_ENCHANT      8
+#define REALM_CRAFT      8
 #define REALM_DAEMON       9
 #define REALM_CRUSADE      10
 #define MAX_MAGIC          10
@@ -731,6 +754,18 @@
  */
 #define REALM1_BOOK     (p_ptr->realm1 + TV_LIFE_BOOK - 1)
 #define REALM2_BOOK     (p_ptr->realm2 + TV_LIFE_BOOK - 1)
+
+
+/*
+ * Mode constant for do_spell()
+ */
+#define SPELL_NAME   0
+#define SPELL_DESC   1
+#define SPELL_INFO   2
+#define SPELL_CAST   3
+#define SPELL_FAIL   4
+#define SPELL_STOP   5
+#define SPELL_CONT   6
 
 
 /*
@@ -971,135 +1006,11 @@
 #define MAX_COL_STATBAR         (-26)
 
 
-/*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
+/*
+ * Number of feats we change to (Excluding default). Used in f_info.txt.
+ */
+#define MAX_FEAT_STATES	 8
 
-/* Nothing */
-#define FEAT_NONE               0x00
-
-/* Various */
-#define FEAT_FLOOR              0x01
-#define FEAT_INVIS              0x02
-#define FEAT_GLYPH              0x03
-#define FEAT_OPEN               0x04
-#define FEAT_BROKEN             0x05
-#define FEAT_LESS               0x06
-#define FEAT_MORE               0x07
-
-/* Quest features -KMW- */
-#define FEAT_QUEST_ENTER		0x08
-#define FEAT_QUEST_EXIT			0x09
-#define FEAT_QUEST_DOWN			0x0A
-#define FEAT_QUEST_UP			0x0B
-
-#define FEAT_LESS_LESS          0x0D
-#define FEAT_MORE_MORE          0x0E
-
-/* Feature 0x0E - 0x0F unused */
-
-/* Traps */
-#define FEAT_TRAP_TRAPDOOR      0x10
-#define FEAT_TRAP_PIT           0x11
-#define FEAT_TRAP_SPIKED_PIT    0x12
-#define FEAT_TRAP_POISON_PIT    0x13
-#define FEAT_TRAP_TY_CURSE      0x14
-#define FEAT_TRAP_TELEPORT      0x15
-#define FEAT_TRAP_FIRE          0x16
-#define FEAT_TRAP_ACID          0x17
-#define FEAT_TRAP_SLOW          0x18
-#define FEAT_TRAP_LOSE_STR      0x19
-#define FEAT_TRAP_LOSE_DEX      0x1A
-#define FEAT_TRAP_LOSE_CON      0x1B
-#define FEAT_TRAP_BLIND         0x1C
-#define FEAT_TRAP_CONFUSE       0x1D
-#define FEAT_TRAP_POISON        0x1E
-#define FEAT_TRAP_SLEEP         0x1F
-
-/* Doors */
-#define FEAT_DOOR_HEAD          0x20
-#define FEAT_DOOR_TAIL          0x2F
-
-/* Extra */
-#define FEAT_SECRET             0x30
-#define FEAT_RUBBLE             0x31
-
-/* Seams */
-#define FEAT_MAGMA              0x32
-#define FEAT_QUARTZ             0x33
-#define FEAT_MAGMA_H            0x34
-#define FEAT_QUARTZ_H           0x35
-#define FEAT_MAGMA_K            0x36
-#define FEAT_QUARTZ_K           0x37
-
-/* Walls */
-#define FEAT_WALL_EXTRA         0x38
-#define FEAT_WALL_INNER         0x39
-#define FEAT_WALL_OUTER         0x3A
-#define FEAT_WALL_SOLID         0x3B
-#define FEAT_PERM_EXTRA         0x3C
-#define FEAT_PERM_INNER         0x3D
-#define FEAT_PERM_OUTER         0x3E
-#define FEAT_PERM_SOLID         0x3F
-
-/* Glyph */
-#define FEAT_MINOR_GLYPH        0x40
-
-/* Pattern */
-#define FEAT_PATTERN_START      0x41
-#define FEAT_PATTERN_1          0x42
-#define FEAT_PATTERN_2          0x43
-#define FEAT_PATTERN_3          0x44
-#define FEAT_PATTERN_4          0x45
-#define FEAT_PATTERN_END        0x46
-#define FEAT_PATTERN_OLD        0x47
-#define FEAT_PATTERN_XTRA1      0x48
-#define FEAT_PATTERN_XTRA2      0x49
-
-/* Shops */
-#define FEAT_SHOP_HEAD          0x4A
-#define FEAT_SHOP_TAIL          0x52
-
-/* Terrains */
-#define FEAT_DEEP_WATER         0x53
-#define FEAT_SHAL_WATER         0x54
-#define FEAT_DEEP_LAVA          0x55
-#define FEAT_SHAL_LAVA          0x56
-#define FEAT_DARK_PIT           0x57
-#define FEAT_DIRT               0x58
-#define FEAT_GRASS              0x59
-
-#define FEAT_TRAP_TRAPS         0x5A
-#define FEAT_TRAP_ALARM         0x5B
-#define FEAT_TRAP_OPEN          0x5C
-
-#define FEAT_FLOWER             0x5D
-#define FEAT_DEEP_GRASS         0x5E
-#define FEAT_MUSEUM             0x5F
-
-/* Feature 0x5A - 0x5F unused */
-
-/* Terrain */
-#define FEAT_TREES              0x60
-#define FEAT_MOUNTAIN           0x61
-
-/* Feature 0x62 - 0x7F unused */
-
-/* Buildings */
-#define FEAT_BLDG_HEAD          0x80
-#define FEAT_BLDG_TAIL          0x9F
-
-#define FEAT_TOWN               0xc0
-#define FEAT_ENTRANCE           0xc1
-#define FEAT_SWAMP              0xc2
-
-/* for mirror master */
-#define FEAT_MIRROR             0xc3
-
-/* unknown grid (not detected)  */
-#define FEAT_UNDETECTD          0xc4
-
-/* special traps */
-#define FEAT_TRAP_ARMAGEDDON    0xc5
-#define FEAT_TRAP_PIRANHA       0xc6
 
 /*
  * Wilderness terrains
@@ -1119,6 +1030,247 @@
 
 #define MAX_WILDERNESS          12 /* Maximum wilderness index */
 
+
+/*
+ * Feature flags - should be used instead of feature indexes unless generating.
+ * Originally from UnAngband, and modified into TR-like style in Hengband
+ */
+
+
+#define FF_LOS           0
+#define FF_PROJECT       1
+#define FF_MOVE          2
+#define FF_PLACE         3
+#define FF_DROP          4
+#define FF_SECRET        5
+#define FF_NOTICE        6
+#define FF_REMEMBER      7
+#define FF_OPEN          8
+#define FF_CLOSE         9
+#define FF_BASH          10
+#define FF_SPIKE         11
+#define FF_DISARM        12
+#define FF_STORE         13
+#define FF_TUNNEL        14
+#define FF_MAY_HAVE_GOLD 15
+#define FF_HAS_GOLD      16
+#define FF_HAS_ITEM      17
+#define FF_DOOR          18
+#define FF_TRAP          19
+#define FF_STAIRS        20
+#define FF_GLYPH         21
+#define FF_LESS          22
+#define FF_MORE          23
+#define FF_AVOID_RUN     24
+#define FF_FLOOR         25
+#define FF_WALL          26
+#define FF_PERMANENT     27
+/* #define FF_XXX00         28 */
+/* #define FF_XXX01         29 */
+/* #define FF_XXX02         30 */
+#define FF_HIT_TRAP      31
+
+/* #define FF_BRIDGE        32 */
+/* #define FF_RIVER         33 */
+/* #define FF_LAKE          34 */
+/* #define FF_BRIDGED       35 */
+/* #define FF_COVERED       36 */
+#define FF_GLOW          37
+#define FF_ENSECRET      38
+#define FF_WATER         39
+#define FF_LAVA          40
+#define FF_SHALLOW       41
+#define FF_DEEP          42
+/* #define FF_FILLED        43 */
+#define FF_HURT_ROCK     44
+/* #define FF_HURT_FIRE     45 */
+/* #define FF_HURT_COLD     46 */
+/* #define FF_HURT_ACID     47 */
+/* #define FF_ICE           48 */
+/* #define FF_ACID          49 */
+/* #define FF_OIL           50 */
+/* #define FF_XXX04      51 */
+/* #define FF_CAN_CLIMB     52 */
+#define FF_CAN_FLY       53
+#define FF_CAN_SWIM      54
+#define FF_CAN_PASS      55
+/* #define FF_CAN_OOZE      56 */
+#define FF_CAN_DIG       57
+/* #define FF_HIDE_ITEM     58 */
+/* #define FF_HIDE_SNEAK    59 */
+/* #define FF_HIDE_SWIM     60 */
+/* #define FF_HIDE_DIG      61 */
+/* #define FF_KILL_HUGE     62 */
+/* #define FF_KILL_MOVE     63 */
+
+/* #define FF_PICK_TRAP     64 */
+/* #define FF_PICK_DOOR     65 */
+/* #define FF_ALLOC         66 */
+/* #define FF_CHEST         67 */
+/* #define FF_DROP_1D2      68 */
+/* #define FF_DROP_2D2      69 */
+/* #define FF_DROP_GOOD     70 */
+/* #define FF_DROP_GREAT    71 */
+/* #define FF_HURT_POIS     72 */
+/* #define FF_HURT_ELEC     73 */
+/* #define FF_HURT_WATER    74 */
+/* #define FF_HURT_BWATER   75 */
+/* #define FF_USE_FEAT      76 */
+/* #define FF_GET_FEAT      77 */
+/* #define FF_GROUND        78 */
+/* #define FF_OUTSIDE       79 */
+/* #define FF_EASY_HIDE     80 */
+/* #define FF_EASY_CLIMB    81 */
+/* #define FF_MUST_CLIMB    82 */
+#define FF_TREE          83
+/* #define FF_NEED_TREE     84 */
+/* #define FF_BLOOD         85 */
+/* #define FF_DUST          86 */
+/* #define FF_SLIME         87 */
+#define FF_PLANT         88
+/* #define FF_XXX2          89 */
+/* #define FF_INSTANT       90 */
+/* #define FF_EXPLODE       91 */
+/* #define FF_TIMED         92 */
+/* #define FF_ERUPT         93 */
+/* #define FF_STRIKE        94 */
+/* #define FF_SPREAD        95 */
+
+#define FF_SPECIAL       96
+#define FF_HURT_DISI     97
+#define FF_QUEST_ENTER   98
+#define FF_QUEST_EXIT    99
+#define FF_QUEST         100
+#define FF_SHAFT         101
+#define FF_MOUNTAIN      102
+#define FF_BLDG          103
+#define FF_MINOR_GLYPH   104
+#define FF_PATTERN       105
+#define FF_TOWN          106
+#define FF_ENTRANCE      107
+#define FF_MIRROR        108
+#define FF_UNPERM        109
+#define FF_TELEPORTABLE  110
+#define FF_CONVERT       111
+#define FF_GLASS         112
+
+#define FF_FLAG_MAX      113
+#define FF_FLAG_SIZE     (1 + ((FF_FLAG_MAX - 1) / 32))
+
+/* Which features are dynamic */
+#define have_dynamic_flags(ARRAY) \
+	(!!((ARRAY)[(FF_INSTANT / 32)] & \
+	    ((1UL << (FF_INSTANT % 32)) | \
+	     (1UL << (FF_EXPLODE % 32)) | \
+	     (1UL << (FF_TIMED % 32)) | \
+	     (1UL << (FF_ERUPT % 32)) | \
+	     (1UL << (FF_STRIKE % 32)) | \
+	     (1UL << (FF_SPREAD % 32)))))
+
+
+/*
+ * Feature action flags
+ */
+#define FAF_DESTROY     0x01
+#define FAF_NO_DROP     0x02
+#define FAF_CRASH_GLASS 0x04
+
+
+/*
+ * Bit flags for teleportation
+ */
+#define TELEPORT_NONMAGICAL 0x00000001
+#define TELEPORT_PASSIVE    0x00000002
+#define TELEPORT_DEC_VALOUR 0x00000004
+
+
+/* Types of doors */
+#define DOOR_DEFAULT    -1
+#define DOOR_DOOR        0
+#define DOOR_GLASS_DOOR  1
+#define DOOR_CURTAIN     2
+
+#define MAX_DOOR_TYPES   3
+
+#define feat_locked_door_random(DOOR_TYPE) \
+	(feat_door[(DOOR_TYPE)].num_locked ? \
+	 feat_door[(DOOR_TYPE)].locked[randint0(feat_door[(DOOR_TYPE)].num_locked)] : feat_none)
+
+#define feat_jammed_door_random(DOOR_TYPE) \
+	(feat_door[(DOOR_TYPE)].num_jammed ? \
+	 feat_door[(DOOR_TYPE)].jammed[randint0(feat_door[(DOOR_TYPE)].num_jammed)] : feat_none)
+
+
+/* Types of normal traps */
+#define NOT_TRAP        -1
+#define TRAP_TRAPDOOR    0
+#define TRAP_PIT         1
+#define TRAP_SPIKED_PIT  2
+#define TRAP_POISON_PIT  3
+#define TRAP_TY_CURSE    4
+#define TRAP_TELEPORT    5
+#define TRAP_FIRE        6
+#define TRAP_ACID        7
+#define TRAP_SLOW        8
+#define TRAP_LOSE_STR    9
+#define TRAP_LOSE_DEX   10
+#define TRAP_LOSE_CON   11
+#define TRAP_BLIND      12
+#define TRAP_CONFUSE    13
+#define TRAP_POISON     14
+#define TRAP_SLEEP      15
+#define TRAP_TRAPS      16
+#define TRAP_ALARM      17
+
+
+/* Types of special traps */
+#define TRAP_OPEN       18
+#define TRAP_ARMAGEDDON 19
+#define TRAP_PIRANHA    20
+
+
+/* Maximum locked/jammed doors */
+#define MAX_LJ_DOORS 8
+
+
+/* Types of pattern tiles */
+#define NOT_PATTERN_TILE      -1
+#define PATTERN_TILE_START    0
+#define PATTERN_TILE_1        1
+#define PATTERN_TILE_2        2
+#define PATTERN_TILE_3        3
+#define PATTERN_TILE_4        4
+#define PATTERN_TILE_END      5
+#define PATTERN_TILE_OLD      6
+#define PATTERN_TILE_TELEPORT 7
+#define PATTERN_TILE_WRECKED  8
+
+
+/* Types of conversions */
+#define CONVERT_TYPE_FLOOR   0
+#define CONVERT_TYPE_WALL    1
+#define CONVERT_TYPE_INNER   2
+#define CONVERT_TYPE_OUTER   3
+#define CONVERT_TYPE_SOLID   4
+#define CONVERT_TYPE_STREAM1 5
+#define CONVERT_TYPE_STREAM2 6
+
+
+/*
+ * Bit flags for the *_can_enter() and monster_can_cross_terrain()
+ */
+#define CEM_RIDING              0x0001
+#define CEM_P_CAN_ENTER_PATTERN 0x0002
+
+
+/* Lighting levels of features' attr and char */
+
+#define F_LIT_STANDARD 0 /* Standard */
+#define F_LIT_LITE     1 /* Brightly lit */
+#define F_LIT_DARK     2 /* Darkened */
+
+#define F_LIT_NS_BEGIN 1 /* Nonstandard */
+#define F_LIT_MAX      3
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1739,7 +1891,7 @@
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
-#define TV_PARCHEMENT   69
+#define TV_PARCHMENT    69
 #define TV_SCROLL       70
 #define TV_POTION       75
 #define TV_FLASK        77
@@ -1751,12 +1903,23 @@
 #define TV_DEATH_BOOK   94
 #define TV_TRUMP_BOOK   95
 #define TV_ARCANE_BOOK  96
-#define TV_ENCHANT_BOOK 97
+#define TV_CRAFT_BOOK 97
 #define TV_DAEMON_BOOK  98
 #define TV_CRUSADE_BOOK 99
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
 #define TV_GOLD         127     /* Gold can only be picked up by players */
+
+#define TV_EQUIP_BEGIN    TV_SHOT
+#define TV_EQUIP_END      TV_CARD
+#define TV_MISSILE_BEGIN  TV_SHOT
+#define TV_MISSILE_END    TV_BOLT
+#define TV_WEARABLE_BEGIN TV_BOW
+#define TV_WEARABLE_END   TV_CARD
+#define TV_WEAPON_BEGIN   TV_BOW
+#define TV_WEAPON_END     TV_SWORD
+#define TV_ARMOR_BEGIN    TV_BOOTS
+#define TV_ARMOR_END      TV_DRAG_ARMOR
 
 /* Any subvalue */
 #define SV_ANY 					255
@@ -2037,14 +2200,14 @@
 #define SV_RING_STUPIDITY                3
 #define SV_RING_TELEPORTATION            4
 #define SV_RING_SLOW_DIGESTION           6
-#define SV_RING_FEATHER_FALL             7
+#define SV_RING_LEVITATION_FALL             7
 #define SV_RING_RESIST_FIRE              8
 #define SV_RING_RESIST_COLD              9
 #define SV_RING_SUSTAIN_STR             10
 #define SV_RING_SUSTAIN_INT             11
 #define SV_RING_SUSTAIN_WIS             12
-#define SV_RING_SUSTAIN_DEX             13
-#define SV_RING_SUSTAIN_CON             14
+#define SV_RING_SUSTAIN_CON             13
+#define SV_RING_SUSTAIN_DEX             14
 #define SV_RING_SUSTAIN_CHR             15
 #define SV_RING_PROTECTION              16
 #define SV_RING_ACID                    17
@@ -2415,33 +2578,6 @@
 #define CAVE_IN_DETECT  0x4000    /* trap detected area (inner circle only) */
 
 
-/* Room types for generate_lake() */
-#define GEN_LAKE_TYPE_LAVA        1
-#define GEN_LAKE_TYPE_WATER       2
-#define GEN_LAKE_TYPE_CAVE        3
-#define GEN_LAKE_TYPE_EARTH_VAULT 4
-#define GEN_LAKE_TYPE_AIR_VAULT   5
-#define GEN_LAKE_TYPE_WATER_VAULT 6
-#define GEN_LAKE_TYPE_FIRE_VAULT  7
-
-
-/* Room types for room_build() */
-#define ROOM_BUILD_TYPE_NORMAL         1
-#define ROOM_BUILD_TYPE_OVERLAP        2
-#define ROOM_BUILD_TYPE_CROSS          3
-#define ROOM_BUILD_TYPE_INNER_FEAT     4
-#define ROOM_BUILD_TYPE_NEST           5
-#define ROOM_BUILD_TYPE_PIT            6
-#define ROOM_BUILD_TYPE_LESSER_VAULT   7
-#define ROOM_BUILD_TYPE_GREATER_VAULT  8
-#define ROOM_BUILD_TYPE_FRACAVE        9
-#define ROOM_BUILD_TYPE_RANDOM_VAULT  10
-#define ROOM_BUILD_TYPE_OVAL          11
-#define ROOM_BUILD_TYPE_CRYPT         12
-#define ROOM_BUILD_TYPE_TRAP_PIT      13
-#define ROOM_BUILD_TYPE_TRAP          14
-
-
 /*
  * Bit flags for the "project()" function
  *
@@ -2453,6 +2589,15 @@
  *   ITEM: Affect each object in the "blast area" in some way
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
+ *   DISI: Disintegrate non-permanent features
+ *   PLAYER: Main target is player (used for riding player)
+ *   AIMED: Target is only player or monster, so don't affect another.
+ *          Depend on PROJECT_PLAYER.
+ *          (used for minimum (rad == 0) balls on riding player)
+ *   REFLECTABLE: Refrectable spell attacks (used for "bolts")
+ *   NO_HANGEKI: Avoid counter attacks of monsters
+ *   PATH: Only used for printing project path
+ *   FAST: Hide "visual" of flying bolts until blast
  */
 #define PROJECT_JUMP        0x01
 #define PROJECT_BEAM        0x02
@@ -2464,11 +2609,20 @@
 #define PROJECT_HIDE        0x80
 #define PROJECT_DISI        0x100
 #define PROJECT_PLAYER      0x200
-#define PROJECT_MONSTER     0x400
+#define PROJECT_AIMED       0x400
 #define PROJECT_REFLECTABLE 0x800
 #define PROJECT_NO_HANGEKI  0x1000
 #define PROJECT_PATH        0x2000
 #define PROJECT_FAST        0x4000
+#define PROJECT_LOS         0x8000
+
+
+/*
+ * Special caster ID for project()
+ */
+#define PROJECT_WHO_UNCTRL_POWER -1
+#define PROJECT_WHO_GLASS_SHARDS -2
+
 
 /*
  * Bit flags for the "enchant()" function
@@ -2606,7 +2760,7 @@
 #define PR_STATE        0x00100000L     /* Display Extra (State) */
 #define PR_SPEED        0x00200000L     /* Display Extra (Speed) */
 #define PR_STUDY        0x00400000L     /* Display Extra (Study) */
-#define PR_MANE         0x00800000L     /* Display Extra (Mane) */
+#define PR_IMITATION    0x00800000L     /* Display Extra (Imitation) */
 #define PR_EXTRA        0x01000000L     /* Display Extra Info */
 #define PR_BASIC        0x02000000L     /* Display Basic Info */
 #define PR_MAP          0x04000000L     /* Display Map */
@@ -2648,6 +2802,8 @@
 #define PM_ALLOW_UNIQUE   0x00000040
 #define PM_IGNORE_TERRAIN 0x00000080
 #define PM_HASTE          0x00000100
+#define PM_KAGE           0x00000200
+#define PM_MULTIPLY       0x00000400
 
 
 /* Bit flags for monster_desc() */
@@ -2661,7 +2817,20 @@
 #define MD_ASSUME_VISIBLE 0x00000080 /* Assume the monster is visible */
 #define MD_TRUE_NAME      0x00000100 /* Chameleon's true name */
 #define MD_IGNORE_HALLU   0x00000200 /* Ignore hallucination, and penetrate shape change */
-#define MD_ASSUME_OUTSIDE 0x00000400 /* Assume this monster pet waiting outside the floor */
+
+
+/*
+ * Bit flags for object_desc()
+ */
+#define OD_NAME_ONLY        0x00000001  /* Omit values, pval, inscription */
+#define OD_NAME_AND_ENCHANT 0x00000002  /* Omit pval, inscription */
+#define OD_OMIT_INSCRIPTION 0x00000004  /* Omit inscription */
+#define OD_OMIT_PREFIX      0x00000008  /* Omit numeric prefix */
+#define OD_NO_PLURAL        0x00000010  /* Don't use plural */
+#define OD_STORE            0x00000020  /* Assume to be aware and known */
+#define OD_NO_FLAVOR        0x00000040  /* Allow to hidden flavor */
+#define OD_FORCE_FLAVOR     0x00000080  /* Get un-shuffled flavor name */
+
 
 /*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
@@ -2715,6 +2884,12 @@
 #define ACTION_KATA     6
 #define ACTION_SING     7
 #define ACTION_HAYAGAKE 8
+
+
+/* Empty hand status */
+#define EMPTY_HAND_NONE 0x0000 /* Both hands are used */
+#define EMPTY_HAND_LARM 0x0001 /* Left hand is empty */
+#define EMPTY_HAND_RARM 0x0002 /* Right hand is empty */
 
 /*** General index values ***/
 
@@ -2970,7 +3145,7 @@
 #define IDENT_FIXED     0x02    /* Item has been "haggled" */
 #define IDENT_EMPTY     0x04    /* Item charges are known */
 #define IDENT_KNOWN     0x08    /* Item abilities are known */
-#define IDENT_STOREB    0x10    /* Item is storebought !!!! */
+#define IDENT_STORE     0x10    /* Item is storebought !!!! */
 #define IDENT_MENTAL    0x20    /* Item information is known */
 #if 0
 #define IDENT_CURSED    0x40    /* Item is temporarily cursed */
@@ -2982,12 +3157,13 @@
  * How object is marked (flags in object_type.mark)
  * OM_FOUND --- original boolean flag
  * OM_NOMSG --- temporary flag to suppress messages which were
- *              already printed in auto_pickup_items().
+ *              already printed in autopick_pickup_items().
  */
 #define OM_FOUND        0x01    /* original boolean flag */
 #define OM_NOMSG        0x02    /* temporary flag to suppress messages */
 #define OM_NO_QUERY     0x04    /* Query for auto-pick was already answered as 'No' */
 #define OM_AUTODESTROY  0x08    /* Destroy later to avoid illegal inventry shift */
+#define OM_TOUCHED      0x10    /* Object was touched by player */
 
 
 /*
@@ -3120,7 +3296,7 @@
 #define TR_HIDE_TYPE           73     /* Hide "pval" description */
 #define TR_SHOW_MODS           74     /* Always show Tohit/Todam */
 #define TR_XXX1                75     /* XXX1 */
-#define TR_FEATHER             76     /* Feather Falling */
+#define TR_LEVITATION             76     /* Feather Falling */
 #define TR_LITE                77     /* Permanent Light */
 #define TR_SEE_INVIS           78     /* See Invisible */
 #define TR_TELEPATHY           79     /* Telepathy */
@@ -3162,8 +3338,9 @@
 #define TR_ESP_NONLIVING       114
 #define TR_ESP_UNIQUE          115
 #define TR_FULL_NAME           116
+#define TR_FIXED_FLAVOR        117
 
-#define TR_FLAG_MAX            117
+#define TR_FLAG_MAX            118
 #define TR_FLAG_SIZE           4
 
 
@@ -3534,7 +3711,7 @@
 #define RF7_CAN_SWIM            0x00000002  /* Monster can swim */
 #define RF7_CAN_FLY             0x00000004  /* Monster can fly */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
-#define RF7_UNIQUE_7            0x00000010  /* Is a "Nazgul" unique */
+#define RF7_NAZGUL              0x00000010  /* Is a "Nazgul" unique */
 #define RF7_UNIQUE2             0x00000020  /* Fake unique */
 #define RF7_RIDING              0x00000040  /* Good for riding */
 #define RF7_KAGE                0x00000080  /* Is kage */
@@ -3844,6 +4021,31 @@
 #define is_original_ap(A) \
 	 (bool)(((A)->ap_r_idx == (A)->r_idx) ? TRUE : FALSE)
 
+#define is_original_ap_and_seen(A) \
+	 (bool)((A)->ml && !p_ptr->image && ((A)->ap_r_idx == (A)->r_idx))
+
+/*
+ * Is the monster seen by the player?
+ */
+#define is_seen(A) \
+	((bool)((A)->ml && (!ignore_unview || p_ptr->inside_battle || \
+	 (player_can_see_bold((A)->fy, (A)->fx) && projectable(py, px, (A)->fy, (A)->fx)))))
+
+
+/*** Option Definitions ***/
+
+
+#define OPT_PAGE_INPUT          1
+#define OPT_PAGE_MAPSCREEN      2
+#define OPT_PAGE_TEXT           3
+#define OPT_PAGE_GAMEPLAY       4
+#define OPT_PAGE_DISTURBANCE    5
+#define OPT_PAGE_BIRTH          6
+#define OPT_PAGE_AUTODESTROY    7
+#define OPT_PAGE_PLAYRECORD    10
+
+#define OPT_PAGE_JAPANESE_ONLY 99
+
 
 /*** Macro Definitions ***/
 
@@ -3854,17 +4056,16 @@
 #define term_screen     (angband_term[0])
 
 
-#ifndef SCRIPT_OBJ_KIND
 /*
  * Determine if a given inventory item is "aware"
  */
-#define object_aware_p(T) \
+#define object_is_aware(T) \
     (k_info[(T)->k_idx].aware)
 
 /*
  * Determine if a given inventory item is "tried"
  */
-#define object_tried_p(T) \
+#define object_is_tried(T) \
     (k_info[(T)->k_idx].tried)
 
 
@@ -3873,7 +4074,7 @@
  * Test One -- Check for special "known" tag
  * Test Two -- Check for "Easy Know" + "Aware"
  */
-#define object_known_p(T) \
+#define object_is_known(T) \
     (((T)->ident & (IDENT_KNOWN)) || \
      (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
 
@@ -3885,8 +4086,10 @@
  */
 #define object_attr(T) \
 	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_attr[k_info[(T)->k_idx].flavor]) : \
-	 (k_info[(T)->k_idx].x_attr))
+	 (k_info[k_info[(T)->k_idx].flavor].x_attr) : \
+	 ((!(T)->k_idx || ((T)->tval != TV_CORPSE) || ((T)->sval != SV_CORPSE) || \
+	   (k_info[(T)->k_idx].x_attr != TERM_DARK)) ? \
+	  (k_info[(T)->k_idx].x_attr) : (r_info[(T)->pval].x_attr)))
 
 /*
  * Return the "char" for a given item.
@@ -3895,84 +4098,33 @@
  */
 #define object_char(T) \
 	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_char[k_info[(T)->k_idx].flavor]) : \
+	 (k_info[k_info[(T)->k_idx].flavor].x_char) : \
 	 (k_info[(T)->k_idx].x_char))
-
-
-#else /* SCRIPT_OBJ_KIND */
-
-
-/*
- * Determine if a given inventory item is "aware"
- */
-#define object_aware_p(T) \
-    ((T)->aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_tried_p(T) \
-    ((T)->tried)
-
-
-/*
- * Determine if a given inventory item is "known"
- * Test One -- Check for special "known" tag
- * Test Two -- Check for "Easy Know" + "Aware"
- */
-#define object_known_p(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
-     ((T)->easy_know && (T)->aware))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_attr(T) \
-	(((T)->flavor) ? \
-	 (misc_to_attr[(T)->flavor]) : \
-	 ((T)->x_attr))
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_char(T) \
-	(((T)->flavor) ? \
-	 (misc_to_char[(T)->flavor]) : \
-	 ((T)->x_char))
-
-#endif /* SCRIPT_OBJ_KIND */
-
-
 
 
 /*
  * Artifacts use the "name1" field
  */
-#define artifact_p(T) \
+#define object_is_fixed_artifact(T) \
 	((T)->name1 ? TRUE : FALSE)
 
 /*
  * Ego-Items use the "name2" field
  */
-#define ego_item_p(T) \
+#define object_is_ego(T) \
 	((T)->name2 ? TRUE : FALSE)
 
 
 /*
  * Broken items.
  */
-#define broken_p(T) \
+#define object_is_broken(T) \
 	((T)->ident & (IDENT_BROKEN))
 
 /*
  * Cursed items.
  */
-#define cursed_p(T) \
+#define object_is_cursed(T) \
 	((T)->curse_flags)
 
 
@@ -4056,202 +4208,130 @@
 	((C) == &cave[py][px])
 
 
-/*
- * Determine if a "feature" is a "floor"
- */
-#define feat_floor(F) \
-	(!((F) & 0x20))
+#define cave_have_flag_bold(Y,X,INDEX) \
+	(have_flag(f_info[cave[(Y)][(X)].feat].flags, (INDEX)))
+
+
+#define cave_have_flag_grid(C,INDEX) \
+	(have_flag(f_info[(C)->feat].flags, (INDEX)))
 
 
 /*
- * Determine if a "legal" grid is a "floor" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note that the terrain features are split by a one bit test
- * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
+ * Determine if a "feature" supports "los"
  */
-#define cave_floor_bold(Y,X) \
-	(feat_floor(cave[(Y)][(X)].feat))
+#define feat_supports_los(F) \
+	(have_flag(f_info[(F)].flags, FF_LOS))
+
+
+/*
+ * Determine if a "legal" grid supports "los"
+ */
+#define cave_los_bold(Y,X) \
+	(feat_supports_los(cave[(Y)][(X)].feat))
+
+#define cave_los_grid(C) \
+	(feat_supports_los((C)->feat))
 
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
+ * Determine if terrain-change spells are allowed in a grid.
  *
  * Line 1 -- forbid non-floors
- * Line 2 -- forbid deep water -KMW-
- * Line 3 -- forbid deep lava -KMW-
- * Line 4 -- forbid normal objects
+ * Line 2 -- forbid object terrains
+ * Line 3 -- forbid normal objects
  */
 #define cave_clean_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_DEEP_GRASS) || \
-	  (cave[Y][X].feat == FEAT_FLOWER) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  !(cave[Y][X].info & CAVE_OBJECT) && \
+	(cave_have_flag_bold((Y), (X), FF_FLOOR) && \
+	 !(cave[Y][X].info & CAVE_OBJECT) && \
 	  (cave[Y][X].o_idx == 0))
 
 
 /*
- * Determine if a "legal" grid is an "empty" floor grid
+ * Determine if an object can be dropped on a "legal" grid
  *
- * Line 1 -- forbid doors, rubble, seams, walls
- * Line 2 -- forbid normal monsters
- * Line 3 -- forbid the player
+ * Line 1 -- forbid non-drops
+ * Line 2 -- forbid object terrains
  */
-#define cave_empty_bold(Y,X) \
-    (cave_floor_bold(Y,X) && \
-     !(cave[Y][X].m_idx) && \
-     !player_bold(Y,X))
+#define cave_drop_bold(Y,X) \
+	(cave_have_flag_bold((Y), (X), FF_DROP) && \
+	 !(cave[Y][X].info & CAVE_OBJECT))
 
 
 /*
  * Determine if a "legal" grid is an "empty" floor grid
+ * Determine if monsters are allowed to move into a grid
  *
- * Line 1 -- forbid doors, rubble, seams, walls
+ * Line 1 -- forbid non-placement grids
  * Line 2 -- forbid normal monsters
  * Line 3 -- forbid the player
  */
+#define cave_empty_bold(Y,X) \
+	(cave_have_flag_bold((Y), (X), FF_PLACE) && \
+	 !(cave[Y][X].m_idx) && \
+	 !player_bold(Y,X))
+
+
+/*
+ * Determine if a "legal" grid is an "empty" floor grid
+ * Determine if monster generation is allowed in a grid
+ *
+ * Line 1 -- forbid non-empty grids
+ * Line 2 -- forbid trees while dungeon generation
+ */
 #define cave_empty_bold2(Y,X) \
-    (((cave_floor_bold(Y,X) && (cave[Y][X].feat != FEAT_DARK_PIT)) || (character_dungeon && (cave[Y][X].feat == FEAT_TREES)))&& \
-     !(cave[Y][X].m_idx) && \
-     !player_bold(Y,X))
+	(cave_empty_bold(Y,X) && \
+	 (character_dungeon || !cave_have_flag_bold((Y), (X), FF_TREE)))
 
 
 /*
  * Determine if a "legal" grid is an "naked" floor grid
  *
- * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
- * Line 4 -- forbid normal objects
- * Line 5 -- forbid player/monsters
+ * Line 1 -- forbid non-clean gird
+ * Line 2 -- forbid monsters
+ * Line 3 -- forbid the player
  */
 #define cave_naked_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DEEP_GRASS) || \
-	  (cave[Y][X].feat == FEAT_FLOWER) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  !(cave[Y][X].info & CAVE_OBJECT) && \
-	  (cave[Y][X].o_idx == 0) && \
-	  (cave[Y][X].m_idx == 0))
-
+	(cave_clean_bold(Y,X) && \
+	 !(cave[Y][X].m_idx) && \
+	 !player_bold(Y,X))
 
 
 /*
  * Determine if a "legal" grid is "permanent"
  *
- * Line 1   -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- building doors -KMW-
- * Line 6-7 -- shop doors
+ * Line 1 -- permanent flag
  */
 #define cave_perma_bold(Y,X) \
-	(((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
-	  (cave[Y][X].feat <= FEAT_PERM_SOLID)) || \
-	 (cave[Y][X].feat == FEAT_LESS) || \
-	 (cave[Y][X].feat == FEAT_MORE) || \
-	 (cave[Y][X].feat == FEAT_ENTRANCE) || \
-	 (cave[Y][X].feat == FEAT_LESS_LESS) || \
-	 (cave[Y][X].feat == FEAT_MORE_MORE) || \
-	 (cave[Y][X].feat == FEAT_MOUNTAIN) || \
-	 ((cave[Y][X].feat >= FEAT_QUEST_ENTER) && \
-	  (cave[Y][X].feat <= FEAT_QUEST_UP)) || \
-	 ((cave[Y][X].feat >= FEAT_PATTERN_START) && \
-	  (cave[Y][X].feat <= FEAT_PATTERN_XTRA2)) || \
-	 ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
-	 (cave[Y][X].feat == FEAT_MUSEUM) || \
-	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)))
+	(cave_have_flag_bold((Y), (X), FF_PERMANENT))
 
-
-/*
- * Grid based version of "cave_floor_bold()"
- */
-#define cave_floor_grid(C) \
-	(feat_floor((C)->feat))
-
-
-/*
- * Grid based version of "cave_clean_bold()"
- */
-#define cave_clean_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
-     (!(C)->o_idx))
 
 /*
  * Grid based version of "cave_empty_bold()"
  */
 #define cave_empty_grid(C) \
-    (cave_floor_grid(C) && \
-     !((C)->m_idx) && \
-     !player_grid(C))
-
-/*
- * Grid based version of "cave_empty_bold()"
- */
-#define cave_empty_grid2(C) \
-    ((cave_floor_grid(C) || ((C)->feat == FEAT_TREES)) && \
-     !((C)->m_idx) && \
-     !player_grid(C))
-
-/*
- * Grid based version of "cave_empty_bold()"
- */
-#define cave_naked_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
-     !((C)->o_idx) && \
-     !((C)->m_idx) && \
-     !player_grid(C))
+	(cave_have_flag_grid((C), FF_PLACE) && \
+	 !((C)->m_idx) && \
+	 !player_grid(C))
 
 
 /*
  * Grid based version of "cave_perma_bold()"
  */
 #define cave_perma_grid(C) \
-	((((C)->feat >= FEAT_PERM_EXTRA) && \
-	  ((C)->feat <= FEAT_PERM_SOLID)) || \
-	 ((C)->feat == FEAT_LESS) || \
-	 ((C)->feat == FEAT_MORE) || \
-	 ((C)->feat == FEAT_ENTRANCE) || \
-	 ((C)->feat == FEAT_LESS_LESS) || \
-	 ((C)->feat == FEAT_MORE_MORE) || \
-	 ((C)->feat == FEAT_MOUNTAIN) || \
-	 (((C)->feat >= FEAT_QUEST_ENTER) && \
-	  ((C)->feat <= FEAT_QUEST_UP)) || \
-	 (((C)->feat >= FEAT_PATTERN_START) && \
-	  ((C)->feat <= FEAT_PATTERN_XTRA2)) || \
-	 (((C)->feat >= FEAT_SHOP_HEAD) && \
-	  ((C)->feat <= FEAT_SHOP_TAIL)) || \
-	 ((C)->feat == FEAT_MUSEUM) || \
-	 (((C)->feat >= FEAT_BLDG_HEAD) && \
-	  ((C)->feat <= FEAT_BLDG_TAIL)))
+	(cave_have_flag_grid((C), FF_PERMANENT))
 
 
 #define pattern_tile(Y,X) \
-     ((cave[Y][X].feat <= FEAT_PATTERN_XTRA2) && (cave[Y][X].feat >= FEAT_PATTERN_START))
+	(cave_have_flag_bold((Y), (X), FF_PATTERN))
 
 /*
  * Does the grid stop disintegration?
  */
 #define cave_stop_disintegration(Y,X) \
-	(((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
-	  (cave[Y][X].feat <= FEAT_PERM_SOLID)) || \
-	  (cave[Y][X].feat == FEAT_MOUNTAIN) || \
-	 ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
-	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-	  (cave[Y][X].feat == FEAT_MUSEUM))
+	(!cave_have_flag_bold((Y), (X), FF_PROJECT) && \
+	 (!cave_have_flag_bold((Y), (X), FF_HURT_DISI) || \
+	  cave_have_flag_bold((Y), (X), FF_PERMANENT)))
 
 
 /*
@@ -4270,16 +4350,19 @@
 #define player_has_los_bold(Y,X) \
     (((cave[Y][X].info & (CAVE_VIEW)) != 0) || p_ptr->inside_battle)
 
-/*
- * Determine if a "boundary" grid is "floor mimic"
- */
-#define boundary_floor_bold(Y,X) \
-	((cave[(Y)][(X)].feat == FEAT_PERM_SOLID) && \
-	  cave[(Y)][(X)].mimic && feat_floor(cave[(Y)][(X)].mimic))
 
-#define boundary_floor_grid(C) \
-	(((C)->feat == FEAT_PERM_SOLID) && \
-	  (C)->mimic && feat_floor((C)->mimic))
+/*
+ * Determine if a "feature" is "permanent wall"
+ */
+#define permanent_wall(F) \
+	(have_flag((F)->flags, FF_WALL) && \
+	 have_flag((F)->flags, FF_PERMANENT))
+
+/*
+ * Get feature mimic from f_info[] (applying "mimic" field)
+ */
+#define get_feat_mimic(C) \
+	(f_info[(C)->mimic ? (C)->mimic : (C)->feat].mimic)
 
 #define update_playtime() \
 {\
@@ -4325,6 +4408,12 @@ extern int PlayerUID;
 #define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
 #define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
 #define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
+
+
+/*
+ * Not using graphical tiles for this feature?
+ */
+#define is_ascii_graphics(A) (!((A) & 0x80))
 
 
 /*** Sound constants ***/
@@ -4399,11 +4488,12 @@ extern int PlayerUID;
 #define SOUND_SHOW      62 /* A monster makes a "show" attack */
 #define SOUND_UNUSED    63 /* (no sound for gaze attacks) */
 #define SOUND_EXPLODE   64 /* Something (or somebody) explodes */
+#define SOUND_GLASS     65 /* A glass feature was crashed */
 
 /*
  * Mega-Hack -- maximum known sounds
  */
-#define SOUND_MAX 65
+#define SOUND_MAX 66
 
 #define MAX_VIRTUE 18
 
@@ -4455,7 +4545,7 @@ extern int PlayerUID;
 #define BACT_GREET_KING              4
 #define BACT_KING_LEGENDS            5
 #define BACT_QUEST                   6
-#define BACT_GOLD                    7
+#define BACT_XXX_UNUSED              7
 #define BACT_POSTER                  8
 #define BACT_ARENA_RULES             9
 #define BACT_ARENA                  10
@@ -4575,7 +4665,8 @@ extern int PlayerUID;
 #define PARSE_ERROR_OUT_OF_MEMORY            7
 #define PARSE_ERROR_OUT_OF_BOUNDS            8
 #define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
-#define PARSE_ERROR_MAX                     10
+#define PARSE_ERROR_UNDEFINED_TERRAIN_TAG   10
+#define PARSE_ERROR_MAX                     11
 
 #define GINOU_SUDE       0
 #define GINOU_NITOURYU   1
@@ -4635,6 +4726,22 @@ extern int PlayerUID;
 #define NIKKI_WIZ_TELE    20
 #define NIKKI_NAMED_PET   21
 #define NIKKI_PAT_TELE    22
+
+#define RECORD_NAMED_PET_NAME        0
+#define RECORD_NAMED_PET_UNNAME      1
+#define RECORD_NAMED_PET_DISMISS     2
+#define RECORD_NAMED_PET_DEATH       3
+#define RECORD_NAMED_PET_MOVED       4
+#define RECORD_NAMED_PET_LOST_SIGHT  5
+#define RECORD_NAMED_PET_DESTROY     6
+#define RECORD_NAMED_PET_EARTHQUAKE  7
+#define RECORD_NAMED_PET_GENOCIDE    8
+#define RECORD_NAMED_PET_WIZ_ZAP     9
+#define RECORD_NAMED_PET_TELE_LEVEL  10
+#define RECORD_NAMED_PET_BLAST       11
+#define RECORD_NAMED_PET_HEAL_LEPER  12
+#define RECORD_NAMED_PET_COMPACT     13
+#define RECORD_NAMED_PET_LOSE_PARENT 14
 
 #define MAX_MANE 16
 #define MAX_MONSPELLS 96
@@ -4947,8 +5054,10 @@ extern int PlayerUID;
 #define MON_SHARD_VOR     897
 #define MON_MASTER_MYS    916
 #define MON_G_MASTER_MYS  917
+#define MON_IE            921
 #define MON_TSUCHINOKO    926
 #define MON_GCWADL        929
+#define MON_LOCKE_CLONE   930
 #define MON_CALDARM       931
 #define MON_BANORLUPART   932
 #define MON_BANOR         933
@@ -4996,7 +5105,9 @@ extern int PlayerUID;
 #define MON_JIZOTAKO      1065
 #define MON_TANUKI        1067
 
-#define MAX_AUTOPICK 1009
+/* Maximum "Nazguls" number */
+#define MAX_NAZGUL_NUM 5
+
 #define DO_AUTOPICK       0x01
 #define DO_AUTODESTROY    0x02
 #define DO_DISPLAY        0x04
@@ -5050,7 +5161,8 @@ extern int PlayerUID;
 
 #define MUSIC_DETECT            101
 
-#define music_singing(X) ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == X))
+#define music_singing(X) ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == (X)))
+#define music_singing_any() ((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0])
 
 #define HISSATSU_NONE   0
 #define HISSATSU_2      1
@@ -5120,8 +5232,8 @@ extern int PlayerUID;
 #define DF1_NO_DOORS            0x00000020L
 #define DF1_WATER_RIVER         0x00000040L
 #define DF1_LAVA_RIVER          0x00000080L
-#define DF1_XXX08               0x00000100L
-#define DF1_XXX09               0x00000200L
+#define DF1_CURTAIN             0x00000100L
+#define DF1_GLASS_DOOR          0x00000200L
 #define DF1_CAVE                0x00000400L
 #define DF1_CAVERN              0x00000800L
 #define DF1_XXX12               0x00001000L
@@ -5136,7 +5248,7 @@ extern int PlayerUID;
 #define DF1_NO_VAULT            0x00200000L
 #define DF1_ARENA               0x00400000L
 #define DF1_DESTROY             0x00800000L
-#define DF1_XXX24               0x01000000L
+#define DF1_GLASS_ROOM          0x01000000L
 #define DF1_NO_CAVE             0x02000000L
 #define DF1_NO_MAGIC            0x04000000L
 #define DF1_NO_MELEE            0x08000000L
@@ -5168,6 +5280,9 @@ extern int PlayerUID;
 #define DUNGEON_DARKNESS 19
 
 
+#define DUNGEON_FEAT_PROB_NUM 3
+
+
 /*
  * Flags for change floor mode
  */
@@ -5178,8 +5293,9 @@ extern int PlayerUID;
 #define CFM_SHAFT     	 0x0010  /* Shaft */
 #define CFM_RAND_PLACE   0x0020  /* Arrive at random grid */
 #define CFM_RAND_CONNECT 0x0040  /* Connect with random stairs */
-#define CFM_CLEAR_ALL    0x0080  /* Reach to the surface/Recall/Alter reality */
+#define CFM_SAVE_FLOORS  0x0080  /* Save floors */
 #define CFM_NO_RETURN    0x0100  /* Flee from random quest etc... */
+#define CFM_FIRST_FLOOR  0x0200  /* Create exit from the dungeon */
 
 
 /*
@@ -5240,6 +5356,7 @@ extern int PlayerUID;
 #define SAVE_MON_EXP          0x00001000
 #define SAVE_MON_MFLAG2       0x00002000
 #define SAVE_MON_NICKNAME     0x00004000
+#define SAVE_MON_PARENT       0x00008000
 
 
 /*
@@ -5277,6 +5394,9 @@ extern int PlayerUID;
 #define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND))
 #define IS_TIM_STEALTH() (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
 
+/* Multishadow effects is determined by turn */
+#define CHECK_MULTISHADOW() (p_ptr->multishadow && (turn & 1))
+
 /* Is "teleport level" ineffective to this target? */
 #define TELE_LEVEL_IS_INEFF(TARGET) \
 	(p_ptr->inside_arena || p_ptr->inside_battle || \
@@ -5284,17 +5404,67 @@ extern int PlayerUID;
 	 (((TARGET) <= 0) && (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth)) && \
 	  (dun_level >= 1) && ironman_downward))
 
-/*
- * World Score -- internet resource value
- */
-#define HTTP_PROXY ""                   /* Default proxy url */
-#define HTTP_PROXY_PORT 0               /* Default proxy port */
-#define HTTP_TIMEOUT    20              /* Timeout length (second) */
-#define SCORE_SERVER "www.kmc.gr.jp"    /* Default score server url */
-#define SCORE_PORT 80                   /* Default score server port */
 
+/*
+ * Max numbers of macro trigger names
+ */
 #define MAX_MACRO_MOD 12
 #define MAX_MACRO_TRIG 200
 
-#define SCREEN_BUF_SIZE 65536           /* max screen dump buffer size */
+/* Max size of screen dump buffer */
+#define SCREEN_BUF_SIZE 65536
 
+
+/*
+ * Special key code used for inkey_special()
+ */
+#define SKEY_MOD_MASK     0x0f00
+#define SKEY_MOD_SHIFT    0x0100
+#define SKEY_MOD_CONTROL  0x0200
+
+#define SKEY_MASK         0xf000
+#define SKEY_DOWN   	  0xf001
+#define SKEY_LEFT   	  0xf002
+#define SKEY_RIGHT  	  0xf003
+#define SKEY_UP     	  0xf004
+#define SKEY_PGUP   	  0xf005
+#define SKEY_PGDOWN 	  0xf006
+#define SKEY_TOP    	  0xf007
+#define SKEY_BOTTOM 	  0xf008
+
+/*
+ * Bit flags for move_player_effect()
+ */
+#define MPE_STAYING       0x00000001
+#define MPE_FORGET_FLOW   0x00000002
+#define MPE_HANDLE_STUFF  0x00000004
+#define MPE_ENERGY_USE    0x00000008
+#define MPE_DONT_PICKUP   0x00000010
+#define MPE_DO_PICKUP     0x00000020
+#define MPE_BREAK_TRAP    0x00000040
+#define MPE_DONT_SWAP_MON 0x00000080
+
+
+#define MTIMED_CSLEEP   0 /* Monster is sleeping */
+#define MTIMED_FAST     1 /* Monster is temporarily fast */
+#define MTIMED_SLOW     2 /* Monster is temporarily slow */
+#define MTIMED_STUNNED  3 /* Monster is stunned */
+#define MTIMED_CONFUSED 4 /* Monster is confused */
+#define MTIMED_MONFEAR  5 /* Monster is afraid */
+#define MTIMED_INVULNER 6 /* Monster is temporarily invulnerable */
+
+#define MAX_MTIMED      7
+
+#define MON_CSLEEP(M_PTR)   ((M_PTR)->mtimed[MTIMED_CSLEEP])
+#define MON_FAST(M_PTR)     ((M_PTR)->mtimed[MTIMED_FAST])
+#define MON_SLOW(M_PTR)     ((M_PTR)->mtimed[MTIMED_SLOW])
+#define MON_STUNNED(M_PTR)  ((M_PTR)->mtimed[MTIMED_STUNNED])
+#define MON_CONFUSED(M_PTR) ((M_PTR)->mtimed[MTIMED_CONFUSED])
+#define MON_MONFEAR(M_PTR)  ((M_PTR)->mtimed[MTIMED_MONFEAR])
+#define MON_INVULNER(M_PTR) ((M_PTR)->mtimed[MTIMED_INVULNER])
+
+/*
+ * Bit flags for screen_object()
+ */
+#define SCROBJ_FAKE_OBJECT  0x00000001
+#define SCROBJ_FORCE_DETAIL 0x00000002

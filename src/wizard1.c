@@ -26,55 +26,63 @@ static FILE *fff = NULL;
 /*
  * Extract a textual representation of an attribute
  */
-static cptr attr_to_text(byte a)
+static cptr attr_to_text(monster_race *r_ptr)
 {
-	switch (a)
-	{
 #ifdef JP000
-case TERM_DARK:    return ("XXXい");
-case TERM_WHITE:   return ("白い");
-case TERM_SLATE:   return ("青灰色の");
-case TERM_ORANGE:  return ("オレンジの");
-case TERM_RED:     return ("赤い");
-case TERM_GREEN:   return ("緑の");
-case TERM_BLUE:    return ("青い");
-case TERM_UMBER:   return ("琥珀色の");
-case TERM_L_DARK:  return ("灰色の");
-case TERM_L_WHITE: return ("明青灰色の");
-case TERM_VIOLET:  return ("紫の");
-case TERM_YELLOW:  return ("黄色い");
-case TERM_L_RED:   return ("明い赤の");
-case TERM_L_GREEN: return ("明い緑の");
-case TERM_L_BLUE:  return ("明い青の");
-case TERM_L_UMBER: return ("明い琥珀色の");
+	if (r_ptr->flags1 & RF1_ATTR_CLEAR)    return "透明な";
+	if (r_ptr->flags1 & RF1_ATTR_MULTI)    return "万色の";
+	if (r_ptr->flags1 & RF1_ATTR_SEMIRAND) return "準ランダムな";
 #else
-		case TERM_DARK:    return ("xxx");
-		case TERM_WHITE:   return ("White");
-		case TERM_SLATE:   return ("Slate");
-		case TERM_ORANGE:  return ("Orange");
-		case TERM_RED:     return ("Red");
-		case TERM_GREEN:   return ("Green");
-		case TERM_BLUE:    return ("Blue");
-		case TERM_UMBER:   return ("Umber");
-		case TERM_L_DARK:  return ("L.Dark");
-		case TERM_L_WHITE: return ("L.Slate");
-		case TERM_VIOLET:  return ("Violet");
-		case TERM_YELLOW:  return ("Yellow");
-		case TERM_L_RED:   return ("L.Red");
-		case TERM_L_GREEN: return ("L.Green");
-		case TERM_L_BLUE:  return ("L.Blue");
-		case TERM_L_UMBER: return ("L.Umber");
+	if (r_ptr->flags1 & RF1_ATTR_CLEAR)    return "Clear";
+	if (r_ptr->flags1 & RF1_ATTR_MULTI)    return "Multi";
+	if (r_ptr->flags1 & RF1_ATTR_SEMIRAND) return "S.Rand";
 #endif
 
+	switch (r_ptr->d_attr)
+	{
+#ifdef JP000
+	case TERM_DARK:    return "XXXい";
+	case TERM_WHITE:   return "白い";
+	case TERM_SLATE:   return "青灰色の";
+	case TERM_ORANGE:  return "オレンジの";
+	case TERM_RED:     return "赤い";
+	case TERM_GREEN:   return "緑の";
+	case TERM_BLUE:    return "青い";
+	case TERM_UMBER:   return "琥珀色の";
+	case TERM_L_DARK:  return "灰色の";
+	case TERM_L_WHITE: return "明青灰色の";
+	case TERM_VIOLET:  return "紫の";
+	case TERM_YELLOW:  return "黄色い";
+	case TERM_L_RED:   return "明い赤の";
+	case TERM_L_GREEN: return "明い緑の";
+	case TERM_L_BLUE:  return "明い青の";
+	case TERM_L_UMBER: return "明い琥珀色の";
+#else
+	case TERM_DARK:    return "xxx";
+	case TERM_WHITE:   return "White";
+	case TERM_SLATE:   return "Slate";
+	case TERM_ORANGE:  return "Orange";
+	case TERM_RED:     return "Red";
+	case TERM_GREEN:   return "Green";
+	case TERM_BLUE:    return "Blue";
+	case TERM_UMBER:   return "Umber";
+	case TERM_L_DARK:  return "L.Dark";
+	case TERM_L_WHITE: return "L.Slate";
+	case TERM_VIOLET:  return "Violet";
+	case TERM_YELLOW:  return "Yellow";
+	case TERM_L_RED:   return "L.Red";
+	case TERM_L_GREEN: return "L.Green";
+	case TERM_L_BLUE:  return "L.Blue";
+	case TERM_L_UMBER: return "L.Umber";
+#endif
 	}
 
 	/* Oops */
 #ifdef JP000
-return ("変な");
+	return "変な";
 #else
-	return ("Icky");
+	return "Icky";
 #endif
-
 }
 
 
@@ -101,7 +109,7 @@ typedef struct
 static grouper group_item[] =
 {
 #ifdef JP
-{ TV_SHOT,          "射撃物" },
+	{ TV_SHOT,          "射撃物" },
 #else
 	{ TV_SHOT,          "Ammo" },
 #endif
@@ -110,24 +118,23 @@ static grouper group_item[] =
 	{ TV_BOLT,          NULL },
 
 #ifdef JP
-{ TV_BOW,           "弓" },
+	{ TV_BOW,           "弓" },
 #else
 	{ TV_BOW,           "Bows" },
 #endif
 
-
 #ifdef JP
-{ TV_SWORD,         "武器" },
+	{ TV_DIGGING,       "武器" },
 #else
-	{ TV_SWORD,         "Weapons" },
+	{ TV_DIGGING,       "Weapons" },
 #endif
 
 	{ TV_POLEARM,       NULL },
 	{ TV_HAFTED,        NULL },
-	{ TV_DIGGING,       NULL },
+	{ TV_SWORD,         NULL },
 
 #ifdef JP
-{ TV_SOFT_ARMOR,    "防具（体）" },
+	{ TV_SOFT_ARMOR,    "防具 (体)" },
 #else
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 #endif
@@ -136,61 +143,60 @@ static grouper group_item[] =
 	{ TV_DRAG_ARMOR,    NULL },
 
 #ifdef JP
-{ TV_CLOAK,         "防具（その他）" },
+	{ TV_BOOTS,         "防具 (その他)" },
 #else
-	{ TV_CLOAK,         "Armour (Misc)" },
+	{ TV_BOOTS,         "Armour (Misc)" },
 #endif
 
-	{ TV_SHIELD,        NULL },
+	{ TV_GLOVES,        NULL },
 	{ TV_HELM,          NULL },
 	{ TV_CROWN,         NULL },
-	{ TV_GLOVES,        NULL },
-	{ TV_BOOTS,         NULL },
+	{ TV_SHIELD,        NULL },
+	{ TV_CLOAK,         NULL },
 
 #ifdef JP
-{ TV_AMULET,        "アミュレット" },
-{ TV_RING,          "指輪" },
+	{ TV_LITE,          "光源" },
+	{ TV_AMULET,        "アミュレット" },
+	{ TV_RING,          "指輪" },
 #else
+	{ TV_LITE,          "Light Sources" },
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
 #endif
 
+#ifdef JP
+	{ TV_STAFF,         "杖" },
+	{ TV_WAND,          "魔法棒" },
+	{ TV_ROD,           "ロッド" },
+#else
+	{ TV_STAFF,         "Staffs" },
+	{ TV_WAND,          "Wands" },
+	{ TV_ROD,           "Rods" },
+#endif
 
 #ifdef JP
-{ TV_SCROLL,        "巻物" },
-{ TV_POTION,        "薬" },
-{ TV_FOOD,          "食料" },
+	{ TV_SCROLL,        "巻物" },
+	{ TV_POTION,        "薬" },
+	{ TV_FOOD,          "食料" },
 #else
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
 	{ TV_FOOD,          "Food" },
 #endif
 
-
 #ifdef JP
-{ TV_ROD,           "ロッド" },
-{ TV_WAND,          "魔法棒" },
-{ TV_STAFF,         "杖" },
-#else
-	{ TV_ROD,           "Rods" },
-	{ TV_WAND,          "Wands" },
-	{ TV_STAFF,         "Staffs" },
-#endif
-
-
-#ifdef JP
-{ TV_LIFE_BOOK,     "魔法書（生命）" },
-{ TV_SORCERY_BOOK,  "魔法書（仙術）" },
-{ TV_NATURE_BOOK,   "魔法書（自然）" },
-{ TV_CHAOS_BOOK,    "魔法書（カオス）" },
-{ TV_DEATH_BOOK,    "魔法書（暗黒）" },
-{ TV_TRUMP_BOOK,    "魔法書（トランプ）" },
-{ TV_ARCANE_BOOK,   "魔法書（秘術）" },
-{ TV_ENCHANT_BOOK,  "魔法書（匠）" },
-{ TV_DAEMON_BOOK,   "魔法書（悪魔）" },
-{ TV_CRUSADE_BOOK,     "魔法書（破邪）" },
-{ TV_MUSIC_BOOK,    "歌集" },
-{ TV_HISSATSU_BOOK, "武芸の書" },
+	{ TV_LIFE_BOOK,     "魔法書 (生命)" },
+	{ TV_SORCERY_BOOK,  "魔法書 (仙術)" },
+	{ TV_NATURE_BOOK,   "魔法書 (自然)" },
+	{ TV_CHAOS_BOOK,    "魔法書 (カオス)" },
+	{ TV_DEATH_BOOK,    "魔法書 (暗黒)" },
+	{ TV_TRUMP_BOOK,    "魔法書 (トランプ)" },
+	{ TV_ARCANE_BOOK,   "魔法書 (秘術)" },
+	{ TV_CRAFT_BOOK,    "魔法書 (匠)" },
+	{ TV_DAEMON_BOOK,   "魔法書 (悪魔)" },
+	{ TV_CRUSADE_BOOK,  "魔法書 (破邪)" },
+	{ TV_MUSIC_BOOK,    "歌集" },
+	{ TV_HISSATSU_BOOK, "武芸の書" },
 #else
 	{ TV_LIFE_BOOK,     "Books (Life)" },
 	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
@@ -199,58 +205,50 @@ static grouper group_item[] =
 	{ TV_DEATH_BOOK,    "Books (Death)" },
 	{ TV_TRUMP_BOOK,    "Books (Trump)" },
 	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
-	{ TV_ENCHANT_BOOK,  "Books (Craft)" },
+	{ TV_CRAFT_BOOK,    "Books (Craft)" },
 	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
-	{ TV_CRUSADE_BOOK,     "Books (Crusade)" },
+	{ TV_CRUSADE_BOOK,  "Books (Crusade)" },
 	{ TV_MUSIC_BOOK,    "Song Books" },
 	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
 #endif
 
 #ifdef JP
-{ TV_PARCHEMENT,    "羊皮紙" },
+	{ TV_WHISTLE,       "笛" },
+	{ TV_CAPTURE,       "キャプチャー・ボール" },
+	{ TV_CARD,          "エクスプレスカード" },
 #else
-{ TV_PARCHEMENT,    "Parchement" },
+	{ TV_WHISTLE,       "Whistle" },
+	{ TV_CAPTURE,       "Capture Ball" },
+	{ TV_CARD,          "Express Card" },
 #endif
 
 #ifdef JP
-{ TV_CHEST,         "箱" },
+	{ TV_CHEST,         "箱" },
 #else
 	{ TV_CHEST,         "Chests" },
 #endif
 
 #ifdef JP
-{ TV_CAPTURE,         "キャプチャー・ボール" },
+	{ TV_FIGURINE,      "人形" },
+	{ TV_STATUE,        "像" },
+	{ TV_CORPSE,        "死体" },
 #else
-	{ TV_CAPTURE,         "Capture Ball" },
-#endif
-
-#ifdef JP
-{ TV_CARD,         "エクスプレスカード" },
-#else
-	{ TV_CARD,         "Express Card" },
-#endif
-
 	{ TV_FIGURINE,      "Magical Figurines" },
 	{ TV_STATUE,        "Statues" },
 	{ TV_CORPSE,        "Corpses" },
-
-#ifdef JP
-{ TV_WHISTLE,         "笛" },
-#else
-	{ TV_WHISTLE,         "Whistle" },
 #endif
 
 #ifdef JP
-{ TV_SPIKE,         "くさび" },
+	{ TV_SKELETON,      "その他" },
 #else
-	{ TV_SPIKE,         "Spike" },
+	{ TV_SKELETON,      "Misc" },
 #endif
 
-	{ TV_LITE,          NULL },
-	{ TV_FLASK,         NULL },
-	{ TV_JUNK,          NULL },
 	{ TV_BOTTLE,        NULL },
-	{ TV_SKELETON,      NULL },
+	{ TV_JUNK,          NULL },
+	{ TV_SPIKE,         NULL },
+	{ TV_FLASK,         NULL },
+	{ TV_PARCHMENT,     NULL },
 
 	{ 0, "" }
 };
@@ -282,7 +280,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Level */
-	(*lev) = get_object_level(q_ptr);
+	(*lev) = k_info[q_ptr->k_idx].level;
 
 	/* Value */
 	(*val) = object_value(q_ptr);
@@ -293,7 +291,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 
 	/* Description (too brief) */
-	object_desc_store(buf, q_ptr, FALSE, 0);
+	object_desc(buf, q_ptr, (OD_NAME_ONLY | OD_STORE));
 
 
 	/* Misc info */
@@ -354,7 +352,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
  */
 static void spoil_obj_desc(cptr fname)
 {
-	int i, k, s, t, n = 0;
+	int i, k, s, t, n = 0, group_start = 0;
 
 	u16b who[200];
 
@@ -398,54 +396,59 @@ static void spoil_obj_desc(cptr fname)
 		/* Write out the group title */
 		if (group_item[i].name)
 		{
-			/* Hack -- bubble-sort by cost and then level */
-			for (s = 0; s < n - 1; s++)
+			if (n)
 			{
-				for (t = 0; t < n - 1; t++)
+				/* Hack -- bubble-sort by cost and then level */
+				for (s = 0; s < n - 1; s++)
 				{
-					int i1 = t;
-					int i2 = t + 1;
-
-					int e1;
-					int e2;
-
-					s32b t1;
-					s32b t2;
-
-					kind_info(NULL, NULL, NULL, &e1, &t1, who[i1]);
-					kind_info(NULL, NULL, NULL, &e2, &t2, who[i2]);
-
-					if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
+					for (t = 0; t < n - 1; t++)
 					{
-						int tmp = who[i1];
-						who[i1] = who[i2];
-						who[i2] = tmp;
+						int i1 = t;
+						int i2 = t + 1;
+
+						int e1;
+						int e2;
+
+						s32b t1;
+						s32b t2;
+
+						kind_info(NULL, NULL, NULL, &e1, &t1, who[i1]);
+						kind_info(NULL, NULL, NULL, &e2, &t2, who[i2]);
+
+						if ((t1 > t2) || ((t1 == t2) && (e1 > e2)))
+						{
+							int tmp = who[i1];
+							who[i1] = who[i2];
+							who[i2] = tmp;
+						}
 					}
 				}
+
+				fprintf(fff, "\n\n%s\n\n", group_item[group_start].name);
+
+				/* Spoil each item */
+				for (s = 0; s < n; s++)
+				{
+					int e;
+					s32b v;
+
+					/* Describe the kind */
+					kind_info(buf, dam, wgt, &e, &v, who[s]);
+
+					/* Dump it */
+					fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+						buf, dam, wgt, e, (long)(v));
+				}
+
+				/* Start a new set */
+				n = 0;
 			}
-
-			/* Spoil each item */
-			for (s = 0; s < n; s++)
-			{
-				int e;
-				s32b v;
-
-				/* Describe the kind */
-				kind_info(buf, dam, wgt, &e, &v, who[s]);
-
-				/* Dump it */
-				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
-					buf, dam, wgt, e, (long)(v));
-			}
-
-			/* Start a new set */
-			n = 0;
 
 			/* Notice the end */
 			if (!group_item[i].tval) break;
 
 			/* Start a new set */
-			fprintf(fff, "\n\n%s\n\n", group_item[i].name);
+			group_start = i;
 		}
 
 		/* Acquire legal item types */
@@ -838,7 +841,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR_SH_COLD,            "冷気オーラ" },
 	{ TR_NO_TELE,            "反テレポート" },
 	{ TR_NO_MAGIC,           "反魔法" },
-	{ TR_FEATHER,            "浮遊" },
+	{ TR_LEVITATION,            "浮遊" },
 	{ TR_SEE_INVIS,          "可視透明" },
 	{ TR_TELEPATHY,          "テレパシー" },
 	{ TR_ESP_ANIMAL,             "動物感知" },
@@ -868,7 +871,7 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR_SH_COLD,            "Coldly Aura" },
 	{ TR_NO_TELE,            "Prevent Teleportation" },
 	{ TR_NO_MAGIC,           "Anti-Magic" },
-	{ TR_FEATHER,            "Levitation" },
+	{ TR_LEVITATION,            "Levitation" },
 	{ TR_SEE_INVIS,          "See Invisible" },
 	{ TR_TELEPATHY,          "ESP" },
 	{ TR_SLOW_DIGEST,        "Slow Digestion" },
@@ -1027,7 +1030,7 @@ static cptr *spoiler_flag_aux(const u32b art_flags[TR_FLAG_SIZE],
 static void analyze_general(object_type *o_ptr, char *desc_ptr)
 {
 	/* Get a "useful" description of the object */
-	object_desc_store(desc_ptr, o_ptr, TRUE, 1);
+	object_desc(desc_ptr, o_ptr, (OD_NAME_AND_ENCHANT | OD_STORE));
 }
 
 
@@ -1201,7 +1204,7 @@ static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
+	if ((o_ptr->tval == TV_LITE) && object_is_fixed_artifact(o_ptr))
 	{
 #ifdef JP
 		*misc_list++ = "永久光源(半径3)";
@@ -1228,7 +1231,7 @@ static void analyze_misc_magic(object_type *o_ptr, cptr *misc_list)
 	 * being "lightly cursed".
 	 */
 
-/*	if (cursed_p(o_ptr)) */
+/*	if (object_is_cursed(o_ptr)) */
 	{
 		if (have_flag(flgs, TR_TY_CURSE))
 		{
@@ -1811,7 +1814,7 @@ static void spoil_mon_desc(cptr fname)
 		sprintf(exp, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
-		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
+		sprintf(exp, "%s '%c'", attr_to_text(r_ptr), r_ptr->d_char);
 
 		/* Dump the info */
 		fprintf(fff, "%-42.42s%4s%4s%4s%7s%5s  %11.11s\n",
@@ -1858,8 +1861,11 @@ static void spoil_out(cptr str)
 	/* Line buffer */
 	static char roff_buf[256];
 
+	/* Delay buffer */
+	static char roff_waiting_buf[256];
+
 #ifdef JP
-	char iskanji2=0;
+	bool iskanji_flag = FALSE;
 #endif
 	/* Current pointer into line roff_buf */
 	static char *roff_p = roff_buf;
@@ -1867,17 +1873,28 @@ static void spoil_out(cptr str)
 	/* Last space saved into roff_buf */
 	static char *roff_s = NULL;
 
+	/* Mega-Hack -- Delayed output */
+	static bool waiting_output = FALSE;
+
 	/* Special handling for "new sequence" */
 	if (!str)
 	{
+		if (waiting_output)
+		{
+			fputs(roff_waiting_buf, fff);
+			waiting_output = FALSE;
+		}
+
 		if (roff_p != roff_buf) roff_p--;
 		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
+
 		if (roff_p == roff_buf) fprintf(fff, "\n");
 		else
 		{
 			*(roff_p + 1) = '\0';
 			fprintf(fff, "%s\n\n", roff_buf);
 		}
+
 		roff_p = roff_buf;
 		roff_s = NULL;
 		roff_buf[0] = '\0';
@@ -1889,26 +1906,61 @@ static void spoil_out(cptr str)
 	{
 #ifdef JP
 		char cbak;
-		int k_flag = iskanji((unsigned char)(*str));
+		bool k_flag = iskanji((unsigned char)(*str));
 #endif
 		char ch = *str;
-		int wrap = (ch == '\n');
+		bool wrap = (ch == '\n');
 
 #ifdef JP
-		if (!isprint(ch) && !k_flag && !iskanji2) ch = ' ';
-		if(k_flag && !iskanji2)iskanji2=1;else iskanji2=0;
+		if (!isprint(ch) && !k_flag && !iskanji_flag) ch = ' ';
+		iskanji_flag = k_flag && !iskanji_flag;
 #else
 		if (!isprint(ch)) ch = ' ';
 #endif
 
+		if (waiting_output)
+		{
+			fputs(roff_waiting_buf, fff);
+			if (!wrap) fputc('\n', fff);
+			waiting_output = FALSE;
+		}
+
+		if (!wrap)
+		{
 #ifdef JP
-		if ( roff_p >= roff_buf+( (k_flag) ? 74 : 75) ) wrap=1;
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + ((k_flag) ? 74 : 75))) wrap = 1;
+			if (roff_p >= roff_buf + (k_flag ? 74 : 75)) wrap = TRUE;
+			else if ((ch == ' ') && (roff_p >= roff_buf + (k_flag ? 72 : 73))) wrap = TRUE;
 #else
-		if (roff_p >= roff_buf + 75) wrap = 1;
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = 1;
+			if (roff_p >= roff_buf + 75) wrap = TRUE;
+			else if ((ch == ' ') && (roff_p >= roff_buf + 73)) wrap = TRUE;
 #endif
 
+			if (wrap)
+			{
+#ifdef JP
+				bool k_flag_local;
+				bool iskanji_flag_local = FALSE;
+				cptr tail = str + (k_flag ? 2 : 1);
+#else
+				cptr tail = str + 1;
+#endif
+
+				for (; *tail; tail++)
+				{
+					if (*tail == ' ') continue;
+
+#ifdef JP
+					k_flag_local = iskanji((unsigned char)(*tail));
+					if (isprint(*tail) || k_flag_local || iskanji_flag_local) break;
+					iskanji_flag_local = k_flag_local && !iskanji_flag_local;
+#else
+					if (isprint(*tail)) break;
+#endif
+				}
+
+				if (!*tail) waiting_output = TRUE;
+			}
+		}
 
 		/* Handle line-wrap */
 		if (wrap)
@@ -1916,21 +1968,22 @@ static void spoil_out(cptr str)
 			*roff_p = '\0';
 			r = roff_p;
 #ifdef JP
-				cbak=' ';
+			cbak = ' ';
 #endif
 			if (roff_s && (ch != ' '))
 			{
 #ifdef JP
-				cbak=*roff_s;
+				cbak = *roff_s;
 #endif
 				*roff_s = '\0';
 				r = roff_s + 1;
 			}
-			fprintf(fff, "%s\n", roff_buf);
+			if (!waiting_output) fprintf(fff, "%s\n", roff_buf);
+			else strcpy(roff_waiting_buf, roff_buf);
 			roff_s = NULL;
 			roff_p = roff_buf;
 #ifdef JP
-			if(cbak != ' ') *roff_p++ = cbak; 
+			if (cbak != ' ') *roff_p++ = cbak;
 #endif
 			while (*r) *roff_p++ = *r++;
 		}
@@ -1939,16 +1992,18 @@ static void spoil_out(cptr str)
 		if ((roff_p > roff_buf) || (ch != ' '))
 		{
 #ifdef JP
-		  if( !k_flag ){
-			if (ch == ' ' || ch == '(' ) roff_s = roff_p;
-		  }
-		  else{
-		    if( iskanji2 && 
-			strncmp(str, "。", 2) != 0 && 
-			strncmp(str, "、", 2) != 0 &&
-			strncmp(str, "ィ", 2) != 0 &&
-			strncmp(str, "ー", 2) != 0) roff_s = roff_p;
-		  }
+			if (!k_flag)
+			{
+				if ((ch == ' ') || (ch == '(')) roff_s = roff_p;
+			}
+			else
+			{
+				if (iskanji_flag &&
+				    strncmp(str, "。", 2) != 0 &&
+				    strncmp(str, "、", 2) != 0 &&
+				    strncmp(str, "ィ", 2) != 0 &&
+				    strncmp(str, "ー", 2) != 0) roff_s = roff_p;
+			}
 #else
 			if (ch == ' ') roff_s = roff_p;
 #endif
@@ -2039,11 +2094,14 @@ static void spoil_mon_info(cptr fname)
 		flags1 = r_ptr->flags1;
 
 		/* Prefix */
+		/*
 		if (flags1 & (RF1_QUESTOR))
 		{
 			spoil_out("[Q] ");
 		}
-		else if (flags1 & (RF1_UNIQUE))
+		else
+		*/
+		if (flags1 & (RF1_UNIQUE))
 		{
 			spoil_out("[U] ");
 		}
@@ -2064,7 +2122,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Color */
-		spoil_out(attr_to_text(r_ptr->d_attr));
+		spoil_out(attr_to_text(r_ptr));
 
 		/* Symbol --(-- */
 		sprintf(buf, " '%c')\n", r_ptr->d_char);
@@ -2138,6 +2196,243 @@ static void spoil_mon_info(cptr fname)
 
 
 
+#define MAX_EVOL_DEPTH 64
+
+
+/*
+ * Compare two int-type array like strncmp() and return TRUE if equals
+ */
+static bool int_n_cmp(int *a, int *b, int length)
+{
+	/* Null-string comparation is always TRUE */
+	if (!length) return TRUE;
+
+	do
+	{
+		if (*a != *(b++)) return FALSE;
+		if (!(*(a++))) break;
+	}
+	while (--length);
+
+	return TRUE;
+}
+
+
+/*
+ * Returns TRUE if an evolution tree is "partial tree"
+ */
+static bool is_partial_tree(int *tree, int *partial_tree)
+{
+	int pt_head = *(partial_tree++);
+	int pt_len = 0;
+
+	while (partial_tree[pt_len]) pt_len++;
+
+	while (*tree)
+	{
+		if (*(tree++) == pt_head)
+		{
+			if (int_n_cmp(tree, partial_tree, pt_len)) return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+
+/*
+ * Sorting hook -- Comp function
+ */
+static bool ang_sort_comp_evol_tree(vptr u, vptr v, int a, int b)
+{
+	int **evol_tree = (int **)u;
+
+	int w1 = evol_tree[a][0];
+	int w2 = evol_tree[b][0];
+	monster_race *r1_ptr = &r_info[w1];
+	monster_race *r2_ptr = &r_info[w2];
+
+	/* Unused */
+	(void)v;
+
+	/* Used tree first */
+	if (w1 && !w2) return TRUE;
+	if (!w1 && w2) return FALSE;
+
+	/* Sort by monster level */
+	if (r1_ptr->level < r2_ptr->level) return TRUE;
+	if (r1_ptr->level > r2_ptr->level) return FALSE;
+
+	/* Sort by monster experience */
+	if (r1_ptr->mexp < r2_ptr->mexp) return TRUE;
+	if (r1_ptr->mexp > r2_ptr->mexp) return FALSE;
+
+	/* Compare indexes */
+	return w1 <= w2;
+}
+
+
+/*
+ * Sorting hook -- Swap function
+ */
+static void ang_sort_swap_evol_tree(vptr u, vptr v, int a, int b)
+{
+	int **evol_tree = (int **)u;
+	int *holder;
+
+	/* Unused */
+	(void)v;
+
+	/* Swap */
+	holder = evol_tree[a];
+	evol_tree[a] = evol_tree[b];
+	evol_tree[b] = holder;
+}
+
+
+/*
+ * Print monsters' evolution information to file
+ */
+static void spoil_mon_evol(cptr fname)
+{
+	char buf[1024];
+	monster_race *r_ptr;
+	int **evol_tree, i, j, n, r_idx;
+	int *evol_tree_zero; /* For C_KILL() */
+
+	/* Build the filename */
+	path_build(buf, sizeof buf, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+	    return;
+	}
+
+	/* Dump the header */
+	sprintf(buf, "Monster Spoilers for Hengband Version %d.%d.%d\n",
+	     FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+
+	spoil_out(buf);
+	spoil_out("------------------------------------------\n\n");
+
+	/* Allocate the "evol_tree" array (2-dimension) */
+	C_MAKE(evol_tree, max_r_idx, int *);
+	C_MAKE(*evol_tree, max_r_idx * (MAX_EVOL_DEPTH + 1), int);
+	for (i = 1; i < max_r_idx; i++) evol_tree[i] = *evol_tree + i * (MAX_EVOL_DEPTH + 1);
+	evol_tree_zero = *evol_tree;
+
+	/* Step 1: Build the evolution tree */
+	for (i = 1; i < max_r_idx; i++)
+	{
+		r_ptr = &r_info[i];
+
+		/* No evolution */
+		if (!r_ptr->next_exp) continue;
+
+		/* Trace evolution */
+		n = 0;
+		evol_tree[i][n++] = i;
+		do
+		{
+			evol_tree[i][n++] = r_ptr->next_r_idx;
+			r_ptr = &r_info[r_ptr->next_r_idx];
+		}
+		while (r_ptr->next_exp && (n < MAX_EVOL_DEPTH));
+	}
+
+	/* Step 2: Scan the evolution trees and remove "partial tree" */
+	for (i = 1; i < max_r_idx; i++)
+	{
+		/* Not evolution tree */
+		if (!evol_tree[i][0]) continue;
+
+		for (j = 1; j < max_r_idx; j++)
+		{
+			/* Same tree */
+			if (i == j) continue;
+
+			/* Not evolution tree */
+			if (!evol_tree[j][0]) continue;
+
+			/* Is evolution tree[i] is part of [j]? */
+			if (is_partial_tree(evol_tree[j], evol_tree[i]))
+			{
+				/* Remove this evolution tree */
+				evol_tree[i][0] = 0;
+				break;
+			}
+		}
+	}
+
+	/* Step 3: Sort the evolution trees */
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_evol_tree;
+	ang_sort_swap = ang_sort_swap_evol_tree;
+
+	/* Sort the array */
+	ang_sort(evol_tree, NULL, max_r_idx);
+
+	/* Step 4: Print the evolution trees */
+	for (i = 0; i < max_r_idx; i++)
+	{
+		r_idx = evol_tree[i][0];
+
+		/* No evolution or removed evolution tree */
+		if (!r_idx) continue;
+
+		/* Trace the evolution tree */
+		r_ptr = &r_info[r_idx];
+#ifdef JP
+		fprintf(fff, "[%d]: %s (レベル%d, '%c')\n", r_idx,
+			r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
+#else
+		fprintf(fff, "[%d]: %s (Level %d, '%c')\n", r_idx,
+			r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
+#endif
+		for (n = 1; r_ptr->next_exp; n++)
+		{
+			fprintf(fff, "%*s-(%ld)-> ", n * 2, "", r_ptr->next_exp);
+			fprintf(fff, "[%d]: ", r_ptr->next_r_idx);
+			r_ptr = &r_info[r_ptr->next_r_idx];
+#ifdef JP
+			fprintf(fff, "%s (レベル%d, '%c')\n",
+				r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
+#else
+			fprintf(fff, "%s (Level %d, '%c')\n",
+				r_name + r_ptr->name, r_ptr->level, r_ptr->d_char);
+#endif
+		}
+
+		/* End of evolution tree */
+		fputc('\n', fff);
+	}
+
+	/* Free the "evol_tree" array (2-dimension) */
+	C_KILL(evol_tree_zero, max_r_idx * (MAX_EVOL_DEPTH + 1), int);
+	C_KILL(evol_tree, max_r_idx, int *);
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
+
+
+
 /*
  * Forward declare
  */
@@ -2148,12 +2443,8 @@ extern void do_cmd_spoilers(void);
  */
 void do_cmd_spoilers(void)
 {
-	int i;
-
-
 	/* Save the screen */
 	screen_save();
-
 
 	/* Interact */
 	while (1)
@@ -2169,61 +2460,58 @@ void do_cmd_spoilers(void)
 		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
 		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(5) Monster Evolution Info (mon-evol.spo)", 9, 5);
 
 		/* Prompt */
 #ifdef JP
-prt("コマンド:", 18, 0);
+		prt("コマンド:", 18, 0);
 #else
 		prt("Command: ", 12, 0);
 #endif
 
-
 		/* Get a choice */
-		i = inkey();
-
-		/* Escape */
-		if (i == ESCAPE)
+		switch (inkey())
 		{
-			break;
-		}
+		/* Escape */
+		case ESCAPE:
+			/* Restore the screen */
+			screen_load();
+			return;
 
 		/* Option (1) */
-		else if (i == '1')
-		{
+		case '1':
 			spoil_obj_desc("obj-desc.spo");
-		}
+			break;
 
 		/* Option (2) */
-		else if (i == '2')
-		{
+		case '2':
 			spoil_artifact("artifact.spo");
-		}
+			break;
 
 		/* Option (3) */
-		else if (i == '3')
-		{
+		case '3':
 			spoil_mon_desc("mon-desc.spo");
-		}
+			break;
 
 		/* Option (4) */
-		else if (i == '4')
-		{
+		case '4':
 			spoil_mon_info("mon-info.spo");
-		}
+			break;
+
+		/* Option (5) */
+		case '5':
+			spoil_mon_evol("mon-evol.spo");
+			break;
 
 		/* Oops */
-		else
-		{
+		default:
 			bell();
+			break;
 		}
 
 		/* Flush messages */
 		msg_print(NULL);
 	}
-
-
-	/* Restore the screen */
-	screen_load();
 }
 
 /*
@@ -2319,7 +2607,7 @@ static void spoil_random_artifact_aux(object_type *o_ptr, int i)
 {
 	obj_desc_list artifact;
 
-	if (!object_known_p(o_ptr) || !o_ptr->art_name
+	if (!object_is_known(o_ptr) || !o_ptr->art_name
 		|| o_ptr->tval != group_artifact[i].tval)
 		return;
 

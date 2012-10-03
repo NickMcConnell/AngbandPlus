@@ -59,6 +59,8 @@ static void do_cmd_eat_food_aux(int item)
 	int ident, lev;
 	object_type *o_ptr;
 
+	if (music_singing_any()) stop_singing();
+
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -81,7 +83,7 @@ static void do_cmd_eat_food_aux(int item)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	if (o_ptr->tval == TV_FOOD)
 	{
@@ -378,7 +380,7 @@ static void do_cmd_eat_food_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_KNOWLEDGE, -1);
 		chg_virtue(V_PATIENCE, -1);
@@ -389,7 +391,7 @@ static void do_cmd_eat_food_aux(int item)
 	if (o_ptr->tval == TV_FOOD) object_tried(o_ptr);
 
 	/* The player is now aware of the object */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -523,12 +525,12 @@ msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
 	else if ((prace_is_(RACE_DEMON) ||
 		 (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)) &&
 		 (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE &&
-		  strchr("pht", r_info[o_ptr->pval].d_char)))
+		  my_strchr("pht", r_info[o_ptr->pval].d_char)))
 	{
 		/* Drain vitality of humanoids */
 		char o_name[MAX_NLEN];
 
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 #ifdef JP
 		msg_format("%sは燃え上り灰になった。精力を吸収した気がする。", o_name);
@@ -657,7 +659,7 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
 	{
 		if (o_ptr->tval == TV_CORPSE &&
 		    o_ptr->sval == SV_CORPSE &&
-		    strchr("pht", r_info[o_ptr->pval].d_char))
+		    my_strchr("pht", r_info[o_ptr->pval].d_char))
 			return TRUE;
 	}
 
@@ -726,10 +728,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		return;
 	}
 
-	if((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0])
-	{
-		stop_singing();
-	}
+	if (music_singing_any()) stop_singing();
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -776,7 +775,7 @@ static void do_cmd_quaff_potion_aux(int item)
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(q_ptr);
+	lev = k_info[q_ptr->k_idx].level;
 
 	/* Analyze the potion */
 	if (q_ptr->tval == TV_POTION)
@@ -884,11 +883,11 @@ static void do_cmd_quaff_potion_aux(int item)
 					ident = TRUE;
 					if (one_in_(3)) lose_all_info();
 					else wiz_dark();
-					teleport_player(100);
+					(void)teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
 					wiz_dark();
 #ifdef JP
-msg_print("知らない場所で目が醒めた。頭痛がする。");
-msg_print("何も思い出せない。どうやってここへ来たのかも分からない！");
+					msg_print("知らない場所で目が醒めた。頭痛がする。");
+					msg_print("何も思い出せない。どうやってここへ来たのかも分からない！");
 #else
 					msg_print("You wake up somewhere with a sore head...");
 					msg_print("You can't remember a thing, or how you got here!");
@@ -1172,7 +1171,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 #ifdef JP
 				msg_print("頭がハッキリとした。");
 #else
-				msg_print("Your feel your head clear.");
+				msg_print("You feel your head clear.");
 #endif
 				p_ptr->window |= (PW_PLAYER);
 				ident = TRUE;
@@ -1184,7 +1183,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 #ifdef JP
 				msg_print("頭がハッキリとした。");
 #else
-				msg_print("Your feel your head clear.");
+				msg_print("You feel your head clear.");
 #endif
 
 				p_ptr->redraw |= (PR_MANA);
@@ -1433,7 +1432,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -1444,7 +1443,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 	object_tried(q_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(q_ptr))
+	if (ident && !object_is_aware(q_ptr))
 	{
 		object_aware(q_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -1615,16 +1614,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		return;
 	}
 
-	if((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0])
-	{
-		stop_singing();
-	}
+	if (music_singing_any()) stop_singing();
 
 	/* Not identified yet */
 	ident = FALSE;
 
 	/* Object level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Assume the scroll will get used up */
 	used_up = TRUE;
@@ -1665,7 +1661,14 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		case SV_SCROLL_CURSE_WEAPON:
 		{
-			if (curse_weapon(FALSE, INVEN_RARM)) ident = TRUE;
+			k = 0;
+			if (buki_motteruka(INVEN_RARM))
+			{
+				k = INVEN_RARM;
+				if (buki_motteruka(INVEN_LARM) && one_in_(2)) k = INVEN_LARM;
+			}
+			else if (buki_motteruka(INVEN_LARM)) k = INVEN_LARM;
+			if (k && curse_weapon(FALSE, k)) ident = TRUE;
 			break;
 		}
 
@@ -1719,14 +1722,14 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		case SV_SCROLL_PHASE_DOOR:
 		{
-			teleport_player(10);
+			teleport_player(10, 0L);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_TELEPORT:
 		{
-			teleport_player(100);
+			teleport_player(100, 0L);
 			ident = TRUE;
 			break;
 		}
@@ -2162,7 +2165,7 @@ msg_print("巻物は煙を立てて消え去った！");
 #endif
 		used_up = FALSE;
 	}
-	else if (o_ptr->tval==TV_PARCHEMENT)
+	else if (o_ptr->tval==TV_PARCHMENT)
 	{
 		cptr q;
 		char o_name[MAX_NLEN];
@@ -2174,7 +2177,7 @@ msg_print("巻物は煙を立てて消え去った！");
 		q=format("book-%d_jp.txt",o_ptr->sval);
 
 		/* Display object description */
-		object_desc(o_name, o_ptr, TRUE, 0);
+		object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 		/* Build the filename */
 		path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, q);
@@ -2192,7 +2195,7 @@ msg_print("巻物は煙を立てて消え去った！");
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -2203,7 +2206,7 @@ msg_print("巻物は煙を立てて消え去った！");
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -2244,7 +2247,7 @@ msg_print("巻物は煙を立てて消え去った！");
  */
 static bool item_tester_hook_readable(object_type *o_ptr)
 {
-	if ((o_ptr->tval==TV_SCROLL) || (o_ptr->tval==TV_PARCHEMENT) || (o_ptr->name1 == ART_GHB) || (o_ptr->name1 == ART_POWER)) return (TRUE);
+	if ((o_ptr->tval==TV_SCROLL) || (o_ptr->tval==TV_PARCHMENT) || (o_ptr->name1 == ART_GHB) || (o_ptr->name1 == ART_POWER)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -2322,7 +2325,7 @@ void do_cmd_read_scroll(void)
 	}
 
 	/* Read the scroll */
-	do_cmd_read_scroll_aux(item, object_aware_p(o_ptr));
+	do_cmd_read_scroll_aux(item, object_is_aware(o_ptr));
 }
 
 
@@ -2370,7 +2373,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_TELEPORTATION:
 		{
-			teleport_player(100);
+			teleport_player(100, 0L);
 			ident = TRUE;
 			break;
 		}
@@ -2431,7 +2434,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 				{
 					scatter(&y, &x, py, px, 4, 0);
 
-					if (!cave_floor_bold(y, x)) continue;
+					if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
 
 					if (!player_bold(y, x)) break;
 				}
@@ -2533,7 +2536,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 #ifdef JP
 				msg_print("頭がハッキリとした。");
 #else
-				msg_print("Your feel your head clear.");
+				msg_print("You feel your head clear.");
 #endif
 
 				p_ptr->redraw |= (PR_MANA);
@@ -2721,7 +2724,7 @@ static void do_cmd_use_staff_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
@@ -2789,9 +2792,9 @@ static void do_cmd_use_staff_aux(int item)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	ident = staff_effect(o_ptr->sval, &use_charge, FALSE, object_aware_p(o_ptr));
+	ident = staff_effect(o_ptr->sval, &use_charge, FALSE, object_is_aware(o_ptr));
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -2805,7 +2808,7 @@ static void do_cmd_use_staff_aux(int item)
 	object_tried(o_ptr);
 
 	/* An identification was made */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -3241,7 +3244,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 
 	/* Allow direction to be cancelled for free */
-	if (object_aware_p(o_ptr) && (o_ptr->sval == SV_WAND_HEAL_MONSTER
+	if (object_is_aware(o_ptr) && (o_ptr->sval == SV_WAND_HEAL_MONSTER
 				      || o_ptr->sval == SV_WAND_HASTE_MONSTER))
 			target_pet = TRUE;
 	if (!get_aim_dir(&dir))
@@ -3255,7 +3258,7 @@ static void do_cmd_aim_wand_aux(int item)
 	energy_use = 100;
 
 	/* Get the level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
@@ -3327,7 +3330,7 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -3338,7 +3341,7 @@ static void do_cmd_aim_wand_aux(int item)
 	object_tried(o_ptr);
 
 	/* Apply identification */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -3681,7 +3684,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && (o_ptr->sval != SV_ROD_HAVOC) && (o_ptr->sval != SV_ROD_AGGRAVATE) && (o_ptr->sval != SV_ROD_PESTICIDE)) ||
-	     !object_aware_p(o_ptr))
+	     !object_is_aware(o_ptr))
 	{
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
@@ -3692,7 +3695,7 @@ static void do_cmd_zap_rod_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
 	chance = p_ptr->skill_dev;
@@ -3783,7 +3786,7 @@ msg_print("そのロッドはまだ充填中です。");
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-	if (!(object_aware_p(o_ptr)))
+	if (!(object_is_aware(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
 		chg_virtue(V_CHANCE, 1);
@@ -3794,7 +3797,7 @@ msg_print("そのロッドはまだ充填中です。");
 	object_tried(o_ptr);
 
 	/* Successfully determined the object function */
-	if (ident && !object_aware_p(o_ptr))
+	if (ident && !object_is_aware(o_ptr))
 	{
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
@@ -3842,7 +3845,7 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 	u32b flgs[TR_FLAG_SIZE];
 
 	/* Not known */
-	if (!object_known_p(o_ptr)) return (FALSE);
+	if (!object_is_known(o_ptr)) return (FALSE);
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -3994,10 +3997,10 @@ static void do_cmd_activate_aux(int item)
 	energy_use = 100;
 
 	/* Extract the item level */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (artifact_p(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (object_is_fixed_artifact(o_ptr)) lev = a_info[o_ptr->name1].level;
 	else if (o_ptr->art_name)
 	{
 		switch (o_ptr->xtra2)
@@ -4186,7 +4189,7 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Artifacts */
-	else if (o_ptr->name1)
+	else if (object_is_fixed_artifact(o_ptr))
 	{
 		/* Choose effect */
 		switch (o_ptr->name1)
@@ -4401,7 +4404,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 					{
 						scatter(&y, &x, py, px, 4, 0);
 
-						if (!cave_floor_bold(y, x)) continue;
+						if (!cave_have_flag_bold(y, x, FF_PROJECT)) continue;
 
 						if (!player_bold(y, x)) break;
 					}
@@ -4472,6 +4475,7 @@ msg_print("天国の歌が聞こえる...");
 				(void)set_stun(0);
 				(void)set_confused(0);
 				(void)set_blind(0);
+				(void)set_afraid(0);
 				(void)set_hero(randint1(25) + 25, FALSE);
 				(void)hp_player(777);
 				o_ptr->timeout = 300;
@@ -4597,7 +4601,7 @@ msg_print("天国の歌が聞こえる...");
 				msg_print("Your cloak twists space around you...");
 #endif
 
-				teleport_player(100);
+				teleport_player(100, 0L);
 				o_ptr->timeout = 45;
 				break;
 			}
@@ -4816,10 +4820,10 @@ msg_print("天国の歌が聞こえる...");
 				switch (randint1(13))
 				{
 				case 1: case 2: case 3: case 4: case 5:
-					teleport_player(10);
+					teleport_player(10, 0L);
 					break;
 				case 6: case 7: case 8: case 9: case 10:
-					teleport_player(222);
+					teleport_player(222, 0L);
 					break;
 				case 11: case 12:
 					(void)stair_creation();
@@ -4844,7 +4848,7 @@ if (get_check("この階を去りますか？"))
 
 			case ART_KAMUI:
 			{
-				teleport_player(222);
+				teleport_player(222, 0L);
 				o_ptr->timeout = 25;
 				break;
 			}
@@ -5104,7 +5108,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				detect_all(DETECT_RAD_DEFAULT);
 				probing();
 				identify_fully(FALSE);
-				o_ptr->timeout = 1000;
+				o_ptr->timeout = 100;
 				break;
 			}
 
@@ -5282,7 +5286,12 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 			case ART_BOROMIR:
 			{
+				if (music_singing_any()) stop_singing();
+#ifdef JP
+				msg_print("あなたは力強い突風を吹き鳴らした。周囲の敵が震え上っている!");
+#else
 				msg_print("You wind a mighty blast; your enemies tremble!");
+#endif
 				(void)turn_monsters((3 * p_ptr->lev / 2) + 10);
 				o_ptr->timeout = randint0(40) + 40;
 				break;
@@ -5403,10 +5412,10 @@ msg_print("あなたの槍は電気でスパークしている...");
 				y = py+ddy[dir];
 				x = px+ddx[dir];
 				tsuri_dir = dir;
-				if (!(cave[y][x].feat == FEAT_DEEP_WATER) && !(cave[y][x].feat == FEAT_SHAL_WATER))
+				if (!cave_have_flag_bold(y, x, FF_WATER))
 				{
 #ifdef JP
-					msg_print("そこは陸地だ。");
+					msg_print("そこは水辺ではない。");
 #else
 					msg_print("There is no fishing place.");
 #endif
@@ -5434,7 +5443,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #ifdef JP
 				msg_print("ムチを伸ばした。");
 #else
-				msg_print("You stretched your wip.");
+				msg_print("You stretched your whip.");
 #endif
 
 				fetch(dir, 500, TRUE);
@@ -5521,6 +5530,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 						if (!m_ptr->r_idx) continue;
 						if (!((m_ptr->r_idx == MON_SUKE) || (m_ptr->r_idx == MON_KAKU))) continue;
 						if (!los(m_ptr->fy, m_ptr->fx, py, px)) continue;
+						if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) continue;
 						count++;
 						break;
 					}
@@ -5567,6 +5577,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_MATOI:
 			case ART_AEGISFANG:
 			{
+				(void)set_afraid(0);
 				set_hero(randint1(25)+25, FALSE);
 				hp_player(10);
 				o_ptr->timeout = randint0(30) + 30;
@@ -5609,32 +5620,12 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 			case ART_BLOOD:
 			{
-				int dummy, i;
 #ifdef JP
 				msg_print("鎌が明るく輝いた...");
 #else
 				msg_print("Your scythe glows brightly!");
 #endif
-				for (i = 0; i < TR_FLAG_SIZE; i++)
-					o_ptr->art_flags[i] = a_info[ART_BLOOD].flags[i];
-
-				dummy = randint1(2)+randint1(2);
-				for (i = 0; i < dummy; i++)
-				{
-					int flag = randint0(19);
-					if (flag == 18) add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
-					else add_flag(o_ptr->art_flags, TR_CHAOTIC + flag);
-				}
-				dummy = randint1(2);
-				for (i = 0; i < dummy; i++)
-					one_resistance(o_ptr);
-				dummy = 2;
-				for (i = 0; i < dummy; i++)
-				{
-					int tmp = randint0(11);
-					if (tmp < 6) add_flag(o_ptr->art_flags, TR_STR + tmp);
-					else add_flag(o_ptr->art_flags, TR_STEALTH + tmp - 6);
-				}
+				get_bloody_moon_flags(o_ptr);
 				o_ptr->timeout = 3333;
 				if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
 				p_ptr->update |= (PU_BONUS | PU_HP);
@@ -5647,6 +5638,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("You stamp. (as if you are in a ring.)");
 #endif
+				(void)set_afraid(0);
 				(void)set_hero(randint1(20) + 20, FALSE);
 				dispel_evil(p_ptr->lev * 3);
 				o_ptr->timeout = 100 + randint1(100);
@@ -5744,7 +5736,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_SACRED_KNIGHTS:
 			{
 #ifdef JP
-				msg_print("首飾が真実を照らし出す...");
+				msg_print("首飾りが真実を照らし出す...");
 #else
 				msg_print("Your amulet exhibits the truth...");
 #endif
@@ -5766,9 +5758,42 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("Your pendant glows pale...");
 #endif
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir, 200, 4);
-				o_ptr->timeout = randint0(150) + 150;
+				if (p_ptr->pclass == CLASS_MAGIC_EATER)
+				{
+					int i;
+					for (i = 0; i < EATER_EXT*2; i++)
+					{
+						p_ptr->magic_num1[i] += (p_ptr->magic_num2[i] < 10) ? EATER_CHARGE * 3 : p_ptr->magic_num2[i]*EATER_CHARGE/3;
+						if (p_ptr->magic_num1[i] > p_ptr->magic_num2[i]*EATER_CHARGE) p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
+					}
+					for (; i < EATER_EXT*3; i++)
+					{
+						int k_idx = lookup_kind(TV_ROD, i-EATER_EXT*2);
+						p_ptr->magic_num1[i] -= ((p_ptr->magic_num2[i] < 10) ? EATER_ROD_CHARGE*3 : p_ptr->magic_num2[i]*EATER_ROD_CHARGE/3)*k_info[k_idx].pval;
+						if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
+					}
+#ifdef JP
+					msg_print("頭がハッキリとした。");
+#else
+					msg_print("You feel your head clear.");
+#endif
+					p_ptr->window |= (PW_PLAYER);
+				}
+				else if (p_ptr->csp < p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+#ifdef JP
+					msg_print("頭がハッキリとした。");
+#else
+					msg_print("You feel your head clear.");
+#endif
+
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER);
+					p_ptr->window |= (PW_SPELL);
+				}
+				o_ptr->timeout = 777;
 				break;
 			}
 		}
@@ -5780,7 +5805,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 		return;
 	}
 
-	if (item_tester_hook_smith(o_ptr))
+	if (object_is_smith(o_ptr))
 	{
 		switch (o_ptr->xtra3-1)
 		{
@@ -5819,7 +5844,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 	if (o_ptr->name2 == EGO_TRUMP)
 	{
-		teleport_player(100);
+		teleport_player(100, 0L);
 		o_ptr->timeout = 50 + randint1(50);
 
 		/* Window stuff */
@@ -5867,7 +5892,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 	if (o_ptr->name2 == EGO_JUMP)
 	{
-		teleport_player(10);
+		teleport_player(10, 0L);
 		o_ptr->timeout = 10 + randint1(10);
 
 		/* Window stuff */
@@ -5883,6 +5908,8 @@ msg_print("あなたの槍は電気でスパークしている...");
 	{
 		/* Get a direction for breathing (or abort) */
 		if (!get_aim_dir(&dir)) return;
+
+		if (music_singing_any()) stop_singing();
 
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)
@@ -6100,7 +6127,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 
 	else if (o_ptr->tval == TV_RING)
 	{
-		if (o_ptr->name2)
+		if (object_is_ego(o_ptr))
 		{
 			bool success = TRUE;
 
@@ -6134,7 +6161,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				break;
 			case EGO_RING_ACID_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(5, 8));
+				fire_bolt(GF_ACID, dir, damroll(5, 8));
 				o_ptr->timeout = randint0(6) + 6;
 				break;
 			case EGO_RING_MANA_BOLT:
@@ -6197,6 +6224,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = 100;
 				break;
 			case EGO_RING_BERSERKER:
+				(void)set_afraid(0);
 				(void)set_shero(randint1(25) + 25, FALSE);
 				o_ptr->timeout = randint0(75)+75;
 				break;
@@ -6275,7 +6303,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 
 	else if (o_ptr->tval == TV_AMULET)
 	{
-		if (o_ptr->name2)
+		if (object_is_ego(o_ptr))
 		{
 			switch (o_ptr->name2)
 			{
@@ -6289,11 +6317,11 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = 200;
 				break;
 			case EGO_AMU_JUMP:
-				teleport_player(10);
+				teleport_player(10, 0L);
 				o_ptr->timeout = randint0(10) + 10;
 				break;
 			case EGO_AMU_TELEPORT:
-				teleport_player(100);
+				teleport_player(100, 0L);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_D_DOOR:
@@ -6327,8 +6355,10 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 
 	else if (o_ptr->tval == TV_WHISTLE)
 	{
+		if (music_singing_any()) stop_singing();
+
 #if 0
-		if (cursed_p(o_ptr))
+		if (object_is_cursed(o_ptr))
 		{
 #ifdef JP
 			msg_print("カン高い音が響き渡った。");
@@ -6365,7 +6395,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			for (i = 0; i < max_pet; i++)
 			{
 				pet_ctr = who[i];
-				teleport_monster_to(pet_ctr, py, px, 100);
+				teleport_monster_to(pet_ctr, py, px, 100, TELEPORT_PASSIVE);
 			}
 
 			/* Free the "who" array */
@@ -6436,7 +6466,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 		{
 			bool success = FALSE;
 			if (!get_rep_dir2(&dir)) return;
-			if (cave_floor_bold(py+ddy[dir],px+ddx[dir]))
+			if (monster_can_enter(py + ddy[dir], px + ddx[dir], &r_info[o_ptr->pval], 0))
 			{
 				if (place_monster_aux(0, py + ddy[dir], px + ddx[dir], o_ptr->pval, (PM_FORCE_PET | PM_NO_KAGE)))
 				{
@@ -6586,7 +6616,7 @@ static bool item_tester_hook_use(object_type *o_ptr)
 			int i;
 
 			/* Not known */
-			if (!object_known_p(o_ptr)) return (FALSE);
+			if (!object_is_known(o_ptr)) return (FALSE);
 
 			/* HACK - only items from the equipment can be activated */
 			for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
@@ -6803,7 +6833,7 @@ static int select_magic_eater(bool only_browse)
 			prt(format(" %s staff", (menu_line == 1) ? "> " : "  "), 2, 14);
 			prt(format(" %s wand", (menu_line == 2) ? "> " : "  "), 3, 14);
 			prt(format(" %s rod", (menu_line == 3) ? "> " : "  "), 4, 14);
-			prt("Which type of magic do you usu?", 0, 0);
+			prt("Which type of magic do you use?", 0, 0);
 #endif
 			choice = inkey();
 			switch(choice)
@@ -6966,11 +6996,7 @@ static int select_magic_eater(bool only_browse)
 				{
 					chance -= 3 * (p_ptr->lev - level);
 				}
-				chance += p_ptr->to_m_chance;
-				if (p_ptr->heavy_spell) chance += 20;
-				if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-				else if (p_ptr->easy_spell) chance-=3;
-				else if (p_ptr->dec_mana) chance-=2;
+				chance = mod_spell_chance_1(chance);
 				chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 				/* Stunning makes spells harder */
 				if (p_ptr->stun > 50) chance += 25;
@@ -6978,8 +7004,7 @@ static int select_magic_eater(bool only_browse)
 
 				if (chance > 95) chance = 95;
 
-				if(p_ptr->dec_mana) chance--;
-				if (p_ptr->heavy_spell) chance += 5;
+				chance = mod_spell_chance_2(chance);
 
 				col = TERM_WHITE;
 
@@ -7270,11 +7295,7 @@ msg_print("混乱していて唱えられない！");
 	{
 		chance -= 3 * (p_ptr->lev - level);
 	}
-	chance += p_ptr->to_m_chance;
-	if (p_ptr->heavy_spell) chance += 20;
-	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-	else if (p_ptr->easy_spell) chance-=3;
-	else if (p_ptr->dec_mana) chance-=2;
+	chance = mod_spell_chance_1(chance);
 	chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -7282,8 +7303,7 @@ msg_print("混乱していて唱えられない！");
 
 	if (chance > 95) chance = 95;
 
-	if(p_ptr->dec_mana) chance--;
-	if (p_ptr->heavy_spell) chance += 5;
+	chance = mod_spell_chance_2(chance);
 
 	if (randint0(100) < chance)
 	{

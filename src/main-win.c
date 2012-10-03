@@ -404,7 +404,7 @@ struct _term_data
 	uint map_tile_hgt;
 
 	bool map_active;
-#ifdef JP
+#if 1 /* #ifdef JP */
 	LOGFONT lf;
 #endif
 
@@ -500,14 +500,10 @@ static bool can_use_graphics = FALSE;
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
-
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -519,10 +515,12 @@ static DIBINIT infMask;
  */
 static bool can_use_sound = FALSE;
 
+#define SAMPLE_MAX 8
+
 /*
  * An array of sound file names
  */
-static cptr sound_file[SOUND_MAX];
+static cptr sound_file[SOUND_MAX][SAMPLE_MAX];
 
 #endif /* USE_SOUND */
 
@@ -548,7 +546,7 @@ static cptr AngList = "AngList";
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
-#ifndef JP
+#if 0 /* #ifndef JP */
 static cptr ANGBAND_DIR_XTRA_FONT;
 #endif
 #ifdef USE_MUSIC
@@ -560,6 +558,12 @@ static cptr ANGBAND_DIR_XTRA_MUSIC;
  * The "complex" color values
  */
 static COLORREF win_clr[256];
+
+
+/*
+ * Flag for macro trigger with dump ASCII
+ */
+static bool Term_no_press = FALSE;
 
 
 /*
@@ -603,25 +607,35 @@ static bool ignore_key[256];
  * Hack -- initialization list for "special_key"
  */
 static byte special_key_list[] = {
-VK_CLEAR,VK_PAUSE,VK_CAPITAL,VK_KANA,VK_JUNJA,VK_FINAL,VK_KANJI,
-VK_CONVERT,VK_NONCONVERT,VK_ACCEPT,VK_MODECHANGE,
-VK_PRIOR,VK_NEXT,VK_END,VK_HOME,VK_LEFT,VK_UP,VK_RIGHT,VK_DOWN,
-VK_SELECT,VK_PRINT,VK_EXECUTE,VK_SNAPSHOT,VK_INSERT,VK_DELETE,
-VK_HELP,VK_APPS,
-VK_F1,VK_F2,VK_F3,VK_F4,VK_F5,VK_F6,VK_F7,VK_F8,VK_F9,VK_F10,
-VK_F11,VK_F12,VK_F13,VK_F14,VK_F15,VK_F16,VK_F17,VK_F18,VK_F19,VK_F20,
-VK_F21,VK_F22,VK_F23,VK_F24,VK_NUMLOCK,VK_SCROLL,
-VK_ATTN,VK_CRSEL,VK_EXSEL,VK_EREOF,VK_PLAY,VK_ZOOM,VK_NONAME,
-VK_PA1,0
+	VK_CLEAR, VK_PAUSE, VK_CAPITAL,
+	VK_KANA, VK_JUNJA, VK_FINAL, VK_KANJI,
+	VK_CONVERT, VK_NONCONVERT, VK_ACCEPT, VK_MODECHANGE,
+	VK_PRIOR, VK_NEXT, VK_END, VK_HOME,
+	VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN,
+	VK_SELECT, VK_PRINT, VK_EXECUTE, VK_SNAPSHOT,
+	VK_INSERT, VK_DELETE, VK_HELP, VK_APPS,
+	VK_NUMPAD0, VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3,
+	VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7,
+	VK_NUMPAD8, VK_NUMPAD9, VK_MULTIPLY, VK_ADD,
+	VK_SEPARATOR, VK_SUBTRACT, VK_DECIMAL, VK_DIVIDE,
+	VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6,
+	VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12,
+	VK_F13, VK_F14, VK_F15, VK_F16, VK_F17, VK_F18,
+	VK_F19,VK_F20, VK_F21, VK_F22, VK_F23, VK_F24,
+	VK_NUMLOCK, VK_SCROLL, VK_ATTN, VK_CRSEL,
+	VK_EXSEL, VK_EREOF, VK_PLAY, VK_ZOOM,
+	VK_NONAME, VK_PA1,
+	0	/* End of List */
 };
 
 static byte ignore_key_list[] = {
-VK_ESCAPE,VK_TAB,VK_SPACE,
-'F','W','O','H', /* these are menu characters.*/
-VK_SHIFT,VK_CONTROL,VK_MENU,VK_LWIN,VK_RWIN,
-VK_LSHIFT,VK_RSHIFT,VK_LCONTROL,VK_RCONTROL,VK_LMENU,VK_RMENU,0
+	VK_ESCAPE, VK_TAB, VK_SPACE,
+	'F', 'W', 'O', /*'H',*/ /* these are menu characters.*/
+	VK_SHIFT, VK_CONTROL, VK_MENU, VK_LWIN, VK_RWIN,
+	VK_LSHIFT, VK_RSHIFT, VK_LCONTROL, VK_RCONTROL,
+	VK_LMENU, VK_RMENU,
+	0	/* End of List */
 };
-
 #else
 /*
  * Hack -- initialization list for "special_key"
@@ -655,7 +669,6 @@ static byte special_key_list[] =
 	VK_INSERT,		/* 0x2D (KP<0>) */
 	VK_DELETE,		/* 0x2E (KP<.>) */
 	VK_HELP,		/* 0x2F (?????) */
-
 #if 0
 	VK_NUMPAD0,		/* 0x60 (KP<0>) */
 	VK_NUMPAD1,		/* 0x61 (KP<1>) */
@@ -674,7 +687,6 @@ static byte special_key_list[] =
 	VK_DECIMAL,		/* 0x6E (KP<.>) */
 	VK_DIVIDE,		/* 0x6F (KP</>) */
 #endif
-
 	VK_F1,			/* 0x70 */
 	VK_F2,			/* 0x71 */
 	VK_F3,			/* 0x72 */
@@ -699,7 +711,6 @@ static byte special_key_list[] =
 	VK_F22,			/* 0x85 */
 	VK_F23,			/* 0x86 */
 	VK_F24,			/* 0x87 */
-
 	0
 };
 #endif
@@ -723,7 +734,11 @@ static int init_bg(void)
 
 	hBG = LoadImage(NULL, bmfile,  IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 	if (!hBG) {
+#ifdef JP
 		plog_fmt("壁紙用ビットマップ '%s' を読み込めません。", bmfile);
+#else
+		plog_fmt("Can't load the bitmap file '%s'.", bmfile);
+#endif
 		use_bg = 0;
 		return 0;
 	}
@@ -810,7 +825,7 @@ static cptr extract_file_name(cptr s)
  *
  * Return a pointer to a static buffer holding the capitalized base name.
  */
-#ifndef JP
+#if 0 /* #ifndef JP */
 static char *analyze_font(char *path, int *wp, int *hp)
 {
 	int wid, hgt;
@@ -834,7 +849,7 @@ static char *analyze_font(char *path, int *wp, int *hp)
 	}
 
 	/* Find first 'X' */
-	s = strchr(p, 'X');
+	s = my_strchr(p, 'X');
 
 	/* Extract font width */
 	wid = atoi(p);
@@ -1069,12 +1084,16 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 #ifdef JP
 	strcpy(buf, td->lf.lfFaceName[0]!='\0' ? td->lf.lfFaceName : "ＭＳ ゴシック");
 #else
+#if 0
 	strcpy(buf, td->font_file ? td->font_file : "8X13.FON");
+#else
+	strcpy(buf, td->lf.lfFaceName[0]!='\0' ? td->lf.lfFaceName : "Courier");
+#endif
 #endif
 
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
-#ifdef JP
+#if 1 /* #ifdef JP */
 	wsprintf(buf, "%d", td->lf.lfWidth);
 	WritePrivateProfileString(sec_name, "FontWid", buf, ini_file);
 	wsprintf(buf, "%d", td->lf.lfHeight);
@@ -1176,7 +1195,11 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 #ifdef JP
 	GetPrivateProfileString(sec_name, "Font", "ＭＳ ゴシック", tmp, 127, ini_file);
 #else
+#if 0
 	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
+#else
+	GetPrivateProfileString(sec_name, "Font", "Courier", tmp, 127, ini_file);
+#endif
 #endif
 
 
@@ -1184,7 +1207,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", td->bizarre, ini_file) != 0);
 
 	/* Analyze font, save desired font name */
-#ifdef JP
+#if 1 /* #ifdef JP */
 	td->font_want = string_make(tmp);
 	hgt = 15; wid = 0;
 	td->lf.lfWidth  = GetPrivateProfileInt(sec_name, "FontWid", wid, ini_file);
@@ -1196,7 +1219,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 
 
 	/* Tile size */
-#ifdef JP
+#if 1 /* #ifdef JP */
 	td->tile_wid = GetPrivateProfileInt(sec_name, "TileWid", td->lf.lfWidth, ini_file);
 	td->tile_hgt = GetPrivateProfileInt(sec_name, "TileHgt", td->lf.lfHeight, ini_file);
 #else
@@ -1252,6 +1275,88 @@ static void load_prefs(void)
 	}
 }
 
+#ifdef USE_SOUND
+
+/*
+ * XXX XXX XXX - Taken from files.c.
+ *
+ * Extract "tokens" from a buffer
+ *
+ * This function uses "whitespace" as delimiters, and treats any amount of
+ * whitespace as a single delimiter.  We will never return any empty tokens.
+ * When given an empty buffer, or a buffer containing only "whitespace", we
+ * will return no tokens.  We will never extract more than "num" tokens.
+ *
+ * By running a token through the "text_to_ascii()" function, you can allow
+ * that token to include (encoded) whitespace, using "\s" to encode spaces.
+ *
+ * We save pointers to the tokens in "tokens", and return the number found.
+ */
+static s16b tokenize_whitespace(char *buf, s16b num, char **tokens)
+{
+	int k = 0;
+
+	char *s = buf;
+
+
+	/* Process */
+	while (k < num)
+	{
+		char *t;
+
+		/* Skip leading whitespace */
+		for ( ; *s && isspace(*s); ++s) /* loop */;
+
+		/* All done */
+		if (!*s) break;
+
+		/* Find next whitespace, if any */
+		for (t = s; *t && !isspace(*t); ++t) /* loop */;
+
+		/* Nuke and advance (if necessary) */
+		if (*t) *t++ = '\0';
+
+		/* Save the token */
+		tokens[k++] = s;
+
+		/* Advance */
+		s = t;
+	}
+
+	/* Count */
+	return (k);
+}
+
+static void load_sound_prefs(void)
+{
+	int i, j, num;
+	char tmp[1024];
+	char ini_path[1024];
+	char wav_path[1024];
+	char *zz[SAMPLE_MAX];
+
+	/* Access the sound.cfg */
+	path_build(ini_path, 1024, ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+
+	for (i = 0; i < SOUND_MAX; i++)
+	{
+		GetPrivateProfileString("Sound", angband_sound_name[i], "", tmp, 1024, ini_path);
+
+		num = tokenize_whitespace(tmp, SAMPLE_MAX, zz);
+
+		for (j = 0; j < num; j++)
+		{
+			/* Access the sound */
+			path_build(wav_path, 1024, ANGBAND_DIR_XTRA_SOUND, zz[j]);
+
+			/* Save the sound filename, if it exists */
+			if (check_file(wav_path))
+				sound_file[i][j] = string_make(zz[j]);
+		}
+	}
+}
+
+#endif /* USE_SOUND */
 
 /*
  * Create the new global palette based on the bitmap palette
@@ -1455,8 +1560,6 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-#ifdef USE_TRANSPARENCY
-
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
 			/* Access the mask file */
@@ -1469,8 +1572,6 @@ static bool init_graphics(void)
 				return (FALSE);
 			}
 		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -1506,23 +1607,8 @@ static bool init_sound(void)
 	/* Initialize once */
 	if (!can_use_sound)
 	{
-		int i;
-
-		char wav[128];
-		char buf[1024];
-
-		/* Prepare the sounds */
-		for (i = 1; i < SOUND_MAX; i++)
-		{
-			/* Extract name of sound file */
-			sprintf(wav, "%s.wav", angband_sound_name[i]);
-
-			/* Access the sound */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, wav);
-
-			/* Save the sound filename, if it exists */
-			if (check_file(buf)) sound_file[i] = string_make(buf);
-		}
+		/* Load the prefs */
+		load_sound_prefs();
 
 		/* Sound available */
 		can_use_sound = TRUE;
@@ -1565,7 +1651,7 @@ static errr term_force_font(term_data *td, cptr path)
 {
 	int wid, hgt;
 
-#ifndef JP
+#if 0 /* #ifndef JP */
 	int i;
 	char *base;
 	char buf[1024];
@@ -1574,7 +1660,16 @@ static errr term_force_font(term_data *td, cptr path)
 	/* Forget the old font (if needed) */
 	if (td->font_id) DeleteObject(td->font_id);
 
-#ifndef JP
+#if 1 /* #ifdef JP */
+	/* Unused */
+	(void)path;
+
+	/* Create the font (using the 'base' of the font file name!) */
+	td->font_id = CreateFontIndirect(&(td->lf));
+	wid = td->lf.lfWidth;
+	hgt = td->lf.lfHeight;
+	if (!td->font_id) return (1);
+#else
 	/* Forget old font */
 	if (td->font_file)
 	{
@@ -1605,10 +1700,8 @@ static errr term_force_font(term_data *td, cptr path)
 		td->font_file = NULL;
 	}
 
-
 	/* No path given */
 	if (!path) return (1);
-
 
 	/* Local copy */
 	strcpy(buf, path);
@@ -1630,21 +1723,13 @@ static errr term_force_font(term_data *td, cptr path)
 
 	/* Remove the "suffix" */
 	base[strlen(base)-4] = '\0';
-#endif
 
 	/* Create the font (using the 'base' of the font file name!) */
-#ifdef JP
-	td->font_id = CreateFontIndirect(&(td->lf));
-	wid = td->lf.lfWidth;
-	hgt = td->lf.lfHeight;
-	if (!td->font_id) return (1);
-#else
 	td->font_id = CreateFont(hgt, wid, 0, 0, FW_DONTCARE, 0, 0, 0,
 				 ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 				 CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 				 FIXED_PITCH | FF_DONTCARE, base);
 #endif
-
 
 	/* Hack -- Unknown size */
 	if (!wid || !hgt)
@@ -1680,7 +1765,7 @@ static errr term_force_font(term_data *td, cptr path)
  */
 static void term_change_font(term_data *td)
 {
-#ifdef JP
+#if 1 /* #ifdef JP */
 	CHOOSEFONT cf;
 
 	memset(&cf, 0, sizeof(cf));
@@ -1825,6 +1910,9 @@ static void Term_nuke_win(term *t)
  */
 static errr Term_user_win(int n)
 {
+	/* Unused */
+	(void)n;
+
 	/* Success */
 	return (0);
 }
@@ -2081,6 +2169,11 @@ static errr Term_xtra_win_noise(void)
  */
 static errr Term_xtra_win_sound(int v)
 {
+#ifdef USE_SOUND
+	int i;
+	char buf[1024];
+#endif /* USE_SOUND */
+
 	/* Sound disabled */
 	if (!use_sound) return (1);
 
@@ -2089,18 +2182,28 @@ static errr Term_xtra_win_sound(int v)
 
 #ifdef USE_SOUND
 
-	/* Unknown sound */
-	if (!sound_file[v]) return (1);
+	/* Count the samples */
+	for (i = 0; i < SAMPLE_MAX; i++)
+	{
+		if (!sound_file[v][i])
+			break;
+	}
+
+	/* No sample */
+	if (i == 0) return (1);
+
+	/* Build the path */
+	path_build(buf, 1024, ANGBAND_DIR_XTRA_SOUND, sound_file[v][Rand_simple(i)]);
 
 #ifdef WIN32
 
 	/* Play the sound, catch errors */
-	return (PlaySound(sound_file[v], 0, SND_FILENAME | SND_ASYNC));
+	return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
 
 #else /* WIN32 */
 
 	/* Play the sound, catch errors */
-	return (sndPlaySound(sound_file[v], SND_ASYNC));
+	return (sndPlaySound(buf, SND_ASYNC));
 
 #endif /* WIN32 */
 
@@ -2346,8 +2449,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	RECT rc;
 	HDC hdc;
 
-
-#ifdef JP
+#if 1 /* #ifdef JP */
 	static HBITMAP  WALL;
 	static HBRUSH   myBrush, oldBrush;
 	static HPEN     oldPen;
@@ -2469,6 +2571,30 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 				rc.right += td->tile_wid;
 			}
 #else
+#if 1
+			if (*(s+i)==127){
+				oldBrush = SelectObject(hdc, myBrush);
+				oldPen = SelectObject(hdc, GetStockObject(NULL_PEN) );
+
+				/* Dump the wall */
+				Rectangle(hdc, rc.left, rc.top, rc.right+1, rc.bottom+1);
+
+				SelectObject(hdc, oldBrush);
+				SelectObject(hdc, oldPen);
+
+				/* Advance */
+				rc.left += td->tile_wid;
+				rc.right += td->tile_wid;
+			} else {
+				/* Dump the text */
+				ExtTextOut(hdc, rc.left, rc.top, ETO_CLIPPED, &rc,
+				       s+i, 1, NULL);
+
+				/* Advance */
+				rc.left += td->tile_wid;
+				rc.right += td->tile_wid;
+			}
+#else
 			/* Dump the text */
 			ExtTextOut(hdc, rc.left, rc.top, 0, &rc,
 				   s+i, 1, NULL);
@@ -2476,6 +2602,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 			/* Advance */
 			rc.left += td->tile_wid;
 			rc.right += td->tile_wid;
+#endif
 #endif
 
 		}
@@ -2510,11 +2637,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2523,14 +2646,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int i;
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2;
-
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
 
 	HDC hdcMask;
-
-# endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2574,15 +2692,11 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2597,8 +2711,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Location of bitmap cell */
 		x1 = col * w1;
 		y1 = row * h1;
-
-# ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
@@ -2639,9 +2751,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-
-# endif /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((w1 == tw2) && (h1 == h2))
@@ -2666,16 +2775,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -2699,9 +2804,7 @@ static void windows_map(void)
 	int x, min_x, max_x;
 	int y, min_y, max_y;
 
-#ifdef USE_TRANSPARENCY
 	byte ta, tc;
-#endif
 
 	/* Only in graphics mode */
 	if (!use_graphics) return;
@@ -2725,20 +2828,12 @@ static void windows_map(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-#ifdef USE_TRANSPARENCY
 			map_info(y, x, &a, (char*)&c, &ta, (char*)&tc);
-#else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, (char*)&c);
-#endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
 				Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-				Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
-#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -2817,7 +2912,7 @@ static void init_windows(void)
 
 	term_data *td;
 
-#ifndef JP
+#if 0 /* #ifndef JP */
 	char buf[1024];
 #endif
 
@@ -2841,8 +2936,7 @@ static void init_windows(void)
 	td->pos_x = 7 * 30;
 	td->pos_y = 7 * 20;
 	td->posfix = FALSE;
-
-#ifdef JP
+#if 1 /* #ifdef JP */
 	td->bizarre = TRUE;
 #endif
 	/* Sub windows */
@@ -2862,7 +2956,7 @@ static void init_windows(void)
 		td->pos_x = (7 - i) * 30;
 		td->pos_y = (7 - i) * 20;
 		td->posfix = FALSE;
-#ifdef JP
+#if 1 /* #ifdef JP */
 			td->bizarre = TRUE;
 #endif
 	}
@@ -2894,9 +2988,9 @@ static void init_windows(void)
 	{
 		td = &data[i];
 
-#ifdef JP
+#if 1 /* #ifdef JP */
 		strncpy(td->lf.lfFaceName, td->font_want, LF_FACESIZE);
-		td->lf.lfCharSet = SHIFTJIS_CHARSET;
+		td->lf.lfCharSet = DEFAULT_CHARSET;
 		td->lf.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
 		/* Activate the chosen font */
 		term_force_font(td, NULL);
@@ -4014,6 +4108,96 @@ static void process_menus(WORD wCmd)
 }
 
 
+static bool process_keydown(WPARAM wParam, LPARAM lParam)
+{
+	int i;
+	bool mc = FALSE;
+	bool ms = FALSE;
+	bool ma = FALSE;
+
+	/* Extract the modifiers */
+	if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
+	if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
+	if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
+
+	Term_no_press = (ma) ? TRUE : FALSE;
+
+	/* Handle "special" keys */
+	if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
+	{
+		bool ext_key = (lParam & 0x1000000L) ? TRUE : FALSE;
+		bool numpad = FALSE;
+
+		/* Begin the macro trigger */
+		Term_keypress(31);
+
+		/* Send the modifiers */
+		if (mc) Term_keypress('C');
+		if (ms) Term_keypress('S');
+		if (ma) Term_keypress('A');
+
+		/* Extract "scan code" */
+		i = LOBYTE(HIWORD(lParam));
+
+		/* Introduce the scan code */
+		Term_keypress('x');
+
+		/* Extended key bit */
+		switch (wParam)
+		{
+			/* Numpad Enter and '/' are extended key */
+		case VK_DIVIDE:
+			Term_no_press = TRUE;
+		case VK_RETURN:	/* Enter */
+			numpad = ext_key;
+			break;
+			/* Other extended keys are on full keyboard */
+		case VK_NUMPAD0:
+		case VK_NUMPAD1:
+		case VK_NUMPAD2:
+		case VK_NUMPAD3:
+		case VK_NUMPAD4:
+		case VK_NUMPAD5:
+		case VK_NUMPAD6:
+		case VK_NUMPAD7:
+		case VK_NUMPAD8:
+		case VK_NUMPAD9:
+		case VK_ADD:
+		case VK_MULTIPLY:
+		case VK_SUBTRACT:
+		case VK_SEPARATOR:
+		case VK_DECIMAL:
+			Term_no_press = TRUE;
+		case VK_CLEAR:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:	/* Page Up */
+		case VK_NEXT:	/* Page Down */
+		case VK_INSERT:
+		case VK_DELETE:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+			numpad = !ext_key;
+		}
+
+		/* Special modifiers for keypad keys */
+		if (numpad) Term_keypress('K');
+
+		/* Encode the hexidecimal scan code */
+		Term_keypress(hexsym[i/16]);
+		Term_keypress(hexsym[i%16]);
+
+		/* End the macro trigger */
+		Term_keypress(13);
+
+		return 1;
+	}
+
+	return 0;
+}
+
 
 #ifdef __MWERKS__
 LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
@@ -4091,48 +4275,15 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
-
-			/* Extract the modifiers */
-			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
-			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
-			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
-
-			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
-			{
-				/* Begin the macro trigger */
-				Term_keypress(31);
-
-				/* Send the modifiers */
-				if (mc) Term_keypress('C');
-				if (ms) Term_keypress('S');
-				if (ma) Term_keypress('A');
-
-				/* Extract "scan code" */
-				i = LOBYTE(HIWORD(lParam));
-
-				/* Introduce the scan code */
-				Term_keypress('x');
-
-				/* Encode the hexidecimal scan code */
-				Term_keypress(hexsym[i/16]);
-				Term_keypress(hexsym[i%16]);
-
-				/* End the macro trigger */
-				Term_keypress(13);
-
+			if (process_keydown(wParam, lParam))
 				return 0;
-			}
-
 			break;
 		}
 
 		case WM_CHAR:
 		{
-			Term_keypress(wParam);
+			if (Term_no_press) Term_no_press = FALSE;
+			else Term_keypress(wParam);
 			return 0;
 		}
 
@@ -4169,8 +4320,44 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 #else /* ZANGBAND */
 				/* do_cmd_save_game(); */
 #endif /* ZANGBAND */
-				Term_key_push(252);
+				Term_key_push(SPECIAL_KEY_QUIT);
 				return 0;
+			}
+			quit(NULL);
+			return 0;
+		}
+
+		case WM_QUERYENDSESSION:
+		{
+			if (game_in_progress && character_generated)
+			{
+				/* Hack -- Forget messages */
+				msg_flag = FALSE;
+
+				/* Mega-Hack -- Delay death */
+				if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
+
+#ifdef JP
+				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "----ゲーム中断----");
+#else
+				do_cmd_write_nikki(NIKKI_GAMESTART, 0, "---- Save and Exit Game ----");
+#endif
+
+				/* Hardcode panic save */
+				p_ptr->panic_save = 1;
+
+				/* Forbid suspend */
+				signals_ignore_tstp();
+
+				/* Indicate panic save */
+#ifdef JP
+				(void)strcpy(p_ptr->died_from, "(緊急セーブ)");
+#else
+				(void)strcpy(p_ptr->died_from, "(panic save)");
+#endif
+
+				/* Panic save */
+				(void)save_player();
 			}
 			quit(NULL);
 			return 0;
@@ -4448,48 +4635,15 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 		{
-			bool mc = FALSE;
-			bool ms = FALSE;
-			bool ma = FALSE;
-
-			/* Extract the modifiers */
-			if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
-			if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
-			if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
-
-			/* Handle "special" keys */
-			if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
-			{
-				/* Begin the macro trigger */
-				Term_keypress(31);
-
-				/* Send the modifiers */
-				if (mc) Term_keypress('C');
-				if (ms) Term_keypress('S');
-				if (ma) Term_keypress('A');
-
-				/* Extract "scan code" */
-				i = LOBYTE(HIWORD(lParam));
-
-				/* Introduce the scan code */
-				Term_keypress('x');
-
-				/* Encode the hexidecimal scan code */
-				Term_keypress(hexsym[i/16]);
-				Term_keypress(hexsym[i%16]);
-
-				/* End the macro trigger */
-				Term_keypress(13);
-
+			if (process_keydown(wParam, lParam))
 				return 0;
-			}
-
 			break;
 		}
 
 		case WM_CHAR:
 		{
-			Term_keypress(wParam);
+			if (Term_no_press) Term_no_press = FALSE;
+			else Term_keypress(wParam);
 			return 0;
 		}
 
@@ -4752,10 +4906,8 @@ static void hook_quit(cptr str)
 	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
 	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
 
-#ifdef USE_TRANSPARENCY
 	if (infMask.hPalette) DeleteObject(infMask.hPalette);
 	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -4860,7 +5012,7 @@ static void init_stuff(void)
 	validate_file(path);
 
 
-#ifndef JP
+#if 0 /* #ifndef JP */
 	/* Build the "font" path */
 	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "font");
 
@@ -4937,6 +5089,9 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	WNDCLASS wc;
 	HDC hdc;
 	MSG msg;
+
+	/* Unused */
+	(void)nCmdShow;
 
 	/* Save globally */
 	hInstance = hInst;
@@ -5053,6 +5208,8 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		}
 	}
 
+	/* Catch nasty signals */
+	signals_init();
 
 	/* Initialize */
 	init_angband();

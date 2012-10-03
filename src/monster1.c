@@ -120,11 +120,6 @@ static void hooked_roff(cptr str)
 /*
  * Hack -- display monster information using "hooked_roff()"
  *
- * Note that there is now a compiler option to only read the monster
- * descriptions from the raw file when they are actually needed, which
- * saves about 60K of memory at the cost of disk access during monster
- * recall, which is optional to the user.
- *
  * This function should only be called with the cursor placed at the
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
@@ -146,7 +141,8 @@ static void roff_aux(int r_idx, int mode)
 #endif
 	int             msex = 0;
 
-	int speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
+	bool nightmare = ironman_nightmare && !(mode & 0x02);
+	int speed = nightmare ? r_ptr->speed + 5 : r_ptr->speed;
 
 	bool            breath = FALSE;
 	bool            magic = FALSE;
@@ -413,57 +409,12 @@ static void roff_aux(int r_idx, int mode)
 
 	/* Descriptions */
 	{
-		char buf[2048];
+		cptr tmp = r_text + r_ptr->text;
 
-#ifdef DELAY_LOAD_R_TEXT
-
-		int fd;
-
-		/* Build the filename */
-#ifdef JP
-path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "r_info_j.raw");
-#else
-		path_build(buf, sizeof(buf), ANGBAND_DIR_DATA, "r_info.raw");
-#endif
-
-
-		/* Open the "raw" file */
-		fd = fd_open(buf, O_RDONLY);
-
-		/* Use file */
-		if (fd >= 0)
-		{
-			huge pos;
-
-			/* Starting position */
-			pos = r_ptr->text;
-
-			/* Additional offsets */
-			pos += r_head->head_size;
-			pos += r_head->info_size;
-			pos += r_head->name_size;
-
-			/* Seek */
-			(void)fd_seek(fd, pos);
-
-			/* Read a chunk of data */
-			(void)fd_read(fd, buf, 2048);
-
-			/* Close it */
-			(void)fd_close(fd);
-		}
-
-#else
-
-		/* Simple method */
-		strcpy(buf, r_text + r_ptr->text);
-
-#endif
-
-		if (buf[0])
+		if (tmp[0])
 		{
 			/* Dump it */
-			hooked_roff(buf);
+			hooked_roff(tmp);
 
 			/* Start a new line */
 			hooked_roff("\n");
@@ -791,7 +742,7 @@ if (flags3 & RF3_ORC)      hook_c_roff(TERM_UMBER, "オーク");
 #ifdef JP
 if (flags2 & RF2_HUMAN) hook_c_roff(TERM_L_WHITE, "人間");
 #else
-		if (flags2 & RF2_HUMAN) hook_c_roff(TERM_L_WHITE, " Human");
+		if (flags2 & RF2_HUMAN) hook_c_roff(TERM_L_WHITE, " human");
 #endif
 
 #ifdef JP
@@ -863,71 +814,64 @@ else                            hooked_roff("モンスター");
 	if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC) && (flags3 & RF3_AURA_COLD))
 	{
 #ifdef JP
-hook_c_roff(TERM_VIOLET, format("%^sは炎と氷とスパークに包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_VIOLET, format("%^sは炎と氷とスパークに包まれている。", wd_he[msex]));
 #else
-		hook_c_roff(TERM_VIOLET, format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
+		hook_c_roff(TERM_VIOLET, format("%^s is surrounded by flames, ice and electricity.  ", wd_he[msex]));
 #endif
-
 	}
 	else if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC))
 	{
 #ifdef JP
-hook_c_roff(TERM_L_RED, format("%^sは炎とスパークに包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_L_RED, format("%^sは炎とスパークに包まれている。", wd_he[msex]));
 #else
 		hook_c_roff(TERM_L_RED, format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
 #endif
-
 	}
 	else if ((flags2 & RF2_AURA_FIRE) && (flags3 & RF3_AURA_COLD))
 	{
 #ifdef JP
-hook_c_roff(TERM_BLUE, format("%^sは炎と氷に包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_BLUE, format("%^sは炎と氷に包まれている。", wd_he[msex]));
 #else
-		hook_c_roff(TERM_BLUE, format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
+		hook_c_roff(TERM_BLUE, format("%^s is surrounded by flames and ice.  ", wd_he[msex]));
 #endif
-
 	}
 	else if ((flags3 & RF3_AURA_COLD) && (flags2 & RF2_AURA_ELEC))
 	{
 #ifdef JP
-hook_c_roff(TERM_L_GREEN, format("%^sは氷とスパークに包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_L_GREEN, format("%^sは氷とスパークに包まれている。", wd_he[msex]));
 #else
 		hook_c_roff(TERM_L_GREEN, format("%^s is surrounded by ice and electricity.  ", wd_he[msex]));
 #endif
-
 	}
 	else if (flags2 & RF2_AURA_FIRE)
 	{
 #ifdef JP
-hook_c_roff(TERM_RED, format("%^sは炎に包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_RED, format("%^sは炎に包まれている。", wd_he[msex]));
 #else
 		hook_c_roff(TERM_RED, format("%^s is surrounded by flames.  ", wd_he[msex]));
 #endif
-
 	}
 	else if (flags3 & RF3_AURA_COLD)
 	{
 #ifdef JP
-hook_c_roff(TERM_BLUE, format("%^sは氷に包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_BLUE, format("%^sは氷に包まれている。", wd_he[msex]));
 #else
 		hook_c_roff(TERM_BLUE, format("%^s is surrounded by ice.  ", wd_he[msex]));
 #endif
-
 	}
 	else if (flags2 & RF2_AURA_ELEC)
 	{
 #ifdef JP
-hook_c_roff(TERM_L_BLUE, format("%^sはスパークに包まれている。", wd_he[msex]));
+		hook_c_roff(TERM_L_BLUE, format("%^sはスパークに包まれている。", wd_he[msex]));
 #else
 		hook_c_roff(TERM_L_BLUE, format("%^s is surrounded by electricity.  ", wd_he[msex]));
 #endif
-
 	}
 
 	if (flags2 & RF2_REFLECTING)
 	{
 #ifdef JP
-hooked_roff(format("%^sは矢の呪文を跳ね返す。", wd_he[msex]));
+		hooked_roff(format("%^sは矢の呪文を跳ね返す。", wd_he[msex]));
 #else
 		hooked_roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
 #endif
@@ -1731,15 +1675,15 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "ユニーク・モンスター召喚";color[v
 			    wd_he[msex], r_ptr->ac));
 
 		/* Maximized hitpoints */
-		if (flags1 & RF1_FORCE_MAXHP)
+		if ((flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
 		{
+			u32b hp = r_ptr->hdice * (nightmare ? 2 : 1) * r_ptr->hside;
 #ifdef JP
 			hooked_roff(format(" %d の体力がある。",
 #else
 			hooked_roff(format(" and a life rating of %d.  ",
 #endif
-
-				    r_ptr->hdice * r_ptr->hside));
+				    (s16b)MIN(30000, hp)));
 		}
 
 		/* Variable hitpoints */
@@ -1750,8 +1694,7 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "ユニーク・モンスター召喚";color[v
 #else
 			hooked_roff(format(" and a life rating of %dd%d.  ",
 #endif
-
-				    r_ptr->hdice, r_ptr->hside));
+				    r_ptr->hdice * (nightmare ? 2 : 1), r_ptr->hside));
 		}
 	}
 
@@ -1870,7 +1813,7 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "ユニーク・モンスター召喚";color[v
 #ifdef JP
 		hooked_roff(format("%^sは光っている。", wd_he[msex]));
 #else
-		hooked_roff(format("%^s illuminate the dungeon.  ", wd_he[msex]));
+		hooked_roff(format("%^s is shining.  ", wd_he[msex]));
 #endif
 
 	}
@@ -3100,14 +3043,12 @@ void roff_top(int r_idx)
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	if (use_bigtile && (a1 & 0x80)) Term_addch(255, -1);
+	Term_add_bigch(a1, c1);
 	Term_addstr(-1, TERM_WHITE, "')");
 
 	/* Append the "optional" attr/char info */
 	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+	Term_add_bigch(a2, c2);
 	Term_addstr(-1, TERM_WHITE, "'):");
 
 	/* Wizards get extra info */
@@ -3188,27 +3129,7 @@ void output_monster_spoiler(int r_idx, void (*roff_func)(byte attr, cptr str))
 }
 
 
-bool monster_quest(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Random quests are in the dungeon */
-	if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
-
-	/* No random quests for aquatic monsters */
-	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
-
-	/* No random quests for multiplying monsters */
-	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
-
-	/* No quests to kill friendly monsters */
-	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
-	return TRUE;
-}
-
-
-bool monster_dungeon(int r_idx)
+bool mon_hook_dungeon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3224,7 +3145,7 @@ bool monster_dungeon(int r_idx)
 }
 
 
-bool monster_ocean(int r_idx)
+static bool mon_hook_ocean(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3235,7 +3156,7 @@ bool monster_ocean(int r_idx)
 }
 
 
-bool monster_shore(int r_idx)
+static bool mon_hook_shore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3246,7 +3167,7 @@ bool monster_shore(int r_idx)
 }
 
 
-static bool monster_waste(int r_idx)
+static bool mon_hook_waste(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3257,7 +3178,7 @@ static bool monster_waste(int r_idx)
 }
 
 
-bool monster_town(int r_idx)
+static bool mon_hook_town(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3268,7 +3189,7 @@ bool monster_town(int r_idx)
 }
 
 
-bool monster_wood(int r_idx)
+static bool mon_hook_wood(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3279,7 +3200,7 @@ bool monster_wood(int r_idx)
 }
 
 
-bool monster_volcano(int r_idx)
+static bool mon_hook_volcano(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3290,7 +3211,7 @@ bool monster_volcano(int r_idx)
 }
 
 
-bool monster_mountain(int r_idx)
+static bool mon_hook_mountain(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3301,7 +3222,7 @@ bool monster_mountain(int r_idx)
 }
 
 
-bool monster_grass(int r_idx)
+static bool mon_hook_grass(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3312,11 +3233,11 @@ bool monster_grass(int r_idx)
 }
 
 
-bool monster_deep_water(int r_idx)
+static bool mon_hook_deep_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (r_ptr->flags7 & RF7_AQUATIC)
 		return TRUE;
@@ -3325,11 +3246,11 @@ bool monster_deep_water(int r_idx)
 }
 
 
-bool monster_shallow_water(int r_idx)
+static bool mon_hook_shallow_water(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (r_ptr->flags2 & RF2_AURA_FIRE)
 		return FALSE;
@@ -3338,15 +3259,27 @@ bool monster_shallow_water(int r_idx)
 }
 
 
-bool monster_lava(int r_idx)
+static bool mon_hook_lava(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if (!monster_dungeon(r_idx)) return FALSE;
+	if (!mon_hook_dungeon(r_idx)) return FALSE;
 
 	if (((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
 	     (r_ptr->flags7 & RF7_CAN_FLY)) &&
 	    !(r_ptr->flags3 & RF3_AURA_COLD))
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+static bool mon_hook_floor(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!(r_ptr->flags7 & RF7_AQUATIC) ||
+	    (r_ptr->flags7 & RF7_CAN_FLY))
 		return TRUE;
 	else
 		return FALSE;
@@ -3360,50 +3293,64 @@ monster_hook_type get_monster_hook(void)
 		switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
 		{
 		case TERRAIN_TOWN:
-			return (monster_hook_type)monster_town;
+			return (monster_hook_type)mon_hook_town;
 		case TERRAIN_DEEP_WATER:
-			return (monster_hook_type)monster_ocean;
+			return (monster_hook_type)mon_hook_ocean;
 		case TERRAIN_SHALLOW_WATER:
 		case TERRAIN_SWAMP:
-			return (monster_hook_type)monster_shore;
+			return (monster_hook_type)mon_hook_shore;
 		case TERRAIN_DIRT:
 		case TERRAIN_DESERT:
-			return (monster_hook_type)monster_waste;
+			return (monster_hook_type)mon_hook_waste;
 		case TERRAIN_GRASS:
-			return (monster_hook_type)monster_grass;
+			return (monster_hook_type)mon_hook_grass;
 		case TERRAIN_TREES:
-			return (monster_hook_type)monster_wood;
+			return (monster_hook_type)mon_hook_wood;
 		case TERRAIN_SHALLOW_LAVA:
 		case TERRAIN_DEEP_LAVA:
-			return (monster_hook_type)monster_volcano;
+			return (monster_hook_type)mon_hook_volcano;
 		case TERRAIN_MOUNTAIN:
-			return (monster_hook_type)monster_mountain;
+			return (monster_hook_type)mon_hook_mountain;
 		default:
-			return (monster_hook_type)monster_dungeon;
+			return (monster_hook_type)mon_hook_dungeon;
 		}
 	}
 	else
 	{
-		return (monster_hook_type)monster_dungeon;
+		return (monster_hook_type)mon_hook_dungeon;
 	}
 }
 
 
 monster_hook_type get_monster_hook2(int y, int x)
 {
+	feature_type *f_ptr = &f_info[cave[y][x].feat];
+
 	/* Set the monster list */
-	switch (cave[y][x].feat)
+
+	/* Water */
+	if (have_flag(f_ptr->flags, FF_WATER))
 	{
-	case FEAT_SHAL_WATER:
-		return (monster_hook_type)monster_shallow_water;
-	case FEAT_DEEP_WATER:
-		return (monster_hook_type)monster_deep_water;
-	case FEAT_DEEP_LAVA:
-	case FEAT_SHAL_LAVA:
-		return (monster_hook_type)monster_lava;
-	default:
-		return NULL;
+		/* Deep water */
+		if (have_flag(f_ptr->flags, FF_DEEP))
+		{
+			return (monster_hook_type)mon_hook_deep_water;
+		}
+
+		/* Shallow water */
+		else
+		{
+			return (monster_hook_type)mon_hook_shallow_water;
+		}
 	}
+
+	/* Lava */
+	else if (have_flag(f_ptr->flags, FF_LAVA))
+	{
+		return (monster_hook_type)mon_hook_lava;
+	}
+
+	else return (monster_hook_type)mon_hook_floor;
 }
 
 
@@ -3414,6 +3361,8 @@ void set_friendly(monster_type *m_ptr)
 
 void set_pet(monster_type *m_ptr)
 {
+	if (!is_pet(m_ptr)) check_pets_num_and_align(m_ptr, TRUE);
+
 	/* Check for quest completion */
 	check_quest_completion(m_ptr);
 
@@ -3428,6 +3377,9 @@ void set_pet(monster_type *m_ptr)
 void set_hostile(monster_type *m_ptr)
 {
 	if (p_ptr->inside_battle) return;
+
+	if (is_pet(m_ptr)) check_pets_num_and_align(m_ptr, FALSE);
+
 	m_ptr->smart &= ~SM_PET;
 	m_ptr->smart &= ~SM_FRIENDLY;
 }
@@ -3463,52 +3415,56 @@ msg_format("%^sは怒った！", m_name);
 /*
  * Check if monster can cross terrain
  */
-bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
+bool monster_can_cross_terrain(s16b feat, monster_race *r_ptr, u16b mode)
 {
-	/* Pit */
-	if (feat == FEAT_DARK_PIT)
+	feature_type *f_ptr = &f_info[feat];
+
+	/* Pattern */
+	if (have_flag(f_ptr->flags, FF_PATTERN))
 	{
-		if (r_ptr->flags7 & RF7_CAN_FLY)
-			return TRUE;
+		if (!(mode & CEM_RIDING))
+		{
+			if (!(r_ptr->flags7 & RF7_CAN_FLY)) return FALSE;
+		}
 		else
-			return FALSE;
+		{
+			if (!(mode & CEM_P_CAN_ENTER_PATTERN)) return FALSE;
+		}
 	}
-	/* Deep water */
-	if (feat == FEAT_DEEP_WATER)
+
+	/* "CAN" flags */
+	if (have_flag(f_ptr->flags, FF_CAN_FLY) && (r_ptr->flags7 & RF7_CAN_FLY)) return TRUE;
+	if (have_flag(f_ptr->flags, FF_CAN_SWIM) && (r_ptr->flags7 & RF7_CAN_SWIM)) return TRUE;
+	if (have_flag(f_ptr->flags, FF_CAN_PASS))
 	{
-		if ((r_ptr->flags7 & RF7_AQUATIC) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY) ||
-		    (r_ptr->flags7 & RF7_CAN_SWIM))
-			return TRUE;
-		else
-			return FALSE;
+		if ((r_ptr->flags2 & RF2_PASS_WALL) && (!(mode & CEM_RIDING) || p_ptr->pass_wall)) return TRUE;
 	}
-	/* Shallow water */
-	else if (feat == FEAT_SHAL_WATER)
+
+	if (!have_flag(f_ptr->flags, FF_MOVE)) return FALSE;
+
+	/* Some monsters can walk on mountains */
+	if (have_flag(f_ptr->flags, FF_MOUNTAIN) && (r_ptr->flags8 & RF8_WILD_MOUNTAIN)) return TRUE;
+
+	/* Water */
+	if (have_flag(f_ptr->flags, FF_WATER))
 	{
-		if (!(r_ptr->flags2 & RF2_AURA_FIRE) ||
-		    (r_ptr->flags7 & RF7_AQUATIC) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY) ||
-		    (r_ptr->flags7 & RF7_CAN_SWIM))
-			return TRUE;
-		else
-			return FALSE;
+		if (!(r_ptr->flags7 & RF7_AQUATIC))
+		{
+			/* Deep water */
+			if (have_flag(f_ptr->flags, FF_DEEP)) return FALSE;
+
+			/* Shallow water */
+			else if (r_ptr->flags2 & RF2_AURA_FIRE) return FALSE;
+		}
 	}
-	/* Aquatic monster */
-	else if ((r_ptr->flags7 & RF7_AQUATIC) &&
-		    !(r_ptr->flags7 & RF7_CAN_FLY))
-	{
-		return FALSE;
-	}
+
+	/* Aquatic monster into non-water? */
+	else if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
 	/* Lava */
-	else if ((feat == FEAT_SHAL_LAVA) ||
-	    (feat == FEAT_DEEP_LAVA))
+	if (have_flag(f_ptr->flags, FF_LAVA))
 	{
-		if ((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY))
-			return TRUE;
-		else
-			return FALSE;
+		if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)) return FALSE;
 	}
 
 	return TRUE;
@@ -3518,92 +3474,15 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 /*
  * Strictly check if monster can enter the grid
  */
-bool monster_can_enter(int y, int x, monster_race *r_ptr)
+bool monster_can_enter(int y, int x, monster_race *r_ptr, u16b mode)
 {
 	cave_type *c_ptr = &cave[y][x];
-	byte feat = c_ptr->feat;
 
 	/* Player or other monster */
 	if (player_bold(y, x)) return FALSE;
 	if (c_ptr->m_idx) return FALSE;
 
-	/* Permanent wall */
-	if ((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-	    (c_ptr->feat <= FEAT_PERM_SOLID))
-		return FALSE;
-
-	/* Can fly over the Pattern */
-	if ((c_ptr->feat >= FEAT_PATTERN_START) &&
-	    (c_ptr->feat <= FEAT_PATTERN_XTRA2))
-	{
-	    if (!(r_ptr->flags7 & RF7_CAN_FLY))
-		    return FALSE;
-	    else
-		    return TRUE;
-	}
-
-	/* Can fly over mountain on the surface */
-	if (feat == FEAT_MOUNTAIN)
-	{
-	    if (!dun_level && 
-		((r_ptr->flags7 & RF7_CAN_FLY) ||
-		 (r_ptr->flags8 & RF8_WILD_MOUNTAIN)))
-		    return TRUE;
-	    else
-		    return FALSE;
-	}
-
-	/* Cannot enter wall without pass wall ability */
-	if (!cave_floor_grid(c_ptr) && !(r_ptr->flags2 & RF2_PASS_WALL))
-		return FALSE;
-
-	/* Pit */
-	if (feat == FEAT_DARK_PIT)
-	{
-		if (r_ptr->flags7 & RF7_CAN_FLY)
-			return TRUE;
-		else
-			return FALSE;
-	}
-	/* Deep water */
-	if (feat == FEAT_DEEP_WATER)
-	{
-		if ((r_ptr->flags7 & RF7_AQUATIC) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY) ||
-		    (r_ptr->flags7 & RF7_CAN_SWIM))
-			return TRUE;
-		else
-			return FALSE;
-	}
-	/* Shallow water */
-	else if (feat == FEAT_SHAL_WATER)
-	{
-		if (!(r_ptr->flags2 & RF2_AURA_FIRE) ||
-		    (r_ptr->flags7 & RF7_AQUATIC) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY) ||
-		    (r_ptr->flags7 & RF7_CAN_SWIM))
-			return TRUE;
-		else
-			return FALSE;
-	}
-	/* Aquatic monster */
-	else if ((r_ptr->flags7 & RF7_AQUATIC) &&
-		    !(r_ptr->flags7 & RF7_CAN_FLY))
-	{
-		return FALSE;
-	}
-	/* Lava */
-	else if ((feat == FEAT_SHAL_LAVA) ||
-	    (feat == FEAT_DEEP_LAVA))
-	{
-		if ((r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK) ||
-		    (r_ptr->flags7 & RF7_CAN_FLY))
-			return TRUE;
-		else
-			return FALSE;
-	}
-
-	return TRUE;
+	return monster_can_cross_terrain(c_ptr->feat, r_ptr, mode);
 }
 
 

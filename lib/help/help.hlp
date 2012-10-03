@@ -15,9 +15,9 @@ Please choose one of the following online help files:
     (k) Hengband Commands                 (command.hlp)
     (l) Hengband Options                  (option.hlp)
     (m) User Preference Files             (pref.hlp)
+    (n) Auto-picker/destroyer             (editor.txt)
 
-
-    (?) Help System Commands              (helpinfo.txt)
+    [[[[y|(?) Help System Commands              (helpinfo.txt)|
 
 
 ***** [a] general.hlp
@@ -33,4 +33,5 @@ Please choose one of the following online help files:
 ***** [k] command.hlp
 ***** [l] option.hlp
 ***** [m] pref.hlp
+***** [n] editor.txt
 

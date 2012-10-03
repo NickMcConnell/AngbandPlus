@@ -16,9 +16,9 @@ Q:$11:T:The Wizards of Chaos have discovered a magical Node of
 Q:$11:T:Chaos in a nearby volcano. You must seek the Node and
 Q:$11:T:dispatch its guardians so that the Tower of Chaos can
 Q:$11:T:claim the mystical energies of the Node.
-Q:11:T:カオス魔法の賢者たちが、近くの火山にカオスエネルギーの特異点を見つけた。
-Q:11:T:我々カオス魔法の塔がその魔力の所有権を得られるように、
-Q:11:T:おまえはその特異点を見つけて守備隊を派遣するのだ。
+Q:11:T:カオス魔法の賢者たちが、近くの火山にカオスエネルギーの特異点の存在を確認
+Q:11:T:した。我々カオス魔法の塔がその魔力の所有権を得られるように、おまえは
+Q:11:T:その特異点の場所を見つけてそこに巣食うモンスターを片づけてくるのだ。
 ?:1
 
 # Description for quest reward
@@ -38,28 +38,28 @@ Q:11:T:棒にふったのだ。
 ?:1
 
 # Floor with Chaos spawn
-F:a:1:10:574
+F:a:FLOOR:10:574
 
 # Floor with Hell hound
-F:b:1:10:829
+F:b:FLOOR:10:829
 
 # Shallow lava with Fire elemental
-F:c:86:10:510
+F:c:SHALLOW_LAVA:10:510
 
 # Shallow lava with Magma elemental
-F:d:86:10:584
+F:d:SHALLOW_LAVA:10:584
 
 # Deep lava with Great hell wyrm
-F:e:85:10:756
+F:e:DEEP_LAVA:10:756
 
 # Deep lava
-F:l:85:2
+F:l:DEEP_LAVA:2
 
 # Shallow lava
-F:i:86:2
+F:i:SHALLOW_LAVA:2
 
 # Mountain
-F:h:97
+F:h:MOUNTAIN_WALL
 
 # Node of Chaos layout 
 D:hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh

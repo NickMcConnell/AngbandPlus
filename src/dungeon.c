@@ -24,30 +24,30 @@ static int wild_regen = 20;
 static byte value_check_aux1(object_type *o_ptr)
 {
 	/* Artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (object_is_artifact(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_TERRIBLE;
+		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_TERRIBLE;
 
 		/* Normal */
 		return FEEL_SPECIAL;
 	}
 
 	/* Ego-Items */
-	if (ego_item_p(o_ptr))
+	if (object_is_ego(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_WORTHLESS;
+		if (object_is_cursed(o_ptr) || object_is_broken(o_ptr)) return FEEL_WORTHLESS;
 
 		/* Normal */
 		return FEEL_EXCELLENT;
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return FEEL_CURSED;
+	if (object_is_cursed(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return FEEL_BROKEN;
+	if (object_is_broken(o_ptr)) return FEEL_BROKEN;
 
 	if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) return FEEL_AVERAGE;
 
@@ -68,16 +68,16 @@ static byte value_check_aux1(object_type *o_ptr)
 static byte value_check_aux2(object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
-	if (cursed_p(o_ptr)) return FEEL_CURSED;
+	if (object_is_cursed(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items (all of them) */
-	if (broken_p(o_ptr)) return FEEL_BROKEN;
+	if (object_is_broken(o_ptr)) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return FEEL_UNCURSED;
+	if (object_is_artifact(o_ptr)) return FEEL_UNCURSED;
 
 	/* Ego-Items -- except cursed/broken ones */
-	if (ego_item_p(o_ptr)) return FEEL_UNCURSED;
+	if (object_is_ego(o_ptr)) return FEEL_UNCURSED;
 
 	/* Good armor bonus */
 	if (o_ptr->to_a > 0) return FEEL_UNCURSED;
@@ -96,13 +96,12 @@ static void sense_inventory_aux(int slot, bool heavy)
 	byte        feel;
 	object_type *o_ptr = &inventory[slot];
 	char        o_name[MAX_NLEN];
-	int idx;
 
 	/* We know about it already, do not tell us again */
 	if (o_ptr->ident & (IDENT_SENSE))return;
 
 	/* It is fully known, no information needed */
-	if (object_known_p(o_ptr)) return;
+	if (object_is_known(o_ptr)) return;
 
 	/* Check for a feeling */
 	feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
@@ -163,7 +162,7 @@ static void sense_inventory_aux(int slot, bool heavy)
 	if (disturb_minor) disturb(0, 0);
 
 	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Message (equipment) */
 	if (slot >= INVEN_RARM)
@@ -202,10 +201,7 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
 	o_ptr->feeling = feel;
 
 	/* Auto-inscription/destroy */
-	idx = is_autopick(o_ptr);
-	auto_inscribe_item(slot, idx);
-	if (destroy_feeling)
-		auto_destroy_item(slot, idx);
+	autopick_alter_item(slot, destroy_feeling);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -594,7 +590,7 @@ static void pattern_teleport(void)
 
 	/* Ask for level */
 #ifdef JP
-if (get_check("他の階にテレポートしますか？"))
+	if (get_check("他の階にテレポートしますか？"))
 #else
 	if (get_check("Teleport level? "))
 #endif
@@ -623,7 +619,7 @@ if (get_check("他の階にテレポートしますか？"))
 
 		/* Prompt */
 #ifdef JP
-sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
+		sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
 #else
 		sprintf(ppp, "Teleport to level (%d-%d): ", min_level, max_level);
 #endif
@@ -639,13 +635,12 @@ sprintf(ppp, "テレポート先:(%d-%d)", min_level, max_level);
 		command_arg = atoi(tmp_val);
 	}
 #ifdef JP
-else if (get_check("通常テレポート？"))
+	else if (get_check("通常テレポート？"))
 #else
 	else if (get_check("Normal teleport? "))
 #endif
-
 	{
-		teleport_player(200);
+		teleport_player(200, 0L);
 		return;
 	}
 	else
@@ -661,7 +656,7 @@ else if (get_check("通常テレポート？"))
 
 	/* Accept request */
 #ifdef JP
-msg_format("%d 階にテレポートしました。", command_arg);
+	msg_format("%d 階にテレポートしました。", command_arg);
 #else
 	msg_format("You teleport to dungeon level %d.", command_arg);
 #endif
@@ -671,15 +666,19 @@ msg_format("%d 階にテレポートしました。", command_arg);
 
 	/* Change level */
 	dun_level = command_arg;
-	prepare_change_floor_mode(CFM_CLEAR_ALL);
 
 	leave_quest_check();
 
 	if (record_stair) do_cmd_write_nikki(NIKKI_PAT_TELE,0,NULL);
 
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	energy_use = 0;
+
+	/*
+	 * Clear all saved floors
+	 * and create a first saved floor
+	 */
+	prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -689,21 +688,21 @@ msg_format("%d 階にテレポートしました。", command_arg);
 static void wreck_the_pattern(void)
 {
 	int to_ruin = 0, r_y, r_x;
+	int pattern_type = f_info[cave[py][px].feat].subtype;
 
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
+	if (pattern_type == PATTERN_TILE_WRECKED)
 	{
 		/* Ruined already */
 		return;
 	}
 
 #ifdef JP
-msg_print("パターンを血で汚してしまった！");
-msg_print("何か恐ろしい事が起こった！");
+	msg_print("パターンを血で汚してしまった！");
+	msg_print("何か恐ろしい事が起こった！");
 #else
 	msg_print("You bleed on the Pattern!");
 	msg_print("Something terrible happens!");
 #endif
-
 
 	if (!IS_INVULN())
 #ifdef JP
@@ -712,30 +711,29 @@ msg_print("何か恐ろしい事が起こった！");
 		take_hit(DAMAGE_NOESCAPE, damroll(10, 8), "corrupting the Pattern", -1);
 #endif
 
-
 	to_ruin = randint1(45) + 35;
 
 	while (to_ruin--)
 	{
 		scatter(&r_y, &r_x, py, px, 4, 0);
 
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START) &&
-		    (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
+		if (pattern_tile(r_y, r_x) &&
+		    (f_info[cave[r_y][r_x].feat].subtype != PATTERN_TILE_WRECKED))
 		{
-			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
+			cave_set_feat(r_y, r_x, feat_pattern_corrupted);
 		}
 	}
 
-	cave_set_feat(py, px, FEAT_PATTERN_XTRA2);
+	cave_set_feat(py, px, feat_pattern_corrupted);
 }
 
 
 /* Returns TRUE if we are on the Pattern... */
 static bool pattern_effect(void)
 {
-	if ((cave[py][px].feat < FEAT_PATTERN_START) ||
-	    (cave[py][px].feat > FEAT_PATTERN_XTRA2))
-		return FALSE;
+	int pattern_type;
+
+	if (!pattern_tile(py, px)) return FALSE;
 
 	if ((prace_is_(RACE_AMBERITE)) &&
 	    (p_ptr->cut > 0) && one_in_(10))
@@ -743,8 +741,11 @@ static bool pattern_effect(void)
 		wreck_the_pattern();
 	}
 
-	if (cave[py][px].feat == FEAT_PATTERN_END)
+	pattern_type = f_info[cave[py][px].feat].subtype;
+
+	switch (pattern_type)
 	{
+	case PATTERN_TILE_END:
 		(void)set_poisoned(0);
 		(void)set_image(0);
 		(void)set_stun(0);
@@ -759,44 +760,42 @@ static bool pattern_effect(void)
 		(void)do_res_stat(A_CHR);
 		(void)restore_level();
 		(void)hp_player(1000);
-		cave_set_feat(py, px, FEAT_PATTERN_OLD);
+
+		cave_set_feat(py, px, feat_pattern_old);
+
 #ifdef JP
-msg_print("「パターン」のこの部分は他の部分より強力でないようだ。");
+		msg_print("「パターン」のこの部分は他の部分より強力でないようだ。");
 #else
 		msg_print("This section of the Pattern looks less powerful.");
 #endif
 
-	}
+		/*
+		 * We could make the healing effect of the
+		 * Pattern center one-time only to avoid various kinds
+		 * of abuse, like luring the win monster into fighting you
+		 * in the middle of the pattern...
+		 */
+		break;
 
-
-	/*
-	 * We could make the healing effect of the
-	 * Pattern center one-time only to avoid various kinds
-	 * of abuse, like luring the win monster into fighting you
-	 * in the middle of the pattern...
-	 */
-
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
-	{
+	case PATTERN_TILE_OLD:
 		/* No effect */
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
-	{
+		break;
+
+	case PATTERN_TILE_TELEPORT:
 		pattern_teleport();
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
+		break;
+
+	case PATTERN_TILE_WRECKED:
 		if (!IS_INVULN())
 #ifdef JP
 			take_hit(DAMAGE_NOESCAPE, 200, "壊れた「パターン」を歩いたダメージ", -1);
 #else
 			take_hit(DAMAGE_NOESCAPE, 200, "walking the corrupted Pattern", -1);
 #endif
+		break;
 
-	}
-	else
-	{
-		if ((prace_is_(RACE_AMBERITE)) && !one_in_(2))
+	default:
+		if (prace_is_(RACE_AMBERITE) && !one_in_(2))
 			return TRUE;
 		else if (!IS_INVULN())
 #ifdef JP
@@ -804,7 +803,7 @@ msg_print("「パターン」のこの部分は他の部分より強力でないようだ。");
 #else
 			take_hit(DAMAGE_NOESCAPE, damroll(1, 3), "walking the Pattern", -1);
 #endif
-
+		break;
 	}
 
 	return TRUE;
@@ -819,33 +818,33 @@ msg_print("「パターン」のこの部分は他の部分より強力でないようだ。");
  */
 static void regenhp(int percent)
 {
-	s32b    new_chp, new_chp_frac;
-	int     old_chp;
+	s32b new_chp;
+	u32b new_chp_frac;
+	s32b old_chp;
 
 	if (p_ptr->special_defense & KATA_KOUKIJIN) return;
 	if (p_ptr->action == ACTION_HAYAGAKE) return;
+
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
 
-	/* Extract the new hitpoints */
-	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
+	/*
+	 * Extract the new hitpoints
+	 *
+	 * 'percent' is the Regen factor in unit (1/2^16)
+	 */
+	new_chp = 0;
+	new_chp_frac = (p_ptr->mhp * percent + PY_REGEN_HPBASE);
 
-	/* check for overflow */
-	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
-	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
-	if (new_chp_frac >= 0x10000L)
-	{
-		p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
-		p_ptr->chp++;
-	}
-	else
-	{
-		p_ptr->chp_frac = (u16b)new_chp_frac;
-	}
+	/* Convert the unit (1/2^16) to (1/2^32) */
+	s64b_LSHIFT(new_chp, new_chp_frac, 16);
+
+	/* Regenerating */
+	s64b_add(&(p_ptr->chp), &(p_ptr->chp_frac), new_chp, new_chp_frac);
+
 
 	/* Fully healed */
-	if (p_ptr->chp >= p_ptr->mhp)
+	if (0 < s64b_cmp(p_ptr->chp, p_ptr->chp_frac, p_ptr->mhp, 0))
 	{
 		p_ptr->chp = p_ptr->mhp;
 		p_ptr->chp_frac = 0;
@@ -866,55 +865,79 @@ static void regenhp(int percent)
 
 
 /*
- * Regenerate mana points				-RAK-
+ * Regenerate mana points
  */
 static void regenmana(int percent)
 {
-	s32b        new_mana, new_mana_frac;
-	int                   old_csp;
-	bool    old_csp_msp = (p_ptr->csp > p_ptr->msp);
+	s32b old_csp = p_ptr->csp;
 
-	if (p_ptr->special_defense & KATA_KOUKIJIN) return;
-	if ((p_ptr->pclass == CLASS_SAMURAI) && (p_ptr->regenerate)) percent /= 2;
-	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
-	if (old_csp_msp && (new_mana > 0))
+	/*
+	 * Excess mana will decay 32 times faster than normal
+	 * regeneration rate.
+	 */
+	if (p_ptr->csp > p_ptr->msp)
 	{
-		new_mana *= 32;
-		p_ptr->csp--;
-		p_ptr->csp -= (s16b)(new_mana >> 16);	/* div 65536 */
-		new_mana_frac = p_ptr->csp_frac + 0x10000L - (new_mana & 0xFFFF);
-	}
-	else
-	{
-		if (old_csp_msp) new_mana += ((((long)p_ptr->msp) * percent + PY_REGEN_MNBASE) * 32);
-		p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
+		/* PY_REGEN_NORMAL is the Regen factor in unit (1/2^16) */
+		s32b decay = 0;
+		u32b decay_frac = (p_ptr->msp * 32 * PY_REGEN_NORMAL + PY_REGEN_MNBASE);
 
-		new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
-	}
-	if (new_mana_frac >= 0x10000L)
-	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
-		p_ptr->csp++;
-	}
-	else
-	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac);
+		/* Convert the unit (1/2^16) to (1/2^32) */
+		s64b_LSHIFT(decay, decay_frac, 16);
+
+		/* Decay */
+		s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), decay, decay_frac);
+
+		/* Stop decaying */
+		if (p_ptr->csp < p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
 	}
 
-	/* check for overflow */
-	if (p_ptr->csp < 0)
+	/* Regenerating mana (unless the player has excess mana) */
+	else if (percent > 0)
 	{
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
+		/* (percent/100) is the Regen factor in unit (1/2^16) */
+		s32b new_mana = 0;
+		u32b new_mana_frac = (p_ptr->msp * percent / 100 + PY_REGEN_MNBASE);
+
+		/* Convert the unit (1/2^16) to (1/2^32) */
+		s64b_LSHIFT(new_mana, new_mana_frac, 16);
+
+		/* Regenerate */
+		s64b_add(&(p_ptr->csp), &(p_ptr->csp_frac), new_mana, new_mana_frac);
+
+		/* Must set frac to zero even if equal */
+		if (p_ptr->csp >= p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
 	}
 
-	/* Must set frac to zero even if equal */
-	if ((old_csp_msp && p_ptr->csp < p_ptr->msp) || (!old_csp_msp && p_ptr->csp >= p_ptr->msp))
+
+	/* Reduce mana (even when the player has excess mana) */
+	if (percent < 0)
 	{
-		p_ptr->csp = p_ptr->msp;
-		p_ptr->csp_frac = 0;
+		/* PY_REGEN_NORMAL is the Regen factor in unit (1/2^16) */
+		s32b reduce_mana = 0;
+		u32b reduce_mana_frac = (p_ptr->msp * PY_REGEN_NORMAL + PY_REGEN_MNBASE);
+
+		/* Convert the unit (1/2^16) to (1/2^32) */
+		s64b_LSHIFT(reduce_mana, reduce_mana_frac, 16);
+
+		/* Reduce mana */
+		s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), reduce_mana, reduce_mana_frac);
+
+		/* Check overflow */
+		if (p_ptr->csp < 0)
+		{
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+		}
 	}
+
 
 	/* Redraw mana */
 	if (old_csp != p_ptr->csp)
@@ -947,7 +970,7 @@ static void regenmagic(int percent)
 		new_mana = ((long)p_ptr->magic_num2[i]+adj_mag_mana[A_INT]+13) * percent / 8;
 		p_ptr->magic_num1[i] += new_mana;
 
-		/* Must set frac to zero even if equal */
+		/* Check maximum charge */
 		if (p_ptr->magic_num1[i] > (p_ptr->magic_num2[i] << 16))
 		{
 			p_ptr->magic_num1[i] = ((long)p_ptr->magic_num2[i] << 16);
@@ -1073,354 +1096,6 @@ static void regen_captured_monsters(void)
 }
 
 
-/*
- * Process the counters of monsters (once per 10 game turns)
- *
- * This function is to process monsters' counters same as player's.
- */
-static void process_monsters_counters(void)
-{
-	int          m_idx;
-	monster_type *m_ptr;
-	monster_race *r_ptr;
-
-	u32b noise; /* Hack -- local "player stealth" value */
-
-	/* Handle "leaving" */
-	if (p_ptr->leaving) return;
-
-	/* Hack -- calculate the "player noise" */
-	noise = (1L << (30 - p_ptr->skill_stl));
-
-	/* Process the monsters (backwards) */
-	for (m_idx = m_max - 1; m_idx >= 1; m_idx--)
-	{
-		/* Access the monster */
-		m_ptr = &m_list[m_idx];
-		r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Ignore "dead" monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Handle Invulnerability */
-		if (m_ptr->invulner)
-		{
-			/* Reduce by one, note if expires */
-			m_ptr->invulner--;
-
-			if (!m_ptr->invulner)
-			{
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Dump a message */
-#ifdef JP
-					msg_format("%^sはもう無敵でない。", m_name);
-#else
-					msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-				}
-				if (!p_ptr->wild_mode) m_ptr->energy_need += ENERGY_NEED();
-			}
-		}
-
-		/* Handle fast */
-		if (m_ptr->fast)
-		{
-			/* Reduce by one, note if expires */
-			m_ptr->fast--;
-
-			if (!m_ptr->fast && m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-				msg_format("%^sはもう加速されていない。", m_name);
-#else
-				msg_format("%^s is no longer fast.", m_name);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx)
-				{
-					p_ptr->redraw |= (PR_UHEALTH);
-					p_ptr->update |= (PU_BONUS);
-				}
-			}
-		}
-
-		/* Handle slow */
-		if (m_ptr->slow)
-		{
-			/* Reduce by one, note if expires */
-			m_ptr->slow--;
-
-			if (!m_ptr->slow && m_ptr->ml)
-			{
-				char m_name[80];
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-				msg_format("%^sはもう減速されていない。", m_name);
-#else
-				msg_format("%^s is no longer slow.", m_name);
-#endif
-
-				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->riding == m_idx)
-				{
-					p_ptr->redraw |= (PR_UHEALTH);
-					p_ptr->update |= (PU_BONUS);
-				}
-			}
-		}
-
-		/* Handle "sleep" */
-		if (m_ptr->csleep)
-		{
-			/* Assume does not wake up */
-			bool test = FALSE;
-
-			/* Hack -- Require proximity */
-			if (m_ptr->cdis < AAF_LIMIT)
-			{
-				/* Handle "sensing radius" */
-				if (m_ptr->cdis <= (is_pet(m_ptr) ? ((r_ptr->aaf > MAX_SIGHT) ? MAX_SIGHT : r_ptr->aaf) : r_ptr->aaf))
-				{
-					/* We may wake up */
-					test = TRUE;
-				}
-
-				/* Handle "sight" and "aggravation" */
-				else if ((m_ptr->cdis <= MAX_SIGHT) && (player_has_los_bold(m_ptr->fy, m_ptr->fx)))
-				{
-					/* We may wake up */
-					test = TRUE;
-				}
-			}
-
-			if (test)
-			{
-				u32b notice = randint0(1024);
-
-				/* Nightmare monsters are more alert */
-				if (ironman_nightmare) notice /= 2;
-
-				/* Hack -- See if monster "notices" player */
-				if ((notice * notice * notice) <= noise)
-				{
-					/* Hack -- amount of "waking" */
-					/* Wake up faster near the player */
-					int d = (m_ptr->cdis < AAF_LIMIT / 2) ? (AAF_LIMIT / m_ptr->cdis) : 1;
-
-					/* Hack -- amount of "waking" is affected by speed of player */
-					d = (d * SPEED_TO_ENERGY(p_ptr->pspeed)) / 10;
-					if (d < 0) d = 1;
-
-					/* Still asleep */
-					if (m_ptr->csleep > d)
-					{
-						/* Monster wakes up "a little bit" */
-						m_ptr->csleep -= d;
-
-						/* Notice the "not waking up" */
-						if (m_ptr->ml)
-						{
-							/* Hack -- Count the ignores */
-							if (r_ptr->r_ignore < MAX_UCHAR)
-							{
-								r_ptr->r_ignore++;
-							}
-						}
-					}
-
-					/* Just woke up */
-					else
-					{
-						/* Reset sleep counter */
-						m_ptr->csleep = 0;
-
-						if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
-
-						/* Notice the "waking up" */
-						if (m_ptr->ml)
-						{
-							char m_name[80];
-
-							/* Acquire the monster name */
-							monster_desc(m_name, m_ptr, 0);
-
-							/* Dump a message */
-#ifdef JP
-							msg_format("%^sが目を覚ました。", m_name);
-#else
-							msg_format("%^s wakes up.", m_name);
-#endif
-
-							/* Redraw the health bar */
-							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-							if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-							/* Hack -- Count the wakings */
-							if (r_ptr->r_wake < MAX_UCHAR)
-							{
-								r_ptr->r_wake++;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		/* Handle "stun" */
-		if (m_ptr->stunned)
-		{
-			int d = 1;
-
-			/* Make a "saving throw" against stun */
-			if (randint0(10000) <= r_ptr->level * r_ptr->level)
-			{
-				/* Recover fully */
-				d = m_ptr->stunned;
-			}
-
-			/* Hack -- Recover from stun */
-			if (m_ptr->stunned > d)
-			{
-				/* Recover somewhat */
-				m_ptr->stunned -= d;
-			}
-
-			/* Fully recover */
-			else
-			{
-				/* Recover fully */
-				m_ptr->stunned = 0;
-
-				/* Message if visible */
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Dump a message */
-#ifdef JP
-					msg_format("%^sは朦朧状態から立ち直った。", m_name);
-#else
-					msg_format("%^s is no longer stunned.", m_name);
-#endif
-
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-				}
-			}
-		}
-
-		/* Handle confusion */
-		if (m_ptr->confused)
-		{
-			/* Amount of "boldness" */
-			int d = randint1(r_ptr->level / 20 + 1);
-
-			/* Still confused */
-			if (m_ptr->confused > d)
-			{
-				/* Reduce the confusion */
-				m_ptr->confused -= d;
-			}
-
-			/* Recovered */
-			else
-			{
-				/* No longer confused */
-				m_ptr->confused = 0;
-
-				/* Message if visible */
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Dump a message */
-#ifdef JP
-					msg_format("%^sは混乱から立ち直った。", m_name);
-#else
-					msg_format("%^s is no longer confused.", m_name);
-#endif
-
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-				}
-			}
-		}
-
-		/* Handle "fear" */
-		if (m_ptr->monfear)
-		{
-			/* Amount of "boldness" */
-			int d = randint1(r_ptr->level / 20 + 1);
-
-			/* Still afraid */
-			if (m_ptr->monfear > d)
-			{
-				/* Reduce the fear */
-				m_ptr->monfear -= d;
-			}
-
-			/* Recover from fear, take note if seen */
-			else
-			{
-				/* No longer afraid */
-				m_ptr->monfear = 0;
-
-				/* Visual note */
-				if (m_ptr->ml)
-				{
-					char m_name[80];
-#ifndef JP
-					char m_poss[80];
-
-					/* Acquire the monster possessive */
-					monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-#endif
-
-					/* Acquire the monster name */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Dump a message */
-#ifdef JP
-					msg_format("%^sは勇気を取り戻した。", m_name);
-#else
-					msg_format("%^s recovers %s courage.", m_name, m_poss);
-#endif
-
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-				}
-			}
-		}
-	}
-}
-
-
 static void notice_lite_change(object_type *o_ptr)
 {
 	/* Hack -- notice interesting fuel steps */
@@ -1446,6 +1121,11 @@ msg_print("明かりが消えてしまった！");
 #else
 		msg_print("Your light has gone out!");
 #endif
+
+		/* Recalculate torch radius */
+		p_ptr->update |= (PU_TORCH);
+
+		/* Some ego light lose its effects without fuel */
 		p_ptr->update |= (PU_BONUS);
 	}
 
@@ -1526,7 +1206,6 @@ bool psychometry(void)
 	byte            feel;
 	cptr            q, s;
 	bool okay = FALSE;
-	int idx;
 
 	item_tester_no_ryoute = TRUE;
 	/* Get an item */
@@ -1553,7 +1232,7 @@ s = "調べるアイテムがありません。";
 	}
 
 	/* It is fully known, no information needed */
-	if (object_known_p(o_ptr))
+	if (object_is_known(o_ptr))
 	{
 #ifdef JP
 msg_print("何も新しいことは判らなかった。");
@@ -1568,7 +1247,7 @@ msg_print("何も新しいことは判らなかった。");
 	feel = value_check_aux1(o_ptr);
 
 	/* Get an object description */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 	/* Skip non-feelings */
 	if (!feel)
@@ -1597,6 +1276,9 @@ msg_format("%sは%sという感じがする...",
 
 	/* "Inscribe" it */
 	o_ptr->feeling = feel;
+
+	/* Player touches it */
+	o_ptr->marked |= OM_TOUCHED;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1634,111 +1316,12 @@ msg_format("%sは%sという感じがする...",
 	}
 
 	/* Auto-inscription/destroy */
-	idx = is_autopick(o_ptr);
-	auto_inscribe_item(item, idx);
-	if (okay && destroy_feeling)
-		auto_destroy_item(item, idx);
+	autopick_alter_item(item, (bool)(okay && destroy_feeling));
 
 	/* Something happened */
 	return (TRUE);
 }
 
-
-static void gere_music(s32b music)
-{
-	switch(music)
-	{
-		case MUSIC_SLOW:
-			slow_monsters();
-			break;
-		case MUSIC_STUN:
-			stun_monsters(damroll(p_ptr->lev/10,2));
-			break;
-		case MUSIC_L_LIFE:
-			hp_player(damroll(2,6));
-			break;
-		case MUSIC_FEAR:
-			project_hack(GF_TURN_ALL, p_ptr->lev);
-			break;
-		case MUSIC_PSI:
-			project_hack(GF_PSI, randint1(p_ptr->lev * 3 / 2));
-			break;
-		case MUSIC_ID:
-			project(0, 1, py, px, 0, GF_IDENTIFY, PROJECT_ITEM, -1);
-			break;
-		case MUSIC_CONF:
-			confuse_monsters(p_ptr->lev * 2);
-			break;
-		case MUSIC_SOUND:
-			project_hack(GF_SOUND, damroll(10 + p_ptr->lev/5,7));
-			break;
-		case MUSIC_CHARM:
-			charm_monsters(damroll(10 + p_ptr->lev/15,6));
-			break;
-		case MUSIC_WALL:
-			project(0, 0, py, px,
-				0, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM | PROJECT_HIDE, -1);
-			break;
-		case MUSIC_DISPEL:
-			dispel_monsters(randint1(p_ptr->lev * 3));
-			dispel_evil(randint1(p_ptr->lev * 3));
-			break;
-		case MUSIC_SARUMAN:
-			slow_monsters();
-			sleep_monsters();
-			break;
-		case MUSIC_QUAKE:
-			earthquake(py, px, 10);
-			break;
-		case MUSIC_STASIS:
-			stasis_monsters(p_ptr->lev * 4);
-			break;
-		case MUSIC_SHERO:
-			dispel_monsters(randint1(p_ptr->lev * 3));
-			break;
-		case MUSIC_H_LIFE:
-			hp_player(damroll(15,10));
-			set_stun(0);
-			set_cut(0);
-			break;
-		case MUSIC_DETECT+19:
-			wiz_lite(FALSE);
-		case MUSIC_DETECT+11:
-		case MUSIC_DETECT+12:
-		case MUSIC_DETECT+13:
-		case MUSIC_DETECT+14:
-		case MUSIC_DETECT+15:
-		case MUSIC_DETECT+16:
-		case MUSIC_DETECT+17:
-		case MUSIC_DETECT+18:
-			map_area(DETECT_RAD_MAP);
-			if ((p_ptr->lev > 39) && (music < MUSIC_DETECT+19)) p_ptr->magic_num1[0] = music+1;
-		case MUSIC_DETECT+6:
-		case MUSIC_DETECT+7:
-		case MUSIC_DETECT+8:
-		case MUSIC_DETECT+9:
-		case MUSIC_DETECT+10:
-			/* There are too many hidden treasure.  So... */
-			/* detect_treasure(DETECT_RAD_DEFAULT); */
-			detect_objects_gold(DETECT_RAD_DEFAULT);
-			detect_objects_normal(DETECT_RAD_DEFAULT);
-			if ((p_ptr->lev > 24) && (music < MUSIC_DETECT+11)) p_ptr->magic_num1[0] = music+1;
-		case MUSIC_DETECT+3:
-		case MUSIC_DETECT+4:
-		case MUSIC_DETECT+5:
-			detect_monsters_invis(DETECT_RAD_DEFAULT);
-			detect_monsters_normal(DETECT_RAD_DEFAULT);
-			if ((p_ptr->lev > 19) && (music < MUSIC_DETECT+6)) p_ptr->magic_num1[0] = music+1;
-		case MUSIC_DETECT:
-		case MUSIC_DETECT+1:
-		case MUSIC_DETECT+2:
-			detect_traps(DETECT_RAD_DEFAULT, TRUE);
-			detect_doors(DETECT_RAD_DEFAULT);
-			detect_stairs(DETECT_RAD_DEFAULT);
-			if ((p_ptr->lev > 14)  && (music  < MUSIC_DETECT+3)) p_ptr->magic_num1[0] = music+1;
-			break;
-	}
-}
 
 /*
  * If player has inscribed the object with "!!", let him know when it's
@@ -1754,7 +1337,7 @@ static void recharged_notice(object_type *o_ptr)
 	if (!o_ptr->inscription) return;
 
 	/* Find a '!' */
-	s = strchr(quark_str(o_ptr->inscription), '!');
+	s = my_strchr(quark_str(o_ptr->inscription), '!');
 
 	/* Process notification request. */
 	while (s)
@@ -1763,7 +1346,7 @@ static void recharged_notice(object_type *o_ptr)
 		if (s[1] == '!')
 		{
 			/* Describe (briefly) */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 			/* Notify the player */
 #ifdef JP
@@ -1782,7 +1365,7 @@ static void recharged_notice(object_type *o_ptr)
 		}
 
 		/* Keep looking for '!'s */
-		s = strchr(s + 1, '!');
+		s = my_strchr(s + 1, '!');
 	}
 }
 
@@ -1791,35 +1374,36 @@ static void check_music(void)
 {
 	magic_type *s_ptr;
 	int spell;
-	u32b need_mana;
+	s32b need_mana;
+	u32b need_mana_frac;
 
 	/* Music singed by player */
 	if (p_ptr->pclass != CLASS_BARD) return;
 	if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
 
+	if (p_ptr->anti_magic)
+	{
+		stop_singing();
+		return;
+	}
+
 	spell = p_ptr->magic_num2[0];
 	s_ptr = &technic_info[REALM_MUSIC - MIN_TECHNIC][spell];
 
 	need_mana = mod_need_mana(s_ptr->smana, spell, REALM_MUSIC);
-	need_mana *= 0x8000;
-	if (((u32b)p_ptr->csp < (need_mana / 0x10000)) || (p_ptr->anti_magic))
+	need_mana_frac = 0;
+
+	/* Divide by 2 */
+	s64b_RSHIFT(need_mana, need_mana_frac, 1);
+
+	if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, need_mana, need_mana_frac) < 0)
 	{
 		stop_singing();
 		return;
 	}
 	else
 	{
-		p_ptr->csp -= (u16b) (need_mana / 0x10000);
-		need_mana = (need_mana & 0xffff);
-		if ((u32b)p_ptr->csp_frac < need_mana)
-		{
-			p_ptr->csp--;
-			p_ptr->csp_frac += (u16b)(0x10000L - need_mana);
-		}
-		else
-		{
-			p_ptr->csp_frac -= (u16b)need_mana;
-		}
+		s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), need_mana, need_mana_frac);
 
 		p_ptr->redraw |= PR_MANA;
 		if (p_ptr->magic_num1[1])
@@ -1855,8 +1439,10 @@ static void check_music(void)
 	else if(p_ptr->spell_exp[spell] < SPELL_EXP_MASTER)
 	{ if (one_in_(5) && ((dun_level + 5) > p_ptr->lev) && (dun_level > s_ptr->slevel)) p_ptr->spell_exp[spell] += 1; }
 
-	gere_music(p_ptr->magic_num1[0]);
+	/* Do any effects of continual song */
+	do_spell(REALM_MUSIC, spell, SPELL_CONT);
 }
+
 
 /* Choose one of items that have cursed flag */
 static object_type *choose_cursed_obj_name(u32b flag)
@@ -1886,322 +1472,17 @@ static object_type *choose_cursed_obj_name(u32b flag)
 
 
 /*
- * Handle certain things once every 10 game turns
+ * Handle timed damage and regeneration every 10 game turns
  */
-static void process_world(void)
+static void process_world_aux_hp_and_sp(void)
 {
-	int x, y, i, j;
-	int regen_amount;
+	feature_type *f_ptr = &f_info[cave[py][px].feat];
 	bool cave_no_regen = FALSE;
 	int upkeep_factor = 0;
-	cave_type *c_ptr;
-	object_type *o_ptr;
-	int temp;
-	object_kind *k_ptr;
-	const int dec_count = (easy_band ? 2 : 1);
+	int upkeep_regen;
 
-	int day, hour, min, prev_min;
-
-	s32b len = TURNS_PER_TICK * TOWN_DAWN;
-	s32b tick = turn % len + len / 4;
-
-	int quest_num = quest_number(dun_level);
-
-	extract_day_hour_min(&day, &hour, &min);
-	prev_min = (1440 * (tick - TURNS_PER_TICK) / len) % 60;
-
-	if ((turn - old_turn == (150 - dun_level) * TURNS_PER_TICK)
-	    && dun_level &&
-	    !(quest_num && (is_fixed_quest_idx(quest_num) &&
-	    !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
-	      !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) &&
-	    !p_ptr->inside_battle)
-		do_cmd_feeling();
-
-	if (p_ptr->inside_battle && !p_ptr->leaving)
-	{
-
-		int i2, j2;
-		int win_m_idx = 0;
-		int number_mon = 0;
-
-		/* Count all hostile monsters */
-		for (i2 = 0; i2 < cur_wid; ++i2)
-			for (j2 = 0; j2 < cur_hgt; j2++)
-				if ((cave[j2][i2].m_idx > 0) && (cave[j2][i2].m_idx != p_ptr->riding))
-				{
-					number_mon++;
-					win_m_idx = cave[j2][i2].m_idx;
-				}
-
-		if (number_mon == 0)
-		{
-#ifdef JP
-msg_print("相打ちに終わりました。");
-#else
-			msg_print("They have kill each other at the same time.");
-#endif
-			msg_print(NULL);
-			p_ptr->energy_need = 0;
-			battle_monsters();
-		}
-		else if ((number_mon-1) == 0)
-		{
-			char m_name[80];
-			monster_type *wm_ptr;
-
-			wm_ptr = &m_list[win_m_idx];
-
-			monster_desc(m_name, wm_ptr, 0);
-#ifdef JP
-msg_format("%sが勝利した！", m_name);
-#else
-			msg_format("%s is winner!", m_name);
-#endif
-			msg_print(NULL);
-
-			if (win_m_idx == (sel_monster+1))
-			{
-#ifdef JP
-msg_print("おめでとうございます。");
-#else
-				msg_print("Congratulations.");
-#endif
-#ifdef JP
-msg_format("%d＄を受け取った。", battle_odds);
-#else
-				msg_format("You received %d gold.", battle_odds);
-#endif
-			p_ptr->au += battle_odds;
-			}
-			else
-			{
-#ifdef JP
-msg_print("残念でした。");
-#else
-				msg_print("You lost gold.");
-#endif
-			}
-			msg_print(NULL);
-			p_ptr->energy_need = 0;
-			battle_monsters();
-		}
-		else if(turn - old_turn == 150*TURNS_PER_TICK)
-		{
-#ifdef JP
-msg_print("申し分けありませんが、この勝負は引き分けとさせていただきます。");
-#else
-			msg_format("This battle have ended in a draw.");
-#endif
-			p_ptr->au += kakekin;
-			msg_print(NULL);
-			p_ptr->energy_need = 0;
-			battle_monsters();
-		}
-	}
-
-	/* Every 10 game turns */
-	if (turn % TURNS_PER_TICK) return;
-
-	/*** Check the Time and Load ***/
-
-	if (!(turn % (50*TURNS_PER_TICK)))
-	{
-		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
-		{
-			/* Warning */
-			if (closing_flag <= 2)
-			{
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Count warnings */
-				closing_flag++;
-
-				/* Message */
-#ifdef JP
-msg_print("アングバンドへの門が閉じかかっています...");
-msg_print("ゲームを終了するかセーブするかして下さい。");
-#else
-				msg_print("The gates to ANGBAND are closing...");
-				msg_print("Please finish up and/or save your game.");
-#endif
-
-			}
-
-			/* Slam the gate */
-			else
-			{
-				/* Message */
-#ifdef JP
-msg_print("今、アングバンドへの門が閉ざされました。");
-#else
-				msg_print("The gates to ANGBAND are now closed.");
-#endif
-
-
-				/* Stop playing */
-				p_ptr->playing = FALSE;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-	}
-
-	/*** Attempt timed autosave ***/
-	if (autosave_t && autosave_freq && !p_ptr->inside_battle)
-	{
-		if (!(turn % ((s32b)autosave_freq * TURNS_PER_TICK)))
-			do_cmd_save_game(TRUE);
-	}
-
-	if (mon_fight)
-	{
-#ifdef JP
-		msg_print("何かが聞こえた。");
-#else
-		msg_print("You hear noise.");
-#endif
-	}
-
-	/*** Handle the wilderness/town (sunshine) ***/
-
-	/* While in town/wilderness */
-	if (!dun_level && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena && !p_ptr->wild_mode)
-	{
-		/* Hack -- Daybreak/Nighfall in town */
-		if (!(turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
-		{
-			bool dawn;
-
-			/* Check for dawn */
-			dawn = (!(turn % (TURNS_PER_TICK * TOWN_DAWN)));
-
-			/* Day breaks */
-			if (dawn)
-			{
-				/* Message */
-#ifdef JP
-				msg_print("夜が明けた。");
-#else
-				msg_print("The sun has risen.");
-#endif
-
-				/* Hack -- Scan the town */
-				for (y = 0; y < cur_hgt; y++)
-				{
-					for (x = 0; x < cur_wid; x++)
-					{
-						/* Get the cave grid */
-						c_ptr = &cave[y][x];
-
-						/* Assume lit */
-						c_ptr->info |= (CAVE_GLOW);
-
-						/* Hack -- Memorize lit grids if allowed */
-						if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
-
-						/* Hack -- Notice spot */
-						note_spot(y, x);
-					}
-				}
-			}
-
-			/* Night falls */
-			else
-			{
-				byte feat;
-
-				/* Message */
-#ifdef JP
-				msg_print("日が沈んだ。");
-#else
-				msg_print("The sun has fallen.");
-#endif
-
-				/* Hack -- Scan the town */
-				for (y = 0; y < cur_hgt; y++)
-				{
-					for (x = 0; x < cur_wid; x++)
-					{
-						/* Get the cave grid */
-						c_ptr = &cave[y][x];
-
-						/* Feature code (applying "mimic" field) */
-						feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
-
-						if (!is_mirror_grid(c_ptr) && (feat != FEAT_QUEST_ENTER) && (feat != FEAT_ENTRANCE))
-						{
-							/* Assume dark */
-							c_ptr->info &= ~(CAVE_GLOW);
-
-							if ((feat <= FEAT_INVIS) || (feat == FEAT_DIRT) || (feat == FEAT_GRASS))
-							{
-								/* Forget the normal floor grid */
-								c_ptr->info &= ~(CAVE_MARK);
-
-								/* Hack -- Notice spot */
-								note_spot(y, x);
-							}
-						}
-					}
-
-					/* Glow deep lava and building entrances */
-					glow_deep_lava_and_bldg();
-				}
-			}
-
-			/* Update the monsters */
-			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
-
-			/* Redraw map */
-			p_ptr->redraw |= (PR_MAP);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-		}
-	}
-
-	/* Set back the rewards once a day */
-	/* Only used for reward in thief's guild for now */
-	if (!(turn % (TURNS_PER_TICK * TOWN_DAWN)))
-	{
-		int n;
-
-		/* Reset the rewards */
-		for (n = 0; n < MAX_BACT; n++)
-		{
-			p_ptr->rewards[n] = FALSE;
-		}
-
-		/* Message */
-#ifdef JP
-if (cheat_xtra) msg_print("報酬をリセット");
-#else
-		if (cheat_xtra) msg_print("Rewards reset.");
-#endif
-
-	}
-
-
-	/*** Process the monsters ***/
-
-	/* Check for creature generation. */
-	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
-	    !p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
-	{
-		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, 0);
-	}
-
-	/* Hack -- Check for creature regeneration */
-	if (!(turn % (TURNS_PER_TICK*10)) && !p_ptr->inside_battle) regen_monsters();
-	if (!(turn % (TURNS_PER_TICK*3))) regen_captured_monsters();
-
-	/* Hack -- Process the counters of all monsters */
-	process_monsters_counters();
+	/* Default regeneration */
+	int regen_amount = PY_REGEN_NORMAL;
 
 
 	/*** Damage over Time ***/
@@ -2214,6 +1495,58 @@ if (cheat_xtra) msg_print("報酬をリセット");
 		take_hit(DAMAGE_NOESCAPE, 1, "毒", -1);
 #else
 		take_hit(DAMAGE_NOESCAPE, 1, "poison", -1);
+#endif
+
+	}
+
+	/* Take damage from cuts */
+	if (p_ptr->cut && !IS_INVULN())
+	{
+		int dam;
+
+		/* Mortal wound or Deep Gash */
+		if (p_ptr->cut > 1000)
+		{
+			dam = 200;
+		}
+
+		else if (p_ptr->cut > 200)
+		{
+			dam = 80;
+		}
+
+		/* Severe cut */
+		else if (p_ptr->cut > 100)
+		{
+			dam = 32;
+		}
+
+		else if (p_ptr->cut > 50)
+		{
+			dam = 16;
+		}
+
+		else if (p_ptr->cut > 25)
+		{
+			dam = 7;
+		}
+
+		else if (p_ptr->cut > 10)
+		{
+			dam = 3;
+		}
+
+		/* Other cuts */
+		else
+		{
+			dam = 1;
+		}
+
+		/* Take damage */
+#ifdef JP
+		take_hit(DAMAGE_NOESCAPE, dam, "致命傷", -1);
+#else
+		take_hit(DAMAGE_NOESCAPE, dam, "a fatal wound", -1);
 #endif
 
 	}
@@ -2247,7 +1580,7 @@ take_hit(DAMAGE_NOESCAPE, 1, "日光", -1);
 			char ouch [MAX_NLEN+40];
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, FALSE, 0);
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 #ifdef JP
 msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
@@ -2259,7 +1592,7 @@ msg_format("%sがあなたのアンデッドの肉体を焼き焦がした！", o_name);
 			cave_no_regen = TRUE;
 
 			/* Get an object description */
-			object_desc(o_name, o_ptr, TRUE, 0);
+			object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
 #ifdef JP
 sprintf(ouch, "%sを装備したダメージ", o_name);
@@ -2271,86 +1604,63 @@ sprintf(ouch, "%sを装備したダメージ", o_name);
 		}
 	}
 
-	if ((cave[py][px].feat == FEAT_SHAL_LAVA) &&
-		!IS_INVULN() && !p_ptr->immune_fire && !p_ptr->ffall)
+	if (have_flag(f_ptr->flags, FF_LAVA) && !IS_INVULN() && !p_ptr->immune_fire)
 	{
-		int damage = 3000 + randint0(2000);
+		int damage = 0;
 
-		if (prace_is_(RACE_ENT)) damage += damage/3;
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (IS_OPPOSE_FIRE()) damage = damage / 3;
-		damage = damage / 100 + (randint0(100) < (damage % 100));
+		if (have_flag(f_ptr->flags, FF_DEEP))
+		{
+			damage = 6000 + randint0(4000);
+		}
+		else if (!p_ptr->levitation)
+		{
+			damage = 3000 + randint0(2000);
+		}
 
 		if (damage)
 		{
-			/* Take damage */
+			if (prace_is_(RACE_ENT)) damage += damage / 3;
+			if (p_ptr->resist_fire) damage = damage / 3;
+			if (IS_OPPOSE_FIRE()) damage = damage / 3;
+
+			if (p_ptr->levitation) damage = damage / 5;
+
+			damage = damage / 100 + (randint0(100) < (damage % 100));
+
+			if (p_ptr->levitation)
+			{
 #ifdef JP
-msg_print("溶岩で火傷した！");
-take_hit(DAMAGE_NOESCAPE, damage, "浅い溶岩流", -1);
+				msg_print("熱で火傷した！");
+				take_hit(DAMAGE_NOESCAPE, damage, format("%sの上に浮遊したダメージ", f_name + f_info[get_feat_mimic(&cave[py][px])].name), -1);
 #else
-			msg_print("The lava burns you!");
-			take_hit(DAMAGE_NOESCAPE, damage, "shallow lava", -1);
+				msg_print("The heat burns you!");
+				take_hit(DAMAGE_NOESCAPE, damage, format("flying over %s", f_name + f_info[get_feat_mimic(&cave[py][px])].name), -1);
 #endif
+			}
+			else
+			{
+				cptr name = f_name + f_info[get_feat_mimic(&cave[py][px])].name;
+#ifdef JP
+				msg_format("%sで火傷した！", name);
+#else
+				msg_format("The %s burns you!", name);
+#endif
+				take_hit(DAMAGE_NOESCAPE, damage, name, -1);
+			}
 
 			cave_no_regen = TRUE;
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_LAVA) &&
-		!IS_INVULN() && !p_ptr->immune_fire)
+	if (have_flag(f_ptr->flags, FF_WATER) && have_flag(f_ptr->flags, FF_DEEP) &&
+	    !p_ptr->levitation && !p_ptr->can_swim)
 	{
-		int damage = 6000 + randint0(4000);
-
-		cptr message;
-		cptr hit_from;
-
-		if (p_ptr->resist_fire) damage = damage / 3;
-		if (IS_OPPOSE_FIRE()) damage = damage / 3;
-
-		if (p_ptr->ffall)
-		{
-			damage = damage / 5;
-
-#ifdef JP
-message = "熱で火傷した！";
-hit_from = "深い溶岩流の上に浮遊したダメージ";
-#else
-			message = "The heat burns you!";
-			hit_from = "flying over deep lava";
-#endif
-
-		}
-		else
-		{
-#ifdef JP
-message = "溶岩で火傷した！";
-hit_from = "深い溶岩流";
-#else
-			message = "The lava burns you!";
-			hit_from = "deep lava";
-#endif
-
-		}
-
-		damage = damage / 100 + (randint0(100) < (damage % 100));
-		if (damage)
-		{
-			/* Take damage */
-			msg_print(message);
-			take_hit(DAMAGE_NOESCAPE, damage, hit_from, -1);
-
-			cave_no_regen = TRUE;
-		}
-	}
-
-	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->can_swim)
-	{
-		if (p_ptr->total_weight > (((u32b)adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2))
+		if (p_ptr->total_weight > weight_limit())
 		{
 			/* Take damage */
 #ifdef JP
-msg_print("溺れている！");
-take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "溺れ", -1);
+			msg_print("溺れている！");
+			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "溺れ", -1);
 #else
 			msg_print("You are drowning!");
 			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->lev), "drowning", -1);
@@ -2413,14 +1723,9 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	 * reduced below 0 hp by being inside a stone wall; others
 	 * WILL BE!
 	 */
-	if (!cave_floor_bold(py, px))
+	if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY))
 	{
-		/* Player can walk through trees */
-		if ((cave[py][px].feat == FEAT_TREES) || ((cave[py][px].feat == FEAT_MOUNTAIN) && !dun_level && p_ptr->ffall))
-		{
-			/* Do nothing */
-		}
-		else if (!IS_INVULN() && !p_ptr->wraith_form && !p_ptr->kabenuke &&
+		if (!IS_INVULN() && !p_ptr->wraith_form && !p_ptr->kabenuke &&
 		    ((p_ptr->chp > (p_ptr->lev / 5)) || !p_ptr->pass_wall))
 		{
 			cptr dam_desc;
@@ -2430,220 +1735,30 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 			if (p_ptr->pass_wall)
 			{
 #ifdef JP
-msg_print("体の分子が分解した気がする！");
-dam_desc = "密度";
+				msg_print("体の分子が分解した気がする！");
+				dam_desc = "密度";
 #else
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
 #endif
-
 			}
 			else
 			{
 #ifdef JP
-msg_print("崩れた岩に押し潰された！");
-dam_desc = "硬い岩";
+				msg_print("崩れた岩に押し潰された！");
+				dam_desc = "硬い岩";
 #else
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
 #endif
-
 			}
 
 			take_hit(DAMAGE_NOESCAPE, 1 + (p_ptr->lev / 5), dam_desc, -1);
 		}
 	}
 
-	if (!hour && !min)
-	{
-		if (min != prev_min)
-		{
-			do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
-			determine_today_mon(FALSE);
-		}
-	}
 
-	/* Nightmare mode activates the TY_CURSE at midnight */
-	if (ironman_nightmare)
-	{
-		/* Require exact minute */
-		if (min != prev_min)
-		{
-			/* Every 15 minutes after 11:00 pm */
-			if ((hour == 23) && !(min % 15))
-			{
-				/* Disturbing */
-				disturb(0, 0);
-
-				switch (min / 15)
-				{
-					case 0:
-					{
-#ifdef JP
-msg_print("遠くで不気味な鐘の音が鳴った。");
-#else
-						msg_print("You hear a distant bell toll ominously.");
-#endif
-
-						break;
-					}
-					case 1:
-					{
-#ifdef JP
-msg_print("遠くで鐘が二回鳴った。");
-#else
-						msg_print("A distant bell sounds twice.");
-#endif
-
-						break;
-					}
-					case 2:
-	{
-#ifdef JP
-msg_print("遠くで鐘が三回鳴った。");
-#else
-						msg_print("A distant bell sounds three times.");
-#endif
-
-						break;
-					}
-					case 3:
-					{
-#ifdef JP
-msg_print("遠くで鐘が四回鳴った。");
-#else
-						msg_print("A distant bell tolls four times.");
-#endif
-
-						break;
-					}
-				}
-			}
-
-			/* TY_CURSE activates at mignight! */
-			if (!hour && !min)
-			{
-				int count = 0;
-
-				disturb(1, 0);
-#ifdef JP
-msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
-#else
-				msg_print("A distant bell tolls many times, fading into an deathly silence.");
-#endif
-
-		activate_ty_curse(FALSE, &count);
-	}
-		}
-	}
-
-	/* Take damage from cuts */
-	if (p_ptr->cut && !IS_INVULN())
-	{
-		/* Mortal wound or Deep Gash */
-		if (p_ptr->cut > 1000)
-		{
-			i = 200;
-		}
-
-		else if (p_ptr->cut > 200)
-		{
-			i = 80;
-		}
-
-		/* Severe cut */
-		else if (p_ptr->cut > 100)
-		{
-			i = 32;
-		}
-
-		else if (p_ptr->cut > 50)
-		{
-			i = 16;
-		}
-
-		else if (p_ptr->cut > 25)
-		{
-			i = 7;
-		}
-
-		else if (p_ptr->cut > 10)
-		{
-			i = 3;
-		}
-
-		/* Other cuts */
-		else
-		{
-			i = 1;
-		}
-
-		/* Take damage */
-#ifdef JP
-take_hit(DAMAGE_NOESCAPE, i, "致命傷", -1);
-#else
-		take_hit(DAMAGE_NOESCAPE, i, "a fatal wound", -1);
-#endif
-
-	}
-
-
-	/*** Check the Food, and Regenerate ***/
-
-	if (!p_ptr->inside_battle)
-	{
-		/* Digest normally */
-		if (p_ptr->food < PY_FOOD_MAX)
-		{
-			/* Every 50 game turns */
-			if (!(turn % (TURNS_PER_TICK*5)))
-			{
-				/* Basic digestion rate based on speed */
-				i = SPEED_TO_ENERGY(p_ptr->pspeed);
-
-				/* Regeneration takes more food */
-				if (p_ptr->regenerate) i += 20;
-				if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK)) i+= 20;
-				if (p_ptr->cursed & TRC_FAST_DIGEST) i += 30;
-
-				/* Slow digestion takes less food */
-				if (p_ptr->slow_digest) i -= 5;
-
-				/* Minimal digestion */
-				if (i < 1) i = 1;
-				/* Maximal digestion */
-				if (i > 100) i = 100;
-
-				/* Digest some food */
-				(void)set_food(p_ptr->food - i);
-			}
-		}
-
-		/* Digest quickly when gorged */
-		else
-		{
-			/* Digest a lot of food */
-			(void)set_food(p_ptr->food - 100);
-		}
-	}
-
-	/* Starve to death (slowly) */
-	if (p_ptr->food < PY_FOOD_STARVE)
-	{
-		/* Calculate damage */
-		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-		/* Take damage */
-#ifdef JP
-		if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, i, "空腹", -1);
-#else
-		if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, i, "starvation", -1);
-#endif
-
-	}
-
-	/* Default regeneration */
-	regen_amount = PY_REGEN_NORMAL;
+	/*** handle regeneration ***/
 
 	/* Getting Weak */
 	if (p_ptr->food < PY_FOOD_WEAK)
@@ -2661,28 +1776,7 @@ take_hit(DAMAGE_NOESCAPE, i, "致命傷", -1);
 		{
 			regen_amount = PY_REGEN_WEAK;
 		}
-
-		/* Getting Faint */
-		if ((p_ptr->food < PY_FOOD_FAINT) && !p_ptr->inside_battle)
-		{
-			/* Faint occasionally */
-			if (!p_ptr->paralyzed && (randint0(100) < 10))
-			{
-				/* Message */
-#ifdef JP
-msg_print("あまりにも空腹で気絶してしまった。");
-#else
-				msg_print("You faint from the lack of food.");
-#endif
-
-				disturb(1, 0);
-
-				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
-			}
-		}
 	}
-
 
 	/* Are we walking the pattern? */
 	if (pattern_effect())
@@ -2715,33 +1809,20 @@ msg_print("あまりにも空腹で気絶してしまった。");
 
 	upkeep_factor = calculate_upkeep();
 
-	/* Regenerate the mana */
-/*	if (p_ptr->csp < p_ptr->msp) */
+	/* No regeneration while special action */
+	if ((p_ptr->action == ACTION_LEARN) ||
+	    (p_ptr->action == ACTION_HAYAGAKE) ||
+	    (p_ptr->special_defense & KATA_KOUKIJIN))
 	{
-		if (upkeep_factor)
-		{
-			s32b upkeep_regen = ((100 - upkeep_factor) * regen_amount);
-			if ((p_ptr->action == ACTION_LEARN) || (p_ptr->action == ACTION_HAYAGAKE)) upkeep_regen -= regen_amount;
-			regenmana(upkeep_regen/100);
-
-#ifdef TRACK_FRIENDS
-			if (p_ptr->wizard)
-			{
-#ifdef JP
-msg_format("ＭＰ回復: %d/%d", upkeep_regen, regen_amount);
-#else
-				msg_format("Regen: %d/%d", upkeep_regen, regen_amount);
-#endif
-
-			}
-#endif /* TRACK_FRIENDS */
-
-		}
-		else if (p_ptr->action != ACTION_LEARN)
-		{
-			regenmana(regen_amount);
-		}
+		upkeep_factor += 100;
 	}
+
+	/* Regenerate the mana */
+	upkeep_regen = (100 - upkeep_factor) * regen_amount;
+	regenmana(upkeep_regen);
+
+
+	/* Recharge magic eater's power */
 	if (p_ptr->pclass == CLASS_MAGIC_EATER)
 	{
 		regenmagic(regen_amount);
@@ -2752,9 +1833,9 @@ msg_format("ＭＰ回復: %d/%d", upkeep_regen, regen_amount);
 		while (upkeep_factor > 100)
 		{
 #ifdef JP
-msg_print("こんなに多くのペットを制御できない！");
+			msg_print("こんなに多くのペットを制御できない！");
 #else
-			msg_print("Such much pets cannot be controled at once!");
+			msg_print("Too many pets to control at once!");
 #endif
 			msg_print(NULL);
 			do_cmd_pet_dismiss();
@@ -2782,17 +1863,17 @@ msg_print("こんなに多くのペットを制御できない！");
 	/* Regenerate Hit Points if needed */
 	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
 	{
-		if ((cave[py][px].feat < FEAT_PATTERN_END) &&
-		    (cave[py][px].feat >= FEAT_PATTERN_START))
-		{
-			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
-		}
-		else
-		{
-			regenhp(regen_amount);
-		}
+		regenhp(regen_amount);
 	}
+}
 
+
+/*
+ * Handle timeout every 10 game turns
+ */
+static void process_world_aux_timeout(void)
+{
+	const int dec_count = (easy_band ? 2 : 1);
 
 	/*** Timeout Various Things ***/
 
@@ -2862,9 +1943,9 @@ msg_print("こんなに多くのペットを制御できない！");
 	}
 
 	/* Timed levitation */
-	if (p_ptr->tim_ffall)
+	if (p_ptr->tim_levitation)
 	{
-		(void)set_tim_ffall(p_ptr->tim_ffall - 1, TRUE);
+		(void)set_tim_levitation(p_ptr->tim_levitation - 1, TRUE);
 	}
 
 	/* Timed sh_touki */
@@ -3095,19 +2176,22 @@ msg_print("こんなに多くのペットを制御できない！");
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
+}
 
 
-
-	/*** Process Light ***/
-
+/*
+ * Handle burning fuel every 10 game turns
+ */
+static void process_world_aux_light(void)
+{
 	/* Check for light being wielded */
-	o_ptr = &inventory[INVEN_LITE];
+	object_type *o_ptr = &inventory[INVEN_LITE];
 
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!(artifact_p(o_ptr) || o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->xtra4 > 0))
+		if (!(object_is_fixed_artifact(o_ptr) || o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->xtra4 > 0))
 		{
 			/* Decrease life-span */
 			if (o_ptr->name2 == EGO_LITE_LONG)
@@ -3120,625 +2204,655 @@ msg_print("こんなに多くのペットを制御できない！");
 			notice_lite_change(o_ptr);
 		}
 	}
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
+}
 
 
-	/*** Process mutation effects ***/
-	if (p_ptr->muta2 && !p_ptr->inside_battle && !p_ptr->wild_mode)
+/*
+ * Handle mutation effects once every 10 game turns
+ */
+static void process_world_aux_mutation(void)
+{
+	/* No mutation with effects */
+	if (!p_ptr->muta2) return;
+
+	/* No effect on monster arena */
+	if (p_ptr->inside_battle) return;
+
+	/* No effect on the global map */
+	if (p_ptr->wild_mode) return;
+
+
+	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
 	{
-		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
+		disturb(0, 0);
+#ifdef JP
+		msg_print("ウガァァア！");
+		msg_print("激怒の発作に襲われた！");
+#else
+		msg_print("RAAAAGHH!");
+		msg_print("You feel a fit of rage coming over you!");
+#endif
+
+		(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
+		(void)set_afraid(0);
+	}
+
+	if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
+	{
+		if (!p_ptr->resist_fear)
 		{
 			disturb(0, 0);
 #ifdef JP
-msg_print("ウガァァア！");
-msg_print("激怒の発作に襲われた！");
+			msg_print("とても暗い... とても恐い！");
 #else
-			msg_print("RAAAAGHH!");
-			msg_print("You feel a fit of rage coming over you!");
+			msg_print("It's so dark... so scary!");
 #endif
 
-			(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
+			set_afraid(p_ptr->afraid + 13 + randint1(26));
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint1(5000) == 88))
+	{
+		if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
+		    !p_ptr->anti_tele)
+		{
+			disturb(0, 0);
+
+			/* Teleport player */
+#ifdef JP
+			msg_print("あなたの位置は突然ひじょうに不確定になった...");
+#else
+			msg_print("Your position suddenly seems very uncertain...");
+#endif
+
+			msg_print(NULL);
+			teleport_player(40, TELEPORT_PASSIVE);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint1(6400) == 321))
+	{
+		if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
+		{
+			disturb(0, 0);
+			p_ptr->redraw |= PR_EXTRA;
+#ifdef JP
+			msg_print("いひきがもーろーとひてきたきがふる...ヒック！");
+#else
+			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+#endif
+
 		}
 
-		if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
+		if (!p_ptr->resist_conf)
 		{
-			if (!p_ptr->resist_fear)
-			{
-				disturb(0, 0);
-#ifdef JP
-msg_print("とても暗い... とても恐い！");
-#else
-				msg_print("It's so dark... so scary!");
-#endif
-
-				set_afraid(p_ptr->afraid + 13 + randint1(26));
-			}
+			(void)set_confused(p_ptr->confused + randint0(20) + 15);
 		}
 
-		if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint1(5000) == 88))
+		if (!p_ptr->resist_chaos)
 		{
-			if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
-			    !p_ptr->anti_tele)
+			if (one_in_(20))
 			{
-				disturb(0, 0);
-
-				/* Teleport player */
-#ifdef JP
-msg_print("あなたの位置は突然ひじょうに不確定になった...");
-#else
-				msg_print("Your position suddenly seems very uncertain...");
-#endif
-
 				msg_print(NULL);
-				teleport_player(40);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint1(6400) == 321))
-		{
-			if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
+				if (one_in_(3)) lose_all_info();
+				else wiz_dark();
+				(void)teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
+				wiz_dark();
 #ifdef JP
-msg_print("いひきがもーろーとひてきたきがふる...ヒック！");
+				msg_print("あなたは見知らぬ場所で目が醒めた...頭が痛い。");
+				msg_print("何も覚えていない。どうやってここに来たかも分からない！");
 #else
-				msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+				msg_print("You wake up somewhere with a sore head...");
+				msg_print("You can't remember a thing, or how you got here!");
 #endif
 
-			}
-
-			if (!p_ptr->resist_conf)
-			{
-				(void)set_confused(p_ptr->confused + randint0(20) + 15);
-			}
-
-			if (!p_ptr->resist_chaos)
-			{
-				if (one_in_(20))
-				{
-					msg_print(NULL);
-					if (one_in_(3)) lose_all_info();
-					else wiz_dark();
-					teleport_player(100);
-					wiz_dark();
-#ifdef JP
-msg_print("あなたは見知らぬ場所で目が醒めた...頭が痛い。");
-msg_print("何も覚えていない。どうやってここに来たかも分からない！");
-#else
-					msg_print("You wake up somewhere with a sore head...");
-					msg_print("You can't remember a thing, or how you got here!");
-#endif
-
-				}
-				else
-				{
-					if (one_in_(3))
-					{
-#ifdef JP
-msg_print("き〜れいなちょおちょらとんれいる〜");
-#else
-						msg_print("Thishcischs GooDSChtuff!");
-#endif
-
-						(void)set_image(p_ptr->image + randint0(150) + 150);
-					}
-				}
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_HALLU) && (randint1(6400) == 42))
-		{
-			if (!p_ptr->resist_chaos)
-			{
-				disturb(0, 0);
-				p_ptr->redraw |= PR_EXTRA;
-				(void)set_image(p_ptr->image + randint0(50) + 20);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint1(3000) == 13))
-		{
-			disturb(0, 0);
-
-#ifdef JP
-msg_print("ブゥーーッ！おっと。");
-#else
-			msg_print("BRRAAAP! Oops.");
-#endif
-
-			msg_print(NULL);
-			fire_ball(GF_POIS, 0, p_ptr->lev, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
-		    !p_ptr->anti_magic && one_in_(9000))
-		{
-			int dire = 0;
-			disturb(0, 0);
-#ifdef JP
-msg_print("魔法のエネルギーが突然あなたの中に流れ込んできた！エネルギーを解放しなければならない！");
-#else
-			msg_print("Magical energy flows through you! You must release it!");
-#endif
-
-			flush();
-			msg_print(NULL);
-			(void)get_hack_dir(&dire);
-			fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
-		    !p_ptr->anti_magic && (randint1(6666) == 666))
-		{
-			bool pet = one_in_(6);
-			u32b mode = PM_ALLOW_GROUP;
-
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
-
-			if (summon_specific((pet ? -1 : 0), py, px,
-				    dun_level, SUMMON_DEMON, mode))
-			{
-#ifdef JP
-msg_print("あなたはデーモンを引き寄せた！");
-#else
-				msg_print("You have attracted a demon!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && one_in_(6000))
-		{
-			disturb(0, 0);
-			if (one_in_(2))
-			{
-#ifdef JP
-msg_print("精力的でなくなった気がする。");
-#else
-				msg_print("You feel less energetic.");
-#endif
-
-				if (p_ptr->fast > 0)
-				{
-					set_fast(0, TRUE);
-				}
-				else
-				{
-					set_slow(randint1(30) + 10, FALSE);
-				}
 			}
 			else
 			{
-#ifdef JP
-msg_print("精力的になった気がする。");
-#else
-				msg_print("You feel more energetic.");
-#endif
-
-				if (p_ptr->slow > 0)
-				{
-					set_slow(0, TRUE);
-				}
-				else
-				{
-					set_fast(randint1(30) + 10, FALSE);
-				}
-			}
-			msg_print(NULL);
-		}
-		if ((p_ptr->muta2 & MUT2_BANISH_ALL) && one_in_(9000))
-		{
-			disturb(0, 0);
-#ifdef JP
-msg_print("突然ほとんど孤独になった気がする。");
-#else
-			msg_print("You suddenly feel almost lonely.");
-#endif
-
-			banish_monsters(100);
-			if (!dun_level && p_ptr->town_num)
-			{
-#ifdef JP
-msg_print("店の主人が丘に向かって走っている！");
-#else
-				msg_print("You see one of the shopkeepers running for the hills!");
-#endif
-
-				store_shuffle(randint0(MAX_STORES));
-			}
-			msg_print(NULL);
-		}
-
-		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
-		{
-			object_type *o_ptr;
-
-#ifdef JP
-msg_print("影につつまれた。");
-#else
-			msg_print("A shadow passes over you.");
-#endif
-
-			msg_print(NULL);
-
-			/* Absorb light from the current possition */
-			if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
-			{
-				hp_player(10);
-			}
-
-			o_ptr = &inventory[INVEN_LITE];
-
-			/* Absorb some fuel in the current lite */
-			if (o_ptr->tval == TV_LITE)
-			{
-				/* Use some fuel (except on artifacts) */
-				if (!artifact_p(o_ptr) && (o_ptr->xtra4 > 0))
-				{
-					/* Heal the player a bit */
-					hp_player(o_ptr->xtra4 / 20);
-
-					/* Decrease life-span of lite */
-					o_ptr->xtra4 /= 2;
-
-#ifdef JP
-msg_print("光源からエネルギーを吸収した！");
-#else
-					msg_print("You absorb energy from your light!");
-#endif
-
-
-					/* Notice interesting fuel steps */
-					notice_lite_change(o_ptr);
-				}
-			}
-
-			/*
-			 * Unlite the area (radius 10) around player and
-			 * do 50 points damage to every affected monster
-			 */
-			unlite_area(50, 10);
-		}
-
-		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
-		   !p_ptr->anti_magic && one_in_(7000))
-		{
-			bool pet = one_in_(3);
-			u32b mode = PM_ALLOW_GROUP;
-
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
-			{
-#ifdef JP
-msg_print("動物を引き寄せた！");
-#else
-				msg_print("You have attracted an animal!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-
-		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
-		    !p_ptr->anti_magic && one_in_(8000))
-		{
-			disturb(0, 0);
-#ifdef JP
-msg_print("周りの空間が歪んでいる気がする！");
-#else
-			msg_print("You feel the world warping around you!");
-#endif
-
-			msg_print(NULL);
-			fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
-		}
-		if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
-		{
-			if (!lose_mutation(0))
-#ifdef JP
-msg_print("奇妙なくらい普通になった気がする。");
-#else
-				msg_print("You feel oddly normal.");
-#endif
-
-		}
-		if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
-		{
-			disturb(0, 0);
-#ifdef JP
-msg_print("非物質化した！");
-#else
-			msg_print("You feel insubstantial!");
-#endif
-
-			msg_print(NULL);
-			set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
-		}
-		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
-		{
-			do_poly_wounds();
-		}
-		if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
-		{
-			int which_stat = randint0(6);
-			int sustained = FALSE;
-
-			switch (which_stat)
-			{
-			case A_STR:
-				if (p_ptr->sustain_str) sustained = TRUE;
-				break;
-			case A_INT:
-				if (p_ptr->sustain_int) sustained = TRUE;
-				break;
-			case A_WIS:
-				if (p_ptr->sustain_wis) sustained = TRUE;
-				break;
-			case A_DEX:
-				if (p_ptr->sustain_dex) sustained = TRUE;
-				break;
-			case A_CON:
-				if (p_ptr->sustain_con) sustained = TRUE;
-				break;
-			case A_CHR:
-				if (p_ptr->sustain_chr) sustained = TRUE;
-				break;
-			default:
-#ifdef JP
-msg_print("不正な状態！");
-#else
-				msg_print("Invalid stat chosen!");
-#endif
-
-				sustained = TRUE;
-			}
-
-			if (!sustained)
-			{
-				disturb(0, 0);
-#ifdef JP
-msg_print("自分が衰弱していくのが分かる！");
-#else
-				msg_print("You can feel yourself wasting away!");
-#endif
-
-				msg_print(NULL);
-				(void)dec_stat(which_stat, randint1(6) + 6, one_in_(3));
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
-		   !p_ptr->anti_magic && one_in_(3000))
-		{
-			bool pet = one_in_(5);
-			u32b mode = PM_ALLOW_GROUP;
-
-			if (pet) mode |= PM_FORCE_PET;
-			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
-
-			if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
-			{
-#ifdef JP
-msg_print("ドラゴンを引き寄せた！");
-#else
-				msg_print("You have attracted a dragon!");
-#endif
-
-				disturb(0, 0);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
-			one_in_(3000))
-		{
-			if (p_ptr->tim_esp > 0)
-			{
-#ifdef JP
-msg_print("精神にもやがかかった！");
-#else
-				msg_print("Your mind feels cloudy!");
-#endif
-
-				set_tim_esp(0, TRUE);
-			}
-			else
-			{
-#ifdef JP
-msg_print("精神が広がった！");
-#else
-				msg_print("Your mind expands!");
-#endif
-
-				set_tim_esp(p_ptr->lev, FALSE);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
-			one_in_(9000))
-		{
-			disturb(0, 0);
-#ifdef JP
-msg_print("胃が痙攣し、食事を失った！");
-#else
-			msg_print("Your stomach roils, and you lose your lunch!");
-#endif
-
-			msg_print(NULL);
-			set_food(PY_FOOD_WEAK);
-		}
-
-		if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
-		   !p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
-		{
-			alter_reality();
-		}
-
-		if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
-		{
-			int danger_amount = 0;
-			int monster;
-
-			for (monster = 0; monster < m_max; monster++)
-			{
-				monster_type    *m_ptr = &m_list[monster];
-				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
-				/* Paranoia -- Skip dead monsters */
-				if (!m_ptr->r_idx) continue;
-
-				if (r_ptr->level >= p_ptr->lev)
-				{
-					danger_amount += r_ptr->level - p_ptr->lev + 1;
-				}
-			}
-
-			if (danger_amount > 100)
-#ifdef JP
-msg_print("非常に恐ろしい気がする！");
-#else
-				msg_print("You feel utterly terrified!");
-#endif
-
-			else if (danger_amount > 50)
-#ifdef JP
-msg_print("恐ろしい気がする！");
-#else
-				msg_print("You feel terrified!");
-#endif
-
-			else if (danger_amount > 20)
-#ifdef JP
-msg_print("非常に心配な気がする！");
-#else
-				msg_print("You feel very worried!");
-#endif
-
-			else if (danger_amount > 10)
-#ifdef JP
-msg_print("心配な気がする！");
-#else
-				msg_print("You feel paranoid!");
-#endif
-
-			else if (danger_amount > 5)
-#ifdef JP
-msg_print("ほとんど安全な気がする。");
-#else
-				msg_print("You feel almost safe.");
-#endif
-
-			else
-#ifdef JP
-msg_print("寂しい気がする。");
-#else
-				msg_print("You feel lonely.");
-#endif
-
-		}
-		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-			one_in_(5000))
-		{
-			disturb(0, 0);
-#ifdef JP
-msg_print("無敵な気がする！");
-#else
-			msg_print("You feel invincible!");
-#endif
-
-			msg_print(NULL);
-			(void)set_invuln(randint1(8) + 8, FALSE);
-		}
-		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
-		{
-			int wounds = p_ptr->mhp - p_ptr->chp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->csp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				hp_player(healing);
-				p_ptr->csp -= healing;
-
-				/* Redraw mana */
-				p_ptr->redraw |= (PR_MANA);
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
-			one_in_(4000))
-		{
-			int wounds = p_ptr->msp - p_ptr->csp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->chp;
-
-				if (healing > wounds)
-				{
-					healing = wounds;
-				}
-
-				p_ptr->csp += healing;
-
-				/* Redraw mana */
-				p_ptr->redraw |= (PR_MANA);
-#ifdef JP
-take_hit(DAMAGE_LOSELIFE, healing, "頭に昇った血", -1);
-#else
-				take_hit(DAMAGE_LOSELIFE, healing, "blood rushing to the head", -1);
-#endif
-
-			}
-		}
-		if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
-		{
-			object_type *o_ptr;
-
-			disturb(0, 0);
-#ifdef JP
-msg_print("足がもつれて転んだ！");
-take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "転倒", -1);
-#else
-			msg_print("You trip over your own feet!");
-			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "tripping", -1);
-#endif
-
-
-			msg_print(NULL);
-			if (buki_motteruka(INVEN_RARM))
-			{
-				int slot = INVEN_RARM;
-				o_ptr = &inventory[INVEN_RARM];
-				if (buki_motteruka(INVEN_LARM) && one_in_(2))
-				{
-					o_ptr = &inventory[INVEN_LARM];
-					slot = INVEN_LARM;
-				}
-				if (!cursed_p(o_ptr))
+				if (one_in_(3))
 				{
 #ifdef JP
-msg_print("武器を落してしまった！");
+					msg_print("き〜れいなちょおちょらとんれいる〜");
 #else
-					msg_print("You drop your weapon!");
+					msg_print("Thishcischs GooDSChtuff!");
 #endif
 
-					inven_drop(slot, 1);
+					(void)set_image(p_ptr->image + randint0(150) + 150);
 				}
 			}
 		}
 	}
 
+	if ((p_ptr->muta2 & MUT2_HALLU) && (randint1(6400) == 42))
+	{
+		if (!p_ptr->resist_chaos)
+		{
+			disturb(0, 0);
+			p_ptr->redraw |= PR_EXTRA;
+			(void)set_image(p_ptr->image + randint0(50) + 20);
+		}
+	}
 
-	/*** Process Inventory ***/
+	if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint1(3000) == 13))
+	{
+		disturb(0, 0);
 
+#ifdef JP
+		msg_print("ブゥーーッ！おっと。");
+#else
+		msg_print("BRRAAAP! Oops.");
+#endif
+
+		msg_print(NULL);
+		fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+	}
+
+	if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
+	    !p_ptr->anti_magic && one_in_(9000))
+	{
+		int dire = 0;
+		disturb(0, 0);
+#ifdef JP
+		msg_print("魔法のエネルギーが突然あなたの中に流れ込んできた！エネルギーを解放しなければならない！");
+#else
+		msg_print("Magical energy flows through you! You must release it!");
+#endif
+
+		flush();
+		msg_print(NULL);
+		(void)get_hack_dir(&dire);
+		fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
+	    !p_ptr->anti_magic && (randint1(6666) == 666))
+	{
+		bool pet = one_in_(6);
+		u32b mode = PM_ALLOW_GROUP;
+
+		if (pet) mode |= PM_FORCE_PET;
+		else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+
+		if (summon_specific((pet ? -1 : 0), py, px,
+				    dun_level, SUMMON_DEMON, mode))
+		{
+#ifdef JP
+			msg_print("あなたはデーモンを引き寄せた！");
+#else
+			msg_print("You have attracted a demon!");
+#endif
+
+			disturb(0, 0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_SPEED_FLUX) && one_in_(6000))
+	{
+		disturb(0, 0);
+		if (one_in_(2))
+		{
+#ifdef JP
+			msg_print("精力的でなくなった気がする。");
+#else
+			msg_print("You feel less energetic.");
+#endif
+
+			if (p_ptr->fast > 0)
+			{
+				set_fast(0, TRUE);
+			}
+			else
+			{
+				set_slow(randint1(30) + 10, FALSE);
+			}
+		}
+		else
+		{
+#ifdef JP
+			msg_print("精力的になった気がする。");
+#else
+			msg_print("You feel more energetic.");
+#endif
+
+			if (p_ptr->slow > 0)
+			{
+				set_slow(0, TRUE);
+			}
+			else
+			{
+				set_fast(randint1(30) + 10, FALSE);
+			}
+		}
+		msg_print(NULL);
+	}
+	if ((p_ptr->muta2 & MUT2_BANISH_ALL) && one_in_(9000))
+	{
+		disturb(0, 0);
+#ifdef JP
+		msg_print("突然ほとんど孤独になった気がする。");
+#else
+		msg_print("You suddenly feel almost lonely.");
+#endif
+
+		banish_monsters(100);
+		if (!dun_level && p_ptr->town_num)
+		{
+			int n;
+
+			/* Pick a random shop (except home) */
+			do
+			{
+				n = randint0(MAX_STORES);
+			}
+			while ((n == STORE_HOME) || (n == STORE_MUSEUM));
+
+#ifdef JP
+			msg_print("店の主人が丘に向かって走っている！");
+#else
+			msg_print("You see one of the shopkeepers running for the hills!");
+#endif
+
+			store_shuffle(n);
+		}
+		msg_print(NULL);
+	}
+
+	if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && one_in_(3000))
+	{
+		object_type *o_ptr;
+
+#ifdef JP
+		msg_print("影につつまれた。");
+#else
+		msg_print("A shadow passes over you.");
+#endif
+
+		msg_print(NULL);
+
+		/* Absorb light from the current possition */
+		if ((cave[py][px].info & (CAVE_GLOW | CAVE_MNDK)) == CAVE_GLOW)
+		{
+			hp_player(10);
+		}
+
+		o_ptr = &inventory[INVEN_LITE];
+
+		/* Absorb some fuel in the current lite */
+		if (o_ptr->tval == TV_LITE)
+		{
+			/* Use some fuel (except on artifacts) */
+			if (!object_is_fixed_artifact(o_ptr) && (o_ptr->xtra4 > 0))
+			{
+				/* Heal the player a bit */
+				hp_player(o_ptr->xtra4 / 20);
+
+				/* Decrease life-span of lite */
+				o_ptr->xtra4 /= 2;
+
+#ifdef JP
+				msg_print("光源からエネルギーを吸収した！");
+#else
+				msg_print("You absorb energy from your light!");
+#endif
+
+
+				/* Notice interesting fuel steps */
+				notice_lite_change(o_ptr);
+			}
+		}
+
+		/*
+		 * Unlite the area (radius 10) around player and
+		 * do 50 points damage to every affected monster
+		 */
+		unlite_area(50, 10);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
+	    !p_ptr->anti_magic && one_in_(7000))
+	{
+		bool pet = one_in_(3);
+		u32b mode = PM_ALLOW_GROUP;
+
+		if (pet) mode |= PM_FORCE_PET;
+		else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+
+		if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_ANIMAL, mode))
+		{
+#ifdef JP
+			msg_print("動物を引き寄せた！");
+#else
+			msg_print("You have attracted an animal!");
+#endif
+
+			disturb(0, 0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_RAW_CHAOS) &&
+	    !p_ptr->anti_magic && one_in_(8000))
+	{
+		disturb(0, 0);
+#ifdef JP
+		msg_print("周りの空間が歪んでいる気がする！");
+#else
+		msg_print("You feel the world warping around you!");
+#endif
+
+		msg_print(NULL);
+		fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+	}
+	if ((p_ptr->muta2 & MUT2_NORMALITY) && one_in_(5000))
+	{
+		if (!lose_mutation(0))
+#ifdef JP
+			msg_print("奇妙なくらい普通になった気がする。");
+#else
+		msg_print("You feel oddly normal.");
+#endif
+
+	}
+	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
+	{
+		disturb(0, 0);
+#ifdef JP
+		msg_print("非物質化した！");
+#else
+		msg_print("You feel insubstantial!");
+#endif
+
+		msg_print(NULL);
+		set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+	}
+	if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
+	{
+		do_poly_wounds();
+	}
+	if ((p_ptr->muta2 & MUT2_WASTING) && one_in_(3000))
+	{
+		int which_stat = randint0(6);
+		int sustained = FALSE;
+
+		switch (which_stat)
+		{
+		case A_STR:
+			if (p_ptr->sustain_str) sustained = TRUE;
+			break;
+		case A_INT:
+			if (p_ptr->sustain_int) sustained = TRUE;
+			break;
+		case A_WIS:
+			if (p_ptr->sustain_wis) sustained = TRUE;
+			break;
+		case A_DEX:
+			if (p_ptr->sustain_dex) sustained = TRUE;
+			break;
+		case A_CON:
+			if (p_ptr->sustain_con) sustained = TRUE;
+			break;
+		case A_CHR:
+			if (p_ptr->sustain_chr) sustained = TRUE;
+			break;
+		default:
+#ifdef JP
+			msg_print("不正な状態！");
+#else
+			msg_print("Invalid stat chosen!");
+#endif
+
+			sustained = TRUE;
+		}
+
+		if (!sustained)
+		{
+			disturb(0, 0);
+#ifdef JP
+			msg_print("自分が衰弱していくのが分かる！");
+#else
+			msg_print("You can feel yourself wasting away!");
+#endif
+
+			msg_print(NULL);
+			(void)dec_stat(which_stat, randint1(6) + 6, one_in_(3));
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
+	    !p_ptr->anti_magic && one_in_(3000))
+	{
+		bool pet = one_in_(5);
+		u32b mode = PM_ALLOW_GROUP;
+
+		if (pet) mode |= PM_FORCE_PET;
+		else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
+
+		if (summon_specific((pet ? -1 : 0), py, px, dun_level, SUMMON_DRAGON, mode))
+		{
+#ifdef JP
+			msg_print("ドラゴンを引き寄せた！");
+#else
+			msg_print("You have attracted a dragon!");
+#endif
+
+			disturb(0, 0);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
+	    one_in_(3000))
+	{
+		if (p_ptr->tim_esp > 0)
+		{
+#ifdef JP
+			msg_print("精神にもやがかかった！");
+#else
+			msg_print("Your mind feels cloudy!");
+#endif
+
+			set_tim_esp(0, TRUE);
+		}
+		else
+		{
+#ifdef JP
+			msg_print("精神が広がった！");
+#else
+			msg_print("Your mind expands!");
+#endif
+
+			set_tim_esp(p_ptr->lev, FALSE);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
+	    one_in_(9000))
+	{
+		disturb(0, 0);
+#ifdef JP
+		msg_print("胃が痙攣し、食事を失った！");
+#else
+		msg_print("Your stomach roils, and you lose your lunch!");
+#endif
+
+		msg_print(NULL);
+		set_food(PY_FOOD_WEAK);
+		if (music_singing_any()) stop_singing();
+	}
+
+	if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
+	    !p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
+	{
+		alter_reality();
+	}
+
+	if ((p_ptr->muta2 & MUT2_WARNING) && one_in_(1000))
+	{
+		int danger_amount = 0;
+		int monster;
+
+		for (monster = 0; monster < m_max; monster++)
+		{
+			monster_type    *m_ptr = &m_list[monster];
+			monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Paranoia -- Skip dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			if (r_ptr->level >= p_ptr->lev)
+			{
+				danger_amount += r_ptr->level - p_ptr->lev + 1;
+			}
+		}
+
+		if (danger_amount > 100)
+#ifdef JP
+			msg_print("非常に恐ろしい気がする！");
+#else
+		msg_print("You feel utterly terrified!");
+#endif
+
+		else if (danger_amount > 50)
+#ifdef JP
+			msg_print("恐ろしい気がする！");
+#else
+		msg_print("You feel terrified!");
+#endif
+
+		else if (danger_amount > 20)
+#ifdef JP
+			msg_print("非常に心配な気がする！");
+#else
+		msg_print("You feel very worried!");
+#endif
+
+		else if (danger_amount > 10)
+#ifdef JP
+			msg_print("心配な気がする！");
+#else
+		msg_print("You feel paranoid!");
+#endif
+
+		else if (danger_amount > 5)
+#ifdef JP
+			msg_print("ほとんど安全な気がする。");
+#else
+		msg_print("You feel almost safe.");
+#endif
+
+		else
+#ifdef JP
+			msg_print("寂しい気がする。");
+#else
+		msg_print("You feel lonely.");
+#endif
+
+	}
+	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
+	    one_in_(5000))
+	{
+		disturb(0, 0);
+#ifdef JP
+		msg_print("無敵な気がする！");
+#else
+		msg_print("You feel invincible!");
+#endif
+
+		msg_print(NULL);
+		(void)set_invuln(randint1(8) + 8, FALSE);
+	}
+	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
+	{
+		int wounds = p_ptr->mhp - p_ptr->chp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->csp;
+
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+
+			hp_player(healing);
+			p_ptr->csp -= healing;
+
+			/* Redraw mana */
+			p_ptr->redraw |= (PR_MANA);
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
+	    one_in_(4000))
+	{
+		int wounds = p_ptr->msp - p_ptr->csp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->chp;
+
+			if (healing > wounds)
+			{
+				healing = wounds;
+			}
+
+			p_ptr->csp += healing;
+
+			/* Redraw mana */
+			p_ptr->redraw |= (PR_MANA);
+#ifdef JP
+			take_hit(DAMAGE_LOSELIFE, healing, "頭に昇った血", -1);
+#else
+			take_hit(DAMAGE_LOSELIFE, healing, "blood rushing to the head", -1);
+#endif
+
+		}
+	}
+	if ((p_ptr->muta2 & MUT2_DISARM) && one_in_(10000))
+	{
+		int slot = 0;
+		object_type *o_ptr = NULL;
+
+		disturb(0, 0);
+#ifdef JP
+		msg_print("足がもつれて転んだ！");
+		take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "転倒", -1);
+#else
+		msg_print("You trip over your own feet!");
+		take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), "tripping", -1);
+#endif
+
+		msg_print(NULL);
+		if (buki_motteruka(INVEN_RARM))
+		{
+			slot = INVEN_RARM;
+			o_ptr = &inventory[INVEN_RARM];
+
+			if (buki_motteruka(INVEN_LARM) && one_in_(2))
+			{
+				o_ptr = &inventory[INVEN_LARM];
+				slot = INVEN_LARM;
+			}
+		}
+		else if (buki_motteruka(INVEN_LARM))
+		{
+			o_ptr = &inventory[INVEN_LARM];
+			slot = INVEN_LARM;
+		}
+
+		if (slot && !object_is_cursed(o_ptr))
+		{
+#ifdef JP
+			msg_print("武器を落としてしまった！");
+#else
+			msg_print("You drop your weapon!");
+#endif
+			inven_drop(slot, 1);
+		}
+	}
+}
+
+
+/*
+ * Handle curse effects once every 10 game turns
+ */
+static void process_world_aux_curse(void)
+{
 	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->inside_battle && !p_ptr->wild_mode)
 	{
 		/*
@@ -3747,14 +2861,59 @@ msg_print("武器を落してしまった！");
 		 */
 		if ((p_ptr->cursed & TRC_TELEPORT_SELF) && one_in_(200))
 		{
+			char o_name[MAX_NLEN];
+			object_type *o_ptr;
+			int i, i_keep = 0, count = 0;
+
+			/* Scan the equipment with random teleport ability */
+			for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+			{
+				u32b flgs[TR_FLAG_SIZE];
+				o_ptr = &inventory[i];
+
+				/* Skip non-objects */
+				if (!o_ptr->k_idx) continue;
+
+				/* Extract the item flags */
+				object_flags(o_ptr, flgs);
+
+				if (have_flag(flgs, TR_TELEPORT))
+				{
+					/* {.} will stop random teleportation. */
+					if (!o_ptr->inscription || !my_strchr(quark_str(o_ptr->inscription), '.'))
+					{
+						count++;
+						if (one_in_(count)) i_keep = i;
+					}
+				}
+			}
+
+			o_ptr = &inventory[i_keep];
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
 #ifdef JP
-if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
+			msg_format("%sがテレポートの能力を発動させようとしている。", o_name);
+#else
+			msg_format("Your %s is activating teleportation.", o_name);
+#endif
+
+#ifdef JP
+			if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
 #else
 			if (get_check_strict("Teleport? ", CHECK_OKAY_CANCEL))
 #endif
 			{
 				disturb(0, 0);
-				teleport_player(50);
+				teleport_player(50, 0L);
+			}
+			else
+			{
+#ifdef JP
+				msg_format("%sに{.}(ピリオド)と銘を刻むと発動を抑制できます。", o_name);
+#else
+				msg_format("You can inscribe {.} on your %s to disable random teleportation. ", o_name);
+#endif
+				disturb(1, 0);
 			}
 		}
 		/* Make a chainsword noise */
@@ -3762,7 +2921,7 @@ if (get_check_strict("テレポートしますか？", CHECK_OKAY_CANCEL))
 		{
 			char noise[1024];
 #ifdef JP
-if (!get_rnd_line("chainswd_j.txt", 0, noise))
+			if (!get_rnd_line("chainswd_j.txt", 0, noise))
 #else
 			if (!get_rnd_line("chainswd.txt", 0, noise))
 #endif
@@ -3798,13 +2957,13 @@ if (!get_rnd_line("chainswd_j.txt", 0, noise))
 			{
 				char o_name[MAX_NLEN];
 
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 				o_ptr->curse_flags |= new_curse;
 #ifdef JP
-msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
+				msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
 #else
-				msg_format("There is a malignant black aura surrounding %s...", o_name);
+				msg_format("There is a malignant black aura surrounding your %s...", o_name);
 #endif
 
 				o_ptr->feeling = FEEL_NONE;
@@ -3825,13 +2984,13 @@ msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
 			{
 				char o_name[MAX_NLEN];
 
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 				o_ptr->curse_flags |= new_curse;
 #ifdef JP
-msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
+				msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
 #else
-				msg_format("There is a malignant black aura surrounding %s...", o_name);
+				msg_format("There is a malignant black aura surrounding your %s...", o_name);
 #endif
 
 				o_ptr->feeling = FEEL_NONE;
@@ -3847,11 +3006,11 @@ msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
 			{
 				char o_name[MAX_NLEN];
 
-				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_ANIMAL), FALSE, 0);
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_ANIMAL), (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
-msg_format("%sが動物を引き寄せた！", o_name);
+				msg_format("%sが動物を引き寄せた！", o_name);
 #else
-				msg_format("%s have attracted an animal!", o_name);
+				msg_format("Your %s have attracted an animal!", o_name);
 #endif
 
 				disturb(0, 0);
@@ -3864,11 +3023,11 @@ msg_format("%sが動物を引き寄せた！", o_name);
 			{
 				char o_name[MAX_NLEN];
 
-				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DEMON), FALSE, 0);
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DEMON), (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
-msg_format("%sが悪魔を引き寄せた！", o_name);
+				msg_format("%sが悪魔を引き寄せた！", o_name);
 #else
-				msg_format("%s have attracted a demon!", o_name);
+				msg_format("Your %s have attracted a demon!", o_name);
 #endif
 
 				disturb(0, 0);
@@ -3882,11 +3041,11 @@ msg_format("%sが悪魔を引き寄せた！", o_name);
 			{
 				char o_name[MAX_NLEN];
 
-				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DRAGON), FALSE, 0);
+				object_desc(o_name, choose_cursed_obj_name(TRC_CALL_DRAGON), (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
-msg_format("%sがドラゴンを引き寄せた！", o_name);
+				msg_format("%sがドラゴンを引き寄せた！", o_name);
 #else
-				msg_format("%s have attracted an animal!", o_name);
+				msg_format("Your %s have attracted an animal!", o_name);
 #endif
 
 				disturb(0, 0);
@@ -3898,7 +3057,7 @@ msg_format("%sがドラゴンを引き寄せた！", o_name);
 			{
 				disturb(0, 0);
 #ifdef JP
-msg_print("とても暗い... とても恐い！");
+				msg_print("とても暗い... とても恐い！");
 #else
 				msg_print("It's so dark... so scary!");
 #endif
@@ -3912,31 +3071,31 @@ msg_print("とても暗い... とても恐い！");
 			disturb(0, 0);
 
 			/* Teleport player */
-			teleport_player(40);
+			teleport_player(40, TELEPORT_PASSIVE);
 		}
 		/* Handle HP draining */
 		if ((p_ptr->cursed & TRC_DRAIN_HP) && one_in_(666))
 		{
 			char o_name[MAX_NLEN];
 
-			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_HP), FALSE, 0);
+			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_HP), (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
-msg_format("%sはあなたの体力を吸収した！", o_name);
+			msg_format("%sはあなたの体力を吸収した！", o_name);
 #else
-			msg_format("%s drains HP from you!", o_name);
+			msg_format("Your %s drains HP from you!", o_name);
 #endif
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev*2, 100), o_name, -1);
 		}
 		/* Handle mana draining */
-		if ((p_ptr->cursed & TRC_DRAIN_MANA) && one_in_(666))
+		if ((p_ptr->cursed & TRC_DRAIN_MANA) && p_ptr->csp && one_in_(666))
 		{
 			char o_name[MAX_NLEN];
 
-			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_MANA), FALSE, 0);
+			object_desc(o_name, choose_cursed_obj_name(TRC_DRAIN_MANA), (OD_OMIT_PREFIX | OD_NAME_ONLY));
 #ifdef JP
-msg_format("%sはあなたの魔力を吸収した！", o_name);
+			msg_format("%sはあなたの魔力を吸収した！", o_name);
 #else
-			msg_format("%s drains mana from you!", o_name);
+			msg_format("Your %s drains mana from you!", o_name);
 #endif
 			p_ptr->csp -= MIN(p_ptr->lev, 50);
 			if (p_ptr->csp < 0)
@@ -3956,13 +3115,13 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 		if (o_ptr->name1 == ART_JUDGE)
 		{
 #ifdef JP
-			if (object_known_p(o_ptr))
+			if (object_is_known(o_ptr))
 				msg_print("『審判の宝石』はあなたの体力を吸収した！");
 			else
 				msg_print("なにかがあなたの体力を吸収した！");
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "審判の宝石", -1);
 #else
-			if (object_known_p(o_ptr))
+			if (object_is_known(o_ptr))
 				msg_print("The Jewel of Judgement drains life from you!");
 			else
 				msg_print("Something drains life from you!");
@@ -3970,13 +3129,22 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 #endif
 		}
 	}
+}
 
+
+/*
+ * Handle recharging objects once every 10 game turns
+ */
+static void process_world_aux_recharge(void)
+{
+	int i;
+	bool changed;
 
 	/* Process equipment */
-	for (j = 0, i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	for (changed = FALSE, i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
 		/* Get the object */
-		o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3991,13 +3159,13 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 			if (!o_ptr->timeout)
 			{
 				recharged_notice(o_ptr);
-				j++;
+				changed = TRUE;
 			}
 		}
 	}
 
 	/* Notice changes */
-	if (j)
+	if (changed)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
@@ -4009,10 +3177,10 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 	 * and each charging rod in a stack decreases the stack's timeout by
 	 * one per turn. -LM-
 	 */
-	for (j = 0, i = 0; i < INVEN_PACK; i++)
+	for (changed = FALSE, i = 0; i < INVEN_PACK; i++)
 	{
-		o_ptr = &inventory[i];
-		k_ptr = &k_info[o_ptr->k_idx];
+		object_type *o_ptr = &inventory[i];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -4021,7 +3189,7 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
 			/* Determine how many rods are charging. */
-			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			int temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 			if (temp > o_ptr->number) temp = o_ptr->number;
 
 			/* Decrease timeout by that number. */
@@ -4034,34 +3202,30 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 			if (!(o_ptr->timeout))
 			{
 				recharged_notice(o_ptr);
-				j++;
+				changed = TRUE;
+			}
+
+			/* One of the stack of rod is charged */
+			else if (o_ptr->timeout % k_ptr->pval)
+			{
+				changed = TRUE;
 			}
 		}
 	}
 
 	/* Notice changes */
-	if (j)
+	if (changed)
 	{
-		/* Combine pack */
-		p_ptr->notice |= (PN_COMBINE);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
 		wild_regen = 20;
 	}
 
-	/* Feel the inventory */
-	sense_inventory1();
-	sense_inventory2();
-
-
-	/*** Process Objects ***/
-
-	/* Process objects */
+	/* Process objects on floor */
 	for (i = 1; i < o_max; i++)
 	{
 		/* Access object */
-		o_ptr = &o_list[i];
+		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
@@ -4076,10 +3240,14 @@ msg_format("%sはあなたの魔力を吸収した！", o_name);
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
 		}
 	}
+}
 
 
-	/*** Involuntary Movement ***/
-
+/*
+ * Handle involuntary movement once every 10 game turns
+ */
+static void process_world_aux_movement(void)
+{
 	/* Delayed Word-of-Recall */
 	if (p_ptr->word_recall)
 	{
@@ -4111,17 +3279,17 @@ msg_print("上に引っ張りあげられる感じがする！");
 				msg_print("You feel yourself yanked upwards!");
 #endif
 
-				p_ptr->recall_dungeon = dungeon_type;
+				if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
 				if (record_stair)
 					do_cmd_write_nikki(NIKKI_RECALL, dun_level, NULL);
 
 				dun_level = 0;
 				dungeon_type = 0;
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
 
 				leave_quest_check();
 
 				p_ptr->inside_quest = 0;
+
 				p_ptr->leaving = TRUE;
 			}
 			else
@@ -4171,13 +3339,19 @@ msg_print("下に引きずり降ろされる感じがする！");
 				}
 				p_ptr->wild_mode = FALSE;
 
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
+				/*
+				 * Clear all saved floors
+				 * and create a first saved floor
+				 */
+				prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 
 				if (dungeon_type == DUNGEON_ANGBAND)
 				{
+					int i;
+
 					for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
 					{
 						if ((quest[i].type == QUEST_TYPE_RANDOM) &&
@@ -4224,7 +3398,11 @@ msg_print("下に引きずり降ろされる感じがする！");
 				msg_print("The world changes!");
 #endif
 
-				prepare_change_floor_mode(CFM_CLEAR_ALL);
+				/*
+				 * Clear all saved floors
+				 * and create a first saved floor
+				 */
+				prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -4245,6 +3423,778 @@ msg_print("下に引きずり降ろされる感じがする！");
 }
 
 
+/*
+ * Count number of adjacent monsters
+ */
+static int get_monster_crowd_number(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+	int i;
+	int count = 0;
+
+	for (i = 0; i < 7; i++)
+	{
+		int ay = my + ddy_ddd[i];
+		int ax = mx + ddx_ddd[i];
+
+		if (!in_bounds(ay, ax)) continue;
+
+		/* Count number of monsters */
+		if (cave[ay][ax].m_idx > 0) count++;
+ 	}
+
+	return count;
+}
+
+
+
+/*
+ * Dungeon rating is no longer linear
+ */
+#define RATING_BOOST(delta) (delta * delta + 50 * delta)
+
+/*
+ * Examine all monsters and unidentified objects,
+ * and get the feeling of current dungeon floor
+ */
+static byte get_dungeon_feeling(void)
+{
+	const int base = 10;
+	int rating = 0;
+	int i;
+
+	/* Hack -- no feeling in the town */
+	if (!dun_level) return 0;
+
+	/* Examine each monster */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr;
+		int delta = 0;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Ignore pet */
+		if (is_pet(m_ptr)) continue;
+
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			/* Nearly out-of-depth unique monsters */
+			if (r_ptr->level + 10 > dun_level)
+			{
+				/* Boost rating by twice delta-depth */
+				delta += (r_ptr->level + 10 - dun_level) * 2 * base;
+			}
+		}
+		else
+		{
+			/* Out-of-depth monsters */
+			if (r_ptr->level > dun_level)
+			{
+				/* Boost rating by delta-depth */
+				delta += (r_ptr->level - dun_level) * base;
+			}
+		}
+
+		/* Unusually crowded monsters get a little bit of rating boost */
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		{
+			if (5 <= get_monster_crowd_number(i)) delta += 1;
+		}
+		else
+		{
+			if (2 <= get_monster_crowd_number(i)) delta += 1;
+		}
+
+
+		rating += RATING_BOOST(delta);
+	}
+
+	/* Examine each unidentified object */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+		int delta = 0;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip known objects */
+		if (object_is_known(o_ptr))
+		{
+			/* Touched? */
+			if (o_ptr->marked & OM_TOUCHED) continue;
+		}
+
+		/* Skip pseudo-known objects */
+		if (o_ptr->ident & IDENT_SENSE) continue;
+
+		/* Ego objects */
+		if (object_is_ego(o_ptr))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+			delta += e_ptr->rating * base;
+		}
+
+		/* Artifacts */
+		if (object_is_artifact(o_ptr))
+		{
+			s32b cost = object_value_real(o_ptr);
+
+			delta += 10 * base;
+			if (cost > 10000L) delta += 10 * base;
+			if (cost > 50000L) delta += 10 * base;
+			if (cost > 100000L) delta += 10 * base;
+
+			/* Special feeling */
+			if (!preserve_mode) return 1;
+		}
+
+		if (o_ptr->tval == TV_DRAG_ARMOR) delta += 30 * base;
+		if (o_ptr->tval == TV_SHIELD &&
+		    o_ptr->sval == SV_DRAGON_SHIELD) delta += 5 * base;
+		if (o_ptr->tval == TV_GLOVES &&
+		    o_ptr->sval == SV_SET_OF_DRAGON_GLOVES) delta += 5 * base;
+		if (o_ptr->tval == TV_BOOTS &&
+		    o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE) delta += 5 * base;
+		if (o_ptr->tval == TV_HELM &&
+		    o_ptr->sval == SV_DRAGON_HELM) delta += 5 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_SPEED &&
+		    !object_is_cursed(o_ptr)) delta += 25 * base;
+		if (o_ptr->tval == TV_RING &&
+		    o_ptr->sval == SV_RING_LORDLY &&
+		    !object_is_cursed(o_ptr)) delta += 15 * base;
+		if (o_ptr->tval == TV_AMULET &&
+		    o_ptr->sval == SV_AMULET_THE_MAGI &&
+		    !object_is_cursed(o_ptr)) delta += 15 * base;
+
+		/* Out-of-depth objects */
+		if (!object_is_cursed(o_ptr) && !object_is_broken(o_ptr) &&
+		    k_ptr->level > dun_level)
+		{
+			/* Rating increase */
+			delta += (k_ptr->level - dun_level) * base;
+		}
+
+		rating += RATING_BOOST(delta);
+	}
+
+
+	if (rating > RATING_BOOST(1000)) return 2;
+	if (rating > RATING_BOOST(800)) return 3;
+	if (rating > RATING_BOOST(600)) return 4;
+	if (rating > RATING_BOOST(400)) return 5;
+	if (rating > RATING_BOOST(300)) return 6;
+	if (rating > RATING_BOOST(200)) return 7;
+	if (rating > RATING_BOOST(100)) return 8;
+	if (rating > RATING_BOOST(0)) return 9;
+
+	return 10;
+}
+
+
+/*
+ * Update dungeon feeling, and announce it if changed
+ */
+static void update_dungeon_feeling(void)
+{
+	byte new_feeling;
+	int quest_num;
+	int delay;
+
+	/* No feeling on the surface */
+	if (!dun_level) return;
+
+	/* No feeling in the arena */
+	if (p_ptr->inside_battle) return;
+
+	/* Extract delay time */
+	delay = MAX(10, 150 - p_ptr->skill_fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
+
+ 	/* Not yet felt anything */
+	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
+
+	/* Extract quest number (if any) */
+	quest_num = quest_number(dun_level);
+
+	/* No feeling in a quest */
+	if (quest_num &&
+	    (is_fixed_quest_idx(quest_num) &&
+	     !((quest_num == QUEST_OBERON) || (quest_num == QUEST_SERPENT) ||
+	       !(quest[quest_num].flags & QUEST_FLAG_PRESET)))) return;
+
+
+	/* Get new dungeon feeling */
+	new_feeling = get_dungeon_feeling();
+
+	/* Remember last time updated */
+	p_ptr->feeling_turn = turn;
+
+	/* No change */
+	if (p_ptr->feeling == new_feeling) return;
+
+	/* Dungeon feeling is changed */
+	p_ptr->feeling = new_feeling;
+
+	/* Announce feeling */
+	do_cmd_feeling();
+
+	/* Update the level indicator */
+	p_ptr->redraw |= (PR_DEPTH);
+
+	/* Disturb */
+	if (disturb_minor) disturb(0, 0);
+}
+
+
+/*
+ * Handle certain things once every 10 game turns
+ */
+static void process_world(void)
+{
+	int day, hour, min;
+
+	const s32b A_DAY = TURNS_PER_TICK * TOWN_DAWN;
+	s32b prev_turn_in_today = ((turn - TURNS_PER_TICK) % A_DAY + A_DAY / 4) % A_DAY;
+	int prev_min = (1440 * prev_turn_in_today / A_DAY) % 60;
+	
+	extract_day_hour_min(&day, &hour, &min);
+
+	/* Update dungeon feeling, and announce it if changed */
+	update_dungeon_feeling();
+
+	/*** Check monster arena ***/
+	if (p_ptr->inside_battle && !p_ptr->leaving)
+	{
+		int i2, j2;
+		int win_m_idx = 0;
+		int number_mon = 0;
+
+		/* Count all hostile monsters */
+		for (i2 = 0; i2 < cur_wid; ++i2)
+			for (j2 = 0; j2 < cur_hgt; j2++)
+			{
+				cave_type *c_ptr = &cave[j2][i2];
+
+				if ((c_ptr->m_idx > 0) && (c_ptr->m_idx != p_ptr->riding))
+				{
+					number_mon++;
+					win_m_idx = c_ptr->m_idx;
+				}
+			}
+
+		if (number_mon == 0)
+		{
+#ifdef JP
+			msg_print("相打ちに終わりました。");
+#else
+			msg_print("They have kill each other at the same time.");
+#endif
+			msg_print(NULL);
+			p_ptr->energy_need = 0;
+			battle_monsters();
+		}
+		else if ((number_mon-1) == 0)
+		{
+			char m_name[80];
+			monster_type *wm_ptr;
+
+			wm_ptr = &m_list[win_m_idx];
+
+			monster_desc(m_name, wm_ptr, 0);
+#ifdef JP
+			msg_format("%sが勝利した！", m_name);
+#else
+			msg_format("%s is winner!", m_name);
+#endif
+			msg_print(NULL);
+
+			if (win_m_idx == (sel_monster+1))
+			{
+#ifdef JP
+				msg_print("おめでとうございます。");
+#else
+				msg_print("Congratulations.");
+#endif
+#ifdef JP
+				msg_format("%d＄を受け取った。", battle_odds);
+#else
+				msg_format("You received %d gold.", battle_odds);
+#endif
+				p_ptr->au += battle_odds;
+			}
+			else
+			{
+#ifdef JP
+				msg_print("残念でした。");
+#else
+				msg_print("You lost gold.");
+#endif
+			}
+			msg_print(NULL);
+			p_ptr->energy_need = 0;
+			battle_monsters();
+		}
+		else if (turn - old_turn == 150*TURNS_PER_TICK)
+		{
+#ifdef JP
+			msg_print("申し分けありませんが、この勝負は引き分けとさせていただきます。");
+#else
+			msg_format("This battle have ended in a draw.");
+#endif
+			p_ptr->au += kakekin;
+			msg_print(NULL);
+			p_ptr->energy_need = 0;
+			battle_monsters();
+		}
+	}
+
+	/* Every 10 game turns */
+	if (turn % TURNS_PER_TICK) return;
+
+	/*** Check the Time and Load ***/
+
+	if (!(turn % (50*TURNS_PER_TICK)))
+	{
+		/* Check time and load */
+		if ((0 != check_time()) || (0 != check_load()))
+		{
+			/* Warning */
+			if (closing_flag <= 2)
+			{
+				/* Disturb */
+				disturb(0, 0);
+
+				/* Count warnings */
+				closing_flag++;
+
+				/* Message */
+#ifdef JP
+msg_print("アングバンドへの門が閉じかかっています...");
+msg_print("ゲームを終了するかセーブするかして下さい。");
+#else
+				msg_print("The gates to ANGBAND are closing...");
+				msg_print("Please finish up and/or save your game.");
+#endif
+
+			}
+
+			/* Slam the gate */
+			else
+			{
+				/* Message */
+#ifdef JP
+msg_print("今、アングバンドへの門が閉ざされました。");
+#else
+				msg_print("The gates to ANGBAND are now closed.");
+#endif
+
+
+				/* Stop playing */
+				p_ptr->playing = FALSE;
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
+		}
+	}
+
+	/*** Attempt timed autosave ***/
+	if (autosave_t && autosave_freq && !p_ptr->inside_battle)
+	{
+		if (!(turn % ((s32b)autosave_freq * TURNS_PER_TICK)))
+			do_cmd_save_game(TRUE);
+	}
+
+	if (mon_fight && !ignore_unview)
+	{
+#ifdef JP
+		msg_print("何かが聞こえた。");
+#else
+		msg_print("You hear noise.");
+#endif
+	}
+
+	/*** Handle the wilderness/town (sunshine) ***/
+
+	/* While in town/wilderness */
+	if (!dun_level && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena)
+	{
+		/* Hack -- Daybreak/Nighfall in town */
+		if (!(turn % ((TURNS_PER_TICK * TOWN_DAWN) / 2)))
+		{
+			bool dawn;
+
+			/* Check for dawn */
+			dawn = (!(turn % (TURNS_PER_TICK * TOWN_DAWN)));
+
+			/* Day breaks */
+			if (dawn)
+			{
+				int y, x;
+
+				/* Message */
+#ifdef JP
+				msg_print("夜が明けた。");
+#else
+				msg_print("The sun has risen.");
+#endif
+
+				if (!p_ptr->wild_mode)
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							cave_type *c_ptr = &cave[y][x];
+
+							/* Assume lit */
+							c_ptr->info |= (CAVE_GLOW);
+
+							/* Hack -- Memorize lit grids if allowed */
+							if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
+
+							/* Hack -- Notice spot */
+							note_spot(y, x);
+						}
+					}
+				}
+			}
+
+			/* Night falls */
+			else
+			{
+				int y, x;
+
+				/* Message */
+#ifdef JP
+				msg_print("日が沈んだ。");
+#else
+				msg_print("The sun has fallen.");
+#endif
+
+				if (!p_ptr->wild_mode)
+				{
+					/* Hack -- Scan the town */
+					for (y = 0; y < cur_hgt; y++)
+					{
+						for (x = 0; x < cur_wid; x++)
+						{
+							/* Get the cave grid */
+							cave_type *c_ptr = &cave[y][x];
+
+							/* Feature code (applying "mimic" field) */
+							feature_type *f_ptr = &f_info[get_feat_mimic(c_ptr)];
+
+							if (!is_mirror_grid(c_ptr) && !have_flag(f_ptr->flags, FF_QUEST_ENTER) &&
+							    !have_flag(f_ptr->flags, FF_ENTRANCE))
+							{
+								/* Assume dark */
+								c_ptr->info &= ~(CAVE_GLOW);
+
+								if (!have_flag(f_ptr->flags, FF_REMEMBER))
+								{
+									/* Forget the normal floor grid */
+									c_ptr->info &= ~(CAVE_MARK);
+
+									/* Hack -- Notice spot */
+									note_spot(y, x);
+								}
+							}
+						}
+
+						/* Glow deep lava and building entrances */
+						glow_deep_lava_and_bldg();
+					}
+				}
+			}
+
+			/* Update the monsters */
+			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+
+			/* Redraw map */
+			p_ptr->redraw |= (PR_MAP);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			if (p_ptr->special_defense & NINJA_S_STEALTH)
+			{
+				if (cave[py][px].info & CAVE_GLOW) set_superstealth(FALSE);
+			}
+		}
+	}
+
+	/* While in the dungeon (vanilla_town or lite_town mode only) */
+	else if ((vanilla_town || (lite_town && !p_ptr->inside_quest && !p_ptr->inside_battle && !p_ptr->inside_arena)) && dun_level)
+	{
+		/*** Shuffle the Storekeepers ***/
+
+		/* Chance is only once a day (while in dungeon) */
+		if (!(turn % (TURNS_PER_TICK * STORE_TICKS)))
+		{
+			/* Sometimes, shuffle the shop-keepers */
+			if (one_in_(STORE_SHUFFLE))
+			{
+				int n, i;
+
+				/* Pick a random shop (except home and museum) */
+				do
+				{
+					n = randint0(MAX_STORES);
+				}
+				while ((n == STORE_HOME) || (n == STORE_MUSEUM));
+
+				/* Check every feature */
+				for (i = 1; i < max_f_idx; i++)
+				{
+					/* Access the index */
+					feature_type *f_ptr = &f_info[i];
+
+					/* Skip empty index */
+					if (!f_ptr->name) continue;
+
+					/* Skip non-store features */
+					if (!have_flag(f_ptr->flags, FF_STORE)) continue;
+
+					/* Verify store type */
+					if (f_ptr->subtype == n)
+					{
+						/* Message */
+#ifdef JP
+						if (cheat_xtra) msg_format("%sの店主をシャッフルします。", f_name + f_ptr->name);
+#else
+						if (cheat_xtra) msg_format("Shuffle a Shopkeeper of %s.", f_name + f_ptr->name);
+#endif
+
+						/* Shuffle it */
+						store_shuffle(n);
+
+						break;
+					}
+				}
+			}
+		}
+	}
+
+
+	/*** Process the monsters ***/
+
+	/* Check for creature generation. */
+	if (one_in_(d_info[dungeon_type].max_m_alloc_chance) &&
+	    !p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
+	{
+		/* Make a new monster */
+		(void)alloc_monster(MAX_SIGHT + 5, 0);
+	}
+
+	/* Hack -- Check for creature regeneration */
+	if (!(turn % (TURNS_PER_TICK*10)) && !p_ptr->inside_battle) regen_monsters();
+	if (!(turn % (TURNS_PER_TICK*3))) regen_captured_monsters();
+
+	if (!p_ptr->leaving)
+	{
+		int i;
+
+		/* Hack -- Process the counters of monsters if needed */
+		for (i = 0; i < MAX_MTIMED; i++)
+		{
+			if (mproc_max[i] > 0) process_monsters_mtimed(i);
+		}
+	}
+
+
+	/* Date changes */
+	if (!hour && !min)
+	{
+		if (min != prev_min)
+		{
+			do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+			determine_today_mon(FALSE);
+		}
+	}
+
+	/*
+	 * Nightmare mode activates the TY_CURSE at midnight
+	 *
+	 * Require exact minute -- Don't activate multiple times in a minute
+	 */
+	if (ironman_nightmare && (min != prev_min))
+	{
+		/* Every 15 minutes after 11:00 pm */
+		if ((hour == 23) && !(min % 15))
+		{
+			/* Disturbing */
+			disturb(0, 0);
+
+			switch (min / 15)
+			{
+			case 0:
+#ifdef JP
+				msg_print("遠くで不気味な鐘の音が鳴った。");
+#else
+				msg_print("You hear a distant bell toll ominously.");
+#endif
+				break;
+
+			case 1:
+#ifdef JP
+				msg_print("遠くで鐘が二回鳴った。");
+#else
+				msg_print("A distant bell sounds twice.");
+#endif
+				break;
+
+			case 2:
+#ifdef JP
+				msg_print("遠くで鐘が三回鳴った。");
+#else
+				msg_print("A distant bell sounds three times.");
+#endif
+				break;
+
+			case 3:
+#ifdef JP
+				msg_print("遠くで鐘が四回鳴った。");
+#else
+				msg_print("A distant bell tolls four times.");
+#endif
+				break;
+			}
+		}
+
+		/* TY_CURSE activates at midnight! */
+		if (!hour && !min)
+		{
+			int count = 0;
+
+			disturb(1, 0);
+#ifdef JP
+			msg_print("遠くで鐘が何回も鳴り、死んだような静けさの中へ消えていった。");
+#else
+			msg_print("A distant bell tolls many times, fading into an deathly silence.");
+#endif
+
+			activate_ty_curse(FALSE, &count);
+		}
+	}
+
+
+	/*** Check the Food, and Regenerate ***/
+
+	if (!p_ptr->inside_battle)
+	{
+		/* Digest quickly when gorged */
+		if (p_ptr->food >= PY_FOOD_MAX)
+		{
+			/* Digest a lot of food */
+			(void)set_food(p_ptr->food - 100);
+		}
+
+		/* Digest normally -- Every 50 game turns */
+		else if (!(turn % (TURNS_PER_TICK*5)))
+		{
+			/* Basic digestion rate based on speed */
+			int digestion = SPEED_TO_ENERGY(p_ptr->pspeed);
+
+			/* Regeneration takes more food */
+			if (p_ptr->regenerate)
+				digestion += 20;
+			if (p_ptr->special_defense & (KAMAE_MASK | KATA_MASK))
+				digestion += 20;
+			if (p_ptr->cursed & TRC_FAST_DIGEST)
+				digestion += 30;
+
+			/* Slow digestion takes less food */
+			if (p_ptr->slow_digest)
+				digestion -= 5;
+
+			/* Minimal digestion */
+			if (digestion < 1) digestion = 1;
+			/* Maximal digestion */
+			if (digestion > 100) digestion = 100;
+
+			/* Digest some food */
+			(void)set_food(p_ptr->food - digestion);
+		}
+
+
+		/* Getting Faint */
+		if ((p_ptr->food < PY_FOOD_FAINT))
+		{
+			/* Faint occasionally */
+			if (!p_ptr->paralyzed && (randint0(100) < 10))
+			{
+				/* Message */
+#ifdef JP
+				msg_print("あまりにも空腹で気絶してしまった。");
+#else
+				msg_print("You faint from the lack of food.");
+#endif
+
+				disturb(1, 0);
+
+				/* Hack -- faint (bypass free action) */
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
+			}
+
+			/* Starve to death (slowly) */
+			if (p_ptr->food < PY_FOOD_STARVE)
+			{
+				/* Calculate damage */
+				int dam = (PY_FOOD_STARVE - p_ptr->food) / 10;
+
+				/* Take damage */
+#ifdef JP
+				if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, dam, "空腹", -1);
+#else
+				if (!IS_INVULN()) take_hit(DAMAGE_LOSELIFE, dam, "starvation", -1);
+#endif
+			}
+		}
+	}
+
+
+
+	/* Process timed damage and regeneration */
+	process_world_aux_hp_and_sp();
+
+	/* Process timeout */
+	process_world_aux_timeout();
+
+	/* Process light */
+	process_world_aux_light();
+
+	/* Process mutation effects */
+	process_world_aux_mutation();
+
+	/* Process curse effects */
+	process_world_aux_curse();
+
+	/* Process recharging */
+	process_world_aux_recharge();
+
+	/* Feel the inventory */
+	sense_inventory1();
+	sense_inventory2();
+
+	/* Involuntary Movement */
+	process_world_aux_movement();
+}
+
+
 
 /*
  * Verify use of "wizard" mode
@@ -4255,7 +4205,7 @@ static bool enter_wizard_mode(void)
 	if (!p_ptr->noscore)
 	{
 		/* Wizard mode is not permitted */
-		if (!allow_debug_opts)
+		if (!allow_debug_opts || arg_wizard)
 		{
 #ifdef JP
 			msg_print("ウィザードモードは許可されていません。 ");
@@ -4705,35 +4655,31 @@ msg_print("ウィザードモード突入。");
 		/* Go up staircase */
 		case '<':
 		{
-			if(!p_ptr->wild_mode && !dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
+			if (!p_ptr->wild_mode && !dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
 			{
-				if (!vanilla_town)
+				if (vanilla_town) break;
+
+				if (ambush_flag)
 				{
-					if(ambush_flag)
-					{
 #ifdef JP
-						msg_print("襲撃から逃げるにはマップの端まで移動しなければならない。");
+					msg_print("襲撃から逃げるにはマップの端まで移動しなければならない。");
 #else
-						msg_print("To flee the ambush you have to reach the edge of the map.");
+					msg_print("To flee the ambush you have to reach the edge of the map.");
 #endif
-					}
-					else if (p_ptr->food < PY_FOOD_WEAK)
-					{
-#ifdef JP
-						msg_print("その前に食事をとらないと。");
-#else
-						msg_print("You must eat something here.");
-#endif
-					}
-					else
-					{
-						if (change_wild_mode())
-						{
-							p_ptr->oldpx = px;
-							p_ptr->oldpy = py;
-						}
-					}
+					break;
 				}
+
+				if (p_ptr->food < PY_FOOD_WEAK)
+				{
+#ifdef JP
+					msg_print("その前に食事をとらないと。");
+#else
+					msg_print("You must eat something here.");
+#endif
+					break;
+				}
+
+				change_wild_mode();
 			}
 			else
 				do_cmd_go_up();
@@ -4743,13 +4689,11 @@ msg_print("ウィザードモード突入。");
 		/* Go down staircase */
 		case '>':
 		{
-			if(!p_ptr->wild_mode) do_cmd_go_down();
-			else
-			{
-				p_ptr->wilderness_x = px;
-				p_ptr->wilderness_y = py;
+			if (p_ptr->wild_mode)
 				change_wild_mode();
-			}
+			else
+				do_cmd_go_down();
+
 			break;
 		}
 
@@ -5206,7 +5150,7 @@ msg_print("アリーナが魔法を吸収した！");
 
 		case '$':
 		{
-			do_cmd_pickpref();
+			do_cmd_reload_autopick();
 			break;
 		}
 
@@ -5243,6 +5187,7 @@ msg_print("アリーナが魔法を吸収した！");
 		case '=':
 		{
 			do_cmd_options();
+			(void)combine_and_reorder_home(STORE_HOME);
 			do_cmd_redraw();
 			break;
 		}
@@ -5402,10 +5347,62 @@ static bool monster_tsuri(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-	if ((r_ptr->flags7 & RF7_AQUATIC) && !(r_ptr->flags1 & RF1_UNIQUE) && strchr("Jjlw", r_ptr->d_char))
+	if ((r_ptr->flags7 & RF7_AQUATIC) && !(r_ptr->flags1 & RF1_UNIQUE) && my_strchr("Jjlw", r_ptr->d_char))
 		return TRUE;
 	else
 		return FALSE;
+}
+
+
+/* Hack -- Pack Overflow */
+static void pack_overflow(void)
+{
+	if (inventory[INVEN_PACK].k_idx)
+	{
+		char o_name[MAX_NLEN];
+		object_type *o_ptr;
+
+		/* Is auto-destroy done? */
+		notice_stuff();
+		if (!inventory[INVEN_PACK].k_idx) return;
+
+		/* Access the slot to be dropped */
+		o_ptr = &inventory[INVEN_PACK];
+
+		/* Disturbing */
+		disturb(0, 0);
+
+		/* Warning */
+#ifdef JP
+		msg_print("ザックからアイテムがあふれた！");
+#else
+		msg_print("Your pack overflows!");
+#endif
+
+		/* Describe */
+		object_desc(o_name, o_ptr, 0);
+
+		/* Message */
+#ifdef JP
+		msg_format("%s(%c)を落とした。", o_name, index_to_label(INVEN_PACK));
+#else
+		msg_format("You drop %s (%c).", o_name, index_to_label(INVEN_PACK));
+#endif
+
+		/* Drop it (carefully) near the player */
+		(void)drop_near(o_ptr, 0, py, px);
+
+		/* Modify, Describe, Optimize */
+		inven_item_increase(INVEN_PACK, -255);
+		inven_item_describe(INVEN_PACK);
+		inven_item_optimize(INVEN_PACK);
+
+		/* Handle "p_ptr->notice" */
+		notice_stuff();
+
+		/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
+		handle_stuff();
+	}
 }
 
 
@@ -5567,144 +5564,81 @@ msg_print("中断しました。");
 	if (p_ptr->riding && !p_ptr->confused && !p_ptr->blind)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-		if (m_ptr->csleep)
+		if (MON_CSLEEP(m_ptr))
 		{
 			char m_name[80];
 
 			/* Recover fully */
-			m_ptr->csleep = 0;
-
-			if (r_info[m_ptr->r_idx].flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+			(void)set_monster_csleep(p_ptr->riding, 0);
 
 			/* Acquire the monster name */
 			monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%^sを起こした。", m_name);
+			msg_format("%^sを起こした。", m_name);
 #else
 			msg_format("You have waked %s up.", m_name);
 #endif
-			if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
-			p_ptr->redraw |= (PR_UHEALTH);
 		}
 
-		if (m_ptr->stunned)
+		if (MON_STUNNED(m_ptr))
 		{
-			int d = 1;
-
-			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
-			{
-				/* Recover fully */
-				d = m_ptr->stunned;
-			}
-
 			/* Hack -- Recover from stun */
-			if (m_ptr->stunned > d)
-			{
-				/* Recover somewhat */
-				m_ptr->stunned -= d;
-			}
-
-			/* Fully recover */
-			else
+			if (set_monster_stunned(p_ptr->riding,
+				(randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_STUNNED(m_ptr) - 1)))
 			{
 				char m_name[80];
-
-				/* Recover fully */
-				m_ptr->stunned = 0;
 
 				/* Acquire the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
+				msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer stunned.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
-				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
 
-		if (m_ptr->confused)
+		if (MON_CONFUSED(m_ptr))
 		{
-			int d = 1;
-
-			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
-			{
-				/* Recover fully */
-				d = m_ptr->confused;
-			}
-
-			/* Hack -- Recover from stun */
-			if (m_ptr->confused > d)
-			{
-				/* Recover somewhat */
-				m_ptr->confused -= d;
-			}
-
-			/* Fully recover */
-			else
+			/* Hack -- Recover from confusion */
+			if (set_monster_confused(p_ptr->riding,
+				(randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_CONFUSED(m_ptr) - 1)))
 			{
 				char m_name[80];
-
-				/* Recover fully */
-				m_ptr->confused = 0;
 
 				/* Acquire the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sを混乱状態から立ち直らせた。", m_name);
+				msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer confused.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
-				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
 
-		if (m_ptr->monfear)
+		if (MON_MONFEAR(m_ptr))
 		{
-			int d = 1;
-
-			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
-			{
-				/* Recover fully */
-				d = m_ptr->monfear;
-			}
-
-			/* Hack -- Recover from stun */
-			if (m_ptr->monfear > d)
-			{
-				/* Recover somewhat */
-				m_ptr->monfear -= d;
-			}
-
-			/* Fully recover */
-			else
+			/* Hack -- Recover from fear */
+			if (set_monster_monfear(p_ptr->riding,
+				(randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING]) ? 0 : (MON_MONFEAR(m_ptr) - 1)))
 			{
 				char m_name[80];
-
-				/* Recover fully */
-				m_ptr->monfear = 0;
 
 				/* Acquire the monster name */
 				monster_desc(m_name, m_ptr, 0);
 
 				/* Dump a message */
 #ifdef JP
-msg_format("%^sを恐怖から立ち直らせた。", m_name);
+				msg_format("%^sを恐怖から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer fear.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
-				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
 
@@ -5733,24 +5667,24 @@ msg_format("%^sを恐怖から立ち直らせた。", m_name);
 	}
 	if (p_ptr->action == ACTION_LEARN)
 	{
-		int hoge = ((p_ptr->msp * 0x10000L) / 256L)+7680L;
-		if ((p_ptr->csp * 0x10000L + p_ptr->csp_frac) < hoge)
+		s32b cost = 0L;
+		u32b cost_frac = (p_ptr->msp + 30L) * 256L;
+
+		/* Convert the unit (1/2^16) to (1/2^32) */
+		s64b_LSHIFT(cost, cost_frac, 16);
+
+ 
+		if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, cost, cost_frac) < 0)
 		{
+			/* Mana run out */
 			p_ptr->csp = 0;
 			p_ptr->csp_frac = 0;
 			set_action(ACTION_NONE);
 		}
 		else
 		{
-			p_ptr->csp -= (s16b)(hoge >> 16);
-			hoge &= 0xFFFFL;
-			if (p_ptr->csp_frac < hoge)
-			{
-				p_ptr->csp_frac += 0x10000L - hoge;
-				p_ptr->csp--;
-			}
-			else
-				p_ptr->csp_frac -= hoge;
+			/* Reduce mana */
+			s64b_sub(&(p_ptr->csp), &(p_ptr->csp_frac), cost, cost_frac);
 		}
 		p_ptr->redraw |= PR_MANA;
 	}
@@ -5795,53 +5729,7 @@ msg_format("%^sを恐怖から立ち直らせた。", m_name);
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
-		{
-			int item = INVEN_PACK;
-
-			char o_name[MAX_NLEN];
-
-			object_type *o_ptr;
-
-			/* Access the slot to be dropped */
-			o_ptr = &inventory[item];
-
-			/* Disturbing */
-			disturb(0, 0);
-
-			/* Warning */
-#ifdef JP
-msg_print("ザックからアイテムがあふれた！");
-#else
-			msg_print("Your pack overflows!");
-#endif
-
-
-			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
-
-			/* Message */
-#ifdef JP
-msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
-#else
-			msg_format("You drop %s (%c).", o_name, index_to_label(item));
-#endif
-
-
-			/* Drop it (carefully) near the player */
-			(void)drop_near(o_ptr, 0, py, px);
-
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-
-			/* Handle "p_ptr->notice" */
-			notice_stuff();
-
-			/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
-			handle_stuff();
-		}
+		pack_overflow();
 
 
 		/* Hack -- cancel "lurking browse mode" */
@@ -5939,6 +5827,10 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 			/* Process the command */
 			process_command();
 		}
+
+
+		/* Hack -- Pack Overflow */
+		pack_overflow();
 
 
 		/*** Clean up ***/
@@ -6069,7 +5961,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 					}
 				}
 				new_mane = FALSE;
-				p_ptr->redraw |= (PR_MANE);
+				p_ptr->redraw |= (PR_IMITATION);
 			}
 			if (p_ptr->action == ACTION_LEARN)
 			{
@@ -6139,7 +6031,11 @@ static void dungeon(bool load_game)
 
 	/* Reset the "command" vars */
 	command_cmd = 0;
+
+#if 0 /* Don't reset here --- It's used for Arena */
 	command_new = 0;
+#endif
+
 	command_rep = 0;
 	command_arg = 0;
 	command_dir = 0;
@@ -6185,8 +6081,10 @@ static void dungeon(bool load_game)
 	if ((max_dlv[dungeon_type] < dun_level) && !p_ptr->inside_quest)
 	{
 		max_dlv[dungeon_type] = dun_level;
-		if (record_maxdeapth) do_cmd_write_nikki(NIKKI_MAXDEAPTH, dun_level, NULL);
+		if (record_maxdepth) do_cmd_write_nikki(NIKKI_MAXDEAPTH, dun_level, NULL);
 	}
+
+	(void)calculate_upkeep();
 
 	/* Validate the panel */
 	panel_bounds_center();
@@ -6288,6 +6186,8 @@ msg_print("試合開始！");
 #endif
 	}
 
+	if (!load_game && (p_ptr->special_defense & NINJA_S_STEALTH)) set_superstealth(FALSE);
+
 	/*** Process this dungeon level ***/
 
 	/* Reset the monster generation level */
@@ -6304,6 +6204,9 @@ msg_print("試合開始！");
 
 	/* Not leaving dungeon */
 	p_ptr->leaving_dungeon = FALSE;
+
+	/* Initialize monster process */
+	mproc_init();
 
 	/* Main loop */
 	while (TRUE)
@@ -6382,8 +6285,15 @@ msg_print("試合開始！");
 
 		/* Count game turns */
 		turn++;
-		if (!p_ptr->wild_mode || wild_regen) dungeon_turn++;
-		else if (p_ptr->wild_mode && !(turn % ((MAX_HGT + MAX_WID) / 2))) dungeon_turn++;
+
+		if (dungeon_turn < dungeon_turn_limit)
+		{
+			if (!p_ptr->wild_mode || wild_regen) dungeon_turn++;
+			else if (p_ptr->wild_mode && !(turn % ((MAX_HGT + MAX_WID) / 2))) dungeon_turn++;
+		}
+
+		prevent_turn_overflow();
+
 		if (wild_regen) wild_regen--;
 	}
 
@@ -6421,7 +6331,6 @@ msg_print("試合開始！");
 static void load_all_pref_files(void)
 {
 	char buf[1024];
-	errr err;
 
 	/* Access the "user" pref file */
 	sprintf(buf, "user.prf");
@@ -6453,27 +6362,6 @@ static void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
-	/* Free old entries */
-	init_autopicker();
-
-#ifdef JP
-	sprintf(buf, "picktype-%s.prf", player_base);
-#else
-	sprintf(buf, "pickpref-%s.prf", player_base);
-#endif
-
-	err = process_pickpref_file(buf);
-
-	/* Process 'pick????.prf' if 'pick????-<name>.prf' doesn't exist */
-	if (0 > err)
-	{
-#ifdef JP
-		process_pickpref_file("picktype.prf");
-#else
-		process_pickpref_file("pickpref.prf");
-#endif
-	}
-
 	/* Access the "realm 1" pref file */
 	if (p_ptr->realm1 != REALM_NONE)
 	{
@@ -6491,6 +6379,10 @@ static void load_all_pref_files(void)
 		/* Process that file */
 		process_pref_file(buf);
 	}
+
+
+	/* Load an autopick preference file */
+	autopick_load_pref(FALSE);
 }
 
 
@@ -6603,7 +6495,7 @@ void determine_today_mon(bool conv_old)
 		r_ptr = &r_info[today_mon];
 
 		if (r_ptr->flags1 & RF1_UNIQUE) continue;
-		if (r_ptr->flags7 & (RF7_UNIQUE_7 | RF7_UNIQUE2)) continue;
+		if (r_ptr->flags7 & (RF7_NAZGUL | RF7_UNIQUE2)) continue;
 		if (r_ptr->flags2 & RF2_MULTIPLY) continue;
 		if ((r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) != (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) continue;
 		if (r_ptr->level < MIN(max_dl / 2, 40)) continue;
@@ -6629,10 +6521,16 @@ void play_game(bool new_game)
 	bool load_game = TRUE;
 
 #ifdef CHUUKEI
-	if(chuukei_client){
-	  reset_visuals();
-	  browse_chuukei();
-	  return;
+	if (chuukei_client)
+	{
+		reset_visuals();
+		browse_chuukei();
+		return;
+	}
+
+	else if (chuukei_server)
+	{
+		prepare_chuukei_hooks();
 	}
 #endif
 
@@ -6749,6 +6647,8 @@ quit("セーブファイルが壊れています");
 		quit(0);
 	}
 
+	creating_savefile = new_game;
+
 	/* Nothing loaded */
 	if (!character_loaded)
 	{
@@ -6762,14 +6662,14 @@ quit("セーブファイルが壊れています");
 		Rand_quick = TRUE;
 
 		/* Initialize the saved floors data */
-		init_saved_floors();
+		init_saved_floors(FALSE);
 	}
 
 	/* Old game is loaded.  But new game is requested. */
 	else if (new_game)
 	{
-		/* Delete expanded temporal files */
-		clear_saved_floor_files();
+		/* Initialize the saved floors data */
+		init_saved_floors(TRUE);
 	}
 
 	/* Process old character */
@@ -6827,16 +6727,13 @@ quit("セーブファイルが壊れています");
 		counts_write(2,0);
 		p_ptr->count = 0;
 
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "辺境の地に降り立った。");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "You are standing in the Outpost.");
-#endif
-
 		load = FALSE;
 
 		determine_bounty_uniques();
 		determine_today_mon(FALSE);
+
+		/* Initialize object array */
+		wipe_o_list();
 	}
 	else
 	{
@@ -6866,6 +6763,8 @@ quit("セーブファイルが壊れています");
 		}
 	}
 
+	creating_savefile = FALSE;
+
 	p_ptr->teleport_town = FALSE;
 	p_ptr->sutemi = FALSE;
 	world_monster = FALSE;
@@ -6880,18 +6779,13 @@ quit("セーブファイルが壊れています");
 
 	/* Sexy gal gets bonus to maximum weapon skill of whip */
 	if (p_ptr->pseikaku == SEIKAKU_SEXY)
-		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_BOW][SV_WHIP] = WEAPON_EXP_MASTER;
+		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER;
 
 	/* Fill the arrays of floors and walls in the good proportions */
 	set_floor_and_wall(dungeon_type);
 
 	/* Flavor the objects */
 	flavor_init();
-	if (new_game)
-	{
-		wipe_o_list();
-		player_outfit();
-	}
 
 	/* Flash a message */
 #ifdef JP
@@ -6908,8 +6802,26 @@ prt("お待ち下さい...", 0, 0);
 	/* Hack -- Enter wizard mode */
 	if (arg_wizard)
 	{
-		if (enter_wizard_mode()) p_ptr->wizard = TRUE;
-		else if (p_ptr->is_dead) quit("Already dead.");
+		if (enter_wizard_mode())
+		{
+			p_ptr->wizard = TRUE;
+
+			if (p_ptr->is_dead || !py || !px)
+			{
+				/* Initialize the saved floors data */
+				init_saved_floors(TRUE);
+
+				/* Avoid crash */
+				p_ptr->inside_quest = 0;
+
+				/* Avoid crash in update_view() */
+				py = px = 10;
+			}
+		}
+		else if (p_ptr->is_dead)
+		{
+			quit("Already dead.");
+		}
 	}
 
 	/* Initialize the town-buildings if necessary */
@@ -6928,8 +6840,34 @@ prt("お待ち下さい...", 0, 0);
 
 
 	/* Generate a dungeon level if needed */
-	if (!character_dungeon) change_floor();
+	if (!character_dungeon)
+	{
+		change_floor();
+	}
 
+	else
+	{
+		/* HACK -- Restore from panic-save */
+		if (p_ptr->panic_save)
+		{
+			/* No player?  -- Try to regenerate floor */
+			if (!py || !px)
+			{
+#ifdef JP
+				msg_print("プレイヤーの位置がおかしい。フロアを再生成します。");
+#else
+				msg_print("What a strange player location.  Regenerate the dungeon floor.");
+#endif
+				change_floor();
+			}
+
+			/* Still no player?  -- Try to locate random place */
+			if (!py || !px) py = px = 10;
+
+			/* No longer in panic */
+			p_ptr->panic_save = 0;
+		}
+	}
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
@@ -6937,6 +6875,19 @@ prt("お待ち下さい...", 0, 0);
 
 	/* Hack -- Character is no longer "icky" */
 	character_icky = FALSE;
+
+
+	if (new_game)
+	{
+		char buf[80];
+
+#ifdef JP
+		sprintf(buf, "%sに降り立った。", map_name());
+#else
+		sprintf(buf, "You are standing in the %s.", map_name());
+#endif
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
+	}
 
 
 	/* Start game */
@@ -6947,6 +6898,12 @@ prt("お待ち下さい...", 0, 0);
 
 	/* Load the "pref" files */
 	load_all_pref_files();
+
+	/* Give startup outfit (after loading pref files) */
+	if (new_game)
+	{
+		player_outfit();
+	}
 
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
@@ -6985,6 +6942,9 @@ prt("お待ち下さい...", 0, 0);
 		m_ptr->energy_need = ENERGY_NEED() + ENERGY_NEED();
 	}
 
+	(void)combine_and_reorder_home(STORE_HOME);
+	(void)combine_and_reorder_home(STORE_MUSEUM);
+
 	/* Process */
 	while (TRUE)
 	{
@@ -6994,8 +6954,13 @@ prt("お待ち下さい...", 0, 0);
 		/* Handle "p_ptr->notice" */
 		notice_stuff();
 
+		/* Hack -- prevent "icky" message */
+		character_xtra = TRUE;
+
 		/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
 		handle_stuff();
+
+		character_xtra = FALSE;
 
 		/* Cancel the target */
 		target_who = 0;
@@ -7041,16 +7006,21 @@ prt("お待ち下さい...", 0, 0);
 				p_ptr->chp_frac = 0;
 				p_ptr->exit_bldg = TRUE;
 				reset_tim_flags();
+
+				/* Leave through the exit */
+				prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_RAND_CONNECT);
+
+				/* prepare next floor */
+				leave_floor();
 			}
 			else
 			{
 				/* Mega-Hack -- Allow player to cheat death */
 #ifdef JP
-if ((p_ptr->wizard || cheat_live) && !get_check("死にますか? "))
+				if ((p_ptr->wizard || cheat_live) && !get_check("死にますか? "))
 #else
 				if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
 #endif
-
 				{
 					/* Mark social class, reset age, if needed */
 					if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
@@ -7063,12 +7033,10 @@ if ((p_ptr->wizard || cheat_live) && !get_check("死にますか? "))
 
 					/* Message */
 #ifdef JP
-msg_print("ウィザードモードに念を送り、死を欺いた。");
+					msg_print("ウィザードモードに念を送り、死を欺いた。");
 #else
 					msg_print("You invoke wizard mode and cheat death.");
 #endif
-					wipe_m_list();
-
 					msg_print(NULL);
 
 					/* Restore hit points */
@@ -7090,25 +7058,12 @@ msg_print("ウィザードモードに念を送り、死を欺いた。");
 					p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
 
-					/* Hack -- Healing */
-					(void)set_blind(0);
-					(void)set_confused(0);
-					(void)set_poisoned(0);
-					(void)set_afraid(0);
-					(void)set_paralyzed(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-
-					/* Hack -- Prevent starvation */
-					(void)set_food(PY_FOOD_MAX - 1);
-
 					/* Hack -- cancel recall */
 					if (p_ptr->word_recall)
 					{
 						/* Message */
 #ifdef JP
-msg_print("張りつめた大気が流れ去った...");
+						msg_print("張りつめた大気が流れ去った...");
 #else
 						msg_print("A tension leaves the air around you...");
 #endif
@@ -7130,21 +7085,33 @@ msg_print("張りつめた大気が流れ去った...");
 
 					/* Note cause of death XXX XXX XXX */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "死の欺き");
+					(void)strcpy(p_ptr->died_from, "死の欺き");
 #else
 					(void)strcpy(p_ptr->died_from, "Cheating death");
 #endif
 
-
 					/* Do not die */
 					p_ptr->is_dead = FALSE;
+
+					/* Hack -- Healing */
+					(void)set_blind(0);
+					(void)set_confused(0);
+					(void)set_poisoned(0);
+					(void)set_afraid(0);
+					(void)set_paralyzed(0);
+					(void)set_image(0);
+					(void)set_stun(0);
+					(void)set_cut(0);
+
+					/* Hack -- Prevent starvation */
+					(void)set_food(PY_FOOD_MAX - 1);
 
 					dun_level = 0;
 					p_ptr->inside_arena = FALSE;
 					p_ptr->inside_battle = FALSE;
 					leaving_quest = 0;
 					p_ptr->inside_quest = 0;
-					p_ptr->recall_dungeon = dungeon_type;
+					if (dungeon_type) p_ptr->recall_dungeon = dungeon_type;
 					dungeon_type = 0;
 					if (lite_town || vanilla_town)
 					{
@@ -7178,6 +7145,10 @@ msg_print("張りつめた大気が流れ去った...");
 #else
 					do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "                            but revived.");
 #endif
+
+					/* Prepare next floor */
+					leave_floor();
+					wipe_m_list();
 				}
 			}
 		}
@@ -7207,5 +7178,49 @@ s32b turn_real(s32b hoge)
 		return hoge - (TURNS_PER_TICK * TOWN_DAWN * 3 / 4);
 	default:
 		return hoge;
+	}
+}
+
+/*
+ * ターンのオーバーフローに対する対処
+ * ターン及びターンを記録する変数をターンの限界の1日前まで巻き戻す.
+ */
+void prevent_turn_overflow(void)
+{
+	int rollback_days, i, j;
+	s32b rollback_turns;
+
+	if (turn < turn_limit) return;
+
+	rollback_days = 1 + (turn - turn_limit) / (TURNS_PER_TICK * TOWN_DAWN);
+	rollback_turns = TURNS_PER_TICK * TOWN_DAWN * rollback_days;
+
+	if (turn > rollback_turns) turn -= rollback_turns;
+	else turn = 1; /* Paranoia */
+	if (old_turn > rollback_turns) old_turn -= rollback_turns;
+	else old_turn = 1;
+	if (old_battle > rollback_turns) old_battle -= rollback_turns;
+	else old_battle = 1;
+	if (p_ptr->feeling_turn > rollback_turns) p_ptr->feeling_turn -= rollback_turns;
+	else p_ptr->feeling_turn = 1;
+
+	for (i = 1; i < max_towns; i++)
+	{
+		for (j = 0; j < MAX_STORES; j++)
+		{
+			store_type *st_ptr = &town[i].store[j];
+
+			if (st_ptr->last_visit > -10L * TURNS_PER_TICK * STORE_TICKS)
+			{
+				st_ptr->last_visit -= rollback_turns;
+				if (st_ptr->last_visit < -10L * TURNS_PER_TICK * STORE_TICKS) st_ptr->last_visit = -10L * TURNS_PER_TICK * STORE_TICKS;
+			}
+
+			if (st_ptr->store_open)
+			{
+				st_ptr->store_open -= rollback_turns;
+				if (st_ptr->store_open < 1) st_ptr->store_open = 1;
+			}
+		}
 	}
 }

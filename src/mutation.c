@@ -3309,6 +3309,7 @@ bool mutation_power_aux(u32b power)
 	{
 		case MUT1_SPIT_ACID:
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_print("酸を吐きかけた...");
 #else
@@ -3320,6 +3321,7 @@ bool mutation_power_aux(u32b power)
 
 		case MUT1_BR_FIRE:
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_print("あなたは火炎のブレスを吐いた...");
 #else
@@ -3358,7 +3360,7 @@ bool mutation_power_aux(u32b power)
 			msg_print("You concentrate...");
 #endif
 
-			teleport_player(10 + 4 * lvl);
+			teleport_player(10 + 4 * lvl, 0L);
 			break;
 
 		case MUT1_MIND_BLST:
@@ -3392,6 +3394,8 @@ bool mutation_power_aux(u32b power)
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
+
+				if (music_singing_any()) stop_singing();
 
 				if (!(c_ptr->m_idx))
 				{
@@ -3444,116 +3448,105 @@ bool mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SMELL_MET:
+			if (music_singing_any()) stop_singing();
 			(void)detect_treasure(DETECT_RAD_DEFAULT);
 			break;
 
 		case MUT1_SMELL_MON:
+			if (music_singing_any()) stop_singing();
 			(void)detect_monsters_normal(DETECT_RAD_DEFAULT);
 			break;
 
 		case MUT1_BLINK:
-			teleport_player(10);
+			teleport_player(10, 0L);
 			break;
 
 		case MUT1_EAT_ROCK:
 			{
-				int x, y, ox, oy;
+				int x, y;
 				cave_type *c_ptr;
+				feature_type *f_ptr, *mimic_f_ptr;
 
 				if (!get_rep_dir2(&dir)) return FALSE;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
-				if (cave_floor_bold(y, x) || boundary_floor_grid(c_ptr))
+				f_ptr = &f_info[c_ptr->feat];
+				mimic_f_ptr = &f_info[get_feat_mimic(c_ptr)];
+
+				if (music_singing_any()) stop_singing();
+
+				if (!have_flag(mimic_f_ptr->flags, FF_HURT_ROCK))
 				{
 #ifdef JP
-					msg_print("何もない場所に噛みついた！");
+					msg_print("この地形は食べられない。");
 #else
-					msg_print("You bite into thin air!");
+					msg_print("You cannot eat this feature.");
 #endif
-
 					break;
 				}
-				else if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-					(c_ptr->feat <= FEAT_PERM_SOLID)) ||
-					(c_ptr->feat == FEAT_MOUNTAIN))
+				else if (have_flag(f_ptr->flags, FF_PERMANENT))
 				{
 #ifdef JP
-					msg_format("いてっ！この%sはあなたの歯より硬い！", (c_ptr->mimic == FEAT_TREES) ? "木" : "壁");
+					msg_format("いてっ！この%sはあなたの歯より硬い！", f_name + mimic_f_ptr->name);
 #else
-					msg_format("Ouch!  This %s is harder than your teeth!", (c_ptr->mimic == FEAT_TREES) ? "tree" : "wall");
+					msg_format("Ouch!  This %s is harder than your teeth!", f_name + mimic_f_ptr->name);
 #endif
-
 					break;
 				}
 				else if (c_ptr->m_idx)
 				{
+					monster_type *m_ptr = &m_list[c_ptr->m_idx];
 #ifdef JP
 					msg_print("何かが邪魔しています！");
 #else
 					msg_print("There's something in the way!");
 #endif
 
+					if (!m_ptr->ml || !is_pet(m_ptr)) py_attack(y, x, 0);
 					break;
 				}
-				else if (c_ptr->feat == FEAT_TREES)
+				else if (have_flag(f_ptr->flags, FF_TREE))
 				{
 #ifdef JP
-					msg_print("木はあまり美味しくない！");
+					msg_print("木の味は好きじゃない！");
 #else
 					msg_print("You don't like the woody taste!");
 #endif
-
 					break;
+				}
+				else if (have_flag(f_ptr->flags, FF_GLASS))
+				{
+#ifdef JP
+					msg_print("ガラスの味は好きじゃない！");
+#else
+					msg_print("You don't like the glassy taste!");
+#endif
+					break;
+				}
+				else if (have_flag(f_ptr->flags, FF_DOOR) || have_flag(f_ptr->flags, FF_CAN_DIG))
+				{
+					(void)set_food(p_ptr->food + 3000);
+				}
+				else if (have_flag(f_ptr->flags, FF_MAY_HAVE_GOLD) || have_flag(f_ptr->flags, FF_HAS_GOLD))
+				{
+					(void)set_food(p_ptr->food + 5000);
 				}
 				else
 				{
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-						(c_ptr->feat <= FEAT_RUBBLE))
-					{
-						(void)set_food(p_ptr->food + 3000);
-					}
-					else if ((c_ptr->feat >= FEAT_MAGMA) &&
-						(c_ptr->feat <= FEAT_QUARTZ_K))
-					{
-						(void)set_food(p_ptr->food + 5000);
-					}
-					else
-					{
 #ifdef JP
-						msg_print("この花崗岩はとてもおいしい！");
+					msg_format("この%sはとてもおいしい！", f_name + mimic_f_ptr->name);
 #else
-						msg_print("This granite is very filling!");
+					msg_format("This %s is very filling!", f_name + mimic_f_ptr->name);
 #endif
-
-						(void)set_food(p_ptr->food + 10000);
-					}
-				}
-				(void)wall_to_mud(dir);
-
-				oy = py;
-				ox = px;
-
-				py = y;
-				px = x;
-
-				if (p_ptr->riding)
-				{
-					m_list[p_ptr->riding].fy = py;
-					m_list[p_ptr->riding].fx = px;
-					cave[py][px].m_idx = p_ptr->riding;
-					cave[oy][ox].m_idx = 0;
-					update_mon(cave[py][px].m_idx, TRUE);
+					(void)set_food(p_ptr->food + 10000);
 				}
 
-				lite_spot(py, px);
-				lite_spot(oy, ox);
+				/* Destroy the wall */
+				cave_alter_feat(y, x, FF_HURT_ROCK);
 
-				verify_panel();
-
-				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-				p_ptr->update |= (PU_DISTANCE);
-				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+				/* Move the player */
+				(void)move_player_effect(y, x, MPE_DONT_PICKUP);
 			}
 			break;
 
@@ -3569,6 +3562,7 @@ bool mutation_power_aux(u32b power)
 			break;
 
 		case MUT1_SHRIEK:
+			if (music_singing_any()) stop_singing();
 			(void)fire_ball(GF_SOUND, 0, 2 * lvl, 8);
 			(void)aggravate_monsters(0);
 			break;
@@ -3586,7 +3580,7 @@ bool mutation_power_aux(u32b power)
 					object_type *o_ptr = &inventory[i];
 
 					if (!o_ptr->k_idx) continue;
-					if (!cursed_p(o_ptr)) continue;
+					if (!object_is_cursed(o_ptr)) continue;
 
 					o_ptr->feeling = FEEL_CURSED;
 				}
@@ -3697,7 +3691,7 @@ bool mutation_power_aux(u32b power)
 #else
 						msg_print("You failed to teleport.");
 #endif
-					else teleport_player(30);
+					else teleport_player(30, 0L);
 				}
 				else
 				{
@@ -3760,6 +3754,14 @@ bool mutation_power_aux(u32b power)
 					(r_ptr->level < randint1(p_ptr->lev+50)) &&
 					!(m_ptr->mflag2 & MFLAG2_NOGENO))
 				{
+					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+					{
+						char m_name[80];
+
+						monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_GENOCIDE, m_name);
+					}
+
 					/* Delete the monster, rather than killing it. */
 					delete_monster_idx(c_ptr->m_idx);
 #ifdef JP

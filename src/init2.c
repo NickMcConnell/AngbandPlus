@@ -268,6 +268,7 @@ cptr err_str[PARSE_ERROR_MAX] =
 	"メモリ不足",
 	"座標範囲外",
 	"引数不足",
+	"未定義地形タグ",
 #else
 	"parse error",
 	"obsolete file",
@@ -278,6 +279,7 @@ cptr err_str[PARSE_ERROR_MAX] =
 	"out of memory",
 	"coordinates out of bounds",
 	"too few arguments",
+	"undefined terrain tag",
 #endif
 
 };
@@ -392,6 +394,17 @@ static errr init_info_raw(int fd, header *head)
 		fd_read(fd, head->text_ptr, head->text_size);
 	}
 
+
+	if (head->tag_size)
+	{
+		/* Allocate the "*_tag" array */
+		C_MAKE(head->tag_ptr, head->tag_size, char);
+
+		/* Read the "*_tag" array */
+		fd_read(fd, head->tag_ptr, head->tag_size);
+	}
+
+
 	/* Success */
 	return (0);
 }
@@ -426,7 +439,7 @@ static void init_header(header *head, int num, int len)
  * even if the string happens to be empty (everyone has a unique '\0').
  */
 static errr init_info(cptr filename, header *head,
-			void **info, char **name, char **text)
+		      void **info, char **name, char **text, char **tag)
 {
 	int fd;
 
@@ -484,10 +497,12 @@ static errr init_info(cptr filename, header *head,
 		/* Hack -- make "fake" arrays */
 		if (name) C_MAKE(head->name_ptr, FAKE_NAME_SIZE, char);
 		if (text) C_MAKE(head->text_ptr, FAKE_TEXT_SIZE, char);
+		if (tag)  C_MAKE(head->tag_ptr, FAKE_TAG_SIZE, char);
 
 		if (info) (*info) = head->info_ptr;
 		if (name) (*name) = head->name_ptr;
 		if (text) (*text) = head->text_ptr;
+		if (tag)  (*tag)  = head->tag_ptr;
 
 		/*** Load the ascii template file ***/
 
@@ -519,7 +534,7 @@ static errr init_info(cptr filename, header *head,
 
 #ifdef JP
 			/* Error string */
-			oops = ((err > 0) ? err_str[err] : "未知の");
+			oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "未知の");
 
 			/* Oops */
 			msg_format("'%s.txt'ファイルの %d 行目にエラー。", filename, error_line);
@@ -543,6 +558,14 @@ static errr init_info(cptr filename, header *head,
 			quit(format("Error in '%s.txt' file.", filename));
 #endif
 
+		}
+
+
+		/*** Make final retouch on fake tags ***/
+
+		if (head->retouch)
+		{
+			(*head->retouch)(head);
 		}
 
 
@@ -586,6 +609,9 @@ static errr init_info(cptr filename, header *head,
 			/* Dump the "*_text" array */
 			fd_write(fd, head->text_ptr, head->text_size);
 
+			/* Dump the "*_tag" array */
+			fd_write(fd, head->tag_ptr, head->tag_size);
+
 			/* Close */
 			(void)fd_close(fd);
 		}
@@ -599,6 +625,7 @@ static errr init_info(cptr filename, header *head,
 		/* Hack -- Free the "fake" arrays */
 		if (name) C_KILL(head->name_ptr, FAKE_NAME_SIZE, char);
 		if (text) C_KILL(head->text_ptr, FAKE_TEXT_SIZE, char);
+		if (tag)  C_KILL(head->tag_ptr, FAKE_TAG_SIZE, char);
 
 #endif	/* ALLOW_TEMPLATES */
 
@@ -644,6 +671,7 @@ static errr init_info(cptr filename, header *head,
 	if (info) (*info) = head->info_ptr;
 	if (name) (*name) = head->name_ptr;
 	if (text) (*text) = head->text_ptr;
+	if (tag)  (*tag)  = head->tag_ptr;
 
 	/* Success */
 	return (0);
@@ -663,10 +691,13 @@ static errr init_f_info(void)
 	/* Save a pointer to the parsing function */
 	f_head.parse_info_txt = parse_f_info;
 
+	/* Save a pointer to the retouch fake tags */
+	f_head.retouch = retouch_f_info;
+
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("f_info", &f_head,
-			 (void*)&f_info, (void*)&f_name, NULL);
+			 (void*)&f_info, &f_name, NULL, &f_tag);
 }
 
 
@@ -686,7 +717,7 @@ static errr init_k_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("k_info", &k_head,
-			 (void*)&k_info, (void*)&k_name, (void*)&k_text);
+			 (void*)&k_info, &k_name, &k_text, NULL);
 }
 
 
@@ -707,7 +738,7 @@ static errr init_a_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("a_info", &a_head,
-			 (void*)&a_info, (void*)&a_name, (void*)&a_text);
+			 (void*)&a_info, &a_name, &a_text, NULL);
 }
 
 
@@ -728,7 +759,7 @@ static errr init_e_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("e_info", &e_head,
-			 (void*)&e_info, (void*)&e_name, (void*)&e_text);
+			 (void*)&e_info, &e_name, &e_text, NULL);
 }
 
 
@@ -749,7 +780,7 @@ static errr init_r_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("r_info", &r_head,
-			 (void*)&r_info, (void*)&r_name, (void*)&r_text);
+			 (void*)&r_info, &r_name, &r_text, NULL);
 }
 
 
@@ -770,7 +801,7 @@ static errr init_d_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("d_info", &d_head,
-			 (void*)&d_info, (void*)&d_name, (void*)&d_text);
+			 (void*)&d_info, &d_name, &d_text, NULL);
 }
 
 
@@ -793,7 +824,7 @@ errr init_v_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("v_info", &v_head,
-			 (void*)&v_info, (void*)&v_name, (void*)&v_text);
+			 (void*)&v_info, &v_name, &v_text, NULL);
 }
 
 
@@ -813,7 +844,7 @@ static errr init_s_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("s_info", &s_head,
-			 (void*)&s_info, NULL, NULL);
+			 (void*)&s_info, NULL, NULL, NULL);
 }
 
 
@@ -833,7 +864,7 @@ static errr init_m_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("m_info", &m_head,
-			 (void*)&m_info, NULL, NULL);
+			 (void*)&m_info, NULL, NULL, NULL);
 }
 
 
@@ -1171,7 +1202,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		/* Magic-User store */
 
 		{ TV_RING, SV_RING_PROTECTION },
-		{ TV_RING, SV_RING_FEATHER_FALL },
+		{ TV_RING, SV_RING_LEVITATION_FALL },
 		{ TV_RING, SV_RING_PROTECTION },
 		{ TV_RING, SV_RING_RESIST_FIRE },
 
@@ -1337,10 +1368,10 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_ARCANE_BOOK, 2 },
 		{ TV_ARCANE_BOOK, 3 },
 
-		{ TV_ENCHANT_BOOK, 0 },
-		{ TV_ENCHANT_BOOK, 0 },
-		{ TV_ENCHANT_BOOK, 1 },
-		{ TV_ENCHANT_BOOK, 1 },
+		{ TV_CRAFT_BOOK, 0 },
+		{ TV_CRAFT_BOOK, 0 },
+		{ TV_CRAFT_BOOK, 1 },
+		{ TV_CRAFT_BOOK, 1 },
 
 		{ TV_DAEMON_BOOK, 0 },
 		{ TV_DAEMON_BOOK, 0 },
@@ -1558,6 +1589,165 @@ static errr init_quests(void)
 }
 
 
+static bool feat_tag_is_not_found = FALSE;
+
+
+s16b f_tag_to_index_in_init(cptr str)
+{
+	s16b feat = f_tag_to_index(str);
+
+	if (feat < 0) feat_tag_is_not_found = TRUE;
+
+	return feat;
+}
+
+
+/*
+ * Initialize feature variables
+ */
+static errr init_feat_variables(void)
+{
+	int i;
+
+	/* Nothing */
+	feat_none = f_tag_to_index_in_init("NONE");
+
+	/* Floor */
+	feat_floor = f_tag_to_index_in_init("FLOOR");
+
+	/* Objects */
+	feat_glyph = f_tag_to_index_in_init("GLYPH");
+	feat_explosive_rune = f_tag_to_index_in_init("EXPLOSIVE_RUNE");
+	feat_mirror = f_tag_to_index_in_init("MIRROR");
+
+	/* Doors */
+	feat_door[DOOR_DOOR].open = f_tag_to_index_in_init("OPEN_DOOR");
+	feat_door[DOOR_DOOR].broken = f_tag_to_index_in_init("BROKEN_DOOR");
+	feat_door[DOOR_DOOR].closed = f_tag_to_index_in_init("CLOSED_DOOR");
+
+	/* Locked doors */
+	for (i = 1; i < MAX_LJ_DOORS; i++)
+	{
+		s16b door = f_tag_to_index(format("LOCKED_DOOR_%d", i));
+		if (door < 0) break;
+		feat_door[DOOR_DOOR].locked[i - 1] = door;
+	}
+	if (i == 1) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
+	feat_door[DOOR_DOOR].num_locked = i - 1;
+
+	/* Jammed doors */
+	for (i = 0; i < MAX_LJ_DOORS; i++)
+	{
+		s16b door = f_tag_to_index(format("JAMMED_DOOR_%d", i));
+		if (door < 0) break;
+		feat_door[DOOR_DOOR].jammed[i] = door;
+	}
+	if (!i) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
+	feat_door[DOOR_DOOR].num_jammed = i;
+
+	/* Glass doors */
+	feat_door[DOOR_GLASS_DOOR].open = f_tag_to_index_in_init("OPEN_GLASS_DOOR");
+	feat_door[DOOR_GLASS_DOOR].broken = f_tag_to_index_in_init("BROKEN_GLASS_DOOR");
+	feat_door[DOOR_GLASS_DOOR].closed = f_tag_to_index_in_init("CLOSED_GLASS_DOOR");
+
+	/* Locked glass doors */
+	for (i = 1; i < MAX_LJ_DOORS; i++)
+	{
+		s16b door = f_tag_to_index(format("LOCKED_GLASS_DOOR_%d", i));
+		if (door < 0) break;
+		feat_door[DOOR_GLASS_DOOR].locked[i - 1] = door;
+	}
+	if (i == 1) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
+	feat_door[DOOR_GLASS_DOOR].num_locked = i - 1;
+
+	/* Jammed glass doors */
+	for (i = 0; i < MAX_LJ_DOORS; i++)
+	{
+		s16b door = f_tag_to_index(format("JAMMED_GLASS_DOOR_%d", i));
+		if (door < 0) break;
+		feat_door[DOOR_GLASS_DOOR].jammed[i] = door;
+	}
+	if (!i) return PARSE_ERROR_UNDEFINED_TERRAIN_TAG;
+	feat_door[DOOR_GLASS_DOOR].num_jammed = i;
+
+	/* Curtains */
+	feat_door[DOOR_CURTAIN].open = f_tag_to_index_in_init("OPEN_CURTAIN");
+	feat_door[DOOR_CURTAIN].broken = feat_door[DOOR_CURTAIN].open;
+	feat_door[DOOR_CURTAIN].closed = f_tag_to_index_in_init("CLOSED_CURTAIN");
+	feat_door[DOOR_CURTAIN].locked[0] = feat_door[DOOR_CURTAIN].closed;
+	feat_door[DOOR_CURTAIN].num_locked = 1;
+	feat_door[DOOR_CURTAIN].jammed[0] = feat_door[DOOR_CURTAIN].closed;
+	feat_door[DOOR_CURTAIN].num_jammed = 1;
+
+	/* Stairs */
+	feat_up_stair = f_tag_to_index_in_init("UP_STAIR");
+	feat_down_stair = f_tag_to_index_in_init("DOWN_STAIR");
+	feat_entrance = f_tag_to_index_in_init("ENTRANCE");
+
+	/* Normal traps */
+	init_normal_traps();
+
+	/* Special traps */
+	feat_trap_open = f_tag_to_index_in_init("TRAP_OPEN");
+	feat_trap_armageddon = f_tag_to_index_in_init("TRAP_ARMAGEDDON");
+	feat_trap_piranha = f_tag_to_index_in_init("TRAP_PIRANHA");
+
+	/* Rubble */
+	feat_rubble = f_tag_to_index_in_init("RUBBLE");
+
+	/* Seams */
+	feat_magma_vein = f_tag_to_index_in_init("MAGMA_VEIN");
+	feat_quartz_vein = f_tag_to_index_in_init("QUARTZ_VEIN");
+
+	/* Walls */
+	feat_granite = f_tag_to_index_in_init("GRANITE");
+	feat_permanent = f_tag_to_index_in_init("PERMANENT");
+
+	/* Glass floor */
+	feat_glass_floor = f_tag_to_index_in_init("GLASS_FLOOR");
+
+	/* Glass walls */
+	feat_glass_wall = f_tag_to_index_in_init("GLASS_WALL");
+	feat_permanent_glass_wall = f_tag_to_index_in_init("PERMANENT_GLASS_WALL");
+
+	/* Pattern */
+	feat_pattern_start = f_tag_to_index_in_init("PATTERN_START");
+	feat_pattern_1 = f_tag_to_index_in_init("PATTERN_1");
+	feat_pattern_2 = f_tag_to_index_in_init("PATTERN_2");
+	feat_pattern_3 = f_tag_to_index_in_init("PATTERN_3");
+	feat_pattern_4 = f_tag_to_index_in_init("PATTERN_4");
+	feat_pattern_end = f_tag_to_index_in_init("PATTERN_END");
+	feat_pattern_old = f_tag_to_index_in_init("PATTERN_OLD");
+	feat_pattern_exit = f_tag_to_index_in_init("PATTERN_EXIT");
+	feat_pattern_corrupted = f_tag_to_index_in_init("PATTERN_CORRUPTED");
+
+	/* Various */
+	feat_black_market = f_tag_to_index_in_init("BLACK_MARKET");
+	feat_town = f_tag_to_index_in_init("TOWN");
+
+	/* Terrains */
+	feat_deep_water = f_tag_to_index_in_init("DEEP_WATER");
+	feat_shallow_water = f_tag_to_index_in_init("SHALLOW_WATER");
+	feat_deep_lava = f_tag_to_index_in_init("DEEP_LAVA");
+	feat_shallow_lava = f_tag_to_index_in_init("SHALLOW_LAVA");
+	feat_dirt = f_tag_to_index_in_init("DIRT");
+	feat_grass = f_tag_to_index_in_init("GRASS");
+	feat_flower = f_tag_to_index_in_init("FLOWER");
+	feat_brake = f_tag_to_index_in_init("BRAKE");
+	feat_tree = f_tag_to_index_in_init("TREE");
+	feat_mountain = f_tag_to_index_in_init("MOUNTAIN");
+	feat_swamp = f_tag_to_index_in_init("SWAMP");
+
+	/* Unknown grid (not detected) */
+	feat_undetected = f_tag_to_index_in_init("UNDETECTED");
+
+	/* Wilderness terrains */
+	init_wilderness_terrains();
+
+	return feat_tag_is_not_found ? PARSE_ERROR_UNDEFINED_TERRAIN_TAG : 0;
+}
+
+
 /*
  * Initialize some other arrays
  */
@@ -1573,6 +1763,12 @@ static errr init_other(void)
 
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
+
+	/* Allocate and Wipe the monster process list */
+	for (i = 0; i < MAX_MTIMED; i++)
+	{
+		C_MAKE(mproc_list[i], max_m_idx, s16b);
+	}
 
 	/* Allocate and Wipe the max dungeon level */
 	C_MAKE(max_dlv, max_d_idx, s16b);
@@ -1596,7 +1792,7 @@ static errr init_other(void)
 	C_MAKE(macro__buf, 1024, char);
 
 	/* Quark variables */
-	C_MAKE(quark__str, QUARK_MAX, cptr);
+	quark_init();
 
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
@@ -1676,6 +1872,121 @@ static errr init_other(void)
 	return (0);
 }
 
+
+/*
+ * Initialize some other arrays
+ */
+static errr init_object_alloc(void)
+{
+	int i, j;
+	object_kind *k_ptr;
+	alloc_entry *table;
+	s16b num[MAX_DEPTH];
+	s16b aux[MAX_DEPTH];
+
+
+	/*** Analyze object allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+
+	/* Free the old "alloc_kind_table" (if it exists) */
+	if (alloc_kind_table)
+	{
+		C_KILL(alloc_kind_table, alloc_kind_size, alloc_entry);
+	}
+
+	/* Size of "alloc_kind_table" */
+	alloc_kind_size = 0;
+
+	/* Scan the objects */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		k_ptr = &k_info[i];
+
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
+		{
+			/* Count the "legal" entries */
+			if (k_ptr->chance[j])
+			{
+				/* Count the entries */
+				alloc_kind_size++;
+
+				/* Group by level */
+				num[k_ptr->locale[j]]++;
+			}
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i-1];
+	}
+
+	/* Paranoia */
+#ifdef JP
+if (!num[0]) quit("町のアイテムがない！");
+#else
+	if (!num[0]) quit("No town objects!");
+#endif
+
+
+
+	/*** Initialize object allocation info ***/
+
+	/* Allocate the alloc_kind_table */
+	C_MAKE(alloc_kind_table, alloc_kind_size, alloc_entry);
+
+	/* Access the table entry */
+	table = alloc_kind_table;
+
+	/* Scan the objects */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		k_ptr = &k_info[i];
+
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
+		{
+			/* Count the "legal" entries */
+			if (k_ptr->chance[j])
+			{
+				int p, x, y, z;
+
+				/* Extract the base level */
+				x = k_ptr->locale[j];
+
+				/* Extract the base probability */
+				p = (100 / k_ptr->chance[j]);
+
+				/* Skip entries preceding our locale */
+				y = (x > 0) ? num[x-1] : 0;
+
+				/* Skip previous entries at this locale */
+				z = y + aux[x];
+
+				/* Load the entry */
+				table[z].index = i;
+				table[z].level = x;
+				table[z].prob1 = p;
+				table[z].prob2 = p;
+				table[z].prob3 = p;
+
+				/* Another entry complete for this locale */
+				aux[x]++;
+			}
+		}
+	}
+
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -2090,9 +2401,11 @@ if (init_misc()) quit("その他の変数を初期化できません");
 #ifdef JP
 	note("[データの初期化中... (地形)]");
 	if (init_f_info()) quit("地形初期化不能");
+	if (init_feat_variables()) quit("地形初期化不能");
 #else
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
+	if (init_feat_variables()) quit("Cannot initialize features");
 #endif
 
 

@@ -12,6 +12,7 @@
 
 
 /* Chance of using syllables to form the name instead of the "template" files */
+#define SINDARIN_NAME   10
 #define TABLE_NAME      20
 #define A_CURSED        13
 #define WEIRD_LUCK      12
@@ -167,7 +168,7 @@ void one_ability(object_type *o_ptr)
 {
 	switch (randint0(10))
 	{
-	case 0: add_flag(o_ptr->art_flags, TR_FEATHER);     break;
+	case 0: add_flag(o_ptr->art_flags, TR_LEVITATION);     break;
 	case 1: add_flag(o_ptr->art_flags, TR_LITE);        break;
 	case 2: add_flag(o_ptr->art_flags, TR_SEE_INVIS);   break;
 	case 3: add_flag(o_ptr->art_flags, TR_WARNING);     break;
@@ -207,7 +208,7 @@ static void curse_artifact(object_type * o_ptr)
 
 static void random_plus(object_type * o_ptr)
 {
-	int this_type = (o_ptr->tval < TV_BOOTS ? 23 : 19);
+	int this_type = (object_is_weapon_ammo(o_ptr) ? 23 : 19);
 
 	switch (artifact_bias)
 	{
@@ -871,7 +872,7 @@ static void random_misc(object_type * o_ptr)
 			break;
 		case 12:
 		case 13:
-			add_flag(o_ptr->art_flags, TR_FEATHER);
+			add_flag(o_ptr->art_flags, TR_LEVITATION);
 			break;
 		case 15:
 		case 16:
@@ -892,7 +893,7 @@ static void random_misc(object_type * o_ptr)
 		case 24:
 		case 25:
 		case 26:
-			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_DRAG_ARMOR)
+			if (object_is_armour(o_ptr))
 				random_misc(o_ptr);
 			else
 			{
@@ -1537,7 +1538,13 @@ static void give_activation_power(object_type *o_ptr)
 
 static void get_random_name(char *return_name, bool armour, int power)
 {
-	if (randint1(100) <= TABLE_NAME)
+	int prob = randint1(100);
+
+	if (prob <= SINDARIN_NAME)
+	{
+		get_table_sindarin(return_name);
+	}
+	else if (prob <= TABLE_NAME)
 	{
 		get_table_name(return_name);
 	}
@@ -1552,35 +1559,31 @@ static void get_random_name(char *return_name, bool armour, int power)
 				{
 					case 0:
 #ifdef JP
-filename = "a_cursed_j.txt";
+						filename = "a_cursed_j.txt";
 #else
 						filename = "a_cursed.txt";
 #endif
-
 						break;
 					case 1:
 #ifdef JP
-filename = "a_low_j.txt";
+						filename = "a_low_j.txt";
 #else
 						filename = "a_low.txt";
 #endif
-
 						break;
 					case 2:
 #ifdef JP
-filename = "a_med_j.txt";
+						filename = "a_med_j.txt";
 #else
 						filename = "a_med.txt";
 #endif
-
 						break;
 					default:
 #ifdef JP
-filename = "a_high_j.txt";
+						filename = "a_high_j.txt";
 #else
 						filename = "a_high.txt";
 #endif
-
 				}
 				break;
 			default:
@@ -1588,41 +1591,37 @@ filename = "a_high_j.txt";
 				{
 					case 0:
 #ifdef JP
-filename = "w_cursed_j.txt";
+						filename = "w_cursed_j.txt";
 #else
 						filename = "w_cursed.txt";
 #endif
-
 						break;
 					case 1:
 #ifdef JP
-filename = "w_low_j.txt";
+						filename = "w_low_j.txt";
 #else
 						filename = "w_low.txt";
 #endif
-
 						break;
 					case 2:
 #ifdef JP
-filename = "w_med_j.txt";
+						filename = "w_med_j.txt";
 #else
 						filename = "w_med.txt";
 #endif
-
 						break;
 					default:
 #ifdef JP
-filename = "w_high_j.txt";
+						filename = "w_high_j.txt";
 #else
 						filename = "w_high.txt";
 #endif
-
 				}
 		}
 
 		(void)get_rnd_line(filename, artifact_bias, return_name);
 #ifdef JP
- if(return_name[0]==0)get_table_name(return_name);
+		 if (return_name[0] == 0) get_table_name(return_name);
 #endif
 	}
 }
@@ -1633,7 +1632,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	char    new_name[1024];
 	int     has_pval = 0;
 	int     powers = randint1(5) + 1;
-	int     max_type = (o_ptr->tval < TV_BOOTS ? 7 : 5);
+	int     max_type = (object_is_weapon_ammo(o_ptr) ? 7 : 5);
 	int     power_level;
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
@@ -1734,7 +1733,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (!a_scroll && one_in_(A_CURSED))
 		a_cursed = TRUE;
-	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && cursed_p(o_ptr))
+	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
 	while (one_in_(powers) || one_in_(7) || one_in_(10))
@@ -1755,7 +1754,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				has_pval = TRUE;
 				break;
 			case 3: case 4:
-				if (one_in_(2) && (o_ptr->tval < TV_BOOTS) && (o_ptr->tval != TV_BOW))
+				if (one_in_(2) && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW))
 				{
 					if (a_cursed && !one_in_(13)) break;
 					if (one_in_(13))
@@ -1812,9 +1811,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	}
 
 	/* give it some plusses... */
-	if (o_ptr->tval >= TV_BOOTS && o_ptr->tval <= TV_DRAG_ARMOR)
+	if (object_is_armour(o_ptr))
 		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
-	else if (o_ptr->tval <= TV_SWORD)
+	else if (object_is_weapon_ammo(o_ptr))
 	{
 		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
@@ -1833,14 +1832,13 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	if (a_cursed) curse_artifact(o_ptr);
 
 	if (!a_cursed &&
-	    (randint1((o_ptr->tval >= TV_BOOTS)
-	    ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE) == 1))
+	    one_in_(object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE))
 	{
 		o_ptr->xtra2 = 0;
 		give_activation_power(o_ptr);
 	}
 
-	if ((o_ptr->tval >= TV_BOOTS) && (o_ptr->tval <= TV_DRAG_ARMOR))
+	if (object_is_armour(o_ptr))
 	{
 		while ((o_ptr->to_d+o_ptr->to_h) > 20)
 		{
@@ -1882,7 +1880,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		remove_flag(o_ptr->art_flags, TR_BRAND_COLD);
 	}
 
-	if (o_ptr->tval >= TV_BOOTS)
+	if (!object_is_weapon_ammo(o_ptr))
 	{
 		/* For armors */
 		if (a_cursed) power_level = 0;
@@ -1902,7 +1900,13 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (a_scroll)
 	{
-		char dummy_name[80];
+		char dummy_name[80] = "";
+#ifdef JP
+		cptr ask_msg = "このアーティファクトを何と名付けますか？";
+#else
+		cptr ask_msg = "What do you want to call the artifact? ";
+#endif
+
 		/* Identify it fully */
 		object_aware(o_ptr);
 		object_known(o_ptr);
@@ -1910,60 +1914,45 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		/* Mark the item as fully known */
 		o_ptr->ident |= (IDENT_MENTAL);
 
-		strcpy(dummy_name, "");
-		(void)screen_object(o_ptr, TRUE);
+		(void)screen_object(o_ptr, 0L);
 
-#ifdef JP
-		if (!(get_string("このアーティファクトを何と名付けますか？", dummy_name, 80)))
-#else
-		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
-#endif
-
+		if (!get_string(ask_msg, dummy_name, sizeof dummy_name)
+		    || !dummy_name[0])
 		{
-			get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+			/* Cancelled */
+			if (one_in_(2))
+			{
+				get_table_sindarin_aux(dummy_name);
+			}
+			else
+			{
+				get_table_name_aux(dummy_name);
+			}
 		}
-		else
-		{
-#ifdef JP
-			strcpy(new_name, "《");
-#else
-			strcpy(new_name, "'");
-#endif
 
-			strcat(new_name, dummy_name);
 #ifdef JP
-			strcat(new_name, "》という名の");
+		sprintf(new_name, "《%s》", dummy_name);
 #else
-			strcat(new_name, "'");
+		sprintf(new_name, "'%s'", dummy_name);
 #endif
-
-		}
 
 		chg_virtue(V_INDIVIDUALISM, 2);
 		chg_virtue(V_ENCHANT, 5);
-
 	}
 	else
 	{
-		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+		get_random_name(new_name, object_is_armour(o_ptr), power_level);
 	}
 
 	if (cheat_xtra)
 	{
-		if (artifact_bias)
 #ifdef JP
-msg_format("運の偏ったアーティファクト: %d。", artifact_bias);
+		if (artifact_bias) msg_format("運の偏ったアーティファクト: %d。", artifact_bias);
+		else msg_print("アーティファクトに運の偏りなし。");
 #else
-			msg_format("Biased artifact: %d.", artifact_bias);
+		if (artifact_bias) msg_format("Biased artifact: %d.", artifact_bias);
+		else msg_print("No bias in artifact.");
 #endif
-
-		else
-#ifdef JP
-msg_print("アーティファクトに運の偏りなし。");
-#else
-			msg_print("No bias in artifact.");
-#endif
-
 	}
 
 	/* Save the inscription */
@@ -2253,7 +2242,7 @@ bool activate_random_artifact(object_type * o_ptr)
 					m_ptr = &m_list[c_ptr->m_idx];
 
 					/* Hack -- attack monsters */
-					if (c_ptr->m_idx && (m_ptr->ml || cave_floor_bold(y, x)))
+					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
 						py_attack(y, x, 0);
 				}
 			}
@@ -2730,6 +2719,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_BERSERK:
 		{
+			(void)set_afraid(0);
 			(void)set_hero(randint1(50) + 50, FALSE);
 			(void)set_blessed(randint1(50) + 50, FALSE);
 			o_ptr->timeout = 100 + randint1(100);
@@ -2992,7 +2982,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It twists space around you...");
 #endif
 
-			teleport_player(100);
+			teleport_player(100, 0L);
 			o_ptr->timeout = 45;
 			break;
 		}
@@ -3025,6 +3015,35 @@ bool activate_random_artifact(object_type * o_ptr)
 }
 
 
+void get_bloody_moon_flags(object_type *o_ptr)
+{
+	int dummy, i;
+
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		o_ptr->art_flags[i] = a_info[ART_BLOOD].flags[i];
+
+	dummy = randint1(2) + randint1(2);
+	for (i = 0; i < dummy; i++)
+	{
+		int flag = randint0(26);
+		if (flag >= 20) add_flag(o_ptr->art_flags, TR_KILL_UNDEAD + flag - 20);
+		else if (flag == 19) add_flag(o_ptr->art_flags, TR_KILL_ANIMAL);
+		else if (flag == 18) add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
+		else add_flag(o_ptr->art_flags, TR_CHAOTIC + flag);
+	}
+
+	dummy = randint1(2);
+	for (i = 0; i < dummy; i++) one_resistance(o_ptr);
+
+	for (i = 0; i < 2; i++)
+	{
+		int tmp = randint0(11);
+		if (tmp < 6) add_flag(o_ptr->art_flags, TR_STR + tmp);
+		else add_flag(o_ptr->art_flags, TR_STEALTH + tmp - 6);
+	}
+}
+
+
 void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
@@ -3046,6 +3065,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 			return;
 		}
 	}
+
 	if (o_ptr->name1 == ART_MURAMASA)
 	{
 		if (p_ptr->pclass != CLASS_SAMURAI)
@@ -3063,24 +3083,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 
 	if (o_ptr->name1 == ART_BLOOD)
 	{
-		int dummy, i;
-		dummy = randint1(2)+randint1(2);
-		for (i = 0; i < dummy; i++)
-		{
-			int flag = randint0(19);
-			if (flag == 18) add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
-			else add_flag(o_ptr->art_flags, TR_CHAOTIC + flag);
-		}
-		dummy = randint1(2);
-		for (i = 0; i < dummy; i++)
-			one_resistance(o_ptr);
-		dummy = 2;
-		for (i = 0; i < dummy; i++)
-		{
-			int tmp = randint0(11);
-			if (tmp < 6) add_flag(o_ptr->art_flags, TR_STR + tmp);
-			else add_flag(o_ptr->art_flags, TR_STEALTH + tmp - 6);
-		}
+		get_bloody_moon_flags(o_ptr);
 	}
 
 	if (a_ptr->gen_flags & (TRG_XTRA_POWER)) give_power = TRUE;
@@ -3107,7 +3110,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 /*
  * Create the artifact of the specified number
  */
-void create_named_art(int a_idx, int y, int x)
+bool create_named_art(int a_idx, int y, int x)
 {
 	object_type forge;
 	object_type *q_ptr;
@@ -3119,13 +3122,13 @@ void create_named_art(int a_idx, int y, int x)
 	q_ptr = &forge;
 
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return;
+	if (!a_ptr->name) return FALSE;
 
 	/* Acquire the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
 
 	/* Oops */
-	if (!i) return;
+	if (!i) return FALSE;
 
 	/* Create the artifact */
 	object_prep(q_ptr, i);
@@ -3153,6 +3156,12 @@ void create_named_art(int a_idx, int y, int x)
 
 	random_artifact_resistance(q_ptr, a_ptr);
 
+	/*
+	 * drop_near()内で普通の固定アーティファクトが重ならない性質に依存する.
+	 * 仮に2個以上存在可能かつ装備品以外の固定アーティファクトが作成されれば
+	 * この関数の返り値は信用できなくなる.
+	 */
+
 	/* Drop the artifact from heaven */
-	(void)drop_near(q_ptr, -1, y, x);
+	return drop_near(q_ptr, -1, y, x) ? TRUE : FALSE;
 }

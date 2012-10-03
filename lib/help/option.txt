@@ -9,8 +9,8 @@ which is shown on the "options" screen, plus the internal name of the
 option in brackets, followed by a textual description of the option.
 
 Note that the internal name of the option can be used in user pref
-files to force the option to a given setting, see "command.txt" for
-more info.
+files to force the option to a given setting (see "command.txt" for
+more info).
 
 Various concepts are mentioned in the descriptions below, including
 "disturb", (cancel any running, resting, or repeated commands, which
@@ -96,7 +96,7 @@ Prompt before exiting a quest level    [confirm_quest]
 Allow targetting pets    [target_pet]
     Normally, the program doesn't automatically choose pets as target
     in the targeting mode of attack spells. If this option is set, the
-    program always choose every monsters in sight as target.
+    program always chooses every monster in sight as target.
 
 ***** <easy_open>
 Automatically open doors    [easy_open]
@@ -106,7 +106,7 @@ Automatically open doors    [easy_open]
 
 ***** <easy_disarm>
 Automatically disarm traps    [easy_disarm]
-    Makes it easy for your character disarm a trap: simply by walking into
+    Makes it easy for your character disarms a trap: simply by walking into
     it! Also the disarm command will automatically select one direction
     if only one known trap is near you.
 
@@ -131,65 +131,15 @@ Allow casting spells when short of mana    [over_exert]
     have enough mana.  If this option is set, the program allow you to
     cast spells at such dangerous situation.
 
-***** <Output>
-=== Option set 2 -- Screen output ===
+***** <numpad_as_cursorkey>
+Use numpad keys as cursor keys in editor mode    [numpad_as_cursorkey]
+    This option makes numpad keys work as cursor movement keys while
+    text editing mode.  Which include auto-picker editor, inputing an
+    inscription, a macro action, and etc.
 
-***** <depth_in_feet>
-Show dungeon level in feet    [depth_in_feet]
-    Display the dungeon depth in "feet" instead of as an actual level.
-    This also affects the monster memory display.
 
-***** <show_labels>
-Show labels in object listings    [show_labels]
-    Display the "labels" for objects in the "equipment" list, and in
-    any "special" window which is displaying the "equipment". These
-    labels indicate what the player is "using" the object for, such as
-    "wielding" or "wearing" (in a given location). After you have
-    played for a while, this information is no longer useful, and can
-    be annoying.
-
-***** <show_weights>
-Show weights in object listings    [show_weights]
-    Display the weights of objects in the "inventory" and "equipment"
-    lists, and in "stores", and in any "special" window which is
-    displaying any of these lists.
-
-***** <show_item_graph>
-Show items graphics    [show_item_graph]
-    Displays small icons of the items in your "inventory" list,
-    "equipment" list and "stores".
-
-***** <show_choices>
-Show choices in certain sub-windows    [show_choices]
-    Indicate legal choices in "special" windows which display lists.
-    
-***** <player_symbols>
-Use special symbols for the player char    [player_symbols]
-    This option is needed only when the system platform is "ibm".
-    This option allows you to display your character using race /
-    class / sex dependent colours and graphical symbols.
-
-***** <equippy_chars>
-Display 'equippy' chars    [equippy_chars]
-    This option will show you a graphical representation of your worn
-    equipment on the main screen.  The 'equippy' chars will use the
-    standard symbols of the respective items.
-
-***** <display_mutations>
-Display mutations in 'C'haracter Display    [display_mutations]
-    Normally, if your character has gained mutations, they will be
-    displayed in an extra 'h' mode window under the 'C'haracter
-    Description command. Some players may wish to view mutations only
-    via the knowledge command ('~' or '|') and do not want any extra
-    screens in the Character Description: they should set this option.
-
-***** <plain_descriptions>
-Plain object descriptions    [plain_descriptions]
-    This option disables "full" names for identified 'flavored'
-    objects, in other words, if this option is not in use, an
-    identified Potion of Speed could be listed (for example) as a Blue
-    Potion of Speed. If you prefer simpler, less verbose descriptions,
-    set this option.
+***** <MapScreen>
+=== Option set 2 -- Map Screen ===
 
 ***** <center_player>
 Center map while walking (*slow*)    [center_player]
@@ -248,68 +198,6 @@ Use special colors for floor grids (slow)    [view_special_lite]
     speed of the game.  This option may not work well if the attr/char
     codes for walls/veins have been changed
 
-***** <new_ascii_graphics>
-Show a clear contrast between light and dark    [new_ascii_graphics]
-    This option activates a special color scheme for all grids other
-    than normal white color, when used with view_bright_lite and/or
-    view_granite_lite.
-
-***** <display_path>
-Display actual path before shooting    [display_path]
-    When this option is set, the targeting mode will show path from
-    you to current target point continuously.
-
-***** <always_show_list>
-Always show list at first when select items    [always_show_list]
-    When this option is set, all commands which lets you to choose an
-    item from inventory or equipment list will automatically show list
-    when activated.
-
-***** <GamePlay>
-=== Option set 3 -- Game playing ===
-
-***** <auto_scum>
-Auto-scum for good levels    [auto_scum]
-    This is a hack but allows you to force the generation of "good"
-    levels in the dungeon. This option may be extremely slow on some
-    machines, especially deep in the dungeon. The minimum "goodness" of
-    the level is based on the dungeon level, so the deeper you go, the
-    better the level will be.
-    
-***** <stack_force_notes>
-Merge inscriptions when stacking    [stack_force_notes]
-    Force otherwise identical objects to merge, even if one has an
-    empty inscription and the other does not. The resulting stack keeps
-    the non-empty inscription.
-
-***** <stack_force_costs>
-Merge discounts when stacking    [stack_force_costs]
-    Force otherwise identical objects to merge, even if they have
-    different discounts. The resulting stack keeps the largest
-    discount. This option may cause you to lose "value", but will give
-    you optimal pack usage.
-
-***** <stack_allow_items>
-Allow weapons and armor to stack    [stack_allow_items]
-    Allow identical weapons and armor to be combined into a stack. This
-    also allows unidentified, but identical, ammo to be combined, which
-    may result in the auto-identification of some of the ammo, but
-    which makes it a lot easier to actually use unidentified ammo.
-    
-***** <expand_look>
-Expand the power of the look command    [expand_look]
-    Expand the "look" command to allow the user to "look" at grids
-    which are not actually in view of the player, allowing the
-    examination of objects/monsters which have only been detected by
-    spells, or sensed via telepathy.
-
-***** <expand_list>
-Expand the power of the list commands    [expand_list]
-    Expand the "listing" commands so that they "wrap" at the "edges" of
-    the appropriate list.  This allows the "look" and "target" commands
-    to "cycle" through all appropriate grids forever, and the "identify
-    symbol" to browse through all of the monsters of a given type.
-
 ***** <view_perma_grids>
 Map remembers all perma-lit grids    [view_perma_grids]
     Memorize all perma-lit floor grids which are seen by the player.
@@ -345,6 +233,169 @@ Map marked by detect traps    [view_unsafe_grids]
     are trap free. This option has no effect on surface grids, but
     outdoor locations cannot be trapped.
 
+***** <view_reduce_view>
+Reduce view-radius in town    [view_reduce_view]
+    Reduce the "radius" of the player's "view" by half when the player
+    is in town.  This makes running faster in town, and also allows the
+    player to ignore monsters in town which are more than ten grids
+    away, which is usually safe, since none have distance attacks.
+
+***** <fresh_before>
+Flush output while continuous command    [fresh_before]
+    This option forces the game to flush all output before every
+    command. This will give you maximal information, but may slow down
+    the game somewhat. Note that this option is only useful when using
+    macros, resting, running, or repeating commands, since the output
+    is always flushed when the game is waiting for a keypress from the
+    user.
+    
+***** <fresh_after>
+Flush output after monster's move    [fresh_after]
+    This option forces the game to flush all output after not only
+    every player command, but also after every round of processing
+    monsters and objects, which will give you maximal information, but
+    may slow down the game a lot, especially on slower machines, and on
+    faster machines you normally do not have a chance to see the
+    results anyway.
+    
+***** <fresh_message>
+Flush output after every message    [fresh_message]
+    This option forces the game to flush all output after every message
+    displayed by the game.  This will give you maximal information, but
+    may slow down the game somewhat.
+
+***** <hilite_player>
+Hilite the player with the cursor    [hilite_player]
+    Place the visible cursor on the player. This looks fine on some
+    Unix machines, but horrible on most graphics machines. Note that
+    only some machines are able to *not* show the cursor, but on those
+    machines, hiding the cursor often speeds up the game and looks
+    better.
+    
+***** <display_path>
+Display actual path before shooting    [display_path]
+    When this option is set, the targeting mode will show path from
+    you to current target point continuously.
+
+
+***** <TextDisplay>
+=== Option set 3 -- Text Display ===
+
+***** <plain_descriptions>
+Plain object descriptions    [plain_descriptions]
+    This option disables "full" names for identified 'flavored'
+    objects, in other words, if this option is not in use, an
+    identified Potion of Speed could be listed (for example) as a Blue
+    Potion of Speed. If you prefer simpler, less verbose descriptions,
+    set this option.
+
+***** <always_show_list>
+Always show list when choosing items    [always_show_list]
+    When this option is set, all commands which lets you to choose an
+    item from inventory or equipment list will automatically show list
+    when activated.
+
+***** <depth_in_feet>
+Show dungeon level in feet    [depth_in_feet]
+    Display the dungeon depth in "feet" instead of as an actual level.
+    This also affects the monster memory display.
+
+***** <show_labels>
+Show labels in object listings    [show_labels]
+    Display the "labels" for objects in the "equipment" list, and in
+    any "special" window which is displaying the "equipment". These
+    labels indicate what the player is "using" the object for, such as
+    "wielding" or "wearing" (in a given location). After you have
+    played for a while, this information is no longer useful, and can
+    be annoying.
+
+***** <show_weights>
+Show weights in object listings    [show_weights]
+    Display the weights of objects in the "inventory" and "equipment"
+    lists, and in "stores", and in any "special" window which is
+    displaying any of these lists.
+
+***** <show_item_graph>
+Show items graphics    [show_item_graph]
+    Displays small icons of the items in your "inventory" list,
+    "equipment" list and "stores".
+
+***** <equippy_chars>
+Display 'equippy' chars    [equippy_chars]
+    This option will show you a graphical representation of your worn
+    equipment on the main screen.  The 'equippy' chars will use the
+    standard symbols of the respective items.
+
+***** <display_mutations>
+Display mutations in 'C'haracter Display    [display_mutations]
+    Normally, if your character has gained mutations, they will be
+    displayed in an extra 'h' mode window under the 'C'haracter
+    Description command. Some players may wish to view mutations only
+    via the knowledge command ('~' or '|') and do not want any extra
+    screens in the Character Description: they should set this option.
+
+***** <compress_savefile>
+Compress messages in savefiles    [compress_savefile]
+    Compress the savefile, by only saving the most recent "messages"
+    that the player has received. This can cut the size of the savefile
+    by a drastic amount, but will result in the loss of message
+    information.
+
+***** [b] objects.txt#AbbrevList
+***** <abbrev_extra>
+Describe obj's extra resistances by abbreviation  [abbrev_extra]
+    When an *identified* equipment is displayed, an abbreviation
+    string for the object's extra resitances and extra abilities are
+    added as fake inscriptions of the object.
+
+    A word "EXTRA" means that the ability must not be obvious from the
+    objects name.  For example, a pair of boots of Levitation
+    sometimes has EXTRA shard resistance.  But fire resistance of an
+    armor of Resist Fire is not an EXTRA resistance.
+
+    The list of abbreviations for each resistances and abilities are
+    described in (objects.txt#AbbrevList [b])
+
+***** <abbrev_all>
+Describe obj's all resistances by abbreviation  [abbrev_all]
+    When an *identified* equipment is displayed, an abbreviation
+    string for all the object's resitances and abilities are added as
+    fake inscriptions of the object.
+
+    The list of abbreviations for each resistances and abilities are
+    described in (objects.txt#AbbrevList [b])
+
+***** <exp_need>
+Show the experience needed for the next level    [exp_need]
+    Setting this option to yes alters the display of experience on the
+    left of the main screen to the experience needed to reach the next
+    character level, instead of the character's current total
+    experience.
+
+
+***** <GamePlay>
+=== Option set 4 -- Game playing ===
+
+***** <stack_force_notes>
+Merge inscriptions when stacking    [stack_force_notes]
+    Force otherwise identical objects to merge, even if one has an
+    empty inscription and the other does not. The resulting stack keeps
+    the non-empty inscription.
+
+***** <stack_force_costs>
+Merge discounts when stacking    [stack_force_costs]
+    Force otherwise identical objects to merge, even if they have
+    different discounts. The resulting stack keeps the largest
+    discount. This option may cause you to lose "value", but will give
+    you optimal pack usage.
+
+***** <expand_list>
+Expand the power of the list commands    [expand_list]
+    Expand the "listing" commands so that they "wrap" at the "edges" of
+    the appropriate list.  This allows the "look" and "target" commands
+    to "cycle" through all appropriate grids forever, and the "identify
+    symbol" to browse through all of the monsters of a given type.
+
 ***** <small_levels>
 Allow unusually small dungeon levels    [small_levels]
     This option enables the creation of levels of varying sizes. Levels
@@ -362,7 +413,7 @@ Always create unusually small dungeon levels    [always_small_levels]
 ***** <empty_levels>
 Allow empty 'arena' levels    [empty_levels]
     Normal dungeon levels consist mostly of rock. If this option is in
-    use, levels which have empty floor instead of solid rock may  also 
+    use, levels which have empty floor instead of solid rock may also 
     be created (somewhat reminiscent of Nethack's "big-room" levels). 
     These levels can be extremely deadly, especially with breathing
     monsters (since there are few obstructions to shield). Arena levels
@@ -398,7 +449,7 @@ Allow use of debug/cheat options  [allow_debug_opts]
 
 
 ***** <Disturbance>
-=== Option set 4 -- Disturbance ===
+=== Option set 5 -- Disturbance ===
 
 ***** <find_ignore_stairs>
 Run past stairs    [find_ignore_stairs]
@@ -414,9 +465,33 @@ Run past known corners    [find_cut]
     in "faster" running, but may cause you to run into a "lurking"
     monster.
 
-***** <find_examine>
-Run into potential corners    [find_examine]
-    Fully explore "potential corners" in hallways.
+***** <check_abort>
+Check for user abort while continuous command    [check_abort]
+    Avoid checking to see if the user has pressed a key during resting
+    or running or repeated commands.  This not only makes the game much
+    more efficient (on many systems), but also allows the use of
+    certain obscure macro sequences, such as turning this option on,
+    resting until done, turning this option off, and casting a spell.
+    Note that the use of this option may be dangerous on certain
+    "graphic" machines. Resting for long periods of time with this
+    option set is dangerous since the resting may not stop until the
+    user takes damage from starvation.
+
+***** <flush_failure>
+Flush input on various failures    [flush_failure]
+    This option forces the game to flush all pending input whenever
+    various "failures" occur, such as failure to cast a spell, failure
+    to use a wand, etc. This is very useful if you use macros which
+    include "directional" components with commands that can fail, since
+    it will prevent you from walking towards monsters when your spells
+    fail.
+
+***** <flush_disturb>
+Flush input whenever disturbed    [flush_disturb]
+    This option forces the game to flush all pending input whenever
+    the character is "disturbed". This is useful if you use macros
+    which take time, since it will prevent you from continuing your
+    macro while being attacked by a monster.
     
 ***** <disturb_move>
 Disturb whenever any monster moves    [disturb_move]
@@ -468,12 +543,6 @@ Disturb whenever boring things happen    [disturb_minor]
 Audible bell (on errors, etc)    [ring_bell]
     Attempt to make a "bell" noise when various "errors" occur.
     
-***** <alert_hitpoint>
-Alert user to critical hitpoints    [alert_hitpoint]
-    Produce a "bell" noise, and flush all pending input, when your
-    hitpoints reach the "critical point" chosen elsewhere, preventing
-    stupid deaths.
-
 ***** <disturb_trap_detect>
 Disturb when leaving trap detected area    [disturb_trap_detect]
     This option causes you to be disturbed when the player is running
@@ -485,90 +554,6 @@ Alert when leaving trap detected area    [alert_trap_detect]
     of the trap-detected area.
 
 
-***** <Efficiency>
-=== Option set 5 -- Efficiency ===
-
-***** <view_reduce_lite>
-Reduce lite-radius when running    [view_reduce_lite]
-    Reduce the "radius" of the player's "lite" to that of a "torch"
-    when the player is "running", which makes running more "efficient",
-    but is extremely annoying.  Certain older versions of Angband used
-    this behavior always, so "purists" should turn it on.
-    
-***** <view_reduce_view>
-Reduce view-radius in town    [view_reduce_view]
-    Reduce the "radius" of the player's "view" by half when the player
-    is in town.  This makes running faster in town, and also allows the
-    player to ignore monsters in town which are more than ten grids
-    away, which is usually safe, since none have distance attacks.
-
-***** <check_abort>
-Check for user abort while continuous command    [check_abort]
-    Avoid checking to see if the user has pressed a key during resting
-    or running or repeated commands.  This not only makes the game much
-    more efficient (on many systems), but also allows the use of
-    certain obscure macro sequences, such as turning this option on,
-    resting until done, turning this option off, and casting a spell.
-    Note that the use of this option may be dangerous on certain
-    "graphic" machines. Resting for long periods of time with this
-    option set is dangerous since the resting may not stop until the
-    user takes damage from starvation.
-
-***** <flush_failure>
-Flush input on various failures    [flush_failure]
-    This option forces the game to flush all pending input whenever
-    various "failures" occur, such as failure to cast a spell, failure
-    to use a wand, etc. This is very useful if you use macros which
-    include "directional" components with commands that can fail, since
-    it will prevent you from walking towards monsters when your spells
-    fail.
-
-***** <flush_disturb>
-Flush input whenever disturbed    [flush_disturb]
-    This option forces the game to flush all pending input whenever
-    the character is "disturbed". This is useful if you use macros
-    which take time, since it will prevent you from continuing your
-    macro while being attacked by a monster.
-    
-***** <fresh_before>
-Flush output while continuous command    [fresh_before]
-    This option forces the game to flush all output before every
-    command. This will give you maximal information, but may slow down
-    the game somewhat. Note that this option is only useful when using
-    macros, resting, running, or repeating commands, since the output
-    is always flushed when the game is waiting for a keypress from the
-    user.
-    
-***** <fresh_after>
-Flush output after monster's move    [fresh_after]
-    This option forces the game to flush all output after not only
-    every player command, but also after every round of processing
-    monsters and objects, which will give you maximal information, but
-    may slow down the game a lot, especially on slower machines, and on
-    faster machines you normally do not have a chance to see the
-    results anyway.
-    
-***** <fresh_message>
-Flush output after every message    [fresh_message]
-    This option forces the game to flush all output after every message
-    displayed by the game.  This will give you maximal information, but
-    may slow down the game somewhat.
-
-***** <compress_savefile>
-Compress messages in savefiles    [compress_savefile]
-    Compress the savefile, by only saving the most recent "messages"
-    that the player has received. This can cut the size of the savefile
-    by a drastic amount, but will result in the loss of message
-    information.
-
-***** <hilite_player>
-Hilite the player with the cursor    [hilite_player]
-    Place the visible cursor on the player. This looks fine on some
-    Unix machines, but horrible on most graphics machines. Note that
-    only some machines are able to *not* show the cursor, but on those
-    machines, hiding the cursor often speeds up the game and looks
-    better.
-    
 ***** <AutoDestroyer>
 === Option set 6 -- Easy Auto-Destroyer ===
 
@@ -626,8 +611,9 @@ Auto-destroyer leaves junk    [leave_junk]
 Auto-destroyer leaves items your race/class needs  [leave_special]
     This option protects specific items which are normally worthless,
     but very important for specific classes or races.  These include
-    bones for Archers, ego light source of darkness for Ninja,
-    humanoid corpses for Balrogs, etc...
+    bones for Archers, ego light sources of darkness for Ninja, Wands
+    of Heal Monster for BeastMaster and Cavalry, and humanoid corpses
+    for Balrogs, etc...
 
 
 ***** <PlayRecord>
@@ -650,16 +636,16 @@ Record when destroy unique monster    [record_destroy_uniq]
 
 ***** <record_fix_quest>
 Record fixed quests    [record_fix_quest]
-    If this option is set, result of every fixed quests will be
+    If this option is set, result of every fixed quest will be
     written in the Play-record.
 
 ***** <record_rand_quest>
 Record random quests    [record_rand_quest]
-    If this option is set, result of every random quests will be
+    If this option is set, result of every random quest will be
     written in the Play-record.
 
-***** <record_maxdeapth>
-Record movements to deepest level    [record_maxdeapth]
+***** <record_maxdepth>
+Record movements to deepest level    [record_maxdepth]
     If this option is set, deepest level will be written in the
     Play-record when you reached new deepest level.
 
@@ -675,7 +661,7 @@ Record purchased items    [record_buy]
 
 ***** <record_sell>
 Record sold items    [record_sell]
-    If this option is set, names and numbers of every items you sold
+    If this option is set, names and numbers of every item you sold
     will be written in the Play-record.
 
 ***** <record_danger>
@@ -838,13 +824,13 @@ Ask for saving death    [cheat_save]
     character data or not when they die.
 
 
-***** <StartUp>
-=== Start up options ===
+***** <Birth>
+=== Birth options ===
 
 While cheating makes the game easier, the following options can make
 Hengband harder or easier. So if you think the game is too easy or too
 hard, or if you want to impress your friends, then switch on the
-following options. The startup-options can only be accessed while
+following options. The birth options can only be accessed while
 creating a new character (press '=' while creating the character).
 There is no way to turn them off after the creation is finished!
 Indicators "(*)" after the name of options means that options effect
@@ -860,7 +846,7 @@ Manually haggle in stores    [manual_haggle]
 ***** <easy_band>
 Easy Mode (*)    [easy_band]
     This option enables easy game mode for beginners. If this option is
-    set, you takes only half damage from any enemy's attack compared
+    set, you take only half damage from any enemy's attack compared
     to normal mode, and monster's summoning spells become much
     weaker. But your score will be estimated to be negative number,
     and you cannot send score record to world score board.
@@ -910,18 +896,10 @@ Disable recall and use of up stairs (*)    [ironman_downward]
     are downstairs and every time you teleport level, you'll teleport
     to a deeper level.
 
-***** <ironman_autoscum>
-Permanently enable the autoscummer    [ironman_autoscum]
-    This option switches the "autoscummer" permanently on, so that only
-    "good" levels are created.  This can mean, that there are good
-    items on this level, or that the level is protected by especially
-    powerful monsters. In Hengband it often is the later, so use this
-    option with care.
-
 ***** <ironman_empty_levels>
 Always create empty 'arena' levels (*)    [ironman_empty_levels]
     If this option is enabled, then every level will be empty 'arena'
-    level . See the "Allow empty 'arena' levels" option above.
+    level. See the "Allow empty 'arena' levels" option above.
 
 ***** <ironman_rooms>
 Always generate very unusual rooms (*)    [ironman_rooms]
@@ -954,7 +932,7 @@ Preserve artifacts (*)    [preserve_mode]
 ***** <autoroller>
 Allow use of autoroller for stats (*)    [autoroller]
     If you choose to use the auto-roller, you can specify minimum
-    limit of each stats.  Once you have specified your desired
+    limit of each stat.  Once you have specified your desired
     statistics, the computer will then randomly roll successive
     start-up characters and compare them to your specified
     criteria. Each stat is rolled as a number from 8 to 17, with a

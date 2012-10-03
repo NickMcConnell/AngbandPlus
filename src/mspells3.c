@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-/* Purpose: Mane code */
+/* Purpose: Imitation code */
 
 #include "angband.h"
 
@@ -418,13 +418,13 @@ cptr            p = "魔法";
 	}
 
 	/* Build a prompt (accept all spells) */
+	(void)strnfmt(out_val, 78, 
 #ifdef JP
-(void) strnfmt(out_val, 78, "(%c-%c, '*'で一覧, ESC) どの%sを唱えますか？",
+		      "(%c-%c, '*'で一覧, ESC) どの%sを唱えますか？",
 #else
-	(void)strnfmt(out_val, 78, "(%c-%c, *=List, ESC=exit) Use which %s? ",
+		      "(%c-%c, *=List, ESC=exit) Use which %s? ",
 #endif
-
-		I2A(0), I2A(num - 1), p);
+		      I2A(0), I2A(num - 1), p);
 
 	if (use_menu) screen_save();
 
@@ -544,15 +544,10 @@ put_str("MP 失率 効果", y, x + 33);
 					if (plev > spell.level) chance -= 3 * (plev - spell.level);
 					else chance += (spell.level - plev);
 
-					chance += p_ptr->to_m_chance;
-
 					/* Reduce failure rate by INT/WIS adjustment */
 					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
 
-					if (p_ptr->heavy_spell) chance += 20;
-					if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-					else if (p_ptr->easy_spell) chance-=3;
-					else if (p_ptr->dec_mana) chance-=2;
+					chance = mod_spell_chance_1(chance);
 
 					need_mana = mod_need_mana(monster_powers[spellnum[i]].smana, 0, REALM_NONE);
 
@@ -575,9 +570,7 @@ put_str("MP 失率 効果", y, x + 33);
 					/* Always a 5 percent chance of working */
 					if (chance > 95) chance = 95;
 
-					if(p_ptr->dec_mana) chance--;
-					if (p_ptr->heavy_spell) chance += 5;
-					chance = MAX(chance,0);
+					chance = mod_spell_chance_2(chance);
 
 					/* Get info */
 					learned_info(comment, spellnum[i]);
@@ -647,7 +640,7 @@ put_str("MP 失率 効果", y, x + 33);
 
 			/* Prompt */
 #ifdef JP
-(void) strnfmt(tmp_val, 78, "%sの魔法を唱えますか？", monster_powers[spellnum[i]].name);
+			(void) strnfmt(tmp_val, 78, "%sの魔法を唱えますか？", monster_powers[spellnum[i]].name);
 #else
 			(void)strnfmt(tmp_val, 78, "Use %s? ", monster_powers[spellnum[i]].name);
 #endif
@@ -665,14 +658,10 @@ put_str("MP 失率 効果", y, x + 33);
 	if (redraw) screen_load();
 
 	/* Show choices */
-	if (show_choices)
-	{
-		/* Update */
-		p_ptr->window |= (PW_SPELL);
+	p_ptr->window |= (PW_SPELL);
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Window stuff */
+	window_stuff();
 
 	/* Abort if needed */
 	if (!flag) return (FALSE);
@@ -735,45 +724,14 @@ msg_print("かん高い金切り声をあげた。");
 		break;
 	case MS_DISPEL:
 	{
-		monster_type *m_ptr;
-		char m_name[80];
+		int m_idx;
 
 		if (!target_set(TARGET_KILL)) return FALSE;
-		if (!cave[target_row][target_col].m_idx) break;
-		if (!los(py, px, target_row, target_col)) break;
-		m_ptr = &m_list[cave[target_row][target_col].m_idx];
-		monster_desc(m_name, m_ptr, 0);
-		if (m_ptr->invulner)
-		{
-			m_ptr->invulner = 0;
-#ifdef JP
-msg_format("%sはもう無敵ではない。", m_name);
-#else
-			msg_format("%^s is no longer invulnerable.", m_name);
-#endif
-			m_ptr->energy_need += ENERGY_NEED();
-		}
-		if (m_ptr->fast)
-		{
-			m_ptr->fast = 0;
-#ifdef JP
-msg_format("%sはもう加速されていない。", m_name);
-#else
-			msg_format("%^s is no longer fast.", m_name);
-#endif
-		}
-		if (m_ptr->slow)
-		{
-			m_ptr->slow = 0;
-#ifdef JP
-msg_format("%sはもう減速されていない。", m_name);
-#else
-			msg_format("%^s is no longer slow.", m_name);
-#endif
-		}
-		p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->riding == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
+		m_idx = cave[target_row][target_col].m_idx;
+		if (!m_idx) break;
+		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
+		dispel_monster_status(m_idx);
 		break;
 	}
 	case MS_ROCKET:
@@ -1358,10 +1316,10 @@ msg_print("無傷の球の呪文を唱えた。");
 		(void)set_invuln(randint1(4) + 4, FALSE);
 		break;
 	case MS_BLINK:
-		teleport_player(10);
+		teleport_player(10, 0L);
 		break;
 	case MS_TELEPORT:
-		teleport_player(plev * 5);
+		teleport_player(plev * 5, 0L);
 		break;
 	case MS_WORLD:
 		world_player = TRUE;
@@ -1397,6 +1355,7 @@ msg_print("無傷の球の呪文を唱えた。");
 		if (!target_set(TARGET_KILL)) return FALSE;
 		if (!cave[target_row][target_col].m_idx) break;
 		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
 		m_ptr = &m_list[cave[target_row][target_col].m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
@@ -1404,7 +1363,7 @@ msg_print("無傷の球の呪文を唱えた。");
 		{
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
 			{
-				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
 				msg_format("%sには効果がなかった！", m_name);
 #else
@@ -1415,7 +1374,7 @@ msg_print("無傷の球の呪文を唱えた。");
 			}
 			else if (r_ptr->level > randint1(100))
 			{
-				if (is_original_ap(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
 				msg_format("%sには耐性がある！", m_name);
 #else
@@ -1431,7 +1390,7 @@ msg_format("%sを引き戻した。", m_name);
 		msg_format("You command %s to return.", m_name);
 #endif
 
-		teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100);
+		teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
 		break;
 	}
 	case MS_TELE_AWAY:
@@ -1449,7 +1408,8 @@ msg_format("%sを引き戻した。", m_name);
 		if (!target_set(TARGET_KILL)) return FALSE;
 		target_m_idx = cave[target_row][target_col].m_idx;
 		if (!target_m_idx) break;
-		if (!los(py, px, target_row, target_col)) break;
+		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
 		m_ptr = &m_list[target_m_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 		monster_desc(m_name, m_ptr, 0);
@@ -1991,15 +1951,10 @@ if (!get_check("それでも挑戦しますか? ")) return FALSE;
 	if (plev > spell.level) chance -= 3 * (plev - spell.level);
 	else chance += (spell.level - plev);
 
-	chance += p_ptr->to_m_chance;
-
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
 
-	if (p_ptr->heavy_spell) chance += 20;
-	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-	else if (p_ptr->easy_spell) chance-=3;
-	else if (p_ptr->dec_mana) chance-=2;
+	chance = mod_spell_chance_1(chance);
 
 	/* Not enough mana to cast */
 	if (need_mana > p_ptr->csp)
@@ -2020,9 +1975,7 @@ if (!get_check("それでも挑戦しますか? ")) return FALSE;
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
 
-	if(p_ptr->dec_mana) chance--;
-	if (p_ptr->heavy_spell) chance += 5;
-	chance = MAX(chance,0);
+	chance = mod_spell_chance_2(chance);
 
 	/* Failed spell */
 	if (randint0(100) < chance)
@@ -2109,6 +2062,7 @@ msg_print("体を悪くしてしまった！");
 void learn_spell(int monspell)
 {
 	if (p_ptr->action != ACTION_LEARN) return;
+	if (monspell < 0) return; /* Paranoia */
 	if (p_ptr->magic_num2[monspell]) return;
 	if (p_ptr->confused || p_ptr->blind || p_ptr->image || p_ptr->stun || p_ptr->paralyzed) return;
 	if (randint1(p_ptr->lev + 70) > monster_powers[monspell].level + 40)

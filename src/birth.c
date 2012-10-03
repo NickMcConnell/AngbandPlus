@@ -728,7 +728,7 @@ static hist_type bg[] =
 
 
 #ifdef JP
-	{"あなたは女王クラコンの何人かの子供のうちの一人です。"
+	{"あなたは女王クラッコンの何人かの子供のうちの一人です。"
 	, 100, 84, 85, 50 },
 
 	{"あなたは赤い肌と", 40, 85, 86, 50 },
@@ -1353,7 +1353,7 @@ static hist_type bg[] =
 	{"あなたは悪を滅ぼすためにこの地に送られてきました。", 100, 143, 144, 80},
 	{"この目的を成し遂げるまでは休むことは許されません。", 100, 144, 0, 80},
 #else
-	{"You are of the blessed host of heaven.", 100, 142, 143, 80},
+	{"You are of the blessed host of heaven.  ", 100, 142, 143, 80},
 	{"You have been sent to earth to eradicate the wicked, ", 100, 143, 144, 80},
 	{"and shall not rest until you have succeeded.", 100, 144, 0, 80},
 #endif
@@ -1619,7 +1619,7 @@ static cptr race_jouhou[MAX_RACES] =
   
 "エルフは人間より良い魔法使いになれますが、戦闘は苦手です。彼らは人間やハーフエルフよりも頭が良く、高い賢さを持っています。エルフは探索, 解除, 知覚, 隠密行動, 射撃, そして魔法道具使用で優れていますが、武器の扱いは得意ではありません。彼らは生まれつき光に対する耐性を持っています。",
   
-"ホビット、またはハーフリングは弓や投擲に長け、魔法防御も優れています。また、探索, 解除, 知覚, そして隠密行動でもとても良い能力を示します。そのため、彼らは優れた盗賊となることができます（しかし、「忍びの者」と呼ばれることを好みます）。ホビットは人間より遥かに貧弱で、戦士としてはてんでダメです。彼らはかなり良い赤外線視力を持っており、温血動物を離れた場所から見つけることができます。ホビットは器用さを下げられることがありません。",
+"ホビット、またはハーフリングは弓や投擲に長け、魔法防御も優れています。また、探索, 解除, 知覚, そして隠密行動でもとても良い能力を示します。そのため、彼らは優れた盗賊となることができます（しかし、「忍びの者」と呼ばれることを好みます）。ホビットは人間より遥かに貧弱で、戦士としてはてんでダメです。彼らはかなり良い赤外線視力を持っており、温血動物を離れた場所から見つけることができます。彼らは生命力を保持する力が強く、生命力吸収攻撃に対して耐性を持っています。",
   
 "ノームはドワーフより小さいですが、ホビットよりは大きい種族です。彼らはホビット同様地表の洞穴のような家に住んでいます。ノームはとても良い魔法防御を持ち、探索, 解除, 知覚, 隠密行動でも優れています。彼らは人間より低い腕力を持ち、武器を持っての戦闘は苦手です。ノームはかなり良い赤外線視力を持っており、温血動物を離れた場所から見つけることができます。ノームは生まれつき麻痺に対する耐性を持っています。",
   
@@ -1695,7 +1695,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "Elves are better magicians then humans, but not as good at fighting.  They tend to be smarter and faster than either humans or half-elves and also have better wisdom.  Elves are better at searching, disarming, perception, stealth, bows, and magic, but they are not as good at hand weapons.  They resist light effects intrinsically.",
 
-"Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws.  They also are very good at searching, disarming, perception, and stealth; so they make excellent rogues, but prefer to be called burglars.  They are much weaker than humans, and no good at melee fighting.  Halflings have fair infravision, so they can detect warm creatures at a distance.  They have their dexterity sustained.",
+"Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws.  They also are very good at searching, disarming, perception, and stealth; so they make excellent rogues, but prefer to be called burglars.  They are much weaker than humans, and no good at melee fighting.  Halflings have fair infravision, so they can detect warm creatures at a distance.  They have a strong hold on their life force, and are thus intrinsically resistant to life draining.",
 
 "Gnomes are smaller than dwarves but larger than Halflings.  They, like the hobbits, live in the earth in burrow-like homes.  Gnomes make excellent mages, and have very good saving throws.  They are good at searching, disarming, perception, and stealth.  They have lower strength than humans so they are not very good at fighting with hand weapons.  Gnomes have fair infra-vision, so they can detect warm-blooded creatures at a distance.  Gnomes are intrinsically protected against paralysis.",
 
@@ -2030,7 +2030,12 @@ static char realm_subinfo[VALID_REALM][41] =
  */
 static s16b stat_limit[6];
 
-static s16b chara_limit[6];
+static struct {
+	s16b agemin, agemax;
+	s16b htmin, htmax;
+	s16b wtmin, wtmax;
+	s16b scmin, scmax;
+} chara_limit;
 
 /*
  * Autoroll matches
@@ -2119,7 +2124,7 @@ static byte choose_realm(s32b choices, int *count)
 	if (choices & CH_ENCHANT)
 	{
 		(*count)++;
-		auto_select = REALM_ENCHANT;
+		auto_select = REALM_CRAFT;
 	}
 	if (choices & CH_DAEMON)
 	{
@@ -2297,7 +2302,7 @@ static byte choose_realm(s32b choices, int *count)
 		else k = -1;
 		if (c == '?')
 		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jmagic.txt#MagicRealms");
 #else
 			show_help("magic.txt#MagicRealms");
@@ -2307,9 +2312,9 @@ static byte choose_realm(s32b choices, int *count)
 		{
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -2341,7 +2346,7 @@ static bool get_player_realms(void)
 	p_ptr->realm2 = 255;
 	while (1)
 	{
-		char temp[80*8];
+		char temp[80*10];
 		cptr t;
 		count = 0;
 		p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass], &count);
@@ -2357,7 +2362,7 @@ static bool get_player_realms(void)
 
 		roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm1)-1], 74, temp, sizeof(temp));
 		t = temp;
-		for (i = 0; i< 6; i++)
+		for (i = 0; i < 10; i++)
 		{
 			if(t[0] == 0)
 				break; 
@@ -2718,6 +2723,9 @@ void get_max_stats(void)
 			p_ptr->stat_cur[i] = j;
 	}
 	p_ptr->knowledge &= ~(KNOW_STAT);
+
+	/* Redisplay the stats later */
+	p_ptr->redraw |= (PR_STATS);
 }
 
 
@@ -2751,9 +2759,9 @@ static void get_extra(bool roll_hitdie)
 	for (i = 0; i < 5; i++)
 		for (j = 0; j < 64; j++)
 			p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
-	if ((p_ptr->pseikaku == SEIKAKU_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_BOW][SV_WHIP] < WEAPON_EXP_BEGINNER))
+	if ((p_ptr->pseikaku == SEIKAKU_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] < WEAPON_EXP_BEGINNER))
 	{
-		p_ptr->weapon_exp[TV_HAFTED-TV_BOW][SV_WHIP] = WEAPON_EXP_BEGINNER;
+		p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_BEGINNER;
 	}
 
 	for (i = 0; i < 10; i++)
@@ -3032,35 +3040,45 @@ static void get_history(void)
 
 
 /*
+ * Get character's height and weight
+ */
+void get_height_weight(void)
+{
+	int h_percent; /* 身長が平均にくらべてどのくらい違うか. */
+
+	/* Calculate the height/weight for males */
+	if (p_ptr->psex == SEX_MALE)
+	{
+		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
+		p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
+				    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
+	}
+  
+	/* Calculate the height/weight for females */
+	else if (p_ptr->psex == SEX_FEMALE)
+	{
+		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
+		p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
+				    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
+	}
+}
+
+
+/*
  * Computes character's age, height, and weight
  * by henkma
  */
 static void get_ahw(void)
 {
-  int h_percent; /* 身長が平均にくらべてどのくらい違うか. */
+	/* Get character's age */
+	p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
 
-
-  /* Calculate the age */
-  p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
-  
-  /* Calculate the height/weight for males */
-  if (p_ptr->psex == SEX_MALE)
-	{
-	  p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-	  h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
-	  p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
-						  , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
-	}
-  
-  /* Calculate the height/weight for females */
-  else if (p_ptr->psex == SEX_FEMALE)
-	{
-	  p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-	  h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
-	  p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
-						  , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
-	}
+	/* Get character's height and weight */
+	get_height_weight();
 }
+
 
 /*
  * Get the player's starting money
@@ -3161,6 +3179,24 @@ static void birth_put_stats(void)
 }
 
 
+static void k_info_reset(void)
+{
+	int i;
+
+	/* Reset the "objects" */
+	for (i = 1; i < max_k_idx; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Reset "tried" */
+		k_ptr->tried = FALSE;
+
+		/* Reset "aware" */
+		k_ptr->aware = FALSE;
+	}
+}
+
+
 /*
  * Clear all the global "character" data
  */
@@ -3168,6 +3204,8 @@ static void player_wipe(void)
 {
 	int i;
 
+	/* Hack -- free the "last message" string */
+	if (p_ptr->last_message) string_free(p_ptr->last_message);
 
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
@@ -3228,10 +3266,15 @@ static void player_wipe(void)
 
 		/* Hack -- Reset the max counter */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-		if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num = 5;
 
-		/* Clear player kills */
+		/* Hack -- Non-unique Nazguls are semi-unique */
+		else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
+
+		/* Clear visible kills in this life */
 		r_ptr->r_pkills = 0;
+
+		/* Clear all kills in this life */
+		r_ptr->r_akills = 0;
 	}
 
 
@@ -3311,7 +3354,6 @@ static void player_wipe(void)
 	p_ptr->arena_number = 0;
 	p_ptr->inside_arena = FALSE;
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	for (i = 0; i < MAX_MANE; i++)
 	{
 		p_ptr->mane_spell[i] = -1;
@@ -3319,12 +3361,6 @@ static void player_wipe(void)
 	}
 	p_ptr->mane_num = 0;
 	p_ptr->exit_bldg = TRUE; /* only used for arena now -KMW- */
-
-	/* Reset rewards */
-	for (i = 0; i < MAX_BACT; i++)
-	{
-		p_ptr->rewards[i] = 0;
-	}
 
 	/* Bounty */
 	p_ptr->today_mon = 0;
@@ -3355,6 +3391,29 @@ static void player_wipe(void)
 
 
 /*
+ *  Hook function for quest monsters
+ */
+static bool mon_hook_quest(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Random quests are in the dungeon */
+	if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
+
+	/* No random quests for aquatic monsters */
+	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
+	/* No random quests for multiplying monsters */
+	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+
+	/* No quests to kill friendly monsters */
+	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+
+	return TRUE;
+}
+
+
+/*
  * Determine the random quest uniques
  */
 void determine_random_questor(quest_type *q_ptr)
@@ -3363,7 +3422,7 @@ void determine_random_questor(quest_type *q_ptr)
 	monster_race *r_ptr;
 
 	/* Prepare allocation table */
-	get_mon_num_prep(monster_quest, NULL);
+	get_mon_num_prep(mon_hook_quest, NULL);
 
 	while (1)
 	{
@@ -3402,10 +3461,10 @@ void determine_random_questor(quest_type *q_ptr)
 /*
  *  Initialize random quests and final quests
  */
-static void init_dungeon_quests(int number_of_quests)
+static void init_dungeon_quests(void)
 {
+	int number_of_quests = MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1;
 	int i;
-	monster_race    *r_ptr;
 
 	/* Init the random quests */
 	init_flags = INIT_ASSIGN;
@@ -3414,13 +3473,6 @@ static void init_dungeon_quests(int number_of_quests)
 	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 	p_ptr->inside_quest = 0;
-
-	/* Remove QUESTOR flag */
-	for (i = 1; i < max_r_idx; i++)
-	{
-		r_ptr = &r_info[i];
-		if (r_ptr->flags1 & RF1_QUESTOR) r_ptr->flags1 &= ~RF1_QUESTOR;
-	}
 
 	/* Generate quests */
 	for (i = MIN_RANDOM_QUEST + number_of_quests - 1; i >= MIN_RANDOM_QUEST; i--)
@@ -3466,13 +3518,16 @@ static void init_turn(void)
 	{
 		/* Undead start just after midnight */
 		turn = (TURNS_PER_TICK*3 * TOWN_DAWN) / 4 + 1;
+		turn_limit = TURNS_PER_TICK * TOWN_DAWN * MAX_DAYS + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 	}
 	else
 	{
 		turn = 1;
+		turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 	}
 
 	dungeon_turn = 1;
+	dungeon_turn_limit = TURNS_PER_TICK * TOWN_DAWN * (MAX_DAYS - 1) + TURNS_PER_TICK * TOWN_DAWN * 3 / 4;
 }
 
 /*
@@ -3601,7 +3656,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Harper */
+		/* Bard */
 		{ TV_MUSIC_BOOK, 0 },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_SHORT_SWORD },
@@ -3636,7 +3691,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Kihei */
+		/* Cavalry */
 		{ TV_BOW, SV_SHORT_BOW },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL},
 		{ TV_POLEARM, SV_BROAD_SPEAR}
@@ -3650,7 +3705,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Kaji */
+		/* Weaponsmith */
 		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_POLEARM, SV_BROAD_AXE }
@@ -3679,9 +3734,25 @@ static bool monster_hook_human(int r_idx)
 
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return FALSE;
 
-	if (strchr("pht", r_ptr->d_char)) return TRUE;
+	if (my_strchr("pht", r_ptr->d_char)) return TRUE;
 
 	return FALSE;
+}
+
+
+/*
+ * Add an outfit object
+ */
+static void add_outfit(object_type *o_ptr)
+{
+	s16b slot;
+
+	object_aware(o_ptr);
+	object_known(o_ptr);
+	slot = inven_carry(o_ptr);
+
+	/* Auto-inscription */
+	autopick_alter_item(slot, FALSE);
 }
 
 
@@ -3720,7 +3791,7 @@ void player_outfit(void)
 			object_prep(q_ptr, lookup_kind(TV_CORPSE, SV_CORPSE));
 			q_ptr->pval = get_mon_num(2);
 			q_ptr->number = 1;
-			(void)inven_carry(q_ptr);
+			add_outfit(q_ptr);
 		}
 		break;
 
@@ -3729,9 +3800,7 @@ void player_outfit(void)
 		/* Some Skeletons */
 		object_prep(q_ptr, lookup_kind(TV_SKELETON, SV_ANY));
 		q_ptr->number = (byte)rand_range(7, 12);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 		break;
 #endif
 	case RACE_SKELETON:
@@ -3741,19 +3810,15 @@ void player_outfit(void)
 		/* Staff (of Nothing) */
 		object_prep(q_ptr, lookup_kind(TV_STAFF, SV_STAFF_NOTHING));
 		q_ptr->number = 1;
-		object_aware(q_ptr);
-		object_known(q_ptr);
 
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 		break;
 
 	case RACE_ENT:
 		/* Potions of Water */
 		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_WATER));
 		q_ptr->number = (byte)rand_range(15, 23);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		break;
 
@@ -3765,9 +3830,7 @@ void player_outfit(void)
 		apply_magic(q_ptr, 1, AM_NO_FIXED_ART);
 
 		q_ptr->number = (byte)rand_range(7, 12);
-		object_aware(q_ptr);
-		object_known(q_ptr);
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		break;
 
@@ -3775,10 +3838,8 @@ void player_outfit(void)
 		/* Food rations */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 		q_ptr->number = (byte)rand_range(3, 7);
-		object_aware(q_ptr);
-		object_known(q_ptr);
 
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 
 	/* Get local object */
@@ -3791,10 +3852,7 @@ void player_outfit(void)
 
 		q_ptr->number = (byte)rand_range(2, 5);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	else if (p_ptr->pclass != CLASS_NINJA)
 	{
@@ -3802,10 +3860,8 @@ void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
 		q_ptr->xtra4 = rand_range(3, 7) * 500;
-		object_aware(q_ptr);
-		object_known(q_ptr);
 
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 
 	/* Get local object */
@@ -3817,20 +3873,14 @@ void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	if (p_ptr->pclass == CLASS_RANGER)
 	{
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	else if (p_ptr->pclass == CLASS_ARCHER)
 	{
@@ -3838,10 +3888,7 @@ void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 	{
@@ -3850,10 +3897,7 @@ void player_outfit(void)
 		q_ptr->number = 1;
 		q_ptr->pval = (byte)rand_range(25, 30);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	else if (p_ptr->pclass == CLASS_SORCERER)
 	{
@@ -3863,10 +3907,7 @@ void player_outfit(void)
 			object_prep(q_ptr, lookup_kind(i, 0));
 			q_ptr->number = 1;
 
-			object_aware(q_ptr);
-			object_known(q_ptr);
-
-			(void)inven_carry(q_ptr);
+			add_outfit(q_ptr);
 		}
 	}
 	else if (p_ptr->pclass == CLASS_TOURIST)
@@ -3877,51 +3918,33 @@ void player_outfit(void)
 			object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_LIGHT));
 			q_ptr->number = (byte)rand_range(15, 20);
 
-			object_aware(q_ptr);
-			object_known(q_ptr);
-
-			(void)inven_carry(q_ptr);
+			add_outfit(q_ptr);
 		}
 
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_BISCUIT));
 		q_ptr->number = (byte)rand_range(2, 4);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_WAYBREAD));
 		q_ptr->number = (byte)rand_range(2, 4);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_JERKY));
 		q_ptr->number = (byte)rand_range(1, 3);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_PINT_OF_ALE));
 		q_ptr->number = (byte)rand_range(2, 4);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_PINT_OF_WINE));
 		q_ptr->number = (byte)rand_range(2, 4);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 	else if (p_ptr->pclass == CLASS_NINJA)
 	{
@@ -3929,10 +3952,7 @@ void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(TV_SPIKE, 0));
 		q_ptr->number = (byte)rand_range(15, 20);
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 
 	if(p_ptr->pseikaku == SEIKAKU_SEXY)
@@ -3978,10 +3998,7 @@ void player_outfit(void)
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}
 
-		object_aware(q_ptr);
-		object_known(q_ptr);
-
-		(void)inven_carry(q_ptr);
+		add_outfit(q_ptr);
 	}
 
 	/* Hack -- make aware of the water */
@@ -4145,7 +4162,7 @@ static bool get_player_race(void)
 		else k = -1;
 		if (c == '?')
 		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jraceclas.txt#TheRaces");
 #else
 			show_help("raceclas.txt#TheRaces");
@@ -4155,9 +4172,9 @@ static bool get_player_race(void)
 		{
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 			screen_load();
 		}
@@ -4168,10 +4185,9 @@ static bool get_player_race(void)
 	p_ptr->prace = k;
 
 	rp_ptr = &race_info[p_ptr->prace];
-	str = rp_ptr->title;
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, str, 4, 15);
+	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
 
 	/* Success */
 	return TRUE;
@@ -4360,7 +4376,7 @@ static bool get_player_class(void)
 		else k = -1;
 		if (c == '?')
 		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jraceclas.txt#TheClasses");
 #else
 			show_help("raceclas.txt#TheClasses");
@@ -4370,9 +4386,9 @@ static bool get_player_class(void)
 		{
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4384,15 +4400,10 @@ static bool get_player_class(void)
 	p_ptr->pclass = k;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
-	str = cp_ptr->title;
 
 
 	/* Display */
-#ifdef JP
-	c_put_str(TERM_L_BLUE, str, 5, 15);
-#else
 	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
-#endif
 
 	return TRUE;
 }
@@ -4602,7 +4613,7 @@ static bool get_player_seikaku(void)
 		else k = -1;
 		if (c == '?')
 		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jraceclas.txt#ThePersonalities");
 #else
 			show_help("raceclas.txt#ThePersonalities");
@@ -4612,9 +4623,9 @@ static bool get_player_seikaku(void)
 		{
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4874,20 +4885,18 @@ static bool get_stat_limits(void)
 			}
 			break;
 		case '?':
-		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jbirth.txt#AutoRoller");
 #else
 			show_help("birth.txt#AutoRoller");
 #endif
-		}
 			break;
 		case '=':
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -4912,17 +4921,21 @@ static bool get_stat_limits(void)
 #ifdef ALLOW_AUTOROLLER
 static bool get_chara_limits(void)
 {
+#define MAXITEMS 8
+
 	int i, j, m, cs, os;
-	int mval[6], cval[6];
+	int mval[MAXITEMS], cval[MAXITEMS];
 	int max_percent, min_percent;
 	char c;
 	char buf[80], cur[80];
-	char param[3][80] = {
+	cptr itemname[] = {
 #ifdef JP
+		"年齢",
 		"身長(インチ)",
 		"体重(ポンド)",
 		"社会的地位"
 #else
+		"age",
 		"height",
 		"weight",
 		"social class"
@@ -4961,31 +4974,38 @@ static bool get_chara_limits(void)
 #endif
 
 	/* Output the maximum stats */
-	for (i = 0; i < 6; i++)
+	for (i = 0; i < MAXITEMS; i++)
 	{
 		/* Obtain the "maximal" stat */
 		switch (i)
 		{
-		case 0:	/* Minimum height */
+		case 0:	/* Minimum age */
+			m = rp_ptr->b_age + 1;
+			break;
+		case 1:	/* Maximum age */
+			m = rp_ptr->b_age + rp_ptr->m_age;
+			break;
+
+		case 2:	/* Minimum height */
 			if (p_ptr->psex == SEX_MALE) m = rp_ptr->m_b_ht-rp_ptr->m_m_ht*4+1;
 			else m = rp_ptr->f_b_ht-rp_ptr->f_m_ht*4+1;
 			break;
-		case 1:	/* Maximum height */
+		case 3:	/* Maximum height */
 			if (p_ptr->psex == SEX_MALE) m = rp_ptr->m_b_ht+rp_ptr->m_m_ht*4-1;
 			else m = rp_ptr->f_b_ht+rp_ptr->f_m_ht*4-1;
 			break;
-		case 2:	/* Minimum weight */
+		case 4:	/* Minimum weight */
 			if (p_ptr->psex == SEX_MALE) m = (rp_ptr->m_b_wt * min_percent / 100) - (rp_ptr->m_m_wt * min_percent / 75) +1;
 			else m = (rp_ptr->f_b_wt * min_percent / 100) - (rp_ptr->f_m_wt * min_percent / 75) +1;
 			break;
-		case 3:	/* Maximum weight */
+		case 5:	/* Maximum weight */
 			if (p_ptr->psex == SEX_MALE) m = (rp_ptr->m_b_wt * max_percent / 100) + (rp_ptr->m_m_wt * max_percent / 75) -1;
 			else m = (rp_ptr->f_b_wt * max_percent / 100) + (rp_ptr->f_m_wt * max_percent / 75) -1;
 			break;
-		case 4:	/* Minimum social class */
+		case 6:	/* Minimum social class */
 			m = 1;
 			break;
-		case 5:	/* Maximum social class */
+		case 7:	/* Maximum social class */
 			m = 100;
 			break;
 		default:
@@ -4998,10 +5018,10 @@ static bool get_chara_limits(void)
 		cval[i] = m;
 	}
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 	{
 		/* Prepare a prompt */
-		sprintf(buf, "%-12s (%3d - %3d)", param[i], mval[i*2], mval[i*2+1]);
+		sprintf(buf, "%-12s (%3d - %3d)", itemname[i], mval[i*2], mval[i*2+1]);
 
 		/* Dump the prompt */
 		put_str(buf, 14 + i, 20);
@@ -5015,30 +5035,29 @@ static bool get_chara_limits(void)
 	
 	/* Get a minimum stat */
 	cs = 0;
-	os = 6;
+	os = MAXITEMS;
 	while (TRUE)
 	{
 		/* Move Cursol */
 		if (cs != os)
 		{
-			if(os == 6)
-			{
 #ifdef JP
-				c_put_str(TERM_WHITE, "決定する", 18, 35);
+			const char accept[] = "決定する";
 #else
-				c_put_str(TERM_WHITE, "Accept", 18, 35);
+			const char accept[] = "Accept";
 #endif
+			if(os == MAXITEMS)
+			{
+				c_put_str(TERM_WHITE, accept, 19, 35);
 			}
-			else if(os < 6)
-				c_put_str(TERM_WHITE, cur, 14 + os/2, 45 + 8 * (os%2));
-			
-			if(cs == 6)
+			else
 			{
-#ifdef JP
-				c_put_str(TERM_YELLOW, "決定する", 18, 35);
-#else
-				c_put_str(TERM_YELLOW, "Accept", 18, 35);
-#endif
+				c_put_str(TERM_WHITE, cur, 14 + os/2, 45 + 8 * (os%2));
+			}
+			
+			if(cs == MAXITEMS)
+			{
+				c_put_str(TERM_YELLOW, accept, 19, 35);
 			}
 			else
 			{
@@ -5061,7 +5080,7 @@ static bool get_chara_limits(void)
 		case ' ':
 		case '\r':
 		case '\n':
-			if(cs == 6) break;
+			if(cs == MAXITEMS) break;
 			cs++;
 			c = '6';
 			break;
@@ -5071,8 +5090,8 @@ static bool get_chara_limits(void)
 			break;
 		case '2':
 		case 'j':
-			if (cs < 6) cs += 2;
-			if (cs > 6) cs = 6;
+			if (cs < MAXITEMS) cs += 2;
+			if (cs > MAXITEMS) cs = MAXITEMS;
 			break;
 		case '4':
 		case 'h':
@@ -5080,11 +5099,11 @@ static bool get_chara_limits(void)
 			break;
 		case '6':
 		case 'l':
-			if (cs < 6) cs++;
+			if (cs < MAXITEMS) cs++;
 			break;
 		case '-':
 		case '<':
-			if (cs != 6)
+			if (cs != MAXITEMS)
 			{
 				if(cs%2)
 				{
@@ -5106,7 +5125,7 @@ static bool get_chara_limits(void)
 			break;
 		case '+':
 		case '>':
-			if (cs != 6)
+			if (cs != MAXITEMS)
 			{
 				if(cs%2)
 				{
@@ -5127,7 +5146,7 @@ static bool get_chara_limits(void)
 			}
 			break;
 		case 'm':
-			if(cs != 6)
+			if(cs != MAXITEMS)
 			{
 				if(cs%2)
 				{
@@ -5148,7 +5167,7 @@ static bool get_chara_limits(void)
 			}
 			break;
 		case 'n':
-			if(cs != 6)
+			if(cs != MAXITEMS)
 			{
 				if(cs%2)
 				{
@@ -5169,7 +5188,7 @@ static bool get_chara_limits(void)
 			}
 			break;
 		case '?':
-#ifdef JP                 
+#ifdef JP
 			show_help("jbirth.txt#AutoRoller");
 #else
 			show_help("birth.txt#AutoRoller");
@@ -5178,9 +5197,9 @@ static bool get_chara_limits(void)
 		case '=':
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -5189,47 +5208,35 @@ static bool get_chara_limits(void)
 			bell();
 			break;
 		}
-		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == 6))break;
+		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == MAXITEMS))break;
 	}
 
 	/* Input the minimum stats */
-	for (i = 0; i < 6; i++)
-	{
-		/* Save the minimum stat */
-		chara_limit[i] = (cval[i] > 0) ? cval[i] : 0;
-	}
+	chara_limit.agemin = cval[0];
+	chara_limit.agemax = cval[1];
+	chara_limit.htmin = cval[2];
+	chara_limit.htmax = cval[3];
+	chara_limit.wtmin = cval[4];
+	chara_limit.wtmax = cval[5];
+	chara_limit.scmin = cval[6];
+	chara_limit.scmax = cval[7];
+
 	return TRUE;
 }
 #endif
 
-static char histpref_buf[240];
+#define HISTPREF_LIMIT 1024
+static char *histpref_buf = NULL;
 
+/*
+ * Hook function for reading the histpref.prf file.
+ */
 void add_history_from_pref_line(cptr t)
 {
-	int  limit = (sizeof histpref_buf) - 1;
-	int  i;
+	/* Do nothing if the buffer is not ready */
+	if (!histpref_buf) return;
 
-	for (i = strlen(histpref_buf); *t && (i < limit); t++)
-	{
-#ifdef JP
-		if (iskanji(*t) || isprint(*t))
-#else
-		if (isprint(*t))
-#endif
-		{
-#ifdef JP
-			if (iskanji(*t))
-			{
-				if (i + 1 >= limit) break;
-				histpref_buf[i++] = *(t++);
-			}
-#endif
-			histpref_buf[i++] = *t;
-		}
-	}
-
-	/* Terminate */
-	histpref_buf[(i < limit) ? i : limit] = '\0';
+	my_strcat(histpref_buf, t, HISTPREF_LIMIT);
 }
 
 
@@ -5240,6 +5247,7 @@ static bool do_cmd_histpref(void)
 	int i, j, n;
 	char *s, *t;
 	char temp[64 * 4];
+	char histbuf[HISTPREF_LIMIT];
 
 #ifdef JP
 	if (!get_check("生い立ち設定ファイルをロードしますか? ")) return FALSE;
@@ -5247,13 +5255,14 @@ static bool do_cmd_histpref(void)
 	if (!get_check("Load background history preference file? ")) return FALSE;
 #endif
 
-	/* Init buffer */
-	histpref_buf[0] = '\0';
+	/* Prepare the buffer */
+	histbuf[0] = '\0';
+	histpref_buf = histbuf;
 
 #ifdef JP
-	sprintf(buf, "histedit-%s.prf", player_name);
+	sprintf(buf, "histedit-%s.prf", player_base);
 #else
-	sprintf(buf, "histpref-%s.prf", player_name);
+	sprintf(buf, "histpref-%s.prf", player_base);
 #endif
 	err = process_histpref_file(buf);
 
@@ -5272,15 +5281,28 @@ static bool do_cmd_histpref(void)
 	{
 #ifdef JP
 		msg_print("生い立ち設定ファイルの読み込みに失敗しました。");
-		msg_print("histedit.prfが見つかりません。");
 #else
 		msg_print("Failed to load background history preference.");
-		msg_print("Can't find histpref.prf");
 #endif
 		msg_print(NULL);
 
-		/* Terminate buffer */
-		histpref_buf[0] = '\0';
+		/* Kill the buffer */
+		histpref_buf = NULL;
+
+		return FALSE;
+	}
+	else if (!histpref_buf[0])
+	{
+#ifdef JP
+		msg_print("有効な生い立ち設定はこのファイルにありません。");
+#else
+		msg_print("There does not exist valid background history preference.");
+#endif
+		msg_print(NULL);
+
+		/* Kill the buffer */
+		histpref_buf = NULL;
+
 		return FALSE;
 	}
 
@@ -5308,7 +5330,7 @@ static bool do_cmd_histpref(void)
 		}
 	}
 
-	/* Turn 0 to space */
+	/* Fill the remaining spaces */
 	for (i = 0; i < 4; i++)
 	{
 		for (j = 0; p_ptr->history[i][j]; j++) /* loop */;
@@ -5317,8 +5339,8 @@ static bool do_cmd_histpref(void)
 		p_ptr->history[i][59] = '\0';
 	}
 
-	/* Terminate buffer */
-	histpref_buf[0] = '\0';
+	/* Kill the buffer */
+	histpref_buf = NULL;
 
 	return TRUE;
 }
@@ -5329,7 +5351,6 @@ static bool do_cmd_histpref(void)
 static void edit_history(void)
 {
 	char old_history[4][60];
-	char c;
 	int y = 0, x = 0;
 	int i, j;
 
@@ -5349,14 +5370,17 @@ static void edit_history(void)
 	display_player(1);
 #ifdef JP
 	c_put_str(TERM_L_GREEN, "(キャラクターの生い立ち - 編集モード)", 11, 20);
-	put_str("[ 2/4/6/8で移動、Enterで終了、Ctrl-Fでファイル読み込み ]", 17, 10);
+	put_str("[ カーソルキーで移動、Enterで終了、Ctrl-Aでファイル読み込み ]", 17, 10);
 #else
 	c_put_str(TERM_L_GREEN, "(Character Background - Edit Mode)", 11, 20);
-	put_str("[ 2/4/6/8 for Move, Enter for End, Ctrl-F for Read pref ]", 17, 10);
+	put_str("[ Cursor key for Move, Enter for End, Ctrl-A for Read pref ]", 17, 10);
 #endif
 
 	while (TRUE)
 	{
+		int skey;
+		char c;
+
 		for (i = 0; i < 4; i++)
 		{
 			put_str(p_ptr->history[i], i + 12, 10);
@@ -5371,9 +5395,14 @@ static void edit_history(void)
 		/* Place cursor just after cost of current stat */
 		Term_gotoxy(x + 10, y + 12);
 
-		c = inkey();
+		/* Get special key code */
+		skey = inkey_special(TRUE);
 
-		if (c == '8')
+		/* Get a character code */
+		if (!(skey & SKEY_MASK)) c = (char)skey;
+		else c = 0;
+
+		if (skey == SKEY_UP || c == KTRL('p'))
 		{
 			y--;
 			if (y < 0) y = 3;
@@ -5381,7 +5410,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '2')
+		else if (skey == SKEY_DOWN || c == KTRL('n'))
 		{
 			y++;
 			if (y > 3) y = 0;
@@ -5389,7 +5418,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '6')
+		else if (skey == SKEY_RIGHT || c == KTRL('f'))
 		{
 #ifdef JP
 			if (iskanji2(p_ptr->history[y], x)) x++;
@@ -5401,7 +5430,7 @@ static void edit_history(void)
 				if (y < 3) y++;
 			}
 		}
-		else if (c == '4')
+		else if (skey == SKEY_LEFT || c == KTRL('b'))
 		{
 			x--;
 			if (x < 0)
@@ -5418,7 +5447,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '\r')
+		else if (c == '\r' || c == '\n')
 		{
 			Term_erase(0, 11, 255);
 			Term_erase(0, 17, 255);
@@ -5445,7 +5474,7 @@ static void edit_history(void)
 			}
 			break;
 		}
-		else if (c == KTRL('F'))
+		else if (c == KTRL('A'))
 		{
 			if (do_cmd_histpref())
 			{
@@ -5530,7 +5559,6 @@ static void edit_history(void)
 static bool player_birth_aux(void)
 {
 	int i, k, n, cs, os;
-	int number_of_quests;
 
 	int mode = 0;
 
@@ -5550,7 +5578,6 @@ static bool player_birth_aux(void)
 	char b2 = ']';
 
 	char buf[80], cur[80];
-	char inp[80];
 
 
 	/*** Intro ***/
@@ -5613,14 +5640,12 @@ static bool player_birth_aux(void)
 	{
 		/* Analyze */
 		sp_ptr = &sex_info[n];
-		str = sp_ptr->title;
-
 
 		/* Display */
 #ifdef JP
-		sprintf(buf, "%c%c%s", I2A(n), p2, str);
+		sprintf(buf, "%c%c%s", I2A(n), p2, sp_ptr->title);
 #else
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		sprintf(buf, "%c%c %s", I2A(n), p2, sp_ptr->title);
 #endif
 		put_str(buf, 12 + (n/5), 2 + 15 * (n%5));
 	}
@@ -5705,9 +5730,9 @@ static bool player_birth_aux(void)
 		{
 			screen_save();
 #ifdef JP
-			do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-			do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 			screen_load();
@@ -5718,11 +5743,9 @@ static bool player_birth_aux(void)
 	/* Set sex */
 	p_ptr->psex = k;
 	sp_ptr = &sex_info[p_ptr->psex];
-	str = sp_ptr->title;
-
 
 	/* Display */
-	c_put_str(TERM_L_BLUE, str, 3, 15);
+	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
 
 	/* Clean up */
 	clear_from(10);
@@ -5838,9 +5861,9 @@ static bool player_birth_aux(void)
 
 	screen_save();
 #ifdef JP
-	do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+	do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-	do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+	do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 	screen_load();
@@ -5867,80 +5890,6 @@ static bool player_birth_aux(void)
 	}
 
 #endif /* ALLOW_AUTOROLLER */
-
-	/* Clean up */
-	clear_from(10);
-
-	/*** User enters number of quests ***/
-	/* Heino Vander Sanden and Jimmy De Laet */
-
-	/* Extra info */
-#ifdef JP
-	put_str("必須のクエスト(オベロン及び混沌のサーペント)に加えて、追加のクエストの", 10, 5);
-	put_str("数を設定することが出来ます。", 11, 5);
-	put_str("追加クエストを行ないたくない場合は '0'を入力して下さい。", 12, 5);
-	put_str("ランダムに決定するには'*'を入力して下さい。", 13, 5);
-#else
-	put_str("You can enter the number of quests you'd like to perform in addition", 10, 5);
-	put_str("to the two obligatory ones ( Oberon and the Serpent of Chaos )", 11, 5);
-	put_str("In case you do not want any additional quests, just enter 0", 12, 5);
-	put_str("If you want a random number of random quests, just enter *", 13, 5);
-#endif
-
-	/* Ask the number of additional quests */
-	while (TRUE)
-	{
-
-#ifdef JP
-		put_str(format("追加クエストの数 (%u以下) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1), 15, 5);
-#else
-		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 15, 5);
-#endif
-
-
-		/* Get a the number of additional quest */
-		while (TRUE)
-		{
-			/* Move the cursor */
-			put_str("", 15, 40);
-
-			/* Default */
-			strcpy(inp, "10");
-
-			/* Get a response (or escape) */
-			if (!askfor_aux(inp, 2)) strcpy(inp, "10");
-
-			/* Quit */
-			if (inp[0] == 'Q') birth_quit();
-
-			/* Start over */
-			if (inp[0] == 'S') return (FALSE);
-
-			/* Check for random number of quests */
-			if (inp[0] == '*')
-			{
-				/* 0 to 10 random quests */
-				number_of_quests = randint0(11);
-			}
-			else if (inp[0] == '?')
-			{
-#ifdef JP                 
-				show_help("jbirth.txt#RandomQuests");
-#else
-				show_help("birth.txt#RandomQuests");
-#endif
-				continue;
-			}
-			else
-			{
-				number_of_quests = atoi(inp);
-			}
-
-			/* Break on valid input */
-			if ((number_of_quests <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && (number_of_quests >= 0)) break;
-		}
-		break;
-	}
 
 	/* Clear */
 	clear_from(10);
@@ -6092,9 +6041,10 @@ static bool player_birth_aux(void)
 
 				if (autochara)
 				{
-					if ((p_ptr->ht < chara_limit[0]) || (p_ptr->ht > chara_limit[1])) accept = FALSE;
-					if ((p_ptr->wt < chara_limit[2]) || (p_ptr->wt > chara_limit[3])) accept = FALSE;
-					if ((p_ptr->sc < chara_limit[4]) || (p_ptr->sc > chara_limit[5])) accept = FALSE;
+					if ((p_ptr->age < chara_limit.agemin) || (p_ptr->age > chara_limit.agemax)) accept = FALSE;
+					if ((p_ptr->ht < chara_limit.htmin) || (p_ptr->ht > chara_limit.htmax)) accept = FALSE;
+					if ((p_ptr->wt < chara_limit.wtmin) || (p_ptr->wt > chara_limit.wtmax)) accept = FALSE;
+					if ((p_ptr->sc < chara_limit.scmin) || (p_ptr->sc > chara_limit.scmax)) accept = FALSE;
 				}
 				if (accept) break;
 			}
@@ -6241,7 +6191,7 @@ static bool player_birth_aux(void)
 			/* Help */
 			if (c == '?')
 			{
-#ifdef JP                 
+#ifdef JP
 				show_help("jbirth.txt#AutoRoller");
 #else
 				show_help("birth.txt#AutoRoller");
@@ -6252,9 +6202,9 @@ static bool player_birth_aux(void)
 			{
 				screen_save();
 #ifdef JP
-				do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
+				do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
 #else
-				do_cmd_options_aux(6, "Startup Opts((*)s effect score)");
+				do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
 #endif
 
 				screen_load();
@@ -6284,16 +6234,18 @@ static bool player_birth_aux(void)
 	/* Clear prompt */
 	clear_from(23);
 
+	/* Get a name, recolor it, prepare savefile */
+	get_name();
+
+	/* Process the player name */
+	process_player_name(creating_savefile);
+
 	/*** Edit character background ***/
 	edit_history();
 
 	/*** Finish up ***/
 
 	get_max_stats();
-
-	/* Get a name, recolor it, prepare savefile */
-
-	get_name();
 
 	get_virtues();
 
@@ -6314,15 +6266,13 @@ static bool player_birth_aux(void)
 	/* Start over */
 	if (c == 'S') return (FALSE);
 
-	init_dungeon_quests(number_of_quests);
+
+	/* Initialize random quests */
+	init_dungeon_quests();
 
 	/* Save character data for quick start */
 	save_prev_data(&previous_char);
-	previous_char.quests = number_of_quests;
 	previous_char.quick_ok = TRUE;
-
-	/* Process the player name */
-	process_player_name(FALSE);
 
 	/* Accept */
 	return (TRUE);
@@ -6364,7 +6314,7 @@ static bool ask_quick_start(void)
 		else if (c == 'S') return (FALSE);
 		else if (c == '?')
 		{
-#ifdef JP                 
+#ifdef JP
 			show_help("jbirth.txt#QuickStart");
 #else
 			show_help("birth.txt#QuickStart");
@@ -6383,7 +6333,7 @@ static bool ask_quick_start(void)
 	}
 
 	load_prev_data(FALSE);
-	init_dungeon_quests(previous_char.quests);
+	init_dungeon_quests();
 	init_turn();
 
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -6426,12 +6376,6 @@ void player_birth(void)
 	char buf[80];
 
 	playtime = 0;
-
-	/*
-	 * Paranoia - wipe the pets
-	 * For accuracy of precalc_cur_num_of_pet() called from wipe_m_list()
-	 */
-	C_WIPE(party_mon, MAX_PARTY_MON, monster_type);
 
 	/* 
 	 * Wipe monsters in old dungeon

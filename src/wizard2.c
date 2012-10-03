@@ -108,17 +108,7 @@ static bool wiz_dimension_door(void)
 
 	if (!tgt_pt(&x, &y)) return FALSE;
 
-	if (!cave_empty_bold(y, x))
-	{
-#ifdef JP
-msg_print("精霊界から物質界に戻る時うまくいかなかった！");
-#else
-		msg_print("You fail to exit the astral plane correctly!");
-#endif
-
-		teleport_player(10);
-	}
-	else teleport_player_to(y, x, FALSE);
+	teleport_player_to(y, x, TELEPORT_NONMAGICAL);
 
 	return (TRUE);
 }
@@ -131,7 +121,7 @@ msg_print("精霊界から物質界に戻る時うまくいかなかった！");
 static void wiz_create_named_art(int a_idx)
 {
 	/* Create the artifact */
-	create_named_art(a_idx, py, px);
+	(void)create_named_art(a_idx, py, px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -161,7 +151,7 @@ static void do_cmd_summon_horde(void)
 	while (--attempts)
 	{
 		scatter(&wy, &wx, py, px, 3, 0);
-		if (cave_naked_bold(wy, wx)) break;
+		if (cave_empty_bold(wy, wx)) break;
 	}
 
 	(void)alloc_horde(wy, wx);
@@ -349,7 +339,7 @@ static void do_cmd_wiz_bamf(void)
 	if (!target_who) return;
 
 	/* Teleport to the target */
-	teleport_player_to(target_row, target_col, FALSE);
+	teleport_player_to(target_row, target_col, TELEPORT_NONMAGICAL);
 }
 
 
@@ -407,7 +397,7 @@ static void do_cmd_wiz_change_aux(void)
 	if (tmp_s16b < WEAPON_EXP_UNSKILLED) tmp_s16b = WEAPON_EXP_UNSKILLED;
 	if (tmp_s16b > WEAPON_EXP_MASTER) tmp_s16b = WEAPON_EXP_MASTER;
 
-	for (j = 0; j <= TV_SWORD - TV_BOW; j++)
+	for (j = 0; j <= TV_WEAPON_END - TV_WEAPON_BEGIN; j++)
 	{
 		for (i = 0;i < 64;i++)
 		{
@@ -556,12 +546,12 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_alloc(o_ptr->tval, o_ptr->sval, 1, 0);
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc(buf, o_ptr, OD_STORE);
 
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-		   o_ptr->k_idx, get_object_level(o_ptr),
+		   o_ptr->k_idx, k_info[o_ptr->k_idx].level,
 		   o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
@@ -659,12 +649,12 @@ static tval_desc tvals[] =
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
 	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
-	{ TV_ENCHANT_BOOK,      "Craft Spellbook"},
+	{ TV_CRAFT_BOOK,      "Craft Spellbook"},
 	{ TV_DAEMON_BOOK,       "Daemon Spellbook"},
-	{ TV_CRUSADE_BOOK,         "Crusade Spellbook"},
+	{ TV_CRUSADE_BOOK,      "Crusade Spellbook"},
 	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
 	{ TV_HISSATSU_BOOK,     "Book of Kendo" },
-	{ TV_PARCHEMENT,        "Parchement" },
+	{ TV_PARCHMENT,         "Parchment" },
 	{ TV_WHISTLE,           "Whistle"	},
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
@@ -825,7 +815,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_artifact(o_ptr)) return;
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
@@ -867,7 +857,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_artifact(o_ptr)) return;
 
 
 	/* Get local object */
@@ -887,7 +877,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		if (!get_com("[a]ccept, [w]orthless, [c]ursed, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch, FALSE))
 		{
 			/* Preserve wizard-generated artifacts */
-			if (artifact_p(q_ptr))
+			if (object_is_fixed_artifact(q_ptr))
 			{
 				a_info[q_ptr->name1].cur_num = 0;
 				q_ptr->name1 = 0;
@@ -905,7 +895,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		}
 
 		/* Preserve wizard-generated artifacts */
-		if (artifact_p(q_ptr))
+		if (object_is_fixed_artifact(q_ptr))
 		{
 			a_info[q_ptr->name1].cur_num = 0;
 			q_ptr->name1 = 0;
@@ -955,7 +945,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 				apply_magic(q_ptr, dun_level, AM_GOOD | AM_GREAT | AM_SPECIAL);
 
 				/* Failed to create artifact; make a random one */
-				if (!artifact_p(q_ptr) && !q_ptr->art_name) create_artifact(q_ptr, FALSE);
+				if (!object_is_artifact(q_ptr)) create_artifact(q_ptr, FALSE);
 				break;
 			}
 		}
@@ -1015,7 +1005,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (object_is_fixed_artifact(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
 
 
 	/* Interact */
@@ -1097,7 +1087,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* XXX XXX XXX Mega-Hack -- allow multiple artifacts */
-			if (artifact_p(q_ptr)) a_info[q_ptr->name1].cur_num = 0;
+			if (object_is_fixed_artifact(q_ptr)) a_info[q_ptr->name1].cur_num = 0;
 
 
 			/* Test for the same tval and sval. */
@@ -1149,7 +1139,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (object_is_fixed_artifact(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
 }
 
 
@@ -1164,7 +1154,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 
 	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr) || o_ptr->art_name) return;
+	if (object_is_artifact(o_ptr)) return;
 
 	/* Store old quantity. -LM- */
 	tmp_qnt = o_ptr->number;
@@ -1400,7 +1390,7 @@ static void wiz_create_item(void)
 			if (a_info[i].sval != k_info[k_idx].sval) continue;
 
 			/* Create this artifact */
-			create_named_art(i, py, px);
+			(void)create_named_art(i, py, px);
 
 			/* All done */
 			msg_print("Allocated(INSTA_ART).");
@@ -1443,14 +1433,27 @@ static void do_cmd_wiz_cure_all(void)
 	(void)restore_level();
 
 	/* Heal the player */
-	p_ptr->chp = p_ptr->mhp;
-	p_ptr->chp_frac = 0;
+	if (p_ptr->chp < p_ptr->mhp)
+	{
+		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp_frac = 0;
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+	}
 
 	/* Restore mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
 		p_ptr->csp = p_ptr->msp;
 		p_ptr->csp_frac = 0;
+
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_SPELL);
 	}
 
 	/* Cure stuff */
@@ -1466,9 +1469,6 @@ static void do_cmd_wiz_cure_all(void)
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
-
-	/* Redraw everything */
-	do_cmd_redraw();
 }
 
 
@@ -1526,7 +1526,7 @@ static void do_cmd_wiz_jump(void)
 	/* Change level */
 	dun_level = command_arg;
 
-	prepare_change_floor_mode(CFM_RAND_PLACE | CFM_CLEAR_ALL);
+	prepare_change_floor_mode(CFM_RAND_PLACE);
 
 	if (!dun_level) dungeon_type = 0;
 	p_ptr->inside_arena = FALSE;
@@ -1537,11 +1537,16 @@ static void do_cmd_wiz_jump(void)
 	if (record_stair) do_cmd_write_nikki(NIKKI_WIZ_TELE,0,NULL);
 
 	p_ptr->inside_quest = 0;
-	p_ptr->leftbldg = FALSE;
 	energy_use = 0;
 
 	/* Prevent energy_need from being too lower than 0 */
 	p_ptr->energy_need = 0;
+
+	/*
+	 * Clear all saved floors
+	 * and create a first saved floor
+	 */
+	prepare_change_floor_mode(CFM_FIRST_FLOOR);
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1600,28 +1605,7 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx)
 {
-	int i, x, y;
-
-	/* Paranoia */
-	/* if (!r_idx) return; */
-
-	/* Prevent illegal monsters */
-	if (r_idx >= max_r_idx) return;
-
-	/* Try 10 times */
-	for (i = 0; i < 10; i++)
-	{
-		int d = 1;
-
-		/* Pick a location */
-		scatter(&y, &x, py, px, d, 0);
-
-		/* Require empty grids */
-		if (!cave_empty_bold(y, x)) continue;
-
-		/* Place it (allow groups) */
-		if (place_monster_aux(0, y, x, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP))) break;
-	}
+	(void)summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 }
 
 
@@ -1632,7 +1616,7 @@ static void do_cmd_wiz_named(int r_idx)
  */
 static void do_cmd_wiz_named_friendly(int r_idx)
 {
-	(void) summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP | PM_FORCE_PET));
+	(void)summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP | PM_FORCE_PET));
 }
 
 
@@ -1653,14 +1637,20 @@ static void do_cmd_wiz_zap(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Skip the mount */
+		if (i == p_ptr->riding) continue;
+
 		/* Delete nearby monsters */
 		if (m_ptr->cdis <= MAX_SIGHT)
 		{
-			if (i == p_ptr->riding)
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 			{
-				rakuba(-1, FALSE);
-				p_ptr->redraw |= (PR_EXTRA);
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
 			}
+
 			delete_monster_idx(i);
 		}
 	}
@@ -1682,15 +1672,92 @@ static void do_cmd_wiz_zap_all(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		if (i == p_ptr->riding)
+		/* Skip the mount */
+		if (i == p_ptr->riding) continue;
+
+		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 		{
-			rakuba(-1, FALSE);
-			p_ptr->redraw |= (PR_EXTRA);
+			char m_name[80];
+
+			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_WIZ_ZAP, m_name);
 		}
 
 		/* Delete this monster */
 		delete_monster_idx(i);
 	}
+}
+
+
+/*
+ * Create desired feature
+ */
+static void do_cmd_wiz_create_feature(void)
+{
+	static int   prev_feat = 0;
+	static int   prev_mimic = 0;
+	cave_type    *c_ptr;
+	feature_type *f_ptr;
+	char         tmp_val[160];
+	int          tmp_feat, tmp_mimic;
+	int          y, x;
+
+	if (!tgt_pt(&x, &y)) return;
+
+	c_ptr = &cave[y][x];
+
+	/* Default */
+	sprintf(tmp_val, "%d", prev_feat);
+
+	/* Query */
+#ifdef JP
+	if (!get_string("地形: ", tmp_val, 3)) return;
+#else
+	if (!get_string("Feature: ", tmp_val, 3)) return;
+#endif
+
+	/* Extract */
+	tmp_feat = atoi(tmp_val);
+	if (tmp_feat < 0) tmp_feat = 0;
+	else if (tmp_feat >= max_f_idx) tmp_feat = max_f_idx - 1;
+
+	/* Default */
+	sprintf(tmp_val, "%d", prev_mimic);
+
+	/* Query */
+#ifdef JP
+	if (!get_string("地形 (mimic): ", tmp_val, 3)) return;
+#else
+	if (!get_string("Feature (mimic): ", tmp_val, 3)) return;
+#endif
+
+	/* Extract */
+	tmp_mimic = atoi(tmp_val);
+	if (tmp_mimic < 0) tmp_mimic = 0;
+	else if (tmp_mimic >= max_f_idx) tmp_mimic = max_f_idx - 1;
+
+	cave_set_feat(y, x, tmp_feat);
+	c_ptr->mimic = tmp_mimic;
+
+	f_ptr = &f_info[get_feat_mimic(c_ptr)];
+
+	if (have_flag(f_ptr->flags, FF_GLYPH) ||
+	    have_flag(f_ptr->flags, FF_MINOR_GLYPH))
+		c_ptr->info |= (CAVE_OBJECT);
+	else if (have_flag(f_ptr->flags, FF_MIRROR))
+		c_ptr->info |= (CAVE_GLOW | CAVE_OBJECT);
+
+	/* Notice */
+	note_spot(y, x);
+
+	/* Redraw */
+	lite_spot(y, x);
+
+	/* Update some things */
+	p_ptr->update |= (PU_FLOW);
+
+	prev_feat = tmp_feat;
+	prev_mimic = tmp_mimic;
 }
 
 
@@ -1865,7 +1932,7 @@ void do_cmd_debug(void)
 
 	/* Detect everything */
 	case 'd':
-		detect_all(DETECT_RAD_ALL*3);
+		detect_all(DETECT_RAD_ALL * 3);
 		break;
 
 	/* Dimension_door */
@@ -1889,6 +1956,11 @@ void do_cmd_debug(void)
 	/* View item info */
 	case 'f':
 		identify_fully(FALSE);
+		break;
+
+	/* Create desired feature */
+	case 'F':
+		do_cmd_wiz_create_feature();
 		break;
 
 	/* Good Objects */
@@ -1930,7 +2002,7 @@ void do_cmd_debug(void)
 
 	/* Magic Mapping */
 	case 'm':
-		map_area(DETECT_RAD_ALL);
+		map_area(DETECT_RAD_ALL * 3);
 		break;
 
 	/* Mutation */
@@ -1965,7 +2037,7 @@ void do_cmd_debug(void)
 
 	/* Phase Door */
 	case 'p':
-		teleport_player(10);
+		teleport_player(10, 0L);
 		break;
 
 #if 0
@@ -2009,7 +2081,7 @@ void do_cmd_debug(void)
 
 	/* Teleport */
 	case 't':
-		teleport_player(100);
+		teleport_player(100, 0L);
 		break;
 
 	/* Very Good Objects */

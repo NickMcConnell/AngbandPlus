@@ -177,11 +177,12 @@ void reset_tim_flags(void)
 	p_ptr->tim_stealth = 0;     /* Timed -- Stealth */
 	p_ptr->tim_esp = 0;
 	p_ptr->wraith_form = 0;     /* Timed -- Wraith Form */
-	p_ptr->tim_ffall = 0;
+	p_ptr->tim_levitation = 0;
 	p_ptr->tim_sh_touki = 0;
 	p_ptr->tim_sh_fire = 0;
 	p_ptr->tim_sh_holy = 0;
 	p_ptr->tim_eyeeye = 0;
+	p_ptr->magicdef = 0;
 	p_ptr->resist_magic = 0;
 	p_ptr->tsuyoshi = 0;
 	p_ptr->kabenuke = 0;
@@ -219,15 +220,97 @@ void reset_tim_flags(void)
 
 	if (p_ptr->riding)
 	{
-		m_list[p_ptr->riding].fast = 0;
-		m_list[p_ptr->riding].slow = 0;
-		m_list[p_ptr->riding].invulner = 0;
+		(void)set_monster_fast(p_ptr->riding, 0);
+		(void)set_monster_slow(p_ptr->riding, 0);
+		(void)set_monster_invulner(p_ptr->riding, 0, FALSE);
 	}
 
 	if (p_ptr->pclass == CLASS_BARD)
 	{
 		p_ptr->magic_num1[0] = 0;
 		p_ptr->magic_num2[0] = 0;
+	}
+}
+
+
+void dispel_player(void)
+{
+	(void)set_fast(0, TRUE);
+	(void)set_lightspeed(0, TRUE);
+	(void)set_slow(0, TRUE);
+	(void)set_shield(0, TRUE);
+	(void)set_blessed(0, TRUE);
+	(void)set_tsuyoshi(0, TRUE);
+	(void)set_hero(0, TRUE);
+	(void)set_shero(0, TRUE);
+	(void)set_protevil(0, TRUE);
+	(void)set_invuln(0, TRUE);
+	(void)set_wraith_form(0, TRUE);
+	(void)set_kabenuke(0, TRUE);
+	(void)set_tim_res_nether(0, TRUE);
+	(void)set_tim_res_time(0, TRUE);
+	/* by henkma */
+	(void)set_tim_reflect(0,TRUE);
+	(void)set_multishadow(0,TRUE);
+	(void)set_dustrobe(0,TRUE);
+
+	(void)set_tim_invis(0, TRUE);
+	(void)set_tim_infra(0, TRUE);
+	(void)set_tim_esp(0, TRUE);
+	(void)set_tim_regen(0, TRUE);
+	(void)set_tim_stealth(0, TRUE);
+	(void)set_tim_levitation(0, TRUE);
+	(void)set_tim_sh_touki(0, TRUE);
+	(void)set_tim_sh_fire(0, TRUE);
+	(void)set_tim_sh_holy(0, TRUE);
+	(void)set_tim_eyeeye(0, TRUE);
+	(void)set_magicdef(0, TRUE);
+	(void)set_resist_magic(0, TRUE);
+	(void)set_oppose_acid(0, TRUE);
+	(void)set_oppose_elec(0, TRUE);
+	(void)set_oppose_fire(0, TRUE);
+	(void)set_oppose_cold(0, TRUE);
+	(void)set_oppose_pois(0, TRUE);
+	(void)set_ultimate_res(0, TRUE);
+	(void)set_mimic(0, 0, TRUE);
+	(void)set_ele_attack(0, 0);
+	(void)set_ele_immune(0, 0);
+
+	/* Cancel glowing hands */
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
+	{
+		p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+#ifdef JP
+		msg_print("手の輝きがなくなった。");
+#else
+		msg_print("Your hands stop glowing.");
+#endif
+	}
+
+	if (music_singing_any())
+	{
+		p_ptr->magic_num1[1] = p_ptr->magic_num1[0];
+		p_ptr->magic_num1[0] = 0;
+#ifdef JP
+		msg_print("歌が途切れた。");
+#else
+		msg_print("Your singing is interrupted.");
+#endif
+		p_ptr->action = ACTION_NONE;
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS | PU_HP);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
+
+		/* Update monsters */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+		p_ptr->energy_need += ENERGY_NEED();
 	}
 }
 
@@ -775,6 +858,9 @@ msg_print("やっとはっきりと物が見えるようになった。");
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
+
+	/* Update the health bar */
+	p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);
 
 	/* Update monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -1565,9 +1651,6 @@ msg_print("不透明になった感じがする。");
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-
-
-
 	/* Handle stuff */
 	handle_stuff();
 
@@ -2095,9 +2178,9 @@ bool set_superstealth(bool set)
 
 
 /*
- * Set "p_ptr->tim_ffall", notice observable changes
+ * Set "p_ptr->tim_levitation", notice observable changes
  */
-bool set_tim_ffall(int v, bool do_dec)
+bool set_tim_levitation(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
@@ -2109,11 +2192,11 @@ bool set_tim_ffall(int v, bool do_dec)
 	/* Open */
 	if (v)
 	{
-		if (p_ptr->tim_ffall && !do_dec)
+		if (p_ptr->tim_levitation && !do_dec)
 		{
-			if (p_ptr->tim_ffall > v) return FALSE;
+			if (p_ptr->tim_levitation > v) return FALSE;
 		}
-		else if (!p_ptr->tim_ffall)
+		else if (!p_ptr->tim_levitation)
 		{
 #ifdef JP
 msg_print("体が宙に浮き始めた。");
@@ -2128,7 +2211,7 @@ msg_print("体が宙に浮き始めた。");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_ffall)
+		if (p_ptr->tim_levitation)
 		{
 #ifdef JP
 msg_print("もう宙に浮かべなくなった。");
@@ -2141,7 +2224,7 @@ msg_print("もう宙に浮かべなくなった。");
 	}
 
 	/* Use the value */
-	p_ptr->tim_ffall = v;
+	p_ptr->tim_levitation = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -2771,6 +2854,9 @@ msg_print("体が物質化した。");
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -4067,9 +4153,6 @@ msg_print("やっとお腹がきつくなくなった。");
 
 		if (p_ptr->wild_mode && (new_aux < 2))
 		{
-			p_ptr->wilderness_x = px;
-			p_ptr->wilderness_y = py;
-			p_ptr->energy_need = 0;
 			change_wild_mode();
 		}
 
@@ -4726,6 +4809,71 @@ take_hit(DAMAGE_LOSELIFE, change / 2, "変化した傷", -1);
 }
 
 
+/*
+ * Change player race
+ */
+void change_race(int new_race, cptr effect_msg)
+{
+	cptr title = race_info[new_race].title;
+	int  old_race = p_ptr->prace;
+
+#ifdef JP
+	msg_format("あなたは%s%sに変化した！", effect_msg, title);
+#else
+	msg_format("You turn into %s %s%s!", (!effect_msg[0] && is_a_vowel(title[0]) ? "an" : "a"), effect_msg, title);
+#endif
+
+	chg_virtue(V_CHANCE, 2);
+
+	if (p_ptr->prace < 32)
+	{
+		p_ptr->old_race1 |= 1L << p_ptr->prace;
+	}
+	else
+	{
+		p_ptr->old_race2 |= 1L << (p_ptr->prace-32);
+	}
+	p_ptr->prace = new_race;
+	rp_ptr = &race_info[p_ptr->prace];
+
+	/* Experience factor */
+	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+	/*
+	 * The speed bonus of Klackons and Sprites are disabled
+	 * and the experience penalty is decreased.
+	 */
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
+		p_ptr->expfact -= 15;
+
+	/* Get character's height and weight */
+	get_height_weight();
+
+	/* Hitdice */
+	if (p_ptr->pclass == CLASS_SORCERER)
+		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+	else
+		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+
+	do_cmd_rerate(FALSE);
+
+	/* The experience level may be modified */
+	check_experience();
+
+	p_ptr->redraw |= (PR_BASIC);
+
+	p_ptr->update |= (PU_BONUS);
+
+	handle_stuff();
+
+	/* Load an autopick preference file */
+	if (old_race != p_ptr->prace) autopick_load_pref(FALSE);
+
+	/* Player's graphic tile may change */
+	lite_spot(py, px);
+}
+
+
 void do_poly_self(void)
 {
 	int power = p_ptr->lev;
@@ -4741,7 +4889,7 @@ msg_print("あなたは変化の訪れを感じた...");
 	if ((power > randint0(20)) && one_in_(3) && (p_ptr->prace != RACE_ANDROID))
 	{
 		char effect_msg[80] = "";
-		int new_race, expfact, goalexpfact, h_percent;
+		int new_race, expfact, goalexpfact;
 
 		/* Some form of racial polymorph... */
 		power -= 10;
@@ -4848,78 +4996,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		}
 		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
 
-#ifdef JP
-		msg_format("あなたは%s%sに変化した！", effect_msg,
-				race_info[new_race].title);
-#else
-		if (effect_msg[0])
-		{
-			msg_format("You turn into a%s %s!",
-				((new_race == RACE_AMBERITE || new_race == RACE_ELF
-				|| new_race == RACE_IMP) ? "n" : ""),
-				race_info[new_race].title);
-		}
-		else
-		{
-			msg_format("You turn into a %s%s!", effect_msg,
-				race_info[new_race].title);
-		}
-#endif
-
-		chg_virtue(V_CHANCE, 2);
-
-		if (p_ptr->prace < 32)
-		{
-			p_ptr->old_race1 |= 1L << p_ptr->prace;
-		}
-		else
-		{
-			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
-		}
-		p_ptr->prace = new_race;
-		rp_ptr = &race_info[p_ptr->prace];
-
-		/* Experience factor */
-		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
-
-		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
-			p_ptr->expfact -= 15;
-
-
-		/* Calculate the height/weight for males */
-		if (p_ptr->psex == SEX_MALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
-			p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
-					    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
-		}
-
-		/* Calculate the height/weight for females */
-		else if (p_ptr->psex == SEX_FEMALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
-			p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
-					    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
-		}
-
-		check_experience();
-
-		/* Hitdice */
-		if (p_ptr->pclass == CLASS_SORCERER)
-			p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
-		else
-			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
-
-		do_cmd_rerate(FALSE);
-
-		p_ptr->redraw |= (PR_BASIC);
-
-		p_ptr->update |= (PU_BONUS);
-
-		handle_stuff();
-		lite_spot(py, px);
+		change_race(new_race, effect_msg);
 	}
 
 	if ((power > randint0(30)) && one_in_(6))
@@ -4943,8 +5020,8 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 		if (one_in_(6))
 		{
 #ifdef JP
-msg_print("現在姿で生きていくのは困難なようだ！");
-take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異", -1);
+			msg_print("現在の姿で生きていくのは困難なようだ！");
+			take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異", -1);
 #else
 			msg_print("You find living difficult in your present form!");
 			take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "a lethal mutation", -1);
@@ -4992,6 +5069,7 @@ take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異",
  * the game when he dies, since the "You die." message is shown before
  * setting the player to "dead".
  */
+
 int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 {
 	int old_chp = p_ptr->chp;
@@ -5048,8 +5126,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			}
 		}
 
-		/* Multishadow effects is determined by turn */
-		if (p_ptr->multishadow && (turn & 1))
+		if (CHECK_MULTISHADOW())
 		{
 			if (damage_type == DAMAGE_FORCE)
 			{
@@ -5119,7 +5196,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
-		char buf[10];
 		bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
 
 #ifdef JP       /* 死んだ時に強制終了して死を回避できなくしてみた by Habu */
@@ -5152,6 +5228,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		else
 		{
 			int q_idx = quest_number(dun_level);
+			bool seppuku = streq(hit_from, "Seppuku");
+			bool winning_seppuku = p_ptr->total_winner && seppuku;
 
 #ifdef WORLD_SCORE
 			/* Make screen dump */
@@ -5159,46 +5237,73 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 #endif
 
 			/* Note cause of death */
+			if (seppuku)
+			{
+				strcpy(p_ptr->died_from, hit_from);
 #ifdef JP
-			sprintf(p_ptr->died_from, "%s%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で":"麻痺状態で", p_ptr->image ? "幻覚に歪んだ" : "", hit_from);
-#else
-			sprintf(p_ptr->died_from, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
+				if (!winning_seppuku) strcpy(p_ptr->died_from, "切腹");
 #endif
+			}
+			else
+			{
+				char dummy[1024];
+#ifdef JP
+				sprintf(dummy, "%s%s%s", !p_ptr->paralyzed ? "" : p_ptr->free_act ? "彫像状態で" : "麻痺状態で", p_ptr->image ? "幻覚に歪んだ" : "", hit_from);
+#else
+				sprintf(dummy, "%s%s", hit_from, !p_ptr->paralyzed ? "" : " while helpless");
+#endif
+				my_strcpy(p_ptr->died_from, dummy, sizeof p_ptr->died_from);
+			}
 
 			/* No longer a winner */
 			p_ptr->total_winner = FALSE;
 
-			if (p_ptr->inside_arena)
+			if (winning_seppuku)
+			{
 #ifdef JP
-				strcpy(buf,"アリーナ");
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "勝利の後切腹した。");
 #else
-				strcpy(buf,"in the Arena");
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "did Seppuku after the winning.");
 #endif
-			else if (!dun_level)
-#ifdef JP
-				strcpy(buf,"地上");
-#else
-				strcpy(buf,"on the surface");
-#endif
-			else if (q_idx && (is_fixed_quest_idx(q_idx) &&
-			         !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
-#ifdef JP
-				strcpy(buf,"クエスト");
-#else
-				strcpy(buf,"in a quest");
-#endif
+			}
 			else
+			{
+				char buf[10];
+
+				if (p_ptr->inside_arena)
 #ifdef JP
-				sprintf(buf,"%d階", dun_level);
+					strcpy(buf,"アリーナ");
 #else
-				sprintf(buf,"level %d", dun_level);
+					strcpy(buf,"in the Arena");
 #endif
+				else if (!dun_level)
 #ifdef JP
-			sprintf(tmp,"%sで%sに殺された。",buf, p_ptr->died_from);
+					strcpy(buf,"地上");
 #else
-			sprintf(tmp,"killed by %s %s.", p_ptr->died_from, buf);
+					strcpy(buf,"on the surface");
 #endif
-			do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
+				else if (q_idx && (is_fixed_quest_idx(q_idx) &&
+				         !((q_idx == QUEST_OBERON) || (q_idx == QUEST_SERPENT))))
+#ifdef JP
+					strcpy(buf,"クエスト");
+#else
+					strcpy(buf,"in a quest");
+#endif
+				else
+#ifdef JP
+					sprintf(buf,"%d階", dun_level);
+#else
+					sprintf(buf,"level %d", dun_level);
+#endif
+
+#ifdef JP
+				sprintf(tmp, "%sで%sに殺された。", buf, p_ptr->died_from);
+#else
+				sprintf(tmp, "killed by %s %s.", p_ptr->died_from, buf);
+#endif
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
+			}
+
 #ifdef JP
 			do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
 #else
@@ -5209,22 +5314,25 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			flush();
 
 #ifdef JP
-if (get_check_strict("画面を保存しますか？", CHECK_NO_HISTORY))
+			if (get_check_strict("画面を保存しますか？", CHECK_NO_HISTORY))
 #else
 			if (get_check_strict("Dump the screen? ", CHECK_NO_HISTORY))
 #endif
-
 			{
 				do_cmd_save_screen();
 			}
 
 			flush();
 
+			/* Initialize "last message" buffer */
+			if (p_ptr->last_message) string_free(p_ptr->last_message);
+			p_ptr->last_message = NULL;
+
 			/* Hack -- Note death */
 			if (!last_words)
 			{
 #ifdef JP
-msg_format("あなたは%sました。", android ? "壊れ" : "死に");
+				msg_format("あなたは%sました。", android ? "壊れ" : "死に");
 #else
 				msg_print(android ? "You are broken." : "You die.");
 #endif
@@ -5233,10 +5341,10 @@ msg_format("あなたは%sました。", android ? "壊れ" : "死に");
 			}
 			else
 			{
-				if (streq(p_ptr->died_from, "Seppuku"))
+				if (winning_seppuku)
 				{
 #ifdef JP
-				  get_rnd_line("seppuku_j.txt", 0, death_message);
+					get_rnd_line("seppuku_j.txt", 0, death_message);
 #else
 					get_rnd_line("seppuku.txt", 0, death_message);
 #endif
@@ -5244,16 +5352,26 @@ msg_format("あなたは%sました。", android ? "壊れ" : "死に");
 				else
 				{
 #ifdef JP
-get_rnd_line("death_j.txt", 0, death_message);
+					get_rnd_line("death_j.txt", 0, death_message);
 #else
 					get_rnd_line("death.txt", 0, death_message);
 #endif
 				}
+
+				do
+				{
 #ifdef JP
-				while (!get_string(streq(p_ptr->died_from, "Seppuku") ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024)) ;
+					while (!get_string(winning_seppuku ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024)) ;
 #else
-				while (!get_string("Last word: ", death_message, 1024)) ;
+					while (!get_string("Last word: ", death_message, 1024)) ;
 #endif
+				}
+#ifdef JP
+				while (winning_seppuku && !get_check_strict("よろしいですか？", CHECK_NO_HISTORY));
+#else
+				while (winning_seppuku && !get_check_strict("Are you sure? ", CHECK_NO_HISTORY));
+#endif
+
 				if (death_message[0] == '\0')
 				{
 #ifdef JP
@@ -5262,63 +5380,63 @@ get_rnd_line("death_j.txt", 0, death_message);
 					strcpy(death_message, android ? "You are broken." : "You die.");
 #endif
 				}
-				if (streq(p_ptr->died_from, "Seppuku"))
-				{
+				else p_ptr->last_message = string_make(death_message);
+
 #ifdef JP
-				  int i, len;
-				  int w = Term->wid;
-				  int h = Term->hgt;
-				  int msg_pos_x[9] = {  5,  7,  9, 12,  14,  17,  19,  21, 23};
-				  int msg_pos_y[9] = {  3,  4,  5,  4,   5,   4,   5,   6,  4};
-				  cptr str;
-				  char* str2;
+				if (winning_seppuku)
+				{
+					int i, len;
+					int w = Term->wid;
+					int h = Term->hgt;
+					int msg_pos_x[9] = {  5,  7,  9, 12,  14,  17,  19,  21, 23};
+					int msg_pos_y[9] = {  3,  4,  5,  4,   5,   4,   5,   6,  4};
+					cptr str;
+					char* str2;
 
-				  Term_clear();
+					Term_clear();
 
-				  /* 桜散る */
-				  for (i = 0; i < 40; i++) 
-				    Term_putstr(randint0(w / 2) * 2, randint0(h), 2, TERM_VIOLET, "υ");
+					/* 桜散る */
+					for (i = 0; i < 40; i++)
+						Term_putstr(randint0(w / 2) * 2, randint0(h), 2, TERM_VIOLET, "υ");
 
-				  str = death_message;
-				  if (strncmp(str, "「", 2) == 0) str += 2;
+					str = death_message;
+					if (strncmp(str, "「", 2) == 0) str += 2;
 
-				  str2 = strstr_j(str, "」");
-				  if (str2 != NULL) *str2 = '\0';
+					str2 = my_strstr(str, "」");
+					if (str2 != NULL) *str2 = '\0';
 
-				  i = 0;
-				  while (i < 9)
-				  {
-				    str2 = strstr_j(str, " ");
-				    if (str2 == NULL) len = strlen(str);
-				    else len = str2 - str;
+					i = 0;
+					while (i < 9)
+					{
+						str2 = my_strstr(str, " ");
+						if (str2 == NULL) len = strlen(str);
+						else len = str2 - str;
 
-				    if (len != 0)
-				    {
-				      Term_putstr_v(w * 3 / 4 - 2 - msg_pos_x[i] * 2, msg_pos_y[i], len,
-						  TERM_WHITE, str);
-				      if (str2 == NULL) break;
-				      i++;
-				    }
-				    str = str2 + 1;
-				    if (*str == 0) break;
-				  }
+						if (len != 0)
+						{
+							Term_putstr_v(w * 3 / 4 - 2 - msg_pos_x[i] * 2, msg_pos_y[i], len,
+							TERM_WHITE, str);
+							if (str2 == NULL) break;
+							i++;
+						}
+						str = str2 + 1;
+						if (*str == 0) break;
+					}
 
-				  /* Hide cursor */
-				  Term_putstr(w-1, h-1, 1, TERM_WHITE, " ");
+					/* Hide cursor */
+					Term_putstr(w-1, h-1, 1, TERM_WHITE, " ");
 
-				  flush();
+					flush();
 #ifdef WORLD_SCORE
-				  /* Make screen dump */
-				  screen_dump = make_screen_dump();
+					/* Make screen dump */
+					screen_dump = make_screen_dump();
 #endif
 
-				  /* Wait a key press */
-				  (void)inkey();
-#else
-					msg_print(death_message);
-#endif
+					/* Wait a key press */
+					(void)inkey();
 				}
 				else
+#endif
 					msg_print(death_message);
 			}
 		}
@@ -5331,7 +5449,7 @@ get_rnd_line("death_j.txt", 0, death_message);
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning)) bell();
+		if (old_chp > warning) bell();
 
 		sound(SOUND_WARN);
 
@@ -5345,7 +5463,7 @@ get_rnd_line("death_j.txt", 0, death_message);
 #endif
 
 #ifdef JP
-			sprintf(tmp,"%sによってピンチに陥いった。",hit_from);
+			sprintf(tmp,"%sによってピンチに陥った。",hit_from);
 #else
 			sprintf(tmp,"A critical situation because of %s.",hit_from);
 #endif
@@ -5370,9 +5488,6 @@ msg_print("*** 警告:低ヒット・ポイント！ ***");
 	}
 	if (p_ptr->wild_mode && !p_ptr->leaving && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
 	{
-		p_ptr->wilderness_x = px;
-		p_ptr->wilderness_y = py;
-		p_ptr->energy_need = 0;
 		change_wild_mode();
 	}
 	return damage;
@@ -5382,14 +5497,14 @@ msg_print("*** 警告:低ヒット・ポイント！ ***");
 /*
  * Gain experience
  */
-void gain_exp(s32b amount)
+void gain_exp_64(s32b amount, u32b amount_frac)
 {
 	if (p_ptr->is_dead) return;
 
 	if (p_ptr->prace == RACE_ANDROID) return;
 
 	/* Gain some experience */
-	p_ptr->exp += amount;
+	s64b_add(&(p_ptr->exp), &(p_ptr->exp_frac), amount, amount_frac);
 
 	/* Slowly recover from experience drainage */
 	if (p_ptr->exp < p_ptr->max_exp)
@@ -5400,6 +5515,15 @@ void gain_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+}
+
+
+/*
+ * Gain experience
+ */
+void gain_exp(s32b amount)
+{
+	gain_exp_64(amount, 0L);
 }
 
 
@@ -5417,7 +5541,7 @@ void calc_android_exp(void)
 		object_type forge;
 		object_type *q_ptr = &forge;
 		u32b value, exp;
-		int level = MAX(get_object_level(o_ptr) - 8, 1);
+		int level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
 
 		if ((i == INVEN_RIGHT) || (i == INVEN_LEFT) || (i == INVEN_NECK) || (i == INVEN_LITE)) continue;
 		if (!o_ptr->k_idx) continue;
@@ -5429,12 +5553,12 @@ void calc_android_exp(void)
 		q_ptr->discount = 0;
 		q_ptr->curse_flags = 0L;
 
-		if (o_ptr->name1)
+		if (object_is_fixed_artifact(o_ptr))
 		{
 			level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
 			level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].gen_flags & TRG_INSTA_ART ? 10 : 3));
 		}
-		else if (o_ptr->name2)
+		else if (object_is_ego(o_ptr))
 		{
 			level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
 		}
@@ -5443,7 +5567,7 @@ void calc_android_exp(void)
 			s32b total_flags = flag_cost(o_ptr, o_ptr->pval);
 			int fake_level;
 
-			if (o_ptr->tval >= TV_BOOTS)
+			if (!object_is_weapon_ammo(o_ptr))
 			{
 				/* For armors */
 				if (total_flags < 15000) fake_level = 10;
@@ -5468,7 +5592,7 @@ void calc_android_exp(void)
 		if (value > 5000000L) value = 5000000L;
 		if ((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_CARD)) level /= 2;
 
-		if (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name ||
+		if (object_is_artifact(o_ptr) || object_is_ego(o_ptr) ||
 		    (o_ptr->tval == TV_DRAG_ARMOR) ||
 		    ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
 		    ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
@@ -5766,6 +5890,16 @@ bool choose_ele_attack(void)
 	int num;
 
 	char choice;
+
+	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
+	{
+#ifdef JP
+		msg_format("武器を持たないと魔法剣は使えない。");
+#else
+		msg_format("You cannot use temporary branding with no weapon.");
+#endif
+		return FALSE;
+	}
 
 	/* Save screen */
 	screen_save();

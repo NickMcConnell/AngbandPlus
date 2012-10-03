@@ -16,9 +16,6 @@
 /* hack as in leave_store in store.c */
 static bool leave_bldg = FALSE;
 
-/* remember building location */
-static int building_loc = 0;
-
 static bool is_owner(building_type *bldg)
 {
 	if (bldg->member_class[p_ptr->pclass] == BUILDING_OWNER)
@@ -285,10 +282,13 @@ msg_print("君のために最強の挑戦者を用意しておいた。");
 					if (get_check("Do you fight? "))
 #endif
 					{
-						p_ptr->leftbldg = TRUE;
-						p_ptr->inside_arena = TRUE;
 						p_ptr->exit_bldg = FALSE;
 						reset_tim_flags();
+
+						/* Save the surface floor as saved floor */
+						prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+						p_ptr->inside_arena = TRUE;
 						p_ptr->leaving = TRUE;
 						leave_bldg = TRUE;
 					}
@@ -324,10 +324,13 @@ msg_print("ペットに乗ったままではアリーナへ入れさせてもらえなかった。");
 			}
 			else
 			{
-				p_ptr->leftbldg = TRUE;
-				p_ptr->inside_arena = TRUE;
 				p_ptr->exit_bldg = FALSE;
 				reset_tim_flags();
+
+				/* Save the surface floor as saved floor */
+				prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+				p_ptr->inside_arena = TRUE;
 				p_ptr->leaving = TRUE;
 				leave_bldg = TRUE;
 			}
@@ -1672,11 +1675,11 @@ static bool vault_aux_battle(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Decline town monsters */
-/*	if (!monster_dungeon(r_idx)) return FALSE; */
+/*	if (!mon_hook_dungeon(r_idx)) return FALSE; */
 
 	/* Decline unique monsters */
 /*	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE); */
-/*	if (r_ptr->flags7 & (RF7_UNIQUE_7)) return (FALSE); */
+/*	if (r_ptr->flags7 & (RF7_NAZGUL)) return (FALSE); */
 
 	if (r_ptr->flags1 & (RF1_NEVER_MOVE)) return (FALSE);
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) return (FALSE);
@@ -2054,10 +2057,14 @@ msg_print("ＯＫ、１ゴールドでいこう。");
 			battle_odds = MAX(wager+1, wager * battle_odds / 100);
 			kakekin = wager;
 			p_ptr->au -= wager;
-			p_ptr->leftbldg = TRUE;
-			p_ptr->inside_battle = TRUE;
 			reset_tim_flags();
+
+			/* Save the surface floor as saved floor */
+			prepare_change_floor_mode(CFM_SAVE_FLOORS);
+
+			p_ptr->inside_battle = TRUE;
 			p_ptr->leaving = TRUE;
+
 			leave_bldg = TRUE;
 			screen_load();
 
@@ -2222,7 +2229,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CAPTURE) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -2253,7 +2260,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -2284,7 +2291,7 @@ static bool kankin(void)
 		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == MON_TSUCHINOKO))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -2310,10 +2317,10 @@ static bool kankin(void)
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
-		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (o_ptr->pval == today_mon))
+		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_CORPSE) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -2339,10 +2346,11 @@ static bool kankin(void)
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
-		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (o_ptr->pval == today_mon))
+
+		if ((o_ptr->tval == TV_CORPSE) && (o_ptr->sval == SV_SKELETON) && (streq(r_name + r_info[o_ptr->pval].name, r_name + r_info[today_mon].name)))
 		{
 			char buf[MAX_NLEN+20];
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 #ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
 #else
@@ -2374,10 +2382,10 @@ static bool kankin(void)
 			if ((o_ptr->tval == TV_CORPSE) && (o_ptr->pval == kubi_r_idx[j]))
 			{
 				char buf[MAX_NLEN+20];
-				int num, k;
+				int num, k, item_new;
 				object_type forge;
 
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 #ifdef JP
 				sprintf(buf, "%sを渡しますか？",o_name);
 #else
@@ -2385,7 +2393,7 @@ static bool kankin(void)
 #endif
 				if (!get_check(buf)) continue;
 
-#if 0 /* Obsorated */
+#if 0 /* Obsoleted */
 #ifdef JP
 				msg_format("賞金 %ld＄を手に入れた。", (r_info[kubi_r_idx[j]].level + 1) * 300 * o_ptr->number);
 #else
@@ -2400,7 +2408,7 @@ static bool kankin(void)
 				kubi_r_idx[j] += 10000;
 
 				change = TRUE;
-#endif /* Obsorated */
+#endif /* Obsoleted */
 
 				/* Hand it first */
 				inven_item_increase(i, -o_ptr->number);
@@ -2435,15 +2443,21 @@ static bool kankin(void)
 				 * Since a corpse is handed at first,
 				 * there is at least one empty slot.
 				 */
-				(void)inven_carry(&forge);
+				item_new = inven_carry(&forge);
 
 				/* Describe the object */
-				object_desc(o_name, &forge, TRUE, 3);
+				object_desc(o_name, &forge, 0);
 #ifdef JP
-				msg_format("%s を貰った。",o_name);
+				msg_format("%s(%c)を貰った。", o_name, index_to_label(item_new));
 #else
-				msg_format("You get %s. ",o_name);
+				msg_format("You get %s (%c). ", o_name, index_to_label(item_new));
 #endif
+
+				/* Auto-inscription */
+				autopick_alter_item(item_new, FALSE);
+
+				/* Handle stuff */
+				handle_stuff();
 
 				change = TRUE;
 			}
@@ -2766,8 +2780,6 @@ msg_print("激烈な感情の発作におそわれるようになった！");
  */
 static bool inn_comm(int cmd)
 {
-	int dawnval;
-
 	switch (cmd)
 	{
 		case BACT_FOOD: /* Buy food & drink */
@@ -2791,121 +2803,119 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 			break;
 
 		case BACT_REST: /* Rest for the night */
-			dawnval = ((turn % (TURNS_PER_TICK * TOWN_DAWN)));
-			if (dawnval > (TURNS_PER_TICK * TOWN_DAWN)/4)
-			{  /* nighttime */
-				if ((p_ptr->poisoned) || (p_ptr->cut))
+			if ((p_ptr->poisoned) || (p_ptr->cut))
+			{
+#ifdef JP
+				msg_print("あなたに必要なのは部屋ではなく、治療者です。");
+#else
+				msg_print("You need a healer, not a room.");
+#endif
+
+				msg_print(NULL);
+#ifdef JP
+				msg_print("すみません、でもうちで誰かに死なれちゃ困りますんで。");
+#else
+				msg_print("Sorry, but don't want anyone dying in here.");
+#endif
+			}
+			else
+			{
+				s32b oldturn = turn;
+				int prev_day, prev_hour, prev_min;
+
+				extract_day_hour_min(&prev_day, &prev_hour, &prev_min);
+#ifdef JP
+				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "宿屋に泊まった。");
+#else
+				if ((prev_hour >= 6) && (prev_hour <= 17)) do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over daytime at the inn.");
+				else do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over night at the inn.");
+#endif
+				turn = (turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);
+				if (dungeon_turn < dungeon_turn_limit)
+				{
+					dungeon_turn += MIN(turn - oldturn, TURNS_PER_TICK*250);
+					if (dungeon_turn > dungeon_turn_limit) dungeon_turn = dungeon_turn_limit;
+				}
+
+				prevent_turn_overflow();
+
+				if ((prev_hour >= 18) && (prev_hour <= 23)) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+				p_ptr->chp = p_ptr->mhp;
+
+				if (ironman_nightmare)
 				{
 #ifdef JP
-msg_print("あなたに必要なのは部屋ではなく、治療者です。");
+					msg_print("眠りに就くと恐ろしい光景が心をよぎった。");
 #else
-					msg_print("You need a healer, not a room.");
+					msg_print("Horrible visions flit through your mind as you sleep.");
 #endif
 
-					msg_print(NULL);
+					/* Pick a nightmare */
+					get_mon_num_prep(get_nightmare, NULL);
+
+					/* Have some nightmares */
+					while(1)
+					{
+						have_nightmare(get_mon_num(MAX_DEPTH));
+
+						if (!one_in_(3)) break;
+					}
+
+					/* Remove the monster restriction */
+					get_mon_num_prep(NULL, NULL);
+
 #ifdef JP
-msg_print("すみません、でもうちで誰かに死なれちゃ困りますんで。");
+					msg_print("あなたは絶叫して目を覚ました。");
+					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "悪夢にうなされてよく眠れなかった。");
 #else
-					msg_print("Sorry, but don't want anyone dying in here.");
+					msg_print("You awake screaming.");
+					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "be troubled by a nightmare.");
 #endif
-
 				}
 				else
 				{
-					int oldturn = turn;
-#ifdef JP
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "宿屋に泊まった。");
-#else
-					do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over night at the inn");
-#endif
-					turn = (turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);
-					if (((oldturn + TURNS_PER_TICK * TOWN_DAWN / 4) % (TURNS_PER_TICK * TOWN_DAWN)) > TURNS_PER_TICK * TOWN_DAWN/4) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+					set_blind(0);
+					set_confused(0);
+					p_ptr->stun = 0;
 					p_ptr->chp = p_ptr->mhp;
+					p_ptr->csp = p_ptr->msp;
+					if (p_ptr->pclass == CLASS_MAGIC_EATER)
+					{
+						int i;
+						for (i = 0; i < 72; i++)
+						{
+							p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
+						}
+						for (; i < 108; i++)
+						{
+							p_ptr->magic_num1[i] = 0;
+						}
+					}
 
-					dungeon_turn += MIN(turn - oldturn, TURNS_PER_TICK*250);
-
-					if (ironman_nightmare)
+					if ((prev_hour >= 6) && (prev_hour <= 17))
 					{
 #ifdef JP
-msg_print("眠りに就くと恐ろしい光景が心をよぎった。");
+						msg_print("あなたはリフレッシュして目覚め、夕方を迎えた。");
+						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "夕方を迎えた。");
 #else
-						msg_print("Horrible visions flit through your mind as you sleep.");
-#endif
-
-
-						/* Pick a nightmare */
-						get_mon_num_prep(get_nightmare, NULL);
-
-						/* Have some nightmares */
-						while(1)
-						{
-							have_nightmare(get_mon_num(MAX_DEPTH));
-
-							if (!one_in_(3)) break;
-						}
-
-						/* Remove the monster restriction */
-						get_mon_num_prep(NULL, NULL);
-
-#ifdef JP
-msg_print("あなたは絶叫して目を覚ました。");
-#else
-						msg_print("You awake screaming.");
-#endif
-
-#ifdef JP
-						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "悪夢にうなされてよく眠れなかった。");
-#else
-						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "be troubled by a nightmare.");
+						msg_print("You awake refreshed for the evening.");
+						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "awake refreshed.");
 #endif
 					}
 					else
 					{
-						set_blind(0);
-						set_confused(0);
-						p_ptr->stun = 0;
-						p_ptr->chp = p_ptr->mhp;
-						p_ptr->csp = p_ptr->msp;
-						if (p_ptr->pclass == CLASS_MAGIC_EATER)
-						{
-							int i;
-							for (i = 0; i < 72; i++)
-							{
-								p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
-							}
-							for (; i < 108; i++)
-							{
-								p_ptr->magic_num1[i] = 0;
-							}
-						}
-
 #ifdef JP
-msg_print("あなたはリフレッシュして目覚め、新たな日を迎えた。");
+						msg_print("あなたはリフレッシュして目覚め、新たな日を迎えた。");
+						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "すがすがしい朝を迎えた。");
 #else
 						msg_print("You awake refreshed for the new day.");
-#endif
-
-#ifdef JP
-						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "すがすがしい朝をむかえた。");
-#else
 						do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "awake refreshed.");
 #endif
 					}
-
-					p_ptr->leftbldg = TRUE;
 				}
 			}
-			else
-			{
-#ifdef JP
-msg_print("部屋は夜だけ使用可能です。");
-#else
-				msg_print("The rooms are available only at night.");
-#endif
-
-				return (FALSE);
-			}
 			break;
+
 		case BACT_RUMORS: /* Listen for rumors */
 			{
 				char Rumor[1024];
@@ -2922,22 +2932,6 @@ msg_print("部屋は夜だけ使用可能です。");
 	}
 
 	return (TRUE);
-}
-
-
-/*
- * Share gold for thieves
- */
-static void share_gold(void)
-{
-	int i = (p_ptr->lev * 2) * 10;
-#ifdef JP
-msg_format("＄%d を手に入れた。", i);
-#else
-	msg_format("You collect %d gold pieces", i);
-#endif
-
-	p_ptr->au += i;
 }
 
 
@@ -3276,7 +3270,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	int eff_ds = o_ptr->ds + p_ptr->to_ds[0];
 
 	/* Print the weapon name */
-	object_desc(o_name, o_ptr, TRUE, 0);
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
 	c_put_str(TERM_YELLOW, o_name, row, col);
 
 	/* Print the player's number of blows */
@@ -3630,11 +3624,10 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	int         maxenchant = (p_ptr->lev / 5);
 	char        tmp_str[MAX_NLEN];
 
-
 	clear_bldg(4, 18);
 #ifdef JP
-prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
-prt(format(" 改良の料金は一個につき＄%d です。", cost), 7, 0);
+	prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
+	prt(format(" 改良の料金は一個につき＄%d です。", cost), 7, 0);
 #else
 	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant), 5, 0);
 	prt(format("  The price for the service is %d gold per item.", cost), 7, 0);
@@ -3644,8 +3637,8 @@ prt(format(" 改良の料金は一個につき＄%d です。", cost), 7, 0);
 
 	/* Get an item */
 #ifdef JP
-q = "どのアイテムを改良しますか？";
-s = "改良できるものがありません。";
+	q = "どのアイテムを改良しますか？";
+	s = "改良できるものがありません。";
 #else
 	q = "Improve which item? ";
 	s = "You have nothing to improve.";
@@ -3659,9 +3652,9 @@ s = "改良できるものがありません。";
 	/* Check if the player has enough money */
 	if (p_ptr->au < (cost * o_ptr->number))
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0);
+		object_desc(tmp_str, o_ptr, OD_NAME_ONLY);
 #ifdef JP
-msg_format("%sを改良するだけのゴールドがありません！", tmp_str);
+		msg_format("%sを改良するだけのゴールドがありません！", tmp_str);
 #else
 		msg_format("You do not have the gold to improve %s!", tmp_str);
 #endif
@@ -3716,21 +3709,20 @@ msg_format("%sを改良するだけのゴールドがありません！", tmp_str);
 
 		/* Message */
 #ifdef JP
-msg_print("改良に失敗した。");
+		msg_print("改良に失敗した。");
 #else
 		msg_print("The improvement failed.");
 #endif
-
 
 		return (FALSE);
 	}
 	else
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 1);
+		object_desc(tmp_str, o_ptr, OD_NAME_AND_ENCHANT);
 #ifdef JP
-msg_format("＄%d で%sを改良しました。", cost * o_ptr->number, tmp_str );
+		msg_format("＄%dで%sに改良しました。", cost * o_ptr->number, tmp_str);
 #else
-		msg_format("Improved %s for %d gold.", tmp_str, cost * o_ptr->number);
+		msg_format("Improved into %s for %d gold.", tmp_str, cost * o_ptr->number);
 #endif
 
 		/* Charge the money */
@@ -3809,7 +3801,7 @@ s = "魔力を充填すべきアイテムがない。";
 	 * the level of the item or the number of charges.
 	 */
 	/* The item must be "known" */
-	if (!object_known_p(o_ptr))
+	if (!object_is_known(o_ptr))
 	{
 #ifdef JP
 msg_format("充填する前に鑑定されている必要があります！");
@@ -3834,7 +3826,7 @@ get_check("＄50で鑑定しますか？ "))
 			identify_item(o_ptr);
 
 			/* Description */
-			object_desc(tmp_str, o_ptr, TRUE, 3);
+			object_desc(tmp_str, o_ptr, 0);
 
 #ifdef JP
 msg_format("%s です。", tmp_str);
@@ -3842,6 +3834,8 @@ msg_format("%s です。", tmp_str);
 			msg_format("You have: %s.", tmp_str);
 #endif
 
+			/* Auto-inscription */
+			autopick_alter_item(item, FALSE);
 
 			/* Update the gold display */
 			building_prt_gold();
@@ -3853,7 +3847,7 @@ msg_format("%s です。", tmp_str);
 	}
 
 	/* Extract the object "level" */
-	lev = get_object_level(o_ptr);
+	lev = k_info[o_ptr->k_idx].level;
 
 	/* Price for a rod */
 	if (o_ptr->tval == TV_ROD)
@@ -3879,7 +3873,7 @@ msg_format("それは再充填する必要はありません。");
 	else if (o_ptr->tval == TV_STAFF)
 	{
 		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-		price = (get_object_cost(o_ptr) / 10) * o_ptr->number;
+		price = (k_info[o_ptr->k_idx].cost / 10) * o_ptr->number;
 
 		/* Pay at least 10 gold per charge */
 		price = MAX(10, price);
@@ -3887,7 +3881,7 @@ msg_format("それは再充填する必要はありません。");
 	else
 	{
 		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-		price = (get_object_cost(o_ptr) / 10);
+		price = (k_info[o_ptr->k_idx].cost / 10);
 
 		/* Pay at least 10 gold per charge */
 		price = MAX(10, price);
@@ -3939,7 +3933,7 @@ msg_print("この杖はもう充分に充填されています。");
 	/* Check if the player has enough money */
 	if (p_ptr->au < price)
 	{
-		object_desc(tmp_str, o_ptr, TRUE, 0);
+		object_desc(tmp_str, o_ptr, OD_NAME_ONLY);
 #ifdef JP
 msg_format("%sを再充填するには＄%d 必要です！", tmp_str,price );
 #else
@@ -3998,7 +3992,7 @@ charges = get_quantity(format("一回分＄%d で何回分充填しますか？",
 	}
 
 	/* Give feedback */
-	object_desc(tmp_str, o_ptr, TRUE, 3);
+	object_desc(tmp_str, o_ptr, 0);
 #ifdef JP
 msg_format("%sを＄%d で再充填しました。", tmp_str, price);
 #else
@@ -4057,10 +4051,10 @@ static void building_recharge_all(void)
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
 		/* need identified */
-		if (!object_known_p(o_ptr)) total_cost += 50;
+		if (!object_is_known(o_ptr)) total_cost += 50;
 
 		/* Extract the object "level" */
-		lev = get_object_level(o_ptr);
+		lev = k_info[o_ptr->k_idx].level;
 
 		k_ptr = &k_info[o_ptr->k_idx];
 
@@ -4072,7 +4066,7 @@ static void building_recharge_all(void)
 
 		case TV_STAFF:
 			/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-			price = (get_object_cost(o_ptr) / 10) * o_ptr->number;
+			price = (k_info[o_ptr->k_idx].cost / 10) * o_ptr->number;
 
 			/* Pay at least 10 gold per charge */
 			price = MAX(10, price);
@@ -4083,7 +4077,7 @@ static void building_recharge_all(void)
 
 		case TV_WAND:
 			/* Price per charge ( = double the price paid by shopkeepers for the charge) */
-			price = (get_object_cost(o_ptr) / 10);
+			price = (k_info[o_ptr->k_idx].cost / 10);
 
 			/* Pay at least 10 gold per charge */
 			price = MAX(10, price);
@@ -4132,12 +4126,18 @@ static void building_recharge_all(void)
 	{
 		o_ptr = &inventory[i];
 		k_ptr = &k_info[o_ptr->k_idx];
-				
+
 		/* skip non magic device */
 		if (o_ptr->tval < TV_STAFF || o_ptr->tval > TV_ROD) continue;
 
 		/* Identify it */
-		if (!object_known_p(o_ptr)) identify_item(o_ptr);
+		if (!object_is_known(o_ptr))
+		{
+			identify_item(o_ptr);
+
+			/* Auto-inscription */
+			autopick_alter_item(i, FALSE);
+		}
 
 		/* Recharge */
 		switch (o_ptr->tval)
@@ -4264,7 +4264,7 @@ bool tele_town(void)
 			}
 		}
 	}
-	p_ptr->leftbldg = TRUE;
+
 	p_ptr->leaving = TRUE;
 	leave_bldg = TRUE;
 	p_ptr->teleport_town = TRUE;
@@ -4438,9 +4438,9 @@ sprintf(buf, "%c - %s", sym, "無効な文字");
 				if (isupper(temp2[xx])) temp2[xx] = tolower(temp2[xx]);
 
 #ifdef JP
-			if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp))
+			if (my_strstr(temp2, temp) || my_strstr(r_name + r_ptr->name, temp))
 #else
-			if (strstr(temp2, temp))
+			if (my_strstr(temp2, temp))
 #endif
 				who[n++] = i;
 		}
@@ -4664,11 +4664,11 @@ msg_print("お金が足りません！");
 		paid = compare_weapons();
 		break;
 	case BACT_ENCHANT_WEAPON:
-		item_tester_hook = item_tester_hook_melee_weapon;
+		item_tester_hook = object_allow_enchant_melee_weapon;
 		enchant_item(bcost, 1, 1, 0);
 		break;
 	case BACT_ENCHANT_ARMOR:
-		item_tester_hook = item_tester_hook_armour;
+		item_tester_hook = object_is_armour;
 		enchant_item(bcost, 0, 0, 1);
 		break;
 	case BACT_RECHARGE:
@@ -4713,21 +4713,6 @@ msg_print("お金が足りません！");
 		if (do_res_stat(A_CON)) paid = TRUE;
 		if (do_res_stat(A_CHR)) paid = TRUE;
 		break;
-	case BACT_GOLD: /* set timed reward flag */
-		if (!p_ptr->rewards[BACT_GOLD])
-		{
-			share_gold();
-			p_ptr->rewards[BACT_GOLD] = TRUE;
-		}
-		else
-		{
-#ifdef JP
-			msg_print("今日の分け前はすでに支払ったぞ！");
-#else
-			msg_print("You just had your daily allowance!");
-#endif
-		}
-		break;
 	case BACT_ENCHANT_ARROWS:
 		item_tester_hook = item_tester_hook_ammo;
 		enchant_item(bcost, 1, 1, 0);
@@ -4742,66 +4727,16 @@ msg_print("お金が足りません！");
 	case BACT_TELEPORT_LEVEL:
 	{
 		int select_dungeon;
-		int i, num = 0;
-		s16b *dun;
 		int max_depth;
 
-		/* Allocate the "dun" array */
-		C_MAKE(dun, max_d_idx, s16b);
-
-		screen_save();
 		clear_bldg(4, 20);
-
-		for(i = 1; i < max_d_idx; i++)
-		{
-			char buf[80];
-			bool seiha = FALSE;
-
-			if (!d_info[i].maxdepth) continue;
-			if (!max_dlv[i]) continue;
-			if (d_info[i].final_guardian)
-			{
-				if (!r_info[d_info[i].final_guardian].max_num) seiha = TRUE;
-			}
-			else if (max_dlv[i] == d_info[i].maxdepth) seiha = TRUE;
-
 #ifdef JP
-			sprintf(buf,"%c) %c%-12s : 最大 %d 階", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
+		select_dungeon = choose_dungeon("にテレポート", 4, 0);
 #else
-			sprintf(buf,"%c) %c%-12s : Max level %d", 'a'+num, seiha ? '!' : ' ', d_name + d_info[i].name, max_dlv[i]);
+		select_dungeon = choose_dungeon("teleport", 4, 0);
 #endif
-			put_str(buf, 4+num, 5);
-			dun[num] = i;
-			num++;
-		}
-#ifdef JP
-		prt("どのダンジョンにテレポートしますか:", 0, 0);
-#else
-		prt("Which dungeon do you teleport?: ", 0, 0);
-#endif
-		while(1)
-		{
-			i = inkey();
-
-			if (i == ESCAPE)
-			{
-				/* Free the "dun" array */
-				C_KILL(dun, max_d_idx, s16b);
-
-				screen_load();
-				return;
-			}
-			if (i >= 'a' && i <('a'+num))
-			{
-				select_dungeon = dun[i-'a'];
-				break;
-			}
-			else bell();
-		}
-		screen_load();
-
-		/* Free the "dun" array */
-		C_KILL(dun, max_d_idx, s16b);
+		show_building(bldg);
+		if (!select_dungeon) return;
 
 		max_depth = d_info[select_dungeon].maxdepth;
 
@@ -4823,7 +4758,7 @@ msg_print("お金が足りません！");
 			p_ptr->word_recall = 1;
 			p_ptr->recall_dungeon = select_dungeon;
 			max_dlv[p_ptr->recall_dungeon] = ((amt > d_info[select_dungeon].maxdepth) ? d_info[select_dungeon].maxdepth : ((amt < d_info[select_dungeon].mindepth) ? d_info[select_dungeon].mindepth : amt));
-			if (record_maxdeapth)
+			if (record_maxdepth)
 #ifdef JP
 				do_cmd_write_nikki(NIKKI_TRUMP, select_dungeon, "トランプタワーで");
 #else
@@ -4841,7 +4776,10 @@ msg_print("お金が足りません！");
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+		if (p_ptr->muta1 || p_ptr->muta2 ||
+		    (p_ptr->muta3 & ~MUT3_GOOD_LUCK) ||
+		    (p_ptr->pseikaku != SEIKAKU_LUCKY &&
+		     (p_ptr->muta3 & MUT3_GOOD_LUCK)))
 		{
 			while(!lose_mutation(0));
 			paid = TRUE;
@@ -4920,7 +4858,7 @@ void do_cmd_quest(void)
 {
 	energy_use = 100;
 
-	if (cave[py][px].feat != FEAT_QUEST_ENTER)
+	if (!cave_have_flag_bold(py, px, FF_QUEST_ENTER))
 	{
 #ifdef JP
 msg_print("ここにはクエストの入口はない。");
@@ -4948,9 +4886,9 @@ msg_print("ここにはクエストの入口はない。");
 
 		leave_quest_check();
 
+		if (quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
 		p_ptr->inside_quest = cave[py][px].special;
-		if(quest[leaving_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
-		p_ptr->leftbldg = TRUE;
+
 		p_ptr->leaving = TRUE;
 	}
 }
@@ -4969,11 +4907,10 @@ void do_cmd_bldg(void)
 
 	energy_use = 100;
 
-	if (!((cave[py][px].feat >= FEAT_BLDG_HEAD) &&
-		  (cave[py][px].feat <= FEAT_BLDG_TAIL)))
+	if (!cave_have_flag_bold(py, px, FF_BLDG))
 	{
 #ifdef JP
-msg_print("ここには建物はない。");
+		msg_print("ここには建物はない。");
 #else
 		msg_print("You see no building here.");
 #endif
@@ -4981,8 +4918,7 @@ msg_print("ここには建物はない。");
 		return;
 	}
 
-	which = (cave[py][px].feat - FEAT_BLDG_HEAD);
-	building_loc = which;
+	which = f_info[cave[py][px].feat].subtype;
 
 	bldg = &building[which];
 
@@ -4992,31 +4928,54 @@ msg_print("ここには建物はない。");
 	if ((which == 2) && (p_ptr->arena_number < 0))
 	{
 #ifdef JP
-msg_print("「敗者に用はない。」");
+		msg_print("「敗者に用はない。」");
 #else
 		msg_print("'There's no place here for a LOSER like you!'");
 #endif
 		return;
 	}
-	else if ((which == 2) && p_ptr->inside_arena && !p_ptr->exit_bldg)
+	else if ((which == 2) && p_ptr->inside_arena)
 	{
+		if (!p_ptr->exit_bldg)
+		{
 #ifdef JP
-prt("ゲートは閉まっている。モンスターがあなたを待っている！",0,0);
+			prt("ゲートは閉まっている。モンスターがあなたを待っている！", 0, 0);
 #else
-		prt("The gates are closed.  The monster awaits!", 0, 0);
+			prt("The gates are closed.  The monster awaits!", 0, 0);
 #endif
+		}
+		else
+		{
+			/* Don't save the arena as saved floor */
+			prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_NO_RETURN);
+
+			p_ptr->inside_arena = FALSE;
+			p_ptr->leaving = TRUE;
+
+			/* Re-enter the arena */
+			command_new = SPECIAL_KEY_BUILDING;
+
+			/* No energy needed to re-enter the arena */
+			energy_use = 0;
+		}
 
 		return;
 	}
-	else if ((which == 2) && p_ptr->inside_arena)
-	{
-		p_ptr->leaving = TRUE;
-		p_ptr->inside_arena = FALSE;
-	}
 	else if (p_ptr->inside_battle)
 	{
+		/* Don't save the arena as saved floor */
+		prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_NO_RETURN);
+
 		p_ptr->leaving = TRUE;
 		p_ptr->inside_battle = FALSE;
+
+		/* Re-enter the monster arena */
+		command_new = SPECIAL_KEY_BUILDING;
+
+		/* No energy needed to re-enter the arena */
+		energy_use = 0;
+
+		return;
 	}
 	else
 	{
@@ -5085,7 +5044,9 @@ prt("ゲートは閉まっている。モンスターがあなたを待っている！",0,0);
 
 	/* Reinit wilderness to activate quests ... */
 	if (reinit_wilderness)
+	{
 		p_ptr->leaving = TRUE;
+	}
 
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;

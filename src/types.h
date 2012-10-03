@@ -49,6 +49,21 @@
 
 
 /*
+ * Feature state structure
+ *
+ * - Action (FF_*)
+ * - Result (f_info ID)
+ */
+typedef struct feature_state feature_state;
+
+struct feature_state
+{
+	byte action;
+	s16b result;
+};
+
+
+/*
  * Information about terrain "features"
  */
 
@@ -56,21 +71,27 @@ typedef struct feature_type feature_type;
 
 struct feature_type
 {
-	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
+	u32b name;                /* Name (offset) */
+	u32b text;                /* Text (offset) */
+	s16b tag;                 /* Tag (offset) */
 
-	byte mimic;			/* Feature to mimic */
+	s16b mimic;               /* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+	u32b flags[FF_FLAG_SIZE]; /* Flags */
 
-	s16b unused;		/* Extra bytes (unused) */
+	u16b priority;            /* Map priority */
+	s16b destroyed;           /* Default destroyed state */
 
-	byte d_attr;		/* Default feature attribute */
-	byte d_char;		/* Default feature character */
+	feature_state state[MAX_FEAT_STATES];
 
+	byte subtype;
+	byte power;
 
-	byte x_attr;		/* Desired feature attribute */
-	byte x_char;		/* Desired feature character */
+	byte d_attr[F_LIT_MAX];   /* Default feature attribute */
+	byte d_char[F_LIT_MAX];   /* Default feature character */
+
+	byte x_attr[F_LIT_MAX];   /* Desired feature attribute */
+	byte x_char[F_LIT_MAX];   /* Desired feature character */
 };
 
 
@@ -86,6 +107,7 @@ struct object_kind
 {
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
+	u32b flavor_name;		/* Flavor name (offset) */
 
 	byte tval;			/* Object type */
 	byte sval;			/* Object sub type */
@@ -123,7 +145,7 @@ struct object_kind
 	byte x_char;		/* Desired object character */
 
 
-	byte flavor;			/* Special object flavor (or zero) */
+	s16b flavor;		/* Special object flavor (or zero) */
 
 	bool easy_know;		/* This object is always known (if aware) */
 
@@ -327,7 +349,8 @@ struct monster_race
 	s16b r_sights;			/* Count sightings of this monster */
 	s16b r_deaths;			/* Count deaths from this monster */
 
-	s16b r_pkills;			/* Count monsters killed in this life */
+	s16b r_pkills;			/* Count visible monsters killed in this life */
+	s16b r_akills;			/* Count all monsters killed in this life */
 	s16b r_tkills;			/* Count monsters killed in all lives */
 
 	byte r_wake;			/* Number of times woken up (?) */
@@ -422,7 +445,7 @@ struct cave_type
 {
 	u16b info;		/* Hack -- cave flags */
 
-	byte feat;		/* Hack -- feature type */
+	s16b feat;		/* Hack -- feature type */
 
 	s16b o_idx;		/* Object in this grid */
 
@@ -430,7 +453,7 @@ struct cave_type
 
 	s16b special;	/* Special cave info */
 
-	byte mimic;		/* Feature to mimic */
+	s16b mimic;		/* Feature to mimic */
 
 	byte cost;		/* Hack -- cost of flowing */
 	byte dist;		/* Hack -- distance from player */
@@ -535,27 +558,6 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
-
-#ifdef SCRIPT_OBJ_KIND
-	char *name;
-
-	byte d_attr;		/* Default object attribute */
-	byte d_char;		/* Default object character */
-
-
-	byte x_attr;		/* Desired object attribute */
-	byte x_char;		/* Desired object character */
-
-
-	byte flavor;			/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
-
-
-	bool aware;			/* The player is "aware" of the item's effects */
-
-	bool tried;			/* The player has "tried" one of the items */
-#endif /* SCRIPT_OBJ_KIND */
 };
 
 
@@ -584,17 +586,10 @@ struct monster_type
 	s16b maxhp;		/* Max Hit points */
 	s16b max_maxhp;		/* Max Max Hit points */
 
-	s16b csleep;		/* Inactive counter */
+	s16b mtimed[MAX_MTIMED];	/* Timed status counter */
 
 	byte mspeed;	        /* Monster "speed" */
 	s16b energy_need;	/* Monster "energy" */
-
-	byte fast;		/* Monster is stunned */
-	byte slow;		/* Monster is stunned */
-	byte stunned;		/* Monster is stunned */
-	byte confused;		/* Monster is confused */
-	byte monfear;		/* Monster is afraid */
-	byte invulner;          /* Monster is temporarily invulnerable */
 
 	byte cdis;		/* Current dis from player */
 
@@ -612,23 +607,9 @@ struct monster_type
 
 	u32b exp;
 
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif /* WDT_TRACK_OPTIONS */
-
-#ifdef DRS_SMART_OPTIONS
-
 	u32b smart;			/* Field for "smart_learn" */
 
-#endif /* DRS_SMART_OPTIONS */
-
+	s16b parent_m_idx;
 };
 
 
@@ -990,9 +971,10 @@ struct player_type
 
 	s32b au;			/* Current Gold */
 
+	s32b max_max_exp;	/* Max max experience (only to calculate score) */
 	s32b max_exp;		/* Max experience */
 	s32b exp;			/* Cur experience */
-	u16b exp_frac;		/* Cur exp frac (times 2^16) */
+	u32b exp_frac;		/* Cur exp frac (times 2^16) */
 
 	s16b lev;			/* Level */
 
@@ -1002,19 +984,17 @@ struct player_type
 	s16b inside_quest;		/* Inside quest level */
 	bool inside_battle;		/* Is character inside tougijou? */
 
-	s16b rewards[MAX_BACT];	/* Status of rewards in town */
-
 	s32b wilderness_x;	/* Coordinates in the wilderness */
 	s32b wilderness_y;
 	bool wild_mode;
 
-	s16b mhp;			/* Max hit pts */
-	s16b chp;			/* Cur hit pts */
-	u16b chp_frac;		/* Cur hit frac (times 2^16) */
+	s32b mhp;			/* Max hit pts */
+	s32b chp;			/* Cur hit pts */
+	u32b chp_frac;		/* Cur hit frac (times 2^16) */
 
-	s16b msp;			/* Max mana pts */
-	s16b csp;			/* Cur mana pts */
-	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+	s32b msp;			/* Max mana pts */
+	s32b csp;			/* Cur mana pts */
+	u32b csp_frac;		/* Cur mana frac (times 2^16) */
 
 	s16b max_plv;		/* Max Player Level */
 
@@ -1065,7 +1045,7 @@ struct player_type
 	s16b tim_regen;
 	s16b kabenuke;
 	s16b tim_stealth;
-	s16b tim_ffall;
+	s16b tim_levitation;
 	s16b tim_sh_touki;
 	s16b lightspeed;
 	s16b tsubureru;
@@ -1124,6 +1104,7 @@ struct player_type
 
 	s16b player_hp[PY_MAX_LEVEL];
 	char died_from[80];   	  /* What killed the player */
+	cptr last_message;        /* Last message on death or retirement */
 	char history[4][60];  	  /* Textual "history" for the Player */
 
 	u16b total_winner;	  /* Total winner */
@@ -1153,13 +1134,18 @@ struct player_type
 	bool dtrap;               /* Whether you are on trap-safe grids */
 	s16b floor_id;            /* Current floor location */ 
 
+	bool autopick_autoregister; /* auto register is in-use or not */
+
+	byte feeling;		/* Most recent dungeon feeling */
+	s32b feeling_turn;	/* The turn of the last dungeon feeling */
+
+
 	/*** Temporary fields ***/
 
 	bool playing;			/* True if player is playing */
 	bool leaving;			/* True if player is leaving */
 
 	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
-	byte leftbldg;			/* did we just leave a special area? -KMW- */
 
 	bool leaving_dungeon;	/* True if player is leaving the dungeon */
 	bool teleport_town;
@@ -1264,7 +1250,7 @@ struct player_type
 	u32b cursed;            /* Player is cursed */
 
 	bool can_swim;		/* No damage falling */
-	bool ffall;		/* No damage falling */
+	bool levitation;		/* No damage falling */
 	bool lite;		/* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */
@@ -1379,7 +1365,6 @@ struct birther
 
 	char history[4][60];
 
-	byte quests;
 	bool quick_ok;
 };
 
@@ -1467,14 +1452,14 @@ struct building_type
 typedef struct border_type border_type;
 struct border_type
 {
-	byte 	north[MAX_WID];
-	byte 	south[MAX_WID];
-	byte 	east[MAX_HGT];
-	byte 	west[MAX_HGT];
-	byte	north_west;
-	byte	north_east;
-	byte	south_west;
-	byte	south_east;
+	s16b north[MAX_WID];
+	s16b south[MAX_WID];
+	s16b east[MAX_HGT];
+	s16b west[MAX_HGT];
+	s16b north_west;
+	s16b north_east;
+	s16b south_west;
+	s16b south_east;
 };
 
 
@@ -1579,6 +1564,15 @@ struct high_score
 	char how[40];		/* Method of death (string) */
 };
 
+
+typedef struct
+{
+	s16b feat;    /* Feature tile */
+	byte percent; /* Chance of type */
+}
+feat_prob;
+
+
 /* A structure for the != dungeon types */
 typedef struct dungeon_info_type dungeon_info_type;
 struct dungeon_info_type {
@@ -1588,25 +1582,16 @@ struct dungeon_info_type {
 	byte dy;
 	byte dx;
 
-	byte floor1;		/* Floor tile 1 */
-	byte floor_percent1;	/* Chance of type 1 */
-	byte floor2;		/* Floor tile 2 */
-	byte floor_percent2;	/* Chance of type 2 */
-	byte floor3;		/* Floor tile 3 */
-	byte floor_percent3;	/* Chance of type 3 */
-	byte outer_wall;	/* Outer wall tile */
-	byte inner_wall;	/* Inner wall tile */
-	s16b stream1;		/* stream tile */
-	s16b stream2;		/* stream tile */
-	byte fill_type1;	/* Cave tile 1 */
-	byte fill_percent1;	/* Chance of type 1 */
-	byte fill_type2;	/* Cave tile 2 */
-	byte fill_percent2;	/* Chance of type 2 */
-	byte fill_type3;	/* Cave tile 3 */
-	byte fill_percent3;	/* Chance of type 3 */
-	s16b mindepth;		/* Minimal depth */
-	s16b maxdepth;		/* Maximal depth */
-	byte min_plev;		/* Minimal plev needed to enter -- it's an anti-cheating mesure */
+	feat_prob floor[DUNGEON_FEAT_PROB_NUM]; /* Floor probability */
+	feat_prob fill[DUNGEON_FEAT_PROB_NUM];  /* Cave wall probability */
+	s16b outer_wall;                        /* Outer wall tile */
+	s16b inner_wall;                        /* Inner wall tile */
+	s16b stream1;                           /* stream tile */
+	s16b stream2;                           /* stream tile */
+
+	s16b mindepth;         /* Minimal depth */
+	s16b maxdepth;         /* Maximal depth */
+	byte min_plev;         /* Minimal plev needed to enter -- it's an anti-cheating mesure */
 	s16b pit;
 	s16b nest;
 	byte mode;		/* Mode of combinaison of the monster flags */
@@ -1673,8 +1658,8 @@ typedef struct
 typedef struct
 {
 	u16b info;
-	byte feat;
-	byte mimic;
+	s16b feat;
+	s16b mimic;
 	s16b special;
 	u16b occurrence;
 } cave_template_type;
@@ -1689,3 +1674,18 @@ typedef struct
 	byte tval;  /* tval of prize (0 means no prize) */
 	byte sval;  /* sval of prize */
 } arena_type;
+
+
+/*
+ * A structure type for doors
+ */
+typedef struct
+{
+	s16b open;
+	s16b broken;
+	s16b closed;
+	s16b locked[MAX_LJ_DOORS];
+	s16b num_locked;
+	s16b jammed[MAX_LJ_DOORS];
+	s16b num_jammed;
+} door_type;

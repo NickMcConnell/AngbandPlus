@@ -18,8 +18,7 @@ between the two most recent characters, until you are presented with a
 character that you feel comfortable with.
 
 You may start the entire process over at any time by pressing 'S' at
-any prompt (with the exception of the prompt for the number of random
-quests (see below [c])).
+any prompt.
 
 
 ***** <CharAttributes>
@@ -125,30 +124,20 @@ class.  Abilities may be adjusted by high or low stats, and may
 increase with the level of the character (see below for details [d]).
 
 
-***** <StartupOptions>
-=== Start-up Options ===
+***** <BirthOptions>
+=== Birth Options ===
 
 During character generation you may press '=' at any time to access
-the start-up options.  A more detailed description of the various
-start-up options can be found in the section on the Options Page (see
-option.txt#StartUp [e]).  Some options have "(*)" mark that means
+the birth options.  A more detailed description of the various birth
+options can be found in the section on the Options Page (see
+option.txt#Birth [e]).  Some options have "(*)" mark that means
 these options effect to the difficulty of the game and effect to
 estimation of your score.
 
-Perhaps one of the most important features of the start-up options is
-the ability to decide what type of town level you want.  The various
-town options are discussed on the Town page (see dungeon.txt#TownLevel
+Perhaps one of the most important features of the birth options is the
+ability to decide what type of town level you want.  The various town
+options are discussed on the Town page (see dungeon.txt#TownLevel
 [f]).
-
-
-***** <RandomQuests>
-=== Random Quests ===
-
-Once you have chosen your race, class, personality and (if applicable)
-your magic realm(s), you will be asked how many random quests you wish
-to be assigned.  You may choose any number between 0 and 10.  A more
-detailed discussion of random quests can be found in the Dungeon
-section (see dungeon.txt#RandomQuests [g]).
 
 
 ***** <AutoRoller>
@@ -197,7 +186,7 @@ The computer will randomly generate background information text of the
 character for you.  But you can modify or rewrite it after rolling up
 the character in Background edit-mode.  Use key-pad or cursor keys to
 move cursor, the Enter key to finish edit-mode, and the Escape key to
-finish edit-mode with discarding changes. Use Ctrl-F key to load the
+finish edit-mode with discarding changes. Use Ctrl-A key to load the
 background information text from "histpref-<<playername>>.prf" or
 "histpref.prf" on lib/user.
 
@@ -213,7 +202,7 @@ long text will cut down.
 Once you have generated a character and dead or quit game, you will be
 asked whether you want to use quick start or not at start up.  If you
 choose to use quick start, you get new character with exactly same
-race, class, stat, background and etc.. as your last chatacter.
+race, class, stat, background and etc. as your last character.
 
 
 ***** <PrimaryStats>
@@ -227,7 +216,7 @@ of 18, and even higher, into the "percentile" range, represented as
 "18/01" through "18/130".  True maximum of each base stat is randomly
 ranging from 18/70 to 18/130, and average of all your stat maximums
 are always 18/100.  These maximums are chosen randomly when your
-character is created or your character quaff a Potion of New Life.
+character is created or your character quaffs a Potion of New Life.
 Actually, every stat can be raised even above these maximum of base
 stat by modification from race, class, personality and magical
 equipment, up to a pure maximum of 18/220, which is represented as
@@ -375,7 +364,7 @@ Infra-vision
      distance.  This ability works equally well with or with out a
      light source.  The majority of Hengband's creatures are
      cold-blooded, and will not be detected unless lit up by a light
-     source.  Most non human races have innate infra-vision ability.
+     source.  Most non-human races have innate infra-vision ability.
      Humans can gain infra-vision only if it is magically enhanced.
 
 
@@ -422,8 +411,7 @@ Updated    : Hengband 1.5.2
 ***** [b] magic.hlp
 ***** [c] birth.txt#PrimaryStats
 ***** [d] birth.txt#PrimarySkills
-***** [e] option.txt#StartUp
+***** [e] option.txt#Birth
 ***** [f] town.txt#TownLevel
-***** [g] dungeon.txt#RandomQuests
 ***** [h] raceclas.txt#StatBonusTable
 ***** [i] monster.txt#Pets

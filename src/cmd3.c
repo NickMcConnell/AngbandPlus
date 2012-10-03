@@ -47,12 +47,11 @@ void do_cmd_inven(void)
 #ifdef JP
 	sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	    lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
-/ 2));
+	    (p_ptr->total_weight * 100) / weight_limit());
 #else
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	    (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
+	    (p_ptr->total_weight * 100) / weight_limit());
 #endif
 
 
@@ -122,12 +121,11 @@ void do_cmd_equip(void)
 #ifdef JP
 	sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
 	    lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
-/ 2));
+	    (p_ptr->total_weight * 100) / weight_limit());
 #else
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%ld%% of capacity). Command: ",
 	    (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
+	    (p_ptr->total_weight * 100) / weight_limit());
 #endif
 
 
@@ -201,6 +199,8 @@ static bool item_tester_hook_melee_weapon(object_type *o_ptr)
 }
 
 
+bool select_ring_slot = FALSE;
+
 /*
  * Wield or wear a single item from the pack or floor
  */
@@ -218,6 +218,8 @@ void do_cmd_wield(void)
 	char o_name[MAX_NLEN];
 
 	cptr q, s;
+
+	int need_switch_wielding = 0;
 
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{
@@ -253,123 +255,144 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
-#if 1 /* EASY_RING -- TNB */
 
-	if ((o_ptr->tval == TV_RING) && inventory[INVEN_LEFT].k_idx &&
-		inventory[INVEN_RIGHT].k_idx)
+	switch (o_ptr->tval)
 	{
+	/* Shields and some misc. items */
+	case TV_CAPTURE:
+	case TV_SHIELD:
+	case TV_CARD:
+		/* Dual wielding */
+		if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
+		{
+			/* Restrict the choices */
+			item_tester_hook = item_tester_hook_melee_weapon;
+			item_tester_no_ryoute = TRUE;
+
+			/* Choose a weapon from the equipment only */
+#ifdef JP
+			q = "どちらの武器と取り替えますか?";
+			s = "おっと。";
+#else
+			q = "Replace which weapon? ";
+			s = "Oops.";
+#endif
+
+			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
+			if (slot == INVEN_RARM) need_switch_wielding = INVEN_LARM;
+		}
+
+		else if (buki_motteruka(INVEN_LARM)) slot = INVEN_RARM;
+
+		/* Both arms are already used by non-weapon */
+		else if (inventory[INVEN_RARM].k_idx && !object_is_melee_weapon(&inventory[INVEN_RARM]) &&
+		         inventory[INVEN_LARM].k_idx && !object_is_melee_weapon(&inventory[INVEN_LARM]))
+		{
+			/* Restrict the choices */
+			item_tester_hook = item_tester_hook_mochikae;
+
+			/* Choose a hand */
+#ifdef JP
+			q = "どちらの手に装備しますか?";
+			s = "おっと。";
+#else
+			q = "Equip which hand? ";
+			s = "Oops.";
+#endif
+
+			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
+		}
+		break;
+
+	/* Melee weapons */
+	case TV_DIGGING:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+		/* Asking for dual wielding */
+		if (slot == INVEN_LARM)
+		{
+#ifdef JP
+			if (!get_check("二刀流で戦いますか？")) slot = INVEN_RARM;
+#else
+			if (!get_check("Dual wielding? ")) slot = INVEN_RARM;
+#endif
+		}
+
+		else if (!inventory[INVEN_RARM].k_idx && buki_motteruka(INVEN_LARM))
+		{
+#ifdef JP
+			if (!get_check("二刀流で戦いますか？")) slot = INVEN_LARM;
+#else
+			if (!get_check("Dual wielding? ")) slot = INVEN_LARM;
+#endif
+		}
+
+		/* Both arms are already used */
+		else if (inventory[INVEN_LARM].k_idx && inventory[INVEN_RARM].k_idx)
+		{
+			/* Restrict the choices */
+			item_tester_hook = item_tester_hook_mochikae;
+
+			/* Choose a hand */
+#ifdef JP
+			q = "どちらの手に装備しますか?";
+			s = "おっと。";
+#else
+			q = "Equip which hand? ";
+			s = "Oops.";
+#endif
+
+			if (!get_item(&slot, q, s, (USE_EQUIP))) return;
+			if ((slot == INVEN_LARM) && !buki_motteruka(INVEN_RARM))
+				need_switch_wielding = INVEN_RARM;
+		}
+		break;
+
+	/* Rings */
+	case TV_RING:
+		/* Choose a ring slot */
+		if (inventory[INVEN_LEFT].k_idx && inventory[INVEN_RIGHT].k_idx)
+		{
+#ifdef JP
+			q = "どちらの指輪と取り替えますか?";
+#else
+			q = "Replace which ring? ";
+#endif
+		}
+		else
+		{
+#ifdef JP
+			q = "どちらの手に装備しますか?";
+#else
+			q = "Equip which hand? ";
+#endif
+		}
+
+#ifdef JP
+		s = "おっと。";
+#else
+		s = "Oops.";
+#endif
+
 		/* Restrict the choices */
-		item_tester_tval = TV_RING;
+		select_ring_slot = TRUE;
 		item_tester_no_ryoute = TRUE;
 
-		/* Choose a ring from the equipment only */
-#ifdef JP
-q = "どちらの指輪と取り替えますか?";
-#else
-		q = "Replace which ring? ";
-#endif
-
-#ifdef JP
-s = "おっと。";
-#else
-		s = "Oops.";
-#endif
-
 		if (!get_item(&slot, q, s, (USE_EQUIP)))
-			return;
-	}
-
-#endif /* EASY_RING -- TNB */
-
-	if (((o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CARD) || (o_ptr->tval == TV_CAPTURE)) &&
-		buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
-	{
-		/* Restrict the choices */
-		item_tester_hook = item_tester_hook_melee_weapon;
-		item_tester_no_ryoute = TRUE;
-
-		/* Choose a weapon from the equipment only */
-#ifdef JP
-q = "どちらの武器と取り替えますか?";
-#else
-		q = "Replace which weapon? ";
-#endif
-
-#ifdef JP
-s = "おっと。";
-#else
-		s = "Oops.";
-#endif
-
-		if (!get_item(&slot, q, s, (USE_EQUIP)))
-			return;
-		if (slot == INVEN_RARM)
 		{
-			object_type *or_ptr = &inventory[INVEN_RARM];
-			object_type *ol_ptr = &inventory[INVEN_LARM];
-			object_type *otmp_ptr;
-			object_type object_tmp;
-			char ol_name[MAX_NLEN];
-
-			otmp_ptr = &object_tmp;
-
-			object_desc(ol_name, ol_ptr, FALSE, 0);
-
-			object_copy(otmp_ptr, ol_ptr);
-			object_copy(ol_ptr, or_ptr);
-			object_copy(or_ptr, otmp_ptr);
-#ifdef JP
-			msg_format("%sを%sに構えなおした。", ol_name, left_hander ? "左手" : "右手");
-#else
-			msg_format("You wield %s at %s hand.", ol_name, left_hander ? "left" : "right");
-#endif
-
-			slot = INVEN_LARM;
-		}
-	}
-
-	/* 二刀流にするかどうか */
-	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) && (slot == INVEN_LARM))
-	{
-#ifdef JP
-		if (!get_check("二刀流で戦いますか？"))
-#else
-		if (!get_check("Dual wielding? "))
-#endif
-		{
-			slot = INVEN_RARM;
-		}
-	}
-
-	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) &&
-	    inventory[INVEN_LARM].k_idx &&
-		inventory[INVEN_RARM].k_idx)
-	{
-		/* Restrict the choices */
-		item_tester_hook = item_tester_hook_mochikae;
-
-		/* Choose a ring from the equipment only */
-#ifdef JP
-q = "どちらの手に装備しますか?";
-#else
-		q = "Equip which hand? ";
-#endif
-
-#ifdef JP
-s = "おっと。";
-#else
-		s = "Oops.";
-#endif
-
-		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			select_ring_slot = FALSE;
 			return;
+		}
+		select_ring_slot = FALSE;
+		break;
 	}
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+	if (object_is_cursed(&inventory[slot]))
 	{
 		/* Describe it */
-		object_desc(o_name, &inventory[slot], FALSE, 0);
+		object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 		/* Message */
 #ifdef JP
@@ -380,18 +403,17 @@ s = "おっと。";
 			   o_name, describe_use(slot));
 #endif
 
-
 		/* Cancel the command */
 		return;
 	}
 
-	if (cursed_p(o_ptr) && confirm_wear &&
-	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+	if (object_is_cursed(o_ptr) && confirm_wear &&
+	    (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
 		char dummy[MAX_NLEN+80];
 
 		/* Describe it */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 #ifdef JP
 sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
@@ -399,17 +421,15 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
 #endif
 
-
-		if (!get_check(dummy))
-			return;
+		if (!get_check(dummy)) return;
 	}
 
-	if ((o_ptr->name1 == ART_STONEMASK) && object_known_p(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
+	if ((o_ptr->name1 == ART_STONEMASK) && object_is_known(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
 	{
 		char dummy[MAX_NLEN+80];
 
 		/* Describe it */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
 #ifdef JP
 sprintf(dummy, "%sを装備すると吸血鬼になります。よろしいですか？", o_name);
@@ -418,9 +438,29 @@ sprintf(dummy, "%sを装備すると吸血鬼になります。よろしいですか？", o_name);
 		sprintf(dummy, "Do you become a vampire?");
 #endif
 
+		if (!get_check(dummy)) return;
+	}
 
-		if (!get_check(dummy))
-			return;
+	if (need_switch_wielding && !object_is_cursed(&inventory[need_switch_wielding]))
+	{
+		object_type *slot_o_ptr = &inventory[slot];
+		object_type *switch_o_ptr = &inventory[need_switch_wielding];
+		object_type object_tmp;
+		object_type *otmp_ptr = &object_tmp;
+		char switch_name[MAX_NLEN];
+
+		object_desc(switch_name, switch_o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+		object_copy(otmp_ptr, switch_o_ptr);
+		object_copy(switch_o_ptr, slot_o_ptr);
+		object_copy(slot_o_ptr, otmp_ptr);
+#ifdef JP
+		msg_format("%sを%sに構えなおした。", switch_name, (slot == INVEN_RARM) ? (left_hander ? "左手" : "右手") : (left_hander ? "右手" : "左手"));
+#else
+		msg_format("You wield %s at %s hand.", switch_name, (slot == INVEN_RARM) ? (left_hander ? "left" : "right") : (left_hander ? "right" : "left"));
+#endif
+
+		slot = need_switch_wielding;
 	}
 
 	/* Check if completed a quest */
@@ -443,7 +483,13 @@ msg_print("クエストを達成した！");
 		}
 	}
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN) identify_item(o_ptr);
+	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	{
+		identify_item(o_ptr);
+
+		/* Auto-inscription */
+		autopick_alter_item(item, FALSE);
+	}
 
 	/* Take a turn */
 	energy_use = 100;
@@ -484,79 +530,76 @@ msg_print("クエストを達成した！");
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
 
+	/* Player touches it */
+	o_ptr->marked |= OM_TOUCHED;
+
 	/* Increase the weight */
 	p_ptr->total_weight += q_ptr->weight;
 
 	/* Increment the equip counter by hand */
 	equip_cnt++;
 
+#ifdef JP
+#define STR_WIELD_RARM "%s(%c)を右手に装備した。"
+#define STR_WIELD_LARM "%s(%c)を左手に装備した。"
+#define STR_WIELD_ARMS "%s(%c)を両手で構えた。"
+#else
+#define STR_WIELD_RARM "You are wielding %s (%c) in your right hand."
+#define STR_WIELD_LARM "You are wielding %s (%c) in your left hand."
+#define STR_WIELD_ARMS "You are wielding %s (%c) with both hands."
+#endif
+
 	/* Where is the item now */
-	if (slot == INVEN_RARM)
+	switch (slot)
 	{
-		if((o_ptr->tval != TV_SHIELD) && (o_ptr->tval != TV_CAPTURE) && (o_ptr->tval != TV_CARD) && (empty_hands(FALSE) & 0x00000001) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
-#ifdef JP
-			act = "を両手で構えた";
-#else
-			act = "You are wielding";
-#endif
+	case INVEN_RARM:
+		if (object_allow_two_hands_wielding(o_ptr) && (empty_hands(FALSE) == EMPTY_HAND_LARM) && CAN_TWO_HANDS_WIELDING())
+			act = STR_WIELD_ARMS;
 		else
-#ifdef JP
-			act = (left_hander ? "を左手に装備した" : "を右手に装備した");
-#else
-			act = "You are wielding";
-#endif
+			act = (left_hander ? STR_WIELD_LARM : STR_WIELD_RARM);
+		break;
 
-	}
-	else if (slot == INVEN_LARM)
-	{
-#ifdef JP
-		act = (left_hander ? "を右手に装備した" : "を左手に装備した");
-#else
-		act = "You are wielding";
-#endif
+	case INVEN_LARM:
+		if (object_allow_two_hands_wielding(o_ptr) && (empty_hands(FALSE) == EMPTY_HAND_RARM) && CAN_TWO_HANDS_WIELDING())
+			act = STR_WIELD_ARMS;
+		else
+			act = (left_hander ? STR_WIELD_RARM : STR_WIELD_LARM);
+		break;
 
-	}
-	else if (slot == INVEN_BOW)
-	{
+	case INVEN_BOW:
 #ifdef JP
-		act = "を射撃用に装備した";
+		act = "%s(%c)を射撃用に装備した。";
 #else
-		act = "You are shooting with";
+		act = "You are shooting with %s (%c).";
 #endif
+		break;
 
-	}
-	else if (slot == INVEN_LITE)
-	{
+	case INVEN_LITE:
 #ifdef JP
-		act = "を光源にした";
+		act = "%s(%c)を光源にした。";
 #else
-		act = "Your light source is";
+		act = "Your light source is %s (%c).";
 #endif
+		break;
 
-	}
-	else
-	{
+	default:
 #ifdef JP
-		act = "を装備した";
+		act = "%s(%c)を装備した。";
 #else
-		act = "You are wearing";
+		act = "You are wearing %s (%c).";
 #endif
-
+		break;
 	}
 
 	/* Describe the result */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Message */
-#ifdef JP
-	msg_format("%s(%c)%s。", o_name, index_to_label(slot), act );
-#else
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
-#endif
+	msg_format(act, o_name, index_to_label(slot));
 
 
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		/* Warn the player */
 #ifdef JP
@@ -572,63 +615,11 @@ msg_print("クエストを達成した！");
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
+	/* The Stone Mask make the player turn into a vampire! */
 	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
 	{
-		int h_percent;
-		if (p_ptr->prace < 32)
-		{
-			p_ptr->old_race1 |= 1L << p_ptr->prace;
-		}
-		else
-		{
-			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
-		}
-		p_ptr->prace = RACE_VAMPIRE;
-#ifdef JP
-		msg_format("あなたは吸血鬼に変化した！");
-#else
-		msg_format("You polymorphed into a vampire!");
-#endif
-
-		rp_ptr = &race_info[p_ptr->prace];
-
-		/* Experience factor */
-		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
-
-		/* Calculate the height/weight for males */
-		if (p_ptr->psex == SEX_MALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
-			p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
-					    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
-		}
-
-		/* Calculate the height/weight for females */
-		else if (p_ptr->psex == SEX_FEMALE)
-		{
-			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
-			p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
-					    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
-		}
-
-		check_experience();
-
-		/* Hitdice */
-		if (p_ptr->pclass == CLASS_SORCERER)
-			p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
-		else
-			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
-
-		do_cmd_rerate(FALSE);
-
-		p_ptr->redraw |= (PR_BASIC);
-
-		p_ptr->update |= (PU_BONUS);
-
-		handle_stuff();
-		lite_spot(py, px);
+		/* Turn into a vampire */
+		change_race(RACE_VAMPIRE, "");
 	}
 
 	/* Recalculate bonuses */
@@ -651,56 +642,74 @@ msg_print("クエストを達成した！");
 
 void kamaenaoshi(int item)
 {
-	object_type *o_ptr, *o2_ptr;
+	object_type *o_ptr, *new_o_ptr;
 	char o_name[MAX_NLEN];
 
-	if ((item == INVEN_RARM) && buki_motteruka(INVEN_LARM))
+	if (item == INVEN_RARM)
+	{
+		if (buki_motteruka(INVEN_LARM))
+		{
+			o_ptr = &inventory[INVEN_LARM];
+			object_desc(o_name, o_ptr, 0);
+
+			if (!object_is_cursed(o_ptr))
+			{
+				new_o_ptr = &inventory[INVEN_RARM];
+				object_copy(new_o_ptr, o_ptr);
+				p_ptr->total_weight += o_ptr->weight;
+				inven_item_increase(INVEN_LARM, -((int)o_ptr->number));
+				inven_item_optimize(INVEN_LARM);
+				if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
+#ifdef JP
+					msg_format("%sを両手で構えた。", o_name);
+#else
+					msg_format("You are wielding %s with both hands.", o_name);
+#endif
+				 else
+#ifdef JP
+					msg_format("%sを%sで構えた。", o_name, (left_hander ? "左手" : "右手"));
+#else
+					msg_format("You are wielding %s in your %s hand.", o_name, (left_hander ? "left":"right"));
+#endif
+			}
+			else
+			{
+				if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
+#ifdef JP
+					msg_format("%sを両手で構えた。", o_name);
+#else
+					msg_format("You are wielding %s with both hands.", o_name);
+#endif
+			}
+		}
+	}
+	else if (item == INVEN_LARM)
 	{
 		o_ptr = &inventory[INVEN_RARM];
-		o2_ptr = &inventory[INVEN_LARM];
-		object_copy(o_ptr, o2_ptr);
-		p_ptr->total_weight += o2_ptr->weight;
-		inven_item_increase(INVEN_LARM,-1);
-		inven_item_optimize(INVEN_LARM);
-		object_desc(o_name, o_ptr, TRUE, 3);
-		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+		if (o_ptr->k_idx) object_desc(o_name, o_ptr, 0);
+
+		if (buki_motteruka(INVEN_RARM))
+		{
+			if (object_allow_two_hands_wielding(o_ptr) && CAN_TWO_HANDS_WIELDING())
 #ifdef JP
-			msg_format("%sを両手で構えた。", o_name );
+				msg_format("%sを両手で構えた。", o_name);
 #else
-			msg_format("You are wielding %s with two-handed.", o_name );
+				msg_format("You are wielding %s with both hands.", o_name);
 #endif
-		 else
+		}
+		else if (!(empty_hands(FALSE) & EMPTY_HAND_RARM) && !object_is_cursed(o_ptr))
+		{
+			new_o_ptr = &inventory[INVEN_LARM];
+			object_copy(new_o_ptr, o_ptr);
+			p_ptr->total_weight += o_ptr->weight;
+			inven_item_increase(INVEN_RARM, -((int)o_ptr->number));
+			inven_item_optimize(INVEN_RARM);
 #ifdef JP
-			msg_format("%sを%sで構えた。", o_name, (left_hander ? "左手" : "右手"));
+			msg_format("%sを持ち替えた。", o_name);
 #else
-			msg_format("You are wielding %s with %s hand.", o_name, (left_hander ? "left":"right") );
+			msg_format("You switched hand of %s.", o_name);
 #endif
-	}
-	else if ((item == INVEN_LARM) && buki_motteruka(INVEN_RARM))
-	{
-		o_ptr = &inventory[INVEN_RARM];
-		object_desc(o_name, o_ptr, TRUE, 3);
-		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
-#ifdef JP
-			msg_format("%sを両手で構えた。", o_name );
-#else
-			msg_format("You are wielding %s with two-handed.", o_name );
-#endif
-	}
-	else if ((item == INVEN_LARM) && !(empty_hands(FALSE) & 0x0002))
-	{
-		o_ptr = &inventory[INVEN_LARM];
-		o2_ptr = &inventory[INVEN_RARM];
-		object_copy(o_ptr, o2_ptr);
-		p_ptr->total_weight += o2_ptr->weight;
-		inven_item_increase(INVEN_RARM,-1);
-		inven_item_optimize(INVEN_RARM);
-		object_desc(o_name, o_ptr, TRUE, 3);
-#ifdef JP
-		msg_format("%sを持ち替えた。", o_name );
-#else
-		msg_format("You switched hand of %s.", o_name );
-#endif
+		}
 	}
 }
 
@@ -747,7 +756,7 @@ void do_cmd_takeoff(void)
 
 
 	/* Item is cursed */
-	if (cursed_p(o_ptr))
+	if (object_is_cursed(o_ptr))
 	{
 		if ((o_ptr->curse_flags & TRC_PERMA_CURSE) || (p_ptr->pclass != CLASS_BERSERKER))
 		{
@@ -858,7 +867,7 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_RARM) && cursed_p(o_ptr))
+	if ((item >= INVEN_RARM) && object_is_cursed(o_ptr))
 	{
 		/* Oops */
 #ifdef JP
@@ -890,9 +899,11 @@ void do_cmd_drop(void)
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
 
-	if ((item == INVEN_RARM) || (item == INVEN_LARM)) kamaenaoshi(item);
-
-	if (item >= INVEN_RARM) calc_android_exp();
+	if (item >= INVEN_RARM)
+	{
+		kamaenaoshi(item);
+		calc_android_exp();
+	}
 
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
@@ -906,7 +917,7 @@ static bool high_level_book(object_type *o_ptr)
 	    (o_ptr->tval == TV_CHAOS_BOOK) ||
 	    (o_ptr->tval == TV_DEATH_BOOK) ||
 	    (o_ptr->tval == TV_TRUMP_BOOK) ||
-	    (o_ptr->tval == TV_ENCHANT_BOOK) ||
+	    (o_ptr->tval == TV_CRAFT_BOOK) ||
 	    (o_ptr->tval == TV_DAEMON_BOOK) ||
 	    (o_ptr->tval == TV_CRUSADE_BOOK) ||
 	    (o_ptr->tval == TV_MUSIC_BOOK))
@@ -973,6 +984,64 @@ void do_cmd_destroy(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Verify unless quantity given beforehand */
+	if (!force && (confirm_destroy || (object_value(o_ptr) > 0)))
+	{
+		object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+
+		/* Make a verification */
+		sprintf(out_val, 
+#ifdef JP
+			"本当に%sを壊しますか? [y/n/Auto]",
+#else
+			"Really destroy %s? [y/n/Auto]",
+#endif
+			o_name);
+
+		msg_print(NULL);
+
+		/* HACK : Add the line to message buffer */
+		message_add(out_val);
+		p_ptr->window |= (PW_MESSAGE);
+		window_stuff();
+
+		/* Get an acceptable answer */
+		while (TRUE)
+		{
+			char i;
+
+			/* Prompt */
+			prt(out_val, 0, 0);
+
+			i = inkey();
+
+			/* Erase the prompt */
+			prt("", 0, 0);
+
+
+			if (i == 'y' || i == 'Y')
+			{
+				break;
+			}
+			if (i == ESCAPE || i == 'n' || i == 'N')
+			{
+				/* Cancel */
+				return;
+			}
+			if (i == 'A')
+			{
+				/* Add an auto-destroy preference line */
+				if (autopick_autoregister(o_ptr))
+				{
+					/* Auto-destroy it */
+					autopick_alter_item(item, TRUE);
+				}
+
+				/* The object is already destroyed. */
+				return;
+			}
+		} /* while (TRUE) */
+	}
 
 	/* See how many items */
 	if (o_ptr->number > 1)
@@ -988,24 +1057,8 @@ void do_cmd_destroy(void)
 	/* Describe the object */
 	old_number = o_ptr->number;
 	o_ptr->number = amt;
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 	o_ptr->number = old_number;
-
-	/* Verify unless quantity given */
-	if (!force)
-	{
-		if (confirm_destroy || (object_value(o_ptr) > 0))
-		{
-			/* Make a verification */
-#ifdef JP
-		sprintf(out_val, "本当に%sを壊しますか? ", o_name);
-#else
-			sprintf(out_val, "Really destroy %s? ", o_name);
-#endif
-
-			if (!get_check(out_val)) return;
-		}
-	}
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1174,7 +1227,7 @@ void do_cmd_observe(void)
 
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 
 	/* Describe */
 #ifdef JP
@@ -1185,9 +1238,9 @@ void do_cmd_observe(void)
 
 	/* Describe it fully */
 #ifdef JP
-	if (!screen_object(o_ptr, TRUE)) msg_print("特に変わったところはないようだ。");
+	if (!screen_object(o_ptr, SCROBJ_FORCE_DETAIL)) msg_print("特に変わったところはないようだ。");
 #else
-	if (!screen_object(o_ptr, TRUE)) msg_print("You see nothing special.");
+	if (!screen_object(o_ptr, SCROBJ_FORCE_DETAIL)) msg_print("You see nothing special.");
 #endif
 
 }
@@ -1305,7 +1358,7 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 2);
+	object_desc(o_name, o_ptr, OD_OMIT_INSCRIPTION);
 
 	/* Message */
 #ifdef JP
@@ -1932,6 +1985,7 @@ void do_cmd_query_symbol(void)
 	bool	all = FALSE;
 	bool	uniq = FALSE;
 	bool	norm = FALSE;
+	bool	ride = FALSE;
 	char    temp[80] = "";
 
 	bool	recall = FALSE;
@@ -1941,11 +1995,10 @@ void do_cmd_query_symbol(void)
 
 	/* Get a character, or abort */
 #ifdef JP
-	if (!get_com("知りたい文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前): ", &sym, FALSE)) return;
+	if (!get_com("知りたい文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^R乗馬,^M名前): ", &sym, FALSE)) return;
 #else
 	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE)) return;
 #endif
-
 
 	/* Find that character info, and describe it */
 	for (i = 0; ident_info[i]; ++i)
@@ -1962,7 +2015,6 @@ void do_cmd_query_symbol(void)
 #else
 		strcpy(buf, "Full monster list.");
 #endif
-
 	}
 	else if (sym == KTRL('U'))
 	{
@@ -1972,7 +2024,6 @@ void do_cmd_query_symbol(void)
 #else
 		strcpy(buf, "Unique monster list.");
 #endif
-
 	}
 	else if (sym == KTRL('N'))
 	{
@@ -1982,7 +2033,15 @@ void do_cmd_query_symbol(void)
 #else
 		strcpy(buf, "Non-unique monster list.");
 #endif
-
+	}
+	else if (sym == KTRL('R'))
+	{
+		all = ride = TRUE;
+#ifdef JP
+		strcpy(buf, "乗馬可能モンスターのリスト");
+#else
+		strcpy(buf, "Ridable monster list.");
+#endif
 	}
 	/* XTRA HACK WHATSEARCH */
 	else if (sym == KTRL('M'))
@@ -2014,7 +2073,6 @@ void do_cmd_query_symbol(void)
 #else
 		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
 #endif
-
 	}
 
 	/* Display the result */
@@ -2037,12 +2095,17 @@ void do_cmd_query_symbol(void)
 		/* Require unique monsters if needed */
 		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
+		/* Require ridable monsters if needed */
+		if (ride && !(r_ptr->flags7 & (RF7_RIDING))) continue;
+
 		/* XTRA HACK WHATSEARCH */
-		if (temp[0]){
+		if (temp[0])
+		{
 		  int xx;
 		  char temp2[80];
   
-		  for (xx=0; temp[xx] && xx<80; xx++){
+		  for (xx=0; temp[xx] && xx<80; xx++)
+		  {
 #ifdef JP
 		    if (iskanji( temp[xx])) { xx++; continue; }
 #endif
@@ -2058,14 +2121,15 @@ void do_cmd_query_symbol(void)
 		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
   
 #ifdef JP
-		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) )
+		  if (my_strstr(temp2, temp) || my_strstr(r_name + r_ptr->name, temp) )
 #else
-		  if (strstr(temp2, temp))
+		  if (my_strstr(temp2, temp))
 #endif
 			  who[n++]=i;
-		}else
+		}
+
 		/* Collect "appropriate" monsters */
-		if (all || (r_ptr->d_char == sym)) who[n++] = i;
+		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
 
 	/* Nothing to recall */

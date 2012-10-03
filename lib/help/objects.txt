@@ -223,27 +223,46 @@ described simply as a 'Potion of Heroism'.
 
 Occasionally, as you wander around the dungeon you will sense something
 about the quality of an item or items you are wielding or carrying in
-your backpack. This sensing ability is called 'pseudo-id' and is
-limited to weapons and armor. The speed and accuracy of your pseudo-id
-ability depends on a number of factors but the primary considerations
-are your class and level. Pseudo-id can be 'strong' or 'weak' and
-'slow', 'medium' or 'fast'.
+your backpack. This sensing ability is called 'pseudo-id'. The speed
+and accuracy of your pseudo-id ability depends on a number of factors
+but the primary considerations are your class and level. Pseudo-id
+speed can be 'slow', 'medium' or 'fast'. Pseudo-id method of weapons
+and armors can be 'strong' or 'weak'. Pseudo-id method of others is
+always 'strong'.
 
 
 Table 1 - Pseudo-Id ability of the Classes
 
-    Class              Method     Speed
-    ----------------------------------------
-    Warrior            Strong     Very Fast
-    Mage/High-Mage     Weak       Slow
-    Priest             Weak       Very Fast
-    Rogue              Strong     Fast
-    Ranger             Strong     Medium
-    Paladin            Strong     Medium
-    Warrior-Mage       Weak       Medium
-    Mindcrafter        Weak       Medium
-    Chaos Warrior      Strong     Medium
-    Monk               Weak       Fast
+                       Weapons and Armors       Others
+    Class              Method     Speed         Speed
+    --------------------------------------------------------
+    Warrior            Strong     Very Fast     Impossible
+    Mage               Weak       Slow          Very Fast
+    Priest             Weak       Very Fast     Fast
+    Rogue              Strong     Fast          Fast
+    Ranger             Strong     Medium        Medium
+    Paladin            Strong     Medium        Slow
+    Warrior-Mage       Weak       Medium        Medium
+    Chaos-Warrior      Strong     Medium        Slow
+    Monk               Weak       Fast          Medium
+    Mindcrafter        Weak       Medium        Fast
+    High-Mage          Weak       Slow          Very Fast
+    Tourist            Strong     Extr. Fast    Extr. Fast
+    Imitator           Weak       Medium        Slow
+    BeastMaster        Weak       Medium        Slow
+    Sorcerer           Weak       Slow          Very Fast
+    Archer             Strong     Very Fast     Impossible
+    Magic-Eater        Weak       Slow          Very Fast
+    Bard               Weak       Very Fast     Fast
+    Red-Mage           Weak       Medium        Medium
+    Samurai            Strong     Very Fast     Impossible
+    ForceTrainer       Weak       Fast          Fast
+    Blue-Mage          Weak       Medium        Very Fast
+    Cavalry            Strong     Very Fast     Impossible
+    Berserker          Strong     Extr. Fast    Impossible
+    Weaponsmith        Strong     Very Fast     Slow
+    Mirror-Master      Weak       Medium        Very Fast
+    Ninja              Strong     Fast          Slow
 
 
 When you pseudo-id an item, it will be inscribed (see below [e]) with
@@ -271,7 +290,7 @@ Table 3 - Weak Pseudo-Id
     ------------------------------------------------
     cursed         a cursed item (includes bad ego
                    items and artifacts)
-    good           an enchanted item (includes good
+    uncursed       an enchanted item (includes good
                    ego items and artifacts)
 
 
@@ -333,7 +352,7 @@ Of all the objects in Hengband that you might find, by far the most
 important group are artifacts.  Artifacts are unique items with
 additional properties such as increasing or sustaining one or more
 of your stats and granting resistances or abilities. Often an
-artifact cab be 'A'ctivated for a magical effect. These can be
+artifact can be 'A'ctivated for a magical effect. These can be
 Extremely useful - especially for classes that are weak in magic.
 
 There are two types of artifacts - fixed and random. The fixed
@@ -491,6 +510,7 @@ resistances. In the example above, the inscription will become {Nt},
 meaning the extra resistance of Nether.
 
 
+***** <AbbrevList>
 List of abbreviations:
 
 At : extra blows                    Ac : resistance to acid
@@ -524,8 +544,9 @@ Lu : extra light                    |P : brand pois
 Wr : provides warning               |Ca : chaotic effects
 Xm : xtra might when shooting       |V : vampiric weapon
 Xs : xtra number of shots           |Q : weapon of quake
-Ag : aggravate monsters             |S : vorpal hit
-Bs : blessed weapon                 |M : weapon of the force
+Te : random teleportaion            |S : vorpal hit
+Ag : aggravate monsters             |M : weapon of the force
+Bs : blessed weapon
 
 /* : slay evil                      /X* : *slay* evil
 /p : slay human                     /Xp : *slay* human
@@ -537,13 +558,13 @@ Bs : blessed weapon                 |M : weapon of the force
 /L : slay undead                    /XL : *slay* undead
 /Z : slay animal                    /XZ : *slay* animal
 
-~Tele : telepathy                   . : random teleportaion
-~Evil : ESP evil                    (St : sustain strength
-~Good : ESP good                    (In : sustain intelligence
-~Nolv : ESP non-living              (Wi : sustain wisdom
-~p : ESP human                      (Dx : sustain dexterity
-~D : ESP dragon                     (Cn : sustain constitution
-~o : ESP orc                        (Ch : sustain charisma
+~Tele : telepathy                   (St : sustain strength
+~Evil : ESP evil                    (In : sustain intelligence
+~Good : ESP good                    (Wi : sustain wisdom
+~Nolv : ESP non-living              (Dx : sustain dexterity
+~p : ESP human                      (Cn : sustain constitution
+~D : ESP dragon                     (Ch : sustain charisma
+~o : ESP orc
 ~T : ESP troll
 ~P : ESP giant
 ~U : ESP demon
@@ -781,7 +802,7 @@ Rods ('-')
 Spellbooks ('?')
     There are four spell books for each of the magic realms and which
     are found either in the shops or at varying depths in the dungeons.
-    If you are are a spellcaster, you may 'b'rowse any book belonging
+    If you are a spellcaster, you may 'b'rowse any book which belonging
     to your chosen realm(s) to see what spells it contains. You may not
     browse books from realms other than those that your character has
     chosen. You may learn new spells with the 'g' command and cast them

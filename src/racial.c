@@ -114,8 +114,28 @@ static bool do_cmd_archer(void)
 		y = py + ddy[dir];
 		x = px + ddx[dir];
 		c_ptr = &cave[y][x];
-		if (c_ptr->feat == FEAT_RUBBLE)
+
+		if (!have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_CAN_DIG))
 		{
+#ifdef JP
+			msg_print("そこには岩石がない。");
+#else
+			msg_print("You need pile of rubble.");
+#endif
+			return FALSE;
+		}
+		else if (!cave_have_flag_grid(c_ptr, FF_CAN_DIG) || !cave_have_flag_grid(c_ptr, FF_HURT_ROCK))
+		{
+#ifdef JP
+			msg_print("硬すぎて崩せなかった。");
+#else
+			msg_print("You failed to make ammo.");
+#endif
+		}
+		else
+		{
+			s16b slot;
+
 			/* Get local object */
 			q_ptr = &forge;
 
@@ -127,34 +147,30 @@ static bool do_cmd_archer(void)
 			apply_magic(q_ptr, p_ptr->lev, AM_NO_FIXED_ART);
 			q_ptr->discount = 99;
 
-			(void)inven_carry(q_ptr);
+			slot = inven_carry(q_ptr);
 
-			object_desc(o_name, q_ptr, TRUE, 2);
+			object_desc(o_name, q_ptr, 0);
 #ifdef JP
-			msg_format("岩石を削って%sを作った。",o_name);
+			msg_format("%sを作った。", o_name);
 #else
 			msg_print("You make some ammo.");
 #endif
 
-			(void)wall_to_mud(dir);
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
-			p_ptr->window |= (PW_OVERHEAD);
-		}
-		else
-		{
-#ifdef JP
-			msg_print("そこには岩石がない。");
-#else
-			msg_print("You need pile of rubble.");
-#endif
+			/* Auto-inscription */
+			if (slot >= 0) autopick_alter_item(slot, FALSE);
+
+			/* Destroy the wall */
+			cave_alter_feat(y, x, FF_HURT_ROCK);
+
+			p_ptr->update |= (PU_FLOW);
 		}
 	}
 	/**********Create arrows*********/
 	else if (ext == 2)
 	{
 		int item;
-
 		cptr q, s;
+		s16b slot;
 
 		item_tester_hook = item_tester_hook_convertible;
 
@@ -178,7 +194,7 @@ static bool do_cmd_archer(void)
 		else
 		{
 			q_ptr = &o_list[0 - item];
-		}       
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -192,7 +208,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, TRUE, 2);
+		object_desc(o_name, q_ptr, 0);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -211,14 +227,18 @@ static bool do_cmd_archer(void)
 			floor_item_describe(0 - item);
 			floor_item_optimize(0 - item);
 		}
-		(void)inven_carry(q_ptr);
+
+		slot = inven_carry(q_ptr);
+
+		/* Auto-inscription */
+		if (slot >= 0) autopick_alter_item(slot, FALSE);
 	}
 	/**********Create bolts*********/
 	else if (ext == 3)
 	{
 		int item;
-
 		cptr q, s;
+		s16b slot;
 
 		item_tester_hook = item_tester_hook_convertible;
 
@@ -256,7 +276,7 @@ static bool do_cmd_archer(void)
 
 		q_ptr->discount = 99;
 
-		object_desc(o_name, q_ptr, TRUE, 2);
+		object_desc(o_name, q_ptr, 0);
 #ifdef JP
 		msg_format("%sを作った。", o_name);
 #else
@@ -276,7 +296,10 @@ static bool do_cmd_archer(void)
 			floor_item_optimize(0 - item);
 		}
 
-		(void)inven_carry(q_ptr);
+		slot = inven_carry(q_ptr);
+
+		/* Auto-inscription */
+		if (slot >= 0) autopick_alter_item(slot, FALSE);
 	}
 	return TRUE;
 }
@@ -327,7 +350,7 @@ s = "魔力を取り込めるアイテムがない。";
 	}
 
 
-	if (!object_known_p(o_ptr))
+	if (!object_is_known(o_ptr))
 	{
 #ifdef JP
 		msg_print("鑑定されていないと取り込めない。");
@@ -380,7 +403,7 @@ s = "魔力を取り込めるアイテムがない。";
 		}
 	}
 
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, 0);
 	/* Message */
 #ifdef JP
 	msg_format("%sの魔力を取り込んだ。", o_name);
@@ -405,6 +428,41 @@ s = "魔力を取り込めるアイテムがない。";
 	}
 	energy_use = 100;
 	return TRUE;
+}
+
+
+static bool can_do_cmd_cast(void)
+{
+	if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC))
+	{
+#ifdef JP
+		msg_print("ダンジョンが魔法を吸収した！");
+#else
+		msg_print("The dungeon absorbs all attempted magic!");
+#endif
+		msg_print(NULL);
+		return FALSE;
+	}
+	else if (p_ptr->anti_magic)
+	{
+#ifdef JP
+		msg_print("反魔法バリアが魔法を邪魔した！");
+#else
+		msg_print("An anti-magic shell disrupts your magic!");
+#endif
+		return FALSE;
+	}
+	else if (p_ptr->shero)
+	{
+#ifdef JP
+		msg_format("狂戦士化していて頭が回らない！");
+#else
+		msg_format("You cannot think directly!");
+#endif
+		return FALSE;
+	}
+	else
+		return TRUE;
 }
 
 
@@ -459,7 +517,7 @@ static bool choose_kamae(void)
 			screen_load();
 			return FALSE;
 		}
-		else if ((choice == 'a') || (choice == 'A') || (choice == ESCAPE))
+		else if ((choice == 'a') || (choice == 'A'))
 		{
 			if (p_ptr->action == ACTION_KAMAE)
 			{
@@ -597,7 +655,7 @@ static bool choose_kata(void)
 			screen_load();
 			return FALSE;
 		}
-		else if ((choice == 'a') || (choice == 'A') || (choice == ESCAPE))
+		else if ((choice == 'a') || (choice == 'A'))
 		{
 			if (p_ptr->action == ACTION_KATA)
 			{
@@ -896,7 +954,7 @@ static bool cmd_racial_power_aux(s32b command)
 #else
 					msg_print("You are failed to run away.");
 #endif
-				else teleport_player(30);
+				else teleport_player(30, 0L);
 			}
 			else
 			{
@@ -989,7 +1047,7 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_MONK:
 		{
-			if (empty_hands(TRUE) < 2)
+			if (!(empty_hands(TRUE) & EMPTY_HAND_RARM))
 			{
 #ifdef JP
 				msg_print("素手じゃないとできません。");
@@ -998,13 +1056,20 @@ static bool cmd_racial_power_aux(s32b command)
 #endif
 				return FALSE;
 			}
+			if (p_ptr->riding)
+			{
+#ifdef JP
+				msg_print("乗馬中はできません。");
+#else
+				msg_print("You need to get off a pet.");
+#endif
+				return FALSE;
+			}
 
 			if (command == -3)
 			{
-				if (choose_kamae()) energy_use = 100;
-				else energy_use = 0;
+				if (!choose_kamae()) return FALSE;
 				p_ptr->update |= (PU_BONUS);
-				p_ptr->redraw |= (PR_ARMOR);
 			}
 			else if (command == -4)
 			{
@@ -1127,10 +1192,11 @@ static bool cmd_racial_power_aux(s32b command)
 		}
 		case CLASS_RED_MAGE:
 		{
+			if (!can_do_cmd_cast()) return FALSE;
 			handle_stuff();
 			do_cmd_cast();
 			handle_stuff();
-			if (!p_ptr->paralyzed)
+			if (!p_ptr->paralyzed && can_do_cmd_cast())
 				do_cmd_cast();
 			break;
 		}
@@ -1176,7 +1242,7 @@ static bool cmd_racial_power_aux(s32b command)
 			}
 			else if (command == -4)
 			{
-				if (!buki_motteruka(INVEN_RARM))
+				if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
 				{
 #ifdef JP
 					msg_print("武器を持たないといけません。");
@@ -1185,10 +1251,8 @@ static bool cmd_racial_power_aux(s32b command)
 #endif
 					return FALSE;
 				}
-				if (choose_kata()) energy_use = 100;
-				else energy_use = 0;
+				if (!choose_kata()) return FALSE;
 				p_ptr->update |= (PU_BONUS);
-				p_ptr->redraw |= (PR_ARMOR);
 			}
 			break;
 		}
@@ -1282,19 +1346,8 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			if (command == -3)
 			{
-				int x, y;
-				for (x = 0; x < cur_wid; x++)
-				{
-					for (y = 0; y < cur_hgt; y++)
-					{
-						if (is_mirror_grid(&cave[y][x]))
-						{
-							remove_mirror(y, x);
-							project(0, 2, y, x, p_ptr->lev / 2 + 5, GF_SHARDS,
-								(PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-						}
-					}
-				}
+				/* Explode all mirrors */
+				remove_all_mirrors(TRUE);
 			}
 			else if (command == -4)
 			{
@@ -1354,6 +1407,7 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
 #else
@@ -1383,6 +1437,8 @@ static bool cmd_racial_power_aux(s32b command)
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
+
+				if (music_singing_any()) stop_singing();
 
 				if (!c_ptr->m_idx)
 				{
@@ -1480,7 +1536,7 @@ static bool cmd_racial_power_aux(s32b command)
 			msg_print("Blink!");
 #endif
 
-			teleport_player(10);
+			teleport_player(10, 0L);
 			break;
 
 		case RACE_HALF_ORC:
@@ -1563,12 +1619,6 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_HALF_GIANT:
 			if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-			msg_print("石の壁を叩きつけた。");
-#else
-			msg_print("You bash at a stone wall.");
-#endif
-
 			(void)wall_to_mud(dir);
 			break;
 
@@ -1595,6 +1645,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_YEEK:
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_print("身の毛もよだつ叫び声を上げた！");
 #else
@@ -1606,6 +1657,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_KLACKON:
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_print("酸を吐いた。");
 #else
@@ -1846,6 +1898,8 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 
+				if (music_singing_any()) stop_singing();
+
 #ifdef JP
 				msg_format("あなたは%sのブレスを吐いた。", Type_desc);
 #else
@@ -1928,6 +1982,8 @@ static bool cmd_racial_power_aux(s32b command)
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
 
+				if (music_singing_any()) stop_singing();
+
 				if (!c_ptr->m_idx)
 				{
 #ifdef JP
@@ -1978,6 +2034,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_SPECTRE:
 			if (!get_aim_dir(&dir)) return FALSE;
+			if (music_singing_any()) stop_singing();
 #ifdef JP
 			msg_print("あなたはおどろおどろしい叫び声をあげた！");
 #else
@@ -2002,6 +2059,7 @@ static bool cmd_racial_power_aux(s32b command)
 			{
 				int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
 				if (!get_aim_dir(&dir)) return FALSE;
+				if (music_singing_any()) stop_singing();
 #ifdef JP
 				msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
 #else
@@ -2061,7 +2119,7 @@ static bool cmd_racial_power_aux(s32b command)
 #else
 				msg_print("You fire a rocket.");
 #endif
-				fire_ball(GF_ROCKET, dir, plev * 5, 2);
+				fire_rocket(GF_ROCKET, dir, plev * 5, 2);
 			}
 			break;
 

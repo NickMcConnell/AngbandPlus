@@ -9,8 +9,6 @@
     (e) 画面表示                         (jpref.txt#Visuals)
     (f) カラー                           (jpref.txt#Colors)
     (g) オプション                       (jpref.txt#Options)
-    (h) 自動拾い/破壊設定ファイル        (jpref.txt#Autopick)
-    (i) 条件分岐付きの設定               (jpref.txt#Condition)
 
 
     (?) ヘルプシステムの使用法           (jhelpinfo.txt)
@@ -23,5 +21,4 @@
 ***** [e] jpref.txt#Visuals
 ***** [f] jpref.txt#Colors
 ***** [g] jpref.txt#Options
-***** [h] jpref.txt#Autopick
-***** [i] jpref.txt#Condition
+***** [h] jeditor.txt

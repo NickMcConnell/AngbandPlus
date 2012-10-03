@@ -22,8 +22,9 @@
  * USE_FONTSET and/or USE_XIM can be commented out
  * when you don't want to use it.
  */
-#ifdef JP
 #define USE_FONTSET
+
+#ifdef JP
 #define USE_XIM
 #endif
 
@@ -32,7 +33,7 @@
 #endif
 
 #if defined(JP) && !defined(USE_FONTSET)
-#define _JP
+#define USE_JP_FONTSTRUCT
 #endif
 
 #endif /* HAVE_CONFIG_H */
@@ -264,51 +265,6 @@
 
 
 /*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#ifndef JP
-#define DELAY_LOAD_A_TEXT
-#endif
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "d_text" array until it is actually
- * needed, saving ~1K, since "dungeon" descriptions are unused.
- */
-/* #define DELAY_LOAD_D_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
@@ -337,48 +293,6 @@
 #define MONSTER_FLOW_DEPTH 32
 
 
-
-/*
- * OPTION: Allow use of extended spell info	-DRS-
- */
-#define DRS_SHOW_SPELL_INFO
-
-/*
- * OPTION: Allow use of the monster health bar	-DRS-
- */
-#define DRS_SHOW_HEALTH_BAR
-
-
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- *
- * SPECIAL NOTE: In Z, the "smart" field is also used to store such
- * monster information as "friendly" and "cloned". Therefore this
- * option should always be defined when compiling Zangband 2.1.0
- * or later.
- */
-#define DRS_SMART_OPTIONS
-
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
-
 #ifdef USE_SPECIAL
 
 /*
@@ -397,27 +311,6 @@
 /* #define USE_MUSIC */
 
 #endif /* USE_SPECIAL */
-
-/*
- * OPTION: Hack -- Macintosh stuff
- */
-#ifdef MACINTOSH
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
-
-
-/*
- * OPTION: Hack -- Windows stuff
- */
-#ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
-
-#endif
 
 
 /*
@@ -600,6 +493,19 @@
 #define SUPPORT_GAMMA
 
 /*
+ * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
+ * but has Mac OS/Windows-like user interface
+ */
+#ifdef MACH_O_CARBON
+# ifdef PRIVATE_USER_PATH
+#  undef PRIVATE_USER_PATH
+# endif
+# ifdef SAVEFILE_USE_UID
+#  undef SAVEFILE_USE_UID
+# endif
+#endif
+
+/*
  * Hack -- Special "ancient machine" versions
  */
 #if defined(USE_286) || defined(ANGBAND_LITE_MAC)
@@ -622,8 +528,6 @@
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
-# undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_WIZARD
@@ -652,18 +556,8 @@
 
 /* Zangband options: */
 
-/* (see above) */
-#ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
-#endif
-
 /* Allow hordes of 'similar' monsters */
 # define MONSTER_HORDES
-
-/* Wizard mode testing options: */
-
-/* Testing upkeep */
-/* # define TRACK_FRIENDS */
 
 /*
  * OPTION: Repeat last command -- TNB
@@ -699,21 +593,14 @@
  */
 #define SORT_R_INFO
 
-/*
- * Use a scripting language
- */
-/* #define USE_SCRIPT */
-
-#ifdef USE_SCRIPT
-/*
- * Python is statically linked into ZAngband
- */
-# define STATIC_PYTHON
-/* # define SCRIPT_OBJ_KIND */
-#endif /* USE_SCRIPT */
 
 #ifndef HAVE_CONFIG_H
+
 #ifndef MSDOS
+/*
+ * Use world score server
+ */
 #define WORLD_SCORE
 #endif
+
 #endif /* HAVE_CONFIG_H */

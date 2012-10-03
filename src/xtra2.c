@@ -24,22 +24,23 @@ void check_experience(void)
 	bool level_mutation = FALSE;
 	bool level_inc_stat = FALSE;
 	bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
-
+	int  old_lev = p_ptr->lev;
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
-
-	/* Hack -- lower limit */
 	if (p_ptr->max_exp < 0) p_ptr->max_exp = 0;
+	if (p_ptr->max_max_exp < 0) p_ptr->max_max_exp = 0;
 
 	/* Hack -- upper limit */
 	if (p_ptr->exp > PY_MAX_EXP) p_ptr->exp = PY_MAX_EXP;
-
-	/* Hack -- upper limit */
 	if (p_ptr->max_exp > PY_MAX_EXP) p_ptr->max_exp = PY_MAX_EXP;
+	if (p_ptr->max_max_exp > PY_MAX_EXP) p_ptr->max_max_exp = PY_MAX_EXP;
 
 	/* Hack -- maintain "max" experience */
 	if (p_ptr->exp > p_ptr->max_exp) p_ptr->max_exp = p_ptr->exp;
+
+	/* Hack -- maintain "max max" experience */
+	if (p_ptr->max_exp > p_ptr->max_max_exp) p_ptr->max_max_exp = p_ptr->max_exp;
 
 	/* Redraw experience */
 	p_ptr->redraw |= (PR_EXP);
@@ -103,16 +104,17 @@ void check_experience(void)
 msg_format("レベル %d にようこそ。", p_ptr->lev);
 #else
 		msg_format("Welcome to level %d.", p_ptr->lev);
+
 #endif
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+		p_ptr->window |= (PW_PLAYER | PW_SPELL | PW_INVEN);
 
 		/* HPとMPの上昇量を表示 */
 		level_up = 1;
@@ -219,6 +221,9 @@ msg_print("あなたは変わった気がする...");
 		/* Handle stuff */
 		handle_stuff();
 	}
+
+	/* Load an autopick preference file */
+	if (old_lev != p_ptr->lev) autopick_load_pref(FALSE);
 }
 
 
@@ -230,24 +235,19 @@ msg_print("あなたは変わった気がする...");
  */
 static int get_coin_type(int r_idx)
 {
-	monster_race    *r_ptr = &r_info[r_idx];
-
-	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
+	/* Analyze monsters */
+	switch (r_idx)
 	{
-		/* Look for textual clues */
-		switch (r_idx)
-		{
-		case MON_COPPER_COINS: return (2);
-		case MON_SILVER_COINS: return (5);
-		case MON_GOLD_COINS: return (10);
-		case MON_MITHRIL_COINS: return (16);
-		case MON_ADAMANT_COINS: return (17);
-		}
+	case MON_COPPER_COINS: return 2;
+	case MON_SILVER_COINS: return 5;
+	case MON_GOLD_COINS: return 10;
+	case MON_MITHRIL_COINS:
+	case MON_MITHRIL_GOLEM: return 16;
+	case MON_ADAMANT_COINS: return 17;
 	}
 
 	/* Assume nothing */
-	return (0);
+	return 0;
 }
 
 
@@ -350,6 +350,24 @@ static bool kind_is_armor(int k_idx)
 
 	/* Analyze the item type */
 	if (k_ptr->tval == TV_HARD_ARMOR)
+	{
+		return (TRUE);
+	}
+
+	/* Assume not good */
+	return (FALSE);
+}
+
+
+/*
+ * Hack -- determine if a template is hafted weapon
+ */
+static bool kind_is_hafted(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	if (k_ptr->tval == TV_HAFTED)
 	{
 		return (TRUE);
 	}
@@ -586,10 +604,10 @@ msg_print("魔法の階段が現れた...");
 
 
 		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
+		cave_set_feat(y, x, feat_down_stair);
 
 		/* Remember to update everything */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+		p_ptr->update |= (PU_FLOW);
 	}
 
 	/*
@@ -680,13 +698,13 @@ void monster_death(int m_idx, bool drop_item)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	bool visible = (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE));
+	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
 
 	u32b mo_mode = 0L;
 
 	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
 	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
-	bool cloned = FALSE;
+	bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
 	int force_coin = get_coin_type(m_ptr->r_idx);
 
 	object_type forge;
@@ -695,8 +713,8 @@ void monster_death(int m_idx, bool drop_item)
 	bool drop_chosen_item = drop_item && !cloned && !p_ptr->inside_arena
 		&& !p_ptr->inside_battle && !is_pet(m_ptr);
 
-
-	if (world_monster) world_monster = FALSE;
+	/* The caster is dead? */
+	if (world_monster && world_monster == m_idx) world_monster = 0;
 
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
@@ -708,9 +726,6 @@ void monster_death(int m_idx, bool drop_item)
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
-
-	if (m_ptr->smart & SM_CLONED)
-		cloned = TRUE;
 
 	if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
 	{
@@ -808,9 +823,8 @@ msg_print("地面に落とされた。");
 
 	/* Drop a dead corpse? */
 	if (one_in_(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) &&
-	    ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
-	     (r_ptr->flags9 & RF9_DROP_SKELETON)) &&
-	    !(p_ptr->inside_arena || p_ptr->inside_battle || (m_ptr->smart & SM_CLONED) || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
+	    (r_ptr->flags9 & (RF9_DROP_CORPSE | RF9_DROP_SKELETON)) &&
+	    !(p_ptr->inside_arena || p_ptr->inside_battle || cloned || ((m_ptr->r_idx == today_mon) && is_pet(m_ptr))))
 	{
 		/* Assume skeleton */
 		bool corpse = FALSE;
@@ -821,7 +835,7 @@ msg_print("地面に落とされた。");
 		 */
 		if (!(r_ptr->flags9 & RF9_DROP_SKELETON))
 			corpse = TRUE;
-		else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags1 && RF1_UNIQUE))
+		else if ((r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags1 & RF1_UNIQUE))
 			corpse = TRUE;
 
 		/* Else, a corpse is more likely unless we did a "lot" of damage */
@@ -922,9 +936,6 @@ msg_print("地面に落とされた。");
 			else
 				get_obj_num_hook = kind_is_book;
 
-			/* Prepare allocation table */
-			get_obj_num_prep();
-
 			/* Make a book */
 			make_object(q_ptr, mo_mode);
 
@@ -942,15 +953,15 @@ msg_print("地面に落とされた。");
 		{
 			if (!one_in_(7))
 			{
-				int wy = py, wx = px;
+				int wy = y, wx = x;
 				int attempts = 100;
 				bool pet = is_pet(m_ptr);
 
 				do
 				{
-					scatter(&wy, &wx, py, px, 20, 0);
+					scatter(&wy, &wx, y, x, 20, 0);
 				}
-				while (!(in_bounds(wy, wx) && cave_floor_bold(wy, wx)) && --attempts);
+				while (!(in_bounds(wy, wx) && cave_empty_bold2(wy, wx)) && --attempts);
 
 				if (attempts > 0)
 				{
@@ -987,6 +998,7 @@ msg_print("地面に落とされた。");
 		if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
 		{
 			int a_idx = 0;
+			artifact_type *a_ptr = NULL;
 
 			if (!drop_chosen_item) break;
 
@@ -1004,15 +1016,20 @@ msg_print("地面に落とされた。");
 					a_idx = ART_NAMAKE_ARMOR;
 					break;
 				}
-			}
-			while (a_info[a_idx].cur_num);
 
-			if (a_info[a_idx].cur_num == 0)
-			{
-				/* Create the artifact */
-				create_named_art(a_idx, y, x);
-				a_info[a_idx].cur_num = 1;
+				a_ptr = &a_info[a_idx];
 			}
+			while (a_ptr->cur_num);
+
+			/* Create the artifact */
+			if (create_named_art(a_idx, y, x))
+			{
+				a_ptr->cur_num = 1;
+
+				/* Hack -- Memorize location of artifact in saved floors */
+				if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
+			}
+			else if (!preserve_mode) a_ptr->cur_num = 1;
 		}
 		break;
 
@@ -1067,7 +1084,7 @@ msg_print("地面に落とされた。");
 	case MON_A_GOLD:
 	case MON_A_SILVER:
 		if (drop_chosen_item && ((m_ptr->r_idx == MON_A_GOLD) ||
-		     ((m_ptr->r_idx == MON_A_SILVER) && !((r_ptr->r_pkills + 1) % 5))))
+		     ((m_ptr->r_idx == MON_A_SILVER) && (r_ptr->r_akills % 5 == 0))))
 		{
 			/* Get local object */
 			q_ptr = &forge;
@@ -1106,9 +1123,6 @@ msg_print("地面に落とされた。");
 				/* Activate restriction */
 				get_obj_num_hook = kind_is_cloak;
 
-				/* Prepare allocation table */
-				get_obj_num_prep();
-
 				/* Make a cloak */
 				make_object(q_ptr, mo_mode);
 
@@ -1128,9 +1142,6 @@ msg_print("地面に落とされた。");
 
 				/* Activate restriction */
 				get_obj_num_hook = kind_is_polearm;
-
-				/* Prepare allocation table */
-				get_obj_num_prep();
 
 				/* Make a poleweapon */
 				make_object(q_ptr, mo_mode);
@@ -1152,10 +1163,27 @@ msg_print("地面に落とされた。");
 				/* Activate restriction */
 				get_obj_num_hook = kind_is_armor;
 
-				/* Prepare allocation table */
-				get_obj_num_prep();
-
 				/* Make a hard armor */
+				make_object(q_ptr, mo_mode);
+
+				/* Drop it in the dungeon */
+				(void)drop_near(q_ptr, -1, y, x);
+			}
+			break;
+
+		case '\\':
+			if (dun_level > 4)
+			{
+				/* Get local object */
+				q_ptr = &forge;
+
+				/* Wipe the object */
+				object_wipe(q_ptr);
+
+				/* Activate restriction */
+				get_obj_num_hook = kind_is_hafted;
+
+				/* Make a hafted weapon */
 				make_object(q_ptr, mo_mode);
 
 				/* Drop it in the dungeon */
@@ -1174,9 +1202,6 @@ msg_print("地面に落とされた。");
 
 				/* Activate restriction */
 				get_obj_num_hook = kind_is_sword;
-
-				/* Prepare allocation table */
-				get_obj_num_prep();
 
 				/* Make a sword */
 				make_object(q_ptr, mo_mode);
@@ -1367,11 +1392,19 @@ msg_print("地面に落とされた。");
 
 		if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))
 		{
-			if (a_info[a_idx].cur_num == 0)
+			artifact_type *a_ptr = &a_info[a_idx];
+
+			if (!a_ptr->cur_num)
 			{
 				/* Create the artifact */
-				create_named_art(a_idx, y, x);
-				a_info[a_idx].cur_num = 1;
+				if (create_named_art(a_idx, y, x))
+				{
+					a_ptr->cur_num = 1;
+
+					/* Hack -- Memorize location of artifact in saved floors */
+					if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
+				}
+				else if (!preserve_mode) a_ptr->cur_num = 1;
 			}
 		}
 
@@ -1383,11 +1416,19 @@ msg_print("地面に落とされた。");
 			if (d_info[dungeon_type].final_artifact)
 			{
 				int a_idx = d_info[dungeon_type].final_artifact;
-				if (!a_info[a_idx].cur_num)
+				artifact_type *a_ptr = &a_info[a_idx];
+
+				if (!a_ptr->cur_num)
 				{
 					/* Create the artifact */
-					create_named_art(a_idx, y, x);
-					a_info[a_idx].cur_num = 1;
+					if (create_named_art(a_idx, y, x))
+					{
+						a_ptr->cur_num = 1;
+
+						/* Hack -- Memorize location of artifact in saved floors */
+						if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
+					}
+					else if (!preserve_mode) a_ptr->cur_num = 1;
 
 					/* Prevent rewarding both artifact and "default" object */
 					if (!d_info[dungeon_type].final_object) k_idx = 0;
@@ -1550,17 +1591,17 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 	if ((r_ptr->flagsr & RFR_RES_ALL) && dam > 0)
 	{
 		dam /= 100;
-		if((dam == 0) && one_in_(3)) dam = 1;
+		if ((dam == 0) && one_in_(3)) dam = 1;
 	}
 
-	if (m_ptr->invulner)
+	if (MON_INVULNER(m_ptr))
 	{
 		if (is_psy_spear)
 		{
-			if(!p_ptr->blind && m_ptr->ml)
+			if (!p_ptr->blind && is_seen(m_ptr))
 			{
 #ifdef JP
-msg_print("バリアを切り裂いた！");
+				msg_print("バリアを切り裂いた！");
 #else
 				msg_print("The barrier is penetrated!");
 #endif
@@ -1574,115 +1615,70 @@ msg_print("バリアを切り裂いた！");
 	return (dam);
 }
 
+
+/*
+ * Calculate experience point to be get
+ *
+ * Even the 64 bit operation is not big enough to avoid overflaw
+ * unless we carefully choose orders of multiplication and division.
+ *
+ * Get the coefficient first, and multiply (potentially huge) base
+ * experience point of a monster later.
+ */
 static void get_exp_from_mon(int dam, monster_type *m_ptr)
 {
-	s32b         div, new_exp, new_exp_frac;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	int          monnum_penarty = 0;
+
+	s32b new_exp;
+	u32b new_exp_frac;
+	s32b div_h;
+	u32b div_l;
 
 	if (!m_ptr->r_idx) return;
 	if (is_pet(m_ptr) || p_ptr->inside_battle) return;
+
+	/*
+	 * - Ratio of monster's level to player's level effects
+	 * - Varying speed effects
+	 * - Get a fraction in proportion of damage point
+	 */
+	new_exp = r_ptr->level * SPEED_TO_ENERGY(m_ptr->mspeed) * dam;
+	new_exp_frac = 0;
+	div_h = 0L;
+	div_l = (p_ptr->max_plv+2) * SPEED_TO_ENERGY(r_ptr->speed);
+
+	/* Use (average maxhp * 2) as a denominator */
+	if (!(r_ptr->flags1 & RF1_FORCE_MAXHP))
+		s64b_mul(&div_h, &div_l, 0, r_ptr->hdice * (ironman_nightmare ? 2 : 1) * (r_ptr->hside + 1));
 	else
+		s64b_mul(&div_h, &div_l, 0, r_ptr->hdice * (ironman_nightmare ? 2 : 1) * r_ptr->hside * 2);
+
+	/* Special penalty in the wilderness */
+	if (!dun_level && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE)))
+		s64b_mul(&div_h, &div_l, 0, 5);
+
+	/* Do division first to prevent overflaw */
+	s64b_div(&new_exp, &new_exp_frac, div_h, div_l);
+
+	/* Special penalty for mutiply-monster */
+	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
 	{
-		u32b m_exp;
-		u32b m_exp_h, m_exp_l;
-		u32b div_h, div_l;
-		if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
+		int monnum_penarty = r_ptr->r_akills / 400;
+		if (monnum_penarty > 8) monnum_penarty = 8;
+
+		while (monnum_penarty--)
 		{
-			monnum_penarty = r_ptr->r_pkills / 400;
-			if (monnum_penarty > 8) monnum_penarty = 8;
+			/* Divide by 4 */
+			s64b_RSHIFT(new_exp, new_exp_frac, 2);
 		}
-		if (r_ptr->flags1 & RF1_UNIQUE)
-		{
-			m_exp = (long)r_ptr->mexp * r_ptr->level;
-			div = (p_ptr->max_plv+2);
-		}
-		else
-		{
-			m_exp = (long)r_ptr->mexp * r_ptr->level * SPEED_TO_ENERGY(m_ptr->mspeed);
-			div = (p_ptr->max_plv+2) * SPEED_TO_ENERGY(r_ptr->speed);
-		}
-		m_exp_h = m_exp/0x10000L;
-		m_exp_l = m_exp%0x10000L;
-		m_exp_h *= dam;
-		m_exp_l *= dam;
-		m_exp_h += m_exp_l / 0x10000L;
-		m_exp_l %= 0x10000L;
-
-		/* real monster maxhp have effect on EXP */
-		if(!(r_ptr->flags1 & RF1_FORCE_MAXHP))
-		{
-		  u32b maxhp = m_ptr->max_maxhp*2;
-		  m_exp_h *= maxhp;
-		  m_exp_l *= maxhp;
-		  m_exp_h += m_exp_l / 0x10000L;
-		  m_exp_l %= 0x10000L;
-
-		  div *= r_ptr->hdice * (r_ptr->hside + 1);
-		}
-		if (!dun_level && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE))) div *= 5;
-		div_h = div/0x10000L;
-		div_l = div%0x10000L;
-		div_h *= (m_ptr->max_maxhp*2);
-		div_l *= (m_ptr->max_maxhp*2);
-		div_h += div_l / 0x10000L;
-		div_l %= 0x10000L;
-
-		while (monnum_penarty)
-		{
-			div_h *= 4;
-			div_l *= 4;
-			div_h += div_l / 0x10000L;
-			div_l %= 0x10000L;
-			monnum_penarty--;
-		}
-
-		m_exp_l = (0x7fffffff & (m_exp_h << 16)) | m_exp_l;
-		m_exp_h = m_exp_h >> 15;
-		div_l = (0x7fffffff & (div_h << 16)) | div_l;
-		div_h = div_h >> 15;
-
-#define M_INT_GREATER63(h1,l1,h2,l2)  ( (h1>h2)||( (h1==h2)&&(l1>=l2)))
-#define M_INT_SUB63(h1,l1, h2,l2) {h1-=h2;if(l1<l2){l1+=0x80000000;h1--;}l1-=l2;}
-#define M_INT_LSHIFT63(h1,l1) {h1=(h1<<1)|(l1>>30);l1=(l1<<1)&0x7fffffff;}
-#define M_INT_RSHIFT63(h1,l1) {l1=(l1>>1)|(h1<<30);h1>>=1;}
-#define M_INT_DIV63(h1,l1,h2,l2,result) \
-		do{ \
-		  int bit=1; \
-		  result = 0; \
-		  while( M_INT_GREATER63(h1,l1, h2, l2) ){M_INT_LSHIFT63(h2, l2); bit<<=1;} \
-		  for(bit>>=1; bit>=1; bit>>=1){ \
-		    M_INT_RSHIFT63(h2, l2); \
-		    if(M_INT_GREATER63(h1, l1, h2, l2)) \
-		      {result|=bit;M_INT_SUB63(h1, l1, h2, l2);} \
-		  } \
-		} while(0)
-
-		/* Give some experience for the kill */
-		M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp);
-
-		/* Handle fractional experience */
-		/* multiply 0x10000L to remainder */
-		m_exp_h = (m_exp_h<<16) | (m_exp_l>>15);
-		m_exp_l <<= 16;
-		M_INT_DIV63(m_exp_h, m_exp_l, div_h, div_l, new_exp_frac);
-		new_exp_frac += p_ptr->exp_frac;
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
-		{
-			new_exp++;
-			p_ptr->exp_frac = (u16b)(new_exp_frac - 0x10000L);
-		}
-		else
-		{
-			p_ptr->exp_frac = (u16b)new_exp_frac;
-		}
-
-		/* Gain experience */
-		gain_exp(new_exp);
 	}
-}
 
+	/* Finally multiply base experience point of the monster */
+	s64b_mul(&new_exp, &new_exp_frac, 0, r_ptr->mexp);
+
+	/* Gain experience */
+	gain_exp_64(new_exp, new_exp_frac);
+}
 
 
 /*
@@ -1733,6 +1729,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (r_ptr->flags6 & RF6_HEAL) expdam = (expdam+1) * 2 / 3;
 
 		get_exp_from_mon(expdam, &exp_mon);
+
+		/* Genocided by chaos patron */
+		if (!m_ptr->r_idx) m_idx = 0;
 	}
 
 	/* Redraw (later) if needed */
@@ -1740,15 +1739,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 	/* Wake it up */
-	m_ptr->csleep = 0;
-
-	if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+	(void)set_monster_csleep(m_idx, 0);
 
 	/* Hack - Cancel any special player stealth magics. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH)
 	{
 		set_superstealth(FALSE);
 	}
+
+	/* Genocided by chaos patron */
+	if (!m_idx) return TRUE;
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -1773,15 +1773,43 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
 		}
 
-		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & RF1_UNIQUE && !(m_ptr->smart & SM_CLONED))
-			r_ptr->max_num = 0;
+		if (!(m_ptr->smart & SM_CLONED))
+		{
+			/* When the player kills a Unique, it stays dead */
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				r_ptr->max_num = 0;
 
-		/* When the player kills a Nazgul, it stays dead */
-		if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num--;
+				/* Mega-Hack -- Banor & Lupart */
+				if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
+				{
+					r_info[MON_BANORLUPART].max_num = 0;
+					r_info[MON_BANORLUPART].r_pkills++;
+					r_info[MON_BANORLUPART].r_akills++;
+					if (r_info[MON_BANORLUPART].r_tkills < MAX_SHORT) r_info[MON_BANORLUPART].r_tkills++;
+				}
+				else if (m_ptr->r_idx == MON_BANORLUPART)
+				{
+					r_info[MON_BANOR].max_num = 0;
+					r_info[MON_BANOR].r_pkills++;
+					r_info[MON_BANOR].r_akills++;
+					if (r_info[MON_BANOR].r_tkills < MAX_SHORT) r_info[MON_BANOR].r_tkills++;
+					r_info[MON_LUPART].max_num = 0;
+					r_info[MON_LUPART].r_pkills++;
+					r_info[MON_LUPART].r_akills++;
+					if (r_info[MON_LUPART].r_tkills < MAX_SHORT) r_info[MON_LUPART].r_tkills++;
+				}
+			}
+
+			/* When the player kills a Nazgul, it stays dead */
+			else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
+		}
+
+		/* Count all monsters killed */
+		if (r_ptr->r_akills < MAX_SHORT) r_ptr->r_akills++;
 
 		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE))
+		if ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE))
 		{
 			/* Count kills this life */
 			if ((m_ptr->mflag2 & MFLAG2_KAGE) && (r_info[MON_KAGE].r_pkills < MAX_SHORT)) r_info[MON_KAGE].r_pkills++;
@@ -1861,19 +1889,18 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 				chg_virtue(V_VALOUR, 2);
 		}
 
-		if ((r_ptr->flags1 & RF1_UNIQUE) && ((r_ptr->flags3 & RF3_EVIL) ||
-			(r_ptr->flags3 & RF3_GOOD)))
-			
-			chg_virtue(V_HARMONY, 2);
-
-		if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->flags3 & RF3_GOOD))
+		if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			chg_virtue(V_UNLIFE, 2);
-			chg_virtue(V_VITALITY, -2);
-		}
+			if (r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)) chg_virtue(V_HARMONY, 2);
 
-		if ((r_ptr->flags1 & RF1_UNIQUE) && one_in_(3))
-			chg_virtue(V_INDIVIDUALISM, -1);
+			if (r_ptr->flags3 & RF3_GOOD)
+			{
+				chg_virtue(V_UNLIFE, 2);
+				chg_virtue(V_VITALITY, -2);
+			}
+
+			if (one_in_(3)) chg_virtue(V_INDIVIDUALISM, -1);
+		}
 
 		if (m_ptr->r_idx == MON_BEGGAR || m_ptr->r_idx == MON_LEPER)
 		{
@@ -1882,7 +1909,6 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 
 		if ((r_ptr->flags3 & RF3_GOOD) &&
 			((r_ptr->level) / 10 + (3 * dun_level) >= randint1(100)))
-			
 			chg_virtue(V_UNLIFE, 1);
 
 		if (r_ptr->d_char == 'A')
@@ -1917,18 +1943,18 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 				chg_virtue(V_HONOUR, 1);
 			}
 		}
-		if ((r_ptr->flags2 & RF2_MULTIPLY) && (r_ptr->r_pkills > 1000) && one_in_(10))
+		if ((r_ptr->flags2 & RF2_MULTIPLY) && (r_ptr->r_akills > 1000) && one_in_(10))
 		{
 			chg_virtue(V_VALOUR, -1);
 		}
-		
+
 		for (i = 0; i < 4; i++)
 		{
-			if(r_ptr->blow[i].d_dice != 0) innocent = FALSE; /* Murderer! */
-		
+			if (r_ptr->blow[i].d_dice != 0) innocent = FALSE; /* Murderer! */
+
 			if ((r_ptr->blow[i].effect == RBE_EAT_ITEM)
 				|| (r_ptr->blow[i].effect == RBE_EAT_GOLD))
-			
+
 				thief = TRUE; /* Thief! */
 		}
 
@@ -1941,7 +1967,6 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 				chg_virtue(V_JUSTICE, 3);
 			else if (1+((r_ptr->level) / 10 + (2 * dun_level))
 				>= randint1(100))
-				
 				chg_virtue(V_JUSTICE, 1);
 		}
 		else if (innocent)
@@ -1956,13 +1981,13 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 
 		if ((r_ptr->flags1 & RF1_UNIQUE) && record_destroy_uniq)
 		{
-			char m_name[160];
+			char note_buf[160];
 #ifdef JP
-			sprintf(m_name, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(クローン)" : "");
+			sprintf(note_buf, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(クローン)" : "");
 #else
-			sprintf(m_name, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(Clone)" : "");
+			sprintf(note_buf, "%s%s", r_name + r_ptr->name, (m_ptr->smart & SM_CLONED) ? "(Clone)" : "");
 #endif
-			do_cmd_write_nikki(NIKKI_UNIQUE, 0, m_name);
+			do_cmd_write_nikki(NIKKI_UNIQUE, 0, note_buf);
 		}
 
 		/* Make a sound */
@@ -2002,9 +2027,9 @@ msg_format("%sを殺した。", m_name);
 			/* Special note at death */
 			if (explode)
 #ifdef JP
-msg_format("%sは爆発して粉々になった。", m_name);
+				msg_format("%sは爆発して粉々になった。", m_name);
 #else
-				msg_format("%s explodes into tiny shreds.", m_name);
+				msg_format("%^s explodes into tiny shreds.", m_name);
 #endif
 			else
 			{
@@ -2032,7 +2057,7 @@ msg_format("%sを葬り去った。", m_name);
 #endif
 
 		}
-		if (r_ptr->flags1 & RF1_UNIQUE && !(m_ptr->smart & SM_CLONED))
+		if ((r_ptr->flags1 & RF1_UNIQUE) && !(m_ptr->smart & SM_CLONED) && !vanilla_town)
 		{
 			for (i = 0; i < MAX_KUBI; i++)
 			{
@@ -2050,22 +2075,6 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 
 		/* Generate treasure */
 		monster_death(m_idx, TRUE);
-		if ((m_ptr->r_idx == MON_BANOR) || (m_ptr->r_idx == MON_LUPART))
-		{
-			r_info[MON_BANORLUPART].max_num = 0;
-			r_info[MON_BANORLUPART].r_pkills++;
-			if (r_info[MON_BANORLUPART].r_tkills < MAX_SHORT) r_info[MON_BANORLUPART].r_tkills++;
-		}
-
-		if (m_ptr->r_idx == MON_BANORLUPART)
-		{
-			r_info[MON_BANOR].max_num = 0;
-			r_info[MON_BANOR].r_pkills++;
-			if (r_info[MON_BANOR].r_tkills < MAX_SHORT) r_info[MON_BANOR].r_tkills++;
-			r_info[MON_LUPART].max_num = 0;
-			r_info[MON_LUPART].r_pkills++;
-			if (r_info[MON_LUPART].r_tkills < MAX_SHORT) r_info[MON_LUPART].r_tkills++;
-		}
 
 		/* Mega hack : replace IKETA to BIKETAL */
 		if ((m_ptr->r_idx == MON_IKETA) &&
@@ -2112,35 +2121,21 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 #ifdef ALLOW_FEAR
 
 	/* Mega-Hack -- Pain cancels fear */
-	if (m_ptr->monfear && (dam > 0))
+	if (MON_MONFEAR(m_ptr) && (dam > 0))
 	{
-		int tmp = randint1(dam);
-
-		/* Cure a little fear */
-		if (tmp < m_ptr->monfear)
+		/* Cure fear */
+		if (set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam)))
 		{
-			/* Reduce fear */
-			m_ptr->monfear -= tmp;
-		}
-
-		/* Cure all the fear */
-		else
-		{
-			/* Cure fear */
-			m_ptr->monfear = 0;
-
 			/* No more fear */
 			(*fear) = FALSE;
 		}
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
-		int percentage;
-
 		/* Percentage of fully healthy */
-		percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
 
 		/*
 		 * Run (sometimes) if at 10% or less of max hit points,
@@ -2153,9 +2148,9 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 			(*fear) = TRUE;
 
 			/* XXX XXX XXX Hack -- Add some timed fear */
-			m_ptr->monfear = (randint1(10) +
+			(void)set_monster_monfear(m_idx, (randint1(10) +
 					  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-					   20 : ((11 - percentage) * 5)));
+					   20 : ((11 - percentage) * 5))));
 		}
 	}
 
@@ -2272,12 +2267,6 @@ void redraw_window(void)
 {
 	/* Only if the dungeon exists */
 	if (!character_dungeon) return;
-	
-	/* Hack - Activate term zero for the redraw */
-	Term_activate(&term_screen[0]);
-	
-	/* Hack -- react to changes */
-	Term_xtra(TERM_XTRA_REACT, 0);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
@@ -2290,9 +2279,6 @@ void redraw_window(void)
 
 	/* Redraw */
 	Term_redraw();
-
-	/* Refresh */
-	Term_fresh();
 }
 
 
@@ -2738,7 +2724,6 @@ bool target_okay(void)
 }
 
 
-
 /*
  * Sorting hook -- comp function -- by "distance to player"
  *
@@ -2768,6 +2753,75 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 
 	/* Compare the distances */
 	return (da <= db);
+}
+
+
+/*
+ * Sorting hook -- comp function -- by importance level of grids
+ *
+ * We use "u" and "v" to point to arrays of "x" and "y" positions,
+ * and sort the arrays by level of monster
+ */
+static bool ang_sort_comp_importance(vptr u, vptr v, int a, int b)
+{
+	byte *x = (byte*)(u);
+	byte *y = (byte*)(v);
+	cave_type *ca_ptr = &cave[y[a]][x[a]];
+	cave_type *cb_ptr = &cave[y[b]][x[b]];
+	monster_type *ma_ptr = &m_list[ca_ptr->m_idx];
+	monster_type *mb_ptr = &m_list[cb_ptr->m_idx];
+	monster_race *ap_ra_ptr, *ap_rb_ptr;
+
+	/* The player grid */
+	if (y[a] == py && x[a] == px) return TRUE;
+	if (y[b] == py && x[b] == px) return FALSE;
+
+	/* Extract monster race */
+	if (ca_ptr->m_idx && ma_ptr->ml) ap_ra_ptr = &r_info[ma_ptr->ap_r_idx];
+	else ap_ra_ptr = NULL;
+	if (cb_ptr->m_idx && mb_ptr->ml) ap_rb_ptr = &r_info[mb_ptr->ap_r_idx];
+	else ap_rb_ptr = NULL;
+
+	if (ap_ra_ptr && !ap_rb_ptr) return TRUE;
+	if (!ap_ra_ptr && ap_rb_ptr) return FALSE;
+
+	/* Compare two monsters */
+	if (ap_ra_ptr && ap_rb_ptr)
+	{
+		/* Unique monsters first */
+		if ((ap_ra_ptr->flags1 & RF1_UNIQUE) && !(ap_rb_ptr->flags1 & RF1_UNIQUE)) return TRUE;
+		if (!(ap_ra_ptr->flags1 & RF1_UNIQUE) && (ap_rb_ptr->flags1 & RF1_UNIQUE)) return FALSE;
+
+		/* Shadowers first (あやしい影) */
+		if ((ma_ptr->mflag2 & MFLAG2_KAGE) && !(mb_ptr->mflag2 & MFLAG2_KAGE)) return TRUE;
+		if (!(ma_ptr->mflag2 & MFLAG2_KAGE) && (mb_ptr->mflag2 & MFLAG2_KAGE)) return FALSE;
+
+ 		/* Unknown monsters first */
+		if (!ap_ra_ptr->r_tkills && ap_rb_ptr->r_tkills) return TRUE;
+		if (ap_ra_ptr->r_tkills && !ap_rb_ptr->r_tkills) return FALSE;
+
+		/* Higher level monsters first (if known) */
+		if (ap_ra_ptr->r_tkills && ap_rb_ptr->r_tkills)
+		{
+			if (ap_ra_ptr->level > ap_rb_ptr->level) return TRUE;
+			if (ap_ra_ptr->level < ap_rb_ptr->level) return FALSE;
+		}
+
+		/* Sort by index if all conditions are same */
+		if (ma_ptr->ap_r_idx > mb_ptr->ap_r_idx) return TRUE;
+		if (ma_ptr->ap_r_idx < mb_ptr->ap_r_idx) return FALSE;
+	}
+
+	/* An object get higher priority */
+	if (cave[y[a]][x[a]].o_idx && !cave[y[b]][x[b]].o_idx) return TRUE;
+	if (!cave[y[a]][x[a]].o_idx && cave[y[b]][x[b]].o_idx) return FALSE;
+
+	/* Priority from the terrain */
+	if (f_info[ca_ptr->feat].priority > f_info[cb_ptr->feat].priority) return TRUE;
+	if (f_info[ca_ptr->feat].priority < f_info[cb_ptr->feat].priority) return FALSE;
+
+	/* If all conditions are same, compare distance */
+	return ang_sort_comp_distance(u, v, a, b);
 }
 
 
@@ -2893,70 +2947,17 @@ static bool target_set_accept(int y, int x)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+		if (o_ptr->marked & OM_FOUND) return (TRUE);
 	}
 
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
-		byte feat;
-
-		/* Feature code (applying "mimic" field) */
-		feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
-
-		/* Notice glyphs */
+		/* Notice object features */
 		if (c_ptr->info & CAVE_OBJECT) return (TRUE);
 
-		/* Notice the Pattern */
-		if ((feat <= FEAT_PATTERN_XTRA2) &&
-		    (feat >= FEAT_PATTERN_START))
-			return (TRUE);
-
-		/* Notice doors */
-		if (feat == FEAT_OPEN) return (TRUE);
-		if (feat == FEAT_BROKEN) return (TRUE);
-
-		/* Notice stairs */
-		if (feat == FEAT_LESS) return (TRUE);
-		if (feat == FEAT_MORE) return (TRUE);
-		if (feat == FEAT_LESS_LESS) return (TRUE);
-		if (feat == FEAT_MORE_MORE) return (TRUE);
-
-		/* Notice shops */
-		if ((feat >= FEAT_SHOP_HEAD) &&
-		    (feat <= FEAT_SHOP_TAIL)) return (TRUE);
-
-		if (feat == FEAT_MUSEUM) return (TRUE);
-
-		/* Notice buildings -KMW- */
-		if ((feat >= FEAT_BLDG_HEAD) &&
-		    (feat <= FEAT_BLDG_TAIL)) return (TRUE);
-
-		/* Notice traps */
-		if (is_trap(feat)) return (TRUE);
-
-		/* Notice doors */
-		if ((feat >= FEAT_DOOR_HEAD) &&
-		    (feat <= FEAT_DOOR_TAIL)) return (TRUE);
-
-#if 0
-		/* Notice rubble */
-		/* I think FEAT_RUBBLEs should not be "interesting" */
-		if (feat == FEAT_RUBBLE) return (TRUE);
-
-		/* Notice veins with treasure */
-		/* Now veins with treasure are too many */
-		if (feat == FEAT_MAGMA_K) return (TRUE);
-		if (feat == FEAT_QUARTZ_K) return (TRUE);
-#endif
-
-		/* Notice quest features */
-		if (feat == FEAT_QUEST_ENTER) return (TRUE);
-		if (feat == FEAT_QUEST_EXIT) return (TRUE);
-		if (feat == FEAT_QUEST_DOWN) return (TRUE);
-		if (feat == FEAT_QUEST_UP) return (TRUE);
-		if (feat == FEAT_TOWN) return (TRUE);
-		if (feat == FEAT_ENTRANCE) return (TRUE);
+		/* Feature code (applying "mimic" field) */
+		if (have_flag(f_info[get_feat_mimic(c_ptr)].flags, FF_NOTICE)) return TRUE;
 	}
 
 	/* Nope */
@@ -2983,9 +2984,6 @@ static void target_set_prepare(int mode)
 		{
 			cave_type *c_ptr;
 
-			/* Require line of sight, unless "look" is "expanded" */
-			if (!expand_look && !player_has_los_bold(y, x)) continue;
-
 			/* Require "interesting" contents */
 			if (!target_set_accept(y, x)) continue;
 
@@ -3004,8 +3002,18 @@ static void target_set_prepare(int mode)
 	}
 
 	/* Set the sort hooks */
-	ang_sort_comp = ang_sort_comp_distance;
-	ang_sort_swap = ang_sort_swap_distance;
+	if (mode & (TARGET_KILL))
+	{
+		/* Target the nearest monster for shooting */
+		ang_sort_comp = ang_sort_comp_distance;
+		ang_sort_swap = ang_sort_swap_distance;
+	}
+	else
+	{
+		/* Look important grids first in Look command */
+		ang_sort_comp = ang_sort_comp_importance;
+		ang_sort_swap = ang_sort_swap_distance;
+	}
 
 	/* Sort the positions */
 	ang_sort(temp_x, temp_y, temp_n);
@@ -3029,61 +3037,57 @@ static void target_set_prepare(int mode)
  */
 static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 {
-#define M_INT_GREATER(h1,l1,h2,l2)  ( (h1>h2)||( (h1==h2)&&(l1>=l2)))
-#define M_INT_SUB(h1,l1, h2,l2) {h1-=h2;if(l1<l2){l1+=0x10000;h1--;}l1-=l2;}
-#define M_INT_ADD(h1,l1, h2,l2) {h1+=h2;l1+=l2;if(l1>=0x10000L){l1&=0xFFFF;h1++;}}
-#define M_INT_LSHIFT(h1,l1) {h1=(h1<<1)|(l1>>15);l1=(l1<<1)&0xffff;}
-#define M_INT_RSHIFT(h1,l1) {l1=(l1>>1)|((h1&1)<<15);h1>>=1;}
-#define M_INT_MULT(h1,l1,mul,h2,l2) {l2=(l1*mul)&0xffff;h2=((l1*mul)>>16)+h1*mul;}
-
 	monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+	u32b num;
+	s32b exp_mon, exp_adv;
+	u32b exp_mon_frac, exp_adv_frac;
 
-	u32b tmp_h,tmp_l;
-	int bit,result;
-	u32b exp_mon= (ap_r_ptr->mexp)*(ap_r_ptr->level);
-	u32b exp_mon_h= exp_mon / (p_ptr->max_plv+2);
-	u32b exp_mon_l= ((exp_mon % (p_ptr->max_plv+2))*0x10000/(p_ptr->max_plv+2))&0xFFFF;
-	
-	u32b exp_adv_h = player_exp[p_ptr->lev -1] * p_ptr->expfact /100;
-	u32b exp_adv_l = ((player_exp[p_ptr->lev -1]%100) * p_ptr->expfact *0x10000/100)&0xFFFF;
-	
-	M_INT_SUB(exp_adv_h, exp_adv_l, p_ptr->exp, p_ptr->exp_frac);
-	if ((p_ptr->lev>=PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
-		sprintf(buf,"**");
-	else if (!ap_r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG2_KAGE))
-		sprintf(buf,"??");
-	else if (M_INT_GREATER(exp_mon_h, exp_mon_l, exp_adv_h, exp_adv_l))
-		sprintf(buf,"001");
-	else 
+	if ((p_ptr->lev >= PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
 	{
-		M_INT_MULT(exp_mon_h, exp_mon_l, 1000,tmp_h, tmp_l);
-		if( M_INT_GREATER(exp_adv_h, exp_adv_l, tmp_h, tmp_l) )
-			sprintf(buf,"999");
-		else
+		sprintf(buf,"**");
+		return;
+	}
+	else if (!ap_r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG2_KAGE))
+	{
+		if (!p_ptr->wizard)
 		{
-			bit=1; result=0;
-			M_INT_ADD(exp_adv_h, exp_adv_l, exp_mon_h, exp_mon_l);
-			M_INT_SUB(exp_adv_h, exp_adv_l, 0, 1);
-			while(M_INT_GREATER(exp_adv_h, exp_adv_l, exp_mon_h,exp_mon_l))
-			{
-				M_INT_LSHIFT(exp_mon_h,exp_mon_l);
-				bit <<= 1;
-			}
-			M_INT_RSHIFT(exp_mon_h,exp_mon_l);bit>>=1;
-			for(;bit>=1;bit>>=1)
-			{
-				if(M_INT_GREATER(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l))
-				{
-					result |= bit;
-					M_INT_SUB(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l);
-				}
-				M_INT_RSHIFT(exp_mon_h,exp_mon_l); 
-			}
-			sprintf(buf,"%03d",result);
+			sprintf(buf,"??");
+			return;
 		}
 	}
+
+
+	/* The monster's experience point (assuming average monster speed) */
+	exp_mon = ap_r_ptr->mexp * ap_r_ptr->level;
+	exp_mon_frac = 0;
+	s64b_div(&exp_mon, &exp_mon_frac, 0, (p_ptr->max_plv + 2));
+
+
+	/* Total experience value for next level */
+	exp_adv = player_exp[p_ptr->lev -1] * p_ptr->expfact;
+	exp_adv_frac = 0;
+	s64b_div(&exp_adv, &exp_adv_frac, 0, 100);
+
+	/* Experience value need to get */
+	s64b_sub(&exp_adv, &exp_adv_frac, p_ptr->exp, p_ptr->exp_frac);
+
+
+	/* You need to kill at least one monster to get any experience */
+	s64b_add(&exp_adv, &exp_adv_frac, exp_mon, exp_mon_frac);
+	s64b_sub(&exp_adv, &exp_adv_frac, 0, 1);
+
+	/* Extract number of monsters needed */
+	s64b_div(&exp_adv, &exp_adv_frac, exp_mon, exp_mon_frac);
+
+	/* If 999 or more monsters needed, only display "999". */
+	num = MIN(999, exp_adv_frac);
+
+	/* Display the number */
+	sprintf(buf,"%03ld", num);
 }
 
+
+bool show_gold_on_floor = FALSE;
 
 /*
  * Examine a grid, return a keypress.
@@ -3112,7 +3116,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 	s16b this_o_idx, next_o_idx = 0;
 	cptr s1 = "", s2 = "", s3 = "", x_info = "";
 	bool boring = TRUE;
-	byte feat;
+	s16b feat;
+	feature_type *f_ptr;
 	int query = '\001';
 	char out_val[MAX_NLEN+80];
 
@@ -3326,7 +3331,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Obtain an object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Describe the object */
 #ifdef JP
@@ -3380,7 +3385,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				o_ptr = &o_list[floor_list[0]];
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, o_ptr, 0);
 
 				/* Message */
 #ifdef JP
@@ -3435,7 +3440,9 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				screen_save();
 
 				/* Display */
+				show_gold_on_floor = TRUE;
 				(void)show_floor(0, y, x, &min_width);
+				show_gold_on_floor = FALSE;
 
 				/* Prompt */
 #ifdef JP
@@ -3498,7 +3505,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Describe it */
-		if (o_ptr->marked)
+		if (o_ptr->marked & OM_FOUND)
 		{
 			char o_name[MAX_NLEN];
 
@@ -3506,7 +3513,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			boring = FALSE;
 
 			/* Obtain an object description */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, o_ptr, 0);
 
 			/* Describe the object */
 #ifdef JP
@@ -3554,26 +3561,56 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
 
 	/* Feature code (applying "mimic" field) */
-	feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
+	feat = get_feat_mimic(c_ptr);
 
 	/* Require knowledge about grid, or ability to see grid */
 	if (!(c_ptr->info & CAVE_MARK) && !player_can_see_bold(y, x))
 	{
 		/* Forget feature */
-		feat = FEAT_NONE;
+		feat = feat_none;
 	}
 
+	f_ptr = &f_info[feat];
+
 	/* Terrain feature if needed */
-	if (boring || (feat > FEAT_INVIS))
+	if (boring || have_flag(f_ptr->flags, FF_REMEMBER))
 	{
 		cptr name;
 
-		/* Hack -- special handling for building doors */
-		if ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL))
+		/* Hack -- special handling for quest entrances */
+		if (have_flag(f_ptr->flags, FF_QUEST_ENTER))
 		{
-			name = building[feat - FEAT_BLDG_HEAD].name;
+			/* Set the quest number temporary */
+			int old_quest = p_ptr->inside_quest;
+			int j;
+
+			/* Clear the text */
+			for (j = 0; j < 10; j++) quest_text[j][0] = '\0';
+			quest_text_line = 0;
+
+			p_ptr->inside_quest = c_ptr->special;
+
+			/* Get the quest text */
+			init_flags = INIT_SHOW_TEXT;
+
+			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+#ifdef JP
+			name = format("クエスト「%s」(%d階相当)", quest[c_ptr->special].name, quest[c_ptr->special].level);
+#else
+			name = format("the entrance to the quest '%s'(level %d)", quest[c_ptr->special].name, quest[c_ptr->special].level);
+#endif
+
+			/* Reset the old quest number */
+			p_ptr->inside_quest = old_quest;
 		}
-		else if (feat == FEAT_ENTRANCE)
+
+		/* Hack -- special handling for building doors */
+		else if (have_flag(f_ptr->flags, FF_BLDG) && !p_ptr->inside_arena)
+		{
+			name = building[f_ptr->subtype].name;
+		}
+		else if (have_flag(f_ptr->flags, FF_ENTRANCE))
 		{
 #ifdef JP
 			name = format("%s(%d階相当)", d_text + d_info[c_ptr->special].text, d_info[c_ptr->special].mindepth);
@@ -3581,11 +3618,11 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			name = format("%s(level %d)", d_text + d_info[c_ptr->special].text, d_info[c_ptr->special].mindepth);
 #endif
 		}
-		else if (feat == FEAT_TOWN)
+		else if (have_flag(f_ptr->flags, FF_TOWN))
 		{
 			name = town[c_ptr->special].name;
 		}
-		else if (p_ptr->wild_mode && (feat == FEAT_FLOOR))
+		else if (p_ptr->wild_mode && (feat == feat_floor))
 		{
 #ifdef JP
 			name = "道";
@@ -3595,80 +3632,67 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 		}
 		else
 		{
-			name = f_name + f_info[feat].name;
+			name = f_name + f_ptr->name;
 		}
 
 
 		/* Pick a prefix */
-		if (*s2 && ((feat >= FEAT_MINOR_GLYPH) &&
-			    (feat <= FEAT_PATTERN_XTRA2)))
-		{
-#ifdef JP
-			s2 = "の上";
-#else
-			s2 = "on ";
-#endif
-
-		}
-		else if (*s2 && ((feat >= FEAT_DOOR_HEAD) &&
-				 (feat <= FEAT_PERM_SOLID)))
+		if (*s2 &&
+		    ((!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY)) ||
+		     (!have_flag(f_ptr->flags, FF_LOS) && !have_flag(f_ptr->flags, FF_TREE)) ||
+		     have_flag(f_ptr->flags, FF_TOWN)))
 		{
 #ifdef JP
 			s2 = "の中";
 #else
 			s2 = "in ";
 #endif
-
-		}
-		else if (*s2 && (feat == FEAT_TOWN))
-		{
-#ifdef JP
-			s2 = "の中";
-#else
-			s2 = "in ";
-#endif
-
 		}
 
 		/* Hack -- special introduction for store & building doors -KMW- */
-		if (((feat >= FEAT_SHOP_HEAD) && (feat <= FEAT_SHOP_TAIL)) ||
-		    ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)) ||
-		    (feat == FEAT_MUSEUM) ||
-		    (feat == FEAT_ENTRANCE))
+		if (have_flag(f_ptr->flags, FF_STORE) ||
+		    have_flag(f_ptr->flags, FF_QUEST_ENTER) ||
+		    (have_flag(f_ptr->flags, FF_BLDG) && !p_ptr->inside_arena) ||
+		    have_flag(f_ptr->flags, FF_ENTRANCE))
 		{
 #ifdef JP
 			s2 = "の入口";
 #else
 			s3 = "";
 #endif
-
 		}
-		else if ((feat == FEAT_TOWN) || (feat == FEAT_FLOOR) || (feat == FEAT_DIRT) || (feat == FEAT_FLOWER))
-		{
 #ifndef JP
+		else if (have_flag(f_ptr->flags, FF_FLOOR) ||
+			 have_flag(f_ptr->flags, FF_TOWN) ||
+			 have_flag(f_ptr->flags, FF_SHALLOW) ||
+			 have_flag(f_ptr->flags, FF_DEEP))
+		{
 			s3 ="";
-#endif
 		}
 		else
 		{
 			/* Pick proper indefinite article */
-#ifndef JP
 			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
-#endif
 		}
+#endif
 
 		/* Display a message */
 		if (p_ptr->wizard)
+		{
+			char f_idx_str[32];
+			if (c_ptr->mimic) sprintf(f_idx_str, "%d/%d", c_ptr->feat, c_ptr->mimic);
+			else sprintf(f_idx_str, "%d", c_ptr->feat);
 #ifdef JP
-			sprintf(out_val, "%s%s%s%s[%s] %x %d %d %d %d (%d,%d)", s1, name, s2, s3, info, c_ptr->info, c_ptr->feat, c_ptr->dist, c_ptr->cost, c_ptr->when, x, y);
+			sprintf(out_val, "%s%s%s%s[%s] %x %s %d %d %d (%d,%d)", s1, name, s2, s3, info, c_ptr->info, f_idx_str, c_ptr->dist, c_ptr->cost, c_ptr->when, y, x);
 #else
-		sprintf(out_val, "%s%s%s%s [%s] %x %d %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, c_ptr->feat, c_ptr->dist, c_ptr->cost, c_ptr->when, x, y);
+			sprintf(out_val, "%s%s%s%s [%s] %x %s %d %d %d (%d,%d)", s1, s2, s3, name, info, c_ptr->info, f_idx_str, c_ptr->dist, c_ptr->cost, c_ptr->when, y, x);
 #endif
+		}
 		else
 #ifdef JP
 			sprintf(out_val, "%s%s%s%s[%s]", s1, name, s2, s3, info);
 #else
-		sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
 #endif
 
 		prt(out_val, 0, 0);
@@ -4458,7 +4482,7 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 		monster_type *m_ptr = &m_list[p_ptr->riding];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-		if (m_ptr->confused)
+		if (MON_CONFUSED(m_ptr))
 		{
 			/* Standard confusion */
 			if (randint0(100) < 75)
@@ -4497,7 +4521,7 @@ msg_print("あなたは混乱している。");
 			monster_type *m_ptr = &m_list[p_ptr->riding];
 
 			monster_desc(m_name, m_ptr, 0);
-			if (m_ptr->confused)
+			if (MON_CONFUSED(m_ptr))
 			{
 #ifdef JP
 msg_format("%sは混乱している。", m_name);
@@ -4616,12 +4640,6 @@ msg_print("あなたは混乱している。");
 
 	/* Success */
 	return (TRUE);
-}
-
-
-int get_chaos_patron(void)
-{
-	return ((p_ptr->age + p_ptr->sc) % MAX_PATRON);
 }
 
 
@@ -5259,7 +5277,7 @@ msg_print("「甦るがよい、我が下僕よ！」");
 #endif
 			break;
 		case REW_CURSE_WP:
-			if (!buki_motteruka(INVEN_RARM)) break;
+			if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM)) break;
 #ifdef JP
 msg_format("%sの声が響き渡った:",
 				chaos_patrons[p_ptr->chaos_patron]);
@@ -5274,8 +5292,14 @@ msg_print("「汝、武器に頼ることなかれ。」");
 			msg_print("'Thou reliest too much on thy weapon.'");
 #endif
 
-			object_desc(o_name, &inventory[INVEN_RARM], TRUE, 0);
-			(void)curse_weapon(FALSE, INVEN_RARM);
+			dummy = INVEN_RARM;
+			if (buki_motteruka(INVEN_LARM))
+			{
+				dummy = INVEN_LARM;
+				if (buki_motteruka(INVEN_RARM) && one_in_(2)) dummy = INVEN_RARM;
+			}
+			object_desc(o_name, &inventory[dummy], OD_NAME_ONLY);
+			(void)curse_weapon(FALSE, dummy);
 #ifdef JP
 			reward = format("%sが破壊された。", o_name);
 #else
@@ -5298,7 +5322,7 @@ msg_print("「汝、防具に頼ることなかれ。」");
 			msg_print("'Thou reliest too much on thine equipment.'");
 #endif
 
-			object_desc(o_name, &inventory[INVEN_BODY], TRUE, 0);
+			object_desc(o_name, &inventory[INVEN_BODY], OD_NAME_ONLY);
 			(void)curse_armor();
 #ifdef JP
 			reward = format("%sが破壊された。", o_name);
@@ -5342,9 +5366,15 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 				case 3:
 					if (one_in_(2))
 					{
-						if (!buki_motteruka(INVEN_RARM)) break;
-						object_desc(o_name, &inventory[INVEN_RARM], TRUE, 0);
-						(void)curse_weapon(FALSE, INVEN_RARM);
+						if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM)) break;
+						dummy = INVEN_RARM;
+						if (buki_motteruka(INVEN_LARM))
+						{
+							dummy = INVEN_LARM;
+							if (buki_motteruka(INVEN_RARM) && one_in_(2)) dummy = INVEN_RARM;
+						}
+						object_desc(o_name, &inventory[dummy], OD_NAME_ONLY);
+						(void)curse_weapon(FALSE, dummy);
 #ifdef JP
 						reward = format("%sが破壊された。", o_name);
 #else
@@ -5354,7 +5384,7 @@ msg_print("「我を怒りしめた罪を償うべし。」");
 					else
 					{
 						if (!inventory[INVEN_BODY].k_idx) break;
-						object_desc(o_name, &inventory[INVEN_BODY], TRUE, 0);
+						object_desc(o_name, &inventory[INVEN_BODY], OD_NAME_ONLY);
 						(void)curse_armor();
 #ifdef JP
 						reward = format("%sが破壊された。", o_name);
@@ -5397,7 +5427,19 @@ msg_print("「死ぬがよい、下僕よ！」");
 			}
 			activate_hi_summon(py, px, FALSE);
 			(void)activate_ty_curse(FALSE, &count);
-			if (one_in_(2)) (void)curse_weapon(FALSE, INVEN_RARM);
+			if (one_in_(2))
+			{
+				dummy = 0;
+
+				if (buki_motteruka(INVEN_RARM))
+				{
+					dummy = INVEN_RARM;
+					if (buki_motteruka(INVEN_LARM) && one_in_(2)) dummy = INVEN_LARM;
+				}
+				else if (buki_motteruka(INVEN_LARM)) dummy = INVEN_LARM;
+
+				if (dummy) (void)curse_weapon(FALSE, dummy);
+			}
 			if (one_in_(2)) (void)curse_armor();
 			break;
 		case REW_DESTRUCT:

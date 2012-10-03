@@ -26,6 +26,15 @@
 #include <signal.h>
 #endif
 
+/*
+ * internet resource value
+ */
+#define HTTP_PROXY ""                   /* Default proxy url */
+#define HTTP_PROXY_PORT 0               /* Default proxy port */
+#define HTTP_TIMEOUT    20              /* Timeout length (second) */
+#define SCORE_SERVER "www.kmc.gr.jp"    /* Default score server url */
+#define SCORE_PORT 80                   /* Default score server port */
+
 #ifdef JP
 #define SCORE_PATH "http://www.kmc.gr.jp/~habu/local/hengscore/score.cgi"
 #else
@@ -123,12 +132,23 @@ static int buf_sprintf(BUF *buf, const char *fmt, ...)
 
 	if(!tmpbuf) return -1;
 
-#ifdef MAC_MPW
+#if ('\r' == 0x0a && '\n' == 0x0d)
 	{
-		/* '\n' is 0x0D and '\r' is 0x0A in MPW. Swap back these. */
+		/*
+		 * Originally '\r'= CR (= 0x0d) and '\n'= LF (= 0x0a)
+		 * But for MPW (Macintosh Programers Workbench), these
+		 * are reversed so that '\r'=LF and '\n'=CR unless the
+		 * -noMapCR option is not defined.
+		 *
+		 * We need to swap back these here since the score
+		 * dump text should be written using LF as the end of
+		 * line.
+		 */
 		char *ptr;
 		for (ptr = tmpbuf; *ptr; ptr++)
-			if ('\n' == *ptr) *ptr = '\r';
+		{
+			if (0x0d == *ptr) *ptr = 0x0a;
+		}
 	}
 #endif
 
@@ -170,7 +190,7 @@ static int buf_search(BUF *buf, const char *str)
 {
 	char *ret;
 
-	ret = strstr(buf->data, str);
+	ret = my_strstr(buf->data, str);
 
 	if (!ret) return -1;
 
@@ -291,6 +311,9 @@ cptr make_screen_dump(void)
 
 	if (old_use_graphics)
 	{
+		/* Clear -more- prompt first */
+		msg_print(NULL);
+
 		use_graphics = FALSE;
 		reset_visuals();
 
@@ -472,7 +495,13 @@ errr report_score(void)
 #endif
 		Term_fresh();
 		
-		sd = connect_scoreserver();
+		/* プロキシを設定する */
+		set_proxy(HTTP_PROXY, HTTP_PROXY_PORT);
+
+		/* Connect to the score server */
+		sd = connect_server(HTTP_TIMEOUT, SCORE_SERVER, SCORE_PORT);
+
+
 		if (!(sd < 0)) break;
 #ifdef JP
 		sprintf(buff, "スコア・サーバへの接続に失敗しました。(%s)", soc_err());

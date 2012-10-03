@@ -14,44 +14,43 @@
 #include "angband.h"
 
 
+static void set_floor_and_wall_aux(s16b feat_type[100], feat_prob prob[DUNGEON_FEAT_PROB_NUM])
+{
+	int lim[DUNGEON_FEAT_PROB_NUM], cur = 0, i;
+
+	lim[0] = prob[0].percent;
+	for (i = 1; i < DUNGEON_FEAT_PROB_NUM; i++) lim[i] = lim[i - 1] + prob[i].percent;
+
+	/* Paranoia */
+	if (lim[DUNGEON_FEAT_PROB_NUM - 1] < 100) lim[DUNGEON_FEAT_PROB_NUM - 1] = 100;
+
+	for (i = 0; i < 100; i++)
+	{
+		while (i == lim[cur]) cur++;
+		feat_type[i] = prob[cur].feat;
+	}
+}
+
 /*
  * Fill the arrays of floors and walls in the good proportions
  */
 void set_floor_and_wall(byte type)
 {
 	static byte cur_type = 255;
-	int i;
+	dungeon_info_type *d_ptr;
 
 	/* Already filled */
 	if (cur_type == type) return;
 
 	cur_type = type;
+	d_ptr = &d_info[type];
 
-	for (i = 0; i < 100; i++)
-	{
-		int lim1, lim2, lim3;
+	set_floor_and_wall_aux(floor_type, d_ptr->floor);
+	set_floor_and_wall_aux(fill_type, d_ptr->fill);
 
-		lim1 = d_info[type].floor_percent1;
-		lim2 = lim1 + d_info[type].floor_percent2;
-		lim3 = lim2 + d_info[type].floor_percent3;
-
-		if (i < lim1)
-			floor_type[i] = d_info[type].floor1;
-		else if (i < lim2)
-			floor_type[i] = d_info[type].floor2;
-		else if (i < lim3)
-			floor_type[i] = d_info[type].floor3;
-
-		lim1 = d_info[type].fill_percent1;
-		lim2 = lim1 + d_info[type].fill_percent2;
-		lim3 = lim2 + d_info[type].fill_percent3;
-		if (i < lim1)
-			fill_type[i] = d_info[type].fill_type1;
-		else if (i < lim2)
-			fill_type[i] = d_info[type].fill_type2;
-		else if (i < lim3)
-			fill_type[i] = d_info[type].fill_type3;
-	}
+	feat_wall_outer = d_ptr->outer_wall;
+	feat_wall_inner = d_ptr->inner_wall;
+	feat_wall_solid = d_ptr->outer_wall;
 }
 
 
@@ -148,331 +147,18 @@ static void plasma_recursive(int x1, int y1, int x2, int y2,
 }
 
 
+#define MAX_FEAT_IN_TERRAIN 18
+
 /*
  * The default table in terrain level generation.
  */
-static int terrain_table[MAX_WILDERNESS][18] =
-{
-	/* TERRAIN_EDGE */
-	{
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-			FEAT_PERM_SOLID,
-	},
-	/* TERRAIN_TOWN */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-	},
-	/* TERRAIN_DEEP_WATER */
-	{
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-	},
-	/* TERRAIN_SHALLOW_WATER */
-	{
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-			FEAT_DEEP_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_FLOOR,
-			FEAT_DIRT,
-			FEAT_GRASS,
-	},
-	/* TERRAIN_SWAMP */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-			FEAT_SHAL_WATER,
-
-			FEAT_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
-
-			FEAT_GRASS,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DEEP_GRASS,
-			FEAT_TREES,
-	},
-	/* TERRAIN_DIRT */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_FLOWER,
-			FEAT_DEEP_GRASS,
-
-			FEAT_GRASS,
-			FEAT_TREES,
-			FEAT_TREES,
-	},
-	/* TERRAIN_GRASS */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_GRASS,
-			FEAT_GRASS,
-
-			FEAT_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
-
-			FEAT_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
-
-			FEAT_GRASS,
-			FEAT_FLOWER,
-			FEAT_DEEP_GRASS,
-
-			FEAT_DEEP_GRASS,
-			FEAT_TREES,
-			FEAT_TREES,
-	},
-	/* TERRAIN_TREES */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_DIRT,
-
-			FEAT_TREES,
-			FEAT_TREES,
-			FEAT_TREES,
-
-			FEAT_TREES,
-			FEAT_TREES,
-			FEAT_TREES,
-
-			FEAT_TREES,
-			FEAT_TREES,
-			FEAT_TREES,
-
-			FEAT_TREES,
-			FEAT_TREES,
-			FEAT_DEEP_GRASS,
-
-			FEAT_DEEP_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
-	},
-	/* TERRAIN_DESERT */
-	{
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
-	},
-	/* TERRAIN_SHALLOW_LAVA */
-	{
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_DEEP_LAVA,
-
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-			FEAT_MOUNTAIN,
-	},
-	/* TERRAIN_DEEP_LAVA */
-	{
-			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-			FEAT_SHAL_LAVA,
-
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
-
-			FEAT_DEEP_LAVA,
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-	},
-	/* TERRAIN_MOUNTAIN */
-	{
-			FEAT_FLOOR,
-			FEAT_DEEP_GRASS,
-			FEAT_GRASS,
-
-			FEAT_GRASS,
-			FEAT_DIRT,
-			FEAT_DIRT,
-
-			FEAT_TREES,
-			FEAT_TREES,
-			FEAT_MOUNTAIN,
-
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-			FEAT_MOUNTAIN,
-	},
-
-};
+static s16b terrain_table[MAX_WILDERNESS][MAX_FEAT_IN_TERRAIN];
 
 
 static void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
 {
 	int x1, y1;
-	int table_size = sizeof(terrain_table[0]) / sizeof(int);
+	int table_size = sizeof(terrain_table[0]) / sizeof(s16b);
 	int roughness = 1; /* The roughness of the level. */
 
 	/* Unused */
@@ -486,7 +172,7 @@ static void generate_wilderness_area(int terrain, u32b seed, bool border, bool c
 		{
 			for (x1 = 0; x1 < MAX_WID; x1++)
 			{
-				cave[y1][x1].feat = FEAT_PERM_SOLID;
+				cave[y1][x1].feat = feat_permanent;
 			}
 		}
 
@@ -518,27 +204,46 @@ static void generate_wilderness_area(int terrain, u32b seed, bool border, bool c
 	 * ToDo: calculate the medium height of the adjacent
 	 * terrains for every corner.
 	 */
-	cave[1][1].feat = (byte)randint0(table_size);
-	cave[MAX_HGT-2][1].feat = (byte)randint0(table_size);
-	cave[1][MAX_WID-2].feat = (byte)randint0(table_size);
-	cave[MAX_HGT-2][MAX_WID-2].feat = (byte)randint0(table_size);
+	cave[1][1].feat = randint0(table_size);
+	cave[MAX_HGT-2][1].feat = randint0(table_size);
+	cave[1][MAX_WID-2].feat = randint0(table_size);
+	cave[MAX_HGT-2][MAX_WID-2].feat = randint0(table_size);
 
 	if (!corner)
 	{
+		/* Hack -- preserve four corners */
+		s16b north_west = cave[1][1].feat;
+		s16b south_west = cave[MAX_HGT - 2][1].feat;
+		s16b north_east = cave[1][MAX_WID - 2].feat;
+		s16b south_east = cave[MAX_HGT - 2][MAX_WID - 2].feat;
+
 		/* x1, y1, x2, y2, num_depths, roughness */
 		plasma_recursive(1, 1, MAX_WID-2, MAX_HGT-2, table_size-1, roughness);
+
+		/* Hack -- copyback four corners */
+		cave[1][1].feat = north_west;
+		cave[MAX_HGT - 2][1].feat = south_west;
+		cave[1][MAX_WID - 2].feat = north_east;
+		cave[MAX_HGT - 2][MAX_WID - 2].feat = south_east;
+
+		for (y1 = 1; y1 < MAX_HGT - 1; y1++)
+		{
+			for (x1 = 1; x1 < MAX_WID - 1; x1++)
+			{
+				cave[y1][x1].feat = terrain_table[terrain][cave[y1][x1].feat];
+			}
+		}
+	}
+	else /* Hack -- only four corners */
+	{
+		cave[1][1].feat = terrain_table[terrain][cave[1][1].feat];
+		cave[MAX_HGT - 2][1].feat = terrain_table[terrain][cave[MAX_HGT - 2][1].feat];
+		cave[1][MAX_WID - 2].feat = terrain_table[terrain][cave[1][MAX_WID - 2].feat];
+		cave[MAX_HGT - 2][MAX_WID - 2].feat = terrain_table[terrain][cave[MAX_HGT - 2][MAX_WID - 2].feat];
 	}
 
 	/* Use the complex RNG */
 	Rand_quick = FALSE;
-
-	for (y1 = 1; y1 < MAX_HGT-1; y1++)
-	{
-		for (x1 = 1; x1 < MAX_WID-1; x1++)
-		{
-			cave[y1][x1].feat = terrain_table[terrain][cave[y1][x1].feat];
-		}
-	}
 }
 
 
@@ -605,7 +310,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 		 */
 		if (wilderness[y][x].road)
 		{
-			cave[MAX_HGT/2][MAX_WID/2].feat = FEAT_FLOOR;
+			cave[MAX_HGT/2][MAX_WID/2].feat = feat_floor;
 
 			if (wilderness[y-1][x].road)
 			{
@@ -613,7 +318,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 				for (y1 = 1; y1 < MAX_HGT/2; y1++)
 				{
 					x1 = MAX_WID/2;
-					cave[y1][x1].feat = FEAT_FLOOR;
+					cave[y1][x1].feat = feat_floor;
 				}
 			}
 
@@ -623,7 +328,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 				for (y1 = MAX_HGT/2; y1 < MAX_HGT - 1; y1++)
 				{
 					x1 = MAX_WID/2;
-					cave[y1][x1].feat = FEAT_FLOOR;
+					cave[y1][x1].feat = feat_floor;
 				}
 			}
 
@@ -633,7 +338,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 				for (x1 = MAX_WID/2; x1 < MAX_WID - 1; x1++)
 				{
 					y1 = MAX_HGT/2;
-					cave[y1][x1].feat = FEAT_FLOOR;
+					cave[y1][x1].feat = feat_floor;
 				}
 			}
 
@@ -643,7 +348,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 				for (x1 = 1; x1 < MAX_WID/2; x1++)
 				{
 					y1 = MAX_HGT/2;
-					cave[y1][x1].feat = FEAT_FLOOR;
+					cave[y1][x1].feat = feat_floor;
 				}
 			}
 		}
@@ -662,8 +367,8 @@ static void generate_area(int y, int x, bool border, bool corner)
 		dy = rand_range(6, cur_hgt - 6);
 		dx = rand_range(6, cur_wid - 6);
 
-		cave[dy][dx].feat = FEAT_ENTRANCE;
-		cave[dy][dx].special = (byte)wilderness[y][x].entrance;
+		cave[dy][dx].feat = feat_entrance;
+		cave[dy][dx].special = wilderness[y][x].entrance;
 
 		/* Use the complex RNG */
 		Rand_quick = FALSE;
@@ -684,6 +389,7 @@ void wilderness_gen(void)
 {
 	int i, y, x, lim;
 	cave_type *c_ptr;
+	feature_type *f_ptr;
 
 	/* Big town */
 	cur_hgt = MAX_HGT;
@@ -759,28 +465,28 @@ void wilderness_gen(void)
 	/* Special boundary walls -- North */
 	for (i = 0; i < MAX_WID; i++)
 	{
-		cave[0][i].feat = FEAT_PERM_SOLID;
+		cave[0][i].feat = feat_permanent;
 		cave[0][i].mimic = border.north[i];
 	}
 
 	/* Special boundary walls -- South */
 	for (i = 0; i < MAX_WID; i++)
 	{
-		cave[MAX_HGT - 1][i].feat = FEAT_PERM_SOLID;
+		cave[MAX_HGT - 1][i].feat = feat_permanent;
 		cave[MAX_HGT - 1][i].mimic = border.south[i];
 	}
 
 	/* Special boundary walls -- West */
 	for (i = 0; i < MAX_HGT; i++)
 	{
-		cave[i][0].feat = FEAT_PERM_SOLID;
+		cave[i][0].feat = feat_permanent;
 		cave[i][0].mimic = border.west[i];
 	}
 
 	/* Special boundary walls -- East */
 	for (i = 0; i < MAX_HGT; i++)
 	{
-		cave[i][MAX_WID - 1].feat = FEAT_PERM_SOLID;
+		cave[i][MAX_WID - 1].feat = feat_permanent;
 		cave[i][MAX_WID - 1].mimic = border.east[i];
 	}
 
@@ -815,24 +521,22 @@ void wilderness_gen(void)
 			else
 			{
 				/* Feature code (applying "mimic" field) */
-				byte feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
+				f_ptr = &f_info[get_feat_mimic(c_ptr)];
 
-				if (!is_mirror_grid(c_ptr) && (feat != FEAT_QUEST_ENTER) && (feat != FEAT_ENTRANCE))
+				if (!is_mirror_grid(c_ptr) && !have_flag(f_ptr->flags, FF_QUEST_ENTER) &&
+				    !have_flag(f_ptr->flags, FF_ENTRANCE))
 				{
 					/* Assume dark */
 					c_ptr->info &= ~(CAVE_GLOW);
 
 					/* Darken "boring" features */
-					if ((feat <= FEAT_INVIS) ||
-					   ((feat >= FEAT_DEEP_WATER) &&
-					    (feat <= FEAT_MOUNTAIN) &&
-					    (feat != FEAT_MUSEUM)))
+					if (!have_flag(f_ptr->flags, FF_REMEMBER))
 					{
 						/* Forget the grid */
 						c_ptr->info &= ~(CAVE_MARK);
 					}
 				}
-				else if (feat == FEAT_ENTRANCE)
+				else if (have_flag(f_ptr->flags, FF_ENTRANCE))
 				{
 					/* Assume lit */
 					c_ptr->info |= (CAVE_GLOW);
@@ -850,11 +554,20 @@ void wilderness_gen(void)
 		{
 			for (x = 0; x < cur_wid; x++)
 			{
-				if (((cave[y][x].feat - FEAT_BLDG_HEAD) == 4) || ((p_ptr->town_num == 1) && ((cave[y][x].feat - FEAT_BLDG_HEAD) == 0)))
+				/* Get the cave grid */
+				c_ptr = &cave[y][x];
+
+				/* Seeing true feature code (ignore mimic) */
+				f_ptr = &f_info[c_ptr->feat];
+
+				if (have_flag(f_ptr->flags, FF_BLDG))
 				{
-					if (cave[y][x].m_idx) delete_monster_idx(cave[y][x].m_idx);
-					p_ptr->oldpy = y;
-					p_ptr->oldpx = x;
+					if ((f_ptr->subtype == 4) || ((p_ptr->town_num == 1) && (f_ptr->subtype == 0)))
+					{
+						if (c_ptr->m_idx) delete_monster_idx(c_ptr->m_idx);
+						p_ptr->oldpy = y;
+						p_ptr->oldpx = x;
+					}
 				}
 			}
 		}
@@ -867,9 +580,12 @@ void wilderness_gen(void)
 		{
 			for (x = 0; x < cur_wid; x++)
 			{
-				if (cave[y][x].feat == FEAT_ENTRANCE)
+				/* Get the cave grid */
+				c_ptr = &cave[y][x];
+
+				if (cave_have_flag_grid(c_ptr, FF_ENTRANCE))
 				{
-					if (cave[y][x].m_idx) delete_monster_idx(cave[y][x].m_idx);
+					if (c_ptr->m_idx) delete_monster_idx(c_ptr->m_idx);
 					p_ptr->oldpy = y;
 					p_ptr->oldpx = x;
 				}
@@ -879,7 +595,6 @@ void wilderness_gen(void)
 	}
 
 	player_place(p_ptr->oldpy, p_ptr->oldpx);
-	p_ptr->leftbldg = FALSE;
 	/* p_ptr->leaving_dungeon = FALSE;*/
 
 	lim = (generate_encounter==TRUE)?40:MIN_M_ALLOC_TN;
@@ -911,6 +626,8 @@ void wilderness_gen(void)
 }
 
 
+static s16b conv_terrain2feat[MAX_WILDERNESS];
+
 /*
  * Build the wilderness area.
  * -DG-
@@ -923,7 +640,7 @@ void wilderness_gen_small()
 	for (i = 0; i < MAX_WID; i++)
 	for (j = 0; j < MAX_HGT; j++)
 	{
-		cave[j][i].feat = FEAT_PERM_SOLID;
+		cave[j][i].feat = feat_permanent;
 	}
 
 	/* Init the wilderness */
@@ -935,13 +652,13 @@ void wilderness_gen_small()
 	{
 		if (wilderness[j][i].town && (wilderness[j][i].town != NO_TOWN))
 		{
-			cave[j][i].feat = FEAT_TOWN;
+			cave[j][i].feat = feat_town;
 			cave[j][i].special = wilderness[j][i].town;
 		}
-		else if (wilderness[j][i].road) cave[j][i].feat = FEAT_FLOOR;
+		else if (wilderness[j][i].road) cave[j][i].feat = feat_floor;
 		else if (wilderness[j][i].entrance && (p_ptr->total_winner || !(d_info[wilderness[j][i].entrance].flags1 & DF1_WINNER)))
 		{
-			cave[j][i].feat = FEAT_ENTRANCE;
+			cave[j][i].feat = feat_entrance;
 			cave[j][i].special = (byte)wilderness[j][i].entrance;
 		}
 		else cave[j][i].feat = conv_terrain2feat[wilderness[j][i].terrain];
@@ -1171,62 +888,218 @@ errr init_wilderness(void)
 }
 
 
+static void init_terrain_table(int terrain, s16b feat_global, cptr fmt, ...)
+{
+	va_list vp;
+	cptr    p;
+	int     cur = 0;
+	char    check = 'a';
+	s16b    feat;
+	int     num;
+
+	/* Begin the varargs stuff */
+	va_start(vp, fmt);
+
+	/* Wilderness terrains on global map */
+	conv_terrain2feat[terrain] = feat_global;
+
+	/* Wilderness terrains on local map */
+	for (p = fmt; *p; p++)
+	{
+		if (*p == check)
+		{
+			int lim;
+
+			feat = (s16b)va_arg(vp, int);
+			num = va_arg(vp, int);
+			lim = cur + num;
+
+			for (; (cur < lim) && (cur < MAX_FEAT_IN_TERRAIN); cur++)
+				terrain_table[terrain][cur] = feat;
+			if (cur >= MAX_FEAT_IN_TERRAIN) break;
+
+			check++;
+		}
+		else /* Paranoia */
+		{
+			plog_fmt("Format error");
+		}
+	}
+
+	feat = terrain_table[terrain][cur];
+	for (; cur < MAX_FEAT_IN_TERRAIN; cur++) terrain_table[terrain][cur] = feat;
+
+	/* End the varargs stuff */
+	va_end(vp);
+}
+
+
+/*
+ * Initialize arrays for wilderness terrains
+ */
+void init_wilderness_terrains(void)
+{
+	init_terrain_table(TERRAIN_EDGE, feat_permanent, "a",
+		feat_permanent, MAX_FEAT_IN_TERRAIN);
+
+	init_terrain_table(TERRAIN_TOWN, feat_town, "a",
+		feat_floor, MAX_FEAT_IN_TERRAIN);
+
+	init_terrain_table(TERRAIN_DEEP_WATER, feat_deep_water, "ab",
+		feat_deep_water, 12,
+		feat_shallow_water, MAX_FEAT_IN_TERRAIN - 12);
+
+	init_terrain_table(TERRAIN_SHALLOW_WATER, feat_shallow_water, "abcde",
+		feat_deep_water, 3,
+		feat_shallow_water, 12,
+		feat_floor, 1,
+		feat_dirt, 1,
+		feat_grass, MAX_FEAT_IN_TERRAIN - 17);
+
+	init_terrain_table(TERRAIN_SWAMP, feat_swamp, "abcdef",
+		feat_dirt, 2,
+		feat_grass, 3,
+		feat_tree, 1,
+		feat_brake, 1,
+		feat_shallow_water, 4,
+		feat_swamp, MAX_FEAT_IN_TERRAIN - 11);
+
+	init_terrain_table(TERRAIN_DIRT, feat_dirt, "abcdef",
+		feat_floor, 3,
+		feat_dirt, 10,
+		feat_flower, 1,
+		feat_brake, 1,
+		feat_grass, 1,
+		feat_tree, MAX_FEAT_IN_TERRAIN - 16);
+
+	init_terrain_table(TERRAIN_GRASS, feat_grass, "abcdef",
+		feat_floor, 2,
+		feat_dirt, 2,
+		feat_grass, 9,
+		feat_flower, 1,
+		feat_brake, 2,
+		feat_tree, MAX_FEAT_IN_TERRAIN - 16);
+
+	init_terrain_table(TERRAIN_TREES, feat_tree, "abcde",
+		feat_floor, 2,
+		feat_dirt, 1,
+		feat_tree, 11,
+		feat_brake, 2,
+		feat_grass, MAX_FEAT_IN_TERRAIN - 16);
+
+	init_terrain_table(TERRAIN_DESERT, feat_dirt, "abc",
+		feat_floor, 2,
+		feat_dirt, 13,
+		feat_grass, MAX_FEAT_IN_TERRAIN - 15);
+
+	init_terrain_table(TERRAIN_SHALLOW_LAVA, feat_shallow_lava, "abc",
+		feat_shallow_lava, 14,
+		feat_deep_lava, 3,
+		feat_mountain, MAX_FEAT_IN_TERRAIN - 17);
+
+	init_terrain_table(TERRAIN_DEEP_LAVA, feat_deep_lava, "abcd",
+		feat_dirt, 3,
+		feat_shallow_lava, 3,
+		feat_deep_lava, 10,
+		feat_mountain, MAX_FEAT_IN_TERRAIN - 16);
+
+	init_terrain_table(TERRAIN_MOUNTAIN, feat_mountain, "abcdef",
+		feat_floor, 1,
+		feat_brake, 1,
+		feat_grass, 2,
+		feat_dirt, 2,
+		feat_tree, 2,
+		feat_mountain, MAX_FEAT_IN_TERRAIN - 8);
+}
+
+
 bool change_wild_mode(void)
 {
 	int i;
 	bool have_pet = FALSE;
+
+	/* It is in the middle of changing map */
+	if (p_ptr->leaving) return FALSE;
+
 
 	if (lite_town || vanilla_town)
 	{
 #ifdef JP
 		msg_print("荒野なんてない。");
 #else
-		msg_print("No global mal");
+		msg_print("No global map.");
 #endif
 		return FALSE;
 	}
-	if (!p_ptr->wild_mode)
-	{
-		for (i = 1; i < m_max; i++)
-		{
-			monster_type *m_ptr = &m_list[i];
 
-			if (!m_ptr->r_idx) continue;
-			if (is_pet(m_ptr) && i != p_ptr->riding) have_pet = TRUE;
-			if (m_ptr->csleep) continue;
-			if (m_ptr->cdis > MAX_SIGHT) continue;
-			if (!is_hostile(m_ptr)) continue;
+	if (p_ptr->wild_mode)
+	{
+		/* Save the location in the global map */
+		p_ptr->wilderness_x = px;
+		p_ptr->wilderness_y = py;
+
+		/* Give first move to the player */
+		p_ptr->energy_need = 0;
+
+		/* Go back to the ordinary map */
+		p_ptr->wild_mode = FALSE;
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+
+		/* Succeed */
+		return TRUE;
+	}
+
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		if (!m_ptr->r_idx) continue;
+		if (is_pet(m_ptr) && i != p_ptr->riding) have_pet = TRUE;
+		if (MON_CSLEEP(m_ptr)) continue;
+		if (m_ptr->cdis > MAX_SIGHT) continue;
+		if (!is_hostile(m_ptr)) continue;
 #ifdef JP
-			msg_print("敵がすぐ近くにいるときは広域マップに入れない！");
+		msg_print("敵がすぐ近くにいるときは広域マップに入れない！");
 #else
-			msg_print("You cannot enter global map, since there is some monsters nearby!");
+		msg_print("You cannot enter global map, since there is some monsters nearby!");
 #endif
+		energy_use = 0;
+		return FALSE;
+	}
+
+	if (have_pet)
+	{
+#ifdef JP
+		cptr msg = "ペットを置いて広域マップに入りますか？";
+#else
+		cptr msg = "Do you leave your pets behind? ";
+#endif
+
+		if (!get_check_strict(msg, CHECK_OKAY_CANCEL))
+		{
 			energy_use = 0;
 			return FALSE;
 		}
-
-		if (have_pet)
-		{
-#ifdef JP
-			if(!get_check_strict("ペットを置いて広域マップに入りますか？", CHECK_OKAY_CANCEL))
-#else
-			if(!get_check_strict("Do you leave your pets behind? ", CHECK_OKAY_CANCEL))
-#endif
-			{
-				energy_use = 0;
-				return FALSE;
-			}
-		}
-
-		energy_use = 1000;
 	}
 
+	/* HACK */
+	energy_use = 1000;
+
+	/* Remember the position */
+	p_ptr->oldpx = px;
+	p_ptr->oldpy = py;
+
+	/* Cancel any special action */
 	set_action(ACTION_NONE);
 
-	p_ptr->wild_mode = !p_ptr->wild_mode;
+	/* Go into the global map */
+	p_ptr->wild_mode = TRUE;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 
+	/* Succeed */
 	return TRUE;
 }

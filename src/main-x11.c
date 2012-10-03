@@ -9,7 +9,7 @@
  */
 
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 /*
  * 日本語(EUC-JAPAN)対応 (-DJP)
  *    ・漢字フォントの扱いを追加
@@ -456,7 +456,7 @@ static infowin *Infowin = (infowin*)(NULL);
 static infowin *Focuswin = (infowin*)(NULL);
 #endif
 static infoclr *Infoclr = (infoclr*)(NULL);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 static infofnt *Infofnt = (infofnt*)(NULL);
 static infofnt *Infokfnt = (infofnt*)(NULL);
 #else
@@ -469,7 +469,7 @@ static infofnt *Infofnt = (infofnt*)(NULL);
 /**** Generic code ****/
 
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 #define Infokfnt_set(I) \
 	(Infokfnt = (I))
 #endif
@@ -1228,7 +1228,7 @@ static errr Infofnt_nuke(void)
 {
 	infofnt *ifnt = Infofnt;
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	infofnt *ikfnt = Infokfnt;
 #endif
 	/* Deal with 'name' */
@@ -1238,21 +1238,26 @@ static errr Infofnt_nuke(void)
 		string_free(ifnt->name);
 	}
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	if (ikfnt->name)
 	{
 		/* Free the name */
 		string_free(ikfnt->name);
 	}
 #endif
+
 	/* Nuke info if needed */
 	if (ifnt->nuke)
 	{
 		/* Free the font */
+#ifdef USE_FONTSET
+		XFreeFontSet(Metadpy->dpy, ifnt->info);
+#else
 		XFreeFont(Metadpy->dpy, ifnt->info);
+#endif
 	}
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	if (ikfnt->nuke)
 	{
 		/* Free the font */
@@ -1269,7 +1274,7 @@ static errr Infofnt_nuke(void)
 /*
  * Prepare a new 'infofnt'
  */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 static errr Infofnt_prepare(XFontStruct *info, XFontStruct *kinfo)
 #else
 #ifdef USE_FONTSET
@@ -1282,7 +1287,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 {
 	infofnt *ifnt = Infofnt;
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	infofnt *ikfnt = Infokfnt;
 #endif
 	XCharStruct *cs;
@@ -1331,7 +1336,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 	else
 		ifnt->twid = ifnt->wid;
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
     /* Assign the struct */
     ikfnt->info = kinfo;
  
@@ -1362,7 +1367,7 @@ static errr Infofnt_prepare(XFontStruct *info)
 /*
  * Initialize a new 'infofnt'.
  */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 static errr Infofnt_init_real(XFontStruct *info, XFontStruct *kinfo)
 #else
 #ifdef USE_FONTSET
@@ -1376,17 +1381,17 @@ static errr Infofnt_init_real(XFontStruct *info)
 	/* Wipe the thing */
 	(void)WIPE(Infofnt, infofnt);
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	WIPE(Infokfnt, infofnt);
 #endif
 	/* No nuking */
 	Infofnt->nuke = 0;
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	Infokfnt->nuke = 0;
 #endif
 	/* Attempt to prepare it */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	return (Infofnt_prepare (info, kinfo));
 #else
 	return (Infofnt_prepare(info));
@@ -1403,7 +1408,7 @@ static errr Infofnt_init_real(XFontStruct *info)
  * Inputs:
  *	name: The name of the requested Font
  */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 static void Infofnt_init_data(cptr name, cptr kname)
 #else
 static void Infofnt_init_data(cptr name)
@@ -1420,7 +1425,7 @@ static void Infofnt_init_data(cptr name)
 #endif
 
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	XFontStruct *kinfo;
 #endif
 	/*** Load the info Fresh, using the name ***/
@@ -1428,7 +1433,7 @@ static void Infofnt_init_data(cptr name)
 	/* If the name is not given, report an error */
 	if (!name || !*name) quit("Missing font!");
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	if (!kname || !*kname) quit("Missing kanji font!");
 #endif
 	/* Attempt to load the font */
@@ -1443,7 +1448,7 @@ static void Infofnt_init_data(cptr name)
 	}
 #else
 	info = XLoadQueryFont(Metadpy->dpy, name);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	kinfo = XLoadQueryFont(Metadpy->dpy, kname);
 #endif
 #endif
@@ -1451,7 +1456,7 @@ static void Infofnt_init_data(cptr name)
 
 	/* The load failed, try to recover */
 	if (!info) quit_fmt("Failed to find font:\"%s\"", name);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	if (!kinfo) quit_fmt("Failed to find font:\"%s\"", kname);
 #endif
 
@@ -1462,11 +1467,11 @@ static void Infofnt_init_data(cptr name)
 	/* Wipe the thing */
 	(void)WIPE(Infofnt, infofnt);
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	WIPE(Infokfnt, infofnt);
 #endif
 	/* Attempt to prepare it */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	if (Infofnt_prepare(info, kinfo))
 #else
 	if (Infofnt_prepare(info))
@@ -1478,7 +1483,7 @@ static void Infofnt_init_data(cptr name)
 		XFreeFontSet(Metadpy->dpy, info);
 #else
 		XFreeFont(Metadpy->dpy, info);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 		XFreeFont(Metadpy->dpy, kinfo);
 #endif
 #endif
@@ -1488,19 +1493,19 @@ static void Infofnt_init_data(cptr name)
 
 	/* Save a copy of the font name */
 	Infofnt->name = string_make(name);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	Infokfnt->name = string_make(kname);
 #endif
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	Infokfnt->nuke = 1;
 #endif
 }
 
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 /*
  * EUC日本語コードを含む文字列を表示する (Xlib)
  */
@@ -1624,11 +1629,9 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 
 	/*** Actually draw 'str' onto the infowin ***/
 
-#if 1
-#ifndef JP
+#ifndef USE_FONTSET
 	/* Be sure the correct font is ready */
 	XSetFont(Metadpy->dpy, Infoclr->gc, Infofnt->info->fid);
-#endif
 #endif
 
 	/*** Handle the fake mono we can enforce on fonts ***/
@@ -1636,7 +1639,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	/* Monotize the font */
 	if (Infofnt->mono)
 	{
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 		/* Be sure the correct font is ready */
 		XSetFont(Metadpy->dpy, Infoclr->gc, Infofnt->info->fid);
 #endif
@@ -1653,7 +1656,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 	else
 	{
 		/* Note that the Infoclr is set up to contain the Infofnt */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 		/* 漢字フォントの表示幅は ASCIIフォントの2倍に固定 */
 		XDrawMultiString(Metadpy->dpy, Infowin->win, Infoclr->gc,
 				 x, y, str, len,
@@ -1757,7 +1760,7 @@ struct term_data
 	term t;
 
 	infofnt *fnt;
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	infofnt *kfnt;
 #endif
 
@@ -1768,12 +1771,8 @@ struct term_data
 
 	XImage *tiles;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
-
-#endif
 
 #endif
 
@@ -2133,22 +2132,151 @@ static void copy_x11_end(const Time time)
 	}
 }
 
+
+static Atom xa_targets, xa_timestamp, xa_text, xa_compound_text;
+
+/*
+ * Set the required variable atoms at start-up to avoid errors later.
+ */
+static void set_atoms(void)
+{
+	xa_targets = XInternAtom(DPY, "TARGETS", False);
+	xa_timestamp = XInternAtom(DPY, "TIMESTAMP", False);
+	xa_text = XInternAtom(DPY, "TEXT", False);
+	xa_compound_text = XInternAtom(DPY, "COMPOUND_TEXT", False);
+}
+
+
+static Atom request_target = 0;
+
 /*
  * Send a message to request that the PRIMARY buffer be sent here.
  */
-static void paste_x11_request(const Time time)
+static void paste_x11_request(Atom target, const Time time)
 {
+	/*
+	 * It's from some sample programs on the web.
+	 * What does it mean? -- XXX
+	 */
+	Atom property = XInternAtom(DPY, "__COPY_TEXT", False);
+
 	/* Check the owner. */
-	if (XGetSelectionOwner(Metadpy->dpy, XA_PRIMARY) == None)
+	if (XGetSelectionOwner(DPY, XA_PRIMARY) == None)
 	{
 		/* No selection. */
 		/* bell("No selection found."); */
 		return;
 	}
 
-	/* Request the event as a STRING. */
-	XConvertSelection(DPY, XA_PRIMARY, XA_STRING, XA_STRING, WIN, time);
+	request_target = target;
+    
+	/* Request the event */
+	XConvertSelection(DPY, XA_PRIMARY, target, property, WIN, time);
 }
+
+
+/*
+ * Add the contents of the PRIMARY buffer to the input queue.
+ *
+ * Hack - This doesn't use the "time" of the event, and so accepts anything a
+ * client tries to send it.
+ */
+static void paste_x11_accept(const XSelectionEvent *ptr)
+{
+	unsigned long left;
+	const long offset = 0;
+	const long length = 32000;
+	XTextProperty xtextproperty;
+	errr err = 0;
+
+	/*
+	 * It's from some sample programs on the web.
+	 * What does it mean? -- XXX
+	 */
+	Atom property = XInternAtom(DPY, "__COPY_TEXT", False);
+
+
+	/* Failure. */
+	if (ptr->property == None)
+	{
+		if (request_target == xa_compound_text)
+		{
+			/* Re-request as STRING */
+			paste_x11_request(XA_STRING, ptr->time);
+		}
+		else
+		{
+			request_target = 0;
+			plog("Paste failure (remote client could not send).");
+		}
+		return;
+	}
+
+	if (ptr->selection != XA_PRIMARY)
+	{
+		plog("Paste failure (remote client did not send primary selection).");
+		return;
+	}
+
+	if (ptr->target != request_target)
+	{
+		plog("Paste failure (selection in unknown format).");
+		return;
+	}
+
+	/* Get text */
+	if (XGetWindowProperty(Metadpy->dpy, Infowin->win, property, offset,
+			       length, TRUE, request_target,
+			       &xtextproperty.encoding,
+			       &xtextproperty.format,
+			       &xtextproperty.nitems,
+			       &left,
+			       &xtextproperty.value)
+	    != Success)
+	{
+		/* Failure */
+		return;
+	}
+
+	if (request_target == xa_compound_text)
+	{
+		char **list;
+		int count;
+		
+		XmbTextPropertyToTextList(DPY, &xtextproperty, &list, &count);
+
+		if (list)
+		{
+			int i;
+
+			for (i = 0; i < count; i++)
+			{
+				/* Paste the text. */
+				err = type_string(list[i], 0);
+
+				if (err) break;
+			}
+
+			/* Free the string */
+			XFreeStringList(list);
+		}
+	}
+	else /* if (request_target == XA_STRING) */
+	{
+		/* Paste the text. */
+		err = type_string((char *)xtextproperty.value, xtextproperty.nitems);
+	}
+
+	/* Free the data pasted. */
+	XFree(xtextproperty.value); 
+
+	/* No room. */
+	if (err)
+	{
+		plog("Paste failure (too much text selected).");
+	}
+}
+
 
 /*
  * Add a character to a string in preparation for sending it to another
@@ -2157,24 +2285,17 @@ static void paste_x11_request(const Time time)
  * receiving this format (although the standard specifies a restricted set).
  * Strings do not have a colour.
  */
-static int add_char_string(char *buf, byte a, char c)
-{
-	(void)a;
-
-	*buf = c;
-	return 1;
-}
-
-static bool paste_x11_send_text(XSelectionRequestEvent *rq, int (*add)(char *, byte, char))
+static bool paste_x11_send_text(XSelectionRequestEvent *rq)
 {
 	char buf[1024];
+	char *list[1000];
 	co_ord max, min;
-	int x,y,l;
+	int x,y,l,n;
 	byte a;
 	char c;
 
 	/* Too old, or incorrect call. */
-	if (rq->time < s_ptr->time || !add) return FALSE;
+	if (rq->time < s_ptr->time) return FALSE;
 
 	/* Work out which way around to paste. */
 	sort_co_ord(&min, &max, &s_ptr->init, &s_ptr->cur);
@@ -2189,47 +2310,114 @@ static bool paste_x11_send_text(XSelectionRequestEvent *rq, int (*add)(char *, b
 	/* Delete the old value of the property. */
 	XDeleteProperty(DPY, rq->requestor, rq->property);
 
-	for (y = 0; y < Term->hgt; y++)
+	for (n = 0, y = 0; y < Term->hgt; y++)
 	{
+#ifdef JP
+		int kanji = 0;
+#endif
 		if (y < min.y) continue;
 		if (y > max.y) break;
 
-		for (x = l = 0; x < Term->wid; x++)
+		for (l = 0, x = 0; x < Term->wid; x++)
 		{
-			if (x < min.x) continue;
+#ifdef JP
 			if (x > max.x) break;
 
 			/* Find the character. */
 			Term_what(x, y, &a, &c);
 
-			/* Add it. */
-			l += (*add)(buf+l, a, c);
-		}
+			if (1 == kanji) kanji = 2;
+			else if (iskanji(c)) kanji = 1;
+			else kanji = 0;
 
-#if 0
-		/* Terminate all but the last line in an appropriate way. */
-		if (y != max.y) l += (*add)(buf+l, TERM_WHITE, '\n');
+			if (x < min.x) continue;
+
+			/*
+			 * A single kanji character was divided in two...
+			 * Delete the garbage.
+			 */
+			if ((2 == kanji && x == min.x) ||
+			    (1 == kanji && x == max.x))
+				c = ' ';
 #else
-		/* Terminate all line unless single line message. */
-		if (min.y != max.y) l += (*add)(buf+l, TERM_WHITE, '\n');
+			if (x > max.x) break;
+			if (x < min.x) continue;
+
+			/* Find the character. */
+			Term_what(x, y, &a, &c);
 #endif
 
-		/* Send the (non-empty) string. */
-		XChangeProperty(DPY, rq->requestor, rq->property, rq->target, 8,
-			PropModeAppend, (byte*)buf, l);
+			/* Add it. */
+			buf[l] = c;
+			l++;
+		}
+
+		/* Ignore trailing spaces */
+		while (buf[l-1] == ' ') l--;
+
+		/* Terminate all line unless it's single line. */
+		if (min.y != max.y)
+		{
+			buf[l] = '\n';
+			l++;
+		}
+
+		/* End of string */
+		buf[l] = '\0';
+
+		list[n++] = (char *)string_make(buf);
 	}
+
+	/* End of the list */
+	list[n] = NULL;
+
+
+	if (rq->target == XA_STRING)
+	{
+		for (n = 0; list[n]; n++)
+		{
+			/* Send the (non-empty) string. */
+			XChangeProperty(DPY, rq->requestor, rq->property, rq->target, 8,
+					PropModeAppend, (unsigned char *)list[n], strlen(list[n]));
+		}
+	}
+
+	else if (rq->target == xa_text || 
+		 rq->target == xa_compound_text)
+	{
+		XTextProperty text_prop;
+		XICCEncodingStyle style;
+
+		if (rq->target == xa_text)
+			style = XStdICCTextStyle;
+		else /* if (rq->target == xa_compound_text) */
+			style = XCompoundTextStyle;
+
+		if (Success ==
+		    XmbTextListToTextProperty(DPY, list, n, style, &text_prop))
+		{
+			/* Send the compound text */
+			XChangeProperty(DPY,
+					rq->requestor,
+					rq->property,
+					text_prop.encoding,
+					text_prop.format,
+					PropModeAppend,
+					text_prop.value,
+					text_prop.nitems);
+				
+			/* Free the data. */
+			XFree(text_prop.value);
+		}
+	}
+
+	/* Free the list of strings */
+	for (n = 0; list[n]; n++)
+	{
+		string_free(list[n]);
+	}
+
 	return TRUE;
-}
-
-static Atom xa_targets, xa_timestamp;
-
-/*
- * Set the required variable atoms at start-up to avoid errors later.
- */
-static void set_atoms(void)
-{
-	xa_targets = XInternAtom(DPY, "TARGETS", False);
-	xa_timestamp = XInternAtom(DPY, "TIMESTAMP", False);
 }
 
 /*
@@ -2253,16 +2441,20 @@ static void paste_x11_send(XSelectionRequestEvent *rq)
 	 * Note that this currently rejects MULTIPLE targets.
 	 */
 
-	if (rq->target == XA_STRING)
+	if (rq->target == XA_STRING ||
+	    rq->target == xa_text ||
+	    rq->target == xa_compound_text)
 	{
-		if (!paste_x11_send_text(rq, add_char_string))
+		if (!paste_x11_send_text(rq))
 			ptr->property = None;
 	}
 	else if (rq->target == xa_targets)
 	{
-		Atom target_list[2];
+		Atom target_list[4];
 		target_list[0] = XA_STRING;
-		target_list[1] = xa_targets;
+		target_list[1] = xa_text;
+		target_list[2] = xa_compound_text;
+		target_list[3] = xa_targets;
 		XChangeProperty(DPY, rq->requestor, rq->property, rq->target,
 			(8 * sizeof(target_list[0])), PropModeReplace,
 			(unsigned char *)target_list,
@@ -2283,76 +2475,6 @@ static void paste_x11_send(XSelectionRequestEvent *rq)
 	XSendEvent(DPY, rq->requestor, FALSE, NoEventMask, &event);
 }
 
-/*
- * Add the contents of the PRIMARY buffer to the input queue.
- *
- * Hack - This doesn't use the "time" of the event, and so accepts anything a
- * client tries to send it.
- */
-static void paste_x11_accept(const XSelectionEvent *ptr)
-{
-	unsigned long offset, left;
-
-	/* Failure. */
-	if (ptr->property == None)
-	{
-		/* bell("Paste failure (remote client could not send)."); */
-		return;
-	}
-
-	if (ptr->selection != XA_PRIMARY)
-	{
-		/* bell("Paste failure (remote client did not send primary selection)."); */
-		return;
-	}
-
-	if (ptr->target != XA_STRING)
-	{
-		/* bell("Paste failure (selection in unknown format)."); */
-		return;
-	}
-
-	for (offset = 0; ; offset += left)
-	{
-		errr err;
-
-		/* A pointer for the pasted information. */
-		unsigned char *data;
-
-		Atom type;
-		int fmt;
-		unsigned long nitems;
-
-		/* Set data to the string, and catch errors. */
-		if (XGetWindowProperty(Metadpy->dpy, Infowin->win, XA_STRING, offset,
-			32767, TRUE, XA_STRING, &type, &fmt, &nitems, &left, &data)
-			!= Success) break;
-
-		/* Paste the text. */
-		err = type_string((char*)data, nitems);
-
-		/* Free the data pasted. */
-		XFree(data);
-
-		/* No room. */
-		if (err == PARSE_ERROR_OUT_OF_MEMORY)
-		{
-			/* bell("Paste failure (too much text selected)."); */
-			break;
-		}
-		/* Paranoia? - strange errors. */
-		else if (err)
-		{
-			break;
-		}
-
-		/* Pasted everything. */
-		if (!left) return;
-	}
-
-	/* An error has occurred, so free the last bit of data before returning. */
-	XFree(data);
-}
 
 /*
  * Handle various events conditional on presses of a mouse button.
@@ -2365,7 +2487,7 @@ static void handle_button(Time time, int x, int y, int button,
 
 	if (press && button == 1) copy_x11_start(x, y);
 	if (!press && button == 1) copy_x11_end(time);
-	if (!press && button == 2) paste_x11_request(time);
+	if (!press && button == 2) paste_x11_request(xa_compound_text, time);
 }
 
 
@@ -2779,7 +2901,7 @@ static errr Term_xtra_x11_level(int v)
 
 		/* Activate the font */
 		Infofnt_set(td->fnt);
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 		Infokfnt_set(td->kfnt);
 #endif
 	}
@@ -2982,18 +3104,13 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -3001,7 +3118,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 	int k,l;
 
 	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
 
 	term_data *td = (term_data*)(Term->data);
 
@@ -3033,8 +3149,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 			/* Skip drawing tile */
 			continue;
 		}
-
-#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -3088,18 +3202,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 			     0, 0, x, y,
 			     td->fnt->twid, td->fnt->hgt);
 		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-			  clr[0]->gc,
-			  td->tiles,
-			  x1, y1,
-			  x, y,
-			  td->fnt->twid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
 	}
 
 	/* Redraw the selection if any, as it may have been obscured. (later) */
@@ -3207,7 +3309,7 @@ static errr term_data_init(term_data *td, int i)
 	cptr name = angband_term_name[i];
 
 	cptr font;
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	cptr kfont;
 #endif
 
@@ -3300,7 +3402,7 @@ static errr term_data_init(term_data *td, int i)
 		}
 	}
 
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	/* Window specific font name */
 	sprintf(buf, "ANGBAND_X11_KFONT_%d", i);
 
@@ -3406,7 +3508,7 @@ static errr term_data_init(term_data *td, int i)
 
 
 	/* Prepare the standard font */
-#ifdef _JP
+#ifdef USE_JP_FONTSTRUCT
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
 	MAKE(td->kfnt, infofnt);
@@ -3563,11 +3665,7 @@ errr init_x11(int argc, char *argv[])
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
-
 #endif /* USE_GRAPHICS */
 
 
@@ -3624,25 +3722,32 @@ errr init_x11(int argc, char *argv[])
 	}
 
 #ifdef USE_LOCALE
+
+#ifdef JP
+	/* Get locale information from environment variables */
 	setlocale(LC_ALL, "");
+
 #ifdef DEFAULT_LOCALE
 	if(!strcmp(setlocale(LC_ALL, NULL), "C")){
 		printf("try default locale \"%s\"\n", DEFAULT_LOCALE);
 		setlocale(LC_ALL, DEFAULT_LOCALE);
 	}
 #endif
+
+	if(!strcmp(setlocale(LC_ALL, NULL), "C"))
 	{
-		char *current_locale = setlocale(LC_ALL, NULL);
-/*		printf("set locale to \"%s\"\n", current_locale); */
-		if(!strcmp(current_locale, "C")){
-			printf("WARNING: Locale is not supported. Non-english font may be displayed incorrectly.\n");
-		}
+		printf("WARNING: Locale is not supported. Non-english font may be displayed incorrectly.\n");
 	}
 
 	if(!XSupportsLocale()){
 		printf("can't support locale in X\n");
 		setlocale(LC_ALL, "C");
 	}
+#else
+	/* Set locale to "C" without using environment variables */
+	setlocale(LC_ALL, "C");
+#endif /* JP */
+
 #endif /* USE_LOCALE */
 
 
@@ -3799,7 +3904,6 @@ errr init_x11(int argc, char *argv[])
 				    td->fnt->twid, td->fnt->hgt);
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency masks */
 		for (i = 0; i < num_term; i++)
 		{
@@ -3824,8 +3928,6 @@ errr init_x11(int argc, char *argv[])
 				td->fnt->twid, td->fnt->hgt, 8, 0);
 
 		}
-#endif /* USE_TRANSPARENCY */
-
 
 		/* Free tiles_raw? XXX XXX */
 	}
