@@ -1268,6 +1268,8 @@ static void process_monsters_counters(void)
 						/* Reset sleep counter */
 						m_ptr->csleep = 0;
 
+						if (r_ptr->flags7 & RF7_HAS_LD_MASK) p_ptr->update |= (PU_MON_LITE);
+
 						/* Notice the "waking up" */
 						if (m_ptr->ml)
 						{
@@ -1286,9 +1288,6 @@ static void process_monsters_counters(void)
 							/* Redraw the health bar */
 							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 							if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-							if (r_ptr->flags7 & RF7_HAS_LD_MASK)
-								p_ptr->update |= (PU_MON_LITE);
 
 							/* Hack -- Count the wakings */
 							if (r_ptr->r_wake < MAX_UCHAR)
@@ -3682,6 +3681,9 @@ msg_print("無敵な気がする！");
 
 				hp_player(healing);
 				p_ptr->csp -= healing;
+
+				/* Redraw mana */
+				p_ptr->redraw |= (PR_MANA);
 			}
 		}
 		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
@@ -3699,6 +3701,9 @@ msg_print("無敵な気がする！");
 				}
 
 				p_ptr->csp += healing;
+
+				/* Redraw mana */
+				p_ptr->redraw |= (PR_MANA);
 #ifdef JP
 take_hit(DAMAGE_LOSELIFE, healing, "頭に昇った血", -1);
 #else

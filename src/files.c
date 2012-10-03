@@ -3188,7 +3188,7 @@ static void display_player_other_flag_info(void)
 	display_flag_aux(row+14, col, "Sharpness :", TR_VORPAL, &f, DP_WP);
 	display_flag_aux(row+15, col, "Quake     :", TR_IMPACT, &f, DP_WP);
 	display_flag_aux(row+16, col, "Vampiric  :", TR_VAMPIRIC, &f, DP_WP);
-	display_flag_aux(row+17, col, "Chatic    :", TR_CHAOTIC, &f, DP_WP);
+	display_flag_aux(row+17, col, "Chaotic   :", TR_CHAOTIC, &f, DP_WP);
 	display_flag_aux(row+18, col, "Force Wep.:", TR_FORCE_WEAPON, &f, DP_WP);
 #endif
 
@@ -5932,6 +5932,11 @@ prt("ゲームをセーブしています... 失敗！", 0, 0);
 	(void)strcpy(p_ptr->died_from, "(alive and well)");
 #endif
 
+	/* Update some things */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE | PU_DISTANCE);
+
+	/* Update stuff */
+	update_stuff();
 }
 
 
