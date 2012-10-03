@@ -6031,20 +6031,41 @@ msg_print("試合開始！");
 			if (!is_pet(m_ptr)) continue;
 			if (i == p_ptr->riding) continue;
 
-			if (m_ptr->nickname && (player_has_los_bold(m_ptr->fy, m_ptr->fx) || los(m_ptr->fy, m_ptr->fx, py, px)))
-			{
-				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 3) continue;
-			}
-			else
-			{
-				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 1) continue;
-			}
-			if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+                        if (reinit_wilderness)
+                        {
+                                /* Don't lose sight of pets when getting a Quest */
+                        }
+                        else
+                        {
+                                int dis = distance(py, px, m_ptr->fy, m_ptr->fx);
+
+                                /*
+                                 * Pets with nickname will follow even from 3 blocks away
+                                 * when you or the pet can see the other.
+                                 */
+                                if (m_ptr->nickname && 
+                                    (player_has_los_bold(m_ptr->fy, m_ptr->fx) ||
+                                     los(m_ptr->fy, m_ptr->fx, py, px)))
+                                {
+                                        if (dis > 3) continue;
+                                }
+                                else
+                                {
+                                        if (dis > 1) continue;
+                                }
+                                if (m_ptr->confused || m_ptr->stunned || m_ptr->csleep) continue;
+                        }
 
 			COPY(&party_mon[num], &m_list[i], monster_type);
-			delete_monster_idx(i);
 			num++;
+
+                        /* Mark as followed */
+			delete_monster_idx(i);
 		}
+
+                /* Forget the flag */
+                reinit_wilderness = FALSE;
+
 		if (record_named_pet)
 		{
 			for (i = m_max - 1; i >=1; i--)

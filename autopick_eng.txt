@@ -321,7 +321,7 @@ rod of
 staff of 
 wand of 
 ?:[EQU $CLASS Archer]
-skeleton of 
+worthless skeleton
 ?:[EQU $CLASS Ninja]
 ~lights:darkness
 Iron Spike#@v0

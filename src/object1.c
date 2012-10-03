@@ -2495,7 +2495,7 @@ info[i++] = "それは二刀流での命中率を向上させる。";
 #ifdef JP
 info[i++] = "それは魔法の難易度を下げる。";
 #else
-		info[i++] = "It affects your ability to use magic devices.";
+		info[i++] = "It affects your ability to cast spells.";
 #endif
 	}
 
@@ -2504,7 +2504,7 @@ info[i++] = "それは魔法の難易度を下げる。";
 #ifdef JP
 info[i++] = "それは魔法の難易度を上げる。";
 #else
-		info[i++] = "It prevents you from using magic items.";
+		info[i++] = "It interferes with casting spells.";
 #endif
 	}
 
@@ -2556,10 +2556,28 @@ info[i++] = "それは魔法抵抗力を下げる。";
 		if (o_ptr->name2 == EGO_LITE_DARKNESS)
 		{
 #ifdef JP
-info[i++] = "それは全く光らない。";
+                        info[i++] = "それは全く光らない。";
 #else
 			info[i++] = "It provides no light..";
 #endif
+
+			if (o_ptr->sval == SV_LITE_FEANOR ||
+                            o_ptr->sval == SV_LITE_LANTERN)
+			{
+#ifdef JP
+                                info[i++] = "それは明りの半径を狭める(半径に-2)。";
+#else
+				info[i++] = "It decreases radius of light source by 2.";
+#endif
+			}
+			else
+			{
+#ifdef JP
+                                info[i++] = "それは明りの半径を狭める(半径に-1)。";
+#else
+				info[i++] = "It decreases radius of light source by 1.";
+#endif
+			}
 		}
 		else if (artifact_p(o_ptr))
 		{
@@ -3261,15 +3279,15 @@ info[i++] = "それは宙に浮くことを可能にする。";
 	{
 		if ((o_ptr->name2 == EGO_DARK) || (o_ptr->name1 == ART_NIGHT))
 #ifdef JP
-info[i++] = "それは明かりの半径を狭める。";
+info[i++] = "それは明かりの半径を狭める(半径に-1)。";
 #else
-			info[i++] = "It decreases radius of your light source.";
+			info[i++] = "It decreases radius of your light source by 1.";
 #endif
 		else
 #ifdef JP
-info[i++] = "それは永遠の明かりを授ける。";
+info[i++] = "それは永遠の明かりを授ける(半径に+1)。";
 #else
-			info[i++] = "It provides permanent light.";
+			info[i++] = "It provides permanent light. (radius +1)";
 #endif
 
 	}
