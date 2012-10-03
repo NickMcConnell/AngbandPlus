@@ -911,7 +911,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	c_ptr = &cave[y][x];
 
 	/* Feature code (applying "mimic" field) */
-	feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+	feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 	/* Floors (etc) */
 	if ((feat <= FEAT_INVIS) || (feat == FEAT_DIRT) || (feat == FEAT_GRASS))
@@ -1927,7 +1927,7 @@ void note_spot(int y, int x)
 	byte feat;
 
 	/* Feature code (applying "mimic" field) */
-	feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+	feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 
 	/* Blind players see nothing */
@@ -4629,7 +4629,7 @@ void map_area(int range)
 			c_ptr = &cave[y][x];
 
 			/* Feature code (applying "mimic" field) */
-			feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+			feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 			/* All non-walls are "checked" */
 			if ((feat <= FEAT_DOOR_TAIL) ||
@@ -4651,7 +4651,7 @@ void map_area(int range)
 					c_ptr = &cave[y + ddy_ddd[i]][x + ddx_ddd[i]];
 
 					/* Feature code (applying "mimic" field) */
-					feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+					feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 					/* Memorize walls (etc) */
 					if ((feat >= FEAT_RUBBLE) && (feat != FEAT_DIRT) && (feat != FEAT_GRASS))
@@ -4724,7 +4724,7 @@ void wiz_lite(bool wizard, bool ninja)
 			cave_type *c_ptr = &cave[y][x];
 
 			/* Feature code (applying "mimic" field) */
-			feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+			feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 			/* Process all non-walls */
 			if (cave_floor_bold(y, x) || (feat == FEAT_RUBBLE) || (feat == FEAT_TREES) || (feat == FEAT_MOUNTAIN))
@@ -4739,7 +4739,7 @@ void wiz_lite(bool wizard, bool ninja)
 					c_ptr = &cave[yy][xx];
 
 					/* Feature code (applying "mimic" field) */
-					feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+					feat = f_info[c_ptr->mimic ? c_ptr->mimic : c_ptr->feat].mimic;
 
 					/* Memorize normal features */
 					if (ninja)

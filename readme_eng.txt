@@ -167,8 +167,12 @@ keyset, and by pushing 'x' in the Rogue-like keyset.
 
 Below, only the new features in Hengband are explained.
 
-- You can inscribe on spellbooks with "@ma" or "@m"+any alphabet letter.
+- You can inscribe on objects with "@ma" or '@'+<any command letter>+<any tag>.
   Then, type these alphabet letter in 'm' command to cast from the spellbook.
+
+- The inscriptions "@1" or '@'+<any tag number> make the objects able
+  to be used by pressing <tag number> key in any command.  Any
+  alphabet key cannot be used as a tag in this form.
 
 - You can inscribe on *identified* items with "%" or "%all".
   Then, "%" or "%all" is automatically replaced by strings which describe the 
@@ -233,5 +237,5 @@ by modifying data or source files, or by restoring from a backed
 up savefile.
 
 The score server is here:
-  http://echizen.s5.xrea.com/heng/eng-hengband/score.html
+  http://hengband.sourceforge.jp/en/score.html
 
