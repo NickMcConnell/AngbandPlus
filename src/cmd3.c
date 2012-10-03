@@ -2997,6 +2997,10 @@ if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):
 #endif
 		{
 			temp[0]=0;
+
+                        /* Restore */
+                        screen_load();
+
 			return FALSE;
 		}
 #ifdef JP

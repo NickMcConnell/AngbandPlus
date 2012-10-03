@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -64,36 +64,15 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-angband_files = \
-	attack.hlp attack.txt birth.hlp birth.txt \
-	bldg.txt raceclas.hlp raceclas.txt command.hlp \
-	command.txt commdesc.hlp commdesc.txt defend.hlp \
-	defend.txt dungeon.hlp dungeon.txt gambling.txt \
-	general.hlp general.txt help.hlp helpinfo.txt \
-	j_general.txt j_item1.txt j_item2.txt j_trans.txt \
-	jattack.hlp jattack.txt jbirth.hlp jbirth.txt \
-	jbldg.txt jraceclas.hlp jraceclas.txt jcommand.hlp \
-	jcommand.txt jcommdesc.hlp jcommdesc.txt jdefend.hlp \
-	jdefend.txt jdungeon.hlp jdungeon.txt jgambling.txt \
-	jgeneral.hlp jgeneral.txt jhelp.hlp jhelpinfo.txt \
-	jmagic.hlp jmagic.txt jmonster.hlp jmonster.txt \
-	jobjects.hlp jobjects.txt joption.hlp joption.txt \
-	jpref.hlp jpref.txt jspecial.hlp jtang.txt \
-	jtown.hlp jtown.txt jversion.txt magic.hlp \
-	magic.txt monster.hlp monster.txt objects.hlp \
-	objects.txt option.hlp option.txt pref.hlp \
-	pref.txt tang.txt town.hlp town.txt \
-	version.txt
+angband_files =  	attack.hlp attack.txt birth.hlp birth.txt 	bldg.txt raceclas.hlp raceclas.txt command.hlp 	command.txt commdesc.hlp commdesc.txt defend.hlp 	defend.txt dungeon.hlp dungeon.txt gambling.txt 	general.hlp general.txt help.hlp helpinfo.txt 	j_general.txt j_item1.txt j_item2.txt j_trans.txt 	jattack.hlp jattack.txt jbirth.hlp jbirth.txt 	jbldg.txt jraceclas.hlp jraceclas.txt jcommand.hlp 	jcommand.txt jcommdesc.hlp jcommdesc.txt jdefend.hlp 	jdefend.txt jdungeon.hlp jdungeon.txt jgambling.txt 	jgeneral.hlp jgeneral.txt jhelp.hlp jhelpinfo.txt 	jlicense.txt 	jmagic.hlp jmagic.txt jmonster.hlp jmonster.txt 	jobjects.hlp jobjects.txt joption.hlp joption.txt 	jpref.hlp jpref.txt jspecial.hlp jtang.txt 	jtown.hlp jtown.txt jversion.txt magic.hlp 	magic.txt monster.hlp monster.txt objects.hlp 	objects.txt option.hlp option.txt pref.hlp 	pref.txt tang.txt town.hlp town.txt 	version.txt
 
 
-EXTRA_DIST = \
-  $(angband_files)
+EXTRA_DIST =    $(angband_files)
 
 
-@SET_GID_TRUE@angbanddir = @SET_GID_TRUE@@DEFAULT_PATH@help
+@SET_GID_TRUE@angbanddir = @DEFAULT_PATH@help
 
-@SET_GID_TRUE@angband_DATA = @SET_GID_TRUE@\
-@SET_GID_TRUE@  $(angband_files)
+@SET_GID_TRUE@angband_DATA =   $(angband_files)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../src/autoconf.h
 CONFIG_CLEAN_FILES = 
@@ -104,7 +83,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:

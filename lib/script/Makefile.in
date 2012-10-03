@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -64,18 +64,15 @@ MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-angband_files = \
-  delete.me
+angband_files =    delete.me
 
 
-EXTRA_DIST = \
-  $(angband_files)
+EXTRA_DIST =    $(angband_files)
 
 
-@SET_GID_TRUE@angbanddir = @SET_GID_TRUE@@DEFAULT_PATH@script
+@SET_GID_TRUE@angbanddir = @DEFAULT_PATH@script
 
-@SET_GID_TRUE@angband_DATA = @SET_GID_TRUE@\
-@SET_GID_TRUE@  $(angband_files)
+@SET_GID_TRUE@angband_DATA =   $(angband_files)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../src/autoconf.h
 CONFIG_CLEAN_FILES = 
@@ -86,7 +83,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:

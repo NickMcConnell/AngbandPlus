@@ -1,4 +1,19 @@
-=== History of Hengband from 1.0.7 to 1.3.0 ===
+=== History of Hengband from 1.0.7 to 1.3.1 ===
+
+  Sep. 9th, 2002  hengband 1.2.1 (Stable branch) released.
+
+- Added description about license of Hengband; 'jlicense.txt'.
+  (jlicense.txt is Japanese only for now)
+- Increased AC of the ego Ring of Protection (Extra Armor) by 7.
+- Fixed some bug on monster's AI.
+- Fixed bug that cause crash when specific chest trap triggerd.
+- Fixed wrong display of the Tower quest in quest information command.
+- Fixed bug that fail rates of the imitation differed from the value
+  displayed in a spell list.
+- Changed the Walken to be drop items.
+- Fixed some memory leak and overruns and underruns memory allocation.
+- Fixed some other bug.
+
 
   Aug. 28th, 2002  hengband 1.3.0 (Development branch) released.
 
