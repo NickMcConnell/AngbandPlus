@@ -497,7 +497,7 @@ static bool object_flavor(int k_idx)
 void get_table_name(char *out_string)
 {
 #ifdef JP
-        char Syllable[80];
+	char Syllable[80];
 	strcpy(out_string, "『");
 	get_rnd_line("aname_j.txt", 1, Syllable);
 	strcat(out_string, Syllable);
@@ -945,7 +945,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
       case TV_FOOD:
       {
 	  if(o_ptr->sval == SV_FOOD_JERKY)
-          {
+	  {
 	      t = object_desc_str(t, "切れ");
 	      break;
 	  }
@@ -1031,7 +1031,7 @@ typedef struct flag_insc_table
 #endif
 	cptr english;
 	int flag;
-	u32b except_flag;
+	int except_flag;
 } flag_insc_table;
 
 #ifdef JP
@@ -1045,6 +1045,7 @@ static flag_insc_table flag_insc_plus[] =
 	{ "器", "Dx", TR_DEX, -1 },
 	{ "耐", "Cn", TR_CON, -1 },
 	{ "魅", "Ch", TR_CHR, -1 },
+	{ "道", "Md", TR_MAGIC_MASTERY, -1 },
 	{ "隠", "Sl", TR_STEALTH, -1 },
 	{ "探", "Sr", TR_SEARCH, -1 },
 	{ "赤", "If", TR_INFRA, -1 },
@@ -1095,7 +1096,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "浮", "Lv", TR_FEATHER, -1 },
 	{ "明", "Lu", TR_LITE, -1 },
 	{ "警", "Wr", TR_WARNING, -1 },
-        { "倍", "Xm", TR_XTRA_MIGHT, -1 },
+	{ "倍", "Xm", TR_XTRA_MIGHT, -1 },
 	{ "射", "Xs", TR_XTRA_SHOTS, -1 },
 	{ "怒", "Ag", TR_AGGRAVATE, -1 },
 	{ "祝", "Bs", TR_BLESSED, -1 },
@@ -1193,95 +1194,96 @@ static flag_insc_table flag_insc_sust[] =
 #else
 static flag_insc_table flag_insc_plus[] =
 {
-  	{ "At", TR_BLOWS, -1 },
-  	{ "Sp", TR_SPEED, -1 },
-  	{ "St", TR_STR, -1 },
-  	{ "In", TR_INT, -1 },
-  	{ "Wi", TR_WIS, -1 },
-  	{ "Dx", TR_DEX, -1 },
-  	{ "Cn", TR_CON, -1 },
-  	{ "Ch", TR_CHR, -1 },
-  	{ "Sl", TR_STEALTH, -1 },
-  	{ "Sr", TR_SEARCH, -1 },
-  	{ "If", TR_INFRA, -1 },
-  	{ "Dg", TR_TUNNEL, -1 },
-  	{ NULL, 0, -1 }
+	{ "At", TR_BLOWS, -1 },
+	{ "Sp", TR_SPEED, -1 },
+	{ "St", TR_STR, -1 },
+	{ "In", TR_INT, -1 },
+	{ "Wi", TR_WIS, -1 },
+	{ "Dx", TR_DEX, -1 },
+	{ "Cn", TR_CON, -1 },
+	{ "Ch", TR_CHR, -1 },
+	{ "Md", TR_MAGIC_MASTERY, -1 },
+	{ "Sl", TR_STEALTH, -1 },
+	{ "Sr", TR_SEARCH, -1 },
+	{ "If", TR_INFRA, -1 },
+	{ "Dg", TR_TUNNEL, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_immune[] =
 {
-  	{ "Ac", TR_IM_ACID, -1 },
-  	{ "El", TR_IM_ELEC, -1 },
-  	{ "Fi", TR_IM_FIRE, -1 },
-  	{ "Co", TR_IM_COLD, -1 },
-  	{ NULL, 0, -1 }
+	{ "Ac", TR_IM_ACID, -1 },
+	{ "El", TR_IM_ELEC, -1 },
+	{ "Fi", TR_IM_FIRE, -1 },
+	{ "Co", TR_IM_COLD, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_resistance[] =
 {
-  	{ "Ac", TR_RES_ACID, TR_IM_ACID },
-  	{ "El", TR_RES_ELEC, TR_IM_ELEC },
-  	{ "Fi", TR_RES_FIRE, TR_IM_FIRE },
-  	{ "Co", TR_RES_COLD, TR_IM_COLD },
-  	{ "Po", TR_RES_POIS, -1 },
-  	{ "Li", TR_RES_LITE, -1 },
-  	{ "Dk", TR_RES_DARK, -1 },
-  	{ "Sh", TR_RES_SHARDS, -1 },
-  	{ "Bl", TR_RES_BLIND, -1 },
-  	{ "Cf", TR_RES_CONF, -1 },
-  	{ "So", TR_RES_SOUND, -1 },
-  	{ "Nt", TR_RES_NETHER, -1 },
-  	{ "Nx", TR_RES_NEXUS, -1 },
-  	{ "Ca", TR_RES_CHAOS, -1 },
-  	{ "Di", TR_RES_DISEN, -1 },
-  	{ "Fe", TR_RES_FEAR, -1 },
-  	{ NULL, 0, -1 }
+	{ "Ac", TR_RES_ACID, TR_IM_ACID },
+	{ "El", TR_RES_ELEC, TR_IM_ELEC },
+	{ "Fi", TR_RES_FIRE, TR_IM_FIRE },
+	{ "Co", TR_RES_COLD, TR_IM_COLD },
+	{ "Po", TR_RES_POIS, -1 },
+	{ "Li", TR_RES_LITE, -1 },
+	{ "Dk", TR_RES_DARK, -1 },
+	{ "Sh", TR_RES_SHARDS, -1 },
+	{ "Bl", TR_RES_BLIND, -1 },
+	{ "Cf", TR_RES_CONF, -1 },
+	{ "So", TR_RES_SOUND, -1 },
+	{ "Nt", TR_RES_NETHER, -1 },
+	{ "Nx", TR_RES_NEXUS, -1 },
+	{ "Ca", TR_RES_CHAOS, -1 },
+	{ "Di", TR_RES_DISEN, -1 },
+	{ "Fe", TR_RES_FEAR, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_misc[] =
 {
-  	{ "Ma", TR_DEC_MANA, -1 },
-  	{ "Th", TR_THROW, -1 },
-  	{ "Rf", TR_REFLECT, -1 },
-  	{ "Fa", TR_FREE_ACT, -1 },
-  	{ "Si", TR_SEE_INVIS, -1 },
-  	{ "Hl", TR_HOLD_LIFE, -1 },
-  	{ "Sd", TR_SLOW_DIGEST, -1 },
-  	{ "Rg", TR_REGEN, -1 },
-  	{ "Lv", TR_FEATHER, -1 },
-  	{ "Lu", TR_LITE, -1 },
+	{ "Ma", TR_DEC_MANA, -1 },
+	{ "Th", TR_THROW, -1 },
+	{ "Rf", TR_REFLECT, -1 },
+	{ "Fa", TR_FREE_ACT, -1 },
+	{ "Si", TR_SEE_INVIS, -1 },
+	{ "Hl", TR_HOLD_LIFE, -1 },
+	{ "Sd", TR_SLOW_DIGEST, -1 },
+	{ "Rg", TR_REGEN, -1 },
+	{ "Lv", TR_FEATHER, -1 },
+	{ "Lu", TR_LITE, -1 },
 	{ "Wr", TR_WARNING, -1 },
 	{ "Xm", TR_XTRA_MIGHT, -1 },
-  	{ "Xs", TR_XTRA_SHOTS, -1 },
-  	{ "Ag", TR_AGGRAVATE, -1 },
-  	{ "Bs", TR_BLESSED, -1 },
-  	{ "Ty", TR_TY_CURSE, -1 },
-  	{ NULL, 0, -1 }
+	{ "Xs", TR_XTRA_SHOTS, -1 },
+	{ "Ag", TR_AGGRAVATE, -1 },
+	{ "Bs", TR_BLESSED, -1 },
+	{ "Ty", TR_TY_CURSE, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_aura[] =
 {
-  	{ "F", TR_SH_FIRE, -1 },
-  	{ "E", TR_SH_ELEC, -1 },
-  	{ "C", TR_SH_COLD, -1 },
-  	{ "M", TR_NO_MAGIC, -1 },
-  	{ "T", TR_NO_TELE, -1 },
-  	{ NULL, 0, -1 }
+	{ "F", TR_SH_FIRE, -1 },
+	{ "E", TR_SH_ELEC, -1 },
+	{ "C", TR_SH_COLD, -1 },
+	{ "M", TR_NO_MAGIC, -1 },
+	{ "T", TR_NO_TELE, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_brand[] =
 {
-  	{ "A", TR_BRAND_ACID, -1 },
-  	{ "E", TR_BRAND_ELEC, -1 },
-  	{ "F", TR_BRAND_FIRE, -1 },
-  	{ "Co", TR_BRAND_COLD, -1 },
-  	{ "P", TR_BRAND_POIS, -1 },
-  	{ "Ca", TR_CHAOTIC, -1 },
-  	{ "V", TR_VAMPIRIC, -1 },
-  	{ "Q", TR_IMPACT, -1 },
-  	{ "S", TR_VORPAL, -1 },
-  	{ "M", TR_FORCE_WEAPON, -1 },
-  	{ NULL, 0, -1 }
+	{ "A", TR_BRAND_ACID, -1 },
+	{ "E", TR_BRAND_ELEC, -1 },
+	{ "F", TR_BRAND_FIRE, -1 },
+	{ "Co", TR_BRAND_COLD, -1 },
+	{ "P", TR_BRAND_POIS, -1 },
+	{ "Ca", TR_CHAOTIC, -1 },
+	{ "V", TR_VAMPIRIC, -1 },
+	{ "Q", TR_IMPACT, -1 },
+	{ "S", TR_VORPAL, -1 },
+	{ "M", TR_FORCE_WEAPON, -1 },
+	{ NULL, 0, -1 }
 };
 
 static flag_insc_table flag_insc_kill[] =
@@ -1337,13 +1339,13 @@ static flag_insc_table flag_insc_esp2[] =
 
 static flag_insc_table flag_insc_sust[] =
 {
-  	{ "St", TR_SUST_STR, -1 },
-  	{ "In", TR_SUST_INT, -1 },
-  	{ "Wi", TR_SUST_WIS, -1 },
-  	{ "Dx", TR_SUST_DEX, -1 },
-  	{ "Cn", TR_SUST_CON, -1 },
-  	{ "Ch", TR_SUST_CHR, -1 },
-  	{ NULL, 0, -1 }
+	{ "St", TR_SUST_STR, -1 },
+	{ "In", TR_SUST_INT, -1 },
+	{ "Wi", TR_SUST_WIS, -1 },
+	{ "Dx", TR_SUST_DEX, -1 },
+	{ "Cn", TR_SUST_CON, -1 },
+	{ "Ch", TR_SUST_CHR, -1 },
+	{ NULL, 0, -1 }
 };
 #endif
 
@@ -1393,7 +1395,7 @@ static bool have_flag_of(flag_insc_table *fi_ptr, u32b flgs[TR_FLAG_SIZE])
  */
 static void get_inscription(char *buff, object_type *o_ptr)
 {
-        cptr insc = quark_str(o_ptr->inscription);
+	cptr insc = quark_str(o_ptr->inscription);
 	char *ptr = buff;
 	char *prev_ptr = buff;
 
@@ -1401,20 +1403,20 @@ static void get_inscription(char *buff, object_type *o_ptr)
 
 	/* Not fully identified */
 	if (!(o_ptr->ident & IDENT_MENTAL))
-        {
-                /* Copy until end of line or '#' */
-                while (*insc)
-                {
-                        if (*insc == '#') break;
+	{
+		/* Copy until end of line or '#' */
+		while (*insc)
+		{
+			if (*insc == '#') break;
 #ifdef JP
-                        if (iskanji(*insc)) *buff++ = *insc++;
+			if (iskanji(*insc)) *buff++ = *insc++;
 #endif
-                        *buff++ = *insc++;
-                }
+			*buff++ = *insc++;
+		}
 
-                *buff = '\0';
-                return;
-        }
+		*buff = '\0';
+		return;
+	}
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
@@ -1423,13 +1425,13 @@ static void get_inscription(char *buff, object_type *o_ptr)
 	*buff = '\0';
 	for (; *insc; insc++)
 	{
-                bool kanji = FALSE;
-                bool all;
+		bool kanji = FALSE;
+		bool all;
 
-                /* Ignore fake artifact inscription */
-                if (*insc == '#') break;
+		/* Ignore fake artifact inscription */
+		if (*insc == '#') break;
 
-                /* {%} will be automatically converted */
+		/* {%} will be automatically converted */
 		else if ('%' == *insc)
 		{
 			cptr start_percent = ptr;
@@ -1477,14 +1479,14 @@ static void get_inscription(char *buff, object_type *o_ptr)
 
 				if (o_ptr->name2)
 				{
-                                        bool teleport = have_flag(flgs, TR_TELEPORT);
+					bool teleport = have_flag(flgs, TR_TELEPORT);
 					ego_item_type *e_ptr = &e_info[o_ptr->name2];
 					
 					for (j = 0; j < TR_FLAG_SIZE; j++)
 						flgs[j] &= ~e_ptr->flags[j];
 
-                                        /* Always inscribe {.} for random teleport */
-                                        if (teleport) add_flag(flgs, TR_TELEPORT);
+					/* Always inscribe {.} for random teleport */
+					if (teleport) add_flag(flgs, TR_TELEPORT);
 				}
 			}
 
@@ -1556,23 +1558,23 @@ static void get_inscription(char *buff, object_type *o_ptr)
 			ptr = inscribe_flags_aux(flag_insc_slay, flgs, kanji, ptr);
 
 			/* Esp */
-                        if (kanji)
-                        {
-                                if (have_flag_of(flag_insc_esp1, flgs) ||
-                                    have_flag_of(flag_insc_esp2, flgs))
-                                        ADD_INSC("~");
-                                ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
-                                ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
-                        }
-                        else
-                        {
-                                if (have_flag_of(flag_insc_esp1, flgs))
-                                        ADD_INSC("~");
-                                ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
-                                if (have_flag_of(flag_insc_esp2, flgs))
-                                        ADD_INSC("~");
-                                ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
-                        }
+			if (kanji)
+			{
+				if (have_flag_of(flag_insc_esp1, flgs) ||
+				    have_flag_of(flag_insc_esp2, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
+				ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
+			}
+			else
+			{
+				if (have_flag_of(flag_insc_esp1, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp1, flgs, kanji, ptr);
+				if (have_flag_of(flag_insc_esp2, flgs))
+					ADD_INSC("~");
+				ptr = inscribe_flags_aux(flag_insc_esp2, flgs, kanji, ptr);
+			}
 
 			/* Random Teleport */
 			if (have_flag(flgs, TR_TELEPORT))
@@ -1595,7 +1597,7 @@ static void get_inscription(char *buff, object_type *o_ptr)
 			*ptr++ = *insc;
 		}
 	}
-        *ptr = '\0';
+	*ptr = '\0';
 }
 
 
@@ -1782,15 +1784,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 #ifdef JP
-			sprintf(tmp_val2, "& #%s", basenm + 2);
+			sprintf(tmp_val2, "#%s", basenm);
 #else
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				sprintf(tmp_val2, "%s %s", basenm, "of #");
+				sprintf(tmp_val2, "& %s %s", basenm, "of #");
 			}
 			else
 			{
-				sprintf(tmp_val2, "& # %s", basenm + 2);
+				sprintf(tmp_val2, "& # %s", basenm);
 			}
 #endif
 
@@ -1851,9 +1853,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %のアミュレット" : "& アミュレット";
+				basenm = aware ? "%のアミュレット" : "アミュレット";
 			else
-				basenm = aware ? "& #%のアミュレット" : "& #アミュレット";
+				basenm = aware ? "#%のアミュレット" : "#アミュレット";
 #else
 				basenm = "& Amulet~";
 			else
@@ -1878,9 +1880,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の指輪" : "& 指輪";
+				basenm = aware ? "%の指輪" : "指輪";
 			else
-				basenm = aware ? "& #%の指輪" : "& #指輪";
+				basenm = aware ? "#%の指輪" : "#指輪";
 #else
 				basenm = "& Ring~";
 			else
@@ -1905,9 +1907,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の杖" : "& 杖";
+				basenm = aware ? "%の杖" : "杖";
 			else
-				basenm = aware ? "& #%の杖" : "& #杖";
+				basenm = aware ? "#%の杖" : "#杖";
 #else
 				basenm = "& Staff~";
 			else
@@ -1925,9 +1927,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware? "& %の魔法棒":"& 魔法棒";
+				basenm = aware? "%の魔法棒":"魔法棒";
 			else
-				basenm = aware ? "& #%の魔法棒" : "& #魔法棒";
+				basenm = aware ? "#%の魔法棒" : "#魔法棒";
 #else
 				basenm = "& Wand~";
 			else
@@ -1945,9 +1947,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware? "& %のロッド":"& ロッド";
+				basenm = aware? "%のロッド":"ロッド";
 			else
-				basenm = aware ? "& #%のロッド" : "& #ロッド";
+				basenm = aware ? "#%のロッド" : "#ロッド";
 #else
 				basenm = "& Rod~";
 			else
@@ -1964,9 +1966,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の巻物" : "& 巻物";
+				basenm = aware ? "%の巻物" : "巻物";
 			else
-				basenm = aware ? "& 「#」と書かれた%の巻物" : "& 「#」と書かれた巻物";
+				basenm = aware ? "「#」と書かれた%の巻物" : "「#」と書かれた巻物";
 #else
 				basenm = "& Scroll~";
 			else
@@ -1984,9 +1986,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %の薬" : "& 薬";
+				basenm = aware ? "%の薬" : "薬";
 			else
-				basenm = aware ? "& #%の薬" : "& #薬";
+				basenm = aware ? "#%の薬" : "#薬";
 #else
 				basenm = "& Potion~";
 			else
@@ -2007,9 +2009,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			if (aware) append_name = TRUE;
 			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
 #ifdef JP
-				basenm = aware ? "& %のキノコ" : "& キノコ";
+				basenm = aware ? "%のキノコ" : "キノコ";
 			else
-				basenm = aware ? "& #%のキノコ" : "& #キノコ";
+				basenm = aware ? "#%のキノコ" : "#キノコ";
 #else
 				basenm = "& Mushroom~";
 			else
@@ -2023,9 +2025,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-                        basenm = "& 羊皮紙 - #";
+			basenm = "羊皮紙 - #";
 #else
-                        basenm = "& Parchement~ - #";
+			basenm = "& Parchement~ - #";
 #endif
 			break;
 		}
@@ -2035,7 +2037,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 生命の魔法書#";
+				basenm = "生命の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Life Magic #";
@@ -2050,7 +2052,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 仙術の魔法書#";
+				basenm = "仙術の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Sorcery #";
@@ -2065,7 +2067,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 自然の魔法書#";
+				basenm = "自然の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Nature Magic #";
@@ -2080,7 +2082,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& カオスの魔法書#";
+				basenm = "カオスの魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Chaos Magic #";
@@ -2095,7 +2097,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 暗黒の魔法書#";
+				basenm = "暗黒の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Death Magic #";
@@ -2110,7 +2112,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& トランプの魔法書#";
+				basenm = "トランプの魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Trump Magic #";
@@ -2125,7 +2127,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 秘術の魔法書#";
+				basenm = "秘術の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Arcane Magic #";
@@ -2139,7 +2141,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 匠の魔法書#";
+				basenm = "匠の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Craft Magic #";
@@ -2153,7 +2155,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 悪魔の魔法書#";
+				basenm = "悪魔の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Daemon Magic #";
@@ -2167,7 +2169,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 破邪の魔法書#";
+				basenm = "破邪の魔法書#";
 #else
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				basenm = "& Book~ of Crusade Magic #";
@@ -2181,7 +2183,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 #ifdef JP
-				basenm = "& 歌集#";
+				basenm = "歌集#";
 #else
 				basenm = "& Song Book~ #";
 #endif
@@ -2194,7 +2196,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 #ifdef JP
 				basenm = "& 武芸の書#";
 #else
-				basenm = "& Book~ of Kendo #";
+				basenm = "Book~ of Kendo #";
 #endif
 
 			break;
@@ -2213,7 +2215,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		default:
 		{
 #ifdef JP
-                        strcpy(buf, "(なし)");
+			strcpy(buf, "(なし)");
 #else
 			strcpy(buf, "(nothing)");
 #endif
@@ -2376,40 +2378,40 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_str(t,format("鍛冶師%sの",player_name));
 	}
 
-        /* 伝説のアイテム、名のあるアイテムの名前を付加する */
-        if (known) {
-                /* ランダム・アーティファクト */
+	/* 伝説のアイテム、名のあるアイテムの名前を付加する */
+	if (known) {
+		/* ランダム・アーティファクト */
 		if (o_ptr->art_name)
 		{       char temp[256];
-		        strcpy(temp, quark_str(o_ptr->art_name));
-                        /* '『' から始まらない伝説のアイテムの名前は最初に付加する */
-                        /* 英語版のセーブファイルから来た 'of XXX' は,「XXXの」と表示する */
+			strcpy(temp, quark_str(o_ptr->art_name));
+			/* '『' から始まらない伝説のアイテムの名前は最初に付加する */
+			/* 英語版のセーブファイルから来た 'of XXX' は,「XXXの」と表示する */
 			if ( strncmp( temp , "of ",3)==0 ) {t=object_desc_str(t,&temp[3]);t=object_desc_str(t,"の");}
 			else 
-                        if ( strncmp( temp , "『" , 2 ) != 0 && temp[0]!='\'')
-                                t=object_desc_str(t,  temp);
+			if ( strncmp( temp , "『" , 2 ) != 0 && temp[0]!='\'')
+				t=object_desc_str(t,  temp);
 		}
-                /* 伝説のアイテム */
-                else if (o_ptr->name1 && !have_flag(flgs, TR_FULL_NAME)) {
-                        artifact_type *a_ptr = &a_info[o_ptr->name1];
-                        /* '『' から始まらない伝説のアイテムの名前は最初に付加する */
-                        if ( strncmp( (a_name + a_ptr->name), "『" , 2) != 0){
-                                t=object_desc_str(t, (a_name + a_ptr->name));
-                        }
-                }
-                /* 名のあるアイテム */
-                else if (o_ptr->name2) {
-                        ego_item_type *e_ptr = &e_info[o_ptr->name2];
-                        t=object_desc_str(t, (e_name + e_ptr->name));
-                }
-        }
+		/* 伝説のアイテム */
+		else if (o_ptr->name1 && !have_flag(flgs, TR_FULL_NAME)) {
+			artifact_type *a_ptr = &a_info[o_ptr->name1];
+			/* '『' から始まらない伝説のアイテムの名前は最初に付加する */
+			if ( strncmp( (a_name + a_ptr->name), "『" , 2) != 0){
+				t=object_desc_str(t, (a_name + a_ptr->name));
+			}
+		}
+		/* 名のあるアイテム */
+		else if (o_ptr->name2) {
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+			t=object_desc_str(t, (e_name + e_ptr->name));
+		}
+	}
 #endif
 	/* Copy the string */
 	for (; *s; s++)
 	{
 		/* Pluralizer */
 #ifdef JP
-                if (*s == '#')
+		if (*s == '#')
 #else
 		if (*s == '~')
 		{
@@ -2468,27 +2470,27 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 #ifdef JP
-        /* '『'から始まる伝説のアイテムの名前は最後に付加する */
-        if (known) {
+	/* '『'から始まる伝説のアイテムの名前は最後に付加する */
+	if (known) {
 		/* ランダムアーティファクトの名前はセーブファイルに記録
-                   されるので、英語版の名前もそれらしく変換する */
+		   されるので、英語版の名前もそれらしく変換する */
 		if (o_ptr->art_name)
 		{       char temp[256];int itemp;
-		        strcpy(temp, quark_str(o_ptr->art_name));
+			strcpy(temp, quark_str(o_ptr->art_name));
 			/* MEGA HACK by ita*/
-                                if ( strncmp( temp , "『" , 2 ) == 0 ) t=object_desc_str(t,  temp);else
+				if ( strncmp( temp , "『" , 2 ) == 0 ) t=object_desc_str(t,  temp);else
 			 if( temp[0]=='\'' ) { itemp=strlen(temp);temp[itemp-1]=0; 
 			 t=object_desc_str(t,"『");
 			 t=object_desc_str(t,&temp[1]);
 			 t=object_desc_str(t,"』");}
-                                
+				
 		}
-                else if (o_ptr->name1) {
-                                artifact_type *a_ptr = &a_info[o_ptr->name1];
-                                if ( strncmp( (a_name + a_ptr->name) , "『" , 2 ) == 0 ){
-                                        t=object_desc_str(t, (a_name + a_ptr->name));
-                                }
-                }
+		else if (o_ptr->name1) {
+				artifact_type *a_ptr = &a_info[o_ptr->name1];
+				if ( strncmp( (a_name + a_ptr->name) , "『" , 2 ) == 0 ){
+					t=object_desc_str(t, (a_name + a_ptr->name));
+				}
+		}
 		else if (o_ptr->inscription)
 		{
 			cptr str = quark_str(o_ptr->inscription);
@@ -2514,7 +2516,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 				t=object_desc_str(t,"』");
 			}
 		}
-        }
+	}
 #else
 	if ((o_ptr->tval > TV_CAPTURE) && o_ptr->xtra3)
 	{
@@ -2962,7 +2964,7 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 		}
 		t = object_desc_num(t, o_ptr->pval);
 #ifdef JP
-                t = object_desc_str(t, "回分");
+		t = object_desc_str(t, "回分");
 #else
 		t = object_desc_str(t, " charge");
 
@@ -2992,8 +2994,8 @@ t = object_desc_str(t, "(マルチ・トラップ)");
 				/* Find out how many rods are charging, by dividing
 				 * current timeout by each rod's maximum timeout.
 				 * Ensure that any remainder is rounded up.  Display
-			 	 * very discharged stacks as merely fully discharged.
-			 	 */
+				 * very discharged stacks as merely fully discharged.
+				 */
 				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
 				if (power > o_ptr->number) power = o_ptr->number;
 
@@ -3206,15 +3208,15 @@ strcpy(tmp_val2, "未判明");
 	/* Use the standard inscription if available */
 	if (o_ptr->inscription)
 	{
-                char buff[1024];
+		char buff[1024];
 
 		if (tmp_val2[0]) strcat(tmp_val2, ", ");
 
-                /* Get inscription and convert {%} */
-                get_inscription(buff, o_ptr);
+		/* Get inscription and convert {%} */
+		get_inscription(buff, o_ptr);
 
-                /* strcat with correct treating of kanji */
-                my_strcat(tmp_val2, buff, sizeof(tmp_val2));
+		/* strcat with correct treating of kanji */
+		my_strcat(tmp_val2, buff, sizeof(tmp_val2));
 	}
 
 	/* Note the discount, if any */

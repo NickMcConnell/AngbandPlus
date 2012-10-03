@@ -143,8 +143,6 @@ extern s16b command_gap;
 extern s16b command_wrk;
 extern s16b command_new;
 extern s16b energy_use;
-extern byte create_up_stair;
-extern byte create_down_stair;
 extern bool msg_flag;
 extern s16b running;
 extern s16b resting;
@@ -211,6 +209,7 @@ extern bool find_ignore_doors;
 extern bool find_cut;
 extern bool find_examine;
 extern bool disturb_near;
+extern bool disturb_high;
 extern bool disturb_move;
 extern bool disturb_panel;
 extern bool disturb_state;
@@ -238,13 +237,13 @@ extern bool always_show_list;
 extern bool powerup_home;
 extern bool change_numeral;
 extern bool send_score;
+extern bool allow_debug_opts;   /* Allow use of debug/cheat options */
 
 extern bool display_mutations;     /* Skip mutations screen in 'C'haracter display */
 extern bool plain_descriptions;
-extern bool stupid_monsters;
 extern bool confirm_destroy;
 extern bool confirm_wear;
-extern bool confirm_stairs;
+extern bool confirm_quest;
 extern bool disturb_pets;
 extern bool view_perma_grids;
 extern bool view_torch_grids;
@@ -260,7 +259,6 @@ extern bool manual_haggle;
 extern bool auto_scum;
 extern bool expand_look;
 extern bool expand_list;
-extern bool dungeon_stair;
 extern bool smart_learn;
 extern bool smart_cheat;
 extern bool show_labels;
@@ -272,6 +270,7 @@ extern bool cheat_room;
 extern bool cheat_xtra;
 extern bool cheat_know;
 extern bool cheat_live;
+extern bool cheat_save;
 extern bool last_words;              /* Zangband options */
 extern bool over_exert;
 extern bool small_levels;
@@ -292,6 +291,7 @@ extern bool leave_corpse;
 extern bool leave_junk;
 extern bool destroy_items;
 extern bool leave_chest;
+extern bool leave_special;
 extern bool record_fix_art;
 extern bool record_rand_art;
 extern bool record_destroy_uniq;
@@ -365,6 +365,9 @@ extern char angband_term_name[8][16];
 extern byte angband_color_table[256][4];
 extern char angband_sound_name[SOUND_MAX][16];
 extern cave_type *cave[MAX_HGT];
+extern saved_floor_type saved_floors[MAX_SAVED_FLOORS];
+extern s16b max_floor_id;
+extern u32b saved_floor_file_sign;
 extern object_type *o_list;
 extern monster_type *m_list;
 extern u16b max_towns;
@@ -390,14 +393,9 @@ extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
 extern skill_table *s_info;
-extern char *s_name;
-extern char *s_text;
 extern player_magic *m_info;
-extern char *m_name;
-extern char *m_text;
 extern feature_type *f_info;
 extern char *f_name;
-extern char *f_text;
 extern object_kind *k_info;
 extern char *k_name;
 extern char *k_text;
@@ -469,8 +467,6 @@ extern bool ironman_downward;
 extern bool ironman_autoscum;
 extern bool lite_town;
 extern bool ironman_empty_levels;
-extern bool terrain_streams;
-extern bool munchkin_death;
 extern bool ironman_rooms;
 extern bool ironman_nightmare;
 extern bool left_hander;
@@ -741,8 +737,20 @@ extern void flavor_init(void);
 extern char *object_desc_kosuu(char *t, object_type *o_ptr);
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
 
+/* floors.c */
+extern void init_saved_floors(void);
+extern void clear_saved_floor_files(void);
+extern saved_floor_type *get_sf_ptr(s16b floor_id);
+extern s16b get_new_floor_id(void);
+extern void prepare_change_floor_mode(u32b mode);
+extern void leave_floor(void);
+extern void change_floor(void);
+extern void stair_creation(void);
+
 /* generate.c */
 extern void place_closed_door(int y, int x);
+extern void place_quest_monsters(void);
+extern void clear_cave(void);
 extern void generate_cave(void);
 
 /* init1.c */
@@ -759,6 +767,7 @@ extern cptr get_check_sum(void);
 
 /* load.c */
 extern errr rd_savefile_new(void);
+extern bool load_floor(saved_floor_type *sf_ptr, u32b mode);
 
 /* melee1.c */
 /* melee2.c */
@@ -808,7 +817,7 @@ extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
 extern void set_target(monster_type *m_ptr, int y, int x);
 extern void reset_target(monster_type *m_ptr);
-extern void sanity_blast(monster_type *m_ptr, bool necro);
+extern monster_race *real_r_ptr(monster_type *m_ptr);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);
@@ -819,6 +828,7 @@ extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
+extern void sanity_blast(monster_type *m_ptr, bool necro);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
 extern bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode);
@@ -842,7 +852,7 @@ extern void object_flags(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE]);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
-extern bool identify_fully_aux(object_type *o_ptr);
+extern bool screen_object(object_type *o_ptr, bool real);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
@@ -921,6 +931,7 @@ extern void do_cmd_racial_power(void);
 extern bool save_player(void);
 extern bool load_player(void);
 extern void remove_loc(void);
+extern bool save_floor(saved_floor_type *sf_ptr, u32b mode);
 
 /* spells1.c */
 extern bool in_disintegration_range(int y1, int x1, int y2, int x2);
@@ -1064,7 +1075,6 @@ extern void identify_pack(void);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool alchemy(void);
-extern void stair_creation(void);
 extern bool item_tester_hook_weapon(object_type *o_ptr);
 extern bool item_tester_hook_armour(object_type *o_ptr);
 extern bool item_tester_hook_weapon_armour(object_type *o_ptr);
@@ -1290,7 +1300,7 @@ extern void resize_map(void);
 extern void redraw_window(void);
 extern bool change_panel(int dy, int dx);
 extern void verify_panel(void);
-extern cptr look_mon_desc(int m_idx);
+extern cptr look_mon_desc(int m_idx, u32b mode);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
 extern bool target_able(int m_idx);
@@ -1468,6 +1478,7 @@ extern void k_info_reset(void);
 extern bool buki_motteruka(int i);
 
 /* wild.c */
+extern void set_floor_and_wall(byte type);
 extern void wilderness_gen(void);
 extern void wilderness_gen_small(void);
 extern errr init_wilderness(void);

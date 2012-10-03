@@ -1246,15 +1246,15 @@ static hist_type bg[] =
 
 
 #ifdef JP
-        {"山羊の蹄があります。",      50, 133, 0, 50 },
-        {"人間の足が生えています。",  75, 133, 0, 50 },
-        {"鳥の足が生えています。",    85, 133, 0, 50 },
-        {"爬虫類の足が生えています。",90, 133, 0, 50 },
-        {"牛の足が生えています。",    95, 133, 0, 50 },
-        {"猫の足が生えています。",    97, 133, 0, 50 },
-        {"犬の足が生えています。",   100, 133, 0, 50 },
+	{"山羊の蹄があります。",      50, 133, 0, 50 },
+	{"人間の足が生えています。",  75, 133, 0, 50 },
+	{"鳥の足が生えています。",    85, 133, 0, 50 },
+	{"爬虫類の足が生えています。",90, 133, 0, 50 },
+	{"牛の足が生えています。",    95, 133, 0, 50 },
+	{"猫の足が生えています。",    97, 133, 0, 50 },
+	{"犬の足が生えています。",   100, 133, 0, 50 },
 
-        {"あなたは", 100, 134, 120, 50 },
+	{"あなたは", 100, 134, 120, 50 },
 #else
 	{"and the hooves of a goat.",      50, 133, 0, 50 },
 	{"and human feet.",        75, 133, 0, 50 },
@@ -1659,25 +1659,25 @@ static cptr race_jouhou[MAX_RACES] =
   
 "地獄からやってきた悪魔的な生物です。彼らは他の種族から毛嫌いされていますが、大抵の職業をかなりうまくこなすことができます。インプは生まれつき火に耐性を持っており、レベルが上がれば見えないものを見る能力を獲得します。",
   
-"ゴーレムは泥のような生命のない材料からつくられ、生命を吹き込まれた人工的な生物です。彼らには思考というものがほとんどなく、そのため魔法に依存する職業では役立たずです。しかし戦士としては大変にタフです。彼らは毒に耐性を持ち、見えないものを見ることができ、さらに麻痺知らずです。レベルが上がれば、彼らは生命力吸収攻撃に耐性を持つようになります。ゴーレムは通常の食物からはほとんど栄養を摂取できませんが、消化には時間がかかります。また、その頑丈な身体のため、ACにボーナスを得ることができ、さらに決して気絶させられることがありません。",
+"ゴーレムは泥のような生命のない材料からつくられ、生命を吹き込まれた人工的な生物です。彼らには思考というものがほとんどなく、そのため魔法に依存する職業では役立たずです。しかし戦士としては大変にタフです。彼らは毒に耐性を持ち、見えないものを見ることができ、さらに麻痺知らずです。レベルが上がれば、彼らは生命力吸収攻撃に耐性を持つようになります。ゴーレムは通常の食物からはほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収して動力源にする事ができます。また、その頑丈な身体のため、ACにボーナスを得ることができ、さらに決して気絶させられることがありません。",
   
-"スケルトンには2つのタイプが存在します。普通の戦士タイプと、リッチと呼ばれる呪文を使うスケルトンです。アンデッドである彼らは、毒や生命力吸収攻撃を心配する必要はありません。彼らは物体を知覚するのに眼を利用していないため、見えない物に騙されません。彼らの骨はとがった破片のようなものに耐性を持ち、レベルが上がれば冷気に対する耐性を獲得します。薬や食物の持つ効果はスケルトンの胃（存在しませんが）を通過することなくその力を発揮しますが、薬や食物自体は彼の顎を通り抜けて落ちてしまい、栄養を吸収することはできません。",
+"スケルトンには2つのタイプが存在します。普通の戦士タイプと、リッチと呼ばれる呪文を使うスケルトンです。アンデッドである彼らは、毒や生命力吸収攻撃を心配する必要はありません。彼らは物体を知覚するのに眼を利用していないため、見えない物に騙されません。彼らの骨はとがった破片のようなものに耐性を持ち、レベルが上がれば冷気に対する耐性を獲得します。薬や食物の持つ効果はスケルトンの胃（存在しませんが）を通過することなくその力を発揮しますが、薬や食物自体は彼の顎を通り抜けて落ちてしまい、栄養を吸収することはできません。その代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
   
-"ゾンビはアンデッドであり、生命力吸収攻撃に耐性を持ち、スケルトンのようにレベルが上がれば冷気の耐性を獲得します。また、毒に耐性を持ち見えないものを見ることができます。（スケルトンとは違い）切る攻撃には弱いですが、地獄に対する耐性を持っています。ゴーレムのように、彼らは食物からほとんど栄養を摂取できませんが、消化吸収は遅いです。",
+"ゾンビはアンデッドであり、生命力吸収攻撃に耐性を持ち、スケルトンのようにレベルが上がれば冷気の耐性を獲得します。また、毒に耐性を持ち見えないものを見ることができます。（スケルトンとは違い）切る攻撃には弱いですが、地獄に対する耐性を持っています。ゴーレムのように、彼らは食物からほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
   
 "強力なアンデッドの一種である吸血鬼は、畏敬の念を呼び起こす外見をしています。アンデッドの例にもれず、彼らも生命力を吸収されることがなく、地獄に対する耐性を持っています。また、冷気と毒に対する耐性も備えています。しかし、新鮮な血液に常に飢えており、それは近くにいる生物から血液を吸うことによってのみ満たされます。この強力な生物は深刻な弱点を持っています。太陽光線（や光源）は彼らの破滅を意味します。幸運にも、吸血鬼はその身体から「暗黒の光」のオーラを放出しています。一方、暗闇は彼らをより強力にするものです。",
   
-"幽霊は強力なアンデッドの一種です。彼らは不気味な緑色の光に包まれています。半物質的な存在である彼らは、壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、毒と冷気に対して耐性を備え、さらに地獄に対する耐性も持っています。レベルが十分に上がると彼らはテレパシーを獲得します。幽霊は卓越した魔法使いになることができますが、その身体的特性は非常に貧弱です。",
+"幽霊は強力なアンデッドの一種です。彼らは不気味な緑色の光に包まれています。半物質的な存在である彼らは、壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、毒と冷気に対して耐性を備え、さらに地獄に対する耐性も持っています。レベルが十分に上がると彼らはテレパシーを獲得します。幽霊は卓越した魔法使いになることができますが、その身体的特性は非常に貧弱です。彼らは食物からほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
   
 "妖精は非常に小さいです。彼らは小さな翼を持ち、罠や危険な地形を飛び越えることができます。彼らは日光を大変好み、光に対する耐性を持っています。身体的にはもっとも貧弱な種族の一つですが、妖精は魔法の面で大変な才能を持っており、非常に熟練した魔法使いになることができます。高レベルではより速く飛ぶことができるようになります。",
   
 "この種族はカオスによってつくられた冒涜的で嫌悪される存在です。彼らは独立した種族ではなく、人間型種族、大抵は人間がカオスによって歪められた存在、もしくは人間と獣の悪夢のような交配種です。全ての獣人はカオスに盲従しており、そのため混乱と音に対して耐性を備えていますが、純粋なログルスはまだ彼らに対し効果を持っています。獣人は混沌を好み、それは彼らをさらに歪めます。獣人は突然変異を起こしやすい性質を持っています。彼らがつくられたとき、ランダムな変異を受けます。その後、レベルが上がるごとに違う変異を受ける可能性があります。",
   
-"エントは非常に強く、賢いですが、その巨大さゆえに罠の解除やこっそりと歩くことは苦手です。成長するにつれて腕力や耐久力が上がりますが、器用さは下がっていきます。彼らには大きな欠点があり、炎によって通常よりも大きなダメージを受けてしまいます。",
+"エントは非常に強く、賢いですが、その巨大さゆえに罠の解除やこっそりと歩くことは苦手です。成長するにつれて腕力や耐久力が上がりますが、器用さは下がっていきます。彼らには大きな欠点があり、炎によって通常よりも大きなダメージを受けてしまいます。彼らは食物からほとんど栄養を摂取できませんが、代わりに薬等から水分を摂取する事で活動できます。",
   
 "天使の上位種であるアルコンは、全てのスキルに熟達しており、強くて賢く、非常に人気があります。彼らは目に見えないものを見ることができ、その翼で罠や危険な地形を飛び越えることができます。しかし、非常に成長が遅いという欠点もあります。",
   
-"悪魔の上位種であるバルログは、強く、知的で、またタフでもあります。しかし、彼らは神を信じようとはせず、プリーストには全く向いていません。炎と地獄、生命力吸収への耐性を持っており、レベルが上がれば見えないものを見る能力を獲得します。また、地獄や火炎のブレスを吐くこともできます。彼等はほとんどの技能で優れていますが、静かに歩くことは苦手です。",
+"悪魔の上位種であるバルログは、強く、知的で、またタフでもあります。しかし、彼らは神を信じようとはせず、プリーストには全く向いていません。炎と地獄、生命力吸収への耐性を持っており、レベルが上がれば見えないものを見る能力を獲得します。また、地獄や火炎のブレスを吐くこともできます。彼等はほとんどの技能で優れていますが、静かに歩くことは苦手です。彼らは食物からほとんど栄養を摂取できませんが、人間タイプを生贄にする事で精力を回復する事ができます。",
   
 "ドゥナダンは西方から来た屈強な種族です。このいにしえの種族は全ての領域において人間の能力を凌駕し、特に耐久力に関してはそれが顕著です。しかしながらこの種族は全てに卓越していることが災いして、この世界には新しい経験といったものがほとんどなく、レベルを上げることが非常に困難です。彼らはとてもタフで頑強であり、彼らの耐久力が下がることはありません。",
   
@@ -1685,7 +1685,7 @@ static cptr race_jouhou[MAX_RACES] =
   
 "クターとしている無表情の謎の生物です。彼らは外見がかわいらしいため、魅力が高いです。彼らは混乱しません。なぜなら、混乱してもクターとしているため変わりないからです。しかも、そのクターとしている外見から敵に見つかりにくいです。しかし、彼らは注意力が少ないため探索や知覚能力は悪いです。彼らはレベルが上がると横に伸びてACを上げる技を覚えますが、伸びている間は魔法防御能力は低くなってしまいます。",
   
-"アンドロイドは機械の身体を持つ人工的な存在です。魔法をうまく使うことはできませんが、戦士としては非常に優れています。彼らは他の種族のように経験値を得て成長するということはありません。身体に身につける装備によって成長します。ただし、指輪、アミュレット、光源は成長に影響しません。彼らは毒の耐性を持ち、麻痺知らずで、生命力を吸われることがありません。また、身体が頑丈なのでACにボーナスを得ます。しかし身体のいたるところに電子回路が組み込まれているため、電撃によって通常よりも大きなダメージを受けてしまいます。"
+"アンドロイドは機械の身体を持つ人工的な存在です。魔法をうまく使うことはできませんが、戦士としては非常に優れています。彼らは他の種族のように経験値を得て成長するということはありません。身体に身につける装備によって成長します。ただし、指輪、アミュレット、光源は成長に影響しません。彼らは毒の耐性を持ち、麻痺知らずで、生命力を吸われることがありません。また、身体が頑丈なのでACにボーナスを得ます。しかし身体のいたるところに電子回路が組み込まれているため、電撃によって通常よりも大きなダメージを受けてしまいます。彼らは食物からほとんど動力を得られませんが、油を補給する事で動力源を得る事ができます。"
 
 #else
 
@@ -1735,25 +1735,25 @@ static cptr race_jouhou[MAX_RACES] =
 
 "A demon-creature from the nether-world, naturally resistant to fire attacks, and capable of learning fire bolt and fire ball attacks.  They are little loved by other races, but can perform fairly well in most professions.  As they advance levels, they gain the powers of See Invisible.",
 
-"A Golem is an artificial creature, built from a lifeless raw material like clay, and awakened to life.  They are nearly mindless, making them useless for professions which rely on magic, but as warriors they are very tough.  They are resistant to poison, they can see invisible things, and move freely.  At higher levels, they also become resistant to attacks which threaten to drain away their life force.  Golems gain very little nutrition from ordinary food.  Golems also gain a natural armor class bonus from their tough body.",
+"A Golem is an artificial creature, built from a lifeless raw material like clay, and awakened to life.  They are nearly mindless, making them useless for professions which rely on magic, but as warriors they are very tough.  They are resistant to poison, they can see invisible things, and move freely.  At higher levels, they also become resistant to attacks which threaten to drain away their life force.  Golems gain very little nutrition from ordinary food, but can absorb mana from staves and wands as their power source.  Golems also gain a natural armor class bonus from their tough body.",
 
-"There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches.  As undead beings, skeletons need to worry very little about poison or attacks that can drain life.  They do not really use eyes for perceiving things, and are thus not fooled by invisibility.  Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold.  Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit.",
+"There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches.  As undead beings, skeletons need to worry very little about poison or attacks that can drain life.  They do not really use eyes for perceiving things, and are thus not fooled by invisibility.  Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold.  Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit.  They can absorb mana from staves and wands as their energy source.",
 
-"Much like Skeletons, Zombies too are undead horrors: they are resistant to life-draining attacks, and can learn to restore their life-force.  Like skeletons, they become resistant to cold-based attacks (actually earlier than skeletons), resist poison and can see invisible.  While still vulnerable to cuts (unlike skeletons), Zombies are resistant to Nether.  Like Golems, they gain very little nutrition from the food of mortals.",
+"Much like Skeletons, Zombies too are undead horrors: they are resistant to life-draining attacks, and can learn to restore their life-force.  Like skeletons, they become resistant to cold-based attacks (actually earlier than skeletons), resist poison and can see invisible.  While still vulnerable to cuts (unlike skeletons), Zombies are resistant to Nether.  Like Golems, they gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source.",
 
 "One of the mightier undead creatures, the Vampire is an awe-inspiring sight.  Yet this dread creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets.  Darkness, on the other hand, only makes the Vampire stronger.  As undead, the Vampire has a firm hold on its life force, and resists nether attacks.  The Vampire also resists cold and poison based attacks.  It is, however, susceptible to its perpetual hunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster.",
 
-"Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow.  They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this.  As undead, they have a firm hold on their life force, see invisible, and resist poison and cold.  They also resist nether.  At higher levels they develop telepathic abilities.  Spectres make superb spellcasters, but their physical form is very weak.",
+"Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow.  They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this.  As undead, they have a firm hold on their life force, see invisible, and resist poison and cold.  They also resist nether.  At higher levels they develop telepathic abilities.  Spectres make superb spellcasters, but their physical form is very weak.  They gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source.",
 
 "One of the several fairy races, Sprites are very small.  They have tiny wings and can fly over traps that may open up beneath them.  They enjoy sunlight intensely, and need worry little about light based attacks.  Although physically among the weakest races, Sprites are very talented in magic, and can become highly skilled wizards.  Sprites have the special power of spraying Sleeping Dust, and at higher levels they learn to fly faster.",
 
  "This race is a blasphemous abomination produced by Chaos.  It is not an independent race but rather a humanoid creature, most often a human, twisted by the Chaos, or a nightmarish crossbreed of a human and a beast.  All Beastmen are accustomed to Chaos so much that they are untroubled by confusion and sound, although raw logrus can still have effects on them.  Beastmen revel in chaos, as it twists them more and more.  Beastmen are subject to mutations: when they have been created, they receive a random mutation.  After that, every time they advance a level they have a small chance of gaining yet another mutation.",
 
-"The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda.  Spirits of the land, they were summoned to guard the forests of Middle-earth.  Being much like trees they are very clumsy but strong, and very susceptible to fire.",
+"The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda.  Spirits of the land, they were summoned to guard the forests of Middle-earth.  Being much like trees they are very clumsy but strong, and very susceptible to fire.  They gain very little nutrition from the food of mortals, but they can absorb water from potions as their nutrition.",
 
 "Archons are a higher class of angels.  They are good at all skills, and are strong, wise, and are a favorite with any people.  They are able to see the unseen, and their wings allow them to safely fly over traps and other dangerous places.  However, belonging to a higher plane as they do, the experiences of this world do not leave a strong impression on them and they gain levels slowly.",
 
-"Balrogs are a higher class of demons.  They are strong, intelligent and tough.  They do not believe in gods, and are not suitable for priest at all.  Balrog are resistant to fire and nether, and have a firm hold on their life force.  They also eventually learn to see invisible things.  They are good at almost all skills except stealth.",
+"Balrogs are a higher class of demons.  They are strong, intelligent and tough.  They do not believe in gods, and are not suitable for priest at all.  Balrog are resistant to fire and nether, and have a firm hold on their life force.  They also eventually learn to see invisible things.  They are good at almost all skills except stealth.  They gain very little nutrition from the food of mortals, and need human corpses as sacrifices to regain their vitality.",
 
 "Dunedain are a race of hardy men from the West.  This elder race surpasses human abilities in every field, especially constitution.  However, being men of the world, very little is new to them, and levels are very hard for them to gain.  Their constitution cannot be reduced. ",
 
@@ -1761,7 +1761,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "A Kutar is an expressionless animal-like living creature.  The word 'kuta' means 'absentmindedly' or 'vacantly'.  Their absentmindedness hurts their searching and perception skills, but renders them incapable of being confused.  Their unearthly calmness and serenity make them among the most stealthy of any race.  Kutars, although expressionless, are beautiful and so have a high charisma.  Members of this race can learn to expand their body horizontally.  This increases armour class, but renders them vulnerable to magical attacks.",
 
-"An android is a artificial creation with a body of machinery.  They are poor at spell casting, but they make excellent warriors.  They don't acquire experience like other races, but rather gain in power as they attach new equipment to their frame.  Rings, amulets, and lights do not influence growth.  Androids are resistant to poison, can move freely, and are immune to life-draining attacks.  Moreover, because of their hard metallic bodies, they get a bonus to AC.  Androids have electronic circuits throughout their body and must beware of electric shocks."
+"An android is a artificial creation with a body of machinery.  They are poor at spell casting, but they make excellent warriors.  They don't acquire experience like other races, but rather gain in power as they attach new equipment to their frame.  Rings, amulets, and lights do not influence growth.  Androids are resistant to poison, can move freely, and are immune to life-draining attacks.  Moreover, because of their hard metallic bodies, they get a bonus to AC.  Androids have electronic circuits throughout their body and must beware of electric shocks.  They gain very little nutrition from the food of mortals, but they can use flasks of oil as their energy source."
 
 #endif
 };
@@ -2059,7 +2059,7 @@ static void show_help(cptr helpfile)
 	screen_save();
 
 	/* Peruse the help file */
-        (void)show_file(TRUE, helpfile, NULL, 0, 0);
+	(void)show_file(TRUE, helpfile, NULL, 0, 0);
 
 	/* Load screen */
 	screen_load();
@@ -2296,13 +2296,13 @@ static byte choose_realm(s32b choices, int *count)
 		}
 		else k = -1;
 		if (c == '?')
-                {
+		{
 #ifdef JP                 
-                        show_help("jmagic.txt#MagicRealms");
+			show_help("jmagic.txt#MagicRealms");
 #else
-                        show_help("magic.txt#MagicRealms");
+			show_help("magic.txt#MagicRealms");
 #endif
-                }
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -2329,7 +2329,7 @@ static byte choose_realm(s32b choices, int *count)
  */
 static bool get_player_realms(void)
 {
-        int i, count;
+	int i, count;
 
 	/* Clean up infomation of modifications */
 	put_str("                                   ", 3, 40);
@@ -2378,12 +2378,12 @@ static bool get_player_realms(void)
 			(void)inkey();
 			prt("", 0, 0);
 			break;
-                }
+		}
 else
 #ifdef JP
-                if (get_check("よろしいですか？")) break;
+		if (get_check("よろしいですか？")) break;
 #else
-                if (get_check("Are you sure? ")) break;
+		if (get_check("Are you sure? ")) break;
 #endif
 	}
 
@@ -2445,7 +2445,7 @@ else
 #ifdef JP
 			else if (get_check("よろしいですか？")) break;
 #else
-                        else if (get_check("Are you sure? ")) break;
+			else if (get_check("Are you sure? ")) break;
 #endif
 		}
 		if (p_ptr->realm2)
@@ -3061,13 +3061,13 @@ static void get_history(void)
 	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
 
        {
-        char temp[64*4];
-        roff_to_buf(s, 60, temp);
-        t = temp;
-        for(i=0 ; i<4 ; i++){
-             if(t[0]==0)break; 
-             else {strcpy(p_ptr->history[i], t);t += strlen(t)+1;}
-             }
+	char temp[64*4];
+	roff_to_buf(s, 60, temp);
+	t = temp;
+	for(i=0 ; i<4 ; i++){
+	     if(t[0]==0)break; 
+	     else {strcpy(p_ptr->history[i], t);t += strlen(t)+1;}
+	     }
        }
 }
 
@@ -3307,6 +3307,7 @@ static void player_wipe(void)
 	cheat_xtra = FALSE;
 	cheat_know = FALSE;
 	cheat_live = FALSE;
+	cheat_save = FALSE;
 
 	/* Assume no winning game */
 	p_ptr->total_winner = FALSE;
@@ -3318,7 +3319,7 @@ static void player_wipe(void)
 
 	/* Assume no cheating */
 	p_ptr->noscore = 0;
-        p_ptr->wizard = FALSE;
+	p_ptr->wizard = FALSE;
 
 	/* Not waiting to report score */
 	p_ptr->wait_report_score = FALSE;
@@ -3327,16 +3328,16 @@ static void player_wipe(void)
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
 	p_ptr->pet_extra_flags = (PF_TELEPORT | PF_ATTACK_SPELL | PF_SUMMON_SPELL);
 
-        /* Wipe the recall depths */
-        for (i = 0; i < max_d_idx; i++)
-        {
+	/* Wipe the recall depths */
+	for (i = 0; i < max_d_idx; i++)
+	{
 		max_dlv[i] = 0;
-        }
+	}
 
 	p_ptr->visit = 1;
 
-        /* Reset wild_mode to FALSE */
-        p_ptr->wild_mode = FALSE;
+	/* Reset wild_mode to FALSE */
+	p_ptr->wild_mode = FALSE;
 
 	for (i = 0; i < 108; i++)
 	{
@@ -3405,7 +3406,7 @@ static void init_dungeon_quests(int number_of_quests)
 	init_flags = INIT_ASSIGN;
 	p_ptr->inside_quest = MIN_RANDOM_QUEST;
 
-	process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 	p_ptr->inside_quest = 0;
 
@@ -3469,13 +3470,13 @@ static void init_dungeon_quests(int number_of_quests)
 	init_flags = INIT_ASSIGN;
 	p_ptr->inside_quest = QUEST_OBERON;
 
-	process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
 
 	p_ptr->inside_quest = QUEST_SERPENT;
 
-	process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
 	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
@@ -3698,6 +3699,21 @@ static byte player_init[MAX_CLASS][3][2] =
 
 
 /*
+ * Hook function for human corpses
+ */
+static bool monster_hook_human(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return FALSE;
+
+	if (strchr("pht", r_ptr->d_char)) return TRUE;
+
+	return FALSE;
+}
+
+
+/*
  * Init players with some belongings
  *
  * Having an item makes the player "aware" of its purpose.
@@ -3716,36 +3732,81 @@ void player_outfit(void)
 	/* Give the player some food */
 	switch (p_ptr->prace)
 	{
-		case RACE_GOLEM:
-		case RACE_SKELETON:
-		case RACE_ZOMBIE:
-		case RACE_VAMPIRE:
-		case RACE_SPECTRE:
-		case RACE_ENT:
-		case RACE_DEMON:
-		case RACE_ANDROID:
+	case RACE_VAMPIRE:
+		/* Nothing! */
+		/* Vampires can drain blood of creatures */
+		break;
+
+	case RACE_DEMON:
+		/* Demon can drain vitality from humanoid corpse */
+
+		/* Prepare allocation table */
+		get_mon_num_prep(monster_hook_human, NULL);
+
+		for (i = rand_range(3,4); i > 0; i--)
 		{
-			if (p_ptr->pclass == CLASS_BERSERKER) break;
-			/* Scrolls of satisfy hunger */
-			object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-			q_ptr->number = (byte)rand_range(2, 5);
-			object_aware(q_ptr);
-			object_known(q_ptr);
-
-			(void)inven_carry(q_ptr);
-
-			break;
-		}
-		default:
-		{
-			/* Food rations */
-			object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-			q_ptr->number = (byte)rand_range(3, 7);
-			object_aware(q_ptr);
-			object_known(q_ptr);
-
+			object_prep(q_ptr, lookup_kind(TV_CORPSE, SV_CORPSE));
+			q_ptr->pval = get_mon_num(2);
+			q_ptr->number = 1;
 			(void)inven_carry(q_ptr);
 		}
+		break;
+
+#if 0
+	case RACE_SKELETON:
+		/* Some Skeletons */
+		object_prep(q_ptr, lookup_kind(TV_SKELETON, SV_ANY));
+		q_ptr->number = (byte)rand_range(7, 12);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		(void)inven_carry(q_ptr);
+		break;
+#endif
+	case RACE_SKELETON:
+	case RACE_GOLEM:
+	case RACE_ZOMBIE:
+	case RACE_SPECTRE:
+		/* Staff (of Nothing) */
+		object_prep(q_ptr, lookup_kind(TV_STAFF, SV_STAFF_NOTHING));
+		q_ptr->number = 1;
+		object_aware(q_ptr);
+		object_known(q_ptr);
+
+		(void)inven_carry(q_ptr);
+		break;
+
+	case RACE_ENT:
+		/* Potions of Water */
+		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_WATER));
+		q_ptr->number = (byte)rand_range(15, 23);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		(void)inven_carry(q_ptr);
+
+		break;
+
+	case RACE_ANDROID:
+		/* Flasks of oil */
+		object_prep(q_ptr, lookup_kind(TV_FLASK, SV_ANY));
+
+		/* Fuel with oil (move pval to xtra4) */
+		apply_magic(q_ptr, 1, FALSE, FALSE, FALSE, FALSE);
+
+		q_ptr->number = (byte)rand_range(7, 12);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		(void)inven_carry(q_ptr);
+
+		break;
+
+	default:
+		/* Food rations */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+		q_ptr->number = (byte)rand_range(3, 7);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+
+		(void)inven_carry(q_ptr);
 	}
 
 	/* Get local object */
@@ -4108,13 +4169,13 @@ static bool get_player_race(void)
 		}
 		else k = -1;
 		if (c == '?')
-                {
+		{
 #ifdef JP                 
-                        show_help("jraceclas.txt#TheRaces");
+			show_help("jraceclas.txt#TheRaces");
 #else
-                        show_help("raceclas.txt#TheRaces");
+			show_help("raceclas.txt#TheRaces");
 #endif
-                }
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -4323,13 +4384,13 @@ static bool get_player_class(void)
 		}
 		else k = -1;
 		if (c == '?')
-                {
+		{
 #ifdef JP                 
-                        show_help("jraceclas.txt#TheClasses");
+			show_help("jraceclas.txt#TheClasses");
 #else
-                        show_help("raceclas.txt#TheClasses");
+			show_help("raceclas.txt#TheClasses");
 #endif
-                }
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -4565,13 +4626,13 @@ static bool get_player_seikaku(void)
 		}
 		else k = -1;
 		if (c == '?')
-                {
+		{
 #ifdef JP                 
-                        show_help("jraceclas.txt#ThePersonalities");
+			show_help("jraceclas.txt#ThePersonalities");
 #else
-                        show_help("raceclas.txt#ThePersonalities");
+			show_help("raceclas.txt#ThePersonalities");
 #endif
-                }
+		}
 		else if (c == '=')
 		{
 			screen_save();
@@ -4769,13 +4830,13 @@ static bool get_stat_limits(void)
 		c = inkey();
 		switch ( c ){
 		case 'Q':
-		        birth_quit();
+			birth_quit();
 			break;
 		case 'S':
-		        return (FALSE); 
+			return (FALSE); 
 			break;
 		case ESCAPE:
-		        break;
+			break;
 		case ' ':
 		case '\r':
 		case '\n':
@@ -4840,13 +4901,13 @@ static bool get_stat_limits(void)
 			}
 			break;
 		case '?':
-                {
+		{
 #ifdef JP                 
-                        show_help("jbirth.txt#AutoRoller");
+			show_help("jbirth.txt#AutoRoller");
 #else
-                        show_help("birth.txt#AutoRoller");
+			show_help("birth.txt#AutoRoller");
 #endif
-                }
+		}
 			break;
 		case '=':
 			screen_save();
@@ -4859,7 +4920,7 @@ static bool get_stat_limits(void)
 			screen_load();
 			break;
 		default:
-		        bell();
+			bell();
 			break;
 		}
 		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == 6))break;
@@ -5137,9 +5198,9 @@ static bool get_chara_limits(void)
 			break;
 		case '?':
 #ifdef JP                 
-                        show_help("jbirth.txt#AutoRoller");
+			show_help("jbirth.txt#AutoRoller");
 #else
-                        show_help("birth.txt#AutoRoller");
+			show_help("birth.txt#AutoRoller");
 #endif
 			break;
 		case '=':
@@ -5174,17 +5235,17 @@ static bool get_chara_limits(void)
  */
 static void edit_history(void)
 {
-        char old_history[4][60];
+	char old_history[4][60];
 	char c;
 	int y = 0, x = 0;
 	int i, j;
 
-        /* Edit character background */
-        for (i = 0; i < 4; i++)
-        {
-                sprintf(old_history[i], "%s", p_ptr->history[i]);
-        }
-        /* Turn 0 to space */
+	/* Edit character background */
+	for (i = 0; i < 4; i++)
+	{
+		sprintf(old_history[i], "%s", p_ptr->history[i]);
+	}
+	/* Turn 0 to space */
 	for (i = 0; i < 4; i++)
 	{
 		for (j = 0; p_ptr->history[i][j]; j++) /* loop */;
@@ -5192,62 +5253,62 @@ static void edit_history(void)
 		for (; j < 59; j++) p_ptr->history[i][j] = ' ';
 		p_ptr->history[i][59] = '\0';
 	}
-        display_player(1);
+	display_player(1);
 #ifdef JP
-        c_put_str(TERM_L_GREEN, "(キャラクターの生い立ち - 編集モード)", 11, 20);
+	c_put_str(TERM_L_GREEN, "(キャラクターの生い立ち - 編集モード)", 11, 20);
 #else
-        c_put_str(TERM_L_GREEN, "(Character Background - Edit Mode)", 11, 20);
+	c_put_str(TERM_L_GREEN, "(Character Background - Edit Mode)", 11, 20);
 #endif
 
-        while (TRUE)
-        {
-                for (i = 0; i < 4; i++)
-                {
-                        put_str(p_ptr->history[i], i + 12, 10);
-                }
+	while (TRUE)
+	{
+		for (i = 0; i < 4; i++)
+		{
+			put_str(p_ptr->history[i], i + 12, 10);
+		}
 #ifdef JP
 		if (iskanji2(p_ptr->history[y], x))
 			c_put_str(TERM_L_BLUE, format("%c%c", p_ptr->history[y][x],p_ptr->history[y][x+1]), y + 12, x + 10);
 		else
 #endif
-                c_put_str(TERM_L_BLUE, format("%c", p_ptr->history[y][x]), y + 12, x + 10);
+		c_put_str(TERM_L_BLUE, format("%c", p_ptr->history[y][x]), y + 12, x + 10);
 
 		/* Place cursor just after cost of current stat */
-                Term_gotoxy(x + 10, y + 12);
+		Term_gotoxy(x + 10, y + 12);
 
-                c = inkey();
+		c = inkey();
 
-                if (c == '8')
-                {
-                        y--;
-                        if (y < 0) y = 3;
+		if (c == '8')
+		{
+			y--;
+			if (y < 0) y = 3;
 #ifdef JP
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
-                }
-                else if (c == '2')
-                {
-                        y++;
-                        if (y > 3) y = 0;
+		}
+		else if (c == '2')
+		{
+			y++;
+			if (y > 3) y = 0;
 #ifdef JP
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
-                }
-                else if (c == '6')
-                {
+		}
+		else if (c == '6')
+		{
 #ifdef JP
 			if (iskanji2(p_ptr->history[y], x)) x++;
 #endif
-                        x++;
-                        if (x > 58)
+			x++;
+			if (x > 58)
 			{
 				x = 0;
 				if (y < 3) y++;
 			}
-                }
-                else if (c == '4')
-                {
-                        x--;
+		}
+		else if (c == '4')
+		{
+			x--;
 			if (x < 0)
 			{
 				if (y)
@@ -5261,20 +5322,20 @@ static void edit_history(void)
 #ifdef JP
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
-                }
-                else if (c == '\r')
-                {
-                        break;
-                }
-                else if (c == ESCAPE)
-                {
-                        for (i = 0; i < 4; i++)
-                        {
-                                sprintf(p_ptr->history[i], "%s", old_history[i]);
-                                put_str(p_ptr->history[i], i + 12, 10);
-                        }
-                        break;
-                }
+		}
+		else if (c == '\r')
+		{
+			break;
+		}
+		else if (c == ESCAPE)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				sprintf(p_ptr->history[i], "%s", old_history[i]);
+				put_str(p_ptr->history[i], i + 12, 10);
+			}
+			break;
+		}
 		else if (c == '\010')
 		{
 			x--;
@@ -5288,7 +5349,7 @@ static void edit_history(void)
 				else x = 0;
 			}
 
-                        p_ptr->history[y][x] = ' ';
+			p_ptr->history[y][x] = ' ';
 #ifdef JP
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x - 1)))
 			{
@@ -5300,9 +5361,9 @@ static void edit_history(void)
 #ifdef JP
 		else if (iskanji(c) || isprint(c))
 #else
-                else if (isprint(c)) /* BUGFIX */
+		else if (isprint(c)) /* BUGFIX */
 #endif
-                {
+		{
 #ifdef JP
 			if (iskanji2(p_ptr->history[y], x))
 			{
@@ -5328,15 +5389,15 @@ static void edit_history(void)
 				c = inkey();
 			}
 #endif
-                        p_ptr->history[y][x++] = c;
+			p_ptr->history[y][x++] = c;
 			if (x > 58)
 			{
 				x = 0;
 				y++;
 				if (y > 3) y = 0;
 			}
-                }
-        } /* while (TRUE) */
+		}
+	} /* while (TRUE) */
 
 }
 
@@ -5417,88 +5478,6 @@ static bool player_birth_aux(void)
 #else
 	put_str("Make your charactor. ('S' Restart, 'Q' Quit, '?' Help)", 8, 10);
 #endif
-
-
-	/*** Quick Start ***/
-
-	if (previous_char.quick_ok)
-	{
-		bool do_quick_start = FALSE;
-
-		/* Extra info */
-#ifdef JP
-	put_str("クイック・スタートを使うと以前と全く同じキャラクターで始められます。", 11, 5);
-#else
-	put_str("Do you want to use the quick start function(same character as your last one).", 11, 2);
-#endif
-
-		/* Choose */
-		while (1)
-		{
-#ifdef JP
-			put_str("クイック・スタートを使いますか？[y/n]", 14, 10);
-#else
-			put_str("Use quick start? [y/n]", 14, 10);
-#endif
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			else if (c == 'S') return (FALSE);
-                        else if (c == '?')
-                        {
-#ifdef JP                 
-                                show_help("jbirth.txt#QuickStart");
-#else
-                                show_help("birth.txt#QuickStart");
-#endif
-                        }
-			else if ((c == 'y') || (c == 'Y'))
-			{
-				do_quick_start = TRUE;
-				break;
-			}
-			else
-			{
-				do_quick_start = FALSE;
-				break;
-			}
-		}
-
-		if (do_quick_start)
-		{
-			load_prev_data(FALSE);
-			init_dungeon_quests(previous_char.quests);
-			init_turn();
-
-			sp_ptr = &sex_info[p_ptr->psex];
-			rp_ptr = &race_info[p_ptr->prace];
-			cp_ptr = &class_info[p_ptr->pclass];
-                        mp_ptr = &m_info[p_ptr->pclass];
-			ap_ptr = &seikaku_info[p_ptr->pseikaku];
-
-			/* Calc hitdie, but don't roll */
-			get_extra(FALSE);
-
-			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
-
-			/* Update stuff */
-			update_stuff();
-
-			/* Fully healed */
-			p_ptr->chp = p_ptr->mhp;
-
-			/* Fully rested */
-			p_ptr->csp = p_ptr->msp;
-
-			/* Process the player name */
-			process_player_name(FALSE);
-
-			return TRUE;
-		}
-
-		/* Clean up */
-		clear_from(10);
-	}
 
 
 	/*** Player sex ***/
@@ -5634,7 +5613,7 @@ static bool player_birth_aux(void)
 	p_ptr->prace = 0;
 	while(1)
 	{
-		char temp[80*9];
+		char temp[80*10];
 		cptr t;
 
 		if (!get_player_race()) return FALSE;
@@ -5644,7 +5623,7 @@ static bool player_birth_aux(void)
 		roff_to_buf(race_jouhou[p_ptr->prace], 74, temp);
 		t = temp;
 
-		for (i = 0; i< 9; i++)
+		for (i = 0; i< 10; i++)
 		{
 			if(t[0] == 0)
 				break; 
@@ -5825,15 +5804,15 @@ static bool player_birth_aux(void)
 				/* 0 to 10 random quests */
 				number_of_quests = randint0(11);
 			}
-                        else if (inp[0] == '?')
-                        {
+			else if (inp[0] == '?')
+			{
 #ifdef JP                 
-                                show_help("jbirth.txt#RandomQuests");
+				show_help("jbirth.txt#RandomQuests");
 #else
-                                show_help("birth.txt#RandomQuests");
+				show_help("birth.txt#RandomQuests");
 #endif
-                                continue;
-                        }
+				continue;
+			}
 			else
 			{
 				number_of_quests = atoi(inp);
@@ -6033,7 +6012,7 @@ static bool player_birth_aux(void)
 					/* Roll for age/height/weight */
 					get_ahw();
 
-	       				/* Roll for social class */
+					/* Roll for social class */
 					get_history();
 
 					break;
@@ -6147,9 +6126,9 @@ static bool player_birth_aux(void)
 			if (c == '?')
 			{
 #ifdef JP                 
-                                show_help("jbirth.txt#AutoRoller");
+				show_help("jbirth.txt#AutoRoller");
 #else
-                                show_help("birth.txt#AutoRoller");
+				show_help("birth.txt#AutoRoller");
 #endif
 				continue;
 			}
@@ -6233,6 +6212,91 @@ static bool player_birth_aux(void)
 
 
 /*
+ * Ask whether the player use Quick Start or not.
+ */
+static bool ask_quick_start(void)
+{
+	/* Doesn't have previous data */
+	if (!previous_char.quick_ok) return FALSE;
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Extra info */
+#ifdef JP
+	put_str("クイック・スタートを使うと以前と全く同じキャラクターで始められます。", 11, 5);
+#else
+	put_str("Do you want to use the quick start function(same character as your last one).", 11, 2);
+#endif
+
+	/* Choose */
+	while (1)
+	{
+		char c;
+
+#ifdef JP
+		put_str("クイック・スタートを使いますか？[y/n]", 14, 10);
+#else
+		put_str("Use quick start? [y/n]", 14, 10);
+#endif
+		c = inkey();
+
+		if (c == 'Q') quit(NULL);
+		else if (c == 'S') return (FALSE);
+		else if (c == '?')
+		{
+#ifdef JP                 
+			show_help("jbirth.txt#QuickStart");
+#else
+			show_help("birth.txt#QuickStart");
+#endif
+		}
+		else if ((c == 'y') || (c == 'Y'))
+		{
+			/* Yes */
+			break;
+		}
+		else
+		{
+			/* No */
+			return FALSE;
+		}
+	}
+
+	load_prev_data(FALSE);
+	init_dungeon_quests(previous_char.quests);
+	init_turn();
+
+	sp_ptr = &sex_info[p_ptr->psex];
+	rp_ptr = &race_info[p_ptr->prace];
+	cp_ptr = &class_info[p_ptr->pclass];
+	mp_ptr = &m_info[p_ptr->pclass];
+	ap_ptr = &seikaku_info[p_ptr->pseikaku];
+
+	/* Calc hitdie, but don't roll */
+	get_extra(FALSE);
+
+	/* Calculate the bonuses and hitpoints */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	/* Fully healed */
+	p_ptr->chp = p_ptr->mhp;
+
+	/* Fully rested */
+	p_ptr->csp = p_ptr->msp;
+
+	/* Process the player name */
+	process_player_name(FALSE);
+
+	return TRUE;
+}
+
+
+/*
  * Create a new character.
  *
  * Note that we may be called with "junk" leftover in the various
@@ -6243,7 +6307,7 @@ void player_birth(void)
 	int i, j;
 	char buf[80];
 
-        playtime = 0;
+	playtime = 0;
 
 	/* 
 	 * Wipe monsters in old dungeon
@@ -6251,14 +6315,23 @@ void player_birth(void)
 	 */
 	wipe_m_list();
 
-	/* Create a new character */
-	while (1)
-	{
-		/* Wipe the player */
-		player_wipe();
+	/* Wipe the player */
+	player_wipe();
 
-		/* Roll up a new character */
-		if (player_birth_aux()) break;
+	/* Create a new character */
+
+	/* Quick start? */
+	if (!ask_quick_start())
+	{
+		/* No, normal start */
+		while (1)
+		{
+			/* Roll up a new character */
+			if (player_birth_aux()) break;
+
+			/* Wipe the player */
+			player_wipe();
+		}
 	}
 
 	/* Note player birth in the message recall */

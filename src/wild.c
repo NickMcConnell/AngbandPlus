@@ -15,6 +15,47 @@
 
 
 /*
+ * Fill the arrays of floors and walls in the good proportions
+ */
+void set_floor_and_wall(byte type)
+{
+	static byte cur_type = 255;
+	int i;
+
+	/* Already filled */
+	if (cur_type == type) return;
+
+	cur_type = type;
+
+	for (i = 0; i < 100; i++)
+	{
+		int lim1, lim2, lim3;
+
+		lim1 = d_info[type].floor_percent1;
+		lim2 = lim1 + d_info[type].floor_percent2;
+		lim3 = lim2 + d_info[type].floor_percent3;
+
+		if (i < lim1)
+			floor_type[i] = d_info[type].floor1;
+		else if (i < lim2)
+			floor_type[i] = d_info[type].floor2;
+		else if (i < lim3)
+			floor_type[i] = d_info[type].floor3;
+
+		lim1 = d_info[type].fill_percent1;
+		lim2 = lim1 + d_info[type].fill_percent2;
+		lim3 = lim2 + d_info[type].fill_percent3;
+		if (i < lim1)
+			fill_type[i] = d_info[type].fill_type1;
+		else if (i < lim2)
+			fill_type[i] = d_info[type].fill_type2;
+		else if (i < lim3)
+			fill_type[i] = d_info[type].fill_type3;
+	}
+}
+
+
+/*
  * Helper for plasma generation.
  */
 static void perturb_point_mid(int x1, int x2, int x3, int x4,
@@ -541,7 +582,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 		else
 			init_flags = INIT_CREATE_DUNGEON;
 
-		process_dungeon_file("t_info_j.txt", 0, 0, MAX_HGT, MAX_WID);
+		process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
 
 		if (!corner && !border) p_ptr->visit |= (1L << (p_ptr->town_num - 1));
 	}
@@ -613,7 +654,7 @@ static void generate_area(int y, int x, bool border, bool corner)
 		Rand_quick = TRUE;
 
 		/* Hack -- Induce consistant town layout */
-                Rand_value = wilderness[y][x].seed;
+		Rand_value = wilderness[y][x].seed;
 
 		dy = rand_range(6, cur_hgt - 6);
 		dx = rand_range(6, cur_wid - 6);
@@ -641,7 +682,7 @@ void wilderness_gen(void)
 	int i, y, x, lim;
 	cave_type *c_ptr;
 
-   	/* Big town */
+	/* Big town */
 	cur_hgt = MAX_HGT;
 	cur_wid = MAX_WID;
 
@@ -651,7 +692,7 @@ void wilderness_gen(void)
 
 	/* Init the wilderness */
 
-	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
+	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
 
 	x = p_ptr->wilderness_x;
 	y = p_ptr->wilderness_y;
@@ -836,18 +877,20 @@ void wilderness_gen(void)
 	/* Make some residents */
 	for (i = 0; i < lim; i++)
 	{
+		u32b mode = 0;
+
+		if (!(generate_encounter || (one_in_(2) && (!p_ptr->town_num))))
+			mode |= PM_ALLOW_SLEEP;
+
 		/* Make a resident */
-		(void)alloc_monster(generate_encounter ? 0 : 3, (bool)!(generate_encounter || (one_in_(2) && (!p_ptr->town_num))));
+		(void)alloc_monster(generate_encounter ? 0 : 3, mode);
 	}
 
 	if(generate_encounter) ambush_flag = TRUE;
 	generate_encounter = FALSE;
 
-	for (i = 0; i < 100; i++)
-	{
-		floor_type[i] = FEAT_FLOOR;
-		fill_type[i] = FEAT_WALL_EXTRA;
-	}
+	/* Fill the arrays of floors and walls in the good proportions */
+	set_floor_and_wall(0);
 
 	/* Set rewarded quests to finished */
 	for (i = 0; i < max_quests; i++)
@@ -864,21 +907,21 @@ void wilderness_gen(void)
  */
 void wilderness_gen_small()
 {
-        int i, j;
+	int i, j;
 
-        /* To prevent stupid things */
-        for (i = 0; i < MAX_WID; i++)
-        for (j = 0; j < MAX_HGT; j++)
+	/* To prevent stupid things */
+	for (i = 0; i < MAX_WID; i++)
+	for (j = 0; j < MAX_HGT; j++)
 	{
-                cave[j][i].feat = FEAT_PERM_SOLID;
+		cave[j][i].feat = FEAT_PERM_SOLID;
 	}
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
+	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
 
-        /* Fill the map */
-        for (i = 0; i < max_wild_x; i++)
-        for (j = 0; j < max_wild_y; j++)
+	/* Fill the map */
+	for (i = 0; i < max_wild_x; i++)
+	for (j = 0; j < max_wild_y; j++)
 	{
 		if (wilderness[j][i].town && (wilderness[j][i].town != NO_TOWN))
 		{
@@ -891,13 +934,13 @@ void wilderness_gen_small()
 			cave[j][i].feat = FEAT_ENTRANCE;
 			cave[j][i].special = (byte)wilderness[j][i].entrance;
 		}
-                else cave[j][i].feat = conv_terrain2feat[wilderness[j][i].terrain];
+		else cave[j][i].feat = conv_terrain2feat[wilderness[j][i].terrain];
 
-                cave[j][i].info |= (CAVE_GLOW | CAVE_MARK);
+		cave[j][i].info |= (CAVE_GLOW | CAVE_MARK);
 	}
 
-	cur_hgt = (max_wild_y / SCREEN_HGT + 1) * SCREEN_HGT;
-	cur_wid = (max_wild_x / SCREEN_WID + 1) * SCREEN_WID;
+	cur_hgt = max_wild_y;
+	cur_wid = max_wild_x;
 
 	if (cur_hgt > MAX_HGT) cur_hgt = MAX_HGT;
 	if (cur_wid > MAX_WID) cur_wid = MAX_WID;
@@ -906,9 +949,9 @@ void wilderness_gen_small()
 	panel_row_min = cur_hgt;
 	panel_col_min = cur_wid;
 
-        /* Place the player */
-        px = p_ptr->wilderness_x;
-        py = p_ptr->wilderness_y;
+	/* Place the player */
+	px = p_ptr->wilderness_x;
+	py = p_ptr->wilderness_y;
 
 	p_ptr->town_num = 0;
 }

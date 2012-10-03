@@ -35,10 +35,10 @@ void do_cmd_go_up(void)
 	{
 		/* Success */
 #ifdef JP
-	if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-		msg_print("なんだこの階段は！");
-	else
-		msg_print("上の階に登った。");
+		if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+			msg_print("なんだこの階段は！");
+		else
+			msg_print("上の階に登った。");
 #else
 		msg_print("You enter the up staircase.");
 #endif
@@ -76,15 +76,21 @@ void do_cmd_go_up(void)
 		}
 		else
 		{
-			if (confirm_stairs)
+			quest_type *q_ptr = &quest[p_ptr->inside_quest];
+
+			/* Confirm leaving from once only quest */
+			if (confirm_quest && p_ptr->inside_quest &&
+			    (q_ptr->type == QUEST_TYPE_RANDOM ||
+			     (q_ptr->flags & QUEST_FLAG_ONCE &&
+			      q_ptr->status != QUEST_STATUS_COMPLETED)))
 			{
 #ifdef JP
-if (get_check("本当にこの階を去りますか？"))
+				msg_print("この階を一度去ると二度と戻って来られません。");
+				if (get_check("本当にこの階を去りますか？")) go_up = TRUE;
 #else
-				if (get_check("Really leave the level? "))
+				msg_print("You can't come back here once you leave this floor.");
+				if (get_check("Really leave this floor? ")) go_up = TRUE;
 #endif
-
-					go_up = TRUE;
 			}
 			else
 			{
@@ -102,28 +108,35 @@ if (get_check("本当にこの階を去りますか？"))
 
 			if (p_ptr->inside_quest)
 			{
-				if (quest[p_ptr->inside_quest].type != QUEST_TYPE_RANDOM) dun_level = 1;
-
 				leave_quest_check();
 
-				p_ptr->inside_quest = c_ptr->special;
+				if (quest[leaving_quest].type != QUEST_TYPE_RANDOM)
+				{
+					p_ptr->inside_quest = c_ptr->special;
+					dun_level = 0;
+				}
+				else
+				{
+					p_ptr->inside_quest = 0;
+				}
 			}
 
 			/* New depth */
 			if (c_ptr->feat == FEAT_LESS_LESS)
 			{
 				/* Create a way back */
-				create_down_stair = 2;
+				prepare_change_floor_mode(CFM_UP | CFM_SHAFT);
 
 				up_num += 2;
 			}
 			else
 			{
 				/* Create a way back */
-				create_down_stair = 1;
+				prepare_change_floor_mode(CFM_UP);
 
 				up_num += 1;
 			}
+#if 0
 			if (!c_ptr->special && dungeon_type && ((dun_level - up_num + 1) > d_info[dungeon_type].mindepth) && one_in_(13))
 			{
 				up_num++;
@@ -135,13 +148,14 @@ if (get_check("本当にこの階を去りますか？"))
 #endif
 				msg_print(NULL);
 			}
+#endif /* 0 */
+
 			if (dun_level-up_num+1 == d_info[dungeon_type].mindepth) up_num = dun_level;
 #ifdef JP
 			if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "階段を上った");
 #else
 			if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "go up the stairs to");
 #endif
-			dun_level -= up_num;
 
 			/* Success */
 #ifdef JP
@@ -149,29 +163,14 @@ if (get_check("本当にこの階を去りますか？"))
 				msg_print("なんだこの階段は！");
 			else if (0 == dun_level)
 				msg_print("地上に戻った。");
-                        else
+			else
 				msg_print("階段を上って新たなる迷宮へと足を踏み入れた。");
 #else
-                        if (0 == dun_level)
+			if (0 == dun_level)
 				msg_print("You go back to the surface.");
-                        else
-                                msg_print("You enter a maze of up staircases.");
+			else
+				msg_print("You enter a maze of up staircases.");
 #endif
-
-
-			/* Leaving the dungeon to town */
-			if (!dun_level && dungeon_type)
-			{
-				p_ptr->leaving_dungeon = TRUE;
-				if (!vanilla_town && !lite_town)
-				{
-					p_ptr->wilderness_y = d_info[dungeon_type].dy;
-					p_ptr->wilderness_x = d_info[dungeon_type].dx;
-				}
-				p_ptr->recall_dungeon = dungeon_type;
-			}
-
-			if (!dun_level) dungeon_type = 0;
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -196,7 +195,6 @@ if (get_check("本当にこの階を去りますか？"))
 void do_cmd_go_down(void)
 {
 	cave_type *c_ptr;
-	bool go_down = FALSE;
 	bool fall_trap = FALSE;
 	int down_num = 0;
 
@@ -280,116 +278,92 @@ void do_cmd_go_down(void)
 				if (!get_check("Do you really get in this dungeon? ")) return;
 #endif
 			}
-			go_down = TRUE;
 
 			/* Save old player position */
 			p_ptr->oldpx = px;
 			p_ptr->oldpy = py;
 			dungeon_type = (byte)c_ptr->special;
 		}
+
+		/* Hack -- take a turn */
+		energy_use = 100;
+
+		if (autosave_l) do_cmd_save_game(TRUE);
+
+		/* Go down */
+		if (c_ptr->feat == FEAT_MORE_MORE) down_num += 2;
+		else down_num += 1;
+
+
+		if (!dun_level)
+		{
+			/* Enter the dungeon just now */
+			p_ptr->enter_dungeon = TRUE;
+			down_num = d_info[c_ptr->special].mindepth;
+		}
+
+		if (record_stair)
+		{
+#ifdef JP
+			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "落し戸に落ちた");
+			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "階段を下りた");
+#else
+			if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fall from trap door");
+			else do_cmd_write_nikki(NIKKI_STAIR, down_num, "go down the stairs to");
+#endif
+		}
+
+		if (fall_trap)
+		{
+#ifdef JP
+			msg_print("わざと落し戸に落ちた。");
+#else
+			msg_print("You deliberately jump through the trap door.");
+#endif
+		}
 		else
 		{
-			if (confirm_stairs)
+			/* Success */
+			if(c_ptr->feat == FEAT_ENTRANCE)
 			{
 #ifdef JP
-if (get_check("本当にこの階を去りますか？"))
+				msg_format("%sへ入った。", d_text + d_info[dungeon_type].text);
 #else
-				if (get_check("Really leave the level? "))
+				msg_format("You entered %s.", d_text + d_info[dungeon_type].text);
 #endif
-
-					go_down = TRUE;
 			}
 			else
 			{
-				go_down = TRUE;
+#ifdef JP
+				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+					msg_print("なんだこの階段は！");
+				else
+					msg_print("階段を下りて新たなる迷宮へと足を踏み入れた。");
+#else
+				msg_print("You enter a maze of down staircases.");
+#endif
 			}
 		}
 
-		if (go_down)
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+
+		if (fall_trap)
 		{
-
-			/* Hack -- take a turn */
-			energy_use = 100;
-
-			if (autosave_l) do_cmd_save_game(TRUE);
-
-			/* Go down */
-			if (c_ptr->feat == FEAT_MORE_MORE) down_num += 2;
-			else down_num += 1;
-			if (!quest_number(dun_level+down_num) && (dun_level < d_info[dungeon_type].maxdepth - 1 - down_num) && one_in_(13) && !fall_trap && dun_level && !ironman_downward)
+			prepare_change_floor_mode(CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+		}
+		else
+		{
+			if (c_ptr->feat == FEAT_MORE_MORE)
 			{
-				down_num++;
-#ifdef JP
-				if (c_ptr->feat == FEAT_MORE_MORE) msg_print("長い坑道を下りた。");
-				else msg_print("長い階段を下りた。");
-#else
-				msg_print("These were very long stairs.");
-#endif
-				msg_print(NULL);
-			}
-			else if (!dun_level) down_num = d_info[c_ptr->special].mindepth;
-			if (record_stair)
-			{
-#ifdef JP
-				if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "落し戸に落ちた");
-				else do_cmd_write_nikki(NIKKI_STAIR, down_num, "階段を下りた");
-#else
-				if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fall from trap door");
-				else do_cmd_write_nikki(NIKKI_STAIR, down_num, "go down the stairs to");
-#endif
-			}
-
-			if (fall_trap)
-			{
-				dun_level += down_num;
-#ifdef JP
-				msg_print("わざと落し戸に落ちた。");
-#else
-				msg_print("You deliberately jump through the trap door.");
-#endif
+				/* Create a way back */
+				prepare_change_floor_mode(CFM_DOWN | CFM_SHAFT);
 			}
 			else
 			{
-				/* Success */
-				if(c_ptr->feat == FEAT_ENTRANCE)
-				{
-					dun_level = d_info[c_ptr->special].mindepth;
-#ifdef JP
-					msg_format("%sへ入った。", d_text + d_info[dungeon_type].text);
-#else
-					msg_format("You entered %s.", d_text + d_info[dungeon_type].text);
-#endif
-				}
-				else
-				{
-					dun_level += down_num;
-#ifdef JP
-					if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-						msg_print("なんだこの階段は！");
-					else
-						msg_print("階段を下りて新たなる迷宮へと足を踏み入れた。");
-#else
-					msg_print("You enter a maze of down staircases.");
-#endif
-				}
-			}
-
-
-			/* Leaving */
-			p_ptr->leaving = TRUE;
-
-			if (!fall_trap)
-			{
-				if (c_ptr->feat == FEAT_MORE_MORE)
-				{
-					/* Create a way back */
-					create_up_stair = 2;
-				}
-				else
-				{
-					/* Create a way back */
-					create_up_stair = 1;
-				}
+				/* Create a way back */
+				prepare_change_floor_mode(CFM_DOWN);
 			}
 		}
 	}
@@ -964,25 +938,25 @@ static int count_dt(int *y, int *x, bool (*test)(int feat), bool under)
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
-                cave_type *c_ptr;
-                byte feat;
+		cave_type *c_ptr;
+		byte feat;
 
-                /* if not searching under player continue */
-                if ((d == 8) && !under) continue;
+		/* if not searching under player continue */
+		if ((d == 8) && !under) continue;
 
 		/* Extract adjacent (legal) location */
 		yy = py + ddy_ddd[d];
 		xx = px + ddx_ddd[d];
 
-                /* Get the cave */
-                c_ptr = &cave[yy][xx];
+		/* Get the cave */
+		c_ptr = &cave[yy][xx];
 
 		/* Must have knowledge */
 		if (!(c_ptr->info & (CAVE_MARK))) continue;
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-                
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		
 		/* Not looking for this feature */
 		if (!((*test)(feat))) continue;
 
@@ -1079,7 +1053,6 @@ static bool do_cmd_open_aux(int y, int x)
 	int i, j;
 
 	cave_type *c_ptr;
-        byte feat;
 
 	bool more = FALSE;
 
@@ -1090,11 +1063,10 @@ static bool do_cmd_open_aux(int y, int x)
 	/* Get requested grid */
 	c_ptr = &cave[y][x];
 
-        /* Feature code (applying "mimic" field) */
-        feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-                
+	/* Seeing true feature code (ignore mimic) */
+		
 	/* Jammed door */
-	if (feat >= FEAT_DOOR_HEAD + 0x08)
+	if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x08)
 	{
 		/* Stuck */
 #ifdef JP
@@ -1106,7 +1078,7 @@ static bool do_cmd_open_aux(int y, int x)
 	}
 
 	/* Locked door */
-	else if (feat >= FEAT_DOOR_HEAD + 0x01)
+	else if (c_ptr->feat >= FEAT_DOOR_HEAD + 0x01)
 	{
 		/* Disarm factor */
 		i = p_ptr->skill_dis;
@@ -1168,7 +1140,7 @@ static bool do_cmd_open_aux(int y, int x)
 	}
 
 	/* Closed door */
-	else
+	else if (c_ptr->feat == FEAT_DOOR_HEAD)
 	{
 		/* Open the door */
 		cave_set_feat(y, x, FEAT_OPEN);
@@ -1244,8 +1216,8 @@ void do_cmd_open(void)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir, TRUE))
 	{
-                byte feat;
-                cave_type *c_ptr;
+		byte feat;
+		cave_type *c_ptr;
 
 		/* Get requested location */
 		y = py + ddy[dir];
@@ -1254,9 +1226,9 @@ void do_cmd_open(void)
 		/* Get requested grid */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-                
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		
 		/* Check for chest */
 		o_idx = chest_check(y, x);
 
@@ -1323,10 +1295,7 @@ void do_cmd_open(void)
 static bool do_cmd_close_aux(int y, int x)
 {
 	cave_type	*c_ptr;
-        byte feat;
-
 	bool		more = FALSE;
-
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1334,11 +1303,10 @@ static bool do_cmd_close_aux(int y, int x)
 	/* Get grid and contents */
 	c_ptr = &cave[y][x];
 
-        /* Feature code (applying "mimic" field) */
-        feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-                
+	/* Seeing true feature code (ignore mimic) */
+		
 	/* Broken door */
-	if (feat == FEAT_BROKEN)
+	if (c_ptr->feat == FEAT_BROKEN)
 	{
 		/* Message */
 #ifdef JP
@@ -1350,7 +1318,7 @@ static bool do_cmd_close_aux(int y, int x)
 	}
 
 	/* Open door */
-	else
+	else if (c_ptr->feat == FEAT_OPEN)
 	{
 		/* Close the door */
 		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
@@ -1411,8 +1379,8 @@ void do_cmd_close(void)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir,FALSE))
 	{
-                cave_type *c_ptr;
-                byte feat;
+		cave_type *c_ptr;
+		byte feat;
 
 		/* Get requested location */
 		y = py + ddy[dir];
@@ -1421,15 +1389,15 @@ void do_cmd_close(void)
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
-                
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		
 		/* Require open/broken door */
 		if ((feat != FEAT_OPEN) && (feat != FEAT_BROKEN))
 		{
 			/* Message */
 #ifdef JP
-                        msg_print("そこには閉じるものが見当たらない。");
+			msg_print("そこには閉じるものが見当たらない。");
 #else
 			msg_print("You see nothing there to close.");
 #endif
@@ -1565,8 +1533,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	/* Get grid */
 	c_ptr = &cave[y][x];
 
-        /* Feature code (applying "mimic" field) */
-        feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+	/* Feature code (applying "mimic" field) */
+	feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 	/* Sound */
 	sound(SOUND_DIG);
@@ -1585,6 +1553,19 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	/* No tunnelling through mountains */
 	else if (feat == FEAT_MOUNTAIN)
+	{
+#ifdef JP
+		msg_print("そこは掘れない!");
+#else
+		msg_print("You can't tunnel through that!");
+#endif
+
+	}
+
+	/* Map border (mimiccing Permanent wall) */
+	else if ((c_ptr->feat >= FEAT_PERM_EXTRA &&
+		  c_ptr->feat <= FEAT_PERM_SOLID) ||
+		 c_ptr->feat == FEAT_MOUNTAIN)
 	{
 #ifdef JP
 		msg_print("そこは掘れない!");
@@ -1628,7 +1609,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	/* Granite */
 	else if ((feat >= FEAT_WALL_EXTRA) &&
-	         (feat <= FEAT_WALL_SOLID))
+		 (feat <= FEAT_WALL_SOLID))
 	{
 		/* Tunnel */
 		if ((p_ptr->skill_dig > 40 + randint0(1600)) && twall(y, x, floor_type[randint0(100)]))
@@ -1665,8 +1646,9 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		bool gold = FALSE;
 		bool hard = FALSE;
 
-		/* Found gold */
-		if (feat >= FEAT_MAGMA_H) gold = TRUE;
+		/* Found gold (ignore mimic; maybe a hidden treasure) */
+		if (c_ptr->feat >= FEAT_MAGMA_H &&
+		    c_ptr->feat <= FEAT_QUARTZ_K) gold = TRUE;
 
 		/* Extract "quartz" flag XXX XXX XXX */
 		if ((feat - FEAT_MAGMA) & 0x01) hard = TRUE;
@@ -1815,17 +1797,10 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		}
 	}
 
-        if (is_hidden_door(c_ptr))
-        {
-                /* Occasional Search XXX XXX */
-                if (randint0(100) < 25) search();
-        }
-
-	/* Notice new floor grids */
-	if (!cave_floor_bold(y, x))
+	if (is_hidden_door(c_ptr))
 	{
-		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
+		/* Occasional Search XXX XXX */
+		if (randint0(100) < 25) search();
 	}
 
 	/* Result */
@@ -1880,8 +1855,8 @@ void do_cmd_tunnel(void)
 		/* Get grid */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* No tunnelling through doors */
 		if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
@@ -2015,7 +1990,7 @@ bool easy_open_door(int y, int x)
 		{
 			/* Message */
 #ifdef JP
-                        msg_print("鍵をはずした。");
+			msg_print("鍵をはずした。");
 #else
 			msg_print("You have picked the lock.");
 #endif
@@ -2042,7 +2017,7 @@ bool easy_open_door(int y, int x)
 
 			/* Message */
 #ifdef JP
-                        msg_print("鍵をはずせなかった。");
+			msg_print("鍵をはずせなかった。");
 #else
 			msg_print("You failed to pick the lock.");
 #endif
@@ -2226,10 +2201,21 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	if (p_ptr->blind || no_lite()) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
-	/* XXX XXX XXX Variable power? */
+	/* Variable power! */
 
 	/* Extract trap "power" */
-	power = 5;
+	switch (c_ptr->feat)
+	{
+	case FEAT_TRAP_OPEN:
+	case FEAT_TRAP_ARMAGEDDON:
+	case FEAT_TRAP_PIRANHA:
+		/* Special traps are very difficult to disarm */
+		power = 100;
+		break;
+	default:
+		power = 5;
+		break;
+	}
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -2255,7 +2241,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Remove the trap */
-                cave_set_feat(y, x, floor_type[randint0(100)]);
+		cave_set_feat(y, x, floor_type[randint0(100)]);
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
@@ -2373,8 +2359,8 @@ void do_cmd_disarm(void)
 	/* Get a direction (or abort) */
 	if (get_rep_dir(&dir,TRUE))
 	{
-                cave_type *c_ptr;
-                byte feat;
+		cave_type *c_ptr;
+		byte feat;
 
 		/* Get location */
 		y = py + ddy[dir];
@@ -2383,8 +2369,8 @@ void do_cmd_disarm(void)
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* Check for chests */
 		o_idx = chest_check(y, x);
@@ -2394,7 +2380,7 @@ void do_cmd_disarm(void)
 		{
 			/* Message */
 #ifdef JP
-                        msg_print("そこには解除するものが見当たらない。");
+			msg_print("そこには解除するものが見当たらない。");
 #else
 			msg_print("You see nothing there to disarm.");
 #endif
@@ -2519,7 +2505,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 	/* Saving throw against stun */
 	else if (randint0(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+		 p_ptr->lev)
 	{
 		/* Message */
 #ifdef JP
@@ -2597,7 +2583,7 @@ void do_cmd_bash(void)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir,FALSE))
 	{
-                byte feat;
+		byte feat;
 
 		/* Bash location */
 		y = py + ddy[dir];
@@ -2606,8 +2592,8 @@ void do_cmd_bash(void)
 		/* Get grid */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* Nothing useful */
 		if (!((feat >= FEAT_DOOR_HEAD) &&
@@ -2693,7 +2679,7 @@ void do_cmd_alter(void)
 	/* Get a direction */
 	if (get_rep_dir(&dir,TRUE))
 	{
-                byte feat;
+		byte feat;
 
 		/* Get location */
 		y = py + ddy[dir];
@@ -2702,8 +2688,8 @@ void do_cmd_alter(void)
 		/* Get grid */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* Take a turn */
 		energy_use = 100;
@@ -2717,31 +2703,31 @@ void do_cmd_alter(void)
 
 		/* Tunnel through walls */
 		else if (((feat >= FEAT_RUBBLE) &&
-		          (feat < FEAT_MINOR_GLYPH)) ||
-		         ((feat == FEAT_TREES) ||
-		          (feat == FEAT_MOUNTAIN)))
+			  (feat < FEAT_MINOR_GLYPH)) ||
+			 ((feat == FEAT_TREES) ||
+			  (feat == FEAT_MOUNTAIN)))
 		{
 			more = do_cmd_tunnel_aux(y, x);
 		}
 
-                else if (is_closed_door(feat))
-                {
-                        /* Bash jammed doors */
-                        if (feat >= FEAT_DOOR_HEAD + 0x08)
-                        {
-                                more = do_cmd_bash_aux(y, x, dir);
-                        }
+		else if (is_closed_door(feat))
+		{
+			/* Bash jammed doors */
+			if (feat >= FEAT_DOOR_HEAD + 0x08)
+			{
+				more = do_cmd_bash_aux(y, x, dir);
+			}
 
-                        /* Locked doors */
-                        else
-                        {
-                                more = do_cmd_open_aux(y, x);
-                        }
-                }
+			/* Locked doors */
+			else
+			{
+				more = do_cmd_open_aux(y, x);
+			}
+		}
 
 		/* Close open doors */
 		else if ((feat == FEAT_OPEN) ||
-		         (feat == FEAT_BROKEN))
+			 (feat == FEAT_BROKEN))
 		{
 			more = do_cmd_close_aux(y, x);
 		}
@@ -2820,9 +2806,9 @@ void do_cmd_spike(void)
 	/* Get a "repeated" direction */
 	if (get_rep_dir(&dir,FALSE))
 	{
-                int y, x, item;
-                cave_type *c_ptr;
-                byte feat;
+		int y, x, item;
+		cave_type *c_ptr;
+		byte feat;
 
 		/* Get location */
 		y = py + ddy[dir];
@@ -2831,8 +2817,8 @@ void do_cmd_spike(void)
 		/* Get grid and contents */
 		c_ptr = &cave[y][x];
 
-                /* Feature code (applying "mimic" field) */
-                feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
+		/* Feature code (applying "mimic" field) */
+		feat = c_ptr->mimic ? c_ptr->mimic : f_info[c_ptr->feat].mimic;
 
 		/* Require closed door */
 		if (!((feat >= FEAT_DOOR_HEAD) &&
@@ -2952,9 +2938,9 @@ void do_cmd_walk(int pickup)
 		more = TRUE;
 	}
 
-        /* Hack again -- Is there a special encounter ??? */
+	/* Hack again -- Is there a special encounter ??? */
 	if(p_ptr->wild_mode && (cave[py][px].feat != FEAT_TOWN))
-        {
+	{
 		int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
 		if (tmp < 1) 
 			tmp = 1;
@@ -2962,9 +2948,9 @@ void do_cmd_walk(int pickup)
 		{
 			/* Inform the player of his horrible fate :=) */
 #ifdef JP
-	                msg_print("襲撃だ！");
+			msg_print("襲撃だ！");
 #else
-        	        msg_print("You are ambushed !");
+			msg_print("You are ambushed !");
 #endif
 
 			/* Go into large wilderness view */
@@ -3189,12 +3175,13 @@ void do_cmd_rest(void)
 	
 	/* Why are you sleeping when there's no need?  WAKE UP!*/
 	if ((p_ptr->chp == p_ptr->mhp) &&
-		(p_ptr->csp == p_ptr->msp) &&
-		!p_ptr->blind && !p_ptr->confused &&
-		!p_ptr->poisoned && !p_ptr->afraid &&
-		!p_ptr->stun && !p_ptr->cut &&
-		!p_ptr->slow && !p_ptr->paralyzed &&
-		!p_ptr->image && !p_ptr->word_recall)
+	    (p_ptr->csp == p_ptr->msp) &&
+	    !p_ptr->blind && !p_ptr->confused &&
+	    !p_ptr->poisoned && !p_ptr->afraid &&
+	    !p_ptr->stun && !p_ptr->cut &&
+	    !p_ptr->slow && !p_ptr->paralyzed &&
+	    !p_ptr->image && !p_ptr->word_recall &&
+	    !p_ptr->alter_reality)
 			chg_virtue(V_DILIGENCE, -1);
 
 	/* Save the rest code */
@@ -3947,10 +3934,10 @@ note_dies = "は爆発して粉々になった。";
 				{
 #ifdef JP
 					msg_format("%d/%d のダメージを与えた。",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 #else
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 #endif
 
 				}
@@ -4552,10 +4539,10 @@ note_dies = "は爆発して粉々になった。";
 				{
 #ifdef JP
 					msg_format("%d/%dのダメージを与えた。",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 #else
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 #endif
 
 				}

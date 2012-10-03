@@ -39,24 +39,18 @@
 
 /* Savefile version for Hengband 1.1.1 and later */
 #define H_VER_MAJOR 1
-#define H_VER_MINOR 3
-#define H_VER_PATCH 1
+#define H_VER_MINOR 5
+#define H_VER_PATCH 0
 #define H_VER_EXTRA 0
 
 /* Added for ZAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
-#define FAKE_VER_MINOR 3
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_MINOR 5
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
-
-/*
- * This value is not currently used
- */
-#define VERSION_EXTRA   0
-
 
 /*
  * Number of grids in each block (vertically)
@@ -113,9 +107,6 @@
 /*
  * Quest constants
  */
-#define MAX_MON_QUEST       10
-#define MAX_ITEM_QUEST       5
-
 #define MIN_RANDOM_QUEST    40
 #define MAX_RANDOM_QUEST    49
 
@@ -139,11 +130,8 @@
 #define MAX_BLDG		32
 
 /*
- * Total number of stores (see "store.c", etc)
+ * Store types
  */
-#define MAX_STORES_PER_TOWN 12
-#define MAX_STORE_TYPES     10
-
 #define STORE_GENERAL   0
 #define STORE_ARMOURY   1
 #define STORE_WEAPON    2
@@ -376,6 +364,12 @@
 
 
 /*
+ * Maximum number of saved floors.
+ */
+#define MAX_SAVED_FLOORS       20
+
+
+/*
  * Maximum size of the "lite" array (see "cave.c")
  * Note that the "lite radius" will NEVER exceed 14, and we would
  * never require more than 581 entries in the array for circular "lite".
@@ -426,9 +420,8 @@
  * OPTION: Maximum number of "quarks" (see "io.c")
  * Default: assume at most 512 different inscriptions are used
  */
-#define QUARK_MAX       2048
+#define QUARK_MAX       768
 /* Was 512... 256 quarks added for random artifacts */
-/* Was 768... increased greatly for auto inscription (by Mogami) */
 
 /*
  * OPTION: Maximum number of messages to remember (see "io.c")
@@ -528,22 +521,22 @@
 /*
  * Commands
  */
-#define PET_DISMISS					1
-#define PET_TARGET					2
-#define PET_STAY_CLOSE				3
-#define PET_FOLLOW_ME				4
-#define PET_SEEK_AND_DESTROY		5
-#define PET_ALLOW_SPACE				6
-#define PET_STAY_AWAY				7
-#define PET_OPEN_DOORS           8
-#define PET_TAKE_ITEMS				9
-#define PET_TELEPORT			       10
-#define PET_ATTACK_SPELL		       11
-#define PET_SUMMON_SPELL		       12
-#define PET_BALL_SPELL		               13
-#define PET_RIDING			       14
-#define PET_NAME			       15
-#define PET_RYOUTE			       16
+#define PET_DISMISS		1
+#define PET_TARGET		2
+#define PET_STAY_CLOSE		3
+#define PET_FOLLOW_ME		4
+#define PET_SEEK_AND_DESTROY	5
+#define PET_ALLOW_SPACE		6
+#define PET_STAY_AWAY		7
+#define PET_OPEN_DOORS          8
+#define PET_TAKE_ITEMS		9
+#define PET_TELEPORT		10
+#define PET_ATTACK_SPELL	11
+#define PET_SUMMON_SPELL	12
+#define PET_BALL_SPELL		13
+#define PET_RIDING		14
+#define PET_NAME		15
+#define PET_RYOUTE		16
 
 /*
  * Follow distances
@@ -628,21 +621,21 @@
 /*
  * Player "food" crucial values
  */
-#define PY_FOOD_MAX             15000   /* Food value (Bloated) */
+#define PY_FOOD_MAX     15000   /* Food value (Bloated) */
 #define PY_FOOD_FULL    10000   /* Food value (Normal) */
 #define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
 #define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500             /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100             /* Food value (Starving) */
+#define PY_FOOD_FAINT   500     /* Food value (Fainting) */
+#define PY_FOOD_STARVE  100     /* Food value (Starving) */
 
 /*
  * Player regeneration constants
  */
-#define PY_REGEN_NORMAL         197             /* Regen factor*2^16 when full */
-#define PY_REGEN_WEAK           98              /* Regen factor*2^16 when weak */
-#define PY_REGEN_FAINT          33              /* Regen factor*2^16 when fainting */
+#define PY_REGEN_NORMAL         197     /* Regen factor*2^16 when full */
+#define PY_REGEN_WEAK           98      /* Regen factor*2^16 when weak */
+#define PY_REGEN_FAINT          33      /* Regen factor*2^16 when fainting */
 #define PY_REGEN_HPBASE         1442    /* Min amount hp regen*2^16 */
-#define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
+#define PY_REGEN_MNBASE         524     /* Min amount mana regen*2^16 */
 
 /*
  * Possible realms that can be chosen;
@@ -838,18 +831,18 @@
 #define CLASS_MIRROR_MASTER     25
 #define CLASS_NINJA             26
 
-#define SEIKAKU_FUTUU	0
-#define SEIKAKU_CHIKARA	1
-#define SEIKAKU_KIREMONO	2
-#define SEIKAKU_SHIAWASE	3
-#define SEIKAKU_SUBASI	4
-#define SEIKAKU_INOCHI	5
-#define SEIKAKU_COMBAT	6
-#define SEIKAKU_NAMAKE	7
-#define SEIKAKU_SEXY	8
-#define SEIKAKU_LUCKY	9
-#define SEIKAKU_GAMAN	10
-#define SEIKAKU_MUNCHKIN   11
+#define SEIKAKU_FUTUU	 0
+#define SEIKAKU_CHIKARA	 1
+#define SEIKAKU_KIREMONO 2
+#define SEIKAKU_SHIAWASE 3
+#define SEIKAKU_SUBASI	 4
+#define SEIKAKU_INOCHI	 5
+#define SEIKAKU_COMBAT	 6
+#define SEIKAKU_NAMAKE	 7
+#define SEIKAKU_SEXY	 8
+#define SEIKAKU_LUCKY	 9
+#define SEIKAKU_GAMAN	 10
+#define SEIKAKU_MUNCHKIN 11
 
 /*** Screen Locations ***/
 
@@ -1744,8 +1737,8 @@
 #define SV_PHOTO			50
 
 /* The "sval" codes for TV_CORPSE */
-#define SV_SKELETON 				0
-#define SV_CORPSE					1
+#define SV_SKELETON 			0
+#define SV_CORPSE			1
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles */
@@ -2084,6 +2077,7 @@
 #define SV_STAFF_DESTRUCTION            29
 #define SV_STAFF_ANIMATE_DEAD           30
 #define SV_STAFF_MSTORM                 31
+#define SV_STAFF_NOTHING                32
 
 
 /* The "sval" codes for TV_WAND */
@@ -2280,6 +2274,9 @@
 #define SV_POTION_NEO_TSUYOSHI          64
 #define SV_POTION_TSUYOSHI              65
 #define SV_POTION_POLYMORPH             66
+
+/* The "sval" codes for TV_FLASK */
+#define SV_FLASK_OIL                   0
 
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON                   0
@@ -2589,9 +2586,9 @@
  * prevents the player from getting more than one at a time.
  */
 #define ATTACK_CONFUSE		0x00000001
-#define ATTACK_BLKBRTH		0x00000002
-#define ATTACK_FLEE		0x00000004
-#define ATTACK_SUPERSHOT	0x00000008
+#define ATTACK_XXX1		0x00000002
+#define ATTACK_XXX2		0x00000004
+#define ATTACK_XXX3	        0x00000008
 #define ATTACK_ACID		0x00000010
 #define ATTACK_ELEC		0x00000020
 #define ATTACK_FIRE		0x00000040
@@ -2829,13 +2826,6 @@
 
 
 /*
- * Hack -- first "normal" artifact in the artifact list.  All of
- * the artifacts with indexes from 1 to 15 are "special" (lights,
- * rings, amulets), and the ones from 16 to 127 are "normal".
- */
-#define ART_MIN_NORMAL          19
-
-/*
  * Game generated inscription indices. These are stored in the object,
  * and are used to index the string array from tables.c.
  */
@@ -2933,25 +2923,29 @@
 
 
 /*
- * As of 2.7.8, the "object flags" are valid for all objects, and as
- * of 2.7.9, these flags are not actually stored with the object.
+ * Object flags
  *
- * Note that "flags1" contains all flags dependant on "pval" (including
- * stat bonuses, but NOT stat sustainers), plus all "extra attack damage"
- * flags (SLAY_XXX and BRAND_XXX).
+ * Old variables for object flags such as flags1, flags2, and flags3
+ * are obsolated.  Now single array flgs[TR_FLAG_SIZE] contains all
+ * object flags.  And each flag is refered by single index number
+ * instead of a bit mask.
  *
- * Note that "flags2" contains all "resistances" (including "Stat Sustainers",
- * actual immunities, and resistances).  Note that "Hold Life" is really an
- * "immunity" to ExpLoss, and "Free Action" is "immunity to paralysis".
+ * Therefore it's very easy to add a lot of new flags; no one need to
+ * worry about in which variable a new flag should be put, nor to
+ * modify a huge number of files all over the source directory at once
+ * to add new flag variables such as flags4, flags5, etc...
  *
- * Note that "flags3" contains everything else -- including the three "CURSED"
- * flags, and the "BLESSED" flag, several "item display" parameters, some new
- * flags for powerful Bows, and flags which affect the player in a "general"
- * way (LITE, TELEPATHY, SEE_INVIS, SLOW_DIGEST, REGEN, FEATHER), including
- * all the "general" curses (TELEPORT, AGGRAVATE, EXP_DRAIN).  It also has
- * four new flags called "ITEM_IGNORE_XXX" which lets an item specify that
- * it can not be affected by various forms of destruction.  This is NOT as
- * powerful as actually granting resistance/immunity to the wearer.
+ * All management of flags is now treated using a set of macros
+ * instead of bit operations.
+ * Note: These macros are using division, modulo, and bit shift
+ * operations, and it seems that these operations are rather slower
+ * than original bit operation.  But since index numbers are almost
+ * always given as constant, such slow operations are performed in the
+ * compile time.  So there is no problem on the speed.
+ *
+ * Exceptions of new flag management is a set of flags to control
+ * object generation and the curse flags.  These are not yet rewritten
+ * in new index form; maybe these have no merit of rewriting.
  */
 
 #define have_flag(ARRAY, INDEX) !!((ARRAY)[(INDEX)/32] & (1L << ((INDEX)%32)))
@@ -3139,7 +3133,7 @@
 	 TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_TELEPORT)
 
 #define TRC_P_FLAG_MASK  \
-        (TRC_TELEPORT_SELF | TRC_CHAINSWORD | \
+	(TRC_TELEPORT_SELF | TRC_CHAINSWORD | \
 	 TRC_TY_CURSE | TRC_DRAIN_EXP | TRC_ADD_L_CURSE | TRC_ADD_H_CURSE | \
 	 TRC_CALL_ANIMAL | TRC_CALL_DEMON | TRC_CALL_DRAGON | TRC_COWARDICE | \
 	 TRC_TELEPORT | TRC_DRAIN_HP | TRC_DRAIN_MANA)
@@ -4321,7 +4315,8 @@ extern int PlayerUID;
 #define BACT_POKER                  43
 #define BACT_IDENT_ONE              44
 #define BACT_RECHARGE_ALL           45
-#define MAX_BACT                    46
+#define BACT_EVAL_AC		    46
+#define MAX_BACT                    47
 
 /*
  * Quest status
@@ -4918,6 +4913,83 @@ extern int PlayerUID;
 #define DUNGEON_DARKNESS 19
 
 
+/*
+ * Flags for change floor mode
+ */
+#define CFM_UP        	 0x0001  /* Move up */
+#define CFM_DOWN      	 0x0002  /* Move down */
+#define CFM_LONG_STAIRS  0x0004  /* Randomly occurred long stairs/shaft */
+#define CFM_XXX  	 0x0008  /* XXX */
+#define CFM_SHAFT     	 0x0010  /* Shaft */
+#define CFM_RAND_PLACE   0x0020  /* Arrive at random grid */
+#define CFM_RAND_CONNECT 0x0040  /* Connect with random stairs */
+#define CFM_CLEAR_ALL    0x0080  /* Reach to the surface/Recall/Alter reality */
+#define CFM_NO_RETURN    0x0100  /* Flee from random quest etc... */
+
+
+/*
+ * Flags for save/load temporal saved floor file
+ */
+#define SLF_SECOND     	 0x0001  /* Called from another save/load function */
+#define SLF_NO_KILL      0x0002  /* Don't kill temporal files */
+
+
+/*
+ * Flags for wr_item()/rd_item()
+ */
+#define SAVE_ITEM_PVAL         0x00000001
+#define SAVE_ITEM_DISCOUNT     0x00000002
+#define SAVE_ITEM_NUMBER       0x00000004
+#define SAVE_ITEM_NAME1        0x00000008
+#define SAVE_ITEM_NAME2        0x00000010
+#define SAVE_ITEM_TIMEOUT      0x00000020
+#define SAVE_ITEM_TO_H         0x00000040
+#define SAVE_ITEM_TO_D         0x00000080
+#define SAVE_ITEM_TO_A         0x00000100
+#define SAVE_ITEM_AC           0x00000200
+#define SAVE_ITEM_DD           0x00000400
+#define SAVE_ITEM_DS           0x00000800
+#define SAVE_ITEM_IDENT        0x00001000
+#define SAVE_ITEM_MARKED       0x00002000
+#define SAVE_ITEM_ART_FLAGS0   0x00004000
+#define SAVE_ITEM_ART_FLAGS1   0x00008000
+#define SAVE_ITEM_ART_FLAGS2   0x00010000
+#define SAVE_ITEM_ART_FLAGS3   0x00020000
+#define SAVE_ITEM_CURSE_FLAGS  0x00040000
+#define SAVE_ITEM_HELD_M_IDX   0x00080000
+#define SAVE_ITEM_XTRA1        0x00100000
+#define SAVE_ITEM_XTRA2        0x00200000
+#define SAVE_ITEM_XTRA3        0x00400000
+#define SAVE_ITEM_XTRA4        0x00800000
+#define SAVE_ITEM_XTRA5        0x01000000
+#define SAVE_ITEM_FEELING      0x02000000
+#define SAVE_ITEM_INSCRIPTION  0x04000000
+#define SAVE_ITEM_ART_NAME     0x08000000
+
+
+/*
+ * Flags for wr_monster()/rd_monster()
+ */
+#define SAVE_MON_AP_R_IDX     0x00000001
+#define SAVE_MON_SUB_ALIGN    0x00000002
+#define SAVE_MON_CSLEEP       0x00000004
+#define SAVE_MON_FAST         0x00000008
+#define SAVE_MON_SLOW         0x00000010
+#define SAVE_MON_STUNNED      0x00000020
+#define SAVE_MON_CONFUSED     0x00000040
+#define SAVE_MON_MONFEAR      0x00000080
+#define SAVE_MON_TARGET_Y     0x00000100
+#define SAVE_MON_TARGET_X     0x00000200
+#define SAVE_MON_INVULNER     0x00000400
+#define SAVE_MON_SMART        0x00000800
+#define SAVE_MON_EXP          0x00001000
+#define SAVE_MON_MFLAG2       0x00002000
+#define SAVE_MON_NICKNAME     0x00004000
+
+
+/*
+ * Constant for kinds of mimic
+ */
 #define MIMIC_NONE       0
 #define MIMIC_DEMON      1
 #define MIMIC_DEMON_LORD 2

@@ -22,7 +22,7 @@ X:use_old_target
 Y:always_repeat
 X:confirm_destroy
 Y:confirm_wear
-X:confirm_stairs
+Y:confirm_quest
 X:target_pet
 Y:easy_open
 Y:easy_disarm
@@ -65,12 +65,12 @@ Y:expand_list
 Y:view_perma_grids
 X:view_torch_grids
 X:view_unsafe_grids
-Y:dungeon_stair
 Y:small_levels
 X:always_small_levels
 Y:empty_levels
 Y:last_words
 Y:send_score
+X:allow_debug_opts
 
 ##### Disturbance #####
 
@@ -79,6 +79,7 @@ Y:find_ignore_doors
 X:find_cut
 Y:find_examine
 X:disturb_move
+X:disturb_high
 Y:disturb_near
 X:disturb_pets
 Y:disturb_panel
@@ -107,7 +108,6 @@ X:hilite_player
 X:easy_band
 Y:smart_learn
 X:smart_cheat
-X:stupid_monsters
 X:vanilla_town
 X:lite_town
 X:ironman_shops
@@ -115,8 +115,6 @@ X:ironman_small_levels
 X:ironman_downward
 X:ironman_autoscum
 X:ironman_empty_levels
-Y:terrain_streams
-X:munchkin_death
 X:ironman_rooms
 X:ironman_nightmare
 X:left_hander
@@ -134,6 +132,7 @@ Y:leave_chest
 Y:leave_wanted
 X:leave_corpse
 X:leave_junk
+Y:leave_special
 
 ##### Play-record Options #####
 

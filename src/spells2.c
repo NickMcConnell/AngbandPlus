@@ -813,14 +813,6 @@ info[i++] = "あなたはモンスターに乗って無理矢理ペットにすることができる。";
 			}
 			break;
 		case CLASS_BERSERKER:
-			if (plev > 4)
-			{
-#ifdef JP
-info[i++] = "あなたは自分で空腹を満たすことができる。";
-#else
-				info[i++] = "You can satisfy hunger.";
-#endif
-			}
 			if (plev > 9)
 			{
 #ifdef JP
@@ -1879,7 +1871,7 @@ info[i++] = "あなたの位置はひじょうに不安定だ。";
 #ifdef JP
 info[i++] = "あなたの武器は攻撃を外しやすい。";
 #else
-		info[i++] = "Your weapon causes you miss blows.";
+		info[i++] = "Your weapon causes you to miss blows.";
 #endif
 
 	}
@@ -2005,7 +1997,7 @@ info[i++] = "あなたの手は赤く輝いている。";
 #ifdef JP
 info[i++] = "あなたの手は火炎に覆われている。";
 #else
-		info[i++] = "You can strike enemy with flame.";
+		info[i++] = "You can strike the enemy with flame.";
 #endif
 
 	}
@@ -2014,7 +2006,7 @@ info[i++] = "あなたの手は火炎に覆われている。";
 #ifdef JP
 info[i++] = "あなたの手は冷気に覆われている。";
 #else
-		info[i++] = "You can strike enemy with cold.";
+		info[i++] = "You can strike the enemy with cold.";
 #endif
 
 	}
@@ -2023,7 +2015,7 @@ info[i++] = "あなたの手は冷気に覆われている。";
 #ifdef JP
 info[i++] = "あなたの手は酸に覆われている。";
 #else
-		info[i++] = "You can strike enemy with acid.";
+		info[i++] = "You can strike the enemy with acid.";
 #endif
 
 	}
@@ -2032,7 +2024,7 @@ info[i++] = "あなたの手は酸に覆われている。";
 #ifdef JP
 info[i++] = "あなたの手は電撃に覆われている。";
 #else
-		info[i++] = "You can strike enemy with electoric shock.";
+		info[i++] = "You can strike the enemy with electoric shock.";
 #endif
 
 	}
@@ -2041,7 +2033,7 @@ info[i++] = "あなたの手は電撃に覆われている。";
 #ifdef JP
 info[i++] = "あなたの手は毒に覆われている。";
 #else
-		info[i++] = "You can strike enemy with poison.";
+		info[i++] = "You can strike the enemy with poison.";
 #endif
 
 	}
@@ -2070,6 +2062,15 @@ info[i++] = "あなたは呪文や祈りを学ぶことができる。";
 info[i++] = "あなたはすぐに帰還するだろう。";
 #else
 		info[i++] = "You will soon be recalled.";
+#endif
+
+	}
+	if (p_ptr->alter_reality)
+	{
+#ifdef JP
+		info[i++] = "あなたはすぐにこの世界を離れるだろう。";
+#else
+		info[i++] = "You will soon be altered.";
 #endif
 
 	}
@@ -2339,7 +2340,7 @@ info[i++] = "あなたの身体は光っている。";
 #ifdef JP
 info[i++] = "あなたは行動の前に危険を察知することができる。";
 #else
-		info[i++] = "You will be warn before dangerous action.";
+		info[i++] = "You will be warned before dangerous actions.";
 #endif
 
 	}
@@ -2348,7 +2349,7 @@ info[i++] = "あなたは行動の前に危険を察知することができる。";
 #ifdef JP
 info[i++] = "あなたは少ない消費魔力で魔法を唱えることができる。";
 #else
-		info[i++] = "You can cast spell with fewer mana.";
+		info[i++] = "You can cast spells with fewer mana points.";
 #endif
 
 	}
@@ -2366,7 +2367,7 @@ info[i++] = "あなたは低い失敗率で魔法を唱えることができる。";
 #ifdef JP
 info[i++] = "あなたは高い失敗率で魔法を唱えなければいけない。";
 #else
-		info[i++] = "Fail rate of your magic is incresed.";
+		info[i++] = "Fail rate of your magic is increased.";
 #endif
 
 	}
@@ -3376,9 +3377,19 @@ info[i++] = "あなたの手は赤く輝いている。";
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
 #ifdef JP
-info[i++] = "この後帰還の詔を発動する。";
+		info[i++] = "この後帰還の詔を発動する。";
 #else
-		info[i++] = "You waiting to be recalled";
+		info[i++] = "You are waiting to be recalled";
+#endif
+
+	}
+	if (p_ptr->alter_reality)
+	{
+		info2[i]  = report_magics_aux(p_ptr->alter_reality);
+#ifdef JP
+		info[i++] = "この後現実変容が発動する。";
+#else
+		info[i++] = "You waiting to be altered";
 #endif
 
 	}
@@ -3529,16 +3540,16 @@ bool detect_traps(int range, bool known)
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
 
-                                if (c_ptr->mimic)
-                                {
-                                        /* Disclose a hidden trap */
-                                        disclose_grid(y, x);
-                                }
-                                else
-                                {
-                                        /* Redraw */
-                                        lite_spot(y, x);
-                                }
+				if (c_ptr->mimic)
+				{
+					/* Disclose a hidden trap */
+					disclose_grid(y, x);
+				}
+				else
+				{
+					/* Redraw */
+					lite_spot(y, x);
+				}
 
 				/* Obvious */
 				detect = TRUE;
@@ -3659,7 +3670,7 @@ bool detect_stairs(int range)
 			    (c_ptr->feat == FEAT_LESS_LESS) ||
 			    (c_ptr->feat == FEAT_MORE) ||
 			    (c_ptr->feat == FEAT_MORE_MORE) ||
-    			    (c_ptr->feat == FEAT_ENTRANCE))
+			    (c_ptr->feat == FEAT_ENTRANCE))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -4498,7 +4509,10 @@ bool detect_all(int range)
 	if (detect_traps(range, TRUE)) detect = TRUE;
 	if (detect_doors(range)) detect = TRUE;
 	if (detect_stairs(range)) detect = TRUE;
-	if (detect_treasure(range)) detect = TRUE;
+
+	/* There are too many hidden treasure.  So... */
+	/* if (detect_treasure(range)) detect = TRUE; */
+
 	if (detect_objects_gold(range)) detect = TRUE;
 	if (detect_objects_normal(range)) detect = TRUE;
 	if (detect_monsters_invis(range)) detect = TRUE;
@@ -5399,28 +5413,28 @@ bool destroy_area(int y1, int x1, int r, int full)
 				if (t < 20)
 				{
 					/* Create granite wall */
-                                        cave_set_feat(y, x, FEAT_WALL_EXTRA);
+					cave_set_feat(y, x, FEAT_WALL_EXTRA);
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-                                        cave_set_feat(y, x, FEAT_QUARTZ);
+					cave_set_feat(y, x, FEAT_QUARTZ);
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-                                        cave_set_feat(y, x, FEAT_MAGMA);
+					cave_set_feat(y, x, FEAT_MAGMA);
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-                                        cave_set_feat(y, x, floor_type[randint0(100)]);
+					cave_set_feat(y, x, floor_type[randint0(100)]);
 				}
 			}
 		}
@@ -5897,8 +5911,8 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 				/* Delete objects */
 				delete_object(yy, xx);
 
-                                /* Clear mirror, runes flag */
-                                c_ptr->info &= ~CAVE_OBJECT;
+				/* Clear mirror, runes flag */
+				c_ptr->info &= ~CAVE_OBJECT;
 
 				/* Wall (or floor) type */
 				t = (floor ? randint0(100) : 200);
@@ -5907,28 +5921,28 @@ msg_format("%^sは岩石に埋もれてしまった！", m_name);
 				if (t < 20)
 				{
 					/* Create granite wall */
-                                        cave_set_feat(yy, xx, FEAT_WALL_EXTRA);
+					cave_set_feat(yy, xx, FEAT_WALL_EXTRA);
 				}
 
 				/* Quartz */
 				else if (t < 70)
 				{
 					/* Create quartz vein */
-                                        cave_set_feat(yy, xx, FEAT_QUARTZ);
+					cave_set_feat(yy, xx, FEAT_QUARTZ);
 				}
 
 				/* Magma */
 				else if (t < 100)
 				{
 					/* Create magma vein */
-                                        cave_set_feat(yy, xx, FEAT_MAGMA);
+					cave_set_feat(yy, xx, FEAT_MAGMA);
 				}
 
 				/* Floor */
 				else
 				{
 					/* Create floor */
-                                        cave_set_feat(yy, xx, floor_type[randint0(100)]);
+					cave_set_feat(yy, xx, floor_type[randint0(100)]);
 				}
 			}
 		}
@@ -6086,8 +6100,8 @@ msg_format("%^sが目を覚ました。", m_name);
 #else
 					msg_format("%^s wakes up.", m_name);
 #endif
-                                        /* Redraw the health bar */
-                                        if (p_ptr->health_who == c_ptr->m_idx)
+					/* Redraw the health bar */
+					if (p_ptr->health_who == c_ptr->m_idx)
 						p_ptr->redraw |= (PR_HEALTH);
 
 				}
@@ -6140,7 +6154,7 @@ static void cave_temp_room_unlite(void)
 		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
 		{
 			/* Forget the grid */
-                        if (!view_torch_grids) c_ptr->info &= ~(CAVE_MARK);
+			if (!view_torch_grids) c_ptr->info &= ~(CAVE_MARK);
 
 			/* Notice */
 			note_spot(y, x);
@@ -6255,7 +6269,7 @@ static void cave_temp_room_aux(int y, int x, bool only_room)
 		 * This leaves only a check for 6 bounding walls!
 		 */
 		if (in_bounds(y, x) && cave_floor_bold(y, x) &&
-                    (next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
+		    (next_to_walls_adj(y, x) == 6) && (next_to_open(y, x) <= 1)) return;
 	}
 
 	/* Paranoia -- verify space */

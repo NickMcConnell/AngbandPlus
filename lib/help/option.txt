@@ -84,13 +84,13 @@ Confirm to wear/wield known cursed items    [confirm_wear]
     will be prompted if you attempt to wear or wield an item if your
     character knows it is cursed.
 
-***** <confirm_stairs>
-Prompt before exiting a dungeon level    [confirm_stairs]
-    Some players (such as myself) often accidentally press the '<' key
-    and exit a Special feeling level. If this option is set, the
-    program asks for confirmation before you go up or down the stairs.
-    Others may find the prompt annoying, they should of course not set
-    this option. :-)
+***** <confirm_quest>
+Prompt before exiting a quest level    [confirm_quest]
+    In the dungeon, you can freely climb up/down stairs and can return
+    to former floors normally.  But in some quest level, including the
+    random quest, you can not return once you escaped from the level.
+    If this option is set, the program asks for confirmation before
+    you go up the stairs from such quest levels.
 
 ***** <target_pet>
 Allow targetting pets    [target_pet]
@@ -113,8 +113,9 @@ Automatically disarm traps    [easy_disarm]
 ***** <easy_floor>
 Display floor stacks in a list    [easy_floor]
     Lets you select an item from a stack on the floor by browsing a
-    list, Also floor stack are described as "You see a stack of n
-    items.", when there is more than one item on a floor grid.
+    list.  Also the look command will describe floor stack as "You see
+    a stack of n items.", when there is more than one item on a floor
+    grid, and display a list of items when you press 'x' at that time.
 
 ***** <use_command>
 Allow unified use command    [use_command]
@@ -344,12 +345,6 @@ Map marked by detect traps    [view_unsafe_grids]
     are trap free. This option has no effect on surface grids, but
     outdoor locations cannot be trapped.
 
-***** <dungeon_stair>
-Generate dungeons with connected stairs    [dungeon_stair]
-    Always generate a staircase back to the level you came from, if you
-    used a staircase to get to the level. This is more "realistic", and
-    "safer", but less of a "challenge" for some people.
-    
 ***** <small_levels>
 Allow unusually small dungeon levels    [small_levels]
     This option enables the creation of levels of varying sizes. Levels
@@ -387,6 +382,15 @@ Send score dump to the world score server    [send_score]
     record of your character to the world score board on the Internet
     when your character dies.
 
+***** <allow_debug_opts>
+Allow use of debug/cheat options  [allow_debug_opts]
+    Since use of debug command(^A), wizard mode(^W), and Cheating
+    options ('C' in options panel) mark the player as "Cheater" who
+    can't register their score, these debug/cheat options are
+    forbidden to use on default.  The allow_debug_opts option removes
+    these restrictions, and allow the player to become "Cheater".
+
+
 ***** <Disturbance>
 === Option set 4 -- Disturbance ===
 
@@ -414,6 +418,12 @@ Disturb whenever any monster moves    [disturb_move]
     This includes monsters which are only visible due to telepathy, so
     you should probably turn this option off if you want to "rest" near
     such monsters.
+
+***** <disturb_high>
+Disturb whenever high-level monster moves    [disturb_high]
+    Disturb the player when any monster whose level is higher than the
+    player moves, appears, or disappears.  This includes monsters
+    which are only visible due to telepathy.
 
 ***** <disturb_near>
 Disturb whenever viewable monster moves    [disturb_near]
@@ -605,6 +615,13 @@ Auto-destroyer leaves junk    [leave_junk]
     This option protects all 'junk', such as Shards of Pottery or
     Broken Stick, from auto-destruction by the destroy_items option.  
     This is especially helpful for Archers.
+
+***** <leave_special>
+Auto-destroyer leaves items your race/class needs  [leave_special]
+    This option protects specific items which are normally worthless,
+    but very important for specific classes or races.  These include
+    bones for Archers, ego light source of darkness for Ninja,
+    humanoid corpses for Balrogs, etc...
 
 
 ***** <PlayRecord>
@@ -809,6 +826,11 @@ Know complete monster info    [cheat_know]
 Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
+***** <cheat_save>
+Ask for saving death    [cheat_save]
+    Cheaters never win.  But they can choose whether they save dead
+    character data or not when they die.
+
 
 ***** <StartUp>
 === Start up options ===
@@ -846,13 +868,6 @@ Monsters learn from their mistakes (*)    [smart_learn]
 Monsters exploit players weaknesses (*)    [smart_cheat]
     Allow monsters to know what spell attacks you are resistant to,
     and to use this information to choose the best attacks.
-
-***** <stupid_monsters>
-Monsters behave stupidly (*)    [stupid_monsters]
-    If you are a sissy, set this option to get the old, really stupid
-    monster AI.  Note that the smart AI is a bit processing power
-    expensive. If you have an old computer (386sx) and Hengband is
-    running too slowly, you could try turning stupid_monsters on.
 
 ***** <vanilla_town>
 Use 'vanilla' town without quests and wilderness    [vanilla_town]
@@ -901,17 +916,6 @@ Permanently enable the autoscummer    [ironman_autoscum]
 Always create empty 'arena' levels (*)    [ironman_empty_levels]
     If this option is enabled, then every level will be empty 'arena'
     level . See the "Allow empty 'arena' levels" option above.
-
-***** <terrain_streams>
-Create terrain 'streamers' in the dungeon (*)    [terrain_streams]
-    If this option is enabled, rivers, lava flows, or forests will be
-    generated in dungeon.
-
-***** <munchkin_death>
-(Cheating) Ask for death saves (*)    [munchkin_death]
-    If this option is enabled, Hengband asks you whether you save dead
-    character data or not when you die. If you use it, you cannot send
-    score record to the world score board.
 
 ***** <ironman_rooms>
 Always generate very unusual rooms (*)    [ironman_rooms]
@@ -974,4 +978,4 @@ Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Updated    : Hengband 1.3.0
+Updated    : Hengband 1.3.2

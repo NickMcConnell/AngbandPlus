@@ -90,7 +90,7 @@ hengband_SOURCES = \
 	variable.c tables.c util.c cave.c \
 	kajitips.h object1.c object2.c monster1.c monster2.c \
 	xtra1.c xtra2.c spells1.c spells2.c \
-	melee1.c melee2.c save.c files.c \
+	melee1.c melee2.c save.c files.c floors.c\
 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
 	store.c birth.c load.c \
 	wizard1.c wizard2.c grid.c streams.c rooms.c \
@@ -100,7 +100,7 @@ hengband_SOURCES = \
 	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c \
 	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c \
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c \
-	angband.h defines.h event.h externs.h generate.h grid.h \
+	angband.h defines.h externs.h generate.h grid.h \
 	h-basic.h h-config.h h-define.h h-system.h h-type.h \
 	mindtips.h readdib.h rooms.h spellstips.h streams.h init.h \
 	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
@@ -110,7 +110,7 @@ EXTRA_hengband_SOURCES = \
 	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c \
 	main-dos.c main-ibm.c main-mac-carbon.c \
 	makefile.bcc makefile.std makefile.dos makefile.ibm \
-	readdib.c script.c wall.bmp
+	readdib.c wall.bmp
 
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -125,17 +125,18 @@ am_hengband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) z-form.$(OBJEXT) \
 	object1.$(OBJEXT) object2.$(OBJEXT) monster1.$(OBJEXT) \
 	monster2.$(OBJEXT) xtra1.$(OBJEXT) xtra2.$(OBJEXT) \
 	spells1.$(OBJEXT) spells2.$(OBJEXT) melee1.$(OBJEXT) \
-	melee2.$(OBJEXT) save.$(OBJEXT) files.$(OBJEXT) cmd1.$(OBJEXT) \
-	cmd2.$(OBJEXT) cmd3.$(OBJEXT) cmd4.$(OBJEXT) cmd5.$(OBJEXT) \
-	cmd6.$(OBJEXT) store.$(OBJEXT) birth.$(OBJEXT) load.$(OBJEXT) \
-	wizard1.$(OBJEXT) wizard2.$(OBJEXT) grid.$(OBJEXT) \
-	streams.$(OBJEXT) rooms.$(OBJEXT) generate.$(OBJEXT) \
-	dungeon.$(OBJEXT) init1.$(OBJEXT) init2.$(OBJEXT) \
-	effects.$(OBJEXT) racial.$(OBJEXT) inet.$(OBJEXT) \
-	report.$(OBJEXT) artifact.$(OBJEXT) autopick.$(OBJEXT) \
-	mutation.$(OBJEXT) flavor.$(OBJEXT) spells3.$(OBJEXT) \
-	mspells1.$(OBJEXT) mspells2.$(OBJEXT) scores.$(OBJEXT) \
-	mind.$(OBJEXT) mane.$(OBJEXT) hissatsu.$(OBJEXT) bldg.$(OBJEXT) \
+	melee2.$(OBJEXT) save.$(OBJEXT) files.$(OBJEXT) \
+	floors.$(OBJEXT) cmd1.$(OBJEXT) cmd2.$(OBJEXT) cmd3.$(OBJEXT) \
+	cmd4.$(OBJEXT) cmd5.$(OBJEXT) cmd6.$(OBJEXT) store.$(OBJEXT) \
+	birth.$(OBJEXT) load.$(OBJEXT) wizard1.$(OBJEXT) \
+	wizard2.$(OBJEXT) grid.$(OBJEXT) streams.$(OBJEXT) \
+	rooms.$(OBJEXT) generate.$(OBJEXT) dungeon.$(OBJEXT) \
+	init1.$(OBJEXT) init2.$(OBJEXT) effects.$(OBJEXT) \
+	racial.$(OBJEXT) inet.$(OBJEXT) report.$(OBJEXT) \
+	artifact.$(OBJEXT) autopick.$(OBJEXT) mutation.$(OBJEXT) \
+	flavor.$(OBJEXT) spells3.$(OBJEXT) mspells1.$(OBJEXT) \
+	mspells2.$(OBJEXT) scores.$(OBJEXT) mind.$(OBJEXT) \
+	mane.$(OBJEXT) hissatsu.$(OBJEXT) bldg.$(OBJEXT) \
 	obj_kind.$(OBJEXT) wild.$(OBJEXT) avatar.$(OBJEXT) \
 	japanese.$(OBJEXT) mspells3.$(OBJEXT) main-cap.$(OBJEXT) \
 	main-gcu.$(OBJEXT) main-x11.$(OBJEXT) main-xaw.$(OBJEXT) \
@@ -160,13 +161,14 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/cmd4.Po ./$(DEPDIR)/cmd5.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/cmd6.Po ./$(DEPDIR)/dungeon.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/effects.Po ./$(DEPDIR)/files.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/flavor.Po ./$(DEPDIR)/generate.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/grid.Po ./$(DEPDIR)/hissatsu.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/inet.Po ./$(DEPDIR)/init1.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/init2.Po ./$(DEPDIR)/japanese.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/load.Po ./$(DEPDIR)/maid-x11.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main-cap.Po ./$(DEPDIR)/main-dos.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main-gcu.Po ./$(DEPDIR)/main-ibm.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/flavor.Po ./$(DEPDIR)/floors.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/generate.Po ./$(DEPDIR)/grid.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/hissatsu.Po ./$(DEPDIR)/inet.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/init1.Po ./$(DEPDIR)/init2.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/japanese.Po ./$(DEPDIR)/load.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/maid-x11.Po ./$(DEPDIR)/main-cap.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/main-dos.Po ./$(DEPDIR)/main-gcu.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/main-ibm.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-mac-carbon.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-mac.Po ./$(DEPDIR)/main-win.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-x11.Po ./$(DEPDIR)/main-xaw.Po \
@@ -180,16 +182,15 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/racial.Po ./$(DEPDIR)/readdib.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/report.Po ./$(DEPDIR)/rooms.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/save.Po ./$(DEPDIR)/scores.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/script.Po ./$(DEPDIR)/spells1.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/spells2.Po ./$(DEPDIR)/spells3.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/store.Po ./$(DEPDIR)/streams.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/tables.Po ./$(DEPDIR)/util.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/variable.Po ./$(DEPDIR)/wild.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/wizard1.Po ./$(DEPDIR)/wizard2.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/xtra1.Po ./$(DEPDIR)/xtra2.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/z-form.Po ./$(DEPDIR)/z-rand.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/z-term.Po ./$(DEPDIR)/z-util.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/z-virt.Po
+@AMDEP_TRUE@	./$(DEPDIR)/spells1.Po ./$(DEPDIR)/spells2.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/spells3.Po ./$(DEPDIR)/store.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/streams.Po ./$(DEPDIR)/tables.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/util.Po ./$(DEPDIR)/variable.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/wild.Po ./$(DEPDIR)/wizard1.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/wizard2.Po ./$(DEPDIR)/xtra1.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/xtra2.Po ./$(DEPDIR)/z-form.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/z-rand.Po ./$(DEPDIR)/z-term.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/z-util.Po ./$(DEPDIR)/z-virt.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -277,6 +278,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/effects.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/files.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flavor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/floors.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/grid.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hissatsu.Po@am__quote@
@@ -315,7 +317,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rooms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/save.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scores.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/script.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spells1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spells2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/spells3.Po@am__quote@

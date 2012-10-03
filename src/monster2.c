@@ -160,6 +160,7 @@ void set_target(monster_type *m_ptr, int y, int x)
 	m_ptr->target_x = x;
 }
 
+
 /*
  * Reset the target of counter attack
  */
@@ -167,6 +168,29 @@ void reset_target(monster_type *m_ptr)
 {
 	set_target(m_ptr, 0, 0);
 }
+
+
+/*
+ *  Extract monster race pointer of a monster's true form
+ */
+monster_race *real_r_ptr(monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Extract real race */
+	if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+	{
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			return &r_info[MON_CHAMELEON_K];
+		else
+			return &r_info[MON_CHAMELEON];
+	}
+	else
+	{
+		return r_ptr;
+	}
+}
+
 
 /*
  * Delete a monster by index.
@@ -190,17 +214,7 @@ void delete_monster_idx(int i)
 
 
 	/* Hack -- Reduce the racial counter */
-	if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-	{
-		if (r_ptr->flags1 & RF1_UNIQUE)
-			r_info[MON_CHAMELEON_K].cur_num--;
-		else
-			r_info[MON_CHAMELEON].cur_num--;
-	}
-	else
-	{
-		r_ptr->cur_num--;
-	}
+	real_r_ptr(m_ptr)->cur_num--;
 
 	/* Hack -- count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro--;
@@ -467,15 +481,7 @@ void wipe_m_list(void)
 		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
 
 		/* Hack -- Reduce the racial counter */
-		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				r_info[MON_CHAMELEON_K].cur_num = 0;
-			else
-				r_info[MON_CHAMELEON].cur_num = 0;
-		}
-		else
-			r_ptr->cur_num = 0;
+		real_r_ptr(m_ptr)->cur_num = 0;
 
 		/* Monster is gone */
 		cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
@@ -644,8 +650,8 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_HI_UNDEAD:
 		{
 			okay = ((r_ptr->d_char == 'L') ||
-			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
+				(r_ptr->d_char == 'V') ||
+				(r_ptr->d_char == 'W'));
 			break;
 		}
 
@@ -707,10 +713,10 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_BIZARRE6:
 		{
 			okay = ((r_ptr->d_char == '!') ||
-			         (r_ptr->d_char == '?') ||
-			         (r_ptr->d_char == '=') ||
-			         (r_ptr->d_char == '$') ||
-			         (r_ptr->d_char == '|'));
+				 (r_ptr->d_char == '?') ||
+				 (r_ptr->d_char == '=') ||
+				 (r_ptr->d_char == '$') ||
+				 (r_ptr->d_char == '|'));
 			break;
 		}
 
@@ -723,7 +729,7 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_CYBER:
 		{
 			okay = ((r_ptr->d_char == 'U') &&
-			        (r_ptr->flags4 & RF4_ROCKET));
+				(r_ptr->flags4 & RF4_ROCKET));
 			break;
 		}
 
@@ -857,8 +863,8 @@ static bool summon_specific_aux(int r_idx)
 		case SUMMON_EAGLES:
 		{
 			okay = (r_ptr->d_char == 'B' &&
-                                (r_ptr->flags8 & RF8_WILD_MOUNTAIN) &&
-                                (r_ptr->flags8 & RF8_WILD_ONLY));
+				(r_ptr->flags8 & RF8_WILD_MOUNTAIN) &&
+				(r_ptr->flags8 & RF8_WILD_ONLY));
 			break;
 		}
 		case SUMMON_PIRANHAS:
@@ -885,7 +891,7 @@ static bool restrict_monster_to_dungeon(int r_idx)
 {
 	dungeon_info_type *d_ptr = &d_info[dungeon_type];
 	monster_race *r_ptr = &r_info[r_idx];
-        byte a;
+	byte a;
 
 	if (d_ptr->flags1 & DF1_CHAMELEON)
 	{
@@ -894,10 +900,10 @@ static bool restrict_monster_to_dungeon(int r_idx)
 	if (d_ptr->flags1 & DF1_NO_MAGIC)
 	{
 		if (r_idx != MON_CHAMELEON &&
-                    r_ptr->freq_spell && 
-                    !(r_ptr->flags4 & RF4_NOMAGIC_MASK) &&
-                    !(r_ptr->flags5 & RF5_NOMAGIC_MASK) &&
-                    !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
+		    r_ptr->freq_spell && 
+		    !(r_ptr->flags4 & RF4_NOMAGIC_MASK) &&
+		    !(r_ptr->flags5 & RF5_NOMAGIC_MASK) &&
+		    !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
 			return FALSE;
 	}
 	if (d_ptr->flags1 & DF1_NO_MELEE)
@@ -917,207 +923,207 @@ static bool restrict_monster_to_dungeon(int r_idx)
 	if (d_ptr->special_div == 64) return TRUE;
 	if (summon_specific_type && !(d_ptr->flags1 & DF1_CHAMELEON)) return TRUE;
 
-        if(d_ptr->mode == DUNGEON_MODE_AND)
-        {
-                if (d_ptr->mflags1)
+	if(d_ptr->mode == DUNGEON_MODE_AND)
+	{
+		if (d_ptr->mflags1)
 		{
-                        if((d_ptr->mflags1 & r_ptr->flags1) != d_ptr->mflags1)
-                                return FALSE;
+			if((d_ptr->mflags1 & r_ptr->flags1) != d_ptr->mflags1)
+				return FALSE;
 		}
-                if (d_ptr->mflags2)
+		if (d_ptr->mflags2)
 		{
-                        if((d_ptr->mflags2 & r_ptr->flags2) != d_ptr->mflags2)
-                                return FALSE;
+			if((d_ptr->mflags2 & r_ptr->flags2) != d_ptr->mflags2)
+				return FALSE;
 		}
-                if (d_ptr->mflags3)
+		if (d_ptr->mflags3)
 		{
-                        if((d_ptr->mflags3 & r_ptr->flags3) != d_ptr->mflags3)
-                                return FALSE;
+			if((d_ptr->mflags3 & r_ptr->flags3) != d_ptr->mflags3)
+				return FALSE;
 		}
-                if (d_ptr->mflags4)
+		if (d_ptr->mflags4)
 		{
-                        if((d_ptr->mflags4 & r_ptr->flags4) != d_ptr->mflags4)
-                                return FALSE;
+			if((d_ptr->mflags4 & r_ptr->flags4) != d_ptr->mflags4)
+				return FALSE;
 		}
-                if (d_ptr->mflags5)
+		if (d_ptr->mflags5)
 		{
-                        if((d_ptr->mflags5 & r_ptr->flags5) != d_ptr->mflags5)
-                                return FALSE;
+			if((d_ptr->mflags5 & r_ptr->flags5) != d_ptr->mflags5)
+				return FALSE;
 		}
-                if (d_ptr->mflags6)
+		if (d_ptr->mflags6)
 		{
-                        if((d_ptr->mflags6 & r_ptr->flags6) != d_ptr->mflags6)
-                                return FALSE;
+			if((d_ptr->mflags6 & r_ptr->flags6) != d_ptr->mflags6)
+				return FALSE;
 		}
-                if (d_ptr->mflags7)
+		if (d_ptr->mflags7)
 		{
-                        if((d_ptr->mflags7 & r_ptr->flags7) != d_ptr->mflags7)
-                                return FALSE;
+			if((d_ptr->mflags7 & r_ptr->flags7) != d_ptr->mflags7)
+				return FALSE;
 		}
-                if (d_ptr->mflags8)
+		if (d_ptr->mflags8)
 		{
-                        if((d_ptr->mflags8 & r_ptr->flags8) != d_ptr->mflags8)
-                                return FALSE;
+			if((d_ptr->mflags8 & r_ptr->flags8) != d_ptr->mflags8)
+				return FALSE;
 		}
-                if (d_ptr->mflags9)
+		if (d_ptr->mflags9)
 		{
-                        if((d_ptr->mflags9 & r_ptr->flags9) != d_ptr->mflags9)
-                                return FALSE;
+			if((d_ptr->mflags9 & r_ptr->flags9) != d_ptr->mflags9)
+				return FALSE;
 		}
-                for(a = 0; a < 5; a++)
-                        if(d_ptr->r_char[a] && (d_ptr->r_char[a] != r_ptr->d_char)) return FALSE;
-        }
-        else if(d_ptr->mode == DUNGEON_MODE_NAND)
-        {
-                byte ok[9 + 5], i = 0, j = 0;
+		for(a = 0; a < 5; a++)
+			if(d_ptr->r_char[a] && (d_ptr->r_char[a] != r_ptr->d_char)) return FALSE;
+	}
+	else if(d_ptr->mode == DUNGEON_MODE_NAND)
+	{
+		byte ok[9 + 5], i = 0, j = 0;
 
-                if (d_ptr->mflags1)
+		if (d_ptr->mflags1)
 		{
-                        i++;
-                        if(d_ptr->mflags1 & r_ptr->flags1)
-                                ok[0] = 1;
+			i++;
+			if(d_ptr->mflags1 & r_ptr->flags1)
+				ok[0] = 1;
 		}
-                if (d_ptr->mflags2)
+		if (d_ptr->mflags2)
 		{
-                        i++;
-                        if(d_ptr->mflags2 & r_ptr->flags2)
-                                ok[1] = 1;
+			i++;
+			if(d_ptr->mflags2 & r_ptr->flags2)
+				ok[1] = 1;
 		}
-                if (d_ptr->mflags3)
+		if (d_ptr->mflags3)
 		{
-                        i++;
-                        if(d_ptr->mflags3 & r_ptr->flags3)
-                                ok[2] = 1;
+			i++;
+			if(d_ptr->mflags3 & r_ptr->flags3)
+				ok[2] = 1;
 		}
-                if (d_ptr->mflags4)
+		if (d_ptr->mflags4)
 		{
-                        i++;
-                        if(d_ptr->mflags4 & r_ptr->flags4)
-                                ok[3] = 1;
+			i++;
+			if(d_ptr->mflags4 & r_ptr->flags4)
+				ok[3] = 1;
 		}
-                if (d_ptr->mflags5)
+		if (d_ptr->mflags5)
 		{
-                        i++;
-                        if(d_ptr->mflags5 & r_ptr->flags5)
-                                ok[4] = 1;
+			i++;
+			if(d_ptr->mflags5 & r_ptr->flags5)
+				ok[4] = 1;
 		}
-                if (d_ptr->mflags6)
+		if (d_ptr->mflags6)
 		{
-                        i++;
-                        if(d_ptr->mflags6 & r_ptr->flags6)
-                                ok[5] = 1;
+			i++;
+			if(d_ptr->mflags6 & r_ptr->flags6)
+				ok[5] = 1;
 		}
-                if (d_ptr->mflags7)
+		if (d_ptr->mflags7)
 		{
-                        i++;
-                        if(d_ptr->mflags7 & r_ptr->flags7)
-                                ok[6] = 1;
+			i++;
+			if(d_ptr->mflags7 & r_ptr->flags7)
+				ok[6] = 1;
 		}
-                if (d_ptr->mflags8)
+		if (d_ptr->mflags8)
 		{
-                        i++;
-                        if(d_ptr->mflags8 & r_ptr->flags8)
-                                ok[7] = 1;
+			i++;
+			if(d_ptr->mflags8 & r_ptr->flags8)
+				ok[7] = 1;
 		}
-                if (d_ptr->mflags9)
+		if (d_ptr->mflags9)
 		{
-                        i++;
-                        if(d_ptr->mflags9 & r_ptr->flags9)
-                                ok[8] = 1;
+			i++;
+			if(d_ptr->mflags9 & r_ptr->flags9)
+				ok[8] = 1;
 		}
 
-                for(a = 0; a < 5; a++)
-                {
-                        if(d_ptr->r_char[a])
-                        {
-                                i++;
-                                if (d_ptr->r_char[a] != r_ptr->d_char) ok[9 + a] = 1;
-                        }
-                }
+		for(a = 0; a < 5; a++)
+		{
+			if(d_ptr->r_char[a])
+			{
+				i++;
+				if (d_ptr->r_char[a] != r_ptr->d_char) ok[9 + a] = 1;
+			}
+		}
 
-                j = ok[0] + ok[1] + ok[2] + ok[3] + ok[4] + ok[5] + ok[6] + ok[7] + ok[8] + ok[9] + ok[10] + ok[11] + ok[12] + ok[13];
+		j = ok[0] + ok[1] + ok[2] + ok[3] + ok[4] + ok[5] + ok[6] + ok[7] + ok[8] + ok[9] + ok[10] + ok[11] + ok[12] + ok[13];
 
-                if(i == j) return FALSE;
-        }
-        else if(d_ptr->mode == DUNGEON_MODE_OR)
-        {
-                byte ok = FALSE, i;
-                s32b flag;
+		if(i == j) return FALSE;
+	}
+	else if(d_ptr->mode == DUNGEON_MODE_OR)
+	{
+		byte ok = FALSE, i;
+		s32b flag;
 
-                for(i = 0; i < 32; i++)
-                {
-                        flag = d_ptr->mflags1 & (1 << i);
-                        if(r_ptr->flags1 & flag) ok = TRUE;
+		for(i = 0; i < 32; i++)
+		{
+			flag = d_ptr->mflags1 & (1 << i);
+			if(r_ptr->flags1 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags2 & (1 << i);
-                        if(r_ptr->flags2 & flag) ok = TRUE;
+			flag = d_ptr->mflags2 & (1 << i);
+			if(r_ptr->flags2 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags3 & (1 << i);
-                        if(r_ptr->flags3 & flag) ok = TRUE;
+			flag = d_ptr->mflags3 & (1 << i);
+			if(r_ptr->flags3 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags4 & (1 << i);
-                        if(r_ptr->flags4 & flag) ok = TRUE;
+			flag = d_ptr->mflags4 & (1 << i);
+			if(r_ptr->flags4 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags5 & (1 << i);
-                        if(r_ptr->flags5 & flag) ok = TRUE;
+			flag = d_ptr->mflags5 & (1 << i);
+			if(r_ptr->flags5 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags6 & (1 << i);
-                        if(r_ptr->flags6 & flag) ok = TRUE;
+			flag = d_ptr->mflags6 & (1 << i);
+			if(r_ptr->flags6 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags7 & (1 << i);
-                        if(r_ptr->flags7 & flag) ok = TRUE;
+			flag = d_ptr->mflags7 & (1 << i);
+			if(r_ptr->flags7 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags8 & (1 << i);
-                        if(r_ptr->flags8 & flag) ok = TRUE;
+			flag = d_ptr->mflags8 & (1 << i);
+			if(r_ptr->flags8 & flag) ok = TRUE;
 
-                        flag = d_ptr->mflags9 & (1 << i);
-                        if(r_ptr->flags9 & flag) ok = TRUE;
-                }
-                for(a = 0; a < 5; a++)
-                        if(d_ptr->r_char[a] == r_ptr->d_char) ok = TRUE;
+			flag = d_ptr->mflags9 & (1 << i);
+			if(r_ptr->flags9 & flag) ok = TRUE;
+		}
+		for(a = 0; a < 5; a++)
+			if(d_ptr->r_char[a] == r_ptr->d_char) ok = TRUE;
 
-                return ok;
-        }
-        else if(d_ptr->mode == DUNGEON_MODE_NOR)
-        {
-                byte ok = TRUE, i;
-                s32b flag;
+		return ok;
+	}
+	else if(d_ptr->mode == DUNGEON_MODE_NOR)
+	{
+		byte ok = TRUE, i;
+		s32b flag;
 
-                for(i = 0; i < 32; i++)
-                {
-                        flag = d_ptr->mflags1 & (1 << i);
-                        if(r_ptr->flags1 & flag) ok = FALSE;
+		for(i = 0; i < 32; i++)
+		{
+			flag = d_ptr->mflags1 & (1 << i);
+			if(r_ptr->flags1 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags2 & (1 << i);
-                        if(r_ptr->flags2 & flag) ok = FALSE;
+			flag = d_ptr->mflags2 & (1 << i);
+			if(r_ptr->flags2 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags3 & (1 << i);
-                        if(r_ptr->flags3 & flag) ok = FALSE;
+			flag = d_ptr->mflags3 & (1 << i);
+			if(r_ptr->flags3 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags4 & (1 << i);
-                        if(r_ptr->flags4 & flag) ok = FALSE;
+			flag = d_ptr->mflags4 & (1 << i);
+			if(r_ptr->flags4 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags5 & (1 << i);
-                        if(r_ptr->flags5 & flag) ok = FALSE;
+			flag = d_ptr->mflags5 & (1 << i);
+			if(r_ptr->flags5 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags6 & (1 << i);
-                        if(r_ptr->flags6 & flag) ok = FALSE;
+			flag = d_ptr->mflags6 & (1 << i);
+			if(r_ptr->flags6 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags7 & (1 << i);
-                        if(r_ptr->flags7 & flag) ok = FALSE;
+			flag = d_ptr->mflags7 & (1 << i);
+			if(r_ptr->flags7 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags8 & (1 << i);
-                        if(r_ptr->flags8 & flag) ok = FALSE;
+			flag = d_ptr->mflags8 & (1 << i);
+			if(r_ptr->flags8 & flag) ok = FALSE;
 
-                        flag = d_ptr->mflags9 & (1 << i);
-                        if(r_ptr->flags9 & flag) ok = FALSE;
-                }
-                for(a = 0; a < 5; a++)
-                        if(d_ptr->r_char[a] == r_ptr->d_char) ok = FALSE;
-                return ok;
-        }
+			flag = d_ptr->mflags9 & (1 << i);
+			if(r_ptr->flags9 & flag) ok = FALSE;
+		}
+		for(a = 0; a < 5; a++)
+			if(d_ptr->r_char[a] == r_ptr->d_char) ok = FALSE;
+		return ok;
+	}
 
-        return TRUE;
+	return TRUE;
 }
 
 /*
@@ -1494,11 +1500,8 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 	r_ptr = &r_info[m_ptr->ap_r_idx];
 
-	if ((mode & 0x100) && (m_ptr->mflag2 & MFLAG_CHAMELEON))
-	{
-		if (r_ptr->flags1 & RF1_UNIQUE) name = (r_name + r_info[MON_CHAMELEON_K].name);
-		else name = (r_name + r_info[MON_CHAMELEON].name);
-	}
+	/* Mode of 0x100 will reveal Chameleon's true name */
+	if (mode & 0x100) name = (r_name + real_r_ptr(m_ptr)->name);
 	else name = (r_name + r_ptr->name);
 
 	/* Are we hallucinating? (Idea from Nethack...) */
@@ -1641,9 +1644,9 @@ if (!get_rnd_line("silly_j.txt", m_ptr->r_idx, silly_name))
 	{
 		/* The monster is visible, so use its gender */
 #ifdef JP
-                if (r_ptr->flags1 & (RF1_FEMALE)) strcpy(desc, "彼女自身");
-                else if (r_ptr->flags1 & (RF1_MALE)) strcpy(desc, "彼自身");
-                else strcpy(desc, "それ自身");
+		if (r_ptr->flags1 & (RF1_FEMALE)) strcpy(desc, "彼女自身");
+		else if (r_ptr->flags1 & (RF1_MALE)) strcpy(desc, "彼自身");
+		else strcpy(desc, "それ自身");
 #else
 		if (r_ptr->flags1 & RF1_FEMALE) strcpy(desc, "herself");
 		else if (r_ptr->flags1 & RF1_MALE) strcpy(desc, "himself");
@@ -1916,12 +1919,13 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		{
 			/* Something silly happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+			msg_format("%s%sの顔を見てしまった！",
+				funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 #else
 			msg_format("You behold the %s visage of %s!",
+				funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 #endif
 
-				funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
 
 			if (one_in_(3))
 			{
@@ -1934,12 +1938,12 @@ msg_format("%s%sの顔を見てしまった！",
 
 		/* Something frightening happens... */
 #ifdef JP
-msg_format("%s%sの顔を見てしまった！",
+		msg_format("%s%sの顔を見てしまった！",
+			horror_desc[randint0(MAX_SAN_HORROR)], m_name);
 #else
 		msg_format("You behold the %s visage of %s!",
-#endif
-
 			horror_desc[randint0(MAX_SAN_HORROR)], m_name);
+#endif
 
 		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
@@ -2214,6 +2218,8 @@ void update_mon(int m_idx, bool full)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	bool do_disturb = disturb_move;
+
 	int d;
 
 	/* Current location */
@@ -2226,6 +2232,14 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
+	/* Do disturb? */
+	if (disturb_high)
+	{
+		monster_race *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+
+		if (ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)
+			do_disturb = TRUE;
+	}
 
 	/* Compute distance */
 	if (full)
@@ -2527,7 +2541,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Disturb on disappearance */
-			if (disturb_move)
+			if (do_disturb)
 			{
 				if (disturb_pets || is_hostile(m_ptr))
 					disturb(1, 0);
@@ -2546,7 +2560,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on appearance */
-			if (disturb_move)
+			if (do_disturb)
 			{
 				if (disturb_pets || is_hostile(m_ptr))
 					disturb(1, 0);
@@ -2564,7 +2578,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on disappearance */
-			if (disturb_move)
+			if (do_disturb)
 			{
 				if (disturb_pets || is_hostile(m_ptr))
 					disturb(1, 0);
@@ -2798,7 +2812,7 @@ static bool monster_hook_tanuki(int r_idx)
  */
 static int initial_r_appearance(int r_idx)
 {
- 	int attempts = 1000;
+	int attempts = 1000;
 
 	int ap_r_idx;
 	int min = MIN(base_level-5, 50);
@@ -2850,8 +2864,8 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	cptr		name = (r_name + r_ptr->name);
 
-        /* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-        if(p_ptr->wild_mode) return FALSE;
+	/* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
+	if(p_ptr->wild_mode) return FALSE;
 
 	/* Verify location */
 	if (!in_bounds(y, x)) return (FALSE);
@@ -2860,8 +2874,8 @@ bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 	if (!(!dun_level && (cave[y][x].feat == FEAT_MOUNTAIN) && ((r_ptr->flags8 & RF8_WILD_MOUNTAIN) || (r_ptr->flags7 & RF7_CAN_FLY))) &&
 	    !(cave_empty_bold2(y, x) || (mode & PM_IGNORE_TERRAIN)) &&
 	    !((r_ptr->flags2 & RF2_PASS_WALL) &&
-              !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
-                ((y == py) && (x == px))))) return (FALSE);
+	      !(cave_perma_bold(y, x) || cave[y][x].m_idx ||
+		((y == py) && (x == px))))) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -2956,8 +2970,8 @@ msg_print("守りのルーンが壊れた！");
 			c_ptr->info &= ~(CAVE_MARK);
 
 			/* Break the rune */
-                        c_ptr->info &= ~(CAVE_OBJECT);
-                        c_ptr->mimic = 0;
+			c_ptr->info &= ~(CAVE_OBJECT);
+			c_ptr->mimic = 0;
 
 			/* Notice */
 			note_spot(y, x);
@@ -3190,12 +3204,16 @@ msg_print("守りのルーンが壊れた！");
 	update_mon(c_ptr->m_idx, TRUE);
 
 
-	/* Hack -- Count the monsters on the level */
-	if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-		r_info[r_idx].cur_num++;
-	else
-		r_ptr->cur_num++;
+	/* Count the monsters on the level */
+	real_r_ptr(m_ptr)->cur_num++;
 
+	/*
+	 * Memorize location of the unique monster in saved floors.
+	 * A unique monster move from old saved floor.
+	 */
+	if (character_dungeon &&
+	    ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7)))
+		real_r_ptr(m_ptr)->floor_id = p_ptr->floor_id;
 
 	/* Hack -- Count the number of "reproducers" */
 	if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
@@ -3289,8 +3307,8 @@ msg_print("爆発のルーンは解除された。");
 		c_ptr->info &= ~(CAVE_MARK);
 
 		/* Break the rune */
-                c_ptr->info &= ~(CAVE_OBJECT);
-                c_ptr->mimic = 0;
+		c_ptr->info &= ~(CAVE_OBJECT);
+		c_ptr->mimic = 0;
 
 		note_spot(y, x);
 		lite_spot(y, x);
@@ -3710,29 +3728,29 @@ bool alloc_monster(int dis, u32b mode)
 	int         attempts_left = 10000;
 	int guardian = d_info[dungeon_type].final_guardian;
 
-        /* Put an Guardian */
-        if(guardian && d_info[dungeon_type].maxdepth == dun_level && r_info[guardian].cur_num < r_info[guardian].max_num )
-        {
-                int oy;
-                int ox;
-                int try = 4000;
+	/* Put an Guardian */
+	if(guardian && d_info[dungeon_type].maxdepth == dun_level && r_info[guardian].cur_num < r_info[guardian].max_num )
+	{
+		int oy;
+		int ox;
+		int try = 4000;
 
-                /* Find a good position */
-                while(try)
-                {
-                        /* Get a random spot */
-                        oy = randint1(cur_hgt - 4) + 2;
-                        ox = randint1(cur_wid - 4) + 2;
+		/* Find a good position */
+		while(try)
+		{
+			/* Get a random spot */
+			oy = randint1(cur_hgt - 4) + 2;
+			ox = randint1(cur_wid - 4) + 2;
 
-                        /* Is it a good spot ? */
-                        if (cave_empty_bold2(oy, ox) && monster_can_cross_terrain(cave[oy][ox].feat, &r_info[guardian]))
+			/* Is it a good spot ? */
+			if (cave_empty_bold2(oy, ox) && monster_can_cross_terrain(cave[oy][ox].feat, &r_info[guardian]))
 			{
 				/* Place the guardian */
 				if (place_monster_aux(0, oy, ox, guardian, (PM_ALLOW_GROUP | PM_NO_KAGE | PM_NO_PET))) break;
 			}
-                        /* One less try */
-                        try--;
-                }
+			/* One less try */
+			try--;
+		}
 	}
 
 

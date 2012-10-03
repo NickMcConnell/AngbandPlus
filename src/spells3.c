@@ -521,6 +521,8 @@ msg_print("不思議な力がテレポートを防いだ！");
  */
 void teleport_player_level(void)
 {
+	bool go_up;
+
 	/* No effect in arena or quest */
 	if (p_ptr->inside_arena || (p_ptr->inside_quest && !random_quest_number(dun_level)) ||
 	    (quest_number(dun_level) && (dun_level > 1) && ironman_downward))
@@ -545,6 +547,17 @@ msg_print("不思議な力がテレポートを防いだ！");
 		return;
 	}
 
+	/* Choose up or down */
+	if (randint0(100) < 50) go_up = TRUE;
+	else go_up = FALSE;
+
+	if (p_ptr->wizard)
+	{
+		if (get_check("Force to go up? ")) go_up = TRUE;
+		else if (get_check("Force to go down? ")) go_up = FALSE;
+	}
+
+	/* Down only */ 
 	if (ironman_downward || (dun_level <= d_info[dungeon_type].mindepth))
 	{
 #ifdef JP
@@ -566,15 +579,18 @@ msg_print("あなたは床を突き破って沈んでいく。");
 		if (!dun_level)
 		{
 			dun_level = d_info[dungeon_type].mindepth;
+			prepare_change_floor_mode(CFM_RAND_PLACE | CFM_CLEAR_ALL);
 		}
 		else
 		{
-			dun_level++;
+			prepare_change_floor_mode(CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 		}
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
+
+	/* Up only */
 	else if (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth))
 	{
 #ifdef JP
@@ -588,9 +604,7 @@ msg_print("あなたは天井を突き破って宙へ浮いていく。");
 
 		if (autosave_l) do_cmd_save_game(TRUE);
 
-		dun_level--;
-
-		if (!dun_level) dungeon_type = 0;
+		prepare_change_floor_mode(CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 		leave_quest_check();
 
@@ -598,7 +612,7 @@ msg_print("あなたは天井を突き破って宙へ浮いていく。");
 		p_ptr->inside_quest = 0;
 		p_ptr->leaving = TRUE;
 	}
-	else if (randint0(100) < 50)
+	else if (go_up)
 	{
 #ifdef JP
 msg_print("あなたは天井を突き破って宙へ浮いていく。");
@@ -611,9 +625,7 @@ msg_print("あなたは天井を突き破って宙へ浮いていく。");
 
 		if (autosave_l) do_cmd_save_game(TRUE);
 
-		dun_level--;
-
-		if (!dun_level) dungeon_type = 0;
+		prepare_change_floor_mode(CFM_UP | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -626,27 +638,18 @@ msg_print("あなたは床を突き破って沈んでいく。");
 		msg_print("You sink through the floor.");
 #endif
 
-		if (!dun_level) dungeon_type = p_ptr->recall_dungeon;
+		/* Never reach this code on the surface */
+		/* if (!dun_level) dungeon_type = p_ptr->recall_dungeon; */
 
 		if (record_stair) do_cmd_write_nikki(NIKKI_TELE_LEV, 1, NULL);
 
 		if (autosave_l) do_cmd_save_game(TRUE);
 
-		dun_level++;
+		prepare_change_floor_mode(CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
-
-	if (!dun_level && dungeon_type)
-	{
-		p_ptr->leaving_dungeon = TRUE;
-		p_ptr->wilderness_y = d_info[dungeon_type].dy;
-		p_ptr->wilderness_x = d_info[dungeon_type].dx;
-		p_ptr->recall_dungeon = dungeon_type;
-	}
-
-	if (!dun_level) dungeon_type = 0;
 
 	/* Sound */
 	sound(SOUND_TPLEVEL);
@@ -1241,7 +1244,7 @@ act = "は破壊力を増した！";
 #ifdef JP
 act = "は人間の血を求めている！";
 #else
-			act = "seems looking for human!";
+			act = "seems to be looking for humans!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_HUMAN;
@@ -1250,7 +1253,7 @@ act = "は人間の血を求めている！";
 #ifdef JP
 act = "は電撃に覆われた！";
 #else
-			act = "coverd with lightning!";
+			act = "covered with lightning!";
 #endif
 
 			o_ptr->name2 = EGO_BRAND_ELEC;
@@ -1268,7 +1271,7 @@ act = "は酸に覆われた！";
 #ifdef JP
 act = "は邪悪なる怪物を求めている！";
 #else
-			act = "seems looking for evil monster!";
+			act = "seems to be looking for evil monsters!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_EVIL;
@@ -1277,7 +1280,7 @@ act = "は邪悪なる怪物を求めている！";
 #ifdef JP
 act = "は異世界の住人の肉体を求めている！";
 #else
-			act = "seems looking for demon!";
+			act = "seems to be looking for demons!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_DEMON;
@@ -1286,7 +1289,7 @@ act = "は異世界の住人の肉体を求めている！";
 #ifdef JP
 act = "は屍を求めている！";
 #else
-			act = "seems looking for undead!";
+			act = "seems to be looking for undead!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_UNDEAD;
@@ -1295,7 +1298,7 @@ act = "は屍を求めている！";
 #ifdef JP
 act = "は動物の血を求めている！";
 #else
-			act = "seems looking for animal!";
+			act = "seems to be looking for animals!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_ANIMAL;
@@ -1304,7 +1307,7 @@ act = "は動物の血を求めている！";
 #ifdef JP
 act = "はドラゴンの血を求めている！";
 #else
-			act = "seems looking for dragon!";
+			act = "seems to be looking for dragons!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_DRAGON;
@@ -1313,7 +1316,7 @@ act = "はドラゴンの血を求めている！";
 #ifdef JP
 act = "はトロルの血を求めている！";
 #else
-			act = "seems looking for troll!";
+			act = "seems to be looking for troll!s";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_TROLL;
@@ -1322,7 +1325,7 @@ act = "はトロルの血を求めている！";
 #ifdef JP
 act = "はオークの血を求めている！";
 #else
-			act = "seems looking for orc!";
+			act = "seems to be looking for orcs!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_ORC;
@@ -1331,7 +1334,7 @@ act = "はオークの血を求めている！";
 #ifdef JP
 act = "は巨人の血を求めている！";
 #else
-			act = "seems looking for giant!";
+			act = "seems to be looking for giants!";
 #endif
 
 			o_ptr->name2 = EGO_SLAY_GIANT;
@@ -1621,29 +1624,42 @@ msg_format("%^sがあなたの足元に飛んできた。", o_name);
 
 void alter_reality(void)
 {
-	if (!quest_number(dun_level) && dun_level)
+	/* Ironman option */
+	if (p_ptr->inside_arena || ironman_downward)
 	{
 #ifdef JP
-msg_print("世界が変わった！");
+		msg_print("何も起こらなかった。");
 #else
-		msg_print("The world changes!");
+		msg_print("Nothing happens.");
+#endif
+		return;
+	}
+
+	if (!p_ptr->alter_reality)
+	{
+		int turns = randint0(21) + 15;
+
+		p_ptr->alter_reality = turns;
+#ifdef JP
+		msg_print("回りの景色が変わり始めた...");
+#else
+		msg_print("The view around you begins to change...");
 #endif
 
-
-		if (autosave_l) do_cmd_save_game(TRUE);
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+		p_ptr->redraw |= (PR_STATUS);
 	}
 	else
 	{
+		p_ptr->alter_reality = 0;
 #ifdef JP
-msg_print("世界が少しの間変化したようだ。");
+		msg_print("景色が元に戻った...");
 #else
-		msg_print("The world seems to change for a moment!");
+		msg_print("The view around you got back...");
 #endif
 
+		p_ptr->redraw |= (PR_STATUS);
 	}
+	return;
 }
 
 
@@ -1666,7 +1682,7 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 
 	/* Create a glyph */
 	cave[py][px].info |= CAVE_OBJECT;
-        cave[py][px].mimic = FEAT_GLYPH;
+	cave[py][px].mimic = FEAT_GLYPH;
 
 	/* Notice */
 	note_spot(py, px);
@@ -1693,7 +1709,7 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 
 	/* Create a mirror */
 	cave[py][px].info |= CAVE_OBJECT;
-        cave[py][px].mimic = FEAT_MIRROR;
+	cave[py][px].mimic = FEAT_MIRROR;
 
 	/* Turn on the light */
 	cave[py][px].info |= CAVE_GLOW;
@@ -1727,7 +1743,7 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 
 	/* Create a glyph */
 	cave[py][px].info |= CAVE_OBJECT;
-        cave[py][px].mimic = FEAT_MINOR_GLYPH;
+	cave[py][px].mimic = FEAT_MINOR_GLYPH;
 
 	/* Notice */
 	note_spot(py, px);
@@ -1994,57 +2010,6 @@ msg_format("%sを＄%d の金に変えた。", o_name, price);
 	return TRUE;
 }
 
-
-/*
- * Create stairs at the player location
- */
-void stair_creation(void)
-{
-	/* XXX XXX XXX */
-	if (!cave_valid_bold(py, px))
-	{
-#ifdef JP
-msg_print("床上のアイテムが呪文を跳ね返した。");
-#else
-		msg_print("The object resists the spell.");
-#endif
-
-		return;
-	}
-
-	/* XXX XXX XXX */
-	delete_object(py, px);
-
-	/* Create a staircase */
-	if (p_ptr->inside_arena || (p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) || p_ptr->inside_battle || !dun_level)
-	{
-		/* arena or quest */
-#ifdef JP
-msg_print("効果がありません！");
-#else
-		msg_print("There is no effect!");
-#endif
-
-	}
-	else if (ironman_downward)
-	{
-		/* Town/wilderness or Ironman */
-		cave_set_feat(py, px, FEAT_MORE);
-	}
-	else if (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth))
-	{
-		/* Quest level */
-		cave_set_feat(py, px, FEAT_LESS);
-	}
-	else if (randint0(100) < 50)
-	{
-		cave_set_feat(py, px, FEAT_MORE);
-	}
-	else
-	{
-		cave_set_feat(py, px, FEAT_LESS);
-	}
-}
 
 
 /*
@@ -2473,8 +2438,8 @@ s = "強化できるアイテムがない。";
 msg_format("%s は眩い光を発した！",o_name);
 #else
 	msg_format("%s %s radiate%s a blinding light!",
-	          ((item >= 0) ? "Your" : "The"), o_name,
-	          ((o_ptr->number > 1) ? "" : "s"));
+		  ((item >= 0) ? "Your" : "The"), o_name,
+		  ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
 	if (o_ptr->name1 || o_ptr->art_name)
@@ -2718,7 +2683,7 @@ s = "鑑定するべきアイテムがない。";
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx);
+		auto_destroy_item(item, idx);
 
 	/* Something happened */
 	return (TRUE);
@@ -2895,13 +2860,13 @@ s = "鑑定するべきアイテムがない。";
 	}
 
 	/* Describe it fully */
-	(void)identify_fully_aux(o_ptr);
+	(void)screen_object(o_ptr, TRUE);
 
 	/* Auto-inscription/destroy */
 	idx = is_autopick(o_ptr);
 	auto_inscribe_item(item, idx);
 	if (destroy_identify && !old_known)
-                auto_destroy_item(item, idx);
+		auto_destroy_item(item, idx);
 
 	/* Success */
 	return (TRUE);
@@ -2916,7 +2881,10 @@ s = "鑑定するべきアイテムがない。";
 bool item_tester_hook_recharge(object_type *o_ptr)
 {
 	/* Recharge staffs */
-	if (o_ptr->tval == TV_STAFF) return (TRUE);
+	if (o_ptr->tval == TV_STAFF)
+	{
+		if (o_ptr->sval != SV_STAFF_NOTHING) return (TRUE);
+	}
 
 	/* Recharge wands */
 	if (o_ptr->tval == TV_WAND) return (TRUE);
@@ -5319,7 +5287,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 "恐怖の暗黒オーラ", "防具", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your armor", o_name);
+			   "terrible black aura", "surround your armor", o_name);
 #endif
 
 	}
@@ -5400,7 +5368,7 @@ msg_format("%sが%sを包み込もうとしたが、%sはそれを跳ね返した！",
 "恐怖の暗黒オーラ", "武器", o_name);
 #else
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your weapon", o_name);
+			   "terrible black aura", "surround your weapon", o_name);
 #endif
 
 	}
@@ -5605,7 +5573,7 @@ bool polymorph_monster(int y, int x)
 		{
 			/* Placing the new monster failed */
 			if (place_monster_aux(0, y, x, old_r_idx, (mode | PM_NO_KAGE | PM_IGNORE_TERRAIN)))
-                                m_list[hack_m_idx_ii] = back_m;
+				m_list[hack_m_idx_ii] = back_m;
 		}
 
 		if (targeted) target_who = hack_m_idx_ii;
@@ -5903,8 +5871,8 @@ msg_format("乱暴な魔法のために%sが一本壊れた！", o_name);
 #endif
 
 					/* Reduce rod stack maximum timeout, drain wands. */
-					if (o_ptr->tval == TV_ROD) o_ptr->timeout -= k_ptr->pval;
-					if (o_ptr->tval == TV_WAND) o_ptr->pval = o_ptr->pval * (o_ptr->number - 1) / o_ptr->number;
+					if (o_ptr->tval == TV_ROD) o_ptr->timeout = MIN(o_ptr->timeout, k_ptr->pval * (o_ptr->number - 1));
+					else if (o_ptr->tval == TV_WAND) o_ptr->pval = o_ptr->pval * (o_ptr->number - 1) / o_ptr->number;
 
 				}
 				else

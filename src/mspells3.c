@@ -453,15 +453,15 @@ cptr            p = "魔法";
 	(void)strnfmt(out_val, 78, "(%c-%c, *=List, ESC=exit) Use which %s? ",
 #endif
 
-	        I2A(0), I2A(num - 1), p);
+		I2A(0), I2A(num - 1), p);
 
 	if (use_menu) screen_save();
 
 	/* Get a spell from the user */
 
-        choice= (always_show_list || use_menu) ? ESCAPE:1 ;
-        while (!flag)
-        {
+	choice= (always_show_list || use_menu) ? ESCAPE:1 ;
+	while (!flag)
+	{
 		if(choice==ESCAPE) choice = ' '; 
 		else if( !get_com(out_val, &choice, TRUE) )break; 
 
@@ -629,8 +629,8 @@ put_str("MP 失率 効果", y, x + 33);
 
 					/* Dump the spell --(-- */
 					strcat(psi_desc, format(" %-26s %3d %3d%%%s",
-					        spell.name, shouhimana,
-					        chance, comment));
+						spell.name, shouhimana,
+						chance, comment));
 					prt(psi_desc, y + i + 1, x);
 				}
 
@@ -744,6 +744,7 @@ static bool cast_learned_spell(int spell, bool success)
 	if (pet)
 	{
 		p_mode = PM_FORCE_PET;
+		g_mode = 0;
 	}
 	else
 	{
@@ -1500,7 +1501,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 		}
-		else if (one_in_(2))
+		else if (!dun_level || one_in_(2))
 		{
 #ifdef JP
 msg_format("%sは床を突き破って沈んでいった。", m_name);

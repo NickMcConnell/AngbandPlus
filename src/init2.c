@@ -251,15 +251,15 @@ cptr err_str[PARSE_ERROR_MAX] =
 {
 	NULL,
 #ifdef JP
-        "文法エラー",
-        "古いファイル",
-        "記録ヘッダがない",
-        "不連続レコード",
-        "おかしなフラグ存在",
-        "未定義命令",
-        "メモリ不足",
-        "座標範囲外",
-        "引数不足",
+	"文法エラー",
+	"古いファイル",
+	"記録ヘッダがない",
+	"不連続レコード",
+	"おかしなフラグ存在",
+	"未定義命令",
+	"メモリ不足",
+	"座標範囲外",
+	"引数不足",
 #else
 	"parse error",
 	"obsolete file",
@@ -452,7 +452,7 @@ static errr init_info(cptr filename, header *head,
 	{
 #ifdef CHECK_MODIFICATION_TIME
 
-                err = check_modification_date(fd, format("%s_j.txt", filename));
+		err = check_modification_date(fd, format("%s.txt", filename));
 
 #endif /* CHECK_MODIFICATION_TIME */
 
@@ -485,14 +485,14 @@ static errr init_info(cptr filename, header *head,
 
 		/* Build the filename */
 
-		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s_j.txt", filename));
+		path_build(buf, sizeof(buf), ANGBAND_DIR_EDIT, format("%s.txt", filename));
 
 		/* Open the file */
 		fp = my_fopen(buf, "r");
 
 		/* Parse it */
 #ifdef JP
-		if (!fp) quit(format("'%s_j.txt'ファイルをオープンできません。", filename));
+		if (!fp) quit(format("'%s.txt'ファイルをオープンできません。", filename));
 #else
 		if (!fp) quit(format("Cannot open '%s.txt' file.", filename));
 #endif
@@ -514,13 +514,13 @@ static errr init_info(cptr filename, header *head,
 			oops = ((err > 0) ? err_str[err] : "未知の");
 
 			/* Oops */
-			msg_format("'%s_j.txt'ファイルの %d 行目にエラー。", filename, error_line);
+			msg_format("'%s.txt'ファイルの %d 行目にエラー。", filename, error_line);
 			msg_format("レコード %d は '%s' エラーがあります。", error_idx, oops);
 			msg_format("構文 '%s'。", buf);
 			msg_print(NULL);
 
 			/* Quit */
-			quit(format("'%s_j.txt'ファイルにエラー", filename));
+			quit(format("'%s.txt'ファイルにエラー", filename));
 #else
 			/* Error string */
 			oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
@@ -652,7 +652,7 @@ static errr init_f_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("f_info", &f_head,
-	                 (void*)&f_info, (void*)&f_name, (void*)&f_text);
+			 (void*)&f_info, (void*)&f_name, NULL);
 }
 
 
@@ -672,7 +672,7 @@ static errr init_k_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("k_info", &k_head,
-	                 (void*)&k_info, (void*)&k_name, (void*)&k_text);
+			 (void*)&k_info, (void*)&k_name, (void*)&k_text);
 }
 
 
@@ -693,7 +693,7 @@ static errr init_a_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("a_info", &a_head,
-	                 (void*)&a_info, (void*)&a_name, (void*)&a_text);
+			 (void*)&a_info, (void*)&a_name, (void*)&a_text);
 }
 
 
@@ -714,7 +714,7 @@ static errr init_e_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("e_info", &e_head,
-	                 (void*)&e_info, (void*)&e_name, (void*)&e_text);
+			 (void*)&e_info, (void*)&e_name, (void*)&e_text);
 }
 
 
@@ -735,7 +735,7 @@ static errr init_r_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("r_info", &r_head,
-	                 (void*)&r_info, (void*)&r_name, (void*)&r_text);
+			 (void*)&r_info, (void*)&r_name, (void*)&r_text);
 }
 
 
@@ -756,7 +756,7 @@ static errr init_d_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("d_info", &d_head,
-	                 (void*)&d_info, (void*)&d_name, (void*)&d_text);
+			 (void*)&d_info, (void*)&d_name, (void*)&d_text);
 }
 
 
@@ -779,7 +779,7 @@ errr init_v_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("v_info", &v_head,
-	                 (void*)&v_info, (void*)&v_name, (void*)&v_text);
+			 (void*)&v_info, (void*)&v_name, (void*)&v_text);
 }
 
 
@@ -799,7 +799,7 @@ static errr init_s_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("s_info", &s_head,
-	                 (void*)&s_info, (void*)&s_name, (void*)&s_text);
+			 (void*)&s_info, NULL, NULL);
 }
 
 
@@ -819,7 +819,7 @@ static errr init_m_info(void)
 #endif /* ALLOW_TEMPLATES */
 
 	return init_info("m_info", &m_head,
-	                 (void*)&m_info, (void*)&m_name, (void*)&m_text);
+			 (void*)&m_info, NULL, NULL);
 }
 
 
@@ -879,16 +879,14 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 
-		{ TV_LITE, SV_LITE_TORCH },
-		{ TV_LITE, SV_LITE_TORCH },
+		{ TV_POTION, SV_POTION_WATER },
+		{ TV_POTION, SV_POTION_WATER },
 		{ TV_LITE, SV_LITE_LANTERN },
 		{ TV_LITE, SV_LITE_LANTERN },
 
 		{ TV_FLASK, 0 },
 		{ TV_FLASK, 0 },
-
 		{ TV_CAPTURE, 0 },
-
 		{ TV_FIGURINE, 0 },
 
 		{ TV_SHOT, SV_AMMO_NORMAL },
@@ -1115,7 +1113,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
@@ -1149,9 +1147,9 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER }
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
+		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 
 	},
 
@@ -1385,7 +1383,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 static errr init_misc(void)
 {
 	/* Initialize the values */
-	process_dungeon_file("misc_j.txt", 0, 0, 0, 0);
+	process_dungeon_file("misc.txt", 0, 0, 0, 0);
 
 	return 0;
 }
@@ -1562,8 +1560,8 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
 
-        /* Allocate and Wipe the max dungeon level */
-        C_MAKE(max_dlv, max_d_idx, s16b);
+	/* Allocate and Wipe the max dungeon level */
+	C_MAKE(max_dlv, max_d_idx, s16b);
 
 	/* Allocate and wipe each line of the cave */
 	for (i = 0; i < MAX_HGT; i++)
@@ -1687,12 +1685,12 @@ static errr init_other(void)
 	}
 
 	/*
-         *  Set the "default" window flags
+	 *  Set the "default" window flags
 	 *  Window 1 : Display messages
 	 *  Window 2 : Display inven/equip
 	 */
-        window_flag[1] = 1L << 6;
-        window_flag[2] = 1L << 0;
+	window_flag[1] = 1L << 6;
+	window_flag[2] = 1L << 0;
 
 
 	/*** Pre-allocate space for the "format()" buffer ***/
@@ -2306,15 +2304,15 @@ note("[ユーザー設定ファイルを初期化しています...]");
  */
 cptr get_check_sum(void)
 {
-        return format("%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
-                      f_head.v_extra, 
-                      k_head.v_extra, 
-                      a_head.v_extra, 
-                      e_head.v_extra, 
-                      r_head.v_extra, 
-                      d_head.v_extra, 
-                      m_head.v_extra, 
-                      s_head.v_extra, 
-                      v_head.v_extra);
+	return format("%02x%02x%02x%02x%02x%02x%02x%02x%02x", 
+		      f_head.v_extra, 
+		      k_head.v_extra, 
+		      a_head.v_extra, 
+		      e_head.v_extra, 
+		      r_head.v_extra, 
+		      d_head.v_extra, 
+		      m_head.v_extra, 
+		      s_head.v_extra, 
+		      v_head.v_extra);
 }
 

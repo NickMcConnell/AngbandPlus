@@ -458,7 +458,7 @@ static bool choose_kamae(void)
 #ifdef JP
 				msg_print("もともと構えていない。");
 #else
-			        msg_print("You are not assuming a posture.");
+				msg_print("You are not assuming a posture.");
 #endif
 			screen_load();
 			return TRUE;
@@ -961,11 +961,10 @@ msg_print("敵を調査した...");
 				if (racial_aux(25, 0, A_INT, 10))
 				{
 					int gain_sp;
-					if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, 
 #ifdef JP
-"ＨＰからＭＰへの無謀な変換", -1)))
+					if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "ＨＰからＭＰへの無謀な変換", -1)))
 #else
-"thoughtless convertion from HP to SP", -1)))
+					if ((gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, "thoughtless convertion from HP to SP", -1)))
 #endif
 					{
 						p_ptr->csp += gain_sp / 5;
@@ -1342,13 +1341,6 @@ msg_print("武器を持たないといけません。");
 		{
 			if (command == -3)
 			{
-				if (racial_aux(5, 5, A_DEX, 10))
-				{
-					(void)set_food(PY_FOOD_MAX - 1);
-				}
-			}
-			else if (command == -4)
-			{
 				if (racial_aux(10, 10, A_DEX, 20))
 				{
 					if (!word_of_recall()) return FALSE;
@@ -1399,7 +1391,7 @@ msg_print("今はペットを操ることに集中していないと。");
 				  return FALSE;
 			  }
 			  if (racial_aux(30, 0, A_INT, 20)){
-			        if( is_mirror_grid(&cave[py][px]))
+				if( is_mirror_grid(&cave[py][px]))
 				{
 #ifdef JP
 msg_print("少し頭がハッキリした。");
@@ -1651,30 +1643,12 @@ msg_print("あなたは「パターン」を心に描いてその上を歩いた...");
 			{
 				if (racial_aux(30, 50, A_INT, 50))
 				{
-					/* No effect in arena or quest */
-					if (p_ptr->inside_arena || p_ptr->inside_quest)
-					{
 #ifdef JP
-msg_print("効果がなかった。");
+					msg_print("あなたは歩き周り始めた。");
 #else
-						msg_print("There is no effect.");
+					msg_print("You start walking around. ");
 #endif
-
-					}
-					else
-					{
-#ifdef JP
-msg_print("あなたは歩き周り始めた。周囲が変化している。");
-#else
-						msg_print("You start walking around. Your surroundings change.");
-#endif
-
-
-						if (autosave_l) do_cmd_save_game(TRUE);
-
-						/* Leaving */
-						p_ptr->leaving = TRUE;
-					}
+					alter_reality();
 				}
 			}
 			break;
@@ -2739,16 +2713,6 @@ strcpy(power_desc[num].name, "荒馬ならし");
 	case CLASS_BERSERKER:
 	{
 #ifdef JP
-strcpy(power_desc[num].name, "空腹充足");
-#else
-		strcpy(power_desc[num].name, "Satisfy Hunger");
-#endif
-
-		power_desc[num].level = 5;
-		power_desc[num].cost = 5;
-		power_desc[num].fail = 100 - racial_chance(5, A_DEX, 10);
-		power_desc[num++].number = -3;
-#ifdef JP
 strcpy(power_desc[num].name, "帰還");
 #else
 		strcpy(power_desc[num].name, "Recall");
@@ -2757,7 +2721,7 @@ strcpy(power_desc[num].name, "帰還");
 		power_desc[num].level = 10;
 		power_desc[num].cost = 10;
 		power_desc[num].fail = 100 - racial_chance(10, A_DEX, 20);
-		power_desc[num++].number = -4;
+		power_desc[num++].number = -3;
 		break;
 	}
 	case CLASS_MIRROR_MASTER:
@@ -3722,9 +3686,9 @@ if (!repeat_pull(&i) || i<0 || i>=num) {
 	if (use_menu) screen_save();
 	 /* Get a spell from the user */
 
-        choice = (always_show_list || use_menu) ? ESCAPE:1;
-        while (!flag)
-        {
+	choice = (always_show_list || use_menu) ? ESCAPE:1;
+	while (!flag)
+	{
 		if( choice==ESCAPE ) choice = ' '; 
 		else if( !get_com(out_val, &choice, FALSE) )break; 
 
