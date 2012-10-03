@@ -1452,7 +1452,10 @@ s32b object_value(object_type *o_ptr)
 bool can_player_destroy_object(object_type *o_ptr)
 {
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr) || o_ptr->art_name)
+	if (!artifact_p(o_ptr) && !o_ptr->art_name) return TRUE;
+
+	/* If object is unidentified, makes fake inscription */
+	if (!object_known_p(o_ptr))
 	{
 		byte feel = FEEL_SPECIAL;
 
@@ -1475,7 +1478,8 @@ bool can_player_destroy_object(object_type *o_ptr)
 		return FALSE;
 	}
 
-	return TRUE;
+	/* Identified artifact -- Nothing to do */
+	return FALSE;
 }
 
 
@@ -1678,6 +1682,7 @@ static int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LITE:
+		case TV_WHISTLE:
 		{
 			/* Require full knowledge of both items */
 			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return 0;

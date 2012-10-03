@@ -303,7 +303,7 @@ s = "おっと。";
 
 		if (!get_item(&slot, q, s, (USE_EQUIP)))
 			return;
-		if (slot == INVEN_RARM)
+		if ((slot == INVEN_RARM) && !cursed_p(&inventory[INVEN_RARM]))
 		{
 			object_type *or_ptr = &inventory[INVEN_RARM];
 			object_type *ol_ptr = &inventory[INVEN_LARM];
@@ -581,7 +581,7 @@ msg_print("クエストを達成した！");
 		}
 		else
 		{
-			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
+			p_ptr->old_race2 |= 1L << (p_ptr->prace-32);
 		}
 		p_ptr->prace = RACE_VAMPIRE;
 #ifdef JP
@@ -1824,7 +1824,7 @@ static cptr ident_info[] =
 	" :暗闇",
 	"!:薬, オイル",
 	"\":アミュレット, 頸飾り",
-	"#:壁(隠しドア)又は植物",
+	"#:壁(隠しドア)/植物/気体",
 	"$:財宝(金か宝石)",
 	"%:鉱脈(溶岩か石英)",
 	"&:箱",
@@ -1848,7 +1848,7 @@ static cptr ident_info[] =
 	"8:我が家の入口",
 	"9:書店の入口",
 	"::岩石",
-	";:回避の絵文字/爆発のルーン",
+	";:回避の彫像/爆発のルーン",
 	"<:上り階段",
 	"=:指輪",
 	">:下り階段",
@@ -1920,7 +1920,7 @@ static cptr ident_info[] =
 	" :A dark grid",
 	"!:A potion (or oil)",
 	"\":An amulet (or necklace)",
-	"#:A wall (or secret door)",
+	"#:A wall (or secret door) / a plant / a gas",
 	"$:Treasure (gold or gems)",
 	"%:A vein (magma or quartz)",
 	"&:A chest",
@@ -1944,7 +1944,7 @@ static cptr ident_info[] =
 	"8:Entrance to your home",
 	"9:Entrance to the bookstore",
 	"::Rubble",
-	";:A glyph of warding / explosive rune",
+	";:A glyph of warding / an explosive rune",
 	"<:An up staircase",
 	"=:A ring",
 	">:A down staircase",

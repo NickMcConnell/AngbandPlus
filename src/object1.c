@@ -2384,6 +2384,8 @@ bool screen_object(object_type *o_ptr, bool real)
 	char o_name[MAX_NLEN];
 	int wid, hgt;
 
+	int trivial_info = 0;
+
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
 
@@ -2396,6 +2398,12 @@ bool screen_object(object_type *o_ptr, bool real)
 			    77 - 15, temp, sizeof(temp));
 		for (j = 0; temp[j]; j += 1 + strlen(&temp[j]))
 		{ info[i] = &temp[j]; i++;}
+	}
+
+	if (TV_SHOT <= o_ptr->tval && o_ptr->tval <= TV_CARD)
+	{
+		/* Descriptions of a basic equipment is just a flavor */
+		trivial_info = i;
 	}
 
 	/* Mega-Hack -- describe activation */
@@ -2653,12 +2661,15 @@ info[i++] = "それは乗馬中は非常に使いやすい。";
 			info[i++] = "It is made for use while riding.";
 #endif
 		else
+		{
 #ifdef JP
-info[i++] = "それは乗馬中でも使いやすい。";
+			info[i++] = "それは乗馬中でも使いやすい。";
 #else
 			info[i++] = "It is suitable for use while riding.";
 #endif
-
+			/* This information is not important enough */
+			trivial_info++;
+		}
 	}
 	if (have_flag(flgs, TR_STR))
 	{
@@ -3610,6 +3621,11 @@ info[i++] = "それは呪われている。";
 			info[i++] = "It is cursed.";
 #endif
 
+			/*
+			 * It's a trivial infomation since there is
+			 * fake inscription {cursed}
+			 */
+			trivial_info++;
 		}
 	}
 
@@ -3866,8 +3882,8 @@ info[i++] = "それはあなたの魔力を吸い取る。";
 		}
 	}
 
-	/* No special effects */
-	if (!i) return (FALSE);
+	/* No relevant informations */
+	if (i <= trivial_info) return (FALSE);
 
 	/* Save the screen */
 	screen_save();
@@ -4234,13 +4250,13 @@ cptr describe_use(int i)
 	switch (i)
 	{
 #ifdef JP
-case INVEN_RARM: p = p_ptr->ryoute ? " 両手に装備している" : (left_hander ? " 左手に装備している" : " 右手に装備している"); break;
+case INVEN_RARM: p = p_ptr->ryoute ? "両手に装備している" : (left_hander ? "左手に装備している" : "右手に装備している"); break;
 #else
 		case INVEN_RARM: p = "attacking monsters with"; break;
 #endif
 
 #ifdef JP
-case INVEN_LARM:   p = (left_hander ? " 右手に装備している" : " 左手に装備している"); break;
+case INVEN_LARM:   p = (left_hander ? "右手に装備している" : "左手に装備している"); break;
 #else
 		case INVEN_LARM:   p = "wearing on your arm"; break;
 #endif
@@ -5084,6 +5100,12 @@ static bool verify(cptr prompt, int item)
 	/* Query */
 	return (get_check(out_val));
 }
+
+
+#ifdef JP
+#undef strchr
+#define strchr strchr_j
+#endif
 
 
 /*

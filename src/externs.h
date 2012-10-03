@@ -102,6 +102,9 @@ extern kamae kata_shurui[MAX_KATA];
 extern cptr shougou_moji[5];
 extern byte conv_terrain2feat[MAX_WILDERNESS];
 extern cptr silly_attacks[MAX_SILLY_ATTACK];
+#ifdef JP
+extern cptr silly_attacks2[MAX_SILLY_ATTACK];
+#endif
 extern monster_power monster_powers[MAX_MONSPELLS];
 
 /* variable.c */
@@ -474,7 +477,7 @@ extern bool preserve_mode;
 extern bool autoroller;
 extern bool autochara;
 extern bool can_save;
-extern bool world_monster;
+extern s16b world_monster;
 extern bool world_player;
 extern int cap_mon;
 extern int cap_mspeed;
@@ -490,7 +493,7 @@ extern int pet_t_m_idx;
 extern int riding_t_m_idx;
 extern s16b kubi_r_idx[MAX_KUBI];
 extern s16b today_mon;
-extern monster_type party_mon[21];
+extern monster_type party_mon[MAX_PARTY_MON];
 extern bool write_level;
 extern u32b playtime;
 extern u32b start_time;
@@ -587,7 +590,7 @@ extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern s16b critical_shot(int weight, int plus, int dam);
 extern s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode);
-extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode);
+extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bool thrown);
 extern void search(void);
 extern void py_pickup_aux(int o_idx);
 extern void carry(int pickup);
@@ -689,6 +692,7 @@ extern void do_cmd_magic_eater(bool only_browse);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
+extern void extract_option_vars(void);
 extern void play_game(bool new_game);
 extern bool psychometry(void);
 extern void leave_level(int level);
@@ -774,19 +778,8 @@ extern void screen_roff(int r_idx, int mode);
 extern void display_roff(int r_idx);
 extern void output_monster_spoiler(int r_idx, void (*roff_func)(byte attr, cptr str));
 extern void create_name(int type, char *name);
-/* monster1.c (was in monster3.c ??) */
-extern bool monster_quest(int r_idx);
-extern bool monster_dungeon(int r_idx);
-extern bool monster_ocean(int r_idx);
-extern bool monster_shore(int r_idx);
-extern bool monster_town(int r_idx);
-extern bool monster_wood(int r_idx);
-extern bool monster_volcano(int r_idx);
-extern bool monster_mountain(int r_idx);
-extern bool monster_grass(int r_idx);
-extern bool monster_deep_water(int r_idx);
-extern bool monster_shallow_water(int r_idx);
-extern bool monster_lava(int r_idx);
+extern bool mon_hook_dungeon(int r_idx);
+
 extern monster_hook_type get_monster_hook(void);
 extern monster_hook_type get_monster_hook2(int y, int x);
 extern void set_friendly(monster_type *m_ptr);
@@ -1078,6 +1071,8 @@ extern bool pulish_shield(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
 extern void display_spell_list(void);
 extern s16b experience_of_spell(int spell, int realm);
+extern int mod_spell_chance_1(int chance);
+extern int mod_spell_chance_2(int chance);
 extern s16b spell_chance(int spell,int realm);
 extern bool spell_okay(int spell, bool learned, bool study_pray, int realm);
 extern void print_spells(int target_spell, byte *spells, int num, int y, int x, int realm);
@@ -1494,7 +1489,10 @@ extern void jverb2( const char *in , char *out);
 extern void jverb3( const char *in , char *out);
 extern void jverb( const char *in , char *out , int flag);
 extern char* strstr_j(cptr str1, cptr str2);
-extern void codeconv(char *str);
+extern char *strchr_j(const char *ptr, char ch);
+extern void sjis2euc(char *str);
+extern void euc2sjis(char *str);
+extern byte codeconv(char *str);
 extern bool iskanji2(cptr s, int x);
 #endif
 

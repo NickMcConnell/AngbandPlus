@@ -528,7 +528,7 @@ static bool cast_hissatsu_spell(int spell)
 			verify_panel();
 
 			/* Update stuff */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 			/* Update the monsters */
 			p_ptr->update |= (PU_DISTANCE);
@@ -637,6 +637,9 @@ static bool cast_hissatsu_spell(int spell)
 				update_mon(m_idx, TRUE);
 				lite_spot(oy, ox);
 				lite_spot(ty, tx);
+
+				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+					p_ptr->update |= (PU_MON_LITE);
 			}
 		}
 		break;
@@ -858,7 +861,7 @@ static bool cast_hissatsu_spell(int spell)
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
+			else if (have_flag(flgs, TR_VORPAL))
 			{
 				/* vorpal flag only */
 				basedam *= 11;
@@ -974,7 +977,7 @@ static bool cast_hissatsu_spell(int spell)
 			verify_panel();
 
 			/* Update stuff */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 			/* Update the monsters */
 			p_ptr->update |= (PU_DISTANCE);
@@ -1147,7 +1150,7 @@ msg_print("その方向にはモンスターはいません。");
 				basedam *= 5;
 				basedam /= 3;
 			}
-			else if (object_known_p(o_ptr) && (have_flag(flgs, TR_VORPAL)))
+			else if (have_flag(flgs, TR_VORPAL))
 			{
 				/* vorpal flag only */
 				basedam *= 11;

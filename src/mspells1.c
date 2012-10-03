@@ -517,10 +517,21 @@ static void breath(int y, int x, int m_idx, int typ, int dam_hp, int rad, bool b
 	/* Handle breath attacks */
 	if (breath) rad = 0 - rad;
 
-	if (typ == GF_ROCKET) flg |= PROJECT_STOP;
-	if (typ == GF_MIND_BLAST || typ == GF_BRAIN_SMASH ||
-	    typ == GF_CAUSE_1 || typ == GF_CAUSE_2 || typ == GF_CAUSE_3 ||
-	    typ == GF_CAUSE_4 || typ == GF_HAND_DOOM) flg |= PROJECT_HIDE;
+	switch (typ)
+	{
+	case GF_ROCKET:
+		flg |= PROJECT_STOP;
+		break;
+	case GF_MIND_BLAST:
+	case GF_BRAIN_SMASH:
+	case GF_CAUSE_1:
+	case GF_CAUSE_2:
+	case GF_CAUSE_3:
+	case GF_CAUSE_4:
+	case GF_HAND_DOOM:
+		flg |= (PROJECT_HIDE | PROJECT_AIMED);
+		break;
+	}
 
 	/* Target the player with a ball attack */
 	(void)project(m_idx, rad, y, x, dam_hp, typ, flg, (learnable ? monspell : -1));
@@ -1648,9 +1659,14 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			}
 			if (p_ptr->riding)
 			{
-				m_list[p_ptr->riding].invulner = 0;
-				m_list[p_ptr->riding].fast = 0;
-				m_list[p_ptr->riding].slow = 0;
+				monster_type *riding_ptr = &m_list[p_ptr->riding];
+				if (riding_ptr->invulner)
+				{
+					riding_ptr->invulner = 0;
+					riding_ptr->energy_need += ENERGY_NEED();
+				}
+				riding_ptr->fast = 0;
+				riding_ptr->slow = 0;
 				p_ptr->update |= PU_BONUS;
 				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
 				p_ptr->redraw |= (PR_UHEALTH);
@@ -1664,7 +1680,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			break;
 		}
 
-		/* RF4_XXX4X4 */
+		/* RF4_ROCKET */
 		case 96+3:
 		{
 			disturb(1, 0);
@@ -3382,7 +3398,7 @@ msg_format("%^sが瞬時に消えた。", m_name);
 #endif
 
 			teleport_away(m_idx, 10, FALSE);
-			p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+			p_ptr->update |= (PU_MONSTERS);
 			break;
 		}
 
@@ -3543,7 +3559,7 @@ msg_format("%^sがテレポートした。", m_name);
 						msg_format("%^s suddenly go out of your sight!", m_name);
 #endif
 						teleport_away(m_idx, 10, FALSE);
-						p_ptr->update |= (PU_MONSTERS | PU_MON_LITE);
+						p_ptr->update |= (PU_MONSTERS);
 						break;
 					}
 					else

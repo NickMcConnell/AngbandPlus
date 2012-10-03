@@ -1409,7 +1409,11 @@ static void recharged_notice(object_type *o_ptr)
 	if (!o_ptr->inscription) return;
 
 	/* Find a '!' */
+#ifdef JP
+	s = strchr_j(quark_str(o_ptr->inscription), '!');
+#else
 	s = strchr(quark_str(o_ptr->inscription), '!');
+#endif
 
 	/* Process notification request. */
 	while (s)
@@ -1437,7 +1441,11 @@ static void recharged_notice(object_type *o_ptr)
 		}
 
 		/* Keep looking for '!'s */
+#ifdef JP
+		s = strchr_j(s + 1, '!');
+#else
 		s = strchr(s + 1, '!');
+#endif
 	}
 }
 
@@ -3415,7 +3423,7 @@ msg_print("武器を落してしまった！");
 
 	/*** Process Inventory ***/
 
-	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->wild_mode)
+	if ((p_ptr->cursed & TRC_P_FLAG_MASK) && !p_ptr->inside_battle && !p_ptr->wild_mode)
 	{
 		/*
 		 * Hack: Uncursed teleporting items (e.g. Trump Weapons)
@@ -3706,15 +3714,18 @@ take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "審判の宝石", -1);
 				recharged_notice(o_ptr);
 				j++;
 			}
+
+			/* One of the stack of rod is charged */
+			else if (o_ptr->timeout % k_ptr->pval)
+			{
+				j++;
+			}
 		}
 	}
 
 	/* Notice changes */
 	if (j)
 	{
-		/* Combine pack */
-		p_ptr->notice |= (PN_COMBINE);
-
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
 		wild_regen = 20;
@@ -5187,6 +5198,7 @@ msg_print("中断しました。");
 	if (p_ptr->riding && !p_ptr->confused && !p_ptr->blind)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		if (m_ptr->csleep)
 		{
@@ -5194,6 +5206,8 @@ msg_print("中断しました。");
 
 			/* Recover fully */
 			m_ptr->csleep = 0;
+
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 			/* Acquire the monster name */
 			monster_desc(m_name, m_ptr, 0);
@@ -5211,7 +5225,7 @@ msg_format("%^sを起こした。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
+			if (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -5251,7 +5265,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
+			if (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -5291,7 +5305,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (randint0(r_info[m_ptr->r_idx].level) < p_ptr->skill_exp[GINOU_RIDING])
+			if (randint0(r_ptr->level) < p_ptr->skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;
@@ -6094,7 +6108,7 @@ msg_print("試合開始！");
 	/* Not save-and-quit and not dead? */
 	if (p_ptr->playing && !p_ptr->is_dead)
 	{
-		for(num = 0; num < 21; num++)
+		for (num = 0; num < MAX_PARTY_MON; num++)
 		{
 			party_mon[num].r_idx = 0;
 		}
@@ -6112,10 +6126,10 @@ msg_print("試合開始！");
 			}
 		}
 
-		for(i = m_max - 1, num = 1; (i >= 1 && num < 21); i--)
+		for(i = m_max - 1, num = 1; (i >= 1 && num < MAX_PARTY_MON); i--)
 		{
 			monster_type *m_ptr = &m_list[i];
-			
+
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
 			if (i == p_ptr->riding) continue;
@@ -6161,12 +6175,12 @@ msg_print("試合開始！");
 			{
 				monster_type *m_ptr = &m_list[i];
 				char m_name[80];
-				
+
 				if (!m_ptr->r_idx) continue;
 				if (!is_pet(m_ptr)) continue;
 				if (!m_ptr->nickname) continue;
 				if (p_ptr->riding == i) continue;
-				
+
 				monster_desc(m_name, m_ptr, 0x88);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 4, m_name);
 			}
@@ -6260,6 +6274,39 @@ static void load_all_pref_files(void)
 
 
 /*
+ * Extract option variables from bit sets
+ */
+void extract_option_vars(void)
+{
+	int i;
+
+	for (i = 0; option_info[i].o_desc; i++)
+	{
+		int os = option_info[i].o_set;
+		int ob = option_info[i].o_bit;
+
+		/* Set the "default" options */
+		if (option_info[i].o_var)
+		{
+			/* Set */
+			if (option_flag[os] & (1L << ob))
+			{
+				/* Set */
+				(*option_info[i].o_var) = TRUE;
+			}
+
+			/* Clear */
+			else
+			{
+				/* Clear */
+				(*option_info[i].o_var) = FALSE;
+			}
+		}
+	}
+}
+
+
+/*
  * Actually play a game
  *
  * If the "new_game" parameter is true, then, after loading the
@@ -6289,7 +6336,7 @@ void play_game(bool new_game)
 
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
-	
+
 	for (i = 1; i < 8; i++)
 	{
 		/* Does the term exist? */
@@ -6317,29 +6364,7 @@ quit("セーブファイルが壊れています");
 	}
 
 	/* Extract the options */
-	for (i = 0; option_info[i].o_desc; i++)
-	{
-		int os = option_info[i].o_set;
-		int ob = option_info[i].o_bit;
-
-		/* Set the "default" options */
-		if (option_info[i].o_var)
-		{
-			/* Set */
-			if (option_flag[os] & (1L << ob))
-			{
-				/* Set */
-				(*option_info[i].o_var) = TRUE;
-			}
-
-			/* Clear */
-			else
-			{
-				/* Clear */
-				(*option_info[i].o_var) = FALSE;
-			}
-		}
-	}
+	extract_option_vars();
 
 	/* Report waited score */
 	if (p_ptr->wait_report_score)
@@ -6483,12 +6508,6 @@ quit("セーブファイルが壊れています");
 
 		counts_write(2,0);
 		p_ptr->count = 0;
-
-#ifdef JP
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "辺境の地に降り立った。");
-#else
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "You are standing in the Outpost.");
-#endif
 
 		load = FALSE;
 		get_mon_num_prep(NULL, NULL);
@@ -6668,6 +6687,19 @@ prt("お待ち下さい...", 0, 0);
 	character_icky = FALSE;
 
 
+	if (new_game)
+	{
+		char buf[80];
+
+#ifdef JP
+		sprintf(buf, "%sに降り立った。", map_name());
+#else
+		sprintf(buf, "You are standing in the %s.", map_name());
+#endif
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, buf);
+	}
+
+
 	/* Start game */
 	p_ptr->playing = TRUE;
 
@@ -6826,19 +6858,6 @@ msg_print("ウィザードモードに念を送り、死を欺いた。");
 					p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
 
-					/* Hack -- Healing */
-					(void)set_blind(0);
-					(void)set_confused(0);
-					(void)set_poisoned(0);
-					(void)set_afraid(0);
-					(void)set_paralyzed(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-
-					/* Hack -- Prevent starvation */
-					(void)set_food(PY_FOOD_MAX - 1);
-
 					/* Hack -- cancel recall */
 					if (p_ptr->word_recall)
 					{
@@ -6858,14 +6877,26 @@ msg_print("張りつめた大気が流れ去った...");
 
 					/* Note cause of death XXX XXX XXX */
 #ifdef JP
-(void)strcpy(p_ptr->died_from, "死の欺き");
+					(void)strcpy(p_ptr->died_from, "死の欺き");
 #else
 					(void)strcpy(p_ptr->died_from, "Cheating death");
 #endif
 
-
 					/* Do not die */
 					p_ptr->is_dead = FALSE;
+
+					/* Hack -- Healing */
+					(void)set_blind(0);
+					(void)set_confused(0);
+					(void)set_poisoned(0);
+					(void)set_afraid(0);
+					(void)set_paralyzed(0);
+					(void)set_image(0);
+					(void)set_stun(0);
+					(void)set_cut(0);
+
+					/* Hack -- Prevent starvation */
+					(void)set_food(PY_FOOD_MAX - 1);
 
 					dun_level = 0;
 					p_ptr->inside_arena = FALSE;

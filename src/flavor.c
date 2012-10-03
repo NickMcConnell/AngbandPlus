@@ -1601,6 +1601,11 @@ static void get_inscription(char *buff, object_type *o_ptr)
 }
 
 
+#ifdef JP
+#undef strchr
+#define strchr strchr_j
+#endif
+
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
@@ -2021,13 +2026,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		case TV_PARCHEMENT:
+		case TV_PARCHMENT:
 		{
 			modstr = basenm;
 #ifdef JP
 			basenm = "Õ”»ÈªÊ - #";
 #else
-			basenm = "& Parchement~ - #";
+			basenm = "& Parchment~ - #";
 #endif
 			break;
 		}

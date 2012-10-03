@@ -134,6 +134,9 @@ bool teleport_away(int m_idx, int dis, bool dec_valour)
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
 
+	if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
+
 	return (TRUE);
 }
 
@@ -241,7 +244,8 @@ void teleport_to_player(int m_idx, int power)
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
 
-	p_ptr->update |= (PU_MON_LITE);
+	if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
 }
 
 
@@ -888,6 +892,9 @@ bool apply_disenchant(int mode)
 	/* No item, nothing happens */
 	if (!o_ptr->k_idx) return (FALSE);
 
+	/* Disenchant equipments only -- No disenchant on monster ball */
+	if (o_ptr->tval < TV_BOW || TV_CARD < o_ptr->tval)
+		return FALSE;
 
 	/* Nothing to disenchant */
 	if ((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0) && (o_ptr->pval <= 1))
@@ -3955,6 +3962,39 @@ s16b experience_of_spell(int spell, int use_realm)
 
 
 /*
+ * Modify spell fail rate
+ * Using p_ptr->to_m_chance, p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ */
+int mod_spell_chance_1(int chance)
+{
+	chance += p_ptr->to_m_chance;
+
+	if (p_ptr->heavy_spell) chance += 20;
+
+	if (p_ptr->dec_mana && p_ptr->easy_spell) chance -= 4;
+	else if (p_ptr->easy_spell) chance -= 3;
+	else if (p_ptr->dec_mana) chance -= 2;
+
+	return chance;
+}
+
+
+/*
+ * Modify spell fail rate (as "suffix" process)
+ * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
+ * Note: variable "chance" cannot be negative.
+ */
+int mod_spell_chance_2(int chance)
+{
+	if (p_ptr->dec_mana) chance--;
+
+	if (p_ptr->heavy_spell) chance += 5;
+
+	return MAX(chance, 0);
+}
+
+
+/*
  * Returns spell chance of failure for spell -RAK-
  */
 s16b spell_chance(int spell, int use_realm)
@@ -4007,7 +4047,6 @@ s16b spell_chance(int spell, int use_realm)
 		chance += 5 * (shouhimana - p_ptr->csp);
 	}
 
-	chance += p_ptr->to_m_chance;
 	if ((use_realm != p_ptr->realm1) && ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))) chance += 5;
 
 	/* Extract the minimum failure rate */
@@ -4026,10 +4065,7 @@ s16b spell_chance(int spell, int use_realm)
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->icky_wield[0]) chance += 25;
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->icky_wield[1]) chance += 25;
 
-	if (p_ptr->heavy_spell) chance += 20;
-	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-	else if (p_ptr->easy_spell) chance-=3;
-	else if (p_ptr->dec_mana) chance-=2;
+	chance = mod_spell_chance_1(chance);
 
 	if ((use_realm == REALM_NATURE) && ((p_ptr->align > 50) || (p_ptr->align < -50))) chance += penalty;
 	if (((use_realm == REALM_LIFE) || (use_realm == REALM_CRUSADE)) && (p_ptr->align < -20)) chance += penalty;
@@ -4052,13 +4088,9 @@ s16b spell_chance(int spell, int use_realm)
 		if(exp > 1399) chance--;
 		if(exp > 1599) chance--;
 	}
-	if(p_ptr->dec_mana) chance--;
-	if (p_ptr->heavy_spell) chance += 5;
-
-	chance = MAX(chance,0);
 
 	/* Return the chance */
-	return (chance);
+	return mod_spell_chance_2(chance);
 }
 
 
@@ -5116,7 +5148,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
 	/* Vulnerability (Ouch!) */
 	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
-	if (p_ptr->prace == RACE_ANDROID) dam += dam / 3;
+	if (prace_is_(RACE_ANDROID)) dam += dam / 3;
 
 	/* Resist the damage */
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;

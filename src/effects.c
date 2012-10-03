@@ -14,13 +14,15 @@
 
 void set_action(int typ)
 {
-	if (typ == p_ptr->action)
+	int prev_typ = p_ptr->action;
+
+	if (typ == prev_typ)
 	{
 		return;
 	}
 	else
 	{
-		switch(p_ptr->action)
+		switch (prev_typ)
 		{
 			case ACTION_SEARCH:
 			{
@@ -92,7 +94,10 @@ void set_action(int typ)
 
 	p_ptr->action = typ;
 
-	switch(p_ptr->action)
+	/* If we are requested other action, stop singing */
+	if (prev_typ == ACTION_SING) stop_singing();
+
+	switch (p_ptr->action)
 	{
 		case ACTION_SEARCH:
 		{
@@ -381,7 +386,7 @@ msg_print("やっと目が見えるようになった。");
 	if (disturb_state) disturb(0, 0);
 
 	/* Fully update the visuals */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS);
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -4868,7 +4873,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		}
 		else
 		{
-			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
+			p_ptr->old_race2 |= 1L << (p_ptr->prace-32);
 		}
 		p_ptr->prace = new_race;
 		rp_ptr = &race_info[p_ptr->prace];
@@ -4937,8 +4942,8 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 		if (one_in_(6))
 		{
 #ifdef JP
-msg_print("現在姿で生きていくのは困難なようだ！");
-take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異", -1);
+			msg_print("現在の姿で生きていくのは困難なようだ！");
+			take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "致命的な突然変異", -1);
 #else
 			msg_print("You find living difficult in your present form!");
 			take_hit(DAMAGE_LOSELIFE, damroll(randint1(10), p_ptr->lev), "a lethal mutation", -1);

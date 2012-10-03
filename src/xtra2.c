@@ -107,6 +107,7 @@ void check_experience(void)
 msg_format("レベル %d にようこそ。", p_ptr->lev);
 #else
 		msg_format("Welcome to level %d.", p_ptr->lev);
+
 #endif
 
 		/* Update some stuff */
@@ -116,7 +117,7 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER | PW_SPELL);
+		p_ptr->window |= (PW_PLAYER | PW_SPELL | PW_INVEN);
 
 		/* HPとMPの上昇量を表示 */
 		level_up = 1;
@@ -364,6 +365,24 @@ static bool kind_is_armor(int k_idx)
 
 
 /*
+ * Hack -- determine if a template is hafted weapon
+ */
+static bool kind_is_hafted(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	if (k_ptr->tval == TV_HAFTED)
+	{
+		return (TRUE);
+	}
+
+	/* Assume not good */
+	return (FALSE);
+}
+
+
+/*
  * Check for "Quest" completion when a quest monster is killed or charmed.
  */
 void check_quest_completion(monster_type *m_ptr)
@@ -593,7 +612,7 @@ msg_print("魔法の階段が現れた...");
 		cave_set_feat(y, x, FEAT_MORE);
 
 		/* Remember to update everything */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
 	}
 
 	/*
@@ -659,7 +678,8 @@ void monster_death(int m_idx, bool drop_item)
 	object_type *q_ptr;
 
 
-	if (world_monster) world_monster = FALSE;
+	/* The caster is dead? */
+	if (world_monster && world_monster == m_idx) world_monster = 0;
 
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
@@ -869,15 +889,15 @@ msg_print("地面に落とされた。");
 	{
 		if (!one_in_(7))
 		{
-			int wy = py, wx = px;
+			int wy = y, wx = x;
 			int attempts = 100;
 			bool pet = is_pet(m_ptr);
 
 			do
 			{
-				scatter(&wy, &wx, py, px, 20, 0);
+				scatter(&wy, &wx, y, x, 20, 0);
 			}
-			while (!(in_bounds(wy, wx) && cave_floor_bold(wy, wx)) && --attempts);
+			while (!(in_bounds(wy, wx) && cave_empty_bold2(wy, wx)) && --attempts);
 
 			if (attempts > 0)
 			{
@@ -1080,7 +1100,29 @@ msg_print("地面に落とされた。");
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
-	else if ((m_ptr->r_idx == MON_A_GOLD || (m_ptr->r_idx == MON_A_SILVER && !((r_ptr->r_pkills+1)%5))) && !(p_ptr->inside_arena || p_ptr->inside_battle))
+	else if ((r_ptr->d_char == '\\') && (dun_level > 4) &&
+	    !(p_ptr->inside_arena || p_ptr->inside_battle))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Wipe the object */
+		object_wipe(q_ptr);
+
+		/* Activate restriction */
+		get_obj_num_hook = kind_is_hafted;
+
+		/* Prepare allocation table */
+		get_obj_num_prep();
+
+		/* Make a great object */
+		make_object(q_ptr, FALSE, FALSE);
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+
+	else if ((m_ptr->r_idx == MON_A_GOLD || (m_ptr->r_idx == MON_A_SILVER && (r_ptr->r_pkills % 5 == 0))) && !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -1709,6 +1751,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
+
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 	/* Hack - Cancel any special player stealth magics. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH)

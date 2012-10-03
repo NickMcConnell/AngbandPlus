@@ -1155,7 +1155,7 @@ static void build_type4(int by0, int bx0)
  * Line 3 -- forbid aquatic monsters
  */
 #define vault_monster_okay(I) \
-	(monster_dungeon(I) && \
+	(mon_hook_dungeon(I) && \
 	 !(r_info[I].flags1 & RF1_UNIQUE) && \
 	 !(r_info[I].flags7 & RF7_UNIQUE2) && \
 	 !(r_info[I].flags3 & RF3_RES_ALL) && \
@@ -3544,7 +3544,7 @@ static bool generate_lake(int y0, int x0, int xsize, int ysize, int c1, int c2, 
 			if ((cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_DEEP_LAVA) ||
 				(cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_SHAL_LAVA))
 			{
-				cave[y0 + y - yhsize][x0 + x - xhsize].info |= CAVE_GLOW;
+				if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS)) cave[y0 + y - yhsize][x0 + x - xhsize].info |= CAVE_GLOW;
 			}
 		}
 	}
@@ -4690,12 +4690,12 @@ static void add_outer_wall(int x, int y, int light,
 	{
 		/* Set bounding walls */
 		place_outer_bold(y, x);
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 	else if (cave[y][x].feat == FEAT_PERM_OUTER)
 	{
 		/* Set bounding walls */
-		if (light == TRUE) cave[y][x].info |= CAVE_GLOW;
+		if (light) cave[y][x].info |= CAVE_GLOW;
 	}
 }
 

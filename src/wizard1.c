@@ -199,9 +199,9 @@ static grouper group_item[] =
 #endif
 
 #ifdef JP
-{ TV_PARCHEMENT,    "Õ”»ÈªÊ" },
+	{ TV_PARCHMENT,    "Õ”»ÈªÊ" },
 #else
-{ TV_PARCHEMENT,    "Parchement" },
+	{ TV_PARCHMENT,    "Parchment" },
 #endif
 
 #ifdef JP
@@ -2010,11 +2010,14 @@ static void spoil_mon_info(cptr fname)
 
 
 		/* Prefix */
+		/*
 		if (flags1 & (RF1_QUESTOR))
 		{
 			spoil_out("[Q] ");
 		}
-		else if (flags1 & (RF1_UNIQUE))
+		else
+		*/
+		if (flags1 & (RF1_UNIQUE))
 		{
 			spoil_out("[U] ");
 		}

@@ -139,7 +139,7 @@ if (get_check("本当にこの階を去りますか？"))
 #ifdef JP
 			if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "階段を上った");
 #else
-			if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "go up the stairs to");
+			if (record_stair) do_cmd_write_nikki(NIKKI_STAIR, 0-up_num, "climbed up the stairs to");
 #endif
 			dun_level -= up_num;
 
@@ -334,8 +334,8 @@ if (get_check("本当にこの階を去りますか？"))
 				if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "落し戸に落ちた");
 				else do_cmd_write_nikki(NIKKI_STAIR, down_num, "階段を下りた");
 #else
-				if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fall from trap door");
-				else do_cmd_write_nikki(NIKKI_STAIR, down_num, "go down the stairs to");
+				if (fall_trap) do_cmd_write_nikki(NIKKI_STAIR, down_num, "fell through a trap door");
+				else do_cmd_write_nikki(NIKKI_STAIR, down_num, "climbed down the stairs to");
 #endif
 			}
 
@@ -1330,7 +1330,7 @@ static bool do_cmd_close_aux(int y, int x)
 	c_ptr = &cave[y][x];
 
 	/* Seeing true feature code (ignore mimic) */
-		
+
 	/* Broken door */
 	if (c_ptr->feat == FEAT_BROKEN)
 	{
@@ -2026,7 +2026,7 @@ bool easy_open_door(int y, int x)
 			cave_set_feat(y, x, FEAT_OPEN);
 
 			/* Update some things */
-			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -2058,7 +2058,7 @@ bool easy_open_door(int y, int x)
 		cave_set_feat(y, x, FEAT_OPEN);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -2525,7 +2525,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		move_player(dir, FALSE, FALSE);
 
 		/* Update some things */
-		p_ptr->update |= (PU_VIEW | PU_LITE);
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 		p_ptr->update |= (PU_DISTANCE);
 	}
 
@@ -3510,7 +3510,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Acid) */
-			if ((have_flag(flgs, TR_BRAND_ACID)) || (p_ptr->special_attack & (ATTACK_ACID)))
+			if (have_flag(flgs, TR_BRAND_ACID))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ACID)
@@ -3529,7 +3529,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if ((have_flag(flgs, TR_BRAND_ELEC)) || (p_ptr->special_attack & (ATTACK_ELEC)))
+			if (have_flag(flgs, TR_BRAND_ELEC))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_ELEC)
@@ -3548,7 +3548,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if ((have_flag(flgs, TR_BRAND_FIRE)) || (p_ptr->special_attack & (ATTACK_FIRE)))
+			if (have_flag(flgs, TR_BRAND_FIRE))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_FIRE)
@@ -3567,7 +3567,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if ((have_flag(flgs, TR_BRAND_COLD)) || (p_ptr->special_attack & (ATTACK_COLD)))
+			if (have_flag(flgs, TR_BRAND_COLD))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_COLD)
@@ -3585,7 +3585,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if ((have_flag(flgs, TR_BRAND_POIS)) || (p_ptr->special_attack & (ATTACK_POIS)))
+			if (have_flag(flgs, TR_BRAND_POIS))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & RF3_IM_POIS)
@@ -4260,9 +4260,9 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		return FALSE;
 	}
 
-	if (p_ptr->inside_arena)
+	if (p_ptr->inside_arena && !boomerang)
 	{
-		if (o_ptr->tval != 5)
+		if (o_ptr->tval != TV_SPIKE)
 		{
 #ifdef JP
 			msg_print("アリーナではアイテムを使えない！");
@@ -4527,7 +4527,7 @@ note_dies = "は爆発して粉々になった。";
 				/* Hack -- Base damage from thrown object */
 				tdam = damroll(q_ptr->dd, q_ptr->ds);
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0);
+				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0, TRUE);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 				if (q_ptr->to_d > 0)
 					tdam += q_ptr->to_d;

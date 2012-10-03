@@ -249,7 +249,8 @@ void delete_monster_idx(int i)
 	lite_spot(y, x);
 
 	/* Update some things */
-	p_ptr->update |= (PU_MON_LITE);
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+		p_ptr->update |= (PU_MON_LITE);
 }
 
 
@@ -431,6 +432,37 @@ void compact_monsters(int size)
 
 
 /*
+ * Pre-calculate the racial counters of preserved pets
+ * To prevent multiple generation of unique monster who is the minion of player
+ */
+static void precalc_cur_num_of_pet(void)
+{
+	monster_type *m_ptr;
+	int i;
+	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
+
+	for (i = 0; i < max_num; i++)
+	{
+		m_ptr = &party_mon[i];
+
+		/* Skip empty monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Hack -- Increase the racial counter */
+		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+		{
+			if (r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE)
+				r_info[MON_CHAMELEON_K].cur_num++;
+			else
+				r_info[MON_CHAMELEON].cur_num++;
+		}
+		else
+			r_info[m_ptr->r_idx].cur_num++;
+	}
+}
+
+
+/*
  * Delete/Remove all the monsters when the player leaves the level
  *
  * This is an efficient method of simulating multiple calls to the
@@ -467,19 +499,6 @@ void wipe_m_list(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Mega-Hack -- preserve Unique's XXX XXX XXX */
-
-		/* Hack -- Reduce the racial counter */
-		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
-		{
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				r_info[MON_CHAMELEON_K].cur_num = 0;
-			else
-				r_info[MON_CHAMELEON].cur_num = 0;
-		}
-		else
-			r_ptr->cur_num = 0;
-
 		/* Monster is gone */
 		cave[m_ptr->fy][m_ptr->fx].m_idx = 0;
 
@@ -487,6 +506,18 @@ void wipe_m_list(void)
 		(void)WIPE(m_ptr, monster_type);
 
 	}
+
+	/*
+	 * Wiping racial counters of all monsters and incrementing of racial
+	 * counters of monsters in party_mon[] is required to prevent multiple
+	 * generation of unique monster who is the minion of player.
+	 */
+
+	/* Hack -- Wipe the racial counter of all monster races */
+	for (i = 1; i < max_r_idx; i++) r_info[i].cur_num = 0;
+
+	/* Hack -- Increase the racial counters of pets */
+	precalc_cur_num_of_pet();
 
 	/* Reset "m_max" */
 	m_max = 1;
@@ -1758,7 +1789,7 @@ if (!get_rnd_line("silly_j.txt", m_ptr->r_idx, silly_name))
 			strcat(desc,buf);
 		}
 
-		if ((m_ptr->fy == py) && (m_ptr->fx == px))
+		if (p_ptr->riding && (&m_list[p_ptr->riding] == m_ptr))
 		{
 #ifdef JP
 			strcat(desc,"(乗馬中)");
@@ -1947,12 +1978,12 @@ msg_format("%s%sの顔を見てしまった！",
 		r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
 		/* Demon characters are unaffected */
-		if ((p_ptr->prace == RACE_IMP) || (p_ptr->prace == RACE_DEMON) || (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)) return;
+		if (prace_is_(RACE_IMP) || prace_is_(RACE_DEMON) || (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)) return;
 		if (p_ptr->wizard) return;
 
 		/* Undead characters are 50% likely to be unaffected */
-		if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-			|| (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE) ||
+		if (prace_is_(RACE_SKELETON) || prace_is_(RACE_ZOMBIE)
+			|| prace_is_(RACE_VAMPIRE) || prace_is_(RACE_SPECTRE) ||
 		    (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_UNDEAD))
 		{
 			if (saving_throw(25 + p_ptr->lev)) return;
@@ -2231,6 +2262,9 @@ void update_mon(int m_idx, bool full)
 	/* Seen by vision */
 	bool easy = FALSE;
 
+	/* Non-Ninja player in the darkness */
+	bool in_darkness = (d_info[dungeon_type].flags1 & DF1_DARKNESS) && (p_ptr->pclass != CLASS_NINJA);
+
 	/* Do disturb? */
 	if (disturb_high)
 	{
@@ -2272,9 +2306,9 @@ void update_mon(int m_idx, bool full)
 
 
 	/* Nearby */
-	if (d <= ((d_info[dungeon_type].flags1 & DF1_DARKNESS) ? MAX_SIGHT / 2 : MAX_SIGHT))
+	if (d <= (in_darkness ? MAX_SIGHT / 2 : MAX_SIGHT))
 	{
-		if (!(d_info[dungeon_type].flags1 & DF1_DARKNESS) || (d <= MAX_SIGHT / 4))
+		if (!in_darkness || (d <= MAX_SIGHT / 4))
 		{
 			if (p_ptr->special_defense & KATA_MUSOU)
 			{
@@ -3501,7 +3535,7 @@ static bool place_monster_okay(int r_idx)
 	monster_race *z_ptr = &r_info[r_idx];
 
 	/* Hack - Escorts have to have the same dungeon flag */
-	if (monster_dungeon(place_monster_idx) != monster_dungeon(r_idx)) return (FALSE);
+	if (mon_hook_dungeon(place_monster_idx) != mon_hook_dungeon(r_idx)) return (FALSE);
 
 	/* Require similar "race" */
 	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
@@ -3831,7 +3865,7 @@ static bool summon_specific_okay(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Hack - Only summon dungeon monsters */
-	if (!monster_dungeon(r_idx)) return (FALSE);
+	if (!mon_hook_dungeon(r_idx)) return (FALSE);
 
 	/* Hack -- identify the summoning monster */
 	if (summon_specific_who > 0)

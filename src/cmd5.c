@@ -4273,7 +4273,8 @@ void stop_singing(void)
 	}
 	if (!p_ptr->magic_num1[0]) return;
 
-	set_action(ACTION_NONE);
+	/* Hack -- if called from set_action(), avoid recursive loop */
+	if (p_ptr->action == ACTION_SING) set_action(ACTION_NONE);
 
 	switch(p_ptr->magic_num1[0])
 	{
@@ -5456,7 +5457,7 @@ void do_cmd_pet_dismiss(void)
 				
 				/* Update the monsters */
 				p_ptr->update |= (PU_BONUS | PU_MONSTERS);
-				p_ptr->redraw |= (PR_EXTRA);
+				p_ptr->redraw |= (PR_EXTRA | PR_UHEALTH);
 			}
 
 			/* HACK : Add the line to message buffer */
@@ -5606,7 +5607,7 @@ msg_format("%sから振り落とされそうになって、壁にぶつかった。",m_name);
 	p_ptr->update |= (PU_BONUS);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -5792,7 +5793,7 @@ msg_format("%sを起こした。", m_name);
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -6148,7 +6149,7 @@ power_desc[num] = "離れていろ";
 	powers[num++] = PET_RIDING;
 
 #ifdef JP
-	power_desc[num] = "ペットに名前をつける。";
+	power_desc[num] = "ペットに名前をつける";
 #else
 	power_desc[num] = "name pets";
 #endif

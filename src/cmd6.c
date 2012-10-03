@@ -2162,7 +2162,7 @@ msg_print("巻物は煙を立てて消え去った！");
 #endif
 		used_up = FALSE;
 	}
-	else if (o_ptr->tval==TV_PARCHEMENT)
+	else if (o_ptr->tval == TV_PARCHMENT)
 	{
 		cptr q;
 		char o_name[MAX_NLEN];
@@ -2244,7 +2244,7 @@ msg_print("巻物は煙を立てて消え去った！");
  */
 static bool item_tester_hook_readable(object_type *o_ptr)
 {
-	if ((o_ptr->tval==TV_SCROLL) || (o_ptr->tval==TV_PARCHEMENT) || (o_ptr->name1 == ART_GHB) || (o_ptr->name1 == ART_POWER)) return (TRUE);
+	if ((o_ptr->tval==TV_SCROLL) || (o_ptr->tval==TV_PARCHMENT) || (o_ptr->name1 == ART_GHB) || (o_ptr->name1 == ART_POWER)) return (TRUE);
 
 	/* Assume not */
 	return (FALSE);
@@ -5276,7 +5276,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 			case ART_BOROMIR:
 			{
+#ifdef JP
+				msg_print("あなたは力強い突風を吹き鳴らした。周囲の敵が震え上っている!");
+#else
 				msg_print("You wind a mighty blast; your enemies tremble!");
+#endif
 				(void)turn_monsters((3 * p_ptr->lev / 2) + 10);
 				o_ptr->timeout = randint0(40) + 40;
 				break;
@@ -6921,11 +6925,7 @@ static bool select_magic_eater(bool only_browse)
 				{
 					chance -= 3 * (p_ptr->lev - level);
 				}
-				chance += p_ptr->to_m_chance;
-				if (p_ptr->heavy_spell) chance += 20;
-				if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-				else if (p_ptr->easy_spell) chance-=3;
-				else if (p_ptr->dec_mana) chance-=2;
+				chance = mod_spell_chance_1(chance);
 				chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 				/* Stunning makes spells harder */
 				if (p_ptr->stun > 50) chance += 25;
@@ -6933,8 +6933,7 @@ static bool select_magic_eater(bool only_browse)
 
 				if (chance > 95) chance = 95;
 
-				if(p_ptr->dec_mana) chance--;
-				if (p_ptr->heavy_spell) chance += 5;
+				chance = mod_spell_chance_2(chance);
 
 				col = TERM_WHITE;
 
@@ -7226,11 +7225,7 @@ msg_print("混乱していて唱えられない！");
 	{
 		chance -= 3 * (p_ptr->lev - level);
 	}
-	chance += p_ptr->to_m_chance;
-	if (p_ptr->heavy_spell) chance += 20;
-	if(p_ptr->dec_mana && p_ptr->easy_spell) chance-=4;
-	else if (p_ptr->easy_spell) chance-=3;
-	else if (p_ptr->dec_mana) chance-=2;
+	chance = mod_spell_chance_1(chance);
 	chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -7238,8 +7233,7 @@ msg_print("混乱していて唱えられない！");
 
 	if (chance > 95) chance = 95;
 
-	if(p_ptr->dec_mana) chance--;
-	if (p_ptr->heavy_spell) chance += 5;
+	chance = mod_spell_chance_2(chance);
 
 	if (randint0(100) < chance)
 	{

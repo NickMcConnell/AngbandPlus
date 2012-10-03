@@ -728,7 +728,7 @@ static hist_type bg[] =
 
 
 #ifdef JP
-	{"あなたは女王クラコンの何人かの子供のうちの一人です。"
+	{"あなたは女王クラッコンの何人かの子供のうちの一人です。"
 	, 100, 84, 85, 50 },
 
 	{"あなたは赤い肌と", 40, 85, 86, 50 },
@@ -1981,15 +1981,15 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "Arcane magic is a general purpose realm of magic.  It attempts to encompass all 'useful' spells from all realms.  This is the downside of Arcane magic: while Arcane does have all the necessary 'tool' spells for a dungeon delver, it has no ultra-powerful high level spells.  As a consequence, all Arcane spellbooks can be bought in town.  It should also be noted that the 'specialized' realms usually offer the same spell at a lower level and cost. ",
 
-"Craft magic can strengthen the caster or equipments.  These spells greatly improve the caster's fighting ability, but spells that hurts opponents directly is not exist.",
+"Craft magic can strengthen the caster or the equipments.  These spells can greatly improve the caster's fighting ability.  Using them against opponents directly is not possible.",
 
 "Demon is a very evil realm, same as Death.  It provides various attack spells and devilish detection spells.  at higher levels, Demon magic provides ability to dominate demons, and to polymorph yourself into a demon.",
 
-"Crusade is a realm of 'Justice'; It does have many attack spells which are mostly used for harming and banishing foul minions of evil, and these spells are not so effective for good monsters.",
+"Crusade is a magic of 'Justice'.  It includes damage spells, which are greatly effective against foul and evil monsters, but have poor effects against good monsters.",
 
 "Music magic shows various effects as sing song.  There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out.  But the latter type has a limit; only one song can be sing at the same time.",
 
-"The books of Kendo describe various combat techniques.  It need to read the books when one studys the techniques, but it doesn't need to take around the books to use the techniques after one memorizes it.  It need a weapon wielded to use the techniques."
+"The books of Kendo describe about various combat techniques.  When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them.  When using a technique, wielding a weapon is required."
 #endif
 };
 
@@ -2341,7 +2341,7 @@ static bool get_player_realms(void)
 	p_ptr->realm2 = 255;
 	while (1)
 	{
-		char temp[80*8];
+		char temp[80*10];
 		cptr t;
 		count = 0;
 		p_ptr->realm1 = choose_realm(realm_choices1[p_ptr->pclass], &count);
@@ -2357,7 +2357,7 @@ static bool get_player_realms(void)
 
 		roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm1)-1], 74, temp, sizeof(temp));
 		t = temp;
-		for (i = 0; i< 6; i++)
+		for (i = 0; i < 10; i++)
 		{
 			if(t[0] == 0)
 				break; 
@@ -3394,6 +3394,30 @@ static void player_wipe(void)
 	}
 }
 
+
+/*
+ *  Hook function for quest monsters
+ */
+static bool mon_hook_quest(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Random quests are in the dungeon */
+	if (r_ptr->flags8 & RF8_WILD_ONLY) return FALSE;
+
+	/* No random quests for aquatic monsters */
+	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
+
+	/* No random quests for multiplying monsters */
+	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+
+	/* No quests to kill friendly monsters */
+	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
+
+	return TRUE;
+}
+
+
 /*
  *  Initialize random quests and final quests
  */
@@ -3411,7 +3435,7 @@ static void init_dungeon_quests(int number_of_quests)
 	p_ptr->inside_quest = 0;
 
 	/* Prepare allocation table */
-	get_mon_num_prep(monster_quest, NULL);
+	get_mon_num_prep(mon_hook_quest, NULL);
 
 	/* Remove QUESTOR flag */
 	for (i = 1; i < max_r_idx; i++)
@@ -5326,7 +5350,7 @@ static void edit_history(void)
 			if ((x > 0) && (iskanji2(p_ptr->history[y], x-1))) x--;
 #endif
 		}
-		else if (c == '\r')
+		else if (c == '\r' || c == '\n')
 		{
 			break;
 		}
@@ -6311,6 +6335,12 @@ void player_birth(void)
 	char buf[80];
 
 	playtime = 0;
+
+	/*
+	 * Paranoia - wipe the pets
+	 * For accuracy of precalc_cur_num_of_pet() called from wipe_m_list()
+	 */
+	C_WIPE(party_mon, MAX_PARTY_MON, monster_type);
 
 	/* 
 	 * Wipe monsters in old dungeon

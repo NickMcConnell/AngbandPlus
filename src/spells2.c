@@ -4696,6 +4696,7 @@ void aggravate_monsters(int who)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
+				if (r_info[m_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				sleep = TRUE;
 			}
 			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOPET;
@@ -4796,6 +4797,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -4925,6 +4927,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -5057,6 +5060,7 @@ msg_format("%^sには効果がなかった。", m_name);
 			if (m_ptr->csleep)
 			{
 				m_ptr->csleep = 0;
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 				if (m_ptr->ml && !p_ptr->blind)
 				{
 #ifdef JP
@@ -5545,7 +5549,7 @@ bool earthquake(int cy, int cx, int r)
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt && !(p_ptr->prace == RACE_SPECTRE) && !(p_ptr->wraith_form) && !(p_ptr->kabenuke))
+	if (hurt && !prace_is_(RACE_SPECTRE) && !p_ptr->wraith_form && !p_ptr->kabenuke)
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -5998,7 +6002,7 @@ void discharge_minion(void)
 		if (dam > 800) dam = 800;
 		project(i, 2+(r_ptr->level/20), m_ptr->fy,
 			m_ptr->fx, dam, GF_PLASMA, 
-			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER, -1);
+			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
 		delete_monster_idx(i);
 	}
 }
@@ -6063,6 +6067,8 @@ static void cave_temp_room_lite(void)
 			{
 				/* Wake up! */
 				m_ptr->csleep = 0;
+
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
@@ -6658,6 +6664,8 @@ msg_print("テレポートを邪魔された！");
 #endif
 
 		m_ptr->csleep = 0;
+		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 		/* Failure */
 		return FALSE;
 	}
@@ -6704,14 +6712,7 @@ msg_print("テレポートを邪魔された！");
 	verify_panel();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Notice changes in view */
-	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
-	{
-		/* Update some things */
-		p_ptr->update |= (PU_MON_LITE);
-	}
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -6971,7 +6972,7 @@ bool wall_stone(void)
 	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg, -1));
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);

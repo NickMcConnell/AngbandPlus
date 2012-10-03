@@ -213,6 +213,8 @@ void mon_take_hit_mon(bool is_psy_spear, int m_idx, int dam, bool *fear, cptr no
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 	if (m_ptr->invulner && randint0(PENETRATE_INVULNERABILITY))
@@ -387,7 +389,7 @@ msg_format("%^sは殺された。", m_name);
 
 	if ((dam > 0) && !is_pet(m_ptr) && !is_friendly(m_ptr) && (who != m_idx))
 	{
-		if (is_pet(&m_list[who]) && (m_ptr->target_y != py) && (m_ptr->target_x != px))
+		if (is_pet(&m_list[who]) && ((m_ptr->target_y != py) || (m_ptr->target_x != px)))
 		{
 			set_target(m_ptr, m_list[who].fy, m_list[who].fx);
 		}
@@ -1466,6 +1468,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	/* Wake it up */
 	t_ptr->csleep = 0;
 
+	if (tr_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 	/* Total armor */
 	ac = tr_ptr->ac;
 
@@ -1858,17 +1862,19 @@ act = "%sにむかって歌った。";
 			/* Message */
 			if (act && see_either)
 			{
+#ifdef JP
+				if (do_silly_attack) act = silly_attacks2[randint0(MAX_SILLY_ATTACK)];
+				strfmt(temp, act, t_name);
+				msg_format("%^sは%s", m_name, temp);
+#else
 				if (do_silly_attack)
 				{
 					act = silly_attacks[randint0(MAX_SILLY_ATTACK)];
+					strfmt(temp, "%s %s.", act, t_name);
 				}
-				strfmt(temp, act, t_name);
-#ifdef JP
-				msg_format("%^sは%s", m_name, temp);
-#else
+				else strfmt(temp, act, t_name);
 				msg_format("%^s %s", m_name, temp);
 #endif
-
 			}
 
 			/* Hack -- assume all attacks are obvious */
@@ -2035,7 +2041,7 @@ act = "%sにむかって歌った。";
 				if (!explode)
 				{
 					project(m_idx, 0, t_ptr->fy, t_ptr->fx,
-						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
+						(pt == GF_OLD_SLEEP ? r_ptr->level : damage), pt, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 				}
 
 				if (heal_effect)
@@ -2089,7 +2095,7 @@ msg_format("%^sは突然熱くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
+							GF_FIRE, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 					}
 
 					/* Aura cold */
@@ -2112,7 +2118,7 @@ msg_format("%^sは突然寒くなった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
+							GF_COLD, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 					}
 
 					/* Aura elec */
@@ -2135,7 +2141,7 @@ msg_format("%^sは電撃を食らった！", m_name);
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 							damroll (1 + ((tr_ptr->level) / 26),
 							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_MONSTER, -1);
+							GF_ELEC, PROJECT_KILL | PROJECT_STOP | PROJECT_AIMED, -1);
 					}
 
 				}
@@ -2466,7 +2472,6 @@ msg_print("少しの間悲しい気分になった。");
 			/* Reset the counter */
 			if (m_idx == p_ptr->riding) riding_pinch = 0;
 		}
-			
 	}
 
 	/* Handle Invulnerability */
@@ -2475,23 +2480,26 @@ msg_print("少しの間悲しい気分になった。");
 		/* Reduce by one, note if expires */
 		m_ptr->invulner--;
 
-		if (!(m_ptr->invulner) && m_ptr->ml)
+		if (!m_ptr->invulner)
 		{
-			char m_name[80];
+			if (m_ptr->ml)
+			{
+				char m_name[80];
 
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
 
-			/* Dump a message */
+				/* Dump a message */
 #ifdef JP
-msg_format("%^sはもう無敵でない。", m_name);
+				msg_format("%^sはもう無敵でない。", m_name);
 #else
-			msg_format("%^s is no longer invulnerable.", m_name);
+				msg_format("%^s is no longer invulnerable.", m_name);
 #endif
 
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			}
 			m_ptr->energy_need += ENERGY_NEED();
-			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 
@@ -2591,6 +2599,8 @@ msg_format("%^sはもう減速されていない。", m_name);
 				/* Reset sleep counter */
 				m_ptr->csleep = 0;
 
+				if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 				/* Notice the "waking up" */
 				if (m_ptr->ml)
 				{
@@ -2610,9 +2620,6 @@ msg_format("%^sが目を覚ました。", m_name);
 					/* Redraw the health bar */
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-					if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2))
-						p_ptr->update |= (PU_MON_LITE);
 
 					/* Hack -- Count the wakings */
 					if (r_ptr->r_wake < MAX_UCHAR)
@@ -2822,7 +2829,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 			if (multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
 			{
 				/* Take note if visible */
-				if (m_ptr->ml)
+				if (m_ptr->ml && m_list[hack_m_idx_ii].ml)
 				{
 					r_ptr->r_flags2 |= (RF2_MULTIPLY);
 				}
@@ -3481,7 +3488,10 @@ msg_print("爆発のルーンは解除された。");
 				update_mon(c_ptr->m_idx, TRUE);
 
 				/* Wake up the moved monster */
-				m_list[c_ptr->m_idx].csleep = 0;
+				y_ptr->csleep = 0;
+
+				if (r_info[y_ptr->r_idx].flags7 & (RF7_HAS_LITE_1 | RF7_SELF_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_2))
+					p_ptr->update |= (PU_MON_LITE);
 			}
 
 			/* Hack -- Update the new location */
@@ -3511,7 +3521,7 @@ msg_print("爆発のルーンは解除された。");
 				verify_panel();
 
 				/* Update stuff */
-				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 				/* Update the monsters */
 				p_ptr->update |= (PU_DISTANCE);
@@ -4048,14 +4058,15 @@ bool process_the_world(int num, int who, bool vs_player)
 		msg_print(NULL);
 	}
 
-	world_monster = TRUE;
+	/* This monster cast spells */
+	world_monster = hack_m_idx;
 
 	if (vs_player) do_cmd_redraw();
 
 	while(num--)
 	{
 		if(!m_ptr->r_idx) break;
-		process_monster(hack_m_idx);
+		process_monster(world_monster);
 
 		reset_target(m_ptr);
 
@@ -4084,7 +4095,7 @@ bool process_the_world(int num, int who, bool vs_player)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-	world_monster = FALSE;
+	world_monster = 0;
 	if (vs_player || los(py, px, m_ptr->fy, m_ptr->fx))
 	{
 #ifdef JP
@@ -4127,10 +4138,38 @@ void monster_gain_exp(int m_idx, int s_idx)
 		int i;
 		byte old_sub_align = m_ptr->sub_align;
 
+		/* Hack -- Reduce the racial counter of previous monster */
+		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				r_info[MON_CHAMELEON_K].cur_num--;
+			else
+				r_info[MON_CHAMELEON].cur_num--;
+		}
+		else
+		{
+			r_ptr->cur_num--;
+		}
+
 		monster_desc(m_name, m_ptr, 0);
 		m_ptr->r_idx = r_ptr->next_r_idx;
-		m_ptr->ap_r_idx = m_ptr->r_idx;
 		r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Count the monsters on the level */
+		if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+		{
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				r_info[MON_CHAMELEON_K].cur_num++;
+			else
+				r_info[MON_CHAMELEON].cur_num++;
+		}
+		else
+		{
+			r_ptr->cur_num++;
+		}
+
+		m_ptr->ap_r_idx = m_ptr->r_idx;
+
 		if (r_ptr->flags1 & RF1_FORCE_MAXHP)
 		{
 			m_ptr->max_maxhp = maxroll(r_ptr->hdice, r_ptr->hside);

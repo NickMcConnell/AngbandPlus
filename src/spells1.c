@@ -802,14 +802,14 @@ msg_print("まばゆい閃光が走った！");
 #endif
 
 					obvious = TRUE;
+				}
 
-					/* Visibility change */
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-						 (c_ptr->feat <= FEAT_DOOR_TAIL))
-					{
-						/* Update some things */
-						p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
-					}
+				/* Visibility change */
+				if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+					 (c_ptr->feat <= FEAT_DOOR_TAIL))
+				{
+					/* Update some things */
+					p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS | PU_MON_LITE);
 				}
 
 				/* Forget the door */
@@ -1791,7 +1791,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ , int flg)
 
 	/* Assume a default death */
 #ifdef JP
-cptr note_dies = "は死んだ。";
+	cptr note_dies = "は死んだ。";
 #else
 	cptr note_dies = " dies.";
 #endif
@@ -1799,6 +1799,7 @@ cptr note_dies = "は死んだ。";
 	int ty = m_ptr->fy;
 	int tx = m_ptr->fx;
 
+	int caster_lev = (who > 0) ? (r_info[m_list[who].r_idx].level / 2) : p_ptr->lev;
 
 	/* Nobody here */
 	if (!c_ptr->m_idx) return (FALSE);
@@ -2700,7 +2701,7 @@ note = "の動きが遅くなった。";
 				}
 
 				/* 2. stun */
-				do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
+				do_stun = damroll((caster_lev / 10) + 3 , (dam)) + 1;
 
 				/* Attempt a saving throw */
 				if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
@@ -3056,7 +3057,7 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 			}
 
 			/* 1. stun */
-			do_stun = damroll((p_ptr->lev / 10) + 3 , dam) + 1;
+			do_stun = damroll((caster_lev / 10) + 3 , dam) + 1;
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
@@ -3298,14 +3299,11 @@ note = "はひどい痛手をうけた。";
 			}
 			if (!monster_living(r_ptr))
 			{
-				if (r_ptr->flags3 & RF3_UNDEAD)
+				if (seen)
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
-				}
-
-				if (r_ptr->flags3 & (RF3_DEMON))
-				{
-					if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_NONLIVING) r_ptr->r_flags3 |= (RF3_NONLIVING);
 				}
 
 #ifdef JP
@@ -3338,12 +3336,13 @@ note = "には効果がなかった！";
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_ALL);
 				break;
 			}
-			if ((r_ptr->flags3 & RF3_UNDEAD) ||
-			    (r_ptr->flags3 & RF3_NONLIVING))
+			if (!monster_living(r_ptr))
 			{
-				if (r_ptr->flags3 & RF3_UNDEAD)
+				if (seen)
 				{
-					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_NONLIVING) r_ptr->r_flags3 |= (RF3_NONLIVING);
 				}
 
 #ifdef JP
@@ -3357,7 +3356,7 @@ note = "には完全な耐性がある。";
 			}
 			else if (((r_ptr->flags1 & RF1_UNIQUE) &&
 				 (randint1(888) != 666)) ||
-				 (((r_ptr->level + randint1(20)) > randint1(p_ptr->lev + randint1(10))) &&
+				 (((r_ptr->level + randint1(20)) > randint1(caster_lev + randint1(10))) &&
 				 randint1(100) != 66))
 			{
 #ifdef JP
@@ -3459,6 +3458,8 @@ note = "が分裂した！";
 			/* Wake up */
 			m_ptr->csleep = 0;
 
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
+
 			if (m_ptr->maxhp < m_ptr->max_maxhp)
 			{
 #ifdef JP
@@ -3476,6 +3477,8 @@ msg_format("%^sの強さが戻った。", m_name);
 
 			/* Wake up */
 			m_ptr->csleep = 0;
+
+			if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 			if (m_ptr->stunned)
 			{
@@ -4151,7 +4154,7 @@ msg_format("%sを見つめた。",m_name);
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_QUESTOR)) ||
 			    (m_ptr->mflag2 & MFLAG_NOPET) ||
-				 (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)) ||
+				 !monster_living(r_ptr) ||
 				 ((r_ptr->level+10) > randint1(dam)))
 			{
 				/* Resist */
@@ -4257,7 +4260,7 @@ note = "には効果がなかった！";
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_ALL);
 				break;
 			}
-			do_stun = damroll((p_ptr->lev / 10) + 3 , (dam)) + 1;
+			do_stun = damroll((caster_lev / 10) + 3 , (dam)) + 1;
 
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
@@ -4981,19 +4984,22 @@ note_dies = "はドロドロに溶けた！";
 
 			if ((r_ptr->flags4 & ~(RF4_NOMAGIC_MASK)) || (r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) || (r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)))
 			{
-				/* Message */
+				if (!who)
+				{
+					/* Message */
 #ifdef JP
-msg_format("%sから精神エネルギーを吸いとった。",m_name);
+					msg_format("%sから精神エネルギーを吸いとった。", m_name);
 #else
-				msg_format("You draw psychic energy from %s.", m_name);
+					msg_format("You draw psychic energy from %s.", m_name);
 #endif
 
-				(void)hp_player(dam);
+					(void)hp_player(dam);
+				}
 			}
 			else
 			{
 #ifdef JP
-msg_format("%sには効果がなかった。",m_name);
+				msg_format("%sには効果がなかった。", m_name);
 #else
 				msg_format("%s is unaffected.", m_name);
 #endif
@@ -5008,9 +5014,9 @@ msg_format("%sには効果がなかった。",m_name);
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sをじっと睨んだ。",m_name);
+			if (!who) msg_format("%sをじっと睨んだ。", m_name);
 #else
-			msg_format("You gaze intently at %s.", m_name);
+			if (!who) msg_format("You gaze intently at %s.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5028,7 +5034,7 @@ msg_format("%sをじっと睨んだ。",m_name);
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
 				 (r_ptr->flags3 & RF3_NO_CONF) ||
-				 (r_ptr->level > randint1((p_ptr->lev*2 - 10) < 1 ? 1 : (p_ptr->lev*2 - 10)) + 10))
+				 (r_ptr->level > randint1((caster_lev*2 - 10) < 1 ? 1 : (caster_lev*2 - 10)) + 10))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -5036,7 +5042,7 @@ msg_format("%sをじっと睨んだ。",m_name);
 					r_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5045,8 +5051,8 @@ note = "には効果がなかった。";
 			else
 			{
 #ifdef JP
-msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
+				msg_format("%sは精神攻撃を食らった。", m_name);
+				note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -5063,9 +5069,9 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sをじっと睨んだ。",m_name);
+			if (!who) msg_format("%sをじっと睨んだ。", m_name);
 #else
-			msg_format("You gaze intently at %s.", m_name);
+			if (!who) msg_format("You gaze intently at %s.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5083,7 +5089,7 @@ msg_format("%sをじっと睨んだ。",m_name);
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & RF1_UNIQUE) ||
 				 (r_ptr->flags3 & RF3_NO_CONF) ||
-				 (r_ptr->level > randint1((p_ptr->lev*2 - 10) < 1 ? 1 : (p_ptr->lev*2 - 10)) + 10))
+				 (r_ptr->level > randint1((caster_lev*2 - 10) < 1 ? 1 : (caster_lev*2 - 10)) + 10))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -5091,7 +5097,7 @@ msg_format("%sをじっと睨んだ。",m_name);
 					r_ptr->r_flags3 |= (RF3_NO_CONF);
 				}
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5100,8 +5106,8 @@ note = "には効果がなかった。";
 			else
 			{
 #ifdef JP
-msg_format("%sは精神攻撃を食らった。",m_name);
-note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
+				msg_format("%sは精神攻撃を食らった。", m_name);
+				note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 #else
 				msg_format("%^s is blasted by psionic energy.", m_name);
 				note_dies = " collapses, a mindless husk.";
@@ -5122,9 +5128,9 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sを指差して呪いをかけた。",m_name);
+			if (!who) msg_format("%sを指差して呪いをかけた。", m_name);
 #else
-			msg_format("You point at %s and curses.", m_name);
+			if (!who) msg_format("You point at %s and curses.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5140,11 +5146,10 @@ msg_format("%sを指差して呪いをかけた。",m_name);
 			}
 
 			/* Attempt a saving throw */
-			if (randint0(100 + p_ptr->lev) < (r_ptr->level + 35))
+			if (randint0(100 + caster_lev) < (r_ptr->level + 35))
 			{
-
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5159,9 +5164,9 @@ note = "には効果がなかった。";
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sを指差して恐ろしげに呪いをかけた。",m_name);
+			if (!who) msg_format("%sを指差して恐ろしげに呪いをかけた。", m_name);
 #else
-			msg_format("You point at %s and curses horribly.", m_name);
+			if (!who) msg_format("You point at %s and curses horribly.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5177,11 +5182,10 @@ msg_format("%sを指差して恐ろしげに呪いをかけた。",m_name);
 			}
 
 			/* Attempt a saving throw */
-			if (randint0(100 + p_ptr->lev) < (r_ptr->level + 35))
+			if (randint0(100 + caster_lev) < (r_ptr->level + 35))
 			{
-
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5196,9 +5200,9 @@ note = "には効果がなかった。";
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sを指差し、恐しげに呪文を唱えた！",m_name);
+			if (!who) msg_format("%sを指差し、恐ろしげに呪文を唱えた！", m_name);
 #else
-			msg_format("You point at %s, incanting terribly!", m_name);
+			if (!who) msg_format("You point at %s, incanting terribly!", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5214,11 +5218,10 @@ msg_format("%sを指差し、恐しげに呪文を唱えた！",m_name);
 			}
 
 			/* Attempt a saving throw */
-			if (randint0(100 + p_ptr->lev) < (r_ptr->level + 35))
+			if (randint0(100 + caster_lev) < (r_ptr->level + 35))
 			{
-
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5233,9 +5236,9 @@ note = "には効果がなかった。";
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
-msg_format("%sの秘孔を突いて、「お前は既に死んでいる」と叫んだ。",m_name);
+			if (!who) msg_format("%sの秘孔を突いて、「お前は既に死んでいる」と叫んだ。", m_name);
 #else
-			msg_format("You point at %s, screaming th word, 'DIE!'.", m_name);
+			if (!who) msg_format("You point at %s, screaming the word, 'DIE!'.", m_name);
 #endif
 
 			if (r_ptr->flags3 & (RF3_RES_ALL))
@@ -5251,11 +5254,10 @@ msg_format("%sの秘孔を突いて、「お前は既に死んでいる」と叫んだ。",m_name);
 			}
 
 			/* Attempt a saving throw */
-			if (randint0(100 + p_ptr->lev) < (r_ptr->level + 35))
+			if (randint0(100 + caster_lev) < (r_ptr->level + 35))
 			{
-
 #ifdef JP
-note = "には効果がなかった。";
+				note = "には効果がなかった。";
 #else
 				note = "is unaffected!";
 #endif
@@ -5292,7 +5294,7 @@ note = "には効果がなかった！";
 			}
 			else
 			{
-				if ((p_ptr->lev + randint1(dam)) >
+				if ((caster_lev + randint1(dam)) >
 					(r_ptr->level + randint1(200)))
 					{
 						dam = ((40 + randint1(20)) * m_ptr->hp) / 100;
@@ -5329,11 +5331,11 @@ msg_format("%sには効果がなかった。",m_name);
 			}
 
 			if (is_pet(m_ptr)) nokori_hp = m_ptr->maxhp*4L;
-			else if ((p_ptr->pclass == CLASS_BEASTMASTER) && (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD | RF3_NONLIVING)))
+			else if ((p_ptr->pclass == CLASS_BEASTMASTER) && monster_living(r_ptr))
 				nokori_hp = m_ptr->maxhp * 3 / 10;
 			else
 				nokori_hp = m_ptr->maxhp * 3 / 20;
-			
+
 			if (m_ptr->hp >= nokori_hp)
 			{
 #ifdef JP
@@ -5620,9 +5622,9 @@ note = "には効果がなかった！";
 		case GF_PHOTO:
 		{
 #ifdef JP
-			msg_format("%sを写真に撮った。",m_name);
+			if (!who) msg_format("%sを写真に撮った。", m_name);
 #else
-			msg_format("You take a photograph of %s.",m_name);
+			if (!who) msg_format("You take a photograph of %s.", m_name);
 #endif
 			/* Hurt by light */
 			if (r_ptr->flags3 & (RF3_HURT_LITE))
@@ -5635,8 +5637,8 @@ note = "には効果がなかった！";
 
 				/* Special effect */
 #ifdef JP
-note = "は光に身をすくめた！";
-note_dies = "は光を受けてしぼんでしまった！";
+				note = "は光に身をすくめた！";
+				note_dies = "は光を受けてしぼんでしまった！";
 #else
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
@@ -6009,6 +6011,8 @@ note = "は弱くなったようだ。";
 
 		/* Wake the monster up */
 		m_ptr->csleep = 0;
+
+		if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2)) p_ptr->update |= (PU_MON_LITE);
 
 		/* Hurt the monster */
 		m_ptr->hp -= dam;
@@ -7626,7 +7630,7 @@ msg_format("しかし効力を跳ね返した！");
 #ifdef JP
 msg_print("あなたは命が薄まっていくように感じた！");
 #else
-				msg_print("Your feel your life fade away!");
+				msg_print("You feel your life fade away!");
 #endif
 
 				get_damage = take_hit(DAMAGE_ATTACK, dam, m_name, MS_HAND_DOOM);
@@ -7981,17 +7985,14 @@ static bool do_disintegration(int by, int bx, int y, int x)
  */ 
 void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte *gm, int *pgm_rad, int rad, int y1, int x1, int y2, int x2, bool disint_ball, bool real_breath)
 {
-	int by, bx;
+	int by = y1;
+	int bx = x1;
 	int brad = 0;
 	int bdis = 0;
 	int cdis;
 	int path_n = 0;
 	int max_dis = distance(y1, x1, y2, x2) + rad;
-	
-	/* Start from origin */	
-	by = y1;
-	bx = x1;
-	
+
 	while (bdis <= max_dis)
 	{
 		if ((path_n < dist) && (distance(by, bx, y1, x1) < bdis))
@@ -8664,7 +8665,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		}
 
 		/* Only do visuals if requested */
-		if (!blind && !(flg & (PROJECT_HIDE)) && !(flg & PROJECT_FAST))
+		if (!blind && !(flg & (PROJECT_HIDE | PROJECT_FAST)))
 		{
 			/* Only do visuals if the player can "see" the bolt */
 			if (panel_contains(y, x) && player_has_los_bold(y, x))
@@ -8716,14 +8717,16 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		}
 	}
 
+	path_n = i;
+
 	/* Save the "blast epicenter" */
 	by = y;
 	bx = x;
 
-	if (breath && (y1 == by) && (x1 == bx))
+	if (breath && !path_n)
 	{
 		breath = FALSE;
-		gm_rad = 1;
+		gm_rad = rad;
 		if (!old_hide)
 		{
 			flg &= ~(PROJECT_HIDE);
@@ -9016,9 +9019,8 @@ else msg_print("攻撃は跳ね返った！");
 					}
 
 					/* Reflected bolts randomly target either one */
-					flg &= ~(PROJECT_MONSTER | PROJECT_PLAYER);
-					if (one_in_(2)) flg |= PROJECT_MONSTER;
-					else flg |= PROJECT_PLAYER;
+					if (one_in_(2)) flg |= PROJECT_PLAYER;
+					else flg &= ~(PROJECT_PLAYER);
 
 					/* The bolt is reflected */
 					project(cave[y][x].m_idx, 0, t_y, t_x, dam, typ, flg, monspell);
@@ -9046,7 +9048,7 @@ else msg_print("攻撃は跳ね返った！");
 				/* Aimed on the player */
 				if (flg & PROJECT_PLAYER)
 				{
-					if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+					if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
 					{
 						/*
 						 * A beam or bolt is well aimed
@@ -9067,8 +9069,9 @@ else msg_print("攻撃は跳ね返った！");
 
 				/*
 				 * This grid is the original target.
+				 * Or aimed on your horse.
 				 */
-				else if ((y == y2) || (x == x2))
+				else if (((y == y2) && (x == x2)) || (flg & PROJECT_AIMED))
 				{
 					/* Hit the mount with full damage */
 				}
@@ -9092,9 +9095,8 @@ else msg_print("攻撃は跳ね返った！");
 					else
 					{
 						/* Hit the player later */
-						flg &= ~(PROJECT_MONSTER);
 						flg |= PROJECT_PLAYER;
-							
+
 						/* Don't affect the mount */
 						continue;
 					}
@@ -9186,8 +9188,10 @@ else msg_print("攻撃は跳ね返った！");
 				 *
 				 * But already choosen to hit the
 				 * mount at this point.
+				 *
+				 * Or aimed on your horse.
 				 */
-				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE))
+				else if (flg & (PROJECT_BEAM | PROJECT_REFLECTABLE | PROJECT_AIMED))
 				{
 					/*
 					 * A beam or bolt is well aimed

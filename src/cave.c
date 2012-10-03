@@ -570,8 +570,10 @@ static void image_monster(byte *ap, char *cp)
 		/* Normal graphics */
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = r_info[randint1(max_r_idx-1)].x_char;
-			(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
+			monster_race *r_ptr = &r_info[randint1(max_r_idx - 1)];
+
+			*cp = r_ptr->x_char;
+			*ap = r_ptr->x_attr;
 		}
 		else
 		/* IBM-pseudo graphics */
@@ -615,8 +617,10 @@ static void image_object(byte *ap, char *cp)
 	{
 		if (!(streq(ANGBAND_SYS, "ibm")))
 		{
-			(*cp) = k_info[randint1(max_k_idx-1)].x_char;
-			(*ap) = k_info[randint1(max_k_idx-1)].x_attr;
+			object_kind *k_ptr = &k_info[randint1(max_k_idx-1)];
+
+			*cp = k_ptr->x_char;
+			*ap = k_ptr->x_attr;
 		}
 		else
 		{
@@ -1428,141 +1432,152 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Visible monster */
 		if (m_ptr->ml)
 		{
-			monster_race *r_ptr;
-			r_ptr = &r_info[m_ptr->ap_r_idx];
-
-			/* Desired attr */
-			a = r_ptr->x_attr;
-
-			/* Desired char */
-			c = r_ptr->x_char;
+			monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
 
 			feat_priority = 30;
 
-			/* Mimics' colors vary */
-			if (strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
+			/* Hallucination */
+			if (p_ptr->image)
 			{
-				/* Use char */
-				(*cp) = c;
-
-				/* Use semi-random attr */
-				(*ap) = c_ptr->m_idx % 15 + 1;
-			}
-
-			/* Special attr/char codes */
-			else if ((a & 0x80) && (c & 0x80))
-			{
-				/* Use char */
-				(*cp) = c;
-
-				/* Use attr */
-				(*ap) = a;
-			}
-
-			/* Multi-hued monster */
-			else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
-			{
-				/* Is it a shapechanger? */
-				if (r_ptr->flags2 & (RF2_SHAPECHANGER))
+				/*
+				 * Monsters with both CHAR_CLEAR and ATTR_CLEAR
+				 * flags are always unseen.
+				 */
+				if ((r_ptr->flags1 & (RF1_CHAR_CLEAR | RF1_ATTR_CLEAR)) == (RF1_CHAR_CLEAR | RF1_ATTR_CLEAR))
 				{
-					if (use_graphics)
+					/* Do nothing */
+				}
+				else
+				{
+					/* Hallucinatory monster */
+					image_monster(ap, cp);
+				}
+			}
+			else
+			{
+				/* Monster attr/char */
+				a = r_ptr->x_attr;
+				c = r_ptr->x_char;
+
+				/* Mimics' colors vary */
+				if (strchr("\"!=", c) && !(r_ptr->flags1 & RF1_UNIQUE))
+				{
+					/* Use char */
+					(*cp) = c;
+
+					/* Use semi-random attr */
+					(*ap) = c_ptr->m_idx % 15 + 1;
+				}
+
+				/* Special attr/char codes */
+				else if ((a & 0x80) && (c & 0x80))
+				{
+					/* Use char */
+					(*cp) = c;
+
+					/* Use attr */
+					(*ap) = a;
+				}
+
+				/* Multi-hued monster */
+				else if (r_ptr->flags1 & (RF1_ATTR_MULTI))
+				{
+					/* Is it a shapechanger? */
+					if (r_ptr->flags2 & (RF2_SHAPECHANGER))
 					{
-						if (!(streq(ANGBAND_SYS, "ibm")))
+						if (use_graphics)
 						{
-							(*cp) = r_info[randint1(max_r_idx-1)].x_char;
-							(*ap) = r_info[randint1(max_r_idx-1)].x_attr;
+							if (!(streq(ANGBAND_SYS, "ibm")))
+							{
+								monster_race *tmp_r_ptr = &r_info[randint1(max_r_idx - 1)];
+								*cp = tmp_r_ptr->x_char;
+								*ap = tmp_r_ptr->x_attr;
+							}
+							else
+							{
+								int n =  strlen(image_monster_hack_ibm);
+								(*cp) = (image_monster_hack_ibm[randint0(n)]);
+
+								/* Random color */
+								(*ap) = randint1(15);
+							}
 						}
 						else
 						{
-							int n =  strlen(image_monster_hack_ibm);
-							(*cp) = (image_monster_hack_ibm[randint0(n)]);
-
-							/* Random color */
-							(*ap) = randint1(15);
+							(*cp) = (one_in_(25) ?
+								image_object_hack[randint0(strlen(image_object_hack))] :
+								image_monster_hack[randint0(strlen(image_monster_hack))]);
 						}
 					}
 					else
+						(*cp) = c;
+
+					/* Multi-hued attr */
+					if (r_ptr->flags2 & RF2_ATTR_ANY)
+						(*ap) = randint1(15);
+					else switch (randint1(7))
 					{
-						(*cp) = (one_in_(25) ?
-							image_object_hack[randint0(strlen(image_object_hack))] :
-							image_monster_hack[randint0(strlen(image_monster_hack))]);
+						case 1:
+							(*ap) = TERM_RED;
+							break;
+						case 2:
+							(*ap) = TERM_L_RED;
+							break;
+						case 3:
+							(*ap) = TERM_WHITE;
+							break;
+						case 4:
+							(*ap) = TERM_L_GREEN;
+							break;
+						case 5:
+							(*ap) = TERM_BLUE;
+							break;
+						case 6:
+							(*ap) = TERM_L_DARK;
+							break;
+						case 7:
+							(*ap) = TERM_GREEN;
+							break;
 					}
 				}
-				else
+
+				/* Normal monster (not "clear" in any way) */
+				else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
+				{
+					/* Use char */
 					(*cp) = c;
 
-				/* Multi-hued attr */
-				if (r_ptr->flags2 & RF2_ATTR_ANY)
-					(*ap) = randint1(15);
-				else switch (randint1(7))
-				{
-					case 1:
-						(*ap) = TERM_RED;
-						break;
-					case 2:
-						(*ap) = TERM_L_RED;
-						break;
-					case 3:
-						(*ap) = TERM_WHITE;
-						break;
-					case 4:
-						(*ap) = TERM_L_GREEN;
-						break;
-					case 5:
-						(*ap) = TERM_BLUE;
-						break;
-					case 6:
-						(*ap) = TERM_L_DARK;
-						break;
-					case 7:
-						(*ap) = TERM_GREEN;
-						break;
-				}
-			}
-
-			/* Normal monster (not "clear" in any way) */
-			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))
-			{
-				/* Use char */
-				(*cp) = c;
-
-				/* Use attr */
-				(*ap) = a;
-			}
-
-			/* Hack -- Bizarre grid under monster */
-			else if ((*ap & 0x80) || (*cp & 0x80))
-			{
-				/* Use char */
-				(*cp) = c;
-
-				/* Use attr */
-				(*ap) = a;
-			}
-
-			/* Normal */
-			else
-			{
-				/* Normal (non-clear char) monster */
-				if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)))
-				{
-					/* Normal char */
-					(*cp) = c;
-				}
-
-				/* Normal (non-clear attr) monster */
-				else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
-				{
-					/* Normal attr */
+					/* Use attr */
 					(*ap) = a;
 				}
-			}
 
-			/* Hack -- hallucination */
-			if (p_ptr->image)
-			{
-				/* Hallucinatory monster */
-				image_monster(ap, cp);
+				/* Hack -- Bizarre grid under monster */
+				else if ((*ap & 0x80) || (*cp & 0x80))
+				{
+					/* Use char */
+					(*cp) = c;
+
+					/* Use attr */
+					(*ap) = a;
+				}
+
+				/* Normal */
+				else
+				{
+					/* Normal (non-clear char) monster */
+					if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)))
+					{
+						/* Normal char */
+						(*cp) = c;
+					}
+
+					/* Normal (non-clear attr) monster */
+					else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)))
+					{
+						/* Normal attr */
+						(*ap) = a;
+					}
+				}
 			}
 		}
 	}
@@ -2127,6 +2142,9 @@ void lite_spot(int y, int x)
 		{
 			/* Term_queue_chars は全角ASCII地形を正しくupdateする。 */
 			Term_queue_chars(panel_col_of(x), y-panel_row_prt, 2, a, &ascii_to_zenkaku[2*(c-' ')]);
+
+			/* Update sub-windows */
+			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 			return;
 		}
 #endif
@@ -2322,10 +2340,10 @@ void prt_path(int y, int x)
 			/* Hack -- Queue it */
 #ifdef USE_TRANSPARENCY
 			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c, ta, tc);
-			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2, 0, 0);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a2, c2, 0, 0);
 #else
 			Term_queue_char(panel_col_of(nx), ny-panel_row_prt, a, c);
-			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a, c2);
+			if (use_bigtile) Term_queue_char(panel_col_of(nx)+1, ny-panel_row_prt, a2, c2);
 #endif
 		}
 
@@ -3384,6 +3402,10 @@ void update_mon_lite(void)
 
 	s16b end_temp;
 
+	/* Non-Ninja player in the darkness */
+	int dis_lim = ((d_info[dungeon_type].flags1 & DF1_DARKNESS) && (p_ptr->pclass != CLASS_NINJA)) ?
+		(MAX_SIGHT / 2 + 1) : (MAX_SIGHT + 3);
+
 	/* Clear all monster lit squares */
 	for (i = 0; i < mon_lite_n; i++)
 	{
@@ -3410,7 +3432,7 @@ void update_mon_lite(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Is it too far away? */
-		if (m_ptr->cdis > ((d_info[dungeon_type].flags1 & DF1_DARKNESS) ? MAX_SIGHT / 2 + 1 : MAX_SIGHT + 3)) continue;
+		if (m_ptr->cdis > dis_lim) continue;
 
 		/* Get lite radius */
 		rad = 0;
@@ -4823,7 +4845,7 @@ void wiz_dark(void)
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update the view and lite */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);

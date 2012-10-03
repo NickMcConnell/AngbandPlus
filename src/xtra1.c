@@ -2958,6 +2958,13 @@ bool buki_motteruka(int i)
 	return ((inventory[i].k_idx && inventory[i].tval >= TV_DIGGING && inventory[i].tval <= TV_SWORD) ? TRUE : FALSE);
 }
 
+
+#ifdef JP
+#undef strchr
+#define strchr strchr_j
+#endif
+
+
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -2995,6 +3002,7 @@ void calc_bonuses(void)
 	bool old_esp_good;
 	bool old_esp_nonliving;
 	bool old_esp_unique;
+	bool old_mighty_throw = p_ptr->mighty_throw;
 	int             old_see_inv;
 	int             old_dis_ac;
 	int             old_dis_to_a;
@@ -3223,8 +3231,8 @@ void calc_bonuses(void)
 			/* Unencumbered Monks become faster every 10 levels */
 			if (!(heavy_armor()))
 			{
-				if (!((p_ptr->prace == RACE_KLACKON) ||
-				      (p_ptr->prace == RACE_SPRITE) ||
+				if (!(prace_is_(RACE_KLACKON) ||
+				      prace_is_(RACE_SPRITE) ||
 				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
 					p_ptr->pspeed += (p_ptr->lev) / 10;
 
@@ -3274,8 +3282,8 @@ void calc_bonuses(void)
 			else if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
 			{
 				p_ptr->pspeed += 3;
-				if (!((p_ptr->prace == RACE_KLACKON) ||
-				      (p_ptr->prace == RACE_SPRITE) ||
+				if (!(prace_is_(RACE_KLACKON) ||
+				      prace_is_(RACE_SPRITE) ||
 				      (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
 					p_ptr->pspeed += (p_ptr->lev) / 10;
 				p_ptr->skill_stl += (p_ptr->lev)/10;
@@ -4142,6 +4150,12 @@ void calc_bonuses(void)
 		}
 	}
 
+	if (old_mighty_throw != p_ptr->mighty_throw)
+	{
+		/* Redraw average damege display of Shuriken */
+		p_ptr->window |= PW_INVEN;
+	}
+
 	if (p_ptr->cursed & TRC_TELEPORT) p_ptr->cursed &= ~(TRC_TELEPORT_SELF);
 
 	/* Monks get extra ac for armour _not worn_ */
@@ -4215,7 +4229,7 @@ void calc_bonuses(void)
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
 
 	/* Golems also get an intrinsic AC bonus */
-	if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_ANDROID))
+	if (prace_is_(RACE_GOLEM) || prace_is_(RACE_ANDROID))
 	{
 		p_ptr->to_a += 10 + (p_ptr->lev * 2 / 5);
 		p_ptr->dis_to_a += 10 + (p_ptr->lev * 2 / 5);

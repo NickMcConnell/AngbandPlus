@@ -1036,6 +1036,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_BOW:
 		{
+			if (o_ptr->art_name) break;
 			if (o_ptr->name2) break;
 			if (cost <= 10L) size += damroll(3, 5);
 			if (cost <= 100L) size += damroll(3, 5);
@@ -4832,7 +4833,7 @@ void do_cmd_store(void)
 
 
 	/* Update everything */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_MON_LITE);
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */

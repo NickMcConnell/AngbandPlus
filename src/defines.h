@@ -47,7 +47,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 11
 #define FAKE_VER_MINOR 4
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_PATCH 5
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -557,6 +557,10 @@
 #define PF_SUMMON_SPELL 0x0010
 #define PF_BALL_SPELL   0x0020
 #define PF_RYOUTE       0x0040
+
+
+/* Maximum number of preservable pets */
+#define MAX_PARTY_MON 21
 
 
 /*
@@ -1691,7 +1695,7 @@
 #define TV_STAFF        55
 #define TV_WAND         65
 #define TV_ROD          66
-#define TV_PARCHEMENT   69
+#define TV_PARCHMENT    69
 #define TV_SCROLL       70
 #define TV_POTION       75
 #define TV_FLASK        77
@@ -2377,6 +2381,15 @@
  *   ITEM: Affect each object in the "blast area" in some way
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
+ *   DISI: Disintegrate non-permanent features
+ *   PLAYER: Main target is player (used for riding player)
+ *   AIMED: Target is only player or monster, so don't affect another.
+ *          Depend on PROJECT_PLAYER.
+ *          (used for minimum (rad == 0) balls on riding player)
+ *   REFLECTABLE: Refrectable spell attacks (used for "bolts")
+ *   NO_HANGEKI: Avoid counter attacks of monsters
+ *   PATH: Only used for printing project path
+ *   FAST: Hide "visual" of flying bolts until blast
  */
 #define PROJECT_JUMP        0x01
 #define PROJECT_BEAM        0x02
@@ -2388,7 +2401,7 @@
 #define PROJECT_HIDE        0x80
 #define PROJECT_DISI        0x100
 #define PROJECT_PLAYER      0x200
-#define PROJECT_MONSTER     0x400
+#define PROJECT_AIMED       0x400
 #define PROJECT_REFLECTABLE 0x800
 #define PROJECT_NO_HANGEKI  0x1000
 #define PROJECT_PATH        0x2000
@@ -3988,16 +4001,21 @@
 #define cave_perma_bold(Y,X) \
 	(((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
 	  (cave[Y][X].feat <= FEAT_PERM_SOLID)) || \
-	 ((cave[Y][X].feat == FEAT_LESS) || \
-	  (cave[Y][X].feat == FEAT_MORE) || \
-	  (cave[Y][X].feat == FEAT_ENTRANCE)) || \
-	 ((cave[Y][X].feat == FEAT_LESS_LESS) || \
-	  (cave[Y][X].feat == FEAT_MORE_MORE)) || \
-	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
+	 (cave[Y][X].feat == FEAT_LESS) || \
+	 (cave[Y][X].feat == FEAT_MORE) || \
+	 (cave[Y][X].feat == FEAT_ENTRANCE) || \
+	 (cave[Y][X].feat == FEAT_LESS_LESS) || \
+	 (cave[Y][X].feat == FEAT_MORE_MORE) || \
+	 (cave[Y][X].feat == FEAT_MOUNTAIN) || \
+	 ((cave[Y][X].feat >= FEAT_QUEST_ENTER) && \
+	  (cave[Y][X].feat <= FEAT_QUEST_UP)) || \
+	 ((cave[Y][X].feat >= FEAT_PATTERN_START) && \
+	  (cave[Y][X].feat <= FEAT_PATTERN_XTRA2)) || \
 	 ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
 	  (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
-	  (cave[Y][X].feat == FEAT_MUSEUM))
+	 (cave[Y][X].feat == FEAT_MUSEUM) || \
+	 ((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
+	  (cave[Y][X].feat <= FEAT_BLDG_TAIL)))
 
 
 /*
@@ -4046,19 +4064,19 @@
 #define cave_perma_grid(C) \
 	((((C)->feat >= FEAT_PERM_EXTRA) && \
 	  ((C)->feat <= FEAT_PERM_SOLID)) || \
-	  ((C)->feat == FEAT_LESS) || \
-	  ((C)->feat == FEAT_MORE) || \
-	  ((C)->feat == FEAT_ENTRANCE) || \
-	  ((C)->feat == FEAT_LESS_LESS) || \
-	  ((C)->feat == FEAT_MORE_MORE) || \
-	  ((C)->feat == FEAT_MOUNTAIN) || \
+	 ((C)->feat == FEAT_LESS) || \
+	 ((C)->feat == FEAT_MORE) || \
+	 ((C)->feat == FEAT_ENTRANCE) || \
+	 ((C)->feat == FEAT_LESS_LESS) || \
+	 ((C)->feat == FEAT_MORE_MORE) || \
+	 ((C)->feat == FEAT_MOUNTAIN) || \
 	 (((C)->feat >= FEAT_QUEST_ENTER) && \
 	  ((C)->feat <= FEAT_QUEST_UP)) || \
 	 (((C)->feat >= FEAT_PATTERN_START) && \
 	  ((C)->feat <= FEAT_PATTERN_XTRA2)) || \
 	 (((C)->feat >= FEAT_SHOP_HEAD) && \
 	  ((C)->feat <= FEAT_SHOP_TAIL)) || \
-	  ((C)->feat == FEAT_MUSEUM) || \
+	 ((C)->feat == FEAT_MUSEUM) || \
 	 (((C)->feat >= FEAT_BLDG_HEAD) && \
 	  ((C)->feat <= FEAT_BLDG_TAIL)))
 

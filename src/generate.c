@@ -185,6 +185,9 @@ static bool alloc_stairs(int feat, int num, int walls)
 				if (i < more_num) c_ptr->feat = feat+0x07;
 				else c_ptr->feat = feat;
 
+				/* No longer a "FLOOR" */
+				c_ptr->info &= ~(CAVE_FLOOR);
+
 				/* All done */
 				flag = TRUE;
 			}
@@ -1465,19 +1468,14 @@ static byte extract_feeling(void)
 
 static void place_pet(void)
 {
-	int i, max_num;
-
-	if (p_ptr->wild_mode)
-		max_num = 1;
-	else
-		max_num = 21;
+	int i;
+	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
 
 	for (i = 0; i < max_num; i++)
 	{
 		int cy, cx, m_idx;
 
 		if (!(party_mon[i].r_idx)) continue;
-
 
 		if (i == 0)
 		{
@@ -1493,9 +1491,9 @@ static void place_pet(void)
 		{
 			int j, d;
 
-			for(d = 1; d < 6; d++)
+			for (d = 1; d < 6; d++)
 			{
-				for(j = 1000; j > 0; j--)
+				for (j = 1000; j > 0; j--)
 				{
 					scatter(&cy, &cx, py, px, d, 0);
 					if ((cave_floor_bold(cy, cx) || (cave[cy][cx].feat == FEAT_TREES)) && !cave[cy][cx].m_idx && !((cy == py) && (cx == px))) break;
@@ -1507,79 +1505,91 @@ static void place_pet(void)
 			else
 				m_idx = m_pop();
 		}
-		
+
 		if (m_idx)
 		{
 			monster_type *m_ptr = &m_list[m_idx];
 			monster_race *r_ptr;
-			
+
 			cave[cy][cx].m_idx = m_idx;
 
 			m_ptr->r_idx = party_mon[i].r_idx;
+
+			/* Copy all member of the structure */
+			*m_ptr = party_mon[i];
 			r_ptr = &r_info[m_ptr->r_idx];
 
-			m_ptr->ap_r_idx = party_mon[i].ap_r_idx;
-			m_ptr->sub_align = party_mon[i].sub_align;
+			if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+			{
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					r_ptr = &r_info[MON_CHAMELEON_K];
+				else
+					r_ptr = &r_info[MON_CHAMELEON];
+			}
+
 			m_ptr->fy = cy;
 			m_ptr->fx = cx;
-			m_ptr->cdis = party_mon[i].cdis;
-			m_ptr->mflag = party_mon[i].mflag;
-			m_ptr->mflag2 = party_mon[i].mflag2;
 			m_ptr->ml = TRUE;
-			m_ptr->hp = party_mon[i].hp;
-			m_ptr->maxhp = party_mon[i].maxhp;
-			m_ptr->max_maxhp = party_mon[i].max_maxhp;
-			m_ptr->mspeed = party_mon[i].mspeed;
-			m_ptr->fast = party_mon[i].fast;
-			m_ptr->slow = party_mon[i].slow;
-			m_ptr->stunned = party_mon[i].stunned;
-			m_ptr->confused = party_mon[i].confused;
-			m_ptr->monfear = party_mon[i].monfear;
-			m_ptr->invulner = party_mon[i].invulner;
-			m_ptr->smart = party_mon[i].smart;
 			m_ptr->csleep = 0;
-			m_ptr->nickname = party_mon[i].nickname;
-			m_ptr->energy_need = party_mon[i].energy_need;
-			m_ptr->exp = party_mon[i].exp;
-			set_pet(m_ptr);
+
+			/* Paranoia */
+			m_ptr->hold_o_idx = 0;
+			m_ptr->target_y = 0;
 
 			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
 			{
 				/* Monster is still being nice */
 				m_ptr->mflag |= (MFLAG_NICE);
-				
+
 				/* Must repair monsters */
 				repair_monsters = TRUE;
 			}
-			
+
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
 			lite_spot(cy, cx);
-			
-			r_ptr->cur_num++;
-			
+
+			/* Pre-calculated in precalc_cur_num_of_pet() */
+			/* r_ptr->cur_num++; */
+
 			/* Hack -- Count the number of "reproducers" */
 			if (r_ptr->flags2 & RF2_MULTIPLY) num_repro++;
-			
+
 			/* Hack -- Notice new multi-hued monsters */
 			if (r_ptr->flags1 & RF1_ATTR_MULTI) shimmer_monsters = TRUE;
 		}
 		else
 		{
+			monster_type *m_ptr = &party_mon[i];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			char m_name[80];
-			
-			monster_desc(m_name, &party_mon[i], 0);
+
+			if (m_ptr->mflag2 & MFLAG_CHAMELEON)
+			{
+				if (r_ptr->flags1 & RF1_UNIQUE)
+					r_ptr = &r_info[MON_CHAMELEON_K];
+				else
+					r_ptr = &r_info[MON_CHAMELEON];
+			}
+
+			monster_desc(m_name, m_ptr, 0);
 #ifdef JP
 			msg_format("%sとはぐれてしまった。", m_name);
 #else
 			msg_format("You have lost sight of %s.", m_name);
 #endif
-			if (record_named_pet && party_mon[i].nickname)
+			if (record_named_pet && m_ptr->nickname)
 			{
-				monster_desc(m_name, &party_mon[i], 0x08);
+				monster_desc(m_name, m_ptr, 0x08);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
 			}
+
+			/* Pre-calculated in precalc_cur_num_of_pet(), but need to decrease */
+			if (r_ptr->cur_num) r_ptr->cur_num--;
 		}
+
+		/* For accuracy of precalc_cur_num_of_pet() */
+		WIPE(&party_mon[i], monster_type);
 	}
 }
 
