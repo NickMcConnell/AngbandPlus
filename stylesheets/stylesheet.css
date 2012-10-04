@@ -58,7 +58,7 @@ header h1 {
 }
 
 header h1:before {
-  content: "./ ";
+  content: "@ ";
   font-size: 24px;
 }
 
@@ -220,6 +220,11 @@ hr {
 .btn-github .icon {
   opacity: 0.6;
   background: url("../images/blacktocat.png") 0 0 no-repeat;
+}
+
+.btn-angband .icon {
+  opacity: 0.6;
+  background: url("../images/att-16.png") 0 0 no-repeat;
 }
 
 /* Links
