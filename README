@@ -8,7 +8,7 @@ Hacked By: Alex Cutler, Andy Astrand
 Further Hacks By: Sean Marsh, Geoff Hill
 Bug fixes: Sean Marsh, Geoff Hill, Charles Teague
 
-Further Work and Other Variants: Many Authors
+Further Hacks Still and Other Variants: Many Authors
 
 For a particular variant, choose the branch named after it
 
@@ -16,5 +16,4 @@ To download source code for (for example) PsiAngband 1.0.7 from Github:
 1. Choose branch PsiAngband
 2. Select 'history'
 3. Select 'Browse code' from next to PsiAngband 1.0.7 in the list
-4. Edit the URL to replace 'tree' by 'zipball' (for .zip) or 'tarball' (for .tar.gz)
-5. Hit enter to start downloading (note that it will have a silly name)
+4. Select the ZIP button (note that it will have a silly name)
