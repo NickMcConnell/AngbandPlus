@@ -212,7 +212,7 @@ early days of Moria.
 First of all, yes, I really am the Robert Koeneke who wrote the first
 Moria.  I had a lot of mail accussing me of pulling their leg and
 such.  I just recently connected to Internet (yes, I work for a
-company in the dark ages where Internet is concerned) and 
+company in the dark ages where Internet is concerned) and
 was real surprised to find Moria in the news groups...  Angband was an
 even bigger surprise, since I have never seen it.  I probably spoke to
 its originator though...  I have given permission to lots of people
@@ -376,7 +376,7 @@ Copyright (c) 1989 James E. Wilson, Robert A. Keoneke
 
 Umoria Version 5.2, patch level 1
 
-Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, 
+Angband Version 2.0   Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill,
                       Charles Teague.
 
 Angband Version 2.4   :  5/09/93

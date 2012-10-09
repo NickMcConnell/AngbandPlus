@@ -1,0 +1,37 @@
+a (unused)                   A Activate an artifact    ^A wizard commands
+b Browse a book              B Bash a door             ^B borg commands
+c Close a door               C Character description   ^C (special - break)
+d Drop an item               D Disarm a trap           ^D (unused)
+e Equipment list             E Eat some food           ^E Toggle choice window
+f Fire an item               F Fuel your lantern/torch ^F Repeat level feeling
+g Stay still (with pickup)   G (unused)                ^G (unused)
+h (unused)                   H (unused)                ^H (unused)
+i Inventory list             I Observe an item         ^I (special - tab)
+j Jam a door                 J (unused)                ^J (special - linefeed)
+k Destroy an item            K (unused)                ^K (unused)
+l Look around                L Locate player on map    ^L (unused)
+m use magic spell            M Full dungeon map        ^M (special - return)
+n (unused)                   N (unused)                ^N (unused)
+o Open a door / chest        O (unused)                ^O (unused)
+p (unused)                   P (unused)                ^P Show messages
+q Quaff a potion             Q Quit (commit suicide)   ^Q (unused)
+r Read a scroll/spell        R Rest for a period       ^R Redraw the screen
+s Search traps/doors         S Toggle search mode      ^S Save and don't quit
+t Take off equipment         T Dig a tunnel            ^T (unused)
+u (unused)                   U (unused)                ^U (unused)
+v Throw an item              V Version info            ^V (unused)
+w Wear/wield                 W (unused)                ^W wizard mode
+x (unused)                   X (unused)                ^X Save and quit
+y (unused)                   Y (unused)                ^Y (unused)
+z zap wand/rod/staff         Z (unused)                ^Z (unused)
+
+@ Set options                # check various things     _ (unused)
+^ (special - control key)    | (unused)                 $ Save and don't quit
+* Choose Target              ~ (unused)                 : Take notes
+( Load screen dump           ? Help                     " (unused)
+{ Inscribe an object         ) Dump screen dump         < Go up staircase
+[ Wear/Wield equipment       } Uninscribe an object     > Go down staircase
+- Walk (flip pickup)         ] Take off equipment       ` (special - escape)
++ Dig tunnel                                            ' (unused)
+, Stay still (no pickup)     ; Walk (with pickup)       \ (special - bypass keymap)
+/ Identify symbol            . Run

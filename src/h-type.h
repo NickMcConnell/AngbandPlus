@@ -81,7 +81,7 @@ typedef int errr;
  * Hack -- prevent problems with C++
  */
 #undef bool
-#define bool bool_hack
+#define bool bool_angband_hack 
 
 
 /* Note that "signed char" is not always "defined" */
@@ -95,8 +95,9 @@ typedef unsigned char byte;
 
 /* Note that a bool is smaller than a full "int" */
 /* Simple True/False type */
+#ifndef USE_NCURSES
 typedef char bool;
-
+#endif
 
 /* A signed, standard integer (at least 2 bytes) */
 typedef int sint;
@@ -117,7 +118,7 @@ typedef signed short s16b;
 typedef unsigned short u16b;
 
 /* Signed/Unsigned 32 bit value */
-#ifdef L64	/* 64 bit longs */
+#ifdef L64      /* 64 bit longs */
 typedef signed int s32b;
 typedef unsigned int u32b;
 #else
@@ -125,8 +126,14 @@ typedef signed long s32b;
 typedef unsigned long u32b;
 #endif
 
-
-
+/* Signed/Unsigned 64 bit value (more flags need more space - jk */
+#ifdef L64
+typedef signed long s64b;
+typedef unsigned long u64b;
+#else
+typedef signed long long s64b;
+typedef unsigned long long u64b;
+#endif
 
 /*** Pointers to all the basic types defined above ***/
 
@@ -143,6 +150,8 @@ typedef s16b *s16b_ptr;
 typedef u16b *u16b_ptr;
 typedef s32b *s32b_ptr;
 typedef u32b *u32b_ptr;
+typedef s64b *s64b_ptr;
+typedef u64b *u64b_ptr;
 typedef vptr *vptr_ptr;
 typedef cptr *cptr_ptr;
 
@@ -150,35 +159,35 @@ typedef cptr *cptr_ptr;
 
 /*** Pointers to Functions with simple return types and any args ***/
 
-typedef void	(*func_void)();
-typedef errr	(*func_errr)();
-typedef char	(*func_char)();
-typedef byte	(*func_byte)();
-typedef bool	(*func_bool)();
-typedef sint	(*func_sint)();
-typedef uint	(*func_uint)();
-typedef real	(*func_real)();
-typedef vptr	(*func_vptr)();
-typedef cptr	(*func_cptr)();
+typedef void    (*func_void)();
+typedef errr    (*func_errr)();
+typedef char    (*func_char)();
+typedef byte    (*func_byte)();
+typedef bool    (*func_bool)();
+typedef sint    (*func_sint)();
+typedef uint    (*func_uint)();
+typedef real    (*func_real)();
+typedef vptr    (*func_vptr)();
+typedef cptr    (*func_cptr)();
 
 
 
 /*** Pointers to Functions of special types (for various purposes) ***/
 
 /* A generic function takes a user data and a special data */
-typedef errr	(*func_gen)(vptr, vptr);
+typedef errr    (*func_gen)(vptr, vptr);
 
 /* An equality testing function takes two things to compare (bool) */
-typedef bool	(*func_eql)(vptr, vptr);
+typedef bool    (*func_eql)(vptr, vptr);
 
 /* A comparison function takes two things and to compare (-1,0,+1) */
-typedef sint	(*func_cmp)(vptr, vptr);
+typedef sint    (*func_cmp)(vptr, vptr);
 
 /* A hasher takes a thing (and a max hash size) to hash (0 to siz - 1) */
-typedef uint	(*func_hsh)(vptr, uint);
+typedef uint    (*func_hsh)(vptr, uint);
 
 /* A key extractor takes a thing and returns (a pointer to) some key */
-typedef vptr	(*func_key)(vptr);
+typedef vptr    (*func_key)(vptr);
 
 
 

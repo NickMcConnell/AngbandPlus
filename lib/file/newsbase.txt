@@ -1,0 +1,20 @@
+
+                    > Angband/64 beta __version__ release __release__ <
+                      ====Released __shortdate__===
+
+         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
+             and Umoria:    Copyright (c) 1989 James E. Wilson
+
+       Angband 2.0 - 2.4.?: Alex Cutler, Andy Astrand, Sean Marsh,
+                            Geoff Hill, Charles Teague, and others
+       Angband 2.5 - 2.6.2: Charles Swiger (cs4w+@andrew.cmu.edu)
+       Angband 2.7 - 2.8.3: Ben Harrison (benh@voicenet.com)
+       Curses/X11 Versions: Ben Harrison, Torbjorn Lindgren
+         for more info on Angband, see http://www.phial.com
+
+       This Angband/64 beta version: Jurriaan Kalkman (thunder7@xs4all.nl)
+
+Angband/64 is available as precompiled executable for linux, win32 & dos and in
+source form, and tries to be compatible with all gcc/g++-supporting systems.
+
+see http://www.xs4all.nl/~thunder7 for more info, or email thunder7@xs4all.nl

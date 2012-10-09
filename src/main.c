@@ -1,4 +1,5 @@
 /* File: main.c */
+/* lclint-2.4b clean 120798 */
 
 /* Purpose: initialization, main() function and main loop */
 
@@ -12,83 +13,83 @@
 
 #include "angband.h"
 
-
 /*
  * Some machines have a "main()" function in their "main-xxx.c" file,
  * all the others use this file for their "main()" function.
  */
 
-
 #if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
-
 
 #ifdef SET_UID
 
 /*
  * Check "wizard permissions"
  */
-static bool is_wizard(int uid)
+static bool is_wizard(s16b uid)
 {
-    FILE	*fp;
+   bool     allow = FALSE;
 
-    bool	allow = FALSE;
-
-    char	buf[1024];
+   char     buf[1024];
 
 
-    /* Access the "wizards.txt" file */
-    strcpy(buf, ANGBAND_DIR_FILE);
-    strcat(buf, "wizards.txt");
+   /* Access the "wizards.txt" file */
+   strncpy(buf, ANGBAND_DIR_FILE, 1023);
+   buf[1023]='\0';
+   strcat(buf, "wizards.txt");
 
-    /* Open the wizard file */
-    fp = my_fopen(buf, "r");
+   /* Open the wizard file */
+   wizardfile = my_fopen(buf, "r");
 
-    /* No file, allow everyone */
-    if (!fp) return (TRUE);
+   /* No file, allow everyone */
+   if (!wizardfile) return (TRUE);
 
-    /* Scan the wizard file */
-    while (0 == my_fgets(fp, buf, 1024))
-    {
-        int test;
+   /* Scan the wizard file */
+   while (0 == my_fgets(wizardfile, buf, 1024))
+   {
+      int test;
 
-        /* Skip comments and blank lines */
-        if (!buf[0] || (buf[0] == '#')) continue;
+      /* Skip comments and blank lines */
+      if ((buf[0]==(char)0) || (buf[0] == '#')) continue;
 
-        /* Look for valid entries */
-        if (sscanf(buf, "%d", &test) != 1) continue;
+      /* Look for valid entries */
+      if (sscanf(buf, "%d", &test) != 1) continue;
 
-        /* Look for matching entries */
-        if (test == uid) allow = TRUE;
+      /* Look for matching entries */
+      if (test == uid) allow = TRUE;
 
-        /* Done */
-        if (allow) break;
-    }
+      /* Done */
+      if (allow) break;
+   }
 
-    /* Close the file */
-    my_fclose(fp);
+   /* Close the file */
+   (void)my_fclose(wizardfile);
 
-    /* Result */
-    return (allow);
+   /* Result */
+   return (allow);
 }
 
 #endif
-
 
 /*
  * A hook for "quit()".
  *
  * Close down, then fall back into "quit()".
  */
-static void quit_hook(cptr s)
+static void quit_hook(/*@unused@*/ cptr s)
 {
-    /* Shut down the term windows */
-    if (term_choice) term_nuke(term_choice);
-    if (term_recall) term_nuke(term_recall);
-    if (term_mirror) term_nuke(term_mirror);
-    if (term_screen) term_nuke(term_screen);
+   /* Shut down the term windows */
+   int j;
+
+   /* Scan windows */
+   for (j = 8 - 1; j >= 0; j--)
+   {
+     /* Unused */
+     if (!angband_term[j]) continue;
+
+     /* Nuke it */
+     (void)term_nuke(angband_term[j]);
+   }
 }
-
-
 
 /*
  * Set the stack size (for the Amiga)
@@ -97,7 +98,6 @@ static void quit_hook(cptr s)
 # include <dos.h>
 __near long __stack = 32768L;
 #endif
-
 
 /*
  * Set the stack size and overlay buffer (see main-286.c")
@@ -113,10 +113,10 @@ extern unsigned _ovrbuffer = 0x1500;
 /*
  * Initialize and verify the file paths, and the score file.
  *
- * Use the ANGBAND_PATH environment var if possible, else use
+ * Use the ANGBAND64_PATH environment var if possible, else use
  * DEFAULT_PATH, and in either case, branch off appropriately.
  *
- * First, we'll look for the ANGBAND_PATH environment variable,
+ * First, we'll look for the ANGBAND64_PATH environment variable,
  * and then look for the files in there.  If that doesn't work,
  * we'll try the DEFAULT_PATH constant.  So be sure that one of
  * these two things works...
@@ -128,33 +128,70 @@ extern unsigned _ovrbuffer = 0x1500;
  */
 static void init_stuff(void)
 {
-    char path[1024];
-
+   char path[1024];
 
 #if defined(AMIGA) || defined(VM)
-
-    /* Hack -- prepare "path" */
-    strcpy(path, "Angband:");
+   /* Hack -- prepare "path" */
+   strncpy(path, "Angband:", 1023);
+   path[1023]='\0';
 
 #else /* AMIGA / VM */
 
-    cptr tail;
+   cptr tail;
 
-    /* Get the environment variable */
-    tail = getenv("ANGBAND_PATH");
+   /* Get the environment variable */
+   tail = getenv("ANGBAND64_PATH");
 
-    /* Use the angband_path, or a default */
-    strcpy(path, tail ? tail : DEFAULT_PATH);
+   /* Use the angband_path, or a default */
+   strncpy(path, tail ? tail : DEFAULT_PATH, 1023);
+   path[1023]='\0';
 
-    /* Hack -- Add a path separator (only if needed) */
-    if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+   /* Hack -- Add a path separator (only if needed) */
+   if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
 
 #endif /* AMIGA / VM */
 
-    /* Initialize */
-    init_file_paths(path);
+   /* Initialize */
+   init_file_paths(path);
 }
 
+/*
+ * test and set the debug-flags present in buf
+ */
+static s16b test_debug_flags(char *buf)
+{
+   char *s, *t;
+   s16b i;
+
+   /* Parse every entry textually */
+   for (s = buf ; *s; )
+   {
+      /* Find the end of this entry */
+      for (t = s; *t && (*t != ',') && (*t != ' '); ++t) ;
+
+      /* Nuke and skip any dividers */
+      if (*t)
+      {
+          *t++ = '\0';
+          while (*t == ',') t++;
+      }
+
+      /* Parse this entry */
+      /* Scan flags1 */
+      for (i = 0; i < 32; i++)
+      {
+         if (streq(s, debug_flag[i].name))
+         {
+            debuglevel |= (1L << i);
+            break;
+         }
+      }
+
+       /* Start the next entry */
+       s = t;
+   }
+   return(0);
+}
 
 
 /*
@@ -168,77 +205,62 @@ static void init_stuff(void)
  */
 int main(int argc, char *argv[])
 {
-    bool done = FALSE;
+   bool done = FALSE;
 
-    bool new_game = FALSE;
+   bool new_game = FALSE;
 
-    int show_score = 0;
+   s16b show_score = 0;
 
+   cptr use_module = NULL;
 
-    /* Save the "program name" */
-    argv0 = argv[0];
+/* jk - we cant use a term until further on */
+   term_initialized=FALSE;
 
+/* jk - this is the absolute start of the program.. */
+
+   /* Save the "program name" */
+   argv0 = argv[0];
 
 #ifdef USE_286
-    /* Attempt to use XMS (or EMS) memory for swap space */
-    if (_OvrInitExt(0L, 0L))
-    {
-       _OvrInitEms(0,0,64);
-    }
+   /* Attempt to use XMS (or EMS) memory for swap space */
+   if (_OvrInitExt(0L, 0L))
+   {
+      _OvrInitEms(0,0,64);
+   }
 #endif
-
 
 #ifdef SET_UID
 
-    /* Default permissions on files */
-    (void)umask(022);
+   /* Default permissions on files */
+   (void)umask(022);
 
 # ifdef SECURE
-    /* Authenticate */
-    Authenticate();
+   /* Authenticate */
+   Authenticate();
 # endif
 
 #endif
 
-
-    /* Get the file paths */
-    init_stuff();
-
+   /* Get the file paths */
+   init_stuff();
 
 #ifdef SET_UID
 
-    /* Get the user id (?) */
-    player_uid = getuid();
+   /* Get the user id (?) */
+   player_uid = (s16b)getuid();
 
 #ifdef VMS
-    /* Mega-Hack -- Factor group id */
-    player_uid += (getgid() * 1000);
+   /* Mega-Hack -- Factor group id */
+   player_uid += (getgid() * 1000);
 #endif
 
 # ifdef SAFE_SETUID
 
 #  ifdef _POSIX_SAVED_IDS
 
-    /* Save some info for later */
-    player_euid = geteuid();
-    player_egid = getegid();
-
-#  endif
-
-#  if 0	/* XXX XXX XXX */
-
-    /* Redundant setting necessary in case root is running the game */
-    /* If not root or game not setuid the following two calls do nothing */
-
-    if (setgid(getegid()) != 0)
-    {
-      quit("setgid(): cannot set permissions correctly!");
-    }
-
-    if (setuid(geteuid()) != 0)
-    {
-      quit("setuid(): cannot set permissions correctly!");
-    }
+   /* Save some info for later */
+   player_euid = (s16b)geteuid();
+   player_egid = (s16b)getegid();
 
 #  endif
 
@@ -246,297 +268,387 @@ int main(int argc, char *argv[])
 
 #endif
 
-
-    /* Assume "Wizard" permission */
-    can_be_wizard = TRUE;
+   /* Assume "Wizard" permission */
+   can_be_wizard = TRUE;
 
 #ifdef SET_UID
 
-    /* Check for "Wizard" permission */
-    can_be_wizard = is_wizard(player_uid);
+   /* Check for "Wizard" permission */
+   can_be_wizard = is_wizard(player_uid);
 
-    /* Initialize the "time" checker */
-    if (check_time_init() || check_time())
-    {
-        quit("The gates to Angband are closed (bad time).");
-    }
+   /* Initialize the "time" checker */
+   if ((check_time_init()!=0) || (check_time()!=0))
+   {
+      quit("The gates to Angband are closed (bad time).");
+   }
 
-    /* Initialize the "load" checker */
-    if (check_load_init() || check_load())
-    {
-        quit("The gates to Angband are closed (bad load).");
-    }
+   /* Initialize the "load" checker */
+   if ((check_load_init()!=0) || (check_load()!=0))
+   {
+      quit("The gates to Angband are closed (bad load).");
+   }
 
-    /* Acquire the "user name" as a default player name */
-    user_name(player_name, player_uid);
+
+   /* Acquire the "user name" as a default player name */
+   user_name(player_name, player_uid);
 
 #endif
+/* jk */
+   force_templates=FALSE;
+   read_options=FALSE;
 
+   /* Process the command line arguments */
+   for (--argc, ++argv; argc > 0; --argc, ++argv)
+   {
+      /* Require proper options */
+      if (argv[0][0] != '-') goto usage;
 
-    /* Process the command line arguments */
-    for (--argc, ++argv; argc > 0; --argc, ++argv)
-    {
-        /* Require proper options */
-        if (argv[0][0] != '-') goto usage;
-
-        /* Analyze option */
-        switch (argv[0][1])
-        {
-            case 'c':
-            case 'C':
-                ANGBAND_DIR_USER = &argv[0][2];
-                break;
+      /* Analyze option */
+      switch (argv[0][1])
+      {
+         case 'c':
+         case 'C':
+            ANGBAND_DIR_USER = &argv[0][2];
+            break;
 
 #ifndef VERIFY_SAVEFILE
-            case 'd':
-            case 'D':
-                ANGBAND_DIR_SAVE = &argv[0][2];
-                break;
+         case 'd':
+         case 'D':
+            ANGBAND_DIR_SAVE = &argv[0][2];
+            break;
 #endif
 
-            case 'i':
-            case 'I':
-                ANGBAND_DIR_INFO = &argv[0][2];
-                break;
+         case 'G':
+         case 'g':
+            arg_graphics = TRUE;
+            break;
 
-            case 'N':
-            case 'n':
-                new_game = TRUE;
-                break;
+         case 'i':
+         case 'I':
+            ANGBAND_DIR_INFO = &argv[0][2];
+            break;
 
-            case 'R':
-            case 'r':
-                arg_force_roguelike = TRUE;
-                break;
+/* jk */
+         case 'l':
+         case 'L':
+            if (argv[0][2]==(char)0) goto usage;
+            strncpy (ANGBAND_OPTION_FILE,&argv[0][2], 1023);
+            ANGBAND_OPTION_FILE[1023]='\0';
+            read_options=TRUE;
+         break;
 
-            case 'O':
-            case 'o':
-                arg_force_original = TRUE;
-                break;
+         case 'm':
+         case 'M':
+         {
+            if (!argv[0][2]) goto usage;
+            use_module = &argv[0][2];
+            break;
+         }
 
-            case 'V':
-            case 'v':
-                use_sound = TRUE;
-                break;
+         case 'N':
+         case 'n':
+            new_game = TRUE;
+            break;
 
-            case 'G':
-            case 'g':
-                use_graphics = TRUE;
-                break;
-
-            case 'S':
-            case 's':
-                show_score = atoi(&argv[0][2]);
-                if (show_score <= 0) show_score = 10;
-                break;
-
-            case 'F':
-            case 'f':
-                arg_fiddle = TRUE;
-                break;
+         case 'O':
+         case 'o':
+            arg_force_original = TRUE;
+            break;
 
 #ifdef SET_UID
-            case 'P':
-            case 'p':
-                if (can_be_wizard)
-                {
-                    player_uid = atoi(&argv[0][2]);
-                    user_name(player_name, player_uid);
-                }
-                break;
+         case 'P':
+         case 'p':
+            if (can_be_wizard)
+            {
+               player_uid = (s16b)atoi(&argv[0][2]);
+               user_name(player_name, player_uid);
+            }
+            break;
+#endif
+         case 'Q':
+         case 'q':
+            if ( (argv[0][2]=='?') && (argv[0][3]=='2') )
+            {
+               s16b i;
+
+               puts("options 17-32 for -q (example: -qSAVE,ITEMS,EXTRA)");
+               for (i=16; i < 32; i++)
+               {
+                  puts(format("%-6s %s", debug_flag[i].name, debug_flag[i].explanation));
+               }
+               puts("incorrect flags will be silently ignored.");
+               puts("** be careful with these, they may give a 100 megabyte+ logfile with a few moves.");
+               quit("end of -q?2, use -q? to get the first 16 flags output");
+            }
+            else if (argv[0][2]=='?')
+            {
+               s16b i;
+
+               puts("options 1-16 for -q (example: -qSAVE,ITEMS,EXTRA)");
+               for (i=0; i < 16; i++)
+               {
+                  puts(format("%-6s %s", debug_flag[i].name, debug_flag[i].explanation));
+               }
+               puts("incorrect flags will be silently ignored.");
+               puts("** be careful with these, they may give a 100 megabyte+ logfile with a few moves.");
+               quit("end of -q?, use -q?2 to get the last 16 flags output");
+            }
+            else
+            {
+               (void)test_debug_flags(&argv[0][2]);
+            }
+            break;
+
+         case 'R':
+         case 'r':
+            arg_force_roguelike = TRUE;
+            break;
+
+         case 'S':
+         case 's':
+            show_score = (s16b)atoi(&argv[0][2]);
+            if (show_score <= 0) show_score = 10;
+            break;
+
+         case 't':
+         case 'T':
+            force_templates=TRUE;
+            break;
+
+         case 'u':
+         case 'U':
+            if (argv[0][2]==(char)0) goto usage;
+            strncpy(player_name, &argv[0][2],31);
+            player_name[31]='\0';
+            break;
+
+         case 'V':
+         case 'v':
+            arg_sound = TRUE;
+            break;
+
+         case 'W':
+         case 'w':
+            if (can_be_wizard) arg_wizard = TRUE;
+            break;
+
+         case 'x':
+         case 'X':
+            if (argv[0][2]==(char)0)
+               errlog=NULL;
+            else
+            {
+               strncpy (ANGBAND_ERRLOG_FILE,&argv[0][2], 1023);
+               ANGBAND_ERRLOG_FILE[1023]='\0';
+               errlog = my_fopen(ANGBAND_ERRLOG_FILE,"a");
+               if (!errlog)
+               {
+                  quit(format("Failed to open log file %s",
+                              ANGBAND_ERRLOG_FILE));
+               }
+               dlog(DEBUGALWAYS,"Angband/64 started\n");
+            }
+         break;
+
+         default:
+         usage:
+            /* Note -- the Term is NOT initialized */
+
+            (void)puts("Usage: angband [options]");
+            (void)puts("  -c<path> Look for pref files in the directory <path>");
+            (void)puts("  -d<path> Look for save files in the directory <path>");
+            (void)puts("  -g       Activate the arg_graphics flag");
+            (void)puts("  -i<path> Look for info files in the directory <path>");
+            (void)puts("  -l<name> Load user-defined options from lib/xtra/<name>");
+            (void)puts("  -m<sys>  Force the use of the 'main-<sys>.c' interface module");
+            (void)puts("  -n       Start a new character");
+            (void)puts("  -o       Use the original keyset");
+            (void)puts("  -p<uid>  Play with the <uid> userid");
+            (void)puts("  -q<str,str,...>  Sets the debug-flagset. Use -q? to get detailed help.");
+            (void)puts("  -r       Use the rogue-like keyset");
+            (void)puts("  -s<num>  Show <num> high scores (or top 10).");
+            (void)puts("  -t       Force reloading of templates");
+            (void)puts("  -u<name> Play with <name> savefile");
+            (void)puts("  -v       Activate the arg_sound flag");
+            (void)puts("  -w       Activate 'wizard' mode");
+            (void)puts("  -x<name> Write debug/error-log to file <name>");
+            (void)puts("           use -x without a name to stop writing this log!");
+            (void)puts("not all options are supported for the win32-target, check angband.ini!");
+
+            /* Actually abort the process */
+            quit("Error: arguments wrong");
+      }
+   }
+
+#ifdef ALWAYS_LOAD_TEMPLATES
+   force_templates = TRUE;
 #endif
 
-            case 'W':
-            case 'w':
-                if (can_be_wizard) arg_wizard = TRUE;
-                break;
+   /* Process the player name */
+   process_player_name(TRUE);
 
-            case 'u':
-            case 'U':
-                if (!argv[0][2]) goto usage;
-                strcpy(player_name, &argv[0][2]);
-                break;
-
-            default:
-            usage:
-
-                /* Note -- the Term is NOT initialized */
-                puts("Usage: angband [options]");
-                puts("  -n       Start a new character");
-                puts("  -o       Use the original keyset");
-                puts("  -r       Use the rogue-like keyset");
-                puts("  -v       Activate the use_sound flag");
-                puts("  -g       Activate the use_graphics flag");
-                puts("  -f       Activate 'fiddle' mode");
-                puts("  -w       Activate 'wizard' mode");
-                puts("  -p<uid>  Play with the <uid> userid");
-                puts("  -u<name> Play with your <name> savefile");
-                puts("  -s<num>  Show <num> high scores (or top 10).");
-                puts("  -c<path> Look for pref files in the directory <path>");
-                puts("  -d<path> Look for save files in the directory <path>");
-                puts("  -i<path> Look for info files in the directory <path>");
-
-                /* Actually abort the process */
-                quit(NULL);
-        }
-    }
-
-
-    /* Process the player name */
-    process_player_name(TRUE);
-
-
-
-    /* Drop privs (so X11 will work correctly) */
-    safe_setuid_drop();
-
+dlog(DEBUGSAVE,"main.c: main: process_player_name called, savefile %s\n", savefile);
+   /* Drop privs (so X11 will work correctly) */
+   safe_setuid_drop();
 
 #ifdef USE_XAW
-    /* Attempt to use the "main-xaw.c" support */
-    if (!done)
-    {
-        extern errr init_xaw(void);
-        if (0 == init_xaw()) done = TRUE;
-        if (done) ANGBAND_SYS = "xaw";
-    }
+   /* Attempt to use the "main-xaw.c" support */
+   if (!done && (!use_module || (streq(use_module, "xaw"))))
+   {
+     extern errr init_xaw(int, char**);
+     if (0 == init_xaw(argc, argv)) done=TRUE;
+     if (done) ANGBAND_SYS = "xaw";
+   }
 #endif
 
 #ifdef USE_X11
-    /* Attempt to use the "main-x11.c" support */
-    if (!done)
-    {
-        extern errr init_x11(void);
-        if (0 == init_x11()) done = TRUE;
-        if (done) ANGBAND_SYS = "x11";
-    }
+   /* Attempt to use the "main-x11.c" support */
+   if (!done && (!use_module || (streq(use_module, "x11"))))
+   {
+      extern errr init_x11(int, char**);
+      if (0 == init_x11(argc, argv)) done = TRUE;
+      if (done) ANGBAND_SYS = "x11";
+   }
 #endif
-
 
 #ifdef USE_GCU
-    /* Attempt to use the "main-gcu.c" support */
-    if (!done)
-    {
-        extern errr init_gcu(void);
-        if (0 == init_gcu()) done = TRUE;
-        if (done) ANGBAND_SYS = "gcu";
-    }
+   /* Attempt to use the "main-gcu.c" support */
+   if (!done && (!use_module || (streq(use_module, "gcu"))))
+   {
+      extern errr init_gcu(int, char**);
+      if (0 == init_gcu(argc, argv)) done = TRUE;
+      if (done) ANGBAND_SYS = "gcu";
+   }
 #endif
+
+#ifdef USE_PDC
+   /* Attempt to use the "main-pdc.c" support */
+   if (!done && (!use_module || (streq(use_module, "pdc"))))
+   {
+      extern errr init_pdc(int, char**);
+      if (0 == init_gcu(argc, argv)) done = TRUE;
+      if (done) ANGBAND_SYS = "pdc";
+   }
+#endif
+
 
 #ifdef USE_CAP
-    /* Attempt to use the "main-cap.c" support */
-    if (!done)
-    {
-        extern errr init_cap(void);
-        if (0 == init_cap()) done = TRUE;
-        if (done) ANGBAND_SYS = "cap";
-    }
+   /* Attempt to use the "main-cap.c" support */
+   if (!done && (!use_module || (streq(use_module, "cap"))))
+   {
+      extern errr init_cap(int, char**);
+      if (0 == init_cap(argc, argv)) done = TRUE;
+      if (done) ANGBAND_SYS = "cap";
+   }
 #endif
 
-
 #ifdef USE_IBM
-    /* Attempt to use the "main-ibm.c" support */
-    if (!done)
-    {
-        extern errr init_ibm(void);
-        if (0 == init_ibm()) done = TRUE;
-        if (done) ANGBAND_SYS = "ibm";
-    }
+   /* Attempt to use the "main-ibm.c" support */
+   if (!done && (!use_module || (streq(use_module, "ibm"))))
+   {
+      extern errr init_ibm(void);
+      if (0 == init_ibm()) done = TRUE;
+      if (done) ANGBAND_SYS = "ibm";
+   }
+#endif
+
+#ifdef USE_DOS
+   /* Attempt to use the "main-dos.c" support */
+   if (!done && (!use_module || (streq(use_module, "dos"))))
+   {
+      extern errr init_dos(void);
+      if (0 == init_dos()) done = TRUE;
+      if (done) ANGBAND_SYS = "dos";
+   }
 #endif
 
 #ifdef __EMX__
-    /* Attempt to use the "main-emx.c" support */
-    if (!done)
-    {
-        extern errr init_emx(void);
-        if (0 == init_emx()) done = TRUE;
-        if (done) ANGBAND_SYS = "emx";
-    }
+   /* Attempt to use the "main-emx.c" support */
+   if (!done && (!use_module || (streq(use_module, "emx"))))
+   {
+      extern errr init_emx(void);
+      if (0 == init_emx()) done = TRUE;
+      if (done) ANGBAND_SYS = "emx";
+   }
 #endif
-
 
 #ifdef USE_SLA
-    /* Attempt to use the "main-sla.c" support */
-    if (!done)
-    {
-        extern errr init_sla(void);
-        if (0 == init_sla()) done = TRUE;
-        if (done) ANGBAND_SYS = "sla";
-    }
+   /* Attempt to use the "main-sla.c" support */
+   if (!done && (!use_module || (streq(use_module, "sla"))))
+   {
+      extern errr init_sla(void);
+      if (0 == init_sla()) done = TRUE;
+      if (done) ANGBAND_SYS = "sla";
+   }
 #endif
-
 
 #ifdef USE_LSL
-    /* Attempt to use the "main-lsl.c" support */
-    if (!done)
-    {
-        extern errr init_lsl(void);
-        if (0 == init_lsl()) done = TRUE;
-        if (done) ANGBAND_SYS = "lsl";
-    }
+   /* Attempt to use the "main-lsl.c" support */
+   if (!done && (!use_module || (streq(use_module, "lsl"))))
+   {
+      extern errr init_lsl(void);
+      if (0 == init_lsl()) done = TRUE;
+      if (done) ANGBAND_SYS = "lsl";
+   }
 #endif
 
-
 #ifdef USE_AMI
-    /* Attempt to use the "main-ami.c" support */
-    if (!done)
-    {
-        extern errr init_ami(void);
-        if (0 == init_ami()) done = TRUE;
-        if (done) ANGBAND_SYS = "ami";
-    }
+   /* Attempt to use the "main-ami.c" support */
+   if (!done && (!use_module || (streq(use_module, "ami"))))
+   {
+      extern errr init_ami(void);
+      if (0 == init_ami()) done = TRUE;
+      if (done) ANGBAND_SYS = "ami";
+   }
 #endif
 
 
 #ifdef USE_VME
-    /* Attempt to use the "main-vme.c" support */
-    if (!done)
-    {
-        extern errr init_vme(void);
-        if (0 == init_vme()) done = TRUE;
-        if (done) ANGBAND_SYS = "vme";
-    }
+   /* Attempt to use the "main-vme.c" support */
+   if (!done && (!use_module || (streq(use_module, "vme"))))
+   {
+      extern errr init_vme(void);
+      if (0 == init_vme()) done = TRUE;
+      if (done) ANGBAND_SYS = "vme";
+   }
 #endif
 
+   /* Grab privs (dropped above for X11) */
+   safe_setuid_grab();
 
-    /* Grab privs (dropped above for X11) */
-    safe_setuid_grab();
+   /* Make sure we have a display! */
+   if (!done) quit("Unable to prepare any 'display module'!");
 
+/* jk - from now on, we can use a term */
+   term_initialized=TRUE;
 
-    /* Make sure we have a display! */
-    if (!done) quit("Unable to prepare any 'display module'!");
+dlog(DEBUGFLOW,"main.c: term initializes as %s\n", ANGBAND_SYS);
+   /* Tell "quit()" to call "Term_nuke()" */
+   quit_aux = quit_hook;
 
+   /* If requested, display scores and quit */
+   if (show_score > 0) display_scores(0, show_score);
 
-    /* Tell "quit()" to call "Term_nuke()" */
-    quit_aux = quit_hook;
+   /* Catch nasty signals */
+   signals_init();
+dlog(DEBUGFLOW,"main.c: signal initializes\n");
 
+   /* Display the 'news' file */
+   init_angband();
 
-    /* If requested, display scores and quit */
-    if (show_score > 0) display_scores(0, show_score);
+   /* Wait for response */
+   pause_line(23);
 
+   /* Play the game */
+   play_game(new_game);
 
-    /* Catch nasty signals */
-    signals_init();
-
-    /* Display the 'news' file */
-    show_news();
-
-    /* Initialize the arrays */
-    init_some_arrays();
-
-    /* Wait for response */
-    pause_line(23);
-
-    /* Play the game */
-    play_game(new_game);
-
-    /* Quit */
-    quit(NULL);
-
-    /* Exit */
-    return (0);
+   /* Quit */
+   quit(NULL);
+   return(0);
 }
 
 #endif
+
 
 
 

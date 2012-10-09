@@ -1,10 +1,21 @@
 /* File: main-emx.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison, Ekkehard Kraemer, and others
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 /* Purpose: Support for OS/2 EMX Angband */
 
 /* Author: ekraemer@pluto.camelot.de (Ekkehard Kraemer) */
 
-#ifdef __EMX__
+/* Current maintainer: silasd@psyber.com (Silas Dunsmore) */
+/* Unless somebody else wants it.... */
+
+#ifdef USE_EMX
 
 /*
  * === Instructions for using Angband 2.7.X with OS/2 ===
@@ -52,7 +63,7 @@
  *                              Introduced __EMX__CLIENT__ hack
  *
  *  15.12.95   EK      2.7.9    Updated for 2.7.9
- *                     beta     Added mirror view
+ *                     beta     Added third view
  *                              Added number of line support in aclient
  *
  *  25.12.95   EK      2.7.9    Added 'install' target
@@ -74,6 +85,13 @@
  *
  *   9.03.96   EK      2.7.9    Adjustable background color (PM)
  *                      v5      Added map window
+
+ *  3 Dec 97   SWD      282     Brought key-handling, macros in sync with DOS.
+ *                              Hacked on sub-window code -- it compiles, but
+ *                              doesn't link.
+ *
+ * 23 Jan 98   SWD      282     Hacked more on sub-windows.  Now links, with
+ *                              warnings.  Seems to work.
  */
 
 #include <signal.h>
@@ -81,10 +99,34 @@
 #include <stdlib.h>
 #include <sys/kbdscan.h>
 #include <io.h>
+#define INCL_KBD 1
 #include <os2.h>
 #include <sys/video.h>
 
 #include "angband.h"
+
+
+/*
+ * Maximum windows
+ */
+#define MAX_TERM_DATA 8
+
+
+/*
+ * Keypress input modifier flags (copied from main-ibm.c)
+ *
+ * SWD: these could be changed to the definitions in <os2.h>, which are
+ *      direct bitmasks instead of shift-counts.
+ */
+#define K_RSHIFT	0	/* Right shift key down */
+#define K_LSHIFT	1	/* Left shift key down */
+#define K_CTRL		2	/* Ctrl key down */
+#define K_ALT		3	/* Alt key down */
+#define K_SCROLL	4	/* Scroll lock on */
+#define K_NUM		5	/* Num lock on */
+#define K_CAPS		6	/* Caps lock on */
+#define K_INSERT	7	/* Insert on */
+
 
 /*
  * Prototypes!
@@ -104,8 +146,8 @@ static void Term_nuke_emx(term *t);
 
 typedef struct
 {
-    term t;
-    FILE *out;                  /* used by the ..._pipe_emx stuff */
+	term t;
+	FILE *out;                  /* used by the ..._pipe_emx stuff */
 } termPipe;
 
 /*
@@ -114,12 +156,12 @@ typedef struct
 
 enum
 {
-    PIP_INIT,
-    PIP_NUKE,
-    PIP_XTRA,
-    PIP_CURS,
-    PIP_WIPE,
-    PIP_TEXT,
+	PIP_INIT,
+	PIP_NUKE,
+	PIP_XTRA,
+	PIP_CURS,
+	PIP_WIPE,
+	PIP_TEXT,
 };
 
 
@@ -145,22 +187,22 @@ static int curs_end=0;
  */
 static int colors[16]=
 {
-    F_BLACK,                    /* Black */
-    F_WHITE|INTENSITY,          /* White */
-    F_WHITE,                    /* XXX Gray */
-    F_RED|INTENSITY,            /* Orange */
-    F_RED,                      /* Red */
-    F_GREEN,                    /* Green */
-    F_BLUE,                     /* Blue */
-    F_BROWN,                    /* Brown */
-    F_BLACK|INTENSITY,          /* Dark-grey */
-    F_WHITE,                    /* XXX Light gray */
-    F_MAGENTA,                  /* Purple */
-    F_YELLOW|INTENSITY,         /* Yellow */
-    F_RED|INTENSITY,            /* Light Red */
-    F_GREEN|INTENSITY,          /* Light Green */
-    F_BLUE|INTENSITY,           /* Light Blue */
-    F_BROWN|INTENSITY           /* Light brown */
+	F_BLACK,                    /* Black */
+	F_WHITE|INTENSITY,          /* White */
+	F_WHITE,                    /* XXX Gray */
+	F_RED|INTENSITY,            /* Orange */
+	F_RED,                      /* Red */
+	F_GREEN,                    /* Green */
+	F_BLUE,                     /* Blue */
+	F_BROWN,                    /* Brown */
+	F_BLACK|INTENSITY,          /* Dark-grey */
+	F_WHITE,                    /* XXX Light gray */
+	F_MAGENTA,                  /* Purple */
+	F_YELLOW|INTENSITY,         /* Yellow */
+	F_RED|INTENSITY,            /* Light Red */
+	F_GREEN|INTENSITY,          /* Light Green */
+	F_BLUE|INTENSITY,           /* Light Blue */
+	F_BROWN|INTENSITY           /* Light brown */
 };
 
 /*
@@ -168,10 +210,10 @@ static int colors[16]=
  */
 static errr Term_curs_emx(int x, int y)
 {
-    v_gotoxy(x,y);
-    v_ctype(curs_start,curs_end);
+	v_gotoxy(x, y);
+	v_ctype(curs_start, curs_end);
 
-    return (0);
+	return (0);
 }
 
 /*
@@ -179,10 +221,10 @@ static errr Term_curs_emx(int x, int y)
  */
 static errr Term_wipe_emx(int x, int y, int n)
 {
-    v_gotoxy(x,y);
-    v_putn(' ',n);
+	v_gotoxy(x, y);
+	v_putn(' ', n);
 
-    return (0);
+	return (0);
 }
 
 /*
@@ -190,12 +232,12 @@ static errr Term_wipe_emx(int x, int y, int n)
  */
 static errr Term_text_emx(int x, int y, int n, unsigned char a, cptr s)
 {
-    /* Convert the color and put the text */
-    v_attrib(colors[a & 0x0F]);
-    v_gotoxy(x,y);
-    v_putm(s,n);
+	/* Convert the color and put the text */
+	v_attrib(colors[a & 0x0F]);
+	v_gotoxy(x, y);
+	v_putm(s, n);
 
-    return (0);
+	return (0);
 }
 
 /*
@@ -203,28 +245,51 @@ static errr Term_text_emx(int x, int y, int n, unsigned char a, cptr s)
  */
 static void Term_init_emx(term *t)
 {
-    v_init();
-    v_getctype(&curs_start,&curs_end);
-    v_clear();
+	struct _KBDINFO kbdinfo;	/* see structure description ?somewhere? */
 
-    signal(SIGHUP,SIG_IGN);
-    signal(SIGINT,SIG_IGN);
-    signal(SIGQUIT,SIG_IGN);
-/*  signal(SIGILL,SIG_IGN);  */
-/*  signal(SIGTRAP,SIG_IGN); */
-/*  signal(SIGABRT,SIG_IGN); */
-/*  signal(SIGEMT,SIG_IGN);  */
-/*  signal(SIGFPE,SIG_IGN);  */
-/*  signal(SIGBUS,SIG_IGN);  */
-/*  signal(SIGSEGV,SIG_IGN); */
-/*  signal(SIGSYS,SIG_IGN);  */
-    signal(SIGPIPE,SIG_IGN);
-    signal(SIGALRM,SIG_IGN);
-/*  signal(SIGTERM,SIG_IGN); */
-    signal(SIGUSR1,SIG_IGN);
-    signal(SIGUSR2,SIG_IGN);
-    signal(SIGCHLD,SIG_IGN);
-    signal(SIGBREAK,SIG_IGN);
+	v_init();
+	v_getctype(&curs_start, &curs_end);
+	/* hide cursor (?) XXX XXX XXX */
+	v_clear();
+
+	/* the documentation I (SWD) have implies, in passing, that setting */
+	/* "binary mode" on the keyboard device will prevent the O/S from */
+	/* acting on keys such as ^S (pause) and ^P (printer echo). */
+
+	/* note also that "KbdSetStatus is ignored for a Vio-windowed application." */
+	/* so there may well be problems with running this in a window.  Damnit. */
+
+	/* this is kind of a nasty structure, as you can't just flip a bit */
+	/* to change binary/ASCII mode, or echo on/off mode... nor can you */
+	/* clear the whole thing -- certain bits need to be preserved. */
+
+	KbdGetStatus(&kbdinfo, (HKBD)0);
+	kbdinfo.fsMask &= ~ (KEYBOARD_ECHO_ON|	/* clear lowest four bits */
+		KEYBOARD_ECHO_OFF|KEYBOARD_BINARY_MODE|KEYBOARD_ASCII_MODE);
+	kbdinfo.fsMask |= (KEYBOARD_BINARY_MODE);	/* set bit two */
+	KbdSetStatus(&kbdinfo, (HKBD)0);
+
+#if 1 /* turn off for debug */
+	signal(SIGHUP, SIG_IGN);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	/*  signal(SIGILL,SIG_IGN);  */
+	/*  signal(SIGTRAP,SIG_IGN); */
+	/*  signal(SIGABRT,SIG_IGN); */
+	/*  signal(SIGEMT,SIG_IGN);  */
+	/*  signal(SIGFPE,SIG_IGN);  */
+	/*  signal(SIGBUS,SIG_IGN);  */
+	/*  signal(SIGSEGV,SIG_IGN); */
+	/*  signal(SIGSYS,SIG_IGN);  */
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGALRM, SIG_IGN);
+	/*  signal(SIGTERM,SIG_IGN); */
+	signal(SIGUSR1, SIG_IGN);
+	signal(SIGUSR2, SIG_IGN);
+	signal(SIGCHLD, SIG_IGN);
+	signal(SIGBREAK, SIG_IGN);
+#endif
+
 }
 
 /*
@@ -232,17 +297,17 @@ static void Term_init_emx(term *t)
  */
 static void Term_nuke_emx(term *t)
 {
-    /* Move the cursor to bottom of screen */
-    v_gotoxy(0,23);
+	/* Move the cursor to bottom of screen */
+	v_gotoxy(0, 23);
 
-    /* Restore the cursor (not necessary) */
-    v_ctype(curs_start,curs_end);
+	/* Restore the cursor (not necessary) */
+	v_ctype(curs_start, curs_end);
 
-    /* Set attribute to gray on black */
-    v_attrib(F_WHITE);
+	/* Set attribute to gray on black */
+	v_attrib(F_WHITE);
 
-    /* Clear the screen */
-    v_clear();
+	/* Clear the screen */
+	v_clear();
 }
 
 
@@ -259,7 +324,7 @@ static errr Term_text_pipe_emx(int x, int y, int n, unsigned char a, cptr s);
 static void Term_init_pipe_emx(term *t);
 static void Term_nuke_pipe_emx(term *t);
 static FILE *initPipe(char *name);
-static void initPipeTerm(termPipe *pipe,char *name,term **term);
+static void initPipeTerm(termPipe *pipe, char *name, term **term);
 
 /*
  * Main initialization function
@@ -269,11 +334,8 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termPipe term_screen_main,
-                term_screen_recall,
-                term_screen_choice,
-                term_screen_mirror,
-                term_screen_map;
+static termPipe term_screen[MAX_TERM_DATA];
+
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -281,431 +343,619 @@ static termPipe term_screen_main,
  * Note -- this is probably NOT the most efficient way
  * to "wait" for a keypress (TERM_XTRA_EVENT).
  *
- * _read_kbd(0,0,0) does this:
- *       - if no key is available, return -1
- *       - if extended key available, return 0
- *       - normal key available, return ASCII value (1 ... 255)
  *
- *  _read_kbd(0,1,0) waits on a key and then returns
- *       - 0, if it's an extended key
- *       - the ASCII value, if it's a normal key
+ * This code was ripped from "main-ibm.c" -- consult it to
+ * figure out what's going on.
  *
- *  *If* _read_kbd() returns 0, *then*, and only then, the next
- *  call to _read_kbd() will return the extended scan code.
- *
- * See "main-ibm.c" for a "better" use of "macro sequences".
- *
- * Note that this file does *NOT* currently extract modifiers
- * (such as Control and Shift).  See "main-ibm.c" for a method.
- *
- * XXX XXX XXX XXX The "key handling" really needs to be fixed.
  * See "main-ibm.c" for more information about "macro encoding".
+ *
+ *
+ * The following documentation was cut&pasted from
+ * the OS/2 Programming Reference, PRCP.INF
+ * <ftp://hobbes.nmsu.edu/pub/os2/dev/16-bit/inf16bit.zip>
+-------------------------------------------------------------------------------
+
+
+ This call returns a character data record from the keyboard.
+
+  KbdCharIn    (CharData, IOWait, KbdHandle)
+
+  CharData (PKBDKEYINFO) - output
+     Address of the character data structure:
+
+     asciicharcode (UCHAR)
+        ASCII character code. The scan code received from the keyboard is
+        translated to the ASCII character code.
+
+     scancode (UCHAR)
+        Code received from the keyboard.  The scan code received from the
+        keyboard is translated to the ASCII character code.
+
+     status (UCHAR)
+        State of the keystroke event:
+
+        Bit       Description
+
+        7-6       00 = Undefined
+
+                  01 = Final character, interim character flag off
+
+                  10 = Interim character
+
+                  11 = Final character, interim character flag on.
+
+        5         1 = Immediate conversion requested.
+
+        4-2       Reserved.
+
+        1         0 = Scan code is a character.
+
+                  1 = Scan code is not a character; is an extended key code
+                  from the keyboard.
+
+        0         1 = Shift status returned without character.
+
+     reserved (UCHAR)
+        NLS shift status.  Reserved, set to zero.
+
+     shiftkeystat (USHORT)
+        Shift key status.
+
+        Bit       Description
+        15        SysReq key down
+        14        CapsLock key down
+        13        NumLock key down
+        12        ScrollLock key down
+        11        Right Alt key down
+        10        Right Ctrl key down
+        9         Left Alt key down
+        8         Left Ctrl key down
+        7         Insert on
+        6         CapsLock on
+        5         NumLock on
+        4         ScrollLock on
+        3         Either Alt key down
+        2         Either Ctrl key down
+        1         Left Shift key down
+        0         Right Shift key down
+
+     time (ULONG)
+        Time stamp indicating when a key was pressed.  It is specified in
+        milliseconds from the time the system was started.
+
+  IOWait (USHORT) - input
+     Wait if a character is not available.
+
+     Value     Definition
+     0         Requestor waits for a character if one is not available.
+     1         Requestor gets an immediate return if no character is
+               available.
+
+  KbdHandle (HKBD) - input
+     Default keyboard or the logical keyboard.
+
+  rc (USHORT) - return
+     Return code descriptions are:
+
+     0         NO_ERROR
+     375       ERROR_KBD_INVALID_IOWAIT
+     439       ERROR_KBD_INVALID_HANDLE
+     445       ERROR_KBD_FOCUS_REQUIRED
+     447       ERROR_KBD_KEYBOARD_BUSY
+     464       ERROR_KBD_DETACHED
+     504       ERROR_KBD_EXTENDED_SG
+
+  Remarks
+
+  On an enhanced keyboard, the secondary enter key returns the normal
+  character 0DH and a scan code of E0H.
+
+  Double-byte character codes (DBCS) require two function calls to obtain
+  the entire code.
+
+  If shift report is set with KbdSetStatus, the CharData record returned
+  reflects changed shift information only.
+
+  Extended ASCII codes are identified with the status byte, bit 1 on and the
+  ASCII character code being either 00H or E0H. Both conditions must be
+  satisfied for the character to be an extended keystroke.  For extended
+  ASCII codes, the scan code byte returned is the second code (extended
+  code). Usually the extended ASCII code is the scan code of the primary
+  key that was pressed.
+
+  A thread in the foreground session that repeatedly polls the keyboard
+  with KbdCharIn (with no wait), can prevent all regular priority class
+  threads from executing.  If polling must be used and a minimal amount of
+  other processing is being performed, the thread should periodically yield to
+  the CPU by issuing a DosSleep call for an interval of at least 5
+  milliseconds.
+
+
+  Family API Considerations
+
+  Some options operate differently in the DOS mode than in the OS /2 mode.
+  Therefore, the following restrictions apply to KbdCharIn when coding in
+  the DOS mode:
+
+  o The CharData structure includes everything except the time stamp.
+  o Interim character is not supported
+  o Status can be 0 or 40H
+  o KbdHandle is ignored.
+
+
+-------------------------------------------------------------------------------
+
+
+   typedef struct _KBDKEYINFO {   / * kbci * /
+     UCHAR    chChar;             / * ASCII character code * /
+     UCHAR    chScan;             / * Scan Code * /
+     UCHAR    fbStatus;           / * State of the character * /
+     UCHAR    bNlsShift;          / * Reserved (set to zero) * /
+     USHORT   fsState;            / * State of the shift keys * /
+     ULONG    time;               / * Time stamp of keystroke (ms since ipl) * /
+   }KBDKEYINFO;
+
+   #define INCL_KBD
+
+   USHORT  rc = KbdCharIn(CharData, IOWait, KbdHandle);
+
+   PKBDKEYINFO      CharData;      / * Buffer for data * /
+   USHORT           IOWait;        / * Indicate if wait * /
+   HKBD             KbdHandle;     / * Keyboard handle * /
+
+   USHORT           rc;            / * return code * /
+
+
+-------------------------------------------------------------------------------
+ *
  */
 static errr CheckEvents(int returnImmediately)
 {
-    int k = 0, ke = 0;
+	int i, k, s;
 
-    /* Get key */
-    k=_read_kbd(0,returnImmediately?0:1,0);
+	bool mc = FALSE;
+	bool ms = FALSE;
+	bool ma = FALSE;
 
-    /* Nothing ready */
-    if (k < 0) return (1);
+	/* start OS/2 specific section */
 
-    /* Get an extended scan code */
-    if (!k) ke = _read_kbd(0,1,0);
+	struct _KBDKEYINFO keyinfo;	/* see structure description above */
 
-    /* Normal keypresses */
-    if (k)
-    {
-        /* Enqueue the key */
-        Term_keypress(k);
+	/* Check (and possibly wait) for a keypress */
+	/* see function description above */
+	KbdCharIn( &keyinfo, returnImmediately, (HKBD)0 );
 
-        /* Success */
-        return (0);
-    }
+#if 0
+	printf("AC:%x SC:%x ST:%x R1:%x SH:%x TI:%ld\n",	/* OS/2 debug */
+		keyinfo.chChar,
+		keyinfo.chScan,
+		keyinfo.fbStatus,
+		keyinfo.bNlsShift,
+		keyinfo.fsState,
+		keyinfo.time );
+#endif
 
-    /* Hack -- introduce a macro sequence */
-    Term_keypress(31);
+	/* If there wasn't a key, leave now. */
+	if ((keyinfo.fbStatus & 0xC0) == 0) return(1);
 
-    /* XXX We're not able to extract shift/ctrl/alt key information here. */
 
-    /* Hack -- send the key sequence */
-    Term_keypress('0' + (ke % 1000) / 100);
-    Term_keypress('0' + (ke % 100) / 10);
-    Term_keypress('0' + (ke % 10));
+	/* by a set of lucky coincidences, the data maps directly over. */
+	k = keyinfo.chChar;
+	s = keyinfo.chScan;
+	i = (keyinfo.fsState & 0xFF);
 
-    /* Hack --  end the macro sequence */
-    Term_keypress(13);
+	/* end OS/2 specific section */
 
-    /* Success */
-    return (0);
+
+	/* Process "normal" keys */
+	if ( k != 0 && ((s <= 58) || (s == 0xE0)) )	/* Tweak: allow for ALT-keys */
+	{
+		/* Enqueue it */
+		Term_keypress(k);
+
+		/* Success */
+		return (0);
+	}
+
+	/* Extract the modifier flags */
+	if (i & (1 << K_CTRL)) mc = TRUE;
+	if (i & (1 << K_LSHIFT)) ms = TRUE;
+	if (i & (1 << K_RSHIFT)) ms = TRUE;
+	if (i & (1 << K_ALT)) ma = TRUE;
+
+
+	/* Begin a "macro trigger" */
+	Term_keypress(31);
+
+	/* Hack -- Send the modifiers */
+	if (mc) Term_keypress('C');
+	if (ms) Term_keypress('S');
+	if (ma) Term_keypress('A');
+
+	/* Introduce the hexidecimal scan code */
+	Term_keypress('x');
+
+	/* Encode the hexidecimal scan code */
+	Term_keypress(hexsym[s/16]);
+	Term_keypress(hexsym[s%16]);
+
+	/* End the "macro trigger" */
+	Term_keypress(13);
+
+	/* Success */
+	return (0);
 }
+
+
 
 /*
  * Do a special thing (beep, flush, etc)
  */
 static errr Term_xtra_emx(int n, int v)
 {
-    switch (n)
-    {
-        case TERM_XTRA_SHAPE:
-            if (v)
-            {
-                v_ctype(curs_start,curs_end);
-            }
-            else
-            {
-                v_hidecursor();
-            }
-            return (0);
+	switch (n)
+	{
+		case TERM_XTRA_SHAPE:
+		if (v)
+		{
+			v_ctype(curs_start, curs_end);
+		}
+		else
+		{
+			v_hidecursor();
+		}
+		return (0);
 
-        case TERM_XTRA_NOISE:
-            DosBeep(440,50);
-            return (0);
+		case TERM_XTRA_NOISE:
+		DosBeep(440, 50);
+		return (0);
 
-        case TERM_XTRA_FLUSH:
-            while (!CheckEvents(TRUE));
-            return 0;
+		case TERM_XTRA_FLUSH:
+		while (!CheckEvents(TRUE));
+		return 0;
 
-        case TERM_XTRA_EVENT:
+		case TERM_XTRA_EVENT:
 
-            /* Process an event */
-            return (CheckEvents(!v));
+		/* Process an event */
+		return (CheckEvents(!v));
 
-            /* Success */
-            return (0);
+		/* Success */
+		return (0);
 
-        case TERM_XTRA_CLEAR:
-            v_clear();
-            return (0);
-    }
+		case TERM_XTRA_CLEAR:
+		v_clear();
+		return (0);
+	}
 
-    return (1);
+	return (1);
 }
 
 static errr Term_xtra_pipe_emx(int n, int v)
 {
-    termPipe *tp=(termPipe*)Term;
+	termPipe *tp=(termPipe*)Term;
 
-    switch (n)
-    {
-        case TERM_XTRA_NOISE:
-            DosBeep(440,50);
-            return (0);
+	switch (n)
+	{
+		case TERM_XTRA_NOISE:
+		DosBeep(440, 50);
+		return (0);
 
-        case TERM_XTRA_SHAPE:
-            return (0);
+		case TERM_XTRA_SHAPE:
+		return (0);
 
-        case TERM_XTRA_EVENT:
-            return (CheckEvents(FALSE));
+		case TERM_XTRA_EVENT:
+		return (CheckEvents(FALSE));
 
-        case TERM_XTRA_CLEAR:
+		case TERM_XTRA_CLEAR:
 
-            if (!tp->out) return -1;
+		if (!tp->out) return -1;
 
-            fputc(PIP_XTRA,tp->out);
-            fwrite(&n,sizeof(n),1,tp->out);
-            fwrite(&v,sizeof(v),1,tp->out);
-            fflush(tp->out);
+		fputc(PIP_XTRA, tp->out);
+		fwrite(&n, sizeof(n), 1, tp->out);
+		fwrite(&v, sizeof(v), 1, tp->out);
+		fflush(tp->out);
 
-            return (0);
-    }
+		return (0);
+	}
 
-    return (1);
+	return (1);
 }
 
 static errr Term_curs_pipe_emx(int x, int y)
 {
-    termPipe *tp=(termPipe*)Term;
+	termPipe *tp=(termPipe*)Term;
 
-    if (!tp->out) return -1;
+	if (!tp->out) return -1;
 
-    fputc(PIP_CURS,tp->out);
-    fwrite(&x,sizeof(x),1,tp->out);
-    fwrite(&y,sizeof(y),1,tp->out);
-    fflush(tp->out);
+	fputc(PIP_CURS, tp->out);
+	fwrite(&x, sizeof(x), 1, tp->out);
+	fwrite(&y, sizeof(y), 1, tp->out);
+	fflush(tp->out);
 
-    return (0);
+	return (0);
 }
 
 
 static errr Term_wipe_pipe_emx(int x, int y, int n)
 {
-    termPipe *tp=(termPipe*)Term;
+	termPipe *tp=(termPipe*)Term;
 
-    if (!tp->out) return -1;
+	if (!tp->out) return -1;
 
-    fputc(PIP_WIPE,tp->out);
-    fwrite(&x,sizeof(x),1,tp->out);
-    fwrite(&y,sizeof(y),1,tp->out);
-    fwrite(&n,sizeof(n),1,tp->out);
-    fflush(tp->out);
+	fputc(PIP_WIPE, tp->out);
+	fwrite(&x, sizeof(x), 1, tp->out);
+	fwrite(&y, sizeof(y), 1, tp->out);
+	fwrite(&n, sizeof(n), 1, tp->out);
+	fflush(tp->out);
 
-    return (0);
+	return (0);
 }
 
 
 static errr Term_text_pipe_emx(int x, int y, int n, unsigned char a, cptr s)
 {
-    termPipe *tp=(termPipe*)Term;
+	termPipe *tp=(termPipe*)Term;
 
-    if (!tp->out) return -1;
+	if (!tp->out) return -1;
 
-    fputc(PIP_TEXT,tp->out);
-    fwrite(&x,sizeof(x),1,tp->out);
-    fwrite(&y,sizeof(y),1,tp->out);
-    fwrite(&n,sizeof(n),1,tp->out);
-    fwrite(&a,sizeof(a),1,tp->out);
-    fwrite(s,n,1,tp->out);
-    fflush(tp->out);
+	fputc(PIP_TEXT, tp->out);
+	fwrite(&x, sizeof(x), 1, tp->out);
+	fwrite(&y, sizeof(y), 1, tp->out);
+	fwrite(&n, sizeof(n), 1, tp->out);
+	fwrite(&a, sizeof(a), 1, tp->out);
+	fwrite(s, n, 1, tp->out);
+	fflush(tp->out);
 
-    return (0);
+	return (0);
 }
 
 
 static void Term_init_pipe_emx(term *t)
 {
-    termPipe *tp=(termPipe*)t;
+	termPipe *tp=(termPipe*)t;
 
-    if (tp->out)
-    {
-        fputc(PIP_INIT,tp->out);
-        fflush(tp->out);
-    }
+	if (tp->out)
+	{
+		fputc(PIP_INIT, tp->out);
+		fflush(tp->out);
+	}
 }
 
 
 static void Term_nuke_pipe_emx(term *t)
 {
-    termPipe *tp=(termPipe*)t;
+	termPipe *tp=(termPipe*)t;
 
-    if (tp->out)
-    {
-        fputc(PIP_NUKE,tp->out); /* Terminate client */
-        fflush(tp->out);
-        fclose(tp->out);         /* Close Pipe */
-        tp->out=NULL;            /* Paranoia */
-    }
+	if (tp->out)
+	{
+		fputc(PIP_NUKE, tp->out); /* Terminate client */
+		fflush(tp->out);
+		fclose(tp->out);         /* Close Pipe */
+		tp->out=NULL;            /* Paranoia */
+	}
 }
 
-static void initPipeTerm(termPipe *pipe,char *name,term **termTarget)
+static void initPipeTerm(termPipe *pipe, char *name, term **termTarget)
 {
-    term *t;
+	term *t;
 
-    t=(term*)pipe;
+	t=(term*)pipe;
 
-    if ((pipe->out=initPipe(name))!=NULL)
-    {
-        /* Initialize the term */
-        term_init(t, 80, 24, 1);
+	if ((pipe->out=initPipe(name))!=NULL)
+	{
+		/* Initialize the term */
+		term_init(t, 80, 24, 1);
 
-        /* Special hooks */
-        t->init_hook = Term_init_pipe_emx;
-        t->nuke_hook = Term_nuke_pipe_emx;
+		/* Special hooks */
+		t->init_hook = Term_init_pipe_emx;
+		t->nuke_hook = Term_nuke_pipe_emx;
 
-        /* Add the hooks */
-        t->text_hook = Term_text_pipe_emx;
-        t->wipe_hook = Term_wipe_pipe_emx;
-        t->curs_hook = Term_curs_pipe_emx;
-        t->xtra_hook = Term_xtra_pipe_emx;
+		/* Add the hooks */
+		t->text_hook = Term_text_pipe_emx;
+		t->wipe_hook = Term_wipe_pipe_emx;
+		t->curs_hook = Term_curs_pipe_emx;
+		t->xtra_hook = Term_xtra_pipe_emx;
 
-        /* Save it */
-        *termTarget = t;
+		/* Save it */
+		*termTarget = t;
 
-        /* Activate it */
-        Term_activate(t);
-    }
+		/* Activate it */
+		Term_activate(t);
+	}
 }
 
 /*
- * Prepare "term.c" to use "__EMX__" built-in video library
+ * Prepare "term.c" to use "USE_EMX" built-in video library
  */
 errr init_emx(void)
 {
-    term *t;
+	int i;
 
-    /* Initialize the pipe windows */
-    initPipeTerm(&term_screen_recall,"recall",&term_recall);
-    initPipeTerm(&term_screen_choice,"choice",&term_choice);
-    initPipeTerm(&term_screen_mirror,"mirror",&term_mirror);
-    initPipeTerm(&term_screen_map,   "map",   &term_map);
+	term *t;
 
-    /* Initialize main window */
-    t = (term*)(&term_screen_main);
+	/* Initialize the pipe windows */
+	for (i = MAX_TERM_DATA-1; i > 0; --i)
+	{
+		const char *name = angband_term_name[i];
+		initPipeTerm(&term_screen[i], name, &angband_term[i]);
+	}
 
-    /* Initialize the term -- big key buffer */
-    term_init(t, 80, 24, 1024);
+	/* Initialize main window */
+	t = (term*)(&term_screen[0]);
 
-    /* Special hooks */
-    t->init_hook = Term_init_emx;
-    t->nuke_hook = Term_nuke_emx;
+	/* Initialize the term -- big key buffer */
+	term_init(t, 80, 24, 1024);
 
-    /* Add the hooks */
-    t->text_hook = Term_text_emx;
-    t->wipe_hook = Term_wipe_emx;
-    t->curs_hook = Term_curs_emx;
-    t->xtra_hook = Term_xtra_emx;
+	/* Special hooks */
+	t->init_hook = Term_init_emx;
+	t->nuke_hook = Term_nuke_emx;
 
-    /* Save it */
-    term_screen = t;
+	/* Add the hooks */
+	t->text_hook = Term_text_emx;
+	t->wipe_hook = Term_wipe_emx;
+	t->curs_hook = Term_curs_emx;
+	t->xtra_hook = Term_xtra_emx;
 
-    /* Activate it */
-    Term_activate(t);
+	/* Save it */
+	term_screen = t;
 
-    /* Success */
-    return (0);
+	/* Activate it */
+	Term_activate(t);
+
+	/* Success */
+	return (0);
 }
 
 static FILE *initPipe(char *name)
 {
-    char buf[256];
-    FILE *fi;
+	char buf[256];
+	FILE *fi;
 
-    sprintf(buf,"\\pipe\\angband\\%s",name);   /* Name of pipe */
-    fi=fopen(buf,"wb");                        /* Look for server */
-    return fi;
+	sprintf(buf, "\\pipe\\angband\\%s", name);   /* Name of pipe */
+	fi=fopen(buf, "wb");                        /* Look for server */
+	return fi;
 }
 
 #else /* __EMX__CLIENT__ */
 
 int main(int argc, char **argv)
 {
-    int c, end = 0, lines = 25;
-    int x, y, h, n, v;
+	int c, end = 0, lines = 25;
+	int x, y, h, n, v;
 
-    FILE *in=NULL;
-    char a;
-    char buf[160];
-    HPIPE pipe;
-    APIRET rc;
-    char *target;
+	FILE *in=NULL;
+	char a;
+	char buf[160];
+	HPIPE pipe;
+	APIRET rc;
+	char *target;
 
-    /* Check command line */
-    if (argc!=2 && argc!=3)
-    {
-        printf("Usage: %s choice|recall|mirror [number of lines]\n"
-               "Start this before angband.exe\n",argv[0]);
-        exit(1);
-    }
+	/* Check command line */
+	if (argc!=2 && argc!=3)
+	{
+		printf("Usage: %s Term-1|...|Term-7 [number of lines]\n"
+		       "Start this before angband.exe\n", argv[0]);
+		exit(1);
+	}
 
-    if (argc==3) lines = atoi(argv[2]);
-    if (lines <= 0) lines = 25;
+	if (argc==3) lines = atoi(argv[2]);
+	if (lines <= 0) lines = 25;
 
-    printf("Looking for Angband... press ^C to abort\n");
+	printf("Looking for Angband... press ^C to abort\n");
 
-    target=strdup(argv[1]);
-    for (c=0; c<strlen(target); c++) target[c]=tolower(target[c]);
+	target=strdup(argv[1]);
+	for (c=0; c<strlen(target); c++) target[c]=tolower(target[c]);
 
-    sprintf(buf,"\\pipe\\angband\\%s",target);
+	sprintf(buf, "\\pipe\\angband\\%s", target);
 
-    do
-    {
-        rc=DosCreateNPipe((PSZ)buf,          /* Create pipe */
-                          &pipe,
-                          NP_ACCESS_INBOUND,
-                          NP_WAIT|NP_TYPE_BYTE|NP_READMODE_BYTE|1,
-                          1,                 /* No output buffer */
-                          1,                 /* No input buffer */
-                          -1);
+	do
+	{
+		rc=DosCreateNPipe((PSZ)buf,          /* Create pipe */
+		                  &pipe,
+		                  NP_ACCESS_INBOUND,
+		                  NP_WAIT|NP_TYPE_BYTE|NP_READMODE_BYTE|1,
+		                  1,                 /* No output buffer */
+		                  1,                 /* No input buffer */
+		                  -1);
 
-        if (rc)                              /* Pipe not created */
-        {
-            printf("DosCreateNPipe: rc=%ld, pipe=%ld\n",(long)rc,(long)pipe);
-            break;
-        }
+		if (rc)                              /* Pipe not created */
+		{
+			printf("DosCreateNPipe: rc=%ld, pipe=%ld\n", (long)rc, (long)pipe);
+			break;
+		}
 
-        do
-        {
-            rc=DosConnectNPipe(pipe);        /* Wait for angband to connect */
-            if (!rc) break;
-            _sleep2(500);                    /* Sleep for 0.5s  */
-        } while (_read_kbd(0,0,0)==-1);      /* Until key pressed */
+		do
+		{
+			rc=DosConnectNPipe(pipe);        /* Wait for angband to connect */
+			if (!rc) break;
+			_sleep2(500);                    /* Sleep for 0.5s  */
+		} while (_read_kbd(0, 0, 0)==-1);      /* Until key pressed */
 
-        if (rc) break;
+		if (rc) break;
 
-        h=_imphandle(pipe);                  /* Register handle with io */
-        setmode(h,O_BINARY);                 /* Make it binary */
-        in=fdopen(h,"rb");                   /* Register handle with stdio */
+		h=_imphandle(pipe);                  /* Register handle with io */
+		setmode(h, O_BINARY);                 /* Make it binary */
+		in=fdopen(h, "rb");                   /* Register handle with stdio */
 
-    } while (0);           /* We don't need no stinking exception handling <g> */
+	} while (0);           /* We don't need no stinking exception handling <g> */
 
-    if (!in)
-    {
-        printf("Sorry, the pipe connection to Angband could not be established.\n");
-        exit(1);
-    }
+	if (!in)
+	{
+		printf("Sorry, the pipe connection to Angband could not be established.\n");
+		exit(1);
+	}
 
-    printf("Connected.\n");
+	printf("Connected.\n");
 
-    sprintf(buf,"mode co80,%d",lines);
-    system(buf);
+	sprintf(buf, "mode co80,%d", lines);
+	system(buf);
 
-    /* Infinite loop */
-    while (!end)
-    {
-        /* Get command */
-        c = fgetc(in);
+	/* Infinite loop */
+	while (!end)
+	{
+		/* Get command */
+		c = fgetc(in);
 
-        switch (c)
-        {
-            case PIP_XTRA:
-                if (!fread(&n,sizeof(x),1,in) ||
-                    !fread(&v,sizeof(y),1,in))
-                    abort();
+		switch (c)
+		{
+			case PIP_XTRA:
+			if (!fread(&n, sizeof(x), 1, in) ||
+			    !fread(&v, sizeof(y), 1, in))
+				abort();
 
-                /* This hack prevents another hack */
-                switch (n)
-                {
-                    case TERM_XTRA_CLEAR:
-                        v_clear();
-                        break;
+			/* This hack prevents another hack */
+			switch (n)
+			{
+				case TERM_XTRA_CLEAR:
+				v_clear();
+				break;
 
-                    default:
-                        printf("Sorry, angband.exe and aclient.exe don't fit together.\n");
-                        exit(1);
-                }
+				default:
+				printf("Sorry, angband.exe and aclient.exe don't fit together.\n");
+				exit(1);
+			}
 
-                break;
+			break;
 
-            case PIP_CURS:
-                if (!fread(&x,sizeof(x),1,in) ||
-                    !fread(&y,sizeof(y),1,in))
-                    abort();
-                Term_curs_emx(x,y);
-                break;
+			case PIP_CURS:
+			if (!fread(&x, sizeof(x), 1, in) ||
+			    !fread(&y, sizeof(y), 1, in))
+				abort();
+			Term_curs_emx(x, y);
+			break;
 
-            case PIP_WIPE:
-                if (!fread(&x,sizeof(x),1,in) ||
-                    !fread(&y,sizeof(y),1,in) ||
-                    !fread(&n,sizeof(n),1,in))
-                    abort();
-                Term_wipe_emx(x,y,n);
-                break;
+			case PIP_WIPE:
+			if (!fread(&x, sizeof(x), 1, in) ||
+			    !fread(&y, sizeof(y), 1, in) ||
+			    !fread(&n, sizeof(n), 1, in))
+				abort();
+			Term_wipe_emx(x, y, n);
+			break;
 
-            case PIP_TEXT:
-                if (!fread(&x,sizeof(x),1,in) ||
-                    !fread(&y,sizeof(y),1,in) ||
-                    !fread(&n,sizeof(n),1,in) ||
-                    !fread(&a,sizeof(a),1,in) || (n > 160) ||
-                    !fread(buf,n,1,in))
-                    abort();
-                Term_text_emx(x,y,n,a,buf);
-                break;
+			case PIP_TEXT:
+			if (!fread(&x, sizeof(x), 1, in) ||
+			    !fread(&y, sizeof(y), 1, in) ||
+			    !fread(&n, sizeof(n), 1, in) ||
+			    !fread(&a, sizeof(a), 1, in) || (n > 160) ||
+			    !fread(buf, n, 1, in))
+				abort();
+			Term_text_emx(x, y, n, a, buf);
+			break;
 
-            case PIP_INIT:
-                Term_init_emx(NULL);
-                break;
+			case PIP_INIT:
+			Term_init_emx(NULL);
+			break;
 
-            case PIP_NUKE:
-            case EOF:
-            default:
-                Term_nuke_emx(NULL);
-                end=1;
-                break;
-        }
-    }
+			case PIP_NUKE:
+			case EOF:
+			default:
+			Term_nuke_emx(NULL);
+			end=1;
+			break;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
 #endif /* __EMX__CLIENT__ */
@@ -718,18 +968,17 @@ int emx_options(char **ANGBAND_DIR_USER,
                 char **ANGBAND_DIR_INFO,
                 char *arg_force_roguelike,
                 char *arg_force_original,
-                char *arg_fiddle,
                 char *arg_wizard,
                 char player_name[32]);
 
-void emx_init_window(void **instance,void *main_instance,int n);
+void emx_init_window(void **instance, void *main_instance, int n);
 
-errr emx_curs(void *instance,int x, int y);
-errr emx_wipe(void *instance,int x, int y, int n);
-errr emx_text(void *instance,int x, int y, int n, unsigned char a, cptr s);
+errr emx_curs(void *instance, int x, int y);
+errr emx_wipe(void *instance, int x, int y, int n);
+errr emx_text(void *instance, int x, int y, int n, unsigned char a, cptr s);
 void emx_init(void *instance);
 void emx_nuke(void *instance);
-int emx_read_kbd(void *instance,int wait);
+int emx_read_kbd(void *instance, int wait);
 void emx_clear(void *instance);
 void emx_hidecursor(void *instance);
 void emx_showcursor(void *instance);
@@ -741,8 +990,8 @@ void emx_showcursor(void *instance);
 
 typedef struct
 {
-    term t;
-    void *instance;                          /* Pointer to window */
+	term t;
+	void *instance;                          /* Pointer to window */
 } termWindow;
 
 /*
@@ -750,7 +999,7 @@ typedef struct
  */
 static errr Term_curs_emx(int x, int y)
 {
-    return emx_curs(((termWindow*)Term)->instance,x,y);
+	return emx_curs(((termWindow*)Term)->instance, x, y);
 }
 
 /*
@@ -758,7 +1007,7 @@ static errr Term_curs_emx(int x, int y)
  */
 static errr Term_wipe_emx(int x, int y, int n)
 {
-    return emx_wipe(((termWindow*)Term)->instance,x,y,n);
+	return emx_wipe(((termWindow*)Term)->instance, x, y, n);
 }
 
 /*
@@ -766,7 +1015,7 @@ static errr Term_wipe_emx(int x, int y, int n)
  */
 static errr Term_text_emx(int x, int y, int n, unsigned char a, cptr s)
 {
-    return emx_text(((termWindow*)Term)->instance,x,y,n,a,s);
+	return emx_text(((termWindow*)Term)->instance, x, y, n, a, s);
 }
 
 /*
@@ -774,7 +1023,7 @@ static errr Term_text_emx(int x, int y, int n, unsigned char a, cptr s)
  */
 static void Term_init_emx(term *t)
 {
-    return emx_init(((termWindow*)t)->instance);
+	return emx_init(((termWindow*)t)->instance);
 }
 
 /*
@@ -797,28 +1046,24 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termWindow term_screen_main,
-                  term_screen_recall,
-                  term_screen_choice,
-                  term_screen_mirror,
-                  term_screen_map;
+static termWindow term_screen[MAX_TERM_DATA];
 
 /*
  * Check for events -- called by "Term_scan_emx()"
  */
 static errr CheckEvents(int returnImmediately)
 {
-    /* Get key - Macro triggers are generated by emx_read_kbd() */
-    int k=emx_read_kbd(((termWindow*)Term)->instance,returnImmediately?0:1);
+	/* Get key - Macro triggers are generated by emx_read_kbd() */
+	int k=emx_read_kbd(((termWindow*)Term)->instance, returnImmediately?0:1);
 
-    /* Nothing ready */
-    if (k < 0) return (1);
+	/* Nothing ready */
+	if (k < 0) return (1);
 
-    /* Enqueue the key */
-    Term_keypress(k);
+	/* Enqueue the key */
+	Term_keypress(k);
 
-    /* Success */
-    return (0);
+	/* Success */
+	return (0);
 }
 
 /*
@@ -826,192 +1071,183 @@ static errr CheckEvents(int returnImmediately)
  */
 static errr Term_xtra_emx(int n, int v)
 {
-    void *instance=((termWindow*)Term)->instance;
+	void *instance=((termWindow*)Term)->instance;
 
-    switch (n)
-    {
-        case TERM_XTRA_SHAPE:
-            if (v)
-            {
-                emx_showcursor(instance);
-            }
-            else
-            {
-                emx_hidecursor(instance);
-            }
-            return (0);
+	switch (n)
+	{
+		case TERM_XTRA_SHAPE:
+		if (v)
+		{
+			emx_showcursor(instance);
+		}
+		else
+		{
+			emx_hidecursor(instance);
+		}
+		return (0);
 
-        case TERM_XTRA_NOISE:
-            DosBeep(440,50);
-            return (0);
+		case TERM_XTRA_NOISE:
+		DosBeep(440, 50);
+		return (0);
 
-        case TERM_XTRA_FLUSH:
-            while (!CheckEvents(TRUE));
-            return 0;
+		case TERM_XTRA_FLUSH:
+		while (!CheckEvents(TRUE));
+		return 0;
 
-        case TERM_XTRA_EVENT:
-            return (CheckEvents(!v));
+		case TERM_XTRA_EVENT:
+		return (CheckEvents(!v));
 
-        case TERM_XTRA_CLEAR:
-            emx_clear(instance);
-            return (0);
-    }
+		case TERM_XTRA_CLEAR:
+		emx_clear(instance);
+		return (0);
 
-    return (1);
+		case TERM_XTRA_DELAY:
+		if (v > 0) _sleep2(v);
+		return (0);
+	}
+
+	return (1);
 }
 
-void emx_init_term(termWindow *t,void *main_instance,term **angTerm,int n)
+void emx_init_term(termWindow *t, void *main_instance, term **angTerm, int n)
 {
-    term *te=(term*)t;
+	term *te=(term*)t;
 
-    /* Initialize window */
-    emx_init_window(&t->instance,main_instance,n);
+	/* Initialize window */
+	emx_init_window(&t->instance, main_instance, n);
 
-    *angTerm=te;
+	*angTerm=te;
 
-    /* Initialize the term -- big key buffer */
-    term_init(te, 80, 24, 1024);
+	/* Initialize the term -- big key buffer */
+	term_init(te, 80, 24, 1024);
 
-    /* Special hooks */
-    te->init_hook = Term_init_emx;
-    te->nuke_hook = Term_nuke_emx;
+	/* Special hooks */
+	te->init_hook = Term_init_emx;
+	te->nuke_hook = Term_nuke_emx;
 
-    /* Add the hooks */
-    te->text_hook = Term_text_emx;
-    te->wipe_hook = Term_wipe_emx;
-    te->curs_hook = Term_curs_emx;
-    te->xtra_hook = Term_xtra_emx;
+	/* Add the hooks */
+	te->text_hook = Term_text_emx;
+	te->wipe_hook = Term_wipe_emx;
+	te->curs_hook = Term_curs_emx;
+	te->xtra_hook = Term_xtra_emx;
 }
 
 /*
- * Prepare "term.c" to use "__EMX__" built-in faked video library
+ * Prepare "term.c" to use "USE_EMX" built-in faked video library
  */
 errr init_emx(void)
 {
-    /* Initialize the windows */
-    emx_init_term(&term_screen_main,  NULL,                      &term_screen,0);
-    emx_init_term(&term_screen_recall,term_screen_main.instance,&term_recall,1);
-    emx_init_term(&term_screen_choice,term_screen_main.instance,&term_choice,2);
-    emx_init_term(&term_screen_mirror,term_screen_main.instance,&term_mirror,3);
-    emx_init_term(&term_screen_map   ,term_screen_main.instance,&term_map   ,4);
+	int i;
 
-    /* Activate main window */
-    Term_activate(term_screen);
+	/* Initialize the windows */
+	emx_init_term(&term_screen[0],  NULL, &angband_term[0], 0);
 
-    /* Success */
-    return (0);
+	for (i = 1; i < MAX_TERM_DATA; ++i)
+	{
+		emx_init_term(&term_screen[i], term_screen[0].instance, &angband_term[i], i);
+	}
+
+	/* Activate main window */
+	Term_activate(angband_term[0]);
+
+	/* Success */
+	return (0);
 }
 
 static void init_stuff(void)
 {
-    char path[1024];
-    cptr tail;
+	char path[1024];
+	cptr tail;
 
-    /* Get the environment variable */
-    tail = getenv("ANGBAND_PATH");
+	/* Get the environment variable */
+	tail = getenv("ANGBAND_PATH");
 
-    /* Use the angband_path, or a default */
-    strcpy(path, tail ? tail : DEFAULT_PATH);
+	/* Use the angband_path, or a default */
+	strcpy(path, tail ? tail : DEFAULT_PATH);
 
-    /* Hack -- Add a path separator (only if needed) */
-    if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+	/* Hack -- Add a path separator (only if needed) */
+	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
 
-    /* Initialize */
-    init_file_paths(path);
+	/* Initialize */
+	init_file_paths(path);
 }
 
 static void quit_hook(cptr s)
 {
-    /* Shut down the term windows */
-    if (term_choice)
-    {
-        term_nuke(term_choice);
-        emx_nuke(((termWindow*)term_choice)->instance);
-    }
-    if (term_recall)
-    {
-        term_nuke(term_recall);
-        emx_nuke(((termWindow*)term_recall)->instance);
-    }
-    if (term_mirror)
-    {
-        term_nuke(term_mirror);
-        emx_nuke(((termWindow*)term_mirror)->instance);
-    }
-    if (term_map)
-    {
-        term_nuke(term_map);
-        emx_nuke(((termWindow*)term_map)->instance);
-    }
-    if (term_screen)
-    {
-        term_nuke(term_screen);
-        emx_nuke(((termWindow*)term_screen)->instance);
-    }
+	int i;
 
-    /* Shut down window system - doesn't return */
-    emx_endPM(s);
+	for (i = MAX_TERM_DATA - 1; i >= 0; --i)
+	{
+		/* Shut down the term windows */
+		if (angband_term[i])
+		{
+			term_nuke(angband_term[i]);
+			emx_nuke(((termWindow*)angband_term[i])->instance);
+		}
+	]
+
+	/* Shut down window system - doesn't return */
+	emx_endPM(s);
 }
+
 
 void angbandThread(void *arg)
 {
-    bool new_game = FALSE;
+	bool new_game = FALSE;
 
-    int show_score = 0;
+	int show_score = 0;
 
-    /* Save the "program name" */
-    argv0 = (char*)arg;
+	char player_name[32];
 
-    /* Use the "main-emx.c" support */
-    init_emx();
-    ANGBAND_SYS = "ibm";
+	/* Save the "program name" */
+	argv0 = (char*)arg;
 
-    /* Get the file paths */
-    init_stuff();
+	/* Use the "main-emx.c" support */
+	init_emx();
+	ANGBAND_SYS = "ibm";
 
-    /* Assume "Wizard" permission */
-    can_be_wizard = TRUE;
+	/* Get the file paths */
+	init_stuff();
 
-    if (!emx_options((char**)&ANGBAND_DIR_USER,
-                     (char**)&ANGBAND_DIR_SAVE,
-                     (char**)&ANGBAND_DIR_INFO,
-                     &arg_force_roguelike,
-                     &arg_force_original,
-                     &arg_fiddle,
-                     &arg_wizard,
-                     player_name)) quit(NULL);
+	if (!emx_options((char**)&ANGBAND_DIR_USER,
+	                 (char**)&ANGBAND_DIR_SAVE,
+	                 (char**)&ANGBAND_DIR_INFO,
+	                 &arg_force_roguelike,
+	                 &arg_force_original,
+	                 &arg_wizard,
+	                 player_name)) quit(NULL);
 
-    /* Process the player name */
-    process_player_name(TRUE);
+	/* XXX XXX XXX (?) */
+	strcpy(op_ptr->full_name, player_name);
 
-    /* Tell "quit()" to call "Term_nuke()" */
-    quit_aux = quit_hook;
+	/* Process the player name */
+	process_player_name(TRUE);
 
-    /* If requested, display scores and quit */
-    if (show_score > 0) display_scores(0, show_score);
+	/* Tell "quit()" to call "Term_nuke()" */
+	quit_aux = quit_hook;
 
-    /* Catch nasty signals */
-    signals_init();
+	/* If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
 
-    /* Display the 'news' file */
-    show_news();
+	/* Catch nasty signals */
+	signals_init();
 
-    /* Initialize the arrays */
-    init_some_arrays();
+	/* Initialize */
+	init_angband();
 
-    /* Wait for response */
-    pause_line(23);
+	/* Wait for response */
+	pause_line(23);
 
-    /* Play the game */
-    play_game(new_game);
+	/* Play the game */
+	play_game(new_game);
 
-    /* Quit */
-    quit(NULL);
+	/* Quit */
+	quit(NULL);
 }
 
 #endif /* EMXPM */
 
-#endif /* __EMX__ */
+#endif /* USE_EMX */
 
 /*
  * Local Variables:
@@ -1019,3 +1255,4 @@ void angbandThread(void *arg)
  * End:
  *
  */
+

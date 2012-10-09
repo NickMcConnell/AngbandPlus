@@ -1,0 +1,395 @@
+ [Angband/64 beta 5 release 3 (2.7.10) Character Dump]
+
+                                                                               
+ test the female Dunadain Warrior (61 years, 6 feet 5, 189 pounds).            
+ STR: 18/71        To Hit:     13          Speed     :Normal                   
+ INT:    11        To Dam:     19          Gold      :787                      
+ WIS:     8        AC    :     25          Tactic    :aggressive               
+ DEX: 18/41        HP    :    112 of 116   Exploring :normal                   
+ CON: 18/10        Mana  :      0 of 0     Level     :9 (lev 10 at 684)        
+ CHR:     9                                Experience:556 (556)                
+ |======== [Bad ************************ Good] =======|                        
+ Fighting    : Expert       Perception  : Weak         Blows/Round : 2         
+ Bows/Throw  : Exemplary    Searching   : Limited      Shots/Round : 0         
+ Saving Throw: Fair         Disarming   : Fair         Infra-Vision: 0 feet    
+ Stealth     : Inept        Magic Device: Inept        Light-Range : 20 feet   
+                                                                               
+     You are the only child of a Serf.  You are a credit to the family.        
+     You have brown eyes, wavy red hair, and an average complexion.            
+                                                                               
+                                                                               
+                                                                               
+     In your youth you were taught by a Gnome War-Mage.                        
+     You were a pupil with an experienced Elf Warrior.                         
+     You completed your studies with a Dunadain master Warrior.                
+                                                                               
+                                                    \    ~[( ]]]  \    ~[( ]]] 
+     Internal Race Class Teach Equip Actual Current abcdefghijklm abcdefghijklm
+ Str: 18/01     1    5    11     1    18/71  18/71  1............ .............
+ Int:    11     2   -2     3     0       11     11  ............. .............
+ Wis:     8     2   -2    -4     0        8      8  ............. .............
+ Dex: 18/01     2    2    11     0    18/41  18/41  ............. .............
+ Con:    14     3    2     6     0    18/10  18/10  ............. .............
+ Chr:     8     2   -1    -2     0        9      9  ............. .............
+                                                    Modifications Modifications
+                                                      (part I)      (part II)  
+        \    ~[( ]]]            \    ~[( ]]]                   \    ~[( ]]]    
+        abcdefghijklm@          abcdefghijklm@                 abcdefghijklm@  
+ Acid : ..............  Blind : ..............  Free Action  : ..............  
+ Elec : ..............  Conf  : ..............  See Invisible: ..............  
+ Fire : ..............  Sound : ..............  Hold Life    : ..............  
+ Cold : ..............  Nether: ..............  Telepathy    : ..............  
+ Poisn: ..............  Nexus : ..............  Slow Digest  : ..............  
+ Light: ..............  Chaos : ..............  Regeneration : ..............  
+ Dark : ..............  Disnch: ..............  Feather Fall : ..............  
+
+
+ [Character Equipment]
+
+a) a Morning Star of *Slay* Troll (3d6) (+5,+7) (+1)
+   Found in a tunnel in town.
+f) a Brass Lantern (with 9406 turns of light)
+   Bought from Savannah the Savaga in the General Store in town.
+g) a Chain Mail (-2) [14,+0]
+   This was part of your starting equipment.
+h) a Cloak [1,+0]
+   Bought from Savannah the Savaga in the General Store in town.
+j) a Hard Leather Cap [3,+0]
+   Bought from Decado the Handsome in the Armoury in town.
+k) a Set of Cesti [5,-1] {50% off}
+   Bought from Decado the Handsome in the Armoury in town.
+l) a Pair of Hard Leather Boots [2,+0]
+   Bought from Decado the Handsome in the Armoury in town.
+
+
+ [Character Inventory]
+
+a) 11 Rations of Food
+   This was part of your starting equipment.
+b) a Pint of Fine Wine
+   Carried by a Small kobold in a tunnel at 100 ft.
+c) 10 Flasks of oil
+   Bought from Savannah the Savaga in the General Store in town.
+d) 2 Metallic Brown Potions
+   Carried by a Blubbering icky thing in a tunnel at 100 ft.
+e) 2 Metallic Purple Potions
+   Found in a room at 100 ft.
+f) a Violet Speckled Potion
+   Found in a room at 100 ft.
+g) a Viscous Clear Potion
+   Found in a room at 150 ft.
+h) a Spell reading "aksun ther"
+   Found in a tunnel in town.
+i) a Scroll titled "vomtem ergan"
+   Found in a room at 100 ft.
+j) a Wooden Torch (with 1265 turns of light)
+   Found in a room at 100 ft.
+k) a Wooden Torch (with 1848 turns of light)
+   Found in a room at 100 ft.
+l) a Robe [2] {average}
+   Carried by a Blubbering icky thing in a room at 100 ft.
+m) a Robe [2] {average}
+   Carried by a Blue yeek in a tunnel at 100 ft.
+n) a Robe [2] {average}
+   Found in a room at 100 ft.
+o) a Robe [2] {average}
+   Found in a tunnel at 100 ft.
+p) a Robe [2] {average}
+   Found in a room at 100 ft.
+q) a Robe [2] {good}
+   Carried by a Kobold in a tunnel at 150 ft.
+r) a Cloak [0] {average}
+   Carried by a Novice mage in a tunnel at 100 ft.
+s) a Broken Dagger (1d1) {average}
+   Flung out of a trap at 100 ft.
+t) 22 Crooked Arrows (1d2) {average}
+   Found in a room at 100 ft.
+u) an Arrow (1d4) {good}
+   Flung out of a trap at 100 ft.
+v) an Arrow (2d4) {average}
+   Flung out of a trap at 100 ft.
+w) an Arrow {average}
+   Flung out of a trap at 100 ft.
+
+
+ [Home Inventory (page 1)]
+
+a) 7 Pieces of Elvish Waybread
+   This was part of your starting equipment.
+b) a Potion of Water
+   Carried by a Small kobold in a tunnel at 100 ft.
+c) 10 Metallic Purple Potions
+   Bought from Savannah the Savaga in the General Store in town.
+d) a Copper Speckled Potion
+   Carried by a Blubbering icky thing in a tunnel at 100 ft.
+e) a Tangerine Potion
+   Found in a room at 100 ft.
+f) a Puce Potion
+   Found in a room at 100 ft.
+g) a Violet Speckled Potion
+   Found in a room at 150 ft.
+h) an Orange Potion
+   Found in a tunnel in town.
+i) a Grey Potion
+   Found in a room at 100 ft.
+j) 2 Spells reading "toxzun dokox"
+   Found in a room at 100 ft.
+k) 2 Spells reading "byt turs nilp"
+   Found in a room at 100 ft.
+l) a Spell reading "aksun ther"
+   Carried by a Blubbering icky thing in a room at 100 ft.
+
+
+ [Home Inventory (page 2)]
+
+a) 11 Scrolls titled "gluorn ausbyt"
+   Carried by a Blue yeek in a tunnel at 100 ft.
+b) a Scroll titled "ther tichtox"
+   Found in a room at 100 ft.
+c) 11 Scrolls titled "seh nihdalf"
+   Found in a tunnel at 100 ft.
+d) a Scroll titled "viverk"
+   Found in a room at 100 ft.
+e) a Scroll titled "bjorblu"
+   Carried by a Kobold in a tunnel at 150 ft.
+f) a Tungsten Rod
+   Carried by a Novice mage in a tunnel at 100 ft.
+g) a Brass Wand (16 charges)
+   Flung out of a trap at 100 ft.
+h) a Brass Wand (12 charges)
+   Found in a room at 100 ft.
+i) a Brass Wand (11 charges) {50% off}
+   Flung out of a trap at 100 ft.
+j) a Magnesium Wand (18 charges)
+   Flung out of a trap at 100 ft.
+k) a Mistletoe Staff (17 charges)
+   Flung out of a trap at 100 ft.
+l) a Bamboo Staff (10 charges)
+   Flung out of a trap at 100 ft.
+
+
+ [Home Inventory (page 3)]
+
+a) a Jasper Ring [+9]
+   Found in a tunnel in town.
+b) 4 Pairs of Hard Leather Boots [3,+0]
+   Found in a tunnel in town.
+c) a Tulwar (+0,+0)
+   Found in a tunnel in town.
+d) a Long Sword (+2,+7)
+   Found in a tunnel in town.
+e) a Bastard Sword
+   Found in a tunnel in town.
+f) a Long Bow (+4,+5)
+   Bought from Savannah the Savaga in the General Store in town.
+
+
+
+
+Personal intrinsics status:
+
+Your strength is affected by your weapon (+1).
+You very easily slay trolls because of your weapon.
+
+
+Artifacts seen:
+
+     The Phial of Galadriel
+
+
+Identified Items:
+
+
+Scrolls:
+
+     Scroll titled "xaaiion dan ur" of Summon Monster
+     Scroll titled "ingplu daadan" of Blessing
+
+Potions:
+
+     Green Speckled Potion of Restore Strength
+     White Potion of Charisma
+     Clear Potion of Mule Legs
+     Viscous Grey Potion of Heroism
+     Smoky Potion of Berserk Strength
+     Viscous Brown Potion of Resist Cold
+
+
+Uniques seen:
+
+     Farmer Maggot is dead
+     Grip, Farmer Maggot's dog is dead
+     Fang, Farmer Maggot's dog is dead
+
+
+Spells Cast:
+
+You have not cast any spells!
+
+
+Monsters seen:
+
+You ventured up to level 7
+
+You are now on level 7/0, and you have been here for 0 turns
+You killed 183 monsters in total, in 62479 turns.
+
+You have killed 3 Grey molds.
+You have killed 2 Giant yellow centipedes.
+You have killed 15 Giant white mouses.
+You have killed 4 Small kobolds.
+You have killed 4 Kobolds.
+You have killed 4 Floating eyes.
+You have killed 2 Rock lizards.
+You have killed 4 Shrieker mushroom patchs.
+You have killed 7 Blubbering icky things.
+You have killed 9 Metallic green centipedes.
+You have killed 5 Novice warriors.
+You have killed 7 Novice rogues.
+You have killed 5 Novice priests.
+You have killed 3 Novice mages.
+You have killed 2 Yellow mushroom patchs.
+You have killed 3 White jellys.
+You have killed 2 Giant green frogs.
+You have killed 2 Giant black ants.
+You have killed 2 Salamanders.
+You have killed 6 White harpys.
+You have killed 7 Blue yeeks.
+You have killed 13 Green worm masses.
+You have killed 35 Cave spiders.
+You have killed 2 Wild cats.
+You have killed 2 Metallic blue centipedes.
+You have killed 2 Scruffy looking hobbits.
+You have killed 4 Giant white rats.
+You have killed 2 Blue worm masses.
+
+
+Progress:
+
+           0 You started your campaign.
+         390 You slew Farmer Maggot.
+         395 You found your first Scroll titled "viverk".
+         405 You found your first Tungsten Rod.
+         625 You first entered dungeon level 0 ft.
+         977 You found your first Puce Potion.
+        1551 You found your first Violet Speckled Potion.
+        1561 You found your first Spell reading "toxzun dokox".
+        2030 You found your first Ration of Food.
+        3075 You found your first Scroll titled "bjorblu".
+        3844 You slew your first Squint eyed rogue.
+        4064 You found your first Orange Potion.
+        4074 You found your first Potion of Water.
+        4442 You found your first White Potion of Charisma.
+        4532 You found your first Grey Potion.
+        4681 You slew your first Spotted mushroom patch.
+        4891 You found the Bastard Sword which is in your home.
+        5158 You slew your first Green naga.
+        5158 You reached experience level 4.
+        5158 You reached experience level 3.
+        5158 You reached experience level 5.
+        5158 You reached experience level 2.
+        5188 You found the Spell reading "aksun ther" that you are carrying in
+             your pack.
+        5208 You found the Morning Star of *Slay* Troll (3d6) (+5,+7) (+1) that
+             you are attacking monsters with using both hands.
+        6989 You last left dungeon level 0 ft.
+        6989 You first entered dungeon level 100 ft.
+        6998 You slew your first White harpy.
+        7223 You slew your first Scruffy looking hobbit.
+        7498 You slew your first Novice warrior.
+        7578 You slew your first Small kobold.
+        8653 You slew your first Giant green frog.
+        8803 You slew your first Blubbering icky thing.
+        8808 You found the Metallic Brown Potions that you are carrying in your
+             pack.
+        9298 You slew your first Novice paladin.
+        9298 You reached experience level 6.
+        9343 You slew your first Metallic green centipede.
+        9978 You found the Pint of Fine Wine that you are carrying in your
+             pack.
+       10028 You slew your first Blue yeek.
+       10623 You slew your first Grey mushroom patch.
+       11138 You slew your first Yellow mushroom patch.
+       11163 You slew your first Grey mold.
+       12128 You found the Robe [2] {average} that you are carrying in your
+             pack.
+       13468 You slew your first Kobold.
+       13503 You found the Metallic Purple Potions that you are carrying in your
+             pack.
+       13993 You slew your first Giant white mouse.
+       15373 You slew your first Green worm mass.
+       15993 You found the Violet Speckled Potion that you are carrying in your
+             pack.
+       16288 You slew your first Novice mage.
+       16333 You slew your first Shrieker mushroom patch.
+       18168 You found the Arrow (1d4) {good} that you are carrying in your
+             pack.
+       18298 You found the Arrow (2d4) {average} that you are carrying in your
+             pack.
+       18418 You found the Arrow {average} that you are carrying in your pack.
+       19123 You slew your first Soldier ant.
+       19453 You slew your first Novice rogue.
+       19453 You reached experience level 7.
+       19478 You found the Broken Dagger (1d1) {average} that you are carrying
+             in your pack.
+       20166 You found your first Viscous Grey Potion of Heroism.
+       24516 You slew your first Novice priest.
+       24841 You found your first Broken Dagger.
+       26246 You slew your first Giant white centipede.
+       27321 You slew your first Floating eye.
+       27696 You found the Crooked Arrows (1d2) {average} that you are carrying
+             in your pack.
+       28441 You found your first Metallic Purple Potion.
+       28861 You found your first Scroll titled "ingplu daadan" of Blessing.
+       30546 You found the Robe [2] {average} that you are carrying in your
+             pack.
+       31761 You found your first Viscous Brown Potion of Resist Cold.
+       33821 You slew your first Rock lizard.
+       34321 You slew your first Cave spider.
+       34681 You slew your first Blue worm mass.
+       35376 You found the Wooden Torch (with 1265 turns of light) that you are
+             carrying in your pack.
+       35456 You slew your first White worm mass.
+       35855 You slew your first Giant black ant.
+       37060 You found your first Scroll titled "mi a shuuni" {tried}.
+       37210 You slew your first Wild cat.
+       38005 You reached experience level 8.
+       38250 You found the Cloak [0] {average} that you are carrying in your
+             pack.
+       38450 You found the Robe [2] {average} that you are carrying in your
+             pack.
+       39190 You slew your first Large white snake.
+       39525 You slew your first White jelly.
+       39635 You found your first Scroll titled "xaaiion dan ur" of Summon
+             Monster.
+       39675 You slew your first Giant yellow centipede.
+       39680 You slew your first Metallic blue centipede.
+       40305 You slew your first Large yellow snake.
+       40650 You slew Fang, Farmer Maggot's dog.
+       42005 You found the Robe [2] {average} that you are carrying in your
+             pack.
+       43135 You slew your first Jackal.
+       43645 You found your first Yellow Potion {tried}.
+       44080 You found your first Scroll titled "sun bekx" {tried}.
+       47380 You slew your first Giant white rat.
+       50220 You slew your first White icky thing.
+       50255 You found the Scroll titled "vomtem ergan" that you are carrying in
+             your pack.
+       50580 You slew Grip, Farmer Maggot's dog.
+       50690 You slew your first Salamander.
+       50885 You found the Robe [2] {average} that you are carrying in your
+             pack.
+       50905 You found the Wooden Torch (with 1848 turns of light) that you are
+             carrying in your pack.
+       52374 You reached experience level 9.
+       52409 You last left dungeon level 100 ft.
+       52409 You first entered dungeon level 150 ft.
+       53472 You slew your first Radiation eye.
+       53497 You found the Viscous Clear Potion that you are carrying in your
+             pack.
+       54412 You found the Robe [2] {good} that you are carrying in your pack.
+       62410 You last left dungeon level 150 ft.
+       62410 You first entered dungeon level 350 ft.
+       62459 You slew your first Purple mushroom patch.
+       62474 You slew your first Giant brown bat.
+       62479 You are now on dungeon level 350 ft

@@ -1,0 +1,57 @@
+*******************************************
+** For game-play, see lib/help/guide.txt **
+*******************************************
+** READ THAT FILE FIRST IF YOU'RE NEW!!! **
+*******************************************
+
+For installing, here are some things to remember:
+
+1  Be sure all directories are present under lib/:
+
+   apex
+   bone
+   data
+   edit
+   file
+   help
+   save
+   temp
+   user
+   xtra
+
+   If not, you either have not extracted the sources correctly, or something else went wrong.
+
+2  If you get weird behaviour inside the game, lots of strange objects, lots of (nothing) every-
+   were, etc. and you have upgraded from a previous beta, please make sure that all files in
+   lib/data, lib/edit and lib/save from the old beta are deleted/overwritten. Most complaints
+   about this behaviour were solved this way.
+
+3  Under Linux, make sure you have the right permissions, and have an environment variable called
+   ANGBAND64_PATH pointing to the main lib dir, which is installed after in <somedir>/lib if you do
+   unzip -d <somedir> a64lb_xx.zip. So make sure ANGBAND64_PATH=<somedir>/lib and put that (with an
+   export ANGBAND64_PATH perhaps, depending on your shell) somewhere in your .profile. 
+   If you compile from source, you'll get an executable called 'angband64'. That's the game. If you
+   like, you can call it angband64-beta-x-release-y or something like that to differentiate the
+   versions.
+
+4  if you are just playing, and are not interested in some log files that help me debugging,
+   try running without -l and without -x.
+
+5  if you want info on the command-line arguments, type something like angband -? (or any other unknown
+   command line argument).
+
+6  If your character has dramatic fighting capability, be sure to check the tactics under 'C'.
+   Some classes, such as mages, start in 'wary' mode or worse, thus hitting practically nothing.
+   This is realistic, because mages should use magic......
+
+7  If you have trouble with certain keys, you need to look through the changes.txt file, at least
+   until I have revamped the documentation - for example, all magic is cast using 'z'.
+
+8  I apologize if any text files or source files are unreadable on 80 columns wide screens. I use
+   a 133x54 terminal, and try to keep things at 80 chars/line, but it's trying.
+
+9  If you use another Unix, like Solaris or something like that, you'll have to fiddle with the
+   makefile a bit. Please remove references like -m686, remove the .depend file or make a new
+   one, etc.
+   Basically, you should compile all source files like normal angband, keeping in mind that there
+   are a bit more source files now (like object3.c and object4.c).

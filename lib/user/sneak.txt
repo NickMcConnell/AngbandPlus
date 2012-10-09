@@ -1,0 +1,741 @@
+ [Angband/64 beta 6 release 3 (2.7.10) Character Dump]
+
+                                                                               
+ sneak the female Hobbit High Priest (24 years, 2 feet 11, 52 pounds).         
+ STR:    12        To Hit:    -12          Speed     :Slow (-4)                
+ INT: 18/30        To Dam:    -13          Gold      :18425                    
+ WIS:    17        AC    :  18+77          Tactic    :coward                   
+ DEX: 18/30        HP    :    218 of 218   Exploring :normal                   
+ CON:    15        Mana  :     33 of 33    Level     :25 (lev 26 at 21875)     
+ CHR:    16                                Experience:16211 (16211)            
+                                                                               
+ Fighting    : Very Bad     Perception  : Adequate     Blows/Round : none      
+ Bows/Throw  : Feeble       Searching   : Passable     Shots/Round : none      
+ Saving Throw: Sublime      Disarming   : Exemplary    Infra-Vision: 40 feet   
+ Stealth     : Master       Magic Device: Good         Light-Range : 40 feet   
+                                                                               
+     You are one of several children of a Hobbit Hotel Owner.  You are a       
+     credit to the family.  You have blue eyes, shiny brown hair, and a        
+     fair complexion.                                                          
+                                                                               
+                                                                               
+     In your youth you were taught by a High-Elf Ranger.                       
+     You were a pupil with an experienced Gnome Gladiator.                     
+     You completed your studies with a Hobbit master High Priest.              
+                                                                               
+                                                    ===="~(()] ]  ===="~(()] ] 
+     Internal Race Class Teach Equip Actual Current abcdefghijklm abcdefghijklm
+ Str:    14     0   -2     0     0       12     12  ............. .............
+ Int:    14     0    1     6     0    18/30  18/30  ............. .............
+ Wis:    14     0    1     0     2       17     17  ....2........ .............
+ Dex:    13     1    0     7     0    18/30  18/30  ............. .............
+ Con:    11     0    0     4     0       15     15  ............. .............
+ Chr:    11     0    1     4     0       16     16  ............. .............
+                                                    Modifications Modifications
+                                                      (part I)      (part II)  
+        ===="~(()] ]            ===="~(()] ]                   ===="~(()] ]    
+        abcdefghijklm@          abcdefghijklm@                 abcdefghijklm@  
+ Acid : ........+.....  Blind : ..............  Free Action  : ..............  
+ Elec : ..+.....+.....  Conf  : ..............  See Invisible: .+............  
+ Fire : ........+.....  Sound : ..............  Hold Life    : ..............  
+ Cold : ......+.+.....  Nether: ..............  Telepathy    : ..............  
+ Poisn: ..............  Nexus : ..............  Slow Digest  : ..............  
+ Light: ..............  Chaos : ..............  Regeneration : ..............  
+ Dark : ..............  Disnch: ..............  Feather Fall : ..............  
+
+
+ [Character Equipment]
+
+a) a Brown Titanite Ring of Searching (+2)
+   You cheated and created this at 200 ft.
+b) a Red Garnet Ring of See Invisible
+   You cheated and created this at 200 ft.
+c) a Grey Titanite Ring of Sparks [+15]
+   Bought from Pernelle the Persistent in the Black Market in town.
+d) a Rhodonite Ring of Protection [+13]
+   You cheated and created this at 200 ft.
+e) an Golden Amulet of Wisdom (+2)
+   Bought from Anastasia the Animator in the Rings and Amulets Store in town.
+f) a Lamp of the Noldor (with 2898 turns of light)
+   You cheated and created this at 200 ft.
+g) a Hard Leather Armour of Resist Cold (-1) [6,+10]
+   You cheated and created this at 200 ft.
+h) a Cloak [1,+7]
+   You cheated and created this at 200 ft.
+i) a Small Leather Shield of Resistance [2,+7]
+   You cheated and created this at 200 ft.
+j) a Hard Leather Cap [3,+3]
+   You cheated and created this at 200 ft.
+l) a Pair of Metal Shod Boots [6,+5]
+   Carried by Golfimbul, the Hill Orc Chief in a tunnel at 500 ft.
+
+
+ [Character Inventory]
+
+a) a small book (with 4 spells)
+It holds:
+Knowledge  Spell                  Lev Mana Fail Scale Category        Extra
+well known Magic Missile            1   1   7%  small Dark Forces     dam 7d4
+known      Cure Minor Wounds        1   2   7%
+well known Find Traps               3   3   7%  small Sense          
+well known Detect Monsters          3   3   7%  small Sense          
+
+   This was part of your starting equipment.
+b) a small book (with 4 spells)
+It holds:
+Knowledge  Spell                  Lev Mana Fail
+known      Frost Ball              19  12  34%
+untried    Create Simple Trap       2   3
+known      Detect Doors / Stairs    3   3   7%
+known      Divine Satiation         7   5   7%
+
+   Bought from Anastasia the Animator in the Magic Shop in town.
+c) a small book (with 0 spells)
+It holds no spells.
+
+   Carried by a Cave orc in a room at 700 ft.
+d) a book (with 8 spells)
+It holds:
+Knowledge  Spell                  Lev Mana Fail Scale Category        Extra
+well known Stinking Cloud           3   3   7%  small Nature Forces   dam 22 size 2
+known      Turn Stone to Mud        9   7   7%
+well known Fire Bolt               15   9  17%  avg   Nature Forces   dam 12d8
+well known Call Light               3   2   7%  small Change World    dam 2d12 size 3
+well known Find Traps               3   3   7%  small Sense          
+known      Portal                   5   4   7%
+known      Protection from Evil I  11   8   7%
+known      Cure Critical Wounds I  13  11   7%
+
+   This was part of your starting equipment.
+e) 7 Rations of Food
+   Carried by a kobold assassin in a tunnel at 700 ft. You remember this only about a part of this set of items.
+f) 22 Flasks of oil
+   Bought from Stephanopoulos in the General Store in town.
+g) 2 Dark Blue Potions of Speed
+   Bought from Laurie the Librarian in the Alchemy Shop in town.
+h) a Cyan Potion of Cure Critical Wounds
+   Carried by a Snaga in a room at 500 ft.
+i) a Spell titled "rere sevvom" of Find Traps/Doors
+   Carried by a Snaga in a room at 700 ft.
+j) a Spell titled "sol petdan" of Teleport Self
+   Carried by a Swordsman in a tunnel at 700 ft.
+k) a Spell titled "umi naasjii" of Frost Bolt
+   Found in a room at 700 ft.
+l) a Spell titled "ti barvom" of Sleep II
+   Carried by Ufthak of Cirith Ungol in a room at 700 ft.
+m) a Spell titled "nilp botur" of Remove Fear
+   Carried by a Snaga in a room at 700 ft.
+n) a Spell titled "bra esh" of Cure Medium Wounds
+   Carried by a Hill orc in a room at 700 ft.
+o) a Lead Rod of Recall
+   Bought from Anastasia the Animator in the Magic Shop in town.
+p) 2 Platinum Rods of Light
+   Found in a room at 500 ft.
+q) a Green-Stained Rod of Lightning Bolts
+   Bought from Anastasia the Animator in the Magic Shop in town.
+r) 2 Nickel-Plated Rods of Fire Bolts
+   Carried by Golfimbul, the Hill Orc Chief in a tunnel at 500 ft. You remember this only about a part of this set of items.
+s) a Tin Wand of Trap/Door Destruction (11 charges)
+   Found in a room at 500 ft.
+t) a Gold Wand of Lightning Balls (0 charges)
+   Carried by Grishnakh, the Hill Orc in a room at 500 ft.
+u) 2 Eucalyptus Staffs of Perception (18 charges)
+   Bought from Anastasia the Animator in the Magic Shop in town.
+v) a Soft Leather Armour [5]
+   Carried by a Quasit in a room at 700 ft.
+w) a Tulwar {good}
+   Carried by a Cave orc in a tunnel at 700 ft.
+
+
+ [Home Inventory (page 1)]
+
+a) a small book (with 0 spells)
+It holds no spells.
+
+   This was part of your starting equipment.
+b) a Spell titled "rere sevvom" of Find Traps/Doors
+   Bought from Anastasia the Animator in the Magic Shop in town.
+c) a Spell titled "tisee snomic" of Detect Evil
+   Carried by a Cave orc in a room at 700 ft.
+d) a Spell titled "hiji lechrol" of Bless
+   This was part of your starting equipment.
+e) a Spell titled "ooduqq flit" of Chant
+   Carried by a kobold assassin in a tunnel at 700 ft. You remember this only about a part of this set of items.
+f) a Nickel-Plated Wand of Heal Monster (0 charges)
+   Bought from Stephanopoulos in the General Store in town.
+
+
+
+
+Personal intrinsics status:
+
+You have no known intrinsics.
+
+
+
+Artifacts seen:
+
+You have not seen (or identified) any artifacts!
+
+
+Identified Items:
+
+
+Food:
+
+     Green Mushroom of Blindness
+     Dusty Mushroom of Paranoia
+     Grey Mushroom of Confusion
+     White Spotted Mushroom of Cure Poison
+     White Mushroom of Weakness
+     Red Striped Mushroom of Restore Constitution
+     Brown Spotted Mushroom of Naivety
+     Mildewed Mushroom of Poison
+     Black Striped Mushroom of Sickness
+
+Rings:
+
+     Quartzite Ring of Slow Digestion
+     Pearl Ring of Feather Falling
+     Morganite Ring of Resist Fire
+     Brown Titanite Ring of Searching
+     Grey Titanite Ring of Sparks
+     Rhodonite Ring of Protection
+     Lapis Lazuli Ring of Aggravate Monster
+     Red Garnet Ring of See Invisible
+     Aquamarine Ring of Sustain Strength
+
+Amulets:
+
+     Golden Amulet of Wisdom
+
+Scrolls:
+
+     Scroll titled "tich kvi gop" of Identify
+     Scroll titled "trolta tchiwun" of Remove Curse
+     Scroll titled "bit bjor pot" of Teleportation
+     Scroll titled "wah uun me" of Treasure Detection
+     Scroll titled "wahpot ivarze" of Trap Detection
+     Scroll titled "elbam ab elder" of Door/Stair Location
+     Scroll titled "sjii qsu danmi" of Aggravate Monster
+     Scroll titled "shuther la" of Word of Recall
+
+Spells:
+
+     Spell titled "eep abbbjor sa" of Magic Missile
+     Spell titled "sriviv bir" of Light Area
+     Spell titled "abber appel" of Treasure Detection
+     Spell titled "flitod gopla" of Cure Light Wounds
+     Spell titled "rere sevvom" of Find Traps/Doors
+     Spell titled "elple untich" of Stinking Cloud
+     Spell titled "rokhiji cre" of Create Confusion
+     Spell titled "sol petdan" of Teleport Self
+     Spell titled "tafu sevner" of Spear Of Light
+     Spell titled "umi naasjii" of Frost Bolt
+     Spell titled "micuni er acha" of Turn Stone to Mud
+     Spell titled "ti barvom" of Sleep II
+     Spell titled "bek ornabb" of Fire Bolt
+     Spell titled "megva gvaox" of Frost Ball
+     Spell titled "oxyro jzuod" of Create Simple Trap
+     Spell titled "tisee snomic" of Detect Evil
+     Spell titled "glucra goppay" of Cure Minor Wounds
+     Spell titled "hiji lechrol" of Bless
+     Spell titled "nilp botur" of Remove Fear
+     Spell titled "naaaus urnelg" of Call Light
+     Spell titled "engla daaval" of Find Traps
+     Spell titled "forala abbfor" of Detect Doors Stairs
+     Spell titled "rliash gan ner" of Slow Poison
+     Spell titled "ypiv ornesh" of Portal
+     Spell titled "bra esh" of Cure Medium Wounds
+     Spell titled "ooduqq flit" of Chant
+     Spell titled "bacpay breevs" of Divine Satiation
+     Spell titled "asharze sa" of Protection from Evil
+     Spell titled "afsit hijiarze" of Cure Critical Wounds I
+     Spell titled "miod toxnif" of Detect Monsters
+
+Potions:
+
+     Shimmering Potion of Wisdom
+     Blue Potion of Cure Light Wounds
+     Green Potion of Fire
+     Purple Speckled Potion of Acid
+     Misty Potion of Clumsiness
+     Silver Speckled Potion of Cure Serious Wounds
+     Cyan Potion of Cure Critical Wounds
+     Metallic Brown Potion of Poison
+     Dark Blue Potion of Speed
+     Gold Potion of Lose Memories
+     Grey Speckled Potion of Boldness
+     Bubbling Potion of Resist Heat
+     Vermilion Potion of Resist Cold
+     Yellow Potion of Neutralize Poison
+
+Wands:
+
+     Molybdenum Wand of Light
+     Pewter Wand of Lightning Bolts
+     Nickel-Plated Wand of Heal Monster
+     Tin-Plated Wand of Haste Monster
+     Silver-Plated Wand of Slow Monster
+     Steel Wand of Confuse Monster
+     Tin Wand of Trap/Door Destruction
+     Gold-Plated Wand of Magic Missile
+     Gold Wand of Lightning Balls
+     Zinc-Plated Wand of Stinking Cloud
+     Mithril-Plated Wand of Acid Balls
+     Silver Wand of Wonder
+
+Staffs:
+
+     Dogwood Staff of Trap Location
+     Mistletoe Staff of Treasure Location
+     Oak Staff of Object Location
+     Pine Staff of Summoning
+     Willow Staff of Light
+     Silver Staff of Haste Monsters
+     Elm Staff of Slow Monsters
+     Walnut Staff of Detect Invisible
+     Balsa Staff of Door/Stair Location
+     Banyan Staff of Darkness
+     Eucalyptus Staff of Perception
+
+Rods:
+
+     Lead Rod of Recall
+     Platinum Rod of Light
+     Green-Stained Rod of Lightning Bolts
+     Nickel-Plated Rod of Fire Bolts
+
+Potions:
+
+     Tangerine Potion of Death
+
+
+Uniques seen:
+
+     Grip, Farmer Maggot's dog is dead
+     Fang, Farmer Maggot's dog is dead
+     Smeagol is dead
+     Mughash the Kobold Lord is dead
+     Brodda, the Easterling is dead
+     Orfax, Son of Boldor is dead
+     Grishnakh, the Hill Orc is dead
+     Golfimbul, the Hill Orc Chief is dead
+     Ufthak of Cirith Ungol is dead
+
+
+Spells Cast:
+
+         750 Magic Missile
+         424 Stinking Cloud
+           9 Turn Stone to Mud
+         199 Fire Bolt
+          35 Frost Ball
+           1 Cure Minor Wounds
+          32 Call Light
+          43 Find Traps
+           8 Detect Doors / Stairs
+           4 Portal
+           2 Divine Satiation
+           2 Protection from Evil I
+           2 Cure Critical Wounds I
+          43 Detect Monsters
+
+
+Monsters seen:
+
+You ventured up to level 14
+
+You are now on level 14/0, and you have been here for 32012 turns
+You killed 876 monsters in total, in 338051 turns.
+
+You have killed 7 Filthy street urchins.
+You have killed 4 Boil-covered wretchs.
+You have killed 3 Pitiful looking beggars.
+You have killed 3 Mangy looking lepers.
+You have killed 3 Squint eyed rogues.
+You have killed 2 Aimless looking merchants.
+You have killed 2 Mean looking mercenarys.
+You have killed 3 Battle scarred veterans.
+You have killed 2 Grey molds.
+You have killed 2 Giant white centipedes.
+You have killed 2 White icky things.
+You have killed 2 Giant white mouses.
+You have killed 14 Small kobolds.
+You have killed 10 Jackals.
+You have killed 2 Blubbering icky things.
+You have killed 2 Novice warriors.
+You have killed 2 Novice mages.
+You have killed 2 Salamanders.
+You have killed 5 Blue yeeks.
+You have killed 2 Large yellow snakes.
+You have killed 52 Cave spiders.
+You have killed 3 Poltergeists.
+You have killed 17 Giant white louses.
+You have killed 2 Black nagas.
+You have killed 2 Spotted mushroom patchs.
+You have killed 2 Yellow jellys.
+You have killed 2 Giant white ants.
+You have killed 12 Clear worm masses.
+You have killed 3 Novice paladins.
+You have killed 7 Giant white rats.
+You have killed 4 Blue worm masses.
+You have killed 23 Novice mages.
+You have killed 2 Green glutton ghosts.
+You have killed 39 Large kobolds.
+You have killed 6 kobold assassins.
+You have killed 7 kobold thiefs.
+You have killed 2 kobold marksmen.
+You have killed 6 kobold poison sellers.
+You have killed 2 Skeleton kobolds.
+You have killed 2 Disenchanter eyes.
+You have killed 5 Red worm masses.
+You have killed 3 Purple mushroom patchs.
+You have killed 14 Novice priests.
+You have killed 5 Novice warriors.
+You have killed 33 Novice rogues.
+You have killed 56 Snagas.
+You have killed 68 Cave orcs.
+You have killed 26 Manes.
+You have killed 4 Pink nagas.
+You have killed 4 Pink jellys.
+You have killed 3 Giant pink frogs.
+You have killed 2 Dark elfs.
+You have killed 3 Brown yeeks.
+You have killed 35 Novice rangers.
+You have killed 2 Green molds.
+You have killed 7 Skeleton orcs.
+You have killed 21 Novice paladins.
+You have killed 21 Lemures.
+You have killed 70 Hill orcs.
+You have killed 22 Giant grey rats.
+You have killed 2 Black harpys.
+You have killed 4 Orc shamen.
+You have killed 4 Baby green dragons.
+You have killed 3 Baby black dragons.
+You have killed 3 Giant pink ants.
+You have killed 4 Dark elven mages.
+You have killed 3 Dark elven warriors.
+You have killed 19 Clear mushroom patchs.
+You have killed 3 Giant white ticks.
+You have killed 2 Pseudo dragons.
+You have killed 3 Tengus.
+You have killed 22 Wolfs.
+You have killed 2 Panthers.
+You have killed 4 Brigands.
+You have killed 2 Hippogriffs.
+You have killed 26 White wolfs.
+You have killed 2 Skeleton humen.
+You have killed 2 Swordsmen.
+You have killed 18 Giant fleas.
+You have killed 2 Hill giants.
+You have killed 2 Giant black louses.
+You have killed 6 Clear hounds.
+You have killed 2 Earth hounds.
+
+
+Progress:
+
+           0 You started your campaign.
+        1610 You slew your first Battle scarred veteran.
+        2280 You slew your first Pitiful looking beggar.
+        2830 You found your first Scroll titled "wah uun me" of Treasure
+             Detection.
+        3590 You slew your first Blubbering idiot.
+        5473 You first entered dungeon level 200 ft.
+        5492 You reached experience level 2.
+        6582 You reached experience level 3.
+        7482 You slew your first White icky thing.
+        7752 You reached experience level 4.
+        8222 You found your first Molybdenum Wand of Light.
+        9132 You slew your first Spotted mushroom patch.
+        9570 You slew your first Novice mage.
+        9970 You reached experience level 5.
+        9970 You reached experience level 6.
+        9970 You reached experience level 7.
+        9970 You reached experience level 8.
+        9970 You reached experience level 9.
+        9970 You reached experience level 10.
+        9970 You reached experience level 11.
+        9970 You reached experience level 12.
+        9970 You reached experience level 13.
+        9970 You reached experience level 14.
+        9970 You reached experience level 15.
+        9970 You reached experience level 16.
+        9970 You reached experience level 17.
+        9970 You reached experience level 18.
+        9970 You reached experience level 19.
+        9970 You reached experience level 20.
+        9970 You reached experience level 21.
+        9970 You reached experience level 22.
+        9990 You found your first Mithril-Plated Wand of Acid Balls.
+        9990 You found the Nickel-Plated Wand of Heal Monster (0 charges) which
+             is in your home.
+       10000 You found the Eucalyptus Staffs of Perception (18 charges) that you
+             are carrying in your pack.
+       10010 You found the Lamp of the Noldor (with 2898 turns of light) that
+             you are using to light the way.
+       10020 You found your first Flask of oil.
+       10030 You found your first Brown Titanite Ring of Searching.
+       10053 You found your first Aquamarine Ring of Sustain Strength.
+       10066 You found the Red Garnet Ring of See Invisible that you are
+             shooting missiles with.
+       10124 You found the Lead Rod of Recall that you are carrying in your
+             pack.
+       10135 You last left dungeon level 200 ft.
+       10135 You first entered dungeon level 500 ft.
+       10357 You slew your first kobold thief.
+       10423 You slew your first Kobold.
+       10846 You slew your first Novice paladin.
+       10990 You found your first Tin-Plated Wand of Haste Monster.
+       11012 You found your first Pearl Ring of Feather Falling.
+       11046 You found your first Banyan Staff of Darkness.
+       11070 You slew your first Disenchanter eye.
+       11108 You slew your first Skeleton orc.
+       11195 You found your first Morning Star.
+       11524 You slew your first Poltergeist.
+       11710 You slew your first Baby black dragon.
+       11795 You slew your first Grey mold.
+       12280 You found your first Spell titled "bek ornabb" of Fire Bolt.
+       16023 You slew your first Blue yeek.
+       16080 You slew your first Novice mage.
+       16194 You slew your first Giant white tick.
+       16252 You slew Orfax, Son of Boldor.
+       16452 You slew your first Griffon.
+       17323 You slew your first Pink naga.
+       17494 You found your first Scroll titled "shuther la" of Word of Recall.
+       19580 You slew your first Tiger.
+       20266 You slew your first Black harpy.
+       21866 You found your first Bubbling Potion of Resist Heat.
+       22580 You slew your first Large yellow snake.
+       23294 You slew your first Novice rogue.
+       23609 You found your first Spell titled "naaaus urnelg" of Call Light.
+       23680 You slew your first Tengu.
+       24294 You found your first Sling.
+       24409 You found your first Oak Staff of Object Location.
+       24437 You slew your first Radiation eye.
+       27537 You found your first Hard Biscuit.
+       27680 You slew your first Snaga.
+       28959 You found your first Spell titled "flitod gopla" of Cure Light
+             Wounds.
+       29816 You found your first Trident.
+       29873 You slew your first Novice priest.
+       29930 You slew Grip, Farmer Maggot's dog.
+       31344 You found your first Steel Wand of Confuse Monster.
+       31559 You slew your first Black naga.
+       31730 You slew your first Giant green frog.
+       31873 You slew your first Orc shaman.
+       32059 You slew your first Giant white louse.
+       33157 You found your first Pair of Soft Leather Boots [2].
+       34557 You slew your first Giant spider.
+       35219 You slew your first Yellow jelly.
+       37069 You slew Fang, Farmer Maggot's dog.
+       37319 You slew your first Hill orc.
+       37982 You found your first Cutlass.
+       38782 You found your first Metal Cap [3].
+       39296 You slew Brodda, the Easterling.
+       39396 You found your first Beaked Axe.
+       39453 You found your first Dagger.
+       39582 You slew your first Green glutton ghost.
+       40268 You slew your first Blubbering icky thing.
+       41868 You found your first Small Sword.
+       42539 You slew your first kobold assassin.
+       44503 You slew your first Panther.
+       44660 You slew your first kobold poison seller.
+       45518 You slew your first Giant brown bat.
+       46346 You slew your first Manes.
+       47260 You slew your first Zombified human.
+       47803 You slew your first Cave orc.
+       52975 You found your first Awl-Pike.
+       54300 You slew your first Skeleton kobold.
+       58145 You found your first Main Gauche.
+       58359 You found your first Spell titled "rliash gan ner" of Slow Poison.
+       59045 You found your first Spell titled "ypiv ornesh" of Portal.
+       60188 You slew your first Giant white centipede.
+       62387 You slew your first Aimless looking merchant.
+       67835 You slew your first Mangy looking leper.
+       68597 You slew your first Squint eyed rogue.
+       68809 You slew your first Boil-covered wretch.
+       69420 You slew your first Brigand.
+       70395 You found your first Long Sword.
+       70820 You slew your first Pink jelly.
+       71658 You slew your first Giant pink frog.
+       72120 You slew your first Novice ranger.
+       72433 You slew your first Lemure.
+       72433 You reached experience level 23.
+       75458 You slew your first Green ooze.
+       78224 You slew Golfimbul, the Hill Orc Chief.
+       79074 You found the Pair of Metal Shod Boots [6,+5] that you are wearing
+             on your feet.
+       79087 You found your first Nickel-Plated Rod of Fire Bolts.
+       81437 You slew your first Hairy mold.
+       82349 You slew your first Green naga.
+       82562 You slew your first Red worm mass.
+       82937 You slew your first Dark elven mage.
+       83062 You slew your first Small kobold.
+       84037 You found your first Ration of Food.
+       84087 You slew your first Novice priest.
+       92299 You slew your first Large grey snake.
+       95436 You found your first Silver-Plated Wand of Slow Monster.
+       95572 You found your first Piece of Elvish Waybread.
+       96083 You slew your first Green jelly.
+       96328 You slew your first Giant salamander.
+       97005 You slew your first Novice rogue.
+       97805 You slew your first White harpy.
+       97817 You slew Smeagol.
+       97917 You slew your first Metallic green centipede.
+       98528 You slew your first Dark elven warrior.
+       98572 You slew your first Green mold.
+       98917 You found the Platinum Rods of Light that you are carrying in your
+             pack.
+       98994 You slew your first Giant grey rat.
+      101559 You slew your first Filthy street urchin.
+      102927 You slew your first Novice warrior.
+      103804 You slew your first Copperhead snake.
+      103901 You slew your first Purple mushroom patch.
+      104227 You slew your first Salamander.
+      106020 You found your first Cloak [1].
+      110627 You found your first Willow Staff of Light.
+      110636 You found your first Zinc-Plated Wand of Stinking Cloud.
+      110652 You found your first Grey Mushroom of Confusion.
+      111252 You found the Tin Wand of Trap/Door Destruction (11 charges) that
+             you are carrying in your pack.
+      111969 You slew your first Novice paladin.
+      112411 You found your first Tangerine Potion of Death.
+      113477 You found your first Hard Leather Armour [6].
+      116368 You found your first Spell titled "elple untich" of Stinking
+             Cloud.
+      121999 You slew your first Baby green dragon.
+      125525 You slew your first Floating eye.
+      125852 You slew your first Blue jelly.
+      125898 You found your first Flail.
+      133677 You found your first Spell titled "forala abbfor" of Detect Doors
+             Stairs.
+      133796 You slew your first Large kobold.
+      134634 You found your first Green Mushroom of Blindness.
+      134696 You found your first Spear.
+      135059 You found your first Tulwar.
+      135557 You slew Mughash the Kobold Lord.
+      135872 You found your first Quarterstaff.
+      136300 You slew your first Night lizard.
+      136800 You slew your first Grey icky thing.
+      137172 You slew your first Wolf.
+      141855 You slew your first Brown yeek.
+      143658 You found your first Hard Studded Leather [7].
+      149358 You slew your first Rock lizard.
+      149458 You slew your first Giant pink ant.
+      161236 You slew your first Clear mushroom patch.
+      163186 You slew your first Novice archer.
+      165636 You slew your first Clear worm mass.
+      165919 You slew your first Large brown snake.
+      167559 You found your first Spell titled "oxyro jzuod" of Create Simple
+             Trap.
+      168516 You found your first Spell titled "tafu sevner" of Spear Of Light.
+      168587 You slew your first Grey mushroom patch.
+      169101 You slew your first Dark elf.
+      173859 You slew your first Brown mold.
+      176099 You slew your first Wild cat.
+      189609 You slew your first Scruffy little dog.
+      191475 You slew your first Village idiot.
+      195427 You slew your first Creeping copper coins.
+      195437 You slew your first Green icky thing.
+      195497 You reached experience level 24.
+      195717 You slew your first Cave lizard.
+      196657 You found your first Scroll titled "bit bjor pot" of
+             Teleportation.
+      197727 You slew your first kobold marksman.
+      199872 You found your first Scroll titled "wahpot ivarze" of Trap
+             Detection.
+      200152 You slew your first Master yeek.
+      200632 You found your first Hobbit Sling.
+      201382 You slew your first Giant white rat.
+      204972 You slew your first Metallic red centipede.
+      214371 You found your first Silver Speckled Potion of Cure Serious
+             Wounds.
+      214693 You slew Grishnakh, the Hill Orc.
+      215938 You found the Gold Wand of Lightning Balls (0 charges) that you are
+             carrying in your pack.
+      216182 You found your first Short Sword.
+      217182 You found your first Filthy Rag [1].
+      217927 You found your first Whip.
+      219388 You slew your first Yellow mushroom patch.
+      220288 You slew your first Novice ranger.
+      225639 You found the Spell titled "ooduqq flit" of Chant which is in your
+             home.
+      227249 You found the Spell titled "hiji lechrol" of Bless which is in your
+             home.
+      227305 You found the Cyan Potion of Cure Critical Wounds that you are
+             carrying in your pack.
+      228072 You found your first Rapier.
+      229938 You found your first Battle Axe.
+      230276 You slew your first Baby blue dragon.
+      230763 You slew your first Cave spider.
+      233263 You slew your first Giant white ant.
+      235426 You found your first Soft Leather Armour [4].
+      235638 You found your first Spell titled "abber appel" of Treasure
+             Detection.
+      235863 You found the small book (with 0 spells) which is in your home.
+      238063 You found the Spell titled "rere sevvom" of Find Traps/Doors which
+             is in your home.
+      238120 You found the Spell titled "tisee snomic" of Detect Evil which is
+             in your home.
+      239660 You found your first War Hammer.
+      240310 You found your first Robe [2].
+      242870 You slew your first Mean looking mercenary.
+      243760 You first entered dungeon level 50 ft.
+      243769 You slew your first Giant yellow centipede.
+      244269 You slew your first Jackal.
+      267389 You last left dungeon level 50 ft.
+      269416 You slew your first Earth hound.
+      270453 You slew your first Singing, happy drunk.
+      275910 You last left dungeon level 0 ft.
+      278914 You found your first Scroll titled "tich kvi gop" of Identify.
+      279139 You found your first Hard Leather Cap [2].
+      279389 You found your first Broken Dagger.
+      280176 You slew your first Novice warrior.
+      281375 You slew your first Pseudo dragon.
+      281388 You found your first Balsa Staff of Door/Stair Location.
+      285469 You last left dungeon level 500 ft.
+      285469 You first entered dungeon level 700 ft.
+      288374 You found the Spell titled "rere sevvom" of Find Traps/Doors that
+             you are carrying in your pack.
+      288449 You slew Ufthak of Cirith Ungol.
+      288474 You found the Spell titled "ti barvom" of Sleep II that you are
+             carrying in your pack.
+      288487 You found the Spell titled "bra esh" of Cure Medium Wounds that you
+             are carrying in your pack.
+      288628 You found the Spell titled "nilp botur" of Remove Fear that you are
+             carrying in your pack.
+      289712 You slew your first White wolf.
+      290541 You slew your first Blue worm mass.
+      291884 You slew your first Hill giant.
+      293470 You slew your first Swordsman.
+      294141 You slew your first Giant flea.
+      299398 You slew your first Skeleton human.
+      303739 You slew your first Baby white dragon.
+      304896 You slew your first Giant black louse.
+      305168 You slew your first Zombified kobold.
+      307093 You found the Tulwar {good} that you are carrying in your pack.
+      310779 You slew your first Creeping silver coins.
+      310936 You slew your first Hippogriff.
+      316979 You slew your first Giant white mouse.
+      319158 You found the Spell titled "sol petdan" of Teleport Self that you
+             are carrying in your pack.
+      319201 You slew your first Clear icky thing.
+      319415 You slew your first Metallic blue centipede.
+      320901 You slew your first Moaning spirit.
+      322058 You found the Spell titled "umi naasjii" of Frost Bolt that you are
+             carrying in your pack.
+      323465 You slew your first Clear hound.
+      323479 You reached experience level 25.
+      323522 You slew your first Stone giant.
+      325265 You slew your first Soldier ant.
+      325465 You slew your first Bandit.
+      325836 You slew your first Quasit.
+      326022 You found the Soft Leather Armour [5] that you are carrying in your
+             pack.
+      326151 You slew your first Zombified orc.
+      331393 You found the small book (with 0 spells) that you are carrying in
+             your pack.
+      335336 You slew your first Grape jelly.
+      338051 You are now on dungeon level 700 ft

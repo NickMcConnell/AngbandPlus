@@ -1,6 +1,5 @@
 # File: f_info.txt
 
-
 # This file is used to initialize the "lib/raw/f_info.raw" file, which is
 # used to initialize the "terrain feature" information for the Angband game.
 
@@ -9,401 +8,810 @@
 
 # After modifying this file, delete the "lib/raw/f_info.raw" file.
 
-
-# Note that terrain feature "zero" is reserved for internal usage
-
-
 # Note that the terrain feature are grouped into very regular groups,
 # such that each of the bits in the feature type conveys information.
 
+# Note that terrain feature zero contains the "darkness" picture.
 
-# CAVE_FL_5 off
-#  We do not block line of sight
-#   CAVE_FL_4 off
-#    We are not a visible trap
-#     CAVE_FL_3 off
-#      We are not a store door
-#       CAVE_FL_2 off
-#        We are a mostly empty grid
-#         CAVE_FL_1 off
-#          We are an empty grid
-#           CAVE_FL_0 off
-#            We are nothing
-#           CAVE_FL_0 on
-#            We are a floor
-#         CAVE_FL_1 on
-#          We are a special item
-#           CAVE_FL_0 off
-#            We are an invisible trap
-#           CAVE_FL_0 on
-#            We are a glyph of warding
-#       CAVE_FL_2 on
-#        We are a door/stair
-#         CAVE_FL_1 off
-#          We are a door
-#           CAVE_FL_0 off
-#            We are an open door
-#           CAVE_FL_0 on
-#            We are a broken door
-#         CAVE_FL_1 on
-#          We are a staircase
-#           CAVE_FL_0 off
-#            We are an up staircase
-#           CAVE_FL_0 on
-#            We are a down staircase
-#     CAVE_FL_3 on
-#      We are a store door
-#   CAVE_FL_4 on
-#    We are a visible trap
-# CAVE_FL_5 on
-#  We block line of sight
-#   CAVE_FL_4 off
-#    We are a closed door
-#     CAVE_FL_3 off
-#      We are not jammed shut
-#     CAVE_FL_3 on
-#      We are jammed shut
-#   CAVE_FL_4 on
-#    We are a wall
-#     CAVE_FL_3 off
-#      We are not granite
-#       CAVE_FL_2 off
-#        We do not contain treaure
-#       CAVE_FL_2 on
-#        We contain treaure
-#     CAVE_FL_3 on
-#      We are granite
-#       CAVE_FL_2 off
-#        We are not permanent
-#       CAVE_FL_2 on
-#        We are permanent
+#N:name
+#I:mtyp:styp
+#P:priority when displaying a compressed map
+#G:char:attr
+#M:mtyp:styp < mimic this feature >
 
+# Version stamp (required)
 
-
-
-# Version stamp
-
-V:2.7.9
-
+V:2.7.10
 
 # 0x00 --> nothing
 
-N:0:nothing
-G: :w
-
+N:nothing
+I:<mtyp>0:<styp>0
+P:<priority>0
+G: :b
 
 # 0x01 --> open floor
 
-N:1:open floor
+N:open floor
+I:<mtyp>1:<styp>0
 G:.:w
+P:<priority>1
+F:WL
 
-# 0x02 --> invisible trap
-
-N:2:open floor
+N:arena floor
+I:<mtyp>1:<styp>1
 G:.:w
+P:<priority>1
+F:WL
+
+# 0x02 --> invisible trap (drawn as open floor)
+
+N:invisible trap
+I:<mtyp>1:<styp>2
+G:.:w
+M:<mimic mtyp>1:<mimic styp>0
+F:WLM
 
 # 0x03 --> glyph of warding
 
-N:3:glyph of warding
+N:glyph of warding
+I:<mtyp>1:<styp>3
 G:;:y
-
-# 0x04 --> open door
-
-N:4:open door
-G:':U
-
-# 0x05 --> broken door
-
-N:5:broken door
-G:':U
-
-# 0x06 --> up stairs (perm)
-
-N:6:up staircase
-G:<:w
-
-# 0x07 --> down stairs (perm)
-
-N:7:down staircase
-G:>:w
-
-# 0x08 --> shop -- general store (perm)
-
-N:8:General Store
-G:1:U
-
-# 0x09 --> shop -- armoury (perm)
-
-N:9:Armoury
-G:2:s
-
-# 0x0A --> shop -- weapon shop (perm)
-
-N:10:Weapon Smiths
-G:3:w
-
-# 0x0B --> shop -- temple (perm)
-
-N:11:Temple
-G:4:g
-
-# 0x0C --> shop -- alchemist (perm)
-
-N:12:Alchemy Shop
-G:5:b
-
-# 0x0D --> shop -- magic shop (perm)
-
-N:13:Magic Shop
-G:6:r
-
-# 0x0E --> shop -- black market (perm)
-
-N:14:Black Market
-G:7:D
-
-# 0x0F --> shop -- home (perm)
-
-N:15:Home
-G:8:y
-
-# 0x10 --> visible trap -- trap door
-
-N:16:trap door
-G:^:w
-
-# 0x11 --> visible trap -- open pit
-
-N:17:pit
-G:^:s
-
-# 0x12 --> visible trap -- spiked pit
-
-N:18:pit
-G:^:s
-
-# 0x13 --> visible trap -- poison pit
-
-N:19:pit
-G:^:s
-
-# 0x14 --> visible trap -- rune -- summon
-
-N:20:strange rune
-G:^:o
-
-# 0x15 --> visible trap -- rune -- teleport
-
-N:21:strange rune
-G:^:o
-
-# 0x16 --> visible trap -- spot -- fire
-
-N:22:discolored spot
-G:^:u
-
-# 0x17 --> visible trap -- spot -- acid
-
-N:23:discolored spot
-G:^:u
-
-# 0x18 --> visible trap -- dart -- slow
-
-N:24:dart trap
-G:^:r
-
-# 0x19 --> visible trap -- dart -- lose str
-
-N:25:dart trap
-G:^:r
-
-# 0x1A --> visible trap -- dart -- lose dex
-
-N:26:dart trap
-G:^:r
-
-# 0x1B --> visible trap -- dart -- lose con
-
-N:27:dart trap
-G:^:r
-
-# 0x1C --> visible trap -- gas -- blind
-
-N:28:gas trap
-G:^:g
-
-# 0x1D --> visible trap -- gas -- confuse
-
-N:29:gas trap
-G:^:g
-
-# 0x1E --> visible trap -- gas -- poison
-
-N:30:gas trap
-G:^:g
-
-# 0x1F --> visible trap -- gas -- sleep
-
-N:31:gas trap
-G:^:g
+P:<priority>10
+F:WL
 
 # 0x2x --> locked door (power 0)
 
-N:32:door
+N:open door
+I:<mtyp>2:<styp>0
+G:':U
+P:<priority>5
+F:WL
+
+N:closed door
+I:<mtyp>2:<styp>1
 G:+:U
+P:<priority>10
 
-# 0x2x --> locked door (power 1)
+N:broken door
+I:<mtyp>2:<styp>2
+G:':U
+P:<priority>5
+F:WL
 
-N:33:door
+N:locked door
+I:<mtyp>2:<styp>3
 G:+:U
+M:<mimic mtyp>2:<mimic styp>1
+F:M
 
-# 0x2x --> locked door (power 2)
-
-N:34:door
+N:jammed door
+I:<mtyp>2:<styp>4
 G:+:U
+M:<mimic mtyp>2:<mimic styp>1
+F:M
 
-# 0x2x --> locked door (power 3)
-
-N:35:door
+N:secret door
+I:<mtyp>2:<styp>5
 G:+:U
+M:<mimic mtyp>3:<mimic styp>1
+F:M
 
-# 0x2x --> locked door (power 4)
+# 0x06 --> up stairs (perm)
 
-N:36:door
-G:+:U
+N:up staircase
+I:<mtyp>6:<styp>0
+G:<:w
+P:<priority>25
+F:WL
 
-# 0x2x --> locked door (power 5)
+# 0x07 --> down stairs (perm)
 
-N:37:door
-G:+:U
+N:down staircase
+I:<mtyp>6:<styp>1
+G:>:w
+P:<priority>25
+F:WLN
 
-# 0x2x --> locked door (power 6)
+N:strange staircase
+I:<mtyp>6:<styp>2
+G:.:r
+P:<priority>50
+F:WLN
 
-N:38:door
-G:+:U
+N:up shaft
+I:<mtyp>6:<styp>3
+G:<:D
+P:<priority>25
+F:WLN
 
-# 0x2x --> locked door (power 7)
+N:down shaft
+I:<mtyp>6:<styp>4
+G:>:D
+P:<priority>25
+F:WLN
 
-N:39:door
-G:+:U
+# 0x08 --> shop -- general store (perm)
 
-# 0x2x --> jammed door (power 0)
+N:General Store
+I:<mtyp>9:<styp>0
+G:1:U
+P:<priority>20
+F:WL
 
-N:40:door
-G:+:U
+# 0x09 --> shop -- armoury (perm)
 
-# 0x2x --> jammed door (power 1)
+N:Armoury
+I:<mtyp>9:<styp>1
+G:2:s
+P:<priority>20
+F:WL
 
-N:41:door
-G:+:U
+# 0x0A --> shop -- weapon shop (perm)
 
-# 0x2x --> jammed door (power 2)
+N:Weapon Smiths
+I:<mtyp>9:<styp>2
+G:3:w
+P:<priority>20
+F:WL
 
-N:42:door
-G:+:U
+# 0x0B --> shop -- temple (perm)
 
-# 0x2x --> jammed door (power 3)
+N:Temple
+I:<mtyp>9:<styp>3
+G:4:g
+P:<priority>20
+F:WL
 
-N:43:door
-G:+:U
+# 0x0C --> shop -- alchemist (perm)
 
-# 0x2x --> jammed door (power 4)
+N:Alchemy Shop
+I:<mtyp>9:<styp>4
+G:5:b
+P:<priority>20
+F:WL
 
-N:44:door
-G:+:U
+# 0x0D --> shop -- magic shop (perm)
 
-# 0x2x --> jammed door (power 5)
+N:Magic Shop
+I:<mtyp>9:<styp>5
+G:6:r
+P:<priority>20
+F:WL
 
-N:45:door
-G:+:U
+# 0x0E --> shop -- black market (perm)
 
-# 0x2x --> jammed door (power 6)
+N:Black Market
+I:<mtyp>9:<styp>6
+G:7:D
+P:<priority>20
+F:WL
 
-N:46:door
-G:+:U
+# 0x0F --> shop -- home (perm)
 
-# 0x2x --> jammed door (power 7)
+N:Home
+I:<mtyp>9:<styp>7
+G:8:y
+P:<priority>20
+F:WL
 
-N:47:door
-G:+:U
+N:General Digger Store
+I:<mtyp>9:<styp>10
+G:1:D
+P:<priority>20
+F:WL
 
-# 0x30 --> secret door
+N:General Lite Store
+I:<mtyp>9:<styp>11
+G:1:D
+P:<priority>20
+F:WL
 
-N:48:granite wall
-G:#:w
+N:General Food Store
+I:<mtyp>9:<styp>12
+G:1:D
+P:<priority>20
+F:WL
 
-# 0x31 --> rubble
+N:General Cloak Store
+I:<mtyp>9:<styp>13
+G:1:D
+P:<priority>20
+F:WL
 
-N:49:rubble
+N:Boots Store
+I:<mtyp>9:<styp>14
+G:2:D
+P:<priority>20
+F:WL
+
+N:Gloves and Shields Store
+I:<mtyp>9:<styp>15
+G:2:D
+P:<priority>20
+F:WL
+
+N:Helmets and Crowns Store
+I:<mtyp>9:<styp>16
+G:2:D
+P:<priority>20
+F:WL
+
+N:Cloaks and Soft Armour Store
+I:<mtyp>9:<styp>17
+G:2:u
+P:<priority>20
+F:WL
+
+N:Hard and Dragon Armour Store
+I:<mtyp>9:<styp>18
+G:2:D
+P:<priority>20
+F:WL
+
+N:Bows and Ammunition Store
+I:<mtyp>9:<styp>19
+G:3:u
+P:<priority>20
+F:WL
+
+N:Hafted Weapons and Digging Implements Store
+I:<mtyp>9:<styp>20
+G:3:w
+P:<priority>20
+F:WL
+
+N:Small and Large Swords Store
+I:<mtyp>9:<styp>21
+G:3:w
+P:<priority>20
+F:WL
+
+N:Long and Short Polearms Store
+I:<mtyp>9:<styp>22
+G:3:w
+P:<priority>20
+F:WL
+
+N:Priestly Spells and Books Store
+I:<mtyp>9:<styp>23
+G:4:g
+P:<priority>20
+F:WL
+
+N:Priestly Weapons Store
+I:<mtyp>9:<styp>24
+G:4:g
+P:<priority>20
+F:WL
+
+N:New and Old Scrolls Store
+I:<mtyp>9:<styp>25
+G:5:b
+P:<priority>20
+F:WL
+
+N:Potions Store
+I:<mtyp>9:<styp>26
+G:5:b
+P:<priority>20
+F:WL
+
+N:Magical Spells and Books Store
+I:<mtyp>9:<styp>27
+G:6:r
+P:<priority>20
+F:WL
+
+N:Rings and Amulets Store
+I:<mtyp>9:<styp>28
+G:6:r
+P:<priority>20
+F:WL
+
+N:Wands, Rods and Staffs Store
+I:<mtyp>9:<styp>29
+G:6:r
+P:<priority>20
+F:WL
+
+N:Sign 'General Store'
+I:<mtyp>11:<styp>0
+G:,:U
+P:<priority>20
+F:WLN
+
+N:Sign 'Armoury'
+I:<mtyp>11:<styp>1
+G:[:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Weapon Smiths'
+I:<mtyp>11:<styp>2
+G:|:w
+P:<priority>20
+F:WLN
+
+N:Sign 'Temple'
+I:<mtyp>11:<styp>3
+G:?:g
+P:<priority>20
+F:WLN
+
+N:Sign 'Alchemy Shop'
+I:<mtyp>11:<styp>4
+G:!:b
+P:<priority>20
+F:WLN
+
+N:Sign 'Magic Shop'
+I:<mtyp>11:<styp>5
+G:-:r
+P:<priority>20
+F:WLN
+
+N:Sign 'Black Market'
+I:<mtyp>11:<styp>6
+G:*:D
+P:<priority>20
+F:WLN
+
+# home has no sign
+
+N:Sign 'General Digger Store'
+I:<mtyp>11:<styp>10
+G:\:U
+P:<priority>20
+F:WLN
+
+N:Sign 'Torches and Lanterns Store'
+I:<mtyp>11:<styp>11
+G:~:U
+P:<priority>20
+F:WLN
+
+N:Sign 'Food Store'
+I:<mtyp>11:<styp>12
+G:,:U
+P:<priority>20
+F:WLN
+
+N:Sign 'Cloak Store'
+I:<mtyp>11:<styp>13
+G:(:D
+P:<priority>20
+F:WLN
+
+N:Sign 'Boots Store'
+I:<mtyp>11:<styp>14
+G:]:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Gloves and Shields Store'
+I:<mtyp>11:<styp>15
+G:[:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Helmets and Crowns Store'
+I:<mtyp>11:<styp>16
+G:]:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Cloaks and Soft Armour Store'
+I:<mtyp>11:<styp>17
+G:(:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Hard and Dragon Armour Store'
+I:<mtyp>11:<styp>18
+G:[:s
+P:<priority>20
+F:WLN
+
+N:Sign 'Bows and Ammunition Store'
+I:<mtyp>11:<styp>19
+G:}:w
+P:<priority>20
+F:WLN
+
+N:Sign 'Hafted Weapons and Digging Implements Store'
+I:<mtyp>11:<styp>20
+G:\:w
+P:<priority>20
+F:WLN
+
+N:Sign 'Small and Large Swords Store'
+I:<mtyp>11:<styp>21
+G:|:w
+P:<priority>20
+F:WLN
+
+N:Sign 'Long and Short Polearms Store'
+I:<mtyp>11:<styp>22
+G:/:w
+P:<priority>20
+F:WLN
+
+N:Sign 'Priestly Spells and Books Store'
+I:<mtyp>11:<styp>23
+G:?:g
+P:<priority>20
+F:WLN
+
+N:Sign 'Priestly Weapon Store'
+I:<mtyp>11:<styp>24
+G:\:g
+P:<priority>20
+F:WLN
+
+N:Sign 'New and Old Spells and Scrolls Store'
+I:<mtyp>11:<styp>25
+G:?:b
+P:<priority>20
+F:WLN
+
+N:Sign 'Potion Store'
+I:<mtyp>11:<styp>26
+G:!:b
+P:<priority>20
+F:WLN
+
+N:Sign 'Magical Spells and Books Store'
+I:<mtyp>11:<styp>27
+G:?:r
+P:<priority>20
+F:WLN
+
+N:Sign 'Rings and Amulets Store'
+I:<mtyp>11:<styp>28
+G:=:r
+P:<priority>20
+F:WLN
+
+N:Sign 'Wands, Rods and Staffs Store'
+I:<mtyp>11:<styp>29
+G:-:r
+P:<priority>20
+F:WLN
+
+# trap - only one known
+# the color will be changed in cave.c
+N:known trap
+I:<mtyp>7:<styp>0
+G:^:w
+P:<priority>10
+F:WL
+
+# trap - more known
+N:known set of traps
+I:<mtyp>7:<styp>1
+G:^:W
+P:<priority>10
+F:WL
+
+#
+# walls
+#
+
+N:pile of rubble
+I:<mtyp>3:<styp>0
 G:::w
+P:<priority>5
+F:WL
 
-# 0x32 --> magma vein
+N:granite vein
+I:<mtyp>3:<styp>1
+P:<priority>5
+G:#:s
 
-N:50:magma vein
+N:granite vein (inner)
+I:<mtyp>3:<styp>2
+G:#:s
+M:<mimic mtyp>3:<mimic styp>1
+F:M
+
+N:granite vein (outer)
+I:<mtyp>3:<styp>3
+G:#:s
+M:<mimic mtyp>3:<mimic styp>1
+F:M
+
+N:granite vein (hidden treasure)
+I:<mtyp>3:<styp>4
+G:#:s
+M:<mimic mtyp>3:<mimic styp>1
+F:M
+
+N:granite vein (solid)
+I:<mtyp>3:<styp>5
+G:#:s
+M:<mimic mtyp>3:<mimic styp>1
+F:M
+
+N:granite vein with treasure
+I:<mtyp>3:<styp>6
+G:*:w
+P:<priority>8
+
+N:quartz vein
+I:<mtyp>3:<styp>7
 G:%:s
+P:<priority>5
 
-# 0x33 --> quartz vein
-
-N:51:quartz vein
-G:%:w
-
-# 0x34 --> magma vein + treasure
-
-N:52:magma vein
+N:quartz vein (inner)
+I:<mtyp>3:<styp>8
 G:%:s
+M:<mimic mtyp>3:<mimic styp>7
+F:M
 
-# 0x35 --> quartz vein + treasure
+N:quartz vein (outer)
+I:<mtyp>3:<styp>9
+G:%:s
+M:<mimic mtyp>3:<mimic styp>7
+F:M
 
-N:53:quartz vein
-G:%:w
+N:quartz vein (hidden treasure)
+I:<mtyp>3:<styp>10
+G:%:s
+M:<mimic mtyp>3:<mimic styp>7
+F:M
 
-# 0x36 --> magma vein + known treasure
+N:quartz vein (solid)
+I:<mtyp>3:<styp>11
+G:%:s
+M:<mimic mtyp>3:<mimic styp>7
+F:M
 
-N:54:magma vein with treasure
+N:quartz vein with treasure
+I:<mtyp>3:<styp>12
 G:*:o
+P:<priority>8
 
-# 0x37 --> quartz vein + known treasure
+N:magma vein
+I:<mtyp>3:<styp>13
+G:%:s
+P:<priority>5
 
-N:55:quartz vein with treasure
-G:*:o
+N:magma vein (inner)
+I:<mtyp>3:<styp>14
+G:%:s
+M:<mimic mtyp>3:<mimic styp>13
+F:M
 
-# 0x38 --> granite wall -- basic
+N:magma vein (outer)
+I:<mtyp>3:<styp>15
+G:%:s
+M:<mimic mtyp>3:<mimic styp>13
+F:M
 
-N:56:granite wall
+N:magma vein (hidden treasure)
+I:<mtyp>3:<styp>16
+G:%:s
+M:<mimic mtyp>3:<mimic styp>13
+F:M
+
+N:magma vein (solid)
+I:<mtyp>3:<styp>17
+G:%:s
+M:<mimic mtyp>3:<mimic styp>13
+F:M
+
+N:magma vein with treasure
+I:<mtyp>3:<styp>18
+G:*:w
+P:<priority>8
+
+N:chalk vein
+I:<mtyp>3:<styp>19
+G:%:s
+P:<priority>5
+
+N:chalk vein (inner)
+I:<mtyp>3:<styp>20
+G:%:s
+M:<mimic mtyp>3:<mimic styp>19
+F:M
+
+N:chalk vein (outer)
+I:<mtyp>3:<styp>21
+G:%:s
+M:<mimic mtyp>3:<mimic styp>19
+F:M
+
+N:chalk vein (hidden treasure)
+I:<mtyp>3:<styp>22
+G:%:s
+M:<mimic mtyp>3:<mimic styp>19
+F:M
+
+N:chalk vein (solid)
+I:<mtyp>3:<styp>23
+G:%:s
+M:<mimic mtyp>3:<mimic styp>19
+F:M
+
+N:chalk vein with treasure
+I:<mtyp>3:<styp>24
+G:*:g
+P:<priority>8
+
+#
+# permanent walls
+#
+
+N:permanent wall
+I:<mtyp>10:<styp>0
 G:#:w
-
-# 0x39 --> granite wall -- inner
-
-N:57:granite wall
-G:#:w
-
-# 0x3A --> granite wall -- outer
-
-N:58:granite wall
-G:#:w
-
-# 0x3B --> granite wall -- solid
-
-N:59:granite wall
-G:#:w
-
-# 0x3C --> permanent wall -- basic (perm)
-
-N:60:granite wall
-G:#:w
+P:<priority>7
 
 # 0x3D --> permanent wall -- inner (perm)
 
-N:61:granite wall
+N:permanent wall (inner)
+I:<mtyp>10:<styp>1
 G:#:w
+M:<mimic mtyp>10:<mimic styp>0
+F:M
 
 # 0x3E --> permanent wall -- outer (perm)
 
-N:62:granite wall
+N:permanent wall (outer)
+I:<mtyp>10:<styp>2
 G:#:w
+M:<mimic mtyp>10:<mimic styp>0
+F:M
 
 # 0x3F --> permanent wall -- solid (perm)
 
-N:63:granite wall
+N:permanent wall (solid)
+I:<mtyp>10:<styp>3
 G:#:w
+M:<mimic mtyp>10:<mimic styp>0
+F:M
 
+N:permanent wall (glass)
+I:<mtyp>10:<styp>4
+G:=:y
+F:L
+
+N:arena door
+I:<mtyp>10:<styp>5
+G:+:y
+F:L
+P:<priority>15
+
+N:oak
+I:<mtyp>4:<styp>0
+G:Y:g
+F:WN
+P:<priority>10
+
+N:elm
+I:<mtyp>4:<styp>1
+G:Y:g
+F:WN
+P:<priority>10
+
+N:yew
+I:<mtyp>4:<styp>2
+G:Y:G
+F:WN
+P:<priority>10
+
+N:black alder
+I:<mtyp>4:<styp>3
+G:Y:D
+F:WN
+P:<priority>10
+
+N:beech
+I:<mtyp>4:<styp>4
+G:Y:g
+F:WN
+P:<priority>10
+
+N:blue pine
+I:<mtyp>4:<styp>5
+G:Y:B
+F:WN
+P:<priority>10
+
+N:birch
+I:<mtyp>4:<styp>6
+G:Y:G
+F:WN
+P:<priority>10
+
+N:maple
+I:<mtyp>4:<styp>7
+G:Y:g
+F:WN
+P:<priority>10
+
+N:willow
+I:<mtyp>4:<styp>8
+G:Y:g
+F:WN
+P:<priority>10
+
+N:robinia
+I:<mtyp>4:<styp>9
+G:Y:g
+F:WN
+P:<priority>10
+
+N:apple
+I:<mtyp>4:<styp>10
+G:Y:g
+F:WN
+P:<priority>10
+
+N:poplar
+I:<mtyp>4:<styp>11
+G:Y:g
+F:WN
+P:<priority>10
+
+N:silver pine
+I:<mtyp>4:<styp>12
+G:Y:g
+F:WN
+P:<priority>10
+
+N:hornbeam
+I:<mtyp>4:<styp>13
+G:Y:g
+F:WN
+P:<priority>10
+
+N:bramble bush
+I:<mtyp>4:<styp>14
+G:Y:g
+F:WN
+P:<priority>10
+
+N:brook
+I:<mtyp>5:<styp>0
+G:=:B
+F:WSLN
+P:<priority>10
+
+N:open sewer
+I:<mtyp>5:<styp>1
+G:=:y
+F:WSLN
+P:<priority>10
+
+N:pool
+I:<mtyp>5:<styp>2
+G:=:b
+F:WSLN
+P:<priority>10
+
+N:mud
+I:<mtyp>8:<styp>0
+G:~:u
+F:WLN
+P:<priority>10
+
+N:rock-strewn sand
+I:<mtyp>8:<styp>1
+G:~:s
+F:WLN
+P:<priority>10
+
+N:grass
+I:<mtyp>8:<styp>2
+G:.:g
+F:WLN
+P:<priority>10
+
+N:lava
+I:<mtyp>12:<styp>0
+G:#.r
+F:WL
+P:<priority>11

@@ -1,0 +1,1146 @@
+220299 Created makefiles for cross-compiling go32/dos and mingw32/win32
+executables on Linux.
+
+240299 A monster hitting a trap of drop items would not display the
+correct monster name
+
+020399 It seems it's now necessary to call get_obj_num_prep after setting
+get_obj_num_hook
+
+030399 Made sure that windows-levelfiles were named correctly.
+
+030399 Removed the vaults which were copied from Oangband, due to
+copyright issues and a neat idea I'm about to implement with vaults....
+
+140399 Added the concept of sublevels. These allow vaults to extend
+over multiple levels. sublevels are created at creation time of a
+base-level. They are saved with the base-level, and are always recovered
+from memory, not recreated every time. The maximum size is one screen. The
+internal storage of cave-attributes has again changed more from normal
+angband. Sublevels are only allocated when they are needed, to prevent
+excessive memory use. A (configurable) maximum of 50 sublevels per level
+has been added. The depth-display is now moved to the bottom line of
+the screen, which allows some nice displays like
+
+Main dungeon: 50 ft (Cellar, +10 ft)
+
+if you are in sublevel 1 of baselevel 1, and the vault describing the
+sublevel is called a Cellar.
+
+140399 Added some more kobold types.
+
+1403-99-140599 No changes mentioned here - busy writing guide.txt.
+
+150599 Added in main-dos.c in the dos executable.
+
+170599 Spell of destruct door/traps now works correctly and won't eat
+walls also.
+
+170599 Added some hints when you try to absorb a unbound-spell into
+a mage-staff.
+
+180599 Aborted spells now cost no mana.
+
+180599 Shopkeepers now use the info you have about tried items.
+
+190599 Damaged armour now is sellable, but at a very low price. Also,
+not all armour bonuses cost the same - armour with a high base ac have
+a higher price for their bonuses.
+
+190599 Shopkeepers now warn you when buying a spell you cannot use. I'm
+not sure yet if this can be considered cheating.
+
+190599 Changed a bug where floors would not show up at all if you didn't
+want the game to remember torch-lit floors.
+
+190599 Added a new option in the 'disturbance' section to allow the game
+to ask you if you really want to step on a known trap, or touch a known,
+trapped door.
+
+190599 Added a new option to display the keyboard usage help file if
+you press a wrong key.
+
+190599 Removed a bug where the game would (incorrectly) think savefiles
+were not written correctly when you didn't want the game to compress
+save-files. It then removed the (correct) savefile.
+
+200599 Hobbit slings were as common as normal slings - easy money.
+
+220599 Stores will now buy very expensive articles for you for a fair
+price, be warned however, that something like Ringil, worth very much,
+will be bought for a lot less than it will be sold. It turns out like
+something of 33% of asking price.
+
+220599 Seeing the floor melt will now let you see the floor melt,
+updating the screen immediately.
+
+230599 A trap of stair movement now doesn't move stairs of sublevel
+vaults anymore.
+
+230599 Made levels easier to gain for Druedain.
+
+230599 Renamed a bunch of Artifacts to true Tolkien Names - particularly
+the Fall of Gondolin is a treasure-trove, as lots of weapon descriptions
+exist there.
+
+230599 If you change r_info and load an old savefile, your Wyrm Lair
+may be filled with Chaos Beetles and other junk - don't do that.
+
+230599 Revamped the item flavoring, so new colors and flavors are now
+easy to add, and you can simply determine what flavor is paired with
+what color.
+
+230599 When sliding, you cannot run anymore
+
+230599 Fixed a bug with the displaying of large texts when *identify*
+was used - more than a screenful wasn't shown correctly.
+
+230599 uploaded beta 4 release 6
+
+230599 if you hit a trap where multiple missiles hit you, your hitpoints
+are updated while you read the messages.
+
+250599 Changed a very long-standing bug: monster pits were not generated
+correctly.  The game played games with pointer arithmic, and surprisingly
+didn't crash, but did generate monsters anywere but at the correct places.
+
+250599 Removed another very long standing bug: line-of-sight computations
+were not always correct, because when I think that (bool)((a-b)>0)
+is equal to (bool)(a-b) I'm just plain wrong :-)
+
+280599 Added Oangband-like stacking code to the rods, the staffs and
+the wands. The idea is from Leon Marrick, the code is different.
+
+280599 Made the columns in wizard-item-creation mode space more evenly
+on the screen.
+
+290599 Uploaded release 7
+
+110699 After some time patching slrn, we're back :-) Changed the attacks
+for dragon worms to more elemental attack methods.
+
+110699 Improved some titles for Gladiators.
+
+110699 The scroll of trap creation is now not worthless as before.
+
+160699 Fixed a long standing bug where the whole town, including the
+stores and home inventory were recreated every time you visited home
+if you didn't save levels. This meant anything stored at home would be
+lost. The game now saves the town even if you don't want levels saved. It
+still won't save other levels.
+
+190699 Uploaded release 8
+
+190699 Added some more vaults by John L Haas - thanks!
+
+230699 Added a NO_FLOOR flag to some monsters, which means they won't
+be hurt by lava and won't trigger traps - they don't touch the floor,
+see. They will trigger door traps, unless they have pass_wall as well.
+
+260699 Tweaked the makefile to make sure the lib/bone, lib/data and
+lib/save directories are created in the zip-file.
+
+050799 If a corpse is detected that is marked as being in a monsters'
+inventory, but the monster can't be found, don't quit as before, but
+silently delete it.
+
+070799 detect doors + stairs works again.
+
+050899 monsters with one or more friends or escorts now don't follow
+the player into narrow hallways, as Kheldon Jones AI patch did in other
+variants.
+
+120899 Received a whole lot of Bugs from Amir Salmon. All bugs below
+are credited to him, until I mention otherwise :-)
+
+120899 Zapping one out of a stack of rods decreased the total weight,
+which is obviously false.
+
+120899 Fixed a crash when computing the value of identified crowns,
+for example when walking over an identified crown.
+
+120899 Fixed a bug where a staff of earthquakes didn't quake where it
+should, and most of the time did nothing.
+
+140899 Fixed a bug where monsters that could kill or move aside other
+monsters, but shouldn't do that because the other monsters were of a
+higer level, superimposed themselves - it appeared mobs of black oozes
+just died out, for example.
+
+140899 The spell of resistance also created doors - one break added.
+Idem for the potion of ruination, which also drained your strength -
+now why did nobody notice this :-)
+
+140899 The spell of create stair had a very strong tendency to create
+down stairs.  randint != rand_int....
+
+140899 No monster should be able to pass permanent walls - and they were.
+
+150899 It took some time to track down, but in the object-compacting
+during saving, any items in a monsters inventory that were moved down
+to replace dead objects had incorrect references afterwards, because I
+tried to find out which monster they belonged to by looking at the dead
+object instead of the live one - this caused a lot of 'random mixing'
+in monster inventories during saving, and resulted in a lot of monsters
+carrying 'nothing'.
+
+150899 Monsters can carry *and pick up* artifacts now. But you'll once
+in a while get a message saying the monster has an 'aura of power'
+surrounding it. It seemed silly they could be 'born' with artifacts yet
+not pick them up.
+
+170899 Fixed a bug where certain artifacts (that are of their own kind,
+like the Phial) would not be generated under any circumstance. Oops!
+
+190899 Fixed a bug where recesses in type1 rooms sometimes tried to walk
+off the dungeon, which made the game crash. The crash-dump proved very
+usefull - one crash and the exact line where it crashed is known ;-)
+
+190899 Fixed a bug where selecting traps to build didn't work on the
+second page.
+
+210899 Fixed a bug where a trap of nexus could attempt to translocate
+you to a non-existant monster, which made the game enter an endless loop.
+
+210899 Fixed a bug with 'l'ooking at traps, which could cause you to
+see less traps than there actually were if the item had some 'empty trap
+slots' in it's trap list. Another great call from Amir.
+
+220899 Lowered the chance of an ego-item breaking when dropping/throwing
+it by 80%. They are better made, after all. Another annoyance of Amir
+fixed :-)
+
+220899 light-effects (magic mushrooms darkening the room, for example)
+were not immediately visible.
+
+300899 Included a fix for the long-standing bug that walls that you
+remember change on screen when a monster you cannot see (is not within
+line-of-sight) destroys them. This was even present in vanilla.
+
+040999 Still mucking around with signals and windows. Another buglet fixed
+along the way: windows never had the wizard-commands, since can_be_wizard
+wasn't initialized.
+
+050999 Made a kludge that seems to work under windows.
+
+170999 Finally gotten the .spec file right again - I was on the verge
+of dumping the whole rpm-format.
+
+170999 Added the Hollow Steel bow of the King's Archers of Numenor and
+the black-feathered arrows that go with it.
+
+170999 In a panic save, also save the level.
+
+181299 Added support for dumping a small part of the screen to the
+log-file. This helped a lot with the bug below.
+
+181299 The first new fix in a long time, and it's a good one: some
+variables in the line-of- sight computation were unsigned instead of
+signed, leading to something incorrect results, in particular leading
+to monsters duplicating instead of moving when walls were nearby.
+
+191299 Opening the door in town (or any door in town) now doesn't give
+experience.
+
+191299 A small fix where gladiators couldn't wear some weapons as
+secondary weapon.
+
+191299 A small fix to allow changing the tactic / exploration mode up
+and down.
+
+191299 Objects would be called un-flavored for wrong reasons, and
+un-flavored objects are always aware, so you'd know any scroll at first
+sight. Not so nice.
+
+191299 Improved the messages when attacking monsters: it now tells you
+what you hit it with, and the strange long sentences with 'with your
+secondary weapon' now are shortened to 'with your Dagger' or 'with your
+second Dagger' if you happen to be a Gladiator with two daggers.
+
+191299 Redraw the stats if something changes about them
+
+191299 Warriors and gladiators cannot read spells, so don't let them
+
+191299 Updated the monster intelligence so that pack monsters will move
+in if you are in the open: >=3 squares around you within LOS of them
+and they will try to crowd you.
+
+231299-251299 Various updates to the monster movement AI. Pack-monsters
+will not attack you unless there are some mates in sight. If there are
+too few, they will flee.
+
+261299 Monsters will now try to find an exit from the room if they are
+fleeing or lonely pack animals. Exits must pass no closer to the player
+than the distance to the exit itself. Two new options (monster_flee_exit,
+monster_know_exit) control this. The first controls if the monster will
+try to find exits at all, the other controls if the monster will use
+exits that it cannot see.
+
+261299 As the proud owner of a dual-CPU machine, I've added some -j 3
+flags to the makefiles.
+
+271299 Toned down the speed of corpse rotting.  Intelligent monsters
+will always search for exits, stupid monsters never, and monsters that
+are neither will do so 50% of the time.
+
+281299 Temporarily disabled the change from 300899: walls that you
+remember yet cannot see are visibly being destroyed if a monster removes
+them. It did work as planned, except when the screen was forcibly redrawn,
+as per ^r.
+
+311299 uploaded beta 5 release 0
+
+03012000 Made pack-animals not always afraid in tunnels. This means they
+will escape from a room if they are with few, but they will wait in the
+nearest tunnel.
+
+07012000 Tweaked the selling of worthless items from stores. Now they
+don't sell for 0 anymore.
+
+07012000 Druedain didn't get their innate telepathy displayed in the
+character screen.
+
+07012000 Updated the messages when treasure is dropped - the worth is
+not always displayed now.
+
+23012000 Bablos mentioned Amiga graphics didn't work. Flavored items were
+not displayed correctly. I deleted the misc_to_char/misc_to_attr arrays,
+and hadn't replaced them in any way. There's now a big flavor[] array
+with elements name and color. This means the S: lines in .prf files work
+once again. Only because the greater number of items, there's a lot of
+them to fill if you want to.
+
+25012000 Made the description of money somewhat more elegant
+
+25012000 The {tried} inscription for non-equipment items was rather lost
+since the addition of equipment-sensing. Renamed some things that were
+confusing me and made it work correctly again.
+
+27012000 uploaded beta 5 release 1
+
+06022000 Fixed a typo in the makefile which made sure dos & win32
+binaries had logging enabled in distribution versions, where it should
+have been off.
+
+06022000 Made sure all text-files have dos-style line-endings in the dos &
+win32 archives.
+
+18022000 Fixed some errors with home being overwritten, thanks to a
+detailed analysis from Alexey Guzeev
+
+18022000 Tweaked the description of flavorless rings
+
+18022000 Tweaked the full description of items with bonuses to to-hit,
+to-dam or to-ac.
+
+18022000 Made sure some ego-type rings displayed their to-hit/to-dam
+bonuses when identified.
+
+18022000 The program now doesn't crash on missing level-savefiles.
+
+18022000 If a new stair is put on a level when switching levels, it is
+not painted black on black.
+
+23022000 Don't display your arm as empty if you wield a weapon 2-handed.
+
+24022000 Fixed a long-standing bug where the walls of elliptic & round
+rooms were not generated correctly, leading to strange spots of unlit
+walls in lit rooms of that type.
+
+03032000 Some levels are created with lots of overlapping rooms, which
+looks interesting.
+
+03032000 Added a new option, dungeon_connected, which allows checking
+if *all* rooms in the dungeon are connected to each other. This is a
+recursive procedure and might take some time.
+
+04032000 Added "inner" vaults. These are small structures that are built
+inside rooms if there is enough space. This saves loading every kind of
+room with it's own "pillar" types.
+
+04032000 Added MIRROR_X, MIRROR_Y flags to v_info. These mean a vault
+can be mirrored around it's X-axis or Y-axis respectively.
+
+08032000 Created maze-like levels, thanks to excellent maze-code by
+jleonard@slimy.com They have some extras to make them fun: teleport
+only moves you 1 square further, teleport level and recall don't
+function... They only have 1 up and 1 down stair.
+
+26032000 Fixed an embarassing bug where staffs dropped in stores would
+retain the full charge of the set (if you had 2 staffs with 32 charges,
+after dropping you had one staff in inventory (32 charges) and one in
+store/home (32 charges)) Thanks Ilya Bely
+
+26032000 Made 'g' work in stores again - it was ignored, but 'p' was
+changed to 'g'?
+
+26032000 fixed some lighting issues with rooms: if the room is lit,
+all exits are lit also.
+
+27032000 Installed a new state-machine into the arena-routines, which
+is much cleaner and fixes a bug where walking back after a victory then
+turning around would resummon monster, yet not pay more..
+
+28032000 Fixed some issues with lighting again - it seems to work quite
+well now. No more unlit parts of lit rooms.
+
+28032000 uploaded beta 5 release 2
+
+07042000 Made sure High Priests see "none" as the number of blows/shots
+per round.
+
+08042000 Made sure warmages couldn't start with 2 spells of magic missile
+
+13042000 A crash with various functions using temporary files in the
+windows- binary because the funcion tmpnam (in the library) seems to
+favor temporary files in /tmp, which under windows translates to c:\tmp.
+Now the game at least gives a warning and doesn't crash.
+
+28042000 rewritten the stack-trace facility. No more map.c, I now rely
+on the function of addr2line from the GNU binutil-suite.
+
+29042000 started to fiddle with the monster intelligence again. Monsters
+now remember how much damage they did the last time, and use that to
+decide if they want to flee or press the attack. pack-monsters in tunnels
+for example are not always afraid.
+
+01052000 Made sure that not only summoning monsters but also breathers
+keep a bit of distance if possible.
+
+05052000 Copied roff() routines from 2.9.0 which copy nicely with windows
+that are not 80 columns wide.
+
+07052000 Added some benefits to Druedain
+
+07052000 Fixed a bug where all potions looked purple.
+
+07052000 Made debugging-options a part of regular options. They can
+also be set on the command-line, use -q<name>,<name> or add them in
+angband.ini as Debug=<name>,<name>.
+
+07052000 Created a nice colored progression bar for the character
+screen. Also made numeric skills a cheat option.
+
+07052000 Tweaked the way the number of casts for each spell was counted
+
+07052000 Made a new, general, 'Check' menu item that also lets you check
+the number of times you have cast each spell.
+
+08052000 Made it possible for a high priest to wield 4 rings. This gives
+those 2 empty equipment-entries something to do.
+
+13052000 After I got a CRT that allows a 176x66 text-screen, I discovered
+main-gcu was not proof against windows > 80 columns wide. Repainting a
+96x24 monster recall window gave crashes (in Term_fresh() possibly). The
+latest main-gcu.c from Angband 2.9.0 fixed this.
+
+15052000 Added a turn-based progress dump in with '#'. Also added the
+other 'character dump' like screens to that key (artifacts seen, objects
+found, etc).
+
+20052000 Made sure that dying of a trap was correctly recorded on the
+tombstone.
+
+27052000 Uploaded beta 5 release 3
+
+28052000 Fixed some bugs with project() - r_idx and m_idx were mixed up.
+
+28052000 Uploaded beta 5 release 4
+
+29052000 Prevented 'falls asleep' messages when projecting GF_SLEEP on
+sleeping monsters.
+
+29052000 Prevented actually decreasing the csleep value when projecting
+GF_SLEEP on sleeping monsters.
+
+29052000 If you ran against a chalk wall and it crumbled, you couldn't
+walk over the resulting rubble.
+
+29052000 'I'nspecting a stack of items gave corrupted results when the
+remembered part was not a monster drop
+
+29052000 A wand of Trap/Door Destruction also destroyed other features,
+turning them into floors.
+
+12062000 Fixed a bug where some flavored foods looked like rods.
+
+12062000 Fixed a bug where a single wand/staff when sold to a store
+ended up in store uncharged.
+
+12062000 Don't ask about buying certain types of spells when picking up
+items in your home.
+
+12062000 It seems the game was updating your home with new stuff like
+a normal store under some circumstances. This has been cancelled...
+
+12062000 It was possible to fire iron shots with a long bow, if you
+wielded both and told the game not to ask questions...
+
+12062000 The game was confused about what ammunition should be used with
+elven bows and hobbit slings.
+
+12062000 Found a better balance in the monster AI between staying not
+too close to the player for spell-casting monsters and not attacking
+the player properly for monsters that sometimes may cast a spell.
+
+12062000 Fixed a problem where item selection would be wrong after firing
+a automatically selected ammunition (you couldn't 'A'ctivate something
+for example).
+
+16062000 Fixed generating doors on monsters in generate.c
+
+16062000 Fixed a Gladiator to become fearless just like a warrior
+
+16062000 Guide.txt was missing, both here and on the web. Fortunately
+I keep backups.
+
+16062000 Fixed a bug with weight of the inventory being calculated
+wrongly.
+
+17062000 Made a *proper* stack dumper (which only works under Linux btw)
+which displays function names and line numbers from within Angband.
+
+17062000 Fixed a bug in the room definitions in generate.c, which could
+lead to crashes when building a type 9 vault at the lower edge of the
+dungeon.
+
+17062000 Fixed a bug where artifacts that were created in
+monster-inventories on a level were visible in the Artifact list before
+you had found them.
+
+17062000 Fixed a bug where sometimes artifacts that were created for
+shop-inventory or monster inventory and then rejected were never created
+again.
+
+21062000 Fixed the stack dumper so it works on DOS and Win32 also.
+
+28062000 Reworked the monster AI again. Now there are four tactics:
+
+ATTACK_MELEE ATTACK_MELEE_PACK ATTACK_SPELL FLEE
+
+they speak for themselves. ATTACK_MELEE gets in as close as possible,
+ATTACK_MELEE_PACK does the same, but stays in rooms if the player flees
+into a tunnel (and is healty, and and and), ATTACK_SPELL keeps a bit of
+distance and FLEE flees intelligently.
+
+29062000 Made it possible for monsters to use ball attacks and attack
+you when you are invisible.
+
+01072000 Removed the messages ('It hits ....') when a monster you cannot
+see hits a missile trap.
+
+01072000 Made sure items that lite a room (the Phial for example) also
+do something in hallways.
+
+02072000 Added 2 'bonus' stores in town.
+
+02072000 Made town-stores also have signs.
+
+02072000 somehow, the ac bonus wasn't displayed in the character ('C')
+screen.
+
+02072000 Uploaded beta 5 release 5
+
+04072000 Fixed the name of the Scroll Store.
+
+04072000 The same advantage in critical hits warriors have is also
+apropriate for gladiators
+
+05072000 Fixed a compilation error when compiling on a non-linux,
+non-dos and non-win32 platform.
+
+05072000 Uploaded beta 6 release 0
+
+06072000 Made the number of monsters another monster can summon
+user-definable in r_info.txt Also reworked (extended) the monster list
+somewhat.
+
+07072000 Fixed a small bug where sometimes stores in town were built
+over another store.
+
+07072000 After a the change in summoning numbers above wrecked the code
+in melee2.c which lets monsters cast spells, I've finally taken on this
+piece of shitty hard-coded numbers.  They're gone - replaced by a less
+efficient struct array, but much more easily maintained.
+
+07072000 Now I've found out why those d*mn Troll Clan Chiefs were making
+my life miserable: they summon trolls in groups - so the recent change
+in the number of summoned trolls merely made sure no more than 4 *groups*
+appeared... Trolls now summon 2 other monsters max.
+
+08072000 Changed the full description of enchanted bows/ammo - they were
+described as melee weapons.
+
+08072000 toned down the trap of filling - it was generating a ludicrous
+amount of traps.
+
+08072000 renamed the lowest speed setting from slug-like to crawling. Also
+fiddled with the bonuses in that table.
+
+08072000 some part in the intrinsic description routines (used in the
+character dump) didn't work right.  If multiple items had a certain
+intrinsic, they would be described as weapons. All of them.
+
+08072000 Also fixed the intrinsics description for high priests.
+
+08072000 Fixed the way monsters that move without being in line-of-sight
+are updated on screen if they are visible by way of telepathy.
+
+08072000 Sometimes the game got confused about what artifacts were found
+and what were not. Fixed.
+
+09072000 Again tried to ensure that home isn't erased.
+
+09072000 When killing part of a stack of wands/staffs/rods, all the
+charges remained in the remaining staffs - what a nice way to kill
+weight :-)
+
+09072000 Monsters sometimes tried to execute a ball_attack spell, even
+when they didn't know any.
+
+09072000 Fixed a bug where *identify* on a certain artifact crashed
+the game.
+
+09072000 Introduced the handling of charges in stacks of wands/rods/staffs
+in object4.c:item_increase() since it was necessary all over the place
+(monster fire breaths on stacks of staffs were not working: staffs were
+destroyed, charges kept?).
+
+09072000 Had another go at the 'don't summon an entire room' - it seems
+to work now.
+
+09072000 A certain combination of store owner and store type was too
+long for a certain buffer, leading to ugly crashes.
+
+09072000 Fixed a long-standing bug where the town-level would be wiped
+from disk, which lead to the town being rebuilt every time, but also to
+your home being wiped. I truly believe home is stable now.
+
+10072000 Fixed memory loss (it went in endless loops).
+
+10072000 Made sure ^C in a non-distribution didn't commit suicide,
+but just dumped core (and did a panic save) after asking.
+
+10072000 removed (part of) the handling of stacks of wands/rods/staffs
+in stores: the handling of what you keep was already done elsewhere.
+
+12072000 fixed a display error in the equipment bonuses in the character
+screen
+
+15072000 Fixed the way the stats were handled in birth.c and displayed
+in files.c.  see lib/help/guide.txt, part 2.2 onwards, for a detailed
+explanation. In short: in teacher mode characters get 1/3 of the normal
+race/class bonuses and 2/3 of the combined bonuses from the 3 teachers.
+
+16072000 Fixed a redrawing problem where the experience needed to advance
+wasn't updated on screen immediately when gaining a level.
+
+16072000 Fixed a problem which prevented the player or player-set traps
+from killing uniques, and allowed other monsters to kill uniques - it
+is now reversed, as it should be. This was for spells/traps which used
+project(), BTW
+
+16072000 Uploaded beta 6 release 1
+
+18072000 Made sure the 'Ammunition' equipment slot wasn't visible and
+could not be used by High Priests
+
+20072000 Fixed a long-standing but obscure bug where sorting your
+equipment (if you picked something up for example) could mark an existing
+spell_set from an item in your equipment as 'not-in-use' which meant
+that any attempt to inscribe a spell after that would generate a new
+spellset shared between 2 items, meaning trouble :-)
+
+20072000 Allowed reading a spell into as stack of books, which is
+automagically unstacked upon doing so.
+
+22072000 Made sure large stat boosts carried more experience boost when
+teachers are used.
+
+22072000 Fixed a small typo in the description of the lightningbolt spell.
+
+22072000 You now get a message when you've used a spell enough to know
+more about it.
+
+23072000 After reading Lost Tales II again, invented the Ring of Duilin.
+
+23072000 Fixed a small typo (object Found in in town).
+
+24072000 Made sure pack monsters stayed out of view of the player when
+they are in a room and the player is waiting in a tunnel...
+
+24072000 Removed the dependancy on Xaw, since it was troublesome for
+some people. Also warned that the rpm archive depends on some X 4.0.1
+libraries, since I use X 4.0.1
+
+24072000 Uploaded beta 6 release 2
+
+25072000 Tiny change in QuickStart to better tell people how to get it
+running on Linux.
+
+27072000 Tweaked the number of spells magic users can cast per turn.
+
+27072000 fixed an overflow error in the teacher code, thanks to Martin
+Haunschild
+
+27072000 Stopped a potential buffer overflow in util.c:inkey_aux() since
+it seems Martin Haunschild's NT system was overflowing this buffer? I
+cannot imagine how?
+
+27072000 Small fix for the messages when the inventory of a visible
+monster is damaged.
+
+27072000 Show spells in book when *identify* is used on a book, or in
+character dump.
+
+27072000 Don't display the fail-rate of spells that you have never cast.
+
+28072000 Fixed the log-description for poisoned stuff.
+
+28072000 Fixed the log-description for the special Morgoth treasures
+
+29072000 Fixed a bug with boundary-conditions in object4.c:item_increase
+which for example turned the trap of drop item into the trap of random
+item multiplication
+
+30072000 Made sure that if a monster screams in pain, it wakes the
+neigbours up. If you have a high stealth, this doesn't happen (just
+imagine you cut its throat or whatever). This is realistic, but can be
+a real nasty feature.
+
+30072000 Fixed a bug where reading a spell when all of your books were
+full aborted without any message - you didn't lose the spell, but nothing
+was mentioned.
+
+30072000 Fiddled with the pack-monsters AI again. There is a delicate
+balance between knowing when to attack and when to hide. It should
+work now.
+
+30072000 If a store had a stack of wands, and sold one, the one wand
+got all the charges of the stack, and the stack kept all it's charges.
+
+30072000 Prevent a Lamp of the Noldor to burn to negative charges,
+thus confusing object_desc() in object1.c
+
+30072000 Prevented the generator from building brooks through the arena.
+
+30072000 Refresh the screen correctly when reading a spell is interrupted.
+
+30072000 Fixed a typo where the spell of Divine Satiation had another
+name in k_info
+
+31072000 Discovered an up-to-date bounds-checking package for gcc-2.95.2
+at http://web.inter.nl.net/hcc/Haj.Ten.Brugge/
+
+31072000 Fixed 2 bounds-checking errors in compres1.c
+
+31072000 Fixed a bounds-checking error in cave.c: get_f_idx
+
+02082000 Implemented a new compression file (compres2.c) which does
+simple RLE. It seems the method used in compres1.c isn't quite nice:
+it defines an array of long int, then tries to access that as (char *).
+The new bounds-checking gcc doesn't like that. There's an option to shut
+it off but I'm not sure if I can discard the warning...
+
+03082000 Fixed a boundary overflow in melee2.c:find_moves().
+
+04082000 Fixed some boundary overflows in cmd1.c:py_attack().
+
+04082000 Prevented the level from being written twice when exiting. It
+didn't hurt, but is was slower than necessary.
+
+04082000 Fixed some overflows in object1.c:identify_fully_flags1().
+
+04082000 given monsters a 50% chance of navigating through rubble,
+just like the player.
+
+05082000 Fixed the item description for P's special artifacts
+
+05082000 Made sure P carries the right items.
+
+05082000 Added SIGABRT to the signal-handler, this way I get a stacktrace
+after a bounds-error.
+
+06082000 Fixed an error where illegal item_sets would be accessed when
+trying to damage a monsters inventory without correctly checking if he
+had one.
+
+08082000 Uploaded beta 6 release 3 but called it beta 6 release 4. We'll
+continue with beta 6 release 5
+
+11082000 The trap of walls then triggered by a monster built walls around
+the player.
+
+11082000 Made the damage from walking through lava dependant on the
+carried weight
+
+21082000 Removed the code that auto-selected the closest target if there
+were multiple targets in the same direction. It doesn't make sense with
+attacks that can jump over closer monsters.
+
+10092000 Removed a lot of book ego-items, since an electricity resistant
+book is nice, but books weren't affected by electricity in the first
+place.  Now books are affected by fire and acid, and this is reflected
+in the ego-items.
+
+10092000 wizard_update_stores doesn't attempt to update home anymore,
+and I've changed the code in the dungeon.c routines so it is checked
+there too.
+
+13092000 Added the possibility to use macro's with the new spell
+books. There's an option to display spell numbers in books. Those numbers
+are constant - they are the indexes into the s_info[] array. If you make
+a macro m@150 you will always cast spell 150, even if you added another
+spell to a book and spell 150 isn't at the same place anymore. It will
+search for such a spell in all books currently in your inventory. Thanks
+for the tip, Andreas!
+
+16092000 Added a new terminal window option - a list of the last 25
+kills. Only the name of the monster is displayed.
+
+22092000 Builtin a debugging check for the 'No more ....' entries in
+the inventory that crop up sometimes
+
+22092000 Fixed a small problem with browsing spellbooks - the lines were
+too long
+
+22092000 Fixed the armoury so it will buy crowns.
+
+22092000 Found one place where 'No more ....' items could be generated -
+in xtra2.c: poison_dam() items could be generated with ->number being
+0 in some cases.
+
+22092000 Fixed a place where you could auto pickup 0 items.
+
+24092000 Added an item_optimize() call in poison_dam() - hoping to fix
+that inventory corruption.
+
+24092000 The monster teleport-to spell was not qualified as an attack
+spell (nor as any other spell) so it wasn't executed at all. Blink dogs
+sad :-)
+
+29092000 Added an option to spend extra cpu cycles in generating shop
+items.
+
+29092000 Added waking up monsters in that room on lighting up a room
+
+30092000 Fixed the wizard-statistics so that the number of total
+ego-items/artifacts per tval would also be visible.
+
+01102000 Fixed a small typo in spells1.c
+
+06102000 Upped the level of items in the black market and specialized
+shops
+
+06102000 Increased the chance of monsters waking up when you light up
+a room
+
+06102000 Gotten rid of diagonal corridors, which speeds up generation
+a lot
+
+06102000 pillars and other features in rooms are not damaged by tunnel
+generation anymore
+
+07102000 removed an unused part of the code from the monster-movement
+routines.
+
+07102000 Added a second item_optimize() call in poison_dam() - hoping
+to fix that inventory corruption.
+
+07102000 Fixed a typo in the monster_inventory_increase() function and
+how it was called when corpses in a monster inventory decayed.
+
+07102000 Uploaded release 6 beta 5
+
+08102000 fixed a typo in the 'failed to disarm' message on chests
+
+08102000 No more will *enchant weapon* scrolls change the damage dice
+on artifacts
+
+08102000 The monster lore wasn't updated correctly when monsters cast
+spells
+
+08102000 The number of summoned monsters wasn't displayed correctly in
+the monster lore.
+
+11102000 Fixed the security leaks in pref-file handling that RR mentioned
+in rgra.
+
+11102000 Fixed the security leaks in main.c and main-gcu.c RR mentioned
+in rgra.
+
+11102000 enlarged a buffer in prt_speed. The combination of
+bounds-checking and the security fixes found a buffer-overflow.
+
+15102000 Fixed some 'monster trails' - a monster could sometimes stay
+visible on it's previous location.
+
+16102000 Differentiated messages when decreasing stats or permanently
+decreasing stats
+
+16102000 Fixed the messages 'you see a birch birch staff dropping'.
+
+16102000 you could get a message 'you feel that XXX adds 5 ac' after
+XXX was identified by a potion of *enlightenment*.
+
+16102000 Fixed a small bugs where items generated in a monster pit were
+also considered to be in a room, leading to 'obtained in an unknown
+manner' errors when inspecting them.
+
+16102000 Made a routine that cools lava down after a time.
+
+17102000 Added code that makes sure certain monsters carry certain items
+(humanoid spellcasters have a high chance of carrying at least one spell,
+monsters firing arrows carry at least a set of arrows, etc).
+
+17102000 Differentiated the young master lich, the master lich and the
+ancient master lich
+
+22102000 Finally found out why reading scrolls off the floor didn't work
+(object4.c: item_increase() only worked on items where the player was
+standing). This is fixed, once more scrolls can be read off the floor
+directly. Thanks Onyx for pushing me one final time.
+
+22102000 SAVEFILES WILL BE INCOMPATIBLE!!! updated the monster-race
+flags from 32 bits to 64 bits.  This allows for monsters shooting bolts,
+for example. Added some of these.
+
+22102000 Fixed a stupid mistake in files.c which always displayed
+0 shots/round.
+
+22102000 It was possible to have locked doors on your home.
+
+22102000 elemental rings don't influence artifact attacks anymore.
+
+22102000 fixed messages when High Priests wield/unwield rings
+
+30102000 added a capitalizization with a trap of bolts.
+
+30102000 fixed the interaction between the trap of no return and a stack
+of rods of recall
+
+30102000 decreased the chances of cold damage creating sliding feet if
+immune to cold
+
+30102000 decreased the chances of finding a Long Bow of the Elves
+
+30102000 A potion of experience also restores any lost experience,
+just like stat potions do.
+
+31102000 Prevented the creation of a stack of Red Arrows of Gondor.
+
+31102000 Crisdurian was defined as 3d5? Now 4d5 as tradition demands :-)
+
+31102000 A weapon of extra attacks as a gladiator's second weapon would
+get a new set of extra attacks every time bonuses were recalculated...
+
+31102000 Fixed a crash with druedain shopkeepers (and possibly others)
+- the array rgold_adj didn't have numbers for druedain.
+
+01112000 Fixed a *identify* typo with books.
+
+01112000 Fixed a reverse decision with the map - now zooming in is once
+more allowed, but you cannot zoom out too far.
+
+03112000 Some cosmetic changes to disarming chests with multiple traps.
+
+10112000 Checked that the numpad keys worked fine in the windows version
+(at least under VMWare they do).
+
+10112000 Fixed some capitalization issues in the monster description
+w.r.t.  summoning
+
+10112000 Uploaded beta 7 release 0
+
+11112000 Made sure items of genocided monsters were correctly wiped.
+
+15122000 Added the Shield of the Sun, after reading again how Theoden
+went into battle near Gondor
+
+17122000 Fixed the descriptions for identified equipment items while
+wearing them for high priests.
+
+18122000 Fixed the casting of spells with @ even if you have multiple
+books
+
+20122000 fixed a typo in the birth description for Druedains (brue eyes?)
+
+22122000 If you tried to go up on a down-wards stair, you would go
+down. Now the game just mentions that what you want isn't possible. Idem
+for the reverse.
+
+26122000 re-fixed the casting of spells with @ in case of a single book.
+
+26122000 Just witnessed a case where the macros got corrupted some
+way. This is not nice. Some things can occasionally corrupt the macros,
+leading either to crashes, or to not being able to move around, except
+with 2468 etc. Very strange, since I test it with bounds-checking on.
+
+28122000 Removed all the extra spaces at the end of lines in the monster
+memory.
+
+28122000 Updated the flush() function to prevent the game from thinking
+it was parsing a never-ending macro, which meant you couldn't use any
+macro's until a save&load.
+
+28122000 Fixed a crash when trying to cast an unknown spell by letter
+
+29122000 Added a message about being running when getting hungry.
+
+29122000 Re-done the mage/priest/high priest extra staff/rod/wand factors
+
+29122000 High Priests are not as likely as mages/priests to get
+super/extra effects from staffs/wands/rods
+
+29122000 Some low-level traps are always known to spellcasters who try
+to create one.
+
+29122000 Made the messages on screen when creating a simple trap more
+clear.
+
+29122000 Twiddled with the descriptions of traps: 'poison dagger trap' ->
+'poisoned dagger trap'
+
+30122000 Fixed a message when fire damaged part of a monster inventory
+
+30122000 Fixed the order in which high priests wield rings (it was abdc,
+now abcd)
+
+30122000 Fixed a crash on loading a savefile if templates were
+not regenerated: the game tried to read MAX_S_IDX entries of the
+s_info[].numcast values, but s_info[] was only created s_number long
+
+31122000 Made sure pack monsters were more eager to follow the player
+into a tunnel if the player doesn't have his full health anymore.
+
+31122000 Exploding staffs/wands/rods left a (nothing) on the floor.
+
+06012001 buying an item in a store now also counts as seeing the first
+one of that kind.
+
+12012001 Toned down the weight of books
+
+12012001 Made sure certain ego-items showed up in the 'C' screen -
+it's nonsense to show gloves of free action as not providing free action.
+
+13012001 Added the !! inscription to get notified when things recharge
+(copied from Oangband, Leon Marrick's work)
+
+14012001 Elemental rings help elemental spells. They halve the failure
+chance and halve the mana it takes to cast them.
+
+02032001 Tweaked the message 'you see the floor melt' to only appear if
+you really see it.
+
+04032001 In case of acid or fire attacks, not whole spellbooks are
+destroyed, but some pages at a time. If there are few spells in the book,
+the whole book will still be destroyed.
+
+04032001 Some traps weren't defined for monsters - leading to 'executing
+unknown trap 11' messages (or other numbers).
+
+04032001 It was still possible to cast spells you didn't posses by using
+a number.
+
+11032001 Re-worked the monster polymorphing code. The old code
+deleted the monster without testing where his items (possibly including
+artifacts!) went. The new code switches the monster with another monster
+from the same level, thus avoiding this leak.
+
+11032001 Added a test to delete_monster_idx(): if a monster is deleted
+while there are still items attached to it, the game will abort.
+
+11032001 Fixed the dumping of a user-xxx.prf file so the F: lines would
+match what the game expects to read in.
+
+11032001 Uploaded beta 7 release 1
+
+12032001 Fixed a bug in monster polymorphing. This will serve as a good
+test about the number of people actually using 7.1 :-)
+
+13032001 Monsters killed by other monsters didn't release their items,
+and were thus catched by the test from 11032001.
+
+14032001 More fixes to prevent burning down whole spellbooks too often.
+
+17032001 MAX_F_IDX_MTYPE wasn't set correctly in defines.h - user-gcu.prf
+still gave errors because of this.
+
+24032001 'Reflecting' wasn't correctly wiped off the screen if the spell
+wore off
+
+24032001 cought an unintialised pointer in melee2.c, line 4409. This
+would crash the game when one monster killed another.
+
+24032001 fixed an off-by-1 error in spells1.c where it determined what
+spell would first burn
+
+27032001 fixed a too small string that would crash the game when eating
+poisonous corpses
+
+28032001 fixed an off-by-1 error in build_type4() in generate.c, which
+could cause the game to crash when building a new level.
+
+01042001 fixed a crash where a rod of trap-identification could crash
+the game.
+
+01042001 When your spell destroyed a monsters inventory, it was always
+called 'It's rod of <foo>'. Now the message would be 'The Blue Dragon's
+rod of <foo>'.
+
+01042001 Fixed a bug where the artifact-spoiler file would name each
+artifact that didn't activate as 'this is a bug'. Thanks Ulrich Michael
+Schwarz
+
+01042001 Fixed a bug where shop-entrances in the dungeon were not detected
+like normal doors. Also Ulrich Michael Schwarz
+
+01042001 'T' didn't tunnel, but the documentation said it would. Now
+it tunnels.  Also Ulrich Michael Schwarz
+
+01042001 You couldn't rest while having an agressive tactic. It should
+have been while running.  Also Ulrich Michael Schwarz
+
+01042001 adapted ang.sh to run angband under gdb always. Bugs must be
+caught :-)
+
+01042001 Your food status wasn't always redrawn correctly.  Also Ulrich
+Michael Schwarz
+
+01042001 For extra 'Aaargh'-feelings: added the option to fully identify
+everyhing you've destroyed. Default on.  Also Ulrich Michael Schwarz
+
+01042001 Fixed a type in the explanation of DUN_UNUSUAL in generate.c. Now
+I know why I didn't see many unusal rooms.
+
+02042001 Fixed a bug where the game didn't detect outer walls of vaults
+if the vaults weren't rectangular.
+
+07042001 Tweaked vault layout and building, especially of doors leading to
+vaults
+
+07042001 added several vaults
+
+08042001 twiddled some more in generate.c, created some extra #defines to
+formalize dungeon generation
+
+08042001 prevented random monsters from being placed inside vaults in 
+generate.c
+
+08042001 Fixed various bugs from Ulrich again, including a not-for-flavored
+items with the Aaargh feeling from 01042001, traps of create traps create
+their traps around the monster that triggered the trap and the correct
+plural for mouse/louse in cmd4.c: dm_cmd_check_kill. Don't add any monsters
+ending in ouse that don't pluralize to ice please :-)
+
+08042001 Added a length indication to ang64.html (suggestion: Ulrich)
+
+08042001 Uploaded beta 7 release 2
+
+08042001 re-activated test_all_connected(), maximum of 5 loops.
+
+08042001 Twiddled makefile so uploaded release will be compiled without
+bounds-checking
+
+08042001 Tweaked the naming of unseen monsters triggering traps. They should
+be called 'something', not 'it' now.

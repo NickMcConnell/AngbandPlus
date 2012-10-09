@@ -1,0 +1,122 @@
+# File: graf-xxx.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+# This file is included by any platform which uses the "standard" Angband
+# bitmap file (a 32x32 collection of 8x8 bitmaps), including "pref-ami.prf",
+# "pref-mac.prf", "pref-win.prf", "pref-dos.prf", and "pref-x11.prf".
+#
+# Adapted from the file "graf-ami.prf", provided, along with the original
+# pixmap file itself, by Lars Haugseth <larshau@ifi.uio.no>.
+#
+
+##### Feature attr/char definitions #####
+# F:<start mtyp>:<end mtyp>:<start styp>:<end styp>:<attr>:<char>
+
+# Standard file for flavors
+%:graf-flv.prf
+
+
+# nothing
+F:0:0:0:0:0x81/0x80
+
+# open floor (floor, arena floor & secret trap)
+F:1:1:0:2:0x80/0x80
+
+# glyph of warding
+F:1:1:3:3:0x8A/0x9C
+
+# open door
+F:2:2:0:0:0x81/0x87
+
+# broken door
+F:2:2:2:2:0x81/0x87
+
+# up staircase (and shaft up)
+F:6:6:0:0:0x81/0x9C
+F:6:6:3:3:0x8A/0x9C
+
+# down staircase (and shaft down)
+F:6:6:1:1:0x81/0x9E
+F:6:6:4:4:0x8A/0x9E
+
+# General Store (and other general stores)
+F:9:9:0:0:0x81/0x91
+F:9:9:10:13:0x8A/0x91
+
+# Armoury (and other armouries)
+F:9:9:1:1:0x81/0x92
+F:9:9:14:18:0x8A/0x92
+
+# Weapon Smiths
+F:9:9:2:2:0x81/0x93
+F:9:9:19:22:0x8A/0x93
+
+# Temple
+F:9:9:3:3:0x81/0x94
+F:9:9:23:24:0x8A/0x94
+
+# Alchemy Shop
+F:9:9:4:4:0x81/0x95
+F:9:9:25:26:0x8A/0x95
+
+# Magic Shop
+F:9:9:5:5:0x81/0x96
+F:9:9:27:29:0x8A/0x96
+
+# Black Market
+F:9:9:6:6:0x81/0x97
+
+# Home
+F:9:9:7:7:0x81/0x98
+
+# simple trap
+F:7:7:0:0:0x8A/0x9B
+
+# multi-trap
+F:7:7:1:1:0x82/0x9E
+
+# rubble
+F:3:3:0:0:0x81/0x9A
+
+# granite wall
+F:3:3:1:5:0x80/0x82
+
+# granite vein with treasure
+F:3:3:6:6:0x80/0x84
+
+# quartz wall
+F:3:3:7:12:0x80/0x83
+
+# quartz vein with treasure
+F:3:3:8:8:0x80/0x84
+
+# magma wall
+F:3:3:13:17:0x80/0x83
+
+# magma vein with treasure
+F:3:3:18:18:0x80/0x84
+
+# chalk wall
+F:3:3:19:23:0x80/0x83
+
+# chalk vein with treasure
+F:3:3:24:24:0x80/0x84
+
+# permanent walls (look like granite
+F:10:10:0:3:0x80/0x82
+
+# permanent walls (type glassdoor/arena door)
+F:10:10:4:4:0x8A/0x82
+F:10:10:5:5:0x8A/0x87
+
+# items will not be loaded, they have changed too much.
+
+# monsters will not be loaded, they have changed too much.
+
+# Load the special player pictures
+%:xtra-xxx.prf
+

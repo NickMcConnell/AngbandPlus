@@ -1,0 +1,361 @@
+
+NOTE: not up to date - read rec.games.roguelike.angband!
+
+added vampiric weapons, drain up to max(3% of monster hp,to_d of weapon) of
+a warm-blooded monster HP each swing, sust con, hold life,slay undead
+
+numbered character swings and misses at monsters
+
+added flag to allow out-killing cursed items on floor and stop asking about
+killing cursed items in possession of character
+
+added flag to allow to outo-open/try to open doors when bumping in to them.
+   it's tried only once.
+
+Increased mana-correction for 18/220+ stat by 1.
+
+made wizard routines controlled by number instead of character
+
+made wizard help ^a ? available
+
+allowed wizard tweaking of artifacts
+
+allowed wizard creation of artifacts
+
+allowed scrolls of enchant weapon/armor to work on anything that's possible
+        (amulets of the magi, rings of slaying etc)
+
+given scrolls of *enchant* a chance of increasing above 15 but below 25
+      this does not work on the priest's enchant spells
+
+added the ^ar - wizard command, allowing to rate a weapon
+
+added the ^aV - wizard command, allowing to view the value of something
+
+changed shock-damage back to 5x instead of 3x
+
+allowed 18/*** str & dex priests an extra swing with a mace of disruption
+
+allowed rogues an increased chance of hitting a monster the first-time when
+        it's asleep
+
+allowed warriors a better chance of heavy critical hits each 10 levels.
+        ie they don't make them ofter, but when they do they always get at least
+        a superb hit at level 50, always at least a great hit at level 30
+
+added a flag to get the color-description/titles with identified objects.
+
+allowed scumming for very good levels
+
+wearing rings of accuracy now increases your chances of a critical hit
+
+added the option to quit immediately ^Q
+
+always temporarily suspend the quick_messages status before asking "live on?"
+       so pressing return doesn't let you die
+
+in wizard mode, you are not zapped to town, but a new level is generated
+
+drained experience and stats now blue, because yellow/green is not seen clearly
+
+skills-display now includes the numerical values
+
+searching in help-files is now case-independent
+
+now key-pressed necessary while generating caves
+
+added much information about spell effects in wizard mode
+
+scrolls of *remove curse* have a 1 in (55-level chance to
+   reverse the curse effects - a ring of damage(-15) {cursed} then
+   becomes a ring of damage (+15)
+   this does not go for artifacts - a sword of mormegil +40,+60 would
+   be somewhat unbalancing
+
+done Gloves of Magic:  magic skill +1d5, (-10,-10) tohit,-dam
+
+increased to amount of mana for really high int/wis characters
+
+added a flag to allow to auto-target the only monster in sight
+
+added wizard command ^aR to reset some things, currently only the maximum
+      dungeon level
+
+you hands only feel unsuitable for spell-casting if you have >0 mana
+
+added the possibility for non-cursed items with to_d/h/a/pval >0 and cursed items
+with to_d/h/a/pval <0. IE now there are
+
+gloves of magic (-12,-8) (+3 to magic) which increase your magic skill whilst
+decreasing your fighting possibilities.
+
+boots of jumping: activate for phase door every 20 turns
+
+boots of heavy step: +10 to AC, -3 to stealth
+
+Create new Artifact:
+The Black Spear of Melkor 3d10 (+12,+24) (+4)
+60 lb zwaar
+affects stealth and infravision
+resist darkness. light, blindness, nether, confusion
+heavily cursed, and becomes so on wielding it
+leads to permanent poisoning (about 2 hp each turn)
+
+This spear was mentioned in the Silmarillion, it's the weapon Melkor used to slay
+the trees of Valinor.
+
+add name searching capability to '/' command
+
+made a different screen layout under DOS possible:
+Now 28, 35, 40 and 50 lines screen modi are possible, with the extra space taken
+by a permanent scrolling message recall
+
+Axe of Hurin: +3 attacks, +3 to con
+slay orc, demon
+acid brand
+activate for twice long berserker, +10 to speed once every 1d200+100 turns
+See the Silmarillion - about the capture of Hurin
+
+main gauche of Azaghal
+*Slay* Dragon
+ignore fire
+2d5 (+12,+14)
+See the Silmarillion - about the dying of Azaghal
+
+Black Lochaber Axe of Gothmog
+3d8 (+10,+18)
+Fire Brand
+hits player with fire every d50 turns
+-4 to CHR
+See the Silmarillion - this killed Fingon.
+
+Added the Balrog and the Greater Balrog, both high level monsters.
+
+wielding weapons 2-handed.
+
+possible necessary
+
+  -                Broken Dagger
+  -                Broken Sword
+  -                Dagger
+  -                Shovel
+  -                Main Gauche
+  -                Whip
+  -                Spear
+  -                Rapier
+  -                Small Sword
+  -                Sabre
+  +        -       Pick
+  -                Cutlass
+  -                Short Sword
+  -                Gnomish Shovel
+  +        -       Trident
+  +        -       Mace
+  +        -       Tulwar
+  +        -       Quarterstaff
+  +        -       Ball-and-Chain
+  -                Dwarven Shovel
+  +        -       War Hammer
+  +        +       Lance
+  -                Scimitar
+  -                Broad Sword
+  -                Long Sword
+  +        -       Orcish Pick
+  +        -       Broad Axe
+  +        -       Battle Axe
+  +        -       Awl-Pike
+  +        -       Bastard Sword
+  +        -       Flail
+  +        -       Pike
+  +        -       Glaive
+  +        -       Lucerne Hammer
+  +        -       Morning Star
+  +        -       Katana
+  +        -       Beaked Axe
+  +        -       Halberd
+  +        +       Great Axe
+  +        -       Lead-Filled Mace
+  +        +       Two-Handed Flail
+  +        -       Dwarven Pick
+  +        -       Lochaber Axe
+  +        +       Two-Handed Sword
+  +        +       Scythe
+  +        +       Executioner's Sword
+  +        +       Scythe of Slicing
+  +        +       Mace of Disruption
+  wielding 2-handed yields a 1.5 x to_hit and 1.5 x todam, but you can't wield
+  a shield then.
+  I'm not sure if this should go for artifacts too, for now these can be wielded
+  one-handed and two-handed, but I'm not sure.
+
+enlarged dungeon from 66x198 to 110x330 - nice and big!
+
+allow scroll of *enchant* to supercharge damage dice sometimes - you must have
+a *enchant* scroll and the have a rand_int(100-level)<20 chance. This won't work
+with a priests' enchant prayer.
+
+acid brand weapons dig much more easily - acid eats walls. Perhaps this should
+be done by setting TUNNEL in e_info.txt for acid-brand, not by hard-coding.
+
+acid spells now can damage walls.
+
+more items per grid square now possible: up to 16 per square, but it will be
+     limited to 4 per square unless really necessary - ie like dropping a great
+     lot of items in a narrow spot, or dropping 10 artifacts in one place. If
+     possible, dropping the 5th item drops it near you.
+     items are stored as indexes into i_list in an array in each cave_type.
+     This array is kept sorted, can absorb items like the inventory, and shows
+     up correctly during look, pickup, load and save.
+     Memory-requirements are up from 6 (8 incl. monster flow) bytes per square
+     to 38 bytes per grid.
+     With the old dungeon-dimensions, this means from 78408 bytes to 496584
+     bytes, with the new dungeon from 217800 to 1379400 bytes. I don't know if
+     this is a problem for many angband users. It isn't for me, and I liked to
+     look if it would be possible.
+     It would perhaps be preferable to have object index arrays only in
+     grids which are no walls, or make variable-sized arrays, but the
+     programming effort would be great, and speed and clarity of angband
+     would suffer.
+
+changed all functions to x,y calling - not y,x calling.
+
+Added a new set of traps:
+N:0:Beauty Trap
+N:1:Intelligence Trap
+N:2:Wisdom Trap
+N:3:Fumbling Fingers Trap
+N:4:Wasting Trap
+N:5:Trap of small Fire Ball
+N:6:Trap of Small Ice Ball
+N:7:Trap of small Lightning Ball
+N:8:Trap of Curse Weapon
+N:9:Trap of Curse Armor
+N:10:Earthquake Trap
+N:11:Poison Needle Trap
+N:12:Summon Monster Trap
+N:13:Summon Undead Trap
+N:14:Summon Greater Undead Trap
+N:15:Teleport Trap
+N:16:Paralyzing Trap
+N:17:Explosive Device
+N:18:Teleport Away Trap
+N:19:Lose Memory Trap
+N:20:Bitter Regret Trap
+N:21:Bowel Cramps Trap
+N:22:Blindness/Confusion Trap
+N:23:Aggravation Trap
+N:24:Multiplication Trap
+N:25:Large Plasma Ball Trap
+N:26:Large Nether Ball Trap
+N:27:Large Nexus Ball Trap
+N:28:Large Disenchantment Ball Trap
+N:29:Weakness Trap
+N:30:Steal Item Trap
+N:31:Summon Fast Quylthulgs Trap
+N:32:Trap of Acid Bolt
+N:33:Large Acid Ball Trap
+N:34:Trap of Sinking
+N:35:Trap of Mana Drain
+N:36:Trap of Missing Money
+N:37:Trap of No Return
+N:38:Trap of Silent Switching
+N:39:Trap of Walls
+N:40:Trap of Calling Out
+N:41:Trap of Sliding
+N:42:Trap of Charges Drain
+N:43:Trap of Stair Movement
+N:44:Trap of New Trap
+N:45:Trap of Scatter Items
+N:46:Trap of Decay
+N:47:Trap of Wasting Wands
+
+Traps can now be present on floor, doors and chests. More than one trap per item
+is possible. Traps have a minimum level, a probability of being on an item, and
+a probability of having another trap present. Some traps are very nice, like
+the trap of scatter items, or stair movement. Traps that are known are colored
+on screen.
+The trap of sliding is featured after a nice level in Adom.
+Traps are now organised as different trap types, in t_info[] like monster types
+in r_info[], and trap_items, sets of traps that exist on floors/doors/chests.
+
+Disarming and opening is now more intuitive, uses less keys and works better.
+
+copied the lighting from angband 2.8.0
+
+copied the extra info screens from angband 2.8.1
+
+copied the new max hitpoints/manapoints stuff from 2.8.1
+
+added weight modifier (like parts out of 100 normal weight) to ego-items, so
+that armor of elvenkind can weigh less (25% of normal), just like we now have
+armor of quality (+15 AC, 180% weight, -10 to hit), the helmet of crushing
+(+10 AC, +500% weight)
+
+activate chest trap(s) when picking up a chest
+
+save levels - no more random levels each time, which is more in line with
+the original idea I think. If this means the dungeon is getting too small,
+then each floor should be bigger, or there should be more floors. levels are
+saved as player.l00 to player.l7f in the save directory.
+something should be done about returning to a level after a long time: monsters
+should have moved, picked up things, etc. However, this is difficult in a
+turn-based RPG. Calling process_monsters seems nice, but how to avoid attacking
+the player?
+
+removed all to code to convert old savefiles - savefiles are now so different
+that is just doesn't make sense!
+
+stairs now don't automatically lead to the next level, you can go from level 2
+to level 4, or from level 90 to 87. If you go from say level 1 to level 4, then
+return, the program tries to return you to a stairway which leads to level 4.
+If there are more, you land on a random one. If there are none, one is made.
+If you don't use a stair, you don't land on one, either.
+
+there is now an arena to the right of town - but the earning may not keep up
+with the trouble! because of this and other future plans, the ftyp entry in
+cave_type was bumped up to 16 bits, fdat to 32, and an extra field of 16 bits
+was added - I'm not so shy of using memory and/or diskspace.
+
+The arena now has public (hidden behind permanent glass walls) and visiting
+too often seems to get your maximum betting amount down.....
+
+cave_type and f_info totally reorganised - lots of changes in defines.h,
+f_info.txt and init?.c - the cave_type is now organised along the lines of
+the items, with main types (floor, wall, door etc) and subtypes (normal floor,
+floor with trap, etc) - this is not a nice job, but I think it will allow
+the adding of other floor types (wilderness, water, whatever) more easily.
+For example: the permanent glass wall separating the crowds in the arena from
+the arena itself was added with just two lines in f_info.txt, defining a
+subtype of permanent walls which let through light, but where you can't walk.
+
+added wilderness - trees are something you could pass beneath, but not see past.
+items should only be remembered there (this is not working as of yet)
+perhaps the overall remembrance of squares should be dependant on something;
+******************************************************************************
+TODO
+
+online (de)compression of save-files, which saves a lot of space, and prevents
+anyone from tampering
+
+predefined levels in text-mode files.
+
+more different ego-weapons
+
+monster inventories
+Give monsters things like hands (1-4), flags for
+- can wear armour + max level
+NO: add item-stacks, which can be used for piles on floor, monster inventories,
+  and eventually backpacks of different sizes.
+let's say that c_ptr->i_idx<MAX_I_IDX points to i_list directly, and that
+c_ptr->i_idx>=MAX_I_IDX points to an array[0.. 4/8/16 perhaps] of indexes into
+i_list.
+
+Add ego-items:
+
+weapon of joy: resist fear, slay undead, +1d3 chr
+
+shield of the Dwarves: +1d3 infravison +1d3 con, resist fire
+
+Helm of the Noldor: +1d3 dex, activate for find treasure every 20 turns
+
+make monster wake-up chance dependant on light radius = intensity

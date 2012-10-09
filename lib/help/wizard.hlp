@@ -1,0 +1,18 @@
+a cure all maladies     j jump level             s summon random monsters
+A object statistics     J                        S update store inventory
+b teleport to target    k self-knowledge         t teleport character away
+B                       K                        T create traps
+c create any object     l learn objects/traps    v create very good object
+C crash(!) the game     L                        V give true value of item
+d detect everything     m magic mapping          w wizard light the level
+D disease everything    M                        W leave wiz-mode if debugging
+e edit character        n summon named monster   x increase experience
+E                       N make named object      X
+f view full item info   o play with an object    y
+F alter terrain         O                        Y
+g create good object    p phase door             z remove monsters around
+G generate room         P                        Z kill monsters around
+h rerate hitpoints      q
+H                       Q                        " generate spoilers
+i identify              r rate weapon            ? show help
+I give good equipment   R reset some things      _ Ben's hack

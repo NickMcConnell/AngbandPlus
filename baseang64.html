@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<TITLE>Angband/64 __version__ </TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/4.0 (Unix)">
+	<META NAME="CREATED" CONTENT="19980315;21233600">
+	<META NAME="CHANGEDBY" CONTENT="jurriaan jwk">
+	<META NAME="CHANGED" CONTENT="19980322;11475400">
+</HEAD>
+<P ALIGN=CENTER><FONT SIZE=2>Date last modified: __date__</FONT></P>
+<HR>
+<P ALIGN=CENTER><FONT SIZE=7><U>Angband/64 __version__ release __release__</U></FONT></P>
+<P><BR>This site is for downloading Angband/64, a variant of Angband, a character-based roguelike game. <BR>Angband/64 consists of three parts: an executable, libraries and source-files. All sources are freely available, but some parts of them are copyrighted by the
+original authors of Angband. Read the source for more information.</P>
+<P><FONT SIZE=5><I>What do you need to download?</I></FONT></P>
+<P>To play Angband/64, you need at least the executable and libraries. To compile it yourself, you need the sources, the libraries and the gcc c/c++ compiler. Libraries have not been included in both the binaries and the sources, so you need to download them separately. Be carefull when attempting to use the dos-sources on a unix-machine: all long filenames are lost (but the only long filenames are on unix-specific files).
+</P>
+<P><I><BR><FONT SIZE=5>What platforms does it support?</FONT></I></P>
+<P>The game is known to work on MSDOS (djgpp - you need the DJGPP dos-extender, check <A HREF="http://www.delorie.com">www.delorie.com</A> for more information) machines, win32-compatible machines (like Windows 95 & 98) using the cygwin32 version of gcc for win32 (tested on win95, should work on win98 and perhaps also on NT. Mingw32 also works. Windows-2000, WinMe, WinXP and all that other shit is untested, but should run if you can get cygwin32 to run.), and Linux (rpm-format, glibc, elf). Other machines which can run gcc will probably be able to compile the sources, the original Angband runs on almost everything, and I've added no wild graphics or such. Other compilers may work, however, I develop these sources using gcc, so you are on your own using other compilers. I know for a fact I use certain extensions (64-bit integers) of gcc, which may or may not be present in other compilers. I've had a report that compiling on OS/2 using EMX works, see the links below, and a brave soul (Bablos) has also compiled an Amiga executable (the link should be somewhere on the roguelike news pages, see below).
+</P>
+<P><I><BR><FONT SIZE=5>What is the best platform?</FONT></I></P>
+<P>The best platform is probably a unix platform that fully supports signals, like Linux <A HREF="http://www.linux.org">(www.linux.org)</A> or FreeBSD <A HREF="http://www.freebsd.org">(www.freebsd.org)</A> to name two that run on the most popular hardware. If you chose to play DOS or Windows, I can tell you now that if the game crashes, the chances to make a succesfull emergency-save or crashdump are much smaller. There are lots of other reasons as well to avoid Windows :-) </P>
+<P><I><BR><FONT SIZE=5>Compressed binaries:</FONT></I></P>
+<P>The DOS and Win32 binaries have been compressed with the excellent upx-program.
+Find more info about upx at <A HREF="http://cdata.tvnet.hu/~ml/upx.html">The Ultimate Packer for Executables Homepage.</A> The linux-executable is not packed, because that would interfere with debugging with gdb.
+</P>
+<P><I><BR><FONT SIZE=5>Where is the documentation?</FONT></I></P>
+<P>It has finally arrived: <A HREF="guide.txt">guide.txt </A>. Please read this before asking questions.</P>
+<P><I><BR><FONT SIZE=5>What has changed?</FONT></I></P>
+<P>Read all about what went before in <A HREF="changes.old">changes.old </A>.</P>
+<P>Read all about what is new in <A HREF="changes.new">changes.new </A>.</P>
+<P>Read all about what is yet to come in <A HREF="todo.txt">todo.txt </A>.</P>
+<P><FONT SIZE=5><I>What can I download?</I></FONT></P>
+<P><BR>LIBRARIES : you'll need the libraries in any case, with source
+or binaries: download <A HREF="__libdist__">__libdist__(__lenlibdist__)</A></P>
+<P>ONCE AGAIN: MAKE SURE YOU DOWNLOAD THE LIBRARIES. YOU NEED THE LIBRARIES. DON'T COMPLAIN ABOUT MISSING LIB/ DIRECTORIES IF YOU DIDN'T DOWNLOAD THE LIBRARIES. YOU CANNOT PLAY WITHOUT DOWNLOADING THE LIBRARIES TOO. IF YOU DID NOT DOWNLOAD THE LIBRARIES, YOU CANNOT PLAY. DOWNLOAD THE LIBRARIES TOO.</P>
+<P>DOS SOURCES: download <A HREF="__dossrc__">__dossrc__ (__lendossrc__)</A>.
+<P>DOS PROGRAM: download <A HREF="__dosbin__">__dosbin__ (__lendosbin__)</A>.
+This is the DOS-386 (DJGPP) executable.</P><BR>
+<P>Win32 PROGRAM: download <A HREF="__win32bin__">__win32bin__ (__lenwin32bin__)</A>.
+This is the Win32 (cygwin32, see <A HREF="http://sourceware.cygwin.com/cygwin">http://sourceware.cygnus.com/cygwin</A>) executable for Win95, Win98 (and perhaps NT - untested!).</P><BR>
+<P><BR>GNU/Linux PROGAM: download <A HREF="__linuxbin__">__linuxbin__ (__lenlinuxbin__)</A>. This is the linux (glibc 2, elf) executable. It is in an rpm-archive. It runs on the console and under X-Windows. This depends on some X libraries, and I happen to run the latest XFree86 release, so if you use an older version and you get dependency errors, rebuild from source or try it using --force.</P>
+<P>SOURCES : download <A HREF="__linuxsrc__">__linuxsrc__ (__lenlinuxsrc__)</A>. These are the sources, in a bzip2 archive.
+If you don't have bzip2, visit <A HREF="http://sourceware.cygnus.com/bzip2/">http://sourceware.cygnus.com/bzip2/</A></P>
+<P><FONT SIZE=5><I>Other useful links:</I></FONT></P>
+<P>OS/2 precompiled versions: <A HREF="http://www2.crosswinds.net/russia/~aga/angband/">http://www2.crosswinds.net/russia/~aga/angband
+</A>
+</P>
+<P>The Original and Official Angband home: <A HREF="http://www.phial.com/angband/">http://www.phial.com </A> </P>
+<P>The Roguelike News Page: <A HREF="http://www.skoardy.demon.co.uk/rlnews/index.html">http://www.skoardy.demon.co.uk/rlnews/ndex.html </A> </P>
+<P>The Thangorodrim Angband Page: <A HREF="http://thangorodrim.angband.org">http://thangorodrim.angband.org </A> </P>
+<P>Bounds-checking patches to gcc 2.95.2 <A HREF="http://web.inter.nl.net/hcc/Haj.Ten.Brugge/">http://web.inter.nl.net/hcc/Haj.Ten.Brugge/</A> this really is great for checking your code!
+</P>
+<P>This site is proudly optimized for Lynx! Get lynx at <A HREF="http://lynx.browser.org">http://lynx.browser.org</A></P>
+<P>This site is shown even better with links! Get links at <A HREF="http://links.browser.org">http://links.browser.org</A></P>
+<P><FONT SIZE=2>Please note that even if I don't make regular postings to rec.games.roguelike.angband, the sources here will change without notice. All comments are welcome, emails to thunder7@xs4all.nl</FONT></P>
+</BODY>
+</HTML>

@@ -218,6 +218,8 @@
 #if defined(linux)
 # define HAS_STRICMP
 # define stricmp strcasecmp
+/* jk - strncasecmp compares n characters */
+# define strnicmp strncasecmp
 #endif
 
 
@@ -226,7 +228,6 @@
  * Note that the "memset()" routines are used in "z-virt.h"
  */
 #define HAS_MEMSET
-
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
@@ -239,8 +240,5 @@
 # endif
 #endif
 
-
-
 #endif
-
 

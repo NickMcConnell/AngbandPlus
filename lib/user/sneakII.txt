@@ -1,0 +1,130 @@
+ [Angband/64 beta 6 release 3 (2.7.10) Character Dump]
+
+                                                                               
+ sneakII the female High-Elf High Priest (115 years, 6 feet 10, 184 pounds).   
+ STR:     9        To Hit:     -1          Speed     :Normal                   
+ INT: 18/20        To Dam:     -4          Gold      :223                      
+ WIS:    17        AC    :    0+9          Tactic    :wary                     
+ DEX: 18/10        HP    :     15 of 15    Exploring :normal                   
+ CON:    14        Mana  :      3 of 13    Level     :1 (lev 2 at 32)          
+ CHR: 18/70                                Experience:14 (14)                  
+                                                                               
+ Fighting    : Wretched     Perception  : Passable     Blows/Round : none      
+ Bows/Throw  : Inept        Searching   : Limited      Shots/Round : none      
+ Saving Throw: Expert       Disarming   : Moderate     Infra-Vision: 40 feet   
+ Stealth     : Good         Magic Device: Passable     Light-Range : 0 feet    
+                                                                               
+     You are one of several children of a Laiquendi Warrior.  You have         
+     light grey eyes, straight black hair, and a fair complexion.              
+                                                                               
+                                                                               
+                                                                               
+     In your youth you were taught by a Human High Priest.                     
+     You were a pupil with an experienced High-Elf Priest.                     
+     You completed your studies with a High-Elf master High Priest.            
+                                                                               
+                                                                               
+     Internal Race Class Teach Equip Actual Current abcdefghijklm abcdefghijklm
+ Str:    16     0   -1    -6     0        9      9  ............. .............
+ Int:    12     1    1     6     0    18/20  18/20  ............. .............
+ Wis:    13     0    0     4     0       17     17  ............. .............
+ Dex:    15     1    0     3     0    18/10  18/10  ............. .............
+ Con:    14     0    0     0     0       14     14  ............. .............
+ Chr:    13     1    1    10     0    18/70  18/70  ............. .............
+                                                    Modifications Modifications
+                                                      (part I)      (part II)  
+                                                                               
+        abcdefghijklm@          abcdefghijklm@                 abcdefghijklm@  
+ Acid : ..............  Blind : ..............  Free Action  : ..............  
+ Elec : ..............  Conf  : ..............  See Invisible: ..............  
+ Fire : ..............  Sound : ..............  Hold Life    : ..............  
+ Cold : ..............  Nether: ..............  Telepathy    : ..............  
+ Poisn: ..............  Nexus : ..............  Slow Digest  : ..............  
+ Light: ..............  Chaos : ..............  Regeneration : ..............  
+ Dark : ..............  Disnch: ..............  Feather Fall : ..............  
+
+
+ [Character Inventory]
+
+a) a book (with 3 spells)
+It holds 3 spells:
+Knowledge                         Lev Mana Fail Scale Category        Extra
+well known Cure Minor Wounds        1   2  12%  small Heal            2d10
+known      Find Traps               3   3  30%
+known      Detect Monsters          3   3  53%
+   This was part of your starting equipment.
+b) 4 Rations of Food
+   This was part of your starting equipment.
+c) a Spell titled "ganabb rosna" of Magic Missile
+   This was part of your starting equipment.
+d) a Mithril Rod of Fire Bolts
+   This was part of your starting equipment.
+e) a Aluminum Wand of Wonder (18 charges)
+   This was part of your starting equipment.
+f) 4 Wooden Torches (with 2000 turns of light)
+   This was part of your starting equipment.
+g) a Robe [2,+0]
+   This was part of your starting equipment.
+
+
+ [Home Inventory (page 1)]
+
+
+
+
+
+Personal intrinsics status:
+
+You have no known intrinsics.
+
+
+
+Artifacts seen:
+
+You have not seen (or identified) any artifacts!
+
+
+Identified Items:
+
+
+Spells:
+
+     Spell titled "ganabb rosna" of Magic Missile
+     Spell titled "potan dabmi" of Cure Minor Wounds
+     Spell titled "dansta kvibjor" of Find Traps
+     Spell titled "ood odxch" of Detect Monsters
+
+Wands:
+
+     Aluminum Wand of Wonder
+
+Rods:
+
+     Mithril Rod of Fire Bolts
+
+
+Uniques seen:
+
+You have not seen any uniques, let alone killed some!
+
+
+Spells Cast:
+
+          10 Cure Minor Wounds
+           1 Find Traps
+           1 Detect Monsters
+
+
+Monsters seen:
+
+You ventured up to level 0
+
+You are now on level 0/0, and you have been here for 0 turns
+You killed 0 monsters in total, in 2249 turns.
+
+
+
+Progress:
+
+           0 You started your campaign.
+        2249 You are now on dungeon level 0 ft

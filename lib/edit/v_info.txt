@@ -1,224 +1,1826 @@
 # File: v_info.txt
 
-
 # This file is used to initialize the "lib/raw/v_info.raw" file, which is
 # used to initialize the "vault template" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-
 # After modifying this file, delete the "lib/raw/v_info.raw" file.
-
-
 # Note that the "spacing" in the "description" lines is very important!
-
-
 # Version stamp
 
-V:2.7.9
+V:2.7.10
+
+# TAKE CARE - NEW REQUIREMENT FOR ANGBAND/64:
+# THOU SHALT NOT CREATE VAULTS WITH SPACES(ASCII 32) INSIDE.
+# if you do, the game will not be able to determine what is an outer wall
+# and what isn't. Also note that vaults that are not rectangular will be
+# made rectangular by adding spaces at the end of each line, until the
+# <wid> it should have is reached.
+# 
+# some of there Lesser Vaults were inspired by Oangband by Leon Marrick.
+### Lesser Vaults (type 8) -- maximum size 33x20###
+
+# type 7,1: lesser vault (round)
+N:Lesser vault (round)
+X:<typ>7:<id>1:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>50:<sub_level>0
+D:      XXXXXXXX
+D:   XXXX..##..X'XX
+D: XXX....####....XXX
+D:XX......#6$#......XX
+D:X...4.##+##+##.4...X
+D:X.4.4.#6#$&#$#.4.4.X
+D:X.4.4.#$#&$#6#.4.4.X
+D:X...4.##+##+##.4...'
+D:XX......#$6#......XX
+D: XXX....####....XXX
+D:   XXXX..##..XXXX
+D:      XXXXXXXX
+
+# type 7,2: lesser vault (octagon)
+N:Lesser vault (octagon)
+X:<typ>7:<id>2:<rat>5:<hgt>14:<wid>20:<min_lev>10:<max_lev>50:<sublevel>0
+D:   X'XXXXXXXXXXXX
+D:  XX.##########.XX
+D: XX..#..4444..#..XX
+D:XX4..#.4####4.#..4XX
+D:X....#.4#$6#4.#....X
+D:X.###+4##&&##4+###.X
+D:X.#..44#$&6$#44..#.X
+D:X.#..44#$6&$#44..#.X
+D:X.###+4##&&##4+###.X
+D:X....#.4#6$#4.#....'
+D:XX4..#.4####4.#..4XX
+D: XX..#..4444..#..XX
+D:  XX.##########.XX
+D:   XXXXXXXXXXXXXX
+
+# type 7,3: lesser vault (octagon) with treasure
+N:Lesser vault (octagon)
+X:<typ>7:<id>3:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>50:<sublevel>0
+D:    XXX'XXXXXXXX
+D: XXXX..........XXXX
+D: X...###+##+###...X
+D:XX...#44#44#44#...XX
+D:X.###+##+##+##+###.X
+D:X.#44#&&#$$#&&#44#.X
+D:X.#44#&&#$$#&&#44#.X
+D:X.###+##+##+##+###.X
+D:XX...#44#44#44#...XX
+D: '...###+##+###...X
+D: XXXX..........XXXX
+D:    XXXXXXXXXXXX
+
+# type 7,4: lesser vault (octagon) with objects
+N:Lesser vault (octagon)
+X:<typ>7:<id>4:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>50:<sublevel>0
+D:    XXXXXX'XXXXX
+D: XXXX..........XXXX
+D: X...###+##+###...X
+D:XX...#44#44#44#...XX
+D:X.###+##+##+##+###.X
+D:X.#44#&&#56#&&#44#.X
+D:X.#44#&&#65#&&#44#.X
+D:X.###+##+##+##+###.X
+D:XX...#44#44#44#...XX
+D: X...###+##+###...'
+D: XXXX..........XXXX
+D:    XXXXXXXXXXXX
+
+# type 7,5: lesser vault (square) with treasure
+N:Lesser vault (square)
+X:<typ>7:<id>5:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X*.......&........*X
+D:X.################.X
+D:X.#4.4.4.4.4.4.4.#.X
+D:X.#.############4#.'
+D:X.#4+4&&+$$#&$4#.#&X
+D:X&#.#4$&#$$+&&4+4#.X
+D:X.#4############.#.X
+D:X.#.4.4.4.4.4.4.4#.X
+D:X.################.X
+D:X*........&.......*X
+D:X'XXXXXXXXXXXXXXXXXX
+
+# type 7,6: lesser vault (square) with objects
+N:Lesser vault (square)
+X:<typ>7:<id>6:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXX'XXXXXXXXXXXXXXXX
+D:X*.......&........*X
+D:X.################.X
+D:X.#4.4.4.4.4.4.4.#.X
+D:X.#.############4#.X
+D:X.#4+4&&+56#&$4#.#&X
+D:X&#.#4$&#65+&&4+4#.X
+D:X.#4############.#.X
+D:X.#.4.4.4.4.4.4.4#.X
+D:X.################.X
+D:X*........&.......*X
+D:XXXXX'XXXXXXXXXXXXXX
+
+# type 7,7: lesser vault (hooked) with treasure
+N:Lesser vault (hooked)
+X:<typ>7:<id>7:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXX'XXXXXXXXXXXXXXXX
+D:X$#......&........$X
+D:X.#.##############.X
+D:X.#4.4.4.4.4.4.4.#.X
+D:X.######.#######4#.X
+D:X.#4+4&&#$$#&$4#.#&X
+D:X&#.#4$&#$$#&&4+4#.X
+D:X.#4#######.######.X
+D:X.#.4.4.4.4.4.4.4#.X
+D:X.##############.#.X
+D:X$........&......#$X
+D:XXXXXXX'XXXXXXXXXXXX
+
+# type 7,8: lesser vault (hooked) with objects
+N:Lesser vault (hooked)
+X:<typ>7:<id>8:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X$#......&........$X
+D:X.#.##############.X
+D:X.#4.4.4.4.4.4.4.#.X
+D:X.######.#######4#.X
+D:X.#4+4&&#56#&$4#.#&'
+D:X&#.#4$&#65#&&4+4#.X
+D:X.#4#######.######.X
+D:X.#.4.4.4.4.4.4.4#.X
+D:X.##############.#.X
+D:X$........&......#$X
+D:XXXXXXXXXXXXXX'XXXXX
+
+# type 7,9: lesser vault (rooms) with treasure
+N:Lesser vault (rooms)
+X:<typ>7:<id>9:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X.$#44#44#44#44#$4.X
+D:X.4#..#..#..#..#.4.X
+D:X.....4..4..4..4...'
+D:X.################.X
+D:X.#.4#.4#$$#.4#.4#.X
+D:'.4#.6#.6#$6#.6#.4.X
+D:X.################.X
+D:X...4..4..4..4.....X
+D:X.4.#..#..#..#..#4.X
+D:X.$4#44#44#44#44#$.X
+D:XXXXXXXXXXXXXXXXXXXX
+
+# type 7,10: lesser vault (rooms) with treasure
+N:Lesser vault (rooms)
+X:<typ>7:<id>10:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X.5#44#44#44#44#54.X
+D:'.4#..#..#..#..#.4.X
+D:X.....4..4..4..4...X
+D:X.################.X
+D:X.#.4#.4#55#.4#.4#.X
+D:X.4#.6#.6#56#.6#.4.X
+D:X.################.X
+D:X...4..4..4..4.....'
+D:X.4.#..#..#..#..#4.X
+D:X.54#44#44#44#44#5.X
+D:XXXXXXXXXXXXXXXXXXXX
+
+# type 7,11: lesser vault (diagonal \)
+N:Lesser vault (diagonal)
+X:<typ>7:<id>11:<rat>5:<hgt>12:<wid>20:<min_lev>10:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXX'XX    
+D:X444##4444##....XX  
+D:X4444##4444##....XX 
+D:X#4444##4444##....XX
+D:X##4444##4444##....X
+D:X.##4444444444#+...X
+D:X..#+4444444444##..X
+D:X...##4444##4444##.X
+D:XX...##4444##4444##X
+D: XX...##4444##4444#X
+D:  XX...##4444##4444X
+D:   XX'XXXXXXXXXXXXXX
+
+# type 7,13: lesser vault (square)
+N:Lesser vault (square)
+X:<typ>7:<id>12:<rat>5:<hgt>12:<wid>20:<min_lev>30:<max_lev>90:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X4################4X
+D:X^#.$...&..4....4#^X
+D:X^#...4......&...#^X
+D:X^#######++#######^X
+D:X^+.4..&+4$+$....+^X
+D:'^+..$.4+.&+.4.&.+^X
+D:X^#######++#######^X
+D:X^#....4.4.....4.#^'
+D:X^#..&......$....#^X
+D:X4################4X
+D:XXXXXXXXXXXXXXXXXXXX
+
+# type 7,14: lesser vault (spiral)
+N:Lesser vault (spiral)
+X:<typ>7:<id>13:<rat>5:<hgt>12:<wid>30:<min_lev>30:<max_lev>90:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXX'XXXXXXXXXXXXXXXXXXXXXXX
+D:X...44...&.44....&...44.&....X
+D:X.&.44.....44.&.....&44......X
+D:X44########################.&X
+D:X..#.......44........44...#44X
+D:X..#.......44........44...#..X
+D:X..#..###################.#&.X
+D:X&.#44#6&4&6&4&5&5&6&4&4&4#44X
+D:X44#..#####################..X
+D:X..#..&....44....&......44&..X
+D:X..#....&..44....&..&...44...X
+D:XXXXXXXXXXXXXXXXXXXXXX'XXXXXXX
+
+# type 7,14: lesser vault (open)
+N:Lesser vault (open)
+X:<typ>7:<id>14:<rat>5:<hgt>13:<wid>29:<min_lev>30:<max_lev>90:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXX'XXXXXXXXXXXXXXXXXXXXXX
+D:X--X....^..........^.....X!!X
+D:X-&X.........^...........X!&X
+D:XX+X..#.4..#..4..#.4..#.^XX+X
+D:X.....#..4.#..4..#..4.#.....X
+D:X...^.#.4..#..4..#.4..#.....X
+D:X.^.#####################.^.X
+D:X...^.#..4.#..4..#.4..#.....X
+D:X...^.#.4..#..4..#..4.#.....X
+D:XXXX..#..4.#..4..#.4..#..X+XX
+D:X??X......^............^.X&=X
+D:X?&+...^........^........X==X
+D:XXXXXXXXXXXXXXXXXXXXX'XXXXXXX
+
+# type 7,14: lesser vault (cross)
+N:Lesser vault (Cross)
+X:<typ>7:<id>15:<rat>7:<hgt>15:<wid>29:<min_lev>45:<max_lev>90:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXX'XXXXXXXXXXXXXXXXXXXXXX
+D:X--X....^........6.^.....X!!X
+D:X-&X.........^...........X!&X
+D:XX+X....4....XXX...4....^XX+X
+D:X........4...XXX....4.......X
+D:X...^...4....X6X...4........X
+D:X.^.XXXXXXXXXX+XXXXXXXXXX.^.X
+D:X.^.X?-?_\/&~$&=&"&?&&+9X.^.X
+D:X.^.XXXXXXXXXX+XXXXXX+XXX.^.X
+D:X...^....4..6X6X...4........X
+D:X...^...4....XXX....4.......X
+D:XXXX.....4...XXX...4.....X+XX
+D:X??X......^............^.X&=X
+D:X?&+...^........^........X==X
+D:XXXXXXXXXXXXXXXXXXXXX'XXXXXXX
+
+# type 7,14: lesser vault (small cross)
+N:Lesser vault (Small Cross)
+X:<typ>7:<id>16:<rat>7:<hgt>11:<wid>23:<min_lev>45:<max_lev>90:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXX'XXXXXXXXXXXXXXXX
+D:X-&X......^........X!&X
+D:XX+X....5.XXX...4.^XX+X
+D:X...^.4...X6X.4.......X
+D:X.^.XXXXXXX+XXXXXXX.^.X
+D:X.^.X?-?&~$&=&&&+9X.^.X
+D:X.^.XXXXXXX+XXX+XXX.^.X
+D:X...^...4.XXX.4.......X
+D:XXXX.4....XXX......X+XX
+D:X?&+...^.....^...4.X=&X
+D:XXXXXXXXXXXXXXX'XXXXXXX
+
+### Greater vaults (type 9) -- maximum size 55x30###
+
+N:Greater vault (huge)
+X:<typ>8:<id>1:<rat>45:<hgt>15:<wid>37:<min_lev>80:<max_lev>0:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:'8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X
+D:X0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8X
+D:X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X
+D:X0#8#0#8#0#8#00000000000#0#8#0#8#0#8X
+D:X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X
+D:X0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8X
+D:X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0#8#0'
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:Greater vault (large)
+X:<typ>8:<id>2:<rat>30:<hgt>16:<wid>38:<min_lev>30:<max_lev>0:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X4#4#9#4#9#4#9#4#&88&#9#4#9#4#9#4#9#4X
+D:X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X
+D:X.4..4.X6.6.4&XX&&&&&&XX&4.6.6X.4...4#
+D:X..4.^^X....4XX&&&88&&&XX4....X^^..4.'
+D:XXXXXX+X^6.6XX&&&8##8&&&XX6.6^X+XXXXXX
+D:X4.6.^^X+XXXX&&&8#XX#8&&&XXXX+X^^.4..X
+D:X..464.X^^^8X&&8#X~0X#8&&#8.^^X.4..64X
+D:X.4....X^^^8#&&8#X0~X#8&&X8^^^X.6.4..X
+D:X...4^^X+XXXX&&&8#XX#8&&&XXXX+X^^..4.X
+D:XXXXXX+X^6.6XX&&&8##8&&&XX6.6^X+XXXXXX
+D:'.4..^^X.....XX&&&88&&&XX4....X^^.4..X
+D:#...4..X6.6.4&XX&&&&&&XX&4.6.6X..4..4X
+D:X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X
+D:X4#4#9#4#9#4#9#4#&88&#9#4#9#4#9#4#9#4X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-### Simple Vaults (type 7) -- maximum size 44x22 ###
+N:Greater vault (butterfly)
+X:<typ>8:<id>3:<rat>25:<hgt>16:<wid>38:<min_lev>20:<max_lev>0:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X&9..6XX&&&++^^^^^^^^^^^^++&&&XX6..&9X
+D:X9..6XX44444XX^^^^^^^^^^XX44444#X6..&X
+D:X..6#X.....4.XX^^^^^^^^XX..9....XX6..X
+D:X.6XX..4.9....XX^^^^^^XX..4...6..XX6.X
+D:X6XX..&...6....XX^^^^XX..&....4..4XX6X
+D:XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX
+D:+....4.4.X6666&&&+~0+&&&6666X4.4.4...+
+D:+...4.4.4X6666&&&+0~+&&&6666X.4.4....+
+D:XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX
+D:X6XX..&....6...XX^^^^XX...&...64..#X6X
+D:X.6XX..9......XX^^^^^^XX....9....XX6.X
+D:X..6XX....6..XX^^^^^^^^XX..4..&.XX6..X
+D:X&..6#X44444XX^^^^^^^^^^XX44444XX6..9X
+D:X9&..6XX&&&++^^^^^^^^^^^^++&&&XX6..&9X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:Greater vault (chambers)
+X:<typ>8:<id>4:<rat>25:<hgt>15:<wid>40:<min_lev>20:<max_lev>0:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXX'XXXXXXXXXXXXXXXXXXXX
+D:X6+.^.....^.....^.....^.....^.....^..+6X
+D:X+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+X
+D:X.X.6..4X6.6^X&&&&+^&^8.X.&.6..X..&.4X.X
+D:X^X.4.6^+^6.8X...^X8^&.&X....&^+.^...X.'
+D:X.X&..4.XXX+XXXX+XXXX+XXX.6.^..X..64.X.X
+D:'.X....&X&..^6688&X44044XXXX+XXX4....X^X
+D:X.XX+XXXXXXXXXXXXXX40~04X444444XXX+XXX.X
+D:X^X&6X.64&.X4&6^&.X44044X444444X....4X.X
+D:X.X64+....&+4&6.&^XXXXXXXXXX+XXX.4...+.X
+D:X.X.4X.&.6.X4&6^&.+.4.6.^&.6^6.X.....X^X
+D:X.X^&X.4..4X4&6.&^X&.^&.4..666.X4..4.X.X
+D:X+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+X
+D:X6+..^.....^.....^.....^.....^.....^.+6X
+D:XXXXXXX'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 9 - small treasure rooms
+N:Treasure Room (small)
+X:<typ>9:<id>1:<rat>15:<hgt>9:<wid>21:<min_lev>10:<max_lev>30:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXX
+D:X.6.#.*.#.6.#...#.6.X
+D:X...#.~.#...#.~.#...X
+D:X#^###^###^###^###^#X
+D:'.6.^.6.^.6.^.6.^.6.'
+D:X#^###^###^###^###^#X
+D:X...#.~.#...#.~.#...X
+D:X...#.6.#...#.6.#.*.X
+D:XXXXXXXXXXXXXXXXXXXXX
+
+N:Treasure Room (small)
+X:<typ>9:<id>2:<rat>15:<hgt>9:<wid>21:<min_lev>10:<max_lev>30:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXX
+D:X.6.#.*.#.6.#...#.6.X
+D:X.~.^...^.~.#...^.~.X
+D:X#####,#######^#####X
+D:'.6.^.6.^.6.^.6.^.6.'
+D:X#####^#######^#####X
+D:X.~.^...#.~.^...^.~.X
+D:X.*.#.6.#...#.6.#...X
+D:XXXXXXXXXXXXXXXXXXXXX
+
+N:Treasure Room (small)
+X:<typ>9:<id>3:<rat>15:<hgt>9:<wid>21:<min_lev>10:<max_lev>30:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXX
+D:X.~^#^*.#.6^+...+^6.X
+D:X6^.+^..#...#.~^#...X
+D:X#+####+#####+###+##X
+D:'.6.#.6^#.6.#.6.#.6.'
+D:X####+###########+##X
+D:X.~^+...+^~.+..^+^~.X
+D:X.*^#.6.#..^#^6.#...X
+D:XXXXXXXXXXXXXXXXXXXXX
+
+# type 10 - middle treasure rooms
+N:Treasure Room (Middle)
+X:<typ>10:<id>1:<rat>20:<hgt>10:<wid>33:<min_lev>40:<max_lev>60:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.~.#.~.#.8.#.~.#.8.#.~.#.8.#.~.X
+D:X...#...#...#...#...#...#...#...X
+D:X^8^#^6^#^6^#^6^#^6^#^6^#^6^#^8^X
+D:'........^...............^......X
+D:'........^...............^......X
+D:X^8^#^6^#^6^#^6^#^6^#^6^#^6^#^8^X
+D:X...#...#...#...#...#...#...#...X
+D:X.~.#.8.#.~.#.8.#.~.#.8.#.~.#.~.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 11 - Larger Treasure Rooms
+N:Treasure Room (Large)
+X:<typ>11:<id>1:<rat>25:<hgt>21:<wid>23:<min_lev>60:<max_lev>70:<sublevel>0
+O:MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:       XXXXXXXXX
+D:       X.,~.^,.X
+D:       X.,~^.,.X
+D:       X.,^.~,.X
+D:       X..686..'
+D:       X^^^^^^^X
+D:XXXXXXXX^^^^^^^XXXXXXXX
+D:X......^^#####^^......X
+D:X.,,,..^#^.7.^#^..,,,.X
+D:X..~^6.^#^7~7^#^.6^~..X
+D:X..~^8.^#^7~7^#^.8.~^.X
+D:X.^~.6.^#^7~7^#^.6^~..X
+D:X.,,,..^#^.7.^#^..,,,.X
+D:X......^^#####^^......X
+D:XXXXXXXX^^^^^^^XXXXXXXX
+D:       X^^^^^^^X
+D:       '..686..X
+D:       X.,.^~,.X
+D:       X.,~^.,.X
+D:       X.,^~.,.X
+D:       XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X..$$$..X
+D:X.^$$$5.X
+D:X.^1.2^.X
+D:'^.2.1..X
+D:XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>2:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X..???.^X
+D:X.5???..X
+D:X.^1.2^.X
+D:'^.2.1..X
+D:XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>3:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X..---..X
+D:X..---^.X
+D:X.^1.2^.X
+D:'^52.1..X
+D:XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>4:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X..///..X
+D:X..///..X
+D:X.^152^^X
+D:'^.2.1..X
+D:XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>5:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X..___..X
+D:X..___..X
+D:X^^1.2^.X
+D:'^52.1..X
+D:XXXXXXXXX
+
+# type 12 - small graveyards
+N:Graveyard (Small)
+X:<typ>12:<id>2:<rat>6:<hgt>6:<wid>9:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXX
+D:X.."""..X
+D:X.."""..X
+D:X.^1.2^.X
+D:'^.2.1^5X
+D:XXXXXXXXX
+
+# type 13 - middle graveyards
+N:Graveyard (Middle)
+X:<typ>13:<id>2:<rat>10:<hgt>6:<wid>19:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXXXXXXXXXXXX
+D:X.aaa.+^aaa.#.aaa.X
+D:X.aaa^#^aaa.#.aaa.X
+D:X^3.2.#.1.2.#^2.2.X
+D:'^2.1.#.2.3^+^3.1.X
+D:XXXXXXXXXXXXXXXXXXX
+
+# type 14 - large graveyards
+N:Graveyard (Large)
+X:<typ>14:<id>3:<rat>10:<hgt>13:<wid>19:<min_lev>0:<max_lev>0:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+F:UNDEAD
+D:XXXXXXXXXXXXXXXXXXX
+D:X.aaa.#.aaa.#.aaa.X
+D:X.aaa.#^aaa^#.aaa.X
+D:X^3.2.#.1^2.#.2^2.X
+D:X.2^1^#.2.3.#^3.1^X
+D:X###+####+#####+##X
+D:'..3^.3..3^.3.^3..'
+D:X####+#####+#####+X
+D:X.2.1^#.2^3.#.3^1.X
+D:X.3^2^#.1^2.#.2^2^X
+D:X.aaa.#.aaa^#.aaa.X
+D:X.aaa.#.aaa.#.aaa.X
+D:XXXXXXXXXXXXXXXXXXX
+
+# type 17 - multi-level cellar level 1
+# maximum size 66x20
+# define options with every sublevel!
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>0
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#.k>X
+D:X^^^#^^^X
+D:X#+###+#X
+D:'^kk....X
+D:XXXXXXXXX
+
+# type 17 - multi-level cellar level 2
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>1
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#.k>X
+D:X^^^#^^^X
+D:X#+###+#X
+D:X<kk....X
+D:XXXXXXXXX
+
+# type 17 - multi-level cellar level 3
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>2
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#.k>X
+D:X^^^#^^^X
+D:X#+###+#X
+D:X<kk....X
+D:XXXXXXXXX
+
+# type 17 - multi-level cellar level 4
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>3
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#.k>X
+D:X^^^#^^^X
+D:X#+###+#X
+D:X<kk....X
+D:XXXXXXXXX
+
+# type 17 - multi-level cellar level 5
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>4
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#.k>X
+D:X^^^#^^^X
+D:X#+###+#X
+D:X<k.....X
+D:XXXXXXXXX
+
+# type 17 - multi-level cellar level 6
+# with the secret gold room, and the secret staircase down
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>31:<min_lev>0:<max_lev>10:<sub_level>5
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX                  XXXX
+D:X$kk#kkkXXXXXXXXXXXXXXXXXXXX$$X
+D:X^^^#^^^+&&&&&&&&&&&&&&&&&&+$$X
+D:X#+###+#XXXXXXX+XXXXXXXXXXXX$$X
+D:X<kk.kkkX    X>kX          XXXX
+D:XXXXXXXXX    XXXX
+
+# type 17 - multi-level cellar level 7
+N:Cellar
+X:<typ>17:<id>1:<rat>5:<hgt>6:<wid>9:<min_lev>0:<max_lev>10:<sub_level>6
+O:GOING_DOWN | BOOSTOBJ4 | BOOSTOBJ2 | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X$kk#$~$X
+D:X^^^#^^^X
+D:X#+###+#X
+D:X<kkkkkkX
+D:XXXXXXXXX
+
+# type 17 - tower of fire level 1
+# going up, so a > points to the previous level, and < to the next.
+N:Tower of Fire
+X:<typ>17:<id>2:<rat>5:<hgt>6:<wid>9:<min_lev>15:<max_lev>30:<sub_level>0
+F:IM_FIRE
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X.R...R<X
+D:X..&R...X
+D:X.R.&.R.X
+D:X..&R.&.X
+D:XX'XXXXXX
+
+# type 17 - tower of fire level 2
+N:Tower of Fire
+X:<typ>17:<id>2:<rat>5:<hgt>6:<wid>9:<min_lev>15:<max_lev>30:<sub_level>1
+F:IM_FIRE
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXX
+D:X.w...w>X
+D:X..&w...X
+D:X.w.&.w.X
+D:X<.&w.&.X
+D:XXXXXXXXX
+
+# type 17 - tower of fire level 3
+N:Tower of Fire
+X:<typ>17:<id>2:<rat>5:<hgt>6:<wid>32:<min_lev>15:<max_lev>30:<sub_level>2
+F:IM_FIRE
+# this keeps aether hounds out!
+B:IM_COLD
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X>..ZZZZ#....&&&....#....&&&...X
+D:X..&ZZZZ#uuuu.#wwww.#dddd.#@@@@X
+D:X.&.ZZZZ#uuuu.#wwww.#dddd.#....X
+D:X...ZZZZ......#....&&&....#.<..X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - tower of fire level 4
+N:Tower of Fire
+X:<typ>17:<id>2:<rat>5:<hgt>11:<wid>32:<min_lev>15:<max_lev>30:<sub_level>3
+F:IM_FIRE
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X@@@>................PPPPPPP..@X
+D:Xu@@@@...............PPPPP@@@@@X
+D:X..@@@@@.............PPP@@@@@@.X
+D:X...@@@@@@......@@@@u@@@@@@....X
+D:X....@@@@@@@@@@@@@@@@@@@@......X
+D:X......@@@@@@@@@@..u@@.........X
+D:X.PPPPPP.......................X
+D:X.PPPPPP.......................X
+D:X.PPPPPP......................<X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - tower of fire level 5
+# the d's cannot be POWERFUL, but we make them appear with the right flags
+# nonetheless
+N:Tower of Fire
+X:<typ>17:<id>2:<rat>5:<hgt>19:<wid>65:<min_lev>15:<max_lev>30:<sub_level>4
+F:IM_FIRE | DRAGON | POWERFUL
+O:GOING_UP | BOOSTOBJ2 | BOOSTOBJ4 | RACE_MAX32 | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.........#>#...................................................X
+D:X.#..8..#.#.#.#..8..#.#..8..#..8..#.#..8..#..8..#.#..8..#..8..#.X
+D:X.#.....#.....#.....#.#.....#.....#.#.....#.....#.#.....#.....#.X
+D:X.#########.#########.#############.#############.#############.X
+D:X.#.....#.....#.....#.#.....#.....#.#.....#.....#.#.....#.....#.X
+D:X...d...#d...d#...d.....d...#...d.....d...#...d.....d...#...d...X
+D:X...Dd..#d...d#..dW.....Dd..#..dW.....Dd..#..dW.....Dd..#..dD...X
+D:X...d...#d...d#...d.....d...#...d.....d...#...d.....d...#...d...X
+D:X.#.....#.....#.....#.#.....#.....#.#.....#.....#.#.....#.....#.X
+D:X.#########.#########.#############.#############.#############.X
+D:X@...@..@...@.wwwww.@......@....@.....@.wwwww..@...@.@..........X
+D:X..@wwwwww....@@..@.....@.wwwwww....@...@......@@.....wwwww@...@X
+D:X##############################################################.X
+D:X....d........d...........d...........d...........@.........@...X
+D:X888#.d.....d...d.......d...d.......d...d.....~~.....@....@@....X
+D:X888##.d..d.......d...d.......d...d.......d.D.~~...@......@.....X
+D:X888###.d...........d...........d...........d..........@........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - orc cave level 1
+# going down, so a < points to the previous level, and > to the next.
+N:Orc Stronghold
+X:<typ>17:<id>3:<rat>5:<hgt>6:<wid>15:<min_lev>10:<max_lev>25:<sub_level>0
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXX'XXXXXXX
+D:X^....ooooooo>X
+D:X..&..ooooooo.X
+D:Xoo.&^.&......X
+D:Xoo&......^&..X
+D:XXXXXXXXXXXXXXX
+
+# type 17 - orc cave level 2
+# going down, so a < points to the previous level, and > to the next.
+N:Orc Stronghold
+X:<typ>17:<id>3:<rat>5:<hgt>11:<wid>43:<min_lev>10:<max_lev>25:<sub_level>1
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXXX
+D:X<.^...^......^.....^.......^........^..XXX
+D:XoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoXoX^XXX
+D:XXXXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX^XXX
+D:X>$$oooooooo$$XXXXXXXXXXXXXXXXXXXXXXXXX^XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXoXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXoXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXoooooX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXo~o~oX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - orc cave level 3
+# going down, so a < points to the previous level, and > to the next.
+N:Orc Stronghold
+X:<typ>17:<id>3:<rat>5:<hgt>19:<wid>46:<min_lev>10:<max_lev>25:<sub_level>2
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XXXXXXXXXXXX....XXXXXXXXXXX....XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX....XXXXXXXXXXX....XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXXX
+D:XXXX<.^^^^^^^^...............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXX...............XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX....XXXXXXXXXXX....XXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX....XXXXXXXXXXX....XXXXXXXXXXXXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXoooooooooooooXXXX
+D:XoooooooooooooXXXXXXXXXXXXXXXooooooooooooo+^>X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:1:Lesser vault (round)
-X:7:5:12:20
-D:       %%%%%%       
-D:    %%%..##..%%%    
-D:  %%....####....%%  
-D: %......#**#......% 
-D:%...,.##+##+##.,...%
-D:%.,.,.#*#*&#*#.,.,.%
-D:%.,.,.#*#&*#*#.,.,.%
-D:%...,.##+##+##.,...%
-D: %......#**#......% 
-D:  %%....####....%%  
-D:    %%%..##..%%%    
-D:       %%%%%%       
+# type 17 - orc cave level 4
+# going down, so a < points to the previous level, and > to the next.
+N:Orc Stronghold
+X:<typ>17:<id>3:<rat>5:<hgt>11:<wid>32:<min_lev>10:<max_lev>25:<sub_level>3
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X$__X~+oo...X.X??$X.........$XXX
+D:Xo^_XXXXXXX.X.X??.X.....Xo..oXXX
+D:XX.XX.........X...X.....X"""^+~X
+D:X........XoXX.X...+.....XXXXXXXX
+D:XXXXXXX..X^]X.XXXXX..........XXX
+D:X|||||X..X]$X...........XXXX+XXX
+D:X$....o..XXXXoXXXXX.....X....XXX
+D:X|||||X..X$.......X.....X...<XXX
+D:X|||||X..X,,,,,,,,X.....X....XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - troll mountain level 1
+N:Troll Mountain
+X:<typ>17:<id>4:<rat>5:<hgt>6:<wid>15:<min_lev>15:<max_lev>35:<sub_level>0
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXX
+D:'^;;;;TTTTTTT<X
+D:XT;;;;TTTTTTT.X
+D:XTT;;;;^&;;;;;X
+D:XTT&TTT;;;^&TTX
+D:XXXXXXXXXXXXXXX
+
+# type 17 - troll mountain level 2
+# going down, so a < points to the previous level, and > to the next.
+N:Troll Mountain
+X:<typ>17:<id>4:<rat>5:<hgt>6:<wid>14:<min_lev>15:<max_lev>35:<sub_level>1
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXX
+D:X^;T;;;TTTTT<X
+D:XTT;T;;^&;;;;X
+D:XT;T;;;TTTTTTX
+D:X>T;&TT;;^&TTX
+D:XXXXXXXXXXXXXX
+
+# type 17 - troll mountain level 3
+# going down, so a < points to the previous level, and > to the next.
+N:Troll Mountain
+X:<typ>17:<id>4:<rat>5:<hgt>9:<wid>20:<min_lev>15:<max_lev>35:<sub_level>2
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXX
+D:X^;T;;;TTTTTTTTTTT;X
+D:XTT;T;;^&;;;;;;;;;;X
+D:XTT;T;;&^;;TTTTTTTTX
+D:XTT;T;;^&;TTTTTTT;<X
+D:XTT;T;;&^;;;;TTTTT;X
+D:XT;T;;;TTTTTTTTTTTTX
+D:X>T;&TT;;^&&&&&&&TTX
+D:XXXXXXXXXXXXXXXXXXXX
+
+# type 17 - troll mountain level 4
+# going down, so a < points to the previous level, and > to the next.
+N:Troll Mountain
+X:<typ>17:<id>4:<rat>5:<hgt>13:<wid>38:<min_lev>15:<max_lev>35:<sub_level>3
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...X...TT+......;;;xxx.....X,,,,,,,$X
+D:X...X...TTX.....;;;xx;;;....+T.......X
+D:X...XXXXXXX...;;;xxx;;;.....X!!!!!!!!X
+D:XT..;;;;;;;;;;;x;x;;;.....T.XXXXXXXXXX
+D:X..;;xxxxxx;;xxxxx...................X
+D:X>.Txx....xxxxxxxxxxx;..........XXX+XX
+D:Xxxxx.....T..xxxx;;;xx;;...T....XTTTTX
+D:X..................;;xxx;.......X....X
+D:XXXXXXXX.T.XXXXXXX...;;xxx;;;;;;XXXX+X
+D:X.TT...+...X$+...X.....;;xxxxxx;X$X..X
+D:X...TT.X...X$XTTT+....;;;;;;;;xxX<+^~X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - troll mountain level 5
+# going down, so a < points to the previous level, and > to the next.
+N:Troll Mountain
+X:<typ>17:<id>4:<rat>5:<hgt>19:<wid>62:<min_lev>15:<max_lev>35:<sub_level>4
+F:FRIENDS | TROLL
+O:GOING_UP | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X||||TTTTTTTTTTTX.....X.X0X0X0X0X.X...............@@^^^TT#$$$X
+D:X||||TTTTTTTTTTTX.....X.X+X+X+X+X.X.TTTT..........@@^^^TT#$$$X
+D:X[[[[TTTTTTTTTTT......X.T.T.T.T.T.X.TTTT.T........@@^^^TT#$$$X
+D:X[[[[TTTTTTTTTTTX.....X...........X.TTTT..........@@^^^TT####X
+D:XXXXXXXXXXXXXXXXX.....XXXXX...XXXXX...............@@^^^TTTTTTX
+D:X;;;;;;;;;;;;;.......................;;;;;;;......@@^^^TTTTTTX
+D:X..TTTTTTT..;;..XXXXXXX..XXXXXXX.....;;;;;;;......@@^^^^^^^^^X
+D:X..TTTTTTT..;;..XTTTTTT..TTTTTTX.....;;;>;;;......@@^^^^^^^^^X
+D:X..TTTTTTT.T;;.......................;;;;;;;......@@@@@@@@@@@X
+D:X..TTTTTTT..;;..XTTTTTT..TTTTTTX.....;;;;;;;......@@@@@@@@@@@X
+D:X..TTTTTTT..;;..XXXXXXX..XXXXXXX.............................X
+D:X;;;;;;;;;;;;;...............................................X
+D:XXXXXXXXXXXXXXXXX.........................XXXXXXXXXXXXXXXXX.XX
+D:X[[[[TTTTTTTTTTTX......TTTTTTTTTTTTTTT....X^ss^^sss^zzss^sss^X
+D:X[[[[TTTTTTTTTTT.......TXXX+X+X+X+XXXT....X^^ss^^zzs^^zz^zzs^X
+D:X||||TTTTTTTTTTTX......TX~X^X^X^X^X=XT....X^szz^s^s^s^^s^s^zzX
+D:X||||TTTTTTTTTTTX......T+^X_X?X?X"+^XT....X^^^s^^^^^zzz^^^^s^X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - thieves den level 1
+# going down, so a < points to the previous level, and > to the next.
+N:Thieves' Den
+X:<typ>17:<id>5:<rat>5:<hgt>6:<wid>11:<min_lev>5:<max_lev>15:<sub_level>0
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXX
+D:Xpp...ppX>X
+D:XppX.XppX^X
+D:XXXX.XXXX+X
+D:'^...+$$+^X
+D:XXXXXXXXXXX
+
+# type 17 - thieves den level 2
+# going down, so a < points to the previous level, and > to the next.
+N:Thieves' Den
+X:<typ>17:<id>5:<rat>5:<hgt>20:<wid>66:<min_lev>5:<max_lev>15:<sub_level>1
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX..............................................................X
+D:XXXXXXXXXXXXXXX.XXXXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXX..pppppppppX
+D:XXXXXXXXXXXXXXX.XXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXX..pppppppppX
+D:XXXXXXXXXXXXXXX.XXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX+XXXXX
+D:XXXXXXXXXXXXXXX.XX....XXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXX........+.XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXX$$.+.XXXXX
+D:XXXXXX.XXXXXXXX.XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXX.+..XXXXX.XX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXX.XX.XXXXX.XX.XXX...........................X.XXXXXXXXX.+..+X
+D:XXXXXX+XX.XXXXX.XX.XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXXXXX.XXXXX.XX.XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXXXXX.XXXXX.XX+XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.+.~~X
+D:XXXXXX>...XXXXX.+...+..XXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXX
+D:XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX+XXXXX
+D:XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXX..pppppppppX
+D:XXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXX..pppppppppX
+D:X<.....................+.........................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - thieves den level 3
+# going down, so a < points to the previous level, and > to the next.
+N:Thieves' Den
+X:<typ>17:<id>5:<rat>5:<hgt>20:<wid>66:<min_lev>5:<max_lev>15:<sub_level>2
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXTTTTTTTTXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.+.......................X
+D:XXXTTTTTTTT+.^..^..^..^..^.+^.XXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXTTTTTTTTXXXXXXXXXXXXXXXXXX.........+^.^XXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXX+XXXXX.XXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.......................XXXX.XXXXX^XXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXX.XXXX^.^XXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXX$$$$$XXXXXXXXXXXXXXX+XXXXX+XXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXX$$$$$+^^^^^^^+<.^..^..^..^......................XX.X
+D:XXXXXXX.XXXXXX$$$$$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............XXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.ppppppppppp.XXXXXXX.X
+D:XXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.ppppppppppp.XXXXXXX.X
+D:XXXXXXX.XXXpppppppppXXXXXXpppppppppXXXXXXXXX.ppppppppppp.XXXXXXX.X
+D:XXXXXXX.XXXpppppppppXXXXXXpppppppppXXXXXXXXXX.XX.XX.XX.XXXXXXXXX.X
+D:XXXXXXX.XXX+X+X+X+X+XXXXXX.X.X.X.X.XXXXXXXXXX+XX+XX+XX+XXXXXXXXX.X
+D:XXXXXXX...^.^.^.^.^.^.....^^^^^^^^^^.........^^^^^^^^^^^^^.......X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - castle level 1
+N:Large Castle
+X:<typ>17:<id>6:<rat>5:<hgt>20:<wid>66:<min_lev>25:<max_lev>45:<sub_level>0
+O:GOING_UP | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X................................................................X
+D:X.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.X
+D:X.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.X
+D:X.xxXXXXXXXXXXXX..................................XXXXXXXXXXXXxx.X
+D:X.xxXX<......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX$$^^^^^$$Xxx.X
+D:X.xxXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+XXXXXxx.X
+D:X.xx.XXXXXXX........................XXX......................Xxx.X
+D:X.xxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+XXX+XXXXXXXXXXXXXXXXXXXXXXxx.X
+D:'.xx+T.^..^..^..^..^........................................XXxx.'
+D:'.xx+T^..^..^..^^..^........................................XXxx.'
+D:X.xxXX+XXXXXXXXXXXXXX.XXXX.XXXXXXXXX.XX..XX.XXXXXXXXXXXXX..XXXxx.X
+D:X.xx.X^XXXXXXXXXXXXXTTTTTTTTXXXXXXXTTTTTTTTTTXXXXXXXhphphphpXXxx.X
+D:X.xxXX^XX^^^^^^^^^^+TTTTTTTTXXXXXXXTTTTTTTTTTXXXXXXXphphphphXXxx.X
+D:X.xxXX^<XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXhphphphpXXxx.X
+D:X.xxXXXXXXXXXXXX..................................XXXXXXXXXXXXxx.X
+D:X.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.X
+D:X.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.X
+D:X................................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - castle level 2
+N:Large Castle
+X:<typ>17:<id>6:<rat>5:<hgt>20:<wid>66:<min_lev>25:<max_lev>45:<sub_level>1
+O:GOING_UP | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX>XT^+...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX.+^TX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX<TTTTTT.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX....+...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX<..XXh^pXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXX^phhXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX>T^+^hppXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - castle level 3
+N:Large Castle
+X:<typ>17:<id>6:<rat>5:<hgt>20:<wid>66:<min_lev>25:<max_lev>45:<sub_level>2
+O:GOING_UP | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX.h..^.h<XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXh^...h^.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX..h^..ssXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX>..^..ssXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX..X.^.^<XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX>.X..pppXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX..X.^pQpXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXQ^^..pppXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - castle level 4
+N:Large Castle
+X:<typ>17:<id>6:<rat>5:<hgt>20:<wid>66:<min_lev>25:<max_lev>45:<sub_level>3
+O:GOING_UP | MIRROR_X | MIRROR_Y
+F:TAKE_ITEM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX!!X=X-X>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX!!X=X-X.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX!!X=X-X.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX]]X....>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX]]].XXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXX.X"""XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXX|||.X"""XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - Wyrm Lair level 1
+# going down, so a < points to the previous level, and > to the next.
+N:Wyrm Lair
+X:<typ>17:<id>7:<rat>5:<hgt>6:<wid>11:<min_lev>50:<max_lev>90:<sub_level>0
+F:WYRM
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXX
+D:X..^^^..X>X
+D:XDDX^XDDX^X
+D:XXXX.XXXX+X
+D:X^DD.+$$+^X
+D:XXXX'XXXXXX
+
+# type 17 - Wyrm Lair level 2
+N:Wyrm Lair
+X:<typ>17:<id>7:<rat>5:<hgt>20:<wid>66:<min_lev>50:<max_lev>90:<sub_level>1
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:IM_ELEC | WYRM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXDD.X.<.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXDD.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX$$$XXXXXXXXXXXXX
+D:XXXXDD.X...........XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX$$$XXXXXXXXXXXXX
+D:XXXXXXXXXX..XXXXX...........XXXXXXXXXXXXXXXXXXXXXX$$$XXXXXXXXXXXXX
+D:XXDD.XX....XXXXXXXXXXXXXXX.............XXXXXXXXXXXX.XXXXXXXXXXXXXX
+D:XXDD....XXXXXXXXXXXXXXXXXXXXXXXXXXXXX...........XXX+XXXXXXXXXXXXXX
+D:XXDD.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..........XXXXXXXXXX
+D:XXXXXXXXDD.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.........XXX
+D:XXXXXXXXDD......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXXXXXDD.XXXX..XXXX.............XXXXXXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXXXXXXXXXXX.........XXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXXXXXXXXX...XXXXXXXXXXXDD.XXXX..XXXXX...........>XXXXXXXXXX..XX
+D:XXXXXXXXX....XXXXXXXXXXXXXDD.......XXXXXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXXXXXXXXX.....XXXXXXXXXDD.XXXXXXXXXXXXXXXXXXXXXXXXX..........XX
+D:XXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXXX
+D:XXDDD.XXXXXXXXXXXX..XXXXXXXX..................XXXXXXXXXXXXXXXXXXXX
+D:XXDDD.........................XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXDDD.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - Wyrm Lair level 3
+N:Wyrm Lair
+X:<typ>17:<id>7:<rat>5:<hgt>20:<wid>66:<min_lev>50:<max_lev>90:<sub_level>2
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:IM_COLD | WYRM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXX>......XXXXXXXXXXXX...............XXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXX.....XX.........XXXXXXXXXXXX........XXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXXXXXXXXXXXX.......XXX
+D:XXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXXXXXXXXX......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...XX
+D:XXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX........XX
+D:XXXXXXXX......XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...........XXXXXXXX
+D:XXXXXXXXDDDDDDXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXXXXD...DXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXX..<.........XXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXXXXXXXXXXXXD...DXXXXX....XXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXX...XX
+D:XXXXXXXXXXXXXXXXXXXXXX............XXXXXXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXDDD.XXXXX...........XXXXXXX.......XXXXXXXXXXXXXXXXXXXXXXXX..XX
+D:XXXXDDD........XXXXXXXXXXXXXXXXXXXXXX...........XXXXXXXXXXX.....XX
+D:XXXXDDD.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX...................XX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - Wyrm Lair level 4
+N:Wyrm Lair
+X:<typ>17:<id>7:<rat>5:<hgt>20:<wid>66:<min_lev>50:<max_lev>90:<sub_level>3
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+F:IM_FIRE | WYRM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXX
+D:XXXXX.....XXXXXXX.<.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX....XXXXXXX
+D:XXX..DD....XXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXX
+D:X....DD...XXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXXXX
+D:XX.....XXXXXXX..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX........XXXXX
+D:XXX...XXXXXXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX........DDD..XXXXX
+D:XXXXX..XXXXXXXXX........XXXXXXXXXXXXXXXXXX........XXX...DDD....+.X
+D:XXXXXX...XXX......XXXX.........XXXXX........XXXXXXXXXX........XX.X
+D:XXXXXX.......XXXXXXXXXXXXXXXX........XXXXXXXXXXXXXXXXXX..X....XX.X
+D:XXXX...XXXXXXXXXXXXXXXXXXXXXXXXXXX.......XXXXXXXXXXXXXXXXX...XXX.X
+D:XXX..XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXXXXX>X
+D:XXX...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX......XXXXXXXXXXXXXXXXX
+D:XXXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.........XXXXXXXXXXXXXXXX
+D:XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXXX......DDD...XXXXXXXXXXXXXXX
+D:XX............XXXXXXXXXXXXXXXXXXXXXXXXXX.....DDD..XXXXXXXXXXXXXXXX
+D:X...DDDD.........XXXXXXXXXXXXXXXX$$$$$$XX........XXXXXXXXXXXXXXXXX
+D:XX..DDDD........XXXXXXXXXXXXXXXXX$$$$$$XXX......XXXXXXXXXXXXXXXXXX
+D:XXX...........XXXXXXXXXXXXXXXXXXX$$$$$$^^+.....XXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# type 17 - Wyrm Lair level 5
+N:Wyrm Lair
+X:<typ>17:<id>7:<rat>5:<hgt>20:<wid>66:<min_lev>50:<max_lev>90:<sub_level>4
+O:GOING_DOWN | BOOSTOBJ8 | BOOSTOBJ4 | BOOSTOBJ2 | MIRROR_X | MIRROR_Y
+F:WYRM
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXX.....XXXXXXXXXXXXXXXX$$$$$$$$XXXXXXXXXXXXXXXXXXXXXXXXXXXXX]]]X
+D:XX...D....XXXXXXXXXXXXXXX$$$$$$$$XXXXXXXXXXX....D.........XXXX]]]X
+D:XX.........XXXXXXXXXXXXXXXX+XXXXXXXXXXXX.............D.....+.....X
+D:X......D..XXXXXXXXXXXXXXXX......XXX.......XXXX....D.......XXXX|||X
+D:XX.D.....XXXXXXXXXXXXXXXXXXXXX.......XXXXXXXXXX........DXXXXXX|||X
+D:XXX.....XXXXXXXXXXXXXX?????XXXXXXXX..D.....XXXXXXXXX..XXXXXXXX|||X
+D:XXXX.....D.XXXXXXXXXXX?????XXXXXXXXXXXXXX......D..XXXXXXXXXXXXXXXX
+D:XXXXXXXX.......XXXXXXX?????XXXXXXXXXXXXXXXXX+XXX.........XXXXXXXXX
+D:XXXXXXXXXXX....D..XXXXXX.XXXXXXXXXXXXXXXXX"""""XXXXXXXX.D.......XX
+D:XXXXXXXXXXXXXXX....D..XX+XXXXXXXXXXXXXXXXX"""""XXXXXXXXXXXXXXX...X
+D:XX===XXXXXXXXXXXXXX......DXXXXXXXXXXXXXXXX"""""XXXXXXXXXXXXXXX..<X
+D:XX===..XXXXXXXXX.....XXX........XXXXXXXXXXXXXXXXXXXXXXXXXXX......X
+D:XX===X.XXXXX.....XXXXXXXXXXXX..D......XXXXXXXXXXXXXXXX..D....XXXXX
+D:XXXXXX+X..........XXXXXXXXXXXXXXXXX.....D...XXXX..D......XXXXXXXXX
+D:XXXX....D.....D......XXXXXXXXXXXXXXX+XXXX..........XXXXXXXXXXXXXXX
+D:X..................D....XXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXX...D....D.....D....XXXXXXXXXXXX_____XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXX.......XXXXXXXXXXXXXXXXXXXX_____XXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:2:Lesser vault (octagon)
-X:7:5:14:20
-D:   %%%%%%%%%%%%%%   
-D:  %%.##########.%%  
-D: %%..#..,,,,..#..%% 
-D:%%,..#.,####,.#..,%%
-D:%....#.,#**#,.#....%
-D:%.###+,##&&##,+###.%
-D:%.#..,,#*&**#,,..#.%
-D:%.#..,,#**&*#,,..#.%
-D:%.###+,##&&##,+###.%
-D:%....#.,#**#,.#....%
-D:%%,..#.,####,.#..,%%
-D: %%..#..,,,,..#..%% 
-D:  %%.##########.%%  
-D:   %%%%%%%%%%%%%%   
+# type 17 - Demon Dungeon level 1
+# going down, so a < points to the previous level, and > to the next.
+N:Demon Dungeon
+X:<typ>17:<id>8:<rat>5:<hgt>6:<wid>18:<min_lev>30:<max_lev>60:<sub_level>0
+F:DEMON
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXX
+D:X..^^^..X^+.U....X
+D:XuuX^XuuX^X....U.X
+D:XXXX.XXXX+X.U....X
+D:X^uu.+$$+^X...U.>X
+D:XXXX'XXXXXXXXXXXXX
+
+# type 17 - Demon Dungeon level 1
+# going down, so a < points to the previous level, and > to the next.
+N:Demon Dungeon
+X:<typ>17:<id>8:<rat>5:<hgt>6:<wid>18:<min_lev>30:<max_lev>60:<sub_level>1
+F:DEMON
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<##U..X..u..................##.X
+D:X###.^.X.....U....u.........##..X
+D:X###...X................#####...X
+D:XU^.U..X...U....##########......X
+D:XXXXXX+X..########.u........u...X
+D:X###########..U..........u......X
+D:X########.........u.............X
+D:X#########.............U........X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# made by John L Haas:
+# type 17 - Vampire's Castle, level 1
+N:Vampire Castle
+X:<typ>17:<id>9:<rat>5:<hgt>19:<wid>44:<min_lev>24:<max_lev>80:<sub_level>0
+F:UNDEAD
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXX3>>3XXXXXXXXXXXXXXXXXXXX
+D:XX$.b.......X...^..XX&&XX......X.........$XX
+D:XX$....b...^X.....X+bbbb+X.....X.........$XX
+D:XX$.......b.+..V..XbbbbbbX..V..+...bbb...$XX
+D:XX$..b..b...X^...^X&XXXX&X.....X^b.......$XX
+D:XX$.........X.....X^...^.X.....X......b..$XX
+D:XXXXXXXXXXXXXX....X.V..V.X....XXXXXXXXXXXXXX
+D:XX2X$X1X$X3XXXX&XXX......XXX&XXXX2X$X1X$X$XX
+D:XXVXVXVXVXVXX.....X.^....X.....XXVXVXVXVXVXX
+D:XX+X+X+X+X+XX.....X......X.....XX+X+X+X+X+XX
+D:XX.....b..^.X.....X......X.....X^.b....b..XX
+D:XX..b......$X..V..+...^..+..V..X$.........XX
+D:XX&XXXXXXXXXX.....X......X.....XXXXXXXXXX&XX
+D:XX.......^..X.....X.V..V.X.....X........b.XX
+D:XX.b........XX....X.^....X^...XX^...b.....XX
+D:XX...b....X+XXXXXXX......XXXXXXX+X....b...XX
+D:XX......bXX...^...+......+.......XX.......XX
+D:XXXXXXXXXXXXXXXXXXXXXXX'XXXXXXXXXXXXXXXXXXXX
+
+# type 17 - Vampire's Castle, level 2
+N:Vampire Castle
+X:<typ>17:<id>9:<rat>5:<hgt>8:<wid>8:<min_lev>39:<max_lev>80:<sub_level>1
+F:UNDEAD
+O:GOING_DOWN | MIRROR_X | MIRROR_Y
+D:XXXXXXXX
+D:X.^<<^.X
+D:X..^...X
+D:XX+XX+XX
+D:XXVXXVXX
+D:XX&XX&XX
+D:X834438X
+D:XXXXXXXX
 
 
-N:3:Lesser vault (octagon)
-X:7:5:12:20
-D:    %%%%%%%%%%%%    
-D: %%%%..........%%%% 
-D: %...###+##+###...% 
-D:%%...#,,#,,#,,#...%%
-D:%.###+##+##+##+###.%
-D:%.#,,#&&#**#&&#,,#.%
-D:%.#,,#&&#**#&&#,,#.%
-D:%.###+##+##+##+###.%
-D:%%...#,,#,,#,,#...%%
-D: %...###+##+###...% 
-D: %%%%..........%%%% 
-D:    %%%%%%%%%%%%    
+# This is really not the greatest thing i've conjured, but It's here.
+# Going for kind of a zoo-like idea, the ps and P are zookeepers :)
+# The Going_down may not be necessary.
+
+# made by John L Haas:
+N:Zoo
+X:<typ>17:<id>10:<rat>5:<hgt>19:<wid>44:<min_lev>38:<max_lev>60:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXX....1..C.XXXX..4S....SXXXX.I..5....XXXX....8....X
+D:XXXXXXXXXX.C.......XXXX.S...S...XXXX......I..XXXX....D....X
+D:XXXXXXXXXX..C......XXXX...S.....XXXX..I..I...XXXX.........X
+D:XXXXXXXXXX......C..XXXX......S..XXXX....I..I.XXXX.........X
+D:XXXXXXXXXX====+====XXXX====+====XXXX====+====XXXX====+====X
+D:XXXXXXXXX...........XX...........XX...........XX..........X
+D:XXXXXXX.............XX...........XX...........XX..........X
+D:X............XXX....XX....XXX....XX....XXX....XX....XXX...X
+D:'..........p.XXX..p.++....XXX..p.++....XXX..p.++....XXX.P.X
+D:X............XXX....XX....XXX....XX....XXX....XX....XXX...X
+D:XXXXXXX.............XX...........XX...........XX..........X
+D:XXXXXXXXX...........XX...........XX...........XX..........X
+D:XXXXXXXXXX====+====XXXX====+====XXXX====+====XXXX====+====X
+D:XXXXXXXXXX.........XXXX.........XXXX.........XXXX.........X
+D:XXXXXXXXXX.f....f..XXXX.R...R...XXXX.H.H...H.XXXX.....d...X
+D:XXXXXXXXXX........fXXXX...R.....XXXX.....H...XXXX..d...d..X
+D:XXXXXXXXXX...2f....XXXX.R..3..R.XXXXH..6.....XXXX...d..7..X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+#
+# now some small vaults that can be placed inside larger rooms
+#
+N:roomfiller3x3
+X:<typ>18:<id>1:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#.#
+D:###
+D:#.#
+
+N:roomfiller3x3
+X:<typ>18:<id>2:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#^#
+D:###
+D:#.#
+
+N:roomfiller3x3
+X:<typ>18:<id>3:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#^#
+D:###
+D:#^#
+
+N:roomfiller3x3
+X:<typ>18:<id>4:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##.
+D:###
+D:.##
 
 
-N:4:Lesser vault (square)
-X:7:5:12:20
-D:%%%%%%%%%%%%%%%%%%%%
-D:%*.......&........*%
-D:%.################.%
-D:%.#,.,.,.,.,.,.,.#.%
-D:%.#.############,#.%
-D:%.#,+,&&+**#&*,#.#&%
-D:%&#.#,*&#**+&&,+,#.%
-D:%.#,############.#.%
-D:%.#.,.,.,.,.,.,.,#.%
-D:%.################.%
-D:%*........&.......*%
-D:%%%%%%%%%%%%%%%%%%%%
+N:roomfiller3x3
+X:<typ>18:<id>5:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.#.
+D:###
+D:.#.
+
+N:roomfiller3x3
+X:<typ>18:<id>6:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:..#
+D:###
+D:#..
+
+N:roomfiller3x3
+X:<typ>18:<id>7:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:###
+D:###
+D:###
+
+N:roomfiller3x3
+X:<typ>18:<id>8:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:###
+D:...
+D:###
+
+N:roomfiller3x3
+X:<typ>18:<id>9:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:###
+D:+4#
+D:###
+
+N:roomfiller4x4
+X:<typ>18:<id>10:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:####
+D:+^.#
+D:#.4#
+D:####
+
+N:roomfiller4x4
+X:<typ>18:<id>11:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:....
+D:.@@.
+D:.@@.
+D:....
+
+N:roomfiller4x4
+X:<typ>18:<id>12:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#..#
+D:##.#
+D:#.##
+D:#..#
+
+N:roomfiller4x4
+X:<typ>18:<id>13:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#.##
+D:#.##
+D:#...
+D:####
+
+N:roomfiller4x4
+X:<typ>18:<id>14:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#.##
+D:#.##
+D:#.+.
+D:####
+
+N:roomfiller4x4
+X:<typ>18:<id>15:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#.##
+D:####
+D:#...
+D:####
+
+N:roomfiller4x4
+X:<typ>18:<id>16:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#.##
+D:#.##
+D:#^^.
+D:####
+
+N:roomfiller2x4
+X:<typ>18:<id>17:<rat>0:<hgt>4:<wid>2:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##
+D:##
+D:##
+D:##
+
+N:roomfiller2x4
+X:<typ>18:<id>18:<rat>0:<hgt>4:<wid>2:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.#
+D:##
+D:##
+D:#.
+
+N:roomfiller5x5
+X:<typ>18:<id>19:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+D:..#..
+D:.###.
+D:#####
+D:.###.
+D:..#..
+
+N:roomfiller4x4
+X:<typ>18:<id>20:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##...
+D:.##..
+D:..##.
+D:...##
 
 
-N:5:Lesser vault (diagonal)
-X:7:5:12:20
-D:%%%%%%%%%%%%%%%%%   
-D:%,,,##,,,,##....%%  
-D:%,,,,##,,,,##....%% 
-D:%#,,,,##,,,,##....%%
-D:%##,,,,##,,,,##....%
-D:%.##,,,,,,,,,,#+...%
-D:%..#+,,,,,,,,,,##..%
-D:%...##,,,,##,,,,##.%
-D:%%...##,,,,##,,,,##%
-D: %%...##,,,,##,,,,#%
-D:  %%...##,,,,##,,,,%
-D:   %%%%%%%%%%%%%%%%%
+N:roomfiller5x5
+X:<typ>18:<id>21:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:###^#
+D:#^+.#
+D:#4#.#
+D:###+#
 
+N:roomfiller5x5
+X:<typ>18:<id>22:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#....
+D:#...#
+D:....#
+D:#####
 
-N:6:Lesser vault (diagonal)
-X:7:5:12:20
-D:   %%%%%%%%%%%%%%%%%
-D:  %%....##,,,,##,,,%
-D: %%....##,,,,##,,,,%
-D:%%....##,,,,##,,,,#%
-D:%....##,,,,##,,,,##%
-D:%...+#,,,,,,,,,,##.%
-D:%..##,,,,,,,,,,+#..%
-D:%.##,,,,##,,,,##...%
-D:%##,,,,##,,,,##...%%
-D:%#,,,,##,,,,##...%% 
-D:%,,,,##,,,,##...%%  
-D:%%%%%%%%%%%%%%%%%   
+N:roomfiller5x5
+X:<typ>18:<id>23:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#....
+D:##+##
+D:....#
+D:#####
 
+N:roomfiller5x5
+X:<typ>18:<id>22:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.###.
+D:##.##
+D:#...#
+D:##.+#
+D:.###.
 
-N:7:Lesser vault (square)
-X:7:5:12:20
-D:%%%%%%%%%%%%%%%%%%%%
-D:%,################,%
-D:%^#.*...&..,....,#^%
-D:%^#...,......&...#^%
-D:%^#######++#######^%
-D:%^+.,..&+,*+*....+^%
-D:%^+..*.,+.&+.,.&.+^%
-D:%^#######++#######^%
-D:%^#....,.,.....,.#^%
-D:%^#..&......*....#^%
-D:%,################,%
-D:%%%%%%%%%%%%%%%%%%%%
+N:roomfiller5x5
+X:<typ>18:<id>23:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.###.
+D:##.##
+D:#^^^#
+D:##.+#
+D:.###.
 
+N:roomfiller5x5
+X:<typ>18:<id>24:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.###.
+D:##.##
+D:#444#
+D:##.+#
+D:.###.
 
+N:roomfiller5x5
+X:<typ>18:<id>25:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:.###.
+D:##$##
+D:#$^^#
+D:##^+#
+D:.###.
 
-### Greater vaults (type 8) -- maximum size 66x44 ###
+N:roomfiller5x5
+X:<typ>18:<id>26:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:..###
+D:..###
+D:#####
+D:###..
+D:###..
 
+N:roomfiller5x5
+X:<typ>18:<id>27:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#...#
+D:#...#
+D:##.##
+D:##.##
 
-N:10:Greater vault (huge)
-X:8:45:17:39
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%+&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
-D:%X8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&X%
-D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
-D:%X8#&#8#&#8#&#88888888888#8#&#8#&#8#&X%
-D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
-D:%X8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&X%
-D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#8#&#&+%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N:roomfiller5x5
+X:<typ>18:<id>28:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#...#
+D:#...#
+D:##.##
+D:##+##
 
+N:roomfiller5x5
+X:<typ>18:<id>29:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#...#
+D:#^^^#
+D:##.##
+D:##.##
 
-N:11:Greater vault (large)
-X:8:35:18:40
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X,#,#,#,#,#,#,#,#*@@*#,#,#,#,#,#,#,#,X%
-D:%X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X%
-D:%X.,..,.X&.&.,*XX******XX*,.&.&X.,...,#%
-D:%X..,.^^X....,XX***@@***XX,....X^^..,.#%
-D:%XXXXXX+X^&.&XX***@##@***XX&.&^X+XXXXXX%
-D:%X,.&.^^X+XXXX***@#XX#@***XXXX+X^^.,..X%
-D:%X..,&,.X^^^@X**@#X88X#@**#@^^^X.,..&,X%
-D:%X.,....X^^^@#**@#X88X#@**X@^^^X.&.,..X%
-D:%X...,^^X+XXXX***@#XX#@***XXXX+X^^..,.X%
-D:%XXXXXX+X^&.&XX***@##@***XX&.&^X+XXXXXX%
-D:%#.,..^^X.....XX***@@***XX,....X^^.,..X%
-D:%#...,..X&.&.,*XX******XX*,.&.&X..,..,X%
-D:%X+XXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXX+X%
-D:%X,#,#,#,#,#,#,#,#*@@*#,#,#,#,#,#,#,#,X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N:roomfiller5x5
+X:<typ>18:<id>30:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#####
+D:#$$$#
+D:#^^^#
+D:##.##
+D:##.##
 
+N:roomfiller5x5
+X:<typ>18:<id>31:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##..#
+D:#..##
+D:#####
+D:##..#
+D:#..##
 
-N:12:Greater vault (butterfly)
-X:8:25:18:40
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X*9..&XX***++^^^^^^^^^^^^++***XX&..*9X%
-D:%X9..&XX,,,,,XX^^^^^^^^^^XX,,,,,#X&..*X%
-D:%X..&#X.....,.XX^^^^^^^^XX..&....XX&..X%
-D:%X.&XX..,.&....XX^^^^^^XX..,...&..XX&.X%
-D:%X&XX..*...&.^..XX^^^^XX..*....,..,XX&X%
-D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
-D:%+....,.,.X&&&&***+99+***&&&&X,.,.,...+%
-D:%+...,.,.,X&&&&***+99+***&&&&X.,.,....+%
-D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
-D:%X&XX..*....&...XX^^^^XX...*...&,..#X&X%
-D:%X.&XX..&.^....XX^^^^^^XX....&....XX&.X%
-D:%X..&XX....&..XX^^^^^^^^XX..,..*.XX&..X%
-D:%X*..&#X,,,,,XX^^^^^^^^^^XX,,,,,XX&..9X%
-D:%X9*..&XX***++^^^^^^^^^^^^++***XX&..*9X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N:roomfiller3x3
+X:<typ>18:<id>32:<rat>0:<hgt>3:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#
+D:...
+D:#.#
 
+N:roomfiller5x3
+X:<typ>18:<id>33:<rat>0:<hgt>3:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#
+D:.....
+D:#.#.#
 
-N:13:Greater vault (chambers)
-X:8:25:15:40
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%&+.^..^..^..^..^..^..^..^..^..^..^..+&%
-D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
-D:%.X.&.^,X&^&^X****+^*^@^X.*.&..X..*.,X.%
-D:%^X.,.&^+^&^@X^^^^X@^*^*X....*^+.^...X^%
-D:%.X*..,.XXX+XXXX+XXXX+XXX.&.^..X..&,.X.%
-D:%^X..^.*X*..^&&@@*X,,,,,XXXX+XXX,....X^%
-D:%.XX+XXXXXXXXXXXXXX,*8*,X,,,,,,XXX+XXX.%
-D:%^X*&X.&,*.X,*&^*^X,,,,,X,,,,,,X....,X^%
-D:%.X&,+....*+,*&^*^XXXXXXXXXX+XXX.,...+.%
-D:%^X.,X.*.&.X,*&^*^+.,.&.^*.&^&^X.....X^%
-D:%.X^*X.,..,X,*&^*^X*.^*.,..&&&^X,..,.X.%
-D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
-D:%&+..^..^..^..^..^..^..^..^..^..^..^.+&%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+N:roomfiller7x3
+X:<typ>18:<id>34:<rat>0:<hgt>3:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#
+D:.......
+D:#.#.#.#
 
+N:roomfiller9x3
+X:<typ>18:<id>35:<rat>0:<hgt>3:<wid>9:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+
+N:roomfiller3x5
+X:<typ>18:<id>36:<rat>0:<hgt>5:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+
+N:roomfiller5x5
+X:<typ>18:<id>37:<rat>0:<hgt>5:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+
+N:roomfiller7x5
+X:<typ>18:<id>38:<rat>0:<hgt>5:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+
+N:roomfiller9x5
+X:<typ>18:<id>39:<rat>0:<hgt>5:<wid>9:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+
+N:roomfiller3x7
+X:<typ>18:<id>40:<rat>0:<hgt>7:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+
+N:roomfiller5x7
+X:<typ>18:<id>41:<rat>0:<hgt>7:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+
+N:roomfiller7x7
+X:<typ>18:<id>42:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+
+N:roomfiller9x7
+X:<typ>18:<id>43:<rat>0:<hgt>7:<wid>9:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+
+N:roomfiller3x9
+X:<typ>18:<id>44:<rat>0:<hgt>9:<wid>3:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+D:...
+D:#.#
+
+N:roomfiller5x9
+X:<typ>18:<id>45:<rat>0:<hgt>9:<wid>5:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+D:.....
+D:#.#.#
+
+N:roomfiller7x9
+X:<typ>18:<id>46:<rat>0:<hgt>9:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+D:.......
+D:#.#.#.#
+
+N:roomfiller9x9
+X:<typ>18:<id>47:<rat>0:<hgt>9:<wid>9:<min_lev>0:<max_lev>99:<sub_level>0
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+D:.........
+D:#.#.#.#.#
+
+N:roomfiller1x1
+X:<typ>18:<id>48:<rat>0:<hgt>1:<wid>1:<min_lev>0:<max_lev>99:<sub_level>0
+D:#
+
+N:roomfiller1x2
+X:<typ>18:<id>49:<rat>0:<hgt>2:<wid>1:<min_lev>0:<max_lev>99:<sub_level>0
+D:#
+D:#
+
+N:roomfiller1x2
+X:<typ>18:<id>50:<rat>0:<hgt>1:<wid>2:<min_lev>0:<max_lev>99:<sub_level>0
+D:##
+
+N:roomfiller7x7
+X:<typ>18:<id>51:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X
+D:#######
+D:.......
+D:###^###
+D:#$+.+4#
+D:###^###
+D:.......
+D:#######
+
+N:roomfiller7x7
+X:<typ>18:<id>52:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X
+D:#######
+D:^.^.^.^
+D:###^###
+D:#$+.+4#
+D:###^###
+D:^.^.^.^
+D:#######
+
+N:roomfiller7x7
+X:<typ>18:<id>53:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#######
+D:....^.#
+D:#####.#
+D:#...#.#
+D:#^###.#
+D:#.....#
+D:#######
+
+N:roomfiller7x7
+X:<typ>18:<id>54:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#######
+D:....^.#
+D:#####.#
+D:#.###.#
+D:#^###.#
+D:#.....#
+D:#######
+
+N:roomfiller7x7
+X:<typ>18:<id>55:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#######
+D:....^.#
+D:#+###.#
+D:#^###.#
+D:#^###.#
+D:#.....#
+D:#######
+
+N:roomfiller7x7
+X:<typ>18:<id>56:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+D:...#...
+D:..###..
+D:.#####.
+D:#######
+D:.#####.
+D:..###..
+D:...#...
+
+N:roomfiller7x7
+X:<typ>18:<id>57:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##.....
+D:###....
+D:.###...
+D:..###..
+D:...###.
+D:....###
+D:.....##
+
+N:roomfiller7x7
+X:<typ>18:<id>58:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##..#..
+D:###.#..
+D:.####..
+D:..###..
+D:..####.
+D:..#.###
+D:..#..##
+
+N:roomfiller7x7
+X:<typ>18:<id>59:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##..#..
+D:###.#..
+D:.######
+D:..###..
+D:######.
+D:..#.###
+D:..#..##
+
+N:roomfiller7x7
+X:<typ>18:<id>60:<rat>0:<hgt>7:<wid>7:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:##..#..
+D:###.#..
+D:#######
+D:+^###4+
+D:#######
+D:..#.###
+D:..#..##
+
+N:roomfiller4x4
+X:<typ>18:<id>61:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#..#
+D:####
+D:####
+D:#..#
+
+N:roomfiller4x4
+X:<typ>18:<id>62:<rat>0:<hgt>4:<wid>4:<min_lev>0:<max_lev>99:<sub_level>0
+O:MIRROR_X | MIRROR_Y
+D:#..#
+D:#+##
+D:#+##
+D:#..#

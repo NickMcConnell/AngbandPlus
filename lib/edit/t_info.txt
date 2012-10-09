@@ -1,0 +1,688 @@
+# this file describes the traps items can have
+#
+#
+#  byte type;            /* this goes into sval */
+#  s16b probability;     /* probability of existence in 1000 */
+#  s16b another;         /* does this trap easily combine in 1000 */
+#  s16b pvalinc;         /* how much does this trap attribute to pval */
+#  byte difficulty;      /* how difficult to disarm */
+#  byte level;           /* minimum level - disenchantment trap at 200' is */
+#                        /* not so nice */
+#  byte color;
+#  cptr name;            /* what name does this trap have */
+#
+#  d term_dArk  |r term_red  |d term_l_dArk |r term_l_red
+#  w term_white |g term_green|w term_l_white|g term_l_green
+#  s term_slAte |b term_blue |v term_violet |b term_l_blue
+#  o term_orAnge|u term_umber|y term_yellow |u term_l_umber
+#
+# b blue   for stat traps
+# w white  for teleport traps
+# o orange for dungeon rearrangment traps
+# v violet for summoning traps
+# y yellow for stealing/equipment traps
+# r red    for other character affecting traps
+# g green  for elemental bolt trap
+# b umber  for elemental ball trap
+# r l red  for arrow/dagger traps
+# w        for compound trap!!!
+# don't use u or you'll get trapped DOORs that are indistinguishable from untrapped doors!
+#
+#  an unknown character is multi-hued!
+#
+# n:type:name
+# i:diff:prob:another:pval:minlevel:damage:color
+# d:description
+
+V:2.7.10
+
+#
+# stat traps
+#
+
+N:1:weakness trap
+I:<diff>2:<chance>100:<another>5:<pval>5:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel weak.
+F:CHEST | DOOR
+
+N:2:weakness trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very weak.
+F:CHEST | DOOR
+
+N:3:weakness trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently weak.
+F:CHEST | DOOR
+
+N:4:intelligence trap
+I:<diff>2:<chance>100:<another>5:<pval>2:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel stupid.
+F:CHEST | DOOR
+
+N:5:intelligence trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very stupid.
+F:CHEST | DOOR
+
+N:6:intelligence trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently stupid.
+F:CHEST | DOOR
+
+N:7:wisdom trap
+I:<diff>2:<chance>100:<another>5:<pval>2:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel naive.
+F:CHEST | DOOR
+
+N:8:wisdom trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very naive.
+F:CHEST | DOOR
+
+N:9:wisdom trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently naive.
+F:CHEST | DOOR
+
+N:10:fumbling fingers trap
+I:<diff>2:<chance>100:<another>5:<pval>2:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel clumsy.
+F:CHEST | DOOR
+
+N:11:fumbling fingers trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very clumsy.
+F:CHEST | DOOR
+
+N:12:fumbling fingers trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently clumsy.
+F:CHEST | DOOR
+
+N:13:wasting trap
+I:<diff>2:<chance>100:<another>5:<pval>2:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel sickly.
+F:CHEST | DOOR
+
+N:14:wasting trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very sickly.
+F:CHEST | DOOR
+
+N:15:wasting trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently sickly.
+F:CHEST | DOOR
+
+N:16:beauty trap
+I:<diff>2:<chance>100:<another>5:<pval>2:<minlevel>2:<damage>0d0:<color>b
+D:A poisoned needle makes you feel ugly.
+F:CHEST | DOOR
+
+N:17:beauty trap
+I:<diff>5:<chance>100:<another>5:<pval>5:<minlevel>20:<damage>0d0:<color>b
+D:A poisoned needle makes you feel very ugly.
+F:CHEST | DOOR
+
+N:18:beauty trap
+I:<diff>7:<chance>100:<another>5:<pval>8:<minlevel>40:<damage>0d0:<color>b
+D:A poisoned needle makes you feel permanently ugly.
+F:CHEST | DOOR
+
+#
+# miscellaneous traps
+#
+
+N:20:trap of curse weapon
+I:<diff>5:<chance>10:<another>0:<pval>12:<minlevel>20:<damage>0d0:<color>y
+D:Your weapon will never be the same.
+F:CHEST | DOOR
+
+N:21:trap of curse armor
+I:<diff>5:<chance>15:<another>0:<pval>12:<minlevel>20:<damage>0d0:<color>y
+D:Your armor doesn't get better by this trap.
+F:CHEST | DOOR
+
+N:22:earthquake trap
+I:<diff>5:<chance>20:<another>0:<pval>10:<minlevel>10:<damage>0d0:<color>o
+D:A mighty earthquake rewards you for your clumsy disarming.
+F:CHEST | DOOR
+
+N:23:poison needle trap
+I:<diff>1:<chance>50:<another>50:<pval>3:<minlevel>2:<damage>0d0:<color>r
+D:A poisoned needle pricks you.
+F:CHEST | DOOR
+
+N:24:summon monster trap
+I:<diff>2:<chance>50:<another>40:<pval>4:<minlevel>2:<damage>0d0:<color>v
+D:Monsters defend the memory of the owner.
+F:CHEST | DOOR
+
+N:25:summon undead trap
+I:<diff>4:<chance>25:<another>40:<pval>6:<minlevel>10:<damage>0d0:<color>v
+D:Undead rise from the grave to defend this.
+F:CHEST | DOOR
+
+N:26:summon greater undead trap
+I:<diff>8:<chance>10:<another>50:<pval>20:<minlevel>20:<damage>0d0:<color>v
+D:Greater undead defend this.
+F:CHEST | DOOR
+
+N:27:teleport trap
+I:<diff>3:<chance>100:<another>50:<pval>3:<minlevel>2:<damage>0d0:<color>w
+D:A spell to teleport you away rests on this.
+F:CHEST | DOOR
+
+N:28:paralyzing trap
+I:<diff>1:<chance>100:<another>20:<pval>2:<minlevel>2:<damage>0d0:<color>r
+D:You stand paralyzed after touching this.
+F:CHEST | DOOR
+
+N:29:explosive device
+I:<diff>3:<chance>100:<another>80:<pval>0:<minlevel>3:<damage>4d8:<color>r
+D:Ha! It explodes before your hands can illegally touch it!
+F:CHEST | DOOR
+
+N:30:teleport item trap
+I:<diff>3:<chance>50:<another>50:<pval>3:<minlevel>5:<damage>0d0:<color>w
+D:The item magically disappears from your greedy hands.
+F:CHEST
+
+N:31:lose memory trap
+I:<diff>6:<chance>30:<another>30:<pval>6:<minlevel>10:<damage>0d0:<color>r
+D:You suddenly can't remember what you were doing here.
+F:CHEST | DOOR
+
+N:32:bitter regret trap
+I:<diff>9:<chance>15:<another>20:<pval>9:<minlevel>20:<damage>0d0:<color>r
+D:You already regret trying this.
+F:CHEST | DOOR
+
+N:33:bowel cramps trap
+I:<diff>1:<chance>90:<another>20:<pval>1:<minlevel>3:<damage>0d0:<color>r
+D:Your stomach twists with a sharp pang.
+F:CHEST | DOOR
+
+N:34:blindness/confusion trap
+I:<diff>4:<chance>100:<another>50:<pval>4:<minlevel>6:<damage>0d0:<color>r
+D:You suddenly can't see, and thinking is difficult too....
+F:CHEST | DOOR
+
+N:35:aggravation trap
+I:<diff>2:<chance>100:<another>50:<pval>2:<minlevel>3:<damage>0d0:<color>o
+D:Your hear the monsters around you coming towards you.
+F:CHEST | DOOR
+
+N:36:multiplication trap
+I:<diff>3:<chance>90:<another>0:<pval>3:<minlevel>5:<damage>0d0:<color>o
+D:The floor around you doesn't seem the same.
+F:CHEST | DOOR
+
+N:37:steal item trap
+I:<diff>3:<chance>100:<another>50:<pval>3:<minlevel>6:<damage>0d0:<color>y
+D:The chest seems to swell, while your inventory feels lighter..
+F:CHEST
+
+N:38:summon fast quylthulgs trap
+I:<diff>8:<chance>50:<another>10:<pval>10:<minlevel>25:<damage>0d0:<color>v
+D:Parts of the owner seems to return from somewhere else, you slow in awe.
+F:CHEST | DOOR
+
+N:39:trap of sinking
+I:<diff>2:<chance>50:<another>0:<pval>0:<minlevel>3:<damage>0d0:<color>w
+D:Just as you thought it within your grasp, the floor gives way.
+F:CHEST | DOOR
+
+N:40:trap of mana drain
+I:<diff>4:<chance>100:<another>50:<pval>3:<minlevel>4:<damage>0d0:<color>r
+D:You suddenly can't think so clear anymore.
+F:CHEST | DOOR
+
+N:41:trap of missing money
+I:<diff>2:<chance>100:<another>50:<pval>2:<minlevel>2:<damage>0d0:<color>y
+D:Still, money isn't anything, they say...
+F:CHEST | DOOR
+
+N:42:trap of no return
+I:<diff>5:<chance>20:<another>10:<pval>4:<minlevel>8:<damage>0d0:<color>y
+D:Do stay a while!
+F:CHEST | DOOR
+
+N:43:trap of silent switching
+I:<diff>4:<chance>100:<another>50:<pval>3:<minlevel>6:<damage>0d0:<color>y
+D:You suddenly are a different person.
+F:CHEST | DOOR
+
+N:44:trap of walls
+I:<diff>6:<chance>10:<another>5:<pval>2:<minlevel>10:<damage>0d0:<color>o
+D:The room seems to shrink.
+F:CHEST | DOOR
+
+N:45:trap of calling out
+I:<diff>10:<chance>100:<another>100:<pval>5:<minlevel>15:<damage>0d0:<color>v
+D:You hear something coming closer, much closer.
+F:CHEST | DOOR
+
+N:46:trap of sliding
+I:<diff>8:<chance>50:<another>50:<pval>4:<minlevel>8:<damage>0d0:<color>r
+D:Tou feet seem to have a life of their own.
+F:CHEST | DOOR
+
+N:47:trap of charges drain
+I:<diff>6:<chance>100:<another>70:<pval>2:<minlevel>3:<damage>0d0:<color>y
+D:You feel as if you've just lost something.
+F:CHEST | DOOR
+
+N:48:trap of stair movement
+I:<diff>6:<chance>100:<another>50:<pval>3:<minlevel>4:<damage>0d0:<color>o
+D:The dungeon seems different.
+F:CHEST | DOOR
+
+N:49:trap of new trap
+I:<diff>5:<chance>100:<another>5:<pval>0:<minlevel>4:<damage>0d0:<color>o
+D:Somehow, disarming isn't over, you feel.
+F:CHEST | DOOR
+
+N:50:trap of scatter items
+I:<diff>10:<chance>50:<another>50:<pval>6:<minlevel>12:<damage>0d0:<color>w
+D:You hear crashing sounds from all over the dungeon.
+F:CHEST | DOOR
+
+N:51:trap of decay
+I:<diff>4:<chance>100:<another>50:<pval>4:<minlevel>4:<damage>0d0:<color>r
+D:Your stomach isn't empty, but suddenly you think of food.
+F:CHEST | DOOR
+
+N:52:trap of wasting wands
+I:<diff>6:<chance>100:<another>40:<pval>4:<minlevel>5:<damage>0d0:<color>y
+D:Your wands seem different.
+F:CHEST | DOOR
+
+N:53:trap of filling
+I:<diff>10:<chance>100:<another>0:<pval>10:<minlevel>25:<damage>0d0:<color>o
+D:The whole room vibrates in a strange way.
+F:CHEST | DOOR
+
+N:54:trap of drain speed
+I:<diff>8:<chance>50:<another>10:<pval>25:<minlevel>80:<damage>0d0:<color>y
+D:You suddenly seem to have more time to self-reflect.
+F:CHEST | DOOR
+
+#
+# bolt traps
+#
+
+N:60:lightning bolt trap
+I:<diff>2:<chance>80:<another>5:<pval>3:<minlevel>2:<damage>3d8:<color>g
+D:A bolt of lightning hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:61:poison bolt trap
+I:<diff>2:<chance>80:<another>5:<pval>3:<minlevel>2:<damage>3d8:<color>g
+D:A bolt of poison gas hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:62:acid bolt trap
+I:<diff>2:<chance>80:<another>5:<pval>3:<minlevel>2:<damage>3d8:<color>g
+D:A bolt of acidic gasses hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:63:cold bolt trap
+I:<diff>2:<chance>80:<another>5:<pval>3:<minlevel>2:<damage>3d8:<color>g
+D:A bolt of cold gasses hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:64:fire bolt trap
+I:<diff>2:<chance>80:<another>5:<pval>3:<minlevel>2:<damage>3d8:<color>g
+D:A bolt of fire hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:65:plasma bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of plasma hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:66:water bolt trap
+I:<diff>4:<chance>80:<another>5:<pval>5:<minlevel>8:<damage>6d10:<color>g
+D:A bolt of water hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:67:lite bolt trap
+I:<diff>4:<chance>80:<another>5:<pval>5:<minlevel>8:<damage>6d10:<color>g
+D:A flash of light hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:68:dark bolt trap
+I:<diff>4:<chance>80:<another>5:<pval>5:<minlevel>8:<damage>6d10:<color>g
+D:A patch of darkness hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:69:shards bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>6d10:<color>g
+D:A bolt of shards hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:70:sound bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of sounds hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:71:confusion bolt trap
+I:<diff>4:<chance>80:<another>5:<pval>5:<minlevel>8:<damage>6d10:<color>g
+D:A bolt of confusion hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:72:force bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of pure force hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:73:inertia bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of inertia hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:74:mana bolt trap
+I:<diff>8:<chance>80:<another>5:<pval>9:<minlevel>60:<damage>15d16:<color>g
+D:A bolt of mana hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:75:ice bolt trap
+I:<diff>4:<chance>80:<another>5:<pval>5:<minlevel>8:<damage>6d10:<color>g
+D:A bolt of ice hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:76:chaos bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of chaos hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:77:nether bolt trap
+I:<diff>8:<chance>80:<another>5:<pval>9:<minlevel>25:<damage>15d16:<color>g
+D:A bolt of nether hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:78:disenchantment bolt trap
+I:<diff>8:<chance>80:<another>5:<pval>9:<minlevel>25:<damage>15d16:<color>g
+D:A bolt of disenchantment hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:79:nexus bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of nexus hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:80:time bolt trap
+I:<diff>8:<chance>80:<another>5:<pval>9:<minlevel>25:<damage>15d16:<color>g
+D:A bolt of time hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:81:gravity bolt trap
+I:<diff>6:<chance>80:<another>5:<pval>6:<minlevel>15:<damage>10d12:<color>g
+D:A bolt of gravity hits you.
+F:CHEST | DOOR | LEVEL3
+
+#
+# ball traps
+#
+
+N:82:lightning ball trap
+I:<diff>3:<chance>60:<another>5:<pval>5:<minlevel>8:<damage>3d10:<color>b
+D:A ball of lightning hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:83:poison ball trap
+I:<diff>3:<chance>60:<another>5:<pval>5:<minlevel>8:<damage>3d10:<color>b
+D:A ball of poison hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:84:acid ball trap
+I:<diff>3:<chance>60:<another>5:<pval>5:<minlevel>8:<damage>3d10:<color>b
+D:A ball of acidic gasses hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:85:cold ball trap
+I:<diff>3:<chance>60:<another>5:<pval>5:<minlevel>8:<damage>3d10:<color>b
+D:A ball of cold hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:86:fire ball trap
+I:<diff>3:<chance>60:<another>5:<pval>5:<minlevel>8:<damage>3d10:<color>b
+D:A ball of fire hits you.
+F:CHEST | DOOR | LEVEL1
+
+N:87:plasma ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of plasma hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:88:water ball trap
+I:<diff>5:<chance>60:<another>5:<pval>6:<minlevel>15:<damage>8d12:<color>b
+D:A ball of water hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:89:light ball trap
+I:<diff>5:<chance>60:<another>5:<pval>6:<minlevel>15:<damage>8d12:<color>b
+D:A large flash of light erupts.
+F:CHEST | DOOR | LEVEL2
+
+N:90:darkness ball trap
+I:<diff>5:<chance>60:<another>5:<pval>6:<minlevel>15:<damage>8d12:<color>b
+D:A large patch of darkness erupts.
+F:CHEST | DOOR | LEVEL2
+
+N:91:shards ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of shards hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:92:sound ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of sounds hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:93:confusion ball trap
+I:<diff>5:<chance>60:<another>5:<pval>6:<minlevel>15:<damage>8d12:<color>b
+D:A ball of confusion hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:94:force ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of force hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:95:inertia ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of inertia hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:96:mana ball trap
+I:<diff>10:<chance>60:<another>5:<pval>10:<minlevel>70:<damage>16d20:<color>b
+D:A ball of pure mana hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:97:ice ball trap
+I:<diff>5:<chance>60:<another>5:<pval>6:<minlevel>15:<damage>8d12:<color>b
+D:A ball of ice hits you.
+F:CHEST | DOOR | LEVEL2
+
+N:98:chaos ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of chaos hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:99:nether ball trap
+I:<diff>10:<chance>60:<another>5:<pval>10:<minlevel>30:<damage>16d20:<color>g
+D:A ball of nether hits you.
+F:CHEST | DOOR | LEVEL4
+
+# n:type:name
+# i:diff:prob:another:pval:minlevel:color
+# d:description
+
+N:100:disenchantment ball trap
+I:<diff>10:<chance>60:<another>5:<pval>10:<minlevel>30:<damage>16d20:<color>b
+D:A ball of disenchantment hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:101:nexus ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of nexus hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:102:time ball trap
+I:<diff>10:<chance>60:<another>5:<pval>10:<minlevel>30:<damage>16d20:<color>b
+D:A ball of time hits you.
+F:CHEST | DOOR | LEVEL4
+
+N:103:gravity ball trap
+I:<diff>8:<chance>60:<another>5:<pval>8:<minlevel>20:<damage>12d18:<color>b
+D:A ball of gravity hits you.
+F:CHEST | DOOR | LEVEL3
+
+N:110:arrow trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>2:<damage>0d0:<color>r
+D:An arrow shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:111:bolt trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>5:<damage>0d0:<color>r
+D:A bolt shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:112:seeker arrow trap
+I:<diff>2:<chance>100:<another>0:<pval>6:<minlevel>10:<damage>0d0:<color>r
+D:A seeker arrow shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:113:seeker bolt trap
+I:<diff>2:<chance>100:<another>0:<pval>6:<minlevel>12:<damage>0d0:<color>r
+D:A seeker bolt shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:114:poisoned arrow trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>4:<damage>0d0:<color>r
+D:A poisoned arrow shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:115:poisoned bolt trap
+I:<diff>2:<chance>100:<another>0:<pval>6:<minlevel>6:<damage>0d0:<color>r
+D:A poisoned bolt shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:116:poisoned seeker arrow trap
+I:<diff>2:<chance>100:<another>0:<pval>7:<minlevel>12:<damage>0d0:<color>r
+D:A poisoned seeker arrow shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:117:poisoned seeker bolt trap
+I:<diff>2:<chance>100:<another>0:<pval>7:<minlevel>15:<damage>0d0:<color>r
+D:A poisoned seeker bolt shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:118:broken dagger trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>2:<damage>0d0:<color>r
+D:An broken dagger shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:119:dagger trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>5:<damage>0d0:<color>r
+D:A dagger shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:120:poisoned broken dagger trap
+I:<diff>2:<chance>100:<another>0:<pval>5:<minlevel>4:<damage>0d0:<color>r
+D:A poisoned broken dagger shoots out of nowhere at you.
+F:CHEST | DOOR
+
+N:121:poisoned dagger trap
+I:<diff>2:<chance>100:<another>0:<pval>6:<minlevel>6:<damage>0d0:<color>r
+D:A poisoned dagger shoots out of nowhere at you.
+F:CHEST | DOOR
+
+#
+# multiple arrows/daggers traps
+#
+
+N:122:arrows trap
+I:<diff>4:<chance>100:<another>0:<pval>7:<minlevel>16:<damage>0d0:<color>r
+D:Some arrows shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:123:bolts trap
+I:<diff>4:<chance>100:<another>0:<pval>7:<minlevel>18:<damage>0d0:<color>r
+D:Some bolts shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:124:seeker arrow trap
+I:<diff>5:<chance>100:<another>0:<pval>8:<minlevel>20:<damage>0d0:<color>r
+D:Some seeker arrows shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:125:seeker bolt trap
+I:<diff>5:<chance>100:<another>0:<pval>8:<minlevel>24:<damage>0d0:<color>r
+D:Some seeker bolts shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:126:poisoned arrows trap
+I:<diff>5:<chance>100:<another>0:<pval>8:<minlevel>18:<damage>0d0:<color>r
+D:Some poisoned arrows shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:127:poisoned bolt trap
+I:<diff>6:<chance>100:<another>0:<pval>8:<minlevel>20:<damage>0d0:<color>r
+D:Some poisoned bolts shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:128:poisoned seeker arrows trap
+I:<diff>7:<chance>100:<another>0:<pval>9:<minlevel>27:<damage>0d0:<color>r
+D:Some poisoned seeker arrows shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:129:poisoned seeker bolts trap
+I:<diff>9:<chance>100:<another>0:<pval>9:<minlevel>30:<damage>0d0:<color>r
+D:Some poisoned seeker bolts shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:130:broken daggers trap
+I:<diff>4:<chance>100:<another>0:<pval>6:<minlevel>12:<damage>0d0:<color>r
+D:Some broken daggers shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:131:dagger trap
+I:<diff>4:<chance>100:<another>0:<pval>6:<minlevel>15:<damage>0d0:<color>r
+D:Some daggers shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:132:poisoned broken daggers trap
+I:<diff>5:<chance>100:<another>0:<pval>7:<minlevel>18:<damage>0d0:<color>r
+D:Some poisoned broken daggers shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:133:poisoned daggers trap
+I:<diff>6:<chance>100:<another>0:<pval>7:<minlevel>23:<damage>0d0:<color>r
+D:Some poisoned daggers shoot out of nowhere at you.
+F:CHEST | DOOR
+
+N:140:trap of drop item
+I:<diff>3:<chance>50:<another>0:<pval>2:<minlevel>5:<damage>0d0:<color>y
+D:A sudden sound startles you
+F:CHEST | DOOR
+
+N:141:trap of drop items
+I:<diff>5:<chance>50:<another>0:<pval>5:<minlevel>12:<damage>0d0:<color>y
+D:A sudden sound startles you very much
+F:CHEST | DOOR
+
+N:142:trap of drop everything
+I:<diff>8:<chance>50:<another>0:<pval>8:<minlevel>20:<damage>0d0:<color>y
+D:A sudden sound startles you completely
+F:CHEST | DOOR
+
+N:143:summon hounds
+I:<diff>7:<chance>50:<another>10:<pval>10:<minlevel>25:<damage>0d0:<color>v
+D:Man's best friend - but not yours...
+F:CHEST | DOOR
+
+

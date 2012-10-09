@@ -10,7 +10,6 @@
  * included in all such copies.
  */
 
-
 /*
  * Look through the following lines, and where a comment includes the
  * tag "OPTION:", examine the associated "#define" statements, and decide
@@ -25,6 +24,66 @@
  * important compile time options, like what visual module to use.
  */
 
+/*
+ * jk OPTION: debug some game actions via dlog statements in the source
+ * make sure to keep this in sync with debug_flag_names[] in table.c!!!!
+ */
+#define DEBUGALWAYS 0x00000000L /* these messages are always debugged */
+#define DEBUGSAVE   0x00000001L /* debug handling of loading/saving (overview only) */
+#define DEBUGSAVE2  0x00000002L /* write more info, like precise descriptions of every item saved/loaded */
+#define DEBUGTRAPS  0x00000004L /* debug trap-handling */
+#define DEBUGITEMS  0x00000008L /* debug item-handling */
+#define DEBUGMOVES  0x00000010L /* debug moving about  */
+#define DEBUGLIGHT  0x00000020L /* debug lighting use with care - generates enormous log- */
+                                /* files and slows the game down considerably */
+#define DEBUGGENER  0x00000040L /* debug level generation */
+#define DEBUGGENER2 0x00000080L /* debug level generation */
+                                /* use with care - show every location that's created */
+#define DEBUGSTORE  0x00000100L /* debug store interaction */
+#define DEBUGPREF   0x00000200L /* debug pref-file interaction */
+#define DEBUGMESG   0x00000400L /* debug message generation and handling */
+#define DEBUGFLOW   0x00000800L /* debug the main program flow */
+#define DEBUGARENA  0x00001000L /* debug the arena handling */
+#define DEBUGPROJ   0x00002000L /* debug projecting various things */
+#define DEBUGLOS    0x00004000L /* debug LOS calculations */
+#define DEBUGFIGHT  0x00008000L /* debug fighting */
+#define DEBUGMACRO  0x00010000L /* debug macro handling */
+#define DEBUGGHOST  0x00020000L /* ghost handling */
+#define DEBUGALLOC  0x00040000L /* memory allocation */
+#define DEBUGTEMPL  0x00080000L /* template handling */
+#define DEBUGMONST  0x00100000L /* monster birth */
+#define DEBUGMONAI  0x00200000L /* monster AI for moving & doing things */
+#define DEBUGBIRTH  0x00400000L /* character birth */
+#define DEBUGCMPRS  0x00800000L /* savefile compression */
+#define DEBUGMSGS   0x01000000L /* send all msg_print/msg_format to logfile */
+#ifdef linux
+#define DEBUGDUMP   0x02000000L /* allow calling 'addr2line' from within the program */
+#endif
+                                /* this is only tested on Linux! */
+
+#define DEBUGKEYS   0x04000000L /* debug the handling of key-presses */
+#define DEBUGEXTRA  0x80000000L /* debug some other things, including leaving of wizard mode */
+
+/*
+ * if you want to see some debugging messages (which? see above!)
+ * either call the program with the -x <logfile> argument,
+ * or define this constant and redirect standard out to somewhere.
+ */
+/* #define DEBUG_TO_STDERR */
+
+/*
+ * if you want the debugging messages (see above) to be copied into
+ * the regular game messages (meaning you can see them while you play!)
+ * and also possibly leading to a very big (100's of megabytes) and slow
+ * message-file in lib/save, define this.
+ */
+/* #define DEBUG_COPY_AS_MESSAGE */
+
+/*
+ * send debugging messages to stderr only - for debugging some
+ * shitty win95 setups
+ */
+/* #define WIN_DEBUG_TO_STDERR */
 
 /*
  * OPTION: See the Makefile(s), where several options may be declared.
@@ -42,7 +101,6 @@
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
-
 
 /*
  * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
@@ -66,7 +124,6 @@
  */
 /* #define USE_TCHARS */
 
-
 /*
  * OPTION: Use "blocking getch() calls" in "main-gcu.c".
  * Hack -- Note that this option will NOT work on many BSD machines
@@ -76,7 +133,6 @@
 #if defined(SYS_V) || defined(AMIGA)
 # define USE_GETCH
 #endif
-
 
 /*
  * OPTION: Use the "curs_set()" call in "main-gcu.c".
@@ -90,8 +146,13 @@
 /*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
-/* #define USE_NCURSES */
+#define USE_NCURSES
 
+/*
+ * allow the use of the ACS characters (block-characters)
+ * these are defined in lib/user/graf-gcu.prf
+ */
+#define USE_NCURSES_ACS
 
 /*
  * OPTION: for multi-user machines running the game setuid to some other
@@ -104,14 +165,12 @@
  */
 #define SAFE_SETUID
 
-
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
  */
 #ifdef _POSIX_SAVED_IDS
 # define SAFE_SETUID_POSIX
 #endif
-
 
 /*
  * This "fix" is from "Yoshiaki KASAHARA <kasahara@csce.kyushu-u.ac.jp>"
@@ -121,7 +180,21 @@
 # undef SAFE_SETUID_POSIX
 #endif
 
+/*
+ * if this is TRUE, make sure you compile the c++ compression sources also!
+ * this allows you to compress save-files as a whole. Typical sizes go from
+ * 300 Kb per file to 20 Kb.
+ * note that this (obviously) means you have to have a c++ compiler as well.
+ */
+#define ALLOW_COMPRESSION
+#define COMPRESS_RLE
+#undef COMPRESS_LZW
 
+/*
+ * this allows you to test another random numbers algorithm.
+ * see z-rand.c for details.
+ */
+#define USE_OTHER_RAND
 
 
 /*
@@ -135,16 +208,12 @@
  */
 /* #define SECURE */
 
-
-
-
 /*
  * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
  * This option can help prevent "corruption" of savefiles, and also
  * stop intentional modification by amateur users.
  */
-#define VERIFY_CHECKSUMS
-
+/* #define VERIFY_CHECKSUMS */
 
 /*
  * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
@@ -168,22 +237,28 @@
  */
 /* #define VERIFY_SAVEFILE */
 
-
-
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
 /* #define ALLOW_BORG */
+#ifdef ALLOW_BORG
+#error "Sorry, there is no Borg code in Angband/64!"
+#endif
+
+/*
+ * OPTION: Compile in support for random artifacts
+ */
+#define GJW_RANDART
 
 /*
  * OPTION: Hack -- Compile in support for "Wizard Commands"
  */
-/* #define ALLOW_WIZARD */
+#define ALLOW_WIZARD
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -207,10 +282,10 @@
  */
 #define ALLOW_AUTOROLLER
 
-
 /*
  * OPTION: Allow monsters to "flee" when hit hard
  */
+/* jk - this doesn't work in the arena.... */
 #define ALLOW_FEAR
 
 /*
@@ -218,58 +293,12 @@
  */
 #define ALLOW_TERROR
 
-
 /*
  * OPTION: Allow parsing of the ascii template files in "init.c".
  * This must be defined if you do not have valid binary image files.
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
-
-
-/*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#define DELAY_LOAD_A_TEXT
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
 
 /*
  * OPTION: Handle signals
@@ -280,7 +309,7 @@
 /*
  * Allow "Wizards" to yield "high scores"
  */
-/* #define SCORE_WIZARDS */
+#define SCORE_WIZARDS
 
 /*
  * Allow "Borgs" to yield "high scores"
@@ -290,10 +319,7 @@
 /*
  * Allow "Cheaters" to yield "high scores"
  */
-/* #define SCORE_CHEATERS */
-
-
-
+#define SCORE_CHEATERS
 
 /*
  * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
@@ -301,24 +327,20 @@
  */
 #define MONSTER_FLOW
 
-
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
 
-
-
 /*
- * OPTION: Allow use of extended spell info	-DRS-
+ * OPTION: Allow use of extended spell info  -DRS-
  */
 #define DRS_SHOW_SPELL_INFO
 
 /*
- * OPTION: Allow use of the monster health bar	-DRS-
+ * OPTION: Allow use of the monster health bar  -DRS-
  */
 #define DRS_SHOW_HEALTH_BAR
-
 
 /*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
@@ -334,19 +356,6 @@
  */
 #define DRS_SMART_OPTIONS
 
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
-
-
-
 /*
  * OPTION: Allow the use of "color" in various places.  Disabling this
  * flag will remove some code, and auto-cast all colors to "White".
@@ -356,7 +365,6 @@
  */
 #define USE_COLOR
 
-
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
@@ -364,8 +372,10 @@
 
 /*
  * OPTION: Allow the use of "graphics" in various places
+ * note: I can't compile it with this using my cygwin crosscompiler on linux
  */
 #define USE_GRAPHICS
+#undef WIN_USE_GRAPHICS
 
 
 /*
@@ -383,9 +393,6 @@
  * OPTION: Hack -- Windows stuff
  */
 #ifdef WINDOWS
-
-/* Do not handle signals */
-# undef HANDLE_SIGNALS
 
 #endif
 
@@ -420,6 +427,26 @@
  */
 #define DEFAULT_PATH "./lib/"
 
+/*
+ * Most of the bug-reports mention data-corruption, for example in items.
+ * I never see that, but I always regenerate the .hdr files from the
+ * templates.
+ */
+/* #define ALWAYS_LOAD_TEMPLATES */
+
+/*
+ * OPTION: Maximum number of messages to remember (see "io.c")
+ * Default: assume maximal memorization of 2048 total messages
+ */
+#define MESSAGE_MAX     32768L
+
+/*
+ * OPTION: Maximum space for the message text buffer (see "io.c")
+ * angband/64 isn't so cramped for space, so we could request up to 1 Mb.
+ *
+ * but as we log to file, we only need 1 window (the message-recall window)
+ */
+#define MESSAGE_BUF     200000L
 
 /*
  * On multiuser systems, add the "uid" to savefile names
@@ -491,31 +518,27 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"benh@voicenet.com"
+#define MAINTAINER   "thunder7@xs4all.nl"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
-#define DEFAULT_X11_FONT		"9x15"
+#define DEFAULT_X11_FONT      "9x15"
 
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
-
+#define DEFAULT_X11_FONT_SCREEN     DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_MIRROR     DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_RECALL     DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_CHOICE     DEFAULT_X11_FONT
 
 /*
  * Hack -- Special "ancient DOS-286" version
  */
 #ifdef USE_286
 # define ANGBAND_LITE
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
 #endif
 
 /*

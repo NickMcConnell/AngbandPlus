@@ -12,628 +12,383 @@
 
 #include "angband.h"
 
-
-
 /*
- * Returns spell chance of failure for spell		-RAK-	
- */
-static s16b spell_chance(int spell)
-{
-    int		chance, minfail;
-
-    magic_type	*s_ptr;
-
-
-    /* Paranoia -- must be literate */
-    if (!mp_ptr->spell_book) return (100);
-
-    /* Access the spell */
-    s_ptr = &mp_ptr->info[spell];
-
-    /* Extract the base spell failure rate */
-    chance = s_ptr->sfail;
-
-    /* Reduce failure rate by "effective" level adjustment */
-    chance -= 3 * (p_ptr->lev - s_ptr->slevel);
-
-    /* Reduce failure rate by INT/WIS adjustment */
-    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-    /* Not enough mana to cast */
-    if (s_ptr->smana > p_ptr->csp)
-    {
-        chance += 5 * (s_ptr->smana - p_ptr->csp);
-    }
-
-    /* Extract the minimum failure rate */
-    minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-
-    /* Non mage/priest characters never get too good */
-    if ((p_ptr->pclass != 1) && (p_ptr->pclass != 2))
-    {
-        if (minfail < 5) minfail = 5;
-    }
-
-    /* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-    if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
-
-    /* Minimum failure rate */
-    if (chance < minfail) chance = minfail;
-
-    /* Stunning makes spells harder */
-    if (p_ptr->stun > 50) chance += 25;
-    else if (p_ptr->stun) chance += 15;
-
-    /* Always a 5 percent chance of working */
-    if (chance > 95) chance = 95;
-
-    /* Return the chance */
-    return (chance);
-}
-
-
-
-/*
- * Determine if a spell is "okay" for the player to cast or study
- * The spell must be legible, not forgotten, and also, to cast,
- * it must be known, and to study, it must not be known.
- */
-static bool spell_okay(int j, bool known)
-{
-    magic_type *s_ptr;
-
-    /* Access the spell */
-    s_ptr = &mp_ptr->info[j];
-
-    /* Spell is illegal */
-    if (s_ptr->slevel > p_ptr->lev) return (FALSE);
-
-    /* Spell is forgotten */
-    if ((j < 32) ?
-        (spell_forgotten1 & (1L << j)) :
-        (spell_forgotten2 & (1L << (j - 32))))
-    {
-        /* Never okay */
-        return (FALSE);
-    }
-
-    /* Spell is learned */
-    if ((j < 32) ?
-        (spell_learned1 & (1L << j)) :
-        (spell_learned2 & (1L << (j - 32))))
-    {
-        /* Okay to cast, not to study */
-        return (known);
-    }
-
-    /* Okay to study, not to cast */
-    return (!known);
-}
-
-
-
-/*
- * Extra information on a spell		-DRS-
+ * this tests if a spell-caster is wielding certain rings, which help
+ * certain spells
  *
- * We can use up to 14 characters of the buffer 'p'
- *
- * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
+ * at the moment, SV_RING_FLAMES helps with fiery spells
+ *                SV_RING_ELEC   helps with electricity spells
+ *                SV_RING_ACID   helps with acidic spells
+ *                SV_RING_ICE    helps with cold spells
  */
-static void spell_info(char *p, int j)
+static bool elemental_ring_worn(s16b sval)
 {
-    /* Default */
-    strcpy(p, "");
+   object_type *i_ptr;
 
-#ifdef DRS_SHOW_SPELL_INFO
+   i_ptr = &inventory[INVEN_LEFT];
+   if ((i_ptr->tval == TV_RING) && (i_ptr->sval == sval)) return (TRUE);
+   i_ptr = &inventory[INVEN_RIGHT];
+   if ((i_ptr->tval == TV_RING) && (i_ptr->sval == sval)) return (TRUE);
 
-    /* Mage spells */
-    if (mp_ptr->spell_book == TV_MAGIC_BOOK)
-    {
-        int plev = p_ptr->lev;
+   /* High Priests can wield 2 other rings */
+   if (p_ptr->pclass != CLASS_HIGHPRST) return (FALSE);
+   i_ptr = &inventory[INVEN_WIELD];
+   if ((i_ptr->tval == TV_RING) && (i_ptr->sval == sval)) return (TRUE);
+   i_ptr = &inventory[INVEN_BOW];
+   if ((i_ptr->tval == TV_RING) && (i_ptr->sval == sval)) return (TRUE);
 
-        /* Analyze the spell */
-        switch (j)
-        {
-            case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-            case 2: strcpy(p, " range 10"); break;
-            case 5: strcpy(p, " heal 2d8"); break;
-            case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-            case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-            case 14: sprintf(p, " range %d", plev * 10); break;
-            case 15: strcpy(p," dam 6d8"); break;
-            case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-            case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-            case 26: sprintf(p, " dam %d", 30 + plev); break;
-            case 29: sprintf(p, " dur %d+d20", plev); break;
-            case 30: sprintf(p, " dam %d", 55 + plev); break;
-            case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-            case 39: sprintf(p, " dam %d", 40 + plev/2); break;
-            case 40: sprintf(p, " dam %d", 40 + plev); break;
-            case 41: sprintf(p, " dam %d", 70 + plev); break;
-            case 42: sprintf(p, " dam %d", 65 + plev); break;
-            case 43: sprintf(p, " dam %d", 300 + plev*2); break;
-            case 49: strcpy(p, " dur 20+d20"); break;
-            case 50: strcpy(p, " dur 20+d20"); break;
-            case 51: strcpy(p, " dur 20+d20"); break;
-            case 52: strcpy(p, " dur 20+d20"); break;
-            case 53: strcpy(p, " dur 20+d20"); break;
-            case 54: strcpy(p, " dur 25+d25"); break;
-            case 55: strcpy(p, " dur 30+d20"); break;
-            case 56: strcpy(p, " dur 25+d25"); break;
-            case 57: sprintf(p, " dur %d+d25", 30+plev); break;
-            case 58: strcpy(p, " dur 6+d8"); break;
-        }
-    }
-
-    /* Priest spells */
-    if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-    {
-        int plev = p_ptr->lev;
-
-        /* See below */
-	int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
-
-        /* Analyze the spell */
-        switch (j)
-        {
-            case 1: strcpy(p, " heal 2d10"); break;
-            case 2: strcpy(p, " dur 12+d12"); break;
-            case 9: sprintf(p, " range %d", 3*plev); break;
-            case 10: strcpy(p, " heal 4d10"); break;
-            case 11: strcpy(p, " dur 24+d24"); break;
-            case 15: strcpy(p, " dur 10+d10"); break;
-            case 17: sprintf(p, " %d+3d6", plev + orb); break;
-            case 18: strcpy(p, " heal 6d10"); break;
-            case 19: strcpy(p, " dur 24+d24"); break;
-            case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-            case 23: strcpy(p, " heal 8d10"); break;
-            case 25: strcpy(p, " dur 48+d48"); break;
-            case 26: sprintf(p, " dam d%d", 3*plev); break;
-            case 27: strcpy(p, " heal 300"); break;
-            case 28: sprintf(p, " dam d%d", 3*plev); break;
-            case 30: strcpy(p, " heal 1000"); break;
-            case 36: strcpy(p, " heal 4d10"); break;
-            case 37: strcpy(p, " heal 8d10"); break;
-            case 38: strcpy(p, " heal 2000"); break;
-            case 41: sprintf(p, " dam d%d", 4*plev); break;
-            case 42: sprintf(p, " dam d%d", 4*plev); break;
-            case 45: strcpy(p, " dam 200"); break;
-            case 52: strcpy(p, " range 10"); break;
-            case 53: sprintf(p, " range %d", 8*plev); break;
-        }
-    }
-
-#endif
-
+   return FALSE;
 }
 
+/* 
+ * this function tests if there is a ring that helps a certain spell
+ */
+static bool ring_helps_spell(s16b spellno)
+{
+   if ((spellno == SV_SPELL_MLIGHTNING_BOLT) && (elemental_ring_worn(SV_RING_ELEC)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MFROST_BOLT) && (elemental_ring_worn(SV_RING_ICE)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MFIRE_BOLT) && (elemental_ring_worn(SV_RING_FLAMES)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MFROST_BALL) && (elemental_ring_worn(SV_RING_ICE)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MFIRE_BALL) && (elemental_ring_worn(SV_RING_FLAMES)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MACID_BOLT) && (elemental_ring_worn(SV_RING_ACID)))
+   {
+      return TRUE;
+   }   
+   if ((spellno == SV_SPELL_MICE_STORM) && (elemental_ring_worn(SV_RING_ICE)))
+   {
+      return TRUE;
+   }   
+   return FALSE;
+}
 
 /*
- * Print a list of spells (for browsing or casting)
+ * determine how many mana a spell will take
+ * certain rings help
  */
-static void print_spells(byte *spell, int num)
+static s16b spell_mana(s16b spellno)
 {
-    int			i, j, col;
-
-    magic_type		*s_ptr;
-
-    cptr		comment;
-
-    char		info[80];
-
-    char		out_val[160];
-
-
-    /* Print column */
-    col = 20;
-
-    /* Title the list */
-    prt("", 1, col);
-    put_str("Name", 1, col + 5);
-    put_str("Lv Mana Fail", 1, col + 35);
-
-    /* Dump the spells */
-    for (i = 0; i < num; i++)
-    {
-        /* Access the spell */
-        j = spell[i];
-
-        /* Access the spell */
-        s_ptr = &mp_ptr->info[j];
-
-        /* Skip illegible spells */
-        if (s_ptr->slevel >= 99)
-        {
-            sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-            prt(out_val, 2 + i, col);
-            continue;
-        }
-
-        /* XXX XXX Could label spells above the players level */
-
-        /* Get extra info */
-        spell_info(info, j);
-
-        /* Use that info */
-        comment = info;
-
-        /* Analyze the spell */
-        if ((j < 32) ?
-            ((spell_forgotten1 & (1L << j))) :
-            ((spell_forgotten2 & (1L << (j - 32)))))
-        {
-            comment = " forgotten";
-        }
-        else if (!((j < 32) ?
-                   (spell_learned1 & (1L << j)) :
-                   (spell_learned2 & (1L << (j - 32)))))
-        {
-            comment = " unknown";
-        }
-        else if (!((j < 32) ?
-                   (spell_worked1 & (1L << j)) :
-                   (spell_worked2 & (1L << (j - 32)))))
-        {
-            comment = " untried";
-        }
-
-        /* Dump the spell --(-- */
-        sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-                I2A(i), spell_names[mp_ptr->spell_type][j],
-                s_ptr->slevel, s_ptr->smana, spell_chance(j), comment);
-        prt(out_val, 2 + i, col);
-    }
-
-    /* Clear the bottom line */
-    prt("", 2 + i, col);
+   if (ring_helps_spell(spellno))
+   {
+      return (s_info[spellno].mana / 2);
+   }
+   else
+   {
+      return (s_info[spellno].mana);
+   }
 }
-
-
-
+   
 
 /*
- * Hack -- Print a list of spells in a "term" window.
- * See "print_spells()" for the basic algorithm.
+ * how big is the chance of successfully casting a spell?
  */
-static void display_spells(byte *spell, int num)
+s16b page_chance(s16b spellno)
 {
-    int			i, j;
+   s16b         chance, minfail;
 
-    magic_type		*s_ptr;
+   /* Extract the base spell failure rate */
+   chance = s_info[spellno].chance;
+   /* Reduce failure rate by "effective" level adjustment */
+   chance -= 3 * (p_ptr->lev - s_info[spellno].level);
 
-    cptr		comment;
+   /* Reduce failure rate by INT/WIS adjustment */
+   chance -= 3 * ((s16b)adj_mag_stat[p_ptr->stat_ind[(s16b)cp_ptr->spell_stat]] - 1);
 
-    char		info[80];
+   /* Not enough mana to cast */
+   if (spell_mana(spellno) > p_ptr->csp)
+   {
+       chance += 5 * (spell_mana(spellno) - p_ptr->csp);
+   }
 
-    char		out_val[160];
+   /* Extract the minimum failure rate */
+   minfail = (s16b)adj_mag_fail[(s16b)p_ptr->stat_ind[(s16b)cp_ptr->spell_stat]];
 
+   /* Non mage/priest characters never get too good */
+   if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST) &&
+       (p_ptr->pclass != CLASS_WARMAGE) && (p_ptr->pclass != CLASS_HIGHPRST))
+   {
+       if (minfail < 5) minfail = 5;
+   }
 
-    /* Clear it */
-    Term_clear();
+   /* certain rings help */
+   if (ring_helps_spell(spellno))
+   {
+      minfail = minfail / 2;
+      chance = chance / 2;
+   }
 
+   /* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
+   if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
 
-#if 0
-    /* Title the list */
-    prt("", 1, col);
-    put_str("Name", 1, col + 5);
-    put_str("Lv Mana Fail", 1, col + 35);
-#endif
+   /* Minimum failure rate */
+   if (chance < minfail) chance = minfail;
 
-    /* Dump the spells */
-    for (i = 0; i < num; i++)
-    {
-        /* Access the spell */
-        j = spell[i];
+   /* Stunning makes spells harder */
+   if (p_ptr->stun > 50)
+   {
+      chance += 25;
+   }
+   else
+   {
+      if (p_ptr->stun>0) chance += 15;
+   }
 
-        /* Access the spell */
-        s_ptr = &mp_ptr->info[j];
+   /* wearing gloves makes it harder */
+   if (p_ptr->cumber_glove) chance += chance +25;
 
-        /* Skip illegible spells */
-        if (s_ptr->slevel >= 99)
-        {
-            /* --(-- */
-            sprintf(out_val, "%c) %-30s", I2A(i), "(illegible)");
-            Term_putstr(0, i, -1, TERM_WHITE, out_val);
-            continue;
-        }
+   /* Always a 5 percent chance of working */
+   if (chance > 95) chance = 95;
 
-        /* Get extra info */
-        spell_info(info, j);
-
-        /* Use that info */
-        comment = info;
-
-        /* Analyze the spell */
-        if ((j < 32) ?
-            ((spell_forgotten1 & (1L << j))) :
-            ((spell_forgotten2 & (1L << (j - 32)))))
-        {
-            comment = " forgotten";
-        }
-        else if (!((j < 32) ?
-                   (spell_learned1 & (1L << j)) :
-                   (spell_learned2 & (1L << (j - 32)))))
-        {
-            comment = " unknown";
-        }
-        else if (!((j < 32) ?
-                   (spell_worked1 & (1L << j)) :
-                   (spell_worked2 & (1L << (j - 32)))))
-        {
-            comment = " untried";
-        }
-
-        /* Dump the spell --(-- */
-        sprintf(out_val, "%c) %-30s%2d %4d %3d%%%s",
-                I2A(i), spell_names[mp_ptr->spell_type][j],
-                s_ptr->slevel, s_ptr->smana, spell_chance(j), comment);
-        Term_putstr(0, i, -1, TERM_WHITE, out_val);
-    }
+   /* Return the chance */
+dlog(DEBUGITEMS,"cmd5.c: page_change returning %d\n", chance);
+   return (chance);
 }
 
-
-
-
-
-/*
- * Allow user to choose a spell/prayer from the given book.
- *
- * If a valid spell is chosen, saves it in '*sn' and returns TRUE
- * If the user hits escape, returns FALSE, and set '*sn' to -1
- * If there are no legal choices, returns FALSE, and sets '*sn' to -2
- *
- * The "prompt" should be "cast", "recite", or "study"
- * The "known" should be TRUE for cast/pray, FALSE for study
- */
-static int get_spell(int *sn, cptr prompt, int sval, bool known)
+void extra_new_spell_info(char *p, s16b spellno)
 {
-    int			i, j = -1;
-
-    byte		spell[64], num = 0;
-
-    bool		flag, redraw, okay, ask;
-    char		choice;
-
-    magic_type		*s_ptr;
-
-    char		out_val[160];
-
-    cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
-
-    /* Extract spells */
-    for (i = 0; i < 64; i++)
-    {
-        /* Check for this spell */
-        if ((i < 32) ?
-            (spell_flags[mp_ptr->spell_type][sval][0] & (1L << i)) :
-            (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
-        {
-            /* Collect this spell */
-            spell[num++] = i;
-        }
-    }
-
-
-    /* Assume no usable spells */
-    okay = FALSE;
-
-    /* Assume no spells available */
-    (*sn) = -2;
-
-    /* Check for "okay" spells */
-    for (i = 0; i < num; i++)
-    {
-        /* Look for "okay" spells */
-        if (spell_okay(spell[i], known)) okay = TRUE;
-    }
-
-    /* No "okay" spells */
-    if (!okay) return (FALSE);
-
-
-    /* Assume cancelled */
-    *sn = (-1);
-
-    /* Nothing chosen yet */
-    flag = FALSE;
-
-    /* No redraw yet */
-    redraw = FALSE;
-
-
-#ifdef GRAPHIC_CHOICE
-
-    /* Use the "choice" window */
-    if (term_choice && use_choice_spells)
-    {
-        /* Activate the choice window */
-        Term_activate(term_choice);
-
-        /* Save the contents */
-        Term_save();
-
-        /* Display the choices */
-        display_spells(spell, num);
-
-        /* Refresh */
-        Term_fresh();
-
-        /* Activate the screen window */
-        Term_activate(term_screen);
-    }
-
-#endif
-
-#ifdef GRAPHIC_MIRROR
-
-    /* Use the "mirror" window */
-    if (term_mirror && use_mirror_spells)
-    {
-        /* Activate the mirror window */
-        Term_activate(term_mirror);
-
-        /* Save the contents */
-        Term_save();
-
-        /* Display the choices */
-        display_spells(spell, num);
-
-        /* Refresh */
-        Term_fresh();
-
-        /* Activate the screen window */
-        Term_activate(term_screen);
-    }
-
-#endif
-
-
-    /* Build a prompt (accept all spells) */
-    strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
-            p, I2A(0), I2A(num - 1), prompt, p);
-
-    /* Get a spell from the user */
-    while (!flag && get_com(out_val, &choice))
-    {
-        /* Request redraw */
-        if ((choice == ' ') || (choice == '*') || (choice == '?'))
-        {
-            /* Show the list */
-            if (!redraw)
-            {
-                /* Show list */
-                redraw = TRUE;
-
-                /* Save the screen */
-                Term_save();
-
-                /* Display a list of spells */
-                print_spells(spell, num);
-            }
-
-            /* Hide the list */
-            else
-            {
-                /* Hide list */
-                redraw = FALSE;
-
-                /* Restore the screen */
-                Term_load();
-            }
-
-            /* Ask again */
-            continue;
-        }
-
-
-        /* Note verify */
-        ask = (isupper(choice));
-
-        /* Lowercase */
-        if (ask) choice = tolower(choice);
-
-        /* Extract request */
-        i = (islower(choice) ? A2I(choice) : -1);
-
-        /* Totally Illegal */
-        if ((i < 0) || (i >= num))
-        {
-            bell();
-            continue;
-        }
-
-        /* Save the spell index */
-        j = spell[i];
-
-        /* Require "okay" spells */
-        if (!spell_okay(j, known))
-        {
-            bell();
-            msg_format("You may not %s that %s.", prompt, p);
-            continue;
-        }
-
-        /* Verify it */
-        if (ask)
-        {
-            char tmp_val[160];
-
-            /* Access the spell */
-            s_ptr = &mp_ptr->info[j];
-
-            /* Prompt */
-            strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-                    prompt, spell_names[mp_ptr->spell_type][j],
-                    s_ptr->smana, spell_chance(j));
-
-            /* Belay that order */
-            if (!get_check(tmp_val)) continue;
-        }
-
-        /* Stop the loop */
-        flag = TRUE;	
-    }
-
-
-    /* Restore the screen */
-    if (redraw) Term_load();
-
-
-#ifdef GRAPHIC_MIRROR
-
-    /* Restore the "mirror" window */
-    if (term_mirror && use_mirror_spells)
-    {
-        /* Activate the mirror window */
-        Term_activate(term_mirror);
-
-        /* Restore the term */
-        Term_load();
-
-        /* Flush the window */
-        Term_fresh();
-
-        /* Activate the screen window */
-        Term_activate(term_screen);
-    }
-
-#endif
-
-#ifdef GRAPHIC_CHOICE
-
-    /* Restore the "choice" window */
-    if (term_choice && use_choice_spells)
-    {
-        /* Activate the choice window */
-        Term_activate(term_choice);
-
-        /* Restore the term */
-        Term_load();
-
-        /* Flush the window */
-        Term_fresh();
-
-        /* Activate the screen window */
-        Term_activate(term_screen);
-    }
-
-#endif
-
-
-    /* Abort if needed */
-    if (!flag) return (FALSE);
-
-    /* Save the choice */
-    (*sn) = j;
-
-    /* Success */
-    return (TRUE);
+   s16b plev = p_ptr->lev;
+
+   /* Default */
+   strcpy(p, "");
+
+   if ( (cheat_spell_info) || (s_info[spellno].numcast >= (10 * s_info[spellno].level) ) )
+   {
+
+      /* Analyze the spell */
+      switch (spellno)
+      {
+         case SV_SPELL_MMAGIC_MISSILE:         sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+         case SV_SPELL_MPHASE_DOOR:            sprintf(p, " range 10"); break;
+         case SV_SPELL_MTREASURE_DETECTION:    sprintf(p, " range %dd2+%d", (plev / 2), (plev / 10) + 1); break;
+         case SV_SPELL_MCURE_LIGHT_WOUNDS:     sprintf(p, " heal 2d8"); break;
+         case SV_SPELL_MSTINKING_CLOUD:        sprintf(p, " dam %d rad 2", 10+(plev / 2)); break;
+         case SV_SPELL_MLIGHTNING_BOLT:        sprintf(p, " dam %dd3+8", 3+(plev-5)/4); break;
+         case SV_SPELL_MTELEPORT_SELF:         sprintf(p, " range %d", plev * 5); break;
+         case SV_SPELL_MFROST_BOLT:            sprintf(p, " dam %dd8", 5+(plev-5)/4); break;
+         case SV_SPELL_MFIRE_BOLT:             sprintf(p, " dam %dd8", 8+(plev-5)/5); break;
+         case SV_SPELL_MFROST_BALL:            sprintf(p, " dam %d rad 2", 30+plev); break;
+         case SV_SPELL_MFIRE_BALL:             sprintf(p, " dam %d rad 2", 55+plev); break;
+         case SV_SPELL_MWORD_OF_DESTRUCTION:   sprintf(p, " rad 15"); break;
+         case SV_SPELL_MEARTHQUAKE:            sprintf(p, " rad 10"); break;
+         case SV_SPELL_MACID_BOLT:             sprintf(p, " dam %dd8", 6+(plev-5)/4); break;
+         case SV_SPELL_MCLOUDKILL:             sprintf(p, " dam %d rad 3", 20+plev/2); break;
+         case SV_SPELL_MACID_BALL:             sprintf(p, " dam %d rad 2", 40+plev); break;
+         case SV_SPELL_MICE_STORM:             sprintf(p, " dam %d rad 3", 70+plev); break;
+         case SV_SPELL_MMETEOR_SWARM:          sprintf(p, " dam %d rad 3", 65+plev); break;
+         case SV_SPELL_MHELLFIRE:              sprintf(p, " dam %d rad 3", 300+plev*2); break;
+
+         case SV_SPELL_PCURE_LIGHT_WOUNDS:     sprintf(p, " 2d10"); break;
+         case SV_SPELL_PCALL_LIGHT:            sprintf(p, " dam 2d%d rad %d",plev/2, plev/10+1); break;
+         case SV_SPELL_PPORTAL:                sprintf(p, " range %d", plev*3); break;
+         case SV_SPELL_PCURE_MEDIUM_WOUNDS:    sprintf(p, " 4d10"); break;
+         case SV_SPELL_PORB_OF_DRAINING:       sprintf(p, " 3d6+%d rad %d",
+                                                         plev+(plev/((p_ptr->pclass==2)?2:4)),
+                                                         (plev<30)?2:3); break;
+         case SV_SPELL_PCURE_SER_WOUNDS:       sprintf(p, " 6d10"); break;
+         case SV_SPELL_PEARTHQUAKE:            sprintf(p, " rad 10"); break;
+         case SV_SPELL_PCURE_CRIT_WOUNDS:      sprintf(p, " 8d10"); break;
+         case SV_SPELL_PHEAL:                  sprintf(p, " 300"); break;
+         case SV_SPELL_PHOLY_WORD:             sprintf(p, " 1000"); break;
+         case SV_SPELL_PBLINK:                 sprintf(p, " range 10"); break;
+         case SV_SPELL_PTELEPORT:              sprintf(p, " range %d", plev*8); break;
+         case SV_SPELL_PCURE_SER_WOUNDS_EASY:  sprintf(p, " heal 4d10"); break;
+         case SV_SPELL_PCURE_CRIT_WOUNDS_EASY: sprintf(p, " heal 8d10"); break;
+         case SV_SPELL_PHEALING:               sprintf(p, " heal 2000"); break;
+         case SV_SPELL_PWORD_OF_DESTRUCTION:   sprintf(p, " rad 15"); break;
+         case SV_SPELL_PANNIHILATION:          sprintf(p, " dam 200"); break;
+      }
+   }
 }
 
+void print_spells(s16b *index, s16b count)
+{
+   s16b       i, col;
+   byte       color;
+   char       out_val[160];
+   cptr       comment;
+   char       info[80];
+   bool       cheat_any = FALSE;
+   spell_type *s_ptr;
+   cptr       scalestr[6] = {"small","avg  ","large","super"};
+   cptr       categ[MAX_SPELL_TYPES] = { "Nature Forces",
+                                         "Dark Forces",
+                                         "Escape",
+                                         "Heal",
+                                         "Sense",
+                                         "Change Other",
+                                         "Change Item",
+                                         "Change Self",
+                                         "Change World" };
 
+   /* Print column */
+   col = 4;
 
+   /* Title the list */
+   prt("", 0, 1);
+   put_str("Name", col + 3, 1);
+   for (i = 0; i < count; i++)                /* Dump the spells */
+   {
+      s_ptr = &s_info[index[i]];             /* Access the spell */
+dlog(DEBUGITEMS,"cmd5.c: print_spells: spell %d of %d = %d\n", i, count, index[i]);
+      if (s_ptr->numcast >= (10 * s_ptr->level))
+      {
+         cheat_any = TRUE;
+      }
+   }
+
+   if (show_spell_numbers == FALSE)
+   {
+      if ( (cheat_spell_info == TRUE) || (cheat_any == TRUE ) )
+      {
+         put_str("Lv Ma Fail Scale Category        Extra", col + 27, 1);
+      }
+      else
+      {
+         put_str("Lv Ma Fail", col + 27, 1);
+      }
+   }
+   else
+   {
+      if ( (cheat_spell_info == TRUE) || (cheat_any == TRUE ) )
+      {
+         put_str("Num Lv Ma Fail Scale Category        Extra", col + 27, 1);
+      }
+      else
+      {
+         put_str("Num Lv Ma Fail", col + 27, 1);
+      }
+   }
+   strcpy(info,"");
+   strcpy(info,"");
+
+   for (i = 0; i < count; i++)                /* Dump the spells */
+   {
+       s_ptr = &s_info[index[i]];             /* Access the spell */
+       color = (byte)TERM_L_GREEN;
+       if (s_ptr->numcast == 0)
+       {
+          color = (byte)TERM_L_BLUE;
+       }
+       if (s_ptr->numcast >= (10 * s_ptr->level))
+       {
+          color = (byte)TERM_GREEN;
+       }
+
+       extra_new_spell_info(info, index[i]);  /* Get extra info */
+
+       /* Use that info */
+       comment = info;
+      if ( (cheat_spell_info) || (s_ptr->numcast >= (10 * s_ptr->level) ) )
+      {
+         if (show_spell_numbers == FALSE)
+         {
+            sprintf(out_val, "%c) %-23s%3d %2d  %2d%% %5s %-14s %s",
+                    I2A(i), s_name + s_ptr->name, s_ptr->level, spell_mana(index[i]),
+                    page_chance(index[i]), scalestr[(s16b)s_ptr->scale],
+                    categ[s_ptr->type], info);
+         }
+         else
+         {
+            sprintf(out_val, "%c) %03d %-23s%3d %2d  %2d%% %5s %-14s %s",
+                    I2A(i), index[i], s_name + s_ptr->name, s_ptr->level, spell_mana(index[i]),
+                    page_chance(index[i]), scalestr[(s16b)s_ptr->scale],
+                    categ[s_ptr->type], info);
+         }
+      }
+      else if (s_ptr->numcast > 0)
+      {
+         if (show_spell_numbers == FALSE)
+         {
+            sprintf(out_val, "%c) %-23s%3d %2d  %2d%%",
+                    I2A(i), s_name + s_ptr->name, s_ptr->level, spell_mana(index[i]),
+                    page_chance(index[i]));
+         }
+         else
+         {
+            sprintf(out_val, "%c) %03d %-23s%3d %2d  %2d%%",
+                    I2A(i), index[i], s_name + s_ptr->name, s_ptr->level, spell_mana(index[i]),
+                    page_chance(index[i]));
+         }
+      }
+      else if (s_ptr->numcast == 0)
+      {
+         if (show_spell_numbers == FALSE)
+         {
+            sprintf(out_val, "%c) %-23s%3d %2d",
+                    I2A(i), s_name + s_ptr->name, s_ptr->level, spell_mana(index[i]));
+         }
+         else
+         {
+            sprintf(out_val, "%c) %03d %-23s%3d %2d",
+                    I2A(i), index[i], s_name + s_ptr->name, s_ptr->level, s_ptr->mana);
+         }
+      }
+      prt("", 0, 2+i); /* this clears the line */
+      c_put_str(color,out_val,col,2+i);
+   }
+
+   /* Clear the bottom line */
+   prt("", 0, 2 + i);
+}
+
+static void browse_book(object_type *i_ptr)
+{
+   s16b count = 0, i;
+   s16b index[MAX_SPELLS_PER_ITEM];
+
+dlog(DEBUGITEMS,"cmd5.c: browse_book: i_ptr->spell_set %d\n", i_ptr->spell_set);
+   for (i=0; i< (s16b)s_number; i++)
+   {
+      if (has_spell(i_ptr, i)) index[count++]=i;
+   }
+dlog(DEBUGITEMS,"cmd5.c: browse_book: %d spells found\n", count);
+
+   /* Save the screen */
+   (void)Term_save();
+
+   print_spells(index, count);
+
+   /* Clear the top line */
+   prt("", 0, MESSAGE_ROW);
+
+   /* Prompt user */
+   put_str(format("Spells in your %s - [Press any key to continue]",
+           (s16b)i_ptr->tval==TV_BOOK?"book":"staff"),MESSAGE_ROW, 0);
+
+   /* Wait for key */
+   (void)inkey();
+
+   /* Restore the screen */
+   (void)Term_load();
+}
+
+static bool item_tester_browsable(object_type *i_ptr)
+{
+   if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_WARMAGE))
+   {
+      if (((s16b)i_ptr->tval == TV_HAFTED) && ((s16b)i_ptr->sval == SV_QUARTERSTAFF))
+      {
+         return ( ((s16b)i_ptr->name2 == EGO_MAGE) ||
+                  ((s16b)i_ptr->name2 == EGO_ADEPT) ||
+                  ((s16b)i_ptr->name2 == EGO_ARCHMAGE) );
+      }
+   }
+   return ((s16b)i_ptr->tval == TV_BOOK);
+}
 
 /*
  * Peruse the spells/prayers in a Book
@@ -642,1211 +397,1223 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
  */
 void do_cmd_browse(void)
 {
-    int			i, item, sval;
+   s16b                item = 0;
 
-    byte		spell[64], num = 0;
+   object_type         *i_ptr = NULL;
+/* jk */
+   s16b amt = 1;
 
-    object_type		*i_ptr;
+   /* Warriors are illiterate */
+   if (cp_ptr->spell_stat == (byte)0)
+   {
+       msg_print("You cannot read books!");
+       return;
+   }
 
+   /* No lite */
+   if ( (p_ptr->blind != 0) || no_lite())
+   {
+       msg_print("You cannot see!");
+       return;
+   }
 
-    /* Warriors are illiterate */
-    if (!mp_ptr->spell_book)
-    {
-        msg_print("You cannot read books!");
-        return;
-    }
+   /* Confused */
+   if (p_ptr->confused>0)
+   {
+      msg_print("You are too confused!");
+      return;
+   }
 
-    /* No lite */
-    if (p_ptr->blind || no_lite())
-    {
-        msg_print("You cannot see!");
-        return;
-    }
+   /* Restrict choices to "useful" books */
+   /* and certain ego-item staffs, if you are a mage */
+   item_tester_tval=(byte)0;     /* no restrictions on type */
+   item_tester_hook = item_tester_browsable;
 
-    /* Confused */
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
+   /* Get an item (from inven or floor) */
+   if (!get_item(&item, &amt, "Browse which book? ", TRUE, TRUE, TRUE))
+   {
+      if (item == -2) msg_print("You have no books that you can read.");
+      item_tester_hook = NULL;
+      return;
+   }
+   item_tester_hook = NULL;
 
+   /* Get the item (in the pack) */
+   i_ptr=get_item_pointer(item);
 
-    /* Restrict choices to "useful" books */
-    item_tester_tval = mp_ptr->spell_book;
+   object_kind_track(i_ptr->k_idx);
+   handle_stuff();
 
-    /* Get an item (from inven or floor) */
-    if (!get_item(&item, "Browse which book? ", FALSE, TRUE, TRUE))
-    {
-        if (item == -2) msg_print("You have no books that you can read.");
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        i_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        i_ptr = &i_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = i_ptr->sval;
-
-
-    /* Extract spells */
-    for (i = 0; i < 64; i++)
-    {
-        /* Check for this spell */
-        if ((i < 32) ?
-            (spell_flags[mp_ptr->spell_type][sval][0] & (1L << i)) :
-            (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
-        {
-            /* Collect this spell */
-            spell[num++] = i;
-        }
-    }
-
-
-    /* Save the screen */
-    Term_save();
-
-    /* Display the spells */
-    print_spells(spell, num);
-
-    /* Clear the top line */
-    prt("", 0, 0);
-
-    /* Prompt user */
-    put_str("[Press any key to continue]", 0, 23);
-
-    /* Wait for key */
-    (void)inkey();
-
-    /* Restore the screen */
-    Term_load();
+   browse_book(i_ptr);
+   return;
 }
 
-
-
-
-/*
- * Study a book to gain a new spell/prayer
- */
-void do_cmd_study(void)
+/* select a spell from book 'item'. return -1 if not successful */
+static s16b select_spell_from_book(s16b item)
 {
-    int			i, item, sval;
+   object_type *i_ptr;
+   s16b         count, i, j, k, spellno;
+   s16b         index[MAX_SPELLS_PER_ITEM];
+   char         buf;
 
-    int			j = -1;
+   /* Get the item */
+   i_ptr=get_item_pointer(item);
 
-    cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+   count = 0;
+   for (i=0; i<MAX_SPELLS_PER_ITEM; i++)
+   {
+      if (has_spell(i_ptr, i)) index[count++]=i;
+   }
 
-    object_type		*i_ptr;
+   if (count==0)
+   {
+      msg_print("This book is empty.");
+      return -1;
+   }
 
+   object_kind_track(i_ptr->k_idx);
+   handle_stuff();
 
-    if (!mp_ptr->spell_book)
-    {
-        msg_print("You cannot read books!");
-        return;
-    }
+   /* Save the screen */
+   (void)Term_save();
 
-    if (p_ptr->blind || no_lite())
-    {
-        msg_print("You cannot see!");
-        return;
-    }
+   print_spells(index, count);
+   
+   /* Clear the top line */
+   prt("", 0, MESSAGE_ROW);
 
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
+   buf = '\0';
 
-    if (!(p_ptr->new_spells))
-    {
-        msg_format("You cannot learn any new %ss!", p);
-        return;
-    }
+   /* Prompt user */
+   if (!get_com("Which spell (press @ for number)? ", &buf))
+   {
+      (void)Term_load();
+      return -1;
+   }
+   if (buf == '@')
+   {
+      char buf2[20];
 
-
-    /* Restrict choices to "useful" books */
-    item_tester_tval = mp_ptr->spell_book;
-
-    /* Get an item (from inven or floor) */
-    if (!get_item(&item, "Study which book? ", FALSE, TRUE, TRUE))
-    {
-        if (item == -2) msg_print("You have no books that you can read.");
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        i_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        i_ptr = &i_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = i_ptr->sval;
-
-
-    /* Mage -- Learn a selected spell */
-    if (mp_ptr->spell_book == TV_MAGIC_BOOK)
-    {
-        /* Ask for a spell, allow cancel */
-        if (!get_spell(&j, "study", sval, FALSE) && (j == -1)) return;
-    }
-
-    /* Priest -- Learn a random prayer */
-    if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-    {
-        int k = 0;
-
-        /* Extract spells */
-        for (i = 0; i < 64; i++)
-        {
-            /* Check spells in the book */
-            if ((i < 32) ?
-                (spell_flags[mp_ptr->spell_type][sval][0] & (1L << i)) :
-                (spell_flags[mp_ptr->spell_type][sval][1] & (1L << (i - 32))))
+      buf2[0]='\0';
+      if (!get_string("Enter spell number: ", buf2, 3))
+      {
+         (void)Term_load();
+         return -1;
+      }
+      spellno=(s16b)atol(buf2);
+      if (spellno < 0)
+      {
+         (void)Term_load();
+         return -1;
+      }
+      for (j=0; j<INVEN_PACK; j++)
+      {
+         if (inventory[j].tval == TV_BOOK)
+         {
+            for (k=0; k<s_number; k++)
             {
-                /* Skip non "okay" prayers */
-                if (!spell_okay(i, FALSE)) continue;
-
-                /* Hack -- Prepare the randomizer */
-                k++;
-
-                /* Hack -- Apply the randomizer */
-                if (rand_int(k) == 0) j = i;
+               if (has_spell(&inventory[j], spellno)) break;
             }
-        }
-    }
-
-    /* Nothing to study */
-    if (j < 0)
-    {
-        /* Message */
-        msg_format("You cannot learn any %ss in that book.", p);
-
-        /* Abort */
-        return;
-    }
-
-
-    /* Take a turn */
-    energy_use = 100;
-
-    /* Learn the spell */
-    if (j < 32)
-    {
-        spell_learned1 |= (1L << j);
-    }
-    else
-    {
-        spell_learned2 |= (1L << (j - 32));
-    }
-
-    /* Find the next open entry in "spell_order[]" */
-    for (i = 0; i < 64; i++)
-    {
-        /* Stop at the first empty space */
-        if (spell_order[i] == 99) break;
-    }
-
-    /* Add the spell to the known list */
-    spell_order[i++] = j;
-
-    /* Mention the result */
-    msg_format("You have learned the %s of %s.",
-               p, spell_names[mp_ptr->spell_type][j]);
-
-    /* One less spell available */
-    p_ptr->new_spells--;
-
-    /* Report on remaining prayers */
-    if (p_ptr->new_spells)
-    {
-        msg_format("You can learn more %ss.", p);
-    }
-
-    /* Save the new_spells value */
-    p_ptr->old_spells = p_ptr->new_spells;
-
-    /* Redraw Study Status */
-    p_ptr->redraw |= (PR_STUDY);
+            if (k < s_number) break;
+         }
+      }
+      if (j == INVEN_PACK)
+      {
+         msg_print(NULL);
+         msg_print("That spell is not in in a book in your inventory.");
+         return -1;
+      }
+   }
+   else
+   {
+      spellno=(s16b)A2I(buf);
+      if ((spellno < 0) || (spellno >= count))
+      {
+         (void)Term_load();
+         return -1;
+      }
+      spellno=index[spellno];
+   }
+   (void)Term_load();
+   return (spellno);
 }
 
+static s16b select_spell_by_number(void)
+{
+   char buf2[4];
+   s16b i, j, spellno;
 
+   buf2[0]='\0';
+   prt("Enter spell number (globally over all your books):", 0, 0);
+   if (!askfor_aux(buf2, 3))
+   {
+      return -1;
+   }
+   spellno=atoi(buf2);
+   for (i=0; i<INVEN_PACK; i++)
+   {
+      if (inventory[i].tval == TV_BOOK)
+      {
+         for (j=0; j<s_number; j++)
+         {
+            if (has_spell(&inventory[i], spellno)) break;
+         }
+         if (j < s_number) break;
+      }
+   }
+   if (i == INVEN_PACK)
+   {
+      msg_print(NULL);
+      msg_print("That spell is not in in a book in your inventory.");
+      return -1;
+   }
+   /* this is necessary to prevent messing up the screen */
+   prt("                                                            ", 0, 0);
+   return spellno;
+}
+
+/* this function selects a spell, either by book or by number */
+static s16b select_spell(void)
+{
+   s16b item, spellno, count, amt = 1;
+
+   /* Restrict choices to scrolls */
+   item_tester_tval = (byte)TV_BOOK;
+   item_tester_hook = NULL;
+   count = count_items(&item, FALSE, TRUE, TRUE);
+
+   /* Get an item (from inven or floor) */
+   if ( (count != 1) &&
+        !get_item(&item, &amt, "Cast spell from what? ", FALSE, TRUE, TRUE))
+   {
+      if (item == -2) msg_print("You have nothing to read spells from.");
+      item_tester_tval = (byte)0;
+      if ( (item == -1) || (item == -2) ) return -1;
+   }
+   item_tester_tval = (byte)0;
+
+   /* item -3 means @ means cast spell by number, never mind the book */
+   if (item != -3)
+   {
+      spellno = select_spell_from_book(item);
+   }
+   else
+   {
+      spellno = select_spell_by_number();
+   }
+   return (spellno);
+}
 
 /*
  * Cast a spell
  */
-void do_cmd_cast(void)
+void do_cmd_cast_spell(void)
 {
-    int			item, sval, j, dir;
-    int			chance, beam;
-    int			plev = p_ptr->lev;
-
-    object_type		*i_ptr;
-
-    magic_type		*s_ptr;
-
-
-    /* Require spell ability */
-    if (mp_ptr->spell_book != TV_MAGIC_BOOK)
-    {
-        msg_print("You cannot cast spells!");
-        return;
-    }
-
-    /* Require lite */
-    if (p_ptr->blind || no_lite())
-    {
-        msg_print("You cannot see!");
-        return;
-    }
-
-    /* Not when confused */
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
-
-
-    /* Restrict choices to spell books */
-    item_tester_tval = mp_ptr->spell_book;
-
-    /* Get an item (from inven or floor) */
-    if (!get_item(&item, "Use which book? ", FALSE, TRUE, TRUE))
-    {
-        if (item == -2) msg_print("You have no spell books!");
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        i_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        i_ptr = &i_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = i_ptr->sval;
-
-
-    /* Ask for a spell */
-    if (!get_spell(&j, "cast", sval, TRUE))
-    {
-        if (j == -2) msg_print("You don't know any spells in that book.");
-        return;
-    }
-
-
-    /* Access the spell */
-    s_ptr = &mp_ptr->info[j];
-
-
-    /* Verify "dangerous" spells */
-    if (s_ptr->smana > p_ptr->csp)
-    {
-        /* Warning */
-        msg_print("You do not have enough mana to cast this spell.");
-
-        /* Verify */
-        if (!get_check("Attempt it anyway? ")) return;
-    }
-
-
-    /* Spell failure chance */
-    chance = spell_chance(j);
-
-    /* Failed spell */
-    if (rand_int(100) < chance)
-    {
-        if (flush_failure) flush();
-        msg_print("You failed to get the spell off!");
-    }
-
-    /* Process spell */
-    else
-    {
-        /* Hack -- chance of "beam" instead of "bolt" */
-        beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
-
-        /* Spells.  */
-        switch (j)
-        {
-            case 0:
-                if (!get_aim_dir(&dir)) return;
-                fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-                                  damroll(3 + ((plev - 1) / 5), 4));
-                break;
-
-            case 1:
-                (void)detect_monsters();
-                break;
-
-            case 2:
-                teleport_player(10);
-                break;
-
-            case 3:
-                (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-                break;
-
-            case 4:
-                (void)detect_treasure();
-                break;
-
-            case 5:
-                (void)hp_player(damroll(2, 8));
-                (void)set_cut(p_ptr->cut - 15);
-                break;
-
-            case 6:
-                (void)detect_object();
-                break;
-
-            case 7:
-                (void)detect_sdoor();
-                (void)detect_trap();
-                break;
-
-            case 8:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_POIS, dir,
-                          10 + (plev / 2), 2);
-                break;
-
-            case 9:
-                if (!get_aim_dir(&dir)) return;
-                (void)confuse_monster(dir, plev);
-                break;
-
-            case 10:
-                if (!get_aim_dir(&dir)) return;
-                fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-                                  damroll(3+((plev-5)/4),8));
-                break;
-
-            case 11:
-                (void)destroy_doors_touch();
-                break;
-
-            case 12:
-                if (!get_aim_dir(&dir)) return;
-                (void)sleep_monster(dir);
-                break;
-
-            case 13:
-                (void)set_poisoned(0);
-                break;
-
-            case 14:
-                teleport_player(plev * 5);
-                break;
-
-            case 15:
-                if (!get_aim_dir(&dir)) return;
-                msg_print("A line of blue shimmering light appears.");
-                lite_line(dir);
-                break;
-
-            case 16:
-                if (!get_aim_dir(&dir)) return;
-                fire_bolt_or_beam(beam-10, GF_COLD, dir,
-                                  damroll(5+((plev-5)/4),8));
-                break;
-
-            case 17:
-                if (!get_aim_dir(&dir)) return;
-                (void)wall_to_mud(dir);
-                break;
-
-            case 18:
-                (void)set_food(PY_FOOD_MAX - 1);
-                break;
-
-            case 19:
-                (void)recharge(5);
-                break;
-
-            case 20:
-                (void)sleep_monsters_touch();
-                break;
-
-            case 21:
-                if (!get_aim_dir(&dir)) return;
-                (void)poly_monster(dir);
-                break;
-
-            case 22:
-                (void)ident_spell();
-                break;
-
-            case 23:
-                (void)sleep_monsters();
-                break;
-
-            case 24:
-                if (!get_aim_dir(&dir)) return;
-                fire_bolt_or_beam(beam, GF_FIRE, dir,
-                                  damroll(8+((plev-5)/4),8));
-                break;
-
-            case 25:
-                if (!get_aim_dir(&dir)) return;
-                (void)slow_monster(dir);
-                break;
-
-            case 26:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_COLD, dir,
-                          30 + (plev), 2);
-                break;
-
-            case 27:
-                (void)recharge(40);
-                break;
-
-            case 28:
-                if (!get_aim_dir(&dir)) return;
-                (void)teleport_monster(dir);
-                break;
-
-            case 29:
-                if (!p_ptr->fast)
-                {
-                    (void)set_fast(randint(20) + plev);
-                }
-                else
-                {
-                    (void)set_fast(p_ptr->fast + randint(5));
-                }
-                break;
-
-            case 30:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_FIRE, dir,
-                          55 + (plev), 2);
-                break;
-
-            case 31:
-                destroy_area(py, px, 15, TRUE);
-                break;
-
-            case 32:
-                (void)genocide();
-                break;
-
-            case 33:
-                (void)door_creation();
-                break;
-
-            case 34:
-                (void)stair_creation();
-                break;
-
-            case 35:
-                (void)teleport_player_level();
-                break;
-
-            case 36:
-                earthquake(py, px, 10);
-                break;
-
-            case 37:
-                if (!p_ptr->word_recall)
-                {
-                    p_ptr->word_recall = rand_int(20) + 15;
-                    msg_print("The air about you becomes charged...");
-                }
-                else
-                {
-                    p_ptr->word_recall = 0;
-                    msg_print("A tension leaves the air around you...");
-                }
-                break;
-
-            case 38:
-                if (!get_aim_dir(&dir)) return;
-                fire_bolt_or_beam(beam, GF_ACID, dir,
-                                  damroll(6+((plev-5)/4), 8));
-                break;
-
-            case 39:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_POIS, dir,
-                          20 + (plev / 2), 3);
-                break;
-
-            case 40:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_ACID, dir,
-                          40 + (plev), 2);
-                break;
-
-            case 41:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_COLD, dir,
-                          70 + (plev), 3);
-                break;
-
-            case 42:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_METEOR, dir,
-                          65 + (plev), 3);
-                break;
-
-            case 43:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_MANA, dir,
-                          300 + (plev * 2), 3);
-                break;
-
-            case 44:
-                (void)detect_evil();
-                break;
-
-            case 45:
-                (void)detect_magic();
-                break;
-
-            case 46:
-                recharge(100);
-                break;
-
-            case 47:
-                (void)genocide();
-                break;
-
-            case 48:
-                (void)mass_genocide();
-                break;
-
-            case 49:
-                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-                break;
-
-            case 50:
-                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-                break;
-
-            case 51:
-                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-                break;
-
-            case 52:
-                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-                break;
-
-            case 53:
-                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-                (void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-                break;
-
-            case 54:
-                (void)hp_player(10);
-                (void)set_hero(p_ptr->hero + randint(25) + 25);
-                (void)set_afraid(0);
-                break;
-
-            case 55:
-                (void)set_shield(p_ptr->shield + randint(20) + 30);
-                break;
-
-            case 56:
-                (void)hp_player(30);
-                (void)set_shero(p_ptr->shero + randint(25) + 25);
-                (void)set_afraid(0);
-                break;
-
-            case 57:
-                if (!p_ptr->fast)
-                {
-                    (void)set_fast(randint(30) + 30 + plev);
-                }
-                else
-                {
-                    (void)set_fast(p_ptr->fast + randint(10));
-                }
-                break;
-
-            case 58:
-                (void)set_invuln(p_ptr->invuln + randint(8) + 8);
-                break;
-
-            default:
-                break;
-        }
-
-        /* A spell was cast */
-        if (!((j < 32) ?
-              (spell_worked1 & (1L << j)) :
-              (spell_worked2 & (1L << (j - 32)))))
-        {
-            int e = s_ptr->sexp;
-
-            /* The spell worked */
-            if (j < 32)
+   s16b         spellno;
+
+   /* Check some conditions */
+   if (p_ptr->blind>0)
+   {
+      msg_print("You can't see anything.");
+      return;
+   }
+   if (no_lite())
+   {
+      msg_print("You have no light to read by.");
+      return;
+   }
+   if (p_ptr->confused>0)
+   {
+      msg_print("You are too confused!");
+      return;
+   }
+   
+   spellno = select_spell();
+   if (spellno == -1) return ;
+
+dlog(DEBUGITEMS,"cmd5.c: do_cmd_cast_spell: spellno %d\n", spellno);
+
+   /* if exec_page returns FALSE, we don't have enough mana and aborted */
+   if (exec_page(spellno))
+   {
+      /* Take a turn */
+      energy_use = 100;
+   }
+}
+
+/*
+ * execute a certain spell
+ * return TRUE on abortion!
+ */
+bool exec_spell(s16b spellno)
+{
+   bool beam;
+   s16b dir, plev = p_ptr->lev;
+
+   /* Hack -- chance of "beam" instead of "bolt" */
+   beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+
+   /* Spells.  */
+   switch (spellno)
+   {
+      case SV_SPELL_MMAGIC_MISSILE:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
+                            damroll(3 + ((plev - 1) / 5), 4));
+          break;
+      case SV_SPELL_MDETECT_MONSTERS:
+          (void)detect_monsters();
+          break;
+      case SV_SPELL_MPHASE_DOOR:
+          teleport_player(10);
+          break;
+      case SV_SPELL_MLIGHT_AREA:
+          (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+          break;
+      case SV_SPELL_MTREASURE_DETECTION:
+          (void)detect_treasure();
+          break;
+      case SV_SPELL_MCURE_LIGHT_WOUNDS:
+          (void)hp_player(damroll(2, 8));
+          (void)set_cut(p_ptr->cut - 15);
+          break;
+      case SV_SPELL_MOBJECT_DETECTION:
+          (void)detect_object();
+          break;
+      case SV_SPELL_MFIND_TRAPS_DOORS:
+          (void)detect_sdoor();
+          (void)detect_trap();
+          break;
+      case SV_SPELL_MSTINKING_CLOUD:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+          break;
+      case SV_SPELL_MCONFUSION:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)confuse_monster(dir, plev);
+          break;
+      case SV_SPELL_MLIGHTNING_BOLT:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+                            damroll(min(3, 3+(plev-5)/4),8));
+          break;
+      case SV_SPELL_MTRAPDOOR_DESTRUCT:
+          (void)destroy_doors_touch();
+          break;
+      case SV_SPELL_MSLEEP_I:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)sleep_monster(dir);
+          break;
+      case SV_SPELL_MCURE_POISON:
+          (void)set_poisoned(0);
+          break;
+      case SV_SPELL_MTELEPORT_SELF:
+          teleport_player(plev * 5);
+          break;
+      case SV_SPELL_MSPEAR_OF_LIGHT:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          msg_print("A line of blue shimmering light appears.");
+          lite_line(dir);
+          break;
+      case SV_SPELL_MFROST_BOLT:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_bolt_or_beam(beam-10, GF_COLD, dir,
+                            damroll(min(5, 5+(plev-5)/4),8));
+          break;
+      case SV_SPELL_MTURN_STONE_TO_MUD:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)wall_to_mud(dir);
+          break;
+      case SV_SPELL_MCREATE_FOOD:
+          (void)set_food(PY_FOOD_MAX - 1);
+          break;
+      case SV_SPELL_MRECHARGE_ITEM_I:
+          (void)recharge(5);
+          break;
+      case SV_SPELL_MSLEEP_II:
+          (void)sleep_monsters_touch();
+          break;
+      case SV_SPELL_MPOLYMORPH_OTHER:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)poly_monster(dir);
+          break;
+      case SV_SPELL_MIDENTIFY:
+          (void)ident_spell();
+          break;
+      case SV_SPELL_MSLEEP_III:
+          (void)sleep_monsters();
+          break;
+      case SV_SPELL_MFIRE_BOLT:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_bolt_or_beam(beam, GF_FIRE, dir,
+                            damroll(min(8, 8+(plev-5)/4),8));
+          break;
+      case SV_SPELL_MSLOW_MONSTER:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)slow_monster(dir);
+          break;
+      case SV_SPELL_MFROST_BALL:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_COLD, dir, 30 + plev, 2);
+          break;
+      case SV_SPELL_MRECHARGE_ITEM_II:
+          (void)recharge(40);
+          break;
+      case SV_SPELL_MTELEPORT_OTHER:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)teleport_monster(dir);
+          break;
+      case SV_SPELL_MHASTE_SELF:
+          if (!p_ptr->fast)
+              (void)set_fast(randint(20) + plev);
+          else
+              (void)set_fast(p_ptr->fast + randint(5));
+          break;
+      case SV_SPELL_MFIRE_BALL:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_FIRE, dir, 55 + plev, 2);
+          break;
+      case SV_SPELL_MWORD_OF_DESTRUCTION:
+          destroy_area(px, py, 15, TRUE);
+          break;
+      case SV_SPELL_MGENOCIDE_HARD:
+          (void)genocide();
+          break;
+      case SV_SPELL_MRESIST_FIRE:
+          (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+          break;
+      case SV_SPELL_MRESIST_COLD:
+          (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+          break;
+      case SV_SPELL_MRESIST_ACID:
+          (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+          break;
+      case SV_SPELL_MRESIST_POISON:
+          (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+          break;
+      case SV_SPELL_MRESISTANCE:
+          (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+          (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+          (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+          (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+          break;
+      case SV_SPELL_MDOOR_CREATION:
+          (void)door_creation();
+          break;
+      case SV_SPELL_MSTAIR_CREATION:
+          (void)stair_creation();
+          break;
+      case SV_SPELL_MTELEPORT_LEVEL:
+          (void)teleport_player_level();
+          break;
+      case SV_SPELL_MEARTHQUAKE:
+          earthquake(py, px, 10);
+          break;
+      case SV_SPELL_MWORD_OF_RECALL:
+          if (!p_ptr->word_recall)
+          {
+              p_ptr->word_recall = rand_int(20) + 15;
+              msg_print("The air about you becomes charged...");
+          }
+          else
+          {
+              p_ptr->word_recall = 0;
+              msg_print("A tension leaves the air around you...");
+          }
+          break;
+      case SV_SPELL_MDETECT_EVIL:
+          (void)detect_evil();
+          break;
+      case SV_SPELL_MDETECT_ENCHANTMENT:
+          (void)detect_magic();
+          break;
+      case SV_SPELL_MRECHARGE_ITEM_III:
+          recharge(100);
+          break;
+      case SV_SPELL_MMASS_GENOCIDE:
+          (void)mass_genocide();
+          break;
+      case SV_SPELL_MHEROISM:
+          (void)hp_player(10);
+          (void)set_hero(p_ptr->hero + randint(25) + 25);
+          (void)set_afraid(0);
+          break;
+      case SV_SPELL_MSHIELD:
+          (void)set_shield(p_ptr->shield + randint(20) + 30);
+          break;
+      case SV_SPELL_MBERSERKER:
+          (void)hp_player(30);
+          (void)set_shero(p_ptr->shero + randint(25) + 25);
+          (void)set_afraid(0);
+          break;
+      case SV_SPELL_MESSENCE_OF_SPEED:
+          if (!p_ptr->fast)
+          {
+              (void)set_fast(randint(30) + 30 + plev);
+          }
+          else
+          {
+              (void)set_fast(p_ptr->fast + randint(10));
+          }
+          break;
+      case SV_SPELL_MINVULNERABILITY:
+          if (p_ptr->invuln)
+          {
+             msg_print("You feel that you are making a terrible mistake...");
+             (void)set_invuln(0);
+          }
+          else
+          {
+             (void)set_invuln(2000 + randint(p_ptr->lev * 60));
+          }
+          break;
+      case SV_SPELL_MACID_BOLT:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_bolt_or_beam(beam, GF_ACID, dir,
+                            damroll(min(6, 6+(plev-5)/4), 8));
+          break;
+      case SV_SPELL_MCLOUDKILL:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_POIS, dir,
+                    20 + (plev / 2), min(3, 3 + (plev-10)/10));
+          break;
+      case SV_SPELL_MACID_BALL:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_ACID, dir,
+                    40 + (plev), min(2, 2 + (plev-10) / 10));
+          break;
+      case SV_SPELL_MICE_STORM:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_COLD, dir,
+                    70 + (plev), min(3, 3 + (plev-10) / 10));
+          break;
+      case SV_SPELL_MMETEOR_SWARM:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_METEOR, dir,
+                    65 + (plev), min(3, 3 + (plev-20) / 10));
+          break;
+      case SV_SPELL_MHELLFIRE:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_MANA, dir,
+                    300 + (plev * 2), 3 + (plev>35)?1:0);
+          break;
+      case SV_SPELL_MREFLECTION:
+          if (p_ptr->reflecting)
+             (void)set_reflecting(randint(10));
+          else
+             (void)set_reflecting(15+randint(20));
+          break;
+      case SV_SPELL_MCREATESIMPLETRAP:
+          if (!make_trap_from_spell(0, FALSE)) return (TRUE);
+          break;
+      case SV_SPELL_MCREATEEFFECTIVETRAP:
+          if (!make_trap_from_spell(1, FALSE)) return (TRUE);
+          break;
+      case SV_SPELL_MCREATEDANGEROUSTRAP:
+          if (!make_trap_from_spell(2, FALSE)) return (TRUE);
+          break;
+      case SV_SPELL_MCREATEDEATHTRAP:
+          if (!make_trap_from_spell(3, FALSE)) return (TRUE);
+          break;
+      case SV_SPELL_MCREATECOMPLEXTRAP:
+          if (!make_trap_from_spell(3, FALSE)) return (TRUE);
+          break;
+      case SV_SPELL_PDETECT_EVIL:
+          (void)detect_evil();
+          break;
+      case SV_SPELL_PCURE_LIGHT_WOUNDS:
+          (void)hp_player(damroll(2, 10));
+          (void)set_cut(p_ptr->cut - 10);
+          break;
+      case SV_SPELL_PBLESS:
+          (void)set_blessed(p_ptr->blessed + randint(12) + 12);
+          break;
+      case SV_SPELL_PREMOVE_FEAR:
+          (void)set_afraid(0);
+          break;
+      case SV_SPELL_PCALL_LIGHT:
+          (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+          break;
+      case SV_SPELL_PFIND_TRAPS:
+          (void)detect_trap();
+          break;
+      case SV_SPELL_PDET_DOORS_STAIRS:
+          (void)detect_sdoor();
+          break;
+      case SV_SPELL_PSLOW_POISON:
+          (void)set_poisoned(p_ptr->poisoned / 2);
+          break;
+      case SV_SPELL_PBLIND_CREATURE:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)fear_monster(dir, plev);
+          break;
+      case SV_SPELL_PPORTAL:
+          teleport_player(plev * 3);
+          break;
+      case SV_SPELL_PCURE_MEDIUM_WOUNDS:
+          (void)hp_player(damroll(4, 10));
+          (void)set_cut((p_ptr->cut / 2) - 20);
+          break;
+      case SV_SPELL_PCHANT:
+          (void)set_blessed(p_ptr->blessed + randint(24) + 24);
+          break;
+      case SV_SPELL_PSANCTUARY:
+          (void)sleep_monsters_touch();
+          break;
+      case SV_SPELL_PCREATE_FOOD:
+          (void)set_food(PY_FOOD_MAX - 1);
+          break;
+      case SV_SPELL_PREMOVE_CURSE:
+          remove_curse();
+          break;
+      case SV_SPELL_PRESIST_HEAT_COLD:
+          (void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
+          (void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
+          break;
+      case SV_SPELL_PNEUTRALIZE_POISON:
+          (void)set_poisoned(0);
+          break;
+      case SV_SPELL_PORB_OF_DRAINING:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          fire_ball(GF_HOLY_ORB, dir,
+                    (damroll(3,6) + plev +
+                     (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
+                    ((plev < 30) ? 2 : 3));
+          break;
+      case SV_SPELL_PCURE_SER_WOUNDS:
+          (void)hp_player(damroll(6, 10));
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PSENSE_INVISIBLE:
+          (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+          break;
+      case SV_SPELL_PPROT_FROM_EVIL:
+          (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+          break;
+      case SV_SPELL_PEARTHQUAKE:
+          earthquake(py, px, 10);
+          break;
+      case SV_SPELL_PSENSE_SURROUNDINGS:
+          map_area();
+          break;
+      case SV_SPELL_PCURE_CRIT_WOUNDS:
+          (void)hp_player(damroll(8, 10));
+          (void)set_stun(0);
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PTURN_UNDEAD:
+          (void)turn_undead();
+          break;
+      case SV_SPELL_PPRAYER:
+          (void)set_blessed(p_ptr->blessed + randint(48) + 48);
+          break;
+      case SV_SPELL_PDISPEL_UNDEAD_SMALL:
+          (void)dispel_undead(plev * 3);
+          break;
+      case SV_SPELL_PHEAL:
+          (void)hp_player(300);
+          (void)set_stun(0);
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PDISPEL_EVIL:
+          (void)dispel_evil(plev * 3);
+          break;
+      case SV_SPELL_PGLYPH_OF_WARDING:
+          warding_glyph();
+          break;
+      case SV_SPELL_PHOLY_WORD:
+          (void)dispel_evil(plev * 4);
+          (void)hp_player(1000);
+          (void)set_afraid(0);
+          (void)set_poisoned(0);
+          (void)set_stun(0);
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PBLINK:
+          teleport_player(10);
+          break;
+      case SV_SPELL_PTELEPORT:
+          teleport_player(plev * 8);
+          break;
+      case SV_SPELL_PTELEPORT_AWAY:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          (void)teleport_monster(dir);
+          break;
+      case SV_SPELL_PTELEPORT_LEVEL:
+          (void)teleport_player_level();
+          break;
+      case SV_SPELL_PALTER_REALITY:
+          msg_print("The world changes!");
+          new_level_flag = TRUE;
+          break;
+      case SV_SPELL_PDETECT_MONSTERS:
+          (void)detect_monsters();
+          break;
+      case SV_SPELL_PDETECTION:
+          (void)detection();
+          break;
+      case SV_SPELL_PPERCEPTION:
+          (void)ident_spell();
+          break;
+      case SV_SPELL_PPROBING:
+          (void)probing();
+          break;
+      case SV_SPELL_PCLAIRVOYANCE:
+          wiz_lite();
+          break;
+      case SV_SPELL_PCURE_SER_WOUNDS_EASY:
+          (void)hp_player(damroll(4, 10));
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PCURE_CRIT_WOUNDS_EASY:
+          (void)hp_player(damroll(8, 10));
+          (void)set_stun(0);
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PHEALING:
+          (void)hp_player(2000);
+          (void)set_stun(0);
+          (void)set_cut(0);
+          break;
+      case SV_SPELL_PRESTORATION:
+          (void)do_res_stat(A_STR);
+          (void)do_res_stat(A_INT);
+          (void)do_res_stat(A_WIS);
+          (void)do_res_stat(A_DEX);
+          (void)do_res_stat(A_CON);
+          (void)do_res_stat(A_CHR);
+          break;
+      case SV_SPELL_PREMEMBRANCE:
+          (void)restore_level();
+          break;
+      case SV_SPELL_PUNBARRING_WAYS:
+          (void)destroy_doors_touch();
+          break;
+      case SV_SPELL_PRECHARGING:
+          (void)recharge(15);
+          break;
+      case SV_SPELL_PDISPEL_CURSE:
+          (void)remove_all_curse();
+          break;
+      case SV_SPELL_PENCHANT_WEAPON:
+/* jk - *enchant* effects */
+          (void)enchant_spell(100+rand_int(4) + 1, 100+rand_int(4) + 1, 0);
+          break;
+      case SV_SPELL_PENCHANT_ARMOUR:
+          (void)enchant_spell(0, 0, 100+rand_int(3) + 2);
+          break;
+      case SV_SPELL_PELEMENTAL_BRAND:
+          brand_weapon();
+          break;
+      case SV_SPELL_PDISPEL_UNDEAD_LARGE:
+          (void)dispel_undead(plev * 4);
+          break;
+      case SV_SPELL_PDISPEL_EVIL_LARGE:
+          (void)dispel_evil(plev * 4);
+          break;
+      case SV_SPELL_PBANISHMENT:
+          if (banish_evil(100))
+          {
+              msg_print("The power of your god banishes evil!");
+          }
+          break;
+      case SV_SPELL_PWORD_OF_DESTRUCTION:
+          destroy_area(px, py, 15, TRUE);
+          break;
+      case SV_SPELL_PANNIHILATION:
+          if (!get_aim_dir(&dir)) return (TRUE);
+          drain_life(dir, 200);
+          break;
+
+      default: msg_format("Unknown page spell no %d", spellno);
+               break;
+   }
+   return (FALSE);
+}
+
+/*
+ * this function penalizes you for reading a spell
+ * from a wrong class
+ */
+static void penalize_spell(void)
+{
+   switch(randint(10))
+   {
+      /* in 50% of cases, lose all mana */
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:  msg_print("You feel numb and drained.");
+               p_ptr->csp = 0;
+               p_ptr->csp_frac = 0;
+               break;
+      /* in 20% of cases, induce hallucination */
+      case 6:
+      case 7:  msg_print("You're not sure of anything anymore.");
+               set_image(p_ptr->image + rand_int(50) + 50);
+               break;
+      /* in 20% of cases, induce slowness and blindness */
+      case 8:
+      case 9:  msg_print("Your eyes burn and you feel an odd calm.");
+               set_slow(p_ptr->slow + randint(30) + 30);
+               set_blind(p_ptr->blind + randint(30) + 30);
+               break;
+      /* in 10% of cases, reduce the stat */
+      case 10: if (p_ptr->pclass != CLASS_HIGHPRST)
+               {
+                  /* are we an INT user? */
+                  if (bit_class(p_ptr->pclass) & MAGE_MAGIC_CLASS)
+                  {
+                     (void)do_dec_stat(A_INT, STAT_DEC_NORMAL);
+                  }
+                  else
+                  {
+                     (void)do_dec_stat(A_WIS, STAT_DEC_NORMAL);
+                  }
+               }
+               break;
+   }
+}
+
+/*
+ * execute a page with a spell on it.
+ * return TRUE if the spell should cease to exist
+ *        FALSE if it shouldn't disappear
+ */
+bool exec_page(s16b spellno)
+{
+   s16b chance, plev, i;
+   bool highprst = (p_ptr->pclass == CLASS_HIGHPRST);
+   bool wrong_class = FALSE, aborted = FALSE;
+
+   plev = p_ptr->lev;
+
+dlog(DEBUGITEMS,"cmd5.c: exec_page: starting, spellno %d\n", spellno);
+   /* Verify "dangerous" spells */
+   if (spell_mana(spellno) > p_ptr->csp)
+   {
+      /* Warning */
+      msg_print("You do not have enough mana to cast this spell.");
+
+      /* Verify */
+      if (!get_check("Attempt it anyway? "))
+      {
+         return FALSE;
+      }
+   }
+
+   /* Spell failure chance */
+   chance = page_chance(spellno);
+dlog(DEBUGITEMS,"cmd5.c: exec_page: spellno %d chance %d\n", spellno, chance);
+
+   /* reading from a book is tested elsewhere, so this is stricly for direct */
+   /* reading a spell */
+   if ( (!highprst) &&
+        (!(s_info[spellno].sclass & (1L<<p_ptr->pclass))))
+   {
+      /* not for your class? Take a penalty! */
+      chance = chance / 2;
+      wrong_class = TRUE;
+   }
+
+   /* Failed spell */
+   i = rand_int(100);
+dlog(DEBUGITEMS,"cmd5.c: exec_page: i %d chance %d\n", i, chance);
+   if (i < chance)
+   {
+       if (flush_failure) flush();
+       msg_print("You failed to get the spell off!");
+   }
+
+   /* Process spell */
+   else
+   {
+      s16b sqrtlev=0, factor;
+
+dlog(DEBUGITEMS,"cmd5.c: exec_page: calling exec_spell\n");
+      aborted = exec_spell(spellno);
+dlog(DEBUGITEMS,"cmd5.c: exec_page: exec_spell called\n");
+      if (aborted) return (FALSE);
+
+      /* now gain some experience: first time, 100%, second time 33%, then 11% etc. */
+
+      while ( (sqrtlev*sqrtlev) < s_info[spellno].level) sqrtlev++;
+      factor = 1 + (s_info[spellno].numcast << 3);
+      gain_exp( (sqrtlev * s_info[spellno].mana * (s_info[spellno].scale + 1)) / factor);
+      s_info[spellno].numcast++;
+      if ((s_info[spellno].numcast == (10 * s_info[spellno].level)) && (! cheat_spell_info) )
+      {
+         msg_format("You feel you know more about the spell of %s.\n", s_name + s_info[spellno].name);
+      }
+   }
+
+   /* Sufficient mana */
+   if (s_info[spellno].mana <= p_ptr->csp)
+   {
+      /* Use some mana */
+      p_ptr->csp -= spell_mana(spellno);
+   }
+
+   /* Over-exert the player */
+   else
+   {
+      s16b oops = spell_mana(spellno) - p_ptr->csp;
+
+      /* No mana left */
+      p_ptr->csp = 0;
+      p_ptr->csp_frac = 0;
+
+      /* Message */
+      msg_print("You faint from the effort!");
+
+      /* Hack -- Bypass free action */
+      (void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+
+      /* Damage CON (possibly permanently) */
+      if (rand_int(100) < 50)
+      {
+         s16b stat_dec_mode;
+         if (rand_int(100) < 25)
+         {
+            stat_dec_mode = STAT_DEC_PERMANENT;
+         }
+         else
+         {
+            stat_dec_mode = STAT_DEC_NORMAL;
+         }
+
+         /* Message */
+         msg_print("You have damaged your health!");
+
+         /* Reduce constitution */
+
+         (void)dec_stat(A_CON, 15 + randint(10), stat_dec_mode);
+      }
+   }
+   if (wrong_class)
+   {
+      penalize_spell();
+   }
+   p_ptr->redraw1 |= (PR1_MANA);
+dlog(DEBUGITEMS,"cmd5.c: exec_page: returning\n");
+
+   return (TRUE);
+}
+
+static bool add_spell(object_type *i_ptr, s16b spellno)
+{
+   s16b count = 0, i;
+   for (i=0; i<MAX_SPELLS_PER_ITEM; i++)
+   {
+      if (has_spell(i_ptr, i)) count++;
+   }
+dlog(DEBUGITEMS,"cmd5.c: add_spell: i_ptr->spell_set %d spellno %d spells existing %d\n", i_ptr->spell_set, spellno, count);
+
+   switch (i_ptr->sval)
+   {
+      case SV_BOOK_SMALL : if (count==4)
+                           {
+                              msg_print("This book is full");
+                              return FALSE;
+                           }
+      case SV_BOOK_AVG: if (count==8)
+                           {
+                              msg_print("This book is full");
+                              return FALSE;
+                           }
+      case SV_BOOK_LARGE : if (count==12)
+                           {
+                              msg_print("This book is full");
+                              return FALSE;
+                           }
+   }
+dlog(DEBUGITEMS,"cmd5.c: add_spell: calling set_spell (spell %d)\n", spellno);
+   set_spell(i_ptr, spellno);
+   return(TRUE);
+}
+
+bool item_tester_hook_book(object_type *i_ptr)
+{
+   s16b count = 0, i;
+
+   if (i_ptr->tval != TV_BOOK) return (FALSE);
+
+   for (i=0; i<MAX_SPELLS_PER_ITEM; i++)
+   {
+      if (has_spell(i_ptr, i)) count++;
+   }
+
+   if ( ((i_ptr->sval == SV_BOOK_SMALL) && (count==4)) ||
+        ((i_ptr->sval == SV_BOOK_AVG) && (count==8)) ||
+        ((i_ptr->sval == SV_BOOK_LARGE) && (count==12)))
+   {
+      return (FALSE);
+   }
+
+   return (TRUE);
+}
+
+void read_spell(object_type *i_ptr, s16b item)
+{
+   object_type *j_ptr;
+   s16b        itemb, level;
+   s16b        amt = 1;
+   bool        destroyed = FALSE;
+   s16b        chance, i, j, cnt = 0;
+   s16b        index[MAX_SPELLS_PER_ITEM];
+   bool        done, found;
+
+   static s16b        was_reading = FALSE;
+   static object_type *k_ptr;
+   static s16b        itemr;
+
+   if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_GLADIATR))
+   {
+      msg_print("You don't know how to read this!");
+      return;
+   }
+
+   if (p_ptr->reading == 0)
+   {
+      if (was_reading)
+      {
+         msg_print("You know nothing more than before about this spell.");
+         p_ptr->redraw2 |= (PR2_READ);
+         redraw_stuff();
+         was_reading = FALSE;
+
+         return;
+      }
+      if (i_ptr == NULL)
+      {
+         dlog(DEBUGALWAYS,"cmd5.c: read_spell: called with i_ptr == NULL, p_ptr->reading %d was_reading %d\n",
+                          p_ptr->reading, was_reading);
+         dump_stack(NULL);
+         msg_print("Something went wrong - read the log");
+         return;
+      }
+      level = s_info[i_ptr->sval].level;
+
+      /* level + randint(2*level) means 1-42 + randint(2-84) */
+      chance = level + randint(2*level);
+dlog(DEBUGITEMS,"cmd5.c: read_spell aware %d known %d chance %d p_ptr->lev %d\n",
+          object_aware_p(i_ptr), object_known_p(i_ptr), chance, p_ptr->lev);
+      if (!object_aware_p(i_ptr) && !object_known_p(i_ptr) &&
+          (level+randint(2*level)>p_ptr->lev) )
+      {
+         msg_print("You can't figure out which side is up!");
+         return;
+      }
+      else
+      {
+         if (!object_aware_p(i_ptr) && !object_known_p(i_ptr))
+         {
+            msg_print("You figured out the use of this spell!");
+         }
+
+         /* The item was tried */
+         object_tried(i_ptr);
+
+         /* An identification was made */
+         if (!object_aware_p(i_ptr))
+         {
+            object_aware(i_ptr);
+            gain_exp((level + (p_ptr->lev >> 1)) / p_ptr->lev);
+         }
+      }
+
+      /* p_ptr->lev/2 0 to 25                                  */
+      /* skill_dev^2 / 10 gives 0 to 12                        */
+      /* rand_int(p_ptr->skill_dev) gives 0 to 11              */
+      /* scroll levels range from 0 to 45                      */
+      chance=p_ptr->lev/2 + (p_ptr->skill_dev*p_ptr->skill_dev)/360 +
+          randint(p_ptr->skill_dev/6);
+dlog(DEBUGITEMS,"cmd5.c: read_spell chance %d level %d\n", chance, level);
+      if (p_ptr->lev/2 + (p_ptr->skill_dev*p_ptr->skill_dev)/360 +
+          randint(p_ptr->skill_dev/6) <level)
+      {
+         switch(randint(10))
+         {
+            case  1: msg_print("You don't understand these runes.");
+                     break;
+            case  2: msg_print("You feel dizzy.");
+                     if (!p_ptr->resist_conf)
+                        set_confused(p_ptr->confused + rand_int(10) + 10);
+                     break;
+            case  3: msg_print("Your head spins.");
+                     set_stun(p_ptr->stun + rand_int(25) + 10);
+                     break;
+            case  4: msg_print("You feel very dizzy.");
+                     if (!p_ptr->resist_conf)
+                        set_confused(p_ptr->confused + rand_int(25) + 25);
+                     break;
+            case  5: msg_print("The runes fade away while reading.");
+                     destroyed = TRUE;
+                     break;
+            case  6: msg_print("You feel something strange happening.");
+                     teleport_player(10);
+                     break;
+            case  7: msg_print("The meaning seems to slip away.");
+                     set_sliding(p_ptr->sliding + randint(10) + 10);
+                     break;
+            case  8: msg_print("You cut your fingers on the sharp edge of the spell.");
+                     set_cut(p_ptr->cut + randint(25) + 25);
+                     break;
+            case  9: msg_print("The runes cloud your mind.");
+                     (void)unlite_area(10, 3);
+                     if (!p_ptr->resist_blind)
+                        set_blind(p_ptr->blind + 3 + randint(5));
+                     break;
+            case 10: msg_print("The ink seems poisonous.");
+                     if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+                        set_poisoned(p_ptr->poisoned + rand_int(10) + 10);
+                     break;
+         }
+         if (destroyed)
+         {
+            item_increase(item, -1, px, py);
+            item_describe(item, px, py);
+            item_optimize(item, px, py);
+         }
+         return;
+      }
+      if (get_check("You can read this spell now or meditate on it. Read now?"))
+      {
+         if (exec_page(i_ptr->sval))
+         {
+            item_increase(item, -1, i_ptr->ix, i_ptr->iy);
+            item_describe(item, i_ptr->ix, i_ptr->iy);
+            item_optimize(item, i_ptr->ix, i_ptr->iy);
+         }
+         return;
+      }
+      chance = level*4 + randint(8*level);
+      msg_format("You start to meditate on this spell.", chance);
+dlog(DEBUGITEMS,"cmd5.c: read_spell: meditating on spell item %d spellno %d\n",
+                itemr, i_ptr->sval);
+      was_reading = TRUE;
+      max_reading = chance;
+      p_ptr->reading = chance;
+      k_ptr = i_ptr;
+      itemr = item;
+      return;
+   }
+   else /* p_ptr->reading==1; */
+   {
+      bool priest = ( (p_ptr->pclass == CLASS_PRIEST) ||
+                      (p_ptr->pclass == CLASS_PALADIN));
+      bool highprst = (p_ptr->pclass == CLASS_HIGHPRST);
+
+      i_ptr = k_ptr;
+      item = itemr;
+dlog(DEBUGITEMS,"cmd5.c: read_spell: meditated on spell item %d spellno %d\n",
+                itemr, i_ptr->sval);
+
+      p_ptr->redraw2 |= (PR2_READ);
+      redraw_stuff();
+
+      /* we can't read it if it's for the wrong class */
+      if ( (!highprst) &&
+           (!(s_info[i_ptr->sval].sclass & (1L<<p_ptr->pclass))))
+      {
+         msg_format("This %s is totally alien to you.",
+                    priest?"prayer":"spell");
+         return;
+      }
+
+      msg_format("You are enlightened about this %s of %s.",
+                 (s_info[i_ptr->sval].sclass&CLASS_PRIEST)?"prayer":"spell",
+                 s_name + s_info[i_ptr->sval].name);
+
+      /* did we read a spell we already knew? */
+      found = FALSE;
+      for (i=0; i<INVEN_PACK; i++)
+      {
+         if (inventory[i].tval == TV_BOOK)
+         {
+            for (j=0; j<s_number; j++)
             {
-                spell_worked1 |= (1L << j);
+               if (has_spell(&inventory[i], j))
+               {
+                  index[cnt++]=j;
+               }
+            }
+         }
+      }
+      /* now compare known spells to the just read spell */
+      for (i=0; ( (i<cnt) && !found); i++)
+      {
+         if (index[i]==i_ptr->sval) found = TRUE;
+      }
+      /* no exit, as adding it to a book does nothing if already known */
+      if (found)
+      {
+         msg_print("This spell seems strangely familiar.");
+      }
+
+      max_reading = 0;
+      was_reading = FALSE;
+
+      done = FALSE;
+      while (!done)
+      {
+         item_tester_hook = item_tester_hook_book;
+         if (!get_item(&itemb, &amt, "Bind it in what? ", FALSE, TRUE, TRUE))
+         {
+            item_tester_hook = NULL;
+            if (itemb == -2)
+            {
+               msg_print("You cannot bind it in anything - your memories of this spell fade.");
+               msg_print(NULL);
+            }
+
+            return;
+         }
+         item_tester_hook = NULL;
+
+         /* Get the item (in the pack) */
+         j_ptr=get_item_pointer(itemb);
+ 
+         /* if the book is stacked, take special care and split the stack  */
+         /* note that books with spell-sets don't stack, even if they hold */
+         /* the same spells                                                */
+         if (j_ptr->number>1)
+         {
+            object_type tmp_obj;
+            tmp_obj = *j_ptr;
+            tmp_obj.number = j_ptr->number - 1;
+            j_ptr->number = 1;
+            done=(add_spell(j_ptr, i_ptr->sval)!=-1);
+            /* now destroy the original spell */
+            if (done)
+            {
+               char i_name[240];
+ 
+               item_increase(item, -amt, px, py);
+               item_optimize(item, px, py);
+              
+               object_desc(i_name, &tmp_obj, FALSE, 0);
+               msg_format("You unstack %s.", i_name);
+
+               (void)inven_carry(&tmp_obj,tmp_obj.number);
             }
             else
             {
-                spell_worked2 |= (1L << (j - 32));
+               /* something went wrong, reset the stack to its original size */
+               j_ptr->number += tmp_obj.number;
             }
-
-            /* Gain experience */
-            gain_exp(e * s_ptr->slevel);
-        }
-    }
-
-    /* Take a turn */
-    energy_use = 100;
-
-    /* Sufficient mana */
-    if (s_ptr->smana <= p_ptr->csp)
-    {
-        /* Use some mana */
-        p_ptr->csp -= s_ptr->smana;
-    }
-
-    /* Over-exert the player */
-    else
-    {
-        int oops = s_ptr->smana - p_ptr->csp;
-
-        /* No mana left */
-        p_ptr->csp = 0;
-        p_ptr->csp_frac = 0;
-
-        /* Message */
-        msg_print("You faint from the effort!");
-
-        /* Hack -- Bypass free action */
-        (void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
-
-        /* Damage CON (possibly permanently) */
-        if (rand_int(100) < 50)
-        {
-            bool perm = (rand_int(100) < 25);
-
-            /* Message */
-            msg_print("You have damaged your health!");
-
-            /* Reduce constitution */
-            (void)dec_stat(A_CON, 15 + randint(10), perm);
-        }
-    }
-
-    /* Redraw mana */
-    p_ptr->redraw |= (PR_MANA);
-}
-
-
-/*
- * Brand the current weapon
- */
-static void brand_weapon(void)
-{
-    object_type *i_ptr;
-
-    i_ptr = &inventory[INVEN_WIELD];
-
-    /* you can never modify artifacts / ego-items */
-    /* you can never modify broken / cursed items */
-    if ((i_ptr->k_idx) &&
-        (!artifact_p(i_ptr)) && (!ego_item_p(i_ptr)) &&
-        (!broken_p(i_ptr)) && (!cursed_p(i_ptr)))
-    {
-        cptr act = NULL;
-
-        char i_name[80];
-
-        if (rand_int(100) < 25)
-        {
-            act = "is covered in a fiery shield!";
-            i_ptr->name2 = EGO_BRAND_FIRE;
-        }
-
-        else
-        {
-            act = "glows deep, icy blue!";
-            i_ptr->name2 = EGO_BRAND_COLD;
-        }
-
-        object_desc(i_name, i_ptr, FALSE, 0);
-
-        msg_format("Your %s %s", i_name, act);
-
-        enchant(i_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-    }
-
-    else
-    {
-        if (flush_failure) flush();
-        msg_print("The Branding failed.");
-    }
-}
-
-
-/*
- * Pray a prayer
- */
-void do_cmd_pray(void)
-{
-    int item, sval, j, dir, chance;
-    int plev = p_ptr->lev;
-
-    object_type	*i_ptr;
-
-    magic_type  *s_ptr;
-
-
-    /* Must use prayer books */
-    if (mp_ptr->spell_book != TV_PRAYER_BOOK)
-    {
-        msg_print("Pray hard enough and your prayers may be answered.");
-        return;
-    }
-
-    /* Must have lite */
-    if (p_ptr->blind || no_lite())
-    {
-        msg_print("You cannot see!");
-        return;
-    }
-
-    /* Must not be confused */
-    if (p_ptr->confused)
-    {
-        msg_print("You are too confused!");
-        return;
-    }
-
-
-    /* Restrict choices */
-    item_tester_tval = mp_ptr->spell_book;
-
-    /* Get an item (from inven or floor) */
-    if (!get_item(&item, "Use which book? ", FALSE, TRUE, TRUE))
-    {
-        if (item == -2) msg_print("You have no prayer books!");
-        return;
-    }
-
-    /* Get the item (in the pack) */
-    if (item >= 0)
-    {
-        i_ptr = &inventory[item];
-    }
-
-    /* Get the item (on the floor) */
-    else
-    {
-        i_ptr = &i_list[0 - item];
-    }
-
-    /* Access the item's sval */
-    sval = i_ptr->sval;
-
-
-    /* Choose a spell */
-    if (!get_spell(&j, "recite", sval, TRUE))
-    {
-        if (j == -2) msg_print("You don't know any prayers in that book.");
-        return;
-    }
-
-
-    /* Access the spell */
-    s_ptr = &mp_ptr->info[j];
-
-
-    /* Verify "dangerous" prayers */
-    if (s_ptr->smana > p_ptr->csp)
-    {
-        /* Warning */
-        msg_print("You do not have enough mana to recite this prayer.");
-
-        /* Verify */
-        if (!get_check("Attempt it anyway? ")) return;
-    }
-
-
-    /* Spell failure chance */
-    chance = spell_chance(j);
-
-    /* Check for failure */
-    if (rand_int(100) < chance)
-    {
-        if (flush_failure) flush();
-        msg_print("You failed to concentrate hard enough!");
-    }
-
-    /* Success */
-    else
-    {
-        switch (j)
-        {
-            case 0:
-                (void)detect_evil();
-                break;
-
-            case 1:
-                (void)hp_player(damroll(2, 10));
-                (void)set_cut(p_ptr->cut - 10);
-                break;
-
-            case 2:
-                (void)set_blessed(p_ptr->blessed + randint(12) + 12);
-                break;
-
-            case 3:
-                (void)set_afraid(0);
-                break;
-
-            case 4:
-                (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-                break;
-
-            case 5:
-                (void)detect_trap();
-                break;
-
-            case 6:
-                (void)detect_sdoor();
-                break;
-
-            case 7:
-                (void)set_poisoned(p_ptr->poisoned / 2);
-                break;
-
-            case 8:
-                if (!get_aim_dir(&dir)) return;
-                (void)fear_monster(dir, plev);
-                break;
-
-            case 9:
-                teleport_player(plev * 3);
-                break;
-
-            case 10:
-                (void)hp_player(damroll(4, 10));
-                (void)set_cut((p_ptr->cut / 2) - 20);
-                break;
-
-            case 11:
-                (void)set_blessed(p_ptr->blessed + randint(24) + 24);
-                break;
-
-            case 12:
-                (void)sleep_monsters_touch();
-                break;
-
-            case 13:
-                (void)set_food(PY_FOOD_MAX - 1);
-                break;
-
-            case 14:
-                remove_curse();
-                break;
-
-            case 15:
-                (void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
-                (void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
-                break;
-
-            case 16:
-                (void)set_poisoned(0);
-                break;
-
-            case 17:
-                if (!get_aim_dir(&dir)) return;
-                fire_ball(GF_HOLY_ORB, dir,
-                          (damroll(3,6) + plev +
-                           (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
-                          ((plev < 30) ? 2 : 3));
-                break;
-
-            case 18:
-                (void)hp_player(damroll(6, 10));
-                (void)set_cut(0);
-                break;
-
-            case 19:
-                (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-                break;
-
-            case 20:
-                (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
-                break;
-
-            case 21:
-                earthquake(py, px, 10);
-                break;
-
-            case 22:
-                map_area();
-                break;
-
-            case 23:
-                (void)hp_player(damroll(8, 10));
-                (void)set_stun(0);
-                (void)set_cut(0);
-                break;
-
-            case 24:
-                (void)turn_undead();
-                break;
-
-            case 25:
-                (void)set_blessed(p_ptr->blessed + randint(48) + 48);
-                break;
-
-            case 26:
-                (void)dispel_undead(plev * 3);
-                break;
-
-            case 27:
-                (void)hp_player(300);
-                (void)set_stun(0);
-                (void)set_cut(0);
-                break;
-
-            case 28:
-                (void)dispel_evil(plev * 3);
-                break;
-
-            case 29:
-                warding_glyph();
-                break;
-
-            case 30:
-                (void)dispel_evil(plev * 4);
-                (void)hp_player(1000);
-                (void)set_afraid(0);
-                (void)set_poisoned(0);
-                (void)set_stun(0);
-                (void)set_cut(0);
-                break;
-
-            case 31:
-                (void)detect_monsters();
-                break;
-
-            case 32:
-                (void)detection();
-                break;
-
-            case 33:
-                (void)ident_spell();
-                break;
-
-            case 34:
-                (void)probing();
-                break;
-
-            case 35:
-                wiz_lite();
-                break;
-
-            case 36:
-                (void)hp_player(damroll(4, 10));
-                (void)set_cut(0);
-                break;
-
-            case 37:
-                (void)hp_player(damroll(8, 10));
-                (void)set_stun(0);
-                (void)set_cut(0);
-                break;
-
-            case 38:
-                (void)hp_player(2000);
-                (void)set_stun(0);
-                (void)set_cut(0);
-                break;
-
-            case 39:
-                (void)do_res_stat(A_STR);
-                (void)do_res_stat(A_INT);
-                (void)do_res_stat(A_WIS);
-                (void)do_res_stat(A_DEX);
-                (void)do_res_stat(A_CON);
-                (void)do_res_stat(A_CHR);
-                break;
-
-            case 40:
-                (void)restore_level();
-                break;
-
-            case 41:
-                (void)dispel_undead(plev * 4);
-                break;
-
-            case 42:
-                (void)dispel_evil(plev * 4);
-                break;
-
-            case 43:
-                if (banish_evil(100))
-                {
-                    msg_print("The power of your god banishes evil!");
-                }
-                break;
-
-            case 44:
-                destroy_area(py, px, 15, TRUE);
-                break;
-
-            case 45:
-                if (!get_aim_dir(&dir)) return;
-                drain_life(dir, 200);
-                break;
-
-            case 46:
-                (void)destroy_doors_touch();
-                break;
-
-            case 47:
-                (void)recharge(15);
-                break;
-
-            case 48:
-                (void)remove_all_curse();
-                break;
-
-            case 49:
-                (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-                break;
-
-            case 50:
-                (void)enchant_spell(0, 0, rand_int(3) + 2);
-                break;
-
-            case 51:
-                brand_weapon();
-                break;
-
-            case 52:
-                teleport_player(10);
-                break;
-
-            case 53:
-                teleport_player(plev * 8);
-                break;
-
-            case 54:
-                if (!get_aim_dir(&dir)) return;
-                (void)teleport_monster(dir);
-                break;
-
-            case 55:
-                (void)teleport_player_level();
-                break;
-
-            case 56:
-                if (p_ptr->word_recall == 0)
-                {
-                    p_ptr->word_recall = rand_int(20) + 15;
-                    msg_print("The air about you becomes charged...");
-                }
-                else
-                {
-                    p_ptr->word_recall = 0;
-                    msg_print("A tension leaves the air around you...");
-                }
-                break;
-
-            case 57:
-                msg_print("The world changes!");
-                new_level_flag = TRUE;
-                break;
-
-            default:
-                break;
-        }
-
-        /* A prayer was prayed */
-        if (!((j < 32) ?
-              (spell_worked1 & (1L << j)) :
-              (spell_worked2 & (1L << (j - 32)))))
-        {
-            int e = s_ptr->sexp;
-
-            /* The spell worked */
-            if (j < 32)
-            {
-                spell_worked1 |= (1L << j);
-            }
-            else
-            {
-                spell_worked2 |= (1L << (j - 32));
-            }
-
-            /* Gain experience */
-            gain_exp(e * s_ptr->slevel);
-        }
-    }
-
-    /* Take a turn */
-    energy_use = 100;
-
-    /* Sufficient mana */
-    if (s_ptr->smana <= p_ptr->csp)
-    {
-        /* Use some mana */
-        p_ptr->csp -= s_ptr->smana;
-    }
-
-    /* Over-exert the player */
-    else
-    {
-        int oops = s_ptr->smana - p_ptr->csp;
-
-        /* No mana left */
-        p_ptr->csp = 0;
-        p_ptr->csp_frac = 0;
-
-        /* Message */
-        msg_print("You faint from the effort!");
-
-        /* Hack -- Bypass free action */
-        (void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
-
-        /* Damage CON (possibly permanently) */
-        if (rand_int(100) < 50)
-        {
-            bool perm = (rand_int(100) < 25);
-
-            /* Message */
-            msg_print("You have damaged your health!");
-
-            /* Reduce constitution */
-            (void)dec_stat(A_CON, 15 + randint(10), perm);
-        }
-    }
-
-    /* Redraw mana */
-    p_ptr->redraw |= (PR_MANA);
+         }
+         else
+         {
+
+dlog(DEBUGITEMS,"cmd5.c: read_spell: adding spell %d to book %d\n", i_ptr->sval, itemb);
+            done=(add_spell(j_ptr, i_ptr->sval)!=-1);
+            /* now destroy the original spell */
+            item_increase(item, -amt, px, py);
+            item_optimize(item, px, py);
+         }
+      }
+   }
 }
 

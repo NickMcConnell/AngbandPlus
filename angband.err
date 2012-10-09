@@ -1,0 +1,25 @@
+Bounds Checking GCC v gcc-2.95.2-2.20 Copyright (C) 1995 Richard W.M. Jones
+Bounds Checking comes with ABSOLUTELY NO WARRANTY. For details see file
+`COPYING' that should have come with the source to this program.
+Bounds Checking is free software, and you are welcome to redistribute it
+under certain conditions. See the file `COPYING' for details.
+For more information, set GCC_BOUNDS_OPTS to `-help'
+monster3.c:545:Bounds error: attempt to reference a NULL or ILLEGAL pointer.
+monster3.c:545:  Pointer value: ILLEGAL
+monster3.c:545:Bounds error: attempt to reference a NULL or ILLEGAL pointer.
+monster3.c:545:  Pointer value: ILLEGAL
+/usr/bin/angband64-beta-7-2: SOFTWARE BUG: savefile NOT written, crashdump saved.
+Bounds library call frequency statistics:
+  Calls to push, pop, param function:        8412981, 8412972, 75279
+  Calls to add, delete stack:                8902052, 8902042
+  Calls to add, delete heap:                 7716, 7187
+  Calls to check pointer +/- integer:        68696787
+  Calls to check array references:           65519551
+  Calls to check pointer differences:        12
+  Calls to check object references:          58018197
+  Calls to check component references:       84966726
+  Calls to check truth, falsity of pointers: 69965, 156570
+  Calls to check <, >, <=, >= of pointers:   45
+  Calls to check ==, != of pointers:         109240
+  Calls to check p++, ++p, p--, --p:         2019964, 84737, 0, 0
+  References to unchecked static, stack:     73768, 2160215

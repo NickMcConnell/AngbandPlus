@@ -3,7 +3,7 @@
 
 Adventuring
 -----------
-  
+
 After you have created your character, you will begin your Angband adventure.
 Symbols appearing on your screen will represent the dungeon's walls, floor,
 objects, features, and creatures lurking about.  In order to direct your
@@ -30,10 +30,10 @@ The "slash" command ("/") will identify any character appearing on your map
 
 Note that you can use a "pref" file to change any of these symbols to
 something you are more comfortable with.
-   
- 
+
+
                 Features that do not block line of sight
- 
+
   .   A floor space                   1   Entrance to General Store
   .   A trap (hidden)                 2   Entrance to Armoury
   ^   A trap (known)                  3   Entrance to Weapon Smith
@@ -53,7 +53,7 @@ something you are more comfortable with.
 
 
                              Objects
- 
+
   !   A potion (or flask)             /   A pole-arm
   ?   A scroll (or book)              |   An edged weapon
   ,   A mushroom (or food)            \   A hafted weapon
@@ -64,13 +64,13 @@ something you are more comfortable with.
   $   Gold or gems                    ]   Misc. armour
   ~   Junk, Skeletons, etc            )   A shield
   ~   Lites, Tools, Chests, etc
- 
- 
- 
+
+
+
                              Monsters
- 
+
             $   Creeping Coins      ,   Mushroom Patch
-    
+
             a   Giant Ant           A   Angelic being
             b   Giant Bat           B   Bird
             c   Giant Centipede     C   Canine
@@ -217,7 +217,7 @@ The Black Market ("7")
      not known for their tolerance...
 
 Your Home ("8")
-     This is your house where  you  can  store  objects  that you 
+     This is your house where  you  can  store  objects  that you
      cannot carry on your travels, or will need at a  later date.
 
 
@@ -441,7 +441,7 @@ For historical reasons, secret doors are never locked.
 Winning The Game
 ----------------
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
+Once your character has killed Sauron, who lives on level 99 (4950') in the
 dungeon, a magical staircase will appear that will finally allow you to reach
 level 100.  Morgoth lurks on this level of his dungeon, and you will not be
 able to go below his level until you have killed him.  Try to avoid wandering
@@ -453,7 +453,7 @@ Morgoth cannot be killed by some of the easier methods used on normal
 creatures.  Morgoth, like all other "Unique" monsters, will simply teleport
 away to another region of the level if you attempt to use a spell such as
 destruction is upon him.  Morgoth, like some other monsters, cannot be
-polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
+polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm
 and Orb of Draining are effective against him, as are some of the more
 powerful weapons, but he is difficult to kill and if allowed to escape for
 a time he will heal himself rapidly.
@@ -472,7 +472,7 @@ into a hoard of death molds...
 
 Upon Death and Dying
 --------------------
- 
+
 If your character falls below 0 hit points, he has died and cannot be
 restored.  A tombstone showing information about your character will be
 displayed.  You are also permitted to get a record of your character, and

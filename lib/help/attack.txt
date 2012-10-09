@@ -1,6 +1,6 @@
 Attacking and Being Attacked
 ----------------------------
- 
+
 Attacking is simple in Angband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means such
 as aiming a wand.  Creatures attack in the same way.  If they move into you,
@@ -22,7 +22,7 @@ missile launcher for launching missiles at the same time (along with a
 light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
 body armor).  Be sure not to try and kill a dragon with a shovel, it makes
 you look silly and probably won't work...
- 
+
 Firing a missile while wielding the appropriate launcher is the only way to
 get the "full" power out of the missile.  You may of course throw an arrow
 at a monster without shooting it, but you will find the effects may not be
@@ -33,7 +33,7 @@ is a strike that does some damage; a miss may in fact reach a target, but
 fails to do any  damage.  Higher armor classes make it harder to do damage,
 and so lead to more misses; they also reduce the damage from a strike that
 actually occurs.
- 
+
 
 Monster Memories
 ----------------
@@ -55,12 +55,12 @@ not otherwise available, such as a armor class or hit dice.  These are not
 explained, but may be useful to give the relative danger of each creature.
 This memory can be passed on to a new character even after you die by means
 of a reduced save file.
- 
+
 
 Your Weapon
 -----------
 
-Carrying a weapon in your backpack does you no good.  You must wield a weapon 
+Carrying a weapon in your backpack does you no good.  You must wield a weapon
 before it can be used in a fight.  A secondary weapon can be kept by keeping
 it in the backpack, and switching it with the primary weapon when needed.
 
@@ -100,7 +100,7 @@ to receive the benefit of its abilities.
 
 Ego weapons are denoted by the following "names": (note - these descriptions
 are very out of date)
- 
+
 
 (Defender)
      A magical weapon that actually helps the wielder defend himself, thus
@@ -169,7 +169,7 @@ Weapon of Slay Undead
      three times the normal amount of damage.  This weapon also gives you the
      ability to see invisible creatures, which is especially useful against
      undead, since many of them are normally invisible.   Some of these
-     weapons have the additional ability to protect against the life-draining 
+     weapons have the additional ability to protect against the life-draining
      attacks that many undead creatures possess.
 
 Weapon of Slay Orc
@@ -230,7 +230,7 @@ Your armor class (or AC) is a number that describes the amount and the
 quality of armor being worn. Armor class will generally run from about 0 to
 150, but could become negative or greater than 150 with rarer armour or by
 magical means.
- 
+
 The larger your armor class, the more protective it is.  A negative armor
 class would actually help get you hit.  Armor protects you in three manners.
 One, it makes you harder to be hit for damage.  A hit for no damage is the
@@ -261,28 +261,28 @@ of Resist Acid.
      A character using such an object will take only one third normal damage
      from any acid thrown upon him.  In addition, armor so enchanted will
      resist the acid's effects and not be damaged by it.
- 
+
 of Resist Lightning.
      A character using a resist lightning object will take only one third
      damage from electrical attacks.
- 
+
 of Resist Fire.
      A character using a resist fire object will take only one third damage
      from heat and fire.
- 
+
 of Resist Cold.
      A character using a resist cold object will take only one third damage
      from frost and cold.
- 
+
 of Resistance.
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
- 
+
 of Elvenkind.
      This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess extra 
+     It will make you more stealthy.  This armor can also possess extra
      resistances beyond the four basic elemental ones.
- 
+
 Robes of the Magi.
      These robes are designed especially for wizards.  Just like Elvenkind
      armor, they provide resistance to fire, cold, acid, and electricity and
@@ -291,7 +291,7 @@ Robes of the Magi.
      armor, they can have additional special resistances.  These robes are
      so good that their owners are rarely killed, perhaps explaining the
      incredible rarity.
- 
+
 Crown of Might
      This is the great crown of the warriors.  The wearer will have an
      increased strength, dexterity, and constituion, and will also be immune
@@ -316,11 +316,11 @@ Crown of Regeneration
      than normal, allowing you to fight longer before needing to rest.  You
      will use food faster than normal while wearing this crown because of
      the regenerative effects.
- 
+
 Crown of Beauty
      This crown looks impressive and will increase your charisma, but is
      otherwise not useful.
- 
+
 Dragon Scale Mails.
      These extremely rare pieces of armour come in many different colors,
      each protecting you against the relevent dragons.  Naturally they are

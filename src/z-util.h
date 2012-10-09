@@ -73,7 +73,7 @@ extern bool suffix(cptr s, cptr t);
 extern void plog(cptr str);
 
 /* Exit, with optional message */
-extern void quit(cptr str);
+extern void quit(/*@null@*/ cptr str);
 
 /* Dump core, with optional message */
 extern void core(cptr str);

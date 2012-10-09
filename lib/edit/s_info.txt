@@ -1,0 +1,784 @@
+# File: s_info.txt
+
+
+# This file is used to initialize the "lib/raw/s_info.raw" file, which is
+# used to initialize the "spell template" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/s_info.raw" file.
+
+
+V:2.7.10
+
+#N:spellno:name
+#I:level:mana:chance:minfail
+#W who can cast this
+#S scale
+#F flags
+#C max 8 char(s):color
+
+N:1:Magic Missile
+I:<level>1:<mana>1:<chance>22:<minfail>2
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:SMALL
+T:ATTACK_DRK
+C:*:y
+
+N:2:Detect Monsters
+I:<level>1:<mana>1:<chance>23:<minfail>2
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:SENSE
+
+N:3:Phase Door
+I:<level>1:<mana>2:<chance>24:<minfail>3
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:ESCAPE
+
+N:4:Light Area
+I:<level>1:<mana>2:<chance>26:<minfail>3
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_WORLD
+
+N:5:Detect Treasure
+I:<level>1:<mana>2:<chance>26:<minfail>3
+W:HIGHPRST | ROGUE
+S:SMALL
+T:SENSE
+
+N:6:Cure Light Wounds
+I:<level>3:<mana>3:<chance>25:<minfail>4
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:HEAL
+
+N:7:Object Detection
+I:<level>3:<mana>3:<chance>27:<minfail>5
+W:HIGHPRST | ROGUE
+S:AVG
+T:SENSE
+
+N:8:Find Traps and Doors
+I:<level>3:<mana>3:<chance>25:<minfail>1
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:SENSE
+
+N:9:Stinking Cloud
+I:<level>3:<mana>3:<chance>27:<minfail>5
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:SMALL
+T:ATTACK_NAT
+C:~:G
+
+N:20:Create Confusion
+I:<level>3:<mana>4:<chance>30:<minfail>1
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:21:Lightning Bolt
+I:<level>5:<mana>4:<chance>30:<minfail>4
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:SMALL
+T:ATTACK_NAT
+C:*:B
+
+N:22:Destruct Trap / Door
+I:<level>5:<mana>5:<chance>30:<minfail>6
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_WORLD
+
+N:23:Sleep I
+I:<level>5:<mana>5:<chance>30:<minfail>4
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_OTHER
+C:*:o
+
+N:24:Cure Poison
+I:<level>5:<mana>5:<chance>35:<minfail>4
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:HEAL
+
+N:25:Teleport Self
+I:<level>7:<mana>6:<chance>35:<minfail>5
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:ESCAPE
+
+N:26:Spear of Light
+I:<level>7:<mana>6:<chance>35:<minfail>5
+W:HIGHPRST | MAGE | RANGER | ROGUE | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:*:w
+
+N:27:Frost Bolt
+I:<level>7:<mana>6:<chance>35:<minfail>5
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:x:B
+
+N:28:Turn Stone to Mud
+I:<level>9:<mana>7:<chance>44:<minfail>8
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:CHANGE_WORLD
+C:*:u
+
+N:30:Satisfy Hunger
+I:<level>9:<mana>7:<chance>45:<minfail>8
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:31:Recharge Item I
+I:<level>9:<mana>7:<chance>75:<minfail>9
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_ITEM
+
+N:32:Sleep II
+I:<level>9:<mana>7:<chance>45:<minfail>8
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_OTHER
+C:*:o
+
+N:33:Polymorph Other
+I:<level>11:<mana>7:<chance>45:<minfail>9
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_OTHER
+C:#*:gg
+
+N:34:Identify
+I:<level>11:<mana>7:<chance>75:<minfail>6
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:SENSE
+
+N:35:Sleep III
+I:<level>13:<mana>7:<chance>50:<minfail>6
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_OTHER
+
+N:36:Fire Bolt
+I:<level>15:<mana>9:<chance>50:<minfail>6
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:\|/-:rrrr
+
+N:37:Slow Monster
+I:<level>17:<mana>9:<chance>50:<minfail>7
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:AVG
+T:CHANGE_OTHER
+C:*:s
+
+N:40:Frost Ball
+I:<level>19:<mana>12:<chance>55:<minfail>8
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:*:w
+
+N:41:Recharge Item II
+I:<level>21:<mana>12:<chance>90:<minfail>8
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_ITEM
+
+N:42:Teleport Other
+I:<level>23:<mana>12:<chance>60:<minfail>8
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:ESCAPE
+
+N:43:Haste Self
+I:<level>25:<mana>12:<chance>65:<minfail>10
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_SELF
+
+N:44:Fire Ball
+I:<level>29:<mana>18:<chance>65:<minfail>12
+W:HIGHPRST | MAGE | RANGER | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:\|/-:yyyy
+
+N:45:Word of Destruction
+I:<level>33:<mana>21:<chance>80:<minfail>15
+W:HIGHPRST | MAGE | RANGER
+S:AVG
+T:CHANGE_WORLD
+
+N:46:Genocide I
+I:<level>37:<mana>25:<chance>95:<minfail>21
+W:HIGHPRST | MAGE
+S:AVG
+T:ATTACK_DRK
+
+N:50:Resist Fire
+I:<level>4:<mana>5:<chance>50:<minfail>20
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:51:Resist Cold
+I:<level>4:<mana>5:<chance>50:<minfail>20
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:52:Resist Acid
+I:<level>4:<mana>5:<chance>50:<minfail>20
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:53:Resist Poison
+I:<level>8:<mana>10:<chance>75:<minfail>40
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:CHANGE_SELF
+
+N:54:Resistance
+I:<level>15:<mana>20:<chance>85:<minfail>60
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:CHANGE_SELF
+
+N:60:Door Creation
+I:<level>7:<mana>7:<chance>20:<minfail>28
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_WORLD
+
+N:61:Stair Creation
+I:<level>9:<mana>12:<chance>40:<minfail>44
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:CHANGE_WORLD
+
+N:62:Teleport Level
+I:<level>15:<mana>17:<chance>60:<minfail>29
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:ESCAPE
+
+N:63:Earthquake
+I:<level>20:<mana>18:<chance>60:<minfail>24
+W:HIGHPRST | MAGE | RANGER
+S:LARGE
+T:CHANGE_WORLD
+
+N:64:Word of Recall
+I:<level>25:<mana>25:<chance>75:<minfail>19
+W:HIGHPRST | MAGE | RANGER | ROGUE | PRIEST | PALADIN
+S:AVG
+T:ESCAPE
+
+N:70:Detect Evil
+I:<level>5:<mana>5:<chance>50:<minfail>8
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:SENSE
+
+N:71:Detect Enchantment
+I:<level>10:<mana>10:<chance>70:<minfail>40
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:SENSE
+
+N:72:Recharge Item III
+I:<level>25:<mana>30:<chance>95:<minfail>160
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:LARGE
+T:CHANGE_ITEM
+
+N:74:Mass Genocide
+I:<level>40:<mana>50:<chance>80:<minfail>100
+W:HIGHPRST | MAGE
+S:LARGE
+T:ATTACK_DRK
+
+N:80:Heroism
+I:<level>5:<mana>5:<chance>50:<minfail>80
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:81:Magic Shield
+I:<level>10:<mana>12:<chance>75:<minfail>120
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:SMALL
+T:CHANGE_SELF
+
+N:82:Berserker
+I:<level>15:<mana>20:<chance>80:<minfail>200
+W:HIGHPRST | MAGE | RANGER | ROGUE | WARMAGE
+S:AVG
+T:CHANGE_SELF
+
+N:83:Essence of Speed
+I:<level>22:<mana>30:<chance>50:<minfail>250
+W:HIGHPRST | MAGE | RANGER | ROGUE
+S:AVG
+T:CHANGE_SELF
+
+N:84:Invulnerability
+I:<level>45:<mana>70:<chance>75:<minfail>250
+W:HIGHPRST | MAGE
+S:LARGE
+T:CHANGE_SELF
+
+#I:level:mana:chance:minfail
+N:90:Acid Bolt
+I:<level>10:<mana>6:<chance>20:<minfail>5
+W:HIGHPRST | MAGE | RANGER | ROGUE | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:*:v
+
+N:91:Cloud Kill
+I:<level>12:<mana>9:<chance>20:<minfail>6
+W:HIGHPRST | MAGE | RANGER | ROGUE | WARMAGE
+S:AVG
+T:ATTACK_NAT
+C:x:g
+
+N:92:Acid Ball
+I:<level>12:<mana>6:<chance>20:<minfail>6
+W:HIGHPRST | MAGE | WARMAGE
+S:LARGE
+T:ATTACK_NAT
+C:**:vy
+
+N:93:Ice Storm
+I:<level>12:<mana>8:<chance>20:<minfail>6
+W:HIGHPRST | MAGE | WARMAGE
+S:LARGE
+T:ATTACK_NAT
+C:**:Bb
+
+N:94:Meteor Swarm
+I:<level>15:<mana>10:<chance>30:<minfail>10
+W:HIGHPRST | MAGE | WARMAGE
+S:SUPER
+T:ATTACK_NAT
+C:~~:sD
+
+N:95:Hellfire
+I:<level>25:<mana>12:<chance>40:<minfail>12
+W:HIGHPRST | MAGE | WARMAGE
+S:SUPER
+T:ATTACK_DRK
+C:\|/-*:ororr
+
+N:96:Magic Reflection
+#I:level:mana:chance:minfail
+I:<level>5:<mana>12:<chance>30:<minfail>4
+W:HIGHPRST | MAGE
+S:AVG
+T:CHANGE_SELF
+C:*:o
+
+#N:spellno:name
+#I:level:mana:chance:minfail
+#W who can cast this
+#S scale
+#F flags
+#C max 8 char(s):color
+
+N:100:Create Simple Trap
+I:<level>2:<mana>3:<chance>30:<minfail>2
+W:HIGHPRST | ROGUE
+S:SMALL
+T:CHANGE_WORLD
+
+N:101:Create Trap
+I:<level>4:<mana>5:<chance>35:<minfail>4
+W:HIGHPRST | ROGUE
+S:AVG
+T:CHANGE_WORLD
+
+N:102:Create Powerful Trap
+I:<level>8:<mana>10:<chance>40:<minfail>10
+W:HIGHPRST | ROGUE
+S:LARGE
+T:CHANGE_WORLD
+
+N:103:Create Death Trap
+I:<level>12:<mana>15:<chance>50:<minfail>15
+W:HIGHPRST | ROGUE
+S:SUPER
+T:CHANGE_WORLD
+
+N:104:Create Complex Trap
+I:<level>15:<mana>30:<chance>60:<minfail>20
+W:HIGHPRST | ROGUE
+S:SUPER
+T:CHANGE_WORLD
+
+
+############################################
+# PRIEST spells
+############################################
+
+N:150:Detect Evil
+I:<level>1:<mana>1:<chance>10:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:SENSE
+
+N:151:Cure Minor Wounds
+I:<level>1:<mana>2:<chance>15:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:HEAL
+
+N:152:Bless
+I:<level>1:<mana>2:<chance>20:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_SELF
+
+N:153:Remove Fear
+I:<level>1:<mana>2:<chance>25:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:HEAL
+
+N:154:Call Light
+#I:spellno:level:mana:chance:minfail
+I:<level>3:<mana>2:<chance>25:<minfail>1
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_WORLD
+
+N:155:Find Traps
+I:<level>3:<mana>3:<chance>27:<minfail>2
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:SENSE
+
+N:156:Detect Doors / Stairs
+I:<level>3:<mana>3:<chance>27:<minfail>2
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:SENSE
+
+N:157:Slow Poison
+I:<level>3:<mana>3:<chance>28:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:HEAL
+
+N:160:Terrify Creature
+I:<level>5:<mana>4:<chance>29:<minfail>3
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_OTHER
+
+N:161:Portal
+I:<level>5:<mana>4:<chance>30:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:ESCAPE
+
+N:162:Cure Medium Wounds
+I:<level>5:<mana>4:<chance>32:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:HEAL
+
+N:163:Chant
+I:<level>5:<mana>5:<chance>34:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_SELF
+
+N:164:Sanctuary
+I:<level>7:<mana>5:<chance>36:<minfail>3
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_OTHER
+
+N:165:Divine Satiation
+I:<level>7:<mana>5:<chance>38:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_SELF
+
+N:166:Remove Curse
+I:<level>7:<mana>6:<chance>38:<minfail>5
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:CHANGE_ITEM
+
+N:167:Resist Heat / Cold
+I:<level>7:<mana>7:<chance>38:<minfail>5
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_SELF
+
+N:170:Neutralize Poison
+I:<level>9:<mana>6:<chance>38:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:HEAL
+
+N:171:Orb of Draining
+I:<level>9:<mana>7:<chance>38:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ATTACK_NAT
+C:x+:RG
+
+N:172:Cure Serious Wounds I
+I:<level>9:<mana>7:<chance>40:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:HEAL
+
+N:173:Sense Invisible
+I:<level>11:<mana>8:<chance>42:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:SENSE
+
+N:174:Protection from Evil I
+I:<level>11:<mana>8:<chance>42:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ESCAPE
+
+N:175:Earthquake
+I:<level>11:<mana>9:<chance>55:<minfail>5
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:CHANGE_WORLD
+
+N:176:Sense Surroundings
+I:<level>13:<mana>10:<chance>45:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:SENSE
+
+N:177:Cure Critical Wounds I
+I:<level>13:<mana>11:<chance>45:<minfail>4
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:HEAL
+
+N:178:Turn Undead
+I:<level>15:<mana>12:<chance>50:<minfail>5
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ATTACK_NAT
+
+N:180:Intense Prayer
+I:<level>15:<mana>14:<chance>50:<minfail>5
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:CHANGE_SELF
+
+N:181:Dispel Undead I
+I:<level>17:<mana>14:<chance>55:<minfail>7
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ATTACK_NAT
+
+N:182:Heal
+I:<level>21:<mana>16:<chance>60:<minfail>7
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:HEAL
+
+N:183:Dispel Evil I
+I:<level>25:<mana>20:<chance>70:<minfail>12
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ESCAPE
+
+N:184:Glyph of Warding
+I:<level>33:<mana>55:<chance>90:<minfail>15
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:CHANGE_WORLD
+
+N:185:Holy Word
+I:<level>39:<mana>32:<chance>99:<minfail>20
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:HEAL
+
+N:190:Blink
+I:<level>3:<mana>3:<chance>50:<minfail>6
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:ESCAPE
+
+N:191:Teleport
+I:<level>10:<mana>10:<chance>50:<minfail>8
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:ESCAPE
+
+N:192:Teleport Away
+I:<level>20:<mana>20:<chance>50:<minfail>16
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ESCAPE
+
+N:193:Teleport Level
+I:<level>30:<mana>40:<chance>75:<minfail>133
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:ESCAPE
+
+N:195:Alter Reality
+I:<level>40:<mana>60:<chance>75:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:CHANGE_WORLD
+
+# other name to prevent high priests from having
+# 2 Detect Monsters spells
+N:200:Sense Monsters
+I:<level>3:<mana>3:<chance>50:<minfail>2
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:SENSE
+
+N:201:Detection
+I:<level>10:<mana>10:<chance>80:<minfail>20
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:SENSE
+
+N:202:Perception
+I:<level>20:<mana>20:<chance>80:<minfail>20
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:SENSE
+
+N:203:Probing
+I:<level>25:<mana>10:<chance>80:<minfail>150
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:SENSE
+
+N:204:Clairvoyance
+I:<level>35:<mana>50:<chance>80:<minfail>230
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:SENSE
+
+N:210:Cure Serious Wounds II
+I:<level>15:<mana>5:<chance>50:<minfail>25
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:HEAL
+
+N:211:Cure Critical Wounds II
+I:<level>17:<mana>7:<chance>60:<minfail>45
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:HEAL
+
+N:212:Healing
+I:<level>30:<mana>50:<chance>80:<minfail>30
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:HEAL
+
+N:213:Restoration
+I:<level>35:<mana>70:<chance>90:<minfail>230
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:HEAL
+
+N:214:Remembrance
+I:<level>35:<mana>70:<chance>90:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:CHANGE_SELF
+
+N:220:Unbarring Ways
+I:<level>5:<mana>6:<chance>50:<minfail>40
+W:HIGHPRST | PRIEST | PALADIN
+S:SMALL
+T:CHANGE_WORLD
+
+N:221:Recharging
+I:<level>15:<mana>20:<chance>80:<minfail>25
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:CHANGE_ITEM
+
+N:222:Dispel Curse
+I:<level>25:<mana>40:<chance>80:<minfail>160
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:CHANGE_ITEM
+
+N:223:Enchant Weapon
+I:<level>35:<mana>50:<chance>80:<minfail>230
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:CHANGE_ITEM
+
+N:224:Enchant Armour
+I:<level>37:<mana>60:<chance>85:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:CHANGE_ITEM
+
+N:225:Elemental Brand
+I:<level>45:<mana>95:<chance>85:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:CHANGE_ITEM
+
+N:230:Dispel Undead II
+I:<level>15:<mana>7:<chance>70:<minfail>25
+W:HIGHPRST | PRIEST | PALADIN
+S:AVG
+T:ATTACK_NAT
+
+N:231:Dispel Evil II
+I:<level>20:<mana>10:<chance>75:<minfail>60
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:ATTACK_NAT
+
+N:232:Banishment
+I:<level>25:<mana>25:<chance>80:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:ATTACK_NAT
+
+N:233:Word of Destruction
+I:<level>35:<mana>35:<chance>80:<minfail>115
+W:HIGHPRST | PRIEST | PALADIN
+S:LARGE
+T:CHANGE_WORLD
+
+N:234:Annihilation
+I:<level>45:<mana>60:<chance>75:<minfail>250
+W:HIGHPRST | PRIEST | PALADIN
+S:SUPER
+T:ATTACK_NAT

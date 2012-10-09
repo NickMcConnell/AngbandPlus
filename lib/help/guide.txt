@@ -1,0 +1,1686 @@
+         The Angband/64 Users Guide
+         version 0.5 - (c) 28092000 Jurriaan W Kalkman
+
+*****************************************************************
+*   Ach, sss! Cautious, my precious! More haste less speed.     *
+*        We mustn't rissk our neck, must we, precious?          *
+*                        JRR Tolkien - The Lord of the Rings    *
+*****************************************************************
+
+
+
+0.  What is Angband/64 & tips for efficient reading
+    0.1  What is Angband/64?
+    0.2  Targets
+    0.3  Should I be reading this?
+    0.4  Plain Angband - the Vanilla option
+
+1.  Main differences between Angband-2.8.3 and Angband/64
+    1.1  The start
+    1.2  Constraints
+    1.3  Differences in the game
+    1.4  Differences in the source
+    1.5  Different savefiles - messages
+    1.6  Savefiles
+    1.7  Starting the game
+    1.8  Possible options
+         1.8.1  Optimum options for slow machines
+
+2.  Entering the Dungeon: Getting started
+    2.1  Birth of a new character
+    2.2  Teacher mode
+         2.2.1  Teacher mode - some examples
+         2.2.2  Teachers with random characters
+         2.2.3  Teacher mode - pitfalls
+    2.3  Save levels
+    2.4  Races, classes and other considerations
+         2.4.1  The War Mage
+         2.4.2  The High Priest
+         2.4.3  The Gladiator
+    2.5  My character cannot hit a wall if she's standing before it!
+    2.6  What's this 'Exploring:normal' thing saying?
+    2.7  Starting equipment
+    2.8  Using the program
+    2.9  Information while you play
+    2.10 ^P seems different?
+    2.11 What is a <weapon of foo> (+2) (-1) doing?
+    2.12 The screen looks worse than ever - don't you have graphics?
+
+3.  Stealth or Violence? Fighting
+    3.1  Fighting over details
+    3.2  Classes that don't fight
+    3.3  Fighting with both hands
+    3.4  Rings of Damage
+    3.5  Wild Swings and random prodding
+    3.6  The monsters are against me!
+    3.7  Arrows and other ammunition
+    3.8  Fighting and birth-control
+    3.9  Fighting in the Arena
+    3.10 Ghosts in the ruins
+
+4.  If fighting doesn't help: Magic
+    4.1  Wands, staffs & rods
+    4.1.1  Stacking Rods, wands and staffs
+    4.2  Spells
+    4.3  Mage Staffs
+    4.4  New Spells
+
+5.  Getting Ahead: eating, drinking, sickness
+    5.1  Drinking
+    5.2  Eating
+    5.3  Bloated - not good
+    5.4  Sickness
+
+6.  Tools - Armor & weapons
+    6.1  Ego-armor & ego-weapons
+    6.2  Enchantments
+    6.3  Normal weapons look different?
+    6.4  Extended object information
+
+7.  The Dungeon
+    7.1  Size
+    7.2  Walls
+    7.3  Shops
+    7.4  Other terrain features
+    7.5  Auto-opening/closing
+    7.6  Traps
+    7.7  Monsters and Traps
+    7.8  Sub-Levels
+    7.9  Money
+
+8.  Strategic Hints - how to survive
+
+9.  Development - compiling & hacking
+    9.1  How to compile
+    9.2  Tools to have when compiling
+    9.3  The Source
+         9.3.1  Monster AI
+    9.4  Logging
+    9.5  Options
+    9.6  New Wizard-mode commands
+    9.7  New store-definitons
+    9.8  Helpers, large and small
+    9.9  Software Bugs and what to do with them
+    9.10 Compression
+    9.11 The debug log
+
+10. Web-sites, ftp-sites, newsgroup - I want to know more!
+    10.1 I'm bored. Give me some websites!
+    10.2 I'm still not satisfied, where else can I go?
+    10.3 I have a Macintosh
+
+11. Frequently Asked Questions - FAQ
+    11.1 Why aren't there any graphics?
+    11.2 Will you include (Quests/Magic Realms/Lots of races/classes/<other
+         features> of Zangband/Kangband/Oangband/etc)
+    11.3 I get a logfile, and I don't want a logfile. It is too big.
+    11.4 So what does the 64 stand for? Are you that old?
+    11.5 Is there an Angband/64 Borg?
+    11.6 What does 'Uh-oh. Unable to open file /tmp/t3e8.0' mean?
+
+
+===============================================================================
+0.  What is Angband/64 & tips for efficient reading
+===============================================================================
+
+0.1 What is Angband/64?
+-----------------------
+
+Angband/64 is a rogue-like game, based upon Angband. It has many larger and
+smaller differences with normal (or plain, or vanilla) Angband. Since the
+maintainer of Angband (Ben Harrison) did such an excellent job of making the
+source clean, logic and understandable, more and more people like me have
+begun projects to make a variant. This means we have adapted the source of
+plain Angband to suit our own needs/vision/ideas. These sources are freely
+available, within the licence that covers the original Angband. If I may quote
+Robert Koeneke, one of the original authors, from lib/help/version.txt: "I
+have always been a proponent of sharing games, not selling them."
+
+0.2 Targets
+-----------
+
+My aim is to make a game which has more variety than Angband-2.8.3, yet
+keeps the Tolkien atmosphere that is one of the main attractions.
+
+0.3 Should I be reading this?
+-----------------------------
+
+You should if you are about to play Angband/64, of course. If you have never
+played plain Angband before, I suggest that you familiarize yourself with that
+version first, because this document will assume you know your way around in
+plain Angband, highlighting only the differences. Also, unless you have played
+plain Angband for some time, some of the information offered here may be
+considered spoiling. You have been warned.
+
+0.4 Plain Angband - the Vanilla option
+--------------------------------------
+
+This is the 'official' distribution, currently maintained by Ben Harrison, and
+very stable at version 2.8.3. It's the basis for a variant, in most cases. Its
+predecessor Angband-2.7.9.6 was the basis for this variant Angband/64. It is
+the result of years of work and feedback, and a very well-balanced game with
+no known bugs since it was released more than a year ago now.
+
+The original Angband is available for lots of machines and in source-code at
+http://www.phial.com
+
+This is the official homepage, maintained by Ben Harrison. For more
+information, see section 10 of this file.
+
+
+===============================================================================
+1.  Main differences between Angband-2.8.3 and Angband/64
+===============================================================================
+
+1.1 The start
+-------------
+
+The first incentive was to create an Angband-variant where multiple items
+could exist per square. This was when the main Angband version was at 2.7.9.6,
+and Ben Harrison hadn't added his own implementation of this. I also started
+playing around with the wizard-commands, being the born cheater I am.
+
+1.2 Constraints
+---------------
+
+The game will continue to run on anything that has a gcc-like compiler. This
+is because it's all that I can test. This includes DOS (djgpp), Win-95/98
+(mingw32, probably cygwin as well), OS/2 (emx), unix-machines of all kinds
+(gcc) including FreeBSD/GNU/Linux and perhaps others. Someone is busy right
+now to get it to compile on Acorn OS. Plain Angband took great care to not use
+any more memory than necessary. This allowed a dos compiled version that fit
+inside 640k. I regret to inform you here that is not one of the main goals
+anymore. Anything that can run gcc has virtual memory, and while I'll not use
+it for nothing, I will use it.
+
+1.3 Differences in the game
+---------------------------
+
+Later, more changes went in: 2-handed weapons, more than 100 traps, larger
+dungeons, more ego-items, an arena, corpses, a different spell-casting system,
+some terrain features, stores in the dungeon, different monster movement
+intelligence, new races/classes, different capabilities for existing
+races/classes, ghosts, shorter yet more informative message-log, better
+graphics on curses-terminals, different birth-sequence, levels can be saved,
+player ghosts are haunting you and there have been a lot of small adjustments.
+
+1.4 Differences in the source
+-----------------------------
+
+There are a lot of differences in the source. Since the game started based on
+2.7.9.6, and was later adapted to 2.8.3, all source-files have been changed,
+most many times. Noteworthy differences are the features that define the
+dungeon: in 2.8.3 it's a single number, in Angband/64 it's a pair of numbers,
+much like the tval,sval pair for objects. This allows you to easily add
+terrain types. It will also prevent you from easily adding graphics to this
+game - which I don't mind particularly.
+
+Other big changes include the template-parsing, the object-handling (with sets
+of objects & spells), the loading and saving of games (levels are separated
+from other information), wizard-mode has been extended a lot, and the
+screen-layout is not the same anymore. The lighting-code has been heavily
+reworked, but looks the same on screen. Some of the code may still be based on
+2.7.9.6, in particular all cave-properties are in one array, not in separate
+arrays as in 2.8.3.
+
+1.5 Different savefiles - messages
+----------------------------------
+
+Apart from everything that is said elsewhere, you will see that the file with
+the messages in it is not saved with the player information, but in another
+file in lib/save. The file ending in .msg is a plain-text file. This allows
+you to keep a lot more messages. I've had reports from one user who ran the
+game on DOS with a compressed drive, that this slowed down his game
+considerably. Consider setting the option 'save_messages' in section 5 of the
+options to FALSE if that is happening to you.
+
+1.6 Savefiles
+-------------
+
+Savefiles in general are incompatible with those of plain Angband, and
+incompatible with earlier versions of Angband/64 also. When I create a new
+version, I don't take pains to make savefiles compatible, since the trouble is
+often not worth it IMHO.
+
+1.7 Starting the game
+---------------------
+
+If you start the game, you may give the program some arguments that influence
+it's behaviour:
+ -c<path> Look for pref files in the directory <path>.
+ -d<path> Look for save files in the directory <path>.
+ -g       Activate the arg_graphics flag.
+          This will allow the use of graphics on some platforms. This isn't
+          tested in any way, so try this only if you know how to solve
+          problems with graphics in Angband.
+ -i<path> Look for info files in the directory <path>.
+ -l<name> Load user-defined options from lib/xtra/<name>.
+          See 1.8 for possible options. This allows you to override the
+          default options if you start a new game, or the saved options if you
+          start a game with an existing savefile. Probably only useful if you want
+          to debug a game with a fixed set of options.
+ -m<name> this forces the game to use the main-<name> module for screen I/O
+          routines. An example would be -mgcu to force the game to use the
+          curses module while you start it under XWindows. This module must be
+          compiled into the executable for this to work. This will only allow
+          you to run the curses-module (-mgcu) under XWindows at the moment if
+          you use the precompiled binaries, or use the djgpp/allegro (-mdos)
+          module instead of the standard 80x25 ibm-module in DOS. The win32
+          binary has only one module, so there is no need to specify anything
+          there.
+ -n       Start a new character.
+ -o       Use the original keyset.
+ -p<uid>  Play with the <uid> userid.
+          doesn't work with DOS/Win32 :-)
+ -r       Use the rogue-like keyset.
+ -s<num>  Show <num> high scores (or top 10).
+ -t       Force reloading of templates.
+          If you get weird names for objects etc. after upgrading from a
+          previous version, try this. On my PC, this is instantaneous. On
+          slower machines, this may take some time.
+ -u<name> Play with <name> savefile.
+ -v       Activate the arg_sound flag.
+          This probably only works with the win32-platform, but it's untested
+          even there, so only use it if you know how to solve problems with
+          sound in Angband.
+ -w       Activate 'wizard' mode.
+          This is considered cheating!
+ -x<name> Write debug/error-log to file <name>.
+          This logfile is very useful while debugging, but probably not while
+          playing.
+
+The win32 executable has a known problem with command-line arguments. You can
+also set a lot of these options in the angband.ini file.
+
+1.8 Possible options
+--------------------
+
+Here are all possible options, for the moment. All these options can be set
+before-hand with the -l option (see section 1.7), like this:
+
+Rogue-like commands=no
+Quick messages=yes
+Prompt for various information=no
+
+After each option, the default value and a short explanation is given. If an
+option is not in Plain Angband, more information will be given.
+
+User-interface options:
+
+rogue_like_commands       no  Rogue-like commands
+quick_messages            yes Quick messages
+other_query_flag          no  Prompt for various information
+display_coords            yes Display coordinates on screen
+auto_open                 yes Auto open doors when colliding
+use_old_target            no  Use old target by default
+                              The game will remember you previous target and
+                              use that until you explicitly set another
+                              target.
+always_pickup             yes Pick things up by default
+pick_up_gold              yes Auto-pick up any gold you see
+pick_up_absorbable        yes Auto-pick up any absorbable items you see
+                              auto-pick up anything that can be absorbed into
+                              your current inventory because you are already
+                              carrying some of them.
+always_repeat             yes Repeat obvious commands
+depth_in_feet             yes Show dungeon level in feet
+show_health_bar           yes Display Monster Health Bar
+ring_bell                 no  Audible bell (on errors etc)
+use_color                 yes Use color if possible (slow)
+smooth_scroll_panels      no  Smooth scroll panels (v.slow)
+                              this will smooth scroll the screen, instead of
+                              jumping to new panels when you are near the
+                              edge. Quite nice, but also quite slow on some
+                              machines.
+number_hit_messages       no  Use numbered messages for each attack hit
+                              If you have 8 attacks, it may be nice to know
+                              what is happening.
+show_key_help             yes Ask to display the Keyboard Usage Reminder if you
+                              press a wrong key (like '=' for options). Useful
+                              when you start, but irritating very soon, IMHO.
+
+Disturbance options:
+
+find_ignore_stairs        yes Run past stairs
+find_ignore_doors         yes Run through open doors
+find_cut                  yes Run past known corners
+find_examine              yes Run into potential corners
+disturb_move              yes Disturb whenever any monster moves
+disturb_near              yes Disturb whenever viewable monster moves
+disturb_enter             yes Disturb whenever viewable monster appears
+disturb_leave             yes Disturb whenever viewable monster disappears
+disturb_panel             yes Disturb whenever map panel changes
+disturb_other             yes Disturb whenever various things happen
+alert_hitpoint            no  Alert user to critical hitpoints
+alert_failure             no  Alert user to various failures
+corpse_messages           yes Alert user to corpses decomposing
+                              If you leave a trail of dead corpses around you,
+                              the messages that you see them decomposing can
+                              be quite distracting.
+fear_messages             yes Alert user to monster fears
+drop_messages             yes Alert user to items dropping
+                              These messages describe things that monsters
+                              drop.
+ask_before_traps          no  If you have lousy eyesight, a lousy monitor or
+                              are just to lazy to remember that you should not
+                              activate traps that you have found, switch this
+                              option on, and the game will ask you if you are
+                              sure before you step on a (known!) trap or touch a
+                              door with a known trap.
+
+Inventory options:
+
+show_inven_weight         yes Show weights in inventory list
+show_equip_weight         yes Show weights in equipment list
+show_store_weight         yes Show weights in stores
+show_floor_weight         yes Show weights on floor
+show_equip_label          yes Show labels in equipment list
+stack_allow_items         yes Allow weapons and armor to stack
+stack_allow_wands         yes Allow wands/staffs/rods to stack
+stack_force_notes         no  Over-ride inscriptions when stacking
+stack_force_costs         no  Over-ride discounts when stacking
+no_haggle_flag            yes Disable haggling in stores
+shuffle_owners            yes Shuffle store owners
+color_known_items         yes Describe known items with their color
+carry_cursed_flag         yes Never auto-pick up known cursed items
+                              This does exactly that.
+kill_cursed_floor         no  Kill cursed items on floor when we find them
+                              This will crush any cursed items we walk over.
+kill_cursed_pack          yes Kill cursed items in pack without confirmation
+                              If you press k to kill something, and it is
+                              cursed, don't ask for confirmation, just do it!
+pickup_add_to_ammo        yes Add picked-up items to ammo automatically
+                              If you auto-pick up something that can be
+                              absorbed into your current ammo-slot, do just
+                              that.
+ask_for_other_ammo        yes Ask what ammo to use before firing
+                              Ask if you want to fire from your ammo-slot, or
+                              with other ammunition in your pack.
+stack_ignore_logs         yes Ignore where items came from when stacking
+                              If this is on, items found in different
+                              circumstances will not stack.
+stacking_wipes_logs       yes Remember how stacked items were gotten
+                              If this is off, all information about how an
+                              item was found is wiped for any stack we make.
+                              If it is on, we will set the level to the
+                              highest level, the sublevel to 0, and add a note
+                              that you remember things but for a part of this
+                              stack.
+
+Game-Play options:
+
+view_perma_grids          yes Map remembers all perma-lit grids
+view_torch_grids          yes Map remembers all torch-lit grids
+scum_always               no  Auto-scum for good levels (always)
+scum_sometimes            no  Auto-scum for good levels (sometimes)
+scum_verygood             no  Scum for very good levels when scumming
+                              If you scum, do it right.
+dungeon_align             yes Generate dungeons with aligned rooms
+flow_by_sound             no  Monsters chase current location (v.slow)
+flow_by_smell             no  Monsters chase recent locations (v.slow)
+track_follow              no  Monsters follow the player (beta)
+track_target              no  Monsters target the player (beta)
+smart_learn               yes Monsters learn from their mistakes
+smart_cheat               no  Monsters exploit players weaknesses
+auto_target_only_monster  yes Auto-target the only monster in sight
+                              If a target is needed, use the only monster in
+                              sight if there is only one. This can be tricky
+                              if you see a weak monster, but know there's a
+                              powerful monster around the corner, that you can
+                              affect with a ball-spell that is targetted just
+                              next to it.
+
+Efficiency options:
+
+view_reduce_lite          no  Reduce lite-radius when running
+view_reduce_view          no  Reduce view-radius in town
+optimize_display          no  Optimize visual display
+optimize_various          no  Optimize message recall
+flush_failure             yes Flush input on various failures
+flush_disturb             yes Flush input whenever disturbed
+fresh_before              yes Flush output before every command
+fresh_after               yes Flush output after every command
+fresh_message             yes Flush output after every message
+save_messages             yes Save/append messages to disk
+compress_savefile         yes Compress saved levels on disk
+                              Highly recommended except for very slow machines
+                              that have lots of space on disk.
+kill_savefile_interrupt   no  Kill savefiles on ^C interrupt
+                              If you press control-C to interrupt things, keep
+                              the savefile intact. This could be considered
+                              cheating.
+remove_levelfiles         yes Remove saved levels when killed
+                              Idem.
+hilite_player             yes Hilite the player with the cursor
+view_yellow_lite          yes Draw lit terrain in yellow (slow)
+view_bright_lite          yes Draw viewable terrain brightly (slow)
+view_all_squares          no  Look at terrain features
+                              The game by default doesn't let you look at
+                              floors, walls etc.
+view_granite_lite         yes Use special colors for lit wall grids (slow)
+
+Special options:
+
+use_mirror_debug          no  Show debug messages in mirror window
+use_mirror_around         no  Show overhead map in mirror window
+use_mirror_recent         no  Show monster info in mirror window
+use_mirror_normal         no  Show inven/equip in mirror window
+use_mirror_choose         no  Show item choices in mirror window
+use_mirror_spells         no  Show spell choices in mirror window
+use_recall_recent         yes Show monster info in recall window
+use_choice_normal         yes Show inven/equip in choice window
+use_choice_choose         yes Show item choices in choice window
+use_choice_spells         yes Show spell choices in choice window
+show_choose_prompt        no  Show prompt in choice window
+show_choose_info          no  Show info in choice window
+show_choose_label         no  Show labels in choice window
+show_choose_weight        no  Show weights in choice window
+recall_show_desc          yes Show descriptions in recall window
+recall_show_kill          yes Show kill counts in recall window
+show_unkilled             no  Show unkilled monsters in kill list
+                              Show information about monsters you have not
+                              killed in the kill list.
+
+Cheating options:
+
+cheat_peek                no  Peek into object creation
+cheat_hear                no  Peek into monster creation
+cheat_room                no  Peek into dungeon creation
+cheat_xtra                no  Peek into other things
+cheat_know                no  Know complete monster info
+cheat_live                no  Allow player to be healed in town on death
+cheat_mode                no  Allow player to see info about un-id'ed items in mode screens
+                              This will allow intrinsics from un-identified
+                              items to be shown after pressing 'C'.
+cheat_spell_info          no  Allow player to view spell info
+cheat_hitpoints           no  Allow player to have unlimited hitpoints
+                              This instantly revives you once your hitpoints
+                              go to zero. It does not transport you to town.
+
+1.8.1 Optimum options for slow machines
+---------------------------------------
+smooth_scroll_panels      no  Smooth scroll panels (v.slow)
+save_messages             no  Save/append messages to disk
+compress_savefile         yes Compress saved levels on disk
+good_store_items          no  Use extra CPU cycles to create good store items
+
+compress_savefile is a  difficult choice; slow machines often have limited disk
+space. If this still gives a slow game, consider turning off all color. If
+this still gives a slow game, consider running Linux or FreeBSD. If this still
+gives a slow game, you're out of luck.
+
+===============================================================================
+2.  Entering the Dungeon: Getting started
+===============================================================================
+
+2.1 Birth of a new character
+----------------------------
+
+At first, you will (as usual) be asked if you want a male or female character.
+You can also press R for a random character. Random characters are of random
+sex, of a random race and a random class. After you've either chosen these or
+let them be randomly determined, you will be asked if you want to use 'teacher
+mode'.
+
+2.2 Teacher mode
+----------------
+
+Since the Autoroller is no more (!), there is a new option to allow you to
+shape your character. You can either chose for some random rolls, as before,
+or choose to have your character taught. Being teached by 3 experts, each
+with his or her own race and class, your character will acquire some of the
+skills and stats of these teachers. Their weak points will also influence you.
+If you elect to be taught by three high-elven mages, your intelligence will
+be fenomenal, and your strength abysmal. Also, the experience you will need
+to advance levels will be determined by your teachers: if they have many
+strong points, you will need more experience to advance.
+
+The mathematics of the teacher mode are simple: your character starts with a
+relative experience factor (versus the normal experience needed to advance for
+this race/class combination) of 50%. To this are added the experience factors
+you see after each teacher. Choosing teachers with 1.2, 1.8 and 1.5 gives you
+0.5 x 1.2 x 1.8 x 1.5 = 1.6 (rounded to 0.1), meaning if your race/class combo
+needs 12 points to advance when rolled normally, it now needs 19.
+
+The order in which you select teachers does not matter. If you manage to
+create a character in teacher mode that needs less than 50% of the experience
+that a non-teacher mode character needs to advance, you will get a lot more
+gold, but not advance that easy.
+
+Each teacher can be chosen from 5 different types, and with each teacher there
+will be an indication of the extra experience you will need if you choose this
+teacher. The last teacher can always be someone of your own race and class.
+
+The experience factor is the hot-spot of this method, its computation is
+currently based on the preference of your class/race combo for the class of
+the teacher, the preference for the race of the teacher, and some way of
+determining if this teacher adds valuable stat-increases to you. This
+computation is likely to change in the future, since it is not always
+perfectly balanced. Do remember that if you have a character with high stats
+and you think the experience penalty is low, that you may have gotten lower
+skills.
+
+Characters' stats are computed as follows:
+
+take a random stat-value
+add 1/3 of the normal bonus from race and class
+add 2/3 of the combined bonuses from the 3 teachers
+
+This can lead to somewhat bigger peaks than normal characters, but also to
+somewhat lower dips...
+
+2.2.1 Teacher mode - some examples
+----------------------------------
+
+exp = experience needed to advance to level 2
+
+race/class   teacher 1  teacher 2  teacher 3   stats                          exp
+==========   ========== ========== ==========  ===========                    ===
+A Half-Troll Half-Troll Human      Half-Troll  STR 18/90  INT 3     WIS 9     36
+  Warrior    Warrior    Paladin    Warrior     DEX 9      CON 18/90 CHR 3
+
+A Half-Troll Half-Orc   Druedain   Half-Troll  STR 18/120 INT 5     WIS 10    12
+  Warrior    War-Mage   Rogue      Warrior     DEX 12     CON 17    CHR 3
+
+A High-Elven High-Elven Gnome      High-Elven  STR 18/40  INT 18/20 WIS 9     64
+  Ranger     War-Mage   Warrior    Ranger      DEX 18/70  CON 16    CHR 18/10
+
+2.2.2 Teachers with random characters
+-------------------------------------
+
+Random characters will try to use 'good' teachers. Each class has certain
+preferences, defined in teach_preference in table.c. This will lead to 'good'
+characters, who need quite some experience to advance, if the right teachers
+are available. Once per three teachers, on average, a random one will be
+chosen, to prevent characters who need too much experience to advance.
+
+A warrior gives has these preferences (on a scale of 0-10):
+Warrior     - 10
+Mage        -  2
+Priest      -  1
+Rogue       -  5
+Ranger      -  7
+Paladin     -  8
+War-Mage    -  4
+High Priest -  0
+Gladiator   -  9
+
+2.2.3 Teacher mode - pitfalls
+-----------------------------
+
+Be warned that if you choose only teachers of your own class or race, your
+weak points will be very weak indeed, and your experience needed will probably
+be very high. For an example, see the High-Elven Ranger in 2.2.1. This may be
+a good character to explore the Angband/64 dungeon with for the first time,
+but it does get boring after the first few levels.
+
+What teachers (if any) you've chosen for your character will always be visible
+in the character information screen ('C' during the game) as well as in
+character dumps.
+
+2.3 Save levels
+---------------
+
+Angband/64 has the option to generate persistent dungeon-levels, which will be
+the same if you return there. This has some advantages: if you leave some
+objects somewhere, they will still be there if you return. You can also leave
+a bothersome monster on a level and return later. Disadvantages are a total
+absence of stair-scumming, less variance (a level either has a vault, or not)
+and possibly less items to find for free: after you've plundered a level,
+there will be no more items generated there. There will be more monsters
+generated, so you could get items by killing them. If you want levels to be
+regenerated each time you visit one, choose N. This is the same behaviour as
+plain Angband.
+
+If you choose to generate persistent dungeon-levels, you'll notice a lot of
+.Lxx files accumulating in lib/save. Those are the different dungeon levels.
+Each character has it's own set of stored dungeon-levels. Each level takes
+around 450 kilobytes of storage. Because this will rapidly accumulate, there
+is also an option to compress savefiles, in options screen 5, called 'compress
+saved levels on disk', which compresses those files down to about 20-30
+kilobytes. This is nearly instantaneous on my machine (AMD-K6/375), so if you
+care about disk-space, try this out. Plain Angband tries to compress a piece
+of the savegames (the dungeon) itself, but this compression routine works
+better. It also prevents savefile hacking.
+
+Note that wether you like it or not, sublevels are part of a normal level and
+are always saved with that level.
+
+2.4 Races, classes and other considerations
+-------------------------------------------
+
+All races can play all classes in Angband/64. Not all combinations will work
+well, however. Some subtle changes have taken place: a warrior gets immunity
+to fear at high levels, rogues have a higher chance of scoring a critical hit
+if they hit a sleeping monster, warriors have are more likely to score
+critical hits at higher levels.
+
+There are also new classes.
+
+2.4.1 The War-Mage
+------------------
+
+A War-Mage is the less sophisticated variant of the Mage, and cousin of the
+warrior. Not content to fight his way through the dungeon, he has learned some
+spells as well. His magic is only good for bringing more damage to his foes.
+Since a War-Mage spends a lot of time training with weapons, his saving throw
+is not as good as a mage's, nor is his handling of magical devices. Still, a
+War-Mage is an awesome foe, battling monsters with both swords and spells. At
+the same time, defence is something a War-Mage tends to forget, leading to
+many prominent ex-War-Mages.
+
+In fact, the War-Mage can use any spell that does direct damage to a monster.
+Magic Missile is possible, Confusion is not, Fire Bolt is possible, Blink is
+not. He can fight better than the Mage, though, getting a maximum of 5 attacks
+with all weapons.
+
+2.4.2 The High Priest
+---------------------
+
+A priest who has taken the time to extend his studies into the realm of magic,
+the High Priest is the most intellectual of all classes. He is therefore not
+familiar with any weapon. This makes him the worst choice to do physical
+combat, since all he can ever do is bump into his enemies, but this is offset
+by his tremendous capabilities with spells: all spells, whether normally res-
+erved for Priests, Rogues or Magi, can be used by him, without penalties.
+Experienced adventurers are often jealous of the enormous wealth of spells a
+High Priest has at higher levels, whilst starting adventurers laugh at his
+clumsy hands, which cannot use any weapon. High Priests also are good at
+stealth from walking through silent monasteries for a long time and of course
+with magic devives, and since they wield no weapons, have two extra ring-
+slots available.
+
+High Priests are the ultimate magic user. The stat that governs if spells
+succeed is Wisdom, like the normal priest.
+
+2.4.3 The Gladiator
+-------------------
+
+Trained as a fighter from the beginning of his life, the gladiator lives by
+the motto 'the harder you hit 'em, the less time they have to damage you'.
+Consequently, he spurns body armour and shields in favour of a second weapon,
+being the only class who can fight with two weapons at the same time. Missile
+weapons are not his strong point, and some people whisper that deeper in the
+dungeon, very useful armours and shields exist, which a Gladiator must forego,
+possibly leading to awkward situations. The Gladiator, raised on a clean,
+sand-strewn floor, has little regard for traps and secret doors, which he
+mostly finds by touching or tripping them.
+
+The gladiator can wield 2 weapons, dealing heavy damage. The second weapon can
+be half as heavy as the first weapon before it becomes so heavy that the
+penalties kick in. The game will try to guess what you want when wielding and
+unwielding weapons, you must try to wield another weapon whilst already
+wielding one to start wielding both.
+Note that even if you only wield one weapon, you still cannot use armor or
+shields!
+
+2.4.3 The Druedain
+-------------------
+
+Druedain are people of a wholly different kind, the like of which neither the
+Eldar in Beleriand nor the other Atani had ever seen before. To the eyes of
+Elves and other Men they are unlovely in looks; they were stumpy (some four
+feet high) but very broad, with heavy buttocks and short thick legs. In peace
+they often laughed at work or play when other Men might sing.
+
+But they could be relentless enemies, and when aroused their red wrath was
+slow to cool, though it showed no sign save the light in their eyes; for they
+fought in silence and did not exult in victory. The druedain have marvellous
+skill as trackers of all living creatures, and boasted that they could smell
+an Orc to windward further away than other Men could see them.
+
+The Druedain has large advantages: very good infravision, even better than
+Dwarves, limited telepathy (radius 9) and a very good stealth. They are slow,
+however, and not much good with bows and other missile weapons. All the same
+they are wise, and strong, though their dexterity is less. Their constitution
+is without equal in all races of the Middle Earth. At higher levels, they
+have an innate regeneration without extra food consumption and get an increase
+in their saving throw.
+They gain levels as rapidly as Humans, being not wide-travelled, nor
+long-lived.
+
+
+2.5 My character cannot hit a wall if she's standing before it!
+---------------------------------------------------------------
+
+You've created a mage, but he starts with -4 to hit and -4 to dam. What is
+happening?
+
+Take a look at the 'Tactic' setting in the character information screen (press
+'C'). For mages and other non-fighting characters (well, they can fight, but
+it should not be their first choice), the default tactic is geared toward
+defence (or cowardice). You can change this by pressing 't' in the character
+information screen. Be aware that bonuses to tohit and todam will have
+negative effects on stealth, ac, disarmament skills and your saving throw.
+Cowardly behaviour, however, will enhance your stealth etc.
+
+2.6 What's this 'Exploring:normal' thing saying?
+---------------------------------------------
+
+You can choose to creep or run through the dungeon. Normal means just
+that, normal. Going faster gives you a slight speed bonus, but has negative
+effects on searching, stealth and perception. Going slower has the opposite
+effects, making you find traps more easy and seeing thing better.
+
+2.7 Starting equipment
+----------------------
+
+There are some differences in starting equipment. Due to the different
+characteristics of some classes, some changes have been made. Also, if you get
+your social class high enough, you may get some random items. To get a high
+social class, do nothing. Once in about 4 generated characters, you will have
+a higher chance of obtaining a high social class. Note that these characters
+will stay poorer in gold than lower born characters. There will be a message
+in your history to remind you of that.
+
+If you build a character in teacher mode that is ridiculously weak, you get
+more gold. See section 2.2.
+
+2.8 Using the program
+---------------------
+
+Some keys are different, notably 'z' to zap anything (wand/staff/rod) and '@'
+to reach all options. For your convenience, a keymap is included here:
+
+a (unused)                   A Activate an artifact    ^A wizard commands
+b Browse a book              B Bash a door             ^B (unused)
+c Close a door               C Character description   ^C (special - break)
+d Drop an item               D Disarm a trap           ^D (unused)
+e Equipment list             E Eat some food           ^E Toggle choice window
+f Fire an item               F Fuel your lantern/torch ^F Repeat level feeling
+g Stay still                 G (unused)                ^G (unused)
+h (unused)                   H (unused)                ^H (unused)
+i Inventory list             I Observe an item         ^I (special - tab)
+j Jam a door                 J (unused)                ^J (special - linefeed)
+k Destroy an item            K killed monsters list    ^K (unused)
+l Look around                L Locate player on map    ^L (unused)
+m use magic spell            M Full dungeon map        ^M (special - return)
+n (unused)                   N (unused)                ^N (unused)
+o Open a door / chest        O Overview - scalable map ^O (unused)
+p display intrinsics         P (unused)                ^P Show messages
+q Quaff a potion             Q Quit (commit suicide)   ^Q (unused)
+r Read a scroll/spell        R Rest for a period       ^R Redraw the screen
+s Search traps/doors         S Toggle search mode      ^S Save and don't quit
+t Take off equipment         T Dig a tunnel            ^T (unused)
+u (unused)                   U (unused)                ^U (unused)
+v Throw an item              V Version info            ^V (unused)
+w Wear/wield                 W (unused)                ^W wizard mode
+x (unused)                   X (unused)                ^X Save and quit
+y (unused)                   Y (unused)                ^Y (unused)
+z zap wand/rod/staff         Z (unused)                ^Z (unused)
+
+@ Set options                # check id'ed items        _ (unused)
+^ (special - control key)    | Check uniques            $ Save and don't quit
+* Choose Target              ~ Check artifacts          : Take notes
+( Load screen dump           ? Help                     " (unused)
+{ Inscribe an object         ) Dump screen dump         < Go up staircase
+[ Wear/Wield equipment       } Uninscribe an object     > Go down staircase
+- Walk (flip pickup)         ] Take off equipment       ` (special - escape)
++ Dig tunnel                                            ' (unused)
+, Stay still (with pickup)   ; Walk (with pickup)       \ (special - bypass keymap)
+/ Identify symbol            . Run
+
+2.9 Information while you play
+------------------------------
+
+The character information screen (use 'C') is much changed. The new 'what
+equipment provides what immunity' screens from plain Angband are now only
+fully accessible if you set a cheating option. If you don't set that option,
+you will only see the effects of items you have fully identified. On the plus
+side, # and | and ~ now give information about identified items, encountered
+uniques and seen artifacts. You can also press K to get a list of the monsters
+you've killed.
+
+2.10 ^P seems different?
+------------------------
+
+It is. For all file-viewing operations, first the whole file is read in and
+the offsets of each 1000th line are saved. This helps display the file
+quicker. These indexfiles are saved in lib/temp. Searching is now always case
+insensitive, and you can jump to a line with # - useful to quickly return to
+the beginning.
+
+2.11 What is a <weapon of foo> (+2) (-1) doing?
+-----------------------------------------------
+An object can have 2 modifiers in Angband/64. This allows items to increase
+say STR, whilst decreasing CHR or BLOWS.
+Say you find a Heavy Weapon of Mindless Strength (+8) (-5) and a *identify*
+spell tells you
+
+It positively affects your Strength (good!)
+It has a negative effect on your Intelligence, Wisdom, Stealth, Searching and
+Speed (not-so-good.....)
+
+You can then guess the +8 means STR, and the -5 means INT, WIS, Stealth,
+Searching and Speed.
+
+2.12 The screen looks worse than ever - don't you have graphics?
+----------------------------------------------------------------
+
+Sorry, due to the restructuring of terrain features and the adding of new
+items and monsters, the tiles are out-dated and not used anymore. The -mgcu
+game is updated, however, to show walls as solid squares, which is more than
+enough graphics for me. I take pride in the fact that the -mgcu module has
+never looked better before!
+For whatever reason running the X11 display module with -g makes floors
+invisible, the walls change into 'a' and lamp-light makes them red. However,
+since there's nothing to be gained from -g anyway, I suggest you play in X11
+either with -mgcu (which looks pretty good, but you get only one window) or
+without -g, which gives you the regular # as walls, but all 8 windows.
+
+On the (unix) console, things look better than in plain Angband: the main-fcu
+file has support for the drawing of ACS characters, which means walls will
+become a solid block like in DOS. If your terminal doesn't support ACS
+characters (the ncurses documentation seems to suggest it either should, or
+translate those blocks back to something like #) try using ncurses, or
+undefine USE_NCURSES_ACS in src/config.h and recompile.
+
+In dos, I suggest you try the game with -mdos, which uses the djgpp/allegro
+library to make a nice and big screen, and some primitive graphics for walls
+and such. Please use the angdos.cfg file to set the desired resolution!
+
+===============================================================================
+3.  Stealth or Violence? Fighting
+===============================================================================
+
+3.1 Fighting over details
+-------------------------
+
+There are some changes in fighting in respect to plain Angband.
+These changes are all in the details:
+
+Warriors start scoring better critical hits when advancing in level.
+There are some new objects, which can make any weapon a (temporary) elemental
+ego-weapon: a temporary dagger of cold, for example. Some objects also have
+enhanced capabilities that make weapons elemental ego-weapons; not every hit,
+but on a random basis.
+
+It is now possible to have the messages describing your result when fighting
+numbered: "1: you hit the orc. 2: you miss. 3: you miss.". Use option-screen
+1, option "number_hit_messages" to turn this on.
+
+3.2 Classes that don't fight
+----------------------------
+
+Some classes don't fight as well as in plain Angband. In particular, mages now
+get only 3 attackes maximum after level 15, and only 2 after level 35. It
+should be possible to rely on other ways to deal with annoying monsters by
+then. This doesn't happen if you carry a truly mage-like weapon, like a
+quarterstaff or a dagger. Note that there are some very interesting ego-item
+artifacts for mages now.
+
+Mages and Priests start fighting poorly in the beginning, and only get worse.
+Also, they cannot use 2-handed weapons, see below.
+
+3.3 Fighting with both hands
+----------------------------
+
+There are now 3 kinds of weapons: the ones you can carry in one hand, the ones
+you can carry in one or two hands, and the ones you'll need to apply both
+hands to.
+
+The possibly 2H weapons include:
+- Picks, Dwarven Picks and Orcish Picks.
+- Any hafted weapon with the exception of Whips.
+- Any polearm with the exception of Spears.
+- Any large sword, that being the Bastard Sword and the Katana.
+
+If you happen to find a large weapon (hint: it's a new kind of ego-item!) it
+can always be wielded with both hands.
+
+The following weapons must be wielded with both hands:
+The two-handed flail and the Mace of Disruption.
+The Lance, the Scythe, the Scythe of Slicing and the Great Axe.
+The Two-handed Sword and the Executioner's Sword.
+
+Wielding a weapon with both hands gives you 1.5 times the original to-hit and
+to-damage ratings, but obviously you cannot carry a shield at the same time.
+If you try to wield a weapon that can be wielded by two hands, you'll be asked
+if you want to, provided you can at the moment. You cannot wield a weapon that
+must be wielded with both hands if you're carrying a shield. Angband/64 will
+provide you with some messages like 'without a shield, you could wield this
+weapon with both hands.' for example, when you are wielding a weapon (that
+could be wielded in both hands) in one hand and a shield in the other.
+
+3.4 Rings of Damage
+-------------------
+
+Because of the much to powerful way in which Rings of Damage used to
+influence characters, they now apply only once per round, so if you have 2
+attacks per round, on average one of these will have your extra damage
+counted in. You'll get messages like 'you hit deeply' when that happens.
+The damage from rings is displayed differently in the character information
+screen now: To Dam:   50+20(=) means always +50 to dam, and +20 from one or
+more rings of damage.
+
+3.5 Wild Swings and random prodding
+-----------------------------------
+
+If you attack a monster and miss, and he/she has neighbors, there a chance
+you'll wake them up. If you see messages like 'You miss the orc and startle
+the Aether Hound' you know what happened now. This can only happen to monsters
+both next to the monster you attack and next to you.
+
+3.6 The monsters are against me!
+--------------------------------
+
+That's right - each and every one of them is out to get you. There are some
+differences with the monsters in plain Angband, however. First of all,
+everything a monster carries is determined at birth. You can 'l'ook at a
+monster to see what kind of items he/she is carrying.
+This also means that if some monster steals your exclusive Scythe of Slicing
+of Extra Attacks, you can follow it and hope to regain it. Stealing monsters
+will now have a special 'sprint mode' just after they've stolen from you: they
+move a few moves very quickly, and don't blink out of the way.
+
+Second, the monster intelligence is reworked: monsters will now behave more
+intelligently (I hope). A monster that can pick up items will try to annoy the
+player by picking up items. Monsters that can crush items should now be killed
+as soon as possible, since they will crush anything they can get to. A monster
+that flees has a preference for unviewable squares, then squares that are far
+away from you, and finally squares that are surrounded by a lot of walls.
+
+A monster that summons prefers to leave enough space between him/herself and
+you to summon into. It prefers squares where it's not hampered by walls, and
+will try to break glyphs if it thinks they are easy. A monster that doesn't
+summon will try to break glyphs, if it thinks it can do so easily. Intelligent
+monsters will try to stay under the cover of trees, and will try to avoid
+known traps.
+
+In the future, this scheme can easily be enhanced.
+
+3.7 Arrows and other ammunition
+-------------------------------
+
+There is now an ammunition-slot in your equipment. There is also a flag that
+controls if you automatically add ammunition to this when walking over it.
+
+3.8 Fighting and birth-control
+------------------------------
+
+Breeders have an inborn generation-count now. They degenerate after a fixed
+number of generations. No matter how many you see: their number is finite.
+A special note for people who think this is for wimps: a common breeders like
+the giant white mouse starts with 12 generations, so one white mouse can grow
+into 479001600 mice under ideal circumstances.
+
+3.9 Fighting in the Arena
+-------------------------
+
+The Arena, to the right of town, may help you earn money if you know how to
+please the arena master. He will give you 3 chances to fight each level. If
+you try it more times, he will offer a lot less money. If you succeed in
+getting him to pay you more, you will also get more or meaner monsters. You
+cannot leave the arena until you have killed all monsters. Be especially
+careful of summoning/breeding monsters in the arena....
+Monster points are an indication of how much resistance awaits you. Since you
+earn money by fighting here, you gain no experience.
+
+3.10 Ghosts in the ruins
+------------------------
+Player ghosts have been updated, they are now not to be trifled with. If a
+player dies, a ghost is build which tries to resemble the player, in inventory
+(no artifacts), in spells, in hitpoints, in resistances/immunities and in
+physical attacks. If you kill a ghost, there's a chance, defined in defines.h
+as GHOST_RETURN, currently at 75%, that he will return another time.
+
+===============================================================================
+4.  If fighting doesn't help: Magic
+===============================================================================
+
+4.1 Wands, staffs & rods
+------------------------
+
+If you are not a mage, nothing has changed. If you are, you'll notice almost
+right away that there are many changes. The effects from wands, staffs and
+rods are now much greater.
+
+There are two modifiers: super and extra.
+Super does 2.5 (in 50% of attempts), 3.5 (30%), 5 (10%) or 8 (10%) times the
+original damage.
+Extra does 1.5 (in 50% of attempts), 1.75 (30%), 2 (10%) or 2.25 (10%) times
+the original damage.
+
+The 'extra' effect will only be available to Magi, War-Magi and High Priests,
+who must pass a roll where chance < randint(20), chance a randint(35 to 20)
+depending on your intelligence. Note that this means that intelligence is
+important to High Priests in addition to wisdom.
+
+The 'super' effect happens if you passed the rools for the 'extra' effect and
+has a chance depending on player level, ranging from 10% to 20%. Extra and
+super have effect on the range/damage/intensity of the effect, and also on the
+charges it takes to make the effort. This should offset the worsened fighting
+techniques (see above). Note that this does not have any effect on spells from
+books. There are other changes there, see below.
+
+Magi and War-Magi will now be able to use a staff with much greater frequency,
+because the energy needed to zap them has been lowered in Angband/64.
+
+4.1.1 Stacking Rods, wands and staffs
+-------------------------------------
+The game now sports more or less the same concept as in Oangband - rods, wands
+and staffs can stack, because the magical energies in them can combine.
+If you drop a rod, you will drop an uncharged one, if possible.
+When dropping a staff or wand, the charges will be divided equally
+amongst all staffs/wands, so if you have 5 with a total of 40 charges and
+drop 2, you will have a stack of 2 staffs with 16 charges on the ground, and
+a stack of 3 staffs/wands with 24 charges in your inventory.
+
+When selling rods, you will sell an uncharged one if possitble. The shopkeeperr
+wil magically recharge it, anyway.
+If you recharge a stack of rods, the chance of success will fall with the
+number of charged rods in the stack. When recharging staffs or wands, the game
+will focus on the mean charge in each item, with a progressive punishment for
+large stacks - too big a stack and it'll look like you're gathering firewood :-).
+
+4.2 Spells
+----------
+
+The magic system has undergone some radical changes. It used to be finding the
+right book solved a lot of troubles. Now every book you will find is empty.
+Books exist in different sizes, and there are even ego-item-books. Each book
+can hold a number of spells, which you can also find in the dungeon. Each
+spell can be read. At the time of reading, you have to choose: do you want the
+effects to be immediate, or do you want to remember the spell and bind it in a
+book you're carrying? If immediate, the spell is lost afterwards. If not,
+you'll need some moments of quiet while you're studying the spell. If you are
+disturbed, your concentration is broken and you'll have to start over again.
+If you try to read a spell (as a mage-like character) for a priest or
+vice-versa, you will not understand much of it. Much too little to bind it in
+a book, anyway. You can try to cast it immediately, but the effects are not
+that nice: lose all mana (50%), hallucination (20%), slowed down & blind (20%)
+or decreasement of your spellcasting stat (10%).
+
+Magi, War-Magi, Priests and High-Priests will use less energy for casting
+spells, and will be able to cast several spells per round at higher levels.
+
+4.3 Mage Staffs
+---------------
+
+There exist certain ego-item quarterstaffs that can store spells. These can be
+cast, without failing, at different intervals. To store spells or retrieve
+spells from them, use 'A' to activate them as you would activate other items.
+These work only for Magi and War-Magi. High Priests cannot use these, as they
+must be wielded.
+
+4.4 New Spells
+--------------
+
+There are some new spells, all high-level elemental spells, usable by mages.
+Rogues get news spells, which allow them to set traps of their choice, if they
+know them well enough. Globe of Invulnerability is gone but there's Magic
+Reflection to protect you from melee damage.
+
+
+===============================================================================
+5.  Getting Ahead: eating, drinking, sickness
+===============================================================================
+
+5.1 Drinking
+------------
+
+There's one new potion, and I'll let you find out what is does for yourself.
+It is rather low-level, so it's bound to show up.
+
+5.2 Eating
+----------
+
+One thing to note is that monsters leave corpses, which decay into skeletons.
+Corpses can be eaten, skeletons cannot. Corpses might have some effect on you
+when eaten. These can range from very good (think stat increase) to very bad
+(severe poisoning, stat decrease). Not all monsters drop corpses, and not all
+monsters' corpses stay fresh for a long time.
+
+5.3 Bloated - not good
+----------------------
+
+If you eat to much, you'll get bloated. In plain Angband this is not something
+to worry about, but in Angband/64 you'll get frequent stomach-cramps, which
+will give monsters the opportunity to score easy hits....
+
+5.4 Sickness
+------------
+
+There are some interesting new sicknesses to get. Most speak for themselves:
+if you have acid skin, your weapon will become acidic at times, but you'll
+also splatter acid over your inventory as you move. If you see sliding on the
+screen, you'll start to notice that you have no control over where your
+character is going, until you hit a wall or a monster or something else that
+stops you. Sliding can be induced by traps and by monster breaths of a certain
+type, which gives you frozen feet. It wears off after a while.
+
+
+===============================================================================
+6.  Tools - Armor & weapons
+===============================================================================
+
+6.1 Ego-armor & ego-weapons
+---------------------------
+
+Armor has gotten one new ego-type. Shields also one, Helms one, Gloves one,
+Boots two and Weapons two (plus three mage-ego-items). Ego-items can now have
+a different weight than normal items. There is new ego-item ammunition, and
+there are also new artifacts (from Tolkien), including the Main Gauche of
+Azaghal, the Black Axe of Gothmog, the Red Arrow of Gondor, the Spear of
+Melkor and the Axe of Hurin.
+
+6.2 Enchantments
+----------------
+
+Some changes, which should seldom matter, have occured with the enchanting of
+weapons/armor. A scroll of *Remove Curse* now has a change to invert the
+bonuses of a cursed (non-artifact) item. Any enchantment can now get past +15,
+and has a chance of either going past +15, or adding to the damage-dice. This
+does not work with the Priests Enchantment-spell. Scrolls of enchant X now
+also work on amulets & rings etc.
+
+6.3 Normal weapons look different?
+----------------------------------
+
+A lot more small differences exist between weapons - an executioner's sword
+that is normally 4d5 has a 40% chance of being 4d6 (10%), 4d4 (10%), 3d5 (10%)
+or 5d5 (10%). This makes the weapon shop look much different.
+
+6.4 Extended object information
+-------------------------------
+
+Each and every object that you find will now remember where you found it and
+how you got it there. This can be seen with scrolls of *identify*, with the
+wizard command for full identify and also with the character dump from the
+character information screen.
+
+
+===============================================================================
+7.  The Dungeon
+===============================================================================
+
+7.1 Size
+--------
+
+Bigger is better. Not always, but I think a 110x330 dungeon is better, anyway,
+so most of the levels will be big. Not all levels have the same size, that's
+randomly chosen at generation time, but they are large. Only my ineptness at
+understanding the lighting-routine (anybody know how to use that g-index in
+the view-algorithm with more than 110x330?) prevents me from making them even
+bigger.
+
+7.2 Walls
+---------
+
+Chalk walls were added, which have a 10% chance of crumbling when you walk
+against them, or throw something against them. After crumbling, they become
+rubble.
+All walls except Quartz walls can be eaten away by acid attacks, both by you
+the player and by monster breath. This also means that acidic weapons are now
+much more efficient at digging tunnels.
+
+7.3 Shops
+---------
+
+There can be shops on a dungeon level. These shops are different from the
+shops in town, because they only stock a very small set of items: a Cloak
+Store, or a Small and Large Swords Store. Each shop has a sign outside,
+telling you what shop it is. Shops in general are now more particular about
+what they buy and sell. You cannot sell spells a priest cannot use in the
+temple. On the other hand, every weapon a priest is comfortable with is
+acceptable to the temple. Shops (and your home) now have a bigger inventory.
+With all the different weapons, and all the spells, this is useful.
+Shops still have a maximum purse, but it's not displayed anymore. It's gone a
+bit up in respect to plain Angband, but I don't think a character ought to
+know this.
+
+7.4 Other terrain features
+--------------------------
+
+In the wilderness outside town, there are trees and water. All water is always
+traversable at the moment, provided you don't carry too much. Too much is more
+than 50% of the weight you can carry without slowing down. Trees can be walked
+under, but they limit your vision, and are slowing for any class but Rangers.
+Some trees or water may also be found in vaults. Lava also exists. If you step
+on it whilst not immune to fire, you will burn your feet. Monsters that have a
+fiery breath can create lava if they breath intensely. Some rings which are
+otherwise held in low regard can immensely help here.
+
+7.5 Auto-opening/closing
+------------------------
+
+Angband/64 tries to determine what doors / chests you can open or close. If
+there are more, you'll get a menu, where letters a-z are used to indicate
+doors/traps. You can also answer with the direction-key you'd normally use.
+This also goes for disarming traps.
+
+7.6 Traps
+---------
+
+Angband/64 has more traps than any other variant - if not, let me know :-).
+The name got first invented because I had more than 32 traps and had to expand
+some variables to 64 bits. There are none of the original traps left. Traps
+can now do something to your inventory, activate all of the elemental attacks
+in different intensities, rearrange the dungeon, make monsters etc. I'd
+suggest you give them a wide berth, since they are nastier or even deadly than
+in plain Angband. Even for high-level characters.
+
+Note that doors can also be trapped. Also note that there can be more than 1
+trap on a floor/door/chest, so finding and disarming one may not save you. The
+more often you've disarmed a certain trap, the more easier you'll find it, or
+evade it if you accidentally activate it. High dexterity also helps to avoid
+traps. It is possible a trap is invisible because an object has been dropped
+on top of it. If you know there's a trap (you have discovered it before) and
+the option 'ask_before_traps' is on, Angband/64 will ask you if you are sure.
+
+Rogues and High Priests can also execute spells that create traps. You can
+only create traps that you've studied enough times, with Rogues being able to
+study them much more quickly than High Priests, of course.
+
+Traps may have nasty effects: the dagger that embeds itself in your tender
+parts does a lot more damage this way than if you throw it at a monster.
+
+7.7 Monsters and Traps
+----------------------
+
+Monsters can also activate traps. This was awesome in Adom, and now I have it
+too. Traps will try to have the same effect on monsters as they do on the
+player. Monsters will not trigger low-level traps if they are high-level
+monsters. Also, all traps within vaults will be known to monsters - they will
+never trip those.
+
+As written in 7.6, some classes can actively set traps. To allow for users
+luring monsters over (already existant or self-set) traps, the player gets the
+regular experience bonus when a monster triggers a trap.
+
+7.8 Sub-Levels
+--------------
+
+In plain Angband, if you are on level 30, and go down, you get to level 31. In
+Angband/64, there are shafts leading up and down, which can bypass up to 3
+levels.
+
+Also, there are sub-levels. These are a type of rooms, where the dungeon
+locally has more levels. Imagine a room with a cellar. The cellar is below the
+normal dungeon, yet is not *the* level below the dungeon. Now imagine that
+sublevels can be either cellar-like or tower-like, extending below and above
+the dungeon. Sub-levels are generated with the level, so that the level never
+changes if you go to a sub-level and then return.
+
+7.9  Money
+----------
+Money is found in different varietes of expensive stones. Each has it's own value.
+Their values 'per unit' are:
+copper        3
+silver        6
+garnet        9
+gold         12
+opal         18
+sapphire     20
+ruby         24
+diamond      28
+pearl        20
+emerald      32
+mithril      40
+adamantite   80
+
+===============================================================================
+8.  Strategic Hints - how to survive
+===============================================================================
+
+- Don't blunder about - detect & evade traps, right from the start if
+  possible.
+- If you can't fight, be a coward and set your tactics accordingly.
+- When running away, really run and set your exploration mode accordingly.
+- For Mages, War-Mages and High Priests, using staffs/wands and rods is very
+  important.
+- If you are feeling adventurous, eat a corpse sometimes.
+- If you want to learn the tactics, build a Rambo character (say a Dunedain
+  Ranger) with teachers on, and get very knowledgeable teachers. Your character
+  will advance in levels only very slowly, but you will be nearly indestructible
+  on lower levels.
+- If you meet a monster and survive the first attack with only half your hit-
+  points, consider running away.
+- Make sure you can dig your way out of trouble in deeper dungeons; it is
+  rumoured the dungeon can be unstable next to monsters hitting a trap.
+- If you see a summoner in a large room (and Angband/64 has more of
+  those than regular angband!) use extreme caution. One simple Gnome
+  Mage is enough to ruin your day, and they mostly come in groups.
+- Be vary careful around cold-breathing monsters. They have a new
+  by-effect which is a nuisance and can even be dangerous.
+- Monsters that come in packs will stay in rooms if possible - unless they
+  think they can kill you easily. Mostly they will be right about this....
+- If you make a character in Teacher Mode, Druedain teachers are the ones to
+  go for. Their speed penalty doesn't transfer, their bonuses do.
+- Be careful as a high priest when starting. A confusion trap for example can 
+  make even very low level monsters dangerous, because you won't kill them just
+  by trying to hit them.
+- Monsters come with their inventory pre-created. That means that if you attack
+  a monster with a Wand of Acid Balls, you risk damaging his inventory and thus
+  your loot. It also means if you attack an unique with your Rod of Fire Balls,
+  you may have the pleasure of watching all his possessions sink into the lava....
+- Screaming monsters wake other monsters. If you want to kill off a group one
+  by one, make sure of your stealth and select a method that kills in one turn.
+- don't think that running through the dungeon will give you a free +4 speed
+  boost. Take a good look at your rate of hitpoint regeneration, mana regenera-
+  tion and food consumption, and the lowered intrinsics.
+- Monsters like items just as much as you do. Try to avoid killing a unique in
+  the middle of his escorts - they will carry the stuff away. On the other hand,
+  certain monsters that pass walls may carry items towards you.
+- Playing a high priest and being able to cast both priestly and mage spells
+  sounds like big fun. It is. But remember: you have a very finite amount of
+  mana, and in case of trouble, you cannot hack at anything....
+- If you cast spells, make sure you have a backup when certain attackes vaporize
+  your spellbook. It is rumoured certain spellsbooks exist which are able to
+  resist certain attacks. Also take this into account when selling spells you
+  already have - maybe a backup is nice to have...
+
+===============================================================================
+9.  Development - compiling & hacking
+===============================================================================
+
+9.1 How to compile
+------------------
+
+The source is just like plain Angband, just C-code. Keep in mind that there
+are some more source-files like gentown.c, object3.c, object4.c, special.c,
+compress.c and monster3.c.
+
+Makefiles are supplied for compiling under GNU/Linux, DOS and Win32. Not all may
+work, in particular the win32 makefile, designed for MingW32. It seems to have
+trouble with long command-lines. If you fix this, let me know.
+There are also makefiles for cross-compilers, running under GNU/Linux, targetting
+GO32 (dos) and MingW32 (win32) executables. These work, I use them. The makefiles
+are named like makefile.<platform>_<compiler>, so makefile.win32_mingw32 would be
+for compiling with the mingw32 compiler on a win32 platform. If you
+don't know how to get a cross-compiler working, train yourself by first
+compiling gcc from source, then find the crossgcc-faq at
+http://www.objsw.com/CrossGCC and make yourself a crosscompiler.
+All those makefiles are in src/. The makefile in ./ is the makefile I use to
+create the necessary archives, to update the homepage etc. Browse through it
+to find out what you can do with it, or just type 'make' without arguments.
+
+9.2 Tools to have when compiling
+--------------------------------
+
+I myself use GNU/Linux, because the virtual console is a gift from heaven, with
+framebuffer consoles making it clear & crisp to read @ 133x54 (on a 21" Eizo),
+and a script mmake, which calls make and leaves all errors in make.err, and
+then ViM (5.6 by now) to edit the source.  Furthermore, I use bzip2 and upx to
+compress archives and executables. I also use gcc, and crosscompilers which
+allow me to compile go32 and cygwin executables for dos and win32 in GNU/Linux.
+There are some useful scripts in the src/ directory, like dogdb.sh and
+substall.sh, that I use.
+My gcc does bounds-checking, get the patch at
+http://web.inter.nl.net/hcc/Haj.Ten.Brugge/
+It's a wonderful tool, but it leads to much increased memory use. I cannot
+compile files.c with 64 megabyte main memory, even if I have some 140 megabytes
+of swap also. Luckily I have 256 megabyte :-). Anyway, disabling
+-fbounds-checking in the makefile may be a good idea.
+
+9.3 The Source
+--------------
+
+As you may notice, I've changed every function that used to have the arguments
+for a coordinate as y,x to x,y - except some functions in the z-term.? files,
+IIRC. I feel this is more natural. I also have made the 3-space tab the rule,
+which no doubt is non-standard. Furthermore, I tend to use the 133 characters
+I can see on a line more and more - another reason to use a sensible OS.
+I greatly believe in defining numeric values in defines.h, and have added a
+lot there. I must remove all those numeric references in melee2.c, where
+monster spells are used, one of these days. My functions tend to have
+meaningful names, I hope, and I'm not too short on comments also.
+
+9.3.1 Monster AI
+----------------
+
+Monster AI is much reworked. I plan to make monsters a lot more intelligent,
+and the current scheme allows just that. All squares a monster can move to get
+a suitability index, and the best one is chosen. If another rule is needed,
+it's just a matter of making the right suitability index. If there is any reason
+Angband/64 runs slow on your machine, this may be it. I think this is a good
+thing. Monsters evaluate the squares with 4 different tactics. Take a look at
+find_moves() in melee2.c for more information.
+
+9.4 Logging
+-----------
+
+Since I've not used gdb other than for the past 12 months or so, I started
+debugging with printf's to stderr. There is now a faculty called dlog in
+Angband/64, which allows you to define which debugging-messages you want to
+see and which not. Just define GAMEDEBUG in config.h to the set of things you
+want to debug. Then use the -x argument to define a file to dump these
+messages into. If you define DEBUG_TO_STDERR, they are dumped to stderr. If
+you define DEBUG_COPY_AS_MESSAGE, they are added to the message-file in
+lib/save/. This file can grow enormously (I've seen 800 Mb myself....) so TAKE
+CARE!!. Some debugging options (the lighting and the savefile byte-level
+debugging come to mind) can generate enormous logfiles within a few moves.
+
+9.5 Options
+-----------
+
+The options use a new scheme. Each option belongs to a group, and each group
+can have a maximum of 64 options. No more remembering which bit is used and
+which not. Be careful, if you add an option your savefiles become incompatible.
+
+9.6 New Wizard-mode commands
+----------------------------
+
+There are lots of them - just type ^a? to get a list.
+try ^aR to test-drive a certain weapon, ^aA to generate item statistics, ^aF
+to change a terrain-feature, ^aT to create a (set of) traps, ^aN to create a
+specific (even ego/artifact) weapon and ^an to summon a specific (possibly
+unique) monster.
+
+9.7 New store-definitons
+------------------------
+
+There is a new way of defining what a store can buy/sell. See store_accepts in
+table.c. Defining a store which can sell food items now requires the line
+{ TV_FOOD, -1 } - which is easy, I think. The temple for example now also has
+a chance to start selling Holy Avengers on it's own. The price for this is
+cpu-power: store items are generated at random, the game needs quite a lot
+sometimes to get some acceptable ones.
+
+9.8 Helpers, Large and Small
+----------------------------
+
+Lots of people have written me with suggestions, complaints, bug reports,
+tips, hints and so forth. I've tried to keep all those people in
+lib/help/credits.txt. Thanks!
+
+9.9 Software Bugs and what to do with them
+------------------------------------------
+
+The previous version sported an elaborate way of getting a nice crashdump.
+This version sports an elegant way of getting a nice crashdump.
+In files.c, in routine handle_signal_abort, the signal-handler (which is
+called whenever something goes severly wrong) queries the addresses on
+the stack with the gcc builtin-function __builtin_return_address. The
+problem is if you probe for addresses that are not there, it crashes. So
+there's a second signal-handler (handle_signal_abort_stack) defined that
+sets a global variable to stop probing the stack. After that,
+handle_signal_abort prints out bare hex address about what routines
+were calling each other when the game crashed, and some information about
+what options were in use, etc. In linux, the game also prints out the 
+name of the function and the line number where things went wrong. In
+windows, this should happen also, but just like any other thing you'd
+like windows to do, it just won't work. I've not tested this in DOS, it
+should work (but that's what I thought about windows too). Please note
+that win32 does print the addresses, it just won't convert them to
+function names and line numbers.
+If you want to know where the game crashed, feed the hex-addresses (from
+the lowest numbered stack frame) to a addr2line from the gnu binutils
+package like this, or use the do_dump.sh script in the src/ directory.
+
+This approach doesn't do everything in the angband-executable, but doesn't
+need the map.c file and saves ~50 kilobytes of executable, not to mention
+one full minute when compiling :-)
+Please note that this doesn't work quite well with the upx-compressor used
+to compress the dos and the win32 executables. It seems to lose some debug-
+ging information in the program when compressing/decompressing.
+
+If you don't have the gnu binutils, just mail lib/user/crash.txt to me and
+I'll get back to you about it!
+
+An example:
+=========================================================================
+Your game has just crashed. Please forward the following
+information to the maintainer (email to thunder7@xs4all.nl)
+
+
+Also, please add any information you feel is relevant:
+especially, what were you doing at the time this happened?
+
+Angband/64 beta 4 release 9 (2.7.10) Crash Dump
+
+stack frame  9 address 0804a32a
+stack frame  8 address 081357b6
+stack frame  7 address 08128d63
+stack frame  6 address 081286b3
+stack frame  5 address 08124f7a
+stack frame  4 address 08124871
+stack frame  3 address 08124300
+stack frame  2 address 081239a2
+stack frame  1 address 080f4a78
+stack frame  0 address bffff944
+
+CONFIGURATION:
+
+GAMEDEBUG 0x80000800
+compression support compiled in
+using other RNG
+monster flow support compiled in
+
+DISPLAY MODULES:
+
+main-x11 compiled in
+main-gcu compiled in
+
+OPTIONS:
+
+Rogue-like commands=no
+Quick messages=yes
+Prompt for various information=no
+Display coordinates on screen=yes
+Auto open doors when colliding=yes
+Use old target by default=no
+Pick things up by default=yes
+<snip>
+=========================================================================
+I'm hoping this will help me debug crashes better in the future. I'm still
+having some trouble getting this to work under other OS'es than unix, in
+particular windows seems to have a habit of not calling the signal handler,
+but just displaying a message saying the program caused a SIGSEGV and has been
+killed, however, I do believe its working on Windows now.
+
+9.10 Compression
+----------------
+
+I use a modified version of the source of the venerable compress program.
+This is very small (only 673) lines, and is written in a fairly compatible
+way: it has no system-dependend #ifdef constructs, includes no files but
+angband.h and is written in plain c. Some people have argued that I should use
+a compression method that doesn't use the patented LZW compression method.
+First of all, I'm not sure compress.c uses this method. I prefer to keep
+unsure, so please don't enlighten me. Furthermore, this is very small and
+understandable code. Alternatives, like minilzo, are much bigger (minilzo
+1.06 has > 3500 lines) and contain a lot of cruft (minilzo 1.06: minilzo.c has
+2846 lines, of which 250 contain #if. That is not readable code.)
+
+9.11 The debug log
+------------------
+
+It is now possible to activate partial debugging from within the program, it's
+in the options under 'windows options'.
+
+===============================================================================
+10. Web-sites, ftp-sites, newsgroup - I want to know more!
+===============================================================================
+
+10.1 I'm bored. Give me some websites!
+--------------------------------------
+
+Try these for Angband information:
+
+The official Angband home: http://www.phial.com
+
+The Roguelike News Page: http://www.skoardy.demon.co.uk/rlnews/
+
+The Thangorodrim Angband Page: http://thangorodrim.angband.org
+
+10.2 I'm still not satisfied, where else can I go?
+--------------------------------------------------
+
+If this document doesn't satisfy you, try posting your question to newsgroup
+rec.games.roguelikes.angband. If it's about the internals of Angband/64, or a
+clever idea to remove 200 lines of code, or a cry from the heart like 'my mage
+is level 40 and hasn't found any spells yet - are you insane or what?' you can
+always email me at thunder7@xs4all.nl.
+
+10.3 I have a Macintosh
+-----------------------
+
+I don't.
+One of the more frequently asked questions is 'is there a Macintosh
+executable' to which I sadly must answer there is not. I do not own a
+Macintosh, nor do I know people who own one, and I don't know the first thing
+about making a crosscompiler to the Macintosh. You're welcome to remedy both
+problems, of course :-). Your best option would be trying to get GNU/Linux to
+run on it, then you can compile it without any problems. Your second best
+option is locating a compiler that can cope with the long long type as 64-bit
+integer, and just compile it. If it is a free compiler, please let me know
+how you got it to compile. If it isn't, you're welcome to provide binaries for
+the world. Let me know where you put them on the web, please.
+
+
+===============================================================================
+11. Frequently Asked Questions - FAQ
+===============================================================================
+
+11.1 Why aren't there any graphics?
+-----------------------------------
+
+Because I don't think they are important. Read 1.7 and 2.12 for more
+information.
+
+11.2 Will you include (Quests/Magic Realms/Lots of races/classes/<other
+                       features of Zangband/Kangband/Oangband>/etc)
+-----------------------------------------------------------------------
+
+Most probably not.
+Quests are difficult - I'm not trying to cram all of Tolkiens storylines in
+here, and even if I could, your character would die after the first 2 of old
+age, unless everyone was forced to play elves :-)
+Magic Realms could be cool, but I'm not convinced of the necessity right now.
+Perhaps I should play more Zangband.
+Lots of races and classes - necromancers, ents, great eagles, etcetera - are
+either not in Tolkien, or are not intelligent enough to be playable, or really
+can't be implemented without too much laughing here. Ever see an eagle in
+armour, with rings, wielding Ringil?
+
+11.3 I get a logfile, and I don't want a logfile. It is too big.
+----------------------------------------------------------------
+
+If you are playing the windows version, please erase the name of the logfile
+in angband.ini. If there is no name, there will be no logfile.
+
+11.4 So what does the 64 stand for? Are you that old?
+-----------------------------------------------------
+
+No, it is because this is the first Angband variant (and perhaps to only one)
+to utilize 64-bit flag-variables. This is not visible from the outside, but
+I think this is a better name than Jangband or something like that.
+
+11.5 Is there an Angband/64 Borg?
+---------------------------------
+
+No, there is not. There would be a lot of time anyone would need to port their
+borg, since Angband/64 has different dungeon structures, different magic, lots
+of different messages (which the borg should all parse) etc. However, you're
+welcome to try - I'm much more enthousiastic about Borgs than about graphics.
+
+11.6 What does 'Uh-oh. Unable to open file /tmp/t3e8.0' mean?
+-------------------------------------------------------------
+
+The cygwin compiler system I use to make windows executables seems to want
+to place temporary files in c:\tmp. Even if that doesn't exist. So please
+create c:\tmp (or tell me how to fix cygwin, but that is more work). You
+can see this error with various functions that use temporary files like
+the list of monsters you killed, the list of known objects, etc.
+

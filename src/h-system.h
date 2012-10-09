@@ -26,7 +26,6 @@
 # include <stdlib.h>
 #endif
 
-
 #ifdef SET_UID
 
 # include <sys/types.h>
@@ -52,10 +51,13 @@
 # include <unix.h>
 #endif
 
-#if defined(WINDOWS) || defined(MSDOS)
+/* msdos doesn't need io.h, at least DJGPP doesn't */
+/* other gcc-like compilers also don't */
+#if defined(WINDOWS) && !defined(__GNUC__)
 # include <io.h>
 #endif
 
+#if 0
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
     !defined(ACORN) && !defined(VM)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
@@ -64,7 +66,7 @@
 #  include <memory.h>
 # endif
 #endif
-
+#endif
 
 #if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
 # include <fcntl.h>
@@ -94,6 +96,10 @@
 
 #endif
 
+/* open() and close() seem to be defines here? */
+#if defined( __DJGPP__ ) || defined ( WINDOWS )
+# include "unistd.h"
+#endif
 
 #ifdef SET_UID
 
@@ -113,7 +119,7 @@
 
 
 
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
+#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN) && !defined(MSDOS)
   extern long atol();
 #endif
 

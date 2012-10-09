@@ -1,0 +1,50 @@
+                                                                               
+Dunadain                                                    a..a'a..a          
+Gladiator                                                   a..a.aa.a          
+Gladiator                                                  aaa.a.aa.aaaaaaaaaaa
+LEVEL     35                                               a.../...............
+ADV   115579   a a     aa                     a aaaa a    aa?..(...............
+AU    366825   a a    aa  aa                a a a  + a    a??...-..............
+223, 51      a a a    a  aaa   aaaaaa+aaaaaaa.a a aa'a    a..??!!..............
+STR:  18/159   + a  aaa aa aa         a     aTa a..a.a    a?..?................
+INT:  18/100 aaa'a  a   a  aa aaaaaaa a     a~a aa.a.a    a.........a...a......
+WIS:  18/100   a aaaa a aaaa  aaaaaaa a    aa}aaaa.a.aaaaaaa=aaaaaaaaa  aaa.aaa
+DEX:  18/166   a aa   a            aaha  aaa]T@?$?|.......aa.a a a   a    a a  
+CON:  18/150   a +  aaaa              aaaa...aa-aaaaaaaaa..[?a a aaaaa.aa a aaa
+CHR:  18/108 aaa+aaaa  a aaaaaaaaaaa aaa .....$$aa  aaaaaaa.]aaa a......a a    
+Cur AC    55     a     a  a        a     ........aa a~?=-.)._..a+a......a +    
+HP  587/ 542 aaaaa    aaa aa       aa     .....   a a*aaaaaaa?..........aaaaaaa
+             a        a    a       aa      ...  ..aaa?a     a..a+a......a      
+             a        aa aaa      aa            ......a     aa...a.....-a      
+[*******---] a         a a        a             ...aaaaaaaaaaaaa aaaaaaaa      
+|}=="~ (|]]]{a         a a   aaa aa T            .  a        a aaa             
+                       a a   a aaaTTTTZ             aa aaaaa a                 
+Full                                                               Fast (+1)   
+                                                                               
+Main Dungeon: 2100 ft                                                          
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+BBBBBBBBwwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbwwwwUwwwwbbbbbbbbbb
+BBBBBBBBBwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbwwwwwwwwwbbbbbbbbbb
+BBBBBBBBBwBBwbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbwwwwswwwwwwwwwwwwwww
+wwwwGGGGGGGGwbbwbDbbbbbswbbbbbbbbbbbbbbbbbbbbbwbwwwwbwbbbbwwwwwbwwwwwwwwwwwwwww
+wwwGGGGGGGGGwbbwbDbbbbwsbbwwbbbbbbbbbbbbbbbbwbwbwbbUbwbbbbwwwwwwDwwwwwwwwwwwwww
+wwwwwwwwwwwwwwbwbDbbbbwbbwwwbbbwwwwwwUwwwwwwwwwbwbwwUwbbbbwwwwwRywwwwwwwwwwwwww
+wwwwwwGGGGGGwbbUbwbbswwbwwbwwbbbbbbbbbDbbbbbwWDbDwwDwDbbbbwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwwsDUDbbsbbbwbbwwbDDDDDDDbDbbbbbwyDbwDwwwwbbbbwwwwwwwwwwwwwwwwwwwww
+wwwwwwGGGGGGwbbDbDwDsbwbwwwwbbwDwDDDDbwbbbbDDsDDwDWwWDDDDDwwGwwwwwwwwwbbwwwwwww
+wwwwwwGGGGGGwbbDbDDbbbsbbbbbbbbbbbbDDywbbwwwsbwwrwWWWWWWWWDDwDbDbwbbbDbbbbDbwbb
+wwwwwwGGGGGGwbbsbUbbwsswbbbbbbbbbbbbbbDwwwWyywwWwDDDwwwDDWWrwwbDbwwwwwwwwbDbDww
+wwwwwwGGGGGGwwsDUDsDsbbsbwwwDwwDwDwwbwwwbWwwwwwwwwbbwwwwwwwwUwwwbwwwwwwwwbwbbbb
+wwwwwwwGGGGGwbbbbDbbbbbsbbwbbbbbbbbwbbbbbwwwwwwwwwwbwUwyDwswuwwwUwwwwwwwwbUbbbb
+wwwGGGGwyyyywwwwDDbbbbwwwbDDbbbbbbbwwbbbbbwwwwwbbbwbwrwwwwwwwBwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwbbbbbbbbwbbbbDbbbbbbbwwbbbbbbwwwbbwwwwwwwbbbbbwwwwUwwwwwwwwbbbbbb
+wwwwwwwwwwwwwwbbbbbbbbwwbDwwbbbbbbwwbbbbbbbbbbbbwwwwwwwbbbbbwwwwwwwwwwwswbbbbbb
+wyyyyyyywwwwwwbbbbbbbbbDbwbbbbbbbbwbbbbbbbbbbbbbwwwwwwwwwwwwwwwwbwwwwwwwwbbbbbb
+WUgywywgWvUsUwbbbbbbbbbsbwbbbwwwbwwbybbbbbbbbbbbbwbbwbbbbbbbbwbwwwbbbbbbbbbbbbb
+wwwwwwwwwwwwwbbbbbbbbbbsbwbbbwbwwwGyGwrbbbbbbbbbbbbbwwbwwwwwbwbbbbbbbbbbbbbbbbb
+GGGGGGGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwGGGGGGGGGGGw
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+

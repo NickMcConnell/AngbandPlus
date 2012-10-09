@@ -1,0 +1,1939 @@
+added vampiric weapons, drain up to max(3% of monster hp,to_d of weapon) of
+a warm-blooded monsters HP each swing, sust con, hold life,slay undead
+
+numbered character swings and misses at monsters
+
+added flag to allow killing cursed items on floor and stop asking about
+killing cursed items in possession of character
+
+added flag to allow to outo-open/try to open doors when bumping in to them.
+   it's tried only once.
+
+Increased mana-correction for 18/220+ stat by 1.
+
+made wizard routines controlled by number instead of character
+
+made wizard help ^a ? available
+
+allowed wizard tweaking of artifacts
+
+allowed wizard creation of artifacts
+
+allowed scrolls of enchant weapon/armor to work on anything that's possible
+        (amulets of the magi, rings of slaying etc)
+
+given scrolls of *enchant* a chance of increasing above 15 but below 25
+      this does not work on the priest's enchant spells
+
+added the ^ar - wizard command, allowing to rate a weapon. This actually runs some
+20000 swings againsta a chosen monster, so the real damage capability is tested.
+
+added the ^aV - wizard command, allowing to view the value of something
+
+changed shock-damage back to 5x instead of 3x
+
+allowed 18/*** str & dex priests an extra swing with a mace of disruption
+
+allowed rogues an increased chance of hitting a monster the first-time when
+        it's asleep
+
+allowed warriors a better chance of heavy critical hits each 10 levels.
+        ie they don't make them ofter, but when they do they always get at least
+        a superb hit at level 50, always at least a great hit at level 30
+
+added a flag to get the color-description/titles with identified objects.
+
+allowed scumming for very good levels
+
+wearing rings of accuracy now increases your chances of a critical hit
+
+added the option to quit immediately ^Q
+
+always temporarily suspend the quick_messages status before asking "live on?"
+       so pressing return doesn't let you die
+
+in wizard mode, you are not zapped to town, but a new level is generated
+
+drained experience and stats now blue, because yellow/green is not seen clearly
+
+skills-display now includes the numerical values
+
+searching in help-files is now case-independent
+
+no key-pressed necessary while generating caves
+
+scrolls of *remove curse* have a 1 in (55-level chance to
+   reverse the curse effects - a ring of damage(-15) {cursed} then
+   becomes a ring of damage (+15)
+   this does not go for artifacts - a sword of mormegil +40,+60 would
+   be somewhat unbalancing
+
+done Gloves of Magic:  magic skill +1d5, (-10,-10) tohit,-dam
+
+increase to amount of mana for really high int/wis characters
+
+added a flag to allow to auto-target the only monster in sight
+
+added wizard command ^aR to reset some things, currently only the maximum
+      dungeon level
+
+you hands only feel unsuitable for spell-casting if you have >0 mana
+
+added the possibility for non-cursed items with to_d/h/a/pval >0 and cursed items
+with to_d/h/a/pval <0. IE now there are
+
+gloves of magic (-12,-8) (+3 to magic) which increase your magic skill whilst
+decreasing your fighting possibilities.
+
+boots of jumping: activate for phase door every 20 turns
+
+boots of heavy step: +10 to AC, -3 to stealth
+
+Create new Artifact:
+The Black Spear of Melkor 3d10 (+12,+24) (+4)
+60 lb heavy
+affects stealth and infravision
+resist darkness. light, blindness, nether, confusion
+heavily cursed, and becomes so on wielding it
+leads to permanent poisoning (about 2 hp each turn)
+
+This spear was mentioned in the Silmarillion, it's the weapon Melkor used to slay
+the trees of Valinor.
+
+add name searching capability to '/' command
+
+Axe of Hurin: +3 attacks, +3 to con
+slay orc, demon
+acid brand
+activate for twice long berserker, +10 to speed once every 1d200+100 turns
+See the Silmarillion - about the capture of Hurin
+
+main gauche of Azaghal
+*Slay* Dragon
+ignore fire
+2d5 (+12,+14)
+See the Silmarillion - about the dying of Azaghal
+
+Black Lochaber Axe of Gothmog
+3d8 (+10,+18)
+Fire Brand
+hits player with fire every d50 turns
+-4 to CHR
+See the Silmarillion - this killed Fingon.
+
+Added the Balrog and the Greater Balrog, both high level monsters.
+
+wielding weapons 2-handed.
+
+possible necessary
+
+  -                Broken Dagger
+  -                Broken Sword
+  -                Dagger
+  -                Shovel
+  -                Main Gauche
+  -                Whip
+  -                Spear
+  -                Rapier
+  -                Small Sword
+  -                Sabre
+  +        -       Pick
+  -                Cutlass
+  -                Short Sword
+  -                Gnomish Shovel
+  +        -       Trident
+  +        -       Mace
+  +        -       Tulwar
+  +        -       Quarterstaff
+  +        -       Ball-and-Chain
+  -                Dwarven Shovel
+  +        -       War Hammer
+  +        +       Lance
+  -                Scimitar
+  -                Broad Sword
+  -                Long Sword
+  +        -       Orcish Pick
+  +        -       Broad Axe
+  +        -       Battle Axe
+  +        -       Awl-Pike
+  +        -       Bastard Sword
+  +        -       Flail
+  +        -       Pike
+  +        -       Glaive
+  +        -       Lucerne Hammer
+  +        -       Morning Star
+  +        -       Katana
+  +        -       Beaked Axe
+  +        -       Halberd
+  +        +       Great Axe
+  +        -       Lead-Filled Mace
+  +        +       Two-Handed Flail
+  +        -       Dwarven Pick
+  +        -       Lochaber Axe
+  +        +       Two-Handed Sword
+  +        +       Scythe
+  +        +       Executioner's Sword
+  +        +       Scythe of Slicing
+  +        +       Mace of Disruption
+  wielding 2-handed yields a 1.5 x to_hit and 1.5 x todam, but you can't wield
+  a shield then.
+  I'm not sure if this should go for artifacts too, for now these can be wielded
+  one-handed and two-handed, but I'm not sure.
+  if you wield a two-handed weapon, no shield arm shows up in the equipment list
+
+enlarged dungeon from 66x198 to 110x330 - nice and big!
+
+allow scroll of *enchant* to supercharge damage dice sometimes - you must have
+a *enchant* scroll and the have a rand_int(100-level)<20 chance. This won't work
+with a priests' enchant prayer.
+
+acid brand weapons dig much more easily - acid eats walls. Perhaps this should
+be done by setting TUNNEL in e_info.txt for acid-brand, not by hard-coding.
+
+acid spells now can damage walls.
+
+more items per grid square now possible: up to 16 per square, but it will be
+     limited to 4 per square unless really necessary - ie like dropping a great
+     lot of items in a narrow spot, or dropping 10 artifacts in one place. If
+     possible, dropping the 5th item drops it near you.
+     items are stored as indexes into i_list in an array in each cave_type.
+     This array is kept sorted, can absorb items like the inventory, and shows
+     up correctly during look, pickup, load and save.
+     Memory-requirements are up from 6 (8 incl. monster flow) bytes per square
+     to 38 bytes per grid.
+     With the old dungeon-dimensions, this means from 78408 bytes to 496584
+     bytes, with the new dungeon from 217800 to 1379400 bytes. I don't know if
+     this is a problem for many angband users. It isn't for me, and I liked to
+     look if it would be possible.
+     It would perhaps be preferable to have object index arrays only in
+     grids which are no walls, or make variable-sized arrays, but the
+     programming effort would be great, and speed and clarity of the source
+     would suffer.
+
+changed all functions to x,y calling - not y,x calling.
+
+Added a new set of traps:
+N:0:Beauty Trap
+N:1:Intelligence Trap
+N:2:Wisdom Trap
+N:3:Fumbling Fingers Trap
+N:4:Wasting Trap
+N:5:Trap of small Fire Ball
+N:6:Trap of Small Ice Ball
+N:7:Trap of small Lightning Ball
+N:8:Trap of Curse Weapon
+N:9:Trap of Curse Armor
+N:10:Earthquake Trap
+N:11:Poison Needle Trap
+N:12:Summon Monster Trap
+N:13:Summon Undead Trap
+N:14:Summon Greater Undead Trap
+N:15:Teleport Trap
+N:16:Paralyzing Trap
+N:17:Explosive Device
+N:18:Teleport Away Trap
+N:19:Lose Memory Trap
+N:20:Bitter Regret Trap
+N:21:Bowel Cramps Trap
+N:22:Blindness/Confusion Trap
+N:23:Aggravation Trap
+N:24:Multiplication Trap
+N:25:Large Plasma Ball Trap
+N:26:Large Nether Ball Trap
+N:27:Large Nexus Ball Trap
+N:28:Large Disenchantment Ball Trap
+N:29:Weakness Trap
+N:30:Steal Item Trap
+N:31:Summon Fast Quylthulgs Trap
+N:32:Trap of Acid Bolt
+N:33:Large Acid Ball Trap
+N:34:Trap of Sinking
+N:35:Trap of Mana Drain
+N:36:Trap of Missing Money
+N:37:Trap of No Return
+N:38:Trap of Silent Switching
+N:39:Trap of Walls
+N:40:Trap of Calling Out
+N:41:Trap of Sliding
+N:42:Trap of Charges Drain
+N:43:Trap of Stair Movement
+N:44:Trap of New Trap
+N:45:Trap of Scatter Items
+N:46:Trap of Decay
+N:47:Trap of Wasting Wands
+
+Traps can now be present on floor, doors and chests. More than one trap per item
+is possible. Traps have a minimum level, a probability of being on an item, and
+a probability of having another trap present. Some traps are very nice, like
+the trap of scatter items, or stair movement. Traps that are known are colored
+on screen.
+The trap of sliding is featured after a nice level in Adom.
+Traps are now organised as different trap types, in t_info[] like monster types
+in r_info[], and trap_items, sets of traps that exist on floors/doors/chests.
+
+added the rod of ident_trap which gives you added insight about found traps
+
+Disarming and opening is now more intuitive, uses less keys and works better.
+
+copied the lighting from angband 2.8.0
+
+copied the extra info screens from angband 2.8.1
+
+copied the new max hitpoints/manapoints stuff from 2.8.1
+
+added weight modifier (like parts out of 100 normal weight) to ego-items, so
+that armor of elvenkind can weigh less (25% of normal), just like we now have
+armor of quality (+15 AC, 180% weight, -10 to hit), the helmet of crushing
+(+10 AC, +500% weight)
+
+activate chest trap(s) when picking up a chest
+
+save levels - no more random levels each time, which is more in line with
+the original idea I think. If this means the dungeon is getting too small,
+then each floor should be bigger, or there should be more floors. levels are
+saved as player.l00 to player.l7f in the save directory.
+something should be done about returning to a level after a long time: monsters
+should have moved, picked up things, etc. However, this is difficult in a
+turn-based RPG. Calling process_monsters seems nice, but how to avoid attacking
+the player?
+
+removed all to code to convert old savefiles - savefiles are now so different
+that is just doesn't make sense!
+
+stairs now don't automatically lead to the next level, you can go from level 2
+to level 4, or from level 90 to 87. If you go from say level 1 to level 4, then
+return, the program tries to return you to a stairway which leads to level 4.
+If there are more, you land on a random one. If there are none, one is made.
+If you don't use a stair, you don't land on one, either.
+
+there is now an arena to the right of town - but the earning may not keep up
+with the trouble! because of this and other future plans, the ftyp entry in
+cave_type was bumped up to 16 bits, fdat to 32, and an extra field of 16 bits
+was added - I'm not so shy of using memory and/or diskspace.
+
+The arena now has public (hidden behind permanent glass walls) and visiting
+too often seems to get your maximum betting amount down.....
+
+The public seems to reappear if you've accidentally wiped it out, via clumsy
+use of wizard commands, perhaps?
+
+cave_type and f_info totally reorganised - lots of changes in defines.h,
+f_info.txt and init?.c - the cave_type is now organised along the lines of
+the items, with main types (floor, wall, door etc) and subtypes (normal floor,
+floor with trap, etc) - this is not a nice job, but I think it will allow
+the adding of other floor types (wilderness, water, whatever) more easily.
+For example: the permanent glass wall separating the crowds in the arena from
+the arena itself was added with just two lines in f_info.txt, defining a
+subtype of permanent walls which let through light, but where you can't walk.
+this also meant reorganizing the ibm pref file, both in format and content.
+
+Added some new flags to feature types:
+#define CAVE_WALK       0x00000200    /* can we walk here */
+#define CAVE_LIGHT      0x00000400    /* can we light beyond this */
+#define CAVE_MIMIC      0x00000800    /* do we mimic something else */
+#define CAVE_MAGIC      0x00001000    /* can we throw a spell past this */
+#define CAVE_SWIM       0x00002000    /* do we drown here */
+
+Different trap items were added for 1 trap known on the floor and more traps
+known on the floor. This also meant reorganizing the trap_item_type with found
+now as 2 u32b items instead of a single boolean
+
+added wilderness - trees are something you could pass beneath, but not see past.
+items should only be remembered there (this is not working as of yet)
+perhaps the overall remembrance of squares should be dependant on something;
+
+added chalk walls - which have a 10% chance of crumbling into dust when you walk
+into them
+
+changed the keys so that 'z' now works with staffs, wands and rods.
+
+added an ammo slot in equipment, and a flag to control wether picked-up
+items are automatically stacked with that slot
+
+corpses. Corpses can have several effects and rot away. Caarying them will not
+be easy, they will be relatively heavy, so nothing like Adom where you can
+walk along with 20 corpses of hill giants. Corpses decay, some effects depend on
+freshness, and decayed corpsed either turn to dust, or turn to skeletons....
+There is some extra code to prevent the necessity of 2 x 500+ extra items (corp-
+ses and skeleton), instead there are two generic items.
+
+Did some work on corpses rotting away in monster inventories: some routines
+couldn't handle i_ptr->ix values of -1 (meaning in monster inventory)
+
+Added fire/cold/acid/elec skin (from potions and as corpse-effects)
+These give you a branded weapon (1 in 4) plus a small elemental attack
+(also 1 in 4)
+
+added elven arrows, orcish bolts and hobbits' pebbles
+
+added elven long bows and hobbit slings.
+
+made the trees harbour some animals out of town....
+
+rework spell system:
+
+spells are learned from pages found in the dungeon.
+mages and priests have more mana, rogues/paladins/ranger somewhat less, warriors
+cannot read. Once learned (takes a lot of turns) they can be memorized in books.
+books come as small, normal and large, holding 3/6/12 spells. Beware, a 12-spell
+book is very heavy, though.  There are element-ignoring ego-item books, some
+15 different combinations.
+non-magic users can cast spells too, but with a high chance of confusion,
+stunning, large fireballs, sliding etc.
+spells are defines in s_info.txt, because all those tables bloated table.c
+spells can be *identified*, have different values:
+# spell cost = scale * level * 100 *
+# (1 (nat/item/world) or 2 (escape / sense / other) or 3 (drk / self / heal))
+
+use Z to cast spells
+
+being bloated means you digest your food slower, and lose hitpoints. It also
+slows you down...
+You can bloat yourself much more now, if you like.
+There is gorged and bloated status.
+
+Add ego-items:
+weapon of joy: resist fear, slay undead, +1d3 chr
+
+even if sliding, once in 20 checks for key-presses you can do something -
+getting stuck in a hall with a pack of cold-hounds breathing on you and
+watching your hp's slowly drop was no fun at all.
+
+Sliding stops if you hit something - after that you can slide in another
+direction. If you slide against a monster, it wakes up and hits you (that
+shouldn't be surprising - right?)
+
+made sure no uniques are summoned into the arena, and breeders get a special
+treatment: they count double, as do summoners. Special messages are printed in
+all of these cases
+
+monsters which teleport in town now stay in the town - it was frustrating to see
+those rogues make off with my money to somewhere far away in the wilderness.
+
+fixed a bug where saving a level without using the stairs would kick you back
+to town on the next reload of the game.
+
+enabled running again, which stopped you as soon as it saw a wall - always.
+
+done something about breeding: monsters now have a max-generation counter, say
+10 for some louse, and there won't be any more generations than that. This coun-
+ter, when at 10, makes no more than 164 louse in one test - which is a lot, but
+not undefiable - I like this better. Just tested this with a level 7 char
+against some white lice on level 3 or so - it works, but you better have a lot
+of patience. This means it is right: it should be used as a last resort before
+being forced off the level by explosively breeding lice when you know there's
+an artifact lying around somewhere
+
+added a different type of square for arena crowds: ever seen a Quylthug teleport
+into an empty space in the crowd when you're fighting him?
+
+severely limited the usefullness of the arena for higher level characters:
+no more 2500000 AU winning
+
+added something like tactics, but for moving: moving slow gives you more
+searching, but it makes you slow. It also influences perception and stealth.
+
+changed a bug where monsters opening trapped doors left opened doors with traps.
+
+fixed an obscure bug where secret doors with traps sometimes had known traps,
+and they showed up in the 'disarm what trap' choices if there were other traps
+nearby, even if the @ didn't know that piece of wall was a secret door.
+Comprendo?
+
+The trap of Trap Door would not transport you to another level, but to the
+same.
+
+Monsters who steal items now don't just teleport out of range, they teleport a
+short distance and then get added speed for some time - so you can guess where
+they will go, but not catch them, unless you're very fast yourself. This makes
+it somewhat easier to find the thieves - they don't jump to the other side of
+the level. The downside is that they return sooner to bother you.
+
+Digging into a secret door now reveals there's a door there
+
+Added the option to save options into a text-file, load them from it, and also
+load them from a file on the command-line. This allows a set of options for
+debugging, and another set for playing.
+
+Removed a bug where doors opened by monsters were always visible.
+
+Changed the chances of tunneling succeeding, since it was way too easy.
+
+Removed the pick-up... Y/N question when not auto-picking up everything and
+pressing , to pick something up.
+
+Added the wizard 'F' command, that lets you alter the terrain - create any
+feature you like, and fiddle with the flags as much as you like. You need to
+know what you are doing, however - setting the flags incorrectly may give
+strange results.
+
+Changed wizard 'T' command to allow adding traps to doors.
+
+When disarming traps and opening things, if there are more choices, you can
+also enter a direction.
+
+Added compression for saved level-files, which reduces the space used per level
+from 300k to less than 20k. I've incorporated the compression-routines from
+tzip-1.0 for this, please read the tzip-1.0.lsm in lib/help for extra info.
+tzip comes under the GPL, so I guess this means all sources now come under the
+GPL. The compression routines unfortunately also mean that you now need a c++
+compiler to compile the sources. If anyone knows a small C file with 2 functions
+compress (infile, outfile)
+uncompress (infile, outfile)
+which can be used instead of these c++ sources, I'd like to know!
+
+added an option to control level saving at birth.
+
+added random-sized dungeons.
+
+fixed a long-standing bug where non-floor squares (hidden traps, stairs, shafts
+etc) were visible at a distance even when wearing no light.
+
+Made it possible for wizards to resummon uniques
+
+291297
+Took care that Farmer Maggot's drops didn't break - this was not nice.
+
+Added a variable resolution map - use 'm' to get at it. This may be slow to very slow
+on some machines: it's acceptable on my K6-200, if anyone looks at the source and
+has any ideas on speeding it up, hints would be welcome. I fear the multi-functional
+term-code is not optimized to do this thing.
+
+291297
+Removed a nasty bug in which widened tunnels could eat away the outer walls of
+the dungeon, which led to gruesome software bugs leaping out at you in the
+lighting code.
+
+301297
+auto-opened doors didn't have the correct flags: they showed up as a black square for
+some time. This also goes for doors opened by monsters
+
+301297
+Removed a bug when switching resolutions in the map: parts of the previous map were
+displayed.
+
+040198
+Changed the way in which breaking stacks of items was handled: if the chance of breaking
+is 60%, now 6 out of a stack of 10 will probably break, and not the whole stack in 6 out
+of 10 cases.
+
+040198
+Refueling something from a lamp now doesn't make the empty lamp disappear.
+
+050198
+Stores were not reshuffled if levels were saved, now they are.
+
+060198
+Since the above, I've rethinked this concept, and I'm now working on stores in the
+dungeon, stores with partial assortiments (the Armoury Boots Store etc) etc.
+
+100198
+Tried all week to find a bug which showed up walls behind walls after a level had
+been wizard lit. I'm not sure why, but note_spot in cave.c was called on walls behind
+lit walls, so I added a check there if the square the spot was behind had the
+CAVE_LIGHT flag.
+
+190198
+Been busy revamping the stores code. Now all kinds of sub-type stores exist, ie armor
+stores which only stock boots. In town, still the normal stores. There is now an array
+in tables.c which tells what kind of items stores will buy. This leads to a somewhat
+shallower choice in town, as items are randomly created and then checked against the
+table. Some higher-level items don't exist anymore in the town-stores.
+
+220198
+I needed more space for flags, and I looked it up in the gcc-info, and (YES!) there
+exists an 64 bit long long integer. Angband surges forward into the 64-bit era!
+Now s64b and u64b exist, and all kinds of interesting expansion-possibilities pop up.
+Now all trap-flags fit into one field, making things much cleaner, and we can suddenly
+add another 30 or so ego-weapons.
+
+250198
+In view of the previous point, this game has been renamed to Angband/64. This serves
+both as a distinctive name against another Kangband, and expands the nameranges of
+variants :-)
+
+310198
+Made the extra mode-screens (after 'C') work with the new 64-bit flag system. Also made
+a cheating option to allow viewing these screens - I think it's cheating, after all.
+
+090298
+Finally reworked the makefile to automagically create dos and linux binaries
+and sources on command. This only works under Linux with dosemu installed, the
+dos-boot-partition accessible under m:, another dos-partition accessible under
+d: and djgpp installed under dosemu. Still, you can always go in to the src/
+directory and type make.
+
+
+200298
+Added the new lighting routines from 2.8.3. Things need to be tested, as this is an al-
+gorithm I really don't understand, and I'm not sure if having x-coordinates > 256 may
+break something.
+
+280298
+Added the monster AI patches in melee2.c, made by "DRS" (David Reeves Sward).
+This needed the new project() code from 2.8.3, so I started adding that as well.
+
+070398
+In line with the next entry, added a backup-target in the makefile. This
+creates a .tar.bz2 copy of all the files, and stores that in /backup/
+
+080398
+Spent a LOT of time integrating the best features of 2.8.3 into my code. This
+includes the multiple term support, the keymap-feature, the project() code and
+the pref-files. This turned out to be a project which is quick to reach the
+point of no return, whilst the end-point is not so close at hand - Ben's
+earning my respect for making all these changes. Still, I can walk around in
+town now, can use the cursor keys again, etc. My spirits are getting up.
+
+090398
+Learned why messages in another window were crashing the system: it could call up
+messages which didn't exist. message_str returned an empty string, which
+Term_putstr didn't (and shouldn't have to) check for, etc. Now it works.
+
+100398
+Don't know why it works in 2.8.3, but the fix to the bug above resulted in not al-
+ways activating the correct term upon leaving fix_messages(). This in turn led to
+painting the main screen in a too small window -> crash.
+
+100398
+Missed an 'update windows' statement in dungeon.c, which caused messages not to
+appear right away in their own window
+
+110398
+Some walls of the arena-access tunnel were created without the correct flags, so
+they were invisible until you walked into them.
+
+140398
+Modes that you don't want to see (pressing 'C' with cheat_mode off) don't give a
+black screen anymore
+
+140398
+Toned down the memory consumption by decreasing the maximum number of spells per
+book and made some general routines to check, set and clear a spell in an item.
+
+140398
+using ncurses leads to annoying warning about redefining bool - but I don't see
+what's exactly going wrong. the #undef bool doesn't have any effect, not defining
+bool in h-type.h leads to screens full of errors, in short - this warning will
+stay for the forseeable future, unless someone has a brilliant idea?
+
+150398
+Uploaded a new version to the web, and sens a message to the Roguelike News'
+maintainer. Promptly got a reply asking if this was beta-2. I hadn't thought of
+that.
+Probably a good idea, though.
+
+150398
+Removed a bug in store.c where store_flavor was called with a wrong argument,
+leading to store owner names not being displayed all right (mostly in the BM)
+or even the game crashing.
+
+150398
+revamped all references to the command_ variables which are now in p_ptr struc-
+ture, instead of loose variables.
+
+170398
+Items you pick up from the ground shouldn't reveal their base damage immediately.
+Only after you carry them around, or if you have a high fighting-skill, you should
+know their base damage. This prevents picking out Ringil right away, since now all
+you see is A Sword, instead of A Sword (4d5). Also made somewhat changed damage
+sides and dices more common: they are off by one in either direction 40% of the time.
+Attacking with an untried item gives you a big chance of trying it..
+
+180398
+Added ego-items:
+
+shield of the Dwarves: +1d3 infravison +1d3 con, resist fire
+
+Helm of the Noldor: +1d3 dex, sust dex, activate for find treasure
+every 10+d20 turns
+
+180398
+Players were born with untried items - a little overdone.
+
+180398
+After exiting from the game, the home contents were not displayed correctly -
+the game needs to reload level 0 if the player exits out of town, because stores
+are bound to a level now.
+
+190398
+Tweaked the makefile yet again, so view the version number in the name of the
+dos archives.
+
+190398
+Uploaded current sources as beta/2
+
+200398
+if you invoke angband/64 with -x without a name, no logfile will be written.
+
+210398
+changed the makefile so that the libraries are not included in everything, making
+uploads (and downloads) a lot smaller.
+
+210398
+Something was wrong with my main-ibm.c, leading to all kinds of weird
+colorschemes appearing under msdos. Replacing it with the main-ibm.c from
+2.8.3 solved this.
+
+230398
+made using rods, staffs and wands more attractive to mages:
+
+using rods has a 1 in 4 (low-int) to 3 in 4 (high int mages) chance of doing
+something extra, and then a 1 in 7-level/10 chance of "super" effects:
+
+rods:             normal          extra          super
+
+rod of illuminat  2d8             4d10           20d10
+rod of healing    500             1000           2000
+rod of speed      randint(30)+15  randint(60)+15 same
+                  if fast: +5     if fast: +10
+rod of drain life 75              300            1500
+rod of acid bolt  6d8/rad 10      6d8/rad 20 or  30d12/rad 20
+                                  12d10/rad 10
+rod of elec bolt  3d8/rad 10      3d8/rad 20 or  15d12/rad 20
+                                  6d10/rad 10
+rod of fire bolt  8d8/rad 10      8d8/rad 20 or  40d12/rad 20
+                                  16d10/rad 10
+rod of cold bolt  5d8/rad 10      5d8/rad 20 or  25d8/rad 20
+                                  10d10/rad 10
+rod of acid ball  60/rad 2        180/rad 4      900/rad 5
+rod of elec ball  32/rad 2        96/rad 4       480/rad 5
+rod of fire ball  72/rad 2        216/rad 4      1080/rad 5
+rod of cold ball  48/rad 2        144/rad 4      720/rad 5
+
+when super isn't used for any of the rods above, the recharching period is 4
+times as fast. Idem extra, 2 times as fast.
+if extra: 1 in 2 change of using charching rod (with no extras when using it)
+
+staffs:
+
+if extra: 1 in 2 change of using staff with no charges (with no extras when using it).
+
+                  normal          extra          super
+darkness          dam 10/rad 3    dam 90/rad 7   dam 200/rad 12
+remove curse      remove curse    remove curse   remove heavy curse
+lite              dam 2d8/rad 2   dam 6d10/rad 7 dam 30d12/rad 12
+cure light wounds heal 8          heal 25        heal 80
+healing           heal 300        heal 900       heal 2000
+sleep monsters    player level    pl lev + 30    pl lev + 70
+slow monsters     player level    pl lev + 30    pl lev + 70
+speed             randint(30)+15  randint(60)+15 same
+                  if fast: +5     if fast: +10
+dispel evil       dispel(60)      dispel(180)    dispel(900)
+dispel monsters   dispel(120)     dispel(360)    dispel(1800)
+prot from evil    dispel(120)     dispel(360)    dispel(1800)
+                  heal(50)        heal(150)      heal(450)
+                  pr fr ev lev*3  lev*5          lev*8
+earthquakes       radius 10       radius 30      radius 90
+destruction       radius 15       radius 45      radius 135
+
+wands:
+if extra: 1 in 2 change of using wand with no charges (with no extras when using it).
+
+                  normal          extra          super
+confuse monster   level 10        level 40       level 120
+fear monster      level 10        level 40       level 120
+drain life        damage 75       225            1125
+stinking cloud    dam 12/rad 2    dam 60/rad 4   dam 300/rad 5
+magic missile     2d6             6d8            30d10
+acid bolt         5d8             15d10          75d12
+elec bolt         3d8             9d10           45d12
+fire bolt         6d8             18d10          90d12
+cold bolt         3d8             9d10           45d12
+acid ball         dam 60/rad 2    dam 180/rad 4  dam 900/rad 5
+elec ball         dam 32/rad 2    dam 96/rad 4   dam 480/rad 5
+fire ball         dam 72/rad 2    dam 216/rad 4  dam 1080/rad 5
+cold ball         dam 48/rad 2    dam 144/rad 4  dam 720/rad 5
+dragon fire       dam 100/rad 2   dam 300/rad 4  dam 1500/rad 5
+dragon cold       dam 80/rad 2    dam 240/rad 4  dam 1200/rad 5
+dragon breath     dam 100/rad 3   dam 300/rad 5  dam 1500/rad 7 (acid)
+                  dam 80/rad 3    dam 240/rad 5  dam 1200/rad 7 (elec)
+                  dam 100/rad 3   dam 300/rad 5  dam 1500/rad 7 (fire)
+                  dam 80/rad 3    dam 240/rad 5  dam 1200/rad 7 (cold)
+                  dam 60/rad 3    dam 180/rad 5  dam 900/rad 7 (poison)
+annihilation      dam 125         dam 375        dam 1875
+
+230398
+mages get max 3 attacks after level 15, 2 after level 35 except when wielding
+a (broken) dagger or a quarterstaff. But at level 15, they get two wand,
+staff, rod or spell attacks per round, and at level 35 three. Priests get 2
+spell attacks per round - praying takes more time, and none extra with staffs
+etc.
+Spells are now much less powerfull than staffs, which doesn't bother me - I can
+understand that.
+
+230398
+After all these changes for mages, genocide & mass genocide now only work on
+visible monsters - and mass genocides takes a (randint(5)+5)*level hit on your
+own hp. Globe of Invulnerability takes a finite amount of hits, and then it's gone.
+The amount is currently 60*level + 2000.
+
+240398
+some items always get color TERM_BLACK in ...equippy() in files.c. I don't under-
+stand why, it also seems to happen in 2.8.3 - if I read the source. In practice,
+rings are yellow. I don't know where in all the pref-files this happens.
+I made such items white.
+
+240398
+in .prf files, feature-types are referenced by mtyp:styp pairs.
+
+250398
+done something about the ludicrous amounts of memory spells in objects need:
+spells number up to 256, so per item we need 32 bytes, and we define maximum
+800*RATIO = 800*5 = 4000 objects, thus taking 128k just for some spell books.
+Now added an array of spell_sets, which take a lot less room.
+
+280398
+removed a bug where lighting would crash the program if you got below y-coord
+64 on screen - GRID_Y from defines.h would return negative values. Why didn't I
+check this before? It seems the LOS code, and most especially the lines
+            /* Extract grid value XXX XXX XXX */
+            g = pg + *((s16b*)(((byte*)(p))+o2));
+depend strongly on the implementation of grid_type, the fact that a binary negative
+number added to a normal number leads to a lower number. I strongly suggest not
+trying to change grid_type into a s32b type - I've tried it without luck.
+
+280398
+identified or *identified* items are marked as tried as well.
+
+290398
+mages using uncharged wands, staffs or rods now have a chance of exploding
+them.
+
+290398
+fixed multiple "you feel your spirits rise" messages when generating caves.
+
+290398
+fixed messages about feeling uncomfortable with your weapon when a mage wielded
+no weapon at all.
+
+290398
+added minimum values for to_h, to_d, to_a and pval in e_info.txt
+
+# implmented a major code-freeze: major changes will wait until all bugs are gone :-)
+
+300398
+added some messages when meditating on a spell already known.
+
+300398
+cleaned up some extra messages when saving or loading.
+
+300398
+cleaned up the flags and include-directories in the unix-makefile - now output
+from compiling one file fits on one line again.
+
+300398
+prayer and spell were switched in a message after meditating on a spell.
+
+300398
+made the new Staff of the Mage, Adept and Archmage browsable for spells.
+
+310398
+changed the equipment-display, so longer lines are available for items
+
+310398
+completed the new mage-ego-items, which were started a week before: Quarter-
+staffs can now be new ego-items of the Mage, of the Adept or of the Archmage.
+These have better bonuses, allow more attacks per round (are not subjected to
+the normal max 3 at lvl 15, max 2 at lvl 35 limits for mages), provide bonuses
+to int, con, magic use, provide permanent lite. Also, they have a random sus-
+tain, a random low resist and a random high resist respectively. They can hold
+1, 2 or 3 spells respectively. Each can be activated for a failure-free spell
+activation every 100+d200 turns. They immediately become charging if they are
+unwielded.
+The staff of the Mage needs at least 4 spells to choose from, the staff of the
+Adept at least 8 (of which 3 of scale middle or lower) and the staff of the
+Archmage at least 12 (of which 5 of scale middle or lower) so you don't get
+too much to choose in which spells the staffs can hold.
+
+310398
+Added new EGO_ITEM flag EGO_XTRA_LOWRESIST, and renamed the other to
+EGO_XTRA_HIGHRESIST. Much more clear, IMHO.
+
+010498
+Cleaned up the messages when you see something fall and break.
+
+010498
+Mages now start out with a wand of fireball.
+
+010498
+removed a bug where items with 0 damage dice or 0 damage sides could keep the
+add-extra-damage-dice loop in a_m_aux1 looping forever. This led to the game
+locking up. First time I used gdb - and it worked, after I removed the -s option
+from install.
+
+100598
+gaining experience from spells didn't work: now all spells gain you
+(sqrt(spell_level) * spell_mana * spell_scale) experience.
+
+100598
+added a wand of acid bolts to the mages inventory right at the start.
+
+100598
+various updates regarding looking around - mainly removing unneeded --more
+messages.
+
+100598
+looking around used view_x, view_y instead of view_g - so you never saw anything.
+
+110598
+don't build streamers in rooms, and not in permanent walls either.
+
+110598
+a trap of charges drain doesn't always drain all charges anymore.
+
+120598
+Activating the Phial now also let's you view the walls of rooms you're in.
+
+120598
+Added the minimum and maximum pval values in e_info.txt, which were all zero,
+leading to very bad ego-items.
+
+130598
+Spellbooks are much more common now.
+
+140598
+The monster health bar now also works with spells. It works simple: if you are
+not already tracking a monster, it will activate on the first monster to get hurt.
+
+150598
+Corrected a problem with font-ibm.prf still using f_idx instead of mtyp,styp pairs.
+Thanks David Lerman <mdlerma2@gsbpop.uchicago.edu> for this!
+
+150598
+Mages zapping an empty wand sometimes get away with it, but the game took it's
+revenge immediately, getting in an endless loop trying to describe a wand/staff
+with -1 charges.
+
+150598
+Secret doors wouldn't be lighted like normal walls under some circumstances.
+
+150598
+You could see corpses rot away at incredible distances in unlit rooms.
+
+160598
+In wizard mode, you now also get a comment about how much damage a spell did
+if you kill a monster right away with it.
+
+160598
+Removed a bug in what_dir in cmd2.c, leading to false directions for squares
+more than 1 but less than 5 distant. East and West were switched.
+
+160598
+If you have auto-target the only monster in sight, and you see more than one
+monster, but all monsters are in one direction (narrow hallway, for example)
+you need not to select a monster, but you auto-target the nearest one.
+
+170598
+Added spaces when necessary in multi-line descriptions. "Smart" editors remove
+spaces at the end of a line.
+
+170598
+Removed a bug: the 5th set of options was not correctly read from a savefile.
+
+170598
+Removed some messages like "This an identify scroll" if you are aware of those.
+
+180598
+A trap of wasting wands wasted too much wands: ( ) forgotten.
+
+190598
+A bug led to recharching things being next to impossible.
+
+190598
+^az now drops all monsters inventory as well - in silence.
+
+190598
+Updated the message for a scroll of treasure creation, since the message
+'You see some gold appear' when a piece of ruby was created is rather silly.
+
+190598
+Updated the object_desc routine in object1.c to be able to describe a known
+scroll of Teleportation Titled Abraetcetcetc as "a scroll" if it is dropped by
+a monster. You can't read it while it is dropped. This will be mode -1.
+
+200598
+If an item is picked up by a monster, you forget about it in 66% of cases.
+
+200598
+pressing 'K' now gives you a list of monsters you have killed. This list,
+and the list of known artifacts and seen uniques, is also added to the
+charachter dump via the 'C' character screen
+
+200598
+The object value didn't take the dd and ds changes into account:
+daggers 1d3, 1d4, 1d5 all cost the same
+
+200598
+added , as a convenient alias for g in shops.
+
+210598
+made the high level attack spells for mages much more common, lower level,
+lower mana, lower failure rate ie much more usefull.
+
+#I:level:mana:chance:minfail
+                                                 init min
+              damage       rad           lvl ma  fail fail
+Acid Bolt     6+(plev-5)/4 1              10  6   20    5 (mage, ranger, rogue)
+Cloud Kill    20+plev/2    3+(plev-10)/10 12  9   20    6 (idem)
+Acid Ball     40+plev      2+(plev-10)/10 12  6   20    6 (mages only)
+Ice Storm     70+plev      3+(plev-10)/10 12  8   20    6 (idem)
+Meteor Swarm  65+plev      3+(plev-20)/10 15 10   30   10 (idem)
+Hellfire      300+plev*2   3              25 12   40   12 (idem)
+                           4 above lvl 35
+
+210598
+Added some min() calls in cmd6.c, some spells where player_level - something
+was computed may actually have used negative numbers, since spells now are not
+dependant on player level anymore (you can find them on level 50' if you are
+very lucky).
+
+210598
+If you stand next to a square with 1 found and 1 unfound trap, looking at it
+revealed the unfound trap. This was due to some confusion between known
+and found traps. found is boolean per trap, and known is integer per trap_type.
+Some routines have been renamed, and the bug is removed.
+
+210598
+Poison attacks changed food and potion, but item handling was not correct and
+sometimes your weight went up by 200 pounds or even more. Also added some
+messages like 'The poison seeps into your backpack'.
+
+210598
+Made acid breaths destroying walls less likely.
+
+210598
+Added a 'known intrinsics' screen - where the intrinsics of all *identified*
+equipment is taken into account - access by pressing 'p'. Also added to file
+dump.
+
+210598
+Adapted lib/help/command.txt - long overdue.
+
+210598
+Reworked the wizard ^a A advanced statistics command - now it really is
+usefull.
+
+230598
+uploaded beta 2 release 6
+
+230598
+The terminal was not correctly restored when leaving rate_weapon wizard
+command.
+
+230598
+Obtained the Lord of the Rings in english, also the Unfinished Tales. After
+some reading, added the artifact Red Seeker Arrow of Gondor 10d8 +10, +20
+
+230598
+Added the displaying of the descriptions of artifacts in object1.c:
+object_identify_fully_aux. This strenghtens the Tolkien flavor, IMHO.
+
+240598
+Created the wizard spell of reflection, where physical damage done by a monster
+hurts the monster, not you. This last for a limited number of turns:
+10 when first repeating, down to 0 then repeating for the fifth time, or 15+d20
+the first time.
+
+240598
+Corpses of uniques are now the Corpse of Lagduf the Snaga, not the Lagduf the
+Snaga corpse.
+
+240598
+You are aware and have tried objects bought in stores.
+
+240598
+Smart monsters will not pick up worthless items.
+
+240598
+Digging made more difficult, particularly with light weapons.
+
+250598
+This sequence is wrong:
+On falling, some of the rounded pebbles break.
+You see 20 rounded pebbles drop.
+If you later pick up 14 pebbles, something went wrong. Now fixed.
+
+260598
+Monsters that are not stupid are now loath to come into the open, they stay
+under trees if possible.
+
+260598
+If you use an up stairs or up shaft to town-level, you arrive in town, not in
+the jungle surrounding it.
+
+300598
+Shopkeepers now sometimes offer to swap an item you're buying against
+something they have... or swap something they have against something you're
+trying to sell.
+
+060698
+Fixed a bug where errors in the corpse-flags in r_info.txt wouldn't be shown.
+The program just died.
+
+080698
+Messages about corpses, item drops and fearing monsters can now be set off,
+since 3 new options have been added.
+
+080698
+Corpses can now make you berserk.
+
+120698
+Added a war-mage type, like a mage with up to 6 attacks a round but no detect
+or defend type of spells, just offensive ones. All physical attributes are not
+as strong as a warrior
+
+160698
+Added a high-priest class, which can cast all spells, but use *no*
+weapons at all.
+
+170698
+Refined the message from *identify*; if an item has no known special powers,
+say so.
+
+200698
+No more which items questions if only one book is in your possession and you
+wish to cast a spell.
+
+250698
+Added L modifier in z-format.c, needed for the statistical routines concerned
+with stat-rolling at birth (see below)
+
+280698
+Rings of damage work only once per round, this seemed like a good idea when I
+read it on usenet, where jeff (vsp@unix3.netaxs.com) put it in an interesting
+story.
+
+300698
+Added the gladiator, can use two weapons, no armour/shields, like fighter but
+worse in shooting/bows.
+
+030798
+Added all corpse effects in r_info.txt.
+
+040798
+Uploaded release 7
+
+060798
+Rerolling an item to artifact status far too often got you a special artifact.
+Made it so that the tval should stay the same, meaning you get the Phial only
+if you reroll a lantern.
+
+070798
+Added a progress indicator for the compression of save-games.
+Thanks ....
+
+080798
+Prevented the user from pressing lots of --more keys during saving.
+
+120798
+Added a random-char generation option during birth.
+
+220798
+Added ghosts. If you die during the game, a file is created in lib/ghosts.
+If you start a game, all ghosts in lib/ghosts are read in and are saved in
+your savefile during playing. This prevents sudden disappearances of ghosts
+if you play with multiple players. An configurable chance in defines.h governs
+if a ghost you killed should be killed forever (removed from disk) or just in
+the current game. Ghosts are always present on a destroyed level, and can also
+be summoned as higher undead. Ghosts represent the killed player as much as
+possible in hitpoints, damage, spells and inventory.
+
+250798
+Revamped the options-table in tables.c, since it was not so nice to change
+things in there anymore. Options are now automatically assigned a flag-set and
+bit value. No more specifying which options should go where. The downside to
+this is that saved games' options are jumbled if you have tampered with the
+options in the source in the mean time.
+
+250798
+The loading/saving routines now work with signatures at the start of a file to
+see if it is compressed 'T' 'Z' 0 or uncompresses 'A' '6' '4' resp.
+
+300798
+Removed a nasty bug when browsing spellbooks: high-level spells caused the game
+to crash, any other that wasn't the lowest level was displayed wrong.
+
+310798
+Uploaded beta 8
+
+020898
+Removed a bug where choices during birth (maximize etc) were not possible -
+the game checked for an uppercase which still would have to be 'y'.
+
+020898
+I cannot think why being dead in files.c: close_game() still causes a savefile
+to be written. #if 0'ed it out. Also made sure the current level was removed.
+
+020898
+Added cause of death and level of dying to ghost description. Moved ghost
+files to lib/bone.
+
+030898
+Added locking while removing a file from a killed ghost. I'm not sure I can
+test this, however.
+
+030898
+Uploaded beta 2 release 9, since it seemed release 8 lacked the necessary files
+in /pref.
+
+040898
+It seems a great lot of trouble to add ghosts into the alloc_race_table after
+it is built. So get_mon_num now tries to summon a ghost one in
+(200-monster_level) times. This reflecs the fact that there are a lot of
+monsters and few ghosts, so ghosts should not be summoned too often.
+
+050898
+Angband/64 now reads in the template files by default, based on the definition
+of ALWAYS_LOAD_TEMPLATES in config.h
+Some bug reports mention lots of (nothing) objects or other errors, and I never
+see these, because I always regenerate the data files.
+
+110898
+Removed a small bug where the screen update in shops wasn't right after
+pressing 'C'.
+
+110898
+Re-written the summoning of player-ghosts: I met one on level 2, hitting me
+with 4 hits with 80 damage per round - even with unlimited hitpoints no fun at
+all.
+
+110898
+Also removed small bug when resting - screen not properly updated afterwards.
+
+120898
+inserted class-dependent blows-per-round information in class-info table in
+table.c, instead of in xtra1.c
+
+120898
+limited the 'attacks per round' numbers for a warmage to those of a ranger.
+
+130898
+added a 'store_combine_inventory' subroutine - 5 stacks of the same rations of
+food get irritating if it means other items won't be in stock.
+
+130898
+Made the restore-stat options more common, since traps are quite deadly in
+this regard, I'm told by urimarg@rogers.wave.ca
+
+130898
+^aS now updates the stores
+
+180898
+Made the door leading into the forest from the town locked.
+
+190898
+Made some stat drain traps (below level 5) temporary, and made half of them
+below level 15 temporary as well. Temporary drained stats are orange on screen
+
+250898
+instead of the previous change, added temporary, normal and permanent stat-drain
+traps.
+
+250898
+Added a trap of drain speed - more permanent than you'd think.
+
+250898
+Uploaded beta 3.0
+
+280898
+Added functionality to compress messages in the message-log to
+'you hit ... (22x)'. One of the things I should have done long ago! Saving
+a game, or viewing the messages disrupts the counting, BTW.
+
+290898
+added names of monsters in the messages given when inventory belonging to them
+is destroyed.
+
+300898
+Made it impossible for monsters on level 0 (town) to open doors or pass walls.
+The door below the village was starting to irritate me. Either it was jammed
+and almost impossible to open, or locked and monsters wandered in in big
+numbers.
+
+310898
+It's forbidden to read scrolls from the floor. It's both impossible (your
+eyesight in the dungeon isn't what is was) and brings strange effects - a
+scroll of phase door on the floor doesn't disappear (it tries to disappear at
+your new location, thus giving 'You see (nothing)' messages, and stayed on the
+old location).
+
+010998
+Added round rooms in the dungeon, for some variety. Also made tunnels less
+prone to running along the extreme edges of the dungeon in long straight
+stretches.
+
+020998
+Uploaded beta 3 release 3 I think.
+
+030998
+Made it impossible to get error-messages on stderr, since some DOS-players
+were not too impressed by this....
+
+030998
+Removed some bugs in the DOS-version wrt. to compressing savefiles.
+It turned out that using a long filename didn't work, and renaming to an
+existing file didn't overwrite that file (it did under Linux).
+Consequence is that if something goes wrong during decompressing you've been
+had.
+
+040998
+Made potions of acid, fire, sparks and cold do a lot of damage when thrown -
+and also they now are branded (*identify* does something useful).
+
+040998
+Made messages after hitting someone with something more clear: a potion doesn't
+break when dropped, but when hitting!
+
+060998
+Uploaded beta 3 release 4.
+
+070998
+Improved message-handling: all messages are written to file, in lib/save, but
+a small number is kept in memory so updating a messages-terminal doesn't cost
+too much time (rereading a file every time is potentially very slow).
+This also means the -l command-line argument is no more, there's now a file
+in lib/save with the messages.
+
+070998
+Changed main-gcu so that lower windows on screen wouldn't waste 1 line (the
+top line was never used?)
+
+070998
+Fixed a bug where poisoned, confused & sliding status healing didn't
+completely remove the word from screen; the last character (d, d, g) stayed
+visible.
+
+080998
+Fixed a bug where picking up 5 of 6 items displayed you now had 6, when you
+had only 5.
+
+080998
+Started a process towards making the .msg savefile read like a story on what
+the PC did. This means adding info that is displayed on screen as questions,
+using prt(), etc.
+
+090998
+Sometimes I despair of ever learning C. It turns out util.c:message_add(cptr
+str) cannot be called like message_add(format("test %d", testnr)); since this
+string is overwritten somewhere. Defining an array of chars, and copying the
+format's output to there works. Strange! However, the functions
+util.c:msg_print() and util.c:msg_format() are now mirrored in
+util.c:add_msg() and util.c:add_msg_format(), which do exactly the same except
+showing the message on screen, so we are now able to write extra info to the
+message log file.
+
+090998
+Revamped the makefiles in src/ so dependency information is generated if
+it isn't there.
+
+110998
+Added lots of code resetting item_tester_hook and item_tester_tval, due to
+a bug where item selection didn't work right the first time. It did the second
+time, though.
+
+110998
+Removed a bug where adding messages only worked after a few, and only after a
+character was generated.
+
+110998
+Removed all references to arg_fiddle, since it was doing practically nothing.
+
+280998
+Done playing adom gamma 10 - started work again.
+Started by exploring the knowledge given by 4 000 000 000 birth rolls, and
+adapting birth.c. No more asking for ridiculous stats from the autoroller, and
+realistic changes to come next.
+
+011098
+Tweaked a message were gladiators were said to be wearing a secondary weapon on
+their arm - as a shield?
+
+011098
+I can't get DJGPP to understand (and correctly compile) my code in wizard2.c
+function do_cmd_wiz_birth_statistics(). Allocating 1000000 unsigned long long
+ints seems to be impossible, it crashed any time, if I allocate them there or
+in main.c at the start. Needless to say a 5 line test program works all right.
+Also I think an 8 megabyte array should fit in 48 Mb free memory, so that's not
+it either. This isn't good.
+So checking birth roll statistics isn't possible under DOS, at the moment.
+
+011098
+during birth, the name is only asked after everything else is OK.
+
+041098
+Added support for graphics characters on curses terminals:
+if the color is >16, ACS characters are drawn instead of normal characters.
+Try this:
+Term_putstr(10, 10, -1, 16+TERM_WHITE, "lmkjtuvwxnosaf~,+.-hi0pryz{|}");
+This gives the same block characters for walls in unix-terminals (curses) as
+on dos terminals. Perhaps I should annouce this:
+'Angband/64 - now with graphics!'
+This meant rewritting cave.c/map_info() to return two parameters: the lower
+4 bits for the color, and the higher 4 bits for other attributes, which
+shouldn't chance if the color changes. is 16 colors enough? If not, try adding more
+as a flag in one of the high 4 bits: COLOR_EXTRA_BRIGHT or something like that.
+
+051098
+Removed a bug where the item list a high priest got at birth was not limited -
+(s)he got the items from a gladiator as well.
+
+051098
+Removed a bug where ghosts in savefiles were not handled well - the game rejected
+the savefile if a ghost was present, due to differences in saving objects for
+ghosts and normal monsters. These differences are now removed.
+
+051098
+Added the possibility in .prf files to define starting and ending mtyp,styp pairs
+in F: directives. This lets you define a whole set of magma walls at once.
+
+051098
+Added & to some armour types in lib/edit/k_info.txt. I'm not sure why this wasn't
+there.
+
+051098
+Removed the detailed item descriptions in shops - from the titles on the scrolls
+you could determine what scrolls you owned without identifying them
+Thanks Ulrich M Schwarz <uschwarz@nwm.de>!
+
+051098
+Revamped the birth statistics rolling: now 11x256 entries needed instead of
+1000000. It costs some speed, because now a (max 8 step) search is done for each
+result where to store it.
+
+051098
+Uploaded beta 3 release 5
+
+061098
+Removed a slight bug in lib/user/font-ibm.prf: the last line didn't have the
+necessary CR+LF for dos. Since it's a dos file, it wasn't read correctly, and
+permanent walls showed up as # instead of graphic block characters.
+
+061098
+Fixed a bug due to the reorganising of the mtyp,styp entries for walls:
+secret doors emulated rubble until discovered. They should emulate granite walls
+
+071098
+Changed src/makefile so that linking wasn't done every time, even if it wasn't
+needed. Learned another thing about makefiles :-)
+
+071098
+Added a check for doors which could be circumvented by moving diagonally:
+########
+       #         we have to build another wall at X here
+      X######
+room  +   tunnel
+      #######
+      #
+#######
+
+071098
+Also added a check for situations like this:
+
+we here test for things like     # #
+                               ### #
+X are walls now, but one of        X#####
+them should be deleted         ###X
+                                  # #####
+                                  # #
+
+221098
+Finished revamping the monster movement intelligence. There is now a function
+find_moves() in melee2.c which fills the structure mmove[]. Obvious fields are
+.suitable, which indicates what the best move would be, and .result, which
+contains flags like MOVE_TAKE_ITEM, which indicate what happens if we take
+that move. This allows monsters to annoy the player by crushing items if they
+have nothing better to do, summoners to maintain a distance from the player,
+and to dislike places with a lot of walls. Additional strategies should now be
+much more easy to add. Suppose you wanted summoners not to follow the player
+into a hallway, unless the player is badly hurt, or you wanted pack animals
+not to get afraid if they're surrounded by healthy pack mates. Now it is
+relatively easy. Speed seems OK on my K6-200, if you don't log all the
+actions. Even with DEBUGMONAI defined in config.h it's not so bad.
+
+231098
+It seemed a scroll of summon monster could summon an unique to town. I always
+thought this wasn't possible, but Ulrich mailed me he summoned Bullroarer the
+Hobbit, and I succeeded in doing this too. Now the get_mon_num() function in
+monster2.c is adapted so that only level 0 monsters (Maggot, that is!) can be
+summoned on dungeon level 0.
+
+231098
+It was possible for new_scatter() in object2.c to call distance() from cave.c
+with out-of-bounds coordinates, leading to a crash. This is now fixed.
+
+231098
+I made an elementary statistical mistake in the birth stat chances: I wrongly
+assumed the chance for a combo of stats is the chance for a sorted combo of
+stats. This won't do, by a factor of n! for n different stats. I kept
+wondering why my STR 18/10 DEX 18/10 WIS 10 INT 18/20 CON 18 CHR 1 dunadan
+warrior mage had a 1 in 43000 chance of being born according to the routine,
+yet in 10 births never got born without a few hunderd thousand rolls... It
+seems however after a quick test that a character which is supposed to have a
+1 in 250000 or so chance in practice, after some 60 rolls, need some 250000
+rolls (10x the estimate) on average. Any statisticians see where I went wrong?
+
+261098
+Uploaded release 6
+
+281098
+Removed a bug where starting characters got quite random items to start with.
+
+291098
+Rewritten the character birth options: autorolling is gone forever :-) Now
+there is an option to have your character teached by 3 famous heroes, thus
+learning from them.
+
+301098
+Uploaded release 7
+
+311098
+Added the # command to view identified & flavored items.
+
+311098
+Fixed a bug where monsters that never move didn't attack you either, since
+attacking = making a move. Consequently, monsters that never move do move now
+if they attack you :-)
+
+021198
+Fixed some bugs with door handling by moving monsters: if a monster decided
+not to open a door, it could move right through it in some instances.
+
+031198
+Made potions of mule legs a lot cheaper.
+
+031198
+I visited the arena, where the monsters were 4 types of mold, which didn't
+move. This seemed rather cheap, so I made monsters that don't summon and don't
+move don't count full for filling the arena.
+
+031198
+You could find traps on secret doors without discovering the door? Now you
+will never find these traps.
+
+041198
+Fixed a bug where a random birth with teachers didn't choose random teachers.
+
+041198
+visibility for a part of the walls around the crowds watching the arena was
+not as the rest.
+
+041198
+Updated the visibility for doors opened by monsters, changes were not always
+visible
+
+041198
+Tweaked tunnel building so that there will be less chance of getting a set
+of rooms that is connected to each other, but not to (the) other set(s) of
+rooms in the dungeon.
+
+051198
+Made it possible to leave debug mode ^aW.
+
+051198
+Fixed a long standing bug where earthquakes were called at the wrong locations.
+
+051198
+Fixed a small bug in the description of your experience with trap kinds
+
+071198
+Fixed a bug in the earthquake traps, which wouldn't build walls around you, only
+shake the floor :-)
+
+081198
+Fixed a bug where monsters could add traps on open doors - thanks Ullrich!
+
+091198
+Made home always store pointer 0, so that it is always accessible. This should
+help fix character dumps, where the home-inventory could be anything. Another
+bug from Ullrich.
+
+101198
+Made some kind of item logging: with I or with character dumps you can now
+see how you got that item: was it dropped by monster X in a monster pit on
+level %d, or did you just cheat and create it?
+
+101198
+Fixed a bug where the CAVE_ROOM flag would be reset, so scrolls of light
+wouldn't light up one room.
+
+111198
+Fixed a bug where empty objects would be dumped in the character dump
+
+111198
+Fixed a bug where rooms would be created that didn't fit in the dungeon -
+leading to sudden crashes during generation.
+
+121198
+Fixed an oddity when you hadn't seen any uniques or artifacts: it now says so.
+
+131198
+Uploaded release 8
+
+191198
+Spent a lot of time in the lighting code:
+
+CAVE_VIEW defines if a square is in view or not (meaning we has L.O.S. to it
+and it is lit in some way)
+CAVE_LIGHT means we light a square ourselves
+
+view_yellow_lite makes squares with CAVE_LIGHT yellow
+view_bright_lite makes squares with CAVE_VIEW bright white, unless they are
+also CAVE_LIGHT and view_yellow_lite is set, in which case they're yellow.
+view_granite_lite makes walls that have CAVE_LIGHT yellow.
+
+All options now seem to work as they should.
+
+201198
+Added lighted rooms once more. The CAVE_GLOW flag is now added to
+CAVE_FLAGS_PERSISTANT, and the set_grid_* routines are reworked to actually
+work as they should.
+
+201198
+Removed the message that no traps could be found, which confused some players.
+It's more something for the debugging logs, where it belongs.
+
+221198
+Reshuffled map_info() in cave.c so that monsters that are clear take on the
+color of the item/feature they are on.
+
+241198
+Taking off some of your ammo, or adding to it some of the same type, works now.
+It also doesn't leave you with 'no more ... arrows' when you abort something.
+
+251198
+Changed the tval for mage-books, so that they appear at the top of inventory
+lists.
+
+271198
+Preserve is on by default now, and cannot be turned off, either.
+
+271198
+Changed the book-ego-items, so that they are immune to some effects, but do
+not provide this capability to the wearer. Was a bit silly.
+
+271198
+Made books unstackable under any circumstance.
+
+281198
+The home-inventory was wiped out when you returned to town. This has been fixed.
+
+291198
+If you press escape when choosing how many items to sell, the game no longer
+continues with selling 'no more xxxx'.
+
+291198
+Traps added by a monster, a scroll of trap creation or other means were visible
+as black squares. An added "p_ptr->update |= PU_VIEW;" changed this.
+
+291198
+Updated help/command.txt to reflect that Z casts a spell.
+
+291198
+Added extra checks so that trapped doors/floors/chests actually have traps, so
+messages like 'disarming non-existant trap on' should not happen anymore.
+
+291198
+Revamped the description of scrolls, now it's
+a scroll titled "abracadabra" of Do This instead of a scroll of Do This titled
+"abracadabra".
+
+301198
+Uploaded beta 3 release 9
+
+011298
+Changed the extra power some spell-casting classes (mage, warmage, high
+priest) get from wands, staffs & rods. Now the extra power ranges from 1.5 to
+2.25 x the original effect, and the super power ranges from 2.5 to 8x the
+original effect.
+They are not cumulative. extra power comes in 57% (int 0) to 100% (int 18/170
+and above) of cases, super in 10% (player level 0) to 50% (player level 50) of
+cases where extra power is gained.
+
+021298
+Make a guess about the number when buying things from shops.
+
+031298
+If you miss a monster, you now have a chance of waking up it's neighbours....
+
+061298
+Only drop corpses if the monster is visible at the time.
+
+071298
+Alexeey Guzeev kindly mailed my some patches to get it to compile under OS/2
+and EMX.
+
+171298
+Removed a bug where the switching stairs trap would leave stairs with the
+flags of walls, so you couldn't use them anymore..
+
+211298
+Display multiple worm mass monsters as worm masses in kill list.
+
+251298
+Added 'c' to choose the closest target if there are more targets to choose from.
+Handy if you're firing away in a group of monsters.
+
+251298
+Added some headers to the list of id'ed items with #
+
+251298
+Removed a bug where a Trap of New Trap on a door led to a crash.
+
+271298
+Removed a bug where the chances you saw when browsing a book were not the real
+chances of success.
+
+271298
+Closing a door with an item on top is no longer possible.
+
+271298
+Known traps can now also be bashed, thus setting them off but destroying them
+in the process.
+
+271298
+Made the Trap of Walls work, and not kill at too low a level.
+
+281298
+Your AC was not displayed on the 'C' info screen.
+
+281298
+Re-aligned some entries on the 'C' info screen - it looks much nicer now.
+
+281298
+priests (the monster type) shouldn't carry or pick up sharp weapons....
+
+010199
+Home could be shuffled too - all your stuff suddenly on sale :-)
+
+010199
+Auto-picking up ammo didn't work in all cases.
+
+020199
+Aborting reading a spell immediately during the warning for low mana led to
+disappearing spells - not good.
+
+020199
+Reading a priest spell immediately as a mage was possible. Now it still is,
+but your chance is twice as low, and
+
+50% - you lose all mana
+20% - you hallucinate
+20% - you are slow and blind
+10% - you have your spellcasting stat (temporarily) decreased.
+
+030199
+books of spells are now simply called books.
+
+040199
+Removed a bug where gladiators wouldn't always get the correct number of
+hits with their main weapon.
+
+040199
+Failed spells didn't cost any mana - up till now..
+
+090199
+Reworked the trap system again. Now you can not get all traps together, but a
+fixed number, MAX_TRAPS_IN_SET, currently 4.
+This means that without using more memory for trap-items, we can now have more
+traps. After playing OAngband for a while, I figured out I lacked some basic
+traps, so now there are lots of arrows, daggers & bolt/ball traps - some 100
+different traps now.
+
+120199
+Rogues (and high-priests, to a lesser extent) can now build their own traps,
+via a special set of spells. Rogues start out with basic knowledge about a few
+traps, and a spell of build simple trap, so that it can be tried immediately.
+
+140199
+Activated some code to allow the screen to scroll smoothly. This will only
+work well on faster machines, since it will redraw the screen at every move.
+It has the advantage that a lot less off-screen monsters will bother you.
+
+150199
+Wizard-rolling a lot of items (^a A) used way to many trap_item_types, so
+it would halt the game after a lot of chests were generated.
+
+170199
+Re-written the spell rarities to match the original book rarities.
+
+170199
+Added some Oangband-niceties (Thanks Leon!) - interesting rooms & the gavonian
+races, but I renamed them Haradrim so as to stay Tolkienesque.
+
+190199
+Debugged a difficult bug where messages crashed Angband/64, which in turn
+generated messages - etc etc. Now the message variables/buffers are
+initialized when they are needed, not in init2.c but from message_add()
+itself.
+
+200199
+The reported lines and records when encountering errors in one of the
+?_info.txt files were off by one.
+
+210199
+After reports my tzip-borrowed c++ compression sources leaked memory / freed
+pointers twice, I just incorporated another compression routine. It's borrowed
+from the unix-utility compress, uses LZW compression, is in straight C, is
+less than a 1000 lines source, and very fast. It also makes save files around
+twice as big as the tzip-sources did. Not my problem :-)
+
+220199
+Removed a bug which allowd sneaky 1-square diagonal corridors to be created.
+
+220199
+To combine Leon Marrick's Oangband vault-types (from zangband) and mine, I have
+added all monster_flags to vault-types. This allows one to select which type
+of monsters will inhabit your vault in a very flexible way. A graveyard?
+Just add F:UNDEAD and only undead monsters will populate your vault....
+A treasure room? Just Add F:TAKE_ITEM | TAKE_GOLD and only thieving monsters
+will be there.
+
+220199
+Removed the maximum price from stores display. It's there, but really not that
+important
+
+220199
+Removed a bug where vault-descriptions get added spaces and thus wrong layouts
+
+220199
+Added a lot of trees, and recoded the dungeon store signs names.
+
+250199
+Toned down the number of monsters & items on a normal level.
+
+280199
+Put some more sanity-code in making the floor-feature type match the number
+of found and existing traps on a square. Looks nicer too.
+
+280199
+Shops that serve hard-to-get items - a light shop at level 50 for example
+will not try until the end of times to get enough high-level items.
+
+300199
+Since we now have lava, very hot breaths / spells now can turn floors into
+lava..
+
+010299
+Updated identify_fully in object1.c, we now have a structure defining the
+output, so I could carve that enormous function in lesser blocks.
+
+050299
+Monsters won't activate traps in vaults - they know them all...
+
+050299
+Added some corpse descriptions in object1.c to make them complete.
+
+050299
+Re-engineered the store-update code, so it wouldn't go into endless loops
+sometimes.
+
+050299
+Re-engineered the screen you see when wizard-rerolling items.
+
+050299
+Uploaded beta 3 release 10
+
+060299
+I neglected to mention that also in release 10 monsters can activate traps.
+Guess I forgot :-).
+
+060299
+monsters hitting missile traps would give unreadable messages and get killed
+multiple times. Solved now.
+
+080299
+Removed a bug in locate() when using smooth scrolling. Thanks to Tim Baker who
+saw this.
+
+080299
+Fixed a bug when compress would open files with the wrong permissions. Tim Baker
+once again!
+
+080299
+some file-handles were lost in init2.c - Tim Baker pointed this out & solved it
+too.
+
+080299
+it was possible to access invalid items in get_item(). Tim Baker is behind this
+solution as well.
+
+080299
+Removed some quirks from write_info_data() in save.c. Tim Baker.
+
+090299
+Even if you didn't want levels saved, the game would save levels if you
+saved your game, it just wouldn't read them anymore. Tim Baker pointed this out
+also. It's fixed now.
+
+090299
+Uploaded release 11
+
+220299
+Created makefiles for cross-compiling go32/dos and mingw32/win32 executables
+on Linux.
+******************************************************************************
+TODO
+
+it's not possible to 'l'ook at a known trapped chest and then remember anything
+about the trap on it.....
+
+priests shouldn't carry cursed items...
+
+prevent traps from disintegrating with rogues - ask for it.
+Make them portable?
+
+place traps next to intelligent monsters in the dungeon?
+
+remake the trap of silent switching so that switching a lantern with 6 torches
+results in one torch wielded, and 5 torches + a lantern in the inventory.
+
+add all descriptions in a_info.txt. Difficult, because some names don't exist
+in Tolkien (Carlammas anyone?)
+
+make monsters able to build walls, like a scared Xorn or Umber Hulk?
+Also neat for ghosts...
+
+Make more types of ghosts (ghosts, liches, vampires, undead beholders, etc?)
+
+check if high-level spells are common enough and not too common, and expensive
+enough and not too expensive - in short, are they balanced?
+
+the pref-files are wrong somewhere: a scroll of blessing is painted dark on
+screen. Seems not right.... temporarily fixed by making the color of scrolls
+in k_info.txt white, and everything that had color d (TERM_DARK) got another
+color as well - I'll have to look into these pref files.
+
+Perhaps an helmet of light should be +1 to +3 to light
+
+Don't give the stupid sequence "It dies. You see a white staff of Nonsense
+drop." If the monster is invisible, so should the objects be. I just need to
+find out when a monster is invisible.
+
+Why can't tunnels in the dungeon run diagonally?
+
+print messages "flees in terror" only when a monster actually flees.
+
+add light-bearing to monsters - light hounds, orcs with torches, etc.
+
+decide if detect traps should detect multiple traps all at once, or not.
+For the moment, it does.
+
+predefined levels in text-mode files - add red dragon quest levels etc.
+
+more different ego-weapons
+
+monster inventories
+Give monsters things like hands (1-4), flags for can wear armour + max level
+or perhaps go the ADOM way: integrate the player and monster types, making
+monsters able to gain experience etc.
+
+make monster wake-up chance dependant on light radius = intensity
+
+eatable mosses (and uneatable, poisonous) etc to be scraped off dungeon walls
+
+food in the wilderness
+
+add something that decreases the spell-casting abilities of mages and priests
+each time they swing a weapon (that should teach them!) and then look into the
+spells: are they powerfull enough? If not, copy some from other variants :-)

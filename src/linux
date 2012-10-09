@@ -1,0 +1,118 @@
+<!-- X-URL: http://ftpsearch.lycos.com/cgi-bin/search?form=medium&query=xface&hits=150&sort=size&otype=Navigate&oquery=ftp.hackvan.com/pub/stig/src/linux -->
+<!-- Date: Tue, 31 Oct 2000 12:57:57 GMT -->
+<!-- Last-Modified: Tue, 31 Oct 2000 12:31:46 GMT -->
+<BASE HREF="http://ftpsearch.lycos.com/cgi-bin/search?form=medium&query=xface&hits=150&sort=size&otype=Navigate&oquery=ftp.hackvan.com/pub/stig/src/linux">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+	"http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>FAST FTP Search Navigation results</TITLE>
+<SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript">
+<!--
+function breakout() {
+  var loc = "";
+  if (parent.frames.length != 0) {
+    loc += parent.location;
+    loc = loc.toLowerCase();
+    if (loc.substring(0, 19) == 'http://www.fast.no/')
+      return;
+    if (loc.substring(0, 29) == 'http://ftpsearch.lycos.com/')
+      return;
+      return;
+    parent.location = location;
+  }
+}
+// -->
+</SCRIPT>
+</HEAD>
+<BODY onload="breakout();" BGCOLOR="#FFFFFF" TEXT="#000000">
+<CENTER>
+<TABLE BORDER=0 BGCOLOR="#000000" CELLPADDING=0 CELLSPACING=0 WIDTH=600>
+<TR>
+	<TD WIDTH=116 ALIGN=LEFT>
+		<A HREF="http://www.lycos.com/">
+			<IMG SRC="http://lygo.com/ly/i/inv/lycoslogo.gif" HSPACE=12  WIDTH=116 HEIGHT=55 BORDER=0 ALT="Lycos Logo">
+		</A>
+	</TD>
+	<TD VALIGN=MIDDLE ALIGN=left>
+		<FONT SIZE="+2" COLOR="#FFFFFF" FACE="helvetica,arial">
+			Pro Search
+		</FONT>
+	</TD>
+	<TD VALIGN=MIDDLE ALIGN=right>
+		<FONT size=-1 color="#FFFFFF" FACE="verdana,helvetica,arial">
+			FAST FTP Search v4.0
+		</FONT>
+		<A HREF="http://www.fast.no/">
+			<IMG SRC="/graphics/fast.gif" WIDTH=107 HEIGHT=43 BORDER=0 HSPACE=10 ALIGN=middle ALT="FAST logo">
+		</A>
+	</TD>
+</TR>
+</TABLE>
+<FONT FACE="verdana,helvetica,arial" SIZE=-2><BR><!-- Start Ad -->
+<NOLAYER>
+<IFRAME SRC='http://ln.doubleclick.net/adi/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?' width=468 height=60 frameborder=0 border=0 marginheight=0 marginwidth=0 scrolling=no><A HREF='http://ln.doubleclick.net/jump/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?' target=_top><IMG SRC='http://ln.doubleclick.net/ad/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?' WIDTH=468 HEIGHT=60 BORDER=0 ALT='Banner ad'></A>
+</IFRAME>
+</NOLAYER>
+<TABLE ALIGN=CENTER><TR><TD><ILAYER id='layer1' visibility='hide' width='468' height='60'></ILAYER></TD></TR></TABLE>
+<noscript>
+<A HREF='http://ln.doubleclick.net/jump/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?' target=_top><IMG SRC='http://ln.doubleclick.net/ad/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?' BORDER=0 WIDTH=468 HEIGHT=60 ALT='Banner ad'></A>
+</noscript>
+<LAYER SRC="http://ln.doubleclick.net/adl/fast.ly.ln/ftp_r;kw=xface;h=ftp;prov=fast_ftp_r;sz=468x60;tile=1;!category=financial;ord=789324071?" WIDTH=468 HEIGHT
+=60 VISIBILITY=hide onLoad="moveToAbsolute(layer1.pageX,layer1.pageY);clip.height=60;clip.width=468; visibility='show';"></LAYER>
+<!-- End Ad --><BR><BR></FONT>
+<FONT FACE="verdana,helvetica,arial" SIZE=-2><BR><!-- Start Ad -->
+<!-- End Ad --><BR><BR></FONT>
+<TABLE BORDER=0 WIDTH=600 CELLSPACING=0 CELLPADDING=0>
+<TR><TD BGCOLOR="#EEEEEE" COLSPAN=4 HEIGHT=2 WIDTH=600>&nbsp;<FONT FACE="verdana,helvetica,arial" COLOR="#000000" SIZE=-1><A HREF="http://www.lycos.com/">Lycos Home</A>&nbsp;&gt;&nbsp;<A HREF="http://lycospro.lycos.com/">Pro Search</a>&nbsp;&gt;</FONT>
+</TD></TR><TR><TD BGCOLOR="#CCCCCC" COLSPAN=4 HEIGHT=2 WIDTH=600><IMG SRC="http://lygo.com/ly/i/inv/dot_clear.gif" ALT="Dot Image" BORDER=0 WIDTH=1 HEIGHT=1></TD></TR>
+</TABLE>
+<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=600>
+<TR>
+<TD ALIGN=left valign=middle>
+<IMG SRC="/graphics/prosearch-icon.gif" ALT="Lycos Pro Icon" WIDTH=26 HEIGHT=26 BORDER=0 ALIGN=middle></TD>
+<TD ALIGN=left NOWRAP><FONT FACE="verdana,helvetica,arial"><B>&nbsp;FAST FTP Search</B></FONT></TD><TD WIDTH="70%" ALIGN=RIGHT NOWRAP><FONT FACE="verdana,helvetica,arial"><B>Navigation Result</B></FONT></TD></TR>
+</TABLE>
+<FORM ACTION="/cgi-bin/search" METHOD=GET>
+
+<INPUT TYPE=hidden NAME=form VALUE=medium>
+<FONT FACE="verdana,helvetica,arial">
+<B><A HREF="/help/searchparam.html#Search_for">Search for</A></B>
+<INPUT NAME=query VALUE="xface" SIZE=35>
+<INPUT  TYPE=submit VALUE="Search">
+<INPUT TYPE=submit NAME=doit VALUE="Show Form">
+</FONT>
+<INPUT TYPE=hidden NAME=type VALUE="Case insensitive multiple substrings search">
+<INPUT TYPE=hidden NAME=hits VALUE=150>
+<INPUT TYPE=hidden NAME=f1 VALUE="Count">
+<INPUT TYPE=hidden NAME=f2 VALUE="Mode">
+<INPUT TYPE=hidden NAME=f3 VALUE="Size">
+<INPUT TYPE=hidden NAME=f4 VALUE="Date">
+<INPUT TYPE=hidden NAME=f5 VALUE="Name">
+<INPUT TYPE=hidden NAME=f6 VALUE="-">
+<INPUT TYPE=hidden NAME=header VALUE="none">
+<INPUT TYPE=hidden NAME=sort VALUE="size">
+<INPUT TYPE=hidden NAME=trlen VALUE=20>
+</FORM>
+</CENTER>
+<FONT FACE="verdana,helvetica,arial" SIZE="+2"><A HREF="ftp://ftp.hackvan.com/pub/stig/src/linux/">ftp://ftp.hackvan.com/pub/stig/src/linux/</A></FONT><BR>
+<BR><A HREF="/cgi-bin/search?form=medium&amp;query=xface&amp;hits=150&amp;sort=size&amp;oquery=ftp.hackvan.com/pub/stig/src/linux&amp;otype=Navigate&amp;oquery=ftp.hackvan.com/pub/stig/src">Parent Directory</A><BR>
+<PRE>  1 <TT>-rw-r--r--</TT> <B>  49.3K</B> 1997 Jul  6 <A HREF="ftp://ftp.hackvan.com/pub/stig/src/linux/compface.tgz">compface.tgz</A>
+  2 <TT>-rw-r--r--</TT> <B>   4.4K</B> 1998 Dec 25 <A HREF="ftp://ftp.hackvan.com/pub/stig/src/linux/enscript-color.hdr">enscript-color.hdr</A>
+  3 <TT>-rw-r--r--</TT> <B>   1.6K</B> 1997 Jul  6 <A HREF="ftp://ftp.hackvan.com/pub/stig/src/linux/xbm2xface">xbm2xface</A>
+  4 <TT>-rw-r--r--</TT> <B>   1.2K</B> 1999 Nov 17 <A HREF="ftp://ftp.hackvan.com/pub/stig/src/linux/HEADER.html">HEADER.html</A>
+</PRE>
+<HR>4 reported directory entries
+<BR>0.024 seconds prospero
+<BR>0.024 seconds HTTP
+<BR>0 partial writes.
+<BR>DONE<HR>
+<CENTER>
+<FONT FACE="verdana,helvetica,arial" COLOR="#000000" SIZE=-2><A HREF="http://ftpsearch.lycos.com/">FAST FTP Search</A>, Copyright &#169; 2000 <A HREF="http://www.fast.no/">FAST ASA</A>.
+<BR>Developed with kind assistance from the <A HREF="http://www.ntnu.no/indexe.html">Norwegian University of Science and Technology</A><BR><BR><A HREF="http://www.lycos.com/lycosinc/legal.html#copy">Copyright</A>&copy; 2000 Lycos, Inc. All Rights Reserved.  Lycos<font size=-3><sup>&#174;</sup></font> is a<BR> registered trademark of Carnegie Mellon University.<BR><A HREF="http://www.lycos.com/privacy/">Our Privacy Vow</A>&#160;&#160;<A HREF="http://www.lycos.com/lycosinc/legal.html">Terms and conditions</A>&#160;&#160;<A HREF="http://www.lycos.com/lycosinc/legal.html#advertising">Standard advertising terms and conditions</A></FONT>
+</CENTER>
+</BODY>
+</HTML>

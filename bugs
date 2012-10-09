@@ -1,0 +1,10 @@
+none known at the moment leading to crashes or hanging sessions.
+
+There have been reports of the game not running smoothly over the lib/
+directory of an older version ('nothing' objects appearing, junk with
+random plusses and bonusses in shops, crashes on saving). Please empty
+the lib/ directory and re-extract the lib/ directory from the archive
+if you think this is happening to you!
+
+other bugs are known as starting-points for improvements in the logical
+behaviour :-)

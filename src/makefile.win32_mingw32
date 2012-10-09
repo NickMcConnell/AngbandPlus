@@ -1,0 +1,78 @@
+# File: Makefile.ibm
+
+# Purpose: Makefile support for compiling under Win95/98 possibly NT
+# using the mingw32-port of gcc.
+
+# this doesn't work - I think it has trouble with executing long lines.
+# typical error: "don't know how to make o" 
+
+SRCS = \
+  z-util.c z-virt.c z-form.c z-rand.c z-term.c \
+  variable.c tables.c util.c cave.c \
+  object1.c object2.c object3.c object4.c monster1.c monster2.c monster3.c \
+  xtra1.c xtra2.c spells1.c spells2.c melee1.c melee2.c \
+  load.c save.c files.c special.c \
+  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
+  store.c birth.c wizard1.c wizard2.c \
+  generate.c gentown.c dungeon.c init1.c init2.c \
+  compres1.c compres2.c \
+  main-win.c main.c
+
+
+OBJS = \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  variable.o tables.o util.o cave.o \
+  object1.o object2.o object3.o object4.o monster1.o monster2.o monster3.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  load.o save.o files.o special.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o birth.o wizard1.o wizard2.o \
+  generate.o gentown.o dungeon.o init1.o init2.o \
+  compres1.o compres2.o \
+  main-win.o main.o
+
+# Compiler
+
+CC = gcc
+
+# Compiler flags
+
+#CFLAGS = -Wall -W -Wwrite-strings -Wconversion -Wstrict-prototypes \
+#	  -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls \
+#	  -m486 -DUSE_IBM
+CFLAGS = -Wall -O2 -DUSE_WIN
+
+# Libraries
+
+LIBS = -lgdi32 -luser32 -lwinmm -lcomdlg32
+
+# Name of Program
+
+PROGRAM = angband
+
+all: $(PROGRAM)
+	copy angband.exe ..
+
+depend:
+	$(CC) -M $(SRCS) > depend.gnu
+
+# Generate binary file
+
+angband: $(OBJS)
+	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+
+# Compile source files
+
+.c.o:
+	$(CC) $(CFLAGS) -c $*.c
+
+# Clean up
+
+clean:
+	del *.o $(PROGRAM) *.bin
+
+# jk - this ensures recompiling when any header changes!
+# recreate: gcc -M *.c > depend.gnu
+ifeq (depend.gnu, $(wildcard depend.gnu))
+  include depend.gnu
+endif

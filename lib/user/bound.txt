@@ -1,0 +1,252 @@
+ [Angband/64 beta 6 release 3 (2.7.10) Character Dump]
+
+                                                                               
+ bound the female Half-Troll Rogue (22 years, 7 feet 6, 212 pounds).           
+ STR:18/***        To Hit:     98          Speed     :Fast (+25)               
+ INT: 18/70        To Dam:     80+20(=)    Gold      :2000904                  
+ WIS: 18/60        AC    :  57+93          Tactic    :aggressive               
+ DEX:18/120        HP    :    906 of 906   Exploring :normal                   
+ CON:18/170        Mana  :     81 of 81    Level     :47 (lev 48 at 5075000)   
+ CHR: 18/30                                Experience:5000285 (5000285)        
+                                                                               
+ Fighting    : Sublime      Perception  : Great        Blows/Round : 3         
+ Bows/Throw  : Sublime      Searching   : Great        Shots/Round : 0         
+ Saving Throw: Passable     Disarming   : Exemplary    Infra-Vision: 30 feet   
+ Stealth     : Feeble       Magic Device: Limited      Light-Range : 40 feet   
+                                                                               
+     Your father was a Cave-Troll Warrior.  You have blue-bloodshot eyes,      
+     oily mold grey hair, and blue flaky skin. Your family is poor but         
+     well-connected.                                                           
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+                                                    \}=="~[( ]]]{ \}=="~[( ]]]{
+     Internal Race Class       Equip Actual Current abcdefghijklm abcdefghijklm
+ Str:18/100     4    2           8   18/*** 18/***  .........s5.. .............
+ Int:18/100    -4    1           0    18/70  18/70  ............. .............
+ Wis:18/100    -2   -2           0    18/60  18/60  ............. .............
+ Dex:18/100    -4    3           3   18/120 18/120  .........s... .............
+ Con:18/100     3    1           3   18/170 18/170  .........s... .............
+ Chr:18/100    -6   -1           0    18/30  18/30  ............. .............
+                                                    Modifications Modifications
+                                                      (part I)      (part II)  
+        \}=="~[( ]]]{           \}=="~[( ]]]{                  \}=="~[( ]]]{   
+        abcdefghijklm@          abcdefghijklm@                 abcdefghijklm@  
+ Acid : ......+.......  Blind : ..............  Free Action  : ....+....+....  
+ Elec : ......+.......  Conf  : ..............  See Invisible: ....+.........  
+ Fire : ......+.......  Sound : ..............  Hold Life    : ..............  
+ Cold : ......+.......  Nether: ......++......  Telepathy    : ..............  
+ Poisn: ......+.......  Nexus : ......+.......  Slow Digest  : ..............  
+ Light: ......+.......  Chaos : ......+.......  Regeneration : ..............  
+ Dark : ......+.......  Disnch: ..............  Feather Fall : ..............  
+
+
+ [Character Equipment]
+
+a) a Mace of Disruption (5d8) (+20,+20)
+   You cheated and created this in town.
+b) a Heavy Crossbow of Extra Might (x4) (+20,+20)
+   You cheated and created this in town.
+c) a Yellow Topaz Ring of Damage (+20)
+   You cheated and created this in town.
+d) a Bluish Topaz Ring of Speed (+15)
+   You cheated and created this in town.
+e) an Silver Amulet of the Magi [+10] (+10 to searching)
+   You cheated and created this in town.
+f) a Lamp of the Noldor (with 7116 turns of light)
+   You cheated and created this at 850 ft.
+g) Power Dragon Scale Mail (-3) [40,+20] (charging)
+   You cheated and created this in town.
+h) a Shadow Cloak of Aman [6,+20] (+1 to stealth)
+   You cheated and created this in town.
+j) an Iron Crown of Might [0,+20] (+3)
+   You cheated and created this in town.
+k) a Set of Cesti of Power (+5,+5) [5,+20] (+5)
+   You cheated and created this in town.
+l) a Pair of Metal Shod Boots of Speed (+20) [6,+0] (+10)
+   You cheated and created this in town.
+m) 40 Seeker Bolts of Wounding (4d5) (+20,+20)
+   You cheated and created this in town.
+
+
+ [Character Inventory]
+
+a) a small book (with 0 spells)
+It holds no spells.
+
+   This was part of your starting equipment.
+b) 3 Rations of Food
+   This was part of your starting equipment.
+c) a Spell titled "ionre arze" of Phase Door
+   This was part of your starting equipment.
+d) a Spell titled "gar gan brahe" of Create Simple Trap
+   This was part of your starting equipment.
+e) a Chrome Rod of Illumination
+   You cheated and created this at 850 ft.
+f) a Mithril-Plated Wand
+   Carried by a Gelatinous cube in a tunnel at 850 ft.
+g) a Silver Wand
+   Carried by a Snaga in a tunnel at 850 ft.
+h) a Brass Wand
+   Carried by a Snaga in a tunnel at 850 ft.
+i) a Silver Ring
+   Carried by a Gelatinous cube in a tunnel at 850 ft.
+j) 7 Wooden Torches (with 3000 turns of light)
+   This was part of your starting equipment.
+k) a Brass Lantern (with 14868 turns of light)
+   You cheated and created this in town.
+l) a Filthy Rag [1]
+   Carried by a Green naga in a tunnel at 850 ft.
+m) a Soft Leather Armour [5,+0]
+   This was part of your starting equipment.
+n) a Rapier (1d6) (+0,+0)
+   This was part of your starting equipment.
+o) a Light Crossbow (x3) {good}
+   Found in a room at 850 ft.
+
+
+ [Home Inventory (page 1)]
+
+
+
+
+
+Personal intrinsics status:
+
+You have no known intrinsics.
+
+
+
+Artifacts seen:
+
+You have not seen (or identified) any artifacts!
+
+
+Identified Items:
+
+
+Rings:
+
+     Bluish Topaz Ring of Speed
+     Yellow Topaz Ring of Damage
+
+Amulets:
+
+     Silver Amulet of the Magi
+
+Spells:
+
+     Spell titled "ionre arze" of Phase Door
+     Spell titled "gar gan brahe" of Create Simple Trap
+
+Potions:
+
+     Green Speckled Potion of Fire
+
+Rods:
+
+     Chrome Rod of Illumination
+
+
+Uniques seen:
+
+You have not seen any uniques, let alone killed some!
+
+
+Spells Cast:
+
+You have not cast any spells!
+
+
+Monsters seen:
+
+You ventured up to level 20
+
+You are now on level 17/0, and you have been here for 885 turns
+You killed 41 monsters in total, in 2372 turns.
+
+You have killed 20 Snagas.
+You have killed 12 Light hounds.
+
+
+Progress:
+
+           0 You started your campaign.
+         419 You reached experience level 2.
+         419 You reached experience level 3.
+         419 You reached experience level 4.
+         419 You reached experience level 5.
+         419 You reached experience level 6.
+         419 You reached experience level 7.
+         419 You reached experience level 8.
+         419 You reached experience level 9.
+         419 You reached experience level 10.
+         419 You reached experience level 11.
+         419 You reached experience level 12.
+         419 You reached experience level 13.
+         419 You reached experience level 14.
+         419 You reached experience level 15.
+         419 You reached experience level 16.
+         419 You reached experience level 17.
+         419 You reached experience level 18.
+         419 You reached experience level 19.
+         419 You reached experience level 20.
+         419 You reached experience level 21.
+         419 You reached experience level 22.
+         419 You reached experience level 23.
+         419 You reached experience level 24.
+         419 You reached experience level 25.
+         419 You reached experience level 26.
+         419 You reached experience level 27.
+         419 You reached experience level 28.
+         419 You reached experience level 29.
+         419 You reached experience level 30.
+         419 You reached experience level 31.
+         419 You reached experience level 32.
+         419 You reached experience level 33.
+         419 You reached experience level 34.
+         419 You reached experience level 35.
+         419 You reached experience level 36.
+         419 You reached experience level 37.
+         419 You reached experience level 38.
+         419 You reached experience level 39.
+         419 You reached experience level 40.
+         419 You reached experience level 41.
+         419 You reached experience level 42.
+         419 You reached experience level 43.
+         419 You reached experience level 44.
+         419 You reached experience level 45.
+         419 You reached experience level 46.
+         419 You reached experience level 47.
+         428 You last left dungeon level 0 ft.
+         428 You first entered dungeon level 1000 ft.
+         456 You slew your first Black harpy.
+         816 You slew your first Spotted jelly.
+         822 You slew your first Blue yeek.
+         857 You last left dungeon level 1000 ft.
+         857 You first entered dungeon level 850 ft.
+         962 You slew your first Scruffy looking hobbit.
+        1283 You slew your first Black naga.
+        1293 You slew your first Fruit bat.
+        1299 You slew your first White icky thing.
+        1345 You slew your first Large grey snake.
+        1440 You found the Chrome Rod of Illumination that you are carrying in
+             your pack.
+        1683 You slew your first Gelatinous cube.
+        1683 You found the Silver Ring that you are carrying in your pack.
+        1689 You found the Mithril-Plated Wand that you are carrying in your
+             pack.
+        1731 You found the Lamp of the Noldor (with 7116 turns of light) that
+             you are using to light the way.
+        1789 You found the Light Crossbow (x3) {good} that you are carrying in
+             your pack.
+        1986 You slew your first Snaga.
+        1987 You found the Silver Wand that you are carrying in your pack.
+        2110 You found the Brass Wand that you are carrying in your pack.
+        2184 You found the Filthy Rag [1] that you are carrying in your pack.
+        2199 You slew your first Light hound.
+        2315 You found your first Green Speckled Potion of Fire.
+        2372 You are now on dungeon level 850 ft

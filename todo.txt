@@ -1,0 +1,79 @@
+TODO
+star_identify doesn't react well to stacks of items - it goes on and on about
+'this item'.
+
+you see a rubble when 'l'ooking.
+
+add some more hooks to do (in the dump) a loop that goes from 1 to the current
+turn and metions:
+
+killed uniques
+killed monsters for the first time
+found artifacts
+levels gained
+found vaults
+deaths
+
+etc. Most of it is in place, except for the levels.
+
+There's still an obscure bug in store.c somewhere. It's triggerable by setting
+okay = FALSE right after feeling = 0 when generating a town level. The game
+will then keep on generating new town levels, and somewhere, it crashes
+in store.c: store_carry(). Memory is being corrupted somewhere. st_ptr points
+to nirvana, and SIGSEGV results :-(. This has probably been solved by
+substituting store[which]. for every st_ptr-> there, but I still don't know
+why?
+
+there's no difference between the mage spells genocide I and genocide II.
+
+should potions of sleep induce sleep in monsters when thrown?
+Ditto confusion, fire, poison etc? Experience anyone?
+
+it's not possible to 'l'ook at a known trapped chest and then remember
+anything about the trap on it.....
+
+it's possible for monster groups that should be created in vaults to extend
+outside the vault.
+
+priests shouldn't carry cursed items...
+
+prevent traps from disintegrating with rogues - ask for it.
+Make them portable?
+
+place traps next to intelligent monsters in the dungeon?
+
+remake the trap of silent switching so that switching a lantern with 6 torches
+results in one torch wielded, and 5 torches + a lantern in the inventory.
+
+add all descriptions in a_info.txt. Difficult, because some names don't exist
+in Tolkien (Carlammas anyone?)
+
+make monsters able to build walls, like a scared Xorn or Umber Hulk?
+Also neat for ghosts...
+
+Make more types of ghosts (ghosts, liches, vampires, undead beholders, etc?)
+
+Perhaps an helmet of light should be +1 to +3 to light
+
+print messages "flees in terror" only when a monster actually flees.
+
+add light-bearing to monsters - light hounds, orcs with torches, etc.
+
+decide if detect traps should detect multiple traps all at once, or not.
+For the moment, it does.
+
+more different ego-weapons
+
+monster inventories
+Give monsters things like hands (1-4), flags for can wear armour + max level
+or perhaps go the ADOM way: integrate the player and monster types, making
+monsters able to gain experience etc.
+
+make monster wake-up chance dependant on light radius = intensity
+
+eatable mosses (and uneatable, poisonous) etc to be scraped off dungeon walls
+
+food in the wilderness
+
+you see all of the some pieces of pearl sink in the lava.
+

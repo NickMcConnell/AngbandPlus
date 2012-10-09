@@ -1,0 +1,51 @@
+/* File: angband.rc */
+
+ANGBAND MENU 
+BEGIN
+ POPUP "&File"
+ BEGIN
+  MENUITEM "&New", 100
+  MENUITEM "&Open...", 101
+  MENUITEM SEPARATOR
+  MENUITEM "&Save", 110
+  MENUITEM SEPARATOR
+  MENUITEM "&Abort", 120
+  MENUITEM "E&xit", 121
+ END
+
+ POPUP "&Window"
+ BEGIN
+  POPUP "&Visibility"
+  BEGIN
+   MENUITEM "Term-0 window", 200
+   MENUITEM "Term-1 window", 201
+   MENUITEM "Term-2 window", 202
+   MENUITEM "Term-3 window", 203
+   MENUITEM "Term-4 window", 204
+   MENUITEM "Term-5 window", 205
+   MENUITEM "Term-6 window", 206
+   MENUITEM "Term-7 window", 207
+  END
+
+  POPUP "&Font"
+  BEGIN
+   MENUITEM "Term-0 window", 210
+   MENUITEM "Term-1 window", 211
+   MENUITEM "Term-2 window", 212
+   MENUITEM "Term-3 window", 213
+   MENUITEM "Term-4 window", 214
+   MENUITEM "Term-5 window", 215
+   MENUITEM "Term-6 window", 216
+   MENUITEM "Term-7 window", 217
+  END
+ END
+
+ POPUP "&Options"
+ BEGIN
+  MENUITEM "&Sound", 401
+ END
+
+END
+
+ANGBAND ICON "angband.ico"
+

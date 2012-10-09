@@ -1,0 +1,70 @@
+Maintainer: Jurriaan thunder7@xs4all.nl
+
+
+Lots of bugs were found by:
+Eli Salmon <globalfun@email.msn.com>
+Saradon <larryo@home.dmv.com>
+Ulrich M Schwarz <uschwarz@nwm.de>
+
+Some useful suggestions were given by:
+Saradon <larryo@home.dmv.com>
+Penelope Baker <penny@foxberry.net>
+
+Lots of useful suggestions were given by:
+Ulrich M Schwarz <uschwarz@nwm.de>
+
+Some makefile suggestions by
+Michael W Ryan <mryan@netaxs.com>
+
+Some comments about log-files growing too much for normal users by
+Win Day <winday@idirect.com>
+
+Another bug found by
+David Lerman <mdlerma2@gsbpop.uchicago.edu>
+
+Finding out that lib/ directories from old versions don't work too well:
+Johan S Janssen <cyrand@juno.com>
+
+Bugs found by
+E Kevin Hall <hall@nmr.mgh.harvard.edu>
+
+Some suggestions about ghosts by
+Greg Wooledge <wooledge@kellnet.com>
+
+Some comments about balance and stat-drainage being too common:
+urimarg@rogers.wave.ca
+
+Bugs found by Ilya Bely <aerton@chat.ru>
+
+Patches to get it to work under OS/2 and EMX by
+Alexeey Guzeev <aga@russia.crosswinds.net>
+
+I've copied some code (the object generation routines) and also a lot of
+interesting ideas (interesting rooms for example) used by Leon Marrick in his
+excellent Oangband. Leon also gave some ethical hints.
+
+A misnamed curses function found by Gwidon S. Naskrent <naskrent@hoth.amu.edu.pl>
+
+Lots of bugs (and their solution as well!) found by Tim Baker <dbaker@direct.ca>
+
+Tim Baker deserves a special mention for his help with setting up a linux-to-win32
+cross-compiler.
+
+Thomas Harris <hotseat@argonet.co.uk> found a bug when compiling without
+compression support.
+
+A good hint about changing secret doors in locked doors by
+Johan Kullstam.
+
+Some weapon-descriptions were borrowed from or inspired by Nahlakh 1.30, written by
+Tom Proudfoot, and a very nice game BTW.
+
+Spelling errors and bugs found by Eino Keskitalo.
+
+Some stupid item multiplication bug spotted by Andreas Stefan Fuchs (asf@acm.org)
+
+Some vaults donated by John L Haas - nice ones!
+****************************************
+do YOU want to be here? If you find a bug and report it, you may well be!
+mail thunder7@xs4all.nl
+

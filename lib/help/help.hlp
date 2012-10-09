@@ -2,22 +2,25 @@ Welcome to the Angband Online Help System.
 
 Please choose one of the following online help files:
 
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) List of Commands           (command.txt)
-    (6) List of Options            (option.txt)
-    (7) Version Information        (version.txt)
-    (8) User menu (if any)         (user.hlp)
-    (9) Spoiler menu (if any)      (spoiler.hlp)
+    (0) Angband/64 information          (guide.txt)
+    (1) A Quick keyboard usage reminder (quickkey.txt)
 
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] command.txt
-***** [6] option.txt
-***** [7] version.txt
-***** [8] user.hlp
+    (2) General Information             (general.txt)
+    (3) Creating a Character            (birth.txt)
+    (4) Exploring the Dungeon           (dungeon.txt)
+    (5) Attacking Monsters              (attack.txt)
+    (6) List of Commands                (command.txt)
+    (7) List of Options                 (option.txt)
+    (8) Version Information             (version.hlp)
+    (9) Spoiler menu (if any)           (spoiler.hlp)
+
+***** [0] guide.txt
+***** [1] quickkey.txt
+***** [2] general.txt
+***** [3] birth.txt
+***** [4] dungeon.txt
+***** [5] attack.txt
+***** [6] command.txt
+***** [7] option.txt
+***** [8] version.hlp
 ***** [9] spoiler.hlp
