@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 # 0x00 --> <darkness>
@@ -384,4 +384,153 @@ M:60
 N:63:permanent wall
 G:#:w
 M:60
+
+## New Terrain
+
+# 0x40 --> Gravestone -- arbitrary (perm)
+N:64:tombstone
+G:+:w
+
+# 0x41 --> Gravestone -- Asano's grave (perm)
+N:65:Grave of Lord Asano
+G:+:y
+
+# 0x42 --> shop -- Train Station (perm)
+N:66:Train Station
+G:9:G
+
+# 0x43 --> Teleporter -- Rm 1 (perm)
+N:67:Teleporter
+G:^:R
+
+# 0x44 --> Teleporter -- Rm 2 (perm)
+N:68:Teleporter
+G:^:R
+
+# 0x45 --> Teleporter -- Rm 3 (perm)
+N:69:Teleporter
+G:^:R
+
+# 0x46 --> Teleporter -- Rm 4 (perm)
+N:70:Teleporter
+G:^:R
+
+# 0x47 --> Teleporter -- Rm 5 (perm)
+N:71:Teleporter
+G:^:R
+
+# 0x48 --> Teleporter -- Rm 6 (perm)
+N:72:Teleporter
+G:^:R
+
+# 0x49 --> Teleporter -- Rm 7 (perm)
+N:73:Teleporter
+G:^:R
+
+# 0x4A --> Teleporter -- Rm 8 (perm)
+N:74:Teleporter
+G:^:R
+
+# 0x4B --> Teleporter -- Rm 9 (perm)
+N:75:Teleporter
+G:^:R
+
+# 0x4C --> Teleporter -- Rm 10 (perm)
+N:76:Teleporter
+G:^:R
+
+# 0x4D --> Teleporter -- Rm 11 (perm)
+N:77:Teleporter
+G:^:R
+
+# 0x4E --> Teleporter -- Rm 12 (perm)
+N:78:Teleporter
+G:^:R
+
+# 0x4F --> Teleporter -- Rm 13 (perm)
+N:79:Teleporter
+G:^:R
+
+# 0x50 --> Teleporter -- Rm 14 (perm)
+N:80:Teleporter
+G:^:R
+
+# 0x51 --> Teleporter -- Rm 15 (perm)
+N:81:Teleporter
+G:^:R
+
+# 0x52 --> Teleporter -- Rm 16 (perm)
+N:82:Teleporter
+G:^:R
+
+# 0x53 --> Teleporter -- Rm 17 (perm)
+N:83:Teleporter
+G:^:R
+
+# 0x54 --> Teleporter -- Rm 18 (perm)
+N:84:Teleporter
+G:^:R
+
+# 0x55 --> Teleporter -- Rm 19 (perm)
+N:85:Teleporter
+G:^:R
+
+# 0x56 --> Teleporter -- Rm 20 (perm)
+N:86:Teleporter
+G:^:R
+
+# 0x57 --> Fun Teleporter -- Rm 15 (perm)
+N:87:Fun Teleporter
+G:^:G
+
+# 0x58 --> Trigger 
+N:88:Trigger
+G:^:G
+
+# 0x59 --> Green gem -- Mastermind
+N:89:Green gem
+G:*:G
+
+# 0x5A --> Red gem -- Mastermind
+N:90:Red gem
+G:*:R
+
+# 0x5B --> Blue gem -- Mastermind
+N:91:Blue gem
+G:*:b
+
+# 0x5C --> White gem -- Mastermind
+N:92:White gem
+G:*:w
+
+# 0x5D --> Violet gem -- Mastermind
+N:93:Violet gem
+G:*:v
+
+# 0x5E --> Yellow gem -- Mastermind
+N:94:Yellow gem
+G:*:y
+
+# 0x5F --> Entrance
+N:95:Entrance
+G:0:w
+
+# 0x60 --> Vending Machine
+N:96:Vending Machine
+G:0:r
+
+# 0x61 --> Ramen Stand
+N:97:Ramen Stand
+G:0:g
+
+# 0x62 --> Grocery Store
+N:98:Grocery Store
+G:0:G
+
+# 0x63 --> Fake Fun Teleporter
+N:99:Fun Teleporter
+G:^:G
+
+
+
 

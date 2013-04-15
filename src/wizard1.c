@@ -118,6 +118,8 @@ static const grouper group_item[] =
 	{ TV_JUNK,		  NULL },
 	{ TV_BOTTLE,	  NULL },
 	{ TV_SKELETON,	  NULL },
+	{ TV_QUEST_ITEM,  NULL },
+	{ TV_PARCHMENT,  "Parchments"},
 
 	{ 0, "" }
 };
@@ -1669,6 +1671,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+		else if (flags3 & (RF3_FRIENDLY)) spoil_out(" friendly");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1732,7 +1735,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
 		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
 		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX4)) vp[vn++] = "do something";
+		if (flags4 & (RF4_BULLET)) vp[vn++] = "fire a gun";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
@@ -2144,7 +2147,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CRAWL:	p = "crawl on you"; break;
 				case RBM_DROOL:	p = "drool on you"; break;
 				case RBM_SPIT:	p = "spit"; break;
-				case RBM_XXX3:	break;
+				case RBM_MOLEST:	p = "molest"; break;
 				case RBM_GAZE:	p = "gaze"; break;
 				case RBM_WAIL:	p = "wail"; break;
 				case RBM_SPORE:	p = "release spores"; break;

@@ -162,6 +162,14 @@ void teleport_player(int dis)
 	/* Minimum distance */
 	min = dis / 2;
 
+	/* You're not allowed to teleport in certain areas */
+	if ((p_ptr->location >= W_EULER) && (p_ptr->location < W_TREASURE_ROOM))
+	{
+		msg_print("An evil air defeats your teleport attempt!");
+		return;
+	}
+
+
 	/* Look until done */
 	while (look)
 	{
@@ -273,7 +281,8 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
-	if (adult_ironman)
+	/* No Level teleporting in Wildernesses */
+	if ((adult_ironman) || (p_ptr->location != W_TOWN))
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -284,8 +293,12 @@ void teleport_player_level(void)
 	{
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
+		if (p_ptr->location == W_TOWN)
 		/* New depth */
 		p_ptr->depth++;
+
+		else
+			p_ptr->location++;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -440,6 +453,7 @@ void take_hit(int dam, cptr kb_str)
 
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 	int thresh = (p_ptr->mhp * 15 / 100);
+	int blah;
 
 
 	/* Paranoia */
@@ -451,6 +465,14 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (dam < 9000)) return;
+
+	/* Metal gets tougher when hit a lot */
+	if (p_ptr->pgroove == G_METAL){
+		blah = (int)rand_int(metal_percent);
+		dam -= blah;
+		/* Just had to see something */
+	/*	msg_format("%d HP gets recovered out of %d damage.", blah, dam);*/
+	}
 
 
 	/* Get the wield slot */
@@ -480,11 +502,7 @@ void take_hit(int dam, cptr kb_str)
 		}
 
 
-	/* Metal gets tougher when hit a lot */
-	if (p_ptr->pgroove == G_METAL)
-		p_ptr->chp += (short)rand_int(metal_percent);
-
-
+	
 	/* Extra Penalty for Water */
 	if (p_ptr->pgroove == G_WATER)
 		p_ptr->chp -= dam/10;

@@ -1647,7 +1647,7 @@ static void display_player_flag_info(void)
 		head = display_player_flag_head[x];
 
 		/* Header */
-		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
+		c_put_str(TERM_WHITE, "abcdefghijklm@", row++, col+6);
 
 		/* Eight rows */
 		for (y = 0; y < 8; y++)
@@ -1721,7 +1721,7 @@ static void display_player_flag_info(void)
 		}
 
 		/* Footer */
-		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
+		c_put_str(TERM_WHITE, "abcdefghijklm@", row++, col+6);
 
 		/* Equippy */
 		display_player_equippy(row++, col+6);
@@ -1907,7 +1907,7 @@ static void display_player_sust_info(void)
 	col = 26;
 
 	/* Header */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row-1, col);
+	c_put_str(TERM_WHITE, "abcdefghijklm@", row-1, col);
 
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
@@ -1999,7 +1999,7 @@ static void display_player_sust_info(void)
 	col = 26;
 
 	/* Footer */
-	c_put_str(TERM_WHITE, "abcdefghijkl@", row+6, col);
+	c_put_str(TERM_WHITE, "abcdefghijklm@", row+6, col);
 
 	/* Equippy */
 	display_player_equippy(row+7, col);
@@ -2145,6 +2145,8 @@ errr file_character(cptr name, bool full)
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+	fprintf(fff, "Game Type: %s\n", game_type[p_ptr->what_game_type]);
 	
 	/* Display meter */
 	fprintf(fff, "Meter: %d", p_ptr->c_meter);
@@ -2236,6 +2238,24 @@ errr file_character(cptr name, bool full)
 		/* Add an empty line */
 		fprintf(fff, "\n\n");
 	}
+
+	
+	if (p_ptr->what_game_type == GAME_TYPE_QUEST)
+	{
+		
+	fprintf(fff, "  [Quests Solved]\n\n");
+	for (i = 0; i < MAX_QUESTS; i++)
+	{
+		if (p_ptr->normal_quests[i] == STATUS_COMPLETE)
+		{
+			fprintf(fff, "%s \n", solved_quests[i]);
+		}
+
+	}
+
+	}
+
+	fprintf(fff, "\n\n");
 
 
 	/* Dump options */
@@ -2780,6 +2800,11 @@ void process_player_name(bool sf)
 {
 	int i;
 
+	if (!op_ptr->full_name[0])
+	{
+		generate_name();
+	}
+
 
 	/* Cannot be too long */
 	if (strlen(op_ptr->full_name) > 15)
@@ -2847,6 +2872,86 @@ void process_player_name(bool sf)
 	}
 }
 
+/* Random name generator */
+void generate_name(void){
+
+
+
+static cptr male_first [20] = 
+{
+	"Nakano", "Daigo", "Ken", "Ryo", "Akira", "Hayato", "Kenji", "Hikaru",
+	"Daisuke", "Yoshio", "Ukyo", "Shigeru", "Mito", "Akito", "Joji", "Kyosuke",
+	"Shiro", "Hiro", "Iyo", "Aki"
+};
+
+static cptr female_first [20] =
+{
+	"Yumi", "Saki", "Sakura", "Shiori", "Kaneko", "Akari", "Aya", "Ritsuko",
+	"Ami", "Ayako", "Fujiko", "Yuri", "Mai", "Maki", "Shinobu", "Yukari",
+	"Akane", "Kaoru", "Yukino", "Haruna"
+};
+
+static cptr family_name [20] =
+{
+	"Kohei ", "Mori ", "Mito ", "Iwamoto ", "Shindou ", "Saotome ", "Shigeki ",
+	"Tendou ", "Kurata ", "Touya ", "Yamada ", "Jigen ", "Hayashi ", "Muro ",
+	"Umehara ", "Inoue ", "Fuwa ", "Watnabe ", "Yoshida ", "Oishi "
+};
+
+static cptr sayajin_name [20] =
+{
+	"Broli", "Aparu", "Korunopan", "Karuzonu", "Kiraimupai", "Egguroru", 
+	"Pamukinupai", "Ramen", "Chiramisu", "Pan", "Gohan", "Roripopu",
+	"Biiru", "Toinukisu", "Donatsu", "Oreosu", "Tofu", "Nachuosu",
+	"Chiizu", "Kome"
+};
+
+static cptr hententmon_name [20] =
+{
+	"Nyarr-chan", "Bob", "Shima", "Squirglepith", "Bush", "Eieio",
+	"Iie!  Dame!", "Yametenasai!", "Glemph", "Nort", "Aaaaahhhnnnn",
+	"Peep", "Irenai!", "Itai!", "Lin", "Dennis", "Anita", "Chinchin",
+	"Iiyara!", "Taihen"
+};
+
+char nametmp[16];
+
+nametmp[0] = '\0';
+
+
+if (p_ptr->prace == P_HENTENTMON){
+
+	strcat(nametmp, hententmon_name[rand_int(20)]);
+}
+
+else if (p_ptr->prace == P_SAYAJIN){
+	strcat(nametmp, sayajin_name[rand_int(20)]);
+}
+
+else if (p_ptr->prace == P_ANDROID){
+	if (p_ptr->psex == SEX_MALE)
+		strcat(nametmp, male_first[rand_int(20)]);
+	else
+		strcat(nametmp, female_first[rand_int(20)]);
+}
+
+
+else {
+	strcat(nametmp, family_name[rand_int(20)]);
+	if (p_ptr->psex == SEX_MALE)
+		strcat(nametmp, male_first[rand_int(20)]);
+	else
+		strcat(nametmp, female_first[rand_int(20)]);
+}
+
+strcpy(op_ptr->full_name, nametmp);
+return;
+
+
+
+
+
+}
 
 /*
  * Gets a name for the character, reacting to name changes.
@@ -3475,6 +3580,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	char ch;
 
 	int j, k, n, place;
+	int location;
 	int count;
 
 	high_score the_score;
@@ -3567,6 +3673,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			mlev = atoi(the_score.max_lev);
 			cdun = atoi(the_score.cur_dun);
 			mdun = atoi(the_score.max_dun);
+			location = atoi(the_score.cur_loc);
 
 			/* Hack -- extract the gold and such */
 			for (user = the_score.uid; isspace(*user); user++) /* loop */;
@@ -3601,8 +3708,9 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			/* Hack -- some people die in the town */
 			if (!cdun)
 			{
-				sprintf(out_val, "               Killed by %s in the Town",
-				        the_score.how);
+				
+				sprintf(out_val, "               Killed by %s in %s",
+				        the_score.how, long_display_loc[location]);
 			}
 
 			/* Append a "maximum level" */
@@ -3774,6 +3882,7 @@ static errr enter_score(void)
 	sprintf(the_score.turns, "%9lu", (long)turn);
 	the_score.turns[9] = '\0';
 
+	
 #ifdef HIGHSCORE_DATE_HACK
 	/* Save the date in a hacked up form (9 chars) */
 	sprintf(the_score.day, "%-.6s %-.2s",
@@ -3795,6 +3904,7 @@ static errr enter_score(void)
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
 	sprintf(the_score.cur_dun, "%3d", p_ptr->depth);
+	sprintf(the_score.cur_loc, "%3d", p_ptr->location);
 	sprintf(the_score.max_lev, "%3d", p_ptr->max_lev);
 	sprintf(the_score.max_dun, "%3d", p_ptr->max_depth);
 

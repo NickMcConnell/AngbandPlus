@@ -39,8 +39,12 @@ void do_cmd_go_up(void)
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
 
+	if (p_ptr->location == W_TOWN)
 	/* New depth */
 	p_ptr->depth--;
+
+	else
+		p_ptr->location--;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -68,8 +72,12 @@ void do_cmd_go_down(void)
 	/* Create a way back */
 	p_ptr->create_up_stair = TRUE;
 
+	if (p_ptr->location == W_TOWN)
 	/* New level */
 	p_ptr->depth++;
+
+	else
+		p_ptr->location++;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -2035,6 +2043,13 @@ static bool do_cmd_walk_test(int y, int x)
 			msg_print("There is a door in the way!");
 		}
 
+		/* I'm too lazy to make that many terrains :)*/
+		else if ((cave_feat[y][x] == FEAT_TRAIN_STATION) || 
+			(cave_feat[y][x] == FEAT_SPECIAL_ENTRANCE)){
+
+			return (TRUE);
+		}
+
 		/* Wall */
 		else
 		{
@@ -2199,8 +2214,10 @@ static void do_cmd_hold_or_stay(int pickup)
 	py_pickup(pickup);
 
 	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
-	    (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
+	if (((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
+	    (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL)) ||
+		(cave_feat[p_ptr->py][p_ptr->px] >= FEAT_VENDING_MACHINE)
+		&& (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_GROCERY_STORE))
 	{
 		/* Disturb */
 		disturb(0, 0);

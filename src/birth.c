@@ -306,6 +306,9 @@ static void get_extra(void)
 	/* Alcohol Level */
 	p_ptr->c_alcohol = 0;
 
+	/* Max Powers */
+	p_ptr->max_powers = 0;
+
 
 	/* Limit Break Type */
 	p_ptr->l_break = rp_ptr->r_rlb;
@@ -868,7 +871,7 @@ static bool player_birth_aux_1(void)
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
+		put_str(buf, 21 + (n/4), 2 + 18 * (n%4));
 	}
 
 	/* Get a class */
@@ -912,9 +915,7 @@ static bool player_birth_aux_1(void)
 	clear_from(15);
 
 	/*** Player Groove ***/
-	/* I'm not sure how this works...so I'll just ghettoize it for now */
-	/* This should definitely be cleaned up */
-
+	
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Your fighting style will affect how you build meter and other things.");
@@ -959,6 +960,49 @@ static bool player_birth_aux_1(void)
 
 	/* Clean up */
 	clear_from(15);
+
+	
+	/*** Game Type ***/
+	
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"What type of game do you wish to play?");
+
+	/* Prompt for game type */
+	for (n = 0; n < GAME_TYPE_MAX; n++)
+	{
+		/* Analyze */
+		
+		str = game_type[n];
+
+		/* Display */
+		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+	}
+
+	/* Choose */
+	while (1)
+	{
+		sprintf(buf, "Choose a Game Type (%c-%c, or * for random): ",
+		        I2A(0), I2A(n-1));
+		put_str(buf, 20, 2);
+		ch = inkey();
+		if (ch == 'Q') quit(NULL);
+		if (ch == 'S') return (FALSE);
+		k = (islower(ch) ? A2I(ch) : -1);
+		if (ch == ESCAPE) ch = '*';
+		if (ch == '*') k = rand_int(GAME_TYPE_MAX);
+		if ((k >= 0) && (k < n)) break;
+		if (ch == '?') do_cmd_help();
+		else bell("Illegal Game Type!");
+	}
+
+	/* Set Game Type */
+	p_ptr->what_game_type = k;
+
+		/* Clean up */
+	clear_from(15);
+
 
 
 	/*** Birth options ***/

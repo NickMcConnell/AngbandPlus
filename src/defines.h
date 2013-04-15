@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.2"
+#define VERSION_STRING	"0.5.4"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	2
+#define VERSION_PATCH	4
 #define VERSION_EXTRA	0
 
 
@@ -128,7 +128,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES	8
+#define MAX_STORES	11
 
 
 /*
@@ -142,6 +142,10 @@
 #define STORE_MAGIC		5
 #define STORE_B_MARKET	6
 #define STORE_HOME		7
+#define STORE_VENDING	8
+#define STORE_RAMEN		9
+#define STORE_GROCERY	10
+
 
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
@@ -275,6 +279,20 @@
  */
 #define NASTY_MON	50		/* 1/chance of inflated monster level */
 
+/*
+ Progressive Difficulty -  If you do not meet a certain par, the deep monster
+ will come after YOU!  The OOD is determined by an exponential function.  Given
+ that it took roughly 10 million turns for the #1 player to beat the game, that
+ will be set now as a tenative par. 
+
+Tenative exponential function:
+
+  Level you should be at = Mon_Par / e^(100 - max_depth)
+
+*/
+
+#define MON_PAR     15000000
+
 
 
 /*
@@ -354,7 +372,30 @@
 #define PY_REGEN_HPBASE		1442	/* Min amount hp regen*2^16 */
 #define PY_REGEN_MNBASE		524		/* Min amount mana regen*2^16 */
 
+/*
+ * Specific Monsters for Wildernesses/Quests
+ * Maybe should have MONSTER_ in front?
+ */
 
+#define ALARM							32
+#define NOVICE_ARCHER					94
+#define SAMURAI							168
+#define RYOUGA_HIBIKI					211
+#define KIRA							249
+#define HARDENED_WARRIOR				261
+#define DEATH_MOLD						479
+#define VEGETA							508
+#define FUMA							532							
+#define KIRA_GUARD						548
+#define OISHI							549
+#define TANUKI							550
+#define KITSUNE							551
+#define FLAMING_BEAR					552
+#define INFO_BOY						553
+#define TOTORO_LEAF						554
+#define KIKI							555
+#define GARDENER						560
+#define MAX_MONSTERS					561
 /*
  * Maximum number of players spells
  */
@@ -556,6 +597,103 @@
 #define DRUNK_AURA_OF_CONFUSION			1
 #define DRUNK_SAKE_DRAGON				2
 
+/* Chi Warrior Powers */
+#define CHI_WARRIOR_BLINK					0
+#define CHI_WARRIOR_HEROISM					1
+#define CHI_WARRIOR_BERSERK					2
+#define CHI_WARRIOR_MISSILE					3
+#define CHI_WARRIOR_UMARERU					4
+#define CHI_WARRIOR_KAMEHAMEHA				5
+#define CHI_WARRIOR_BURST					6
+#define CHI_WARRIOR_BAKUSAI_TENGETSU		7
+#define CHI_WARRIOR_HIRYU_SHOTEN_HA			8
+#define CHI_WARRIOR_HASTE					9
+#define CHI_WARRIOR_GENEI_JIN				10
+#define CHI_WARRIOR_KAIOKEN					11
+#define CHI_WARRIOR_DOUBLE_TEAM				12
+#define CHI_WARRIOR_WRATH					13
+#define CHI_WARRIOR_GLITTERING_GOLD			14
+#define CHI_WARRIOR_SUPERIOR_ATTACK			15
+#define CHI_WARRIOR_DETECTION				16
+#define CHI_WARRIOR_SUPER_PUNCH				17
+#define CHI_WARRIOR_SMOKE_BOMBS				18
+#define CHI_WARRIOR_DEFENSE					19
+#define CHI_WARRIOR_OUROBOROUS				20
+#define CHI_WARRIOR_DRUNK_FIST				21
+#define CHI_WARRIOR_ELEMENTAL_AURA			22
+#define CHI_WARRIOR_AMAGURI_KEN				23
+#define CHI_WARRIOR_DEKAKERU				24
+#define CHI_WARRIOR_CROSS_COUNTER			25
+#define CHI_WARRIOR_UME_SHORYU				26
+#define CHI_WARRIOR_CARP_ON_CUTTING_BOARD	27
+#define CHI_WARRIOR_RIDE_THE_LIGHTNING		28
+#define CHI_WARRIOR_NANI_GA_DERU_KA_NA		29
+#define CHI_WARRIOR_MAX						30
+
+/* Mimicable powers */
+#define MIMIC_BR_ACID		0	/* Breathe Acid */
+#define MIMIC_BR_ELEC		1	/* Breathe Elec */
+#define MIMIC_BR_FIRE		2	/* Breathe Fire */
+#define MIMIC_BR_COLD		3	/* Breathe Cold */
+#define MIMIC_BR_POIS		4	/* Breathe Poison */
+#define MIMIC_BR_NETH		5	/* Breathe Nether */
+#define MIMIC_BR_LITE		6	/* Breathe Lite */
+#define MIMIC_BR_DARK		7	/* Breathe Dark */
+#define MIMIC_BR_CONF		8	/* Breathe Confusion */
+#define MIMIC_BR_SOUN		9	/* Breathe Sound */
+#define MIMIC_BR_CHAO		10	/* Breathe Chaos */
+#define MIMIC_BR_DISE		11	/* Breathe Disenchant */
+#define MIMIC_BR_NEXU		12	/* Breathe Nexus */
+#define MIMIC_BR_TIME		13	/* Breathe Time */
+#define MIMIC_BR_INER		14	/* Breathe Inertia */
+#define MIMIC_BR_GRAV		15	/* Breathe Gravity */
+#define MIMIC_BR_SHAR		16	/* Breathe Shards */
+#define MIMIC_BR_PLAS		17	/* Breathe Plasma */
+#define MIMIC_BR_WALL		18	/* Breathe Force */
+#define MIMIC_BR_MANA		19	/* Breathe Mana */
+#define MIMIC_BA_ACID		20	/* Acid Ball */
+#define MIMIC_BA_ELEC		21	/* Elec Ball */
+#define MIMIC_BA_FIRE		22	/* Fire Ball */
+#define MIMIC_BA_COLD		23	/* Cold Ball */
+#define MIMIC_BA_POIS		24	/* Poison Ball */
+#define MIMIC_BA_NETH		25	/* Nether Ball */
+#define MIMIC_BA_WATE		26	/* Water Ball */
+#define MIMIC_BA_MANA		27	/* Mana Storm */
+#define MIMIC_BA_DARK		28	/* Darkness Storm */
+#define MIMIC_DRAIN_MANA	29	/* Drain Mana */
+#define MIMIC_MIND_BLAST	30	/* Blast Mind */
+#define MIMIC_BRAIN_SMASH	31	/* Smash Brain */
+#define MIMIC_CAUSE_1		32	/* Cause Light Wound */
+#define MIMIC_CAUSE_2		33	/* Cause Serious Wound */
+#define MIMIC_CAUSE_3		34	/* Cause Critical Wound */
+#define MIMIC_CAUSE_4		35	/* Cause Mortal Wound */
+#define MIMIC_BO_ACID		36	/* Acid Bolt */
+#define MIMIC_BO_ELEC		37	/* Elec Bolt (unused) */
+#define MIMIC_BO_FIRE		38	/* Fire Bolt */
+#define MIMIC_BO_COLD		39	/* Cold Bolt */
+#define MIMIC_BO_POIS		40	/* Poison Bolt (unused) */
+#define MIMIC_BO_NETH		41	/* Nether Bolt */
+#define MIMIC_BO_WATE		42	/* Water Bolt */
+#define MIMIC_BO_MANA		43	/* Mana Bolt */
+#define MIMIC_BO_PLAS		44	/* Plasma Bolt */
+#define MIMIC_BO_ICEE		45	/* Ice Bolt */
+#define MIMIC_MISSILE		46	/* Magic Missile */
+#define MIMIC_SCARE			47	/* Frighten Player */
+#define MIMIC_BLIND			48	/* Blind Player */
+#define MIMIC_CONF			49	/* Confuse Player */
+#define MIMIC_SLOW			50	/* Slow Player */
+#define MIMIC_HOLD			51	/* Paralyze Player */
+#define MIMIC_HASTE			52	/* Speed self */
+#define MIMIC_HEAL			53	/* Heal self */
+#define MIMIC_BLINK			54	/* Teleport Short */
+#define MIMIC_TPORT			55	/* Teleport Long */
+#define MIMIC_TELE_AWAY		56	/* Move player far away */
+#define MIMIC_DIVINE_COMEDY	57	/* Invoke a Divine Comedy */
+#define MIMIC_S_DRAGON_SLAVE	58	/* Summon Dragon Slave */
+#define MIMIC_EMPTY				59 /* Null power */
+#define MIMIC_MAX				60 /* Max mimicable powers */
+
+
 
 #define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 #define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
@@ -650,6 +788,71 @@
 #define G_DRUNK			4
 
 #define G_MAX			5
+
+
+/* Wilderness locations */
+#define W_TOWN			0
+#define W_KIRA			1
+#define W_KIRA2			2
+#define W_ASANO			3
+#define W_EULER			4
+#define W_MAZE			5
+#define W_HAMILTON		6
+#define W_MASTERMIND	7
+#define W_COUNTERFEIT	8
+#define W_TREASURE_ROOM	9
+#define W_DUEL_ARENA	10
+#define W_FUN_CITY		11
+#define W_PUZZLE_LAND	12
+
+/* Yes, this is odd...Up stairs goes --, downstairs goes ++ */
+/* I think it makes sense though...*/
+#define W_TOKYO_TOWER   23
+#define W_TOWER_1		22
+#define W_TOWER_2		21
+#define W_TOWER_3		20
+#define W_TOWER_4		19
+#define W_TOWER_5		18
+#define W_TOWER_6		17
+#define W_TOWER_7		16
+#define W_TOWER_8		15
+#define W_TOWER_9		14
+#define W_TOWER_ROOF	13
+
+#define W_HOUSE_AUHU		24
+#define W_MIYAZAKI_TOWN		25
+#define W_KIKI_BAKERY		26
+#define W_MIYAZAKI_FOREST	27
+
+#define W_MAX			28
+
+/* Maximum Train stops */
+#define MAX_TRAIN	    7
+
+/* Max ingredients */
+#define MAX_INGREDIENTS 7
+
+/* Define set quests */
+#define QUEST_TOTORO		0
+#define QUEST_PUZZLE_LAND	1
+#define QUEST_CHUSHINGURA	2
+#define QUEST_BATTLE_ARENA	3
+#define QUEST_TOKYO_TOWER	4
+#define QUEST_FOREST		5
+#define QUEST_DELIVERY		6
+#define QUEST_DEFEND		7
+#define QUEST_COOKING		8
+#define MAX_QUESTS			9
+
+/* Define Quest Statuses */
+#define STATUS_NOT_KNOWN	0
+#define STATUS_IN_PROGRESS	1
+#define STATUS_COMPLETE		2
+
+/* Define Game Type */
+#define GAME_TYPE_CLASSICAL	0
+#define GAME_TYPE_QUEST		1
+#define GAME_TYPE_MAX		2
 
 /*** Screen Locations ***/
 
@@ -827,6 +1030,7 @@
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
 #define GF_XXX8			59
+#define GF_MIMIC		60
 
 
 /*
@@ -871,7 +1075,7 @@
 
 
 /*** Feature Indexes (see "lib/edit/feature.txt") ***/
-
+/*  These should be reordered */
 /* Nothing */
 #define FEAT_NONE		0x00
 
@@ -918,7 +1122,53 @@
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
 
+/* Gravestones */
+#define FEAT_GRAVE_STONE 0x40
+#define FEAT_GRAVE_ASANO 0x41
 
+/* Misc */
+#define FEAT_TRAIN_STATION 0x42
+
+/* Hamilton puzzle */
+#define FEAT_TELE_1		   0x43
+#define FEAT_TELE_2		   0x44
+#define FEAT_TELE_3		   0x45
+#define FEAT_TELE_4		   0x46
+#define FEAT_TELE_5		   0x47
+#define FEAT_TELE_6		   0x48
+#define FEAT_TELE_7		   0x49
+#define FEAT_TELE_8		   0x4A
+#define FEAT_TELE_9		   0x4B
+#define FEAT_TELE_10	   0x4C
+#define FEAT_TELE_11	   0x4D
+#define FEAT_TELE_12	   0x4E
+#define FEAT_TELE_13	   0x4F
+#define FEAT_TELE_14	   0x50
+#define FEAT_TELE_15	   0x51
+#define FEAT_TELE_16	   0x52
+#define FEAT_TELE_17	   0x53
+#define FEAT_TELE_18	   0x54
+#define FEAT_TELE_19	   0x55
+#define FEAT_TELE_20	   0x56
+#define FEAT_FUN_TELE	   0x57
+
+/* Mastermind Puzzle GRBWYV */
+#define FEAT_TRIGGER	   0x58
+#define FEAT_GREEN_GEM	   0x59
+#define FEAT_RED_GEM	   0x5A
+#define FEAT_BLUE_GEM	   0x5B
+#define FEAT_WHITE_GEM	   0x5C
+#define FEAT_VIOLET_GEM    0x5D
+#define FEAT_YELLOW_GEM	   0x5E
+
+/* Special Entrance */
+#define FEAT_SPECIAL_ENTRANCE 0x5F
+
+#define FEAT_VENDING_MACHINE  0x60
+#define FEAT_RAMEN_STAND      0x61
+#define FEAT_GROCERY_STORE	  0x62
+
+#define FEAT_FAKE_TELE		  0x63
 
 /*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -971,7 +1221,7 @@
 #define ART_HAMMERHAND		38
 #define ART_DOR				39
 #define ART_HOLHENNETH		40
-#define ART_GORLIM			41
+#define ART_KIRA			41
 #define ART_GONDOR			42
 
 /* Cloaks */
@@ -1283,6 +1533,9 @@
 #define TV_PRAYER_BOOK  91
 #define TV_STUDENT_BOOK 92
 #define TV_MECHA		93
+#define TV_QUEST_ITEM	94
+#define TV_PARCHMENT	95
+#define TV_DOUJINSHI	96
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1357,6 +1610,7 @@
 #define SV_EXECUTIONERS_SWORD	28	/* 4d5 */
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 #define SV_MAGIC_KNIGHT_SWORD	31	/* evolving */
+#define SV_COOKING_KNIFE		40	/* 1d4 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD		2
@@ -1381,6 +1635,14 @@
 #define SV_RAYEARTH				2
 #define SV_SELECE				3
 #define SV_WINDAM				4
+
+/* The "sval" codes for TV_QUEST_ITEM */
+#define SV_KIRA_HEAD			0
+#define SV_UMBRELLA				1
+#define SV_BAG_OF_ACORNS		2
+#define SV_BIRTHDAY_CAKE		3
+#define SV_COIN					4
+#define SV_BELT					5
 
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
@@ -1645,6 +1907,8 @@
 #define SV_SCROLL_ACQUIREMENT			46
 #define SV_SCROLL_STAR_ACQUIREMENT		47
 
+#define SV_SCROLL_MECHA_REPAIR			48
+
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
 #define SV_POTION_APPLE_JUICE		1
@@ -1766,7 +2030,13 @@
 #define SV_FOOD_STRIP_STEAK		67
 #define SV_FOOD_CREAMY_STEW		68
 #define SV_FOOD_OMELET			69
+#define SV_FOOD_GREEN_TEA		70
+#define SV_FOOD_COLA			71
+#define SV_FOOD_ICED_COFFEE		72
+#define SV_FOOD_AKANE_COOKIE	73
 
+
+/* Chi Warrior Powers */
 
 
 /*
@@ -1812,7 +2082,7 @@
 #define RBM_CRAWL	13
 #define RBM_DROOL	14
 #define RBM_SPIT	15
-#define RBM_XXX3	16
+#define RBM_MOLEST	16
 #define RBM_GAZE	17
 #define RBM_WAIL	18
 #define RBM_SPORE	19
@@ -2292,6 +2562,20 @@
 #define C_PALADIN		5
 #define C_STUDENT		6
 #define C_MAGIC_KNIGHT	7
+#define C_CHI_WARRIOR	8
+#define C_MIMIC			9
+
+/*** Races ***/
+#define P_HUMAN			0
+#define P_NEDIAN		1
+#define P_SAYAJIN		2
+#define P_JURAIAN		3
+#define P_ANDROID		4
+#define P_CTARL_CTARL	5
+#define P_HENTENTMON	6
+#define P_SANJIYAN		7
+#define P_SKY_DRAGON	8
+#define P_REMNANT		9
 
 
 /*** Class flags ***/
@@ -2375,7 +2659,7 @@
 #define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
 #define RF1_FORCE_MAXHP		0x00000200	/* Start with max hitpoints */
 #define RF1_FORCE_SLEEP		0x00000400	/* Start out sleeping */
-#define RF1_FORCE_EXTRA		0x00000800	/* Start out something */
+#define RF1_FORCE_LOCATION	0x00000800	/* Start at correct location */
 #define RF1_FRIEND			0x00001000	/* Arrive with a friend */
 #define RF1_FRIENDS			0x00002000	/* Arrive with some friends */
 #define RF1_ESCORT			0x00004000	/* Arrive with an escort */
@@ -2403,14 +2687,14 @@
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
 #define RF2_RESPAWN			0x00000004	/* Monster doesn't stay dead */
-#define RF2_XXX2			0x00000008	/* (?) */
+#define RF2_NOSUMMON		0x00000008	/* Monster cannot be summoned (sorta) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
 #define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy? */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
-#define RF2_XXX3			0x00000400	/* (?) */
+#define RF2_WILD_ONLY		0x00000400	/* Monster only appears in wild */
 #define RF2_XXX4			0x00000800	/* (?) */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
 #define RF2_XXX5			0x00002000	/* (?) */
@@ -2444,7 +2728,7 @@
 #define RF3_UNDEAD			0x00000020	/* Undead */
 #define RF3_EVIL			0x00000040	/* Evil */
 #define RF3_ANIMAL			0x00000080	/* Animal */
-#define RF3_XXX1			0x00000100	/* (?) */
+#define RF3_FRIENDLY		0x00000100	/* Friendly */
 #define RF3_XXX2			0x00000200	/* (?) */
 #define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
 #define RF3_XXX4			0x00000800	/* Non-Living (?) */
@@ -2475,7 +2759,7 @@
 #define RF4_SHRIEK			0x00000001	/* Shriek for help */
 #define RF4_XXX2			0x00000002	/* (?) */
 #define RF4_XXX3			0x00000004	/* (?) */
-#define RF4_XXX4			0x00000008	/* (?) */
+#define RF4_BULLET			0x00000008	/* Fire a gun */
 #define RF4_ARROW_1			0x00000010	/* Fire an arrow (light) */
 #define RF4_ARROW_2			0x00000020	/* Fire an arrow (heavy) */
 #define RF4_ARROW_3			0x00000040	/* Fire missiles (light) */
@@ -2607,7 +2891,7 @@
  * "Bolt" spells that may hurt fellow monsters
  */
 #define RF4_BOLT_MASK \
-	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+	(RF4_BULLET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
 
 #define RF5_BOLT_MASK \
 	(RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
@@ -2634,7 +2918,7 @@
  * Spells that hurt the player directly
  */
 #define RF4_ATTACK_MASK \
-	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	(RF4_BULLET  | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
@@ -2729,7 +3013,8 @@
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
+	 RF4_BULLET)
 
 #define RF5_INNATE_MASK \
 	(0L)
@@ -3202,7 +3487,9 @@
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)) || \
+	((cave_feat[Y][X] >= FEAT_GRAVE_STONE) && \
+	 (cave_feat[Y][X] <= FEAT_GROCERY_STORE)))
 
 
 /*

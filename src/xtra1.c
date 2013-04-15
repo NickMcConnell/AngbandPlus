@@ -254,18 +254,22 @@ static void prt_ac(void)
 static void prt_hp(void)
 {
 	char tmp[32];
+	int mechmax;
 
 	byte color;
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_MECHA];
+	
 
-
+	/* If not riding a mecha */
+	if (!(o_ptr->k_idx)){
 	put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
 
 	sprintf(tmp, "%5d", p_ptr->mhp);
 	color = TERM_L_GREEN;
 
 	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
-
-
+		
 	put_str("Cur HP ", ROW_CURHP, COL_CURHP);
 
 	sprintf(tmp, "%5d", p_ptr->chp);
@@ -283,7 +287,78 @@ static void prt_hp(void)
 		color = TERM_RED;
 	}
 
-	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+	else {
+	switch (o_ptr->sval){
+
+	case SV_GUNDAM:
+		{
+			mechmax = 5000;
+			break;
+
+		}
+	case SV_EVA:
+		{
+			mechmax = 7500;		
+			break;
+		}
+
+	case SV_RAYEARTH:
+		{
+			mechmax = 4250;
+			break;
+		}
+
+	case SV_SELECE:
+		{
+			mechmax = 4000;
+			break;
+		}
+
+	case SV_WINDAM:
+		{
+			mechmax = 4000;
+			break;
+		}
+	}
+
+	put_str("Mec MH ", ROW_MAXHP, COL_MAXHP);
+
+	sprintf(tmp, "%5d", mechmax);
+	color = TERM_L_GREEN;
+
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+
+	put_str("Mec HP ", ROW_CURHP, COL_CURHP);
+
+	sprintf(tmp, "%5d", o_ptr->pval);
+
+	if (o_ptr->pval >= mechmax)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (o_ptr->pval > (mechmax * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+
+
+
+
+
+	
 }
 
 
@@ -339,7 +414,10 @@ static void prt_depth(void)
 
 	if (!p_ptr->depth)
 	{
-		strcpy(depths, "Town");
+
+		strcpy(depths, display_loc[p_ptr->location]);
+
+
 	}
 	else if (depth_in_feet)
 	{
@@ -1684,7 +1762,169 @@ static int weight_limit(void)
 	/* Return the result */
 	return (i);
 }
+static void calc_mimic_bonuses(void)
+{
 
+	monster_race *r_ptr = &r_info[p_ptr->mimic_idx];
+
+
+	/* If you breathe it, you resist it */
+		/* Extract Powers */
+	if (r_ptr->flags4 & (RF4_BR_ACID))
+	{
+		p_ptr->resist_acid = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_ELEC))
+	{
+		p_ptr->resist_elec = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_FIRE))
+	{
+		p_ptr->resist_fire = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_COLD))
+	{
+		p_ptr->resist_cold = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_POIS))
+	{
+		p_ptr->resist_pois = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_NETH))
+	{
+		p_ptr->resist_nethr = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_LITE))
+	{
+		p_ptr->resist_lite = TRUE;
+		p_ptr->resist_blind = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_DARK))
+	{
+		p_ptr->resist_dark = TRUE;
+		p_ptr->resist_blind = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_CONF))
+	{
+		p_ptr->resist_confu = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_SOUN))
+	{
+		p_ptr->resist_sound = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_CHAO))
+	{
+		p_ptr->resist_chaos = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_DISE))
+	{
+		p_ptr->resist_disen = TRUE;
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_NEXU))
+	{
+		p_ptr->resist_nexus = TRUE;
+	}
+
+
+	if (r_ptr->flags4 & (RF4_BR_SHAR))
+	{
+		p_ptr->resist_shard = TRUE;
+	}
+
+	/* Immunities */
+
+	if (r_ptr->flags3 & (RF3_IM_ACID))
+	{
+		p_ptr->immune_acid = TRUE;
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_ELEC))
+	{
+		p_ptr->immune_elec = TRUE;
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_FIRE))
+	{
+		p_ptr->immune_fire = TRUE;
+
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_COLD))
+	{
+		p_ptr->immune_cold = TRUE;
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_POIS))
+	{
+		p_ptr->resist_pois = TRUE;
+	}
+
+	/* Race bonuses/Penalties */
+
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
+		(r_ptr->flags3 & (RF3_DEMON)))
+	{
+		p_ptr->resist_nethr = TRUE;
+		p_ptr->hold_life = TRUE;
+		p_ptr->see_inv = TRUE;
+		p_ptr->slow_digest = TRUE;
+		p_ptr->exp_drain = TRUE;
+	}
+
+	
+	if (r_ptr->flags3 & (RF3_DRAGON))
+	{
+		/* Dragons can fly :P */
+		p_ptr->ffall = TRUE;
+	}
+
+	/* Misc Bonuses */
+
+	if (r_ptr->flags3 & (RF3_NO_CONF))
+	{
+		p_ptr->resist_confu = TRUE;
+	}
+
+
+	if ((r_ptr->flags3 & (RF3_NO_STUN))
+		|| (r_ptr->flags3 & (RF3_NO_SLEEP)))
+	{
+		p_ptr->free_act = TRUE;
+	}
+
+	if (r_ptr->flags3 & (RF3_NO_FEAR))
+	{
+		p_ptr->resist_fear = TRUE;
+	}
+
+	if (r_ptr->flags2 & (RF2_REGENERATE))
+	{
+		p_ptr->regenerate = TRUE;
+	}
+
+	/* Invisible == Super stealth */
+	if (r_ptr->flags2 & (RF2_INVISIBLE))
+	{
+		p_ptr->skill_stl += 20;
+	}
+
+	/* Change player base speed */
+	p_ptr->pspeed += r_ptr->speed - 110;
+
+
+}
 
 /*
  * Calculate the players current "state", taking into account
@@ -2045,6 +2285,13 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
+	/*** Handle Mimic bonuses ***/
+	if (p_ptr->mimic)
+	{
+		calc_mimic_bonuses();
+
+	}
+
 
 	/*** Handle stats ***/
 
@@ -2146,7 +2393,19 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a -= 10;
 	}
 
-	/* Temporary "Super Saiyan" */
+	/* Temporary "Kaioken" */
+	if (p_ptr->kaioken)
+	{
+		p_ptr->to_h += 36;
+		p_ptr->dis_to_h += 36;
+		p_ptr->to_d += 36;
+		p_ptr->dis_to_d += 36;
+		p_ptr->to_a += 12;
+		p_ptr->dis_to_a += 12;
+		p_ptr->pspeed += 10;
+	}
+	
+	/* Temporary "Super Sayian" */
 	if (p_ptr->s_sayian)
 	{
 		p_ptr->to_h += p_ptr->lev * 2;
@@ -2158,7 +2417,7 @@ static void calc_bonuses(void)
 		p_ptr->pspeed += 30;
 		p_ptr->food = PY_FOOD_MAX - 1;
 	}
-	
+
 	/* Magic Student */
 	if (p_ptr->mag_student)
 	{

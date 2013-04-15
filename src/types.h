@@ -71,6 +71,7 @@ typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
 typedef struct vault_type vault_type;
+typedef struct wilderness_type wilderness_type;
 typedef struct object_type object_type;
 typedef struct monster_type monster_type;
 typedef struct alloc_entry alloc_entry;
@@ -113,6 +114,7 @@ struct maxima
 	u16b h_max;		/* Max size for "h_info[]" */
 	u16b b_max;		/* Max size per element of "b_info[]" */
 	u16b c_max;		/* Max size for "c_info[]" */
+	u16b w_max;		/* Max size for "w_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
 	u16b m_max;		/* Max size for "m_list[]" */
@@ -416,6 +418,18 @@ struct vault_type
 	byte wid;			/* Vault width */
 };
 
+
+/* Info about Terrain Generation */
+struct wilderness_type
+{
+	u32b name;			/* Name (offset) */
+	u32b text;			/* Text (offset) */
+
+	/*byte locale;		 */
+
+	byte hgt;			/* Vault height */
+	byte wid;			/* Vault width */
+};
 
 
 /*
@@ -839,6 +853,8 @@ struct player_other
  */
 struct player_type
 {
+	s16b what_game_type;	/* Type of Game */
+
 	s16b py;			/* Player location */
 	s16b px;			/* Player location */
 
@@ -859,10 +875,12 @@ struct player_type
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
+	s16b location;		/* Where are we? */
+	
 
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */
-	
+
 	s32b max_exp;		/* Max experience */
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
@@ -882,6 +900,7 @@ struct player_type
 
 	s16b l_break;        /* Limit Break Type */
 	s16b c_alcohol;		 /* Current Alcohol limit */
+	
 
 	byte pgroove;		/* Fighting style index */
 
@@ -918,6 +937,7 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+	/* s16b mimic;			 Timed -- mimic */
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -928,6 +948,7 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 	byte mag_student;	/* Currently a Magical Student */
+	
 
 	u32b spell_learned1;	/* Spell flags */
 	u32b spell_learned2;	/* Spell flags */
@@ -940,6 +961,11 @@ struct player_type
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
+	s16b player_powers[STUDENT_MAX];	/* Max powers for Student/Chi Warrior/Mimics */
+	s16b max_powers;			/* Current max # of powers */
+	
+	
+	
 	char died_from[80];		/* Cause of death */
 	char history[4][60];	/* Initial history */
 
@@ -951,6 +977,28 @@ struct player_type
 	bool is_dead;			/* Player is dead */
 
 	bool wizard;			/* Player is in wizard mode */
+
+	/*** Chi Warrior/ Mimic Powers ***/
+	s16b mimic_idx;		/* Current r_idx mimiced monster */
+	byte mimic;			/* Currently mimicing something */
+
+	byte chi_powers[CHI_WARRIOR_MAX]; /* Known Chi Warrior Powers */
+	s16b normal_quests[MAX_QUESTS];  /* Normal Quests */
+	
+
+	/*** Chi Warrior Fields ***/
+	byte bakusai_tengetsu;  /* Bakusai Tengetsu Stance */
+	s16b kaioken;  /* Kaioken mode */
+	s16b double_team;	/* Double team */
+    s16b defense;	/* Defense team */
+	byte elemental_aura;
+	byte amaguri_ken;
+	byte cross_counter;
+	byte ume_shoryu;
+	byte super_punch;
+	
+
+
 
 
 	/*** Temporary fields ***/
@@ -1159,6 +1207,7 @@ struct high_score
 
 	char cur_lev[4];		/* Current Player Level (number) */
 	char cur_dun[4];		/* Current Dungeon Level (number) */
+	char cur_loc[4];		/* Current Player Location (number) */
 	char max_lev[4];		/* Max Player Level (number) */
 	char max_dun[4];		/* Max Dungeon Level (number) */
 

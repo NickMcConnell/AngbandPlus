@@ -11,14 +11,16 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
+# Maximum number of wilderness scenes
+M:W:28
 
 # Maximum number of feature types
-M:F:64
+M:F:100
 
 # Maximum number of object kinds
-M:K:543
+M:K:593
 
 # Maximum number of artifacts
 M:A:128
@@ -27,16 +29,16 @@ M:A:128
 M:E:128
 
 # Maximum number of monster races
-M:R:549
+M:R:562
 
 # Maximum number of vaults
-M:V:35
+M:V:38
 
 # Maximum number of player races
 M:P:10
 
 # Maximum number of player classes
-M:C:8
+M:C:10
 
 # Maximum number of player history lines
 M:H:256
@@ -48,7 +50,7 @@ M:B:4
 M:O:256
 
 # Maximum number of monsters
-M:M:512
+M:M:612
 
 #
 # Array sizes (in bytes) for some initialization stuff

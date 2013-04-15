@@ -509,6 +509,63 @@ void do_cmd_eat_food(void)
 				ident = TRUE;
 				break;
 			}
+		case SV_FOOD_GREEN_TEA:
+			{
+				msg_print("That tastes good.");
+				hp_player(p_ptr->mhp / 10 );
+				ident = TRUE;
+				break;
+
+			}
+
+		case SV_FOOD_COLA:
+			{
+				msg_print("That tastes good.");
+
+				if (p_ptr->csp < p_ptr->msp)
+				{
+				p_ptr->csp += p_ptr->msp  / 10;
+				
+				if (p_ptr->csp >= p_ptr->msp){
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				msg_print("Your feel your head clear.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				ident = TRUE;
+				}
+				
+				break;
+
+			}
+
+		case SV_FOOD_ICED_COFFEE:
+			{
+				msg_print("That tastes good.");
+				(void)set_meter(p_ptr->c_meter + 100);
+				ident = TRUE;
+				break;
+
+			}
+
+		case SV_FOOD_AKANE_COOKIE:
+			{
+				msg_print("Oh man....this just isn't your day...");
+			take_hit(damroll(20, 20), "poisonous food");
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			{
+				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
+				{
+					ident = TRUE;
+				}
+			}
+			(void)set_food(PY_FOOD_STARVE - 1);
+			(void)set_paralyzed(p_ptr->paralyzed + 4);
+			(void)set_stun(p_ptr->stun + 75);
+			(void)set_confused(p_ptr->confused + rand_int(20) + 15);
+			break;
+			}
 	}
 	
 
@@ -1235,13 +1292,6 @@ static bool curse_weapon(void)
 }
 
 
-/* Cook an object (from the pack or floor)*/
-void do_cmd_cook(void)
-{
-
-
-}
-
 
 
 /*
@@ -1257,8 +1307,10 @@ void do_cmd_read_scroll(void)
 	int px = p_ptr->px;
 
 	int item, k, used_up, ident, lev;
+	int mechmax;
 
 	object_type *o_ptr;
+	object_type *i_ptr;
 
 	cptr q, s;
 
@@ -1476,6 +1528,70 @@ void do_cmd_read_scroll(void)
 			if (!recharge(60)) used_up = FALSE;
 			ident = TRUE;
 			break;
+		}
+
+		case SV_SCROLL_MECHA_REPAIR:
+		{
+			ident = TRUE;
+			i_ptr = &inventory[INVEN_MECHA];
+			if (!(i_ptr->k_idx))
+			{
+				used_up = FALSE;
+				msg_print("You are not riding a mecha!");
+			}
+
+			else {
+				switch (i_ptr->sval){
+
+	case SV_GUNDAM:
+		{
+			mechmax = 5000;
+			break;
+
+		}
+	case SV_EVA:
+		{
+			mechmax = 7500;		
+			break;
+		}
+
+	case SV_RAYEARTH:
+		{
+			mechmax = 4250;
+			break;
+		}
+
+	case SV_SELECE:
+		{
+			mechmax = 4000;
+			break;
+		}
+
+	case SV_WINDAM:
+		{
+			mechmax = 4000;
+			break;
+		}
+
+			}
+
+				i_ptr->pval += 500;
+
+				if (i_ptr->pval > mechmax)
+				{
+					i_ptr->pval = mechmax;
+				}
+
+				msg_print("You repair your mecha.");
+					/* Display the hitpoints */
+					p_ptr->redraw |= (PR_HP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			}
+
+			break;
+
 		}
 
 		case SV_SCROLL_LIGHT:

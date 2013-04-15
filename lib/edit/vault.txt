@@ -38,6 +38,9 @@
 #    9 - monster up to 9 levels OOD and treasure up to 7 levels OOD
 #    8 - monster up to 40 levels OOD and treasure up to 20 levels OOD
 #    , - monster up to 3 levels OOD and/or treasure up to 7 levels OOD
+#    V - Vending Machine
+#    R - Ramen Stand
+#    G - Grocery Store
 
 # Use this to measure columns                                                                        1
 #          1         2         3         4         5         6         7         8         9         0
@@ -46,7 +49,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
@@ -729,3 +732,26 @@ D:%X,,......^X......*XX......XX*......X^......,,X%
 D:%XXXXXXXXXXXXXXXXXXXXXX##XXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+N:35:Vending Machine
+X:7:1:5:5
+D:%%%%%
+D:%###%
+D:%#V#%
+D:%...%
+D:%%%%%
+
+N:36:Ramen Stand
+X:7:1:5:5
+D:%%%%%
+D:%###%
+D:%#R#%
+D:%...%
+D:%%%%%
+
+N:37:Grocery Store
+X:7:1:5:5
+D:%%%%%
+D:%###%
+D:%#G#%
+D:%...%
+D:%%%%%

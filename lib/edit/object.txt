@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -3670,8 +3670,347 @@ I:80:68:1200
 W:0:0:10:1200
 F:EASY_KNOW
 
-N:542:& Omelet
+N:542:& Omelet~
 G:,:s
 I:80:69:255
 W:0:0:10:255
 F:EASY_KNOW
+
+N:543:& can~ of Green Tea
+G:,:g
+I:80:70:255
+W:0:0:5:250
+F:EASY_KNOW
+
+N:544:& can~ of Cola
+G:,:r
+I:80:71:255
+W:0:0:5:250
+F:EASY_KNOW
+
+N:545:& can~ of Iced Coffee
+G:,:U
+I:80:72:255
+W:0:0:5:250
+F:EASY_KNOW
+
+N:546:& Akane-Style Cookie~
+G:,:G
+I:80:73:0
+W:0:0:5:0
+P:0:5d10:0:0:0
+F:EASY_KNOW
+
+## Parchments ##
+
+N:547:Blink
+G:?:u
+I:95:0:0
+W:5:1:5:750
+A:5/1
+F:EASY_KNOW
+
+N:548:Heroism
+G:?:u
+I:95:1:0
+W:12:1:5:750
+A:12/1
+F:EASY_KNOW
+
+N:549:Berserk Strength
+G:?:u
+I:95:2:0
+W:17:1:5:1000
+A:17/1
+F:EASY_KNOW
+
+N:550:Magic Missile
+G:?:u
+I:95:3:0
+W:2:1:5:100
+A:2/1
+F:EASY_KNOW
+
+N:551:Umareru
+G:?:u
+I:95:4:0
+W:17:0:5:1000
+A:17/1
+F:EASY_KNOW
+
+N:552:Kamehameha
+G:?:u
+I:95:5:0
+W:15:0:5:1250
+A:15/1
+F:EASY_KNOW
+
+N:553:Burst
+G:?:u
+I:95:6:0
+W:23:0:5:1500
+A:23/1
+F:EASY_KNOW
+
+N:554:Bakusai Tengetsu
+G:?:u
+I:95:7:0
+W:22:0:5:1500
+A:22/1
+F:EASY_KNOW
+
+N:555:Hiryu Shoten Ha
+G:?:u
+I:95:8:0
+W:27:0:5:2000
+A:27/1
+F:EASY_KNOW
+
+N:556:Haste
+G:?:u
+I:95:9:0
+W:19:0:5:1250
+A:19/1
+F:EASY_KNOW
+
+N:557:Genei Jin
+G:?:u
+I:95:10:0
+W:50:0:5:1000000
+A:50/10
+F:EASY_KNOW
+
+N:558:Kaioken
+G:?:u
+I:95:11:0
+W:40:0:5:500000
+A:40/5
+F:EASY_KNOW
+
+N:559:Double Team
+G:?:u
+I:95:12:0
+W:40:0:5:300000
+A:40/5
+F:EASY_KNOW
+
+N:560:WRATH
+G:?:u
+I:95:13:0
+W:35:0:5:300000
+A:35/6
+F:EASY_KNOW
+
+# Aka the Win Button  (coin)/ (plev * 30)
+N:561:Glittering Gold
+G:?:u
+I:95:14:0
+W:25:0:5:2000
+A:25/2
+F:EASY_KNOW
+
+# Triple Beam (550)
+N:562:Superior Attack 
+G:?:u
+I:95:15:0
+W:35:0:5:75000
+A:35/5
+F:EASY_KNOW
+
+N:563:Detection
+G:?:u
+I:95:16:0
+W:33:0:5:5000
+A:33/2
+F:EASY_KNOW
+
+N:564:Super Punch
+G:?:u
+I:95:17:0
+W:41:0:5:10000
+A:41/1
+F:EASY_KNOW
+
+N:565:Smoke Bombs
+G:?:u
+I:95:18:0
+W:20:0:5:2000
+A:20/1
+F:EASY_KNOW
+
+N:566:Defense
+G:?:u
+I:95:19:0
+W:25:0:5:2000
+A:25/1
+F:EASY_KNOW
+
+N:567:Ouroborous
+G:?:u
+I:95:20:0
+W:35:0:5:3500
+A:35/8
+F:EASY_KNOW
+
+N:568:Drunken Fist
+G:?:u
+I:95:21:0
+W:15:0:5:1500
+A:15/1
+F:EASY_KNOW
+
+N:569:Elemental Aura
+G:?:u
+I:95:22:0
+W:40:0:5:4000
+A:40/1
+F:EASY_KNOW
+
+N:570:Amaguri Ken
+G:?:u
+I:95:23:0
+W:50:0:5:5000
+A:50/10
+F:EASY_KNOW
+
+N:575:Dekakeru
+G:?:u
+I:95:24:0
+W:10:0:5:1000
+A:10/1
+F:EASY_KNOW
+
+N:576:Cross Counter
+G:?:u
+I:95:25:0
+W:37:0:5:3700
+A:37/3
+F:EASY_KNOW
+
+N:577:Ume Shoryu
+G:?:u
+I:95:26:0
+W:60:0:5:6000
+A:60/10
+F:EASY_KNOW
+
+N:578:Carp on Cutting Board
+G:?:u
+I:95:27:0
+W:1:0:5:1
+A:1/1
+F:EASY_KNOW
+
+N:579:Ride the Lightning
+G:?:u
+I:95:28:0
+W:20:0:5:2000
+A:20/1
+F:EASY_KNOW
+
+N:580:Nani ga deru ka na
+G:?:u
+I:95:29:0
+W:25:0:5:1000
+A:25/1
+F:EASY_KNOW
+
+
+## Quest items ##
+
+N:581:& Head~ of Kira Yoshinoka
+G:s:r
+I:94:0:0
+W:0:0:3:0
+F:EASY_KNOW
+
+N:582:& Umbrella~ of Ryouga
+G:~:r
+I:94:1:0
+W:0:0:750:0
+F:EASY_KNOW
+
+N:583:& Bag~ of Acorns
+G:~:u
+I:94:2:0
+W:0:0:3:0
+F:EASY_KNOW
+
+N:584:& Birthday Cake~
+G:,:w
+I:94:3:0
+W:0:0:3:0
+F:EASY_KNOW
+
+## Ghetto solution for Magic Knight glitch ##
+## Should be sorted sometime ##
+
+N:585:& Magic Knight Sword~
+G:|:W
+I:23:32:0
+W:120:0:40:400
+A:120/128
+P:0:3d5:0:0:0
+F:STR | INT | WIS | DEX | CON | CHR |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:SHOW_MODS
+
+N:586:& Magic Knight Sword~
+G:|:W
+I:23:33:0
+W:120:0:40:400
+A:120/128
+P:0:4d6:0:0:0
+F:STR | INT | WIS | DEX | CON | CHR |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:SHOW_MODS
+
+N:587:& Magic Knight Sword~
+G:|:W
+I:23:34:0
+W:120:0:40:400
+A:120/128
+P:0:5d7:0:0:0
+F:STR | INT | WIS | DEX | CON | CHR |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:SHOW_MODS
+
+N:588:& Magic Knight Sword~
+G:|:W
+I:23:35:0
+W:120:0:40:400
+A:120/128
+P:0:6d8:0:0:0
+F:STR | INT | WIS | DEX | CON | CHR |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:SHOW_MODS
+
+## More weapons (This should be sorted)
+N:589:& Bamboo Umbrella~
+G:~:r
+I:21:13:0
+W:10:0:30:300
+A:15/1
+P:0:1d7:0:0:1
+F:FEATHER | SHOW_MODS
+
+N:590:& Coin~
+G:$:y
+I:94:4:1
+W:10:0:10:0
+
+N:591:& Cooking Knife~
+G:|:W
+I:23:40:0
+W:120:0:40:1000000
+A:120/128
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:592:Mecha Repair
+G:?:d
+I:70:48:0
+W:60:0:5000:50000
+A:60/1
+F:EASY_KNOW
+

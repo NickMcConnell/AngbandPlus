@@ -468,6 +468,46 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
+		/* Certain Monsters only appear at certain locations
+		 * This should probably be an entry into the monster.txt file
+		 */
+		if ((r_ptr->flags1) & (RF1_FORCE_LOCATION))
+		{
+			if ((r_idx == KIRA) && (p_ptr->location != W_KIRA))
+			{
+				continue;
+			}
+
+			else if ((r_idx == FUMA) && (p_ptr->location != W_TOWER_ROOF))
+			{
+				continue;
+
+			}
+
+			else if ((r_idx == OISHI) && (p_ptr->location != W_ASANO))
+			{
+				continue;
+			}
+
+			else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
+			{
+				continue;
+			}
+
+			else if ((r_idx == TOTORO_LEAF) && (p_ptr->location != W_TOWN))
+			{
+				continue;
+			}
+
+			else if ((r_idx == KIKI) && (p_ptr->location != W_KIKI_BAKERY))
+			{
+				continue;
+			}
+	
+			
+
+		}
+
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
@@ -1379,23 +1419,44 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Paranoia */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(y, x)) 
+	{
+	/*	msg_print("Not in bounds");*/
+		return (FALSE);
+	}
 
 	/* Require empty space */
-	if (!cave_empty_bold(y, x)) return (FALSE);
+	if (!cave_empty_bold(y, x)) 
+	{
+		/*msg_print("Not on empty space");*/
+		return (FALSE);
+	}
 
 	/* Hack -- no creation on glyph of warding */
-	if (cave_feat[y][x] == FEAT_GLYPH) return (FALSE);
+	if (cave_feat[y][x] == FEAT_GLYPH) 
+	{
+		/*msg_print("Tried to place on glyph");*/
+		
+		return (FALSE);
+	}
 
 
 	/* Paranoia */
-	if (!r_idx) return (FALSE);
+	if (!r_idx) 
+	{
+		/*msg_print("r_idx is empty");*/
+		return (FALSE);
+	}
 
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
 	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
+	if (!r_ptr->name) 
+	{
+		/*msg_print("No name");*/
+		return (FALSE);
+	}
 
 	/* Name */
 	name = (r_name + r_ptr->name);
@@ -1404,7 +1465,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
-		/* Cannot create */
+		/*	 Cannot create */
+		/* msg_print("Must be unique");
+		msg_format("Currently: %d    Max = %d", r_ptr->cur_num, r_ptr->max_num);*/
 		return (FALSE);
 	}
 
@@ -1412,9 +1475,55 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (p_ptr->depth < r_ptr->level))
 	{
+		/*msg_print("OOD");*/
 		/* Cannot create */
 		return (FALSE);
 	}
+
+	/* Certain Monsters only appear at certain locations
+		 * This should probably be an entry into the monster.txt file
+		 */
+
+		if (p_ptr->what_game_type == GAME_TYPE_QUEST)
+		{
+		if ((r_ptr->flags1) & (RF1_FORCE_LOCATION))
+		{
+			if ((r_idx == KIRA) && (p_ptr->location != W_KIRA))
+			{
+				return (FALSE);
+			}
+
+			else if ((r_idx == FUMA) && (p_ptr->location != W_TOWER_ROOF))
+			{
+				return (FALSE);
+
+			}
+
+			else if ((r_idx == OISHI) && (p_ptr->location != W_ASANO))
+			{
+				return (FALSE);
+			}
+
+			else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
+			{
+				return (FALSE);
+			}
+			
+
+			else if ((r_idx == TOTORO_LEAF) && (p_ptr->location != W_TOWN))
+			{
+				return (FALSE);
+			}
+
+			else if ((r_idx == KIKI) && (p_ptr->location != W_KIKI_BAKERY))
+			{
+				return (FALSE);
+			}
+			
+			
+
+		}
+		}
 
 
 	/* Powerful monster */
@@ -1515,7 +1624,11 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 	/* Place the monster in the dungeon */
-	if (!monster_place(y, x, n_ptr)) return (FALSE);
+	if (!monster_place(y, x, n_ptr)) 
+	{
+		/*msg_print("Failed at monster place");*/
+		return (FALSE);
+	}
 
 	/* Success */
 	return (TRUE);
@@ -1676,6 +1789,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp)) return (FALSE);
+	
 
 
 	/* Require the "group" flag */
@@ -1855,6 +1969,12 @@ bool alloc_monster(int dis, bool slp)
 
 	}
 
+	/* No random monsters in wilderness */
+	if (p_ptr->location != W_TOWN){
+
+		return FALSE;
+	}
+
 	/* Find a legal, distant, unoccupied, space */
 	while (--attempts_left)
 	{
@@ -2004,7 +2124,12 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_UNIQUE:
 		{
-			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
+			if (rand_int(100) < 33) {
+				okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
+			}
+			else{
+			okay = ((r_ptr->flags1 & (RF1_UNIQUE)) && !(r_ptr->flags2 & (RF2_NOSUMMON))) ? TRUE : FALSE;
+			}
 			break;
 		}
 	}

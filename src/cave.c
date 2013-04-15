@@ -433,6 +433,8 @@ bool feat_supports_lighting(byte feat)
 		case FEAT_PERM_INNER:
 		case FEAT_PERM_OUTER:
 		case FEAT_PERM_SOLID:
+		case FEAT_GRAVE_STONE:
+		case FEAT_GRAVE_ASANO:
 			return TRUE;
 		default:
 			return FALSE;
@@ -3403,8 +3405,10 @@ void town_illuminate(bool daytime)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 			/* Track shop doorways */
-			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-			    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+			if (((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
+			    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) || 
+				(cave_feat[y][x] == FEAT_TRAIN_STATION)
+				|| (cave_feat[y][x] >= FEAT_SPECIAL_ENTRANCE))
 			{
 				for (i = 0; i < 8; i++)
 				{
@@ -3446,7 +3450,8 @@ void cave_set_feat(int y, int x, int feat)
 	cave_feat[y][x] = feat;
 
 	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
+	if (((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_TRAIN_STATION)) || 
+		(feat > FEAT_TRIGGER) && (feat < FEAT_SPECIAL_ENTRANCE))
 	{
 		cave_info[y][x] |= (CAVE_WALL);
 	}
@@ -3960,6 +3965,13 @@ bool is_quest(int level)
 	{
 		/* Check for quest */
 		if (q_list[i].level == level) return (TRUE);
+	}
+
+	/* Hack -- if dl 99, do not put stairs in quest mode until
+	 * at least 3 of the quests are solved */
+	if ((level == 99) && (p_ptr->what_game_type == GAME_TYPE_QUEST))
+	{
+		return (quests_complete());
 	}
 
 	/* Nope */

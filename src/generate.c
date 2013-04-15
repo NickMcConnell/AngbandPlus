@@ -442,7 +442,7 @@ static void alloc_stairs(int feat, int num, int walls)
 				if (next_to_walls(y, x) < walls) continue;
 
 				/* Town -- must go down */
-				if (!p_ptr->depth)
+				if ((!p_ptr->depth) && (p_ptr->location == W_TOWN))
 				{
 					/* Clear previous contents, add down stairs */
 					cave_set_feat(y, x, FEAT_MORE);
@@ -802,6 +802,397 @@ static void vault_monsters(int y1, int x1, int num)
 			monster_level = p_ptr->depth;
 		}
 	}
+}
+
+/* Build the wilderness */
+static void build_wilderness(int ymax, int xmax, cptr data)
+{
+
+	int dy, dx, x, y;
+	int px;
+	int py;
+	cptr t;
+	int a;
+
+/* Place dungeon features and objects */
+	for (t = data, dy = 0; dy < ymax; dy++)
+	{
+		for (dx = 0; dx < xmax; dx++, t++)
+		{
+			/* Extract the location */
+			x = (DUNGEON_WID - xmax) / 2 + dx;
+			y = (DUNGEON_HGT - ymax) / 2 + dy;
+
+			/* Hack -- skip "non-grids" */
+			if (*t == ' ') continue;
+
+			/* Lay down a floor */
+			cave_set_feat(y, x, FEAT_FLOOR);
+
+			/* Analyze the grid */
+			switch (*t)
+			{
+				/* Place player */
+				case '@':
+				{
+					py = y;
+					px = x;
+					break;
+				}
+
+				/* Granite wall (inner) */
+				case '#':
+				{
+					cave_set_feat(y, x, FEAT_WALL_INNER);
+					break;
+				}
+
+				/* Permanent wall (inner) */
+				case 'X':
+				{
+					cave_set_feat(y, x, FEAT_PERM_INNER);
+					break;
+				}
+
+				/* Place Tombstone */
+				case 'T':
+					{
+						cave_set_feat(y, x, FEAT_GRAVE_STONE);
+						break;
+					}
+
+				
+				case 'A':
+					{
+						cave_set_feat(y, x, FEAT_GRAVE_ASANO);
+						break;
+					}
+					
+
+				/* Treasure/trap */
+				case '*':
+				{
+					if (rand_int(100) < 75)
+					{
+						place_object(y, x, FALSE, FALSE);
+					}
+					else
+					{
+						place_trap(y, x);
+					}
+					break;
+				}
+
+				/* Normal doors */
+				case '+':
+				{
+					cave_set_feat(y, x, FEAT_DOOR_HEAD);
+					break;
+				}
+
+				/* Trap */
+				case '^':
+				{
+					place_trap(y, x);
+					break;
+				}
+
+				/* Not phaseable */
+				case '%':
+				{
+					cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
+					break;
+				}
+
+				/* Secret door */
+				case 'S':
+				{
+					place_secret_door(y,x);
+					break;
+
+				}
+
+				/* Up staircase */
+				case '<':
+					{
+					cave_set_feat(y, x, FEAT_LESS);
+					break;
+
+					}
+
+				/* Down Staircase */
+				case '>':
+					{
+						cave_set_feat(y, x, FEAT_MORE);
+						break;
+
+					}
+
+				/* Place a guard */ 
+				case 'G':
+				{
+					place_monster_aux(y, x, KIRA_GUARD, TRUE, FALSE);
+					break;
+				}
+
+				/* Place a Samurai/archer/Hardened Warrior */
+				case 'p':
+					{
+						a = rand_int(100);
+						if (a < 33){
+							place_monster_aux(y, x, NOVICE_ARCHER, TRUE, FALSE);
+						}
+
+						else if (a < 66){
+							place_monster_aux(y, x, SAMURAI, TRUE, FALSE);
+						}
+
+						else {
+							place_monster_aux(y, x, HARDENED_WARRIOR, TRUE, FALSE);
+						}
+						break;
+
+
+					}
+				/* Place an alarm aka Shrieker Mushroom patch */
+				case ',':
+					{
+						place_monster_aux(y, x, ALARM, TRUE, FALSE);
+						break;
+					}
+
+				/* Place the unique of the level */
+				case 'U':
+					{
+						if (p_ptr->location == W_KIRA){
+						place_monster_aux(y, x, KIRA, TRUE, FALSE);
+						}
+						else if (p_ptr->location == W_ASANO){
+						place_monster_aux(y, x, OISHI, TRUE, FALSE);
+					
+						}
+						else if (p_ptr->location == W_TOWER_ROOF){
+							place_monster_aux(y, x, FUMA, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_KIKI_BAKERY)
+						{
+							place_monster_aux(y, x, KIKI, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_MIYAZAKI_FOREST)
+						{
+							place_monster_aux(y,x, GARDENER, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_DUEL_ARENA)
+						{
+							place_monster_aux(y, x, VEGETA, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_EULER)
+						{
+							place_monster_aux(y, x, DEATH_MOLD, TRUE, FALSE);
+						}
+
+						/* Default to Info boy */
+						else{
+						place_monster_aux(y, x, INFO_BOY, TRUE, FALSE);
+						}
+						break;
+
+					}
+				/* Place a totally random monster */
+				case 'M':
+					{
+
+						a = rand_int(MAX_MONSTERS);
+						place_monster_aux(y, x, a, TRUE, FALSE);
+						break;
+
+
+					}
+
+				/* Place a train station */
+				case '9':
+					{
+						cave_set_feat(y, x, FEAT_TRAIN_STATION);
+						break;
+
+					}
+
+				/* Place a special Entrance */
+				case '0':
+					{
+
+						cave_set_feat(y, x, FEAT_SPECIAL_ENTRANCE);
+						break;
+
+
+					}
+
+			/* Place a General Store */
+				case '1':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x00);
+						break;
+
+					}
+			/* Place an Armour Store */
+				case '2':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x01);
+						break;
+
+					}
+
+			/* Place a Weapon Store */
+				case '3':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x02);
+						break;
+
+					}
+
+			/* Place a Temple */
+				case '4':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x03);
+						break;
+
+					}
+
+			/* Place an Alchemy */
+				case '5':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x04);
+						break;
+
+					}
+
+			/* Place a Magic Shop */
+				case '6':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x05);
+						break;
+
+					}
+
+
+			/* Place a Black Market */
+				case '7':
+					{
+						cave_set_feat(y, x, FEAT_SHOP_HEAD + 0x06);
+						break;
+
+					}
+
+			/* Place a Vending Machine */
+				case 'V':
+					{
+						cave_set_feat(y,x, FEAT_VENDING_MACHINE);
+						break;
+					}
+
+			/* Place a Ramen Stand */
+				case 'R':
+					{
+						cave_set_feat(y, x, FEAT_RAMEN_STAND);
+						break;
+
+					}
+
+			/* Place a Grocery Store */
+				case 'Y':
+					{
+						cave_set_feat(y, x, FEAT_GROCERY_STORE);
+						break;
+
+					}
+
+				
+						
+			}
+		}
+	}
+
+/* Place Player */
+player_place(py,px);
+
+/* VERY BAD CODE */
+p_ptr->py = py;
+p_ptr->px = px;
+
+/* Move the freaking cursor */
+move_cursor_relative(p_ptr->py, p_ptr->px);
+
+/* Recenter player */
+verify_panel();
+}
+
+/* This function will load a wilderness and display it */
+static void wilderness_gen(int where, int depth)
+{
+	int y, x;
+	bool daytime;
+
+	
+
+	wilderness_type *w_ptr;
+
+	/* Invalid location */
+	if (where+depth >= W_MAX){
+		/* Default to town */
+		where = W_TOWN;
+	}
+
+	/* Tokyo Tower Hack */
+	if ((where > W_TOWER_ROOF) && (where < W_TOWER_1))
+		where = W_TOWER_2;
+
+	/* Where are we going? */
+	w_ptr = &w_info[where + depth];
+
+
+	/* Day time */
+	if (depth == 0){
+	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+	{
+		/* Day time */
+		daytime = TRUE;
+
+	}
+
+	/* Night time */
+	else
+	{
+		/* Night time */
+		daytime = FALSE;
+	}
+	}
+
+	/* Start with solid walls */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Create "solid" perma-wall */
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
+		}
+	}
+
+	/* Build Wilderness */
+	build_wilderness(w_ptr->hgt, w_ptr->wid, w_text + w_ptr->text);
+
+	/* Apply illumination */
+	if (((p_ptr->location < W_MAZE) || (p_ptr->location >= W_DUEL_ARENA)) && (depth == 0))
+	town_illuminate(daytime);
+
+/* Move the freaking cursor */
+move_cursor_relative(p_ptr->py, p_ptr->px);
+
+/* Recenter player */
+verify_panel();
 }
 
 
@@ -1537,6 +1928,64 @@ static bool vault_aux_orc(int r_idx)
 	return (TRUE);
 }
 
+/*
+ * Helper function for "monster pit (eye)"
+ */
+
+static bool vault_aux_eye(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "e" monsters */
+	if (!strchr("ef", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+
+}
+
+/*
+ * Helper function for "monster pit (rodent)"
+ */
+
+static bool vault_aux_rodent(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "r" monsters */
+	if (!strchr("r", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+
+}
+
+/*
+ * Helper function for Hentai Tentacle Monster pit
+ */
+
+static bool vault_aux_hententmon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "M" monsters */
+	if (!strchr("M", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+
+}
 
 /*
  * Helper function for "monster pit (troll)"
@@ -1555,6 +2004,47 @@ static bool vault_aux_troll(int r_idx)
 	return (TRUE);
 }
 
+static bool vault_aux_brothel(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "T" monsters */
+	if (!strchr("pM", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+static bool vault_aux_feline(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "f" monsters */
+	if (!strchr("f", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+static bool vault_aux_vortex(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+
+	/* Hack -- Require "P" monsters */
+	if (!strchr("v", r_ptr->d_char)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
 
 /*
  * Helper function for "monster pit (giant)"
@@ -1692,8 +2182,17 @@ static void build_type5(int y0, int x0)
 	/* Hack -- Choose a nest type */
 	tmp = randint(p_ptr->depth);
 
+	/* Monster nest (brothel) */
+	if (tmp < 15)
+	{
+		name = "brothel";
+
+		/* Restrict to jelly */
+		get_mon_num_hook = vault_aux_brothel;
+	}
+
 	/* Monster nest (jelly) */
-	if (tmp < 30)
+	else if (tmp < 30)
 	{
 		/* Describe */
 		name = "jelly";
@@ -1871,8 +2370,18 @@ static void build_type6(int y0, int x0)
 	/* Choose a pit type */
 	tmp = randint(p_ptr->depth);
 
+	/* Eye Pit */
+	if (tmp < 10)
+	{
+		/* Message */
+		name = "tiger eye";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_eye;
+	}
+
 	/* Orc pit */
-	if (tmp < 20)
+	else if (tmp < 20)
 	{
 		/* Message */
 		name = "orc";
@@ -1880,6 +2389,17 @@ static void build_type6(int y0, int x0)
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_orc;
 	}
+
+	/* Rodent Pit */
+	else if (tmp < 30)
+	{
+		/* Message */
+		name = "rodent";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_rodent;
+	}
+
 
 	/* Troll pit */
 	else if (tmp < 40)
@@ -1891,6 +2411,17 @@ static void build_type6(int y0, int x0)
 		get_mon_num_hook = vault_aux_troll;
 	}
 
+	/* Hententmon Pit */
+	else if (tmp < 50)
+	{
+		/* Message */
+		name = "hententmon";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_hententmon;
+	}
+
+
 	/* Giant pit */
 	else if (tmp < 60)
 	{
@@ -1899,6 +2430,24 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_giant;
+	}
+
+	/* Feline/vortex pit */
+	else if (tmp < 70)
+	{
+		if (rand_int(100) < 50){
+		name = "cat pit";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_feline;
+		}
+
+		else{
+			name = "vortex pit";
+			/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_vortex;
+		}
+
 	}
 
 	/* Dragon pit */
@@ -2128,6 +2677,943 @@ static void build_type6(int y0, int x0)
 	place_monster_aux(y0, x0, what[7], FALSE, FALSE);
 }
 
+/* Random placer */
+static void place_random_tele(int y, int x)
+{
+
+
+/*cave_set_feat(y,x,FEAT_FUN_TELE);*/
+	
+
+	int j = rand_int(20);
+
+	switch (j)
+	{
+		case 0:
+			{
+			cave_set_feat(y, x, FEAT_TELE_1);
+			break;
+			}
+
+		case 1:
+			{
+			cave_set_feat(y, x, FEAT_TELE_2);
+			break;
+			}
+		case 2:
+			{
+			cave_set_feat(y, x, FEAT_TELE_3);
+			break;
+			}
+
+		case 3:
+			{
+			cave_set_feat(y, x, FEAT_TELE_4);
+			break;
+			}
+
+		case 4:
+			{
+			cave_set_feat(y, x, FEAT_TELE_5);
+			break;
+			}
+
+		case 5:
+			{
+			cave_set_feat(y, x, FEAT_TELE_6);
+			break;
+			}
+
+		case 6:
+			{
+			cave_set_feat(y, x, FEAT_TELE_7);
+			break;
+			}
+		case 7:
+			{
+			cave_set_feat(y, x, FEAT_TELE_8);
+			break;
+			}
+
+		case 8:
+			{
+			cave_set_feat(y, x, FEAT_TELE_9);
+			break;
+			}
+
+		case 9:
+			{
+			cave_set_feat(y, x, FEAT_TELE_10);
+			break;
+			}
+
+		case 10:
+			{
+			cave_set_feat(y, x, FEAT_TELE_11);
+			break;
+			}
+
+		case 11:
+			{
+			cave_set_feat(y, x, FEAT_TELE_12);
+			break;
+			}
+		case 12:
+			{
+			cave_set_feat(y, x, FEAT_TELE_13);
+			break;
+			}
+
+		case 13:
+			{
+			cave_set_feat(y, x, FEAT_TELE_14);
+			break;
+			}
+
+		case 14:
+			{
+			cave_set_feat(y, x, FEAT_TELE_15);
+			break;
+			}
+
+		case 15:
+			{
+			cave_set_feat(y, x, FEAT_TELE_16);
+			break;
+			}
+
+		case 16:
+			{
+			cave_set_feat(y, x, FEAT_TELE_17);
+			break;
+			}
+
+		case 17:
+			{
+			cave_set_feat(y, x, FEAT_TELE_18);
+			break;
+			}
+		case 18:
+			{
+			cave_set_feat(y, x, FEAT_TELE_19);
+			break;
+			}
+		case 19:
+			{
+			cave_set_feat(y, x, FEAT_TELE_20);
+			break;
+			}
+		}	
+
+
+}
+static void build_counterfeit(void){
+	int coins;
+	int blah = rand_int(12);
+	int ytop = (DUNGEON_HGT - 11) / 2 + 1;
+	int xtop = (DUNGEON_WID - 34) / 2 + 1;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		for (coins = 0; coins < 12; coins++){
+		/* Mega-Hack -- Prepare to make the coin */
+		object_prep(i_ptr, lookup_kind(TV_QUEST_ITEM, SV_COIN));
+
+		/* Hack - counterfeit coin */
+
+		if (coins == blah)
+			i_ptr->pval = 2;
+
+		
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, ytop + 7, xtop + 1 + coins);
+	
+		}
+
+	/* Construct triggers */
+		cave_set_feat(ytop + 2, xtop + 11, FEAT_TRIGGER);
+		cave_set_feat(ytop + 2, xtop + 30, FEAT_TRIGGER);
+
+
+
+}
+
+static void build_mastermind(){
+
+	int x, y;
+	int puzzle[4];
+	int ytop = (DUNGEON_HGT-9) / 2 + 1;
+	int xtop = (DUNGEON_WID-34) / 2 - 1;
+	
+	/* Start with solid walls */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Create "solid" perma-wall */
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
+		}
+	}
+
+	/* Build the Dungeon */
+	wilderness_gen(p_ptr->location, p_ptr->depth);
+
+	/* Generate 4 random colored Gems */
+	for (x = 0; x < 4; x++)
+	{
+		puzzle[x] = rand_int(6);
+	}
+
+	/* Store them somewhere ghetto */
+
+	for (x = 0; x < 4; x++)
+	{
+		switch (puzzle[x])
+		{
+
+			/* GRBWVY */
+		case 0:
+			{
+			cave_set_feat(1, x+1, FEAT_GREEN_GEM);
+			break;
+			}
+		case 1:
+			{
+			cave_set_feat(1, x+1, FEAT_RED_GEM);
+			break;
+			}
+		case 2:
+			{
+			cave_set_feat(1, x+1, FEAT_BLUE_GEM);
+			break;
+			}
+
+		case 3:
+			{
+			cave_set_feat(1, x+1, FEAT_WHITE_GEM);
+			break;
+			}
+
+		case 4:
+			{
+			cave_set_feat(1, x+1, FEAT_VIOLET_GEM);
+			break;
+			}
+		case 5:
+			{
+			cave_set_feat(1, x+1, FEAT_YELLOW_GEM);
+			break;
+			}
+		}
+	}
+
+	for (x = 0; x < 6; x++)
+	{
+		/* Set triggers */
+		cave_set_feat(ytop + 1, xtop + 14+x*2, FEAT_TRIGGER);
+		switch (x)
+		{
+
+			/* GRBWVY */
+		case 0:
+			{
+			cave_set_feat(ytop, xtop + 14+x*2, FEAT_GREEN_GEM);
+			break;
+			}
+		case 1:
+			{
+			cave_set_feat(ytop, xtop + 14+x*2, FEAT_RED_GEM);
+			break;
+			}
+		case 2:
+			{
+			cave_set_feat(ytop, xtop + 14+x*2, FEAT_BLUE_GEM);
+			break;
+			}
+
+		case 3:
+			{
+			cave_set_feat(ytop, xtop + 14+x*2, FEAT_WHITE_GEM);
+			break;
+			}
+
+		case 4:
+			{
+			cave_set_feat(ytop, xtop+14+x*2, FEAT_VIOLET_GEM);
+			break;
+			}
+		case 5:
+			{
+			cave_set_feat(ytop, xtop+14+x*2, FEAT_YELLOW_GEM);
+			break;
+			}
+		}
+	}
+
+
+
+
+
+	
+
+
+
+
+
+
+}
+
+/* Generate a Euler Path puzzle */
+static void build_euler(void){
+	int x, y;
+	int puzzle[5];
+	int ytop = (DUNGEON_HGT-5) / 2 + 1;
+	int xtop = (DUNGEON_WID-34) / 2 - 1;
+	
+	/* Start with solid walls */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Create "solid" perma-wall */
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
+		}
+	}
+
+	/* Build the Dungeon */
+	wilderness_gen(p_ptr->location, p_ptr->depth);
+
+	/* Generate 5 random coin flips */
+	for (x = 0; x < 5; x++)
+	{
+		puzzle[x] = rand_int(2);
+	}
+
+
+	/* Place our "path" */
+	for (x = 0; x < 5; x++)
+	{
+		if (puzzle[x] == 0)
+		{
+			cave_set_feat(ytop, xtop + 6, FEAT_FUN_TELE);
+			cave_set_feat(ytop + 2, xtop + 6, FEAT_FAKE_TELE);
+		}
+
+		else {
+			cave_set_feat(ytop + 2, xtop + 6, FEAT_FUN_TELE);
+			cave_set_feat(ytop, xtop + 6, FEAT_FAKE_TELE);
+		}
+
+		xtop = xtop + 5;
+	}
+	
+}
+
+static void build_treasure_room(void)
+{
+	int ytop = (DUNGEON_HGT-9) / 2 + 1;
+	int xtop = (DUNGEON_WID-34) / 2 - 1;
+
+	object_type *o_ptr;
+	object_type object_type_body;
+	o_ptr = &object_type_body;
+
+	/* Place goodies */
+		object_prep(o_ptr, lookup_kind(TV_SWORD, SV_COOKING_KNIFE));
+		drop_near(o_ptr, -1, ytop + 5, xtop + 10);
+
+	object_prep(o_ptr, lookup_kind(TV_MECHA, SV_EVA));
+		drop_near(o_ptr, -1, ytop + 4,  xtop + 11);
+
+
+}
+
+
+/* Generate a Hamilton Chain puzzle */
+
+static void build_hamilton(void){
+
+	int tracker[20] = {0};
+	int puzzle[20] = {0};
+	int x, y;
+	int i,j;
+	int xbox, ybox;
+	int chooser = rand_int(20);
+	
+	/* Start with solid walls */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Create "solid" perma-wall */
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
+		}
+	}
+
+	/* Place floor under player */
+	cave_set_feat(1,1,FEAT_FLOOR);
+	
+	/* Build this little sadistic puzzle */
+	/* We start in the first room */
+	tracker[0] = 1;
+	puzzle[19] = 0;
+
+	for (x = 0; x < 19; x++){
+		while (tracker[chooser] != 0)
+		{
+			chooser = rand_int(19) + 1;
+		}
+		puzzle[x] = chooser;
+		tracker[chooser] = 1;
+	}
+
+
+	x = 1;
+	y = 1;
+
+	/* 4x4 boxes */
+	for (xbox = 0; xbox< 5; xbox++){
+	for (ybox = 0; ybox < 4; ybox++){ 
+	for (j = 0; j<4; j++)
+	{
+
+		for (i = 0; i<4; i++){
+			cave_set_feat(y+j, x+i, FEAT_FLOOR);
+		}
+	}
+
+	y +=5;
+	}
+
+	x+=5;
+	y = 1;
+	}
+
+
+
+
+	/* Generate Hamiltonian chain and place teleporters randomly */
+	x=1;
+	y=4;
+
+	for (i =0; i<20; i++){
+
+		j = puzzle[i];
+		switch (j)
+		{
+
+		case 0:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_1);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 1;
+			y = 4;
+			break;
+			}
+
+		case 1:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_2);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 6;
+			y = 4;
+			break;
+			}
+		case 2:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_3);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 11;
+			y = 4;
+			break;
+			}
+
+		case 3:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_4);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 16;
+			y = 4;
+			break;
+			}
+
+		case 4:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_5);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 21;
+			y = 4;
+			break;
+			}
+
+		case 5:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_6);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 1;
+			y = 9;
+			break;
+			}
+
+		case 6:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_7);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 6;
+			y = 9;
+			break;
+			}
+		case 7:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_8);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 11;
+			y = 9;
+			break;
+			}
+
+		case 8:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_9);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] != FEAT_TELE_9)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 16;
+			y = 9;
+			break;
+			}
+
+		case 9:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_10);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] != FEAT_TELE_10)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 21;
+			y = 9;
+			break;
+			}
+
+		case 10:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_11);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 1;
+			y = 14;
+			break;
+			}
+
+		case 11:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_12);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 6;
+			y = 14;
+			break;
+			}
+		case 12:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_13);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 11;
+			y = 14;
+			break;
+			}
+
+		case 13:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_14);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 16;
+			y = 14;
+			break;
+			}
+
+		case 14:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_15);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 21;
+			y = 14;
+			break;
+			}
+
+		case 15:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_16);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 1;
+			y = 19;
+			break;
+			}
+
+		case 16:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_17);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 6;
+			y = 19;
+			break;
+			}
+
+		case 17:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_18);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 11;
+			y = 19;
+			break;
+			}
+
+		case 18:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_19);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 16;
+			y = 19;
+			break;
+			}
+
+		case 19:
+			{
+			cave_set_feat(y, x+rand_int(4), FEAT_TELE_20);
+			for (xbox = 0; xbox<4; xbox++)
+			{
+				if (cave_feat[y][x+xbox] < FEAT_TELE_1)
+				{
+
+					place_random_tele(y,x+xbox);
+
+				}
+
+			}
+			x = 21;
+			y = 19;
+			break;
+			}
+
+							
+		}
+	
+
+	}
+
+
+	
+/* Place Player  */
+player_place(1,1);
+
+/* VERY BAD CODE */
+p_ptr->py = 1;
+p_ptr->px = 1;
+
+/* Move the freaking cursor */
+move_cursor_relative(p_ptr->py, p_ptr->px);
+
+/* Recenter player */
+verify_panel();
+
+
+}
+
+
+
+  
+
+static void build_maze(int y, int x)
+{
+	int counter;
+	int randnum;
+	int found;
+	int visitable = ((DUNGEON_HGT-2) / 2) * ((DUNGEON_WID-2) / 2);
+
+	/* This is visited */
+	cave_set_feat(y, x, FEAT_FLOOR);
+
+/* This is done by a variation of the Hunt and Kill method
+   because I'm freaking lazy, and if I use C++ code to generate
+   a DFS maze, I'll be crucified ^_^; */
+
+
+	/* Do I have unvisited neighbors? */
+	while (visitable > 0)
+	{
+		if (((y + 2 < DUNGEON_HGT - 1) && (cave_feat[y+2][x] == FEAT_PERM_SOLID)) ||
+			((y - 2 > 0) && (cave_feat[y-2][x] == FEAT_PERM_SOLID)) ||
+			((x + 2 < DUNGEON_WID - 1) && (cave_feat[y][x+2] == FEAT_PERM_SOLID)) ||
+			((x - 2 > 0) && (cave_feat[y][x-2] == FEAT_PERM_SOLID))) {
+
+			found = 0;
+			counter = 0;
+			while ((found == 0) && (counter < 3501))
+			{
+				randnum = rand_int(100);
+				if (randnum < 25)
+				{
+					/* If it's legit, build, otherwise, don't */
+					if ((y + 2 < DUNGEON_HGT - 2) && (cave_feat[y+2][x] == FEAT_PERM_SOLID)){
+					cave_set_feat(y+1, x, FEAT_FLOOR);
+					cave_set_feat(y+2, x, FEAT_FLOOR);
+					y= y+2;
+					found = 1;
+					visitable--;
+					}
+							
+				}
+
+				else if (randnum < 50)
+				{
+						/* If it's legit, build, otherwise, don't */
+					if ((y - 2 > 0) && (cave_feat[y-2][x] == FEAT_PERM_SOLID)){
+					cave_set_feat(y-1, x, FEAT_FLOOR);
+					cave_set_feat(y-2, x, FEAT_FLOOR);
+					found = 1;
+					y = y - 2;
+					visitable--;
+					}
+				}
+
+				else if (randnum < 75)
+				{
+					/* If it's legit, build, otherwise, don't */
+					if ((x + 2 < DUNGEON_WID - 2) && (cave_feat[y][x + 2] == FEAT_PERM_SOLID)){
+					cave_set_feat(y, x + 1, FEAT_FLOOR);
+					cave_set_feat(y, x + 2, FEAT_FLOOR);
+					found = 1;
+					x = x+2;
+					visitable--;
+					}
+				}
+
+				else
+				{
+						/* If it's legit, build, otherwise, don't */
+					if ((x - 2 > 0) && (cave_feat[y][x - 2] == FEAT_PERM_SOLID)){
+					cave_set_feat(y, x - 1, FEAT_FLOOR);
+					cave_set_feat(y, x - 2, FEAT_FLOOR);
+				    found = 1;
+					x = x-2;
+					visitable--;
+					}
+				}
+
+				counter++;
+
+			}
+
+			if (counter > 3499){
+				return;
+			}
+
+		} /* If*/
+
+		else {
+			/* Hunt */
+			counter = 0;
+			found = 0;
+			while ((found == 0) && (counter < 3501))
+			{
+				y = ((rand_int((DUNGEON_HGT - 2) / 2)) * 2) + 1;
+				x = ((rand_int((DUNGEON_WID - 2) / 2)) * 2) + 1;
+				counter++;
+					/* If neighbors found */
+				if (((y + 2 < DUNGEON_HGT - 1) && (cave_feat[y+2][x] == FEAT_PERM_SOLID)) ||
+			((y - 2 > 0) && (cave_feat[y-2][x] == FEAT_PERM_SOLID)) ||
+			((x + 2 < DUNGEON_WID - 1) && (cave_feat[y][x+2] == FEAT_PERM_SOLID)) ||
+			((x - 2 > 0) && (cave_feat[y][x-2] == FEAT_PERM_SOLID))){
+					/* I must be on a chosen spot */
+					if (cave_feat[y][x] == FEAT_FLOOR)
+					found = 1;
+				}
+				
+			
+
+			}
+
+			/* Paranoia check */
+			if (counter > 3499){
+				return;
+			}
+
+		}
+
+	}/* While */
+
+
+
+}
+
+
 
 
 /*
@@ -2209,6 +3695,30 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					place_trap(y, x);
 					break;
 				}
+
+				/* Vending Machine */
+				case 'V':
+				{
+					cave_set_feat(y,x, FEAT_VENDING_MACHINE);
+					break;
+				
+				}
+
+					/* Place a Ramen Stand */
+				case 'R':
+					{
+						cave_set_feat(y, x, FEAT_RAMEN_STAND);
+						break;
+
+					}
+
+			/* Place a Grocery Store */
+				case 'G':
+					{
+						cave_set_feat(y, x, FEAT_GROCERY_STORE);
+						break;
+
+					}
 			}
 		}
 	}
@@ -2474,6 +3984,10 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 
 		/* Avoid "solid" granite walls */
 		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_SOLID) continue;
+
+		/* Avoid Tombstones */
+		if (cave_feat[tmp_row][tmp_col] == FEAT_GRAVE_STONE) continue;
+		if (cave_feat[tmp_row][tmp_col] == FEAT_GRAVE_ASANO) continue;
 
 		/* Pierce "outer" walls of rooms */
 		if (cave_feat[tmp_row][tmp_col] == FEAT_WALL_OUTER)
@@ -3212,7 +4726,9 @@ static void town_gen_hack(void)
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
 
-	int rooms[MAX_STORES];
+	/* Ghetto Hack - Since we added more stores, max stores
+	causes errors...lets make it STORE_HOME + 1 :) */
+	int rooms[STORE_HOME + 1];
 
 
 	/* Hack -- Use the "simple" RNG */
@@ -3223,7 +4739,7 @@ static void town_gen_hack(void)
 
 
 	/* Prepare an Array of "remaining stores", and count them */
-	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
+	for (n = 0; n < STORE_HOME + 1; n++) rooms[n] = n;
 
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++)
@@ -3293,6 +4809,7 @@ static void town_gen(void)
 
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
+	int a = rand_int(100);
 
 	bool daytime;
 
@@ -3337,11 +4854,22 @@ static void town_gen(void)
 		}
 	}
 
+	/* Place a Train Station if in quest mode */
+	if (p_ptr->what_game_type == GAME_TYPE_QUEST)
+	cave_set_feat(qy+1, qx+1, FEAT_TRAIN_STATION);
+
+	/* 30% chance of placing "Da Totoro" */
+	/*if (a < 30)*/
+	/*	place_monster_aux(qy+2, qx+2, TOTORO_LEAF, TRUE, FALSE);*/
+	/* Decided to let Totoro auto generate */
+
 	/* Build stuff */
 	town_gen_hack();
 
 	/* Apply illumination */
 	town_illuminate(daytime);
+
+	
 
 	/* Make some residents */
 	for (i = 0; i < residents; i++)
@@ -3350,6 +4878,42 @@ static void town_gen(void)
 		(void)alloc_monster(3, TRUE);
 	}
 }
+
+
+static void maze_gen(){
+
+	int x, y;
+/* Start with solid walls */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Create "solid" perma-wall */
+			cave_set_feat(y, x, FEAT_PERM_SOLID);
+		}
+	}
+	/* Set the inital floors */
+	cave_set_feat(1, 1, FEAT_MAGMA);
+	/* Build the maze */
+	build_maze(1, 1);
+
+	/* Put stair case */
+	cave_set_feat(DUNGEON_HGT - 3, DUNGEON_WID - 3, FEAT_MORE);
+
+	/* Place Player */
+player_place(1,1);
+
+/* VERY BAD CODE */
+p_ptr->py = 1;
+p_ptr->px = 1;
+
+/* Move the freaking cursor */
+move_cursor_relative(p_ptr->py, p_ptr->px);
+
+/* Recenter player */
+verify_panel();
+}
+
 
 
 /*
@@ -3420,6 +4984,7 @@ void generate_cave(void)
 
 
 		/* Reset the monster generation level */
+		/* Hack: Progressive Difficulty */
 		monster_level = p_ptr->depth;
 
 		/* Reset the object generation level */
@@ -3435,15 +5000,86 @@ void generate_cave(void)
 		/* Build the town */
 		if (!p_ptr->depth)
 		{
+			if (p_ptr->location == W_TOWN){
 			/* Make a town */
 			town_gen();
+			}
+
+			else if (p_ptr->location == W_MAZE){
+			maze_gen();
+			}
+
+			else if (p_ptr->location == W_HAMILTON){
+				build_hamilton();
+
+			}
+			else if (p_ptr->location == W_COUNTERFEIT){
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+				build_counterfeit();
+
+			}
+
+			else if (p_ptr->location == W_TREASURE_ROOM)
+			{
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+				p_ptr->normal_quests[QUEST_PUZZLE_LAND] = STATUS_COMPLETE;
+
+				/* Place a Cooking Knife and other goodies */
+				build_treasure_room();
+			}
+
+			else if (p_ptr->location == W_MASTERMIND){
+			build_mastermind();
+			}
+
+			else if (p_ptr->location == W_EULER){
+				build_euler();
+
+			}
+
+			else{
+				/* Ghetto as hell */
+
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+			}
 		}
 
 		/* Build a real level */
 		else
 		{
 			/* Make a dungeon */
+			if (p_ptr->location == W_TOWN){
 			cave_gen();
+			}
+
+			else if (p_ptr->location == W_MAZE){
+			maze_gen();
+			}
+
+			else if (p_ptr->location == W_HAMILTON){
+			build_hamilton();
+
+			}
+
+			else if (p_ptr->location == W_COUNTERFEIT){
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+				build_counterfeit();
+
+			}
+			
+			else if (p_ptr->location == W_MASTERMIND){
+			build_mastermind();
+
+			}
+
+			else if (p_ptr->location == W_EULER){
+			build_euler();
+
+			}
+
+			else {
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+			}
 		}
 
 

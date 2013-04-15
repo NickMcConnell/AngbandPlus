@@ -249,6 +249,7 @@ static void roff_aux(int r_idx)
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
+		if (r_ptr->flags1 & (RF1_FORCE_LOCATION)) flags1 |= (RF1_FORCE_LOCATION);
 	}
 
 
@@ -604,7 +605,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
 	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
-	if (flags4 & (RF4_XXX4))		vp[vn++] = "do something";
+	if (flags4 & (RF4_BULLET))		vp[vn++] = "shoot a gun";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
 	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
 	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
@@ -875,6 +876,10 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_INVISIBLE))
 	{
 		roff(format("%^s is invisible.  ", wd_he[msex]));
+	}
+	if (flags2 & (RF2_NOSUMMON))
+	{
+		roff(format("%^s rarely gets summoned.  ", wd_he[msex]));
 	}
 	if (flags2 & (RF2_COLD_BLOOD))
 	{
@@ -1216,7 +1221,7 @@ static void roff_aux(int r_idx)
 			case RBM_CRAWL:	p = "crawl on you"; break;
 			case RBM_DROOL:	p = "drool on you"; break;
 			case RBM_SPIT:	p = "spit"; break;
-			case RBM_XXX3:	break;
+			case RBM_MOLEST:	p = "molest";	break;
 			case RBM_GAZE:	p = "gaze"; break;
 			case RBM_WAIL:	p = "wail"; break;
 			case RBM_SPORE:	p = "release spores"; break;

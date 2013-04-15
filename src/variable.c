@@ -457,6 +457,13 @@ char *v_name;
 char *v_text;
 
 /*
+ * The wilderness generation arrays
+ */
+wilderness_type *w_info;
+char *w_name;
+char *w_text;
+
+/*
  * The terrain feature arrays
  */
 feature_type *f_info;

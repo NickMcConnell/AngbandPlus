@@ -78,12 +78,12 @@ sint critical_shot(int weight, int plus, int dam)
 
 	/* Groove Specific Bounses */
 	if (p_ptr->pgroove == G_DRUNK){
-		choosenumber = 5000 - p_ptr->c_alcohol;
+		choosenumber = 5000 - (p_ptr->c_alcohol * 225 / 100);
 	}
 
 	else if (p_ptr->pgroove == G_FIRE){
 
-		choosenumber = 5000 - (1000 * p_ptr->c_meter / p_ptr->m_meter);
+		choosenumber = 5000 - (1750 * p_ptr->c_meter / p_ptr->m_meter);
 	}
 
 	else
@@ -129,12 +129,12 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 	int choosenumber;
 	if (p_ptr->pgroove == G_DRUNK){
-		choosenumber = 5000 - p_ptr->c_alcohol;
+		choosenumber = 5000 - (p_ptr->c_alcohol * 225/100);
 	}
 
 	else if (p_ptr->pgroove == G_FIRE){
 
-		choosenumber = 5000 - (1000 * p_ptr->c_meter / p_ptr->m_meter);
+		choosenumber = 5000 - (1750 * p_ptr->c_meter / p_ptr->m_meter);
 	}
 
 	else
@@ -836,6 +836,639 @@ static int check_hit(int power)
 	return (FALSE);
 }
 
+/* Resets Hamilton chain */
+static void reset_puzzle(void){
+	/* Erase crap */
+
+	int xbox, ybox;
+		int blah;
+			int x = 1;
+			int y= 3;
+			for (ybox = 0; ybox < 4; ybox++)
+			{
+			for (xbox = 0; xbox < 5; xbox++){
+				for (blah =0; blah < 4; blah++){
+				cave_set_feat(y, x+blah, FEAT_FLOOR);
+			}
+				x+=5;
+			}
+			y+=5;
+			x = 1;
+
+			}
+
+			cave_set_feat(1,4,FEAT_FLOOR);
+
+}
+
+/* Check for Victory */
+static bool check_victory(void){
+	/* Erase crap */
+
+	int xbox, ybox;
+
+			int x = 1;
+			int y= 3;
+			for (ybox = 0; ybox < 4; ybox++)
+			{
+			for (xbox = 0; xbox < 5; xbox++){
+
+				if (cave_feat[y + (ybox*5)][x + (xbox*5)] != FEAT_FUN_TELE)
+				{
+
+					/*msg_format("%d of y and %d of x has no Tele.", (y+ybox*5), (x+xbox*5));*/
+					return (FALSE);
+				}
+				
+				
+			}
+			
+			}
+		return (TRUE);
+
+}
+
+/* Handle player hitting trigger in coin puzzle */
+void hit_trigger2(int y, int x)
+{
+
+	int ytop = (DUNGEON_HGT - 11) / 2 + 1;
+	int xtop = (DUNGEON_WID - 34) / 2 + 1;
+	int leftside = 0;
+	int rightside = 0;
+	int scalex;
+	int scaley;
+	object_type *o_ptr;
+	/*
+		cave_set_feat(ytop + 2, xtop + 11, FEAT_TRIGGER);
+		cave_set_feat(ytop + 2, xtop + 30, FEAT_TRIGGER);
+		*/
+
+	/* Which trigger? */
+	if (x < xtop + 14)
+	{
+		/* Weigh the coins in the scales! */
+		for (scalex = xtop + 7; scalex < xtop + 10; scalex++)
+		{
+			for (scaley = ytop; scaley < ytop + 2; scaley++)
+			{
+
+		o_ptr = &o_list[cave_o_idx[scaley][scalex]];
+
+		/* Is this a coin? */
+		if ((o_ptr->tval == TV_QUEST_ITEM) && (o_ptr->sval == SV_COIN))
+		{
+			leftside += o_ptr->pval;
+		}
+
+			}
+		}
+
+
+		/* Weigh the coins in the scales! Right side */
+		for (scalex = xtop + 13; scalex < xtop + 16; scalex++)
+		{
+			for (scaley = ytop; scaley < ytop + 2; scaley++)
+			{
+
+		o_ptr = &o_list[cave_o_idx[scaley][scalex]];
+
+		/* Is this a coin? */
+		if ((o_ptr->tval == TV_QUEST_ITEM) && (o_ptr->sval == SV_COIN))
+		{
+			rightside += o_ptr->pval;
+		}
+			}
+		}
+
+		/*msg_format("Leftside: %d    Rightside: %d", leftside, rightside);*/
+
+
+		/* Analyze scale */
+		if (leftside > rightside)
+		{
+			/* Place Tanuki to the left */
+			place_monster_aux(ytop+3, xtop+8, TANUKI, FALSE, FALSE);
+
+		}
+
+		else if (rightside > leftside)
+		{
+			/* Place Tanuki to the right */
+			place_monster_aux(ytop+3, xtop+14, TANUKI, FALSE, FALSE);
+		}
+
+		else
+		{
+			/* Place a Flaming Bear in FRONT OF YOU!  MWAHAHAH! */
+			place_monster_aux(ytop+3, xtop+11, FLAMING_BEAR, FALSE, FALSE);
+		}
+
+
+
+	}
+
+	/* Other trigger */
+	else {
+		o_ptr = &o_list[cave_o_idx[ytop + 4][xtop + 31]];
+
+		/* Is this the counterfeit coin? */
+		if ((o_ptr->tval == TV_QUEST_ITEM) &&
+			(o_ptr->sval == SV_COIN) &&
+			(o_ptr->pval == 2)){
+
+			cave_set_feat(ytop+1, xtop+1, FEAT_MORE);
+		}
+
+		else {
+			/* FLAMING BEAR IN FRONT OF YOU!*/
+			place_monster_aux(ytop+2, xtop+29, FLAMING_BEAR, FALSE, FALSE);
+		}
+	}
+
+
+
+}
+
+/*
+ * Handle player hitting a trigger
+ */
+void hit_trigger(int y, int x)
+{
+	
+
+	int ytop = (DUNGEON_HGT - 9)/ 2 + 1;
+	int xtop = (DUNGEON_WID - 34)/2 - 1;
+	int counter = 0;
+	int xstar = xtop + 26;
+	int puzzle[4] = {0};
+	int puzclr[4] = {0};
+	int numcorrect = 0;
+	int numcolor = 0;
+	int checker;
+
+		
+	
+
+	/* Find the first available location */
+
+	while ((cave_feat[ytop][xstar+counter] > FEAT_TRIGGER) &&
+		   (counter < 4))
+	{
+		counter++;
+
+	}
+	if (counter <= 3)
+	{
+	
+		cave_set_feat(ytop, xstar + counter, cave_feat[y-1][x]);
+	
+	}
+
+
+	if (counter > 2){
+		/* Count correct color, correct position */
+		for (counter = 0; counter < 4; counter++)
+		{
+			if (cave_feat[1][1+counter] == cave_feat[ytop][xstar+counter])
+			{
+				numcorrect++;
+				puzzle[counter] = 2;
+				puzclr[counter] = 2;
+
+			}
+		}
+		/* If solved, place a stairway */
+		if (numcorrect == 4)
+		{
+			cave_set_feat(ytop, xtop + 2, FEAT_MORE);
+			return;
+
+		}
+
+		/* If not solved yet */
+		if (numcorrect < 4)
+		{
+			for (counter = 0; counter < 4; counter++)
+			{
+				if (puzzle[counter] == 0)
+				{
+					/* Check for right color, but wrong position */
+					for (checker = 0; checker < 4; checker++)
+					{
+						if (cave_feat[1][1+checker] == cave_feat[ytop][xstar+counter])
+						{
+							if ((puzzle[counter] == 0) && (puzclr[checker] == 0))
+							{
+								puzzle[counter] = 1;
+								puzclr[checker] = 1;
+								numcolor++;
+							}
+						}
+
+
+					}
+
+				}
+			}
+			
+		}
+		else {
+			cave_set_feat(ytop+1, xtop+1, FEAT_MORE);
+			return;
+		}
+	
+	/* Reset Puzzle */	
+		for (counter = 0; counter <4; counter++)
+		{
+			cave_set_feat(ytop, xstar+counter, FEAT_FLOOR);
+		}
+		 /* msg_format("%d right, %d color", numcorrect, numcolor);		*/
+
+		/* Place monsters for info */
+		counter = 0;
+		if (numcorrect == 0 && numcolor == 0){
+		
+			/* You didn't get any right...bad bad bad */
+			place_monster_aux(ytop, xtop+2, FLAMING_BEAR, FALSE, FALSE);
+		
+		}
+
+		else {
+			for (checker = 0; checker < numcorrect; checker++)
+			{
+				/* Tanukis for Right place, right color, Kitsunes for Right color, wrong place */
+			 place_monster_aux(ytop + counter, xtop + 2, TANUKI, FALSE, FALSE);
+			 counter++;
+
+			}
+
+			for (checker = 0; checker < numcolor; checker++)
+			{
+			 place_monster_aux(ytop + counter, xtop + 2, KITSUNE, FALSE, FALSE);
+			 counter++;
+
+			}
+		}
+
+		return;
+	}
+	
+
+	
+	
+	
+
+
+}
+
+void hit_train_station(void)
+{
+	int curStop = 0;
+
+	
+		msg_print("Welcome to the train station.");
+		msg_print("It costs 300 AU to board the train.");
+
+		/* Flush input */
+		flush();
+
+		/* Verify */
+		if (!get_check("Board? ")) return;
+
+		/* 300 should be in define.h.....meh */
+		if (p_ptr->au < 300)
+		{
+			msg_print("You do not have enough money.");
+			return;
+		}
+
+		else
+		{
+			msg_print("Off we go!");
+			while (1)
+			{
+				msg_format("You arrive at %s.", train_stops[curStop]);
+
+				/* Flush input */
+				flush();
+
+				/* Verify */
+				if (get_check("Depart? "))
+				{
+					msg_print("You get off the train....");
+
+					p_ptr->au -= 300;
+
+					/* New location */
+					p_ptr->location = train_jump[curStop];
+
+					/* Leaving */
+					p_ptr->leaving = TRUE;
+
+					return;
+				}
+
+				curStop++;
+
+				if (curStop > MAX_TRAIN - 1)
+				{
+					curStop = 0;
+
+				}
+
+			}
+
+		}
+
+}
+
+
+/*
+ * Handle player hitting a tele
+ */
+
+void hit_tele(int y, int x)
+{
+	
+	int blah;
+	/* Disturb the player */
+	disturb(0, 0);
+	/* Analyze XXX XXX XXX */
+	switch (cave_feat[y][x])
+	{
+		case FEAT_TELE_1:
+			{
+			
+			teleport_player_to(1,1);
+			/* You solved it */
+			break;
+			}
+
+		case FEAT_TELE_2:
+			{
+			teleport_player_to(1,6);
+			break;
+			}
+		case FEAT_TELE_3:
+			{
+			teleport_player_to(1,11);
+			break;
+			}
+
+		case FEAT_TELE_4:
+			{
+			teleport_player_to(1,16);
+			break;
+			}
+
+		case FEAT_TELE_5:
+			{
+			teleport_player_to(1,21);
+			break;
+			}
+
+		case FEAT_TELE_6:
+			{
+			teleport_player_to(6,1);
+			break;
+			}
+
+		case FEAT_TELE_7:
+			{
+			teleport_player_to(6,6);
+			break;
+			}
+		case FEAT_TELE_8:
+			{
+			teleport_player_to(6,11);
+			break;
+			}
+
+		case FEAT_TELE_9:
+			{
+			teleport_player_to(6,16);
+			break;
+			}
+
+		case FEAT_TELE_10:
+			{
+			teleport_player_to(6,21);
+			break;
+			}
+
+		case FEAT_TELE_11:
+			{
+			teleport_player_to(11,1);
+			break;
+			}
+
+		case FEAT_TELE_12:
+			{
+			teleport_player_to(11,6);
+			break;
+			}
+		case FEAT_TELE_13:
+			{
+			teleport_player_to(11,11);
+			break;
+			}
+
+		case FEAT_TELE_14:
+			{
+			teleport_player_to(11,16);
+			break;
+			}
+
+		case FEAT_TELE_15:
+			{
+			teleport_player_to(11,21);
+			break;
+			}
+
+		case FEAT_TELE_16:
+			{
+			teleport_player_to(16,1);
+			break;
+			}
+		case FEAT_TELE_17:
+			{
+			teleport_player_to(16,6);
+			break;
+			}
+		case FEAT_TELE_18:
+			{
+			teleport_player_to(16,11);
+			break;
+			}
+
+		case FEAT_TELE_19:
+			{
+			teleport_player_to(16,16);
+			break;
+			}
+
+		case FEAT_TELE_20:
+			{
+			teleport_player_to(16,21);
+			break;
+			}
+
+		case FEAT_FUN_TELE:
+			{
+			if (p_ptr->location == W_HAMILTON){
+			teleport_player_to(1,1);
+			reset_puzzle();
+			}
+
+			else {
+				teleport_player_to((DUNGEON_HGT-5) / 2 + 1, 
+					(DUNGEON_WID-34) / 2 - 1);
+			}
+
+			return;
+			break;
+			}
+
+							
+		}
+
+	/* Put fun teles upon exit */
+	y = y-1;
+	if (x > 0 && x < 5)
+		x = 1;
+	else if (x > 5 && x < 10)
+		x = 6;
+	else if (x > 10 && x < 15)
+		x = 11;
+	else if (x > 15 && x < 20)
+		x = 16;
+	else 
+		x = 21;
+
+	for (blah =0; blah<4; blah++)
+	{
+		cave_set_feat(y, x+blah, FEAT_FUN_TELE);
+	}
+
+	if (check_victory()){
+			
+				cave_set_feat(1, 4, FEAT_MORE);
+				return;
+			}
+			
+	
+
+}
+
+/*
+ * Handle player hitting the special entrance
+ */
+
+void hit_special(int location, int y, int x)
+{
+
+	int newlocation = location;
+
+	switch (location)
+	{
+
+	case W_ASANO:
+		{
+		if (p_ptr->normal_quests[QUEST_CHUSHINGURA] == STATUS_COMPLETE)
+		{
+			msg_print("The pathway is closed.");
+			return;
+		}
+		msg_print("You travel down a winding path and sneak into Kira's Mansion.");
+		newlocation = W_KIRA;
+		break;
+		}
+
+	case W_KIRA:
+		{
+		msg_print("You sneak out.");
+		newlocation = W_ASANO;
+		break;
+		}
+	case W_FUN_CITY:
+		{
+		/* Go to Battle Arena */
+		newlocation = W_DUEL_ARENA;
+		break;
+		}
+
+	case W_DUEL_ARENA:
+		{
+			newlocation = W_FUN_CITY;
+			break;
+		}
+
+	case W_PUZZLE_LAND:
+		{
+		if (p_ptr->normal_quests[QUEST_PUZZLE_LAND]	== STATUS_COMPLETE)
+		{
+			msg_print("The doors are locked.");
+			return;
+		}
+		newlocation = W_EULER;
+		break;
+		}
+	case W_TOKYO_TOWER:
+		{
+			if (p_ptr->normal_quests[QUEST_TOKYO_TOWER] == STATUS_COMPLETE)
+			{
+				msg_print("The doors are locked.");
+				return;
+			}
+			newlocation = W_TOWER_1;
+			break;
+		}
+	case W_TOWER_1:
+		{
+			newlocation = W_TOKYO_TOWER;
+			break;
+		}
+	case W_TOWER_ROOF:
+		{
+			msg_print("You jump off the roof.");
+			newlocation = W_TOKYO_TOWER;
+			break;
+		}
+	case W_MIYAZAKI_TOWN:
+		{
+			newlocation = W_KIKI_BAKERY;
+			break;
+		}
+
+	case W_KIKI_BAKERY:
+		{
+			newlocation = W_MIYAZAKI_TOWN;
+			break;
+		}
+
+	case W_TREASURE_ROOM:
+		{
+			newlocation = W_PUZZLE_LAND;
+			break;
+		}
+
+	case W_EULER:
+		{
+			newlocation = W_PUZZLE_LAND;
+			break;
+		}
+
+		
+	
+	}
+
+	/* New location */
+	p_ptr->location = newlocation;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+}
 
 
 /*
@@ -866,9 +1499,13 @@ void hit_trap(int y, int x)
 				dam = damroll(2, 8);
 				take_hit(dam, name);
 			}
-
+			
+			if (p_ptr->location == W_TOWN)
 			/* New depth */
 			p_ptr->depth++;
+
+			else
+				p_ptr->location++;
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -1163,6 +1800,17 @@ void py_attack(int y, int x)
 		return;
 	}
 
+	/* Friendly */
+
+	if (r_ptr->flags3 & (RF3_FRIENDLY)){
+
+		/* Message */
+		msg_format("You bump into %s.", m_name);
+
+		return;
+
+	}
+
 
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1180,7 +1828,7 @@ void py_attack(int y, int x)
 		{
 			/* Message */
 			if (p_ptr->geneijin){
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.  Oi!", m_name);
+			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.  Hey!", m_name);
 			}
 
 			else {
@@ -1415,8 +2063,10 @@ void move_player(int dir, int jumping)
 		py_pickup(jumping != always_pickup);
 
 		/* Handle "store doors" */
-		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
-		    (cave_feat[y][x] <= FEAT_SHOP_TAIL))
+		if (((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
+		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) || 
+			((cave_feat[y][x] >= FEAT_VENDING_MACHINE)
+			&& (cave_feat[y][x] <=FEAT_GROCERY_STORE)))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -1453,6 +2103,42 @@ void move_player(int dir, int jumping)
 
 			/* Hit the trap */
 			hit_trap(y, x);
+		}
+
+		/* Set off a teleproter */
+		else if ((cave_feat[y][x] >= FEAT_TELE_1) &&
+		         (cave_feat[y][x] <= FEAT_FUN_TELE))
+		{
+			/* Disturb */
+			disturb(0, 0);
+
+			/* Hit the trap */
+			hit_tele(y, x);
+		}
+
+		else if (cave_feat[y][x] == FEAT_TRIGGER)
+		{
+			disturb(0,0);
+			if (p_ptr->location == W_MASTERMIND){
+			hit_trigger(y,x);
+			}
+
+			else
+			{
+				hit_trigger2(y,x);
+			}
+		}
+
+		else if (cave_feat[y][x] == FEAT_SPECIAL_ENTRANCE)
+		{
+			disturb(0,0);
+			hit_special(p_ptr->location, y, x);
+		}
+
+		else if (cave_feat[y][x] == FEAT_TRAIN_STATION)
+		{
+			disturb(0,0);
+			hit_train_station();
 		}
 	}
 }
@@ -1886,6 +2572,9 @@ static bool run_test(void)
 				case FEAT_PERM_INNER:
 				case FEAT_PERM_OUTER:
 				case FEAT_PERM_SOLID:
+				case FEAT_GRAVE_STONE:
+				case FEAT_GRAVE_ASANO:
+
 				{
 					/* Ignore */
 					notice = FALSE;

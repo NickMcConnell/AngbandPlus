@@ -11,9 +11,9 @@
 
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Human] ]
 R:0:0x8C/0x80
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Elf] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Nedian] ]
 R:0:0x8C/0x81
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Sayajin] ]
 R:0:0x8C/0x82
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Hobbit] ]
 R:0:0x8C/0x83
@@ -23,8 +23,8 @@ R:0:0x8C/0x84
 R:0:0x8C/0x85
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Orc] ]
 R:0:0x8C/0x86
-?:[AND [EQU $CLASS Warrior] [EQU $RACE Half-Troll] ]
-R:0:0x8C/0x87
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Hententmon] ]
+R:0:0xA4/0x87
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x88
 ?:[AND [EQU $CLASS Warrior] [EQU $RACE High-Elf] ]
@@ -34,7 +34,7 @@ R:0:0x8C/0x89
 R:0:0x8C/0x8A
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Elf] ]
 R:0:0x8C/0x8B
-?:[AND [EQU $CLASS Mage] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Mage] [EQU $RACE Sayajin] ]
 R:0:0x8C/0x8C
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Hobbit] ]
 R:0:0x8C/0x8D
@@ -44,8 +44,8 @@ R:0:0x8C/0x8E
 R:0:0x8C/0x8F
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Orc] ]
 R:0:0x8C/0x90
-?:[AND [EQU $CLASS Mage] [EQU $RACE Half-Troll] ]
-R:0:0x8C/0x91
+?:[AND [EQU $CLASS Mage] [EQU $RACE Hententmon] ]
+R:0:0xA5/0x87
 ?:[AND [EQU $CLASS Mage] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x92
 ?:[AND [EQU $CLASS Mage] [EQU $RACE High-Elf] ]
@@ -55,7 +55,7 @@ R:0:0x8C/0x93
 R:0:0x8C/0x94
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Elf] ]
 R:0:0x8C/0x95
-?:[AND [EQU $CLASS Priest] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Priest] [EQU $RACE Sayajin] ]
 R:0:0x8C/0x96
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Hobbit] ]
 R:0:0x8C/0x97
@@ -65,8 +65,8 @@ R:0:0x8C/0x98
 R:0:0x8C/0x99
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Orc] ]
 R:0:0x8C/0x9A
-?:[AND [EQU $CLASS Priest] [EQU $RACE Half-Troll] ]
-R:0:0x8C/0x9B
+?:[AND [EQU $CLASS Priest] [EQU $RACE Hententmon] ]
+R:0:0xA6/0x87
 ?:[AND [EQU $CLASS Priest] [EQU $RACE Dunadan] ]
 R:0:0x8C/0x9C
 ?:[AND [EQU $CLASS Priest] [EQU $RACE High-Elf] ]
@@ -76,7 +76,7 @@ R:0:0x8C/0x9D
 R:0:0x8C/0x9E
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Elf] ]
 R:0:0x8C/0x9F
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Sayajin] ]
 R:0:0x8D/0x80
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Hobbit] ]
 R:0:0x8D/0x81
@@ -86,8 +86,8 @@ R:0:0x8D/0x82
 R:0:0x8D/0x83
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Orc] ]
 R:0:0x8D/0x84
-?:[AND [EQU $CLASS Rogue] [EQU $RACE Half-Troll] ]
-R:0:0x8D/0x85
+?:[AND [EQU $CLASS Rogue] [EQU $RACE Hententmon] ]
+R:0:0xA7/0x87
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE Dunadan] ]
 R:0:0x8D/0x86
 ?:[AND [EQU $CLASS Rogue] [EQU $RACE High-Elf] ]
@@ -97,7 +97,7 @@ R:0:0x8D/0x87
 R:0:0x8D/0x88
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Elf] ]
 R:0:0x8D/0x89
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Sayajin] ]
 R:0:0x8D/0x8A
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Hobbit] ]
 R:0:0x8D/0x8B
@@ -107,8 +107,8 @@ R:0:0x8D/0x8C
 R:0:0x8D/0x8D
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Orc] ]
 R:0:0x8D/0x8E
-?:[AND [EQU $CLASS Ranger] [EQU $RACE Half-Troll] ]
-R:0:0x8D/0x8F
+?:[AND [EQU $CLASS Ranger] [EQU $RACE Hententmon] ]
+R:0:0xA8/0x87
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE Dunadan] ]
 R:0:0x8D/0x90
 ?:[AND [EQU $CLASS Ranger] [EQU $RACE High-Elf] ]
@@ -118,7 +118,7 @@ R:0:0x8D/0x91
 R:0:0x8D/0x92
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Elf] ]
 R:0:0x8D/0x93
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Elf] ]
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Sayajin] ]
 R:0:0x8D/0x94
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Hobbit] ]
 R:0:0x8D/0x95
@@ -128,10 +128,14 @@ R:0:0x8D/0x96
 R:0:0x8D/0x97
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Orc] ]
 R:0:0x8D/0x98
-?:[AND [EQU $CLASS Paladin] [EQU $RACE Half-Troll] ]
-R:0:0x8D/0x99
+?:[AND [EQU $CLASS Paladin] [EQU $RACE Hententmon] ]
+R:0:0xA9/0x87
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE Dunadan] ]
 R:0:0x8D/0x9A
 ?:[AND [EQU $CLASS Paladin] [EQU $RACE High-Elf] ]
 R:0:0x8D/0x9B
 
+?:[AND [EQU $CLASS Student] [EQU $RACE Hententmon] ]
+R:0:0xAE/0x87
+?:[AND [EQU $CLASS Student] [EQU $RACE Sayajin] ]
+R:0:0xAE/0x86

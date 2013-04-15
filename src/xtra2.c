@@ -808,9 +808,42 @@ bool set_geneijin(int v)
 	return (TRUE);
 }
 
+/* Set "p_ptr->mimic", notice changes */
+
+bool set_mimic(void)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	/*v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;*/
+	if (p_ptr->csp < 1) {
+		msg_print ("You revert back to normal!");
+		notice = TRUE;
+		p_ptr->mimic = FALSE;
+		p_ptr->max_powers = 0;
+	}
+
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_MANA | PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
 /* Set "p_ptr->set_mag_student", notice changes */
 
-bool set_mag_student()
+bool set_mag_student(void)
 {
 	bool notice = FALSE;
 
@@ -870,6 +903,151 @@ bool set_s_sayian(int v)
 
 	/* Use the value */
 	p_ptr->s_sayian = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->double_team", notice changes */
+
+bool set_double_team(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->double_team)
+		{
+			msg_print("A shadow trails with you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->double_team)
+		{
+			msg_print("The shadow dissipates");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->double_team = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->kaioken", notice changes */
+
+bool set_kaioken(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->kaioken)
+		{
+			msg_print("You invoke a Kaioken!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->kaioken)
+		{
+			msg_print("The Kaioken wears off.");
+			notice = TRUE;
+			(void)set_paralyzed(5);
+		}
+	}
+
+	/* Use the value */
+	p_ptr->double_team = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->defense", notice changes */
+
+bool set_defense(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->defense)
+		{
+			msg_print("A cloud of mist hovers around you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->defense)
+		{
+			msg_print("The cloud dissipates.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->defense = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2003,8 +2181,13 @@ bool set_drunk(int v)
 void check_experience(void)
 {
 
+	object_type *i_ptr;
 	object_type *o_ptr;
+	object_type object_type_body;
 	o_ptr = &inventory[INVEN_WIELD];
+
+	i_ptr = &object_type_body;
+	
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -2060,21 +2243,55 @@ void check_experience(void)
 		p_ptr->lev++;
 
 		/* Hack -- if Magic Knight, evolve weapon if exceed max level */
-		if ((p_ptr->pclass == C_MAGIC_KNIGHT) && (p_ptr->lev > p_ptr->max_lev)){
+	if ((p_ptr->pclass == C_MAGIC_KNIGHT) && (p_ptr->lev > p_ptr->max_lev)){
+			
 
-			if (p_ptr->lev % 2 == 0){
+			
 
-			o_ptr->to_h = p_ptr->lev / 2;
-			o_ptr->to_d = p_ptr->lev / 2;
-			o_ptr->to_a = p_ptr->lev / 2;
+			o_ptr->to_h = p_ptr->lev;
+			o_ptr->to_d = p_ptr->lev;
+			o_ptr->to_a = p_ptr->lev;
 
-			}
+			
 
 			if (p_ptr->lev % 10 == 0){
+			/* Ghetto solution to Magic Knight Glitch 
 
-			o_ptr->ds += 1;
-			o_ptr->dd += 1;
-			o_ptr->pval += 1;
+			o_ptr->k_idx = lookup_kind(o_ptr->tval, o_ptr->sval + p_ptr->lev / 10);
+			o_ptr->pval = 1 + (int)p_ptr->lev / 10;
+			}*/
+			
+			object_prep(i_ptr, lookup_kind(TV_SWORD, SV_MAGIC_KNIGHT_SWORD + p_ptr->lev / 10));
+			i_ptr->pval = 1 + (int)p_ptr->lev / 10;
+			i_ptr->to_h = p_ptr->lev;
+			i_ptr->to_d = p_ptr->lev;
+			i_ptr->to_a = p_ptr->lev;
+
+			switch (p_ptr->pgroove){ /* Give Weapon a Brand according to Groove */
+
+	case G_FIRE:
+			i_ptr->name2 = EGO_BRAND_FIRE;
+			break;
+
+	case G_WATER:
+		i_ptr->name2 = EGO_BRAND_ACID;
+		break;
+
+	case G_WIND:
+		i_ptr->name2 = EGO_BRAND_COLD;
+		break;
+
+	case G_METAL:
+		i_ptr->name2 = EGO_BRAND_ELEC;
+		break;
+
+	case G_DRUNK:
+		i_ptr->name2 = EGO_BRAND_POIS;
+		break;
+			}
+
+			object_copy(&inventory[INVEN_WIELD], i_ptr);
+
 
 			}
 
@@ -2195,7 +2412,21 @@ static int get_coin_type(const monster_race *r_ptr)
 	/* Assume nothing */
 	return (0);
 }
+/* Check for completed static quests */
+bool quests_complete(void)
+{
+	int i, completed;
+	
+	completed = 0;
 
+	for (i = 0; i < MAX_QUESTS; i++)
+	{
+		if (p_ptr->normal_quests[i] == STATUS_COMPLETE)
+			completed++;
+	}
+
+	return (completed > 3);
+}
 
 /*
  * Create magical stairs after finishing a quest monster.
@@ -2317,6 +2548,53 @@ void monster_death(int m_idx)
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
+		/* Is this Kira? */
+		if (m_ptr->r_idx == KIRA){
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Mega-Hack -- Prepare to make "Kira" */
+		object_prep(i_ptr, lookup_kind(TV_HELM, SV_IRON_HELM));
+
+		/* Mega-Hack -- Mark this item as "Kira" */
+		i_ptr->name1 = ART_KIRA;
+
+		/* Mega-Hack -- Actually create "Kira" */
+		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Mega-Hack -- Prepare to make "Kira's Head" */
+		object_prep(i_ptr, lookup_kind(TV_QUEST_ITEM, SV_KIRA_HEAD));
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+
+		} 
+
+		/* Is this Ryouga Hibiki? */
+		else if (m_ptr->r_idx == RYOUGA_HIBIKI){
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Mega-Hack -- Prepare to make an Umbrella */
+		object_prep(i_ptr, lookup_kind(TV_QUEST_ITEM, SV_UMBRELLA));
+
+		/* Drop it in the dungeon */
+		drop_near(i_ptr, -1, y, x);
+
+		} 
+
+	
+
+		/* It is Neo */
+		else {
 		/* Get local object */
 		i_ptr = &object_type_body;
 
@@ -2347,6 +2625,7 @@ void monster_death(int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
+		}
 	}
 
 
@@ -2427,7 +2706,20 @@ void monster_death(int m_idx)
 	}
 
 	/* Build magical stairs */
+	if (p_ptr->what_game_type == GAME_TYPE_CLASSICAL){
 	build_quest_stairs(y, x);
+	}
+
+	else
+	{
+		if (quests_complete())
+		{
+			build_quest_stairs(y, x);
+		}
+
+	}
+
+	
 
 	/* Nothing left, game over... */
 	if (total == 0)
@@ -2480,6 +2772,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	s32b div, new_exp, new_exp_frac;
+	char m_name[80];
 
 
 	/* Redraw (later) if needed */
@@ -2492,11 +2785,25 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
+	/* If friendly, do something ghetto like make them magically vanish */
+	/* I could make them instantly kill you..... */
+	if (r_ptr->flags3 & (RF3_FRIENDLY)){
+
+		/* Extract monster name */
+		monster_desc(m_name, m_ptr, 0);
+		message_format(MSG_KILL, m_ptr->r_idx, "%s runs away!", m_name);
+
+		delete_monster_idx(m_idx);
+
+		/* Ghetto as hell hack */
+		return (TRUE);
+
+	}
+
+
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
-		char m_name[80];
-
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
@@ -2529,6 +2836,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Player level */
 		div = p_ptr->lev;
+
+		/* Quest monster? */
+		if (m_ptr->r_idx == VEGETA)
+		{
+			p_ptr->normal_quests[QUEST_BATTLE_ARENA] = STATUS_COMPLETE;
+		}
+
+		if (m_ptr->r_idx == FUMA)
+		{
+			p_ptr->normal_quests[QUEST_TOKYO_TOWER] = STATUS_COMPLETE;
+		}
+
+		
 
 		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
@@ -2653,12 +2973,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	if ((p_ptr->depth == 0) && (no_scroll[p_ptr->location])) wy = SCREEN_HGT;
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	if ((p_ptr->depth == 0) && (no_scroll[p_ptr->location])) wx = SCREEN_WID;
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
@@ -3309,6 +3629,25 @@ static bool target_set_interactive_accept(int y, int x)
 		/* Notice veins with treasure */
 		if (cave_feat[y][x] == FEAT_MAGMA_K) return (TRUE);
 		if (cave_feat[y][x] == FEAT_QUARTZ_K) return (TRUE);
+
+		/* Notice Tombstones */
+		if (cave_feat[y][x] == FEAT_GRAVE_STONE) return (TRUE);
+		if (cave_feat[y][x] == FEAT_GRAVE_ASANO) return (TRUE);
+
+		/* Notice Train station */
+		if (cave_feat[y][x] == FEAT_TRAIN_STATION) return (TRUE);
+
+		/* Notice Special Entrances */
+		if (cave_feat[y][x] == FEAT_SPECIAL_ENTRANCE) return (TRUE);
+
+		/* Notice Misc. Stores */
+		if (cave_feat[y][x] >= FEAT_VENDING_MACHINE) return (TRUE);
+
+		/* Notice Fun Teleporters */
+		if ((cave_feat[y][x] >= FEAT_TELE_1) &&
+		    (cave_feat[y][x] <= FEAT_FUN_TELE)) return (TRUE);
+
+		if (cave_feat[y][x] == FEAT_FAKE_TELE) return (TRUE);
 	}
 
 	/* Nope */

@@ -1,0 +1,481 @@
+# File: wilderness.txt
+
+
+# This file is used to initialize the "lib/data/wilderness.raw" file, which is
+# used to initialize the "vault template" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/wilderness.raw" file.
+
+# Note that the "spacing" in the "description" lines is very important!
+
+# === Understanding wilderness.txt ===
+
+# N:serial number:wilderness name
+# X:room type:rows:columns
+# D:lines giving full layout of vault using symbols below
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new wilderness.
+
+# 'X' is for rows, and columns. 
+
+# 'D' lines describe the layout of the wilderness. Lines must be 
+# padded with spaces to fill the dimensions specified. 
+# Wildernesses are described with the following symbols:
+
+#    % - Not phasable floor
+#    # - granite
+#    X - impenetrable rock
+#    * - treasure or trap
+#    + - door
+#    ^ - trap
+#    S - Secret door
+#    @ - Starting Location
+#    G - Kira Guard
+#    T - Tomb
+#    A - Asano's Tomb
+#    p - Samurai/Archer/Hardened Warrior
+#    U - The Unique of the level
+#    0 - Special Entrance (level specific)
+#    9 - Train Station
+#    7 - Entrance to Black Market
+#    6 - Entrance to Magic Store
+#    5 - Entrance to Alchemy
+#    4 - Entrance to Temple
+#    3 - Entrance to Weapon Store
+#    2 - Entrance to Armoury
+#    1 - Entrance to General Store
+#    M - Random Monster  (could be anything! :))
+#    V - Vending Machine
+#    R - Ramen Stand
+#    Y - Grocery Store
+
+# Use this to measure columns                                                                        1
+#          1         2         3         4         5         6         7         8         9         0
+# 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+
+# Version stamp (required)
+
+V:0.5.4
+
+
+
+N:1:Kira's Mansion, top
+X:42:65
+D:0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X^.......................................................XGGGGGGX
+D:X..@.^...^.........^.^....^..............................XGGGGGGX
+D:X...^...XXXXXXXX...........^......XXXXXXXXXXX............XGGGGGGX
+D:X..^..^.XGGGGGGX..................XGGGGXGGGGX.....^......XGGGGGGX
+D:X.......+GGGGGG+.......^..........XGGGGXGGGGX............XXXXX+XX
+D:X.......XXXXXXXX........^.........XGGGGXGGGGX....^..............X
+D:X.................................X+XXXXXXX+X...................X
+D:X.^.........................^...................................X
+D:X.................^.............................................X
+D:X..........^..........^..........^......^......^.......XXXXXXXXXX
+D:X......................................................XGGGGGGGGX
+D:X.........^..........^..............................^..XGGGGGGGGX
+D:X............................^..^......................XGGGGGGGGX
+D:XXXXXXXX.........^.................+XXXXXXXXXXXXX+.....XGGGGGGGGX
+D:XGGGGGGX...^.......................XGGGGGGXGGGGGGX.....XGGGGGGGGX
+D:XGGGGGGX..............^............XGGGGGGXGGGGGGX.....+GGGGGGGGX
+D:XGGGGGG+..........XXXXXX........^..XXXXXXXXXXXXXXX.....XGGGGGGGGX
+D:XGGGGGGX..........XGGGGX...........XGGGGGGXGGGGGGX.....XGGGGGGGGX
+D:XGGGGGGX....^.....XGGGGX.....^.....XGGGGGGXGGGGGGX.....XXXXXXXXXX
+D:XGGGGGGX..........+XXXXX...........+XXXXXXXXXXXXX+..............X
+D:XXXXXXXXXXX+........................................+XXXXXXXXXXXX
+D:XGGGGGGGGGGXXXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXGGGGGGGGGGGX
+D:X,,,,,,,,,,Xppppppppppppppp,,,,,,pppppppppppppppppppX,,,,,,,,,,,X
+D:XppppppppppXppppppppppppppppppppppppppppppppppppppppXpppppppppppX
+D:XppppppppppX>..............,,,,,....................XpppppppppppX
+D:XXXXXXSXXXXXXXXXXXXXXXXXXXXXXX+XXXXXXXXXXXXXXXXXXXXXXXXXXXXSXXXXX
+D:X%%p%%pX%%%%%p%%X%%p%%%%p%%%,,,X%%p%%%%%%p%p%p%p%p%%%%%%%%%%%%%%X
+D:Xp%p%p%X%%%%%%%%p%%%%%p%%%%p%%%X%%p%%%%p%%%XXXXXXXXXXXXXXXXXXXXXX
+D:X%p%%p%XXXXX+XXXXXXXXXXXXX%%p%%X%%%%p%%%%%%X%%p%%%%%%X%%p%%%%%%%X
+D:XXXXXXX+%%%p%%%p%%%%%p%%%X%p%p%X%%%%p%%p%p%X%%%%p%p%%X%p%%%%%%p%X
+D:X%%%p%X%p%%%%p%%%p%p%%%%%X%p%p%+%%%%%%%%%%%X%%p%%%%%%X%%%p%p%p%%X
+D:X%p%%pX%%%p%%%%%%%%%%p%p%X%%%%%XXXXXXXXXXXXX%%%p%p%%%X%%%%%%%%%%X
+D:XXXXXX+XXXXX+XXXXXXXXXXXXXXXXXXX%%%p%%%%%%%X%%%%%%%p%%%%p%%p^XXXX
+D:X%%%%p%%p%p%%%p%%%%%%%%%%%%%%%%X%%p%%pp%%%%Xpppp%p%%%%p%%%%p^SGUX
+D:X%%%%p%%p%p%%%p%p%%%%%%%%%%%%%%X%%p%p%%p%%%X^^p%%%p%%p%%%%%p^XXXX
+D:X%%%%pppp%%pppp%%p%%%%%%%%%%%%%X%%%p%%%%p%%XSXXXXXXXXXXXXXXXXXppX
+D:X%%%%%%%%p%%%%%%p%%%%p%%%%%%%%%XXXX+XXXXX+XX%%%%%%%%%%%%%%%%%%^^X
+D:X%%%%%%%%%%p%%%%%%%%p%ppp%%%%%%X,%%%%%%%%%%XXXXXXXXXXXXXXXXXXXXSX
+D:X%%%%p%%%p%%%pp%%%%p%%%%p%%%%%%X,%%p%%%p%%%%p%%%p%%%p%%%%%%%%%%pX
+D:X%%%%%%p%%%%%%%%%%%pp%p%p%%%%%%+,%%%p%%%%%p%%%%p%%%p%%%%%%%%%%%pX
+D:X%%%p%%%%%%%%%%%%%%%%%%%%%%%%%%+,%%%%%%p%p%%%%%p%%p%%%%%%%%%%%%pX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:2:Kira's Mansion, basement
+X:16:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X@.,...X....p...X...........p..X................................X
+D:X..,...X...p..p................X......p.p..XXXXXXXXXXXXXXXXXXXXXX
+D:X..,...XXXXX+XXXXXXXXXXXXX.....X...p.p..p..X.........X....p.....X
+D:XXXXXXX+.,...p.p.........X.....X.........p.X.........X.....p..p.X
+D:X.p.p.X.....p...p........X...p.+.......p.p.X....p....X...p.p.p..X
+D:X.....X......pppp........X.....XXXXXXXXXXXXX.........X..........X
+D:XXXXXX+XXXXX+XXXXXXXXXXXXXXXXXXX.....p.....X...p...p....p.p.^XXXX
+D:X....p......p......p...p.......X.......p...X..........p.....^SG<X
+D:X..........p....p.............pX....p..p...X...p............^XXXX
+D:X...p..p.....p....p....p.......X.....p.....XSXXXXXXXXXXXXXXXXX..X
+D:X...............p.p.p....p.....XXXX+XXXXX+XX.........p.p.p.p....X
+D:X....p..p.....p............p...X...........XXXXXXXXXXXXXXXXXXXXSX
+D:X...........p.....p..p.p.......X.....p..................p.......X
+D:X.....p.............p.....p....+.......p.p.p.p.p..p.p.p.........X
+D:X..............................+................p.........p.....X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:3:Grave of Asano
+X:17:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X9@.............................................................X
+D:X...............................................................X
+D:X...........T..................T...................T............X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...........T.................UA...................T............X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...........T..................T...................T............X
+D:X...............................................................X
+D:X...............................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0X
+
+N:4:Euler Tour
+X:5:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:0..............................UUX
+D:X@XXXX.XXXX.XXXX.XXXX.XXXX.XXXXX>X
+D:X..............................UUX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+##  5 (Maze) Generated Internally
+
+## 6 (Hamiltonian Chain) Generated Internally
+
+N:7:Mastermind
+X:9:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X@..........X.X.X.X.X.X.X........X
+D:X...........X.X.X.X.X.X.X........X
+D:X................................X
+D:X................................X
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:8:Counterfeit Coin
+X:11:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X......X...XXX...X...............X
+D:X......X...XXX...X.............XXX
+D:X......XX+XX.XX+XX..............XX
+D:X@.............................XXX
+D:X..............................+.X
+D:X..............................XXX
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+N:9:Puzzle land treasure room
+X:9:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X@...............................X
+D:X................................X
+D:X................................X
+D:X................................0
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+N:10:Duel Arena
+X:32:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XX^XXXXXXXX...........................................XXXXXXXX^XX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXX......................U..........................XXXXXXXX
+D:XXXXXXX......................XXX..........................XXXXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXX.......................................................XXXXX
+D:XXXX.........................................................XXXX
+D:XXX...........................................................XXX
+D:XX.............................................................XX
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:XX.............................................................XX
+D:XXX...........................................................XXX
+D:XXXX.........................................................XXXX
+D:XXXXX.......................................................XXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXXXX......................XXX..........................XXXXXXX
+D:XXXXXXXX......................@..........................XXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XX^XXXXXXX.............................................XXXXXXX^XX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+#	O = Teleport
+#	o = Teleport Destination
+#	
+
+N:11:Fun City
+X:21:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X9@........................XXXXXXXXXXXXXXX......................X
+D:X..........................XXXXXXXXXXXXXXX......................X
+D:X...........................XXXXXXXXXXXXX.......................X
+D:X............................XXXXXXXXXXX........................X
+D:X.............................XXXX0XXXX..............XXX........X
+D:X....................................................VXX........X
+D:X....................................................XXX........X
+D:X...............................................................X
+D:X...............................................................X
+D:X.............................XX...XX................XXX........X
+D:X.............................X1...4X................RXX........X
+D:X..........................X.....U.....X.............XXX........X
+D:X..........................XX.........XX........................X
+D:X...........................XXXXX7XXXXX.........................X
+D:X...............................................................X
+D:X.....XX2XX...........................................XX5XX.....X
+D:X.....XXXXX...........................................XXXXX.....X
+D:X.....XX3XX...........................................XX6XX.....X
+D:X...............................................................X
+D:X...............................................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:12:Entrance to Happy Fun Puzzle Land
+X:5:15
+D:XXXXXXXXXXXXXXX
+D:XXXXXXX0XXXXXXX
+D:XXXXXX...XXXXXX
+D:XXXXX....UXXXXX
+D:XXXX..9@...XXXX
+D:XXXXXXXXXXXXXXX
+
+# Somebody else should draw stuff for me ^_^;
+
+N:13:Tokyo Tower Roof
+X:21:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXX.................................................XXXXXXXX
+D:XXXXXXX...................................................XXXXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXX......................XXXXXXXXXX.......................XXXXX
+D:XXXX......................XXXXXXXXXXXX.......................XXXX
+D:XXX......................XXXXXXXXXXXXXX.......................XXX
+D:XX>@....................XXXXXXXXXXXXXXXX................U.....0XX
+D:XXX.....................XXXXXXXXXXXXXXXX......................XXX
+D:XXXX.....................XXXXXXXXXXXXXX......................XXXX
+D:XXXXX.....................XXXXXXXXXXXX......................XXXXX
+D:XXXXXX.....................XXXXXXXXXX......................XXXXXX
+D:XXXXXXX...................................................XXXXXXX
+D:XXXXXXXX.................................................XXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+# Floor 2-9 will be the same...because I'm lazy.
+
+N:21:Floor 2 - Tokyo Tower
+X:21:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXX......M..............................M.......XXXXXXXXXX
+D:XXXXXXXXX......................M...M....................XXXXXXXXX
+D:XXXXXXXX........M........................................XXXXXXXX
+D:XXXXXXX...............M...M......M.........M...M..M.......XXXXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXX...........M..........XXXXXXXXXX.......................XXXXX
+D:XXXX......................XXXXXXXXXXXX........M..............XXXX
+D:XXX......................XXXXXXXXXXXXXX.......................XXX
+D:XX>@..........M..M......XXXXXXXXXXXXXXXX......M...M...........<XX
+D:XXX.....................XXXXXXXXXXXXXXXX...M..................XXX
+D:XXXX............M........XXXXXXXXXXXXXX......................XXXX
+D:XXXXX.....................XXXXXXXXXXXX......................XXXXX
+D:XXXXXX.....................XXXXXXXXXX.....M...M............XXXXXX
+D:XXXXXXX...................................................XXXXXXX
+D:XXXXXXXX........M..............M.........................XXXXXXXX
+D:XXXXXXXXX...................M....M.......M....M.........XXXXXXXXX
+D:XXXXXXXXXX......M......................................XXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:22:Floor 1 - Tokyo Tower
+X:21:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXX......M..............................M.......XXXXXXXXXX
+D:XXXXXXXXX......................M...M....................XXXXXXXXX
+D:XXXXXXXX.................................................XXXXXXXX
+D:XXXXXXX.....M...M.....M...M......M.........M...M..M.......XXXXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXX......................XXXXXXXXXX.......................XXXXX
+D:XXXX......................XXXXXXXXXXXX.......................XXXX
+D:XXX......................XXXXXXXXXXXXXX.......................XXX
+D:XX0@..........M..M......XXXXXXXXXXXXXXXX......M...M...........<XX
+D:XXX.....................XXXXXXXXXXXXXXXX......................XXX
+D:XXXX.....................XXXXXXXXXXXXXX......................XXXX
+D:XXXXX.......M...M.........XXXXXXXXXXXX......................XXXXX
+D:XXXXXX.....................XXXXXXXXXX.....M...M...M........XXXXXX
+D:XXXXXXX...................................................XXXXXXX
+D:XXXXXXXX........M..............M.........................XXXXXXXX
+D:XXXXXXXXX...................M....M.........M..M...M.....XXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+N:23:Tokyo Tower
+X:17:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X......................XXXXXXXXXXXXXXXXX........................X
+D:X.....................XXXXXXXXXXXXXXXXXXX.......................X
+D:X.....................XXXXXXXXXXXXXXXXXXX.......................X
+D:X.....................XXXXXXXXXXXXXXXXXXX.......................X
+D:X.....................XXXXXXXXXXXXXXXXXXX.......................X
+D:X......................XXXXXXXXXXXXXXXXX........................X
+D:X.......................XXXXXXX0XXXXXXXXXXXX....................X
+D:X......................................XXXXX....................X
+D:X...............................U......RXXXX....................X
+D:X......................................XXXXX....................X
+D:X......................................XXXXX....................X
+D:X..............................9@...............................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+N:24:Auhu house
+X:21:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X..........X..X..................X.........XXX..............X...X
+D:X..........X..+..................X.........XXX..............X...X
+D:X..........X..X..................X.........XXX..............X...X
+D:X..........X..X..................X.........XXX..............X...X
+D:X..........X..X..................X..........................X...X
+D:X..........+..X..................+..........................X...X
+D:X..........X..X..................X..........................X...X
+D:XXXXXXXXXXXXU.XXXXXXXXXXXXXXXXXX+X..........................XX+XX
+D:X................................X..............................X
+D:0..@.............................X.............XXSXX............X
+D:X................................X.............X...X............X
+D:XXXXXXXXXX+XXXXXXXXXXXXXXXXXXXX..XXXXXX+XXXXXXXXXXXXXXXXXXXXXXX+X
+D:X..........X.........+........+..X..............X...............X
+D:X..........X.........X........X..X..............X...............X
+D:X..........X.........X........X..X..............X...............X
+D:X..........X.........X........X..X..............+...............X
+D:X..........X.........XXXXXXXXXX..X..............X...............X
+D:X..........X.........X........X..X..............X...............X
+D:X..........X.........X........X..X..............X...............X
+D:X..........+.........X........+..+..............X...............X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:25:Town of Miyazaki
+X:32:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXX...................XXX..........XXXXX............XXXXXXXX
+D:XXXXXXX....................XVX..........XXYXX.............XXXXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXX.........XXXXXX........................................XXXXX
+D:XXXX..........XXXXXX.........................................XXXX
+D:XXX...........XX0XXX..........................................XXX
+D:XX.............................................................XX
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................XXX.............X
+D:X.............XXX...............................RXX.............X
+D:X.............XXX...............................XXX.............X
+D:X.............XX1..............U................................X
+D:X.............XXX...............................................X
+D:X.............XXX...............................................X
+D:XX.............................................................XX
+D:XXX.........................................XXXXX.............XXX
+D:XXXX........................................XXXXX............XXXX
+D:XXXXX.......................................4XXXX...........XXXXX
+D:XXXXXX......................................XXXXX..........XXXXXX
+D:XXXXXXX.....................................XXXXX.........XXXXXXX
+D:XXXXXXXX.................................................XXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXX...................9@....................XXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:26:Kiki's Bakery
+X:9:34
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.........X...............X......X
+D:X.........+...............X......X
+D:XXXXXXXXXXX....XXXXX......X......X
+D:X................U........XXXXX+XX
+D:X................................X
+D:X................................X
+D:X................@...............X
+D:XXXXXXXXXXXXXXXXX0XXXXXXXXXXXXXXXX
+
+N:27:Miyazaki Forest
+X:25:65
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXX......XXXXXXXXXXXX.....................................XXXXX
+D:XXXX.......XXXXXXXXXXXX......................................XXXX
+D:XXX...........XXXXXX..........................................XXX
+D:XX............XXYXXX...........................................XX
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X...............................................................X
+D:X............................................XXXXX..............X
+D:X............................................XXXXX..............X
+D:X..............................U.............1XXXX..............X
+D:X............................................XXXXX..............X
+D:XX...........................................XXXXX.............XX
+D:XXX...........................................................XXX
+D:XXXX.........................................................XXXX
+D:XXXXX.......................................................XXXXX
+D:XXXXXX.....................................................XXXXXX
+D:XXXXXXX...................................................XXXXXXX
+D:XXXXXXXX.................................................XXXXXXXX
+D:XXXXXXXXX...............................................XXXXXXXXX
+D:XXXXXXXXXX.............................................XXXXXXXXXX
+D:XXXXXXXXXXX...........................................XXXXXXXXXXX
+D:XXXXXXXXXXXX...................9@....................XXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+

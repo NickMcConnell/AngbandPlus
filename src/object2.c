@@ -12,6 +12,114 @@
 
 
 /*
+ * Prints Cur/Max hit points
+ */
+static void prt_hp(void)
+{
+	char tmp[32];
+	int mechmax;
+
+	byte color;
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_MECHA];
+	
+
+	/* If not riding a mecha */
+	if (!(o_ptr->k_idx)){
+	put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
+
+	sprintf(tmp, "%5d", p_ptr->mhp);
+	color = TERM_L_GREEN;
+
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+		
+	put_str("Cur HP ", ROW_CURHP, COL_CURHP);
+
+	sprintf(tmp, "%5d", p_ptr->chp);
+
+	if (p_ptr->chp >= p_ptr->mhp)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+	else {
+	switch (o_ptr->sval){
+
+	case SV_GUNDAM:
+		{
+			mechmax = 5000;
+			break;
+
+		}
+	case SV_EVA:
+		{
+			mechmax = 7500;		
+			break;
+		}
+
+	case SV_RAYEARTH:
+		{
+			mechmax = 4250;
+			break;
+		}
+
+	case SV_SELECE:
+		{
+			mechmax = 4000;
+			break;
+		}
+
+	case SV_WINDAM:
+		{
+			mechmax = 4000;
+			break;
+		}
+	}
+
+	put_str("Mec MH ", ROW_MAXHP, COL_MAXHP);
+
+	sprintf(tmp, "%5d", mechmax);
+	color = TERM_L_GREEN;
+
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+
+	put_str("Mec HP ", ROW_CURHP, COL_CURHP);
+
+	sprintf(tmp, "%5d", o_ptr->pval);
+
+	if (o_ptr->pval >= mechmax)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (o_ptr->pval > (mechmax * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+}
+
+
+/*
  * Excise a dungeon object from any stacks
  */
 void excise_object_idx(int o_idx)
@@ -1170,6 +1278,12 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Probably okay */
 			break;
 		}
+		case TV_QUEST_ITEM:
+			{
+				/* How about no! */
+				return(0);
+
+			}
 
 		/* Weapons and Armor */
 		case TV_BOW:
@@ -1687,7 +1801,7 @@ static bool make_artifact_special(object_type *o_ptr)
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
-	if (!p_ptr->depth) return (FALSE);
+	if ((!p_ptr->depth) && (p_ptr->location == W_TOWN)) return (FALSE);
 
 	/* Check the special artifacts */
 	for (i = 0; i < ART_MIN_NORMAL; ++i)
@@ -1757,7 +1871,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
-	if (!p_ptr->depth) return (FALSE);
+	if ((!p_ptr->depth) && (p_ptr->location == W_TOWN)) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
@@ -3377,6 +3491,10 @@ void pick_trap(int y, int x)
 		/* Hack -- no trap doors on quest levels */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && is_quest(p_ptr->depth)) continue;
 
+		/* Hack -- no trap doors on Wilderness levels */
+		/* This makes it a lot easier....no headaches :) */
+		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->location != W_TOWN)) continue;
+
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
 
@@ -3950,6 +4068,11 @@ s16b inven_carry(object_type *o_ptr)
  *
  * Return the inventory slot into which the item is placed.
  */
+
+
+
+
+
 s16b inven_takeoff(int item, int amt)
 {
 	int slot;
@@ -4005,6 +4128,7 @@ s16b inven_takeoff(int item, int amt)
 	else if (item == INVEN_MECHA)
 	{
 		act = "You were riding";
+		
 	}
 
 	/* Took off something */
@@ -4022,6 +4146,10 @@ s16b inven_takeoff(int item, int amt)
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+	/* Redraw hp if it was mecha */
+	if (item == INVEN_MECHA)
+		prt_hp();
 
 	/* Return slot */
 	return (slot);
@@ -4762,3 +4890,5 @@ void display_koff(int k_idx)
 		print_spells(spells, num, 2, 0);
 	}
 }
+
+

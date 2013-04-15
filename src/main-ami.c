@@ -4538,6 +4538,7 @@ PROTO static void amiga_hs_to_ascii(void)
 	char temp[200];
 	struct high_score h;
 	int i;
+	int location;
 	FILE *f,*d;
 
 	int pr, pc, clev, mlev, cdun, mdun;
@@ -4583,6 +4584,7 @@ PROTO static void amiga_hs_to_ascii(void)
 	mlev = atoi(h.max_lev);
 	cdun = atoi(h.cur_dun);
 	mdun = atoi(h.max_dun);
+	location = atoi(h.cur_loc);
 
 	/* Hack -- extract the gold and such */
 	for (user = h.uid; isspace(*user); user++) /* loop */;
@@ -4603,8 +4605,11 @@ PROTO static void amiga_hs_to_ascii(void)
 		    h.how, "Dungeon Level", cdun);
 
 			if (!cdun) /* -KMW- */
-				sprintf(temp, "               Killed by %s in the Town",
-				    h.how);
+			{
+				
+				sprintf(temp, "               Killed by %s in %s",
+				    h.how, long_display_loc[location]);
+			}
 
 	/* Append a "maximum level" */
 	if (mdun > cdun) strcat(temp, format(" (Max %d)", mdun));

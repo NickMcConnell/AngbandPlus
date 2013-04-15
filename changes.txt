@@ -1,11 +1,71 @@
-7/11/03 - 
+9/08/03 -
+Changes in Animeband 0.5.4:
+- QUESTS!!
+- Vending Machines and Ramen stands...oh my :)
+- More tiles
+- Decided to cancel the idea of respawning uniques for now.
+  Had some odd trouble with this.
+- Finally got rid of the useless load1.c 
+- Magic Knight glitch fixed.  If you're loading an earlier version,
+  just level up to the next 10n, and it'll be fixed from there.
+- Sanjiyan new limit break: Raging Demon
+- Bullets do a lot more damage (from people who shoot guns)
+- Some new monsters
+- Fixed a metal/mecha glitch
+- Wrote a wilderness maker that combines the graph-like properties
+  of Un with the customizability of ToME.  I had fun with this one ^_^
+- "Wildernesses" are accessible by a Train Station, located at the top
+  left of the town.  It costs 300 AU to board the train.
+- Mechas no longer lose life for firing guns
+- Mecha HP replaces player HP on the screen when you wield a mecha.
+- New classes, Mimic and Chi Warrior.  Mimics can mimic whatever 
+  monster is adjacent to them with the 'O' key.  Chi Warriors are 
+  not allowed to use weapons, but get a punch bonus, and learn powers
+  from parchments.  Once a power is learned, it can be swapped into 
+  your knowledge queue for use at any time.
+- Limit Break command changed to 'p'
+- New command: Press CTRL-T to talk to people.
+- New command: Press CTRL-B to give an item to someone.
+- New command: Press CTRL-H to cook items.
+- Student and Mimic transform state extended a bit longer.
+- Updated docs to a degree
+- Two types of games are available: Classical for the V lovers, and 
+  Quest mode for people who like quests.  If you use an old version 
+  savefile, it will default to Classical.
+- Mecha repair scrolls are available.  However, they weigh 500 pounds.
+  :)
+
+Todo:
+- Make some of the mimic powers less retarded
+- Monster mana....anyone?
+- Sort out the terrains and object list (get rid of that stupid "pit"
+  glitch)
+- Remap the controls so they're more intuitive (need to look at 
+  the roguelike keyset)
+- More tiles/monsters
+- More quests, I guess.
+- Implement AI....after Monster mana.
+
+8/02/03 - 9/08/03
+Changes in Animeband 0.5.3:
+- Added a random name generator
+- Added more monsters
+- Fixed a small error in the display console
+- Added a RISC OS makefile (courtesy of ajps)
+- Vegeta now apperars at DL 75
+- Photon toned down slightly
+- Miyamoto Musashi moved to a deeper DL
+- Added some new tiles (8X8, click on old tiles, courtesy of Tybwyn)
+
+
+7/11/03 - 8/02/03
 Changes in Animeband 0.5.2:
 
 - Idiotic Paladin Glitch fixed
 - Fixed *really* abusable Student glitch, so now Student transform is no longer instant.
   In exchange, student mana costs for the last two spells are lower.
 - It is now pointless to enchant Magic Swords, as the to hit and to dam will be level
-  deopendent.
+  dependent.
 - Magic Knights toned down just slightly (probably not noticeable)
 - Sky Dragon Student and Magic Knight glitch fixed.  The exp needed to level up is now 
   correct.

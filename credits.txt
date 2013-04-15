@@ -1,0 +1,15 @@
+Special thanks to:
+
+Tybwyn, for exploiting all glitches to win and showing them to me.
+Also for making tiles, and giving me some ideas.
+
+Luc French for many great ideas.
+
+Sloppy for algorithm help, and game/balancing ideas :).
+
+AdamH, for beating the game within three days (playing several hours
+a day :))
+
+Various people on the #angband channel, for compiles and various ideas.
+
+If you feel that you should be here, please tell me: <animeband@oook.cz>

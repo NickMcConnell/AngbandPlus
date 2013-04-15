@@ -1,0 +1,78 @@
+# Project: Animeband
+# Make: make
+# Wimpslot: 5000k
+#
+# To use this makefile, the current working directory must be where
+# this makefile is (if this makefile is at "raFS::Temp.$.ang.src.makefile",
+# the CWD must be "raFS::Temp.$.ang.src").
+#
+# This makefile is for GNU make.
+  
+# Defaults
+COMPILER = norcroft
+default: standard
+   
+
+# Defaults for norcy
+ifeq (norcroft, $(COMPILER))  
+  # Tools:
+  CC := cc 
+  LD := link
+  RM := remove    
+
+  # Libraries:
+  LIBS := <CLibs$$Dir>.clib.o.StubsG <DeskLib$$Dir>.o.DeskLib
+
+  CCFLAGS_BASIC := -apcs 3/32/fpe2/swst/fp/nofpr -throwback -c -Wan
+endif
+   
+# Defaults for gcc
+ifeq (gcc, $(COMPILER))
+  WARNINGS := -ansi -pedantic -Wall -Wno-unused -Wno-long-long -W -Wcast-qual
+       
+  # Tools:
+  CC := gcc -mlibscl -c
+  LD := gcc -mlibscl
+  RM := remove
+
+  # Libraries:
+  LIBS := <DeskLib$$Dir>.o.DeskLib
+
+  CCFLAGS_BASIC := -O2 $(WARNINGS) -mthrowback -mpoke-function-name
+endif
+
+# The standard object files:
+OBJS := \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
+  variable.o tables.o util.o cave.o \
+  object1.o object2.o monster1.o monster2.o \
+  xtra1.o xtra2.o spells1.o spells2.o \
+  melee1.o melee2.o save.o files.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o birth.o load2.o \
+  wizard1.o wizard2.o \
+  generate.o dungeon.o init1.o init2.o randart.o \
+  main-ros.o
+
+
+#
+# Rules to make the various targets
+#
+ALL_TARGETS := standard fullscreen
+
+standard: CCFLAGS := $(CCFLAGS_BASIC)
+standard: $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -o ^.!RunImage $(OBJS) $(LIBS)
+
+fullscreen: CCFLAGS := -DFULLSCREEN_ONLY $(CCFLAGS_BASIC)  
+fullscreen: $(OBJS) $(LIBS)
+	$(LD) $(LDFLAGS) -o ^.!RunImageF $(OBJS) $(LIBS)
+
+# Suffix rules
+.SUFFIXES: .o .c
+
+# A basic rule
+.c.o:;	$(CC) $(CCFLAGS) -o $@ $<
+
+# Dynamic dependencies:
+

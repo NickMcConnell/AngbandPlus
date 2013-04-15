@@ -407,8 +407,12 @@ void self_knowledge(void)
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type *o_ptr;
-
+	monster_race *r_ptr = &r_info[p_ptr->mimic_idx];
+/*	cptr name = ("You are mimicing %s.", (r_name + r_ptr->name));*/
+	
 	cptr info[128];
+
+	
 
 
 	/* Get item flags from equipment */
@@ -515,9 +519,22 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are a Super Sayian.";
 	}
+	if (p_ptr->kaioken)
+	{
+		info[i++] = "You invoked Kaioken.";
+	}
+	if (p_ptr->double_team)
+	{
+		info[i++] = "You are difficult to hit.";
+	}
 	if (p_ptr->mag_student)
 	{
 		info[i++] = "You are a magical student.";
+	}
+	if (p_ptr->mimic)
+	{
+		info[i++] = "You are mimicing..."; 
+		info[i++] = (r_name + r_ptr->name);
 	}
 	if (p_ptr->geneijin)
 	{
@@ -974,6 +991,13 @@ void set_recall(void)
 {
 	/* Ironman */
 	if (adult_ironman && !p_ptr->total_winner)
+	{
+		msg_print("Nothing happens.");
+		return;
+	}
+
+	/* Wilderness */
+	if (p_ptr->location != W_TOWN)
 	{
 		msg_print("Nothing happens.");
 		return;
@@ -1596,6 +1620,13 @@ void stair_creation(void)
 	/* Create a staircase */
 	if (!p_ptr->depth)
 	{
+		/* Are we at some wilderness? */
+		if (p_ptr->location != W_TOWN)
+		{
+			msg_print("You cannot create staircases in wildernesses.");
+			return;
+		}
+
 		cave_set_feat(py, px, FEAT_MORE);
 	}
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
@@ -1680,6 +1711,180 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 		return FALSE;
 	else
 		return TRUE;
+}
+
+static bool item_tester_cookable(const object_type *o_ptr)
+{
+	object_kind *k_ptr;
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	if (k_ptr->flags3 & TR3_COOKABLE)
+		return TRUE;
+	else
+		return FALSE;
+
+}
+
+/* Cook something.  Maybe this should be under commands?  Oh well */
+void do_cmd_cook(void){
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int item, item2, index1, index2;
+	int tval, sval;
+	int chances = p_ptr->stat_ind[A_DEX];
+
+	object_type *o_ptr;
+	object_type *o_ptr2;
+	object_type *i_ptr;
+	object_type	*o_ptr3;
+	object_type object_type_body;
+	cptr q, s;
+	o_ptr3 = &inventory[INVEN_WIELD];
+	
+
+	
+
+	/* Cooking Knife? */
+	if ((o_ptr3->tval == TV_SWORD) && (o_ptr3->sval == SV_COOKING_KNIFE))
+	{
+		chances *= 4;
+	}
+
+
+	/* Check some conditions */
+	if (p_ptr->blind)
+	{
+		msg_print("You can't see anything.");
+		return;
+	}
+	if (no_lite())
+	{
+		msg_print("You have no light to cook by.");
+		return;
+	}
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to cookable items */
+	item_tester_hook = item_tester_cookable;
+
+	/* Get an item */
+	q = "Use which ingredient? ";
+	s = "You have no ingredients to cook with.";
+	if (!get_item(&item, q, s, (USE_INVEN))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+		/* Extract 1st index */
+	/* Potion of Water */
+	if (o_ptr->tval == TV_POTION) index1 = 0;
+	
+	else if (o_ptr->sval == SV_FOOD_SLIME_MOLD) index1 = 1;
+
+	else
+	{
+		index1 = o_ptr->sval - (SV_FOOD_FISH - 2);
+	}
+
+	tval = o_ptr->tval;
+	sval = o_ptr->sval;
+
+
+	/* "Destroy" the item in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Restrict choices to cookable items */
+	item_tester_hook = item_tester_cookable;
+
+	/* Get the second item */
+	q = "Cook with which ingredient? ";
+	s = "You need a second ingredient to cook with.";
+	if (!get_item(&item2, q, s, (USE_INVEN))) 
+	{
+		/* Return first object */
+			/* Give it to the player */
+		/* Mega-Hack -- Prepare to make "Kira's Head" */
+		/* Get local object */
+		i_ptr = &object_type_body;
+		object_prep(i_ptr, lookup_kind(tval, sval));
+
+			(void)inven_carry(i_ptr);
+		return;
+	}
+
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		o_ptr2 = &inventory[item2];
+	}
+
+		/* Extract 2nd index */
+	/* Potion of Water */
+	if (o_ptr2->tval == TV_POTION) index2 = 0;
+	
+	else if (o_ptr2->sval == SV_FOOD_SLIME_MOLD) index2 = 1;
+
+	else
+	{
+		index2 = o_ptr2->sval - (SV_FOOD_FISH - 2);
+	}
+
+
+	/* "Destroy" the item in the pack */
+	if (item2 >= 0)
+	{
+		inven_item_increase(item2, -1);
+		inven_item_describe(item2);
+		inven_item_optimize(item2);
+	}
+	
+
+		
+
+
+	msg_print("You start cooking....");
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Check for failure */
+	if (rand_int(118) > rand_int(chances))
+	{
+		object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_AKANE_COOKIE));
+	}
+
+	/* Mega-Hack -- Prepare to make Food */
+	else {
+	if (((index1 == 0) && (index2 <= 1)) || ((index1 == 1) && (index2 == 0)))
+	object_prep(i_ptr, lookup_kind(TV_POTION, cooking_table[index1][index2]));
+
+	else
+	object_prep(i_ptr, lookup_kind(TV_FOOD, cooking_table[index1][index2]));
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Drop it */
+		drop_near(i_ptr, -1, py, px);
+
+	
 }
 
 
@@ -3415,7 +3620,6 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	/* Analyze the "dir" and the "target", do NOT explode */
 	return (project(-1, 0, ty, tx, dam, typ, flg));
 }
-
 
 /*
  * Cast a bolt spell

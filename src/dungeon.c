@@ -423,7 +423,7 @@ static void process_world(void)
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
-	if (!p_ptr->depth)
+	if ((!p_ptr->depth) && ((p_ptr->location < W_MAZE) || (p_ptr->location > W_DUEL_ARENA)))
 	{
 		/* Hack -- Daybreak/Nighfall in town */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
@@ -517,9 +517,22 @@ static void process_world(void)
 	/* Lose mp in magical student form */
 	if (p_ptr->mag_student)
 	{
-		if (p_ptr->csp >0)
+		if ((p_ptr->csp >0) && (turn % 2 == 0))
 		p_ptr->csp = p_ptr->csp - 1;
 
+	/* Display the mana points */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	/* Lose mp while mimicing */
+	if (p_ptr->mimic)
+	{
+		if ((p_ptr->csp >0) && (turn % 3 == 0))
+		p_ptr->csp = p_ptr->csp - 1;
+		
 	/* Display the mana points */
 	p_ptr->redraw |= (PR_MANA);
 
@@ -724,6 +737,9 @@ static void process_world(void)
 	/* Student cannot recover mana if magical */
 	if (p_ptr->mag_student) regen_amount = 0;
 
+	/* Mimics cannot recover mana if magical */
+	if (p_ptr->mimic) regen_amount = 0;
+
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
@@ -828,11 +844,35 @@ static void process_world(void)
 	{
 		(void)set_s_sayian(p_ptr->s_sayian - 1);
 	}
+
+	/* Double Team */
+	if (p_ptr->double_team)
+	{
+		(void)set_double_team(p_ptr->double_team - 1);
+	}
+
+	/* Defense */
+	if (p_ptr->defense)
+	{
+		(void)set_defense(p_ptr->defense - 1);
+	}
+
+	/* Kaioken */
+	if (p_ptr->kaioken)
+	{
+		(void)set_kaioken(p_ptr->kaioken - 1);
+	}
+
 	/* Magical Student */
 	if (p_ptr->mag_student)
 	{
 		(void)set_mag_student();
 
+	}
+	/* Mimic */
+	if (p_ptr->mimic)
+	{
+		(void)set_mimic();
 	}
 	/* Orbs!! */
 	if (p_ptr->ouroborous)
@@ -1524,7 +1564,22 @@ static void process_command(void)
 		/* Gain new spells/prayers */
 		case 'G':
 		{
-			do_cmd_study();
+			if (p_ptr->pclass == C_CHI_WARRIOR)
+			{
+				if(get_check_chi_warrior("[G]ain or [S]wap?")){
+				do_cmd_study_chi_warrior();
+				}
+				else{
+			do_cmd_swap_chi_warrior();
+			}
+
+			}
+
+			else {
+				do_cmd_study();
+			}
+
+			
 			break;
 		}
 
@@ -1548,8 +1603,19 @@ static void process_command(void)
 				break;
 			}
 
+			else if (p_ptr->pclass == C_CHI_WARRIOR){
+				do_cmd_chi_power();
+				break;
+			}
+
 			else if (p_ptr->pclass == C_MAGIC_KNIGHT){
 			do_cmd_mknight();
+				break;
+			}
+
+			else if (p_ptr->pclass == C_MIMIC)
+			{
+				do_cmd_mimic_cast();
 				break;
 			}
 
@@ -1567,13 +1633,36 @@ static void process_command(void)
 			break;
 		}
 		*/
+		
+		/* Talk */
+		case KTRL('T'):
+			{
+				do_cmd_talk();
+				break;
+			}
+
+		
+		case KTRL('B'):
+			{
+				do_cmd_give();
+				break;
+
+			}
+		
 
 		/* Activate Limit Break */
-		case 'Z':
+		case 'p':
 		{
 			do_cmd_super();
 			break;
 
+		}
+
+		/* Cook */
+		case KTRL('H'):
+			{
+				do_cmd_cook();
+				break;
 			}
 		/* Use Student Power  -- Obsolete
 		case 'h':
@@ -1597,22 +1686,25 @@ static void process_command(void)
 				break;
 			}
 
-		/* Transform */
+		/* Transform/Mimic */
 		case 'O':
 			{
 				if (!p_ptr->mstudent){
 					msg_print("You cannot transform!");
 					break;
 				}
-				else if (p_ptr->mag_student){
+				else if ((p_ptr->mag_student) || (p_ptr->mimic)){
 					msg_print("You switch back to normal.");
 					p_ptr->mag_student = FALSE;
+					p_ptr->mimic = FALSE;
+					p_ptr->max_powers = 0;
 					p_ptr->update |= (PU_BONUS);
 					p_ptr->energy_use = 100;
 					handle_stuff();
 					break;
 				}
-				else if (p_ptr->csp < 1){
+				else if (p_ptr->pclass == C_STUDENT){
+				if (p_ptr->csp < 1){
 					msg_print("You don't have enough mana to transform!");
 					break;
 				}
@@ -1629,8 +1721,26 @@ static void process_command(void)
 					p_ptr->energy_use = 100;
 
 					handle_stuff();
+					break;
 					
 				}
+
+				}
+
+				else if (p_ptr->pclass == C_MIMIC){
+				if (p_ptr->csp < 1){
+					msg_print("You don't have enough mana to mimic anything!");
+					break;
+				}
+				
+				else {
+					do_cmd_mimic();
+					break;
+					
+				}
+
+				}
+
 				break;
 			}
 
@@ -2807,7 +2917,7 @@ void play_game(bool new_game)
 	/* Hack -- Default base_name */
 	if (!op_ptr->base_name[0])
 	{
-		strcpy(op_ptr->base_name, "PLAYER");
+		 strcpy(op_ptr->base_name, "PLAYER");
 	}
 
 	/* Init RNG */

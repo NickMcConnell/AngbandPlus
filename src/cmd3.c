@@ -10,6 +10,112 @@
 
 #include "animeband.h"
 
+/*
+ * Prints Cur/Max hit points
+ */
+static void prt_hp(void)
+{
+	char tmp[32];
+	int mechmax;
+
+	byte color;
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_MECHA];
+	
+
+	/* If not riding a mecha */
+	if (!(o_ptr->k_idx)){
+	put_str("Max HP ", ROW_MAXHP, COL_MAXHP);
+
+	sprintf(tmp, "%5d", p_ptr->mhp);
+	color = TERM_L_GREEN;
+
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+		
+	put_str("Cur HP ", ROW_CURHP, COL_CURHP);
+
+	sprintf(tmp, "%5d", p_ptr->chp);
+
+	if (p_ptr->chp >= p_ptr->mhp)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->chp > (p_ptr->mhp * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+	else {
+	switch (o_ptr->sval){
+
+	case SV_GUNDAM:
+		{
+			mechmax = 5000;
+			break;
+
+		}
+	case SV_EVA:
+		{
+			mechmax = 7500;		
+			break;
+		}
+
+	case SV_RAYEARTH:
+		{
+			mechmax = 4250;
+			break;
+		}
+
+	case SV_SELECE:
+		{
+			mechmax = 4000;
+			break;
+		}
+
+	case SV_WINDAM:
+		{
+			mechmax = 4000;
+			break;
+		}
+	}
+
+	put_str("Mec MH ", ROW_MAXHP, COL_MAXHP);
+
+	sprintf(tmp, "%5d", mechmax);
+	color = TERM_L_GREEN;
+
+	c_put_str(color, tmp, ROW_MAXHP, COL_MAXHP + 7);
+
+	put_str("Mec HP ", ROW_CURHP, COL_CURHP);
+
+	sprintf(tmp, "%5d", o_ptr->pval);
+
+	if (o_ptr->pval >= mechmax)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (o_ptr->pval > (mechmax * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
+}
 
 
 
@@ -240,6 +346,7 @@ void do_cmd_wield(void)
 	else if (slot == INVEN_MECHA)
 	{
 		act = "You are riding";
+		prt_hp();
 	}
 
 	else
@@ -444,7 +551,7 @@ void do_cmd_destroy(void)
 	p_ptr->energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
-	if (artifact_p(o_ptr))
+	if ((artifact_p(o_ptr)) || (o_ptr->tval == TV_QUEST_ITEM))
 	{
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
@@ -1073,7 +1180,7 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
+	"0:Misc. Entrance",
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",
@@ -1082,7 +1189,7 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Entrance to Train Station",
 	"::Rubble",
 	";:A glyph of warding",
 	"<:An up staircase",
@@ -1102,7 +1209,7 @@ static cptr ident_info[] =
 	"J:Snake",
 	"K:Killer Beetle",
 	"L:Lich",
-	"M:Multi-Headed Reptile",
+	"M:Multi-Tentacle Monster",
 	/* "N:unused", */
 	"O:Ogre",
 	"P:Giant Humanoid",
@@ -1132,7 +1239,7 @@ static cptr ident_info[] =
 	"h:Humanoid (Nedian/Sayian/etc.)",
 	"i:Icky Thing",
 	"j:Jelly",
-	"k:Kobold",
+	"k:Moogle",
 	"l:Louse",
 	"m:Mold",
 	"n:Naga",
@@ -1530,3 +1637,4 @@ void do_cmd_query_symbol(void)
 	/* Free the "who" array */
 	C_FREE(who, z_info->r_max, u16b);
 }
+

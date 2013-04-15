@@ -41,7 +41,7 @@
 # 'I' is for extra info - max. hitpoints gained per level, experience
 # factor in percent, base chance for pseudo-id (smaller is better),
 # level dependent divisor for the pseudo-id chance, meter required
-# for limit break, and ability to become a magical student.
+# for limit break, and ability to transform.
 
 # 'A' is for attack info - maximum possible number of attacks, minimum
 # weapon weight for calculating the number of attacks, multiplier for
@@ -64,7 +64,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 N:0:Warrior
@@ -573,6 +573,50 @@ T:Magic Knight
 T:Magic Knight
 T:Magic Knight
 T:Magic Knight
+
+N:8:Chi Warrior
+S:2:-2:-2:2:5:-1
+C:25:18:18:1:14:2:90:55
+X:10:7:10:0:0:0:90:45
+I:9:50:9000:40:5000:0
+A:6:0:5
+M:90:4:1:1:500
+E:75:0:1:1
+E:36:4:1:1
+F:BRAVERY_30 
+T:Scrub
+T:Novice
+T:Expert
+T:Professional
+T:Champion
+T:Ace
+T:Elite
+T:Super Elite
+T:Master
+T:Top-Tier
+
+N:9:Mimic
+S:-5:2:2:1:1:5
+C:30:32:28:3:24:16:56:72
+X:8:10:10:0:0:0:30:45
+I:4:30:120000:5:5000:1
+A:5:35:4
+M:92:5:0:1:500
+E:23:10:1:1
+E:36:2:1:1
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
+T:Fake
+T:Phony
+T:Copy-Cat
+T:ID Thief
+T:Mime
+T:Duplicator
+T:Master Mimic
+T:Superior Mime
+T:Perfect Clone
+T:Shape-Shifter
+
+
 
 
 

@@ -2793,3 +2793,354 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"indestructible"
 };
 
+/* Train stop names */
+cptr train_stops[MAX_TRAIN] =
+{
+	"The Town",
+	"The Grave of Lord Asano",
+	"Fun City",
+	"Happy Fun Puzzle Land",
+	"Tokyo Tower",
+	"Town of Miyazaki",
+	"Miyazaki Forest"
+
+};
+
+/* Train stops */
+int train_jump[MAX_TRAIN] =
+{ W_TOWN, W_ASANO, W_FUN_CITY, W_PUZZLE_LAND, W_TOKYO_TOWER,
+W_MIYAZAKI_TOWN, W_MIYAZAKI_FOREST};
+
+/* Do we need to scroll this location? */
+const bool no_scroll[W_MAX] =
+{
+	TRUE,
+	FALSE,
+	FALSE,
+	TRUE,
+	TRUE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	TRUE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	FALSE,
+	TRUE,
+	TRUE,
+	FALSE,
+	TRUE,
+	FALSE
+};
+
+
+
+const char display_loc[W_MAX][32] =
+{
+	"Town",
+	"Kira House",
+	"Kira Fl 2 ",
+	"Asano Tomb",
+	"Fun Path",
+	"Fun Maze",
+	"Fun Chain",
+	"Fun MasMnd",
+	"Fun Coin",
+	"Fun Room",
+	"Duel Arena",
+	"Fun City",
+	"Puzzle Lnd",
+	"TokTw Roof",
+	"TokTw Fl 9",
+	"TokTw Fl 8",
+	"TokTw Fl 7",
+	"TokTw Fl 6",
+	"TokTw Fl 5",
+	"TokTw Fl 4",
+	"TokTw Fl 3",
+	"TokTw Fl 2",
+	"TokTw Fl 1",
+	"TokyoTower",
+	"Auhu House",
+	"Miyazaki",
+	"Kikis Bkry",
+	"Forest"
+};
+
+/* For score purposes */	
+const char long_display_loc[W_MAX][32] =
+{
+	"The Town",
+	"Kira's House",
+	"Kira's House - Floor 2",
+	"Asano's Tomb",
+	"The Fun Euler Tour",
+	"The Fun Maze",
+	"The Fun Chain",
+	"The Fun Master Mind",
+	"The Fun Counterfeit Coin",
+	"Puzzle Land's treasure room",
+	"The Duel Arena",
+	"Fun City",
+	"Happy Fun Puzzle Land",
+	"Tokyo Tower Roof",
+	"Tokyo Tower - Floor 9",
+	"Tokyo Tower - Floor 8",
+	"Tokyo Tower - Floor 7",
+	"Tokyo Tower - Floor 6",
+	"Tokyo Tower - Floor 5",
+	"Tokyo Tower - Floor 4",
+	"Tokyo Tower - Floor 3",
+	"Tokyo Tower - Floor 2",
+	"Tokyo Tower - Floor 1",
+	"Tokyo Tower",
+	"Auhu's House",
+	"Town of Miyazaki",
+	"Kiki's Bakery",
+	"Miyazaki Forest"
+};
+
+
+cptr mimic_powers[MIMIC_MAX] = 
+{
+	"Breathe Acid",
+	"Breathe Electricity",
+	"Breathe Fire",
+	"Breathe Cold",
+	"Breathe Poison",
+	"Breathe Nether",
+	"Breathe Light",
+	"Breathe Dark",
+	"Breathe Confusion",
+	"Breathe Sound",
+	"Breathe Chaos",
+	"Breathe Disenchantment",
+	"Breathe Nexus",
+	"Breathe Time",
+	"Breathe Inertia",
+	"Breathe Gravity",
+	"Breathe Shards",
+	"Breathe Plasma",
+	"Breathe Force",
+	"Breathe Mana",
+	"Acid Ball",
+	"Electric Ball",
+	"Fire Ball",
+	"Cold Ball",
+	"Poison Ball",
+	"Nether Ball",
+	"Noah",
+	"Mana Storm",
+	"Shadow Flare",
+	"Drain Mana",
+	"Mind Blast",
+	"Brain Smash",
+	"Cause Light Wounds",
+	"Cause Serious Wounds",
+	"Cause Critical Wounds",
+	"Cause Mortal Wounds",
+	"Acid Bolt",
+	"Electric Bolt",
+	"Fire Bolt",
+	"Cold Bolt",
+	"Poison Bolt",
+	"Nether Bolt",
+	"Water Bolt",
+	"Mana Bolt",
+	"Plasma Bolt",
+	"Ice Bolt",
+	"Magic Missile",
+	"Scare",
+	"Blind",
+	"Confuse",
+	"Slow",
+	"Paralyze",
+	"Haste",
+	"Heal",
+	"Blink",
+	"Teleport",
+	"Teleport Away",
+	"Divine Comedy",
+	"Dragon Slave",
+	NULL
+};
+
+/* Mimic Mana cost */
+const int mimic_powers_cost[MIMIC_MAX] = 
+{
+	10,
+	10,
+	10,
+	10,
+	10,
+	15,
+	15,
+	15,
+	15,
+	15,
+	20,
+	20,
+	20,
+	20,
+	20,
+	25,
+	25,
+	25,
+	25,
+	25,
+	12,
+	10,
+	12,
+	12,
+	15,
+	20,
+	29,
+	100,
+	12,
+	10,
+	10,
+	15,
+	10,
+	20,
+	30,
+	60,
+	12,
+	15,
+	15,
+	15,
+	20,
+	20,
+	20,
+	50,
+	20,
+	25,
+	1,
+	10,
+	10,
+	10,
+	10,
+	10,
+	20,
+	20,
+	5,
+	10,
+	15,
+	125,
+	150
+};
+
+/* What game type are we playing */
+cptr game_type[GAME_TYPE_MAX] =
+{
+	"Classical",
+	"Quest"
+
+};
+
+/* Water, Slime Mold, Fish, Noodles, Daikon, Cold Cuts, Egg */
+const s16b cooking_table[MAX_INGREDIENTS][MAX_INGREDIENTS] =
+{
+	{SV_POTION_WATER, SV_POTION_SLIME_MOLD, SV_FOOD_BOILED_FISH, SV_FOOD_RAMEN, SV_FOOD_DAIKON_MISO, SV_FOOD_MEAT_STEW, SV_FOOD_BOILED_EGGS },
+	{SV_POTION_SLIME_MOLD, SV_FOOD_SLIME_MOLD, SV_FOOD_LUTEFISK, SV_FOOD_SLIMY_NOODLES, SV_FOOD_KONYAKU_JELLY, SV_FOOD_GELATIN_STEAK, SV_FOOD_GREEN_EGGS },
+	{SV_FOOD_BOILED_FISH, SV_FOOD_LUTEFISK, SV_FOOD_SASHIMI, SV_FOOD_FISH_POTSTICKER, SV_FOOD_FISH_STEW, SV_FOOD_BIRD_NEST_SOUP, SV_FOOD_STEAMED_ASPIC },
+	{SV_FOOD_RAMEN, SV_FOOD_SLIMY_NOODLES, SV_FOOD_FISH_POTSTICKER, SV_FOOD_CHOW_MEIN, SV_FOOD_COLD_SOBA, SV_FOOD_PEPPER_BEEF, SV_FOOD_TEN_DON },
+	{SV_FOOD_DAIKON_MISO, SV_FOOD_KONYAKU_JELLY, SV_FOOD_FISH_STEW, SV_FOOD_COLD_SOBA, SV_FOOD_FRIED_DAIKON, SV_FOOD_PEKING_DUCK, SV_FOOD_DAIKON_YOGURT },
+	{SV_FOOD_MEAT_STEW, SV_FOOD_GELATIN_STEAK, SV_FOOD_BIRD_NEST_SOUP, SV_FOOD_PEPPER_BEEF, SV_FOOD_PEKING_DUCK, SV_FOOD_STRIP_STEAK, SV_FOOD_CREAMY_STEW },
+	{SV_FOOD_BOILED_EGGS, SV_FOOD_GREEN_EGGS, SV_FOOD_STEAMED_ASPIC, SV_FOOD_TEN_DON, SV_FOOD_DAIKON_YOGURT, SV_FOOD_CREAMY_STEW, SV_FOOD_OMELET }
+
+};
+/* Chi Warrior Powers */
+cptr chi_warrior_powers[CHI_WARRIOR_MAX] =
+{
+	"Blink",
+	"Heroism",
+	"Berserk",
+	"Hadouken",
+	"Umareru!!!!",
+	"Kamehameha",
+	"Burst",
+	"Bakusai Tengetsu",
+	"Hiryu Shoten Ha",
+	"Haste",
+	"Genei Jin",
+	"Kaioken",
+	"Double Team",
+	"Wrath",
+	"Glittering Gold",
+	"Superior Attack",
+	"Detection",
+	"Super Punch",
+	"Smoke Bombs",
+	"Defense",
+	"Ouroborous",
+	"Drunken Fist",
+	"Elemental Aura",
+	"Amaguri Ken",
+	"Dekakeru",
+	"Cross Counter",
+	"Ume Shoryu",
+	"Carp on Cutting Board",
+	"Ride the Lightning",
+	"Nani ga deru ka na?"
+};
+
+/* Chi Powers cost */
+const int chi_warrior_cost[CHI_WARRIOR_MAX] =
+{
+	5,
+	10,
+	10,
+	1,
+	35,
+	35,
+	25,
+	20,
+	50,
+	10,
+	150,
+	50,
+	30,
+	35,
+	40,
+	45,
+	10,
+	15,
+	5,
+	25,
+	50,
+	10,
+	10,
+	50,
+	15,
+	10,
+	60,
+	1,
+	20,
+	20
+};
+
+/* Quest descriptions */
+cptr solved_quests[MAX_QUESTS] =
+{
+	"You have made the Totoro happy.",
+	"You are the puzzle master.",
+	"You have avenged the Asano clan.",
+	"You are the world Martial Arts Champion.",
+	"You have prevented the Land Dragons from destroying Tokyo Tower.",
+	"You have helped replant Miyazaki Forest.",
+	"You have delivered a birthday cake to Auhu.",
+	"You defended Auhu from the hententmons.",
+	"You are the IRON CHEF!"
+};
+

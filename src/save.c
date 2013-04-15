@@ -1067,6 +1067,7 @@ static void wr_extra(void)
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
+	wr_s16b(p_ptr->location);
 
 	/* More info */
 	wr_s16b(0);	/* oops */
@@ -1159,6 +1160,47 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
+
+	/* Ya know what, I'm gonna do this differently.  Everytime a 
+	/* save file is altered, I'll just append the changes, so it'll
+	/* be easier to read */
+
+	/* Type of Game */
+	wr_s16b(p_ptr->what_game_type);
+
+	/* Current r_idx mimiced monster */
+	wr_s16b(p_ptr->mimic_idx);		
+
+	/* Currently mimicing something */
+	wr_byte(p_ptr->mimic);
+
+	/* Known Chi Warrior Powers */
+	for (i = 0; i < CHI_WARRIOR_MAX; i++)
+	wr_byte(p_ptr->chi_powers[i]);
+
+	/* Powers in Queue */
+	for (i = 0; i < STUDENT_MAX; i++)
+	wr_s16b(p_ptr->player_powers[i]);
+
+	/* Max POWER! */
+	wr_s16b(p_ptr->max_powers);
+
+	/* Normal Quests */
+	for (i = 0; i < MAX_QUESTS; i++)
+	wr_s16b(p_ptr->normal_quests[i]);
+	
+
+	/*** Chi Warrior Fields ***/
+	wr_byte(p_ptr->bakusai_tengetsu);
+	wr_s16b(p_ptr->kaioken);
+	wr_s16b(p_ptr->double_team);
+    wr_s16b(p_ptr->defense);
+	wr_byte(p_ptr->elemental_aura);
+	wr_byte(p_ptr->amaguri_ken);
+	wr_byte(p_ptr->cross_counter);
+	wr_byte(p_ptr->ume_shoryu);
+	wr_byte(p_ptr->super_punch);
+
 }
 
 
@@ -1958,22 +2000,10 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_minor < 4)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 0) && (sf_minor < 4))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
+		
 
 		/* Parse "new" savefiles */
-		else if (sf_minor == 5)
+		if (sf_minor == 5)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

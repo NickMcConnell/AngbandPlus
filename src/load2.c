@@ -1389,6 +1389,15 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
 
+	/* Where are we? */
+	if (older_than(0,5,4)){
+		p_ptr->location = W_TOWN;
+	}
+
+	else{
+	rd_s16b(&p_ptr->location);
+	}
+
 	/* Hack -- Repair maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
 
@@ -1490,6 +1499,54 @@ static errr rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
+
+	/* Ya know what, I'm gonna do this differently.  Everytime a 
+	/* save file is altered, I'll just append the changes, so it'll
+	/* be easier to read */
+	p_ptr->what_game_type = GAME_TYPE_CLASSICAL;
+	p_ptr->max_powers = STUDENT_MAX;
+
+	if (!older_than(0, 5, 4)){
+
+	/* Game Type */
+	rd_s16b(&p_ptr->what_game_type);
+
+	/* Current r_idx mimiced monster */
+	rd_s16b(&p_ptr->mimic_idx);		
+
+	/* Currently mimicing something */
+	rd_byte(&p_ptr->mimic);
+
+	/* Known Chi Warrior Powers */
+	for (i = 0; i < CHI_WARRIOR_MAX; i++)
+	rd_byte(&p_ptr->chi_powers[i]);
+
+	/* Powers in Queue */
+	for (i = 0; i < STUDENT_MAX; i++)
+	rd_s16b(&p_ptr->player_powers[i]);
+
+	/* Max Power! */
+	rd_s16b(&p_ptr->max_powers);
+
+	/* Normal Quests */
+	for (i = 0; i < MAX_QUESTS; i++)
+	rd_s16b(&p_ptr->normal_quests[i]);
+	
+
+	/*** Chi Warrior Fields ***/
+	rd_byte(&p_ptr->bakusai_tengetsu);
+	rd_s16b(&p_ptr->kaioken);
+	rd_s16b(&p_ptr->double_team);
+    rd_s16b(&p_ptr->defense);
+	rd_byte(&p_ptr->elemental_aura);
+	rd_byte(&p_ptr->amaguri_ken);
+	rd_byte(&p_ptr->cross_counter);
+	rd_byte(&p_ptr->ume_shoryu);
+	rd_byte(&p_ptr->super_punch);
+
+
+
+	}
 
 
 	/* Read the player_hp array */
@@ -1730,6 +1787,14 @@ static errr rd_inventory(void)
 
 		/* Verify slot */
 		if (n >= INVEN_TOTAL) return (-1);
+
+		/* Hack -- Magic Knight glitch fix */
+		if ((i_ptr->tval == TV_SWORD) && 
+				(i_ptr->sval == SV_MAGIC_KNIGHT_SWORD))
+		{
+			i_ptr->sval = SV_MAGIC_KNIGHT_SWORD + p_ptr->lev / 10;
+			
+		}
 
 		/* Wield equipment */
 		if (n >= INVEN_WIELD)

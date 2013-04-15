@@ -914,9 +914,13 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX4X4 */
+		/* RF4_BULLET */
 		case RF4_OFFSET+3:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s makes a strange noise.", m_name);
+			else msg_format("%^s fires a gun at you!", m_name);
+			bolt(m_idx, GF_ARROW, 100);
 			break;
 		}
 
@@ -2139,7 +2143,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons hydras.", m_name);
+			else msg_format("%^s magically summons Hententmons.", m_name);
 			for (k = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA);

@@ -41,41 +41,24 @@ especially this one, before beginning any serious adventuring...
 
 === A Note from the Maintainer ===
 
-Welcome to Animeband 2.8.X.
+Welcome to Animeband 0.5.X.
 
-My name is Ben Harrison, and I have been the maintainer of Animeband since
-November 1994.  I have been responsible for many improvements to the game
+My name is Ernest Huang, and I have been the maintainer of Animeband since
+June 2002.  I have been responsible for many improvements to the game
 over the past few years, and I have many more planned for the future.
 
-Animeband 2.8.X is available for almost every known system (including Unix,
-Macintosh, Amiga, Windows, DOS, OS/2, etc).  It is written entirely in C,
-and the source code is freely available.  Creating a version for a new
-platform involves writing as few as 100 lines of code and recompiling.
-
-Animeband 2.7.8 was the most recent official "stable" version.  However,
-it contained a few minor (non-fatal) bugs (see the web page).  You can
-give Animeband 2.7.8 to your friends while they wait for Animeband 2.8.2.
-
-Animeband 2.8.3 will be the next official "stable" version.  A whole lot of
-changes have been made since Animeband 2.7.8 was released, and there is now
-a web page listing all of the changes made in each version since that one.
-Animeband 2.7.9v1, 2.7.9v2, 2.7.9v3, 2.7.9v4, 2.7.9v5, 2.7.9v6, 2.8.0, 2.8.1,
-and 2.8.2, are basically "transition" versions leading up to Animeband 2.8.3,
-and they are all still available (for now) at the ftp sites.  Animeband 2.8.3
-is based on all previous versions, and incorporates bug fixes in addition to
-new features.
-
-See the Official Animeband Home Page ("http://thangorodrim.Animeband.org/") for
+See the Official Animeband Home Page ("http://angband.oook.cz/animeband/") for
 up to date information about the latest version of Animeband, including a
-complete list of recent modifications and known bugs.
+complete list of recent modifications and known bugs.  You can also obtain the
+source code here.
 
 You can obtain the latest source and pre-compiled executables from various
 places, try "ftp://ftp.cis.ksu.edu/pub/Games/Animeband/Animeband-2.7.x" and
 the developer site at "ftp://clockwork.dementia.org/Animeband/".
 
 You can email compliments, complaints, suggestions, bug reports, and patches
-to me ("rr9@Animeband.org"), and you can post interesting experiences and
-basic questions to the newsgroup ("rec.games.roguelike.Animeband").
+to me ("animeband@oook.cz"), and you can post interesting experiences and
+basic questions to the newsgroup ("rec.games.roguelike.angband").
 
 You may freely distribute the game, and its source, though you are bound
 not only by the existing copyright notice from 1984, but also whatever

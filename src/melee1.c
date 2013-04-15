@@ -71,12 +71,34 @@ static int check_hit(int power, int level)
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
+	/* Double team bonus */
+	if (p_ptr->double_team)
+	{
+		ac *= 2;
+	}
+
+	/* Defense bonus */
+	if (p_ptr->defense)
+	{
+		ac *= 2;
+	}
+
 	/* Power and Level compete against Armor */
 	if ((i > 0) && (randint(i) > ((ac * 3) / 4))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
 }
+
+#define MAX_DESC_MOLEST 4
+
+static cptr desc_molest[MAX_DESC_MOLEST] =
+{
+	"molests you!",
+	"reaches out and violates you!",
+	"gropes you!",
+	"achieves penetration!"
+};
 
 
 #define MAX_DESC_INSULT 8
@@ -144,6 +166,9 @@ bool make_attack_normal(int m_idx)
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
+
+	/* Friendly */
+	if (r_ptr->flags3 & (RF3_FRIENDLY))  return (FALSE);
 
 
 	/* Total armor */
@@ -399,9 +424,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX3:
+				case RBM_MOLEST:
 				{
-					act = "XXX3's on you.";
+					act = desc_molest[rand_int(MAX_DESC_MOLEST)];
 					break;
 				}
 

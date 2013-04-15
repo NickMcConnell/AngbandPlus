@@ -382,7 +382,8 @@ static const tval_desc tvals[] =
 	{ TV_HELM,              "Helm"                 },
 	{ TV_GLOVES,            "Gloves"               },
 	{ TV_BOOTS,             "Boots"                },
-	{ TV_MECHA,			"Mechas"			   },
+	{ TV_MECHA,				"Mechas"			   },
+	{ TV_QUEST_ITEM,		"Quest Item"		   },
 	{ TV_CLOAK,             "Cloak"                },
 	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
 	{ TV_HARD_ARMOR,        "Hard Armor"           },
@@ -405,6 +406,7 @@ static const tval_desc tvals[] =
 	{ TV_SKELETON,          "Skeletons"            },
 	{ TV_BOTTLE,            "Empty bottle"         },
 	{ TV_JUNK,              "Junk"                 },
+	{ TV_PARCHMENT,			"Parchment"			   },
 	{ 0,                    NULL                   }
 };
 
@@ -1197,6 +1199,47 @@ static void do_cmd_wiz_jump(void)
 	p_ptr->leaving = TRUE;
 }
 
+/*
+ * Go to any level
+ */
+static void do_cmd_wiz_jumploc(void)
+{
+	/* Ask for level */
+	if (p_ptr->command_arg <= 0)
+	{
+		char ppp[80];
+
+		char tmp_val[160];
+
+		/* Prompt */
+		sprintf(ppp, "Jump to level (0-%d): ", W_MAX-1);
+
+		/* Default */
+		sprintf(tmp_val, "%d", p_ptr->location);
+
+		/* Ask for a level */
+		if (!get_string(ppp, tmp_val, 11)) return;
+
+		/* Extract request */
+		p_ptr->command_arg = atoi(tmp_val);
+	}
+
+	/* Paranoia */
+	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
+
+	/* Paranoia */
+	if (p_ptr->command_arg > W_MAX - 1) p_ptr->command_arg = W_MAX - 1;
+
+	/* Accept request */
+	msg_format("You jump to location %d.", p_ptr->command_arg);
+
+	/* New location */
+	p_ptr->location = p_ptr->command_arg;
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+}
+
 
 /*
  * Become aware of a lot of objects
@@ -1307,8 +1350,16 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 	int i, x, y;
 
 	/* Paranoia */
-	if (!r_idx) return;
-	if (r_idx >= z_info->r_max-1) return;
+	if (!r_idx)
+	{
+		msg_print("!r_idx");
+		return;
+	}
+	if (r_idx >= z_info->r_max-1) 
+	{
+		msg_print("Out of bounds");
+		return;
+	}
 
 	/* Try 10 times */
 	for (i = 0; i < 10; i++)
@@ -1599,6 +1650,14 @@ void do_cmd_debug(void)
 			do_cmd_wiz_jump();
 			break;
 		}
+
+		/* Teleport to a different wilderness */
+		case 'J':
+			{
+				do_cmd_wiz_jumploc();
+				break;
+			}
+
 
 		/* Self-Knowledge */
 		case 'k':

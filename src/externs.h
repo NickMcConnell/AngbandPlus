@@ -64,6 +64,18 @@ extern cptr option_desc[OPT_MAX];
 extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
+extern cptr train_stops[MAX_TRAIN];
+extern int train_jump[MAX_TRAIN];
+extern const bool no_scroll[W_MAX];
+extern const char display_loc[W_MAX][32];
+extern const char long_display_loc[W_MAX][32];
+extern cptr mimic_powers[MIMIC_MAX];
+extern const int mimic_powers_cost[MIMIC_MAX];
+extern cptr game_type[GAME_TYPE_MAX];
+extern const s16b cooking_table[MAX_INGREDIENTS][MAX_INGREDIENTS];
+extern cptr chi_warrior_powers[CHI_WARRIOR_MAX];
+extern const int chi_warrior_cost[CHI_WARRIOR_MAX];
+extern cptr solved_quests[MAX_QUESTS];
 
 /* variable.c */
 extern cptr copyright;
@@ -175,6 +187,9 @@ extern player_type *p_ptr;
 extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
+extern wilderness_type *w_info;
+extern char *w_name;
+extern char *w_text;
 extern feature_type *f_info;
 extern char *f_name;
 extern char *f_text;
@@ -283,7 +298,12 @@ extern sint critical_norm(int weight, int plus, int dam);
 extern sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr);
 extern void search(void);
 extern void py_pickup(int pickup);
+extern void hit_tele(int y, int x);
+extern void hit_train_station(void);
 extern void hit_trap(int y, int x);
+extern void hit_trigger(int y, int x);
+extern void hit_trigger2(int y, int x);
+extern void hit_special(int location, int y, int x);
 extern void py_attack(int y, int x);
 extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
@@ -308,6 +328,7 @@ extern void do_cmd_stay(void);
 extern void do_cmd_rest(void);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
+extern void do_cmd_mimic(void);
 
 /* cmd3.c */
 extern void do_cmd_inven(void);
@@ -350,10 +371,17 @@ extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_power(void);
+extern void do_cmd_talk(void);
+extern void do_cmd_give(void);
 extern void do_cmd_super(void);
 extern void do_cmd_mechfire(void);
 extern void do_cmd_taunt(void);
 extern void do_cmd_mknight(void);
+extern void raging_demon(int dir);
+extern void do_cmd_mimic_cast(void);
+extern void do_cmd_study_chi_warrior(void);
+extern void do_cmd_swap_chi_warrior(void);
+extern void do_cmd_chi_power(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -382,6 +410,7 @@ extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
 extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
+extern void generate_name(void);
 extern void process_player_name(bool sf);
 extern void get_name(void);
 extern void do_cmd_suicide(void);
@@ -404,8 +433,7 @@ extern void init_file_paths(char *path);
 extern void init_angband(void);
 extern void cleanup_angband(void);
 
-/* load1.c */
-extern errr rd_savefile_old(void);
+
 
 /* load2.c */
 extern errr rd_savefile_new(void);
@@ -617,6 +645,7 @@ extern bool door_creation(void);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
+extern void do_cmd_cook(void);
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -683,6 +712,7 @@ extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern s16b get_quantity(cptr prompt, int max);
 extern bool get_check(cptr prompt);
+extern bool get_check_chi_warrior(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
 extern void pause_line(int row);
 extern void request_command(bool shopping);
@@ -706,6 +736,7 @@ extern void window_stuff(void);
 extern void handle_stuff(void);
 
 /* xtra2.c */
+extern bool quests_complete(void);
 extern bool set_blind(int v);
 extern bool set_confused(int v);
 extern bool set_poisoned(int v);
@@ -720,7 +751,8 @@ extern bool set_blessed(int v);
 extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_s_sayian(int v);
-extern bool set_mag_student();
+extern bool set_mimic(void);
+extern bool set_mag_student(void);
 extern bool set_ouroborous(int v);
 extern bool set_geneijin(int v);
 extern bool set_protevil(int v);
@@ -758,6 +790,9 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
+extern bool set_kaioken(int v);
+extern bool set_double_team(int v);
+extern bool set_defense(int v);
 
 
 /*

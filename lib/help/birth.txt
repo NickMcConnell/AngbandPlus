@@ -187,8 +187,8 @@ have intrinsic abilities.
             race of scholars, and make very good mages and priests.  However,
             since taking a humanoid form, they have become pale versions of
             their original forms, and thus have somewhat iffy saving throws,
-            perception, and disarming.  They can invoke powerful beams to
-            strike seemingly from nowhere. Sanjiyans can never be blinded.
+            perception, and disarming.  They can quickly travel to a safe 
+            haven if need be. Sanjiyans can never be blinded.
                
           Sky Dragons
             Sky Dragons are a race of people who defend the earth from the Land
@@ -514,17 +514,17 @@ are listed in the following table.
  
  
  
-=== Ability Tables (outdated)  I would update...but I don't understand ===
-===                 how these values are calculated                    ===
+=== Ability Tables ===
+
 
  
                       Disarm Search Stealth Percep Fight Bows Save Infra
  
            Human         5      5      5       5     5     5    5  None
-           Half-Elf      6      7      7       6     4     6    6  20 feet
-           Elf           8      9      7       7     3     9    7  30 feet
-           Hobbit       10     10     10      10     1    10   10  40 feet
-           Gnome         9      7      9       9     2     8    9  40 feet
+           Nedian        5      6      6       5     5     6    5  20 feet
+           Sayajin       5      5      1       5     7     7    7  30 feet
+           Juraian       6      5      7       5     4     7    7  40 feet
+           Android       5      5      6       5     5     7    6  40 feet
            Dwarf         6      8      3       5     9     5    8  50 feet
            Half-Orc      3      5      3       2     8     3    3  30 feet
            Half-Troll    1      1      1       1    10     1    1  30 feet

@@ -242,7 +242,16 @@ Alter (+)
         command may take a count, is affected by the "always_repeat" option,
         requires a direction, and takes some energy.
 
---- Spell and Prayer Commands ---
+Talk (Ctrl - T)
+	This command allows you to talk to various characters in the game.
+
+Give (Ctrl - B)
+	This command allows you to give an item to various characters.
+
+Taunt (U)
+	Be careful with this one...
+
+--- Magic Commands ---
 
 Browse a book (b) or Peruse a book (P)
         Only mages, rogues, and rangers can read magic books, and only
@@ -261,7 +270,9 @@ Gain new spells or prayers (G)
         ranger, you may actually choose which spell to study.  If you are a
         priest or paladin, your gods will choose a prayer for you.  There are
         nine books of each type, five of which are normally found only in the
-        dungeon. This command takes some energy.
+        dungeon. This command takes some energy.  For Chi Warriors, you gain 
+	powers through this command as well.  It will allow you to swap 
+	powers with the ones you already know.
 
 Cast a spell (m)
         To cast a spell, you must have previously learned the spell and
@@ -274,7 +285,7 @@ Cast a spell (m)
         spell from a book, you cannot be blind or confused while casting,
         and there must be some light present.  This command takes some energy.
 
-Pray a prayer (p)
+Pray a prayer (m)
         To pray effectively, you must have previously learned the prayer
         and must have in your inventory a book from which the prayer can
         be read.  Each prayer has a chance of being ignored which starts
@@ -286,18 +297,20 @@ Pray a prayer (p)
         or confused while praying, and there must be some light present.
         This command takes some energy.
 
-Use Limit Break (Z)
+Use Limit Break (p)
         Activates whatever limit break you have (race dependent).  Your meter
         must be full in order to use limit breaks.
 
 Transform (O)
         Students can transform into magical pretty boy/girls provided that they
-        have enough mana.  A mana point drains per turn while in this status.
+        have enough mana.  Mimics can mimic a monster adjacent to them provided
+	that they have enough mana.  Your mana will drain while in transform 
+	state.
 
-Call powers (h)
-        Students have a ZERO percent fail rate on their powers.  However, they 
-        must have enough mana to use the power, otherwise they cannot use the
-        power at all.  Student powers are also not level dependent.
+Call powers (m)
+        Students/Mimics/Magic Knights/Chi Warriors have a ZERO percent fail 
+	rate on their powers.  However, they must have enough mana to use 
+	their powers, otherwise they cannot use the power at all.  
 
 --- Object Manipulation Commands ---
 
@@ -323,13 +336,14 @@ Quaff a potion (q)
         various ways, but the effects are not always immediately obvious. 
         This command takes some energy.
 
-Read a scroll (r)
+Read a scroll/Parchment (r)
         Use this command to read a scroll.  Scroll spells usually have an
         area effect, except for a few cases where they act on other objects.
         Reading a scroll causes the parchment to disintegrate as the scroll
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
-        before it disintegrates.  This command takes some energy.
+        before it disintegrates.  This command takes some energy.  Parchments 
+	can be read by Chi Warriors to learn new powers.
  
 Inscribe an object ({) 
         This command inscribes a string on an object.  The inscription is
@@ -368,6 +382,17 @@ Inscribe an object ({)
 Uninscribe an object (})
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
+
+Cook (Ctrl - H)
+	Two ingredients are reqired to make a dish.  Who knows what kind of 
+	food you'll make...
+
+Talk (Ctrl - T)
+	Allow you to talk to monsters.  Only the friendly creatures will talk
+	back.
+
+Give (Ctrl - B)
+	Gives an item to someone.
 
 --- Magical Object Commands ---
 
@@ -448,7 +473,8 @@ Fire guns (x)
         When you are riding on a mecha, you may shoot whatever guns the mecha
         has.  However, this causes the mecha to become weaker, and if the 
         mecha is too weak, it will not fire.  The damage and firing power of
-        the mecha is dependent on the type of mecha that you are riding.
+        the mecha is dependent on the type of mecha that you are riding.  Bear
+        in mind that if the mecha dies, YOU DIE.
 
 Targeting Mode (*)
         This will allow you to aim your spells and such at a specific

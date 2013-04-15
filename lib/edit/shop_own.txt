@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 # General Store
@@ -98,3 +98,34 @@ N:7:2:Your home
 I:99:0:100:100:0:99
 N:7:3:Your home
 I:99:0:100:100:0:99
+
+# Vending Machine
+N:8:0:Vending Machine
+I:99:0:100:100:0:99
+N:8:1:Vending Machine
+I:99:0:100:100:0:99
+N:8:2:Vending Machine
+I:99:0:100:100:0:99
+N:8:3:Vending Machine
+I:99:0:100:100:0:99
+
+
+# Ramen Stand
+N:9:0:Ramen Stand
+I:99:0:100:100:0:99
+N:9:1:Ramen Stand
+I:99:0:100:100:0:99
+N:9:2:Ramen Stand
+I:99:0:100:100:0:99
+N:9:3:Ramen Stand
+I:99:0:100:100:0:99
+
+# Grocery Store
+N:10:0:Shokuryohin Boy
+I:1:200:200:110:4:12
+N:10:1:Otsu
+I:0:200:180:107:5:15
+N:10:2:Kikikaikai
+I:0:200:170:107:5:15
+N:10:3:Matahachi
+I:0:300:155:107:6:18

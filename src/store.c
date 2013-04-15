@@ -303,6 +303,10 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
  */
 static int store_num = 7;
 
+/* WTF 
+static int shop_index = 0;
+*/
+
 /*
  * We store the current "store page" here so everyone can access it
  */
@@ -826,6 +830,13 @@ static bool store_will_buy(const object_type *o_ptr)
 			}
 			break;
 		}
+		case STORE_VENDING:
+		case STORE_RAMEN:
+		case STORE_GROCERY:
+			{
+				return (FALSE);
+				break;
+			}
 	}
 
 	/* Ignore "worthless" items XXX XXX XXX */
@@ -1492,7 +1503,7 @@ static void store_prt_gold(void)
 static void display_store(void)
 {
 	char buf[80];
-
+	
 
 	/* Clear screen */
 	Term_clear();
@@ -1512,11 +1523,56 @@ static void display_store(void)
 			put_str("Weight", 5, 70);
 		}
 	}
+	/* Vending Machine+ are exceptions, for now */
+	else if (store_num == STORE_VENDING)
+	{
+		/* Put the owner name */
+		put_str("Vending Machine", 3, 30);
+
+		/* Label the object descriptions */
+		put_str("Item Description", 5, 3);
+
+		/* If showing weights, show label */
+		if (show_weights)
+		{
+			put_str("Weight", 5, 70);
+		}
+	}
+
+	/* Ramen Stands are exceptions, for now */
+	else if (store_num == STORE_RAMEN)
+	{
+		/* Put the owner name */
+		put_str("Ramen Stand", 3, 30);
+
+		/* Label the object descriptions */
+		put_str("Item Description", 5, 3);
+
+		/* If showing weights, show label */
+		if (show_weights)
+		{
+			put_str("Weight", 5, 70);
+		}
+	}
+	
 
 	/* Normal stores */
 	else
 	{
+		/* Mega Ghetto hack because Shops are not grouped together ^_^; 
+		if (!(store_num > STORE_HOME)) {
+		shop_index = FEAT_SHOP_HEAD + store_num;
+		}
+		else {
+
+			shop_index = FEAT_GROCERY_STORE;
+
+		}*/
+		/* Doesn't work....who the hell coded this to only take STATIC type?! */
+
 		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
+
+
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
 		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
 
@@ -1909,6 +1965,11 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 	/* Determine if haggling is necessary */
 	noneed = noneedtobargain(final_ask);
+
+	/* Vending Machine items are fixed price */
+	if ((o_ptr->k_idx >=543) && (o_ptr->k_idx <=545))
+		o_ptr->ident |= (IDENT_FIXED);
+
 
 	/* No need to haggle */
 	if (auto_haggle || noneed || (o_ptr->ident & (IDENT_FIXED)))
@@ -2967,6 +3028,7 @@ static void store_process_command(void)
 			break;
 		}
 
+	
 
 		/*** Inventory Commands ***/
 
@@ -3223,7 +3285,9 @@ void do_cmd_store(void)
 
 	/* Verify a store */
 	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)))
+	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)) &&
+		  !((cave_feat[py][px] >= FEAT_VENDING_MACHINE)
+		  && (cave_feat[py][px] <= FEAT_GROCERY_STORE)))
 	{
 		msg_print("You see no store here.");
 		return;
@@ -3231,6 +3295,10 @@ void do_cmd_store(void)
 
 	/* Hack -- Extract the store code */
 	which = (cave_feat[py][px] - FEAT_SHOP_HEAD);
+
+	/* Vending Machine+ exception */
+	if (cave_feat[py][px] >= FEAT_VENDING_MACHINE)
+		which = STORE_VENDING + (cave_feat[py][px] - FEAT_VENDING_MACHINE);
 
 	/* Hack -- Check the "locked doors" */
 	if (adult_no_stores || store[which].store_open >= turn)
@@ -3627,3 +3695,4 @@ void store_init(int which)
 		object_wipe(&st_ptr->stock[k]);
 	}
 }
+

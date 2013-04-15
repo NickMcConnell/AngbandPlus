@@ -70,7 +70,7 @@ static cptr r_info_blow_method[] =
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
+	"MOLEST",
 	"GAZE",
 	"WAIL",
 	"SPORE",
@@ -137,7 +137,7 @@ static cptr r_info_flags1[] =
 	"FORCE_DEPTH",
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
-	"FORCE_EXTRA",
+	"FORCE_LOCATION",
 	"FRIEND",
 	"FRIENDS",
 	"ESCORT",
@@ -168,14 +168,14 @@ static cptr r_info_flags2[] =
 	"STUPID",
 	"SMART",
 	"RESPAWN",
-	"XXX2X2",
+	"NO_SUMMON",
 	"INVISIBLE",
 	"COLD_BLOOD",
 	"EMPTY_MIND",
 	"WEIRD_MIND",
 	"MULTIPLY",
 	"REGENERATE",
-	"XXX3X2",
+	"WILD_ONLY",
 	"XXX4X2",
 	"POWERFUL",
 	"XXX5X2",
@@ -212,7 +212,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
+	"FRIENDLY",
 	"XXX2X3",
 	"XXX3X3",
 	"XXX4X3",
@@ -246,7 +246,7 @@ static cptr r_info_flags4[] =
 	"SHRIEK",
 	"XXX2X4",
 	"XXX3X4",
-	"XXX4X4",
+	"BULLET",
 	"ARROW_1",
 	"ARROW_2",
 	"ARROW_3",
@@ -799,6 +799,17 @@ errr parse_z_info(char *buf, header *head)
 		z_info->v_max = max;
 	}
 
+	/* Process 'W' for "Maximum w_info[] index" */
+	else if (buf[2] == 'W')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->w_max = max;
+	}
 
 	/* Process 'P' for "Maximum p_info[] index" */
 	else if (buf[2] == 'P')
@@ -996,7 +1007,94 @@ errr parse_v_info(char *buf, header *head)
 	return (0);
 }
 
+/*
+ * Initialize the "w_info" array, by parsing an ascii "template" file
+ */
+errr parse_w_info(char *buf, header *head)
+{
+	int i;
+	
 
+	char *s;
+
+	/* Current entry */
+	static wilderness_type *w_ptr = NULL;
+
+
+	/* Process 'N' for "New/Number/Name" */
+	if (buf[0] == 'N')
+	{
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
+		/* Paranoia -- require a name */
+		if (!*s) return (PARSE_ERROR_GENERIC);
+
+		/* Get the index */
+		i = atoi(buf+2);
+		
+		/* Verify information */
+		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+		/* Verify information */
+		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
+
+		/* Save the index */
+		error_idx = i;
+
+		/* Point at the "info" */
+		w_ptr = &w_info[i];
+
+		/* Store the name */
+		if (!(w_ptr->name = add_name(head, s)))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current w_ptr */
+		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&w_ptr->text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'X' for "Extra info" (one line only) */
+	else if (buf[0] == 'X')
+	{
+		int hgt, wid;
+
+		/* There better be a current w_ptr */
+		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values */
+		if (2 != sscanf(buf+2, "%d:%d",
+			            &hgt, &wid)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the values */
+		w_ptr->hgt = hgt;
+		w_ptr->wid = wid;
+	}
+	else
+	{
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+	/* Success */
+	return (0);
+}
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file

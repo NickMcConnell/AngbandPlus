@@ -283,6 +283,7 @@ header c_head;
 header h_head;
 header b_head;
 header g_head;
+header w_head;
 
 
 
@@ -760,6 +761,24 @@ static errr init_v_info(void)
 	                 (void*)&v_info, (void*)&v_name, (void*)&v_text);
 }
 
+/*
+ * Initialize the "w_info" array
+ */
+static errr init_w_info(void)
+{
+	/* Init the header */
+	init_header(&w_head, z_info->w_max, sizeof(wilderness_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	w_head.parse_info_txt = parse_w_info;
+
+#endif /* ALLOW_TEMPLATES */
+
+	return init_info("wilderness", &w_head,
+	                 (void*)&w_info, (void*)&w_name, (void*)&w_text);
+}
 
 /*
  * Initialize the "p_info" array
@@ -1113,7 +1132,127 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 3 }
+	},
+
+	 /*Vending Machine? */
+	{
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_COLA },
+
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE }
+	},
+
+	/* Ramen Stand */
+
+	{
+		{ TV_FOOD, SV_FOOD_RAMEN },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_BOILED_FISH },
+		{ TV_FOOD, SV_FOOD_DAIKON_MISO },
+		{ TV_FOOD, SV_FOOD_FRIED_DAIKON },
+		{ TV_FOOD, SV_FOOD_MEAT_STEW },
+		{ TV_FOOD, SV_FOOD_BOILED_EGGS },
+		{ TV_FOOD, SV_FOOD_SLIMY_NOODLES },
+		{ TV_FOOD, SV_FOOD_GREEN_EGGS },
+		{ TV_FOOD, SV_FOOD_SASHIMI },
+		{ TV_FOOD, SV_FOOD_FISH_POTSTICKER },
+		{ TV_FOOD, SV_FOOD_CHOW_MEIN },
+		{ TV_FOOD, SV_FOOD_COLD_SOBA },
+		{ TV_FOOD, SV_FOOD_PEPPER_BEEF },
+		{ TV_FOOD, SV_FOOD_TEN_DON },
+		{ TV_FOOD, SV_FOOD_CREAMY_STEW },
+
+		{ TV_FOOD, SV_FOOD_RAMEN },
+		{ TV_FOOD, SV_FOOD_GREEN_TEA },
+		{ TV_FOOD, SV_FOOD_COLA },
+		{ TV_FOOD, SV_FOOD_ICED_COFFEE },
+		{ TV_FOOD, SV_FOOD_BOILED_FISH },
+		{ TV_FOOD, SV_FOOD_DAIKON_MISO },
+		{ TV_FOOD, SV_FOOD_FRIED_DAIKON },
+		{ TV_FOOD, SV_FOOD_MEAT_STEW },
+		{ TV_FOOD, SV_FOOD_BOILED_EGGS },
+		{ TV_FOOD, SV_FOOD_SLIMY_NOODLES },
+		{ TV_FOOD, SV_FOOD_GREEN_EGGS },
+
+		{ TV_FOOD, SV_FOOD_COLD_SOBA },
+		{ TV_FOOD, SV_FOOD_PEPPER_BEEF },
+		{ TV_FOOD, SV_FOOD_TEN_DON }
+
+	},
+
+	/* Grocery Store */
+
+	{
+		{ TV_FOOD, SV_FOOD_EGGS },
+		{ TV_FOOD, SV_FOOD_COLD_CUTS },
+		{ TV_FOOD, SV_FOOD_DAIKON },
+		{ TV_FOOD, SV_FOOD_NOODLES },
+		{ TV_FOOD, SV_FOOD_FISH },
+		{ TV_POTION, SV_POTION_WATER },
+		{ TV_FOOD, SV_FOOD_SLIME_MOLD },
+		{ TV_POTION, SV_POTION_WATER },
+
+		{ TV_FOOD, SV_FOOD_EGGS },
+		{ TV_FOOD, SV_FOOD_COLD_CUTS },
+		{ TV_FOOD, SV_FOOD_DAIKON },
+		{ TV_FOOD, SV_FOOD_NOODLES },
+		{ TV_FOOD, SV_FOOD_FISH },
+		{ TV_POTION, SV_POTION_WATER },
+		{ TV_FOOD, SV_FOOD_SLIME_MOLD },
+		{ TV_POTION, SV_POTION_WATER },
+
+		{ TV_FOOD, SV_FOOD_EGGS },
+		{ TV_FOOD, SV_FOOD_COLD_CUTS },
+		{ TV_FOOD, SV_FOOD_DAIKON },
+		{ TV_FOOD, SV_FOOD_NOODLES },
+		{ TV_FOOD, SV_FOOD_FISH },
+		{ TV_POTION, SV_POTION_WATER },
+		{ TV_FOOD, SV_FOOD_SLIME_MOLD },
+		{ TV_POTION, SV_POTION_WATER },
+
+		{ TV_FOOD, SV_FOOD_EGGS },
+		{ TV_FOOD, SV_FOOD_COLD_CUTS },
+		{ TV_FOOD, SV_FOOD_DAIKON },
+		{ TV_FOOD, SV_FOOD_NOODLES },
+		{ TV_FOOD, SV_FOOD_FISH },
+		{ TV_POTION, SV_POTION_WATER },
+		{ TV_FOOD, SV_FOOD_SLIME_MOLD },
+		{ TV_POTION, SV_POTION_WATER }
 	}
+
+
 };
 
 
@@ -1124,6 +1263,7 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 static errr init_other(void)
 {
 	int i, k, n;
+	int j;
 
 
 	/*** Prepare the various "bizarre" arrays ***/
@@ -1223,6 +1363,15 @@ static errr init_other(void)
 		/* No table for the black market or home */
 		if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
 
+		/* Change entry for additional stores ?*/
+		/* Ghetto Solution */
+		if (i >= STORE_VENDING)
+			j = i - 2;
+		else 
+			j = i;
+			
+
+
 		/* Assume full table */
 		st_ptr->table_size = STORE_CHOICES;
 
@@ -1235,8 +1384,8 @@ static errr init_other(void)
 			int k_idx;
 
 			/* Extract the tval/sval codes */
-			int tv = store_table[i][k][0];
-			int sv = store_table[i][k][1];
+			int tv = store_table[j][k][0];
+			int sv = store_table[j][k][1];
 
 			/* Look for it */
 			for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
@@ -1782,6 +1931,10 @@ void init_angband(void)
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
+	/* Initialize feature info */
+	note("[Initializing arrays... (wilderness)]");
+	if (init_w_info()) quit("Cannot initialize wilderness");
+
 	/* Initialize history info */
 	note("[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
@@ -1923,6 +2076,7 @@ void cleanup_angband(void)
 	free_info(&k_head);
 	free_info(&f_head);
 	free_info(&z_head);
+	free_info(&w_head);
 
 	/* Free the format() buffer */
 	vformat_kill();

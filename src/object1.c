@@ -1146,6 +1146,17 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Parchments */
+		case TV_PARCHMENT:
+		{
+			
+			modstr = basenm;
+			append_name = TRUE;
+			basenm = "& Parchment~";
+
+			break;
+		}
+
 		/* Potions */
 		case TV_POTION:
 		{
@@ -1193,6 +1204,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			strcpy(buf, basenm);
 			return;
 		}
+
+		case TV_QUEST_ITEM:
+			{
+				break;
+			}
 
 		/* Hack -- Default -- Used in the "inventory" routine */
 		default:

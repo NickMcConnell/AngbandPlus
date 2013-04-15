@@ -3131,6 +3131,40 @@ bool get_check(cptr prompt)
 	return (TRUE);
 }
 
+bool get_check_chi_warrior(cptr prompt)
+{
+	char ch;
+
+	char buf[80];
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.70s", prompt);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		if (strchr("GgSs", ch)) break;
+		bell("Illegal response to the question!");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Normal negation */
+	if ((ch != 'G') && (ch != 'g')) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
 
 /*
  * Prompts for a keypress

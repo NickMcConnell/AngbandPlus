@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:0.5.4
 
 
 ##### Non-race (contains the "player" picture) #####
@@ -205,7 +205,7 @@ B:PUNCH:HURT:1d1
 B:MOAN:TERRIFY
 F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | ALWAYS_HIT |
-F:ONLY_ITEM | DROP_GREAT | 
+F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
 D:More noisy than cheerful, she sometimes tends to be little selfish. 
@@ -416,25 +416,24 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is about eight feet long.
 
-N:24:Small kobold
-G:k:y
+N:24:Fairy moogle
+G:k:B
 I:110:2d7:20:16:10
 W:1:1:0:5
 B:HIT:HURT:1d5
 F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
-D:It is a squat and ugly humanoid figure.
+F:OPEN_DOOR
+D:Fairy moogles are weird and secretive moogles that live in 
+D:special parts of forests.
 
-N:25:Kobold
+N:25:Forest moogle
 G:k:G
 I:110:3d7:20:16:10
 W:1:1:0:5
 B:HIT:HURT:1d6
 F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
-D:It is a small, dog-headed humanoid.
+F:OPEN_DOOR
+D:It is a moogle that wears clothes and frolics about.
 
 N:26:White worm mass
 G:w:w
@@ -522,7 +521,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:35:Platypus
+N:35:Giant Platypus
 G:B:u
 I:110:9d4:20:16:5
 W:2:1:0:6
@@ -530,7 +529,8 @@ B:HIT:HURT:1d7
 B:HIT:POISON:1d6
 F:IM_POIS
 F:ANIMAL
-D:Shy and goofy looking, it makes a mockery of evolutionists everywhere.
+D:Shy and goofy looking, it makes a mockery of evolutionists everywhere.  
+D:This one just happens to be 20 feet tall.
 
 
 N:36:Nohoho
@@ -808,18 +808,17 @@ S:DRAIN_MANA
 D:It is a large pile of silver flesh that sucks all light from its 
 D:surroundings.
 
-N:60:Yellow jelly
-G:j:y
-I:120:10d8:2:1:99
+N:60:Giant germ
+G:j:v
+I:110:6d8:2:1:99
 W:3:1:0:12
 B:TOUCH:POISON:1d3
-F:NEVER_MOVE | 
-F:STUPID | EMPTY_MIND | 
+F:STUPID | WEIRD_MIND | MULTIPLY |
 F:IM_POIS | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_15 | 
 S:DRAIN_MANA
-D:It's a large pile of yellow flesh.
+D:Don't ask me....ask the creators of Yu-Gi-Oh.
 
 N:61:Oyaji
 G:p:U
@@ -927,8 +926,8 @@ B:BITE:HURT:1d7
 B:BITE:HURT:1d7
 F:FEMALE | 
 F:FORCE_SLEEP | 
-D:A cute little cat that has extremely sharp teeth.  It wants you to 
-D:pet it.
+D:A cute little cat that has extremely sharp teeth.  It is baiting 
+D:you to pet it.
 
 N:71:Blue jelly
 G:j:b
@@ -1057,17 +1056,17 @@ F:IM_ACID | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a large pile of pulsing green flesh.
 
-N:82:Large kobold
-G:k:b
+N:82:Mountain moogle
+G:k:w
 I:110:13d9:20:32:30
 W:5:1:0:25
 B:HIT:HURT:1d10
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
-D:It a man-sized figure with the all too recognizable face of a kobold.
+F:IM_COLD
+D:It is a snow colored moogle that blends in really well in snow.
 
-N:83:Skeleton kobold
+N:83:Skeleton moogle
 G:s:w
 I:110:5d8:20:26:40
 W:5:1:0:12
@@ -1075,7 +1074,7 @@ B:HIT:HURT:1d6
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a small animated kobold skeleton.
+D:It is a small animated moogle skeleton.
 
 N:84:Grey icky thing
 G:i:s
@@ -1321,7 +1320,7 @@ F:EMPTY_MIND |
 F:IM_ACID
 D:It is a smallish, slimy, icky, acidic creature.
 
-N:106:Zombified kobold
+N:106:Zombified moogle
 G:z:s
 I:110:6d8:20:14:30
 W:7:1:0:14
@@ -1330,7 +1329,7 @@ B:HIT:HURT:1d2
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an animated kobold corpse.  Flesh falls off in large chunks as it 
+D:It is an animated moogle corpse.  Flesh falls off in large chunks as it 
 D:shambles forward.
 
 N:107:Lost soul
@@ -2367,15 +2366,14 @@ F:BASH_DOOR |
 F:ANIMAL | 
 D:It is an owl and it is a bear.  WTF!
 
-N:187:Giant black louse
-G:l:D
+N:187:Sootball
+G:::D
 I:120:1d2:6:7:10
 W:14:1:0:3
 B:BITE:HURT:1d2
 F:RAND_50 | 
 F:WEIRD_MIND | MULTIPLY | 
-F:ANIMAL
-D:It makes you itch just to look at it.
+D:A dusty sootball that lives off of Lucky Charms.
 
 N:188:Nomi
 G:.:w
@@ -2503,18 +2501,17 @@ F:INVISIBLE | WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:198:Mirkwood spider
-G:S:g
-I:120:9d8:15:25:80
+N:198:Goyaman
+G:,:g
+I:120:18d8:15:25:80
 W:15:2:0:25
-B:BITE:HURT:1d8
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
-F:FRIENDS | 
+B:HIT:HURT:1d8
+B:HIT:POISON:1d6
+B:KICK:POISON:1d6
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | EVIL | IM_POIS
-D:A strong and powerful spider from Mirkwood forest.  Cunning and evil, it 
-D:seeks to taste your juicy insides.
+F:ANIMAL | IM_POIS
+D:A little goya with a hat and a cape.  He looks awful and tastes 
+D:bitter.
 
 N:199:Frost giant
 G:P:w
@@ -2680,7 +2677,7 @@ F:UNIQUE |
 F:MALE | 
 F:FORCE_MAXHP | 
 F:KILL_WALL |
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 D:Ryouga Hibiki, though lacking a good sense of direction, is nonetheless 
 D:a very dangerous adversary.  Ever since mastering the 'Baku-sai ten 
@@ -2750,19 +2747,20 @@ S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH |
 S:S_KIN
 D:Zagoto's most trusted servant and a master of summoning.
 
-N:216:2-headed hydra
+N:216:2-Tentacle Hententmon
 G:M:u
 I:110:100d3:20:60:20
 W:17:2:0:80
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:ANIMAL
 S:1_IN_11 | 
 S:SCARE
-D:A strange reptilian hybrid with two heads, guarding its hoard.
+D:A Hentai tentacle monster with two tentacles, the bane of women and young 
+D:adolescent girls everywhere.
 
 N:217:Water spirit
 G:E:s
@@ -2850,7 +2848,6 @@ W:18:1:0:70
 B:BITE:ELEC:1d3
 B:CLAW:ELEC:1d3
 B:BITE:ELEC:1d3
-B:MOAN
 F:FORCE_SLEEP | 
 F:FRIENDS | 
 F:ANIMAL | IM_ELEC
@@ -3045,20 +3042,21 @@ S:BLINK | TELE_TO
 D:A spider that never seems quite there.  Everywhere you look it is just 
 D:half-seen in the corner of one eye.
 
-N:237:3-headed hydra
+N:237:3-Tentacle Hententmon
 G:M:o
 I:120:100d5:20:65:20
 W:20:2:0:350
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_1D2 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:ANIMAL
 S:1_IN_9 | 
 S:SCARE
-D:A strange reptilian hybrid with three heads, guarding its hoard.
+D:A Hentai tentacle monster with three tentacles, the bane of women and young 
+D:adolescent girls everywhere.
 
 N:238:Earth hound
 G:Z:u
@@ -3226,9 +3224,9 @@ B:HIT:HURT:3d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
+F:FORCE_LOCATION | FORCE_MAXHP | 
 F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A greedy, arrogant, dishonorable damiyo lord who is the master of 
@@ -3499,21 +3497,22 @@ F:OPEN_DOOR | BASH_DOOR |
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
 D:A loser tennis player who rejects hot chicks to date Rei-clones.
 
-N:270:4-headed hydra
+N:270:4-Tentacle Hententmon
 G:M:y
 I:120:100d6:20:70:20
 W:24:2:0:350
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
-B:BITE:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
+B:MOLEST:HURT:2d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:ANIMAL
 S:1_IN_7 | 
 S:SCARE
-D:A strange reptilian hybrid with four heads, guarding its hoard.
+D:A Hentai tentacle monster with four tentacles, the bane of women and young 
+D:adolescent girls everywhere.
 
 N:271:Mummified human
 G:z:w
@@ -3963,23 +3962,24 @@ S:HEAL | BLIND | MIND_BLAST | DARKNESS
 D:A wraithly snake-like form with the torso of a beautiful woman, it is the 
 D:most powerful of its kind.
 
-N:302:5-headed hydra
+N:302:5-Tentacle Hententmon
 G:M:g
 I:120:100d8:20:80:20
 W:28:2:0:350
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:MOLEST:POISON:4d4
+B:MOLEST:POISON:4d4
+B:MOLEST:POISON:4d4
+B:MOLEST:POISON:4d4
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_1D2 | DROP_4D2 | 
 F:BASH_DOOR | MOVE_BODY | 
 F:ANIMAL | IM_POIS
 S:1_IN_5 | 
 S:SCARE | BA_POIS
-D:A strange reptilian hybrid with five heads dripping venom.
+D:A Hentai tentacle monster with five tentacles, dripping goodness knows 
+D:what.
 
-N:303:Hentai tentacle monster
+N:303:Mahou Shonen
 G:p:s
 I:120:30d10:20:70:10
 W:28:1:0:240
@@ -3992,7 +3992,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
-D:The bane of women and young girls everywhere.
+D:Quite rarely seen compared to their counterparts.
 
 N:304:The Walking Daikon
 G:P:w
@@ -5924,13 +5924,13 @@ S:BLIND | CONF | SCARE |
 S:BR_POIS
 D:A huge draconic form enveloped in clouds of poisonous vapour.
 
-N:426:7-headed hydra
+N:426:7-Tentacle Hententmon
 G:M:G
 I:120:100d10:20:90:20
 W:39:2:0:2000
-B:BITE:POISON:3d9
-B:BITE:POISON:3d9
-B:BITE:POISON:3d9
+B:MOLEST:POISON:3d9
+B:MOLEST:POISON:3d9
+B:MOLEST:POISON:3d9
 B:SPIT:BLIND:1d2
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
@@ -5939,7 +5939,8 @@ F:ANIMAL | IM_POIS
 S:1_IN_5 | 
 S:SCARE | BA_POIS | 
 S:BR_POIS
-D:A strange reptilian hybrid with seven heads dripping venom.
+D:A Hentai tentacle monster with seven tentacles, dripping goodness 
+D:knows what.
 
 N:427:Tatarigami
 G:q:D
@@ -6048,14 +6049,14 @@ S:S_MONSTERS
 D:It is a humanoid figure thirty feet tall that gives off an aura of power 
 D:and hate.
 
-N:434:9-headed hydra
+N:434:9-Tentacle Hententmon
 G:M:r
 I:120:100d12:20:95:20
 W:40:2:0:3000
-B:BITE:FIRE:3d6
-B:BITE:FIRE:3d6
-B:BITE:FIRE:3d6
-B:BITE:FIRE:3d6
+B:MOLEST:FIRE:3d6
+B:MOLEST:FIRE:3d6
+B:MOLEST:FIRE:3d6
+B:MOLEST:FIRE:3d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
@@ -6063,15 +6064,16 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4 | 
 S:SCARE | BO_FIRE | 
 S:BR_FIRE
-D:A strange reptilian hybrid with nine smouldering heads.
+D:A Hentai tentacle monster with nine tentacles, which are feared by women 
+D:and adolescent girls everywhere.
 
-N:435:Enchantress
+N:435:Mahou Shoujo
 G:p:R
 I:130:52d10:20:60:10
 W:40:4:0:2100
-B:HIT:HURT:2d6
-B:HIT:HURT:2d6
-B:HIT:HURT:2d8
+B:KICK:HURT:2d6
+B:PUNCH:HURT:2d6
+B:KICK:HURT:2d8
 F:FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
@@ -6080,10 +6082,9 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DRAGON
-D:This elusive female spellcaster has a special affinity for dragons, whom 
-D:she rarely fights without.
+D:The magic pretty girl that everyone is well acquainted with.
 
-N:436:Archpriest
+N:436:Shinto Priest
 G:p:G
 I:120:52d10:20:60:10
 W:40:2:0:1800
@@ -6098,9 +6099,7 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CONF | CAUSE_3 | 
 S:S_MONSTER | S_UNDEAD
-D:An evil priest, dressed all in black.  Deadly spells hit you at an 
-D:alarming rate as his black spiked mace rains down blow after blow on your 
-D:pitiful frame.
+D:A master priest, knowledgeble in the ways of nature.
 
 N:437:Sorcerer
 G:p:v
@@ -6136,7 +6135,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:HURT_ROCK | NO_CONF | NO_SLEEP
 D:It is a tougher relative of the Xorn.  Its hide glitters with metal ores.
 
-N:439:Giant roc
+N:439:Chocobo
 G:B:u
 I:110:80d13:20:70:10
 W:40:3:0:1000
@@ -6145,8 +6144,7 @@ B:CRUSH:HURT:8d12
 B:HIT:ELEC:12d12
 F:BASH_DOOR | 
 F:ANIMAL | IM_ELEC
-D:A vast legendary bird, its iron talons rake the most impenetrable of 
-D:surfaces and its screech echoes through the many winding dungeon corridors.
+D:A large, gold colored bird.
 
 N:440:Dark Schneider
 G:W:D
@@ -6181,7 +6179,7 @@ D:It is a cross between a human and a bull.
 N:442:Spike, the Cockatiel
 G:B:v
 I:140:24d100:30:400:0
-W:40:1:0:9000
+W:40:3:0:9000
 B:WAIL:HURT:1d2
 B:WAIL:PARALYZE
 B:CLAW:HURT:1d2
@@ -6311,25 +6309,19 @@ S:S_DEMON
 D:It is a demon of small stature, but its armoured frame moves with 
 D:lightning speed and its powers make it a tornado of death and destruction.
 
-N:449:Okiku, the servant maid
-G:W:D
-I:120:12d100:90:60:10
+N:449:Jigen Daisuke
+G:p:D
+I:170:12d100:90:60:10
 W:41:3:0:8000
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:TOUCH:EXP_80
-F:UNIQUE | FEMALE | 
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:BLIND | HOLD | SCARE | CAUSE_3 | FORGET | 
-S:BO_ACID | BO_FIRE | BO_COLD | BO_NETH | 
-S:S_MONSTER
-D:A servant in life, Okiku committed suicide rather than to be her
-D:master's mistress.
+F:NO_CONF | NO_SLEEP
+S:1_IN_1 | 
+S:BULLET |
+D:The legendary gunman of the crime world.  None can match his gunmanship.
 
 N:450:Dark elven sorceror
 G:h:v
@@ -6403,20 +6395,18 @@ D:Despite the fact that he is blind, Utsutsu is one of the most
 D:skilled swordsmen ever.  He is also willing to give you a 
 D:honorable death.
 
-N:454:Photon
+N:454:Photon Earth
 G:p:s
 I:130:16d100:20:120:40
 W:41:3:0:25000
-B:HIT:HURT:20d20
-B:HIT:HURT:20d20
-B:HIT:UN_BONUS:25d25
-B:HIT:UN_BONUS:25d25
+B:HIT:HURT:15d10
+B:HIT:UN_BONUS:15d15
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF |
-F:NO_SLEEP | NO_FEAR | KILL_WALL |
+F:NO_SLEEP | NO_FEAR | KILL_WALL | NO_SUMMON |
 D:Onechan....onaji....Aun....mamoru...yaksoku....
 
 N:455:Solar
@@ -6677,14 +6667,14 @@ S:1_IN_5 |
 S:BO_ELEC | BA_COLD | BA_ELEC
 D:The Japanese goddess of wind.
 
-N:469:11-headed hydra
+N:469:11-Tentacle Hententmon
 G:M:R
 I:120:100d18:20:100:20
 W:44:2:0:6000
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
+B:MOLEST:FIRE:3d12
+B:MOLEST:FIRE:3d12
+B:MOLEST:FIRE:3d12
+B:MOLEST:FIRE:3d12
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
@@ -6692,7 +6682,8 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4 | 
 S:SCARE | BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE
-D:A strange reptilian hybrid with eleven smouldering heads.
+D:A Hentai tentacle monster with eleven tentacles, well versed in 
+D:the dark arts of violation.
 
 N:470:Patriarch
 G:p:G
@@ -6751,24 +6742,19 @@ D:A constructed dragon, the drolem has massive strength.  Powerful spells
 D:weaved during its creation make it a fearsome adversary.  Its eyes show 
 D:little intelligence, but it has been instructed to destroy all it meets.
 
-N:473:Puff, the Magic Dragon
-G:D:w
-I:120:20d100:20:130:70
+N:473:Moon, the Cat
+G:f:w
+I:200:80d100:20:130:0
 W:44:2:0:17000
-B:CLAW:HURT:1d10
-B:CLAW:HURT:1d10
-B:CLAW:HURT:1d10
-B:BITE:HURT:3d14
 F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:DRAGON | IM_COLD | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:CONF | CAUSE_3 | 
-S:BR_POIS
-D:He frolics in the autumn mist in a land called Honah Lee with his friend, 
-D:Little Jackie Paper.  He is also high off of pot most of the time.
+F:SMART | ANIMAL | IM_COLD | NO_CONF | NO_SLEEP
+S:1_IN_1 | 
+S:CONF | BLINK | TPORT | TELE_LEVEL | TELE_AWAY |
+D:He is sometimes known as 'Muta' or 'Tama'.  He looks like a full moon 
+D:and he enjoys taunting the surrounding creatures.
 
 N:474:Shindou Saki
 G:W:D
@@ -6806,7 +6792,7 @@ F:DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE | BR_ACID |
-D:A dragon bird hybrid with a scaly body and clawed feet.  Its wing and tail 
+D:A dragon bird hybrid with a scaly body and clawed feet.  His wing and tail 
 D:feathers are made of pure gold.
 
 N:476:Dracolich
@@ -7092,20 +7078,20 @@ D:all that defy him.
 
 N:491:Lupin the Third
 G:p:B
-I:160:25d100:40:90:0
+I:180:25d100:40:90:0
 W:52:3:0:36000
-B:TOUCH:EAT_GOLD:5d5
-B:TOUCH:EAT_ITEM:5d5
+B:TOUCH:EAT_GOLD:10d5
+B:TOUCH:EAT_ITEM:10d5
 B:TOUCH:EAT_FOOD:1d1
 B:HIT:BLIND:10d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GREAT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:SMART | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:TRAPS | BLINK
-D:The Sherlock Holmes of thieves.  No safeguards or buildings can stop him
+S:TRAPS | BLINK | BULLET |
+D:The James Bond of thieves.  No safeguards or buildings can stop him
 D:from stealing whatever he wants. He is a master of disguise, an expert 
 D:of stealth, a genius at traps, and moves with blinding speed.  
 D:Check your pockets!
@@ -7131,7 +7117,7 @@ S:S_UNDEAD | S_KIN
 D:Upon being disfigured from poison, her husband abandoned her to marry 
 D:his neighbor.  Now, she haunts the world.
 
-N:493:Grand master mystic
+N:493:Grand master Chi Warrior
 G:p:o
 I:130:22d100:30:80:5
 W:53:3:0:15000
@@ -7153,14 +7139,14 @@ D:with disdainful ease.
 
 N:494:Miyamoto Musashi
 G:p:D
-I:130:35d100:90:100:10
-W:53:3:0:50000
+I:140:45d100:90:100:10
+W:65:3:0:50000
 B:HIT:HURT:20d10
 B:HIT:HURT:10d10
 B:HIT:LOSE_STR:5d10
 B:HIT:LOSE_STR:5d5
 F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
@@ -7171,8 +7157,7 @@ D:The legendary swordsman and most frightening warrior ever.  Rumored
 D:to have destroyed the Yoshioka School of swordsmanship singlehandedly 
 D:and winner of countless duels with many other legendary swordsmen.
 D:Skilled with two swords, he also uses a bamboo sword to extremely
-D:deadly effect.  Those who have dared faced him have not lived to tell 
-D:the tale.
+D:deadly effect.  When he hears the birds chirping, you had better run.  
 
 N:495:Inuki
 G:Z:G
@@ -7413,17 +7398,17 @@ D:magical bacteria that make it pulse in a foul and degrading way.
 N:508:Vegeta, the Super Sayajin Prince
 G:h:G
 I:180:50d100:25:195:10
-W:56:2:0:20000
-B:PUNCH:PARALYZE:1d12
-B:KICK:PARALYZE:1d12
+W:75:2:0:20000
+B:PUNCH:PARALYZE:2d12
+B:KICK:PARALYZE:2d12
 B:PUNCH:SHATTER:1d12
 B:KICK:SHATTER:1d12
 F:UNIQUE | MALE
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_LOCATION |
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-F:REGENERATE |
+F:REGENERATE | NO_SUMMON |
 S:1_IN_2 | 
 S:BLINK | DIVINE_COMEDY |
 S:BO_ELEC | BO_MANA | BA_MANA | CAUSE_3
@@ -7909,7 +7894,7 @@ B:HIT:UN_BONUS:6d8
 B:TOUCH:UN_POWER
 B:TOUCH:UN_POWER
 F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:FORCE_LOCATION | FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | 
@@ -8171,7 +8156,7 @@ F:ESCORT | ESCORTS | SMART |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | UNDEAD | RESPAWN | PASS_WALL | INVISIBLE |
-F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
+F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | NO_SUMMON |
 S:1_IN_2 | 
 S:HOLD | BLIND | CONF | SCARE | SLOW | CAUSE_4
 S:S_SPIDER | S_WRAITH
@@ -8182,7 +8167,7 @@ D: the corner...
 
 
 # Lina Inverse is the basic "Quest" (thus the QUESTOR flag).
-# You must kill her to gain access to Morgoth's level.
+# You must kill her to gain access to Neo's level.
 
 N:546:Lina Inverse
 G:p:v
@@ -8246,3 +8231,180 @@ D:and many others became no more.   But at last the siege was so strait that Neo
 D:himself came forth, and then Rocher stood forth as champion of the lands of Rgra, 
 D:and wrestled with Neo, and cast him upon his face, and he was bound with the chain 
 D:which had been long prepared for him..and banished forever in the deeps of the land.
+
+## Extra Wilderness specific monsters
+
+N:548:Guard
+G:p:U
+I:130:12d8:20:34:200
+W:120:1:0:40
+B:HIT:HURT:20d10
+F:MALE | 
+F:DROP_1D2 | 
+F:OPEN_DOOR | 
+D:A Guard who is *really* good at what he is hired for.
+
+N:549:Oishi Kuranosuke
+G:p:W
+I:130:400d100:20:34:200
+W:120:1:0:40
+B:HIT:HURT:20d10
+F:UNIQUE | MALE | FRIENDLY |
+F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+D:The former chief advisor to Lord Asano, Oishi was forced into homelessness 
+D:when Lord Asano was executed for attacking Kira Yoshinoka.  Oishi has been 
+D:plotting his revenge ever since.
+
+N:550:Tanuki
+G:q:u
+I:130:250d100:20:34:200
+W:99:1:0:40
+B:HIT:HURT:5d10
+F:MALE |
+F:FORCE_MAXHP | ALWAYS_HIT |
+D:A jolly looking bear with a round belly and a happy face.  It wields a 
+D:sign that says "Ping Pong!  Correct!"
+
+N:551:Kitsune
+G:q:r
+I:130:275d100:20:34:200
+W:99:1:0:40
+B:HIT:HURT:5d10
+F:MALE |
+F:SMART | FORCE_MAXHP | ALWAYS_HIT |
+S:1_IN_2 |
+S:BLINK | HEAL | BRAIN_SMASH | FORGET |
+S:BA_FIRE | BA_ELEC |
+D:A wily looking fox that is said to have magical powers.  It wields a 
+D:sign that says "Mada mada!  Wrong Place!"
+
+N:552:Flaming Bear on a Bicycle
+G:q:o
+I:170:300d100:20:34:200
+W:120:1:0:40
+B:HIT:FIRE:10d10
+B:HIT:FIRE:10d10
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:MALE |
+F:FORCE_MAXHP | ALWAYS_HIT |
+D:A bear riding on a bicycle surrounded by a ring of flame.  He only 
+D:appears when you do something extremely stupid. 
+
+N:553:Info Boy
+G:p:g
+I:130:400d100:20:34:200
+W:120:1:0:40
+B:HIT:HURT:20d10
+F:UNIQUE | MALE | FRIENDLY |
+F:FORCE_MAXHP | NEVER_MOVE |
+D:This guy hangs around various places.  Talk to him for some 
+D:free advice.  Please be nice to him.
+
+N:554:The Totoro with a leaf on its head
+G:r:B
+I:100:400d100:20:20:10
+W:0:2:0:50
+B:HIT:HURT:1d3
+F:UNIQUE | FRIENDLY | INVISIBLE |
+F:NEVER_MOVE | FORCE_MAXHP |
+F:ANIMAL |
+D:It is a totoro with a leaf on its head.  Water drips down from 
+D:the sky and bounces off of the leaf...plopping on its nose.
+
+N:555:Kiki, the Witch
+G:p:v
+I:130:400d100:20:34:200
+W:120:1:0:40
+B:HIT:HURT:20d10
+F:UNIQUE | FEMALE | FRIENDLY |
+F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+D:The resident witch of the town.  She runs her own delivery 
+D:service right out of a bakery.
+
+N:556:Hisame Shizumaru
+G:p:r
+I:130:64d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:SHATTER:10d10
+F:UNIQUE | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | 
+F:DEMON | IM_FIRE | IM_COLD | IM_ACID |
+S:1_IN_3 | 
+S:BLINK | TPORT | TELE_LEVEL | HASTE | 
+S:MISSILE | HEAL |
+D:A 14 year old little spiky red haired boy who carries a 
+D:mean umbrella.  He constantly says, "Gomennasai, Mou 
+D:ikimasu!" because he is constantly on the go.
+
+N:557:Sesshoumaru, Youkai Lord of the West
+G:p:W
+I:125:100d100:100:150:200
+W:95:10:0:45000
+B:HIT:TERRIFY:8d10
+B:HIT:POISON:5d10
+B:HIT:ACID:8d10
+S:1_IN_4 |
+S:CAUSE_4 | HEAL |
+S:BO_ICEE | BO_MANA | BO_PLAS |
+S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK |
+S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD
+F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 |
+F:DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE |
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A tall man, dressed in a white kimono, bearing with him two swords
+D:and an odd fluffy thing on his shoulder.
+D:As he looks up, he brushes his hair out of his eyes,
+D:revealing twin red globes of hate staring directly at you.
+D:Then you realize,this is Sesshoumaru, the Lord of the West.
+D:His fury is legendary, raining down upon his foes mighty blows
+D:and soul crushing spells. Sesshoumaru's cold, arrogant face
+D:is calm, yet beneath his burning eyes you see
+D:a mixture of seething rage and distaste.
+D:Barely moving his mouth, he speaks,
+D:"Insect, I, Sesshoumaru, shall show you your place!"
+
+N:558:Jaken, the Small and Annoying Minion
+G:y:B
+I:90:6d10:50:10:0
+W:10:2:0:50
+B:HIT:HURT:1d4
+B:MOAN:HURT:1d1
+S:1_IN_2 |
+S:MISSILE | BO_FIRE |
+F:FORCE_MAXHP | UNIQUE | MALE |
+F:NO_SLEEP | IM_FIRE | WEIRD_MIND |
+F:ONLY_ITEM | DROP_2D2 |
+D:An odd blue creature stands before you, its large yellow eyes
+D:furtively searching about. Holding a large staff several sizes
+D:too big for it, it mutters something about wondering what
+D:'master' would do. You feel a sort of hilarious pity for it.
+
+N:559:Lecherous Crab
+G:j:r
+I:90:6d10:50:10:0
+W:10:2:0:50
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d1
+S:1_IN_2 |
+S:MISSILE | BO_FIRE |
+F:FORCE_MAXHP | MALE |
+F:NO_SLEEP | IM_FIRE | WEIRD_MIND |
+F:ONLY_ITEM | DROP_2D2 |
+D:No further explanation is needed.
+
+N:560:The Old Gardener
+G:p:W
+I:130:400d100:20:34:200
+W:120:1:0:40
+B:HIT:HURT:20d10
+F:UNIQUE | MALE | FRIENDLY |
+F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+D:An old gardener who misses his old forest.
