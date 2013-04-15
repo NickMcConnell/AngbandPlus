@@ -3633,6 +3633,53 @@ static OSErr CheckRequiredAEParams(const AppleEvent *theAppleEvent)
 }
 
 
+static void init_chuukei( void )
+{
+	char path[1024];
+	char tmp[1024];
+	FILE *fp;
+	
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "chuukei.txt");
+
+	fp = fopen(path, "r");
+	if(!fp)
+		return;
+	
+	/* Read a line */
+	if (fgets(tmp, 1024, fp)){
+		if(tmp[0] == '-'){
+			int n = strlen(tmp);
+			tmp[n-1] = 0;
+			switch(tmp[1]){
+			case 'p':
+			{
+				if (!tmp[2]) break;
+				chuukei_server = TRUE;
+				if(connect_chuukei_server(&tmp[2])<0){
+					msg_print("connect fail");
+					return;
+				}
+				msg_print("connect");
+				msg_print(NULL);
+				break;
+			}
+
+			case 'c':
+			{
+				chuukei_client = TRUE;
+				connect_chuukei_server(&tmp[2]);
+				play_game(FALSE);
+				quit(NULL);
+			}
+			}
+		}
+		
+	}
+	fclose(fp);
+	
+}
+
+
 /*
  * Apple Event Handler -- Open Application
  */
@@ -4675,7 +4722,7 @@ int main(void)
 	/* Handle "open_when_ready" */
 	handle_open_when_ready();
 
-
+	init_chuukei();
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 15);
 

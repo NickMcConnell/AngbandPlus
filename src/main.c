@@ -489,7 +489,29 @@ int main(int argc, char *argv[])
 				change_path(&argv[i][2]);
 				break;
 			}
+			case 'p':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_server = TRUE;
+				connect_chuukei_server(&argv[i][2]);
+				break;
+			}
 
+			case 'c':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_client = TRUE;
+				connect_chuukei_server(&argv[i][2]);
+				break;
+			}
+
+			case 'x':
+			{
+				if (!argv[i][2]) goto usage;
+				prepare_browse_movie(&argv[i][2]);
+				break;
+			}			
+			
 			case '-':
 			{
 				argv[i] = argv[0];

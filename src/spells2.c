@@ -1038,6 +1038,7 @@ void set_recall(void)
 	{
 		p_ptr->word_recall = rand_int(20) + 15;
 		msg_print("The air about you becomes charged...");
+		p_ptr->redraw |= (PR_STATUS);
 	}
 
 	/* Deactivate recall */
@@ -1045,6 +1046,7 @@ void set_recall(void)
 	{
 		p_ptr->word_recall = 0;
 		msg_print("A tension leaves the air around you...");
+		p_ptr->redraw |= (PR_STATUS);
 	}
 }
 
@@ -2627,16 +2629,11 @@ void aggravate_monsters(int who)
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			if ((who < 0) && (m_ptr->mspeed < 200)) {
-
-				m_ptr->mspeed += 10;
-
-			}
 			/* Sentai Taunt */
 			if (who == -2)
 			{
-				if (r_info[m_ptr->r_idx].level > 1)
-				(void)set_meter(p_ptr->c_meter + 50 - (p_ptr->lev - r_info[m_ptr->r_idx].level));
+				if ((r_ptr->level > 1) && (r_ptr->level < 101))
+				(void)set_meter(p_ptr->c_meter + 50 - (p_ptr->lev - r_ptr->level));
 			}
 
 			/* Sentai Pose */
@@ -2652,8 +2649,8 @@ void aggravate_monsters(int who)
 		
 			else
 			{
-				if (r_info[m_ptr->r_idx].level > 1)
-				(void)set_meter(p_ptr->c_meter + 100 - (p_ptr->lev - r_info[m_ptr->r_idx].level));
+				if ((r_ptr->level > 1) && (r_ptr->level < 101))
+				(void)set_meter(p_ptr->c_meter + 100 - (p_ptr->lev - r_ptr->level));
 			}
 
 			}
@@ -2664,6 +2661,14 @@ void aggravate_monsters(int who)
 				/* Speed up */
 				m_ptr->mspeed = r_ptr->speed + 10;
 				speed = TRUE;
+
+			    /* Moon the Cat exception */
+			    if (m_ptr->mspeed > 190)
+			   {
+				m_ptr->mspeed = 190;
+
+                           }
+
 			}
 		}
 	}

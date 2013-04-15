@@ -101,7 +101,7 @@ bool set_blind(int v)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Redraw the "blind" */
-	p_ptr->redraw |= (PR_BLIND);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -154,7 +154,7 @@ bool set_confused(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Redraw the "confused" */
-	p_ptr->redraw |= (PR_CONFUSED);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -204,7 +204,7 @@ bool set_poisoned(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Redraw the "poisoned" */
-	p_ptr->redraw |= (PR_POISONED);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -254,7 +254,7 @@ bool set_afraid(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Redraw the "afraid" */
-	p_ptr->redraw |= (PR_AFRAID);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -304,7 +304,7 @@ bool set_paralyzed(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Redraw the state */
-	p_ptr->redraw |= (PR_STATE);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -357,7 +357,7 @@ bool set_image(int v)
 	if (disturb_state) disturb(0, 0);
 
 	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
+	p_ptr->redraw |= (PR_MAP | PR_STATUS);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
@@ -411,6 +411,7 @@ bool set_fast(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -461,6 +462,7 @@ bool set_slow(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -512,6 +514,7 @@ bool set_shield(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -557,6 +560,7 @@ bool set_kekkai(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -608,6 +612,7 @@ bool set_blessed(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -658,6 +663,7 @@ bool set_hero(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -708,6 +714,7 @@ bool set_shero(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -754,6 +761,7 @@ bool set_ouroborous(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -800,6 +808,7 @@ bool set_geneijin(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -830,6 +839,72 @@ bool set_mimic(void)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_MANA | PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->sharingan", notice changes */
+
+bool set_sharingan(void)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	/*v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;*/
+	if (p_ptr->csp < 1) {
+		msg_print ("Your Sharingan fades away.");
+		notice = TRUE;
+		p_ptr->sharingan = FALSE;
+	}
+
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_MANA | PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/* Set "p_ptr->byakugan", notice changes */
+
+bool set_byakugan(void)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	/*v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;*/
+	if (p_ptr->csp < 1) {
+		msg_print ("Your Byakugan fades away.");
+		notice = TRUE;
+		p_ptr->byakugan = FALSE;
+	}
+
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_MANA | PU_BONUS);
@@ -862,6 +937,7 @@ bool set_mag_student(void)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_MANA | PU_BONUS);
@@ -913,6 +989,7 @@ bool set_s_sayian(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1048,6 +1125,7 @@ bool set_chakra_gate(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1097,6 +1175,7 @@ bool set_armor_of_sand(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1134,7 +1213,8 @@ bool set_wu_transform(int v)
 			notice = TRUE;
 
 			/* Overexertion from Wu */
-			(void)take_hit(p_ptr->chp - 1, "Exertion from Wu transform");
+			p_ptr->chp = 5;
+			(void)take_hit(1, "Exertion from Wu transform");
 			p_ptr->csp = 0;
 			(void)set_paralyzed(20);
 			
@@ -1150,6 +1230,7 @@ bool set_wu_transform(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1198,6 +1279,7 @@ bool set_double_team(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1247,6 +1329,7 @@ bool set_kaioken(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1295,6 +1378,7 @@ bool set_defense(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1344,6 +1428,7 @@ bool set_protevil(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1391,9 +1476,10 @@ bool set_invuln(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-
+	
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1447,6 +1533,7 @@ bool set_tim_invis(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+		p_ptr->redraw |= (PR_STATUS);
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
@@ -1503,6 +1590,7 @@ bool set_tim_infra(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
@@ -1554,6 +1642,8 @@ bool set_oppose_acid(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1600,6 +1690,7 @@ bool set_oppose_elec(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1647,6 +1738,7 @@ bool set_oppose_fire(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1694,6 +1786,7 @@ bool set_oppose_cold(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1741,6 +1834,7 @@ bool set_oppose_pois(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -2881,7 +2975,7 @@ void monster_death(int m_idx)
 
 	
 
-		/* It is Neo */
+		/* It is Raoh */
 		else {
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -2948,8 +3042,11 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
+		/* Make Gold - Attempt to reduce amount of items */
+		/* Naive attempt - Presumption towards gold.  Increase value of gold 
+		   by assuming whatever player needs will be handled by black market */
+		if (do_gold && (!do_item || (too_much_junk && rand_int(100) < 95) || 
+		(!too_much_junk && rand_int(100) < 50)))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;
@@ -2957,6 +3054,7 @@ void monster_death(int m_idx)
 			/* Assume seen XXX XXX XXX */
 			dump_gold++;
 		}
+	    
 
 		/* Make Object */
 		else
@@ -4532,6 +4630,10 @@ bool target_set_interactive(int mode)
 			y = temp_y[m];
 			x = temp_x[m];
 
+			/* XAngband targeting system - nukes the game right now */
+			 if (!(mode & TARGET_LOOK)) prt_path(y, x);
+
+
 			/* Allow target */
 			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
 			{
@@ -4688,6 +4790,9 @@ bool target_set_interactive(int mode)
 		/* Arbitrary grids */
 		else
 		{
+			/* XAngband targeting system - nukes the game right now */
+			if (!(mode & TARGET_LOOK)) prt_path(y, x); 
+
 			/* Default prompt */
 			strcpy(info, "q,t,p,m,+,-,<dir>");
 
@@ -4842,6 +4947,13 @@ bool target_set_interactive(int mode)
 		/* Handle stuff */
 		handle_stuff();
 	}
+	
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Redraw stuff */
+	redraw_stuff();
+
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);
@@ -4946,7 +5058,10 @@ bool get_aim_dir(int *dp)
 	}
 
 	/* No direction */
-	if (!dir) return (FALSE);
+	if (!dir) {
+	project_length = 0;
+	return (FALSE);
+	}
 
 	/* Save the direction */
 	p_ptr->command_dir = dir;

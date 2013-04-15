@@ -16,7 +16,7 @@ angband_SOURCES = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
+  melee1.c melee2.c save.c files.c chuukei.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load2.c \
   wizard1.c wizard2.c \

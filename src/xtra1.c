@@ -137,7 +137,213 @@ static void prt_stat(int stat)
 	}
 }
 
+/*
+ * Data structure for Status bar from XAngband.
+ */
+#define BAR_HALLUCINATION 0
+#define BAR_BLINDNESS 1
+#define BAR_PARALYZE 2
+#define BAR_CONFUSE 3
+#define BAR_POISONED 4
+#define BAR_AFRAID 5
+#define BAR_WRAITH 6
+#define BAR_PROTEVIL 7
+#define BAR_MAGICDEFENCE 8
+#define BAR_STONESKIN 9
+#define BAR_REGMAGIC 10
+#define BAR_ULTIMATE 11
+#define BAR_INVULN 12
+#define BAR_RESACID 13
+#define BAR_RESELEC 14
+#define BAR_RESFIRE 15
+#define BAR_RESCOLD 16
+#define BAR_RESPOIS 17
+#define BAR_SHFIRE 18
+#define BAR_BLESSED 19
+#define BAR_HEROISM 20
+#define BAR_BERSERK 21
+#define BAR_ATTKCONF 22
+#define BAR_SENSEUNSEEN 23
+#define BAR_TELEPATHY 24
+#define BAR_REGENERATION 25
+#define BAR_INFRAVISION 26
+#define BAR_RECALL 27
+#define BAR_RADAREYE 28
 
+static struct {
+	byte attr;
+	cptr sstr;
+	cptr lstr;
+} bar[]
+
+= {
+	{TERM_VIOLET, "Hu", "Hullc"},
+	{TERM_L_DARK, "Bl", "Blind"},
+	{TERM_RED, "Pa", "Paralyzed"},
+	{TERM_VIOLET, "Cf", "Confused"},
+	{TERM_GREEN, "Po", "Poisoned"},
+	{TERM_BLUE, "Af", "Afraid"},
+	{TERM_L_DARK, "Wr", "Wraith"},
+	{TERM_SLATE, "Ev", "PrtEvl"},
+	{TERM_YELLOW, "Md", "MgcArm"},
+	{TERM_WHITE, "Ss", "StnSkn"},
+	{TERM_SLATE, "Rm", "ResMag"},
+	{TERM_YELLOW, "Ul", "Ultima"},
+	{TERM_YELLOW, "Iv", "Invuln"},
+	{TERM_GREEN, "Ac", "Acid"},
+	{TERM_BLUE, "El", "Elec"},
+	{TERM_RED, "Fi", "Fire"},
+	{TERM_SLATE, "Co", "Cold"},
+	{TERM_GREEN, "Po", "Pois"},
+	{TERM_L_RED, "SFi", "SFire"},
+	{TERM_WHITE, "Bs", "Bless"},
+	{TERM_WHITE, "He", "Hero"},
+	{TERM_RED, "Br", "Berserk"},
+	{TERM_RED, "TCf", "TchCnf"},
+	{TERM_L_BLUE, "Se", "SInv"},
+	{TERM_ORANGE, "Te", "Telepa"},
+	{TERM_L_BLUE, "Rg", "Regen"},
+	{TERM_L_RED, "If", "Infr"},
+	{TERM_WHITE, "Rc", "Recall"},
+	{TERM_L_GREEN, "Rd", "Rader"},
+	{0, NULL, NULL}
+};
+
+#define ADD_FLG(FLG) (bar_flags[FLG / 32] |= (1L << (FLG % 32)))
+#define IS_FLG(FLG) (bar_flags[FLG / 32] & (1L << (FLG % 32)))
+
+/*
+ *  Show status bar
+ */
+static void prt_status(void)
+{
+	u32b bar_flags[1];
+	int wid, hgt, row_statbar, max_col_statbar;
+	int i, col = 0, num = 0;
+	int space = 2;
+
+	Term_get_size(&wid, &hgt);
+	row_statbar = hgt + ROW_STATBAR;
+	max_col_statbar = wid + MAX_COL_STATBAR;
+
+	Term_erase(0, row_statbar, max_col_statbar);
+
+	bar_flags[0] = 0L;
+
+	/* Hallucinating */
+	if (p_ptr->image) ADD_FLG(BAR_HALLUCINATION);
+
+	/* Blindness */
+	if (p_ptr->blind) ADD_FLG(BAR_BLINDNESS);
+
+	/* Paralysis */
+	if (p_ptr->paralyzed) ADD_FLG(BAR_PARALYZE);
+
+	/* Confusion */
+	if (p_ptr->confused) ADD_FLG(BAR_CONFUSE);
+
+	/* Posioned */
+	if (p_ptr->poisoned) ADD_FLG(BAR_POISONED);
+
+	/* Times see-invisible */
+	if (p_ptr->tim_invis) ADD_FLG(BAR_SENSEUNSEEN);
+
+	/* Timed infra-vision */
+	if (p_ptr->tim_infra) ADD_FLG(BAR_INFRAVISION);
+
+	/* Protection from evil */
+	if (p_ptr->protevil) ADD_FLG(BAR_PROTEVIL);
+
+	/* Invulnerability */
+	if (p_ptr->invuln) ADD_FLG(BAR_INVULN);
+
+	/* Heroism */
+	if (p_ptr->hero) ADD_FLG(BAR_HEROISM);
+
+	/* Super Heroism / berserk */
+	if (p_ptr->shero) ADD_FLG(BAR_BERSERK);
+
+	/* Blessed */
+	if (p_ptr->blessed) ADD_FLG(BAR_BLESSED);
+
+	if (p_ptr->shield) ADD_FLG(BAR_STONESKIN);
+
+	/* Oppose Acid */
+	if (p_ptr->oppose_acid) ADD_FLG(BAR_RESACID);
+
+	/* Oppose Lightning */
+	if (p_ptr->oppose_elec) ADD_FLG(BAR_RESELEC);
+
+	/* Oppose Fire */
+	if (p_ptr->oppose_fire) ADD_FLG(BAR_RESFIRE);
+
+	/* Oppose Cold */
+	if (p_ptr->oppose_cold) ADD_FLG(BAR_RESCOLD);
+
+	/* Oppose Poison */
+	if (p_ptr->oppose_pois) ADD_FLG(BAR_RESPOIS);
+
+	/* Word of Recall */
+	if (p_ptr->word_recall) ADD_FLG(BAR_RECALL);
+
+	/* Afraid */
+	if (p_ptr->afraid) ADD_FLG(BAR_AFRAID);
+
+	/* Confusing Hands */
+	if (p_ptr->confusing) ADD_FLG(BAR_ATTKCONF);
+
+	/* Calcurate length */
+	for (i = 0; bar[i].sstr; i++)
+	{
+		if (IS_FLG(i))
+		{
+			col += strlen(bar[i].lstr) + 1;
+			num++;
+		}
+	}
+
+	/* If there are not excess spaces for long strings, use short one */
+	if (col - 1 > max_col_statbar)
+	{
+		space = 0;
+		col = 0;
+
+		for (i = 0; bar[i].sstr; i++)
+		{
+			if (IS_FLG(i))
+			{
+				col += strlen(bar[i].sstr);
+			}
+		}
+
+		/* If there are excess spaces for short string, use more */
+		if (col - 1 <= max_col_statbar - (num-1))
+		{
+			space = 1;
+			col += num - 1;
+		}
+	}
+
+
+	/* Centering display column */
+	col = (max_col_statbar - col) / 2;
+
+	/* Display status bar */
+	for (i = 0; bar[i].sstr; i++)
+	{
+		if (IS_FLG(i))
+		{
+			cptr str;
+			if (space == 2) str = bar[i].lstr;
+			else str = bar[i].sstr;
+
+			c_put_str(bar[i].attr, str, row_statbar, col);
+			col += strlen(str);
+			if (space > 0) col++;
+			if (col > max_col_statbar) break;
+		}
+	}
+}
 
 
 /*
@@ -436,6 +642,13 @@ static void prt_sp(void)
 static void prt_depth(void)
 {
 	char depths[32];
+	int wid, hgt, row_depth, col_depth;
+	byte attr = TERM_WHITE;
+
+	Term_get_size(&wid, &hgt);
+	col_depth = wid + COL_DEPTH;
+	row_depth = hgt + ROW_DEPTH;
+
 
 	if (!p_ptr->depth)
 	{
@@ -453,8 +666,23 @@ static void prt_depth(void)
 		sprintf(depths, "Lev %d", p_ptr->depth);
 	}
 
+/* Get color of level based on feeling - JSV- */
+	switch (feeling) {
+		case  0: attr = TERM_SLATE;	break; /* Unknown */
+		case  1: attr = TERM_L_BLUE;	break; /* Special */
+		case  2: attr = TERM_VIOLET;	break; /* Horrible visions */
+		case  3: attr = TERM_RED;	break; /* Very dangerous */
+		case  4: attr = TERM_L_RED;	break; /* Very bad feeling */
+		case  5: attr = TERM_ORANGE;	break; /* Bad feeling */
+		case  6: attr = TERM_YELLOW;	break; /* Nervous */
+		case  7: attr = TERM_L_UMBER;	break; /* Luck is turning */
+		case  8: attr = TERM_L_WHITE;	break;	/* Don't like */
+		case  9: attr = TERM_WHITE;	break;	/* Reasonably safe */
+		case 10: attr = TERM_WHITE;	break;	/* Boring place */
+	}
+
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	c_prt(attr, format("%12s", depths), row_depth, col_depth);
 }
 
 static void prt_drunk(void)
@@ -586,125 +814,73 @@ static void prt_poisoned(void)
  * This function was a major bottleneck when resting, so a lot of
  * the text formatting code was optimized in place below.
  */
+
 static void prt_state(void)
 {
 	byte attr = TERM_WHITE;
 
-	char text[16];
-
-
-	/* Paralysis */
-	if (p_ptr->paralyzed)
-	{
-		attr = TERM_RED;
-
-		strcpy(text, "Paralyzed!");
-	}
+	char text[5];
 
 	/* Resting */
-	else if (p_ptr->resting)
-	{
+	if(p_ptr->resting) {
 		int i;
-		int n = p_ptr->resting;
+		/* Start with blank */
+		strcpy(text, "     ");
 
-		/* Start with "Rest" */
-		strcpy(text, "Rest      ");
-
-		/* Extensive (timed) rest */
-		if (n >= 1000)
-		{
-			i = n / 100;
-			text[9] = '0';
-			text[8] = '0';
-			text[7] = I2D(i % 10);
-			if (i >= 10)
-			{
-				i = i / 10;
-				text[6] = I2D(i % 10);
-				if (i >= 10)
-				{
-					text[5] = I2D(i / 10);
-				}
-			}
+		if (p_ptr->resting >= 1000) {
+			i = p_ptr->resting / 100;
+			text[3] = '0';
+			text[2] = '0';
+			text[1] = '0' + (i % 10);
+			text[0] = '0' + (i / 10);
+		} else if (p_ptr->resting >= 100) {
+			i = p_ptr->resting;
+			text[3] = '0' + (i % 10);
+			i /= 10;
+			text[2] = '0' + (i % 10);
+			text[1] = '0' + (i / 10);
+		} else if (p_ptr->resting >= 10) {
+			text[3] = '0' + (p_ptr->resting % 10);
+			text[2] = '0' + (p_ptr->resting / 10);
+		} else if (p_ptr->resting > 0){
+			text[3] = '0' + p_ptr->resting;
+		} else if (p_ptr->resting == -1) {
+			text[0] = text[1] = text[2] = text[3] = '*';
+		} else if (p_ptr->resting == -2) {
+			text[0] = text[1] = text[2] = text[3] = '&';
 		}
-
-		/* Long (timed) rest */
-		else if (n >= 100)
-		{
-			i = n;
-			text[9] = I2D(i % 10);
-			i = i / 10;
-			text[8] = I2D(i % 10);
-			text[7] = I2D(i / 10);
+	} else if (p_ptr->command_rep) {
+		if (p_ptr->command_rep > 999) {
+			sprintf(text, "%2d00", p_ptr->command_rep / 100);
+		} else {
+			sprintf(text, " %3d", p_ptr->command_rep);
 		}
+	} else if (p_ptr->searching) {
 
-		/* Medium (timed) rest */
-		else if (n >= 10)
-		{
-			i = n;
-			text[9] = I2D(i % 10);
-			text[8] = I2D(i / 10);
-		}
-
-		/* Short (timed) rest */
-		else if (n > 0)
-		{
-			i = n;
-			text[9] = I2D(i);
-		}
-
-		/* Rest until healed */
-		else if (n == -1)
-		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '*';
-		}
-
-		/* Rest until done */
-		else if (n == -2)
-		{
-			text[5] = text[6] = text[7] = text[8] = text[9] = '&';
-		}
-	}
-
-	/* Repeating */
-	else if (p_ptr->command_rep)
-	{
-		if (p_ptr->command_rep > 999)
-		{
-			sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
-		}
-		else
-		{
-			sprintf(text, "Repeat %3d", p_ptr->command_rep);
-		}
-	}
-
-	/* Searching */
-	else if (p_ptr->searching)
-	{
-		strcpy(text, "Searching ");
-	}
-
-	/* Nothing interesting */
-	else
-	{
-		strcpy(text, "          ");
+		strcpy(text, "Srch");
+	} else {
+		strcpy(text, "    ");
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
-}
+	c_put_str(attr, format("%5.5s", text), ROW_STATE, COL_STATE);
 
+}
 
 /*
  * Prints the speed of a character.			-CJS-
  */
 static void prt_speed(void)
 {
-	int i = p_ptr->pspeed;
+		int i = p_ptr->pspeed;
 
 	byte attr = TERM_WHITE;
 	char buf[32] = "";
+	int wid, hgt, row_speed, col_speed;
+
+	Term_get_size(&wid, &hgt);
+	col_speed = wid + COL_SPEED;
+	row_speed = hgt + ROW_SPEED;
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
 	if (p_ptr->searching) i += 10;
@@ -712,31 +888,42 @@ static void prt_speed(void)
 	/* Fast */
 	if (i > 110)
 	{
-		attr = TERM_L_GREEN;
+		if (p_ptr->fast && !p_ptr->slow) attr = TERM_YELLOW;
+		else if(!p_ptr->fast && p_ptr->slow) attr = TERM_VIOLET;
+		else attr = TERM_L_GREEN;
 		sprintf(buf, "Fast (+%d)", (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
-		attr = TERM_L_UMBER;
+		if (p_ptr->fast && !p_ptr->slow) attr = TERM_YELLOW;
+		else if(!p_ptr->fast && p_ptr->slow) attr = TERM_VIOLET;
+		else attr = TERM_L_UMBER;
 		sprintf(buf, "Slow (-%d)", (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-10s", buf), row_speed, col_speed);
+
 }
 
 
 static void prt_study(void)
 {
+int wid, hgt, row_study, col_study;
+
+	Term_get_size(&wid, &hgt);
+	col_study = wid + COL_STUDY;
+	row_study = hgt + ROW_STUDY;
+
 	if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (!(cp_ptr->flags & CF_NO_STUDY))) /* UGLY hack */
 	{
-		put_str("Study", ROW_STUDY, COL_STUDY);
+		put_str("Study", row_study, col_study);
 	}
 	else
 	{
-		put_str("     ", ROW_STUDY, COL_STUDY);
+		put_str("     ", row_study, col_study);
 	}
 }
 
@@ -971,6 +1158,10 @@ static void prt_frame_extra(void)
 
 	/* Study spells */
 	prt_study();
+
+	/* Status Bar */
+	prt_status();
+
 }
 
 
@@ -2987,6 +3178,8 @@ static void calc_bonuses(void)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
+		p_ptr->redraw |= (PR_STATUS);
+		
 	}
 
 	/* Hack -- See Invis Change */
@@ -2994,6 +3187,7 @@ static void calc_bonuses(void)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
+		p_ptr->redraw |= (PR_STATUS);
 	}
 
 	/* Redraw speed (if needed) */
@@ -3274,6 +3468,14 @@ void redraw_stuff(void)
 		prt_stat(A_CHR);
 	}
 
+        if (p_ptr->redraw & (PR_STATUS))
+        {
+                p_ptr->redraw &= ~(PR_STATUS);
+                prt_status();
+        }
+
+	
+
 	if (p_ptr->redraw & (PR_ARMOR))
 	{
 		p_ptr->redraw &= ~(PR_ARMOR);
@@ -3324,9 +3526,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_CUT | PR_STUN);
 		p_ptr->redraw &= ~(PR_HUNGER);
 		p_ptr->redraw &= ~(PR_DRUNK);
-		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
-		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
-		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
+		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY | PR_STATUS);
 		prt_frame_extra();
 	}
 
@@ -3353,31 +3553,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_HUNGER);
 		prt_hunger();
 	}
-
-	if (p_ptr->redraw & (PR_BLIND))
-	{
-		p_ptr->redraw &= ~(PR_BLIND);
-		prt_blind();
-	}
-
-	if (p_ptr->redraw & (PR_CONFUSED))
-	{
-		p_ptr->redraw &= ~(PR_CONFUSED);
-		prt_confused();
-	}
-
-	if (p_ptr->redraw & (PR_AFRAID))
-	{
-		p_ptr->redraw &= ~(PR_AFRAID);
-		prt_afraid();
-	}
-
-	if (p_ptr->redraw & (PR_POISONED))
-	{
-		p_ptr->redraw &= ~(PR_POISONED);
-		prt_poisoned();
-	}
-
+	
 	if (p_ptr->redraw & (PR_STATE))
 	{
 		p_ptr->redraw &= ~(PR_STATE);

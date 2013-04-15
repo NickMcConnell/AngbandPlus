@@ -1,0 +1,3 @@
+server:churen.ddo.jp
+port:9999
+delay:30

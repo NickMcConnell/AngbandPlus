@@ -138,7 +138,7 @@ static cptr names_list =
 "brandir\n"
 "bregolas\n"
 "bregor\n"
-"brethil\n"
+"bridget\n"
 "brilthor\n"
 "brithiach\n"
 "brithombar\n"
@@ -449,7 +449,7 @@ static cptr names_list =
 "nahar\n"
 "naeramarth\n"
 "namo\n"
-"nandor\n"
+"nanoha\n"
 "nargothrond\n"
 "narog\n"
 "narsil\n"
@@ -577,7 +577,7 @@ static cptr names_list =
 "tintalle\n"
 "tinuviel\n"
 "tirion\n"
-"tirith\n"
+"toki\n"
 "tol\n"
 "tulkas\n"
 "tumhalad\n"
@@ -787,9 +787,13 @@ static errr init_names(void)
 	string_free(names[ART_POWER - 1]);
 	string_free(names[ART_GROND - 1]);
 	string_free(names[ART_MORGOTH - 1]);
-	names[ART_POWER - 1] = string_make("of Power (The One Ring)");
-	names[ART_GROND - 1] = string_make("'Grond'");
-	names[ART_MORGOTH - 1] = string_make("of Morgoth");
+	string_free(names[ART_PERSEVERENCE - 1]);
+	string_free(names[ART_TRIUMPH - 1]);
+	names[ART_POWER - 1] = string_make("of Hakaida");
+	names[ART_GROND - 1] = string_make("of Ken-Oh");
+	names[ART_MORGOTH - 1] = string_make("of Ken-Oh");
+	names[ART_PERSEVERENCE - 1] = string_make("of Perseverence");
+	names[ART_TRIUMPH - 1] = string_make("of Triumph");
 
 	/* Convert our names array into an a_name structure for later use. */
 	name_size = 0;
@@ -1871,7 +1875,9 @@ static void scramble_artifact(int a_idx)
 	/* XXX XXX XXX Special cases -- don't randomize these! */
 	if ((a_idx == ART_POWER) ||
 	    (a_idx == ART_GROND) ||
-	    (a_idx == ART_MORGOTH))
+	    (a_idx == ART_MORGOTH) ||
+	    (a_idx == ART_PERSEVERENCE) ||
+	    (a_idx == ART_TRIUMPH))
 		return;
 
 	/* Skip unused artifacts */

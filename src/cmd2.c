@@ -2553,6 +2553,8 @@ void do_cmd_fire(void)
 		ty = p_ptr->target_row;
 	}
 
+	project_length = 0;
+
 	/* Calculate the path */
 	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, ty, tx, 0);
 
@@ -2655,6 +2657,7 @@ void do_cmd_fire(void)
 				{
 					if (rand_int(100) < 50)
 					{
+						m_ptr->csleep = 0;
 						msg_format("There is a puff of smoke!");
 						teleport_away(cave_m_idx[y][x], 10);
 

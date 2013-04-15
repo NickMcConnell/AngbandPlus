@@ -1861,7 +1861,7 @@ void py_attack(int y, int x)
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
-
+	int dir;
 	int m_idx = cave_m_idx[y][x];
 	u32b f1, f2, f3;
 
@@ -1996,6 +1996,10 @@ void py_attack(int y, int x)
 				/* 33% less damage */
 				k -= (k/3);
 
+				/* Gain Meter */
+				if (k > 0)
+				(void)set_meter(p_ptr->c_meter + k);
+
 			}
 		
 			/* No negative damage */
@@ -2010,12 +2014,7 @@ void py_attack(int y, int x)
 				k *= (p_ptr->lev / 10 + 1);
 			}
 
-			/* Complex message */
-			if (p_ptr->wizard)
-			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-
+			
 			if (p_ptr->backstab){
 				p_ptr->backstab = FALSE;
 				message_format(MSG_HIT, m_ptr->r_idx, "You backstab %s!", m_name);
@@ -2031,15 +2030,12 @@ void py_attack(int y, int x)
 			}
 
 			/* Rasengan */
-			if (p_ptr->rasengan)
+			/*if (p_ptr->rasengan)
 			{
-				/*p_ptr->rasengan = FALSE;*/
 				msg_format("%^s gets hit by your Rasengan!");
-
-				k += p_ptr->lev * 3;
-
-
-			}
+				k += p_ptr->lev * 3; 
+				p_ptr->rasengan = FALSE;
+			}*/
 
 			/* Hakke */
 			if (p_ptr->jyuken)
@@ -2076,20 +2072,17 @@ void py_attack(int y, int x)
 				msg_format("You plunge a chidori into %^s!!!", m_name);
 			}
 
-				/* Sand does less damage */
-			if (p_ptr->pgroove == G_SAND)
+
+			/* Complex message */
+			if (p_ptr->wizard)
 			{
-				/* 50% less damage */
-				k -= (k/2);
-
-				/* Gain Meter */
-				(void)set_meter(p_ptr->c_meter + k);
-
+				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
+			
 			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
-
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break; 
+						
 			/* Warrior attacks can randomly stun */
 			if ((cp_ptr->flags & CF_STUN_HANDS) || (p_ptr->chakra_gate_level > 5))
 			{
@@ -2180,7 +2173,7 @@ void py_attack(int y, int x)
 
 				
 				/* Phase Monster */
-				teleport_away(m_idx, 5);
+				teleport_away(m_idx, 15);
 
 			}
 

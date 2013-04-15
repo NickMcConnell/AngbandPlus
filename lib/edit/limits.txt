@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:0.5.9
+V:0.6.0
 
 # Maximum number of wilderness scenes
 M:W:35

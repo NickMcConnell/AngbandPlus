@@ -1,0 +1,3 @@
+server:band-chukei.ddo.jp
+port:9999
+delay:30

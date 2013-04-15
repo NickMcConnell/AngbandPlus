@@ -47,16 +47,16 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.9.1"
+#define VERSION_STRING	"0.6.0a2"
 
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	5
-#define VERSION_PATCH	9
-#define VERSION_EXTRA	1
+#define VERSION_MINOR	6
+#define VERSION_PATCH	0
+#define VERSION_EXTRA	0
 
 
 /*
@@ -1158,18 +1158,21 @@ Tenative exponential function:
 #define ROW_STATE		23
 #define COL_STATE		38	/* "Drunk" */
 
-#define ROW_SPEED		23
-#define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
+#define ROW_SPEED		(-1)
+#define COL_SPEED		(-30)	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		23
-#define COL_STUDY		64	/* "Study" */
+#define ROW_STUDY		(-1)
+#define COL_STUDY		(-19)	/* "Study" */
 
-#define ROW_DEPTH		23
-#define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+#define ROW_DEPTH		(-1)
+#define COL_DEPTH		(-13)	/* "Lev NNN" / "NNNN ft" */
 
 #define ROW_MAP			1
 #define COL_MAP			13
 
+#define ROW_STATBAR		(-1)
+#define COL_STATBAR		0
+#define MAX_COL_STATBAR		(-32)
 
 /*** General index values ***/
 
@@ -1489,7 +1492,7 @@ Tenative exponential function:
 #define ART_BELANGIL		70
 #define ART_CALRIS			71
 #define ART_ARUNRUTH		72
-#define ART_GLAMDRING		73
+#define ART_PERSEVERENCE		73
 #define ART_AEGLIN			74
 #define ART_ORCRIST			75
 #define ART_GURTHANG		76
@@ -1536,7 +1539,7 @@ Tenative exponential function:
 #define ART_FIRESTAR		115
 #define ART_TARATOL			116
 #define ART_AULE			117
-#define ART_NAR				118
+#define ART_TRIUMPH			118
 #define ART_ERIRIL			119
 #define ART_OLORIN			120
 #define ART_DEATHWREAKER	121
@@ -1813,6 +1816,7 @@ Tenative exponential function:
 #define SV_FLAIL				13	/* 2d6 */
 #define SV_BAMBOO_UMBRELLA		14	/* 1d7 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
+#define SV_TONFA_STICK			16	/* 1d7 */
 #define SV_TWO_HANDED_FLAIL		18	/* 3d6 */
 #define SV_MACE_OF_DISRUPTION	20	/* 5d8 */
 #define SV_GROND				50	/* 3d4 */
@@ -2504,10 +2508,10 @@ Tenative exponential function:
 #define PR_HUNGER		0x00004000L	/* Display Extra (Hunger) */
 #define PR_DRUNK        0x00008000L /* Display Extra (Drunk) */
 /* xxx */
-#define PR_BLIND		0x00010000L	/* Display Extra (Blind) */
-#define PR_CONFUSED		0x00020000L	/* Display Extra (Confused) */
-#define PR_AFRAID		0x00040000L	/* Display Extra (Afraid) */
-#define PR_POISONED		0x00080000L	/* Display Extra (Poisoned) */
+#define PR_XXX1			0x00010000L	/* Display Extra (Blind) */
+#define PR_XXX2			0x00020000L	/* Display Extra (Confused) */
+#define PR_XXX3			0x00040000L	/* Display Extra (Afraid) */
+#define PR_STATUS		0x00080000L	/* Display Extra (Status) */
 #define PR_STATE		0x00100000L	/* Display Extra (State) */
 #define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
 #define PR_STUDY		0x00400000L	/* Display Extra (Study) */
@@ -3457,7 +3461,8 @@ Tenative exponential function:
 #define OPT_auto_more				71
 #define OPT_smart_monsters			72
 #define OPT_smart_packs				73
-/* xxx */
+#define OPT_too_much_junk			74
+#define OPT_display_path			75
 /* xxx */
 /* xxx */
 /* xxx */
@@ -3575,7 +3580,8 @@ Tenative exponential function:
 #define auto_more				op_ptr->opt[OPT_auto_more]
 #define smart_monsters			op_ptr->opt[OPT_smart_monsters]
 #define smart_packs				op_ptr->opt[OPT_smart_packs]
-/* xxx */
+#define too_much_junk			op_ptr->opt[OPT_too_much_junk]
+#define display_path			op_ptr->opt[OPT_display_path]
 /* xxx */
 /* xxx */
 /* xxx */

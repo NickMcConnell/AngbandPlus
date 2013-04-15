@@ -1038,7 +1038,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 }
 
 
-
 /*
  * Move the cursor to a given map location.
  *
@@ -1109,7 +1108,7 @@ void print_rel(char c, byte a, int y, int x)
 #ifdef USE_TRANSPARENCY
 	Term_queue_char(vx, vy, a, c, 0, 0);
 #else /* USE_TRANSPARENCY */
-	Term_queue_char(vx, vy, a, c);
+	Term_queue_char(vx, vy, a, c, 0, 0);
 #endif /* USE_TRANSPARENCY */
 
 }
@@ -1252,7 +1251,7 @@ void lite_spot(int y, int x)
 	map_info(y, x, &a, &c);
 
 	/* Hack -- Queue it */
-	Term_queue_char(vx, vy, a, c);
+	Term_queue_char(vx, vy, a, c, 0, 0);
 
 #endif /* USE_TRANSPARENCY */
 
@@ -1305,7 +1304,7 @@ void prt_map(void)
 			map_info(y, x, &a, &c);
 
 			/* Hack -- Queue it */
-			Term_queue_char(vx, vy, a, c);
+			Term_queue_char(vx, vy, a, c, 0, 0);
 
 #endif /* USE_TRANSPARENCY */
 
@@ -1400,6 +1399,88 @@ static byte priority(byte a, char c)
  */
 #define MAP_HGT (DUNGEON_HGT / 3)
 #define MAP_WID (DUNGEON_WID / 3)
+
+
+/*
+ * Print project path (From XAngband - iks?)
+ * Hacked up to all hell by me.
+ */
+void prt_path(int y, int x)
+{
+	int i;
+	int range = MAX_RANGE;
+	int path_n;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	u16b path_g[512];
+	int default_color = TERM_SLATE;
+	bool    fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm"));
+
+	if (!display_path) return;
+	/*if (project_length < 0) return;*/
+
+	/* Get projection path */
+	path_n = project_path(path_g, range, py, px, y, x, PROJECT_THRU);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Redraw stuff */
+	redraw_stuff();
+
+	/* Draw path */
+	for (i = 0; i < path_n; i++)
+	{
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
+
+		if (panel_contains(ny, nx))
+		{
+			byte a = default_color;
+			char c;
+
+			byte ta;
+			char tc;
+
+			if (cave_m_idx[ny][nx] && m_list[cave_m_idx[ny][nx]].ml)
+			{
+
+			/* Determine what is there */
+			map_info(ny, nx, &a, &c, &ta, &tc);
+
+				if (a & 0x80)
+					a = default_color;
+				else if (c == '.' && (a == TERM_WHITE || a == TERM_L_WHITE))
+					a = default_color;
+				else if (a == default_color)
+					a = TERM_WHITE;
+			}
+
+			if (fake_monochrome)
+			{
+				if (p_ptr->invuln) a = TERM_WHITE;
+				/*else if (p_ptr->wraith_form) a = TERM_L_DARK;*/
+			}
+
+			c = '*';
+			/*msg_format("Nx:%d  Ny:%d  a:%d  c:%c  ta:%d  tc:%c", nx, ny, a, c, ta, tc);
+			message_flush();*/
+
+			/* Hack -- Queue it */
+			print_rel(c,a,ny,nx);
+
+
+		}
+
+		/* Known Wall */
+		if ((cave_info[ny][nx] & CAVE_MARK) && !cave_floor_bold(ny, nx)) break;
+
+		/* Change color */
+		if (nx == x && ny == y) default_color = TERM_L_DARK;
+	}
+	
+}
+
 
 
 /*

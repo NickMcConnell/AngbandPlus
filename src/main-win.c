@@ -119,6 +119,7 @@
 #define IDM_FILE_OPEN			101
 #define IDM_FILE_SAVE			110
 #define IDM_FILE_SCORE			120
+#define IDM_FILE_MOVIE			121
 #define IDM_FILE_EXIT			130
 
 #define IDM_WINDOW_VIS_0		200
@@ -2169,6 +2170,9 @@ static errr Term_curs_win(int x, int y)
 		tile_hgt = td->tile_hgt;
 	}
 
+	/* Out of window */
+	if ((x >= td->cols) || (y >= td->rows)) return 0;
+
 	/* Frame the grid */
 	rc.left = x * tile_wid + td->size_ow1;
 	rc.right = rc.left + tile_wid;
@@ -2196,6 +2200,9 @@ static errr Term_wipe_win(int x, int y, int n)
 
 	HDC hdc;
 	RECT rc;
+
+	/* Out of window */
+	if ((x >= td->cols) || (y >= td->rows)) return 0;
 
 	/* Rectangle to erase in client coords */
 	rc.left = x * td->tile_wid + td->size_ow1;
@@ -2231,6 +2238,9 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
 	RECT rc;
 	HDC hdc;
 
+
+	/* Out of window */
+	if ((x >= td->cols) || (y >= td->rows)) return 0;
 
 	/* Total rectangle */
 	rc.left = x * td->tile_wid + td->size_ow1;
@@ -2351,6 +2361,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Erase the grids */
 		return (Term_wipe_win(x, y, n));
 	}
+
+	/* Out of window */
+	if ((x >= td->cols) || (y >= td->rows)) return 0;
 
 	/* Size of bitmap cell */
 	w1 = infGraph.CellWidth;
@@ -3475,6 +3488,49 @@ static void process_menus(WORD wCmd)
 				initialized = TRUE;
 			}
 
+			break;
+		}
+
+		/* Open game */
+		case IDM_FILE_MOVIE:
+		{
+			if (!initialized)
+			{
+#ifdef JP
+				plog("まだ初期化中です...");
+#else
+				plog("You cannot do that yet...");
+#endif
+			}
+			else if (game_in_progress)
+			{
+#ifdef JP
+				plog("プレイ中はムービーをロードすることができません！");
+#else
+				plog("You can't open a movie while you're playing!");
+#endif
+			}
+			else
+			{
+				memset(&ofn, 0, sizeof(ofn));
+				ofn.lStructSize = sizeof(ofn);
+				ofn.hwndOwner = data[0].w;
+				ofn.lpstrFilter = "Angband Movie Files (*.amv)\0*.amv\0";
+				ofn.nFilterIndex = 1;
+				ofn.lpstrFile = savefile;
+				ofn.nMaxFile = 1024;
+				ofn.lpstrInitialDir = ANGBAND_DIR_USER;
+				ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+
+				if (GetOpenFileName(&ofn))
+				{
+					/* Load 'savefile' */
+					prepare_browse_movie_aux(savefile);
+					play_game(FALSE);
+					quit(NULL);
+					return;
+				}
+			}
 			break;
 		}
 
@@ -5107,9 +5163,51 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 		quit(NULL);
 	}
 #endif /* USE_SAVER */
+	
+	if(lpCmdLine[0] == '-'){
+	  switch(lpCmdLine[1])
+	  {
+	  case 'P':
+	  case 'p':
+	    {
+	      if (!lpCmdLine[2]) break;
+	      chuukei_server = TRUE;
+	      if(connect_chuukei_server(&lpCmdLine[2])<0){
+		msg_print("connect fail");
+		return 0;
+	      }
+	      msg_print("connect");
+	      msg_print(NULL);
+	      break;
+	    }
 
+	  case 'C':
+	  case 'c':
+	    {
+	      if (!lpCmdLine[2]) break;
+	      chuukei_client = TRUE;
+	      connect_chuukei_server(&lpCmdLine[2]);
+	      play_game(FALSE);
+	      quit(NULL);
+	      return 0;
+	    }
+
+	  case 'X':
+	  case 'x':
+	    {
+	      if (!lpCmdLine[2]) break;
+	      prepare_browse_movie(&lpCmdLine[2]);
+	      play_game(FALSE);
+	      quit(NULL);
+	      return 0;
+	    }
+	  }
+	}
 	/* Did the user double click on a save file? */
-	check_for_save_file(lpCmdLine);
+	if(!chuukei_server) check_for_save_file(lpCmdLine);
+	
+	/* Did the user double click on a save file? */
+	/*check_for_save_file(lpCmdLine);*/
 
 	/* Prompt the user */
 	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);

@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.5.9
+V:0.6.0
 
 
 # Hum,Ned,Say,Jur,And,Fel,HTM,SaN,SkD,Rem,Mog

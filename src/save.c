@@ -2043,18 +2043,18 @@ bool load_player(void)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
+		/* Very old savefiles 
 		if ((sf_major == 5) && (sf_minor == 2))
 		{
 			sf_major = 2;
 			sf_minor = 5;
-		}
+		}*/
 
-		/* Extremely old savefiles */
+		/* Extremely old savefiles 
 		if (sf_major > 2)
 		{
 			sf_major = 1;
-		}
+		}*/
 
 		/* Clear screen */
 		Term_clear();
@@ -2062,7 +2062,7 @@ bool load_player(void)
 		
 
 		/* Parse "new" savefiles */
-		if (sf_minor == 5)
+		if (sf_minor >= 5)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

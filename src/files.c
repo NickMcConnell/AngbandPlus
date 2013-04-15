@@ -2060,8 +2060,8 @@ static void display_player_sust_info(void)
 	/* Column */
 	col = 26;
 
-	/* Header */
-	c_put_str(TERM_WHITE, "abcdefghijklm@", row-1, col);
+	/* Header -- Not Necessary */
+	/*c_put_str(TERM_WHITE, "abcdefghijklm@", row-1, col);*/
 
 	/* Process equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
@@ -2453,6 +2453,39 @@ errr file_character(cptr name, bool full)
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
+
+	/* Display player */
+	display_player(1);
+
+	/* Dump part of the screen */
+	for (y = 2; y < 23; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Back up over spaces */
+		while ((x > 0) && (buf[x-1] == ' ')) --x;
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Go back, lol */
+	display_player(0);
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
 
 	fprintf(fff, "Game Type: %s\n", game_type[p_ptr->what_game_type]);
 	

@@ -4498,7 +4498,7 @@ void store_init(int which)
   * Hack -- this routine always makes a "dungeon object", and applies
  * magic to it, and attempts to decline cursed items. XXX XXX XXX
  */
-static void store_request_item(void)
+void store_request_item(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -4507,6 +4507,7 @@ static void store_request_item(void)
 	object_type object_type_body;
 	
 	int k_idx, amt, choice;
+	int item_new;
 
 	char o_name[80];
 
@@ -4587,6 +4588,15 @@ static void store_request_item(void)
 			/* Mark as fixed price */
 	/*		o_ptr->ident |= (IDENT_FIXED);*/
 		}
+
+			/* Hack -- require room in pack */
+	if (!inven_carry_okay(i_ptr))
+	{
+		msg_print("You cannot carry that many items.");
+		return;
+	}
+
+
 	/* Player wants it */
 		if (choice == 0)
 		{
@@ -4621,22 +4631,40 @@ static void store_request_item(void)
 				msg_format("You requested %s for %ld gold.",
 				           o_name, (long)price);
 
-				msg_print("It will be delivered to you later.");
-
 				/* Erase the inscription */
 				i_ptr->note = 0;
 
+
+				/* Give it to the player */
+				item_new = inven_carry(i_ptr);
+
+				/* Describe the final result */
+				object_desc(o_name, &inventory[item_new], TRUE, 3);
+
+				/* Message */
+				msg_format("You have %s (%c).",
+				           o_name, index_to_label(item_new));
+
+				/* Handle stuff */
+				handle_stuff();
+
+
+				/*msg_print("It will be delivered to you later.");*/
+
+				/* Erase the inscription */
+				/* i_ptr->note = 0;*/
+
 				/* Set a delivery time */
-				(void)set_delivery_time(1000 + p_ptr->lev * rand_int(100));
+/*				(void)set_delivery_time(1000 + p_ptr->lev * rand_int(100));*/
 
 				/* To prevent NULL */
-				p_ptr->delivery_ptr = &p_ptr->delivery_type;
+/*				p_ptr->delivery_ptr = &p_ptr->delivery_type;*/
 			
 				/* Remember the item being delivered */
-				object_copy(p_ptr->delivery_ptr, i_ptr);
+			/*	object_copy(p_ptr->delivery_ptr, i_ptr);*/
 
 				/* Allow delivery boy to summon */
-				p_ptr->allow_delivery = TRUE;
+			/*	p_ptr->allow_delivery = TRUE;*/
 
 				/* Describe the final result */
 			/*	object_desc(o_name, &inventory[item_new], TRUE, 3);*/
@@ -4646,7 +4674,7 @@ static void store_request_item(void)
 				           o_name, index_to_label(item_new));*/
 
 				/* Handle stuff */
-				handle_stuff();
+				/*handle_stuff();*/
 
 			}
 
@@ -4668,7 +4696,7 @@ static void store_request_item(void)
  * Alter the item per player's request.
  * I believe that this function will cause me to shiver in horror in the future...
  */
-static int store_ego_item(object_type *o_ptr, bool only_good)
+int store_ego_item(object_type *o_ptr, bool only_good)
 {
 	int i, j, max_num, num, row, col;
 
@@ -4776,7 +4804,7 @@ static int store_ego_item(object_type *o_ptr, bool only_good)
  * Alter the item per player's request.
  * I believe that this function will cause me to shiver in horror in the future...
  */
-static bool is_egoable(object_type *o_ptr)
+bool is_egoable(object_type *o_ptr)
 {
 	int i, j;
 

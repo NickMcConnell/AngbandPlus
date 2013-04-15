@@ -574,6 +574,7 @@ static void process_world(void)
 	/* Lose mana while using Sharingan or Byakugan */
 	if ((p_ptr->sharingan) || (p_ptr->byakugan))
 	{
+		if (p_ptr->csp >0)
 		p_ptr->csp = p_ptr->csp - 1;
 		/* Display the mana points */
 	p_ptr->redraw |= (PR_MANA);
@@ -945,6 +946,19 @@ static void process_world(void)
 	{
 		(void)set_mimic();
 	}
+
+	/* Sharingan */
+	if (p_ptr->sharingan)
+	{
+		(void)set_sharingan();
+	}
+
+	/* Byakugan */
+	if (p_ptr->byakugan)
+	{
+		(void)set_byakugan();
+	}
+
 	/* Orbs!! */
 	if (p_ptr->ouroborous)
 	{
@@ -1237,6 +1251,8 @@ static void process_world(void)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
+		p_ptr->redraw |= (PR_STATUS);
+
 		}
 	}
 }
@@ -2132,6 +2148,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Start/Stop recording a movie */
+		case ']':
+		{
+			prepare_movie_hooks();
+			break;
+		}
+
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -3004,12 +3027,32 @@ void play_game(bool new_game)
 	}
 
 	/* Forbid resizing */
+#if 0
 	Term->fixed_shape = TRUE;
+#else
+	Term->fixed_shape = FALSE;
+#endif
 
 
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
-
+	if (chuukei_client)
+	{
+		reset_visuals(TRUE);
+		browse_chuukei();
+		return;
+	}
+	else if (chuukei_server)
+	{
+		prepare_chuukei_hooks();
+	}
+	
+	if (browsing_movie)
+	{
+		reset_visuals(TRUE);
+		browse_movie();
+		return;
+	}
 
 	/* Attempt to load */
 	if (!load_player())
@@ -3266,6 +3309,8 @@ void play_game(bool new_game)
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
+					p_ptr->redraw |= (PR_STATUS);
+
 				}
 
 				/* Note cause of death XXX XXX XXX */

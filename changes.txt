@@ -1,4 +1,60 @@
-10/14/05 - 
+11/26/05 - 
+Changes in Animeband 0.6.0
+- Switch to Cygwin/GCC instead of VC++.  Source changed somewhat so that it compiles in Cygwin GCC.
+- Chuukei patch added.  Now you can have people watch you play, or watch other people play.  
+  Currently there are no servers for non-Japanese players, however, if someone is willing to host 
+  one, download this: http://gridbug.dyndns.org/broadcastd.tar.gz and e-mail me. (Habu, iks, Shun, PhaethonH)
+- Movie playback and record feature available.  Saves in the lib/user directory as an amv 
+  file.  Records about 10 minutes per meg.  Thanks to iks for this wonderful feature.
+- Fixed version number
+- Fixed dash and pyrotechnics crash
+- Fixed Sand glitch.  Sand was only doing 1/6th damage instead of 2/3rds. (Deliverything)
+- Fixed Wizard mode damage display glitch; was displaying wrong numbers (Deliverything)
+- Replacement Technique will now only work 25% of the time for the player.
+- Armor of Sand only blocks attacks 25% of the time.
+- Moon the Cat no longer sits there like an idiot (Henkma)
+- Last boss changed from Neo to Raoh (Hokuto no Ken)
+- Lupin now has replacement technique.  Color changed to red.
+- Fixed Umbrella of Eagle and other artifact oddities
+- A few monster name oddities fixed (natsukemono).
+- Taunt and Pose glitch crash glitch fixed (??)  Also, taunt and pose speed glitch fixed.  Possibly the same?
+- Fixed rather silly Sanjiyan Sand glitch.
+- Replacement Technique for monsters forces monsters to wake up.
+- Testing: XAngband Style status bar and level feeling (MarRabbit, iks)
+- Testing: Naive solution to the so-called "Too Much Junk" problem.  Gold is dropped most of the time; 
+  presumption that whatever player needs is in Black Market.  Black Market just hands you the item now.
+  The too_much_junk option changes the distribution to normal if shut off.  Default is off.
+- Number of creatures with ONLY_ITEM flag severely reduced.  
+- Testing: Hastily modified char dump to output resistances and sustains
+- Fixed odd spellbook bug (Henkma)
+- Fixed Rasengan bug (sorta).  At least it doesn't crash. (p_ouji)
+- Made Randart exceptions to Triumph and Perseverence.
+- Testing: Tsukuyomi now does stuff.
+- Fixed mimicing glitch. (p_ouji)
+- Fixed negative mana glitch, I think (p_ouji)
+- Fixed odd Sharingan/Byakugan glitch where it doesn't dissipate despite zero mana.
+- Testing: XAngband targeting system (iks).
+- Fixed negative meter gain Sand Glitch (p_ouji)
+
+
+Need to do (priority wise):
+- AI system - The HENKMA/P_OUJI KILLER
+- Takkaria stacking patch
+- Change Randart names - use the JHengband method
+- Genjutsu
+- Mecha shop
+- Hyakuretsu ken
+- Hokuto/Nanto attack
+- More Tutorial videos?
+- Item descriptions
+- Monster style system
+- Make Shiki Fuujin less lame
+- Shin, Jagi, Juda, Souther
+- Musou Tensei
+
+
+
+10/14/05 - 11/26/05 
 Changes in Animeband 0.5.9.1
 - Timing changed to remove movement clumping based on a modification of Kornelis' solution, 
   only this should cover all cases.  Thanks to Vaevictus for doing an algorithm analysis 
@@ -114,7 +170,7 @@ Changes in Animeband 0.5.9
 - Train ticket price eliminated.
 - Artifacts can be dropped by Wilderness creatures.  Quality of items dropped by wilderness creatures increased.
 - Fixed a bug that put Pagoda uniques in the dungeon.
-- Wizard mode allows meter adjustment as well (PhaetonH)
+- Wizard mode allows meter adjustment as well (PhaethonH)
 - Added a little surprise in the town once you reach a certain depth ^_^
 - Changed the history a little bit to be a bit more animeish
 - Fixed a small Student display glitch

@@ -385,6 +385,10 @@ static byte spell_color(int type)
 	return (TERM_WHITE);
 }
 
+/*
+ * Length drawing project_path
+ */
+int project_length = 0;
 
 
 /*
@@ -467,7 +471,7 @@ void take_hit(int dam, cptr kb_str)
 	if (p_ptr->invuln && (dam < 9000)) return;
 
 	/* Mega-Hack -- Armor of Sand */
-	if (p_ptr->armor_of_sand)
+	if ((p_ptr->armor_of_sand) && (rand_int(100) < 25))
 	{
 		
 		if (p_ptr->armor_of_sand > dam)

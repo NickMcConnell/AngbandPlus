@@ -1,3 +1,4 @@
+# Generated automatically from Makefile.in by configure.
 # Makefile.in generated automatically by automake 1.4 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
@@ -11,45 +12,44 @@
 # PARTICULAR PURPOSE.
 
 
-SHELL = @SHELL@
+SHELL = /bin/sh
 
-srcdir = @srcdir@
-top_srcdir = @top_srcdir@
-VPATH = @srcdir@
-prefix = @prefix@
-exec_prefix = @exec_prefix@
+srcdir = .
+top_srcdir = ../..
+prefix = /usr/local
+exec_prefix = ${prefix}
 
-bindir = @bindir@
-sbindir = @sbindir@
-libexecdir = @libexecdir@
-datadir = @datadir@
-sysconfdir = @sysconfdir@
-sharedstatedir = @sharedstatedir@
-localstatedir = @localstatedir@
-libdir = @libdir@
-infodir = @infodir@
-mandir = @mandir@
-includedir = @includedir@
+bindir = ..
+sbindir = ${exec_prefix}/sbin
+libexecdir = ${exec_prefix}/libexec
+datadir = ${prefix}/share
+sysconfdir = ${prefix}/etc
+sharedstatedir = ${prefix}/com
+localstatedir = ${prefix}/var
+libdir = ${exec_prefix}/lib
+infodir = ${prefix}/info
+mandir = ${prefix}/man
+includedir = ${prefix}/include
 oldincludedir = /usr/include
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/@PACKAGE@
-pkglibdir = $(libdir)/@PACKAGE@
-pkgincludedir = $(includedir)/@PACKAGE@
+pkgdatadir = $(datadir)/angband
+pkglibdir = $(libdir)/angband
+pkgincludedir = $(includedir)/angband
 
 top_builddir = ../..
 
-ACLOCAL = @ACLOCAL@
-AUTOCONF = @AUTOCONF@
-AUTOMAKE = @AUTOMAKE@
-AUTOHEADER = @AUTOHEADER@
+ACLOCAL = /home/shun/animb/missing aclocal
+AUTOCONF = /home/shun/animb/missing autoconf
+AUTOMAKE = /home/shun/animb/missing automake
+AUTOHEADER = /home/shun/animb/missing autoheader
 
-INSTALL = @INSTALL@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
-INSTALL_DATA = @INSTALL_DATA@
-INSTALL_SCRIPT = @INSTALL_SCRIPT@
-transform = @program_transform_name@
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_SCRIPT = ${INSTALL_PROGRAM}
+transform = s,x,x,
 
 NORMAL_INSTALL = :
 PRE_INSTALL = :
@@ -57,24 +57,24 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-ANGBAND_OBJS = @ANGBAND_OBJS@
-CC = @CC@
-DEFAULT_PATH = @DEFAULT_PATH@
-EXEEXT = @EXEEXT@
-GAMEGROUP = @GAMEGROUP@
-MAKEINFO = @MAKEINFO@
-PACKAGE = @PACKAGE@
-VERSION = @VERSION@
+ANGBAND_OBJS = 
+CC = gcc
+DEFAULT_PATH = ./lib/
+EXEEXT = 
+GAMEGROUP = 
+MAKEINFO = /home/shun/animb/missing makeinfo
+PACKAGE = angband
+VERSION = 2.9.3
 
-angband_files =    delete.me
+angband_files =    artifact.txt   cost_adj.txt   ego_item.txt   limits.txt   monster.txt   object.txt   p_class.txt   p_hist.txt   p_race.txt   shop_own.txt   terrain.txt   vault.txt
 
 
 EXTRA_DIST =    $(angband_files)
 
 
-@SET_GID_TRUE@angbanddir = @DEFAULT_PATH@data
+#angbanddir = ./lib/edit
 
-@SET_GID_TRUE@angband_DATA =   $(angband_files)
+#angband_DATA =   $(angband_files)
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../src/autoconf.h
 CONFIG_CLEAN_FILES = 
@@ -90,7 +90,7 @@ GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps lib/data/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --foreign --include-deps lib/edit/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
@@ -121,7 +121,7 @@ TAGS:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = lib/data
+subdir = lib/edit
 
 distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
@@ -146,8 +146,6 @@ install-exec-am:
 install-exec: install-exec-am
 
 install-data-am: install-angbandDATA
-	@$(NORMAL_INSTALL)
-	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-data: install-data-am
 
 install-am: all-am
@@ -197,25 +195,6 @@ install uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-install-data-hook:
-@SET_GID_TRUE@	if test "@GAMEGROUP@" != ""; then \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/artifact.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/cost_adj.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/ego_item.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/limits.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/monster.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/object.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/p_class.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/p_hist.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/p_race.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/prices.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/shop_own.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/terrain.raw" && \
-@SET_GID_TRUE@	  touch "$(DESTDIR)$(angbanddir)/vault.raw" && \
-@SET_GID_TRUE@	  chown -R root.@GAMEGROUP@ "$(DESTDIR)$(angbanddir)" && \
-@SET_GID_TRUE@	  chmod -R g+w "$(DESTDIR)$(angbanddir)" ;\
-@SET_GID_TRUE@	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

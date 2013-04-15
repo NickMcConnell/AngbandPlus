@@ -273,6 +273,7 @@ extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
 extern void prt_map(void);
+extern void prt_path(int y, int x);
 extern void display_map(int *cy, int *cx);
 extern void do_cmd_view_map(void);
 extern errr vinfo_init(void);
@@ -499,6 +500,7 @@ extern errr get_rnd_line(cptr file_name, int entry, char *output);
 /* object1.c */
 extern void flavor_init(void);
 extern void reset_visuals(bool prefs);
+extern void reset_visuals2(void);
 extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_desc(char *buf, const object_type *o_ptr, int pref, int mode);
@@ -580,6 +582,7 @@ extern bool save_player(void);
 extern bool load_player(void);
 
 /* spells1.c */
+extern int project_length;
 extern s16b poly_r_idx(int r_idx);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
@@ -784,6 +787,8 @@ extern bool set_shero(int v);
 extern bool set_s_sayian(int v);
 extern bool set_wu_transform(int v);
 extern bool set_mimic(void);
+extern bool set_sharingan(void);
+extern bool set_byakugan(void);
 extern bool set_mag_student(void);
 extern bool set_ouroborous(int v);
 extern bool set_geneijin(int v);
@@ -865,3 +870,19 @@ extern void show_floor(const int *floor_list, int floor_num);
 /* randart.c */
 extern errr do_randart(u32b randart_seed, bool full);
 #endif /* GJW_RANDART */
+
+extern bool chuukei_server;
+extern bool chuukei_client;
+
+extern int connect_chuukei_server(char *server_string);
+extern void browse_chuukei(void);
+extern void flush_ringbuf(void);
+extern void prepare_chuukei_hooks(void);
+extern bool arg_bigtile;
+extern bool use_bigtile;
+
+extern void prepare_movie_hooks(void);
+extern void prepare_browse_movie_aux(cptr filename);
+extern void prepare_browse_movie(cptr filename);
+extern void browse_movie(void);
+extern bool browsing_movie;

@@ -55,7 +55,7 @@ bool arg_sound;				/* Command arg -- Request special sounds */
 bool arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
-
+bool use_bigtile = FALSE;
 /*
  * Various things
  */
@@ -683,3 +683,15 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+bool chuukei_server;
+bool chuukei_client;
+char *server_name;
+int server_port;
+
+bool arg_bigtile = FALSE;
+
+/*
+ * For movie
+ */
+bool browsing_movie;

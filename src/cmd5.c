@@ -1984,6 +1984,10 @@ void do_cmd_ninjutsu(void)
 					msg_print("The Sharingan is required for this jutsu.");
 					return;
 				}
+
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You gaze deeply in that direction.");
+				fire_beam(GF_GRAVITY, dir, 0);
 				break;
 			}
 
@@ -2258,6 +2262,7 @@ void do_cmd_ninjutsu(void)
 				fire_ball(GF_MANA, 0, rand_int(plev * 20), 13);
 					for (dir = 0; dir < randint(10); dir++)
 				{
+				msg_print("The Shinigami sends minions to take your soul.");
 				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0);
 				
 				}
@@ -3842,8 +3847,7 @@ void do_cmd_mimic(void)
 	/* Get monster */
 	m_ptr = &m_list[p_ptr->target_who];
 	r_ptr = &r_info[m_ptr->r_idx];
-	p_ptr->mimic_idx = m_ptr->r_idx;
-
+	
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
@@ -3853,6 +3857,9 @@ void do_cmd_mimic(void)
 		msg_format("You cannot mimic %s without a Sharingan.", m_name);
 		return;
 	}
+	
+	/* Fix mimic glitch */
+	p_ptr->mimic_idx = m_ptr->r_idx;
 
 	msg_format("You mimic %s.", m_name);
 
@@ -6518,6 +6525,7 @@ void do_cmd_sentai_power(void)
 	char out_val[160];
 	char m_name[80];
 	char choice;
+	int intended_x, intended_y;
 
 	/* Names of Magical Student Powers */
 cptr mag_powers[SENTAI_MAX] =
@@ -6645,13 +6653,13 @@ int power_mana[STUDENT_MAX] = {0,0,100,200,300,500,500,500,1,5000};
 		else
 		{
 		p_ptr->word_recall = 1;
+		p_ptr->redraw |= (PR_STATUS);
 		}
 				break;
 		
 			}
 
 	case SENTAI_PYROTECHNICS:		{
-
 		if (target_set_interactive(TARGET_KILL))
 		{
 		
@@ -6666,9 +6674,11 @@ int power_mana[STUDENT_MAX] = {0,0,100,200,300,500,500,500,1,5000};
 		{
 			return;
 		}
+			intended_y = p_ptr->target_row;
+		intended_x = p_ptr->target_col;
 
 		msg_print("You jump over and throw some bombs!");
-		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+		teleport_player_to(intended_y, intended_x);
 			fire_ball(GF_CONFUSION, 0, 0, 10);
 			fire_ball(GF_SOUND, 0, 0, 10);
 				break;
@@ -6815,13 +6825,16 @@ int power_mana[STUDENT_MAX] = {0,0,100,200,300,500,500,500,1,5000};
 		{
 			return;
 		}
+		intended_y = p_ptr->target_row;
+		intended_x = p_ptr->target_col;
 
 		msg_print("You dash!");
 
 		fire_beam(GF_DASH, 5, 0);
-		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+		teleport_player_to(intended_y, intended_x);
 
 		break;
+
 
 		}
 

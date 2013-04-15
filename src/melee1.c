@@ -326,7 +326,7 @@ bool make_attack_normal(int m_idx)
 	}
 
 	/* Hack - Replacement Technique */
-	if ((p_ptr->replacement) || (p_ptr->replacement == 2))
+	if (((p_ptr->replacement) || (p_ptr->replacement == 2)) && (rand_int(100) < 25))
 	{
 		
 		msg_format("You use the replacement technique!");

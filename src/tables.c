@@ -1345,13 +1345,13 @@ const u32b spell_flags[3][9][2] =
 		     -1,
 		     -1,
 		     -1),
-		BOOK(SPELL_PHASE_DOOR,
-			 SPELL_TELEPORT_SELF,
-			 SPELL_DOOR_CREATION,
+		BOOK(SPELL_DOOR_CREATION,
 		     SPELL_STAIR_CREATION,
 		     SPELL_TELEPORT_LEVEL,
 			 SPELL_SMOKE_BOMB,
 		     SPELL_WORD_OF_RECALL,
+		     -1,
+		     -1,
 		     -1,
 		     -1),
 		BOOK(SPELL_DETECT_EVIL,
@@ -2083,8 +2083,8 @@ cptr option_text[OPT_MAX] =
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"too_much_junk",			/* OPT_too_much_junk */
+	"display_path",				/* OPT_display_path */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2347,8 +2347,8 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Beta: Solve the 'Too Much Junk' problem",	/* OPT_too_much_junk */
+	"Beta: XAngband style targeting system",	/* OPT_display_path */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2611,8 +2611,8 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_too_much_junk */
+	TRUE,		/* OPT_display_path */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2874,7 +2874,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_show_piles,
-		255,
+		OPT_too_much_junk,
 		255
 	},
 
@@ -2898,7 +2898,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
  		OPT_center_player,
  		OPT_run_avoid_center,
 		OPT_scroll_target,
-		255,
+		OPT_display_path,
 		255,
 		255,
 	},
