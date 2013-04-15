@@ -28,18 +28,19 @@
 
 Welcome to Animeband 0.5.0!
 
-This is my very first variant, and while I'm somewhat familiar with C++, I am not
-that familiar with C.  You will notice my changes have a somewhat strange, almost
-ghetto style ^_^.  I intend to clean up whatever messes I might have made, and if
-you see things that need changing, don't hesitate to tell me.
+This is my very first variant, and while I'm somewhat familiar with C++, I am
+not that familiar with C.  You will notice my changes have a somewhat strange,
+almost ghetto style ^_^.  I intend to clean up whatever messes I might have
+made, and if you see things that need changing, don't hesitate to tell me.
 
-This is really more of a big hack on V 2.9.3 than a true variant.  I intend to add
-more things in the future (like a train station....we need a train station), along
-with quests (as soon as I figure out how that works), and possibly randarts and
-whatever else I might cook up (maybe capturable Pokemon?....)
+This is really more of a big hack on V 2.9.3 than a true variant.  I intend to
+add more things in the future (like a train station....we need a train
+station), along with quests (as soon as I figure out how that works), and
+possibly randarts and whatever else I might cook up (maybe capturable
+Pokemon?....)
 
-So until this reaches 1.0.0, this is not really done.  However, I hope you have fun
-with it.
+So until this reaches 1.0.0, this is not really done.  However, I hope you have
+fun with it.
 
 -- Ernest Huang (Yumi_Saotome on #angband)
 

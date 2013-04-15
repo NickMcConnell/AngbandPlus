@@ -2848,6 +2848,9 @@ static void dungeon(void)
 
 		/*** Apply energy ***/
 
+		/* Reset duel blurring (related to Replacement Technique). */
+		p_ptr->blur = 0;
+
 		/* Give the player some energy */
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
 

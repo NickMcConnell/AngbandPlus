@@ -114,6 +114,8 @@ if test "$CYGWIN" = "yes"; then
   AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
   ANGBAND_OBJS="readdib.o angband.res"
   AC_SUBST(ANGBAND_OBJS)
+else
+  AM_CONDITIONAL(CYGWIN, test "$CYGWIN" = "yes")
 fi
 
 AC_HEADER_STDC

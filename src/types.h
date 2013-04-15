@@ -1011,6 +1011,7 @@ struct player_type
 	/*** Duel Field ***/
 	s16b duel_idx;  /* Current duel monster */
 	byte pending_duel;  /* Has a pending duel */
+	byte blur; /* phase-out effect */
 
 	/*** Chi Warrior Fields ***/
 	byte bakusai_tengetsu;  /* Bakusai Tengetsu Stance */

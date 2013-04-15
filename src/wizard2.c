@@ -474,7 +474,7 @@ static char head[3] =
  *
  * List up to 57 choices in three columns
  */
-static int wiz_create_itemtype(void)
+int wiz_create_itemtype(void)
 {
 	int i, num, max_num;
 	int col, row;
@@ -1733,6 +1733,13 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			do_cmd_wiz_summon(p_ptr->command_arg);
+			break;
+		}
+
+                /* Train station  -PH */
+		case 'T':
+		{
+			do_train_station();
 			break;
 		}
 

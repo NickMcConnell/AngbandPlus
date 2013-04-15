@@ -1157,10 +1157,236 @@ void hit_trigger(int y, int x)
 
 }
 
+
+
+
+/*
+ * Show train stations (ripped from show_inven()).
+ */
+void show_stations (void)
+{
+	int i, j, k, l, z = 0;
+	int col, len, lim;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	char tmp_val[80];
+
+	int out_index[24];
+	byte out_color[24];
+	char out_desc[24][80];
+
+
+	/* Default length */
+	len = 79 - 50;
+
+	/* Maximum space allowed for descriptions */
+	lim = 79 - 3;
+
+	/* Require space for weight (if needed) */
+	if (show_weights) lim -= 9;
+
+
+	/* Find the "final" slot */
+#if 0
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Track */
+		z = i + 1;
+	}
+#endif /* 0 */
+	z = MAX_TRAIN;
+
+	/* Preprocess items. */
+	for (k = 0, i = 0; i < z; i++)
+	{
+#if 0
+		o_ptr = &inventory[i];
+
+		/* Is this item acceptable? */
+		if (!item_tester_okay(o_ptr)) continue;
+
+		/* Describe the object */
+		object_desc(o_name, o_ptr, TRUE, 3);
+#endif /* 0 */
+		strcpy(o_name, train_stops[i]);
+
+		/* Hack -- enforce max length */
+		o_name[lim] = '\0';
+
+		/* Save the index */
+		out_index[k] = i;
+
+		/* Get inventory color */
+/*
+		out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+*/
+		out_color[k] = TERM_WHITE;
+
+		/* Save the object description */
+		strcpy(out_desc[k], o_name);
+
+		/* Find the predicted "line length" */
+		l = strlen(out_desc[k]) + 5;
+
+		/* Be sure to account for the weight */
+		if (show_weights) l += 9;
+
+		/* Maintain the maximum length */
+		if (l > len) len = l;
+
+		/* Advance to next "line" */
+		k++;
+	}
+
+	/* Find the column to start in */
+	col = (len > 76) ? 0 : (79 - len);
+
+	/* Output each entry */
+	for (j = 0; j < k; j++)
+	{
+		/* Get the item */
+		strcpy(o_name, train_stops[j]);
+		o_name[lim] = '\0';
+
+		/* Clear the line */
+		prt("", j + 1, col ? col - 2 : col);
+
+		/* Prepare an index --(-- */
+		sprintf(tmp_val, "%c)", index_to_label(j));
+
+		/* Clear the line with the (possibly indented) index */
+		put_str(tmp_val, j + 1, col);
+
+		/* Display the entry itself */
+		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
+
+#if 0
+		/* Display the weight if needed */
+		if (show_weights)
+		{
+			int wgt = o_ptr->weight * o_ptr->number;
+			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			put_str(tmp_val, j + 1, 71);
+		}
+#endif /* 0 */
+
+#if 0
+		/* Get the index */
+		i = out_index[j];
+
+		/* Get the item */
+		o_ptr = &inventory[i];
+
+		/* Clear the line */
+		prt("", j + 1, col ? col - 2 : col);
+
+		/* Prepare an index --(-- */
+		sprintf(tmp_val, "%c)", index_to_label(i));
+
+		/* Clear the line with the (possibly indented) index */
+		put_str(tmp_val, j + 1, col);
+
+		/* Display the entry itself */
+		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
+
+		/* Display the weight if needed */
+		if (show_weights)
+		{
+			int wgt = o_ptr->weight * o_ptr->number;
+			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+			put_str(tmp_val, j + 1, 71);
+		}
+#endif /* 0 */
+	}
+
+	/* Make a "shadow" below the list (only if needed) */
+	if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+}
+
+/* menu interface.  -PH */
+void do_train_station (void)
+{
+	int curStop = 0;
+	int cmdkey = 0;
+
+
+/* menu rip start. */
+	/* Hack -- Start in "inventory" mode */
+//	p_ptr->command_wrk = (USE_INVEN);
+
+	/* Save screen */
+	screen_save();
+
+	/* Hack -- show empty slots */
+	item_tester_full = TRUE;
+
+	/* Display stations. */
+	show_stations();
+
+	/* Hack -- hide empty slots */
+	item_tester_full = FALSE;
+
+	/* Prompt for a command */
+	prt("(Train Station) Command: ", 0, 0);
+
+#define label_to_index(c) (islower(c) ? A2I(c) : -1)
+
+	/* Hack -- Get a new command */
+/*
+	p_ptr->command_new = inkey();
+*/
+	cmdkey = inkey();
+
+	/* Load screen */
+	screen_load();
+
+
+	/* Hack -- Process "Escape" */
+/*
+	if (p_ptr->command_new == ESCAPE)
+*/
+	if (cmdkey == ESCAPE)
+	{
+		/* Reset stuff */
+/*
+		p_ptr->command_new = 0;
+*/
+		curStop = 0;
+	}
+
+	/* Hack -- Process normal keys */
+	else
+	{
+		/* Hack -- Use "display" mode */
+/*
+		p_ptr->command_see = TRUE;
+*/
+		curStop = label_to_index(cmdkey);
+		if ((0 <= curStop) && (curStop <= MAX_TRAIN))
+		{
+			/* Go there. */
+			p_ptr->location = train_jump[curStop];
+
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		}
+	}
+}
+
+
 void hit_train_station(void)
 {
 	int curStop = 0;
 
+/* TODO: make this a menu. */
 	
 		msg_print("Welcome to the train station.");
 		/*msg_print("It costs 300 AU to board the train.");*/
@@ -2489,7 +2715,11 @@ void move_player(int dir, int jumping)
 		else if (cave_feat[y][x] == FEAT_TRAIN_STATION)
 		{
 			disturb(0,0);
+#if 0
 			hit_train_station();
+#else
+			do_train_station();
+#endif /* 0 */
 		}
 	}
 }

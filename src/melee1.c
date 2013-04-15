@@ -211,6 +211,9 @@ bool make_attack_normal(int m_idx)
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
 
+		/* animeband - Dimensional phase (Replacement Technique). */
+		if (p_ptr->blur) break;
+
 		/* Hack -- no more attacks */
 		if (!method) break;
 
@@ -329,7 +332,10 @@ bool make_attack_normal(int m_idx)
 	if (((p_ptr->replacement) || (p_ptr->replacement == 2)) && (rand_int(100) < 25))
 	{
 		
+/*
 		msg_format("You use the replacement technique!");
+*/
+		msg_format("%^s attacks you, but you use the replacement technique!", m_name);
 		if (p_ptr->replacement == 2)
 		msg_format("You turn into rubble!");
 		
@@ -350,7 +356,10 @@ bool make_attack_normal(int m_idx)
 		}
 
 		p_ptr->replacement = FALSE;
-		break;
+		p_ptr->blur = 1;  /* Phase out for this turn. */
+//		break;
+		method = NULL;
+		continue;
 
 	}
 

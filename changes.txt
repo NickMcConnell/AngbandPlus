@@ -1,4 +1,10 @@
-11/26/05 - 
+2008.03.31 -
+Changes in Animeband 0.6.1
+* Train station as menu.
+* Enhanced Replacement Technique so that you don't teleport mid-attack into middle of another attack.
+* Cleaned up compile snags for automake-1.9, autoconf-2.60, gcc-4.1.
+
+11/26/05 - 04/02/08
 Changes in Animeband 0.6.0
 - Switch to Cygwin/GCC instead of VC++.  Source changed somewhat so that it compiles in Cygwin GCC.
 - Chuukei patch added.  Now you can have people watch you play, or watch other people play.  
