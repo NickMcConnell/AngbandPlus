@@ -468,6 +468,12 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
+		/* Duel Monsters should never appear anywhere else */
+		if ((r_ptr->flags8 & (RF8_DUEL_MONSTER)) && (p_ptr->location != W_DUEL_ARENA))
+		{
+			continue;
+		}
+
 		/* Certain Monsters only appear at certain locations
 		 * This should probably be an entry into the monster.txt file
 		 */
@@ -484,15 +490,20 @@ s16b get_mon_num(int level)
 
 			}
 
+			else if ((r_idx == KIRA_GUARD) && (p_ptr->location != W_KIRA))
+			{
+				continue;
+			}
+
 			else if ((r_idx == OISHI) && (p_ptr->location != W_ASANO))
 			{
 				continue;
 			}
 
-			else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
+		/*	else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
 			{
 				continue;
-			}
+			}*/
 
 			else if ((r_idx == TOTORO_LEAF) && (p_ptr->location != W_TOWN))
 			{
@@ -503,7 +514,18 @@ s16b get_mon_num(int level)
 			{
 				continue;
 			}
-	
+
+			else if ((r_idx >= KAZUKI) && ((p_ptr->location < W_PAGODA_ROOF) && (r_idx <= KASIDORI)))
+			{
+				continue;
+			}
+
+			else if ((r_idx == GODZILLA) && (p_ptr->location != W_TOWN) && (p_ptr->depth != 0))
+			{
+				continue;
+			}
+
+			
 			
 
 		}
@@ -785,6 +807,34 @@ void lore_do_probe(int m_idx)
 	l_ptr->r_flags1 = r_ptr->flags1;
 	l_ptr->r_flags2 = r_ptr->flags2;
 	l_ptr->r_flags3 = r_ptr->flags3;
+
+	/* Update monster recall window */
+	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+	{
+		/* Window stuff */
+		p_ptr->window |= (PW_MONSTER);
+	}
+}
+
+ /*
+ * Learn about a monster (by "probing" it)
+ */
+void lore_do_probe2(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+
+	/* Hack -- Memorize some flags */
+	l_ptr->r_flags1 = r_ptr->flags1;
+	l_ptr->r_flags2 = r_ptr->flags2;
+	l_ptr->r_flags3 = r_ptr->flags3;
+		l_ptr->r_flags4 = r_ptr->flags4;
+		l_ptr->r_flags5 = r_ptr->flags5;
+		l_ptr->r_flags6 = r_ptr->flags6;
+		l_ptr->r_flags7 = r_ptr->flags7;
+		l_ptr->r_flags8 = r_ptr->flags8;
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1480,6 +1530,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		return (FALSE);
 	}
 
+	/* Duel monsters may not appear anywhere else */
+	if ((r_ptr->flags8 & (RF8_DUEL_MONSTER)) && (p_ptr->location != W_DUEL_ARENA))
+	{
+		return (FALSE);
+	}
+
 	/* Certain Monsters only appear at certain locations
 		 * This should probably be an entry into the monster.txt file
 		 */
@@ -1504,10 +1560,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 				return (FALSE);
 			}
 
-			else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
+/*			else if ((r_idx == VEGETA) && (p_ptr->location != W_DUEL_ARENA))
 			{
 				return (FALSE);
-			}
+			}*/
 			
 
 			else if ((r_idx == TOTORO_LEAF) && (p_ptr->location != W_TOWN))
@@ -1519,10 +1575,40 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 			{
 				return (FALSE);
 			}
-			
-			
+
+			else if ((r_idx >= KAZUKI) && ((p_ptr->location < W_PAGODA_ROOF) && (r_idx <= KASIDORI)))
+			{
+				return (FALSE);
+			}
+
+			else if ((r_idx == GODZILLA) && (p_ptr->location != W_TOWN) && (p_ptr->depth != 0))
+			{
+				return (FALSE);
+			}
 
 		}
+		}
+
+		/* Delivery Boy Exception */
+		if (r_idx == DELIVERY_BOY)
+		{
+			/* Pending delivery is a no-no */
+			if (p_ptr->delivery_time)
+			{
+			/*	msg_print("Failed delivery_time");*/
+				return (FALSE);
+			}
+
+			/* One time only */
+			else if (!(p_ptr->allow_delivery))
+			{
+				/*msg_print("Failed allow_delivery");*/
+				return (FALSE);
+			}
+
+			else {
+				p_ptr->allow_delivery = FALSE;
+			}
 		}
 
 
@@ -1626,7 +1712,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) 
 	{
-		/*msg_print("Failed at monster place");*/
+	/*	msg_print("Failed at monster place");*/
 		return (FALSE);
 	}
 
@@ -2032,7 +2118,7 @@ static bool summon_specific_okay(int r_idx)
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
-		case SUMMON_ANT:
+		case SUMMON_GOON:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
@@ -2132,6 +2218,13 @@ static bool summon_specific_okay(int r_idx)
 			}
 			break;
 		}
+
+		case SUMMON_FROG:
+			{
+			okay = ((r_ptr->d_char == 'R') && 
+				(r_ptr->flags3 & (RF3_FROG)));
+			break;
+			}
 	}
 
 	/* Result */
@@ -2528,6 +2621,12 @@ void update_smart_learn(int m_idx, int what)
 			if (p_ptr->resist_disen) m_ptr->smart |= (SM_RES_DISEN);
 			break;
 		}
+
+		case DRS_METER:
+			{
+			if (!p_ptr->c_meter) m_ptr->smart |= (SM_IMM_METER);
+			break;
+			}
 	}
 
 #endif /* DRS_SMART_OPTIONS */

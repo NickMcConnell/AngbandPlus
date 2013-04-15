@@ -398,6 +398,17 @@ static errr wr_savefile(void)
 		wr_item(o_ptr);
 	}
 
+	/* Write the delivery object */
+	if (p_ptr->delivery_ptr->k_idx)
+	{
+		/* Dump index */
+		wr_u16b(999);
+
+		/* Dump object */
+		wr_item(p_ptr->delivery_ptr);
+
+	}
+
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
 
@@ -757,7 +768,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->energy);
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->mondust);
-	wr_byte(m_ptr->enlightenment);
+	wr_byte(m_ptr->silenced);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_byte(0);
@@ -807,6 +818,8 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->r_flags4);
 	wr_u32b(l_ptr->r_flags5);
 	wr_u32b(l_ptr->r_flags6);
+	wr_u32b(l_ptr->r_flags7);
+	wr_u32b(l_ptr->r_flags8);
 
 
 	/* Monster limit per level */
@@ -1099,6 +1112,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->s_sayian);
+	wr_s16b(p_ptr->wu_transform);
 	wr_s16b(p_ptr->geneijin);
 	wr_s16b(p_ptr->ouroborous);
 	wr_s16b(p_ptr->kekkai);
@@ -1190,6 +1204,11 @@ static void wr_extra(void)
 	/* Normal Quests */
 	for (i = 0; i < MAX_QUESTS; i++)
 	wr_s16b(p_ptr->normal_quests[i]);
+
+	/* Duel Status */
+	wr_s16b(p_ptr->duel_idx);
+	wr_byte(p_ptr->pending_duel);
+	
 	
 
 	/*** Chi Warrior Fields ***/
@@ -1202,6 +1221,35 @@ static void wr_extra(void)
 	wr_byte(p_ptr->cross_counter);
 	wr_byte(p_ptr->ume_shoryu);
 	wr_byte(p_ptr->super_punch);
+
+	/* Intrinsic Fields */
+	wr_byte(p_ptr->strong_bow);
+	wr_byte(p_ptr->replacement);
+	wr_byte(p_ptr->banish_evil);
+	wr_byte(p_ptr->backstab);
+	wr_byte(p_ptr->findme);
+
+	/* Ninja Fields */
+    wr_byte(p_ptr->kancho);
+	wr_byte(p_ptr->chidori);
+	wr_byte(p_ptr->rasengan);
+	wr_byte(p_ptr->sharingan);
+	wr_byte(p_ptr->byakugan);
+	wr_byte(p_ptr->jyuken);  
+	wr_byte(p_ptr->jyuken2); 
+
+	wr_s16b(p_ptr->chakra_gate);   
+	wr_byte(p_ptr->chakra_gate_level); 
+	wr_s16b(p_ptr->armor_of_sand);
+
+	/* Delivery */
+	wr_s16b(p_ptr->delivery_time);
+	wr_byte(p_ptr->allow_delivery);
+
+	/* Temp Mecha Names */
+	wr_string(p_ptr->temp_mecha_name);
+	wr_string(p_ptr->temp_mecha_gun_name);
+
 
 }
 
@@ -1569,6 +1617,15 @@ static bool wr_savefile_new(void)
 		/* Dump object */
 		wr_item(o_ptr);
 	}
+
+	/* Write the Delivery Item */
+	p_ptr->delivery_ptr = &p_ptr->delivery_type;
+	if (p_ptr->delivery_ptr->k_idx){
+	wr_u16b(DELIVERY);
+	wr_item(p_ptr->delivery_ptr);
+	}
+
+	
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);

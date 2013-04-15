@@ -107,9 +107,9 @@ ANGBAND MENU
 	{
 		POPUP "&Graphics"
 		{
-			MENUITEM "&None", 400
-			MENUITEM "&Old tiles", 401
-			MENUITEM "&Adam Bolt's tiles", 402
+			MENUITEM "&Off", 400
+			MENUITEM "&On", 401
+			
 		}
 
 		MENUITEM "&Sound", 410

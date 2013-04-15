@@ -10,6 +10,9 @@ Sloppy for algorithm help, and game/balancing ideas :).
 AdamH, for beating the game within three days (playing several hours
 a day :))
 
-Various people on the #angband channel, for compiles and various ideas.
+Kusunose Toru, for bug fixes (lots of them) :)
+
+Various people on the #angband channel and the discussion group, for 
+compiles and various ideas.  
 
 If you feel that you should be here, please tell me: <animeband@oook.cz>

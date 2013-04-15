@@ -1496,7 +1496,8 @@ static void display_player_xtra_info(void)
  */
 void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
-	/* Clear */
+	monster_race *r_ptr = &r_info[p_ptr->mimic_idx];
+		/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
 	/* Add racial flags */
@@ -1507,6 +1508,159 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (cp_ptr->flags & CF_BRAVERY_30)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+	}
+
+	/* Mimic Bonuses are player flags */
+		/*** Handle Mimic bonuses ***/
+	if (p_ptr->mimic)
+	{
+		/* Extract Powers */
+	if (r_ptr->flags4 & (RF4_BR_ACID))
+	{
+		(*f2) |= (TR2_RES_ACID);
+			
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_ELEC))
+	{
+		(*f2) |= (TR2_RES_ELEC);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_FIRE))
+	{
+		(*f2) |= (TR2_RES_FIRE);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_COLD))
+	{
+		(*f2) |= (TR2_RES_COLD);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_POIS))
+	{
+		(*f2) |= (TR2_RES_POIS);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_NETH))
+	{
+		(*f2) |= (TR2_RES_NETHR);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_LITE))
+	{
+		(*f2) |= (TR2_RES_LITE);
+		(*f2) |= (TR2_RES_BLIND);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_DARK))
+	{
+		(*f2) |= (TR2_RES_DARK);
+		(*f2) |= (TR2_RES_BLIND);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_CONF))
+	{
+		(*f2) |= (TR2_RES_CONFU);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_SOUN))
+	{
+		(*f2) |= (TR2_RES_SOUND);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_CHAO))
+	{
+		(*f2) |= (TR2_RES_CHAOS);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_DISE))
+	{
+		(*f2) |= (TR2_RES_DISEN);
+	}
+
+	if (r_ptr->flags4 & (RF4_BR_NEXU))
+	{
+		(*f2) |= (TR2_RES_NEXUS);
+	}
+
+
+	if (r_ptr->flags4 & (RF4_BR_SHAR))
+	{
+		(*f2) |= (TR2_RES_SHARD);
+	}
+
+	/* Immunities */
+
+	if (r_ptr->flags3 & (RF3_IM_ACID))
+	{
+		(*f2) |= (TR2_IM_ACID);
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_ELEC))
+	{
+		(*f2) |= (TR2_IM_ELEC);
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_FIRE))
+	{
+		(*f2) |= (TR2_IM_FIRE);
+
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_COLD))
+	{
+		(*f2) |= (TR2_IM_COLD);
+	}
+
+	if (r_ptr->flags3 & (RF3_IM_POIS))
+	{
+		(*f2) |= (TR2_RES_POIS);
+	}
+
+	/* Race bonuses/Penalties */
+
+	if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
+		(r_ptr->flags3 & (RF3_DEMON)))
+	{
+		(*f2) |= (TR2_RES_NETHR);
+		(*f3) |= (TR3_HOLD_LIFE);
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+		(*f3) |= (TR3_DRAIN_EXP);
+	}
+
+	
+	if (r_ptr->flags3 & (RF3_DRAGON))
+	{
+		/* Dragons can fly :P */
+		(*f3) |= (TR3_FEATHER);
+	}
+
+	/* Misc Bonuses */
+
+	if (r_ptr->flags3 & (RF3_NO_CONF))
+	{
+		(*f2) |= (TR2_RES_CONFU);
+	}
+
+
+	if ((r_ptr->flags3 & (RF3_NO_STUN))
+		|| (r_ptr->flags3 & (RF3_NO_SLEEP)))
+	{
+		(*f3) |= (TR3_FREE_ACT);
+	}
+
+	if (r_ptr->flags3 & (RF3_NO_FEAR))
+	{
+		(*f2) |= (TR2_RES_FEAR);
+	}
+
+	if (r_ptr->flags2 & (RF2_REGENERATE))
+	{
+		(*f3) |= (TR3_REGEN);
+	}
+
+
 	}
 }
 
@@ -3033,7 +3187,7 @@ void generate_name(void){
 
 static cptr male_first [20] = 
 {
-	"Nakano", "Daigo", "Ken", "Ryo", "Akira", "Hayato", "Kenji", "Hikaru",
+	"Kohei", "Daigo", "Ken", "Ryo", "Akira", "Hayato", "Kenji", "Hikaru",
 	"Daisuke", "Yoshio", "Ukyo", "Shigeru", "Mito", "Akito", "Joji", "Kyosuke",
 	"Shiro", "Hiro", "Iyo", "Aki"
 };
@@ -3047,17 +3201,17 @@ static cptr female_first [20] =
 
 static cptr family_name [20] =
 {
-	"Kohei ", "Mori ", "Mito ", "Iwamoto ", "Shindou ", "Saotome ", "Shigeki ",
+	"Nakano ", "Mori ", "Mito ", "Iwamoto ", "Shindou ", "Saotome ", "Shigeki ",
 	"Tendou ", "Kurata ", "Touya ", "Yamada ", "Jigen ", "Hayashi ", "Muro ",
 	"Umehara ", "Inoue ", "Fuwa ", "Watnabe ", "Yoshida ", "Oishi "
 };
 
 static cptr sayajin_name [20] =
 {
-	"Broli", "Aparu", "Korunopan", "Karuzonu", "Kiraimupai", "Egguroru", 
-	"Pamukinupai", "Ramen", "Chiramisu", "Pan", "Gohan", "Roripopu",
-	"Biiru", "Toinukisu", "Donatsu", "Oreosu", "Tofu", "Nachuosu",
-	"Chiizu", "Kome"
+	"Broli", "Natto", "Okura", "Asuparagusu", "Daikon", "Wakame", 
+	"Ninjin", "Tomeito", "Biito", "Pan", "Gohan", "Serari",
+	"Pasuri", "Ruubabu", "Supinachu", "Kyukanba", "Tofu", "Poteto",
+	"Pepa", "Rutabega"
 };
 
 static cptr hententmon_name [20] =
@@ -3133,7 +3287,54 @@ void get_name(void)
 	}
 }
 
+void get_mecha_info(void)
+{
+	char tmp[80];
 
+	/* Save the mecha name */
+	strcpy(tmp, p_ptr->temp_mecha_name);
+
+	/* Prompt for a new name */
+	if (get_string("Enter a name for your mecha: ", tmp, sizeof(tmp)))
+	{
+		/* Use the name */
+		strcpy(p_ptr->temp_mecha_name, tmp);
+
+	if (!p_ptr->temp_mecha_name[0])
+	{
+		strcpy(p_ptr->temp_mecha_name, "Mecha");
+	}
+		
+	}
+
+	else
+	{
+		return;
+	}
+
+	/* Save the mecha attack name */
+	strcpy(tmp, p_ptr->temp_mecha_gun_name);
+
+	/* Prompt for a new name */
+	if (get_string("Enter a name for your mecha weapon: ", tmp, sizeof(tmp)))
+	{
+		/* Use the name */
+		strcpy(p_ptr->temp_mecha_gun_name, tmp);
+
+		if (!p_ptr->temp_mecha_gun_name[0])
+		{
+		strcpy(p_ptr->temp_mecha_gun_name, "machine gun");
+		}
+		
+	}
+
+	else
+	{
+		return;
+	}
+
+
+}
 
 /*
  * Hack -- commit suicide
@@ -4568,6 +4769,116 @@ void exit_game_panic(void)
 	quit("panic save succeeded!");
 }
 
+/*
+ * Get a random line from a file
+ * Based on the monster speech patch by Matt Graham,
+ */
+errr get_rnd_line(cptr file_name, int entry, char *output)
+{
+	FILE    *fp;
+	char    buf[1024];
+	int     counter, test;
+	int     line_num = 0;
+
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, file_name);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+	
+	/* Failed */
+	if (!fp) return -1;
+	
+	
+
+	/* Find the entry of the monster */
+	while (TRUE)
+	{
+		/* Get a line from the file */
+		if (my_fgets(fp, buf, sizeof(buf)) == 0)
+		{
+			
+			/* Count the lines */
+			line_num++;
+
+			/* Look for lines starting with 'N:' */
+			if ((buf[0] == 'N') && (buf[1] == ':'))
+			{
+				/* Allow default lines */
+				if (buf[2] == '*')
+				{
+					/* Default lines */
+					break;
+				}
+				else if (buf[2] == 'M')
+				{
+					if (r_info[entry].flags1 & RF1_MALE) break;
+				}
+				else if (buf[2] == 'F')
+				{
+					if (r_info[entry].flags1 & RF1_FEMALE) break;
+				}
+				/* Get the monster number */
+				else if (sscanf(&(buf[2]), "%d", &test) != EOF)
+				{
+					/* Is it the right number? */
+					if (test == entry) break;
+				}
+				else
+				{
+					/* Error while converting the number */
+					msg_format("Error in line %d of %s!", line_num, file_name);
+					my_fclose(fp);
+					return -1;
+				}
+			}
+		}
+		else
+		{
+			/* Reached end of file */
+			my_fclose(fp);
+			return -1;
+		}
+	}
+
+
+	/* Get the random line */
+	for (counter = 0; ; counter++)
+	{
+		while (TRUE)
+		{
+			test = my_fgets(fp, buf, sizeof(buf));
+
+			/* Count the lines */
+			/* line_num++; No more needed */
+
+			if (!test)
+			{
+				/* Ignore lines starting with 'N:' */
+				if ((buf[0] == 'N') && (buf[1] == ':')) continue;
+
+				if (buf[0] != '#') break;
+			}
+			else break;
+		}
+
+		/* Abort */
+		if (!buf[0]) break;
+
+		/* Copy the line */
+		if (rand_int(counter + 1) == 0) 
+		{
+			strcpy(output, buf);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Success */
+	return counter ? 0 : -1;
+}
 
 
 #ifdef HANDLE_SIGNALS
@@ -4899,116 +5210,7 @@ void signals_init(void)
 {
 }
 
-/*
- * Get a random line from a file
- * Based on the monster speech patch by Matt Graham,
- */
-errr get_rnd_line(cptr file_name, int entry, char *output)
-{
-	FILE    *fp;
-	char    buf[1024];
-	int     counter, test;
-	int     line_num = 0;
 
-
-	/* Build the filename */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_FILE, file_name);
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-	
-	/* Failed */
-	if (!fp) return -1;
-	
-	
-
-	/* Find the entry of the monster */
-	while (TRUE)
-	{
-		/* Get a line from the file */
-		if (my_fgets(fp, buf, sizeof(buf)) == 0)
-		{
-			
-			/* Count the lines */
-			line_num++;
-
-			/* Look for lines starting with 'N:' */
-			if ((buf[0] == 'N') && (buf[1] == ':'))
-			{
-				/* Allow default lines */
-				if (buf[2] == '*')
-				{
-					/* Default lines */
-					break;
-				}
-				else if (buf[2] == 'M')
-				{
-					if (r_info[entry].flags1 & RF1_MALE) break;
-				}
-				else if (buf[2] == 'F')
-				{
-					if (r_info[entry].flags1 & RF1_FEMALE) break;
-				}
-				/* Get the monster number */
-				else if (sscanf(&(buf[2]), "%d", &test) != EOF)
-				{
-					/* Is it the right number? */
-					if (test == entry) break;
-				}
-				else
-				{
-					/* Error while converting the number */
-					msg_format("Error in line %d of %s!", line_num, file_name);
-					my_fclose(fp);
-					return -1;
-				}
-			}
-		}
-		else
-		{
-			/* Reached end of file */
-			my_fclose(fp);
-			return -1;
-		}
-	}
-
-
-	/* Get the random line */
-	for (counter = 0; ; counter++)
-	{
-		while (TRUE)
-		{
-			test = my_fgets(fp, buf, sizeof(buf));
-
-			/* Count the lines */
-			/* line_num++; No more needed */
-
-			if (!test)
-			{
-				/* Ignore lines starting with 'N:' */
-				if ((buf[0] == 'N') && (buf[1] == ':')) continue;
-
-				if (buf[0] != '#') break;
-			}
-			else break;
-		}
-
-		/* Abort */
-		if (!buf[0]) break;
-
-		/* Copy the line */
-		if (rand_int(counter + 1) == 0) 
-		{
-			strcpy(output, buf);
-		}
-	}
-
-	/* Close the file */
-	my_fclose(fp);
-
-	/* Success */
-	return counter ? 0 : -1;
-}
 
 
 #endif	/* HANDLE_SIGNALS */

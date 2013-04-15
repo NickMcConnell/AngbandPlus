@@ -248,8 +248,26 @@ Talk (Ctrl - T)
 Give (Ctrl - B)
 	This command allows you to give an item to various characters.
 
-Taunt (U)
-	Be careful with this one...
+Intrinsic Powers (U)
+	These are class based, and they cost meter to use.
+
+	Second Wind - Swaps meter for some hp.
+	Secret Strength - Swaps meter for some mp.
+	Heroism - Obvious
+	Berserk - Obvious
+	Faultless Defense - One turn of invulnerability
+	Kaioken - Similar to Super Saiyajin, but not quite.  Has nasty effects 
+                  afterwards.
+	Replacement - Replacement technique.
+	Quiet Steps - Increases stealth significantly
+	Bless - Short blessing
+	Backstab - Increased damage on next attack.
+	Identify - Obvious
+	Haste - Obvious
+	Strong Bow - Increased damage on next shot.
+	Banish Evil - Increased damage on next evil creature attacked.
+	Create Costume - Creates a Costume.
+	Analyze - Probing
 
 --- Magic Commands ---
 
@@ -261,7 +279,7 @@ Browse a book (b) or Peruse a book (P)
         such as their level, the amount of mana required to cast them, and
         whether or not you know the spell or prayer.
 
-Gain new spells or prayers (G)
+Gain new spells or prayers or parchments (G)
         Use this command to actually learn new spells or prayers.  When you
         are able to learn new spells or prayers, the word "Study" will appear
         on the status line at the bottom of the screen.  If you have a book
@@ -272,7 +290,8 @@ Gain new spells or prayers (G)
         nine books of each type, five of which are normally found only in the
         dungeon. This command takes some energy.  For Chi Warriors, you gain 
 	powers through this command as well.  It will allow you to swap 
-	powers with the ones you already know.
+	powers with the ones you already know.  Parchments can be gained by 
+	Chi Warriors to learn new powers, which can be swapped in later.
 
 Cast a spell (m)
         To cast a spell, you must have previously learned the spell and
@@ -336,14 +355,13 @@ Quaff a potion (q)
         various ways, but the effects are not always immediately obvious. 
         This command takes some energy.
 
-Read a scroll/Parchment (r)
+Read a scroll (r)
         Use this command to read a scroll.  Scroll spells usually have an
         area effect, except for a few cases where they act on other objects.
         Reading a scroll causes the parchment to disintegrate as the scroll
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
-        before it disintegrates.  This command takes some energy.  Parchments 
-	can be read by Chi Warriors to learn new powers.
+        before it disintegrates.  This command takes some energy.  
  
 Inscribe an object ({) 
         This command inscribes a string on an object.  The inscription is

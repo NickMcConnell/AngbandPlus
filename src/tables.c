@@ -1268,7 +1268,7 @@ const player_sex sex_info[MAX_SEXES] =
 
 cptr Grooves[G_MAX] =
 {
-	"Fire", "Water", "Wind", "Metal", "Drunk"
+	"Fire", "Water", "Wind", "Metal", "Drunk", "Sand"
 };
 
 
@@ -1293,7 +1293,10 @@ const u32b power_flags[1] =
 }
 */
 
-const u32b spell_flags[2][9][2] =
+
+
+
+const u32b spell_flags[3][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -1463,7 +1466,92 @@ const u32b spell_flags[2][9][2] =
 			 -1,
 			 -1,
 			 -1)
-	}
+	},
+
+	{
+		/*** Ninjutsu Scrolls ***/
+		BOOK(NINJA_BASIC_REPLACEMENT,
+		     NINJA_BASIC_BLINK,
+		     NINJA_BASIC_TRANSFORM,
+		     NINJA_BASIC_BUNSHIN,
+		     NINJA_BASIC_DISPEL,
+		     NINJA_BASIC_SMOKE_BOMBS,
+		     NINJA_BASIC_HASTE,
+		     NINJA_BASIC_SHURIKEN_BUNSHIN,
+		     NINJA_BASIC_KANCHO),
+		BOOK(NINJA_KATON_RESIST_FIRE,
+		     NINJA_KATON_FIRE_BOLT,
+		     NINJA_KATON_GOUKAKYUU,
+		     NINJA_KATON_RYUUKA,
+		     NINJA_KATON_KARYUU_ENDAN,
+		     NINJA_KATON_HELLFIRE,
+		     -1,
+		     -1,
+			 -1),
+		BOOK(NINJA_SUITON_SUIKODAN,
+		     NINJA_SUITON_TEPPOUDAMA,
+		     NINJA_SUITON_SUIRYUUDAN,
+		     NINJA_SUITON_SUIJINHEKI,
+		     NINJA_SUITON_DAIBAKUFU,
+		     NINJA_SUITON_SUISHOUHA,
+		     -1,
+		     -1,
+		     -1),			 
+		BOOK(NINJA_DOTON_REPLACEMENT,
+		     NINJA_DOTON_YOMI_NUMA,
+		     NINJA_DOTON_DORYUU_TAIGA,
+		     NINJA_DOTON_DORYUUDAN,
+			 NINJA_DOTON_DORYUUHEKI,
+		     NINJA_DOTON_DORYOU_DANGO,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(NINJA_FUUTON_DUST,
+		     NINJA_FUUTON_WIND_BLADE,
+		     NINJA_FUUTON_TELEPORT,
+		     NINJA_FUUTON_ZANKUUHA,
+			 NINJA_FUUTON_KAMAITACHI,
+		     NINJA_FUUTON_RENKYUUDAN,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(NINJA_ADVANCED_FIND_TRAPS_DOORS,
+			 NINJA_ADVANCED_HEROISM,
+			 NINJA_ADVANCED_SATISFY_HUNGER,
+		     NINJA_ADVANCED_IDENTIFY,
+		     NINJA_ADVANCED_WORD_OF_RECALL,
+			 NINJA_ADVANCED_STONE_TO_MUD,
+		     NINJA_ADVANCED_DETECT_EVIL,
+		     -1,
+		     -1),
+		BOOK(NINJA_BLOODLINE_SHARINGAN,
+		     NINJA_BLOODLINE_BYAKUGAN,
+		     NINJA_BLOODLINE_MANGEKYOU,
+		     NINJA_BLOODLINE_KAITEN,
+		     NINJA_BLOODLINE_TSUKUYOMI,
+		     NINJA_BLOODLINE_HAKKE,
+		     NINJA_BLOODLINE_AMATERASU,
+			 NINJA_BLOODLINE_HAKKE2,
+		     -1),
+		BOOK(NINJA_NINPOU_KAGE_MANE,
+		     NINJA_NINPOU_DOKUGIRI,
+		     NINJA_NINPOU_JOUROU_SENBON,
+		     NINJA_NINPOU_MIST_CONCEALMENT,
+		     NINJA_NINPOU_KANASHIBARI,
+		     NINJA_NINPOU_SAND_ARMOR,
+		     -1,
+		     -1,
+		     -1),
+		BOOK(NINJA_KINJUTSU_CHIDORI,
+		     NINJA_KINJUTSU_OPEN_GATE,
+		     NINJA_KINJUTSU_RASENGAN,
+		     NINJA_KINJUTSU_SOUZOU_SAISEI,
+		     NINJA_KINJUTSU_JUKAI_KOTAN,
+		     NINJA_KINJUTSU_ROLLING_THE_DICE,
+		     -1,
+		     -1,
+		     -1)
+	},
 };
 
 /* Names of Magical Student Powers */
@@ -1485,7 +1573,7 @@ const u32b spell_flags[2][9][2] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][PY_MAX_SPELLS] =
+cptr spell_names[3][PY_MAX_SPELLS] =
 {
 	/*** Mage Spells ***/
 
@@ -1546,7 +1634,7 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Dragon Slave",
 		"Giga Slave",
 
-		/* Kelek's Grimoire of Power (sval 6) */
+		/* Magic Users Club Manual (sval 6) */
 		"Detect Evil",
 		"Detect Enchantment",
 		"Recharge Item III",
@@ -1660,7 +1748,96 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"(blank)",
 		"(blank)",
 		"(blank)"
-	}
+	},
+
+		/*** Ninjutsu ***/
+
+	{
+		/* Basic Jutsus (sval 0) */
+		"Replacement Technique",
+		"Blink",
+		"Transform",
+		"Bunshin",
+		"Dispel",
+		"Smoke Bombs",
+		"Haste",
+		"Shuriken Kage Bunshin",
+		"Kancho",
+
+
+		/* Katon */
+		"Resist Fire",
+		"Fire Bolt",
+		"Blazing Fireball",
+		"Dragon's Flame",
+		"Fire Dragon Flame Missile",
+		"Hellfire",
+
+
+		/* Suiton */
+		"Water Shark Missile",
+		"Water Bullet",
+		"Water Dragon Bullet",
+		"Wall of Water",
+		"Grand Waterfall",
+		"Water Wave",
+
+		/* Doton */
+		"Earth Replacement",
+		"Hell Swamp",
+		"Moving Land River",
+		"Earth Dragon Missile",
+		"Earth Wall",
+		"Earth Dumpling",
+
+		/* Fuuton */
+		"Dust",
+		"Wind Blade",
+		"Teleport",
+		"Air Cutter",
+		"Sickling Winds",
+		"Compressed Air Ball",
+
+		/* Advanced Ninjutsu */
+		"Find Hidden Traps/Doors",
+		"Heroism",
+		"Satisfy Hunger",
+		"Identify",
+		"Word of Recall",
+		"Stone to Mud",
+		"Detect Evil",
+
+		/* Bloodline Techniques */
+		"Sharingan",
+		"Byakugan",
+		"Kaiten Whirl",
+		"Divination Field 64 strikes",
+		"Kalidescope",
+		"God of the Moon",
+		"God of the Sun",
+		"Divination Field 128 strikes",
+
+		/* Ninpou */
+		"Shadow Copy",
+		"Poison Cloud",
+		"Raining Needles",
+		"Mist Concealment",
+		"Murderous Intent",
+		"Armor of Sand",
+
+		/* Kinjutsu */
+		"Chidori",
+		"Open Chakra Gate",
+		"Rasengan",
+		"Divine Restoration",
+		"Birth of the Trees",
+		"Shiki Fuujin Sealing",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	},
 };
 
 
@@ -2393,7 +2570,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
+	TRUE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
@@ -2812,6 +2989,7 @@ int train_jump[MAX_TRAIN] =
 W_MIYAZAKI_TOWN, W_MIYAZAKI_FOREST};
 
 /* Do we need to scroll this location? */
+/* This really ought to be part of Wilderness.txt */
 const bool no_scroll[W_MAX] =
 {
 	TRUE,
@@ -2841,7 +3019,14 @@ const bool no_scroll[W_MAX] =
 	TRUE,
 	FALSE,
 	TRUE,
-	FALSE
+	FALSE,
+	TRUE,
+	TRUE,
+	TRUE,
+	TRUE,
+	TRUE,
+	TRUE,
+	TRUE
 };
 
 
@@ -2872,10 +3057,17 @@ const char display_loc[W_MAX][32] =
 	"TokTw Fl 2",
 	"TokTw Fl 1",
 	"TokyoTower",
-	"Auhu House",
+	"KumiteDojo",
 	"Miyazaki",
 	"Kikis Bkry",
-	"Forest"
+	"Forest",
+	"PagodaRoof",
+	"Pagoda Fl6",
+	"Pagoda Fl5",
+	"Pagoda Fl4",
+	"Pagoda Fl3",
+	"Pagoda Fl2",
+	"Pagoda Fl1",
 };
 
 /* For score purposes */	
@@ -2905,10 +3097,17 @@ const char long_display_loc[W_MAX][32] =
 	"Tokyo Tower - Floor 2",
 	"Tokyo Tower - Floor 1",
 	"Tokyo Tower",
-	"Auhu's House",
+	"Kumite Arena",
 	"Town of Miyazaki",
 	"Kiki's Bakery",
-	"Miyazaki Forest"
+	"Miyazaki Forest",
+	"Pagoda Roof",
+	"Pagoda - Floor 6",
+	"Pagoda - Floor 5",
+	"Pagoda - Floor 4",
+	"Pagoda - Floor 3",
+	"Pagoda - Floor 2",
+	"Pagoda - Floor 1"
 };
 
 
@@ -3070,17 +3269,17 @@ cptr chi_warrior_powers[CHI_WARRIOR_MAX] =
 	"Umareru!!!!",
 	"Kamehameha",
 	"Burst",
-	"Bakusai Tengetsu",
+	"Bakusai Tenketsu",
 	"Hiryu Shoten Ha",
 	"Haste",
 	"Genei Jin",
 	"Kaioken",
 	"Double Team",
-	"Wrath",
+	"THE WORLD!",
 	"Glittering Gold",
 	"Superior Attack",
 	"Detection",
-	"Super Punch",
+	"Shinkansen!",
 	"Smoke Bombs",
 	"Defense",
 	"Ouroborous",
@@ -3139,8 +3338,71 @@ cptr solved_quests[MAX_QUESTS] =
 	"You are the world Martial Arts Champion.",
 	"You have prevented the Land Dragons from destroying Tokyo Tower.",
 	"You have helped replant Miyazaki Forest.",
-	"You have delivered a birthday cake to Auhu.",
+	"You have reached fighting enlightenment.",
 	"You defended Auhu from the hententmons.",
 	"You are the IRON CHEF!"
 };
 
+const int intrinsic_cost[5] =
+{100, 200, 300, 400, 500};
+
+/* Power Descriptions */
+cptr intrinsic_desc[16] =
+{
+	"Second Wind",
+	"Secret Strength",
+	"Heroism",
+	"Berserk Strength",
+	"Faultless Defense",
+	"Kaioken",
+	"Replacement Technique",
+	"Quiet Steps",
+	"Holy Prayer",
+	"Backstab",
+	"Identify",
+	"Haste",
+	"Strong Bow",
+	"Banish Evil",
+	"Create Costume",
+	"Analyze",
+};
+
+
+/* Numeric Descriptions */
+cptr numeric_description[9] = 
+{
+	"Zero",
+	"First",
+	"Second",
+	"Third",
+	"Fourth",
+	"Fifth",
+	"Sixth",
+	"Seventh",
+	"Eighth",
+};
+
+
+/* Gate Descriptions */
+cptr gate_description[9] = 
+{
+	"Zero",
+	"Open Gate",
+	"Energy Gate",
+	"Life Gate",
+	"Wound Gate",
+	"Forest Gate",
+	"View Gate",
+	"Insanity Gate",
+	"Death Gate",
+};
+
+/* Summon Mecha quotes */
+cptr mecha_summon_quotes[5] =
+{
+	"I choose you, %s!",
+	"It's morphin time!  %s!",
+	"Let my power combine....%s!",
+	"Burst forth, my %s!",
+	"Lets go, %s!",
+};

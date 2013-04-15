@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -714,7 +714,7 @@ A:5/16
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:85:& Gnomish Shovel~
+N:85:& Nedian Shovel~
 G:\:G
 I:20:2:2
 W:20:0:60:100
@@ -722,7 +722,7 @@ A:20/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:86:& Dwarven Shovel~
+N:86:& Moogle Shovel~
 G:\:B
 I:20:3:3
 W:40:0:120:200
@@ -738,7 +738,7 @@ A:10/16
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:88:& Orcish Pick~
+N:88:& Hententmon Pick~
 G:\:g
 I:20:5:2
 W:30:0:150:300
@@ -746,7 +746,7 @@ A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
-N:89:& Dwarven Pick~
+N:89:& Moogle Pick~
 G:\:b
 I:20:6:3
 W:50:0:200:600
@@ -1455,7 +1455,7 @@ W:5:0:5:40
 A:5/1
 F:EASY_KNOW
 
-N:190:Rune of Protection
+N:190:Gaijin Perimeter
 G:?:d
 I:70:38:0
 W:60:0:5:500
@@ -2872,7 +2872,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:381:[Kelek's Grimoire of Power]
+N:381:[Magic Users Club Manual]
 G:?:r
 I:90:6:0
 W:60:0:30:30000
@@ -2998,7 +2998,7 @@ I:93:2:4250
 W:60:10:30000:2500000
 A:60/10
 P:0:1d1:0:0:0
-F:EASY_KNOW | RES_FIRE |
+F:EASY_KNOW | RES_FIRE | FEATHER | 
 
 N:395:& Selece~
 G:~:b
@@ -3006,7 +3006,7 @@ I:93:3:4000
 W:65:10:30000:2500000
 A:65/10
 P:0:1d2:0:0:0
-F:EASY_KNOW | RES_ACID |
+F:EASY_KNOW | RES_ACID | FEATHER | 
 
 N:396:& Windam~
 G:~:u
@@ -3014,7 +3014,7 @@ I:93:4:4000
 W:70:10:30000:2500000
 A:70/10
 P:0:1d2:0:0:0
-F:EASY_KNOW | RES_SHARD |
+F:EASY_KNOW | RES_SHARD | FEATHER | 
 
 N:397:& Gundam~
 G:~:D
@@ -3022,7 +3022,7 @@ I:93:0:5000
 W:75:10:30000:3000000
 A:75/10
 P:0:1d2:0:0:0
-F:EASY_KNOW
+F:EASY_KNOW | FEATHER | 
 
 N:398:& Eva~
 G:~:y
@@ -3030,7 +3030,7 @@ I:93:1:7500
 W:100:10:30000:3500000
 A:100/10
 P:0:1d2:0:0:0
-F:EASY_KNOW
+F:EASY_KNOW | FEATHER | 
 
 ## XXX 399 XXX ##
 
@@ -3487,7 +3487,7 @@ F:INSTA_ART
 N:512:& Magic Knight Sword~
 G:|:W
 I:23:31:0
-W:120:0:40:400
+W:120:0:40:0
 A:120/128
 P:0:2d4:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED |
@@ -3794,7 +3794,7 @@ W:40:0:5:300000
 A:40/5
 F:EASY_KNOW
 
-N:560:WRATH
+N:560:THE WORLD!
 G:?:u
 I:95:13:0
 W:35:0:5:300000
@@ -3824,7 +3824,7 @@ W:33:0:5:5000
 A:33/2
 F:EASY_KNOW
 
-N:564:Super Punch
+N:564:Shinkansen
 G:?:u
 I:95:17:0
 W:41:0:5:10000
@@ -3948,7 +3948,7 @@ F:EASY_KNOW
 N:585:& Magic Knight Sword~
 G:|:W
 I:23:32:0
-W:120:0:40:400
+W:120:0:40:0
 A:120/128
 P:0:3d5:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED |
@@ -3958,7 +3958,7 @@ F:SHOW_MODS
 N:586:& Magic Knight Sword~
 G:|:W
 I:23:33:0
-W:120:0:40:400
+W:120:0:40:0
 A:120/128
 P:0:4d6:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED |
@@ -3968,7 +3968,7 @@ F:SHOW_MODS
 N:587:& Magic Knight Sword~
 G:|:W
 I:23:34:0
-W:120:0:40:400
+W:120:0:40:0
 A:120/128
 P:0:5d7:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED |
@@ -3978,7 +3978,7 @@ F:SHOW_MODS
 N:588:& Magic Knight Sword~
 G:|:W
 I:23:35:0
-W:120:0:40:400
+W:120:0:40:0
 A:120/128
 P:0:6d8:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED |
@@ -3988,7 +3988,7 @@ F:SHOW_MODS
 ## More Items (This should be sorted)
 N:589:& Bamboo Umbrella~
 G:~:r
-I:21:13:0
+I:21:14:0
 W:10:0:30:300
 A:15/1
 P:0:1d7:0:0:1
@@ -4037,6 +4037,128 @@ A:7/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 
+N:596:& Log~
+G:~:r
+I:3:7:0
+W:0:0:3:0
+P:0:1d1:0:0:0
+F:EASY_KNOW
 
+## Ninja scrolls ##
+N:597:[Basic Ninjutsu]
+G:?:y
+I:97:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:598:[Katon]
+G:?:y
+I:97:1:0
+W:25:0:30:2500
+A:25/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:599:[Suiton]
+G:?:y
+I:97:2:0
+W:30:0:30:3000
+A:30/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:600:[Doton]
+G:?:y
+I:97:3:0
+W:33:0:30:3300
+A:33/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:601:[Fuuton]
+G:?:y
+I:97:4:0
+W:36:0:30:3600
+A:36/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:602:[Advanced Ninjutsu]
+G:?:y
+I:97:5:0
+W:25:0:30:2500
+A:25/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:603:[Bloodline Jutsus]
+G:?:y
+I:97:6:0
+W:60:0:30:6000
+A:60/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:604:[Ninpou]
+G:?:y
+I:97:7:0
+W:40:0:30:4000
+A:40/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+N:605:[Kinjutsu]
+G:?:y
+I:97:8:0
+W:70:0:30:7000
+A:70/1
+P:0:1d1:0:0:0
+F:EASY_KNOW
+
+## Shurikens ##
+N:606:& Shuriken~
+G:{:W
+I:15:0:0
+W:0:0:4:1
+A:0/1
+P:0:1d6:0:0:0
+F:SHOW_MODS
+
+N:607:& Kunai~
+G:{:W
+I:15:1:0
+W:0:0:5:1
+A:10/1
+P:0:2d6:0:0:0
+F:SHOW_MODS
+
+N:608:& Fuuma Shuriken~
+G:{:W
+I:15:2:0
+W:0:0:20:1
+A:20/1
+P:0:3d6:0:0:0
+F:SHOW_MODS
+
+## Costume ##
+
+N:609:& Costume~
+G:(:y
+I:41:1:0
+W:1:0:10:100
+P:1:0d0:0:0:0
+F:SHOW_MODS
+
+## Temporary Mechas ##
+
+N:610:& Mecha~
+G:~:D
+I:98:0:0
+W:75:10:30000:0
+P:0:1d2:0:0:0
+F:EASY_KNOW | FEATHER | 
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 
 

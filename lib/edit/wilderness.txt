@@ -13,13 +13,16 @@
 # === Understanding wilderness.txt ===
 
 # N:serial number:wilderness name
-# X:room type:rows:columns
+# X:room type:rows:columns:centered
 # D:lines giving full layout of vault using symbols below
+# U:unique index:quest fulfilled
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new wilderness.
 
 # 'X' is for rows, and columns. 
+
+# 'U' is the index for the unique of the level.
 
 # 'D' lines describe the layout of the wilderness. Lines must be 
 # padded with spaces to fill the dimensions specified. 
@@ -48,9 +51,11 @@
 #    2 - Entrance to Armoury
 #    1 - Entrance to General Store
 #    M - Random Monster  (could be anything! :))
+#    k - Kumite monster (player's level)
 #    V - Vending Machine
 #    R - Ramen Stand
 #    Y - Grocery Store
+#    D - Duel Guild
 
 # Use this to measure columns                                                                        1
 #          1         2         3         4         5         6         7         8         9         0
@@ -59,12 +64,14 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
-
+#N:0:Town
+#X:0:0:1
 
 N:1:Kira's Mansion, top
 X:42:65
+#U:249:2
 D:0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X^.......................................................XGGGGGGX
 D:X..@.^...^.........^.^....^..............................XGGGGGGX
@@ -131,6 +138,7 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:3:Grave of Asano
 X:17:65
+#U:549:-1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X9@.............................................................X
 D:X...............................................................X
@@ -151,6 +159,7 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0X
 
 N:4:Euler Tour
 X:5:34
+#U:479:-1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:0..............................UUX
 D:X@XXXX.XXXX.XXXX.XXXX.XXXX.XXXXX>X
@@ -203,6 +212,7 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:10:Duel Arena
 X:32:65
+#U:508:3
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
 D:XX^XXXXXXXX...........................................XXXXXXXX^XX
@@ -243,12 +253,13 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:11:Fun City
 X:21:65
+#U:553:-1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X9@........................XXXXXXXXXXXXXXX......................X
 D:X..........................XXXXXXXXXXXXXXX......................X
 D:X...........................XXXXXXXXXXXXX.......................X
 D:X............................XXXXXXXXXXX........................X
-D:X.............................XXXX0XXXX..............XXX........X
+D:X.............................XXDXXX0XX..............XXX........X
 D:X....................................................VXX........X
 D:X....................................................XXX........X
 D:X...............................................................X
@@ -268,6 +279,7 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:12:Entrance to Happy Fun Puzzle Land
 X:5:15
+#U:553:-1
 D:XXXXXXXXXXXXXXX
 D:XXXXXXX0XXXXXXX
 D:XXXXXX...XXXXXX
@@ -279,6 +291,7 @@ D:XXXXXXXXXXXXXXX
 
 N:13:Tokyo Tower Roof
 X:21:65
+#U:532:4
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
 D:XXXXXXXXXXX...........................................XXXXXXXXXXX
@@ -378,33 +391,34 @@ D:X..............................9@...............................X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
-N:24:Auhu house
+N:24:Duel Arena 2 
 X:21:65
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X..........X..X..................X.........XXX..............X...X
-D:X..........X..+..................X.........XXX..............X...X
-D:X..........X..X..................X.........XXX..............X...X
-D:X..........X..X..................X.........XXX..............X...X
-D:X..........X..X..................X..........................X...X
-D:X..........+..X..................+..........................X...X
-D:X..........X..X..................X..........................X...X
-D:XXXXXXXXXXXXU.XXXXXXXXXXXXXXXXXX+X..........................XX+XX
-D:X................................X..............................X
-D:0..@.............................X.............XXSXX............X
-D:X................................X.............X...X............X
-D:XXXXXXXXXX+XXXXXXXXXXXXXXXXXXXX..XXXXXX+XXXXXXXXXXXXXXXXXXXXXXX+X
-D:X..........X.........+........+..X..............X...............X
-D:X..........X.........X........X..X..............X...............X
-D:X..........X.........X........X..X..............X...............X
-D:X..........X.........X........X..X..............+...............X
-D:X..........X.........XXXXXXXXXX..X..............X...............X
-D:X..........X.........X........X..X..............X...............X
-D:X..........X.........X........X..X..............X...............X
-D:X..........+.........X........+..+..............X...............X
+D:X..........X..X...........k......X..X......XXX..............X...X
+D:X..........X..+...........k......X..X......XXX..............X...X
+D:X..........X..X...........k......X..X......XXX..............X...X
+D:X..........X..X...........k......X..X......XXX..............X...X
+D:X..........X..X...........k......X..X.......................X...X
+D:X..........+..X...........k......+XXX.......................X...X
+D:X..........XXXX...........kkkkkkkkkkk.......................X...X
+D:X......................kkkkkkkkkkkkkk.......................XX+XX
+D:Xk..........k...k......kkkkkk......kk...........................X
+D:0k..............k......kkkkkk..@...kk..........XX+XX............X
+D:Xk..........k...k......kkkkkk......kk..........X...X............X
+D:X......................kkkkkk......kkXX+XXXXXXXXXXXXXXXXXXXXXXX+X
+D:X..........X..............kkkkkkkkkkkX..........X...............X
+D:X..........X..............kkkkkkkkkkkX..........X...............X
+D:X..........X..............k..........XX.........X...............X
+D:X..........X..............k..........X..........+...............X
+D:X..........X..........XX..k...XXXX...X..........X...............X
+D:X..........X..............k...X..X...X..........X...............X
+D:X..........X..............k...X..X...X..........X...............X
+D:X..........+..............k...+..+...X..........X...............X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:25:Town of Miyazaki
 X:32:65
+#U:560:-1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXXXXXXXXX.........................................XXXXXXXXXXXX
 D:XXXXXXXXXXX...........................................XXXXXXXXXXX
@@ -440,6 +454,7 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 N:26:Kiki's Bakery
 X:9:34
+#U:555:-1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X.........X...............X......X
 D:X.........+...............X......X
@@ -452,7 +467,8 @@ D:XXXXXXXXXXXXXXXXX0XXXXXXXXXXXXXXXX
 
 N:27:Miyazaki Forest
 X:25:65
-D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+#U:560:-1
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX0XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:XXXXX......XXXXXXXXXXXX.....................................XXXXX
 D:XXXX.......XXXXXXXXXXXX......................................XXXX
 D:XXX...........XXXXXX..........................................XXX
@@ -478,4 +494,31 @@ D:XXXXXXXXXXX...........................................XXXXXXXXXXX
 D:XXXXXXXXXXXX...................9@....................XXXXXXXXXXXX
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+N:28:Pagoda Roof
+X:9:34
+#U:553:-1
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X................................X
+D:X................................X
+D:X................................X
+D:X@..............U................0
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# 29-34 Pagoda
+
+N:34:Pagoda
+X:9:34
+#U:575:-1
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X................................X
+D:X................................X
+D:X................................X
+D:X@..............................UX
+D:X................................X
+D:X................................X
+D:X................................X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 

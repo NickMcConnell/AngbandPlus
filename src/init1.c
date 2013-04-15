@@ -204,7 +204,7 @@ static cptr r_info_flags2[] =
  */
 static cptr r_info_flags3[] =
 {
-	"ORC",
+	"SENTAI",
 	"TROLL",
 	"GIANT",
 	"DRAGON",
@@ -213,8 +213,8 @@ static cptr r_info_flags3[] =
 	"EVIL",
 	"ANIMAL",
 	"FRIENDLY",
-	"XXX2X3",
-	"XXX3X3",
+	"MECHA",
+	"FROG",
 	"XXX4X3",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -271,7 +271,7 @@ static cptr r_info_flags4[] =
 	"BR_PLAS",
 	"BR_WALL",
 	"BR_MANA",
-	"XXX5X4",
+	"BR_RADI",
 	"XXX6X4",
 	"XXX7X4",
 	"XXX8X4"
@@ -341,7 +341,7 @@ static cptr r_info_flags6[] =
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+	"S_GOON",
 	"S_SPIDER",
 	"S_HOUND",
 	"S_HYDRA",
@@ -353,6 +353,79 @@ static cptr r_info_flags6[] =
 	"S_HI_DRAGON",
 	"S_WRAITH",
 	"S_UNIQUE"
+};
+
+
+static cptr r_info_flags7[] =
+{
+	"S_FROG",
+	"DRAIN_METER",
+	"MAKE_BOMB",
+	"XXX3X7",
+	"XXX4X7",
+	"XXX5X7",
+	"XXX6X7",
+	"XXX7X7",
+	"XXX8X7",
+	"XXX9X7",
+	"XXX10X7",
+	"XXX11X7",
+	"XXX12X7",
+	"XXX13X7",
+	"XXX14X7",
+	"XXX15X7",
+	"XXX16X7",
+	"XXX17X7",
+	"XXX18X7",
+	"XXX19X7",
+	"XXX20X7",
+	"XXX21X7",
+	"XXX22X7",
+	"XXX23X7",
+	"XXX24X7",
+	"XXX25X7",
+	"XXX26X7",
+	"XXX27X7",
+	"XXX28X7",
+	"XXX29X7",
+	"XXX30X7",
+	"XXX31X7",
+};
+
+static cptr r_info_flags8[] =
+{
+	"UP_QUESTOR",
+	"REPLACEMENT",
+	"DUEL_LAST",
+	"DUEL_MONSTER",
+	"XXX4X8",
+	"XXX5X8",
+	"XXX6X8",
+	"XXX7X8",
+	"XXX8X8",
+	"XXX9X8",
+	"XXX10X8",
+	"XXX11X8",
+	"XXX12X8",
+	"XXX13X8",
+	"XXX14X8",
+	"XXX15X8",
+	"XXX16X8",
+	"XXX17X8",
+	"XXX18X8",
+	"XXX19X8",
+	"XXX20X8",
+	"XXX21X8",
+	"XXX22X8",
+	"XXX23X8",
+	"XXX24X8",
+	"XXX25X8",
+	"XXX26X8",
+	"XXX27X8",
+	"XXX28X8",
+	"XXX29X8",
+	"XXX30X8",
+	"XXX31X8",
 };
 
 
@@ -381,13 +454,13 @@ static cptr k_info_flags1[] =
 	"SLAY_EVIL",
 	"SLAY_UNDEAD",
 	"SLAY_DEMON",
-	"SLAY_ORC",
+	"SLAY_SENTAI",
 	"SLAY_TROLL",
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
+	"SLAY_JELLY",
+	"SLAY_MECHA",
 	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
@@ -525,7 +598,8 @@ static cptr a_info_act[ACT_MAX] =
 	"WOR",
 	"CONFUSE",
 	"PROBE",
-	"FIREBRAND"
+	"FIREBRAND",
+	"IAI"
 };
 
 
@@ -544,12 +618,12 @@ static cptr c_info_flags[] =
 	"PSEUDO_ID_HEAVY",
 	"PSEUDO_ID_IMPROV",
 	"NO_STUDY",
-	"XXX11",
-	"XXX12",
-	"XXX13",
-	"XXX14",
-	"XXX15",
-	"XXX16",
+	"MECHA_SENSE",
+	"STUN_HANDS",
+	"SMALL_PACK",
+	"INTERVENTION",
+	"FREE_MIMIC",
+	"SPARK",
 	"XXX17",
 	"XXX18",
 	"XXX19",
@@ -1074,7 +1148,7 @@ errr parse_w_info(char *buf, header *head)
 	else if (buf[0] == 'X')
 	{
 		int hgt, wid;
-
+		
 		/* There better be a current w_ptr */
 		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
@@ -1084,7 +1158,7 @@ errr parse_w_info(char *buf, header *head)
 
 		/* Save the values */
 		w_ptr->hgt = hgt;
-		w_ptr->wid = wid;
+		w_ptr->wid = wid;		
 	}
 	else
 	{
@@ -1662,6 +1736,39 @@ errr parse_a_info(char *buf, header *head)
 		a_ptr->time = time;
 		a_ptr->randtime = rand;
 	}
+
+		/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current r_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(a_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'O' for "Origin" */
+	else if (buf[0] == 'O')
+	{
+		/* There better be a current r_ptr */
+		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(a_ptr->text), head, "\n\nOrigin: "))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		if (!add_text(&(a_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		if (!add_text(&(a_ptr->text), head, "\n\n"))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
 	else
 	{
 		/* Oops */
@@ -1881,6 +1988,9 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 	if (grab_one_flag(&r_ptr->flags3, r_info_flags3, what) == 0)
 		return (0);
 
+	if (grab_one_flag(&r_ptr->flags8, r_info_flags8, what) == 0)
+		return (0);
+
 	/* Oops */
 	msg_format("Unknown monster flag '%s'.", what);
 
@@ -1901,6 +2011,9 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
 		return (0);
 
 	if (grab_one_flag(&r_ptr->flags6, r_info_flags6, what) == 0)
+		return (0);
+
+	if (grab_one_flag(&r_ptr->flags7, r_info_flags7, what) == 0)
 		return (0);
 
 	/* Oops */
@@ -1972,6 +2085,24 @@ errr parse_r_info(char *buf, header *head)
 
 		/* Store the text */
 		if (!add_text(&(r_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+
+	/* Process 'O' for "Origin" */
+	else if (buf[0] == 'O')
+	{
+		/* There better be a current r_ptr */
+		if (!r_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&(r_ptr->text), head, "\n\nOrigin: "))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		if (!add_text(&(r_ptr->text), head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+		if (!add_text(&(r_ptr->text), head, "\n\n"))
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
@@ -2703,34 +2834,36 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
 	}
-/*
-	 Process 'Z' for Student Magical Powers 
-	else if (buf[0] == 'Z')
-	{
-		int spell, mana;
-		player_power *pp_ptr;
-		power_type *spell_ptr;
 
-		/* There better be a current pc_ptr 
+
+	/* Process 'K' for "Ninjitsu info" */
+	else if (buf[0] == 'K')
+	{
+		int spell, level, mana, fail, exp;
+		player_magic *mp_ptr;
+		magic_type *spell_ptr;
+
+		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-		/* Scan for the values 
-		if (2 != sscanf(buf+2, "%d:%d",
-		                &spell, &mana))
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+		                &spell, &level, &mana, &fail, &exp))
 			return (PARSE_ERROR_GENERIC);
 
-		/* Validate the spell index 
-		if ((spell >= STUDENT_MAX) || (spell < 0))
+		/* Validate the spell index */
+		if ((spell >= PY_MAX_SPELLS) || (spell < 0))
 			return (PARSE_ERROR_OUT_OF_BOUNDS);
 
-		pp_ptr = &pc_ptr->powers;
-		spell_ptr = &pp_ptr->info[spell];
+		mp_ptr = &pc_ptr->spells;
+		spell_ptr = &mp_ptr->info[spell];
 
-		/* Save the values 
+		/* Save the values */
+		spell_ptr->slevel = level;
 		spell_ptr->smana = mana;
-		
+		spell_ptr->sfail = fail;
+		spell_ptr->sexp = exp;
 	}
-	*/
 
 
 	/* Process 'B' for "Spell/Prayer book info" */
@@ -2844,6 +2977,26 @@ errr parse_c_info(char *buf, header *head)
 			s = t;
 		}
 	}
+
+		/* Process 'Z' for "intrinsic powers" */
+	else if (buf[0] == 'Z')
+	{
+		
+		
+	
+		/* There better be a current pc_ptr */
+		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		
+		
+
+		/* Scan for the values */
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+			            &pc_ptr->c_p[error_idx][0], &pc_ptr->c_p[error_idx][1], &pc_ptr->c_p[error_idx][2], 
+						&pc_ptr->c_p[error_idx][3], &pc_ptr->c_p[error_idx][4])) return (PARSE_ERROR_GENERIC);
+
+		}
+
 	else
 	{
 		/* Oops */

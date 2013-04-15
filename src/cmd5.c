@@ -40,7 +40,14 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	char out_val[160];
 
+	cptr ninja = "ninjutsu";
+
 	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+
+	if (cp_ptr->spell_book == TV_LARGE_SCROLL)
+	{
+		p = ninja;
+	}
 
 #ifdef ALLOW_REPEAT
 
@@ -607,9 +614,9 @@ void do_cmd_study(void)
 	int i, item, sval;
 
 	int spell = -1;
-
+	
 	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
-
+	
 	cptr q, s;
 
 	object_type *o_ptr;
@@ -619,6 +626,12 @@ void do_cmd_study(void)
 	{
 		msg_print("You cannot read books!");
 		return;
+	}
+
+	if (cp_ptr->spell_book == TV_LARGE_SCROLL)
+	{
+		p = "ninjutsu";
+
 	}
 
 	if (p_ptr->blind || no_lite())
@@ -777,7 +790,7 @@ void do_cmd_cast(void)
 	int px = p_ptr->px;
 
 	int item, sval, spell, dir;
-	int chance, beam;
+	int chance, beam, amt;
 	int wrath;
 
 	int plev = p_ptr->lev;
@@ -845,7 +858,7 @@ void do_cmd_cast(void)
 	/* Ask for a spell */
 	if (!get_spell(&spell, "cast", sval, TRUE))
 	{
-		if (spell == -2) msg_print("You don't know any spells in that book.");
+		if (spell == -2) msg_print("You don't know any spells from that book.");
 		return;
 	}
 
@@ -922,7 +935,13 @@ void do_cmd_cast(void)
 
 			case SPELL_CURE_LIGHT_WOUNDS:
 			{
-				(void)hp_player(damroll(2, 8));
+				amt = damroll(2,8);
+
+			if (amt < (p_ptr->mhp / 10))
+			{
+				amt = p_ptr->mhp / 10;
+			}
+				(void)hp_player(amt);
 				(void)set_cut(p_ptr->cut - 15);
 				break;
 			}
@@ -1364,7 +1383,8 @@ void do_cmd_cast(void)
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	/* Hack -- Sanjiyan consumes no mana during transform */
+	if ((s_ptr->smana <= p_ptr->csp) && (!(p_ptr->wu_transform)))
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -1404,6 +1424,919 @@ void do_cmd_cast(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
+
+/*
+ * Do a Ninjutsu
+ */
+void do_cmd_ninjutsu(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int item, sval, spell, dir;
+	int chance, beam;
+
+
+	int plev = p_ptr->lev;
+
+	object_type *o_ptr;
+
+	const magic_type *s_ptr;
+
+	cptr q, s;
+
+
+	/* Require spell ability */
+	if (cp_ptr->spell_book != TV_LARGE_SCROLL)
+	{
+		msg_print("You cannot use ninja techniques!");
+		return;
+	}
+
+	/* Ninjas don't need light to form seals :) */
+	/* Require lite 
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	} */
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to spell books */
+	item_tester_tval = cp_ptr->spell_book;
+
+	/* Get an item */
+	q = "Use which scroll? ";
+	s = "You have no ninja scrolls!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Get the item's sval */
+	sval = o_ptr->sval;
+
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Ask for a spell */
+	if (!get_spell(&spell, "use", sval, TRUE))
+	{
+		if (spell == -2) msg_print("You don't know any ninjutsus from that scroll.");
+		return;
+	}
+
+
+	/* Get the spell */
+	s_ptr = &mp_ptr->info[spell];
+
+
+	/* Verify "dangerous" spells */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough chakra to use this ninjutsu.");
+
+		/* Flush input */
+		flush();
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Spell failure chance */
+	chance = spell_chance(spell);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the ninjutsu off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Hack -- chance of "beam" instead of "bolt" */
+		beam = ((cp_ptr->flags & CF_BEAM) ? plev : (plev / 2));
+
+		/* Spells. */
+		switch (spell)
+		{
+			case NINJA_BASIC_REPLACEMENT:
+			{
+				msg_print("You get a log ready.");
+				p_ptr->replacement = TRUE;
+				break;
+			}
+
+			case NINJA_BASIC_BLINK:
+			{
+				teleport_player(10);
+				break;
+			}
+
+			case NINJA_BASIC_TRANSFORM:
+			{
+				do_cmd_mimic();
+				break;
+			}
+			
+
+			case NINJA_BASIC_BUNSHIN:
+			{
+				(void)set_double_team(p_ptr->double_team + plev + 50);
+				break;
+			}
+
+			case NINJA_BASIC_DISPEL:
+			{
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+				break;
+			}
+
+			case NINJA_BASIC_SMOKE_BOMBS:
+			{
+				fire_ball(GF_CONFUSION, 0, 0, 10);
+				fire_ball(GF_SOUND, 0, 0, 10);
+				break;
+			}
+
+			case NINJA_BASIC_HASTE:
+			{
+				if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + plev);
+				}
+				else
+				{
+					(void)set_fast(p_ptr->fast + randint(5));
+				}
+				break;
+			}
+
+			case NINJA_BASIC_SHURIKEN_BUNSHIN:
+			{
+				do_cmd_shuriken_bunshin();
+				break;
+			}
+
+			case NINJA_BASIC_KANCHO:
+				{
+					msg_print("Heh heh heh.....");
+					p_ptr->kancho = TRUE;
+					break;
+				}
+
+			case NINJA_KATON_RESIST_FIRE:
+			{
+			(void)set_oppose_fire(p_ptr->oppose_fire + 20 + rand_int(20));
+				break;
+			}
+
+			case NINJA_KATON_FIRE_BOLT:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_FIRE, dir,
+				                  damroll(8+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_KATON_GOUKAKYUU:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Katon!  Goukakyuu no jutsu!");
+				fire_ball(GF_FIRE, dir,
+				          20 + (plev / 2), 3);
+				break;
+			}
+
+			case NINJA_KATON_RYUUKA:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Katon!  Ryuuka no jutsu!");
+				fire_beam(GF_FIRE, dir, 100 + (plev / 2));
+				break;
+			}
+
+			case NINJA_KATON_KARYUU_ENDAN:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Katon!  Karyuu Endan!");
+				fire_beam(GF_FIRE, dir, 100 + (plev / 2));
+				fire_beam(GF_FIRE, dir, 150 + (plev / 2));
+				fire_beam(GF_FIRE, dir, 200 + (plev / 2));
+				break;
+			}
+
+			case NINJA_KATON_HELLFIRE:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir,
+				          400 + (plev / 2), 8);
+				break;
+			}
+
+			case NINJA_SUITON_SUIKODAN:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Suiton!  Suikodan!");
+				fire_bolt_or_beam(beam, GF_WATER, dir,
+				                  damroll(8+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_SUITON_TEPPOUDAMA:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Suiton!  Teppoudama!");
+				fire_ball(GF_WATER, dir,
+				          20 + (plev / 2), 3);
+				break;
+			}
+
+			case NINJA_SUITON_SUIRYUUDAN:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Suiton!  Suiryuudan no jutsu!");
+				fire_bolt_or_beam(beam-10, GF_WATER, dir,
+				                  damroll(16+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_SUITON_SUIJINHEKI:
+			{
+				msg_print("Suiton!  Suijinheki!");
+					fire_ball(GF_WATER, 0,
+				          plev * 8, 1);
+				break;
+			}
+
+			case NINJA_SUITON_DAIBAKUFU:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Suiton!  Daibakufu!");
+				fire_beam(GF_WATER, dir, 100 + (plev / 2));
+				fire_beam(GF_GRAVITY, dir, 0);
+				break;
+			}
+
+			case NINJA_SUITON_SUISHOUHA:
+			{
+				msg_print("Suiton!  Suishouha!");
+				for (dir = 1; dir < 10; dir++){
+				fire_beam(GF_WATER, dir,
+				           250 + plev);
+				fire_beam(GF_GRAVITY, dir, damroll(plev, 2));
+					}
+				break;
+			}
+
+			case NINJA_DOTON_REPLACEMENT:
+			{
+				msg_print("Your get a replacement ready.");
+				 p_ptr->replacement = 2; 
+				break;
+			}
+
+			case NINJA_DOTON_YOMI_NUMA:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Doton!  Yomi Numa!");
+				fire_ball(GF_YOMI_NUMA, dir,
+				          0, 1 + (plev/10));
+				break;
+			}
+
+			case NINJA_DOTON_DORYUU_TAIGA:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Doton!  Doryuu Taiga!");
+				fire_beam(GF_GRAVITY, dir, 0);
+				break;
+			}
+
+			case NINJA_DOTON_DORYUUDAN:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Doton!  Doryuudan!");
+				fire_bolt_or_beam(beam, GF_MISSILE, dir,
+				                  damroll(8+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_DOTON_DORYUUHEKI:
+			{
+				msg_print("Doton!  Doryuuheki!");
+				(void)wall_creation();
+				break;
+			}
+
+			case NINJA_DOTON_DORYOU_DANGO:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("Doton!  Doryou dango!");
+				fire_beam(GF_DASH, dir, 0);
+				break;
+			}
+
+			case NINJA_FUUTON_DUST:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_DARK, dir,
+				          30 + (plev), 2);
+				break;
+			}
+
+			case NINJA_FUUTON_WIND_BLADE:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_WATER, dir,
+				                  damroll(8+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_FUUTON_TELEPORT:
+			{
+				teleport_player(plev * 8);
+				break;
+			}
+
+			case NINJA_FUUTON_ZANKUUHA:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_FORCE, dir,
+				          damroll(12+((plev-5)/4), 8));
+				break;
+			}
+
+			case NINJA_FUUTON_KAMAITACHI:
+			{
+				if (!get_aim_dir(&dir)) return;
+					fire_beam(GF_FORCE, dir,
+				          damroll(14+((plev-5)/4), 8));
+					fire_beam(GF_GRAVITY, dir, 0);
+				break;
+			}
+
+			case NINJA_FUUTON_RENKYUUDAN:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FORCE, dir,
+				          damroll(14+((plev-5)/4), 8), 8);
+				break;
+			}
+
+			case NINJA_ADVANCED_FIND_TRAPS_DOORS:
+			{
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			}
+
+			case NINJA_ADVANCED_HEROISM:
+			{
+				(void)hp_player(10);
+				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_afraid(0);
+				break;
+			}
+
+			case NINJA_ADVANCED_SATISFY_HUNGER:
+			{
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			}
+
+			case NINJA_ADVANCED_IDENTIFY:
+			{
+				(void)ident_spell();
+				break;
+			}
+
+			case NINJA_ADVANCED_WORD_OF_RECALL:
+			{
+				set_recall();
+				break;
+			}
+
+			case NINJA_ADVANCED_STONE_TO_MUD:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)wall_to_mud(dir);
+				break;
+			}
+
+			case NINJA_ADVANCED_DETECT_EVIL:
+			{
+				(void)detect_monsters_evil();
+				break;
+			}
+
+			case NINJA_BLOODLINE_SHARINGAN:
+			{
+				if (p_ptr->sharingan)
+				{
+					msg_print("You stop using the Sharingan.");
+					p_ptr->sharingan = FALSE;
+					return;
+				}
+
+				if (p_ptr->byakugan)
+				{
+					msg_print("You stop using the Byakugan.");
+					p_ptr->byakugan = FALSE;
+				}
+
+				p_ptr->sharingan = TRUE;;
+				msg_print("Sharingan!");
+
+				break;
+			}
+
+			case NINJA_BLOODLINE_BYAKUGAN:
+			{
+				if (p_ptr->byakugan)
+				{
+					msg_print("You stop using the Byakugan.");
+					p_ptr->byakugan = FALSE;
+					return;
+				}
+
+				if (p_ptr->sharingan)
+				{
+					msg_print("You stop using the Sharingan.");
+					p_ptr->sharingan = FALSE;
+				}
+
+				p_ptr->byakugan = TRUE;
+				wiz_lite();
+				msg_print("Byakugan!");
+
+				break;
+			}
+
+			case NINJA_BLOODLINE_KAITEN:
+			{
+
+				if (!(p_ptr->byakugan))
+				{
+					msg_print("The Byakugan is required for this jutsu.");
+					return;
+				}
+				
+				msg_print("You start spinning!");
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_MANA, 0 , plev * 8, (plev / 4));
+				break;
+			}
+
+			case NINJA_BLOODLINE_HAKKE:
+			{
+				if (!(p_ptr->byakugan))
+				{
+					msg_print("The Byakugan is required for this jutsu.");
+					return;
+				}
+
+				if (p_ptr->chidori == TRUE)
+				{
+					msg_print("You dissipate your Chidori.");
+					p_ptr->chidori = FALSE;
+
+				}
+
+				if (p_ptr->jyuken == TRUE)
+				{
+					msg_print("You are already in a Jyuken stance!");
+					return;
+				}
+
+				if (p_ptr->jyuken2 == TRUE)
+				{
+					msg_print("You change your stance.");
+					p_ptr->jyuken2 = FALSE;
+				}
+
+				if (p_ptr->rasengan == TRUE)
+				{
+					msg_print("You disperse your Rasengan.");
+					p_ptr->rasengan = FALSE;
+
+				}
+
+				msg_print("You assume a Jyuken stance.");
+				p_ptr->jyuken = TRUE;
+								
+				break;
+			}
+
+			case NINJA_BLOODLINE_MANGEKYOU:
+			{
+				if (!(p_ptr->sharingan))
+				{
+					msg_print("The Sharingan is required for this jutsu.");
+					return;
+				}
+
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You gaze deeply in that direction.");
+				if (confuse_monster(dir, plev))
+				{
+					fire_beam(GF_MISSILE, dir,
+				           damroll(8, 8));					
+				}
+				break;
+			}
+
+			case NINJA_BLOODLINE_TSUKUYOMI:
+			{
+				if (!(p_ptr->sharingan))
+				{
+					msg_print("The Sharingan is required for this jutsu.");
+					return;
+				}
+				break;
+			}
+
+			case NINJA_BLOODLINE_AMATERASU:
+			{
+				if (!(p_ptr->sharingan))
+				{
+					msg_print("The Sharingan is required for this jutsu.");
+					return;
+				}
+
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_CHAOS, dir,
+				          100 + (plev * 10), 12);
+				
+				break;
+			}
+
+			case NINJA_BLOODLINE_HAKKE2:
+			{
+				if (!(p_ptr->byakugan))
+				{
+					msg_print("The Byakugan is required for this jutsu.");
+					return;
+				}
+
+				if (p_ptr->chidori == TRUE)
+				{
+					msg_print("You dissipate your Chidori.");
+					p_ptr->chidori = FALSE;
+
+				}
+
+				if (p_ptr->jyuken == TRUE)
+				{
+					msg_print("You switch out of your Jyuken stance.");
+					p_ptr->jyuken = FALSE;
+				}
+
+				if (p_ptr->jyuken2 == TRUE)
+				{
+					msg_print("You are already in a wide Jyuken stance!");
+					return;
+				}
+
+				if (p_ptr->rasengan == TRUE)
+				{
+					msg_print("You dissipate your Rasengan.");
+					p_ptr->rasengan = FALSE;
+
+				}
+
+				msg_print("You assume a wide Jyuken stance.");
+				p_ptr->jyuken2 = TRUE;
+
+				break;
+			}
+
+			case NINJA_NINPOU_KAGE_MANE:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You extend your shadow.");
+				fire_ball(GF_SHADOW, dir,
+				          0, 1 + (plev / 10));
+				
+				break;
+			}
+
+			case NINJA_NINPOU_DOKUGIRI:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_POIS, dir,
+				          20 + (plev / 2), 2);
+				break;
+			}
+
+			case NINJA_NINPOU_JOUROU_SENBON:
+			{
+				msg_print("Needles start raining down from the sky.");
+				fire_ball(GF_SHARD, 0,
+				          80 + (plev / 2), 13);
+				break;
+			}
+
+			case NINJA_NINPOU_KANASHIBARI:
+			{
+				if (!get_aim_dir(&dir)) return;
+			msg_print("You gaze deeply in that direction.");
+				if (confuse_monster(dir, plev))
+				{
+					fire_beam(GF_MISSILE, dir,
+				           damroll(8, 8));					
+				}
+				break;
+			}
+
+			case NINJA_NINPOU_MIST_CONCEALMENT:
+				{
+					(void)set_defense(p_ptr->defense + plev + 50);
+					break;
+
+				}
+
+			case NINJA_NINPOU_SAND_ARMOR:
+			{
+				(void)set_armor_of_sand(plev * 4);
+				break;
+			}
+
+			case NINJA_KINJUTSU_CHIDORI:
+			{
+				if (p_ptr->chidori == TRUE)
+				{
+					msg_print("You already have a Chidori in your hand!");
+					return;
+
+				}
+
+				if (p_ptr->jyuken == TRUE)
+				{
+					msg_print("You switch out of your Jyuken stance.");
+					p_ptr->jyuken = FALSE;
+				}
+
+				if (p_ptr->jyuken2 == TRUE)
+				{
+					msg_print("You switch out of your Jyuken stance.");
+					p_ptr->jyuken2 = FALSE;
+				}
+
+				if (p_ptr->rasengan == TRUE)
+				{
+					msg_print("You disperse your Rasengan.");
+					p_ptr->rasengan = FALSE;
+
+				}
+				msg_print("Your hands start to glow...");
+				p_ptr->chidori = TRUE;
+				break;
+			}
+
+			case NINJA_KINJUTSU_OPEN_GATE:
+			{
+				
+				if (p_ptr->chakra_gate_level == 7)
+				{
+					msg_print("You are about to open the Eighth gate, the Death Gate!");
+					msg_print("There is a VERY good chance that you will die once you open it!");
+					if (!get_check("Are you sure you want to open the Death Gate?"))
+					{
+						return;
+					}
+
+				}
+				p_ptr->chakra_gate_level += 1;
+
+				(void)set_chakra_gate(p_ptr->lev);
+
+				if (p_ptr->chakra_gate_level > 8)
+				{
+				msg_print("You have already opened all the gates!");
+				p_ptr->chakra_gate_level = 8;
+				return;
+				}
+
+				
+				msg_format("The %s Gate, The %s, has been opened!", numeric_description[p_ptr->chakra_gate_level], 
+					gate_description[p_ptr->chakra_gate_level]);
+
+				/* Recalculate bonuses */
+				p_ptr->update |= (PU_BONUS);
+
+				/* Handle stuff */
+				handle_stuff();
+
+
+				break;
+
+			}
+
+			case NINJA_KINJUTSU_RASENGAN:
+			{
+
+				if (p_ptr->chidori == TRUE)
+				{
+					msg_print("You dissipate your Chidori.");
+					p_ptr->chidori = FALSE;
+
+				}
+
+				if (p_ptr->jyuken == TRUE)
+				{
+					msg_print("You switch out of your Jyuken stance.");
+					p_ptr->jyuken = FALSE;
+				}
+
+				if (p_ptr->jyuken2 == TRUE)
+				{
+					msg_print("You switch out of your Jyuken stance.");
+					p_ptr->jyuken2 = FALSE;
+				}
+
+				if (p_ptr->rasengan == TRUE)
+				{
+					msg_print("You already have a Rasengan in your hand!");
+					return;
+
+				}
+			
+				msg_print("You form a sphere of rotating chakra in one hand...");
+				p_ptr->rasengan = TRUE;
+				
+				break;
+			}
+
+			case NINJA_KINJUTSU_SOUZOU_SAISEI:
+			{
+				msg_print("You open the seal!");
+				(void)restore_level();
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_CHR);
+
+			/* Recalculate max. hitpoints */
+			update_stuff();
+
+			(void)hp_player(5000);
+
+		if (p_ptr->csp < p_ptr->msp)
+			{
+				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp_frac = 0;
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			}
+
+			msg_print("The side effects start to kick in...");
+			/* Permanently Reduce all stats */
+			(void)dec_stat(A_STR, 15 + randint(10), TRUE);
+			(void)dec_stat(A_CON, 15 + randint(10), TRUE);
+			(void)dec_stat(A_DEX, 15 + randint(10), TRUE);
+			(void)dec_stat(A_WIS, 15 + randint(10), TRUE);
+			(void)dec_stat(A_INT, 15 + randint(10), TRUE);
+			(void)dec_stat(A_CHR, 15 + randint(10), TRUE);
+
+				
+				break;
+			}
+
+			case NINJA_KINJUTSU_JUKAI_KOTAN:
+			{
+				msg_print("Mokuton Hijitsu...Jukai Koutan!");
+				for (dir = 0; dir < 5; dir++)
+				{
+				fire_ball(GF_MISSILE, 0, 275, 13);	
+				earthquake(p_ptr->py, p_ptr->px, 13);
+				}
+				break;
+			}
+
+			case NINJA_KINJUTSU_ROLLING_THE_DICE:
+			{
+				fire_ball(GF_MANA, 0, rand_int(plev * 20), 13);
+					for (dir = 0; dir < randint(10); dir++)
+				{
+				summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth, 0);
+				
+				}
+				break;
+			}
+
+		}
+
+		/* A spell was cast */
+		if (!((spell < 32) ?
+		      (p_ptr->spell_worked1 & (1L << spell)) :
+		      (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (spell < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << spell);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (spell - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+
+			/* Redraw object recall */
+			p_ptr->window |= (PW_OBJECT);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	/* Hack -- Sanjiyan consumes no mana during transform */
+	if ((s_ptr->smana <= p_ptr->csp) && (!(p_ptr->wu_transform)))
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
 
 
 /*
@@ -1456,7 +2389,7 @@ void do_cmd_super(void)
  
 int plev = p_ptr->lev;	
 int dir;
-int rand_limit = rand_int(LB_RANDOM);
+int rand_limit = rand_int(LB_DANCE + 1);
 int selector;
 
 /*	#define LB_GLOBE					0   For my own benefit
@@ -1482,6 +2415,12 @@ int selector;
 		msg_print("You have insufficient meter!");
 		return;
 	}
+
+		/* Hack -- Verify command */
+			if (!get_check("Do you wish to super? "))
+			{
+				return;
+			}
 
 	/* Remnant exception */
 	if (p_ptr->l_break == LB_RANDOM)
@@ -1511,8 +2450,8 @@ int selector;
 		
 			(void)restore_level();
 			(void)set_poisoned(0);
-			(void)set_blind(0);
 			(void)set_confused(0);
+			(void)set_blind(0);
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
@@ -1556,7 +2495,7 @@ int selector;
 	case LB_NUKE:
 		{
 			msg_print("You tiger knee into the air and drop a nuke!");
-			fire_ball(GF_FIRE, 0,
+			fire_ball(GF_RADI, 0,
 				          plev * 50, 13);
 			take_hit(100, "Nuclear Explosion");
 			break;
@@ -1581,16 +2520,21 @@ int selector;
 
 	case LB_POWER_BLAST: /*misnamed*/
 		{
+
+			(void)set_invuln(p_ptr->invuln + plev / 10 + 2);
+			(void)set_wu_transform(p_ptr->wu_transform + plev / 10 + 2);
+			/*
 			if (!get_aim_dir(&dir)) return;
 			raging_demon(dir);
 			break;
-			/*
+			
 		p_ptr->word_recall = 1;
 		break;
 		*/
-
-
+			break;
 		}
+
+
 	case LB_KEKKAI:
 		{
 			msg_print("You clasp your hands together and form a Kekkai.");
@@ -1619,6 +2563,15 @@ int selector;
 
 		}
 
+	case LB_DANCE:
+		{
+			msg_print("You start dancing about!");
+			moogle_dance();
+			break;
+
+
+		}
+
 	
 	default:
 		{
@@ -1635,6 +2588,232 @@ int selector;
 
 }
 
+/* Moogle Limit break */
+/* A ghetto, but perhaps amusing way of doing what was intended */
+
+void moogle_dance(void)
+{
+
+	int blah = rand_int(SV_WAND_ANNIHILATION + 1);
+	int dir;
+
+	for (dir = 1; dir < 10; dir++)
+	
+	/* Analyze the wand */
+	switch (blah)
+	{
+		case SV_WAND_HEAL_MONSTER:
+		{
+			(void)heal_monster(dir);
+			break;
+		}
+
+		case SV_WAND_HASTE_MONSTER:
+		{
+			(void)speed_monster(dir);
+			break;
+		}
+
+		case SV_WAND_CLONE_MONSTER:
+		{
+			(void)clone_monster(dir);
+			break;
+		}
+
+		case SV_WAND_TELEPORT_AWAY:
+		{
+			(void)teleport_monster(dir);
+			break;
+		}
+
+		case SV_WAND_DISARMING:
+		{
+			(void)disarm_trap(dir);
+			break;
+		}
+
+		case SV_WAND_TRAP_DOOR_DEST:
+		{
+			(void)destroy_door(dir);
+			break;
+		}
+
+		case SV_WAND_STONE_TO_MUD:
+		{
+			(void)wall_to_mud(dir);
+			break;
+		}
+
+		case SV_WAND_LITE:
+		{
+			msg_print("A line of blue shimmering light appears.");
+			lite_line(dir);
+			break;
+		}
+
+		case SV_WAND_SLEEP_MONSTER:
+		{
+			(void)sleep_monster(dir);
+			break;
+		}
+
+		case SV_WAND_SLOW_MONSTER:
+		{
+			(void)slow_monster(dir);
+			break;
+		}
+
+		case SV_WAND_CONFUSE_MONSTER:
+		{
+			(void)confuse_monster(dir, p_ptr->lev);
+			break;
+		}
+
+		case SV_WAND_FEAR_MONSTER:
+		{
+			(void)fear_monster(dir, p_ptr->lev);
+			break;
+		}
+
+		case SV_WAND_DRAIN_LIFE:
+		{
+			(void)drain_life(dir, p_ptr->lev * 10);
+			break;
+		}
+
+		case SV_WAND_POLYMORPH:
+		{
+			(void)poly_monster(dir);
+			break;
+		}
+
+		case SV_WAND_STINKING_CLOUD:
+		{
+			fire_ball(GF_POIS, dir, p_ptr->lev, 2);
+			break;
+		}
+
+		case SV_WAND_MAGIC_MISSILE:
+		{
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, p_ptr->lev));
+			break;
+		}
+
+		case SV_WAND_ACID_BOLT:
+		{
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, p_ptr->lev));
+			break;
+		}
+
+		case SV_WAND_ELEC_BOLT:
+		{
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, p_ptr->lev));
+			break;
+		}
+
+		case SV_WAND_FIRE_BOLT:
+		{
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, p_ptr->lev));
+			break;
+		}
+
+		case SV_WAND_COLD_BOLT:
+		{
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, p_ptr->lev));
+			break;
+		}
+
+		case SV_WAND_ACID_BALL:
+		{
+			fire_ball(GF_ACID, dir, 60 + p_ptr->lev, 2);
+			break;
+		}
+
+		case SV_WAND_ELEC_BALL:
+		{
+			fire_ball(GF_ELEC, dir, 32 + p_ptr->lev, 2);
+			break;
+		}
+
+		case SV_WAND_FIRE_BALL:
+		{
+			fire_ball(GF_FIRE, dir, 72 + p_ptr->lev, 2);
+			break;
+		}
+
+		case SV_WAND_COLD_BALL:
+		{
+			fire_ball(GF_COLD, dir, 48 + p_ptr->lev, 2);
+			break;
+		}
+
+		case SV_WAND_WONDER:
+		{
+			/* Change to heal self */
+			(void)hp_player(5000);
+			break;
+		}
+
+		case SV_WAND_DRAGON_FIRE:
+		{
+			fire_ball(GF_FIRE, dir, 100 + p_ptr->lev, 3);
+			break;
+		}
+
+		case SV_WAND_DRAGON_COLD:
+		{
+			fire_ball(GF_COLD, dir, 80 + p_ptr->lev, 3);
+			break;
+		}
+
+		case SV_WAND_DRAGON_BREATH:
+		{
+			switch (randint(5))
+			{
+				case 1:
+				{
+					fire_ball(GF_ACID, dir, 100 + p_ptr->lev, 3);
+					break;
+				}
+
+				case 2:
+				{
+					fire_ball(GF_ELEC, dir, 80 + p_ptr->lev, 3);
+					break;
+				}
+
+				case 3:
+				{
+					fire_ball(GF_FIRE, dir, 100 + p_ptr->lev, 3);
+					break;
+				}
+
+				case 4:
+				{
+					fire_ball(GF_COLD, dir, 80 + p_ptr->lev, 3);
+					break;
+				}
+
+				default:
+				{
+					fire_ball(GF_POIS, dir, 60 + p_ptr->lev, 3);
+					break;
+				}
+			}
+
+			
+			break;
+		}
+
+		case SV_WAND_ANNIHILATION:
+		{
+			(void)drain_life(dir, 125 + p_ptr->lev * 10);
+			break;
+		}
+	}
+
+}
+
 
 /*
  * Pray a prayer
@@ -1644,7 +2823,7 @@ void do_cmd_pray(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, sval, spell, dir, chance;
+	int item, sval, spell, dir, chance, amt;
 
 	int plev = p_ptr->lev;
 
@@ -1757,7 +2936,13 @@ void do_cmd_pray(void)
 
 			case PRAYER_CURE_LIGHT_WOUNDS:
 			{
-				(void)hp_player(damroll(2, 10));
+				amt = damroll(2,10);
+
+			if (amt < (p_ptr->mhp / 9))
+			{
+				amt = p_ptr->mhp / 9;
+			}
+				(void)hp_player(amt);
 				(void)set_cut(p_ptr->cut - 10);
 				break;
 			}
@@ -1814,7 +2999,14 @@ void do_cmd_pray(void)
 
 			case PRAYER_CURE_SERIOUS_WOUNDS:
 			{
-				(void)hp_player(damroll(4, 10));
+				amt = damroll(4,10);
+
+				if (amt < (p_ptr->mhp / 5))
+				{
+					amt = p_ptr->mhp / 5;
+				}
+
+				(void)hp_player(amt);
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
@@ -1868,7 +3060,13 @@ void do_cmd_pray(void)
 
 			case PRAYER_CURE_CRITICAL_WOUNDS:
 			{
-				(void)hp_player(damroll(6, 10));
+				amt = damroll(6,10);
+
+			if (amt < (p_ptr->mhp / 3))
+			{
+				amt = p_ptr->mhp / 3;
+			}
+				(void)hp_player(amt);
 				(void)set_cut(0);
 				break;
 			}
@@ -1899,7 +3097,13 @@ void do_cmd_pray(void)
 
 			case PRAYER_CURE_MORTAL_WOUNDS:
 			{
-				(void)hp_player(damroll(8, 10));
+				amt = damroll(8,10);
+
+			if (amt < (p_ptr->mhp / 2))
+			{
+				amt = p_ptr->mhp / 2;
+			}
+				(void)hp_player(amt);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -1986,14 +3190,26 @@ void do_cmd_pray(void)
 
 			case PRAYER_CURE_SERIOUS_WOUNDS2:
 			{
-				(void)hp_player(damroll(4, 10));
+				amt = damroll(4,10);
+
+			if (amt < (p_ptr->mhp / 5))
+			{
+				amt = p_ptr->mhp / 5;
+			}
+				(void)hp_player(amt);
 				(void)set_cut(0);
 				break;
 			}
 
 			case PRAYER_CURE_MORTAL_WOUNDS2:
 			{
-				(void)hp_player(damroll(8, 10));
+				amt = damroll(8,10);
+
+			if (amt < (p_ptr->mhp / 2))
+			{
+				amt = p_ptr->mhp / 2;
+			}
+				(void)hp_player(amt);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2175,8 +3391,17 @@ void do_cmd_pray(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Hack -- Intervention sometimes allows players to ignore mana cost */
+	if ((rand_int(200) < plev) && (cp_ptr->flags & CF_INTERVENTION))
+	{
+		
+		p_ptr->csp += s_ptr->smana;
+
+	}
+
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
+	/* Hack -- Sanjiyan consume no mana during Wu */
+	if ((s_ptr->smana <= p_ptr->csp) && (!(p_ptr->wu_transform)))
 	{
 		/* Use some mana */
 		p_ptr->csp -= s_ptr->smana;
@@ -2217,6 +3442,249 @@ void do_cmd_pray(void)
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
 
+
+/*
+ * Use an intrinsic power
+ */
+void do_cmd_intrinsic(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int i, spell;
+
+	char out_val[160];
+	char choice;
+
+	
+	byte line_attr = TERM_WHITE;
+
+	
+	
+	bool flag = FALSE; 
+	bool redraw = FALSE;
+	
+
+	int plev = p_ptr->lev;
+
+
+
+	
+
+
+	/* Must not be confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Save screen */
+	screen_save();
+
+	/* Title the list */
+	prt("", 1, 20);
+	put_str("Name", 1, 25);
+	put_str("Meter", 1, 55);
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Powers %c-%c, ESC=exit) Use which Power? ",
+	        I2A(0), I2A(4));
+	c_prt(line_attr, out_val, 0, 0);
+	/* Dump the spells */
+	for (i = 0; i < 5; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), intrinsic_desc[cp_ptr->c_p[p_ptr->pclass][i]], intrinsic_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
+	/* Clear the bottom line */
+	prt("", 1 + i + 1, 20);
+		
+	
+	/* Choose */
+	while (1)
+	{
+	
+
+		choice = inkey();
+		spell = (islower(choice) ? A2I(choice) : -1);
+		if (choice == ESCAPE){
+			screen_load();
+			return;
+		}
+		if ((spell >= 0) && (spell < 5)) break;
+		else bell("Illegal POWER!");
+	}
+	
+	
+	screen_load();
+	/* Verify adequate mana */
+	if (intrinsic_cost[spell] > p_ptr->c_meter)
+	{
+		/* Warning */
+		msg_print("You do not have enough meter to use that power!.");
+		
+		return;
+	}
+
+	switch (cp_ptr->c_p[p_ptr->pclass][spell])
+	{
+	case INTRINSIC_SECOND_WIND:
+		{
+			(void)hp_player(p_ptr->lev * 2);
+			break;
+		}
+
+	case INTRINSIC_SECRET_STRENGTH:
+		{
+				if (p_ptr->csp < p_ptr->msp)
+				{
+					p_ptr->csp += p_ptr->lev;
+				
+				if (p_ptr->csp >= p_ptr->msp){
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				msg_print("Your feel your head clear.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			}
+				
+			break;
+
+		}
+	case INTRINSIC_HEROISM:
+		{
+			(void)hp_player(10);
+			(void)set_afraid(0);
+			(void)set_hero(p_ptr->hero + randint(25) + 25);
+			break;
+		}
+
+	case INTRINSIC_BERSERKER:
+		{
+			(void)hp_player(30);
+				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_afraid(0);
+				break;
+		}
+
+	case INTRINSIC_FAULTLESS_DEFENSE:
+		{
+			(void)set_invuln(p_ptr->invuln + 1);
+			break;
+		}
+
+	case INTRINSIC_KAIOKEN:
+		{
+			(void)set_kaioken(p_ptr->kaioken + plev);
+			break;
+		}
+
+	case INTRINSIC_REPLACEMENT:
+		{
+			msg_print("You get a log ready.");
+			p_ptr->replacement = TRUE;
+			break;
+		}
+
+	case INTRINSIC_STEALTH:
+		{
+			msg_print("You vanish in a trail of leaves.");
+			p_ptr->findme = TRUE;
+			break;
+		}
+
+	case INTRINSIC_HOLY_PRAYER:
+		{
+		(void)set_blessed(p_ptr->blessed + randint(48) + p_ptr->lev);
+		break;
+		}
+
+	case INTRINSIC_BACKSTAB:
+		{
+		p_ptr->backstab = TRUE;
+		break;
+
+		}
+
+	case INTRINSIC_IDENTIFY:
+		{
+				if (!ident_spell()) return;
+			break;
+		}
+
+	case INTRINSIC_HASTE:
+		{
+				if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + plev);
+				}
+				else
+				{
+					(void)set_fast(p_ptr->fast + randint(5));
+				}
+				break;
+		}
+	case INTRINSIC_STRONG_BOW:
+		{
+			msg_print("Your arms feel limber.");
+			p_ptr->strong_bow = TRUE;
+			break;
+		}
+
+	case INTRINSIC_BANISH_EVIL:
+		{
+			msg_print("You get a warding scroll ready.");
+			p_ptr->banish_evil = TRUE;
+			break;
+		}
+
+	case INTRINSIC_CREATE_COSTUME:
+		{
+
+		if	(!do_cmd_create_costume())
+		{
+			return;
+		}
+			break;
+
+		}
+
+	case INTRINSIC_ANALYZE:
+		{
+			probing();
+			break;
+		}
+
+		
+	
+	}
+
+
+	
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Use meter */
+	p_ptr->c_meter -= intrinsic_cost[spell];
+	
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_METER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+
 /* Taunt */
 void do_cmd_taunt(void)
 {
@@ -2225,44 +3693,78 @@ void do_cmd_taunt(void)
 
 	switch (counter)
 	{
-	case 1: { msg_print("You shout out a challenge."); break; }
-	case 2: { msg_print("You yawn."); break; }
-	case 3: { msg_print("You laugh out loud."); break; }
-	case 4: { msg_print("You make a raspberry while pulling your lower eyelid down."); break; }
+	case 1: { msg_print("You yell, 'Seibai!'"); break; }
+	case 2: { msg_print("You yell, 'I will punish you all!'"); break; }
+	case 3: { msg_print("You laugh out loud!"); break; }
+	case 4: { msg_print("You yell, 'Let us dance, you and I!'"); break; }
 	}
-	aggravate_monsters(-1);
+	aggravate_monsters(-2);
 
 	
 		/* Take a turn */
-	p_ptr->energy_use = 100;
+	p_ptr->energy_use = 300;
+
+
+}
+
+/* Pose */
+void do_cmd_pose(void)
+{
+
+	int counter = randint(4);
+
+	switch (counter)
+	{
+	case 1: { msg_print("You put your hands across your chest and yell, 'Change!  Switch on!  One, Two, Three!'"); break; }
+	case 2: { msg_print("You do a crane kick pose!"); break; }
+	case 3: { msg_print("You do a split and put up your hands in a fighting pose!"); break; }
+	case 4: { msg_print("You backflip and go into a fighting stance!"); break; }
+	}
+	aggravate_monsters(-3);
+
+	
+		/* Take a turn */
+	p_ptr->energy_use = 300;
 
 
 }
 
 /* Fire Weapons from Mech */
-void do_cmd_mechfire(void)
+bool do_cmd_mechfire(void)
 {
 	int dir;
 	int counter;
+	int multiplier = 1;
 	object_type *o_ptr;
 	o_ptr = &inventory[INVEN_MECHA];
 
 	if (!(o_ptr->k_idx)){
 
 		msg_print("You are not riding on a mecha.");
-		return;
+		return (FALSE);
 
+	}
+
+	/* Damage Multiplier for those efficient with Mechas */
+	if (cp_ptr->flags & CF_MECHA_SENSE) {
+		multiplier = 4;
 	}
 
 	switch (o_ptr->sval){
 
 	case SV_GUNDAM:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
+			if (o_ptr->tval == TV_TEMP_MECHA)
+			{
+				msg_format("You fire your %s!", p_ptr->temp_mecha_gun_name);
+			}
+			else{
 			msg_print("You fire your machine gun.");
+			}
 
 			for (counter = 0; counter < 4; counter++){
-			fire_bolt(GF_METEOR, dir, 15);
+			fire_bolt(GF_METEOR, dir, 15 * multiplier);
 			}
 
 			break;
@@ -2270,33 +3772,33 @@ void do_cmd_mechfire(void)
 		}
 	case SV_EVA:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("You fire your laser cannon.");
-			fire_beam(GF_METEOR, dir, 60);
+			fire_beam(GF_METEOR, dir, 60 * multiplier);
 			break;
 		}
 
 	case SV_RAYEARTH:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("You shoot a Fire Arrow!");
-			fire_bolt(GF_FIRE, dir, 60);
+			fire_bolt(GF_FIRE, dir, 60 * multiplier);
 			break;
 		}
 
 	case SV_SELECE:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("You shoot a Sapphire Whirlwind!");
-			fire_ball(GF_WATER, dir, 60, 5);
+			fire_ball(GF_WATER, dir, 60 * multiplier, 5);
 			break;
 		}
 
 	case SV_WINDAM:
 		{
-			if (!get_aim_dir(&dir)) return;
+			if (!get_aim_dir(&dir)) return (FALSE);
 			msg_print("You shoot a Emerald Typhoon!");
-			fire_ball(GF_SHARD, dir, 60, 10);
+			fire_ball(GF_SHARD, dir, 60 * multiplier, 10);
 			break;
 		}
 	}
@@ -2307,44 +3809,73 @@ void do_cmd_mechfire(void)
 	
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+	return (TRUE);
 }
 
 /* Mimic something */
 void do_cmd_mimic(void)
 {
-	int x, y;
-
-	int dir;
+	
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	char m_name[80];
 
-	
-	/* Get a direction */
-	if (!get_aim_dir(&dir)) return;
-
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
-
-	/* Adjacent monster? */
-	if (!(cave_m_idx[y][x] > 0))
+		if (target_set_interactive(TARGET_KILL))
 	{
-		msg_print("You see no monster to mimic.");
-		return;
-	}
-	/* Otherwise, we're mimicing something */
-	p_ptr->mimic = TRUE;
-	p_ptr->max_powers = 0;
+		if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
 
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+
+	}
+
+		else
+		{
+			return;
+		}
+
+	
+	
+	
 	/* Get monster */
-	m_ptr = &m_list[cave_m_idx[y][x]];
+	m_ptr = &m_list[p_ptr->target_who];
 	r_ptr = &r_info[m_ptr->r_idx];
 	p_ptr->mimic_idx = m_ptr->r_idx;
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-	message_format(MSG_HIT, m_ptr->r_idx, "You mimic %s.", m_name);
+	/* Monster too strong? */
+	if ((p_ptr->lev < r_ptr->level) && (!(p_ptr->sharingan)))
+	{
+		msg_format("You cannot mimic %s without a Sharingan.", m_name);
+		return;
+	}
+
+	msg_format("You mimic %s.", m_name);
+
+	/* Otherwise, we're mimicing something */
+	extract_mimic_powers(r_ptr);
+
+		/* Recalculate bonuses */
+					p_ptr->update |= (PU_BONUS);
+					/* Take a turn */
+					p_ptr->energy_use = 100;
+
+					handle_stuff();
+	
+					return;
+
+}
+
+void extract_mimic_powers(const monster_race *r_ptr)
+{
+		p_ptr->mimic = TRUE;
+	p_ptr->max_powers = 0;
+
+	
 	
 
 	/* Extract Powers */
@@ -2755,12 +4286,12 @@ void do_cmd_mimic(void)
 			p_ptr->max_powers++;
 		}
 		}
-
+/*
 		if (r_ptr->flags5 & (RF5_DRAIN_MANA))
 		{
 			if (p_ptr->max_powers >= STUDENT_MAX)
 		{
-			/* Do not extract */
+			/* Do not extract 
 			
 		}
 
@@ -2769,6 +4300,7 @@ void do_cmd_mimic(void)
 			p_ptr->max_powers++;
 		}
 		}
+		*/
 
 		if (r_ptr->flags5 & (RF5_MIND_BLAST))
 		{
@@ -3178,16 +4710,8 @@ void do_cmd_mimic(void)
 			p_ptr->max_powers++;
 		}
 		}
+
 		
-		p_ptr->mimic = TRUE;
-					/* Recalculate bonuses */
-					p_ptr->update |= (PU_BONUS);
-					/* Take a turn */
-					p_ptr->energy_use = 100;
-
-					handle_stuff();
-					return;
-
 }
 
 void umareru(void){
@@ -3251,6 +4775,10 @@ void umareru(void){
 	/* Timed -- Super Saiyan */
 	damage += p_ptr->s_sayian / 2;
 	(void)set_s_sayian(0);
+
+	/* Timed -- Wu Transform */
+	damage += p_ptr->wu_transform * 10;
+	(void)set_wu_transform(0);
 
 	/* Timed -- Shield Spell */
 	damage += p_ptr->shield / 2;
@@ -3323,7 +4851,7 @@ void do_cmd_chi_power(void)
 	int px = p_ptr->px;
 
 	int spell, dir, i;
-	int wrath;
+	
 
 	char tmp_val[160];
 
@@ -3331,6 +4859,7 @@ void do_cmd_chi_power(void)
 	
 
 	char choice;
+	char m_name[80];
 	char out_val[160];
 
 	int plev = p_ptr->lev;
@@ -3342,6 +4871,7 @@ void do_cmd_chi_power(void)
 
 	bool flag = FALSE; 
 	bool redraw = FALSE;
+	monster_type *m_ptr;
 
 	/* Must have powers */
 	if (p_ptr->max_powers == 0)
@@ -3462,7 +4992,7 @@ void do_cmd_chi_power(void)
 
 	case CHI_WARRIOR_BAKUSAI_TENGETSU:
 		{
-				msg_print("You assume a Bakusai Tengetsu stance.");
+				msg_print("You assume a Bakusai Tenketsu stance.");
 				p_ptr->bakusai_tengetsu = TRUE;
 			
 			break;
@@ -3511,15 +5041,46 @@ void do_cmd_chi_power(void)
 			break;
 		}
 
-	case CHI_WARRIOR_WRATH:
+	case CHI_WARRIOR_THE_WORLD:
 		{
-			if (!get_aim_dir(&dir)) return;
-				msg_print("You scream as you rapidly fling ki bolts!");
-				for (wrath = 0; wrath < plev; wrath++)
-				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-				                  damroll(3, 8));
+				if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+				}
+			else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+	m_ptr = &m_list[cave_m_idx[p_ptr->target_row][p_ptr->target_col]];
+	/* Extract monster name */
+		monster_desc(m_name, m_ptr, 0);
+			msg_print("You scream 'Muda da!'");
+			msg_format("You scream 'ADUBAUDBAUDBAUDBADA!' as you pummel %s with flurry of punches!", m_name);
+			msg_print("You scream 'ZA WORUDO!'  A black aura eminates from you with a huge sucking sound!");
+			fire_ball(GF_CONFUSION, 0, 0, 10);
+			fire_ball(GF_SOUND, 0, 0, 10);
+			msg_format("You scream 'Stop time!' and then punch %s!", m_name);
+			fire_bolt(GF_DASH, 5, 0);
+			msg_format("You say 'Time resume!'");
+			msg_format("You blink and smash %s with a steamroller and scream out 'WRYYYYYYYYYYYYYYYYYYYY!'", m_name);
+			teleport_player_to(m_ptr->fy, m_ptr->fx);
+			fire_ball(GF_MISSILE, 0, damroll(plev, 8), 1);
 				msg_print("You become tired from the effort.");
 				(void)set_slow(p_ptr->slow + rand_int(10) + 4);
+				(void)set_meter(p_ptr->c_meter / 2);
 				/*(void)set_invuln(p_ptr->invuln + randint(8) + 8); Original GOI */
 				break;
 		}
@@ -3583,7 +5144,8 @@ void do_cmd_chi_power(void)
 
 	case CHI_WARRIOR_SUPER_PUNCH:
 		{
-			msg_print("Your hands begin to glow brightly.");
+			msg_print("You hear the sound of a train....");
+			msg_print("number 235 will depart to Osaka shortly after 6:30...");
 			p_ptr->super_punch = TRUE;
 			break;
 		}
@@ -3714,7 +5276,11 @@ void do_cmd_chi_power(void)
 	}
 
 	/* Use Mana */
+	/* Hack -- Sanjiyans consume no mana during Wu */
+	if (!(p_ptr->wu_transform))
+	{
 	p_ptr->csp -= chi_warrior_cost[p_ptr->player_powers[spell]];
+	}
 
 		/* Update stuff */
 	p_ptr->update |= (PU_BONUS);
@@ -3775,19 +5341,47 @@ void do_cmd_mimic_cast(void)
 	/* Title the list */
 	prt("", 1, 20);
 	put_str("Name", 1, 25);
+
+	if (!(cp_ptr->flags & CF_FREE_MIMIC))
+	{
 	put_str("Mana", 1, 55);
+	}
+
+	else
+	{
+		put_str("Meter", 1, 55);
+	}
 
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(Powers %c-%c, ESC=exit) Use which Power? ",
 	        I2A(0), I2A(p_ptr->max_powers - 1));
 	c_prt(line_attr, out_val, 0, 0);
+
+	if (!(cp_ptr->flags & CF_FREE_MIMIC))
+	{
 	/* Dump the spells */
 	for (i = 0; i < p_ptr->max_powers; i++)
 	{
+
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s %4d",
 		        I2A(i), mimic_powers[p_ptr->player_powers[i]], mimic_powers_cost[p_ptr->player_powers[i]]);
 		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
+	}
+
+	else
+	{
+		/* Dump the spells */
+	for (i = 0; i < p_ptr->max_powers; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), mimic_powers[p_ptr->player_powers[i]], mimic_powers_cost[p_ptr->player_powers[i]] * 10);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
 	}
 
 	/* Clear the bottom line */
@@ -3812,12 +5406,29 @@ void do_cmd_mimic_cast(void)
 	
 	screen_load();
 	/* Verify adequate mana */
+	if (!(cp_ptr->flags & CF_FREE_MIMIC))
+	{
+
 	if (mimic_powers_cost[p_ptr->player_powers[spell]] > p_ptr->csp)
 	{
 		/* Warning */
 		msg_print("You do not have enough mana to use that power!.");
 		
 		return;
+	}
+
+	}
+
+	else
+	{
+		if (mimic_powers_cost[p_ptr->player_powers[spell]] * 10 > p_ptr->c_meter)
+	{
+		/* Warning */
+		msg_print("You do not have enough meter to use that power!.");
+		
+		return;
+	}
+
 	}
 
 	
@@ -4078,14 +5689,14 @@ void do_cmd_mimic_cast(void)
 				          30 + (plev), 2);
 				break;
 		}
-
+/*
 	case MIMIC_DRAIN_MANA:
 		{
 			msg_print("I won't work until someone does Monster Mana!");
 			msg_print("So...hah :P");
 			break;
 
-		}
+		}*/
 
 	case MIMIC_MIND_BLAST:
 		{
@@ -4284,6 +5895,8 @@ void do_cmd_mimic_cast(void)
 	case MIMIC_HEAL:
 		{
 			(void)hp_player(300);
+			(void)set_poisoned(0);
+			(void)set_confused(0);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -4344,7 +5957,15 @@ void do_cmd_mimic_cast(void)
 	p_ptr->energy_use = 100;
 
 	/* Use mana */
+	/* Hack -- Sanjiyan consume no mana during Wu */
+	if (!(p_ptr->wu_transform) && (!(cp_ptr->flags & CF_FREE_MIMIC))){
 	p_ptr->csp -= mimic_powers_cost[p_ptr->player_powers[spell]];
+	}
+
+	else if (cp_ptr->flags & CF_FREE_MIMIC)
+	{
+		set_meter(p_ptr->c_meter - mimic_powers_cost[p_ptr->player_powers[spell]] * 10);
+	}
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
@@ -4406,8 +6027,30 @@ cptr drunk_powers[3] =
  	
 };
 
+cptr sand_powers[3] =
+{
+	"Desert Coffin",
+	"Desert Funeral",
+	"Sand Shield"
+
+};
+
+cptr mknight_powers[10] =
+{
+	"Nothing",
+	"Nothing",
+	"Nothing",
+	"Phase Door",
+	"Heroism",
+	"Berserk Strength",
+	"Haste",
+	"Psych Burst",
+	"Detection",
+	"Alter Reality"
+};
+
 /* Cost */
-int mana_cost[3] = {5, 10, 20};
+int mana_cost[10] = {5, 10, 20, 5, 10, 20, 40, 80, 80, 160};
 byte line_attr = TERM_WHITE;
 
 /* Direction */
@@ -4526,6 +6169,30 @@ int dir;
 
 		}
 
+		
+	case G_SAND:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), sand_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+
+	}
+	/* New powers */
+	for (i = 3; i < 10; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), mknight_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
 	}
 
 	while (1)
@@ -4538,7 +6205,7 @@ int dir;
 			screen_load();
 			return;
 		}
-		if ((spell >= 0) && (spell < 3)) break;
+		if ((spell >= 0) && (spell < 10)) break;
 		else bell("Illegal POWER!");
 	}
 	
@@ -4684,6 +6351,38 @@ int dir;
 		}
 	}
 
+		else if (p_ptr->pgroove == G_SAND)
+	{
+		switch (spell)
+		{
+
+		case SAND_DESERT_COFFIN:
+			{
+
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_SHADOW, dir,
+				           damroll(1 + (plev  / 2), 4));
+					break;
+			}
+
+		case SAND_DESERT_FUNERAL:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FORCE, dir,
+				           damroll(1 + (plev  / 2), 4),6);
+					break;
+			}
+
+		case SAND_SAND_SHIELD:
+			{
+				(void)set_armor_of_sand(plev * 4);
+					
+				break;
+
+			}
+		}
+	}
+
 	else {
 		switch (spell)
 		{
@@ -4717,11 +6416,81 @@ int dir;
 	}
 	}
 
+	/* Rest of spells */
+	switch (spell)
+	{
+	case MKNIGHT_BLINK:
+		{
+			teleport_player(10);
+			break;
+		}
+	
+	case MKNIGHT_HEROISM:
+		{
+			(void)hp_player(10);
+				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_afraid(0);
+			break;
+		}
+
+	case MKNIGHT_BERSERK:
+		{
+			(void)hp_player(30);
+				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_afraid(0);
+			break;
+		}
+
+	case MKNIGHT_HASTE:
+		{
+			if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + plev);
+				}
+
+				else
+				{
+					(void)set_fast(p_ptr->fast + randint(5));
+				}
+			break;
+		}
+
+	case MKNIGHT_BURST:
+		{
+			msg_print("You jump up and flash gold.");
+				fire_ball(GF_GRAVITY, 0,
+				          0, 6);
+				(void)set_meter(p_ptr->c_meter + p_ptr->lev * 2);
+			break;
+		}
+
+	case MKNIGHT_DETECTION:
+		{
+			(void)detect_all();
+			break;
+		}
+
+	case MKNIGHT_ALTER_REALITY:
+		{
+
+			msg_print("The world changes!");
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+
+			break;
+		}
+
+	}
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Use mana */
+	/* Hack -- Wu Transform */
+	if (!(p_ptr->wu_transform)){
 	p_ptr->csp -= mana_cost[spell];
+	}
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
@@ -4734,6 +6503,379 @@ int dir;
 
 }
 
+/*
+ * Use a magical power  -- believe me, this will definitely be
+ * rewritten.
+ */
+void do_cmd_sentai_power(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int i, spell;
+	monster_race *r_ptr;
+	monster_type *m_ptr;
+
+	char out_val[160];
+	char m_name[80];
+	char choice;
+
+	/* Names of Magical Student Powers */
+cptr mag_powers[SENTAI_MAX] =
+{
+	"Taunt",
+	"Pose",
+	"Quick Return",
+	"Pyrotechnics",
+	"Heroism",
+	"Dash",
+	"Giant Swing!",
+	"Double Chop!",
+	"The END!",
+	"Summon Mecha",
+};
+
+int power_mana[STUDENT_MAX] = {0,0,100,200,300,500,500,500,1,5000};
+	byte line_attr = TERM_WHITE;
+
+	/* int spell, dir;*/
+	
+	object_type *mech_ptr = &inventory[INVEN_MECHA];
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	
+
+
+
+/*	bool verify; */
+
+	bool flag = FALSE; 
+	bool redraw = FALSE;
+	/* bool okay;*/
+
+	int plev = p_ptr->lev;
+
+/*	const power_type *s_ptr; */
+
+		/* Get local object */
+	i_ptr = &object_type_body;
+
+
+	/* Must not be confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Save screen */
+	screen_save();
+
+	/* Title the list */
+	prt("", 1, 20);
+	put_str("Name", 1, 25);
+	put_str("Meter", 1, 55);
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Powers %c-%c, ESC=exit) Use which Power? ",
+	        I2A(0), I2A(STUDENT_MAX - 1));
+	c_prt(line_attr, out_val, 0, 0);
+	/* Dump the spells */
+	for (i = 0; i < STUDENT_MAX; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), mag_powers[i], power_mana[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
+	/* Clear the bottom line */
+	prt("", 1 + i + 1, 20);
+		
+	
+	/* Choose */
+	while (1)
+	{
+	
+
+		choice = inkey();
+		spell = (islower(choice) ? A2I(choice) : -1);
+		if (choice == ESCAPE){
+			screen_load();
+			return;
+		}
+		if ((spell >= 0) && (spell < STUDENT_MAX)) break;
+		else bell("Illegal POWER!");
+	}
+	
+	
+	screen_load();
+	/* Verify adequate mana */
+	if (power_mana[spell] > p_ptr->c_meter)
+	{
+		/* Warning */
+		msg_print("You do not have enough meter to use that power!.");
+		
+		return;
+	}
+
+	switch (spell)
+	{
+	case SENTAI_TAUNT: {
+			do_cmd_taunt();
+			break;
+		}
+
+	case SENTAI_POSE:	{
+		do_cmd_pose();
+				break;
+			}
+
+	case SENTAI_QUICK_RETURN:			{
+
+		if (p_ptr->location != W_TOWN)
+		{
+			msg_print("That command does not work here.");
+			return;
+		}
+		else
+		{
+		p_ptr->word_recall = 1;
+		}
+				break;
+		
+			}
+
+	case SENTAI_PYROTECHNICS:		{
+
+		if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+
+		}
+			else
+		{
+			return;
+		}
+
+		msg_print("You jump over and throw some bombs!");
+		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+			fire_ball(GF_CONFUSION, 0, 0, 10);
+			fire_ball(GF_SOUND, 0, 0, 10);
+				break;
+			}
+
+	case SENTAI_HEROISM:	{
+		(void)hp_player(10);
+				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_afraid(0);
+			break;
+		}
+
+	case SENTAI_GIANT_SWING:	  {
+		if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+		}
+
+			else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+
+	m_ptr = &m_list[cave_m_idx[p_ptr->target_row][p_ptr->target_col]];
+	/* Extract monster name */
+		monster_desc(m_name, m_ptr, 0);
+
+	msg_format("You yell, 'Giant Swing!' as you grab and swing %s away!", m_name);
+	fire_bolt(GF_DASH, 5, p_ptr->lev);
+		
+
+
+			break;
+		}
+
+	case SENTAI_DOUBLE_CHOP:		{
+
+		if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+		}
+		else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+
+	msg_print("You yell, 'Double Chop!'");
+	fire_bolt(GF_MANA, 5, p_ptr->lev * 2);
+	fire_bolt(GF_MANA, 5, p_ptr->lev * 2);
+		
+				break;
+
+			}
+
+
+	case SENTAI_THE_END:		{
+		if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+		}
+		
+		else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+
+	msg_print("You yell, 'The END!'");
+	m_ptr = &m_list[cave_m_idx[p_ptr->target_row][p_ptr->target_col]];
+	r_ptr = &r_info[m_ptr->r_idx];
+		/* Extract monster name */
+		monster_desc(m_name, m_ptr, 0);
+	
+
+	/* Check HP and Unique status */
+	
+	if ((m_ptr->hp > m_ptr->maxhp / 4) || (r_ptr->flags1 & (RF1_UNIQUE)))
+	{
+		msg_format("%s blocks your attack!", m_name);
+	}
+
+	else {
+		message_format(MSG_HIT, m_ptr->r_idx, "%^s%s", m_name, " explodes!");
+		fire_bolt(GF_MANA, 5, m_ptr->hp + 1);
+	}
+		
+		
+			
+		break;
+				}
+
+	case SENTAI_DASH:	{
+
+		if (target_set_interactive(TARGET_KILL))
+		{
+		
+			if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+
+		}
+
+		else
+		{
+			return;
+		}
+
+		msg_print("You dash!");
+
+		fire_beam(GF_DASH, 5, 0);
+		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
+
+		break;
+
+		}
+
+	case SENTAI_SUMMON_MECHA:	
+		{
+
+				if (!(mech_ptr->k_idx))
+				{
+					/* Create Mecha */
+				object_prep(i_ptr, lookup_kind(TV_TEMP_MECHA, SV_TEMP_MECHA));
+				i_ptr->number = 1;
+				
+				object_aware(i_ptr);
+				object_known(i_ptr);
+				object_copy(&inventory[INVEN_MECHA], i_ptr);
+
+				msg_format(mecha_summon_quotes[rand_int(5)], p_ptr->temp_mecha_name);
+				p_ptr->total_weight += i_ptr->weight;
+					
+					/* Redraw */
+				p_ptr->redraw |= (PR_HP);
+
+				/* Redraw */
+				p_ptr->redraw |= (PR_METER);
+
+				/* Hack -- Ensure that the mechas has at least 2500 hp */
+				p_ptr->c_meter += 2500;
+				}
+				
+				else
+				{
+					msg_print("You already have a Mecha!");
+					return;
+				}
+							break;
+						}
+	}
+
+
+	
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Use meter */
+	p_ptr->c_meter -= power_mana[spell];
+	
+
+	/* Redraw meter */
+	p_ptr->redraw |= (PR_METER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
 
 
 /*
@@ -4757,7 +6899,7 @@ cptr mag_powers[STUDENT_MAX] =
 	"Heroism",
 	"Haste",
 	"Ouroborous",
-	"Terrible Engrish",
+	"Gaijin Smash!",
 	"Teleport",
 	"Ki Beam",
 	"Ultimate Restoration",
@@ -4895,11 +7037,10 @@ int power_mana[STUDENT_MAX] = {1,5,15,20,25,30,40,50,70,100};
 			break;
 		}
 
-	case STUDENT_POOR_DUBBING:	  {
-		msg_print("You start to speak in terrible Engrish!");
-		for (dir = 1; dir < 10; dir++){
-		(void)fear_monster(dir, plev);
-		}
+	case STUDENT_GAIJIN_SMASH:	  {
+		msg_print("GAIJIN SMASH!");
+		fire_ball(GF_CONFUSION, 0, 0, 1);
+		fire_ball(GF_SOUND, 0, 0, 1);
 			break;
 		}
 
@@ -4946,10 +7087,161 @@ int power_mana[STUDENT_MAX] = {1,5,15,20,25,30,40,50,70,100};
 	p_ptr->energy_use = 100;
 
 	/* Use mana */
+	/* Hack -- Wu Transform */
+	if (!(p_ptr->wu_transform)){
 	p_ptr->csp -= power_mana[spell];
+	}
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+/* Mecha Commands */
+/*
+ * Use a magical power  -- believe me, this will definitely be
+ * rewritten.
+ */
+void do_cmd_mecha(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int i, spell;
+
+	char out_val[160];
+	char choice;
+
+	/* Names of Magical Student Powers */
+cptr mag_powers[MECHA_MAX] =
+{
+	"Fire Weapons",
+	"Scuttle",
+	"Rename",
+	
+};
+
+	byte line_attr = TERM_WHITE;
+
+	
+	bool flag = FALSE; 
+	bool redraw = FALSE;
+
+
+	int plev = p_ptr->lev;
+
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_MECHA];
+
+	/* Check for Mechas before continuing */
+	
+	if (!(o_ptr->k_idx)){
+
+		msg_print("You are not riding on a mecha.");
+		return;
+
+	}
+
+	
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Save screen */
+	screen_save();
+
+	/* Title the list */
+	prt("", 1, 20);
+	put_str("Name", 1, 25);
+	
+
+	/* Build a prompt (accept all powers) */
+	strnfmt(out_val, 78, "(Commands %c-%c, ESC=exit) Use which Mecha Command? ",
+	        I2A(0), I2A(MECHA_MAX - 1));
+	c_prt(line_attr, out_val, 0, 0);
+	/* Dump the spells */
+	for (i = 0; i < MECHA_MAX; i++)
+	{
+		/* Dump the command --(-- */
+		sprintf(out_val, "  %c) %-30s",
+		        I2A(i), mag_powers[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
+	/* Clear the bottom line */
+	prt("", 1 + i + 1, 20);
+		
+	
+	/* Choose */
+	while (1)
+	{
+	
+
+		choice = inkey();
+		spell = (islower(choice) ? A2I(choice) : -1);
+		if (choice == ESCAPE){
+			screen_load();
+			return;
+		}
+		if ((spell >= 0) && (spell < MECHA_MAX)) break;
+		else bell("Illegal POWER!");
+	}
+	
+	
+	screen_load();
+	
+
+	switch (spell)
+	{
+	case MECHA_FIRE: {
+	
+		if (!do_cmd_mechfire())
+		{
+			return;
+		}
+
+		break;
+		}
+
+	case MECHA_SCUTTLE:	{
+		/* Destroy Mecha */
+			msg_print("You scuttle your Mecha!");
+			inven_item_increase(INVEN_MECHA, -999);
+			inven_item_optimize(INVEN_MECHA);
+				/* Redraw */
+				p_ptr->redraw |= (PR_HP);
+				break;
+			}
+
+	case MECHA_RENAME:			{
+
+		if (!(o_ptr->k_idx))
+		{
+			msg_print("You are not riding a summoned mecha!");
+			return;
+		}
+
+		else if (o_ptr->tval != TV_TEMP_MECHA)
+		{
+			msg_print("This mecha is not renamable.");
+			return;
+		}
+
+		get_mecha_info();
+			return;
+
+			break;
+		
+			}
+
+	}
+
+
+	
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+	
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -4972,8 +7264,7 @@ void do_cmd_give(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x;
-	int dir;
+	
 	int item_new;
 	monster_type *m_ptr;
 	char m_name[80];
@@ -5009,20 +7300,39 @@ void do_cmd_give(void)
 
 
 
-	/* Which direction */
-	if (!get_aim_dir(&dir)) return;
+	
+	/* Which creature */
+	if (target_set_interactive(TARGET_KILL))
+	{
+		if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
 
-	/* Get direction results */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+			msg_print("Target is not a valid monster.");
+			return;
+		}
 
+	}
+
+		else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+
+	
 	/* Found someone to give to */
-	if (cave_m_idx[y][x] > 0)
+	if (cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)
 	{
 		/* Take a turn */
 		p_ptr->energy_use = 100;
 
-		m_ptr = &m_list[cave_m_idx[y][x]];
+		m_ptr = &m_list[p_ptr->target_who];
 		monster_desc(m_name, m_ptr, 0);
 
 		switch (m_ptr->r_idx)
@@ -5040,7 +7350,7 @@ void do_cmd_give(void)
 			}
 			else {
 				
-				message_format(MSG_HIT, m_ptr->r_idx, "I doubt %s wants that.", m_name);
+				msg_format("I doubt %s wants that.", m_name);
 				return;
 				break;
 				}
@@ -5059,7 +7369,7 @@ void do_cmd_give(void)
 
 		else {
 				
-				message_format(MSG_HIT, m_ptr->r_idx, "I doubt %s wants that.", m_name);
+				msg_format("I doubt %s wants that.", m_name);
 				return;
 				break;
 				}
@@ -5102,7 +7412,7 @@ void do_cmd_give(void)
 				}
 
 				else {
-				message_format(MSG_HIT, m_ptr->r_idx, "I doubt %s wants that.", m_name);
+				msg_format("I doubt %s wants that.", m_name);
 				return;
 				break;
 				}
@@ -5123,7 +7433,7 @@ void do_cmd_give(void)
 
 		default:
 			{
-			message_format(MSG_HIT, m_ptr->r_idx, "I doubt %s wants that.", m_name);
+			msg_format("I doubt %s wants that.", m_name);
 			return;
 			break;
 			}
@@ -5165,22 +7475,46 @@ void do_cmd_talk(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x;
-	int dir;
+	
 	monster_type *m_ptr;
 	char m_name[80];
+	char o_name[80];
+	int item_new;
+	
+/*
+	object_type *i_ptr;
+	object_type object_type_body;
+	*/
 
-	/* Which direction */
-	if (!get_aim_dir(&dir)) return;
+	/* Which creature */
+	if (target_set_interactive(TARGET_KILL))
+	{
+		if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
 
-	/* Get direction results */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+			msg_print("Target is not a valid monster.");
+			return;
+		}
+
+	}
+
+		else
+		{
+			return;
+		}
+
+	/* Require Adjacency */
+	if ((p_ptr->target_row - py > 1) || (p_ptr->target_row - py < -1)
+		|| (p_ptr->target_col - px > 1) || (p_ptr->target_col - px < -1))
+	{
+		msg_print("Target is not adjacent.");
+		return;
+	}
+	
 
 	/* Found someone to talk to */
-	if (cave_m_idx[y][x] > 0)
+	if (cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)
 	{
-		m_ptr = &m_list[cave_m_idx[y][x]];
+		m_ptr = &m_list[p_ptr->target_who];
 		monster_desc(m_name, m_ptr, 0);
 
 		switch (m_ptr->r_idx)
@@ -5242,6 +7576,36 @@ void do_cmd_talk(void)
 
 			}
 
+		case ARAIGUMA_RASCAL:
+			{
+			msg_print("Rascal drops a treasure and scuttles off!");
+			acquirement(py, px, 1, TRUE);
+		/* Delete the monster */
+		delete_monster_idx(cave_m_idx[p_ptr->target_row][p_ptr->target_col]);
+		break;
+
+			}
+
+		case DELIVERY_BOY:
+			{
+				msg_print("The delivery boy hands you your requested item.");
+
+			
+				/* Give it to the player */
+				item_new = inven_carry(p_ptr->delivery_ptr);
+
+				/* Describe the final result */
+				object_desc(o_name, &inventory[item_new], TRUE, 3);
+
+				/* Message */
+				msg_format("You have %s (%c).",
+				           o_name, index_to_label(item_new));
+				delete_monster_idx(cave_m_idx[p_ptr->target_row][p_ptr->target_col]);
+				object_wipe(p_ptr->delivery_ptr);
+				
+				break;
+			}
+
 		case GARDENER:
 			{
 				if (p_ptr->normal_quests[QUEST_FOREST] != STATUS_COMPLETE)
@@ -5249,9 +7613,13 @@ void do_cmd_talk(void)
 					msg_print("I wish the Totoro were here.");
 					msg_print("This forest is dying and their acorns");
 					msg_print("would be of great use right now.");
+					msg_print("Have you come to take on the pagoda of masters?");
+					msg_print("I hope you're at least level 30.");
 				}
 				else{
 				msg_print("Thank you!");
+				msg_print("Have you come to take on the pagoda of masters?");
+					msg_print("I hope you're at least level 30.");
 				}
 				break;
 			}
@@ -5263,9 +7631,8 @@ void do_cmd_talk(void)
 
 			msg_print("Welcome to Fun City!");
 			msg_print("It is a carnival every day here!");
-			msg_print("Our main attraction is the World Martial Arts Tourney.");
-			msg_print("The winner gets to be known as the world martial arts champion.");
-			msg_print("All you have to do is defeat the current world champ....Vegeta!");
+			msg_print("Our main attraction is the Dueling Arena.");
+			msg_print("You can get challenged to duels or train your character there.");
 			msg_print("Go check it out!");
 			break;
 
@@ -5281,6 +7648,16 @@ void do_cmd_talk(void)
 			msg_print("It is rumored that many deep and rare creatures live there, so please, don't");
 			msg_print("even think of entering unless you can deal with creatures that live deeper");
 			msg_print("than 5000 feet.");
+			break;
+
+			}
+
+			else if (p_ptr->location == W_PAGODA_ROOF)
+			{
+
+			msg_print("Congrats!  You have learned that the best fighting style ");
+			msg_print("is no style at all.  You are truly a martial arts master.");
+			msg_print("Go in peace.");
 			break;
 
 			}
@@ -5319,7 +7696,7 @@ void do_cmd_talk(void)
 
 		default:
 			{
-			message_format(MSG_HIT, m_ptr->r_idx, "Hmm.... %s does not like you very much.", m_name);
+			msg_format("Hmm.... %s does not like you very much.", m_name);
 			break;
 			}
 

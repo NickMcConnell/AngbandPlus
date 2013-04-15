@@ -459,6 +459,11 @@ void self_knowledge(void)
 		info[i++] = "You fight like a drunk.";
 	}
 
+	else if (p_ptr->pgroove == G_SAND) {
+
+		info[i++] = "You fight like a sandstorm.";
+	}
+
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -519,6 +524,14 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are a Super Sayian.";
 	}
+	if (p_ptr->chakra_gate)
+	{
+		info[i++] = "You have Chakra gates open.";
+	}
+	if (p_ptr->wu_transform)
+	{
+		info[i++] = "You have transformed into your Wu.";
+	}
 	if (p_ptr->kaioken)
 	{
 		info[i++] = "You invoked Kaioken.";
@@ -533,8 +546,16 @@ void self_knowledge(void)
 	}
 	if (p_ptr->mimic)
 	{
-		info[i++] = "You are mimicing..."; 
+		info[i++] = "You have transformed into..."; 
 		info[i++] = (r_name + r_ptr->name);
+	}
+	if (p_ptr->byakugan)
+	{
+		info[i++] = "You have Byakugan eyes.";
+	}
+	if (p_ptr->sharingan)
+	{
+		info[i++] = "You have Sharingan eyes.";
 	}
 	if (p_ptr->geneijin)
 	{
@@ -570,7 +591,7 @@ void self_knowledge(void)
 	}
 	if ((p_ptr->new_spells) && (!(cp_ptr->flags & CF_NO_STUDY)))
 	{
-		info[i++] = "You can learn some spells/prayers.";
+		info[i++] = "You can learn some spells/prayers/jutsus.";
 	}
 	if (p_ptr->word_recall)
 	{
@@ -850,9 +871,13 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
 		}
-		if (f1 & (TR1_SLAY_ORC))
+		if (f1 & (TR1_SLAY_SENTAI))
 		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
+			info[i++] = "Your weapon is especially deadly against sentai.";
+		}
+		if (f1 & (TR1_SLAY_MECHA))
+		{
+			info[i++] = "Your weapon is especially deadly against Mecha.";
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
@@ -1367,7 +1392,8 @@ bool detect_objects_magic(void)
 		    (tv == TV_AMULET) || (tv == TV_RING) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
-		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK)
+			|| (tv == TV_PARCHMENT) || (tv == TV_LARGE_SCROLL) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1666,6 +1692,7 @@ static bool item_tester_hook_weapon(const object_type *o_ptr)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
+		case TV_SHURIKEN:
 		{
 			return (TRUE);
 		}
@@ -1687,6 +1714,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 		case TV_SOFT_ARMOR:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_CROWN:
 		case TV_HELM:
 		case TV_BOOTS:
@@ -1927,7 +1955,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Missiles are easy to enchant */
 	if ((o_ptr->tval == TV_BOLT) ||
-	    (o_ptr->tval == TV_ARROW) ||
+	    (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHURIKEN) ||
 	    (o_ptr->tval == TV_SHOT))
 	{
 		prob = prob / 20;
@@ -2566,6 +2594,8 @@ bool dispel_monsters(int dam)
 void aggravate_monsters(int who)
 {
 	int i;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
 	bool sleep = FALSE;
 	bool speed = FALSE;
@@ -2597,9 +2627,34 @@ void aggravate_monsters(int who)
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			if ((who == -1) && (m_ptr->mspeed < 200)) {
+			if ((who < 0) && (m_ptr->mspeed < 200)) {
 
 				m_ptr->mspeed += 10;
+
+			}
+			/* Sentai Taunt */
+			if (who == -2)
+			{
+				if (r_info[m_ptr->r_idx].level > 1)
+				(void)set_meter(p_ptr->c_meter + 50 - (p_ptr->lev - r_info[m_ptr->r_idx].level));
+			}
+
+			/* Sentai Pose */
+			if (who == -3)
+			{
+					/* Require Adjacency */
+			if ((m_ptr->fy - py > 1) || (m_ptr->fy - py < -1)
+		|| (m_ptr->fx - px > 1) || (m_ptr->fx - px < -1))
+
+		{
+		
+		}
+		
+			else
+			{
+				if (r_info[m_ptr->r_idx].level > 1)
+				(void)set_meter(p_ptr->c_meter + 100 - (p_ptr->lev - r_info[m_ptr->r_idx].level));
+			}
 
 			}
 
@@ -2617,10 +2672,7 @@ void aggravate_monsters(int who)
 	if (speed) msg_print("You feel a sudden stirring nearby!");
 	/* Meter Bonus (if deep enough)*/
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
-	if (((speed) || (sleep)) && (who == -1))
-	if (p_ptr->lev < p_ptr->depth){
-		(void)set_meter(p_ptr->c_meter + p_ptr->depth - p_ptr->lev);
-	}
+	
 }
 
 
@@ -2740,6 +2792,59 @@ bool kekkai(void) /*Kekkai being repeated mass Genocide...kinda cheap, but funct
 	}
 
 	return (result);
+}
+
+/*
+ * Analyze nearby monsters
+ */
+bool analyzing(void)
+{
+	int i;
+
+	bool probe = FALSE;
+
+
+	/* Probe all (nearby) monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Require line of sight */
+		if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) continue;
+
+		/* Probe visible monsters */
+		if (m_ptr->ml)
+		{
+			char m_name[80];
+
+			/* Start the message */
+			if (!probe) msg_print("Analyzing...");
+
+			/* Get "the monster" or "something" */
+			monster_desc(m_name, m_ptr, 0x04);
+
+			/* Describe the monster */
+			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+
+			/* Learn all of the non-spell, non-treasure flags */
+			lore_do_probe(i);
+
+			/* Probe worked */
+			probe = TRUE;
+		}
+	}
+
+	/* Done */
+	if (probe)
+	{
+		msg_print("Analyze complete.  Data stored in monster memory.");
+	}
+
+	/* Result */
+	return (probe);
 }
 
 /*
@@ -3792,4 +3897,22 @@ bool sleep_monsters_touch(void)
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+}
+
+bool wall_creation(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(-1, 1, py, px, 0, GF_MAKE_WALL, flg));
+}
+
+bool glyph_creation(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(-1, 1, py, px, 0, GF_MAKE_GLYPH, flg));
 }

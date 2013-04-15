@@ -288,7 +288,12 @@ static void prt_hp(void)
 	}
 
 	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+	return;
+	}
 
+	else if (o_ptr->tval == TV_TEMP_MECHA)
+	{
+		mechmax = p_ptr->m_meter;
 	}
 
 	else {
@@ -324,6 +329,7 @@ static void prt_hp(void)
 			break;
 		}
 	}
+	}
 
 	put_str("Mec MH ", ROW_MAXHP, COL_MAXHP);
 
@@ -334,8 +340,13 @@ static void prt_hp(void)
 
 	put_str("Mec HP ", ROW_CURHP, COL_CURHP);
 
+	if (o_ptr->tval == TV_MECHA)
 	sprintf(tmp, "%5d", o_ptr->pval);
 
+	else
+	sprintf(tmp, "%5d", p_ptr->c_meter);
+
+	if (o_ptr->tval == TV_MECHA){
 	if (o_ptr->pval >= mechmax)
 	{
 		color = TERM_L_GREEN;
@@ -353,12 +364,26 @@ static void prt_hp(void)
 
 	}
 
-
-
-
-
-
 	
+	if (o_ptr->tval == TV_TEMP_MECHA)
+	{
+	if (p_ptr->c_meter >= mechmax)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->c_meter > (mechmax * op_ptr->hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+
+	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
+
+	}
+
 }
 
 
@@ -1257,6 +1282,12 @@ static void calc_spells(void)
 
 	cptr p = ((cp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
 
+	if (cp_ptr->spell_book == TV_LARGE_SCROLL)
+	{
+		p = "ninjutsu";
+
+	}
+
 
 	/* Hack -- must be literate */
 	if (!cp_ptr->spell_book) return;
@@ -1776,6 +1807,7 @@ static void calc_mimic_bonuses(void)
 	if (r_ptr->flags4 & (RF4_BR_ACID))
 	{
 		p_ptr->resist_acid = TRUE;
+			
 	}
 
 	if (r_ptr->flags4 & (RF4_BR_ELEC))
@@ -1971,6 +2003,8 @@ static void calc_bonuses(void)
 	int old_stat_ind[A_MAX];
 
 	object_type *o_ptr;
+	monster_race *r_ptr = &r_info[p_ptr->mimic_idx];
+
 
 	u32b f1, f2, f3;
 
@@ -2421,6 +2455,54 @@ static void calc_bonuses(void)
 		p_ptr->food = PY_FOOD_MAX - 1;
 	}
 
+	/* Sand bonuses */
+	if (p_ptr->pgroove == G_SAND)
+	{
+		p_ptr->to_h += 5;
+		p_ptr->dis_to_h += 5;
+		p_ptr->pspeed += 5;
+		p_ptr->skill_stl += 3;
+	}
+
+	/* Chakra Gate opened */
+	if (p_ptr->chakra_gate)
+	{
+		p_ptr->to_h += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->dis_to_h += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->to_d += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->dis_to_d += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->to_a += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->dis_to_a += p_ptr->lev * p_ptr->chakra_gate_level / 2;
+		p_ptr->pspeed += 10 * p_ptr->chakra_gate_level / 2;
+		p_ptr->food = PY_FOOD_MAX - 1;
+	}
+
+	/* Sharingan and Byakugan give Telepathy */
+	if ((p_ptr->sharingan) || (p_ptr->byakugan))
+	{
+		p_ptr->telepathy = TRUE;
+	}
+
+	/* Temporary "Wu Transform" */
+	if (p_ptr->wu_transform)
+	{
+		p_ptr->to_h += p_ptr->lev * 4;
+		p_ptr->dis_to_h += p_ptr->lev * 4;
+		p_ptr->to_d += p_ptr->lev * 4;
+		p_ptr->dis_to_d += p_ptr->lev * 4;
+		p_ptr->to_a += p_ptr->lev * 2;
+		p_ptr->dis_to_a += p_ptr->lev * 2;
+		p_ptr->pspeed += 30;
+		p_ptr->food = PY_FOOD_MAX - 1;
+	}
+
+	/* Extra Stealth */
+	if (p_ptr->findme)
+	{
+
+		p_ptr->skill_stl += 10;
+	}
+
 	/* Magic Student */
 	if (p_ptr->mag_student)
 	{
@@ -2477,7 +2559,7 @@ static void calc_bonuses(void)
 	/*** Special flags ***/
 
 	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero || p_ptr->s_sayian)
+	if (p_ptr->hero || p_ptr->shero || p_ptr->s_sayian || p_ptr->wu_transform)
 	{
 		p_ptr->resist_fear = TRUE;
 	}
@@ -2497,6 +2579,8 @@ static void calc_bonuses(void)
 		/* Subtract weight.  What a dumbass solution */
 		j -= 30000;
 	}
+
+	
 
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
@@ -2831,10 +2915,17 @@ static void calc_bonuses(void)
 
 	}
 
+	/* Hack -- Sand gets +2 blows */
+		if (p_ptr->pgroove == G_SAND) {
+			p_ptr->num_blow += 2;
+		}
+
 	/* Hack -- Temporary Genei Jin guarentees at least 3 blows per turn */
 		if (p_ptr->geneijin){
 			p_ptr->num_blow = p_ptr->num_blow * 3;
 		}
+
+	
 
 
 	/*** Notice changes ***/

@@ -52,6 +52,11 @@ static void prt_hp(void)
 	c_put_str(color, tmp, ROW_CURHP, COL_CURHP + 7);	
 
 	}
+		/* Temp Mech Exception */
+	else if (o_ptr->tval == TV_TEMP_MECHA)
+	{
+		mechmax = p_ptr->m_meter;
+	}
 
 	else {
 	switch (o_ptr->sval){
@@ -87,6 +92,8 @@ static void prt_hp(void)
 		}
 	}
 
+
+
 	put_str("Mec MH ", ROW_MAXHP, COL_MAXHP);
 
 	sprintf(tmp, "%5d", mechmax);
@@ -96,7 +103,15 @@ static void prt_hp(void)
 
 	put_str("Mec HP ", ROW_CURHP, COL_CURHP);
 
-	sprintf(tmp, "%5d", o_ptr->pval);
+	if (o_ptr->tval == TV_MECHA)
+	{
+		sprintf(tmp, "%5d", o_ptr->pval);
+	}
+
+	else
+	{
+		sprintf(tmp, "%5d", p_ptr->c_meter);
+	}
 
 	if (o_ptr->pval >= mechmax)
 	{
@@ -237,6 +252,7 @@ void do_cmd_wield(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+	monster_race *r_ptr;
 
 	cptr act;
 
@@ -362,6 +378,7 @@ void do_cmd_wield(void)
 		prt_hp();
 	}
 
+
 	else
 	{
 		act = "You are wearing";
@@ -387,6 +404,24 @@ void do_cmd_wield(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Costume Hack - Force Mimic */
+	/* Force to be Cosplayers */
+	if (p_ptr->pclass == C_COSPLAYER)
+	{
+	if ((inventory[INVEN_OUTER].tval == TV_COSTUME) && (inventory[INVEN_OUTER].pval > 0))
+	{
+		p_ptr->mimic = TRUE;
+		p_ptr->mimic_idx = inventory[INVEN_OUTER].pval;
+		r_ptr = &r_info[p_ptr->mimic_idx];
+		extract_mimic_powers(r_ptr);
+		
+	}
+	else
+	{
+		p_ptr->mimic = FALSE;
+	}
 	}
 
 	/* Recalculate bonuses */
@@ -447,6 +482,12 @@ void do_cmd_takeoff(void)
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
+
+	/* Were we wearing a costume? */
+	if ((o_ptr->tval == TV_COSTUME) && (o_ptr->pval > 0))
+	{
+		p_ptr->mimic = FALSE;
+	}
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
@@ -657,6 +698,8 @@ void do_cmd_observe(void)
 
 	/* Describe it fully */
 	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+
+	
 }
 
 
@@ -1242,7 +1285,7 @@ static cptr ident_info[] =
 	"^:A trap",
 	"_:A staff",
 	/* "`:unused", */
-	"a:Ant",
+	"a:Android goon",
 	"b:Bat",
 	"c:Centipede",
 	"d:Dragon",
@@ -1255,16 +1298,16 @@ static cptr ident_info[] =
 	"k:Moogle",
 	"l:Louse",
 	"m:Mold",
-	"n:Naga",
-	"o:Orc",
+	"n:Turtle",
+	"o:Sentai",
 	"p:Person/Human",
 	"q:Quadruped",
 	"r:Rodent",
 	"s:Skeleton",
 	"t:Townsperson",
-	"u:Minor Demon",
+	"u:Machines (androids/mechas/etc)",
 	"v:Vortex",
-	"w:Worm/Worm-Mass",
+	"w:Weird Creature",
 	/* "x:unused", */
 	"y:Yeek",
 	"z:Zombie/Mummy",

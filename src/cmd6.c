@@ -52,7 +52,83 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
+/*
+ * Eat some food (from the pack or floor)
+ */
+bool do_cmd_create_costume(void)
+{
+	int item;/*, ident, lev, amt;*/
+	bool wearing = FALSE;
 
+	object_type *o_ptr;
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+	cptr q, s;
+
+	char o_name[80];
+
+	if (target_set_interactive(TARGET_KILL))
+	{
+		if (!(cave_m_idx[p_ptr->target_row][p_ptr->target_col] > 0)){
+
+			msg_print("Target is not a valid monster.");
+			return (FALSE);
+		}
+
+	}
+
+		else
+		{
+			return (FALSE);
+		}
+
+
+	/* Restrict choices to food */
+	item_tester_tval = TV_COSTUME;
+
+	/* Get an item */
+	q = "Use which costume? ";
+	s = "You have no costume to use.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EQUIP))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+		if (item == INVEN_OUTER)
+		wearing = TRUE;
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Change it to a costume */
+	msg_print("You attempt to make a costume...");
+	m_ptr = &m_list[p_ptr->target_who];
+	o_ptr->pval = m_ptr->r_idx;
+	
+	r_ptr = &r_info[o_ptr->pval];
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	if (wearing)
+	{
+	p_ptr->mimic_idx = o_ptr->pval;
+	extract_mimic_powers(r_ptr);
+	
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+	}
+
+	return (TRUE);
+	/* Take a turn 
+	p_ptr->energy_use = 100; */
+}
 
 
 
@@ -62,7 +138,7 @@
  */
 void do_cmd_eat_food(void)
 {
-	int item, ident, lev;
+	int item, ident, lev, amt;
 
 	object_type *o_ptr;
 
@@ -252,7 +328,13 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+			amt = damroll(4,8);
+
+			if (amt < (p_ptr->mhp / 5))
+			{
+				amt = p_ptr->mhp / 5;
+			}
+			if (hp_player(amt)) ident = TRUE;
 			break;
 		}
 
@@ -326,6 +408,11 @@ void do_cmd_eat_food(void)
 		/* Slightly more buzzed */
 	(void)set_drunk(p_ptr->c_alcohol + 250);
 
+	if (p_ptr->c_alcohol > 900)
+	{
+		msg_print("Your face feels flushed.  Perhaps you shouldn't drink anymore...");
+	}
+
 			ident = TRUE;
 			break;
 		}
@@ -343,6 +430,11 @@ void do_cmd_eat_food(void)
 
 		/* Slightly more buzzed */
 	(void)set_drunk(p_ptr->c_alcohol + 100);
+
+	if (p_ptr->c_alcohol > 900)
+	{
+		msg_print("Your face feels flushed.  Perhaps you shouldn't drink anymore...");
+	}
 
 			ident = TRUE;
 			break;
@@ -615,7 +707,7 @@ void do_cmd_eat_food(void)
  */
 void do_cmd_quaff_potion(void)
 {
-	int item, ident, lev;
+	int item, ident, lev, amt;
 
 	object_type *o_ptr;
 
@@ -896,7 +988,14 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
+			amt = damroll(2,8);
+
+			if (amt < (p_ptr->mhp / 10))
+			{
+				amt = p_ptr->mhp / 10;
+			}
+
+			if (hp_player(amt)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
@@ -904,7 +1003,14 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+			amt = damroll(4,8);
+
+			if (amt < (p_ptr->mhp / 5))
+			{
+				amt = p_ptr->mhp / 5;
+			}
+
+			if (hp_player(amt)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
@@ -913,7 +1019,14 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) ident = TRUE;
+			amt = damroll(6,8);
+
+			if (amt < (p_ptr->mhp / 3))
+			{
+				amt = p_ptr->mhp / 3;
+			}
+
+			if (hp_player(amt)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -924,7 +1037,13 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			amt = 300;
+
+			if (amt < (p_ptr->mhp * 7 / 10))
+			{
+				amt = p_ptr->mhp * 7 / 10;
+			}
+			if (hp_player(amt)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -935,7 +1054,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(1200)) ident = TRUE;
+			if (hp_player(3000)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -1540,6 +1659,12 @@ void do_cmd_read_scroll(void)
 				msg_print("You are not riding a mecha!");
 			}
 
+			else if (i_ptr->tval == TV_TEMP_MECHA)
+			{
+				used_up = FALSE;
+				msg_print("This mecha seems to be made from your energy rather than metal.");
+			}
+
 			else {
 				switch (i_ptr->sval){
 
@@ -1690,9 +1815,11 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_RUNE_OF_PROTECTION:
+		case SV_SCROLL_GAIJIN_PERIMETER:
 		{
-			warding_glyph();
+			msg_print("A mysterious aura surrounds you!");
+			fire_ball(GF_DASH, 0, 0, 1);
+			(void)glyph_creation();
 			ident = TRUE;
 			break;
 		}
@@ -1802,7 +1929,7 @@ void do_cmd_use_staff(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, ident, chance, k, lev;
+	int item, ident, chance, k, lev, amt;
 
 	object_type *o_ptr;
 
@@ -2017,7 +2144,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			amt = damroll(2,8);
+
+			if (amt < (p_ptr->mhp / 10))
+			{
+				amt = p_ptr->mhp / 10;
+			}
+
+			if (hp_player(amt)) ident = TRUE;
 			break;
 		}
 
@@ -2033,7 +2167,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			amt = 300;
+
+			if (amt < (p_ptr->mhp * 7 / 10))
+			{
+				amt = p_ptr->mhp * 7 / 10;
+			}
+
+			if (hp_player(amt)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -3150,7 +3291,7 @@ static bool brand_bolts(void)
  */
 void do_cmd_activate(void)
 {
-	int item, i, k, dir, lev, chance;
+	int item, i, k, dir, lev, chance, amt;
 
 	object_type *o_ptr;
 
@@ -3561,8 +3702,14 @@ void do_cmd_activate(void)
 
 			case ACT_CURE_WOUNDS:
 			{
+				amt = damroll(4,8);
+
+			if (amt < (p_ptr->mhp / 5))
+			{
+				amt = p_ptr->mhp / 5;
+			}
 				msg_format("Your %s radiates deep purple...", o_name);
-				hp_player(damroll(4, 8));
+				hp_player(amt);
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				break;
 			}
@@ -3615,6 +3762,13 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows deep red...", o_name);
 				(void)brand_bolts();
+				break;
+			}
+
+		case ACT_IAI:
+			{
+				msg_format("Your partially unsheath your %s...", o_name);
+				fire_ball(GF_MISSILE, 0, 120, 1);
 				break;
 			}
 			

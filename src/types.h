@@ -321,6 +321,7 @@ struct monster_race
 {
 	u32b name;				/* Name (offset) */
 	u32b text;				/* Text (offset) */
+	u32b origin;			/* Origin (offset) */
 
 	byte hdice;				/* Creatures hit dice count */
 	byte hside;				/* Creatures hit dice sides */
@@ -344,6 +345,8 @@ struct monster_race
 	u32b flags4;			/* Flags 4 (inate/breath) */
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags7;			/* Flags 7 (abilities/special */
+	u32b flags8;			/* Flags 8 (more special spells) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
@@ -398,6 +401,8 @@ struct monster_lore
 	u32b r_flags4;			/* Observed racial flags */
 	u32b r_flags5;			/* Observed racial flags */
 	u32b r_flags6;			/* Observed racial flags */
+	u32b r_flags7;			/* Observed racial flags */
+	u32b r_flags8;			/* Observed racial flags */
 };
 
 
@@ -429,6 +434,10 @@ struct wilderness_type
 
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
+	byte no_scroll;		/* Scrolled or centered */
+	s16b unique;		/* The unique of the level*/
+	byte act_index;		/* The actual index */
+	byte quest;			/* Quest index fulfilled for killing unique */
 };
 
 
@@ -535,7 +544,8 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 	byte mondust;		/* Monster is launched in the air */
-	byte enlightenment; /* Monster is time dilated */
+	byte silenced;		/* Monster cannot use magic */
+	byte poisoned;		/* Monster is poisoned */
 
 	byte cdis;			/* Current dis from player */
 
@@ -799,6 +809,7 @@ struct player_class
 
 	u32b sense_base;	/* Base pseudo-id value */
 	u16b sense_div;		/* Pseudo-id divisor */
+	byte c_p[C_MAX][5]; /* Intrinsic Powers */
 
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
@@ -933,6 +944,8 @@ struct player_type
 	s16b kekkai;		/* Timed -- Kekkai */
 	s16b geneijin;		/* Timed -- Genei Jin */
 	s16b ouroborous;    /* Timed -- Ouroborous */
+	s16b wu_transform;  /* Timed -- Wu Transform */
+
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -980,6 +993,14 @@ struct player_type
 
 	bool wizard;			/* Player is in wizard mode */
 
+	/* Intrinsic Powers */
+	byte strong_bow;    /* Multiplier to bow */
+	byte replacement;	/* Replacement technique */
+	byte banish_evil;	/* Glyph Ward */
+	byte backstab;		/* Backstab */
+	byte findme;		/* Find me! */
+	/*	byte c_p[5];  Class based powers */
+
 	/*** Chi Warrior/ Mimic Powers ***/
 	s16b mimic_idx;		/* Current r_idx mimiced monster */
 	byte mimic;			/* Currently mimicing something */
@@ -987,6 +1008,9 @@ struct player_type
 	byte chi_powers[CHI_WARRIOR_MAX]; /* Known Chi Warrior Powers */
 	s16b normal_quests[MAX_QUESTS];  /* Normal Quests */
 	
+	/*** Duel Field ***/
+	s16b duel_idx;  /* Current duel monster */
+	byte pending_duel;  /* Has a pending duel */
 
 	/*** Chi Warrior Fields ***/
 	byte bakusai_tengetsu;  /* Bakusai Tengetsu Stance */
@@ -998,6 +1022,29 @@ struct player_type
 	byte cross_counter;
 	byte ume_shoryu;
 	byte super_punch;
+
+	/** Ninja Fields **/
+	byte kancho;   /* Kancho!!! */
+	byte chidori;  /* Chidori attack */
+	byte rasengan; /* Rasengan */
+	byte sharingan;/* Current use of a Sharingan */
+	byte byakugan; /* Current use of Byakugan */
+	byte jyuken;    /* Divination 64 strikes */
+	byte jyuken2;   /* Divination 128 strikes */
+
+	s16b chakra_gate;   /* Timed -- Chakra gate */
+	byte chakra_gate_level; /* Chakra Gate level */
+	s16b armor_of_sand;		/* Timed -- Armor of Sand */
+
+	/* Delivery Time */
+	s16b delivery_time;  /* Timed -- Delivery Service */
+	bool allow_delivery;	/* Flag for delivery boy.  There must be a better way to do this */
+	object_type *delivery_ptr; /* Object to be delivered */
+	object_type delivery_type; /* Not exactly sure why this is needed */
+
+	/* Temp Mecha */
+	char temp_mecha_name[50]; /* Mecha name */
+	char temp_mecha_gun_name[50]; /* Mecha gun name */
 	
 
 

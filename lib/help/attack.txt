@@ -123,8 +123,8 @@ Ego weapons are denoted by the following "names":
      weapon.  These powerful weapons also will sustain one stat, though this
      stat will vary from weapon to weapon.
 
-(Holy Avenger)
-     A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
+(Holy Order)
+     A Holy Order is one of the more powerful of weapons.  A Holy Order
      will increase your wisdom and your armour class.  This weapon will do
      extra damage when used against evil, demonic and undead creatures, and
      will also give you the ability to see invisible creatures.  These
@@ -141,7 +141,7 @@ Ego weapons are denoted by the following "names":
 
 Weapon of the Ako Ronin.
      A Weapon of the Ako Ronin is one of the more powerful weapons.  It slays
-     orcs, trolls, and giants, while increasing your strength, dexterity, 
+     sentai, trolls, and giants, while increasing your strength, dexterity, 
      and constitution.  It also lets you see invisible creatures and protects 
      from paralyzation and some slowing attacks.  These blades were made by 
      the Ako Ronin to avenge their fallen lord.
@@ -167,7 +167,7 @@ Elemental Branded Weapons.
 Weapons of Slaying enemies.
      These weapons do extra damage against creatures of a vulnerable type.
      Weapons of Slay Evil and Slay Animal do double the base damage, while
-     weapons of Slay Orc, Troll, Giant, Dragon, Demon and Undead do triple
+     weapons of Slay Sentai, Troll, Giant, Dragon, Demon and Undead do triple
      the base damage. As with elemental branded weapons, the magical damage
      bonus is not affected.
 
@@ -177,7 +177,7 @@ Weapons of *Slaying* enemies.
      *Slay Dragon* are also more powerful against their opponents, doing
      five times their base damage rather than the normal three.
 
-Weapon of Morgul.
+Weapon of Neo.
      These blades are so foully cursed with evil, it is rumored that it is
      nearly impossible to remove them without a special curse-removing spell,
      much stronger than normal Remove Curse. 
@@ -279,7 +279,7 @@ of Resistance.
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
 
-Armor of Elvenkind.
+Armor of the Genji.
      This is the same as Resistance armor, only generally better enchanted.
      It will make you more stealthy.  This armor also possesses an extra 
      resistance, at random from the following list: poison, light, dark, 
@@ -376,7 +376,7 @@ Cloak of the Magi.
      to remain hidden from monsters, all the better to surprise them by 
      casting a spell on them.
 
-Cloak of Aman.
+Cloak of Shinsengumi.
      These exceptionally rare cloaks provide great stealth, have a very 
      high enchantment, and one random resistance.
 
@@ -593,6 +593,9 @@ following attacks: inertia, force, gravity, plasma, time, ice, water, mana.
 There is no resistance to any of the side-effects of a time attack, or indeed 
 to anything but the stunning effects of a gravity attack.
 
+Also take note that some monster have the ability to "blade catch" your 
+weapon, effectively ending your turn then and there.
+
 
 === A note on speed ===
 
@@ -628,4 +631,8 @@ handled the same way, with exactly (-10) being subtracted from the player
 or monster's speed temporarily, for the duration of the spell or breath's 
 effect.
 
+=== A note on alcohol ===
 
+Everyone loves it...and depending on your fighting style, the alcohol may give 
+you more meter and/or a boosted attack.  However, you might not like the 
+consequences if you drink too much alcohol.  Winners don't use drugs.  

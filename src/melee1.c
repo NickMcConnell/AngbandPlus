@@ -154,6 +154,9 @@ bool make_attack_normal(int m_idx)
 	s32b gold;
 
 	object_type *o_ptr;
+	/* Hack -- Fix retarded glitch (Mecha turns into log)*/
+	object_type *log_ptr;
+	object_type object_type_body;
 
 	char o_name[80];
 
@@ -322,6 +325,35 @@ bool make_attack_normal(int m_idx)
 
 	}
 
+	/* Hack - Replacement Technique */
+	if ((p_ptr->replacement) || (p_ptr->replacement == 2))
+	{
+		
+		msg_format("You use the replacement technique!");
+		if (p_ptr->replacement == 2)
+		msg_format("You turn into rubble!");
+		
+		if (p_ptr->replacement != 2)
+		{
+		log_ptr = &object_type_body;
+									
+		object_prep(log_ptr, lookup_kind(TV_JUNK, SV_LOG));
+						
+		drop_near(log_ptr, -1, p_ptr->py, p_ptr->px);
+		
+		teleport_player(10);
+		}
+
+		else
+		{
+			teleport_player(20);
+		}
+
+		p_ptr->replacement = FALSE;
+		break;
+
+	}
+
 	/* Hack - Ume-Shoryuken! */
 	if (p_ptr->ume_shoryu)
 	{
@@ -333,7 +365,12 @@ bool make_attack_normal(int m_idx)
 		continue;
 
 	}
+			/* Been found, reset stealth */
+	if (p_ptr->findme){
 
+			p_ptr->findme = FALSE;
+			msg_print("You have been found!");
+	}
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -978,7 +1015,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You are unaffected!");
 						obvious = TRUE;
 					}
-					else if (rand_int(100) < p_ptr->skill_sav)
+					else if ((rand_int(100) < p_ptr->skill_sav) || (p_ptr->paralyzed))
 					{
 						msg_print("You resist the effects!");
 						obvious = TRUE;

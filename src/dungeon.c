@@ -147,9 +147,11 @@ static void sense_inventory(void)
 			case TV_CROWN:
 			case TV_SHIELD:
 			case TV_CLOAK:
+			case TV_COSTUME:
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_SHURIKEN:
 			{
 				okay = TRUE;
 				break;
@@ -527,13 +529,53 @@ static void process_world(void)
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
 
-	/* Lose mp while mimicing */
-	if (p_ptr->mimic)
+	/* Lose meter while in temporary mecha */
+	o_ptr = &inventory[INVEN_MECHA];
+
+	if ((o_ptr->k_idx) && (o_ptr->tval == TV_TEMP_MECHA))
 	{
-		if ((p_ptr->csp >0) && (turn % 10 == 0))
+		(void)set_meter(p_ptr->c_meter - 1);
+
+		if (p_ptr->c_meter <= 0)
+		{
+			/* Destroy Mecha */
+			msg_print("Your Mecha dissipates!");
+			inven_item_increase(INVEN_MECHA, -999);
+			inven_item_optimize(INVEN_MECHA);
+		}
+
+	/* Display the meter points */
+	p_ptr->redraw |= (PR_METER);
+
+		/* Redisplay HP */
+	p_ptr->redraw |= (PR_HP);
+	}
+
+	/* Lose mp while mimicing (except for FREE_MIMIC)*/
+	if ((p_ptr->mimic) && (!(cp_ptr->flags & CF_FREE_MIMIC)))
+	{
+		counter = 10;
+
+		/* Mimicing high level creatures is harder and consumes more mp */
+		if (r_info[p_ptr->mimic_idx].level > p_ptr->lev)
+		{
+			counter = 3;
+		}
+
+		if ((p_ptr->csp >0) && (turn % counter == 0))
 		p_ptr->csp = p_ptr->csp - 1;
 		
 	/* Display the mana points */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+	/* Lose mana while using Sharingan or Byakugan */
+	if ((p_ptr->sharingan) || (p_ptr->byakugan))
+	{
+		p_ptr->csp = p_ptr->csp - 1;
+		/* Display the mana points */
 	p_ptr->redraw |= (PR_MANA);
 
 	/* Window stuff */
@@ -577,6 +619,8 @@ static void process_world(void)
 	{
 		if (p_ptr->c_alcohol > 0)
 			(void)set_drunk(p_ptr->c_alcohol - 1);
+		if (p_ptr->c_alcohol + 1 == 25)
+			msg_print("You are starting to feel sober.");
 
 	}
 
@@ -740,17 +784,19 @@ static void process_world(void)
 	{
 		regen_amount = regen_amount * 2;
 	}
-
-	/* Student cannot recover mana if magical */
-	if (p_ptr->mag_student) regen_amount = 0;
-
-	/* Mimics cannot recover mana if magical */
-	if (p_ptr->mimic) regen_amount = 0;
+	
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
+	  /* Student cannot recover mana if magical */
+		if (!(p_ptr->mag_student)){
+
+	 /* Mimics cannot recover mana if magical */
+			if (!(p_ptr->mimic)){
 		regenmana(regen_amount);
+			}
+		}
 	}
 
 	/* Various things interfere with healing */
@@ -852,6 +898,18 @@ static void process_world(void)
 		(void)set_s_sayian(p_ptr->s_sayian - 1);
 	}
 
+	/* Chakra Gate */
+	if (p_ptr->chakra_gate)
+	{
+		(void)set_chakra_gate(p_ptr->chakra_gate - 1);
+	}
+
+	/* Wu Transform */
+	if (p_ptr->wu_transform)
+	{
+		(void)set_wu_transform(p_ptr->wu_transform - 1);
+	}
+
 	/* Double Team */
 	if (p_ptr->double_team)
 	{
@@ -868,6 +926,12 @@ static void process_world(void)
 	if (p_ptr->kaioken)
 	{
 		(void)set_kaioken(p_ptr->kaioken - 1);
+	}
+
+	/* Delivery */
+	if ((p_ptr->delivery_time) && (p_ptr->depth > 0))
+	{
+		(void)set_delivery_time(p_ptr->delivery_time - 1);
 	}
 
 	/* Magical Student */
@@ -1114,7 +1178,7 @@ static void process_world(void)
 	}
 
 	/** Unwanted Summoning **/
-	if ((p_ptr->summon) && (rand_int(100) < 1 ))
+	if ((p_ptr->summon) && (rand_int(100) < 20 ))
 	{
 		int px = p_ptr->px;
 		int py = p_ptr->py;
@@ -1600,7 +1664,7 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			if ((p_ptr->pclass == C_PRIEST) || (p_ptr->pclass == C_PALADIN)){
+			if (p_ptr->pclass == C_PRIEST){
 				do_cmd_pray();
 				break;
 			}
@@ -1615,12 +1679,34 @@ static void process_command(void)
 				break;
 			}
 
+			else if (p_ptr->pclass == C_SENTAI){
+				do_cmd_sentai_power();
+				break;
+			}
+
 			else if (p_ptr->pclass == C_MAGIC_KNIGHT){
 			do_cmd_mknight();
 				break;
 			}
 
-			else if (p_ptr->pclass == C_MIMIC)
+			else if (p_ptr->pclass == C_NINJA)
+			{
+				if (p_ptr->mimic)
+				{
+					if(get_check_ninja("[N]injutsu or [T]ransform Powers?"))
+						do_cmd_mimic_cast();
+						else {
+				do_cmd_ninjutsu();
+					}
+				}
+
+					else {
+				do_cmd_ninjutsu();
+					}
+				break;
+			}
+
+			else if ((p_ptr->pclass == C_COSPLAYER) && (p_ptr->mimic))
 			{
 				do_cmd_mimic_cast();
 				break;
@@ -1660,7 +1746,10 @@ static void process_command(void)
 		/* Activate Limit Break */
 		case 'p':
 		{
+		
+
 			do_cmd_super();
+		
 			break;
 
 		}
@@ -1679,17 +1768,17 @@ static void process_command(void)
 			}
 			*/
 
-		/* Fire Mecha guns */
+		/* Mecha Options */
 		case 'x':
 			{
-				do_cmd_mechfire();
+				do_cmd_mecha();
 				break;
 			}
 
-		/* Taunt */
+		/* Intrinsic Power */
 		case 'U':
 			{
-				do_cmd_taunt();
+				do_cmd_intrinsic();
 				break;
 			}
 
@@ -1724,6 +1813,8 @@ static void process_command(void)
 					p_ptr->mag_student = TRUE;
 					/* Recalculate bonuses */
 					p_ptr->update |= (PU_BONUS);
+					p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 					/* Take a turn */
 					p_ptr->energy_use = 100;
 
@@ -1734,6 +1825,7 @@ static void process_command(void)
 
 				}
 
+				/*
 				else if (p_ptr->pclass == C_MIMIC){
 				if (p_ptr->csp < 1){
 					msg_print("You don't have enough mana to mimic anything!");
@@ -1745,8 +1837,9 @@ static void process_command(void)
 					break;
 					
 				}
+				
 
-				}
+				}*/
 
 				break;
 			}
@@ -2065,6 +2158,8 @@ static void process_player_aux(void)
 	static u32b	old_r_flags4 = 0L;
 	static u32b	old_r_flags5 = 0L;
 	static u32b	old_r_flags6 = 0L;
+	static u32b old_r_flags7 = 0L;
+	static u32b old_r_flags8 = 0L;
 
 	static byte	old_r_blows0 = 0;
 	static byte	old_r_blows1 = 0;
@@ -2089,6 +2184,8 @@ static void process_player_aux(void)
 		    (old_r_flags4 != l_ptr->r_flags4) ||
 		    (old_r_flags5 != l_ptr->r_flags5) ||
 		    (old_r_flags6 != l_ptr->r_flags6) ||
+			(old_r_flags7 != l_ptr->r_flags7) ||
+			(old_r_flags8 != l_ptr->r_flags8) ||
 		    (old_r_blows0 != l_ptr->r_blows[0]) ||
 		    (old_r_blows1 != l_ptr->r_blows[1]) ||
 		    (old_r_blows2 != l_ptr->r_blows[2]) ||
@@ -2236,13 +2333,19 @@ static void process_player(void)
 
 
 		/* Hack -- Pack Overflow */
-		if (inventory[INVEN_PACK].k_idx)
+		if ((inventory[INVEN_PACK].k_idx) || ((cp_ptr->flags & CF_SMALL_PACK) && (inventory[INVEN_SMALL_PACK].k_idx)))
 		{
 			int item = INVEN_PACK;
 
 			char o_name[80];
 
 			object_type *o_ptr;
+
+			if ((cp_ptr->flags & CF_SMALL_PACK) && (inventory[INVEN_SMALL_PACK].k_idx))
+			{
+				item = INVEN_SMALL_PACK;
+			}
+
 
 			/* Get the slot to be dropped */
 			o_ptr = &inventory[item];
@@ -2511,6 +2614,8 @@ static void dungeon(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	int player_energy_moment;
+
 
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
@@ -2740,8 +2845,9 @@ static void dungeon(void)
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
+			player_energy_moment = (p_ptr->energy - 100) * 100 / extract_energy[p_ptr->pspeed];
 			/* process monster with even more energy first */
-			process_monsters((byte)(p_ptr->energy + 1));
+			process_monsters(100, player_energy_moment);
 
 			/* if still alive */
 			if (!p_ptr->leaving)
@@ -2774,7 +2880,7 @@ static void dungeon(void)
 
 
 		/* Process all of the monsters */
-		process_monsters(100);
+		process_monsters(100, -1);
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();

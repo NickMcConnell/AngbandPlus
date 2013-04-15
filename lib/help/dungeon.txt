@@ -65,7 +65,7 @@ something you are more comfortable with.
                              Monsters
  
             $   Creeping Coins      ,   Mushroom Patch
-            a   Giant Ant           A   Angelic being
+            a   Android Goon        A   Angelic being
             b   Giant Bat           B   Bird
             c   Giant Centipede     C   Canine (Dog)
             d   Dragon              D   Ancient Dragon
@@ -78,16 +78,16 @@ something you are more comfortable with.
             k   Kobold              K   Killer Beetle
             l   Giant Louse         L   Lich
             m   Mold                M   Multi-Headed Hydra
-            n   Naga                N   (unused)
-            o   Orc                 O   Ogre
+            n   Turtle              N   (unused)
+            o   Sentai              O   Ogre
             p   Human "person"      P   Giant "person"
             q   Quadruped           Q   Quylthulg (Pulsing Flesh Mound)
             r   Rodent              R   Reptile/Amphibian
             s   Skeleton            S   Spider/Scorpion/Tick
             t   Townsperson         T   Troll
-            u   Minor Demon         U   Major Demon
+            u   Mechanical monster  U   Major Demon
             v   Vortex              V   Vampire
-            w   Worm or Worm Mass   W   Wight/Wraith
+            w   Weird Creature      W   Wight/Wraith
             x   (unused)            X   Xorn/Xaren
             y   Yeek                Y   Yeti
             z   Zombie/Mummy        Z   Zephyr Hound
@@ -120,6 +120,10 @@ when you wander from store to store.  Fights will break out, though, so be
 prepared.  Since your character grew up in this world of intrigue, no
 experience is awarded for killing the town inhabitants, though you may
 acquire treasure.
+
+However, some places at the town level may contain friendly people.  Info 
+boys in particular may provide useful information about certain quests.  
+Try speaking to such friendly folk whenever you see them.
 
 
 === Town Buildings ===
@@ -169,6 +173,14 @@ they will add it to their inventory.  If it was a bad bargain, they simply
 throw the item away.  In any case, you may receive some knowledge of the
 item if another is encountered.
 
+One thing to note in particular is the Black Market, which is capable of 
+taking item requests and then having said item delivered to you later.  There 
+will be a significant price hike for that service and the item will be 
+delivered to you while you are in the dungeon by a delivery boy.  Items are 
+paid for in advance and you must talk to the delivery boy in order to receive 
+your item.  However, if the deliver boy gets attacked by you or some monster, or
+you leave the level, then you will lose the delivery.
+
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
      oil, shovels, picks, and spikes.  All of these items and some others
@@ -207,6 +219,24 @@ Your Home ("8")
      This is your house where  you  can  store  objects  that you 
      cannot carry on your travels, or will need at a  later date.
 
+The Train Station ("9")
+     A small little train station that may take you to strange and exotic places
+
+Special Entrances ("0")
+     These places can be Ramen stores, Vending Machines, or Rabbit Holes to 
+     various places.  The various "quest" places tend to be rather high level, 
+     so it is recommended that you stay away from them until you are character 
+     level 25 or greater.
+
+
+=== Side Quests ===
+
+There may be side quests in certain locations.  These are not required in order to 
+beat the game, nor do they have to be done in any particular order.  These side 
+quests may range from anything such as returning an object, avenging a death, or 
+hacking and slashing through a magical land, or even a true battle of wits.  Try 
+talking to people to figure out what they are.  However, most of these quests require 
+a pretty good character (around level 30), so be wary.
 
 === Within The Dungeon ===
 
@@ -420,24 +450,24 @@ For historical reasons, secret doors are never locked.
 
 === Winning The Game ===
 
-Once your character has killed Sauron, who lives on level 99 (4950') in the 
+Once your character has killed Lina, who lives on level 99 (4950') in the 
 dungeon, a magical staircase will appear that will allow you to finally reach
-level 100.  Morgoth lurks on this level of his dungeon, and you will not be
+level 100.  Neo lurks on this level of his dungeon, and you will not be
 able to go below his level until you have killed him.  Try to avoid wandering
 around on level 100 unless you are ready for him, since he has a habit of
-coming at you across the dungeon, the Mighty Hammer 'Grond' in hand, to slay
+coming at you across the dungeon, the Mighty Hammer 'Neo' in hand, to slay
 you for your impudence.
 
-Morgoth cannot be killed by some of the easier methods used on normal
-creatures.  Morgoth, like all other "Unique" monsters, will simply teleport
+Neo cannot be killed by some of the easier methods used on normal
+creatures.  Neo, like all other "Unique" monsters, will simply teleport
 away to another region of the level if you attempt to use a spell such as
-destruction is upon him.  Morgoth, like some other monsters, cannot be
+destruction is upon him.  Neo, like some other monsters, cannot be
 polymorphed, slept, charmed, or genocided.  Magical spells like Mana Storm 
 and Orb of Draining are effective against him, as are some of the more
 powerful weapons, but he is difficult to kill and if allowed to escape for
 a time he will heal himself rapidly.
 
-If you should actually survive the attempt of killing Morgoth, you will
+If you should actually survive the attempt of killing Neo, you will
 receive the status of WINNER.  You may continue to explore, and may even
 save the game and play more later, but since you have defeated the toughest
 creature alive, there is really not much point.  Unless you wish to listen

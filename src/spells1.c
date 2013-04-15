@@ -466,6 +466,27 @@ void take_hit(int dam, cptr kb_str)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (dam < 9000)) return;
 
+	/* Mega-Hack -- Armor of Sand */
+	if (p_ptr->armor_of_sand)
+	{
+		
+		if (p_ptr->armor_of_sand > dam)
+		{
+		msg_print("Your armor of sand absorbs the blow!");
+		(void)set_armor_of_sand(p_ptr->armor_of_sand - dam);
+		return;
+		}
+
+		else
+		{
+			msg_print("Your armor of sand absorbs some of the blow!");
+			blah = dam - p_ptr->armor_of_sand;
+			(void)set_armor_of_sand(p_ptr->armor_of_sand - dam);
+			dam = blah;
+		}
+
+	}
+
 	/* Metal gets tougher when hit a lot */
 	if (p_ptr->pgroove == G_METAL){
 		blah = (int)rand_int(metal_percent);
@@ -474,14 +495,43 @@ void take_hit(int dam, cptr kb_str)
 	/*	msg_format("%d HP gets recovered out of %d damage.", blah, dam);*/
 	}
 
+	/* Spark occurs sometimes */
+
+	if ((cp_ptr->flags & CF_SPARK) && (rand_int(100) > 90))
+	{
+		msg_print("Sparks fly out from you!");
+		dam *= 2;
+	}
+
+	/* Solving the Pagoda Quest gives damage reduction */
+	if (p_ptr->normal_quests[QUEST_PAGODA] == STATUS_COMPLETE)
+		dam = dam * 3 / 4;
+
+	/* Extra Penalty for Sand */
+	if (p_ptr->pgroove == G_SAND)
+	{
+		dam += dam / 2;
+	}
+
+	/* Extra Penalty for Water */
+	if (p_ptr->pgroove == G_WATER)
+		dam += dam/10;
+
 
 	/* Get the wield slot */
 	o_ptr = &inventory[INVEN_MECHA];
 
 	/* Mechas take damage */
-	if (o_ptr->k_idx)
+	if ((o_ptr->k_idx) && (o_ptr->tval == TV_MECHA))
 	{
-		/* Take off existing item */
+		/* Damage reduction from mecha pilots */
+		if (cp_ptr->flags & CF_MECHA_SENSE)
+		{
+			dam = dam * 3 / 4;
+
+		}
+
+		/* Damage inflicts on existing mecha */
 		o_ptr->pval -= dam;
 
 		if (o_ptr->pval <= 0){
@@ -495,26 +545,44 @@ void take_hit(int dam, cptr kb_str)
 		}
 
 	}
+
+	else if ((o_ptr->k_idx) && (o_ptr->tval == TV_TEMP_MECHA))
+	{
+		/* Damage reduction from mecha pilots */
+		if (cp_ptr->flags & CF_MECHA_SENSE)
+		{
+			dam = dam * 3 / 4;
+
+		}
+
+		(void)set_meter(p_ptr->c_meter - dam);
+
+		if (p_ptr->c_meter <= 0)
+		{
+			/* Destroy Mecha */
+			msg_print("Your Mecha dissipates!");
+			inven_item_increase(INVEN_MECHA, -999);
+			inven_item_optimize(INVEN_MECHA);
+		}
+
+
+	}
 	
 	else {
 		/* Hurt the player */
 	p_ptr->chp -= dam;
 		}
 
-
 	
-	/* Extra Penalty for Water */
-	if (p_ptr->pgroove == G_WATER)
-		p_ptr->chp -= dam/10;
 
 	/* Get more meter */
 	if (!(o_ptr->k_idx)){
 
-	if (p_ptr->pgroove == G_FIRE)
+	if ((p_ptr->pgroove == G_FIRE) || (p_ptr->pgroove == G_SAND))
 	(void)set_meter(p_ptr->c_meter + dam);
 
 	if (p_ptr->pgroove == G_METAL)
-	(void)set_meter(p_ptr->c_meter + (dam / 2));
+	(void)set_meter(p_ptr->c_meter + (dam / 2) + 1);
 
 	if ((p_ptr->pgroove == G_WIND) || (p_ptr->pgroove == G_WATER))
 		(void)set_meter(p_ptr->c_meter + 1);
@@ -524,6 +592,9 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
+
+	/* Display the Meter */
+	p_ptr->redraw |= (PR_METER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -543,7 +614,8 @@ void take_hit(int dam, cptr kb_str)
 		(void)(set_stun(0));
 		(void)(set_cut(0));
 		(void)(set_paralyzed(0)); 
-		fire_ball(GF_SOUND, 0, 0, 6);
+		fire_ball(GF_DASH, 0, 0, 6);
+		
 	}
 
 	/* Dead player */
@@ -618,6 +690,7 @@ static bool hates_acid(const object_type *o_ptr)
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -688,6 +761,7 @@ static bool hates_fire(const object_type *o_ptr)
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_SOFT_ARMOR:
 		{
 			return (TRUE);
@@ -1694,6 +1768,50 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Make walls */
+		case GF_MAKE_WALL:
+		{
+			/* Require a "naked" floor grid */
+			if (!cave_naked_bold(y, x)) break;
+
+			/* Create closed door */
+			cave_set_feat(y, x, FEAT_WALL_SOLID);
+
+			/* Observe */
+			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
+
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			break;
+		}
+
+		/* Make Glyphs */
+		case GF_MAKE_GLYPH:
+			{
+			/* Require a "naked" floor grid */
+			if (!cave_naked_bold(y, x)) break;
+
+			/* Create a glyph */
+			cave_set_feat(y, x, FEAT_GLYPH);
+
+			/* Observe */
+			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
+
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			break;
+			}
+
+		/* Cause Earthquakes */
+		case GF_RADI:
+			{
+				earthquake(y, x, 8);
+				break;
+			}
+
+
 		/* Make traps */
 		case GF_MAKE_TRAP:
 		{
@@ -1931,12 +2049,22 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 			/* Mana -- destroys everything */
 			case GF_MANA:
+			case GF_RADI:
 			{
 				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
 				break;
 			}
 
+			/* Swamp -- Destroys everything */
+			case GF_YOMI_NUMA:
+			{
+				do_kill = TRUE;
+				note_kill = (plural ? " get sucked into the swamp!" : " gets sucked into the swamp!");
+				break;
+			}
+
+		
 			/* Holy Orb -- destroys cursed non-artifacts */
 			case GF_HOLY_ORB:
 			{
@@ -2084,6 +2212,9 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	monster_race *r_ptr;
 	monster_lore *l_ptr;
 
+	object_type *replace_ptr;
+	object_type replace_type_body;
+
 	cptr name;
 
 	/* Is the monster "seen"? */
@@ -2095,12 +2226,18 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Were the effects "irrelevant"? */
 	bool skipped = FALSE;
 
+	/* Sucked into the swamp? */
+	bool yomi_numa = FALSE;
+
 
 	/* Polymorph setting (true or false) */
 	int do_poly = 0;
 
 	/* Teleport setting (max distance) */
 	int do_dist = 0;
+
+	/* Teleport setting (max distance) */
+	int do_dist2 = 0;
 
 	/* Confusion setting (amount to confuse) */
 	int do_conf = 0;
@@ -2113,6 +2250,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* Fear amount (amount to fear) */
 	int do_fear = 0;
+
+	/* Dust amount (amount to dust) */
+	int do_dust = 0;
+
+
+	/* Silence amount (amount to silence) */
+	int do_silence = 0;
 
 
 	/* Hold the monster name */
@@ -2151,12 +2295,31 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Get the monster name (BEFORE polymorphing) */
 	monster_desc(m_name, m_ptr, 0);
 
+	/* Replacement technique attempt */
+		if (r_ptr->flags8 & (RF8_REPLACEMENT))
+				{
+					if (rand_int(100) < 50)
+					{
+						msg_format("There is a puff of smoke!");
+						teleport_away(cave_m_idx[y][x], 10);
+
+						replace_ptr = &replace_type_body;
+						object_prep(replace_ptr, lookup_kind(TV_JUNK, SV_LOG));
+							
+						drop_near(replace_ptr, -1, y, x);
+						if (seen) l_ptr->r_flags8 |= (RF8_REPLACEMENT);
+
+						return (TRUE);
+					}
+
+				}
 
 
 	/* Some monsters get "destroyed" */
 	if ((r_ptr->flags3 & (RF3_DEMON)) ||
 	    (r_ptr->flags3 & (RF3_UNDEAD)) ||
 	    (r_ptr->flags2 & (RF2_STUPID)) ||
+		(r_ptr->flags3 & (RF3_MECHA)) ||
 	    (strchr("Evg", r_ptr->d_char)))
 	{
 		/* Special note at death */
@@ -2449,6 +2612,31 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 			break;
 		}
+
+		/* Hell Swamp -- missile genocide */
+		case GF_YOMI_NUMA:
+			{
+				if (seen) obvious = TRUE;
+				yomi_numa = TRUE;
+				break;
+			}
+
+		/* Kage Mane -- forced stun */
+		case GF_SHADOW:
+			{
+				if (seen) obvious = TRUE;
+				do_stun = (randint(15) + 1) / (r + 1);
+				break;
+			}
+
+		/* Silence! */
+		case GF_HAKKE:
+			{
+				if (seen) obvious = TRUE;
+				do_silence = (randint(15) + 1) / (r + 1);
+				break;
+
+			}
 
 		/* Meteor -- powerful magic missile */
 		case GF_METEOR:
@@ -3009,6 +3197,21 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dash */
+		case GF_DASH:
+			{
+				/* Obvious */
+			if (seen) obvious = TRUE;
+			do_conf = (10 + randint(15) + r) / (r + 1);
+			do_stun = (10 + randint(15) + r) / (r + 1);
+			do_dist2 = 3;
+			do_dust = 1;
+			/* Message */
+			note = " gets knocked aside!";
+			
+				break;
+			}
+
 
 		/* Default */
 		default:
@@ -3030,6 +3233,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* "Unique" monsters cannot be polymorphed */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) do_poly = FALSE;
+
+	/* Unique monsters cannot be swamped */
+	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (yomi_numa))
+	{
+		note = " avoids the swamp!";
+		yomi_numa = FALSE;
+	}
 
 
 	/* "Unique" monsters can only be "killed" by the player */
@@ -3084,6 +3294,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 	}
 
+
+
 	/* Handle "teleport" */
 	else if (do_dist)
 	{
@@ -3095,6 +3307,20 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Teleport */
 		teleport_away(cave_m_idx[y][x], do_dist);
+
+		/* Hack -- get new location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+	}
+
+	/* Handle "teleport" (no message) */
+	else if (do_dist2)
+	{
+		/* Obvious */
+		if (seen) obvious = TRUE;
+
+		/* Teleport */
+		teleport_away(cave_m_idx[y][x], do_dist2);
 
 		/* Hack -- get new location */
 		y = m_ptr->fy;
@@ -3152,6 +3378,25 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		m_ptr->confused = (tmp < 200) ? tmp : 200;
 	}
 
+		/* Handle Dust */
+	if (do_dust)
+	{
+			/* Launch the monster */
+		if (r_ptr->flags3 & (RF3_NO_DUST))
+			{
+				if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_NO_DUST);
+					}
+					
+			}
+
+				else if ((!(m_ptr->mondust)) && (rand_int(200) > r_ptr->level))
+				{
+					m_ptr->mondust += rand_int(5) + 3;
+				}
+
+	}
 
 	/* Fear */
 	if (do_fear)
@@ -3161,6 +3406,25 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Set fear */
 		m_ptr->monfear = (tmp < 200) ? tmp : 200;
+	}
+
+	/* Silence */
+	if (do_silence)
+	{
+		/* Increase Silence */
+		tmp = m_ptr->silenced + do_silence;
+
+		/* Set silenced */
+		m_ptr->silenced = (tmp < 200) ? tmp : 200;
+
+	}
+
+	/* Swamp */
+	if (yomi_numa)
+	{
+		note = " gets sucked into the swamp!";
+		/* "Kill" the "old" monster */
+			delete_monster_idx(cave_m_idx[y][x]);
 	}
 
 
@@ -3755,6 +4019,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_METEOR:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
+			take_hit(dam, killer);
+			break;
+		}
+
+		/* Pure damage */
+		case GF_RADI:
+		{
+			if (fuzzy) msg_print("You are hit by something strange!");
 			take_hit(dam, killer);
 			break;
 		}

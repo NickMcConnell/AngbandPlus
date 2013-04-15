@@ -124,6 +124,8 @@ static void roff_aux(int r_idx)
 	u32b flags4;
 	u32b flags5;
 	u32b flags6;
+	u32b flags7;
+	u32b flags8;
 
 	int vn;
 	cptr vp[64];
@@ -204,6 +206,8 @@ static void roff_aux(int r_idx)
 		l_ptr->r_flags4 = r_ptr->flags4;
 		l_ptr->r_flags5 = r_ptr->flags5;
 		l_ptr->r_flags6 = r_ptr->flags6;
+		l_ptr->r_flags7 = r_ptr->flags7;
+		l_ptr->r_flags8 = r_ptr->flags8;
 	}
 
 
@@ -219,6 +223,8 @@ static void roff_aux(int r_idx)
 	flags4 = (r_ptr->flags4 & l_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & l_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & l_ptr->r_flags6);
+	flags7 = (r_ptr->flags7 & l_ptr->r_flags7);
+	flags8 = (r_ptr->flags8 & l_ptr->r_flags8);
 
 
 	/* Assume some "obvious" flags */
@@ -237,7 +243,7 @@ static void roff_aux(int r_idx)
 	if (l_ptr->r_tkills)
 	{
 		/* Know "race" flags */
-		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
+		if (r_ptr->flags3 & (RF3_SENTAI)) flags3 |= (RF3_SENTAI);
 		if (r_ptr->flags3 & (RF3_TROLL)) flags3 |= (RF3_TROLL);
 		if (r_ptr->flags3 & (RF3_GIANT)) flags3 |= (RF3_GIANT);
 		if (r_ptr->flags3 & (RF3_DRAGON)) flags3 |= (RF3_DRAGON);
@@ -252,12 +258,16 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags1 & (RF1_FORCE_LOCATION)) flags1 |= (RF1_FORCE_LOCATION);
 	}
 
+	
 
 	/* Require a flag to show kills */
 	if (!(show_details))
 	{
 		/* nothing */
 	}
+
+	
+	
 
 	/* Treat uniques differently */
 	else if (flags1 & (RF1_UNIQUE))
@@ -550,7 +560,7 @@ static void roff_aux(int r_idx)
 		else if (flags3 & (RF3_DEMON)) roff(" demon");
 		else if (flags3 & (RF3_GIANT)) roff(" giant");
 		else if (flags3 & (RF3_TROLL)) roff(" troll");
-		else if (flags3 & (RF3_ORC)) roff(" orc");
+		else if (flags3 & (RF3_SENTAI)) roff(" sentai");
 		else roff(" creature");
 
 		/* calculate the integer exp part */
@@ -656,7 +666,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_BR_PLAS))		vp[vn++] = "plasma";
 	if (flags4 & (RF4_BR_WALL))		vp[vn++] = "force";
 	if (flags4 & (RF4_BR_MANA))		vp[vn++] = "mana";
-	if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
+	if (flags4 & (RF4_BR_RADI))		vp[vn++] = "radiation";
 	if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
 	if (flags4 & (RF4_XXX7))		vp[vn++] = "something";
 	if (flags4 & (RF4_XXX8))		vp[vn++] = "something";
@@ -737,10 +747,10 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon similar monsters";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
+	if (flags6 & (RF6_S_GOON))		vp[vn++] = "summon goons";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
-	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";
+	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hententmons";
 	if (flags6 & (RF6_S_ANGEL))		vp[vn++] = "summon an angel";
 	if (flags6 & (RF6_S_DEMON))		vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))		vp[vn++] = "summon an undead";
@@ -750,6 +760,9 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_HI_DEMON))		vp[vn++] = "summon Greater Demons";
 	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Ring Wraiths";
 	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
+	if (flags7 & (RF7_S_FROG))		vp[vn++] = "summon frogs";
+	if (flags7 & (RF7_DRAIN_METER)) vp[vn++] = "drain meter";
+	if (flags7 * (RF7_MAKE_BOMB)) vp[vn++] = "MacGyver a bomb";
 
 	/* Describe spells */
 	if (vn)
@@ -906,6 +919,12 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_MUTODORI)) 
 	{
 			roff(format("%^s exploits flaws in your attacks.  ", wd_he[msex]));
+				
+	}
+
+	if (flags8 & (RF8_REPLACEMENT)) 
+	{
+			roff(format("%^s can use the replacement technique.  ", wd_he[msex]));
 				
 	}
 
@@ -1371,8 +1390,7 @@ static void roff_top(int r_idx)
 
 	byte a1, a2;
 	char c1, c2;
-
-
+	
 	/* Get the chars */
 	c1 = r_ptr->d_char;
 	c2 = r_ptr->x_char;
@@ -1408,8 +1426,6 @@ static void roff_top(int r_idx)
 	Term_addstr(-1, TERM_WHITE, "'):");
 }
 
-
-
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
@@ -1427,8 +1443,6 @@ void screen_roff(int r_idx)
 	/* Describe monster */
 	roff_top(r_idx);
 }
-
-
 
 
 /*

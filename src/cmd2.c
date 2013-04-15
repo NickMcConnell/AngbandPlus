@@ -488,7 +488,8 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
  */
 static bool is_open(int feat)
 {
-	return ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN));
+	return (feat == FEAT_OPEN);
+	/*return ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN));*/
 }
 
 
@@ -2213,11 +2214,12 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Handle "objects" */
 	py_pickup(pickup);
 
-	/* Hack -- enter a store if we are on one */
+	/* Hack -- enter a store if we are on one; note that the terrains should be reorganized */
 	if (((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
 	    (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL)) ||
-		(cave_feat[p_ptr->py][p_ptr->px] >= FEAT_VENDING_MACHINE)
+		((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_VENDING_MACHINE)
 		&& (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_GROCERY_STORE))
+		|| (cave_feat[p_ptr->py][p_ptr->px] == FEAT_DUELING_GUILD))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -2363,6 +2365,7 @@ static int breakage_chance(const object_type *o_ptr)
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_SPIKE:
+		case TV_SHURIKEN:
 		{
 			return (25);
 		}
@@ -2413,6 +2416,10 @@ void do_cmd_fire(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+
+	object_type *replace_ptr;
+	object_type replace_type_body;
+
 
 	bool hit_body = FALSE;
 
@@ -2510,6 +2517,13 @@ void do_cmd_fire(void)
 	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
+	/* Damage multiplier */
+	if (p_ptr->strong_bow)
+	{
+		tdam *= 2;
+		p_ptr->strong_bow = FALSE;
+	}
+
 	/* Assume a base multiplier */
 	tmul = p_ptr->ammo_mult;
 
@@ -2583,6 +2597,7 @@ void do_cmd_fire(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
@@ -2634,6 +2649,28 @@ void do_cmd_fire(void)
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
+
+				/* Replacement Technique! */
+				if (r_ptr->flags8 & (RF8_REPLACEMENT))
+				{
+					if (rand_int(100) < 50)
+					{
+						msg_format("There is a puff of smoke!");
+						teleport_away(cave_m_idx[y][x], 10);
+
+						replace_ptr = &replace_type_body;
+						object_prep(replace_ptr, lookup_kind(TV_JUNK, SV_LOG));
+							
+						drop_near(replace_ptr, -1, y, x);
+						
+						l_ptr->r_flags8 |= (RF8_REPLACEMENT);
+
+						return;
+					}
+
+				}
+
+				
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
@@ -2710,6 +2747,9 @@ void do_cmd_throw(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+
+	object_type *replace_ptr;
+	object_type replace_type_body;
 
 	bool hit_body = FALSE;
 
@@ -2861,6 +2901,7 @@ void do_cmd_throw(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
@@ -2911,6 +2952,27 @@ void do_cmd_throw(void)
 
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+				}
+
+					/* Replacement Technique! */
+				if (r_ptr->flags8 & (RF8_REPLACEMENT))
+				{
+					if (rand_int(100) < 50)
+					{
+						msg_format("There is a puff of smoke!");
+						teleport_away(cave_m_idx[y][x], 10);
+
+						replace_ptr = &replace_type_body;
+						object_prep(replace_ptr, lookup_kind(TV_JUNK, SV_LOG));
+							
+						drop_near(replace_ptr, -1, y, x);
+
+						l_ptr->r_flags8 |= (RF8_REPLACEMENT);
+
+
+						return;
+					}
+
 				}
 
 				/* Apply special damage XXX XXX XXX */
@@ -2965,3 +3027,304 @@ void do_cmd_throw(void)
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
 }
+
+
+void do_cmd_shuriken_bunshin(void)
+{
+	int dir, item;
+	int i, j, y, x, ty, tx;
+	int chance, tdam, tdis;
+	int mul, div;
+
+	object_type *o_ptr;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	object_type *replace_ptr;
+	object_type replace_type_body;
+
+	bool hit_body = FALSE;
+
+	byte missile_attr;
+	char missile_char;
+
+	char o_name[80];
+
+	int path_n;
+	u16b path_g[256];
+
+	cptr q, s;
+
+	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+
+	/* Require proper missile */
+	item_tester_tval = TV_SHURIKEN;
+
+	/* Get an item */
+	q = "Throw which shuriken/kunai? ";
+	s = "You have nothing to throw.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the object */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Get a direction (or cancel) */
+	if (!get_aim_dir(&dir)) return;
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Obtain a local object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Single object */
+	i_ptr->number = 1;
+
+	/* Reduce and describe inventory */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Reduce and describe floor item */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_optimize(0 - item);
+	}
+
+
+	/* Description */
+	object_desc(o_name, i_ptr, FALSE, 3);
+
+	/* Find the color and symbol for the object for throwing */
+	missile_attr = object_attr(i_ptr);
+	missile_char = object_char(i_ptr);
+
+
+	/* Extract a "distance multiplier" */
+	mul = 10;
+
+	/* Enforce a minimum "weight" of one pound */
+	div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
+
+	/* Hack -- Distance -- Reward strength, penalize weight */
+	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+
+	/* Max distance of 10 */
+	if (tdis > 10) tdis = 10;
+
+	/* Hack -- Base damage from thrown object */
+	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
+
+	/* Chance of hitting */
+	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+
+	/* Start at the player */
+	y = p_ptr->py;
+	x = p_ptr->px;
+
+	/* Predict the "target" location */
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+
+	/* Check for "target request" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = p_ptr->target_col;
+		ty = p_ptr->target_row;
+	}
+
+	/* Calculate the path */
+	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, ty, tx, 0);
+
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
+	{
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
+
+		/* Hack -- Stop before hitting walls */
+		if (!cave_floor_bold(ny, nx)) break;
+
+		/* Advance */
+		x = nx;
+		y = ny;
+
+		/* Only do visuals if the player can "see" the missile */
+		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		{
+			/* Visual effects */
+			print_rel(missile_char, missile_attr, y, x);
+			move_cursor_relative(y, x);
+			if (fresh_before) Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			lite_spot(y, x);
+			if (fresh_before) Term_fresh();
+		}
+
+		/* Delay anyway for consistency */
+		else
+		{
+			/* Pause anyway, for consistancy */
+			Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+
+		/* Handle monster */
+		if (cave_m_idx[y][x] > 0)
+		{
+			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
+
+			int visible = m_ptr->ml;
+
+			/* Note the collision */
+			hit_body = TRUE;
+
+			/* Did we hit it (penalize range) */
+			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			{
+				bool fear = FALSE;
+
+				/* Assume a default death */
+				cptr note_dies = " dies.";
+
+				/* Some monsters get "destroyed" */
+				if ((r_ptr->flags3 & (RF3_DEMON)) ||
+				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)) ||
+				    (strchr("Evg", r_ptr->d_char)))
+				{
+					/* Special note at death */
+					note_dies = " is destroyed.";
+				}
+
+				msg_format("The %s splits into several shadow clones!", o_name);
+
+
+				/* Handle unseen monster */
+				if (!visible)
+				{
+					/* Invisible monster */
+					msg_format("The %s finds a mark.", o_name);
+				}
+
+				/* Handle visible monster */
+				else
+				{
+					char m_name[80];
+
+					/* Get "the monster" or "it" */
+					monster_desc(m_name, m_ptr, 0);
+
+					/* Message */
+					msg_format("The %s hits %s.", o_name, m_name);
+
+					/* Hack -- Track this monster race */
+					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+
+					/* Hack -- Track this monster */
+					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+				}
+
+					/* Replacement Technique! */
+				if (r_ptr->flags8 & (RF8_REPLACEMENT))
+				{
+					if (rand_int(100) < 50)
+					{
+						msg_format("There is a puff of smoke!");
+						teleport_away(cave_m_idx[y][x], 10);
+
+						replace_ptr = &replace_type_body;
+						object_prep(replace_ptr, lookup_kind(TV_JUNK, SV_LOG));
+							
+						drop_near(replace_ptr, -1, y, x);
+
+						l_ptr->r_flags8 |= (RF8_REPLACEMENT);
+
+
+						return;
+					}
+
+				}
+
+				/* Apply special damage XXX XXX XXX */
+				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+
+				/* Apply Bunshins */
+				tdam *= (p_ptr->lev / 5) + 2;
+
+				/* No negative damage */
+				if (tdam < 0) tdam = 0;
+
+				/* Complex message */
+				if (p_ptr->wizard)
+				{
+					msg_format("You do %d (out of %d) damage.",
+					           tdam, m_ptr->hp);
+				}
+
+				/* Hit the monster, check for death */
+				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
+				{
+					/* Dead monster */
+				}
+
+				/* No death */
+				else
+				{
+					/* Message */
+					message_pain(cave_m_idx[y][x], tdam);
+
+					/* Take note */
+					if (fear && m_ptr->ml)
+					{
+						char m_name[80];
+
+						/* Get the monster name (or "it") */
+						monster_desc(m_name, m_ptr, 0);
+
+						/* Message */
+						message_format(MSG_FLEE, m_ptr->r_idx,
+						               "%^s flees in terror!", m_name);
+					}
+				}
+			}
+
+			/* Stop looking */
+			break;
+		}
+	}
+
+	/* Chance of breakage (during attacks) */
+	j = (hit_body ? breakage_chance(i_ptr) : 0);
+
+	/* Drop (or break) near that location */
+	drop_near(i_ptr, j, y, x);
+}
+

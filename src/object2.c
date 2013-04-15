@@ -990,6 +990,7 @@ static s32b object_value_real(const object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		case TV_SHOT:
+		case TV_SHURIKEN:
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_BOW:
@@ -1130,6 +1131,7 @@ static s32b object_value_real(const object_type *o_ptr)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_SHURIKEN:
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
@@ -1298,6 +1300,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_CROWN:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -1320,6 +1323,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
+		case TV_SHURIKEN:
 		{
 			/* Require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
@@ -2106,6 +2110,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
+		case TV_SHURIKEN:
 		{
 			/* Very good */
 			if (power > 1)
@@ -2198,7 +2203,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
  * Hack -- note special "pval boost" code for ring of speed
  * Hack -- note that some items must be cursed (or blessed)
  */
-static void a_m_aux_3(object_type *o_ptr, int level, int power)
+void a_m_aux_3(object_type *o_ptr, int level, int power)
 {
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
@@ -2721,6 +2726,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_SWORD:
 		case TV_BOW:
 		case TV_SHOT:
+		case TV_SHURIKEN:
 		case TV_ARROW:
 		case TV_BOLT:
 		{
@@ -2886,6 +2892,7 @@ static bool kind_is_good(int k_idx)
 		case TV_DRAG_ARMOR:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_HELM:
@@ -3014,6 +3021,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_SHURIKEN:
 		{
 			j_ptr->number = damroll(6, 7);
 		}
@@ -3028,6 +3036,12 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
+	}
+
+	/* Kira helm catch -- Ghetto hack */
+	if (j_ptr->name1 == ART_KIRA)
+	{
+		return (FALSE);
 	}
 
 	/* Success */
@@ -3578,13 +3592,21 @@ void place_closed_door(int y, int x)
  */
 void place_random_door(int y, int x)
 {
-	int tmp;
+	int tmp, tmp2;
 
 	/* Choose an object */
 	tmp = rand_int(1000);
+	tmp2 = rand_int(120);
+
+	/* Chance for Demonic Door */
+	if (tmp2 + 20 < p_ptr->depth)
+	{
+		place_monster_aux(y, x, DEMON_DOOR, TRUE, FALSE);
+		cave_set_feat(y, x, FEAT_OPEN);
+	}
 
 	/* Open doors (300/1000) */
-	if (tmp < 300)
+	else if (tmp < 300)
 	{
 		/* Create open door */
 		cave_set_feat(y, x, FEAT_OPEN);
@@ -3843,12 +3865,19 @@ void floor_item_optimize(int item)
 bool inven_carry_okay(const object_type *o_ptr)
 {
 	int j;
+	int limit = INVEN_PACK;
+
+	if (cp_ptr->flags & CF_SMALL_PACK)
+	{
+		limit = INVEN_SMALL_PACK;
+	}
+
 
 	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK) return (TRUE);
+	if (p_ptr->inven_cnt < limit) return (TRUE);
 
 	/* Similar slot? */
-	for (j = 0; j < INVEN_PACK; j++)
+	for (j = 0; j < limit; j++)
 	{
 		object_type *j_ptr = &inventory[j];
 
@@ -3885,12 +3914,18 @@ s16b inven_carry(object_type *o_ptr)
 {
 	int i, j, k;
 	int n = -1;
+	int maxinven = INVEN_PACK;
 
 	object_type *j_ptr;
 
+	if (cp_ptr->flags & CF_SMALL_PACK)
+	{
+		maxinven = INVEN_SMALL_PACK;
+	}
+
 
 	/* Check for combining */
-	for (j = 0; j < INVEN_PACK; j++)
+	for (j = 0; j < maxinven; j++)
 	{
 		j_ptr = &inventory[j];
 
@@ -3922,11 +3957,11 @@ s16b inven_carry(object_type *o_ptr)
 
 
 	/* Paranoia */
-	if (p_ptr->inven_cnt > INVEN_PACK) return (-1);
+	if (p_ptr->inven_cnt > maxinven) return (-1);
 
 
 	/* Find an empty slot */
-	for (j = 0; j <= INVEN_PACK; j++)
+	for (j = 0; j <= maxinven; j++)
 	{
 		j_ptr = &inventory[j];
 
@@ -3939,7 +3974,7 @@ s16b inven_carry(object_type *o_ptr)
 
 
 	/* Reorder the pack */
-	if (i < INVEN_PACK)
+	if (i < maxinven)
 	{
 		s32b o_value, j_value;
 
@@ -3947,7 +3982,7 @@ s16b inven_carry(object_type *o_ptr)
 		o_value = object_value(o_ptr);
 
 		/* Scan every occupied slot */
-		for (j = 0; j < INVEN_PACK; j++)
+		for (j = 0; j < maxinven; j++)
 		{
 			j_ptr = &inventory[j];
 
@@ -4299,6 +4334,8 @@ void reorder_pack(void)
 {
 	int i, j, k;
 
+	int maxinven = INVEN_PACK;
+	
 	s32b o_value;
 	s32b j_value;
 
@@ -4310,12 +4347,18 @@ void reorder_pack(void)
 
 	bool flag = FALSE;
 
+	/* Hack for small packs */
+	if (cp_ptr->flags & CF_SMALL_PACK)
+	{
+		maxinven = INVEN_SMALL_PACK;
+	}
+
 
 	/* Re-order the pack (forwards) */
-	for (i = 0; i < INVEN_PACK; i++)
+	for (i = 0; i < maxinven; i++)
 	{
 		/* Mega-Hack -- allow "proper" over-flow */
-		if ((i == INVEN_PACK) && (p_ptr->inven_cnt == INVEN_PACK)) break;
+		if ((i == maxinven) && (p_ptr->inven_cnt == maxinven)) break;
 
 		/* Get the item */
 		o_ptr = &inventory[i];
@@ -4327,7 +4370,7 @@ void reorder_pack(void)
 		o_value = object_value(o_ptr);
 
 		/* Scan every occupied slot */
-		for (j = 0; j < INVEN_PACK; j++)
+		for (j = 0; j < maxinven; j++)
 		{
 			/* Get the item already there */
 			j_ptr = &inventory[j];
@@ -4547,7 +4590,7 @@ void spell_info(char *p, int spell)
 				strcpy(p, " range 10");
 				break;
 			case SPELL_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d8");
+				strcpy(p, " heal 1/10");
 				break;
 			case SPELL_STINKING_CLOUD:
 				sprintf(p, " dam %d", 10 + (plev / 2));
@@ -4630,6 +4673,100 @@ void spell_info(char *p, int spell)
 		}
 	}
 
+	/* Ninjutsus */
+	if (cp_ptr->spell_book == TV_LARGE_SCROLL)
+	{
+		int plev = p_ptr->lev;
+		/* Analyze the spell */
+		switch (spell)
+		{
+			case NINJA_BASIC_REPLACEMENT:
+				strcpy(p, " range 10");
+				break;
+			case NINJA_BASIC_BLINK:
+				strcpy(p, " range 10");
+				break;
+			case NINJA_BASIC_TRANSFORM:
+				strcpy(p, " mimic");
+				break;
+			case NINJA_BASIC_BUNSHIN:
+				sprintf(p, " dur %d", plev + 50);
+				break;
+			case NINJA_BASIC_SMOKE_BOMBS:
+				strcpy(p, " radius 10");
+				break;
+			case NINJA_KATON_FIRE_BOLT:
+				sprintf(p, " dam 8d%d", (plev-5)/4);
+				break;
+			case NINJA_KATON_GOUKAKYUU:
+			case NINJA_SUITON_TEPPOUDAMA:
+			case NINJA_NINPOU_DOKUGIRI:
+				sprintf(p, " dam %d", plev / 2 + 20);
+				break;
+			case NINJA_KATON_RYUUKA:
+				sprintf(p, " dam %d", plev / 2 + 100);
+				break;
+			case NINJA_KATON_HELLFIRE:
+				sprintf(p, " dam %d", plev / 2 + 400);
+				break;
+			case NINJA_SUITON_SUIKODAN:
+			case NINJA_DOTON_DORYUUDAN:
+			case NINJA_FUUTON_WIND_BLADE:
+				sprintf(p, " dam %dd8", 8+(plev-5)/4);
+				break;
+			case NINJA_DOTON_REPLACEMENT:
+				strcpy(p, " range 20");
+				break;
+			case NINJA_SUITON_SUIRYUUDAN:
+				sprintf(p, " dam %dd8", 16+(plev-5)/4);
+				break;
+			case NINJA_SUITON_DAIBAKUFU:
+				sprintf(p, " dam %d", 100+(plev)/2);
+				break;
+			case NINJA_SUITON_SUISHOUHA:
+				sprintf(p, " dam %d", 250+(plev)/2);
+				break;
+			case NINJA_DOTON_YOMI_NUMA:
+				sprintf(p, " radius %d", 1 + plev/10);
+				break;
+			case NINJA_FUUTON_DUST:
+				sprintf(p, " dam %d", 30 + plev);
+				break;
+			case NINJA_FUUTON_TELEPORT:
+				sprintf(p, " range %d", plev * 8);
+				break;
+			case NINJA_FUUTON_ZANKUUHA:
+				sprintf(p, " dam %dd8", 12+(plev-5)/4);
+				break;
+			case NINJA_FUUTON_KAMAITACHI:
+			case NINJA_FUUTON_RENKYUUDAN:
+				sprintf(p, " dam %dd8", 14+(plev-5)/4);
+				break;
+			case NINJA_BLOODLINE_KAITEN:
+			case NINJA_SUITON_SUIJINHEKI:
+				sprintf(p, " dam %d", plev * 8);
+				break;
+			case NINJA_BLOODLINE_MANGEKYOU:
+			case NINJA_NINPOU_KANASHIBARI:
+				strcpy(p, " dam 8d8");
+				break;
+			case NINJA_BLOODLINE_AMATERASU:
+				sprintf(p, " dam %d", 100 + 10 * plev);
+				break;
+			case NINJA_NINPOU_JOUROU_SENBON:
+				sprintf(p, " dam %d", plev / 2 + 80);
+				break;
+			case NINJA_NINPOU_MIST_CONCEALMENT:
+				sprintf(p, " dur %d", plev + 50);
+				break;
+			case NINJA_KINJUTSU_JUKAI_KOTAN:
+				strcpy(p, " dam 275");
+				break;
+			
+		}
+
+	}
+
 	/* Priest spells */
 	if (cp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
@@ -4639,7 +4776,7 @@ void spell_info(char *p, int spell)
 		switch (spell)
 		{
 			case PRAYER_CURE_LIGHT_WOUNDS:
-				strcpy(p, " heal 2d10");
+				strcpy(p, " heal 1/10");
 				break;
 			case PRAYER_BLESS:
 				strcpy(p, " dur 12+d12");
@@ -4648,7 +4785,7 @@ void spell_info(char *p, int spell)
 				sprintf(p, " range %d", 3 * plev);
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 1/5");
 				break;
 			case PRAYER_CHANT:
 				strcpy(p, " dur 24+d24");
@@ -4661,7 +4798,7 @@ void spell_info(char *p, int spell)
 				        (plev / ((cp_ptr->flags & CF_BLESS_WEAPON) ? 2 : 4)));
 				break;
 			case PRAYER_CURE_CRITICAL_WOUNDS:
-				strcpy(p, " heal 6d10");
+				strcpy(p, " heal 3/10");
 				break;
 			case PRAYER_SENSE_INVISIBLE:
 				strcpy(p, " dur 24+d24");
@@ -4670,7 +4807,7 @@ void spell_info(char *p, int spell)
 				sprintf(p, " dur %d+d25", 3 * plev);
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 1/2");
 				break;
 			case PRAYER_PRAYER:
 				strcpy(p, " dur 48+d48");
@@ -4688,10 +4825,10 @@ void spell_info(char *p, int spell)
 				strcpy(p, " heal 1000");
 				break;
 			case PRAYER_CURE_SERIOUS_WOUNDS2:
-				strcpy(p, " heal 4d10");
+				strcpy(p, " heal 1/5");
 				break;
 			case PRAYER_CURE_MORTAL_WOUNDS2:
-				strcpy(p, " heal 8d10");
+				strcpy(p, " heal 1/2");
 				break;
 			case PRAYER_HEALING:
 				strcpy(p, " heal 2000");
@@ -4707,6 +4844,7 @@ void spell_info(char *p, int spell)
 				break;
 			case PRAYER_ARMAGEDDON:
 				strcpy(p, " radius 15");
+				break;
 			case PRAYER_JUDGEMENT_DAY:
 				strcpy(p, " dam 400");
 				break;

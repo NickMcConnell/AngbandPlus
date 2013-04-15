@@ -10,6 +10,8 @@
 
 #include "animeband.h"
 
+/* Silly Global Variable */
+bool launch;
 
 
 /*
@@ -128,6 +130,7 @@ sint critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
 	int choosenumber;
+	
 	if (p_ptr->pgroove == G_DRUNK){
 		choosenumber = 5000 - 1250 * (p_ptr->c_meter * 3 / p_ptr->m_meter);
 	}
@@ -147,6 +150,8 @@ sint critical_norm(int weight, int plus, int dam)
 	if (randint(choosenumber) <= i)
 	{
 		k = weight + randint(650);
+		launch = TRUE;
+		
 
 		if (k < 400)
 		{
@@ -173,6 +178,7 @@ sint critical_norm(int weight, int plus, int dam)
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
 		}
+		
 	}
 
 	return (dam);
@@ -211,6 +217,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
+		case TV_SHURIKEN:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -234,6 +241,21 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				}
 
 				if (mult < 2) mult = 2;
+			}
+
+			if ((p_ptr->banish_evil) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
+			{
+				msg_print("You use your warding scroll.");
+
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_EVIL);
+				}
+
+				if (mult < 5) mult = 5;
+				p_ptr->banish_evil = FALSE;
+				
 			}
 
 			/* Slay Undead */
@@ -260,17 +282,30 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Orc */
-			if ((f1 & (TR1_SLAY_ORC)) &&
-			    (r_ptr->flags3 & (RF3_ORC)))
+			/* Slay Sentai */
+			if ((f1 & (TR1_SLAY_SENTAI)) &&
+			    (r_ptr->flags3 & (RF3_SENTAI)))
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_ORC);
+					l_ptr->r_flags3 |= (RF3_SENTAI);
 				}
 
 				if (mult < 3) mult = 3;
 			}
+
+			/* Slay Mecha */
+			if ((f1 & (TR1_SLAY_MECHA)) &&
+			    (r_ptr->flags3 & (RF3_MECHA)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->r_flags3 |= (RF3_MECHA);
+				}
+
+				if (mult < 3) mult = 3;
+			}
+
 
 			/* Slay Troll */
 			if ((f1 & (TR1_SLAY_TROLL)) &&
@@ -1128,7 +1163,7 @@ void hit_train_station(void)
 
 	
 		msg_print("Welcome to the train station.");
-		msg_print("It costs 300 AU to board the train.");
+		/*msg_print("It costs 300 AU to board the train.");*/
 
 		/* Flush input */
 		flush();
@@ -1136,15 +1171,16 @@ void hit_train_station(void)
 		/* Verify */
 		if (!get_check("Board? ")) return;
 
-		/* 300 should be in define.h.....meh */
+		/* 300 should be in define.h.....meh 
 		if (p_ptr->au < 300)
 		{
 			msg_print("You do not have enough money.");
 			return;
 		}
+		*/
 
-		else
-		{
+		/*else
+		{*/
 			msg_print("Off we go!");
 			while (1)
 			{
@@ -1158,7 +1194,7 @@ void hit_train_station(void)
 				{
 					msg_print("You get off the train....");
 
-					p_ptr->au -= 300;
+				/*	p_ptr->au -= 300;*/
 
 					/* New location */
 					p_ptr->location = train_jump[curStop];
@@ -1179,7 +1215,7 @@ void hit_train_station(void)
 
 			}
 
-		}
+		/*}*/
 
 }
 
@@ -1394,11 +1430,34 @@ void hit_special(int location, int y, int x)
 	case W_FUN_CITY:
 		{
 		/* Go to Battle Arena */
+			if (p_ptr->pending_duel == FALSE)
+		{
+			msg_print("The doors to the battle arena are locked.");
+			return;
+		}
+			else if (p_ptr->pending_duel == NORMAL_DUEL)
+			{
+			msg_print("You prepare yourself mentally.");
 		newlocation = W_DUEL_ARENA;
+		p_ptr->pending_duel = FALSE;
+			}
+			else 
+			{
+				msg_print("You prepare yourself mentally.");
+		newlocation = W_KUMITE_ARENA;
+		p_ptr->pending_duel = FALSE;
+			}
+
 		break;
 		}
 
 	case W_DUEL_ARENA:
+		{
+			newlocation = W_FUN_CITY;
+			break;
+		}
+
+	case W_KUMITE_ARENA:
 		{
 			newlocation = W_FUN_CITY;
 			break;
@@ -1411,6 +1470,12 @@ void hit_special(int location, int y, int x)
 			msg_print("The doors are locked.");
 			return;
 		}
+
+		if (p_ptr->lev < 40)
+		{
+			msg_print("You must be at least level 40 to proceed.");
+			return;
+		}
 		newlocation = W_EULER;
 		break;
 		}
@@ -1419,6 +1484,11 @@ void hit_special(int location, int y, int x)
 			if (p_ptr->normal_quests[QUEST_TOKYO_TOWER] == STATUS_COMPLETE)
 			{
 				msg_print("The doors are locked.");
+				return;
+			}
+			if (p_ptr->lev < 40)
+			{
+				msg_print("You must be at least level 40 to proceed.");
 				return;
 			}
 			newlocation = W_TOWER_1;
@@ -1433,6 +1503,33 @@ void hit_special(int location, int y, int x)
 		{
 			msg_print("You jump off the roof.");
 			newlocation = W_TOKYO_TOWER;
+			break;
+		}
+	case W_PAGODA_ROOF:
+		{
+			msg_print("You jump off the roof.");
+			newlocation = W_MIYAZAKI_FOREST;
+			break;
+		}
+
+	case W_MIYAZAKI_FOREST:
+		{
+			if (p_ptr->lev < 20)
+			{
+				msg_print("You must be at least level 20 to enter.");
+				return;
+			}
+
+			if (p_ptr->normal_quests[QUEST_PAGODA] == STATUS_NOT_KNOWN)
+			{
+			newlocation = W_PAGODA_1;
+			}
+
+
+			else{
+				msg_print("The doors are locked.");
+				return;
+			}
 			break;
 		}
 	case W_MIYAZAKI_TOWN:
@@ -1751,6 +1848,7 @@ void hit_trap(int y, int x)
 void py_attack(int y, int x)
 {
 	int num = 0, k, bonus, chance, amt;
+	
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -1773,6 +1871,9 @@ void py_attack(int y, int x)
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Set launch */
+	launch = FALSE;
 
 
 	/* Disturb the player */
@@ -1889,6 +1990,14 @@ void py_attack(int y, int x)
 				k += (k / 6) * (p_ptr->c_meter * 3 / p_ptr->m_meter);
 			}
 
+			/* Sand does less damage */
+			if (p_ptr->pgroove == G_SAND)
+			{
+				/* 33% less damage */
+				k -= (k/3);
+
+			}
+		
 			/* No negative damage */
 			if (k < 0) k = 0;
 
@@ -1907,8 +2016,109 @@ void py_attack(int y, int x)
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
+			if (p_ptr->backstab){
+				p_ptr->backstab = FALSE;
+				message_format(MSG_HIT, m_ptr->r_idx, "You backstab %s!", m_name);
+				k += p_ptr->lev;
+			}
+
+			/* Kancho */
+			if (p_ptr->kancho)
+			{
+				msg_format("Kancho successful!");
+				k += p_ptr->lev * 4;
+				p_ptr->kancho = FALSE;
+			}
+
+			/* Rasengan */
+			if (p_ptr->rasengan)
+			{
+				/*p_ptr->rasengan = FALSE;*/
+				msg_format("%^s gets hit by your Rasengan!");
+
+				k += p_ptr->lev * 3;
+
+
+			}
+
+			/* Hakke */
+			if (p_ptr->jyuken)
+			{
+				k *= 2;
+				msg_print("Hakke!  Two strikes!");
+				msg_print("Four strikes!  Eight strikes!");
+				msg_print("Sixteen strikes!  Thirty-two strikes!");
+				msg_print("Sixty-four strikes!");
+				p_ptr->jyuken = FALSE;
+				
+			
+				m_ptr->silenced += 10 + rand_int(p_ptr->lev) / 5;
+				
+			}
+
+			/* Hakke2 */
+			if (p_ptr->jyuken2)
+			{
+				p_ptr->jyuken2 = FALSE;
+				k *= 2;
+				msg_print("Your hands start moving incredibly fast!");
+				
+				
+				fire_ball(GF_HAKKE, 0, p_ptr->lev, 1);
+								
+			}
+
+			/* Chidori */
+			if (p_ptr->chidori)
+			{
+				p_ptr->chidori = FALSE;
+				k += p_ptr->lev * 5;
+				msg_format("You plunge a chidori into %^s!!!", m_name);
+			}
+
+				/* Sand does less damage */
+			if (p_ptr->pgroove == G_SAND)
+			{
+				/* 50% less damage */
+				k -= (k/2);
+
+				/* Gain Meter */
+				(void)set_meter(p_ptr->c_meter + k);
+
+			}
+
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+
+			/* Warrior attacks can randomly stun */
+			if ((cp_ptr->flags & CF_STUN_HANDS) || (p_ptr->chakra_gate_level > 5))
+			{
+				if (launch)
+				{
+					/* Stun monster */
+					if (r_ptr->flags3 & (RF3_NO_STUN))
+					{
+						if (m_ptr->ml)
+						{
+							l_ptr->r_flags3 |= (RF3_NO_STUN);
+						}
+						msg_format("%^s is unaffected.", m_name);
+					}
+
+					else if (rand_int(100) < r_ptr->level)
+					{
+						msg_format("%^s is unaffected.", m_name);
+					}
+
+					else
+					{
+						msg_format("%^s appears stunned.", m_name);
+						m_ptr->stunned += 10 + rand_int(p_ptr->lev) / 5;
+					}
+
+				}
+
+			}
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1945,23 +2155,42 @@ void py_attack(int y, int x)
 			{
 				p_ptr->super_punch = FALSE;
 				/* Message */
-				msg_print("Your hands stop glowing.");
+				msg_print("...from rows one to seven and eleven and tweleve there is open seating!  SHINKANSEN!");
+				msg_print("A high speed bullet train rushes out of your fist!");
 
 				/* Stun Monster */
-				m_ptr->stunned += 10 + rand_int(p_ptr->lev) / 5;
+				m_ptr->stunned += 5 + rand_int(p_ptr->lev) / 5;
 
 				/* Launch monster into the air */
 				m_ptr->mondust += rand_int(5) + 3;
 
 				/* Phase Monster */
+				teleport_away(m_idx, 13);
+			}
+
+			if (p_ptr->rasengan)
+			{
+				p_ptr->rasengan = FALSE;
+				msg_format("%^s gets hit by your Rasengan!", m_name);
+
+				/* Stun Monster */
+				if (!(m_ptr->stunned)){
+				m_ptr->stunned += 10 + rand_int(p_ptr->lev) / 5;
+				}
+
+				
+				/* Phase Monster */
 				teleport_away(m_idx, 5);
+
 			}
 
 			/* Dust */
-			if (f3 & TR3_DUST)
+			if ((f3 & TR3_DUST) || (p_ptr->chakra_gate_level > 3))
 			{
 
-				/* Confuse the monster */
+				if ((!(m_ptr->mondust)) && (launch))
+				{
+					/* Launch the monster */
 				if (r_ptr->flags3 & (RF3_NO_DUST))
 				{
 					if (m_ptr->ml)
@@ -1969,18 +2198,13 @@ void py_attack(int y, int x)
 						l_ptr->r_flags3 |= (RF3_NO_DUST);
 					}
 
-					msg_format("%^s is unaffected.", m_name);
+					msg_format("%^s blocks your dust attempt!", m_name);
 				}
 
-				if (rand_int(100) < r_ptr->level) 
-				{
-					msg_format("%^s is unaffected.", m_name);
-				}
-
-				else if ((!(m_ptr->mondust)) && (rand_int(50) > 35))
-				{
+				else {
 					msg_format("%^s gets launched into the air!", m_name);
 					m_ptr->mondust += rand_int(5) + 3;
+				}
 
 				}
 
@@ -2199,7 +2423,8 @@ void move_player(int dir, int jumping)
 		if (((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
 		    (cave_feat[y][x] <= FEAT_SHOP_TAIL)) || 
 			((cave_feat[y][x] >= FEAT_VENDING_MACHINE)
-			&& (cave_feat[y][x] <=FEAT_GROCERY_STORE)))
+			&& (cave_feat[y][x] <=FEAT_GROCERY_STORE))
+			|| (cave_feat[p_ptr->py][p_ptr->px] == FEAT_DUELING_GUILD))
 		{
 			/* Disturb */
 			disturb(0, 0);

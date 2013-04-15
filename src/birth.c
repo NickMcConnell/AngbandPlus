@@ -285,7 +285,7 @@ static void get_stats(void)
 static void get_extra(void)
 {
 	int i, j, min_value, max_value;
-
+	
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -309,7 +309,12 @@ static void get_extra(void)
 	/* Max Powers */
 	p_ptr->max_powers = 0;
 
+	/* Temp Mecha fields */
+	
+	strcpy(p_ptr->temp_mecha_name, "Mecha");
+	strcpy(p_ptr->temp_mecha_gun_name, "machine gun");
 
+	
 	/* Limit Break Type */
 	p_ptr->l_break = rp_ptr->r_rlb;
 
@@ -673,7 +678,15 @@ static void player_outfit(void)
 	case G_DRUNK:
 		i_ptr->name2 = EGO_BRAND_POIS;
 		break;
+
+	case G_SAND:
+		i_ptr->name2 = EGO_ATTACKS;
+		break;
 			}
+
+	
+	
+			
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	object_copy(&inventory[INVEN_WIELD], i_ptr);

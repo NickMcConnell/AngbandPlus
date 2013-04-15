@@ -960,8 +960,26 @@ static void build_wilderness(int ymax, int xmax, cptr data)
 						place_monster_aux(y, x, ALARM, TRUE, FALSE);
 						break;
 					}
+				/* Place monster close to player max depth level */
+				case 'k':
+					{
+						monster_level = p_ptr->max_depth + damroll(1, 10);
+						if (monster_level >= MAX_DEPTH)
+						{
+							monster_level = MAX_DEPTH - 1;
+						}
+
+						/* Ensure Success */
+						while (!place_monster(y, x, TRUE, FALSE))
+						{
+
+						}
+						
+						break;
+					}
 
 				/* Place the unique of the level */
+				/* This really ought to be part of wilderness.txt */
 				case 'U':
 					{
 						if (p_ptr->location == W_KIRA){
@@ -987,13 +1005,36 @@ static void build_wilderness(int ymax, int xmax, cptr data)
 
 						else if (p_ptr->location == W_DUEL_ARENA)
 						{
-							place_monster_aux(y, x, VEGETA, TRUE, FALSE);
+							place_monster_aux(y, x, p_ptr->duel_idx, FALSE, FALSE);
 						}
 
 						else if (p_ptr->location == W_EULER)
 						{
 							place_monster_aux(y, x, DEATH_MOLD, TRUE, FALSE);
 						}
+
+						else if (p_ptr->location == W_PAGODA_6)
+						{
+							place_monster_aux(y, x, KASIDORI, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_PAGODA_5)
+						{
+							place_monster_aux(y, x, GENJIRO, TRUE, FALSE);
+						}
+
+						else if (p_ptr->location == W_PAGODA_4)
+						{
+							place_monster_aux(y, x, GALFORD, TRUE, FALSE);
+							place_monster_aux(y-1, x, POPPY, TRUE, FALSE);
+						}
+
+						else if ((p_ptr->location <= W_PAGODA_1) && (p_ptr->location > W_PAGODA_ROOF))
+
+						{
+							place_monster_aux(y, x, KAZUKI + W_PAGODA_1 - p_ptr->location, TRUE, FALSE);
+						}
+
 
 						/* Default to Info boy */
 						else{
@@ -1029,6 +1070,13 @@ static void build_wilderness(int ymax, int xmax, cptr data)
 						break;
 
 
+					}
+
+			/* Place a Duel Guild */
+				case 'D':
+					{
+						cave_set_feat(y,x, FEAT_DUELING_GUILD);
+						break;
 					}
 
 			/* Place a General Store */
@@ -1149,6 +1197,10 @@ static void wilderness_gen(int where, int depth)
 	/* Tokyo Tower Hack */
 	if ((where > W_TOWER_ROOF) && (where < W_TOWER_1))
 		where = W_TOWER_2;
+
+	/* Pagoda Hack */
+	if ((where > W_PAGODA_ROOF) && (where < W_PAGODA_1))
+		where = W_PAGODA_1;
 
 	/* Where are we going? */
 	w_ptr = &w_info[where + depth];
@@ -1914,7 +1966,7 @@ static bool vault_aux_undead(int r_idx)
 /*
  * Helper function for "monster pit (orc)"
  */
-static bool vault_aux_orc(int r_idx)
+static bool vault_aux_sentai(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -2384,10 +2436,10 @@ static void build_type6(int y0, int x0)
 	else if (tmp < 20)
 	{
 		/* Message */
-		name = "orc";
+		name = "sentai";
 
 		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_orc;
+		get_mon_num_hook = vault_aux_sentai;
 	}
 
 	/* Rodent Pit */
@@ -3719,6 +3771,14 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 						break;
 
 					}
+			
+			/* Place a Tombstone */
+				case 'T':
+					{
+						cave_set_feat(y, x, FEAT_GRAVE_STONE);
+						break;
+					}
+
 			}
 		}
 	}
@@ -4882,6 +4942,22 @@ static void town_gen(void)
 	{
 		/* Make a resident */
 		(void)alloc_monster(3, TRUE);
+	}
+
+	/* Godzilla Exception */
+	if (p_ptr->max_depth >= 90)
+	{
+		/* Place Godzilla */
+		if ((rand_int(100) > 50) && (r_info[GODZILLA].max_num > 0))
+		{
+		place_monster_aux(qy + 2, qx + 2, GODZILLA, FALSE, FALSE);
+		msg_print("Something is menacing the town!");
+
+		/* Lock all the stores */
+		for (i = 0; i < STORE_HOME; i++)
+		store[i].store_open = turn + 25000 + randint(25000);
+		}
+
 	}
 }
 

@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.6"
+#define VERSION_STRING	"0.5.9.1"
 
 
 /*
@@ -55,8 +55,8 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	6
-#define VERSION_EXTRA	0
+#define VERSION_PATCH	9
+#define VERSION_EXTRA	1
 
 
 /*
@@ -145,6 +145,7 @@
 #define STORE_VENDING	8
 #define STORE_RAMEN		9
 #define STORE_GROCERY	10
+#define STORE_DUELING	11
 
 
 /*
@@ -339,6 +340,10 @@ Tenative exponential function:
  */
 #define MAX_REPRO	100
 
+/* Max Title Screens */
+
+#define MAX_TITLE_SCREENS	4
+
 
 /*
  * Player constants
@@ -375,6 +380,7 @@ Tenative exponential function:
 /*
  * Specific Monsters for Wildernesses/Quests
  * Maybe should have MONSTER_ in front?
+ * Should probably be moved into Wilderness.txt
  */
 
 #define ALARM							32
@@ -385,7 +391,8 @@ Tenative exponential function:
 #define HARDENED_WARRIOR				261
 #define DEATH_MOLD						479
 #define VEGETA							508
-#define FUMA							532							
+#define FUMA							532	
+#define GODZILLA						539						
 #define KIRA_GUARD						548
 #define OISHI							549
 #define TANUKI							550
@@ -395,7 +402,24 @@ Tenative exponential function:
 #define TOTORO_LEAF						554
 #define KIKI							555
 #define GARDENER						560
-#define MAX_MONSTERS					561
+#define KAZUKI							575
+#define SOGETSU							576
+#define MINA							577
+#define GALFORD							578
+#define POPPY							579
+#define GENJIRO							580
+#define KASIDORI						581
+#define DEMON_DOOR						582
+#define ARAIGUMA_RASCAL					583
+#define DELIVERY_BOY					562
+#define MACBAUER						605
+#define MAX_MONSTERS					606
+
+/* Duel Status */
+#define NORMAL_DUEL			1
+#define KUMITE_DUEL			2
+
+
 /*
  * Maximum number of players spells
  */
@@ -481,8 +505,27 @@ Tenative exponential function:
 /* Misc New Spells for Animeband */
 
 
+/* Intrinsic Class Powers */
+#define INTRINSIC_SECOND_WIND			0
+#define INTRINSIC_SECRET_STRENGTH		1
+#define INTRINSIC_HEROISM				2
+#define INTRINSIC_BERSERKER				3
+#define INTRINSIC_FAULTLESS_DEFENSE		4
+#define INTRINSIC_KAIOKEN				5
+#define INTRINSIC_REPLACEMENT			6
+#define INTRINSIC_STEALTH				7
+#define INTRINSIC_HOLY_PRAYER			8
+#define INTRINSIC_BACKSTAB				9
+#define INTRINSIC_IDENTIFY				10
+#define INTRINSIC_HASTE					11
+#define INTRINSIC_STRONG_BOW			12
+#define INTRINSIC_BANISH_EVIL			13
+#define INTRINSIC_CREATE_COSTUME		14
+#define INTRINSIC_ANALYZE				15
 
-/* Parying For Dummies */
+
+
+/* Praying For Dummies */
 #define PRAYER_DETECT_EVIL              0
 #define PRAYER_CURE_LIGHT_WOUNDS        1
 #define PRAYER_BLESS                    2
@@ -570,11 +613,31 @@ Tenative exponential function:
 #define STUDENT_HEROISM					2
 #define STUDENT_HASTE					3
 #define STUDENT_OUROBOROUS				4
-#define STUDENT_POOR_DUBBING			5
+#define STUDENT_GAIJIN_SMASH			5
 #define STUDENT_TELEPORT				6
 #define STUDENT_KI_BEAM					7
 #define STUDENT_RESTORATION				8
 #define STUDENT_GENEI_JIN				9
+
+/* New Sentai Powers */
+#define SENTAI_MAX						10
+
+#define SENTAI_TAUNT					0
+#define SENTAI_POSE						1
+#define SENTAI_QUICK_RETURN				2
+#define SENTAI_PYROTECHNICS				3
+#define SENTAI_HEROISM					4
+#define SENTAI_DASH						5
+#define SENTAI_GIANT_SWING				6
+#define SENTAI_DOUBLE_CHOP				7
+#define SENTAI_THE_END					8
+#define SENTAI_SUMMON_MECHA				9
+
+/* Mecha Commands */
+#define MECHA_FIRE						0
+#define MECHA_SCUTTLE					1
+#define MECHA_RENAME					2
+#define MECHA_MAX						3
 
 /* New Magic Knight Powers */
 #define FIRE_FLARE_ARROW				0
@@ -597,6 +660,20 @@ Tenative exponential function:
 #define DRUNK_AURA_OF_CONFUSION			1
 #define DRUNK_SAKE_DRAGON				2
 
+#define SAND_DESERT_COFFIN				0
+#define SAND_DESERT_FUNERAL				1
+#define SAND_SAND_SHIELD				2
+
+/* Extra Magic Knight Powers */
+#define MKNIGHT_BLINK					3
+#define MKNIGHT_HEROISM					4
+#define MKNIGHT_BERSERK					5
+#define MKNIGHT_HASTE					6
+#define MKNIGHT_BURST					7
+#define MKNIGHT_DETECTION				8
+#define MKNIGHT_ALTER_REALITY			9
+	
+
 /* Chi Warrior Powers */
 #define CHI_WARRIOR_BLINK					0
 #define CHI_WARRIOR_HEROISM					1
@@ -611,7 +688,7 @@ Tenative exponential function:
 #define CHI_WARRIOR_GENEI_JIN				10
 #define CHI_WARRIOR_KAIOKEN					11
 #define CHI_WARRIOR_DOUBLE_TEAM				12
-#define CHI_WARRIOR_WRATH					13
+#define CHI_WARRIOR_THE_WORLD				13
 #define CHI_WARRIOR_GLITTERING_GOLD			14
 #define CHI_WARRIOR_SUPERIOR_ATTACK			15
 #define CHI_WARRIOR_DETECTION				16
@@ -695,6 +772,9 @@ Tenative exponential function:
 
 
 
+/* Maybe  #define BOOKN(n, x) (((x) < 0) ? 0 : (x) / 32 == (n) ? (1L << ((x) % 32)) : 0)
+ * should be used instead? */
+
 #define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 #define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
 
@@ -705,16 +785,147 @@ Tenative exponential function:
 	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
 	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
 }
-/*
-#define POWER1(X) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 
-#define POWER(a, b, c, d, e, f, g, h, i, j) \
-{ \
-	(POWER1(a) | POWER1(b) | POWER1(c) | POWER1(d) | POWER1(e) | \
-	 POWER1(f) | POWER1(g) | POWER1(h) | POWER1(i) | POWER1(j)) \
+/* Skills system */
+/* Define Skills System */
+#define SKILL_KITCHEN_KNIFE		 0  /* Improves Cooking - Increases Dex */
+#define SKILL_GOOD_EYE			 1  /* Increases effect of Food - Improves Cooking */
+#define SKILL_MECHA_KNOWLEDGE	 2  /* Increases use of Mecha, More damage to machines */
+#define SKILL_MECHA_OPERATION	 3  /* Improve use of Mecha */
+#define SKILL_MENTAL_SCIENCE	 4  /* MP raise */
+#define SKILL_FEINT				 5  /* Increase Accuracy */
+#define SKILL_STRONG_BLOW		 6  /* Increase Damage */
+#define SKILL_SPIRIT_FORCE		 7  /* Increase Damage Resistance */
+#define SKILL_GALE				 8  /* Increase Foot Speed */
+#define SKILL_BLOCKING			 9  /* Allow player to block attacks for half damage */
+#define SKILL_MENTAL_TRAINING	 10 /* Increases fighting style skill */
+#define SKILL_BODY_CONTROL		 11 /* Prevents status anomolies */
+#define SKILL_PROFICIENCY		 12 /* Decreases fail %age in spells */
+#define SKILL_POTION_KNOWLEDGE	 13 /* Increases effects of healing potions */
+#define SKILL_INTUITION			 14 /* Decreases cost in stores, increased Psuedo_ID */
+#define SKILL_BIOLOGY			 15 /* HP raise */ 
+#define SKILL_PLAYFULNESS		 16 /* Higher Alcohol Threshold */
+#define SKILL_PRACTICE			 17 /* Reduced skill cost */
+#define SKILL_EFFICIENCY		 18 /* Reduced MP cost for spells/powers */
+#define SKILL_FIGHTING_SPIRIT	 19 /* Reduces Meter cost for class powers */
+#define SKILL_DANGER_SENSE		 20 /* Increased Stealth */
+#define SKILL_WRITING			 21 /* Scroll Creation */
+#define SKILL_COMPOUNDING		 22 /* Potion Creation */
+#define SKILL_PERSEVERANCE		 23	/* Increased Regeneration */
 
-}
-*/
+/* Battle Trophies! */
+#define TROPHY_WIN_HUMAN		0  /* Beat the game with human */
+#define TROPHY_WIN_NEDIAN		1  /* Beat the game with Nedian */
+#define TROPHY_WIN_SAIYA_JIN	2  /* Beat the game with Saiya-jin */
+#define TROPHY_WIN_ANDROID		3  /* Beat the game with Android */
+#define TROPHY_WIN_CTARL_CTARL	4  /* Beat the game with Ctarl-Ctarl */
+#define TROPHY_WIN_HENTENTMON	5  /* Beat the game with Hententmon */
+#define TROPHY_WIN_SANJIYAN		6  /* Beat the game with Sanjiyan */
+#define TROPHY_WIN_SKY_DRAGON	7  /* Beat the game with Sky Dragon */
+#define TROPHY_WIN_REMNANT		8  /* Beat the game with Remnant */
+#define TROPHY_WIN_WARRIOR		9  /* Beat the game with a Warrior */
+#define TROPHY_WIN_MAGE			10 /* Beat the game with a Mage */
+#define TROPHY_WIN_PRIEST		11 /* Beat the game with a Priest */
+#define TROPHY_WIN_ROGUE		12 /* Beat the game with a Rogue */
+#define TROPHY_WIN_RANGER		13 /* Beat the game with a Ranger */
+#define TROPHY_WIN_PALADIN		14 /* Beat the game with a Paladin */
+#define TROPHY_WIN_STUDENT		15 /* Beat the game with a Student */
+#define TROPHY_WIN_MAGIC_KNIGHT 16 /* Beat the game with a Magic Knight */
+#define TROPHY_WIN_CHI_WARRIOR	17 /* Beat the game with a Chi Warrior */
+#define TROPHY_WIN_MIMIC		18 /* Beat the game with a Mimic */
+#define TROPHY_WIN_FIRE			19 /* Beat the game with Fire style */
+#define TROPHY_WIN_WATER		20 /* Beat the game with Water Style */
+#define TROPHY_WIN_WIND			21 /* Beat the game with Wind style */
+#define TROPHY_WIN_METAL		22 /* Beat the game with Metal style */
+#define TROPHY_WIN_DRUNK		23 /* Beat the game with Drunk style */
+#define TROPHY_RUN_WORLD		24 /* Run 25000 miles in one game */
+#define TROPHY_NO_INSURANCE		25 /* Beat the game without using Life Insurance */
+#define TROPHY_RABBIT_HOLE		26 /* Win the duel in the Rabbit Hole */
+
+
+
+/* Ninja techniques */
+
+/* Basic Jutsus */
+#define NINJA_BASIC_REPLACEMENT			0  /* Replacement Technique */
+#define NINJA_BASIC_BLINK				1  /* Blink */
+#define NINJA_BASIC_TRANSFORM			2  /* Transform */
+#define NINJA_BASIC_BUNSHIN				3  /* Clones */
+#define NINJA_BASIC_DISPEL				4  /* Dispel */
+#define NINJA_BASIC_SMOKE_BOMBS			5  /* Smoke Bombs */
+#define NINJA_BASIC_HASTE				6  /* Haste */
+#define NINJA_BASIC_SHURIKEN_BUNSHIN	7  /* Shruinken Bunshin */
+#define NINJA_BASIC_KANCHO				8  /* Kancho! */
+
+/* Katon */
+#define NINJA_KATON_RESIST_FIRE			9 /* Resist Fire */
+#define NINJA_KATON_FIRE_BOLT			10 /* Fire Bolt */
+#define NINJA_KATON_GOUKAKYUU			11 /* Blazing Fireball */
+#define NINJA_KATON_RYUUKA				12 /* Dragon Fire */
+#define NINJA_KATON_KARYUU_ENDAN		13 /* Fire Dragon Flame Missile */
+#define NINJA_KATON_HELLFIRE			14 /* Hellfire */
+
+/* Suiton */
+#define NINJA_SUITON_SUIKODAN			15 /* Water Shark Missile */
+#define NINJA_SUITON_TEPPOUDAMA			16 /* Water Bullet */
+#define NINJA_SUITON_SUIRYUUDAN			17 /* Water Dragon Bullet */
+#define NINJA_SUITON_SUIJINHEKI			18 /* Wall of Water */
+#define NINJA_SUITON_DAIBAKUFU			19 /* Grand Waterfall */
+#define NINJA_SUITON_SUISHOUHA			20 /* Water Wave */
+
+/* Doton */
+#define NINJA_DOTON_REPLACEMENT			21 /* Earth Replacement */
+#define NINJA_DOTON_YOMI_NUMA			22 /* Hell Swamp */
+#define NINJA_DOTON_DORYUU_TAIGA		23 /* Moving Land River */
+#define NINJA_DOTON_DORYUUDAN			24 /* Earth Dragon Missile */
+#define NINJA_DOTON_DORYUUHEKI			25 /* Earth Wall */
+#define NINJA_DOTON_DORYOU_DANGO		26 /* Earth Dumpling */
+
+/* Fuuton */
+#define NINJA_FUUTON_DUST				27 /* Dust */
+#define NINJA_FUUTON_WIND_BLADE			28 /* Wind Blade */
+#define NINJA_FUUTON_TELEPORT			29 /* Teleport */
+#define NINJA_FUUTON_ZANKUUHA			30 /* Air Cutter */
+#define NINJA_FUUTON_KAMAITACHI			31 /* Sickling Winds */
+#define NINJA_FUUTON_RENKYUUDAN			32 /* Compressed Air Ball */
+
+/* Advanced Ninjitsu */
+#define NINJA_ADVANCED_FIND_TRAPS_DOORS 33 /* Find Traps/Doors */
+#define NINJA_ADVANCED_HEROISM			34 /* Heroism */
+#define NINJA_ADVANCED_SATISFY_HUNGER	35 /* Satisfy Hunger */
+#define NINJA_ADVANCED_IDENTIFY			36 /* Identify */
+#define NINJA_ADVANCED_WORD_OF_RECALL	37 /* Word of Recall */
+#define NINJA_ADVANCED_STONE_TO_MUD		38 /* Stone to Mud */
+#define NINJA_ADVANCED_DETECT_EVIL		39 /* Detect Evil */
+
+/* Bloodline Jutsus */
+#define NINJA_BLOODLINE_SHARINGAN		40 /* Sharingan! */
+#define NINJA_BLOODLINE_BYAKUGAN		41 /* Byakugan! */
+#define NINJA_BLOODLINE_KAITEN			42 /* Kaiten Whirl */
+#define NINJA_BLOODLINE_HAKKE			43 /* Jyuuken Hakke Rokujuuyonshou (Divination 64 strikes)*/
+#define NINJA_BLOODLINE_MANGEKYOU		44 /* Kalidescope */
+#define NINJA_BLOODLINE_TSUKUYOMI		45 /* God of the Moon */
+#define NINJA_BLOODLINE_AMATERASU		46 /* God of the Sun */
+#define NINJA_BLOODLINE_HAKKE2			47 /* Jyuuken Hakke Hyaku-ni-jyu-hashou (Divination 128 strikes) */
+
+/* Ninpou */
+#define NINJA_NINPOU_KAGE_MANE			48 /* Shadow Copy */
+#define NINJA_NINPOU_DOKUGIRI			49 /* Poison Cloud */
+#define NINJA_NINPOU_JOUROU_SENBON		50 /* Raining Needles */
+#define NINJA_NINPOU_MIST_CONCEALMENT	51 /* Mist Concealment */
+#define NINJA_NINPOU_KANASHIBARI		52 /* Paralysis with murderous intent*/
+#define NINJA_NINPOU_SAND_ARMOR		    53 /* Armor of Sand */
+
+
+/* Kinjutsu */
+#define NINJA_KINJUTSU_CHIDORI			54 /* Chidori */
+#define NINJA_KINJUTSU_OPEN_GATE		55 /* Open Chakra Gate */
+#define NINJA_KINJUTSU_RASENGAN			56 /* Ransengan! */
+#define NINJA_KINJUTSU_SOUZOU_SAISEI	57 /* Divine Restoration */
+#define NINJA_KINJUTSU_JUKAI_KOTAN		58 /* Birth of the Trees */
+#define NINJA_KINJUTSU_ROLLING_THE_DICE	59 /* Rolling the Dice */
+
+
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -724,7 +935,8 @@ Tenative exponential function:
  * Note that "INVEN_PACK" is probably hard-coded by its use in savefiles, and
  * by the fact that the screen can only show 23 items plus a one-line prompt.
  */
-#define INVEN_PACK		23
+#define INVEN_PACK			23
+#define INVEN_SMALL_PACK	12
 
 /*
  * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
@@ -747,6 +959,9 @@ Tenative exponential function:
  * Total number of inventory slots (hard-coded).
  */
 #define INVEN_TOTAL	37
+
+/* Sentinel for delivery */
+#define DELIVERY 999
 
 
 /*
@@ -786,8 +1001,9 @@ Tenative exponential function:
 #define G_WIND			2
 #define G_METAL			3
 #define G_DRUNK			4
+#define G_SAND			5
 
-#define G_MAX			5
+#define G_MAX			6
 
 
 /* Wilderness locations */
@@ -819,13 +1035,19 @@ Tenative exponential function:
 #define W_TOWER_9		14
 #define W_TOWER_ROOF	13
 
-#define W_HOUSE_AUHU		24
+#define W_KUMITE_ARENA		24
 #define W_MIYAZAKI_TOWN		25
 #define W_KIKI_BAKERY		26
 #define W_MIYAZAKI_FOREST	27
 /*#define W_SOOT_BALL			28*/
-
-#define W_MAX			28
+#define W_PAGODA_ROOF		28
+#define W_PAGODA_6			29
+#define W_PAGODA_5			30
+#define W_PAGODA_4			31
+#define W_PAGODA_3			32
+#define W_PAGODA_2			33
+#define W_PAGODA_1			34
+#define W_MAX			35
 
 /* Maximum Train stops */
 #define MAX_TRAIN	    7
@@ -840,7 +1062,7 @@ Tenative exponential function:
 #define QUEST_BATTLE_ARENA	3
 #define QUEST_TOKYO_TOWER	4
 #define QUEST_FOREST		5
-#define QUEST_DELIVERY		6
+#define QUEST_PAGODA		6
 #define QUEST_DEFEND		7
 #define QUEST_COOKING		8
 #define MAX_QUESTS			9
@@ -854,6 +1076,10 @@ Tenative exponential function:
 #define GAME_TYPE_CLASSICAL	0
 #define GAME_TYPE_QUEST		1
 #define GAME_TYPE_MAX		2
+
+/* Define dueling costs */
+#define DUEL_COST			100
+#define KUMITE_COST			100
 
 /*** Screen Locations ***/
 
@@ -951,7 +1177,7 @@ Tenative exponential function:
 /*
  * Legal restrictions for "summon_specific()"
  */
-#define SUMMON_ANT			11
+#define SUMMON_GOON			11
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
 #define SUMMON_HYDRA		14
@@ -967,6 +1193,7 @@ Tenative exponential function:
 #define SUMMON_WRAITH		31
 #define SUMMON_UNIQUE		32
 #define SUMMON_KIN			33
+#define SUMMON_FROG			34
 
 
 /*
@@ -992,10 +1219,10 @@ Tenative exponential function:
 #define GF_FIRE         18
 #define GF_COLD         19
 #define GF_POIS         20
-#define GF_XXX2			21
+#define GF_RADI			21
 #define GF_LITE         22
 #define GF_DARK         23
-#define GF_XXX3			24
+#define GF_HAKKE		24
 #define GF_CONFUSION    25
 #define GF_SOUND        26
 #define GF_SHARD        27
@@ -1003,15 +1230,15 @@ Tenative exponential function:
 #define GF_NETHER       29
 #define GF_CHAOS        30
 #define GF_DISENCHANT   31
-#define GF_XXX4			32
+#define GF_SHADOW		32
 #define GF_KILL_WALL	33
 #define GF_KILL_DOOR	34
 #define GF_KILL_TRAP	35
 #define GF_MAKE_WALL	36
 #define GF_MAKE_DOOR	37
 #define GF_MAKE_TRAP	38
-#define GF_XXX5			39
-#define GF_XXX6			40
+#define GF_YOMI_NUMA	39
+#define GF_WIND			40
 #define GF_AWAY_UNDEAD	41
 #define GF_AWAY_EVIL	42
 #define GF_AWAY_ALL		43
@@ -1021,7 +1248,7 @@ Tenative exponential function:
 #define GF_DISP_UNDEAD	47
 #define GF_DISP_EVIL	48
 #define GF_DISP_ALL		49
-#define GF_XXX7			50
+#define GF_DASH			50
 #define GF_OLD_CLONE	51
 #define GF_OLD_POLY		52
 #define GF_OLD_HEAL		53
@@ -1030,7 +1257,7 @@ Tenative exponential function:
 #define GF_OLD_CONF		56
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
-#define GF_XXX8			59
+#define GF_MAKE_GLYPH	59
 #define GF_MIMIC		60
 
 
@@ -1057,6 +1284,7 @@ Tenative exponential function:
 #define DRS_RES_NETHR	29
 #define DRS_RES_CHAOS	30
 #define DRS_RES_DISEN	31
+#define DRS_METER		32
 
 
 /*
@@ -1170,6 +1398,8 @@ Tenative exponential function:
 #define FEAT_GROCERY_STORE	  0x62
 
 #define FEAT_FAKE_TELE		  0x63
+
+#define FEAT_DUELING_GUILD	  0x64
 
 /*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -1425,12 +1655,12 @@ Tenative exponential function:
 #define EGO_BRAND_POIS		76
 /* xxx */
 /* xxx */
-/* xxx */
+#define EGO_SLAY_JELLY		79
 #define EGO_SLAY_ANIMAL		80
 #define EGO_SLAY_EVIL		81
 #define EGO_SLAY_UNDEAD		82
 #define EGO_SLAY_DEMON		83
-#define EGO_SLAY_ORC		84
+#define EGO_SLAY_SENTAI		84
 #define EGO_SLAY_TROLL		85
 #define EGO_SLAY_GIANT		86
 #define EGO_SLAY_DRAGON		87
@@ -1438,12 +1668,12 @@ Tenative exponential function:
 #define EGO_KILL_EVIL		89
 #define EGO_KILL_UNDEAD		90
 #define EGO_KILL_DEMON		83
-#define EGO_KILL_ORC		84
+#define EGO_KILL_SENTAI		84
 #define EGO_KILL_TROLL		85
 #define EGO_KILL_GIANT		86
 #define EGO_KILL_DRAGON		95
 #define EGO_DUST			96
-/* xxx */
+#define EGO_SLAY_MECHA		97
 /* xxx */
 /* xxx */
 #define EGO_DIGGING			100
@@ -1466,7 +1696,7 @@ Tenative exponential function:
 #define EGO_HURT_EVIL		113
 #define EGO_HURT_UNDEAD		114
 #define EGO_HURT_DEMON		115
-#define EGO_HURT_ORC		116
+#define EGO_HURT_SENTAI		116
 #define EGO_HURT_TROLL		117
 #define EGO_HURT_GIANT		118
 #define EGO_HURT_DRAGON		119
@@ -1503,6 +1733,7 @@ Tenative exponential function:
 #define TV_JUNK          3	/* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5	/* Spikes ('~') */
 #define TV_CHEST         7	/* Chests ('~') */
+#define TV_SHURIKEN		15  /* Shurikens */
 #define TV_SHOT			16	/* Ammo for slings */
 #define TV_ARROW        17	/* Ammo for bows */
 #define TV_BOLT         18	/* Ammo for x-bows */
@@ -1522,6 +1753,7 @@ Tenative exponential function:
 #define TV_DRAG_ARMOR	38	/* Dragon Scale Mail */
 #define TV_LITE         39	/* Lites (including Specials) */
 #define TV_AMULET       40	/* Amulets (including Specials) */
+#define TV_COSTUME		41	/* Costumes */
 #define TV_RING         45	/* Rings (including Specials) */
 #define TV_STAFF        55
 #define TV_WAND         65
@@ -1537,14 +1769,23 @@ Tenative exponential function:
 #define TV_QUEST_ITEM	94
 #define TV_PARCHMENT	95
 #define TV_DOUJINSHI	96
+#define TV_LARGE_SCROLL	97
+#define TV_TEMP_MECHA	98
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
+/* The "sval codes for TV_JUNK */
+#define SV_LOG			7 /* Replacement Technique Log */
 
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT		0	/* pebbles */
 #define SV_AMMO_NORMAL		1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY		2	/* seeker arrows and bolts */
+
+/* The "sval" codes for TV_SHURIKEN */
+#define SV_SHURIKEN_SHURIKEN		0
+#define SV_SHURIKEN_KUNAI			1
+#define SV_SHURIKEN_FUUMA			2
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING			2	/* (x2) */
@@ -1570,6 +1811,7 @@ Tenative exponential function:
 #define SV_LUCERN_HAMMER		10	/* 2d5 */
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL				13	/* 2d6 */
+#define SV_BAMBOO_UMBRELLA		14	/* 1d7 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
 #define SV_TWO_HANDED_FLAIL		18	/* 3d6 */
 #define SV_MACE_OF_DISRUPTION	20	/* 5d8 */
@@ -1638,6 +1880,10 @@ Tenative exponential function:
 #define SV_SELECE				3
 #define SV_WINDAM				4
 
+/* The "sval" codes for TV_TEMP_MECHA */
+#define SV_TEMP_MECHA			0
+
+
 /* The "sval" codes for TV_QUEST_ITEM */
 #define SV_KIRA_HEAD			0
 #define SV_UMBRELLA				1
@@ -1654,6 +1900,9 @@ Tenative exponential function:
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
 #define SV_SHADOW_CLOAK				6
+
+/* The "sval" codes for TV_COSTUME */
+#define SV_COSTUME					1
 
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES	1
@@ -1898,7 +2147,7 @@ Tenative exponential function:
 #define SV_SCROLL_HOLY_PRAYER			35
 #define SV_SCROLL_MONSTER_CONFUSION		36
 #define SV_SCROLL_PROTECTION_FROM_EVIL	37
-#define SV_SCROLL_RUNE_OF_PROTECTION	38
+#define SV_SCROLL_GAIJIN_PERIMETER		38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION	39
 /* xxx */
 #define SV_SCROLL_STAR_DESTRUCTION		41
@@ -2062,7 +2311,10 @@ Tenative exponential function:
  */
 #define SV_BOOK_MIN_GOOD	4
 
-
+/*
+ * Special "sval" limi -- first "good" large scroll
+ */
+#define SV_SCROLL_MIN_GOOD  5
 
 /*** Monster blow constants ***/
 
@@ -2367,7 +2619,7 @@ Tenative exponential function:
 #define SM_OPP_XXX2		0x00000040
 #define SM_OPP_XXX3		0x00000080
 #define SM_IMM_XXX5		0x00000100
-#define SM_IMM_XXX6		0x00000200
+#define SM_IMM_METER	0x00000200
 #define SM_IMM_FREE		0x00000400
 #define SM_IMM_MANA		0x00000800
 #define SM_IMM_ACID		0x00001000
@@ -2430,13 +2682,13 @@ Tenative exponential function:
 #define TR1_SLAY_EVIL		0x00020000L	/* Weapon slays evil */
 #define TR1_SLAY_UNDEAD		0x00040000L	/* Weapon slays undead */
 #define TR1_SLAY_DEMON		0x00080000L	/* Weapon slays demon */
-#define TR1_SLAY_ORC		0x00100000L	/* Weapon slays orc */
+#define TR1_SLAY_SENTAI		0x00100000L	/* Weapon slays orc */
 #define TR1_SLAY_TROLL		0x00200000L	/* Weapon slays troll */
 #define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
-#define TR1_XXX5			0x02000000L
-#define TR1_XXX6			0x04000000L
+#define TR1_SLAY_JELLY		0x02000000L /* Weapon slays Jelly, Mushroom, Mold */
+#define TR1_SLAY_MECHA		0x04000000L /* Weapon slays Mecha */
 #define TR1_BRAND_POIS		0x08000000L /* Weapon has poison brand */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
@@ -2561,12 +2813,13 @@ Tenative exponential function:
 #define C_MAGE			1
 #define C_PRIEST		2
 #define C_ROGUE			3
-#define C_RANGER		4
-#define C_PALADIN		5
+#define C_SENTAI		4
+#define C_COSPLAYER		5
 #define C_STUDENT		6
 #define C_MAGIC_KNIGHT	7
 #define C_CHI_WARRIOR	8
-#define C_MIMIC			9
+#define C_NINJA			9
+#define C_MAX			10
 
 /*** Races ***/
 #define P_HUMAN			0
@@ -2593,12 +2846,12 @@ Tenative exponential function:
 #define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
 #define CF_NO_STUDY			0x00000200L /* Study is not necessary */
-#define CF_XXX11			0x00000400L
-#define CF_XXX12			0x00000800L
-#define CF_XXX13			0x00001000L
-#define CF_XXX14			0x00002000L
-#define CF_XXX15			0x00004000L
-#define CF_XXX16			0x00008000L
+#define CF_MECHA_SENSE		0x00000400L /* Good at Piloting Mechas */
+#define CF_STUN_HANDS		0x00000800L /* Hands can stun randomly */
+#define CF_SMALL_PACK		0x00001000L /* Small backpack */
+#define CF_INTERVENTION		0x00002000L /* No mana cost */
+#define CF_FREE_MIMIC		0x00004000L /* Mimicing is free */
+#define CF_SPARK			0x00008000L /* Spark 1 in 10 if hit */
 #define CF_XXX17			0x00010000L
 #define CF_XXX18			0x00020000L
 #define CF_XXX19			0x00040000L
@@ -2631,7 +2884,7 @@ Tenative exponential function:
 #define LB_FAIL					10  /* Failed Limit Break */
 #define LB_GENEI_JIN				11  /* Genei Jin     */
 #define LB_RANDOM					12   /* Random Limit Break - Remnant */
-             
+#define LB_DANCE					13 /* Dance limit break */             
 
 
 /*** Monster flags ***/
@@ -2723,7 +2976,7 @@ Tenative exponential function:
 /*
  * New monster race bit flags
  */
-#define RF3_ORC				0x00000001	/* Orc */
+#define RF3_SENTAI			0x00000001	/* Orc */
 #define RF3_TROLL			0x00000002	/* Troll */
 #define RF3_GIANT			0x00000004	/* Giant */
 #define RF3_DRAGON			0x00000008	/* Dragon */
@@ -2732,9 +2985,9 @@ Tenative exponential function:
 #define RF3_EVIL			0x00000040	/* Evil */
 #define RF3_ANIMAL			0x00000080	/* Animal */
 #define RF3_FRIENDLY		0x00000100	/* Friendly */
-#define RF3_XXX2			0x00000200	/* (?) */
-#define RF3_XXX3			0x00000400	/* Non-Vocal (?) */
-#define RF3_XXX4			0x00000800	/* Non-Living (?) */
+#define RF3_MECHA			0x00000200	/* Mecha */
+#define RF3_FROG			0x00000400	/* Frog */
+#define RF3_JELLY			0x00000800	/* Jelly, Mold, Mushroom */
 #define RF3_HURT_LITE		0x00001000	/* Hurt by lite */
 #define RF3_HURT_ROCK		0x00002000	/* Hurt by rock remover */
 #define RF3_HURT_FIRE		0x00004000	/* Hurt badly by fire */
@@ -2787,7 +3040,7 @@ Tenative exponential function:
 #define RF4_BR_PLAS			0x02000000	/* Breathe Plasma */
 #define RF4_BR_WALL			0x04000000	/* Breathe Force */
 #define RF4_BR_MANA			0x08000000	/* Breathe Mana */
-#define RF4_XXX5			0x10000000
+#define RF4_BR_RADI			0x10000000  /* Breathe Radiation */
 #define RF4_XXX6			0x20000000
 #define RF4_XXX7			0x40000000
 #define RF4_XXX8			0x80000000
@@ -2851,10 +3104,10 @@ Tenative exponential function:
 #define RF6_S_HI_DEMON		0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
 #define RF6_S_MONSTERS		0x00080000	/* Summon Monsters */
-#define RF6_S_ANT			0x00100000	/* Summon Ants */
+#define RF6_S_GOON			0x00100000	/* Summon Goons */
 #define RF6_S_SPIDER		0x00200000	/* Summon Spiders */
 #define RF6_S_HOUND			0x00400000	/* Summon Hounds */
-#define RF6_S_HYDRA			0x00800000	/* Summon Hydras */
+#define RF6_S_HYDRA			0x00800000	/* Summon Hententmons */
 #define RF6_S_ANGEL			0x01000000	/* Summon Angel */
 #define RF6_S_DEMON			0x02000000	/* Summon Demon */
 #define RF6_S_UNDEAD		0x04000000	/* Summon Undead */
@@ -2864,6 +3117,79 @@ Tenative exponential function:
 #define RF6_S_WRAITH		0x40000000	/* Summon Unique Wraith */
 #define RF6_S_UNIQUE		0x80000000	/* Summon Unique Monster */
 
+
+/*
+ * New special monster abilities
+ */
+#define RF7_S_FROG			0x00000001	/* Summon Frogs */
+#define RF7_DRAIN_METER		0x00000002	/* Drain Meter */
+#define RF7_MAKE_BOMB		0x00000004	/* MacGyverisms */
+#define RF7_XXX3			0x00000008	/* Heal a lot (?) */
+#define RF7_XXX4			0x00000010	/* Teleport Short */
+#define RF7_XXX5			0x00000020	/* Teleport Long */
+#define RF7_XXX6			0x00000040	/* Move to Player (?) */
+#define RF7_XXX7			0x00000080	/* Move to Monster (?) */
+#define RF7_XXX8			0x00000100	/* Move player to monster */
+#define RF7_XXX9			0x00000200	/* Move player far away */
+#define RF7_XXX10			0x00000400	/* Move player vertically */
+#define RF7_XXX11			0x00000800	/* Invoke a Divine Comedy */
+#define RF7_XXX12			0x00001000	/* Create Darkness */
+#define RF7_XXX13			0x00002000	/* Create Traps */
+#define RF7_XXX14			0x00004000	/* Cause amnesia */
+#define RF7_XXX15			0x00008000	/* Summon Dragon Slave*/
+#define RF7_XXX16			0x00010000	/* Summon Kin */
+#define RF7_XXX17			0x00020000	/* Summon Greater Demons */
+#define RF7_XXX18			0x00040000	/* Summon Monster */
+#define RF7_XXX19			0x00080000	/* Summon Monsters */
+#define RF7_XXX20			0x00100000	/* Summon Ants */
+#define RF7_XXX21			0x00200000	/* Summon Spiders */
+#define RF7_XXX22			0x00400000	/* Summon Hounds */
+#define RF7_XXX23			0x00800000	/* Summon Hententmons */
+#define RF7_XXX24			0x01000000	/* Summon Angel */
+#define RF7_XXX25			0x02000000	/* Summon Demon */
+#define RF7_XXX26			0x04000000	/* Summon Undead */
+#define RF7_XXX27			0x08000000	/* Summon Dragon */
+#define RF7_XXX28			0x10000000	/* Summon Greater Undead */
+#define RF7_XXX29			0x20000000	/* Summon Ancient Dragon */
+#define RF7_XXX30			0x40000000	/* Summon Unique Wraith */
+#define RF7_XXX31			0x80000000	/* Summon Unique Monster */
+
+/*
+ *  Misc. Flags
+ */
+
+#define RF8_UP_QUESTOR		0x00000001  /* Generate Upstaircase */
+#define RF8_REPLACEMENT		0x00000002	/* Replacement Technique */
+#define RF8_DUEL_LAST		0x00000004	/* Duel Last */
+#define RF8_DUEL_MONSTER	0x00000008	/* Duel Monster */
+#define RF8_XXX4			0x00000010	/* Teleport Short */
+#define RF8_XXX5			0x00000020	/* Teleport Long */
+#define RF8_XXX6			0x00000040	/* Move to Player (?) */
+#define RF8_XXX7			0x00000080	/* Move to Monster (?) */
+#define RF8_XXX8			0x00000100	/* Move player to monster */
+#define RF8_XXX9			0x00000200	/* Move player far away */
+#define RF8_XXX10			0x00000400	/* Move player vertically */
+#define RF8_XXX11			0x00000800	/* Invoke a Divine Comedy */
+#define RF8_XXX12			0x00001000	/* Create Darkness */
+#define RF8_XXX13			0x00002000	/* Create Traps */
+#define RF8_XXX14			0x00004000	/* Cause amnesia */
+#define RF8_XXX15			0x00008000	/* Summon Dragon Slave*/
+#define RF8_XXX16			0x00010000	/* Summon Kin */
+#define RF8_XXX17			0x00020000	/* Summon Greater Demons */
+#define RF8_XXX18			0x00040000	/* Summon Monster */
+#define RF8_XXX19			0x00080000	/* Summon Monsters */
+#define RF8_XXX20			0x00100000	/* Summon Ants */
+#define RF8_XXX21			0x00200000	/* Summon Spiders */
+#define RF8_XXX22			0x00400000	/* Summon Hounds */
+#define RF8_XXX23			0x00800000	/* Summon Hententmons */
+#define RF8_XXX24			0x01000000	/* Summon Angel */
+#define RF8_XXX25			0x02000000	/* Summon Demon */
+#define RF8_XXX26			0x04000000	/* Summon Undead */
+#define RF8_XXX27			0x08000000	/* Summon Dragon */
+#define RF8_XXX28			0x10000000	/* Summon Greater Undead */
+#define RF8_XXX29			0x20000000	/* Summon Ancient Dragon */
+#define RF8_XXX30			0x40000000	/* Summon Unique Wraith */
+#define RF8_XXX31			0x80000000	/* Summon Unique Monster */
 
 
 /*
@@ -2884,10 +3210,13 @@ Tenative exponential function:
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
 	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_DIVINE_COMEDY | \
 	 RF6_S_DRAGON_SLAVE | RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-	 RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	 RF6_S_GOON | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
 	 RF6_S_WRAITH | RF6_S_UNIQUE)
+
+#define RF7_INT_MASK \
+	(RF7_S_FROG | RF7_DRAIN_METER | RF7_MAKE_BOMB)
 
 
 /*
@@ -2925,7 +3254,8 @@ Tenative exponential function:
 	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
-	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA)
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
+	 RF4_BR_RADI)
 
 #define RF5_ATTACK_MASK \
 	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
@@ -2938,6 +3268,9 @@ Tenative exponential function:
 #define RF6_ATTACK_MASK \
 	(RF6_DIVINE_COMEDY | RF6_S_DRAGON_SLAVE)
 
+#define RF7_ATTACK_MASK \
+	(RF7_MAKE_BOMB)
+
 
 /*
  * Summoning spells
@@ -2949,10 +3282,13 @@ Tenative exponential function:
 	(0L)
 
 #define RF6_SUMMON_MASK \
-	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_GOON | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
 	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGON_SLAVE)
+
+#define RF7_SUMMON_MASK \
+	(RF7_S_FROG)
 
 
 /*
@@ -2980,6 +3316,7 @@ Tenative exponential function:
 
 #define RF6_ANNOY_MASK \
 	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+
 
 
 /*
@@ -3017,7 +3354,7 @@ Tenative exponential function:
 	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
 	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
 	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
-	 RF4_BULLET)
+	 RF4_BULLET  | RF4_BR_RADI)
 
 #define RF5_INNATE_MASK \
 	(0L)
@@ -3713,8 +4050,9 @@ extern int PlayerUID;
 #define ACT_CONFUSE             44
 #define ACT_PROBE               45
 #define ACT_FIREBRAND           46
+#define ACT_IAI					47
 
-#define ACT_MAX                 47
+#define ACT_MAX                 48
 
 /*
  * HACK - define if the source contains the cleanup_angband() function.

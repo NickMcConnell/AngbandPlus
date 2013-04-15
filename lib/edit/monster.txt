@@ -116,6 +116,7 @@
 # S: spell frequency |
 # S: spell type | spell type | etc
 # F: flag | flag | etc
+# O: Origin of monster
 # D: Description
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -149,6 +150,8 @@
 # lines may be used as are needed to specify all the flags and flags
 # are separated by the '|' symbol.
 
+# 'O' is for where the monster came from, or the idea behind it.
+
 # 'D' is for description. As many D: lines may be used as are needed
 # to describe the monster. Note that lines may need spaces at their
 # ends to prevent words from running together in the monster memory.
@@ -156,7 +159,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 ##### Non-race (contains the "player" picture) #####
@@ -176,6 +179,7 @@ B:TOUCH:EAT_GOLD
 F:MALE | 
 F:RAND_25 |  FRIENDS | 
 F:TAKE_ITEM | OPEN_DOOR
+O:Akira
 D:He looks squalid and thoroughly revolting.
 
 N:2:Fluffy cat
@@ -185,6 +189,7 @@ W:0:3:0:0
 B:CLAW:HURT:1d1
 F:RAND_25 | 
 F:ANIMAL
+O:Azumanga Daioh
 D:A fluffy little furball with sharp claws and a menacing look.
 
 N:3:Scruffy little dog
@@ -194,6 +199,7 @@ W:0:3:0:0
 B:BITE:HURT:1d1
 F:RAND_25 | 
 F:ANIMAL
+O:Angband
 D:A thin flea-ridden mutt, growling as you get close.
 
 N:4:Yumi Saotome
@@ -208,6 +214,7 @@ F:FORCE_MAXHP | ALWAYS_HIT |
 F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
+O:Tokimeki Memorial
 D:More noisy than cheerful, she sometimes tends to be little selfish. 
 D:A naive girl who loves amusement parks and zoos. Beware of this
 D:walking nihilist of death!
@@ -220,9 +227,10 @@ B:DROOL
 F:MALE | 
 F:RAND_25 | CAN_SPEAK |
 F:TAKE_ITEM
+O:Joke
 D:The bane of all anime conventions...bald, fat, and ugly.
 
-N:6:Boil-covered wretch
+N:6:Stupid Looking Cos-Player
 G:t:g
 I:110:1d2:6:1:0
 W:0:1:0:0
@@ -230,19 +238,28 @@ B:DROOL
 F:MALE | 
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:Ugly doesn't begin to describe him.
+O:Joke
+D:Why men would dress up as their favorite anime girl is beyond me.  
 
-N:7:Village idiot
-G:t:G
-I:120:4d4:6:1:0
-W:0:1:0:0
-B:DROOL
-F:MALE | 
-F:RAND_25 | 
+N:7:Tomoka Kayahara
+G:t:D
+I:120:50d20:6:1:0
+W:0:4:0:0
+B:TOUCH:TERRIFY
+B:GAZE:TERRIFY
+B:GAZE:TERRIFY
+F:FEMALE | UNIQUE |
+F:FORCE_MAXHP | ALWAYS_HIT |
+F:ONLY_ITEM | DROP_GOOD | RAND_50 |
 F:TAKE_ITEM
-D:Drooling and comical, but then, what do you expect?
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:Kayahara is a teacher by profession; however, her extremely eerie 
+D:disposition scares her students away.  This puts her into a depression 
+D:and she attempts to kill herself numerous times because she feels like she 
+D:has failed as a teacher.  The only thing that keeps her alive is Onimaru Ramen.  
+D:She also has a strong resemblence to Sadako.
 
-N:8:Pitiful looking beggar
+N:8:Arcade Scrub
 G:t:U
 I:110:1d4:10:1:40
 W:0:1:0:0
@@ -250,31 +267,37 @@ B:BEG
 F:MALE | 
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR
-D:You just can't help feeling sorry for him.
+O:Joke
+D:He needs money because he spent 5000 Yen trying to beat Daigo Umehara in 
+D:Street Fighter.
 
-N:9:Mangy looking leper
-G:t:u
+N:9:Crow
+G:B:u
 I:110:1d1:10:1:50
 W:0:1:0:0
-B:BEG
-F:MALE | 
+B:CLAW:HURT:1d1
+F:ANIMAL | 
 F:RAND_25 | 
-F:TAKE_ITEM | OPEN_DOOR
-D:You feel it isn't safe to touch him.
+F:TAKE_ITEM |
+O:Anime joke
+D:The ubiquitous bird in all anime that shouts 'Aho!  Aho!'
 
-N:10:Squint eyed rogue
+N:10:Furry
 G:t:b
 I:110:2d8:10:8:99
 W:0:1:0:0
-B:HIT:HURT:1d6
+B:CLAW:HURT:1d6
 B:TOUCH:EAT_ITEM
-F:MALE | 
+F:MALE |
 F:DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:A hardy, street-wise crook that knows an easy catch when it sees one.
+O:Joke
+D:What's scarier than men cos-playing as girls?  People dressed up as animals 
+D:while being painfully explicit on the beastiality.  Why these people exist, 
+D:I cannot say.
 
-N:11:Singing, happy drunk
+N:11:Drunk JET guy
 G:t:y
 I:110:2d3:10:1:0
 W:0:1:0:0
@@ -283,19 +306,23 @@ F:MALE |
 F:RAND_50 | 
 F:ONLY_GOLD | DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:He makes you glad to be sober.
+O:Joke
+D:He's drunk because he's trying to forget the horrible English that he's 
+D:forced to teach to Japanese school children.  'This is a pen!'  'Is this a 
+D:pen?'  'No, these are PENS.'  He must do this despite the fact that ALL of his 
+D:students want to kancho him in the ass or grab his dick.  I do you schoolbus...
 
-N:12:Aimless looking merchant
+N:12:Karate Scrub
 G:t:o
 I:110:3d3:10:1:255
 W:0:1:0:0
-B:HIT:HURT:1d3
+B:KICK:HURT:1d3
 F:MALE | 
 F:RAND_50 | 
 F:ONLY_GOLD | DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:The typical ponce around town, with purse jingling, and looking for more 
-D:amulets of adornment to buy.
+O:Maintainer
+D:Another karate-kid wannabe.
 
 N:13:Yakuza member
 G:t:r
@@ -306,6 +333,7 @@ F:MALE |
 F:RAND_50 | DROP_90 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Japanese Culture/History
 D:No job is too low for him.
 
 N:14:Battle scarred ronin
@@ -313,16 +341,17 @@ G:t:B
 I:110:7d8:10:30:250
 W:0:1:0:0
 B:HIT:HURT:2d6
-F:MALE | 
+F:MALE | CAN_SPEAK |
 F:RAND_50 | DROP_90 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+O:Japanese Culture/History
 D:He doesn't take to strangers kindly.
 
 
 ##### Normal monsters #####
 
-N:15:Grey mold
-G:m:s
+N:15:Natto
+G:m:u
 I:110:1d2:2:1:0
 W:1:1:0:3
 B:HIT:HURT:1d4
@@ -331,39 +360,54 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A small strange growth.
+O:Japanese Culture/History
+D:From the Robin Williams sketch on Japanese people getting rid of unwanted Westerners 
+D:who wandered into their restaurant...'My God!  They ate the RAW FISH!  What can we do 
+D:now?'  'I know, let's serve them cheap hot wine I use for cleaning!'  'They drank the 
+D:hot wine!  They want more!  They must have no taste at all!'  'I've got some spoiled 
+D:soybeans here.  They are all slimy.  No one could eat that!'  Those spoiled slimy 
+D:soybeans are natto.  However, the variant maintainer actually enjoys eating it...
 
-N:16:Grey mushroom patch
-G:,:s
+N:16:Sukkiri Flower
+G:,:g
 I:110:1d2:2:1:0
 W:1:1:0:1
-B:SPORE:CONFUSE:1d4
+B:HIT:CONFUSE:1d4
+F:ATTR_MULTI | 
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:Yum!  It looks quite tasty.
+O:IQ Sapuri
+D:A bright flashing flower with the words 'Sukkiri' written on its face.  It has many 
+D:lightbulbs attached to it.
 
-N:17:Giant yellow centipede
-G:c:y
+N:17:Red hornet
+G:a:r
 I:110:2d6:8:12:30
 W:1:1:0:2
 B:BITE:HURT:1d3
 B:STING:HURT:1d3
 F:WEIRD_MIND | 
-F:ANIMAL
-D:It is about four feet long and carnivorous.
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:A three-foot tall mini robot with a propeller that is drawn to look like it is spinning.
 
-N:18:Giant white centipede
-G:c:w
-I:110:3d5:7:10:40
+N:18:Dango San-kyodai
+G:,:u
+I:110:5d5:7:10:40
 W:1:1:0:2
 B:BITE:HURT:1d2
-B:STING:HURT:1d2
-F:RAND_50 | 
-F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is about four feet long and carnivorous.
+B:BITE:HURT:1d2
+B:BITE:HURT:1d2
+F:UNIQUE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Okaa-san to Issho
+D:Similar to the 'This is a pen' horrors that poor Asian people have to go through when 
+D:learning English, Americans get to learn the tale of Dango-san Kyodai when first 
+D:taking elementary Japanese.
 
 N:19:White icky thing
 G:i:w
@@ -372,6 +416,7 @@ W:1:1:0:2
 B:TOUCH:HURT:1d2
 F:RAND_50 | RAND_25 | 
 F:EMPTY_MIND
+O:Angband
 D:It is a smallish, slimy, icky creature.
 
 N:20:Clear icky thing
@@ -382,6 +427,7 @@ B:TOUCH:HURT:1d2
 F:ATTR_CLEAR | 
 F:RAND_50 | RAND_25 | 
 F:INVISIBLE | EMPTY_MIND
+O:Angband
 D:It is a smallish, slimy, icky, blobby creature.
 
 N:21:Giant white mouse
@@ -392,6 +438,7 @@ B:BITE:HURT:1d2
 F:RAND_50 | 
 F:MULTIPLY | 
 F:ANIMAL
+O:Angband
 D:It is about three feet long with large teeth.
 
 N:22:Large brown snake
@@ -403,6 +450,7 @@ B:CRUSH:HURT:1d4
 F:RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is about eight feet long.
 
 N:23:Large white snake
@@ -414,6 +462,7 @@ B:CRUSH:HURT:1d1
 F:RAND_50 | 
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is about eight feet long.
 
 N:24:Fairy moogle
@@ -423,6 +472,7 @@ W:1:1:0:5
 B:HIT:HURT:1d5
 F:DROP_60 | 
 F:OPEN_DOOR
+O:Final Fantasy
 D:Fairy moogles are weird and secretive moogles that live in 
 D:special parts of forests.
 
@@ -433,17 +483,19 @@ W:1:1:0:5
 B:HIT:HURT:1d6
 F:DROP_60 | 
 F:OPEN_DOOR
+O:Final Fantasy
 D:It is a moogle that wears clothes and frolics about.
 
-N:26:White worm mass
-G:w:w
+N:26:Flying Moyatto Ball
+G:w:G
 I:100:4d4:7:1:10
 W:1:1:0:2
-B:CRAWL:POISON:1d2
-F:RAND_50 | RAND_25 | 
-F:STUPID | WEIRD_MIND | MULTIPLY | 
+B:HIT:POISON:1d2
+F:RAND_50 | RAND_25 | MULTIPLY |
+F:STUPID | WEIRD_MIND | FRIENDS | 
 F:ANIMAL | IM_POIS | HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+O:IQ Sapuri
+D:A moyatto ball with wings and cute little black shoes.
 
 N:27:Floating eye
 G:e:o
@@ -452,33 +504,38 @@ W:1:1:0:1
 B:GAZE:PARALYZE
 F:NEVER_MOVE | 
 F:HURT_LITE | NO_FEAR
+O:Angband
 D:A disembodied eye, floating a few feet above the ground.
 
-N:28:Rock lizard
-G:R:U
-I:110:3d4:20:4:15
+N:28:Rouge Jellyfish
+G:a:U
+I:110:6d4:20:4:15
 W:1:1:0:2
-B:BITE:HURT:1d1
-F:ANIMAL
-D:It is a small lizard with a hardened hide.
+B:HIT:HURT:1d4
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:A strange looking jellyfish with lights for eyes.
 
-N:29:Jackal
-G:C:U
+N:29:DARK Female Android
+G:a:s
 I:110:1d4:10:3:10
 W:1:1:0:1
-B:BITE:HURT:1d1
+B:HIT:HURT:1d1
 F:FRIENDS | 
-F:ANIMAL
-D:It is a yapping snarling dog, dangerous when in a pack.
+F:MECHA
+O:Jinzo Ningen Kikaida
+D:A weird female androids that wears fishnet stockings and 
+D:a fish helmet.
 
-N:30:Soldier ant
-G:a:W
+N:30:Putty
+G:a:w
 I:110:2d5:10:3:10
 W:1:1:0:3
-B:BITE:HURT:1d2
+B:HIT:HURT:1d2
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:A large ant with powerful mandibles.
+F:MECHA | FRIENDS |
+O:Mighty Morphin' Power Rangers
+D:The grey android goon that comes in groups.
 
 N:31:Fruit bat
 G:b:o
@@ -486,6 +543,7 @@ I:120:1d6:20:3:10
 W:1:1:0:1
 B:BITE:HURT:1d1
 F:ANIMAL
+O:Angband
 D:A fast-moving pest.
 
 N:32:Shrieker mushroom patch
@@ -498,6 +556,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:SHRIEK
+O:Angband
 D:Yum!  These look quite tasty.
 
 N:33:Blubbering icky thing
@@ -509,17 +568,21 @@ B:CRAWL:EAT_FOOD
 F:RAND_50 | DROP_90 | 
 F:EMPTY_MIND | TAKE_ITEM | KILL_BODY | 
 F:IM_POIS
+O:Angband
 D:It is a smallish, slimy, icky, hungry creature.
 
-N:34:Metallic green centipede
-G:c:g
+N:34:Black Chameleon
+G:a:D
 I:120:4d4:5:4:10
 W:2:1:0:3
-B:CRAWL:HURT:1d1
+B:BITE:HURT:1d1
+B:CLAW:HURT:1d2
+B:HIT:HURT:1d3
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is about four feet long and carnivorous.
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:A strange robot made by DARK that looks just like a chameleon.
 
 N:35:Giant Platypus
 G:B:u
@@ -529,9 +592,9 @@ B:HIT:HURT:1d7
 B:HIT:POISON:1d6
 F:IM_POIS
 F:ANIMAL
+O:Angband
 D:Shy and goofy looking, it makes a mockery of evolutionists everywhere.  
 D:This one just happens to be 20 feet tall.
-
 
 N:36:Nohoho
 G:R:g
@@ -539,9 +602,10 @@ I:130:8d4:20:12:5
 W:2:1:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
-F:MALE | 
+F:MALE | FROG |
 F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+O:Puyo Puyo
 D:A frog that carries a huge purse around.
 
 N:37:Sukiya
@@ -553,6 +617,7 @@ F:MALE |
 F:DROP_60 |
 F:FORCE_SLEEP | 
 F:OPEN_DOOR | BASH_DOOR
+O:Puyo Puyo
 D:A disembodied foot.
 
 N:38:Panotty
@@ -566,18 +631,20 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
+O:Puyo Puyo
 D:An annoying little boy with a very annoying flute.
 
-N:39:Yellow mushroom patch
-G:,:y
+N:39:Goomba
+G:,:u
 I:110:1d1:2:1:0
 W:2:1:0:2
-B:SPORE:TERRIFY:1d6
-F:NEVER_MOVE | 
+B:BITE:TERRIFY:1d6
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:Yum!  It looks quite tasty.
+O:Super Mario Bros.
+D:A strange looking mushroom with evil looking eyes, little black 
+D:feet, and sharp fangs.
 
 N:40:White jelly
 G:j:w
@@ -588,28 +655,33 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:Its a large pile of white flesh.
 
-N:41:Giant green frog
-G:R:g
+N:41:Poring
+G:q:R
 I:110:2d8:12:8:30
 W:2:1:0:6
-B:BITE:HURT:1d3
+B:HIT:HURT:1d3
 F:RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL
-D:It is as big as a wolf.
+O:Ragnarok Online
+D:A strange jelly creature with the face and ears of a bunny rabbit.  It 
+D:even bounces around like one.
 
-N:42:Giant black ant
-G:a:D
+N:42:Green mantis
+G:a:g
 I:110:3d6:8:20:80
 W:2:1:0:8
-B:BITE:HURT:1d4
+B:HIT:HURT:1d4
 F:RAND_25 | 
 F:WEIRD_MIND | 
 F:BASH_DOOR | 
-F:ANIMAL
-D:It is about three feet long.
+F:MECHA
+O:Kikaida
+D:A weird android goon that goes after Kikaida.  
+D:It has long pincers and sleeves for legs.
 
 N:43:Salamander
 G:R:o
@@ -618,29 +690,30 @@ W:2:1:0:10
 B:BITE:FIRE:1d3
 F:RAND_25 | 
 F:ANIMAL | IM_FIRE
+O:Angband
 D:A small black and orange lizard.
 
-N:44:White harpy
-G:H:w
-I:110:2d5:16:17:10
+N:44:Ugly stick
+G:~:U
+I:100:5d10:16:17:10
 W:2:1:0:5
-B:CLAW:HURT:1d1
-B:CLAW:HURT:1d1
-B:BITE:HURT:1d2
-F:FEMALE | 
-F:RAND_50 | 
-F:ANIMAL | EVIL
-D:A flying, screeching bird with a woman's face.
+B:HIT:LOSE_CHR:1d1
+F:NEVER_MOVE
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Joke
+D:The proverbial ugly stick.
 
-N:45:Blue yeek
-G:y:b
+N:45:Lunatic
+G:q:w
 I:110:2d6:18:14:10
 W:2:1:0:4
 B:HIT:HURT:1d5
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL
-D:A small humanoid figure.
+O:Ragnarok Online
+D:A rabbit that has so much fur that its eyes and feet can't be seen.
 
 N:46:Pero Pero
 G:C:U
@@ -651,6 +724,7 @@ F:UNIQUE |
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+O:Kareshi Kanojo no Jijou
 D:Miyazawa Yukino's cute, cuddly, and fluffy dog.  It is very confused,
 D:and it wants to eat you.
 
@@ -664,18 +738,23 @@ F:UNIQUE |
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+O:Inside Joke
 D:A funky looking cat that appears out of nowhere and demands your attention.
 
-N:48:Green worm mass
+N:48:Moyatto Ball
 G:w:g
 I:100:6d4:7:3:10
 W:2:1:0:3
-B:CRAWL:ACID:1d3
+B:HIT:LOSE_INT:1d3
 F:RAND_50 | RAND_25 | 
 F:STUPID | WEIRD_MIND | MULTIPLY | 
-F:ANIMAL | IM_ACID | 
-F:HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+F:IM_ACID | FRIENDS |
+F:NO_FEAR
+O:IQ Sapuri
+D:A green spiked ball that moves around.  People like to pick them up and throw them at others, especially  
+D:after sheer mental frustration.  Unfortunately, they invariably end up hitting a poor guy on the head, 
+D:causing that person to lose IQ points.  Moyatto Balls can be made into a juice, though it apparently 
+D:doesn't taste any good.  
 
 N:49:Large yellow snake
 G:J:y
@@ -686,6 +765,7 @@ B:CRUSH:HURT:1d6
 F:RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is about ten feet long.
 
 N:50:Cave spider
@@ -696,6 +776,7 @@ B:BITE:HURT:1d4
 F:FRIENDS | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a black spider that moves in fits and starts.
 
 N:51:Hello Kitty
@@ -705,6 +786,7 @@ W:2:2:0:8
 B:CLAW:HURT:1d3
 F:BASH_DOOR | FRIENDS |
 F:ANIMAL
+O:Hello Kitty
 D:Hello Kitty symbolizes generosity, innocence, kindness and most importantly... 
 D:friendship.  You look at her with the same feelings for Barney the Purple 
 D:Dinosaur or lutefisk.
@@ -723,6 +805,7 @@ F:RAND_50 | RAND_25 |
 F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
 F:INVISIBLE | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Inside Joke
 D:A weird looking, depraved creature with the desire to ruin other people's 
 D:lives.
 
@@ -735,31 +818,32 @@ F:RAND_50 | RAND_25 | DROP_90 |
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Puyo Puyo
 D:An apathetic Puyo that wanders about.
 
-N:54:Poltergeist
+N:54:Boo
 G:G:W
-I:130:2d5:8:15:10
+I:110:3d5:8:15:10
 W:3:1:0:8
 B:TOUCH:TERRIFY
-F:RAND_50 | RAND_25 | 
+B:BITE:HURT:1d3
 F:DROP_60 | DROP_90 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | TAKE_ITEM | 
 F:EVIL | UNDEAD | 
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_15 | 
-S:BLINK
-D:It is a ghastly, ghostly form.
+O:Super Mario Brothers
+D:A strange looking ghost with fangs that follows you when your back is turned, but gets 
+D:shy when stared at. 
 
-N:55:Metallic blue centipede
-G:c:b
+N:55:Pink Shyguy
+G:w:R
 I:120:4d5:6:6:15
 W:3:1:0:7
 B:CRAWL:HURT:1d2
 F:RAND_50 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is about four feet long and carnivorous.
+O:Super Mario Brothers
+D:A strange creature that wears a mask and crawls about.
 
 N:56:Bagurom
 G:I:v
@@ -769,29 +853,31 @@ B:BITE:HURT:1d1
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
+O:El-Hazard
 D:Insect like creatures that just don't like you.
 
-N:57:Black naga
-G:n:D
+N:57:Red Koopa
+G:n:r
 I:110:6d8:16:40:120
 W:3:1:0:20
-B:CRUSH:HURT:1d8
-F:FEMALE | 
+B:BITE:HURT:1d8
+F:MALE |
 F:RAND_25 | DROP_60 | 
 F:BASH_DOOR | 
-F:EVIL
-D:A large black serpent's body with a female torso.
+O:Super Mario Brothers
+D:A red turtle that is a little smarter than its green cousin.  
+D:It actually turns around upon walking to the edge of a cliff.
 
-N:58:Spotted mushroom patch
+N:58:Flying goomba
 G:,:o
 I:110:1d1:2:1:0
 W:3:1:0:3
-B:SPORE:POISON:2d4
-F:NEVER_MOVE | 
+B:BITE:POISON:2d4
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:Yum!  It looks quite tasty.
+O:Super Mario Brothers
+D:A Goomba with wings.
 
 N:59:Silver jelly
 G:j:W
@@ -805,6 +891,7 @@ F:IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_15 | 
 S:DRAIN_MANA
+O:Angband
 D:It is a large pile of silver flesh that sucks all light from its 
 D:surroundings.
 
@@ -818,6 +905,7 @@ F:IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_15 | 
 S:DRAIN_MANA
+O:Yu-Gi-Oh
 D:Don't ask me....ask the creators of Yu-Gi-Oh.
 
 N:61:Oyaji
@@ -830,17 +918,20 @@ F:MALE |
 F:DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Japanese Culture/History
 D:A lecherous old man.
 
 
-N:62:Giant white ant
-G:a:w
+N:62:Grey cyborg
+G:a:W
 I:110:3d6:8:16:80
 W:3:1:0:7
-B:BITE:HURT:1d4
+B:BUTT:HURT:1d4
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is about two feet long and has sharp pincers.
+F:MECHA
+O:Kikaida
+D:A weird android goon that goes after Kikaida.  
+D:It is a massive mecha with a long horn.
 
 N:63:Yellow mold
 G:m:y
@@ -851,39 +942,43 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a strange growth on the dungeon floor.
 
-N:64:Metallic red centipede
-G:c:r
+N:64:Red Shyguy
+G:w:r
 I:120:4d8:8:9:20
 W:3:1:0:12
 B:CRAWL:HURT:1d2
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is about four feet long and carnivorous.
+O:Super Mario Brothers
+D:A red version of the Shyguy.
 
-N:65:Yellow worm mass
-G:w:y
+N:65:Myu
+G:w:b
 I:100:4d8:7:4:10
 W:3:2:0:4
-B:CRAWL:LOSE_DEX:1d3
+B:CRAWL:LOSE_STR:1d3
 F:RAND_50 | RAND_25 | 
 F:STUPID | WEIRD_MIND | MULTIPLY | 
 F:ANIMAL | HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+O:Legend of Zelda
+D:A strange blue creature surrounded by spikes.
 
-N:66:Clear worm mass
+N:66:Kancho assassin
 G:w:w
-I:100:4d4:7:1:10
+I:100:12d4:7:1:10
 W:3:2:0:4
-B:CRAWL:POISON:1d2
+B:HIT:HURT:3d6
 F:ATTR_CLEAR | 
-F:RAND_50 | RAND_25 | 
-F:STUPID | WEIRD_MIND | INVISIBLE | MULTIPLY | 
-F:ANIMAL | 
-F:IM_POIS | HURT_LITE | NO_FEAR
-D:It is a disgusting mass of poisonous worms.
+F:INVISIBLE | NO_SLEEP |
+F:IM_POIS | NO_FEAR
+O:SRK Joke
+D:Somewhere out there, there is a Kancho assassin waiting to inflict 
+D:a thousand years of pain.  You shudder at the thought that such 
+D:little critters exist in Japan.  Without Kancho-Sense, you're 
+D:doomed.
 
 N:67:Radiation eye
 G:e:R
@@ -894,6 +989,7 @@ F:NEVER_MOVE |
 F:HURT_LITE | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
+O:Angband
 D:A disembodied eye, crackling with energy.
 
 N:68:Cave lizard
@@ -902,6 +998,7 @@ I:110:3d6:8:16:80
 W:4:1:0:8
 B:BITE:HURT:1d5
 F:ANIMAL
+O:Angband
 D:It is an armoured lizard with a powerful bite.
 
 N:69:Kabuki mono
@@ -916,6 +1013,7 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | 
 S:1_IN_9 | 
 S:ARROW_2 | MISSILE
+O:Japanese Culture/History
 D:Once an actor, this man has turned to thuggery.
 
 N:70:Extremely cute cat
@@ -926,6 +1024,7 @@ B:BITE:HURT:1d7
 B:BITE:HURT:1d7
 F:FEMALE | 
 F:FORCE_SLEEP | 
+O:Azumanga Daioh
 D:A cute little cat that has extremely sharp teeth.  It is baiting 
 D:you to pet it.
 
@@ -938,6 +1037,7 @@ F:NEVER_MOVE | COLD_BLOOD |
 F:STUPID | EMPTY_MIND | 
 F:IM_COLD | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It's a large pile of pulsing blue flesh.
 
 N:72:Creeping copper coins
@@ -950,6 +1050,7 @@ F:ONLY_GOLD | DROP_1D2 |
 F:COLD_BLOOD | BASH_DOOR | 
 F:ANIMAL | IM_POIS | 
 F:NO_CONF | NO_SLEEP
+O:Angband
 D:It is a pile of coins.
 
 N:73:Giant white rat
@@ -960,10 +1061,11 @@ B:BITE:POISON:1d3
 F:RAND_25 | 
 F:MULTIPLY | 
 F:ANIMAL
+O:Angband
 D:It is a very vicious rodent.
 
-N:74:Blue worm mass
-G:w:b
+N:74:Bot
+G:w:B
 I:100:5d8:7:12:10
 W:4:1:0:5
 B:CRAWL:COLD:1d4
@@ -971,7 +1073,8 @@ F:RAND_50 | RAND_25 |
 F:STUPID | WEIRD_MIND | COLD_BLOOD | MULTIPLY | 
 F:ANIMAL | IM_COLD | 
 F:HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+O:Legend of Zelda
+D:A weird looking blue blobby thing that hops around.
 
 N:75:Large grey snake
 G:J:s
@@ -982,6 +1085,7 @@ B:CRUSH:HURT:1d8
 F:RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is about ten feet long.
 
 N:76:Sasuke Sarugature
@@ -995,6 +1099,7 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
+O:Ranma 1/2
 D:Abused servant of the Kuno family, Sasuke sneaks about doing their bidding.
 
 N:77:Novice pretty magical girl
@@ -1008,20 +1113,21 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:Your sterreotypical, sailor-suit, magic girl.
+O:Japanese Culture/History (or joke :))
+D:Your stereotypical, sailor-suit, magic girl.
 
-N:78:Green naga
+N:78:Green koopa
 G:n:g
 I:110:9d8:18:40:120
 W:5:1:0:30
-B:CRUSH:HURT:1d8
-B:SPIT:ACID:2d6
-F:FEMALE | 
+B:BITE:HURT:1d8
+B:BITE:ACID:2d6
+F:MALE | 
 F:RAND_25 | TAKE_ITEM | DROP_60 | 
 F:BASH_DOOR | 
-F:EVIL | IM_ACID
-D:A large green serpent with a female's torso.  Her green skin glistens with 
-D:acid.
+F:IM_ACID
+O:Super Mario Brothers
+D:A green turtle that walks around stupidly.  It even walks off cliffs.
 
 N:79:Blue ooze
 G:j:b
@@ -1032,6 +1138,7 @@ F:RAND_50 | RAND_25 | DROP_60 |
 F:STUPID | EMPTY_MIND | 
 F:IM_COLD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It's blue and it's oozing.
 
 N:80:Green glutton ghost
@@ -1043,6 +1150,7 @@ F:RAND_50 | RAND_25 |
 F:DROP_60 | DROP_90 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a very ugly green ghost with a voracious appetite.
 
 N:81:Green Jelly
@@ -1054,6 +1162,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a large pile of pulsing green flesh.
 
 N:82:Mountain moogle
@@ -1064,6 +1173,7 @@ B:HIT:HURT:1d10
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_COLD
+O:Final Fantasy
 D:It is a snow colored moogle that blends in really well in snow.
 
 N:83:Skeleton moogle
@@ -1074,6 +1184,7 @@ B:HIT:HURT:1d6
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Final Fantasy/Joke
 D:It is a small animated moogle skeleton.
 
 N:84:Grey icky thing
@@ -1083,6 +1194,7 @@ W:5:1:0:10
 B:TOUCH:HURT:1d5
 F:RAND_50 | 
 F:EMPTY_MIND
+O:Angband
 D:It is a smallish, slimy, icky, nasty creature.
 
 N:85:Disenchanter eye
@@ -1095,10 +1207,11 @@ F:NEVER_MOVE |
 F:HURT_LITE | NO_FEAR
 S:1_IN_9 | 
 S:DRAIN_MANA
+O:Angband
 D:A disembodied eye, crackling with magic.
 
-N:86:Red worm mass
-G:w:r
+N:86:Bit
+G:w:R
 I:100:5d8:7:12:10
 W:5:1:0:6
 B:CRAWL:FIRE:1d6
@@ -1106,7 +1219,8 @@ F:RAND_50 | RAND_25 |
 F:STUPID | EMPTY_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | IM_FIRE | 
 F:HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+O:Legend of Zelda
+D:A strange red blobby thing that bounces around.
 
 N:87:Copperhead snake
 G:J:o
@@ -1116,19 +1230,26 @@ B:BITE:POISON:2d4
 F:RAND_50 | 
 F:BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It has a copper head and sharp venomous fangs.
 
-N:88:Purple mushroom patch
-G:,:v
+N:88:Natsukemono
+G:,:b
 I:110:1d1:2:1:0
 W:6:2:0:15
 B:SPORE:LOSE_CON:1d2
-B:SPORE:LOSE_CON:1d2
-B:SPORE:LOSE_CON:1d2
+B:SPORE:LOSE_DEX:1d2
+B:SPORE:LOSE_STR:1d2
+B:SPORE:LOSE_CHR:1d2
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:Yum!  It looks quite tasty.
+O:Japanese Culture/History
+D:An eggplant that has been pickled blue.  It's one of those foods that 
+D:Japanese people feed to unsuspecting foreigners.  It's so terrible that 
+D:the maintainer has put it on his list of foods (all two of them) that he 
+D:refuses to eat.  There's an evil aura about it as it sits there, waiting 
+D:for the next idiot to come near it.
 
 N:89:Novice priest
 G:p:g
@@ -1141,6 +1262,7 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:HEAL | SCARE | CAUSE_1
+O:Angband
 D:He is tripping over his priestly robes.
 
 N:90:Generic Cat Girl
@@ -1152,6 +1274,7 @@ B:CLAW:HURT:1d6
 F:FEMALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
+O:Japanese Culture/History (or joke)
 D:The stereotypical cat girl one finds in any anime series.
 
 N:91:Novice rogue
@@ -1164,6 +1287,7 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Angband
 D:A rather shifty individual.
 
 N:92:Brown mold
@@ -1175,16 +1299,21 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A strange brown growth on the dungeon floor.
 
-N:93:Giant brown bat
-G:b:u
+N:93:Golden bat
+G:b:y
 I:130:3d8:10:15:30
 W:6:1:0:10
 B:BITE:HURT:1d3
-F:RAND_50 | 
-F:ANIMAL
-D:It screeches as it attacks.
+B:KICK:HURT:1d2
+B:PUNCH:HURT:1d2
+F:RAND_50 |
+F:ANIMAL | MECHA |
+O:Jinzo Ningen Kikaida
+D:It is a bat with a golden cape for wings and ant mandibles.  
+D:It uses a rope to fly, and looks cool.
 
 N:94:Novice archer
 G:p:W
@@ -1198,6 +1327,7 @@ F:ONLY_GOLD | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_3 | 
 S:ARROW_1
+O:Angband
 D:A nasty little fellow with a bow and arrow.
 
 N:95:Creeping silver coins
@@ -1209,19 +1339,21 @@ B:TOUCH:POISON:2d6
 F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
 F:COLD_BLOOD | BASH_DOOR | 
 F:ANIMAL | IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a pile of coins, crawling forward on thousands of tiny legs.
 
-N:96:Snaga
-G:o:U
+N:96:Green sentai
+G:o:G
 I:110:8d8:20:32:30
 W:6:1:0:15
-B:HIT:HURT:1d8
+B:PUNCH:HURT:1d8
+B:KICK:HURT:1d4
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
-D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
-D:goblin.
+F:SENTAI | 
+O:Japanese Culture/History
+D:A green sentai warrior; which is not that common of a color.
 
 N:97:Rattlesnake
 G:J:r
@@ -1231,19 +1363,22 @@ B:BITE:POISON:2d5
 F:RAND_50 | 
 F:BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It is recognized by the hard-scaled end of its body that is often rattled 
 D:to frighten its prey.
 
-N:98:Cave orc
-G:o:G
+N:98:Yellow Sentai
+G:o:y
 I:110:11d9:20:32:30
 W:7:1:0:20
 B:HIT:HURT:1d8
+B:KICK:HURT:1d4
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
-D:He is often found in huge numbers in deep caves.
+F:SENTAI |
+O:Japanese Culture/History
+D:A yellow sentai warrior.
 
 N:99:Wood spider
 G:S:U
@@ -1254,17 +1389,20 @@ B:STING:POISON:1d4
 F:FRIENDS | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It scuttles towards you.
 
-N:100:Manes
-G:u:u
-I:110:8d8:20:32:30
+N:100:Vanship
+G:u:s
+I:120:8d8:20:32:30
 W:7:2:0:16
-B:HIT:HURT:1d8
-F:FRIENDS | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
-D:It is a minor but aggressive demon.
+F:FRIENDS | MECHA |
+F:BASH_DOOR | 
+F:NO_FEAR | CAN_SPEAK |
+S:1_IN_2 | 
+S:ARROW_1 | ARROW_2 |
+O:Last Exile
+D:A weak little steam powered airplane.
 
 N:101:Bloodshot eye
 G:e:r
@@ -1275,19 +1413,19 @@ F:NEVER_MOVE |
 F:HURT_LITE | NO_FEAR
 S:1_IN_7 | 
 S:DRAIN_MANA
+O:Angband
 D:A disembodied eye, bloodshot and nasty.
 
-N:102:Pink naga
+N:102:Spiny
 G:n:R
-I:110:11d8:20:40:120
+I:110:11d8:20:100:120
 W:7:2:0:40
-B:CRUSH:HURT:1d10
-B:BITE:LOSE_STR:1d4
-F:FEMALE | 
+B:TOUCH:HURT:1d10
+B:TOUCH:LOSE_STR:1d4
 F:RAND_25 | DROP_60 | 
 F:TAKE_ITEM | BASH_DOOR | 
-F:EVIL
-D:A large pink snake with a woman's torso.
+O:Super Mario Brothers
+D:A turtle with a spiky outer shell.
 
 N:103:Red Puyo
 G:j:r
@@ -1298,6 +1436,7 @@ F:RAND_50 | RAND_25 | DROP_90 |
 F:STUPID | EMPTY_MIND | 
 F:HURT_LITE | IM_FIRE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Puyo Puyo
 D:The angry puyo that frightens explorers.
 
 N:104:Giant pink frog
@@ -1305,9 +1444,10 @@ G:R:R
 I:110:5d8:12:16:50
 W:7:1:0:16
 B:BITE:LOSE_STR:2d4
-F:RAND_50 | 
+F:RAND_50 | FROG |
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It looks poisonous.
 
 N:105:Green icky thing
@@ -1318,6 +1458,7 @@ B:TOUCH:ACID:2d5
 F:RAND_50 | 
 F:EMPTY_MIND | 
 F:IM_ACID
+O:Angband
 D:It is a smallish, slimy, icky, acidic creature.
 
 N:106:Zombified moogle
@@ -1329,6 +1470,7 @@ B:HIT:HURT:1d2
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Final Fantasy/Joke
 D:It is an animated moogle corpse.  Flesh falls off in large chunks as it 
 D:shambles forward.
 
@@ -1344,6 +1486,7 @@ F:EVIL | UNDEAD |
 F:IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:TPORT | DRAIN_MANA
+O:Angband
 D:It is almost insubstantial.
 
 N:108:Dark elf
@@ -1359,6 +1502,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | HURT_LITE
 S:1_IN_10 | 
 S:CONF | DARKNESS
+O:Angband
 D:An elven figure with jet black skin and white hair, his eyes are large and 
 D:twisted with evil.
 
@@ -1369,6 +1513,7 @@ W:7:2:0:35
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
 F:ANIMAL
+O:Angband
 D:It is a black lizard with overlapping scales and a powerful jaw.
 
 N:110:Tuxedo Mask
@@ -1385,7 +1530,8 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 S:1_IN_2 |
 S:MISSILE
-D:Aka Prince Darien, a funny dresser who lieks to throw roses.
+O:Sailor Moon
+D:Aka Prince Darien, a funny dresser who likes to throw roses.
 
 N:111:Sailor Moon
 G:p:b
@@ -1396,11 +1542,12 @@ B:HIT:HURT:1d5
 B:TOUCH:EAT_GOLD
 B:INSULT
 F:UNIQUE | FEMALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 S:1_IN_5 | 
 S:HEAL | SLOW | BO_COLD | BA_POIS
+O:Sailor Moon
 D:The epitomy of all bad anime everywhere.  Upon looking at her, you feel
 D:a sudden urge to kill.
 
@@ -1420,6 +1567,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | 
 S:1_IN_5 | 
 S:BO_ELEC | BA_ELEC
+O:Dragonball Z
 D:A Sayajin elite, Napa may look stupid, but is pretty strong.
 
 N:113:Brown yeek
@@ -1430,6 +1578,7 @@ B:HIT:HURT:1d6
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a strange small humanoid.
 
 N:114:Novice ranger
@@ -1443,6 +1592,7 @@ F:FORCE_SLEEP | FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | 
 S:ARROW_2 | MISSILE
+O:Angband
 D:An agile hunter, ready and relaxed.
 
 N:115:Giant salamander
@@ -1455,6 +1605,7 @@ F:RAND_25 |
 F:ANIMAL | IM_FIRE
 S:1_IN_9 | 
 S:BR_FIRE
+O:Angband
 D:A large black and yellow lizard.  You'd better run away!
 
 N:116:Green mold
@@ -1466,53 +1617,64 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a strange growth on the dungeon floor.
 
-N:117:Skeleton orc
+N:117:Skeleton Sentai
 G:s:w
 I:110:10d8:20:36:40
 W:8:1:0:26
 B:HIT:HURT:2d5
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | UNDEAD | 
+F:EVIL | SENTAI | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an animated orc skeleton.
+O:Japanese Culture/History
+D:A sentai warrior that was actually slain in battle.  You don't see 
+D:too many of those too often.
 
-N:118:Novice paladin
+N:118:Wheelchair girl
 G:p:w
-I:110:6d8:20:16:5
+I:110:12d8:20:16:5
 W:8:2:0:20
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
-F:MALE | 
+B:HIT:HURT:2d7
+B:HIT:HURT:2d7
+F:FEMALE | 
 F:FORCE_SLEEP | 
-F:FRIENDS | DROP_60 | 
+F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
-S:1_IN_9 | 
+S:1_IN_5 | 
 S:SCARE | CAUSE_1
-D:An adventurer both devoutly religious and skillful in combat.
+O:Joke
+D:Watch out or you might be run over by a girl in a wheelchair.  Then 
+D:again, we're running on porn physics here, so it doesn't have to 
+D:make sense.
 
-N:119:Lemure
+N:119:Leo
 G:u:U
 I:110:13d9:20:32:30
 W:8:3:0:16
 B:HIT:HURT:1d8
-F:FRIENDS | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
-D:It is the larval form of a major demon.
+F:FRIENDS | MECHA |
+F:BASH_DOOR | 
+F:NO_FEAR |
+S:1_IN_3 | 
+S:ARROW_1 | ARROW_2 | ARROW_3 |
+O:Gundam Wing
+D:A standard issue mecha.
 
-N:120:Hill orc
-G:o:u
+N:120:White sentai
+G:o:w
 I:110:13d9:20:32:30
 W:8:1:0:25
-B:HIT:HURT:1d10
+B:PUNCH:HURT:1d10
+B:KICK:HURT:1d5
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC
-D:He is a hardy well-weathered survivor.
+F:SENTAI
+O:Japanese Culture/History
+D:A white sentai warrior.  This color is not that common either. 
 
 N:121:Bandit
 G:p:b
@@ -1524,9 +1686,10 @@ F:MALE |
 F:DROP_1D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Angband
 D:He is after your cash!
 
-N:122:Yuuki-Onna
+N:122:Yuki-Onna
 G:G:b
 I:110:11d9:20:24:10
 W:9:3:0:30
@@ -1536,6 +1699,7 @@ B:WAIL:HURT:1d4
 F:EVIL | UNDEAD | IM_COLD | PASS_WALL |
 S:1_IN_1 |
 S:BO_COLD | BA_COLD |
+O:Japanese Culture/History
 D:A ghost woman who wears a white kimono and freezes lost adventurers.
 
 N:123:Bloodshot icky thing
@@ -1549,6 +1713,7 @@ F:EMPTY_MIND |
 F:IM_POIS
 S:1_IN_11 | 
 S:DRAIN_MANA
+O:Angband
 D:It is a strange, slimy, icky creature.
 
 N:124:Giant grey rat
@@ -1559,6 +1724,7 @@ B:BITE:POISON:1d4
 F:RAND_25 | 
 F:MULTIPLY | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It is a rodent of unusual size.
 
 N:125:Black harpy
@@ -1571,10 +1737,11 @@ B:BITE:HURT:1d3
 F:FEMALE | 
 F:RAND_25 | 
 F:ANIMAL | EVIL
+O:Angband
 D:A woman's face on the body of a vicious black bird.
 
-N:126:Orc shaman
-G:o:r
+N:126:Blue sentai
+G:o:b
 I:110:9d8:20:15:20
 W:9:1:0:30
 B:HIT:HURT:1d6
@@ -1582,10 +1749,12 @@ B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
+F:SENTAI |
 S:1_IN_8 | 
 S:BLINK | CAUSE_1 | MISSILE
-D:An orc dressed in skins who gestures wildly.
+O:Japanese Culture/History
+D:A sentai warrior dressed in blue.  Blue sentai warriors are usually the 
+D:smart, bookish ones that have gizmos or magical powers.
 
 N:127:Baby blue dragon
 G:d:b
@@ -1600,6 +1769,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | IM_ELEC
 S:1_IN_11 | 
 S:BR_ELEC
+O:Angband
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a pale blue.
 
@@ -1616,6 +1786,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | IM_COLD
 S:1_IN_11 | 
 S:BR_COLD
+O:Angband
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a pale white.
 
@@ -1632,6 +1803,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | IM_POIS
 S:1_IN_11 | 
 S:BR_POIS
+O:Angband
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a sickly green.
 
@@ -1648,6 +1820,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | IM_ACID
 S:1_IN_11 | 
 S:BR_ACID
+O:Angband
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a dull black.
 
@@ -1664,18 +1837,21 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | IM_FIRE
 S:1_IN_4 | 
 S:BR_FIRE
+O:Pokemon
 D:Fire type pokemon.  The flame at the tip of its tail makes a sound as it
 D:burns.  You can only hear it at quiet places.
 
-N:132:Giant pink ant
-G:a:R
+N:132:Yellow jaguar
+G:a:y
 I:110:4d8:12:34:60
 W:9:2:0:22
 B:BITE:HURT:1d4
-B:STING:LOSE_STR:1d4
+B:CLAW:LOSE_CON:1d4
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is large and has venomous mandibles.
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:A weird android goon that goes after Kikaida.  It is a slender cat that 
+D:has sharp claws and teeth.
 
 N:133:Tatewaki Kuno
 G:p:u
@@ -1689,6 +1865,7 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR
+O:Ranma 1/2
 D:He's the 'Blue Thunder' of Furinkan High school and the rising star of the 
 D:high school fencing world.  
 
@@ -1701,6 +1878,7 @@ B:BITE:POISON:3d4
 F:RAND_50 | 
 F:BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It is a large snake with a hooded face.
 
 N:135:Giant spider
@@ -1713,10 +1891,11 @@ B:BITE:POISON:1d6
 B:BITE:HURT:1d10
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It is a vast black spider whose bulbous body is bloated with poison.
 
-N:136:Dark elven mage
-G:h:v
+N:136:Wizrobe
+G:h:b
 I:120:7d10:20:16:20
 W:10:1:0:50
 B:HIT:HURT:1d6
@@ -1728,7 +1907,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_POIS | HURT_LITE
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
-D:A dark elven figure, dressed all in black, hurling spells at you.
+O:Legend of Zelda
+D:He is one of those annoying wizards that flings spells at you.
 
 N:137:Cait the cat
 G:f:b
@@ -1745,6 +1925,7 @@ F:ANIMAL | EVIL
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
 S:S_MONSTER
+O:Final Fantasy
 D:A sentient siamese cat that is well versed in electronics and magic.  She 
 D:is top tier in devloping strategies, and has a twin sister.
 
@@ -1758,6 +1939,7 @@ F:MALE |
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | HURT_LITE
+O:Puyo Puyo
 D:A short little mole with a little sword and a funny helmet.
 
 N:139:Clear mushroom patch
@@ -1769,6 +1951,7 @@ F:ATTR_CLEAR |
 F:NEVER_MOVE | INVISIBLE | COLD_BLOOD | MULTIPLY | 
 F:STUPID | EMPTY_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:Yum!  It looks quite tasty.
 
 N:140:Sith, the Cat
@@ -1788,16 +1971,21 @@ F:ANIMAL | EVIL
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
 S:S_MONSTER
+O:Final Fantasy
 D:The twin sister of Cait, she is renowned for her cunning.
 
-N:141:Giant white tick
-G:S:w
-I:100:12d8:12:40:20
+N:141:Red Condor
+G:a:r
+I:120:12d8:12:40:20
 W:10:2:0:27
-B:BITE:POISON:2d6
-F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_POIS
-D:It is moving slowly towards you.
+B:BITE:HURT:2d6
+F:BASH_DOOR | 
+F:MECHA |
+S:1_IN_4 | 
+S:TELE_TO | MISSILE | 
+O:Jinzo Ningen Kikaida
+D:A flying giant condor who shoots beams and flies in circles because 
+D:he's attached to a string.
 
 N:142:Hairy mold
 G:m:o
@@ -1808,6 +1996,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a strange hairy growth on the dungeon floor.
 
 N:143:Disenchanter mold
@@ -1821,6 +2010,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
+O:Angband
 D:It is a strange glowing growth on the dungeon floor.
 
 N:144:Pseudo dragon
@@ -1837,10 +2027,11 @@ F:DRAGON
 S:1_IN_11 | 
 S:CONF | SCARE | 
 S:BR_LITE | BR_DARK
+O:Angband
 D:A small relative of the dragon that inhabits dark caves.
 
 N:145:Tengu
-G:u:R
+G:U:R
 I:120:16d9:20:32:30
 W:10:1:0:40
 B:HIT:HURT:1d8
@@ -1848,6 +2039,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | DEMON | IM_FIRE | NO_FEAR
 S:1_IN_3 | 
 S:BLINK | TELE_TO
+O:Angband
 D:It is a fast-moving demon that blinks quickly in and out of existence; no 
 D:other demon matches its teleporting mastery.
 
@@ -1861,6 +2053,7 @@ F:ONLY_GOLD | DROP_90 | DROP_1D2 |
 F:COLD_BLOOD | BASH_DOOR | 
 F:ANIMAL | 
 F:IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a pile of coins, crawling forward on thousands of tiny legs.
 
 N:147:Wolf
@@ -1872,7 +2065,8 @@ F:RAND_25 |
 F:FRIENDS | 
 F:BASH_DOOR | 
 F:ANIMAL
-D:It howls and snaps at you.
+O:Great Teacher Onizuka
+D:'Nonsense, Japanese wolves are extinct!.....'
 
 N:148:Kamitori
 G:B:w
@@ -1881,9 +2075,10 @@ W:10:6:0:4
 B:HIT:HURT:1d2
 F:RAND_50 | RAND_25 | 
 F:FRIENDS | WEIRD_MIND | 
+O:Spirited Away (Sen to Chihiro no Kamikakushi)
 D:A paper bird.
 
-N:149:Panther
+N:149:Cha-tora
 G:f:u
 I:120:10d8:40:30:0
 W:10:2:0:25
@@ -1891,8 +2086,9 @@ B:CLAW:HURT:1d8
 B:CLAW:HURT:1d8
 F:BASH_DOOR | 
 F:ANIMAL
-D:A large black cat, stalking you with intent.  It thinks you're its next 
-D:meal.
+O:Naruto/Joke
+D:All ninjas know that you have to manipulate your chatora in order 
+D:to be a proficient ninja.  There it stands, right in front of you.
 
 N:150:Brigand
 G:p:b
@@ -1904,6 +2100,7 @@ F:MALE |
 F:DROP_1D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Angband
 D:He is eyeing your backpack.
 
 N:151:Baby multi-hued dragon
@@ -1921,20 +2118,22 @@ F:EVIL | DRAGON |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_11 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
+O:Angband
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales shimmering with a hint of colour.
 
-N:152:Hippogriff
+N:152:Torauma
 G:H:U
 I:110:20d9:12:14:10
 W:11:1:0:30
-B:HIT:HURT:2d5
+B:CLAW:HURT:2d5
 B:BITE:HURT:2d5
 F:BASH_DOOR | 
 F:ANIMAL
-D:A strange hybrid of eagle, lion and horse.  It looks weird.
+O:Great Teacher Onizuka
+D:A tiger and horse hybrid that causes great trauma to whoever encounters it.
 
-N:153:Zombified orc
+N:153:Zombified sentai
 G:z:s
 I:110:11d8:20:24:25
 W:11:1:0:30
@@ -1942,24 +2141,25 @@ B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | UNDEAD | 
+F:EVIL | SENTAI | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a shambling orcish corpse leaving behind a trail of flesh.
+O:Japanese Culture/History
+D:It is a shambling corpse of a sentai warrior leaving behind a trail of flesh.
 
-N:154:Gnome mage
+N:154:Genin
 G:h:r
 I:110:7d8:18:20:10
 W:11:2:0:38
-B:HIT:HURT:1d5
+B:HIT:POISON:1d4
+B:HIT:LOSE_STR:1d4
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL
+F:OPEN_DOOR | BASH_DOOR | REPLACEMENT |
 S:1_IN_4 | 
-S:BLINK | DARKNESS | BO_COLD | 
-S:S_MONSTER
-D:A mage of short stature.
+S:BLINK | ARROW_2 | HASTE | CONF |
+O:Naruto
+D:A novice level ninja.  
 
 N:155:Black mamba
 G:J:D
@@ -1969,6 +2169,7 @@ B:BITE:POISON:4d4
 F:RAND_50 | 
 F:BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:It has glistening black skin, a sleek body and highly venomous fangs.
 
 N:156:Remodeled puppy
@@ -1980,6 +2181,7 @@ B:BITE:HURT:1d4
 F:RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL |
+O:Narue no Sekai
 D:An alien creature that is disguised as a cute puppy so that it can bait its prey
 D:to come towards it.
 
@@ -1994,18 +2196,20 @@ F:IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
+O:Angband
 D:It is a pulsing mound of glowing flesh.
 
-N:158:Nether worm mass
-G:w:D
+N:158:Like-Like
+G:w:U
 I:100:5d8:10:15:3
 W:12:3:0:6
-B:TOUCH:EXP_10
+B:CRAWL:EAT_ITEM:1d4
 F:RAND_50 | RAND_25 | 
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | HURT_LITE | NO_FEAR
-D:It is a disgusting mass of dark worms, eating each other, the floor, 
-D:the air, you....
+O:The Legend of Zelda
+D:These creatures enjoyed eating Link's big shield.  Now they're after your stuff.  
+D:They look like a pile of WTF after being beaten by an ugly stick.  
 
 N:159:Schezo Wegey
 G:p:U
@@ -2021,6 +2225,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+O:Puyo Puyo
 D:A very skilled swordsman...but not very bright, and somewhat of a pervert.
 
 N:160:Master yeek
@@ -2035,6 +2240,7 @@ F:ANIMAL | EVIL
 S:1_IN_4 | 
 S:BLINK | TPORT | BLIND | SLOW | BA_POIS | 
 S:S_MONSTER
+O:Angband
 D:A small humanoid that radiates some power.
 
 N:161:Priest
@@ -2051,9 +2257,10 @@ F:EVIL
 S:1_IN_3 | 
 S:HEAL | SCARE | CAUSE_2 | 
 S:S_MONSTER
+O:Angband
 D:A robed humanoid dedicated to his god.
 
-N:162:Dark elven priest
+N:162:Juraian priest
 G:h:g
 I:120:7d10:20:30:30
 W:12:1:0:50
@@ -2063,22 +2270,23 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
 S:1_IN_5 | 
-S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
-D:A dark elven figure, dressed all in black, chanting curses and waiting to 
-D:deliver your soul to hell.
+S:HEAL | BLIND | CONF | CAUSE_2 | BR_LITE
+O:Tenchi Muyo
+D:A Juraian priest, capable of summoning swords of light.
 
-N:163:Air spirit
-G:E:B
+N:163:Kirikiri Mai
+G:q:B
 I:130:8d8:12:40:20
 W:12:2:0:40
-B:HIT:HURT:1d3
-F:RAND_50 | RAND_25 | 
-F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
+B:HIT:HURT:1d4
+F:ANIMAL | FRIENDS |
+F:INVISIBLE | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A whirlwind of sentient air.
+O:Naruto
+D:A scythe-wielding mink that flies about causing sickling winds.  It likes to 
+D:cut random things.
 
 N:164:Skeleton human
 G:s:w
@@ -2089,6 +2297,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is an animated human skeleton.
 
 N:165:Zombified human
@@ -2100,6 +2309,7 @@ B:HIT:HURT:1d4
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a shambling human corpse dropping chunks of flesh behind it.
 
 N:166:Tiger
@@ -2111,6 +2321,7 @@ B:CLAW:HURT:1d8
 B:BITE:HURT:1d6
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:One of the largest of its species, a sleek orange and black shape creeps 
 D:towards you, ready to pounce.
 
@@ -2126,6 +2337,7 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:TPORT | SCARE
+O:Angband
 D:A ghostly apparition that shrieks horribly.
 
 N:168:Samurai
@@ -2137,18 +2349,22 @@ B:HIT:HURT:3d5
 F:MALE | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR
+O:Japanese Culture/History
 D:A warrior of considerable skill.
 
-N:169:Stegocentipede
-G:c:u
-I:120:13d8:12:30:30
+N:169:Toshiyuki the dog
+G:C:u
+I:120:26d8:12:30:30
 W:12:2:0:40
+B:DROOL:HURT:2d4
 B:BITE:HURT:2d4
 B:BITE:HURT:2d4
-B:STING:HURT:2d4
-F:WEIRD_MIND | BASH_DOOR | 
+F:MALE | UNIQUE | BASH_DOOR | 
 F:ANIMAL
-D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:A violent pit-bull that is owned by one of Onimaru's regular customers.  
+D:Everytime Miki Onimaru has to make a delivery to that customer, the dog 
+D:viciously attacks her.
 
 N:170:Spotted jelly
 G:j:o
@@ -2161,6 +2377,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | COLD_BLOOD | 
 F:IM_ACID | IM_POIS | HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A jelly thing.
 
 N:171:Mamono
@@ -2174,6 +2391,7 @@ F:BASH_DOOR |
 F:IM_POIS
 S:1_IN_8 | 
 S:CONF | CAUSE_1 | DARKNESS
+O:Devil Hunter Yohko
 D:A strange sorcerer bird like creature.
 
 N:172:Killer brown beetle
@@ -2183,6 +2401,7 @@ W:13:2:0:38
 B:BITE:HURT:3d4
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a vicious insect with a tough carapace.
 
 N:173:Arle Nadja
@@ -2200,6 +2419,7 @@ S:1_IN_3 |
 S:HEAL | BLINK | TPORT | BLIND | SLOW | 
 S:BA_FIRE | BO_FIRE |
 S:S_MONSTER | 
+O:Puyo Puyo
 D:A scary and very powerful sorceress who just happens to like curry.
 
 N:174:Ogre
@@ -2211,6 +2431,7 @@ F:FRIENDS |
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
+O:Angband
 D:A hideous, smallish giant that is often found near or with orcs.
 
 N:175:Creeping mithril coins
@@ -2223,6 +2444,7 @@ F:ONLY_GOLD | DROP_90 | DROP_2D2 |
 F:COLD_BLOOD | BASH_DOOR | 
 F:ANIMAL | 
 F:IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a pile of coins, shambling forward on thousands of tiny legs.
 
 N:176:Illusionist
@@ -2236,6 +2458,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | BLINK | TPORT | BLIND | HOLD | SLOW | CONF | DARKNESS
+O:Angband
 D:A deceptive spell caster.
 
 N:177:Druid
@@ -2250,19 +2473,22 @@ F:SMART | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | BLINK | BLIND | HOLD | SLOW | BO_FIRE | BO_ELEC
+O:Angband
 D:A mystic at one with nature.  Om.
 
-N:178:Black orc
+N:178:Black sentai
 G:o:D
 I:110:12d10:20:36:20
 W:13:2:0:45
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
+B:PUNCH:HURT:3d4
+B:KICK:HURT:3d4
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
-D:He is a large orc with powerful arms and deep black skin.
+F:SENTAI |
+O:Japanese Culture/History
+D:A sentai warrior dressed in all black; usually they are the brawn of 
+D:the team.
 
 N:179:Ochre jelly
 G:j:U
@@ -2275,6 +2501,7 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
 D:rests on.
 
@@ -2286,6 +2513,7 @@ B:BITE:HURT:1d2
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It makes you itch just to look at it.
 
 N:181:Your Doppelganger
@@ -2301,6 +2529,7 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_COLD | IM_POIS
+O:Because I wanted to
 D:It looks just like you.
 
 N:182:Giant white dragon fly
@@ -2314,6 +2543,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_COLD
 S:1_IN_10 | 
 S:BR_COLD
+O:Angband
 D:It is a large fly that drips frost.
 
 N:183:Blue icky thing
@@ -2330,6 +2560,7 @@ F:MULTIPLY | OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_POIS
 S:1_IN_8 | 
 S:BLIND | CONF | SCARE
+O:Angband
 D:It is a strange, slimy, icky creature, with rudimentary intelligence, 
 D:but evil cunning.  It hungers for food, and you look tasty.
 
@@ -2342,6 +2573,7 @@ B:HIT:HURT:3d6
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
+O:Angband
 D:A ten foot tall humanoid with powerful muscles.
 
 N:185:Flesh golem
@@ -2353,6 +2585,7 @@ B:HIT:HURT:1d6
 F:EMPTY_MIND | BASH_DOOR | 
 F:IM_ELEC | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A shambling humanoid monster with long scars.
 
 N:186:Owl Bear
@@ -2364,6 +2597,7 @@ F:RAND_25 |
 F:FRIENDS | 
 F:BASH_DOOR | 
 F:ANIMAL | 
+O:Because I wanted to
 D:It is an owl and it is a bear.  WTF!
 
 N:187:Sootball
@@ -2373,6 +2607,7 @@ W:14:1:0:3
 B:BITE:HURT:1d2
 F:RAND_50 | 
 F:WEIRD_MIND | MULTIPLY | 
+O:Spirited Away (Sen to Chihiro no Kamikakushi)
 D:A dusty sootball that lives off of Lucky Charms.
 
 N:188:Nomi
@@ -2384,6 +2619,7 @@ F:CHAR_CLEAR | ATTR_CLEAR |
 F:NEVER_MOVE | FORCE_MAXHP | 
 F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Puyo Puyo
 D:Nomi is a little speck with a sign hanging above him that reads "He 
 D:is here!"  However, he packs a terrific wallop.
 
@@ -2400,6 +2636,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | EVIL
 S:1_IN_9 | 
 S:BLINK | CAUSE_2 | BO_COLD | BA_POIS
+O:Angband
 D:A large rat with glowing red eyes.  The wererat is a disgusting creature, 
 D:relishing in filth and disease.
 
@@ -2413,6 +2650,7 @@ F:RAND_25 |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
+O:Angband
 D:A massive orc-like figure with black skin and powerful arms.
 
 N:191:Magic mushroom patch
@@ -2424,20 +2662,22 @@ F:STUPID |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:BLINK | SLOW | SCARE | DARKNESS
+O:Angband
 D:Yum!  It looks quite tasty.  It seems to glow with an unusual light.
 
-N:192:Guardian naga
-G:n:B
+N:192:Heavy Troopa
+G:n:r
 I:110:24d11:20:65:120
 W:15:2:0:80
-B:CRUSH:HURT:2d8
-B:BITE:HURT:1d8
-B:BITE:HURT:1d8
-F:FEMALE | 
+B:HIT:HURT:2d8
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | 
 F:RAND_25 | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A giant snake-like figure with a woman's torso.
+O:Super Mario Brothers
+D:A turtle that has wings, but it can't fly because it's too fat.  The 
+D:wings do allow it to hop about though.
 
 N:193:Light hound
 G:Z:o
@@ -2450,6 +2690,7 @@ F:BASH_DOOR |
 F:ANIMAL
 S:1_IN_5 | 
 S:BR_LITE
+O:Angband
 D:A brilliant canine form whose light hurts your eyes, even at this distance.
 
 N:194:Dark hound
@@ -2463,11 +2704,12 @@ F:BASH_DOOR |
 F:ANIMAL
 S:1_IN_5 | 
 S:BR_DARK
+O:Angband
 D:A hole in the air in the shape of a huge hound.  No light falls upon its 
 D:form.
 
-N:195:Half-orc
-G:o:s
+N:195:Pink sentai
+G:o:R
 I:110:16d10:20:40:20
 W:15:3:0:50
 B:HIT:HURT:3d4
@@ -2475,9 +2717,10 @@ B:HIT:HURT:3d4
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC
-D:He is a hideous deformed cross-breed with man and orc, combining man's 
-D:strength and cunning with orcish evil.
+F:SENTAI |
+O:Japanese Culture/History
+D:A sentai warrior dressed in all pink.  Despite his appearance, he is usually 
+D:the chauvinistic one reeking of testosterone.
 
 N:196:Giant tarantula
 G:S:o
@@ -2488,6 +2731,7 @@ B:BITE:POISON:1d6
 B:BITE:POISON:1d6
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:A giant spider with hairy black and red legs.
 
 N:197:Giant clear centipede
@@ -2499,6 +2743,7 @@ B:STING:HURT:2d4
 F:ATTR_CLEAR | 
 F:INVISIBLE | WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is about four feet long and carnivorous.
 
 N:198:Goyaman
@@ -2510,6 +2755,7 @@ B:HIT:POISON:1d6
 B:KICK:POISON:1d6
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Churasan
 D:A little goya with a hat and a cape.  He looks awful and tastes 
 D:bitter.
 
@@ -2523,9 +2769,10 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT | 
 F:IM_COLD
+O:Angband
 D:A twelve foot tall giant covered in furs.
 
-N:200:Griffon
+N:200:Horse-deer
 G:H:u
 I:110:30d8:12:15:10
 W:15:1:0:70
@@ -2533,19 +2780,25 @@ B:HIT:HURT:3d4
 B:BITE:HURT:2d6
 F:BASH_DOOR | 
 F:ANIMAL
-D:It is half lion, half eagle.  It flies menacingly towards you.
+O:Joke/Japanese
+D:It's a horse and it's a deer.  Wow.
 
-N:201:Homonculous
-G:u:y
+N:201:Alseides
+G:u:r
 I:110:8d8:20:32:30
 W:15:3:0:40
-B:HIT:PARALYZE:1d2
-B:HIT:HURT:1d10
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
-D:It is a small demonic spirit full of malevolence.
+B:CLAW:PARALYZE:1d2
+B:CLAW:HURT:1d10
+F:FRIENDS | MECHA |
+F:BASH_DOOR | INVISIBLE | 
+F:IM_FIRE | NO_FEAR
+S:1_IN_9 | 
+S:BA_FIRE | 
+O:Escaflowne
+D:A mass produced mecha of the Zaibach empire, complete 
+D:with claws, flamethrower, and the standard issue stealth cloak.
 
-N:202:Gnome mage
+N:202:Nedian Hearldry user
 G:h:r
 I:110:7d8:20:20:20
 W:15:2:0:40
@@ -2553,11 +2806,11 @@ B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL
 S:1_IN_4 | 
 S:BLINK | DARKNESS | BO_COLD | 
 S:S_MONSTER
-D:A mage of short stature.
+O:Star Ocean the Second Story
+D:A Nedian of short stature knowledgable in the Heraldric arts.
 
 N:203:Clear hound
 G:Z:w
@@ -2570,6 +2823,7 @@ F:ATTR_CLEAR |
 F:FRIENDS | 
 F:INVISIBLE | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:A completely translucent hound.
 
 N:204:Clay golem
@@ -2582,6 +2836,7 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a massive animated statue made out of hardened clay.
 
 N:205:Umber hulk
@@ -2597,21 +2852,23 @@ F:BASH_DOOR | KILL_WALL |
 F:ANIMAL | EVIL | 
 F:IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
+O:Angband
 D:This bizarre creature has glaring eyes and large mandibles capable of 
 D:slicing through rock.
 
-N:206:Orc captain
-G:o:o
+N:206:Red sentai
+G:o:r
 I:110:20d10:20:59:20
 W:16:3:0:40
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
+B:PUNCH:HURT:3d4
+B:KICK:HURT:3d4
+B:KICK:HURT:3d4
 F:MALE | 
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC
-D:An armoured orc with an air of authority.
+F:SENTAI |
+O:Japanese Culture/History
+D:A sentai dressed in all red.  He is usually the leader of a sentai group.
 
 N:207:Gelatinous cube
 G:j:G
@@ -2626,10 +2883,8 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a strange, vast gelatinous structure that assumes cubic proportions 
-D:as it lines all four walls of the corridors it patrols.  Through its 
-D:transparent jelly structure you can see treasures it has engulfed, and a 
-D:few corpses as well.
+O:Star Ocean the Second Story
+D:A jelly cube with some weird nucleus in the middle that hops about.  
 
 N:208:Giant green dragon fly
 G:F:g
@@ -2641,6 +2896,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_POIS
 S:1_IN_10 | 
 S:BR_POIS
+O:Angband
 D:A vast, foul-smelling dragonfly.
 
 N:209:Fire giant
@@ -2653,6 +2909,7 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT | 
 F:IM_FIRE
+O:Angband
 D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
 
 N:210:Hummerhorn
@@ -2663,6 +2920,7 @@ B:BITE:CONFUSE:2d2
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
+O:Angband
 D:A giant buzzing wasp, its stinger drips venom.
 
 N:211:Ryouga Hibiki
@@ -2679,40 +2937,39 @@ F:FORCE_MAXHP |
 F:KILL_WALL | MUTODORI |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+O:Ranma 1/2
 D:Ryouga Hibiki, though lacking a good sense of direction, is nonetheless 
-D:a very dangerous adversary.  Ever since mastering the 'Baku-sai ten 
-D:getsu' attack, he has been able to shatter rocks and non living things.
+D:a very dangerous adversary.  Ever since mastering the 'Bakusai ten
+D:ketsu' attack, he has been able to shatter rocks and non living things.
 
-N:212:Quasit
+N:212:Oreades
 G:u:o
 I:110:6d8:20:30:20
 W:16:2:0:50
-B:BITE:LOSE_DEX:1d6
+B:CLAW:LOSE_DEX:1d6
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
-F:FORCE_SLEEP | 
+F:FRIENDS | MECHA |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
-S:1_IN_10 | 
-S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
-D:The chaotic evil master's favourite pet.
+F:IM_FIRE
+S:1_IN_4 | 
+S:BA_FIRE |
+O:Escaflowne
+D:The new and improved version of the Alseides.
 
-N:213:Imp
-G:u:g
-I:110:6d8:20:30:20
+N:213:Guild Ship
+G:u:w
+I:130:6d8:20:30:20
 W:17:2:0:55
-B:HIT:POISON:3d4
-B:HIT:POISON:3d4
-F:FORCE_SLEEP | 
-F:RAND_25 | 
-F:ONLY_ITEM | DROP_1D2 | 
-F:SMART | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
-S:1_IN_10 | 
-S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
-D:The lawful evil master's favourite pet.
+F:FRIENDS | MECHA |
+F:SMART | BASH_DOOR | 
+S:1_IN_4 | 
+S:BLINK | TPORT | TELE_TO | ARROW_1 | ARROW_2 | ARROW_3 | 
+O:Last Exile
+D:A star shaped object that demonstrates that anything can fly if given 
+D:enough propulsion.
 
 N:214:Forest troll
 G:T:g
@@ -2725,6 +2982,7 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | HURT_LITE
+O:Angband
 D:He is green skinned and ugly.
 
 N:215:Akotto, servant of Zagoto
@@ -2743,8 +3001,9 @@ F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | BLIND | CONF | CAUSE_2 | MIND_BLAST |
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | 
-S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
+S:S_HYDRA | S_SPIDER | S_GOON | S_HOUND | S_UNIQUE | S_WRAITH | 
 S:S_KIN
+O:Magic Knight Rayearth
 D:Zagoto's most trusted servant and a master of summoning.
 
 N:216:2-Tentacle Hententmon
@@ -2759,6 +3018,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ANIMAL
 S:1_IN_11 | 
 S:SCARE
+O:Joke
 D:A Hentai tentacle monster with two tentacles, the bane of women and young 
 D:adolescent girls everywhere.
 
@@ -2772,6 +3032,7 @@ F:RAND_25 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:EVIL | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A whirlpool of sentient liquid.
 
 N:218:Giant pink scorpion
@@ -2782,6 +3043,7 @@ B:BITE:HURT:2d4
 B:STING:LOSE_STR:1d7
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is fast and poisonous.
 
 N:219:Earth spirit
@@ -2795,6 +3057,7 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:PASS_WALL | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A whirling form of sentient rock.
 
 N:220:Fire spirit
@@ -2807,6 +3070,7 @@ F:RAND_25 |
 F:EMPTY_MIND | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A whirlwind of sentient flame.
 
 N:221:Fire hound
@@ -2822,6 +3086,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_FIRE
 S:1_IN_10 | 
 S:BR_FIRE
+O:Angband
 D:Flames lick at its feet and its tongue is a blade of fire.  You can feel a 
 D:furnace heat radiating from the creature.
 
@@ -2838,6 +3103,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_COLD
 S:1_IN_10 | 
 S:BR_COLD
+O:Angband
 D:A hound as tall as a man, this creature appears to be composed of angular 
 D:planes of ice.  Cold radiates from it and freezes your breath in the air.
 
@@ -2853,6 +3119,7 @@ F:FRIENDS |
 F:ANIMAL | IM_ELEC
 S:1_IN_4 | 
 S:BR_ELEC
+O:Pokemon
 D:Electric Pokemon.  Often refered to as an "Electric Mouse", this roundish 
 D:yellow rodent pokémon specailizes in electric attacks.  Often shy but can 
 D:sometimes have an electric personality. When several of them gather together 
@@ -2871,6 +3138,7 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | CAUSE_2 | BO_COLD
+O:Angband
 D:A strange creature that disguises itself as discarded objects to lure 
 D:unsuspecting adventurers within reach of its venomous claws.
 
@@ -2886,21 +3154,23 @@ F:ANIMAL
 S:1_IN_2 | 
 S:BLINK |
 S:S_KIN
+O:Tonari no Totoro
 D:A strange race of creatures that look like a cross between an owl and 
 D:a rabbit.  They really like you...
 
-N:226:Uruk
-G:o:B
+N:226:Dark green sentai
+G:o:g
 I:110:8d10:20:50:20
 W:18:1:0:68
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:PUNCH:HURT:3d5
+B:KICK:HURT:3d5
 F:MALE | 
 F:FORCE_MAXHP | FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:He is a cunning orc of power, as tall as a man, and stronger.  It fears 
-D:little.
+F:SENTAI | IM_POIS
+O:Japanese Culture/History
+D:A sentai dressed in dark green.  These are usually the ones torn between good 
+D:and evil.
 
 N:227:Sadachiyo, the sexually ambiguous Ninja
 G:p:v
@@ -2911,11 +3181,12 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:UNIQUE | 
-F:FORCE_MAXHP | 
+F:FORCE_MAXHP | REPLACEMENT |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_POIS
+O:Lupin the Third
 D:You cannot tell what sex this person is.
 
 N:228:Chelsea Rorec
@@ -2932,6 +3203,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 S:1_IN_4 |
 S:BR_GRAV
+O:Tokyo Underground
 D:A power user who also happens to be the bodyguard for Ruri, the
 D:Maiden of Life.  She is rumored to have the power of gravity.
 
@@ -2943,8 +3215,9 @@ B:HIT:POISON:1d8
 B:HIT:POISON:1d8
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_1 | 
+S:1_IN_2 | 
 S:SHRIEK | 
+O:Star Ocean the Second Story
 D:A walking herb of death.
 
 N:230:Stone giant
@@ -2956,6 +3229,7 @@ B:HIT:HURT:3d8
 F:DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
+O:Angband
 D:It is eighteen feet tall and looking at you.
 
 N:231:Giant black dragon fly
@@ -2967,6 +3241,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_ACID
 S:1_IN_9 | 
 S:BR_ACID
+O:Angband
 D:The size of a large bird, this fly drips caustic acid.
 
 N:232:Stone golem
@@ -2979,6 +3254,7 @@ F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a massive animated statue.
 
 N:233:Red mold
@@ -2990,6 +3266,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:IM_FIRE | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a strange red growth on the dungeon floor; it seems to burn with 
 D:flame.
 
@@ -3004,11 +3281,12 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_FIRE
 S:1_IN_9 | 
 S:BR_SOUN
+O:Angband
 D:Large beating wings support this dazzling insect.  A loud buzzing noise 
 D:pervades the air.
 
 N:235:King Gorge, Lord of the Gluttons
-G:o:r
+G:h:r
 I:120:50d10:20:50:20
 W:20:4:0:800
 B:HIT:HURT:3d6
@@ -3020,9 +3298,10 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS |
+F:EVIL | IM_POIS |
 S:1_IN_4 |
 S:S_KIN
+O:Fighting Foodons
 D:An Elite Master Chef, this monstrosity hails from one of the worst
 D:anime series ever.  He is the master and bane of both Gluttons and 
 D:Foodons alike.  You cringe at his wide girth and bad manners.
@@ -3039,6 +3318,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_POIS
 S:1_IN_5 | 
 S:BLINK | TELE_TO
+O:Angband
 D:A spider that never seems quite there.  Everywhere you look it is just 
 D:half-seen in the corner of one eye.
 
@@ -3055,6 +3335,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ANIMAL
 S:1_IN_9 | 
 S:SCARE
+O:Joke
 D:A Hentai tentacle monster with three tentacles, the bane of women and young 
 D:adolescent girls everywhere.
 
@@ -3072,6 +3353,7 @@ F:BASH_DOOR |
 F:ANIMAL
 S:1_IN_10 | 
 S:BR_SHAR
+O:Angband
 D:A beautiful crystalline shape does not disguise the danger this hound 
 D:clearly presents.  Your flesh tingles as it approaches.
 
@@ -3089,6 +3371,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_POIS
 S:1_IN_10 | 
 S:BR_POIS
+O:Angband
 D:Swirling vapours surround this beast as it floats towards you, seemingly 
 D:walking on air.  Noxious gases sting your throat.
 
@@ -3102,6 +3385,7 @@ B:BITE:HURT:1d10
 B:BITE:HURT:1d10
 F:BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:A fierce and dangerous cat, its huge tusks and sharp claws would lacerate 
 D:even the strongest armour.
 
@@ -3119,6 +3403,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_ACID
 S:1_IN_10 | 
 S:BR_ACID
+O:Angband
 D:Liquid footprints follow this hound as it pads around the dungeon.  An 
 D:acrid smell of acid rises from the dog's pelt.
 
@@ -3134,6 +3419,7 @@ F:BASH_DOOR |
 F:IM_FIRE
 S:1_IN_10 | 
 S:BR_FIRE
+O:Angband
 D:It is a strange concoction of lion, dragon and goat.  It looks very odd 
 D:but very avoidable.
 
@@ -3147,6 +3433,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BLINK | 
 S:S_MONSTER
+O:Angband
 D:It is a strange pulsing mound of flesh.
 
 N:244:Sasquatch
@@ -3158,6 +3445,7 @@ B:CLAW:HURT:1d10
 B:BITE:HURT:2d8
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | IM_COLD
+O:Angband
 D:A tall shaggy, furry humanoid, it could call the yeti brother.
 
 N:245:Werewolf
@@ -3170,6 +3458,7 @@ B:BITE:HURT:1d10
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | EVIL
+O:Angband
 D:It is a huge wolf with eyes that glow with manly intelligence.
 
 N:246:Dark elven lord
@@ -3185,6 +3474,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | HURT_LITE
 S:1_IN_5 | 
 S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
+O:Angband
 D:A dark elven figure in armour and radiating evil power.
 
 N:247:Cloud giant
@@ -3196,6 +3486,7 @@ B:HIT:ELEC:3d8
 F:DROP_90 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT | IM_ELEC
+O:Angband
 D:It is a twenty foot tall giant wreathed in clouds.
 
 N:248:Wang the Raalgon
@@ -3212,6 +3503,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_POIS
+O:Irresponsible Captain Tylor
 D:He is the counsellor for the princess of Raalgon.  A very cold and 
 D:calculating person.
 
@@ -3229,6 +3521,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+O:Chushingura
 D:A greedy, arrogant, dishonorable damiyo lord who is the master of 
 D:the Shogun's ceremonies.  Kira is the one responsible for the
 D:death of Lord Asano of the Ako, and the disbandment of the Ako 
@@ -3245,6 +3538,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_ELEC
 S:1_IN_4 | 
 S:BR_ELEC
+O:Angband
 D:It is a glowing blue bat with a sharp tail.
 
 N:251:Mimic (scroll)
@@ -3262,6 +3556,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | CAUSE_2 | BO_FIRE | 
 S:S_MONSTER
+O:Angband
 D:A strange creature that disguises itself as discarded objects to lure 
 D:unsuspecting adventurers within reach of its venomous claws.
 
@@ -3275,6 +3570,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BR_FIRE
+O:Angband
 D:A whirling maelstrom of fire.
 
 N:253:Water vortex
@@ -3287,6 +3583,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:IM_ACID | NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BR_ACID
+O:Angband
 D:A caustic spinning whirlpool of water.
 
 N:254:Cold vortex
@@ -3299,6 +3596,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BR_COLD
+O:Angband
 D:A twisting whirlpool of frost.
 
 N:255:Energy vortex
@@ -3311,9 +3609,10 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:IM_ELEC | NO_FEAR | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BR_ELEC
+O:Angband
 D:A shimmering tornado of air, sparks crackle along its length.
 
-N:256:Mummified orc
+N:256:Mummified sentai
 G:z:w
 I:110:15d8:20:28:75
 W:21:1:0:56
@@ -3321,10 +3620,11 @@ B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:DROP_90 | 
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | UNDEAD | 
+F:EVIL | SENTAI | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is an orcish figure covered in wrappings.
+O:Japanese Culture/History
+D:It is a figure of a former sentai covered in wrappings.
 
 N:257:Killer stag beetle
 G:K:g
@@ -3335,6 +3635,7 @@ B:CLAW:HURT:1d12
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a giant beetle with vicious claws.
 
 N:258:Iron golem
@@ -3348,6 +3649,7 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_7 | 
 S:SLOW
+O:Angband
 D:It is a massive metal statue that moves steadily towards you.
 
 N:259:Giant yellow scorpion
@@ -3358,6 +3660,7 @@ B:BITE:HURT:1d8
 B:STING:POISON:2d5
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a giant scorpion with a sharp stinger.
 
 N:260:Black ooze
@@ -3371,6 +3674,7 @@ F:TAKE_ITEM | KILL_BODY | OPEN_DOOR | BASH_DOOR |
 F:IM_POIS | NO_FEAR
 S:1_IN_11 | 
 S:DRAIN_MANA
+O:Angband
 D:It is a strangely moving puddle.
 
 N:261:Hardened warrior
@@ -3383,23 +3687,28 @@ F:MALE |
 F:DROP_1D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Angband
 D:A scarred warrior who moves with confidence.
 
-N:262:Hojo Tokisuke
-G:p:d
-I:140:90d10:20:80:20
+N:262:Isshiki Tsuji the Magician
+G:p:D
+I:110:90d20:20:80:20
 W:23:5:0:1111
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
+F:FORCE_MAXHP | CAN_SPEAK |
 F:SMART | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-D:A warrior of insane skill and intelligence.  He is the older brother of 
-D:the legendary Hojo Tokimune, the man responsible for saving Japan from 
-D:Genghis Khan.
+S:1_IN_2 |
+S:S_MONSTERS | BLINK | TPORT |
+O:Noodle Fighter Miki (Muteki Kanban Musume) 
+D:A wandering magician who carries a briefcase that opens a portal to another 
+D:dimension.  Unfortunately, he suffers from severe stage fright which causes 
+D:him to mess up in front of people.  However, when he messes up, he 
+D:will almost always *accidentally* summon some creature, which may or may not 
+D:be dangerous....
 
 N:263:Master rogue
 G:p:B
@@ -3412,6 +3721,7 @@ F:MALE |
 F:DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Angband
 D:A thief of great power and shifty speed.
 
 N:264:Red dragon bat
@@ -3424,6 +3734,7 @@ F:BASH_DOOR |
 F:ANIMAL | IM_FIRE
 S:1_IN_4 | 
 S:BR_FIRE
+O:Angband
 D:It is a sharp-tailed bat, wreathed in fire.
 
 N:265:Killer white beetle
@@ -3434,6 +3745,7 @@ B:BITE:HURT:4d5
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is looking for prey.
 
 N:266:Giant bronze dragon fly
@@ -3446,6 +3758,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BR_CONF
+O:Angband
 D:This vast gleaming bronze fly has wings which beat mesmerically fast.
 
 N:267:Forest wight
@@ -3462,6 +3775,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP
 S:1_IN_10 | 
 S:SCARE | DRAIN_MANA
+O:Angband
 D:It is a ghostly apparition with a humanoid form.
 
 N:268:Happosai
@@ -3479,6 +3793,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:HEAL | SLOW | BO_FIRE | BA_FIRE | TPORT
+O:Ranma 1/2
 D:An old panty thief that is experienced in martial arts and is 
 D:downright irritating to deal with.
 
@@ -3495,6 +3810,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
+O:Marmalade Boy
 D:A loser tennis player who rejects hot chicks to date Rei-clones.
 
 N:270:4-Tentacle Hententmon
@@ -3511,6 +3827,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ANIMAL
 S:1_IN_7 | 
 S:SCARE
+O:Joke
 D:A Hentai tentacle monster with four tentacles, the bane of women and young 
 D:adolescent girls everywhere.
 
@@ -3524,6 +3841,7 @@ F:ONLY_ITEM | DROP_90 |
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a human form encased in mouldy wrappings.
 
 N:272:Vampire bat
@@ -3535,6 +3853,7 @@ B:BITE:EXP_40:1d4
 F:RAND_50 | COLD_BLOOD | REGENERATE | 
 F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:An undead bat that flies at your neck hungrily.
 
 N:273:Vicious of Red Dragon
@@ -3552,6 +3871,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:SLOW | FORGET | HASTE | MISSILE
+O:Cowboy Bebop
 D:A violent, cold hearted man who mercilessly carries out his tasks for 
 D:the Red Dragon Crime Syndicate.
 
@@ -3563,13 +3883,14 @@ B:PUNCH:HURT:4d6
 B:KICK:HURT:4d6
 B:PUNCH:HURT:4d6
 B:KICK:HURT:4d6
-F:UNIQUE | MALE | 
+F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BO_FIRE | BO_COLD | BA_COLD |
+O:Rival Schools
 D:Although a member of the morals committee in Taiyo HS, Kyosuke is actually
 D:Hyo's collaborator in the plan to reform the world by force.
 
@@ -3585,6 +3906,7 @@ F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:TPORT | DRAIN_MANA
+O:Angband
 D:It is a ghostly woman's form that wails mournfully.
 
 N:276:Pukelman
@@ -3600,10 +3922,11 @@ F:HURT_ROCK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
+O:Angband
 D:A stumpy figure carved from stone, with glittering eyes, this sentinel 
 D:strides towards you with deadly intent.
 
-N:277:Dark elven druid
+N:277:Dark Juraian druid
 G:h:g
 I:120:20d20:15:75:10
 W:25:3:0:500
@@ -3618,7 +3941,8 @@ F:EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | CONF | DARKNESS | 
 S:S_MONSTER | S_SPIDER
-D:A powerful dark elf, with mighty nature-controlling enchantments.
+O:Tenchi Muyo
+D:A powerful corrupted Juraian, with mighty nature-controlling enchantments.
 
 N:278:Stone troll
 G:T:W
@@ -3631,6 +3955,7 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | HURT_LITE | HURT_ROCK
+O:Angband
 D:He is a giant troll with scabrous black skin.
 
 N:279:Troll priest
@@ -3646,20 +3971,21 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BLINK | SCARE | CAUSE_1 | MISSILE | DARKNESS
+O:Angband
 D:A troll who is so bright he knows how to read.
 
-N:280:Wereworm
-G:w:D
+N:280:Big bot
+G:w:B
 I:110:100d11:15:70:20
 W:25:3:0:300
-B:GAZE:EXP_20
-B:CRAWL:ACID:2d4
-B:BITE:HURT:1d10
-B:BITE:POISON:1d6
+B:HIT:EXP_20
+B:HIT:ACID:2d4
+B:HIT:HURT:1d10
+B:HIT:POISON:1d6
 F:BASH_DOOR | 
-F:ANIMAL | IM_ACID
-D:A huge wormlike shape dripping acid, twisted by evil sorcery into a foul 
-D:monster that breeds on death.
+F:IM_ACID
+O:Legend of Zelda
+D:A giant bot.  It doesn't look very happy.  
 
 N:281:Carrion crawler
 G:c:o
@@ -3670,6 +3996,7 @@ B:STING:PARALYZE:2d6
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -3681,17 +4008,20 @@ B:BITE:LOSE_STR:4d4
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a giant beetle with poisonous mandibles.
 
-N:283:Giant grey ant
-G:a:s
+N:283:Orange ant
+G:a:o
 I:110:19d8:10:40:40
 W:26:1:0:90
 B:BITE:HURT:2d12
 F:RAND_25 | KILL_BODY | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is an ant encased in shaggy grey fur.
+F:MECHA
+O:Jinzo Ningen Kikaida
+D:One of the android goons that goes after Kikaida.  It is a 
+D:large orange ant with huge mandibles.
 
 N:284:Morrigan the Succubus
 G:V:v
@@ -3706,6 +4036,7 @@ F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 S:1_IN_3 | 
 S:MISSILE
+O:Darkstalkers
 D:She is known as a temptress, and a mistress of the night.  Her looks
 D: belie the fact that she is the rightful ruler of Makai 
 
@@ -3720,6 +4051,7 @@ B:HIT:HURT:1d10
 B:HIT:HURT:1d10
 F:INVISIBLE | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a huge black panther, clubbed tentacles sprouting from its shoulders.
 
 N:286:Giant red tick
@@ -3730,6 +4062,7 @@ B:BITE:FIRE:3d6
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_FIRE
+O:Angband
 D:It is smoking and burning with great heat.
 
 N:287:Cave ogre
@@ -3741,6 +4074,7 @@ B:HIT:HURT:3d8
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT
+O:Angband
 D:A giant orc-like figure with an awesomely muscled frame.
 
 N:288:White wraith
@@ -3756,6 +4090,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:SCARE | CAUSE_2 | DARKNESS
+O:Angband
 D:It is a tangible but ghostly form made of white fog.
 
 N:289:Monadic Deva
@@ -3772,6 +4107,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL |
 F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | FORGET
+O:Angband
 D:A lesser angel wearing little more than a loincloth - its steely skin 
 D:provides all the protection it needs.
 
@@ -3789,17 +4125,19 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
+O:Berserk
 D:An extremely evil looking buff guy who swings a really huge sword.
 
-N:291:Killer red beetle
-G:K:r
-I:110:13d8:14:45:30
+N:291:Buzzy beetle
+G:K:D
+I:110:13d8:14:160:30
 W:27:1:0:95
 B:BITE:HURT:3d4
-B:SPIT:FIRE:4d5
+B:BITE:HURT:4d5
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_FIRE
-D:It is a giant beetle wreathed in flames.
+O:Super Mario Brothers
+D:It is a small beetle that has a black outer shell that acts as tough armor.  
 
 N:292:Creeping adamantite coins
 G:$:G
@@ -3813,6 +4151,7 @@ F:ONLY_GOLD | DROP_90 | DROP_2D2 |
 F:COLD_BLOOD | BASH_DOOR | 
 F:ANIMAL | 
 F:IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a pile of coins, slithering forward on thousands of tiny legs.
 
 N:293:Algroth
@@ -3825,6 +4164,7 @@ B:BITE:HURT:1d6
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS
+O:Angband
 D:A powerful troll form.  Venom drips from its needlelike claws.
 
 N:294:Vibration hound
@@ -3841,6 +4181,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_SOUN
+O:Angband
 D:A blurry canine form which seems to be moving as fast as the eye can 
 D:follow.  You can feel the earth resonating beneath your feet.
 
@@ -3858,6 +4199,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_NEXU
+O:Angband
 D:A locus of conflicting points coalesce to form the vague shape of a huge 
 D:hound.  Or is it just your imagination?
 
@@ -3876,6 +4218,7 @@ F:EVIL | GIANT
 S:1_IN_4 | 
 S:HEAL | HOLD | TRAPS | BA_COLD | 
 S:S_MONSTER
+O:Angband
 D:A hideous ogre wrapped in black sorcerous robes.
 
 N:297:Ryoko the Space Pirate
@@ -3892,6 +4235,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:IM_POIS | IM_ELEC | 
 S:1_IN_4 | 
 S:BLIND | MIND_BLAST | DARKNESS | MISSILE | BO_ELEC |
+O:Tenchi Muyo
 D:An infamous space pirate who has plagues the Jureians for countless 
 D:years.  She is one of the most dangerous opponents out there.
 
@@ -3909,6 +4253,7 @@ F:OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:TELE_TO | HOLD | SCARE | CAUSE_2 | MIND_BLAST | FORGET | DARKNESS
+O:Angband
 D:It is a humanoid with an aura of power.  You notice a sharp set of front 
 D:teeth.
 
@@ -3925,42 +4270,46 @@ F:BASH_DOOR |
 F:IM_FIRE
 S:1_IN_8 | 
 S:BR_FIRE
+O:Angband
 D:The result of evil experiments, this travesty of nature should never be 
 D:alive.  It has 3 heads - gorgon, goat and dragon - all attached to a 
 D:lion's body.
 
-N:300:Colbran
-G:g:y
-I:120:80d12:12:80:10
+N:300:Zapdos
+G:B:y
+I:130:80d12:12:80:10
 W:27:2:0:900
-B:HIT:ELEC:3d8
-B:HIT:ELEC:3d8
+B:BITE:ELEC:3d8
+B:CLAW:ELEC:3d8
 F:FORCE_SLEEP | 
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
-F:IM_ELEC | IM_POIS | 
+F:ANIMAL | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
-S:BO_ELEC
-D:A man-shaped form of living lightning, sparks and shocks crackle all over 
-D:this madly capering figure, as it leaps and whirls around and about you.
+S:BO_ELEC | BR_ELEC | BA_ELEC |
+O:Pokemon
+D:Electric-type Pokemon.  It is one of the 5 legendary birds.  This one is 
+D:known primarily for its lightning attacks, making crackling and snapping 
+D:sounds as sparks emit from its golden feathers.
 
-N:301:Spirit naga
+N:301:Bowser
 G:n:w
-I:110:30d15:20:75:120
+I:110:30d30:20:200:120
 W:28:2:0:60
 B:CRUSH:HURT:2d8
 B:CRUSH:HURT:2d8
 B:BITE:HURT:1d8
 B:BITE:HURT:1d8
-F:FEMALE | 
+F:MALE | UNIQUE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | NO_CONF | NO_SLEEP |
 S:1_IN_4 | 
-S:HEAL | BLIND | MIND_BLAST | DARKNESS
-D:A wraithly snake-like form with the torso of a beautiful woman, it is the 
-D:most powerful of its kind.
+S:HEAL | BLIND | MIND_BLAST | DARKNESS | BR_FIRE |
+O:Super Mario Brothers
+D:The arch-nemesis of Mario and the repeated kidnapper of the princess.  He 
+D:is a large turtle with a big spiny shell.
 
 N:302:5-Tentacle Hententmon
 G:M:g
@@ -3976,6 +4325,7 @@ F:BASH_DOOR | MOVE_BODY |
 F:ANIMAL | IM_POIS
 S:1_IN_5 | 
 S:SCARE | BA_POIS
+O:Joke
 D:A Hentai tentacle monster with five tentacles, dripping goodness knows 
 D:what.
 
@@ -3992,6 +4342,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
+O:Joke
 D:Quite rarely seen compared to their counterparts.
 
 N:304:The Walking Daikon
@@ -4006,6 +4357,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+O:Spirited Away (Sen to Chihiro no Kamikakushi)
 D:A massive walking Daikon.
 
 N:305:Mage
@@ -4023,10 +4375,11 @@ S:1_IN_3 |
 S:HASTE | TPORT | TELE_TO | BLIND | CONF | 
 S:BO_FIRE | BO_COLD | BO_ELEC | 
 S:S_MONSTER
+O:Angband
 D:A mage of some power - you can tell by the size of his hat.
 
-N:306:Mind flayer
-G:h:R
+N:306:Abra
+G:w:y
 I:110:15d10:20:60:10
 W:28:1:0:200
 B:GAZE:LOSE_INT:2d6
@@ -4037,8 +4390,9 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:BLIND | HOLD | SCARE | MIND_BLAST | BRAIN_SMASH | FORGET
-D:A humanoid form with a gruesome head, tentacular mouth, and piercing 
-D:eyes.  Claws reach out for you and you feel a presence invade your mind.
+O:Pokemon
+D:A strange looking psychic type pokemon.  It looks at you with 
+D:squinty eyes.
 
 N:307:Nakago, Shogun of Kotou
 G:p:v
@@ -4056,6 +4410,7 @@ F:EVIL | IM_FIRE
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
 S:CONF | SCARE | S_KIN
+O:Fushigi Yuugi
 D:Fearsome with both magic and sword, he is a pretty blond boy, despite 
 D:the fact that he is quite evil.
 
@@ -4070,6 +4425,7 @@ B:BITE:HURT:2d12
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
+O:Angband
 D:An evil reptile that preys on unsuspecting travellers.  Its eyes stare 
 D:deeply at you and your soul starts to wilt!
 
@@ -4085,19 +4441,21 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | HURT_LITE
+O:Angband
 D:He is a white troll with powerfully clawed hands.
 
-N:310:Giant purple worm
-G:w:v
-I:110:65d8:14:65:30
+N:310:Onsokumaru
+G:w:y
+I:130:65d24:14:65:30
 W:29:3:0:400
 B:HIT:HURT:1d8
 B:BITE:ACID:2d8
-B:STING:POISON:1d8
+B:HIT:POISON:1d8
 F:BASH_DOOR | 
-F:ANIMAL | IM_ACID | IM_POIS
-D:It is a massive worm form, many feet in length.  Its vast maw drips acid 
-D:and poison.
+F:IM_ACID | IM_POIS
+O:2X2 = Shinobuden
+D:A big yellow ball of wtf.  He has cell animations of a person shitting 
+D:backwards.
 
 N:311:Movanic Deva
 G:A:B
@@ -4113,11 +4471,12 @@ F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL |
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | CONF | SCARE
+O:Angband
 D:A lesser angel protected by an aura of holiness.  Its muscular form looks 
 D:extremely powerful next to your own frail body.
 
-N:312:Catoblepas
-G:q:g
+N:312:Rhino King
+G:a:g
 I:110:30d10:15:55:40
 W:29:2:0:400
 B:GAZE:TERRIFY:2d4
@@ -4127,8 +4486,9 @@ B:BITE:HURT:2d12
 F:ONLY_GOLD | DROP_2D2 | 
 F:BASH_DOOR | 
 F:ANIMAL | IM_POIS
-D:A strange ox-like form with a huge head but a thin, weak neck, it looks 
-D:likes the creation of some deranged alchemist.
+O:Jinzo Ningen Kikaida
+D:A grey rhino with a drill as a horn.  It was built by Professor Gill to 
+D:kill Kikaida.
 
 N:313:Mimic (ring)
 G:=:w
@@ -4146,6 +4506,7 @@ S:1_IN_4 |
 S:BLIND | CONF | SCARE | CAUSE_2 | FORGET | 
 S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | 
 S:S_MONSTER
+O:Angband
 D:A strange creature that disguises itself as discarded objects to lure 
 D:unsuspecting adventurers within reach of its venomous claws.
 
@@ -4163,6 +4524,7 @@ F:EVIL | DRAGON | IM_ELEC
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_ELEC
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:deep blue in hue.  Sparks crackle along its length.
 
@@ -4180,6 +4542,7 @@ F:EVIL | DRAGON | IM_COLD
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_COLD
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:frosty white in hue.  Icy blasts of cold air come from it as it breathes.
 
@@ -4197,6 +4560,7 @@ F:EVIL | DRAGON | IM_POIS
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_POIS
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:deep green in hue.  Foul gas seeps through its scales.
 
@@ -4214,6 +4578,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_CONF
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:rich bronze hue, and its shape masks its true form.
 
@@ -4229,6 +4594,7 @@ F:ONLY_GOLD | DROP_2D2 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a massive statue of purest mithril.  It looks expensive!
 
 N:319:Shadow drake
@@ -4244,6 +4610,7 @@ F:TAKE_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | EVIL | DRAGON | IM_COLD
 S:1_IN_6 | 
 S:HASTE | SLOW | CONF | SCARE | DARKNESS
+O:Angband
 D:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in 
 D:the dark.
 
@@ -4258,6 +4625,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a troll skeleton animated by dark dweomers.
 
 N:321:Manticore
@@ -4273,28 +4641,32 @@ F:BASH_DOOR |
 F:EVIL
 S:1_IN_5 | 
 S:ARROW_4
+O:Angband
 D:It is a winged lion's body with a human torso and a tail covered in 
 D:vicious spikes.
 
-N:322:Giant blue ant
+N:322:Mini Robo-Ky
 G:a:b
 I:110:8d8:10:50:60
 W:30:2:0:80
-B:BITE:ELEC:5d5
+B:HIT:ELEC:5d5
 F:RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_ELEC
-D:It is a giant ant that crackles with energy.
+F:MECHA | IM_ELEC
+O:Guilty Gear
+D:It is a tiny robot that resemble Robo-Ky.  Its sole purpose is to 
+D:kill you.
 
-N:323:Giant army ant
+N:323:Camine spider
 G:a:o
 I:120:19d6:10:40:40
 W:30:3:0:90
 B:BITE:HURT:2d12
 F:RAND_25 | KILL_BODY | FRIENDS | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:An armoured form moving with purpose.  Powerful on its own, flee when 
+F:MECHA
+O:Jinzo Ningen Kikaida
+D:An android goon that goes after Kikaida.  Powerful on its own, flee when 
 D:hordes of them march.
 
 N:324:Grave wight
@@ -4311,6 +4683,7 @@ F:EVIL | UNDEAD |
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:SCARE | CAUSE_3 | DARKNESS
+O:Angband
 D:It is a ghostly form with eyes that haunt you.
 
 N:325:Killer slicer beetle
@@ -4321,6 +4694,7 @@ B:BITE:HURT:5d8
 B:BITE:HURT:5d8
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a beetle with deadly sharp cutting mandibles and a rock-hard 
 D:carapace.
 
@@ -4338,6 +4712,7 @@ F:EVIL | UNDEAD | IM_COLD |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA
+O:Angband
 D:You don't believe in them.
 
 N:327:Death watch beetle
@@ -4348,6 +4723,7 @@ B:BITE:HURT:5d4
 B:WAIL:TERRIFY:5d6
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL
+O:Angband
 D:It is a giant beetle that produces a chilling sound.
 
 N:328:Ogre shaman
@@ -4364,6 +4740,7 @@ F:EVIL | GIANT
 S:1_IN_5 | 
 S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE | 
 S:S_MONSTER
+O:Angband
 D:It is an ogre wrapped in furs and covered in grotesque body paints.
 
 N:329:Nexus quylthulg
@@ -4375,6 +4752,7 @@ F:INVISIBLE | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:BLINK | TELE_AWAY
+O:Angband
 D:It is a very unstable, strange pulsing mound of flesh.
 
 N:330:The Black Lady
@@ -4393,22 +4771,29 @@ F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:TRAPS | 
+O:Sailor Moon
 D:She is the evil form of Chibi-Usa, filled by the dark power of the 
 D:wise man.  Now all she desires is vengence and death to all those 
 D:who have wronged her.
 
-N:331:Ninja
-G:p:y
-I:120:13d12:20:60:10
+N:331:Metal Embattled Gigantic Ultimate Miki Impaler
+G:u:y
+I:120:13d24:20:60:10
 W:32:2:0:300
 B:HIT:POISON:3d4
 B:HIT:LOSE_STR:3d4
 B:HIT:LOSE_STR:3d4
-F:MALE | 
+F:FEMALE | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | NO_CONF | NO_SLEEP
-D:A humanoid clothed in black who moves with blinding speed.
+S:1_IN_2 |
+S:MISSILE | BULLET |
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:Also known as MEGUMI, she is an incredibly large mecha with a 
+D:striking resemblance to Megumi Kannazuki.  As the acronym implies, 
+D:this mecha is designed for the sole purpose of annihilating Miki 
+D:Onimaru.  Just don't get in its way.
 
 N:332:Memory moss
 G:,:r
@@ -4421,6 +4806,7 @@ F:STUPID | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:FORGET
+O:Angband
 D:A mass of green vegetation.  You don't remember seeing anything like it 
 D:before.
 
@@ -4436,6 +4822,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT | IM_COLD | IM_ELEC
 S:1_IN_8 | 
 S:BLINK | TELE_TO | CONF | SCARE | BO_ELEC | BA_ELEC
+O:Angband
 D:It is a twenty-five foot tall giant wreathed in lighting.
 
 N:334:Cave troll
@@ -4450,6 +4837,7 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS | HURT_LITE
+O:Angband
 D:He is a vicious monster, feared for his ferocity.
 
 N:335:Half-troll
@@ -4465,6 +4853,7 @@ F:FRIENDS |
 F:ONLY_ITEM | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS
+O:Angband
 D:A huge, ugly, half-human in search of plunder.
 
 N:336:Mystic
@@ -4483,6 +4872,7 @@ F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | 
 S:S_SPIDER
+O:Angband
 D:An adept at unarmed combat, the mystic strikes with stunning power.  He 
 D:can summon help from nature and is able to focus his power to ease any 
 D:pain.
@@ -4499,6 +4889,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:HOLD | SCARE | CAUSE_2 | DARKNESS
+O:Angband
 D:It is a ghostly nightmare of a entity.
 
 N:338:Giant skeleton troll
@@ -4514,6 +4905,7 @@ F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | UNDEAD | 
 F:IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is the animated form of a massive troll.
 
 N:339:Chaos drake
@@ -4532,6 +4924,7 @@ F:IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_DISE | BR_CHAO
+O:Angband
 D:A dragon twisted by the forces of chaos.  It seems first ugly, then fair, 
 D:as its form shimmers and changes in front of your eyes.
 
@@ -4550,6 +4943,7 @@ F:IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_SOUN | BR_SHAR
+O:Angband
 D:This dragon is clever and cunning.  It laughs at your puny efforts to 
 D:disturb it.
 
@@ -4569,6 +4963,7 @@ F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_SOUN | BR_SHAR | BR_DISE | BR_CHAO
+O:Angband
 D:A mighty dragon, the balance drake seeks to maintain the Cosmic Balance, 
 D:and despises your feeble efforts to destroy evil.
 
@@ -4586,6 +4981,7 @@ F:EVIL | DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_LITE | BR_DARK
+O:Angband
 D:A dragon of elemental power, with control over light and dark, the 
 D:ethereal drake's eyes glare with white hatred from the shadows.
 
@@ -4602,6 +4998,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
+O:Ninja Scroll
 D:Big, brawny, powerful, and wields a huge boomerang like blade.  He also 
 D:enjoys killing poeple and raping women.
 
@@ -4617,6 +5014,7 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 S:1_IN_3 | 
 S:HASTE | 
+O:Capcom vs SNK
 D:Feared by many fighters all over the world, he is an elite martial artist 
 D:with gang ties from Hong-Kong.  He has been trained by such legends as K.O. 
 D:Mester, and Ken.  Master of the Genei Jin technique, he is feared for his 
@@ -4634,9 +5032,10 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 S:1_IN_4 |
 S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | BO_POIS |  
 S:CONF |
+O:Record of Lodoss War
 D:A very powerful elven mage.
 
-N:346:Shade
+N:346:Ocho-maru
 G:G:D
 I:120:14d20:20:30:10
 W:33:3:0:350
@@ -4647,11 +5046,11 @@ F:FORCE_SLEEP | RAND_25 |
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | MECHA |
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA | FORGET
-D:A shadowy form clutches at you from the darkness.  A powerful undead with 
-D:a deadly touch.
+O:Samurai Showdown
+D:Is it a ghost?  A mecha?  Who knows......
 
 N:347:Spectre
 G:G:U
@@ -4667,6 +5066,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:BLIND | HOLD | DRAIN_MANA | FORGET
+O:Angband
 D:A phantasmal shrieking spirit.  Its wail drives the intense cold of pure 
 D:evil deep within your body.
 
@@ -4683,6 +5083,7 @@ F:FORCE_MAXHP |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE
+O:Angband
 D:He is a troll that reeks of brine.
 
 N:349:Fire elemental
@@ -4698,6 +5099,7 @@ F:EVIL | IM_FIRE | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BO_FIRE
+O:Angband
 D:It is a towering inferno of flames.
 
 N:350:Astral Deva
@@ -4716,6 +5118,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
 S:S_MONSTERS
+O:Angband
 D:It is an angel moving very quickly, wielding a holy war hammer and casting 
 D:a volley of powerful spells in your direction.
 
@@ -4733,6 +5136,7 @@ F:EVIL | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BO_COLD
+O:Angband
 D:It is a towering tempest of water.
 
 N:352:Invisible stalker
@@ -4747,6 +5151,7 @@ F:EMPTY_MIND | INVISIBLE | COLD_BLOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is impossible to define its form but its violence is legendary.
 
 N:353:Carrion crawler
@@ -4758,6 +5163,7 @@ B:STING:PARALYZE:2d6
 F:RAND_25 | FRIENDS | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_POIS
+O:Angband
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
@@ -4773,6 +5179,7 @@ F:MALE |
 F:DROP_90 | DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
+O:Tenchi Muyo
 D:He is full of angst, and enjoys mugging people.
 
 N:355:Ky-Kiske
@@ -4784,11 +5191,12 @@ B:HIT:HURT:10d5
 B:HIT:HURT:10d5
 B:HIT:HURT:10d5
 F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
+F:FORCE_MAXHP | CAN_SPEAK |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MUTODORI |
 S:1_IN_3 | 
-S:MISSILE
+S:MISSILE | BO_ELEC | BA_ELEC |
+O:Guilty Gear (Ky sucks!)
 D:A very talented swordsman who collects teacups and has issues with  
 D:people who don't agree to his way of living.  
 
@@ -4807,6 +5215,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
 S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+O:Angband
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
 N:357:Master vampire
@@ -4824,18 +5233,21 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:TELE_TO | HOLD | CONF | SCARE | CAUSE_3 | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_NETH
+O:Angband
 D:It is a humanoid form dressed in robes.  Power emanates from its chilling 
 D:frame.
 
-N:358:Giant grey scorpion
-G:S:s
+N:358:Scorpion Brown
+G:a:B
 I:120:18d20:12:50:40
 W:34:4:0:275
 B:BITE:HURT:1d6
 B:STING:POISON:1d4
+B:CLAW:HURT:1d8
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL
-D:It is a giant grey scorpion.  It looks poisonous.
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:A strange looking android that looks like a brown scorpion.
 
 N:359:Earth elemental
 G:E:u
@@ -4851,6 +5263,7 @@ F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_8 | 
 S:BO_ACID
+O:Angband
 D:It is a towering form composed of rock with fists of awesome power.
 
 N:360:Air elemental
@@ -4867,38 +5280,40 @@ F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_8 | 
 S:BO_ELEC
+O:Angband
 D:It is a towering tornado of winds.
 
-N:361:Hell hound
-G:C:r
-I:120:40d10:25:80:0
+N:361:Tosa-ken
+G:C:u
+I:120:80d10:25:80:0
 W:35:3:0:600
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
+B:BITE:HURT:6d12
+B:BITE:HURT:6d12
+B:BITE:HURT:6d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:RAND_25 | 
 F:BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE
-S:1_IN_5 | 
-S:BR_FIRE
-D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
+F:ANIMAL | 
+O:Japanese Culture/History
+D:A massive dog bred for dog fights and protection.  It is adorned 
+D:with a rope and several colorful pieces of cloth to display its 
+D:prowess.
 
-N:362:Eog golem
-G:g:u
+N:362:Giant totoro
+G:r:s
 I:100:100d20:12:125:10
 W:35:4:0:1200
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-F:ONLY_GOLD | DROP_2D2 | 
+F:ONLY_GOLD | DROP_2D2 | ALWAYS_HIT |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a massive deep brown statue, striding towards you with an 
-D:all-too-familiar purpose.  Your magic surprisingly feels much less 
-D:powerful now.
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI |
+O:Tonari no Totoro
+D:Although it looks cute and has a strange power to attract kids, one 
+D:does not anger a giant totoro.
 
 N:363:Olog
 G:T:y
@@ -4911,9 +5326,10 @@ B:BITE:HURT:2d3
 F:FORCE_MAXHP | OPEN_DOOR | FRIENDS | DROP_60 | 
 F:SMART | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS
+O:Angband
 D:It is a massive intelligent troll with needle sharp fangs.
 
-N:364:Dagashi
+N:364:Chuunin
 G:p:y
 I:120:13d25:20:70:10
 W:35:4:0:500
@@ -4922,10 +5338,14 @@ B:HIT:LOSE_STR:3d4
 B:HIT:LOSE_STR:3d4
 B:HIT:POISON:3d4
 F:MALE | 
-F:DROP_1D2 | 
+F:DROP_1D2 | REPLACEMENT |
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
-D:A human warrior, moving with lightning speed.
+F:NO_CONF | NO_SLEEP
+S:1_IN_3 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER |
+O:Naruto
+D:An intermediate level ninja, stronger than a Genin.
 
 N:365:Gravity hound
 G:Z:W
@@ -4940,6 +5360,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP | 
 S:1_IN_5 | 
 S:BR_GRAV
+O:Angband
 D:Unfettered by the usual constraints of gravity, these unnatural creatures 
 D:are walking on the walls and even the ceiling!  The earth suddenly feels 
 D:rather less solid as you see gravity warp all round the monsters.
@@ -4957,6 +5378,7 @@ F:DROP_1D2 | DROP_4D2 |
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_FEAR | NO_CONF | NO_SLEEP
+O:Cowboy Bebop
 D:When you neglect lobsters in the fridge for too long, they tend to mutate
 D:into big, funny blobs with poisonous bites.
 
@@ -4973,6 +5395,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_INER
+O:Angband
 D:Bizarrely, this hound seems to be hardly moving at all, yet it approaches 
 D:you with deadly menace.  It makes you tired just to look at it.
 
@@ -4990,6 +5413,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:BR_WALL
+O:Angband
 D:A deep brown shape is visible before you, its canine form strikes you with 
 D:an almost physical force.  The dungeon floor buckles as if struck by a 
 D:powerful blow as it stalks towards you.
@@ -5008,6 +5432,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
+O:Angband
 D:It is a form that screams its presence against the eye.  Death incarnate, 
 D:its hideous black body seems to struggle against reality as the universe 
 D:itself struggles to banish it.
@@ -5027,6 +5452,7 @@ F:IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:BO_ACID | BA_ACID
+O:Angband
 D:It is a towering mass of filth, an eyesore of ooze.
 
 N:371:Smoke elemental
@@ -5042,6 +5468,7 @@ F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:DARKNESS | BO_FIRE
+O:Angband
 D:It is a towering blackened form, crackling with heat.
 
 N:372:Young black dragon
@@ -5058,30 +5485,33 @@ F:EVIL | DRAGON | IM_ACID
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_ACID
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:darkest black hue.  Acid drips from its body.
 
-N:373:Mumak
-G:q:s
+N:373:Black horse
+G:a:s
 I:110:90d10:20:55:100
 W:35:3:0:2100
 B:BUTT:HURT:4d6
 B:BUTT:HURT:4d6
 B:CRUSH:HURT:4d4
 F:BASH_DOOR | 
-F:ANIMAL
-D:A massive elephantine form with eyes twisted by madness.
+F:MECHA |
+O:Jinzo Ningen Kikaida
+D:Am android that looks like a black horse.
 
-N:374:Giant red ant
+N:374:Red putty
 G:a:r
 I:110:20d10:14:49:40
 W:35:1:0:350
-B:BITE:FIRE:3d12
-B:BITE:FIRE:3d12
+B:PUNCH:FIRE:3d12
+B:KICK:FIRE:3d12
 F:FORCE_MAXHP | KILL_BODY | FRIENDS | 
-F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_FIRE
-D:A giant ant covered in shaggy fur.  Its powerful jaws glow with heat.
+F:BASH_DOOR | 
+F:MECHA | IM_FIRE
+O:Mighty Morphin Power Rangers
+D:A flaming putty.
 
 N:375:Mature white dragon
 G:d:w
@@ -5096,6 +5526,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_COLD
+O:Angband
 D:A large dragon, scales gleaming bright white.
 
 N:376:Xorn
@@ -5111,6 +5542,7 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:KILL_ITEM | PASS_WALL | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
+O:Angband
 D:A huge creature of the element Earth.  Able to merge with its element, it 
 D:has four huge arms protruding from its enormous torso.
 
@@ -5128,6 +5560,7 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:TELE_TO | SLOW
+O:Angband
 D:A mighty spirit of darkness of vaguely humanoid form.  Razor-edged claws 
 D:reach out to end your life as it glides towards you, seeking to suck the 
 D:energy from your soul to feed its power.
@@ -5146,6 +5579,7 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:FORGET
+O:Angband
 D:An unholy creature of darkness, the aura emanating from this evil being 
 D:saps your very soul.
 
@@ -5162,6 +5596,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | HURT_LITE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:HOLD | SCARE | CAUSE_3 | DARKNESS
+O:Angband
 D:A tangible but ghostly form, made of grey fog.  The air around it feels 
 D:deathly cold.
 
@@ -5181,6 +5616,7 @@ F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
+O:Angband
 D:It has a form that legends are made of.  Beautiful scales of shimmering 
 D:and magical colours cover it.
 
@@ -5197,6 +5633,7 @@ F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | 
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:An enormous construct resembling a titan made from stone.  It strides 
 D:purposefully towards you, swinging its slow fists with earth-shattering 
 D:power.
@@ -5215,6 +5652,7 @@ F:DRAGON
 S:1_IN_11 | 
 S:SCARE | 
 S:BR_SOUN
+O:Angband
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:tarnished gold hue, and light is reflected from its form.
 
@@ -5233,6 +5671,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 S:1_IN_9 |
 S:SCARE | MISSILE 
+O:Combustible Campus Guardress
 D:A french womanizer who likes to throw lots of roses and vines.
 
 N:384:Mature blue dragon
@@ -5249,6 +5688,7 @@ F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_ELEC
+O:Angband
 D:A large dragon, scales tinted deep blue.
 
 N:385:Mature green dragon
@@ -5265,6 +5705,7 @@ F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_POIS
+O:Angband
 D:A large dragon, scales tinted deep green.
 
 N:386:Mature bronze dragon
@@ -5281,6 +5722,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_CONF
+O:Angband
 D:A large dragon with scales of rich bronze.
 
 N:387:Charmeleon
@@ -5297,6 +5739,7 @@ F:EVIL | DRAGON | IM_FIRE
 S:1_IN_4 | 
 S:SCARE | 
 S:BR_FIRE
+O:Pokemon
 D:Fire type pokemon.  It is very hot headed by nature, so it constantly 
 D:seeks opponents.  It calms down only when it wins.
 
@@ -5312,23 +5755,22 @@ F:CHAR_CLEAR | ATTR_CLEAR |
 F:NEVER_MOVE | FORCE_MAXHP | 
 F:INVISIBLE | EMPTY_MIND | COLD_BLOOD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A larger cousin of the lurker, this creature traps unsuspecting victims 
 D:and paralyzes them, to be slowly digested later.
 
-N:389:Bodak
+N:389:Macross Valkarie
 G:u:r
-I:110:35d10:10:68:90
+I:120:35d10:10:68:90
 W:36:2:0:750
-B:HIT:FIRE:4d6
-B:HIT:FIRE:4d6
-B:GAZE:EXP_20
-F:FORCE_SLEEP | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+F:BASH_DOOR | 
+F:MECHA | NO_FEAR 
 S:1_IN_4 | 
-S:BO_FIRE | BA_FIRE | 
-S:S_DEMON
-D:It is a humanoid form composed of flames and hatred.
+S:HASTE | BULLET | ARROW_1 | ARROW_2 | ARROW_3 | ARROW_4 | MISSILE |
+O:Macross
+D:A hybrid mecha that is capable of transforming into an airplane.
 
 N:390:Ice elemental
 G:E:w
@@ -5345,6 +5787,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:BO_ICEE | BA_COLD
+O:Angband
 D:It is a towering glacier of ice.
 
 N:391:Necromancer
@@ -5362,6 +5805,7 @@ S:1_IN_3 |
 S:HASTE | TPORT | TELE_TO | BLIND | HOLD | SCARE | CAUSE_3 | 
 S:BO_NETH | 
 S:S_UNDEAD
+O:Angband
 D:A gaunt figure, clothed in black robes.
 
 N:392:Anubis, Dark Warlord of Cruelty
@@ -5381,11 +5825,10 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:TELE_TO | HOLD | SLOW |
 S:S_MONSTERS
+O:Ronin Warriors
 D:Anubis, Dark Warlord of Cruelty, the evil of the evil, he was the 
 D:leader of Tulpa's warlord's, even though he's the youngest he still
 D: posseses the greatest power of them all.
-
-
 
 N:393:Demonologist
 G:p:R
@@ -5402,6 +5845,7 @@ F:EVIL
 S:1_IN_2 | 
 S:TPORT | HOLD | 
 S:S_DEMON
+O:Angband
 D:A figure twisted by evil standing in robes of deepest crimson.
 
 N:394:Mummified troll
@@ -5415,26 +5859,30 @@ F:DROP_60 |
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is a massive figure clothed in wrappings.  You are wary of its massive 
 D:fists.
 
-N:395:The Queen Ant
-G:a:D
+N:395:Teddy Ruxpin
+G:q:D
 I:120:15d100:30:100:10
 W:37:2:0:1000
 B:BITE:HURT:2d12
-B:BITE:HURT:2d12
-B:BITE:HURT:2d8
-B:BITE:HURT:2d8
-F:UNIQUE | FEMALE | 
+B:HIT:HURT:2d12
+B:HIT:HURT:2d8
+B:HIT:HURT:2d8
+F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | NO_CONF | NO_SLEEP
+F:SMART | OPEN_DOOR | BASH_DOOR | CAN_SPEAK |
+F:ANIMAL | NO_CONF | NO_SLEEP | NO_FEAR |
 S:1_IN_2 | 
-S:S_ANT
-D:She's upset because you hurt her children.
+S:S_DEMON | S_HI_DEMON | CAUSE_4 | CONF | 
+S:DRAIN_METER | DRAIN_MANA | SCARE | BLINK |
+O:Teddy Ruxpin/Joke 
+D:The satanic bear with glowing red eyes that tells little children to go burn 
+D:things.  He has traumatized your childhood dearly and now he's back to haunt 
+D:you.
 
 N:396:Will o' the wisp
 G:E:W
@@ -5451,6 +5899,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | CONF | CAUSE_2
+O:Angband
 D:A strange ball of glowing light.  It disappears and reappears and seems to 
 D:draw you to it.  You seem somehow compelled to stand still and watch its 
 D:strange dancing motion.
@@ -5470,6 +5919,7 @@ F:IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_7 | 
 S:BO_PLAS | BA_FIRE
+O:Angband
 D:It is a towering glowing form of molten hate.
 
 N:398:Black pudding
@@ -5487,6 +5937,7 @@ F:STUPID | EMPTY_MIND | COLD_BLOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:A lump of rotting black flesh that slurrrrrrrps across the dungeon floor.
 
 N:399:Killer blue beetle
@@ -5499,6 +5950,7 @@ B:GAZE:PARALYZE
 F:FORCE_MAXHP | 
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_ELEC
+O:Angband
 D:It is a giant beetle, whose carapace shimmers with vibrant energies.
 
 N:400:Nexus vortex
@@ -5512,6 +5964,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BR_NEXU
+O:Angband
 D:A maelstrom of potent magical energy.
 
 N:401:Plasma vortex
@@ -5526,6 +5979,7 @@ F:IM_FIRE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BR_PLAS
+O:Angband
 D:A whirlpool of intense flame, charring the stones at your feet.
 
 N:402:Mature red dragon
@@ -5542,6 +5996,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_FIRE
+O:Angband
 D:A large dragon, scales tinted deep red.
 
 N:403:Mature gold dragon
@@ -5558,6 +6013,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:CONF | SCARE | 
 S:BR_SOUN
+O:Angband
 D:A large dragon with scales of gleaming gold.
 
 N:404:Crystal drake
@@ -5575,6 +6031,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_SHAR
+O:Angband
 D:A dragon of strange crystalline form.  Light shines through it, dazzling 
 D:your eyes with spectrums of colour.
 
@@ -5592,6 +6049,7 @@ F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:SCARE | 
 S:BR_ACID
+O:Angband
 D:A large dragon, with scales of deepest black.
 
 N:406:Mature multi-hued dragon
@@ -5610,6 +6068,7 @@ F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
+O:Angband
 D:A large dragon, scales shimmering many colours.
 
 N:407:Death knight
@@ -5626,6 +6085,7 @@ F:EVIL | IM_COLD
 S:1_IN_5 | 
 S:BLIND | SCARE | CAUSE_3 | BO_NETH | 
 S:S_MONSTERS
+O:Angband
 D:It is a humanoid form dressed in armour of an ancient form.  From beneath 
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of 
 D:fire.
@@ -5638,12 +6098,13 @@ B:HIT:HURT:5d5
 B:INSULT
 B:INSULT
 B:INSULT
-F:UNIQUE | MALE | 
+F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
 S:1_IN_2 | 
 S:HEAL | MISSILE | BO_FIRE 
+O:Capcom vs SNK
 D:A shoto wanna be with a pink gi, he strikes laughter everywhere he goes.  
 
 N:409:Time vortex
@@ -5657,6 +6118,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BR_TIME
+O:Angband
 D:You haven't seen it yet.
 
 N:410:Shimmering vortex
@@ -5670,6 +6132,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BR_LITE | SHRIEK
+O:Angband
 D:A strange pillar of shining light that hurts your eyes.  Its shape changes 
 D:constantly as it cuts through the air towards you.  It is like a beacon, 
 D:waking monsters from their slumber.
@@ -5688,6 +6151,7 @@ F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ELEC
+O:Angband
 D:A huge draconic form.  Lightning crackles along its length.
 
 N:412:Ancient bronze dragon
@@ -5704,6 +6168,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_CONF
+O:Angband
 D:A huge draconic form enveloped in a cascade of colour.
 
 N:413:Beholder
@@ -5720,6 +6185,7 @@ F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD
+O:Angband
 D:A disembodied eye, surrounded by twelve smaller eyes on stalks.
 
 N:414:Emperor wight
@@ -5736,6 +6202,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HOLD | SCARE | CAUSE_3 | BO_NETH
+O:Angband
 D:Your life force is torn from your body as this powerful unearthly being 
 D:approaches.
 
@@ -5755,11 +6222,12 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_11 | 
 S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS | 
 S:S_MONSTERS | S_ANGEL
+O:Angband
 D:It is an angel, fast and strong.  You are stunned by its extreme holiness 
 D:and try to resist all desires to obey it.
 
-N:416:Biri Ban
-G:p:r
+N:416:Archfiend of Gilfer
+G:U:r
 I:120:15d100:12:50:50
 W:38:3:0:3000
 B:HIT:FIRE:4d6
@@ -5774,6 +6242,7 @@ F:EVIL | IM_FIRE |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BO_FIRE | BA_FIRE
+O:Yu-Gi-Oh
 D:He is the warrior of fire, who will burn anything that gets in his way.
 
 N:417:Black wraith
@@ -5790,25 +6259,27 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BO_NETH
+O:Angband
 D:A figure that seems made of void, its strangely human shape is cloaked in 
 D:shadow.  It reaches out at you.
 
-N:418:Erinyes
-G:U:u
+N:418:Blue Buffalo
+G:a:b
 I:110:24d10:20:50:80
 W:38:2:0:1000
 B:HIT:HURT:3d4
 B:TOUCH:LOSE_STR:1d5
-F:FEMALE | 
+F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | DEMON | 
+F:EVIL | MECHA |
 F:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BLIND | CONF | BO_FIRE
-D:It is a lesser demon of female form; however, she takes little time to 
-D:show her true colours.
+O:Jinzo Ningen Kikaida
+D:A big blue buffalo.  He is very strong and he shoots streams of fire from his 
+D:arms.
 
 N:419:Nether wraith
 G:W:G
@@ -5825,6 +6296,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | SCARE | CAUSE_3 | MIND_BLAST | DARKNESS | BO_NETH
+O:Angband
 D:A form that hurts the eye, death permeates the air around it.  As it nears 
 D:you, a coldness saps your soul.
 
@@ -5839,6 +6311,7 @@ F:FORCE_MAXHP |
 F:DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:A massive troll, larger and stronger than many men together.
 
 N:421:Ettin
@@ -5852,25 +6325,29 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
+O:Angband
 D:A massive troll of huge strength.  Ettins are stupid but violent.
 
-N:422:Gyrados
-G:D:s
-I:120:20d100:12:40:50
+N:422:Flying Spaghetti Monster
+G:M:y
+I:120:30d100:12:40:50
 W:39:3:0:3250
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
+B:MOLEST:PARALYZE:5d5
+B:MOLEST:POISON:5d5
+B:MOLEST:TERRIFY:5d5
+B:MOLEST:CONFUSE:5d5
 F:UNIQUE | 
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
-F:EVIL | IM_POIS | 
+F:IM_POIS | MUTODORI |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
-S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
-D:A towering dragon that gets pissed off very easily.
+S:BO_ICEE | BO_WATE | BA_WATE
+O:Joke
+D:You don't believe it, but there it stands in all of its awesomeness 
+D:and glory; maker of worlds, creator of all living creatures, and 
+D:hailing from the land of strippers and beer volcanoes.
 
 N:423:Yamata no Orochi
 G:d:g
@@ -5889,6 +6366,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_SOUN | BR_CONF | 
 S:BR_SHAR | BR_GRAV | BR_NEXU
+O:Ranma 1/2
 D:A large dragon with a 8 heads and scales that look like a cedar  
 D:forest.  Each head can manipulate nature and cause disasters.
 
@@ -5906,6 +6384,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_COLD
+O:Angband
 D:A huge draconic form.  Frost covers it from head to tail.
 
 N:425:Ancient green dragon
@@ -5922,6 +6401,7 @@ F:EVIL | DRAGON | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_POIS
+O:Angband
 D:A huge draconic form enveloped in clouds of poisonous vapour.
 
 N:426:7-Tentacle Hententmon
@@ -5939,6 +6419,7 @@ F:ANIMAL | IM_POIS
 S:1_IN_5 | 
 S:SCARE | BA_POIS | 
 S:BR_POIS
+O:Joke
 D:A Hentai tentacle monster with seven tentacles, dripping goodness 
 D:knows what.
 
@@ -5954,6 +6435,7 @@ F:FORCE_MAXHP |
 F:ONLY_GOLD | DROP_2D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | ANIMAL | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+O:Mononoke Hime
 D:A forest God that has been overcome by its anger and hatred.  This accursed
 D:creature hunts down humans with a horrible vengeance.  You stare in disgust
 D:and fear at its glowing red eyes and the ugly black worms wiggling about
@@ -5975,9 +6457,10 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | DARKNESS | BO_NETH
+O:Angband
 D:A foul wind chills your bones as this ghastly figure approaches.
 
-N:429:Ancient black dragon
+N:429:Red eyes black dragon
 G:D:s
 I:120:72d10:20:90:70
 W:39:1:0:2500
@@ -5991,18 +6474,20 @@ F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID
-D:A huge draconic form.  Pools of acid melt the floor around it.
+O:Yu-Gi-Oh
+D:A ferocious dragon with a deadly attack.  
 
-N:430:Disenchanter worm mass
+N:430:Suketoudara
 G:w:v
-I:100:10d8:7:5:10
+I:120:20d8:7:5:10
 W:40:3:0:30
-B:CRAWL:UN_BONUS:1d4
+B:PUNCH:UN_BONUS:1d4
 F:RAND_50 | 
-F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
+F:BASH_DOOR | FRIENDS |
 F:ANIMAL | HURT_LITE | NO_FEAR
-D:It is a strange mass of squirming worms.  Magical energy crackles 
-D:around its disgusting form.
+O:Puyo Puyo
+D:What is best described as a fish with sexy arms and legs 
+D:that dances about, Suketoudara is pretty vicious.
 
 N:431:Rotting quylthulg
 G:Q:u
@@ -6015,6 +6500,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_UNDEAD
+O:Angband
 D:It is a pulsing flesh mound that reeks of death and putrefaction.
 
 N:432:Spirit troll
@@ -6029,6 +6515,7 @@ F:DROP_90 |
 F:INVISIBLE | PASS_WALL | 
 F:EVIL | TROLL | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
+O:Angband
 D:A weird troll from the elemental planes.
 
 N:433:Lesser titan
@@ -6046,6 +6533,7 @@ F:EVIL | GIANT
 S:1_IN_3 | 
 S:HEAL | TELE_TO | SCARE | 
 S:S_MONSTERS
+O:Angband
 D:It is a humanoid figure thirty feet tall that gives off an aura of power 
 D:and hate.
 
@@ -6064,6 +6552,7 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4 | 
 S:SCARE | BO_FIRE | 
 S:BR_FIRE
+O:Joke
 D:A Hentai tentacle monster with nine tentacles, which are feared by women 
 D:and adolescent girls everywhere.
 
@@ -6081,7 +6570,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | 
-S:S_DRAGON
+S:DRAIN_METER |
+O:Japanese Culture/History
 D:The magic pretty girl that everyone is well acquainted with.
 
 N:436:Shinto Priest
@@ -6099,6 +6589,7 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CONF | CAUSE_3 | 
 S:S_MONSTER | S_UNDEAD
+O:Japanese Culture/History
 D:A master priest, knowledgeble in the ways of nature.
 
 N:437:Sorcerer
@@ -6117,6 +6608,7 @@ S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | TRAPS | 
 S:BO_ACID | BA_FIRE | BA_COLD | 
 S:S_MONSTER | S_UNDEAD | S_DRAGON
+O:Angband
 D:A human figure in robes, he moves with magically improved speed, and his 
 D:hands are ablur with spell casting.
 
@@ -6133,6 +6625,7 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:KILL_ITEM | PASS_WALL | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
+O:Angband
 D:It is a tougher relative of the Xorn.  Its hide glitters with metal ores.
 
 N:439:Chocobo
@@ -6144,6 +6637,7 @@ B:CRUSH:HURT:8d12
 B:HIT:HURT:12d12
 F:BASH_DOOR | 
 F:ANIMAL | EMPTY_MIND | STUPID |
+O:Final Fantasy
 D:A large, gold colored bird.
 
 N:440:Dark Schneider
@@ -6162,6 +6656,7 @@ F:UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:DIVINE_COMEDY |
 S:HEAL | BLIND | HOLD | SCARE | CAUSE_4 | BRAIN_SMASH | 
+O:Bastard!!!
 D:An undead, lecherous mage.
 
 N:441:Minotaur
@@ -6174,6 +6669,7 @@ B:BUTT:HURT:2d6
 B:BUTT:HURT:2d6
 F:BASH_DOOR | 
 F:EVIL
+O:Angband
 D:It is a cross between a human and a bull.
 
 N:442:Spike, the Cockatiel
@@ -6193,6 +6689,7 @@ F:NO_CONF | NO_SLEEP | RES_NETH | RES_WATE | RES_PLAS |
 F:RES_NEXU | RES_DISE | NO_FEAR | CAN_SPEAK |
 S:1_IN_2 | 
 S:SHRIEK | S_WRAITH | S_UNIQUE |
+O:Inside Joke
 D:He is a gray parrot with peach-colored feathers on his cheeks, 
 D:white feathered wingtips, and yellow feathering around the face 
 D:and beak.  He stands 4" tall and has yellow and gray crown feathers 
@@ -6220,6 +6717,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_NETH
+O:Angband
 D:It is a dragon-like form wrapped in darkness.  You cannot make out its 
 D:true form but you sense its evil.
 
@@ -6237,6 +6735,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE
+O:Pokemon
 D:Fire type Pokemon.  Breathing intense hot flames, it can melt almost
 D:anything.  Its breath inflicts terrible pain on enemies.
 
@@ -6254,6 +6753,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_SOUN
+O:Angband
 D:A huge draconic form wreathed in a nimbus of light.
 
 N:446:Great crystal drake
@@ -6271,6 +6771,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_SHAR
+O:Angband
 D:A huge crystalline dragon.  Its claws could cut you to shreds and its 
 D:teeth are razor sharp.  Strange colours ripple through it as it moves in 
 D:the light.
@@ -6289,25 +6790,25 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL |
 F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:BLIND | CONF
+O:Angband
 D:It is a demon with a long neck and raking claws.
 
-N:448:Death quasit
+N:448:The Wing Zero
 G:u:D
-I:130:44d10:20:80:0
-W:40:3:0:1000
-B:BITE:LOSE_DEX:3d6
-B:CLAW:HURT:3d3
-B:CLAW:HURT:3d3
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_2D2 | DROP_4D2 | 
-F:SMART | INVISIBLE | PASS_WALL | 
-F:EVIL | DEMON | IM_FIRE | IM_POIS | 
+I:130:88d10:20:80:0
+W:40:3:0:4000
+B:HIT:LOSE_DEX:6d6
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+F:UNIQUE | FORCE_MAXHP | MECHA |
+F:SMART | 
+F:IM_FIRE | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_10 | 
-S:BLIND | CONF | SCARE | CAUSE_3 | FORGET | 
-S:S_DEMON
-D:It is a demon of small stature, but its armoured frame moves with 
-D:lightning speed and its powers make it a tornado of death and destruction.
+S:1_IN_3 | 
+S:HASTE | CONF | BULLET | ARROW_1 | ARROW_2 | ARROW_3 | ARROW_4 |
+S:BLINK | 
+O:Gundam Wing
+D:The Gundam feared by all, flown by the legendary Heero Yuy.
 
 N:449:Jigen Daisuke
 G:p:D
@@ -6321,6 +6822,7 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:NO_CONF | NO_SLEEP
 S:1_IN_1 | 
 S:BULLET |
+O:Lupin the Third
 D:The legendary gunman of the crime world.  None can match his gunmanship.
 
 N:450:Dark elven sorceror
@@ -6339,6 +6841,7 @@ S:1_IN_2 |
 S:HEAL | BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:BO_ACID | BA_FIRE | BA_COLD | 
 S:S_MONSTER | S_UNDEAD | S_DEMON
+O:Angband
 D:A dark elven figure, dressed in deepest black.  Power seems to crackle 
 D:from his slender frame.
 
@@ -6358,6 +6861,7 @@ S:1_IN_3 |
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | 
 S:S_UNDEAD
+O:Angband
 D:A skeletal form wrapped in robes.  Powerful magic crackles along its bony 
 D:fingers.
 
@@ -6374,9 +6878,10 @@ F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BO_FIRE | 
 S:S_DEMON
+O:Angband
 D:It is a demon of lizard form with cruel-looking jaws.
 
-N:453:Utsutsu Mujuru the Blind
+N:453:Utsutsu Mujuro the Blind
 G:U:D
 I:120:18d100:90:70:10
 W:41:3:0:12000
@@ -6391,6 +6896,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | 
+O:Ninja Scroll
 D:Despite the fact that he is blind, Utsutsu is one of the most 
 D:skilled swordsmen ever.  He is also willing to give you a 
 D:honorable death.
@@ -6407,9 +6913,10 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF |
 F:NO_SLEEP | NO_FEAR | KILL_WALL | NO_SUMMON |
+O:Photon
 D:Onechan....onaji....Aun....mamoru...yaksoku....
 
-N:455:Solar
+N:455:Steel Angel
 G:A:y
 I:130:100d35:30:140:255
 W:41:6:0:15000
@@ -6424,9 +6931,9 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
 S:S_ANGEL
-D:Never a more heavenly being have you seen.  The very holiness of its 
-D:presence makes you deeply respect it.  Few creatures can match the powers 
-D:of a Solar; fewer still live to tell the tale after attacking one.
+O:Steel Angel Kurumi
+D:A robotic maid issued to little boys as maids and love toys.  They are 
+D:quite dangerous however.
 
 N:456:Glabrezu
 G:U:o
@@ -6441,6 +6948,7 @@ F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BO_FIRE | 
 S:S_DEMON
+O:Angband
 D:It is demon with arms and pincers, its form a true mockery of life.
 
 N:457:Muraki Kazutaka
@@ -6459,10 +6967,11 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | BO_FIRE | BO_NETH | BA_FIRE | 
 S:S_MONSTER | S_DEMON | S_UNDEAD | SLOW | MIND_BLAST | BRAIN_SMASH |
 S:CONF | TPORT | S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | 
+O:Yami no Matsuei
 D:An extremely insane, demonic serial killer who commits unspeakable acts to 
 D:his victims and is the bane of the shinigami.
 
-N:458:Nalfeshnee
+N:458:Ifrit
 G:U:r
 I:110:67d10:20:50:80
 W:42:2:0:2000
@@ -6478,7 +6987,8 @@ S:1_IN_9 |
 S:BLIND | CONF | 
 S:BR_FIRE | 
 S:S_DEMON
-D:It is a large demon with the head of a giant boar.  Flames run up and down 
+O:Final Fantasy
+D:It is a large winged demon with the head of a giant goat.  Flames run up and down 
 D:its length.
 
 N:459:Undead beholder
@@ -6498,6 +7008,7 @@ S:1_IN_2 |
 S:SLOW | CAUSE_4 | DRAIN_MANA | MIND_BLAST | BRAIN_SMASH | FORGET | 
 S:BO_MANA | 
 S:S_UNDEAD
+O:Angband
 D:A disembodied eye, floating in the air.  Black nether storms rage around 
 D:its bloodshot pupil and light seems to bend as it sucks its power from the 
 D:very air around it.  Your soul chills as it drains your vitality for its 
@@ -6518,12 +7029,13 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_15 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | BO_NETH
+O:Angband
 D:It is a form that screams its presence against the eye.  Death incarnate, 
 D:its hideous black body seems to struggle against reality as the universe 
 D:itself struggles to banish it.
 
-N:461:Mumak
-G:q:s
+N:461:Bikojuumo
+G:I:s
 I:110:90d10:20:55:100
 W:43:2:0:2100
 B:BUTT:HURT:4d6
@@ -6531,8 +7043,10 @@ B:BUTT:HURT:4d6
 B:CRUSH:HURT:4d4
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL
-D:A massive elephantine form with eyes twisted by madness.
+F:ANIMAL |
+O:Naruto
+D:A massive elephantine bug.  It gets angry if its nose is poked, and 
+D:it has been known to eat people.
 
 N:462:Ancient multi-hued dragon
 G:D:v
@@ -6550,6 +7064,7 @@ F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
+O:Angband
 D:A huge draconic form.  Many colours ripple down its massive frame.  Few 
 D:live to see another.
 
@@ -6568,6 +7083,7 @@ F:DRAGON | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BLIND | CONF | 
 S:BR_LITE | BR_DARK | BR_CONF
+O:Angband
 D:A huge dragon emanating from the elemental plains, the ethereal dragon is 
 D:a master of light and dark.  Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows.
@@ -6580,7 +7096,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:TOUCH:EXP_40
 B:TOUCH:EXP_40
-F:UNIQUE | MALE | 
+F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
@@ -6589,6 +7105,7 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_ACID | BA_NETH | 
 S:S_UNDEAD | S_HOUND
+O:Guilty Gear
 D:Zappa is unfortunately posessed by S-ko, who uses him to "observe" 
 D:other humans.  As a result, Zappa does an eerie stair walk everytime 
 D:S-ko takes over...
@@ -6609,6 +7126,7 @@ F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CAUSE_2 | 
 S:S_DEMON
+O:Angband
 D:She is a demon of female form with many arms, each bearing deadly weapons.
 
 N:466:Nai-no-kami
@@ -6628,6 +7146,7 @@ F:HURT_ROCK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BO_ACID | BA_ACID | 
+O:Japanese Culture/History
 D:The Japanese deity of earth and earthquakes.
 
 N:467:Lesser Balrog
@@ -6646,26 +7165,28 @@ S:1_IN_4 |
 S:BLIND | CONF | 
 S:BR_FIRE | 
 S:S_DEMON
+O:Angband
 D:It is a massive humanoid demon wreathed in flames.
 
-N:468:Shina-To-Be
-G:E:B
+N:468:Calcifer 
+G:E:r
 I:130:27d100:12:50:50
 W:44:4:0:8000
-B:HIT:HURT:4d6
-B:HIT:CONFUSE:1d4
-B:HIT:HURT:4d6
-B:HIT:CONFUSE:1d4
-F:UNIQUE | FEMALE | 
+B:TOUCH:FIRE:6d6
+B:TOUCH:FIRE:6d4
+B:TOUCH:EAT_FOOD:6d6
+B:TOUCH:EAT_FOOD:6d4
+F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:RAND_25 | 
-F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:IM_FIRE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_5 | 
-S:BO_ELEC | BA_COLD | BA_ELEC
-D:The Japanese goddess of wind.
+S:1_IN_4 | 
+S:BO_FIRE | BA_FIRE | BA_FIRE
+O:Howl's Moving Castle
+D:A cute little flame demon who stole Howl's heart.  He is the guardian 
+D:flame demon that keeps Howl's castle standing while protecting it from 
+D:evil forces.
 
 N:469:11-Tentacle Hententmon
 G:M:R
@@ -6682,6 +7203,7 @@ F:ANIMAL | IM_FIRE
 S:1_IN_4 | 
 S:SCARE | BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE
+O:Joke
 D:A Hentai tentacle monster with eleven tentacles, well versed in 
 D:the dark arts of violation.
 
@@ -6700,6 +7222,7 @@ F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CAUSE_4 | BRAIN_SMASH | 
 S:S_MONSTERS | S_UNDEAD
+O:Angband
 D:A dark priest of the highest order.  Powerful and evil, beware his many 
 D:spells.
 
@@ -6718,6 +7241,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:TELE_LEVEL | BLIND | HOLD | CONF | CAUSE_4 | DRAIN_MANA | BO_NETH | 
 S:S_UNDEAD
+O:Angband
 D:It is an unlife of power almost unequaled.  An affront to existence, its 
 D:very touch abuses and disrupts the flow of life, and its unearthly limbs, 
 D:of purest black, crush rock and flesh with ease.
@@ -6738,6 +7262,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BLIND | SLOW | CONF | ARROW_3 | 
 S:BR_POIS
+O:Angband
 D:A constructed dragon, the drolem has massive strength.  Powerful spells 
 D:weaved during its creation make it a fearsome adversary.  Its eyes show 
 D:little intelligence, but it has been instructed to destroy all it meets.
@@ -6752,7 +7277,8 @@ F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:SMART | ANIMAL | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_1 | 
-S:CONF | BLINK | TPORT | TELE_LEVEL | TELE_AWAY |
+S:CONF | BLINK | TPORT | TELE_LEVEL | TELE_AWAY | DRAIN_METER |
+O:Mimi wo Sumaseba
 D:He is sometimes known as 'Muta' or 'Tama'.  He looks like a full moon 
 D:and he enjoys taunting the surrounding creatures.
 
@@ -6773,6 +7299,7 @@ F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
 S:S_MONSTERS | CONF | BLINK |
+O:Yami no Matsuei
 D:The dead brother of Muraki, he killed Muraki's parents to prevent him from 
 D:extracting revenge.
 
@@ -6792,6 +7319,7 @@ F:DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE | BR_ACID |
+O:Japanse Culture/History
 D:A dragon bird hybrid with a scaly body and clawed feet.  His wing and tail 
 D:feathers are made of pure gold.
 
@@ -6812,6 +7340,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:CONF | SCARE | 
 S:BR_COLD | BR_NETH
+O:Angband
 D:The skeletal form of a once-great dragon, enchanted by magic most 
 D:perilous.  Its animated form strikes with speed and drains life from its 
 D:prey to satisfy its hunger.
@@ -6831,6 +7360,7 @@ F:EVIL | GIANT
 S:1_IN_3 | 
 S:HEAL | TELE_TO | 
 S:S_MONSTERS
+O:Angband
 D:A forty foot tall humanoid that shakes the ground as it walks.  The power 
 D:radiating from its frame shakes your courage, its hatred inspired by your 
 D:defiance.
@@ -6850,6 +7380,7 @@ F:ANIMAL | EVIL | DRAGON | IM_ACID | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HOLD | SCARE | 
 S:BR_FIRE | BR_NETH
+O:Angband
 D:A mixture of dragon and basilisk, the dracolisk stares at you with deep 
 D:piercing eyes, its evil breath burning the ground where it stands.
 
@@ -6864,6 +7395,7 @@ B:HIT:EXP_80:5d5
 F:FORCE_SLEEP | NEVER_MOVE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
+O:Angband
 D:It is the epitome of all that is evil, in a mold.  Its lifeless form draws 
 D:power from sucking the souls of those that approach it, a nimbus of pure 
 D:evil surrounds it.  Luckily for you, it can't move.
@@ -6884,6 +7416,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE
+O:Yami no Matsuei
 D:A seprant whose flames are powerful enough to destroy even a Shinigami.
 
 N:481:Ii Shenlong
@@ -6903,6 +7436,7 @@ S:1_IN_3 |
 S:CONF | CAUSE_3 | 
 S:BR_FIRE | BR_POIS | BR_ELEC | BR_COLD | BR_MANA |
 S:S_DRAGON
+O:Dragonball GT
 D:The mightiest of the seven dragons, Ii Shenlong came about due to the blatant overuse 
 D:of the Dragon Balls by the planet earth.  Even the mightiest warriors of the entire
 D: universe fear his wrath.
@@ -6924,6 +7458,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | 
 S:S_SPIDER
+O:Angband
 D:A lord of all that is natural, skilled in the mystic ways.  He is a master 
 D:of martial arts and is at one with nature, able to summon help from the 
 D:wild if need be.
@@ -6946,6 +7481,7 @@ S:1_IN_4 |
 S:BLIND | CONF | SCARE | TRAPS |
 S:BR_FIRE | BA_NETH |
 S:S_UNDEAD | S_DEMON
+O:Vampire Hunter D
 D:An agile killer whos specialties involve deadly traps and illusions of 
 D:shadow and black cloth.
 
@@ -6965,6 +7501,7 @@ S:1_IN_4 |
 S:BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:S_UNDEAD
+O:Angband
 D:Everywhere colours seem paler and the air chiller.  At the centre of the 
 D:cold stands a mighty figure.  Its wings envelop you in the chill of death 
 D:as the nightwing reaches out to draw you into oblivion.  Your muscles sag 
@@ -6985,6 +7522,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_NETH
+O:Angband
 D:You feel a soul-tearing chill upon viewing this beast, a ghostly form of 
 D:darkness in the shape of a large dog.
 
@@ -7002,6 +7540,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:BR_TIME
+O:Angband
 D:You get a terrible sense of deja vu, or is it a premonition?  All at once 
 D:you see a little puppy and a toothless old dog.  Perhaps you should give 
 D:up and go to bed.
@@ -7020,6 +7559,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_PLAS
+O:Angband
 D:The very air warps as pure elemental energy stalks towards you in the 
 D:shape of a giant hound.  Your hair stands on end and your palms itch as 
 D:you sense trouble.
@@ -7035,6 +7575,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_DEMON
+O:Angband
 D:A pile of pulsing flesh that glows with an inner hellish fire.  The world 
 D:itself seems to cry out against it.
 
@@ -7053,11 +7594,12 @@ F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ELEC
+O:Angband
 D:A vast dragon of power.  Storms and lightning crash around its titanic 
 D:form.  Deep blue scales reflect the flashes and highlight the creature's 
 D:great muscles.  It regards you with contempt.
 
-N:490:Baphomet the Minotaur Lord
+N:490:Pantyhose
 G:H:s
 I:130:35d100:30:120:30
 W:51:4:0:18000
@@ -7073,8 +7615,11 @@ F:EVIL | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:SLOW | ARROW_4 | BO_MANA | BO_PLAS | BA_ELEC | 
 S:BR_WALL
-D:A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses 
-D:all that defy him.
+O:Ranma 1/2
+D:He was washed as a baby in the spring of 'Drowned Ox-Crane-Eel-Snowman'.  
+D:Legend has it that a snowman riding an ox while holding a crane in one 
+D:hand and an eel in the other drowned in that spring, so whomever falls into 
+D:that spring will take up the body of an ox-crane-eel-snowman.
 
 N:491:Lupin the Third
 G:p:B
@@ -7091,6 +7636,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:SMART | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TRAPS | BLINK | BULLET |
+O:Lupin the Third
 D:The James Bond of thieves.  No safeguards or buildings can stop him
 D:from stealing whatever he wants. He is a master of disguise, an expert 
 D:of stealth, a genius at traps, and moves with blinding speed.  
@@ -7114,10 +7660,11 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | 
 S:S_UNDEAD | S_KIN
+O:Japanese Culture/History
 D:Upon being disfigured from poison, her husband abandoned her to marry 
 D:his neighbor.  Now, she haunts the world.
 
-N:493:Grand master Chi Warrior
+N:493:Grand Master Chi Warrior
 G:p:o
 I:130:22d100:30:80:5
 W:53:3:0:15000
@@ -7133,6 +7680,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | MIND_BLAST | 
 S:S_SPIDER | S_HOUND
+O:Maintainer feeling evil
 D:He is one of the few true masters of the art, being extremely skillful in 
 D:all forms of unarmed combat and controlling the world's natural creatures 
 D:with disdainful ease.
@@ -7153,6 +7701,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | CAN_SPEAK |
 F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI |
 S:1_IN_2 | 
 S:SCARE | BLINK | HASTE | HOLD | HEAL |
+O:Japanse Culture/History
 D:The legendary swordsman and most frightening warrior ever.  Rumored 
 D:to have destroyed the Yoshioka School of swordsmanship singlehandedly 
 D:and winner of countless duels with many other legendary swordsmen.
@@ -7173,13 +7722,14 @@ F:INVISIBLE | PASS_WALL |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_MANA
+O:X
 D:The "spirit dog" of Yuzuriha Nekoi.  Inuki has the ability to turn
 D:into whatever it wishes.  For some reason, you refuse to believe 
 D:that it is actually there...
 
-N:496:Great ice wyrm
+N:496:Blue eyes white dragon
 G:D:w
-I:120:30d100:30:170:80
+I:120:60d100:30:170:80
 W:54:2:0:20000
 B:CLAW:HURT:1d12
 B:CLAW:HURT:1d12
@@ -7192,9 +7742,10 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_COLD
-D:An immense dragon capable of awesome destruction.  You have never felt 
-D:such extreme cold, or witnessed such an icy stare.  Begone quickly or feel 
-D:its wrath!
+O:Yu-Gi-Oh
+D:This legendary dragon is a powerful engine of destruction.  Virtually 
+D:invincible, very few have faced this awesome creature and lived to tell 
+D:the tale.  
 
 N:497:The Phoenix
 G:B:r
@@ -7212,6 +7763,7 @@ F:ANIMAL | IM_ACID | IM_FIRE | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BO_FIRE | BO_PLAS | BA_FIRE | 
 S:BR_FIRE | BR_LITE | BR_PLAS
+O:Angband
 D:A massive glowing eagle bathed in flames.  The searing heat chars your 
 D:skin and melts your armour.
 
@@ -7233,6 +7785,7 @@ S:BLIND | SCARE | BRAIN_SMASH |
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:BR_NETH | 
 S:S_UNDEAD
+O:Angband
 D:This intensely evil creature bears the form of a gargantuan black worm.  
 D:Its gaping maw is a void of blackness, acid drips from its steely hide.  
 D:It is like nothing you have ever seen before, and a terrible chill runs 
@@ -7248,6 +7801,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:TELE_AWAY | BLIND | CONF | SCARE | CAUSE_3 | FORGET | DARKNESS
+O:Angband
 D:A skeletal hand floating in the air, motionless except for its flexing 
 D:fingers.
 
@@ -7265,6 +7819,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:S_UNDEAD
+O:Angband
 D:A bloodshot eyeball floating in the air, you'd be forgiven for assuming it 
 D:harmless.
 
@@ -7285,6 +7840,7 @@ S:1_IN_1 |
 S:SLOW | CAUSE_4 | MIND_BLAST | BRAIN_SMASH | TRAPS | BO_PLAS | 
 S:BO_NETH | BA_WATE | 
 S:S_UNDEAD
+O:Angband
 D:A glowing skull possessed by sorcerous power.  It need not move, but 
 D:merely blast you with mighty magic.
 
@@ -7299,6 +7855,7 @@ F:EMPTY_MIND | BASH_DOOR | POWERFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BR_CHAO
+O:Angband
 D:Void, nothingness, spinning destructively.
 
 N:503:Aether vortex
@@ -7319,6 +7876,7 @@ S:1_IN_6 |
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | BR_LITE | 
 S:BR_DARK | BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | BR_NETH | 
 S:BR_WALL | BR_INER | BR_TIME | BR_GRAV | BR_PLAS | BR_NEXU
+O:Angband
 D:An awesome vortex of pure magic, power radiates from its frame.
 
 N:504:Haku, the River Dragon
@@ -7339,6 +7897,7 @@ S:1_IN_3 |
 S:SCARE | HOLD |
 S:BR_ACID | BR_COLD | BR_NEXU | 
 S:BR_FIRE | BR_POIS | BA_WATE |
+O:Spirited Away (Sen to Chihiro no Kamikakushi)
 D:He is the apprentice of Yubaba, the mighty sorceress.  Long ago, he was 
 D:a river who got drained.  Ever since then, he has forgotten his true 
 D:identity.
@@ -7359,6 +7918,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_NETH | S_KIN
+O:Yami no Matsuei
 D:A vampire who has been kept alive only because of Muraki.  She needs 
 D:the blood of innocent victims to sustain her body.
 
@@ -7377,6 +7937,7 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE
+O:Angband
 D:A vast dragon of immense power.  Fire leaps continuously from its huge 
 D:form.  The air around it scalds you.  Its slightest glance burns you, and 
 D:you truly realize how insignificant you are.
@@ -7392,6 +7953,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
 S:S_DRAGON
+O:Angband
 D:It looks like it was once a dragon corpse, now deeply infected with 
 D:magical bacteria that make it pulse in a foul and degrading way.
 
@@ -7404,7 +7966,7 @@ B:KICK:PARALYZE:2d12
 B:PUNCH:SHATTER:1d12
 B:KICK:SHATTER:1d12
 F:UNIQUE | MALE
-F:FORCE_SLEEP | FORCE_MAXHP | FORCE_LOCATION |
+F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
@@ -7412,12 +7974,13 @@ F:REGENERATE | NO_SUMMON | MUTODORI |
 S:1_IN_2 | 
 S:BLINK | DIVINE_COMEDY |
 S:BO_ELEC | BO_MANA | BA_MANA | CAUSE_3
+O:Dragonball Z
 D:Arrogant and cocky, Vegeta kills all who stand in his way.  A Sayajin prince,
 D:Vegeta listens to no one and delights in random destruction.  His mastery
 D:of martial arts, speed, and power are rivaled only by few throughout the 
 D:entire universe.  Beware his wrath!
 
-N:509:Saichel, Angel of Destruction
+N:509:Sachiel, Angel of Destruction
 G:A:d
 I:130:55d100:40:160:10
 W:56:3:0:25000
@@ -7435,6 +7998,7 @@ S:TELE_TO | BLIND |
 S:BO_FIRE | BO_MANA | BA_FIRE | 
 S:BR_FIRE | DIVINE_COMEDY |
 S:S_ANGEL
+O:Evangelion
 D:He has all the apperances of devestation and divine wrath, which is no 
 D:surprise.  After all, he is the messenger of destruction.  Towering 
 D:over you, you shudder as this creature, several hundreds of feet tall 
@@ -7459,6 +8023,7 @@ S:TELE_TO | BLIND |
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:BR_NETH | 
 S:S_ANGEL
+O:Star Ocean the Second Story
 D:Queen Iselia commands awesome power, her visage holy enough to shrivel your 
 D:soul.  You shriek with disbelief as her mastery of death draws you to your 
 D:grave.  It is truly beyond all but the mightiest of warriors to stand 
@@ -7482,6 +8047,7 @@ S:1_IN_2 |
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | 
 S:S_DRAGON | S_HI_DRAGON
+O:Japanese Culture/History
 D:The legendary dragon made out of pure Jade.
 
 N:512:Nightwalker
@@ -7501,6 +8067,7 @@ S:1_IN_4 |
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:S_UNDEAD
+O:Angband
 D:A huge giant garbed in black, more massive than a titan and stronger than 
 D:a dragon.  With terrible blows, it breaks your armour from your back, 
 D:leaving you defenseless against its evil wrath.  It can smell your fear, 
@@ -7524,6 +8091,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | MUTODORI |
 S:1_IN_2 | 
 S:TELE_TO | BLIND | BO_MANA | 
 S:S_ANGEL | S_KIN
+O:Tenchi Muyo
 D:You can't comprehend it.  Her very existence seems impossible, and yet, 
 D:there she is, standing right in front of you.
 
@@ -7546,6 +8114,7 @@ S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE |
 S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | 
 S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
 S:S_UNDEAD | S_DEMON | S_DRAGON
+O:Slayers
 D:A powerful priest who was blind since birth due to a curse.  He hates
 D:Lina Inverse immensely.
 
@@ -7566,6 +8135,7 @@ F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | HOLD | CONF | DRAIN_MANA | BA_NETH | 
 S:S_UNDEAD
+O:Angband
 D:It is a massive form of animated death, its colour deeper than black.  It 
 D:drinks in light, and space around it is twisted and torn by the weight of 
 D:its evil.  It is unlife and it knows nothing but the stealing of souls and 
@@ -7573,12 +8143,12 @@ D:the stench of death.  Flee its hunger!
 
 N:516:Haejin, the Enigma
 G:h:v
-I:110:300d100:2:50:10
+I:110:200d150:2:50:10
 W:20:1:0:50000
 B:TOUCH:CONFUSE:1d2
 B:WAIL:LOSE_INT:1d4
 B:TOUCH:EAT_FOOD:1d6
-F:UNIQUE | FEMALE | 
+F:UNIQUE | FEMALE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ALWAYS_HIT | RES_NEXU | RES_DISE |
 F:ONLY_ITEM | DROP_1D2 | 
@@ -7586,30 +8156,33 @@ F:OPEN_DOOR | RAND_50 | HURT_COLD |
 F:EVIL | COLD_BLOOD | WEIRD_MIND |
 S:1_IN_3 | 
 S:SHRIEK | MIND_BLAST | FORGET |
+O:Inside Joke......
 D:She is the epitome of annoyance.  She wears a pink jacket and a purple 
 D:beret.  She cannot be bargained with, cannot be reasoned with, and 
 D:absolutely will not stop until she eats all your food or you are 
 D:thoroughly confused.  You could try to deal with her, or you could run, 
 D:like every one else.
 
-N:517:Chaos beetle
-G:K:v
-I:130:32d100:35:125:255
+N:517:Sadako
+G:W:v
+I:130:64d100:35:125:255
 W:65:4:0:19000
+B:CLAW:CONFUSE:10d10
 B:CLAW:HURT:10d10
-B:CLAW:HURT:10d10
-B:BITE:HURT:10d10
-B:BITE:HURT:10d10
+B:GAZE:PARALYZE:10d10
+B:GAZE:HURT:10d10
 F:ATTR_MULTI | 
+F:COLD_BLOOD | EVIL | UNDEAD |
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_60 | DROP_90 | 
+F:UNIQUE | ONLY_ITEM | DROP_60 | DROP_90 | 
 F:BASH_DOOR | 
-F:ANIMAL
-S:1_IN_5 | 
-S:CAUSE_4 | 
-S:BR_CHAO
-D:With biting jaws and catching claws, this immense beetle is like
-D:death incarnate chasing behind you!
+S:1_IN_2 | 
+S:CAUSE_4 | SCARE | MIND_BLAST | SHRIEK |
+S:BR_CHAO | TPORT |
+O:The Ring
+D:Also known as Sada, she is the being that crawls out of your TV or your 
+D:radio while causing inducing immense fear.  Those who are forced to confront 
+D:her invariably die.
 
 N:518:Chaos hound
 G:Z:v
@@ -7626,6 +8199,7 @@ F:BASH_DOOR |
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BR_CHAO
+O:Angband
 D:A constantly changing canine form, this hound rushes towards you as if 
 D:expecting mayhem and chaos ahead.  It appears to have an almost kamikaze 
 D:relish for combat.  You suspect all may not be as it seems.
@@ -7647,6 +8221,7 @@ S:1_IN_3 |
 S:BLIND | CONF | SCARE | 
 S:BR_CHAO | BR_DISE | 
 S:S_DRAGON
+O:Angband
 D:A massive dragon of changing form.  As you watch, it appears first fair 
 D:and then foul.  Its body is twisted by chaotic forces as it strives to 
 D:stay real.  Its very existence distorts the universe around it.
@@ -7667,6 +8242,7 @@ S:1_IN_3 |
 S:BLIND | CONF | SCARE | 
 S:BR_SOUN | BR_SHAR | 
 S:S_DRAGON
+O:Angband
 D:A massive dragon of powerful intellect.  It seeks to dominate the universe 
 D:and despises all other life.  It sees all who do not obey it as mere 
 D:insects to be crushed underfoot.
@@ -7688,13 +8264,14 @@ S:1_IN_3 |
 S:BLIND | CONF | SCARE | 
 S:BR_SOUN | BR_CHAO | BR_SHAR | BR_DISE | 
 S:S_DRAGON | S_HI_DRAGON
+O:Angband
 D:A massive dragon, one of the mightiest of dragonkind.  It is thousands of 
 D:years old and seeks to maintain the Cosmic Balance.  It sees you as an 
 D:upstart troublemaker without the wisdom to control your actions.  It will 
 D:destroy you.
 
 N:522:Kaonashi
-G:G:r8
+G:G:r
 I:130:65d100:20:150:10
 W:68:2:0:35000
 B:HIT:HURT:10d10
@@ -7711,6 +8288,7 @@ S:1_IN_3 |
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
 S:S_WRAITH | S_HI_UNDEAD | S_KIN
+O:Spirited Away (Sen to Chihiro no Kamikakushi)
 D:A lonely soul that turned into an obssesive compulsive eating machine. 
 D:He eats anything and everything that crosses his path, and his mask 
 D:hides the fact that he has no face...
@@ -7735,6 +8313,7 @@ S:1_IN_2 |
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
 S:S_HI_DRAGON
+O:Angband
 D:Usually found guarding the first plane of Hell, Tiamat is a formidable 
 D:opponent, her five heads breathing death to all who stand against her.
 
@@ -7755,6 +8334,7 @@ S:1_IN_3 |
 S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_MANA | BA_NETH | 
 S:S_UNDEAD
+O:Angband
 D:A humanoid form,  black as night, advancing steadily and unstoppably.  
 D:Flee!
 
@@ -7769,6 +8349,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD |
 S:S_HI_DRAGON | S_HI_DEMON
+O:Angband
 D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
 
 N:526:Greater draconic quylthulg
@@ -7782,6 +8363,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TELE_TO | 
 S:S_HI_DRAGON
+O:Angband
 D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued 
 D:light.
 
@@ -7796,6 +8378,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TELE_TO | 
 S:S_HI_UNDEAD
+O:Angband
 D:A massive pile of rotting flesh.  A disgusting stench fills the air as it 
 D:throbs and writhes.
 
@@ -7816,9 +8399,10 @@ F:EVIL | UNDEAD | IM_COLD |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
-S:BRAIN_SMASH | TRAPS | BA_MANA | 
+S:BRAIN_SMASH | TRAPS | BA_MANA | DRAIN_METER |
 S:BO_MANA | BA_NETH | DIVINE_COMEDY |
 S:S_MONSTERS | S_UNDEAD
+O:Ronin Warriors
 D:Master of the Nether spirts, and the most powerful of all of Talpa's servants, 
 D:you can't help but feel a sense of awe as this immensely powerful and magical 
 D:spirit.
@@ -7839,6 +8423,7 @@ F:NO_CONF | NO_SLEEP | NO_DUST |
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
+O:Evangelion
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -7860,6 +8445,7 @@ S:1_IN_3 |
 S:HEAL | BLIND | SLOW | CONF | SCARE | DARKNESS | BA_DARK | 
 S:BR_POIS | BR_DARK | 
 S:S_SPIDER
+O:Japanese Culture/History
 D:A gigantic Demon spider that lives in the dark abysses of Japan.
 
 N:531:Aether hound
@@ -7881,6 +8467,7 @@ S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS |
 S:BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | 
 S:BR_NETH | BR_DISE | BR_WALL | BR_INER | BR_TIME | 
 S:BR_GRAV | BR_PLAS | BR_NEXU
+O:Angband
 D:A shifting, swirling form.  It seems to be all colours and sizes and 
 D:shapes, though the dominant form is that of a huge dog.  You feel very 
 D:uncertain all of a sudden.
@@ -7902,18 +8489,23 @@ F:IM_ELEC | NO_CONF | NO_SLEEP | NO_DUST |
 S:1_IN_2 | 
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS | BLINK | TPORT |
 S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH |
-S:S_DRAGON_SLAVE | DIVINE_COMEDY
+S:S_DRAGON_SLAVE | DIVINE_COMEDY | DRAIN_METER |
+O:X
 D:The 'Kamui' of the Earth Dragons.  Sworn to protect Kamui, he is 
 D:unfortunately destined to fight him to the finish instead.  Blinded
 D:by the Earth Dragons and by fate, he seeks to destroy the earth so
 D:that a new one may be born.
 
-N:533:The Emperor Quylthulg
-G:Q:w
+N:533:Mizuki Rashoujin
+G:p:w
 I:130:50d100:30:1:0
 W:78:3:0:20000
-F:UNIQUE | 
-F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
+B:HIT:UN_BONUS:12d8
+B:HIT:UN_BONUS:12d8
+B:GAZE:UN_POWER
+B:GAZE:UN_POWER
+F:UNIQUE | FEMALE |
+F:FORCE_SLEEP | FORCE_MAXHP |  
 F:ONLY_ITEM | DROP_4D2 | 
 F:INVISIBLE | 
 F:ANIMAL | EVIL | 
@@ -7921,9 +8513,8 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BRAIN_SMASH | 
 S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON
-D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor 
-D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
-D:colour then the next, it knows only it must bring help to protect itself.
+O:Samurai Showdown
+D:A strange demonic monk who has the power to summon demons at will.
 
 N:534:Tetsuo
 G:Q:o
@@ -7938,8 +8529,9 @@ F:ANIMAL | EVIL |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
-S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
+S:S_HYDRA | S_SPIDER | S_GOON | S_HOUND | S_UNIQUE | S_WRAITH | 
 S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
+O:Akira
 D:What was once a rowdy teen is now a pulsating mound of flesh and organs.
 D:This abomination of science eyes you with hatred and anger, and snickers
 D:as it senses your fear.
@@ -7962,6 +8554,7 @@ S:1_IN_2 |
 S:DIVINE_COMEDY |
 S:HEAL | BLIND | HOLD | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_MANA | BA_NETH | HASTE | SLOW
+O:Star Ocean the Second Story
 D:The Chief of the Ten Wise Men.  A fallen Nedian of devastating power.   
 D:He is the one responsible for the 'Sorcery Globe' and instigated the
 D:downfall of Nede.  Mortals everywhere fear his wrath.
@@ -7982,6 +8575,7 @@ F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | S_HI_DEMON
+O:Star Ocean the Second Story
 D:One of the 'Evil Ones' of Expel, Xine despises mortals and looks down
 D:upon them from his lofty mountain.
 
@@ -7998,6 +8592,7 @@ F:BASH_DOOR | MOVE_BODY |
 F:ANIMAL | EVIL | IM_FIRE
 S:1_IN_5 | 
 S:BR_FIRE
+O:Angband
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
 N:538:Majin Buu
@@ -8016,28 +8611,33 @@ F:EVIL | IM_FIRE | IM_COLD | IM_POIS | CAN_SPEAK |
 F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI | 
 S:1_IN_2 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
+S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | DRAIN_METER |
+O:Dragonball Z
 D:Destroyer of universes, bane of the four Kaioshins, Buu causes random 
 D:chaotic terror no matter where he goes.
 
-N:539:The Tarrasque
+N:539:Godzilla
 G:R:v
 I:130:85d100:50:185:20
 W:84:2:0:35000
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-B:TOUCH:UN_POWER
-B:TOUCH:UN_POWER
+B:HIT:SHATTER:10d10
+B:HIT:SHATTER:10d10
+B:GAZE:UN_POWER
+B:BITE:UN_POWER:10d10
 F:UNIQUE |
 F:ATTR_MULTI | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:FORCE_SLEEP | FORCE_MAXHP | FORCE_LOCATION | KILL_WALL |
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
+F:EVIL | IM_FIRE | IM_COLD | IM_ACID | NO_CONF | 
+F:SMART | REGENERATE | NO_SLEEP | IM_ELEC | IM_POIS |
 S:1_IN_2 | 
-S:BR_FIRE | BR_COLD | BR_DISE
-D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable 
-D:and immune to magic.  Fear its anger, for its devastation is unmatched!
+S:BR_RADI | 
+O:Godzilla
+D:Godzilla is a massive reptile of legend, rumoured to be unkillable by guns, 
+D:magic or anything.  Fear its anger, for its devastation is unmatched!  Watch 
+D:out, because he loves to destroy towns.  I mean seriously, where's Mothra or 
+D:Mecha-Godzilla when you need them?
 
 N:540:Tien-Shin Akuma
 G:U:w
@@ -8058,6 +8658,7 @@ S:1_IN_4 |
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
 S:S_DEMON | S_HI_UNDEAD | S_HI_DEMON
+O:Capcom vs SNK
 D:A massive form cloaked in flame and darkness, pulsating with death and despair.
 
 N:541:The Shishigami
@@ -8076,8 +8677,9 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:ANIMAL | IM_POIS
 S:1_IN_2 | 
-S:SCARE | 
+S:SCARE | DRAIN_METER |
 S:S_MONSTERS | S_HOUND | S_KIN |
+O:Mononoke Hime
 D:You feel that you are at death's door when you see this scary and strange
 D:looking deer approach you.  The twisted expression on its face and its
 D:weird looking eyes seem to indicate that it could care less about you.  As 
@@ -8103,6 +8705,7 @@ S:1_IN_3 |
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_FIRE | DIVINE_COMEDY |
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_KIN
+O:Ronin Warriors
 D:A fearsome aura surrounds this mystical warlord.  Drawing his powers from the 
 D:mystical nine armors, he leads the Dynasty in their bid to take over the world.
 
@@ -8123,6 +8726,7 @@ S:1_IN_4 |
 S:HEAL | SCARE | BRAIN_SMASH | 
 S:BR_FIRE | 
 S:S_HOUND
+O:Inu Yasha
 D:A dog demon that was once imprisoned onto a tree by an arrow is now free
 D:to ravage destruction everwhere.
 
@@ -8142,6 +8746,7 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ANIMAL | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:S_HOUND
+O:Mononoke Hime
 D:The guardian wolf of Mononoke Hime, Moro hates mortals.
 
 N:545:Death
@@ -8159,7 +8764,8 @@ F:EVIL | UNDEAD | RESPAWN | PASS_WALL | INVISIBLE |
 F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | NO_SUMMON | MUTODORI | NO_DUST |
 S:1_IN_2 | 
 S:HOLD | BLIND | CONF | SCARE | SLOW | CAUSE_4
-S:S_SPIDER | S_WRAITH
+S:S_SPIDER | S_WRAITH | DRAIN_METER | DRAIN_MANA | TELE_TO |
+O:Maintainer feeling evil
 D:The bane of all creatures since the beginning of time, Death is an evil
 D: nihilist and should be avoided at all costs.  Death smiteth with powerful
 D: blows and all fear the touch of Death.  He may even be lurking just around
@@ -8183,10 +8789,11 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST |
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | HEAL |
-S:BRAIN_SMASH | FORGET | 
+S:BRAIN_SMASH | FORGET | DRAIN_METER |
 S:BO_ICEE | BO_MANA | BO_PLAS | DIVINE_COMEDY |
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
 S:S_DRAGON_SLAVE | S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | 
+O:Slayers
 D:Lina Inverse is not your typical scantily clad sorceress babe. She's 
 D:crass, loudmouthed, opinionated, and doesn't allow anything to get in 
 D:her way. She *loves* to eat, and can consume several meals within 
@@ -8218,7 +8825,8 @@ S:1_IN_3 |
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
 S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON |
-S:S_HI_DEMON | S_DRAGON_SLAVE
+S:S_HI_DEMON | S_DRAGON_SLAVE | DRAIN_METER |
+O:Joke
 D:Long has he haunted the shadows of Rgra, and many beings sing no longer, 
 D:being despondent from the power of his discord, even Lev Zakrevski, 
 D:mightiest of the Cabal. Ever after a defeat, he takes another form and grows 
@@ -8237,20 +8845,22 @@ D:which had been long prepared for him..and banished forever in the deeps of the
 N:548:Guard
 G:p:U
 I:130:12d8:20:34:200
-W:120:1:0:40
-B:HIT:HURT:20d10
+W:1:1:0:20
+B:HIT:HURT:20d15
 F:MALE | 
 F:DROP_1D2 | 
-F:OPEN_DOOR | 
+F:OPEN_DOOR | FORCE_LOCATION |
+O:Because I needed them
 D:A Guard who is *really* good at what he is hired for.
 
 N:549:Oishi Kuranosuke
 G:p:W
-I:130:400d100:20:34:200
+I:130:250d100:20:34:200
 W:120:1:0:40
 B:HIT:HURT:20d10
 F:UNIQUE | MALE | FRIENDLY |
 F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+O:Chushingura
 D:The former chief advisor to Lord Asano, Oishi was forced into homelessness 
 D:when Lord Asano was executed for attacking Kira Yoshinoka.  Oishi has been 
 D:plotting his revenge ever since.
@@ -8262,12 +8872,13 @@ W:99:1:0:40
 B:HIT:HURT:5d10
 F:MALE |
 F:FORCE_MAXHP | ALWAYS_HIT |
+O:Japanese Culture/History.  Also needed a stupid monster.
 D:A jolly looking bear with a round belly and a happy face.  It wields a 
 D:sign that says "Ping Pong!  Correct!"
 
 N:551:Kitsune
 G:q:r
-I:130:275d100:20:34:200
+I:130:255d100:20:34:200
 W:99:1:0:40
 B:HIT:HURT:5d10
 F:MALE |
@@ -8275,12 +8886,13 @@ F:SMART | FORCE_MAXHP | ALWAYS_HIT |
 S:1_IN_2 |
 S:BLINK | HEAL | BRAIN_SMASH | FORGET |
 S:BA_FIRE | BA_ELEC |
+O:Japanese Culture/History.  Also needed a stupid monster.
 D:A wily looking fox that is said to have magical powers.  It wields a 
 D:sign that says "Mada mada!  Wrong Place!"
 
 N:552:Flaming Bear on a Bicycle
 G:q:o
-I:170:300d100:20:34:200
+I:170:250d100:20:34:200
 W:120:1:0:40
 B:HIT:FIRE:10d10
 B:HIT:FIRE:10d10
@@ -8288,37 +8900,41 @@ B:HIT:HURT:10d10
 B:HIT:HURT:10d10
 F:MALE |
 F:FORCE_MAXHP | ALWAYS_HIT |
+O:Guilty Gear
 D:A bear riding on a bicycle surrounded by a ring of flame.  He only 
 D:appears when you do something extremely stupid. 
 
 N:553:Info Boy
 G:p:g
-I:130:400d100:20:34:200
+I:130:200d200:20:34:200
 W:120:1:0:40
 B:HIT:HURT:20d10
 F:UNIQUE | MALE | FRIENDLY |
 F:FORCE_MAXHP | NEVER_MOVE |
+O:Because I needed him
 D:This guy hangs around various places.  Talk to him for some 
 D:free advice.  Please be nice to him.
 
 N:554:The Totoro with a leaf on its head
 G:r:B
-I:100:400d100:20:20:10
+I:100:250d100:20:20:10
 W:0:2:0:50
 B:HIT:HURT:1d3
 F:UNIQUE | FRIENDLY | INVISIBLE |
 F:NEVER_MOVE | FORCE_MAXHP |
 F:ANIMAL |
+O:Tonari no Totoro
 D:It is a totoro with a leaf on its head.  Water drips down from 
 D:the sky and bounces off of the leaf...plopping on its nose.
 
 N:555:Kiki, the Witch
 G:p:v
-I:130:400d100:20:34:200
+I:130:250d100:20:34:200
 W:120:1:0:40
 B:HIT:HURT:20d10
 F:UNIQUE | FEMALE | FRIENDLY |
 F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+O:Kiki's Delivery Service
 D:The resident witch of the town.  She runs her own delivery 
 D:service right out of a bakery.
 
@@ -8329,7 +8945,7 @@ W:28:5:0:750
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 B:HIT:PARALYZE:3d5
-F:UNIQUE | 
+F:UNIQUE | MALE |
 F:FORCE_MAXHP | FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | CAN_SPEAK |
@@ -8337,6 +8953,7 @@ F:DEMON | IM_FIRE | IM_COLD | IM_ACID | MUTODORI |
 S:1_IN_3 | 
 S:BLINK | TPORT | TELE_LEVEL | HASTE | 
 S:MISSILE | HEAL |
+O:Samurai Showdown
 D:A 14 year old little spiky red haired boy who carries a 
 D:mean umbrella.  He constantly says, "Gomennasai, Mou 
 D:ikimasu!" because he is constantly on the go.  Legend 
@@ -8360,6 +8977,7 @@ F:DROP_GOOD | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST |
+O:Inu Yasha
 D:A tall man, dressed in a white kimono, bearing with him two swords
 D:and an odd fluffy thing on his shoulder.
 D:As he looks up, he brushes his hair out of his eyes,
@@ -8383,6 +9001,7 @@ S:MISSILE | BO_FIRE |
 F:FORCE_MAXHP | UNIQUE | MALE |
 F:NO_SLEEP | IM_FIRE | WEIRD_MIND |
 F:ONLY_ITEM | DROP_2D2 |
+O:Inu Yasha
 D:An odd blue creature stands before you, its large yellow eyes
 D:furtively searching about. Holding a large staff several sizes
 D:too big for it, it mutters something about wondering what
@@ -8399,15 +9018,17 @@ S:MISSILE | BO_FIRE |
 F:FORCE_MAXHP | MALE |
 F:NO_SLEEP | IM_FIRE | WEIRD_MIND |
 F:ONLY_ITEM | DROP_2D2 |
+O:Mahoromatic
 D:No further explanation is needed.
 
 N:560:The Old Gardener
 G:p:W
-I:130:400d100:20:34:200
+I:130:200d200:20:34:200
 W:120:1:0:40
 B:HIT:HURT:20d10
 F:UNIQUE | MALE | FRIENDLY |
 F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
+O:Maintainer feeling nice
 D:An old gardener who misses his old forest.
 
 N:561:Multi-Hued icky thing
@@ -8427,24 +9048,20 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 S:1_IN_8 | 
 S:BLIND | CONF | SCARE | 
 S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | BO_POIS |
+O:Maintainer feeling evil
 D:A sentient icky thing.  It does not like what you have done to 
 D:other icky things.  You will not be forgiven.
 
-N:562:Giant Flaming Head
-G:u:r
-I:120:20d10:30:125:15
-W:49:2:0:4000
-B:BITE:FIRE:6d10
-B:BITE:HURT:3d12
-B:BITE:HURT:3d12
-B:WAIL:TERRIFY
-F:FORCE_SLEEP | IM_FIRE | WEIRD_MIND |
-F:NO_CONF | NO_SLEEP | FRIENDS |
-S:1_IN_3 | 
-S:BR_FIRE | BR_PLAS | 
-D:It's big, it's a skull, it's on fire, its scream instills panic in lesser 
-D:souls, and it looks sorta stupid, come to think of it. Dangerous, 
-D:though.
+N:562:Delivery boy
+G:p:v
+I:110:64d20:20:50:20
+W:30:5:0:10
+F:ATTR_MULTI |
+F:MALE | NEVER_BLOW | 
+F:FORCE_MAXHP | 
+F:SMART | FRIENDLY | 
+O:Generic
+D:A delivery boy.  Perhaps he'll be renamed later.  
 
 N:563:Yagyu Jubei-Chan
 G:p:D
@@ -8463,6 +9080,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI |
 S:1_IN_2 | 
 S:SCARE | BLINK | HASTE | HOLD | HEAL |
 S:MISSILE | BO_MANA |
+O:Jubei-Chan
 D:A super legendary warrior reincarnated into the body of a middle school girl.  
 D:She wears a heart shaped eye-patch and has the same swordsmanship skills as 
 D:the legendary Yagyu Jubei.  Hundreds have challenged Jubei, and none have 
@@ -8481,6 +9099,825 @@ F:UNIQUE | MALE |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | CAN_SPEAK |
 S:1_IN_2 | 
 S:SCARE | HOLD |
+O:Joke
 D:Although all he has is one tentacle, it is a very large one.  He is the most 
 D:feared of all hentai tentacle monsters; all males are jealous of him, all 
 D:females are in awe of him.  Beware.
+
+N:565:Arucueid Bruenstud
+G:V:v
+I:130:85d30:20:40:40
+W:52:4:0:5000
+B:PUNCH:HURT:4d6
+B:KICK:HURT:4d6
+B:PUNCH:HURT:4d6
+F:UNIQUE | FEMALE | 
+F:FORCE_MAXHP | SMART |
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+S:1_IN_3 | 
+S:MISSILE | BR_NEXU | CONF | SCARE | DRAIN_METER |
+O:Tsukihime
+D:A fallen princess who has been corrupted by blood.  Although she restrains 
+D:herself from the temptation of blood, it is a burden difficult to bear.
+
+N:566:Jounin
+G:p:y
+I:120:26d25:20:70:10
+W:50:4:0:1000
+B:HIT:POISON:4d5
+B:HIT:LOSE_STR:4d5
+B:HIT:LOSE_STR:3d4
+B:HIT:POISON:3d4
+F:MALE | 
+F:DROP_1D2 | SMART |
+F:OPEN_DOOR | BASH_DOOR | 
+F:NO_CONF | NO_SLEEP | REPLACEMENT |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BO_FIRE | TPORT |
+O:Naruto
+D:An advanced level ninja, more powerful than a Chuunin.
+
+N:567:Yakushi Kabuto, Servant of Orochimaru
+G:p:b
+I:120:50d25:20:70:10
+W:55:4:0:5000
+B:HIT:LOSE_CON:5d5
+B:HIT:LOSE_CON:5d5
+B:HIT:LOSE_STR:4d4
+B:HIT:LOSE_DEX:4d4
+F:MALE | UNIQUE |
+F:DROP_1D2 | DROP_GOOD | DROP_GREAT | REPLACEMENT |
+F:OPEN_DOOR | BASH_DOOR | SMART | MUTODORI |
+F:NO_CONF | NO_SLEEP | FORCE_MAXHP | REGENERATE |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BR_SOUN | TPORT |
+S:HEAL | TRAPS | BR_WALL | SLOW |
+O:Naruto
+D:A spy for the Hidden Village of Sound, Kabuto is the right hand man of 
+D:Orochimaru and a specialist in medicine.  He is often thought to be as 
+D:strong as Kakashi of Konoha.
+
+N:568:Jiraiya, the Frog Hermit
+G:p:r
+I:120:90d100:20:120:40
+W:110:3:0:25000
+B:HIT:LOSE_CON:4d4
+B:HIT:LOSE_DEX:4d4
+B:HIT:LOSE_STR:4d4
+B:HIT:POISON:10d20
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST | NO_SUMMON |
+F:IM_FIRE | IM_ACID |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE | BO_MANA |
+S:BLIND | CONF | BO_FIRE | TPORT | BA_FIRE | HOLD |
+S:S_DRAGON_SLAVE | S_FROG |
+S:DIVINE_COMEDY | BA_MANA | DRAIN_METER |
+O:Naruto
+D:One of the legendary Sannin, Jiraiya is nowadays merely content with
+D:researching women for his book and drinking lots of sake.  However, 
+D:he is still an incredible force to be reckoned with.
+
+
+N:569:Orochimaru, the Snake Ninja
+G:p:D
+I:120:90d100:20:120:40
+W:110:3:0:25000
+B:HIT:LOSE_CON:4d4
+B:HIT:LOSE_DEX:4d4
+B:HIT:LOSE_STR:4d4
+B:BITE:POISON:10d20
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_SUMMON |
+F:IM_POIS | 
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BO_FIRE | TPORT | BO_POIS |
+S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON |
+S:S_HI_DEMON | S_DRAGON_SLAVE | S_KIN | S_HYDRA | S_DRAGON_SLAVE |
+S:DIVINE_COMEDY | DRAIN_METER |
+O:Naruto
+D:A former Konoha Ninja, Orochimaru was one of the legendary Sannin 
+D:who got banished due to his use of forbidden techniques.  He draws 
+D:his powers from his minions.
+
+N:570:Princess Tsunade, the Medical Ninja
+G:p:g
+I:130:90d100:20:120:40
+W:110:3:0:25000
+B:HIT:LOSE_CON:10d10
+B:HIT:LOSE_DEX:10d15
+B:HIT:LOSE_CON:10d10
+B:HIT:LOSE_STR:10d10
+F:UNIQUE | FEMALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | KILL_WALL | NO_SUMMON |
+F:IM_FIRE | IM_POIS | REGENERATE |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BO_FIRE | TPORT |
+S:HEAL | DRAIN_METER |
+O:Naruto
+D:The fifth Hokage of Konoha, Tsunade is one of the legendary Sannin 
+D:and is unrivaled as a medical ninja.  She also has a ridiculous 
+D:amount of strength.
+
+N:571:Gamabunta
+G:R:g
+I:130:90d100:20:120:40
+W:110:3:0:25000
+B:BUTT:HURT:10d10
+B:HIT:HURT:10d15
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:UNIQUE | MALE | FROG |
+F:FORCE_SLEEP | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | KILL_WALL | 
+F:IM_FIRE | IM_POIS | REGENERATE |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | S_FROG | BO_FIRE | TPORT |
+S:HEAL |
+O:Naruto
+D:The giant frog boss who may get summoned by Jiraiya due to the
+D:frog summoning pact.
+
+N:572:Robo-Ky
+G:u:b
+I:120:10d100:20:90:40
+W:68:5:0:2400
+B:HIT:HURT:20d5
+B:HIT:HURT:20d5
+B:HIT:HURT:20d5
+B:HIT:HURT:20d5
+F:UNIQUE | MALE | MECHA |
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MUTODORI |
+S:1_IN_2 | 
+S:MISSILE | BO_ELEC | BA_ELEC | BULLET | HASTE | BA_FIRE |
+O:Guilty Gear
+D:An android version of Ky who, unfortunately, is much better than Ky.
+
+N:573:Aburame Shino
+G:p:w
+I:120:50d10:20:50:20
+W:20:4:0:800
+B:HIT:POISON:3d6
+B:HIT:POISON:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:UNIQUE | MALE | 
+F:SMART | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+S:1_IN_4 |
+S:BLINK | TPORT | ARROW_1 | ARROW_2 | ARROW_3 |
+O:Naruto
+D:A ninja who uses bugs as his weapons.  The bugs live in his body and feed 
+D:off his Chakra in exchange for protection.
+
+N:574:Rimururu
+G:p:b
+I:140:45d100:20:24:10
+W:64:3:0:18000
+B:HIT:HURT:4d5
+B:HIT:HURT:4d5
+B:WAIL:HURT:4d5
+F:UNIQUE | FEMALE |
+F:SMART | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR |
+F:IM_COLD | MUTODORI | CAN_SPEAK |
+S:1_IN_2 |
+S:BO_COLD | BA_COLD |
+O:Samurai Showdown
+D:The sister of Nakoruru, she has the power to manipulate ice despite 
+D:only being 15 years of age.  She is also rather clumsy.  
+
+N:575:Kazuki Kazama
+G:p:r
+I:110:84d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d5
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | FORCE_SLEEP |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | UP_QUESTOR |
+F:IM_FIRE | MUTODORI | FORCE_LOCATION |
+S:1_IN_3 | 
+S:BLINK | TPORT | HASTE | 
+S:MISSILE | BO_FIRE | BA_FIRE | HEAL |
+O:Samurai Showdown
+D:A Ninja from the Fuuma clan, Kazuki possesses the power of fire and 
+D:is the master of the fire fighting style.
+
+N:576:Sogetsu Kazama
+G:p:b
+I:120:84d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+B:HIT:HURT:4d5
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | FORCE_SLEEP | UP_QUESTOR |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | CAN_SPEAK |
+F:IM_ACID | MUTODORI | FORCE_LOCATION |
+S:1_IN_3 | 
+S:BLINK | TPORT | HASTE | 
+S:MISSILE | HEAL | BO_WATE | BA_WATE |
+O:Samurai Showdown
+D:A Ninja from the Fuuma clan, Sogetsu possesses the power of water and 
+D:is the master of the water fighting style.
+
+N:577:Mina Majikina
+G:p:w
+I:130:34d20:20:50:20
+W:28:5:0:750
+F:UNIQUE | FEMALE |
+F:FORCE_MAXHP | FORCE_SLEEP | UP_QUESTOR |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | CAN_SPEAK |
+F:IM_COLD | MUTODORI | FORCE_LOCATION |
+S:1_IN_1 | 
+S:BLINK | TPORT | HASTE | 
+S:MISSILE | ARROW_1 | ARROW_2 | ARROW_3 | ARROW_4 | HEAL |
+S:BO_COLD |
+O:Samurai Showdown
+D:An archer who has mastered the fighting style of wind.  She is 
+D:accompanied by a little baby named Chample.
+
+N:578:Galford
+G:p:R
+I:120:64d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+B:TOUCH:ELEC:4d5
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | FORCE_SLEEP | UP_QUESTOR |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | CAN_SPEAK | REPLACEMENT |
+F:IM_ELEC | MUTODORI | FORCE_LOCATION |
+S:1_IN_2 | 
+S:BLINK | TPORT | HASTE | 
+S:MISSILE | BO_ELEC | BA_ELEC | HEAL |
+O:Samurai Showdown
+D:The ninja of Justice, Galford is the master of the metal style of
+D:fighting.  He is accompanied by a dog named Poppy.
+
+N:579:Poppy
+G:C:W
+I:130:64d20:20:50:20
+W:28:5:0:750
+B:BITE:ELEC:7d7
+F:UNIQUE | FEMALE |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | CAN_SPEAK | FORCE_LOCATION |
+F:ANIMAL | IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | MUTODORI |
+S:1_IN_2 | 
+S:BLINK | TPORT | HASTE | 
+S:HEAL |
+O:Samurai Showdown
+D:The Ninja dog of justice that accompanies Galford.
+
+N:580:Genjuro
+G:p:R
+I:120:64d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+B:HIT:HURT:4d5
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | FORCE_SLEEP | UP_QUESTOR |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR |
+F:IM_POIS | MUTODORI | ALWAYS_HIT | FORCE_LOCATION |
+S:1_IN_3 | 
+S:HASTE | BO_POIS | HEAL | 
+O:Samurai Showdown
+D:The legendary swordsman and rival to Haohamaru, Genjiro drinks 
+D:sake after every battle to celebrate his victory.  He is truly 
+D:the master of drunken fighting.
+
+N:581:Kasidori
+G:p:R
+I:130:64d20:20:50:20
+W:28:5:0:750
+B:HIT:HURT:4d4
+B:HIT:HURT:4d4
+B:HIT:HURT:4d5
+F:UNIQUE | FEMALE |
+F:FORCE_MAXHP | FORCE_SLEEP | UP_QUESTOR |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | FORCE_LOCATION |
+F:IM_ACID | IM_ELEC | HURT_LITE |
+F:IM_FIRE | IM_COLD | IM_POIS | MUTODORI | ALWAYS_HIT |
+S:1_IN_3 | 
+S:HASTE | BO_POIS | BO_FIRE | BO_ACID | BO_ELEC | HEAL | 
+S:BO_COLD | BLINK | TPORT | DRAIN_METER |
+O:Joke
+D:A sexy whip wielding martial arts master who has skills exceeding 
+D:Kuradoberi Jam.  She is truly the epitome of martial arts, as she 
+D:does not adhere to any style of fighting, instead, using what is 
+D:necessary to win.
+
+N:582:Demonic Door
+G:+:R
+I:110:64d20:20:50:20
+W:30:5:0:750
+B:PUNCH:HURT:4d4
+B:PUNCH:HURT:4d4
+B:PUNCH:HURT:4d5
+F:NEVER_MOVE |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:SMART | 
+F:IM_ACID | IM_ELEC | 
+F:IM_FIRE | IM_COLD | IM_POIS | ALWAYS_HIT |
+S:1_IN_3 | 
+S:HASTE | BO_ICEE | BO_WATE | MISSILE | 
+S:BO_COLD | ARROW_1 | ARROW_2 | ARROW_3 | ARROW_4 |
+O:Kikikaikai
+D:Kanji with "Oni" for demon and "Men" for gate, this demonic door 
+D:lures unsuspecting people to their deaths.
+
+N:583:Araiguma Rascal
+G:q:u
+I:110:64d20:20:50:20
+W:30:5:0:750
+F:UNIQUE | MALE | NEVER_BLOW |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:SMART | FRIENDLY | CAN_SPEAK |
+S:1_IN_3 | 
+S:HASTE | 
+O:Araiguma Rascal
+D:A raccoon that carries shiny objects in its mouth and is very 
+D:friendly.
+
+N:584:Doraemon
+G:u:b
+I:110:64d20:20:50:20
+W:30:5:0:750
+B:PUNCH:HURT:4d4
+B:PUNCH:HURT:4d4
+B:PUNCH:HURT:4d5
+F:MALE |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:SMART | 
+F:IM_ACID | IM_ELEC | 
+F:IM_FIRE | IM_COLD | IM_POIS | ALWAYS_HIT |
+O:Doraemon
+D:A cat like robot from the future that got its ears nibbled off 
+D:by rats.  His favorite food is dorayaki and he comes from the 
+D:future.
+
+## Duel Monsters ##
+
+N:585:Anji Mito
+G:p:b
+I:110:60d10:20:50:20
+W:25:5:0:500
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:4d5
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | CAN_SPEAK | 
+F:MUTODORI | FORCE_LOCATION |
+S:1_IN_2 | 
+S:HASTE | MISSILE | 
+O:Guilty Gear
+D:A Japanese pansy who wears underwear on his head and fights with 
+D:fans and butterflies.  He's even worse than Ky.
+
+N:586:Sasuke Uchiha
+G:p:D
+I:120:70d10:20:50:20
+W:26:4:0:1000
+B:PUNCH:HURT:3d6
+B:PUNCH:HURT:3d6
+B:KICK:HURT:3d6
+B:KICK:HURT:3d6
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:SMART | FORCE_MAXHP | REPLACEMENT |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | IM_FIRE |
+S:1_IN_4 |
+S:BLINK | TPORT | ARROW_1 | ARROW_2 | ARROW_3 |
+S:BO_FIRE | BA_FIRE | BR_FIRE |
+O:Naruto
+D:Uzumaki Naruto's rival.  He and his brother are the last of the Uchiha clan, renowned 
+D:for their Sharingan eyes.
+
+
+N:587:Nakoruru
+G:p:R
+I:130:45d10:20:24:22
+W:27:3:0:1500
+B:HIT:HURT:4d5
+B:HIT:HURT:4d5
+F:UNIQUE | FEMALE | DUEL_MONSTER |
+F:SMART | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR | FORCE_LOCATION |
+F:MUTODORI | CAN_SPEAK |
+S:1_IN_2 |
+S:DRAIN_METER | DRAIN_MANA |
+O:Samurai Showdown
+D:The poster girl of SNK, she wields a short sword and is a direct mockery 
+D:of Sailor Moon.  She's also someone who everyone cosplays or turns into 
+D:lolita pictures.  She has her knife out all the time and artists make her 
+D:look so "kawaii ^-^" despite the fact she's stabbing you in the face.
+
+
+N:588:Mousse
+G:p:W
+I:110:34d30:20:40:23
+W:28:3:0:2000
+B:PUNCH:HURT:3d5
+B:KICK:HURT:3d5
+B:PUNCH:HURT:3d5
+F:UNIQUE | DUEL_MONSTER |
+F:MALE | 
+F:FORCE_MAXHP | 
+F:MUTODORI | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+S:1_IN_2 | 
+S:HASTE | MISSILE | ARROW_4 |
+O:Ranma 1/2
+D:The master of weapons who is also blind as a bat.  He loves Shampoo, but 
+D:Shampoo hates his guts.  
+
+N:589:Megumi Kannazuki
+G:p:y
+I:120:45d10:20:24:24
+W:29:3:0:2500
+B:HIT:HURT:1d1
+B:HIT:HURT:1d1
+F:UNIQUE | FEMALE | DUEL_MONSTER |
+F:SMART | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT |
+F:OPEN_DOOR | BASH_DOOR | FORCE_LOCATION |
+F:MUTODORI | CAN_SPEAK | 
+S:1_IN_2 |
+S:HASTE | MISSILE | ARROW_1 | ARROW_2 | ARROW_3 | ARROW_4 | BLINK |
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:She owns the bakery right next to the Onimaru Restaurant.  Her hobbies include 
+D:bullying Miki by breaking her bike and putting up posters.  She is remarkably 
+D:skilled with throwing wooden hot dog sticks with painful precision.  
+
+N:590:Celine Jules
+G:p:v
+I:110:50d10:100:30:0
+W:30:1:0:3000
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:UNIQUE | FEMALE | DUEL_MONSTER |
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST |
+S:1_IN_2 | 
+S:TPORT | BLIND | CONF | SCARE | CAUSE_4 | HEAL |
+S:BRAIN_SMASH | FORGET | DRAIN_METER | BLINK |
+S:BO_FIRE | BO_WATE | BO_ACID | 
+S:BA_FIRE | BA_WATE | BA_DARK | BR_LITE |
+O:Star Ocean the Second Story
+D:A treasure hunter by trade, she is also a very versatile mage, well versed in 
+D:Heraldic arts.  
+
+N:591:Kankurou Nishiyama
+G:p:W
+I:110:250d100:20:60:21
+W:31:5:0:3500
+B:KICK:LOSE_DEX:3d4
+B:KICK:LOSE_CON:4d4
+B:PUNCH:LOSE_STR:5d4
+F:UNIQUE | MALE | ALWAYS_HIT | DUEL_MONSTER |
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:SMART | BASH_DOOR | CAN_SPEAK | REGENERATE |
+F:MUTODORI | FORCE_LOCATION | NO_FEAR | IM_POIS |
+F:IM_COLD | IM_FIRE | IM_ACID | IM_ELEC |
+S:1_IN_2 | 
+S:HASTE | DRAIN_METER | DRAIN_MANA |
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:He was a guy who use to be bullied by Miki Onimaru a long time ago.  
+D:Now he seeks revenge.  Whenever he runs into Miki, he takes out a 
+D:challenge notice and fights her in order to prove that he's stronger.  
+D:So far, he has never won.  He takes an amazing amount of punishment though, 
+D:and he is aggravatingly persistent to the point where even Miki gets tired 
+D:of fighting him.  
+
+N:592:Rock Lee
+G:p:g
+I:140:100d10:20:50:21
+W:32:5:0:4000
+B:PUNCH:HURT:2d6
+B:KICK:HURT:2d7
+B:PUNCH:HURT:2d8
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR |
+F:MUTODORI | FORCE_LOCATION |
+S:1_IN_2 | 
+S:HASTE | BLINK | TPORT | TELE_TO |
+O:Naruto
+D:Konoha's beautiful blue beast.  A taijutsu specialist, his skills at illusions 
+D:and ninjutsus are completely nonexistant.  However, that makes him a extremely 
+D:feared martial artist!
+
+N:593:Howl the Wizard
+G:p:s
+I:110:110d10:20:50:21
+W:33:5:0:4500
+B:HIT:HURT:6d6
+B:HIT:HURT:7d7
+B:HIT:HURT:8d8
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR | REGENERATE |
+F:FORCE_LOCATION | NO_CONF | NO_SLEEP | NO_DUST |
+S:1_IN_2 | 
+S:HASTE | BLINK | TPORT |
+S:BLIND | CONF | SCARE | CAUSE_4 | HEAL |
+S:BRAIN_SMASH | FORGET | DRAIN_METER | BLINK |
+S:BO_FIRE | BO_WATE | BO_ACID | MISSILE |
+S:BA_FIRE | BA_WATE | BA_DARK | 
+S:S_MONSTER | S_UNDEAD | S_DRAGON | S_FROG | S_MONSTERS |
+S:S_KIN | S_DEMON | S_HYDRA |
+O:Howl's Moving Castle
+D:A very powerful but cowardly wizard who has lost his heart.  He has the ability to 
+D:transform into a bird and legend has it that he steals the hearts of young girls 
+D:and eats them.  To hide himself from the queen, he lives in a moving castle.  
+
+N:594:Ippo Makunoichi
+G:p:w
+I:140:200d10:50:100:21
+W:34:5:0:4000
+B:PUNCH:HURT:4d6
+B:PUNCH:HURT:4d7
+B:PUNCH:HURT:4d8
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR |
+F:FORCE_LOCATION |
+S:1_IN_2 | 
+S:HASTE | BLINK | TELE_TO |
+O:Hajime no Ippo
+D:He's a featherweight boxer with a massive punch.  
+
+N:595:Mokona the Moogle
+G:k:w
+I:120:200d10:100:10:20
+W:35:5:0:4500
+B:HIT:CONFUSE:4d6
+B:HIT:HURT:4d7
+B:HIT:HURT:4d8
+F:UNIQUE | ANIMAL | DUEL_MONSTER |
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR |
+F:FORCE_LOCATION |
+S:1_IN_2 | 
+S:HASTE | BLINK | BLIND | CONF | SCARE | DRAIN_METER |
+S:BO_FIRE | BO_ACID | BO_COLD | BO_ELEC | TPORT |
+S:BA_FIRE | BA_COLD | BA_ACID | BA_ELEC |
+O:Magic Knight Rayearth
+D:Mokona is something that resembles a moogle...but can be better described as a 
+D:fluffy furball of death.
+
+N:596:Nicholas D. Wolfwood
+G:p:W
+I:130:150d20:100:10:0
+W:36:3:0:5000
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+F:UNIQUE | MALE | DUEL_MONSTER |
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT |
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+S:1_IN_1 | 
+S:BULLET | BLINK |
+O:Trigun
+D:A priest who turned into a fierce gunman.  He works alongside with Vash the 
+D:Stampede.  
+
+N:597:Gai Mite
+G:p:g
+I:140:150d30:100:100:21
+W:37:5:0:5500
+B:PUNCH:HURT:6d6
+B:KICK:HURT:7d7
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | DUEL_MONSTER |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | BASH_DOOR | NO_FEAR |
+F:MUTODORI | FORCE_LOCATION | REPLACEMENT |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC |
+S:1_IN_2 | 
+S:HASTE | BLINK | TPORT | DRAIN_METER |
+S:BLIND | CONF | SCARE | ARROW_4 | TELE_TO |
+O:Naruto
+D:Konoha's bizzare and beautiful blue beast.  He is the teacher of Rock Lee and 
+D:a taijutsu specialist himself.  Not only does he look very weird, but he is 
+D:also a crazy man.
+
+N:598:Pre-Crisis Mike Tyson
+G:p:u
+I:140:150d50:50:150:21
+W:38:5:0:6000
+B:PUNCH:HURT:10d10
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DUEL_MONSTER |
+F:SMART | BASH_DOOR | NO_FEAR | NO_DUST | NO_SLEEP |
+F:FORCE_LOCATION |
+S:1_IN_2 | 
+S:HASTE | BLINK | TELE_TO |
+O:SRK/Joke
+D:Before he went insane, Mike Tyson was actually really crazy during the mid 80s.  
+D:He's a heavyweight version of Makunoichi Ippo, but much faster and much more 
+D:vicious.
+
+N:599:Minamoto Yoshitsune
+G:p:D
+I:140:30d100:90:150:0
+W:39:3:0:6500
+B:HIT:SHATTER:10d10
+B:HIT:LOSE_ALL:10d10
+B:HIT:LOSE_STR:5d10
+B:HIT:LOSE_STR:5d5
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | DUEL_MONSTER |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI | REGENERATE | NO_DUST |
+S:1_IN_2 | 
+S:SCARE | BLINK | HASTE | HOLD | HEAL | TPORT | TELE_TO |
+O:Japanse Culture/History
+D:You shudder in awe as you approach one of the greatest warriors in history.  He 
+D:is the man responsible for overthrowing the Heike and accomplished feats that 
+D:are remembered even 900 years later.  Man are you screwed.
+
+N:600:Itachi Uchiha
+G:p:D
+I:140:31d100:20:70:10
+W:40:4:0:7000
+B:GAZE:LOSE_ALL:5d5
+B:HIT:LOSE_CON:5d5
+B:HIT:LOSE_STR:4d4
+B:HIT:LOSE_DEX:4d4
+F:MALE | UNIQUE | DUEL_MONSTER |
+F:DROP_1D2 | DROP_GOOD | DROP_GREAT | REPLACEMENT |
+F:OPEN_DOOR | BASH_DOOR | SMART | MUTODORI |
+F:NO_CONF | NO_SLEEP | FORCE_MAXHP | REGENERATE |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BR_SOUN | TPORT |
+S:HEAL | TRAPS | BR_WALL | SLOW | FORGET | 
+S:DRAIN_METER | CAUSE_4 | BRAIN_SMASH |
+O:Naruto
+D:The brother of Sasuke and one of the dreaded members of Akatsuki.  He singlehandedly 
+D:destroyed Konoha's Uchiha clan, leaving him and his brother the only two remaining 
+D:true users of the Sharingan.
+
+N:601:Kisame Hoshigaki of the Mist
+G:p:D
+I:120:32d100:20:70:10
+W:41:4:0:7500
+B:HIT:LOSE_STR:5d5
+B:HIT:LOSE_STR:4d4
+B:HIT:LOSE_STR:4d4
+F:MALE | UNIQUE | DUEL_MONSTER |
+F:DROP_1D2 | DROP_GOOD | DROP_GREAT | REPLACEMENT |
+F:OPEN_DOOR | BASH_DOOR | SMART | MUTODORI |
+F:NO_CONF | NO_SLEEP | FORCE_MAXHP | REGENERATE |
+F:IM_COLD |
+S:1_IN_2 |
+S:BLINK | MISSILE | ARROW_4 | HASTE | SCARE |
+S:BLIND | CONF | S_MONSTER | BR_ACID | TPORT |
+S:HEAL | TRAPS | BO_WATE | SLOW | 
+S:DRAIN_METER | DRAIN_MANA |
+O:Naruto
+D:One of the Mist's seven, he is also a member of Akatsuki and an extraordinary ninja.  
+D:His Samehama blade devours chakra. 
+
+N:602:Deidara of Akatsuki
+G:p:u
+I:140:100d33:20:10:21
+W:42:5:0:8000
+B:HIT:HURT:1d6
+F:UNIQUE | FEMALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR | DUEL_MONSTER |
+F:FORCE_LOCATION | NO_CONF | NO_SLEEP | NO_FEAR |
+S:1_IN_2 | 
+S:HASTE | BLINK | TPORT |
+S:DRAIN_METER | 
+S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
+S:S_HYDRA | S_SPIDER | S_GOON | S_HOUND | S_UNIQUE | S_WRAITH | 
+S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN |
+O:Naruto
+D:The only female Akatsuki member.  She takes clay forms of animals and puts life into them, 
+D:making those creatures do her bidding.  Her fight with Gaara shows that she is weak in 
+D:taijutsu, however...
+
+N:603:Miki Onimaru
+G:p:u
+I:140:100d100:20:150:21
+W:43:5:0:8500
+B:KICK:HURT:1d6
+B:HIT:HURT:3d6
+B:HIT:HURT:5d6
+B:PUNCH:HURT:20d20
+F:UNIQUE | FEMALE | 
+F:FORCE_MAXHP | DUEL_MONSTER |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR | MUTODORI |
+F:FORCE_LOCATION | NO_CONF | NO_SLEEP | NO_FEAR |
+S:1_IN_4 | 
+S:HASTE | BLINK | TPORT | TELE_TO |
+S:DRAIN_METER | 
+O:Muteki Kanban Musume (Noodle Fighter Miki)
+D:A very violent, rude and strong (but cute!) little girl who works at Onimaru's Chinese 
+D:restaraunt.  With her own brand of martial arts, she goes on zany kicks, especially with her 
+D:inclination to fight anyone she meets.  Watch out for her Shinkansen punch!  
+
+N:604:Kenshiro
+G:p:U
+I:140:110d110:20:150:21
+W:44:5:0:9000
+B:PUNCH:SHATTER:20d10
+B:PUNCH:SHATTER:20d10
+B:PUNCH:SHATTER:20d10
+B:PUNCH:SHATTER:20d10
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | DUEL_MONSTER |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | BASH_DOOR | NO_FEAR | CAN_SPEAK |
+F:MUTODORI | FORCE_LOCATION | REGENERATE |
+S:1_IN_10 | 
+S:HASTE | BLINK | TPORT | HEAL | DRAIN_METER | DRAIN_MANA | SCARE | TELE_TO |
+O:Fist of the North Star
+D:Master of the Hokuto Shinken, defender of the weak and mighty legendary warrior, Kenshiro 
+D:and his fists of death cause his opponents to explode.  A-TA-TA-TA-TA-TA-TA-WHAAAAAAA! 
+
+N:605:MacBauer
+G:p:v
+I:180:300d100:100:250:0
+W:45:5:0:100000
+B:PUNCH:SHATTER:40d40
+B:PUNCH:SHATTER:40d40
+B:PUNCH:SHATTER:40d40
+B:GAZE:LOSE_ALL:40d40
+F:ATTR_MULTI |
+F:UNIQUE | MALE | ALWAYS_HIT | KILL_WALL |
+F:FORCE_MAXHP | DUEL_LAST | DUEL_MONSTER |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | BASH_DOOR | NO_FEAR | NO_CONF | NO_SLEEP | NO_DUST |
+F:MUTODORI | FORCE_LOCATION | REGENERATE | REPLACEMENT |
+F:IM_COLD | IM_ACID | IM_FIRE | IM_ELEC | IM_POIS |
+S:1_IN_4 | 
+S:HASTE | BLINK | TPORT | HEAL | DRAIN_METER | DRAIN_MANA | 
+S:BULLET | BRAIN_SMASH | TELE_TO | MAKE_BOMB |
+O:SRK
+D:The sole progenitor of the universe, MacBauer, also known as God to the laymen, and His 
+D:glimmering platinum mullet have cast unto the sea of existence life and purpose. No one can 
+D:top Him, and for the sake of all that is balance in reality, no one SHOULD ever top Him. In the 
+D:world of today, MacBauer doesn't exist as He did in the past; he has split into two factions 
+D:which represent Prep Time and Non-Give-A-Shittance; Angus MacGyver, from MacGyver, and Jack 
+D:Bauer from 24.  It has been said that if those two should ever fuse again, the world as we 
+D:know it would instantly end, for NO ONE has seen this almighty being and lived to tell about it.  
+
+
+
+
+
+
+
+

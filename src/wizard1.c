@@ -83,6 +83,7 @@ static const grouper group_item[] =
 	{ TV_POLEARM,	  NULL },
 	{ TV_HAFTED,	  NULL },
 	{ TV_DIGGING,	  NULL },
+	{ TV_SHURIKEN,	  NULL },
 
 	{ TV_SOFT_ARMOR,	"Armour (Body)" },
 	{ TV_HARD_ARMOR,	  NULL },
@@ -95,6 +96,7 @@ static const grouper group_item[] =
 	{ TV_GLOVES,	  NULL },
 	{ TV_BOOTS,		  NULL },
 	{ TV_MECHA,		  NULL },
+	{ TV_COSTUME,     NULL },
 
 	{ TV_AMULET,	"Amulets" },
 	{ TV_RING,		"Rings" },
@@ -109,6 +111,7 @@ static const grouper group_item[] =
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_LARGE_SCROLL,  "Large Scroll (Ninja)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -189,6 +192,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
+		case TV_SHURIKEN:
 		{
 			sprintf(dam, "%dd%d", i_ptr->dd, i_ptr->ds);
 			break;
@@ -476,9 +480,10 @@ static const flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
 	{ TR1_SLAY_DEMON,         "Demon" },
-	{ TR1_SLAY_ORC,           "Orc" },
+	{ TR1_SLAY_SENTAI,           "Sentai" },
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
+	{ TR1_SLAY_MECHA,           "Mecha" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
 	{ TR1_KILL_DRAGON,        "Xdragon" }
 };
@@ -1512,7 +1517,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7, flags8;
 	u16b why = 2;
 	s16b *who;
 	int count = 0;
@@ -1574,6 +1579,8 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flags7 = r_ptr->flags7;
+		flags8 = r_ptr->flags8;
 		breath = FALSE;
 		magic = FALSE;
 
@@ -1671,7 +1678,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
+		else if (flags3 & (RF3_SENTAI)) spoil_out(" sentai");
 		else if (flags3 & (RF3_FRIENDLY)) spoil_out(" friendly");
 		else spoil_out(" creature");
 
@@ -1737,7 +1744,13 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
+		if (flags8 & (RF8_REPLACEMENT)) {
+			sprintf(buf, "%s is proficient in the replacement technique.  ", wd_che[msex]);
+			
 		
+			spoil_out(buf);
+		}
+
 
 		/* Collect inate attacks */
 		vn = 0;
@@ -1785,7 +1798,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
+		if (flags4 & (RF4_BR_RADI)) vp[vn++] = "radiation";
 		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
@@ -1858,10 +1871,10 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
+		if (flags6 & (RF6_S_GOON))             vp[vn++] = "summon goons";
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
+		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hententmons";
 		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
@@ -1870,6 +1883,9 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon ring wraiths";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
+		if (flags7 & (RF7_S_FROG))			  vp[vn++] = "summon frogs";
+		if (flags7 & (RF7_DRAIN_METER))       vp[vn++] = "drain meter";
+		if (flags7 & (RF7_MAKE_BOMB))		  vp[vn++] = "MacGyver a bomb";
 
 		if (vn)
 		{

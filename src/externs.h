@@ -52,8 +52,8 @@ extern const byte extract_energy[200];
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
 extern cptr Grooves[G_MAX];
-extern const u32b spell_flags[2][9][2];
-extern cptr spell_names[2][PY_MAX_SPELLS];
+extern const u32b spell_flags[3][9][2];
+extern cptr spell_names[3][PY_MAX_SPELLS];
 extern const byte chest_traps[64];
 extern cptr color_names[16];
 extern cptr stat_names[A_MAX];
@@ -76,6 +76,11 @@ extern const s16b cooking_table[MAX_INGREDIENTS][MAX_INGREDIENTS];
 extern cptr chi_warrior_powers[CHI_WARRIOR_MAX];
 extern const int chi_warrior_cost[CHI_WARRIOR_MAX];
 extern cptr solved_quests[MAX_QUESTS];
+extern const int intrinsic_cost[5];
+extern cptr intrinsic_desc[16];
+extern cptr numeric_description[9];
+extern cptr gate_description[9];
+extern cptr mecha_summon_quotes[5];
 
 /* variable.c */
 extern cptr copyright;
@@ -330,6 +335,8 @@ extern void do_cmd_rest(void);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
 extern void do_cmd_mimic(void);
+extern void do_cmd_shuriken_bunshin(void);
+
 
 /* cmd3.c */
 extern void do_cmd_inven(void);
@@ -373,17 +380,24 @@ extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_power(void);
+extern void do_cmd_sentai_power(void);
 extern void do_cmd_talk(void);
 extern void do_cmd_give(void);
 extern void do_cmd_super(void);
-extern void do_cmd_mechfire(void);
+extern void moogle_dance(void);
+extern bool do_cmd_mechfire(void);
+extern void do_cmd_mecha(void);
 extern void do_cmd_taunt(void);
+extern void do_cmd_pose(void);
 extern void do_cmd_mknight(void);
 extern void raging_demon(int dir);
 extern void do_cmd_mimic_cast(void);
 extern void do_cmd_study_chi_warrior(void);
 extern void do_cmd_swap_chi_warrior(void);
 extern void do_cmd_chi_power(void);
+extern void do_cmd_intrinsic(void);
+extern void do_cmd_ninjutsu(void);
+extern void extract_mimic_powers(const monster_race *r_ptr);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -393,6 +407,7 @@ extern void do_cmd_use_staff(void);
 extern void do_cmd_aim_wand(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
+extern bool do_cmd_create_costume(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -415,6 +430,7 @@ extern void do_cmd_help(void);
 extern void generate_name(void);
 extern void process_player_name(bool sf);
 extern void get_name(void);
+extern void get_mecha_info(void);
 extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
 extern long total_points(void);
@@ -447,7 +463,7 @@ extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
-extern void process_monsters(byte minimum_energy);
+extern void process_monsters(byte minimum_energy, int energy_moment);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
@@ -463,6 +479,7 @@ extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern void monster_desc(char *desc, const monster_type *m_ptr, int mode);
 extern void lore_do_probe(int m_idx);
+extern void lore_do_probe2(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
@@ -556,6 +573,7 @@ extern bool spell_okay(int spell, bool known);
 extern void spell_info(char *p, int spell);
 extern void print_spells(const byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
+extern void a_m_aux_3(object_type *o_ptr, int level, int power);
 
 /* save.c */
 extern bool save_player(void);
@@ -621,6 +639,7 @@ extern bool genocide(void);
 extern bool mass_genocide(void);
 extern bool kekkai(void);
 extern bool probing(void);
+extern bool analyzing(void);
 extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
 extern void lite_room(int y1, int x1);
@@ -648,6 +667,8 @@ extern bool fear_monster(int dir, int plev);
 extern bool teleport_monster(int dir);
 extern bool door_creation(void);
 extern bool trap_creation(void);
+extern bool wall_creation(void);
+extern bool glyph_creation(void);
 extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 extern void do_cmd_cook(void);
@@ -657,6 +678,9 @@ extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);
 extern void store_init(int which);
+extern void store_request_item(void);
+extern int  store_ego_item(object_type *o_ptr, bool only_good);
+extern bool is_egoable(object_type *o_ptr);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);
@@ -718,6 +742,7 @@ extern bool get_string(cptr prompt, char *buf, int len);
 extern s16b get_quantity(cptr prompt, int max);
 extern bool get_check(cptr prompt);
 extern bool get_check_chi_warrior(cptr prompt);
+extern bool get_check_ninja(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
 extern void pause_line(int row);
 extern void request_command(bool shopping);
@@ -740,6 +765,7 @@ extern void redraw_stuff(void);
 extern void window_stuff(void);
 extern void handle_stuff(void);
 
+
 /* xtra2.c */
 extern bool quests_complete(void);
 extern bool set_blind(int v);
@@ -756,6 +782,7 @@ extern bool set_blessed(int v);
 extern bool set_hero(int v);
 extern bool set_shero(int v);
 extern bool set_s_sayian(int v);
+extern bool set_wu_transform(int v);
 extern bool set_mimic(void);
 extern bool set_mag_student(void);
 extern bool set_ouroborous(int v);
@@ -798,7 +825,13 @@ extern bool confuse_dir(int *dp);
 extern bool set_kaioken(int v);
 extern bool set_double_team(int v);
 extern bool set_defense(int v);
+extern bool set_armor_of_sand(int v);
+extern bool set_chakra_gate(int v);
+extern bool set_delivery_time(int v);
 
+/* Wizard2.c */
+extern int wiz_create_itemtype(void);
+extern void strip_name(char *buf, int k_idx);
 
 /*
  * Hack -- conditional (or "bizarre") externs

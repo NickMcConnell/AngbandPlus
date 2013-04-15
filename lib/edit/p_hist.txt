@@ -27,7 +27,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 N:1:2:10:25
@@ -40,17 +40,17 @@ N:1:2:100:50
 D:You are the first child 
 
 N:2:3:40:65
-D:of a Serf.  
+D:of a Merchant.  
 N:2:3:65:80
-D:of a Yeoman.  
+D:of a Teacher.  
 N:2:3:80:90
-D:of a Townsman.  
+D:of a Ronin.  
 N:2:3:90:105
-D:of a Guildsman.  
+D:of a Salaryman.  
 N:2:3:96:120
-D:of a Landed Knight.  
+D:of a Samurai.  
 N:2:3:99:130
-D:of a Titled Noble.  
+D:of a Damiyo Lord.  
 N:2:3:100:140
 D:of a Royal Blood Line.  
 
@@ -116,9 +116,9 @@ N:9:54:100:145
 D:King.  
 
 N:10:11:85:45
-D:You are descended from a Jureian 
+D:You are descended from a Juraian 
 N:10:11:100:55
-D:You are the only descendent of a Jureian 
+D:You are the only descendent of a Juraian 
 
 N:11:3:20:55
 D:Shopkeep.  
@@ -341,5 +341,37 @@ N:62:41:60:50
 D:You have three red eyes, 
 N:62:41:100:50
 D:You have three black eyes, 
+
+N:63:64:25:40
+D:You are of a litter of 5 of a Moogle 
+N:63:64:100:50
+D:You are of a litter of 3 of a Moogle 
+
+N:64:65:10:60
+D:Thief.  
+N:64:65:25:75
+D:Circus Performer.  
+N:64:65:75:90
+D:Warrior.  
+N:64:65:90:110
+D:Scientist.  
+N:64:65:99:130
+D:Mayor.  
+N:64:65:100:150
+D:King.  
+
+N:65:66:99:50
+D:You have dark green eyes, 
+N:65:66:100:60
+D:You have dark blue eyes,
+
+N:66:0:75:50
+D:brown wings, and a red antenna.
+N:66:0:85:50
+D:black wings, and a green antenna.
+N:66:0:95:50
+D:purple wings, and a blue antenna.
+N:66:0:100:50
+D:red wings, and a shining antenna.
 
 

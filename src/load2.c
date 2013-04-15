@@ -125,6 +125,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_BOW:
+		case TV_SHURIKEN:
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
@@ -136,6 +137,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_CROWN:
 		case TV_SHIELD:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
@@ -375,7 +377,7 @@ static const byte convert_ego_item[128] =
 	EGO_VELOCITY,		/* 64 = EGO_VELOCITY */
 	EGO_ACCURACY,		/* 65 = EGO_ACCURACY */
 	0,					/* 66 */
-	EGO_SLAY_ORC,		/* 67 = EGO_SLAY_ORC */
+	EGO_SLAY_SENTAI,	/* 67 = EGO_SLAY_SENTAI */
 	EGO_POWER,			/* 68 = EGO_POWER */
 	0,					/* 69 */
 	0,					/* 70 */
@@ -387,7 +389,7 @@ static const byte convert_ego_item[128] =
 	0,					/* 76 */
 	EGO_WOUNDING,		/* 77 = EGO_AMMO_WOUNDING */
 	0,					/* 78 */
-	0,					/* 79 */
+	EGO_SLAY_JELLY,		/* 79 */
 	0,					/* 80 */
 	EGO_LITE,			/* 81 = EGO_LITE */
 	EGO_AGILITY,		/* 82 = EGO_AGILITY */
@@ -644,7 +646,7 @@ static errr rd_item(object_type *o_ptr)
 
 		/* Hack -- fix some "Ammo" */
 		if ((o_ptr->tval == TV_BOLT) ||
-		    (o_ptr->tval == TV_ARROW) ||
+		    (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHURIKEN) ||
 		    (o_ptr->tval == TV_SHOT))
 		{
 			/* Special ego-item indexes */
@@ -896,13 +898,13 @@ static void rd_monster(monster_type *m_ptr)
 	if (!older_than(0, 5, 6))
 	{
 		rd_byte(&m_ptr->mondust);
-		rd_byte(&m_ptr->enlightenment);
+		rd_byte(&m_ptr->silenced);
 	}
 
 	else
 	{
 		m_ptr->mondust = 0;
-		m_ptr->enlightenment = 0;
+		m_ptr->silenced = 0;
 
 	}
 
@@ -1005,6 +1007,15 @@ static void rd_lore(int r_idx)
 		rd_u32b(&l_ptr->r_flags5);
 		rd_u32b(&l_ptr->r_flags6);
 
+		/* Hack -- Pre 058 don't have flags 7 and 8 */
+		if (!(older_than(0,5,8)))
+		{
+			rd_u32b(&l_ptr->r_flags7);
+			rd_u32b(&l_ptr->r_flags8);
+
+		}
+
+
 
 		/* Read the "Racial" monster limit per level */
 		rd_byte(&r_ptr->max_num);
@@ -1022,6 +1033,8 @@ static void rd_lore(int r_idx)
 	l_ptr->r_flags4 &= r_ptr->flags4;
 	l_ptr->r_flags5 &= r_ptr->flags5;
 	l_ptr->r_flags6 &= r_ptr->flags6;
+	l_ptr->r_flags7 &= r_ptr->flags7;
+	l_ptr->r_flags8 &= r_ptr->flags8;
 }
 
 
@@ -1447,6 +1460,17 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->s_sayian);
+
+	if (!older_than(0,5,8))
+	{
+		rd_s16b(&p_ptr->wu_transform);
+	}
+
+	else
+	{
+		p_ptr->wu_transform = 0;
+	}
+
 	rd_s16b(&p_ptr->geneijin);
 	rd_s16b(&p_ptr->ouroborous);
 	rd_s16b(&p_ptr->kekkai);
@@ -1546,7 +1570,24 @@ static errr rd_extra(void)
 	/* Normal Quests */
 	for (i = 0; i < MAX_QUESTS; i++)
 	rd_s16b(&p_ptr->normal_quests[i]);
+
+	/* Hack -- Pre 058 versions do not have Pagoda quest */
+	if (older_than(0, 5, 8)){
+		p_ptr->normal_quests[QUEST_PAGODA] = STATUS_IN_PROGRESS;
+	};
 	
+	/* Hack -- Pre 059 versions do not have Duel Status */
+	if (older_than(0, 5, 9)){
+		p_ptr->duel_idx = 0;
+		p_ptr->pending_duel = FALSE;
+	}
+
+	else {
+	/* Duel Status */
+	rd_s16b(&p_ptr->duel_idx);
+	rd_byte(&p_ptr->pending_duel);
+
+	}
 
 	/*** Chi Warrior Fields ***/
 	rd_byte(&p_ptr->bakusai_tengetsu);
@@ -1558,6 +1599,65 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->cross_counter);
 	rd_byte(&p_ptr->ume_shoryu);
 	rd_byte(&p_ptr->super_punch);
+
+	/* Intrinsic Fields */
+	if (!(older_than(0, 5, 8))){
+
+	rd_byte(&p_ptr->strong_bow);
+	rd_byte(&p_ptr->replacement);
+	rd_byte(&p_ptr->banish_evil);
+	rd_byte(&p_ptr->backstab);
+	rd_byte(&p_ptr->findme);
+
+	}
+
+	else 
+	{
+		p_ptr->strong_bow = FALSE;
+		p_ptr->replacement = FALSE;
+		p_ptr->banish_evil = FALSE;
+		p_ptr->backstab = FALSE;
+		p_ptr->findme = FALSE;
+	}
+
+	/* Ninja Class */
+	if (!(older_than(0,5,9))){
+			/* Ninja Fields */
+    rd_byte(&p_ptr->kancho);
+	rd_byte(&p_ptr->chidori);
+	rd_byte(&p_ptr->rasengan);
+	rd_byte(&p_ptr->sharingan);
+	rd_byte(&p_ptr->byakugan);
+	rd_byte(&p_ptr->jyuken);  
+	rd_byte(&p_ptr->jyuken2); 
+	rd_s16b(&p_ptr->chakra_gate);   
+	rd_byte(&p_ptr->chakra_gate_level); 
+	rd_s16b(&p_ptr->armor_of_sand);
+	rd_s16b(&p_ptr->delivery_time);
+	rd_byte(&p_ptr->allow_delivery);
+	rd_string(p_ptr->temp_mecha_name, 50);
+	rd_string(p_ptr->temp_mecha_gun_name, 50);
+	
+	}
+
+	else {	
+    p_ptr->kancho = FALSE;
+	p_ptr->chidori = FALSE;
+	p_ptr->rasengan = FALSE;
+	p_ptr->sharingan = FALSE;
+	p_ptr->byakugan = FALSE;
+	p_ptr->jyuken = FALSE;  
+	p_ptr->jyuken2 = FALSE; 
+	p_ptr->chakra_gate = FALSE;   
+	p_ptr->chakra_gate_level = FALSE; 
+	p_ptr->armor_of_sand = FALSE;
+	p_ptr->delivery_time = 0;
+	p_ptr->allow_delivery = FALSE;
+	/* To prevent NULL */
+	p_ptr->delivery_ptr = &p_ptr->delivery_type;
+	strcpy(p_ptr->temp_mecha_name, "Mecha");
+	strcpy(p_ptr->temp_mecha_gun_name, "machine gun");
+	}
 
 
 
@@ -1800,8 +1900,9 @@ static errr rd_inventory(void)
 		/* Hack -- convert old slot numbers */
 		if (older_than(0, 5, 0)) n = convert_slot(n);
 
+		
 		/* Verify slot */
-		if (n >= INVEN_TOTAL) return (-1);
+		if ((n >= INVEN_TOTAL) && ( n != DELIVERY)) return (-1);
 
 		/* Hack -- Magic Knight glitch fix */
 		if ((i_ptr->tval == TV_SWORD) && 
@@ -1811,8 +1912,16 @@ static errr rd_inventory(void)
 			
 		}
 
+		/* Delivery Object */
+		if (n == DELIVERY)
+		{
+			p_ptr->delivery_ptr = &p_ptr->delivery_type;
+
+			object_copy(p_ptr->delivery_ptr, i_ptr);
+		}
+
 		/* Wield equipment */
-		if (n >= INVEN_WIELD)
+		else if (n >= INVEN_WIELD)
 		{
 			/* Copy object */
 			object_copy(&inventory[n], i_ptr);

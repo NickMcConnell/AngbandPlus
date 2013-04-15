@@ -11,32 +11,31 @@
 
 # Version stamp (required)
 
-V:0.5.6
-
+V:0.5.9
 
 # Maximum number of wilderness scenes
-M:W:28
+M:W:35
 
 # Maximum number of feature types
-M:F:100
+M:F:101
 
 # Maximum number of object kinds
-M:K:596
+M:K:616
 
 # Maximum number of artifacts
-M:A:129
+M:A:138
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:565
+M:R:607
 
 # Maximum number of vaults
-M:V:40
+M:V:43
 
 # Maximum number of player races
-M:P:10
+M:P:11
 
 # Maximum number of player classes
 M:C:10
@@ -59,9 +58,9 @@ M:M:612
 
 # Size of the "fake" array for reading in names of monsters, objects,
 # artifacts, store-owners, player-races, ...
-M:N:20480
+M:N:40960
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:T:61440
+M:T:1261440
 

@@ -1,3 +1,191 @@
+10/14/05 - 
+Changes in Animeband 0.5.9.1
+- Timing changed to remove movement clumping based on a modification of Kornelis' solution, 
+  only this should cover all cases.  Thanks to Vaevictus for doing an algorithm analysis 
+  on my variation to ensure that it works :).
+- Fixed "Umbrella of Axl-Low" glitch and other amusing artifact oddities
+- Fixed mecha weight glitch for sentai. Also made the mecha summoned have a minimum of 
+  2500 HP.
+- Sentai can no longer taunt/pose level one creatures.
+- New artifacts and monsters.
+- Drain mana removed from mimicing for now (it didn't do anything anyways).
+- Fixed Regen glitch for cosplayers
+- Fixed silly Ninja overflow glitch
+- Changed easy_open to ignore broken doors.  Broken doors also made a different color.
+- Graphics and sound are off by default
+- Cosplayer heal heals poison and confusion
+- Updated the help a little bit
+- Expanded analyze intrinsic
+
+To do: Kiosk instead of Delivery boy (Calamarain), placed within 10 DLs above max depth.
+Training dummy with max damage memory
+
+10/30/04 - 10/14/05
+Changes in Animeband 0.5.9 
+- New Icon ^_^
+- Fixed a bug with the replacement technique that put a log in your mecha slot (K2White)
+- Fixed minor SFX glitch when giving someone an item.
+- Targeting system changed for Mimic, Talking, and Giving
+- Put level restrictions on Happy Fun Puzzle Land, Pagoda, and Tokyo Tower
+- Aman changed to Shinsengumi
+- Elvenkind changed to Genji
+- Holy Avenger changed to Holy Order
+- EXTRA_SHOT flag given to Sentai, Warrior, and Ninja
+- All mechas now have feather falling
+- Dust toned down slightly
+- Kira Guards damage increased from 20d10 to 20d15.  Experience gained from 
+  killing guard cut in half. Dungeon level reduced to lvl 1.  Should no longer appear 
+  in normal dunegons.
+- Added a confirmation prompt when 'p' is pressed
+- Dango-San Kyodai changed from DROP_1D3 to DROP_1D2 (Raist)
+- Lots of new monsters.  Worms ('w') replaced with Weird Creatures.  Ants ('a') replaced 
+  with Android goons.  Nagas ('n') replaced with turtles.  Orcs ('o') replaced with sentai.
+  Someone may want to suggest better letters here.
+- Replaced some sounds
+- Mimic class removed.  Mimicing is now a Ninjutsu and no longer has to require an adjacent 
+  monster.
+- Super Punch from Chi Warrior now sends them flying 13 spaces on average instead of 5.
+  Induced Stun reduced by half.  Renamed to Shinkansen (because you hit like a train ^_^).
+- Warriors given STUN_HANDS flag.  Warrior hits will now induce stun on good or better hits.  Warriors 
+  start with Katanas instead of Broadswords.
+- Android nuke limit break changed from GF_FIRE to GF_RADI (radiation damage).  Behaves just 
+  just like a tactical nuke would.
+- New weapon types: Weapons of Float will launch monsters into the air on a good or better hit.
+- New Class: Ninjas (replacing Mimic)
+	- +1 STR, +2 INT, -3 WIS, +4 DEX, +2 CON, -2 CHR
+	- Ninjutsus used from Large Scrolls just like mages uses books
+	- Mana is CON based
+	- May only carry 12 items in inventory
+	- 25% extra exp required
+	- Strong Psuedo-ID
+	- Extra shot flag given
+- New Class: Cosplayer (replacing Paladin)
+	- -2 STR, -5 INT, -5 WIS, -2 DEX, -2 CON, -5 CHR
+	- Use Costumes to mimic creatures.  Costumes are created by using the 'U' key.  
+	  Costs 100 meter to alter new Costume (default is set to "Odd Clothes")
+	- Costumes are sellable (General, Armory)
+	- Costumes appear in the General Store.
+	- While wearing a costume, you mimic the creature of that costume.  Mimic requires
+	  no upkeep (FREE_MIMIC)  Mimic powers cost meter, however.
+	- EXP requirement reduced by half.
+	- Cosplayers have MECHA_SENSE (reduced damage while riding a Mecha, including zero 
+          damage from 1 damage attacks)
+	- Weak Psuedo-ID
+	- Analyze works just like probing: tells you all of the monster's resistances, melee attacks 
+	  and other stuff.
+- New Class: Sentai (replacing Ranger)
+	- No stat penalties, no stat bonuses
+	- Meter based powers.  Sentai can taunt and pose to gain meter.
+	- MECHA_SENSE and EXTRA_SHOT
+	- Sentai will spark when hit 1 time in 10, inducing double damage.
+- New Race : Moogles
+	- -1 STR, -1 INT, +2 DEX, +2 CON, -2 CHR
+	- Inherently Resistant to Poison
+	- Dance Limit break which does very random things (in a radius too!)
+	- Get the best prices from stores (unless the store owner is a Hententmon)
+- New Fighting Style: Sand
+	- Inherent +5 accuracy, +5 speed, +2 blows, +3 stealth
+	- Meter gained from damage taken AND damage dealt.  Should be the fastest meter building groove now.
+	- Deals 33% less damage
+	- Takes 50% more damage
+- Priest prayers sometimes cost no mana (player level dependent random event, done by INTERVENTION flag)
+- Warning message now given if you're close to being drunk, and also when you're close to being sober.
+- You can now request items from the black market.  Only one type of item 
+  (though you can request multiple items), and it'll be delivered to you.  Will cost 100% extra of black market price.
+  You can only have one delivery at a time, and you cannot request another item until delivery succeeds 
+  or fails. Max 20 of an item per request (to avoid stupid overflow errors).  Incidentally, this code is so 
+  ugly that sometimes I wake up and cry at night thinking about it...
+- Broadsword of Perseverance and Quarterstaff of Triumph weight restored to 050 weights + 75 pounds to make it very difficult 
+  to abuse.  Upped the unwanted summoning chance from 5% to 20%.  Induces Teleportation randomly.
+- New artifacts replacing all of the stupid ones.
+- Kira's Helmet is now a forced set drop (or it should be).
+- Updated docs (everything should now be current; if not please tell me)
+- Random Title Screens!  I thought this would be kinda cool.
+- New throwing weapons (Shuriken, Kunai) appear in general store now
+- Magic Knight swords can no longer be store items.
+- Magic Knights are given more spells.
+- Terrible Engrish (Student) replaced with Gaijin Smash
+- Wrath (Chi Warrior) replaced with "THE WORLD!"
+- Cure/Heal potions/staves/spells/activates are now percentage based rather than set die roll.
+- Battle Arena quest replaced with Dueling Guild.  Vegeta is now a normal dungeon monster.  Dueling guild allows hundred men
+  battles (hyakunin kumite) as well has having a list of uniques challenge you.  Quest is completed upon clearing the list.
+- Monster leaks to wrong locations should be fixed, hopefully.
+- Quest quota eliminated.  Side quests are now optional.
+- Train ticket price eliminated.
+- Artifacts can be dropped by Wilderness creatures.  Quality of items dropped by wilderness creatures increased.
+- Fixed a bug that put Pagoda uniques in the dungeon.
+- Wizard mode allows meter adjustment as well (PhaetonH)
+- Added a little surprise in the town once you reach a certain depth ^_^
+- Changed the history a little bit to be a bit more animeish
+- Fixed a small Student display glitch
+- Rune of Protection replaced by Gaijin Perimeter
+- Life Insurance scrolls work a little bit better.
+
+Todo:
+- Doujins
+- Squelch?
+- Monster Personality Matrix
+- Monsters with Meter bars that can super
+
+
+
+9/24/04 - 10/30/04
+Changes in Animeband 0.5.8.2
+- More spelling mistakes fixed (Achijah)
+- Removed floating eye insta-kills.  *SHOULD* no longer happen.
+- Display bug when examining items in a store is now fixed (Kusunose Toru)
+- croff() bug fixed from older version of Angband (Kusunose Toru)
+- Monsters "Natto" and "Dango-san Kyodai" added
+- Fixed glitch that causes sound to crash Animeband in WinXP.  Sound should work now.
+- Fonts should now display correctly in WinXP (Robert Ruehlmann, Kusunose Toru)
+
+9/23/04 - 9/24/04
+Changes in Animeband 0.5.8.1
+- Reduced occurances of Demonic Door (was depth/120 per door, now depth/180).
+- Fixed some more misspellings and data values, courtesy of Kusunose Toru
+
+6/27/04 - 9/23/04
+Changes in Animeband 0.5.8
+- 'u' stands for Mechanical monsters now.  There will most likely be balance issues -_-.
+- Fixed a stupid glitch that makes compiling not work in other OSes.
+- Changed some data values and misspellings (Saiya-jin), courtesy of Kusunose Toru
+- Changed names in the random name generator, courtesy of Kusunose Toru
+- Added some new uniques and monsters
+- Added the origin of the monster in the monster description
+- Added artifact descriptions!  You get to see how much thought I actually 
+  put into the artifacts :)
+- Sanjiyan limit break changed to Wu Transformation.  
+	- Similar to Super Sayajin, only much more powerful.
+	- GOI and no mana consumption during transformation
+	- Once transform is complete, the strain reduces you to zero hp and mp,
+	  and paralyzation occurs.
+	- Transformation does not last very long.
+- Created some most evil new flags
+- New Quest - Pagoda.  Does not work from a pre 058 save file however.
+  Solving this quest will give you better damage reduction.
+- Updated Chi Warrior FAQ
+- Students and Magic Knights are better with mechas than other classes.
+  Guns will do more damage, and you'll get hit less.
+- To compensate for some rather bad evil, taunt has been replaced by
+  intrinsic class powers (the 'U' key).  These powers cost meter, but
+  they're very useful.
+- A new helpful unique is there too.  Go find him.
+- Note: You probably won't survive if you try going past DL 100 :)
+
+
+Todo:
+- Clean up the Wilderness code and make it more customizable
+- Survival mode game?
+- More powers for Chi Warrior
+	- Sacred Edge
+	- Primary Lotus
+	- Nightmare Circular
+	- Firebird Attack
+	- Explosion Pills
+	- Chidori (All meter into one blow)
+	- Leaf Slash
+	
+
 5/22/04 - 6/27/04
 Changes in Animeband 0.5.7
 - Androids never go hungry.
@@ -31,7 +219,7 @@ Changes in Animeband 0.5.6:
 - Added the HTML screenshot patch.  It spews funky ASCII sometimes though...
 - Blade catching is toned down quite significantly.  Also, only a few monsters have it now.
 - Increased chances in cooking success.
-- New Dust attack flag for weapons and monsters.  Also add NO_LAUNCH flag.  Allows players 
+- New Dust attack flag for weapons and monsters.  Also add NO_DUST flag.  Allows players 
   to paralyze monsters.
 - New artifacts
 - Fixed a Magic Knight Glitch

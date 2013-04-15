@@ -222,6 +222,22 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Update */
 	check_experience();
+
+	/* Default */
+	sprintf(tmp_val, "%d", p_ptr->c_meter);
+
+	/* Query */
+	if (!get_string("Meter: ", tmp_val, 5)) return;
+
+	/* Extract */
+	tmp_int = atoi(tmp_val);
+
+	/* Verify */
+	if (tmp_int < 0) tmp_long = 0;
+	else if (tmp_int > p_ptr->m_meter) tmp_int = p_ptr->m_meter;
+
+	/* Save */
+	p_ptr->c_meter = tmp_int;
 }
 
 
@@ -363,6 +379,7 @@ typedef struct tval_desc
 {
 	int tval;
 	cptr desc;
+	bool requestable;
 } tval_desc;
 
 /*
@@ -370,51 +387,54 @@ typedef struct tval_desc
  */
 static const tval_desc tvals[] =
 {
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_MECHA,				"Mechas"			   },
-	{ TV_QUEST_ITEM,		"Quest Item"		   },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_CHEST,             "Chest"                },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-	{ TV_SKELETON,          "Skeletons"            },
-	{ TV_BOTTLE,            "Empty bottle"         },
-	{ TV_JUNK,              "Junk"                 },
-	{ TV_PARCHMENT,			"Parchment"			   },
-	{ 0,                    NULL                   }
+	{ TV_SWORD,             "Sword",				TRUE       },
+	{ TV_POLEARM,           "Polearm",				TRUE       },
+	{ TV_HAFTED,            "Hafted Weapon",		TRUE       },
+	{ TV_BOW,               "Bow",					TRUE       },
+	{ TV_ARROW,             "Arrows",				TRUE       },
+	{ TV_BOLT,              "Bolts",				TRUE       },
+	{ TV_SHOT,              "Shots",				TRUE       },
+	{ TV_SHURIKEN,			"Throwing Weapons",		TRUE	   },
+	{ TV_SHIELD,            "Shield",				TRUE       },
+	{ TV_CROWN,             "Crown",				TRUE       },
+	{ TV_HELM,              "Helm" ,				TRUE       },
+	{ TV_GLOVES,            "Gloves",				TRUE       },
+	{ TV_BOOTS,             "Boots",				TRUE       },
+	{ TV_MECHA,				"Mechas",				TRUE	   },
+	{ TV_QUEST_ITEM,		"Quest Item",			FALSE	   },
+	{ TV_CLOAK,             "Cloak",				TRUE       },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail",	TRUE	   },
+	{ TV_HARD_ARMOR,        "Hard Armor",			TRUE       },
+	{ TV_SOFT_ARMOR,        "Soft Armor",			TRUE       },
+	{ TV_RING,              "Ring",					TRUE       },
+	{ TV_AMULET,            "Amulet",				TRUE       },
+	{ TV_COSTUME,			"Costume",				TRUE	   },
+	{ TV_LITE,              "Lite",					TRUE       },
+	{ TV_POTION,            "Potion",				TRUE       },
+	{ TV_SCROLL,            "Scroll",				TRUE       },
+	{ TV_WAND,              "Wand",					TRUE       },
+	{ TV_STAFF,             "Staff",				TRUE       },
+	{ TV_ROD,               "Rod",					TRUE       },
+	{ TV_PRAYER_BOOK,       "Priest Book",			TRUE       },
+	{ TV_MAGIC_BOOK,        "Magic Book",			TRUE       },
+	{ TV_SPIKE,             "Spikes",				TRUE       },
+	{ TV_DIGGING,           "Digger",				TRUE       },
+	{ TV_CHEST,             "Chest",				TRUE       },
+	{ TV_FOOD,              "Food",					TRUE       },
+	{ TV_FLASK,             "Flask",				TRUE       },
+	{ TV_SKELETON,          "Skeletons",			FALSE      },
+	{ TV_BOTTLE,            "Empty bottle",			FALSE      },
+	{ TV_JUNK,              "Junk",					FALSE      },
+	{ TV_PARCHMENT,			"Parchment",			TRUE	   },
+	{ TV_LARGE_SCROLL,		"Large scroll",			TRUE	   },
+	{ 0,                    NULL,					FALSE      }
 };
 
 
 /*
  * Strip an "object name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx)
 {
 	char *t;
 

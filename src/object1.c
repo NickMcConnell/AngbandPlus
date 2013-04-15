@@ -1033,6 +1033,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_BOW:
+		case TV_SHURIKEN:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
@@ -1046,6 +1047,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
+		case TV_COSTUME:
 		case TV_CROWN:
 		case TV_HELM:
 		case TV_SHIELD:
@@ -1057,6 +1059,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Mechas */
 		case TV_MECHA:
 		{
 			break;
@@ -1157,6 +1160,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Temporary Mechas */
+		case TV_TEMP_MECHA:
+			{
+				modstr = basenm;
+				basenm = p_ptr->temp_mecha_name;
+				break;
+			}
+
 		/* Potions */
 		case TV_POTION:
 		{
@@ -1197,6 +1208,14 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			basenm = "& Holy Book~ of Prayers #";
 			break;
 		}
+		
+		/* Large Scrolls */
+		case TV_LARGE_SCROLL:
+			{
+				modstr = basenm;
+				basenm = "& Large Scroll~ #";
+				break;
+			}
 
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
@@ -1363,6 +1382,28 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 
 	}
 
+	/* Hack -- Display Costume Type */
+	if (o_ptr->tval == TV_COSTUME)
+	{
+
+			object_desc_str_macro(t, " (");
+			/* Empty */
+			if (o_ptr->pval == 0)
+			{
+				object_desc_str_macro(t, "Odd Clothing");
+
+			}
+
+			else
+			{
+			object_desc_str_macro(t, r_name + r_info[o_ptr->pval].name);
+
+			}
+
+			object_desc_str_macro(t, ")");
+
+	}
+
 
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
@@ -1492,6 +1533,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
+		case TV_SHURIKEN:
 		{
 			/* Fall through */
 		}
@@ -1944,7 +1986,7 @@ static cptr act_description[ACT_MAX] =
 	"confuse monster",
 	"probing",
 	"fire branding of bolts",
-	
+	"Iai (120)",
 };
 
 
@@ -2078,9 +2120,12 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 
 	u32b f1, f2, f3;
 
-
+	
 	/* Unused parameter */
 	(void)len;
+
+	
+	
 
 	/* Extract the "known" and "random" flags */
 	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
@@ -2189,9 +2234,9 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_ORC))
+	if (f1 & (TR1_SLAY_SENTAI))
 	{
-		info[i++] = "It is especially deadly against orcs.";
+		info[i++] = "It is especially deadly against sentai.";
 	}
 	if (f1 & (TR1_SLAY_TROLL))
 	{
@@ -2503,29 +2548,56 @@ int identify_random_gen(const object_type *o_ptr, cptr *info, int len)
  */
 bool identify_fully_aux(const object_type *o_ptr)
 {
-	int i, j, k;
-	cptr info[128];
 
+	int i, j, k, x, y;
+	cptr info[128];
+	cptr art_desc = NULL;
+
+
+
+
+	if (artifact_p(o_ptr) && object_known_p(o_ptr))
+	{
+	 art_desc = a_text + a_info[o_ptr->name1].text;
+	}
+
+
+	
 
 	/* Fill the list of descriptions */
 	i = identify_fully_aux2(o_ptr, OBJECT_FLAGS_KNOWN, info, 128);
 
+
 	/* No special effects */
-	if (!i) return (FALSE);
+	if (!i && !art_desc) return (FALSE);
+
 
 
 	/* Save screen */
 	screen_save();
 
 
+	
 	/* Erase the screen */
 	Term_clear();
 
+	/* Dump the artifact description */
+	 if (art_desc)
+	 {
+	 roff(art_desc);
+	 roff("\n\n");
+	 }
+	
+	 /* Locate the cursor */
+	 Term_locate(&x, &y);
+	
+
 	/* Label the information */
-	prt("     Item Attributes:", 1, 0);
+	prt(" Item Attributes:", y, 0);
 
 	/* Dump some info */
-	for (k = 2, j = 0; j < i; j++)
+	for (k = y + 1, j = 0; j < i; j++)
+
 	{
 		/* Show the info */
 		prt(info[j], k++, 0);
@@ -2554,6 +2626,9 @@ bool identify_fully_aux(const object_type *o_ptr)
 
 	/* Load screen */
 	screen_load();
+
+	/* Hack -- Redraw Screen */
+/*	do_cmd_redraw();*/
 
 
 	/* Gave knowledge */
@@ -2672,6 +2747,7 @@ s16b wield_slot(const object_type *o_ptr)
 		}
 
 		case TV_CLOAK:
+		case TV_COSTUME:
 		{
 			return (INVEN_OUTER);
 		}
@@ -2697,6 +2773,7 @@ s16b wield_slot(const object_type *o_ptr)
 			return (INVEN_FEET);
 		}
 		case TV_MECHA:
+		case TV_TEMP_MECHA:
 		{
 			return (INVEN_MECHA);
 		}
@@ -3213,6 +3290,8 @@ void show_equip(void)
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
+
+		
 		o_ptr = &inventory[i];
 
 		/* Is this item acceptable? */
@@ -3255,6 +3334,8 @@ void show_equip(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+
+		
 		/* Get the index */
 		i = out_index[j];
 

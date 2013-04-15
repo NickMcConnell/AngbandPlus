@@ -3968,12 +3968,12 @@ bool is_quest(int level)
 	}
 
 	/* Hack -- if dl 99, do not put stairs in quest mode until
-	 * at least 3 of the quests are solved */
+	 * at least 3 of the quests are solved 
 	if ((level == 99) && (p_ptr->what_game_type == GAME_TYPE_QUEST))
 	{
 		
 		return (!(quests_complete()));
-	}
+	}*/
 
 	/* Nope */
 	return (FALSE);

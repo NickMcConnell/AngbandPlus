@@ -816,11 +816,12 @@ bool set_mimic(void)
 
 	/* Hack -- Force good values */
 	/*v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;*/
-	if (p_ptr->csp < 1) {
+	if ((p_ptr->csp < 1) && (!(cp_ptr->flags & CF_FREE_MIMIC))) {
 		msg_print ("You revert back to normal!");
 		notice = TRUE;
 		p_ptr->mimic = FALSE;
 		p_ptr->max_powers = 0;
+		
 	}
 
 
@@ -903,6 +904,246 @@ bool set_s_sayian(int v)
 
 	/* Use the value */
 	p_ptr->s_sayian = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_chakra_gate(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	
+
+	/* Open */
+	if (v)
+	{
+		
+		if (!p_ptr->chakra_gate)
+		{
+			msg_print("An aura of chakra starts to wrap around you!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->chakra_gate)
+		{
+			msg_print("The aura of chakra dissipates.");
+
+			/* Open Gate */
+			if (p_ptr->chakra_gate_level == 1)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev);
+			}
+
+			/* Energy Gate */
+			if (p_ptr->chakra_gate_level == 2)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev);
+			}
+
+			/* Life Gate */
+			if (p_ptr->chakra_gate_level == 3)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 2);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev);
+				take_hit(p_ptr->lev, "Opening the Life Gate");
+			}
+
+			/* Wound Gate */
+			if (p_ptr->chakra_gate_level == 4)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 2);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev);
+				take_hit(p_ptr->lev * 2, "Opening the Wound Gate");
+				(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_CON);
+			}
+
+			/* Forest Gate */
+			if (p_ptr->chakra_gate_level == 5)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 2);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev * 2);
+				take_hit(p_ptr->lev * 3, "Opening the Forest Gate");
+				(void)dec_stat(A_STR, 15 + randint(10), TRUE);
+				(void)dec_stat(A_CON, 15 + randint(10), TRUE);
+				(void)do_dec_stat(A_DEX);
+
+			}
+
+			/* View Gate */
+			if (p_ptr->chakra_gate_level == 6)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 2);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev * 2);
+				take_hit(p_ptr->lev * 4, "Opening the View Gate");
+				(void)dec_stat(A_STR, 50, TRUE);
+				(void)dec_stat(A_CON, 50, TRUE);
+				(void)dec_stat(A_DEX, 50, TRUE);
+
+			}
+
+			/* Insanity Gate */
+			if (p_ptr->chakra_gate_level == 7)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 5);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev * 5);
+				take_hit(p_ptr->lev * 5, "Opening the Insanity Gate");
+				(void)dec_stat(A_STR, 100, TRUE);
+				(void)dec_stat(A_CON, 100, TRUE);
+				(void)dec_stat(A_DEX, 100, TRUE);
+
+			}
+
+			/* Death Gate -- If you survive...good for you */
+			/* View Gate */
+			if (p_ptr->chakra_gate_level == 8)
+			{
+				(void)set_slow(p_ptr->slow + p_ptr->lev * 5);
+				(void)set_paralyzed(p_ptr->paralyzed + p_ptr->lev * 5);
+				take_hit(p_ptr->lev * 20, "Opening the Death Gate, moron.");
+				(void)dec_stat(A_STR, 300, TRUE);
+				(void)dec_stat(A_CON, 300, TRUE);
+				(void)dec_stat(A_DEX, 300, TRUE);
+
+			}
+
+
+			p_ptr->chakra_gate_level = 0;
+			notice = TRUE;
+
+
+
+		}
+	}
+
+	/* Use the value */
+	p_ptr->chakra_gate = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_armor_of_sand(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	
+
+	/* Open */
+	if (v)
+	{
+		
+		if (!p_ptr->armor_of_sand)
+		{
+			msg_print("Sand starts to gather around you...");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->armor_of_sand)
+		{
+			msg_print("The armor of sand disperses!");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->armor_of_sand = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/* Set "p_ptr->wu_transform", notice changes */
+
+bool set_wu_transform(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->wu_transform)
+		{
+			msg_print("You transform into a Wu!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->wu_transform)
+		{
+			msg_print("You shrivel up back to normal!");
+			notice = TRUE;
+
+			/* Overexertion from Wu */
+			(void)take_hit(p_ptr->chp - 1, "Exertion from Wu transform");
+			p_ptr->csp = 0;
+			(void)set_paralyzed(20);
+			
+
+		}
+	}
+
+	/* Use the value */
+	p_ptr->wu_transform = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2138,7 +2379,7 @@ bool set_drunk(int v)
 			/* Sober */
 			case 0:
 			{
-				msg_print("You feel sober again");
+				msg_print("You feel better.");
 				break;
 			}
 
@@ -2288,6 +2529,10 @@ void check_experience(void)
 	case G_DRUNK:
 		i_ptr->name2 = EGO_BRAND_POIS;
 		break;
+
+	case G_SAND:
+		i_ptr->name2 = EGO_ATTACKS;
+		break;
 			}
 
 			object_copy(&inventory[INVEN_WIELD], i_ptr);
@@ -2431,6 +2676,43 @@ bool quests_complete(void)
 /*
  * Create magical stairs after finishing a quest monster.
  */
+static void build_quest_up_stairs(int y, int x)
+{
+	int ny, nx;
+
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	msg_print("A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_LESS);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+}
+
+
+/*
+ * Create magical stairs after finishing a quest monster.
+ */
 static void build_quest_stairs(int y, int x)
 {
 	int ny, nx;
@@ -2463,7 +2745,6 @@ static void build_quest_stairs(int y, int x)
 	/* Fully update the flow */
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 }
-
 
 /*
  * Handle the "death" of a monster.
@@ -2543,6 +2824,13 @@ void monster_death(int m_idx)
 
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
+
+	/* Generate upstair cases for some monsters */
+	if (r_ptr->flags8 & (RF8_UP_QUESTOR))
+	{
+		build_quest_up_stairs(y, x);
+
+	}
 
 
 	/* Mega-Hack -- drop "winner" treasures */
@@ -2640,8 +2928,16 @@ void monster_death(int m_idx)
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
+	/* Hack -- If in wilderness, allow good drops */
+	if (p_ptr->location != W_TOWN)
+	{
+		object_level = r_ptr->level;
+	}
+
+	else {
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
+	}
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
@@ -2705,7 +3001,7 @@ void monster_death(int m_idx)
 		if (q_list[i].level) total++;
 	}
 
-	/* Build magical stairs */
+	/* Build magical stairs 
 	if (p_ptr->what_game_type == GAME_TYPE_CLASSICAL){
 	build_quest_stairs(y, x);
 	}
@@ -2718,7 +3014,8 @@ void monster_death(int m_idx)
 		}
 
 	}
-
+	*/
+	build_quest_stairs(y, x);
 	
 
 	/* Nothing left, game over... */
@@ -2837,15 +3134,21 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Player level */
 		div = p_ptr->lev;
 
-		/* Quest monster? */
-		if (m_ptr->r_idx == VEGETA)
+		/* Duel Monster? */
+		if (r_ptr->flags8 & (RF8_DUEL_LAST))
 		{
 			p_ptr->normal_quests[QUEST_BATTLE_ARENA] = STATUS_COMPLETE;
 		}
 
+
 		if (m_ptr->r_idx == FUMA)
 		{
 			p_ptr->normal_quests[QUEST_TOKYO_TOWER] = STATUS_COMPLETE;
+		}
+
+		if (m_ptr->r_idx == KASIDORI)
+		{
+			p_ptr->normal_quests[QUEST_PAGODA] = STATUS_COMPLETE;
 		}
 
 		
@@ -3555,6 +3858,24 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 
 	/* Result */
 	return (b_i);
+}
+
+/*
+ * Hack -- determine if a given location is a monster
+ */
+static bool target_set_interactive_accept_monster(int y, int x)
+{
+	
+	/* Visible monsters */
+	if (cave_m_idx[y][x] > 0)
+	{
+		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+
+		/* Visible monsters */
+		if (m_ptr->ml) return (TRUE);
+	}
+
+	return (FALSE);
 }
 
 
@@ -4773,4 +5094,88 @@ bool confuse_dir(int *dp)
 	return (FALSE);
 }
 
+/*
+ * Set "p_ptr->delivery_time", notice observable changes
+ */
+bool set_delivery_time(int v)
+{
+	bool notice = FALSE;
 
+		int i, x, y;
+		int y1 = p_ptr->py;
+		int x1 = p_ptr->px;
+
+	
+
+	
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->delivery_time)
+		{
+			
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->delivery_time)
+		{
+			/* Look for a location */
+			for (i = 0; i < 20; ++i)
+			{
+			/* Pick a distance */
+			int d = (i / 15) + 1;
+
+			/* Pick a location */
+			scatter(&y, &x, y1, x1, d, 0);
+
+			/* Require "empty" floor grid */
+			if (!cave_empty_bold(y, x)) continue;
+
+			/* Hack -- no summon on glyph of warding */
+			if (cave_feat[y][x] == FEAT_GLYPH) continue;
+
+			/* Okay */
+			break;
+		}
+
+	/* Failure */
+			if (i == 20) {
+				
+			return (FALSE);
+			}
+
+
+			msg_print("The courier has arrived...");
+			/* Use the value */
+			p_ptr->delivery_time = v;
+			(void)place_monster_aux(y, x, DELIVERY_BOY, FALSE, FALSE);
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->delivery_time = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}

@@ -33,14 +33,58 @@ asks if you have seen his DVDs.
 tells you to get off his land.
 yells, "Moe moe!"
 
+N:100:Vanship
+does an Immelman turn!
+
+N:111:Sailor Moon
+says, "In the name of the moon, I will punish you!"
+
+N:262:Isshiki Tsuji the Magician
+screams, "No no no, that's not right!"
+screams, "Wrong again!"
+gets nervous.
+starts shaking uncontrollably.
+
+N:274:Kyosuke Kagami
+says, "Osoi!"
+
+N:355:Ky-Kiske
+says, "Ikimasu!"
+says, "Jinrai no yuen wo oshiemashou."
+says, "Zenryoku de dekiru koto da."
+says, "Ii shinai ni shimashou."
+says, "Kuchi de itte mo muda ka."
+says, "Kikimasen!"
+
+N:395:Teddy Ruxpin
+stares at you with glowing red eyes.
+tells you to go burn things.
+turns his head in a complete 360!
+starts saying profane things.
+
+N:408:Dan Hibiki
+screams, "Yoyusu!"
+raises his fist in victory!
+
 N:442:Spike, the Cockatiel
 squawks loudly.
 says, "Spike! Spike!"
 says, "What a pretty bird!"
 
+N:464:Zappa the Posessed
+asks if you have seen Dr. Faust.
+does a stair walk.
+
 N:494:Miyamoto Musashi
 hears birds chirping.
 says, 'You cannot win.'
+
+N:516:Haejin, the Enigma
+screams out loud!
+cries loudly!
+worships Kim Jong Il.
+freaks out randomly!
+
 
 N:535:Indalecio
 says, 'I'm coming.'
@@ -54,11 +98,55 @@ tries to turn you into chocolate.
 N:556:Hisame Shizumaru
 says, 'Ei!'
 says, 'Yuusha!'
+says, 'Sorry, I have to go.'
+says, 'Gomennasai, mou ikimasu!'
 jumps and floats downwards with his umbrella.
 says, 'Are you going easy on me?  Thanks!'
 
 N:564:Smiling Bob
 smiles rather eeriely
+
+N:574:Rimururu
+laughs like a little girl.
+trips and falls on her face.
+tumbles about.
+creates a ledge of ice.
+
+N:576:Sogetsu Kazama
+says, 'Abunai desu yo!'
+
+N:577:Mina Majikina
+says, 'Lets go Chample!'
+toots her flute.
+
+N:578:Galford
+says, 'Lets go, Poppy!'
+says, 'Attack Flash!'
+says, 'I fight for Justice!'
+
+N:579:Poppy
+barks loudly!
+
+N:583:Araiguma Rascal
+chirrs loudly!
+thirrs loudly!
+yips!
+prances about!
+
+N:585:Anji Mito
+throws a butterfly!
+
+N:587:Nakoruru
+says, "In the name of mother nature, I punish you!"
+
+N:589:Megumi Kanazuki
+starts laughing aloud! 'HOHOHOHOHOHOHOHOHO!'
+
+N:591:Kankurou Nishiyama
+holds up a challenge letter
+
+N:604:Kenshiro
+screams, 'A-TA-TA-TA-TA-TA-TA-WHAAAAAAA!'
 
 N:*:Default lines
 cackles evilly.

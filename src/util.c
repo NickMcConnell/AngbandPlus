@@ -2778,6 +2778,10 @@ void c_roff(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			continue;
+
+
 		}
 
 		/* Clean up the char */
@@ -3130,6 +3134,42 @@ bool get_check(cptr prompt)
 	/* Success */
 	return (TRUE);
 }
+
+bool get_check_ninja(cptr prompt)
+{
+	char ch;
+
+	char buf[80];
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Hack -- Build a "useful" prompt */
+	strnfmt(buf, 78, "%.70s", prompt);
+
+	/* Prompt for it */
+	prt(buf, 0, 0);
+
+	/* Get an acceptable answer */
+	while (TRUE)
+	{
+		ch = inkey();
+		if (quick_messages) break;
+		if (ch == ESCAPE) break;
+		if (strchr("NnTt", ch)) break;
+		bell("Illegal response to the question!");
+	}
+
+	/* Erase the prompt */
+	prt("", 0, 0);
+
+	/* Normal negation */
+	if ((ch != 'T') && (ch != 't')) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
 
 bool get_check_chi_warrior(cptr prompt)
 {

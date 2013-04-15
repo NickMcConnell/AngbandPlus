@@ -49,6 +49,10 @@
 # If an activation is given then the artifact must also have the
 # ACTIVATE flag.
 
+# 'O' is for the origin of the artifact.
+
+# 'P' is the artifact description
+
 #
 # Note that changing or adding artifacts will have influence on the
 # random artifacts and will break savefile compatibility!
@@ -56,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 
@@ -69,6 +73,8 @@ P:0:1d1:0:0:0
 F:ACTIVATE | 
 F:INSTA_ART
 A:ILLUMINATION:10:10
+O:Chushingura
+D:A lantern used by the Ako Ronin during their vendetta.
 
 
 # The Gem of the Twilight
@@ -80,6 +86,8 @@ P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | 
 F:INSTA_ART
 A:MAGIC_MAP:50:50
+O:Lupin the Third
+D:A pink shining gem that people say hold the key to an immense treasure.
 
 
 # The White Go Stone of Fujiwara Sai
@@ -93,6 +101,8 @@ F:INT | WIS | HIDE_TYPE |
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
 F:INSTA_ART
 A:CLAIRVOYANCE:100:100
+O:Hikaru no Go
+D:A Go stone used by the legendary Fujiwara Sai.
 
 
 # The Pendant of Rena Lanford
@@ -104,6 +114,9 @@ F:CON | INT | HIDE_TYPE |
 F:ACTIVATE | RES_FIRE | LITE | 
 F:INSTA_ART
 A:PROT_EVIL:225:225
+O:Star Ocean the Second Story
+D:A shining pendant of mysterious origins.  Supposedly the quadritc key 
+D:of the Sorcery Globe.
 
 
 # The Amulet of Laputa
@@ -116,16 +129,22 @@ F:SEE_INVIS | FREE_ACT | ACTIVATE |
 F:RES_ACID | RES_COLD | RES_ELEC | 
 F:INSTA_ART
 A:DISP_EVIL:300:300
+O:Laputa
+D:Sheeta's mysterious amulet, indicating that she is indeed the Princess
+D:of Laputa.
 
 
 # The Necklace 'Shikon no tama'
 
-N:6:Shikon No Tama
+N:6:'Shikon No Tama'
 I:40:12:5
 W:70:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
+O:Inu Yasha
+D:The mysterious demon jewel that will grant incredible powers to any 
+D:demon that comes in contact with it.
 
 
 # Artifact 7 is unused
@@ -140,6 +159,9 @@ F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
 F:RES_POIS | ACTIVATE |
 F:INSTA_ART
 A:IDENTIFY:10:0
+O:Japanese Culture/History
+D:The signet ring of Hojo Tokimune, a valiant ruler during the era of
+D:Genghis Khan.
 
 
 # The Ring of Utena
@@ -151,11 +173,13 @@ F:CON | CHR | HIDE_TYPE |
 F:ACTIVATE | 
 F:INSTA_ART
 A:HASTE2:150:150
+O:Utena
+D:The ring that grants Utena magical powers.
 
 
-# The Ring of Power 'Natsu no Chikara'
+# The Ring of Power 'Natsu'
 
-N:10:'Natsu no Chikara'
+N:10:'Natsu'
 I:45:34:1
 W:70:30:2:100000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -164,11 +188,13 @@ F:SLOW_DIGEST | REGEN |
 F:SUST_STR | SUST_DEX | IM_FIRE | RES_FIRE | 
 F:INSTA_ART
 A:FIRE3:225:225
+O:Maintainer
+D:The power of the season of Summer is said to be stored in this ring.
 
 
-# The Ring of Power 'Yuki no Chikara'
+# The Ring of Power 'Fuyu'
 
-N:11:'Yuki no Chikara'
+N:11:'Fuyu'
 I:45:35:2
 W:80:40:2:200000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -177,11 +203,13 @@ F:FEATHER | REGEN |
 F:SUST_INT | SUST_WIS | IM_COLD | RES_COLD | 
 F:INSTA_ART
 A:FROST5:325:325
+O:Maintainer
+D:The power of the season of Winter is said to be stored in this ring.
 
 
-# The Ring 'Haru no Chikara'
+# The Ring 'Haru'
 
-N:12:'Haru no Chikara'
+N:12:'Haru'
 I:45:36:3
 W:90:50:2:300000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -191,11 +219,13 @@ F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX |
 F:IM_ELEC | RES_ELEC | 
 F:INSTA_ART
 A:ELEC2:425:425
+O:Maintainer
+D:The power of the season of Spring is said to be stored in this ring.
 
 
 # The Ring of Power (The One Ring)
 
-N:13:'Kami no Chikara'
+N:13:of Hakaida
 I:45:37:5
 W:100:100:2:5000000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -207,6 +237,9 @@ F:SUST_STR | SUST_DEX | SUST_CON |
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
 A:BIZZARE:450:450
+O:Jinzo Ningen Kikaida
+D:The ring of ultimate power, once wielded by the legendary evil android 
+D:Hakaida, who has Dr. Komyoji's brain in his head.
 
 
 # Artifact 14 is unused
@@ -215,10 +248,10 @@ A:BIZZARE:450:450
 # Artifact 15 is unused
 
 
-# The Multi-Hued Dragon Scale Mail 'Hoshi no Kami'
+# The Multi-Hued Dragon Scale Mail of Dr. Komyoji
 # Was (-2) INT | WIS | STEALTH | HIDE_TYPE, (-3) to hit, 30 pounds (?)
 
-N:16:'Hoshi no Kami'
+N:16:of Dr. Komyoji
 I:38:6:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
@@ -228,12 +261,15 @@ F:RES_POIS | RES_LITE | RES_DARK |
 F:LITE | SEE_INVIS | AGGRAVATE | 
 F:ACTIVATE
 A:STAR_BALL:1000:0
+O:Jinzo Ningen Kikaida
+D:Dr. Komyoji, the creator of Jiro, made many other robots with transformation 
+D:armor such as this.
 
 
-# The Power Dragon Scale Mail 'Bladeturner'
+# The Power Dragon Scale Mail of Mount Phoenix
 # Was (-3) DEX | HIDE_TYPE, (-4) to hit, 50 pounds (?)
 
-N:17:'Bladeturner'
+N:17:of Mount Phoenix
 I:38:30:0
 W:95:3:600:500000
 P:50:2d4:-8:0:35
@@ -243,14 +279,17 @@ F:RES_LITE | RES_DARK | RES_BLIND | RES_CONFU | RES_SOUND |
 F:RES_SHARD | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_DISEN | 
 F:ACTIVATE
 A:RAGE_BLESS_RESIST:400:0
+O:Ranma 1/2
+D:The mighty dragon scale mail found on top of Mount Phoenix which is the 
+D:source of the Jusenkyo water springs.
 
 
 # Artifact 18 is unused
 
 
-# The Adamantite Plate Mail 'Soulkeeper'
+# The Adamantite Plate Mail of Gaoh
 
-N:19:'Soulkeeper'
+N:19:of Gaoh
 I:37:30:2
 W:75:9:420:300000
 P:40:2d4:-4:0:20
@@ -260,6 +299,9 @@ F:RES_CONFU |
 F:RES_ACID | RES_COLD | RES_DARK | RES_NETHR | RES_NEXUS | RES_CHAOS | 
 F:ACTIVATE
 A:HEAL2:888:0
+O:Samurai Showdown
+D:When Gaoh gets raged, he dons on this armor and turns into a completely 
+D:invincible warrior.
 
 
 # The Full Plate Armour of Wildfire
@@ -270,7 +312,10 @@ W:30:3:300:50000
 P:25:2d4:0:0:25
 F:STR | CON | DEX |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:RES_SOUND | RES_CONFU | RES_NEXUS
+F:RES_SOUND | RES_CONFU | RES_NEXUS | IM_FIRE |
+O:Ronin Warriors
+D:The legendary armor of Ryo of the Wildfire, which transformed him into 
+D:a mighty warrior.
 
 
 # The Metal Brigandine Armour of the Ironworks
@@ -281,22 +326,28 @@ W:30:3:200:30000
 P:19:1d4:0:0:25
 F:STR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONFU | RES_SOUND
+O:Mononoke Hime
+D:This brilliant piece of armor was forged deep in the Ironworks of the 
+D:forest.  It was designed to fight against the Tatarigami.
 
 
-# The Mithril Chain Mail 'Keichou'
+# The Mithril Chain Mail 'Ubukinu'
 
-N:22:'Keichou'
+N:22:'Ubukinu'
 I:37:20:4
 W:40:3:150:105000
 P:28:1d4:-1:0:20
 F:STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:PHASE:2:0
+O:Japanese Culture/History
+D:The armor passed down from generation to generation by the Minamoto family.  
+D:This armor is the heirloom and symbol of Genji.
 
 
-# The Mithril Plate Mail of Echizen-no-Kami
+# The Mithril Plate Mail 'Karaginu'
 
-N:23:of Echizen-no-Kami
+N:23:'Karaginu'
 I:37:25:4
 W:40:3:250:150000
 P:35:2d4:-3:0:25
@@ -304,16 +355,21 @@ F:STR | CHR | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK | 
 F:RES_DISEN | ACTIVATE
 A:GENOCIDE:500:0
-
+O:Japanese Culture/History
+D:This armor is passed down from generation to generation by the Taira family.  
+D:The bearer is the rightful ruler of the Heike family, the enemies of the Genji.  
 
 # The Chain Mail of Hard Rock
 
-N:24:of of Hard Rock
+N:24:of Hard Rock
 I:37:4:2
 W:20:3:220:32000
 P:14:10d10:-2:0:15
 F:STR | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARD | RES_NEXUS
+O:Ronin Warriors
+D:The legendary armor of Kento of the Hardrock.  This armor transformed 
+D:him into a mighty warrior.
 
 
 # The Kimono 'Rulue'
@@ -325,6 +381,9 @@ P:16:1d4:0:0:20
 F:INT | WIS | CON | HIDE_TYPE | 
 F:RES_FIRE | RES_LITE | RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
 A:TRAP_DOOR_DEST:10:0
+O:Puyo Puyo
+D:The Kimono worn by the evil sorceress Rulue, who wished harm to the
+D: poor heroine Arle Naja.
 
 
 # Artifact 26 is unused
@@ -338,6 +397,8 @@ W:20:3:5:85000
 P:4:0d0:0:0:20
 F:STR | INT | STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
+O:Dragonball Z
+D:The legendary Gi of Gokuu, the mightiest warrior in the universe.
 
 
 # The School Uniform of Sakura Kasugano
@@ -348,39 +409,50 @@ W:20:3:10:25000
 P:11:0d0:0:0:25
 F:DEX | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_SHARD | RES_FIRE
+O:Capcom vs SNK
+D:A cute little school girl's uniform worn by Sakura, the girl who 
+D:above all else, wanted to be the best street fighter in the world.
 
 
 # Artifact 29 is unused
 
 
-# The Small Metal Shield of Torajirou
+# The Small Metal Shield of Kain
 
-N:30:of Torajirou
+N:30:of Kain
 I:34:3:4
 W:40:6:65:60000
 P:3:1d2:0:0:25
 F:STR | CON | HIDE_TYPE | 
 F:RES_CONFU |
 F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
+O:Final Fantasy
+D:When Kain the Dragoon needs to block an incoming attack, he uses a 
+D:small shield to parry attacks aimed at him and his friends.
 
 
-# The Large Leather Shield of Joe
+# The Large Leather Shield of Cassandra
 
-N:31:of Joe
+N:31:of Cassandra
 I:34:4:0
 W:30:3:60:12000
 P:4:1d2:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
+O:Soul Calibur
+D:The viking-like shield that Cassandra wields in her duels.
 
 
-# The Large Metal Shield of the Toyotomi
+# The Large Metal Shield of Link
 
-N:32:of the Toyotomi
+N:32:of Link
 I:34:5:0
 W:40:9:120:160000
 P:5:1d3:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT | 
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
+O:The Legend of Zelda
+D:Link can buy this shield from anywhere from 90 to 160 rupees in one 
+D:of the cave stores.
 
 
 # Artifact 33 is unused
@@ -398,16 +470,20 @@ F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS |
 F:LITE | SEE_INVIS | TELEPATHY | 
 F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
 F:INSTA_ART
+O:Joke
+D:It doesn't have to make sense if it's powerful.
 
+# The Iron Crown of Cross
 
-# The Iron Crown of Joman
-
-N:35:of Joman
+N:35:of Cross
 I:33:10:-25
 W:40:12:20:0
 P:0:1d1:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE
+O:Star Ocena the Second Story
+D:An iron crown worn by the King of Cross, who oversees the province 
+D:of Rena Lanford's hometown of Arlia.
 
 
 # The Hard Leather Cap of the Kabuki
@@ -418,6 +494,8 @@ W:20:2:15:50000
 P:2:0d0:0:0:10
 F:INT | WIS | HIDE_TYPE | 
 F:RES_BLIND | TELEPATHY
+O:Japanese Culture/History
+D:This leather cap brings inspiration to aspiring actors.
 
 
 # The Metal Cap of Ieyasu
@@ -427,6 +505,9 @@ I:32:3:3
 W:10:2:20:22000
 P:3:1d1:0:0:12
 F:WIS | CHR | HIDE_TYPE
+O:Japanese Culture/History
+D:The helmet of the legendary Tokugawa Ieyasu, who started the
+D:Tokugawa dynasty.
 
 
 # The Steel Helm of Musashi
@@ -438,38 +519,50 @@ P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_NEXUS | RES_CONFU | 
 F:RES_FEAR |
+O:Japanese Culture/History
+D:This is a seldom used helm of the legendary warrior Miyamoto 
+D:Musashi, who is renowned for his swordsmanship.
 
 
-# The Iron Helm 'Kibou'
+# The Iron Helm of Jiro
 
-N:39:'Kibou'
+N:39:of Jiro
 I:32:5:4
 W:40:12:75:300000
 P:5:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND | 
 F:LITE | SEE_INVIS | TELEPATHY
+O:Jinzo Ningen Kikaida
+D:Jiro's motorcycle helmet must be made out of iron because of the 
+D:extreme abuse that it seems to take without scratches.
 
 
-# The Iron Helm 'Yoshiki'
+# The Iron Helm of Kikaida
 
-N:40:'Yoshiki'
+N:40:of Kikaida
 I:32:5:2
 W:20:5:75:100000
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
 F:RES_BLIND | SEE_INVIS | ACTIVATE
 A:DETECT:55:55
+O:Jinzo Ningen Kikaida
+D:When Kikaida morphs, he turns into an android with a thick head 
+D:brimming with glowing circuitry.
 
 
 # The Iron Helm of Kira Yoshinaka
 
 N:41:of Kira Yoshinaka
 I:32:5:-25
-W:20:5:75:0
+W:20:0:75:0
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
 F:SEE_INVIS | AGGRAVATE | LIGHT_CURSE
+O:Japanese Culture/History
+D:The seldom used helm of Kira Yoshinaka, who caused the downfall
+D:of the Ako clan.
 
 
 # The Golden Crown of Cephiro
@@ -482,6 +575,8 @@ F:INT | WIS | CON | HIDE_TYPE |
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
 A:HEAL1:500:0
+O:Magic Knight Rayearth
+D:This is the crown that signfies who is the ruler of Cephiro.
 
 
 # Artifact 43 is unused
@@ -495,71 +590,90 @@ W:5:45:10:10000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:RESIST:111:0
+O:Capcom vs SNK
+D:This cloak was once worn by the evil Akido master Geese Howard.
 
 
-# The Cloak 'Izuna'
+# The Cloak of the Great Saiya-man
 
-N:45:'Izuna'
+N:45:of the Great Saiya-man
 I:35:1:2
 W:5:45:10:13000
 P:1:0d0:0:0:4
 F:INT | WIS | STEALTH | HIDE_TYPE | 
 F:RES_ACID | ACTIVATE
 A:SLEEP:55:0
+O:Dragonball Z
+D:The cloak worn by the great Saiya-man, who is also known as 
+D:Gohan, a powerful Saiya-jin.
 
 
-# The Cloak of Meijin
+# The Cloak of Dio
 
-N:46:of Meijin
+N:46:of Dio
 I:35:1:3
 W:10:90:10:35000
 P:1:0d0:0:0:18
 F:DEX | CHR | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
-A:RECHARGE1:70:0
+A:TELEPORT:45:0
+O:Jojo's Bizzare Adventure
+D:WRRRRYYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!
 
 
-# The Cloak of Honninbou Shuusaku
+# The Cloak of Professor Gill
 
-N:47:of Honninbou Shuusaku
+N:47:of Professor Gill
 I:35:1:3
 W:5:20:10:45000
 P:1:0d0:0:0:10
 F:INT | WIS | HIDE_TYPE |
 F:FREE_ACT | RES_ACID | SEE_INVIS |
-F:RES_FEAR | RES_CONFU |
+F:RES_FEAR | RES_CONFU | RES_DARK |
+O:Jinzo Ningen Kikaida
+D:Professor Gill, the legendary evil robot builder of DARK, wore 
+D:a dark cloak such as this.
 
 
-# The Cloak 'Bouya'
+# The Cloak of Leon DS Geeste
 
-N:48:'Bouya'
+N:48:of Leon DS Geeste
 I:35:1:3
 W:3:10:10:11000
 P:1:0d0:0:0:15
 F:STEALTH | 
 F:RES_ACID | ACTIVATE
-A:TELEPORT:45:0
+A:RECHARGE1:70:0
+O:Star Ocean the Second Story
+D:The science cloak of the bratty little genius and Hearldry 
+D:user Leon hakase.
 
 
-# The Shadow Cloak of Yoshiwara
+# The Shadow Cloak of Rera
 
-N:49:of Yoshiwara
+N:49:of Rera
 I:35:6:2
 W:40:40:5:45000
 P:6:0d0:0:0:20
 F:INT | WIS | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 A:RESTORE_LIFE:450:0
+O:Samurai Showdown
+D:This cloak was worn by Nakoruru's evil twin, Rera.  Unlike 
+D:Nakoruru, she was quite violent by nature.
 
 
-# The Shadow Cloak of Hojo Tokisuke
+# The Shadow Cloak of the Akatsuki
 
-N:50:of Hojo Tokisuke
+N:50:of the Akatsuki
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
 F:STEALTH | 
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
+O:Naruto
+D:A dark black cloak adorned with red flowers worn by the members 
+D:of the Akatsuki.
 
 
 # Artifact 51 is unused
@@ -573,6 +687,9 @@ W:10:6:5:36000
 P:1:0d0:8:8:15
 F:STR | CON | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
+O:Final Fantasy
+D:These gloves produced by the magical Pochepoke allow its user to
+D: become a capable warrior.
 
 
 # The Set of Leather Gloves 'Hadou'
@@ -583,6 +700,8 @@ W:10:3:5:30000
 P:1:0d0:0:0:10
 F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
 A:MISSILE:2:0
+O:Capcom vs SNK
+D:These gloves allow one to master the power of the Hadouken.
 
 
 # The Set of Gauntlets 'Natsu'
@@ -593,9 +712,11 @@ W:10:20:25:15000
 P:2:1d1:0:0:15
 F:RES_FIRE | ACTIVATE
 A:FIRE1:8:8
+O:Maintainer
+D:The power of the season of Summer is said to be embedded in these gauntlets.
 
 
-# The Set of Gauntlets 'Yuki'
+# The Set of Gauntlets 'Fuyu'
 
 N:55:'Yuki'
 I:31:2:0
@@ -603,6 +724,8 @@ W:10:20:25:13000
 P:2:1d1:0:0:15
 F:RES_COLD | ACTIVATE
 A:FROST1:7:7
+O:Maintainer
+D:The power of the season of Winter is said to be embedded in these gauntlets.
 
 
 # The Set of Gauntlets 'Haru'
@@ -613,6 +736,8 @@ W:10:20:25:11000
 P:2:1d1:0:0:15
 F:RES_ELEC | ACTIVATE
 A:LIGHTNING_BOLT:6:6
+O:Maintainer
+D:The power of the season of Spring is said to be embedded in these gauntlets.
 
 
 # The Set of Gauntlets 'Aki'
@@ -623,6 +748,8 @@ W:10:20:25:12000
 P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE
 A:ACID1:5:5
+O:Maintainer
+D:The power of the season of Autumn is said to be embedded in these gauntlets.
 
 
 # The Set of Gauntlets 'Yagami'
@@ -633,28 +760,34 @@ W:10:20:25:0
 P:2:1d1:-11:-12:0
 F:STR | DEX | HIDE_TYPE | 
 F:AGGRAVATE | LIGHT_CURSE | SHOW_MODS
+O:Capcom vs SNK
+D:The cursed gauntlets of Iori Yagami, where he drew his evil Orochi powers.
 
 
-# The Set of Cesti of Otohime
+# The Set of Cesti of the Third Hokage
 
-N:59:of Otohime
+N:59:of the Third Hokage
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
 F:DEX | HIDE_TYPE | 
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 A:ARROW:90:90
+O:Naruto
+D:The Cesti used by the Third Hokage when he was defending his village.
 
 
-# The Pair of Hard Leather Boots 'Soyokaze'
+# The Pair of Hard Leather Boots of Link
 
-N:60:'Soyokaze'
+N:60:of Link
 I:30:3:15
 W:40:120:40:400000
 P:3:1d1:0:0:20
 F:STEALTH | SPEED | 
 F:FREE_ACT | RES_NEXUS | RES_COLD | ACTIVATE
 A:HASTE1:200:0
+O:The Legend of Zelda
+D:Little boots that Link wore on his travels.
 
 
 # The Pair of Soft Leather Boots of Son Gohan
@@ -668,15 +801,20 @@ F:ACTIVATE | FREE_ACT |
 F:RES_CONFU |
 F:RES_NETHR | RES_CHAOS | SUST_CON
 A:REM_FEAR_POIS:5:0
+O:Dragonball Z
+D:These boots were worn by Gohan, a legendary Sayajin.
 
 
-# The Pair of Metal Shod Boots of Hinata Wakame
+# The Pair of Metal Shod Boots of Hinata Wakaba
 
-N:62:of Hinata Wakame
+N:62:of Hinata Wakaba
 I:30:6:3
 W:30:25:80:24000
 P:6:30d30:0:0:20
 F:STR | CON | HIDE_TYPE
+O:Rival Schools
+D:These cute little boots for girls were worn by Hinata Wakaba, 
+D:who would use them to kick people repeatedly.
 
 
 # Artifact 63 is unused
@@ -691,6 +829,8 @@ P:0:2d5:12:15:0
 F:INT | DEX | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_GIANT | SLAY_EVIL | FREE_ACT | 
 F:SEE_INVIS | SHOW_MODS
+O:Dagger of Kamui
+D:Speaks for itself.
 
 
 # The Dagger of Mononoke Hime
@@ -700,38 +840,50 @@ I:23:4:4
 W:20:80:12:100000
 P:0:2d4:10:15:5
 F:DEX | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_DARK | SUST_DEX | 
+F:SLAY_EVIL | SLAY_TROLL | SLAY_SENTAI | FREE_ACT | RES_DARK | SUST_DEX | 
 F:SHOW_MODS
+O:Mononoke Hime
+D:The dagger used by San, the Mononoke Hime.
 
 
 # The Katana 'Wildfire'
 
 N:66:of Wildfire
 I:23:20:0
-W:4:10:12:22000
+W:4:10:120:22000
 P:0:3d4:4:6:0
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | SLAY_MECHA | BLESSED |
 A:FIRE2:8:8
+O:Ronin Warriors
+D:The legendary Katana of Ryo of the Wildfire, which transformed him 
+D:into a legendary warrior.  Virtue is bestowed upon the wielder.
 
 
 # The Bastard Sword of Kale
 
 N:67:of Kale
 I:23:21:0
-W:5:10:12:23000
+W:5:10:140:23000
 P:0:3d4:4:6:0
-F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
+F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS | LIGHT_CURSE |
 A:FROST1:7:7
+O:Ronin Warriors
+D:The rival sword of Halo was used by Kale to inflict cold and darkness 
+D:to all those opposed to Talpa.  Obedience is bestowed upon the wielder.
 
 
 # The Bastard Sword of Halo
 
 N:68:of Halo
 I:23:21:0
-W:5:10:12:23000
-P:0:3d4:4:6:0
+W:5:10:140:23000
+P:0:3d4:4:6:2
+F:WIS |
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 A:LIGHTNING_BOLT:5:5
+O:Ronin Warriors
+D:The rival sword of Kale was worn by Sage of the Halo, who brought light 
+D:to the darkening world.  Wisdom is bestowed upon the wielder.
 
 
 # The Dagger of Chichiushi
@@ -740,7 +892,9 @@ N:69:of Chichiushi
 I:23:4:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
-F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
+F:SLAY_SENTAI | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
+O:Samurai Showdown
+D:Nakoruru's dagger which she wore to combat the foes of nature.
 
 
 
@@ -754,17 +908,24 @@ F:DEX | HIDE_TYPE |
 F:BRAND_COLD | RES_COLD | SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:SHOW_MODS
 A:FROST2:5:5
+O:Samurai Showdown
+D:Rimururu's dagger which she wore to emulate her sister.  Like her, it 
+D:is branded with the power of frost.
 
 
-# The Bastard Sword 'Mitsurugi'
+# The Bastard Sword 'Kusanagi'
 
-N:71:'Mitsurugi'
+N:71:'Kusanagi'
 I:23:21:5
 W:30:15:140:100000
 P:0:5d4:-20:20:0
 F:CON | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN | 
-F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
+F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS | BRAND_POIS | 
+F:RES_POIS |
+O:Japanese Culture/History
+D:The venomous sword taken from the body of a snake.  It is rumored that the wielder 
+D:will be capable of destroying armies with this sword if he masters it.
 
 
 # The Broad Sword 'Masamune'
@@ -774,24 +935,29 @@ I:23:16:4
 W:50:45:150:550000
 P:0:3d5:20:12:0
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | 
-F:SLAY_DEMON | SLAY_ORC | FREE_ACT | RES_COLD | FEATHER | 
+F:SLAY_DEMON | SLAY_SENTAI | FREE_ACT | RES_COLD | FEATHER | 
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
 A:FROST4:500:0
+O:Japanese Culture/History
+D:A broad sword forged by the legendary swordmaker Masamune.
 
 
 # The Broad Sword of Perseverance
 
 N:73:of Perseverance
 I:23:16:10
-W:45:20:3500:4000000
+W:45:20:2750:4000000
 P:75:75d75:99:99:75
 F:SEARCH |
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | HEAVY_CURSE | 
-F:SUMMON | AGGRAVATE | SLAY_ANIMAL | BRAND_FIRE |
+F:SUMMON | AGGRAVATE | SLAY_ANIMAL | BRAND_FIRE | SLAY_MECHA |
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |  
 F:RES_LITE | LITE | DUST |
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | SLAY_EVIL | IMPACT |
+F:SLAY_DEMON | SLAY_TROLL | SLAY_SENTAI | SLAY_EVIL | IMPACT | TELEPORT |
 F:SHOW_MODS
+O:Maintainer
+D:This sword refuses to accept its master without a tantrum.  However, 
+D:those who can master it will have immense powers beyond their comprehension.
 
 
 # The Katana 'Tetsusaiga'
@@ -801,7 +967,10 @@ I:23:20:1
 W:20:90:150:45000
 P:0:3d4:12:16:0
 F:SEARCH | RES_BLIND |
-F:BRAND_ELEC | SLAY_ORC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
+F:BRAND_ELEC | SLAY_SENTAI | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
+O:Inu Yasha
+D:The legendary Tetsusaiga, sword of Inu Yasha, which creates incredible 
+D:wind shears.
 
 
 # The Broad Sword of Lafarga
@@ -811,8 +980,10 @@ I:23:16:5
 W:20:20:650:50000
 P:0:2d5:10:15:0
 F:STR | 
-F:SLAY_EVIL | BRAND_ELEC | RES_ELEC | 
+F:SLAY_EVIL | BRAND_ELEC | RES_ELEC | SLAY_MECHA |
 F:SLOW_DIGEST | SHOW_MODS
+O:Magic Knight Rayearth
+D:This absurdly large sword nevertheless has the incredible powers of lightning.
 
 
 # The Two-Handed Sword of Donovan
@@ -823,19 +994,25 @@ W:30:30:200:100000
 P:0:3d6:13:17:0
 F:STR | CON | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_TROLL | SLAY_EVIL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
+O:Darkstalkers
+D:A large two handed sword worn by the demon hunter Donovan.
 
 
-# The Two-Handed Sword 'Shima'
+# The Two-Handed Sword of Yoshitsune
 
-N:77:'Shima'
+N:77:of Yoshitsune
 I:23:25:4
 W:30:180:250:200000
 P:0:4d6:19:21:0
 F:STR | CHR | INFRA | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | 
-F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
+F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_SENTAI | 
 F:RES_CONFU |
 F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
+O:Japanese Culture/History
+D:This two handed sword gleams a pale red in anticipation for the blood it wishes for.  
+D:Once wielded by the great Yoshitsune, legendary swordsman, this sword was allgedly 
+D:bestowed to him by the Tengu.
 
 
 # The Two-Handed Sword 'Wakizashi'
@@ -847,6 +1024,8 @@ P:0:4d6:40:60:50
 F:SPEED | 
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 A:SEPPUKU:10:0
+O:Maintainer
+D:This sword is typically used in ritual suicide.
 
 # The Katana 'Yasomagatsu Hinotachi'
 
@@ -858,6 +1037,9 @@ F:DEX | STEALTH | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
 F:SEE_INVIS | REGEN | SHOW_MODS | HEAVY_CURSE | ACTIVATE |
 A:SOKN:400:0
+O:Capcom vs SNK
+D:The sword of Hibiki curses its user for forcing it to draw blood.  Only the
+D:best swordsmen in the world are allowed to use this sword.
 
 # The Executioner's Sword of Oishi Kuranosuke
 
@@ -867,18 +1049,25 @@ W:40:15:260:100000
 P:0:6d5:18:19:0
 F:STR | STEALTH | SPEED | HIDE_TYPE |
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
-F:SLAY_ORC | SEE_INVIS | SHOW_MODS
+F:SLAY_SENTAI | SEE_INVIS | SHOW_MODS
+O:Chushingura
+D:The sword used by Oishi Kuranosuke to cut off the head of Kira Yoshinaka.
 
 
 # The Katana 'Zantetsuken'
 
 N:81:'Zantetsuken'
 I:23:20:6
-W:30:25:50:60000
+W:30:25:50:95000
 P:2:8d8:0:0:0
 F:DEX | BLOWS | STEALTH | SPEED | SEARCH | HIDE_TYPE | 
-F:FREE_ACT | SEE_INVIS | SLAY_EVIL |
-F:SUST_DEX | SHOW_MODS
+F:FREE_ACT | SEE_INVIS | SLAY_EVIL | SLAY_MECHA |
+F:SUST_DEX | 
+F:ACTIVATE | SHOW_MODS
+A:IAI:25:0
+O:Lupin the Third
+D:The legendary Katana of Goemon is forged from a metal that can cut through 
+D:any material in the universe.  It can even cut lightning bolts in half.
 
 
 # The Katana 'Fugudoku'
@@ -892,6 +1081,9 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL |
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS
 A:TYPHOON:300:0
+O:Samurai Showdown
+D:The sword of the legendary warrior Haohamaru carries the power of the wind 
+D:and the spirit of a warrior.
 
 
 # The Long Sword 'Ouma'
@@ -901,10 +1093,12 @@ I:23:17:4
 W:20:40:130:80000
 P:0:4d5:24:34:5
 F:STR | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_SENTAI | FREE_ACT | 
 F:SUST_CON | FEATHER | FREE_ACT | 
 F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:FIRE2:400:0
+O:Star Ocean the Second Story
+D:The sword of Dias Flac forged by the legendary Sam Gamgee of Hobbit fame.
 
 
 # The Long Sword 'Crimson Diablos'
@@ -916,6 +1110,9 @@ P:0:2d5:8:12:0
 F:STR | CON | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
 F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS
+O:Star Ocean the Second Story
+D:The modified form of Ouma after several special customizations with rare 
+D:metals.  This sword is beautiful as it is deadly.
 
 
 # The Long Sword 'Kouma'
@@ -925,10 +1122,14 @@ I:23:17:2
 W:20:15:130:60000
 P:0:3d5:12:17:0
 F:STR | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | SLAY_EVIL | FEATHER | SEE_INVIS | SHOW_MODS
-F:BRAND_FIRE | FREE_ACT |
+F:SLAY_TROLL | SLAY_SENTAI | SLAY_EVIL | FEATHER | SEE_INVIS | SHOW_MODS
+F:BRAND_FIRE | FREE_ACT | SLAY_MECHA |
 F:RES_FIRE | SUST_CON | ACTIVATE
 A:PROT_EVIL:225:225
+O:Star Ocean the Second Story
+D:The sister sword of Ouma, forged by the legendary Sam Gamgee of Hobbit fame, 
+D:was worn by Claude C. Kenni, the Warrior of Light.  This sword grants power 
+D:to its wielder as long as he has something important to protect.
 
 
 # The Rapier 'Laroach'
@@ -939,6 +1140,8 @@ W:15:8:40:25000
 P:0:2d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
 F:SEE_INVIS | FREE_ACT |
+O:Samurai Showdown
+D:The foil used by Charlotte, the best swordswoman in all of Europe.
 
 
 # The Sabre of Lantis
@@ -948,18 +1151,23 @@ I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
 F:BLOWS | 
-F:BRAND_ELEC | RES_ELEC | SHOW_MODS
+F:BRAND_ELEC | RES_ELEC | SHOW_MODS | SLAY_MECHA |
+O:Magic Knight Rayearth
+D:The sword worn by Lantis.
 
 
-# The Small Sword 'Seiryu'
+# The Small Sword of Yoshitomo
 
-N:88:'Seiryu'
+N:88:of Yoshitomo
 I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
 F:STR | DEX | CON | BLOWS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_SENTAI | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+O:Japanese Culture/History
+D:This small sword was handed from Yoshitomo to his wife Tokiwa, who before his 
+D:death asked his wife to take care of his children.
 
 
 # The Scimitar 'Cipher'
@@ -970,30 +1178,38 @@ W:20:8:130:30000
 P:0:2d5:9:11:0
 F:DEX | BLOWS | DUST |
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS | 
-F:SHOW_MODS
+F:SHOW_MODS| SLAY_MECHA |
+O:Marvel vs Capcom
+D:The sword used by the ninja Strider Hiryuu.
 
 
-# The Short Sword of Tokugawa Yoshinobu
+# The Short Sword of Treize Kushirinada
 
-N:90:of Tokugawa Yoshinobu
+N:90:of Treize Kushirinada
 I:23:10:2
 W:20:8:80:25000
 P:0:1d7:3:7:0
-F:INT | WIS | BLOWS | 
+F:INT | WIS | BLOWS | SLAY_MECHA |
 F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
+O:Gundam Wing
+D:The short sword Treize used to defend his honor against Wu-Fei.
 
 
-# The Blade of Chaos 'Doomcaller'
+# The Blade of Chaos 'Onimaru'
 # Was (-5) CON | HIDE_TYPE, +0 armor
 
-N:91:'Doomcaller'
+N:91:'Onimaru'
 I:23:30:0
 W:70:25:180:200000
 P:0:6d5:18:28:-50
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
-F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:SLAY_SENTAI | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CONFU |
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
+O:Noodle Fighter Miki (Muteki Kanban Musume)
+D:When Miki's metal noodle delivery box was run over by a truck, she 
+D:gave it new life by reforging it into a large blade of death with 
+D:the words 'Onimaru' engraved on it.
 
 
 # The Katana 'Hikari no Ken'
@@ -1006,17 +1222,22 @@ F:ACTIVATE |
 F:SEE_INVIS | LITE | RES_LITE | RES_COLD |
 F:SUST_DEX | SHOW_MODS
 A:STAR_BALL:400:0
+O:Slayers
+D:The sword of Gourry has the power of light and is almost unparalleled 
+D:in power.
 
 
-# The Beaked Axe of Tokugawa Tsunayoshi
+# The Beaked Axe of Takamura
 
-N:93:of Tokugawa Tsunayoshi
+N:93:of Takamura
 I:22:10:3
 W:20:15:180:40000
 P:0:2d6:8:10:0
 F:WIS | CON | HIDE_TYPE | 
 F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
 A:DRAIN_LIFE2:400:0
+O:Hajime no Ippo
+D:Takamura used this axe to chop firewood and get stronger.
 
 
 # The Glaive of Pain
@@ -1026,28 +1247,36 @@ I:22:13:0
 W:30:25:190:50000
 P:0:15d17:0:30:0
 F:SHOW_MODS
+O:Angband
+D:This weapon brings immense pain to whomever gets struck by it.
 
 
-# The Halberd 'Shinji'
+# The Bo of Sophie
 
-N:95:'Shinji'
+N:95:of Sophie
 I:22:15:3
 W:20:8:190:22000
-P:0:3d5:6:9:0
+P:0:1d9:6:9:0
 F:CHR | HIDE_TYPE | DUST |
 F:BRAND_FIRE | SLAY_UNDEAD | SLAY_GIANT | RES_FIRE | RES_SOUND | 
 F:FEATHER | SEE_INVIS | SHOW_MODS
+O:Howl's Moving Castle
+D:A little walking stick that Sophie used when she was turned into 
+D:an old lady by the Witch of the Waste.
 
 
-# The Pike 'Showa'
+# The Sai of Tomoe Gozen
 
-N:96:'Showa'
+N:96:of Tomoe Gozen
 I:22:8:2
 W:20:15:160:32000
 P:0:2d5:10:12:10
 F:INT | HIDE_TYPE | DUST |
 F:BRAND_COLD | BRAND_FIRE | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | 
 F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS
+O:Japanese Culture/History
+D:This sai was once used by the legendary female samurai, Tomoe Gozen, 
+D:who was skilled with both spear and sword.
 
 
 # The Spear of Ohtaka Gengo
@@ -1060,11 +1289,14 @@ F:STR| INT | WIS | DEX | STEALTH | SPEED | HIDE_TYPE |
 F:BRAND_COLD | SLAY_EVIL | FREE_ACT | RES_COLD | 
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
 A:TYPHOON:500:0
+O:Chushingura
+D:The spear used by Ohtaka Gengo, subordinate of Oishi Kuranosuke, 
+D:during the Ako ronin vendetta.
 
 
-# The Spear 'Tagami Nashi'
+# The Spear of Kyoshiro
 
-N:98:'Tagami Nashi'
+N:98:of Kyoshiro
 I:22:2:4
 W:15:45:50:60000
 P:0:1d6:15:15:0
@@ -1072,6 +1304,9 @@ F:INT | INFRA | HIDE_TYPE | DUST |
 F:BRAND_FIRE | SLAY_GIANT | RES_FIRE | RES_LITE | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
 A:STONE_TO_MUD:5:0
+O:Samurai Showdown
+D:The spear once wielded by Kyoshiro, a slightly strange Kabuki actor 
+D:who says strange things.
 
 
 # The Spear of Mori Motonari
@@ -1082,16 +1317,22 @@ W:15:12:50:30000
 P:0:1d6:11:13:0
 F:STEALTH | 
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
+O:Japanese Culture/History
+D:A spear used by the legendary Mori Motonari, who at one point, 
+D:conquered half of Japan and became the strongest feudal lord.
 
 
-# The Lance of Mito
+# The Lance of the Hententmon
 
-N:100:of Mito
+N:100:of the Hententmon
 I:22:20:2
 W:20:23:360:55000
 P:0:3d8:3:21:0
 F:DEX | HIDE_TYPE | 
-F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
+F:SLAY_EVIL | SLAY_TROLL | SLAY_SENTAI | SEE_INVIS | SHOW_MODS
+O:Joke
+D:This lance is covered with a weird sticky goo.
+
 
 
 # The Great Axe of Kohei
@@ -1101,77 +1342,97 @@ I:22:25:3
 W:30:90:230:150000
 P:0:4d4:10:20:15
 F:CON | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_SENTAI | FREE_ACT | 
 F:RES_CONFU | DUST |
 F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
+O:Joke
+D:The great axe of the legendary mumbling Japanese guy, who cursed 
+D:people under his breath before he committed "psychic murder".
 
 
-# The Great Axe of Asano
+# The Nunchaku of Bruce Lee
 
-N:102:of Asano
-I:22:25:2
+N:102:of Bruce Lee
+I:21:18:2
 W:30:120:230:200000
 P:0:4d4:15:18:8
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
-F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
+F:SLAY_SENTAI | FREE_ACT | IM_COLD | RES_COLD | 
 F:SEE_INVIS | ACTIVATE | 
 F:BLESSED | SHOW_MODS
 A:MASS_GENOCIDE:1000:0
+O:Joke
+D:Fight like water!
 
 
-# The Battle Axe of Tsukasa
+# The Tonfa Stick of Eagle
 
-N:103:of Tsukasa
-I:22:22:3
+N:103:of Eagle
+I:21:14:3
 W:30:15:170:90000
 P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | 
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+F:SLAY_DEMON | SLAY_TROLL | SLAY_SENTAI | FREE_ACT | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER | 
 F:SEE_INVIS | REGEN | SHOW_MODS
+O:Capcom vs SNK
+D:A Tonfa Stick beloning to Eagle, a British warrior who has some 
+D:crazy custom combos in the hands of the combofiend.
 
 
-# The Battle Axe 'Moo Ichido'
+# The Lochaber Axe of Faust
 
-N:104:'Moo Ichido: Is This A Pen?'
-I:22:22:1
-W:30:15:170:21000
-P:0:2d8:4:3:0
+N:104:of Faust
+I:22:28:1
+W:30:15:250:21000
+P:0:3d8:4:3:0
 F:STR | DEX | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
+F:SLAY_TROLL | SLAY_SENTAI | ACTIVATE | SHOW_MODS
 A:CURE_WOUNDS:3:3
+O:Guilty Gear
+D:A extremely long scalpel that may as well be a Lochaber axe, this 
+D:weapon was carried by Faust, a ghost doctor who wears a bag on his 
+D:head.
 
 
-# The Lochaber Axe 'This Is A Pen'
+# The Shinai of Kaoru
 
-N:105:'This Is A Pen'
-I:22:28:0
-W:30:8:250:30000
+N:105:of Kaoru
+I:21:12:0
+W:30:8:80:30000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
+O:Rurouni Kenshin
+D:Since the Kamiya dojo is not allowed to use bladed swords due to 
+D:the Meiji laws against Samurai, Kaoru teaches fencing with a shinai.
 
 
-# The Broad Axe 'Ohnuki'
+# The Nagitana of Gaoh
 
-N:106:'Ohnuki'
-I:22:11:3
+N:106:of Gaoh
+I:22:4:3
 W:20:8:160:50000
 P:0:2d6:13:19:0
 F:CON | HIDE_TYPE | DUST |
-F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
+F:SLAY_EVIL | SLAY_TROLL | SLAY_GIANT | SLAY_SENTAI | 
 F:SEE_INVIS | SHOW_MODS
+O:Samurai Showdown
+D:The choice weapon of Gaoh, a mighty warrior who cheats.
 
 
-# The Trident of Wrath
+# The Ball and Chain of Chang
 
-N:107:of Wrath
-I:22:5:2
+N:107:of Chang
+I:21:6:2
 W:15:35:300:90000
 P:0:3d8:16:18:0
 F:STR | DEX | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
 F:BLESSED | SHOW_MODS
+O:Capcom vs SNK
+D:Chang's extremely large ball and chain which he keeps wrapped 
+D:around himself.
 
 
 # The Trident of Torrent
@@ -1186,6 +1447,10 @@ F:IM_ACID | RES_ACID | RES_NETHR |
 F:SEE_INVIS | SLOW_DIGEST | REGEN | ACTIVATE | 
 F:BLESSED | SHOW_MODS
 A:TELE_AWAY:150:0
+O:Ronin Warriors
+D:The Trident of Cye of the Torrent which transformed him into a 
+D:legendary warrior with the power of the sea. Faith is imparted on
+D: its wielder.
 
 
 # The Scythe of Testament
@@ -1198,6 +1463,10 @@ F:STR | CON | STEALTH | HIDE_TYPE | DUST |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
 F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:WOR:200:0
+O:Guilty Gear
+D:The Shinigami is very overrated.  That, however, doesn't 
+D:mean that his Scythe doesn't inflict pain....especially in 
+D:the hands of a shonen....
 
 
 # Artifact 110 is unused
@@ -1213,13 +1482,15 @@ I:21:50:0
 W:100:1:1000:500000
 P:0:9d9:5:25:10
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | 
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
+F:SLAY_DEMON | SLAY_TROLL | SLAY_SENTAI | RES_ACID | RES_ELEC | RES_FIRE | 
 F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+O:Joke
+D:Congrats on finding this.
 
 
-# The Flail 'Nozomi'
+# The Flail of Axl-Low
 
-N:112:'Nozomi'
+N:112:of Axl-Low
 I:21:13:2
 W:20:8:150:55000
 P:0:3d6:6:8:0
@@ -1227,38 +1498,49 @@ F:STEALTH |
 F:SLAY_EVIL | BRAND_FIRE | RES_FIRE | RES_CONFU | ACTIVATE | 
 F:SHOW_MODS
 A:CONFUSE:15:0
+O:Guilty Gear
+D:The weapon of choice of Axl-Low, a gear who bears a striking resemblance to 
+D:Axl Rose of Guns N' Roses fame.
 
 
-# The Two-Handed Flail 'Raigoken'
+# The Nunchaku 'Raikiri'
 
-N:113:'Raigoken'
+N:113:'Raikiri'
 I:21:18:4
 W:45:38:300:160000
 P:0:3d6:5:18:0
 F:STR | HIDE_TYPE | DUST |
-F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
+F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_SENTAI | 
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
+O:Maintainer
+D:Also known as the lightning cutter.
 
 
-# The Morning Star 'Kinose'
+# The Shinai 'Kamoserio'
 
-N:114:'Kinose'
+N:114:'Kamoserio'
 I:21:12:4
 W:20:30:150:30000
 P:0:2d6:8:22:0
 F:STR | STEALTH | HIDE_TYPE | 
-F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
+F:SLAY_ANIMAL | SLAY_TROLL | SLAY_SENTAI | RES_NEXUS | SEE_INVIS | 
 F:SHOW_MODS
+O:Joke
+D:This was once wielded by a legendary duck warrior who demonstrated to 
+D:people that low tier people like Ky Kiske can be cool too.
 
 
-# The Morning Star 'Hihoshi'
+# The Whip of Belmont
 
-N:115:'Hihoshi'
-I:21:12:0
+N:115:of Belmont
+I:21:2:0
 W:20:15:150:35000
 P:0:2d6:5:7:2
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIRE2:100:0
+O:Castlevania
+D:A whip branded with fire, once wielded by the mighty 
+D:Simon Belmont.
 
 
 # The Mace 'Nun'
@@ -1270,6 +1552,8 @@ P:0:3d4:12:12:0
 F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | RES_ELEC | DUST |
 F:ACTIVATE | SHOW_MODS
 A:HASTE1:100:100
+O:Maintainer
+D:This mace improves ones reflexes and self control.
 
 
 # The War Hammer 'Baka Hammer'
@@ -1282,19 +1566,23 @@ F:WIS | HIDE_TYPE |
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON | 
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS | 
 F:SEE_INVIS | SHOW_MODS
+O:Joke
+D:The hammer often used to smack stupid people upside the head.
 
 
 # The Quarterstaff of Triumph!
 
 N:118:of Triumph
 I:21:3:10
-W:45:10:2500:3000000
+W:45:10:2250:3000000
 P:10:50d50:99:99:10
 F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | HEAVY_CURSE | 
 F:SUMMON | AGGRAVATE | SLAY_ANIMAL | BRAND_FIRE |
 F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |  
-F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | SLAY_EVIL | IMPACT |
+F:SLAY_DEMON | SLAY_TROLL | SLAY_SENTAI | SLAY_EVIL | IMPACT | TELEPORT |
 F:SHOW_MODS
+O:Maintainer
+D:Take away the Sword of Shame!  Bring in the Quarterstaff of Triumph!
 
 
 
@@ -1306,7 +1594,9 @@ W:20:18:150:20000
 P:0:1d9:3:5:0
 F:STR | DEX | HIDE_TYPE | DUST |
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
-
+O:Japanese Culture/History
+D:The staff of the legendary stone monkey, who could transform at will 
+D:and ride on clouds.
 
 
 # The Quarterstaff of the Ancients
@@ -1316,22 +1606,27 @@ I:21:3:4
 W:30:105:150:130000
 P:0:2d9:10:13:0
 F:INT | WIS | CHR | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_SENTAI | 
 F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:PROBE:20:0
+O:Ronin Warriors
+D:The Quarterstaff of the Ancient, used by priests to banish evil from 
+D:a given place.
 
+# The Bamboo Umbrella of Kusunose Toru
 
-# The Mace of Disruption 'Deathwreaker'
-
-N:121:'Deathwreaker'
-I:21:20:6
+N:121:of Kusunose Toru
+I:21:14:6
 W:80:38:400:400000
 P:0:7d8:18:18:0
-F:STR | TUNNEL | HIDE_TYPE | 
+F:STR | TUNNEL | HIDE_TYPE | SLAY_MECHA |
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | BRAND_FIRE | 
 F:RES_CONFU |
 F:IM_FIRE | RES_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE | 
 F:SHOW_MODS
+O:Joke
+D:Mighty coder and translator by day, maniacal Shizumaru cosplayer by 
+D:night, this is his umbrella.
 
 
 # The Lucerne Hammer (Interdimensional)
@@ -1341,8 +1636,11 @@ I:21:10:4
 W:20:15:120:30000
 P:0:5d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 
-F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
+F:BRAND_COLD | SLAY_SENTAI | RES_COLD | RES_LITE | LITE | REGEN | 
 F:ACTIVATE | SHOW_MODS
+O:Ranma 1/2
+D:The magical, rather large hammer that Akane Tendou seems to pull 
+D:out of nowhere to keep Ranma in line.
 
 
 
@@ -1356,7 +1654,11 @@ I:19:13:1
 W:40:20:40:35000
 P:0:0d0:20:22:0
 F:DEX | STEALTH | SHOTS | HIDE_TYPE | 
-F:RES_DISEN | SHOW_MODS
+F:RES_DISEN | SHOW_MODS | HOLD_LIFE |
+O:Ronin Warriors
+D:The bow of Rowan of the Strata turned him into a legendary archer 
+D:who fought against the tyranny of Talpa.  Life is imparted onto its
+D: wielder.
 
 
 # The Long Bow of Ashitaka
@@ -1367,27 +1669,149 @@ W:30:20:40:20000
 P:0:0d0:50:70:0
 F:STR | DEX | SPEED | MIGHT | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
+O:Mononoke Hime
+D:This bow, combined with Ashitaka's cursed arm, allowed Ashitaka to 
+D:decapitate people with a single arrow.
 
 
-# The Light Crossbow 'Hi no Yumi'
+# The Light Crossbow of Mina
 
-N:126:'Hi no Yumi'
+N:126:of Mina
 I:19:23:10
 W:50:25:110:50000
 P:0:0d0:10:14:0
 F:SPEED | 
 F:RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIREBRAND:999:0
+O:Samurai Showdown
+D:This bow is used by Mina, an annoying archer who has an annoying 
+D:baby named Chample following her.
 
 
 # Artifact 127 is unused
 
-# The Katana 'Masamune'
+# The Katana 'Higekiri'
 
-N:128:'Masamune'
+N:128:'Higekiri'
 I:23:20:0
 W:90:25:100:100000
 P:0:20d20:0:60:0
 F:BLESSED | MIGHT | SLAY_DEMON | SLAY_DRAGON | AGGRAVATE |
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ANIMAL | RES_FEAR | SHOW_MODS
+O:Japanese Culture/History
+D:The legendary heirloom of the Genji, this weapon was once wrought by 
+D:Yoshitomo of old.
+
+## New Artifacts for 060 ##
+
+# The Long Sword of Ky-Kiske
+
+N:129:of Ky-Kiske
+I:23:17:4
+W:20:15:200:100000
+P:0:3d5:15:15:0
+F:WIS | CHR | BLESSED |
+F:BRAND_ELEC | IM_ELEC | RES_ELEC | DUST |
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | RES_BLIND |
+F:RES_LITE | HOLD_LIFE | LITE |
+F:ACTIVATE | SHOW_MODS
+A:LIGHTNING_BOLT:2:0
+O:Guilty Gear
+D:A Holy Order sword owned by Ky-Kiske.  Despite its rather strange 
+D:color and handle, an electric charge shears through it every now 
+D:and then, making it a menace to all those who are un-holy.
+
+# The Katana of Yumeji
+
+N:130:of Yumeji
+I:23:20:2
+W:10:15:120:55000
+P:0:3d4:30:0:0
+F:DEX | SPEED |
+F:FREE_ACT | SEE_INVIS | RES_CONFU |
+F:ACTIVATE | SHOW_MODS
+A:IAI:25:0
+O:Samurai Showdown
+D:The katana used by the iaido specialist, Yumeji.  It has a lot of 
+D:persimmon stains on it due to repeated persimmon chopping and 
+D:also has a slight purple aura surrounding it.
+
+# The School Uniform of the Lolis
+
+N:131:of the Lolis
+I:36:1:8
+W:10:3:10:25000
+P:1:0d0:0:0:8
+F:CHR | HIDE_TYPE | SUST_CHR |
+F:RES_LITE | RES_DARK | RES_CONFU |
+O:Joke
+D:A typical school uniform worn by lolis in every Ero-Game, which 
+D:not only makes them look cute but also prevents them from being
+D:raped by hententmons....until it's taken off.
+
+# The Cloak of Rimururu
+
+N:132:of Rimururu
+I:35:1:3
+W:25:10:10:35000
+P:1:0d0:0:0:4
+F:CHR | SUST_CHR |
+F:RES_COLD | IM_COLD |
+O:Samurai Showdown
+D:A cute white cloak that Rimururu use to wear while traveling and sometimes 
+D:while fighting as well.
+
+# The Pair of Soft Leather Boots 'Winged'
+
+N:133:'Winged'
+I:30:2:0
+W:25:10:20:35000
+P:2:1d1:0:0:0
+F:RES_FIRE | IM_FIRE |
+F:FREE_ACT | FEATHER |
+O:The Legend of Zelda
+D:Boots with wings.  They allow Link to walk on lava without worry.
+
+
+# The Martial arts gi of Mr. Karate
+
+N:134:of Mr.Karate
+I:36:4:1
+W:10:3:5:15000
+P:4:0d0:0:0:4
+F:SPEED | DEX |
+F:RES_ACID | FREE_ACT |
+O:King of Fighters
+D:A light gi worn by Mr. Karate, who is really Takuma in disguise.
+
+# The Martial arts gi of Makoto
+
+N:135:of Makoto
+I:36:4:5
+W:75:20:5:95000
+P:4:0d0:0:0:30
+F:SPEED | STR | DEX | AGGRAVATE | 
+F:SUST_STR | SUST_INT |
+F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:FREE_ACT | FEATHER | HOLD_LIFE |
+F:RES_COLD | RES_ACID | RES_POIS | RES_DARK |
+F:RES_NETHR | RES_DISEN | RES_CHAOS | ACTIVATE |
+A:PHASE:2:0
+O:Street Fighter
+D:A light and gaudy gi worn by Makoto, which provides such protection as 
+D:to render the wielder strong.
+
+# The Whip of Kurama
+
+N:136:of Kurama
+I:21:2:3
+W:20:15:150:35000
+P:0:3d6:25:7:2
+F:DEX | SPEED | FREE_ACT | BLOWS |
+F:BRAND_POIS | SLAY_MECHA | SHOW_MODS
+O:Yu Yu Hakusho
+D:A whip made of roses; each thorn being capable of cutting through any 
+D:material known to man.
+
+
 

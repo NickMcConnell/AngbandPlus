@@ -936,7 +936,7 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_SLAY_DRAGON) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DEMON) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_TROLL) p = (p * 5) / 4;
-			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
+			if (a_ptr->flags1 & TR1_SLAY_SENTAI) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
@@ -1162,6 +1162,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
 		else if (r2 < 38) sval = SV_MORNING_STAR;
 		else if (r2 < 45) sval = SV_FLAIL;
+		else if (r2 < 50) sval = SV_BAMBOO_UMBRELLA;
 		else if (r2 < 55) sval = SV_LEAD_FILLED_MACE;
 		else if (r2 < 80) sval = SV_BALL_AND_CHAIN;
 		else if (r2 < 120) sval = SV_TWO_HANDED_FLAIL;
@@ -1499,20 +1500,20 @@ static void add_ability(artifact_type *a_ptr)
 				}
 				else if (r < 59)
 				{
-					a_ptr->flags1 |= TR1_SLAY_ORC;
+					a_ptr->flags1 |= TR1_SLAY_SENTAI;
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
 				}
 				else if (r < 63)
 				{
 					a_ptr->flags1 |= TR1_SLAY_TROLL;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
+					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_SENTAI;
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_GIANT;
 				}
 				else if (r < 67)
 				{
 					a_ptr->flags1 |= TR1_SLAY_GIANT;
-					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_ORC;
+					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_SENTAI;
 					if (rand_int(2) == 0) a_ptr->flags1 |= TR1_SLAY_TROLL;
 				}
 				else if (r < 72) a_ptr->flags3 |= TR3_SEE_INVIS;

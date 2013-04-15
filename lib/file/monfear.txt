@@ -28,6 +28,9 @@
 #
 # Entries by Matt Graham, Andrew Hill, and Topi Ylinen
 
+N:111:Sailor Moon
+screams, 'Kyaa!'
+
 N:442:Spike
 squawks very loudly!
 assumes an attack position!
@@ -44,6 +47,17 @@ says, "Why?  What is the significance of my existance?"
 N:556:Hisame Shizumaru
 says, 'Gomennasai, mou ikimasu!'
 says, 'Sorry, I have to go.'
+
+N:587:Nakoruru
+screams, 'Kyaa!'
+screams, 'Yada!'
+
+N:589:Megumi Kanazuki
+screams, 'Fukaku!'
+
+N:591:Kankurou Nishiyama
+waves a challenge letter at you!
+screams, 'Idiot!  I am strong!  STRONG!'
 
 N:*:Default lines
 says, 'I am too young to die.'

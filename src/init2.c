@@ -900,8 +900,8 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
 		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
-		{ TV_FOOD, SV_FOOD_RATION },
+		{ TV_SHURIKEN, SV_SHURIKEN_SHURIKEN },
+		{ TV_SHURIKEN, SV_SHURIKEN_KUNAI },
 		{ TV_FOOD, SV_FOOD_BISCUIT },
 		{ TV_FOOD, SV_FOOD_JERKY },
 		{ TV_FOOD, SV_FOOD_JERKY },
@@ -931,7 +931,7 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_DIGGING, SV_PICK },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
-		{ TV_CLOAK, SV_CLOAK }
+		{ TV_COSTUME, SV_COSTUME }
 	},
 
 	{
@@ -1027,7 +1027,7 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_HAFTED, SV_MORNING_STAR },
 
 		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_FLAIL },
+		{ TV_HAFTED, SV_BAMBOO_UMBRELLA },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
@@ -1804,6 +1804,32 @@ void init_angband(void)
 	FILE *fp;
 
 	char buf[1024];
+	char choose[1024];
+	char txt[1024];
+	char myBuf[20];
+
+		/* Init RNG */
+	if (Rand_quick)
+	{
+		u32b seed;
+
+		/* Basic seed */
+		seed = (time(NULL));
+
+#ifdef SET_UID
+
+		/* Mutate the seed on Unix machines */
+		seed = ((seed >> 3) * (getpid() << 1));
+
+#endif
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+
+		/* Seed the "complex" RNG */
+		Rand_state_init(seed);
+	}
+	
 
 
 	/*** Verify the "news" file ***/
@@ -1835,8 +1861,17 @@ void init_angband(void)
 	/* Clear screen */
 	Term_clear();
 
+	/* Random select title screen! ^_^ */
+	
+	strcpy(choose, "news");
+	strcpy(txt,".txt");
+	sprintf(myBuf, "%d", randint(MAX_TITLE_SCREENS));
+	strcat(choose, myBuf);
+	strcat(choose,txt);
+
+	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+	path_build(buf, 1024, ANGBAND_DIR_FILE, choose);
 
 	/* Open the News file */
 	fp = my_fopen(buf, "r");
@@ -2037,6 +2072,7 @@ void cleanup_angband(void)
 	C_FREE(l_list, z_info->r_max, monster_lore);
 	C_FREE(m_list, z_info->m_max, monster_type);
 	C_FREE(o_list, z_info->o_max, object_type);
+
 
 #ifdef MONSTER_FLOW
 

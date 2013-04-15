@@ -14,6 +14,72 @@
 
 #define MAX_COMMENT_1	6
 
+
+
+/*
+ * A structure to hold a tval and its description
+ */
+typedef struct tval_desc
+{
+	int tval;
+	cptr desc;
+	bool requestable;
+	
+} tval_desc;
+
+/*
+ * A list of tvals and their textual names
+ * I could write a function to do this too, but hard coding it seems to be faster.
+ * Perhaps in the future I will re-write this so it isn't hard-coded
+ */
+static const tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword",				TRUE		},
+	{ TV_POLEARM,           "Polearm",				TRUE		},
+	{ TV_HAFTED,            "Hafted Weapon",		TRUE		},
+	{ TV_BOW,               "Bow",					TRUE		},
+	{ TV_ARROW,             "Arrows",				TRUE		},
+	{ TV_BOLT,              "Bolts",				TRUE		},
+	{ TV_SHOT,              "Shots",				TRUE		},
+	{ TV_SHURIKEN,			"Throwing Weapons",		TRUE		},
+	{ TV_SHIELD,            "Shield",				TRUE	    },
+	{ TV_CROWN,             "Crown",				TRUE        },
+	{ TV_HELM,              "Helm" ,				TRUE        },
+	{ TV_GLOVES,            "Gloves",				TRUE        },
+	{ TV_BOOTS,             "Boots",				TRUE        },
+	{ TV_MECHA,				"Mechas",				TRUE 	    },
+	{ TV_QUEST_ITEM,		"Quest Item",			FALSE       },
+	{ TV_CLOAK,             "Cloak",				TRUE        },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail",	TRUE        },
+	{ TV_HARD_ARMOR,        "Hard Armor",			TRUE        },
+	{ TV_SOFT_ARMOR,        "Soft Armor",			TRUE        },
+	{ TV_RING,              "Ring",					TRUE        },
+	{ TV_AMULET,            "Amulet",				TRUE        },
+	{ TV_COSTUME,			"Costume",				TRUE		},
+	{ TV_LITE,              "Lite",					TRUE        },
+	{ TV_POTION,            "Potion",				TRUE        },
+	{ TV_SCROLL,            "Scroll",				TRUE        },
+	{ TV_WAND,              "Wand",					TRUE        },
+	{ TV_STAFF,             "Staff",				TRUE        },
+	{ TV_ROD,               "Rod",					TRUE        },
+	{ TV_PRAYER_BOOK,       "Priest Book",			TRUE        },
+	{ TV_MAGIC_BOOK,        "Magic Book",			TRUE        },
+	{ TV_SPIKE,             "Spikes",				TRUE        },
+	{ TV_DIGGING,           "Digger",				TRUE        },
+	{ TV_CHEST,             "Chest",				TRUE        },
+	{ TV_FOOD,              "Food",					TRUE        },
+	{ TV_FLASK,             "Flask",				TRUE        },
+	{ TV_SKELETON,          "Skeletons",			FALSE       },
+	{ TV_BOTTLE,            "Empty bottle",			FALSE       },
+	{ TV_JUNK,              "Junk",					FALSE       },
+	{ TV_PARCHMENT,			"Parchment",			TRUE        },
+	{ TV_LARGE_SCROLL,		"Large scroll",			TRUE        },
+	{ 0,                    NULL,					FALSE       }
+};
+
+static char head[3] =
+{ 'a', 'A', '0' };
+
 static cptr comment_1[MAX_COMMENT_1] =
 {
 	"Okay.",
@@ -46,7 +112,7 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 	"My arse!  How about %s gold pieces?",
 	"May the fleas of 1000 orcs molest you!  Try %s gold pieces.",
 	"May your most favourite parts go moldy!  Try %s gold pieces.",
-	"May Morgoth find you tasty!  Perhaps %s gold pieces?",
+	"May Neo find you tasty!  Perhaps %s gold pieces?",
 	"Your mother was an Ogre!  Perhaps %s gold pieces?"
 };
 
@@ -120,6 +186,123 @@ static cptr comment_6[MAX_COMMENT_6] =
 	"I'm sorry, what was that?",
 	"Sorry, what was that again?"
 };
+
+/*
+ * Hack -- set this to leave the store
+ */
+static bool leave_store = FALSE;
+
+/* Current Dueling Opponent */
+static int opponent = 1;
+
+/*
+ * Get an object kind for creation (or zero)
+ *
+ * List up to 57 choices in three columns
+ */
+static int store_request_itemtype(void)
+{
+	int i, num, max_num;
+	int col, row;
+	int tval;
+
+	cptr tval_desc;
+	char ch;
+
+	int choice[60];
+
+	char buf[160];
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Print all tval's and their descriptions */
+	for (num = 0; (num < 57) && tvals[num].tval; num++)
+	{
+		if (tvals[num].requestable){
+		row = 2 + (num % 20);
+		col = 30 * (num / 20);
+		ch = head[num/20] + (num%20);
+		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		}
+	}
+
+	/* We need to know the maximal possible tval_index */
+	max_num = num;
+
+	/* Choose! */
+	if (!get_com("Request what type of object? ", &ch)) return (0);
+
+	/* Analyze choice */
+	num = -1;
+	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+
+	/* Bail out if choice is illegal */
+	if ((num < 0) || (num >= max_num) || (!(tvals[num].requestable))) return (0);
+
+	/* Base object type chosen, fill in tval */
+	tval = tvals[num].tval;
+	tval_desc = tvals[num].desc;
+
+
+	/*** And now we go for k_idx ***/
+
+	/* Clear screen */
+	Term_clear();
+
+	/* We have to search the whole itemlist. */
+	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Analyze matching items */
+		if (k_ptr->tval == tval)
+		{
+			/* Hack -- Skip instant artifacts */
+			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+			/* Hack -- Skip unsellable items */
+			if (k_ptr->cost == 0) continue;
+
+			/* Prepare it */
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			ch = head[num/20] + (num%20);
+
+			/* Get the "name" of object "i" */
+			strip_name(buf, i);
+
+			/* Print it */
+			prt(format("[%c] %s", ch, buf), row, col);
+
+			/* Remember the object index */
+			choice[num++] = i;
+		}
+	}
+
+	/* Me need to know the maximal possible remembered object_index */
+	max_num = num;
+
+	/* Choose! */
+	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+
+	/* Analyze choice */
+	num = -1;
+	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+
+	/* Bail out if choice is "illegal" */
+	if ((num < 0) || (num >= max_num)) return (0);
+
+	
+
+	/* And return successful */
+	return (choice[num]);
+}
 
 
 
@@ -322,7 +505,543 @@ static store_type *st_ptr = NULL;
  */
 static owner_type *ot_ptr = NULL;
 
+static void display_special_store(void)
+{
 
+	cptr name;
+	char duel_str[64];
+	char kumite_str[64];
+	char duel_level[128];
+	char buf[2048];
+
+	byte a1, a2;
+	char c1, c2;
+
+
+
+	sprintf(duel_str, "(%5ld AU)", (long)p_ptr->lev * DUEL_COST);
+	sprintf(kumite_str, "(%4ld AU)", (long)p_ptr->lev * KUMITE_COST);
+
+	
+	/* Forget the view */
+	forget_view();
+
+
+	/* Hack -- Increase "icky" depth */
+	character_icky++;
+
+
+	/* No command argument */
+	p_ptr->command_arg = 0;
+
+	/* No repeated command */
+	p_ptr->command_rep = 0;
+
+	/* No automatic command */
+	p_ptr->command_new = 0;
+
+	/* Clear screen */
+	Term_clear();
+
+	
+
+	put_str("Duel Guild", 3, 30);
+	
+	opponent = 1;
+		
+	while ((opponent < z_info->r_max) && (!(r_info[opponent].flags8 & (RF8_DUEL_MONSTER)) || (r_info[opponent].max_num != 1))){
+		opponent++;
+	}
+
+	
+
+	/* Ghetto error catch */
+	if (opponent == z_info->r_max)
+	{
+		opponent--;
+	}
+
+	name = (r_name + r_info[opponent].name);
+	
+	/* Get the chars */
+	c1 = r_info[opponent].d_char;
+	c2 = r_info[opponent].x_char;
+
+	/* Get the attrs */
+	a1 = r_info[opponent].d_attr;
+	a2 = r_info[opponent].x_attr;
+
+	strcpy(buf, r_text + r_info[opponent].text);
+
+	/* Did we complete all duels? */
+
+	put_str("Person who wishes to duel you:", 5, 1);
+	
+	if (p_ptr->normal_quests[QUEST_BATTLE_ARENA] == STATUS_COMPLETE)
+	{
+		put_str("Nobody....",5,33);
+	
+	}
+
+	else
+	{
+		
+		put_str(name, 5, 33);
+
+	/* Append the "standard" attr/char info */
+	Term_addstr(-1, TERM_WHITE, " ('");
+	Term_addch(a1, c1);
+	Term_addstr(-1, TERM_WHITE, "')");
+
+	/* Append the "optional" attr/char info */
+	Term_addstr(-1, TERM_WHITE, "/('");
+	Term_addch(a2, c2);
+	Term_addstr(-1, TERM_WHITE, "'):");
+
+		sprintf(duel_level, "Character's depth level: %d", r_info[opponent].level);
+		put_str(duel_level, 6, 1);
+		roff(buf);
+		
+	}
+		/* Hack -- Clear line 1 */
+		prt("", 1, 0);
+
+				
+	/* Basic commands */
+	prt(" ESC) Exit from Building.", 22, 0);
+	
+		/* Commands */
+		prt(" a) Accept Duel", 22, 31);
+		prt(" r) Request hundred man fight", 23, 31);
+		
+		prt(duel_str, 22, 47);
+		prt(kumite_str, 23, 61);
+	
+	/* Prompt */
+		prt("You may: ", 21, 0);
+
+
+}
+
+
+/* A little bit poorly written, but it'll work for now.  I'll rewrite it later I suppose*/
+static void handle_special_store(void)
+{
+	
+	display_special_store();
+
+	/* Do not leave */
+	leave_store = FALSE;
+	while (!leave_store){
+		
+	
+		/* Get a command */
+		request_command(TRUE);
+				
+
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
+
+
+	/* Parse the command */
+	switch (p_ptr->command_cmd)
+	{
+		/* Leave */
+		case ESCAPE:
+		{
+			leave_store = TRUE;
+			break;
+		}
+
+		
+		/* Ignore */
+		case '\n':
+		case '\r':
+		{
+			break;
+		}
+
+
+		/* Redraw */
+		case KTRL('R'):
+		{
+			do_cmd_redraw();
+			display_special_store();
+			break;
+		}
+
+		/* Accept Duel */
+		case 'a':
+			{
+				if (p_ptr->pending_duel)
+				{
+					msg_print("You already have a fight pending.");
+				}
+
+				else if (opponent > MACBAUER)
+				{
+					msg_print("Nobody wishes to challenge you.");
+				}
+		
+				else if (p_ptr->au >= p_ptr->lev * DUEL_COST)
+				{
+					if (opponent == MACBAUER)
+					{
+					msg_print("I must warn you that this won't even be remotely fair.");
+					
+					if (!get_check("Issue duel? "))
+					{
+						break;
+					}
+
+					else {
+					msg_print("You accept the duel.");
+					p_ptr->au -= p_ptr->lev * DUEL_COST;
+					p_ptr->pending_duel = NORMAL_DUEL;
+					p_ptr->duel_idx = opponent;
+					}
+
+					}
+
+					else {
+						msg_print("You accept the duel.");
+					p_ptr->au -= p_ptr->lev * DUEL_COST;
+					p_ptr->pending_duel = NORMAL_DUEL;
+					p_ptr->duel_idx = opponent;
+					}
+				}
+				
+				else {
+					msg_print("You do not have enough gold.");
+
+				}
+
+
+			break;		
+			}
+
+		/* Accept Kumite */
+		case 'r':
+			{
+				if (p_ptr->pending_duel)
+				{
+					msg_print("You already have a fight pending.");
+				}
+
+				else if (p_ptr->au >= p_ptr->lev * KUMITE_COST)
+				{
+					msg_print("Your request has been granted.  100 enemies await you in the Duel Arena!");
+					p_ptr->pending_duel = KUMITE_DUEL;
+					p_ptr->au -= p_ptr->lev * KUMITE_COST;
+				
+				}
+
+				else
+				{
+					msg_print("You do not have enough gold.");
+				}
+
+			break;		
+			}
+
+					
+
+		/*** Inventory Commands ***/
+
+		/* Wear/wield equipment */
+		case 'w':
+		{
+			do_cmd_wield();
+			break;
+		}
+
+		/* Take off equipment */
+		case 't':
+		{
+			do_cmd_takeoff();
+			break;
+		}
+
+
+		/* Destroy an item */
+		case 'k':
+		{
+			do_cmd_destroy();
+			break;
+		}
+
+		/* Equipment list */
+		case 'e':
+		{
+			do_cmd_equip();
+			break;
+		}
+
+		/* Inventory list */
+		case 'i':
+		{
+			do_cmd_inven();
+			break;
+		}
+
+		
+
+
+		/*** Various commands ***/
+
+		/* Identify an object */
+		case 'I':
+		{
+			do_cmd_observe();
+			break;
+		}
+
+		/* Hack -- toggle windows */
+		case KTRL('E'):
+		{
+			toggle_inven_equip();
+			break;
+		}
+
+
+
+		/*** Use various objects ***/
+
+		/* Browse a book */
+		case 'b':
+		{
+			do_cmd_browse();
+			break;
+		}
+
+		/* Inscribe an object */
+		case '{':
+		{
+			do_cmd_inscribe();
+			break;
+		}
+
+		/* Uninscribe an object */
+		case '}':
+		{
+			do_cmd_uninscribe();
+			break;
+		}
+
+
+
+		/*** Help and Such ***/
+
+		/* Help */
+		case '?':
+		{
+			do_cmd_help();
+			break;
+		}
+
+		/* Identify symbol */
+		case '/':
+		{
+			do_cmd_query_symbol();
+			break;
+		}
+
+		/* Character description */
+		case 'C':
+		{
+			do_cmd_change_name();
+			break;
+		}
+
+
+		/*** System Commands ***/
+
+		/* Hack -- User interface */
+		case '!':
+		{
+			(void)Term_user(0);
+			break;
+		}
+
+		/* Single line from a pref file */
+		case '"':
+		{
+			do_cmd_pref();
+			break;
+		}
+
+		/* Interact with macros */
+		case '@':
+		{
+			do_cmd_macros();
+			break;
+		}
+
+		/* Interact with visuals */
+		case '%':
+		{
+			do_cmd_visuals();
+			break;
+		}
+
+		/* Interact with colors */
+		case '&':
+		{
+			do_cmd_colors();
+			break;
+		}
+
+		/* Interact with options */
+		case '=':
+		{
+			do_cmd_options();
+			do_cmd_redraw();
+			display_special_store();
+			break;
+		}
+
+
+		/*** Misc Commands ***/
+
+		/* Take notes */
+		case ':':
+		{
+			do_cmd_note();
+			break;
+		}
+
+		/* Version info */
+		case 'V':
+		{
+			do_cmd_version();
+			break;
+		}
+
+		/* Repeat level feeling */
+		case KTRL('F'):
+		{
+			do_cmd_feeling();
+			break;
+		}
+
+		/* Show previous message */
+		case KTRL('O'):
+		{
+			do_cmd_message_one();
+			break;
+		}
+
+		/* Show previous messages */
+		case KTRL('P'):
+		{
+			do_cmd_messages();
+			break;
+		}
+
+		/* Check knowledge */
+		case '~':
+		case '|':
+		{
+			do_cmd_knowledge();
+			break;
+		}
+
+		/* Load "screen dump" */
+		case '(':
+		{
+			do_cmd_load_screen();
+			break;
+		}
+
+		/* Save "screen dump" */
+		case ')':
+		{
+			/*do_cmd_save_screen();*/
+			do_cmd_save_screen_html();
+			break;
+		}
+
+
+		/* Hack -- Unknown command */
+		default:
+		{
+			msg_print("That command does not work here.");
+			break;
+		}
+	}
+	
+		/* Notice stuff */
+		notice_stuff();
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* Pack Overflow XXX XXX XXX */
+		if (inventory[INVEN_PACK].k_idx)
+		{
+			int item = INVEN_PACK;
+
+			object_type *o_ptr = &inventory[item];
+
+			/* Hack -- Flee from the store */
+			if (store_num != STORE_HOME)
+			{
+				/* Message */
+				msg_print("Your pack is so full that you flee the store...");
+
+				/* Leave */
+				leave_store = TRUE;
+			}
+
+		}
+
+		/* Prompt */
+		prt("You may: ", 21, 0);
+
+	}
+
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+
+	/* Hack -- Cancel automatic command */
+	p_ptr->command_new = 0;
+
+	/* Hack -- Cancel "see" mode */
+	p_ptr->command_see = FALSE;
+
+
+	/* Flush messages XXX XXX XXX */
+	message_flush();
+
+
+	/* Hack -- Decrease "icky" depth */
+	character_icky--;
+
+
+	/* Clear the screen */
+	Term_clear();
+
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw entire screen */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+}
 
 
 
@@ -487,6 +1206,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_SHURIKEN:
 		{
 			if (cost <= 5L) size += mass_roll(5, 5);
 			if (cost <= 50L) size += mass_roll(5, 5);
@@ -717,10 +1437,12 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_FLASK:
 				case TV_SPIKE:
 				case TV_SHOT:
+				case TV_SHURIKEN:
 				case TV_ARROW:
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
+				case TV_COSTUME:
 				break;
 				default:
 				return (FALSE);
@@ -740,6 +1462,7 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_HELM:
 				case TV_SHIELD:
 				case TV_CLOAK:
+				case TV_COSTUME:
 				case TV_SOFT_ARMOR:
 				case TV_HARD_ARMOR:
 				case TV_DRAG_ARMOR:
@@ -758,6 +1481,7 @@ static bool store_will_buy(const object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_SHOT:
+				case TV_SHURIKEN:
 				case TV_BOLT:
 				case TV_ARROW:
 				case TV_BOW:
@@ -1554,6 +2278,16 @@ static void display_store(void)
 			put_str("Weight", 5, 70);
 		}
 	}
+
+	/* Duel guilds are also are exceptions, for now 
+	else if (store_num == STORE_DUELING)
+	{
+		/* Special Store exception 
+		display_special_store();
+		return;
+		
+	}
+	*/
 	
 
 	/* Normal stores */
@@ -1938,7 +2672,7 @@ static bool receive_offer(cptr pmt, s32b *poffer,
  *
  * Return TRUE if purchase is NOT successful
  */
-static bool purchase_haggle(object_type *o_ptr, s32b *price)
+static bool purchase_haggle(object_type *o_ptr, s32b *price, bool request)
 {
 	s32b cur_ask, final_ask;
 	s32b last_offer, offer;
@@ -1962,6 +2696,15 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 	/* Extract the starting offer and final offer */
 	cur_ask = price_item(o_ptr, ot_ptr->max_inflate, FALSE);
 	final_ask = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
+
+	/* 100% Price Hike for requested items */
+	if (request)
+	{
+		cur_ask = cur_ask * 2;
+		final_ask = final_ask * 2;
+
+	}
+
 
 	/* Determine if haggling is necessary */
 	noneed = noneedtobargain(final_ask);
@@ -2443,7 +3186,7 @@ static void store_purchase(void)
 		message_flush();
 
 		/* Haggle for a final price */
-		choice = purchase_haggle(i_ptr, &price);
+		choice = purchase_haggle(i_ptr, &price, FALSE);
 
 		/* Hack -- Got kicked out */
 		if (st_ptr->store_open >= turn) return;
@@ -2916,17 +3659,18 @@ static void store_examine(void)
 
 	/* Describe it fully */
 	if (!identify_fully_aux(o_ptr))
+	{
 		msg_print("You see nothing special.");
+	}
+	/* Hack to see where display bug is */
+	/*msg_print("You see nothing special.");*/
 
 	return;
 }
 
 
 
-/*
- * Hack -- set this to leave the store
- */
-static bool leave_store = FALSE;
+
 
 
 /*
@@ -2944,12 +3688,18 @@ static bool leave_store = FALSE;
 static void store_process_command(void)
 {
 
+		int which = (cave_feat[p_ptr->py][p_ptr->px] - FEAT_SHOP_HEAD);
+
+		
+
 #ifdef ALLOW_REPEAT
 
 	/* Handle repeating the last command */
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
+
+
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -3077,6 +3827,29 @@ static void store_process_command(void)
 			do_cmd_inven();
 			break;
 		}
+
+		/* Item Request */
+		case 'r':
+			{
+				if (which == STORE_B_MARKET){
+
+					if (p_ptr->delivery_time){
+						msg_print("You already have a delivery pending.");
+					}
+
+					else{
+				store_request_item();
+					}
+				}
+
+				else
+				{
+					msg_print("You are not in the Black Market.");
+				
+				}
+				break;
+
+			}
 
 
 		/*** Various commands ***/
@@ -3288,7 +4061,8 @@ void do_cmd_store(void)
 	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
 	      (cave_feat[py][px] <= FEAT_SHOP_TAIL)) &&
 		  !((cave_feat[py][px] >= FEAT_VENDING_MACHINE)
-		  && (cave_feat[py][px] <= FEAT_GROCERY_STORE)))
+		  && (cave_feat[py][px] <= FEAT_GROCERY_STORE))
+		  && !(cave_feat[p_ptr->py][p_ptr->px] == FEAT_DUELING_GUILD))
 	{
 		msg_print("You see no store here.");
 		return;
@@ -3300,6 +4074,15 @@ void do_cmd_store(void)
 	/* Vending Machine+ exception */
 	if (cave_feat[py][px] >= FEAT_VENDING_MACHINE)
 		which = STORE_VENDING + (cave_feat[py][px] - FEAT_VENDING_MACHINE);
+
+	/* Dueling Guild exception (all this should be reorganized) */
+	if (cave_feat[py][px] == FEAT_DUELING_GUILD)
+	{
+		handle_special_store();
+		return;
+	
+	}
+
 
 	/* Hack -- Check the "locked doors" */
 	if (adult_no_stores || store[which].store_open >= turn)
@@ -3369,6 +4152,10 @@ void do_cmd_store(void)
 		prt(" g) Get/Purchase an item.", 22, 31);
 		prt(" d) Drop/Sell an item.", 23, 31);
 
+		/* Hack -- Black Market can request an item */
+		if (which == STORE_B_MARKET)
+		prt(" r) Request an item.", 23, 56);
+
 		/* Add in the eXamine option */
 		if (rogue_like_commands)
 			prt(" x) eXamine an item.", 22, 56);
@@ -3391,11 +4178,17 @@ void do_cmd_store(void)
 		handle_stuff();
 
 		/* Pack Overflow XXX XXX XXX */
-		if (inventory[INVEN_PACK].k_idx)
+		if ((inventory[INVEN_PACK].k_idx) || ((cp_ptr->flags & CF_SMALL_PACK) && (inventory[INVEN_SMALL_PACK].k_idx)))
 		{
 			int item = INVEN_PACK;
 
 			object_type *o_ptr = &inventory[item];
+
+			/* Handle Small pack classes */
+			if ((cp_ptr->flags & CF_SMALL_PACK) && (inventory[INVEN_SMALL_PACK].k_idx))
+			{
+				item = INVEN_SMALL_PACK;
+			}
 
 			/* Hack -- Flee from the store */
 			if (store_num != STORE_HOME)
@@ -3513,6 +4306,8 @@ void do_cmd_store(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
+
+		
 }
 
 
@@ -3697,3 +4492,349 @@ void store_init(int which)
 	}
 }
 
+/*
+ * Delivery Service Routine
+ *
+  * Hack -- this routine always makes a "dungeon object", and applies
+ * magic to it, and attempts to decline cursed items. XXX XXX XXX
+ */
+static void store_request_item(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+	
+	int k_idx, amt, choice;
+
+	char o_name[80];
+
+	s32b price;
+
+	/* Save screen */
+	screen_save();
+
+	/* Get object base type */
+	k_idx = store_request_itemtype();
+
+	/* Load screen */
+	screen_load();
+
+
+	/* Return if failed */
+	if (!k_idx) return;
+
+	/* Get a quantity */
+	amt = get_quantity(NULL, 20);
+
+	/* Allow user abort */
+	if (amt <= 0) return;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Create the item */
+	object_prep(i_ptr, k_idx);
+
+	/* Modify quantity */
+	i_ptr->number = amt;
+
+			/* Egoable */
+	if (is_egoable(i_ptr)){
+		if (get_check("Would you like to attach an ego? ")){
+			/* Save screen */
+	screen_save();
+			(void)store_ego_item(i_ptr, TRUE);
+			/* Load screen */
+	screen_load();
+		}
+	}
+
+	/* Force magic on Ring and Amulet */
+	if ((i_ptr->tval == TV_RING) || (i_ptr->tval == TV_AMULET))
+	{
+		apply_magic(i_ptr, 25 + rand_int(25), FALSE, TRUE, FALSE);
+	}
+
+	/* Describe the object (fully) */
+		object_desc_store(o_name, i_ptr, TRUE, 3);
+
+		/* Bad Hack */
+		i_ptr->ident |= (IDENT_KNOWN);
+
+		/* Identify original object */
+		/*	object_aware(i_ptr);*/
+			
+			/*object_known(i_ptr);*/
+
+	
+
+	/* Message */
+	msg_format("Requesting %s.",
+		           o_name);
+		message_flush();
+
+	/* Haggle for a final price */
+		choice = purchase_haggle(i_ptr, &price, TRUE);
+
+		/* Hack -- Got kicked out */
+		if (st_ptr->store_open >= turn) return;
+
+		/* Hack -- Maintain fixed prices */
+		if (i_ptr->ident & (IDENT_FIXED))
+		{
+			/* Mark as fixed price */
+	/*		o_ptr->ident |= (IDENT_FIXED);*/
+		}
+	/* Player wants it */
+		if (choice == 0)
+		{
+			/* Player can afford it */
+			if (p_ptr->au >= price)
+			{
+				/* Say "okay" */
+				say_comment_1();
+
+				/* Be happy */
+				decrease_insults();
+
+				/* Spend the money */
+				p_ptr->au -= price;
+
+				/* Update the display */
+				store_prt_gold();
+
+				/* Buying an object makes you aware of it */
+				object_aware(i_ptr);
+
+				/* Combine / Reorder the pack (later) */
+				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+				/* Clear the "fixed" flag from the object */
+				i_ptr->ident &= ~(IDENT_FIXED);
+
+				/* Describe the transaction */
+				object_desc(o_name, i_ptr, TRUE, 3);
+
+				/* Message */
+				msg_format("You requested %s for %ld gold.",
+				           o_name, (long)price);
+
+				msg_print("It will be delivered to you later.");
+
+				/* Erase the inscription */
+				i_ptr->note = 0;
+
+				/* Set a delivery time */
+				(void)set_delivery_time(1000 + p_ptr->lev * rand_int(100));
+
+				/* To prevent NULL */
+				p_ptr->delivery_ptr = &p_ptr->delivery_type;
+			
+				/* Remember the item being delivered */
+				object_copy(p_ptr->delivery_ptr, i_ptr);
+
+				/* Allow delivery boy to summon */
+				p_ptr->allow_delivery = TRUE;
+
+				/* Describe the final result */
+			/*	object_desc(o_name, &inventory[item_new], TRUE, 3);*/
+
+				/* Message */
+			/*	msg_format("You have %s (%c).",
+				           o_name, index_to_label(item_new));*/
+
+				/* Handle stuff */
+				handle_stuff();
+
+			}
+
+				
+
+			/* Player cannot afford it */
+			else
+			{
+				/* Simple message (no insult) */
+				msg_print("You do not have enough gold.");
+			}
+		
+	}
+
+
+}
+
+/*
+ * Alter the item per player's request.
+ * I believe that this function will cause me to shiver in horror in the future...
+ */
+static int store_ego_item(object_type *o_ptr, bool only_good)
+{
+	int i, j, max_num, num, row, col;
+
+	int e_idx, level;
+
+	char ch;
+
+	long total;
+
+	int choice[60];
+
+	ego_item_type *e_ptr;
+
+	alloc_entry *table = alloc_ego_table;
+
+	/*bool checker[2000] = {FALSE};*/
+
+
+	/* Fail if object already is ego or artifact 
+	if (o_ptr->name1) return (FALSE);
+	if (o_ptr->name2) return (FALSE);*/
+
+	
+
+	/* Reset total */
+	total = 0L;
+
+	/* Clear screen */
+	Term_clear();
+	num = 0;
+
+	/* Process probabilities */
+	for (i = 0; i < alloc_ego_size; i++)
+	{
+				
+		/* Get the index */
+		e_idx = table[i].index;
+
+		/* Get the actual kind */
+		e_ptr = &e_info[e_idx];
+
+		/* If we force good/great, don't create cursed */
+		if (only_good && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
+
+		/* Test if this is a legal ego-item type for this object */
+		for (j = 0; j < 3; j++)
+		{
+			/* Require identical base type */
+			if (o_ptr->tval == e_ptr->tval[j])
+			{
+				/* Require sval in bounds, lower */
+				if (o_ptr->sval >= e_ptr->min_sval[j])
+				{
+					/* Require sval in bounds, upper */
+					if (o_ptr->sval <= e_ptr->max_sval[j])
+					{
+						row = 2 + (num % 20);
+						col = 30 * (num / 20);
+						ch = head[num/20] + (num%20);
+						
+												
+						prt(format("[%c] %s", ch, e_name + e_ptr->name), row, col);
+							/* Remember the object index */
+						choice[num] = i;
+						num++;
+						/*checker[i] = TRUE;*/
+					}
+				}
+			}
+		}
+		
+	}
+
+	/* Me need to know the maximal possible remembered object_index */
+	max_num = num;
+
+	/* Choose! */
+	if (!get_com(format("What Kind of Ego?"), &ch)) return (0);
+
+	/* Analyze choice */
+	j = -1;
+	if ((ch >= head[0]) && (ch < head[0] + 20)) j = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 20)) j = ch - head[1] + 20;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) j = ch - head[2] + 40;
+
+	/* Bail out if choice is "illegal" */
+	if ((j < 0) || (j >= max_num)) return (0);
+
+
+	/* We have one */
+	e_idx = (byte)table[choice[j]].index;
+	o_ptr->name2 = e_idx;
+
+		/* Pick a level for object/magic */
+			level = 25 + rand_int(25);
+
+	/* Apply some "low-level" magic (no artifacts) */
+		apply_magic(o_ptr, level, FALSE, TRUE, FALSE);
+
+	return ((e_info[e_idx].flags3 & TR3_LIGHT_CURSE) ? -2 : 2);
+}
+
+
+/*
+ * Alter the item per player's request.
+ * I believe that this function will cause me to shiver in horror in the future...
+ */
+static bool is_egoable(object_type *o_ptr)
+{
+	int i, j;
+
+	int e_idx;
+
+	
+
+	long total;
+
+	ego_item_type *e_ptr;
+
+	alloc_entry *table = alloc_ego_table;
+
+
+	/* Fail if object already is ego or artifact */
+	if (o_ptr->name1) return (FALSE);
+	if (o_ptr->name2) return (FALSE);
+
+	
+
+	/* Reset total */
+	total = 0L;
+
+	/* Process probabilities */
+	for (i = 0; i < alloc_ego_size; i++)
+	{
+		/* Default */
+		table[i].prob3 = 0;
+
+		
+		/* Get the index */
+		e_idx = table[i].index;
+
+		/* Get the actual kind */
+		e_ptr = &e_info[e_idx];
+
+		
+
+		/* Test if this is a legal ego-item type for this object */
+		for (j = 0; j < 3; j++)
+		{
+			/* Require identical base type */
+			if (o_ptr->tval == e_ptr->tval[j])
+			{
+				/* Require sval in bounds, lower */
+				if (o_ptr->sval >= e_ptr->min_sval[j])
+				{
+					/* Require sval in bounds, upper */
+					if (o_ptr->sval <= e_ptr->max_sval[j])
+					{
+						return (TRUE);
+					}
+				}
+			}
+		}
+		
+	}
+
+
+	return (FALSE);
+}

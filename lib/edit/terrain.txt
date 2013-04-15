@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 # 0x00 --> <darkness>
@@ -68,7 +68,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
 
 # 0x06 --> up stairs (perm)
 
@@ -530,6 +530,12 @@ G:0:G
 # 0x63 --> Fake Fun Teleporter
 N:99:Fun Teleporter
 G:^:G
+
+# 0x64 --> Duel Guild
+N:100:Duel Guild
+G:0:v
+
+
 
 
 

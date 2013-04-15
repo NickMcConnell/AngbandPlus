@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.5.6
+V:0.5.9
 
 
 ### Body Armor ###
@@ -104,7 +104,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
-N:9:of Elvenkind
+N:9:of the Genji
 X:30:25:2
 W:0:4:0:15000
 C:0:0:10:3
@@ -319,7 +319,7 @@ F:STEALTH
 
 # OnePower
 
-N:42:of Aman
+N:42:of the Shinsengumi
 X:31:20:2
 W:0:7:0:4000
 C:0:0:20:3
@@ -460,7 +460,7 @@ F:SPEED | AGGRAVATE | LIGHT_CURSE
 
 # OneSustain
 
-N:64:(Holy Avenger)
+N:64:(Holy Order)
 X:24:30:1
 W:0:10:0:20000
 C:6:6:4:4
@@ -515,7 +515,7 @@ T:21:0:99
 T:22:0:99
 T:23:0:99
 F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_EVIL |
+F:SLAY_SENTAI | SLAY_TROLL | SLAY_GIANT | SLAY_EVIL |
 F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
@@ -613,13 +613,13 @@ T:22:0:99
 T:23:0:99
 F:SLAY_DEMON
 
-N:84:of Slay Orc
+N:84:of Slay Sentai
 X:24:10:0
 W:0:6:0:2500
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:SLAY_ORC
+F:SLAY_SENTAI
 
 N:85:of Slay Troll
 X:24:10:0
@@ -683,14 +683,14 @@ T:22:0:99
 T:23:0:99
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:92:of *Slay* Sentai
 X:24:14:0
 W:0:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:DEX | SLAY_ORC
+F:DEX | SLAY_SENTAI
 
 N:93:of *Slay* Troll
 X:24:14:0
@@ -822,13 +822,13 @@ T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
 
-N:116:of Hurt Orc
+N:116:of Hurt Sentai
 X:23:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_ORC
+F:SLAY_SENTAI
 
 N:117:of Hurt Troll
 X:23:10:0

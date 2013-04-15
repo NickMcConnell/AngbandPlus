@@ -67,7 +67,7 @@ static bool int_outof(const monster_race *r_ptr, int prob)
 /*
  * Remove the "bad" spells from a spell list
  */
-static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
+static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p, u32b *f7p)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -75,6 +75,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	u32b f4 = (*f4p);
 	u32b f5 = (*f5p);
 	u32b f6 = (*f6p);
+	u32b f7 = (*f7p);
 
 	u32b smart = 0L;
 
@@ -104,6 +105,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		/* Know weirdness */
 		if (p_ptr->free_act) smart |= (SM_IMM_FREE);
 		if (!p_ptr->msp) smart |= (SM_IMM_MANA);
+		if (!p_ptr->c_meter) smart |= (SM_IMM_METER);
 
 		/* Know immunities */
 		if (p_ptr->immune_acid) smart |= (SM_IMM_ACID);
@@ -309,6 +311,11 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_DRAIN_MANA);
 	}
 
+	if (smart & (SM_IMM_METER))
+	{
+		if (int_outof(r_ptr, 100)) f7 &= ~(RF7_DRAIN_METER);
+	}
+
 
 	/* XXX XXX XXX No spells left? */
 	/* if (!f4 && !f5 && !f6) ... */
@@ -317,6 +324,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	(*f4p) = f4;
 	(*f5p) = f5;
 	(*f6p) = f6;
+	(*f7p) = f7;
 }
 
 
@@ -452,6 +460,7 @@ static void breath(int m_idx, int typ, int dam_hp)
 #define RF4_OFFSET 32 * 3
 #define RF5_OFFSET 32 * 4
 #define RF6_OFFSET 32 * 5
+#define RF7_OFFSET 32 * 6
 
 
 /*
@@ -466,7 +475,7 @@ static void breath(int m_idx, int typ, int dam_hp)
  *
  * This function could be an efficiency bottleneck.
  */
-static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
+static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6, u32b f7)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -474,6 +483,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	u32b f4_mask = 0L;
 	u32b f5_mask = 0L;
 	u32b f6_mask = 0L;
+	u32b f7_mask = 0L;
 
 	int num = 0;
 	byte spells[96];
@@ -495,10 +505,12 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		              (f6 & (RF6_ESCAPE_MASK)));
 		has_attack = ((f4 & (RF4_ATTACK_MASK)) ||
 		              (f5 & (RF5_ATTACK_MASK)) ||
-		              (f6 & (RF6_ATTACK_MASK)));
+		              (f6 & (RF6_ATTACK_MASK)) ||
+					  (f7 & (RF7_ATTACK_MASK)));
 		has_summon = ((f4 & (RF4_SUMMON_MASK)) ||
 		              (f5 & (RF5_SUMMON_MASK)) ||
-		              (f6 & (RF6_SUMMON_MASK)));
+		              (f6 & (RF6_SUMMON_MASK)) ||
+					  (f7 & (RF7_SUMMON_MASK)));
 		has_tactic = ((f4 & (RF4_TACTIC_MASK)) ||
 		              (f5 & (RF5_TACTIC_MASK)) ||
 		              (f6 & (RF6_TACTIC_MASK)));
@@ -559,6 +571,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f4_mask = (RF4_SUMMON_MASK);
 			f5_mask = (RF5_SUMMON_MASK);
 			f6_mask = (RF6_SUMMON_MASK);
+			f7_mask = (RF7_SUMMON_MASK);
 		}
 
 		/* Attack spell (most of the time) */
@@ -568,6 +581,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			f4_mask = (RF4_ATTACK_MASK);
 			f5_mask = (RF5_ATTACK_MASK);
 			f6_mask = (RF6_ATTACK_MASK);
+			f7_mask = (RF7_ATTACK_MASK);
 		}
 
 		/* Try another tactical spell (sometimes) */
@@ -627,6 +641,13 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	{
 		if (f6 & (1L << i)) spells[num++] = i + RF6_OFFSET;
 	}
+
+	/* Extract the "even more bizarre" spells */
+	for (i = 0; i < 32; i++)
+	{
+		if (f7 & (1L << i)) spells[num++] = i + RF7_OFFSET;
+	}
+
 
 	/* Paranoia */
 	if (num == 0) return 0;
@@ -692,7 +713,7 @@ bool make_attack_spell(int m_idx)
 	int failrate;
 #endif /* MONSTER_AI */
 
-	u32b f4, f5, f6;
+	u32b f4, f5, f6, f7;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -706,8 +727,8 @@ bool make_attack_spell(int m_idx)
 	bool no_innate = FALSE;
 
 	/* Target player */
-	int x = px;
-	int y = py;
+	int x = m_ptr->fx;
+	int y = m_ptr->fy;
 
 
 	/* Summon count */
@@ -784,6 +805,7 @@ bool make_attack_spell(int m_idx)
 	f4 = r_ptr->flags4;
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
+	f7 = r_ptr->flags7;
 
 
 #ifdef MONSTER_AI
@@ -807,19 +829,20 @@ bool make_attack_spell(int m_idx)
 		f4 &= (RF4_INT_MASK);
 		f5 &= (RF5_INT_MASK);
 		f6 &= (RF6_INT_MASK);
+		f7 &= (RF7_INT_MASK);
 
 		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
+		if (!f4 && !f5 && !f6 && !f7) return (FALSE);
 	}
 
 
 #ifdef DRS_SMART_OPTIONS
 
 	/* Remove the "ineffective" spells */
-	remove_bad_spells(m_idx, &f4, &f5, &f6);
+	remove_bad_spells(m_idx, &f4, &f5, &f6, &f7);
 
 	/* No spells left */
-	if (!f4 && !f5 && !f6) return (FALSE);
+	if (!f4 && !f5 && !f6 && !f7) return (FALSE);
 
 #endif /* DRS_SMART_OPTIONS */
 
@@ -847,10 +870,11 @@ bool make_attack_spell(int m_idx)
 			f4 &= ~(RF4_SUMMON_MASK);
 			f5 &= ~(RF5_SUMMON_MASK);
 			f6 &= ~(RF6_SUMMON_MASK);
+			f7 &= ~(RF7_SUMMON_MASK);
 		}
 
 		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
+		if (!f4 && !f5 && !f6 && !f7) return (FALSE);
 	}
 #endif /* MONSTER_AI */
 
@@ -869,7 +893,7 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Choose a spell to cast */
-	thrown_spell = choose_attack_spell(m_idx, f4, f5, f6);
+	thrown_spell = choose_attack_spell(m_idx, f4, f5, f6, f7);
 
 	/* Abort if no spell was chosen */
 	if (!thrown_spell) return (FALSE);
@@ -1196,10 +1220,16 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX5X4 */
+		/* RF4_BR_RADI */
 		case RF4_OFFSET+28:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes radiation.", m_name);
+			breath(m_idx, GF_RADI,
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
 			break;
+			
 		}
 
 		/* RF4_XXX6X4 */
@@ -2089,15 +2119,15 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_ANT */
+		/* RF6_S_GOON */
 		case RF6_OFFSET+20:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ants.", m_name);
+			else msg_format("%^s magically summons goons.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_ANT);
+				count += summon_specific(y, x, rlev, SUMMON_GOON);
 			}
 			if (blind && count)
 			{
@@ -2300,6 +2330,93 @@ bool make_attack_spell(int m_idx)
 			}
 			break;
 		}
+
+		/* RF7_S_FROG */
+		case RF7_OFFSET+0:
+		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons frogs!", m_name);
+			for (k = 0; k < 6; k++)
+			{
+				count += summon_specific(y, x, rlev, SUMMON_FROG);
+			}
+			if (blind && count)
+			{
+				msg_print("You hear many things appear nearby.");
+			}
+			break;
+		}
+
+		/* RF7_DRAIN_METER */
+		case RF7_OFFSET+1:
+		{
+			if (!direct) break;
+			if (p_ptr->c_meter)
+			{
+				int r1;
+
+				/* Disturb if legal */
+				disturb(1, 0);
+
+				/* Basic message */
+				msg_format("%^s draws chi energy from you!", m_name);
+
+				/* Attack power */
+				r1 = (randint(rlev) / 2) + 1;
+
+				/* Full drain */
+				if (r1 >= p_ptr->c_meter)
+				{
+					r1 = p_ptr->c_meter;
+					p_ptr->c_meter = 0;
+					
+				}
+
+				/* Partial drain */
+				else
+				{
+					p_ptr->c_meter -= r1;
+				}
+
+				/* Redraw mana */
+				p_ptr->redraw |= (PR_METER);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+				/* Heal the monster */
+				if (m_ptr->hp < m_ptr->maxhp)
+				{
+					/* Heal */
+					m_ptr->hp += (6 * r1);
+					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+					/* Redraw (later) if needed */
+					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+					/* Special message */
+					if (seen)
+					{
+						msg_format("%^s appears healthier.", m_name);
+					}
+				}
+			}
+			update_smart_learn(m_idx, DRS_METER);
+			break;
+		}
+
+		/* RF7_MAKE_BOMB */
+		case RF7_OFFSET+2:
+			{
+			disturb(1, 0);
+			if (blind) msg_format("%^s throws something at you!", m_name);
+			else msg_format("%^s makes a bomb out of duct tape, dirt, and a swiss army knife and throws it at you.", m_name);
+			breath(m_idx, GF_RADI,
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)));
+			break;
+				break;
+			}
 	}
 
 
@@ -4095,7 +4212,7 @@ static void process_monster(int m_idx)
 					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
 					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+					if (f1 & (TR1_SLAY_SENTAI)) flg3 |= (RF3_SENTAI);
 					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
@@ -4273,8 +4390,18 @@ static void process_monster(int m_idx)
  * Note the special "MFLAG_NICE" flag, which prevents "nasty" monsters from
  * using any of their spell attacks until the player gets a turn.  This flag
  * is optimized via the "repair_mflag_nice" flag.
+ *
+ * To address Leon Marrick's clumping problem, I've adopted a solution similar 
+ * to Kornelis' solution regarding energy moments, only this should be a lot 
+ * more thorough, since the original solution didn't accout for player getting
+ * three turns when he should have two (this I had personally experienced). 
+ * At least the algorithm analysis Vaevictus did for me seems 
+ * to show that it works for all possible player speed v. monster speed 
+ * combinations for 2000 iterations so that player doesn't get an unfair free 
+ * turn either.  Kudos to Vaevictus for that :) - Ernest Huang
  */
-void process_monsters(byte minimum_energy)
+
+void process_monsters(byte minimum_energy, int energy_moment)
 {
 	int i;
 	int fy, fx;
@@ -4325,6 +4452,9 @@ void process_monsters(byte minimum_energy)
 
 		/* Not enough energy to move */
 		if (m_ptr->energy < minimum_energy) continue;
+
+		/* Not the right time to move yet */
+		if (((m_ptr->energy - 100) * 100 / extract_energy[m_ptr->mspeed]) <= energy_moment) continue;
 
 		/* Use up "some" energy */
 		m_ptr->energy -= 100;
