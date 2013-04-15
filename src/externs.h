@@ -353,6 +353,7 @@ extern void do_cmd_power(void);
 extern void do_cmd_super(void);
 extern void do_cmd_mechfire(void);
 extern void do_cmd_taunt(void);
+extern void do_cmd_mknight(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -591,6 +592,7 @@ extern void destroy_area(int y1, int x1, int r, bool full);
 extern void earthquake(int cy, int cx, int r);
 extern void lite_room(int y1, int x1);
 extern void unlite_room(int y1, int x1);
+extern void uncurse_object(object_type *o_ptr);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);

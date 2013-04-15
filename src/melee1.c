@@ -267,7 +267,7 @@ bool make_attack_normal(int m_idx)
 	if ((p_ptr -> pgroove == G_WATER) && (!(o_ptr->k_idx)))
 	{
 
-		if (rand_int(damage * 50) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+		if (rand_int((damage+1) * 50 ) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 	         p_ptr->lev)
 	{
 		/* Message */
@@ -284,7 +284,7 @@ bool make_attack_normal(int m_idx)
 	if ((p_ptr -> pgroove == G_WIND) && (!(o_ptr->k_idx)))
 	{
 
-		if (rand_int(damage * 30) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+		if (rand_int((damage+1) * 30) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 	         p_ptr->lev)
 	{
 		/* Message */

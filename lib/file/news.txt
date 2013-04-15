@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **             Animeband  0.5.0                 **
+              **             Animeband  0.5.1                 **
               **************************************************
                               _           _      
                              / \_______ /|_\             
@@ -16,9 +16,10 @@
                           \__(  o     o  )__/    
 
 			 By Ernest Huang - (C) 2002
-	Send Comments, questions, suggestions to "blahg@ucla.edu"
+	Send Comments, questions, suggestions to "animeband@oook.cz"
 	Submit Character dumps at "http://angband.oook.cz"
 	Visit the Thangorodrim page at "http://www.thangorodrim.net"
+	Official Animeband Site at "http://angband.oook.cz/animeband"
 
 
 

@@ -70,14 +70,14 @@ LIBS = -lpc -lalleg
 # Targets
 #
 
-default: angband.exe
-	copy angband.exe ..
-	del angband.exe
+default: animeband.exe
+	copy animeband.exe ..
+	del animeband.exe
 
-install: angband.exe
-	copy angband.exe ..
+install: animeband.exe
+	copy animeband.exe ..
 
-all: angband.exe
+all: animeband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -85,7 +85,7 @@ all: angband.exe
 # Link executables
 #
 
-angband.exe: $(OBJS)
+animeband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

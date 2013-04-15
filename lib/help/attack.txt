@@ -139,12 +139,12 @@ Ego weapons are denoted by the following "names":
      will accept your prayers: a blessed blade may be wielded without 
      this penalty.  Blessed blades also have one extra, random, power.
 
-Weapon of Westernesse.
-     A Weapon of Westernesse is one of the more powerful weapons.  It slays
+Weapon of the Ako Ronin.
+     A Weapon of the Ako Ronin is one of the more powerful weapons.  It slays
      orcs, trolls, and giants, while increasing your strength, dexterity, 
      and constitution.  It also lets you see invisible creatures and protects 
      from paralyzation and some slowing attacks.  These blades were made by 
-     the Dunedain.
+     the Ako Ronin to avenge their fallen lord.
 
 Weapon of Extra Attacks.
      A weapon of extra attacks will allow the wielder to deliver extra

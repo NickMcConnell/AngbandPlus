@@ -1250,7 +1250,7 @@ static void display_player_xtra_info(void)
 
 
 	/* Upper middle */
-	col = 26;
+	col = 27;
 
 
 	/* Age */
@@ -2142,6 +2142,13 @@ errr file_character(cptr name, bool full)
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
 	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+	
+	/* Display meter */
+	fprintf(fff, "Meter: %d", p_ptr->c_meter);
+	fprintf(fff, " / %d", p_ptr->m_meter);
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");

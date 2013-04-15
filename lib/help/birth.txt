@@ -143,8 +143,8 @@ have intrinsic abilities.
             Nedians have intrinsic healing powers, and can heal themselves
             or others when need be.
  
-          Sayians
-            Sayians are a proud warrior race.  They lust for battle, and
+          Sayajins
+            Sayajins are a proud warrior race.  They lust for battle, and
             each battle makes them stronger.  They are extremely good at
             fighting, and they have incredible strength and resiliance.
             Although not quite as smart or wise as Humans, they are
@@ -152,11 +152,11 @@ have intrinsic abilities.
             the proud race that they are, however, they tend to shout 
             challenges to their opponents repeatedly, and also make
             incredible explosions while fighting.  Thus, they have a
-            very miserable stealth.  Saiyans also have sustained strength.
+            very miserable stealth.  Sayajins also have sustained strength.
  
-          Jureians
-            Juerians are the somewhat arrogant people from the planet
-            Juerai.  They tend to be smarter than humans, but not quite
+          Juraians
+            Juarians are the somewhat arrogant people from the planet
+            Juarai.  They tend to be smarter than humans, but not quite
             as strong.  Being a race of intellectuals, they seek wisdom and
             knowledge in all things, but they make fairly decent warriors.
             Being as smart as they are, they have a sustained intelligence.
@@ -296,6 +296,15 @@ have intrinsic abilities.
               have enough mana, which is Charisma dependent.  Students tend
               to be pretty poor at basically anything, but become incredibly
               powerful later on.  Their main stat is Charisma.
+
+         Magic Knight
+              A Magic Knight can be thought of a combination warrior/student.
+              They are permanently cursed with their sword, which will be 
+              intrinsically branded depending on the fighting style.  Their 
+              sword also takes on a mind of its own, being able to evolve 
+              as their masters get stronger.  Magic Knight also get 3 
+              intrinsic powers, depending on their fighting style.  Their mana
+              is based on Intelligence.
  
 
 === Fighting Styles ===
@@ -322,7 +331,7 @@ have intrinsic abilities.
                in torrents, and wind is always one of the most fearsome forces
                when enraged, because it is almost impossible to deal with.
 
-          Metal
+         Metal
                Metal absorbs whatever blows come its way, be it magical or
                physical.  Hitting the metal repeatedly will make the metal
                stronger.
@@ -460,23 +469,6 @@ have intrinsic abilities.
                improve unless magically enhanced.
 
 
-
-=== Combinations of Race and Class (not enforced) ===
-
-                      Warrior   Mage    Priest    Rogue   Ranger   Paladin
-
-          Human         Yes      Yes      Yes      Yes      Yes      Yes
-          Half-Elf      Yes      Yes      Yes      Yes      Yes      Yes
-          Elf           Yes      Yes      No       Yes      Yes      No
-          Hobbit        Yes      Yes      No       Yes      No       No
-          Gnome         Yes      Yes      Yes      Yes      No       No
-          Dwarf         Yes      No       Yes      No       No       Yes
-          Half-Orc      Yes      No       Yes      Yes      No       No
-          Half-Troll    Yes      No       Yes      No       No       No
-          Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
-          High-Elf      Yes      Yes      Yes      Yes      Yes      No 
-
-
 === Miscellaneous (outdated) ===
 
 
@@ -500,15 +492,15 @@ are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
-           Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
-           Elf         -1   +2   +1   +1   -2   +1       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +25%
-           Dwarf       +2   -3   +2   -2   +2   -3      11         +20%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
-           Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
-           High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+           Nedian       0   +1   +1   +1   -1   +4       9         +10%
+           Sayajin     +5   -2   -2   +2   +2   -1      12         +20%
+           Juraian     -2   +2   -1   +1   +1   +1       9         +10%
+           Android     +3   -1   -2   +1    0    0       8         +25%
+           Ctarl-Ctarl +3   -1   -1   +3   -1   +2      11         +20%
+           Hententmon  +4   -4   -4   +6   +2   -6      12         +10%
+           Sanjiyan    -1   +3   +3    0   -3   +2       8        +100%
+           Sky Dragon  +3   +1   +1   +2   +5   +2      12        +120%
+           High-Elf    +2   +2   +2   +2   +1   +2      10        +100%
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -517,10 +509,13 @@ are listed in the following table.
            Rogue         +2      +1      -2      +3      +1      -1
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
+           Student       -3      +1      -5      +2      +2      +5
+           Magic Knight  +1      -1      -3      +2      +2      +2
  
  
  
-=== Ability Tables (outdated) ===
+=== Ability Tables (outdated)  I would update...but I don't understand ===
+===                 how these values are calculated                    ===
 
  
                       Disarm Search Stealth Percep Fight Bows Save Infra

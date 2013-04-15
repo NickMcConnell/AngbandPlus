@@ -64,7 +64,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 
 N:0:Warrior
@@ -438,7 +438,7 @@ N:5:Paladin
 S:3:-3:1:0:2:2
 C:20:24:25:1:12:2:68:40
 X:7:10:11:0:0:0:35:30
-I:6:35:80000:40:3000:0
+I:6:35:80000:40:2500:0
 A:5:30:4
 M:91:2:1:1:400
 E:91:0:1:1
@@ -524,7 +524,7 @@ N:6:Student
 S:-3:1:-5:2:2:5
 C:15:36:20:1:14:10:48:35
 X:10:10:10:0:0:0:30:30
-I:5:0:20000:40:3000:1
+I:5:40:20000:40:4000:1
 A:6:35:5
 M:92:5:0:1:500
 E:75:0:1:1
@@ -532,12 +532,12 @@ E:36:2:1:1
 E:35:1:1:1
 E:36:1:1:1
 # F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Kawaii no Ko
+T:Kawaii Ko
 T:Shougakusei
-T:Chougakusei
+T:Chuugakusei
 T:Koukousei
 T:Daigakusei
-T:Shuushi
+T:Insei
 T:Sensei
 T:Taisensei
 T:Teitoku
@@ -552,6 +552,27 @@ T:Otaku
 #Z:7:35
 #Z:8:100
 #Z:9:150
+
+N:7:Magic Knight
+S:1:-1:-3:2:2:2
+C:25:18:18:1:14:2:70:55
+X:10:7:10:0:0:0:45:45
+I:9:50:9000:40:2000:0
+A:6:30:5
+M:90:1:0:1:500
+E:75:0:1:1
+E:37:4:1:1
+F:BRAVERY_30 
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
+T:Magic Knight
 
 
 

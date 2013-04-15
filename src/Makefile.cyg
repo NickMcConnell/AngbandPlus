@@ -13,7 +13,7 @@ CFLAGS = -Wall -W -pedantic -mno-cygwin -O2 -fno-strength-reduce -DUSE_TRANSPARE
 
 
 SRCS = \
-	angband.rc \
+	animeband.rc \
 	birth.c \
 	cave.c \
 	cmd1.c \
@@ -57,7 +57,7 @@ SRCS = \
 
 
 EXOBJS = \
-	angband.res \
+	animeband.res \
 	birth.o \
 	cave.o \
 	cmd1.o \
@@ -129,7 +129,7 @@ install:	angband movebin cleanobjs
 #		del angband.exe
 
 movebin:
-		mv -f angband.exe ../angband.exe
+		mv -f animeband.exe ../animeband.exe
 
 cleanobjs:
 		rm -f $(EXOBJS)
@@ -158,7 +158,7 @@ angband: $(EXOBJS)
 #	$(WRES) angband.rc angband.res
 #
 
-angband.res : angband.rc
+animeband.res : animeband.rc
 	$(WRES) $< -O coff -o $@
 
 

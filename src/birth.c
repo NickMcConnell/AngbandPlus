@@ -610,10 +610,12 @@ static void player_outfit(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
+	
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
+	
 	/* Hack -- Give the player some food */
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 	i_ptr->number = (byte)rand_range(3, 7);
@@ -640,6 +642,43 @@ static void player_outfit(void)
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
+
+	/* Hack -- Force Magic Knight to wear a Magic Knight Sword */
+	if (p_ptr->pclass == C_MAGIC_KNIGHT){
+	object_prep(i_ptr, lookup_kind(TV_SWORD, SV_MAGIC_KNIGHT_SWORD));
+	i_ptr->number = 1;
+	i_ptr->pval = 1;
+
+	switch (p_ptr->pgroove){ /* Give Weapon a Brand according to Groove */
+
+	case G_FIRE:
+		i_ptr->name2 = EGO_BRAND_FIRE;
+		break;
+
+	case G_WATER:
+		i_ptr->name2 = EGO_BRAND_ACID;
+		break;
+
+	case G_WIND:
+		i_ptr->name2 = EGO_BRAND_COLD;
+		break;
+
+	case G_METAL:
+		i_ptr->name2 = EGO_BRAND_ELEC;
+		break;
+
+	case G_DRUNK:
+		i_ptr->name2 = EGO_BRAND_POIS;
+		break;
+			}
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	object_copy(&inventory[INVEN_WIELD], i_ptr);
+
+
+
+
+	}
 
 	/* Hack -- Give the player his equipment */
 	for (i = 0; i < MAX_START_ITEMS; i++)

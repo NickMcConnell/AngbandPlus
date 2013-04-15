@@ -560,7 +560,7 @@ static void process_world(void)
 	}
 
 	/* Liver processing alcohol every 10 turns */
-	if (!(turn % 10))
+	if (!(turn % 25))
 	{
 		if (p_ptr->c_alcohol > 0)
 			(void)set_drunk(p_ptr->c_alcohol - 1);
@@ -571,6 +571,7 @@ static void process_world(void)
 
 	if ((p_ptr->c_alcohol == 0) && (p_ptr->pgroove == G_DRUNK)) {
 
+		if (p_ptr->chp > 0)
 		take_hit(1, "alcohol withdrawal");
 	}
 
@@ -1537,16 +1538,35 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
+			if (p_ptr->pclass == C_PRIEST){
+				do_cmd_pray();
+				break;
+			}
+
+			else if (p_ptr->pclass == C_STUDENT){
+				do_cmd_power();
+				break;
+			}
+
+			else if (p_ptr->pclass == C_MAGIC_KNIGHT){
+			do_cmd_mknight();
+				break;
+			}
+
+			else {
 			do_cmd_cast();
 			break;
+			}
+			
 		}
 
-		/* Pray a prayer */
+		/* Pray A Prayer - Obsolete 
 		case 'p':
 		{
 			do_cmd_pray();
 			break;
 		}
+		*/
 
 		/* Activate Limit Break */
 		case 'Z':
@@ -1555,12 +1575,13 @@ static void process_command(void)
 			break;
 
 			}
-		/* Use Student Power */
+		/* Use Student Power  -- Obsolete
 		case 'h':
 			{
 				do_cmd_power();
 				break;
 			}
+			*/
 
 		/* Fire Mecha guns */
 		case 'x':
@@ -1586,6 +1607,8 @@ static void process_command(void)
 				else if (p_ptr->mag_student){
 					msg_print("You switch back to normal.");
 					p_ptr->mag_student = FALSE;
+					p_ptr->update |= (PU_BONUS);
+					handle_stuff();
 					break;
 				}
 				else if (p_ptr->csp < 1){

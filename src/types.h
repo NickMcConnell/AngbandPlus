@@ -78,7 +78,7 @@ typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
-//typedef struct power_type power_type;
+/*typedef struct power_type power_type;*/
 typedef struct player_magic player_magic;
 /*typedef struct player_power player_power;*/
 typedef struct player_sex player_sex;
@@ -787,7 +787,7 @@ struct player_class
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
 	player_magic spells; /* Magic spells */
-//	player_power powers;
+/*	player_power powers;*/
 };
 
 
@@ -878,7 +878,7 @@ struct player_type
 	s16b m_meter;        /* Max Meter pts (Limit break) */
 	s16b c_meter;		 /* Cur Meter pts */
 	s16b mstudent;		/* Can transform */
- //	u16b c_meter_frac;   /* Cur Meter frac (times 2^16) (not needed)*/
+ /*	u16b c_meter_frac;   Cur Meter frac (times 2^16) (not needed)*/
 
 	s16b l_break;        /* Limit Break Type */
 	s16b c_alcohol;		 /* Current Alcohol limit */

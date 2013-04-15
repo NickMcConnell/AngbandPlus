@@ -5,7 +5,7 @@ bin_PROGRAMS = angband
 WRES = windres
 
 SUFFIXES = .rc
-angband.res: angband.rc
+animeband.res: animeband.rc
 	$(WRES) $< -O coff -o $@
 
 angband_LDADD = @ANGBAND_OBJS@
@@ -36,7 +36,7 @@ EXTRA_angband_SOURCES = \
   Makefile.dos Makefile.emx Makefile.gtk Makefile.ibm \
   Makefile.lcc Makefile.lsl Makefile.std Makefile.wat \
   Makefile.win \
-  angband.rc angband.ico readdib.c readdib.h \
+  animeband.rc angband.ico readdib.c readdib.h \
   maid-x11.c maid-x11.h
 
 install-exec-hook:

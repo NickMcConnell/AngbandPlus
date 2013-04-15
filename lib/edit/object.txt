@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -1765,7 +1765,7 @@ F:EASY_KNOW
 N:234:Charisma
 G:!:d
 I:75:53:0
-W:20:0:4:1000
+W:20:0:4:8000
 A:20/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -2990,45 +2990,45 @@ A:1/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:394:& Rodent Skeleton~
-G:~:w
-I:1:3:0
-W:1:0:10:0
-A:1/1
-P:0:1d1:0:0:0
-F:EASY_KNOW
-
-N:395:& Human Skeleton~
-G:~:w
-I:1:8:0
-W:5:0:60:0
-A:5/1
-P:0:1d2:0:0:0
-F:EASY_KNOW
-
-N:396:& Dwarf Skeleton~
-G:~:w
-I:1:7:0
-W:5:0:50:0
-A:5/1
-P:0:1d2:0:0:0
-F:EASY_KNOW
-
 #### Mechas ####
+
+N:394:& Rayearth~
+G:~:r
+I:93:2:4250
+W:60:10:30000:2500000
+A:60/10
+P:0:1d1:0:0:0
+F:EASY_KNOW | RES_FIRE |
+
+N:395:& Selece~
+G:~:b
+I:93:3:4000
+W:65:10:30000:2500000
+A:65/10
+P:0:1d2:0:0:0
+F:EASY_KNOW | RES_ACID |
+
+N:396:& Windam~
+G:~:u
+I:93:4:4000
+W:70:10:30000:2500000
+A:70/10
+P:0:1d2:0:0:0
+F:EASY_KNOW | RES_SHARD |
 
 N:397:& Gundam~
 G:~:D
 I:93:0:5000
-W:75:0:30000:10000000
-A:5/1
+W:75:10:30000:3000000
+A:75/10
 P:0:1d2:0:0:0
 F:EASY_KNOW
 
 N:398:& Eva~
 G:~:y
 I:93:1:7500
-W:100:0:30000:15000000
-A:5/1
+W:100:10:30000:3500000
+A:100/10
 P:0:1d2:0:0:0
 F:EASY_KNOW
 
@@ -3481,3 +3481,16 @@ G:=:y
 I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
+
+### Magic Knight Equippment ###
+
+N:512:& Magic Knight Sword~
+G:|:W
+I:23:31:0
+W:120:0:40:400
+A:120/128
+P:0:2d4:0:0:0
+F:STR | INT | WIS | DEX | CON | CHR |
+F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
+F:SHOW_MODS
+

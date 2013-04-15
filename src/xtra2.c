@@ -11,7 +11,7 @@
 #include "animeband.h"
 
 
-// Set meter
+/* Set meter */
 
 bool set_meter(int v)
 {
@@ -815,7 +815,7 @@ bool set_mag_student()
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
-	//v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	/*v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;*/
 	if (p_ptr->csp < 1) {
 		msg_print ("You revert back to normal!");
 		notice = TRUE;
@@ -2002,6 +2002,10 @@ bool set_drunk(int v)
  */
 void check_experience(void)
 {
+
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_WIELD];
+
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -2054,6 +2058,31 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
+
+		/* Hack -- if Magic Knight, evolve weapon if exceed max level */
+		if ((p_ptr->pclass == C_MAGIC_KNIGHT) && (p_ptr->lev > p_ptr->max_lev)){
+
+			if (p_ptr->lev % 2 == 0){
+
+			o_ptr->to_h += 1;
+			o_ptr->to_d += 1;
+			o_ptr->to_a += 1;
+
+			}
+
+			if (p_ptr->lev % 10 == 0){
+
+			o_ptr->ds += 1;
+			o_ptr->dd += 1;
+			o_ptr->pval += 1;
+
+			}
+
+			if (p_ptr->lev == 50){
+				uncurse_object(o_ptr);
+			}
+
+		}
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
@@ -2526,7 +2555,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead (unless it can respawn - Death Exception)*/
-		if (r_ptr->flags1 & (RF1_UNIQUE) & !(RF2_RESPAWN)) r_ptr->max_num = 0;
+		if ((r_ptr->flags1) & (RF1_UNIQUE)) r_ptr->max_num = 0;
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))

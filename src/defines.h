@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.0"
+#define VERSION_STRING	"0.5.1"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 
@@ -517,7 +517,7 @@
 #define PRAYER_WORD_OF_RECALL          56
 #define PRAYER_ALTER_REALITY           57
 
-// Misc New Spells
+/* Misc New Spells  */
 #define PRAYER_NOAH					   58
 
 
@@ -534,6 +534,27 @@
 #define STUDENT_KI_BEAM					7
 #define STUDENT_RESTORATION				8
 #define STUDENT_GENEI_JIN				9
+
+/* New Magic Knight Powers */
+#define FIRE_FLARE_ARROW				0
+#define FIRE_FLARE_ARROW_2				1
+#define FIRE_RUBY_LIGHTNING				2
+
+#define WATER_MAGIC_MISSILE				0
+#define WATER_WATER_DRAGON				1
+#define WATER_SAPPHIRE_WHIRLWIND		2
+
+#define WIND_WIND_OF_PROTECTION			0
+#define WIND_EMERALD_TYPHOON			1
+#define WIND_WINDS_OF_HEALING			2
+
+#define METAL_ELECTRIC_BOLT				0
+#define METAL_THUNDERSTORM				1
+#define METAL_MAGNETIC_TEMPEST			2
+
+#define DRUNK_DRUNKEN_FLAIL				0
+#define DRUNK_AURA_OF_CONFUSION			1
+#define DRUNK_SAKE_DRAGON				2
 
 
 #define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
@@ -1335,6 +1356,7 @@
 #define SV_TWO_HANDED_SWORD		25	/* 3d6 */
 #define SV_EXECUTIONERS_SWORD	28	/* 4d5 */
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
+#define SV_MAGIC_KNIGHT_SWORD	31	/* evolving */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD		2
@@ -1356,6 +1378,9 @@
 /* The "sval" codes for TV_MECHA */
 #define SV_GUNDAM				0
 #define SV_EVA					1
+#define SV_RAYEARTH				2
+#define SV_SELECE				3
+#define SV_WINDAM				4
 
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
@@ -2226,6 +2251,16 @@
 #define OBJECT_XTRA_SIZE_SUSTAIN	6
 #define OBJECT_XTRA_SIZE_RESIST		12
 #define OBJECT_XTRA_SIZE_POWER		8
+
+/*** Classes ***/
+#define C_WARRIOR		0
+#define C_MAGE			1
+#define C_PRIEST		2
+#define C_ROGUE			3
+#define C_RANGER		4
+#define C_PALADIN		5
+#define C_STUDENT		6
+#define C_MAGIC_KNIGHT	7
 
 
 /*** Class flags ***/

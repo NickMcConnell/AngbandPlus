@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 
 
@@ -472,13 +472,13 @@ F:INT | WIS | SEARCH | HIDE_TYPE |
 F:SEE_INVIS | AGGRAVATE | LIGHT_CURSE
 
 
-# The Golden Crown of Yume
+# The Golden Crown of Cephiro
 
-N:42:of Yume
+N:42:of Cephiro
 I:33:11:3
 W:40:40:30:100000
 P:0:1d1:0:0:15
-F:STR | WIS | CON | HIDE_TYPE | 
+F:INT | WIS | CON | HIDE_TYPE | 
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
 A:HEAL1:500:0
@@ -804,14 +804,14 @@ F:SEARCH | RES_BLIND |
 F:BRAND_ELEC | SLAY_ORC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
 
 
-# The Broad Sword 'Kitsune'
+# The Broad Sword of Lafarga
 
-N:75:'Kitsune'
-I:23:16:3
-W:20:20:150:40000
+N:75:of Lafarga
+I:23:16:5
+W:20:20:650:50000
 P:0:2d5:10:15:0
-F:STEALTH | 
-F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE | 
+F:STR | 
+F:SLAY_EVIL | BRAND_ELEC | RES_ELEC | 
 F:SLOW_DIGEST | SHOW_MODS
 
 
@@ -941,15 +941,14 @@ F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
 F:SEE_INVIS | FREE_ACT |
 
 
-# The Sabre 'Kurakawa'
+# The Sabre of Lantis
 
-N:87:'Kurakawa'
+N:87:of Lantis
 I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
 F:BLOWS | 
-F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | 
-F:SLAY_ORC | SHOW_MODS
+F:BRAND_ELEC | RES_ELEC | SHOW_MODS
 
 
 # The Small Sword 'Seiryu'

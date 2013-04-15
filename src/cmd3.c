@@ -218,7 +218,7 @@ void do_cmd_wield(void)
 	object_copy(o_ptr, i_ptr);
 
 	/* Increase the weight */
-//	if (o_ptr->tval != TV_MECHA)
+	/* if (o_ptr->tval != TV_MECHA)*/
 	p_ptr->total_weight += i_ptr->weight;
 
 	/* Increment the equip counter by hand */

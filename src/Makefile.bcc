@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = angband.exe
+EXE_FILE = Animeband.exe
 
 
 ###################################################################
@@ -77,11 +77,11 @@ install: $(EXE_FILE)
 
 
 ########################### Explicit Rules ########################
-$(EXE_FILE): $(OBJ) angband.res
-	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
+$(EXE_FILE): $(OBJ) animeband.res
+	$(LINKER) -aa -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, animeband.res
 
-angband.res: angband.rc
-	$(RC) -r angband.rc
+animeband.res: animeband.rc
+	$(RC) -r animeband.rc
 
 ########################### Implicit Rules ########################
 .c.obj:

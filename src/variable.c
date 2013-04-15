@@ -421,7 +421,7 @@ const player_sex *sp_ptr;
 const player_race *rp_ptr;
 const player_class *cp_ptr;
 const player_magic *mp_ptr;
-//const player_power *pp_ptr;
+/*const player_power *pp_ptr;*/
 
 /*
  * The player other record (static)

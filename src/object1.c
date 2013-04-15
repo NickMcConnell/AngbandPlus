@@ -208,26 +208,26 @@ static byte potion_col[MAX_COLORS] =
 
 static cptr syllables[MAX_SYLLABLES] =
 {
-	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
-	"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
-	"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
-	"byt", "comp", "con", "cos", "cre", "dalf", "dan",
-	"den", "der", "doe", "dok", "eep", "el", "eng", "er", "ere", "erk",
-	"esh", "evs", "fa", "fid", "flit", "for", "fri", "fu", "gan",
-	"gar", "glen", "gop", "gre", "ha", "he", "hyd", "i",
-	"ing", "ion", "ip", "ish", "it", "ite", "iv", "jo",
-	"kho", "kli", "klis", "la", "lech", "man", "mar",
-	"me", "mi", "mic", "mik", "mon", "mung", "mur", "nag", "nej",
-	"nelg", "nep", "ner", "nes", "nis", "nih", "nin", "o",
-	"od", "ood", "org", "orn", "ox", "oxy", "pay", "pet",
-	"ple", "plu", "po", "pot", "prok", "re", "rea", "rhov",
-	"ri", "ro", "rog", "rok", "rol", "sa", "san", "sat",
-	"see", "sef", "seh", "shu", "ski", "sna", "sne", "snik",
-	"sno", "so", "sol", "sri", "sta", "sun", "ta", "tab",
-	"tem", "ther", "ti", "tox", "trol", "tue", "turs", "u",
-	"ulk", "um", "un", "uni", "ur", "val", "viv", "vly",
-	"vom", "wah", "wed", "werg", "wex", "whon", "wun", "x",
-	"yerg", "yp", "zun", "tri", "blaa"
+	"a", "i", "u", "e", "o", "ka", "ki", "ku",
+	"ke", "ko", "sa", "shi", "su", "se", "so", "ta",
+	"chi", "tsu", "te", "to", "na", "ni", "nu",
+	"ne", "no", "ma", "mi", "mu", "me", "mo",
+	"ha", "hi", "fu", "he", "ho", "ya", "yu", "yo", "ra", "ri",
+	"ru", "wa", "n", "ga", "gi", "gu", "ge", "go", "za",
+	"zu", "ze", "zo", "da", "du", "de", "do", "ba",
+	"bi", "bu", "be", "bo", "pa", "pi", "pu", "pe",
+	"po", "ji", "kosu", "yumi", "ten", "dai", "ban",
+	"kuru", "giri", "koso", "shin", "izu", "hado", "uken", "make", "kuso",
+	"pen", "furu", "ame", "ino", "toki", "oni", "kya", "kyu",
+	"kyo", "sha", "shu", "sho", "nya", "nyu", "nyo", "myuu",
+	"ryu", "ryo", "gya", "gyu", "gyo", "poke", "mon", "dake",
+	"toto", "sumi", "kuro", "kaze", "uru", "doki", "samu", "aki",
+	"hana", "yuki", "kami", "suki", "haya", "waya", "gen", "niho",
+	"igo", "muro", "sen", "sei", "soru", "sora", "kara", "kano",
+	"mizu", "jide", "reka", "baka", "hito", "huta", "poro", "toro",
+	"sake", "man", "iyo", "basu", "suo", "teto", "umi", "magu",
+	"uni", "miru", "dan", "komi", "gako", "ken", "kun", "chan",
+	"hen", "sama", "yowa", "nemu", "yomi"
 };
 
 

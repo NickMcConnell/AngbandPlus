@@ -2251,7 +2251,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_fos = fos;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
-		pr_ptr->r_rlb = rlb; // lame hack, I know.
+		pr_ptr->r_rlb = rlb; /* lame hack, I know.*/
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
@@ -2606,7 +2606,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->spell_weight = spell_weight;
 	}
 /*
-		// Process 'Z' for Student Magical Powers 
+	 Process 'Z' for Student Magical Powers 
 	else if (buf[0] == 'Z')
 	{
 		int spell, mana;

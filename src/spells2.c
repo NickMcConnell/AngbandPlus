@@ -273,7 +273,7 @@ static const int enchant_table[16] =
 /*
  * Hack -- Removes curse from an object.
  */
-static void uncurse_object(object_type *o_ptr)
+void uncurse_object(object_type *o_ptr)
 {
 	/* Uncurse it */
 	o_ptr->ident &= ~(IDENT_CURSED);
@@ -2497,7 +2497,7 @@ bool mass_genocide(void)
 	return (result);
 }
 
-bool kekkai(void) //Kekkai being repeated mass Genocide...kinda cheap, but functional
+bool kekkai(void) /*Kekkai being repeated mass Genocide...kinda cheap, but functional*/
 {
 	int i;
 
@@ -2517,13 +2517,13 @@ bool kekkai(void) //Kekkai being repeated mass Genocide...kinda cheap, but funct
 		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
 
 		/* Skip distant monsters */
-		//if (m_ptr->cdis > MAX_SIGHT) continue;
+		/*if (m_ptr->cdis > MAX_SIGHT) continue;*/
 
 		/* Delete the monster */
 		delete_monster_idx(i);
 
 		/* Take some damage */
-		//take_hit(randint(3), "the strain of casting Mass Genocide");
+		/*take_hit(randint(3), "the strain of casting Mass Genocide");*/
 
 		/* Note effect */
 		result = TRUE;

@@ -1,3 +1,37 @@
+5/23/2003 - 
+Changes in Animeband 0.5.1:
+
+- ALL C++ STYLE COMMENTS ARE GONE! :o
+- Meter is now displayed in file dump
+- Player now takes longer to sober up
+- You can theoretically no longer die from Alcohol Withdrawal
+- Mana cost for Student powers are increased
+- Students get less bonuses from transform
+- Student Limit Break costs more
+- Students need a LOT more EXP to level up
+- Water no longer auto parry 0 damage attacks
+- Wind no longer auto dodges 0 damage attacks
+- New Mechas added
+- Some new monsters added
+- Some misspellings corrected
+- Some tables updated
+- Some Artifacts changed
+- Psuedo-Japanese scroll titles implemented
+- Charisma potions now cost the same as other stat potions
+- Mapped Student Powers, Prayers, and Rayearth Powers to the 'm' key for ease of use
+- New Class added - Magic Knight
+ 	- Magic Knights get a perma cursed weapon that is wielded since birth
+	- Weapon of Magic Knight Evolves, and starts with brand depending on Groove
+	- Magic Knights also get 3 intrinsic spells depending on groove
+	- Once the Magic Knight hits level 50, they can wield any weapon they wish
+- Venom attack added
+- Taunting added.  It is the 'U' key
+- New Desktop Icon
+- Hello Kitty toned down a lot
+- Yumi Saotome appears rarely now and is slower
+- Makefiles fixed (I think)
+
+6/02/2002 - 5/23/2003
 Changes in Animeband 0.5.0 (from Angband 2.9.3):
 
 - New Sound FX

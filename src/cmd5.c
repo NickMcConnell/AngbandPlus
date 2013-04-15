@@ -1076,7 +1076,7 @@ void do_cmd_cast(void)
 				                  damroll(3, 8));
 				msg_print("You become tired from the effort.");
 				(void)set_slow(p_ptr->slow + rand_int(10) + 4);
-				// (void)set_invuln(p_ptr->invuln + randint(8) + 8); Original GOI
+				/*(void)set_invuln(p_ptr->invuln + randint(8) + 8); Original GOI */
 				break;
 			}
 			
@@ -1224,22 +1224,22 @@ int selector;
 											
 	
 
-	// Must have meter
+	/* Must have meter*/
 	if (p_ptr->c_meter < p_ptr->m_meter)
 	{
 		msg_print("You have insufficient meter!");
 		return;
 	}
 
-	// Remnant exception
+	/* Remnant exception */
 	if (p_ptr->l_break == LB_RANDOM)
 		selector = rand_limit;
-		//selector = LB_GENEI_JIN;
+		/*selector = LB_GENEI_JIN;*/
 	else
 		selector = p_ptr->l_break;
 
 	
-	// Determine what kind of limit break used
+	/* Determine what kind of limit break used*/
 	switch (selector)
 	{
 
@@ -1327,7 +1327,7 @@ int selector;
 			break;
 		}
 
-	case LB_POWER_BLAST: //misnamed
+	case LB_POWER_BLAST: /*misnamed*/
 		{
 		p_ptr->word_recall = 1;
 		break;
@@ -1367,7 +1367,7 @@ int selector;
 		}
 	}
 
-	//consume all meter
+	/* consume all meter */
 	p_ptr->c_meter = 0;
 	p_ptr->redraw |= (PR_METER);
 
@@ -2022,6 +2022,30 @@ void do_cmd_mechfire(void)
 			fire_beam(GF_METEOR, dir, 60);
 			break;
 		}
+
+	case SV_RAYEARTH:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You shoot a Fire Arrow!");
+			fire_bolt(GF_FIRE, dir, 60);
+			break;
+		}
+
+	case SV_SELECE:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You shoot a Sapphire Whirlwind!");
+			fire_ball(GF_WATER, dir, 60, 5);
+			break;
+		}
+
+	case SV_WINDAM:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You shoot a Emerald Typhoon!");
+			fire_ball(GF_SHARD, dir, 60, 10);
+			break;
+		}
 	}
 
 	/* Take a turn */
@@ -2033,6 +2057,386 @@ void do_cmd_mechfire(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
+
+/* Use a Magic Knight power -- This is just as sad as the student code */
+void do_cmd_mknight(void)
+{
+
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int i, spell;
+
+	char out_val[160];
+	char choice;
+
+	/* Magic Powers */
+cptr fire_powers[3] =
+{
+	"Flame Arrow",
+	"Flame Arrow 2",
+ 	"Ruby Lightning"
+};
+
+cptr water_powers[3] =
+{
+	"Magic Missile",
+	"Water Dragon",
+	"Sapphire Whirlwind"
+ 	
+};
+
+cptr wind_powers[3] =
+{
+	"Wind of Protection",
+	"Emerald Typhoon",
+	"Winds of Healing"
+ 	
+};
+
+cptr metal_powers[3] =
+{
+	"Electric Bolt",
+	"Thunderstorm",
+	"Magnetic Tempest"
+ 	
+};
+
+cptr drunk_powers[3] =
+{
+	"Drunken Flail",
+	"Aura of Confusion",
+	"Sake Dragon"
+ 	
+};
+
+/* Cost */
+int mana_cost[3] = {5, 10, 20};
+byte line_attr = TERM_WHITE;
+
+/* Direction */
+int dir;
+
+/*	bool verify; */
+
+	bool flag = FALSE; 
+	bool redraw = FALSE;
+	/* bool okay;*/
+
+	int plev = p_ptr->lev;
+
+/*	const power_type *s_ptr; */
+
+	if (p_ptr->pclass != C_MAGIC_KNIGHT) {
+		msg_print("You are not a magic knight!");
+		return;
+
+	}
+
+	/* Must not be confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Save screen */
+	screen_save();
+
+	/* Title the list */
+	prt("", 1, 20);
+	put_str("Name", 1, 25);
+	put_str("Mana", 1, 55);
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Powers %c-%c, ESC=exit) Use which Power? ",
+	        I2A(0), I2A(2));
+	c_prt(line_attr, out_val, 0, 0);
+	
+
+
+	switch (p_ptr->pgroove)
+	{
+	case G_FIRE:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), fire_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+	case G_WATER:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), water_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+	case G_WIND:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), wind_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+	case G_METAL:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), metal_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+	case G_DRUNK:
+		{
+	
+	for (i = 0; i < 3; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), drunk_powers[i], mana_cost[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+	break;
+
+		}
+
+	}
+
+	while (1)
+	{
+	
+
+		choice = inkey();
+		spell = (islower(choice) ? A2I(choice) : -1);
+		if (choice == ESCAPE){
+			screen_load();
+			return;
+		}
+		if ((spell >= 0) && (spell < 3)) break;
+		else bell("Illegal POWER!");
+	}
+	
+	screen_load();
+	/* Verify adequate mana */
+	if (mana_cost[spell] > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to use that power!.");
+		
+		return;
+	}
+
+	if (p_ptr->pgroove == G_FIRE){
+
+		switch (spell){
+
+		case FIRE_FLARE_ARROW:
+			{
+
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_FIRE, dir,
+				           damroll(1 + (plev  / 2), 6));
+					break;
+			}
+		
+
+		case FIRE_FLARE_ARROW_2:
+			{
+
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_FIRE, dir,
+				           damroll(1 + (plev  / 2), 4));
+					break;
+			}
+
+		case FIRE_RUBY_LIGHTNING:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir,
+				           damroll(1 + (plev  / 2), 6), 6);
+					break;
+			}
+		}
+	}
+
+	else if (p_ptr->pgroove == G_WATER){
+		switch (spell)
+		{
+
+		case WATER_MAGIC_MISSILE:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_WATER, dir,
+				           damroll(1 + (plev  / 2), 6));
+					break;
+			}
+
+		case WATER_WATER_DRAGON:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_WATER, dir,
+				           damroll(1 + (plev  / 2), 4));
+					break;
+
+			}
+
+		case WATER_SAPPHIRE_WHIRLWIND:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_WATER, dir,
+				           damroll(1 + (plev  / 2), 4),6);
+					break;
+
+			}
+		}
+	}
+
+	else if (p_ptr->pgroove == G_WIND){
+		switch (spell)
+		{
+		
+		case WIND_WIND_OF_PROTECTION:
+			{
+				msg_print("You create a protective aura!");
+
+				(void)set_blessed(p_ptr->blessed + 5 + plev);
+					break;
+
+			}
+
+		case WIND_EMERALD_TYPHOON:
+			{
+
+					if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FORCE, dir,
+				           damroll(1 + (plev  / 2), 6),6);
+					break;
+			}
+
+		case WIND_WINDS_OF_HEALING:
+			{
+
+				(void)hp_player(10 + plev);
+				break;
+
+
+			}
+		}
+	}
+
+	else if (p_ptr->pgroove == G_METAL)
+	{
+		switch (spell)
+		{
+
+		case METAL_ELECTRIC_BOLT:
+			{
+
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_ELEC, dir,
+				           damroll(1 + (plev  / 2), 4));
+					break;
+			}
+
+		case METAL_THUNDERSTORM:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_WATER, dir,
+				           damroll(1 + (plev  / 2), 4),6);
+					break;
+			}
+
+		case METAL_MAGNETIC_TEMPEST:
+			{
+				for (dir = 1; dir < 10; dir++){
+				fire_bolt(GF_WATER, dir,
+				           damroll(1 + (plev  / 2), 4));
+					}
+				break;
+
+			}
+		}
+	}
+
+	else {
+		switch (spell)
+		{
+		case DRUNK_DRUNKEN_FLAIL:
+			{
+				msg_print("You flail about!");
+				fire_ball(GF_MISSILE, 5,
+				           damroll(1 + (plev  / 2), 4),1);
+					break;
+			}
+		case DRUNK_AURA_OF_CONFUSION:
+		{
+			fire_ball(GF_CONFUSION, 5, 0, 10);
+			break;
+
+
+		}
+		case DRUNK_SAKE_DRAGON:
+			{
+
+				for (dir = 1; dir < 10; dir++){
+				fire_beam(GF_CONFUSION, dir,
+				           damroll(1 + (plev  / 2), 4));
+				
+				}
+
+				break;
+
+
+			}
+	}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Use mana */
+	p_ptr->csp -= mana_cost[spell];
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+
+
+
+}
+
 
 
 /*
@@ -2063,21 +2467,21 @@ cptr mag_powers[STUDENT_MAX] =
 	"Genei Jin",
 };
 
-int power_mana[STUDENT_MAX] = {1,5,10,15,20,25,30,35,45,55};
+int power_mana[STUDENT_MAX] = {1,5,15,20,25,30,40,50,100,120};
 	byte line_attr = TERM_WHITE;
 
-	//int spell, dir;
+	/* int spell, dir;*/
 	int dir;
 
-//	bool verify;
+/*	bool verify; */
 
 	bool flag = FALSE; 
 	bool redraw = FALSE;
-	//bool okay;
+	/* bool okay;*/
 
 	int plev = p_ptr->lev;
 
-//	const power_type *s_ptr;
+/*	const power_type *s_ptr; */
 
 	
 

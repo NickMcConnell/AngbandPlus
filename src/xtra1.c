@@ -627,7 +627,7 @@ static void prt_speed(void)
 
 static void prt_study(void)
 {
-	if (p_ptr->new_spells)
+	if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (p_ptr->pclass != C_MAGIC_KNIGHT)) /* UGLY hack */
 	{
 		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
@@ -1407,7 +1407,7 @@ static void calc_spells(void)
 	if (p_ptr->old_spells != p_ptr->new_spells)
 	{
 		/* Message if needed */
-		if (p_ptr->new_spells)
+		if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (p_ptr->pclass != C_MAGIC_KNIGHT)) /* UGLY hack */
 		{
 			/* Message */
 			msg_format("You can learn %d more %s%s.",
@@ -1782,7 +1782,7 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 
 	/* Clear all the flags */
-//	p_ptr->mag_student = FALSE;
+/*	p_ptr->mag_student = FALSE;*/
 	p_ptr->summon = FALSE;
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
@@ -2163,12 +2163,12 @@ static void calc_bonuses(void)
 	if (p_ptr->mag_student)
 	{
 		
-		p_ptr->to_h += p_ptr->lev;
-		p_ptr->dis_to_h += p_ptr->lev;
-		p_ptr->to_d += p_ptr->lev;
-		p_ptr->dis_to_d += p_ptr->lev;
-		p_ptr->to_a += p_ptr->lev;
-		p_ptr->dis_to_a += p_ptr->lev;
+		p_ptr->to_h += p_ptr->lev / 2;
+		p_ptr->dis_to_h += p_ptr->lev / 2;
+		p_ptr->to_d += p_ptr->lev / 2;
+		p_ptr->dis_to_d += p_ptr->lev / 2;
+		p_ptr->to_a += p_ptr->lev / 2;
+		p_ptr->dis_to_a += p_ptr->lev / 2;
 		p_ptr->pspeed += p_ptr->lev / 10;
 	
 	}

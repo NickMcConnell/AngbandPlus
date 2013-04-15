@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.5.0
+V:0.5.1
 
 
 ### Body Armor ###
@@ -523,7 +523,7 @@ F:BLOWS
 
 # 71 (unused)
 
-# The "Elemental" brands (4)
+# The "Elemental" brands (5)
 
 N:72:of Melting
 X:24:15:0
@@ -557,7 +557,13 @@ T:22:0:99
 T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-# 76 (unused)
+N:76:of Venom
+X:24:20:0
+W:0:35:0:25000
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BRAND_POIS | RES_POIS |
 
 # 77 (unused)
 
