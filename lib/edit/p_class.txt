@@ -64,7 +64,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.5.6
 
 
 N:0:Warrior
@@ -531,7 +531,7 @@ E:75:0:1:1
 E:36:2:1:1
 E:35:1:1:1
 E:36:1:1:1
-# F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
+F:NO_STUDY |
 T:Kawaii Ko
 T:Shougakusei
 T:Chuugakusei
@@ -562,7 +562,7 @@ A:6:30:5
 M:90:1:0:1:500
 E:75:0:1:1
 E:37:4:1:1
-F:BRAVERY_30 
+F:BRAVERY_30 | NO_STUDY |
 T:Magic Knight
 T:Magic Knight
 T:Magic Knight
@@ -575,7 +575,7 @@ T:Magic Knight
 T:Magic Knight
 
 N:8:Chi Warrior
-S:2:-2:-2:2:5:-1
+S:2:-2:-2:2:4:-1
 C:25:18:18:1:14:2:90:55
 X:10:7:10:0:0:0:90:45
 I:9:50:9000:40:5000:0
@@ -583,7 +583,7 @@ A:6:0:5
 M:90:4:1:1:500
 E:75:0:1:1
 E:36:4:1:1
-F:BRAVERY_30 
+F:BRAVERY_30 | NO_STUDY |
 T:Scrub
 T:Novice
 T:Expert
@@ -596,15 +596,15 @@ T:Master
 T:Top-Tier
 
 N:9:Mimic
-S:-5:2:2:1:1:5
-C:30:32:28:3:24:16:56:72
-X:8:10:10:0:0:0:30:45
+S:-2:2:2:-1:-1:5
+C:30:32:28:6:24:16:56:72
+X:8:10:10:1:0:0:30:45
 I:4:30:120000:5:5000:1
 A:5:35:4
 M:92:5:0:1:500
 E:23:10:1:1
 E:36:2:1:1
-F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV 
+F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV | NO_STUDY |
 T:Fake
 T:Phony
 T:Copy-Cat

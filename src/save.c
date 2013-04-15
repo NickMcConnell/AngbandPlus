@@ -756,6 +756,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->mspeed);
 	wr_byte(m_ptr->energy);
 	wr_byte(m_ptr->stunned);
+	wr_byte(m_ptr->mondust);
+	wr_byte(m_ptr->enlightenment);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_byte(0);

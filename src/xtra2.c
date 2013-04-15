@@ -2248,13 +2248,13 @@ void check_experience(void)
 
 			
 
-			o_ptr->to_h = p_ptr->lev;
-			o_ptr->to_d = p_ptr->lev;
-			o_ptr->to_a = p_ptr->lev;
+			o_ptr->to_h = p_ptr->lev / 2;
+			o_ptr->to_d = p_ptr->lev / 2;
+			o_ptr->to_a = p_ptr->lev / 2;
 
 			
 
-			if (p_ptr->lev % 10 == 0){
+			if ((p_ptr->lev % 10 == 0) && (p_ptr->lev != 50)){
 			/* Ghetto solution to Magic Knight Glitch 
 
 			o_ptr->k_idx = lookup_kind(o_ptr->tval, o_ptr->sval + p_ptr->lev / 10);
@@ -2263,9 +2263,9 @@ void check_experience(void)
 			
 			object_prep(i_ptr, lookup_kind(TV_SWORD, SV_MAGIC_KNIGHT_SWORD + p_ptr->lev / 10));
 			i_ptr->pval = 1 + (int)p_ptr->lev / 10;
-			i_ptr->to_h = p_ptr->lev;
-			i_ptr->to_d = p_ptr->lev;
-			i_ptr->to_a = p_ptr->lev;
+			i_ptr->to_h = p_ptr->lev / 2;
+			i_ptr->to_d = p_ptr->lev / 2;
+			i_ptr->to_a = p_ptr->lev / 2;
 
 			switch (p_ptr->pgroove){ /* Give Weapon a Brand according to Groove */
 
@@ -2425,7 +2425,7 @@ bool quests_complete(void)
 			completed++;
 	}
 
-	return (completed > 3);
+	return (completed > 1);
 }
 
 /*
@@ -3142,6 +3142,7 @@ static void look_mon_desc(char *buf, int m_idx)
 	if (m_ptr->confused) strcat(buf, ", confused");
 	if (m_ptr->monfear) strcat(buf, ", afraid");
 	if (m_ptr->stunned) strcat(buf, ", stunned");
+	if (m_ptr->mondust) strcat(buf, ", floating in the air");
 }
 
 

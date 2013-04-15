@@ -510,10 +510,13 @@ void take_hit(int dam, cptr kb_str)
 	/* Get more meter */
 	if (!(o_ptr->k_idx)){
 
-	if ((p_ptr->pgroove == G_FIRE) || (p_ptr->pgroove == G_METAL))
+	if (p_ptr->pgroove == G_FIRE)
 	(void)set_meter(p_ptr->c_meter + dam);
 
-	if (p_ptr->pgroove == G_WIND)
+	if (p_ptr->pgroove == G_METAL)
+	(void)set_meter(p_ptr->c_meter + (dam / 2));
+
+	if ((p_ptr->pgroove == G_WIND) || (p_ptr->pgroove == G_WATER))
 		(void)set_meter(p_ptr->c_meter + 1);
 	}
 
@@ -524,6 +527,24 @@ void take_hit(int dam, cptr kb_str)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Dead player but has aura */
+	if ((p_ptr->chp < 0) && (p_ptr->elemental_aura))
+	{
+		/* Hack -- Life insurance */
+		p_ptr->elemental_aura = FALSE;
+		
+		msg_print("A lightning shock gives you second wind and scatters all your enemies!");
+		p_ptr->chp = 0;
+		(void)set_meter(0);
+		(void)(set_blind(0));
+		(void)(set_confused(0));
+		(void)(set_poisoned(0));
+		(void)(set_stun(0));
+		(void)(set_cut(0));
+		(void)(set_paralyzed(0)); 
+		fire_ball(GF_SOUND, 0, 0, 6);
+	}
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
@@ -3323,13 +3344,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	if (p_ptr -> pgroove == G_WATER) 
 	{
 
-		if (rand_int(dam * 50) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+		if (rand_int(dam * 35) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 	         p_ptr->lev)
 	{
 		/* Message */
 		msg_format("You parry the projectile!");
 		(void)set_meter(p_ptr->c_meter+dam * 2);
-		(void)hp_player(3);
+		(void)hp_player(dam / 10);
 		return (FALSE);
 		
 	}

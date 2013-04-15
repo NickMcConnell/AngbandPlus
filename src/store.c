@@ -3248,7 +3248,8 @@ static void store_process_command(void)
 		/* Save "screen dump" */
 		case ')':
 		{
-			do_cmd_save_screen();
+			/*do_cmd_save_screen();*/
+			do_cmd_save_screen_html();
 			break;
 		}
 

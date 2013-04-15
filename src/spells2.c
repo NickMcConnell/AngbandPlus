@@ -568,7 +568,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are looking around very carefully.";
 	}
-	if (p_ptr->new_spells)
+	if ((p_ptr->new_spells) && (!(cp_ptr->flags & CF_NO_STUDY)))
 	{
 		info[i++] = "You can learn some spells/prayers.";
 	}
@@ -884,6 +884,11 @@ void self_knowledge(void)
 		if (f3 & (TR3_IMPACT))
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
+		}
+
+		if (f3 & (TR3_DUST))
+		{
+			info[i++] = "Your weapon launches monsters into the air.";
 		}
 	}
 
@@ -1863,7 +1868,7 @@ void do_cmd_cook(void){
 	i_ptr = &object_type_body;
 
 	/* Check for failure */
-	if (rand_int(118) > rand_int(chances))
+	if (rand_int(40) > rand_int(chances))
 	{
 		object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_AKANE_COOKIE));
 	}

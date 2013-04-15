@@ -283,6 +283,19 @@ void do_cmd_wield(void)
 		return;
 	}
 
+	/* Chi Warriors cannot wield weapons or shield */
+	if ((slot == INVEN_WIELD) && (p_ptr->pclass == C_CHI_WARRIOR))
+	{
+		msg_print("It is against your principles to wield a weapon.");
+		return;
+	}
+
+	if ((slot == INVEN_ARM) && (p_ptr->pclass == C_CHI_WARRIOR))
+	{
+		msg_print("You refuse because you need your hands free.");
+		return;
+	}
+
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;

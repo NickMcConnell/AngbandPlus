@@ -3854,6 +3854,9 @@ static void build_type8(int y0, int x0)
 		/* Get a random vault record */
 		v_ptr = &v_info[rand_int(z_info->v_max)];
 
+		/* Debug Hack -- Totoro vault */
+	/*	v_ptr = &v_info[39];*/
+
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
 	}
@@ -4411,6 +4414,9 @@ static void cave_gen(void)
 			{
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && room_build(by, bx, 8)) continue;
+
+				/* Debug Hack -- Greater vault always */
+			/*	if ((k < 100) && room_build(by, bx, 8)) continue;*/
 
 				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 25) && room_build(by, bx, 7)) continue;
@@ -5060,6 +5066,13 @@ void generate_cave(void)
 			build_hamilton();
 
 			}
+/*
+			else if (p_ptr->location == W_SOOT_BALL)
+			{
+				wilderness_gen(p_ptr->location, p_ptr->depth);
+				build_soot_ball();
+				wilderness_gen(W_FUN_CITY, 0);
+			}*/
 
 			else if (p_ptr->location == W_COUNTERFEIT){
 				wilderness_gen(p_ptr->location, p_ptr->depth);
@@ -5094,11 +5107,16 @@ void generate_cave(void)
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
 
+		
+
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !adult_preserve) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
+
+		/* Debug Hack 
+		feeling = 2;*/
 
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;

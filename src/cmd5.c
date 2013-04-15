@@ -748,7 +748,7 @@ void do_cmd_study(void)
 	p_ptr->new_spells--;
 
 	/* Message if needed */
-	if (p_ptr->new_spells)
+	if ((p_ptr->new_spells) && (!(cp_ptr->flags & CF_NO_STUDY)))
 	{
 		/* Message */
 		msg_format("You can learn %d more %s%s.",
@@ -3456,6 +3456,7 @@ void do_cmd_chi_power(void)
 			msg_print("You jump up and flash gold.");
 				fire_ball(GF_GRAVITY, 0,
 				          0, 6);
+				(void)set_meter(p_ptr->c_meter + p_ptr->lev * 2);
 				break;
 		}
 
@@ -3569,8 +3570,8 @@ void do_cmd_chi_power(void)
   
 	case CHI_WARRIOR_SUPERIOR_ATTACK:
 		{
-		/*	for (i = 0; i < 10; i++)
-			fire_beam(rand_int(32), i, plev * 5);*/
+			for (i = 0; i < 10; i++)
+			fire_beam(GF_PLASMA, i, plev * 5);
 			break;
 		}
 
@@ -3618,7 +3619,7 @@ void do_cmd_chi_power(void)
 
 	case CHI_WARRIOR_ELEMENTAL_AURA:
 		{
-			msg_print("You start to glow.");
+			msg_print("Lightning clouds hover about you.");
 			p_ptr->elemental_aura = TRUE;
 			break;
 		}
@@ -5264,7 +5265,7 @@ void do_cmd_talk(void)
 			msg_print("It is a carnival every day here!");
 			msg_print("Our main attraction is the World Martial Arts Tourney.");
 			msg_print("The winner gets to be known as the world martial arts champion.");
-			msg_print("All you have to do is defeat the current world champ!");
+			msg_print("All you have to do is defeat the current world champ....Vegeta!");
 			msg_print("Go check it out!");
 			break;
 
@@ -5277,6 +5278,9 @@ void do_cmd_talk(void)
 			msg_print("Legend has it that there is a really awesome weapon somewhere in there.");
 			msg_print("However....nobody has ever returned from entering Happy Fun Puzzle Land.");
 			msg_print("Stay away, if you know what's best for you!");
+			msg_print("It is rumored that many deep and rare creatures live there, so please, don't");
+			msg_print("even think of entering unless you can deal with creatures that live deeper");
+			msg_print("than 5000 feet.");
 			break;
 
 			}

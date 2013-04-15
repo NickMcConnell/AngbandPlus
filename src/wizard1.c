@@ -565,7 +565,8 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_DRAIN_EXP,          "Drains Experience" },
+	{ TR3_DUST,				  "Floats Monsters" }
 };
 
 /*
@@ -1729,6 +1730,14 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
+		if (flags2 & (RF2_MUTODORI)) {
+			sprintf(buf, "%s is proficient in the mutodori technique.  ", wd_che[msex]);
+			
+		
+			spoil_out(buf);
+		}
+
+		
 
 		/* Collect inate attacks */
 		vn = 0;
@@ -1921,6 +1930,9 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(wd_che[msex]);
 			spoil_out(" is invisible.  ");
 		}
+		
+		
+
 		if (flags2 & (RF2_COLD_BLOOD))
 		{
 			spoil_out(wd_che[msex]);

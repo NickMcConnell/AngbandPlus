@@ -530,7 +530,7 @@ static void process_world(void)
 	/* Lose mp while mimicing */
 	if (p_ptr->mimic)
 	{
-		if ((p_ptr->csp >0) && (turn % 3 == 0))
+		if ((p_ptr->csp >0) && (turn % 10 == 0))
 		p_ptr->csp = p_ptr->csp - 1;
 		
 	/* Display the mana points */
@@ -572,8 +572,8 @@ static void process_world(void)
 		take_hit(i, "a fatal wound");
 	}
 
-	/* Liver processing alcohol every 10 turns */
-	if (!(turn % 25))
+	/* Liver processing alcohol every 30 turns */
+	if (!(turn % 30))
 	{
 		if (p_ptr->c_alcohol > 0)
 			(void)set_drunk(p_ptr->c_alcohol - 1);
@@ -584,7 +584,7 @@ static void process_world(void)
 
 	if ((p_ptr->c_alcohol == 0) && (p_ptr->pgroove == G_DRUNK)) {
 
-		if (p_ptr->chp > 0)
+		if ((p_ptr->chp > 0) && (turn % 2))
 		take_hit(1, "alcohol withdrawal");
 	}
 
@@ -646,6 +646,12 @@ static void process_world(void)
 
 	/*** Check the Food, and Regenerate ***/
 
+	/* Androids don't eat*/
+			if (p_ptr->prace == P_ANDROID)
+			{
+				(void)set_food(PY_FOOD_MAX - 1);
+			}
+
 	/* Digest normally */
 	if (p_ptr->food < PY_FOOD_MAX)
 	{
@@ -666,6 +672,7 @@ static void process_world(void)
 
 			/* Digest some food */
 			(void)set_food(p_ptr->food - i);
+			
 		}
 	}
 
@@ -2027,7 +2034,8 @@ static void process_command(void)
 		/* Save "screen dump" */
 		case ')':
 		{
-			do_cmd_save_screen();
+/*			do_cmd_save_screen();*/
+			do_cmd_save_screen_html();
 			break;
 		}
 

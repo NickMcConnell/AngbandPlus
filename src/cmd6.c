@@ -1575,7 +1575,7 @@ void do_cmd_read_scroll(void)
 
 			}
 
-				i_ptr->pval += 500;
+				i_ptr->pval += 1500;
 
 				if (i_ptr->pval > mechmax)
 				{
@@ -1606,6 +1606,15 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
+
+		case SV_SCROLL_LIFE_INSURANCE:
+			{
+				ident = TRUE;
+				msg_print("Lightning clouds hover about you.");
+				p_ptr->elemental_aura = TRUE;
+				break;
+			}
+
 
 		case SV_SCROLL_DETECT_GOLD:
 		{

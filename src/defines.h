@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.4"
+#define VERSION_STRING	"0.5.6"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	4
+#define VERSION_PATCH	6
 #define VERSION_EXTRA	0
 
 
@@ -823,6 +823,7 @@ Tenative exponential function:
 #define W_MIYAZAKI_TOWN		25
 #define W_KIKI_BAKERY		26
 #define W_MIYAZAKI_FOREST	27
+/*#define W_SOOT_BALL			28*/
 
 #define W_MAX			28
 
@@ -1441,7 +1442,7 @@ Tenative exponential function:
 #define EGO_KILL_TROLL		85
 #define EGO_KILL_GIANT		86
 #define EGO_KILL_DRAGON		95
-/* xxx */
+#define EGO_DUST			96
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1611,6 +1612,7 @@ Tenative exponential function:
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 #define SV_MAGIC_KNIGHT_SWORD	31	/* evolving */
 #define SV_COOKING_KNIFE		40	/* 1d4 */
+#define SV_BUSTER_EDGE			41	/* 13d1 */
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD		2
@@ -1908,6 +1910,7 @@ Tenative exponential function:
 #define SV_SCROLL_STAR_ACQUIREMENT		47
 
 #define SV_SCROLL_MECHA_REPAIR			48
+#define SV_SCROLL_LIFE_INSURANCE		49
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -2482,9 +2485,9 @@ Tenative exponential function:
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
 #define TR3_SUMMON			0x00000100L /* Random Summons */
-#define TR3_XXX2			0x00000200L
+#define TR3_NO_EAT			0x00000200L /* Food not necssary */
 #define TR3_XXX3			0x00000400L
-#define TR3_XXX4			0x00000800L
+#define TR3_DUST			0x00000800L /* Launches monsters into the air */
 #define TR3_IMPACT			0x00001000L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00002000L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
@@ -2589,7 +2592,7 @@ Tenative exponential function:
 #define CF_CHOOSE_SPELLS	0x00000040L	/* Allow choice of spells */
 #define CF_PSEUDO_ID_HEAVY	0x00000080L /* Allow heavy pseudo-id */
 #define CF_PSEUDO_ID_IMPROV	0x00000100L /* Pseudo-id improves quicker with player-level */
-#define CF_XXX10			0x00000200L
+#define CF_NO_STUDY			0x00000200L /* Study is not necessary */
 #define CF_XXX11			0x00000400L
 #define CF_XXX12			0x00000800L
 #define CF_XXX13			0x00001000L
@@ -2622,7 +2625,7 @@ Tenative exponential function:
 #define LB_NUKE                     4   /* Super Nuke - Android */  
 #define LB_WHIRLWIND				5   /* Whirlwind attack - Fellpool */
 #define LB_TENTACLE						6   /* Tentacle Molestation - Tentacruel */
-#define LB_POWER_BLAST				7   /* Super Bolt of Death - Sanjiyan */
+#define LB_POWER_BLAST				7   /* Raging Demon - Sanjiyan */
 #define LB_KEKKAI					8   /* Kekkai - Sky Dragon */
 #define LB_AHVB					9   /* Air Hyper Viper Beam */
 #define LB_FAIL					10  /* Failed Limit Break */
@@ -2695,9 +2698,9 @@ Tenative exponential function:
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
 #define RF2_WILD_ONLY		0x00000400	/* Monster only appears in wild */
-#define RF2_XXX4			0x00000800	/* (?) */
+#define RF2_MUTODORI		0x00000800	/* Monster can blade catch */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
-#define RF2_XXX5			0x00002000	/* (?) */
+#define RF2_CAN_SPEAK		0x00002000	/* Monster can speak */
 #define RF2_XXX7			0x00004000	/* (?) */
 #define RF2_ALWAYS_HIT		0x00008000	/* Monster always hits */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
@@ -2747,7 +2750,7 @@ Tenative exponential function:
 #define RF3_RES_PLAS		0x01000000	/* Resist plasma */
 #define RF3_RES_NEXU		0x02000000	/* Resist nexus */
 #define RF3_RES_DISE		0x04000000	/* Resist disenchantment */
-#define RF3_XXX6			0x08000000	/* Resist (?) */
+#define RF3_NO_DUST			0x08000000	/* Cannot be dusted */
 #define RF3_NO_FEAR			0x10000000	/* Cannot be scared */
 #define RF3_NO_STUN			0x20000000	/* Cannot be stunned */
 #define RF3_NO_CONF			0x40000000	/* Cannot be confused */

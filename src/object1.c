@@ -2398,6 +2398,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It induces earthquakes.";
 	}
 
+	if (f3 & (TR3_DUST))
+	{
+		info[i++] = "It launches monsters into the air.";
+	}
+
 	if (f3 & (TR3_SUMMON))
 	{
 		info[i++] = "It summons monsters randomly.";

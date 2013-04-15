@@ -10,6 +10,8 @@
 
 #include "animeband.h"
 
+#define SPEAK_CHANCE 8
+
 
 #ifdef DRS_SMART_OPTIONS
 
@@ -3480,6 +3482,51 @@ static void process_monster(int m_idx)
 		if (m_ptr->stunned) return;
 	}
 
+		/* Handle "dust" */
+	if (m_ptr->mondust)
+	{
+		int d = 1;
+
+		/* Make a "saving throw" against dust */
+		if (rand_int(5000) <= r_ptr->level * r_ptr->level)
+		{
+			/* Air recover! */
+			d = m_ptr->mondust;
+		}
+
+		/* Hack -- Recover from stun */
+		if (m_ptr->mondust > d)
+		{
+			/* Recover somewhat */
+			m_ptr->mondust -= d;
+		}
+
+		/* Fully recover */
+		else
+		{
+			/* Recover fully */
+			m_ptr->mondust = 0;
+
+			/* Message if visible */
+			if (m_ptr->ml)
+			{
+				char m_name[80];
+
+				/* Get the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+				/* Dump a message */
+				msg_format("%^s lands on the ground.", m_name);
+
+				/* Hack -- Update the health bar */
+				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+			}
+		}
+
+		/* Still stunned */
+		if (m_ptr->mondust) return;
+	}
+
 
 	/* Handle confusion */
 	if (m_ptr->confused)
@@ -3561,7 +3608,9 @@ static void process_monster(int m_idx)
 	ox = m_ptr->fx;
 
 
-	/* Attempt to "mutiply" if able and allowed */
+
+
+	/* Attempt to "multiply" if able and allowed */
 	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
 	{
 		int k, y, x;
@@ -3591,6 +3640,44 @@ static void process_monster(int m_idx)
 				/* Multiplying takes energy */
 				return;
 			}
+		}
+	}
+
+	/* Some monsters can speak */
+	if ((r_ptr->flags2 & RF2_CAN_SPEAK) &&
+		(rand_int(SPEAK_CHANCE) == 0) &&
+	    player_has_los_bold(oy, ox) &&
+	    projectable(oy, ox, p_ptr->py, p_ptr->px))
+	{
+		char m_name[80];
+		char monmessage[1024];
+		cptr filename;
+
+		
+
+		/* Acquire the monster name/poss */
+		if (m_ptr->ml)
+			monster_desc(m_name, m_ptr, 0);
+		else
+			strcpy(m_name, "It");
+
+		/* Select the file for monster quotes */
+		if (m_ptr->monfear)
+			filename = "monfear.txt";
+/*
+		else if (is_pet(m_ptr))
+			filename = "monpet.txt";
+		else if (is_friendly(m_ptr))
+			filename = "monfrien.txt";
+*/
+		else
+			filename = "monspeak.txt";
+		/* Get the monster line */
+		
+		if (get_rnd_line(filename, m_ptr->r_idx, monmessage) == 0)
+		{
+			
+			msg_format("%^s %s", m_name, monmessage);
 		}
 	}
 

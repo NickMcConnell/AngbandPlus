@@ -848,6 +848,7 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 	if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+	
 
 	/* Describe special abilities. */
 	if (vn)
@@ -900,6 +901,12 @@ static void roff_aux(int r_idx)
 	if (flags2 & (RF2_REGENERATE))
 	{
 		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
+	}
+
+	if (flags2 & (RF2_MUTODORI)) 
+	{
+			roff(format("%^s exploits flaws in your attacks.  ", wd_he[msex]));
+				
 	}
 
 

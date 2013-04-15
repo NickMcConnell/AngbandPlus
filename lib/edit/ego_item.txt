@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.5.6
 
 
 ### Body Armor ###
@@ -497,7 +497,15 @@ T:23:0:99
 F:WIS | 
 F:BLESSED
 
-# 67 (unused)
+# 67 Dust
+N:67:of Float
+X:24:20:0
+W:0:10:0:2000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:DUST
 
 N:68:of the Ako Ronin
 X:24:20:3

@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.5.6
 
 
 ##### Non-race (contains the "player" picture) #####
@@ -218,7 +218,7 @@ I:110:1d2:6:1:0
 W:0:1:0:0
 B:DROOL
 F:MALE | 
-F:RAND_25 | 
+F:RAND_25 | CAN_SPEAK |
 F:TAKE_ITEM
 D:The bane of all anime conventions...bald, fat, and ugly.
 
@@ -2672,11 +2672,11 @@ W:16:3:0:200
 B:PUNCH:HURT:3d5
 B:KICK:HURT:3d5
 B:PUNCH:HURT:3d5
-B:TOUCH:SHATTER
+B:TOUCH:SHATTER:7d7
 F:UNIQUE | 
 F:MALE | 
 F:FORCE_MAXHP | 
-F:KILL_WALL |
+F:KILL_WALL | MUTODORI |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 D:Ryouga Hibiki, though lacking a good sense of direction, is nonetheless 
@@ -4786,7 +4786,7 @@ B:HIT:HURT:10d5
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MUTODORI |
 S:1_IN_3 | 
 S:MISSILE
 D:A very talented swordsman who collects teacups and has issues with  
@@ -6141,9 +6141,9 @@ I:110:80d13:20:70:10
 W:40:3:0:1000
 B:CRUSH:HURT:8d12
 B:CRUSH:HURT:8d12
-B:HIT:ELEC:12d12
+B:HIT:HURT:12d12
 F:BASH_DOOR | 
-F:ANIMAL | IM_ELEC
+F:ANIMAL | EMPTY_MIND | STUPID |
 D:A large, gold colored bird.
 
 N:440:Dark Schneider
@@ -6190,7 +6190,7 @@ F:FORCE_MAXHP |
 F:STUPID | ANIMAL |  
 F:EVIL | IM_ACID | IM_FIRE | IM_POIS | IM_ELEC | IM_COLD |
 F:NO_CONF | NO_SLEEP | RES_NETH | RES_WATE | RES_PLAS |
-F:RES_NEXU | RES_DISE | NO_FEAR |
+F:RES_NEXU | RES_DISE | NO_FEAR | CAN_SPEAK |
 S:1_IN_2 | 
 S:SHRIEK | S_WRAITH | S_UNIQUE |
 D:He is a gray parrot with peach-colored feathers on his cheeks, 
@@ -7128,7 +7128,7 @@ B:HIT:PARALYZE:15d1
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | MUTODORI |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | MIND_BLAST | 
@@ -7139,20 +7139,20 @@ D:with disdainful ease.
 
 N:494:Miyamoto Musashi
 G:p:D
-I:140:45d100:90:100:10
+I:140:45d100:90:150:0
 W:65:3:0:50000
-B:HIT:HURT:20d10
-B:HIT:HURT:10d10
+B:HIT:SHATTER:20d10
+B:HIT:LOSE_ALL:10d10
 B:HIT:LOSE_STR:5d10
 B:HIT:LOSE_STR:5d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR |
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | CAN_SPEAK |
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI |
 S:1_IN_2 | 
-S:SCARE | BLINK | HASTE | HOLD |
+S:SCARE | BLINK | HASTE | HOLD | HEAL |
 D:The legendary swordsman and most frightening warrior ever.  Rumored 
 D:to have destroyed the Yoshioka School of swordsmanship singlehandedly 
 D:and winner of countless duels with many other legendary swordsmen.
@@ -7408,7 +7408,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | FORCE_LOCATION |
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-F:REGENERATE | NO_SUMMON |
+F:REGENERATE | NO_SUMMON | MUTODORI |
 S:1_IN_2 | 
 S:BLINK | DIVINE_COMEDY |
 S:BO_ELEC | BO_MANA | BA_MANA | CAUSE_3
@@ -7520,7 +7520,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | MUTODORI |
 S:1_IN_2 | 
 S:TELE_TO | BLIND | BO_MANA | 
 S:S_ANGEL | S_KIN
@@ -7706,7 +7706,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | 
-F:IM_POIS | NO_CONF | NO_SLEEP
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_DUST |
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
@@ -7835,7 +7835,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:SMART | BASH_DOOR | 
 F:EVIL | IM_POIS | 
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | NO_DUST |
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
@@ -7898,7 +7898,7 @@ F:FORCE_LOCATION | FORCE_SLEEP | FORCE_MAXHP | SMART |
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | 
-F:IM_ELEC | NO_CONF | NO_SLEEP
+F:IM_ELEC | NO_CONF | NO_SLEEP | NO_DUST |
 S:1_IN_2 | 
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS | BLINK | TPORT |
 S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH |
@@ -7956,7 +7956,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GREAT | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | POWERFUL |
+F:EVIL | POWERFUL | CAN_SPEAK |
 F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:DIVINE_COMEDY |
@@ -8012,8 +8012,8 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:EVIL | IM_FIRE | IM_COLD | IM_POIS | CAN_SPEAK |
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI | 
 S:1_IN_2 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
@@ -8118,7 +8118,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:ANIMAL | EVIL | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP | MUTODORI |
 S:1_IN_4 | 
 S:HEAL | SCARE | BRAIN_SMASH | 
 S:BR_FIRE | 
@@ -8156,7 +8156,7 @@ F:ESCORT | ESCORTS | SMART |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | UNDEAD | RESPAWN | PASS_WALL | INVISIBLE |
-F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | NO_SUMMON |
+F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP | NO_SUMMON | MUTODORI | NO_DUST |
 S:1_IN_2 | 
 S:HOLD | BLIND | CONF | SCARE | SLOW | CAUSE_4
 S:S_SPIDER | S_WRAITH
@@ -8180,7 +8180,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST |
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | HEAL |
 S:BRAIN_SMASH | FORGET | 
@@ -8213,7 +8213,7 @@ F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:SMART | KILL_WALL | MOVE_BODY | 
 F:REGENERATE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI | NO_DUST |
 S:1_IN_3 | 
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
@@ -8328,18 +8328,19 @@ I:130:64d20:20:50:20
 W:28:5:0:750
 B:HIT:HURT:3d4
 B:HIT:HURT:3d4
-B:HIT:SHATTER:10d10
+B:HIT:PARALYZE:3d5
 F:UNIQUE | 
 F:FORCE_MAXHP | FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:SMART | BASH_DOOR | 
-F:DEMON | IM_FIRE | IM_COLD | IM_ACID |
+F:SMART | BASH_DOOR | CAN_SPEAK |
+F:DEMON | IM_FIRE | IM_COLD | IM_ACID | MUTODORI |
 S:1_IN_3 | 
 S:BLINK | TPORT | TELE_LEVEL | HASTE | 
 S:MISSILE | HEAL |
 D:A 14 year old little spiky red haired boy who carries a 
 D:mean umbrella.  He constantly says, "Gomennasai, Mou 
-D:ikimasu!" because he is constantly on the go.
+D:ikimasu!" because he is constantly on the go.  Legend 
+D:has it that he is half demon and half human.
 
 N:557:Sesshoumaru, Youkai Lord of the West
 G:p:W
@@ -8358,7 +8359,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 |
 F:DROP_GOOD | DROP_GREAT |
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | NO_DUST |
 D:A tall man, dressed in a white kimono, bearing with him two swords
 D:and an odd fluffy thing on his shoulder.
 D:As he looks up, he brushes his hair out of his eyes,
@@ -8408,3 +8409,78 @@ B:HIT:HURT:20d10
 F:UNIQUE | MALE | FRIENDLY |
 F:FORCE_LOCATION | FORCE_MAXHP | NEVER_MOVE |
 D:An old gardener who misses his old forest.
+
+N:561:Multi-Hued icky thing
+G:i:b
+I:100:20d6:15:20:20
+W:28:4:0:20
+B:CRAWL:POISON:2d6
+B:CRAWL:FIRE:2d6
+B:HIT:COLD:2d6
+B:HIT:ACID:2d6
+F:ATTR_MULTI |
+F:FORCE_SLEEP | 
+F:SMART |
+F:MULTIPLY | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+S:1_IN_8 | 
+S:BLIND | CONF | SCARE | 
+S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | BO_POIS |
+D:A sentient icky thing.  It does not like what you have done to 
+D:other icky things.  You will not be forgiven.
+
+N:562:Giant Flaming Head
+G:u:r
+I:120:20d10:30:125:15
+W:49:2:0:4000
+B:BITE:FIRE:6d10
+B:BITE:HURT:3d12
+B:BITE:HURT:3d12
+B:WAIL:TERRIFY
+F:FORCE_SLEEP | IM_FIRE | WEIRD_MIND |
+F:NO_CONF | NO_SLEEP | FRIENDS |
+S:1_IN_3 | 
+S:BR_FIRE | BR_PLAS | 
+D:It's big, it's a skull, it's on fire, its scream instills panic in lesser 
+D:souls, and it looks sorta stupid, come to think of it. Dangerous, 
+D:though.
+
+N:563:Yagyu Jubei-Chan
+G:p:D
+I:140:90d100:90:250:0
+W:95:6:0:50000
+B:HIT:HURT:20d10
+B:HIT:HURT:10d10
+B:HIT:SHATTER:5d10
+B:HIT:LOSE_STR:5d5
+F:UNIQUE | FEMALE | 
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | NO_DUST | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | MUTODORI |
+S:1_IN_2 | 
+S:SCARE | BLINK | HASTE | HOLD | HEAL |
+S:MISSILE | BO_MANA |
+D:A super legendary warrior reincarnated into the body of a middle school girl.  
+D:She wears a heart shaped eye-patch and has the same swordsmanship skills as 
+D:the legendary Yagyu Jubei.  Hundreds have challenged Jubei, and none have 
+D:lived.  Jubei is renowned for exploiting people's weaknesses when they attack. 
+
+N:564:Smiling Bob, the Hententmon King
+G:M:R
+I:150:100d18:20:100:20
+W:44:2:0:6000
+B:MOLEST:LOSE_CHR:4d14
+B:MOLEST:LOSE_CHR:4d14
+B:MOLEST:LOSE_CHR:4d14
+B:MOLEST:LOSE_CHR:4d14
+F:FORCE_SLEEP | 
+F:UNIQUE | MALE |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | CAN_SPEAK |
+S:1_IN_2 | 
+S:SCARE | HOLD |
+D:Although all he has is one tentacle, it is a very large one.  He is the most 
+D:feared of all hentai tentacle monsters; all males are jealous of him, all 
+D:females are in awe of him.  Beware.

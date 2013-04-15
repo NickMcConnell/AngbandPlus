@@ -11,7 +11,8 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.5.6
+
 
 # Maximum number of wilderness scenes
 M:W:28
@@ -20,19 +21,19 @@ M:W:28
 M:F:100
 
 # Maximum number of object kinds
-M:K:593
+M:K:596
 
 # Maximum number of artifacts
-M:A:128
+M:A:129
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:562
+M:R:565
 
 # Maximum number of vaults
-M:V:38
+M:V:40
 
 # Maximum number of player races
 M:P:10

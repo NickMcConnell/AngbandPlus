@@ -891,6 +891,21 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->energy);
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
+
+	/* New flags for 056 */
+	if (!older_than(0, 5, 6))
+	{
+		rd_byte(&m_ptr->mondust);
+		rd_byte(&m_ptr->enlightenment);
+	}
+
+	else
+	{
+		m_ptr->mondust = 0;
+		m_ptr->enlightenment = 0;
+
+	}
+
 	rd_byte(&m_ptr->monfear);
 	rd_byte(&tmp8u);
 }
@@ -1507,7 +1522,7 @@ static errr rd_extra(void)
 	p_ptr->max_powers = STUDENT_MAX;
 
 	if (!older_than(0, 5, 4)){
-
+	
 	/* Game Type */
 	rd_s16b(&p_ptr->what_game_type);
 

@@ -1,0 +1,109 @@
+# This is the file for allowing uniques to speak their "own" lines
+# when in fear.
+#
+# Deleting this file will have no real effect on the game.  Modifying it may
+# cause STRANGE unique lines to come up if the format's wrong, but shouldn't
+# crash anything.  The format goes like so:
+# 
+# N:45:whoever this is
+# says line 1
+# says line 2
+# says line 3
+#
+# Empty line is separater of blocks.
+#
+# The number after the N: is the "monster index number" obtained from
+# r_info.txt.  The text field after that number isn't actually used--it's
+# just there to help humans edit the file.
+#
+# A '*' in the number field is a wildcard and applies to any monster.
+# It should only be placed at the end of the file, since all 'N:' lines
+# after it will be ignored.
+#
+# Two or more monsters can share lines; just put their N: lines in a
+# contiguous block.
+#
+# To stop a certain monster from having unique lines, put a # in front of
+# its N: line.
+#
+# Entries by Matt Graham, Andrew Hill, and Topi Ylinen
+
+N:442:Spike
+squawks very loudly!
+assumes an attack position!
+hisses loudly!
+
+N:494:Miyamoto Musashi
+hears birds chirping.
+says, 'Not bad.  Time to get serious.'
+
+N:535:Indalecio
+says, "Is it true that humans will destroy me?"
+says, "Why?  What is the significance of my existance?"
+
+N:556:Hisame Shizumaru
+says, 'Gomennasai, mou ikimasu!'
+says, 'Sorry, I have to go.'
+
+N:*:Default lines
+says, 'I am too young to die.'
+says, 'Ok, ok! I get: no more pals.'
+screams, 'Help, ho!'
+screams, 'What ho! Help!'
+says, 'You will pay for this!'
+says, 'Violence is no solution!'
+says, 'I thought you liked me.'
+says, 'Such senseless violence! I don't understand it!'
+screams, 'Ho! Murder! Murder!'
+says, 'Look, behind you!'
+screams, 'Run away!'
+screams, 'Run to the hills! Run for your lives!'
+says, 'Wait! Spare me and I'll make you rich! Money isn't a problem!'
+says, 'I'll be back...'
+says, 'Hey -- I've got lawyers!'
+says, 'All my possession for a moment of time!'
+says, 'Hey, it was only a joke, all right?'
+says, 'Stop!'
+says, 'Cut it out, will you?'
+says, 'I will not kneel. Strike!'
+screams, 'Cowards! Why did you not protect me?'
+screams, 'Idiots! I am surrounded by incompetent idiots!'
+says, 'I don't wanna die, I'm a god, why can't I live on?'
+yells, 'Someone call the Gendarmes!'
+screams, 'Keep that lunatic away from me!'
+shouts, 'Drop that weapon, now!'
+says, 'Fool! You don't know what you're doing!'
+screams for help!
+begs for mercy.
+sobs.
+screams, 'Help! The maniac's murdering me!'
+says, 'Just what is it you want? Money? Babes? I can arrange it...'
+says, 'Wait! Let's make a deal!'
+says, 'Just can't stop this surmounting terror!'
+says, 'If there is a God, then why has he let me die?'
+says, 'I know where I'm going -- out!'
+says, 'No hope, no life, just pain and fear.'
+says, 'I am a fugitive, hunted down like game.'
+says, 'You'll live to regret this blasphemous offence!'
+says, 'All my life's blood is slowly draining away...'
+asks, 'Should we be fighting at all?'
+asks, 'What are we fighting for?'
+asks you, 'Can you say you are proud of what you've done?'
+says, 'Every minute I get weaker...'
+says, 'All my life I've run away...'
+says, 'All that I see, absolute horror!'
+says, 'I have fallen prey to failure.'
+says, 'Just leave me alone!'
+says, 'Please, save me!'
+says, 'You've won a battle, but I'll win the war!'
+says, 'You've won this round, next time it's *my* turn!'
+says, 'Another time, another battlefield, *my* victory.'
+says, 'I've got to keep running.'
+says, 'It's all so futile!'
+says, 'Cowards live to fight another day.'
+says, 'Life it seems will fade away, drifting further every day.'
+says, 'Emptiness is filling me, to the point of agony.'
+says, 'Cannot stand this hell I feel!'
+cries, 'Someone help me, oh please God help me!'
+cries, 'Please! I have a mate and six siblings!'
+cries, 'Mama, they try and break me!'

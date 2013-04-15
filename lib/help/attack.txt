@@ -150,6 +150,10 @@ Weapon of Extra Attacks.
      A weapon of extra attacks will allow the wielder to deliver extra
      attacks during each round.
 
+Weapon of Float.
+     A weapon of float will allow the wielder to launch the monster into the
+     air, thus rending the monster helpless for a few turns.
+
 Elemental Branded Weapons.
      Each of the four elemental attacks has a corresponding weapon which 
      will do treble its base damage to creatures not resistant to that 

@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:0.5.4
+V:0.5.6
 
 
 # General Store

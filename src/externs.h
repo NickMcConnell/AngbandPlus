@@ -289,6 +289,7 @@ extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(int stop_search, int unused_flag);
 extern bool is_quest(int level);
+extern void map_info_default(int y, int x, byte *ap, char *cp);
 
 /* cmd1.c */
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -363,6 +364,7 @@ extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
+extern void do_cmd_save_screen_html(void);
 extern void do_cmd_knowledge(void);
 
 /* cmd5.c */
@@ -424,6 +426,8 @@ extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
 extern void display_scores_aux(int from, int to, int note, high_score *score);
+extern void html_screenshot(cptr name);
+extern void cmovie_clean_line(int y, char *abuf, char *cbuf);
 
 /* generate.c */
 extern void generate_cave(void);
@@ -473,6 +477,7 @@ extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
+extern errr get_rnd_line(cptr file_name, int entry, char *output);
 
 /* object1.c */
 extern void flavor_init(void);

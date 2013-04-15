@@ -534,6 +534,8 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	byte mondust;		/* Monster is launched in the air */
+	byte enlightenment; /* Monster is time dilated */
 
 	byte cdis;			/* Current dis from player */
 

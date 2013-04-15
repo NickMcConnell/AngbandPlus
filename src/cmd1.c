@@ -78,12 +78,12 @@ sint critical_shot(int weight, int plus, int dam)
 
 	/* Groove Specific Bounses */
 	if (p_ptr->pgroove == G_DRUNK){
-		choosenumber = 5000 - (p_ptr->c_alcohol * 225 / 100);
+		choosenumber = 5000 - 1250 * (p_ptr->c_meter * 3 / p_ptr->m_meter);
 	}
 
 	else if (p_ptr->pgroove == G_FIRE){
 
-		choosenumber = 5000 - (1750 * p_ptr->c_meter / p_ptr->m_meter);
+		choosenumber = 5000 - 1750 * (p_ptr->c_meter  * 2 / p_ptr->m_meter);
 	}
 
 	else
@@ -129,12 +129,12 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 	int choosenumber;
 	if (p_ptr->pgroove == G_DRUNK){
-		choosenumber = 5000 - (p_ptr->c_alcohol * 225/100);
+		choosenumber = 5000 - 1250 * (p_ptr->c_meter * 3 / p_ptr->m_meter);
 	}
 
 	else if (p_ptr->pgroove == G_FIRE){
 
-		choosenumber = 5000 - (1750 * p_ptr->c_meter / p_ptr->m_meter);
+		choosenumber = 5000 - 1250 * (p_ptr->c_meter * 2 / p_ptr->m_meter);
 	}
 
 	else
@@ -1750,7 +1750,7 @@ void hit_trap(int y, int x)
  */
 void py_attack(int y, int x)
 {
-	int num = 0, k, bonus, chance;
+	int num = 0, k, bonus, chance, amt;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -1764,6 +1764,10 @@ void py_attack(int y, int x)
 
 	bool do_quake = FALSE;
 
+	int m_idx = cave_m_idx[y][x];
+	u32b f1, f2, f3;
+
+	
 
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -1815,14 +1819,20 @@ void py_attack(int y, int x)
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
+	
 
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
+
+			
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
@@ -1838,6 +1848,12 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
+			/* Hack -- Chi Warriors bare hands do much more */
+			if (p_ptr->pclass == C_CHI_WARRIOR)
+			{
+				k = rand_int(p_ptr->lev + 5);
+			}
+
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
@@ -1848,11 +1864,42 @@ void py_attack(int y, int x)
 				k += o_ptr->to_d;
 			}
 
+			/* Hack -- Bakusai Tengetsu */
+			if (p_ptr->bakusai_tengetsu)
+			{
+				p_ptr->bakusai_tengetsu = FALSE;
+				do_quake = TRUE;
+			}
+
+
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
+			/* Apply groove specific bonuses */
+
+			if (p_ptr->pgroove == G_FIRE)
+			{
+				/* 33% extra damage */
+				k += (k / 6) * (p_ptr->c_meter * 2 / p_ptr->m_meter);
+			}
+
+			if (p_ptr->pgroove == G_DRUNK)
+			{
+				/* 50% extra damage */
+				k += (k / 6) * (p_ptr->c_meter * 3 / p_ptr->m_meter);
+			}
+
 			/* No negative damage */
 			if (k < 0) k = 0;
+
+			/* Hack -- Amaguri ken is a one time damage multiplier */
+			if (p_ptr->amaguri_ken)
+			{
+				/* Hack -- Revert Amaguri Ken */
+				p_ptr->amaguri_ken = FALSE;
+				msg_print("You use the Amaguri Ken technique");
+				k *= (p_ptr->lev / 10 + 1);
+			}
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1892,13 +1939,99 @@ void py_attack(int y, int x)
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
+
+			/* Super Punch */
+			if (p_ptr->super_punch)
+			{
+				p_ptr->super_punch = FALSE;
+				/* Message */
+				msg_print("Your hands stop glowing.");
+
+				/* Stun Monster */
+				m_ptr->stunned += 10 + rand_int(p_ptr->lev) / 5;
+
+				/* Launch monster into the air */
+				m_ptr->mondust += rand_int(5) + 3;
+
+				/* Phase Monster */
+				teleport_away(m_idx, 5);
+			}
+
+			/* Dust */
+			if (f3 & TR3_DUST)
+			{
+
+				/* Confuse the monster */
+				if (r_ptr->flags3 & (RF3_NO_DUST))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_NO_DUST);
+					}
+
+					msg_format("%^s is unaffected.", m_name);
+				}
+
+				if (rand_int(100) < r_ptr->level) 
+				{
+					msg_format("%^s is unaffected.", m_name);
+				}
+
+				else if ((!(m_ptr->mondust)) && (rand_int(50) > 35))
+				{
+					msg_format("%^s gets launched into the air!", m_name);
+					m_ptr->mondust += rand_int(5) + 3;
+
+				}
+
+
+			}
+
 		}
 
 		/* Player misses */
 		else
 		{
+			/* Hack -- a terrible miss will result in a blade catch by smart monsters */
+			if ((o_ptr->k_idx) && ((r_ptr->flags2) & (RF2_MUTODORI)))
+			{
+			
+				if ((!(test_hit_norm(chance, r_ptr->ac, m_ptr->ml))) && (rand_int(100) < 50))
+				{
+					msg_format("%^s catches your weapon and deflects it away!", m_name);
+
+					/* Get a quantity */
+					amt = get_quantity(NULL, o_ptr->number);
+
+					/* Apply Knowledge */
+					l_ptr->r_flags2 |= (RF2_MUTODORI); 
+
+					/* Hack -- Cannot remove cursed items */
+					if (cursed_p(o_ptr))
+					{
+							/* Oops */
+							msg_print("Your cursed weapon stays in your hand!");
+
+							/* Nope */
+							break;
+					}
+
+					if (!(test_hit_norm(chance, r_ptr->ac, m_ptr->ml)))
+					{
+					msg_format("You lose your grip on your weapon!");
+					/* Deflect weapon onto floor */
+					inven_drop(INVEN_WIELD, amt);
+					}
+					break;
+
+				}
+
+			}
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
+
+			
+			
 		}
 	}
 

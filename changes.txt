@@ -1,4 +1,78 @@
-9/08/03 -
+5/22/04 - 6/27/04
+Changes in Animeband 0.5.7
+- Androids never go hungry.
+- Lose less HP per turn in Drunk Style.  Alcohol lasts a little longer.
+- Study glitch fixed
+- Increased Parry Success, Parry Life recovery, Water style now gains meter when attacked.
+- Juraians int/wis is +3/+3, Sanjiyan int/wis is +5/+5
+- Metal style builds meter slightly slower
+- Added the Hengband monster speaking patch, courtesy of koka
+- Upgraded Hententmon and Ctarl-Ctarl Stealth, lowered Juraian Stealth.
+- Mimic strength penalty changed from -5 to -2
+- Mimic mp loss during mimic changed from one mp every three turns to one every ten turns.
+- Mimic has much better stealth
+- Blade catch 50% less likely
+- Fixed an idiot glitch that disables you from beating the game.  Thanks, AdamH :P
+
+Todo:
+- Add Blue Monsters
+- FAQ
+- Dante's sword
+- Throw ?
+- Enlightenment limit break
+- Chi Warrior Power - Issen
+- New weapon types - Fan, 
+- Store back rooms :)
+- Helpful creatures - Araiguma Rascal and Doraemon
+
+
+4/20/04 - 5/22/04
+Changes in Animeband 0.5.6:
+- Added the HTML screenshot patch.  It spews funky ASCII sometimes though...
+- Blade catching is toned down quite significantly.  Also, only a few monsters have it now.
+- Increased chances in cooking success.
+- New Dust attack flag for weapons and monsters.  Also add NO_LAUNCH flag.  Allows players 
+  to paralyze monsters.
+- New artifacts
+- Fixed a Magic Knight Glitch
+- Adjusted Fire and Drunk groove to do more damage
+- Updated Documents somewhat
+
+Todo:
+- Weapon descriptions
+- FAQ
+- Dante's sword
+- Throw ?
+- Enlightenment limit break
+- Chi Warrior Power - Issen
+
+4/02/04 - 4/20/04
+Changes in Animeband 0.5.5:
+- A VERY bad Magic Knight glitch fixed (if you hit level 50, weapon turns 
+  into an umbrella.  Woo-hoo.  This won't happen anymore :))
+- Magic Knights nerfed a bit.  I felt that they were too strong.
+- Some people may have gotten an old changes.txt file.  In that case ignore
+  the part about the Magic Knights.  The dice/sides DO evolve.
+- Chi Warrior Powers finally correctly implemented.  I also nerfed them 
+  a lot because they seem severely unbalanced.  They can't cook well
+  either or wield shields.  Oh well, only time will tell.
+- Mimics nerfed slightly.
+- Some monsters can "blade catch" you.  MWAHAHAHAHA!
+- Reduced required quests from 4 to just 2.  You must solve two quests
+  and kill Lina for the stairs to appear to DL 100, if you're in quest
+  mode.  Currently there are only 6 quests available..of course, this
+  will change eventually.
+- On the plus side, there's a new scroll called "Life Insurance".  Maybe 
+  this will make the game a lot easier.
+- Some new, most evil monsters :)
+- Some new vaults
+
+Todo:
+- Use flags more often instead of ghetto code :)
+- Implement a most evil AI....hopefully it'll be nastier than 4GAI.
+
+
+9/08/03 - 4/02/04
 Changes in Animeband 0.5.4:
 - QUESTS!!
 - Vending Machines and Ramen stands...oh my :)

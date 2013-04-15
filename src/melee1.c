@@ -163,6 +163,8 @@ bool make_attack_normal(int m_idx)
 
 	bool blinked;
 
+	bool fear = FALSE;
+
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -292,13 +294,13 @@ bool make_attack_normal(int m_idx)
 	if ((p_ptr -> pgroove == G_WATER) && (!(o_ptr->k_idx)))
 	{
 
-		if (rand_int((damage+1) * 50 ) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+		if (rand_int((damage+1) * 35 ) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 	         p_ptr->lev)
 	{
 		/* Message */
 		msg_format("%^s tries to attack you, but you parry the blow.", m_name);
 		(void)set_meter(p_ptr->c_meter+damage * 2);
-		(void)hp_player(3);
+		(void)hp_player(damage / 10);
 		continue;
 		
 	}
@@ -317,6 +319,18 @@ bool make_attack_normal(int m_idx)
 		continue;
 				
 	}
+
+	}
+
+	/* Hack - Ume-Shoryuken! */
+	if (p_ptr->ume_shoryu)
+	{
+		p_ptr->ume_shoryu = FALSE;
+		msg_format("%^s tries to attack you, but you do a psychic dragon punch!", m_name);
+
+		/* Damage, check for fear and death */
+		if (mon_take_hit(m_idx, p_ptr->lev, &fear, NULL)) break;
+		continue;
 
 	}
 
@@ -1268,6 +1282,15 @@ bool make_attack_normal(int m_idx)
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
+
+	/* Hack - Cross Counter */
+	if (p_ptr->cross_counter)
+	{
+		p_ptr->cross_counter = FALSE;
+		msg_print("You counterattack!");
+		if (mon_take_hit(m_idx, p_ptr->lev / 2, &fear, NULL)) break;
+		
+	}
 		}
 
 		/* Monster missed player */

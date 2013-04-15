@@ -187,8 +187,8 @@ have intrinsic abilities.
             race of scholars, and make very good mages and priests.  However,
             since taking a humanoid form, they have become pale versions of
             their original forms, and thus have somewhat iffy saving throws,
-            perception, and disarming.  They can quickly travel to a safe 
-            haven if need be. Sanjiyans can never be blinded.
+            perception, and disarming.  However, they can be raging demons if
+            need be.  Sanjiyans can never be blinded.
                
           Sky Dragons
             Sky Dragons are a race of people who defend the earth from the Land
@@ -207,15 +207,13 @@ have intrinsic abilities.
             creatures and they resist light, as they are in the light.
             Remnants also have very random powers.....
 
-=== Classes (outdated) ===
+=== Classes ===
  
  
-          Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  For the first few adventures
-          it  is  suggested that you run a warrior or rogue.  Spell casting
-          generally requires a more experienced  player  that  is  familiar
-          with survival techniques.
+          Once a race has been chosen, you will need to pick a class. For 
+	  the first few adventures it  is  suggested that you run a warrior 
+          or rogue.  Spell casting generally requires a more experienced  
+          player  that  is  familiar with survival techniques.
  
           Warrior
                A Warrior is a hack-and-slash character, who solves most  of
@@ -305,6 +303,20 @@ have intrinsic abilities.
               as their masters get stronger.  Magic Knight also get 3 
               intrinsic powers, depending on their fighting style.  Their mana
               is based on Intelligence.
+
+	Chi Warrior
+	      Chi Warriors are special martial artists, who prefer to use fists
+              and powerful chi attacks rather than actual weapons.  Thus, to 
+              keep their hands free, they do not wear shields.  However, they 
+              learn new techniques through parchments, and once a technique is 
+              learned, a Chi Warrior can swap that technique in when the 
+              situation requires it.
+
+	Mimic
+	      Mimics are masters of the art of illusion, being able to mimic 
+              whatever monsters they come in contact with and even mimicing 
+              their resistances and magical powers.  The limitation is that 
+	      they can only be as strong as the monsters they mimic.
  
 
 === Fighting Styles ===
@@ -499,8 +511,8 @@ are listed in the following table.
            Ctarl-Ctarl +3   -1   -1   +3   -1   +2      11         +20%
            Hententmon  +4   -4   -4   +6   +2   -6      12         +10%
            Sanjiyan    -1   +3   +3    0   -3   +2       8        +100%
-           Sky Dragon  +3   +1   +1   +2   +5   +2      12        +120%
-           High-Elf    +2   +2   +2   +2   +1   +2      10        +100%
+           Sky Dragon  +3   +1   +1   +2   +5   +2      12        +100%
+           Remnant     +2   +2   +2   +2   +1   +2      10        +100%
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -510,7 +522,9 @@ are listed in the following table.
            Ranger        +2      +2       0      +1      +1      +1
            Paladin       +3      -3      +1       0      +2      +2
            Student       -3      +1      -5      +2      +2      +5
-           Magic Knight  +1      -1      -3      +2      +2      +2
+           Magic Knight   0      -2      -4      +1      +1      +1
+	     Chi Warrior   +2      -2      -2      +2      +4      -1
+	     Mimic         -5	   +2      +2      -1      -1      +5		 
  
  
  

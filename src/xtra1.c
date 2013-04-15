@@ -705,7 +705,7 @@ static void prt_speed(void)
 
 static void prt_study(void)
 {
-	if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (p_ptr->pclass != C_MAGIC_KNIGHT)) /* UGLY hack */
+	if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (!(cp_ptr->flags & CF_NO_STUDY))) /* UGLY hack */
 	{
 		put_str("Study", ROW_STUDY, COL_STUDY);
 	}
@@ -856,6 +856,9 @@ static void health_redraw(void)
 
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
+
+		/* Dusted */
+		if (m_ptr->mondust) attr = TERM_SLATE;
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -1485,7 +1488,7 @@ static void calc_spells(void)
 	if (p_ptr->old_spells != p_ptr->new_spells)
 	{
 		/* Message if needed */
-		if ((p_ptr->new_spells) && (!p_ptr->mstudent) && (p_ptr->pclass != C_MAGIC_KNIGHT)) /* UGLY hack */
+		if ((p_ptr->new_spells) && (!(cp_ptr->flags & CF_NO_STUDY))) /* UGLY hack */
 		{
 			/* Message */
 			msg_format("You can learn %d more %s%s.",
@@ -2732,12 +2735,7 @@ static void calc_bonuses(void)
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-		/* Temporary Genei Jin */
-		if (p_ptr->geneijin){
-			p_ptr->num_blow = p_ptr->num_blow * 3;
-		}
-
+		
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
@@ -2760,6 +2758,83 @@ static void calc_bonuses(void)
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
 	}
+
+	/* Chi Warriors get severe penalty for weapon, if they are 
+	   somehow wielding one */
+	if ((p_ptr->pclass == C_CHI_WARRIOR) && (o_ptr->k_idx))
+	{
+		/* Reduce the real bonuses */
+		p_ptr->to_h -= 50;
+		p_ptr->to_d -= 50;
+
+		/* Reduce the mental bonuses */
+		p_ptr->dis_to_h -= 50;
+		p_ptr->dis_to_d -= 50;
+
+		/* Icky weapon */
+		p_ptr->icky_wield = TRUE;
+
+	}
+
+	if ((p_ptr->pclass == C_CHI_WARRIOR) && (inventory[INVEN_ARM].k_idx))
+	{
+		/* Reduce the real bonuses */
+		p_ptr->to_h -= 50;
+		p_ptr->to_d -= 50;
+
+		/* Reduce the mental bonuses */
+		p_ptr->dis_to_h -= 50;
+		p_ptr->dis_to_d -= 50;
+
+	
+	}
+
+	/* Hack -- Chi Warriors num_blow is determined by stats alone
+	  Should be changed to flags eventually */
+
+	if (p_ptr->pclass == C_CHI_WARRIOR) {
+
+		int str_index2;
+		int dex_index2;
+
+		/* Get the strength vs weight */
+		str_index2 = adj_str_blow[p_ptr->stat_ind[A_STR]];
+
+		/* Maximal value */
+		if (str_index2 > 11) str_index2 = 11;
+
+		/* Index by dexterity */
+		dex_index2 = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+		/* Maximal value */
+		if (dex_index2 > 11) dex_index2 = 11;
+
+		/* Use the blows table */
+		p_ptr->num_blow = blows_table[str_index2][dex_index2];
+
+		/* Maximal value */
+		if (p_ptr->num_blow > cp_ptr->max_attacks) p_ptr->num_blow = cp_ptr->max_attacks;
+
+		/* Require at least one blow */
+		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+		
+		/* Ghetto solution for Chi Warriors */
+		p_ptr->skill_dig += str_index2 * dex_index2;
+
+		/* Hack for Bakusai Tengetsu...for fun :) */
+
+		if (p_ptr->bakusai_tengetsu)
+		{
+			p_ptr->skill_dig = 1000;
+		}
+
+
+	}
+
+	/* Hack -- Temporary Genei Jin guarentees at least 3 blows per turn */
+		if (p_ptr->geneijin){
+			p_ptr->num_blow = p_ptr->num_blow * 3;
+		}
 
 
 	/*** Notice changes ***/

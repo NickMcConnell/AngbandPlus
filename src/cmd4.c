@@ -2487,6 +2487,109 @@ void do_cmd_load_screen(void)
 	screen_load();
 }
 
+/* HTML screen dump */
+/*
+ * Hack -- save a screen dump to a file
+ * Dump screen shot in HTML
+ */
+void do_cmd_save_screen_html(void)
+ {
+	int y, x;
+	char tmp_val[81];
+ 
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+	/* Ask for a file */
+        strcpy(tmp_val, "dump.html");
+	if (!get_string("File: ", tmp_val, 80)) return;
+
+	
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = hack[a&0x0F];
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Close it */
+	my_fclose(fff);
+
+
+	/* Message */
+	msg_print("Screen dump saved.");
+	message_flush();
+
+
+	/* Load screen */
+	screen_load();
+	html_screenshot(tmp_val);
+	msg_print("Dump saved.");
+}
+
 
 /*
  * Hack -- save a screen dump to a file
