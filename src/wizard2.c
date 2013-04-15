@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -382,6 +382,7 @@ static const tval_desc tvals[] =
 	{ TV_HELM,              "Helm"                 },
 	{ TV_GLOVES,            "Gloves"               },
 	{ TV_BOOTS,             "Boots"                },
+	{ TV_MECHA,			"Mechas"			   },
 	{ TV_CLOAK,             "Cloak"                },
 	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
 	{ TV_HARD_ARMOR,        "Hard Armor"           },

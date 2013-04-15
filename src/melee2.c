@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef DRS_SMART_OPTIONS
@@ -330,6 +330,12 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 static bool summon_possible(int y1, int x1)
 {
 	int y, x;
+
+	/* Kekkai prevents summoning */
+	if (p_ptr->kekkai) {
+
+		return FALSE;
+	}
 
 	/* Start at the player's location, and check 2 grids in each dir */
 	for (y = y1 - 2; y <= y1 + 2; y++)
@@ -1785,7 +1791,7 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX1X6 */
+		/* RF6_XXX6 */
 		case RF6_OFFSET+1:
 		{
 			break;
@@ -1935,9 +1941,14 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX5 */
+		/* RF6_DIVINE_COMEDY */
 		case RF6_OFFSET+11:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s yells 'Swallow this pathetic fool!'", m_name);
+			else msg_format("%^s yells 'Swallow this pathetic fool!'", m_name);
+			breath(m_idx, GF_MANA,
+			       (rlev * 6) + damroll(15, 15));
 			break;
 		}
 
@@ -1981,9 +1992,21 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX6X6 */
+		/* RF6_S_DRAGON_SLAVE */
 		case RF6_OFFSET+15:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s yells 'Dragon Slave!'", m_name);
+			else msg_format("%^s yells 'Dragon Slave!'", m_name);
+			
+			
+				breath(m_idx, GF_METEOR,
+			       randint(rlev * 10) + 10);
+				
+			if (blind && count)
+			{
+				msg_print("You feel immensely hot!");
+			}
 			break;
 		}
 

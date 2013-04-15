@@ -9,7 +9,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 #include "init.h"
 
@@ -1832,6 +1832,8 @@ static void do_curse(artifact_type *a_ptr)
 		a_ptr->flags3 |= TR3_DRAIN_EXP;
 	if (rand_int(7) == 0)
 		a_ptr->flags3 |= TR3_TELEPORT;
+	if (rand_int(20) == 0)
+		a_ptr->flags3 |= TR3_SUMMON;
 
 	if ((a_ptr->pval > 0) && (rand_int(2) == 0))
 		a_ptr->pval = -a_ptr->pval;

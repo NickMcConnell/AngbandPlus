@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.9.3   **   The Pits of Angband   **
+              **   		Animeband 0.5.0  		        **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,18 +15,40 @@
 
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+				Animeband 0.5.0 by Ernest Huang
+
+        Send comments, bug reports, and patches, to "blahg@ucla.edu"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
 
 
+=== Added info by the Maintainer ===
+
+Welcome to Animeband 0.5.0!
+
+This is my very first variant, and while I'm somewhat familiar with C++, I am not
+that familiar with C.  You will notice my changes have a somewhat strange, almost
+ghetto style ^_^.  I intend to clean up whatever messes I might have made, and if
+you see things that need changing, don't hesitate to tell me.
+
+This is really more of a big hack on V 2.9.3 than a true variant.  I intend to add
+more things in the future (like a train station....we need a train station), along
+with quests (as soon as I figure out how that works), and possibly randarts and
+whatever else I might cook up (maybe capturable Pokemon?....)
+
+So until this reaches 1.0.0, this is not really done.  However, I hope you have fun
+with it.
+
+-- Ernest Huang (Yumi_Saotome on #angband)
+
+
 === General Info ===
 
-This is the README file for Angband 2.9.3 (8th July 2000).
+This is the README file for Animeband 0.5.0 (17th January 2003).
 
-Angband is a "graphical" dungeon adventure game using textual characters
+Animeband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
 in the vein of "rogue", "hack", "nethack", and "moria".
 
@@ -38,7 +60,7 @@ a list (mostly complete) of what has changed in each recent version.
 See the various Angband ftp sites (including "clockwork.dementia.org" and
 "ftp.cis.ksu.edu") for the latest files, patches, and executables.
 
-Contact Robert Ruehlmann < rr9@angband.org > to report bugs. Use the
+Contact Ernest Huang < blahg@ucla.edu > to report bugs. Use the
 newsgroup "rec.games.roguelike.angband" to ask general questions about the
 game, including compilation questions.
 

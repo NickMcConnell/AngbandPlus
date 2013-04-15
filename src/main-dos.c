@@ -67,7 +67,7 @@
  * typing escape, plus control-x, plus escape.  XXX XXX XXX
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef USE_DOS

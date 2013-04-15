@@ -1,7 +1,7 @@
 === The Dungeon ===
 
 
-After you have created your character, you will begin your Angband adventure.
+After you have created your character, you will begin your Animeband adventure.
 Symbols appearing on your screen will represent the dungeon's walls, floor,
 objects, features, and creatures lurking about.  In order to direct your
 character through his adventure, you will enter single character commands
@@ -291,7 +291,7 @@ It acts in two manners, depending upon  your current location.  If read
 within the dungeon, it will teleport you back to town.  If read in town, it
 will teleport you back down to the deepest level of the dungeon which your
 character has previously been on.  This makes the scroll very useful for
-getting back to the deeper levels of Angband.  Once the scroll has been
+getting back to the deeper levels of Animeband.  Once the scroll has been
 read it takes a while for the spell to act, so don't expect it to save you
 in a crisis.  Reading a second scroll before the first has had a chance to
 take effect will cancel both scrolls.

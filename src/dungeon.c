@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -142,6 +142,7 @@ static void sense_inventory(void)
 			case TV_SWORD:
 			case TV_BOOTS:
 			case TV_GLOVES:
+			case TV_MECHA:
 			case TV_HELM:
 			case TV_CROWN:
 			case TV_SHIELD:
@@ -370,6 +371,7 @@ static void regen_monsters(void)
 static void process_world(void)
 {
 	int i, j;
+	int counter;
 
 	int regen_amount;
 
@@ -512,6 +514,19 @@ static void process_world(void)
 
 	/*** Damage over Time ***/
 
+	/* Lose mp in magical student form */
+	if (p_ptr->mag_student)
+	{
+		if (p_ptr->csp >0)
+		p_ptr->csp = p_ptr->csp - 1;
+
+	/* Display the mana points */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
 	/* Take damage from poison */
 	if (p_ptr->poisoned)
 	{
@@ -544,6 +559,76 @@ static void process_world(void)
 		take_hit(i, "a fatal wound");
 	}
 
+	/* Liver processing alcohol every 10 turns */
+	if (!(turn % 10))
+	{
+		if (p_ptr->c_alcohol > 0)
+			(void)set_drunk(p_ptr->c_alcohol - 1);
+
+	}
+
+	/* Must be constantly buzzed in drunk groove */
+
+	if ((p_ptr->c_alcohol == 0) && (p_ptr->pgroove == G_DRUNK)) {
+
+		take_hit(1, "alcohol withdrawal");
+	}
+
+
+	if (p_ptr->c_alcohol > PY_ALCOHOL_MAX) /* Drunk Penalties*/
+	{
+		
+		/* Faint occasionally */
+			if (!p_ptr->paralyzed && (rand_int(100) < 10))
+			{
+				/* Message */
+				msg_print("You faint from the alcohol.");
+				disturb(1, 0);
+
+				/* Hack -- faint (bypass free action) */
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(15));
+			}
+
+		/* Stagger */
+			if (!p_ptr->slow && (rand_int(100) < 10)){
+
+				/* Message */
+				msg_print("You stagger around.");
+				disturb(1, 0);
+		/* Hack -- Slow */
+		(void)set_slow(p_ptr->slow + 1 + rand_int(15));
+			}
+
+		/* Poison */
+			if (!p_ptr->poisoned && (rand_int(100) < 10)){
+
+				/* Message */
+				msg_print("You start to vomit.");
+				disturb(1, 0);
+
+		(void)set_poisoned(p_ptr->poisoned + 1 + rand_int(15));
+			}
+
+		/* Confused */
+		if (!p_ptr->confused && (rand_int(100) < 10)){
+
+				/* Message */
+				msg_print("You feel weird.");
+				disturb(1, 0);
+		(void)set_confused(p_ptr->confused + 1 + rand_int(15));
+			}
+
+		/* Hallucination */
+			if (!p_ptr->image && (rand_int(100) < 10)){
+
+				/* Message */
+				msg_print("You start seeing colors!");
+				disturb(1, 0);
+		(void)set_image(p_ptr->image + 1 + rand_int(15));
+			}
+
+		take_hit(1, "Alcohol abuse");
+	}
 
 	/*** Check the Food, and Regenerate ***/
 
@@ -634,6 +719,9 @@ static void process_world(void)
 	{
 		regen_amount = regen_amount * 2;
 	}
+
+	/* Student cannot recover mana if magical */
+	if (p_ptr->mag_student) regen_amount = 0;
 
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
@@ -732,6 +820,36 @@ static void process_world(void)
 	if (p_ptr->shero)
 	{
 		(void)set_shero(p_ptr->shero - 1);
+	}
+
+	/* Super Sayian */
+	if (p_ptr->s_sayian)
+	{
+		(void)set_s_sayian(p_ptr->s_sayian - 1);
+	}
+	/* Magical Student */
+	if (p_ptr->mag_student)
+	{
+		(void)set_mag_student();
+
+	}
+	/* Orbs!! */
+	if (p_ptr->ouroborous)
+	{
+		for (counter = 1; counter < 10; counter++){
+			fire_bolt(GF_MISSILE, counter , damroll(2, 6));
+		}
+		(void)set_ouroborous(p_ptr->ouroborous - 1);
+	}
+	/* Genei Jin */
+	if (p_ptr->geneijin)
+	{
+		(void)set_geneijin(p_ptr->geneijin - 1);
+	}
+	/* Kekkai */
+	if (p_ptr->kekkai)
+	{
+		(void)set_kekkai(p_ptr->kekkai - 1);
 	}
 
 	/* Blessed */
@@ -947,6 +1065,19 @@ static void process_world(void)
 		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
 	}
 
+	/** Unwanted Summoning **/
+	if ((p_ptr->summon) && (rand_int(100) < 1 ))
+	{
+		int px = p_ptr->px;
+		int py = p_ptr->py;
+			for (i = 0; i < randint(4); i++)
+			{
+			summon_specific(py, px, p_ptr->depth, 0);
+			
+			}
+		
+	}
+
 
 	/*** Involuntary Movement ***/
 
@@ -1113,6 +1244,10 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+	/* For Student */
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_BODY];
+
 
 #ifdef ALLOW_REPEAT
 
@@ -1412,6 +1547,66 @@ static void process_command(void)
 			do_cmd_pray();
 			break;
 		}
+
+		/* Activate Limit Break */
+		case 'Z':
+		{
+			do_cmd_super();
+			break;
+
+			}
+		/* Use Student Power */
+		case 'h':
+			{
+				do_cmd_power();
+				break;
+			}
+
+		/* Fire Mecha guns */
+		case 'x':
+			{
+				do_cmd_mechfire();
+				break;
+			}
+
+		/* Taunt */
+		case 'U':
+			{
+				do_cmd_taunt();
+				break;
+			}
+
+		/* Transform */
+		case 'O':
+			{
+				if (!p_ptr->mstudent){
+					msg_print("You cannot transform!");
+					break;
+				}
+				else if (p_ptr->mag_student){
+					msg_print("You switch back to normal.");
+					p_ptr->mag_student = FALSE;
+					break;
+				}
+				else if (p_ptr->csp < 1){
+					msg_print("You don't have enough mana to transform!");
+					break;
+				}
+				else if ((p_ptr->lev < 30) && (!((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_FILTHY_RAG)))){
+					msg_print("You need to wear a school uniform!");
+					break;
+				}
+				else {
+					msg_print("You transform!");
+					p_ptr->mag_student = TRUE;
+					/* Recalculate bonuses */
+					p_ptr->update |= (PU_BONUS);
+					handle_stuff();
+					
+				}
+				break;
+			}
+
 
 
 		/*** Use various objects ***/

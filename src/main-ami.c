@@ -19,7 +19,7 @@
 	WWW			: http://www.angband.pwp.blueyonder.co.uk
 */
 
-#include "angband.h"
+#include "animeband.h"
 
 #ifdef USE_AMI
 

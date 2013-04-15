@@ -8,7 +8,7 @@
  * are included in all such copies.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*

@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -299,10 +299,39 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_PINT_OF_ALE:
+		case SV_FOOD_BOTTLE_OF_SAKE:
+		{
+			msg_print("Mmm....sake...");
+
+		/* Get more meter */
+		(void)set_meter(p_ptr->c_meter + 25);
+
+		if (p_ptr->pgroove == G_DRUNK){
+			(void)set_meter(p_ptr->c_meter + 25);
+		}
+
+
+		/* Slightly more buzzed */
+	(void)set_drunk(p_ptr->c_alcohol + 250);
+
+			ident = TRUE;
+			break;
+		}
+
 		case SV_FOOD_PINT_OF_WINE:
 		{
-			msg_print("That tastes good.");
+			msg_print("Mmm....good wine...");
+			
+		/* Get more meter */
+		(void)set_meter(p_ptr->c_meter + 10);
+
+		if (p_ptr->pgroove == G_DRUNK){
+			(void)set_meter(p_ptr->c_meter + 25);
+		}
+
+		/* Slightly more buzzed */
+	(void)set_drunk(p_ptr->c_alcohol + 100);
+
 			ident = TRUE;
 			break;
 		}
@@ -3158,11 +3187,12 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_STINKING_CLOUD:
+			case ACT_SOKN:
 			{
-				msg_format("Your %s throbs deep green...", o_name);
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir, 12, 3);
+				msg_print("The dungeon goes black...");
+				
+				fire_ball(GF_HOLY_ORB, 0,200,1);
+				          
 				break;
 			}
 
@@ -3182,11 +3212,11 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST3:
+			case ACT_TYPHOON:
 			{
-				msg_format("Your %s glows a intense blue...", o_name);
+				msg_print("You feel a rush of wind...");
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 100, 2);
+				fire_ball(GF_FORCE, dir, 100, 2);
 				break;
 			}
 
@@ -3266,11 +3296,10 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_DRAIN_LIFE1:
+		case ACT_SEPPUKU:
 			{
-				msg_format("Your %s glows white...", o_name);
-				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 90);
+				msg_print("You commit ritual suicide...");
+				take_hit(6000, "Honorable suicide");
 				break;
 			}
 
@@ -3280,6 +3309,8 @@ void do_cmd_activate(void)
 				(void)brand_bolts();
 				break;
 			}
+			
+
 		}
 
 		/* Set the recharge time */

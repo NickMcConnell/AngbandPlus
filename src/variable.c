@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -421,6 +421,7 @@ const player_sex *sp_ptr;
 const player_race *rp_ptr;
 const player_class *cp_ptr;
 const player_magic *mp_ptr;
+//const player_power *pp_ptr;
 
 /*
  * The player other record (static)

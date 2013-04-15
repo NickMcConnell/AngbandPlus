@@ -9,8 +9,8 @@
  * (kligys@scf.usc.edu).
  ****************************************************************************/
 
-/* Angband header files */
-#include "angband.h"
+/* animeband.header files */
+#include "animeband.h"
 
 #ifdef USE_LSL
 

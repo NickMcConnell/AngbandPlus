@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -74,11 +74,26 @@ sint critical_shot(int weight, int plus, int dam)
 {
 	int i, k;
 
+	int choosenumber;
+
+	/* Groove Specific Bounses */
+	if (p_ptr->pgroove == G_DRUNK){
+		choosenumber = 5000 - p_ptr->c_alcohol;
+	}
+
+	else if (p_ptr->pgroove == G_FIRE){
+
+		choosenumber = 5000 - (1000 * p_ptr->c_meter / p_ptr->m_meter);
+	}
+
+	else
+		choosenumber = 5000;
+
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
 
 	/* Critical hit */
-	if (randint(5000) <= i)
+	if (randint(choosenumber) <= i)
 	{
 		k = weight + randint(500);
 
@@ -112,12 +127,24 @@ sint critical_shot(int weight, int plus, int dam)
 sint critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
+	int choosenumber;
+	if (p_ptr->pgroove == G_DRUNK){
+		choosenumber = 5000 - p_ptr->c_alcohol;
+	}
+
+	else if (p_ptr->pgroove == G_FIRE){
+
+		choosenumber = 5000 - (1000 * p_ptr->c_meter / p_ptr->m_meter);
+	}
+
+	else
+		choosenumber = 5000;
 
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if (randint(5000) <= i)
+	if (randint(choosenumber) <= i)
 	{
 		k = weight + randint(650);
 
@@ -1152,7 +1179,13 @@ void py_attack(int y, int x)
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
 			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			if (p_ptr->geneijin){
+			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.  Oi!", m_name);
+			}
+
+			else {
+				message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			}
 
 			/* Hack -- bare hands do one damage */
 			k = 1;

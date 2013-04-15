@@ -10,7 +10,7 @@
 
 /* Purpose: a generic, efficient, terminal window package -BEN- */
 
-#include "angband.h"
+#include "animeband.h"
 
 #include "z-term.h"
 

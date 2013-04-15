@@ -16,78 +16,78 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 # General Store
-N:0:0:Bilbo the Friendly
-I:3:200:175:108:4:12
-N:0:1:Rincewind the Chicken
-I:0:200:175:108:4:12
-N:0:2:Snafu the Midget
-I:4:300:170:107:5:15
-N:0:3:Lyar-el the Comely
-I:2:300:165:107:6:18
+N:0:0:Rolf the Money Guy
+I:0:200:200:110:4:12
+N:0:1:Karin Kanzuki
+I:0:200:180:107:5:15
+N:0:2:Heath-Chan the Fair
+I:1:200:170:107:5:15
+N:0:3:Kiki the Witch
+I:0:300:155:107:6:18
 
 # Armoury
-N:1:0:Kon-Dar the Ugly
-I:6:5000:210:115:5:7
-N:1:1:Darg-Low the Grim
-I:0:10000:190:111:4:9
-N:1:2:Decado the Handsome
-I:8:25000:200:112:4:10
-N:1:3:Mauglin the Grumpy
-I:5:30000:200:112:4:5
+N:1:0:Gohan the Super Sayian
+I:2:5000:210:115:5:7
+N:1:1:Ayeka the Annoying
+I:3:10000:190:111:4:9
+N:1:2:Anti the Social
+I:6:25000:240:132:4:10
+N:1:3:Miyazawa Yukino
+I:0:30000:200:112:4:5
 
 # Weapon Smith
-N:2:0:Ithyl-Mak the Beastly
-I:7:5000:210:115:6:6
-N:2:1:Arndal Beast-Slayer
-I:1:10000:185:110:5:9
-N:2:2:Tarl Beast-Master
-I:3:25000:190:115:5:7
-N:2:3:Oglign Dragon-Slayer
-I:5:30000:195:112:4:8
+N:2:0:Terles the Cruel
+I:2:5000:220:120:6:6
+N:2:1:Gourry Demon-Slayer
+I:0:10000:185:110:5:9
+N:2:2:Donovan Sword-Master
+I:0:25000:190:115:5:7
+N:2:3:Kamui Dragon-Slayer
+I:8:30000:195:112:4:8
 
 # Temple
-N:3:0:Ludwig the Humble
+N:3:0:Cherry the Nimble
 I:0:5000:175:109:6:15
-N:3:1:Gunnar the Paladin
+N:3:1:Lady Kaede
 I:0:10000:185:110:5:23
-N:3:2:Delilah the Pure
-I:2:25000:180:107:6:20
-N:3:3:Bosk the Wise
-I:5:30000:185:109:5:15
+N:3:2:Sylphiel the Timid
+I:0:25000:160:107:6:20
+N:3:3:Parara
+I:9:30000:175:109:5:15
 
 # Alchemist
-N:4:0:Mauser the Chemist
-I:1:10000:190:111:5:8
-N:4:1:Wizzle the Chaotic
-I:3:10000:190:110:6:8
-N:4:2:Ga-nat the Greedy
-I:4:15000:200:116:6:9
-N:4:3:Vella the Slender
+N:4:0:Bowman Jean the Doctor
+I:0:10000:190:111:5:8
+N:4:1:Kasumi the Tom Boy
+I:0:10000:190:110:6:8
+N:4:2:Sasami the Cheerful
+I:3:15000:200:116:6:9
+N:4:3:Ayanojou Aburatsubo 
 I:0:15000:220:111:4:9
 
 # Magic Shop
-N:5:0:Ariel the Sorceress
-I:1:20000:200:110:7:8
-N:5:1:Buggerby the Great
-I:4:20000:215:113:6:10
-N:5:2:Inglorian the Mage
+N:5:0:Amelia the Justice Freak
+I:0:20000:200:110:7:8
+N:5:1:Wapiko the Insanely Cute Schoolgirl
+I:7:20000:215:113:6:10
+N:5:2:Takeo Takakura 
 I:0:30000:200:110:7:10
-N:5:3:Luthien Starshine
-I:9:30000:175:110:5:11
+N:5:3:Noel Chandler
+I:1:30000:175:110:5:11
 
 # Black Market
-N:6:0:Lo-Hak the Awful
-I:7:20000:250:150:10:5
-N:6:1:Histor the Goblin
+N:6:0:Leon Geeste the Bratty
+I:5:20000:250:150:10:5
+N:6:1:The Tentacruel
 I:6:20000:250:150:10:5
-N:6:2:Durwin the Shifty
+N:6:2:Spike the Cowboy
 I:0:30000:250:150:10:5
-N:6:3:Drago the Fair
-I:2:30000:250:150:10:5
+N:6:3:Fujiko Mine the Fair
+I:0:30000:250:150:10:5
 
 # Home
 N:7:0:Your home

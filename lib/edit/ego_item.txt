@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 ### Body Armor ###
@@ -499,15 +499,15 @@ F:BLESSED
 
 # 67 (unused)
 
-N:68:of Westernesse
-X:24:20:0
-W:0:10:0:20000
+N:68:of the Ako Ronin
+X:24:20:3
+W:0:10:0:40000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_EVIL |
 F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
@@ -723,7 +723,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 101 (unused)
 
-N:102:of Morgul
+N:102:of Newbility
 X:24:0:0
 W:5:20:0:0
 C:20:20:10:0

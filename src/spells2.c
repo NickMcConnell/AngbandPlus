@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -430,6 +430,30 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
+	if (p_ptr->pgroove == G_FIRE){
+
+		info[i++] = "You fight like a raging fire.";
+	}
+
+	else if (p_ptr->pgroove == G_WATER) {
+
+		info[i++] = "You fight like water.";
+	}
+
+	else if (p_ptr->pgroove == G_WIND) {
+
+		info[i++] = "You fight like the wind.";
+	}
+
+	else if (p_ptr->pgroove == G_METAL) {
+
+		info[i++] = "You fight with the force of iron.";
+	}
+
+	else if (p_ptr->pgroove == G_DRUNK) {
+
+		info[i++] = "You fight like a drunk.";
+	}
 
 	if (p_ptr->blind)
 	{
@@ -464,6 +488,12 @@ void self_knowledge(void)
 	{
 		info[i++] = "You aggravate monsters.";
 	}
+
+	if (p_ptr->summon)
+	{
+		info[i++] = "You are trying to earn the right to live.";
+	}
+
 	if (p_ptr->teleport)
 	{
 		info[i++] = "Your position is very uncertain.";
@@ -480,6 +510,26 @@ void self_knowledge(void)
 	if (p_ptr->shero)
 	{
 		info[i++] = "You are in a battle rage.";
+	}
+	if (p_ptr->s_sayian)
+	{
+		info[i++] = "You are a Super Sayian.";
+	}
+	if (p_ptr->mag_student)
+	{
+		info[i++] = "You are a magical student.";
+	}
+	if (p_ptr->geneijin)
+	{
+		info[i++] = "You have invoked Genei Jin.";
+	}
+	if (p_ptr->ouroborous)
+	{
+		info[i++] = "There are orbs floating around you.";
+	}
+	if (p_ptr->kekkai)
+	{
+		info[i++] = "You have formed a Kekkai.";
 	}
 	if (p_ptr->protevil)
 	{
@@ -1605,6 +1655,7 @@ static bool item_tester_hook_armour(const object_type *o_ptr)
 		case TV_HELM:
 		case TV_BOOTS:
 		case TV_GLOVES:
+		case TV_MECHA:
 		{
 			return (TRUE);
 		}
@@ -2336,6 +2387,12 @@ void aggravate_monsters(int who)
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
+			if ((who == -1) && (m_ptr->mspeed < 200)) {
+
+				m_ptr->mspeed += 10;
+
+			}
+
 			/* Speed up (instantly) to racial base + 10 */
 			if (m_ptr->mspeed < r_ptr->speed + 10)
 			{
@@ -2348,7 +2405,12 @@ void aggravate_monsters(int who)
 
 	/* Messages */
 	if (speed) msg_print("You feel a sudden stirring nearby!");
+	/* Meter Bonus (if deep enough)*/
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
+	if (((speed) || (sleep)) && (who == -1))
+	if (p_ptr->lev < p_ptr->depth){
+		(void)set_meter(p_ptr->c_meter + p_ptr->depth - p_ptr->lev);
+	}
 }
 
 
@@ -2435,7 +2497,40 @@ bool mass_genocide(void)
 	return (result);
 }
 
+bool kekkai(void) //Kekkai being repeated mass Genocide...kinda cheap, but functional
+{
+	int i;
 
+	bool result = FALSE;
+
+
+	/* Delete the (nearby) monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Hack -- Skip unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+		/* Skip distant monsters */
+		//if (m_ptr->cdis > MAX_SIGHT) continue;
+
+		/* Delete the monster */
+		delete_monster_idx(i);
+
+		/* Take some damage */
+		//take_hit(randint(3), "the strain of casting Mass Genocide");
+
+		/* Note effect */
+		result = TRUE;
+	}
+
+	return (result);
+}
 
 /*
  * Probe nearby monsters

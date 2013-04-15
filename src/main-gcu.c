@@ -16,7 +16,7 @@
  * To use this file, you must define "USE_GCU" in the Makefile.
  *
  *
- * Hack -- note that "angband.h" is included AFTER the #ifdef test.
+ * Hack -- note that "animeband.h" is included AFTER the #ifdef test.
  * This was necessary because of annoying "curses.h" silliness.
  *
  * Note that this file is not "intended" to support non-Unix machines,
@@ -46,7 +46,7 @@
  */
 
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef USE_GCU

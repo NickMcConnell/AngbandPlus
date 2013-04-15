@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -948,6 +948,12 @@ static s32b object_value_real(const object_type *o_ptr)
 			/* Done */
 			break;
 		}
+		case TV_MECHA:
+			{
+				/* Pay extra for HP */
+				value += ((value / 100000) * o_ptr->pval);
+				break;
+			}
 
 		/* Rings/Amulets */
 		case TV_RING:
@@ -1172,6 +1178,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_BOOTS:
+		case TV_MECHA:
 		case TV_GLOVES:
 		case TV_HELM:
 		case TV_CROWN:
@@ -2800,6 +2807,11 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
+		/* Mechas are good */
+		case TV_MECHA:
+		{
+			return (TRUE);
+		}
 
 		/* Rings -- Rings of Speed are good */
 		case TV_RING:
@@ -3990,6 +4002,10 @@ s16b inven_takeoff(int item, int amt)
 	{
 		act = "You were holding";
 	}
+	else if (item == INVEN_MECHA)
+	{
+		act = "You were riding";
+	}
 
 	/* Took off something */
 	else
@@ -4423,53 +4439,56 @@ void spell_info(char *p, int spell)
 			case SPELL_FIRE_BOLT:
 				sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4)));
 				break;
-			case SPELL_FROST_BALL:
+			case SPELL_SHADOW_FLARE:
 				sprintf(p, " dam %d", 30 + plev);
 				break;
 			case SPELL_HASTE_SELF:
 				sprintf(p, " dur %d+d20", plev);
 				break;
-			case SPELL_FIRE_BALL:
+			case SPELL_STAR_FLARE:
 				sprintf(p, " dam %d", 55 + plev);
+				break;
+			case SPELL_SOUTHERN_CROSS:
+				sprintf(p, " dam %d", 80 + plev);
 				break;
 			case SPELL_ACID_BOLT:
 				sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4)));
 				break;
-			case SPELL_CLOUD_KILL:
+			case SPELL_FIRE_BALL:
 				sprintf(p, " dam %d", 40 + plev / 2);
 				break;
 			case SPELL_ACID_BALL:
 				sprintf(p, " dam %d", 40 + plev);
 				break;
-			case SPELL_ICE_STORM:
-				sprintf(p, " dam %d", 70 + plev);
+			case SPELL_RAH_TILT:
+				sprintf(p, " dam %d", plev * 8);
 				break;
-			case SPELL_METEOR_SWARM:
-				sprintf(p, " dam %d", 65 + plev);
+			case SPELL_DRAGON_SLAVE:
+				sprintf(p, " dam %d", plev * 10);
 				break;
-			case SPELL_MANA_STORM:
-				sprintf(p, " dam %d", 300 + plev * 2);
+			case SPELL_GIGA_SLAVE:
+				sprintf(p, " dam %d", 4000 + plev * 10);
 				break;
-			case SPELL_RESIST_FIRE:
-				strcpy(p, " dur 20+d20");
+			case SPELL_FOEHN:
+				sprintf(p, " dam %d", plev * 2);
 				break;
-			case SPELL_RESIST_COLD:
-				strcpy(p, " dur 20+d20");
+			case SPELL_NOAH:
+				sprintf(p, " dam %d", plev * 2 + 20);
 				break;
-			case SPELL_RESIST_ACID:
-				strcpy(p, " dur 20+d20");
+			case SPELL_PROTECTION:
+				strcpy(p, " dur 30+d20");
 				break;
-			case SPELL_RESIST_POISON:
-				strcpy(p, " dur 20+d20");
+			case SPELL_EARTHQUAKE:
+				strcpy(p, " rad 12");
 				break;
-			case SPELL_RESISTANCE:
+			case SPELL_ANTI:
 				strcpy(p, " dur 20+d20");
 				break;
 			case SPELL_HEROISM:
 				strcpy(p, " dur 25+d25");
 				break;
-			case SPELL_SHIELD:
-				strcpy(p, " dur 30+d20");
+			case SPELL_KAMEHAMEHA:
+				sprintf(p, " dam %d", plev * 3);
 				break;
 			case SPELL_BERSERKER:
 				strcpy(p, " dur 25+d25");
@@ -4477,8 +4496,8 @@ void spell_info(char *p, int spell)
 			case SPELL_ESSENCE_OF_SPEED:
 				sprintf(p, " dur %d+d30", 30 + plev);
 				break;
-			case SPELL_GLOBE_OF_INVULNERABILITY:
-				strcpy(p, " dur 8+d8");
+			case SPELL_WRATH:
+				sprintf(p, " dam 3d8*%d", plev);
 				break;
 		}
 	}
@@ -4555,8 +4574,13 @@ void spell_info(char *p, int spell)
 			case PRAYER_DISPEL_EVIL2:
 				sprintf(p, " dam d%d", 4 * plev);
 				break;
-			case PRAYER_ANNIHILATION:
-				strcpy(p, " dam 200");
+			case PRAYER_NOAH:
+				sprintf(p, " dam %d", plev * 2 + 20);
+				break;
+			case PRAYER_ARMAGEDDON:
+				strcpy(p, " radius 15");
+			case PRAYER_JUDGEMENT_DAY:
+				strcpy(p, " dam 400");
 				break;
 			case PRAYER_BLINK:
 				strcpy(p, " range 10");

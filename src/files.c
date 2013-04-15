@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -1754,10 +1754,13 @@ static void display_player_misc_info(void)
 	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
 
 
-	/* Class */
+	/* Class  and Groove*/
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
+	c_put_str(TERM_L_BLUE, Grooves[p_ptr->pgroove], 5, 8);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 14);
 
+	
+	
 
 	/* Title */
 	put_str("Title", 6, 1);
@@ -1794,6 +1797,7 @@ static void display_player_misc_info(void)
 	put_str("SP", 8, 1);
 	sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
 	c_put_str(TERM_L_BLUE, buf, 8, 8);
+
 }
 
 
@@ -2397,6 +2401,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		sprintf(caption, "Help file '%s'", name);
 
 		/* Build the filename */
+
 		path_build(path, 1024, ANGBAND_DIR_HELP, name);
 
 		/* Open the file */

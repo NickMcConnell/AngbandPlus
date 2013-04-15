@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -218,6 +218,7 @@ void do_cmd_wield(void)
 	object_copy(o_ptr, i_ptr);
 
 	/* Increase the weight */
+//	if (o_ptr->tval != TV_MECHA)
 	p_ptr->total_weight += i_ptr->weight;
 
 	/* Increment the equip counter by hand */
@@ -236,6 +237,11 @@ void do_cmd_wield(void)
 	{
 		act = "Your light source is";
 	}
+	else if (slot == INVEN_MECHA)
+	{
+		act = "You are riding";
+	}
+
 	else
 	{
 		act = "You are wearing";
@@ -1123,7 +1129,7 @@ static cptr ident_info[] =
 	"e:Floating Eye",
 	"f:Feline",
 	"g:Golem",
-	"h:Hobbit/Elf/Dwarf",
+	"h:Humanoid (Nedian/Sayian/etc.)",
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",

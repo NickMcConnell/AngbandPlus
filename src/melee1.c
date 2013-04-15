@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -106,10 +106,10 @@ static cptr desc_insult[MAX_DESC_INSULT] =
  */
 static cptr desc_moan[MAX_DESC_MOAN] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"says 'Yoroshiku ne, Senpai!'",
+	"asks you to take her to the wrestling arena",
+	"cries.",
+	"jumps around maniacally!"
 };
 
 
@@ -229,7 +229,7 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev))
+		if (!effect || RF2_ALWAYS_HIT || check_hit(power, rlev))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -253,6 +253,47 @@ bool make_attack_normal(int m_idx)
 				/* Hack -- Next attack */
 				continue;
 			}
+
+			/* Roll out the damage */
+			damage = damroll(d_dice, d_side);
+
+	/* Hack - Parryable */
+		o_ptr = &inventory[INVEN_MECHA];
+	
+	
+	
+
+	
+	if ((p_ptr -> pgroove == G_WATER) && (!(o_ptr->k_idx)))
+	{
+
+		if (rand_int(damage * 50) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	         p_ptr->lev)
+	{
+		/* Message */
+		msg_format("%^s tries to attack you, but you parry the blow.", m_name);
+		(void)set_meter(p_ptr->c_meter+damage * 2);
+		(void)hp_player(3);
+		continue;
+		
+	}
+
+	}
+
+	/* Hack - Dodging*/
+	if ((p_ptr -> pgroove == G_WIND) && (!(o_ptr->k_idx)))
+	{
+
+		if (rand_int(damage * 30) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	         p_ptr->lev)
+	{
+		/* Message */
+		msg_format("%^s tries to attack you, but you dodge the blow.", m_name);
+		continue;
+				
+	}
+
+	}
 
 
 			/* Assume no cut or stun */
@@ -420,8 +461,7 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- assume all attacks are obvious */
 			obvious = TRUE;
 
-			/* Roll out the damage */
-			damage = damroll(d_dice, d_side);
+			
 
 			/* Apply appropriate damage */
 			switch (effect)

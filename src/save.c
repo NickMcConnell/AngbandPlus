@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef FUTURE_SAVEFILES
@@ -1052,6 +1052,18 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+	wr_s16b(p_ptr->m_meter);
+	wr_s16b(p_ptr->c_meter);
+	wr_s16b(p_ptr->mstudent);
+	wr_byte(p_ptr->mag_student);
+
+	wr_s16b(p_ptr->c_alcohol);
+
+	wr_byte(p_ptr->pgroove);
+
+
+	wr_s16b(p_ptr->l_break);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
@@ -1083,6 +1095,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->invuln);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
+	wr_s16b(p_ptr->s_sayian);
+	wr_s16b(p_ptr->geneijin);
+	wr_s16b(p_ptr->ouroborous);
+	wr_s16b(p_ptr->kekkai);
 	wr_s16b(p_ptr->shield);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
@@ -1943,21 +1959,21 @@ bool load_player(void)
 		Term_clear();
 
 		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
+		if (sf_minor < 4)
 		{
 			/* Attempt to load */
 			err = rd_savefile_old();
 		}
 
 		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
+		else if ((sf_major == 0) && (sf_minor < 4))
 		{
 			/* Attempt to load */
 			err = rd_savefile_old();
 		}
 
 		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		else if (sf_minor == 5)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

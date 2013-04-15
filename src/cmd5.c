@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -526,6 +526,7 @@ void do_cmd_cast(void)
 
 	int item, sval, spell, dir;
 	int chance, beam;
+	int wrath;
 
 	int plev = p_ptr->lev;
 
@@ -811,10 +812,10 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_FROST_BALL:
+			case SPELL_SHADOW_FLARE:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir,
+				fire_ball(GF_DARK, dir,
 				          30 + (plev), 2);
 				break;
 			}
@@ -845,10 +846,10 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_FIRE_BALL:
+			case SPELL_STAR_FLARE:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir,
+				fire_ball(GF_LITE, dir,
 				          55 + (plev), 2);
 				break;
 			}
@@ -859,9 +860,16 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_GENOCIDE:
+			case SPELL_SOUTHERN_CROSS:
 			{
-				(void)genocide();
+				fire_beam(GF_METEOR, 2,
+				          80 + (plev));
+				fire_beam(GF_METEOR, 4,
+				          80 + (plev));
+				fire_beam(GF_METEOR, 6,
+				          80 + (plev));
+				fire_beam(GF_METEOR, 8,
+				          80 + (plev));
 				break;
 			}
 
@@ -883,9 +891,10 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_EARTHQUAKE:
+			case SPELL_SMOKE_BOMB:
 			{
-				earthquake(py, px, 10);
+				fire_ball(GF_CONFUSION, 0, 0, 10);
+				fire_ball(GF_SOUND, 0, 0, 10);
 				break;
 			}
 
@@ -903,10 +912,10 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_CLOUD_KILL:
+			case SPELL_FIRE_BALL:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir,
+				fire_ball(GF_FIRE, dir,
 				          20 + (plev / 2), 3);
 				break;
 			}
@@ -919,27 +928,35 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_ICE_STORM:
+			case SPELL_RAH_TILT:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir,
-				          70 + (plev), 3);
+				fire_bolt_or_beam(beam, GF_MANA, dir,
+				                  (plev) * 8);
 				break;
 			}
 
-			case SPELL_METEOR_SWARM:
+			case SPELL_DRAGON_SLAVE:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_METEOR, dir,
-				          65 + (plev), 3);
+				          (plev) * 10, 3);
 				break;
 			}
 
-			case SPELL_MANA_STORM:
+			case SPELL_GIGA_SLAVE:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir,
-				          300 + (plev * 2), 3);
+				
+				if (rand_int(100) < 10){ /* 10% of nuking the Universe */
+
+				msg_print("You were unable to contain the Giga Slave!");
+				take_hit(4500, "invoking a Giga Slave");
+
+				}
+
+				else fire_ball(GF_MANA, dir,
+				          4000 + (plev * 10), 12);
 				break;
 			}
 
@@ -973,31 +990,35 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_RESIST_FIRE:
+			case SPELL_FOEHN:
 			{
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FORCE, dir,
+				          (plev * 2), 12);
 				break;
 			}
 
-			case SPELL_RESIST_COLD:
+			case SPELL_NOAH:
 			{
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_WATER, dir,
+				          (plev * 2) + 20, 12);
 				break;
 			}
 
-			case SPELL_RESIST_ACID:
+			case SPELL_PROTECTION:
 			{
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				(void)set_shield(p_ptr->shield + randint(20) + 30);
 				break;
 			}
 
-			case SPELL_RESIST_POISON:
+			case SPELL_EARTHQUAKE:
 			{
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				earthquake(py, px, 12);
 				break;
 			}
 
-			case SPELL_RESISTANCE:
+			case SPELL_ANTI:
 			{
 				int time = randint(20) + 20;
 				(void)set_oppose_acid(p_ptr->oppose_acid + time);
@@ -1016,9 +1037,12 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_SHIELD:
+			case SPELL_KAMEHAMEHA:
 			{
-				(void)set_shield(p_ptr->shield + randint(20) + 30);
+				msg_print("You scream out 'Kamehameha'!");
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_MANA, dir,
+				          (plev * 3));
 				break;
 			}
 
@@ -1043,11 +1067,20 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case SPELL_GLOBE_OF_INVULNERABILITY:
+			case SPELL_WRATH:
 			{
-				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+				if (!get_aim_dir(&dir)) return;
+				msg_print("You scream as you rapidly fling ki bolts!");
+				for (wrath = 0; wrath < plev; wrath++)
+				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
+				                  damroll(3, 8));
+				msg_print("You become tired from the effort.");
+				(void)set_slow(p_ptr->slow + rand_int(10) + 4);
+				// (void)set_invuln(p_ptr->invuln + randint(8) + 8); Original GOI
 				break;
 			}
+			
+
 		}
 
 		/* A spell was cast */
@@ -1163,6 +1196,184 @@ static void brand_weapon(void)
 		if (flush_failure) flush();
 		msg_print("The Branding failed.");
 	}
+}
+
+/* Doing a "Super" (Limit Break) */
+void do_cmd_super(void)
+{
+ 
+int plev = p_ptr->lev;	
+int dir;
+int rand_limit = rand_int(LB_GENEI_JIN);
+int selector;
+
+/*	#define LB_GLOBE					0   For my own benefit
+	#define LB_FAIRY_HEAL               1   
+	#define LB_SUPER_SAYIAN             2   
+	#define LB_HYPER_ARMOR              3   
+	#define LB_NUKE                     4   
+	#define LB_WHIRLWIND				5   
+	#define LB_AHVB						6   
+	#define LB_POWER_BLAST				7   
+	#define LB_KEKKAI					8
+#define LB_AHVB					9   
+#define LB_FAIL					10  
+#define LB_RAGING_DEAMON			11  
+#define LB_RANDOM					12  */
+
+											
+	
+
+	// Must have meter
+	if (p_ptr->c_meter < p_ptr->m_meter)
+	{
+		msg_print("You have insufficient meter!");
+		return;
+	}
+
+	// Remnant exception
+	if (p_ptr->l_break == LB_RANDOM)
+		selector = rand_limit;
+		//selector = LB_GENEI_JIN;
+	else
+		selector = p_ptr->l_break;
+
+	
+	// Determine what kind of limit break used
+	switch (selector)
+	{
+
+	case LB_GLOBE:
+		{
+
+		msg_print("You start to laugh maniacally!");
+		(void)set_invuln(p_ptr->invuln + plev + 10);
+		break;
+
+		}
+
+	case LB_FAIRY_HEAL:
+		{
+
+		msg_print("Fairies dance around you!");
+		
+			(void)restore_level();
+			(void)set_poisoned(0);
+			(void)set_blind(0);
+			(void)set_confused(0);
+			(void)set_image(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_CHR);
+
+			/* Recalculate max. hitpoints */
+			update_stuff();
+
+			(void)hp_player(5000);
+
+		if (p_ptr->csp < p_ptr->msp)
+			{
+				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp_frac = 0;
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			}
+	break;
+	}
+
+	case LB_SUPER_SAYIAN:
+		{
+			(void)set_stun(0);
+			(void)hp_player(200);
+			(void)set_s_sayian(p_ptr->s_sayian + plev + 10);
+			break;
+		}
+
+	case LB_HYPER_ARMOR:
+		{
+			(void)set_shield(p_ptr->shield + plev * 4);
+			(void)set_protevil(p_ptr->protevil + plev * 4);
+			break;
+		}
+
+	case LB_NUKE:
+		{
+			msg_print("You tiger knee into the air and drop a nuke!");
+			fire_ball(GF_FIRE, 0,
+				          plev * 50, 13);
+			take_hit(100, "Nuclear Explosion");
+			break;
+			
+		}
+
+	case LB_WHIRLWIND:
+		{
+			msg_print("You unleash a whirlwind of fury swipes!");
+			fire_ball(GF_FORCE, 0, plev * 25, 1);
+			teleport_player(15);
+			break;
+		}
+
+	case LB_TENTACLE:
+		{
+			msg_print("You start molesting all the creatures around you!");
+			fire_ball(GF_MISSILE, 0, plev * 75, 1);
+
+			break;
+		}
+
+	case LB_POWER_BLAST: //misnamed
+		{
+		p_ptr->word_recall = 1;
+		break;
+		}
+	case LB_KEKKAI:
+		{
+			msg_print("You clasp your hands together and form a Kekkai.");
+			(void)set_kekkai(p_ptr->kekkai + plev);
+			break;
+		}
+
+	case LB_AHVB:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You tiger knee into the air and unleash a beam!");
+			fire_beam(GF_METEOR, dir,
+				          plev * 20);
+			break;
+		}
+	case LB_FAIL:
+		{
+			msg_print("Nothing happens.....");
+			break;
+		}
+	case LB_GENEI_JIN:
+		{
+			(void)set_geneijin(p_ptr->geneijin + 10 + plev/10);
+			break;
+
+
+		}
+
+	
+	default:
+		{
+			msg_print("Invalid super");
+		}
+	}
+
+	//consume all meter
+	p_ptr->c_meter = 0;
+	p_ptr->redraw |= (PR_METER);
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
 }
 
 
@@ -1575,16 +1786,27 @@ void do_cmd_pray(void)
 				break;
 			}
 
-			case PRAYER_WORD_OF_DESTRUCTION:
+			case PRAYER_ARMAGEDDON:
 			{
+				msg_print("You feel a searing heat!");
+				fire_ball(GF_METEOR, 0,
+				          plev * 5, 15);
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 
-			case PRAYER_ANNIHILATION:
+			case PRAYER_NOAH:
+				{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_WATER, dir,
+				          (plev * 2) + 20, 12);
+				break;
+				}
+
+			case PRAYER_JUDGEMENT_DAY:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 200);
+				drain_life(dir, 400);
 				break;
 			}
 
@@ -1735,4 +1957,301 @@ void do_cmd_pray(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 }
+
+/* Taunt */
+void do_cmd_taunt(void)
+{
+
+	int counter = randint(4);
+
+	switch (counter)
+	{
+	case 1: { msg_print("You shout out a challenge."); break; }
+	case 2: { msg_print("You yawn."); break; }
+	case 3: { msg_print("You laugh out loud."); break; }
+	case 4: { msg_print("You make a raspberry while pulling your lower eyelid down."); break; }
+	}
+	aggravate_monsters(-1);
+
+	
+		/* Take a turn */
+	p_ptr->energy_use = 100;
+
+
+}
+
+/* Fire Weapons from Mech */
+void do_cmd_mechfire(void)
+{
+	int dir;
+	int counter;
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_MECHA];
+
+	if (!(o_ptr->k_idx)){
+
+		msg_print("You are not riding on a mecha.");
+		return;
+
+	}
+	if (o_ptr->pval <= 25) {
+
+		msg_print("Your mecha is too damaged.");
+		return;
+
+	}
+
+	switch (o_ptr->sval){
+
+	case SV_GUNDAM:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You fire your machine gun.");
+
+			for (counter = 0; counter < 4; counter++){
+			fire_bolt(GF_METEOR, dir, 15);
+			}
+
+			break;
+
+		}
+	case SV_EVA:
+		{
+			if (!get_aim_dir(&dir)) return;
+			msg_print("You fire your laser cannon.");
+			fire_beam(GF_METEOR, dir, 60);
+			break;
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Lose some Mecha Life */
+	o_ptr->pval -= 25;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+
+/*
+ * Use a magical power  -- believe me, this will definitely be
+ * rewritten.
+ */
+void do_cmd_power(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int i, spell;
+
+	char out_val[160];
+	char choice;
+
+	/* Names of Magical Student Powers */
+cptr mag_powers[STUDENT_MAX] =
+{
+	"Magic Missile",
+	"Phase Door",
+	"Heroism",
+	"Haste",
+	"Ouroborous",
+	"Terrible Engrish",
+	"Teleport",
+	"Ki Beam",
+	"Ultimate Restoration",
+	"Genei Jin",
+};
+
+int power_mana[STUDENT_MAX] = {1,5,10,15,20,25,30,35,45,55};
+	byte line_attr = TERM_WHITE;
+
+	//int spell, dir;
+	int dir;
+
+//	bool verify;
+
+	bool flag = FALSE; 
+	bool redraw = FALSE;
+	//bool okay;
+
+	int plev = p_ptr->lev;
+
+//	const power_type *s_ptr;
+
+	
+
+
+	/* Must be a student */
+	if ((cp_ptr->spell_book != TV_STUDENT_BOOK) || (!p_ptr->mag_student))
+	{
+		msg_print("You are not a magical student!");
+		return;
+	}
+
+	/* Must not be confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Save screen */
+	screen_save();
+
+	/* Title the list */
+	prt("", 1, 20);
+	put_str("Name", 1, 25);
+	put_str("Mana", 1, 55);
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(Powers %c-%c, ESC=exit) Use which Power? ",
+	        I2A(0), I2A(STUDENT_MAX - 1));
+	c_prt(line_attr, out_val, 0, 0);
+	/* Dump the spells */
+	for (i = 0; i < STUDENT_MAX; i++)
+	{
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s %4d",
+		        I2A(i), mag_powers[i], power_mana[i]);
+		c_prt(line_attr, out_val, 1 + i + 1, 20);
+	}
+
+	/* Clear the bottom line */
+	prt("", 1 + i + 1, 20);
+		
+	
+	/* Choose */
+	while (1)
+	{
+	
+
+		choice = inkey();
+		spell = (islower(choice) ? A2I(choice) : -1);
+		if (choice == ESCAPE){
+			screen_load();
+			return;
+		}
+		if ((spell >= 0) && (spell < STUDENT_MAX)) break;
+		else bell("Illegal POWER!");
+	}
+	
+	
+	screen_load();
+	/* Verify adequate mana */
+	if (power_mana[spell] > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to use that power!.");
+		
+		return;
+	}
+
+	switch (spell)
+	{
+	case STUDENT_MAGIC_MISSILE: {
+		if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_MISSILE, dir,
+				           damroll(3 + ((plev - 1) / 5), 4));
+			break;
+		}
+
+	case STUDENT_PHASE_DOOR:	{
+		teleport_player(10);
+				break;
+			}
+
+	case STUDENT_HASTE:			{
+
+		if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + plev);
+				}
+
+				else
+				{
+					(void)set_fast(p_ptr->fast + randint(5));
+				}
+
+				break;
+		
+			}
+
+	case STUDENT_HEROISM:		{
+
+				(void)hp_player(10);
+				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_afraid(0);
+				break;
+			}
+
+	case STUDENT_OUROBOROUS:	{
+		(void)set_ouroborous(p_ptr->ouroborous + 10 + plev/5);
+			break;
+		}
+
+	case STUDENT_POOR_DUBBING:	  {
+		msg_print("You start to speak in terrible Engrish!");
+		for (dir = 1; dir < 10; dir++){
+		(void)fear_monster(dir, plev);
+		}
+			break;
+		}
+
+	case STUDENT_TELEPORT:		{
+
+		teleport_player(plev * 5);
+				break;
+
+			}
+	case STUDENT_KI_BEAM:		{
+
+			if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_MANA, dir,
+				          (plev * 3));
+					break;
+				}
+
+	case STUDENT_RESTORATION:	{
+				(void)hp_player(2000);
+				(void)set_stun(0);
+				(void)set_cut(0);
+				(void)do_res_stat(A_STR);
+				(void)do_res_stat(A_INT);
+				(void)do_res_stat(A_WIS);
+				(void)do_res_stat(A_DEX);
+				(void)do_res_stat(A_CON);
+				(void)do_res_stat(A_CHR);
+
+						break;
+
+					}
+
+				case STUDENT_GENEI_JIN:				{
+
+				(void)set_geneijin(p_ptr->geneijin + 15 + plev/10);
+							break;
+						}
+	}
+
+
+	
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Use mana */
+	p_ptr->csp -= power_mana[spell];
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+}
+
 

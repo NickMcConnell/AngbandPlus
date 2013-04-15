@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -433,23 +433,73 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
  */
 void take_hit(int dam, cptr kb_str)
 {
+	object_type *o_ptr;
 	int old_chp = p_ptr->chp;
+	int old_c_meter = p_ptr->c_meter;
+	int metal_percent = dam * p_ptr->c_meter / p_ptr->m_meter;
 
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+	int thresh = (p_ptr->mhp * 15 / 100);
 
 
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
 
-
+	
 	/* Disturb */
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln && (dam < 9000)) return;
 
-	/* Hurt the player */
+
+	/* Get the wield slot */
+	o_ptr = &inventory[INVEN_MECHA];
+
+	/* Mechas take damage */
+	if (o_ptr->k_idx)
+	{
+		/* Take off existing item */
+		o_ptr->pval -= dam;
+
+		if (o_ptr->pval <= 0){
+
+			/* Destroy Mecha */
+			msg_print("Your Mecha explodes!");
+			fire_ball(GF_FIRE, 0, 6000, 10);
+			inven_item_increase(INVEN_MECHA, -999);
+			inven_item_optimize(INVEN_MECHA);
+			p_ptr->chp -= 6000;
+		}
+
+	}
+	
+	else {
+		/* Hurt the player */
 	p_ptr->chp -= dam;
+		}
+
+
+	/* Metal gets tougher when hit a lot */
+	if (p_ptr->pgroove == G_METAL)
+		p_ptr->chp += (short)rand_int(metal_percent);
+
+
+	/* Extra Penalty for Water */
+	if (p_ptr->pgroove == G_WATER)
+		p_ptr->chp -= dam/10;
+
+	/* Get more meter */
+	if (!(o_ptr->k_idx)){
+
+	if ((p_ptr->pgroove == G_FIRE) || (p_ptr->pgroove == G_METAL))
+	(void)set_meter(p_ptr->c_meter + dam);
+
+	if (p_ptr->pgroove == G_WIND)
+		(void)set_meter(p_ptr->c_meter + 1);
+	}
+
+
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -480,9 +530,17 @@ void take_hit(int dam, cptr kb_str)
 		return;
 	}
 
+
+	/* Wind style gains rapid recovering meter */
+	if (p_ptr->pgroove == G_WIND){
+			if (p_ptr->chp < thresh)
+			(void)set_meter(p_ptr->c_meter + 200);
+	}
+
 	/* Hitpoint warning */
 	if (p_ptr->chp < warning)
 	{
+		
 		/* Hack -- bell on first notice */
 		if (alert_hitpoint && (old_chp > warning))
 		{
@@ -3241,6 +3299,39 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 	/* Get the monster's real name */
 	monster_desc(killer, m_ptr, 0x88);
+
+	/* Hack - Parryable */
+
+	if (p_ptr -> pgroove == G_WATER) 
+	{
+
+		if (rand_int(dam * 50) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	         p_ptr->lev)
+	{
+		/* Message */
+		msg_format("You parry the projectile!");
+		(void)set_meter(p_ptr->c_meter+dam * 2);
+		(void)hp_player(3);
+		return (FALSE);
+		
+	}
+
+	}
+
+	/* Hack - Dodging*/
+	if (p_ptr -> pgroove == G_WIND)
+	{
+
+		if (rand_int(dam * 30) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	         p_ptr->lev)
+	{
+		/* Message */
+		msg_format("You dodge the projectile!");
+		return (FALSE);
+				
+	}
+
+	}
 
 
 	/* Analyze the damage */

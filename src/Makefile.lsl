@@ -68,7 +68,7 @@ HDRS = \
   h-define.h h-type.h h-system.h h-config.h
 
 INCS = \
-  angband.h \
+  animeband.h \
   config.h defines.h types.h externs.h \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 

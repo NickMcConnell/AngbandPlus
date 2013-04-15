@@ -1,10 +1,14 @@
 === Version Information ===
 
+This is now Animeband 0.5.0
+
+I will leave this more or less unaltered.
+
 This file was last updated for Angband 2.9.2.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
-most up to date information about Angband.
+most up to date information about Angbamd.
 
 Angband 2.9.2 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time

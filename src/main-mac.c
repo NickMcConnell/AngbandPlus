@@ -105,7 +105,7 @@
  *
  * Reasons for each header file:
  *
- *   angband.h = Angband header file
+ *   animeband.h = animeband.header file
  *
  *   Types.h = (included anyway)
  *   Gestalt.h = gestalt code
@@ -136,7 +136,7 @@
  */
 
 
-#include "angband.h"
+#include "animeband.h"
 
 #ifdef MACINTOSH
 

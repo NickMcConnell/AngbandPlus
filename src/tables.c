@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -1032,6 +1032,7 @@ const byte adj_con_mhp[] =
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ *    Student --> num = 6; mul = 5; div = MAX(35, weapon_weight);
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1265,10 +1266,33 @@ const player_sex sex_info[MAX_SEXES] =
 	}
 };
 
+cptr Grooves[G_MAX] =
+{
+	"Fire", "Water", "Wind", "Metal", "Drunk"
+};
+
 
 /*
  * Spells in each book (mage spells then priest spells)
  */
+/*
+const u32b power_flags[1] =
+{
+	
+		POWER(STUDENT_MAGIC_MISSILE,
+			  STUDENT_PHASE_DOOR,
+			  STUDENT_HASTE,
+			  STUDENT_HEROISM,
+			  STUDENT_OUROBOROUS,
+			  STUDENT_FINAL_BLOW,
+			  STUDENT_TELEPORT,
+			  STUDENT_KI_BEAM,
+			  STUDENT_RESTORATION,
+			  STUDENT_GENEI_JIN)
+	
+}
+*/
+
 const u32b spell_flags[2][9][2] =
 {
 	{
@@ -1300,31 +1324,31 @@ const u32b spell_flags[2][9][2] =
 		     SPELL_FIRE_BOLT,
 		     SPELL_SLOW_MONSTER,
 		     -1),
-		BOOK(SPELL_FROST_BALL,
+		BOOK(SPELL_SHADOW_FLARE,
 		     SPELL_RECHARGE_ITEM_II,
 		     SPELL_TELEPORT_OTHER,
 		     SPELL_HASTE_SELF,
-		     SPELL_FIRE_BALL,
+			 SPELL_STAR_FLARE,
 		     SPELL_WORD_OF_DESTRUCTION,
-		     SPELL_GENOCIDE,
+		     SPELL_SOUTHERN_CROSS,
 		     -1,
 		     -1),
-		BOOK(SPELL_RESIST_FIRE,
-		     SPELL_RESIST_COLD,
-		     SPELL_RESIST_ACID,
-		     SPELL_RESIST_POISON,
-		     SPELL_RESISTANCE,
+		BOOK(SPELL_FOEHN,
+		     SPELL_NOAH,
+		     SPELL_PROTECTION,
+		     SPELL_EARTHQUAKE,
+			 SPELL_ANTI,
 		     -1,
 		     -1,
 		     -1,
 		     -1),
-		BOOK(SPELL_DOOR_CREATION,
+		BOOK(SPELL_PHASE_DOOR,
+			 SPELL_TELEPORT_SELF,
+			 SPELL_DOOR_CREATION,
 		     SPELL_STAIR_CREATION,
 		     SPELL_TELEPORT_LEVEL,
-		     SPELL_EARTHQUAKE,
+			 SPELL_SMOKE_BOMB,
 		     SPELL_WORD_OF_RECALL,
-		     -1,
-		     -1,
 		     -1,
 		     -1),
 		BOOK(SPELL_DETECT_EVIL,
@@ -1337,20 +1361,20 @@ const u32b spell_flags[2][9][2] =
 		     -1,
 		     -1),
 		BOOK(SPELL_HEROISM,
-		     SPELL_SHIELD,
+		     SPELL_KAMEHAMEHA,
 		     SPELL_BERSERKER,
 		     SPELL_ESSENCE_OF_SPEED,
-		     SPELL_GLOBE_OF_INVULNERABILITY,
+		     SPELL_WRATH,
 		     -1,
 		     -1,
 		     -1,
 		     -1),
 		BOOK(SPELL_ACID_BOLT,
-		     SPELL_CLOUD_KILL,
+		     SPELL_FIRE_BALL,
 		     SPELL_ACID_BALL,
-		     SPELL_ICE_STORM,
-		     SPELL_METEOR_SWARM,
-		     SPELL_MANA_STORM,
+		     SPELL_RAH_TILT,
+		     SPELL_DRAGON_SLAVE,
+		     SPELL_GIGA_SLAVE,
 		     -1,
 		     -1,
 		     -1)
@@ -1432,15 +1456,30 @@ const u32b spell_flags[2][9][2] =
 			 -1),
 		BOOK(PRAYER_DISPEL_UNDEAD2,
 			 PRAYER_DISPEL_EVIL2,
+			 PRAYER_NOAH,
 			 PRAYER_BANISHMENT,
-			 PRAYER_WORD_OF_DESTRUCTION,
-			 PRAYER_ANNIHILATION,
-			 -1,
+			 PRAYER_ARMAGEDDON,
+			 PRAYER_JUDGEMENT_DAY,
 			 -1,
 			 -1,
 			 -1)
 	}
 };
+
+/* Names of Magical Student Powers */
+/*cptr mag_powers[STUDENT_MAX] =
+{
+	"Magic Missile",
+	"Phase Door",
+	"Haste",
+	"Heroism",
+	"Ouroborous",
+	"Final Blow",
+	"Teleport",
+	"Ki Beam",
+	"Restoration",
+	"Genei Jin",
+};*/
 
 
 /*
@@ -1451,7 +1490,7 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 	/*** Mage Spells ***/
 
 	{
-		/* Magic for Beginners (sval 0) */
+		/* Magic for Dummies (sval 0) */
 		"Magic Missile",
 		"Detect Monsters",
 		"Phase Door",
@@ -1464,7 +1503,7 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 
 		/* Conjurings and Tricks (sval 1) */
 		"Confuse Monster",
-		"Lightning Bolt",
+		"Thunder Bolt",
 		"Trap/Door Destruction",
 		"Sleep I",
 		"Cure Poison",
@@ -1483,29 +1522,29 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Fire Bolt",
 		"Slow Monster",
 
-		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
+		/* Intermediate Hearldry (sval 3) */
+		"Shadow Flare",
 		"Recharge Item II",
 		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
+		"Haste",
+		"Star Flare",
 		"Word of Destruction",
-		"Genocide",
+		"Southern Cross",
 
-		/* Mordenkainen's Escapes (sval 5) */
+		/* Lupin's Escapes (sval 5) */
 		"Door Creation",
 		"Stair Creation",
 		"Teleport Level",
-		"Earthquake",
+		"Smoke Bombs",
 		"Word of Recall",
 
-		/* Raal's Tome of Destruction (sval 8) */
+		/* The Slayer's Universe */
 		"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
+		"Fire Ball",
+		"Acid Rain",
+		"Rah Tilt",
+		"Dragon Slave",
+		"Giga Slave",
 
 		/* Kelek's Grimoire of Power (sval 6) */
 		"Detect Evil",
@@ -1514,19 +1553,19 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Genocide",
 		"Mass Genocide",
 
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
+		/* Advanced Hearldry (sval 4) */
+		"Foehn",
+		"Noah",
+		"Protection",
+		"Earthquake",
+		"Anti",
 
-		/* Tenser's transformations... (sval 7) */
+		/* Ki Manipulations. (sval 7) */
 		"Heroism",
-		"Shield",
+		"Kamehameha",
 		"Berserker",
 		"Essence of Speed",
-		"Globe of Invulnerability",
+		"WRATH",
 
 		"(blank)",
 		"(blank)",
@@ -1596,8 +1635,8 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Dispel Undead",
 		"Dispel Evil",
 		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
+		"Armageddon",
+		"Judgement Day",
 
 		/* Holy Infusions (sval 7) */
 		"Unbarring Ways",
@@ -1615,7 +1654,7 @@ cptr spell_names[2][PY_MAX_SPELLS] =
 		"Word of Recall",
 		"Alter Reality",
 
-		"(blank)",
+		"Noah",
 		"(blank)",
 		"(blank)",
 		"(blank)",

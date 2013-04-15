@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -211,20 +211,20 @@ F:EASY_KNOW
 
 ##### Normal Food #####
 
-N:21:& Ration~ of Food
+N:21:& Pork Bun~
 G:,:U
 I:80:35:5000
 W:0:0:10:3
 A:0/1:5/1:10/1
 F:EASY_KNOW
 
-N:22:& Hard Biscuit~
+N:22:& Rice Ball~
 G:,:U
 I:80:32:500
 W:0:0:2:1
 F:EASY_KNOW
 
-N:23:& Strip~ of Beef Jerky
+N:23:& Strip~ of Seaweed
 G:,:u
 I:80:33:1500
 W:0:0:2:2
@@ -237,23 +237,24 @@ W:1:0:5:2
 A:1/1
 F:EASY_KNOW
 
-N:25:& Piece~ of Elvish Waybread
+N:25:& Moon Cake~
 G:,:B
 I:80:37:7500
 W:5:0:3:10
 A:5/1:10/1:20/1
 F:EASY_KNOW
 
-N:26:& Pint~ of Fine Ale
-G:,:y
-I:80:38:500
-W:0:0:5:1
+N:26:& Bottle~ of Sake
+G:,:w
+I:80:38:350
+W:0:0:8:20
+A:5/1:10/1:20/1
 F:EASY_KNOW
 
 N:27:& Pint~ of Fine Wine
 G:,:r
 I:80:39:1000
-W:0:0:10:2
+W:0:0:10:10
 F:EASY_KNOW
 
 
@@ -830,22 +831,22 @@ A:50/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 
-N:101:& Robe~
+N:101:& Kimono~
 G:(:b
 I:36:2:0
 W:1:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
 
-N:102:& Filthy Rag~
+N:102:& School Uniform~
 G:(:D
 I:36:1:0
 W:0:0:20:1
 A:0/1
-P:1:0d0:0:0:-1
+P:1:0d0:0:0:0
 
-N:103:Soft Leather Armour~
-G:(:U
+N:103:Martial Arts Gi~
+G:(:w
 I:36:4:0
 W:3:0:80:18
 A:3/1
@@ -2470,7 +2471,7 @@ P:0:1d2:0:0:0
 
 ##### Basic Books #####
 
-N:330:[Magic for Beginners]
+N:330:[Magic for Dummies]
 G:?:R
 I:90:0:0
 W:5:0:30:25
@@ -2494,7 +2495,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:333:[Sorcery and Evocations]
+N:333:[Intermediate Hearldry]
 G:?:R
 I:90:3:0
 W:30:0:30:800
@@ -2502,7 +2503,7 @@ A:30/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:334:[Beginners Handbook]
+N:334:[Praying for Dummies]
 G:?:G
 I:91:0:0
 W:5:0:30:25
@@ -2510,7 +2511,7 @@ A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
-N:335:[Words of Wisdom]
+N:335:[GOD 101]
 G:?:G
 I:91:1:0
 W:10:0:30:100
@@ -2853,7 +2854,7 @@ F:EASY_KNOW
 
 ##### Special Books (note resistances) #####
 
-N:379:[Resistance of Scarabtarices]
+N:379:[Advanced Hearldry]
 G:?:r
 I:90:4:0
 W:40:0:30:5000
@@ -2862,7 +2863,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:380:[Mordenkainen's Escapes]
+N:380:[Lupin's Escapes]
 G:?:r
 I:90:5:0
 W:50:0:30:10000
@@ -2880,7 +2881,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:382:[Tenser's Transformations]
+N:382:[Ki Manipulations]
 G:?:r
 I:90:7:0
 W:80:0:30:50000
@@ -2889,7 +2890,7 @@ P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:EASY_KNOW
 
-N:383:[Raal's Tome of Destruction]
+N:383:[The Slayers Universe]
 G:?:r
 I:90:8:0
 W:100:0:30:100000
@@ -3013,18 +3014,20 @@ A:5/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
 
-N:397:& Elf Skeleton~
-G:~:w
-I:1:6:0
-W:5:0:40:0
+#### Mechas ####
+
+N:397:& Gundam~
+G:~:D
+I:93:0:5000
+W:75:0:30000:10000000
 A:5/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
 
-N:398:& Gnome Skeleton~
-G:~:w
-I:1:5:0
-W:5:0:30:0
+N:398:& Eva~
+G:~:y
+I:93:1:7500
+W:100:0:30000:15000000
 A:5/1
 P:0:1d2:0:0:0
 F:EASY_KNOW
@@ -3378,37 +3381,37 @@ F:INSTA_ART
 # special "base names" (such as "Necklace").
 
 
-# The Phial of Galadriel -- see artifact list
+# The Paper Lantern of the Ako Ronin -- see artifact list
 
-N:500:& Phial~
+N:500:& Paper Lantern~
 G:~:y
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Star of Elendil -- see artifact list
+# The Pink Gem of the Twilight -- see artifact list
 
-N:501:& Star~
+N:501:& Pink Gem~
 G:~:y
 I:39:5:0
 W:30:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Arkenstone of Thrain -- see artifact list
+# The White Go Stone of Fujiwara Sai -- see artifact list
 
-N:502:& Arkenstone~
-G:~:y
+N:502:& White Go Stone~
+G:~:w
 I:39:6:0
 W:60:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
 
-# The Amulet of Carlammas -- see artifact list
+# The Pendant of Rena Lanford -- see artifact list
 
-N:503:& Amulet~
+N:503:& Pendant~
 G:":d
 I:40:10:0
 W:50:0:3:60000

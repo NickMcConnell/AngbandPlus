@@ -156,18 +156,18 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 ##### Non-race (contains the "player" picture) #####
 
-N:0:<player>
+N:0:Player
 G:@:w
 
 
 ##### Town monsters #####
 
-N:1:Filthy street urchin
+N:1:Biker gang member
 G:t:D
 I:110:1d4:4:1:40
 W:0:2:0:0
@@ -178,14 +178,14 @@ F:RAND_25 |  FRIENDS |
 F:TAKE_ITEM | OPEN_DOOR
 D:He looks squalid and thoroughly revolting.
 
-N:2:Scrawny cat
+N:2:Fluffy cat
 G:f:U
 I:110:1d2:30:1:10
 W:0:3:0:0
 B:CLAW:HURT:1d1
 F:RAND_25 | 
 F:ANIMAL
-D:A skinny little furball with sharp claws and a menacing look.
+D:A fluffy little furball with sharp claws and a menacing look.
 
 N:3:Scruffy little dog
 G:C:U
@@ -196,21 +196,23 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
-N:4:Farmer Maggot
-G:h:w
-I:110:35d10:40:10:3
+N:4:Yumi Saotome
+G:t:v
+I:110:70d20:40:10:3
 W:0:4:0:0
-B:MOAN
-B:MOAN
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+B:MOAN:CONFUSE
+B:PUNCH:HURT:1d1
+B:MOAN:TERRIFY
+F:UNIQUE | FEMALE | 
+F:FORCE_MAXHP | ALWAYS_HIT |
+F:ONLY_ITEM | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
-D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
-D:hobbit!
+D:More noisy than cheerful, she sometimes tends to be little selfish. 
+D:A naive girl who loves amusement parks and zoos. Beware of this
+D:walking nihilist of death!
 
-N:5:Blubbering idiot
+N:5:Blabbering Otaku
 G:t:W
 I:110:1d2:6:1:0
 W:0:1:0:0
@@ -218,7 +220,7 @@ B:DROOL
 F:MALE | 
 F:RAND_25 | 
 F:TAKE_ITEM
-D:He tends to blubber a lot.
+D:The bane of all anime conventions...bald, fat, and ugly.
 
 N:6:Boil-covered wretch
 G:t:g
@@ -295,7 +297,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:The typical ponce around town, with purse jingling, and looking for more 
 D:amulets of adornment to buy.
 
-N:13:Mean looking mercenary
+N:13:Yakuza member
 G:t:r
 I:110:5d8:10:20:250
 W:0:1:0:0
@@ -306,7 +308,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:No job is too low for him.
 
-N:14:Battle scarred veteran
+N:14:Battle scarred ronin
 G:t:B
 I:110:7d8:10:30:250
 W:0:1:0:0
@@ -520,43 +522,40 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:35:Novice warrior
-G:p:u
+N:35:Platypus
+G:B:u
 I:110:9d4:20:16:5
 W:2:1:0:6
 B:HIT:HURT:1d7
-B:HIT:HURT:1d6
-F:MALE | 
-F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR
-D:He looks inexperienced but tough.
+B:HIT:POISON:1d6
+F:IM_POIS
+F:ANIMAL
+D:Shy and goofy looking, it makes a mockery of evolutionists everywhere.
 
-N:36:Novice rogue
-G:p:b
-I:110:8d4:20:12:5
+
+N:36:Nohoho
+G:R:g
+I:130:8d4:20:12:5
 W:2:1:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
 F:MALE | 
-F:DROP_60 | 
+F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A rather shifty individual.
+D:A frog that carries a huge purse around.
 
-N:37:Novice priest
-G:p:g
+N:37:Sukiya
+G:s:w
 I:110:7d4:20:10:10
 W:2:1:0:7
-B:HIT:HURT:1d5
+B:KICK:HURT:1d5
 F:MALE | 
+F:DROP_60 |
 F:FORCE_SLEEP | 
-F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
-S:1_IN_12 | 
-S:HEAL | SCARE | CAUSE_1
-D:He is tripping over his priestly robes.
+D:A disembodied foot.
 
-N:38:Novice mage
+N:38:Panotty
 G:p:r
 I:110:6d4:20:6:5
 W:2:1:0:7
@@ -567,7 +566,7 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:He is leaving behind a trail of dropped spell components.
+D:An annoying little boy with a very annoying flute.
 
 N:39:Yellow mushroom patch
 G:,:y
@@ -643,7 +642,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL
 D:A small humanoid figure.
 
-N:46:Grip, Farmer Maggot's dog
+N:46:Pero Pero
 G:C:U
 I:120:5d5:30:30:0
 W:2:1:0:30
@@ -652,20 +651,20 @@ F:UNIQUE |
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
-D:stealing mushrooms.
+D:Miyazawa Yukino's cute, cuddly, and fluffy dog.  It is very confused,
+D:and it wants to eat you.
 
-N:47:Fang, Farmer Maggot's dog
-G:C:U
+N:47:Linus the Cat
+G:f:d
 I:120:5d5:30:30:0
 W:2:1:0:30
 B:BITE:HURT:1d4
+B:CLAW:HURT:1d4
 F:UNIQUE | 
 F:FORCE_MAXHP | RAND_25 | 
 F:BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
-D:stealing mushrooms.
+D:A funky looking cat that appears out of nowhere and demands your attention.
 
 N:48:Green worm mass
 G:w:g
@@ -699,22 +698,25 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is a black spider that moves in fits and starts.
 
-N:51:Wild cat
-G:f:U
+N:51:Hello Kitty 
+G:f:w
 I:120:3d5:40:12:0
 W:2:2:0:8
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
-F:BASH_DOOR | 
+F:BASH_DOOR | FRIENDS |
 F:ANIMAL
-D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a 
-D:fistful of needles.
+D:Hello Kitty symbolizes generosity, innocence, kindness and most importantly... 
+D:friendship.  You look at her with the same feelings for Barney the Purple
+D:Dinosaur or lutefisk.
 
-N:52:Smeagol
-G:h:b
+
+N:52:Pondrewanon
+G:j:b
 I:130:5d5:20:12:5
 W:3:2:0:16
-B:HIT:HURT:1d4
+B:DROOL
+B:DROOL
 B:TOUCH:EAT_GOLD
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
@@ -722,7 +724,8 @@ F:RAND_50 | RAND_25 |
 F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
 F:INVISIBLE | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:He's been sneaking, and he wants his 'precious.'
+D:A weird looking, depraved creature with the desire to ruin other people's 
+D:lives.
 
 N:53:Green ooze
 G:j:g
@@ -759,15 +762,15 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is about four feet long and carnivorous.
 
-N:56:Giant white louse
-G:l:w
+N:56:Bagurom
+G:I:v
 I:120:1d1:6:5:10
 W:3:1:0:1
 B:BITE:HURT:1d1
 F:RAND_50 | RAND_25 | 
 F:MULTIPLY | WEIRD_MIND | 
 F:ANIMAL
-D:It is six inches long.
+D:Insect like creatures that just don't like you.
 
 N:57:Black naga
 G:n:D
@@ -819,8 +822,8 @@ S:1_IN_15 |
 S:DRAIN_MANA
 D:It's a large pile of yellow flesh.
 
-N:61:Scruffy looking hobbit
-G:h:b
+N:61:Oyaji
+G:p:U
 I:110:3d5:16:8:10
 W:3:1:0:4
 B:HIT:HURT:1d4
@@ -829,8 +832,8 @@ F:MALE |
 F:DROP_60 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:A short little guy, in bedraggled clothes.  He appears to be looking 
-D:for a good tavern.
+D:A lecherous old man.
+
 
 N:62:Giant white ant
 G:a:w
@@ -903,7 +906,7 @@ B:BITE:HURT:1d5
 F:ANIMAL
 D:It is an armoured lizard with a powerful bite.
 
-N:69:Novice ranger
+N:69:Kabuki mono
 G:p:W
 I:110:6d8:20:6:5
 W:4:1:0:18
@@ -915,21 +918,18 @@ F:DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | 
 S:1_IN_9 | 
 S:ARROW_2 | MISSILE
-D:An agile hunter, ready and relaxed.
+D:Once an actor, this man has turned to thuggery.
 
-N:70:Novice paladin
-G:p:w
+N:70:Extremely cute cat
+G:f:w
 I:110:6d8:20:16:5
 W:4:1:0:20
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
-F:MALE | 
+B:BITE:HURT:1d7
+B:BITE:HURT:1d7
+F:FEMALE | 
 F:FORCE_SLEEP | 
-F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR
-S:1_IN_9 | 
-S:SCARE | CAUSE_1
-D:An adventurer both devoutly religious and skillful in combat.
+D:A cute little cat that has extremely sharp teeth.  It wants you to 
+D:pet it.
 
 N:71:Blue jelly
 G:j:b
@@ -986,8 +986,8 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is about ten feet long.
 
-N:76:Bullroarer the Hobbit
-G:h:b
+N:76:Sasuke Sarugature
+G:p:b
 I:120:6d10:16:8:10
 W:5:3:0:90
 B:HIT:HURT:1d6
@@ -997,21 +997,20 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-D:He is a sturdy hobbit who is renowned for his unusual strength and 
-D:vigour.  He can prove a troublesome opponent.
+D:Abused servant of the Kuno family, Sasuke sneaks about doing their bidding.
 
-N:77:Novice mage
+N:77:Novice pretty magical girl
 G:p:r
 I:110:6d4:20:6:10
 W:5:2:0:7
 B:HIT:HURT:1d4
-F:MALE | 
+F:FEMALE | 
 F:FORCE_SLEEP | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
-D:He is leaving behind a trail of dropped spell components.
+D:Your sterreotypical, sailor-suit, magic girl.
 
 N:78:Green naga
 G:n:g
@@ -1146,16 +1145,16 @@ S:1_IN_12 |
 S:HEAL | SCARE | CAUSE_1
 D:He is tripping over his priestly robes.
 
-N:90:Novice warrior
-G:p:u
+N:90:Generic Cat Girl
+G:f:v
 I:110:9d4:20:16:5
 W:6:2:0:6
 B:HIT:HURT:1d7
-B:HIT:HURT:1d6
-F:MALE | 
+B:CLAW:HURT:1d6
+F:FEMALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
-D:He looks inexperienced but tough.
+D:The stereotypical cat girl one finds in any anime series.
 
 N:91:Novice rogue
 G:p:b
@@ -1374,54 +1373,56 @@ B:BITE:HURT:1d6
 F:ANIMAL
 D:It is a black lizard with overlapping scales and a powerful jaw.
 
-N:110:Mughash the Kobold Lord
-G:k:b
+N:110:Tuxedo Mask
+G:p:D
 I:110:15d10:20:20:20
 W:7:3:0:100
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
+B:INSULT
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
-D:Strong and powerful, for a kobold.
+S:1_IN_2 |
+S:MISSILE
+D:Aka Prince Darien, a funny dresser who lieks to throw roses.
 
-N:111:Wormtongue, Agent of Saruman
+N:111:Sailor Moon
 G:p:b
 I:110:25d10:20:30:20
 W:8:1:0:150
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 B:TOUCH:EAT_GOLD
-F:UNIQUE | MALE | 
+B:INSULT
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
 S:1_IN_5 | 
-S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
-D:He's been spying for Saruman.  He is a snivelling wretch with no morals 
-D:and disgusting habits.
+S:HEAL | SLOW | BO_COLD | BA_POIS
+D:The epitomy of all bad anime everywhere.  Upon looking at her, you feel
+D:a sudden urge to kill.
 
-N:112:Lagduf, the Snaga
-G:o:o
-I:110:19d10:20:32:30
+
+N:112:Napa, the Sayajin Elite
+G:h:o
+I:120:20d11:20:32:30
 W:8:2:0:80
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
-B:HIT:HURT:1d9
-B:HIT:HURT:1d9
+B:PUNCH:HURT:1d10
+B:KICK:HURT:1d10
+B:PUNCH:HURT:1d9
+B:KICK:HURT:1d9
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC
-D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order 
-D:with displays of excessive violence.
+F:EVIL | 
+S:1_IN_5 | 
+S:BO_ELEC | BA_ELEC
+D:A Sayajin elite, Napa may look stupid, but is pretty strong.
 
 N:113:Brown yeek
 G:y:u
@@ -1527,16 +1528,17 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:He is after your cash!
 
-N:122:Yeti
-G:Y:b
+N:122:Yuuki-Onna
+G:G:b
 I:110:11d9:20:24:10
 W:9:3:0:30
-B:CLAW:HURT:1d3
-B:CLAW:HURT:1d3
-B:BITE:HURT:1d4
-F:OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | IM_COLD
-D:A large white figure covered in shaggy fur.
+B:HIT:HURT:1d3
+B:HIT:HURT:1d3
+B:WAIL:HURT:1d4
+F:EVIL | UNDEAD | IM_COLD | PASS_WALL |
+S:1_IN_1 |
+S:BO_COLD | BA_COLD |
+D:A ghost woman who wears a white kimono and freezes lost adventurers.
 
 N:123:Bloodshot icky thing
 G:i:r
@@ -1651,7 +1653,7 @@ S:BR_ACID
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a dull black.
 
-N:131:Baby red dragon
+N:131:Charmander
 G:d:r
 I:110:11d10:20:30:70
 W:9:2:0:35
@@ -1662,10 +1664,10 @@ F:FORCE_MAXHP | FORCE_SLEEP |
 F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DRAGON | IM_FIRE
-S:1_IN_11 | 
+S:1_IN_4 | 
 S:BR_FIRE
-D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
-D:its scales a pale red.
+D:Fire type pokemon.  The flame at the tip of its tail makes a sound as it
+D:burns.  You can only hear it at quiet places.
 
 N:132:Giant pink ant
 G:a:R
@@ -1677,19 +1679,20 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is large and has venomous mandibles.
 
-N:133:Brodda, the Easterling
+N:133:Tatewaki Kuno
 G:p:u
 I:110:21d10:20:25:20
 W:9:2:0:100
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
-B:HIT:HURT:1d12
+B:INSULT
 F:UNIQUE | MALE
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR
-D:A nasty piece of work, Brodda picks on defenseless women and children.
+D:He's the 'Blue Thunder' of Furinkan High school and the rising star of the 
+D:high school fencing world.  
 
 N:134:King cobra
 G:J:g
@@ -1729,15 +1732,13 @@ S:1_IN_5 |
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
 D:A dark elven figure, dressed all in black, hurling spells at you.
 
-N:137:Orfax, Son of Boldor
-G:y:b
-I:120:12d10:18:20:10
+N:137:Cait the cat
+G:f:b
+I:130:12d10:18:20:10
 W:10:3:0:80
-B:HIT:HURT:1d9
-B:HIT:HURT:1d8
-B:INSULT
-B:INSULT
-F:UNIQUE | MALE | 
+B:CLAW:HURT:1d9
+B:CLAW:HURT:1d8
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
@@ -1746,11 +1747,11 @@ F:ANIMAL | EVIL
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
 S:S_MONSTER
-D:He's just like daddy!  He knows mighty spells, but fortunately he is a 
-D:yeek.
+D:A sentient siamese cat that is well versed in electronics and magic.  She 
+D:is top tier in devloping strategies, and has a twin sister.
 
-N:138:Dark elven warrior
-G:h:u
+N:138:Samurai Mole
+G:r:u
 I:110:10d11:20:16:20
 W:10:1:0:50
 B:HIT:HURT:1d8
@@ -1759,7 +1760,7 @@ F:MALE |
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | HURT_LITE
-D:A dark elven figure in armour and ready with his sword.
+D:A short little mole with a little sword and a funny helmet.
 
 N:139:Clear mushroom patch
 G:,:w
@@ -1772,21 +1773,24 @@ F:STUPID | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Yum!  It looks quite tasty.
 
-N:140:Grishnakh, the Hill Orc
-G:o:U
-I:110:23d10:20:20:20
+N:140:Sith, the Cat
+G:f:b
+I:120:23d10:20:20:20
 W:10:3:0:160
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-B:HIT:HURT:1d12
-B:HIT:HURT:1d10
-F:UNIQUE | MALE | 
+B:CLAW:HURT:1d12
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d12
+B:CLAW:HURT:1d10
+F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
+F:ESCORT | ESCORTS |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:He is a cunning and devious orc with a chaotic nature.
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:ANIMAL | EVIL
+S:1_IN_4 | 
+S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
+S:S_MONSTER
+D:The twin sister of Cait, she is renowned for her cunning.
 
 N:141:Giant white tick
 G:S:w
@@ -2007,8 +2011,8 @@ F:ANIMAL | HURT_LITE | NO_FEAR
 D:It is a disgusting mass of dark worms, eating each other, the floor, 
 D:the air, you....
 
-N:159:Golfimbul, the Hill Orc Chief
-G:o:U
+N:159:Schezo Wegey
+G:p:U
 I:110:24d10:20:60:20
 W:12:3:0:230
 B:HIT:HURT:1d12
@@ -2019,9 +2023,9 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-D:A leader of a band of raiding orcs, he picks on hobbits.
+F:WEIRD_MIND | OPEN_DOOR | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+D:A very skilled swordsman...but not very bright, and somewhat of a pervert.
 
 N:160:Master yeek
 G:y:U
@@ -2128,7 +2132,7 @@ S:1_IN_15 |
 S:TPORT | SCARE
 D:A ghostly apparition that shrieks horribly.
 
-N:168:Swordsman
+N:168:Samurai
 G:p:U
 I:110:12d8:20:34:20
 W:12:1:0:40
@@ -2163,19 +2167,18 @@ F:IM_ACID | IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A jelly thing.
 
-N:171:Drider
-G:S:u
+N:171:Mamono
+G:B:u
 I:110:10d13:8:30:80
 W:13:2:0:55
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
-B:BITE:POISON:1d6
 F:FORCE_SLEEP | 
 F:BASH_DOOR | 
-F:EVIL | IM_POIS
+F:IM_POIS
 S:1_IN_8 | 
 S:CONF | CAUSE_1 | DARKNESS
-D:A dark elven torso merged with the bloated form of a giant spider.
+D:A strange sorcerer bird like creature.
 
 N:172:Killer brown beetle
 G:K:u
@@ -2186,23 +2189,22 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is a vicious insect with a tough carapace.
 
-N:173:Boldor, King of the Yeeks
-G:y:U
+N:173:Arle Nadja
+G:p:b
 I:120:18d10:18:24:10
 W:13:3:0:200
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL
 S:1_IN_3 | 
 S:HEAL | BLINK | TPORT | BLIND | SLOW | 
-S:S_MONSTER | S_KIN
-D:A great yeek, powerful in magic and sorcery, but a yeek all the same.
+S:BA_FIRE | BO_FIRE |
+S:S_MONSTER | 
+D:A scary and very powerful sorceress who just happens to like curry.
 
 N:174:Ogre
 G:O:U
@@ -2290,8 +2292,8 @@ F:MULTIPLY | WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It makes you itch just to look at it.
 
-N:181:Ufthak of Cirith Ungol
-G:o:g
+N:181:Your Doppelganger
+G:@:d
 I:110:32d10:20:50:20
 W:14:3:0:200
 B:HIT:HURT:3d4
@@ -2300,12 +2302,10 @@ B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_COLD | IM_POIS
-D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of 
-D:spiders.
+F:EVIL | IM_COLD | IM_POIS
+D:It looks just like you.
 
 N:182:Giant white dragon fly
 G:F:w
@@ -2359,7 +2359,7 @@ F:IM_ELEC |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A shambling humanoid monster with long scars.
 
-N:186:Warg
+N:186:Owl Bear
 G:C:s
 I:120:8d8:20:20:40
 W:14:2:0:40
@@ -2367,8 +2367,8 @@ B:BITE:HURT:1d8
 F:RAND_25 | 
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | EVIL
-D:It is a large wolf with eyes full of cunning.
+F:ANIMAL | 
+D:It is an owl and it is a bear.  WTF!
 
 N:187:Giant black louse
 G:l:D
@@ -2380,18 +2380,17 @@ F:WEIRD_MIND | MULTIPLY |
 F:ANIMAL
 D:It makes you itch just to look at it.
 
-N:188:Lurker
+N:188:Nomi
 G:.:w
 I:110:20d10:30:25:10
 W:14:3:0:80
-B:HIT:HURT:1d8
-B:HIT:HURT:1d8
+B:HIT:HURT:5d8
 F:CHAR_CLEAR | ATTR_CLEAR | 
 F:NEVER_MOVE | FORCE_MAXHP | 
 F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:A strange creature that merges with the dungeon floor, trapping its 
-D:victims by enveloping them within its perfectly disguised form.
+D:Nomi is a little speck with a sign hanging above him that reads "He 
+D:is here!"  However, he packs a terrific wallop.
 
 N:189:Wererat
 G:r:D
@@ -2672,21 +2671,23 @@ F:MULTIPLY | WEIRD_MIND |
 F:ANIMAL
 D:A giant buzzing wasp, its stinger drips venom.
 
-N:211:Ulfast, Son of Ulfang
+N:211:Ryouga Hibiki
 G:p:U
 I:110:34d10:20:40:40
 W:16:3:0:200
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
+B:PUNCH:HURT:3d5
+B:KICK:HURT:3d5
+B:PUNCH:HURT:3d5
+B:TOUCH:SHATTER
 F:UNIQUE | 
 F:MALE | 
 F:FORCE_MAXHP | 
+F:KILL_WALL |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling.
+D:Ryouga Hibiki, though lacking a good sense of direction, is nonetheless 
+D:a very dangerous adversary.  Ever since mastering the 'Baku-sai ten 
+D:getsu' attack, he has been able to shatter rocks and non living things.
 
 N:212:Quasit
 G:u:o
@@ -2732,7 +2733,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | HURT_LITE
 D:He is green skinned and ugly.
 
-N:215:Nar, the Dwarf
+N:215:Akotto, servant of Zagoto
 G:h:y
 I:110:45d10:25:70:25
 W:17:2:0:250
@@ -2746,9 +2747,11 @@ F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
-S:HEAL | BLIND | CONF | CAUSE_2 | MIND_BLAST
-D:This dwarf became so obsessed by gold that Morgoth tricked him into 
-D:betraying his friends.
+S:HEAL | BLIND | CONF | CAUSE_2 | MIND_BLAST |
+S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | 
+S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
+S:S_KIN
+D:Zagoto's most trusted servant and a master of summoning.
 
 N:216:2-headed hydra
 G:M:u
@@ -2843,21 +2846,23 @@ S:BR_COLD
 D:A hound as tall as a man, this creature appears to be composed of angular 
 D:planes of ice.  Cold radiates from it and freezes your breath in the air.
 
-N:223:Energy hound
-G:Z:b
+N:223:Pikachu
+G:r:y
 I:110:10d6:30:30:0
 W:18:1:0:70
 B:BITE:ELEC:1d3
+B:CLAW:ELEC:1d3
 B:BITE:ELEC:1d3
-B:BITE:ELEC:1d3
+B:MOAN
 F:FORCE_SLEEP | 
 F:FRIENDS | 
-F:BASH_DOOR | 
 F:ANIMAL | IM_ELEC
-S:1_IN_10 | 
+S:1_IN_4 | 
 S:BR_ELEC
-D:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting 
-D:your fingers as energy builds up in the air around you.
+D:Electric Pokemon.  Often refered to as an "Electric Mouse", this roundish 
+D:yellow rodent pokémon specailizes in electric attacks.  Often shy but can 
+D:sometimes have an electric personality. When several of them gather together 
+D:they can cause lightning storms.
 
 N:224:Mimic (potion)
 G:!:w
@@ -2875,19 +2880,20 @@ S:BLIND | CONF | SCARE | CAUSE_2 | BO_COLD
 D:A strange creature that disguises itself as discarded objects to lure 
 D:unsuspecting adventurers within reach of its venomous claws.
 
-N:225:Blink dog
-G:C:B
-I:120:8d8:20:20:10
+N:225:Tottoro
+G:r:B
+I:100:8d8:20:20:10
 W:18:2:0:50
-B:BITE:HURT:1d8
+B:HIT:HURT:1d3
 F:RAND_25 | 
-F:FRIENDS | 
-F:BASH_DOOR | 
+F:FRIENDS | ALWAYS_HIT | INVISIBLE |
+F:BASH_DOOR | MULTIPLY |
 F:ANIMAL
-S:1_IN_4 | 
-S:BLINK | TELE_TO
-D:A strange magical member of the canine race, its form seems to shimmer and 
-D:fade in front of your very eyes.
+S:1_IN_1 | 
+S:BLINK |
+S:S_KIN
+D:A strange race of creatures that look like a cross between an owl and 
+D:a rabbit.  They really like you...
 
 N:226:Uruk
 G:o:B
@@ -2902,38 +2908,38 @@ F:EVIL | ORC | IM_POIS
 D:He is a cunning orc of power, as tall as a man, and stronger.  It fears 
 D:little.
 
-N:227:Shagrat, the Orc Captain
-G:o:g
-I:110:40d10:20:60:20
+N:227:Sadachiyo, the sexually ambiguous Ninja
+G:p:v
+I:130:40d10:20:60:20
 W:18:2:0:400
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MALE | 
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+F:UNIQUE | 
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:He is an Uruk of power and great cunning.
+F:EVIL | IM_POIS
+D:You cannot tell what sex this person is.
 
-N:228:Gorbag, the Orc Captain
-G:o:g
+N:228:Chelsea Rorec
+G:h:g
 I:110:40d10:20:60:20
 W:18:3:0:400
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 B:HIT:HURT:3d5
 B:HIT:HURT:3d5
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:A gruesomely ugly but cunning orc, his eyes regard you with hatred.  His 
-D:powerful arms flex menacingly as he advances.
+S:1_IN_4 |
+S:BR_GRAV
+D:A power user who also happens to be the bodyguard for Ruri, the
+D:Maiden of Life.  She is rumored to have the power of gravity.
 
 N:229:Shambling mound
 G:,:W
@@ -3010,7 +3016,7 @@ S:BR_SOUN
 D:Large beating wings support this dazzling insect.  A loud buzzing noise 
 D:pervades the air.
 
-N:235:Bolg, Son of Azog
+N:235:King Gorge, Lord of the Gluttons
 G:o:r
 I:120:50d10:20:50:20
 W:20:4:0:800
@@ -3023,9 +3029,12 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:A large and powerful orc.  He looks just like his daddy.  He is tall and 
-D:fast, but fortunately blessed with orcish brains.
+F:EVIL | ORC | IM_POIS |
+S:1_IN_4 |
+S:S_KIN
+D:An Elite Master Chef, this monstrosity hails from one of the worst
+D:anime series ever.  He is the master and bane of both Gluttons and 
+D:Foodons alike.  You cringe at his wide girth and bad manners.
 
 N:236:Phase spider
 G:S:B
@@ -3197,8 +3206,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT | IM_ELEC
 D:It is a twenty foot tall giant wreathed in clouds.
 
-N:248:Ugluk, the Uruk
-G:o:b
+N:248:Wang the Raalgon
+G:h:b
 I:110:64d10:20:90:20
 W:20:4:0:550
 B:HIT:HURT:3d5
@@ -3210,13 +3219,13 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:Another of Morgoth's servants, this orc is strong and cunning.  He is ugly 
-D:and scarred from many power struggles.
+F:EVIL | IM_POIS
+D:He is the counsellor for the princess of Raalgon.  A very cold and 
+D:calculating person.
 
-N:249:Lugdush, the Uruk
-G:o:b
-I:110:72d10:20:95:20
+N:249:Kira Yoshinaka, bane of the Ako
+G:p:b
+I:110:82d10:20:95:20
 W:21:3:0:550
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
@@ -3227,8 +3236,11 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-D:A strong and cunning orc warrior, Lugdush sneers as he insults your mother.
+F:EVIL | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+D:A greedy, arrogant, dishonorable damiyo lord who is the master of 
+D:the Shogun's ceremonies.  Kira is the one responsible for the
+D:death of Lord Asano of the Ako, and the disbandment of the Ako 
+D:tribe.  Now he is on the run from the Ako ronin.
 
 N:250:Blue dragon bat
 G:b:b
@@ -3381,9 +3393,9 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:A scarred warrior who moves with confidence.
 
-N:262:Azog, King of the Uruk-Hai
-G:o:r
-I:120:90d10:20:80:20
+N:262:Hojo Tokisuke
+G:p:d
+I:140:90d10:20:80:20
 W:23:5:0:1111
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
@@ -3391,11 +3403,11 @@ B:HIT:HURT:5d5
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
-F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:SMART | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
-D:He is also known as the King of Khazad-dum.  His ego is renowned to be 
-D:bigger than his head.
+D:A warrior of insane skill and intelligence.  He is the older brother of 
+D:the legendary Hojo Tokimune, the man responsible for saving Japan from 
+D:Genghis Khan.
 
 N:263:Master rogue
 G:p:B
@@ -3460,26 +3472,26 @@ S:1_IN_10 |
 S:SCARE | DRAIN_MANA
 D:It is a ghostly apparition with a humanoid form.
 
-N:268:Ibun, Son of Mim
-G:h:o
-I:110:82d10:20:80:10
+N:268:Happosai
+G:p:U
+I:120:82d10:20:80:10
 W:24:2:0:300
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:UN_BONUS
+B:HIT:EAT_ITEM:3d6
+B:HIT:EAT_GOLD:3d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
-S:1_IN_8 | 
-S:HEAL | SLOW | BO_FIRE
-D:One of the last of the petty dwarves.  Ibun is a tricky sorcerous little 
-D:being, full of mischief.
+S:1_IN_4 | 
+S:HEAL | SLOW | BO_FIRE | BA_FIRE | TPORT
+D:An old panty thief that is experienced in martial arts and is 
+D:downright irritating to deal with.
 
-N:269:Khim, Son of Mim
-G:h:o
+N:269:Suou Ginta
+G:p:b
 I:110:82d10:20:80:10
 W:24:2:0:300
 B:HIT:HURT:3d6
@@ -3491,10 +3503,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
-S:1_IN_8 | 
-S:HEAL | SLOW | BO_FIRE
-D:One of the last of the petty dwarves.  Khim is a tricky sorcerous little 
-D:being, full of mischief.
+D:A loser tennis player who rejects hot chicks to date Rei-clones.
 
 N:270:4-headed hydra
 G:M:y
@@ -3535,39 +3544,41 @@ F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:An undead bat that flies at your neck hungrily.
 
-N:273:Sangahyando of Umbar
+N:273:Vicious of Red Dragon
 G:p:u
 I:110:80d10:25:80:25
 W:24:2:0:400
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
+B:HIT:HURT:6d8
+B:HIT:HURT:8d6
+B:HIT:HURT:8d6
+B:HIT:HURT:8d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
-S:SLOW | FORGET
-D:A Black Numenorean with a blacker heart.
+S:SLOW | FORGET | HASTE | MISSILE
+D:A violent, cold hearted man who mercilessly carries out his tasks for 
+D:the Red Dragon Crime Syndicate.
 
-N:274:Angamaite of Umbar
+N:274:Kyosuke Kagami
 G:p:u
 I:110:80d10:25:80:25
 W:24:2:0:400
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
+B:PUNCH:HURT:4d6
+B:KICK:HURT:4d6
+B:PUNCH:HURT:4d6
+B:KICK:HURT:4d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
+F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
-S:SLOW | FORGET
-D:A Black Numenorean who hates the men of the west.
+S:BO_FIRE | BO_COLD | BA_COLD |
+D:Although a member of the morals committee in Taiyo HS, Kyosuke is actually
+D:Hyo's collaborator in the plan to reform the world by force.
 
 N:275:Banshee
 G:G:b
@@ -3689,19 +3700,22 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is an ant encased in shaggy grey fur.
 
-N:284:Ulwarth, Son of Ulfang
-G:p:U
+N:284:Morrigan the Succubus
+G:V:v
 I:110:85d10:20:40:40
 W:26:4:0:500
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-B:HIT:HURT:4d6
-F:UNIQUE | MALE | 
+B:PUNCH:HURT:4d6
+B:KICK:HURT:4d6
+B:PUNCH:HURT:4d6
+F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling.
+S:1_IN_3 | 
+S:MISSILE
+D:She is known as a temptress, and a mistress of the night.  Her looks
+D: belie the fact that she is the rightful ruler of Makai 
+
 
 N:285:Displacer beast
 G:f:D
@@ -3768,8 +3782,8 @@ S:BLIND | CONF | SCARE | FORGET
 D:A lesser angel wearing little more than a loincloth - its steely skin 
 D:provides all the protection it needs.
 
-N:290:Mim, Betrayer of Turin
-G:h:o
+N:290:Gatsu
+G:p:D
 I:120:11d100:20:80:20
 W:27:4:0:1000
 B:HIT:HURT:3d8
@@ -3780,13 +3794,9 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
-S:1_IN_6 | 
-S:HEAL | SCARE | BO_ACID | BA_ACID
-D:The last of his race, Mim is a petty dwarf.  Petty dwarves are strange 
-D:creatures, powerful in sorcery and originating in the East.  They were 
-D:hunted to extinction by high elves.
+D:An extremely evil looking buff guy who swings a really huge sword.
 
 N:291:Killer red beetle
 G:K:r
@@ -3875,21 +3885,22 @@ S:HEAL | HOLD | TRAPS | BA_COLD |
 S:S_MONSTER
 D:A hideous ogre wrapped in black sorcerous robes.
 
-N:297:Lokkak, the Ogre Chieftain
-G:O:g
+N:297:Ryoko the Space Pirate
+G:f:r
 I:120:15d100:20:100:20
 W:27:2:0:1500
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
 B:HIT:HURT:6d6
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | IM_POIS
-D:An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the 
-D:leader of a large band of violent ogres.
+F:IM_POIS | IM_ELEC | 
+S:1_IN_4 | 
+S:BLIND | MIND_BLAST | DARKNESS | MISSILE | BO_ELEC |
+D:An infamous space pirate who has plagues the Jureians for countless 
+D:years.  She is one of the most dangerous opponents out there.
 
 N:298:Vampire
 G:V:v
@@ -3990,9 +4001,9 @@ S:BLIND | SCARE | CAUSE_3 | DARKNESS
 D:He is a figure encased in deep black plate armour; he looks at you 
 D:menacingly.
 
-N:304:Uldor the Accursed
-G:p:U
-I:110:10d100:20:70:40
+N:304:The Walking Daikon
+G:P:w
+I:110:50d100:20:70:40
 W:28:4:0:600
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
@@ -4002,8 +4013,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:An evil and cunning man from the East.
+D:A massive walking Daikon.
 
 N:305:Mage
 G:p:r
@@ -4037,8 +4047,8 @@ S:BLIND | HOLD | SCARE | MIND_BLAST | BRAIN_SMASH | FORGET
 D:A humanoid form with a gruesome head, tentacular mouth, and piercing 
 D:eyes.  Claws reach out for you and you feel a presence invade your mind.
 
-N:307:Draebor, the Imp
-G:u:g
+N:307:Nakago, Shogun of Kotou
+G:p:v
 I:120:52d10:20:50:20
 W:28:5:0:750
 B:HIT:POISON:3d4
@@ -4046,15 +4056,15 @@ B:HIT:POISON:3d4
 B:HIT:HURT:3d4
 F:UNIQUE | 
 F:FORCE_MAXHP | FORCE_SLEEP | 
-F:ESCORT | 
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | INVISIBLE | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
+F:EVIL | IM_FIRE
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
 S:CONF | SCARE | S_KIN
-D:An intensely irritating git of a monster.
+D:Fearsome with both magic and sword, he is a pretty blond boy, despite 
+D:the fact that he is quite evil.
 
 N:308:Basilisk
 G:R:b
@@ -4374,28 +4384,25 @@ S:1_IN_1 |
 S:BLINK | TELE_AWAY
 D:It is a very unstable, strange pulsing mound of flesh.
 
-N:330:Shelob, Spider of Darkness
-G:S:D
+N:330:The Black Lady
+G:p:D
 I:110:12d100:8:80:80
 W:32:3:0:1200
-B:BITE:HURT:2d10
-B:STING:POISON:2d5
-B:STING:LOSE_STR:1d4
-B:STING:POISON:2d5
+B:HIT:HURT:2d10
+B:HIT:POISON:2d5
+B:HIT:LOSE_STR:1d4
+B:HIT:POISON:2d5
 F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | 
-F:ANIMAL | EVIL | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:TRAPS | 
-S:S_SPIDER
-D:Shelob is an enormous bloated spider, rumoured to have been one of the 
-D:brood of Ungoliant the Unlight.  Her poison is legendary, as is her ego, 
-D:which may be her downfall.  She used to guard the pass through Cirith 
-D:Ungol, but has not been seen there for many eons.
+D:She is the evil form of Chibi-Usa, filled by the dark power of the 
+D:wise man.  Now all she desires is vengence and death to all those 
+D:who have wronged her.
 
 N:331:Ninja
 G:p:y
@@ -4589,7 +4596,7 @@ S:BR_LITE | BR_DARK
 D:A dragon of elemental power, with control over light and dark, the 
 D:ethereal drake's eyes glare with white hatred from the shadows.
 
-N:343:Bert the Stone Troll
+N:343:Tessai the Stone Troll
 G:T:W
 I:110:11d100:20:70:50
 W:33:7:0:2000
@@ -4602,40 +4609,39 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bill and Tom.
+D:Big, brawny, powerful, and wields a huge boomerang like blade.  He also 
+D:enjoys killing poeple and raping women.
 
-N:344:Bill the Stone Troll
-G:T:W
-I:110:11d100:20:70:50
+N:344:Yun, the Wind Gust Dragon
+G:p:B
+I:140:9d100:20:70:50
 W:33:7:0:2000
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
+B:PUNCH:HURT:2d5
+B:KICK:HURT:1d5
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bert and Tom.
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+S:1_IN_3 | 
+S:HASTE | 
+D:Feared by many fighters all over the world, he is an elite martial artist 
+D:with gang ties from Hong-Kong.  He has been trained by such legends as K.O. 
+D:Mester, and Ken.  Master of the Genei Jin technique, he is feared for his 
+D:quick strikes and juggle comboes.
 
-N:345:Tom the Stone Troll
-G:T:W
+N:345:Deedlit, the Elf
+G:h:U
 I:110:11d100:20:70:50
 W:33:7:0:2000
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ESCORT | 
+B:HIT:HURT:1d3
+F:UNIQUE | FEMALE |
+F:FORCE_MAXHP | SMART |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bert and Bill.
+S:1_IN_4 |
+S:BO_ACID | BO_FIRE | BO_COLD | BO_ELEC | BO_POIS |  
+S:CONF |
+D:A very powerful elven mage.
 
 N:346:Shade
 G:G:D
@@ -4762,34 +4768,36 @@ F:ANIMAL | IM_POIS
 D:A hideous centipede covered in slime and with glowing tentacles around its 
 D:head.
 
-N:354:Master thief
+N:354:Space Pirate
 G:p:B
-I:130:18d10:20:30:40
+I:100:20d10:20:30:40
 W:34:2:0:350
-B:HIT:HURT:2d8
-B:HIT:HURT:3d4
-B:HIT:EAT_GOLD:4d4
-B:HIT:EAT_ITEM:4d5
+B:HIT:HURT:3d8
+B:HIT:HURT:4d4
+B:HIT:EAT_GOLD:5d4
+B:HIT:EAT_ITEM:5d5
 F:MALE | 
 F:DROP_90 | DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:Cool and confident, fast and lithe; protect your possessions quickly!
+D:He is full of angst, and enjoys mugging people.
 
-N:355:Ulfang the Black
-G:p:U
+N:355:Ky-Kiske
+G:p:b
 I:120:10d100:20:90:40
 W:34:5:0:1200
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
+B:HIT:HURT:10d5
+B:HIT:HURT:10d5
+B:HIT:HURT:10d5
+B:HIT:HURT:10d5
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
-D:A short and swarthy Easterling dressed in Black.
+S:1_IN_3 | 
+S:MISSILE
+D:A very talented swordsman who collects teacups and has issues with  
+D:people who don't agree to his way of living.  
 
 N:356:Lich
 G:L:o
@@ -4943,20 +4951,21 @@ D:Unfettered by the usual constraints of gravity, these unnatural creatures
 D:are walking on the walls and even the ceiling!  The earth suddenly feels 
 D:rather less solid as you see gravity warp all round the monsters.
 
-N:366:Acidic cytoplasm
-G:j:s
+N:366:Ganymede Rock Lobster
+G:j:b
 I:120:40d10:12:18:1
 W:35:5:0:36
-B:TOUCH:ACID:1d10
-B:TOUCH:ACID:1d10
-B:TOUCH:ACID:1d10
-B:TOUCH:ACID:1d10
+B:BITE:POISON:1d10
+B:BITE:POISON:1d10
+B:BITE:POISON:1d10
+B:BITE:POISON:1d10
 F:FORCE_MAXHP | TAKE_ITEM | COLD_BLOOD | 
 F:DROP_1D2 | DROP_4D2 | 
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_FEAR | NO_CONF | NO_SLEEP
-D:A disgusting animated blob of destruction.  Flee its gruesome hunger!
+D:When you neglect lobsters in the fridge for too long, they tend to mutate
+D:into big, funny blobs with poisonous bites.
 
 N:367:Inertia hound
 G:Z:W
@@ -5216,22 +5225,22 @@ S:BR_SOUN
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:tarnished gold hue, and light is reflected from its form.
 
-N:383:Rogrog the Black Troll
-G:T:D
+N:383:Michael Yamada
+G:h:D
 I:120:15d100:20:70:50
 W:36:5:0:5000
 B:HIT:HURT:6d6
-B:BITE:HURT:2d10
-B:BITE:HURT:2d3
-B:SPIT:ACID:3d8
+B:HIT:HURT:2d10
+B:HIT:HURT:2d3
+B:SPIT:TERRIFY:1d1
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_ACID | IM_POIS
-D:A massive and cruel troll of great power, drool slides caustically down 
-D:his muscular frame.  Despite his bulk, he strikes with stunning speed.
+S:1_IN_9 |
+S:SCARE | MISSILE 
+D:A french womanizer who likes to throw lots of roses and vines.
 
 N:384:Mature blue dragon
 G:d:b
@@ -5281,7 +5290,7 @@ S:CONF | SCARE |
 S:BR_CONF
 D:A large dragon with scales of rich bronze.
 
-N:387:Young red dragon
+N:387:Charmeleon
 G:d:r
 I:110:29d10:20:63:50
 W:36:1:0:640
@@ -5292,11 +5301,11 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_60 | DROP_90 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DRAGON | IM_FIRE
-S:1_IN_11 | 
+S:1_IN_4 | 
 S:SCARE | 
 S:BR_FIRE
-D:It has a form that legends are made of.  Its still-tender scales are a 
-D:deepest red hue.  Heat radiates from its form.
+D:Fire type pokemon.  It is very hot headed by nature, so it constantly 
+D:seeks opponents.  It calms down only when it wins.
 
 N:388:Trapper
 G:.:w
@@ -5362,7 +5371,7 @@ S:BO_NETH |
 S:S_UNDEAD
 D:A gaunt figure, clothed in black robes.
 
-N:392:Lorgan, Chief of the Easterlings
+N:392:Anubis, Dark Warlord of Cruelty
 G:p:R
 I:120:18d100:25:100:10
 W:36:2:0:1200
@@ -5377,10 +5386,13 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
-S:TELE_TO | 
+S:TELE_TO | HOLD | SLOW |
 S:S_MONSTERS
-D:A mighty warrior from the east, Lorgan hates everything that he cannot 
-D:control.
+D:Anubis, Dark Warlord of Cruelty, the evil of the evil, he was the 
+D:leader of Tulpa's warlord's, even though he's the youngest he still
+D: posseses the greatest power of them all.
+
+
 
 N:393:Demonologist
 G:p:R
@@ -5625,23 +5637,21 @@ D:It is a humanoid form dressed in armour of an ancient form.  From beneath
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of 
 D:fire.
 
-N:408:Castamir the Usurper
+N:408:Dan Hibiki
 G:p:R
 I:120:88d10:20:90:40
 W:38:5:0:1600
 B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
+B:INSULT
+B:INSULT
+B:INSULT
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
-F:EVIL
 S:1_IN_2 | 
-S:HEAL | TRAPS | BO_FIRE | BO_COLD | BO_ELEC | BO_ICEE
-D:A Black Numenorean who usurped the throne of Gondor, he is treacherous and 
-D:evil.
+S:HEAL | MISSILE | BO_FIRE 
+D:A shoto wanna be with a pink gi, he strikes laughter everywhere he goes.  
 
 N:409:Time vortex
 G:v:B
@@ -5755,8 +5765,8 @@ S:S_MONSTERS | S_ANGEL
 D:It is an angel, fast and strong.  You are stunned by its extreme holiness 
 D:and try to resist all desires to obey it.
 
-N:416:Vargo, Tyrant of Fire
-G:E:r
+N:416:Biri Ban
+G:p:r
 I:120:15d100:12:50:50
 W:38:3:0:3000
 B:HIT:FIRE:4d6
@@ -5770,8 +5780,8 @@ F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL |
 F:EVIL | IM_FIRE | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
-S:BO_PLAS | BA_FIRE
-D:A towering fire elemental, Vargo burns everything beyond recognition.
+S:BO_FIRE | BA_FIRE
+D:He is the warrior of fire, who will burn anything that gets in his way.
 
 N:417:Black wraith
 G:W:D
@@ -5851,8 +5861,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
 D:A massive troll of huge strength.  Ettins are stupid but violent.
 
-N:422:Waldern, King of Water
-G:E:s
+N:422:Gyrados
+G:D:s
 I:120:20d100:12:40:50
 W:39:3:0:3250
 B:HIT:HURT:5d5
@@ -5867,11 +5877,10 @@ F:EVIL | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
-D:A towering water elemental, Waldern is master of all things liquid. 
-D:Wave after wave drowns your frail body.
+D:A towering dragon that gets pissed off very easily.
 
-N:423:Kavlax the Many-Headed
-G:d:v
+N:423:Yamata no Orochi
+G:d:g
 I:120:13d100:20:85:30
 W:39:3:0:3000
 B:BITE:HURT:2d12
@@ -5887,8 +5896,8 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_SOUN | BR_CONF | 
 S:BR_SHAR | BR_GRAV | BR_NEXU
-D:A large dragon with a selection of heads, all shouting and arguing as they 
-D:look for prey, but each with its own deadly breath weapon.
+D:A large dragon with a 8 heads and scales that look like a cedar  
+D:forest.  Each head can manipulate nature and cause disasters.
 
 N:424:Ancient white dragon
 G:D:w
@@ -5939,20 +5948,22 @@ S:SCARE | BA_POIS |
 S:BR_POIS
 D:A strange reptilian hybrid with seven heads dripping venom.
 
-N:427:Night mare
+N:427:Tatarigami
 G:q:D
 I:120:15d100:30:85:0
 W:39:3:0:2900
 B:BITE:EXP_80:2d6
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
-B:HIT:CONFUSE:6d6
+B:BITE:HURT:3d8
+B:BUTT:HURT:3d8
+B:ENGULF:POISON:6d6
 F:FORCE_MAXHP | 
 F:ONLY_GOLD | DROP_2D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-D:A fearsome skeletal horse with glowing eyes, that watch you with little 
-D:more than a hatred of all that lives.
+F:EVIL | UNDEAD | ANIMAL | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+D:A forest God that has been overcome by its anger and hatred.  This accursed
+D:creature hunts down humans with a horrible vengeance.  You stare in disgust
+D:and fear at its glowing red eyes and the ugly black worms wiggling about
+D:its body.
 
 N:428:Vampire lord
 G:V:b
@@ -6144,7 +6155,7 @@ F:ANIMAL | IM_ELEC
 D:A vast legendary bird, its iron talons rake the most impenetrable of 
 D:surfaces and its screech echoes through the many winding dungeon corridors.
 
-N:440:Uvatha the Horseman
+N:440:Dark Schneider
 G:W:D
 I:120:12d100:90:60:10
 W:40:3:0:7000
@@ -6156,9 +6167,11 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-D:A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs 
-D:to taste your blood.
+F:UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_2 | 
+S:DIVINE_COMEDY |
+S:HEAL | BLIND | HOLD | SCARE | CAUSE_4 | BRAIN_SMASH | 
+D:An undead, lecherous mage.
 
 N:441:Minotaur
 G:H:s
@@ -6211,7 +6224,7 @@ S:BR_NETH
 D:It is a dragon-like form wrapped in darkness.  You cannot make out its 
 D:true form but you sense its evil.
 
-N:444:Ancient red dragon
+N:444:Charizard
 G:D:r
 I:120:10d100:20:100:70
 W:40:1:0:2750
@@ -6222,11 +6235,11 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:DROP_3D2 | DROP_4D2 | 
 F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
-S:1_IN_6 | 
+S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE
-D:A huge draconic form.  Wisps of smoke steam from its nostrils and the 
-D:extreme heat surrounding it makes you gasp for breath.
+D:Fire type Pokemon.  Breathing intense hot flames, it can melt almost
+D:anything.  Its breath inflicts terrible pain on enemies.
 
 N:445:Ancient gold dragon
 G:D:y
@@ -6297,7 +6310,7 @@ S:S_DEMON
 D:It is a demon of small stature, but its armoured frame moves with 
 D:lightning speed and its powers make it a tornado of death and destruction.
 
-N:449:Adunaphel the Quiet
+N:449:Okiku, the servant maid
 G:W:D
 I:120:12d100:90:60:10
 W:41:3:0:8000
@@ -6314,8 +6327,8 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | FORGET | 
 S:BO_ACID | BO_FIRE | BO_COLD | BO_NETH | 
 S:S_MONSTER
-D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the 
-D:power of the rings.
+D:A servant in life, Okiku committed suicide rather than to be her
+D:master's mistress.
 
 N:450:Dark elven sorceror
 G:h:v
@@ -6370,44 +6383,40 @@ S:BO_FIRE |
 S:S_DEMON
 D:It is a demon of lizard form with cruel-looking jaws.
 
-N:453:Akhorahil the Blind
-G:W:D
+N:453:Utsutsu Mujuru the Blind
+G:U:D
 I:120:18d100:90:70:10
 W:41:3:0:12000
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
-B:GAZE:EXP_80
-B:WAIL:TERRIFY
+B:GAZE:TERRIFY
+B:HIT:HURT:5d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:BLIND | HOLD | SCARE | CAUSE_3 | DARKNESS | 
-S:BO_FIRE | BO_COLD | BO_NETH | 
-S:S_MONSTER
-D:A mighty sorcerer King, Akhorahil was blind in life.  With powerful 
-D:enchantments, he created jewelled eyes that enabled him to see better than 
-D:any ordinary man ever could.
+F:EVIL | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_1 | 
+S:BLIND | 
+D:Despite the fact that he is blind, Utsutsu is one of the most 
+D:skilled swordsmen ever.  He is also willing to give you a 
+D:honorable death.
 
-N:454:Gorlim, Betrayer of Barahir
+N:454:Photon
 G:p:s
-I:120:16d100:20:120:40
-W:41:3:0:7000
-B:HIT:HURT:8d6
-B:HIT:HURT:8d6
-B:HIT:UN_BONUS:6d8
-B:HIT:UN_BONUS:6d8
+I:130:16d100:20:120:40
+W:41:3:0:25000
+B:HIT:HURT:20d20
+B:HIT:HURT:20d20
+B:HIT:UN_BONUS:25d25
+B:HIT:UN_BONUS:25d25
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_2 | 
-S:CAUSE_3 | BO_WATE | BO_MANA
-D:This once-mighty warrior was so dominated by Morgoth's power that he 
-D:became little more than a mindless creature of evil.
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF |
+F:NO_SLEEP | NO_FEAR | KILL_WALL |
+D:Onechan....onaji....Aun....mamoru...yaksoku....
 
 N:455:Solar
 G:A:y
@@ -6443,26 +6452,24 @@ S:BO_FIRE |
 S:S_DEMON
 D:It is demon with arms and pincers, its form a true mockery of life.
 
-N:457:Ren the Unclean
-G:W:D
-I:120:18d100:90:70:10
+N:457:Muraki Kazutaka
+G:U:D
+I:120:36d100:90:70:10
 W:41:3:0:13000
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:TOUCH:EXP_80
-B:WAIL:TERRIFY
+B:HIT:HURT:10d5
+B:HIT:HURT:10d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:INVISIBLE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP
+F:SMART | EVIL | IM_FIRE | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR |
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BO_FIRE | BO_NETH | BA_FIRE | 
-S:S_MONSTER
-D:Ren was an insane eastern king who believed himself to be the son of a 
-D:volcano god.  At an early age his sanity was destroyed by a plague that 
-D:wiped out his family, and he never recovered.
+S:S_MONSTER | S_DEMON | S_UNDEAD | SLOW | MIND_BLAST | BRAIN_SMASH |
+S:CONF | TPORT | S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | 
+D:An extremely insane, demonic serial killer who commits unspeakable acts to 
+D:his victims and is the bane of the shinigami.
 
 N:458:Nalfeshnee
 G:U:r
@@ -6574,8 +6581,8 @@ D:A huge dragon emanating from the elemental plains, the ethereal dragon is
 D:a master of light and dark.  Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows.
 
-N:464:Ji Indur Dawndeath
-G:W:D
+N:464:Zappa the Posessed
+G:W:W
 I:120:18d100:90:70:10
 W:43:4:0:12000
 B:HIT:HURT:5d5
@@ -6589,10 +6596,11 @@ F:INVISIBLE | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS | 
 F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
-S:S_UNDEAD
-D:This Ringwraith was a weak-minded sorcerer-king who fell easily under 
-D:Sauron's power.
+S:BLIND | HOLD | SCARE | CAUSE_3 | BA_ACID | BA_NETH | 
+S:S_UNDEAD | S_HOUND
+D:Zappa is unfortunately posessed by S-ko, who uses him to "observe" 
+D:other humans.  As a result, Zappa does an eerie stair walk everytime 
+D:S-ko takes over...
 
 N:465:Marilith
 G:U:y
@@ -6612,7 +6620,7 @@ S:BLIND | CAUSE_2 |
 S:S_DEMON
 D:She is a demon of female form with many arms, each bearing deadly weapons.
 
-N:466:Quaker, Master of Earth
+N:466:Nai-no-kami
 G:E:u
 I:110:18d100:10:97:90
 W:43:4:0:6000
@@ -6628,9 +6636,8 @@ F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
-S:BO_ACID | BA_ACID
-D:A towering stone elemental stands before you.  The walls and ceiling are 
-D:reduced to rubble as Quaker advances.
+S:BO_ACID | BA_ACID | 
+D:The Japanese deity of earth and earthquakes.
 
 N:467:Lesser Balrog
 G:U:R
@@ -6650,7 +6657,7 @@ S:BR_FIRE |
 S:S_DEMON
 D:It is a massive humanoid demon wreathed in flames.
 
-N:468:Ariel, Queen of Air
+N:468:Shina-To-Be
 G:E:B
 I:130:27d100:12:50:50
 W:44:4:0:8000
@@ -6667,8 +6674,7 @@ F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:BO_ELEC | BA_COLD | BA_ELEC
-D:A towering air elemental, Ariel, the sorceress, avoids your blows 
-D:with her extreme speed.
+D:The Japanese goddess of wind.
 
 N:469:11-headed hydra
 G:M:R
@@ -6744,7 +6750,7 @@ D:A constructed dragon, the drolem has massive strength.  Powerful spells
 D:weaved during its creation make it a fearsome adversary.  Its eyes show 
 D:little intelligence, but it has been instructed to destroy all it meets.
 
-N:473:Scatha the Worm
+N:473:Puff, the Magic Dragon
 G:D:w
 I:120:20d100:20:130:70
 W:44:2:0:17000
@@ -6756,21 +6762,20 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
+F:DRAGON | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
-S:BR_COLD
-D:An ancient and wise Dragon.  Scatha has grown clever over the long years.  
-D:His scales are covered with frost, and his breath sends a shower of ice 
-D:into the air.
+S:BR_POIS
+D:He frolics in the autumn mist in a land called Honah Lee with his friend, 
+D:Little Jackie Paper.  He is also high off of pot most of the time.
 
-N:474:Dwar, Dog Lord of Waw
+N:474:Shindou Saki
 G:W:D
 I:120:20d100:90:90:10
 W:44:3:0:13000
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
-B:BITE:EXP_40:2d4
+B:HIT:EXP_40:2d4
 B:WAIL:TERRIFY
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
@@ -6780,11 +6785,11 @@ F:EVIL | UNDEAD | IM_FIRE | IM_COLD |
 F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
-S:S_MONSTERS | S_UNDEAD | S_HOUND
-D:Dwar had a special affinity for dogs in life, and can still command them 
-D:at will.  He howls manically as he reaches out to destroy you.
+S:S_MONSTERS | CONF | BLINK |
+D:The dead brother of Muraki, he killed Muraki's parents to prevent him from 
+D:extracting revenge.
 
-N:475:Smaug the Golden
+N:475:Hai Riyo, the dragon bird
 G:D:r
 I:120:20d100:20:100:70
 W:45:2:0:19000
@@ -6796,13 +6801,12 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
+F:DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
-S:BR_FIRE
-D:Smaug is one of the Uruloki that still survive, a fire-drake of immense 
-D:cunning and intelligence.  His speed through air is matched by few other 
-D:dragons and his dragonfire is what legends are made of.
+S:BR_FIRE | BR_ACID |
+D:A dragon bird hybrid with a scaly body and clawed feet.  Its wing and tail 
+D:feathers are made of pure gold.
 
 N:476:Dracolich
 G:D:G
@@ -6877,7 +6881,7 @@ D:It is the epitome of all that is evil, in a mold.  Its lifeless form draws
 D:power from sucking the souls of those that approach it, a nimbus of pure 
 D:evil surrounds it.  Luckily for you, it can't move.
 
-N:480:Itangast the Fire Drake
+N:480:Touda, the Shikigami
 G:D:r
 I:120:22d100:20:100:70
 W:47:4:0:20000
@@ -6893,10 +6897,9 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE
-D:A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of 
-D:smoke curl up from his nostrils as he regards you with disdain.
+D:A seprant whose flames are powerful enough to destroy even a Shinigami.
 
-N:481:Glaurung, Father of the Dragons
+N:481:Ii Shenlong
 G:D:r
 I:120:28d100:20:120:70
 W:48:2:0:25000
@@ -6909,14 +6912,13 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
-S:1_IN_5 | 
+S:1_IN_3 | 
 S:CONF | CAUSE_3 | 
-S:BR_FIRE | 
+S:BR_FIRE | BR_POIS | BR_ELEC | BR_COLD | BR_MANA |
 S:S_DRAGON
-D:Glaurung is the father of all dragons, and was for a long time the most 
-D:powerful.  Nevertheless, he still has full command over his brood and can 
-D:command them to appear whenever he so wishes.  He is the definition of 
-D:dragonfire.
+D:The mightiest of the seven dragons, Ii Shenlong came about due to the blatant overuse 
+D:of the Dragon Balls by the planet earth.  Even the mightiest warriors of the entire
+D: universe fear his wrath.
 
 N:482:Master mystic
 G:p:o
@@ -6939,7 +6941,7 @@ D:A lord of all that is natural, skilled in the mystic ways.  He is a master
 D:of martial arts and is at one with nature, able to summon help from the 
 D:wild if need be.
 
-N:483:Muar, the Balrog
+N:483:Benge Barbarois
 G:U:o
 I:120:30d100:20:100:80
 W:50:3:0:30000
@@ -6954,12 +6956,11 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL | DEMON | IM_FIRE | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
-S:CONF | SCARE | 
-S:BR_FIRE | 
+S:BLIND | CONF | SCARE | TRAPS |
+S:BR_FIRE | BA_NETH |
 S:S_UNDEAD | S_DEMON
-D:A huge balrog surrounded by raging pillars of fire, Muar is indeed a 
-D:terrible opponent.  Wielding a great whip of fire and a blazing sword, his 
-D:fury blisters your skin and melts your flesh!
+D:An agile killer whos specialties involve deadly traps and illusions of 
+D:shadow and black cloth.
 
 N:484:Nightwing
 G:W:D
@@ -7088,25 +7089,27 @@ S:BR_WALL
 D:A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses 
 D:all that defy him.
 
-N:491:Harowen the Black Hand
+N:491:Lupin the Third
 G:p:B
-I:140:25d100:40:90:0
-W:52:3:0:20000
+I:160:25d100:40:90:0
+W:52:3:0:36000
 B:TOUCH:EAT_GOLD:5d5
 B:TOUCH:EAT_ITEM:5d5
+B:TOUCH:EAT_FOOD:1d1
 B:HIT:BLIND:10d5
-B:HIT:POISON:8d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_6 | 
-S:TRAPS
-D:He is a master of disguise, an expert of stealth, a genius at traps, and 
-D:moves with blinding speed.  Check your pockets!
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GREAT | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
+F:SMART | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:TRAPS | BLINK
+D:The Sherlock Holmes of thieves.  No safeguards or buildings can stop him
+D:from stealing whatever he wants. He is a master of disguise, an expert 
+D:of stealth, a genius at traps, and moves with blinding speed.  
+D:Check your pockets!
 
-N:492:Hoarmurath of Dir
+N:492:O-Iwa, the disfigured
 G:W:D
 I:120:25d100:90:100:10
 W:52:3:0:40000
@@ -7114,7 +7117,7 @@ B:HIT:HURT:10d10
 B:HIT:HURT:5d5
 B:TOUCH:EXP_80
 B:WAIL:TERRIFY
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
@@ -7124,8 +7127,8 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | 
 S:S_UNDEAD | S_KIN
-D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost 
-D:for a life of everlasting torment.
+D:Upon being disfigured from poison, her husband abandoned her to marry 
+D:his neighbor.  Now, she haunts the world.
 
 N:493:Grand master mystic
 G:p:o
@@ -7147,42 +7150,46 @@ D:He is one of the few true masters of the art, being extremely skillful in
 D:all forms of unarmed combat and controlling the world's natural creatures 
 D:with disdainful ease.
 
-N:494:Khamul the Easterling
-G:W:D
-I:120:35d100:90:100:10
+N:494:Miyamoto Musashi
+G:p:D
+I:130:35d100:90:100:10
 W:53:3:0:50000
+B:HIT:HURT:20d10
 B:HIT:HURT:10d10
-B:HIT:HURT:5d5
-B:TOUCH:EXP_40
-B:TOUCH:EXP_40
+B:HIT:LOSE_STR:5d10
+B:HIT:LOSE_STR:5d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_2 | 
-S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
-S:BA_FIRE | BA_COLD | BA_NETH | 
-S:S_UNDEAD | S_KIN
-D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
-D:combat awesome and his form twisted by evil cunning.
+F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR |
+S:1_IN_1 | 
+S:SCARE | BLINK | HASTE | HOLD |
+D:The legendary swordsman and most frightening warrior ever.  Rumored 
+D:to have destroyed the Yoshioka School of swordsmanship singlehandedly 
+D:and winner of countless duels with many other legendary swordsmen.
+D:Skilled with two swords, he also uses a bamboo sword to extremely
+D:deadly effect.  Those who have dared faced him have not lived to tell 
+D:the tale.
 
-N:495:Ethereal hound
+N:495:Inuki
 G:Z:G
-I:120:60d15:30:100:0
+I:150:100d15:30:100:0
 W:54:3:0:5000
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:BITE:HURT:2d12
 B:CLAW:HURT:3d3
-F:FORCE_SLEEP | FRIENDS | 
+F:UNIQUE |
+F:FORCE_SLEEP | FORCE_MAXHP | 
 F:INVISIBLE | PASS_WALL | 
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
-S:BR_NETH
-D:A pale green hound.  Pulsing red lines and strange fluorescent light
-D:hints at internal organs best left to the imagination.
+S:BR_MANA
+D:The "spirit dog" of Yuzuriha Nekoi.  Inuki has the ability to turn
+D:into whatever it wishes.  For some reason, you refuse to believe 
+D:that it is actually there...
 
 N:496:Great ice wyrm
 G:D:w
@@ -7351,7 +7358,7 @@ D:A massive legendary hydra.  It has twelve powerful heads.  Its many eyes
 D:stare at you as clouds of smoke and poisonous vapour rise from its 
 D:seething form.
 
-N:505:Thuringwethil
+N:505:Maria Wong, the Vampire
 G:V:D
 I:130:40d100:20:145:10
 W:55:4:0:23000
@@ -7367,9 +7374,8 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
 S:BRAIN_SMASH | BA_NETH | S_KIN
-D:Chief messenger between Sauron and Morgoth, she is surely the most deadly 
-D:of her vampire race.  At first she is charming to meet, but her wings and 
-D:eyes give away her true form.
+D:A vampire who has been kept alive only because of Muraki.  She needs 
+D:the blood of innocent victims to sustain her body.
 
 N:506:Great hell wyrm
 G:D:r
@@ -7404,34 +7410,34 @@ S:S_DRAGON
 D:It looks like it was once a dragon corpse, now deeply infected with 
 D:magical bacteria that make it pulse in a foul and degrading way.
 
-N:508:Fundin Bluecloak
+N:508:Vegeta, the Super Sayajin Prince
 G:h:G
-I:130:50d100:25:195:10
+I:180:50d100:25:195:10
 W:56:2:0:20000
-B:HIT:HURT:10d10
-B:HIT:HURT:8d6
-B:HIT:HURT:8d6
-B:HIT:HURT:8d6
+B:PUNCH:PARALYZE:1d12
+B:KICK:PARALYZE:1d12
+B:PUNCH:SHATTER:1d12
+B:KICK:SHATTER:1d12
 F:UNIQUE | MALE
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
-S:1_IN_4 | 
-S:HEAL | BLIND | CONF | SCARE | CAUSE_3 | CAUSE_4 | BRAIN_SMASH | 
-S:FORGET | 
-S:S_MONSTERS
-D:He is one of the greatest dwarven priests to walk the earth.  Fundin has 
-D:earned a high position in the church, and his skill with both weapon and 
-D:spell only justify his position further.  His combination of both dwarven 
-D:strength and priestly wisdom are a true match for any adventurer.
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
+F:REGENERATE |
+S:1_IN_1 | 
+S:BLINK | DIVINE_COMEDY |
+S:BO_ELEC | BO_MANA | BA_MANA | CAUSE_3
+D:Arrogant and cocky, Vegeta kills all who stand in his way.  A Sayajin prince,
+D:Vegeta listens to no one and delights in random destruction.  His mastery
+D:of martial arts, speed, and power are rivaled only by few throughout the 
+D:entire universe.  Beware his wrath!
 
-N:509:Uriel, Angel of Fire
-G:A:r
+N:509:Saichel, Angel of Destruction
+G:A:d
 I:130:55d100:40:160:10
 W:56:3:0:25000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:4d6
+B:HIT:HURT:9d12
+B:HIT:HURT:4d6
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
 F:UNIQUE | MALE | 
@@ -7442,21 +7448,23 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_2 | 
 S:TELE_TO | BLIND | 
 S:BO_FIRE | BO_MANA | BA_FIRE | 
-S:BR_FIRE | 
+S:BR_FIRE | DIVINE_COMEDY |
 S:S_ANGEL
-D:A creature of godly appearance, you dare not challenge Uriel's supremacy.  
-D:Those who stood against him before are but a memory, cremated by his 
-D:mastery of elemental fire.
+D:He has all the apperances of devestation and divine wrath, which is no 
+D:surprise.  After all, he is the messenger of destruction.  Towering 
+D:over you, you shudder as this creature, several hundreds of feet tall 
+D:and blasting everything in his path with his outstretched palm, is comming 
+D:for YOU.
 
-N:510:Azriel, Angel of Death
+N:510:Queen Iselia, Angel of Death
 G:A:D
-I:130:60d100:40:170:10
-W:57:3:0:30000
+I:170:100d100:40:170:10
+W:57:3:0:90000
 B:TOUCH:EXP_80
 B:HIT:BLIND:10d5
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
@@ -7466,13 +7474,13 @@ S:TELE_TO | BLIND |
 S:BO_MANA | BO_NETH | BA_NETH | 
 S:BR_NETH | 
 S:S_ANGEL
-D:Azriel commands awesome power, his visage holy enough to shrivel your 
-D:soul.  You shriek with disbelief as his mastery of death draws you to your 
+D:Queen Iselia commands awesome power, her visage holy enough to shrivel your 
+D:soul.  You shriek with disbelief as her mastery of death draws you to your 
 D:grave.  It is truly beyond all but the mightiest of warriors to stand 
 D:against him and live.
 
-N:511:Ancalagon the Black
-G:D:D
+N:511:The Jade Dragon
+G:D:G
 I:120:75d100:20:125:70
 W:58:3:0:30000
 B:CLAW:HURT:5d12
@@ -7489,8 +7497,7 @@ S:1_IN_2 |
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | 
 S:S_DRAGON | S_HI_DRAGON
-D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
-D:of Glaurung can match him.
+D:The legendary dragon made out of pure Jade.
 
 N:512:Nightwalker
 G:W:D
@@ -7515,7 +7522,7 @@ D:leaving you defenseless against its evil wrath.  It can smell your fear,
 D:and you in turn smell the awful stench of death as this ghastly figure 
 D:strides towards you menacingly.
 
-N:513:Gabriel, the Messenger
+N:513:Lady Tokimi
 G:A:w
 I:130:75d100:40:180:10
 W:59:3:0:35000
@@ -7523,7 +7530,7 @@ B:HIT:UN_BONUS:6d8
 B:HIT:FIRE:4d6
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
@@ -7532,12 +7539,10 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 S:1_IN_2 | 
 S:TELE_TO | BLIND | BO_MANA | 
 S:S_ANGEL | S_KIN
-D:Commanding a legion of angels, Gabriel will destroy you for your sins.  He 
-D:will crush you like the pitiful insignificant being he sees you to be.  
-D:Your very soul will be taken into judgement by his supreme authority as he 
-D:cleanses the world of evil.
+D:You can't comprehend it.  Her very existence seems impossible, and yet, 
+D:there she is, standing right in front of you.
 
-N:514:Saruman of Many Colours
+N:514:Rezo, the Red Priest
 G:p:v
 I:120:50d100:100:100:0
 W:60:1:0:35000
@@ -7556,10 +7561,8 @@ S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE |
 S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | 
 S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
 S:S_UNDEAD | S_DEMON | S_DRAGON
-D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
-D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
-D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
-D:world.
+D:A powerful priest who was blind since birth due to a curse.  He hates
+D:Lina Inverse immensely.
 
 N:515:Dreadlord
 G:G:r
@@ -7702,13 +7705,13 @@ D:years old and seeks to maintain the Cosmic Balance.  It sees you as an
 D:upstart troublemaker without the wisdom to control your actions.  It will 
 D:destroy you.
 
-N:522:Tselakus, the Dreadlord
-G:G:r
+N:522:Kaonashi
+G:G:r8
 I:130:65d100:20:150:10
 W:68:2:0:35000
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
-B:HIT:LOSE_STR:4d6
+B:BITE:EAT_FOOD:4d6
 B:HIT:LOSE_STR:4d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
@@ -7720,12 +7723,9 @@ S:1_IN_3 |
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
 S:S_WRAITH | S_HI_UNDEAD | S_KIN
-D:This huge affront to existence twists and tears at the fabric of space.  A 
-D:master of mighty magic, Tselakus hungers for your tender flesh.  Darkness 
-D:itself recoils from the touch of Tselakus as he leaves a trail of death 
-D:and destruction.  Tselakus is a being of sneering contempt, laughing at 
-D:your pitiful efforts to defy him.  Mighty claws rend reality as he 
-D:annihilates all in his path to your soul!
+D:A lonely soul that turned into an obssesive compulsive eating machine. 
+D:He eats anything and everything that crosses his path, and his mask 
+D:hides the fact that he has no face...
 
 N:523:Tiamat, Celestial Dragon of Evil
 G:D:v
@@ -7811,7 +7811,7 @@ S:S_HI_UNDEAD
 D:A massive pile of rotting flesh.  A disgusting stench fills the air as it 
 D:throbs and writhes.
 
-N:528:Vecna, the Emperor Lich
+N:528:Lord Bademon
 G:L:R
 I:130:50d100:20:85:50
 W:72:2:0:30000
@@ -7829,12 +7829,13 @@ F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:BRAIN_SMASH | TRAPS | BA_MANA | 
-S:BO_MANA | BA_NETH | 
+S:BO_MANA | BA_NETH | DIVINE_COMEDY |
 S:S_MONSTERS | S_UNDEAD
-D:He is a highly cunning, extremely magical being, spoken of in legends.  
-D:This ancient shadow of death wilts any living thing it passes.
+D:Master of the Nether spirts, and the most powerful of all of Talpa's servants, 
+D:you can't help but feel a sense of awe as this immensely powerful and magical 
+D:spirit.
 
-N:529:Omarax the Eye Tyrant
+N:529:The Eye of Sahaqiel
 G:e:v
 I:130:65d100:30:80:10
 W:73:4:0:16000
@@ -7854,7 +7855,7 @@ D:A disembodied eye, floating in the air.  His gaze seems to shred your
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
 
-N:530:Ungoliant, the Unlight
+N:530:Kumo, the demon spider
 G:S:D
 I:120:130d100:8:160:80
 W:75:1:0:35000
@@ -7871,11 +7872,7 @@ S:1_IN_3 |
 S:HEAL | BLIND | SLOW | CONF | SCARE | DARKNESS | BA_DARK | 
 S:BR_POIS | BR_DARK | 
 S:S_SPIDER
-D:This enormous, hideous spirit of void is in the form of a spider of 
-D:immense proportions.  She is surrounded by a cloud of Unlight as she sucks 
-D:in all living light into her bloated body.  She is always ravenously 
-D:hungry and would even eat herself to avoid starvation.  She is rumoured to 
-D:have a foul and deadly breath.
+D:A gigantic Demon spider that lives in the dark abysses of Japan.
 
 N:531:Aether hound
 G:Z:v
@@ -7900,10 +7897,10 @@ D:A shifting, swirling form.  It seems to be all colours and sizes and
 D:shapes, though the dominant form is that of a huge dog.  You feel very 
 D:uncertain all of a sudden.
 
-N:532:The Mouth of Sauron
+N:532:Fuma Monou, Dragon of Earth
 G:p:v
 I:130:70d100:60:100:10
-W:78:3:0:38000
+W:78:3:0:58000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
 B:TOUCH:UN_POWER
@@ -7915,12 +7912,13 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_FIRE | IM_COLD | 
 F:IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:TELE_TO | HOLD | CAUSE_3 | TRAPS | 
-S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH
-D:The Mouth of Sauron is a mighty spell caster.  So old that even he cannot 
-D:remember his own name, his power and evil are undeniable.  He believes 
-D:unshakeably that he is unbeatable and laughs as he weaves his awesome 
-D:spells.
+S:TELE_TO | HOLD | CAUSE_3 | TRAPS | BLINK | TPORT |
+S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH |
+S:S_DRAGON_SLAVE | DIVINE_COMEDY
+D:The 'Kamui' of the Earth Dragons.  Sworn to protect Kamui, he is 
+D:unfortunately destined to fight him to the finish instead.  Blinded
+D:by the Earth Dragons and by fate, he seeks to destroy the earth so
+D:that a new one may be born.
 
 N:533:The Emperor Quylthulg
 G:Q:w
@@ -7939,12 +7937,13 @@ D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor
 D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
 D:colour then the next, it knows only it must bring help to protect itself.
 
-N:534:Qlzqqlzuup, the Lord of Flesh
+N:534:Tetsuo
 G:Q:o
 I:130:50d100:30:1:0
 W:78:3:0:20000
+B:HIT:HURT:4d12
 F:UNIQUE | 
-F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
+F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | 
 F:ONLY_ITEM | DROP_4D2 | 
 F:INVISIBLE | 
 F:ANIMAL | EVIL | 
@@ -7953,41 +7952,40 @@ S:1_IN_1 |
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
 S:S_HYDRA | S_SPIDER | S_ANT | S_HOUND | S_UNIQUE | S_WRAITH | 
 S:S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
-D:This disgusting creature squeals and snorts as it writhes on the floor.  
-D:It pulsates with evil.  Its intent is to overwhelm you with monster after 
-D:monster, until it can greedily dine on your remains.
+D:What was once a rowdy teen is now a pulsating mound of flesh and organs.
+D:This abomination of science eyes you with hatred and anger, and snickers
+D:as it senses your fear.
 
-N:535:Murazor, the Witch-King of Angmar
-G:W:D
+N:535:Indalecio
+G:A:D
 I:130:60d100:90:120:10
 W:80:3:0:42000
 B:HIT:HURT:10d10
 B:HIT:HURT:10d10
-B:HIT:EXP_80:5d5
-B:HIT:EXP_80:5d5
+B:HIT:CONFUSE:5d5
+B:HIT:CONFUSE:5d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GREAT | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:EVIL | UNDEAD | 
-F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | POWERFUL |
+F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
-S:BO_MANA | BA_NETH | 
-S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_KIN
-D:The Chief of the Ringwraiths.  A fell being of devastating power.  His 
-D:spells are lethal and his combat blows crushingly hard.  He moves at 
-D:speed, and commands legions of evil to do his bidding.  It is said that he 
-D:is fated never to die by the hand of mortal man.
+S:DIVINE_COMEDY |
+S:HEAL | BLIND | HOLD | SCARE | CAUSE_4 | BRAIN_SMASH | 
+S:BO_MANA | BA_NETH | HASTE | SLOW
+D:The Chief of the Ten Wise Men.  A fallen Nedian of devastating power.   
+D:He is the one responsible for the 'Sorcery Globe' and instigated the
+D:downfall of Nede.  Mortals everywhere fear his wrath.
 
-N:536:Pazuzu, Lord of Air
+N:536:Xine, the Mountain King
 G:B:w
 I:140:55d100:40:125:10
 W:82:2:0:30000
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
+B:HIT:HURT:12d12
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
@@ -7996,8 +7994,8 @@ F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | S_HI_DEMON
-D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
-D:as he decides your fate.
+D:One of the 'Evil Ones' of Expel, Xine despises mortals and looks down
+D:upon them from his lofty mountain.
 
 N:537:Hell hound
 G:C:r
@@ -8014,27 +8012,25 @@ S:1_IN_5 |
 S:BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
-N:538:Cantoras, the Skeletal Lord
-G:s:w
+N:538:Majin Buu
+G:U:w
 I:140:75d100:20:120:80
 W:84:2:0:45000
 B:GAZE:EXP_80
 B:GAZE:EXP_80
-B:TOUCH:POISON:3d5
-B:TOUCH:POISON:3d5
+B:PUNCH:POISON:10d5
+B:KICK:POISON:10d5
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
-F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS | 
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_FIRE | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
-S:S_HI_UNDEAD
-D:A legion of evil undead druj animating the skeleton of a once mighty 
-D:sorcerer.  His power is devastating and his speed unmatched in the 
-D:underworld.  Flee his wrath!
+D:Destroyer of universes, bane of the four Kaioshins, Buu causes random 
+D:chaotic terror no matter where he goes.
 
 N:539:The Tarrasque
 G:R:v
@@ -8055,12 +8051,12 @@ S:BR_FIRE | BR_COLD | BR_DISE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable 
 D:and immune to magic.  Fear its anger, for its devastation is unmatched!
 
-N:540:Lungorthin, the Balrog of White Fire
+N:540:Tien-Shin Akuma
 G:U:w
 I:130:80d100:20:125:80
 W:85:2:0:37000
-B:HIT:FIRE:8d12
-B:HIT:FIRE:8d12
+B:PUNCH:FIRE:8d12
+B:KICK:FIRE:8d12
 B:CRUSH:HURT:8d12
 B:TOUCH:UN_POWER
 F:UNIQUE | MALE | 
@@ -8074,32 +8070,33 @@ S:1_IN_4 |
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
 S:S_DEMON | S_HI_UNDEAD | S_HI_DEMON
-D:A massive form cloaked in flame.  Lungorthin stares balefully at you with 
-D:eyes that smoulder red.  The dungeon floor where he stands is scorched by 
-D:the heat of his body.
+D:A massive form cloaked in flame and darkness, pulsating with death and despair.
 
-N:541:Draugluin, Sire of All Werewolves
-G:C:u
-I:130:70d100:80:90:90
-W:87:2:0:40000
-B:CLAW:HURT:3d3
-B:CLAW:HURT:3d3
-B:BITE:POISON:2d6
-B:BITE:POISON:2d6
+N:541:The Shishigami
+G:q:u
+I:140:100d100:80:90:90
+W:87:2:0:80000
+B:TOUCH:POISON:10d10
+B:TOUCH:POISON:7d7
+B:BUTT:POISON:5d5
+B:BITE:POISON:3d3
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_POIS
-S:1_IN_3 | 
+F:ANIMAL | IM_POIS
+S:1_IN_1 | 
 S:SCARE | 
-S:S_MONSTERS | S_HOUND
-D:Draugluin provides Sauron with a fearsome personal guard.  He is an 
-D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
+S:S_MONSTERS | S_HOUND | S_KIN |
+D:You feel that you are at death's door when you see this scary and strange
+D:looking deer approach you.  The twisted expression on its face and its
+D:weird looking eyes seem to indicate that it could care less about you.  As 
+D:this walking death incarnate steps towards you, you shudder as you see all 
+D:life around it flourish then decay.
 
-N:542:Feagwath the Undead Sorceror
+N:542:Talpa, Ruler of the Netherworld
 G:L:R
 I:130:60d100:100:100:0
 W:90:3:0:45000
@@ -8116,19 +8113,19 @@ F:EVIL | UNDEAD |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | 
 S:1_IN_3 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:BA_MANA | BO_MANA | BA_FIRE | 
+S:BA_MANA | BO_MANA | BA_FIRE | DIVINE_COMEDY |
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_KIN
-D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
-D:risen from the grave to continue his foul plots and schemes.
+D:A fearsome aura surrounds this mystical warlord.  Drawing his powers from the 
+D:mystical nine armors, he leads the Dynasty in their bid to take over the world.
 
-N:543:Carcharoth, the Jaws of Thirst
+N:543:Inu Yasha
 G:C:D
 I:130:75d100:80:110:10
 W:92:2:0:40000
 B:CLAW:HURT:3d3
 B:CLAW:HURT:3d3
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:CLAW:POISON:4d4
+B:CLAW:POISON:4d4
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
@@ -8138,87 +8135,82 @@ S:1_IN_4 |
 S:HEAL | SCARE | BRAIN_SMASH | 
 S:BR_FIRE | 
 S:S_HOUND
-D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is 
-D:the largest wolf to ever walk the earth.  He is highly intelligent and a 
-D:deadly opponent in combat.
+D:A dog demon that was once imprisoned onto a tree by an arrow is now free
+D:to ravage destruction everwhere.
 
-N:544:Cerberus, Guardian of Hades
+N:544:Moro, the Wolf God
 G:C:r
 I:130:100d100:50:160:10
 W:94:1:0:40000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
+B:HIT:HURT:9d12
+B:HIT:HURT:9d12
+B:HIT:HURT:9d12
+B:HIT:HURT:9d12
 F:UNIQUE | 
+F:ESCORT | ESCORTS |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE | NO_CONF | NO_SLEEP
+F:ANIMAL | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BA_DARK | 
-S:BR_FIRE | BR_NETH | 
 S:S_HOUND
-D:A two-headed hell hound of fearsome aspect.  Flame burns merrily from its 
-D:hide as it snarls and roars its defiance.
+D:The guardian wolf of Mononoke Hime, Moro hates mortals.
 
-N:545:Gothmog, the High Captain of Balrogs
-G:U:R
-I:130:80d100:100:140:0
-W:95:1:0:43000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:9d12
-B:CRUSH:HURT:8d12
-B:TOUCH:UN_POWER
+N:545:Death
+G:W:d
+I:100:100d100:100:140:0
+W:26:4:0:83000
+B:HIT:LOSE_INT:99d99
+B:TOUCH:LOSE_INT:99d99
 F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
+F:FORCE_SLEEP | FORCE_MAXHP | ALWAYS_HIT | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | 
+F:EVIL | UNDEAD | RESPAWN |
 F:IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:BLIND | CONF | SCARE | 
-S:BR_FIRE | 
-S:S_HI_DEMON | S_HI_UNDEAD
-D:Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned 
-D:for slaying Ecthelion the Warder of the Gates and he has never been 
-D:defeated in combat.  With his whip of flame and awesome fiery breath he 
-D:saved his master from Ungoliant's rage.
+S:1_IN_4 | 
+S:HOLD | BLIND | CONF | SCARE | SLOW | CAUSE_4
+S:S_SPIDER | S_WRAITH
+D:The bane of all creatures since the beginning of time, Death is an evil
+D: nihilist and should be avoided at all costs.  Death smiteth with powerful
+D: blows and all fear the touch of Death.  He may even be lurking just around
+D: the corner...
 
 
-# Sauron is the basic "Quest" (thus the QUESTOR flag).
-# You must kill him to gain access to Morgoth's level.
+# Lina Inverse is the basic "Quest" (thus the QUESTOR flag).
+# You must kill her to gain access to Morgoth's level.
 
-N:546:Sauron, the Sorcerer
+N:546:Lina Inverse
 G:p:v
 I:130:105d100:100:160:0
 W:99:1:0:50000
-B:HIT:UN_BONUS:10d12
-B:HIT:UN_BONUS:10d12
-B:TOUCH:UN_POWER
-B:TOUCH:UN_POWER
-F:UNIQUE | QUESTOR | MALE | 
+B:HIT:EAT_GOLD:10d12
+B:HIT:EAT_FOOD:10d12
+F:UNIQUE | QUESTOR | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_2 | 
-S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
+S:1_IN_1 | 
+S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | HEAL |
 S:BRAIN_SMASH | FORGET | 
-S:BO_ICEE | BO_MANA | BO_PLAS | 
+S:BO_ICEE | BO_MANA | BO_PLAS | DIVINE_COMEDY |
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
-S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON
-D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
-D:he created the One Ring.  His eyes glow with power and his gaze seeks to 
-D:destroy your soul.  He has many servants, and rarely fights without them.
+S:S_DRAGON_SLAVE | S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | 
+D:Lina Inverse is not your typical scantily clad sorceress babe. She's 
+D:crass, loudmouthed, opinionated, and doesn't allow anything to get in 
+D:her way. She *loves* to eat, and can consume several meals within 
+D:seconds. Sorcery is her specialty, and mages everywhere fear her
+D:powerful magic and are awed by it.  
 
 
-# Morgoth is the final "Quest" (thus the QUESTOR flag).
+# Neo, bane of the lands of Rgra is, the final "Quest" (thus the QUESTOR flag).
 # You must kill him to complete the final quest, and win the game.
+# Thanks to K2|Grey, for the idea and the description ^_^
 
-N:547:Morgoth, Lord of Darkness
+N:547:Neo, bane of the lands of Rgra
 G:P:D
 I:140:200d100:100:150:0
 W:100:1:0:60000
@@ -8238,16 +8230,16 @@ S:1_IN_3 |
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
 S:S_MONSTERS | S_UNIQUE | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON |
-S:S_HI_DEMON 
-D:He is the Master of the Pits of Angband.  His figure is like a black 
-D:mountain crowned with Lightning.  He rages with everlasting anger, his 
-D:body scarred by Fingolfin's eight mighty wounds.  He can never rest from 
-D:his pain, but seeks forever to dominate all that is light and good in the 
-D:world.  He is the origin of man's fear of darkness and created many foul 
-D:creatures with his evil powers.  Orcs, Dragons, and Trolls are his most 
-D:foul corruptions, causing much pain and suffering in the world to please 
-D:him.  His disgusting visage, twisted with evil, is crowned with iron, the 
-D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of 
-D:the Underworld, cries defiance as he strides towards you to crush you to a 
-D:pulp!
-
+S:S_HI_DEMON | S_DRAGON_SLAVE
+D:Long has he haunted the shadows of Rgra, and many beings sing no longer, 
+D:being despondent from the power of his discord, even Lev Zakrevski, 
+D:mightiest of the Cabal. Ever after a defeat, he takes another form and grows 
+D:again and long was there dissension in the lands of Rgra, when he descended in 
+D:a form mightier than any other of the Ainur, and the light of the fire of his 
+D:eyes was as a flame that burns with heat and which pierces with deadly cold.  
+D:But there was made a Last Alliance against him, of all the remaining folk of 
+D:rgra...and for seven months they besieged the tower of Neo, and Lev was slain, 
+D:and many others became no more.   But at last the siege was so strait that Neo 
+D:himself came forth, and then Rocher stood forth as champion of the lands of Rgra, 
+D:and wrestled with Neo, and cast him upon his face, and he was bound with the chain 
+D:which had been long prepared for him..and banished forever in the deeps of the land.

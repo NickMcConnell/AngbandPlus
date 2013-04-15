@@ -7,7 +7,7 @@ HDRS = \
   h-define.h h-type.h h-system.h h-config.h
 
 INCS = \
-  angband.h \
+  animeband.h \
   config.h defines.h types.h externs.h \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
@@ -53,7 +53,7 @@ Angband.gst : $(INCS)
    @echo "Building GST ..."
    @-delete >NIL: Angband.GST
    @gst >NIL: Angband.GST unload
-   @echo >makegst.c "\#include *"angband.h*""
+   @echo >makegst.c "\#include *"animeband.h*""
    @sc makegst.c MAKEGST Angband.GST NOOBJNAME
 
 Angband: $(OBJS) $(OBJS2)

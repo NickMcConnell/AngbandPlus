@@ -9,7 +9,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 #include "init.h"
 
@@ -888,7 +888,7 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_FOOD, SV_FOOD_JERKY },
 
 		{ TV_FOOD, SV_FOOD_PINT_OF_WINE },
-		{ TV_FOOD, SV_FOOD_PINT_OF_ALE },
+		{ TV_FOOD, SV_FOOD_BOTTLE_OF_SAKE },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },
 		{ TV_LITE, SV_LITE_TORCH },

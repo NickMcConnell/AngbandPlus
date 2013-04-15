@@ -78,7 +78,9 @@ typedef struct quest quest;
 typedef struct owner_type owner_type;
 typedef struct store_type store_type;
 typedef struct magic_type magic_type;
+//typedef struct power_type power_type;
 typedef struct player_magic player_magic;
+/*typedef struct player_power player_power;*/
 typedef struct player_sex player_sex;
 typedef struct player_race player_race;
 typedef struct player_class player_class;
@@ -649,6 +651,8 @@ struct magic_type
 };
 
 
+
+
 /*
  * Information about the player's "magic"
  *
@@ -658,7 +662,6 @@ struct player_magic
 {
 	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
-
 
 
 /*
@@ -690,6 +693,7 @@ struct player_race
 	s16b r_fos;			/* search frequency */
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
+	s16b r_rlb;         /* Race Limit Break (the ghetto hack) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
@@ -750,6 +754,8 @@ struct player_class
 	s16b c_fos;			/* class searching frequency */
 	s16b c_thn;			/* class to hit (normal) */
 	s16b c_thb;			/* class to hit (bows) */
+	s16b c_mmt;         /* class max meter */
+	s16b mstudent;	/* class Student ability */
 
 	s16b x_dis;			/* extra disarming */
 	s16b x_dev;			/* extra magic devices */
@@ -781,6 +787,7 @@ struct player_class
 	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
 
 	player_magic spells; /* Magic spells */
+//	player_power powers;
 };
 
 
@@ -855,7 +862,7 @@ struct player_type
 
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */
-
+	
 	s32b max_exp;		/* Max experience */
 	s32b exp;			/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
@@ -867,6 +874,17 @@ struct player_type
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+
+	s16b m_meter;        /* Max Meter pts (Limit break) */
+	s16b c_meter;		 /* Cur Meter pts */
+	s16b mstudent;		/* Can transform */
+ //	u16b c_meter_frac;   /* Cur Meter frac (times 2^16) (not needed)*/
+
+	s16b l_break;        /* Limit Break Type */
+	s16b c_alcohol;		 /* Current Alcohol limit */
+
+	byte pgroove;		/* Fighting style index */
+
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
@@ -886,10 +904,14 @@ struct player_type
 	s16b invuln;		/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
+	s16b s_sayian;      /* Timed -- Super Saiyan */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
+	s16b kekkai;		/* Timed -- Kekkai */
+	s16b geneijin;		/* Timed -- Genei Jin */
+	s16b ouroborous;    /* Timed -- Ouroborous */
 
 	s16b oppose_acid;	/* Timed -- oppose acid */
 	s16b oppose_elec;	/* Timed -- oppose lightning */
@@ -905,6 +927,7 @@ struct player_type
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
+	byte mag_student;	/* Currently a Magical Student */
 
 	u32b spell_learned1;	/* Spell flags */
 	u32b spell_learned2;	/* Spell flags */
@@ -1055,6 +1078,7 @@ struct player_type
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
 
+	bool summon;		/* Random Summoning */
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */

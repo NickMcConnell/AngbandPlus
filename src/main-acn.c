@@ -223,7 +223,7 @@
 
 
 
-#include "angband.h"
+#include "animeband.h"
 #undef rename
 #undef remove
 

@@ -13,7 +13,7 @@
  */
 
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef USE_VCS

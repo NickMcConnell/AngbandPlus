@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -728,11 +728,11 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))	vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5))		vp[vn++] = "do something";
+	if (flags6 & (RF6_DIVINE_COMEDY))	vp[vn++] = "invoke Divine Comedy";
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_DRAGON_SLAVE))	vp[vn++] = "invoke Dragon Slave";
 	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon similar monsters";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))	vp[vn++] = "summon monsters";

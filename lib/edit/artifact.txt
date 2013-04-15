@@ -56,13 +56,13 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 
-# The Phial of Galadriel
+# The Paper Lantern of the Ako Ronin
 
-N:1:of Galadriel
+N:1:of the Ako Ronin
 I:39:4:0
 W:1:1:10:10000
 P:0:1d1:0:0:0
@@ -71,9 +71,9 @@ F:INSTA_ART
 A:ILLUMINATION:10:10
 
 
-# The Star of Elendil
+# The Gem of the Twilight
 
-N:2:of Elendil
+N:2:of the Twilight
 I:39:5:0
 W:30:25:5:30000
 P:0:1d1:0:0:0
@@ -82,32 +82,33 @@ F:INSTA_ART
 A:MAGIC_MAP:50:50
 
 
-# The Arkenstone of Thrain
+# The White Go Stone of Fujiwara Sai
 # Was +2 WIS/DEX
 
-N:3:of Thrain
-I:39:6:0
-W:50:50:5:50000
+N:3:of Fujiwara Sai
+I:39:6:2
+W:50:50:5:75000
 P:0:1d1:0:0:0
+F:INT | WIS | HIDE_TYPE |
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
 F:INSTA_ART
 A:CLAIRVOYANCE:100:100
 
 
-# The Amulet of Carlammas
+# The Pendant of Rena Lanford
 
-N:4:of Carlammas
+N:4:of Rena Lanford
 I:40:10:2
 W:50:10:3:60000
-F:CON | HIDE_TYPE | 
-F:ACTIVATE | RES_FIRE | 
+F:CON | INT | HIDE_TYPE | 
+F:ACTIVATE | RES_FIRE | LITE | 
 F:INSTA_ART
 A:PROT_EVIL:225:225
 
 
-# The Amulet of Ingwe
+# The Amulet of Laputa
 
-N:5:of Ingwe
+N:5:of Laputa
 I:40:11:3
 W:65:30:3:90000
 F:WIS | CHR | INFRA | HIDE_TYPE | 
@@ -117,10 +118,10 @@ F:INSTA_ART
 A:DISP_EVIL:300:300
 
 
-# The Necklace of the Dwarves
+# The Necklace 'Shikon no tama'
 
-N:6:of the Dwarves
-I:40:12:3
+N:6:Shikon No Tama
+I:40:12:5
 W:70:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
@@ -130,30 +131,31 @@ F:INSTA_ART
 # Artifact 7 is unused
 
 
-# The Ring of Barahir
+# The Ring of Hojo Tokimune
 
-N:8:of Barahir
+N:8:of Hojo Tokimune
 I:45:32:1
-W:50:25:2:65000
+W:50:25:2:85000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
-F:RES_POIS | 
+F:RES_POIS | ACTIVATE |
 F:INSTA_ART
+A:IDENTIFY:10:0
 
 
-# The Ring of Tulkas
+# The Ring of Utena
 
-N:9:of Tulkas
+N:9:of Utena
 I:45:33:4
-W:70:50:2:150000
-F:STR | DEX | CON | HIDE_TYPE | 
+W:70:50:2:100000
+F:CON | CHR | HIDE_TYPE | 
 F:ACTIVATE | 
 F:INSTA_ART
 A:HASTE2:150:150
 
 
-# The Ring of Power (Narya)
+# The Ring of Power 'Natsu no Chikara'
 
-N:10:of Power (Narya)
+N:10:'Natsu no Chikara'
 I:45:34:1
 W:70:30:2:100000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -164,9 +166,9 @@ F:INSTA_ART
 A:FIRE3:225:225
 
 
-# The Ring of Power (Nenya)
+# The Ring of Power 'Yuki no Chikara'
 
-N:11:of Power (Nenya)
+N:11:'Yuki no Chikara'
 I:45:35:2
 W:80:40:2:200000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -177,9 +179,9 @@ F:INSTA_ART
 A:FROST5:325:325
 
 
-# The Ring of Power (Vilya)
+# The Ring 'Haru no Chikara'
 
-N:12:of Power (Vilya)
+N:12:'Haru no Chikara'
 I:45:36:3
 W:90:50:2:300000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -193,7 +195,7 @@ A:ELEC2:425:425
 
 # The Ring of Power (The One Ring)
 
-N:13:of Power (The One Ring)
+N:13:'Kami no Chikara'
 I:45:37:5
 W:100:100:2:5000000
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -213,10 +215,10 @@ A:BIZZARE:450:450
 # Artifact 15 is unused
 
 
-# The Multi-Hued Dragon Scale Mail 'Razorback'
+# The Multi-Hued Dragon Scale Mail 'Hoshi no Kami'
 # Was (-2) INT | WIS | STEALTH | HIDE_TYPE, (-3) to hit, 30 pounds (?)
 
-N:16:'Razorback'
+N:16:'Hoshi no Kami'
 I:38:6:0
 W:90:9:500:400000
 P:30:2d4:-4:0:25
@@ -260,30 +262,30 @@ F:ACTIVATE
 A:HEAL2:888:0
 
 
-# The Full Plate Armour of Isildur
+# The Full Plate Armour of Wildfire
 
-N:20:of Isildur
+N:20:of Wildfire
 I:37:15:1
 W:30:3:300:50000
 P:25:2d4:0:0:25
-F:CON | 
+F:STR | CON | DEX |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_SOUND | RES_CONFU | RES_NEXUS
 
 
-# The Metal Brigandine Armour of the Rohirrim
+# The Metal Brigandine Armour of the Ironworks
 
-N:21:of the Rohirrim
+N:21:of the Ironworks
 I:37:9:2
 W:30:3:200:30000
-P:19:1d4:0:0:15
-F:STR | DEX | HIDE_TYPE | 
+P:19:1d4:0:0:25
+F:STR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONFU | RES_SOUND
 
 
-# The Mithril Chain Mail 'Belegennon'
+# The Mithril Chain Mail 'Keichou'
 
-N:22:'Belegennon'
+N:22:'Keichou'
 I:37:20:4
 W:40:3:150:105000
 P:28:1d4:-1:0:20
@@ -292,9 +294,9 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:PHASE:2:0
 
 
-# The Mithril Plate Mail of Celeborn
+# The Mithril Plate Mail of Echizen-no-Kami
 
-N:23:of Celeborn
+N:23:of Echizen-no-Kami
 I:37:25:4
 W:40:3:250:150000
 P:35:2d4:-3:0:25
@@ -304,56 +306,56 @@ F:RES_DISEN | ACTIVATE
 A:GENOCIDE:500:0
 
 
-# The Chain Mail of Arvedui
+# The Chain Mail of Hard Rock
 
-N:24:of Arvedui
+N:24:of of Hard Rock
 I:37:4:2
 W:20:3:220:32000
-P:14:1d4:-2:0:15
+P:14:10d10:-2:0:15
 F:STR | CHR | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARD | RES_NEXUS
 
 
-# The Augmented Chain Mail of Caspanion
+# The Kimono 'Rulue'
 
-N:25:of Caspanion
-I:37:6:3
+N:25:'Rulue'
+I:36:2:3
 W:25:9:270:40000
-P:16:1d4:-2:0:20
+P:16:1d4:0:0:20
 F:INT | WIS | CON | HIDE_TYPE | 
-F:RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
+F:RES_FIRE | RES_LITE | RES_ACID | RES_POIS | RES_CONFU | ACTIVATE
 A:TRAP_DOOR_DEST:10:0
 
 
 # Artifact 26 is unused
 
 
-# The Soft Leather Armour 'Hithlomir'
+# The Martial Arts Gi of Son Goku
 
-N:27:'Hithlomir'
+N:27:of Son Goku
 I:36:4:4
-W:20:3:80:45000
+W:20:3:5:85000
 P:4:0d0:0:0:20
-F:STEALTH | 
+F:STR | INT | STEALTH | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
 
 
-# The Leather Scale Mail 'Thalkettoth'
+# The School Uniform of Sakura Kasugano
 
-N:28:'Thalkettoth'
-I:36:11:3
-W:20:3:60:25000
-P:11:1d1:-1:0:25
-F:DEX | HIDE_TYPE | 
-F:RES_ACID | RES_SHARD
+N:28:of Sakura Kasugano
+I:36:1:3
+W:20:3:10:25000
+P:11:0d0:0:0:25
+F:DEX | CHR | HIDE_TYPE | 
+F:RES_ACID | RES_SHARD | RES_FIRE
 
 
 # Artifact 29 is unused
 
 
-# The Small Metal Shield of Thorin
+# The Small Metal Shield of Torajirou
 
-N:30:of Thorin
+N:30:of Torajirou
 I:34:3:4
 W:40:6:65:60000
 P:3:1d2:0:0:25
@@ -362,18 +364,18 @@ F:RES_CONFU |
 F:FREE_ACT | IM_ACID | RES_ACID | RES_SOUND | RES_CHAOS
 
 
-# The Large Leather Shield of Celegorm
+# The Large Leather Shield of Joe
 
-N:31:of Celegorm
+N:31:of Joe
 I:34:4:0
 W:30:3:60:12000
 P:4:1d2:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 
 
-# The Large Metal Shield of Anarion
+# The Large Metal Shield of the Toyotomi
 
-N:32:of Anarion
+N:32:of the Toyotomi
 I:34:5:0
 W:40:9:120:160000
 P:5:1d3:0:0:20
@@ -384,9 +386,9 @@ F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
 # Artifact 33 is unused
 
 
-# The Massive Iron Crown of Morgoth
+# The Massive Iron Crown of Neo
 
-N:34:of Morgoth
+N:34:of Neo
 I:33:50:125
 W:100:1:20:10000000
 P:0:1d1:0:0:0
@@ -398,9 +400,9 @@ F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
 F:INSTA_ART
 
 
-# The Iron Crown of Beruthiel
+# The Iron Crown of Joman
 
-N:35:of Beruthiel
+N:35:of Joman
 I:33:10:-25
 W:40:12:20:0
 P:0:1d1:0:0:20
@@ -408,9 +410,9 @@ F:STR | DEX | CON | HIDE_TYPE |
 F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE
 
 
-# The Hard Leather Cap of Thranduil
+# The Hard Leather Cap of the Kabuki
 
-N:36:of Thranduil
+N:36:of the Kabuki
 I:32:2:2
 W:20:2:15:50000
 P:2:0d0:0:0:10
@@ -418,28 +420,29 @@ F:INT | WIS | HIDE_TYPE |
 F:RES_BLIND | TELEPATHY
 
 
-# The Metal Cap of Thengel
+# The Metal Cap of Ieyasu
 
-N:37:of Thengel
+N:37:of Tokugawa Ieyasu
 I:32:3:3
 W:10:2:20:22000
 P:3:1d1:0:0:12
 F:WIS | CHR | HIDE_TYPE
 
 
-# The Steel Helm of Hammerhand
+# The Steel Helm of Musashi
 
-N:38:of Hammerhand
+N:38:of Musashi
 I:32:6:3
 W:20:2:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_NEXUS
+F:RES_ACID | RES_NEXUS | RES_CONFU | 
+F:RES_FEAR |
 
 
-# The Iron Helm of Dor-Lomin
+# The Iron Helm 'Kibou'
 
-N:39:of Dor-Lomin
+N:39:'Kibou'
 I:32:5:4
 W:40:12:75:300000
 P:5:1d3:0:0:20
@@ -448,9 +451,9 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND |
 F:LITE | SEE_INVIS | TELEPATHY
 
 
-# The Iron Helm 'Holhenneth'
+# The Iron Helm 'Yoshiki'
 
-N:40:'Holhenneth'
+N:40:'Yoshiki'
 I:32:5:2
 W:20:5:75:100000
 P:5:1d3:0:0:10
@@ -459,9 +462,9 @@ F:RES_BLIND | SEE_INVIS | ACTIVATE
 A:DETECT:55:55
 
 
-# The Iron Helm of Gorlim
+# The Iron Helm of Kira Yoshinaka
 
-N:41:of Gorlim
+N:41:of Kira Yoshinaka
 I:32:5:-25
 W:20:5:75:0
 P:5:1d3:0:0:10
@@ -469,9 +472,9 @@ F:INT | WIS | SEARCH | HIDE_TYPE |
 F:SEE_INVIS | AGGRAVATE | LIGHT_CURSE
 
 
-# The Golden Crown of Gondor
+# The Golden Crown of Yume
 
-N:42:of Gondor
+N:42:of Yume
 I:33:11:3
 W:40:40:30:100000
 P:0:1d1:0:0:15
@@ -484,9 +487,9 @@ A:HEAL1:500:0
 # Artifact 43 is unused
 
 
-# The Cloak 'Colluin'
+# The Cloak of Geese Howard
 
-N:44:'Colluin'
+N:44:of Geese Howard
 I:35:1:0
 W:5:45:10:10000
 P:1:0d0:0:0:15
@@ -494,9 +497,9 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 A:RESIST:111:0
 
 
-# The Cloak 'Holcolleth'
+# The Cloak 'Izuna'
 
-N:45:'Holcolleth'
+N:45:'Izuna'
 I:35:1:2
 W:5:45:10:13000
 P:1:0d0:0:0:4
@@ -505,9 +508,9 @@ F:RES_ACID | ACTIVATE
 A:SLEEP:55:0
 
 
-# The Cloak of Thingol
+# The Cloak of Meijin
 
-N:46:of Thingol
+N:46:of Meijin
 I:35:1:3
 W:10:90:10:35000
 P:1:0d0:0:0:18
@@ -516,18 +519,20 @@ F:FREE_ACT | RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 A:RECHARGE1:70:0
 
 
-# The Cloak of Thorongil
+# The Cloak of Honninbou Shuusaku
 
-N:47:of Thorongil
-I:35:1:0
-W:5:20:10:8000
+N:47:of Honninbou Shuusaku
+I:35:1:3
+W:5:20:10:45000
 P:1:0d0:0:0:10
-F:FREE_ACT | RES_ACID | SEE_INVIS
+F:INT | WIS | HIDE_TYPE |
+F:FREE_ACT | RES_ACID | SEE_INVIS |
+F:RES_FEAR | RES_CONFU |
 
 
-# The Cloak 'Colannon'
+# The Cloak 'Bouya'
 
-N:48:'Colannon'
+N:48:'Bouya'
 I:35:1:3
 W:3:10:10:11000
 P:1:0d0:0:0:15
@@ -536,9 +541,9 @@ F:RES_ACID | ACTIVATE
 A:TELEPORT:45:0
 
 
-# The Shadow Cloak of Luthien
+# The Shadow Cloak of Yoshiwara
 
-N:49:of Luthien
+N:49:of Yoshiwara
 I:35:6:2
 W:40:40:5:45000
 P:6:0d0:0:0:20
@@ -547,9 +552,9 @@ F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 A:RESTORE_LIFE:450:0
 
 
-# The Shadow Cloak of Tuor
+# The Shadow Cloak of Hojo Tokisuke
 
-N:50:of Tuor
+N:50:of Hojo Tokisuke
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
@@ -560,9 +565,9 @@ F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
 # Artifact 51 is unused
 
 
-# The Set of Leather Gloves 'Cambeleg'
+# The Set of Leather Gloves 'Pochepoke'
 
-N:52:'Cambeleg'
+N:52:'Pochepoke'
 I:31:1:2
 W:10:6:5:36000
 P:1:0d0:8:8:15
@@ -570,9 +575,9 @@ F:STR | CON | HIDE_TYPE |
 F:FREE_ACT | SHOW_MODS
 
 
-# The Set of Leather Gloves 'Cammithrim'
+# The Set of Leather Gloves 'Hadou'
 
-N:53:'Cammithrim'
+N:53:'Hadou'
 I:31:1:0
 W:10:3:5:30000
 P:1:0d0:0:0:10
@@ -580,9 +585,9 @@ F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
 A:MISSILE:2:0
 
 
-# The Set of Gauntlets 'Paurhach'
+# The Set of Gauntlets 'Natsu'
 
-N:54:'Paurhach'
+N:54:'Natsu'
 I:31:2:0
 W:10:20:25:15000
 P:2:1d1:0:0:15
@@ -590,9 +595,9 @@ F:RES_FIRE | ACTIVATE
 A:FIRE1:8:8
 
 
-# The Set of Gauntlets 'Paurnimmen'
+# The Set of Gauntlets 'Yuki'
 
-N:55:'Paurnimmen'
+N:55:'Yuki'
 I:31:2:0
 W:10:20:25:13000
 P:2:1d1:0:0:15
@@ -600,9 +605,9 @@ F:RES_COLD | ACTIVATE
 A:FROST1:7:7
 
 
-# The Set of Gauntlets 'Pauraegen'
+# The Set of Gauntlets 'Haru'
 
-N:56:'Pauraegen'
+N:56:'Haru'
 I:31:2:0
 W:10:20:25:11000
 P:2:1d1:0:0:15
@@ -610,9 +615,9 @@ F:RES_ELEC | ACTIVATE
 A:LIGHTNING_BOLT:6:6
 
 
-# The Set of Gauntlets 'Paurnen'
+# The Set of Gauntlets 'Aki'
 
-N:57:'Paurnen'
+N:57:'Aki'
 I:31:2:0
 W:10:20:25:12000
 P:2:1d1:0:0:15
@@ -620,9 +625,9 @@ F:RES_ACID | ACTIVATE
 A:ACID1:5:5
 
 
-# The Set of Gauntlets 'Camlost'
+# The Set of Gauntlets 'Yagami'
 
-N:58:'Camlost'
+N:58:'Yagami'
 I:31:2:-5
 W:10:20:25:0
 P:2:1d1:-11:-12:0
@@ -630,9 +635,9 @@ F:STR | DEX | HIDE_TYPE |
 F:AGGRAVATE | LIGHT_CURSE | SHOW_MODS
 
 
-# The Set of Cesti of Fingolfin
+# The Set of Cesti of Otohime
 
-N:59:of Fingolfin
+N:59:of Otohime
 I:31:5:4
 W:40:15:40:110000
 P:5:1d1:10:10:20
@@ -641,55 +646,56 @@ F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
 A:ARROW:90:90
 
 
-# The Pair of Hard Leather Boots of Feanor
+# The Pair of Hard Leather Boots 'Soyokaze'
 
-N:60:of Feanor
+N:60:'Soyokaze'
 I:30:3:15
-W:40:120:40:300000
+W:40:120:40:400000
 P:3:1d1:0:0:20
-F:SPEED | 
-F:RES_NEXUS | ACTIVATE
+F:STEALTH | SPEED | 
+F:FREE_ACT | RES_NEXUS | RES_COLD | ACTIVATE
 A:HASTE1:200:0
 
 
-# The Pair of Soft Leather Boots 'Dal-i-thalion'
+# The Pair of Soft Leather Boots of Son Gohan
 
-N:61:'Dal-i-thalion'
+N:61:of Son Gohan
 I:30:2:5
-W:10:25:20:40000
+W:10:25:20:80000
 P:2:1d1:0:0:15
-F:DEX | HIDE_TYPE | 
+F:SPEED | DEX | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | 
 F:RES_CONFU |
 F:RES_NETHR | RES_CHAOS | SUST_CON
 A:REM_FEAR_POIS:5:0
 
 
-# The Pair of Metal Shod Boots of Thror
+# The Pair of Metal Shod Boots of Hinata Wakame
 
-N:62:of Thror
+N:62:of Hinata Wakame
 I:30:6:3
-W:30:25:80:12000
-P:6:1d1:0:0:20
+W:30:25:80:24000
+P:6:30d30:0:0:20
 F:STR | CON | HIDE_TYPE
 
 
 # Artifact 63 is unused
 
 
-# The Main Gauche of Maedhros
+# The Dagger of Kamui
 
-N:64:of Maedhros
-I:23:5:3
-W:15:30:30:20000
+N:64:of Kamui
+I:23:4:5
+W:15:30:30:30000
 P:0:2d5:12:15:0
 F:INT | DEX | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
+F:SLAY_TROLL | SLAY_GIANT | SLAY_EVIL | FREE_ACT | 
+F:SEE_INVIS | SHOW_MODS
 
 
-# The Dagger 'Angrist'
+# The Dagger of Mononoke Hime
 
-N:65:'Angrist'
+N:65:of Mononoke Hime
 I:23:4:4
 W:20:80:12:100000
 P:0:2d4:10:15:5
@@ -698,49 +704,49 @@ F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_DARK | SUST_DEX |
 F:SHOW_MODS
 
 
-# The Dagger 'Narthanc'
+# The Katana 'Wildfire'
 
-N:66:'Narthanc'
-I:23:4:0
-W:4:10:12:12000
-P:0:1d4:4:6:0
+N:66:of Wildfire
+I:23:20:0
+W:4:10:12:22000
+P:0:3d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
-A:FIRE1:8:8
+A:FIRE2:8:8
 
 
-# The Dagger 'Nimthanc'
+# The Bastard Sword of Kale
 
-N:67:'Nimthanc'
-I:23:4:0
-W:3:10:12:11000
-P:0:1d4:4:6:0
+N:67:of Kale
+I:23:21:0
+W:5:10:12:23000
+P:0:3d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
 A:FROST1:7:7
 
 
-# The Dagger 'Dethanc'
+# The Bastard Sword of Halo
 
-N:68:'Dethanc'
-I:23:4:0
-W:5:10:12:13000
-P:0:1d4:4:6:0
+N:68:of Halo
+I:23:21:0
+W:5:10:12:23000
+P:0:3d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
-A:LIGHTNING_BOLT:6:6
+A:LIGHTNING_BOLT:5:5
 
 
-# The Dagger of Rilia
+# The Dagger of Chichiushi
 
-N:69:of Rilia
+N:69:of Chichiushi
 I:23:4:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
-A:STINKING_CLOUD:4:4
 
 
-# The Dagger 'Belangil'
 
-N:70:'Belangil'
+# The Dagger 'Hahakuru'
+
+N:70:'Hahakuru'
 I:23:4:2
 W:10:40:12:40000
 P:0:2d4:6:9:0
@@ -750,9 +756,9 @@ F:SHOW_MODS
 A:FROST2:5:5
 
 
-# The Bastard Sword 'Calris'
+# The Bastard Sword 'Mitsurugi'
 
-N:71:'Calris'
+N:71:'Mitsurugi'
 I:23:21:5
 W:30:15:140:100000
 P:0:5d4:-20:20:0
@@ -761,42 +767,46 @@ F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN |
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 
 
-# The Broad Sword 'Arunruth'
+# The Broad Sword 'Masamune'
 
-N:72:'Arunruth'
+N:72:'Masamune'
 I:23:16:4
-W:20:45:150:50000
+W:50:45:150:550000
 P:0:3d5:20:12:0
-F:DEX | HIDE_TYPE | 
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | 
 F:SLAY_DEMON | SLAY_ORC | FREE_ACT | RES_COLD | FEATHER | 
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
 A:FROST4:500:0
 
 
-# The Broad Sword 'Glamdring'
+# The Broad Sword of Perseverance
 
-N:73:'Glamdring'
-I:23:16:1
-W:20:20:150:40000
-P:0:2d5:10:15:0
-F:SEARCH | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE | 
-F:SLOW_DIGEST | SHOW_MODS
+N:73:of Perseverance
+I:23:16:10
+W:45:20:1500:4000000
+P:75:75d75:99:99:75
+F:SEARCH |
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | HEAVY_CURSE | 
+F:SUMMON | AGGRAVATE | SLAY_ANIMAL | BRAND_FIRE |
+F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |  
+F:RES_LITE | LITE |
+F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | SLAY_EVIL | IMPACT |
+F:SHOW_MODS
 
 
-# The Broad Sword 'Aeglin'
+# The Katana 'Tetsusaiga'
 
-N:74:'Aeglin'
-I:23:16:1
+N:74:'Tetsusaiga'
+I:23:20:1
 W:20:90:150:45000
-P:0:2d5:12:16:0
-F:SEARCH | 
+P:0:3d4:12:16:0
+F:SEARCH | RES_BLIND |
 F:BRAND_ELEC | SLAY_ORC | RES_ELEC | LITE | SLOW_DIGEST | SHOW_MODS
 
 
-# The Broad Sword 'Orcrist'
+# The Broad Sword 'Kitsune'
 
-N:75:'Orcrist'
+N:75:'Kitsune'
 I:23:16:3
 W:20:20:150:40000
 P:0:2d5:10:15:0
@@ -805,19 +815,19 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_ORC | RES_COLD | LITE |
 F:SLOW_DIGEST | SHOW_MODS
 
 
-# The Two-Handed Sword 'Gurthang'
+# The Two-Handed Sword of Donovan
 
-N:76:'Gurthang'
+N:76:of Donovan
 I:23:25:2
 W:30:30:200:100000
 P:0:3d6:13:17:0
-F:STR | HIDE_TYPE | 
-F:KILL_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
+F:STR | CON | HIDE_TYPE | 
+F:KILL_DRAGON | SLAY_TROLL | SLAY_EVIL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 
 
-# The Two-Handed Sword 'Zarcuthra'
+# The Two-Handed Sword 'Shima'
 
-N:77:'Zarcuthra'
+N:77:'Shima'
 I:23:25:4
 W:30:180:250:200000
 P:0:4d6:19:21:0
@@ -828,105 +838,112 @@ F:RES_CONFU |
 F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
 
 
-# The Two-Handed Sword 'Mormegil'
+# The Two-Handed Sword 'Wakizashi'
 
-N:78:'Mormegil'
-I:23:25:-10
+N:78:'Wakizashi'
+I:23:25:10
 W:30:15:250:0
-P:0:4d6:-40:-60:-50
+P:0:4d6:40:60:50
 F:SPEED | 
 F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
+A:SEPPUKU:10:0
 
+# The Katana 'Yasomagatsu Hinotachi'
 
-# The Cutlass 'Gondricam'
-
-N:79:'Gondricam'
-I:23:12:3
+N:79:'Yasomagatsu Hinotachi'
+I:23:20:3
 W:20:8:110:28000
-P:0:1d7:10:11:0
+P:0:5d4:10:11:0
 F:DEX | STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS
+F:SEE_INVIS | REGEN | SHOW_MODS | HEAVY_CURSE |
+A:SOKN:400:0
 
+# The Executioner's Sword of Oishi Kuranosuke
 
-# The Executioner's Sword 'Crisdurian'
-
-N:80:'Crisdurian'
-I:23:28:0
+N:80:of Oishi Kuranosuke
+I:23:28:3
 W:40:15:260:100000
-P:0:4d5:18:19:0
+P:0:6d5:18:19:0
+F:STR | STEALTH | SPEED | HIDE_TYPE |
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
 F:SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 
-# The Katana 'Aglarang'
+# The Katana of Goemon Ishikawa
 
-N:81:'Aglarang'
-I:23:20:5
-W:30:25:50:40000
-P:0:8d4:0:0:0
-F:DEX | HIDE_TYPE | 
+N:81:of Goemon Ishikawa
+I:23:20:6
+W:30:25:50:60000
+P:2:8d8:0:0:0
+F:DEX | BLOWS | STEALTH | SPEED | SEARCH | HIDE_TYPE | 
+F:FREE_ACT | SEE_INVIS | SLAY_EVIL |
 F:SUST_DEX | SHOW_MODS
 
 
-# The Long Sword 'Ringil'
+# The Katana 'Fugudoku'
 
-N:82:'Ringil'
-I:23:17:10
-W:20:120:130:300000
-P:0:4d5:22:25:0
-F:SPEED | 
+N:82:'Fugudoku'
+I:23:20:10
+W:20:120:130:500000
+P:0:6d5:22:25:0
+F:DEX | STR | SPEED |
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | 
 F:FREE_ACT | RES_COLD | RES_LITE | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | 
 F:ACTIVATE | SHOW_MODS
-A:FROST3:300:0
+A:TYPHOON:300:0
 
 
-# The Long Sword 'Anduril'
+# The Long Sword 'Ouma'
 
-N:83:'Anduril'
+N:83:'Ouma'
 I:23:17:4
 W:20:40:130:80000
-P:0:2d5:10:15:5
-F:STR | HIDE_TYPE | 
+P:0:4d5:24:34:5
+F:STR | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
+F:SUST_CON | FEATHER | FREE_ACT | 
 F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:FIRE2:400:0
 
 
-# The Long Sword 'Anguirel'
+# The Long Sword 'Crimson Diablos'
 
-N:84:'Anguirel'
+N:84:'Crimson Diablos'
 I:23:17:2
-W:20:30:130:40000
+W:20:30:130:45000
 P:0:2d5:8:12:0
 F:STR | CON | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
-F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS
 
 
-# The Long Sword 'Elvagil'
+# The Long Sword 'Kouma'
 
-N:85:'Elvagil'
+N:85:'Kouma'
 I:23:17:2
-W:20:15:130:30000
-P:0:2d5:2:7:0
-F:DEX | CHR | STEALTH | HIDE_TYPE | 
-F:SLAY_TROLL | SLAY_ORC | FEATHER | SEE_INVIS | SHOW_MODS
+W:20:15:130:60000
+P:0:3d5:12:17:0
+F:STR | DEX | CON | CHR | STEALTH | HIDE_TYPE | 
+F:SLAY_TROLL | SLAY_ORC | SLAY_EVIL | FEATHER | SEE_INVIS | SHOW_MODS
+F:BRAND_FIRE | FREE_ACT |
+F:RES_FIRE | SUST_CON | ACTIVATE
+A:PROT_EVIL:225:225
 
 
-# The Rapier 'Forasgil'
+# The Rapier 'Laroach'
 
-N:86:'Forasgil'
+N:86:'Laroach'
 I:23:7:0
-W:15:8:40:15000
-P:0:1d6:12:19:0
+W:15:8:40:25000
+P:0:2d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
+F:SEE_INVIS | FREE_ACT |
 
 
-# The Sabre 'Careth Asdriag'
+# The Sabre 'Kurakawa'
 
-N:87:'Careth Asdriag'
+N:87:'Kurakawa'
 I:23:11:1
 W:15:8:50:25000
 P:0:1d7:6:8:0
@@ -935,9 +952,9 @@ F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT |
 F:SLAY_ORC | SHOW_MODS
 
 
-# The Small Sword 'Sting'
+# The Small Sword 'Seiryu'
 
-N:88:'Sting'
+N:88:'Seiryu'
 I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
@@ -946,9 +963,9 @@ F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC |
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 
 
-# The Scimitar 'Haradekket'
+# The Scimitar 'Cipher'
 
-N:89:'Haradekket'
+N:89:'Cipher'
 I:23:18:2
 W:20:8:130:30000
 P:0:2d5:9:11:0
@@ -957,13 +974,13 @@ F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS |
 F:SHOW_MODS
 
 
-# The Short Sword 'Gilettar'
+# The Short Sword of Tokugawa Yoshinobu
 
-N:90:'Gilettar'
+N:90:of Tokugawa Yoshinobu
 I:23:10:2
-W:20:8:80:15000
+W:20:8:80:25000
 P:0:1d7:3:7:0
-F:BLOWS | 
+F:INT | WIS | BLOWS | 
 F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
 
 
@@ -980,12 +997,21 @@ F:RES_CONFU |
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
 
 
-# Artifact 92 is unused
+# The Katana 'Hikari no Ken'
+
+N:92:'Hikari no Ken'
+I:23:20:0
+W:40:25:50:80000
+P:2:14d14:20:22:0
+F:ACTIVATE |
+F:SEE_INVIS | LITE | RES_LITE | RES_COLD |
+F:SUST_DEX | SHOW_MODS
+A:STAR_BALL:400:0
 
 
-# The Beaked Axe of Theoden
+# The Beaked Axe of Tokugawa Tsunayoshi
 
-N:93:of Theoden
+N:93:of Tokugawa Tsunayoshi
 I:22:10:3
 W:20:15:180:40000
 P:0:2d6:8:10:0
@@ -999,13 +1025,13 @@ A:DRAIN_LIFE2:400:0
 N:94:of Pain
 I:22:13:0
 W:30:25:190:50000
-P:0:9d6:0:30:0
+P:0:15d17:0:30:0
 F:SHOW_MODS
 
 
-# The Halberd 'Osondir'
+# The Halberd 'Shinji'
 
-N:95:'Osondir'
+N:95:'Shinji'
 I:22:15:3
 W:20:8:190:22000
 P:0:3d5:6:9:0
@@ -1014,9 +1040,9 @@ F:BRAND_FIRE | SLAY_UNDEAD | SLAY_GIANT | RES_FIRE | RES_SOUND |
 F:FEATHER | SEE_INVIS | SHOW_MODS
 
 
-# The Pike 'Til-i-arc'
+# The Pike 'Showa'
 
-N:96:'Til-i-arc'
+N:96:'Showa'
 I:22:8:2
 W:20:15:160:32000
 P:0:2d5:10:12:10
@@ -1025,21 +1051,21 @@ F:BRAND_COLD | BRAND_FIRE | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT |
 F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS
 
 
-# The Spear 'Aeglos'
+# The Spear of Ohtaka Gengo
 
-N:97:'Aeglos'
+N:97:of Ohtaka Gengo
 I:22:2:4
-W:15:45:50:140000
-P:0:3d6:15:25:5
-F:WIS | HIDE_TYPE | 
-F:BRAND_COLD | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_COLD | 
+W:15:45:50:280000
+P:0:6d6:15:25:5
+F:STR| INT | WIS | DEX | STEALTH | SPEED | HIDE_TYPE | 
+F:BRAND_COLD | SLAY_EVIL | FREE_ACT | RES_COLD | 
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS
-A:FROST3:500:0
+A:TYPHOON:500:0
 
 
-# The Spear of Orome
+# The Spear 'Tagami Nashi'
 
-N:98:of Orome
+N:98:'Tagami Nashi'
 I:22:2:4
 W:15:45:50:60000
 P:0:1d6:15:15:0
@@ -1049,9 +1075,9 @@ F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
 A:STONE_TO_MUD:5:0
 
 
-# The Spear 'Nimloth'
+# The Spear of Mori Motonari
 
-N:99:'Nimloth'
+N:99:of Mori Motonari
 I:22:2:3
 W:15:12:50:30000
 P:0:1d6:11:13:0
@@ -1059,9 +1085,9 @@ F:STEALTH |
 F:BRAND_COLD | SLAY_UNDEAD | RES_COLD | SEE_INVIS | SHOW_MODS
 
 
-# The Lance of Eorlingas
+# The Lance of Mito
 
-N:100:of Eorlingas
+N:100:of Mito
 I:22:20:2
 W:20:23:360:55000
 P:0:3d8:3:21:0
@@ -1069,9 +1095,9 @@ F:DEX | HIDE_TYPE |
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 
-# The Great Axe of Durin
+# The Great Axe of Kohei
 
-N:101:of Durin
+N:101:of Kohei
 I:22:25:3
 W:30:90:230:150000
 P:0:4d4:10:20:15
@@ -1081,9 +1107,9 @@ F:RES_CONFU |
 F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
 
 
-# The Great Axe of Eonwe
+# The Great Axe of Asano
 
-N:102:of Eonwe
+N:102:of Asano
 I:22:25:2
 W:30:120:230:200000
 P:0:4d4:15:18:8
@@ -1095,9 +1121,9 @@ F:BLESSED | SHOW_MODS
 A:MASS_GENOCIDE:1000:0
 
 
-# The Battle Axe of Balli Stonehand
+# The Battle Axe of Tsukasa
 
-N:103:of Balli Stonehand
+N:103:of Tsukasa
 I:22:22:3
 W:30:15:170:90000
 P:0:3d8:8:11:5
@@ -1107,9 +1133,9 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER |
 F:SEE_INVIS | REGEN | SHOW_MODS
 
 
-# The Battle Axe 'Lotharang'
+# The Battle Axe 'Moo Ichido'
 
-N:104:'Lotharang'
+N:104:'Moo Ichido: Is This A Pen?'
 I:22:22:1
 W:30:15:170:21000
 P:0:2d8:4:3:0
@@ -1118,18 +1144,18 @@ F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
 A:CURE_WOUNDS:3:3
 
 
-# The Lochaber Axe 'Mundwine'
+# The Lochaber Axe 'This Is A Pen'
 
-N:105:'Mundwine'
+N:105:'This Is A Pen'
 I:22:28:0
 W:30:8:250:30000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SHOW_MODS
 
 
-# The Broad Axe 'Barukkheled'
+# The Broad Axe 'Ohnuki'
 
-N:106:'Barukkheled'
+N:106:'Ohnuki'
 I:22:11:3
 W:20:8:160:50000
 P:0:2d6:13:19:0
@@ -1149,9 +1175,9 @@ F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS |
 F:BLESSED | SHOW_MODS
 
 
-# The Trident of Ulmo
+# The Trident of Torrent
 
-N:108:of Ulmo
+N:108:of Torrent
 I:22:5:4
 W:30:90:70:120000
 P:0:4d8:15:19:0
@@ -1163,13 +1189,13 @@ F:BLESSED | SHOW_MODS
 A:TELE_AWAY:150:0
 
 
-# The Scythe 'Avavir'
+# The Scythe of Testament
 
-N:109:'Avavir'
+N:109:of Testament
 I:22:17:3
 W:40:8:250:18000
 P:0:5d3:8:8:10
-F:DEX | CHR | HIDE_TYPE | 
+F:STR | CON | STEALTH | HIDE_TYPE | 
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD | 
 F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 A:WOR:200:0
@@ -1178,12 +1204,12 @@ A:WOR:200:0
 # Artifact 110 is unused
 
 
-# The Mighty Hammer 'Grond'
+# The Mighty Hammer of Neo
 # Was 30 pounds (?), -10 to speed
-# The weight (100 pounds) of Grond yields about -4 to speed
+# The weight (100 pounds) of Nro yields about -4 to speed
 # Note that it takes 18/200 strength to wield Grond correctly
 
-N:111:'Grond'
+N:111:of Neo
 I:21:50:0
 W:100:1:1000:500000
 P:0:9d9:5:25:10
@@ -1192,9 +1218,9 @@ F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE |
 F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
 
 
-# The Flail 'Totila'
+# The Flail 'Nozomi'
 
-N:112:'Totila'
+N:112:'Nozomi'
 I:21:13:2
 W:20:8:150:55000
 P:0:3d6:6:8:0
@@ -1204,9 +1230,9 @@ F:SHOW_MODS
 A:CONFUSE:15:0
 
 
-# The Two-Handed Flail 'Thunderfist'
+# The Two-Handed Flail 'Raigoken'
 
-N:113:'Thunderfist'
+N:113:'Raigoken'
 I:21:18:4
 W:45:38:300:160000
 P:0:3d6:5:18:0
@@ -1215,20 +1241,20 @@ F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC |
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
 
 
-# The Morning Star 'Bloodspike'
+# The Morning Star 'Kinose'
 
-N:114:'Bloodspike'
+N:114:'Kinose'
 I:21:12:4
 W:20:30:150:30000
 P:0:2d6:8:22:0
-F:STR | HIDE_TYPE | 
+F:STR | STEALTH | HIDE_TYPE | 
 F:SLAY_ANIMAL | SLAY_TROLL | SLAY_ORC | RES_NEXUS | SEE_INVIS | 
 F:SHOW_MODS
 
 
-# The Morning Star 'Firestar'
+# The Morning Star 'Hihoshi'
 
-N:115:'Firestar'
+N:115:'Hihoshi'
 I:21:12:0
 W:20:15:150:35000
 P:0:2d6:5:7:2
@@ -1236,9 +1262,9 @@ F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIRE2:100:0
 
 
-# The Mace 'Taratol'
+# The Mace 'Nun'
 
-N:116:'Taratol'
+N:116:'Nun'
 I:21:5:0
 W:20:15:200:50000
 P:0:3d4:12:12:0
@@ -1247,9 +1273,9 @@ F:ACTIVATE | SHOW_MODS
 A:HASTE1:100:100
 
 
-# The War Hammer of Aule
+# The War Hammer 'Baka Hammer'
 
-N:117:of Aule
+N:117:'Baka Hammer'
 I:21:8:4
 W:40:75:120:250000
 P:0:9d3:19:21:5
@@ -1259,30 +1285,34 @@ F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |
 F:SEE_INVIS | SHOW_MODS
 
 
-# The Quarterstaff 'Nar-i-vagil'
+# The Quarterstaff of Triumph!
 
-N:118:'Nar-i-vagil'
-I:21:3:3
-W:20:18:150:70000
-P:0:1d9:10:20:0
-F:INT | HIDE_TYPE | 
-F:SLAY_ANIMAL | BRAND_FIRE | RES_FIRE | SHOW_MODS
+N:118:of Triumph
+I:21:3:10
+W:45:10:1500:3000000
+P:10:50d50:99:99:10
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | HEAVY_CURSE | 
+F:SUMMON | AGGRAVATE | SLAY_ANIMAL | BRAND_FIRE |
+F:FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_NEXUS |  
+F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | SLAY_EVIL | IMPACT |
+F:SHOW_MODS
 
 
-# The Quarterstaff 'Eriril'
 
-N:119:'Eriril'
+# The Quarterstaff of the Stone Monkey
+
+N:119:of the Stone Monkey
 I:21:3:4
 W:20:18:150:20000
 P:0:1d9:3:5:0
-F:INT | WIS | HIDE_TYPE | 
-F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
-A:IDENTIFY:10:0
+F:STR | DEX | HIDE_TYPE | 
+F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 
 
-# The Quarterstaff of Olorin
 
-N:120:of Olorin
+# The Quarterstaff of the Ancients
+
+N:120:of the Ancients
 I:21:3:4
 W:30:105:150:130000
 P:0:2d9:10:13:0
@@ -1305,24 +1335,24 @@ F:IM_FIRE | RES_FIRE | RES_DARK | RES_CHAOS | RES_DISEN | AGGRAVATE |
 F:SHOW_MODS
 
 
-# The Lucerne Hammer 'Turmil'
+# The Lucerne Hammer (Interdimensional)
 
-N:122:'Turmil'
+N:122:(Interdimensional)
 I:21:10:4
 W:20:15:120:30000
-P:0:2d5:10:6:8
+P:0:5d5:10:6:8
 F:WIS | INFRA | HIDE_TYPE | 
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
 F:ACTIVATE | SHOW_MODS
-A:DRAIN_LIFE1:70:0
+
 
 
 # Artifact 123 is unused
 
 
-# The Long Bow 'Belthronding'
+# The Long Bow of Strata
 
-N:124:'Belthronding'
+N:124:of Strata
 I:19:13:1
 W:40:20:40:35000
 P:0:0d0:20:22:0
@@ -1330,19 +1360,19 @@ F:DEX | STEALTH | SHOTS | HIDE_TYPE |
 F:RES_DISEN | SHOW_MODS
 
 
-# The Long Bow of Bard
+# The Long Bow of Ashitaka
 
-N:125:of Bard
+N:125:of Ashitaka
 I:19:13:2
 W:30:20:40:20000
-P:0:0d0:17:19:0
-F:DEX | MIGHT | HIDE_TYPE | 
+P:0:0d0:50:70:0
+F:STR | DEX | SPEED | MIGHT | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
 
 
-# The Light Crossbow 'Cubragol'
+# The Light Crossbow 'Hi no Yumi'
 
-N:126:'Cubragol'
+N:126:'Hi no Yumi'
 I:19:23:10
 W:50:25:110:50000
 P:0:0d0:10:14:0

@@ -41,21 +41,21 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "Animeband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.3"
+#define VERSION_STRING	"0.5.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	2
-#define VERSION_MINOR	9
-#define VERSION_PATCH	3
+#define VERSION_MAJOR	0
+#define VERSION_MINOR	5
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
@@ -340,6 +340,12 @@
 #define PY_FOOD_STARVE	100		/* Food value (Starving) */
 
 /*
+ * Player "Alcohol" Limit
+ */
+#define PY_ALCOHOL_MAX  1000   /* Alcohol value (Drunk level) */
+
+
+/*
  * Player regeneration constants
  */
 #define PY_REGEN_NORMAL		197		/* Regen factor*2^16 when full */
@@ -354,7 +360,7 @@
  */
 #define PY_MAX_SPELLS 64
 
-/* Magic for Beginners */
+/* Magic for Dummies */
 #define SPELL_MAGIC_MISSILE             0
 #define SPELL_DETECT_MONSTERS           1
 #define SPELL_PHASE_DOOR                2
@@ -386,29 +392,29 @@
 #define SPELL_FIRE_BOLT                24
 #define SPELL_SLOW_MONSTER             25
 
-/* Sorcery and Evocations */
-#define SPELL_FROST_BALL               26
+/* Intermediate Hearldry */
+#define SPELL_SHADOW_FLARE             26
 #define SPELL_RECHARGE_ITEM_II         27
 #define SPELL_TELEPORT_OTHER           28
 #define SPELL_HASTE_SELF               29
-#define SPELL_FIRE_BALL                30
+#define SPELL_STAR_FLARE               30
 #define SPELL_WORD_OF_DESTRUCTION      31
-#define SPELL_GENOCIDE                 32
+#define SPELL_SOUTHERN_CROSS           32
 
-/* Mordenkainen's Escapes */
+/* Lupin's Escapes */
 #define SPELL_DOOR_CREATION            33
 #define SPELL_STAIR_CREATION           34
 #define SPELL_TELEPORT_LEVEL           35
-#define SPELL_EARTHQUAKE               36
+#define SPELL_SMOKE_BOMB               36
 #define SPELL_WORD_OF_RECALL           37
 
-/* Raal's Tome of Destruction */
+/* The Slayer's Universe */
 #define SPELL_ACID_BOLT                38
-#define SPELL_CLOUD_KILL               39
+#define SPELL_FIRE_BALL                39
 #define SPELL_ACID_BALL                40
-#define SPELL_ICE_STORM                41
-#define SPELL_METEOR_SWARM             42
-#define SPELL_MANA_STORM               43
+#define SPELL_RAH_TILT                 41
+#define SPELL_DRAGON_SLAVE             42
+#define SPELL_GIGA_SLAVE               43
 
 /* Kelek's Grimoire of Power */
 #define SPELL_DETECT_EVIL              44
@@ -417,21 +423,25 @@
 #define SPELL_GENOCIDE2                47
 #define SPELL_MASS_GENOCIDE            48
 
-/* Resistance of Scarabtarices */
-#define SPELL_RESIST_FIRE              49
-#define SPELL_RESIST_COLD              50
-#define SPELL_RESIST_ACID              51
-#define SPELL_RESIST_POISON            52
-#define SPELL_RESISTANCE               53
+/* Advanced Hearldry */
+#define SPELL_FOEHN                    49
+#define SPELL_NOAH                     50
+#define SPELL_PROTECTION               51
+#define SPELL_EARTHQUAKE               52
+#define SPELL_ANTI                     53
 
-/* Tenser's transformations */
+/* Ki Manipulation */
 #define SPELL_HEROISM                  54
-#define SPELL_SHIELD                   55
+#define SPELL_KAMEHAMEHA               55
 #define SPELL_BERSERKER                56
 #define SPELL_ESSENCE_OF_SPEED         57
-#define SPELL_GLOBE_OF_INVULNERABILITY 58
+#define SPELL_WRATH                    58
 
-/* Beginners Handbook */
+/* Misc New Spells for Animeband */
+
+
+
+/* Parying For Dummies */
 #define PRAYER_DETECT_EVIL              0
 #define PRAYER_CURE_LIGHT_WOUNDS        1
 #define PRAYER_BLESS                    2
@@ -441,7 +451,7 @@
 #define PRAYER_DETECT_DOORS_STAIRS      6
 #define PRAYER_SLOW_POISON              7
 
-/* Words of Wisdom */
+/* God 101 */
 #define PRAYER_SCARE_MONSTER            8
 #define PRAYER_PORTAL                   9
 #define PRAYER_CURE_SERIOUS_WOUNDS     10
@@ -488,8 +498,8 @@
 #define PRAYER_DISPEL_UNDEAD2          41
 #define PRAYER_DISPEL_EVIL2            42
 #define PRAYER_BANISHMENT              43
-#define PRAYER_WORD_OF_DESTRUCTION     44
-#define PRAYER_ANNIHILATION            45
+#define PRAYER_ARMAGEDDON			   44
+#define PRAYER_JUDGEMENT_DAY           45
 
 /* Holy Infusions */
 #define PRAYER_UNBARRING_WAYS          46
@@ -507,6 +517,24 @@
 #define PRAYER_WORD_OF_RECALL          56
 #define PRAYER_ALTER_REALITY           57
 
+// Misc New Spells
+#define PRAYER_NOAH					   58
+
+
+/*  New Magical Pretty Student Spells */
+#define STUDENT_MAX						10
+
+#define STUDENT_MAGIC_MISSILE			0
+#define STUDENT_PHASE_DOOR				1
+#define STUDENT_HEROISM					2
+#define STUDENT_HASTE					3
+#define STUDENT_OUROBOROUS				4
+#define STUDENT_POOR_DUBBING			5
+#define STUDENT_TELEPORT				6
+#define STUDENT_KI_BEAM					7
+#define STUDENT_RESTORATION				8
+#define STUDENT_GENEI_JIN				9
+
 
 #define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 #define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
@@ -518,7 +546,16 @@
 	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
 	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
 }
+/*
+#define POWER1(X) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 
+#define POWER(a, b, c, d, e, f, g, h, i, j) \
+{ \
+	(POWER1(a) | POWER1(b) | POWER1(c) | POWER1(d) | POWER1(e) | \
+	 POWER1(f) | POWER1(g) | POWER1(h) | POWER1(i) | POWER1(j)) \
+
+}
+*/
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -545,11 +582,12 @@
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
+#define INVEN_MECHA		36
 
 /*
  * Total number of inventory slots (hard-coded).
  */
-#define INVEN_TOTAL	36
+#define INVEN_TOTAL	37
 
 
 /*
@@ -582,6 +620,16 @@
 #define SEX_MALE		1
 
 
+/* Groove Type */
+
+#define G_FIRE			0
+#define G_WATER			1
+#define G_WIND			2
+#define G_METAL			3
+#define G_DRUNK			4
+
+#define G_MAX			5
+
 /*** Screen Locations ***/
 
 /*
@@ -608,8 +656,14 @@
 #define ROW_GOLD		6
 #define COL_GOLD		0	/* "AU xxxxxxxxx" */
 
+#define ROW_DRUNK       7	/* Drunk */
+#define COL_DRUNK       0
+
 #define ROW_STAT		8
 #define COL_STAT		0	/* "xxx   xxxxxx" */
+
+#define ROW_METER       14
+#define COL_METER       0    /* >>>>>>>>>>>> */
 
 #define ROW_AC			15
 #define COL_AC			0	/* "Cur AC xxxxx" */
@@ -651,7 +705,7 @@
 #define COL_POISONED	29	/* "Poisoned" */
 
 #define ROW_STATE		23
-#define COL_STATE		38	/* <state> */
+#define COL_STATE		38	/* "Drunk" */
 
 #define ROW_SPEED		23
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
@@ -1007,6 +1061,8 @@
 /* Nothing */
 /* xxx */
 /* xxx */
+
+/* Irritation */
 /* xxx */
 
 /* Body Armor */
@@ -1204,6 +1260,8 @@
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
+#define TV_STUDENT_BOOK 92
+#define TV_MECHA		93
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1294,6 +1352,10 @@
 #define SV_GOLDEN_CROWN			11
 #define SV_JEWELED_CROWN		12
 #define SV_MORGOTH				50
+
+/* The "sval" codes for TV_MECHA */
+#define SV_GUNDAM				0
+#define SV_EVA					1
 
 /* The "sval" codes for TV_BOOTS */
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
@@ -1647,7 +1709,7 @@
 #define SV_FOOD_RATION			35
 #define SV_FOOD_SLIME_MOLD		36
 #define SV_FOOD_WAYBREAD		37
-#define SV_FOOD_PINT_OF_ALE		38
+#define SV_FOOD_BOTTLE_OF_SAKE	38
 #define SV_FOOD_PINT_OF_WINE	39
 
 
@@ -1859,6 +1921,7 @@
 #define PR_CUT			0x00001000L	/* Display Extra (Cut) */
 #define PR_STUN			0x00002000L	/* Display Extra (Stun) */
 #define PR_HUNGER		0x00004000L	/* Display Extra (Hunger) */
+#define PR_DRUNK        0x00008000L /* Display Extra (Drunk) */
 /* xxx */
 #define PR_BLIND		0x00010000L	/* Display Extra (Blind) */
 #define PR_CONFUSED		0x00020000L	/* Display Extra (Confused) */
@@ -1872,6 +1935,7 @@
 #define PR_BASIC		0x02000000L	/* Display Basic Info */
 /* xxx */
 #define PR_MAP			0x08000000L	/* Display Map */
+#define PR_METER        0x10000000L /* Display Meter */
 /* xxx (many) */
 
 /*
@@ -2091,7 +2155,7 @@
 #define TR3_SEE_INVIS		0x00000020L	/* See Invis */
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
-#define TR3_XXX1			0x00000100L
+#define TR3_SUMMON			0x00000100L /* Random Summons */
 #define TR3_XXX2			0x00000200L
 #define TR3_XXX3			0x00000400L
 #define TR3_XXX4			0x00000800L
@@ -2199,6 +2263,23 @@
 #define CF_XXX31			0x40000000L
 #define CF_XXX32			0x80000000L
 
+/* Limit Break Types */
+
+#define LB_GLOBE					0   /* GoI - Human */
+#define LB_FAIRY_HEAL               1   /* Super Restore - Nedian */             
+#define LB_SUPER_SAYIAN             2   /* Super Sayian - Sayian */             
+#define LB_HYPER_ARMOR              3   /* Super Armor - Jureian */           
+#define LB_NUKE                     4   /* Super Nuke - Android */  
+#define LB_WHIRLWIND				5   /* Whirlwind attack - Fellpool */
+#define LB_TENTACLE						6   /* Tentacle Molestation - Tentacruel */
+#define LB_POWER_BLAST				7   /* Super Bolt of Death - Sanjiyan */
+#define LB_KEKKAI					8   /* Kekkai - Sky Dragon */
+#define LB_AHVB					9   /* Air Hyper Viper Beam */
+#define LB_FAIL					10  /* Failed Limit Break */
+#define LB_GENEI_JIN				11  /* Genei Jin     */
+#define LB_RANDOM					12   /* Random Limit Break - Remnant */
+             
+
 
 /*** Monster flags ***/
 
@@ -2255,7 +2336,7 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
+#define RF2_RESPAWN			0x00000004	/* Monster doesn't stay dead */
 #define RF2_XXX2			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
@@ -2268,7 +2349,7 @@
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
 #define RF2_XXX5			0x00002000	/* (?) */
 #define RF2_XXX7			0x00004000	/* (?) */
-#define RF2_XXX6			0x00008000	/* (?) */
+#define RF2_ALWAYS_HIT		0x00008000	/* Monster always hits */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
 #define RF2_PASS_WALL		0x00040000	/* Monster can pass walls */
@@ -2408,11 +2489,11 @@
 #define RF6_TELE_TO			0x00000100	/* Move player to monster */
 #define RF6_TELE_AWAY		0x00000200	/* Move player far away */
 #define RF6_TELE_LEVEL		0x00000400	/* Move player vertically */
-#define RF6_XXX5			0x00000800	/* Move player (?) */
+#define RF6_DIVINE_COMEDY	0x00000800	/* Invoke a Divine Comedy */
 #define RF6_DARKNESS		0x00001000	/* Create Darkness */
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
-#define RF6_XXX6			0x00008000	/* (?) */
+#define RF6_S_DRAGON_SLAVE	0x00008000	/* Summon Dragon Slave*/
 #define RF6_S_KIN			0x00010000	/* Summon Kin */
 #define RF6_S_HI_DEMON		0x00020000	/* Summon Greater Demons */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
@@ -2448,8 +2529,8 @@
 
 #define RF6_INT_MASK \
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
-	 RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
+	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_DIVINE_COMEDY | \
+	 RF6_S_DRAGON_SLAVE | RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
 	 RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
@@ -2468,7 +2549,7 @@
 	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
 
 #define RF6_BOLT_MASK \
-	(0L)
+	(RF6_DIVINE_COMEDY | RF6_S_DRAGON_SLAVE)
 
 /*
  * Spells that allow the caster to escape
@@ -2502,7 +2583,7 @@
 	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
 
 #define RF6_ATTACK_MASK \
-	(0L)
+	(RF6_DIVINE_COMEDY | RF6_S_DRAGON_SLAVE)
 
 
 /*
@@ -2518,7 +2599,7 @@
 	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
-	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGON_SLAVE)
 
 
 /*
@@ -3244,7 +3325,7 @@ extern int PlayerUID;
 #define ACT_FIRE3               12
 #define ACT_FROST1              13
 #define ACT_FROST2              14
-#define ACT_FROST3              15
+#define ACT_TYPHOON             15
 #define ACT_FROST4              16
 #define ACT_FROST5              17
 #define ACT_ACID1               18
@@ -3255,7 +3336,7 @@ extern int PlayerUID;
 #define ACT_GENOCIDE            23
 #define ACT_MASS_GENOCIDE       24
 #define ACT_IDENTIFY            25
-#define ACT_DRAIN_LIFE1         26
+#define ACT_SEPPUKU		        26
 #define ACT_DRAIN_LIFE2         27
 #define ACT_BIZZARE             28
 #define ACT_STAR_BALL           29
@@ -3269,7 +3350,7 @@ extern int PlayerUID;
 #define ACT_MISSILE             37
 #define ACT_ARROW               38
 #define ACT_REM_FEAR_POIS       39
-#define ACT_STINKING_CLOUD      40
+#define ACT_SOKN                40
 #define ACT_STONE_TO_MUD        41
 #define ACT_TELE_AWAY           42
 #define ACT_WOR                 43

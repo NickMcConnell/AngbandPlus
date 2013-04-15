@@ -113,7 +113,7 @@
 #include <os2.h>
 #include <sys/video.h>
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -1259,7 +1259,7 @@ static void quit_hook(cptr s)
 }
 
 
-void angbandThread(void *arg)
+void animeband.hread(void *arg)
 {
 	bool new_game = FALSE;
 

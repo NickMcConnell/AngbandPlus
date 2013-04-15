@@ -49,7 +49,7 @@ SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
  */
 
 
-#include "angband.h"
+#include "animeband.h"
 
 #if defined(USE_VME) || defined(VM)
 
@@ -103,7 +103,7 @@ char a2e[]=
 
 
 /*
- * System headers (already included by "angband.h" XXX XXX XXX)
+ * System headers (already included by "animeband.h" XXX XXX XXX)
  */
 #include <string.h>
 #include <ctype.h>

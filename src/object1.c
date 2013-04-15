@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -1057,6 +1057,11 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		case TV_MECHA:
+		{
+			break;
+		}
+
 		/* Lites (including a few "Specials") */
 		case TV_LITE:
 		{
@@ -1330,6 +1335,16 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	{
 		object_desc_str_macro(t, " of ");
 		object_desc_str_macro(t, (k_name + k_ptr->name));
+	}
+
+	/* Hack -- Display Mecha HP */
+	if (o_ptr->tval == TV_MECHA)
+	{
+
+			object_desc_str_macro(t, " (");
+			object_desc_num_macro(t, o_ptr->pval);
+			object_desc_str_macro(t, " HP)");
+
 	}
 
 
@@ -1883,7 +1898,7 @@ static cptr act_description[ACT_MAX] =
 	"frost ball (48)",
 	"frost ball (100)",
 	"frost bolt (12d8)",
-	"large frost ball (200)",
+	"typhoons (100)",
 	"acid bolt (5d8)",
 	"recharge item I",
 	"sleep II",
@@ -1892,7 +1907,7 @@ static cptr act_description[ACT_MAX] =
 	"genocide",
 	"mass genocide",
 	"identify",
-	"drain life (90)",
+	"seppuku",
 	"drain life (120)",
 	"bizarre things",
 	"star ball (150)",
@@ -1906,13 +1921,14 @@ static cptr act_description[ACT_MAX] =
 	"magic missile (2d6)",
 	"a magical arrow (150)",
 	"remove fear and cure poison",
-	"stinking cloud (12)",
+	"Shi o Osoneru Kokoro Nari (200)",
 	"stone to mud",
 	"teleport away",
 	"word of recall",
 	"confuse monster",
 	"probing",
 	"fire branding of bolts",
+	
 };
 
 
@@ -2366,6 +2382,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It induces earthquakes.";
 	}
 
+	if (f3 & (TR3_SUMMON))
+	{
+		info[i++] = "It summons monsters randomly.";
+	}
+
 	if (f3 & (TR3_TELEPORT))
 	{
 		info[i++] = "It induces random teleportation.";
@@ -2649,6 +2670,10 @@ s16b wield_slot(const object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+		case TV_MECHA:
+		{
+			return (INVEN_MECHA);
+		}
 	}
 
 	/* No slot available */
@@ -2678,6 +2703,7 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
+		case INVEN_MECHA: p = "Riding"; break;
 		default:          p = "In pack"; break;
 	}
 
@@ -2730,6 +2756,7 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
+		case INVEN_MECHA: p = "Riding on"; break;
 		default:          p = "carrying in your pack"; break;
 	}
 

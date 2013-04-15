@@ -11,14 +11,14 @@
 # Background information (see below)
 
 # Chart progression by race:
-#   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
-#   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
-#   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
-#   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+#   Human/Sky/Rem -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Nedian        -->  5 -->  6 --> 40 --> 41 --> 42 --> 53
+#   Sayian        -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
+#   Jureian       --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Android       --> 13 --> 14 --> 50 --> 51 --> 52 --> 53
+#   Ctarl-Ctarl      --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
+#   Tentacruel    --> 19 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Sanjiyan      --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -27,7 +27,7 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.5.0
 
 
 N:1:2:10:25
@@ -61,97 +61,114 @@ D:You are a credit to the family.
 N:3:50:100:60
 D:You are a well liked child.  
 
-N:4:1:40:50
-D:Your mother was of the Teleri.  
-N:4:1:75:55
-D:Your father was of the Teleri.  
-N:4:1:90:55
-D:Your mother was of the Noldor.  
-N:4:1:95:60
-D:Your father was of the Noldor.  
-N:4:1:98:65
-D:Your mother was of the Vanyar.  
-N:4:1:100:70
-D:Your father was of the Vanyar.  
 
-N:7:8:60:50
+N:4:2:10:25
+D:You are reborn as the illegitimate and unacknowledged child 
+N:4:2:20:35
+D:You are reborn as the illegitimate but acknowledged child 
+N:4:2:95:45
+D:You are reborn as one of several children 
+N:4:2:100:50
+D:You are reborn as the first child 
+
+N:5:6:60:50
+D:You are one of several children of a Nedian 
+N:5:6:100:55
+D:You are the only child of a Nedian 
+
+N:6:40:40:80
+D:Shopkeeper.  
+N:6:40:70:90
+D:Journalist.  
+N:6:40:87:110
+D:Zoologist.  
+N:6:40:95:125
+D:Mayor.  
+N:6:40:99:140
+D:Professor.  
+N:6:40:100:145
+D:Wise Man.  
+
+
+N:7:8:60:25
 D:You are one of several children 
-N:7:8:100:55
+N:7:8:100:35
 D:You are the only child 
 
 N:8:9:75:50
-D:of a Teleri 
+D:of a Sayian 
 N:8:9:95:55
-D:of a Noldor 
+D:of an elite Sayian 
 N:8:9:100:60
-D:of a Vanyar 
+D:of a Super Sayian 
 
 N:9:54:40:80
-D:Ranger.  
+D:Rogue.  
 N:9:54:70:90
-D:Archer.  
+D:Inventor.  
 N:9:54:87:110
 D:Warrior.  
 N:9:54:95:125
-D:Mage.  
+D:Royal Guard.  
 N:9:54:99:140
 D:Prince.  
 N:9:54:100:145
 D:King.  
 
 N:10:11:85:45
-D:You are one of several children of a Hobbit 
+D:You are descended from a Jureian 
 N:10:11:100:55
-D:You are the only child of a Hobbit 
+D:You are the only descendent of a Jureian 
 
 N:11:3:20:55
-D:Bum.  
+D:Shopkeep.  
 N:11:3:30:80
-D:Tavern Owner.  
+D:Businessman.  
 N:11:3:40:90
-D:Miller.  
+D:Musician.  
 N:11:3:50:100
-D:Home Owner.  
+D:Professor.  
 N:11:3:80:110
-D:Burglar.  
-N:11:3:95:115
 D:Warrior.  
-N:11:3:99:125
-D:Mage.  
 N:11:3:100:140
-D:Clan Elder.  
+D:Royal Family.  
+
+N:12:23:30:20
+D:You are one of several children of a 
+N:12:23:100:25
+D:You are the only child of a  
 
 N:13:14:85:45
-D:You are one of several children of a Gnome 
+D:You were built in a backyard shack owned by a
 N:13:14:100:55
-D:You are the only child of a Gnome 
+D:You were built in a laboratory owned by a
 
-N:14:3:20:55
-D:Beggar.  
-N:14:3:50:70
-D:Braggart.  
-N:14:3:75:85
-D:Prankster.  
-N:14:3:95:100
-D:Warrior.  
-N:14:3:100:125
-D:Mage.  
+N:14:50:20:55
+D: Beggar.  
+N:14:50:50:70
+D: Bratty Little Kid Genius.  
+N:14:50:75:85
+D:n Amateur Scientist.  
+N:14:50:95:100
+D: Police Officer.  
+N:14:50:100:125
+D:n Evil Mad Scientist.  
 
 N:16:17:25:40
-D:You are one of two children of a Dwarven 
+D:You are of a litter of 5 of a Ctarl-Ctarl 
 N:16:17:100:50
-D:You are the only child of a Dwarven 
+D:You are of a litter of 3 of a Ctarl-Ctarl 
 
 N:17:18:10:60
 D:Thief.  
 N:17:18:25:75
-D:Prison Guard.  
+D:Circus Performer.  
 N:17:18:75:90
-D:Miner.  
-N:17:18:90:110
 D:Warrior.  
+N:17:18:90:110
+D:Scientist.  
 N:17:18:99:130
-D:Priest.  
+D:Mayor.  
 N:17:18:100:150
 D:King.  
 
@@ -163,34 +180,64 @@ N:18:57:100:55
 D:You are a well liked child.  
 
 N:19:20:25:25
-D:Your mother was an Orc, but it is unacknowledged.  
+D:You are the bane of women everywhere.    
 N:19:20:100:25
-D:Your father was an Orc, but it is unacknowledged.  
+D:You are the bane of women and adolescent girls everywhere.  
 
-N:20:2:100:50
-D:You are the adopted child 
+N:20:21:100:10
+D:You have slimy, translucent skin and 
 
-N:22:23:30:20
-D:Your mother was a Cave-Troll 
-N:22:23:60:25
-D:Your father was a Cave-Troll 
-N:22:23:75:30
-D:Your mother was a Hill-Troll 
-N:22:23:90:35
-D:Your father was a Hill-Troll 
-N:22:23:95:40
-D:Your mother was a Water-Troll 
-N:22:23:100:45
-D:Your father was a Water-Troll 
+N:21:24:25:10
+D:a couple of 
+N:21:24:100:20
+D:a lot of 
 
-N:23:62:5:60
-D:Cook.  
+
 N:23:62:95:55
-D:Warrior.  
+D:Sanjiyan Scholar.  
 N:23:62:99:65
-D:Shaman.  
+D:Sanjiyan Shaman.  
 N:23:62:100:80
-D:Clan Chief.  
+D:Sanjiyan Magi.  
+
+N:24:25:10:20
+D:green tentacles.  
+N:24:25:20:30
+D:red tentacles.  
+N:24:25:100:40
+D:flesh colored tentacles.  
+
+N:25:0:100:10
+D:You don't want to know anymore.
+
+N:40:41:20:50
+D:You have dark brown eyes, 
+N:40:41:60:50
+D:You have brown eyes, 
+N:40:41:70:50
+D:You have hazel eyes, 
+N:40:41:80:50
+D:You have green eyes, 
+N:40:41:90:50
+D:You have blue eyes, 
+N:40:41:100:50
+D:You have blue-gray eyes, 
+
+N:41:42:70:50
+D:straight 
+N:41:42:90:50
+D:wavy 
+N:41:42:100:50
+D:spikey 
+
+N:42:53:30:50
+D:brown hair, 
+N:42:53:70:50
+D:pink hair, 
+N:42:53:80:50
+D:red hair, 
+N:42:53:100:50
+D:blue hair, 
 
 N:50:51:20:50
 D:You have dark brown eyes, 
@@ -235,89 +282,64 @@ N:53:0:100:50
 D:and a very fair complexion.
 
 N:54:55:85:50
-D:You have light grey eyes, 
+D:You have light brown eyes, 
 N:54:55:95:50
-D:You have light blue eyes, 
+D:You have dark brown eyes, 
 N:54:55:100:50
-D:You have light green eyes, 
+D:You have dark black eyes, 
 
 N:55:56:75:50
-D:straight 
+D:spiked 
 N:55:56:100:50
 D:wavy 
 
 N:56:0:75:50
-D:black hair, and a fair complexion.
-N:56:0:85:50
 D:brown hair, and a fair complexion.
+N:56:0:85:50
+D:black hair, and a fair complexion.
 N:56:0:95:50
-D:blond hair, and a fair complexion.
+D:purple hair, and a fair complexion.
 N:56:0:100:50
-D:silver hair, and a fair complexion.
+D:blond hair, and a fair complexion.
 
 N:57:58:99:50
-D:You have dark brown eyes, 
+D:You have dark green eyes, 
 N:57:58:100:60
-D:You have glowing red eyes, 
+D:You have dark blue eyes, 
 
 N:58:59:90:50
 D:straight 
 N:58:59:100:50
 D:wavy 
 
+N:59:60:50:50
+D:red hair, 
 N:59:60:75:50
-D:black hair, 
+D:silver hair, 
 N:59:60:100:50
-D:brown hair, 
+D:blue hair, 
 
 N:60:61:25:50
-D:a one foot beard, 
+D:droopy brown ears, 
 N:60:61:60:51
-D:a two foot beard, 
+D:fuzzy brown ears, 
 N:60:61:90:53
-D:a three foot beard, 
+D:fluffy brown ears, 
 N:60:61:100:55
-D:a four foot beard, 
+D:furry brown ears, 
 
+N:61:0:75:50
+D:and a short, bushy tail.
 N:61:0:100:50
-D:and a dark complexion.
+D:and a long tail.
 
-N:62:63:60:50
-D:You have slime green eyes, 
-N:62:63:85:50
-D:You have puke yellow eyes, 
-N:62:63:99:50
-D:You have blue-bloodshot eyes, 
-N:62:63:100:55
-D:You have glowing red eyes, 
+N:62:41:20:50
+D:You have three green eyes, 
+N:62:41:40:50
+D:You have three blue eyes, 
+N:62:41:60:50
+D:You have three red eyes, 
+N:62:41:100:50
+D:You have three black eyes, 
 
-N:63:64:33:50
-D:dirty 
-N:63:64:66:50
-D:mangy 
-N:63:64:100:50
-D:oily 
-
-N:64:65:33:50
-D:sea-weed green hair, 
-N:64:65:66:50
-D:bright red hair, 
-N:64:65:100:50
-D:dark purple hair, 
-
-N:65:66:25:50
-D:and green 
-N:65:66:50:50
-D:and blue 
-N:65:66:75:50
-D:and white 
-N:65:66:100:50
-D:and black 
-
-N:66:0:33:50
-D:ulcerous skin.
-N:66:0:66:50
-D:scabby skin.
-N:66:0:100:50
-D:leprous skin.
 

@@ -42,7 +42,7 @@ Equipment list (e)
 Drop an item (d)
         This drops an item from your inventory or equipment onto the
         dungeon floor.  If the floor spot you are standing on already has
-        an object in it, Angband will attempt to drop the item onto an
+        an object in it, Animeband will attempt to drop the item onto an
         adjacent space.  Be warned that if the floor is full and you
         attempt to drop something, it may disappear and be destroyed.
         Doors and traps are considered objects for the purpose of
@@ -122,6 +122,7 @@ Go down staircase (>)
         the quest monster is killed.  Going down a staircase will take you
         to a new dungeon level.  See "Go Up Staircase" for more info.
         This command takes some energy.
+
 
 --- Resting Commands ---
 
@@ -285,6 +286,19 @@ Pray a prayer (p)
         or confused while praying, and there must be some light present.
         This command takes some energy.
 
+Use Limit Break (Z)
+        Activates whatever limit break you have (race dependent).  Your meter
+        must be full in order to use limit breaks.
+
+Transform (O)
+        Students can transform into magical pretty boy/girls provided that they
+        have enough mana.  A mana point drains per turn while in this status.
+
+Call powers (h)
+        Students have a ZERO percent fail rate on their powers.  However, they 
+        must have enough mana to use the power, otherwise they cannot use the
+        power at all.  Student powers are also not level dependent.
+
 --- Object Manipulation Commands ---
 
 Eat some food (E)
@@ -322,12 +336,12 @@ Inscribe an object ({)
         displayed inside curly braces after the object description.  The
         inscription is limited to the particular object (or pile) and is
         not automatically transferred to all similar objects.  Under certain
-        circumstances, Angband will display "fake" inscriptions on certain
+        circumstances, Animeband will display "fake" inscriptions on certain
         objects ("cursed", "broken", "tried", "empty", "NN% off") when
         appropriate.  These "fake" inscriptions remain all the time, even if 
         the player chooses to add a "real" inscription on top of it later.
 
-        In addition, Angband will occasionally place a "real" inscription on
+        In addition, Animeband will occasionally place a "real" inscription on
         an object for you, normally as the result of your character getting
         a "feeling" about the item.  All characters will get "feelings" about
         weapons and armor after carrying them for a while.  Warriors (who 
@@ -429,6 +443,12 @@ Throw an item (v)
         flasks of oil, can do a substantial amount of damage.  This
         command requires a direction, and can take a target.  This command
         takes some energy.
+
+Fire guns (x)
+        When you are riding on a mecha, you may shoot whatever guns the mecha
+        has.  However, this causes the mecha to become weaker, and if the 
+        mecha is too weak, it will not fire.  The damage and firing power of
+        the mecha is dependent on the type of mecha that you are riding.
 
 Targeting Mode (*)
         This will allow you to aim your spells and such at a specific
@@ -551,12 +571,12 @@ Save and Quit (Ctrl-X)
         your savefile to play again with the same options and such.
 
 Save (Ctrl-S)
-        This command saves the game but doesn't exit Angband.  Use this
+        This command saves the game but doesn't exit Animeband.  Use this
         frequently if you are paranoid about having your computer crash
         (or your power go out) while you are playing.
 
 Quit (commit suicide) (Q)
-        Kills your character and exits Angband.  You will be prompted to
+        Kills your character and exits Animeband.  You will be prompted to
         make sure you really want to do this, and then asked to verify
         that choice.  Note that dead characters are dead forever.
 
@@ -591,12 +611,12 @@ Interact with colors (&)
 --- Help ---
 
 Help (?)
-        Brings up the Angband on-line help system.  Note that the help
+        Brings up the Animeband on-line help system.  Note that the help
         files are just text files in a particular format, and that other
         help files may be available on the Net.  In particular, there are
         a variety of spoiler files which do not come with the standard
-        distribution.  Check the place you got Angband from or ask on the
-        newsgroup rec.games.roguelike.angband about them. 
+        distribution.  Check the place you got Animeband from or ask on the
+        newsgroup rec.games.roguelike.Animeband about them. 
 
 Identify Symbol (/)
         Use this command to find out what a character stands for.  For
@@ -622,7 +642,7 @@ Identify Symbol (/)
         on.  Pressing ESCAPE at any point will exit this command.
 
 Game Version (V)
-        This command will tell you what version of Angband you are using.
+        This command will tell you what version of Animeband you are using.
         For more information, see the "version.txt" help file.
 
 

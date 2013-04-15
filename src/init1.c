@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -167,7 +167,7 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
+	"RESPAWN",
 	"XXX2X2",
 	"INVISIBLE",
 	"COLD_BLOOD",
@@ -180,7 +180,7 @@ static cptr r_info_flags2[] =
 	"POWERFUL",
 	"XXX5X2",
 	"XXX7X2",
-	"XXX6X2",
+	"ALWAYS_HIT",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -332,11 +332,11 @@ static cptr r_info_flags6[] =
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"DIVINE_COMEDY",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"S_DRAGON_SLAVE",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
@@ -447,7 +447,7 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
+	"SUMMON",
 	"XXX2",
 	"XXX3",
 	"XXX4",
@@ -494,7 +494,7 @@ static cptr a_info_act[ACT_MAX] =
 	"FIRE3",
 	"FROST1",
 	"FROST2",
-	"FROST3",
+	"TYPHOON",
 	"FROST4",
 	"FROST5",
 	"ACID1",
@@ -505,7 +505,7 @@ static cptr a_info_act[ACT_MAX] =
 	"GENOCIDE",
 	"MASS_GENOCIDE",
 	"IDENTIFY",
-	"DRAIN_LIFE1",
+	"SEPPUKU",
 	"DRAIN_LIFE2",
 	"BIZZARE",
 	"STAR_BALL",
@@ -519,7 +519,7 @@ static cptr a_info_act[ACT_MAX] =
 	"MISSILE",
 	"ARROW",
 	"REM_FEAR_POIS",
-	"STINKING_CLOUD",
+	"SOKN",
 	"STONE_TO_MUD",
 	"TELE_AWAY",
 	"WOR",
@@ -569,6 +569,9 @@ static cptr c_info_flags[] =
 };
 
 
+
+
+
 /*** Initialize from ascii template files ***/
 
 
@@ -611,7 +614,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
 		if (buf[0] == 'V')
 		{
 			int v1, v2, v3;
-
+			
 			/* Scan for the values */
 			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
 				(v1 != head->v_major) ||
@@ -2229,15 +2232,15 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, dev, sav, stl, srh, fos, thn, thb;
+		int dis, dev, sav, stl, srh, fos, thn, thb, rlb;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+		if (9 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d",
 			            &dis, &dev, &sav, &stl,
-			            &srh, &fos, &thn, &thb)) return (PARSE_ERROR_GENERIC);
+			            &srh, &fos, &thn, &thb, &rlb)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_dis = dis;
@@ -2248,6 +2251,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_fos = fos;
 		pr_ptr->r_thn = thn;
 		pr_ptr->r_thb = thb;
+		pr_ptr->r_rlb = rlb; // lame hack, I know.
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
@@ -2541,15 +2545,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'I' for "Info" (one line only) */
 	else if (buf[0] == 'I')
 	{
-		int mhp, exp, sense_div;
+		int mhp, exp, sense_div, m_meter, mstudent;
 		long sense_base;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%ld:%d",
-			            &mhp, &exp, &sense_base, &sense_div))
+		if (6 != sscanf(buf+2, "%d:%d:%ld:%d:%d:%d",
+			            &mhp, &exp, &sense_base, &sense_div, &m_meter, &mstudent))
 			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -2557,6 +2561,8 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_exp = exp;
 		pc_ptr->sense_base = sense_base;
 		pc_ptr->sense_div = sense_div;
+		pc_ptr->c_mmt = m_meter;
+		pc_ptr->mstudent = mstudent;
 	}
 
 	/* Process 'A' for "Attack Info" (one line only) */
@@ -2599,6 +2605,35 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->spell_first = spell_first;
 		pc_ptr->spell_weight = spell_weight;
 	}
+/*
+		// Process 'Z' for Student Magical Powers 
+	else if (buf[0] == 'Z')
+	{
+		int spell, mana;
+		player_power *pp_ptr;
+		power_type *spell_ptr;
+
+		/* There better be a current pc_ptr 
+		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Scan for the values 
+		if (2 != sscanf(buf+2, "%d:%d",
+		                &spell, &mana))
+			return (PARSE_ERROR_GENERIC);
+
+		/* Validate the spell index 
+		if ((spell >= STUDENT_MAX) || (spell < 0))
+			return (PARSE_ERROR_OUT_OF_BOUNDS);
+
+		pp_ptr = &pc_ptr->powers;
+		spell_ptr = &pp_ptr->info[spell];
+
+		/* Save the values 
+		spell_ptr->smana = mana;
+		
+	}
+	*/
+
 
 	/* Process 'B' for "Spell/Prayer book info" */
 	else if (buf[0] == 'B')

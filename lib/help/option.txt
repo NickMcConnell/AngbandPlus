@@ -540,7 +540,7 @@ Randomize some of the artifacts    [birth_rand_artifacts]
      ones. This is intended primarily for people who have played enough to
      know what most of the standard artifacts do and have got bored with
      them.  Note that savefiles with random artifacts are not guaranteed
-     to be compatible between different Angband versions!
+     to be compatible between different Animeband versions!
 
 
 === Option Set 6 -- Cheating Options ===

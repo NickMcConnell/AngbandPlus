@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -154,6 +154,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_MECHA:
 		{
 			return (TRUE);
 		}
@@ -846,7 +847,7 @@ static const s16b convert_old_kinds_normal[501] =
 	327,		/* a Staff of Holiness */
 	328,		/* a Staff of Enlightenment */
 	329,		/* a Staff of Healing */
-	330,		/* a Book of Magic Spells [Magic for Beginners] */
+	330,		/* a Book of Magic Spells [Magic for Dummies] */
 	331,		/* a Book of Magic Spells [Conjurings and Tricks] */
 	332,		/* a Book of Magic Spells [Incantations and Illusions] */
 	333,		/* a Book of Magic Spells [Sorcery and Evocations] */
@@ -1761,7 +1762,7 @@ static void rd_extra_old(void)
 	}
 
 	/* Strip the old "current stats" */
-	if (older_than(2, 5, 7))
+	if (older_than(0, 5, 0))
 	{
 		strip_bytes(12);
 	}
@@ -1794,6 +1795,10 @@ static void rd_extra_old(void)
 	rd_s16b(&p_ptr->invuln);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
+	rd_s16b(&p_ptr->s_sayian);
+	rd_s16b(&p_ptr->geneijin);
+	rd_s16b(&p_ptr->ouroborous);
+	rd_s16b(&p_ptr->kekkai);
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->oppose_fire);
@@ -1808,7 +1813,7 @@ static void rd_extra_old(void)
 	strip_bytes(38); /* temporary stuff */
 
 	/* Oops -- old "resist fear" code */
-	if (!older_than(2, 6, 0)) strip_bytes(1);
+	if (!older_than(0, 4, 0)) strip_bytes(1);
 
 	/* Old "missile counter */
 	strip_bytes(2);
@@ -1818,7 +1823,7 @@ static void rd_extra_old(void)
 	if (turn < 0) turn = 0;
 
 	/* Last turn */
-	if (older_than(2, 6, 0))
+	if (older_than(0, 5, 0))
 	{
 		old_turn = turn;
 	}
@@ -1943,7 +1948,7 @@ static errr rd_dungeon_old(void)
 		}
 
 		/* Strip the index */
-		if (older_than(2, 6, 0))
+		if (older_than(0, 5, 0))
 		{
 			strip_bytes(1);
 		}
@@ -2359,7 +2364,7 @@ static errr rd_dungeon_old(void)
 		rd_s16b(&n_ptr->hp);
 
 		/* Strip max hitpoints */
-		if (!older_than(2, 6, 0)) strip_bytes(2);
+		if (!older_than(0, 4, 0)) strip_bytes(2);
 
 		/* Current sleep counter */
 		rd_s16b(&n_ptr->csleep);
@@ -2382,7 +2387,7 @@ static errr rd_dungeon_old(void)
 		strip_bytes(4);
 
 		/* Fear */
-		if (!older_than(2, 6, 0)) strip_bytes(1);
+		if (!older_than(0, 4, 0)) strip_bytes(1);
 
 		/* Old "color" data */
 		if (arg_colour) strip_bytes(1);
@@ -2453,7 +2458,7 @@ static void rd_options_old(void)
 	p_ptr->is_dead = (tmp32u & 0x80000000) ? TRUE : FALSE;
 
 	/* Hack -- Unused options */
-	if (!older_than(2, 6, 0)) strip_bytes(12);
+	if (!older_than(0, 4, 0)) strip_bytes(12);
 }
 
 
@@ -2597,7 +2602,7 @@ static errr rd_savefile_old_aux(void)
 
 
 	/* Mega-Hack */
-	if (older_than(2, 5, 2))
+	if (older_than(0, 5, 0))
 	{
 		/* Allow use of old MacAngband 1.0 and 2.0.3 savefiles */
 		if (get_check("Are you using an old Macintosh savefile? "))
@@ -2789,7 +2794,7 @@ static errr rd_savefile_old_aux(void)
 	for (i = 0; i < 50; i++) rd_s16b(&p_ptr->player_hp[i]);
 
 	/* Strip silly hitpoint information */
-	if (!older_than(2, 6, 2)) strip_bytes(98);
+	if (!older_than(0, 4, 0)) strip_bytes(98);
 
 	note("Loaded some more information");
 

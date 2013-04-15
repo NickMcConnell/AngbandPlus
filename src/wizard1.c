@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef ALLOW_SPOILERS
@@ -94,6 +94,7 @@ static const grouper group_item[] =
 	{ TV_CROWN,		  NULL },
 	{ TV_GLOVES,	  NULL },
 	{ TV_BOOTS,		  NULL },
+	{ TV_MECHA,		  NULL },
 
 	{ TV_AMULET,	"Amulets" },
 	{ TV_RING,		"Rings" },
@@ -400,6 +401,7 @@ static const grouper group_artifact[] =
 	{ TV_CROWN,		  NULL },
 	{ TV_GLOVES,	"Gloves" },
 	{ TV_BOOTS,		"Boots" },
+	{ TV_MECHA,     "Mechas" },
 
 	{ TV_LITE,		"Light Sources" },
 	{ TV_AMULET,	"Amulets" },
@@ -1835,11 +1837,11 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
 		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
+		if (flags6 & (RF6_DIVINE_COMEDY))     vp[vn++] = "invoke Divine Comedy";
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))              vp[vn++] = "do something";
+		if (flags6 & (RF6_S_DRAGON_SLAVE))    vp[vn++] = "invoke Dragon Slave";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon similar monsters";
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";

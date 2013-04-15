@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -1839,11 +1839,21 @@ bool place_monster(int y, int x, bool slp, bool grp)
  */
 bool alloc_monster(int dis, bool slp)
 {
+
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int y, x;
 	int	attempts_left = 10000;
+
+
+	 /* Kekkai prevents monster allocation */
+	if (p_ptr->kekkai){
+
+		return FALSE;
+
+	}
 
 	/* Find a legal, distant, unoccupied, space */
 	while (--attempts_left)
@@ -2031,6 +2041,12 @@ static bool summon_specific_okay(int r_idx)
 bool summon_specific(int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
+
+	/* Kekkai prevents all summoning */
+	if (p_ptr->kekkai) {
+
+		return FALSE;
+	}
 
 
 	/* Look for a location */

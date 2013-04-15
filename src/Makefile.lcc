@@ -92,7 +92,7 @@ z-util.obj: $(Z-UTIL_C) z-util.c
 
 # Build Z-TERM.C
 Z-TERM_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -139,7 +139,7 @@ z-form.obj: $(Z-FORM_C) z-form.c
 
 # Build XTRA2.C
 XTRA2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -160,7 +160,7 @@ xtra2.obj: $(XTRA2_C) xtra2.c
 
 # Build XTRA1.C
 XTRA1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -181,7 +181,7 @@ xtra1.obj: $(XTRA1_C) xtra1.c
 
 # Build WIZARD2.C
 WIZARD2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -202,7 +202,7 @@ wizard2.obj: $(WIZARD2_C) wizard2.c
 
 # Build WIZARD1.C
 WIZARD1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -223,7 +223,7 @@ wizard1.obj: $(WIZARD1_C) wizard1.c
 
 # Build VARIABLE.C
 VARIABLE_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -244,7 +244,7 @@ variable.obj: $(VARIABLE_C) variable.c
 
 # Build UTIL.C
 UTIL_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -265,7 +265,7 @@ util.obj: $(UTIL_C) util.c
 
 # Build TABLES.C
 TABLES_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -286,7 +286,7 @@ tables.obj: $(TABLES_C) tables.c
 
 # Build STORE.C
 STORE_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -307,7 +307,7 @@ store.obj: $(STORE_C) store.c
 
 # Build SPELLS2.C
 SPELLS2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -328,7 +328,7 @@ spells2.obj: $(SPELLS2_C) spells2.c
 
 # Build SPELLS1.C
 SPELLS1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -349,7 +349,7 @@ spells1.obj: $(SPELLS1_C) spells1.c
 
 # Build SAVE.C
 SAVE_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -377,7 +377,7 @@ readdib.obj: $(READDIB_C) readdib.c
 
 # Build OBJECT2.C
 OBJECT2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -398,7 +398,7 @@ object2.obj: $(OBJECT2_C) object2.c
 
 # Build OBJECT1.C
 OBJECT1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -419,7 +419,7 @@ object1.obj: $(OBJECT1_C) object1.c
 
 # Build MONSTER2.C
 MONSTER2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -440,7 +440,7 @@ monster2.obj: $(MONSTER2_C) monster2.c
 
 # Build MONSTER1.C
 MONSTER1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -461,7 +461,7 @@ monster1.obj: $(MONSTER1_C) monster1.c
 
 # Build MELEE2.C
 MELEE2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -482,7 +482,7 @@ melee2.obj: $(MELEE2_C) melee2.c
 
 # Build MELEE1.C
 MELEE1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -503,7 +503,7 @@ melee1.obj: $(MELEE1_C) melee1.c
 
 # Build MAIN-WIN.C
 MAIN-WIN_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -525,7 +525,7 @@ main-win.obj: $(MAIN-WIN_C) main-win.c
 
 # Build LOAD1.C
 LOAD1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -546,7 +546,7 @@ load1.obj: $(LOAD1_C) load1.c
 
 # Build LOAD2.C
 LOAD2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -567,7 +567,7 @@ load2.obj: $(LOAD2_C) load2.c
 
 # Build INIT2.C
 INIT2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -588,7 +588,7 @@ init2.obj: $(INIT2_C) init2.c
 
 # Build INIT1.C
 INIT1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -609,7 +609,7 @@ init1.obj: $(INIT1_C) init1.c
 
 # Build GENERATE.C
 GENERATE_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -630,7 +630,7 @@ generate.obj: $(GENERATE_C) generate.c
 
 # Build FILES.C
 FILES_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -651,7 +651,7 @@ files.obj: $(FILES_C) files.c
 
 # Build DUNGEON.C
 DUNGEON_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -672,7 +672,7 @@ dungeon.obj: $(DUNGEON_C) dungeon.c
 
 # Build CMD6.C
 CMD6_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -693,7 +693,7 @@ cmd6.obj: $(CMD6_C) cmd6.c
 
 # Build CMD5.C
 CMD5_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -714,7 +714,7 @@ cmd5.obj: $(CMD5_C) cmd5.c
 
 # Build CMD4.C
 CMD4_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -735,7 +735,7 @@ cmd4.obj: $(CMD4_C) cmd4.c
 
 # Build CMD3.C
 CMD3_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -756,7 +756,7 @@ cmd3.obj: $(CMD3_C) cmd3.c
 
 # Build CMD2.C
 CMD2_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -777,7 +777,7 @@ cmd2.obj: $(CMD2_C) cmd2.c
 
 # Build CMD1.C
 CMD1_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -798,7 +798,7 @@ cmd1.obj: $(CMD1_C) cmd1.c
 
 # Build CAVE.C
 CAVE_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -819,7 +819,7 @@ cave.obj: $(CAVE_C) cave.c
 
 # Build BIRTH.C
 BIRTH_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\
@@ -840,7 +840,7 @@ birth.obj: $(BIRTH_C) birth.c
 
 # Build RANDART.C
 RANDART_C=\
-	angband.h\
+	animeband.h\
 	h-basic.h\
 	h-config.h\
 	h-system.h\

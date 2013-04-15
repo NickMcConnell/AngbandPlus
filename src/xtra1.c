@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -226,6 +226,14 @@ static void prt_gold(void)
 }
 
 
+static void prt_meter(void) {  
+	char tmp[32];
+	put_str("MTR:", ROW_METER, COL_METER);
+	sprintf(tmp, "%5d||%5d", p_ptr->c_meter, p_ptr->m_meter);
+	c_put_str(TERM_L_GREEN, tmp, ROW_METER, COL_METER);
+
+
+}
 
 /*
  * Prints current AC
@@ -344,6 +352,20 @@ static void prt_depth(void)
 
 	/* Right-Adjust the "depth", and clear old values */
 	prt(format("%7s", depths), 23, COL_DEPTH);
+}
+
+static void prt_drunk(void)
+{
+	if (p_ptr->c_alcohol > PY_ALCOHOL_MAX)
+	{
+		c_put_str(TERM_RED, "Drunk", ROW_DRUNK, COL_DRUNK);
+
+	}
+	else
+	{
+		put_str("   ", ROW_DRUNK, COL_DRUNK);
+	}
+
 }
 
 
@@ -802,6 +824,12 @@ static void prt_frame_basic(void)
 
 	/* Gold */
 	prt_gold();
+
+	/* Drunk */
+	prt_drunk();
+
+	/* Meter */
+	prt_meter();
 
 	/* Current depth */
 	prt_depth();
@@ -1582,6 +1610,8 @@ static void calc_hitpoints(void)
 		/* Display hitpoints (later) */
 		p_ptr->redraw |= (PR_HP);
 
+		
+
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 	}
@@ -1679,6 +1709,7 @@ static int weight_limit(void)
 static void calc_bonuses(void)
 {
 	int i, j, hold;
+	int counter;
 
 	int old_speed;
 
@@ -1751,6 +1782,8 @@ static void calc_bonuses(void)
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 
 	/* Clear all the flags */
+//	p_ptr->mag_student = FALSE;
+	p_ptr->summon = FALSE;
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
@@ -1846,6 +1879,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 	/* Bad flags */
+	if (f3 & (TR3_SUMMON)) p_ptr->summon = TRUE;
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
@@ -1946,6 +1980,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 		/* Bad flags */
+		if (f3 & (TR3_SUMMON)) p_ptr->summon = TRUE;
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
@@ -2111,6 +2146,47 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a -= 10;
 	}
 
+	/* Temporary "Super Saiyan" */
+	if (p_ptr->s_sayian)
+	{
+		p_ptr->to_h += p_ptr->lev * 2;
+		p_ptr->dis_to_h += p_ptr->lev * 2;
+		p_ptr->to_d += p_ptr->lev * 2;
+		p_ptr->dis_to_d += p_ptr->lev * 2;
+		p_ptr->to_a += p_ptr->lev;
+		p_ptr->dis_to_a += p_ptr->lev;
+		p_ptr->pspeed += 30;
+		p_ptr->food = PY_FOOD_MAX - 1;
+	}
+	
+	/* Magic Student */
+	if (p_ptr->mag_student)
+	{
+		
+		p_ptr->to_h += p_ptr->lev;
+		p_ptr->dis_to_h += p_ptr->lev;
+		p_ptr->to_d += p_ptr->lev;
+		p_ptr->dis_to_d += p_ptr->lev;
+		p_ptr->to_a += p_ptr->lev;
+		p_ptr->dis_to_a += p_ptr->lev;
+		p_ptr->pspeed += p_ptr->lev / 10;
+	
+	}
+
+	/* Temporary "Kekkai" */
+	if (p_ptr->kekkai)
+	{
+		(void)kekkai();
+	}
+	/* Temporary Orbs*/
+	if (p_ptr->ouroborous)
+	{
+		for (counter = 1; counter < 10; counter++){
+			fire_bolt(GF_MISSILE, counter , damroll(2, 6));
+		}
+
+	}
+
 	/* Temporary "fast" */
 	if (p_ptr->fast)
 	{
@@ -2139,7 +2215,7 @@ static void calc_bonuses(void)
 	/*** Special flags ***/
 
 	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero)
+	if (p_ptr->hero || p_ptr->shero || p_ptr->s_sayian)
 	{
 		p_ptr->resist_fear = TRUE;
 	}
@@ -2149,6 +2225,16 @@ static void calc_bonuses(void)
 
 	/* Extract the current weight (in tenth pounds) */
 	j = p_ptr->total_weight;
+
+	/* MEGA HACK - For Mechas */
+	/* Get the wield slot */
+	o_ptr = &inventory[INVEN_MECHA];
+
+		if (o_ptr->k_idx)
+	{
+		/* Subtract weight.  What a dumbass solution */
+		j -= 30000;
+	}
 
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
@@ -2387,6 +2473,11 @@ static void calc_bonuses(void)
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+
+		/* Temporary Genei Jin */
+		if (p_ptr->geneijin){
+			p_ptr->num_blow = p_ptr->num_blow * 3;
+		}
 
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);
@@ -2788,6 +2879,13 @@ void redraw_stuff(void)
 		prt_depth();
 	}
 
+	
+	if (p_ptr->redraw & (PR_METER))
+	{
+		p_ptr->redraw &= ~(PR_METER);
+		prt_meter();
+	}
+
 	if (p_ptr->redraw & (PR_HEALTH))
 	{
 		p_ptr->redraw &= ~(PR_HEALTH);
@@ -2800,6 +2898,7 @@ void redraw_stuff(void)
 		p_ptr->redraw &= ~(PR_EXTRA);
 		p_ptr->redraw &= ~(PR_CUT | PR_STUN);
 		p_ptr->redraw &= ~(PR_HUNGER);
+		p_ptr->redraw &= ~(PR_DRUNK);
 		p_ptr->redraw &= ~(PR_BLIND | PR_CONFUSED);
 		p_ptr->redraw &= ~(PR_AFRAID | PR_POISONED);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY);
@@ -2816,6 +2915,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_STUN);
 		prt_stun();
+	}
+
+	if (p_ptr->redraw & (PR_DRUNK))
+	{
+		p_ptr->redraw &= ~(PR_DRUNK);
+		prt_drunk();
 	}
 
 	if (p_ptr->redraw & (PR_HUNGER))

@@ -71,7 +71,7 @@
  * Additional code by Robert Ruehlmann <rr9@angband.org>.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 #ifdef WINDOWS
@@ -86,7 +86,7 @@
 # define HELP_GENERAL "angband.chm"
 # define HELP_SPOILERS "angband.chm"
 #else /* HTML_HELP */
-# define HELP_GENERAL "angband.hlp"
+# define HELP_GENERAL "animeband.hlp"
 # define HELP_SPOILERS "spoilers.hlp"
 #endif /* HTML_HELP */
 

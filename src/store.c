@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 
@@ -739,6 +739,7 @@ static bool store_will_buy(const object_type *o_ptr)
 				case TV_SOFT_ARMOR:
 				case TV_HARD_ARMOR:
 				case TV_DRAG_ARMOR:
+				case TV_MECHA:
 				break;
 				default:
 				return (FALSE);

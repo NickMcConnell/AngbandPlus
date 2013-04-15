@@ -8,7 +8,7 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
 
 /*
@@ -296,6 +296,20 @@ static void get_extra(void)
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
+	/* Meter Manipulation */
+	p_ptr->c_meter = 0;
+	p_ptr->m_meter = cp_ptr->c_mmt;
+
+	/* Student transform */
+	p_ptr->mstudent = cp_ptr->mstudent;
+
+	/* Alcohol Level */
+	p_ptr->c_alcohol = 0;
+
+
+	/* Limit Break Type */
+	p_ptr->l_break = rp_ptr->r_rlb;
+
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
 
@@ -575,6 +589,8 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
+	
+
 
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
@@ -604,6 +620,14 @@ static void player_outfit(void)
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
+
+	/* Give player some alcohol */
+	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_BOTTLE_OF_SAKE));
+	i_ptr->number = (byte)rand_range(1, 3);
+	object_aware(i_ptr);
+	object_known(i_ptr);
+	(void)inven_carry(i_ptr);
+
 
 
 	/* Get local object */
@@ -844,6 +868,55 @@ static bool player_birth_aux_1(void)
 	/* Class */
 	put_str("Class", 5, 1);
 	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
+
+	/* Clean up */
+	clear_from(15);
+
+	/*** Player Groove ***/
+	/* I'm not sure how this works...so I'll just ghettoize it for now */
+	/* This should definitely be cleaned up */
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"Your fighting style will affect how you build meter and other things.");
+
+	/* Prompt for Groove */
+	for (n = 0; n < G_MAX; n++)
+	{
+		/* Analyze */
+		
+		str = Grooves[n];
+
+		/* Display */
+		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+	}
+
+	/* Choose */
+	while (1)
+	{
+		sprintf(buf, "Choose a Style (%c-%c, or * for random): ",
+		        I2A(0), I2A(n-1));
+		put_str(buf, 20, 2);
+		ch = inkey();
+		if (ch == 'Q') quit(NULL);
+		if (ch == 'S') return (FALSE);
+		k = (islower(ch) ? A2I(ch) : -1);
+		if (ch == ESCAPE) ch = '*';
+		if (ch == '*') k = rand_int(G_MAX);
+		if ((k >= 0) && (k < n)) break;
+		if (ch == '?') do_cmd_help();
+		else bell("Illegal Groove!");
+	}
+
+	/* Set groove */
+	p_ptr->pgroove = k;
+	
+
+	/* Display Groove */
+	put_str("Style", 6, 1);
+	c_put_str(TERM_L_BLUE, Grooves[p_ptr->pgroove], 6, 8);
+
 
 	/* Clean up */
 	clear_from(15);

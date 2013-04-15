@@ -8,8 +8,46 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+#include "animeband.h"
 
+
+// Set meter
+
+bool set_meter(int v)
+{
+
+bool notice = TRUE;
+
+	/* Hack -- Force good values */
+	v = (v > p_ptr->m_meter) ? p_ptr->m_meter : (v < 0) ? 0 : v;
+
+	
+	p_ptr->c_meter = v;
+
+	if (p_ptr->c_meter > p_ptr->m_meter){
+
+		p_ptr->c_meter = p_ptr->m_meter;
+		notice = FALSE;
+	}
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Display the Meter */
+	p_ptr->redraw |= (PR_METER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 
 /*
@@ -435,6 +473,7 @@ bool set_slow(int v)
 /*
  * Set "p_ptr->shield", notice observable changes
  */
+
 bool set_shield(int v)
 {
 	bool notice = FALSE;
@@ -464,6 +503,51 @@ bool set_shield(int v)
 
 	/* Use the value */
 	p_ptr->shield = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_kekkai(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->kekkai)
+		{
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->kekkai)
+		{
+			msg_print("Your kekkai crumbles away.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->kekkai = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -631,7 +715,177 @@ bool set_shero(int v)
 	/* Result */
 	return (TRUE);
 }
+/* Set Orbs!*/
+bool set_ouroborous(int v)
+{
+	bool notice = FALSE;
 
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->ouroborous)
+		{
+			msg_print("Orbs of pure energy start to float about you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->ouroborous)
+		{
+			msg_print("The orbs dissipate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->ouroborous = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+/* Set Genei Jin */
+bool set_geneijin(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->geneijin)
+		{
+			msg_print("Several shadow copies of yourself trail behind you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->geneijin)
+		{
+			msg_print("The shadows dissipate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->geneijin = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->set_mag_student", notice changes */
+
+bool set_mag_student()
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	//v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	if (p_ptr->csp < 1) {
+		msg_print ("You revert back to normal!");
+		notice = TRUE;
+		p_ptr->mag_student = FALSE;
+	}
+
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_MANA | PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/* Set "p_ptr->s_sayian", notice changes */
+
+bool set_s_sayian(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->s_sayian)
+		{
+			msg_print("Your hair turns golden!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->s_sayian)
+		{
+			msg_print("Your hair returns to normal");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->s_sayian = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->protevil", notice observable changes
@@ -1643,6 +1897,103 @@ bool set_food(int v)
 }
 
 
+bool set_drunk(int v)
+{
+	int old_aux, new_aux;
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
+
+	/* Sober */
+	if (p_ptr->c_alcohol < PY_ALCOHOL_MAX)
+	{
+		old_aux = 0;
+	}
+
+	/* Drunk */
+	else 
+	{
+		old_aux = 1;
+	}
+	
+
+	/* Sober */
+	if (v < PY_ALCOHOL_MAX)
+	{
+		new_aux = 0;
+	}
+
+	/* Drunk */
+	else
+	{
+		new_aux = 1;
+	}
+
+	
+	/* Alcohol increase */
+	if (new_aux > old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+			/* Weak */
+			case 1:
+			{
+				msg_print("Oh man, you are plastered!");
+				break;
+			}
+	
+		}
+
+		/* Change */
+		notice = TRUE;
+	}
+
+	/* Alcohol decrease */
+	else if (new_aux < old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+			/* Sober */
+			case 0:
+			{
+				msg_print("You feel sober again");
+				break;
+			}
+
+			
+		}
+
+		/* Change */
+		notice = TRUE;
+	}
+
+	/* Use the value */
+	p_ptr->c_alcohol = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw drunk */
+	p_ptr->redraw |= (PR_DRUNK);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
 
 
 
@@ -2174,8 +2525,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Generate treasure */
 		monster_death(m_idx);
 
-		/* When the player kills a Unique, it stays dead */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+		/* When the player kills a Unique, it stays dead (unless it can respawn - Death Exception)*/
+		if (r_ptr->flags1 & (RF1_UNIQUE) & !(RF2_RESPAWN)) r_ptr->max_num = 0;
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
