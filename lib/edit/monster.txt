@@ -156,7 +156,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 ##### Non-race (contains the "player" picture) #####
@@ -726,7 +726,7 @@ F:EVIL
 D:A weird looking, depraved creature with the desire to ruin other people's 
 D:lives.
 
-N:53:Green ooze
+N:53:Green Puyo
 G:j:g
 I:120:3d4:8:16:80
 W:3:2:0:4
@@ -735,7 +735,7 @@ F:RAND_50 | RAND_25 | DROP_90 |
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It's green and it's oozing.
+D:An apathetic Puyo that wanders about.
 
 N:54:Poltergeist
 G:G:W
@@ -1046,7 +1046,7 @@ F:INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | NO_CONF | NO_SLEEP
 D:It is a very ugly green ghost with a voracious appetite.
 
-N:81:Green jelly
+N:81:Green Jelly
 G:j:g
 I:120:22d8:2:1:99
 W:5:1:0:18
@@ -1290,16 +1290,16 @@ F:TAKE_ITEM | BASH_DOOR |
 F:EVIL
 D:A large pink snake with a woman's torso.
 
-N:103:Pink jelly
-G:j:R
+N:103:Red Puyo
+G:j:r
 I:110:26d8:2:1:99
 W:7:1:0:26
-B:TOUCH:LOSE_STR:1d5
-F:NEVER_MOVE | 
+B:TOUCH:FIRE:1d5
+F:RAND_50 | RAND_25 | DROP_90 | 
 F:STUPID | EMPTY_MIND | 
-F:HURT_LITE | 
+F:HURT_LITE | IM_FIRE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a large pulsating mound of red flesh.
+D:The angry puyo that frightens explorers.
 
 N:104:Giant pink frog
 G:R:R
@@ -1881,7 +1881,7 @@ I:130:2d2:8:14:10
 W:10:6:0:4
 B:HIT:HURT:1d2
 F:RAND_50 | RAND_25 | 
-F:FRIENDS | MULTIPLY | WEIRD_MIND | 
+F:FRIENDS | WEIRD_MIND | 
 D:A paper bird.
 
 N:149:Panther
@@ -1972,18 +1972,17 @@ F:BASH_DOOR |
 F:ANIMAL | IM_POIS
 D:It has glistening black skin, a sleek body and highly venomous fangs.
 
-N:156:White wolf
+N:156:Remodeled puppy
 G:C:w
-I:120:7d7:30:30:20
+I:120:14d14:30:30:20
 W:12:1:0:30
 B:BITE:HURT:1d3
 B:BITE:HURT:1d4
 F:RAND_25 | 
-F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_COLD
-D:A large and muscled wolf from the northern wastes.  Its breath is cold and 
-D:icy and its fur coated in frost.
+F:ANIMAL |
+D:An alien creature that is disguised as a cute puppy so that it can bait its prey
+D:to come towards it.
 
 N:157:Grape jelly
 G:j:v
@@ -2291,7 +2290,7 @@ F:ANIMAL
 D:It makes you itch just to look at it.
 
 N:181:Your Doppelganger
-G:@:d
+G:@:W
 I:110:32d10:20:50:20
 W:14:3:0:200
 B:HIT:HURT:3d4
@@ -2939,20 +2938,17 @@ S:BR_GRAV
 D:A power user who also happens to be the bodyguard for Ruri, the
 D:Maiden of Life.  She is rumored to have the power of gravity.
 
-N:229:Shambling mound
+N:229:Mandrake
 G:,:W
 I:110:20d6:20:16:40
 W:18:2:0:75
-B:HIT:HURT:1d8
-B:HIT:HURT:1d8
-F:ONLY_GOLD | DROP_90 | 
+B:HIT:POISON:1d8
+B:HIT:POISON:1d8
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_4 | 
-S:SHRIEK
-D:A pile of rotting vegetation that slides towards you with a disgusting 
-D:stench, waking all it nears.
+S:1_IN_1 | 
+S:SHRIEK | 
+D:A walking herb of death.
 
 N:230:Stone giant
 G:P:W
@@ -3983,7 +3979,7 @@ S:1_IN_5 |
 S:SCARE | BA_POIS
 D:A strange reptilian hybrid with five heads dripping venom.
 
-N:303:Black knight
+N:303:Hentai tentacle monster
 G:p:s
 I:120:30d10:20:70:10
 W:28:1:0:240
@@ -3996,8 +3992,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
-D:He is a figure encased in deep black plate armour; he looks at you 
-D:menacingly.
+D:The bane of women and young girls everywhere.
 
 N:304:The Walking Daikon
 G:P:w
@@ -8165,7 +8160,7 @@ S:S_HOUND
 D:The guardian wolf of Mononoke Hime, Moro hates mortals.
 
 N:545:Death
-G:W:d
+G:W:D
 I:100:100d100:100:140:0
 W:26:5:0:83000
 B:HIT:LOSE_INT:99d99

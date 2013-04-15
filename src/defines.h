@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.1"
+#define VERSION_STRING	"0.5.2"
 
 
 /*
@@ -55,7 +55,7 @@
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	5
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 #define VERSION_EXTRA	0
 
 
@@ -1736,6 +1736,37 @@
 #define SV_FOOD_WAYBREAD		37
 #define SV_FOOD_BOTTLE_OF_SAKE	38
 #define SV_FOOD_PINT_OF_WINE	39
+#define SV_FOOD_FISH			40
+#define SV_FOOD_NOODLES			41
+#define SV_FOOD_DAIKON			42
+#define SV_FOOD_COLD_CUTS		43
+#define SV_FOOD_EGGS			44
+#define SV_FOOD_BOILED_FISH		45
+#define SV_FOOD_RAMEN			46
+#define SV_FOOD_DAIKON_MISO		47
+#define SV_FOOD_MEAT_STEW		48
+#define SV_FOOD_BOILED_EGGS		49
+#define SV_FOOD_LUTEFISK		50
+#define SV_FOOD_SLIMY_NOODLES	51
+#define SV_FOOD_KONYAKU_JELLY	52
+#define SV_FOOD_GELATIN_STEAK	53
+#define SV_FOOD_GREEN_EGGS		54
+#define SV_FOOD_SASHIMI			55
+#define SV_FOOD_FISH_POTSTICKER	56
+#define SV_FOOD_FISH_STEW		57
+#define SV_FOOD_BIRD_NEST_SOUP	58
+#define SV_FOOD_STEAMED_ASPIC	59
+#define SV_FOOD_CHOW_MEIN		60
+#define SV_FOOD_COLD_SOBA		61
+#define SV_FOOD_PEPPER_BEEF		62
+#define SV_FOOD_TEN_DON			63
+#define SV_FOOD_FRIED_DAIKON	64
+#define SV_FOOD_PEKING_DUCK		65
+#define SV_FOOD_DAIKON_YOGURT	66
+#define SV_FOOD_STRIP_STEAK		67
+#define SV_FOOD_CREAMY_STEW		68
+#define SV_FOOD_OMELET			69
+
 
 
 /*
@@ -2192,7 +2223,7 @@
 #define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
-#define TR3_XXX5			0x00100000L	/* (reserved) */
+#define TR3_COOKABLE		0x00100000L	/* Item is Cookable */
 #define TR3_XXX6			0x00200000L	/* (reserved) */
 #define TR3_BLESSED			0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */

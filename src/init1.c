@@ -459,7 +459,7 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
+	"COOKABLE",
 	"XXX6",
 	"BLESSED",
 	"ACTIVATE",

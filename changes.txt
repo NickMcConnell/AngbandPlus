@@ -1,4 +1,22 @@
-5/23/2003 - 
+7/11/03 - 
+Changes in Animeband 0.5.2:
+
+- Idiotic Paladin Glitch fixed
+- Fixed *really* abusable Student glitch, so now Student transform is no longer instant.
+  In exchange, student mana costs for the last two spells are lower.
+- It is now pointless to enchant Magic Swords, as the to hit and to dam will be level
+  deopendent.
+- Magic Knights toned down just slightly (probably not noticeable)
+- Sky Dragon Student and Magic Knight glitch fixed.  The exp needed to level up is now 
+  correct.
+- Black Market may sell some strange food stuffs.  That is fine.  It will be part of an
+  upcoming "Cooking" feature.
+- Some new monsters added -> I am running out of ideas.  Suggestions welcome.
+- Kamitori no longer spawn.
+
+
+
+5/23/2003 - 7/11/03
 Changes in Animeband 0.5.1:
 
 - ALL C++ STYLE COMMENTS ARE GONE! :o

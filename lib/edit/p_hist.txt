@@ -27,7 +27,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 N:1:2:10:25
@@ -96,11 +96,11 @@ N:7:8:100:35
 D:You are the only child 
 
 N:8:9:75:50
-D:of a Sayian 
+D:of a Sayajin 
 N:8:9:95:55
-D:of an elite Sayian 
+D:of an elite Sayajin 
 N:8:9:100:60
-D:of a Super Sayian 
+D:of a Super Sayajin 
 
 N:9:54:40:80
 D:Rogue.  

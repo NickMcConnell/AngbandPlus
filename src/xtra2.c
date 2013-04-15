@@ -2064,9 +2064,9 @@ void check_experience(void)
 
 			if (p_ptr->lev % 2 == 0){
 
-			o_ptr->to_h += 1;
-			o_ptr->to_d += 1;
-			o_ptr->to_a += 1;
+			o_ptr->to_h = p_ptr->lev / 2;
+			o_ptr->to_d = p_ptr->lev / 2;
+			o_ptr->to_a = p_ptr->lev / 2;
 
 			}
 

@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -235,7 +235,7 @@ G:,:g
 I:80:36:3000
 W:1:0:5:2
 A:1/1
-F:EASY_KNOW
+F:COOKABLE | EASY_KNOW
 
 N:25:& Moon Cake~
 G:,:B
@@ -1688,7 +1688,7 @@ I:75:0:200
 W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
-F:EASY_KNOW
+F:COOKABLE | EASY_KNOW
 
 N:225:Strength
 G:!:d
@@ -3494,3 +3494,184 @@ F:STR | INT | WIS | DEX | CON | CHR |
 F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:SHOW_MODS
 
+### Ingredients	###
+
+N:513:& Fillet~ of Fish
+G:,:o
+I:80:40:500
+W:0:0:10:500
+F:COOKABLE | EASY_KNOW
+
+N:514:& Sack~ of Noodles
+G:,:y
+I:80:41:145
+W:0:0:10:145
+F:COOKABLE | EASY_KNOW
+
+N:515:& Piece~ of Daikon
+G:,:w
+I:80:42:30
+W:0:0:10:30
+F:COOKABLE | EASY_KNOW
+
+N:516:& Sack~ of Assorted Cold Cuts
+G:,:r
+I:80:43:300
+W:0:0:10:300
+F:COOKABLE | EASY_KNOW
+
+N:517:& Egg~
+G:,:w
+I:80:44:10
+W:0:0:10:10
+F:COOKABLE | EASY_KNOW
+
+N:518:& Boiled Fish
+G:,:s
+I:80:45:2500
+W:0:0:10:525
+F:EASY_KNOW
+
+N:519:& Bowl~ of Ramen
+G:,:y
+I:80:46:7500
+W:0:0:10:200
+F:EASY_KNOW
+
+N:520:& Bowl~ of Daikon Miso
+G:,:r
+I:80:47:3000
+W:0:0:10:300
+F:EASY_KNOW
+
+N:521:& Bowl~ of Meat Stew
+G:,:s
+I:80:48:10000
+W:0:0:10:250
+F:EASY_KNOW
+
+N:522:& Boiled Egg~
+G:,:w
+I:80:49:20
+W:0:0:10:10
+F:EASY_KNOW
+
+N:523:& Fillet~ of Lutefisk
+G:,:s
+I:80:50:2000
+W:0:0:10:2000
+F:EASY_KNOW
+
+N:524:& Bowl~ of Slimy Noodles
+G:,:g
+I:80:51:3500
+W:0:0:10:145
+F:EASY_KNOW
+
+N:525:& Piece~ of Konyaku Jelly
+G:,:g
+I:80:52:200
+W:0:0:10:200
+F:EASY_KNOW
+
+N:526:& Gelatin Steak~
+G:,:g
+I:80:53:500
+W:0:0:10:500
+F:EASY_KNOW
+
+N:527:& Green Egg~
+G:,:g
+I:80:54:100
+W:0:0:10:100
+F:EASY_KNOW
+
+N:528:& Piece~ of Sashimi
+G:,:r
+I:80:55:2500
+W:0:0:10:5500
+F:EASY_KNOW
+
+N:529:& Fish Potsticker~
+G:,:b
+I:80:56:500
+W:0:0:10:500
+F:EASY_KNOW
+
+N:530:& Bowl~ of Fish Stew
+G:,:s
+I:80:57:470
+W:0:0:10:470
+F:EASY_KNOW
+
+N:531:& Bowl~ of Birds Nest Soup
+G:,:s
+I:80:58:1125
+W:0:0:10:1125
+F:EASY_KNOW
+
+N:532:& Bowl~ of Steamed Aspic
+G:,:s
+I:80:59:500
+W:0:0:10:500
+F:EASY_KNOW
+
+N:533:& Bowl~ of Chow Mein
+G:,:s
+I:80:60:575
+W:0:0:10:575
+F:EASY_KNOW
+
+N:534:& Bowl~ of Cold Soba
+G:,:s
+I:80:61:550
+W:0:0:10:550
+F:EASY_KNOW
+
+N:535:& Plate~ of Pepper Beef
+G:,:s
+I:80:62:595
+W:0:0:10:595
+F:EASY_KNOW
+
+N:536:& Bowl~ of Ten Don
+G:,:s
+I:80:63:15000
+W:0:0:10:300
+F:EASY_KNOW
+
+N:537:& Fried Daikon~
+G:,:w
+I:80:64:60
+W:0:0:10:60
+F:EASY_KNOW
+
+N:538:& Peking Duck~
+G:,:b
+I:80:65:2000
+W:0:0:10:2500
+F:EASY_KNOW
+
+N:539:& Daikon Yogurt~
+G:,:w
+I:80:66:200
+W:0:0:10:200
+F:EASY_KNOW
+
+N:540:& Strip Steak~
+G:,:b
+I:80:67:1000
+W:0:0:10:1000
+F:EASY_KNOW
+
+N:541:& Bowl~ of Creamy Stew
+G:,:s
+I:80:68:1200
+W:0:0:10:1200
+F:EASY_KNOW
+
+N:542:& Omelet
+G:,:s
+I:80:69:255
+W:0:0:10:255
+F:EASY_KNOW

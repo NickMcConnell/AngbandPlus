@@ -284,6 +284,18 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_BISCUIT:
 		case SV_FOOD_JERKY:
 		case SV_FOOD_SLIME_MOLD:
+		case SV_FOOD_FISH:
+		case SV_FOOD_NOODLES:
+		case SV_FOOD_DAIKON:
+		case SV_FOOD_COLD_CUTS:
+		case SV_FOOD_EGGS:
+		case SV_FOOD_MEAT_STEW:
+		case SV_FOOD_RAMEN:
+		case SV_FOOD_BOILED_FISH:
+		case SV_FOOD_BOILED_EGGS:
+		case SV_FOOD_SLIMY_NOODLES:
+		case SV_FOOD_FRIED_DAIKON:
+		case SV_FOOD_TEN_DON:
 		{
 			msg_print("That tastes good.");
 			ident = TRUE;
@@ -335,8 +347,170 @@ void do_cmd_eat_food(void)
 			ident = TRUE;
 			break;
 		}
-	}
 
+
+		case SV_FOOD_DAIKON_MISO:
+			{
+				msg_print("That tastes good.");
+				if (p_ptr->csp < p_ptr->msp)
+				{
+				p_ptr->csp += p_ptr->msp / 10;
+				
+				if (p_ptr->csp >= p_ptr->msp){
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				msg_print("Your feel your head clear.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				ident = TRUE;
+				}
+
+				break;
+			}
+
+		case SV_FOOD_LUTEFISK:
+			{
+				msg_print("You start to retch!");
+			take_hit(damroll(10, 10), "poisonous food");
+			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+			{
+				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
+				{
+					ident = TRUE;
+				}
+			}
+			(void)set_meter(p_ptr->c_meter + 1000);
+
+			break;
+			}
+
+		case SV_FOOD_KONYAKU_JELLY:
+			{
+				msg_print("That tastes good.");
+				hp_player((p_ptr->mhp * 4) / 10);
+				ident = TRUE;
+				break;
+			}
+		case SV_FOOD_GELATIN_STEAK:
+			{
+				msg_print("That tastes good.");
+				if (p_ptr->csp < p_ptr->msp)
+				{
+				p_ptr->csp += (p_ptr->msp * 6) / 10;
+				
+				if (p_ptr->csp >= p_ptr->msp){
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				msg_print("Your feel your head clear.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				ident = TRUE;
+				}
+
+				break;
+			}
+
+		case SV_FOOD_GREEN_EGGS:
+			{
+				msg_print("That tastes good.");
+				(void)set_meter(p_ptr->c_meter + 50);
+				set_poisoned(0);
+				ident = TRUE;
+				break;
+			}
+
+		case SV_FOOD_SASHIMI:
+			{
+				msg_print("That tastes...delicious.");
+				(void)set_meter(p_ptr->c_meter+2000);
+				hp_player((p_ptr->mhp * 7) / 10);
+				ident = TRUE;
+				break;
+			}
+
+		case SV_FOOD_FISH_POTSTICKER:
+		case SV_FOOD_PEKING_DUCK:
+		case SV_FOOD_CREAMY_STEW:
+			{
+				msg_print("That tastes good.");
+				hp_player((p_ptr->mhp * 7) / 10);
+				ident = TRUE;
+				break;
+			}
+
+		case SV_FOOD_BIRD_NEST_SOUP:
+			{
+				msg_print("That tastes good.");
+
+				if (p_ptr->csp < p_ptr->msp)
+				{
+				p_ptr->csp += (p_ptr->msp * 7) / 10;
+				
+				if (p_ptr->csp >= p_ptr->msp){
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				msg_print("Your feel your head clear.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				ident = TRUE;
+				}
+				
+				break;
+
+			}
+
+		case SV_FOOD_STEAMED_ASPIC:
+			{
+				msg_print("That tastes good.");
+				hp_player(p_ptr->mhp / 2);
+				ident = TRUE;
+				break;
+			}
+
+		case SV_FOOD_CHOW_MEIN:
+			{
+				msg_print("That tastes good.");
+				hp_player(p_ptr->mhp / 5);
+				ident = TRUE;
+				break;
+			}
+		case SV_FOOD_COLD_SOBA:
+			{
+				msg_print("That tastes good.");
+				hp_player(p_ptr->mhp / 4);
+				ident = TRUE;
+				break;
+			}
+		case SV_FOOD_PEPPER_BEEF:
+		case SV_FOOD_OMELET:
+			{
+				msg_print("That tastes good.");
+				hp_player(p_ptr->mhp / 3);
+				ident = TRUE;
+				break;
+			}
+		case SV_FOOD_DAIKON_YOGURT:
+			{
+				msg_print("That tastes good.");
+				set_poisoned(0);
+				set_blind(0);
+				set_afraid(0);
+				set_confused(0);
+				ident = TRUE;
+				break;
+			}
+		case SV_FOOD_STRIP_STEAK:
+			{
+				msg_print("That tastes good.");
+				hp_player((p_ptr->mhp * 4)/5);
+				ident = TRUE;
+				break;
+			}
+	}
+	
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1059,6 +1233,15 @@ static bool curse_weapon(void)
 	/* Notice */
 	return (TRUE);
 }
+
+
+/* Cook an object (from the pack or floor)*/
+void do_cmd_cook(void)
+{
+
+
+}
+
 
 
 /*

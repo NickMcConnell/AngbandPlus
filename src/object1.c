@@ -2407,6 +2407,11 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		info[i++] = "It has been blessed by the gods.";
 	}
 
+	if (f3 & (TR3_COOKABLE))
+	{
+		info[i++] = "It is cookable.";
+	}
+
 	if (object_known_p(o_ptr) && cursed_p(o_ptr))
 	{
 		if (f3 & (TR3_PERMA_CURSE))

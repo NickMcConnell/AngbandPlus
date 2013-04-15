@@ -11,14 +11,14 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 # Maximum number of feature types
 M:F:64
 
 # Maximum number of object kinds
-M:K:513
+M:K:543
 
 # Maximum number of artifacts
 M:A:128

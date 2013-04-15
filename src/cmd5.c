@@ -2467,7 +2467,7 @@ cptr mag_powers[STUDENT_MAX] =
 	"Genei Jin",
 };
 
-int power_mana[STUDENT_MAX] = {1,5,15,20,25,30,40,50,100,120};
+int power_mana[STUDENT_MAX] = {1,5,15,20,25,30,40,50,70,100};
 	byte line_attr = TERM_WHITE;
 
 	/* int spell, dir;*/

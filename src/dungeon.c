@@ -1538,7 +1538,7 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			if (p_ptr->pclass == C_PRIEST){
+			if ((p_ptr->pclass == C_PRIEST) || (p_ptr->pclass == C_PALADIN)){
 				do_cmd_pray();
 				break;
 			}
@@ -1608,6 +1608,7 @@ static void process_command(void)
 					msg_print("You switch back to normal.");
 					p_ptr->mag_student = FALSE;
 					p_ptr->update |= (PU_BONUS);
+					p_ptr->energy_use = 100;
 					handle_stuff();
 					break;
 				}
@@ -1624,6 +1625,9 @@ static void process_command(void)
 					p_ptr->mag_student = TRUE;
 					/* Recalculate bonuses */
 					p_ptr->update |= (PU_BONUS);
+					/* Take a turn */
+					p_ptr->energy_use = 100;
+
 					handle_stuff();
 					
 				}

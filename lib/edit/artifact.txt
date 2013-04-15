@@ -56,7 +56,7 @@
 
 # Version stamp (required)
 
-V:0.5.1
+V:0.5.2
 
 
 
@@ -856,7 +856,7 @@ W:20:8:110:28000
 P:0:5d4:10:11:0
 F:DEX | STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | FEATHER | 
-F:SEE_INVIS | REGEN | SHOW_MODS | HEAVY_CURSE |
+F:SEE_INVIS | REGEN | SHOW_MODS | HEAVY_CURSE | ACTIVATE |
 A:SOKN:400:0
 
 # The Executioner's Sword of Oishi Kuranosuke
