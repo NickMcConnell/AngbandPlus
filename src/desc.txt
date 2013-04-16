@@ -1,0 +1,112 @@
+
+
+In Angband 2.9.0 and all Variants I know, customization by use of the 
+*_info.txt files is easy. Monster properties can be changed, artifact 
+properties can be changed, and in a free slot, a new monster, object or 
+artifact can be added. The things that can not be changed by use of *_info.txt
+files are the hardcoded activations of the artifacts and most of the properties
+of the ego-items. It is currently impossible to add an ego-item without
+recompiling because the ego-item generation (the "choice" of which ego-item to
+generate is a hardcoded switch(randint()).
+
+For this reason, I have patched the source so ego-item generation is no longer
+hardcoded, but works on the lines of the level/rarity concept of the object and
+monster generation code. In fact, I more or less cloned that code.
+
+The advantages of this patch are:
+
+- It is easy to add new ego-items, as long as MAX_E_IDX is not reached.
+  I hope this limitation will go away soon.
+
+- It is possible to restrict an ego-item to certain tval's/sval's.
+  You might add ego-items that can occur on all kinds of armor heavier than
+  Soft Leather Armors, or you might add Ego DSM's easily.
+  Robes of Permanence are also no longer a "hack".
+  You have three fields of (tval, min_sval, max_sval) that you can use.
+  It is thus possible to create rather specific ego-items (only for heavy 
+  weapons, only for whips, only for Daggers, Short Swords and Lances...)
+  The usefulness of this depends a bit on the fact than Angband's sval's are 
+  sorted in a currently very useful way.
+
+- With the introduction of the "level" concept to the ego-item list, the 
+  distribution of ego-items can vary from level to level. 
+
+- I can code stuff like increasing the probability that Paladin monsters carry
+  Holy Avengers more frequently if they carry an ego-item now. Obviously this
+  is just a personal advantage for me at this moment.
+
+- Lots of switch() statements and special cases have been removed from the 
+  source.
+
+- You can choose your ego-item to have one of the following:
+    Random High Resist, Random Sustain, Random Ability
+  That means, you can have weapons with an additional random high resist now, 
+
+- With my adapted e_info.txt file, the ego-items are exactly the same as 
+  before, although some rarities have *slightly* changed, see
+  below. IMO, these changes are negligible.
+
+
+I won't say my design is flawless, so here are my second thoughts:
+
+The disadvantages of my code are:
+
+- It probably takes a bit more memory (e_info is bigger now, and I've added an
+  allocation table for the ego items) but not much.
+
+- When you add a single ego-item type for a certain tval/sval, it is certain
+  to be generated if you generate a "great item" of that tval/sval.
+  If you want to rebalance your newly-added item, you might have to add another
+  item or change its "depth".
+
+- When you add an ego-item, be careful with setting its rarity. Look at the
+  rarities of the other ego-items first, because sometimes the most common item
+  doesn't have a rarity of one (to better emulate the old distribution).
+
+- You need my new "e_info.txt" file, incompatible with the old one, of course. 
+
+- Ego-item creation is nearly as arcane-looking as object creation now.
+  Once you understand it, that is no problem any longer ;)
+  At least it is in total control of the user now.
+
+- The processing of "good" and "cursed" ego-items in the same way meant the 
+  creation of a hack to preserve the rarities of Weapons of Morgul. The "level
+  boost" for out-of-depth ego items is calculated differently for cursed and 
+  for good items, essentially making very deep good items very hard, while 
+  cursed ego-items might rather easily be generated even 50 levels OOD. 
+  Weapons of Morgul are level 127 items now, thus preserving their old rarity.
+  The same with Ammo of Backbiting, BTW.
+  (But I believe cursed ego-items are not a very important issue :) 
+
+
+Changes in ego-item generation probabilities:
+
+The chance of a Robe to become a Robe of Permanence has been *slightly* 
+reduced - from 10.0% to 9.47%. This is necessary for preventing the
+rarities from getting really ugly. I am sorry for that half percent...  but 
+Cloaks of Aman are more frequent now ;)
+
+The other body armor probabilities are unchanged.
+
+Shields:      old      new
+Resist Acid   10%      9.7%
+Resist Elec   30%     30.3%
+Resist Fire   20%     20.0%
+Resist Cold   30%     30.3%
+Resistance    10%      9.7%
+
+Gloves:       old      new
+Free Action   40%     40.2%
+Slaying       30%     30.5%
+Agility       20%     19.5%
+Power         10%      9.8%
+
+Cloaks:
+Protection  47.1%     46.9%
+Stealth     37.1%	  46.9% 
+Aman         5.9%      6.1%
+
+All other probabilities are the same as before - if I didn't make any mistakes.
+
+
+

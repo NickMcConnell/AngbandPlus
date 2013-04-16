@@ -1949,24 +1949,31 @@ void monster_death(int m_idx)
 		if (do_gold && (!do_item || (rand_int(100) < 50)))
 		{
 			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			if (make_gold(i_ptr)) 
+			  {
+			    /* Assume seen XXX XXX XXX */
+			    dump_gold++;
+			    /* Drop it in the dungeon */
+			    drop_near(i_ptr, -1, y, x);
+			  }
 
-			/* Assume seen XXX XXX XXX */
-			dump_gold++;
 		}
 
 		/* Make Object */
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, good, great)) continue;
+			if (make_object(i_ptr, good, great))
+			  {
 
-			/* Assume seen XXX XXX XXX */
-			dump_item++;
+			    /* Assume seen XXX XXX XXX */
+			    dump_item++;
+			    /* Drop it in the dungeon */
+			    drop_near(i_ptr, -1, y, x);
+			  }
+
 		}
 
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
 	}
 
 	/* Reset the object level */

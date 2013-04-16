@@ -1,0 +1,32 @@
+  Bleeding Edge Angband
+
+  This is not a variant.  So everyone can have the joy of playing with
+the new patches, so they can comment in the angband newsgroup about how
+great or how horrible they are, I'm putting as many patches into one
+2.9.0 distribution as I can.
+  
+  I make no guarantees as to the stability of this patch mosh variant,
+but you should have gotten a clue of that from the first line.  *grin*
+
+  Right now I have:
+
+  David T. Blackston's AutoSqueltching Patch
+  Matthias Kurzke's e_info.txt Patch
+
+  I'd like more, especially a fractal walls patch.  Patches, however,
+should be switchable on and off.
+
+  Regarding Jonathan Ellis's Edits Patch:
+
+1) It's not a patch, it's a variant.  Probably a really good variant,
+but a variant none the less.
+
+2) I bet it's incompatible with Matthias's e_info patch.  I'm not sure,
+but it seems really likely.  And, if Matthias's patch does everything
+it's reputed to, and everything that it has the potential to do, then,
+looking at Vanilla Angband as the 'breeding ground for variants' that
+it is, Matthias's patch is just much more important than Ellis's patch.
+
+  Enough mad compiling and run-on sentances for today.
+
+  shren@io.com

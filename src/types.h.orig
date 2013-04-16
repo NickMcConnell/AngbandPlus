@@ -283,10 +283,6 @@ struct ego_item_type
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
 
-	byte tval[3];		/* Legal tval */
-	byte min_sval[3];		/* Minimum legal sval */
-	byte max_sval[3];		/* Maximum legal tval */
-	byte	xtra;		/* Extra Sustain/Resist/Power */
 	byte max_to_h;		/* Maximum to-hit bonus */
 	byte max_to_d;		/* Maximum to-dam bonus */
 	byte max_to_a;		/* Maximum to-ac bonus */

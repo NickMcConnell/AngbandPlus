@@ -1,0 +1,1464 @@
+diff -ru a290/src/defines.h m290/src/defines.h
+--- a290/src/defines.h	Mon Apr 10 13:42:31 2000
++++ m290/src/defines.h	Thu Apr 13 19:03:31 2000
+@@ -274,6 +274,13 @@
+  */
+ #define GREAT_OBJ	20
+ 
++/* 
++ * There is a 1/20 (5%) chance that ego-items with an inflated base-level are 
++ * generated when an object is turned into an ego-item (see make_ego_item()
++ * in object2.c). As above, lower values yield better ego-items more often.
++ */
++#define GREAT_EGO	20
++
+ /*
+  * There is a 1/50 (2%) chance of inflating the requested monster_level
+  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
+diff -ru a290/src/externs.h m290/src/externs.h
+--- a290/src/externs.h	Mon Apr 10 13:42:31 2000
++++ m290/src/externs.h	Wed Apr 12 14:36:29 2000
+@@ -166,6 +166,8 @@
+ extern object_type *inventory;
+ extern s16b alloc_kind_size;
+ extern alloc_entry *alloc_kind_table;
++extern s16b alloc_ego_size;
++extern alloc_entry *alloc_ego_table;
+ extern s16b alloc_race_size;
+ extern alloc_entry *alloc_race_table;
+ extern byte misc_to_attr[256];
+diff -ru a290/src/init1.c m290/src/init1.c
+--- a290/src/init1.c	Mon Apr 10 13:42:28 2000
++++ m290/src/init1.c	Thu Apr 13 23:51:52 2000
+@@ -1608,15 +1608,16 @@
+ {
+ 	int i;
+ 
++	int cur_T = 0;
++	
+ 	char *s, *t;
+ 
+ 	/* Not ready yet */
+ 	bool okay = FALSE;
+-
++	
+ 	/* Current entry */
+ 	ego_item_type *e_ptr = NULL;
+ 
+-
+ 	/* Just before the first record */
+ 	error_idx = -1;
+ 
+@@ -1704,6 +1705,9 @@
+ 			/* Advance the index */
+ 			e_head->name_size += strlen(s);
+ 
++			/* Start with the first of the tval indices */
++			cur_T = 0;
++
+ 			/* Next... */
+ 			continue;
+ 		}
+@@ -1738,38 +1742,64 @@
+ 
+ #endif
+ 
++		/* Process 'W' for "More Info" (one line only) */
++		if (buf[0] == 'W')
++		{
++			int level, rarity, pad2;
++			long cost;
++
++			/* Scan for the values */
++			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
++			                &level, &rarity, &pad2, &cost)) return (1);
++
++			/* Save the values */
++			e_ptr->level = level;
++			e_ptr->rarity = rarity;
++			/* e_ptr->weight = wgt; */
++			e_ptr->cost = cost;
++
++			/* Next... */
++			continue;
++		}
++
++
+ 		/* Process 'X' for "Xtra" (one line only) */
+ 		if (buf[0] == 'X')
+ 		{
+-			int slot, rating;
++			int slot, rating, xtra;
+ 
+ 			/* Scan for the values */
+-			if (2 != sscanf(buf+2, "%d:%d",
+-			                &slot, &rating)) return (1);
++			if (3 != sscanf(buf+2, "%d:%d:%d",
++			                &slot, &rating, &xtra)) return (1);
+ 
+ 			/* Save the values */
+ 			e_ptr->slot = slot;
+ 			e_ptr->rating = rating;
++			e_ptr->xtra = xtra;
+ 
+ 			/* Next... */
+ 			continue;
+ 		}
+ 
+-		/* Process 'W' for "More Info" (one line only) */
+-		if (buf[0] == 'W')
++		/* Process 'T' for "Types allowed" (up to three lines) */
++		if (buf[0] == 'T')
+ 		{
+-			int level, rarity, pad2;
+-			long cost;
++			int tval, sval1, sval2;
+ 
+ 			/* Scan for the values */
+-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
+-			                &level, &rarity, &pad2, &cost)) return (1);
++			if (3 != sscanf(buf+2, "%d:%d:%d",
++			                &tval, &sval1, &sval2)) return (1);
+ 
+ 			/* Save the values */
+-			e_ptr->level = level;
+-			e_ptr->rarity = rarity;
+-			/* e_ptr->weight = wgt; */
+-			e_ptr->cost = cost;
++			e_ptr->tval[cur_T] = (byte)tval;
++			e_ptr->min_sval[cur_T] = (byte)sval1;
++			e_ptr->max_sval[cur_T] = (byte)sval2;
++
++			/* increase counter for 'possible tval' index */
++			cur_T++;
++
++			/* only three T: lines allowed */
++			if (cur_T > 3) return (1);
+ 
+ 			/* Next... */
+ 			continue;
+Only in m290/src: init1.c~
+diff -ru a290/src/init2.c m290/src/init2.c
+--- a290/src/init2.c	Mon Apr 10 13:42:29 2000
++++ m290/src/init2.c	Thu Apr 13 18:23:46 2000
+@@ -2191,6 +2191,8 @@
+ 
+ 	monster_race *r_ptr;
+ 
++	ego_item_type *e_ptr;
++
+ 	alloc_entry *table;
+ 
+ 	s16b num[MAX_DEPTH];
+@@ -2369,6 +2371,83 @@
+ 		}
+ 	}
+ 
++	/*** Analyze ego_item allocation info ***/
++
++	/* Clear the "aux" array */
++	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
++
++	/* Clear the "num" array */
++	(void)C_WIPE(&num, MAX_DEPTH, s16b);
++
++	/* Size of "alloc_ego_table" */
++	alloc_ego_size = 0;
++
++	/* Scan the ego items */
++	for (i = 1; i < MAX_E_IDX; i++)
++	{
++		/* Get the i'th ego item */
++		e_ptr = &e_info[i];
++
++		/* Legal items */
++		if (e_ptr->rarity)
++		{
++			/* Count the entries */
++			alloc_ego_size++;
++
++			/* Group by level */
++			num[e_ptr->level]++;
++		}
++	}
++
++	/* Collect the level indexes */
++	for (i = 1; i < MAX_DEPTH; i++)
++	{
++		/* Group by level */
++		num[i] += num[i-1];
++	}
++
++	/*** Initialize ego-item allocation info ***/
++
++	/* Allocate the alloc_ego_table */
++	C_MAKE(alloc_ego_table, alloc_ego_size, alloc_entry);
++
++	/* Get the table entry */
++	table = alloc_ego_table;
++
++	/* Scan the ego-items */
++	for (i = 1; i < MAX_E_IDX; i++)
++	{
++		/* Get the i'th ego item */
++		e_ptr = &e_info[i];
++
++		/* Count valid pairs */
++		if (e_ptr->rarity)
++		{
++			int p,x,y,z;
++
++			/* Extract the base level */
++			x = e_ptr->level;
++
++			/* Extract the base probability */
++			p = (100 / e_ptr->rarity);
++
++			/* Skip entries preceding our locale */
++			y = (x > 0) ? num[x-1] : 0;
++
++			/* Skip previous entries at this locale */
++			z = y + aux[x];
++
++			/* Load the entry */
++			table[z].index = i;
++			table[z].level = x;
++			table[z].prob1 = p;
++			table[z].prob2 = p;
++			table[z].prob3 = p;
++
++			/* Another entry complete for this locale */
++			aux[x]++;
++		}
++	}
+ 
+ 	/* Success */
+ 	return (0);
+diff -ru a290/src/object2.c m290/src/object2.c
+--- a290/src/object2.c	Mon Apr 10 13:42:30 2000
++++ m290/src/object2.c	Thu Apr 13 23:59:27 2000
+@@ -1625,6 +1625,123 @@
+ 	return (FALSE);
+ }
+ 
++/* Attempt to change an object into an ego-item -MWK-
++ *
++ * Better only called by apply_magic()
++ *
++ * The return value is currently unused, but a wizard might be interested in it.
++ * 
++ */
++
++static bool make_ego_item(object_type *o_ptr, bool cursed)
++{
++	int i, j, level;
++
++	int e_idx;
++
++	long value, total;
++
++	ego_item_type *e_ptr;
++
++	alloc_entry *table = alloc_ego_table;
++
++
++	/* Fail if object already is ego or artifact */
++
++	if (o_ptr->name1) return(FALSE);
++	if (o_ptr->name2) return(FALSE);
++
++	level = p_ptr->depth;
++
++	/* Boost level (like with object base types) */
++	if (level > 0)
++	{
++		/* Occasional "boost" */
++		if (rand_int(GREAT_EGO) == 0)
++		{
++			/* The bizarre calculation again */
++			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
++		}
++	}
++	
++	/* Hack - *Cursed* items have a totally different level distribution
++	 * This is needed to obtain the old Weapons of Morgul distribution.
++	 */
++	  
++	if (cursed)
++	{
++		/* Probability goes linear with level */
++		level = p_ptr->depth + rand_int(127);
++	}
++
++	/* Reset total */
++	total = 0L;
++
++	/* Process probabilities */
++	for (i = 0; i < alloc_ego_size; i++)
++	{
++		/* Default */
++		table[i].prob3 = 0;
++
++		/* Objects are sorted by depth */
++		if (table[i].level > level) continue;
++
++		/* Get the index */
++		e_idx = table[i].index;
++
++		/* Get the actual kind */
++		e_ptr = &e_info[e_idx];
++
++		/* Test if this is a possible ego-item for value of (cursed) */
++
++		if (!cursed && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
++		if (cursed && !(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
++
++		/* Test if this is a legal ego-item type for this object */
++		for (j = 0; j < 3; j++)
++		{
++			/* Require identical base type */
++			if (o_ptr->tval == e_ptr->tval[j])
++			{
++				/* Require sval in bounds, lower */
++				if (o_ptr->sval >= e_ptr->min_sval[j]) 
++				{
++					/* Require sval in bounds, upper */
++					if (o_ptr->sval <= e_ptr->max_sval[j])
++					{
++						/* Accept */
++						table[i].prob3 = table[i].prob2;
++					}
++				}
++			}
++		}
++
++		/* Total */
++		total += table[i].prob3;
++	}
++
++	/* No legal ego-items */
++	if (total <= 0) return (FALSE);
++
++
++	/* Pick an ego-item */
++	value = rand_int(total);
++
++	/* Find the object */
++	for (i = 0; i < alloc_ego_size; i++)
++	{
++		/* Found the entry */
++		if (value < table[i].prob3) break;
++
++		/* Decrement */
++		value = value - table[i].prob3;
++	}
++
++	/* We have one */
++	
++	o_ptr->name2 = table[i].index;
++	return(TRUE);
++}
+ 
+ /*
+  * Attempt to change an object into an artifact
+@@ -1791,878 +1908,161 @@
+ 	{
+ 		/* Enchant */
+ 		o_ptr->to_h += tohit1;
+-		o_ptr->to_d += todam1;
+-
+-		/* Very good */
+-		if (power > 1)
+-		{
+-			/* Enchant again */
+-			o_ptr->to_h += tohit2;
+-			o_ptr->to_d += todam2;
+-		}
+-	}
+-
+-	/* Cursed */
+-	else if (power < 0)
+-	{
+-		/* Penalize */
+-		o_ptr->to_h -= tohit1;
+-		o_ptr->to_d -= todam1;
+-
+-		/* Very cursed */
+-		if (power < -1)
+-		{
+-			/* Penalize again */
+-			o_ptr->to_h -= tohit2;
+-			o_ptr->to_d -= todam2;
+-		}
+-
+-		/* Cursed (if "bad") */
+-		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->ident |= (IDENT_CURSED);
+-	}
+-
+-
+-	/* Analyze type */
+-	switch (o_ptr->tval)
+-	{
+-		case TV_DIGGING:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Special Ego-item */
+-				o_ptr->name2 = EGO_DIGGING;
+-			}
+-
+-			/* Very bad */
+-			else if (power < -1)
+-			{
+-				/* Hack -- Horrible digging bonus */
+-				o_ptr->pval = 0 - (5 + randint(5));
+-			}
+-
+-			/* Bad */
+-			else if (power < 0)
+-			{
+-				/* Hack -- Reverse digging bonus */
+-				o_ptr->pval = 0 - (o_ptr->pval);
+-			}
+-
+-			break;
+-		}
+-
+-
+-		case TV_HAFTED:
+-		case TV_POLEARM:
+-		case TV_SWORD:
+-		{
+-			/* Very Good */
+-			if (power > 1)
+-			{
+-				/* Roll for an ego-item */
+-				switch (randint(29))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_HA;
+-						break;
+-					}
+-
+-					case 2:
+-					{
+-						o_ptr->name2 = EGO_DF;
+-						break;
+-					}
+-
+-					case 3:
+-					{
+-						o_ptr->name2 = EGO_BRAND_ACID;
+-						break;
+-					}
+-
+-					case 4:
+-					{
+-						o_ptr->name2 = EGO_BRAND_ELEC;
+-						break;
+-					}
+-
+-					case 5:
+-					{
+-						o_ptr->name2 = EGO_BRAND_FIRE;
+-						break;
+-					}
+-
+-					case 6:
+-					{
+-						o_ptr->name2 = EGO_BRAND_COLD;
+-						break;
+-					}
+-
+-					case 7: case 8:
+-					{
+-						o_ptr->name2 = EGO_SLAY_ANIMAL;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_ANIMAL;
+-						}
+-						break;
+-					}
+-
+-					case 9: case 10:
+-					{
+-						o_ptr->name2 = EGO_SLAY_DRAGON;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_DRAGON;
+-						}
+-						break;
+-					}
+-
+-					case 11: case 12:
+-					{
+-						o_ptr->name2 = EGO_SLAY_EVIL;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_EVIL;
+-						}
+-						break;
+-					}
+-
+-					case 13: case 14:
+-					{
+-						o_ptr->name2 = EGO_SLAY_UNDEAD;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_UNDEAD;
+-						}
+-						break;
+-					}
+-
+-					case 15: case 16: case 17:
+-					{
+-						o_ptr->name2 = EGO_SLAY_ORC;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_ORC;
+-						}
+-						break;
+-					}
+-
+-					case 18: case 19: case 20:
+-					{
+-						o_ptr->name2 = EGO_SLAY_TROLL;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_TROLL;
+-						}
+-						break;
+-					}
+-
+-					case 21: case 22: case 23:
+-					{
+-						o_ptr->name2 = EGO_SLAY_GIANT;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_GIANT;
+-						}
+-						break;
+-					}
+-
+-					case 24: case 25: case 26:
+-					{
+-						o_ptr->name2 = EGO_SLAY_DEMON;
+-						if (rand_int(100) < 20)
+-						{
+-							o_ptr->name2 = EGO_KILL_DEMON;
+-						}
+-						break;
+-					}
+-
+-					case 27:
+-					{
+-						o_ptr->name2 = EGO_WEST;
+-						break;
+-					}
+-
+-					case 28:
+-					{
+-						o_ptr->name2 = EGO_BLESS_BLADE;
+-						break;
+-					}
+-
+-					case 29:
+-					{
+-						o_ptr->name2 = EGO_ATTACKS;
+-						break;
+-					}
+-				}
+-
+-				/* Hack -- Super-charge the damage dice */
+-				while ((o_ptr->dd * o_ptr->ds > 0) &&
+-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+-				{
+-					o_ptr->dd++;
+-				}
+-
+-				/* Hack -- Lower the damage dice */
+-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+-			}
+-
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Roll for ego-item */
+-				if (rand_int(MAX_DEPTH) < level)
+-				{
+-					o_ptr->name2 = EGO_MORGUL;
+-				}
+-			}
+-
+-			break;
+-		}
+-
+-
+-		case TV_BOW:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(10))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_EXTRA_MIGHT;
+-						break;
+-					}
+-
+-					case 2:
+-					{
+-						o_ptr->name2 = EGO_EXTRA_SHOTS;
+-						break;
+-					}
+-
+-					case 3: case 4: case 5: case 6:
+-					{
+-						o_ptr->name2 = EGO_VELOCITY;
+-						break;
+-					}
+-
+-					case 7: case 8: case 9: case 10:
+-					{
+-						o_ptr->name2 = EGO_ACCURACY;
+-						break;
+-					}
+-				}
+-			}
+-
+-			break;
+-		}
+-
+-
+-		case TV_BOLT:
+-		case TV_ARROW:
+-		case TV_SHOT:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(20))
+-				{
+-					case 1: case 2:
+-					{
+-						o_ptr->name2 = EGO_HURT_ANIMAL;
+-						break;
+-					}
+-
+-					case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_HURT_EVIL;
+-						break;
+-					}
+-
+-					case 5:
+-					{
+-						o_ptr->name2 = EGO_HURT_UNDEAD;
+-						break;
+-					}
+-
+-					case 6:
+-					{
+-						o_ptr->name2 = EGO_HURT_DEMON;
+-						break;
+-					}
+-
+-					case 7:
+-					{
+-						o_ptr->name2 = EGO_HURT_ORC;
+-						break;
+-					}
+-
+-					case 8:
+-					{
+-						o_ptr->name2 = EGO_HURT_TROLL;
+-						break;
+-					}
+-
+-					case 9:
+-					{
+-						o_ptr->name2 = EGO_HURT_GIANT;
+-						break;
+-					}
+-
+-					case 10:
+-					{
+-						o_ptr->name2 = EGO_HURT_DRAGON;
+-						break;
+-					}
+-
+-					case 11: case 12:
+-					{
+-						o_ptr->name2 = EGO_FLAME;
+-						break;
+-					}
+-
+-					case 13: case 14:
+-					{
+-						o_ptr->name2 = EGO_FROST;
+-						break;
+-					}
+-
+-					default: /* case 15-20 */
+-					{
+-						o_ptr->name2 = EGO_WOUNDING;
+-						break;
+-					}
+-				}
+-
+-				/* Hack -- super-charge the damage dice */
+-				while ((o_ptr->dd * o_ptr->ds > 0) &&
+-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+-				{
+-					o_ptr->dd++;
+-				}
+-
+-				/* Hack -- restrict the damage dice */
+-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+-			}
+-
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Roll for ego-item */
+-				if (rand_int(MAX_DEPTH) < level)
+-				{
+-					o_ptr->name2 = EGO_BACKBITING;
+-				}
+-			}
+-
+-			break;
+-		}
+-	}
+-}
+-
+-
+-/*
+- * Apply magic to an item known to be "armor"
+- *
+- * Hack -- note special processing for crown/helm
+- * Hack -- note special processing for robe of permanence
+- */
+-static void a_m_aux_2(object_type *o_ptr, int level, int power)
+-{
+-	int toac1 = randint(5) + m_bonus(5, level);
+-
+-	int toac2 = m_bonus(10, level);
+-
+-
+-	/* Good */
+-	if (power > 0)
+-	{
+-		/* Enchant */
+-		o_ptr->to_a += toac1;
+-
+-		/* Very good */
+-		if (power > 1)
+-		{
+-			/* Enchant again */
+-			o_ptr->to_a += toac2;
+-		}
+-	}
+-
+-	/* Cursed */
+-	else if (power < 0)
+-	{
+-		/* Penalize */
+-		o_ptr->to_a -= toac1;
+-
+-		/* Very cursed */
+-		if (power < -1)
+-		{
+-			/* Penalize again */
+-			o_ptr->to_a -= toac2;
+-		}
+-
+-		/* Cursed (if "bad") */
+-		if (o_ptr->to_a < 0) o_ptr->ident |= (IDENT_CURSED);
+-	}
+-
+-
+-	/* Analyze type */
+-	switch (o_ptr->tval)
+-	{
+-		case TV_DRAG_ARMOR:
+-		{
+-			/* Rating boost */
+-			rating += 30;
+-
+-			/* Mention the item */
+-			if (cheat_peek) object_mention(o_ptr);
+-
+-			break;
+-		}
+-
+-
+-		case TV_HARD_ARMOR:
+-		case TV_SOFT_ARMOR:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Hack -- Try for "Robes of the Magi" */
+-				if ((o_ptr->tval == TV_SOFT_ARMOR) &&
+-				    (o_ptr->sval == SV_ROBE) &&
+-				    (rand_int(100) < 10))
+-				{
+-					o_ptr->name2 = EGO_PERMANENCE;
+-					break;
+-				}
+-
+-				/* Roll for ego-item */
+-				switch (randint(19))
+-				{
+-					case 1: case 2: case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_RESIST_ACID;
+-						break;
+-					}
+-
+-					case 5: case 6: case 7: case 8:
+-					{
+-						o_ptr->name2 = EGO_RESIST_ELEC;
+-						break;
+-					}
+-
+-					case 9: case 10: case 11: case 12:
+-					{
+-						o_ptr->name2 = EGO_RESIST_FIRE;
+-						break;
+-					}
+-
+-					case 13: case 14: case 15: case 16:
+-					{
+-						o_ptr->name2 = EGO_RESIST_COLD;
+-						break;
+-					}
+-
+-					case 17: case 18:
+-					{
+-						o_ptr->name2 = EGO_RESISTANCE;
+-						break;
+-					}
+-
+-					default:
+-					{
+-						o_ptr->name2 = EGO_ELVENKIND;
+-						break;
+-					}
+-				}
+-			}
+-
+-			break;
+-		}
+-
+-
+-		case TV_SHIELD:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(10))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_ENDURE_ACID;
+-						break;
+-					}
+-
+-					case 2: case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_ENDURE_ELEC;
+-						break;
+-					}
+-
+-					case 5: case 6:
+-					{
+-						o_ptr->name2 = EGO_ENDURE_FIRE;
+-						break;
+-					}
+-
+-					case 7: case 8: case 9:
+-					{
+-						o_ptr->name2 = EGO_ENDURE_COLD;
+-						break;
+-					}
+-
+-					default:
+-					{
+-						o_ptr->name2 = EGO_ENDURANCE;
+-						break;
+-					}
+-				}
+-			}
+-
+-			break;
+-		}
+-
+-
+-		case TV_GLOVES:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(10))
+-				{
+-					case 1: case 2: case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_FREE_ACTION;
+-						break;
+-					}
+-
+-					case 5: case 6: case 7:
+-					{
+-						o_ptr->name2 = EGO_SLAYING;
+-						break;
+-					}
+-
+-					case 8: case 9:
+-					{
+-						o_ptr->name2 = EGO_AGILITY;
+-						break;
+-					}
+-
+-					case 10:
+-					{
+-						o_ptr->name2 = EGO_POWER;
+-						break;
+-					}
+-				}
+-			}
+-
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(2))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_CLUMSINESS;
+-						break;
+-					}
+-					default:
+-					{
+-						o_ptr->name2 = EGO_WEAKNESS;
+-						break;
+-					}
+-				}
+-			}
++		o_ptr->to_d += todam1;
+ 
+-			break;
++		/* Very good */
++		if (power > 1)
++		{
++			/* Enchant again */
++			o_ptr->to_h += tohit2;
++			o_ptr->to_d += todam2;
+ 		}
++	}
+ 
++	/* Cursed */
++	else if (power < 0)
++	{
++		/* Penalize */
++		o_ptr->to_h -= tohit1;
++		o_ptr->to_d -= todam1;
+ 
+-		case TV_BOOTS:
++		/* Very cursed */
++		if (power < -1)
+ 		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(24))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_SPEED;
+-						break;
+-					}
++			/* Penalize again */
++			o_ptr->to_h -= tohit2;
++			o_ptr->to_d -= todam2;
++		}
+ 
+-					case 2: case 3: case 4: case 5:
+-					{
+-						o_ptr->name2 = EGO_MOTION;
+-						break;
+-					}
++		/* Cursed (if "bad") */
++		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->ident |= (IDENT_CURSED);
++	}
+ 
+-					case 6: case 7: case 8: case 9:
+-					case 10: case 11: case 12: case 13:
+-					{
+-						o_ptr->name2 = EGO_QUIET;
+-						break;
+-					}
+ 
+-					default:
+-					{
+-						o_ptr->name2 = EGO_SLOW_DESCENT;
+-						break;
+-					}
+-				}
++	/* Analyze type */
++	switch (o_ptr->tval)
++	{
++		case TV_DIGGING:
++		{
++			/* Very bad */
++			if (power < -1)
++			{
++				/* Hack -- Horrible digging bonus */
++				o_ptr->pval = 0 - (5 + randint(5));
+ 			}
+ 
+-			/* Very cursed */
+-			else if (power < -1)
++			/* Bad */
++			else if (power < 0)
+ 			{
+-				/* Roll for ego-item */
+-				switch (randint(3))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_NOISE;
+-						break;
+-					}
+-					case 2:
+-					{
+-						o_ptr->name2 = EGO_SLOWNESS;
+-						break;
+-					}
+-					case 3:
+-					{
+-						o_ptr->name2 = EGO_ANNOYANCE;
+-						break;
+-					}
+-				}
++				/* Hack -- Reverse digging bonus */
++				o_ptr->pval = 0 - (o_ptr->pval);
+ 			}
+ 
+ 			break;
+ 		}
+ 
+ 
+-		case TV_CROWN:
++		case TV_HAFTED:
++		case TV_POLEARM:
++		case TV_SWORD:
+ 		{
+-			/* Very good */
++			/* Very Good */
+ 			if (power > 1)
+ 			{
+-				/* Roll for ego-item */
+-				switch (randint(8))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_MAGI;
+-						break;
+-					}
+-					case 2:
+-					{
+-						o_ptr->name2 = EGO_MIGHT;
+-						break;
+-					}
+-					case 3:
+-					{
+-						o_ptr->name2 = EGO_TELEPATHY;
+-						break;
+-					}
+-					case 4:
+-					{
+-						o_ptr->name2 = EGO_REGENERATION;
+-						break;
+-					}
+-					case 5: case 6:
+-					{
+-						o_ptr->name2 = EGO_LORDLINESS;
+-						break;
+-					}
+-					default:
+-					{
+-						o_ptr->name2 = EGO_SEEING;
+-						break;
+-					}
+-				}
+-			}
+ 
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(7))
++				/* Hack -- Super-charge the damage dice */
++				while ((o_ptr->dd * o_ptr->ds > 0) &&
++				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+ 				{
+-					case 1: case 2:
+-					{
+-						o_ptr->name2 = EGO_STUPIDITY;
+-						break;
+-					}
+-					case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_NAIVETY;
+-						break;
+-					}
+-					case 5:
+-					{
+-						o_ptr->name2 = EGO_UGLINESS;
+-						break;
+-					}
+-					case 6:
+-					{
+-						o_ptr->name2 = EGO_SICKLINESS;
+-						break;
+-					}
+-					case 7:
+-					{
+-						o_ptr->name2 = EGO_TELEPORTATION;
+-						break;
+-					}
++					o_ptr->dd++;
+ 				}
++
++				/* Hack -- Lower the damage dice */
++				if (o_ptr->dd > 9) o_ptr->dd = 9;
++
+ 			}
+ 
+-			break;
+ 		}
+ 
+-
+-		case TV_HELM:
++		case TV_BOLT:
++		case TV_ARROW:
++		case TV_SHOT:
+ 		{
+ 			/* Very good */
+ 			if (power > 1)
+ 			{
+-				/* Roll for ego-item */
+-				switch (randint(14))
++				/* Hack -- super-charge the damage dice */
++				while ((o_ptr->dd * o_ptr->ds > 0) &&
++				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+ 				{
+-					case 1: case 2:
+-					{
+-						o_ptr->name2 = EGO_INTELLIGENCE;
+-						break;
+-					}
+-					case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_WISDOM;
+-						break;
+-					}
+-					case 5: case 6:
+-					{
+-						o_ptr->name2 = EGO_BEAUTY;
+-						break;
+-					}
+-					case 7: case 8:
+-					{
+-						o_ptr->name2 = EGO_SEEING;
+-						break;
+-					}
+-					case 9: case 10:
+-					{
+-						o_ptr->name2 = EGO_LITE;
+-						break;
+-					}
+-					default:
+-					{
+-						o_ptr->name2 = EGO_INFRAVISION;
+-						break;
+-					}
++					o_ptr->dd++;
+ 				}
+-			}
+ 
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(7))
+-				{
+-					case 1: case 2:
+-					{
+-						o_ptr->name2 = EGO_STUPIDITY;
+-						break;
+-					}
+-					case 3: case 4:
+-					{
+-						o_ptr->name2 = EGO_NAIVETY;
+-						break;
+-					}
+-					case 5:
+-					{
+-						o_ptr->name2 = EGO_UGLINESS;
+-						break;
+-					}
+-					case 6:
+-					{
+-						o_ptr->name2 = EGO_SICKLINESS;
+-						break;
+-					}
+-					case 7:
+-					{
+-						o_ptr->name2 = EGO_TELEPORTATION;
+-						break;
+-					}
+-				}
++				/* Hack -- restrict the damage dice */
++				if (o_ptr->dd > 9) o_ptr->dd = 9;
+ 			}
+ 
+ 			break;
+ 		}
++	}
++}
+ 
+ 
+-		case TV_CLOAK:
+-		{
+-			/* Very good */
+-			if (power > 1)
+-			{
+-				/* Roll for ego-item */
+-				switch (randint(17))
+-				{
+-					case 1: case 2: case 3: case 4:
+-					case 5: case 6: case 7: case 8:
+-					{
+-						o_ptr->name2 = EGO_PROTECTION;
+-						break;
+-					}
++/*
++ * Apply magic to an item known to be "armor"
++ * 
++ * Note that the generation of ego-items takes place elsewhere
++ */
++static void a_m_aux_2(object_type *o_ptr, int level, int power)
++{
++	int toac1 = randint(5) + m_bonus(5, level);
+ 
+-					case 9: case 10: case 11: case 12:
+-					case 13: case 14: case 15: case 16:
+-					{
+-						o_ptr->name2 = EGO_STEALTH;
+-						break;
+-					}
++	int toac2 = m_bonus(10, level);
+ 
+-					case 17:
+-					{
+-						o_ptr->name2 = EGO_AMAN;
+-						break;
+-					}
+-				}
+-			}
+ 
+-			/* Very cursed */
+-			else if (power < -1)
+-			{
+-				/* Choose some damage */
+-				switch (randint(3))
+-				{
+-					case 1:
+-					{
+-						o_ptr->name2 = EGO_IRRITATION;
+-						break;
+-					}
+-					case 2:
+-					{
+-						o_ptr->name2 = EGO_VULNERABILITY;
+-						break;
+-					}
+-					case 3:
+-					{
+-						o_ptr->name2 = EGO_ENVELOPING;
+-						break;
+-					}
+-				}
+-			}
++	/* Good */
++	if (power > 0)
++	{
++		/* Enchant */
++		o_ptr->to_a += toac1;
+ 
+-			break;
++		/* Very good */
++		if (power > 1)
++		{
++			/* Enchant again */
++			o_ptr->to_a += toac2;
++		}
++	}
++
++	/* Cursed */
++	else if (power < 0)
++	{
++		/* Penalize */
++		o_ptr->to_a -= toac1;
++
++		/* Very cursed */
++		if (power < -1)
++		{
++			/* Penalize again */
++			o_ptr->to_a -= toac2;
+ 		}
++
++		/* Cursed (if "bad") */
++		if (o_ptr->to_a < 0) o_ptr->ident |= (IDENT_CURSED);
++	}
++
++
++	/* Analyze type */
++	if (o_ptr->tval == TV_DRAG_ARMOR)
++	{
++		/* Rating boost */
++		rating += 30;
++
++		/* Mention the item */
++		if (cheat_peek) object_mention(o_ptr);
++
+ 	}
++
+ }
+ 
+ 
+@@ -3199,10 +2599,12 @@
+ 		case TV_BOLT:
+ 		{
+ 			if (power) a_m_aux_1(o_ptr, lev, power);
++			if ((power > 1) || (power < -1)) 
++				(void) make_ego_item(o_ptr, (power < 0));
+ 			break;
+ 		}
+ 
+-		case TV_DRAG_ARMOR:
++		case TV_DRAG_ARMOR: 
+ 		case TV_HARD_ARMOR:
+ 		case TV_SOFT_ARMOR:
+ 		case TV_SHIELD:
+@@ -3213,6 +2615,8 @@
+ 		case TV_BOOTS:
+ 		{
+ 			if (power) a_m_aux_2(o_ptr, lev, power);
++			if ((power > 1) || (power < -1))
++				(void) make_ego_item(o_ptr, (power < 0));
+ 			break;
+ 		}
+ 
+@@ -3238,33 +2642,32 @@
+ 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+ 
+ 		/* Extra powers */
+-		switch (o_ptr->name2)
++
++		if (e_ptr->xtra)
+ 		{
+-			case EGO_HA:
+-			case EGO_DF:
++			o_ptr->xtra1 = e_ptr->xtra;
++			switch(o_ptr->xtra1)
+ 			{
+-				o_ptr->xtra1 = OBJECT_XTRA_TYPE_SUSTAIN;
+-				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
+-				break;
+-			}
++				case OBJECT_XTRA_TYPE_SUSTAIN:
++				{
++					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
++					break;
++				}
+ 
+-			case EGO_PERMANENCE:
+-			case EGO_ELVENKIND:
+-			case EGO_AMAN:
+-			{
+-				o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
+-				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
+-				break;
+-			}
++				case OBJECT_XTRA_TYPE_RESIST:
++				{
++					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
++					break;
++				}
+ 
+-			case EGO_BLESS_BLADE:
+-			case EGO_MAGI:
+-			{
+-				o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
+-				o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
+-				break;
++				case OBJECT_XTRA_TYPE_POWER:
++				{
++					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
++					break;
++				}
+ 			}
+ 		}
++		
+ 
+ 		/* Hack -- acquire "broken" flag */
+ 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+Only in m290/src: object2.c~
+diff -ru a290/src/types.h m290/src/types.h
+--- a290/src/types.h	Mon Apr 10 13:42:31 2000
++++ m290/src/types.h	Fri Apr 14 00:02:21 2000
+@@ -282,6 +282,10 @@
+ 	byte level;			/* Minimum level */
+ 	byte rarity;		/* Object rarity */
+ 
++	byte tval[3];		/* Legal tval */
++	byte min_sval[3];		/* Minimum legal sval */
++	byte max_sval[3];		/* Maximum legal tval */
++	byte	xtra;		/* Extra Sustain/Resist/Power */
+ 	byte max_to_h;		/* Maximum to-hit bonus */
+ 	byte max_to_d;		/* Maximum to-dam bonus */
+ 	byte max_to_a;		/* Maximum to-ac bonus */
+Only in m290/src: types.h~
+diff -ru a290/src/variable.c m290/src/variable.c
+--- a290/src/variable.c	Mon Apr 10 13:42:30 2000
++++ m290/src/variable.c	Thu Apr 13 23:53:35 2000
+@@ -391,6 +391,15 @@
+  */
+ alloc_entry *alloc_kind_table;
+ 
++/*
++ * The size of the "alloc_ego_table"
++ */
++s16b alloc_ego_size;
++
++/*
++ * The array[alloc_ego_size] of entries in the "ego allocator table"
++ */
++alloc_entry *alloc_ego_table;
+ 
+ /*
+  * The size of "alloc_race_table" (at most MAX_R_IDX)
+Only in m290/src: variable.c~

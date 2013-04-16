@@ -1608,14 +1608,15 @@ errr init_e_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
+	int cur_T = 0;
+	
 	char *s, *t;
 
 	/* Not ready yet */
 	bool okay = FALSE;
-
+	
 	/* Current entry */
 	ego_item_type *e_ptr = NULL;
-
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -1704,6 +1705,9 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			/* Advance the index */
 			e_head->name_size += strlen(s);
 
+			/* Start with the first of the tval indices */
+			cur_T = 0;
+
 			/* Next... */
 			continue;
 		}
@@ -1738,23 +1742,6 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 #endif
 
-		/* Process 'X' for "Xtra" (one line only) */
-		if (buf[0] == 'X')
-		{
-			int slot, rating;
-
-			/* Scan for the values */
-			if (2 != sscanf(buf+2, "%d:%d",
-			                &slot, &rating)) return (1);
-
-			/* Save the values */
-			e_ptr->slot = slot;
-			e_ptr->rating = rating;
-
-			/* Next... */
-			continue;
-		}
-
 		/* Process 'W' for "More Info" (one line only) */
 		if (buf[0] == 'W')
 		{
@@ -1770,6 +1757,49 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			e_ptr->rarity = rarity;
 			/* e_ptr->weight = wgt; */
 			e_ptr->cost = cost;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'X' for "Xtra" (one line only) */
+		if (buf[0] == 'X')
+		{
+			int slot, rating, xtra;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &slot, &rating, &xtra)) return (1);
+
+			/* Save the values */
+			e_ptr->slot = slot;
+			e_ptr->rating = rating;
+			e_ptr->xtra = xtra;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'T' for "Types allowed" (up to three lines) */
+		if (buf[0] == 'T')
+		{
+			int tval, sval1, sval2;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+			                &tval, &sval1, &sval2)) return (1);
+
+			/* Save the values */
+			e_ptr->tval[cur_T] = (byte)tval;
+			e_ptr->min_sval[cur_T] = (byte)sval1;
+			e_ptr->max_sval[cur_T] = (byte)sval2;
+
+			/* increase counter for 'possible tval' index */
+			cur_T++;
+
+			/* only three T: lines allowed */
+			if (cur_T > 3) return (1);
 
 			/* Next... */
 			continue;

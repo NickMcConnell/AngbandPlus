@@ -854,6 +854,8 @@ void do_cmd_options(void)
 
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
+		/* Squelch menus */
+		prt("(I) Item Squelch Menus", 12, 5);
 
 		/* Load and Append */
 		prt("(L) Load a user pref file", 13, 5);
@@ -913,7 +915,11 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_win();
 		}
-
+		/* Squelching menus */
+		else if ((ch == 'I') || (ch == 'i'))
+		{
+		        do_cmd_squelch();
+		}
 		/* Load a user pref file */
 		else if ((ch == 'L') || (ch == 'l'))
 		{

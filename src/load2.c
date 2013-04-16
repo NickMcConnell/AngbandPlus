@@ -1357,7 +1357,8 @@ static errr rd_extra(void)
 	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
 
 	/* Future use */
-	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
+	for (i = 0; i < 16; i++) rd_byte(&tmp8u);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -2641,6 +2642,7 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->squelch = (tmp8u & 0x04) ? TRUE: FALSE;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 

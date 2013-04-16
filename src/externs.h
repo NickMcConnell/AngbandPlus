@@ -166,6 +166,8 @@ extern store_type *store;
 extern object_type *inventory;
 extern s16b alloc_kind_size;
 extern alloc_entry *alloc_kind_table;
+extern s16b alloc_ego_size;
+extern alloc_entry *alloc_ego_table;
 extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
 extern byte misc_to_attr[256];
@@ -729,6 +731,11 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
+/* squelch.c */
+extern byte squelch_level[24];
+extern void do_cmd_squelch(void);
+extern int squelch_itemp(object_type *, byte, int);
+extern int do_squelch_item(int, int, object_type *);
 
 /*
  * Hack -- conditional (or "bizarre") externs

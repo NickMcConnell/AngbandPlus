@@ -1,0 +1,153 @@
+How to use the ego-item generation patch for your own customizations
+
+The format of the e_info.txt file has changed. I think it is best explained
+with an example:
+
+N:9:of Elvenkind
+X:30:25:2
+W:0:40:0:15000
+C:0:0:10:0
+T:36:0:99
+T:37:0:99
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+The 'X' has changed, 'W' is being used a bit more now, and 'T' is new.
+
+X:slot:rating:xtra
+
+slot:   The 'slot' where the item is wielded. Seems superfluous to me. 
+        Unchanged.
+rating: The rating bonus for this level.
+        Unchanged.
+xtra:   If = 0, nothing happens,
+        1 stands for "one random extra sustain",
+        2 is "one random extra resist",
+        3 is "one random extra ability".
+
+So HA and DF have X:a:b:1, for instance, and the above Elvenkind armor gets its
+high resist as desired.
+
+W:level:rarity:weight:cost
+
+level:  The object will only be generated before this dungeon level if it
+        passes some obscure tests (like OOD objects)
+rarity: The rarity of the object. Note that in my "emulate the old" e_info.txt,
+        some 'common' objects have rarities higher than one, to make the 
+        'distribution' of all ego-items of this tval more consistent with the
+        old one.
+        If you add a new ego-item, be sure to wizard-mode check its appearance
+        frequency if you don't understand what I say.
+weight: Currently unused. Unchanged.
+cost:   Extra cost. Unchanged.
+
+
+The really interesting is the T entry. Up to three T entries are possible for 
+a single object. The format is
+
+T:tval:min_sval:max_sval
+
+The ego-item can only be generated from items of this tval, with sval in the
+specified range. In the above example, Elvenkind armors can be generated from
+soft (36) and hard (37) armor of any kind (0-99).
+
+A Robe of Permanence has T:36:2:2, allowing only Robes to become 'of 
+Permanence'.
+
+Some examples of possible ego items:
+
+# 10 MWK - A new cursed ego item - filthy rags only :)
+
+N:10:of Leprousness
+X:30:0:0
+W:0:1:0:0
+C:0:0:0:6
+T:36:1:1
+F:CON | CHR | LIGHT_CURSE
+
+# 12 Mithril Mails might give IM_ACID sometimes -MWK-
+N:12:of Acid Immunity
+X:30:30:0
+W:50:4:0:20000
+C:0:0:10:0
+T:37:20:25
+F:IM_ACID | RES_ACID | IGNORE_ACID
+
+# 13 DSMs might give an extra sustain
+N:13:of Sustaining
+X:30:0:1
+W:0:1:0:1000
+T:38:0:99
+
+# 14 Multi-Hued and Power DSMs might grant immunities
+N:14:of Immunity
+X:30:20:0
+W:80:50:0:50000
+T:38:6:6
+T:38:30:30
+F:IM_ACID | IM_ELEC | IM_FIRE | IM_COLD
+
+# 15 Any armor (incl. DSM) might aggravate, but get *great* tohit/todam.
+N:15:of Battlecrys
+X:30:10:0
+W:60:8:0:15000
+C:20:20:0:0
+T:36:0:99
+T:37:0:99
+T:38:0:99
+F:AGGRAVATE | RES_FEAR
+
+# 21 All shields might give a random high resist
+N:21:of *Resistance*
+X:32:25:2
+W:40:12:0:18000
+C:0:0:14:0
+T:34:0:99
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# 22 Shields of Deflection might have Shards Resistance
+N:22:of Shards Resistance
+X:32:20:0
+W:0:8:0:10000
+T:34:10:10
+C:0:0:10:0
+F:RES_SHARD
+
+# 23 a cursed ego shield (not politically correct)
+N:23:of Left-Handedness
+X:32:0:0
+W:127:1:0:0
+T:34:0:99
+C:10:10:10:10
+F:LIGHT_CURSE | DEX | STEALTH
+
+# 43 Cloak of the Magi (give a random ability & Int)
+N:43:of the Magi
+X:31:15:3
+W:0:5:0:4000
+C:0:0:5:3
+T:35:0:99
+F:INT | SUST_INT
+
+# 52 Gauntlets only, very bad for fighting 
+N:52:of Peace
+X:34:0:0
+W:0:1:0:0
+C:10:10:0:0
+T:31:2:2
+F:LIGHT_CURSE | HEAVY_CURSE
+
+# 53 Gloves only, very beautiful
+N:53:of Beautiful Silk Embroidery
+X:34:5:0
+W:0:5:0:400
+T:31:1:1
+C:0:0:0:6
+F:CHR
+
+Use your own creativity to do whatever you want with the empty slots.
+The above are only examples, not playtested and not balanced.
+
+
+

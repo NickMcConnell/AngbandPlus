@@ -391,6 +391,15 @@ s16b alloc_kind_size;
  */
 alloc_entry *alloc_kind_table;
 
+/*
+ * The size of the "alloc_ego_table"
+ */
+s16b alloc_ego_size;
+
+/*
+ * The array[alloc_ego_size] of entries in the "ego allocator table"
+ */
+alloc_entry *alloc_ego_table;
 
 /*
  * The size of "alloc_race_table" (at most MAX_R_IDX)

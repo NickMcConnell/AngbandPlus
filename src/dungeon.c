@@ -186,6 +186,7 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool okay = FALSE;
+		int squelch=0;
 
 		o_ptr = &inventory[i];
 
@@ -239,6 +240,11 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
+		/* Squelch it? */
+		if (i<INVEN_WIELD) {
+		  squelch = squelch_itemp(o_ptr, feel, 0);
+		}
+		
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
@@ -257,10 +263,12 @@ static void sense_inventory(void)
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
+			           inscrip_text[feel - INSCRIP_NULL],
+				   ((squelch==1) ? "(Squelched)" :
+				    ((squelch==-1) ? "(Squelch Failed)" : "")));
 		}
 
 		/* Sense the object */
@@ -269,6 +277,8 @@ static void sense_inventory(void)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+		/* Squelch it if necessary */
+		do_squelch_item(squelch, i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);

@@ -1835,6 +1835,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1868,6 +1869,10 @@ bool ident_spell(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1885,14 +1890,22 @@ bool ident_spell(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
 	}
+
+	/* Now squelch it if needed */
+	do_squelch_item(squelch, item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -1908,6 +1921,7 @@ bool ident_spell(void)
 bool identify_fully(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1937,6 +1951,10 @@ bool identify_fully(void)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
@@ -1964,17 +1982,28 @@ bool identify_fully(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
 	}
 
-	/* Describe it fully */
-	identify_fully_aux(o_ptr);
+	/* Now squelch it if needed */
+	if (squelch==1) {
+	  do_squelch_item(squelch, item, o_ptr);
+	} else {
+	  
+	  /* Describe it fully */
+	  identify_fully_aux(o_ptr);
+	}
 
 	/* Success */
 	return (TRUE);

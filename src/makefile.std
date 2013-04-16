@@ -50,7 +50,7 @@ SRCS = \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c init3.c \
-  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c
+  main-cap.c main-gcu.c main-x11.c main-xaw.c main.c squelch.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -62,7 +62,7 @@ OBJS = \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o init3.o \
-  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o
+  main-cap.o main-gcu.o main-x11.o main-xaw.o main.o squelch.o
 
 
 
@@ -156,9 +156,12 @@ CC = gcc
 ## Allows the use of Angband in the console using ncurses,
 ## as well as under X11.
 ##
-CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall -O2 -m486 \
-         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall -O2 -m486 \
+#         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
+#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+CFLAGS = -I/usr/include/ncurses -Wall -O2 -m486 \
+         -D"USE_GCU" -D"USE_NCURSES"
+LIBS = -lncurses
 
 
 ##
