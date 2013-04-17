@@ -1,164 +1,164 @@
-                 Cat-and-the-Hack Angband 2.9.1.2
+                 Cat-and-the-Hack Angband 2.9.1.3
 
-CatH-Angband was started in 1997 as an attempt to balance out
-the classes a bit, make certain classes fit their idioms a bit better,
-and a couple minor user interface tweaks to make life a little bit
-easier. Unfortunately, just as I finished fixing up the bugs that
-were in, I joined the Air Force, and CatH was shelved for three years,
-almost to the day.
+CatH-Angband was started in 1997 as an attempt to balance out the classes a
+bit, make certain classes fit their idioms a bit better, and a couple minor
+user interface tweaks to make life a little bit easier. Unfortunately, just as
+I finished fixing up the bugs that were in, I joined the Air Force, and CatH
+was shelved for three years, almost to the day.
 
-Finally, however, I've had the Angband bug again, and so CatH has
-gotten its update for the decade ;) Amazingly the source was still
-floating around, and I had documented her changes quite thouroughly in
-the code, so porting it to the 2.9.1 codebase wasn't too hard.
+Finally, however, I've had the Angband bug again, and so CatH has gotten its
+update for the decade ;) Amazingly the source was still floating around, and I
+had documented her changes quite thouroughly in the code, so porting it to the
+2.9.1 codebase wasn't too hard.
 
-Thanks to all the Angband maintainers from Robert to Robert, Greg
-Wolledge for the ideas I took from GW-Angband, dunno at victoly.com for
-the web space, the evil beasts which populate rgra and #angband, and
-you for actually noticing this readme, let alone CatH itself :)
+Thanks to all the Angband maintainers from Robert to Robert, Greg Wolledge for
+the ideas I took from GW-Angband, dunno at victoly.com for the web space, and
+then sourceforge when that petered out, the evil beasts which populate rgra and
+#angband, and you for actually noticing this readme, let alone CatH itself :)
 
 Be sure to read the birth.txt file for information on the new races.
 
-New in version 2.9.1.2:
 
-Wood elves have been added as a player race, being highly specialized
-with the bow, including intrinsic extra might.
 
-Dark Avatars have been added as a player race, with incredible stats
-and resist nether, but with intrinsic drain experience.
+New in version 2.9.1.3:
 
-Range weapons of ammunition have been added, which magically create a
-shot, arrow or bolt when needed. Ammo created in this manner is
-enchanted to around (+5,+5), give or take, and disappears after use.
+A new race, the Lagdalen, has been added, with inherent speed and eventual
+free action at the cost of the ability to wear rings or gloves.
 
-Colorized the monster recall window, so that certain numbers
-stand out a little better. Note in particular that a monster's depth is
-in red if it's out of your maximum depth, umber if it's at or before
-depth.
+Wood Elves (and any new race with the INH_MIGHT flag) get an extra bonus point
+to extra might when they reach level 25, if they use a bow.
 
-Fixed a bug with the rogue attacking a sleeping creature,
-resulting in a page fault.
+Hitting "m" as a prayercaster will preform a prayer, and vice versa.
 
-Added actual history info for the kobold.
-
-Fixed errors in the shopkeeper table.
-
-Updated the 'V' (version) command.
+The bug with the "Study" message being partially erased has been fixed.
 
 Changes from Vanilla Angband:
 
-The critical hits system has been redone for most classes. While mages
-have the same ol' system as before, other classes can now get crits more
-frequently, and with more power, depending on the weight of their
-weapons; the heavier, the better. For warriors and paladins, this factor
-could now make large axes and such a more attractive proposition than
-the extra-blow generating whips and such that get used in Vanilla. In
-the same vein, the hits-per-blows table has been adjusted to make
-Dexterity 'count' more. (This will generally be bad for most players.)
+The critical hits system has been redone for most classes. While mages have the
+same ol' system as before, other classes can now get crits more frequently, and
+with more power, depending on the weight of their weapons; the heavier, the
+better. For warriors and paladins, this factor could now make large axes and
+such a more attractive proposition than the extra-blow generating whips and
+such that get used in Vanilla. In the same vein, the hits-per-blows table has
+been adjusted to make Dexterity 'count' more. (This will generally be bad for
+most players.)
 
-Elemental rings, such as Rings of Flame or Vilia, now 'confer' powers to
-the weapon you're weilding. For example, if you have a normal short
-sword (+0, +0) and a Ring of Flames, you are effectively attacking with
-a Short Sword of Burning (+0, +0). Some other artifacts also confer
-powers to weapons as well.
+Elemental rings, such as Rings of Flame or Vilia, now 'confer' powers to the
+weapon you're weilding. For example, if you have a normal short sword (+0, +0)
+and a Ring of Flames, you are effectively attacking with a Short Sword of
+Burning (+0, +0). Some other artifacts also confer powers to weapons as well.
 
 Poison brand (x3) has been added, along with Weapons of Venom.
 
-[2.9.1.2] Range weapons of ammunition have been added, which magically
-create a shot, arrow or bolt when needed. Ammo created in this manner is
-enchanted to around (+5,+5), give or take, and disappears after use.
+[2.9.1.2] Range weapons of ammunition have been added, which magically create a
+shot, arrow or bolt when needed. Ammo created in this manner is enchanted to
+around (+5,+5), give or take, and disappears after use.
 
-The kobold has been added as a player race. The kobold has mediocre
-stats at best, but sports poison resistance.
+The kobold has been added as a player race. The kobold has mediocre stats at
+best, but sports poison resistance.
 
-[2.9.1.2] Wood elves have been added as a player race, being highly
-specialized with the bow, including intrinsic extra might.
+[2.9.1.2] Wood elves have been added as a player race, being highly specialized
+with the bow, including intrinsic extra might.
 
-[2.9.1.2] Dark Avatars have been added as a player race, with
-incredible stats and resist nether, but with intrinsic drain
-experience.
+[2.9.1.2] Dark Avatars have been added as a player race, with incredible stats
+and resist nether, but with intrinsic drain experience.
 
-Players now have a chance to save their armor from being damaged from
-acid attacks, depending on their Dexterity. However, if this succeeds,
-the player will take full damage (the player takes half damage if it
-hits the armor). Acid and fire attacks also have a small chance of
-disfiguring the player, reducing Charisma.
+[2.9.1.3]A new race, the Lagdalen, has been added, with inherent speed and
+eventual free action at the cost of the ability to wear rings or gloves.
 
-Added Scrolls of Set Recall Depth, which work as per title. Don't read
-these in the town, as you can't cancel out of them (yet), and you can't
-set the depth to lower than the level you're on.
+Players now have a chance to save their armor from being damaged from acid
+attacks, depending on their Dexterity. However, if this succeeds, the player
+will take full damage (the player takes half damage if it hits the armor). Acid
+and fire attacks also have a small chance of disfiguring the player, reducing
+Charisma.
 
-Rogues who attack a sleeping creature deal out extra damage, depending
-on the kind of weapon they use (light blades do most damage).
+Added Scrolls of Set Recall Depth, which work as per title. Don't read these in
+the town, as you can't cancel out of them (yet), and you can't set the depth to
+lower than the level you're on.
 
-Attacking a sleeping monster will always hit, regardless of class. How
-could you miss?
+[2.9.1.3]Wood Elves (and any new race with the INH_MIGHT flag) get an extra bonus point
+to extra might when they reach level 25, if they use a bow.
 
-Rangers have improved object feelings. While they're still the
-second-worst class, they no longer are as boring to play early on. To
-compensate, their Identify spell has been pushed back a few levels.
+Rogues who attack a sleeping creature deal out extra damage, depending on the
+kind of weapon they use (light blades do most damage).
 
-Autoscumming is now available on sartup, and _not_ while the character
-is alive. In addition, there is now a "Nightmare mode" which quadruples
-the chance of a special room being generated.
+Attacking a sleeping monster will always hit, regardless of class. How could
+you miss?
 
-The monster health bar has been altered, ala GW-Angband; it now displays
-the status of the monster, whether asleep, afraid, or whatever.
+Rangers have improved object feelings. While they're still the second-worst
+class, they no longer are as boring to play early on. To compensate, their
+Identify spell has been pushed back a few levels.
 
-After you've beaten Melkor, you are no longer limited to diving to level
-127. If you have the patience, you can dive to level 9999; about 94
-miles deep. The odds of finding good objects don't increase as you dive
-beyond 127 however unless you're in nightmare mode; the monsters do get
-tougher, however. At ten minutes a level, you'll spend over two months
-straight to reach the bottom.
+Autoscumming is now available on sartup, and _not_ while the character is
+alive. In addition, there is now a "Nightmare mode" which quadruples the chance
+of a special room being generated.
 
-The temple now stocks stat restore potions so you don't go to tears
-waiting for the stupid alchemy to restock that restore Strength you need
-so badly.
+The monster health bar has been altered, ala GW-Angband; it now displays the
+status of the monster, whether asleep, afraid, or whatever.
+
+After you've beaten Morgoth, you are no longer limited to diving to level 127.
+If you have the patience, you can dive to level 9999; about 94 miles deep. The
+odds of finding good objects don't increase as you dive beyond 127 however
+unless you're in nightmare mode; the monsters do get tougher, however. At ten
+minutes a level, you'll spend over two months straight to reach the bottom.
+
+The temple now stocks stat restore potions so you don't go to tears waiting for
+the stupid alchemy to restock that restore Strength you need so badly.
 
 Destroyed levels are now optional; you can turn them off in the menus.
 
-Magic mushroom patches have been removed, because they are flat out the
-most irritating little (*#$#@s on the planet :) They have been replaced
-with touger archers. The graphics tiles have not been updated however,
-since I don't use them and am too lazy to redraw them :)
+Magic mushroom patches have been removed, because they are flat out the most
+irritating little (*#$#@s on the planet :) They have been replaced with touger
+archers. The graphics tiles have not been updated however, since I don't use
+them and am too lazy to redraw them :)
 
-[2.9.1.2] Colorized the monster recall window, so that certain numbers
-stand out a little better. Note in particular that a monster's depth is
-in red if it's out of your maximum depth, umber if it's at or before
-depth.
+[2.9.1.2] Colorized the monster recall window, so that certain numbers stand
+out a little better. Note in particular that a monster's depth is in red if
+it's out of your maximum depth, umber if it's at or before depth.
 
-A "Quick mode" option for the autoroller, which gets rid of a delay in
-the autoroller loop, generating stats very quickly. You're still
-currently limited to one million rolls, however.
+[2.9.1.3]Hitting "m" as a prayercaster will preform a prayer, and vice versa.
 
-The status info at the side of the dungeon view now displays how much
-Exp is needed to get to the next Character level.
+A "Quick mode" option for the autoroller, which gets rid of a delay in the
+autoroller loop, generating stats very quickly. You're still currently limited
+to one million rolls, however.
+
+The status info at the side of the dungeon view now displays how much Exp is
+needed to get to the next Character level.
+
+[2.9.1.3] Hitting "m" as a prayercaster will preform a prayer, and vice
+versa.
 
 Various other undocumented featu^W^Wsuprises.
 
 Version History:
 
+Changes from 2.9.1.2 to 2.9.1.3:
+
+Wood Elves (any any new race with the INH_MIGHT flag) get an extra bonus point
+to extra might when they reach level 25, if they use a bow.
+
+Hitting "m" as a prayercaster will preform a prayer, and vice versa.
+
+The bug with the "Study" message being partially erased has been fixed.
+
 Changes from 2.9.1.1 to 2.9.1.2:
 
-Wood elves have been added as a player race, being highly
-specialized with the bow, including intrinsic extra might.
+Wood elves have been added as a player race, being highly specialized with the
+bow, including intrinsic extra might.
 
-Dark Avatars have been added as a player race, with
-incredible stats and resist nether, but with intrinsic drain
-experience.
+Dark Avatars have been added as a player race, with incredible stats and resist
+nether, but with intrinsic drain experience.
 
-Range weapons of ammunition have been added, which magically
-create a shot, arrow or bolt when needed. Ammo created in this manner is
-enchanted to around (+5,+5), give or take, and disappears after use.
+Range weapons of ammunition have been added, which magically create a shot,
+arrow or bolt when needed. Ammo created in this manner is enchanted to around
+(+5,+5), give or take, and disappears after use.
 
-Colorized the monster recall window, so that certain numbers
-stand out a little better. Note in particular that a monster's depth is
-in red if it's out of your maximum depth, umber if it's at or before
-depth.
+Colorized the monster recall window, so that certain numbers stand out a little
+better. Note in particular that a monster's depth is in red if it's out of your
+maximum depth, umber if it's at or before depth.
 
-Fixed a bug with the rogue attacking a sleeping creature,
-resulting in a page fault.
+Fixed a bug with the rogue attacking a sleeping creature, resulting in a page
+fault.
 
 Added actual history info for the kobold.
 
@@ -168,17 +168,17 @@ Updated the 'V' (version) command.
 
 Changes from 2.8.53 to 2.9.1.1:
 
-Ported to the 2.9.1 codebase. Many many things are tweaked, more than I
-care to remember right now :) Most of the previous versions is in here
-tho, plus and minus a couple details.
+Ported to the 2.9.1 codebase. Many many things are tweaked, more than I care to
+remember right now :) Most of the previous versions is in here tho, plus and
+minus a couple details.
 
 Changes from 2.8.52 to 2.8.53
 
 *   Fixed nasty bug that made nearly every room 'unusual', making for insa-
 	  nely difficult dungeons.
 
-*   Optimized the 'display overhead view' sub-window so that it doesn't print while
-     running. (Though it probably should refresh when the player stops.)
+*   Optimized the 'display overhead view' sub-window so that it doesn't print
+     while running. (Though it probably should refresh when the player stops.)
 
 *   Fixed a couple spelling errors.
 

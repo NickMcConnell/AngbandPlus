@@ -618,7 +618,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-10s", buf), ROW_SPEED, COL_SPEED);
 }
 
 
@@ -1463,7 +1463,7 @@ static void calc_mana(void)
 	/* Only mages are affected */
 	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
 	{
-		u32b f1, f2, f3;
+		u32b f1, f2, f3, f4;
 
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -1472,7 +1472,7 @@ static void calc_mana(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
@@ -1733,7 +1733,7 @@ static void calc_bonuses(void)
 
 	object_type *o_ptr;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 
 	/*** Memorize ***/
@@ -1834,7 +1834,18 @@ static void calc_bonuses(void)
 	p_ptr->wear_pois = FALSE;
 	p_ptr->wear_evil = FALSE;
 	p_ptr->wear_drgn = FALSE;
-
+    /* ~ equipment inabilities */
+    p_ptr->no_weilding = FALSE;
+    p_ptr->no_shooting = FALSE;
+    p_ptr->no_fingers = FALSE;
+    p_ptr->no_neck = FALSE;
+    p_ptr->no_light = FALSE;
+    p_ptr->no_body = FALSE;
+    p_ptr->no_cloak = FALSE;
+    p_ptr->no_arm = FALSE;
+    p_ptr->no_head = FALSE;
+    p_ptr->no_hands = FALSE;
+    p_ptr->no_feet = FALSE;
 
 	/*** Extract race/class info ***/
 
@@ -1875,7 +1886,7 @@ static void calc_bonuses(void)
 	/*** Analyze player ***/
 
 	/* Extract the player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Good flags */
 	if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
@@ -1895,8 +1906,6 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
-	/* ~ racial drain */
-	if (f1 & (TR1_INH_DRAIN_EXP)) p_ptr->inh_exp_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -1939,9 +1948,27 @@ static void calc_bonuses(void)
    	if (f3 & TR3_CONFER_EVIL) p_ptr->wear_evil = TRUE;
    	if (f3 & TR3_CONFER_DRGN) p_ptr->wear_drgn = TRUE;
 
-	/* ~ intrinsic extra might */
-	if (f1 & TR1_MIGHT) extra_might += 1;
-
+    /* ~ more racial based flags */
+	if (f4 & TR4_INH_MIGHT) p_ptr->inh_might = TRUE;
+	if (f4 & TR4_INH_DRAIN_EXP) p_ptr->inh_exp_drain = TRUE;
+    if (f4 & TR4_INH_SPEED) p_ptr->pspeed += 5 + (p_ptr->lev / 5);
+    /*if ((f4 & TR4_DEL_FREE_ACT) && (p_ptr->lev >= 25))
+        p_ptr->free_act = TRUE;*/
+        
+    
+    /* ~ equipment inabilities */
+    if (f4 & (TR4_NO_WEILDING)) p_ptr->no_weilding = TRUE;
+    if (f4 & (TR4_NO_SHOOTING)) p_ptr->no_shooting = TRUE;
+    if (f4 & (TR4_NO_FINGERS)) p_ptr->no_fingers = TRUE;
+    if (f4 & (TR4_NO_NECK)) p_ptr->no_neck = TRUE;
+    if (f4 & (TR4_NO_LIGHT)) p_ptr->no_light = TRUE;
+    if (f4 & (TR4_NO_BODY)) p_ptr->no_body = TRUE;
+    if (f4 & (TR4_NO_CLOAK)) p_ptr->no_cloak = TRUE;
+    if (f4 & (TR4_NO_ARM)) p_ptr->no_arm = TRUE;
+    if (f4 & (TR4_NO_HEAD)) p_ptr->no_head = TRUE;
+    if (f4 & (TR4_NO_HANDS)) p_ptr->no_hands = TRUE;
+    if (f4 & (TR4_NO_FEET)) p_ptr->no_feet = TRUE;
+    
 	/*** Analyze equipment ***/
 
 	/* Scan the equipment */
@@ -1953,7 +1980,7 @@ static void calc_bonuses(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -2052,7 +2079,7 @@ static void calc_bonuses(void)
 
 		/* Apply the mental bonuses to armor class, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
-
+        
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
 
@@ -2069,6 +2096,7 @@ static void calc_bonuses(void)
 	}
 
 
+    
 	/*** Handle stats ***/
 
 	/* Calculate stats */
@@ -2374,9 +2402,20 @@ static void calc_bonuses(void)
 		{
 			/* Extra shots */
 			p_ptr->num_fire += extra_shots;
-
-			/* Extra might */
+			
+            /* Extra might */
 			p_ptr->ammo_mult += extra_might;
+            
+            /* ~ hack -- handle intrinsic extra might */
+            if (p_ptr->inh_might)
+            {
+                p_ptr->ammo_mult++;
+                /* ~ even more if they have a bow at high levels */
+                if((p_ptr->ammo_tval == TV_ARROW) &&
+                   (p_ptr->lev >= 25))
+                    p_ptr->ammo_mult++;
+                
+            }
 
 			/* Hack -- Rangers love Bows */
 			if ((p_ptr->pclass == CLASS_RANGER) &&

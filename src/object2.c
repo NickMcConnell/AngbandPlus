@@ -840,7 +840,7 @@ static s32b object_value_real(object_type *o_ptr)
 {
 	s32b value;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -853,7 +853,7 @@ static s32b object_value_real(object_type *o_ptr)
 
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Artifact */
@@ -1901,7 +1901,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 {
 	int tohit1 = randint(5) + m_bonus(5, level);
 	int todam1 = randint(5) + m_bonus(5, level);
-	int chance; /* ~ see below */
 
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);

@@ -935,7 +935,7 @@ static void process_world(void)
 	/* ~ handle intrinsic experience draining */
 	if (p_ptr->inh_exp_drain)
 	{
-		if ((rand_int(1000) < (p_ptr->lev * 2 + 10)) && (p_ptr->exp > 0))
+		if ((rand_int(10000L) < (p_ptr->lev * 25 + 50)) && (p_ptr->exp > 0))
 		{
 			/* ~ this is kindof ugly, so that it affects both high and
 			       low  level characters. */

@@ -1356,3 +1356,9 @@ A:FIREBRAND:999:0
 
 # Artifact 127 is unused
 
+#proposed artifacts
+#the sword "aranruth" "King's ire" (unfinished tales, 180)
+#the long bow of Beleg (unfinished tales)
+#the great axe "Dramborleg" (UT)
+#the two handed sword "Celeg Aithorn" (lightning, lays of bel)
+#sword "dagmor" (bel 408, 416)

@@ -281,15 +281,14 @@ sint critical_norm(int weight, int plus, int dam)
 sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 1;
-	int tempdam; /* ~ used for intermittent damage calculation */
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Some "weapons" and "ammo" do extra damage
 	 * ~ now recognzes the conferred slays by rings, etc -- neko */
@@ -1205,7 +1204,6 @@ void hit_trap(int y, int x)
 void py_attack(int y, int x)
 {
 	int num = 0, k, bonus, chance;
-	int			tempdam; /* ~ used for critical hits & such -- neko */
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;

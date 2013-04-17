@@ -130,9 +130,34 @@ void do_cmd_equip(void)
 
 /*
  * The "wearable" tester
+ * ~ now tests against the no_* flags as well.
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
+    if ((p_ptr->no_weilding) &&
+        ((o_ptr->tval == TV_DIGGING) ||
+         (o_ptr->tval == TV_HAFTED) ||
+         (o_ptr->tval == TV_POLEARM) ||
+         (o_ptr->tval == TV_SWORD)))
+        return(FALSE);
+    if ((p_ptr->no_shooting) && (o_ptr->tval == TV_BOW)) return(FALSE);
+    if ((p_ptr->no_fingers) && (o_ptr->tval == TV_RING)) return(FALSE);
+    if ((p_ptr->no_neck) && (o_ptr->tval == TV_AMULET)) return(FALSE);
+    if ((p_ptr->no_light && (o_ptr->tval == TV_LITE))) return(FALSE);
+    if ((p_ptr->no_body) &&
+        ((o_ptr->tval == TV_SOFT_ARMOR) ||
+         (o_ptr->tval == TV_HARD_ARMOR) ||
+         (o_ptr->tval == TV_DRAG_ARMOR)))
+        return(FALSE);
+    if ((p_ptr->no_cloak) && (o_ptr->tval == TV_CLOAK)) return(FALSE);
+    if ((p_ptr->no_arm) && (o_ptr->tval == TV_SHIELD)) return(FALSE);
+    if ((p_ptr->no_head) && 
+        ((o_ptr->tval == TV_HELM) ||
+         (o_ptr->tval == TV_CROWN)))
+        return(FALSE);
+    if ((p_ptr->no_hands) && (o_ptr->tval == TV_GLOVES)) return(FALSE);
+    if ((p_ptr->no_feet) && (o_ptr->tval == TV_BOOTS)) return(FALSE);
+    
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
 

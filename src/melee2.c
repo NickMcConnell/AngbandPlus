@@ -3960,7 +3960,7 @@ static void process_monster(int m_idx)
 				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
 				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
 				{
-					u32b f1, f2, f3;
+					u32b f1, f2, f3, f4;
 
 					u32b flg3 = 0L;
 
@@ -3968,7 +3968,7 @@ static void process_monster(int m_idx)
 					char o_name[80];
 
 					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
+					object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 					/* Get the object name */
 					object_desc(o_name, o_ptr, TRUE, 3);

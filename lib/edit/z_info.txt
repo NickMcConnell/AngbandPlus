@@ -27,13 +27,13 @@ M:A:128
 M:E:128
 
 # Maximum number of monster races
-M:R:549
+M:R:553
 
 # Maximum number of vaults
 M:V:35
 
 # Maximum number of player races
-M:P:13
+M:P:14
 
 # Maximum number of player history lines
 M:H:200
@@ -45,7 +45,7 @@ M:B:4
 M:O:256
 
 # Maximum number of monsters
-M:M:512
+M:M:513
 
 #
 # Array sizes (in bytes) for some initialization stuff

@@ -230,6 +230,7 @@ struct object_kind
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
+    u32b flags4;        /* ~ flags, set 4 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -290,6 +291,7 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
+    u32b flags4;        /* ~ artifact flags, set 4 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -333,6 +335,7 @@ struct ego_item_type
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
+    u32b flags4;        /* ~ ego-item flags, set 4 */
 };
 
 
@@ -554,6 +557,7 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
+    
 };
 
 
@@ -795,6 +799,7 @@ struct player_race
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
+    u32b flags4;        /* ~ racial flags, set 4 */
 };
 
 
@@ -1117,6 +1122,19 @@ struct player_type
 	bool exp_drain;		/* Experience draining */
 	
 	bool inh_exp_drain; /* ~ inherent experience draining */
+    bool inh_might;     /* ~ inherent extra might */
+    
+    bool no_weilding;   /* ~ can't weild weapons */
+    bool no_shooting;   /* ~ can't use bows etc */
+    bool no_fingers;    /* ~ can't wear rings */
+    bool no_neck;       /* ~ can't wear amulets */
+    bool no_light;      /* ~ can't use lights */
+    bool no_body;       /* ~ can't wear armor */
+    bool no_cloak;      /* ~ can't wear cloaks */
+    bool no_arm;        /* ~ can't wear shields */
+    bool no_head;       /* ~ can't use headgear */
+    bool no_hands;      /* ~ can't use gloves */
+    bool no_feet;       /* ~ can't use boots */
 
     bool wear_fire;		/* ~ wearing object of flames */
 	bool wear_cold;		/* ~ wearing object of ice */

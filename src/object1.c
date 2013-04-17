@@ -697,14 +697,14 @@ void reset_visuals(bool unused)
 /*
  * Obtain the "flags" for an item
  */
-static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	object_kind *k_ptr;
 
 	if (mode != OBJECT_FLAGS_FULL)
 	{
 		/* Clear */
-		(*f1) = (*f2) = (*f3) = 0L;
+		(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
@@ -718,6 +718,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		(*f1) = k_ptr->flags1;
 		(*f2) = k_ptr->flags2;
 		(*f3) = k_ptr->flags3;
+        (*f4) = k_ptr->flags4;
 
 		if (mode == OBJECT_FLAGS_FULL)
 		{
@@ -729,6 +730,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				(*f1) = a_ptr->flags1;
 				(*f2) = a_ptr->flags2;
 				(*f3) = a_ptr->flags3;
+                (*f4) = a_ptr->flags4;
 			}
 		}
 
@@ -740,6 +742,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			(*f1) |= e_ptr->flags1;
 			(*f2) |= e_ptr->flags2;
 			(*f3) |= e_ptr->flags3;
+            (*f4) |= e_ptr->flags4;
 		}
 
 		if (mode == OBJECT_FLAGS_KNOWN)
@@ -782,6 +785,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			(*f1) = a_ptr->flags1;
 			(*f2) = a_ptr->flags2;
 			(*f3) = a_ptr->flags3;
+            (*f4) = a_ptr->flags4;
 
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
@@ -826,9 +830,9 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_FULL, o_ptr, f1, f2, f3, f4);
 }
 
 
@@ -836,9 +840,9 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
-	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3);
+	object_flags_aux(OBJECT_FLAGS_KNOWN, o_ptr, f1, f2, f3, f4);
 }
 
 
@@ -1032,13 +1036,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 	char tmp_buf[128];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* See if the object is "aware" */
@@ -1972,10 +1976,10 @@ static cptr act_description[ACT_MAX] =
  */
 cptr item_activation(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
@@ -2093,10 +2097,10 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 {
 	int i = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the "known" and "random" flags */
-	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
+	object_flags_aux(mode, o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* Mega-Hack -- describe activation */

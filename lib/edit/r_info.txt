@@ -8254,3 +8254,83 @@ D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of
 D:the Underworld, cries defiance as he strides towards you to crush you to a 
 D:pulp!
 
+
+# ~ these are new monsters made by neko, because she's mean like that.
+# ~ note that the marksman above is new as well.
+N:548:Mana jelly
+G:j:v
+I:110:52d8:2:1:99
+W:20:3:0:500
+B:TOUCH:UN_POWER
+S:1_IN_2 |
+S:DRAIN_MANA
+F:NEVER_MOVE | ATTR_MULTI
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a huge mound of glowing, glimmering flesh.
+
+N:549:Naked singularity
+G: :D
+I:110:60d20:100:30:0
+W:60:2:0:10000
+B:ENGULF:HURT:10d10
+F:FORCE_MAXHP | KILL_WALL | BASH_DOOR |
+F:IM_POIS | POWERFUL | RAND_50 | INVISIBLE | 
+F:EMPTY_MIND | KILL_BODY | KILL_ITEM
+S:1_IN_2 |
+S:BR_GRAV
+D:A perfectly shperical rip in the fabric of spacetime; light itself 
+D:cannot escape its grasp.
+
+N:550:Wainrider
+G:p:u
+I:110:15d15:20:40:60
+W:25:1:0:60
+B:HIT:HURT:4d5
+B:HIT:HURT:4d5
+F:MALE | 
+F:DROP_1D2 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+D:An Easterlings whose kin attacked Gondor in the Third Age.
+
+N:551:Balchoth
+G:p:u
+I:110:15d10:20:40:40
+W:25:1:0:60
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:MALE | 
+F:DROP_1D2 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+D:An Easterling, of a kin much like the Wainriders.
+
+#N:552:Daeron, Betrayer of Luthien
+#G:h:u
+#D:A minstrel of Doriath, hateful of Men and who twice betrayed Luthien 
+#D:despite his love for her.
+
+
+#N:553:Maeglin, Betrayer of Gondolin
+#G:h:U
+#D:The son of Eol the Dark Elf, Maeglin turned on the kingdom after 
+#D:his capture by Orcs weakened his spirit.
+
+
+#N:554:Blodrin the Traitor
+#G:h:D
+#An Elf, whose lust for gold led to his betrayal of Turin's company
+
+#N:555:Gaurhoth
+#D:A werewolf of the island ot Thu.
+#G:C:D
+#I:110:25d22:15:30:100
+#W:25:2:0:150
+#B:BITE:HURT:1d10
+#B:BITE:HURT:1d10
+#B:BITE:HURT:1d15
+#F:RAND_25 | 
+#F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+#F:ANIMAL | EVIL

@@ -537,7 +537,13 @@ void do_cmd_cast(void)
 
 	cptr q, s;
 
-
+    /* ~ do we really want a prayer? */
+    if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+    {
+        do_cmd_pray();
+        return;
+    }
+    
 	/* Require spell ability */
 	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
@@ -1183,7 +1189,13 @@ void do_cmd_pray(void)
 
 	cptr q, s;
 
-
+    /* ~ do we really want a spell? */
+    if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+    {
+        do_cmd_cast();
+        return;
+    }
+    
 	/* Must use prayer books */
 	if (mp_ptr->spell_book != TV_PRAYER_BOOK)
 	{

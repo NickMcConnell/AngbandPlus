@@ -404,7 +404,7 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"INH_DRAIN_EXP",
+	"XXX1",
 	"XXX2",
 	"STEALTH",
 	"SEARCH",
@@ -509,6 +509,44 @@ static cptr k_info_flags3[] =
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
 };
+
+/* ~ new flag array --neko */
+static cptr k_info_flags4[] =
+{
+    "INH_DRAIN_EXP",
+    "INH_MIGHT",
+    "INH_SPEED",
+    "DEL_FREE_ACT",
+    "XXX5",
+    "XXX6",
+    "XXX7",
+    "XXX8",
+    "XXX9",
+    "XXX10",
+    "XXX11",
+    "XXX12",
+    "XXX13",
+    "XXX14",
+    "XXX15",
+    "XXX16",
+    "XXX17",
+    "XXX18",
+    "XXX19",
+    "XXX20",
+    "XXX21",
+    "NO_WIELDING",
+    "NO_SHOOTING",
+    "NO_FINGERS",
+    "NO_NECK",
+    "NO_LIGHT",
+    "NO_BODY",
+    "NO_CLOAK",
+    "NO_ARM",
+    "NO_HEAD",
+    "NO_HANDS",
+    "NO_FEET"
+};
+    
 
 
 /*
@@ -1277,6 +1315,16 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 			return (0);
 		}
 	}
+    
+    /* ~ check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			k_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}    
 
 	/* Oops */
 	msg_format("Unknown object flag '%s'.", what);
@@ -1632,6 +1680,16 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 			return (0);
 		}
 	}
+    
+	/* ~ check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			a_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
 
 	/* Oops */
 	msg_format("Unknown artifact flag '%s'.", what);
@@ -1981,6 +2039,16 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 			return (0);
 		}
 	}
+    
+	/* ~ check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			e_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
 
 	/* Oops */
 	msg_format("Unknown ego-item flag '%s'.", what);
@@ -2290,12 +2358,22 @@ static errr grab_one_basic_flag(monster_race *r_ptr, cptr what)
 		}
 	}
 
-	/* Scan flags1 */
+	/* Scan flags3 */
 	for (i = 0; i < 32; i++)
 	{
 		if (streq(what, r_info_flags3[i]))
 		{
 			r_ptr->flags3 |= (1L << i);
+			return (0);
+		}
+	}
+    
+	/* ~ scan flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags4[i]))
+		{
+			r_ptr->flags4 |= (1L << i);
 			return (0);
 		}
 	}
@@ -2781,6 +2859,16 @@ static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 		}
 	}
 
+	/* ~ check flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, k_info_flags4[i]))
+		{
+			pr_ptr->flags4 |= (1L << i);
+			return (0);
+		}
+	}
+    
 	/* Oops */
 	msg_format("Unknown player flag '%s'.", what);
 

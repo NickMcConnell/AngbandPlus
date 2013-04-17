@@ -1483,20 +1483,27 @@ static void display_player_xtra_info(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-void player_flags(u32b *f1, u32b *f2, u32b *f3)
+void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Add racial flags */
 	(*f1) |= rp_ptr->flags1;
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
+    (*f4) |= rp_ptr->flags4;
 
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
 		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
 	}
+    
+    /* ~ hack - inherent free action */
+    if (((*f4) & TR4_DEL_FREE_ACT) && (p_ptr->lev >= 25))
+    {
+        (*f3) |= (TR3_FREE_ACT);
+    }/* if */
 }
 
 
@@ -1619,7 +1626,7 @@ static void display_player_flag_info(void)
 	u32b flag;
 	cptr name;
 
-	u32b f[4];
+	u32b f[5];
 
 
 	/* Four columns */
@@ -1661,7 +1668,7 @@ static void display_player_flag_info(void)
 				o_ptr = &inventory[i];
 
 				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
 
 				/* Color columns by parity */
 				if (i % 2) attr = TERM_L_WHITE;
@@ -1690,7 +1697,7 @@ static void display_player_flag_info(void)
 			}
 
 			/* Player flags */
-			player_flags(&f[1], &f[2], &f[3]);
+			player_flags(&f[1], &f[2], &f[3], &f[4]);
 
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
@@ -1871,8 +1878,8 @@ static void display_player_sust_info(void)
 	int i, row, col, stat;
 
 	object_type *o_ptr;
-	u32b f1, f2, f3;
-	u32b ignore_f2, ignore_f3;
+	u32b f1, f2, f3, f4;
+	u32b ignore_f2, ignore_f3, ignore_f4;
 
 	byte a;
 	char c;
@@ -1894,10 +1901,10 @@ static void display_player_sust_info(void)
 		o_ptr = &inventory[i];
 
 		/* Get the "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Hack -- assume stat modifiers are known */
-		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
+		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
@@ -1952,7 +1959,7 @@ static void display_player_sust_info(void)
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; ++stat)

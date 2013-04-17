@@ -43,7 +43,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.1.1"
+#define VERSION_STRING	"2.9.1.3"
 
 /*
  * Current version numbers
@@ -51,7 +51,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
 #define VERSION_PATCH	1
-#define VERSION_EXTRA	1
+#define VERSION_EXTRA	3
 
 
 /*
@@ -1861,6 +1861,9 @@
  * seven unused flags, four bad flags, four damage ignoring flags, six weird
  * flags, and three cursed flags).
  *
+ * ~ the new 'flags4' contains mainly racial flags, such as inherent
+ # ~ drain experience and such.
+ *
  * ~ used some of the empty flags3 list to hold the 'confer slay' attributes.
  # ~ in later versions of this variant i may include rings of poision,
  # ~ evil-slaying, etc. The poison brand has also been put in--neko
@@ -1872,7 +1875,7 @@
 #define TR1_DEX				0x00000008L	/* DEX += "pval" */
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
-#define TR1_INH_DRAIN_EXP	0x00000040L	/* ~ Inherent Drain Exp */
+#define TR1_XXX1        	0x00000040L	
 #define TR1_XXX2			0x00000080L	/* (reserved) */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
 #define TR1_SEARCH			0x00000200L	/* Search += "pval" */
@@ -1940,30 +1943,65 @@
 #define TR3_SEE_INVIS		0x00000020L	/* See Invis */
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
-#define TR3_IMPACT		0x00000100L	/* Earthquake blows */
+#define TR3_IMPACT		    0x00000100L	/* Earthquake blows */
 #define TR3_TELEPORT		0x00000200L	/* Random teleportation */
 #define TR3_AGGRAVATE		0x00000400L	/* Aggravate monsters */
 #define TR3_DRAIN_EXP		0x00000800L	/* Experience drain */
-#define TR3_CONFER_FIRE	0x00001000L	/* ~ confers flame brand */
-#define TR3_CONFER_COLD	0x00002000L	/* ~ confers ice brand */	
-#define TR3_CONFER_ACID	0x00004000L	/* ~ confers acid brand */
-#define TR3_CONFER_ELEC	0x00008000L	/* ~ confers electric brand */
-#define TR3_CONFER_POIS	0x00010000L	/* ~ confers poison brand */	
-#define TR3_CONFER_EVIL	0x00020000L	/* ~ confers slay evil */	
-#define TR3_IGNORE_ACID	0x00040000L	/* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC	0x00080000L	/* Item ignores Elec Damage */	
-#define TR3_IGNORE_FIRE	0x00100000L	/* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD	0x00200000L	/* Item ignores Cold Damage */
-#define TR3_BLESSED		0x00400000L	/* Item has been blessed */
+#define TR3_CONFER_FIRE	    0x00001000L	/* ~ confers flame brand */
+#define TR3_CONFER_COLD	    0x00002000L	/* ~ confers ice brand */	
+#define TR3_CONFER_ACID	    0x00004000L	/* ~ confers acid brand */
+#define TR3_CONFER_ELEC	    0x00008000L	/* ~ confers electric brand */
+#define TR3_CONFER_POIS	    0x00010000L	/* ~ confers poison brand */	
+#define TR3_CONFER_EVIL	    0x00020000L	/* ~ confers slay evil */	
+#define TR3_IGNORE_ACID	    0x00040000L	/* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC	    0x00080000L	/* Item ignores Elec Damage */	
+#define TR3_IGNORE_FIRE	    0x00100000L	/* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD	    0x00200000L	/* Item ignores Cold Damage */
+#define TR3_BLESSED		    0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
 #define TR3_INSTA_ART		0x01000000L	/* Item makes an artifact */
 #define TR3_EASY_KNOW		0x02000000L	/* Item is known if aware */
 #define TR3_HIDE_TYPE		0x04000000L	/* Item hides description */
 #define TR3_SHOW_MODS		0x08000000L	/* Item shows Tohit/Todam */
-#define TR3_CONFER_DRGN	0x10000000L	/* ~ confers slay dragon */
-#define TR3_LIGHT_CURSE	0x20000000L	/* Item has Light Curse */
-#define TR3_HEAVY_CURSE	0x40000000L	/* Item has Heavy Curse */
-#define TR3_PERMA_CURSE	0x80000000L	/* Item has Perma Curse */
+#define TR3_CONFER_DRGN	    0x10000000L	/* ~ confers slay dragon */
+#define TR3_LIGHT_CURSE	    0x20000000L	/* Item has Light Curse */
+#define TR3_HEAVY_CURSE	    0x40000000L	/* Item has Heavy Curse */
+#define TR3_PERMA_CURSE	    0x80000000L	/* Item has Perma Curse */
+
+#define TR4_INH_DRAIN_EXP   0x00000001L /* ~ inherent drain exp */
+#define TR4_INH_MIGHT       0x00000002L /* ~ inherent extra might */
+#define TR4_INH_SPEED       0x00000004L /* ~ inherent extra speed */
+#define TR4_DEL_FREE_ACT    0x00000008L /* ~ delayed free action */
+#define TR4_XXX5            0x00000010L
+#define TR4_XXX6            0x00000020L
+#define TR4_XXX7            0x00000040L
+#define TR4_XXX8            0x00000080L
+#define TR4_XXX9            0x00000100L
+#define TR4_XXX10           0x00000200L
+#define TR4_XXX11           0x00000400L
+#define TR4_XXX12           0x00000800L
+#define TR4_XXX13           0x00001000L
+#define TR4_XXX14           0x00002000L
+#define TR4_XXX15           0x00004000L
+#define TR4_XXX16           0x00008000L
+#define TR4_XXX17           0x00010000L
+#define TR4_XXX18           0x00020000L
+#define TR4_XXX19           0x00040000L
+#define TR4_XXX20           0x00080000L
+#define TR4_XXX21           0x00100000L
+#define TR4_NO_WEILDING     0x00200000L /* ~ can't weild weapons (eek!) */
+#define TR4_NO_SHOOTING     0x00400000L /* ~ can't use ranged weapons */
+#define TR4_NO_FINGERS      0x00800000L /* ~ can't wear rings */
+#define TR4_NO_NECK         0x01000000L /* ~ can't wear amulets */
+#define TR4_NO_LIGHT        0x02000000L /* ~ can't use light */
+#define TR4_NO_BODY         0x04000000L /* ~ can't wear armor */
+#define TR4_NO_CLOAK        0x08000000L /* ~ can't wear cloaks */
+#define TR4_NO_ARM          0x10000000L /* ~ can't wear shields */
+#define TR4_NO_HEAD         0x20000000L /* ~ can't wear helmets */
+#define TR4_NO_HANDS        0x40000000L /* ~ can't wear gloves */
+#define TR4_NO_FEET         0x80000000L /* ~ can't wear boots */
+
+
 
 
 /*
@@ -1972,7 +2010,7 @@
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_INH_DRAIN_EXP | TR1_XXX2 | \
+	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 

@@ -209,44 +209,62 @@ have intrinsic abilities.
                unseen, and resist light effects just like regular elves.
 
 		 Kobold
-		       Kobolds are small furry creatures, often described as
-			   looking somewhat like bipedal dogs. While they rarely
-			   surface from the dungeon on their own accord, they are
-			   sometimes brought up as slaves or pets. While their
-			   stats aren't particularly good, they have excellent
-			   stealth, and have an innate resistance to poisons. They
-			   make good rogues and maybe rangers.
-			   
+               Kobolds are small furry creatures, often described as
+               looking somewhat like bipedal dogs. While they rarely
+               surface from the dungeon on their own accord, they are
+               sometimes brought up as slaves or pets. While their stats
+               aren't particularly good, they have excellent stealth, and
+               have an innate resistance to poisons. They make good rogues
+               and maybe rangers.
+
 		Wood Elf
-		       The first love of Wood Elves is hunting. As such, their
-			   skill with the bow is unparalleled. They train tirelessly
-			   with their bows, to the point of neglecting even melee
-			   skills. They resist light as with other elves, and do
-			   extra damage with a ranged weapon. They are almost custom
-			   made for the ranger class, but also make interesting
-			   warriors and rogues. Even Wood Elf Mages are feasible,
-			   using the bow to attack and saving their magic for
-			   defense.
-			   
-		Dark Avatar
-			   Somewhere, in deep dark existential planes, cruel
-			   merciless gods deign to control or even destroy the
-			   entire omniverse. Morgoth, they believe, is merely in the
-			   way. While the gods themselves cannot travel across the
-			   plains, they can enter as avatars, with a good amount of
-			   the god's power used to create them. A Dark Avatar's
-			   statistics are simply incredible, being after all the
-			   very persona of gods themselves; their stealth is also
-			   very high, reflecting their wraith-like nature. The
-			   Avatars, however, have one critical flaw: their forms are
-			   powered by life force. While their corporeal beings are
-			   as dependant on food as you or I, their power comes from
-			   leeching the very souls of their victims. Dark Avatars
-			   therefore continually lose experience as time passes;
-			   they must kill others simply to maintain the power they
-			   have. As Avatars grow in levels and power, this drainage
-			   becomes only more severe, and the Avatar is forced to
-			   consume ever more powerful souls to sustain themselves.
+               The first love of Wood Elves is hunting. As such, their
+               skill with the bow is unparalleled. They train tirelessly
+               with their bows, to the point of neglecting even melee
+               skills. They resist light as with other elves, and do extra
+               damage with a ranged weapon. They are almost custom made
+               for the ranger class, but also make interesting warriors
+               and rogues. Even Wood Elf Mages are feasible, using the bow
+               to attack and saving their magic for defense.
+
+		Dark Avatar 
+               Somewhere, in deep dark existential planes, cruel merciless
+               gods deign to control or even destroy the entire omniverse.
+               Morgoth, they believe, is merely in the way. While the gods
+               themselves cannot travel across the plains, they can enter
+               as avatars, with a good amount of the god's power used to
+               create them. A Dark Avatar's statistics are simply
+               incredible, being after all the very persona of gods
+               themselves; their stealth is also very high, reflecting
+               their wraith-like nature. The Avatars, however, have one
+               critical flaw: their forms are powered by life force. While
+               their corporeal beings are as dependant on food as you or
+               I, their power comes from leeching the very souls of their
+               victims. Dark Avatars therefore continually lose experience
+               as time passes; they must kill others simply to maintain
+               the power they have. As Avatars grow in levels and power,
+               this drainage becomes only more severe, and the Avatar is
+               forced to consume ever more powerful souls to sustain
+               themselves.
+
+		Lagdalen
+               The Lagdalen are a race whom, much like the Hobbits, prefer
+               to shy away from Men and Elves. Their homeland is the
+               southern regions of middle-earth, dwelling in the marshes
+               of that area. Lagdalen are able to train their bodies to
+               act very quickly, giving them an inherent boost to speed,
+               and eventually an immunity to paralysis not unlike that of
+               the gnomes. Living in marshes, the Lagdalen have webbed
+               hands and feet. While this may aid movement in water and on
+               wet pete moss, this poses quite a handicap in a dark
+               dangerous dungeon. While they are able to grasp objects and
+               weild weapons, their skills in combat are somewhat
+               diminished from someone with fully opposable thumbs, as is
+               their ability to disarm traps. More important, they cannot
+               wear any rings or gloves. Ladgalen make for excellent
+               rogues, even if their Dexterity is diminished by their
+               hands. Beyond that, they are still well suited for all
+               other classes.
 
  
 === Classes (outdated) ===

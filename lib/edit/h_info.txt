@@ -22,6 +22,7 @@
 # ~ kobold        --> 67 --> (68|69) --> 70 --> 71 --> 72
 # ~ wood elf      --> 7
 # ~ dark avatar   --> 73 --> 74 --> 75 --> 76
+# ~ lagdalen      --> 77 --> 78 --> 79 --> 80
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -397,3 +398,29 @@ N:76:0:66:40
 D:burning white eyes.
 N:76:0:100:40
 D:pupiless grey eyes.
+
+N:77:78:25:40
+D:Your family owns a parcel of dry land. 
+N:77:78:50:45
+D:Your family owns a small bog. 
+N:77:78:99:50
+D:Your family owns a rather average-sized swamp. 
+N:77:78:100:75
+D:Your family controlls a vast fiefdom of swamp and dry land. 
+
+N:78:79:50:50
+D:You have slick 
+N:78:79:100:50
+D:You have smooth 
+
+N:79:80:40:50
+D:black fur 
+N:79:80:90:50
+D:brown fur 
+N:79:80:100:55
+D:golden fur 
+
+N:80:0:50:50
+D:and thick webbing.
+N:80:0:100:50
+D:and thin webbing.

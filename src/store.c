@@ -679,10 +679,10 @@ static bool store_check_num(object_type *o_ptr)
  */
 static bool is_blessed(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Get the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Is the object blessed? */
 	return ((f3 & TR3_BLESSED) ? TRUE : FALSE);

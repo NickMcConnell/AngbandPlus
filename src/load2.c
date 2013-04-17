@@ -460,7 +460,7 @@ static void rd_item(object_type *o_ptr)
 
 	s32b old_cost;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr;
 
@@ -624,7 +624,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* The ego item indexes changed in 2.7.9 */
 	if (older_than(2, 7, 9) && o_ptr->name2)

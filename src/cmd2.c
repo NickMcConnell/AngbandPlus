@@ -2437,8 +2437,7 @@ void do_cmd_fire(void)
 				msg_print("A bolt is magically created!");
 				break;
 			default:
-				msg_print("How in the world did you get this
-				message?!?");
+				msg_print("How in the world did you get this message?!?");
 				break;
 		}
 	}
