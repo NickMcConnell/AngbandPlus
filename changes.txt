@@ -1,0 +1,15 @@
+Chocolate Angband changes from Vanilla 2.8.2
+
+Chocolate 2.8.2
+- Added NT-style food
+- Added NT-style morale
+- Added NT-style roguelike messages
+- Removed preserve mode.  Note, however, that a level is 'Special' if
+  and *only* if it contains an artifact.  Hopefully, this will make
+  non-preserve a bit less nasty.
+- Removed autoscum.  If you want better items and nastier monsters,
+  dive faster.  If you just want vaults, too bad.
+- Item destruction caused by elemental attacks and spells is affected by
+  damage done, so resists help in protecting your inventory.
+- Added the telnet #define to config.h which redraws the screen at 
+  various points that tend to leave screen droppings on telnet connections

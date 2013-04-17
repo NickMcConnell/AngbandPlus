@@ -1255,34 +1255,6 @@ static bool player_birth_aux()
 	clear_from(15);
 
 
-	/*** Preserve mode ***/
-
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
-
-	/* Ask about "preserve" mode */
-	while (1)
-	{
-		put_str("Use 'preserve' mode? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell();
-	}
-
-	/* Set "preserve" mode */
-	p_ptr->preserve = (c == 'y');
-
-	/* Clear */
-	clear_from(20);
-
-
 #ifdef ALLOW_AUTOROLLER
 
 	/*** Autoroll ***/
@@ -1469,7 +1441,7 @@ static bool player_birth_aux()
 			auto_round++;
 
 			/* Hack -- Prevent overflow */
-			if (auto_round >= 1000000L) break;
+			if (auto_round >= 1000000000L) break;
 
 			/* Check and count acceptable stats */
 			for (i = 0; i < 6; i++)
@@ -1490,8 +1462,8 @@ static bool player_birth_aux()
 			/* Break if "happy" */
 			if (accept) break;
 
-			/* Take note every 25 rolls */
-			flag = (!(auto_round % 25L));
+			/* Take note every 1000 rolls */
+			flag = (!(auto_round % 1000L));
 
 			/* Update display occasionally */
 			if (flag || (auto_round < last_round + 100))

@@ -3,7 +3,7 @@
 This file was last updated for Angband 2.8.2.
 
 Make sure to read the newsgroup "rec.games.roguelike.angband", and to
-visit the website "http://www.voicenet.com/~benh/Angband/" for the most
+visit the website "http://www.thangorodrim.net" for the most
 up to date information about Angband.
 
 Angband 2.8.2 has an incredibly complex history, and is the result of a
@@ -102,6 +102,28 @@ and general cleanup of Angband 2.8.1, plus a few minor new features.  Note
 that almost all changes made in each version released after Angband 2.7.8
 can be found at the Official Angband Home Page, and I just wish that I had
 thought of keeping a change log for the earlier versions as well.
+
+After a while, Ben Harrison gave up maintaining Angband and gave it over
+to Robert Ruehlman, who changed it dramatically, adding the JLE patch
+of different monsters, Lua scripting, and other features.  The general
+opinion of Angband players shifted toward the use of stacking and autoscum,
+preserve mode became a must, and much of the old playing style died out.
+Meanwhile, I (James Banks) had found an old copy of Vanilla on 
+metalab.unc.edu and had enjoyed it thoroughly.  Soon, though, I wished to
+make make changes, and I started the variant NTAngband.  But since my
+first love is Vanilla, I never really play it.  So I was coming up with
+neat ideas that would also work well in a fairly conservative variant, and
+wondering what they would look like with an already well-balanced game.
+And so I took some of these ideas and put them into an old Ben version,
+Angband 2.8.2, calling it Chocolate Angband.  I hope to do away with the
+excessive money problem, some of stat-gain boredom, downright wrong
+monster distribution (why the heck are 7/8ths of all monster types all in
+the first 50 dlevels?), the vicious and unwarranted slaughtering of 
+innocent slime molds, and bring back some of the glorious strategies of
+old (like not using A/S corridors so much so as to get more loot) and
+that queasy feeling you get as a ranger without any arrows, just arrived
+by accident on a "Special" level, except without the possibility of it
+being a false alarm...
 
 The Official Angband Home Page ("http://www.voicenet.com/~benh/Angband/")
 was created to serve as the most up to date description of Angband, listing

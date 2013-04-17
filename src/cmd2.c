@@ -271,7 +271,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Lose strength */
 	if (trap & (CHEST_LOSE_STR))
 	{
-		msg_print("A small needle has pricked you!");
+		if(!rl_mess) msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
 		(void)do_dec_stat(A_STR);
 	}
@@ -279,7 +279,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Lose constitution */
 	if (trap & (CHEST_LOSE_CON))
 	{
-		msg_print("A small needle has pricked you!");
+		if(!rl_mess) msg_print("A small needle has pricked you!");
 		take_hit(damroll(1, 4), "a poison needle");
 		(void)do_dec_stat(A_CON);
 	}
@@ -287,7 +287,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Poison */
 	if (trap & (CHEST_POISON))
 	{
-		msg_print("A puff of green gas surrounds you!");
+		if(!rl_mess) msg_print("A puff of green gas surrounds you!");
 		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
@@ -297,7 +297,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	/* Paralyze */
 	if (trap & (CHEST_PARALYZE))
 	{
-		msg_print("A puff of yellow gas surrounds you!");
+		if(!rl_mess) msg_print("A puff of yellow gas surrounds you!");
 		if (!p_ptr->free_act)
 		{
 			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
@@ -1234,7 +1234,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 	if (rand_int(100) < j)
 	{
 		/* Message */
-		msg_format("You have disarmed the %s.", name);
+		if(!rl_mess)
+		  msg_format("You have disarmed the %s.", name);
+		else
+		  msg_format("disarmed %s", name);
 
 		/* Reward */
 		gain_exp(power);
@@ -1253,7 +1256,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 		if (flush_failure) flush();
 
 		/* Message */
-		msg_format("You failed to disarm the %s.", name);
+		if(!rl_mess) msg_format("You failed to disarm the %s.", name);
 
 		/* We may keep trying */
 		more = TRUE;
@@ -1263,7 +1266,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 	else
 	{
 		/* Message */
-		msg_format("You set off the %s!", name);
+		if(!rl_mess)
+		  msg_format("You set off the %s!", name);
+		else
+		  msg_format("set off %s", name);
 
 		/* Hit the trap */
 		hit_trap(y, x);
@@ -2418,7 +2424,11 @@ void do_cmd_fire(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+                                        if(!rl_mess)
+					  msg_format("The %s finds a mark.", o_name);
+                                    	else
+					  msg_format("it hits");
+
 				}
 
 				/* Handle visible monster */
@@ -2429,9 +2439,12 @@ void do_cmd_fire(void)
 					/* Get "the monster" or "it" */
 					monster_desc(m_name, m_ptr, 0);
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
-
+                                        /* Message */
+                                        if(!rl_mess)
+					  msg_format("The %s hits %s.", o_name, m_name);
+					else
+					  msg_format("it hits");
+	
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
@@ -2465,20 +2478,20 @@ void do_cmd_fire(void)
 					/* Message */
 					message_pain(cave_m_idx[y][x], tdam);
 
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
+                                        /* Take note */
+                                        if (fear && m_ptr->ml && !rl_mess)
+                                        {
+                                                char m_name[80];
 
-						/* Sound */
-						sound(SOUND_FLEE);
+                                                /* Sound */
+                                                sound(SOUND_FLEE);
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
+                                                /* Get the monster name (or "it") */
+                                                monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-					}
+                                                msg_format("%^s flees in terror!", m_name);
+                                        }
 				}
 			}
 
@@ -2706,7 +2719,10 @@ void do_cmd_throw(void)
 				if (!visible)
 				{
 					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
+					if(!rl_mess)
+					  msg_format("The %s finds a mark.", o_name);
+					else
+					  msg_format("it hits");
 				}
 
 				/* Handle visible monster */
@@ -2718,7 +2734,10 @@ void do_cmd_throw(void)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					if(!rl_mess)
+					  msg_format("The %s hits %s.", o_name, m_name);
+					else
+					  msg_format("it hits");
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2754,7 +2773,7 @@ void do_cmd_throw(void)
 					message_pain(cave_m_idx[y][x], tdam);
 
 					/* Take note */
-					if (fear && m_ptr->ml)
+					if (fear && m_ptr->ml && !rl_mess)
 					{
 						char m_name[80];
 

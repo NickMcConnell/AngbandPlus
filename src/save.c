@@ -1062,6 +1062,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+	wr_s16b(p_ptr->morale);
+	
+	wr_byte(p_ptr->last_ate);
+	
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
@@ -1111,7 +1115,6 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
-	wr_byte(p_ptr->preserve);
 	wr_byte(0);
 
 	/* Future use */

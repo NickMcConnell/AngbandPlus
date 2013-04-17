@@ -1,4 +1,3 @@
-# File: e_info.txt
 
 
 # This file is used to initialize the "lib/raw/e_info.raw" file, which is

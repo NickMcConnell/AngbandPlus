@@ -804,7 +804,6 @@ struct player_type
 	byte expfact;		/* Experience factor */
 
 	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -830,6 +829,8 @@ struct player_type
 	s16b msp;			/* Max mana pts */
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
+
+	s16b morale;		/* Morale */
 
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
@@ -865,6 +866,8 @@ struct player_type
 	s16b energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
+
+	byte last_ate;		/* SVAL of whatever we ate last */
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */

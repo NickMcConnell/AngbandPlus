@@ -2178,6 +2178,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Not afraid */
 		(*fear) = FALSE;
 
+		/* Redraw if we are using telnet */
+		if(telnet)
+		  do_cmd_redraw();
+
 		/* Monster is dead */
 		return (TRUE);
 	}
@@ -2325,6 +2329,10 @@ void verify_panel(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 	}
+	
+	/* Sometimes necessary for telnet connections */
+	if(telnet)
+	  do_cmd_redraw();
 }
 
 

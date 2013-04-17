@@ -115,8 +115,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-LIBS = -lX11 -lcurses -ltermcap
+#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+#LIBS = -lX11 -lcurses -ltermcap
 
 
 ##
@@ -164,12 +164,12 @@ LIBS = -lX11 -lcurses -ltermcap
 ##
 ## Variation -- this might work better than the suggestion above
 ##
-#CFLAGS = -I/usr/include/ncurses \
-#         -Wall -O2 -fomit-frame-pointer \
-#         -D"USE_X11" -D"USE_GCU" \
-#         -D"USE_TPOSIX" -D"USE_CURS_SET"
-#LIBS = -lX11 -lncurses
-#LDFLAGS = -s
+CFLAGS = -I/usr/include/ncurses \
+         -Wall -O2 -fomit-frame-pointer \
+         -D"USE_GCU" \
+         -D"USE_TPOSIX" -D"USE_CURS_SET"
+LIBS = -lncurses
+LDFLAGS = -s
 
 
 ##
@@ -232,7 +232,7 @@ angband: $(OBJS)
 #
 
 clean:
-	\rm *.bak *.o
+	rm *.bak *.o
 
 
 #

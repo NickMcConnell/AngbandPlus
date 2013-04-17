@@ -1925,6 +1925,17 @@ bool identify_fully(void)
 		           o_name);
 	}
 
+	/* Artifacts make us happy */
+	if(artifact_p(o_ptr))
+	  {
+	  artifact_type *k_ptr;
+	  k_ptr = &a_info[o_ptr->k_idx];
+	  
+	  /* Rare, expensive artifacts make us very happy */
+	  p_ptr->morale += k_ptr->cost * k_ptr->rarity / (k_ptr->level * 1000);
+	  }
+
+
 	/* Describe it fully */
 	identify_fully_aux(o_ptr);
 

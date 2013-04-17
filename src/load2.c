@@ -1299,6 +1299,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
+	
+	rd_s16b(&p_ptr->morale);
+
+	rd_byte(&p_ptr->last_ate);
 
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
@@ -1357,7 +1361,6 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
-	rd_byte(&p_ptr->preserve);
 	rd_byte(&tmp8u);
 
 	/* Future use */

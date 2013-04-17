@@ -224,7 +224,7 @@ extern byte cave_info[DUNGEON_HGT][DUNGEON_WID];
 extern byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
 extern s16b cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
 extern s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
-
+extern bool ate;
 
 /*
  * Automatically generated "function declarations"

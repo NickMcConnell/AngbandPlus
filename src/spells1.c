@@ -3402,7 +3402,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				(void)apply_disenchant(0);
 			}
+
+			/* Being disenchanted is ... disenchanting */
+			if(p_ptr->morale > 0)
+			  p_ptr->morale = 0;
 			take_hit(dam, killer);
+
 			break;
 		}
 

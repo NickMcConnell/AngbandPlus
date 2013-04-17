@@ -143,7 +143,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 		if (!spell_okay(spell, known))
 		{
 			bell();
-			msg_format("You may not %s that %s.", prompt, p);
+			if(!rl_mess)
+			  msg_format("You may not %s that %s.", prompt, p);
 			continue;
 		}
 
@@ -318,25 +319,37 @@ void do_cmd_study(void)
 
 	if (!mp_ptr->spell_book)
 	{
-		msg_print("You cannot read books!");
+		if(!rl_mess)
+		  msg_print("You cannot read books!");
+		else
+		  msg_print("illiterate");
 		return;
 	}
 
 	if (p_ptr->blind || no_lite())
 	{
-		msg_print("You cannot see!");
+		if(!rl_mess)
+		  msg_print("You cannot see!");
+		else
+		  msg_print("blind!");
 		return;
 	}
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused!");
+		if(!rl_mess)
+		  msg_print("You are too confused!");
+		else
+		  msg_print("confused!");
 		return;
 	}
 
 	if (!(p_ptr->new_spells))
 	{
-		msg_format("You cannot learn any new %ss!", p);
+		if(!rl_mess)
+		  msg_format("You cannot learn any new %ss!", p);
+		else
+		  msg_format("no new %ss", p);
 		return;
 	}
 
@@ -457,7 +470,7 @@ void do_cmd_study(void)
 	if (p_ptr->new_spells)
 	{
 		/* Message */
-		msg_format("You can learn %d more %s%s.",
+		if(!rl_mess) msg_format("You can learn %d more %s%s.",
 		           p_ptr->new_spells, p,
 		           (p_ptr->new_spells != 1) ? "s" : "");
 	}
@@ -714,6 +727,7 @@ void do_cmd_cast(void)
 			case 18:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
+				p_ptr->morale -= 1;
 				break;
 			}
 
@@ -1319,6 +1333,7 @@ void do_cmd_pray(void)
 			case 13:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
+				p_ptr->morale -= 1;
 				break;
 			}
 

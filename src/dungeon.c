@@ -151,7 +151,7 @@ static void sense_inventory(void)
 		case CLASS_ROGUE:
 		{
 			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			if (0 != rand_int(1000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -163,8 +163,10 @@ static void sense_inventory(void)
 		case CLASS_RANGER:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
+			if (0 != rand_int(20000L / (plev * 10))) return;
 
+			heavy = TRUE;
+			
 			/* Done */
 			break;
 		}
@@ -627,6 +629,92 @@ static void process_world(void)
 		/* Take damage */
 		take_hit(i, "a fatal wound");
 	}
+
+	/*** Morale ***/
+	if (!rand_int(100))
+	{
+	
+	    if(!rand_int(50))
+	      p_ptr->morale -= 1;
+
+	    if(!rand_int(100) && (p_ptr->prace == RACE_HIGH_ELF || 
+	       p_ptr->prace == RACE_DUNADAN))
+	      {
+	      msg_print("You feel pangs of longing for the West.");
+	      p_ptr->morale -= (p_ptr->prace == RACE_HIGH_ELF) ? rand_int(3) + 2 : rand_int(2) + 1;
+	      }
+
+	    if(p_ptr->morale > 50)
+	      {
+	      p_ptr->protevil += 100;
+	      p_ptr->confusing = TRUE;
+	      p_ptr->new_spells += 1;
+	      p_ptr->to_h += 1;
+	      p_ptr->to_d += 1;
+	      }
+
+	    if(p_ptr->morale > 35)
+	      {
+	      do_res_stat(A_INT);
+	      do_res_stat(A_WIS);
+	      do_res_stat(A_CHR);
+	      if(!rand_int(10))
+	        {
+		do_res_stat(A_STR);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		}
+	      }
+	    if(p_ptr->morale > 25)
+	      set_hero(p_ptr->hero + 100);
+	    if(p_ptr->morale > 20)
+	      {
+	      msg_print("Your happiness clears your mind.");
+	      p_ptr->csp = p_ptr->msp;	     
+	      }
+	    if(p_ptr->morale > 10)
+	      set_fast(p_ptr->fast + 25);
+	    if(p_ptr->morale > 5)
+	      {
+	      if(p_ptr->confused > 0)  
+	        set_confused(0);
+	      msg_print("You feel alright.");
+	      }
+	    if(p_ptr->morale < 0)
+	      {
+	      set_hero(p_ptr->hero - 50);
+	      msg_print("You feel depressed.");
+	      }	    
+	    /* Depression and anxiety often go together */
+	    if(p_ptr->morale < -5)
+	      set_afraid(p_ptr->afraid + 10);
+	    if(p_ptr->morale < -10)
+	      set_stun(p_ptr->stun + 10);
+	    if(p_ptr->morale < -20)
+	      set_slow(p_ptr->slow + 50);
+	    if(p_ptr->morale < -25)
+	      {
+	      msg_print("You no longer feel inclined to fight."); 
+	      set_paralyzed(p_ptr->paralyzed + rand_int(2));
+	      
+	      /* Hack -- drops equipment slot one */
+	      inven_drop(INVEN_WIELD, 1);      
+	      }    
+	    if(p_ptr->morale < -35)
+	      {
+	      msg_print("You slash yourself in depression.");
+	      set_cut(100);
+	      take_hit(damroll(2, 5), "self-mutilation");
+	      }
+	    if(p_ptr->morale < -50)
+	      {
+	      msg_print("You waste away from depression.");
+	      p_ptr->food = 100;
+	      set_paralyzed(p_ptr->paralyzed + rand_int(7));
+	      take_hit(damroll(1, 10), "depression.");
+	      }
+	}
+
 
 
 	/*** Check the Food, and Regenerate ***/
@@ -1902,6 +1990,8 @@ static void process_player(void)
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
 
+	/* We've not eaten this turn */
+	ate = FALSE;
 
 	/*** Check for interupts ***/
 

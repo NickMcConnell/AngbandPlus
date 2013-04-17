@@ -2,7 +2,6 @@
 
 #ifndef INCLUDED_H_SYSTEM_H
 #define INCLUDED_H_SYSTEM_H
-
 /*
  * Include the basic "system" files.
  *
@@ -101,12 +100,15 @@
 
 # ifdef USG
 #  include <string.h>
+/*
 # else
 #  include <strings.h>
 extern char *strstr();
 extern char *strchr();
 extern char *strrchr();
+*/
 # endif
+
 
 #else
 

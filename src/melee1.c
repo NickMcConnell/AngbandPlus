@@ -242,7 +242,7 @@ bool make_attack_normal(int m_idx)
 				}
 
 				/* Message */
-				msg_format("%^s is repelled.", m_name);
+				if(!rl_mess) msg_format("%^s is repelled.", m_name);
 
 				/* Hack -- Next attack */
 				continue;
@@ -408,7 +408,10 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Message */
-			if (act) msg_format("%^s %s", m_name, act);
+			  if(!rl_mess)
+					msg_format("%^s %s", m_name, act);
+			  else
+					msg_format("%s %s ", m_name, act);
 
 
 			/* Hack -- assume all attacks are obvious */
@@ -570,12 +573,14 @@ bool make_attack_normal(int m_idx)
 						}
 						else if (p_ptr->au)
 						{
-							msg_print("Your purse feels lighter.");
+							if(!rl_mess)
+								msg_print("Your purse feels lighter.");
 							msg_format("%ld coins were stolen!", (long)gold);
 						}
 						else
 						{
-							msg_print("Your purse feels lighter.");
+							if(!rl_mess)
+								msg_print("Your purse feels lighter.");
 							msg_print("All of your coins were stolen!");
 						}
 
@@ -1222,7 +1227,11 @@ bool make_attack_normal(int m_idx)
 					disturb(1, 0);
 
 					/* Message */
-					msg_format("%^s misses you.", m_name);
+					if(!rl_mess)
+						msg_format("%^s misses you.", m_name);
+					else
+						msg_format("%s misses", m_name);
+
 				}
 
 				break;

@@ -2598,12 +2598,12 @@ cptr option_text[OPT_MAX] =
 	"disturb_other",			/* OPT_disturb_other */
 	"alert_hitpoint",			/* OPT_alert_hitpoint */
 	"alert_failure",			/* OPT_alert_failure */
-	NULL,						/* xxx */
+	"roguelike_messages",			/* OPT_alert_failure */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
-	"auto_scum",				/* OPT_auto_scum */
+	NULL,
 	"testing_stack",			/* OPT_testing_stack */
 	"testing_carry",			/* OPT_testing_carry */
 	"expand_look",				/* OPT_expand_look */
@@ -2670,12 +2670,12 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever various things happen",	/* OPT_disturb_other */
 	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
 	"Alert user to various failures",			/* OPT_alert_failure */
-	NULL,										/* xxx */
+	"kestrel hits",					/* OPT_roguelike_messages */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
+	NULL,
 	"Allow objects to stack on floor (beta)",	/* OPT_testing_stack */
 	"Allow monsters to carry objects (beta)",	/* OPT_testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
@@ -2742,12 +2742,12 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_other */
 	FALSE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_roguelike_messages */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
-	FALSE,		/* OPT_auto_scum */
+	FALSE,		/* xxx */
 	FALSE,		/* OPT_testing_stack */
 	FALSE,		/* OPT_testing_carry */
 	FALSE,		/* OPT_expand_look */
@@ -2822,7 +2822,7 @@ byte option_page[4][16] =
 		OPT_disturb_other,
 		OPT_alert_hitpoint,
 		OPT_alert_failure,
-		255,
+		OPT_roguelike_messages,
 		255,
 		255,
 		255
@@ -2832,7 +2832,7 @@ byte option_page[4][16] =
 
 	{
 		OPT_auto_haggle,
-		OPT_auto_scum,
+		255,
 		OPT_testing_stack,
 		OPT_testing_carry,
 		OPT_expand_look,

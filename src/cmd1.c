@@ -932,9 +932,13 @@ void py_attack(int y, int x)
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
+		
 		/* Message */
-		msg_format("You are too afraid to attack %s!", m_name);
-
+		if(!rl_mess) 
+			msg_format("You are too afraid to attack %s!", m_name);
+		else
+			msg_print("afraid!");
+		
 		/* Done */
 		return;
 	}
@@ -958,8 +962,11 @@ void py_attack(int y, int x)
 			sound(SOUND_HIT);
 
 			/* Message */
-			msg_format("You hit %s.", m_name);
-
+			if(!rl_mess)
+				msg_format("You hit %s.", m_name);
+			else
+				msg_format("hit %s", m_name);
+			
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
@@ -995,7 +1002,8 @@ void py_attack(int y, int x)
 				p_ptr->confusing = FALSE;
 
 				/* Message */
-				msg_print("Your hands stop glowing.");
+				if(!rl_mess) 
+					msg_print("Your hands stop glowing.");
 
 				/* Confuse the monster */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -1013,7 +1021,10 @@ void py_attack(int y, int x)
 				}
 				else
 				{
-					msg_format("%^s appears confused.", m_name);
+					if(!rl_mess)
+					  msg_format("%^s appears confused.", m_name);
+					else
+					  msg_format("%s confused", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
 				}
 			}
@@ -1026,13 +1037,16 @@ void py_attack(int y, int x)
 			sound(SOUND_MISS);
 
 			/* Message */
-			msg_format("You miss %s.", m_name);
+			if(!rl_mess)
+				msg_format("You miss %s.", m_name);
+			else
+				msg_print("you miss");
 		}
 	}
 
 
 	/* Hack -- delay fear messages */
-	if (fear && m_ptr->ml)
+	if (!rl_mess && fear && m_ptr->ml)
 	{
 		/* Sound */
 		sound(SOUND_FLEE);

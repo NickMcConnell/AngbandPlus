@@ -81,6 +81,8 @@ s32b turn;				/* Current game turn */
 
 s32b old_turn;			/* Hack -- Level feeling counter */
 
+bool ate;			/* Have we eaten this turn? */
+
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 

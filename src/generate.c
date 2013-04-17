@@ -3632,7 +3632,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
@@ -3659,29 +3659,6 @@ void generate_cave(void)
 
 			/* Message */
 			okay = FALSE;
-		}
-
-		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
-		{
-			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
-			    ((p_ptr->depth >= 10) && (feeling > 7)) ||
-			    ((p_ptr->depth >= 20) && (feeling > 6)) ||
-			    ((p_ptr->depth >= 40) && (feeling > 5)))
-			{
-				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-				    cheat_peek || cheat_xtra)
-				{
-					/* Message */
-					why = "boring level";
-				}
-
-				/* Try again */
-				okay = FALSE;
-			}
 		}
 
 		/* Accept */

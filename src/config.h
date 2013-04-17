@@ -517,3 +517,5 @@
 #endif
 
 
+/* Option: telnet redraws */
+#define telnet 0

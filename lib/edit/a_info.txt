@@ -1220,29 +1220,23 @@ F:WIS | INFRA | HIDE_TYPE |
 F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN | 
 F:ACTIVATE | SHOW_MODS
 
+# The Long Bow of Bard
 
-# Artifact 123 is unused
-
+N:124:of Bard
+I:19:13:2
+W:30:15:40:20000
+P:0:0d0:17:19:0
+F:DEX | MIGHT | HIDE_TYPE | 
+F:FREE_ACT | SHOW_MODS
 
 # The Long Bow 'Belthronding'
 
-N:124:'Belthronding'
+N:125:'Belthronding'
 I:19:13:1
 W:40:20:40:35000
 P:0:0d0:20:22:0
 F:DEX | STEALTH | SHOTS | HIDE_TYPE | 
 F:RES_DISEN | SHOW_MODS
-
-
-# The Long Bow of Bard
-
-N:125:of Bard
-I:19:13:2
-W:30:20:40:20000
-P:0:0d0:17:19:0
-F:DEX | MIGHT | HIDE_TYPE | 
-F:FREE_ACT | SHOW_MODS
-
 
 # The Light Crossbow 'Cubragol'
 

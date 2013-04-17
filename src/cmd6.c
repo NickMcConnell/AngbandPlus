@@ -69,6 +69,20 @@ void do_cmd_eat_food(void)
 	cptr q, s;
 
 
+	/* JKB:
+	 * You can only eat twice per turn 
+	 * The first time you eat, you use no energy.
+	 * The second time, you use full energy.  This is so
+	 * that when you are walking, you can eat, but if you
+	 * want to stop for a long meal, you don't have to 
+	 * keep wandering around.
+	 */
+	if(!ate)
+	  p_ptr->energy_use = 0;
+	else
+	  p_ptr->energy_use = 100;
+
+
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
 
@@ -161,6 +175,10 @@ void do_cmd_eat_food(void)
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
 					ident = TRUE;
+
+					/* Most trips are good trips in ChAngband */
+					p_ptr->morale += randint(5) - 1;
+
 				}
 			}
 			break;
@@ -282,20 +300,48 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:
+		{
+		if(!rand_int(500))
+		  do_inc_stat(A_CON);
+		msg_print("Boring, but nutritious.");
+		}
+		
 		case SV_FOOD_JERKY:
+		{ 
+		if(!rand_int(500))
+		  do_inc_stat(A_STR);
+		msg_print("That tastes good.");
+		ident = TRUE;
+		break;
+		}
+
 		case SV_FOOD_SLIME_MOLD:
 		{
-			msg_print("That tastes good.");
+			msg_print("That tastes disgusting.  Intense guilt washes over you as you consider the wanton destruction of life you have caused.");
+
+			/* Lose a point of morale for your indiscretion */
+			p_ptr->morale--;
+			
 			ident = TRUE;
 			break;
 		}
 
 		case SV_FOOD_WAYBREAD:
 		{
-			msg_print("That tastes good.");
+            		if(!rand_int(500))
+			  {
+			  do_inc_stat(A_CHR);
+			  do_inc_stat(A_CHR);
+			  do_inc_stat(A_WIS);          
+			  do_inc_stat(A_INT);
+			  do_inc_stat(A_INT);
+			  }
+			msg_print("That tastes very good.");
+			if(!rand_int(2))
+			  p_ptr->morale += 1;
 			(void)set_poisoned(0);
 			(void)hp_player(damroll(4, 8));
-			ident = TRUE;
+                        ident = TRUE;
 			break;
 		}
 
@@ -303,11 +349,34 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_PINT_OF_WINE:
 		{
 			msg_print("That tastes good.");
-			ident = TRUE;
+			/* Drink lifts your spirits */
+			p_ptr->morale += 2;
+			/* And makes you forget */
+			lose_exp(p_ptr->max_exp / 1000);
+			/* But it makes you drunk */
+			if(!rand_int(10) || p_ptr->last_ate == SV_FOOD_PINT_OF_ALE || 
+			   p_ptr->last_ate == SV_FOOD_PINT_OF_WINE || (p_ptr->food < 2000))
+			  {
+			  set_confused(p_ptr->confused + 100);
+			  set_stun(p_ptr->stun + rand_int(20));
+			  set_shero(p_ptr->shero + rand_int(20));
+			  msg_print("Zhoo feel invinschabubble!");
+			  }
+			/* Makes you pass out */
+			if(p_ptr->confused && !rand_int(3))
+			  set_paralyzed(p_ptr->paralyzed + 100);
+			/* And it damages your brain */
+			if(!rand_int(100))
+			  {
+			  do_dec_stat(A_INT);
+			  if(!rand_int(10))
+			    dec_stat(A_INT, 1, TRUE);
+			  }
+	    		ident = TRUE;
 			break;
 		}
-	}
 
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -327,23 +396,34 @@ void do_cmd_eat_food(void)
 
 
 	/* Food can feed the player */
-	(void)set_food(p_ptr->food + o_ptr->pval);
+	(void)set_food(p_ptr->food + 250);
 
+	/* We've eaten */
+	ate = TRUE;
+
+	/* Eating the same food over and over is depressing */
+	if(p_ptr->last_ate == o_ptr->sval && !(rand_int(6)))
+	  p_ptr->morale -= 1;
+	p_ptr->last_ate = o_ptr->sval;	
 
 	/* Destroy a food in the pack */
-	if (item >= 0)
+        if(!rand_int(o_ptr->pval / 250))
 	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+	        /* Destroy a food in the pack */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
 
-	/* Destroy a food on the floor */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
+		/* Destroy a food on the floor */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
 	}
 }
 
