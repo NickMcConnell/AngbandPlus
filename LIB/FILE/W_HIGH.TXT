@@ -5,16 +5,16 @@ of Ultimate Might
 'World Ender'
 'Destructor'
 of Destruction
-'Impulse 255'
+'Daemon Sultan'
 'Disintegrator'
 'Vanquisher'
-'BGF-9000'
+of Y'ha N'thlei
 'Mjollner'
 'Hand of God'
 'Deathstorm'
 'Devil's Instrument'
 'Word of God'
-'Idkfa'
+'Quest'
 'Quietus'
 'Wraithverge'
 'Arc of Death'
@@ -28,7 +28,7 @@ of Muramasa
 'Bloodscourge'
 'Hand of Vecna'
 'Unmaker'
-'Apocalypse-Now'
+of the Apocalypse
 'Armageddon'
 'Devourer'
 'Soul Searer'
@@ -37,28 +37,28 @@ of Muramasa
 'Dragon Fang'
 'Nemesis'
 'Doom!'
-'Death Wish'
-'Die Hard'
+'Death Dealer'
+'Dead Man's Hand'
 'Exodus'
-'Terminator'
+'White Heat'
 'Exterminator'
 'Thunderstrike'
 'Bloodwych'
 'Inferno'
-'Warhead'
-'Red Storm'
+'War'
+'Death'
 'Dominator'
 'Conqueror'
 'Secret Weapon'
 'Angel of Death'
 'Destroying Angel'
 'Black Star'
-'Turma'
-'Surma'
-'Kalma'
+of Nodens
+of the Gug City
+of R'lyeh
 'Right Hand of Justice'
-'Fat Boy'
-'Megadeath'
+'Vengeance'
+of the King
 of the Fourth Horseman
 'Apocalyptica'
 'Doomsday'
@@ -66,24 +66,24 @@ of the Fourth Horseman
 'Creeping Death'
 'Eternity's End'
 'Word of Death'
-'Weapon Omega'
+of the Emperor Lich
 'Finalizer'
-of Fargoal
-of Bleys
-of Gerard
-of Benedict
-of Elric
-of Eric
-of Erlik
-'Aeglin'
-'Aeglos'
-of Beowulf
-of Orome
+of Attrition
+of Decimation
+'Sacrificial Blade'
+of Bone Breaking
+of Questing
+of Mnar
+of the Gods
+'Moon Song'
+'Pain Giver'
+of Randolph Carter
+of the Mystic
 'Fatal Destiny'
-'Jehovah's Wrath'
+'Bast's Claw'
 'Undying Samurai'
 'Eternal Verities'
-'Durindana'
+'Maw of Hell'
 'Joyeuse'
 of the Eagle Lord
 'Azriel's Own'

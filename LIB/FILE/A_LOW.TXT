@@ -1,29 +1,29 @@
 85
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Ehr Rhee'
-of Eastwood
+of the East
 'Zir Dawn'
 'Lor Goth'
-of the Foo
-of Pobox
-of Demos
-of Talos
+of the Mi-Go
+of Phoboa
+of Diemos
+of Talon
 of Evasion
 of Traveling
 of Balmoth
 of the Uncaring
 of Zod
-of Glenda
+of Ib
 'Wind Shield'
 'Van's Shield'
 of Lesser Shielding
-'Dasmiff'
-'Pizza'
+'Steeleye'
+'Buopoth'
 'Whisperfeet'
 of Shifting
 'Curator'
-'Astrosuit'
-'Combat Enviro-Suit'
+'Arrowbane'
+'Berserker'
 'Bubble'
 of Clay
 'Force Shield'
@@ -37,51 +37,51 @@ of Misery
 of the Unseen
 of the Scarecrow
 of Sand
-'Sad Giant's Shield'
-'Weakstone'
+'Giant's Shield'
+'Wreakstone'
 of Halloween
-'Blank'
-'Sheet'
+'Hot Metal'
+'Witchstone'
 'Wind Fan'
 of Humility
 of Passion
-of the Humpback
-of Bobble
-'Midnight Resistance'
-of Zombi
-'Kid Gloves'
-'Babel'
-'Grand Prix'
-'Krypton Egg'
-'Mindbender'
-'Goonie'
-'Risk'
-'Iron Maiden'
-'Generator'
+of the Hunchback
+of Fury
+'Midnight'
+of the Zombie
+'Kindness'
+'Rat'
+'Grand'
+'Evermore'
+'Guardsman'
+'Bodyguard'
+'Risktaker'
+'Ironskin'
+'Thorn'
 of Transylvania
-'Zaxxon'
-'Wapiti'
-'Deja-Vu'
+'Xura'
+'Demon'
+'Questseeker'
 of the Apparition
-of the Wormhole
+of the Elder Race
 of Holy Smoke
 of the Masochist
-of King Nothing
-of the Stuntman
-of the Kemma
-of the Keva
-'Full Metal Hand'
-'Wooden Box'
+of Yith
+of the Acrobat
+of the Day
+of the Night
+'Full House'
+'Feline'
 of Blind Justice
 of the Mortals
 of Compactness
 of Proximity
 of Satisfaction
-of Gurnemanz
-of Tannhaeuser
-of Martin
+of Kingsport
+of the Old Man
+of the Musician
 of Coral
-of Barahir
-'Dal-i-Thalion'
-'Paurnimmen'
-of Hide-and-Seek
+of Frenzy
+'Astral'
+'Ethereal'
+of Pride

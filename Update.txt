@@ -1,0 +1,67 @@
+Cthangband
+Based on Zangband 2.1.0e
+
+Changes are added to the top of this file, so for a chronological order read from the bottom up.
+
+Cthangband 3.0.1
+* Keys 'O' and ''' mapped to racial power and time respectively in Rogue-like mode.
+* Robert Ruehlman's 'Equippy Chars' code added.
+* Monsters can now cross bush tiles.
+* Jeff Duprey's extra 52 mutations added.
+* Keldon Jones' patch to automatically update '.raw' files added.
+* Trees, bushes and water now handle tunneling correctly.
+* 'Quick Start' option generates an entire character with a single keypress.
+* Windows version can cope without its '.ini' file.
+* Robert Reuhlman's improved pet AI added.
+* Preserve mode now preserves artifacts left in dungeon when Ritual goes off.
+* Changing the character name no longer creates a new savefile.
+* Menu structure for Windows version rearranged.
+* Source code fixed to make Windows version compile properly and use Adam Bolt graphics.
+* It is now possible to rest for the night (or day) at your home.
+* Undead races now start the game at night.
+* Dungeon names displayed on wilderness grids to make dungeons easier to find.
+* Bug in display code preventing unidentified potions/scrolls being shown properly
+  in text mode fixed.
+
+
+Cthangband 3.0.0
+* Finding secret doors earns 1xp, like picking locks.
+* Wilderness areas with dungeons have tougher monsters to make it easier to find the
+  dungeon entrances.
+* 15 different dungeons added, each with their own Guardians.
+* Wilderness levels added.
+* Extra functions added to most shops.
+* Pawnbroker, Inn and Hall of Records added to town.
+* QUESTOR and FORCE_LEVEL flags for monsters replaced with GUARDIAN and ALWAYS_GUARDIAN as
+  part of clean-up of quest code.
+* Many more cosmetic changes to artifact names and most text files to keep them in genre.
+* Breeders can now only breed to 10 generations.
+* Breeders can no longer be Quest monsters.
+* Tim Baker's Easy-Angband code added.
+* Robert Reuhlman's quest generation algorithm used to tone down the level of quest monsters.
+* Fixed 'Infinite Paralysis' problem with floating eyes - They will now do at least 1pt of
+  damage with each hit.
+* Store Owners' Purses have been altered (generally but not always an increase).
+* DOS version now has Adam Bolt graphics for different race/classes of the player.
+* Bug in Pattern Vault fixed - it now cannot teleport you below a quest level.
+* Breeders now have 1 in 5 chance of dying off instead of reproducing, so they don't get out
+  of hand quite so much.
+* Level feelings are now only given after 2500 turns (about 250 moves) instead of
+  immediately on entering a level, but there is no longer a prerequisite of staying
+  on the previous level for a period of time.
+* Hit-Point rolls changed to give fixed totals at 50th level, making 'Life Rating' redundant.
+
+Cthangband 2.1.0 (12/7/98)
+* Huge amounts of cosmetic changes to remove Zelazny stuff and replace
+  it with Lovecraftian.
+* Warrior-Mages can now choose Sorcery.
+* Monster-Health bar now gives status of monster as text.
+* Heino Vander Sanden's quest code ported from Quangband with minor changes.
+* Out of genre 'Rockets' replaced with 'Shard balls'.
+* Most 'silly' monsters removed or replaced.
+* Multi-stair option for quick level ascending/descending.
+* 'How many?' question for multiple objects now defaults to all rather than 1
+  ( except for buying things).
+* Adam Bolt's graphics used for DOS version.
+* Lots of redundant code removed.
+

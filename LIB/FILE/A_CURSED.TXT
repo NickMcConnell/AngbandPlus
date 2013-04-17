@@ -5,26 +5,26 @@ of Horror
 of Agony
 of Severe Pain
 'Leech'
-of Macbeth
-of Microsloth
+of R'Lyeh
+of Caracosa
 of Troubleseeking
-of the Kender
-'Camlost'
-'Wooden Box'
+of the Worm
+'Fthnargl'
+'Soulless'
 of Glass
-of Freezing
+of Yuggoth
 of Petrifying
-of Sinbad
-of Tristan
-'Freefall'
+of Ygolonac
+of Insanity
+'Entropy'
 of Disappointment
-of Shocking
-of Leper
-of Surrendering
+of Itching
+of the Leper
+of Surrender
 of Doom
 of Woe
 of Suffocation
-of Menstruation
+of Hardship
 of Confusion
 of the Fool
 of Suicide
@@ -35,7 +35,7 @@ of Cursing
 of Damnation
 of Crushing
 of Mortality
-of Babality
+of Xoth
 of Falsehood
 of Cowardice
 of Hatred
@@ -43,10 +43,10 @@ of Sadness
 of Glass
 of Weakness
 of Humiliation
-of Teleporno
-'Camlost'
-of Gorlim
+of the Soulless
+'Attractor'
+of Cthulhu's Wrath
 'Man-Trap'
-'Moonmaster'
+'Eviscerated'
 of Insecurity
-of Mooning
+of Leng

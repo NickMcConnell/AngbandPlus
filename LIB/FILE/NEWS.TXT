@@ -1,20 +1,20 @@
 
 
-                        ************************
-                        **   Zangband 2.1.0c  **
-                        ************************
+                          *************************
+                          **  Cthangband 3.0.1   **
+                          *************************
 
-         Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
-             and Umoria:    Copyright (c) 1989 James E. Wilson
+               Developed by Dean Anderson from Zangband Variant
 
-       Angband 2.7 - 2.8: Ben Harrison (benh@voicenet.com)
+           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:    Copyright (c) 1989 James E. Wilson
 
-       Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
+                Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
 
-        Zangband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
+               Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
- Angband 2.8.0 is available for Unix, X11, Macintosh, IBM, Windows, etc.
- Be sure to read the online help, especially "general.txt" and "version.txt".
+               Zangband code:    (Mr) Topi Ylinen <f1toyl@uta.fi>
 
- Visit the Angband Home Page at "http://www.voicenet.com/~benh/Angband/".
- Send all comments, bug reports, patches, etc, to "benh@voicenet.com".
+       Current maintainer : Dean Anderson <stabintheback@pavilion.co.uk>
+
+       "Angband Addict" Web-page  <www.geocities.com/area51/dungeon/7981>

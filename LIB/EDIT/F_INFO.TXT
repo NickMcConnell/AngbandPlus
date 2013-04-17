@@ -17,7 +17,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:3.0.1
 
 
 # 0x00 --> nothing
@@ -62,44 +62,44 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> shop -- general store (perm)
+# 0x08 --> unused
 
-N:8:General Store
-G:1:U
+N:8:nothing
+G:+:U
 
-# 0x09 --> shop -- armoury (perm)
+# 0x09 --> unused
 
-N:9:Armoury
-G:2:s
+N:9:nothing
+G:#:B
 
-# 0x0A --> shop -- weapon shop (perm)
+# 0x0A --> unused
 
-N:10:Weapon Smiths
-G:3:w
+N:10:nothing
+G:#:G
 
-# 0x0B --> shop -- temple (perm)
+# 0x0B --> nothing
 
-N:11:Temple
-G:4:g
+N:11:unused
+G:#:g
 
-# 0x0C --> shop -- alchemist (perm)
+# 0x0C --> nothing
 
-N:12:Alchemy Shop
+N:12:unused
 G:5:b
 
-# 0x0D --> shop -- magic shop (perm)
+# 0x0D --> nothing
 
-N:13:Magic Shop
+N:13:unused
 G:6:r
 
-# 0x0E --> shop -- black market (perm)
+# 0x0E --> nothing
 
-N:14:Black Market
+N:14:unused
 G:7:D
 
-# 0x0F --> shop -- home (perm)
+# 0x0F --> unused
 
-N:15:Home
+N:15:nothing
 G:8:y
 
 # 0x10 --> visible trap -- trap door
@@ -344,28 +344,28 @@ N:59:granite wall
 G:#:w
 M:56
 
-# 0x3C --> permanent wall -- basic (perm)
+# 0x3C --> permanent wall -- building (perm)
 
-N:60:permanent wall
+N:60:building wall
 G:#:w
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
 G:#:w
-M:60
+
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
-M:60
+M:61
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
-M:60
+M:61
 
 N:64:explosive rune
 G:*:R
@@ -396,3 +396,103 @@ G:*:w
 
 N:73:corrupted section of the Pattern
 G:*:D
+
+# 0x08 --> shop -- general store (perm)
+
+N:74:General Store
+G:1:U
+
+# 0x09 --> shop -- armoury (perm)
+
+N:75:Armoury
+G:2:s
+
+# 0x0A --> shop -- weapon shop (perm)
+
+N:76:Weapon Smiths
+G:3:w
+
+# 0x0B --> shop -- temple (perm)
+
+N:77:Temple
+G:4:g
+
+# 0x0C --> shop -- alchemist (perm)
+
+N:78:Alchemy Shop
+G:5:b
+
+# 0x0D --> shop -- magic shop (perm)
+
+N:79:Magic Shop
+G:6:r
+
+# 0x0E --> shop -- black market (perm)
+
+N:80:Black Market
+G:7:D
+
+# 0x0F --> shop -- home (perm)
+
+N:81:Home
+G:8:y
+
+# 0x0F --> shop -- Library (perm)
+
+N:82:Library
+G:9:o
+
+N:83:Inn
+G:+:w
+
+N:84:Hall of Records
+G:+:y
+
+N:85:Pawnbrokers
+G:+:g
+
+N:86:nothing
+G:x:w
+
+N:87:nothing
+G:x:w
+
+N:88:nothing
+G:x:w
+
+N:89:nothing
+G:x:w
+
+N:90:nothing
+G:x:w
+
+N:91:nothing
+G:x:w
+
+N:92:nothing
+G:x:w
+
+N:93:nothing
+G:x:w
+
+N:94:nothing
+G:x:w
+
+N:95:nothing
+G:x:w
+
+N:96:town gate
+G:+:u
+
+N:97:water
+G:#:B
+
+N:98:tree
+G:#:G
+
+N:99:bush
+G:#:g
+
+N:100:border
+G:.:w
+M:1

@@ -24,7 +24,6 @@ ERROR    TXT Possible random error messages (instead of "Type ? for help")
 MONDEATH TXT Possible 'last words' for speaking uniques
 MONFEAR  TXT Possible lines for scared speaking uniques
 NEWS     TXT The game intro screen
-NEWS-DOS TXT The game intro screen for USE_IBM compilations
 README!      You are reading this file right now
 RUMORS   TXT Possible rumours (for scrolls or rumour and shopkeepers)
 SAMPLE   TXT A sample file for the random line selecting function

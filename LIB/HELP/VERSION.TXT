@@ -1,3 +1,32 @@
+=== Cthangband History and Information ===
+
+Cthangband started life as version 2.1.0 of Zangband. Dean Anderson (me)
+had been playing Angband and its variants for years, ever since finding
+Moria on the old VMS computers at university in the '80s. While each one
+was good in its own way, none of them were 'just right'. So, he got out
+his trusty compiler, and set out to make the ideal Angband for himself.
+He took Zangband as a base point, as he liked the changes in mechanics
+that it brought to the game, particularly the realms of magic. However,
+Zangband had far too many 'silly' or out-of-genre elements for his liking
+so he set about changing them. In particular he was not a fan of the
+Zelazny 'Amber' setting that Zangband used, and being a big Lovecraft fan
+he was slightly offended that the Cthuloid entities were overshadowed by
+so many other monsters. He changed the setting to be Lovecraft's
+'Dreamlands', and brought the Cthuloid entities to the top of the monster
+list, making them the toughest creatures in the game.
+
+After a mainly cosmetic change, he released 'Cthangband 2.1.0' to the
+world, and was surprised to find that people liked it and wanted more.
+So, he wrote the 'Multiple Town & Dungeon' system, as it was something
+that he had thought for a long time should be in the game. This, with
+more changes to the actual system (rather than the cosmetic changes of
+2.1.0) became 'Cthangband 3.0.0'.
+
+Cthangband 3.0.1 was supposed to be just a 'bug-fix' release, however it
+also incorporated a few extra routines that he couldn't resist putting in
+(like the 'Quick-Start' option) and bits of code by a number of authors
+that had been added to Zangband since Cthangband had split off from it.
+
 === Zangband History and Information ===
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC variant

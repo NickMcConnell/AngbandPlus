@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:2.8.1
+V:3.0.1
 
 
 ### Body Armor ###
@@ -56,7 +56,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # OnePower
 
-N:9:of Elvenkind
+N:9:of Yith
 X:30:25
 W:0:0:0:15000
 C:0:0:10:3
@@ -326,7 +326,7 @@ F:DEX
 
 ### Boots ###
 
-N:56:of Levitation
+N:56:(Winged)
 X:35:7
 W:0:0:0:250
 F:FEATHER
@@ -372,7 +372,7 @@ F:SPEED | AGGRAVATE
 
 # OneSustain
 
-N:64:(Holy Avenger)
+N:64:(Elder Sign Inscribed)
 X:24:30
 W:0:0:0:20000
 C:6:6:4:4
@@ -402,7 +402,7 @@ F:BLESSED
 
 # 67 (unused)
 
-N:68:of Westernesse
+N:68:of Kadath
 X:24:20
 W:0:0:0:20000
 C:5:5:0:2
@@ -425,7 +425,7 @@ C:0:0:0:0
 
 # The "Elemental" brands (4) (6)
 
-N:72:of Melting
+N:72:of Vitriol
 X:24:15
 W:0:0:0:8000
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
@@ -508,51 +508,51 @@ X:24:18
 W:0:0:0:3500
 F:SLAY_DRAGON
 
-# The "Kill" brands (8)
+# The "Bane" brands (8)
 
-N:88:of *Slay* Animal
+N:88:of Animal Bane
 X:24:20
 W:0:0:0:6000
 C:0:0:0:2
 F:INT | SLAY_ANIMAL | REGEN
 
-N:89:of *Slay* Evil
+N:89:of Evil Bane
 X:24:20
 W:0:0:0:5000
 C:0:0:0:2
 F:WIS | SLAY_EVIL | BLESSED
 
-N:90:of *Slay* Undead
+N:90:of Undead Bane
 X:24:24
 W:0:0:0:8000
 C:0:0:0:2
 F:WIS | SLAY_UNDEAD | SEE_INVIS
 
-N:91:of *Slay* Demon
+N:91:of Demon Bane
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
 F:INT | SLAY_DEMON
 
-N:92:of *Slay* Orc
+N:92:of Orc Bane
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
 F:DEX | SLAY_ORC
 
-N:93:of *Slay* Troll
+N:93:of Troll Bane
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
 F:STR | SLAY_TROLL
 
-N:94:of *Slay* Giant
+N:94:of Giant Bane
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
 F:STR | SLAY_GIANT
 
-N:95:of *Slay* Dragon
+N:95:of Dragon Bane
 X:24:24
 W:0:0:0:6000
 C:0:0:0:1
@@ -565,14 +565,14 @@ F:VAMPIRIC | HOLD_LIFE
 
 # 97 (unused)
 
-N:98:(Trump Weapon)
+N:98:(Planar Weapon)
 X:24:22
 W:0:0:0:7000
 C:4:4:0:2
 F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
-N:99:(Pattern Weapon)
+N:99:(Weapon of Law)
 X:24:26
 W:0:0:0:25000
 C:6:6:0:2
@@ -589,7 +589,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 101 (unused)
 
-N:102:of Morgul
+N:102:of Leng
 X:24:0
 W:0:0:0:0
 C:20:20:10:0
