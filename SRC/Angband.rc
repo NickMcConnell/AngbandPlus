@@ -238,8 +238,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 4,0,0,0
- PRODUCTVERSION 4,0,0,0
+ FILEVERSION 4,0,1,0
+ PRODUCTVERSION 4,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -257,14 +257,14 @@ BEGIN
             VALUE "Comments", "Angband Variant\0"
             VALUE "CompanyName", " \0"
             VALUE "FileDescription", "Cthangband Executable\0"
-            VALUE "FileVersion", "4.0.0\0"
+            VALUE "FileVersion", "4.0.1\0"
             VALUE "InternalName", "Cthangband\0"
             VALUE "LegalCopyright", "© 1998,1999,2000 Dean Anderson\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Angband.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Cthangband\0"
-            VALUE "ProductVersion", "4.0.0\0"
+            VALUE "ProductVersion", "4.0.1\0"
             VALUE "SpecialBuild", "\0"
         END
     END

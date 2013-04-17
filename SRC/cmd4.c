@@ -407,7 +407,7 @@ void do_cmd_messages(void)
 /*
  * Number of cheating options
  */
-#define CHEAT_MAX 6
+#define CHEAT_MAX 8
 
 /*
  * Cheating options
@@ -430,7 +430,13 @@ static option_type cheat_info[CHEAT_MAX] =
 	"cheat_know",		"Know complete monster info" },
 
 	{ &cheat_live,		FALSE,	255,	0x20, 0x00,
-	"cheat_live",		"Allow player to avoid death" }
+	"cheat_live",		"Allow player to avoid death" },
+
+	{ &cheat_skll,		FALSE,	255,	0x40, 0x00,
+	"cheat_skll",		"Peek into skill rolls" },
+
+	{ &cheat_wzrd,		FALSE,	255,	0x00, 0x02,
+	"cheat_wzrd",		"Wizard (Debug) Mode active" }
 };
 
 /*
@@ -665,7 +671,7 @@ static void do_cmd_options_autosave(cptr info)
 /*
  * Interact with some options
  */
-static void do_cmd_options_aux(int page, cptr info)
+void do_cmd_options_aux(int page, cptr info)
 {
 	char	ch;
 
@@ -993,7 +999,7 @@ void do_cmd_options(void)
 		prt("(C) Cheating Options", 16, 5);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 17, 0);
 
 		/* Get command */
 		k = inkey();
@@ -2600,6 +2606,11 @@ void do_cmd_feeling(bool FeelingOnly)
 		msg_print(do_cmd_feeling_text[feeling]);
 	} else {
 		msg_print(do_cmd_feeling_text[0]);
+	}
+
+	if ((cheat_wzrd) || (cheat_skll))
+	{
+		msg_format("Maximum %d for skills on this level",(dun_level + dun_offset) * 3 / 2);
 	}
 }
 

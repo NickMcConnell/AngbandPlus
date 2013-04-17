@@ -1,4 +1,4 @@
-# File: graf-new.prf
+# File: graf-xxx.prf
 
 #
 # This file defines special attr/char mappings for use in "graphics" mode
@@ -70,7 +70,7 @@ F:6:0x80:0x96
 F:7:0x80:0x99
 
 # path
-F:8:0x82:0x92
+F:8:0x82:0x94
 
 # nothing
 F:9:0x82:0x88
@@ -1788,7 +1788,7 @@ R:3:0x9D:0x9A
 R:4:0xAA:0x81
 
 # Small child
-R:5:0xAA:0x80
+R:5:0xAE:0x82
 
 # Hobo
 R:6:0xAA:0x83
@@ -3505,4 +3505,4 @@ R:576:0xB2:0x83
 
 
 # Load the special player pictures
-%:xtra-new.prf
+%:xtra-xxx.prf

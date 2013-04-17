@@ -122,19 +122,12 @@ void do_cmd_rerate(void)
  }
 
 
-
-
-
 /*
  * Hack -- quick debugging hook
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-
-
-	/* Oops */
-	msg_print("Oops.");
-    (void) probing();
+	msg_print("No 'Wizard Hack' command coded.");
 }
 
 

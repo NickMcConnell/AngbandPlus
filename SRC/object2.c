@@ -454,7 +454,7 @@ void wipe_o_list(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || p_ptr->preserve)
+		if (!character_dungeon || preserve_mode)
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr))
@@ -4305,7 +4305,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (wizard) msg_print("(breakage)");
+		if (cheat_wzrd) msg_print("(breakage)");
 
         /* Failure */
 		return (0);
@@ -4415,7 +4415,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (wizard) msg_print("(no floor space)");
+		if (cheat_wzrd) msg_print("(no floor space)");
 
 		/* Failure */
 		return (0);
@@ -4496,7 +4496,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
-		if (wizard) msg_print("(too many objects)");
+		if (cheat_wzrd) msg_print("(too many objects)");
 
         /* Hack -- Preserve artifacts */
         if (j_ptr->name1)
@@ -5835,7 +5835,7 @@ void print_spells(byte *spells, int num, int y, int x, int school)
 	char            out_val[160];
 
 
-    if ((school<0 || school>MAX_SCHOOL - 1) && wizard)
+    if ((school<0 || school>MAX_SCHOOL - 1) && cheat_wzrd)
 	msg_print ("Warning! print_spells called with null school");
 
     /* Title the list */

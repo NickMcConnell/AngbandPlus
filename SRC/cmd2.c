@@ -161,7 +161,16 @@ void do_cmd_go_up(void)
 		{
 			energy_use = 0;
 			/* Success */
-			msg_print("You enter a maze of up staircases.");
+			/* Check for entering a tower */
+			if(dun_level==0)
+			{
+				cur_dungeon = wild_grid[wildy][wildx].dungeon;
+				msg_format("You enter %s",dun_defs[cur_dungeon].name);
+			}
+			else
+			{
+				msg_print("You enter a maze of up staircases.");
+			}
 
 			if (autosave_l)
 			{
@@ -171,25 +180,52 @@ void do_cmd_go_up(void)
 				is_autosave = FALSE;
 			}
 
-			/* Go up the stairs */
-			if(multi_stair)
+			/* Check which way 'up' is */
+			if (dun_defs[cur_dungeon].tower)
 			{
-				int j=randint(5);
-				if (j>dun_level) j=1;
-				dun_level-= j;
-				if(dun_level<0)dun_level=0;
+				/* We are actually getting 'deeper' */
+				if(multi_stair)
+				{
+					int i;
+					int j=randint(5);
+					if(j>dun_level) j=1; 
+					for(i=0;i<j;i++)
+					{
+						dun_level++;
+						if(is_quest(dun_level)) break;
+					}
+					if(dun_level > dun_defs[cur_dungeon].max_level)
+					{
+						dun_level = dun_defs[cur_dungeon].max_level;
+					}
+				}
+				else
+				{
+					dun_level++;
+				}
 			}
 			else
 			{
-				dun_level--;
-			}
+				/* Go up the stairs */
+				if(multi_stair)
+				{
+					int j=randint(5);
+					if (j>dun_level) j=1;
+					dun_level-= j;
+					if(dun_level<0)dun_level=0;
+				}
+				else
+				{
+					dun_level--;
+				}
 
-			/* Check for leaving dungeon */
-			if(dun_level == 0)
-			{
-				wildx=dun_defs[cur_dungeon].x;
-				wildy=dun_defs[cur_dungeon].y;
-				came_from=START_STAIRS;
+				/* Check for leaving dungeon */
+				if(dun_level == 0)
+				{
+					wildx=dun_defs[cur_dungeon].x;
+					wildy=dun_defs[cur_dungeon].y;
+					came_from=START_STAIRS;
+				}
 			}
 		
 			new_level_flag = TRUE;
@@ -271,30 +307,54 @@ void do_cmd_go_down(void)
 					is_autosave = FALSE;
 				}
 			}
-			
-			/* Go down */
-			if(multi_stair)
+			if (dun_defs[cur_dungeon].tower)
 			{
-				int i;
-				int j=randint(5);
-				if(j>dun_level) j=1; 
-				for(i=0;i<j;i++)
+				/* We are actually getting 'shallower' */
+				if(multi_stair)
 				{
-					dun_level++;
-					if(is_quest(dun_level)) break;
+					int j=randint(5);
+					if (j>dun_level) j=1;
+					dun_level-= j;
+					if(dun_level<0)dun_level=0;
 				}
-				if(dun_level > dun_defs[cur_dungeon].max_level)
+				else
 				{
-					dun_level = dun_defs[cur_dungeon].max_level;
+					dun_level--;
+				}
+
+				/* Check for leaving dungeon */
+				if(dun_level == 0)
+				{
+					wildx=dun_defs[cur_dungeon].x;
+					wildy=dun_defs[cur_dungeon].y;
+					came_from=START_STAIRS;
 				}
 			}
 			else
 			{
-				dun_level++;
+				/* Go down */
+				if(multi_stair)
+				{
+					int i;
+					int j=randint(5);
+					if(j>dun_level) j=1; 
+					for(i=0;i<j;i++)
+					{
+						dun_level++;
+						if(is_quest(dun_level)) break;
+					}
+					if(dun_level > dun_defs[cur_dungeon].max_level)
+					{
+						dun_level = dun_defs[cur_dungeon].max_level;
+					}
+				}
+				else
+				{
+					dun_level++;
+				}
+				/* Hack - If you've gone 'down' to level 0  then go down again to level 1 */
+				if(dun_level == 0) dun_level++;
 			}
-			
-			/* Hack - If you've gone 'down' to level 0  then go down again to level 1 */
-			if(dun_level == 0) dun_level++;
 
 			/* We need a new level now */
 			new_level_flag = TRUE;
@@ -2595,7 +2655,12 @@ void do_cmd_fire(void)
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
-				skill_exp(SKILL_MISSILE);
+				
+				/* Give experience (if it wasn't too easy) */
+				if ((chance - cur_dis) < (r_ptr->ac * 3))
+				{
+					skill_exp(SKILL_MISSILE);
+				}
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
@@ -2650,7 +2715,7 @@ void do_cmd_fire(void)
 				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
-				if (wizard)
+				if (cheat_wzrd)
 				{
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
@@ -2895,7 +2960,12 @@ void do_cmd_throw(void)
 
 				/* Assume a default death */
 				cptr note_dies = " dies.";
-				skill_exp(SKILL_MISSILE);
+
+				/* Give experience (if it wasn't too easy) */
+				if ((chance - cur_dis) < (r_ptr->ac * 3))
+				{
+					skill_exp(SKILL_MISSILE);
+				}
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
@@ -2942,7 +3012,7 @@ void do_cmd_throw(void)
 				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
-				if (wizard)
+				if (cheat_wzrd)
 				{
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);

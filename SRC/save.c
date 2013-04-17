@@ -783,7 +783,7 @@ static void wr_options(void)
 
 	c = 0;
 
-	if (wizard) c |= 0x0002;
+	if (cheat_wzrd) c |= 0x0002;
 
 	if (cheat_peek) c |= 0x0100;
 	if (cheat_hear) c |= 0x0200;
@@ -791,6 +791,7 @@ static void wr_options(void)
 	if (cheat_xtra) c |= 0x0800;
 	if (cheat_know) c |= 0x1000;
 	if (cheat_live) c |= 0x2000;
+	if (cheat_skll) c |= 0x4000;
 
 	wr_u16b(c);
 
@@ -1032,12 +1033,9 @@ static void wr_extra(void)
     wr_u32b(p_ptr->muta3);
 
 	wr_byte(p_ptr->confusing);
-	wr_byte(p_ptr->ironman);     /* oops */
 	for (i=0;i<MAX_TOWNS;i++) wr_byte(p_ptr->house[i]);
 	wr_byte(p_ptr->ritual);
 	wr_byte(p_ptr->sneaking);
-	wr_byte(p_ptr->maximize);
-	wr_byte(p_ptr->preserve);
 	wr_byte(0);
 
 	/* Future use */
@@ -1104,6 +1102,7 @@ static void wr_dungeon(void)
 	/* Dungeon specific info follows */
 	wr_u16b(dun_level);
 	wr_u16b(dun_offset);
+	wr_u16b(dun_bias);
 	wr_byte(cur_town);
 	wr_byte(cur_dungeon);
 	wr_byte(recall_dungeon);
@@ -1789,7 +1788,7 @@ bool load_player(void)
 
 #ifdef VERIFY_TIMESTAMP
 	/* Verify timestamp */
-	if (!err && !arg_wizard)
+	if (!err)
 	{
 		/* Hack -- Verify the timestamp */
 		if (sf_when > (statbuf.st_ctime + 100) ||
@@ -1824,16 +1823,6 @@ bool load_player(void)
 		{
 			/* Player is no longer "dead" */
 			death = FALSE;
-
-			/* Cheat death */
-			if (arg_wizard)
-			{
-				/* A character was loaded */
-				character_loaded = TRUE;
-
-				/* Done */
-				return (TRUE);
-			}
 
 			/* Count lives */
 			sf_lives++;

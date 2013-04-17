@@ -2901,7 +2901,7 @@ cptr favour_names[MAX_SPHERE][32]=
 	 { "Slashing Weapons","Your skill with slashing weapons is improving.",0,0,0,10},
 	 { "Crushing Weapons","Your skill with crushing weapons is improving.",0,0,0,10},
 	 { "Spirit Lore","You are learning more about the spirit world",0,0,0,6},
-	 { "Hedge Magic","You are getting better at hedge magic.",0,0,0,5}
+	 { "Hedge Magic","You are getting better at hedge magic.",0,0,0,3}
  };
 
 /*
@@ -3074,14 +3074,6 @@ cptr window_flag_desc[32] =
 
 /*
  * Available Options
- *
- * Option Screen Sets:
- *
- *      Set 1: User Interface
- *      Set 2: Disturbance
- *      Set 3: Inventory
- *      Set 4: Game Play
- *
  */
 option_type option_info[] =
 {
@@ -3318,19 +3310,19 @@ option_type option_info[] =
     { &wear_confirm,        TRUE, 4,2, 8,
         "confirm_wear",     "Confirm to wear/wield known cursed items" },
 
-    { &confirm_stairs,      FALSE, 7, 2, 9,
+    { &confirm_stairs,      FALSE, 1, 2, 9,
         "confirm_stairs",   "Prompt before exiting a dungeon level" },
 
-    { &disturb_allies,        FALSE, 7, 2, 10,
+    { &disturb_allies,        FALSE, 2, 2, 10,
         "disturb_allies",     "Disturb when visible allies move" },
 
-    { &multi_stair,        TRUE, 7, 2, 11,
+    { &multi_stair,        TRUE, 6, 2, 11,
         "multi_stair",     "Stairs can be longer than one level" },
 	
 	{ &rand_unbiased,    FALSE,5,2,12,
 	"rand_unbiased","Random numbers have bias removed (slow)"},
 
-	{ &unify_commands,  TRUE,7,2,13,
+	{ &unify_commands,  FALSE,4,2,13,
 	"unify_commands","Use a single 'u'se command for all objects"},
 
 	{ &testing_stack,               TRUE,  4, 2, 14,
@@ -3344,6 +3336,21 @@ option_type option_info[] =
 
 	{ &no_centre_run,               FALSE,  5, 2, 17,
     "no_centre_run",                "Do not centre view whilst running" },
+
+	{ &maximise_mode,               TRUE,  7, 2, 18,
+    "maximise_mode",                "Include race/template bonuses in stat calcs" },
+
+	{ &preserve_mode,               TRUE,  7, 2, 19,
+    "preserve_mode",                "Artifacts are not lost if you never saw them" },
+
+	{ &use_autoroller,               TRUE,  7, 2, 20,
+    "use_autoroller",                "Stats are rolled repeatedly with minima" },
+
+	{ &spend_points,               FALSE,  7, 2, 21,
+    "spend_points",                "Stats are not rolled, points are spent on them" },
+
+	{ &ironman_shop,               FALSE,  7, 2, 22,
+    "ironman_shop",                "Shops (except for libraries) are locked" },
 
 
 	/*** End of Table ***/
@@ -3631,156 +3638,188 @@ town_type town_defs[MAX_TOWNS] = {
 	"the beautiful city of Celephais"},
 	
 	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  5,  7,  7,  8,  9, 10, 11}, 12, 45000,
+	{  0,  1,  2,  3,  4,  5,  99,  7,  8,  9, 10, 11}, 12, 45000,
 	"the picturesque town of Ulthar"},
 	
 	{ 0, 0, 0,
-	{  0,  1,  2,  6,  6,  6,  7,  8,  9,  9, 10, 11}, 12, 25000,
+	{  0,  1,  2,  6,  6,  6,  7,  8,  99,  9, 10, 11}, 12, 25000,
 	"the unwholesome city of Dylath-Leen"},
 	
 	{ 0, 0, 0,
-	{  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7}, 12, 0,
+	{  99,  99,  99,  99,  99,  99,  99,  99,  99,  99,  99,  99}, 12, 0,
 	"Kadath, home of the Gods"},
 	
 	{ 0, 0, 0,
-	{  0,  1,  1,  2,  2,  4,  5,  6,  7,  8,  9, 10}, 12, 45000,
+	{  0,  1,  99,  2,  99,  4,  5,  6,  7,  8,  9, 10}, 12, 45000,
 	"the market town of Hlanth"},
 	
 	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  8,  9, 10}, 12, 60000,
+	{  0,  1,  2,  3,  4,  5,  6,  7,  8,  99,  9, 10}, 12, 60000,
 	"the city of Ilek-Vad"},
 	
 	{ 0, 0, 0,
-	{  0,  1,  2,  3,  4,  4,  5,  6,  6,  8,  9, 11}, 12, 0,
+	{  0,  1,  2,  3,  4,  99,  5,  6,  99,  8,  9, 11}, 12, 0,
 	"the industrious town of Inganok"},
 	
 	{ 0, 0, 0,
-	{  0,  7,  7,  7,  7,  7,  7,  7,  7,  7,  9, 11}, 12, 0,
+	{  0,  99,  99,  99,  99,  99,  99,  99,  99,  99,  9, 11}, 12, 0,
 	"the hamlet of Nir"},
 };
 
 dun_type dun_defs[MAX_CAVES] = {
 
-/* x,y (Zero now, filled in during wilderness or town creation
- * offset,max_depth
+/* x,y (Zero now, filled in during wilderness or town creation),tower
+ * offset,max_depth,bias
  * first_guardian,second_guardian,first_level,second_level
  * name
  */
 
 /* The first (MAX_TOWNS) entries are each found in a town */
 	/* 0 = Under Celephais */
-	{ 0, 0,
-	0, 3,
+	{ 0, 0,FALSE,
+	0, 3,0,
 	0,0,0,0,
 	"the Sewers under Celephais","Celephais"},
 
 	/* 1 = Under Ulthar */
-	{ 0, 0,
-	0, 7,
+	{ 0, 0,FALSE,
+	0, 7,0,
 	156,0,7,0, /* Hobbes */
 	"the Sewers under Ulthar","Ulthar"},
 	
 	/* 2 = Under Dylath-Leen */
-	{ 0, 0,
-	1, 9,
+	{ 0, 0,FALSE,
+	1, 9,0,
 	0,0,0,0,
 	"the Sewers under Dylath Leen","Dylath Leen"},
 	
 	/* 3 = Under Kadath */
-	{ 0, 0,
-	50, 75,
+	{ 0, 0,FALSE,
+	50, 75, SUMMON_CTHULOID,
 	574,575,49,50, /* Nyarlathotep/Azathoth */
 	"the Catacombs under Kadath","Kadath"},
 	
 	/* 4 = Under Hlanth */
-	{ 0, 0,
-	0, 5,
+	{ 0, 0,FALSE,
+	0, 5,0,
 	0,0,0,0,
 	"the Sewers under Hlanth","Hlanth"},
 	
 	/* 5 = Under Ilek-Vad */
-	{ 0, 0,
-	0, 5,
+	{ 0, 0,FALSE,
+	0, 5,0,
 	0,0,0,0,
 	"the Sewers under Ilek-Vad","Ilek-Vad"},
 	
 	/* 6 = Under Inganok */
-	{ 0, 0,
-	0, 5,
+	{ 0, 0,FALSE,
+	0, 5,0,
 	0,0,0,0,
 	"the Sewers under Inganok","Inganok"},
 	
 	/* 7 = Under Nir */
-	{ 0, 0,
-	0, 7,
+	{ 0, 0,FALSE,
+	0, 7,SUMMON_HUMAN,
 	112,0,7,0, /* Robin Hood */
 	"the Sewers under Nir","Nir"},
 
 /* The rest are found outside */
 	/* 8 */
-	{ 0, 0,
-	2, 8,
+	{ 0, 0,FALSE,
+	2, 8,SUMMON_YEEK,
 	143,183,7,8, /* Orfax/Boldor */
 	"the Yeek King's Lair","Yeek Lair"},
 
 	/* 9 */
-	{ 0, 0,
-	3,17 ,
+	{ 0, 0,TRUE,
+	3,17 ,SUMMON_ORC,
 	243,270,16,17, /* Bolg/Azog */
-	"the Orc Nest","Orc Nest"},
+	"the Orc Tower","Orc Tower"},
 	
 	/* 10 */
-	{ 0, 0,
-	4, 21,
+	{ 0, 0,FALSE,
+	4, 21,SUMMON_UNDEAD,
 	92,294,1,21, /* Disembodied Hand/Khufu */
 	"Khufu's Tomb","Tomb"},
 
 	/* 11 */
-	{ 0, 0,
-	30, 20,
+	{ 0, 0,FALSE,
+	30, 20,0,
 	505,0,20,0, /* Collector */
 	"the Collector's Cave","Cave"},
 
 	/* 12 */
-	{ 0, 0,
-	10, 30,
+	{ 0, 0,FALSE,
+	10, 30,0,
 	484,0,30,0, /* Stormbringer */
 	"the Vault of the Sword","Vault"},
 
 	/* 13 */
-	{ 0, 0,
-	15, 35,
+	{ 0, 0,FALSE,
+	15, 35,SUMMON_DRAGON,
 	492,526,34,35, /* Glaurung/Ancalagon */
 	"the Dragon's Lair","Dragon Lair"},
 
 	/* 14 */
-	{ 0, 0,
-	30, 40,
+	{ 0, 0,TRUE,
+	30, 40,SUMMON_HI_UNDEAD,
 	368,546,1,40, /* Fire Phantom/Vecna */
 	"the Necropolis","Necropolis"},
+
+	/* 15 */
+	{ 0, 0, TRUE,
+	15, 20, SUMMON_DEMON,
+	220,459,1,20, /* The Emmisary/Glaryssa */
+	"the Demon Spire","Spire"},
+
+	/* 16 */
+	{ 0, 0, TRUE,
+	20, 20, SUMMON_ELEMENTAL,
+	433,474,15,20, /* Lasha/Grom */
+	"the Conflux of the Elements","Conflux"},
+
+	/* 17 */
+	{ 0,0,TRUE,
+	13, 17, SUMMON_SPIDER,
+	342,0,17,0, /* Shelob */
+	"Shelob's Tower","Tower"},
+
+	/* 18 */
+	{ 0, 0, TRUE,
+	1,5, SUMMON_KOBOLD,
+	110,0,5,0, /* Vort */
+	"the Kobold Fort","Fort"},
+
+	/* 19 */
+	{ 0, 0, TRUE,
+	40, 20, SUMMON_CTHULOID,
+	322,525,1,20, /* Father Dagon/Tulzscha */
+	"the Tower of Koth","Koth"}
+	
+
 };
 
 wild_type wild_grid[12][12] = {
-	/* {terrain,town,seed,roadmap}
-	 * all town, seed and roadmap entries are zeroed at this point, with values being filled in later
+	/* {terrain,town,seed,roadmap,dun_min,dun_max}
+	 * all entries except terrain are zeroed at this point, with values being filled in later
 	 *
 	 * terrain 0 = impassable sea
 	 * terrain 1 = coast
 	 * terrains 2 - 5 are depths of forest
 	 *
 	 */
-	{ {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{2,0,0,0},{2,0,0,0},{4,0,0,0},{2,0,0,0},{3,0,0,0},{2,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{3,0,0,0},{4,0,0,0},{5,0,0,0},{4,0,0,0},{4,0,0,0},{3,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{4,0,0,0},{5,0,0,0},{5,0,0,0},{5,0,0,0},{4,0,0,0},{3,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{3,0,0,0},{4,0,0,0},{5,0,0,0},{4,0,0,0},{4,0,0,0},{3,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{3,0,0,0},{4,0,0,0},{4,0,0,0},{4,0,0,0},{4,0,0,0},{5,0,0,0},{4,0,0,0},{3,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{3,0,0,0},{4,0,0,0},{5,0,0,0},{4,0,0,0},{3,0,0,0},{4,0,0,0},{3,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{3,0,0,0},{4,0,0,0},{3,0,0,0},{2,0,0,0},{3,0,0,0},{3,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{2,0,0,0},{3,0,0,0},{3,0,0,0},{2,0,0,0},{2,0,0,0},{2,0,0,0},{2,0,0,0},{2,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{1,0,0,0},{0,0,0,0},},
-	{ {0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},},
+	{ {0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{4,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{5,0,0,0,0,0},{4,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{4,0,0,0,0,0},{5,0,0,0,0,0},{5,0,0,0,0,0},{5,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{5,0,0,0,0,0},{4,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{4,0,0,0,0,0},{4,0,0,0,0,0},{4,0,0,0,0,0},{5,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{5,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{4,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{2,0,0,0,0,0},{3,0,0,0,0,0},{3,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{2,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},},
+	{ {0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},},
 };
 
 /* Shamanic spirits */

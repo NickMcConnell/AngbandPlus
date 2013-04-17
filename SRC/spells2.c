@@ -2462,11 +2462,18 @@ void stair_creation(void)
 	/* Create a staircase */
 	if (dun_level <= 0)
 	{
-		cave_set_feat(py, px, FEAT_MORE);
+		return;
 	}
 	else if (is_quest(dun_level) || (dun_level >= dun_defs[cur_dungeon].max_level))
 	{
-		cave_set_feat(py, px, FEAT_LESS);
+		if(dun_defs[cur_dungeon].tower)
+		{
+			cave_set_feat(py, px, FEAT_MORE);
+		}
+		else
+		{
+			cave_set_feat(py, px, FEAT_LESS);
+		}
 	}
 	else if (rand_int(100) < 50)
 	{
@@ -4051,7 +4058,7 @@ while(powers--)
 		random_slay(o_ptr, a_scroll);
 		break;
 	default:
-		if(wizard) msg_print ("Switch error in create_artifact!");
+		if(cheat_wzrd) msg_print ("Switch error in create_artifact!");
 		powers++;
 	}
 };

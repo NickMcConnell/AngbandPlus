@@ -4,6 +4,43 @@ Based on Zangband 2.1.0e
 Changes are added to the top of this file, so for a chronological order
 read from the bottom up.
 
+Cthangband 4.0.1
+* Wizard Mode moved to 'Cheat Options' page.
+* 'graf-new' flag removed since we only have Adam Bolt tiles these days.
+* Paths are now lit like floors.
+* Startup options have their own option page, to reduce the number of
+  questions the player is asked when creating a new character.
+* Dungeons (but not towers) display offset depth, rather than true
+  depth.
+* Player ghosts now use graphics if possible.
+* 'Dungeons' may now be towers (tiny levels heading upwards) as well as
+  caves (larger levels heading downwards).
+* 5 new dungeons added.
+* Dungeons now have a 'bias' towards a certain type of creature.
+* Charm destruction and identify staff bugs fixed (thanks to Greg
+  Wooledge).
+* Bug in spell energy calculation fixed.
+* Skills can only be improved if you are not bored (i.e. there is a
+  minimum depth requirement based on your current skill value.)
+* Hedge magic is now easier to learn.
+* Skills are now slightly randomised on character generation.
+* Fixed bug with 100% Toughness reducing your hitpoints.
+* Spirits now have elvish/hobbitish names, rather than Cthuloid.
+* Character dump now dumps last 10 messages (so you can see how stupidly
+  you died).
+* Problem with 'missing' options fixed.
+* 'Wizard Mode' flag is cleared with cheat flags on character creation.
+* Extra cheat option - 'cheat_skll' to view skill checks.
+* Toughness is only increased when you lose more than 1/20th of your
+  current hit points in a single hit.
+* Magic skills only improve if there was a 10% failure chance (or
+  greater) for the spell/favour/power/cantrip.
+* No experience is gained on the surface, only in dungeons
+* Attacks only improve your attack skill (and/or martial arts) if you
+  have less than 75% chance to hit.
+* Attacks with mutations (Horns, Tail etc.) give experience to your
+  'close combat' skill, not your weapon skill.
+
 Cthangband 4.0.0
 * Windows version has updated menus and faster repaints and can now use
   monospaced system fonts as well as bitmap fonts. (From Tim Baker's

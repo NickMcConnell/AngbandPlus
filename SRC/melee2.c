@@ -5446,7 +5446,7 @@ static bool get_moves(int m_idx, int *mm)
 
         if (t_ptr == m_ptr) /* Paranoia */
         {
-            if (wizard)
+            if (cheat_wzrd)
                 msg_print("Monster attacking self?");
             break;
         }
@@ -6131,7 +6131,7 @@ static void process_monster(int m_idx, bool is_friend)
             gets_angry = TRUE;
 
         /* Paranoia... no friendly uniques outside wizard mode -- TY*/
-         if ((m_ptr->smart & (SM_ALLY)) && !(wizard) &&
+         if ((m_ptr->smart & (SM_ALLY)) && !(cheat_wzrd) &&
             (r_ptr->flags1 & (RF1_UNIQUE)))
             gets_angry = TRUE;
 

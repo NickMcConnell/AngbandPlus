@@ -39,10 +39,8 @@
 /* <<VERSION STAMP>> */
 #define VERSION_MAJOR   4
 #define VERSION_MINOR   0
-#define VERSION_PATCH   0
+#define VERSION_PATCH   1
 
-
-#define ANGBAND_2_8_1
 
 /*
  * This value is not currently used
@@ -79,11 +77,11 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES_PER_TOWN      12
-#define MAX_TOWNS                              8
-#define MAX_STORES_TOTAL             96  /* Should always be MAX_STORES_PER_TOWN * MAX_TOWNS */
-#define MAX_STORE_TYPES                12
-#define MAX_CAVES                                15  /* 8 in towns plus 7 in wilderness */
+#define MAX_STORES_PER_TOWN			12
+#define MAX_TOWNS					8
+#define MAX_STORES_TOTAL			96  /* Should always be MAX_STORES_PER_TOWN * MAX_TOWNS */
+#define MAX_STORE_TYPES				12
+#define MAX_CAVES					20  /* 8 in towns plus 12 in wilderness */
 
 /*
  * Road Directions
@@ -2001,6 +1999,10 @@
 #define SUMMON_NO_UNIQUES                      46
 #define SUMMON_PHANTOM          47
 #define SUMMON_ELEMENTAL        48
+#define SUMMON_ORC				49
+#define SUMMON_YEEK				50
+#define SUMMON_HUMAN			51
+#define SUMMON_KOBOLD			52
 
 
 

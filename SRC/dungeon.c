@@ -865,7 +865,10 @@ static void process_world(void)
 			for (n = 0; n < MAX_STORES_TOTAL; n++)
 			{
 				/* Ignore home, hall  and pawnbrokers */
-				if ((store[n].type != STORE_HOME) && (store[n].type != STORE_HALL) && (store[n].type != STORE_PAWN))
+				if ((store[n].type != 99) &&
+					(store[n].type != STORE_HOME) &&
+					(store[n].type != STORE_HALL) &&
+					(store[n].type != STORE_PAWN))
 				{
 					/* Maintain */
 					store_maint(n);
@@ -1123,7 +1126,7 @@ static void process_world(void)
         int upkeep_divider = 20;
 
 #ifdef TRACK_FRIENDS
-        if (wizard)
+        if (cheat_wzrd)
         msg_format("Total friends: %d.", total_friends);
 #endif
         if (total_friends > 1 + (skill_set[SKILL_RACIAL].value / (upkeep_divider*2)))
@@ -1134,7 +1137,7 @@ static void process_world(void)
             else if (upkeep_factor < 10) upkeep_factor = 10;
 
 #ifdef TRACK_FRIENDS
-        if (wizard)
+        if (cheat_wzrd)
         msg_format("Levels %d, upkeep %d", total_friend_levels, upkeep_factor);
 #endif
         }
@@ -1149,7 +1152,7 @@ static void process_world(void)
             regenmana(upkeep_regen);
 
 #ifdef TRACK_FRIENDS
-            if (wizard)
+            if (cheat_wzrd)
             msg_format("Regen: %d/%d", upkeep_regen,
                                         regen_amount);
 #endif
@@ -2065,32 +2068,6 @@ static void process_world(void)
 
 
 
-/*
- * Verify use of "wizard" mode
- */
-static bool enter_wizard_mode(void)
-{
-	/* Ask first time */
-    if (!noscore)
-	{
-		/* Mention effects */
-		msg_print("Wizard mode is for debugging and experimenting.");
-		msg_print("The game will not be scored if you enter wizard mode.");
-		msg_print(NULL);
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to enter wizard mode? "))
-		{
-			return (FALSE);
-		}
-
-		/* Mark savefile */
-		noscore |= 0x0002;
-	}
-
-	/* Success */
-	return (TRUE);
-}
 
 
 #ifdef ALLOW_WIZARD
@@ -2179,37 +2156,13 @@ static void process_command(void)
 
 			/*** Wizard Commands ***/
 
-			/* Toggle Wizard Mode */
-		case KTRL('W'):
-		{
-			if (wizard)
-			{
-				wizard = FALSE;
-				msg_print("Wizard mode off.");
-			}
-			else if (enter_wizard_mode())
-			{
-				wizard = TRUE;
-				msg_print("Wizard mode on.");
-			}
-
-			/* Update monsters */
-			p_ptr->update |= (PU_MONSTERS);
-
-			/* Redraw "title" */
-			p_ptr->redraw |= (PR_TITLE);
-
-			break;
-		}
-
-
 #ifdef ALLOW_WIZARD
 
 			/* Special "debug" commands */
 		case KTRL('A'):
 		{
 			/* Enter debug mode */
-			if (wizard)
+			if (cheat_wzrd)
 			{
 				do_cmd_debug();
 			}
@@ -3280,7 +3233,17 @@ static void dungeon(void)
 
 
 	/* Paranoia -- No stairs down from Quest */
-	if (is_quest(dun_level)) create_down_stair = FALSE;
+	if (is_quest(dun_level))
+	{
+		if (dun_defs[cur_dungeon].tower)
+		{
+			create_up_stair = FALSE;
+		}
+		else
+		{
+			create_down_stair = FALSE;
+		}
+	}
 
 	/* Paranoia -- no stairs from town */
 	if (dun_level <= 0) create_down_stair = create_up_stair = FALSE;
@@ -3839,6 +3802,7 @@ void play_game(bool new_game)
 		}
 		cur_dungeon = cur_town;
 		dun_offset = 0;
+		dun_bias = 0;
 		wildx=town_defs[cur_town].x;
 		wildy=town_defs[cur_town].y;
 		came_from = START_RANDOM;
@@ -3872,10 +3836,6 @@ void play_game(bool new_game)
 
 	/* Flush the message */
 	Term_fresh();
-
-
-	/* Hack -- Enter wizard mode */
-	if (arg_wizard && enter_wizard_mode()) wizard = TRUE;
 
     /* Flavor the objects */
 	flavor_init();
@@ -3975,7 +3935,7 @@ void play_game(bool new_game)
 		if (alive && death)
 		{
 			/* Mega-Hack -- Allow player to cheat death */
-            if ((wizard || cheat_live) && !get_check("Die? "))
+            if ((cheat_wzrd || cheat_live) && !get_check("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
 				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;

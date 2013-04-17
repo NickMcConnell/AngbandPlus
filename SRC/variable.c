@@ -56,7 +56,6 @@ u16b sf_saves;			/* Number of "saves" during this life */
  * Run-time arguments
  */
 bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
 bool arg_sound;				/* Command arg -- Request special sounds */
 bool arg_graphics;			/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
@@ -76,7 +75,6 @@ bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_wild;			/* Hack -- consistent wilderness layout */
-bool graf_new=TRUE;
 
 s16b command_cmd;		/* Current "Angband Command" */
 
@@ -109,6 +107,7 @@ s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b dun_offset;       /* Monster/Object offset for current dungeon */
+s16b dun_bias;			/* Summon flag used to give the dungeon a bias */
 byte cur_town;          /* Current Town */
 byte cur_dungeon;    /* Current Dungeon */
 byte recall_dungeon; /* Last dungeon recalled from */
@@ -120,7 +119,7 @@ s16b monster_level;		/* Current monster creation level */
 s32b turn;				/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
 
-bool wizard;			/* Is the player currently in Wizard mode? */
+bool cheat_wzrd;			/* Is the player currently in Wizard mode? */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
@@ -235,7 +234,11 @@ bool multi_stair;         /* Multiple level staircases */
 bool unify_commands; /* Combine object commands into a single 'u'se command */
 bool centre_view; /* Centre view on player */
 bool no_centre_run; /* Stop centring when running */
-
+bool preserve_mode; /* Don't lose missed artifacts */
+bool maximise_mode; /* Unify stat bonuses */
+bool use_autoroller; /* Autoroll characters */
+bool spend_points; /* Spend points on stats */
+bool ironman_shop; /* Not allowed in shops */
 
 
 /* Option Set 3 -- Game-Play */
@@ -308,7 +311,7 @@ bool cheat_room;		/* Peek into dungeon creation */
 bool cheat_xtra;		/* Peek into something else */
 bool cheat_know;		/* Know complete monster info */
 bool cheat_live;		/* Allow player to avoid death */
-
+bool cheat_skll;        /* Peek into skill rolls */
 
 /* Special options */
 
@@ -778,11 +781,6 @@ char *r_text;
  */
 cptr ANGBAND_SYS = "xxx";
 
-/*
- * Hack -- The special Angband "Graphics Suffix"
- * This variable is used to choose an appropriate "graf-xxx" file
- */
-cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory

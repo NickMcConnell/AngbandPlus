@@ -920,9 +920,6 @@ struct player_type
                             Note: was byte, causing overflow for Great One
                             characters (such as Great One Paladins) */
 
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
-	byte ironman;       /* Use 'Ironman' options */
 	byte ritual;			  /* Flag for recall ritual */
 	byte house[MAX_TOWNS];            /* Flag for house ownership */
 
@@ -1199,9 +1196,11 @@ typedef struct dun_type dun_type;
 struct dun_type {
 		s16b x;
 		s16b y;
+		bool tower; /* Is this dungeon a tower */
 
 		byte  offset; /* Offset to level to apply to Monster/Object creation */
 		byte  max_level; /* Maximum dungeon level allowed */
+		s16b  bias; /* summon type used for biasing random creature generation */
 		
 		s16b first_guardian; /* The Guardian of the first named level */
 		s16b second_guardian; /* The Guardian of the second named level */
@@ -1218,4 +1217,6 @@ struct wild_type {
 		byte dungeon; /* Dungeon contained in this wilderness grid */
 		u32b seed; /* Seed for random number generator */
 		byte road_map; /* Flags for road generation */
+		s16b dun_min; /* Minimum depth to have caves */
+		s16b dun_max; /* Maximum depth to have caves */
 };

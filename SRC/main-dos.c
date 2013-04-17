@@ -913,11 +913,7 @@ static errr Term_user_dos(int n)
 				Term_xtra_dos_react();
 
 				/* Reset visuals */
-#ifdef ANGBAND_2_8_1
 				reset_visuals();
-#else /* ANGBAND_2_8_1 */
-				reset_visuals(TRUE);
-#endif /* ANGBAND_2_8_1 */
 				break;
 			}
 
@@ -1827,12 +1823,6 @@ static bool init_graphics(void)
 		{
 			int i;
 
-
-			/*
-			 * Set the graphics mode to "new" if Adam Bolt's
-			 * new 16x16 tiles are used.
-			 */
-			ANGBAND_GRAF = get_config_string(section, "graf-mode", "old");
 
 			/* Select the bitmap pallete */
 			set_palette_range(tiles_pallete, 0, COLOR_OFFSET - 1, 0);

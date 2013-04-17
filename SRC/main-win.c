@@ -1172,8 +1172,6 @@ static bool init_graphics()
 
 		cptr name = "16X16.BMP";
 
-		ANGBAND_GRAF = "new";
-
 		/* Access the bitmap file */
 		path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, name);
 
@@ -1190,8 +1188,9 @@ static bool init_graphics()
 
 
 #ifdef USE_TRANSPARENCY
+		name = "mask.bmp";
 
-		path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
+		path_build(buf, 1024, ANGBAND_DIR_XTRA_GRAF, name);
 		/* Load the bitmap or quit */
 		if (!ReadDIB(data[0].w, buf, &infMask))
 		{

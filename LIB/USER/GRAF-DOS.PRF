@@ -1,4 +1,4 @@
-# File: graf-win.prf
+# File: graf-dos.prf
 
 #
 # This file defines special attr/char mappings for use in "graphics" mode
@@ -7,9 +7,4 @@
 #
 
 # Standard file
-?:[EQU $GRAF old]
 %:graf-xxx.prf
-
-# New tiles
-?:[EQU $GRAF new]
-%:graf-new.prf

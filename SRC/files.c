@@ -625,12 +625,6 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = ANGBAND_SYS;
 			}
 
-			/* Graphics */
-			if (streq(b+1, "GRAF"))
-			{
-				v = ANGBAND_GRAF;
-			}
-
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
@@ -1933,7 +1927,7 @@ static void display_player_stat_info(void)
             e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i]-18)/10 - 19;
       
 		/* Deduct template and race bonuses if in maximize */
-		if (p_ptr->maximize)
+		if (maximise_mode)
 		{
 			e_adj -= rp_ptr->r_adj[i];
 			e_adj -= cp_ptr->c_adj[i];
@@ -2582,6 +2576,18 @@ void display_player(int mode)
 	}
 }
 
+void dump_final_messages(FILE * OutFile)
+{
+	short i;
+
+	if (!OutFile) return;
+
+	/* Reverse order */
+	for(i=9;i>=0;i--)
+	{
+		fprintf(OutFile,"%s\n",message_str(i));
+	}
+}
 
 
 /*
@@ -2731,17 +2737,17 @@ errr file_character(cptr name, bool full)
 
 
         fprintf(fff, "\n\n  [Miscellaneous information]\n");
-        if (p_ptr->ironman)
-            fprintf(fff, "\n Ironman Mode:      ON");
+        if (ironman_shop)
+            fprintf(fff, "\n Ironman Shops:     ON");
         else
-            fprintf(fff, "\n Ironman Mode:      OFF");
+            fprintf(fff, "\n Ironman Shops:     OFF");
 
-        if (p_ptr->maximize)
+        if (maximise_mode)
             fprintf(fff, "\n Maximize Mode:      ON");
         else
             fprintf(fff, "\n Maximize Mode:      OFF");
 
-        if (p_ptr->preserve)
+        if (preserve_mode)
             fprintf(fff, "\n Preserve Mode:      ON");
         else
             fprintf(fff, "\n Preserve Mode:      OFF");
@@ -2851,6 +2857,9 @@ errr file_character(cptr name, bool full)
 		        index_to_label(i), paren, o_name);
 	}
 	fprintf(fff, "\n\n");
+
+	fprintf(fff, "  [Last Ten Messages]\n\n");
+	dump_final_messages(fff);
 
 	/* Close it */
 	my_fclose(fff);
@@ -3852,12 +3861,9 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-	int			i, j, k;
+	int			i;
 
 	object_type		*o_ptr;
-
-	store_type		*st_ptr = &store[7];
-
 
 	/* Hack -- Know everything in the inven/equip */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -3872,18 +3878,6 @@ static void show_info(void)
 		object_known(o_ptr);
 	}
 
-	/* Hack -- Know everything in the home */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-		
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-	}
 
 	/* Hack -- Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3960,43 +3954,6 @@ static void show_info(void)
 		show_inven();
 		prt("You are carrying: -more-", 0, 0);
 		if (inkey() == ESCAPE) return;
-	}
-
-
-
-	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
-		{
-			/* Clear screen */
-			Term_clear();
-
-			/* Show 12 items */
-			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
-			{
-				char o_name[80];
-				char tmp_val[80];
-
-				/* Acquire item */
-				o_ptr = &st_ptr->stock[i];
-
-				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
-				prt(tmp_val, j+2, 4);
-
-				/* Display object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
-				c_put_str(tval_to_attr[o_ptr->tval], o_name, j+2, 7);
-			}
-
-			/* Caption */
-			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
-
-			/* Wait for it */
-			if (inkey() == ESCAPE) return;
-		}
 	}
 }
 
@@ -4519,17 +4476,6 @@ static errr top_twenty(void)
 		return (0);
 	}
 
-#ifndef SCORE_WIZARDS
-	/* Wizard-mode pre-empts scoring */
-	if (noscore & 0x000F)
-	{
-		msg_print("Score not registered for wizards.");
-		msg_print(NULL);
-		display_scores_aux(0, 10, -1, NULL);
-		return (0);
-	}
-#endif
-
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
 	if (noscore & 0x00F0)
@@ -4543,7 +4489,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (noscore & 0xFF00)
+	if (noscore & 0xFF02)
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);
@@ -4909,7 +4855,7 @@ errr get_rnd_line(char * file_name, char * output)
     int lines=0, line, counter;
 
     /* test hack */
-    if (wizard && cheat_xtra) msg_print(file_name);
+    if (cheat_wzrd && cheat_xtra) msg_print(file_name);
 
 	/* Build the filename */
     path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);

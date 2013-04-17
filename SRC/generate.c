@@ -270,7 +270,14 @@ void generate_spirit_names()
 		/* Only randomise non-pact spirits */
 		if (!(s_ptr->pact))
 		{
-			create_random_name(RACE_MIND_FLAYER,s_ptr->name);
+			if (s_ptr->sphere == SPIRIT_NATURE)
+			{
+				create_random_name(RACE_ELF,s_ptr->name);
+			}
+			else
+			{
+				create_random_name(RACE_HOBBIT,s_ptr->name);
+			}
 		}
 	}
 }
@@ -947,43 +954,151 @@ static void terrain_gen(void)
 
 	if(wild_grid[wildy][wildx].dungeon < MAX_CAVES)
 	{
-		/* Place the stairs */
-		dummy = 0;
-		while (dummy < SAFE_MAX_ATTEMPTS)
+		if (dun_defs[wild_grid[wildy][wildx].dungeon].tower)
 		{
-			dummy++;
-
+			s16b i;
+			/* Place the tower */
+			
 			/* Pick a location within the central area */
-			y = rand_range(5,cur_hgt-5);
-			x = rand_range(5,cur_wid-5);
+			y = rand_range(20,cur_hgt-5);
+			x = rand_range(10,cur_wid-10);
 
-			/* Require a "naked" floor grid */
-			if (cave_naked_bold(y, x)) break;
-		}
-
-		if (dummy >= SAFE_MAX_ATTEMPTS)
-		{
-			if (cheat_room)
+			/* Build a tower */
+			for(i=-2;i<3;i++)
 			{
-				msg_print("Warning! Could not place stairs!");
+				cave[y][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y][x+i].info |= (CAVE_MARK | CAVE_GLOW);
 			}
+			for(i=-4;i<5;i++)
+			{
+				cave[y-1][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-1][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-5;i<6;i++)
+			{
+				cave[y-2][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-2][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-6;i<7;i++)
+			{
+				cave[y-3][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-3][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-6;i<7;i++)
+			{
+				cave[y-4][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-4][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-7;i<8;i++)
+			{
+				cave[y-5][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-5][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-7;i<8;i++)
+			{
+				cave[y-6][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-6][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-7;i<8;i++)
+			{
+				cave[y-7][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-7][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-7;i<8;i++)
+			{
+				cave[y-8][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-8][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-7;i<8;i++)
+			{
+				cave[y-9][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-9][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-6;i<7;i++)
+			{
+				cave[y-10][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-10][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-6;i<7;i++)
+			{
+				cave[y-11][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-11][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-5;i<6;i++)
+			{
+				cave[y-12][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-12][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-4;i<5;i++)
+			{
+				cave[y-13][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-13][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			for(i=-2;i<4;i++)
+			{
+				cave[y-14][x+i].feat = FEAT_PERM_BUILDING;
+				cave[y-14][x+i].info |= (CAVE_MARK | CAVE_GLOW);
+			}
+			/* Access the stair grid */
+			cave[y][x].feat=FEAT_LESS;
+			cave[y][x].info |= (CAVE_MARK | CAVE_GLOW);
+			/* Clear a space around the entrance */
+			for(i=-3;i<4;i++)
+			{
+				if((cave[y+1][x+i].feat = FEAT_TREE) || (cave[y+1][x+i].feat = FEAT_BUSH))
+				{
+					cave[y+1][x+i].feat = FEAT_FLOOR;
+				}
+			}
+			for(i=-2;i<3;i++)
+			{
+				if((cave[y+2][x+i].feat = FEAT_TREE) || (cave[y+2][x+i].feat = FEAT_BUSH))
+				{
+					cave[y+2][x+i].feat = FEAT_FLOOR;
+				}
+			}
+
 		}
+		else
+		{
+			/* Place the stairs */
+			dummy = 0;
+			while (dummy < SAFE_MAX_ATTEMPTS)
+			{
+				dummy++;
+
+				/* Pick a location within the central area */
+				y = rand_range(5,cur_hgt-5);
+				x = rand_range(5,cur_wid-5);
+
+				/* Require a "naked" floor grid */
+				if (cave_naked_bold(y, x)) break;
+			}
+
+			if (dummy >= SAFE_MAX_ATTEMPTS)
+			{
+				if (cheat_room)
+				{
+					msg_print("Warning! Could not place stairs!");
+				}
+			}
 
 
-		/* Access the stair grid */
-		cave[y-2][x].feat = FEAT_FLOOR;
-		cave[y-1][x-1].feat = FEAT_FLOOR;
-		cave[y-1][x].feat = FEAT_FLOOR;
-		cave[y-1][x+1].feat = FEAT_FLOOR;
-		cave[y][x-2].feat = FEAT_FLOOR;
-		cave[y][x-1].feat = FEAT_FLOOR;
-		cave[y][x].feat = FEAT_MORE;
-		cave[y][x+1].feat = FEAT_FLOOR;
-		cave[y][x+2].feat = FEAT_FLOOR;
-		cave[y+1][x-1].feat = FEAT_FLOOR;
-		cave[y+1][x].feat = FEAT_FLOOR;
-		cave[y+1][x+1].feat = FEAT_FLOOR;
-		cave[y+2][x].feat = FEAT_FLOOR;
+			/* Access the stair grid */
+			cave[y-2][x].feat = FEAT_FLOOR;
+			cave[y-1][x-1].feat = FEAT_FLOOR;
+			cave[y-1][x].feat = FEAT_FLOOR;
+			cave[y-1][x+1].feat = FEAT_FLOOR;
+			cave[y][x-2].feat = FEAT_FLOOR;
+			cave[y][x-1].feat = FEAT_FLOOR;
+			cave[y][x].feat = FEAT_MORE;
+			cave[y][x+1].feat = FEAT_FLOOR;
+			cave[y][x+2].feat = FEAT_FLOOR;
+			cave[y+1][x-1].feat = FEAT_FLOOR;
+			cave[y+1][x].feat = FEAT_FLOOR;
+			cave[y+1][x+1].feat = FEAT_FLOOR;
+			cave[y+2][x].feat = FEAT_FLOOR;
+		}
 	}
 
 	
@@ -1204,11 +1319,19 @@ static void place_random_stairs(int y, int x)
 	/* Choose a staircase */
 	if (dun_level <= 0)
 	{
-		place_down_stairs(y, x);
+		/* No stairs outside */
+		return;
 	}
 	else if (is_quest(dun_level) || (dun_level == dun_defs[cur_dungeon].max_level))
-	{
-		place_up_stairs(y, x);
+	{	
+		if(dun_defs[cur_dungeon].tower)
+		{
+			place_down_stairs(y, x);
+		}
+		else
+		{
+			place_up_stairs(y, x);
+		}
 	}
 	else if (rand_int(100) < 50)
 	{
@@ -1375,8 +1498,16 @@ static void alloc_stairs(int feat, int num, int walls)
 				/* Quest -- must go up */
 				else if (is_quest(dun_level) || (dun_level == dun_defs[cur_dungeon].max_level))
 				{
-					/* Clear previous contents, add up stairs */
-					c_ptr->feat = FEAT_LESS;
+					if (dun_defs[cur_dungeon].tower)
+					{
+						/* Clear previous contents, add down stairs */
+						c_ptr->feat = FEAT_MORE;
+					}
+					else
+					{
+						/* Clear previous contents, add up stairs */
+						c_ptr->feat = FEAT_LESS;
+					}
 				}
 
 				/* Requested type */
@@ -4657,6 +4788,9 @@ static void build_store(int n, int yy, int xx)
 
 	cave_type *c_ptr;
 
+	/* Only build stores if they exist */
+	if (store[n].type == 99) return;
+
 	/* Find the "center" of the store */
 	y0 = yy * 9 + 7;
 	x0 = xx * 15 + 9;
@@ -4768,7 +4902,7 @@ static void town_gen_hack(void)
 				k = rand_int(n);
 
 				/* Build that store at the proper location */
-				build_store(rooms[k], y, x);
+					build_store(rooms[k], y, x);
 
 				/* Shift the stores down, remove one store */
 				rooms[k] = rooms[--n];
@@ -5079,28 +5213,35 @@ void generate_cave(void)
 			if (wild_grid[wildy][wildx].dungeon < MAX_TOWNS)
 			{
 				dun_offset = 0;
+				dun_bias = 0;
 			}
 			/* Nastier near dungeons */
 			else if (wild_grid[wildy][wildx].dungeon < MAX_CAVES)
 			{
 				dun_offset = dun_defs[wild_grid[wildy][wildx].dungeon].offset/2;
 				if (dun_offset < 4) dun_offset = 4;
+				dun_bias = dun_defs[wild_grid[wildy][wildx].dungeon].bias;
 			}
 			else
 			{
 				dun_offset = 2;
+				/* We get mainly animals in the wilderness */
+				dun_bias = SUMMON_ANIMAL;
 			}
+
 
 			/* Hack - Very nasty at Kadath */
 			if (wild_grid[wildy][wildx].dungeon == TOWN_KADATH)
 			{
 				dun_offset = 35;
+				dun_bias = SUMMON_CTHULOID;
 			}
 
 		}
 		else
 		{
 			dun_offset = dun_defs[cur_dungeon].offset;
+			dun_bias = dun_defs[cur_dungeon].bias;
 		}
 
 		/* Reset the monster generation level */
@@ -5147,42 +5288,55 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
-			if (((randint(SMALL_LEVEL)==1) && small_levels) || dungeon_small)
-            {
-                if (cheat_room)
-                    msg_print ("A 'small' dungeon level.");
-                tester_1 = randint(MAX_HGT/SCREEN_HGT);
-                tester_2 = randint(MAX_WID/SCREEN_WID);
+			/* Towers are tiny */
+			if (dun_defs[cur_dungeon].tower)
+			{
+				cur_hgt = SCREEN_HGT;
+				cur_wid = SCREEN_WID;
+				max_panel_rows = 0;
+				max_panel_cols = 0;
+				panel_row = 0;
+				panel_col = 0;
+			}
+			else
+			{
+				/* Sometimes build a small dungeon */
+				if (((randint(SMALL_LEVEL)==1) && small_levels) || dungeon_small)
+				{
+					if (cheat_room)
+						msg_print ("A 'small' dungeon level.");
+					tester_1 = randint(MAX_HGT/SCREEN_HGT);
+					tester_2 = randint(MAX_WID/SCREEN_WID);
 
-                cur_hgt = tester_1 * SCREEN_HGT;
-                cur_wid = tester_2 * SCREEN_WID;
+					cur_hgt = tester_1 * SCREEN_HGT;
+					cur_wid = tester_2 * SCREEN_WID;
 
-                /* Determine number of panels */
-                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-                max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+					/* Determine number of panels */
+					max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+					max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
-                /* Assume illegal panel */
-                panel_row = max_panel_rows;
-                panel_col = max_panel_cols;
+					/* Assume illegal panel */
+					panel_row = max_panel_rows;
+					panel_col = max_panel_cols;
 
-                if (cheat_room)
-                    msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
-            }
-            else
-            {
-                /* Big dungeon */
-                cur_hgt = MAX_HGT;
-                cur_wid = MAX_WID;
+					if (cheat_room)
+						msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
+				}
+				else
+				{
+					/* Big dungeon */
+					cur_hgt = MAX_HGT;
+					cur_wid = MAX_WID;
 
-                /* Determine number of panels */
-                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-                max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+					/* Determine number of panels */
+					max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+					max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
-                /* Assume illegal panel */
-                panel_row = max_panel_rows;
-                panel_col = max_panel_cols;
-            }
-
+					/* Assume illegal panel */
+					panel_row = max_panel_rows;
+					panel_col = max_panel_cols;
+				}
+			}
 			/* Make a dungeon */
             if (!cave_gen())
                 {
@@ -5204,7 +5358,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag && !preserve_mode) feeling = 1;
 
 		
 		/* Hack -- no feeling in the town */

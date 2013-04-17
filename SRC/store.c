@@ -188,7 +188,10 @@ void room_rest(bool night)
 	for (n = 0; n < MAX_STORES_TOTAL - 1; n++)
 	{
 		/* Maintain */
-		if ((store[n].type != STORE_HOME) && (store[n].type != STORE_HALL) && (store[n].type != STORE_PAWN))
+		if ((store[n].type !=99) &&
+			(store[n].type != STORE_HOME) &&
+			(store[n].type != STORE_HALL) &&
+			(store[n].type != STORE_PAWN))
 		{
 			store_maint(n);
 		}
@@ -951,6 +954,7 @@ static bool store_will_buy(object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (cur_store_type == STORE_HOME) return (TRUE);
+	if (cur_store_type == 99) return (FALSE);
 
 	/* Switch on the store */
 	switch (cur_store_type)
@@ -4115,7 +4119,7 @@ void do_cmd_store(void)
 
 	/* Check for 'Ironman' option */
 
-	if((p_ptr->ironman) && (store[which].type != STORE_LIBRARY))
+	if((ironman_shop) && (store[which].type != STORE_LIBRARY))
 	{
 		msg_print("Only wimps hide indoors!");
 		return;

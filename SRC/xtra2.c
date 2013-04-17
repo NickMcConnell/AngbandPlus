@@ -2144,7 +2144,7 @@ void monster_death(int m_idx)
                 chance = 75;
             }
 
-            if ((a_idx > 0) && ((randint(99)<chance) || (wizard)))
+            if ((a_idx > 0) && ((randint(99)<chance) || (cheat_wzrd)))
             {
                 if (a_info[a_idx].cur_num == 0)
                 {
@@ -2321,8 +2321,16 @@ void monster_death(int m_idx)
 			/* Explain the stairway */
 			msg_print("A magical stairway appears...");
 
-			/* Create stairs down */
-			cave_set_feat(y, x, FEAT_MORE);
+			if (dun_defs[cur_dungeon].tower)
+			{
+				/* Create stairs up */
+				cave_set_feat(y, x, FEAT_LESS);
+			}
+			else
+			{
+				/* Create stairs down */
+				cave_set_feat(y, x, FEAT_MORE);
+			}
 
 			/* Remember to update everything */
 			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);

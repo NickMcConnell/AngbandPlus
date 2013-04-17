@@ -1066,7 +1066,12 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			sound(SOUND_HIT);
 
             msg_format("You hit %s with your %s.", m_name, atk_desc);
-			skill_exp(p_ptr->wield_skill);
+			
+			/* Give experience if it wasn't too easy */
+			if (chance < (r_ptr->ac * 3))
+			{
+				skill_exp(SKILL_CLOSE);
+			}
 
             k = damroll(ddd, dss);
             k = critical_norm(n_weight, p_ptr->to_h, k);
@@ -1078,7 +1083,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			if (k < 0) k = 0;
 
 			/* Complex message */
-			if (wizard)
+			if (cheat_wzrd)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
@@ -1265,8 +1270,12 @@ void py_attack(int y, int x)
 				skill_exp(SKILL_STEALTH);
 			}
 
-			skill_exp(p_ptr->wield_skill);
-            /* Hack -- bare hands do one damage */
+			/* Give experience if it wasn't too easy */
+			if (chance < (r_ptr->ac * 3))
+			{
+				skill_exp(p_ptr->wield_skill);
+            }
+				/* Hack -- bare hands do one damage */
 			k = 1;
 
 
@@ -1325,7 +1334,7 @@ void py_attack(int y, int x)
                 !(p_ptr->stun || p_ptr->confused))
             {
                 old_ptr = ma_ptr;
-                if (wizard && cheat_xtra)
+                if (cheat_wzrd && cheat_xtra)
                 {
                     msg_print("Attack re-selected.");
                 }
@@ -1410,7 +1419,10 @@ void py_attack(int y, int x)
             }
 
         }
-	skill_exp(SKILL_MA);
+		if (chance < (r_ptr->ac * 3))
+		{
+			skill_exp(SKILL_MA);
+		}
     }
 
 	/* Handle normal weapon */
@@ -1467,7 +1479,7 @@ void py_attack(int y, int x)
 			if (k < 0) k = 0;
 
 			/* Complex message */
-			if (wizard)
+			if (cheat_wzrd)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
@@ -1755,7 +1767,7 @@ static bool pattern_seq(byte c_y, byte c_x, byte n_y,byte  n_x)
                     ok_move = FEAT_PATTERN_1;
                     break;
                 default:
-                    if (wizard)
+                    if (cheat_wzrd)
                         msg_format("Funny Pattern walking, %d.", cave[c_y][c_x]);
                     return TRUE; /* Goof-up */
             }

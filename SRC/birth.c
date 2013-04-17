@@ -335,7 +335,7 @@ static hist_type bg[] =
     {"a Small Kobold.  ",   40, 83, 80, 50 },
     {"a Kobold.  ",         75, 83, 80, 55 },
     {"a Large Kobold.  ",   95, 83, 80, 65 },
-    {"Mughash, the Kobold Lord.  ",     100, 83, 80, 100 },
+    {"Vort, the Kobold Queen.  ",     100, 83, 80, 100 },
 
     {"You are one of several children of a Klackon hive queen.  "
             , 100, 84, 85, 50 },
@@ -835,7 +835,7 @@ static bool point_mod_player(void)
 		if(islower(stat)) /* ('a' < stat) */
 		{
 			/* different conditions for maximize on */
-			if(p_ptr->maximize) 
+			if(maximise_mode) 
 			{
 				/* Max stat increase */
 				if(p_ptr->stat_max[i] < 17)
@@ -1365,6 +1365,7 @@ void get_hermetic_skills()
 			k = (islower(c) ? A2I(c) : -1);
 			if ((k >= 0) && (k <= 7)) break;
 			if (c == '?') do_cmd_help(syshelpfile);
+
 			else bell();
 		}
 
@@ -1516,7 +1517,7 @@ static void load_prev_data(void)
  * auto_roll is boolean and states maximum changes should be used rather
  * than random ones to allow specification of higher values to wait for
  *
- * The "p_ptr->maximize" code is important	-BEN-
+ * The "maximise_mode" code is important	-BEN-
  */
 static int adjust_stat(int value, s16b amount, int auto_roll)
 {
@@ -1553,7 +1554,7 @@ static int adjust_stat(int value, s16b amount, int auto_roll)
 			{
 				value++;
 			}
-			else if (p_ptr->maximize)
+			else if (maximise_mode)
 			{
 				value += 10;
 			}
@@ -1623,7 +1624,7 @@ static void get_stats(void)
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
 		/* Variable stat maxes */
-		if (p_ptr->maximize)
+		if (maximise_mode)
 		{
 			/* Start fully healed */
 			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
@@ -2252,6 +2253,8 @@ static void player_wipe(void)
 	cheat_xtra = FALSE;
 	cheat_know = FALSE;
 	cheat_live = FALSE;
+	cheat_skll = FALSE;
+	cheat_wzrd = FALSE;
 
 	/* Assume no winning game */
 	total_winner = FALSE;
@@ -2619,9 +2622,9 @@ static bool player_birth_aux()
 	Term_putstr(5, 11, -1, TERM_WHITE,
 		"display a set of standard answers, and many will also accept");
 	Term_putstr(5, 12, -1, TERM_WHITE,
-		"some special responses, including 'Q' to quit, 'S' to restart,");
+		"some special responses, including 'Q' to quit, 'S' to restart");
 	Term_putstr(5, 13, -1, TERM_WHITE,
-		"and '?' for help.  Note that 'Q' and 'S' must be capitalized.");
+		"or '?' for help.  Note that 'Q' and 'S' must be capitalized.");
 
 
 	/*** Quick-Start ***/
@@ -2630,18 +2633,28 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Quick-Start gives you a completely random character without");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"further prompting.");
+		"further prompting.  At this point, you may press the '=' key");
+	Term_putstr(5,17,-1,TERM_WHITE,
+		"to change the startup options. You will not be able to change");
+	Term_putstr(5,18,-1,TERM_WHITE,
+		"these once you have started character generation.");
 
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Quick-Start? (y/n/Q/S/?): ");
+		sprintf(buf, "Quick-Start? (y/n/Q/S/?/=): ");
 		put_str(buf, 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if ((c == 'y') || (c == 'n') || (c == 'Y') || (c == 'N')) break;
 		if (c == '?') do_cmd_help(syshelpfile);
+		if (c == '=')
+		{
+			Term_save();
+			do_cmd_options_aux(7,"Startup Options");
+			Term_load();
+		}
 		else bell();
 	}
 
@@ -2690,6 +2703,19 @@ static bool player_birth_aux()
 		/* Set maxima */
 		for (i=0;i<MAX_SKILLS;i++)
 		{
+			if(skill_set[i].value>10)
+			{
+				skill_set[i].value+= (byte)rand_int(10);
+			}
+			else if(skill_set[i].value>5)
+			{
+				skill_set[i].value+= (byte)rand_int(5);
+			}
+			else if(skill_set[i].value>0)
+			{
+				skill_set[i].value+= (byte)rand_int(3);
+			}
+
 			skill_set[i].max_value=skill_set[i].value;
 		}
 		
@@ -2700,17 +2726,6 @@ static bool player_birth_aux()
 		/* Display */
 		c_put_str(TERM_L_BLUE, player_name, 2, 13);
 
-		/*** Maximize mode ***/
-		/* Set "maximize" mode */
-		p_ptr->maximize = TRUE;
-
-		/*** Preserve mode ***/
-		/* Set "preserve" mode */
-		p_ptr->preserve = TRUE;
-
-		/* Prompt for "Ironman" option */
-		p_ptr->ironman = FALSE;
-		
 		/* Generate quests */
 		/* Set max number of quest */
 		MAX_Q_IDX =randint(20)+10+(2*MAX_CAVES);
@@ -3341,98 +3356,28 @@ static bool player_birth_aux()
 		get_starting_skills(p_ptr->prace);
 		get_hermetic_skills();
 
-		/* Set maxima */
+		/* Nudge skills up and set maxima */
 		for (i=0;i<MAX_SKILLS;i++)
 		{
+			if(skill_set[i].value>10)
+			{
+				skill_set[i].value+= (byte)rand_int(10);
+			}
+			else if(skill_set[i].value>5)
+			{
+				skill_set[i].value+= (byte)rand_int(5);
+			}
+			else if(skill_set[i].value>0)
+			{
+				skill_set[i].value+= (byte)rand_int(3);
+			}
+
 			skill_set[i].max_value=skill_set[i].value;
 		}
 
 		if (skill_set[SKILL_THAUMATURGY].value > 0) hack_chaos_feature = TRUE;
 
 		/* Clean up */
-		clear_from(15);
-
-		/*** Maximize mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-        "but often makes it easier to win. In Cthangband, 'maximize'");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-        "mode is recommended.");
-
-		/* Ask about "maximize" mode */
-		while (1)
-		{
-			put_str("Use 'maximize' mode? (y/n/Q/S/?) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help(syshelpfile);
-			else bell();
-		}
-
-		/* Set "maximize" mode */
-		p_ptr->maximize = (c == 'y');
-
-		/* Clear */
-		clear_from(15);
-
-
-		/*** Preserve mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
-
-		/* Ask about "preserve" mode */
-		while (1)
-		{
-			put_str("Use 'preserve' mode? (y/n/Q/S/?) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help(syshelpfile);
-			else bell();
-		}
-
-		/* Set "preserve" mode */
-		p_ptr->preserve = (c == 'y');
-
-		/* Clear */
-		clear_from(15);
-
-	
-		/* Prompt for "Long Stairs" option */
-		Term_putstr(5, 15, -1, TERM_WHITE,
-		"'Ironman' means that the shops will always be locked.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-		"It is designed for expert players who wish to have more");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-		"of a challenge than the normal game provides.");
-		/* Ask the player */
-		while (1)
-		{
-			put_str("Use 'Ironman' mode? (y/n/Q/S/?) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help(syshelpfile);
-			else bell();
-		}
-
-		p_ptr->ironman = (c == 'y');
-
-		/* Clear */
 		clear_from(15);
 
 		/* Generate quests */
@@ -3444,37 +3389,11 @@ static bool player_birth_aux()
 
 		/*** Autoroll ***/
 
-		/* Extra info */
-		Term_putstr(5, 15, -1, TERM_WHITE,
-		"The 'autoroller' allows you to specify certain 'minimal' stats,");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-		"but be warned that your various stats may not be independant!");
-		Term_putstr(5,17,-1,TERM_WHITE,
-		"'Points' lets you specify your stats exactly, but will give you");
-		Term_putstr(5,18,-1,TERM_WHITE,
-		"a slightly lower total than a random character.");
-
-		/* Ask about "auto-roller" mode */
-		while (1)
-		{
-			put_str("Use the Auto-Roller/Points/Normal? (a/p/n) ", 20, 2); 
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == ESCAPE) break;
-			if ((c == 'a') || (c == 'n') || (c == 'p')) break;
-			if ((c == 'A') || (c == 'N') || (c == 'P')) break;
-			if (c == '?') do_cmd_help(syshelpfile);
-			else bell();
-		}
 
 		/* Set "autoroll" and "point_mod" */
-		autoroll = ((c == 'a') || (c == 'A'));
-		point_mod = ((c == 'p') || (c == 'P'));
+		autoroll = use_autoroller;
+		point_mod = (spend_points & !(use_autoroller));
 
-		/* Clear */
-		clear_from(15);
-		
 		/* Initialize Autoroller if necessary */
 		if (autoroll)
 		{
@@ -3877,7 +3796,10 @@ void player_birth(void)
 		store_init(n);
 
 		/* Ignore home, hall  and pawnbrokers */
-		if ((store[n].type != STORE_HOME) && (store[n].type != STORE_HALL) && (store[n].type != STORE_PAWN))
+		if ((store[n].type != 99) &&
+			(store[n].type != STORE_HOME) &&
+			(store[n].type != STORE_HALL) &&
+			(store[n].type != STORE_PAWN))
 		{
 			/* Maintain the shop (ten times) */
 			for (i = 0; i < 10; i++) store_maint(n);

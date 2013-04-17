@@ -19,7 +19,7 @@
 
 # Version stamp (required)
 
-V:4.0.0
+V:4.0.1
 
 
 ##### The Player #####
@@ -1238,7 +1238,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
+F:EVIL | IM_POIS | GUARDIAN
 D:Strong and powerful, for a kobold.
 
 ##### Level 8 #####
@@ -2556,18 +2556,21 @@ F:EVIL | GIANT | MALE |
 F:IM_FIRE
 D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
 
-N:220:Ulfast, Son of Ulfang
+N:220:The Emmisary
 G:p:o
 I:110:4:34d10:20:40:40
 W:16:3:0:200
 B:HIT:HURT:3d5
+B:GAZE:TERRIFY
 F:UNIQUE | CAN_SPEAK |
-F:MALE | 
+F:FEMALE | DEMON | GUARDIAN |
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:A short and swarthy Easterling.
+D:The Emmisary can pass for human and is used by her demonic overlords to 
+D:infiltrate human society and gather information. Only her eyes give away 
+D:het demonic nature.
 
 N:221:Quasit
 G:u:W
@@ -4199,7 +4202,7 @@ F:UNIQUE | FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
-F:SMART | BASH_DOOR | 
+F:SMART | BASH_DOOR | GUARDIAN |
 F:ANIMAL | EVIL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
@@ -5544,7 +5547,7 @@ F:UNIQUE | FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:FEMALE | CAN_SPEAK | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
-F:EVIL | IM_POIS | 
+F:EVIL | IM_POIS | GUARDIAN |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
@@ -5930,7 +5933,7 @@ B:HIT:LOSE_STR:4d4
 B:TOUCH:EXP_80:8d1
 F:UNIQUE | CAN_SPEAK | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | GUARDIAN |
 F:COLD_BLOOD | PASS_WALL | MOVE_BODY | NONLIVING |
 F:OPEN_DOOR | BASH_DOOR | IM_POIS | IM_COLD | DEMON | EVIL 
 S:1_IN_3 |
@@ -6191,7 +6194,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | KILL_WALL | 
 F:KILL_ITEM | KILL_BODY | PASS_WALL | POWERFUL | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:HURT_ROCK | 
+F:HURT_ROCK | GUARDIAN |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BO_ACID | BA_ACID
@@ -7069,13 +7072,13 @@ B:TOUCH:EXP_80
 B:HIT:BLIND:10d5
 B:HIT:HURT:10d10
 F:UNIQUE | CAN_SPEAK | RES_NETH | NO_FEAR | ELDRITCH_HORROR |
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | REFLECTING | NONLIVING
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | REFLECTING | NONLIVING | GUARDIAN |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | AURA_FIRE | NEVER_MOVE |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | GREAT_OLD_ONE
 S:1_IN_2 | 
 S:TELE_TO | BLIND | BLINK | TPORT |
-S:BO_MANA | BO_NETH | BA_NETH | 
+S:BO_MANA | BO_NETH | BA_NETH |
 S:BR_NETH | BO_FIRE | BR_FIRE | BA_FIRE
 D:"A belching column of sick greenish flame... spouting volcanically from 
 D:depths profound and inconceivable, casting no shadows as a healthy flame 

@@ -13,7 +13,7 @@
 #include "angband.h"
 
 /*
- * Helper function for dat_to_date()
+ * Helper function for day_to_date()
  */
 
 void day_to_date_aux(s16b day,char *suffix)
@@ -21,15 +21,29 @@ void day_to_date_aux(s16b day,char *suffix)
 	switch (day)
 	{
 		case 1:
+			sprintf(suffix," %dst ",day);
+			break;
+		case 2:
+			sprintf(suffix," %dnd ",day);
+			break;
+		case 3:
+			sprintf(suffix," %drd ",day);
+			break;
+		case 4:
+		case 5:
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+			sprintf(suffix," %dth ",day);
+			break;
 		case 21:
 		case 31:
 			sprintf(suffix,"%dst ",day);
 			break;
-		case 2:
 		case 22:
 			sprintf(suffix,"%dnd ",day);
 			break;
-		case 3:
 		case 23:
 			sprintf(suffix,"%drd ",day);
 			break;
@@ -494,11 +508,25 @@ static void prt_depth(void)
 	}
 	else if (depth_in_feet)
 	{
-		(void)sprintf(depths, "(%d ft)",dun_level * 50);
+		if (dun_defs[cur_dungeon].tower)
+		{
+			(void)sprintf(depths, "(%d ft)",dun_level * 50);
+		}
+		else
+		{
+			(void)sprintf(depths, "(%d ft)",(dun_level + dun_offset) * 50);
+		}
 	}
 	else
 	{
-		(void)sprintf(depths, "(Lev %d)", dun_level);
+		if (dun_defs[cur_dungeon].tower)
+		{
+			(void)sprintf(depths, "(Lev %d)", dun_level);
+		}
+		else
+		{
+			(void)sprintf(depths, "(Lev %d)", (dun_level + dun_offset));
+		}
 	}
 	/* Right-Adjust the "depth", and clear old values */
 	prt(format("%9s", depths), 23, COL_DEPTH);
@@ -1785,10 +1813,10 @@ void calc_hitpoints(void)
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
 
 	/* Calculate hitpoints */
-	mhp = player_hp[skill_set[SKILL_TOUGH].value]/2 + (bonus*skill_set[SKILL_TOUGH].value/4);
+	mhp = player_hp[skill_set[SKILL_TOUGH].value-1]/2 + (bonus*skill_set[SKILL_TOUGH].value/4);
 
 	/* Always have at least one hitpoint per level */
-	if (mhp < skill_set[SKILL_TOUGH].value+1) mhp = skill_set[SKILL_TOUGH].value+1;
+	if (mhp < skill_set[SKILL_TOUGH].value) mhp = skill_set[SKILL_TOUGH].value;
 
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
@@ -2375,7 +2403,7 @@ static void calc_bonuses(void)
 
 
 	/* Hack -- apply racial/template stat maxes */
-	if (p_ptr->maximize)
+	if (maximise_mode)
 	{
 		/* Apply the racial modifiers */
 		for (i = 0; i < 6; i++)
@@ -3715,9 +3743,34 @@ void update_skill_maxima()
 /* Give experience to a skill after usage */
 void skill_exp(int index)
 {
+	/* No experience is gained on the surface */
+	if (!dun_level) return;
+
+	if ((dun_level + dun_offset) < ((skill_set[index].value * 2) / 3))
+	{
+		if ((cheat_wzrd) || (cheat_skll))
+		{
+			msg_format("You are not tense enough to improve your %s skill.",skill_set[index].name);
+		}
+		return;
+	}
+	
+	/* Debugging message */
+	if ((cheat_wzrd) || (cheat_skll))
+	{
+		msg_format("Skill check for %s.",skill_set[index].name);
+	}
+
 	skill_set[index].experience+= 100; /* Means a player with an expfact of 100 has a 1-1 mapping */
 	if(skill_set[index].experience >= skill_set[index].exp_to_raise * rp_ptr->r_exp)
 	{
+
+		/* Debugging message */
+		if ((cheat_wzrd) || (cheat_skll))
+		{
+			msg_format("%s tested.",skill_set[index].name);
+		}
+
 		skill_set[index].experience-=skill_set[index].exp_to_raise * rp_ptr->r_exp;
 		if(((byte)rand_int(100)>=(skill_set[index].value)) && (skill_set[index].value < 100))
 		{
@@ -3777,13 +3830,13 @@ u16b spell_energy(u16b skill,u16b min)
 	if (min >= skill) 
 	{
 		/* Base calculation gives a square curve */
-		en=100+((skill-min)*(skill-min));
+		en=100+((min-skill)*(min-skill));
 		if (en > 300) en = 300;
 	}
 	else
 	{
 		/* base calculation to give an inverse curve */
-		en = 300/(min-skill);
+		en = 300/(skill-min);
 		/* Force limits */
 		if (en > 100) en = 100;
 		if (en < 10) en = 10;

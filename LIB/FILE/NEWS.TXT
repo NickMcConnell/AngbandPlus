@@ -1,7 +1,7 @@
 
 
                           *************************
-                          **  Cthangband 4.0.0   **
+                          **  Cthangband 4.0.1   **
                           *************************
 
                Developed by Dean Anderson from Zangband Variant

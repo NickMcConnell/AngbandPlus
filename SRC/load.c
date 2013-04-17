@@ -670,7 +670,7 @@ static void rd_options(void)
 
 	rd_u16b(&c);
 
-	if (c & 0x0002) wizard = TRUE;
+	if (c & 0x0002) cheat_wzrd = TRUE;
 
 	cheat_peek = (c & 0x0100) ? TRUE : FALSE;
 	cheat_hear = (c & 0x0200) ? TRUE : FALSE;
@@ -678,6 +678,7 @@ static void rd_options(void)
 	cheat_xtra = (c & 0x0800) ? TRUE : FALSE;
 	cheat_know = (c & 0x1000) ? TRUE : FALSE;
 	cheat_live = (c & 0x2000) ? TRUE : FALSE;
+	cheat_skll = (c & 0x4000) ? TRUE : FALSE;
 
 		rd_byte(&autosave_l);
 		rd_byte(&autosave_t);
@@ -956,12 +957,9 @@ static void rd_extra(void)
 	rd_u32b(&p_ptr->muta3);
 
 	rd_byte(&p_ptr->confusing);
-	rd_byte(&p_ptr->ironman);      
 	for (i=0;i<MAX_TOWNS;i++) rd_byte(&p_ptr->house[i]);
 	rd_byte(&p_ptr->ritual);
 	rd_byte(&p_ptr->sneaking);
-	rd_byte(&p_ptr->maximize);
-	rd_byte(&p_ptr->preserve);
 	rd_byte(&tmp8u);
 
 	/* Future use */
@@ -996,15 +994,8 @@ static void rd_extra(void)
 				town_defs[tmp8u].y=i;
 				town_defs[tmp8u].x=j;
 			}
-			if (older_than(3,1,2))
-			{
-				wild_grid[i][j].road_map=0;
-			}
-			else
-			{
-				rd_byte(&tmp8u);
-				wild_grid[i][j].road_map=tmp8u;
-			}
+			rd_byte(&tmp8u);
+			wild_grid[i][j].road_map=tmp8u;
 		}
 	}
 
@@ -1202,6 +1193,7 @@ static errr rd_dungeon(void)
 	/* Header info */
 	rd_s16b(&dun_level);
 	rd_s16b(&dun_offset);
+	rd_s16b(&dun_bias);
 	rd_byte (&cur_town);
 	rd_byte (&cur_dungeon);
 	rd_byte (&recall_dungeon);
@@ -1458,6 +1450,16 @@ static errr rd_savefile_new_aux(void)
 		note ("");
 		note("The change from a 'level-based' system to a 'skill-based'");
 		note("system is too great to allow conversion of older files.");
+		note("");
+		note("(sorry)");
+		return (1);
+	}
+	if(older_than(4,0,0))
+	{
+		note("v4.0.0 savefiles are no longer valid.");
+		note ("");
+		note("Version 4.0.0 was an unfinished 'beta' release and had");
+		note("serious playbalance issues.");
 		note("");
 		note("(sorry)");
 		return (1);

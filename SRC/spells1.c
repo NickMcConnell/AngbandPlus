@@ -909,7 +909,10 @@ void take_hit(int damage, cptr hit_from)
 		msg_print("*** LOW HITPOINT WARNING! ***");
 		msg_print(NULL);
 	}
-	skill_exp(SKILL_TOUGH);
+	if (damage > (old_chp/20))
+	{
+		skill_exp(SKILL_TOUGH);
+	}
 }
 
 

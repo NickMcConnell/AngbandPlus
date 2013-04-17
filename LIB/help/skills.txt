@@ -20,6 +20,16 @@ in the test and therefore a 75% chance of increasing. A skill of 90% has
 a 10% chance of failing and increasing. A skill of 0% will always
 increase. A skill of 100% will never increase.)
 
+However, if you are bored then you will not learn from your practice. In
+the case of combat and magical skills, you will only learn when there
+was a significant chance of failure, and for the 'Toughness' skill to
+keep improving you must take more and more damage. In any case, the
+environment that you are in plays a large part. Skills can never be
+increased in the town - practising there just does not give the
+adrenaline rush. Indeed, as your skills get higher, you will find that
+you need to deeper and deeper into more perilous dungeons to keep your
+interest.
+
 The number of times that a skill needs to be used before it is tested
 varies from skill to skill (some are easier to learn than others) and
 your 'Exp Factor' is also taken into account (some races learn quicker

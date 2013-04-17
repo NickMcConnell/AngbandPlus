@@ -786,7 +786,7 @@ void print_favours(byte *spells, int num, int y, int x, int sphere)
 	char            out_val[160];
 
 	if (plev == 0) plev++;
-    if ((sphere<0 || sphere>MAX_SPHERE - 1) && wizard)
+    if ((sphere<0 || sphere>MAX_SPHERE - 1) && cheat_wzrd)
 	msg_print ("Warning! print_favours called with null sphere");
 
     /* Title the list */
@@ -3265,10 +3265,13 @@ void do_cmd_cast(void)
 			/* The spell worked */
 	   		spell_worked[spell_school] |= (1L << spell);
 		}
-		/* Gain experience with spell skills */
-		gain_spell_exp(s_ptr);
-		/* And with mana */
-		skill_exp(SKILL_MANA);
+		/* Gain experience with spell skills, if it wasn't too easy */
+		if (spell_chance(spell,spell_school) >= 6)
+		{
+			gain_spell_exp(s_ptr);
+			/* And with mana */
+			skill_exp(SKILL_MANA);
+		}
 	}
 
 	/* Take some time - a spell of your level takes 100, lower level spells take less */
@@ -3578,8 +3581,11 @@ void do_cmd_cantrip(void)
         msg_print(NULL);
     }
 		/* A cantrip was cast */
-		/* Gain experience with spell skills */
-		skill_exp(SKILL_HEDGE);
+		if (cantrip_chance(spell) >= 6)
+		{
+			/* Gain experience with hedge skill if it wasn't too easy */
+			skill_exp(SKILL_HEDGE);
+		}
 	}
 
 	/* Take some time - a cantrip always takes 100, unless the charm is in a pouch */
@@ -3606,7 +3612,7 @@ void do_cmd_cantrip(void)
 		/* Reduce and describe inventory */
 		if (item >= 0)
 		{
-			inven_item_increase(item, -999);
+			inven_item_increase(item, -1);
 			inven_item_describe(item);
 			inven_item_optimize(item);
 		}
@@ -3614,7 +3620,7 @@ void do_cmd_cantrip(void)
 		/* Reduce and describe floor item */
 		else
 		{
-			floor_item_increase(0 - item, -999);
+			floor_item_increase(0 - item, -1);
 			floor_item_describe(0 - item);
 			floor_item_optimize(0 - item);
 		}
@@ -4088,8 +4094,11 @@ void do_cmd_invoke(void)
 		  msg_format("You invoke a favour from an unknown sphere: sphere %d, spell %d.", favour_sphere, spell);
 		  msg_print(NULL);
 	    }
-		/* Gain experience with spell skills */
-		skill_exp(SKILL_SHAMAN);
+		/* Gain experience with spirit lore skill, if it wasn't too easy */
+		if (favour_chance(spell,favour_sphere) >= 6)
+		{
+			skill_exp(SKILL_SHAMAN);
+		}
 	}
 
 	/* Take some time - a spell of your level takes 100, lower level spells take less */
@@ -4590,9 +4599,12 @@ void do_cmd_mindcraft(void)
 	    default:
 			msg_print("Zap?");
 		}
-		/* Get some practice */
-		skill_exp(SKILL_MINDCRAFTING);
-		skill_exp(SKILL_CHI);
+		/* Get some practice, if it wasn't too easy */
+		if (chance >= 6)
+		{
+			skill_exp(SKILL_MINDCRAFTING);
+			skill_exp(SKILL_CHI);
+		}
 	}
 	/* Take a turn */
 	energy_use = spell_energy((u16b)psi,(u16b)(spell.min_lev));

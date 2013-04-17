@@ -91,7 +91,7 @@ only has a cost of 10% to use as it is easily accessible.)
 
 Hermetic spells, shamanic favours, mindcrafting powers and racial
 abilities (including activatable chaos features) have their costs
-calculated based on the difference between the minumum skill needed and
+calculated based on the difference between the minimum skill needed and
 your actual skill.
 
 (Min > Actual) ..................................(100+((Min-Actual)^2)%

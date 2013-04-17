@@ -1816,8 +1816,6 @@ void do_cmd_use_staff(int item)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	/* Gain exp */
-	skill_exp(SKILL_DEVICE);
 
 
 	/* Analyze the staff */
@@ -2099,6 +2097,9 @@ void do_cmd_use_staff(int item)
 
 	/* Use a single charge */
 	o_ptr->pval--;
+
+	/* Gain exp */
+	skill_exp(SKILL_DEVICE);
 
 	/* XXX Hack -- unstack if necessary */
 	if ((item >= 0) && (o_ptr->number > 1))

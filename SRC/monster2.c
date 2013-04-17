@@ -143,6 +143,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Skeleton %s", gb_name, gr_name);
 				r_ptr->d_char = 's';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[174].x_attr; /* Mega-Hack use the current 'Skeleton Human' graphic */
+				r_ptr->x_char = r_info[174].x_char;
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				r_ptr->flags3 |= (RF3_IM_COLD);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
@@ -160,6 +162,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Zombified %s", gb_name, gr_name);
 				r_ptr->d_char = 'z';
 				r_ptr->d_attr = TERM_L_DARK;
+				r_ptr->x_attr = r_info[175].x_attr; /* Mega-Hack use the current 'Zombified Human' graphic */
+				r_ptr->x_char = r_info[175].x_char;
 				r_ptr->flags1 |= (RF1_DROP_60 | RF1_DROP_90);
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
@@ -178,6 +182,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Mummified %s", gb_name, gr_name);
 				r_ptr->d_char = 'z';
 				r_ptr->d_attr = TERM_L_DARK;
+				r_ptr->x_attr = r_info[281].x_attr; /* Mega-Hack use the current 'Mummified Human' graphic */
+				r_ptr->x_char = r_info[281].x_char;
 				r_ptr->flags1 |= (RF1_DROP_1D2);
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				if (grace == RACE_HALF_ORC) r_ptr->flags3 |= (RF3_ORC);
@@ -197,6 +203,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Poltergeist", gb_name);
 				r_ptr->d_char = 'G';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[56].x_attr; /* Mega-Hack use the current 'Poltergeist' graphic */
+				r_ptr->x_char = r_info[56].x_char;
 				r_ptr->flags1 |= (RF1_RAND_50 | RF1_RAND_25 | RF1_DROP_1D2);
 				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -215,6 +223,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Spirit", gb_name);
 				r_ptr->d_char = 'G';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[177].x_attr; /* Mega-Hack use the current 'Moaning Spirit' graphic */
+				r_ptr->x_char = r_info[177].x_char;
 				r_ptr->flags1 |= (RF1_DROP_1D2);
 				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -236,6 +246,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
 				r_ptr->d_char = 'G';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[338].x_attr; /* Mega-Hack use the current 'Ghost' graphic */
+				r_ptr->x_char = r_info[338].x_char;
 				r_ptr->flags1 |= (RF1_DROP_1D2);
 				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -259,6 +271,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Vampire", gb_name);
 				r_ptr->d_char = 'V';
 				r_ptr->d_attr = TERM_VIOLET;
+				r_ptr->x_attr = r_info[370].x_attr; /* Mega-Hack use the current 'Master Vampire' graphic */
+				r_ptr->x_char = r_info[370].x_char;
 				r_ptr->flags1 |= (RF1_DROP_2D2);
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				r_ptr->flags3 |= (RF3_HURT_LITE);
@@ -281,6 +295,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Wraith", gb_name);
 				r_ptr->d_char = 'W';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[429].x_attr; /* Mega-Hack use the current 'Black Wraith' graphic */
+				r_ptr->x_char = r_info[429].x_char;
 				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_4D2);
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				r_ptr->flags3 |= (RF3_IM_COLD | RF3_HURT_LITE);
@@ -303,6 +319,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Vampire Lord", gb_name);
 				r_ptr->d_char = 'V';
 				r_ptr->d_attr = TERM_BLUE;
+				r_ptr->x_attr = r_info[439].x_attr; /* Mega-Hack use the current 'Vampire Lord' graphic */
+				r_ptr->x_char = r_info[439].x_char;
 				r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_GREAT);
 				r_ptr->flags2 |= (RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				r_ptr->flags3 |= (RF3_HURT_LITE);
@@ -326,6 +344,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
 				r_ptr->d_char = 'G';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[388].x_attr; /* Mega-Hack use the current 'Law Ghost' graphic */
+				r_ptr->x_char = r_info[388].x_char;
 				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_GREAT);
 				r_ptr->flags2 |= (RF2_INVISIBLE | RF2_PASS_WALL);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -349,6 +369,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Lich", gb_name);
 				r_ptr->d_char = 'L';
 				r_ptr->d_attr = TERM_ORANGE;
+				r_ptr->x_attr = r_info[461].x_attr; /* Mega-Hack use the current 'Master Lich' graphic */
+				r_ptr->x_char = r_info[461].x_char;
 				r_ptr->flags1 |= (RF1_DROP_2D2 | RF1_DROP_1D2 | RF1_DROP_GREAT);
 				r_ptr->flags2 |= (RF2_SMART | RF2_OPEN_DOOR | RF2_BASH_DOOR);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -375,6 +397,8 @@ static void set_ghost_aux_2(void)
 				sprintf(r_name + r_ptr->name, "%s, the Ghost", gb_name);
 				r_ptr->d_char = 'G';
 				r_ptr->d_attr = TERM_WHITE;
+				r_ptr->x_attr = r_info[358].x_attr; /* Mega-Hack use the current 'Chaos Ghost' graphic */
+				r_ptr->x_char = r_info[358].x_char;
 				r_ptr->flags1 |= (RF1_DROP_1D2 | RF1_DROP_2D2 | RF1_DROP_GREAT);
 				r_ptr->flags2 |= (RF2_SMART | RF2_INVISIBLE | RF2_PASS_WALL);
 				r_ptr->flags3 |= (RF3_IM_COLD);
@@ -536,8 +560,8 @@ s16b place_ghost(void)
 	/* Already have a ghost */
 	if (r_ptr->cur_num >= r_ptr->max_num)
 	{
-		if (wizard) msg_print("Player-Ghost already present!");
-		if (wizard) msg_format("cur_num = %d, max_num - %d",r_ptr->cur_num,r_ptr->max_num);
+		if (cheat_wzrd) msg_print("Player-Ghost already present!");
+		if (cheat_wzrd) msg_format("cur_num = %d, max_num - %d",r_ptr->cur_num,r_ptr->max_num);
 		return (FALSE);
 	}
 
@@ -613,7 +637,7 @@ s16b place_ghost(void)
 	r_ptr->x_char = r_ptr->d_char;
 
 	/* Wizard mode message */
-	if (wizard) msg_print("WIZARD: Ghost placed");
+	if (cheat_wzrd) msg_print("WIZARD: Ghost placed");
 
 	return TRUE;
 }
@@ -1822,7 +1846,7 @@ void update_mon(int m_idx, bool full)
 		if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 
 		/* Hack -- Wizards have "perfect telepathy" */
-		if (wizard) flag = TRUE;
+		if (cheat_wzrd) flag = TRUE;
 	}
 
 
@@ -2524,7 +2548,7 @@ bool alloc_horde(int y, int x)
     while (--attempts)
     {
         /* Attempt to place the monster */
-        if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE)) break;
     }
 
     if (attempts < 1) return FALSE;
@@ -2596,7 +2620,14 @@ bool alloc_monster(int dis, int slp)
     {
 #endif
         /* Attempt to place the monster, allow groups */
-        if (place_monster(y, x, (bool)slp, (bool)TRUE)) return (TRUE);
+		if ((dun_bias > 0) && (rand_range(1,10) > 6))
+		{
+			if (summon_specific(y,x,(dun_level + dun_offset),dun_bias)) return (TRUE);
+		}
+		else
+		{
+			if (place_monster(y, x, (bool)slp, (bool)TRUE)) return (TRUE);
+		}
 
 #ifdef MONSTER_HORDES
     }
@@ -2714,6 +2745,30 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+        case SUMMON_ORC:
+		{
+            okay = ((r_ptr->d_char == 'o') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+        case SUMMON_KOBOLD:
+		{
+            okay = ((r_ptr->d_char == 'k') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+        case SUMMON_YEEK:
+		{
+            okay = ((r_ptr->d_char == 'y') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+        case SUMMON_HUMAN:
+		{
+            okay = ((r_ptr->d_char == 'p') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
         case SUMMON_BIZARRE1:
 		{
             okay = ((r_ptr->d_char == 'm') &&
@@ -2832,6 +2887,7 @@ static bool summon_specific_okay(int r_idx)
                 !(r_ptr->flags1 & (RF1_UNIQUE)));
             break;
         }
+
 
     }
 	/* Result */

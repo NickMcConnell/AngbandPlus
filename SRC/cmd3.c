@@ -581,7 +581,7 @@ void destroy_pack(void)
 		if (!o_ptr->k_idx) continue;
 		amt = o_ptr->number;
 		/* Mega-Hack -- preserve artifacts */
-		if (p_ptr->preserve)
+		if (preserve_mode)
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr))

@@ -2569,7 +2569,9 @@ static errr init_other(void)
 			st_ptr->type = town_defs[i].store[j];
 
 			/* No table for the black market or home */
-			if ((st_ptr->type == STORE_BLACK) || (st_ptr->type == STORE_HOME)) continue;
+			if ((st_ptr->type == STORE_BLACK) ||
+				(st_ptr->type == STORE_HOME) ||
+				(st_ptr->type == 99)) continue;
 
 			/* Assume full table */
 			st_ptr->table_size = STORE_CHOICES;

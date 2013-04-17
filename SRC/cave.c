@@ -438,8 +438,7 @@ static void image_monster(byte *ap, char *cp)
 	int n = strlen(image_monster_hack);
 
 	/* Random symbol from set above */
-	graf_new = ((strcmp(ANGBAND_GRAF, "new") == 0) && use_graphics);
-	if (!graf_new)
+	if (!use_graphics)
 	{
 	if (!(streq(ANGBAND_SYS, "ibm")))
         {
@@ -482,8 +481,7 @@ static void image_object(byte *ap, char *cp)
 {
 	int n = strlen(image_object_hack);
 
-	graf_new = ((strcmp(ANGBAND_GRAF, "new") == 0) && use_graphics);
-	if (!graf_new)
+	if (!use_graphics)
 	{
         	if (!(streq(ANGBAND_SYS, "ibm")))
         {
@@ -664,8 +662,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte a;
 	char c;
 
-	graf_new = ((strcmp(ANGBAND_GRAF, "new") == 0) && use_graphics);
-
 	/* Get the cave */
 	c_ptr = &cave[y][x];
 
@@ -674,7 +670,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	feat = c_ptr->feat;
 
 	/* Floors (etc) */
-	if (feat <= FEAT_INVIS)
+	if ((feat <= FEAT_INVIS) || (feat == FEAT_PATH))
 	{
 		/* Memorized (or visible) floor */
 		if ((c_ptr->info & (CAVE_MARK)) ||
@@ -686,6 +682,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Access floor */
 			f_ptr = &f_info[FEAT_FLOOR];
 
+			/* Hack - path uses a different graphic */
+			if (feat == FEAT_PATH) f_ptr = &f_info[FEAT_PATH];
+
 			/* Normal char */
 			c = f_ptr->z_char;
 
@@ -693,12 +692,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->z_attr;
 
 			/* Special lighting effects */
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
+			if (view_special_lite && ((a == TERM_WHITE) || use_graphics))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
 				{
-					if (graf_new)
+					if (use_graphics)
 					{
 						/* Use a dark tile */
 						c++;
@@ -716,7 +715,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Torch lite */
 					if (view_yellow_lite)
 					{
-						if (graf_new)
+						if (use_graphics)
 						{
 							/* Use a brightly lit tile */
 							c += 2;
@@ -732,7 +731,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Handle "dark" grids */
 				else if (!(c_ptr->info & (CAVE_GLOW)))
 				{
-					if (graf_new)
+					if (use_graphics)
 					{
 						/* Use a dark tile */
 						c++;
@@ -750,7 +749,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Special flag */
 					if (view_bright_lite)
 					{
-						if (graf_new)
+						if (use_graphics)
 						{
 							/* Use a dark tile */
 							c++;
@@ -798,7 +797,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->z_attr;
 
 			/* Special lighting effects */
-			if (view_granite_lite && ((a == TERM_WHITE) || (graf_new)) &&
+			if (view_granite_lite && ((a == TERM_WHITE) || (use_graphics)) &&
 				(((feat >= FEAT_SECRET) && (feat <= FEAT_PERM_SOLID) &&
 				(feat !=FEAT_MAGMA_K) && (feat !=FEAT_QUARTZ_K) &&
 				(feat !=FEAT_RUBBLE)) || ((feat == FEAT_TREE) || (feat == FEAT_BUSH)
@@ -807,7 +806,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Handle "blind" */
 				if (p_ptr->blind)
 				{
-					if (graf_new)
+					if (use_graphics)
 					{
 						/* Use a dark tile */
 						c++;
@@ -825,7 +824,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Torch lite */
 					if (view_yellow_lite)
 					{
-						if (graf_new)
+						if (use_graphics)
 						{
 							/* Use a brightly lit tile */
 							c += 2;
@@ -844,7 +843,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Not viewable */
 					if (!(c_ptr->info & (CAVE_VIEW)))
 					{
-						if (graf_new)
+						if (use_graphics)
 						{
 							/* Use a lit tile */
 						if ((feat == FEAT_TREE) || (feat == FEAT_BUSH) || (feat == FEAT_WATER))
@@ -862,7 +861,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Not glowing */
 					else if (!(c_ptr->info & (CAVE_GLOW)))
 					{
-						if (graf_new)
+						if (use_graphics)
 						{
 							/* Use a lit tile */
 							if ((feat == FEAT_TREE) || (feat == FEAT_BUSH) || (feat == FEAT_WATER))
@@ -889,7 +888,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						/* Check for "local" illumination */
 						if (!(cave[yy][xx].info & (CAVE_GLOW)))
 						{
-							if (graf_new)
+							if (use_graphics)
 							{
 								/* Use a lit tile */
 							}
@@ -1008,7 +1007,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if (r_ptr->flags2 & (RF2_SHAPECHANGER))
 		{
 
-            if (use_graphics && !graf_new)
+            if (use_graphics)
             {
                 if (!(streq(ANGBAND_SYS, "ibm")))
                 {
@@ -1121,23 +1120,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
-
-#ifdef USE_GRAPHICS
-#ifdef VARIABLE_PLAYER_GRAPH
-		if (!graf_new)
-		{
-			if (!(streq(ANGBAND_SYS,"ibm")))
-			{
-
-				if (use_graphics && player_symbols)
-				{
-					a = BMP_FIRST_PC_TEMPLATE + p_ptr->ptemplate;
-					c = BMP_FIRST_PC_RACE  + p_ptr->prace;
-				}
-			}
-		}
-#endif /* VARIABLE_PLAYER_GRAPH */
-#endif /* USE_GRAPHICS */
 
 		/* Save the info */
 		(*ap) = a;

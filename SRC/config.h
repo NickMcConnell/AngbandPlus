@@ -276,11 +276,6 @@
 
 
 /*
- * Allow "Wizards" to yield "high scores"
- */
-/* #define SCORE_WIZARDS */
-
-/*
  * Allow "Borgs" to yield "high scores"
  */
 /*#define SCORE_BORGS*/
@@ -508,7 +503,6 @@
 # undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef ALLOW_WIZARD
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
