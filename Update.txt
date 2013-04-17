@@ -1,7 +1,78 @@
 Cthangband
 Based on Zangband 2.1.0e
 
-Changes are added to the top of this file, so for a chronological order read from the bottom up.
+Changes are added to the top of this file, so for a chronological order read
+from the bottom up.
+Cthangband 3.1.2
+* Fixed bug with Corporeal Books not stacking properly.
+* Most object commands (e.g. 'q'uaff, 'z'ap, 'E'at, 'b'rowse, etc.) have been unified
+  into a single 'u'se command that will do whatever is most appropriate for the item.
+* Added 6 'Pouch' equipment slots that can each hold a scroll, potion or wand. Items
+  readied in a pouch only take 1/10th of the time to use that normal items do.
+* Message about 'Library' when trying to gain spells changed to 'Bookstore' as it was
+  confusing people.
+* Most (but not quite all) documentation files updated.
+* Stats over 18/100 are no longer displayed as 'silly' percentages.
+* Class 'sub-names' (used in documentation) are now used in game as well.
+* Vault code updated to properly handle large array of vaults.
+* Chopping down of trees and bushes is now included in 'repeat obvious commands'.
+* Characters who can't learn spells are no longer asked to study in the library.
+* Roads added between towns and forest made denser.
+* Chris Weisiger's 'v_info.txt' file updated to the new version.
+* Cleaned up lots of dead code in Load/Save routines.
+* Fixed bug in home which gave the wrong inventory after resting for the night.
+
+Cthangband 3.1.1
+* Chaos Patrons now have more descriptive names on the 'C'haracter display, and have
+  been changed from the 'Warhammer' Chaos Gods to the 'Glorantha' Chaos Gods.
+* Adam Bolt's Graphics for bolt and ball spells are now used.
+* Eric Bock's bias remover for the RNG added.
+* Chris Weisiger's new 'v_info.txt' file used.
+* 'Mutations' renamed 'Chaos Features' to make them more in-genre.
+* 'Wizard Help' command (<ctrl>'A','?' in Wizard Mode) added to list wizard commands.
+* 'Debug' mode and 'Wizard' mode combined to make things simpler. Wizard commands
+  are now accessed through <crtl>'A' in wizard mode.
+* Hack added to 'fix' savefiles saved from versions with guardian bug by resurrecting
+  dead uniques so that they can re-used as guardians.
+* Guardians now drop their normal treasure as well as extra guardian treasure.
+* Last vestiges of hangs from invalid guardian placement now removed (hopefully...)
+* Uniques that appear as guardians now have their escorts with them.
+* The Inn will now sell scrolls of "Satisfy Hunger".
+* Examining store books now tells you what's in them.
+* Wilderness now uses the same lighting model as the town.
+* Secret doors may now be locked or jammed once found.
+* Huge code clean-up should make porting easier.
+* Wilderness map is now coloured.
+* 3x and 2x experience for first kills downgraded to 2x and 1.5x.
+* Chaos-Mage class added.
+* Windows version no longer looks for the unused '8x8.bmp' file.
+* Druid class added (a specialist nature priest).
+* Removed sound/midi options from main options menu as they did nothing anyway.
+* Fixed bug in 'Mutate Body' spell so it no longer always gives the same mutation.
+
+Cthangband 3.1.0
+* Priests and Rangers no longer get Sorcery as it is to 'magey' for them.
+* Water now behaves properly (you can see over it and cast spells over it).
+* Occasional crashes when moving diagonally off edge of wilderness grids fixed.
+* The 'Monk' class has become the 'Mystic' class, and is now based on corporeal magic.
+* A new realm ('Corporeal') has been added. All the spells are self-affecting. It has
+  a reasonably large overlap with Life (for the healing spells) and Planar (for the
+  movement spells). It has sensing spells *very* early.
+* Characters will no longer start in the town of Nir.
+* The 'M' key displays a proper wilderness map with town and dungeon locations.
+* Allies (formerly called 'Pets') can move from level to level with the player.
+* Characters are now given randomly generated names when created.
+* Vampires no longer start on the stairs (no longer necessary now they start at night).
+* Experience for creatures now varies depending on how many you have killed.
+* Ironman option added.
+* Long Stairs is now a standard option, rather than a character generation option.
+* New speed system implemented.
+* Shops now have a unique set of owners each, rather than a selection per shop type.
+* Dungeon name printed with level feeling.
+* Quest info moved from <crtl>'Q' to <ctrl>'F' with level feeling.
+* Option for always having small levels added.
+* Fixed bug in home that turned it into an inn after resting for the night.
+* Breeder dying code removed (but generation limit left in).
 
 Cthangband 3.0.1
 * Keys 'O' and ''' mapped to racial power and time respectively in Rogue-like mode.
