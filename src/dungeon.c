@@ -1464,7 +1464,7 @@ static void process_world(void)
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
 
-                        /* DragonRider takes more food */
+                        /* Draconians take more food */
                         if (PRACE_FLAG(PR1_TP)) i += 15;
 
                         /* Invisibility consume a lot of food */

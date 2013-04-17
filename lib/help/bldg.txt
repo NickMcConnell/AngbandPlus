@@ -42,6 +42,6 @@ Rumors can be helpful or just plain silly.
 All buildings are made of stone and unlikely to move around.
 
 
-                                  File Updated for Pern 4.x.x by Dawnmist.
+                                  File Updated for Conglomo 0.x.x by Sleaker.
 
 

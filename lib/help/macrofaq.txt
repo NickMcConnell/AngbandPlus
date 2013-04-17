@@ -1,6 +1,6 @@
 |||||oy
 #####R======================================================================
-#####B                        PernAngband Macro FAQ
+#####B                        Conglomoband Macro FAQ
 
                  Original Angband Macro FAQ by Jim Lyon
                         (jplyon@attglobal.net)
@@ -20,11 +20,11 @@
 #####G1.1 About this FAQ
 #####G----------------------------------------------------------------------
 
-This FAQ is mean to be a companion to the standard PernAngband help files
-for using inscriptions, macros, and keymaps. The PernAngband help files 
+This FAQ is mean to be a companion to the standard Conglomoband help files
+for using inscriptions, macros, and keymaps. The Conglomoband help files 
 which also describe them are listed in the "References" section.
 
-This documentation is for PernAngband, version 4.2.x.
+This documentation is for Conglomoband 0.x.x
 
 #####B==================================
 #####B          SPOILER ALERT 
@@ -90,7 +90,7 @@ Shift  Shift
 
 #####G= System abbreviations =
 #####G-----------------------------------
-Each system that PernAngband compiles on has a semi-standard 3-letter 
+Each system that Conglomoband compiles on has a semi-standard 3-letter 
 abbreviation. These are commonly referred to in the source and docs
 using "xxx" as a "wildcard" standing for any one of them. In this 
 document "***" is used instead because there are actual generic files
@@ -150,7 +150,7 @@ Now inscribe the second weapon:
 4) @w0  Wield when object 0 is chosen
 5)      (Hit Enter)
 
-Finally, PernAngband (unlike standard 'Vanilla' Angband) does
+Finally, Conglomoband (unlike standard 'Vanilla' Angband) does
 not have an automatic trigger key to swap items, so it must be
 created. Select a key that is not being used for any other commands
 ('X' in the normal keyset is free - see *****command.txt*0[command.txt]), and create
@@ -479,7 +479,7 @@ items on the floor.
 
 *****option.txt*1[(quick_messages)] allows any key to cancel a message.
 
-In PernAngband, multiple items on the floor are displayed in a list. 
+In Conglomoband, multiple items on the floor are displayed in a list. 
 This allows the player to select an item from the floor by entering an 
 item index when there is a pile (more than one item). This generally 
 complicates writing these macros.
@@ -749,7 +749,7 @@ from previous ones.
 
 Here <$RACE> is the name of the character's race, <$CLASS> is the name 
 of its class, and <$PLAYER> is the character's name. Both <$RACE> and 
-<$CLASS> have a fixed number of choices. These are listed for PernAngband 
+<$CLASS> have a fixed number of choices. These are listed for Conglomoband 
 in section *****macrofaq.txt*7["Pref file loading order"].
 
 Your character's name is the one that appears during game play in the 
@@ -765,7 +765,7 @@ having the same (default) pref files.
 Example: "Grog the Elder" and "Grog the Younger" would both try to 
 load the same pref file "Grog_the.prf".
 
-In recent versions of PernAngband "<$PLAYER>.prf" is the default filename 
+In recent versions of Conglomoband "<$PLAYER>.prf" is the default filename 
 when saving your macros and keymaps from the (@) Interact with macros 
 screen. Just hit Enter to accept that name.
 
@@ -1125,7 +1125,7 @@ different from the "underlying" command set.
 
 #####B= Query Macro/Keymap =
 
-In PernAngband this is easy:
+In Conglomoband this is easy:
 1) @    Interact with macros
 2) 3    Query a macro
 OR 7    Query a keymap
@@ -1156,7 +1156,7 @@ it should usually generate a message of some kind. If there isn't one,
 it may respond: "Type '?' for help.". Some keys may not generate any 
 message at all. Function keys are a good example.
 
-In PernAngband, the game will also generate "silly" error messages 
+In Conglomoand, the game will also generate "silly" error messages 
 which may not look like error messages at first. After a few repeated 
 key presses it uses the standard "Type '?' for help." message.
 
@@ -1442,7 +1442,7 @@ will reappear if the real inscription is removed.
 #####G----------------------------------------------------------------------
 
 These added when your character gets a "feeling" about an item.
-In PernAngband these are "special" inscriptions, like "fake" inscriptions 
+In Conglomoband these are "special" inscriptions, like "fake" inscriptions 
 above, which don't overwrite user inscriptions. They just hide user 
 inscriptions, which are still there.
 
@@ -1472,7 +1472,7 @@ are documented in *****command.txt*0["command.txt"].
 #####G8.1 Keysets
 #####G----------------------------------------------------------------------
 
-PernAngband supports two "keysets", which are fully customizable sets of 
+Conglomoband supports two "keysets", which are fully customizable sets of 
 keymaps. The "original" command set is close to the built-in commands, 
 with some additions for ease of use such as number keys moving you in 
 that direction. The "roguelike" command set allows easy movement on a 
@@ -1515,7 +1515,7 @@ b j n
 +<dir> - alter
 .<dir> - run
 
-Digits AREN'T built-in movement commands in PernAngband. They are actually 
+Digits AREN'T built-in movement commands in Conglomoband. They are actually 
 keymaps found in the standard pref file "pref.prf". The digits are 
 direction arguments to the (;) Walk command.
 
@@ -1719,10 +1719,10 @@ overwrite settings from earlier files.
 
 
 = $RACE =
-Can be one of any of the races in PernAngband.
+Can be one of any of the races in Conglomoband.
 
 = $CLASS =
-Can be one of any of the classes in PernAngband.
+Can be one of any of the classes in Conglomoband.
 
 = $PLAYER =
 The name of the current player being loaded or born. See section 
@@ -1733,7 +1733,7 @@ The name of the current player being loaded or born. See section
 
 "user-mac.prf"
 This is the only user pref file with example macros that ships with 
-PernAngband. A good set of examples.
+Conglomoband. A good set of examples.
 
 "pref-win.prf"
 This is the same as (missing) "pref-dos.prf" and "pref-ibm.prf".
@@ -2017,7 +2017,7 @@ you hit Enter.
 You may type in an action string to replace the one after the prompt.
 Hit Enter when you are finished.
 
-For PernAngband you can quit the command assignment by hitting 
+For Conglomoband you can quit the command assignment by hitting 
 Esc. The new action entered won't be assigned, and the previous one 
 will remain unaltered.
 
@@ -2214,7 +2214,7 @@ bound to it, that will fire when you try to enter a store.
     These are keys that shouldn't be bound to macros or have their 
     behavior altered.
 
-#####B= Keys with dangerous PernAngband meanings =
+#####B= Keys with dangerous Conglomoband meanings =
 (Q) Quit (commit suicide), (k) destroy item, (^A) Enter Debug mode...
 Using these as triggers is dangerous in case, for some reason, you 
 wind up in a situation where the macro hasn't loaded or is disabled. 
@@ -2250,7 +2250,7 @@ For example, if NumLock is on under X11 the 'X' macro won't work.
 #####G12.3 Recovering
 #####G----------------------------------------------------------------------
 
-Restarting PernAngband clears all macros entered during the last session. 
+Restarting Conglomoband clears all macros entered during the last session. 
 
 You can use "Load a pref file" in the "Interact with macros" screen to 
 reload a good set of prefs, overwriting bad ones being used. This will 
@@ -2376,6 +2376,7 @@ replaced with that of the alterer, and redistribution is not further
 restricted.
 
 Edited for PernAngband V5.x.x by Dawnmist with permission from Jim Lyon 
-August 2001. All comments to angband@dawnmist.8m.com
-
+August 2001.
+Edited for Conglomoband v0.x.x by Sleaker.
+January 2002
 

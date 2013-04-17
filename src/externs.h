@@ -1626,7 +1626,7 @@ extern void irc_quit(char *str);
 /* script.c */
 extern void init_lua();
 extern bool exec_lua(char *file);
-extern bool pern_dofile(char *file);
+extern bool conglomo_dofile(char *file);
 
 /* lua_bind.c */
 extern magic_power *grab_magic_power(magic_power *m_ptr, int num);

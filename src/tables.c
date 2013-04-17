@@ -2141,7 +2141,7 @@ magic_type realm_info_base[MAX_REALM][64] =
 };
 
 /*
- * PernAngband uses this array instead of the spell flags table -- DG
+ * Conglomoband uses this array instead of the spell flags table -- DG
  */
 u32b fake_spell_flags[MAX_REALM][9][2]=
 {
@@ -3434,7 +3434,7 @@ cptr window_flag_desc[32] =
  *      Set 2: Disturbance
  *      Set 3: Inventory
  *      Set 4: Game Play
- *      Set 5: PernAngband
+ *      Set 5: Conglomoband
  *      Set 6: Birth
  *
  * Note that bits 28-31 of set 0 are currently unused.
@@ -3686,7 +3686,7 @@ option_type option_info[] =
         { &center_player,               FALSE,  4,      16,
         "center_player",                "Center the view on the player (very slow)" },
 
-        /*** PernAngband options ***/
+        /*** Conglomoband options ***/
 
         { &flavored_attacks,            TRUE,   5,      0,
         "flavored_attacks",             "Show silly messages when fighting" },
@@ -6092,9 +6092,9 @@ power_type powers_type_init[POWER_MAX_INIT] =
         },
         {
                 "Dragon's Powers",
-                "You can use perniese dragon powers.",
-                "You gain the ability to use perniese dragon powers.",
-                "You lose the ability to use perniese dragon powers.",
+                "You can use dragon powers.",
+                "You gain the ability to use dragon powers.",
+                "You lose the ability to use dragon powers.",
                 0, 0, 0, 0,
         },
         {
@@ -6167,6 +6167,13 @@ power_type powers_type_init[POWER_MAX_INIT] =
                 "You can no longer sense your dodging sucess chance.",
                 0, 0, 0, 0,
         },
+		{
+				"Lord of Chaos' Powers",
+				"You can turn into a demon.",
+				"You suddenly gain chaos lord powers.",
+				"You can no longer shapeshift into a demon.",
+				15, 20, A_CON, 12,
+		}, 
 };
 
 /*
@@ -6559,12 +6566,12 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
                 {
                         "The armies of Morgoth are closing in on the last remaining strongholds",
                         "of resistance against him. We are too far apart to help each other.",
-                        "The arrival of our new Dragonrider allies has helped, but can only delay",
+                        "The arrival of our new Draconian allies has helped, but can only delay",
                         "the inevitable. We must be able to stand together and reinforce each other,",
-                        "or both our kingdoms will fall separately. The Dragonriders have taught us",
-                        "how to use the Between: we need you to open a Between gate in our own city,",
+                        "or both our kingdoms will fall separately. The Draconians have taught us",
+                        "how to use the between: we need you to open a Between gate in our own city,",
                         "and that of Gondolin.",
-                        "Simply travel to gondolin, but beware of rebel dragonriders.",
+                        "Simply travel to gondolin, but beware of rebel draconians.",
                         "",
                         "",
                 },
@@ -6576,6 +6583,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
                 quest_between_init_hook,
                 {0, 0},
         },
+
         {
                 FALSE,
                 "The One Ring",
@@ -6733,7 +6741,7 @@ monster_power monster_powers[96] =
         { RF6_RAISE_DEAD, "Raise the Dead", 400, TRUE },
         { 0, "(none)", 0, FALSE },
         { 0, "(none)", 0, FALSE },
-        { RF6_S_DRAGONRIDER, "Summon DragonRiders", 90, TRUE },
+        { RF6_S_DRACONIAN, "Summon Draconians", 90, TRUE },
         { RF6_S_KIN, "Summon Kin", 80, FALSE },
         { RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
         { RF6_S_MONSTER, "Summon Monster", 50, FALSE },
@@ -6757,7 +6765,7 @@ tval_desc tval_descs[] =
 {
         {TV_BATERIE, "Essenses contain the primitive magic forces which enable Alchemists using them to create powerful magic items from other magic items."},
         {TV_MSTAFF, "Mage Staves are the weapons of predilection of spellcasters, they all reduce spellcasting time to 80% of normal time and some will yield even greater powers."},
-        {TV_FIRESTONE, "DragonRiders can feed their dragons with firestone to allow them to breath fire."},
+        {TV_FIRESTONE, "Draconians can eat firestones to allowing them to breath fire."},
         {TV_PARCHEMENT, "Parchments can contain useful information ... or useless junk."},
         {TV_EGG, "Eggs are laid by some monsters, if they hatch in your inventory the monster will be your friend."},
         {TV_TOOL, "Tools can be diggers, climbing equipment and such, they have their own slot in your inventory."},

@@ -105,7 +105,7 @@ extern int process_hooks_restart;
 extern void dump_hooks();
 extern void add_hook_script(int h_idx, char *script, cptr name);
 extern void del_hook_name(int h_idx, cptr name);
-extern bool pern_dofile(char *file);
+extern bool conglomo_dofile(char *file);
 
 $extern s32b intMod(s32b a, s32b b);
 $extern s32b intAnd(s32b a, s32b b);

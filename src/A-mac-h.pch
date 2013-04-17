@@ -28,7 +28,7 @@
 #define USE_LUA
 
 /*
- * PernAngband specific main-xxx.c features
+ * Conglomoband specific main-xxx.c features
  */
 /* We have in-game savefile chooser */
 #define SAVEFILE_SCREEN
@@ -37,9 +37,9 @@
 /* We support transparency effect, but don't have use_transparency variable */
 #define NO_USE_TRANSPARENCY_VAR
 /* Creator code */
-#define ANGBAND_CREATOR 'PrnA'
+#define ANGBAND_CREATOR 'CnlA'
 /* Preferences file name */
-#define ANGBAND_PREFERENCES "PernAngband Preferences"
+#define ANGBAND_PREFERENCES "Conglomoband Preferences"
 
 /*
  * Activate transparency effect for 16x16 tileset.

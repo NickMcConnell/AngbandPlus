@@ -528,7 +528,7 @@ term *angband_term[ANGBAND_TERM_MAX];
  */
 char angband_term_name[8][16] =
 {
-        "PernAngband",
+        "Conglomoband",
 	"Mirror",
 	"Recall",
 	"Choice",

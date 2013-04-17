@@ -1,5 +1,5 @@
 /*
- * Minimal Resources for PernAngband 5.0.x
+ * Minimal Resources for Conglomoband 0.x.x
  *
  * Turned into human-readable and programmer-friendly format by pelpel
  *
@@ -29,13 +29,13 @@
  * Vanilla uses 'A271'
  * ID should always be 0.
  */
-#define AngbandSignature 'PrnA'
+#define AngbandSignature 'CnglmA'
 
 type AngbandSignature as 'STR ';
 
 resource AngbandSignature (0, "Owner resource", purgeable)
 {
-	"PernAngband 5.1.0"
+	"Conglomoband 0.0.1"
 };
 
 
@@ -222,7 +222,7 @@ resource 'MENU' (128, preload)
 	/* its contents */
 	{
 		/* First item */
-		"About PernAngband...", noicon, nokey, nomark, plain;
+		"About Conglomoband...", noicon, nokey, nomark, plain;
 
 		/* Second item - divider */
 		"-", noicon, nokey, nomark, plain;
@@ -673,7 +673,7 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"PernAngband 5.1.0"
+			"Conglomoband 0.0.1"
 		},
 
 		/** item #3 **/

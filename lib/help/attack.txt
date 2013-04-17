@@ -1,7 +1,7 @@
 |||||oy
 #####R=== Attacking and Being Attacked ===
  
-{{{{{<p>}Attacking is simple in PernAngband; attempting to move over creature attacks
+{{{{{<p>}Attacking is simple in Conglomoband; attempting to move over creature attacks
 it. It is also possible to attack from a distance by firing a missile or by
 magical means (wand, rod, spell, etc). Creatures attack in the same way. This
 means that if you do not wish to melee with a creature, it is wise to keep a
@@ -120,7 +120,7 @@ particular attack is ineffective.
 
 #####R=== Monster Memory ===
 
-The thousands of different creatures in Pernangband have many different
+The thousands of different creatures in Conglomoband have many different
 characteristics, including spells, resistances, health, attacks, and speed.
 The information you have learned about each monster from your encounters
 with them is recorded in the monster memory (accessed with '/' or by 'l'ooking

@@ -1,142 +1,183 @@
-# File: Makefile.dos
-
-# Purpose: Makefile support for "main-dos.c"
-
+###################################################################
 #
-# Note: Rename to "Makefile" before using
+#  makefile.bcc - Angband makefile for Borland C++ 5.5 (Win32)
 #
-# Allegro support by Robert Ruehlmann (rr9@angband.org)
+###################################################################
+
+
+###################################################################
 #
-
-# Compiling with MOD-file support:
-# - Get the JG-MOD library from http://www.jgmod.home.ml.org and install it.
-# - Insert -ljgmod in front of -lalleg to the Libraries section.
-# - Add -DUSE_MOD_FILES to the compiler flags.
-# - Copy your MOD-files into the "lib/xtra/music" folder.
-
-# Enable lua scripting supoprt
-LUA = TRUE
-
-# Enable the IRC client -- need libsocket
-#IRC = TRUE
-
+#       Borland specific directives ---
 #
-# Basic definitions
+.AUTODEPEND
+
+###################################################################
 #
+# Set tool and version names:
 
-# Objects
-OBJS = \
-  main.o main-dos.o main-ibm.o irc.o \
-  generate.o dungeon.o init1.o init2.o plots.o help.o \
-  store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  loadsave.o files.o levels.o notes.o squeltch.o \
-  status.o randart.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
-  variable.o tables.o util.o cave.o ghost.o wild.o powers.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o
+CPP        = bcc32
+LINKER     = ilink32
+RC         = brc32
 
-LUAOBJS = \
-  script.o lua_bind.o \
-  w_util.o w_player.o w_z_pack.o w_obj.o w_mnster.o w_spells.o w_quest.o w_play_c.o
+###################################################################
+#
+# Name of the *.exe-file
+
+EXE_FILE = conglomoband.exe
+TOLUA    = tolua.exe
+
+###################################################################
+#
+# Debug mode (un-comment for debugging)
+
+# DBGOPT= -v -N -x -xp
+
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -jb -j1 -Hc -tW -lGn -w- \
+	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
+	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA \
+	-I$(BCCDIR)\include -I. -Ilua -DUSE_LUA \
+	-DUSE_SOCK -DUSE_WINSOCK \
+        -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#conglomoband\"
+
+# Compile flags:
+CPPFLAGS= $(CCOPTS) $(DBGOPT)
+
+######################## Targets ##################################
+
+OBJ = \
+        irc.obj \
+	birth.obj \
+	bldg.obj \
+	cave.obj \
+	cmd1.obj \
+	cmd2.obj \
+	cmd3.obj \
+	cmd4.obj \
+	cmd5.obj \
+	cmd6.obj \
+	cmd7.obj \
+	cmovie.obj \
+	dungeon.obj \
+	files.obj \
+	generate.obj \
+	ghost.obj \
+	help.obj \
+	init1.obj \
+	init2.obj \
+	levels.obj \
+	loadsave.obj \
+	lua_bind.obj \
+	main-win.obj \
+	main.obj \
+	melee1.obj \
+	melee2.obj \
+	monster1.obj \
+	monster2.obj \
+	monster3.obj \
+	notes.obj \
+	object1.obj \
+	object2.obj \
+	plots.obj \
+	powers.obj \
+	randart.obj \
+	readdib.obj \
+	script.obj \
+	spells1.obj \
+	spells2.obj \
+	squeltch.obj \
+	status.obj \
+	store.obj \
+	tables.obj \
+	traps.obj \
+	util.obj \
+	variable.obj \
+	wild.obj \
+	wizard1.obj \
+	wizard2.obj \
+	xtra1.obj \
+	xtra2.obj \
+	z-form.obj \
+	z-rand.obj \
+	z-term.obj \
+	z-util.obj \
+	z-virt.obj \
+	w_mnster.obj \
+	w_obj.obj \
+	w_play_c.obj \
+	w_player.obj \
+	w_quest.obj \
+	w_spells.obj \
+	w_util.obj \
+	w_z_pack.obj \
+	$(TOLUAOBJS)
 
 TOLUAOBJS = \
-  lua/lapi.o lua/lcode.o lua/ldebug.o lua/ldo.o lua/lfunc.o lua/lgc.o \
-  lua/llex.o lua/lmem.o lua/lobject.o lua/lparser.o lua/lstate.o lua/lstring.o \
-  lua/ltable.o lua/ltests.o lua/ltm.o lua/lundump.o lua/lvm.o lua/lzio.o \
-  lua/lauxlib.o lua/lbaselib.o lua/ldblib.o lua/liolib.o lua/lstrlib.o \
-  lua/tolua_lb.o lua/tolua_rg.o lua/tolua_tt.o lua/tolua_tm.o lua/tolua_gp.o \
-  lua/tolua_eh.o lua/tolua_bd.o
+	lua\lapi.obj \
+	lua\lauxlib.obj \
+	lua\lbaselib.obj \
+	lua\lcode.obj \
+	lua\ldblib.obj \
+	lua\ldebug.obj \
+	lua\ldo.obj \
+	lua\lfunc.obj \
+	lua\lgc.obj \
+	lua\liolib.obj \
+	lua\llex.obj \
+	lua\lmem.obj \
+	lua\lobject.obj \
+	lua\lparser.obj \
+	lua\lstate.obj \
+	lua\lstring.obj \
+	lua\lstrlib.obj \
+	lua\ltable.obj \
+	lua\ltests.obj \
+	lua\ltm.obj \
+	lua\lundump.obj \
+	lua\lvm.obj \
+	lua\lzio.obj \
+	lua\tolua.obj \
+	lua\tolua_bd.obj \
+	lua\tolua_eh.obj \
+	lua\tolua_gp.obj \
+	lua\tolua_lb.obj \
+	lua\tolua_rg.obj \
+	lua\tolua_tm.obj \
+	lua\tolua_tt.obj \
+	lua\tolualua.obj \
 
-ifdef LUA
-OBJS += $(LUAOBJS)
-OBJS += $(TOLUAOBJS)
-endif
-
-# Compiler
-CC = gcc
-
-ifdef LUA
-LUAFLAGS = -DUSE_LUA -I. -I./lua
-endif
-
-# Compiler flags
-CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY $(LUAFLAGS)
-
-# Libraries
-LIBS = -lpc -lalleg $(LUALIBS)
-
-ifdef IRC
-CFLAGS += -DUSE_SOCK -DUSE_DOSSOCK
-LIBS += -lsocket
-
-# cant get libsocket to resolve hosts
-CFLAGS += -DIRC_SERVER=\"216.41.105.77\"
-CFLAGS += -DIRC_PORT=\"6667\"
-CFLAGS += -DIRC_CHANNEL=\"\#*bandirc\"
-
-endif
-
-#
-# Targets
-#
-
-TOLUA = tolua.exe
-
-default: ../pernang.exe $(TOLUA)
-
-release: ../pernang.exe
-	upx -9 ../pernang.exe
-#         copy pernang.exe ..
-#         del pernang.exe
-
-install: ../pernang.exe
-#        copy pernang.exe ..
-
-all: ../pernang.exe
-#        @echo All done.  Use 'make install' to install.
-
-$(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
-
-
-#
-# Link executables
-#
-
-../pernang.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
-
-
-#
-# Compile source files
-#
-
-.c.o:
-	$(CC) $(CFLAGS) -c -o $*.o $*.c
-
-
-#
-# Clean up
-#
+all : $(EXE_FILE)
+	copy $(EXE_FILE) ..
 
 clean:
-	del *.o
+	-@if exist *.obj del *.obj >nul
+	-@if exist lua\*.obj del lua\*.obj >nul
+	-@if exist *.exe del *.exe >nul
+	-@if exist *.res del *.res >nul
+	-@if exist *.tds del *.tds >nul
+	-@if exist *.ilc del *.ilc >nul
+	-@if exist *.ild del *.ild >nul
+	-@if exist *.ilf del *.ilf >nul
+	-@if exist *.ils del *.ils >nul
 
-cleanall: clean
-	del *.exe
+install: $(EXE_FILE)
+	copy $(EXE_FILE) ..
 
-plots.o: q_rand.c q_main.c q_one.c \
-	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c q_shroom.c \
-	q_spider.c q_poison.c \
-	q_eol.c q_nirna.c q_invas.c \
-	q_betwen.c \
-	q_narsil.c
 
-LUA_RECOMP = true
-ifdef LUA_RECOMP
+########################### Explicit Rules ########################
+$(EXE_FILE): $(OBJ) angband.res
+	$(LINKER) -aa -L$(BCCDIR)\lib -x $(OBJ) c0w32.obj, $(EXE_FILE),, cw32.lib import32.lib,, angband.res
+
+$(TOLUA): $(TOLUAOBJS)
+        $(LINKER) -aa -L$(BCCDIR)\lib -x $(TOLUAOBJS) c0x32.obj, tolua.exe,, cw32.lib import32.lib
+
+angband.res: angband.rc
+	$(RC) -r angband.rc
+
 w_mnster.c: monster.pkg $(TOLUA)
 	$(TOLUA) -n monster -o w_mnster.c monster.pkg
 
@@ -161,4 +202,10 @@ w_spells.c: spells.pkg $(TOLUA)
 w_quest.c: quest.pkg $(TOLUA)
 	$(TOLUA) -n quest -o w_quest.c quest.pkg
 
-endif
+########################### Implicit Rules ########################
+.c.obj:
+	$(CPP) $(CPPFLAGS) -c -o$*.obj $*.c
+
+.obj.exe:
+	$(CPP) $(CPPFLAGS) $<
+

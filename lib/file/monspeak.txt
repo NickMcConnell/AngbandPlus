@@ -330,7 +330,7 @@ laughs out loudly.
 mutters something about bugs.
 asks you about the new version.
 1
-screams 'PernAngband rules'.
+screams 'Conglomoband rules'.
 
 N:969:Princess
 4
@@ -352,4 +352,4 @@ N:1039:Improv, the mighty MoLD
 screams 'Your code is ugly!'
 mutters something about bugs.
 1
-screams 'PernAngband rules'.
+screams 'Conglomoband rules'.

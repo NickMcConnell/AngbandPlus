@@ -173,7 +173,8 @@ static char *cthuloid_syllable3[] =
 /* Human */
 static char *human_syllable1[] =
 {
-	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
+	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal", "Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L",
+ "Loth", "Lar", "Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R", "Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
 };
 
 static char *human_syllable2[] =
@@ -231,7 +232,7 @@ void create_random_name(int race, char *name)
 	case RACE_DUNADAN:
 	case RACE_HUMAN:
         case RACE_RKNIGHT:
-        case RACE_DRAGONRIDER:
+        case RACE_DRACONIAN:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
@@ -2554,7 +2555,7 @@ repeat_player_class:
 	/* Clean up */
 	clear_from(15);
 
-        /*** Player god ***/
+        /*** Player god currently not being used ***/
         if (do_quick_start)
         {
                 k = previous_char.god;
@@ -2562,22 +2563,32 @@ repeat_player_class:
                 set_grace(previous_char.grace);
                 p_ptr->god_favor = previous_char.god_favor;
         }
+
+        /* No God Unconditionally Declared. */
+        p_ptr->pgod = 0;
+
+
+        /* commented out for later use
         else
         {
         if (PRACE_FLAG(PR1_NO_GOD))
         {
                 p_ptr->pgod = 0;
         }
+
         else if (USE_REALM(REALM_DRUID))
         {
                 p_ptr->pgod = GOD_YAVANNA;
         }
+
+
         else
         {
                 sel = 0;
                 n = dump_gods(sel);
 
                 /* Choose */
+            /*
                 while (1)
                 {
                         sprintf(buf, "Choose a god (%c-%c), * for a random choice, = for options, 8/2/4/6 for movment: ", I2A(0), I2A(MAX_GODS));
@@ -2612,7 +2623,7 @@ repeat_player_class:
                                 if(sel < 0) sel = n - 1 -( (-sel) % 5);
                                         /* C's modulus operator does not have defined
                                         results for negative first values. Damn. */
-                                dump_gods(sel);
+                 /*               dump_gods(sel);
                         }
                         else if (c == '6')
                         {
@@ -2633,20 +2644,24 @@ repeat_player_class:
                         }
                         else bell();
                 }
+				
+                
 
-                /* Set god */
-                p_ptr->pgod = k;
+				
+                p_ptr->pgod = 0;
+				
                 p_ptr->grace = 0;
                 p_ptr->god_favor = 0;
+				
         }
-
+		
         if ((!p_ptr->pgod) && (PRACE_FLAGS(PR1_GOD_FRIEND)))
         {
                 p_ptr->pgod = randint(MAX_GODS - 1);
         }
 
         /* a god that like us ? more grace ! */
-        if ((deity_info[p_ptr->pgod - 1].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod - 1].race2 == p_ptr->prace))
+    /*    if ((deity_info[p_ptr->pgod - 1].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod - 1].race2 == p_ptr->prace))
         {
                 set_grace(50000);
                 p_ptr->god_favor = -60000;
@@ -2664,8 +2679,9 @@ repeat_player_class:
                         p_ptr->god_favor = -20000;
                 }
         }
-        }
 
+        }
+	*/
 	/* Clean up */
         clear_from(12);
 
@@ -3923,7 +3939,7 @@ bool begin_screen()
                 Term_clear();
 
                 /* Let the user choose */
-                c_put_str(TERM_YELLOW, "Welcome to PernAngband, to play you will need a character.", 1, 10);
+                c_put_str(TERM_YELLOW, "Welcome to Conglomoband, to play you will need a character.", 1, 10);
                 put_str("Press 8/2/4/6 to move, Return to select, Backspace to delete a savefile.", 3, 3);
                 put_str("and Esc to quit.", 4, 32);
 

@@ -3199,7 +3199,7 @@ cptr item_activation(object_type *o_ptr, byte num)
                 }
                 case ART_MARDA:
                 {
-                        return "summon a dragonrider every 1000 turns";
+                        return "summon a draconian every 1000 turns";
                 }
                 case ART_PALANTIR_ITHIL:
                 case ART_PALANTIR:
@@ -4112,7 +4112,7 @@ bool identify_fully_aux(object_type *o_ptr, FILE *fff)
                         if (esp & ESP_UNDEAD) info[i++] = "It allows you to sense presence of undead.";
                         if (esp & ESP_EVIL) info[i++] = "It allows you to sense the presence of evil beings.";
                         if (esp & ESP_ANIMAL) info[i++] = "It allows you to sense the presence of animals.";
-                        if (esp & ESP_DRAGONRIDER) info[i++] = "It allows you to sense the presence of dragonriders.";
+                        if (esp & ESP_DRACONIAN) info[i++] = "It allows you to sense the presence of draconians.";
                         if (esp & ESP_GOOD) info[i++] = "It allows you to sense the presence of good beings.";
                         if (esp & ESP_NONLIVING) info[i++] = "It allows you to sense the presence of non-living things.";
                         if (esp & ESP_UNIQUE) info[i++] = "It allows you to sense the presence of unique beings.";

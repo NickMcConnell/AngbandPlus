@@ -64,7 +64,7 @@ extern unsigned _ovrbuffer = 0x1500;
 #ifdef PRIVATE_USER_PATH
 
 /*
- * Check existence of ".pernangband/" directory in the user's
+ * Check existence of ".conglomoband/" directory in the user's
  * home directory or try to create it if it doesn't exist.
  * Returns FALSE if all the attempts fail.
  */
@@ -96,7 +96,7 @@ static bool check_create_user_dir(void)
 	/* No - this maybe the first time. Try to create a directory */
 	else
 	{
-		/* Create the ~/.pernangband directory */
+		/* Create the ~/.conglomoband directory */
 		safe_setuid_drop();
 		ret = mkdir(dirpath, 0700);
 		safe_setuid_grab();

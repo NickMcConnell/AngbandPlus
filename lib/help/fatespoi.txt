@@ -1,7 +1,7 @@
 |||||oy
 #####R                                Fate Spoiler
-#####R                        Accurate for PernAngband 5.x.x
-#####R                              by Dustin Ragan
+#####R                        Accurate for Conglomoband 5.x.x
+#####R                              by Sleaker
 
 Numerous spirits inhabit the land of Arda, from the murderous barrow wights to
 the enigmatic Tom Bombadil. These spirits usually are bound to a specific
@@ -25,3 +25,5 @@ from mortals.
 Whenever a level is being chosen for a fate, it is always chosen within 20
 levels of your current recall depth. Items, monsters, and artifacts are all
 generated up to 10 levels out of depth for your current recall depth.
+
+							Edited by Sleaker for Conglomoband 0.x.x

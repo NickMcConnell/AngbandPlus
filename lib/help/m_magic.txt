@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Magic Realm ===
+#####R === Conglomoband Magic - Magic Realm ===
 
 The Magic realm is there for those who wish to play with the traditional
 Vanilla (standard) Angband mage spells.

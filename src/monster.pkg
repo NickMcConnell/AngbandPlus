@@ -104,7 +104,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF3_UNDEAD                      0x00000020      /* Undead */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_DRAGONRIDER            0x00000100  /* DG: DragonRider */
+#define RF3_DRACONIAN                   0x00000100  /* Sleaker: Draconian */
 #define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
@@ -219,7 +219,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
 #define RF6_S_BUG                       0x00002000      /* Summon Software bug */
 #define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_DRAGONRIDER               0x00008000      /* Summon DragonRiders */
+#define RF6_S_DRACONIAN               0x00008000      /* Summon Draconians */
 #define RF6_S_KIN                       0x00010000      /* Summon "kin" */
 #define RF6_S_HI_DEMON                  0x00020000      /* Summon greater demons! */
 #define RF6_S_MONSTER                   0x00040000      /* Summon Monster */

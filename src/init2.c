@@ -4855,7 +4855,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <darkgod@pernangband.net>", MAINTAINER);
+        (void)format("%s (%s).", "Sleaker <sleaker@qwest.net>", MAINTAINER);
 
 	/* Success */
 	return (0);

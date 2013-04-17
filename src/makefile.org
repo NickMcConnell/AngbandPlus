@@ -56,7 +56,7 @@
 # Comment out this line if you don't want Lua scripting
 LUA=TRUE
 
-IRCARGS = -DUSE_SOCK -DUSE_UNIXSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#*bandirc\"
+IRCARGS = -DUSE_SOCK -DUSE_UNIXSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT=\"6667\" -DIRC_CHANNEL=\"\#conglomoband\"
 
 
 ##
@@ -74,16 +74,16 @@ IRCARGS = -DUSE_SOCK -DUSE_UNIXSOCK -DIRC_SERVER=\"irc.worldirc.org\" -DIRC_PORT
 ##
 
 # Where lib/ files goes
-LIBDIR = /usr/lib/games/pernband/
+LIBDIR = /usr/lib/games/conglomoband/
 # Sysadmins of commercial Unix and/or BSD might prefer this
-#LIBDIR = /usr/local/lib/pernband/
+#LIBDIR = /usr/local/lib/conglomoband/
 # If you like the old default, use this one
 #LIBDIR = ./lib/
 # Another example: single user installation using absolute path
-#LIBDIR = /home/myloginname/lib/pern/
+#LIBDIR = /home/myloginname/lib/conglomoband/
 
 
-# Where PernAngband binary goes
+# Where conglomoband binary goes
 BINDIR = /usr/local/games
 # Another common location
 #BINDIR = /usr/local/bin
@@ -367,7 +367,7 @@ endif
 # Build the binary. The new base target.
 #
 
-TARGET = pernangband
+TARGET = conglomoband
 TOLUA = ./tolua
 
 default: $(TARGET) $(TOLUA)
@@ -397,9 +397,9 @@ install: default
 	[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
 	cp -r ../lib/* $(LIBDIR)
 	chown -R $(OWNER) $(LIBDIR)
-	cp -f $(TARGET) $(BINDIR)/pernband
-	chown $(OWNER) $(BINDIR)/pernband
-	chmod 4755 $(BINDIR)/pernband
+	cp -f $(TARGET) $(BINDIR)/conglomoband
+	chown $(OWNER) $(BINDIR)/conglomoband
+	chmod 4755 $(BINDIR)/conglomoband
 
 # old-install: $(TARGET)
 #	cp $(TARGET) ..

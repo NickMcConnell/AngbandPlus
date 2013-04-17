@@ -3195,7 +3195,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-   fprintf(fff, "  [PernAngband %d.%d.%d Character Dump]\n\n",
+   fprintf(fff, "  [Conglomoband %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -4103,7 +4103,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-                prt(format("[PernAngband %d.%d.%d, %s, Line %d/%d]",
+                prt(format("[Conglomoband %d.%d.%d, %s, Line %d/%d]",
 		           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
                            h_ptr->caption, line, size), 0, 0);
 
@@ -4347,7 +4347,7 @@ bool txt_to_html(cptr base, cptr ext, bool force, bool recur)
 
         fprintf(htm, "<HTML>\n");
         fprintf(htm, "<HEAD>\n");
-        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"Conglomoband\">\n");
         fprintf(htm, "<TITLE>%s</TITLE>\n", base);
         fprintf(htm, "</HEAD>\n");
         fprintf(htm, "<body background=\"back1.gif\" text=\"#CCCCCC\" link=\"#FFFF66\" vlink=\"#66CC66\">\n");
@@ -4538,7 +4538,7 @@ void html_screenshot(cptr name)
 
         fprintf(htm, "<HTML>\n");
         fprintf(htm, "<HEAD>\n");
-        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"PernAngband\">\n");
+        fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"Conglomoband\">\n");
         fprintf(htm, "<TITLE>%s</TITLE>\n", name);
         fprintf(htm, "</HEAD>\n");
         fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
@@ -4666,7 +4666,7 @@ bool chg_to_txt(cptr base, cptr newname)
         for (i = 0; i < KEY_NUM; i++)
                 lens[i] = 0;
 
-        fprintf(txt, "PernAngband %d.%d.%d changes\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+        fprintf(txt, "Conglomoband %d.%d.%d changes\n", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 
 	/* Display the file */
 	while (TRUE)
@@ -5628,7 +5628,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-                put_str("              PernAngband Hall of Fame", 0, 0);
+                put_str("              Conglomoband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -6373,14 +6373,14 @@ void close_game(void)
                         }
 
 #ifdef USE_SOCK
-                        irc_disconnect_aux(format("Retired; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                        irc_disconnect_aux(format("Retired; Conglomoband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
                         kingly();
                 }
                 else
                 {
 #ifdef USE_SOCK
-                        irc_disconnect_aux(format("Killed by %s; PernAngband %d.%d.%d rules", died_from, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                        irc_disconnect_aux(format("Killed by %s; Conglomoband %d.%d.%d rules", died_from, FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
                 }
 
@@ -6437,7 +6437,7 @@ void close_game(void)
                 }
 
 #ifdef USE_SOCK
-                irc_disconnect_aux(format("Alive... for the time being; PernAngband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
+                irc_disconnect_aux(format("Alive... for the time being; Conglomoband %d.%d.%d rules", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH), FALSE);
 #endif
 
 		/* Prompt for scores XXX XXX XXX */

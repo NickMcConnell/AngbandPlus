@@ -56,15 +56,15 @@
  * If you like to use SUPPORT_GAMMA, copy the code bracketed
  * inside of #ifdef SUPPORT_GAMMA in util.c of Angband 2.9.1 or greater.
  */
-#define PERNANGBAND
+#define CONGLOMOBAND
 
-#ifdef PERNANGBAND
+#ifdef CONGLOMOBAND
 # define ANG293_COMPAT	/* Requires V2.9.3 compatibility code */
 # define ANG291_COMPAT	/* Requires V2.9.1 compatibility code */
 # define ANG281_RESET_VISUALS	/* The old style reset_visuals() */
 # define INTERACTIVE_GAMMA	/* Supports interactive gamma correction */
 # define SAVEFILE_SCREEN	/* New/Open integrated into the game */
-#endif /* PERNANGBAND */
+#endif /* PCONGLOMOBAND */
 
 /*
  * Some examples

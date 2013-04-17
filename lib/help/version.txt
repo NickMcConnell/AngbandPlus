@@ -1,17 +1,27 @@
 |||||oy
-#####R====== PernAngband Brief History =======
+#####R====== Conglomoband Brief History =======
 
-When Zangband came to it 2.2.0 version I (DarkGod) was an Angband winner and
-I had been a C programmer for a long time, so I decided to take the sources
-and to try to code my own variant. At this time I was reading the Pern
-novels from Anne McCaffrey and I found them *VERY* good, so I've decided to
+After playing Pern 5.1.x I (Sleaker) was inspired to make a variant
+that took many of the best elements of the variants out there and
+combine them all into one big mesh.  Hence the name Conglomo.
+I have never programmed before and learnt quickly all the dos and don'ts.
+
+I started by using Angband 2.9.3 but that didn't work out.  I switched to
+PernAngband 5.1.1 for all the nice features and racial abilities mostly.
+
+#####R======  PernAngband Brief History =======
+
+When Zangband came to it 2.2.0 version DarkGod was an Angband winner and
+ had been a C programmer for a long time, so he decided to take the sources
+and to try to code my own variant. At this time he was reading the Pern
+novels from Anne McCaffrey and he found them *VERY* good, so he decided to
 include some elements of them into my variant from which it takes the name,
 PernAngband.
 
-One hard thing to decide was on which Angband to base it. Although I didn't
-like Zangband because of the Zelazny universe, which I found to be not very
-Tolkiennian, I chose it because of all the good things it had (especially
-the race powers that I wasn't able to code at the time). So I removed
+One hard thing to decide was on which Angband to base it. Although he didn't
+like Zangband because of the Zelazny universe, which he found to be not very
+Tolkiennian, he chose it because of all the good things it had (especially
+the race powers that he wasn't able to code at the time). So he removed
 much of the Zelazny stuff and replaced it with Tolkien and Pernish stuff.
 And so the history of PernAngband began with the version 2.9.9a.
 

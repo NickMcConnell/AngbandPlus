@@ -65,14 +65,14 @@ LIBS = -lpc $(LUALIBS) -lsocket
 # Targets
 #
 
-default: ../pernang.exe
+default: ../conglomoband.exe
 
-release: ../pernang.exe
-	upx -9 ../pernang.exe
-#         copy pernang.exe ..
-#         del pernang.exe
+release: ../conglomoband.exe
+	upx -9 ../conglomoband.exe
+#         copy conglomoband.exe ..
+#         del conglomoband.exe
 
-all: ../pernang.exe
+all: ../conglomoband.exe
 #        @echo All done.  Use 'make install' to install.
 
 
@@ -80,7 +80,7 @@ all: ../pernang.exe
 # Link executables
 #
 
-../pernang.exe: $(OBJS)
+../conglomoband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

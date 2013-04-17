@@ -1,5 +1,5 @@
 |||||oy
-#####R=== Options and Effects (PernAngband 5.x.x) ===
+#####R=== Options and Effects (Conglomoband 0.x.x) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -97,7 +97,7 @@ can also be viewed from the option menu while playing, but not changed then.
     whenever possible.
 
 #####GYou can receive fates, good or bad    [fate_option]
-    Allows the player to turn off PernAngband's *****fatespoi.txt*0[fates] for that character.
+    Allows the player to turn off Conglmoband's *****fatespoi.txt*0[fates] for that character.
 
 
 #####RIN GAME OPTIONS
@@ -166,9 +166,9 @@ off at will during the course of the game.
     indicate what the player is "using" the object for, such as "wielding"
     or "wearing" (in a given location).  After you have played for a while,
     this information is no longer useful, and can be annoying.
-    Note that in PernAngband this option no longer controls the "plain 
+    Note that in Conglomoband this option no longer controls the "plain 
     flavoured object descriptions": a separate option for them has been added
-    under "PernAngband Options".
+    under "Conglomoband Options".
 
 #####GShow weights in object lists    [show_weights]
     Display the weights of objects in the "inventory" and "equipment" lists,
@@ -245,7 +245,7 @@ off at will during the course of the game.
     beginning to run out of fuel.
 
 #####GDisturb whenever random things happen    [disturb_other]
-    In PernAngband, uncursed teleporting items may teleport you around
+    In Conglomoband, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -396,7 +396,7 @@ off at will during the course of the game.
     compiled in on all platforms.
 
 #####GPlain object descriptions    [plain_descriptions]
-    In PernAngband, this option disables "full" names for identified
+    In Conglomoband, this option disables "full" names for identified
     'flavored' objects, in other words, if this option is not in use, an
     identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
@@ -411,15 +411,15 @@ off at will during the course of the game.
     and to use this information to choose the best attacks.
 
 #####GMonsters behave stupidly    [stupid_monsters]
-    PernAngband incorporates Keldon Jones' improved monster Artificial
+    Conglomoband incorporates Keldon Jones' improved monster Artificial
     Intelligence patch. While this patch most certainly makes monsters
     behave more realistically, they will also be more deadly with the
     improved AI. If you are a sissy, set this option to get the old,
     really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you have
-    an old computer (386sx) and PernAngband is running too slowly, you could
+    an old computer (386sx) and Conglomoband is running too slowly, you could
     try turning stupid_monsters on. Or buying that Pentium II so you can
-    run PernAngband. :-)
+    run Conglomoband. :-)
 
 #####GAllow unusually small dungeon levels    [small_levels]
     This option enables the creation of levels of varying sizes. Levels 
@@ -563,9 +563,9 @@ off at will during the course of the game.
     dungeon around the player. Can be useful to prevent off-screen breaths.
 
 
-#####R=== PernAngband Options ===
+#####R=== Conglomoband Options ===
 
-Features which are unique to PernAngband are collected in this menu.
+Features which are unique to Conglomoband are collected in this menu.
 
 #####GShow silly messages when fighting    [flavored_attacks]
     Generates silly messages from monsters each time they are hit, missed, try
@@ -595,7 +595,7 @@ Features which are unique to PernAngband are collected in this menu.
 
 #####R=== Stacking Options ===
 
-In PernAngband items are allowed to stack on floors and monsters are allowed 
+In Conglomoband items are allowed to stack on floors and monsters are allowed 
 to maintain inventories. To enable these features set the following options:
 
 #####GAllow objects to stack on the floor   [testing_stack]
@@ -699,5 +699,5 @@ command in another character file, hence saving all the initial time of having
 to reset all the options every time you wish to play.
 
 
-+++ Ben +++ (Updated by Dark God and Dawnmist for PernAngband)
++++ Ben +++ (Updated by Sleaker for Conglomoband)
 

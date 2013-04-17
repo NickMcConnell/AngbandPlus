@@ -1,6 +1,6 @@
 /*
 ** Lua binding: object
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:47.
+** Generated automatically by tolua 4.0a - angband on 01/15/02 20:57:08.
 */
 
 #include "lua/tolua.h"
@@ -3796,7 +3796,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"ESP_UNDEAD",ESP_UNDEAD);
  tolua_constant(tolua_S,NULL,"ESP_EVIL",ESP_EVIL);
  tolua_constant(tolua_S,NULL,"ESP_ANIMAL",ESP_ANIMAL);
- tolua_constant(tolua_S,NULL,"ESP_DRAGONRIDER",ESP_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"ESP_DRACONIAN",ESP_DRACONIAN);
  tolua_constant(tolua_S,NULL,"ESP_GOOD",ESP_GOOD);
  tolua_constant(tolua_S,NULL,"ESP_NONLIVING",ESP_NONLIVING);
  tolua_constant(tolua_S,NULL,"ESP_UNIQUE",ESP_UNIQUE);
@@ -4218,7 +4218,7 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_UNDEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_EVIL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_DRACONIAN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_GOOD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_NONLIVING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_UNIQUE");

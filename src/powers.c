@@ -178,6 +178,48 @@ static void power_activate(int power)
                                 set_mimic(150 + (p_ptr->lev * 10) , MIMIC_BEAR);
 			}
 			break;
+
+                case PWR_LORD_CHAOS:
+				while (TRUE)
+				{
+                                if (!get_com("Morph into [D]emon or Demon [L]ord ?", &ch))
+					{
+					amber_power = 0;
+					break;
+					}
+
+                                if (ch == 'D' || ch == 'd')
+					{
+					amber_power = 1;
+					break;
+					}
+
+                                if (ch == 'L' || ch == 'l')
+					{
+					amber_power = 2;
+					break;
+					}
+				
+				
+				}
+			
+			if ( amber_power == 1 )
+			{ 
+			        set_mimic(80 + (p_ptr->lev * 7) , MIMIC_DEMON);
+			}
+
+			if ( amber_power == 2 && p_ptr->lev == 50 )
+			{
+								set_mimic(60 + (p_ptr->lev * 4) , MIMIC_DEMON_LORD);
+			}
+
+		    else 
+			{
+				msg_print("You must be level 50 to do that!");
+			}
+
+			break;
+
                 case PWR_COMPANION:
 			{
                                 if (!can_create_companion())
@@ -565,7 +607,7 @@ static void power_activate(int power)
 			/* Select power to use */
 			while (TRUE)
 			{
-                                if (!get_com("Use [F]lame breathing , Flame [D]amage , [G]o between , go [B]ack in town ?", &ch))
+                                if (!get_com("Use [F]lame breathing ,or Flame [D]amage?", &ch))
 				{
 					amber_power = 0;
 					break;
@@ -577,21 +619,9 @@ static void power_activate(int power)
 					break;
 				}
 
-                                if (ch == 'G' || ch == 'g')
-				{
-					amber_power = 2;
-					break;
-				}
-
-                                if (ch == 'B' || ch == 'b')
-				{
-                                        amber_power = 3;
-					break;
-				}
-
                                 if (ch == 'D' || ch == 'd')
 				{
-                                        amber_power = 4;
+                                        amber_power = 2;
 					break;
 				}
 
@@ -616,50 +646,8 @@ static void power_activate(int power)
                                         p_ptr->energy -= 100;
                                 }
                         }
+                       
                         if (amber_power == 2)
-			{
-                        if(dungeon_flags1 & LF1_NO_TELEPORT) {msg_print("No teleport on special levels ...");break;}
-                                x_ptr_foo.level = 3;
-                                x_ptr_foo.cost = 15;
-                                x_ptr_foo.stat = A_CON;
-                                x_ptr_foo.diff = 6;
-                                if (power_chance(&x_ptr_foo)){
-                             msg_print("You go between. Show the destination to your Dragon.");
-                             if (!tgt_pt(&ii,&ij)) return;
-                             p_ptr->energy -= 60 - plev;
-                             if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
-                             (distance(ij,ii,py,px) > plev*20 + 2) || !(cave[ij][ii].info & CAVE_MARK))
-                             {
-                                 msg_print("You fail to show the destination correctly!");
-                                 p_ptr->energy -= 100;
-                                 teleport_player(10);
-                             }
-                             else teleport_player_to(ij,ii);
-                             }
-
-                        }
-                        if (amber_power == 3)
-			{
-                                if (dungeon_flags1 & LF1_NO_TELEPORT)
-                                {
-                                msg_print("No recall on special levels..");
-                                break;
-                                }
-                                x_ptr_foo.level = 7;
-                                x_ptr_foo.cost = 30;
-                                x_ptr_foo.stat = A_CON;
-                                x_ptr_foo.diff = 6;
-                                if (power_chance(&x_ptr_foo)){
-                                if(dun_level==0)
-                                        msg_print("You are already in town!");
-                                else{
-                                        msg_print("You go between and point your Dragon at town");
-                                        p_ptr->energy -= 100;
-                                        p_ptr->word_recall=1;
-                                }
-                                }
-                        }
-                        if (amber_power == 4)
 			{
                                 /* Ask for power */
                                 if (!get_com("Type of flame , [B]olt ,B[a]ll or B[e]am ?", &ch)) return;

@@ -667,8 +667,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
                         (void)set_stun(0);
                 if(r_ptr->flags3 & RF3_NO_CONF)
                         (void)set_confused(0);
-                if(r_ptr->flags6 & RF6_S_DRAGONRIDER)
-                        summon_specific_friendly(py,px,dun_level,SUMMON_DRAGONRIDER,FALSE);
+                if(r_ptr->flags6 & RF6_S_DRACONIAN)
+                        summon_specific_friendly(py,px,dun_level,SUMMON_DRACONIAN,FALSE);
                 if(r_ptr->flags6 & RF6_S_DEMON)
                         summon_specific_friendly(py,px,dun_level,SUMMON_DEMON,FALSE);
                 if(r_ptr->flags6 & RF6_S_DEMON)
@@ -5740,18 +5740,18 @@ void do_cmd_activate(void)
                         {
                                 if (randint(3) == 1)
                                 {
-                                        if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRAGONRIDER))
+                                        if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRACONIAN))
                                         {
-                                                msg_print("A DragonRider comes from the BETWEEN !");
+                                                msg_print("A Draconian flies in from the Air !");
                                                 msg_print("'I will burn you!'");
                                         }
                                 }
                                 else
                                 {
                                         if (summon_specific_friendly(py, px, ((plev * 3) / 2),
-                                            SUMMON_DRAGONRIDER, (bool)(plev == 50 ? TRUE : FALSE)))
+                                            SUMMON_DRACONIAN, (bool)(plev == 50 ? TRUE : FALSE)))
                                         {
-                                                msg_print("A DragonRider comes from the BETWEEN !");
+                                                msg_print("A Draconian flies in from the Air !");
                                                 msg_print("'I will help you in your difficult task.'");
                                         }
                                 }

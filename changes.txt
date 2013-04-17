@@ -1,21 +1,12 @@
-# Keys: I = Interface, M = Monster, O = Object, G = Gameplay
-# m = Misc P = Player D = Dungeon B = Bug
+1/15/02
+Finished balancing Draconians.
 
-01/01/2002
-[B]- Removed farmoer maggot abuse
-[B]- Fixed a bug with forgetten spells
-[P]- Vampires can be elves and high elves again
+1/14/02
+Removed Dragonriders Totally...
+Added Draconians in place of Dragonriders.
+Removed Maia.
+Added Chaos Lords from Amber
 
-07/01/2002
-[B]- Fixed a bug in the experimental Blade class
-[B]- Fixed a bug with summoning friendly monsters via lua scripts thanks to
-     Kobayasi
-
-09/01/2001
-[B]- FIxed a bug with Melinda proundfoot
-[B]- Fixed the monster casting at other monsters but targetting you bug
-
-11/01/2001
-[B]- Sacrificing wands now reduce the charges
-[P]- Enabled the Black Knight class
-[B]- Fixed the store info file thanks to wrabhit23
+1/13/02
+Changed makefiles to say conglomoband.
+Updated ./lib/file/news.txt 

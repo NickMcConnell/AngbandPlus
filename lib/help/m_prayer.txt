@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Prayer Realm ===
+#####R === Conglomoband Magic - Prayer Realm ===
 
 The Prayer realm is there for those who wish to play with the traditional
 Vanilla (standard) Angband priest spells.

@@ -1017,7 +1017,7 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-    sprintf(buf, "Artifact Spoilers for PernAngband Version %d.%d.%d",
+    sprintf(buf, "Artifact Spoilers for Conglomoband Version %d.%d.%d",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
@@ -1374,7 +1374,7 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-    fprintf(fff, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
+    fprintf(fff, "Monster Spoilers for Conglomoband Version %d.%d.%d\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
@@ -1596,7 +1596,7 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    sprintf(buf, "Monster Spoilers for PernAngband Version %d.%d.%d\n",
+    sprintf(buf, "Monster Spoilers for Conglomoband Version %d.%d.%d\n",
          FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -1714,7 +1714,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-                else if (flags3 & (RF3_DRAGONRIDER)) spoil_out (" DragonRider");
+                else if (flags3 & (RF3_DRACONIAN)) spoil_out (" Draconian");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1898,7 +1898,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
 		if (flags6 & (RF6_RAISE_DEAD))        vp[vn++] = "raise dead";
-                if (flags6 & (RF6_S_DRAGONRIDER))     vp[vn++] = "summon a dragonrider";
+                if (flags6 & (RF6_S_DRACONIAN))     vp[vn++] = "summon a draconian";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
@@ -2379,7 +2379,7 @@ static void spoil_bateries(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Essence Spoiler for PernAngband Version %d.%d.%d",
+        sprintf(buf, "Essence Spoiler for Conglomoband Version %d.%d.%d",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 
@@ -2493,7 +2493,7 @@ static void spoil_spells(cptr fname)
 	}
 
 	/* Dump the header */
-        sprintf(buf, "Spell Spoiler for PernAngband Version %d.%d.%d",
+        sprintf(buf, "Spell Spoiler for Conglomoband Version %d.%d.%d",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 

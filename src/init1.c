@@ -208,7 +208,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-        "DRAGONRIDER",
+        "DRACONIAN",
 	"GOOD",
 	"AURA_COLD", /* TODO: Implement aura_cold */
 	"NONLIVING",
@@ -332,7 +332,7 @@ static cptr r_info_flags6[] =
 	"ANIM_DEAD", /* ToDo: Implement ANIM_DEAD */
         "S_BUG",
         "S_RNG",
-        "S_DRAGONRIDER",  /* DG : Summon DragonRider */
+        "S_DRACONIAN",  /* Sleaker : Summon Draconian */
 	"S_KIN",
         "S_HI_DEMON",
 	"S_MONSTER",
@@ -719,7 +719,7 @@ cptr esp_flags[] =
         "ESP_UNDEAD",
         "ESP_EVIL",
         "ESP_ANIMAL",
-        "ESP_DRAGONRIDER",
+        "ESP_DRACONIAN",
         "ESP_GOOD",
         "ESP_NONLIVING",
         "ESP_UNIQUE",
@@ -9232,7 +9232,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))
 			{
-                                v = "PERNANGBAND";
+                                v = "CONGLOMOBAND";
 			}
 
 			/* Wilderness */

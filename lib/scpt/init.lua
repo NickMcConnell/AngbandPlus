@@ -1,15 +1,15 @@
 --
--- This file is loaded ad the initialisation of PernAngband
+-- This file is loaded ad the initialisation of Conglomoband
 -- Load the system functions
 --
-pern_dofile("player.lua")
-pern_dofile("objects.lua")
+conglomo_dofile("player.lua")
+conglomo_dofile("objects.lua")
 
 --
--- Include here all your files( pern_dofile("foo.lua") )
+-- Include here all your files( conglomo_dofile("foo.lua") )
 --
-pern_dofile("intro.lua")
-pern_dofile("lebohaum.lua")
+conglomo_dofile("intro.lua")
+conglomo_dofile("lebohaum.lua")
 
 -- This is a test file, if it is not present, it is very well
-pern_dofile("test.lua")
+conglomo_dofile("test.lua")

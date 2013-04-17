@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:43.
+** Generated automatically by tolua 4.0a - angband on 01/15/02 20:57:11.
 */
 
 #include "lua/tolua.h"
@@ -644,8 +644,8 @@ tolua_lerror:
  return 0;
 }
 
-/* function: pern_dofile */
-static int toluaI_util_pern_dofile00(lua_State* tolua_S)
+/* function: conglomo_dofile */
+static int toluaI_util_conglomo_dofile00(lua_State* tolua_S)
 {
  if (
  !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
@@ -656,13 +656,13 @@ static int toluaI_util_pern_dofile00(lua_State* tolua_S)
  {
   char* file = ((char*)  tolua_getstring(tolua_S,1,0));
  {
-  bool toluaI_ret = (bool)  pern_dofile(file);
+  bool toluaI_ret = (bool)  conglomo_dofile(file);
  tolua_pushnumber(tolua_S,(long)toluaI_ret);
  }
  }
  return 1;
 tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'pern_dofile'.");
+ tolua_error(tolua_S,"#ferror in function 'conglomo_dofile'.");
  return 0;
 }
 
@@ -971,7 +971,7 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"dump_hooks",toluaI_util_dump_hooks00);
  tolua_function(tolua_S,NULL,"add_hook_script",toluaI_util_add_hook_script00);
  tolua_function(tolua_S,NULL,"del_hook_name",toluaI_util_del_hook_name00);
- tolua_function(tolua_S,NULL,"pern_dofile",toluaI_util_pern_dofile00);
+ tolua_function(tolua_S,NULL,"conglomo_dofile",toluaI_util_conglomo_dofile00);
  tolua_function(tolua_S,NULL,"mod",toluaI_util_mod00);
  tolua_function(tolua_S,NULL,"band",toluaI_util_band00);
  tolua_function(tolua_S,NULL,"bor",toluaI_util_bor00);
@@ -1084,7 +1084,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"dump_hooks");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"add_hook_script");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"del_hook_name");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"pern_dofile");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"conglomo_dofile");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"mod");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"band");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"bor");

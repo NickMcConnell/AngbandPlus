@@ -124,7 +124,7 @@ C:B:5:35:3
 C:C:L:H:10000:2:40
 C:P:2:20
 C:Z:detect curses
-C:G:ZERO_FAIL | BLESS_WEAPON | GOD_FRIEND | ANTAGONIC_REALMS
+C:G:ZERO_FAIL | BLESS_WEAPON | ANTAGONIC_REALMS
 C:E:0:0:0:0:0:0
 C:O:112:0:1d1
 C:O:21:5:1d1
@@ -248,7 +248,6 @@ C:Y:2:100
 C:B:4:30:4
 C:C:H:L:77777:2:40
 C:P:6:35
-C:G:GOD_FRIEND
 C:R:40:0
 C:F:RES_FEAR
 C:E:0:0:0:0:0:0
@@ -310,7 +309,7 @@ C:Y:2:100
 C:B:5:30:4
 C:C:H:L:80000:2:40
 C:P:6:35
-C:G:NO_GOD | CHAOS_GOD
+C:G:CHAOS_GOD
 C:R:25:0
 C:F:RES_CHAOS
 C:R:40:0
@@ -783,7 +782,7 @@ C:B:4:35:3
 C:C:L:H:75000:2:40
 C:P:3:30
 C:G:ZERO_FAIL |
-C:G:PASS_TREE | GOD_FRIEND
+C:G:PASS_TREE | 
 C:E:0:0:0:0:0:0
 C:O:112:0:1d1
 C:O:21:2:1d1
@@ -1207,7 +1206,7 @@ R:E:1:1:1:2:1:1
 R:Z:find secret passages
 R:C:Warrior | Priest | Mimic | Alchemist | Symbiant | Harper | 
 R:C:Druid | Unbeliever | Weaponmaster | Merchant | Blade | 
-R:C:Black-Knight | 
+R:C:Black-Knight |
 R:R:1:0
 R:F:RES_BLIND | 
 
@@ -1253,7 +1252,7 @@ R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Blade |
 R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | BeastMaster | 
 R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
 R:C:Archer | Illusionist | Druid | Unbeliever | Daemonologist | Weaponmaster | 
-R:C:Merchant | 
+R:C:Merchant |
 R:R:1:0
 R:F:SUST_CON | REGEN | 
 
@@ -1298,7 +1297,7 @@ R:M:40:10:100:10:255:65:80:10:240:64
 R:E:1:1:1:2:1:1
 R:Z:turn into a bear
 R:C:Warrior | Ranger | Monk | BeastMaster | Power-Mage | Necromancer | 
-R:C:Unbeliever | Summoner | Blade | 
+R:C:Unbeliever | Summoner | Blade |
 R:R:1:0
 R:F:SUST_STR | 
 R:R:20:1
@@ -1409,52 +1408,30 @@ R:F:SPEED |
 R:R:45:1
 R:F:SPEED | 
 
-R:N:17:DragonRider
-R:D:In the distant system of the star Rukbat orbits the planet Pern, home of the
-R:D:DragonRiders. Mounting huge, powerful but friendly dragons they are masters of
-R:D:teleporatation.
-R:S:6:3:-10:0:6:8:-3
+R:N:17:Draconian
+R:D:A breed of half-dragons that are very powerful.
+R:S:3:2:-5:0:3:-1:-1
 R:K:6:0:10:-16:30:10:15:5
-R:P:15:400:0:89
+R:P:15:175:0:89
 R:M:14:6:180:6:255:25:150:4:230:20
-R:E:1:1:1:2:1:1
+R:E:1:1:1:3:1:1
 R:Z:Dragon's Powers
 R:C:Warrior | Ranger | Paladin | Warlock | Mindcrafter | High-Mage | Summoner | 
 R:C:BeastMaster | Harper | Runecrafter | Sorceror | Archer | Unbeliever | 
-R:G:TP | 
 R:R:1:0
 R:F:FEATHER | 
-R:R:4:0
-R:F:ESP_DRAGON | ESP_DRAGONRIDER | 
 R:R:5:0
 R:F:RES_FIRE | 
 R:R:10:0
 R:F:RES_COLD | 
 R:R:15:0
-R:F:RES_ACID | 
-R:R:17:0
-R:F:FLY | 
+R:F:RES_ACID |  
 R:R:20:0
 R:F:RES_ELEC | 
 R:R:35:0
 R:F:RES_POIS | 
 
-R:N:18:DeathMold
-R:D:A pure mass of evilness, DeathMolds cannot move, but they have much more
-R:D:power than an average race.
-R:S:10:0:10:0:10:-15:-5
-R:K:15:-5:15:25:0:10:25:25
-R:P:15:250:10:200
-R:M:5:15:10:1:50:1:10:1:50:1
-R:E:1:1:1:4:0:0
-R:Z:Death Mold's Powers
-R:C:Mage | Priest | Rogue | Mindcrafter | High-Mage | BeastMaster | 
-R:C:Symbiant | Power-Mage | Sorceror | Necromancer | Summoner | 
-R:R:1:0
-R:F:IMMOVABLE | HOLD_LIFE | 
-R:F:RES_NETHER | RES_NEXUS | 
-
-R:N:19:Yeek
+R:N:18:Yeek
 R:D:The weakest of all the races, bad at everything except gaining levels quickly.
 R:S:-5:-5:-5:-5:-5:-5:-5
 R:K:-5:-5:-10:0:-5:0:-10:-10
@@ -1465,9 +1442,9 @@ R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Summoner |
 R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | BeastMaster | 
 R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
 R:C:Archer | Illusionist | Druid | Unbeliever | Daemonologist | Blade | 
-R:C:Black-Knight | 
+R:C:Black-Knight |
 
-R:N:20:Wood-Elf
+R:N:19:Wood-Elf
 R:D:Elves are the first born, the Eldar.
 R:D:Wood elves live in the great forests of Middle Earth.
 R:S:-3:2:1:5:-4:1:0
@@ -1479,46 +1456,50 @@ R:C:Warrior | Mage | Priest | Rogue | Ranger | Warlock |
 R:C:Monk | Mindcrafter | High-Mage | Mimic | BeastMaster | Alchemist | 
 R:C:Symbiant | Harper | Runecrafter | Possessor | Sorceror | Archer | 
 R:C:Illusionist | Druid | Merchant | Summoner | Blade | 
-R:G:XTRA_MIGHT_BOW | PASS_TREE
+R:G:XTRA_MIGHT_BOW | PASS_TREE |
 R:R:1:1
 R:F:XTRA_MIGHT | RES_LITE | 
 
-R:N:21:Maia
-R:D:An old race, dating from before the creation of Arda, the Maiar were
-R:D:created by Eru to help the Valar in their task.
-R:S:0:0:0:0:0:0:4
-R:K:0:0:0:0:0:10:0:0
-R:P:10:100:0:206
-R:M:14:6:72:6:180:25:66:4:150:20
-R:E:1:1:1:2:1:1
-R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | 
-R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | Mimic | 
-R:C:BeastMaster | Alchemist | Symbiant | Harper | Power-Mage | Runecrafter | 
-R:C:Possessor | Sorceror | Archer | Illusionist | Druid | Necromancer | 
-R:C:Unbeliever | Daemonologist | Weaponmaster | Merchant | 
+R:N:20:Amberite
+R:D:Inhabitants of the one true world, from which all shadow worlds are cast, 
+R:D:and descendants of Oberon, King of Amber, Amberites look to be human, but 
+R:D:are superiour in every way.
+R:S:3:2:2:2:2:2:0
+R:K:4:4:7:5:4:4:9:4
+R:P:15:250:0:200
+R:M:5:15:10:1:50:1:10:1:50:1
+R:E:1:1:1:4:0:0
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Summoner | 
+R:C:Warlock | Chaos-Warrior | Monk | Mindcrafter | High-Mage | BeastMaster | 
+R:C:Alchemist | Symbiant | Harper | Runecrafter | Possessor | Sorceror | 
+R:C:Archer | Illusionist | Druid | Unbeliever | Daemonologist | Blade | 
 R:C:Black-Knight | 
-R:G:NO_GOD
-R:R:1:0
-R:F:AGGRAVATE | 
-R:R:20:0
-R:F:DRAIN_EXP | 
-R:R:6:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:12:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:18:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:24:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:30:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:36:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:42:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
-R:R:48:1
-R:F:STR | INT | WIS | DEX | CON | CHR | 
+R:R:1:12
+R:F:REGEN |
 
+R:N:21:Chaos-Lord
+R:D:Denizens of the Courts of Chaos and antithesis of the Amberites, Lords
+R:D:of Chaos are powerful beings, who, despite being seen mostly in human
+R:D:form, can assume magnificent and aweful demonic forms.
+R:S:2:2:1:3:2:1:0
+R:K:4:4:7:5:4:4:9:4
+R:P:15:250:0:200
+R:M:14:6:72:6:180:25:66:4:150:20
+R:E:1:1:1:4:0:0
+R:Z:Lord of Chaos' Powers
+R:C:Warrior | Mage | Priest | Rogue | Ranger | Paladin | Summoner | 
+R:C:Warlock | Chaos-Warrior | Mindcrafter | High-Mage |  
+R:C:Runecrafter | Possessor | Sorceror | 
+R:C:Archer | Illusionist | Unbeliever | Daemonologist | Blade | 
+R:C:Black-Knight | 
+R:R:1:0
+R:F:RES_CHAOS |
+R:R:10:0
+R:F:RES_DARK | 
+R:R:20:0
+R:F:RES_NETHER |
+R:R:40:0
+R:F:RES_NEXUS |
 
 
 ##############################################################################
@@ -1551,8 +1532,8 @@ S:M:0:0:0:0:0:0:0:0:0:0
 S:E:0:0:0:0:0:0
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
 S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
-S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | DragonRider | 
-S:A:DeathMold | Yeek | Wood-Elf | Maia | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | Draconian | 
+S:A:Amberite | Yeek | Wood-Elf | Chaos-Lord | 
 
 S:N:1:Vampire
 S:D:B:Vampires are powerful undead, wielding great powers they still fear the
@@ -1651,7 +1632,7 @@ S:M:0:0:0:0:0:0:0:0:0:0
 S:E:0:0:0:0:0:0
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
 S:A:Dunadan | High-Elf | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | 
-S:A:DragonRider | DeathMold | Yeek | Wood-Elf | Maia | 
+S:A:Draconian | Amberite | Yeek | Wood-Elf | Chaos-Lord | 
 S:C:A:Priest | 
 S:C:A:Runecrafter | Sorceror | 
 S:C:F:Warrior | Unbeliever | 
@@ -1667,8 +1648,8 @@ S:E:0:0:0:0:0:0
 S:G:CORRUPT
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
 S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
-S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | DragonRider | Yeek | 
-S:A:Wood-Elf | Maia | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Draconian | Yeek | 
+S:A:Wood-Elf | Chaos-Lord | 
 
 S:N:8:LostSoul
 S:D:A:In some very rare ocassions souls can come back from the Halls of Mandos.
@@ -1680,8 +1661,8 @@ S:E:0:0:0:0:0:0
 S:G:ASTRAL
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
 S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
-S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | DragonRider | 
-S:A:DeathMold | Yeek | Wood-Elf | Maia | 
+S:A:Kobold | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | Draconian | 
+S:A:Amberite | Yeek | Wood-Elf | Chaos-Lord | 
 
 
 ##############################################################################
@@ -1939,8 +1920,8 @@ H:191:90:88:18:75:a Petty-Dwarf Miner.
 H:192:95:88:18:100:a Petty-Dwarf Shaman.  
 H:193:100:88:18:100:Mim, Betrayer of Turin.  
 
-H:194:85:89:91:50:You are one of several children of a DragonRider. 
-H:195:100:89:91:60:You are the only child of a DragonRider. 
+H:194:85:89:91:50:You are one of several children of a Draconian. 
+H:195:100:89:91:60:You are the only child of a Draconian. 
 
 H:196:30:91:0:40:You have a Green Dragon.
 H:197:55:91:0:60:You have a Blue Dragon.

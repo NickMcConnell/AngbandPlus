@@ -1,5 +1,6 @@
 |||||oy
-#####R === PernAngband Magic - Symbiotic Realm ===
+#####R === Conglomoband Magic - Symbiotic Realm ===
+
 The Symbiotic Realm is concerned mainly in magics that allow the
 caster to become as one with his foe. Useful only to those who
 specialise in the art of symbiosis, it allows them to more easily

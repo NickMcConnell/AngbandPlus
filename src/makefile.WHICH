@@ -3,10 +3,7 @@ Which makefile should you use? Here's what each is for:
 makefile.WHICH - Tells you which makefile does what. Don't try to use it
 		as an actual makefile, as it probably won't work.
 
-makefile - A makefile for DOS. Occasionally referred to in the documentation as
-	makefile.dos, but as the head developer of Pernangband develops on DOS,
-	he decided to rename it to just plain makefile. You want DJGPP and
-	related tools for this.
+makefile.dos - A makefile for people using DOS. 
 
 makefile.acn - A makefile for people using Acorn systems.
 

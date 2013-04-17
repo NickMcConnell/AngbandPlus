@@ -10,7 +10,7 @@ How to compile:
 Graphic tiles and sounds are not included in the standard
 distribution because of their sheer size. You can either
 remove them from your project file or copy them from
-existing Pern binary.
+existing Conglomo binary.
 
 Carbon compilation requires Carbon SDK 1.1(?) or greater,
 freely downloadable from Apple. The project file assumes

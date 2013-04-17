@@ -11,7 +11,7 @@
 
 # After modifying this file, delete the "lib/raw/r_info.raw" file.
 
-# PernAngband notes:
+# Conglomoband notes:
 
 # Currently, "unique" monsters are just "special" monster races, with
 # the requirement that only one monster of that race can exist at a time,
@@ -1583,9 +1583,9 @@ O:0:0:0:0
 B:GAZE:UN_BONUS
 F:ATTR_MULTI | ATTR_ANY | RES_DISE | DROP_CORPSE | 
 F:NEVER_MOVE | CAN_FLY | 
-F:HURT_LITE | NO_FEAR | BASEANGBAND
+F:HURT_LITE | NO_FEAR | BASEANGBAND
 S:1_IN_9 | 
-S:DRAIN_MANA
+S:DRAIN_MANA 
 D:A disembodied eye, crackling with magic. 
 
 N:105:Red worm mass
@@ -13483,7 +13483,7 @@ D:the underside of the body were many white pyramids, presumably
 D:used for locomotion. The diameter of the body must have been 
 D:at least ten feet at its least wide..." 
 
-N:789:T'ron, the Rebel Dragonrider
+N:789:T'ron, the Draconian
 G:D:D
 I:130:80d100:20:120:80
 W:72:2:400000:45000
@@ -13494,17 +13494,17 @@ B:HIT:HURT:12d10
 B:CHARGE:HURT:10d10
 B:CHARGE:HURT:10d10
 F:UNIQUE | MALE | CAN_SPEAK | RES_TELE | SPECIAL_GENE | 
-F:FORCE_MAXHP | REGENERATE | DRAGONRIDER | CAN_FLY |
-F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
-F:SMART | OPEN_DOOR | BASH_DOOR | DROP_CHOSEN |
-F:EVIL | IM_FIRE | IM_COLD | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | 
+F:FORCE_MAXHP | REGENERATE | DRACONIAN | CAN_FLY | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
+F:SMART | OPEN_DOOR | BASH_DOOR | DROP_CHOSEN | 
+F:EVIL | IM_FIRE | IM_COLD | IM_POIS |  
+F:NO_CONF | NO_SLEEP | NO_FEAR |   
 F:MORTAL | PERNANGBAND | HAS_LITE
-S:1_IN_4 | 
-S:TELE_TO | SCARE | BR_TIME | BR_FIRE |
-S:BO_MANA | S_DRAGONRIDER
-D:As the Dragonriders came from Pern to help the elves, T'ron and his rebel 
-D:Dragonwing came to defend Morgoth! He is an evil and powerful Dragonrider. 
+S:1_IN_4 |  
+S:TELE_TO | SCARE | BR_TIME | BR_FIRE | 
+S:BO_MANA | S_DRACONIAN 
+D:As the Draconians come to help the elves, T'ron  
+D:came to defend Morgoth! He is an evil and powerful Draconian. 
 
 N:790:Great Wyrm of Many Colours
 G:D:v
@@ -13527,7 +13527,7 @@ S:BR_POIS | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD |
 S:CONF | SCARE | BLIND
 D:A huge dragon whose scales shimmer in myriad hues. 
 
-N:791:Mardra, rider of the Gold Loranth
+N:791:Mardra, Fallen Draconian
 G:D:y
 I:130:100d85:100:100:50
 W:75:1:420000:35000
@@ -13537,7 +13537,7 @@ B:HIT:HURT:12d15
 B:HIT:HURT:12d15
 B:HIT:HURT:12d15
 B:HIT:HURT:12d15
-F:UNIQUE | FEMALE | CAN_SPEAK | DRAGONRIDER | ONLY_ITEM | RES_TELE | 
+F:UNIQUE | FEMALE | CAN_SPEAK | DRACONIAN | ONLY_ITEM | RES_TELE | 
 F:DROP_CHOSEN | DROP_CORPSE | DROP_SKELETON | CAN_FLY | 
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 |
@@ -13545,9 +13545,9 @@ F:EVIL | IM_POIS | IM_ELEC | SMART | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:SCARE | BLIND | TPORT | BLINK | TELE_AWAY | TELE_TO | 
-S:BR_FIRE | BA_MANA | S_DRAGONRIDER
+S:BR_FIRE | BA_MANA | S_DRACONIAN
 D:Former Weyrwomand of Fort Weyr, she and T'ron have fallen under the control 
-D:of Morgoth. Loranth, her dragon, can summon Dragonriders to her aid. 
+D:of Morgoth. She can summon Draconians to her aid. 
 
 N:792:Tselakus, the Dreadlord
 G:G:R
@@ -14172,7 +14172,7 @@ D:rumoured that this is in fact none other than Sauron in disguise:
 D:although if this is so, he has yet to reveal his full power - and perhaps 
 D:will not do so while his deception lasts, in the hope of keeping it going. 
 
-N:820:Lessa, rider of the Gold Ramoth
+N:820:Lessa, Fallen Draconian
 G:D:y
 I:130:65d100:100:100:15
 W:78:1:420000:35500
@@ -14182,14 +14182,14 @@ B:HIT:HURT:10d15
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
 B:HIT:HURT:10d15
-F:UNIQUE | FEMALE | DRAGONRIDER | RES_TELE | CAN_FLY | GOOD |
+F:UNIQUE | FEMALE | DRACONIAN | RES_TELE | CAN_FLY | GOOD |
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | PET |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | REGENERATE | 
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
-S:TPORT | TELE_TO | BR_FIRE | S_DRAGONRIDER | 
+S:TPORT | TELE_TO | BR_FIRE | S_DRACONIAN | 
 S:TELE_AWAY | HEAL | BA_NETH | BO_NETH | BA_FIRE | BO_FIRE
 D:The Weyrwomand of the Weyr of Benden, she came to help you. 
 
@@ -14246,7 +14246,7 @@ D:to see the great amorphous shpaes streaming skyward from the
 D:accursed place, nor the equally great being hovering like a cloud 
 D:of living fire above the trees." 
 
-N:824:F'lar, rider of the Bronze Mnementh
+N:824:F'lar, Fallen Draconian
 G:D:U
 I:130:70d100:100:100:15
 W:79:1:400000:38500
@@ -14256,17 +14256,16 @@ B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
 B:HIT:HURT:15d15
-F:UNIQUE | MALE | DRAGONRIDER | RES_TELE | CAN_FLY | CAN_SPEAK |
+F:UNIQUE | MALE | DRACONIAN | RES_TELE | CAN_FLY | CAN_SPEAK |
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP | PET | GOOD |
 F:DROP_4D2 | DROP_1D2 | DROP_GOOD | DROP_60 | DROP_90 | ONLY_ITEM |
 F:IM_COLD | IM_POIS | IM_ACID | IM_ELEC | IM_FIRE | REGENERATE | 
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
-S:SCARE | TPORT | TELE_TO | S_DRAGONRIDER | 
+S:SCARE | TPORT | TELE_TO | S_DRACONIAN | 
 S:TELE_LEVEL | HEAL | BR_FIRE | BR_TIME | ROCKET
-D:The Weyrleader of Benden Weyr on Pern, he has come with Lessa to help you in 
-D:your battle. Having already saved Pern, he now wants to save Arda! 
+D:The might Draconian F'lar. Ready to destroy anything.
 
 N:825:Maeglin, the Traitor of Gondolin
 G:h:D
@@ -15043,7 +15042,7 @@ D:somewhat bloated corpulence... It lumbered slobberingly into sight
 D:and gropingly squeezed its gelatinous green immensity through the 
 D:black doorway... A mountain shambled or walked." 
 
-N:858:Sorka, rider of the Gold Faranth
+N:858:Sorka, Fallen Draconian
 G:D:y
 I:145:99d111:100:165:0
 W:97:1:420000:65000
@@ -15054,7 +15053,7 @@ B:HIT:HURT:12d12
 B:HIT:FIRE:12d12
 B:HIT:FIRE:12d12
 F:UNIQUE | FEMALE | DROP_CORPSE | 
-F:ATTR_MULTI | DRAGONRIDER | RES_TELE | PET | CAN_SPEAK |
+F:ATTR_MULTI | DRACONIAN | PET | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | GOOD |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT |
 F:DROP_CHOSEN | REFLECTING | AURA_FIRE | AURA_ELEC | 
@@ -15063,10 +15062,8 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | POWERFUL |
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_4 | 
-S:TPORT | TELE_TO | BR_FIRE | BR_TIME | S_DRAGONRIDER | TELE_AWAY |
-D:Faranth is the first Dragonrider queen, and Sorka the first to discover 
-D:the Fire-lizards, the ancestor of the Dragons of Pern. She will try to 
-D:help you! 
+S:TPORT | TELE_TO | BR_FIRE | BR_TIME | S_DRACONIAN | TELE_AWAY |
+D:She is the Draconian Queen and a mighty ruler.
 
 N:859:The Unicorn of Order
 G:q:w
@@ -15115,38 +15112,6 @@ S:HAND_DOOM | ANIM_DEAD
 D:Mighty in spells and enchantments,he created the One Ring. 
 D:His eyes glow with power and with his gaze he seeks to destroy 
 D:your soul. He has many servants, and rarely fights without them. 
-
-N:861:DarkGod, the Mighty Coder of Hell
-G:P:B
-I:155:180d100:111:175:0
-W:127:1:1600:66666
-E:2:0:2:6:1:1
-O:20:20:20:20
-B:GAZE:EAT_GOLD:20d10
-B:HIT:SHATTER:20d10
-B:BITE:LOSE_ALL:10d12
-B:TOUCH:UN_POWER
-F:UNIQUE | CAN_SPEAK | ATTR_MULTI | ATTR_ANY | MALE |
-F:FORCE_MAXHP | WEIRD_MIND | DROP_CORPSE | DROP_SKELETON |
-F:REFLECTING | AURA_FIRE | AURA_ELEC | AURA_COLD |
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
-F:DROP_GOOD | DROP_GREAT | RES_NETH | INVISIBLE | 
-F:SMART | KILL_WALL | KILL_BODY | POWERFUL | RES_TELE | 
-F:REGENERATE | CAN_FLY | CAN_SWIM | DG_CURSE | WYRM_PROTECT | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE
-F:MORTAL | JOKEANGBAND | HAS_LITE
-S:1_IN_2 | 
-S:S_DRAGONRIDER | BR_CHAO | BA_CHAO | ROCKET | BRAIN_SMASH | S_HI_DEMON | 
-S:BR_NETH | HASTE | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | TRAPS | FORGET | 
-S:BR_NUKE | BR_POIS | BR_DISI | HAND_DOOM | HEAL | TPORT | TELE_TO |
-S:S_BUG | S_RNG |
-D:He is the master of coding; none can match his skill. He created the 
-D:Variant Maintainer, the RNGs, and the software bugs. Bull Gates is 
-D:nothing next to him. Do not think that since he loves the novels of 
-D:Pern he is to be ignored! He wishes to translate your soul into 
-D:assembler, the one hitch being that he must kill you first. If you 
-D:encounter him, pray your deity holds you in good stead. 
 
 N:862:Morgoth, Lord of Darkness
 G:P:D
@@ -16405,7 +16370,7 @@ F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
+D:The ancestors of the Dragons, these are 
 D:friendly funny flying creatures with the powers of the dragons. 
 
 N:941:Green Firelizard
@@ -16421,7 +16386,7 @@ F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
+D:The ancestors of the Dragons, these are 
 D:friendly funny flying creatures with the powers of the dragons. 
 
 N:942:Brown Firelizard
@@ -16437,7 +16402,7 @@ F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
+D:The ancestors of the Dragons, these are 
 D:friendly funny flying creatures with the powers of the dragons. 
 
 N:943:Bronze Firelizard
@@ -16453,7 +16418,7 @@ F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
+D:The ancestors of the Dragons, these are 
 D:friendly funny flying creatures with the powers of the dragons. 
 
 N:944:Gold Firelizard
@@ -16469,7 +16434,7 @@ F:CAN_FLY | SMART | PET | DROP_CORPSE | HAS_EGG | GOOD |
 F:MORTAL | PERNANGBAND | HAS_LITE
 S:1_IN_10
 S:TELE_TO |
-D:The ancestors of the Dragons of the Dragonriders, these are 
+D:The ancestors of the Dragons, these are 
 D:friendly funny flying creatures with the powers of the dragons. 
 
 N:945:High-elven ranger
@@ -16693,7 +16658,7 @@ D:spells are lethal and his combat blows crushingly hard. He moves at
 D:speed, and commands legions of evil to do his bidding. It is said that he 
 D:is fated never to die by the hand of mortal man.
 
-N:955:Green Dragonrider
+N:955:Green Draconian
 G:D:g
 I:120:50d50:20:100:50
 W:30:1:30000:10000
@@ -16702,16 +16667,16 @@ O:50:50:0:0
 B:HIT:HURT:8d6
 B:HIT:HURT:8d6
 F:FEMALE |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:DRACONIAN | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:BLINK | TELE_AWAY
-D:A Dragonrider of Pern. Among the weaker breeds, but still dangerous. 
+D:A Draconian. Among the weaker breeds, but still dangerous. 
 
-N:956:Blue Dragonrider
+N:956:Blue Draconian
 G:D:b
 I:120:60d60:20:100:50
 W:40:1:30000:20000
@@ -16720,16 +16685,16 @@ O:50:50:0:0
 B:HIT:HURT:8d7
 B:HIT:HURT:8d7
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:DRACONIAN | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:TPORT | BLINK
-D:A Dragonrider of Pern. Among the weaker breeds, but still dangerous. 
+D:A Draconian. Among the weaker breeds, but still dangerous. 
 
-N:957:Brown Dragonrider
+N:957:Brown Draconian
 G:D:u
 I:130:70d70:30:100:50
 W:50:1:30000:20000
@@ -16738,16 +16703,16 @@ O:50:50:0:0
 B:HIT:HURT:8d9
 B:HIT:HURT:8d9
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:DRACONIAN | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE |
 S:TPORT | BLINK
-D:A Dragonrider of Pern. Beware its flame. 
+D:A Draconian. Beware its flame. 
 
-N:958:Bronze Dragonrider
+N:958:Bronze Draconian
 G:D:U
 I:130:80d80:30:100:50
 W:60:1:30000:20000
@@ -16756,16 +16721,16 @@ O:50:50:0:0
 B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 F:MALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:DRACONIAN | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE | BR_TIME |
 S:TPORT | BLINK
-D:A Dragonrider of Pern, mightiest among the males. 
+D:A Draconian, mightiest among the males. 
 
-N:959:Gold Dragonrider
+N:959:Gold Draconian
 G:D:y
 I:130:90d90:30:100:50
 W:70:1:30000:20000
@@ -16776,33 +16741,16 @@ B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 B:HIT:HURT:10d9
 F:FEMALE | SMART |
-F:DRAGONRIDER | DROP_SKELETON | DROP_CORPSE |
+F:DRACONIAN | DROP_SKELETON | DROP_CORPSE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:IM_FIRE | REGENERATE | OPEN_DOOR | BASH_DOOR |
 F:RES_TELE | NO_CONF | NO_SLEEP | CAN_FLY | PERNANGBAND | HAS_LITE
 S:1_IN_4 |
 S:BR_FIRE | BR_TIME | 
 S:TPORT | BLINK | TELE_TO | TELE_AWAY |
-S:S_DRAGONRIDER
-D:A Dragonrider of Pern, among the queens of their kind. 
+S:S_DRACONIAN
+D:A Draconian, among the queens of their kind. 
 
-N:960:Thread
-G:,:g
-I:140:3d5:10:1:0
-W:50:1:50:3
-E:0:0:0:0:0:0
-O:0:0:0:0
-B:TOUCH:HURT:3d15
-B:TOUCH:HURT:3d15
-B:TOUCH:HURT:3d15
-B:TOUCH:HURT:3d15
-F:STUPID | EMPTY_MIND | KILL_TREES | 
-F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD |
-F:NO_CONF | NO_SLEEP | NO_FEAR | 
-F:MORTAL | PERNANGBAND
-S:MULTIPLY
-D:A kind of carnivorous giant mycorhiza:  originally from the far system 
-D:of Rukbat in which orbits the plant Pern, home of the Dragonriders. 
 
 N:961:Gorlim, Betrayer of Barahir
 G:p:s
@@ -16896,25 +16844,6 @@ F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_POIS | MORTAL | BASEANGBAND
 D:It is moving slowly towards you. 
 
-N:966:Dolphiner
-G:p:b
-I:120:16d100:30:120:40
-W:61:3:1800:7000
-E:1:1:1:2:1:1
-O:20:50:10:5
-B:HIT:HURT:8d9
-B:HIT:COLD:8d9
-B:HIT:HURT:8d9
-B:HIT:COLD:8d9
-F:SMART | PET | DROP_CORPSE | FRIENDS | WILD_SHORE | WILD_OCEAN | WILD_TOO | 
-F:IM_POIS | AQUATIC | CAN_SWIM | DROP_USEFUL |
-F:NO_CONF | NO_SLEEP | NO_FEAR | DROP_GOOD | DROP_3D2 |
-F:MORTAL | REGENERATE | TAKE_ITEM | GOOD | SUSCEP_FIRE |
-F:RES_WATE | RES_NEXU | PERNANGBAND | HAS_LITE
-S:1_IN_4
-S:BO_WATE | BA_WATE | BO_ICEE
-D:The Dolphiners came with the Dragonriders from the far planet Pern. 
-D:These friendly beings ride their dolphins into combat to assist you. 
 
 N:967:Novice possessor (soul)
 G:G:D

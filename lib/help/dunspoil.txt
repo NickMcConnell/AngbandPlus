@@ -1,7 +1,7 @@
 |||||oy
-#####R=== PERN'S DUNGEONS ===
+#####R=== CONGLOMO'S DUNGEONS ===
 
-There are numerous dungeons within the Pern world, but not all
+There are numerous dungeons within the Conglomo world, but not all
 of them are required to be ventured into. The original angband
 dungeon has been split into 4 parts, each found near or at a 
 different town. Travel between towns is usually easiest by 
@@ -39,7 +39,7 @@ waits for you at level 99, and Morgoth at level 100. This
 dungeon can be found near Gondolin.
 
 
-#####GAdditional Pern Dungeons
+#####GAdditional Conglomo Dungeons
 #####G------------------------
 
 In addition to the basic 4 dungeons, there are numerous other 
@@ -169,3 +169,4 @@ ravages of Nether, and is guarded by Tik'srvzllat.
 
 
                              Created by Dawnmist for PernAngband 5.x.x
+							 Edited by Sleaker for Conglomoband 0.x.x

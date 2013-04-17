@@ -33,7 +33,7 @@ int  tolua_quest_open (lua_State *L);
  */
 lua_State* L = NULL;
 
-/* PernAngband Lua error message handler */
+/* Conglomoband Lua error message handler */
 static int pern_errormessage(lua_State *L)
 {
         char buf[200];
@@ -109,10 +109,10 @@ void init_lua()
         tolua_quest_open(L);
 
         /* Load the first lua file */
-        pern_dofile("init.lua");
+        conglomo_dofile("init.lua");
 }
 
-bool pern_dofile(char *file)
+bool conglomo_dofile(char *file)
 {
 	char buf[1024];
         int oldtop = lua_gettop(L);

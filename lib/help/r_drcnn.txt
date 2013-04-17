@@ -1,0 +1,21 @@
+#####R=== Draconians ===
+
+#####GDescription
+The Draconians are a breed of half-dragons that are very powerful.
+
+#####GStat Modifiers
+Strength        +3   
+Intelligence    +2   
+Wisdom          -5   
+Dexterity       0   
+Constitution    +3   
+Charisma        -1       
+Hit Dice Sides  15         
+Exp Penalty     +175%
+ 
+#####GStarting Equipment
+All draconians start with:
+    some small firestones
+If they are *very* lucky they may begin with:
+    A chaos coat
+

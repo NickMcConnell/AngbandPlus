@@ -170,7 +170,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 #define ESP_UNDEAD              0x00000020L
 #define ESP_EVIL                0x00000040L
 #define ESP_ANIMAL              0x00000080L
-#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_DRACONIAN         0x00000100L
 #define ESP_GOOD                0x00000200L
 #define ESP_NONLIVING           0x00000400L
 #define ESP_UNIQUE              0x00000800L
@@ -203,7 +203,7 @@ static obj_theme lua_obj_theme @ theme_forge;
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRiders */
+#define TV_FIRESTONE     3      /* For Draconians */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */

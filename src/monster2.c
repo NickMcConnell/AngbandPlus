@@ -1764,7 +1764,7 @@ void update_mon(int m_idx, bool full)
                         if ((p_ptr->telepathy & ESP_UNDEAD) && (r_ptr->flags3 & RF3_UNDEAD)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_EVIL) && (r_ptr->flags3 & RF3_EVIL)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_ANIMAL) && (r_ptr->flags3 & RF3_ANIMAL)) can_esp = TRUE;
-                        if ((p_ptr->telepathy & ESP_DRAGONRIDER) && (r_ptr->flags3 & RF3_DRAGONRIDER)) can_esp = TRUE;
+                        if ((p_ptr->telepathy & ESP_DRACONIAN) && (r_ptr->flags3 & RF3_DRACONIAN)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_GOOD) && (r_ptr->flags3 & RF3_GOOD)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_NONLIVING) && (r_ptr->flags3 & RF3_NONLIVING)) can_esp = TRUE;
                         if ((p_ptr->telepathy & ESP_UNIQUE) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags3 & RF3_UNIQUE_4))) can_esp = TRUE;
@@ -3053,9 +3053,9 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-                case SUMMON_DRAGONRIDER:
+                case SUMMON_DRACONIAN:
 		{
-                        okay = (r_ptr->flags3 & RF3_DRAGONRIDER)?TRUE:FALSE;
+                        okay = (r_ptr->flags3 & RF3_DRACONIAN)?TRUE:FALSE;
 			break;
 		}
 

@@ -10,7 +10,7 @@
  *
  * Changed for ZAngband by Robert Ruehlmann
  *
- * Heavily modified for PernAngband by DarkGod
+ * Origionally Heavily modified for PernAngband by DarkGod
  */
 
 #include "angband.h"
@@ -1665,7 +1665,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
                                 if (do_res_stat(A_CHR)) paid = TRUE;
                                 p_ptr->chp-=1000;
                                 if(p_ptr->chp<=0)p_ptr->chp=1;
-                        }else msg_print("Hum .. you are NOT a DragonRider, you need a dragon to go between !");
+                        }else msg_print("Hum .. you do not have the ability to go between !");
 			break;
                 case BACT_MIMIC_NORMAL:
                         set_mimic(0,0);

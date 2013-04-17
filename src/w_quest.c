@@ -1,6 +1,6 @@
 /*
 ** Lua binding: quest
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:52.
+** Generated automatically by tolua 4.0a - angband on 01/15/02 20:57:10.
 */
 
 #include "lua/tolua.h"

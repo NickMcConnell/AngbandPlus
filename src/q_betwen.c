@@ -43,9 +43,9 @@ bool quest_between_move_hook(char *fmt)
         p_ptr->inside_quest = QUEST_BETWEEN;
 	p_ptr->leaving = TRUE;
 
-        cmsg_print(TERM_YELLOW, "Looks like a full wing of dragonriders ambushes you !");
+        cmsg_print(TERM_YELLOW, "Looks like a full wing of draconians ambushes you !");
         cmsg_print(TERM_YELLOW, "T'ron steps forth and speak: 'The secret of the between");
-        cmsg_print(TERM_YELLOW, "will not be used by any but the dragonriders!'");
+        cmsg_print(TERM_YELLOW, "will not be used by any but the draconians!'");
 
         return FALSE;
 }

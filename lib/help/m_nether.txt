@@ -1,5 +1,5 @@
 |||||oy
-#####R === PernAngband Magic - Nether Realm ===
+#####R === Conglomoband Magic - Nether Realm ===
 
 The dominion of Morgoth has permanently altered the infra-structure
 of the earth, imbuing it with his native power that is the Nether 

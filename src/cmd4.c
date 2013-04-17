@@ -1166,7 +1166,7 @@ void do_cmd_options(void)
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-                prt("(P/5) PernAngband Options", 8, 5);
+                prt("(P/5) Conglomoband Options", 8, 5);
                 prt("(6) Birth Options(read only)", 9, 5);
 
 		/* Testing */
@@ -1277,10 +1277,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-                        /* PernAngband Options */
+                        /* Conglomoband Options */
                         case 'P': case 'p': case '5':
 			{
-                                do_cmd_options_aux(5, "PernAngband Options", FALSE);
+                                do_cmd_options_aux(5, "Conglomoband Options", FALSE);
 				break;
 			}
 
@@ -2890,7 +2890,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing PernAngband %d.%d.%d.",
+    msg_format("You are playing Conglomoband %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                

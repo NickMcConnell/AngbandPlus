@@ -19,7 +19,7 @@
  * since it is usually tested several times...
  */
 
-void summon_dragon_riders();
+void summon_draconian();
 
 
 /*
@@ -700,8 +700,8 @@ void self_knowledge(FILE *fff)
 		else if (r_ptr->flags3 & RF3_ANIMAL)
 			info[i++] = "You are an animal.";
 		/* Not implemented */
-		else if (r_ptr->flags3 & RF3_DRAGONRIDER)
-			info[i++] = "You have dragonrider blood in your veins.";
+		else if (r_ptr->flags3 & RF3_DRACONIAN)
+			info[i++] = "You have draconian blood in your veins.";
 		if (r_ptr->flags3 & RF3_EVIL)
 			info[i++] = "You are inherently evil.";
 		else if (r_ptr->flags3 & RF3_GOOD)
@@ -894,8 +894,8 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon a Software Bugs.";
 		if (r_ptr->flags6 & RF6_S_RNG)
 			info[i++] = "You can magically summon the RNG.";
-		if (r_ptr->flags6 & RF6_S_DRAGONRIDER)
-			info[i++] = "You can magically summon some Dragonriders.";
+		if (r_ptr->flags6 & RF6_S_DRACONIAN)
+			info[i++] = "You can magically summon some Draconians.";
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
                 if (r_ptr->flags6 & RF6_S_HI_DEMON)
@@ -1378,7 +1378,7 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
                         if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
                         if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
-                        if (p_ptr->telepathy & ESP_DRAGONRIDER) info[i++] = "You can sense the presence of dragonriders.";
+                        if (p_ptr->telepathy & ESP_DRACONIAN) info[i++] = "You can sense the presence of draconians.";
                         if (p_ptr->telepathy & ESP_GOOD) info[i++] = "You can sense the presence of good beings.";
                         if (p_ptr->telepathy & ESP_NONLIVING) info[i++] = "You can sense the presence of non-living things.";
                         if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
@@ -7006,8 +7006,8 @@ void activate_dg_curse(void)
 			 */
                         if ((dun_level > 25) && !stop_dg)
 			{
-                                msg_print("Oh! You attracted some evil DragonRiders!");
-                                summon_dragon_riders();
+                                msg_print("Oh! You attracted some evil Draconians!");
+                                summon_draconian();
 
                                 /* This is evil -- DG */
                                 if(rand_int(2)) stop_dg = TRUE;
@@ -7095,14 +7095,14 @@ void summon_cyber(void)
 	}
 }
 
-void summon_dragon_riders()
+void summon_draconian()
 {
 	int i;
         int max_dr = (dun_level / 50) + randint(6);
 
         for (i = 0; i < max_dr; i++)
 	{
-                (void)summon_specific(py, px, 100, SUMMON_DRAGONRIDER);
+                (void)summon_specific(py, px, 100, SUMMON_DRACONIAN);
 	}
 }
 

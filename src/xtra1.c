@@ -2135,7 +2135,7 @@ static void calc_powers(void)
                         p_ptr->powers[p] = TRUE;
 			break;
                 case MIMIC_DEMON:
-		case MIMIC_DEMON_LORD:
+		        case MIMIC_DEMON_LORD:
                         p = PWR_BR_FIRE;
                         p_ptr->powers[p] = TRUE;
 			break;
@@ -2474,7 +2474,7 @@ void calc_hitpoints(void)
         /* Hack: Sorcerer have a -10% hp penality */
         if (mhp && (PRACE_FLAGS(PR1_INNATE_SPELLS))) mhp -= mhp / 10;
 
-        /* Factor in the pernament hp modifications */
+        /* Factor in the permanent hp modifications */
         mhp += p_ptr->hp_mod;
         if (mhp < 1) mhp = 1;
 

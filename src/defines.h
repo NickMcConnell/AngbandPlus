@@ -39,7 +39,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-/* Added for PernAngband */
+/* Origionally Added for PernAngband */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 5
 #define FAKE_VER_MINOR 1
@@ -1020,7 +1020,7 @@
 #define ART_ARVEDUI                     24
 #define ART_CASPANION           25
 
-/* DragonRider flying suit */
+/* Draconian flying suit */
 #define ART_MARDA               26
 #define ART_TRON                27
 
@@ -1393,7 +1393,7 @@
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* For DragonRiders */
+#define TV_FIRESTONE     3      /* For Draconians */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -1640,7 +1640,7 @@
 #define SV_LEATHER_SCALE_MAIL           11
 #define SV_LEATHER_JACK                 12
 #define SV_STONE_AND_HIDE_ARMOR         15  /* 15 */
-#define SV_DRAGONRIDER_SUIT             16
+#define SV_DRACONIAN_SUIT               16
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL              1  /* 14- */
@@ -2588,7 +2588,7 @@
 #define SUMMON_NO_UNIQUES           46
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
-#define SUMMON_DRAGONRIDER          49
+#define SUMMON_DRACONIAN            49
 #define SUMMON_BLUE_HORROR          50
 #define SUMMON_BUG                  51
 #define SUMMON_RNG                  52
@@ -2966,7 +2966,7 @@
 #define ESP_UNDEAD              0x00000020L
 #define ESP_EVIL                0x00000040L
 #define ESP_ANIMAL              0x00000080L
-#define ESP_DRAGONRIDER         0x00000100L
+#define ESP_DRACONIAN           0x00000100L
 #define ESP_GOOD                0x00000200L
 #define ESP_NONLIVING           0x00000400L
 #define ESP_UNIQUE              0x00000800L
@@ -3246,7 +3246,7 @@
 #define RF3_UNDEAD                      0x00000020      /* Undead */
 #define RF3_EVIL                        0x00000040      /* Evil */
 #define RF3_ANIMAL                      0x00000080      /* Animal */
-#define RF3_DRAGONRIDER            0x00000100  /* DG: DragonRider */
+#define RF3_DRACONIAN                  0x00000100  /* Sleaker: Draconian */
 #define RF3_GOOD                        0x00000200      /* Good */
 #define RF3_AURA_COLD                        0x00000400      /* Freezes in melee */
 #define RF3_NONLIVING           0x00000800  /* TY: Non-Living (?) */
@@ -3361,7 +3361,7 @@
 #define RF6_RAISE_DEAD                  0x00001000      /* Raise Dead */
 #define RF6_S_BUG                       0x00002000      /* Summon Software bug */
 #define RF6_S_RNG                       0x00004000      /* Summon RNG */
-#define RF6_S_DRAGONRIDER               0x00008000      /* Summon DragonRiders */
+#define RF6_S_DRACONIAN                 0x00008000      /* Summon Draconians */
 #define RF6_S_KIN                       0x00010000      /* Summon "kin" */
 #define RF6_S_HI_DEMON                  0x00020000      /* Summon greater demons! */
 #define RF6_S_MONSTER                   0x00040000      /* Summon Monster */
@@ -3460,7 +3460,7 @@
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
-    RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
+    RF6_S_DRACONIAN | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
 
  
 /*
@@ -3490,7 +3490,7 @@
     (RF6_S_KIN | RF6_S_HI_DEMON | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRAGONRIDER | RF6_S_BUG | RF6_S_RNG)
+     RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_DRACONIAN | RF6_S_BUG | RF6_S_RNG)
 
 
 /*** Macro Definitions ***/
@@ -4050,6 +4050,7 @@ extern int PlayerUID;
 #define MIMIC_MIN_GOOD        13
 
 
+
 /*
  * Alchemists defines
  */
@@ -4281,7 +4282,7 @@ extern int PlayerUID;
 /*
  * Powers (mutation, activations, ...)
  */
-#define POWER_MAX_INIT                 61
+#define POWER_MAX_INIT                 62
 
 #define PWR_SPIT_ACID                  0
 #define PWR_BR_FIRE                    1
@@ -4345,6 +4346,7 @@ extern int PlayerUID;
 #define PWR_COMPANION                   58
 #define PWR_BEAR                        59
 #define PWR_DODGE                       60
+#define PWR_LORD_CHAOS                  61  
 
 #define ADD_POWER(pow, p)       ((pow)[(p)] = TRUE)
 

@@ -540,8 +540,8 @@ static void place_rubble(int y, int x)
 /*
  * Place an altar at the given location
  */
-static void place_altar(int y, int x) {
-
+/*
+ static void place_altar(int y, int x) {
         cave_type *c_ptr = &cave[y][x];
         int alt, rar;
 
@@ -557,6 +557,7 @@ static void place_altar(int y, int x) {
 
   c_ptr->feat = FEAT_ALTAR_HEAD + alt;
 }
+*/
 
 /*
  * Place a fountain at the given location
@@ -905,12 +906,13 @@ static void alloc_object(int set, int typ, int num)
 				break;
 			}
 
-                        case ALLOC_TYP_ALTAR:
+                        /* Don't want altars
+                         case ALLOC_TYP_ALTAR:
                         {
                                 place_altar(y, x);
                                 break;
                         }
-
+                        */
                         case ALLOC_TYP_BETWEEN:
                         {
                                 place_between(y, x);
@@ -7273,8 +7275,9 @@ static bool cave_gen(void)
         if (dungeon_type != DUNGEON_DEATH) alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
 
         /* Put some altars */
-        alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_ALTAR, randnor(DUN_AMT_ALTAR, 3));
-
+        /* Don't want altars currently
+            alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_ALTAR, randnor(DUN_AMT_ALTAR, 3));
+        */
         /* Put some between gates */
         alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_BETWEEN, randnor(DUN_AMT_BETWEEN, 3));
 

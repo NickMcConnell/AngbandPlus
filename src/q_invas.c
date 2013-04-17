@@ -95,7 +95,7 @@ bool quest_invasion_turn_hook(char *fmt)
 
         /* Ok give the quest */
         quick_messages = FALSE;
-        cmsg_print(TERM_YELLOW, "A Dragonrider jumps out of the between in front of you and says:");
+        cmsg_print(TERM_YELLOW, "A Draconian jumps out of the between in front of you and says:");
         cmsg_print(TERM_YELLOW, "'Hello noble hero, I am L'ron, rider of the bronze Tarath. Turgon, King of Gondolin sent me.'");
         cmsg_print(TERM_YELLOW, "'Gondolin is being invaded; he needs your help now or everything will be lost.'");
         cmsg_print(TERM_YELLOW, "'I can bring you to gondolin, but we must go now.'");

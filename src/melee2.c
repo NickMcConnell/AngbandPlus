@@ -2386,18 +2386,18 @@ static bool monst_spell_monst(int m_idx)
 			}
 			
 
-                        /* RF6_S_DRAGONRIDER */
+                        /* RF6_S_DRACONIAN */
                 case 160+15:
 			{
 				if (disturb_other) disturb(1, 0);
 				if (blind || !see_m) monster_msg("%^s mumbles.", m_name);
-                                else monster_msg("%^s magically summons a DragonRider!", m_name);
+                                else monster_msg("%^s magically summons a Draconian!", m_name);
 				for (k = 0; k < 1; k++)
 				{
 					if (friendly)
-                                                count += summon_specific_friendly(y, x, rlev, SUMMON_DRAGONRIDER, TRUE);
+                                                count += summon_specific_friendly(y, x, rlev, SUMMON_DRACONIAN, TRUE);
 					else
-                                                count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+                                                count += summon_specific(y, x, rlev, SUMMON_DRACONIAN);
 				}
 				if (blind && count) monster_msg("You hear something appear nearby.");
                                 break;
@@ -4337,15 +4337,15 @@ bool make_attack_spell(int m_idx)
 				break;
 			}
 
-                        /* RF6_S_DRAGONRIDER */
+                        /* RF6_S_DRACONIAN */
                 case 160+15:
 			{
 				disturb(1, 0);
                                 if (blind) msg_format("%^s mumbles.", m_name);
-                                else msg_format("%^s magically summons a DragonRider!", m_name);
+                                else msg_format("%^s magically summons a Draconian!", m_name);
 				for (k = 0; k < 1; k++)
 				{
-                                         count += summon_specific(y, x, rlev, SUMMON_DRAGONRIDER);
+                                         count += summon_specific(y, x, rlev, SUMMON_DRACONIAN);
 				}
 				if (blind && count) msg_print("You hear something appear nearby.");
                                 break;

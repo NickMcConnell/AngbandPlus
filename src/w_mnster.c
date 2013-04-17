@@ -1,6 +1,6 @@
 /*
 ** Lua binding: monster
-** Generated automatically by tolua 4.0a - angband on 01/14/02 00:02:49.
+** Generated automatically by tolua 4.0a - angband on 01/15/02 20:57:08.
 */
 
 #include "lua/tolua.h"
@@ -2344,7 +2344,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF3_UNDEAD",RF3_UNDEAD);
  tolua_constant(tolua_S,NULL,"RF3_EVIL",RF3_EVIL);
  tolua_constant(tolua_S,NULL,"RF3_ANIMAL",RF3_ANIMAL);
- tolua_constant(tolua_S,NULL,"RF3_DRAGONRIDER",RF3_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"RF3_DRACONIAN",RF3_DRACONIAN);
  tolua_constant(tolua_S,NULL,"RF3_GOOD",RF3_GOOD);
  tolua_constant(tolua_S,NULL,"RF3_AURA_COLD",RF3_AURA_COLD);
  tolua_constant(tolua_S,NULL,"RF3_NONLIVING",RF3_NONLIVING);
@@ -2447,7 +2447,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF6_RAISE_DEAD",RF6_RAISE_DEAD);
  tolua_constant(tolua_S,NULL,"RF6_S_BUG",RF6_S_BUG);
  tolua_constant(tolua_S,NULL,"RF6_S_RNG",RF6_S_RNG);
- tolua_constant(tolua_S,NULL,"RF6_S_DRAGONRIDER",RF6_S_DRAGONRIDER);
+ tolua_constant(tolua_S,NULL,"RF6_S_DRACONIAN",RF6_S_DRACONIAN);
  tolua_constant(tolua_S,NULL,"RF6_S_KIN",RF6_S_KIN);
  tolua_constant(tolua_S,NULL,"RF6_S_HI_DEMON",RF6_S_HI_DEMON);
  tolua_constant(tolua_S,NULL,"RF6_S_MONSTER",RF6_S_MONSTER);
@@ -2704,7 +2704,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_UNDEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_EVIL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_ANIMAL");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_DRACONIAN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_GOOD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_AURA_COLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_NONLIVING");
@@ -2807,7 +2807,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_RAISE_DEAD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_BUG");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_RNG");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_DRAGONRIDER");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_DRACONIAN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_KIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_HI_DEMON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF6_S_MONSTER");

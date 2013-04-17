@@ -4719,10 +4719,10 @@ A:30/1
 P:0:1d1:0:0:0
 F:DECAY
 
-# New armor: Dragonrider Coat. (With two low resists, it shouldn't be 
+# New armor: Chaos Coat. (With two low resists, it shouldn't be 
 # at only 5th level. Make it 25th. -JLE...)
 
-N:646:& Dragonrider Coat~
+N:646:& Chaos Coat~
 G:(:y
 I:36:16:0
 W:5:0:60:400

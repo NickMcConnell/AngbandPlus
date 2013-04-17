@@ -349,8 +349,8 @@ R:40:3
 M:IM_COLD
 
 # The Land of Mountains
-# T'ron the rebel Dragonrider is hiding here, with his suit of 
-# dragonrider armour.
+# T'ron the Fallen Draconian is hiding here, with his suit of 
+# draconian armour.
 # Levels 45-70
 N:25:The Sacred Land Of Mountains
 D:LoM:the way to The Sacred Land Of Mountains.

@@ -1,5 +1,4 @@
-# File: Makefile.gdb
-# By DarkGod, to create a conglomoband.bin to be used with gdb
+# File: Makefile.dos
 
 # Purpose: Makefile support for "main-dos.c"
 
@@ -18,13 +17,16 @@
 # Enable lua scripting supoprt
 LUA = TRUE
 
+# Enable the IRC client -- need libsocket
+#IRC = TRUE
+
 #
 # Basic definitions
 #
 
 # Objects
 OBJS = \
-  main.o main-dos.o main-ibm.o \
+  main.o main-dos.o main-ibm.o irc.o \
   generate.o dungeon.o init1.o init2.o plots.o help.o \
   store.o birth.o wizard1.o wizard2.o bldg.o cmovie.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
@@ -56,16 +58,26 @@ endif
 CC = gcc
 
 ifdef LUA
-LUAFLAGS = -DUSE_LUA -DLUA_NUM_TYPE='long long' -I. -I./lua
+LUAFLAGS = -DUSE_LUA -I. -I./lua
 endif
 
 # Compiler flags
-CFLAGS = -Wall -g -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
+CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
 -DUSE_TRANSPARENCY $(LUAFLAGS)
 
 # Libraries
 LIBS = -lpc -lalleg $(LUALIBS)
 
+ifdef IRC
+CFLAGS += -DUSE_SOCK -DUSE_DOSSOCK
+LIBS += -lsocket
+
+# cant get libsocket to resolve hosts
+CFLAGS += -DIRC_SERVER=\"216.41.105.77\"
+CFLAGS += -DIRC_PORT=\"6667\"
+CFLAGS += -DIRC_CHANNEL=\"\#conglomoband\"
+
+endif
 
 #
 # Targets
@@ -73,17 +85,17 @@ LIBS = -lpc -lalleg $(LUALIBS)
 
 TOLUA = tolua.exe
 
-default: ../conglomoband.bin $(TOLUA)
+default: ../conglomoband.exe $(TOLUA)
 
-release: ../conglomoband.bin
+release: ../conglomoband.exe
 	upx -9 ../conglomoband.exe
 #         copy conglomoband.exe ..
 #         del conglomoband.exe
 
-install: ../conglomoband.bin
+install: ../conglomoband.exe
 #        copy conglomoband.exe ..
 
-all: ../conglomoband.bin
+all: ../conglomoband.exe
 #        @echo All done.  Use 'make install' to install.
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
@@ -94,7 +106,7 @@ $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
 # Link executables
 #
 
-../conglomoband.bin: $(OBJS)
+../conglomoband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 

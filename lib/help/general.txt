@@ -20,7 +20,7 @@ Return         | Activate the selected link
 
 #####R=== General Information ===
 
-The game of PernAngband is a single player dungeon simulation.  A player
+The game of Conglomoband is a single player dungeon simulation.  A player
 may choose from a number of races and classes when creating a character,
 and then "run" that character over a period of days, weeks, even months,
 attempting to win the game by defeating Morgoth, who lurks somewhere in 
@@ -34,9 +34,9 @@ dungeon near Bree where fantastic adventures await his coming!
 You will probably need to browse through the "help files", especially the
 one on available commands, before beginning any serious adventuring...
 
-I'd also highly recommend reading the pern_faq in the Newbie directory (at 
+I'd also highly recommend reading the conglomo_faq in the Newbie directory (at 
 least the first section of it about the differences between Vanilla Angband
-and PernAngband.
+and Conglomoband.
 
 
 

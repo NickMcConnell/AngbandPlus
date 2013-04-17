@@ -1,7 +1,7 @@
 |||||oy
 #####R=== Creating a Character ===
 
-PernAngband is a roleplaying game, in which you, the player, control a
+Conglomoband is a roleplaying game, in which you, the player, control a
 character in the various dungeons and places of Arda. Perhaps the most
 important thing you control is the birth of your character, in which you
 choose or allow to be chosen various attributes that will affect the future
@@ -34,7 +34,7 @@ Each character has four primary attributes, sex, race, race modifier and
 class, that are chosen before the character is generated, and which will stay
 fixed for the entire life of that character. These attributes have many
 effects, which will be mentioned as they come up. Keep in mind that in the
-current version of PernAngband, your choice of race may restrict your choice
+current version of Conglomoband, your choice of race may restrict your choice
 of class.
 
 Each character has a few secondary attributes, height, weight, social class,
@@ -119,7 +119,7 @@ Spell points may be regained by resting, or by a few magical means.
 
 #####R=== Races ===
 
-There are lots different races that you can choose from in PernAngband. Some
+There are lots different races that you can choose from in ConglomoAngband. Some
 races are restricted as to what profession they may be, and each race has
 its own adjustments to a character's stats and abilities. Most races also
 have intrinsic abilities, which can be accessed via the "U" command. Please
@@ -127,16 +127,16 @@ note that the "lucky" starting equipment for races has not yet been enabled.
  
      *****r_drkelf.txt*0[Dark Elf]           *****r_gnome.txt*0[Gnome]             *****r_hobbit.txt*0[Hobbits]
      *****r_deathm.txt*0[Death Mold]         *****r_hafelf.txt*0[Half-Elf]          *****r_human.txt*0[Human]
-     *****r_drgnri.txt*0[Dragonrider]        *****r_beorn.txt*0[Beorning]          *****r_kobold.txt*0[Kobold]
+     *****r_drcnn.txt*0[Draconian]        *****r_beorn.txt*0[Beorning]          *****r_kobold.txt*0[Kobold]
      *****r_duned.txt*0[Dunedain]           *****r_hafogr.txt*0[Half-Ogre]         *****r_pettyd.txt*0[Petty Dwarf]
      *****r_dwarf.txt*0[Dwarf]              *****r_haforc.txt*0[Orc]               *****r_rohank.txt*0[Rohan Knight]
      *****r_elf.txt*0[Elf]                *****r_haftro.txt*0[Troll]             *****r_wodelf.txt*0[Wood Elf]
      *****r_ent.txt*0[Ent]                *****r_hielf.txt*0[High-Elf]          *****r_yeek.txt*0[Yeek]
-     *****r_maia.txt*0[Maia]
+     *****r_chaosl.txt*0[Chaos-Lord]
 
 #####R=== Race Modifiers ===
 
-There are many different race modifiers that you can choose from in PernAngband.
+There are many different race modifiers that you can choose from in Conglomoband.
 Some are restricted as to what race they can be used with, and each one has
 its own adjustments to a character's stats and abilities. Most also have 
 intrinsic abilities. If you are not asked for a race modifier, it is because 

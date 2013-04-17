@@ -237,7 +237,7 @@
  * to future versions of Angband as well as variants.
  * I omitted sound effects and graphic tiles to make it reasonably small.
  * Please copy them from any recent Mac binaries - you can use, say ZAngband
- * ones for Vanilla or [V]-based variants quite safely. Pern uses fairly
+ * ones for Vanilla or [V]-based variants quite safely. Conglomo uses fairly
  * extended 16x16 tileset and it is maintained actively. IIRC Thangorodrim
  * compile page has an intruction explaining how to convert tiles for
  * use on the Mac... It can be tricky, depending on your choice of

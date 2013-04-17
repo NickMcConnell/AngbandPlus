@@ -1,5 +1,5 @@
 |||||oy
-#####REssence Spoiler for PernAngband
+#####REssence Spoiler for Conglomoband
 #####R-------------------------------
 
 Essences are the tools of the trade for Alchemists, and 
@@ -315,3 +315,4 @@ Ring of Nothing -> Ring of Free Action (6 essences)
 Amulet of Nothing -> Amulet of Anti-Magic (15 essences)
 Scroll of Nothing -> Scroll of *Enchant Weapon* (3 essences)
 
+					       Edited by Sleaker For Conglomoband 0.x.x

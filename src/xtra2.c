@@ -3826,12 +3826,12 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
-                        if (strstr((r_name + r_ptr->name),"T'ron , the rebel DragonRider"))
+                        if (strstr((r_name + r_ptr->name),"T'ron, the Draconian"))
 			{
                                 a_idx = ART_TRON;
                                 chance = 75;
 			}
-                        else if (strstr((r_name + r_ptr->name),"Mardra, rider of the Gold Loranth"))
+                        else if (strstr((r_name + r_ptr->name),"Mardra, Fallen Draconian"))
 			{
                                 a_idx = ART_MARDA;
                                 chance = 50;
@@ -3907,8 +3907,8 @@ void monster_death(int m_idx)
 		}
 	}
 
-        /* Hack - the Dragonriders give some firestone */
-        else if (r_ptr->flags3 & RF3_DRAGONRIDER)
+        /* Hack - the Draconian give some firestone */
+        else if (r_ptr->flags3 & RF3_DRACONIAN)
 	{
 		/* Get local object */
 		q_ptr = &forge;

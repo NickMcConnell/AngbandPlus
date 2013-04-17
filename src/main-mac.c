@@ -85,7 +85,7 @@
  *
  *   MENU 128 = apple (about, -, ...)
  *   MENU 129 = File (new, open, close, save, -, exit, quit)
- *     In PernAngband
+ *     In Conglomoband
  *   MENU 129 = File (close, save, -, exit, quit)
  *   MENU 130 = Edit (undo, -, cut, copy, paste, clear)
  *   MENU 131 = Font (bold, wide, -)
@@ -337,7 +337,7 @@ struct term_data
 #ifdef MAC_MPW
 
 /*
- * MPW 68K compiler cannot process Pern's variable.c correctly...
+ * MPW 68K compiler cannot process Conglomo's variable.c correctly...
  * but support for it is here, for your reference. I have tried
  * this with SC and MrC to compile Vanilla successfully.
  */
@@ -2821,7 +2821,7 @@ static void handle_open_when_ready(void)
  *
  *   Apple (128) =   { About, -, ... }
  *   File (129) =    { New,Open,Import,Close,Save,-,Exit,Quit }
- *     In PernAngband, this becomes
+ *     In Conglomoband, this becomes
  *   File (129) =    { Close,Save,-,Exit,Quit }
  *   Edit (130) =    { Cut, Copy, Paste, Clear }   (?)
  *   Font (131) =    { Bold, Extend, -, Monaco, ..., -, ... }

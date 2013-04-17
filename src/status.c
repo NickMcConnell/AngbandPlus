@@ -2,7 +2,7 @@
 
 /* Purpose: Status information */
 
-/* Written by Pat Gunn <qc@apk.net> for PernAngband
+/* Origionally Written by Pat Gunn <qc@apk.net> for PernAngband
  * This file is released into the public domain
  */ 
 
@@ -125,7 +125,7 @@ row_bival("DemonESP", 0, ESP_DEMON, yo++, flag_arr);
 row_bival("Undd ESP", 0, ESP_UNDEAD, yo++, flag_arr);
 row_bival("Evil ESP", 0, ESP_EVIL, yo++, flag_arr);
 row_bival("Anim ESP", 0, ESP_ANIMAL, yo++, flag_arr);
-row_bival("Drid ESP", 0, ESP_DRAGONRIDER, yo++, flag_arr);
+row_bival("Drid ESP", 0, ESP_DRACONIAN, yo++, flag_arr);
 row_bival("Good ESP", 0, ESP_GOOD, yo++, flag_arr);
 row_bival("SpidrESP", 0, ESP_SPIDER, yo++, flag_arr);
 row_bival("NonlvESP", 0, ESP_NONLIVING, yo++, flag_arr);
@@ -287,7 +287,7 @@ Term_save();
 while(1)
 	{
 	clear_from(0);
-        c_put_str(TERM_WHITE, "PernAngband Character Status screen", 0, 10);
+        c_put_str(TERM_WHITE, "Conglomoband Character Status screen", 0, 10);
 	c_put_str(TERM_WHITE, "1) Statistics", 2, 5);
 	c_put_str(TERM_WHITE, "2) Movement", 3, 5);
 	c_put_str(TERM_WHITE, "3) Combat", 4, 5);

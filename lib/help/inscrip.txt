@@ -1,6 +1,6 @@
 #####R=== Floor Inscriptions ===    
     
-It is possible to inscribe words on the floor in PernAngband. If you happen
+It is possible to inscribe words on the floor in Conglomoband. If you happen
 to be lucky and inscribe a spell formula from another language, the inscription
 will use the floor's mana to cast that spell when either you walk over it, a 
 monster walks over it, or both walk over it. Not all inscriprions are triggered
@@ -61,3 +61,5 @@ Parchment: Advanced lessons of Orcish
 Triggered by: Player, Monster.
 Grid Mana Needed: 60
 Effect: Releases a ball of Hellfire around the inscription
+
+								Edited by Sleaker of Conglomoband 0.x.x
