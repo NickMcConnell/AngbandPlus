@@ -1,0 +1,306 @@
+Shamanism
+=========
+
+The power of shamanism is that of the spirits. The shaman makes pacts
+with various spirits and then calls on them for aid. The spirits will
+perform favours for the shaman when asked, as this is their side of the
+pact. However, they will only co-operate when calm. Asking for favours
+too often will anger them and they may even take retribution on the
+shaman who annoys them.
+
+Shamans must give the spirits time to calm down after each favour is
+granted - and the more powerful the favour, the longer the spirit will
+take to calm down. However, having more knowledge in the ways of the
+spirits will allow the shaman to anger spirits less. Being charismatic
+will also help keep the spirits calm.
+
+Requirements
+============
+
+Before a shaman can ask favours from a spirit, he or she must first form
+a ritual pact with the spirit. This can be done at any temple, although
+the prospective shaman must be aware that the rituals involved can be
+very gruelling - especially for the more powerful spirits.
+
+However, once the pact is in place, the shaman can call upon the spirit
+at any time unless confused. There are no limitations from equipment or
+reading ability.
+
+Usage
+=====
+
+You can call upon a spirit at any time except when in a shop or
+confused. To do so, press the 'p' key, then select which spirit you wish
+to call upon and which favour you wish from it.
+
+Abilities
+=========
+
+Whilst there are many spirits, they can be broken down easily into the
+type of spirit (Spirits of Life or Spirits of The Wild) and the power of
+the spirit (minor, lesser, greater or major). The spirits and the
+favours that they grant are listed below (as well as the minimum skill
+needed to persuade the spirit to grant each favour).
+
+Life Spirits
+
+Life spirits provide protection and healing favours. They are opposed to
+the undead and evil and also provide some favours for fighting such
+beasts.
+
+Minor Spirit of Life
+
+Detect Evil (2% Skill)
+This favour will detect any evil monsters that are nearby.
+
+Cure Light Wounds (2% Skill)
+This favour will heal you of 2-20 hit points and help to heal cuts.
+
+Bless (2% Skill)
+This favour gives you a temporary bonus to your armour class and your
+attack rolls.
+
+Remove Fear (6% Skill)
+This favour removes any fear that might be affecting you.
+
+Call Light (6% Skill)
+This favour lights the area around you.
+
+Detect Traps and Secret Doors (8% Skill)
+This favour shows you any traps or secret doors that are nearby.
+
+Cure Medium Wounds (10% Skill)
+This favour will heal you of 4-40 hit points and heal most cuts.
+
+Satisfy Hunger (14% Skill)
+This favour will cure you of all hunger, filling your stomach.
+
+Lesser Spirit of Life
+
+Remove Curse (14% Skill)
+This favour will remove any minor curses on yourself or your equipment.
+It is not powerful enough to remove more major curses.
+
+Cure Poison (18% Skill)
+This favour will completely remove any poison from your body.
+
+Cure Critical Wounds (18% Skill)
+This favour will heal you of 8-80 hit points and completely heal cuts.
+
+Sense Unseen (20% Skill)
+This favour will allow you to see invisible creatures for a short while.
+
+Holy Orb (20% Skill)
+This favour will call down an orb of holy fire on your enemies, that
+does extra damage to anything evil.
+
+Protection from Evil (22% Skill)
+This favour will provide a temporary barrier around you that evil
+creatures will find it hard to break through in hand to hand combat. It
+provides no protection against spells, however.
+
+Healing (40% Skill)
+This favour will heal you of 300 hit points and completely heal cuts.
+
+Glyph of Warding (66% Skill)
+This favour will create a magical glyph on the ground by your feet that
+will block most smaller creatures that try to pass it.
+
+Greater Spirit of Life
+
+Exorcism (30% Skill)
+This favour will harm all undead and demons that are nearby, and also
+scare away any other evil creaturs.
+
+Dispel Curse (32% Skill)
+This favour will remove all but the most powerful of curses from you and
+your equipment.
+
+Dispel Undead & Demons (34% Skill)
+This favour will hurt all undead and demons that are nearby greatly as
+it attempts to drive them out of this plane.
+
+Day of the Dove (48% Skill)
+This favour will charm any monsters that are nearby into becoming your
+allies.
+
+Dispel Evil (50% Skill)
+This favour will severely harm all nearby evil creatures.
+
+Banish (50% Skill)
+This favour teleports away any evil creatures that are nearby to random
+locations.
+
+Holy Word (78% Skill)
+This favour will severely harm all nearby evil creatures, as well as
+totally healing you and curing any fear or poison that might be
+affecting you.
+
+Warding True (88% Skill)
+This favour will create magical glyphs of warding both by your feet and
+in a ring around you.
+
+Major Spirit of Life
+
+Heroism (10% Skill)
+This favour will heal you of 10 hit points, cure you of any fear and
+give you a temporary bonus on your attack skill.
+
+Prayer (30% Skill)
+This favour will give you a bonus to your attack skill and armour class
+for a long duration.
+
+Bless Weapon (60% Skill)
+This favour will bless your weapon. Blessing a weapon will negate most
+curses on it, and will also make it resistant to future curses.
+
+Restoration (70% Skill)
+This favour will restore any of your stats that have been drained or
+damaged.
+
+Healing True (80% Skill)
+This favour will heal you of all damage and bleeding.
+
+Holy Vision (80% Skill)
+This favour will identify all aspects of an item that you are carrying.
+
+Divine Intervention (84% Skill)
+This favour will bathe you in a sheathe of holy fire, hurt, slow, stun,
+confuse, paralyse and scare any nearby monsters, heal you 300 hit
+points, haste you temporarily, send you berserk and summon an angel to
+aid you.
+
+Holy Invulnerability (90% Skill)
+This favour will make you almost invulnerable to damage for a short
+while.
+
+Spirits of the Wild
+
+Spirits of the wild are much less concerned with morality than those of
+life. The favours that these spirits grant are more nature oriented.
+
+Minor Spirit of the Wild
+
+Detect Creatures (2% Skill)
+This favour will detect the presence of any nearby creatures.
+
+First Aid (6% Skill)
+This favour will heal you of 2-16 hit points and help to heal cuts.
+
+Detect Doors and Traps (6% Skill)
+This favour will detect any traps, secret doors or stairs that are in
+the vicinity.
+
+Foraging (8% Skill)
+This favour will provide you with enough food to fill you up.
+
+Daylight (8% Skill)
+This favour will cause the light of the sun to shine in the area around
+you.
+
+Animal Taming (8% Skill)
+This favour will tame a single animal and make it become your ally.
+
+Resist Environment (10% Skill)
+This favour will give you a temporary resistance to the elements of
+heat, cold and lightning.
+
+Cure Wounds & Poison (10% Skill)
+This favour will stop you bleeding and purge any poisons from your
+system.
+
+Lesser Spirit of the Wild
+
+Stone to Mud (10% Skill)
+This favour will turn a section of wall into a pile of mud, destroying
+it.
+
+Lightning Bolt (10% Skill)
+This favour will fire a lightning bolt at a targetted creature or
+location.
+
+Nature Awareness (14% Skill)
+This favour will detect any secret doors, traps, stairs and monsters
+that are nearby, and will also give you a vision of the local
+surroundings.
+
+Frost Bolt (14% Skill)
+This favour will fire a bolt of ice at a targetted creature or location.
+
+Ray of Sunlight (18% Skill)
+This favour will shoot a beam of sunlight towards a targetted creature
+or location.
+
+Entangle (38% Skill)
+This favour will cause weeds to grow up out of the ground around the
+feet of any nearby creatures, slowing them down.
+
+Summon Animal (50% Skill)
+This favour will summon an animal to be your ally.
+
+Herbal Healing (80% Skill)
+This favour will heal you of all damage, bleeding and poison.
+
+Greater Spirit of the Wild
+
+Door Building (14% Skill)
+This favour will cause wooden doors to grow out of the ground all around
+you.
+
+Stair Building (18% Skill)
+This favour will cause the stone in the floor and ceiling to warp into
+the form of a staircase leading either up or down (randomly).
+
+Stone Skin (20% Skill)
+This favour will turn your skin to stone, giving you a temporary boost
+to your armour class.
+
+Resistance True (30% Skill)
+This favour will give you a temporary resistance to acid, lightning,
+fire, cold and poison.
+
+Animal Friendship (60% Skill)
+This favour will influence all nearby animals into becoming your allies.
+
+Stone Tell (74% Skill)
+This favour will inform you of all the abilities of an item.
+
+Wall of Stone (76% Skill)
+This favour will surround you in a protective ring of granite.
+
+Protect from Corrosion (80% Skill)
+This favour will protect a piece of your armour from the effects of acid.
+
+Major Spirit of the Wild
+
+Earthquake (40% Skill)
+This favour will create an earthquake, causing the area around you to
+collapse.
+
+Whirlwind Attack (46% Skill)
+This favour will whirl you around, allowing you to attack all adjacent
+creatures with a single stroke.
+
+Blizzard (50% Skill)
+This favour will invoke a ball of frost around the targetted creature or
+location.
+
+Lightning Storm (60% Skill)
+This favour will create a ball of lightning around the targetted
+creature or location.
+
+Whirlpool (70% Skill)
+This favour will create a whirlpool at the targetted location.
+
+Call Sunlight (74% Skill)
+This favour will invoke a sphere of sunlight around the targetted
+creature or location.
+
+Elemental Branding (80% Skill)
+This favour will brand your weapon with one of the elements, causing it
+to do extra damage.
+
+Nature's Wrath (80% Skill)
+This favour will hurt all nearby monsters greatly, cause an earthquake
+to occur in your vicinity, and then send out a wave of destruction
+around you.
