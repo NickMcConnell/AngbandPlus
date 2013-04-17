@@ -1,0 +1,1 @@
+// Copyright 1991 Microsoft Corporation. All rights reserved.#define MAXREAD  32768		       /* Number of bytes to be read during */				       /* each read operation.		    */typedef struct {    HANDLE hDIB;    HANDLE hBitmap;    HANDLE hPalette;    BYTE   CellWidth;    BYTE   CellHeight;    } DIBINIT;BOOL ReadDIB(HWND, LPSTR, DIBINIT *);
