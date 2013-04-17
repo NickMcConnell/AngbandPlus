@@ -199,6 +199,8 @@ extern header *r_head;
 extern monster_race *r_info;
 extern char *r_name;
 extern char *r_text;
+extern price_type *pr_info;
+extern rev revenue[MAX_STORES];
 extern cptr ANGBAND_SYS;
 extern cptr ANGBAND_DIR;
 extern cptr ANGBAND_DIR_APEX;
@@ -387,6 +389,7 @@ extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
+extern void note(cptr str);
 
 /* init2.c */
 extern void init_file_paths(char *path);

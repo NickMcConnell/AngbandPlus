@@ -1178,7 +1178,7 @@ static errr rd_item_old(object_type *o_ptr)
 	o_ptr->sval = k_ptr->sval;
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (pr_info[k_ptr->p_idx].price <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Hack -- assume "cursed" items */
 	if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);

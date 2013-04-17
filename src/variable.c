@@ -513,6 +513,17 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/* 
+ * The price arrays
+ */
+price_type *pr_info;
+
+/*
+ * The highest (bought - sold) * price
+ * for each store
+ */
+rev revenue[MAX_STORES];
+
 
 /*
  * Hack -- The special Angband "System Suffix"

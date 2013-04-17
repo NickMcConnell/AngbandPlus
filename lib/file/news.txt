@@ -1,7 +1,7 @@
 
 
                     *******************************
-                    **  Chocolate Angband 2.8.2  **
+                    **  Chocolate Angband 2.8.3  **
                     *******************************
                       Dark, Rich, Smooth Angband
 
@@ -10,13 +10,13 @@
 
        Angband 2.7 - 2.8: Ben Harrison (benh@voicenet.com)
 
-       Chocolate Angband: (sknabksemaj (at) juno (dot) com)
+       Chocolate Angband: (jkbanks (at) toble (dot) com)
        
        Chocolate Angband contains elements of NTAngband (see
        http://angband.oook.cz/nt on your favorite browser)
 
 
- ChAngband 2.8.2 is available for Unix, X11, Macintosh, IBM, Windows, etc.
+ ChAngband 2.8.3 is available for Unix, X11, Macintosh, IBM, Windows, etc.
  Be sure to read the online help, especially "general.txt" and "version.txt".
 
  

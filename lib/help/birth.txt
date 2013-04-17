@@ -90,6 +90,13 @@ is better), sex (female characters start with more gold), and other stats
 out with a few useful items, which may be kept, or sold to a shop-keeper for
 more gold.
 
+Of yore, the shop-keepers were friendly, generous folk who could rely on the
+steady business of the adjacent countryside.  However, when the dungeon was
+opened up to their town, the competition to have a spot in the lucrative
+adventure gear market became fierce.  Nowadays, the Angband shop-keepers 
+try to maximize their profit by raising prices on popular items and not
+stocking unpopular ones.
+
 Each character has an armor class, representing how well the character can
 avoid damage.  The armor class is affected by dexterity and the equipment.
 

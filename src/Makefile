@@ -164,9 +164,12 @@ CC = gcc
 ##
 ## Variation -- this might work better than the suggestion above
 ##
+OPTIMIZE = -O2\
+
 CFLAGS = -I/usr/include/ncurses \
-         -Wall -O2 -fomit-frame-pointer \
+         -Wall -fomit-frame-pointer \
          -D"USE_GCU" \
+         $(OPTIMIZE) \
          -D"USE_TPOSIX" -D"USE_CURS_SET"
 LIBS = -lncurses
 LDFLAGS = -s

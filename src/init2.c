@@ -35,6 +35,64 @@
  */
 
 
+/* Initialize price information */
+int init_price()
+{
+char path[1024];
+register int i;
+int fd;
+
+path_build(path, 1024, ANGBAND_DIR_DATA, "price");
+fd = fd_open(path, O_RDONLY);
+
+C_MAKE(pr_info, MAX_K_IDX, price_type);
+
+/* JKB: Somewhat hacky, yes */
+/* In case a price file does not exist, initialize to default values*/
+if(fd)
+  {
+  for(i = 0; i < MAX_K_IDX; ++i)
+    {
+    pr_info[i].bought = 0;
+    pr_info[i].sold = 0;
+    }
+  }
+
+fd_read(fd, (char *)(pr_info), MAX_K_IDX);
+(void)fd_close(fd);
+
+/* Ah, so we haven't bought or sold anything, eh? */
+for(i = 0; i < MAX_K_IDX; ++i)
+  {
+  if(pr_info[i].bought == 0)
+    if(pr_info[i].sold == 0)
+      pr_info[i].price = k_info[i].cost;
+  }
+
+return(0);
+}
+
+
+int dump_price()
+{
+char dir[1024];
+int fd;
+
+path_build(dir, 1024, ANGBAND_DIR_DATA, "price");
+safe_setuid_grab();
+(void)fd_kill(dir);
+fd = fd_make(dir, 0644);
+safe_setuid_drop();
+
+if(fd <= 0)
+  return(1);
+
+fd_write(fd, (char *)(pr_info), MAX_K_IDX);
+(void)fd_close(fd);
+return(0);
+}
+
+
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -2547,6 +2605,9 @@ void init_angband(void)
 	note("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
 
+	/* Initialize price info */
+	if (init_price()) quit("Cannot initialize prices");
+
 	/* Initialize artifact info */
 	note("[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
@@ -2570,7 +2631,6 @@ void init_angband(void)
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
 
 	/*** Load default user pref files ***/
 

@@ -685,14 +685,12 @@ static bool store_check_num(object_type *o_ptr)
 }
 
 
-
-
 /*
  * Determine if the current store will purchase the given item
  *
  * Note that a shop-keeper must refuse to buy "worthless" items
  */
-static bool store_will_buy(object_type *o_ptr)
+static bool store_will_buy_aux(object_kind *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if (store_num == 7) return (TRUE);
@@ -715,6 +713,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
+				case TV_BOTTLE: /* 'Green', recycling Angband */
 				break;
 				default:
 				return (FALSE);
@@ -771,7 +770,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_PRAYER_BOOK:
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -790,6 +788,7 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_SCROLL:
 				case TV_POTION:
+                                case TV_BOTTLE:
 				break;
 				default:
 				return (FALSE);
@@ -812,7 +811,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_SCROLL:
 				case TV_POTION:
 				break;
-				default:
+                                default:
 				return (FALSE);
 			}
 			break;
@@ -820,10 +819,38 @@ static bool store_will_buy(object_type *o_ptr)
 	}
 
 	/* XXX XXX XXX Ignore "worthless" items */
-	if (object_value(o_ptr) <= 0) return (FALSE);
-
+	if (pr_info[o_ptr->p_idx].price <= 0) return (FALSE);
+	
 	/* Assume okay */
 	return (TRUE);
+}
+
+
+static bool is_blessed(object_type *o_ptr)
+{
+        u32b f1, f2, f3;
+        object_flags(o_ptr, &f1, &f2, &f3);
+	if (f3 & TR3_BLESSED) return (TRUE);
+	else return (FALSE);
+}
+
+
+/*
+ * Determine if the current store will purchase the given item
+ *
+ * Note that a shop-keeper must refuse to buy "worthless" items
+ */
+static bool store_will_buy(object_type *o_ptr)
+{
+	/* Hack -- The Home is simple */
+	if (store_num == 7) return (TRUE);
+	
+	if((store_num == STORE_TEMPLE) && is_blessed(o_ptr) 
+	    && (pr_info[o_ptr->k_idx].bought >= pr_info[o_ptr->k_idx].sold))
+	  return(TRUE);
+	
+	return(store_will_buy_aux(&k_info[o_ptr->k_idx]) 
+	       && (pr_info[o_ptr->k_idx].bought >= pr_info[o_ptr->k_idx].sold));
 }
 
 
@@ -1128,6 +1155,29 @@ static void store_delete(void)
 
 
 /*
+ * JKB: helps select an item based on its profitability
+ */
+static bool rev_rand(s16b idx, object_kind *k_ptr)
+{
+price_type pr_ent = pr_info[k_ptr->p_idx];
+s32b cur_rev = (pr_ent.bought - pr_ent.sold) * pr_ent.price;
+
+if((cur_rev > revenue[idx].max_rev))
+  {
+  revenue[idx].max_rev = cur_rev;
+  
+  /* Hack -- p_idx must always equal the index of its object_kind */
+  revenue[idx].type = k_ptr->p_idx;
+  }
+
+if((pr_ent.sold > pr_ent.bought) || !pr_ent.bought)
+  return(!rand_int(revenue[idx].max_rev));
+else
+  return(rand_int(revenue[idx].max_rev) < (!cur_rev ? 1 : cur_rev));
+}
+
+
+/*
  * Creates a random item and gives it to a store
  * This algorithm needs to be rethought.  A lot.
  * Currently, "normal" stores use a pre-built array.
@@ -1144,7 +1194,6 @@ static void store_create(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
-
 
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
@@ -1170,12 +1219,21 @@ static void store_create(void)
 		else
 		{
 			/* Hack -- Pick an item to sell */
-			i = st_ptr->table[rand_int(st_ptr->table_num)];
+			while(1)
+			  {
+			  /* Pick a random index, remembering not to get
+			     one of the special artifacts */
+			  i = rand_int(MAX_K_IDX - 12);
+			  if(store_will_buy_aux(&k_info[i]))
+			    break;
+			  }
 
-			/* Hack -- fake level for apply_magic() */
-			level = rand_range(1, STORE_OBJ_LEVEL);
 		}
 
+		/* Check to see if the shopkeeper really wants to
+		   stock this or is it not worth his while? */
+		if(!rev_rand(store_num, &k_info[i]))
+		  continue;
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -2219,6 +2277,19 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 
 
+/*
+ * JKB: Adjust the price upward according to some really arbitrary 
+ * free-market*cough*game-balance data
+ */
+void fm_adjust_price_up(object_type *o_ptr)
+{
+price_type *obj_price = &pr_info[k_info[o_ptr->k_idx].p_idx];
+
+obj_price->bought += 1;
+
+/* Increase by 5% */
+obj_price->price += obj_price->price / 20;
+}
 
 
 /*
@@ -2345,6 +2416,9 @@ static void store_purchase(void)
 				/* Spend the money */
 				p_ptr->au -= price;
 
+				/* Adjust the price */
+				fm_adjust_price_up(o_ptr);
+				
 				/* Update the display */
 				store_prt_gold();
 
@@ -2493,6 +2567,34 @@ static void store_purchase(void)
 
 
 /*
+ * JKB: Adjust the price downward according to some really arbitrary 
+ * free-market*cough*game-balance data
+ */
+void fm_adjust_price_down(object_type *o_ptr)
+{
+price_type *obj_price = &pr_info[k_info[o_ptr->k_idx].p_idx];
+
+if(o_ptr->k_idx == revenue[store_num].type)
+  {
+  s32b cur_rev = (obj_price->bought - obj_price->sold) * obj_price->price;
+  
+  revenue[store_num].max_rev = cur_rev;
+  }
+
+++(obj_price->sold);
+
+if(obj_price->price <= 20)
+  return;
+else
+  /*
+   * Decrease by about 5%.  Note that decreasing by exactly 5% would *not* 
+   * be desirable, as that could allow for "churning". 
+   */
+  obj_price->price = (obj_price->price * 100) / 105;
+}
+
+
+/*
  * Sell an item to the store (or home)
  */
 static void store_sell(void)
@@ -2617,6 +2719,10 @@ static void store_sell(void)
 
 			/* Get some money */
 			p_ptr->au += price;
+
+			/* Increase in supply -> decrease in price */
+			fm_adjust_price_down(o_ptr);
+
 
 			/* Update the display */
 			store_prt_gold();
@@ -3402,7 +3508,6 @@ void store_maint(int which)
 	/* Acquire some new items */
 	while (st_ptr->stock_num < j) store_create();
 
-
 	/* Hack -- Restore the rating */
 	rating = old_rating;
 }
@@ -3414,8 +3519,7 @@ void store_maint(int which)
 void store_init(int which)
 {
 	int k;
-
-
+	
 	/* Save the store index */
 	store_num = which;
 

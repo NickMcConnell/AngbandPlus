@@ -584,7 +584,7 @@ static void rd_item(object_type *o_ptr)
 
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (pr_info[k_ptr->p_idx].price <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 
 	/* Hack -- the "gold" values changed in 2.7.8 */

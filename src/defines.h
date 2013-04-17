@@ -115,6 +115,17 @@
  */
 #define MAX_OWNERS	4
 
+/* Store indices */
+#define STORE_GENERAL   0
+#define STORE_ARMOURY   1
+#define STORE_WEAPON    2
+#define STORE_TEMPLE    3
+#define STORE_ALCHEMIST 4
+#define STORE_MAGIC     5
+#define STORE_BLACK     6
+#define STORE_HOME      7
+
+
 /*
  * Maximum number of player "sex" types (see "table.c", etc)
  */

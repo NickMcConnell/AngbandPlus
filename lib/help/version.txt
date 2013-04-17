@@ -110,7 +110,7 @@ opinion of Angband players shifted toward the use of stacking and autoscum,
 preserve mode became a must, and much of the old playing style died out.
 Meanwhile, I (James Banks) had found an old copy of Vanilla on 
 metalab.unc.edu and had enjoyed it thoroughly.  Soon, though, I wished to
-make make changes, and I started the variant NTAngband.  But since my
+make changes, and I started the variant NTAngband.  But since my
 first love is Vanilla, I never really play it.  So I was coming up with
 neat ideas that would also work well in a fairly conservative variant, and
 wondering what they would look like with an already well-balanced game.
@@ -130,6 +130,10 @@ was created to serve as the most up to date description of Angband, listing
 changes made between versions, and changes planned for upcoming versions,
 and to list various email addresses and web sites related to Angband.
 
+However, it is not the current Angband Home Page.  You really ought to go
+to Thangorodrim ("http://thangorodrim.net") because the Official one is 
+quite out-of-date.  And of course, go to the Chocolate Angband Home Page
+("http://angband.oook.cz/nt/chang.html").
 
 === Some of the changes from Angband 2.6.1 to Angband 2.7.9 ===
 

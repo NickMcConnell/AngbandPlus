@@ -166,7 +166,9 @@ struct object_kind
 
 	s16b weight;		/* Weight */
 
-	s32b cost;			/* Object "base cost" */
+	s32b cost;		/* Alas, this was necessary :) */
+
+	s16b p_idx;             /* Entry in the pr_info[] array */
 
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
@@ -1065,4 +1067,59 @@ struct player_type
 	s16b pspeed;		/* Current speed */
 };
 
+
+/* JKB: The new free-market price descriptor.  I suppose I could combine
+   bought and sold, but the code needs it this way to prevent incredibly
+   expensive things from filling the markets */
+
+/*
+ * The free market system will work as follows:
+ * all prices will be kept in array of type price
+ * when a character starts, the prices will be loaded from the
+ *   appropriate *_info.txt
+ * the price array will be passed via savefile along the life of the 
+ *   character (although maybe it should apply to all characters?)
+ * whenever an item is bought, price = (price * 105) / 100
+ * whenever an item is sold, price = (price * 100) / 105
+ * shopkeepers figure out which item to stock this way:
+ *   <pick a random item> 
+ *   if(<item fits tval criteria>)
+ *     if(sold > bought)
+ *       {
+ *       if(!rand_int(maxval))
+ *         <stock item>
+ *       }
+ *     else if(!bought)
+ *       {
+ *       if(!rand_int(maxval))
+ *         <stock_item>
+ *       }
+ *     else
+ *       {
+ *       if(rand_int(maxval) < (((bought + 1) - sold) * price))
+ *         <stock_item>
+ *       }
+ * obviously, every time an item is bought, its <bought> is increased,
+ *   and every time it's sold, its <sold> increases
+ * 
+ */   	
+
+typedef struct AWERfcsf price_type;
+
+struct AWERfcsf
+  {
+  s32b price;  /* How much does it cost? */
+  u16b bought; /* How many have we already bought? */
+  u16b sold;   /* How many have we sold? */
+  };
+
+/*
+ * A wee template for the maximum revenues
+ */
+
+typedef struct
+  {
+  u32b max_rev;
+  s16b type;
+  } rev;
 

@@ -795,7 +795,8 @@ static s32b object_value_base(object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Aware item -- use template cost */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+        if ((object_aware_p(o_ptr))) 
+	  return (pr_info[k_ptr->p_idx].price);
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -859,12 +860,14 @@ static s32b object_value_real(object_type *o_ptr)
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	s32b obj_price = pr_info[k_ptr->p_idx].price;
+
 
 	/* Hack -- "worthless" items */
-	if (!k_ptr->cost) return (0L);
+	if (!pr_info[k_ptr->p_idx].price) return (0L);
 
 	/* Base cost */
-	value = k_ptr->cost;
+	value = pr_info[k_ptr->p_idx].price;
 
 
 	/* Extract some flags */
@@ -1391,7 +1394,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->ds = k_ptr->ds;
 
 	/* Hack -- worthless items are always "broken" */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (pr_info[k_ptr->p_idx].price <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Hack -- cursed items are always "cursed" */
 	if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -3263,7 +3266,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Hack -- acquire "broken" flag */
-		if (!k_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
+		if (!pr_info[k_ptr->p_idx].price) o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Hack -- acquire "cursed" flag */
 		if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
@@ -3470,7 +3473,7 @@ bool make_gold(object_type *j_ptr)
 	object_prep(j_ptr, OBJ_GOLD_LIST + i);
 
 	/* Hack -- Base coin cost */
-	base = k_info[OBJ_GOLD_LIST+i].cost;
+	base = pr_info[k_info[OBJ_GOLD_LIST+i].p_idx].price;
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint(base)) + randint(8));

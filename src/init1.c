@@ -1045,6 +1045,10 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Point at the "info" */
 			k_ptr = &k_info[i];
 
+			/* Make certain that price entries correspond with
+			   the index */
+			k_ptr->p_idx = i;
+
 			/* Hack -- Verify space */
 			if (k_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
 
@@ -1153,7 +1157,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->extra = extra;
 			k_ptr->weight = wgt;
 			k_ptr->cost = cost;
-
+			
 			/* Next... */
 			continue;
 		}

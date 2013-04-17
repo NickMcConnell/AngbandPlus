@@ -3671,6 +3671,8 @@ void close_game(void)
 	/* Hack -- Character is now "icky" */
 	character_icky = TRUE;
 
+	/* Dump price information for future use */
+	dump_price();
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");

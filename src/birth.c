@@ -1642,7 +1642,6 @@ void player_birth(void)
 	message_add("  ");
 	message_add(" ");
 
-
 	/* Hack -- outfit the player */
 	player_outfit();
 
@@ -1658,6 +1657,7 @@ void player_birth(void)
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
+
 	}
 }
 

@@ -13,3 +13,8 @@ Chocolate 2.8.2
   damage done, so resists help in protecting your inventory.
 - Added the telnet #define to config.h which redraws the screen at 
   various points that tend to leave screen droppings on telnet connections
+
+Chocolate 2.8.3
+- Added NT-style free market economy.  Buying things increases their prices.
+  Selling things decreases their prices.  Expensive things are more likely
+  to be sold in the shops.
